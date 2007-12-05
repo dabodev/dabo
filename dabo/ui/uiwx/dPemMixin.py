@@ -1245,7 +1245,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
 			fillColor=None, lineStyle=None, hatchStyle=None, mode=None,
-			persist=True):
+			persist=True, visible=True):
 		"""Draws a circle of the specified radius around the specified point.
 
 		You can set the color and thickness of the line, as well as the
@@ -1259,8 +1259,9 @@ class dPemMixin(dPemMixinBase):
 		color, and fill by changing the various properties of the object.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, Radius=rad, LineStyle=lineStyle, HatchStyle=hatchStyle,
-				Shape="circle", Xpos=xPos, Ypos=yPos, DrawMode=mode)
+				PenWidth=penWidth, Radius=rad, LineStyle=lineStyle, 
+				HatchStyle=hatchStyle, Shape="circle", Xpos=xPos, Ypos=yPos, 
+				DrawMode=mode, Visible=visible)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1268,7 +1269,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawArc(self, xPos, yPos, rad, startAngle, endAngle, penColor="black",
 			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True):
+			mode=None, persist=True, visible=True):
 		"""Draws an arc (pie slice) of a circle centered around the specified point,
 		starting from 'startAngle' degrees, and sweeping counter-clockwise
 		until 'endAngle' is reached.
@@ -1278,7 +1279,7 @@ class dPemMixin(dPemMixinBase):
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, Radius=rad, StartAngle=startAngle,
 				EndAngle=endAngle, LineStyle=lineStyle, HatchStyle=hatchStyle,
-				Shape="arc", Xpos=xPos, Ypos=yPos, DrawMode=mode)
+				Shape="arc", Xpos=xPos, Ypos=yPos, DrawMode=mode, Visible=visible)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1286,7 +1287,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawEllipse(self, xPos, yPos, width, height, penColor="black",
 			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True):
+			mode=None, persist=True, visible=True):
 		"""Draws an ellipse contained within the rectangular space defined by
 		the position and size coordinates
 
@@ -1295,7 +1296,7 @@ class dPemMixin(dPemMixinBase):
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="ellipse", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
-				DrawMode=mode)
+				DrawMode=mode, Visible=visible)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1303,7 +1304,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawEllipticArc(self, xPos, yPos, width, height, startAngle, endAngle,
 			penColor="black", penWidth=1, fillColor=None, lineStyle=None,
-			hatchStyle=None, mode=None, persist=True):
+			hatchStyle=None, mode=None, persist=True, visible=True):
 		"""Draws an arc (pie slice) of a ellipse contained by the specified
 		dimensions, starting from 'startAngle' degrees, and sweeping
 		counter-clockwise until 'endAngle' is reached.
@@ -1314,7 +1315,7 @@ class dPemMixin(dPemMixinBase):
 				PenWidth=penWidth, StartAngle=startAngle,
 				EndAngle=endAngle, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="ellipticarc", Xpos=xPos, Ypos=yPos, Width=width,
-				Height=height, DrawMode=mode)
+				Height=height, DrawMode=mode, Visible=visible)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1322,7 +1323,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawRectangle(self, xPos, yPos, width, height, penColor="black",
 			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True):
+			mode=None, persist=True, visible=True):
 		"""Draws a rectangle of the specified size beginning at the specified
 		point.
 
@@ -1331,7 +1332,7 @@ class dPemMixin(dPemMixinBase):
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="rect", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
-				DrawMode=mode)
+				DrawMode=mode, Visible=visible)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1339,7 +1340,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawPolygon(self, points, penColor="black", penWidth=1,
 			fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True):
+			mode=None, persist=True, visible=True):
 		"""Draws a polygon defined by the specified points.
 
 		The 'points' parameter should be a tuple of (x,y) pairs defining the
@@ -1349,14 +1350,14 @@ class dPemMixin(dPemMixinBase):
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
-				Shape="polygon", Points=points, DrawMode=mode)
+				Shape="polygon", Points=points, DrawMode=mode, Visible=visible)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawPolyLines(self, points, penColor="black", penWidth=1,
-			lineStyle=None, mode=None, persist=True):
+			lineStyle=None, mode=None, persist=True, visible=True):
 		"""Draws a series of connected line segments defined by the specified points.
 
 		The 'points' parameter should be a tuple of (x,y) pairs defining the shape. Lines
@@ -1366,15 +1367,16 @@ class dPemMixin(dPemMixinBase):
 
 		See the 'drawCircle()' method above for more details.
 		"""
-		obj = DrawObject(self, PenColor=penColor, PenWidth=penWidth, LineStyle=lineStyle,
-				Shape="polylines", Points=points, DrawMode=mode)
+		obj = DrawObject(self, PenColor=penColor, PenWidth=penWidth, 
+				LineStyle=lineStyle, Shape="polylines", Points=points, 
+				DrawMode=mode, Visible=visible)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawLine(self, x1, y1, x2, y2, penColor="black", penWidth=1, 
-			fillColor=None, lineStyle=None, mode=None, persist=True):
+			fillColor=None, lineStyle=None, mode=None, persist=True, visible=True):
 		"""Draws a line between (x1,y1) and (x2, y2). 
 
 		See the 'drawCircle()' method above for more details.
@@ -1388,12 +1390,13 @@ class dPemMixin(dPemMixinBase):
 	
 	
 	def drawBitmap(self, bmp, x=0, y=0, mode=None, persist=True, 
-			transparent=True):
+			transparent=True, visible=True):
 		"""Draws a bitmap on the object at the specified position."""
 		if isinstance(bmp, basestring):
 			bmp = dabo.ui.strToBmp(bmp)
 		obj = DrawObject(self, Bitmap=bmp, Shape="bmp", 
-				Xpos=x, Ypos=y, Transparent=transparent, DrawMode=mode)
+				Xpos=x, Ypos=y, Transparent=transparent, DrawMode=mode, 
+				Visible=visible)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1402,7 +1405,7 @@ class dPemMixin(dPemMixinBase):
 	def drawText(self, text, x=0, y=0, angle=0, fontFace=None,
 			fontSize=None, fontBold=None, fontItalic=None,
 			fontUnderline=None, foreColor=None, backColor=None, 
-			mode=None, persist=True):
+			mode=None, persist=True, visible=True):
 		"""Draws text on the object at the specified position 
 		using the specified characteristics. Any characteristics
 		not specified will be set to the system default.
@@ -1411,14 +1414,14 @@ class dPemMixin(dPemMixinBase):
 				Angle=angle, FontFace=fontFace, FontSize=fontSize, 
 				FontBold=fontBold, FontItalic=fontItalic, 
 				FontUnderline=fontUnderline, ForeColor=foreColor,
-				BackColor=backColor, DrawMode=mode)
+				BackColor=backColor, DrawMode=mode, Visible=visible)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 	
 	
 	def drawGradient(self, orientation, x=0, y=0, width=None, height=None,
-			color1=None, color2=None, mode=None, persist=True):
+			color1=None, color2=None, mode=None, persist=True, visible=True):
 		"""Draws a horizontal or vertical gradient on the control. Default
 		is to cover the entire control, although you can specify positions.
 		The gradient is drawn with 'color1' as the top/left color, and 'color2'
@@ -1426,7 +1429,8 @@ class dPemMixin(dPemMixinBase):
 		"""
 		obj = DrawObject(self, Shape="gradient", Orientation=orientation, 
 				Xpos=x, Ypos=y, Width=width, Height=height,
-				GradientColor1=color1, GradientColor2=color2, DrawMode=mode)
+				GradientColor1=color1, GradientColor2=color2, DrawMode=mode, 
+				Visible=visible)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
