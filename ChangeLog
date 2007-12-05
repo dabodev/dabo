@@ -1,5 +1,60 @@
 See the Subversion log for all the details.
 
+Dabo 0.8.3 (2007-12-??) Revision 37??):
+===============================================================================
+Field types in the data layer are now covered better (previously only non-
+joined fields were massaged).
+
+Transaction tokens are now per-connection, not per-bizobj. Thanks Uwe Grauer 
+for the nudge.
+
+dGrid performs better when changing rows.
+
+Fixed display problems with word-wrapped labels in dDialog.
+
+Fixed some report writer xml conversion problems.
+
+Enabled setting report writer's OutputFile property to a file-like object, and 
+not strictly a file object.
+
+Fixed unicode-xml saving/loading in ReportDesigner.
+
+Added default size and position for forms (they tended to be much too small 
+before).
+
+Web update fit and finish.
+
+Added defensive code to dBizobj when running without primary keys.
+
+Added dabo.ui.getDisplaySize()
+
+Fixed sending Enabled property to dToolbar constructor.
+
+Refactored masked functionality out of dTextBox into dMaskedTextBox.
+
+Improved Class Designer and Property Sheet.
+
+Experimental replacement for dSpinner added: dSpinnerX.
+
+Fixed relative pathing problem in .cdxml files.
+
+Tickets fixed:
+#1070
+#1072
+#1108
+#1109
+#1110
+#1117
+#1121
+
+Thanks to suggestions, patches, and contributions from:
+Carl Karsten
+Uwe Grauer
+Pedro Vale de Gato
+Orcun Avsar
+Heling Yao
+
+
 ===============================================================================
 Dabo 0.8.2 (2007-10-24) (Revision 3580):
 
