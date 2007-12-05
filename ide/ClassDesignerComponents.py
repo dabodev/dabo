@@ -161,8 +161,8 @@ class LayoutSaverMixin(object):
 			# accidentally contain a legal path but which do not represent paths.
 			if not prop in ("Alignment", "Caption", "DataField", "DataSource",
 					"FontFace", "HAlign", "Name", "RegID", "SelectionMode",
-					"ToolTipText", "VAlign", "Value") and (
-					not prop.startswith(("Border", "Header", "Sizer_"))):
+					"ToolTipText", "VAlign", "Value") and (not prop.startswith("Border")
+					and not prop.startswith("Header") and not prop.startswith("Sizer_")):
 				if isinstance(val, basestring) and os.path.exists(val):
 					# It's a path; convert it to a relative path
 					if isinstance(self, (dabo.ui.dForm, dabo.ui.dDialog)):
