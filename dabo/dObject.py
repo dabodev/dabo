@@ -84,7 +84,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 			classparts.pop(pos+1)
 		# Remove the duplicate class name that happens
 		# when the class name is the same as the file.
-		while classparts[-1] == classparts[-2]:
+		while (len(classparts) > 1) and (classparts[-1] == classparts[-2]):
 			classparts.pop()
 		classname = ".".join(classparts)
 
