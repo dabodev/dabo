@@ -1481,17 +1481,33 @@ class dBizobj(dObject):
 
 
 
+	def _makeHookMethod(name, actionSubject, actionVerb,  mainDoc=None, 
+			additionalDoc=None):
+		mode = name[:5]
+		if mode == "befor":
+			mode = "before"
+		if mainDoc is None:
+			mainDoc = "Hook method called %s a %s is %s." % (mode, actionSubject, actionVerb)
+		if additionalDoc is None:
+			if mode == "before":
+				additionalDoc =  """Subclasses can put in additional code to run, and/or return a non-empty
+string to signify that the %s should not be %s. The contents
+of the string will be displayed to the user.""" % (actionSubject, actionVerb)
+			else:
+				additionalDoc = ""
+
+		def method(self):
+			return ""
+		method.__doc__ =  "%s\n\n%s" % (mainDoc, additionalDoc)
+		method.func_name = name
+		return method
+
+
 	########## Pre-hook interface section ##############
-	def beforeNew(self):
-		"""Called before a new record is added.
 
-		Subclasses can put in additional code to run, and/or return a non-empty
-		string to signify that the new record should not be added. The contents
-		of the string will be displayed to the user.
-		"""
-		return ""
+	beforeNew = _makeHookMethod("beforeNew", "new record", "added")
+	beforeDelete = _makeHookMethod("beforeDelete", "record", "deleted")
 
-	def beforeDelete(self): return ""
 	def beforeDeleteAllChildren(self): return ""
 	def beforeFirst(self): return ""
 	def beforePrior(self): return ""
@@ -1504,16 +1520,17 @@ class dBizobj(dObject):
 	def beforeRequery(self): return ""
 	def beforeChildRequery(self): return ""
 	def beforeCreateCursor(self): return ""
-	########## Post-hook interface section ##############
-	def afterNew(self):
-		"""Called after a new record is added.
 
-		Use this hook to change field values, or anything else you need. If you
-		change field values here, the memento system will catch it. If you want
-		to change field values and not trigger the memento system, use onNew()
-		instead.
-		"""
-		pass
+
+	########## Post-hook interface section ##############
+
+	afterNew = _makeHookMethod("afterNew", "new record", "added",
+			additionalDoc = \
+"""Use this hook to change field values of newly added records. If
+you change field values here, the memento system will catch it and
+prompt you to save if needed later on. If you want to change field
+values and not trigger the memento system, override onNew() instead.
+""")
 
 	def afterDelete(self): pass
 	def afterDeleteAllChildren(self): return ""
