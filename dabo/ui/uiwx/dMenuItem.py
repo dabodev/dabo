@@ -181,6 +181,13 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 
 class dCheckMenuItem(dMenuItem):
 	"""Creates a checkbox-like item in a menu."""
+	def __init__(self, parent=None, properties=None, *args, **kwargs):
+		# Remove the 'Icon' property, as it interferes with the 'selected' display 
+		self._extractKey((properties, kwargs), "Icon")
+		super(dCheckMenuItem, self).__init__(parent=parent, properties=properties,
+				*args, **kwargs)
+				
+
 	def _getChecked(self):
 		return self.IsChecked()
 
@@ -198,6 +205,13 @@ class dCheckMenuItem(dMenuItem):
 
 class dRadioMenuItem(dMenuItem):
 	"""Creates a radiobox-like item in a menu."""
+	def __init__(self, parent=None, properties=None, *args, **kwargs):
+		# Remove the 'Icon' property, as it interferes with the 'selected' display 
+		self._extractKey((properties, kwargs), "Icon")
+		super(dRadioMenuItem, self).__init__(parent=parent, properties=properties,
+				*args, **kwargs)
+
+
 	def _getChecked(self):
 		return self.IsChecked()
 

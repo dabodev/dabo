@@ -373,16 +373,13 @@ class dMenu(pm.dPemMixin, wx.Menu):
 	def _getItemType(self, typ):
 		typ = str(typ).lower()[:3]
 		ret = NormalItemType
-		if self.Application:
-			# This is to work around a bug in Gtk 
-			if self.Application.Platform != "GTK":
-				if typ in ("che", "chk"):
-					ret = CheckItemType
-				elif typ == "rad":
-					# Currently only implemented under Windows and GTK, 
-					# use #if wxHAS_RADIO_MENU_ITEMS to test for 
-					# availability of this feature.
-					ret = RadioItemType
+		if typ in ("che", "chk"):
+			ret = CheckItemType
+		elif typ == "rad":
+			# Currently only implemented under Windows and GTK, 
+			# use #if wxHAS_RADIO_MENU_ITEMS to test for 
+			# availability of this feature.
+			ret = RadioItemType
 		return ret
 
 
