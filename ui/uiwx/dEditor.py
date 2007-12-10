@@ -1333,9 +1333,13 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			fname = self.promptForSaveAs()
 			if fname is None:
 				# user canceled in the prompt: don't continue
-				return None
+				return False
 		
-		open(fname, "wb").write(self.GetText().encode(self.Encoding))
+		try:
+			open(fname, "wb").write(self.GetText().encode(self.Encoding))
+		except:
+			dabo.ui.stop("Could not save %s. Please check your write permissions." % fname)
+			return False
 		# set self._fileName, in case it was changed with a Save As
 		self._fileName = fname
 		self._clearDocument(clearText=False)
@@ -1345,6 +1349,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		app.setUserSetting("editor.fontface", self._fontFace)
 		# Save the bookmarks
 		self._saveBookmarks()
+		
+		return True
 	
 	
 	def _saveBookmarks(self, evt=None):
@@ -1386,7 +1392,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				ret = False
 			elif r == True:
 				# user wants changes saved.
-				self.saveFile()
+				ret = self.saveFile()
 			else:
 				# user doesn't want changes saved.
 				pass
@@ -1426,6 +1432,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				text = f.read().decode(self.Encoding)
 				f.close()
 			except:
+				if os.path.exists(fileSpec):
+					dabo.ui.stop("Could not open %s.  Please check that you have read permissions." % fileSpec)
+					return False
 				if dabo.ui.areYouSure("File '%s' does not exist."
 						" Would you like to create it?" % fileSpec):
 					text = ""
