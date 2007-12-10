@@ -764,6 +764,29 @@ class dPemMixin(dPemMixinBase):
 			dabo.errorLog.write(_("Extra call to unlockDisplay() for object %s") % self)
 
 
+	def getDisplayLocker(self):
+		"""Returns an object that locks the current display when created, and
+		unlocks it when destroyed. This is generally safer than calling lockDisplay()
+		and unlockDisplay(), especially when used with callAfterInterval(), when 
+		the unlockDisplay() calls may not all happen.
+		"""
+		class DisplayLocker(object):
+			def __init__(self, obj):
+				self._obj = obj
+				obj.Freeze()
+			
+			def __del__(self):
+				try:
+					self._obj.Thaw()
+				except StandardError, e:
+					# Create an error log message. We can't record the obj reference, 
+					# since it is most likely deleted, but the presence of these messages
+					# will ensure that possible problems will not be silenced.
+					dabo.errorLog.write(_("Failed to unlock display: %s") % e)
+			release = __del__
+		return DisplayLocker(self)
+
+
 	def bringToFront(self):
 		"""Makes this object topmost"""
 		self.Raise()
@@ -870,6 +893,10 @@ class dPemMixin(dPemMixinBase):
 			l, t = pos
 		# If the container is a page, we need to use its containing 
 		# pageframe/pagelist, etc.
+		if isinstance(cnt, dabo.ui.dForm):
+			return (l, t)
+		# If the container is a page, we need to use its containing 
+		# pageframe/pagelist, etc.
 		if isinstance(cnt, dabo.ui.dPage):
 			cnt = cnt.Parent
 		p = self
@@ -892,7 +919,7 @@ class dPemMixin(dPemMixinBase):
 			l = posX - cntX
 			t = posY - cntY
 		return (l, t)
- 	
+
  	
 	def objectCoordinates(self, pos=None):
 		"""Given a position relative to the form, return a position relative
@@ -1234,7 +1261,7 @@ class dPemMixin(dPemMixinBase):
 		else:
 			dc = wx.ClientDC(obj)
 		rect = self.GetRect()
-		bmp = wx.EmptyBitmap(rect.width, rect.height)	# - htReduction)
+		bmp = wx.EmptyBitmap(rect.width, rect.height, -1)	# - htReduction)
 		memdc = wx.MemoryDC()
 		memdc.SelectObject(bmp)
 		
@@ -2777,7 +2804,10 @@ class DrawObject(dObject):
 		dc.SetLogicalFunction(logic)
 		srcObj = self.Parent
 		if self.Application.Platform == "GTK" and not (isinstance(srcObj, (dabo.ui.dPanel, dabo.ui.dPage))):
-			x, y = self.Parent.containerCoordinates(srcObj.Parent, (self.Xpos, self.Ypos))
+			if isinstance(srcObj, dabo.ui.dForm):
+				x, y = srcObj.containerCoordinates(srcObj, (self.Xpos, self.Ypos))
+			else:
+				x, y = self.Parent.containerCoordinates(srcObj.Parent, (self.Xpos, self.Ypos))
 		else:
 			x, y = self.Xpos, self.Ypos
 		
