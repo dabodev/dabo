@@ -732,8 +732,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			cursor.setNewFlag()
 		"""
 		if self.KeyField:
-			rec = self._records[self.RowNumber]
-			self._newRecords[rec[self.KeyField]] = None
+			pk = self.getPK()
+			self._newRecords[pk] = None
 
 
 	def genTempAutoPK(self):
@@ -1233,7 +1233,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec = self._records[row]
 
 		try:
-			del self._mementos[rec[self.KeyField]]
+			pk = self.getPK()
+			del self._mementos[pk]
 		except KeyError:
 			# didn't exist
 			pass
@@ -1256,7 +1257,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec = self._records[row]
 
 		try:
-			del self._newRecords[rec[self.KeyField]]
+			pk = self.getPK()
+			del self._newRecords[pk]
 		except KeyError:
 			# didn't exist
 			pass
@@ -1483,12 +1485,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _getRecordByPk(self, pk):
 		"""Find the record with the passed primary key; return (row, record)."""
-		if self.KeyField:
+		kf = self.KeyField
+		if kf:
 			for idx, rec in enumerate(self._records):
-				if self._compoundKey:
-					key = tuple([rec[k] for k in self.KeyField])
-				else:
-					key = rec[self.KeyField]
+				key = self.getFieldVal(kf, row=idx)
 				if key == pk:
 					return (idx, rec)
 		return (None, None)
