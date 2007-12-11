@@ -212,7 +212,14 @@ class EditorForm(dui.dForm):
 			return cd[isEvt]
 
 
-	def edit(self, obj, mthd=None, nonEvent=None):
+	def refreshCode(self):
+		"""When an external event modified an object's code, this will update the 
+		code displayed in the editor.
+		"""
+		self.edit(self.ddObject.KeyValue, discardChanges=True)
+		
+
+	def edit(self, obj, mthd=None, nonEvent=None, discardChanges=False):
 		"""Opens an editor for the specified object and method."""
 		if mthd is None:
 			self.ddObject.KeyValue = obj
@@ -222,7 +229,8 @@ class EditorForm(dui.dForm):
 		mthd = mthd.replace("*", "")
 		rep = self.CodeRepository
 		ed = self.editor
-		self.updateText()
+		if not discardChanges:
+			self.updateText()
 		objCode = rep.get(obj)
 		mvPointer = False
 		txt = ""

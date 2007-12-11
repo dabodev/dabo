@@ -797,15 +797,11 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		if pk and pk not in flds:
 			# Make sure that the pk is retrieved!
 			flds.append(pk)
-		cd = self.Controller.getCodeForObject(self, create=True)
+		rep = self.Controller.getCodeDict()
+		cd = rep.get(self)
 		if cd is None:
 			cd = {}
-		
-		######
-		##TODO: handle this case.		
 		currCode = cd.get("createBizobjs", "")
-		# See if there is a bizobj defined for this table.
-		######
 		
 		bizcode = self.getBizobjTemplate()
 		addFlds = []
@@ -822,6 +818,8 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 			currCode = "def createBizobjs(self):\n"
 		currCode += code
 		cd["createBizobjs"] = currCode
+		rep[self] = cd
+		self.Controller.updateCodeEditor()
 
 		
 	def onAddControl(self, evt):

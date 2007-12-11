@@ -1643,7 +1643,13 @@ class ClassDesigner(dabo.dApp):
 
 
 	def flushCodeEditor(self):
+		"""Forces the content of the editor to update the code repository."""
 		self.EditorForm.updateText()
+
+
+	def updateCodeEditor(self):
+		"""Forces the code repository to update the contents of the editor."""
+		self.EditorForm.refreshCode()
 
 
 	def onToggleSaveType(self, evt):
