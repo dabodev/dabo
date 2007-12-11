@@ -1481,18 +1481,17 @@ class dBizobj(dObject):
 
 
 
-	def _makeHookMethod(name, actionSubject, actionVerb,  mainDoc=None, 
-			additionalDoc=None):
+	def _makeHookMethod(name, action,  mainDoc=None, additionalDoc=None):
 		mode = name[:5]
 		if mode == "befor":
 			mode = "before"
 		if mainDoc is None:
-			mainDoc = "Hook method called %s a %s is %s." % (mode, actionSubject, actionVerb)
+			mainDoc = "Hook method called %s %s." % (mode, action)
 		if additionalDoc is None:
 			if mode == "before":
 				additionalDoc =  """Subclasses can put in additional code to run, and/or return a non-empty
-string to signify that the %s should not be %s. The contents
-of the string will be displayed to the user.""" % (actionSubject, actionVerb)
+string to signify that the action should not happen. The contents
+of the string will be displayed to the user."""
 			else:
 				additionalDoc = ""
 
@@ -1505,48 +1504,66 @@ of the string will be displayed to the user.""" % (actionSubject, actionVerb)
 
 	########## Pre-hook interface section ##############
 
-	beforeNew = _makeHookMethod("beforeNew", "new record", "added")
-	beforeDelete = _makeHookMethod("beforeDelete", "record", "deleted")
-
-	def beforeDeleteAllChildren(self): return ""
-	def beforeFirst(self): return ""
-	def beforePrior(self): return ""
-	def beforeNext(self): return ""
-	def beforeLast(self): return ""
-	def beforeSetRowNumber(self): return ""
-	def beforePointerMove(self): return ""
-	def beforeSave(self): return ""
-	def beforeCancel(self): return ""
-	def beforeRequery(self): return ""
-	def beforeChildRequery(self): return ""
-	def beforeCreateCursor(self): return ""
+	beforeNew = _makeHookMethod("beforeNew", "a new record is added")
+	beforeDelete = _makeHookMethod("beforeDelete", "a record is deleted")
+	beforeFirst = _makeHookMethod("beforeFirst", "navigating to the first record")
+	beforePrior = _makeHookMethod("beforePrior", "navigating to the prior record")
+	beforeNext = _makeHookMethod("beforeNext", "navigating to the next record")
+	beforeFirst = _makeHookMethod("beforeFirst", "navigating to the next record")
+	beforeLast = _makeHookMethod("beforeLast", "navigating to the last record")
+	beforePointerMove = _makeHookMethod("beforePointerMove", 
+			"the record pointer moves")
+	beforeDeleteAllChildren = _makeHookMethod("beforeDeleteAllChildren", 
+			"all child records are deleted")
+	beforeSetRowNumber = _makeHookMethod("beforeSetRowNumber", 
+			"the RowNumber property is set")
+	beforeSave = _makeHookMethod("beforeSave", "the changed records are saved.")
+	beforeCancel = _makeHookMethod("beforeCancel", 
+			"the changed records are canceled.")
+	beforeRequery = _makeHookMethod("beforeRequery", "the cursor is requeried")
+	beforeChildRequery = _makeHookMethod("beforeChildRequery",
+			"the child bizobjs are requeried")
+	beforeCreateCursor = _makeHookMethod("beforeCreateCursor", 
+			"the underlying cursor object is created")
 
 
 	########## Post-hook interface section ##############
 
-	afterNew = _makeHookMethod("afterNew", "new record", "added",
+	afterNew = _makeHookMethod("afterNew", "a new record is added",
 			additionalDoc = \
 """Use this hook to change field values of newly added records. If
 you change field values here, the memento system will catch it and
 prompt you to save if needed later on. If you want to change field
 values and not trigger the memento system, override onNew() instead.
 """)
+	afterDelete = _makeHookMethod("afterDelete", "a record is deleted")
+	afterFirst = _makeHookMethod("afterFirst", "navigating to the first record")
+	afterPrior = _makeHookMethod("afterPrior", "navigating to the prior record")
+	afterNext = _makeHookMethod("afterNext", "navigating to the next record")
+	afterFirst = _makeHookMethod("afterFirst", "navigating to the next record")
+	afterLast = _makeHookMethod("afterLast", "navigating to the last record")
+	afterPointerMove = _makeHookMethod("afterPointerMove", 
+			"the record pointer moves")
+	afterDeleteAllChildren = _makeHookMethod("afterDeleteAllChildren", 
+			"all child records are deleted")
+	afterSetRowNumber = _makeHookMethod("afterSetRowNumber", 
+			"the RowNumber property is set")
+	afterSave = _makeHookMethod("afterSave", "the changed records are saved.")
+	afterCancel = _makeHookMethod("afterCancel", 
+			"the changed records are canceled.")
+	afterRequery = _makeHookMethod("afterRequery", "the cursor is requeried")
+	afterChildRequery = _makeHookMethod("afterChildRequery",
+			"the child bizobjs are requeried")
+	afterChange = _makeHookMethod("afterChange", "a record is changed",
+			additionalDoc=\
+"""This hook will be called after a successful save() or delete(). Contrast
+with the afterSave() hook which only gets called after a save(), and the 
+afterDelete() which is only called after a delete().""")	
 
-	def afterDelete(self): pass
-	def afterDeleteAllChildren(self): return ""
-	def afterFirst(self): pass
-	def afterPrior(self): pass
-	def afterNext(self): pass
-	def afterLast(self): pass
-	def afterSetRowNumber(self): pass
-	def afterPointerMove(self): pass
-	def afterSave(self): pass
-	def afterCancel(self): pass
-	def afterRequery(self): pass
-	def afterChildRequery(self): pass
-	def afterChange(self): pass
-	def afterCreateCursor(self, cursor): pass
-
+	def afterCreateCursor(self, crs):
+		"""This hook is called after the underlying cursor object is created.
+		The crs argument will contain the reference to the newly-created
+		cursor."""
 
 	def _syncWithCursors(self):
 		"""Many bizobj properties need to be passed through to the cursors
