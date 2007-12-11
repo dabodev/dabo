@@ -691,13 +691,14 @@ class dApp(dObject):
 		if not currdir in sys.path:
 			sys.path.insert(0, currdir)
 		for dd in ("biz", "db", "ui", "resources", "reports"):
+			currmod = getattr(self, dd, None)
 			if sys.version.split()[0].split(".") >= ["2", "5"]:
 				try:
 					self.__setattr__(dd, __import__(dd, globals(), locals(), [], 0))
 				except ImportError:
-					self.__setattr__(dd, None)
+					self.__setattr__(dd, currmod)
 			else:
-				self.__setattr__(dd, None)
+				self.__setattr__(dd, currmod)
 		sys.path = currsyspath
 
 
