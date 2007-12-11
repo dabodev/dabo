@@ -1253,6 +1253,13 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		return self._rendererClass
 
 
+	def _getResizable(self):
+		return getattr(self, "_resizable", True)
+
+	def _setResizable(self, val):
+		self._resizable = bool(val)
+
+
 	def _getSearchable(self):
 		try:
 			v = self._searchable
@@ -1525,6 +1532,13 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			_("""Returns the renderer class used for cells in the column. This will be
 			self.CustomRendererClass if set, or the default renderer class for the
 			datatype of the field.  (varies)"""))
+
+	Resizable = property(_getResizable, _setResizable, None,
+			_("""Specifies whether this column is resizable by the user.
+
+			Note also the dGrid.ResizableColumns property - if that is set
+			to False, columns will not be resizable even if their Resizable
+			property is set to True."""))
 
 	Searchable = property(_getSearchable, _setSearchable, None,
 			_("""Specifies whether this column's incremental search is enabled.
@@ -3232,12 +3246,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxGridColSize(self, evt):
-		if not self.ResizableColumns:
+		if self.ResizableColumns and self.Columns[evt.GetRowOrCol()].Resizable:
+			self.raiseEvent(dEvents.GridColSize, evt)
+		else:
 			evt.Veto()
 			self._paintHeader()
-		else:
-			self.raiseEvent(dEvents.GridColSize, evt)
-			evt.Skip()
 
 
 	def __onWxGridSelectCell(self, evt):
