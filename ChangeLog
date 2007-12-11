@@ -1,6 +1,6 @@
 See the Subversion log for all the details.
 
-Dabo 0.8.3 (2007-12-??) Revision 37??):
+Dabo 0.8.3 (2007-12-11) Revision 3793):
 ===============================================================================
 Field types in the data layer are now covered better (previously only non-
 joined fields were massaged).
@@ -9,6 +9,8 @@ Transaction tokens are now per-connection, not per-bizobj. Thanks Uwe Grauer
 for the nudge.
 
 dGrid performs better when changing rows.
+
+Fixed check/radio menu items to work under GTK and Windows.
 
 Fixed display problems with word-wrapped labels in dDialog.
 
@@ -38,6 +40,19 @@ Experimental replacement for dSpinner added: dSpinnerX.
 
 Fixed relative pathing problem in .cdxml files.
 
+Fixed dEditor to gracefully handle cases where we don't have read/write
+permissions on the file.
+
+Added getDisplayLocker(), which gracefully handles unlocking the display
+when it goes out of scope.
+
+AppWizard-generated apps running in Python 2.4 and earlier could fail due
+to recent changes in dApp. Fixed.
+
+Fixed several bugs in the handling of compound cursor.KeyField values.
+
+Can now set dColumn.Resizable, not just dGrid.ResizableColumns.
+
 Tickets fixed:
 #1070
 #1072
@@ -46,6 +61,7 @@ Tickets fixed:
 #1110
 #1117
 #1121
+#1123
 
 Thanks to suggestions, patches, and contributions from:
 Carl Karsten
@@ -53,6 +69,8 @@ Uwe Grauer
 Pedro Vale de Gato
 Orcun Avsar
 Heling Yao
+Nate Lowrie
+Lukasz Szybalski
 
 
 ===============================================================================
