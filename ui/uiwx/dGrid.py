@@ -2556,7 +2556,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		newRow = self.CurrentRow
 		biz = self.getBizobj()
 		ds = self.DataSet
-		srchStr = origSrchStr = self.currSearchStr
+		srchVal = origSrchStr = self.currSearchStr
 		self.currSearchStr = ""
 		near = self.searchNearest
 		caseSensitive = self.searchCaseSensitive
@@ -2573,22 +2573,27 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# Determine if we are seeking string values
 		compString = isinstance(sortList[0][0], basestring)
 		if not compString:
-			# coerce srchStr to be the same type as the field type
-			if isinstance(sortList[0][0], int):
+			# coerce srchVal to be the same type as the field type
+			listval = sortList[0][0]
+			if isinstance(listval, int):
 				try:
-					srchStr = int(srchStr)
+					srchVal = int(srchVal)
 				except ValueError:
-					srchStr = int(0)
-			elif isinstance(sortList[0][0], long):
+					srchVal = int(0)
+			elif isinstance(listval, long):
 				try:
-					srchStr = long(srchStr)
+					srchVal = long(srchVal)
 				except ValueError:
-					srchStr = long(0)
-			elif isinstance(sortList[0][0], float):
+					srchVal = long(0)
+			elif isinstance(listval, float):
 				try:
-					srchStr = float(srchStr)
+					srchVal = float(srchVal)
 				except ValueError:
-					srchStr = float(0)
+					srchVal = float(0)
+			elif isinstance(listval, (datetime.datetime, datetime.date, datetime.time)):
+				# We need to convert the sort vals into strings
+				sortList = [(str(vv), i) for vv, i in sortList]
+				compString = True
 
 		if compString and not caseSensitive:
 			# Use a case-insensitive sort.
@@ -2599,28 +2604,44 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# Now iterate through the list to find the matching value. I know that
 		# there are more efficient search algorithms, but for this purpose, we'll
 		# just use brute force
-		for fldval, row in sortList:
-			if not compString or caseSensitive:
-				match = (fldval == srchStr)
+		if compString:
+			if caseSensitive:
+				mtchs = [vv for vv in sortList
+						if vv[0].startswith(srchVal)]
 			else:
-				# Case-insensitive string search.
-				match = (fldval.lower() == srchStr.lower())
-			if match:
-				newRow = row
-				break
-			else:
-				if near:
-					newRow = row
-				# If we are doing a near search, see if the row is less than the
-				# requested matching value. If so, update the value of 'ret'. If not,
-				# we have passed the matching value, so there's no point in
-				# continuing the search, but we mu
-				if compString and not caseSensitive:
-					toofar = fldval.lower() > srchStr.lower()
+				srchVal = srchVal.lower()
+				mtchs = [vv for vv in sortList
+						if vv[0].lower().startswith(srchVal)]
+		else:
+			mtchs = [vv for vv in sortList
+					if vv[0] == srchVal]
+		if mtchs:
+			# The row num is the second element. We want the first row in
+			# the list, since it will still be sorted.
+			newRow = mtchs[0][1]
+		else:
+			for fldval, row in sortList:
+				if not compString or caseSensitive:
+					match = (fldval == srchVal)
 				else:
-					toofar = fldval > srchStr
-				if toofar:
+					# Case-insensitive string search.
+					match = (fldval.lower() == srchVal)
+				if match:
+					newRow = row
 					break
+				else:
+					if near:
+						newRow = row
+					# If we are doing a near search, see if the row is less than the
+					# requested matching value. If so, update the value of 'ret'. If not,
+					# we have passed the matching value, so there's no point in
+					# continuing the search, but we mu
+					if compString and not caseSensitive:
+						toofar = fldval.lower() > srchVal
+					else:
+						toofar = fldval > srchVal
+					if toofar:
+						break
 		self.CurrentRow = newRow
 
 		if self.Form is not None:
