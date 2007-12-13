@@ -168,10 +168,10 @@ class uiApp(dObject, wx.App):
 		return self.checkForUpdates()
 
 
-	def checkForUpdates(self, force=False):
+	def checkForUpdates(self, force=False, project=None):
 		answer = False
 		msg = ""
-		isFirst, updAvail = self.dApp._checkForUpdates(force=force)
+		isFirst, updAvail, lastCheck = self.dApp._checkForUpdates(force=force, project=project)
 		if isFirst:
 			msg = _("This appears to be the first time you are running Dabo. If you are "
 					"connected to the internet, Dabo will check for updates and install them "
@@ -180,11 +180,19 @@ class uiApp(dObject, wx.App):
 			# Default to checking once a day.
 			self.dApp._setWebUpdate(True, 24*60)
 		elif updAvail:
-			msg = _("Framework updates are available. Do you want to update now?")
+			msg = _("%s updates are available. Do you want to update now?") % self.dApp._ProjectName
 		if msg:
 			answer = dabo.ui.areYouSure(msg, title=_("Dabo Updates"), cancelButton=False)
 			if answer:
-				vers = self.dApp._updateFramework()
+				try:
+					vers = self.dApp._updateFramework()
+				except IOError, e:
+					dabo.errorLog.write(_("Cannot update file: '%s'. Error: %s") % (fpth, e))
+					dabo.ui.info(_("You do not have permission to update the Dabo files. "
+							"Please re-run the app with administrator privileges."), title=_("Permission Denied"))
+					self.dApp._setWebUpdateCheck(lastCheck, project)
+					answer = False
+
 				if vers is None:
 					# Update was not successful
 					dabo.ui.info(_("There was a problem getting a response from the Dabo site. "
@@ -342,8 +350,9 @@ class uiApp(dObject, wx.App):
 		cycle through all the forms and determine if they can all be
 		safely closed. If it closes them all, it will close itself.
 		"""
-		frms = self.Application.uiForms
-		if self.dApp.MainForm:
+		app = self.dApp
+		frms = app.uiForms
+		if app.MainForm:
 			# First close all non-child forms. Some may be 'dead'
 			# already, so let's find those first.
 			for frm in frms:
@@ -351,13 +360,13 @@ class uiApp(dObject, wx.App):
 					frms.remove(frm)
 			# Now we can work with the rest
 			orphans = [frm for frm in frms
-					if frm.Parent is not self.dApp.MainForm
-					and frm is not self.dApp.MainForm]
+					if frm.Parent is not app.MainForm
+					and frm is not app.MainForm]
 			for orphan in orphans:
 				if orphan:
-					orphan.close()
+					orphan.close(force=True)
 			# Now close the main form. It will close any of its children.
-			mf = self.dApp.MainForm
+			mf = app.MainForm
 			if mf and not mf._finito:
 				mf.close()
 		else:
@@ -366,7 +375,7 @@ class uiApp(dObject, wx.App):
 				# This will allow forms to veto closing (i.e., user doesn't
 				# want to save pending changes). 
 				if frm:
-					if frm.close() == False:
+					if frm.close(force=True) == False:
 						# The form stopped the closing process. The user
 						# must deal with this form (save changes, etc.) 
 						# before the app can exit.
