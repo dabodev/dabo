@@ -188,6 +188,11 @@ class dApp(dObject):
 		# Hold a reference to the bizobj and connection, if any, controlling 
 		# the current database transaction
 		self._transactionTokens = {}
+		# Location of the project; used for Web Update; default to the Dabo location
+		self._projectLocation = os.path.dirname(dabo.__file__)
+		# Identifying string displayed in Web Update messages.
+		self._projectName = "Framework"
+
 
 		# List of form classes to open on App Startup
 		self.formsToOpen = []  
@@ -376,23 +381,39 @@ class dApp(dObject):
 		return ret
 
 	
-	def checkForUpdates(self, evt=None):
+	def _setWebUpdateCheck(self, tm, project=None):
+		"""Sets the time that Web Update was last checked to the passed value"""
+		if project is None:
+			# Default to the framework
+			project = "frm"
+		if project == "frm":
+			prf = self._frameworkPrefs
+		else:
+			prf = self.PreferenceManager
+		prf.setValue("last_check", tm)
+
+		
+	def checkForUpdates(self, evt=None, project=None):
 		"""Public interface to the web updates mechanism. Returns a 2-tuple
 		consisting of two booleans: the first is whether this is the first time that
 		the framework is being run, and the second is whether updates are 
 		available now.
 		"""
-		return self.uiApp.checkForUpdates(force=True)
+		return self.uiApp.checkForUpdates(force=True, project=project)
 		
 		
-	def _checkForUpdates(self, force=False):
+	def _checkForUpdates(self, force=False, project=None):
+		if project is None:
+			# Default to the framework
+			project = "frm"
 		if not force:
 			# Check for cases where we absolutely will not Web Update.
 			update = dabo.settings.checkForWebUpdates
 
 			if update:
 				# If they are running Subversion, don't update.
-				if os.path.isdir(os.path.join(os.path.split(dabo.__file__)[0], ".svn")):
+				pth = self._ProjectLocation
+				if os.path.isdir(os.path.join(pth, ".svn")):
 					update = False
 
 				# Frozen App:
@@ -401,13 +422,17 @@ class dApp(dObject):
 
 			if not update:
 				self._setWebUpdate(False)
-				return (False, False)
+				return (False, False, None)
 
-		prf = self._frameworkPrefs
+		if project == "frm":
+			prf = self._frameworkPrefs
+		else:
+			prf = self.PreferenceManager
+		val = prf.getValue
 		retAvailable = False
-		retFirstTime = not prf.hasKey("web_update")
+		retFirstTime = (project == "frm") and not prf.hasKey("web_update")
+		retLastCheck = val("last_check")
 		if not retFirstTime:
-			val = prf.getValue
 			runCheck = force
 			now = datetime.datetime.now()
 			if not force:
@@ -418,13 +443,17 @@ class dApp(dObject):
 						# Default to one day
 						checkInterval = 24 * 60
 					mins = datetime.timedelta(minutes=checkInterval)
-					lastCheck = val("last_check")
-					if lastCheck is None:
-						lastCheck = datetime.datetime(1900, 1, 1)
-					runCheck = (now > (lastCheck + mins))
+					if retLastCheck is None:
+						retLastCheck = datetime.datetime(1900, 1, 1)
+					runCheck = (now > (retLastCheck + mins))
 			if runCheck:
 				# See if there is a later version
-				url = "http://dabodev.com/frameworkVersions/latest"
+				## NOTE: experimental URL that will be changing and may not work. This
+				## test is designed so that it only gets run from my (Ed) development machine.
+				if os.path.exists("/Users/ed/zzUpdate"):
+					url = "http://dabodev.com/test_versions/latest?project=%s" % project
+				else:
+					url = "http://dabodev.com/frameworkVersions/latest"
 				try:
 					vers = int(urllib.urlopen(url).read())
 				except:
@@ -433,7 +462,7 @@ class dApp(dObject):
 				retAvailable = (localVers < vers)
 				urllib.urlcleanup()
 			prf.setValue("last_check", now)
-		return (retFirstTime, retAvailable)
+		return (retFirstTime, retAvailable, retLastCheck)
 
 
 	def _updateFramework(self):
@@ -465,10 +494,8 @@ class dApp(dObject):
 			else:
 				if not os.path.isdir(localPath):
 					os.makedirs(localPath)
-				try:
-					urllib.urlretrieve(url % fpth, localFile)
-				except StandardError, e:
-					dabo.errorLog.write(_("Cannot update file: '%s'. Error: %s") % (fpth, e))
+				# Permission exceptions should be caught by the calling method.
+				urllib.urlretrieve(url % fpth, localFile)
 		url = "http://dabodev.com/frameworkVersions/latest"
 		try:
 			vers = int(urllib.urlopen(url).read())
@@ -1119,6 +1146,20 @@ class dApp(dObject):
 		self._preferenceDialogClass = val
 
 
+	def _getProjectLocation(self):
+		return self._projectLocation
+
+	def _setProjectLocation(self, val):
+		self._projectLocation = val
+
+
+	def _getProjectName(self):
+		return self._projectName
+
+	def _setProjectName(self, val):
+		self._projectName = val
+
+
 	def _getSearchDelay(self):
 		try:
 			return self._searchDelay
@@ -1305,6 +1346,12 @@ class dApp(dObject):
 			method, if any. Otherwise, the preference dialog will be instantiated and 
 			shown when the user chooses to see the preferences."""))
 
+	_ProjectLocation = property(_getProjectLocation, _setProjectLocation, None,
+			_("Absolute path to the project. Used for Web Updates.  (str)"))
+	
+	_ProjectName = property(_getProjectName, _setProjectName, None,
+			_("Identifier used in display messages during Web Update  (str)"))
+	
 	SearchDelay = property(_getSearchDelay, _setSearchDelay, None,
 			_("""Specifies the delay before incrementeal searching begins.  (int)
 
