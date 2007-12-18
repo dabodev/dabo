@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-import sys, os, wx
+import sys
+import os
+import time
+import wx
 import dabo
 import dabo.ui as ui
 import dabo.dEvents as dEvents
@@ -74,12 +77,13 @@ class SplashScreen(wx.Frame):
 
 	
 	def _disappear(self):
+		self.Show(False)
 		try:
 			self.fc.Stop()
 			self.fc.Destroy()
 		except:
 			pass
-		self.Close()
+		self.Destroy()
 
 
 	def _onPaint(self, evt):
@@ -153,11 +157,15 @@ class uiApp(dObject, wx.App):
 		
 	def OnInit(self):
 		app = self.dApp
+		if not self.checkForUpdates():
+			return False
 		if app.showSplashScreen:
 			splash = SplashScreen(app.splashImage, app.splashMaskColor, 
 					app.splashTimeout)
 			splash.CenterOnScreen()
 			splash.Show()
+			splash.Refresh()
+			time.sleep(0.2)
 			if wx.PlatformInfo[0] == "__WXMSW__":
 				# This seems to help the splash repaint properly on Windows.
 				splash.Update()
@@ -165,13 +173,14 @@ class uiApp(dObject, wx.App):
 			wx.CallAfter(self.callback)
 		del self.callback
 		self.Bind(wx.EVT_KEY_DOWN, self._onKeyPress)
-		return self.checkForUpdates()
+		return True
 
 
-	def checkForUpdates(self, force=False, project=None):
+	def checkForUpdates(self, force=False):
 		answer = False
 		msg = ""
-		isFirst, updAvail, lastCheck = self.dApp._checkForUpdates(force=force, project=project)
+		isFirst, projNames = self.dApp._checkForUpdates(force=force)
+		updAvail = bool(projNames)
 		if isFirst:
 			msg = _("This appears to be the first time you are running Dabo. If you are "
 					"connected to the internet, Dabo will check for updates and install them "
@@ -180,17 +189,21 @@ class uiApp(dObject, wx.App):
 			# Default to checking once a day.
 			self.dApp._setWebUpdate(True, 24*60)
 		elif updAvail:
-			msg = _("%s updates are available. Do you want to update now?") % self.dApp._ProjectName
+			if len(projNames) > 1:
+				nms = " and ".join(projNames)
+			else:
+				nms = projNames[0]
+			msg = _("Updates are available for %s. Do you want to update now?") % nms
 		if msg:
-			answer = dabo.ui.areYouSure(msg, title=_("Dabo Updates"), cancelButton=False)
+			answer = dabo.ui.areYouSure(msg, title=_("Web Update Available"), cancelButton=False)
 			if answer:
 				try:
-					vers = self.dApp._updateFramework()
+					vers = self.dApp._updateFramework(projNames)
 				except IOError, e:
-					dabo.errorLog.write(_("Cannot update file: '%s'. Error: %s") % (fpth, e))
-					dabo.ui.info(_("You do not have permission to update the Dabo files. "
+					dabo.errorLog.write(_("Cannot update files; Error: %s") % e)
+					dabo.ui.info(_("You do not have permission to update the necessary files. "
 							"Please re-run the app with administrator privileges."), title=_("Permission Denied"))
-					self.dApp._setWebUpdateCheck(lastCheck, project)
+					self.dApp._resetWebUpdateCheck()
 					answer = False
 
 				if vers is None:
@@ -198,6 +211,7 @@ class uiApp(dObject, wx.App):
 					dabo.ui.info(_("There was a problem getting a response from the Dabo site. "
 							"Please check your internet connection and try again later."), title=_("Update Failed"))
 					answer = False
+					self.dApp._resetWebUpdateCheck()
 				elif vers == 0:
 					# There were no changed files available.
 					dabo.ui.info(_("There were no changed files available - your system is up-to-date!"), 

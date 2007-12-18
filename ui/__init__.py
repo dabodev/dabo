@@ -203,10 +203,23 @@ def makeProxyProperty(dct, nm, proxyAtts):
 				prop.fset(self, val)
 			else:
 				obj = getattr(self, att)
-				setattr(obj, nm, val)
+				if obj is None:
+					# Instantiation has not completed yet
+					continue
+				elif not isinstance(obj, (list, tuple)):
+					setattr(obj, nm, val)
+				else:
+					for expandedObj in obj:
+						if expandedObj is None:
+							# Instantiation has not completed yet
+							continue
+						setattr(expandedObj, nm, val)
 		resolveProps.remove(nm)
 		# This may not be needed, but helps in many cases...
-		self.layout()
+		try:
+			self.layout()
+		except AttributeError:
+			pass
 
 
 	if not isinstance(proxyAtts, (list, tuple)):
