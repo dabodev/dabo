@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import time
 import dabo
 dabo.ui.loadUI("wx")
 dui = dabo.ui
@@ -7,7 +8,6 @@ from dabo.dLocalize import _
 from BubblePanel import BubblePanel
 from BubbleBizobj import BubbleBizobj
 from StatsForm import StatsForm
-import time
 
 
 class BubbletForm(dabo.ui.dForm):
@@ -77,11 +77,19 @@ class BubbletForm(dabo.ui.dForm):
 		fm.insert(0, _("&New Game"), HotKey="Ctrl+N", OnHit=self.onNewGame)
 	
 		self.unbindEvent(dEvents.Paint)
+		biz.newGame()
+		dabo.ui.callAfter(self.update)
 
 	
 	def saveScreenShot(self, evt):
 		"""Saves a screenshot of the current board."""
 		dabo.ui.saveScreenShot(self)
+
+
+	def refresh(self):
+		dabo.ui.callAfterInterval(100, self._refresh)
+	def _refresh(self):
+		super(BubbletForm, self).refresh()
 
 
 	def bubbleClick(self, bubble):
@@ -107,7 +115,7 @@ class BubbletForm(dabo.ui.dForm):
 	def updateBoard(self):
 		self.tmr.start(100)
 		
-		
+	
 	def onTimer(self, evt):
 		self.tmr.stop()
 		self.update()
@@ -156,12 +164,6 @@ class BubbletForm(dabo.ui.dForm):
 			else:
 				biz.resetStats()
 				
-
-# 	def repaint(self):
-# 		for obj in self.Children:
-# 			if isinstance(obj, BubblePanel):
-# 				obj.repaint(True)
-
 
 	def _getBizobj(self):
 		return self.PrimaryBizobj

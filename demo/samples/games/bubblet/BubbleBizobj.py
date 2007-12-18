@@ -6,6 +6,7 @@ import random
 import time
 import os
 
+
 class BubbleBizobj(biz.dBizobj):
 	def beforeInit(self):
 		#self.DataSource = "Bubble"
@@ -25,11 +26,14 @@ class BubbleBizobj(biz.dBizobj):
 	def newGame(self):
 		for rr in self.bubbles:
 			for cc in rr:
-				cc.Selected = False
 				cc.setRandomColor(True)
+				cc.Selected = cc.Popped = False
 		self.Score = 0
 		self.GameOver = False
 		self.IsNewHighGame = False
+		self._allBubbles = []
+		for bubrow in self.bubbles:
+			self._allBubbles.extend(bubrow)
 	
 	
 	def bubbleClick(self, bubble):
@@ -51,7 +55,7 @@ class BubbleBizobj(biz.dBizobj):
 		for rr in self.bubbles:
 			for cc in rr:
 				if cc.Selected:
-					cc.Color = None
+					cc.Popped = True
 					cc.Selected = False
 		self.selCount = 0
 		self.shiftBubbles()
@@ -63,21 +67,22 @@ class BubbleBizobj(biz.dBizobj):
 		isEmpty = True
 		rows = len(self.bubbles)
 		cols = len(self.bubbles[0])
-		
+
 		# Check if the lowest bubble is empty.
 		toFill = 0
 		for cc in range(cols):
-			if self.bubbles[rows-1][cc].Color is None:
+			if self.bubbles[rows-1][cc].Popped:
 				toFill += 1
 		
 		if toFill:
 			# Set the callback, so that the calling object knows that further
 			# work is left
 			self.__callbackFunc = self.callbackShift
+			self._shiftTime = time.time()
 			
 			# Fill the columns
 			for cc in range(toFill):
-				num = random.randrange(rows) + 1
+				num = random.randrange(rows-1) + 2
 				for ii in range(rows-num, rows):
 					bub = self.bubbles[ii][cc]
 					bub.Selected = False
@@ -96,28 +101,26 @@ class BubbleBizobj(biz.dBizobj):
 		self.__callbackFunc = None
 		rows = len(self.bubbles)
 		cols = len(self.bubbles[0])
+		shifted = []
 		for cc in range(cols):
-			gap = False
-			for rr in range(rows):
-				if self.bubbles[rr][cc].Color is not None:
-					gap = True
-				else:
-					if gap:
-						for rAbove in range(rr, 0, -1):
-							self.bubbles[rAbove][cc].Color = self.bubbles[rAbove-1][cc].Color
-						self.bubbles[0][cc].Color = None
+			for rr in range(1, rows):
+				if self.bubbles[rr][cc].Popped:
+					for rAbove in range(rr, 0, -1):
+						self.bubbles[rAbove][cc].Color = self.bubbles[rAbove-1][cc].Color
+						self.bubbles[rAbove][cc].Popped = self.bubbles[rAbove-1][cc].Popped
+					self.bubbles[0][cc].Popped = True
 		# Now shift columns to the right
 		for rr in range(rows):
-			gap = False
 			for cc in range(cols-1, 0, -1):
 				currBub = self.bubbles[rr][cc]
-				if currBub.Color is None:
+				if currBub.Popped:
 					# See if there are any bubbles to the left that are not empty
 					for cLeft in range(cc, -1, -1):
 						leftBub = self.bubbles[rr][cLeft]
-						if leftBub.Color is not None:
+						if not leftBub.Popped:
 							currBub.Color = leftBub.Color
-							leftBub.Color = None
+							currBub.Popped = False
+							leftBub.Popped = True
 							break	
 		
 	
@@ -133,15 +136,11 @@ class BubbleBizobj(biz.dBizobj):
 		one bubble with a matching neighbor.
 		"""
 		self.GameOver = True
-		rows = len(self.bubbles)
-		cols = len(self.bubbles[0])
-		for rr in range(rows-1, -1,-1):
-			for cc in range(cols-1, -1, -1):
-				if self.hasMatchingNeighbor(self.bubbles[rr][cc]):
-					self.GameOver = False
-					break
-			if not self.GameOver:
+		for bub in self._allBubbles:
+			if self.hasMatchingNeighbor(bub):
+				self.GameOver = False
 				break
+
 		if self.GameOver:
 			self.NumberOfGames += 1
 			self.TotalPoints += self.Score
@@ -155,101 +154,40 @@ class BubbleBizobj(biz.dBizobj):
 
 	def hasMatchingNeighbor(self, bubble):		
 		""" Need to try for matches above, below, left and right. """
-		rr, cc = bubble.row, bubble.col
-		color = bubble.Color
-		if color is None:
+		if bubble.Popped:
 			return False
-		rows = len(self.bubbles)
-		cols = len(self.bubbles[0])
-		
-		# Above
-		if rr > 0:
-			try:
-				bub = self.bubbles[rr-1][cc]
-				if bub.Color == color:
-					return True
-			except: pass
-		# Below
-		if rr < rows:
-			try:
-				bub = self.bubbles[rr+1][cc]
-				if bub.Color == color:
-					return True
-			except: pass
-		# Left
-		if cc > 0:
-			try:
-				bub = self.bubbles[rr][cc-1]
-				if bub.Color == color:
-					return True
-			except: pass
-		# Right
-		if cc < cols:
-			try:
-				bub = self.bubbles[rr][cc+1]
-				if bub.Color == color:
-					return True
-			except: pass
-		return False
-		
+		return bool(self.getMatchingNeighbors(bubble))
+
+
+	def getMatchingNeighbors(self, bubble):
+		color = bubble.Color
+		rr, cc = bubble.row, bubble.col
+		return [neighbor for neighbor in self._allBubbles
+				if neighbor.Color == color and 
+				neighbor.Popped is False and (
+				((abs(neighbor.row - rr) == 1) and (neighbor.col == cc)) or
+				((abs(neighbor.col - cc) == 1) and (neighbor.row == rr)))]
+
 	
 	def selectBubbles(self, bubble):
 		if bubble.Selected:
 			return
-		color = bubble.Color
-		if color is None:
+		if bubble.Popped:
 			# They clicked on an empty space
 			return
-		bubble.Selected = True
-		hasMatch = False
-		rr, cc = bubble.row, bubble.col
-		rows = len(self.bubbles)
-		cols = len(self.bubbles[0])
-		
-		# We need to check the bubbles on top, bottom, left and right.
-		# Above
-		if rr > 0:
-			try:
-				bub = self.bubbles[rr-1][cc]
-				if bub.Color == color:
-					hasMatch = True
-					self.selectBubbles(bub)
-			except: pass
-		# Below
-		if rr < rows:
-			try:
-				bub = self.bubbles[rr+1][cc]
-				if bub.Color == color:
-					hasMatch = True
-					self.selectBubbles(bub)
-			except: pass
-		# Left
-		if cc > 0:
-			try:
-				bub = self.bubbles[rr][cc-1]
-				if bub.Color == color:
-					hasMatch = True
-					self.selectBubbles(bub)
-			except: pass
-		# Right
-		if cc < cols:
-			try:
-				bub = self.bubbles[rr][cc+1]
-				if bub.Color == color:
-					hasMatch = True
-					self.selectBubbles(bub)
-			except: pass
-		
-		if not hasMatch:
-			bubble.Selected = False
-		else:
-			self.selCount += 1
+		mn = self.getMatchingNeighbors(bubble)
+		bubble.Selected = bool(mn)
+		self.selCount += {True: 1, False: 0}[bool(mn)]
+		for match in mn:
+			if not match.Selected:
+				self.selectBubbles(match)
 
 	
 	def unselectBubbles(self):
-		for rr in self.bubbles:
-			for cc in rr:
-				cc.Selected = False
+		selBubs = (bub for bub in self._allBubbles
+				if bub.Selected)
+		for sel in selBubs:
+			sel.Selected = False
 		self.selCount = 0
 		self.Message = _("Bubble Points: 0")
 		
