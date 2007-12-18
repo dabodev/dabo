@@ -3,6 +3,7 @@ import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeProxyProperty
+import random
 
 
 class BubblePanel(dabo.ui.dPanel):
@@ -12,7 +13,7 @@ class BubblePanel(dabo.ui.dPanel):
 		self._popped = False
 		self._selected = False
 		self._colors = ["blue", "green", "red", "yellow", "purple"]
-		self._color = dabo.dColors.randomColor()
+		self._color = random.choice(self._colors)
 		# Used to detect size changes
 		self._sizeCache = (0, 0)
 		
@@ -36,7 +37,7 @@ class BubblePanel(dabo.ui.dPanel):
 		
 	
 	def setRandomColor(self, repaint=False):
-		self.Color = dabo.dColors.randomColor()
+		self.Color = random.choice(self._colors)
 		if repaint:
 			self.Popped = False
 		
