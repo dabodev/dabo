@@ -95,7 +95,8 @@ def addPref(self, base, key, typ):
 		eval("self.pref.%s" % newkey)
 	else:
 		typDict = {"String": str, "Unicode": unicode, "Integer": int, "Float": float, 
-				"Boolean": bool, "List": list, "Tuple": tuple, "Dict": dict}
+				"Boolean": bool, "List": list, "Tuple": tuple, "Dict": dict, 
+				"Datetime": datetime.datetime, "Date": datetime.date}
 		self.pref.addKey(newkey, typDict[typ], typDict[typ]())
 ]]>
 		</addPref>
@@ -117,6 +118,7 @@ def updatePref(self):
 ]]>
 		</updatePref>
 		<importStatements><![CDATA[
+import datetime
 from dabo.dLocalize import _
 ]]>
 		</importStatements>
@@ -150,7 +152,7 @@ def onAddChild(self, evt):
 	basekey = self.getKeyPathForNode(nd)
 	ctls = ((_("Preference Name?"), unicode, "prefname"), 
 			(_("Type:"), ["String", "Unicode", "Integer", 
-			"Float", "Boolean", "List", "Tuple", "Dict"], "typ") )
+			"Float", "Boolean", "List", "Tuple", "Dict", "Datetime", "Date"], "typ") )
 	dlg = dabo.ui.dOkCancelDialog(self, Caption=_("Add Child Key"))
 	dlg.addControlSequence(ctls)
 	dlg.typ.Value = "Unicode"
@@ -213,11 +215,11 @@ def onKeyUp(self, evt):
 											</code>
 										</dTextBox>
 										<dTextBox sizerInfo="{'Proportion': 0, 'ColExpand': True, 'Expand': True, 'RowExpand': False}" Name="dTextBox11" rowColPos="(0, 1)" ReadOnly="True" designerClass="controlMix" RegID="txtPrefName"></dTextBox>
-										<dDropdownList sizerInfo="{'Proportion': 0, 'ColExpand': True, 'Expand': True, 'RowExpand': False}" Name="dDropdownList1" rowColPos="(2, 1)" Choices="[u&apos;-None-&apos;, u&apos;String&apos;, u&apos;Unicode&apos;, u&apos;Integer&apos;, u&apos;Float&apos;, u&apos;Boolean&apos;, u&apos;List&apos;, u&apos;Tuple&apos;, u&apos;Dict&apos;]" designerClass="controlMix" RegID="ddType">
+										<dDropdownList sizerInfo="{'Proportion': 0, 'ColExpand': True, 'Expand': True, 'RowExpand': False}" Name="dDropdownList1" rowColPos="(2, 1)" Choices="[u&apos;-None-&apos;, u&apos;String&apos;, u&apos;Unicode&apos;, u&apos;Integer&apos;, u&apos;Float&apos;, u&apos;Boolean&apos;, u&apos;List&apos;, u&apos;Tuple&apos;, u&apos;Dict&apos;, u&apos;Datetime&apos;, u&apos;Date&apos;]" designerClass="controlMix" RegID="ddType">
 											<code>
 												<afterInit><![CDATA[
 def afterInit(self):
-	self.Keys = [type(None), str, unicode, int, float, bool, list, tuple, dict]
+	self.Keys = [type(None), str, unicode, int, float, bool, list, tuple, dict, datetime.datetime, datetime.date]
 	self.ValueMode = "Key"
 ]]>
 												</afterInit>
