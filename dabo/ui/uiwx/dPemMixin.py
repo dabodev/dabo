@@ -1243,7 +1243,8 @@ class dPemMixin(dPemMixinBase):
 	
 	def getCaptureBitmap(self):
 		"""Returns a bitmap snapshot of self, as it appears in the 
-		UI at this moment.
+		UI at this moment. NOTE: recent changes in wxPython may cause
+		the bitmap to be returned as monochrome under OS X.
 		"""
 		obj = self.Parent
 		if self.Parent is None:
@@ -1260,6 +1261,13 @@ class dPemMixin(dPemMixinBase):
 				htReduction = cltTop - self.Top
 		else:
 			dc = wx.ClientDC(obj)
+		# Make sure that the elements are all current
+		obj.iterateCall("_redraw", dc)
+		#obj._redraw(dc)
+
+		# Suggested as an alternative for OS X
+		if wx.Platform == "__WXMAC__":
+			return dc.GetAsBitmap()
 		rect = self.GetRect()
 		bmp = wx.EmptyBitmap(rect.width, rect.height, -1)	# - htReduction)
 		memdc = wx.MemoryDC()
@@ -1267,6 +1275,7 @@ class dPemMixin(dPemMixinBase):
 		
 		memdc.Blit(0, 0, self.Width, self.Height, dc, 0, offset)
 		memdc.SelectObject(wx.NullBitmap)
+		memdc.Destroy()
 		return bmp
 
 
