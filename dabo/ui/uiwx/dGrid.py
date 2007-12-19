@@ -875,11 +875,14 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		try:
 			v = self._dataType
 		except AttributeError:
-			v = self._dataType = ""
+			v = self._dataType = "str"
 		return v
 
 	def _setDataType(self, val):
 		if self._constructed():
+			if isinstance(val, basestring):
+				if val.lower().strip() in ("str", "string", "char", "varchar", ""):
+					val = "str"
 			self._dataType = val
 			if "Automatic" in self.HorizontalAlignment:
 				self._setAutoHorizontalAlignment()
@@ -1367,14 +1370,17 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _setWordWrap(self, val):
 		if self._constructed():
-			self._wordWrap = val
-			if val:
-				self.defaultRenderers["str"] = self.defaultRenderers["string"] = self.wrapStringRendererClass
-				self.defaultEditors["str"] = self.defaultEditors["string"] = self.wrapStringEditorClass
-			else:
-				self.defaultRenderers["str"] = self.defaultRenderers["string"] = self.stringRendererClass
-				self.defaultEditors["str"] = self.defaultEditors["string"] = self.stringEditorClass
-			self._refreshGrid()
+			if val != self._wordWrap:
+				self._wordWrap = val
+				if val:
+					self.defaultRenderers["str"] = self.defaultRenderers["string"] = self.wrapStringRendererClass
+					self.defaultEditors["str"] = self.defaultEditors["string"] = self.wrapStringEditorClass
+				else:
+					self.defaultRenderers["str"] = self.defaultRenderers["string"] = self.stringRendererClass
+					self.defaultEditors["str"] = self.defaultEditors["string"] = self.stringEditorClass
+				self._updateEditor()
+				self._updateRenderer()
+				self._refreshGrid()
 		else:
 			self._properties["WordWrap"] = val
 
