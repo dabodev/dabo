@@ -159,20 +159,28 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			return "Left"
 
 	def _setAlignment(self, val):
-		# Note: alignment doesn't seem to work, at least on GTK2
-		self._delWindowStyleFlag(wx.TE_LEFT)
-		self._delWindowStyleFlag(wx.TE_CENTRE)
-		self._delWindowStyleFlag(wx.TE_RIGHT)
-		val = val[0].lower()
-		if val == "l":
-			self._addWindowStyleFlag(wx.TE_LEFT)
-		elif val == "c":
-			self._addWindowStyleFlag(wx.TE_CENTRE)
-		elif val == "r":
-			self._addWindowStyleFlag(wx.TE_RIGHT)
+		if self._constructed():
+			# Note: alignment doesn't seem to work, at least on GTK2
+			# Second note: setting the Alignment flag seems to change
+			# the control to Read-Write if it had previously been set to
+			# ReadOnly=True.
+			rw = self.IsEditable()
+			self._delWindowStyleFlag(wx.TE_LEFT)
+			self._delWindowStyleFlag(wx.TE_CENTRE)
+			self._delWindowStyleFlag(wx.TE_RIGHT)
+			val = val[0].lower()
+			if val == "l":
+				self._addWindowStyleFlag(wx.TE_LEFT)
+			elif val == "c":
+				self._addWindowStyleFlag(wx.TE_CENTRE)
+			elif val == "r":
+				self._addWindowStyleFlag(wx.TE_RIGHT)
+			else:
+				raise ValueError, "The only possible values are 'Left', 'Center', and 'Right'"
+			self.SetEditable(rw)
 		else:
-			raise ValueError, "The only possible values are 'Left', 'Center', and 'Right'"
-	
+			self._properties["Alignment"] = val
+			
 	
 	def _getForceCase(self):
 		return self._forceCase
