@@ -1780,22 +1780,25 @@ class dPemMixin(dPemMixinBase):
 		# Force the value to string
 		val = "%s" % val
 		if self._constructed():
-			self._caption = val
-			## 2/23/2005: there is a bug in wxGTK that resets the font when the 
-			##            caption changes. So this is a workaround:
-			font = self.Font
-			self.SetLabel(val)
-			self.Font = font
-			self.refresh()
-
-			# Frames have a Title separate from Label, but I can't think
-			# of a reason why that would be necessary... can you? 
-			try:
-				self.SetTitle(val)
-			except AttributeError:
-				# wxPython 2.7.x started not having this attribute for labels
-				# at least.
-				pass
+			# Windows textboxes change their value when SetLabel() is called; this
+			# avoids that problem.
+			if not isinstance(self, (dabo.ui.dTextBox, dabo.ui.dEditBox)):
+				self._caption = val
+				## 2/23/2005: there is a bug in wxGTK that resets the font when the 
+				##            caption changes. So this is a workaround:
+				font = self.Font
+				self.SetLabel(val)
+				self.Font = font
+				self.refresh()
+	
+				# Frames have a Title separate from Label, but I can't think
+				# of a reason why that would be necessary... can you? 
+				try:
+					self.SetTitle(val)
+				except AttributeError:
+					# wxPython 2.7.x started not having this attribute for labels
+					# at least.
+					pass
 		else:
 			self._properties["Caption"] = val
 
