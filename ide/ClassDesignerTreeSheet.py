@@ -16,14 +16,23 @@ from MenuBarPanel import MenuBarPanel
 from MenuPanel import MenuPanel
 from MenuDesignerComponents import SeparatorPanel
 dui = dabo.ui
+from dabo.ui import makeProxyProperty
 
 
 class TreeSheet(dui.dPanel):
+	def _initProperties(self):
+		self.tree = None
+		return super(TreeSheet, self)._initProperties()
+		
+	
+	def _constructed(self):
+		return hasattr(self, "tree") and isinstance(self.tree, dui.dTreeView)
+		
+		
 	def afterInit(self):
 		self._slotCaption = _("Empty Sizer Slot")
 		self._spacerCaption = _("Spacer")
-		self.tree = dui.dTreeView(self, MultipleSelect=self.MultipleSelect, 
-				ShowButtons=True)
+		self.tree = dui.dTreeView(self, ShowButtons=True)
 		plat = self.Application.Platform
 		if plat == "Mac":
 			self.tree.FontSize -= 3
@@ -411,28 +420,30 @@ class TreeSheet(dui.dPanel):
 			self._properties["Controller"] = val
 
 
-	def _getMultipleSelect(self):
-		try:
-			ret = self._multipleSelect
-		except AttributeError:
-			ret = self._multipleSelect = True
-		return ret
-
-	def _setMultipleSelect(self, val):
-		if self._constructed():
-			self._multipleSelect = val
-			try:
-				self.tree.MultipleSelect = val
-			except AttributeError:
-				# tree isn't constructed yet
-				dabo.ui.setAfter(self.Tree, "MultipleSelect", val)
-		else:
-			self._properties["MultipleSelect"] = val
+# 	def _getMultipleSelect(self):
+# 		try:
+# 			ret = self._multipleSelect
+# 		except AttributeError:
+# 			ret = self._multipleSelect = True
+# 		return ret
+# 
+# 	def _setMultipleSelect(self, val):
+# 		if self._constructed():
+# 			self._multipleSelect = val
+# 			try:
+# 				self.tree.MultipleSelect = val
+# 			except AttributeError:
+# 				# tree isn't constructed yet
+# 				dabo.ui.setAfter(self.tree, "MultipleSelect", val)
+# 		else:
+# 			self._properties["MultipleSelect"] = val
 
 
 	Controller = property(_getController, _setController, None,
 			_("Object to which this one reports events  (object (varies))"))
 
-	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
-			_("Determines if the tree supports multiple selection  (bool)"))
+# 	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
+# 			_("Determines if the tree supports multiple selection  (bool)"))
 	
+	_proxyDict = {}
+	MultipleSelect = makeProxyProperty(_proxyDict, "MultipleSelect", "tree", )

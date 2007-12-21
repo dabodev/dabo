@@ -1465,6 +1465,7 @@ class LayoutGridSizer(LayoutSaverMixin, dabo.ui.dGridSizer):
 			pop.append(_("Delete"), OnHit=self.Controller.onTreeDelete)
 			pop.appendSeparator()
 			pop.append(_("Edit Sizer Settings"), OnHit=self.onEditSizer)
+			self.Controller.addSlotOptions(self, pop, sepBefore=True)
 		return pop
 
 

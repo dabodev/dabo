@@ -779,7 +779,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"SashPosition": {"type" : int, "readonly" : False},
 				"ShowPanelSplitMenu" : {"type" : bool, "readonly" : False},
 				"Split" : {"type" : bool, "readonly" : False}}
-		spinnerProps = {"Max": {"type" : int, "readonly" : False},
+		spinnerProps = {
+#				"Increment": {"type": float, "readonly": False},
+				"Max": {"type" : int, "readonly" : False},
 				"Min": {"type" : int, "readonly" : False},
 				"SpinnerWrap": {"type" : bool, "readonly" : False}}
 		textProps = {"Alignment": {"type": list, "readonly": False,
@@ -1268,8 +1270,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			_("""Is this the main control of the designer, or contained within the 
 			main control?  (bool)"""))
 	
+	# Placeholder for the actual RegID property
 	RegID = property(_getRegID, _setRegID, None,
-			_("Placeholder for the actual RegID property  (str)"))	
+			_("A unique identifier used for referencing by other objects. (str)"))
 	
 	Selected = property(_getSelected, _setSelected, None,
 			_("Is this control selected for editing?  (bool)"))
