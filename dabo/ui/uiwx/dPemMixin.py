@@ -55,6 +55,10 @@ class dPemMixin(dPemMixinBase):
 			self._addCodeAsMethod(srcCode)
 		
 		self._beforeInit(pre)
+		# If the _EventTarget property is passed, extract it before any of the other
+		# property-processing code runs.
+		self._eventTarget = self._extractKey((properties, attProperties, kwargs), "_EventTarget", 
+				defaultVal=self)
 		# Lots of useful wx props are actually only settable before the
 		# object is fully constructed. The self._preInitProperties dict keeps
 		# track of those during the pre-init phase, to finally send the 
@@ -347,9 +351,10 @@ class dPemMixin(dPemMixinBase):
 	
 	def _initEvents(self):
 		# Bind wx events to handlers that re-raise the Dabo events:
-		self.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
-		self.Bind(wx.EVT_IDLE, self.__onWxIdle)
-		self.Bind(wx.EVT_MENU_OPEN, self.__onWxMenuOpen)
+		targ = self._EventTarget
+		self.Bind(wx.EVT_WINDOW_DESTROY, targ.__onWxDestroy)
+		self.Bind(wx.EVT_IDLE, targ.__onWxIdle)
+		self.Bind(wx.EVT_MENU_OPEN, targ.__onWxMenuOpen)
 
 		if isinstance(self, dabo.ui.dGrid):
 			## Ugly workaround for grids not firing focus events from the keyboard 
@@ -360,30 +365,30 @@ class dPemMixin(dPemMixinBase):
 			self.GetGridRowLabelWindow().Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)
 			self.GetGridWindow().Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)
 
-		self.Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)
-		self.Bind(wx.EVT_KILL_FOCUS, self.__onWxLostFocus)
+		self.Bind(wx.EVT_SET_FOCUS, targ.__onWxGotFocus)
+		self.Bind(wx.EVT_KILL_FOCUS, targ.__onWxLostFocus)
 			
-		self.Bind(wx.EVT_CHAR, self.__onWxKeyChar)
-		self.Bind(wx.EVT_KEY_DOWN, self.__onWxKeyDown)
-		self.Bind(wx.EVT_KEY_UP, self.__onWxKeyUp)
+		self.Bind(wx.EVT_CHAR, targ.__onWxKeyChar)
+		self.Bind(wx.EVT_KEY_DOWN, targ.__onWxKeyDown)
+		self.Bind(wx.EVT_KEY_UP, targ.__onWxKeyUp)
 
-		self.Bind(wx.EVT_MOVE, self.__onWxMove)
+		self.Bind(wx.EVT_MOVE, targ.__onWxMove)
 				
-		self.Bind(wx.EVT_LEFT_DOWN, self.__onWxMouseLeftDown)
-		self.Bind(wx.EVT_LEFT_UP, self.__onWxMouseLeftUp)
-		self.Bind(wx.EVT_LEFT_DCLICK, self.__onWxMouseLeftDoubleClick)
-		self.Bind(wx.EVT_RIGHT_DOWN, self.__onWxMouseRightDown)
-		self.Bind(wx.EVT_RIGHT_UP, self.__onWxMouseRightUp)
-		self.Bind(wx.EVT_RIGHT_DCLICK, self.__onWxMouseRightDoubleClick)
-		self.Bind(wx.EVT_MIDDLE_DOWN, self.__onWxMouseMiddleDown)
-		self.Bind(wx.EVT_MIDDLE_UP, self.__onWxMouseMiddleUp)
-		self.Bind(wx.EVT_MIDDLE_DCLICK, self.__onWxMouseMiddleDoubleClick)
-		self.Bind(wx.EVT_ENTER_WINDOW, self.__onWxMouseEnter)
-		self.Bind(wx.EVT_LEAVE_WINDOW, self.__onWxMouseLeave)
-		self.Bind(wx.EVT_MOTION, self.__onWxMouseMove)
-		self.Bind(wx.EVT_MOUSEWHEEL, self.__onWxMouseWheel)
+		self.Bind(wx.EVT_LEFT_DOWN, targ.__onWxMouseLeftDown)
+		self.Bind(wx.EVT_LEFT_UP, targ.__onWxMouseLeftUp)
+		self.Bind(wx.EVT_LEFT_DCLICK, targ.__onWxMouseLeftDoubleClick)
+		self.Bind(wx.EVT_RIGHT_DOWN, targ.__onWxMouseRightDown)
+		self.Bind(wx.EVT_RIGHT_UP, targ.__onWxMouseRightUp)
+		self.Bind(wx.EVT_RIGHT_DCLICK, targ.__onWxMouseRightDoubleClick)
+		self.Bind(wx.EVT_MIDDLE_DOWN, targ.__onWxMouseMiddleDown)
+		self.Bind(wx.EVT_MIDDLE_UP, targ.__onWxMouseMiddleUp)
+		self.Bind(wx.EVT_MIDDLE_DCLICK, targ.__onWxMouseMiddleDoubleClick)
+		self.Bind(wx.EVT_ENTER_WINDOW, targ.__onWxMouseEnter)
+		self.Bind(wx.EVT_LEAVE_WINDOW, targ.__onWxMouseLeave)
+		self.Bind(wx.EVT_MOTION, targ.__onWxMouseMove)
+		self.Bind(wx.EVT_MOUSEWHEEL, targ.__onWxMouseWheel)
 		
-		self.Bind(wx.EVT_CONTEXT_MENU, self.__onWxContextMenu)
+		self.Bind(wx.EVT_CONTEXT_MENU, targ.__onWxContextMenu)
 		
 		self.Bind(wx.EVT_PAINT, self.__onWxPaint)
 		self.Bind(wx.EVT_SIZE, self.__onWxResize)
@@ -391,8 +396,8 @@ class dPemMixin(dPemMixinBase):
 		self.bindEvent(dEvents.Create, self.__onCreate)
 		self.bindEvent(dEvents.ChildBorn, self.__onChildBorn)
 		
-		self.bindEvent(dEvents.MouseEnter, self.__onMouseEnter)
-		self.bindEvent(dEvents.MouseLeave, self.__onMouseLeave)
+		self.bindEvent(dEvents.MouseEnter, targ.__onMouseEnter)
+		self.bindEvent(dEvents.MouseLeave, targ.__onMouseLeave)
 		
 		try:
 			self.Parent.bindEvent(dEvents.Update, self.__onUpdate)
@@ -1880,6 +1885,10 @@ class dPemMixin(dPemMixinBase):
 			self._properties["Enabled"] = False
 
 
+	def _getEventTarget(self):
+		return self._eventTarget
+
+
 	def _getDaboFont(self):
 		if hasattr(self, "_font"):
 			v = self._font
@@ -2518,6 +2527,14 @@ class dPemMixin(dPemMixinBase):
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("""Specifies whether the object and children can get user input. (bool)""") )
 
+	_EventTarget = property(_getEventTarget, None, None,
+			_("""The object that receives events. In all but a few particular cases, it will be
+			the object itself. This must be passed to the constructor so that it can be set 
+			before event binding occurs; it cannot be changed after the object is created. 
+			DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING and can handle the 
+			resulting behavior changes. Usually used to pass events to the container in a 
+			composite control. Default=self  (object)"""))
+	
 	Font = property(_getDaboFont, _setDaboFont, None,
 			_("Specifies font object for this control. (dFont)") )
 	
