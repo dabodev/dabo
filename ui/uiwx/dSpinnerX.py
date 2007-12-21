@@ -40,8 +40,8 @@ class dSpinnerX(dabo.ui.dDataPanel):
 		self._baseClass = dSpinnerX
 		# Create the child controls
 		self._proxy_textbox = dabo.ui.dTextBox(self, Value=val, Width=32, 
-				StrictNumericEntry=False)
-		self._proxy_spinner = dSpinButton(parent=self)
+				StrictNumericEntry=False, _EventTarget=self)
+		self._proxy_spinner = dSpinButton(parent=self, _EventTarget=self)
 		self.__constructed = True
 		self.Sizer = dabo.ui.dSizer("h")
 		self.Sizer.append(self._proxy_textbox, 1, valign="middle")
@@ -52,10 +52,13 @@ class dSpinnerX(dabo.ui.dDataPanel):
 		# objects were created, we need to manually call _setProperties() here.
 		self._setProperties(self._properties)
 		
-		self._proxy_spinner.Bind(wx.EVT_SPIN_UP, self.__onWxSpinUp)
-		self._proxy_spinner.Bind(wx.EVT_SPIN_DOWN, self.__onWxSpinDown)
-		self._proxy_spinner.Bind(wx.EVT_SPIN, self._onWxHit)
-		self._proxy_textbox.bindEvent(dEvents.KeyChar, self._onChar)
+		ps = self._proxy_spinner
+		pt = self._proxy_textbox
+		ps.Bind(wx.EVT_SPIN_UP, self.__onWxSpinUp)
+		ps.Bind(wx.EVT_SPIN_DOWN, self.__onWxSpinDown)
+		ps.Bind(wx.EVT_SPIN, self._onWxHit)
+		self.bindEvent(dEvents.KeyChar, self._onChar)
+		self.bindEvent(dEvents.LostFocus, self._onLostFocus)
 
 
 	def _constructed(self):
@@ -120,6 +123,14 @@ class dSpinnerX(dabo.ui.dDataPanel):
 			self._onWxHit(None)
 
 
+	def _onLostFocus(self, evt):
+		val = self.Value
+		pt = self._proxy_textbox
+		if (val > self.Max) or (val < self.Min):
+			self.Value = pt._oldVal
+		pt._oldVal = self.Value
+
+
 	def _numericStringVal(self, val):
 		"""If passed a string, attempts to convert it to the appropriate numeric
 		type. If such a conversion is not possible, returns None.
@@ -150,7 +161,6 @@ class dSpinnerX(dabo.ui.dDataPanel):
 	def fontZoomNormal(self):
 		"""Reset the font zoom back to zero."""
 		self._proxy_textbox._setAbsoluteFontZoom(0)
-
 
 
 	def getBlankValue(self):
@@ -371,11 +381,3 @@ if __name__ == '__main__':
 
 	app = dabo.dApp(MainFormClass=TestForm)
 	app.start()
-
-
-
-
-
-
-
-
