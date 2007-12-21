@@ -1,17 +1,24 @@
 # -*- coding: utf-8 -*-
 import re
 import datetime
+import locale
 import wx
 import wx.lib.masked as masked
 import dabo.lib.dates
 
 try:
 	import decimal
+	numericTypes = (int, long, decimal.Decimal, float)
+	valueErrors = (ValueError, decimal.InvalidOperation)
 except ImportError:
 	# decimal is only in Python 2.4 or greater
 	decimal = None
+	numericTypes = (int, long, float)
+	valueErrors = (ValueError, )
+# Make this locale-independent
+decimalPoint = locale.localeconv()["decimal_point"]
 
-import dabo, dabo.ui
+import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
@@ -176,7 +183,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			elif val == "r":
 				self._addWindowStyleFlag(wx.TE_RIGHT)
 			else:
-				raise ValueError, "The only possible values are 'Left', 'Center', and 'Right'"
+				raise ValueError, _("The only possible values are 'Left', 'Center', and 'Right'")
 			self.SetEditable(rw)
 		else:
 			self._properties["Alignment"] = val
@@ -408,9 +415,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
 	
 	def convertStringValueToDataType(self, strVal, dataType):
 		"""Given a string value and a type, return an appropriate value of that type.
-		
 		If the value can't be converted, a ValueError will be raised.
-		"""		
+		"""
 		if dataType == bool:
 			# Bools can't convert from string representations, because a zero-
 			# length denotes False, and anything else denotes True.
@@ -428,22 +434,22 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				retVal = self._getTimeFromString(strVal)
 				
 			if retVal is None:
-				raise ValueError, "String not in ISO 8601 format."
+				raise ValueError, _("String not in ISO 8601 format.")
 		elif str(dataType) == "<type 'DateTime'>":
 			# mx DateTime type. MySQLdb will use this if mx is installed.
 			try:
 				import mx.DateTime
 				retVal = mx.DateTime.DateTimeFrom(str(strVal))
 			except ImportError:
-				raise ValueError, "Can't import mx.DateTime"
+				raise ValueError, _("Can't import mx.DateTime")
 		elif str(dataType) == "<type 'DateTimeDelta'>":
 			# mx TimeDelta type. MySQLdb will use this for Time columns if mx is installed.
 			try:
 				import mx.DateTime
 				retVal = mx.DateTime.TimeFrom(str(strVal))
 			except ImportError:
-				raise ValueError, "Can't import mx.DateTime"
-		elif (decimal is not None and dataType == decimal.Decimal):
+				raise ValueError, _("Can't import mx.DateTime")
+		elif decimal is not None and (dataType == decimal.Decimal) and self.StrictNumericEntry:
 			try:
 				_oldVal = self._oldVal
 			except:
@@ -456,9 +462,24 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				else:
 					retVal = decimal.Decimal(strVal)
 			except:
-				raise ValueError, "Can't convert to decimal."
+				raise ValueError, _("Can't convert to decimal.")
 		elif dataType in (tuple, list):
 			retVal = eval(strVal)
+		elif not self.StrictNumericEntry and (dataType in numericTypes):
+			isint = (strVal.count(decimalPoint) == 0) and (strVal.lower().count("e") == 0)
+			try:
+				if isint:
+					if strVal.strip().endswith("L"):
+						retVal = long(strVal)
+					else:
+						retVal = int(strVal)
+				else:
+					if decimal.Decimal in numericTypes:
+						retVal = decimal.Decimal(strVal)
+					else:
+						retVal = float(strVal)
+			except valueErrors:
+				raise ValueError, _("Invalid Numeric Value: %s") % strVal
 		else:
 			# Other types can convert directly.
 			if dataType == str:
@@ -469,7 +490,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				# The Python object couldn't convert it. Our validator, once 
 				# implemented, won't let the user get this far. Just keep the 
 				# old value.
-				raise ValueError, "Can't convert."
+				raise ValueError, _("Can't convert.")
 		return retVal
 	
 	
@@ -496,6 +517,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			strVal = value.isoformat()
 		elif value is None:
 			strVal = self.Application.NoneDisplay
+		elif isinstance(value, long):
+			strVal = value.__repr__()
 		else:
 			# convert all other data types to string:
 			strVal = str(value)   # (floats look like 25.55)
@@ -554,15 +577,29 @@ class dTextBoxMixin(dTextBoxMixinBase):
 	
 	def _getStrictDateEntry(self):
 		try:
-			v = self._strictDateEntry
+			ret = self._strictDateEntry
 		except AttributeError:
-			v = self._strictDateEntry = False
-		return v
+			ret = self._strictDateEntry = False
+		return ret
 	
 	def _setStrictDateEntry(self, val):
 		self._strictDateEntry = bool(val)
 	
 	
+	def _getStrictNumericEntry(self):
+		try:
+			ret = self._strictNumericEntry
+		except AttributeError:
+			ret = self._strictNumericEntry = True
+		return ret
+
+	def _setStrictNumericEntry(self, val):
+		if self._constructed():
+			self._strictNumericEntry = val
+		else:
+			self._properties["StrictNumericEntry"] = val
+
+
 	#Overrides the dTextBoxMixinBase getter and setters because of the data conversion
 	#introduced in this class
 	def _getValue(self):
@@ -670,6 +707,11 @@ class dTextBoxMixin(dTextBoxMixinBase):
 
 			If not strict, dates can be accepted in YYYYMMDD, YYMMDD, and MMDD format,
 			which will be coerced into sensible date values automatically."""))
+	
+	StrictNumericEntry = property(_getStrictNumericEntry, _setStrictNumericEntry, None,
+			_("""When True, the DataType will be preserved across numeric types. When False, the 
+			DataType will respond to user input to convert to the 'obvious' numeric type.  
+			Default=True. (bool)"""))
 	
 	Value = property(_getValue, _setValue, None,
 			_("Specifies the current state of the control (the value of the field). (varies)"))

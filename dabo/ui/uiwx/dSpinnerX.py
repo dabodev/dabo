@@ -39,7 +39,8 @@ class dSpinnerX(dabo.ui.dDataPanel):
 				attProperties=attProperties, *args, **kwargs)
 		self._baseClass = dSpinnerX
 		# Create the child controls
-		self._proxy_textbox = dabo.ui.dTextBox(self, Value=val, Width=32)
+		self._proxy_textbox = dabo.ui.dTextBox(self, Value=val, Width=32, 
+				StrictNumericEntry=False)
 		self._proxy_spinner = dSpinButton(parent=self)
 		self.__constructed = True
 		self.Sizer = dabo.ui.dSizer("h")
@@ -285,8 +286,8 @@ class _dSpinnerX_test(dSpinnerX):
 	def initProperties(self):
 		self.Max = 10
 		self.Min = 0
-		self.Value = 0.0
-		self.Increment = 1.0
+		self.Value = 0
+		self.Increment = 1
 		self.SpinnerWrap = True
 		self.FontSize = 10
 		self.Width = 80
@@ -322,15 +323,15 @@ if __name__ == '__main__':
 			
 			gsz = dabo.ui.dGridSizer(MaxCols=2, HGap=4, VGap=6)
 			lbl = dabo.ui.dLabel(pnl, Caption="Min")
-			txt = dabo.ui.dTextBox(pnl, DataSource=spn, DataField="Min")
+			txt = dabo.ui.dTextBox(pnl, DataSource=spn, DataField="Min", StrictNumericEntry=False)
 			gsz.append(lbl, halign="right")
 			gsz.append(txt)
 			lbl = dabo.ui.dLabel(pnl, Caption="Max")
-			txt = dabo.ui.dTextBox(pnl, DataSource=spn, DataField="Max")
+			txt = dabo.ui.dTextBox(pnl, DataSource=spn, DataField="Max", StrictNumericEntry=False)
 			gsz.append(lbl, halign="right")
 			gsz.append(txt)
 			lbl = dabo.ui.dLabel(pnl, Caption="Increment")
-			txt = dabo.ui.dTextBox(pnl, DataSource=spn, DataField="Increment")
+			txt = dabo.ui.dTextBox(pnl, DataSource=spn, DataField="Increment", StrictNumericEntry=False)
 			gsz.append(lbl, halign="right")
 			gsz.append(txt)
 			lbl = dabo.ui.dLabel(pnl, Caption="SpinnerWrap")
