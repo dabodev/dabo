@@ -352,8 +352,8 @@ class dPemMixin(dPemMixinBase):
 	def _initEvents(self):
 		# Bind wx events to handlers that re-raise the Dabo events:
 		targ = self._EventTarget
-		self.Bind(wx.EVT_WINDOW_DESTROY, targ.__onWxDestroy)
-		self.Bind(wx.EVT_IDLE, targ.__onWxIdle)
+		self.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
+		self.Bind(wx.EVT_IDLE, self.__onWxIdle)
 		self.Bind(wx.EVT_MENU_OPEN, targ.__onWxMenuOpen)
 
 		if isinstance(self, dabo.ui.dGrid):
@@ -365,15 +365,27 @@ class dPemMixin(dPemMixinBase):
 			self.GetGridRowLabelWindow().Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)
 			self.GetGridWindow().Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)
 
+		# These need to be applied to both
 		self.Bind(wx.EVT_SET_FOCUS, targ.__onWxGotFocus)
 		self.Bind(wx.EVT_KILL_FOCUS, targ.__onWxLostFocus)
+		self.Bind(wx.EVT_MOVE, targ.__onWxMove)
+		self.Bind(wx.EVT_ENTER_WINDOW, targ.__onWxMouseEnter)
+		self.Bind(wx.EVT_LEAVE_WINDOW, targ.__onWxMouseLeave)
+		self.Bind(wx.EVT_MOTION, targ.__onWxMouseMove)
+		self.Bind(wx.EVT_MOUSEWHEEL, targ.__onWxMouseWheel)
+		if targ is not self:
+			self.Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)
+			self.Bind(wx.EVT_KILL_FOCUS, self.__onWxLostFocus)
+			self.Bind(wx.EVT_MOVE, self.__onWxMove)
+			self.Bind(wx.EVT_ENTER_WINDOW, self.__onWxMouseEnter)
+			self.Bind(wx.EVT_LEAVE_WINDOW, self.__onWxMouseLeave)
+			self.Bind(wx.EVT_MOTION, self.__onWxMouseMove)
+			self.Bind(wx.EVT_MOUSEWHEEL, self.__onWxMouseWheel)
 			
 		self.Bind(wx.EVT_CHAR, targ.__onWxKeyChar)
 		self.Bind(wx.EVT_KEY_DOWN, targ.__onWxKeyDown)
 		self.Bind(wx.EVT_KEY_UP, targ.__onWxKeyUp)
 
-		self.Bind(wx.EVT_MOVE, targ.__onWxMove)
-				
 		self.Bind(wx.EVT_LEFT_DOWN, targ.__onWxMouseLeftDown)
 		self.Bind(wx.EVT_LEFT_UP, targ.__onWxMouseLeftUp)
 		self.Bind(wx.EVT_LEFT_DCLICK, targ.__onWxMouseLeftDoubleClick)
@@ -383,10 +395,6 @@ class dPemMixin(dPemMixinBase):
 		self.Bind(wx.EVT_MIDDLE_DOWN, targ.__onWxMouseMiddleDown)
 		self.Bind(wx.EVT_MIDDLE_UP, targ.__onWxMouseMiddleUp)
 		self.Bind(wx.EVT_MIDDLE_DCLICK, targ.__onWxMouseMiddleDoubleClick)
-		self.Bind(wx.EVT_ENTER_WINDOW, targ.__onWxMouseEnter)
-		self.Bind(wx.EVT_LEAVE_WINDOW, targ.__onWxMouseLeave)
-		self.Bind(wx.EVT_MOTION, targ.__onWxMouseMove)
-		self.Bind(wx.EVT_MOUSEWHEEL, targ.__onWxMouseWheel)
 		
 		self.Bind(wx.EVT_CONTEXT_MENU, targ.__onWxContextMenu)
 		
