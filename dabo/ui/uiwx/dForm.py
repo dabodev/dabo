@@ -635,7 +635,10 @@ Database error message: %s""") %	err
 		
 		if not parentBizobj and self.bizobjs.has_key(dataSource):
 			return self.bizobjs[dataSource]
-			
+		
+		if isinstance(dataSource, dabo.biz.dBizobj):
+			return dataSource
+
 		if isinstance(dataSource, basestring) and \
 				dataSource.lower() == "form":
 			# The form isn't using bizobjs, but locally-bound data
