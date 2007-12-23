@@ -643,7 +643,11 @@ class uiApp(dObject, wx.App):
 		
 		tbs.sort()
 		self._findDlgID = tbs[0].values()[0]
-		self._replaceDlgID = tbs[1].values()[0]
+		try:
+			self._replaceDlgID = tbs[1].values()[0]
+		except IndexError:
+			# Not a Replace dialog
+			self._replaceDlgID = None
 		
 		
 	def onEnterInFindDialog(self, evt):
@@ -740,7 +744,6 @@ class uiApp(dObject, wx.App):
 		downwardSearch = (flags & wx.FR_DOWN) == wx.FR_DOWN
 		wholeWord = (flags & wx.FR_WHOLEWORD) == wx.FR_WHOLEWORD
 		matchCase = (flags & wx.FR_MATCHCASE) == wx.FR_MATCHCASE
-
 		ret = None
 		win = self.findWindow
 		if win:
@@ -775,7 +778,10 @@ class uiApp(dObject, wx.App):
 					ret = True
 					win.SetSelection(pos, pos+len(findString))
 				return ret
-				
+			
+			elif isinstance(win, dabo.ui.dGrid):
+				return win.findReplace(action, findString, replaceString, downwardSearch, 
+						wholeWord, matchCase)
 			else:
 				# Regular text control
 				try: 
