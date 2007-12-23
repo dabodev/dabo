@@ -4,6 +4,7 @@ import sys
 import datetime
 import locale
 import operator
+import re
 import wx
 import wx.grid
 from wx._core import PyAssertionError
@@ -31,6 +32,7 @@ from dabo.ui import makeDynamicProperty
 _USE_DECIMAL = True
 try:
 	from decimal import Decimal
+	from decimal import InvalidOperation
 except ImportError:
 	_USE_DECIMAL = False
 
@@ -2684,6 +2686,86 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.incSearchTimer.start(searchDelay)
 
 
+	def findReplace(self, action, findString, replaceString, downwardSearch, 
+			wholeWord, matchCase):
+		"""Called from the 'Find' dialog."""
+		ret = False
+		rowcol = currRow, currCol = (self.CurrentRow, self.CurrentColumn)
+		if downwardSearch:
+			op = operator.gt
+		else:
+			op = operator.lt
+		if wholeWord:
+			if matchCase:
+				srch = r"\b%s\b" % findString
+				findGen = ((r,c) for r in xrange(self.RowCount) for c in xrange(self.ColumnCount)
+						if op((r,c), rowcol)
+						and re.search(srch, str(self.GetValue(r, c))))
+			else:
+				srch = r"\b%s\b" % findString.lower()
+				findGen = ((r,c) for r in xrange(self.RowCount) for c in xrange(self.ColumnCount)
+						if op((r,c), rowcol)
+						and re.search(srch, str(self.GetValue(r, c)).lower()))
+		else:
+			if matchCase:
+				findGen = ((r,c) for r in xrange(self.RowCount) for c in xrange(self.ColumnCount)
+						if op((r,c), rowcol)
+						and findString in str(self.GetValue(r, c)))
+			else:
+				findGen = ((r,c) for r in xrange(self.RowCount) for c in xrange(self.ColumnCount)
+						if op((r,c), rowcol)
+						and findString.lower() in str(self.GetValue(r, c)).lower())
+		if action == "Find":
+			try:
+				while True:
+					newR, newC = findGen.next()
+					targetVal = self.GetValue(newR, newC)
+					targetString = str(targetVal)
+					if isinstance(targetVal, (basestring, datetime.datetime, datetime.date)):
+						# Values can be inexact matches
+						break
+					else:
+						# Needs to be an exact match
+						if findString == targetString:
+							break
+				ret = True
+				self._lastRow, self._lastCol = newR, newC
+				self.CurrentRow, self.CurrentColumn = newR, newC
+			except StopIteration:
+				ret = False
+		elif action == "Replace":
+			val = self.GetValue(currRow, currCol)
+			if isinstance(val, basestring):
+				self.SetValue(currRow, currCol, val.replace(findString, replaceString))
+			elif isinstance(val, bool):
+				if replaceString.lower() in ("true", "t", "false", "f", "1", "0", "yes", "y", "no", "n"):
+					newval = replaceString.lower() in ("true", "t", "1", "yes", "y")
+					self.SetValue(currRow, currCol, newval)
+					ret = True
+				else:
+					dabo.errorLog.write(_("Invalid boolean replacement value: %s") % replaceString)
+					ret = False
+			else:
+				# Try the numeric types
+				typFunc = type(val)
+				if typFunc(findString) == val:
+					# We can replace if replaceString can be the correct type
+					if _USE_DECIMAL:
+						errors = (ValueError, InvalidOperation)
+					else:
+						errors = (ValueError, )
+					try:
+						newval = typFunc(replaceString)
+						self.SetValue(currRow, currCol, newval)
+						ret = True
+					except errors:
+						dabo.errorLog.write(_("Invalid replacement value: %s") % replaceString)
+						ret = False
+			if ret:
+				self.ForceRefresh()
+		return ret
+
+
 	def getColNumByX(self, x):
 		""" Given the x-coordinate, return the column number."""
 		col = self.XToCol(x + (self.GetViewStart()[0]*self.GetScrollPixelsPerUnit()[0]))
@@ -3727,8 +3809,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			cn = self.CurrentColumn
 			if curr != val:
 				# The row is being changed
-				if cn >= 0:
-					dabo.ui.callAfter(self.SetGridCursor, val, cn)
+				### egl: I don't recall why this callAfter() was added, but it messes up
+				###   the Find/Replace logic, and removing it doesn't seem to hurt.
+# 				if cn >= 0:
+# 					dabo.ui.callAfter(self.SetGridCursor, val, cn)
+				self.SetGridCursor(val, cn)
 				self.MakeCellVisible(val, cn)
 		else:
 			self._properties["CurrentRow"] = val
