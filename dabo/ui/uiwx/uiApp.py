@@ -719,16 +719,25 @@ class uiApp(dObject, wx.App):
 	def OnFindReplaceAll(self, evt):
 		total = 0
 		wx.BeginBusyCursor()
-		while True:
+		try:
+			lock = self.findWindow.getDisplayLocker()
+		except AttributeError:
+			lock = None
+		# Get the first find
+		ret = self.OnFind(evt, action="Find")
+		while ret:
 			ret = self.OnFind(evt, action="Replace")
 			if not ret:
 				break
 			total += 1
+			ret = self.OnFind(evt, action="Find")
 		wx.EndBusyCursor()
+		del lock
 		# Tell the user what was done
-		msg = _("%s replacements were made") % total
 		if total == 1:
 			msg = _("1 replacement was made")
+		else:
+			msg = _("%s replacements were made") % total
 		dabo.ui.info(msg, title=_("Replacement Complete"))
 		
 		
@@ -755,6 +764,7 @@ class uiApp(dObject, wx.App):
 					if selectPos[1] - selectPos[0] > 0: 
 						# There is something selected to replace
 						win.ReplaceSelection(replaceString)
+						return True
 				selectPos = win.GetSelection()
 				if downwardSearch:
 					start = selectPos[1]
@@ -815,6 +825,7 @@ class uiApp(dObject, wx.App):
 
 				result = value.find(findString)
 				if result >= 0:
+					ret = True
 					selStart = currentPos + result
 					if not downwardSearch:
 						# Need to allow for the reversed text positions
