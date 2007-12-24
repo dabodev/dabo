@@ -2737,6 +2737,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			val = self.GetValue(currRow, currCol)
 			if isinstance(val, basestring):
 				self.SetValue(currRow, currCol, val.replace(findString, replaceString))
+				ret = True
 			elif isinstance(val, bool):
 				if replaceString.lower() in ("true", "t", "false", "f", "1", "0", "yes", "y", "no", "n"):
 					newval = replaceString.lower() in ("true", "t", "1", "yes", "y")
