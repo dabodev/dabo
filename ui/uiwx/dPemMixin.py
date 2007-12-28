@@ -2018,6 +2018,8 @@ class dPemMixin(dPemMixinBase):
 				else:
 					# prior to wxPython 2.7.s:
 					self.SetBestFittingSize(newSize)
+			if isinstance(self, dabo.ui.dFormMixin):
+				self._defaultHeight = val
 		else:
 			self._properties["Height"] = val
 
@@ -2045,6 +2047,8 @@ class dPemMixin(dPemMixinBase):
 	def _setLeft(self, val):
 		if self._constructed():
 			self.SetPosition((int(val), self.Top))
+		if isinstance(self, dabo.ui.dFormMixin):
+			self._defaultLeft = val
 		else:
 			self._properties["Left"] = val
 
@@ -2302,6 +2306,8 @@ class dPemMixin(dPemMixinBase):
 	def _setPosition(self, val):
 		if self._constructed():
 			self.SetPosition(val)
+		if isinstance(self, dabo.ui.dFormMixin):
+			self._defaultLeft, self._defaultTop = val
 		else:
 			self._properties["Position"] = val
 
@@ -2343,6 +2349,8 @@ class dPemMixin(dPemMixinBase):
 				else:
 					# prior to wxPython 2.7.s:
 					self.SetBestFittingSize(val)
+			if isinstance(self, dabo.ui.dFormMixin):
+				self._defaultWidth, self._defaultHeight = val
 		else:
 			self._properties["Size"] = val
 	
@@ -2419,6 +2427,8 @@ class dPemMixin(dPemMixinBase):
 	def _setTop(self, val):
 		if self._constructed():
 			self.SetPosition((self.Left, int(val)))
+		if isinstance(self, dabo.ui.dFormMixin):
+			self._defaultTop = val
 		else:
 			self._properties["Top"] = val
 
@@ -2462,6 +2472,8 @@ class dPemMixin(dPemMixinBase):
 				else:
 					# prior to wxPython 2.7.s:
 					self.SetBestFittingSize(newSize)
+			if isinstance(self, dabo.ui.dFormMixin):
+				self._defaultWidth = val
 		else:
 			self._properties["Width"] = val
 
