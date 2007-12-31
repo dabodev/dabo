@@ -401,7 +401,18 @@ class Page(ReportObject):
 				Must evaluate to one of 'portrait' or 'landscape'.""")
 
 		self.AvailableProps["Size"] = toPropDict(str, "letter", 
-				"""Specifies the page size.""")
+				"""Specifies the page size.
+
+				This is a tuple of (width, heigth) such as:
+				  ('8 in', '5.5 in')
+
+				You may also use, in place of the tuple,  some common 
+				identifiers such as:
+				  'Letter'
+				  'A4'
+
+				See also the Orientation property, which merely swaps
+				the width and height values. """)
 
 
 class Group(ReportObject):
