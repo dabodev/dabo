@@ -524,6 +524,24 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(biz.Record.nField, None)
 
 
+	def testMementoSaveNewPotentialProblem(self):
+		"""This attempts to reproduce problems being reported on
+		dabo-users (see thread http://leafe.com/archives/showFullThd/374683)
+		"""
+		biz = self.biz
+		self.assertEqual(biz.isChanged(), False)
+		self.assertEqual(biz.isAnyChanged(), False)
+		biz.new()
+		self.assertEqual(biz.isChanged(), False)
+		self.assertEqual(biz.isAnyChanged(), False)
+		biz.Record.cField = 'ppp'
+		self.assertEqual(biz.isChanged(), True)
+		self.assertEqual(biz.isAnyChanged(), True)
+		biz.save()
+		self.assertEqual(biz.isChanged(), False)
+		self.assertEqual(biz.isAnyChanged(), False)
+
+
 if __name__ == "__main__":
 	suite = unittest.TestLoader().loadTestsFromTestCase(Test_dBizobj)
 	unittest.TextTestRunner(verbosity=2).run(suite)
