@@ -659,6 +659,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		captionProps = {"Caption": {"type" : unicode, "readonly" : False}}
 		choiceProps = {"Choices": {"type" : "choice", "readonly" : False, 
 				"customEditor": "editChoice"},
+				"Keys": {"type" : "choice", "readonly" : False, 
+					"customEditor": "editKeys"},
 				"ValueMode": {"type" : list, "readonly" : False,
 					"values" : ["String", "Position", "Key"]}}
 		colorProps = {"BackColor": {"type" : "color", "readonly" : False, 
@@ -780,7 +782,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"ShowPanelSplitMenu" : {"type" : bool, "readonly" : False},
 				"Split" : {"type" : bool, "readonly" : False}}
 		spinnerProps = {
-#				"Increment": {"type": float, "readonly": False},
+				"Increment": {"type": float, "readonly": False},
 				"Max": {"type" : int, "readonly" : False},
 				"Min": {"type" : int, "readonly" : False},
 				"SpinnerWrap": {"type" : bool, "readonly" : False}}
