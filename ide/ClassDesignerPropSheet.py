@@ -539,6 +539,25 @@ class PropSheet(dabo.ui.dPanel):
 		dlg.release()
 
 
+	def editKeys(self, objs, prop, val=[]):
+		# Create a list of keys. 'val' may be a list of existing keys
+		obj = objs[0]
+		class KeysDialog(dabo.ui.dOkCancelDialog):
+			def addControls(self):
+				self.editor = dabo.ui.dEditableList(self, Choices=val,
+						Caption=_("Editing keys for '%s'") % prop)
+				self.Sizer.append1x(self.editor)
+				
+		dlg = KeysDialog(self, Modal=True)
+		dlg.show()
+		if dlg.Accepted:
+			newVal = dlg.editor.Choices
+			self.propGrid.CurrentValue = newVal
+			self.updateVal(prop, newVal, list)
+			self.propGrid.refresh()
+		dlg.release()
+
+
 	def editBorderSides(self, objs, prop, val=[]):
 		# Select one or more border sides from a list of choices. 
 		obj = objs[0]
