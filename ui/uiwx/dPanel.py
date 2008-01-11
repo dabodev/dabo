@@ -40,10 +40,12 @@ class _BasePanelMixin:
 			# necessary when the items in the panel have reduced in size.
 			self.SetMinSize((self.MinSizerWidth, self.MinSizerHeight))
 		self.Layout()
-		for child in self.Children:
-			try:
-				child.layout()
-			except: pass
+		# Sizer's children are the same as self.Children
+		if not self.Sizer:
+			for child in self.Children:
+				try:
+					child.layout()
+				except: pass
 		try:
 			# Call the Dabo version, if present
 			self.Sizer.layout()
