@@ -32,6 +32,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 	def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._forceCase = None
 		self._inForceCase = False
+		self._inFlush = False
 		self._textLength = None
 		self._inTextLength = False
 		self._flushOnLostFocus = True  ## see dabo.ui.dDataControlMixinBase::flushValue()
@@ -49,10 +50,15 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		# This resets the value to the string representation as Python shows it. Also, we
 		# must save and restore the InsertionPosition because wxGtk at least resets it to
 		# 0 upon SetValue().
-		dabo.ui.callAfterInterval(50, self._updateStringDisplay, True)
+		if self._inFlush:
+			return
+		self._inFlush = True
+		self._updateStringDisplay()
+		super(dTextBoxMixinBase, self).flushValue()
+		self._inFlush = False
 	
-	
-	def _updateStringDisplay(self, flush=False):
+
+	def _updateStringDisplay(self):
 		insPos = self.InsertionPosition
 		startPos = self.SelectionStart
 		endPos = self.SelectionEnd
@@ -63,10 +69,6 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		self.InsertionPosition = insPos
 		self.SelectionStart = startPos
 		self.SelectionEnd = endPos
-		if flush:
-			# Now that the dabo Value is set properly, the default behavior that flushes 
-			# the value to the bizobj can be called:
-			super(dTextBoxMixinBase, self).flushValue()
 		
 	
 	def getStringValue(self, val):

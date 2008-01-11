@@ -12,7 +12,7 @@ from dabo.ui import makeDynamicProperty
 
 # The EditBox is just a TextBox with some additional styles.
 
-class dEditBox(tbm.dTextBoxMixinBase, wx.TextCtrl):
+class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
 	"""Creates an editbox, which allows editing of string data of unlimited size.
 
 	The editbox will create scrollbars as necessary, and can edit string or 
@@ -23,7 +23,7 @@ class dEditBox(tbm.dTextBoxMixinBase, wx.TextCtrl):
 		
 		preClass = wx.PreTextCtrl
 		kwargs["style"] = wx.TE_MULTILINE
-		tbm.dTextBoxMixinBase.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 	
 	
 	def _getInitPropertiesList(self):
