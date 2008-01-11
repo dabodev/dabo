@@ -44,7 +44,12 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 
 	def drawBitmap( self, bitmap, attr, dc, rect, isSelected):
 		# draw background:
-		bkgrd = wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW) 	
+		if isSelected:
+			syscolor = wx.SYS_COLOUR_HIGHLIGHT
+		else:
+			syscolor = wx.SYS_COLOUR_WINDOW
+
+		bkgrd = wx.SystemSettings_GetColour(syscolor)
 		dc.SetBrush( wx.Brush(bkgrd, wx.SOLID)) 
 
 		try: 
