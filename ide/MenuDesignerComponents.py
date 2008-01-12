@@ -4,6 +4,8 @@ import os
 import dabo
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
+from dabo.ui import makeDynamicProperty
+from dabo.ui import makeProxyProperty
 
 
 
@@ -56,10 +58,12 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 	_className = "CaptionPanel"
 	# Displayed name
 	_commonName = "Generic Item"
+	_kids = []
 	
 	def __init__(self, parent, *args, **kwargs):
 		self._caption = ""
 		self._MRU = False
+		self._selected = False
 		self._inUpdate = False
 		# The draw object representing the Caption
 		self._capText = None
@@ -82,16 +86,19 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 		self.BorderWidth = 1
 		self.BorderColor = (222, 222, 222)
 		self.Height = 24
-		self.BackColor = self._unselectedBackColor = "white"
+		self._unselectedBackColor = "white"
 		self._selectedBackColor = (255, 255, 192)
 		self._unselectedForeColor = "black"
 		self._selectedForeColor = "blue"
 		# This is the background draw object
 		self._background = self.drawRectangle(0, 0, -1, -1,
-				penWidth=0, fillColor=self._unselectedBackColor)
-		self._selected = False
-		self._capText = self.drawText(self.Caption, 5, 5)
-		self._hotKeyText = self.drawText(self.AbbreviatedHotKey, 5, 5)
+				penWidth=0, fillColor=self._unselectedBackColor, visible=False)
+		self._capText = self.drawText(self.Caption, 5, 5, visible=False)
+		self._hotKeyText = self.drawText(self.AbbreviatedHotKey, 5, 5, visible=False)
+		self.DynamicBackColor = self.getBack		#lambda: {True: self._selectedBackColor, False: self._unselectedBackColor}[self._selected]
+		self._background.DynamicFillColor = self._capText.DynamicFillColor = \
+				self._hotKeyText.DynamicFillColor = self.getBack		#lambda: {True: self._selectedBackColor, False: self._unselectedBackColor}[self._selected]
+		self._capText.DynamicForeColor = lambda: {True: self._selectedForeColor, False: self._unselectedForeColor}[self._selected]
 		# This will allow the hot key text position to stay right-aligned.
 		self._hotKeyText.DynamicXpos = self.positionHotKeyText
 		self.refresh()
@@ -106,7 +113,24 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 		# Smooth the drawing
  		self.Buffered = True
  		
+ 		self._kids = [self._background, self._hotKeyText, self._capText]
 	
+	def getBack(self):
+		print "BACK",
+		try:
+			print self.Caption
+		except AttributeError:
+			print self.Shape, self
+		print "SELECTED:", self._selected
+		if self._selected:
+			ret = self._selectedBackColor
+		else:
+			ret = self._unselectedBackColor
+		print "RETURNING", ret
+		print
+		return ret
+
+
 	# These two methods will display the item's HelpText
 	# in the form's Status Bar when the mouse is over them.
 	def onHover(self, evt):
@@ -149,6 +173,8 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 		if self._hotKey:
 			addlwd += self._captionHotKeySpacing
 		calc = capwd + hkwd + addlwd
+		
+		print "WID", self.Caption, calc
 		if curr < calc:
 			self.Width = calc
 
@@ -178,6 +204,7 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 		"""
 		super(CaptionPanel, self).refresh()
 		self.setWidth()
+		print "PAR UP REF", self, self.Parent
 		self.Parent.update()
 		self.Parent.layout()
 
@@ -361,18 +388,19 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 
 	def _setSelected(self, val):
 		if self._constructed():
+			print "SETSEL", self.Caption, val
 			self._selected = val
-			self.clear()
-			self.lockDisplay()
-			backcolor = {True: self._selectedBackColor, 
-					False: self._unselectedBackColor}[val]
-			forecolor = {True: self._selectedForeColor,
-					False: self._unselectedForeColor}[val]
-			self._capText.ForeColor = self._capText.PenColor = forecolor
-			self._capText.FontBold = val
-			self.BackColor = self._background.FillColor = backcolor
+# 			self.clear()
+# 			self.lockDisplay()
+# 			backcolor = {True: self._selectedBackColor, 
+# 					False: self._unselectedBackColor}[val]
+# 			forecolor = {True: self._selectedForeColor,
+# 					False: self._unselectedForeColor}[val]
+# 			self._capText.ForeColor = self._capText.PenColor = forecolor
+# 			self._capText.FontBold = val
+# 			self.BackColor = self._background.FillColor = backcolor
 			self.Parent.refresh()
-			self.unlockDisplay()
+# 			self.unlockDisplay()
 		else:
 			self._properties["Selected"] = val
 
@@ -428,6 +456,8 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 			_("Identifying label displayed in the prop sheet tree (read-only) (str)"))
 		
 
+	_proxyDict = {}
+	Visible = makeProxyProperty(_proxyDict, "Visible", ("self", "_kids"))
 
 
 class CaptionBitmapPanel(CaptionPanel):
@@ -465,8 +495,12 @@ class CaptionBitmapPanel(CaptionPanel):
 		if self._bmp:
 			# Remove it.
 			self.removeDrawnObject(self._bmp)
+			self._kids.remove(self._bmp)
 			self._bmp = None
-		self._bmp = self.drawBitmap(bmp, 5, 5)
+		self._bmp = self.drawBitmap(bmp, 5, 5, visible=self.Parent.Visible)
+		
+ 		self._kids.append(self._bmp)
+
 		wd = self._bmp.Width
 		# Move the text over to fit
 		self._capText.Xpos = wd + 10
@@ -519,6 +553,8 @@ class SeparatorPanel(CaptionBitmapPanel):
 				penColor="gray", penWidth=1)
 		self._line.DynamicPoints = self.setLineWidth
 		self._line.DynamicPenWidth = self.setLineThick
+		self._kids.append(self._line)
+		
 		
 	def onResize(self, evt):
 		if self._line:

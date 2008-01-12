@@ -29,18 +29,13 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		
 	
 	def appendMenu(self, caption, useMRU=False):
-		mn = MenuPanel(self, Caption=caption, MRU=useMRU, Visible=self.Visible)
+		mn = MenuPanel(self, Caption=caption, MRU=useMRU, Visible=True)
 		self.Sizer.append(mn)
-		dabo.ui.callAfterInterval(500, self._setNewMenu, mn)
+#		dabo.ui.callAfterInterval(500, self._setNewMenu, mn)
 		self.fit()
 		self.Controller.updateLayout()
 		return mn
 	
-	
-	def _setNewMenu(self, mn):
-		mn.PanelVisible = True
-		dabo.ui.setAfterInterval(500, mn, "PanelVisible", False)
-		
 	
 	def insertMenu(self, pos, caption, useMRU=False):
 		mn = MenuPanel(self, Caption=caption, MRU=useMRU)
@@ -51,10 +46,14 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		
 		
 	def menuClick(self, menu):
+		self.select(menu)
+
+
+	def select(self, menu):
 		self.Controller.Selection = menu
 		menu.PanelVisible = True
-	
-	
+
+		
 	def fit(self):
 		self.layout(resetMin=True)
 		self.Width = reduce(lambda x, y: x+y, [ch.Width for ch in self.Children])
@@ -213,13 +212,21 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		em.append("Find Again", key="Ctrl-G", picture="")
 		self.appendMenu(_("View"), False)
 		self.appendMenu(_("Help"), False)
+		
+		for kid in self.Children:
+			kid.Visible = True
 		self.layout()
 		self.fitToSizer()
+
+		self.select(fm)
 		self.Form.unlockDisplay()
-		dabo.ui.callAfterInterval(100, self._cleanupQuickMenu, fm)
-	def _cleanupQuickMenu(self, itm):
-		self.Form.select(itm)
-		dabo.ui.callAfterInterval(100, self.Form.refresh)
+		self.Form.refresh()
+
+
+# 		dabo.ui.callAfterInterval(100, self._cleanupQuickMenu, fm)
+# 	def _cleanupQuickMenu(self, itm):
+# 		self.Form.select(itm)
+# 		dabo.ui.callAfterInterval(100, self.Form.refresh)
 
 
 	# Property definitions
@@ -266,5 +273,3 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 	
 	Menus = property(_getMenus, None, None,
 			_("List of all menus in this menubar  (list of MenuPanels)"))
-	
-	

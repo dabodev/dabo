@@ -8,6 +8,8 @@ import dabo.dEvents as dEvents
 from MenuDesignerComponents import CaptionPanel
 from MenuDesignerComponents import CaptionBitmapPanel
 from MenuDesignerComponents import SeparatorPanel
+from dabo.ui import makeDynamicProperty
+from dabo.ui import makeProxyProperty
 
 
 
@@ -25,7 +27,25 @@ class MenuPanel(CaptionPanel):
 				# Name for the saved mnxml file
 				self._controller = None
 				super(_ItemPanel, self).__init__(*args, **kwargs)
+				self.DynamicWidth = self._calcWidth
 			
+			def _calcWidth(self):
+				kids = self.Children
+				if not kids:
+					return 0
+				else:
+					wd = max([kid.Width for kid in kids])
+					dabo.ui.callAfter(self._resizeItems, wd)
+					return wd
+			
+			def _resizeItems(self, wd):
+				if not self:
+					return
+				for kid in self.Children:
+					kid.Width = wd
+				self.layout()
+				self.refresh()
+
 			def processContextMenu(self, obj, evt):
 				self.Controller.processContextMenu(obj, evt)					
 			
@@ -37,6 +57,7 @@ class MenuPanel(CaptionPanel):
 		
 			Controller = property(_getController, _setController, None,
 					_("Object to which this panel is associated  (MenuPanel)"))
+			
 
 		# Add the panel that will hold the menu items. It needs to
 		# be a child of the menu bar's parent, which would be this 
@@ -63,9 +84,9 @@ class MenuPanel(CaptionPanel):
 		except: pass
 		
 		
-	def layout(self):
-		dabo.ui.callAfterInterval(100, self.itemList.layout, resetMin=True)
- 		dabo.ui.callAfterInterval(100, self.itemList.fitToSizer)
+# 	def layout(self):
+# 		dabo.ui.callAfterInterval(100, self.itemList.layout, resetMin=True)
+#  		dabo.ui.callAfterInterval(100, self.itemList.fitToSizer)
 
 
 	def append(self, caption, key=None, picture=None, help=None, 
@@ -80,10 +101,10 @@ class MenuPanel(CaptionPanel):
 			# Called from append
 			pos = len(self.itemList.Children)
 		if separator:
-			itm = SeparatorPanel(self.itemList, Controller=self)
+			itm = SeparatorPanel(self.itemList, Controller=self, Visible=False)
 		else:
 			itm = CaptionBitmapPanel(self.itemList, Caption=caption,
-					Controller=self, Visible=self.Visible)
+					Controller=self, Visible=False)
 			itm._className = "MenuItemPanel"
 			itm._commonName = "Menu Item"
 			itm.isMenuItem = True
@@ -93,6 +114,7 @@ class MenuPanel(CaptionPanel):
 			if picture:
 				itm.Picture = picture
 		
+		itm.Visible = True
 		self.itemList.Height += itm.Height
 		self.itemList.Sizer.insert(pos, itm, "x")
 		self.layout()
@@ -222,23 +244,38 @@ class MenuPanel(CaptionPanel):
 	
 	
 	def _getChildren(self):
-		return self.itemList.Children
+		try:
+			return self.itemList.Children
+		except AttributeError:
+			return []
 
 
 	def _getPanelVisible(self):
 		return self.itemList.Visible
 
 	def _setPanelVisible(self, val):
-#		print "SETVIS", self.Caption, val
 		if val:
 			localPos = (self.Left, self.Bottom)
 			formPos = self.Parent.formCoordinates(localPos)
 			self.itemList.Position = formPos
 			self.Controller.onShowPanel(self)
+# 		self.Visible = val
 		self.itemList.Visible = val
+
+# 		itms = self._proxyDict.get("Visible", ())
+# 		for xx in itms:
+# 			if xx == "Children":
+# 				for xkid in self.Children:
+# 			elif xx == "self":
+# 				print "SELF ITEMLIST", self.itemList.Visible
+# 			else:
+# 				obj = getattr(self, xx)
+# 				print xx, obj.Visible
+		
+		self.itemList.update()
 		self.itemList.Parent.clear()
 		self.layout()
-		self.itemList.Parent.refresh()
+#		self.itemList.Parent.refresh()
 
 
 	Children = property(_getChildren, None, None,
@@ -246,6 +283,7 @@ class MenuPanel(CaptionPanel):
 	
 	PanelVisible = property(_getPanelVisible, _setPanelVisible, None,
 			_("Determines if the menu is currently 'open'  (bool)"))
-	
-		
 
+
+	_proxyDict = {}
+	Visible = makeProxyProperty(_proxyDict, "Visible", ("self", "Children", "_capText"))
