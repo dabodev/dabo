@@ -116,18 +116,14 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
  		self._kids = [self._background, self._hotKeyText, self._capText]
 	
 	def getBack(self):
-		print "BACK",
 		try:
 			print self.Caption
 		except AttributeError:
 			print self.Shape, self
-		print "SELECTED:", self._selected
 		if self._selected:
 			ret = self._selectedBackColor
 		else:
 			ret = self._unselectedBackColor
-		print "RETURNING", ret
-		print
 		return ret
 
 
@@ -173,8 +169,6 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 		if self._hotKey:
 			addlwd += self._captionHotKeySpacing
 		calc = capwd + hkwd + addlwd
-		
-		print "WID", self.Caption, calc
 		if curr < calc:
 			self.Width = calc
 
@@ -204,7 +198,6 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 		"""
 		super(CaptionPanel, self).refresh()
 		self.setWidth()
-		print "PAR UP REF", self, self.Parent
 		self.Parent.update()
 		self.Parent.layout()
 
@@ -388,7 +381,6 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 
 	def _setSelected(self, val):
 		if self._constructed():
-			print "SETSEL", self.Caption, val
 			self._selected = val
 # 			self.clear()
 # 			self.lockDisplay()

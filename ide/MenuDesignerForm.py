@@ -194,27 +194,17 @@ class MenuDesignerForm(dabo.ui.dForm):
 		
 		
 	def select(self, obj):
-		try: print "SELE", obj.Caption
-		except: print "SELE NONE"
 		if obj is self._selection:
-			print "SAME"
 			return
 		self.lockDisplay()
 		if self._selection is not None:
-			print "UNSEL", self._selection.Caption
 			self._selection.Selected = False
 		self._selection = obj
 		self.PropForm.select(obj)
-		print "OBJ.SELECTED"
 		obj.Selected = True
-		try: print "ENSURE", obj.Caption
-		except: print "eENSEURE NONE"
-
 		self.ensureVisible(obj)
 		dabo.ui.callAfterInterval(100, self._selectAfter)
 	def _selectAfter(self):
-		try: print "SELE AFT", self._selection.Caption
-		except: print "SELE AFT NONE"
 		self.update()
 		self.refresh()
 		self.unlockDisplay()
