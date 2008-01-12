@@ -116,10 +116,6 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
  		self._kids = [self._background, self._hotKeyText, self._capText]
 	
 	def getBack(self):
-		try:
-			print self.Caption
-		except AttributeError:
-			print self.Shape, self
 		if self._selected:
 			ret = self._selectedBackColor
 		else:
