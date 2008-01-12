@@ -906,10 +906,6 @@ class dPemMixin(dPemMixinBase):
 			l, t = pos
 		# If the container is a page, we need to use its containing 
 		# pageframe/pagelist, etc.
-		if isinstance(cnt, dabo.ui.dForm):
-			return (l, t)
-		# If the container is a page, we need to use its containing 
-		# pageframe/pagelist, etc.
 		if isinstance(cnt, dabo.ui.dPage):
 			cnt = cnt.Parent
 		p = self
@@ -966,8 +962,8 @@ class dPemMixin(dPemMixinBase):
 	
 	
 	def isContainedBy(self, obj):
-		"""Returns True if this the containership hierarchy for this control
-		includes obj.
+		"""Returns True if the containership hierarchy for this control
+		includes the passed object reference.
 		"""
 		ret = False
 		p = self.Parent
@@ -2325,9 +2321,11 @@ class dPemMixin(dPemMixinBase):
 		self._registryID = val
 		try:
 			self.Form.registerObject(self)
-		except:
-			dabo.errorLog.write(_("Failed to register RegID '%s'") % val)
-
+		except KeyError:
+			err = _("Attempt in object '%s' to set duplicate RegID: '%s'") % (self, val)
+			dabo.errorLog.write(err)
+			raise KeyError, err
+			
 		# When the object's RegID is set, we need to autobind again:
 		self.autoBindEvents(force=False)
 	
