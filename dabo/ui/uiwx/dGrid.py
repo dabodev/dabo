@@ -3148,6 +3148,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _onGridHeaderMouseRightUp(self, evt):
 		""" Occurs when the right mouse button goes up in the grid header."""
 		pass
+	_onGridHeaderContextMenu = _onGridHeaderMouseRightUp
 
 
 	def _onGridMouseRightClick(self, evt):
@@ -3164,6 +3165,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 		if menu is not None and len(menu.Children) > 0:
 			self.showContextMenu(menu)
+	_onContextMenu = _onGridMouseRightClick
 
 
 	def _onGridHeaderMouseLeftDown(self, evt):
@@ -3810,10 +3812,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			cn = self.CurrentColumn
 			if curr != val:
 				# The row is being changed
-				### egl: I don't recall why this callAfter() was added, but it messes up
-				###   the Find/Replace logic, and removing it doesn't seem to hurt.
-# 				if cn >= 0:
-# 					dabo.ui.callAfter(self.SetGridCursor, val, cn)
+				val = max(0, val)
+				cn = max(0, cn)
 				self.SetGridCursor(val, cn)
 				self.MakeCellVisible(val, cn)
 		else:
