@@ -213,23 +213,26 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
 		localSchemaName = tableNameBreak[0]
 		localTableName = tableNameBreak[1]
 		
-		#tempCursor = self._cursor.AuxCursor
+
 		tempCursor =self._connection.cursor()
-		sqltablestr = """SELECT seq.relname::text
-		FROM pg_class src, pg_class seq, pg_namespace, pg_attribute,
-		pg_depend
-		WHERE
-		pg_depend.refobjsubid = pg_attribute.attnum AND
-		pg_depend.refobjid = src.oid AND
-		seq.oid = pg_depend.objid AND
-		src.relnamespace = pg_namespace.oid AND
-		pg_attribute.attrelid = src.oid AND
-		pg_namespace.nspname = '%s' AND
-		src.relname = '%s' AND
-		pg_attribute.attname = '%s'""" % (localSchemaName,localTableName,cursor.KeyField)
-		
-		
-		tempCursor.execute(sqltablestr)
+
+		#JFCS 01/13/08 changed the select statement to allow primary fields that were not based
+		#on a serial data type to work.
+		# special thanks to Lorenzo Alberton for his help with parsing of the fields.
+		# It has been confirmed that the statement works with 7.4 through 8.3.x
+		sql="""
+		SELECT substring((SELECT substring(pg_get_expr(d.adbin, d.adrelid) for 128) 
+		FROM pg_attrdef d 
+		WHERE d.adrelid = a.attrelid  AND d.adnum = a.attnum  AND a.atthasdef) 
+		FROM 'nextval[^'']*''([^'']*)') 
+		FROM pg_attribute a 
+		LEFT JOIN pg_class c ON c.oid = a.attrelid 
+		LEFT JOIN pg_attrdef d ON d.adrelid = a.attrelid AND d.adnum = a.attnum AND a.atthasdef 
+		LEFT JOIN pg_namespace n ON c.relnamespace = n.oid WHERE (c.relname = %s) 
+		AND a.attname = %s and n.nspname=%s AND NOT a.attisdropped AND a.attnum > 0 AND pg_get_expr(d.adbin, d.adrelid) LIKE 'nextval%%' 
+		"""
+
+		tempCursor.execute(sql, ( localTableName,cursor.KeyField,localSchemaName))
 		rs = tempCursor.fetchall()
 		#if rs is None:
 			#dabo.dbActivityLog.write("no data in getLastInsertID")
