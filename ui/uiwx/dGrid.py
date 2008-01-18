@@ -2,7 +2,7 @@
 import copy
 import sys
 import datetime
-import locale
+import time
 import operator
 import re
 import wx
@@ -21,6 +21,7 @@ import dabo.biz
 import dabo.dColors as dColors
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
+import dabo.lib.dates
 
 # from dabo.lib.profilehooks import profile
 # from dabo.dBug import loggit
@@ -333,7 +334,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		dabo.ui.callAfterInterval(200, col_obj._updateCellDynamicProps, row)
 		if bizobj:
 			if field and (row < bizobj.RowCount):
-				ret = bizobj.getFieldVal(field, row)
+				ret = self.getStringValue(bizobj.getFieldVal(field, row))
 			else:
 				ret = ""
 		else:
@@ -345,6 +346,13 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			ret = self.grid.NoneDisplay
 		return ret
 
+	def getStringValue(self, val):
+		"""Get the string value to display in the grid."""
+		if isinstance(val, datetime.datetime):
+			return dabo.lib.dates.getStringFromDateTime(val)
+		elif isinstance(val, datetime.date):
+			return dabo.lib.dates.getStringFromDate(val)
+		return val
 
 	def SetValue(self, row, col, value):
 		field = self.grid.Columns[col].DataField

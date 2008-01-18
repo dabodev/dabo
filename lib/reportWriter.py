@@ -72,9 +72,6 @@ if False:
 else:
 	ParaClass = platypus.Paragraph
 
-# Pretty sure we want to do this way earlier in Dabo, 
-# but this gets it working for me:
-locale.setlocale(locale.LC_ALL, '')
 
 def toPropDict(dataType, default, doc):
 	return {"dataType": dataType, "default": default, "doc": doc}
