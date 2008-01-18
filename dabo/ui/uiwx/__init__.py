@@ -357,6 +357,11 @@ def getEventData(wxEvt):
 		ed["shiftDown"] = wxEvt.ShiftDown()
 		if isinstance(wxEvt, wx.MouseEvent):
 			ed["mouseDown"] = ed["dragging"] = wxEvt.Dragging()
+			try:
+				# MouseWheel scroll information
+				ed["wheelRotation"] = wxEvt.WheelRotation * wxEvt.LinesPerAction
+			except AttributeError:
+				pass
 			
 	if isinstance(wxEvt, wx.ListEvent):
 		pos = wxEvt.GetPosition()
