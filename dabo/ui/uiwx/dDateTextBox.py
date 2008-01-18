@@ -17,10 +17,10 @@ from dabo.ui import makeDynamicProperty
 
 class CalPanel(dPanel):
 	def __init__(self, parent, pos=None, dt=None, ctrl=None ):
-		if dt is None:
-			self.date = datetime.date.today()
-		else:
+		if isinstance(dt, (datetime.datetime, datetime.date)):
 			self.date = dt
+		else:
+			self.date = datetime.date.today()
 		self.ctrl = ctrl
 		super(CalPanel, self).__init__(parent, pos=pos)
 		
