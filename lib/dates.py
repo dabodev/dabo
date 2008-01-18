@@ -86,14 +86,14 @@ def _getTimeRegex(format):
 	return re.compile(exp % elements)
 
 
-def getStringFromDate(dateVal):
+def getStringFromDate(d):
 	"""Given a datetime.date, convert to string in dabo.settings.dateFormat style."""
-	dateFormat = dabo.settings.dateFormat
-	if dateFormat is None:
+	fmt = dabo.settings.dateFormat
+	if fmt is None:
 		# Delegate formatting to the time module, which will take the
 		# user's locale into account.
-		dateFormat = "%x"
-	return dateVal.strftime(dateFormat)
+		fmt = "%x"
+	return time.strftime(fmt, (d.year, d.month, d.day, 0, 0, 0, 0, 0, 0))
 
 
 def getDateFromString(strVal, formats=None):
@@ -150,14 +150,14 @@ def getDateFromString(strVal, formats=None):
 	return ret
 
 
-def getStringFromDateTime(dateTimeVal):
+def getStringFromDateTime(dt):
 	"""Given a datetime.datetime, convert to string in dabo.settings.dateTimeFormat style."""
-	dateTimeFormat = dabo.settings.dateTimeFormat
-	if dateTimeFormat is None:
+	fmt = dabo.settings.dateTimeFormat
+	if fmt is None:
 		# Delegate formatting to the time module, which will take the
 		# user's locale into account.
-		dateTimeFormat = "%x %X"
-	return dateTimeVal.strftime(dateTimeFormat)
+		fmt = "%x %X"
+	return time.strftime(fmt, (dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond, 0, 0))
 
 
 def getDateTimeFromString(strVal, formats=None):
