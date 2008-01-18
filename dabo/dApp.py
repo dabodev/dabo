@@ -157,6 +157,9 @@ class dApp(dObject):
 
 	
 	def __init__(self, selfStart=False, properties=None, *args, **kwargs):
+		if dabo.settings.loadUserLocale:
+			locale.setlocale(locale.LC_ALL, '')
+
 		self._uiAlreadySet = False
 		dabo.dAppRef = self
 		self._beforeInit()

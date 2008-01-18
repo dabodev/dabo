@@ -6,6 +6,7 @@ For example, getting a date from a string in various formats.
 import datetime
 import re
 import time
+import dabo
 
 _dregex = {}
 _dtregex = {}
@@ -28,7 +29,18 @@ def _getDateRegex(format):
 	elif format == "MMDD":
 		exp = "^%(month)s%(day)s$"
 	else:
-		return None
+		conv = {"%d": "%(day)s",
+		        "%m": "%(month)s",
+		        "%y": "%(shortyear)s",
+		        "%Y": "%(year)s"}
+		if "%d" in format and "%m" in format and ("%y" in format or "%Y" in format):
+			for k in conv.keys():
+				format = format.replace(k, conv[k])
+				format.replace(".", "\.")
+				exp = "^%s$" % format
+		else:
+			return None
+
 	return re.compile(exp % elements)
 
 		
@@ -74,14 +86,31 @@ def _getTimeRegex(format):
 	return re.compile(exp % elements)
 
 
+def getStringFromDate(dateVal):
+	"""Given a datetime.date, convert to string in dabo.settings.dateFormat style."""
+	dateFormat = dabo.settings.dateFormat
+	if dateFormat is None:
+		# Delegate formatting to the time module, which will take the
+		# user's locale into account.
+		dateFormat = "%x"
+	return dateVal.strftime(dateFormat)
+
+
 def getDateFromString(strVal, formats=None):
 	"""Given a string in a defined format, return a date object or None."""
 	global _dregex
 
+	dateFormat = dabo.settings.dateFormat
 	ret = None
+
 	if formats is None:
 		formats = ["ISO8601"]
-	
+
+	if dateFormat is not None:
+		# Take the date format as set in dabo into account, when trying 
+		# to make a date out of the string.
+		formats.append(dateFormat)
+
 	# Try each format in order:
 	for format in formats:
 		try:
@@ -111,16 +140,38 @@ def getDateFromString(strVal, formats=None):
 				pass
 		if ret is not None:
 			break	
+	if ret is None:
+		if dateFormat is None:
+			# Fall back to the current locale setting in user's os account:
+			try:
+				ret = datetime.date(*time.strptime(strVal, "%x")[:3])
+			except:
+				pass
 	return ret
+
+
+def getStringFromDateTime(dateTimeVal):
+	"""Given a datetime.datetime, convert to string in dabo.settings.dateTimeFormat style."""
+	dateTimeFormat = dabo.settings.dateTimeFormat
+	if dateTimeFormat is None:
+		# Delegate formatting to the time module, which will take the
+		# user's locale into account.
+		dateTimeFormat = "%x %X"
+	return dateTimeVal.strftime(dateTimeFormat)
 
 
 def getDateTimeFromString(strVal, formats=None):
 	"""Given a string in a defined format, return a datetime object or None."""
 	global _dtregex
 
+	dtFormat = dabo.settings.dateTimeFormat
 	ret = None
+
 	if formats is None:
 		formats = ["ISO8601"]
+
+	if dtFormat is not None:
+		formats.append(dtFormat)
 	
 	for format in formats:
 		regex = _dtregex.get(format, None)
@@ -158,7 +209,14 @@ def getDateTimeFromString(strVal, formats=None):
 				# (Sept. only has 30 days but the regex will allow 31, etc.)
 				pass
 		if ret is not None:
-			break	
+			break
+	if ret is None:
+		if dtFormat is None:
+			# Fall back to the current locale setting in user's os account:
+			try:
+				ret = datetime.datetime(*time.strptime(strVal, "%x %X"))
+			except:
+				pass
 	return ret
 
 

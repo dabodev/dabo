@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import datetime
+import time
 import locale
 import wx
 import wx.lib.masked as masked
@@ -15,6 +16,7 @@ except ImportError:
 	decimal = None
 	numericTypes = (int, long, float)
 	valueErrors = (ValueError, )
+
 # Make this locale-independent
 decimalPoint = locale.localeconv()["decimal_point"]
 
@@ -507,13 +509,9 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			# keep it unicode instead of converting to str
 			strVal = value
 		elif isinstance(value, datetime.datetime):
-			# Use the ISO 8601 datetime string format (with a " " separator
-			# instead of "T") 
-			strVal = value.isoformat(" ")
+			strVal = dabo.lib.dates.getStringFromDateTime(value)
 		elif isinstance(value, datetime.date):
-			# Use the ISO 8601 date string format so we can convert
-			# back from a known quantity later...
-			strVal = value.isoformat()
+			strVal = dabo.lib.dates.getStringFromDate(value)
 		elif isinstance(value, datetime.time):
 			# Use the ISO 8601 time string format
 			strVal = value.isoformat()
@@ -637,7 +635,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			try:
 				convertedVal = self.convertStringValueToDataType(strVal, dataType)
 				if self.getStringValue(convertedVal) != self.GetValue():
-					dabo.ui.callAfterInterval(50, self._updateStringDisplay)
+					self._updateStringDisplay
 			except ValueError:
 				# It couldn't convert; return the previous value.
 				convertedVal = self._value

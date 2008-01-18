@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Dabo Global Settings
 
 # Do not modify this file directly. Instead, create a file called 
@@ -109,6 +110,18 @@ loggitFile = "functionCall.log"
 
 # Check for web updates?
 checkForWebUpdates = True
+
+# Date and Time formats. None will use the os user's settings, but
+# your code can easily override these. Example:
+#   dabo.settings.dateFormat = "%d.%m.%Y" -> "31.12.2008".
+dateFormat = None
+dateTimeFormat = None
+timeFormat = None
+
+# Do we load the os user's locale settings automatically? 
+# Pythonista note: this executes: 
+#    locale.setlocale(locale.LC_ALL, '')
+loadUserLocale = True
 
 ### Settings - end
 
