@@ -556,6 +556,15 @@ def getMouseObject():
 	return win
 
 
+def getObjectAtPosition(x, y=None):
+	"""Given a screen position, returns the object immediately under that
+	position, or None if there is no such object. You can pass separate 
+	x,y coordinates, or an x,y tuple.
+	"""
+	if y is None:
+		x, y = x
+	return wx.FindWindowAtPoint((x,y))
+
 
 def isControlDown():
 	return wx.GetMouseState().controlDown
