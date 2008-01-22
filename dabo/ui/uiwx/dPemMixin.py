@@ -171,21 +171,7 @@ class dPemMixin(dPemMixinBase):
 		self._pemObject = self
 		
 		if self._constructed():
-			# If a Name isn't given, a default name will be used, and it'll 
-			# autonegotiate by adding an integer until it is a unique name.
-			# If a Name is given explicitly, a NameError will be raised if
-			# the given Name isn't unique among siblings:
-			if not dabo.fastNameSet:
-				name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-				self._initName(name, _explicitName=_explicitName)
-	
-			# Add any properties that were re-set 
-			properties.update(self._properties)
-			# Set the properties *before* calling the afterInit hook
-			self._setProperties(properties)
-			
-			# Set any passed event bindings
-			self._setKwEventBindings(self._kwEvents)
+			self._setNameAndProperties(properties, **kwargs)
 		
 		self._initEvents()
 		self._afterInit()
@@ -209,9 +195,26 @@ class dPemMixin(dPemMixinBase):
 		self.raiseEvent(dEvents.Create)
 
 
+	def _setNameAndProperties(self, properties, **kwargs):
+			# If a Name isn't given, a default name will be used, and it'll 
+			# autonegotiate by adding an integer until it is a unique name.
+			# If a Name is given explicitly, a NameError will be raised if
+			# the given Name isn't unique among siblings:
+			if not dabo.fastNameSet:
+				name, _explicitName = self._processName(kwargs, self.__class__.__name__)
+				self._initName(name, _explicitName=_explicitName)
+	
+			# Add any properties that were re-set 
+			properties.update(self._properties)
+			# Set the properties *before* calling the afterInit hook
+			self._setProperties(properties)
+			
+			# Set any passed event bindings
+			self._setKwEventBindings(self._kwEvents)
+
+
 	def _setProperties(self, properties):
 		"""Provides pre- and post- hooks for the setProperties() method."""
-
 		## Typically used to remove Designer props that don't appear in
 		## runtime classes.
 		if self._beforeSetProperties(properties) is False:
@@ -535,7 +538,16 @@ class dPemMixin(dPemMixinBase):
 		
 
 	def __onWxMouseWheel(self, evt):
-		self.raiseEvent(dEvents.MouseWheel, evt)
+		"""Some platforms do not properly determine the object that receives
+		the scroll event. On Windows, for example, the event is raised by either 
+		a) the control that has focus, or b) the form. The code in this method
+		ensures that the object below the mouse receives the event.
+		"""
+		pos = evt.GetPosition()
+		obj = dabo.ui.getObjectAtPosition(self.absoluteCoordinates(pos))
+		evt.SetEventObject(obj)
+		if obj is not None:
+			obj.raiseEvent(dEvents.MouseWheel, evt)
 	
 	
 	def __onWxMouseLeftDown(self, evt):
@@ -2191,7 +2203,6 @@ class dPemMixin(dPemMixinBase):
 				except AttributeError:
 					# Some objects that inherit from dPemMixin do not implement SetName().
 					pass
-
 				try: 
 					del self.Parent.__dict__[currentName]
 				except (AttributeError, KeyError):
