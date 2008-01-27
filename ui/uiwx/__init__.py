@@ -563,7 +563,13 @@ def getObjectAtPosition(x, y=None):
 	"""
 	if y is None:
 		x, y = x
-	return wx.FindWindowAtPoint((x,y))
+	win = wx.FindWindowAtPoint((x,y))
+	while not isinstance(win, dabo.ui.dPemMixin):
+		try:
+			win = win.GetParent()
+		except AttributeError:
+			break
+	return win
 
 
 def isControlDown():
