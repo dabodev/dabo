@@ -464,7 +464,6 @@ class BrowsePage(Page):
 		if Name is None:
 			Name = "pageBrowse"
 		super(BrowsePage, self).__init__(parent, Name=Name, *args, **kwargs)
-		self._doneLayout = False
 
 
 	def initEvents(self):
@@ -474,11 +473,6 @@ class BrowsePage(Page):
 
 	def __onPageEnter(self, evt):
 		self.updateGrid()
-		if not self._doneLayout:
-			self._doneLayout = True
-			self.Form.Height += 1
-			self.Layout()
-			self.Form.Height -= 1
 		if self.Form.SetFocusToBrowseGrid:
 			self.BrowseGrid.setFocus()
 
