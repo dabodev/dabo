@@ -93,6 +93,7 @@ def getStringFromDate(d):
 		# Delegate formatting to the time module, which will take the
 		# user's locale into account.
 		fmt = "%x"
+	## note: don't use d.strftime(), as it doesn't handle < 1900
 	return time.strftime(fmt, (d.year, d.month, d.day, 0, 0, 0, 0, 0, 0))
 
 
@@ -157,6 +158,7 @@ def getStringFromDateTime(dt):
 		# Delegate formatting to the time module, which will take the
 		# user's locale into account.
 		fmt = "%x %X"
+	## note: don't use dt.strftime(), as it doesn't handle < 1900
 	return time.strftime(fmt, (dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond, 0, 0))
 
 
