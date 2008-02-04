@@ -166,6 +166,8 @@ import dabo.db
 import dabo.biz
 import dabo.ui
 
+# Store the base path to the framework
+frameworkPath = os.path.dirname(dabo.__file__)
 
 # Define the standard Dabo subdirectory stucture for apps.
 def _getAppDirectoryNames():
