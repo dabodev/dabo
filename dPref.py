@@ -65,6 +65,13 @@ class dPref(object):
 				datetime.datetime: "datetime", self._noneType: "none"}
 		if crs is None:
 			prefdir = utils.getUserAppDataDirectory(appName)
+			if prefdir is None:
+				# pkm: This happened to me on a webserver where the user is www-data who doesn't have
+				#      a home directory. I actually don't care about preferences in this case but I
+				#      wasn't able to set dApp.PreferenceManager to None unfortunately, so we'll just
+				#      punt and put the preference db in the working directory (up to your webapp to 
+				#      chdir() accordingly)..
+				prefdir = os.getcwd()
 			db = os.path.join(prefdir, "DaboPreferences.db")
 			self._cxn = dabo.db.dConnection(connectInfo={"DbType": "SQLite", "Database": db})
 			self._cursor = self._cxn.getDaboCursor()
