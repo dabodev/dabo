@@ -22,9 +22,10 @@ class MSSQL(dBackend):
 		import pymssql 
 		
 		port = str(connectInfo.Port)
-		if not port or port == "None":
-			port = 1433
-		host = "%s:%s" % (connectInfo.Host, port)
+		#if not port or port == "None":
+			#port = 1433
+		#host = "%s:%s" % (connectInfo.Host, port)
+		host = connectInfo.Host
 		user = connectInfo.User
 		password = connectInfo.revealPW()
 		database = connectInfo.Database
