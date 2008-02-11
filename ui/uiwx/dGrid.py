@@ -1710,7 +1710,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# if desired by setting ShowRowLabels = True, and their size
 		# can be adjusted by setting RowLabelWidth = <width>
 		self.SetRowLabelSize(self.RowLabelWidth)
-		self.EnableEditing(self.Editable)
+		self.EnableEditing(self.Editable and not self._vetoAllEditing)
 
 		# These need to be set to True, and custom methods provided,
 		# if a grid with variable types in a single column is used.
@@ -3225,7 +3225,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			##                 out of scope prematurely.
 			col._setEditor(newRow)
 
-		if col and self.Editable and col.Editable and self.ActivateEditorOnSelect:
+		if col and (self.Editable and col.Editable and not self._vetoAllEditing 
+				and self.ActivateEditorOnSelect):
 			dabo.ui.callAfter(self.EnableCellEditControl)
 		if oldRow != newRow:
 			bizobj = self.getBizobj()
@@ -3281,7 +3282,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _onKeyChar(self, evt):
 	#def _onKeyDown(self, evt):
 		""" Occurs when the user presses a key inside the grid."""
-		if self.Editable and self.Columns[self.CurrentColumn].Editable:
+		if (self.Editable and self.Columns[self.CurrentColumn].Editable 
+				and not self._vetoAllEditing):
 			# Can't search and edit at the same time
 			return
 
@@ -3889,10 +3891,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getEditable(self):
-		if self._vetoAllEditing:
-			return False
-		else:
-			return self.IsEditable()
+		return self.IsEditable()
 
 	def _setEditable(self, val):
 		if self._constructed():
