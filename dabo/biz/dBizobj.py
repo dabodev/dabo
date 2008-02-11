@@ -1325,6 +1325,71 @@ class dBizobj(dObject):
 		return ret
 
 
+	_baseXML = """<?xml version="1.0" encoding="%s"?>
+<dabocursor xmlns="http://www.dabodev.com"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.dabodev.com dabocursor.xsd"
+xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
+	<cursor autopopulate="%s" keyfield="%s" table="%s">
+%s
+	</cursor>
+</dabocursor>
+"""
+	_rowTemplate = """<row>
+%s
+</row>
+"""
+	_childTemplate = """
+	<child table="%s">
+%s
+	</child>"""
+	_childEmptyTemplate = """
+	<child table="%s" />"""
+
+	def dataToXML(self):
+		"""Returns XML representing the data set. If there are child bizobjs,
+		the data for the related child records will be nested inside of the 
+		parent record; this nesting can go as many levels deep as there are
+		child/grandchild/etc. bizobjs.
+		"""
+		xml = self._dataToXML()
+		return self._baseXML % (self.Encoding, self.AutoPopulatePK, self.KeyField,
+				self.DataSource, xml)
+
+
+	def _dataToXML(self, level=None, rows=None):
+		self._xmlBody = ""
+		if level is None:
+			level = 0
+		def addToBody(txt, lvl=None):
+			if lvl:
+				txt = "\n".join(["%s%s" % ("\t"*lvl, ln) for ln in txt.splitlines()])
+				if txt and not txt.endswith("\n"):
+					txt += "\n"
+			self._xmlBody += txt
+		if rows is None:
+			self.scan(self._xmlForRow, level=level+1, callback=addToBody)
+		else:
+			self.scanRows(self._xmlForRow, self.RowNumber, level=level+1, 
+					callback=addToBody)
+		return self._xmlBody
+
+
+	def _xmlForRow(self, level, callback):
+		"""Returns the xml for the given row to the specified
+		callback function.
+		"""
+		xml = self._CurrentCursor._xmlForRow()
+		kidXML = ""
+		for kid in self.__children:
+			kidstuff = kid._dataToXML(level=level+1)
+			if kidstuff:
+				kidXML += self._childTemplate % (kid.DataSource, kidstuff)
+			else:
+				kidXML += self._childEmptyTemplate % kid.DataSource
+		callback(self._rowTemplate % ("%s%s" % (xml, kidXML)), level)
+
+
 	def getDataSet(self, flds=(), rowStart=0, rows=None):
 		""" Get the entire data set encapsulated in a list.
 
