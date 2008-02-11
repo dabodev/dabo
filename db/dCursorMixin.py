@@ -634,6 +634,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				self.Table, rowXML)
 
 
+	def _xmlForRow(self, row=None):
+		"""Returns the XML for the specified row; if no row is specified,
+		the current row is used.
+		"""
+		colTemplate = """	<column name="%s" type="%s">%s</column>"""
+		recInfo = [ colTemplate % (k, self.getType(v), self.escape(v))
+				for k,v in self._records[self.RowNumber].items() ]
+		return "\n".join(recInfo)
+
+
 	def getType(self, val):
 		try:
 			ret = re.search("type '([^']+)'", str(type(val))).groups()[0]
