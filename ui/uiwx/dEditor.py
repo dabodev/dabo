@@ -1224,8 +1224,25 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 					if lastChild > lineNum:
 						self.HideLines(lineNum+1, lastChild)
 			lineNum = lineNum + 1
-
-
+	
+	def FoldAllCode(self, expand):
+		lineCount = self.GetLineCount()
+		
+		lineNum = 0
+		while lineNum < lineCount:
+			level = self.GetFoldLevel(lineNum)
+			if level & stc.STC_FOLDLEVELHEADERFLAG:
+				if expand:
+					self.SetFoldExpanded(lineNum, True)
+					self.ShowLines(lineNum, self.Expand(lineNum, True))
+				else:
+					lastChild = self.GetLastChild(lineNum, -1)
+					self.SetFoldExpanded(lineNum, False)
+					
+					if lastChild > lineNum:
+						self.HideLines(lineNum+1, lastChild)
+			lineNum = lineNum + 1
+	
 	def Expand(self, line, doExpand, force=False, visLevels=0, level=-1):
 		lastChild = self.GetLastChild(line, level)
 		line = line + 1
