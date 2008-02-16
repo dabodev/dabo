@@ -1367,6 +1367,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		# Save the bookmarks
 		self._saveBookmarks()
 		
+		#if the file extension changed, automatically set the language if extension is known.
+		fext = os.path.splitext(fname)[1]
+		self.Language = fileFormatsDic.get(fext, self.Language)
+		
 		return True
 	
 	
