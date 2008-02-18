@@ -1125,11 +1125,11 @@ class dBizobj(dObject):
 				self.__currentCursorKey = tmpKey
 				del self.__cursors[currKey]
 				self.__cursors[tmpKey] = cursor
+		cursor.setDefaults(self.DefaultValues)
+		cursor.setNewFlag()
 		# Fill in the link to the parent record
 		if self.Parent and self.FillLinkFromParent and self.LinkField:
 			self.setParentFK()
-		cursor.setDefaults(self.DefaultValues)
-		cursor.setNewFlag()
 
 		# Call the custom hook method
 		self.onNew()
