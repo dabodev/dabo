@@ -56,6 +56,8 @@ class dCursorMixin(dObject):
 	def _initProperties(self):
 		# Holds the dict used for adding new blank records
 		self._blank = {}
+		# Flag for indicating NULL default values were set
+		self._nullDefaults = False
 		# Writable version of the dbapi 'description' attribute
 		self.descriptionClean = None
 		# Last executed sql params
@@ -176,6 +178,18 @@ class dCursorMixin(dObject):
 		else:
 			pk = rec.get(self.KeyField, None)
 		return pk
+	
+	
+	def pkFieldExpression(self):
+		"""Returns the field or comma-separated list of field names
+		for the PK for this cursor's table.
+		"""
+		if isinstance(self.KeyField, tuple):
+			pkField = ", ".join([kk for kk in self.KeyField])
+		else:
+			pkField = self.KeyField
+		return pkField
+		
 
 
 	def _correctFieldType(self, field_val, field_name, _newQuery=False):
@@ -1192,6 +1206,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					if kk in self.getNonUpdateFields():
 						# Skip it.
 						continue
+					if self._nullDefaults and vv == (None, None):
+						# Skip these, too
+						continue
 					# Append the field and its value.
 					flds += ", " + self.BackendObject.encloseNames(kk, aq)
 					# add value to expression
@@ -1225,6 +1242,34 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				newPKVal = aux.getLastInsertID()
 				if newPKVal and not self._compoundKey:
 					self.setFieldVal(self.KeyField, newPKVal, row)
+			
+			if newrec and self._nullDefaults:
+				# We need to retrieve any new default values
+				aux = self.AuxCursor
+				if not isinstance(self.KeyField, tuple):
+					keyFIelds = [self.KeyField]
+				else:
+					keyFIelds = self.KeyField
+				wheres = []
+				for kf in keyFIelds:
+					fld = self.BackendObject.encloseNames(kf, self.AutoQuoteNames)
+					val = self.getFieldVal(kf)
+					if isinstance(val, basestring):
+						val = "'" + val.encode(self.Encoding) + "' "
+					elif isinstance(val, (datetime.date, datetime.datetime)):
+						val = self.formatDateTime(val)
+					else:
+						val = str(val)
+					wheres.append("%s = %s" % (fld, val))
+				where = " and ".join(wheres)
+				aux.execute("select * from %s where %s" % (self.Table, where))
+				try:
+					data = aux.getDataSet()[0]
+					for fld, val in data.items():
+						self.setFieldVal(fld, val)
+				except IndexError:
+					# For some reason we could not retrieve the matching PK record
+					pass
 
 			self._clearMemento(row)
 			if newrec:
@@ -1409,13 +1454,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def setDefaults(self, vals):
-		"""Set the default field values for newly added records.
-
-		The 'vals' parameter is a dictionary of fields and their default values.
+		"""Set the default field values for newly added records. The 
+		'vals' parameter is a dictionary of fields and their default values.
+		If vals is None, the defaults for all but the KeyField will be set to
+		None, and their values will not be included in the insert statement
+		when saved unless the user changes them to some non-null 
+		value.
 		"""
 		rec = self._records[self.RowNumber]
 		keyField = self.KeyField
 		keyFieldSet = False
+		self._nullDefaults = (vals is None)
 
 		def setDefault(field, val):
 			if rec.has_key(field):
@@ -1431,16 +1480,22 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			else:
 				raise dException.FieldNotFoundException, _("Can't set default value for nonexistent field '%s'.") % field
 
-		if keyField in vals.keys():
-			# Must set the pk default value first, for mementos to be filled in
-			# correctly.
-			setDefault(keyField, vals[keyField])
-			keyFieldSet = True
-
-		for field, val in vals.items():
-			if field == keyField and keyFieldSet:
-				continue
-			setDefault(field, val)
+		if self._nullDefaults:
+			for field in rec.keys():
+				if field == keyField:
+					continue
+				self.setFieldVal(field, None)
+		else:
+			if keyField in vals.keys():
+				# Must set the pk default value first, for mementos to be filled in
+				# correctly.
+				setDefault(keyField, vals[keyField])
+				keyFieldSet = True
+	
+			for field, val in vals.items():
+				if field == keyField and keyFieldSet:
+					continue
+				setDefault(field, val)
 
 
 	def __setStructure(self):
