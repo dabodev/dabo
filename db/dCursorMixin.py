@@ -1266,7 +1266,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				try:
 					data = aux.getDataSet()[0]
 					for fld, val in data.items():
-						self.setFieldVal(fld, val)
+						try:
+							self.setFieldVal(fld, val)
+						except dException.FieldNotFoundException:
+							# Field is not in the dataset
+							pass
 				except IndexError:
 					# For some reason we could not retrieve the matching PK record
 					pass
