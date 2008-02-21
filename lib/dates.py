@@ -94,7 +94,7 @@ def getStringFromDate(d):
 		# user's locale into account.
 		fmt = "%x"
 	## note: don't use d.strftime(), as it doesn't handle < 1900
-	return time.strftime(fmt, (d.year, d.month, d.day, 0, 0, 0, 0, 0, 0))
+	return time.strftime(fmt, d.timetuple())
 
 
 def getDateFromString(strVal, formats=None):
