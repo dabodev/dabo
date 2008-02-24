@@ -7,9 +7,9 @@ Oracle, MS-SQL, whatever), get recordsets of data based on criteria
 set by the user, provide easy ways to edit and commit changes to the 
 data, and to report on the data.
 
-For basic, easy use that hopefully satisfies 80% of your needs, you 
-simply create/edit data definition files that Dabo uses to dynamically
-create things like menus, edit forms, data browsing grids, etc.
+You either program using Python, importing the dabo library, or you
+use the Dabo Class Designer to create xml files to define your classes.
+These xml files can contain embedded python code for the best of all worlds.
 
 So, the basic idea is that you have a functional, working, albeit basic
 application up and running very quickly, and you can then spend time 
