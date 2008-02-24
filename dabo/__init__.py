@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Dabo: A Framework for developing data-driven business applications
+"""Dabo: A Framework for developing data-driven business applications
 
 Dabo is for developing multi-platform database business applications -
 you know, applications that need to connect to a database server (MySQL,
