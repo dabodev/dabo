@@ -177,6 +177,8 @@ class TreeSheet(dui.dPanel):
 	def updateNames(self, frm):
 		"""Refreshes the object names without changing the layout."""
 		sel = self.tree.Selection
+		if not isinstance(sel, (list, tuple)):
+			sel = (sel, )
 		for nd in sel:
 			obj = nd.Object
 			nd.Caption = self._getDisplayName(obj)
