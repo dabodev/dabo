@@ -461,7 +461,7 @@ class dCursorMixin(dObject):
 			target._types[field_alias] = dabo.db.getPythonType(field_type)
 
 
-	def sort(self, col, dir=None, caseSensitive=True):
+	def sort(self, col, ord=None, caseSensitive=True):
 		""" Sort the result set on the specified column in the specified order.
 
 		If the sort direction is not specified, sort() cycles among Ascending,
@@ -471,20 +471,16 @@ class dCursorMixin(dObject):
 		currOrd = self.sortOrder
 		currCase = self.sortCase
 
-		# Check to make sure that we have data
-		if self.RowCount < 1:
-			raise dException.NoRecordsException, _("No rows to sort.")
-
 		# Make sure that the specified column is a column in the result set
-		if not self._records[0].has_key(col) and not self.VirtualFields.has_key(col):
+		if not [True for t in self.DataStructure if t[0] == col]  and not self.VirtualFields.has_key(col):
 			raise dException.dException, _("Invalid column specified for sort: ") + col
 
 		newCol = col
 		if col == currCol:
 			# Not changing the column; most likely they are flipping
 			# the sort order.
-			if (dir is None) or not dir:
-				# They didn't specify the sort. Cycle through the sort orders
+			if (ord is None) or not ord:
+				# They didn't specify the sort order. Cycle through the sort orders
 				if currOrd == "ASC":
 					newOrd = "DESC"
 				elif currOrd == "DESC":
@@ -492,21 +488,21 @@ class dCursorMixin(dObject):
 				else:
 					newOrd = "ASC"
 			else:
-				if dir.upper() in ("ASC", "DESC", ""):
-					newOrd = dir.upper()
+				if ord.upper() in ("ASC", "DESC", ""):
+					newOrd = ord.upper()
 				else:
-					raise dException.dException, _("Invalid Sort direction specified: ") + dir
+					raise dException.dException, _("Invalid Sort direction specified: ") + ord
 
 		else:
 			# Different column specified.
-			if (dir is None) or not dir:
+			if (ord is None) or not ord:
 				# Start in ASC order
 				newOrd = "ASC"
 			else:
-				if dir.upper() in ("ASC", "DESC", ""):
-					newOrd = dir.upper()
+				if ord.upper() in ("ASC", "DESC", ""):
+					newOrd = ord.upper()
 				else:
-					raise dException.dException, _("Invalid Sort direction specified: ") + dir
+					raise dException.dException, _("Invalid Sort direction specified: ") + ord
 
 		self.__sortRows(newCol, newOrd, caseSensitive)
 		# Save the current sort values
@@ -523,7 +519,7 @@ class dCursorMixin(dObject):
 		the data according to the request.
 		"""
 		kf = self.KeyField
-		if not kf:
+		if not kf or not self.RowCount:
 			return
 
 		if not self.__unsortedRows:
