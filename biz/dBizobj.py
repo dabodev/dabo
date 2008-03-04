@@ -1500,6 +1500,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def addFrom(self, exp):
 		return self._CurrentCursor.addFrom(exp)
 	def addJoin(self, tbl, exp, joinType=None):
+		"""Add SQL JOIN clause.
+
+		tbl: the name of the table to join with
+		exp: the join expression
+		joinType examples: "LEFT", "RIGHT", "INNER", "OUTER"
+		"""
 		return self._CurrentCursor.addJoin(tbl, exp, joinType)
 	def addGroupBy(self, exp):
 		return self._CurrentCursor.addGroupBy(exp)
