@@ -23,7 +23,28 @@ class Test_Dates(unittest.TestCase):
 		for test in tests:
 			self.assertEqual(dates.getDateFromString(test[1], test[0]), test[2])
 
+	def test_getDateTimeFromString(self):
+		formats = ["ISO8601", "YYYYMMDDHHMMSS"]
+		tests = ["0503", "20060503", "2006-05-03", "060503"]
+		expected_date = datetime.datetime(year, 05, 03, 12, 15, 00)
 
+		tests = ((["ISO8601"], "%s-05-03 12:15:00" % year_str4, expected_date),
+		         (["YYYYMMDDHHMMSS"], "%s0503121500" % year_str4, expected_date))
+		for test in tests:
+			self.assertEqual(dates.getDateTimeFromString(test[1], test[0]), test[2])
+
+	def test_getStringFromDate(self):
+		test_str = "2006-05-03"
+		test_date = dates.getDateFromString(test_str)
+		dabo.settings.dateFormat = "%Y-%m-%d"
+		self.assertEqual(dates.getStringFromDate(test_date), test_str) 
+
+	def test_getStringFromDateTime(self):
+		test_str = "2006-05-03 12:15:00"
+		test_datetime = dates.getDateTimeFromString(test_str)
+		dabo.settings.dateTimeFormat = "%Y-%m-%d %H:%M:%S"
+		self.assertEqual(dates.getStringFromDateTime(test_datetime), test_str) 
+		
 	def test_goDate(self):
 		self.assertEqual(dates.goDate(datetime.date(2006, 05, 03), 10), datetime.date(2006, 05, 13))
 		self.assertEqual(dates.goDate(datetime.datetime(2006, 05, 03, 12, 15, 23), 10), datetime.datetime(2006, 05, 13, 12, 15, 23))
