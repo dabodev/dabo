@@ -159,7 +159,7 @@ def getStringFromDateTime(dt):
 		# user's locale into account.
 		fmt = "%x %X"
 	## note: don't use dt.strftime(), as it doesn't handle < 1900
-	return time.strftime(fmt, (dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond, 0, 0))
+	return time.strftime(fmt, dt.timetuple())
 
 
 def getDateTimeFromString(strVal, formats=None):
