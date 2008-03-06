@@ -60,8 +60,8 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 			dc.SetBrush(wx.NullBrush) 
 
 		a = attr.GetAlignment()
-		hbuffer = 5
-		wbuffer = 3
+		hbuffer = 0
+		wbuffer = 0
 
 		if (a[0] & wx.ALIGN_RIGHT) == wx.ALIGN_RIGHT:
 			l = rect.width - bitmap.GetWidth() - wbuffer

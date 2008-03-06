@@ -4616,7 +4616,8 @@ class _dGrid_test(dGrid):
 
 		self.addColumn(Name="Geek", DataField="coder", Caption="Geek?",
 				Order=10, DataType="bool", Width=60, Sortable=False,
-				Searchable=False, Editable=True, HeaderFontBold=False)
+				Searchable=False, Editable=True, HeaderFontBold=False,
+				HorizontalAlignment="Center", VerticalAlignment="Center")
 
 		col = dColumn(self, Name="Person", Order=20, DataField="name",
 				DataType="string", Width=200, Caption="Celebrity Name",
