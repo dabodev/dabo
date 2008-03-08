@@ -1116,7 +1116,10 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 				if useFunc:
 					fnc = itmatts["Action"]
 				if (binding is None) and fnc:
-					binding = eval(fnc)
+					try:
+						binding = eval(fnc)
+					except NameError:
+						binding = fnc
 				help = itmatts["HelpText"]
 				menuItem = menu.append(cap, OnHit=binding, help=help,
 						picture=pic)
@@ -1248,7 +1251,7 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 
 
 def saveScreenShot(obj=None, imgType=None, pth=None, delaySeconds=None):
-	"""Takes a screenshot of the specified and writes it to a file, converting
+	"""Takes a screenshot of the specified object and writes it to a file, converting
 	it to the requested image type. If no object is specified, the current
 	ActiveForm is used. You can add an optional delaySeconds setting that
 	will let you set things up as needed before the image is taken; if not specified,
