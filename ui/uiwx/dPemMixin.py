@@ -34,6 +34,9 @@ class dPemMixin(dPemMixinBase):
 		self._properties = {}
 		# Holds the keyword event bindings passed in the constructor
 		self._kwEvents = {}
+		# Holds event binding expressed as strings to be eval'd after this object
+		# has been constructed.
+		self._delayedEventBindings = []
 		
 		# There are a few controls that don't yet support 3-way inits (grid, for 
 		# one). These controls will send the wx classref as the preClass argument, 
@@ -421,6 +424,20 @@ class dPemMixin(dPemMixinBase):
 			pass
 
 		self.initEvents()
+		
+		# Handle delayed event bindings
+		if self._delayedEventBindings:
+			dabo.ui.callAfter(self._bindDelayed)
+
+
+	def _bindDelayed(self):
+		for evt, mthdString in self._delayedEventBindings:
+			try:
+				mthd = eval(mthdString)
+			except (AttributeError, NameError), e:
+				dabo.errorLog.write(_("Could not evaluate method '%s': %s") % (mthdString, e))
+				continue
+			self.bindEvent(evt, mthd)
 
 
 	def __onMouseEnter(self, evt):
