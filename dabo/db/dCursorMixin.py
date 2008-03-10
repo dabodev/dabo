@@ -29,6 +29,7 @@ from dabo.lib import dates
 class dCursorMixin(dObject):
 	"""Dabo's cursor class, representing the lowest tier."""
 	_call_initProperties = False
+	
 	def __init__(self, sql="", *args, **kwargs):
 		self._convertStrToUnicode = True
 		self._initProperties()
@@ -58,6 +59,8 @@ class dCursorMixin(dObject):
 		self._blank = {}
 		# Flag for indicating NULL default values were set
 		self._nullDefaults = False
+		# Holds the result of getFields() for each table/sql combination.
+		self._fieldStructure = {}
 		# Writable version of the dbapi 'description' attribute
 		self.descriptionClean = None
 		# Last executed sql params
@@ -693,16 +696,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		dataStructure = getattr(self, "_dataStructure", None)
 		if dataStructure is not None:
 			# Use the explicitly-set DataStructure to find the NonUpdateFields.
-			nonUpdateFieldAliases = []
-			realFields = [f[0] for f in self.getFields()]
-			for field in dataStructure:
-				field_alias = field[0]
-				table_name = field[3]
-				if table_name != self.Table:
-					nonUpdateFieldAliases.append(field_alias)
-				elif field_alias not in realFields:
-					nonUpdateFieldAliases.append(field_alias)
-			self.__nonUpdateFields = nonUpdateFieldAliases
+			self.__nonUpdateFields = [f[0] for f in self.DataStructure
+					if (f[3] != self.Table) or not f[4]]
 		else:
 			# Create the _dataStructure attribute
 			self._getDataStructure()
@@ -1787,7 +1782,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if tableName is None:
 			# Use the default
 			tableName = self.Table
-		return self.BackendObject.getFields(tableName, self.AuxCursor)
+		key = "%s:::%s" % (tableName, self.CurrentSQL)
+		try:
+			return self._fieldStructure[key]
+		except KeyError:
+			flds = self.BackendObject.getFields(tableName, self.AuxCursor)
+			self._fieldStructure[key] = flds
+			return flds
+		return 
 
 
 	def getFieldInfoFromDescription(self):
