@@ -159,15 +159,10 @@ class dBizobj(dObject):
 		crs = self.__cursors[key]
 		if _dataStructure is not None:
 			crs._dataStructure = _dataStructure
-		crs._virtualFields = self._virtualFields
-		crs.KeyField = self.KeyField
-		crs.Table = self.DataSource
-		crs.AutoPopulatePK = self.AutoPopulatePK
-		crs.AutoQuoteNames = self.AutoQuoteNames
 		crs.BackendObject = cf.getBackendObject()
 		crs.sqlManager = self.SqlManager
-		crs.UserSQL = self.UserSQL
 		crs._bizobj = self
+		self._syncCursorProps(crs)
 		if self.RequeryOnLoad:
 			crs.requery()
 			self.first()
@@ -1642,14 +1637,21 @@ afterDelete() which is only called after a delete().""")
 		such cursors are in sync with the bizobj.
 		"""
 		for crs in self.__cursors.values():
-			crs.AutoPopulatePK = self._autoPopulatePK
-			crs.AutoQuoteNames = self._autoQuoteNames
-			crs.Table = self._dataSource
-			crs.UserSQL = self._userSQL
-			crs.VirtualFields = self._virtualFields
-			crs.Encoding = self.Encoding
-			crs.KeyField = self._keyField
-			crs.setNonUpdateFields(self._nonUpdateFields)
+			self._syncCursorProps(crs)
+	
+	
+	def _syncCursorProps(self, crs):
+		"""This method ensures that the passed cursor's properties
+		are in sync with this bizobj.
+		"""
+		crs.AutoPopulatePK = self._autoPopulatePK
+		crs.AutoQuoteNames = self._autoQuoteNames
+		crs.Table = self._dataSource
+		crs.UserSQL = self._userSQL
+		crs.VirtualFields = self._virtualFields
+		crs.Encoding = self.Encoding
+		crs.KeyField = self._keyField
+		crs.setNonUpdateFields(self._nonUpdateFields)
 	
 
 	## Property getter/setter methods ##
