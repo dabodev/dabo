@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import re
-import locale
 import datetime
 import wx
 import dabo
@@ -62,12 +60,6 @@ class dDateTextBox(dTextBox):
 	by Quicken, the popular personal finance program.
 	"""
 	def beforeInit(self):
-		# Pattern for recognizing dates from databases
-		self.dbDTPat = re.compile("(\d{4})[-/\.](\d{1,2})[-/\.](\d{1,2}) (\d{1,2}):(\d{1,2}):([\d\.]+)")
-		self.dbDPat = re.compile("(\d{4})[-/\.](\d{1,2})[-/\.](\d{1,2})")
-		self.dbYearLastDTPat = re.compile("(\d{1,2})[-/\.](\d{1,2})[-/\.](\d{4}) (\d{1,2}):(\d{1,2}):([\d\.]+)")
-		self.dbYearLastDPat = re.compile("(\d{1,2})[-/\.](\d{1,2})[-/\.](\d{4})")
-
 		# Two-digit year value that is the cutoff in interpreting 
 		# dates as being either 19xx or 20xx.
 		self.rollover = 50
@@ -96,7 +88,7 @@ class dDateTextBox(dTextBox):
 			self.calButton.bindEvent(dEvents.Hit, self.onDblClick)
 			
 		# Tooltip help
-		self._defaultToolTipText = """Available Keys:
+		self._defaultToolTipText = _("""Available Keys:
 =============
 T : Today
 + : Up One Day
@@ -108,7 +100,7 @@ H : Last Day of montH
 Y : First Day of Year
 R : Last Day of yeaR
 C: Popup Calendar to Select
-"""
+""")
 		self.DynamicToolTipText = lambda: {True: self._defaultToolTipText, 
 				False: None}[self.Enabled and not self.ReadOnly]
 
@@ -184,7 +176,7 @@ C: Popup Calendar to Select
 			val = self.GetValue()
 			
 			if val:
-				valDt = self.strToDate(val, testing=True)
+				valDt = self.Value
 				if valDt is None:
 					adjust = False
 				else:
@@ -211,7 +203,7 @@ C: Popup Calendar to Select
 	def __onLostFocus(self, evt):
 		val = self.Value
 		try:
-			newVal = self.strToDate(self.GetValue())
+			newVal = self.Value
 			if newVal != val:
 				self.Value = newVal
 		except: pass
@@ -400,103 +392,10 @@ C: Popup Calendar to Select
 		val = self.Value
 		if isinstance(val, datetime.datetime):
 			self.Value = val.replace(year=dt.year, month=dt.month, day=dt.day)
-		elif isinstance(val, basestring):
-			self.Value = self.strToDate(dt)
 		else:
 			self.Value = dt
 
 			
-	def strToDate(self, val, testing=False):
-		""" This routine parses the text representing a date, using the 
-		current format. It adjusts for years given with two digits, using 
-		the rollover value to determine the century. It then returns a
-		datetime.date object set to the entered date.
-		"""
-		val = str(val)
-		ret = None
-		isDateTime = False
-		# See if it matches any standard pattern. Values retrieved
-		# from databases will always be in their own format
-		if self.dbDTPat.match(val):
-			# DateTime pattern
-			isDateTime = True
-			year, month, day, hr, mn, sec = self.dbDTPat.match(val).groups()
-			# Convert to numeric
-			year = int(year)
-			month = int(month)
-			day = int(day)
-			hr = int(hr)
-			mn = int(mn)
-			sec = int(round(float(sec), 0) )
-		elif self.dbDPat.match(val):
-			# Date-only pattern
-			year, month, day = self.dbDPat.match(val).groups()
-			hr = mn = sec = 0
-			# Convert to numeric
-			year = int(year)
-			month = int(month)
-			day = int(day)
-		elif self.dbYearLastDTPat.match(val):
-			# DateTime pattern, YearLast format
-			isDateTime = True
-			month, day, year, hr, mn, sec = self.dbYearLastDTPat.match(val).groups()
-			# Convert to numeric
-			year = int(year)
-			month = int(month)
-			day = int(day)
-			hr = int(hr)
-			mn = int(mn)
-			sec = int(round(float(sec), 0) )
-		elif self.dbYearLastDPat.match(val):
-			# Date-only pattern, YearLast format
-			month, day, year = self.dbYearLastDPat.match(val).groups()
-			hr = mn = sec = 0
-			# Convert to numeric
-			year = int(year)
-			month = int(month)
-			day = int(day)
-		else:
-			# See if there is a time component
-			try:
-				(dt, tm) = val.split()
-				(hr, mn, sec) = tm.split(":")
-				hr = int(hr)
-				mn = int(mn)
-				sec = int(round(float(sec), 0) )
-				isDateTime = True
-			except:
-				dt = val
-				(hr, mn, sec) = (0, 0, 0)
-
-			try:
-				sep = [c for c in dt if not c.isdigit()][0]
-				dtPieces = [int(p) for p in dt.split(sep)]
-			except:
-				# There is no separator
-				sep = ""
-				dtPieces = []
-				
-		if isDateTime:
-			try:
-				ret = datetime.datetime(year, month, day, hr, mn, sec)
-			except:
-				if not testing:
-					# Don't fill up the logs with error messages from tests that 
-					# are expected to fail.
-					dabo.errorLog.write(_("Invalid datetime specified: %s") % val )
-				ret = None
-		else:
-			try:
-				ret = datetime.date(year, month, day)
-			except:
-				if not testing:
-					# Don't fill up the logs with error messages from tests that 
-					# are expected to fail.
-					dabo.errorLog.write(_("Invalid date specified: %s") % val )
-				ret = None
-		return ret
-	
-	
 
 if __name__ == "__main__":
 	import test
