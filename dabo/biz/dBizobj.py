@@ -1142,7 +1142,7 @@ class dBizobj(dObject):
 		catch it (the record will not be marked 'dirty'). Use afterNew() if you
 		instead want the memento system to record the changes.
 		"""
-	pass
+		pass
 
 
 	def setParentFK(self, val=None):
