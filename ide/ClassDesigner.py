@@ -1667,7 +1667,11 @@ class ClassDesigner(dabo.dApp):
 
 	def onRunDesign(self, evt):
 		self.flushCodeEditor()
-		self.CurrentForm.onRunDesign(evt)
+		try:
+			self.CurrentForm.onRunDesign(evt)
+		except StandardError, e:
+			dabo.ui.stop(_("Compilation Error: %s\nCode: %s") % (e.msg, e.text.strip()),
+					_("Compilation Error"))
 
 
 	def onOpenDesign(self, evt):
