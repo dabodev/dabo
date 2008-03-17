@@ -1040,7 +1040,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 					"cdata" : "",
 					"children" : [] }
 			# Add the sizer item info to the item contents
-			if not isSpacer:
+			if not isSpacer and not ("sizerInfo" in kidDict["attributes"]):
 				kidDict["attributes"]["sizerInfo"] = itmDiffDict
 			# Add to the result
 			ret.append(kidDict)
