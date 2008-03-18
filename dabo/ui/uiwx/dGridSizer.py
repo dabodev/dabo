@@ -179,6 +179,9 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 			if colNum.lower() == "all":
 				for col in xrange(self.HighCol+1):
 					self.setColExpand(expand, col, proportion)
+			else:
+				raise ValueError, 
+						_("Invalid value passed for 'colNum' parameter: '%s'. Only column numbers or the word 'all' are valid.") % colNum
 		else:
 			curr = self.getColExpand(colNum)
 			self._colExpandState[colNum] = expand
@@ -202,6 +205,9 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 			if rowNum.lower() == "all":
 				for row in xrange(self.HighRow+1):
 					self.setRowExpand(expand, row, proportion)
+			else:
+				raise ValueError, 
+						_("Invalid value passed for 'rowNum' parameter: '%s'. Only row numbers or the word 'all' are valid.") % rowNum
 		else:
 			curr = self.getRowExpand(rowNum)
 			self._rowExpandState[rowNum] = expand
