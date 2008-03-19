@@ -1420,7 +1420,6 @@ def getImagePath(nm, url=False):
 	current directory, returns the full path to the image. If 'url' is true, returns
 	the path in a 'file:///image.ext' format.
 	"""
-	ret = dabo.icons.getIconFileName(nm)
 	def globfind(loc):
 		loc = os.path.abspath(loc)
 		try:
@@ -1428,14 +1427,16 @@ def getImagePath(nm, url=False):
 		except IndexError:
 			return None
 
-	# Try other locations:
-	trials = [dabo.dAppRef.HomeDirectory, os.getcwd()]
-	trials.extend([p for p in sys.path])
+	ret = dabo.icons.getIconFileName(nm)
+	if not ret:
+		# Try other locations:
+		trials = [dabo.dAppRef.HomeDirectory, os.getcwd()]
+		trials.extend([p for p in sys.path])
 
-	for trial in trials:
-		ret = globfind(trial)
-		if ret:
-			break
+		for trial in trials:
+			ret = globfind(trial)
+			if ret:
+				break
 
 	if ret and url:
 		if wx.Platform == "__WXMSW__":
@@ -1444,7 +1445,6 @@ def getImagePath(nm, url=False):
 		else:
 			ret = "file://%s" % ret
 	return ret
-
 
 
 def setdFormClass(typ):
