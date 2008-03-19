@@ -1421,26 +1421,22 @@ def getImagePath(nm, url=False):
 	the path in a 'file:///image.ext' format.
 	"""
 	ret = dabo.icons.getIconFileName(nm)
-	if ret is None:
-		# Not found in Dabo directories; try app HomeDirectory
+	def globfind(loc):
+		loc = os.path.abspath(loc)
 		try:
-			ret = glob.glob(os.path.join(dabo.dAppRef.HomeDirectory, nm))[0]
+			return glob.glob(os.path.join(loc, nm))[0]
 		except IndexError:
-			pass
-	if ret is None:
-		# Not found yet; try current dir
-		try:
-			ret = glob.glob(os.path.join(os.getcwd(), nm))[0]
-		except IndexError:
-			pass
-	if ret is None:
-		# try all the sys.path directories
-		for pth in sys.path:
-			try:
-				ret = glob.glob(os.path.join(pth, nm))[0]
-				break
-			except IndexError:
-				pass
+			return None
+
+	# Try other locations:
+	trials = [dabo.dAppRef.HomeDirectory, os.getcwd()]
+	trials.extend([p for p in sys.path])
+
+	for trial in trials:
+		ret = globfind(trial)
+		if ret:
+			break
+
 	if ret and url:
 		if wx.Platform == "__WXMSW__":
 			ret = "file:%s" % urllib.pathname2url(ret).replace("|", ":")
