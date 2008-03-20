@@ -19,10 +19,8 @@ def readonly(value):
 
 
 class dPageFrame(dPageFrameMixin, wx.Notebook):
-	"""Creates a pageframe, which can contain an unlimited number of pages.
-
-	Typically, your pages will descend from dPage, but they can in fact be any
-	Dabo visual control, such as a dPanel, dEditBox, etc.
+	"""Creates a pageframe, which can contain an unlimited number of pages,
+	each of which should be a subclass/instance of the dPage class.
 	"""
 	_evtPageChanged = readonly(wx.EVT_NOTEBOOK_PAGE_CHANGED)
 	_evtPageChanging = readonly(wx.EVT_NOTEBOOK_PAGE_CHANGING)
