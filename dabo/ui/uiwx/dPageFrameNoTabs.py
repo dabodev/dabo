@@ -10,10 +10,8 @@ from dabo.ui import makeDynamicProperty
 
 
 class dPageFrameNoTabs(dPanel):
-	"""Creates a pageframe with no tabs.
-
-	Your code will have to programatically set the current page, because the
-	user will have no way to do this.
+	"""Creates a pageframe with no tabs or other way for the user to select a 
+	page. Your code will have to programatically set the page.
 	"""
 	def __init__(self, *args, **kwargs):
 		self._pageClass = dPage
@@ -31,17 +29,25 @@ class dPageFrameNoTabs(dPanel):
 		
 		
 	def appendPage(self, pgCls=None, makeActive=False):
-		"""Creates a new page, which must be a subclass of dPanel
-		or dPage. If makeActive is True, the page is displayed; 
-		otherwise, it is added and hidden.
+		"""Creates a new page, which should be a subclass of dPage. If makeActive 
+		is True, the page is displayed; otherwise, it is added without changing
+		the SelectedPage.
 		"""
 		return self.insertPage(self.PageCount, pgCls=pgCls, makeActive=makeActive)
 		
 	
-	def insertPage(self, pos, pgCls=None, makeActive=False):
+	def insertPage(self, pos, pgCls=None, makeActive=False, ignoreOverride=False):
 		""" Inserts the page into the pageframe at the specified position, 
 		and makes it the active (displayed) page if makeActive is True.
 		"""
+		# Allow subclasses to potentially override this behavior. This will
+		# enable them to handle page creation in their own way. If overridden,
+		# the method will return the new page.
+		ret = None
+		if not ignoreOverride:
+			ret = self._insertPageOverride(pos, pgCls, makeActive)
+		if ret:
+			return ret			
 		if pgCls is None:
 			pgCls = self.PageClass
 		if self.Sizer is None:
@@ -64,6 +70,7 @@ class dPageFrameNoTabs(dPanel):
 		else:
 			self.showPage(self.SelectedPage)
 		return self.Pages[pos]
+	def _insertPageOverride(self, pos, pgCls, makeActive): pass
 
 
 	def removePage(self, pgOrPos, delPage=True):
