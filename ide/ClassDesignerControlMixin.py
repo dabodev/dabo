@@ -135,14 +135,12 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 	
 		
 	def _insertPageOverride(self, pos, pgCls=None, caption="", imgKey=None,
-			ignoreOverride=False):
+			makeActive=False, ignoreOverride=False):
 		if not isinstance(self, self.Controller.pagedControls):
-			return
-		if not isinstance(pgCls, basestring):
 			return
 
 		cnt = self.Controller
-		if cnt.openingClassXML:
+		if cnt.openingClassXML or not isinstance(pgCls, basestring):
 			tmpPgCls = self.Controller.getControlClass(dabo.ui.dPage)
 			pg = self.insertPage(pos, tmpPgCls, ignoreOverride=True)
 			pg.Sizer = LayoutSizer("v")
@@ -174,6 +172,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			# OK, we can create the children of the page now.
 			cnt.recreateChildren(pg, dct["children"], None, False)
 			cnt._propagateDefaultBorder = propBorder
+		if makeActive:
+			self.SelectedPage = pg
 		return pg
 		
 	
