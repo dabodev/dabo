@@ -60,34 +60,26 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 	def setImageURLs(self, val):
 		"""Replace standard image file names with 'file:///img.pth' references"""
 		pat = re.compile(r"""<img (.*)\bsrc=(['"]?)([^'">]+)(['"]?)([^>]*)>""")
-		ret = ""
-		while True:
-			mtch = pat.search(val)
-			if mtch:
-				beg, end = mtch.span()
-				befSrc, qt1, src, qt2, aftSrc = mtch.groups()
-				if "file://" in src:
-					url = src
-				else:
-					url = dabo.ui.getImagePath(src, True)
-					if url is None:
-						# Use the original
-						url = src
-
-				if self.Application.Platform == "Win":
-					# broken image links if the path contains the drive letter
-					pos = url.find(":/", len("file:///"), len(url))
-					if pos:
-						drive_letter = url[pos-1]
-						if drive_letter in string.ascii_letters:
-							url = url.replace("%s:/" % drive_letter, "") 
-				ret = ret + val[:beg] + "<img %(befSrc)ssrc=%(qt1)s%(url)s%(qt2)s%(aftSrc)s>" % locals()
-				val = val[end:]
+		def repl(match):
+			beg, end = match.span()
+			befSrc, qt1, src, qt2, aftSrc = match.groups()
+			if "file://" in src:
+				url = src
 			else:
-				# No match; add the remaining val to ret
-				ret += val
-				break
-		return ret			
+				url = dabo.ui.getImagePath(src, True)
+				if url is None:
+					# Use the original
+					url = src
+
+			if self.Application.Platform == "Win":
+				# broken image links if the path contains the drive letter
+				pos = url.find(":/", len("file:///"), len(url))
+				if pos:
+					drive_letter = url[pos-1]
+					if drive_letter in string.ascii_letters:
+						url = url.replace("%s:/" % drive_letter, "") 
+			return "<img %(befSrc)ssrc=%(qt1)s%(url)s%(qt2)s%(aftSrc)s>" % locals()
+		return pat.sub(repl, val)
 
 
 	def _getHorizontalScroll(self):
