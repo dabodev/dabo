@@ -222,10 +222,10 @@ def callAfterInterval(interval, func, *args, **kwargs):
 	if isinstance(func, int):
 		# Arguments are in the old order
 		interval, func = func, interval
-	futureCall = _callAfterIntervalReferences.get((func, args))
+	futureCall = _callAfterIntervalReferences.get((func.func_code, args))
 	if futureCall:
 		futureCall.Stop()
-	_callAfterIntervalReferences[(func, args)] = wx.FutureCall(interval, func, *args, **kwargs)
+	_callAfterIntervalReferences[(func.func_code, args)] = wx.FutureCall(interval, func, *args, **kwargs)
 
 
 def setAfter(obj, prop, val):
