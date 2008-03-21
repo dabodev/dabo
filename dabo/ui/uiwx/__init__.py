@@ -225,7 +225,14 @@ def callAfterInterval(interval, func, *args, **kwargs):
 	futureCall = _callAfterIntervalReferences.get((func.func_code, args))
 	if futureCall:
 		futureCall.Stop()
-	_callAfterIntervalReferences[(func.func_code, args)] = wx.FutureCall(interval, func, *args, **kwargs)
+	def do(func, *args, **kwargs):
+		del _callAfterIntervalReferences[(func.func_code, args)]
+		try:
+			func(*args, **kwargs)
+		except deadObjectException:
+			# wx.FutureCall must have been hiding these... ???
+			pass
+	_callAfterIntervalReferences[(func.func_code, args)] = wx.FutureCall(interval, do, func, *args, **kwargs)
 
 
 def setAfter(obj, prop, val):
