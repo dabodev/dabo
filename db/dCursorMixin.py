@@ -1611,23 +1611,24 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			sortList.append([self.getFieldVal(fld, row=row), row])
 
 		# Determine if we are seeking string values
-		compString = isinstance(sortList[0][0], basestring)
+		field_type = self._types.get(fld, type(sortList[0][0]))
+		compString = issubclass(field_type, basestring)
 
 		if not compString:
 			# coerce val to be the same type as the field type
-			if isinstance(sortList[0][0], int):
+			if issubclass(field_type, int):
 				try:
 					val = int(val)
 				except ValueError:
 					val = int(0)
 
-			elif isinstance(sortList[0][0], long):
+			elif issubclass(field_type, long):
 				try:
 					val = long(val)
 				except ValueError:
 					val = long(0)
 
-			elif isinstance(sortList[0][0], float):
+			elif issubclass(field_type, float):
 				try:
 					val = float(val)
 				except ValueError:
@@ -1635,7 +1636,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		if compString and not caseSensitive:
 			# Use a case-insensitive sort.
-			sortList.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
+			def case_insensitive(x, y):
+				x = x[0]
+				y = y[0]
+				if x is None and y is None:
+					return 0
+				elif x is None:
+					return -1
+				elif y is None:
+					return 1
+				else:
+					return cmp(x.lower(), y.lower())
+			sortList.sort(case_insensitive)
 		else:
 			sortList.sort()
 
@@ -1647,7 +1659,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				match = (fldval == val)
 			else:
 				# Case-insensitive string search.
-				match = (fldval.lower() == val.lower())
+				l_fldval, l_val = fldval, val
+				if l_fldval is not None:
+					l_fldval = l_fldval.lower()
+				if l_val is not None:
+					l_val = l_fldval.lower()
+				match = (l_fldval == l_val)
 
 			if match:
 				ret = row
@@ -1660,7 +1677,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# we have passed the matching value, so there's no point in
 				# continuing the search.
 				if compString and not caseSensitive:
-					toofar = fldval.lower() > val.lower()
+					toofar = l_fldval > l_val
 				else:
 					toofar = fldval > val
 				if toofar:
