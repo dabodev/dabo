@@ -565,8 +565,66 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		length = evt.GetLength()
 		headerLine = o.LineFromPosition(position)
 		o.Expand(headerLine, True)
-
+	
+	def changeSelectedTextCase(self, case):
+		case = case[0].lower()
+		pos = self.SelectionPosition
 		
+		if case == "u":
+			self.ReplaceSelection(self.SelectedText.upper())
+		elif case == "l":
+			self.ReplaceSelection(self.SelectedText.lower())
+		elif case == "c":
+			self.ReplaceSelection(self.SelectedText.title())
+		elif case == "i":
+			def invert(c):
+				if c.islower():
+					return c.upper()
+				else:
+					return c.lower()
+			
+			self.ReplaceSelection("".join(map(invert, self.SelectedText)))
+		else:
+			raise ValueError, "Case must be either upper, lower, capitalize, or invert."
+		
+		self.SelectionPosition = pos
+	
+	def selectLine(self):
+		start =self.GetLineEndPosition(self.LineNumber-1)
+		if self.Value[start] == "\r":
+			start+=2
+		else:
+			start+=1
+		end = self.GetLineEndPosition(self.LineNumber)
+		self.SelectionPosition = (start, end)
+	
+	def selectWord(self):
+		whiteSpace = " \t\r\n"
+		syntaxDelimeters = """()[]{}"+-*/&%=\\;:"""
+		
+		curPos = self.GetCurrentPos()
+		val = self.Value
+		
+		if val[curPos] in syntaxDelimeters:
+			start=curPos
+			end=start+1
+		else:
+			start=curPos
+			while start-1 > 0:
+				if val[start-1] not in (whiteSpace + syntaxDelimeters):
+					start -= 1
+				else:
+					break
+			
+			end = curPos
+			while end < len(val):
+				if val[end] in (whiteSpace + syntaxDelimeters):
+					break
+				end += 1
+		
+		self.SelectionPosition = (start, end)
+		self.SetCurrentPos(end)
+	
 	def OnSBScroll(self, evt):
 		# redirect the scroll events from the dyn_sash's scrollbars to the STC
 		self.GetEventHandler().ProcessEvent(evt)
