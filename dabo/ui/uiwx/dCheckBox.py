@@ -36,6 +36,7 @@ class dCheckBox(dcm.dDataControlMixin, wx.CheckBox):
 			
 			
 	def _onWxHit(self, evt):
+		self._userChanged = True
 		self.flushValue()
 		self.super(evt)
 
@@ -129,7 +130,7 @@ class dCheckBox(dcm.dDataControlMixin, wx.CheckBox):
 class _dCheckBox_test(dCheckBox):
 	def initProperties(self):
 		self.Caption = _("Do you wish to pass?")
-				
+	
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dCheckBox_test)
