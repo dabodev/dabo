@@ -320,6 +320,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def _setDataSource(self, value):
 		# Clear any old DataSource
 		self.__src = None
+		self._oldVal = None
 		self._DataSource = value
 
 
@@ -330,6 +331,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return ""
 
 	def _setDataField(self, value):
+		self._oldVal = None
 		self._DataField = str(value)
 
 
