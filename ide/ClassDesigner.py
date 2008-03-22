@@ -1669,6 +1669,9 @@ class ClassDesigner(dabo.dApp):
 		self.flushCodeEditor()
 		try:
 			self.CurrentForm.onRunDesign(evt)
+		except AttributeError, e:
+			dabo.ui.stop(_("Attribute Error: %s\nCode: %s") % (e.message, e.text.strip()),
+					_("Attribute Error"))
 		except StandardError, e:
 			dabo.ui.stop(_("Compilation Error: %s\nCode: %s") % (e.msg, e.text.strip()),
 					_("Compilation Error"))
