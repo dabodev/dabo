@@ -48,6 +48,8 @@ def areYouSure(message="Are you sure?", title=None, defaultNo=False,
 	style = wx.YES_NO|wx.ICON_QUESTION
 	if cancelButton:
 		style = style|wx.CANCEL
+	else:
+		stile = style & ~wx.CANCEL
 	if defaultNo:
 		style = style|wx.NO_DEFAULT
 
@@ -140,5 +142,5 @@ if __name__ == "__main__":
 	app.showMainFormOnStart = False
 	app.setup()
 	print areYouSure("Are you happy?")
-	print areYouSure("Are you sure?", cancelButton=True)
+	print areYouSure("Are you sure?", cancelButton=False)
 	print areYouSure("So you aren\'t sad?", defaultNo=True)
