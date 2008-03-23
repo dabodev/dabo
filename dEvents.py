@@ -818,20 +818,25 @@ class SpinUp(SpinnerEvent):
 	"""Occurs when the spinner is incremented, either by clicking
 	the spinner 'up' button or by using the keyboard up arrow.
 	"""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dSpinner)
+	appliesToClass = classmethod(appliesToClass)
 
 
 class SpinDown(SpinnerEvent):
 	"""Occurs when the spinner is decremented, either by clicking
 	the spinner 'down' button or by using the keyboard down arrow.
 	"""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dSpinner)
+	appliesToClass = classmethod(appliesToClass)
 
 
 class Spinner(SpinnerEvent):
 	"""Occurs when the spinner is changed, either by clicking
 	one of the spinner buttons or by using the keyboard arrows.
 	"""
-	pass
-
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dSpinner)
+	appliesToClass = classmethod(appliesToClass)
 
