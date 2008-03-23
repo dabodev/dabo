@@ -826,7 +826,7 @@ class dApp(dObject):
 		try:
 			ret = self.dbConnections[connName]
 		except KeyError:
-			rasie dException.ConnectionNotFoundException, _("No connection named '%s' is defined") % connName
+			raise dException.ConnectionNotFoundException, _("No connection named '%s' is defined") % connName
 		return ret
 	
 	
