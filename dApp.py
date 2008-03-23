@@ -14,6 +14,7 @@ import dabo
 import dabo.ui
 import dabo.db
 import dabo.dLocalize as dLocalize
+import dabo.dException as dException
 from dabo.dLocalize import _
 from dabo.lib.connParser import importConnections
 from dabo import dSecurityManager
@@ -816,7 +817,7 @@ class dApp(dObject):
 		connection. Stores the connection so that multiple requests
 		for the same named connection will not open multiple
 		connections. If the name doesn't exist in self.dbConnectionDefs,
-		then None is returned.
+		then an exception is raised.
 		"""
 		if not self.dbConnections.has_key(connName):
 			if self.dbConnectionDefs.has_key(connName):
@@ -825,7 +826,7 @@ class dApp(dObject):
 		try:
 			ret = self.dbConnections[connName]
 		except KeyError:
-			ret = None
+			rasie dException.ConnectionNotFoundException, _("No connection named '%s' is defined") % connName
 		return ret
 	
 	
