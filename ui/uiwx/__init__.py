@@ -129,11 +129,7 @@ from dPdfWindow import dPdfWindow
 from dSizer import dSizer
 from dBorderSizer import dBorderSizer
 from dSlider import dSlider
-
-# Switch the commenting out of the next two lines to try the new spinner.
-from dSpinner import dSpinner as dSpinner
-#from dSpinnerX import dSpinnerX as dSpinner
-
+from dSpinner import dSpinner
 from dSplitForm import dSplitForm
 from dSplitter import dSplitter
 from dStatusBar import dStatusBar
