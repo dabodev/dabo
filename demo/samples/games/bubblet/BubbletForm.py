@@ -182,3 +182,5 @@ class BubbletForm(dabo.ui.dForm):
 	Score = property(_getScore, _setScore, None,
 			_("Current score of the game.  (int)"))
 
+if __name__ == "__main__":
+	dabo.dApp(MainFormClass=BubbletForm).start()
