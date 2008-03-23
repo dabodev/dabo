@@ -9,7 +9,8 @@ import dabo
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-
+	
+	
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -35,6 +36,9 @@ class dSpinner(dabo.ui.dDataPanel):
 		self._increment = 1
 		val = self._extractKey((properties, attProperties, kwargs), "Value", 0)
 		val = self._numericStringVal(val)
+		nm = self._extractKey((properties, attProperties, kwargs), "NameBase", "")
+		if not nm:
+			nm = self._extractKey((properties, attProperties, kwargs), "Name", "dSpinner")
 		super(dSpinner, self).__init__(parent=parent, properties=properties, 
 				attProperties=attProperties, *args, **kwargs)
 		self._baseClass = dSpinner
@@ -50,13 +54,15 @@ class dSpinner(dabo.ui.dDataPanel):
 		self.fitToSizer()
 		# Because several properties could not be set until after the child
 		# objects were created, we need to manually call _setProperties() here.
+		self._properties["NameBase"] = nm
 		self._setProperties(self._properties)
-		
+		self.autoBindEvents()
 		ps = self._proxy_spinner
 		pt = self._proxy_textbox
 		ps.Bind(wx.EVT_SPIN_UP, self.__onWxSpinUp)
 		ps.Bind(wx.EVT_SPIN_DOWN, self.__onWxSpinDown)
 		ps.Bind(wx.EVT_SPIN, self._onWxHit)
+		pt.Bind(wx.EVT_TEXT, self._onWxHit)
 		self.bindEvent(dEvents.KeyChar, self._onChar)
 		self.bindEvent(dEvents.LostFocus, self._onLostFocus)
 
@@ -67,20 +73,19 @@ class dSpinner(dabo.ui.dDataPanel):
 	
 
 	def __onWxSpinUp(self, evt):
-		evt.Veto()
-		self._spinUp()
-		self.raiseEvent(dEvents.SpinUp, spinType="button")
-		self.raiseEvent(dEvents.Spinner, spinType="button")
+		if self._spinUp():
+			self.raiseEvent(dEvents.SpinUp, spinType="button")
+			self.raiseEvent(dEvents.Spinner, spinType="button")
 
 
 	def __onWxSpinDown(self, evt):
-		evt.Veto()
-		self._spinDown()
-		self.raiseEvent(dEvents.SpinDown, spinType="button")
-		self.raiseEvent(dEvents.Spinner, spinType="button")
+		if self._spinDown():
+			self.raiseEvent(dEvents.SpinDown, spinType="button")
+			self.raiseEvent(dEvents.Spinner, spinType="button")
 	
 	
 	def _spinUp(self):
+		ret = True
 		curr = self._proxy_textbox.Value
 		new = curr + self.Increment
 		if new <= self.Max:
@@ -88,10 +93,15 @@ class dSpinner(dabo.ui.dDataPanel):
 		elif self._spinWrap:
 			xs = new - self.Max
 			self._proxy_textbox.Value = self.Min + xs
+		else:
+			ret = False
+		self._checkBounds()
 		self.flushValue()
+		return ret
 
 
 	def _spinDown(self):
+		ret = True
 		curr = self._proxy_textbox.Value
 		new = curr - self.Increment
 		if new >= self.Min:
@@ -99,27 +109,46 @@ class dSpinner(dabo.ui.dDataPanel):
 		elif self._spinWrap:
 			xs = self.Min - new
 			self._proxy_textbox.Value = self.Max - xs
+		else:
+			ret = False
+		self._checkBounds()
 		self.flushValue()
-		
+		return ret
+
+
+	def _checkBounds(self):
+		"""Make sure that the value is within the current Min/Max"""
+		if self._proxy_textbox.Value < self.Min:
+			self._proxy_textbox.Value = self.Min
+		elif self._proxy_textbox.Value > self.Max:
+			self._proxy_textbox.Value = self.Max
+
 
 	def _onWxHit(self, evt):
+		# Determine what type of event caused Hit to be raised.
+		if evt is None:
+			typ = "key"
+		elif evt.GetEventObject() is self._proxy_textbox:
+			typ = "text"
+		else:
+			typ = "spin"
 		# Flush the data on each hit, not just when focus is lost.
 		self.flushValue()
-		super(dSpinner, self)._onWxHit(evt)
+		super(dSpinner, self)._onWxHit(evt, hitType=typ)
 
 
 	def _onChar(self, evt):
 		keys = dabo.ui.dKeys
 		kc = evt.keyCode
 		if kc in (keys.key_Up, keys.key_Numpad_up):
-			self._spinUp()
-			self.raiseEvent(dEvents.SpinUp, spinType="key")
-			self.raiseEvent(dEvents.Spinner, spinType="key")
+			if self._spinUp():
+				self.raiseEvent(dEvents.SpinUp, spinType="key")
+				self.raiseEvent(dEvents.Spinner, spinType="key")
 			self._onWxHit(None)
 		elif kc in (keys.key_Down, keys.key_Numpad_down):
-			self._spinDown()
-			self.raiseEvent(dEvents.SpinDown, spinType="key")
-			self.raiseEvent(dEvents.Spinner, spinType="key")
+			if self._spinDown():
+				self.raiseEvent(dEvents.SpinDown, spinType="key")
+				self.raiseEvent(dEvents.Spinner, spinType="key")
 			self._onWxHit(None)
 
 
@@ -191,6 +220,7 @@ class dSpinner(dabo.ui.dDataPanel):
 		if self._constructed():
 			self._max = val
 			self._proxy_spinner.SetRange(self.Min, val)
+			self._checkBounds()
 		else:
 			self._properties["Max"] = val
 
@@ -202,6 +232,7 @@ class dSpinner(dabo.ui.dDataPanel):
 		if self._constructed():
 			self._min = val
 			self._proxy_spinner.SetRange(val, self.Max)
+			self._checkBounds()
 		else:
 			self._properties["Min"] = val
 
@@ -294,16 +325,16 @@ class dSpinner(dabo.ui.dDataPanel):
 
 class _dSpinner_test(dSpinner):
 	def initProperties(self):
-		self.Max = 10
+		self.Max = 55
 		self.Min = 0
 		self.Value = 0
-		self.Increment = 1
+		self.Increment = 8.75
 		self.SpinnerWrap = True
 		self.FontSize = 10
 		self.Width = 80
 		
 	def onHit(self, evt):
-		print "HIT!", self.Value
+		print "HIT!", self.Value, "Hit Type", evt.hitType
 	
 	def onSpinUp(self, evt):
 		print "Spin up event."
@@ -313,6 +344,7 @@ class _dSpinner_test(dSpinner):
 	
 	def onSpinner(self, evt):
 		print "Spinner event."
+
 
 
 if __name__ == '__main__':

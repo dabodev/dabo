@@ -199,21 +199,22 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _setNameAndProperties(self, properties, **kwargs):
-			# If a Name isn't given, a default name will be used, and it'll 
-			# autonegotiate by adding an integer until it is a unique name.
-			# If a Name is given explicitly, a NameError will be raised if
-			# the given Name isn't unique among siblings:
-			if not dabo.fastNameSet:
-				name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-				self._initName(name, _explicitName=_explicitName)
-	
-			# Add any properties that were re-set 
-			properties.update(self._properties)
-			# Set the properties *before* calling the afterInit hook
-			self._setProperties(properties)
-			
-			# Set any passed event bindings
-			self._setKwEventBindings(self._kwEvents)
+		"""If a Name isn't given, a default name will be used, and it'll 
+		autonegotiate by adding an integer until it is a unique name.
+		If a Name is given explicitly, a NameError will be raised if
+		the given Name isn't unique among siblings.
+		"""
+		if not dabo.fastNameSet:
+			name, _explicitName = self._processName(kwargs, self.__class__.__name__)
+			self._initName(name, _explicitName=_explicitName)
+
+		# Add any properties that were re-set 
+		properties.update(self._properties)
+		# Set the properties *before* calling the afterInit hook
+		self._setProperties(properties)
+		
+		# Set any passed event bindings
+		self._setKwEventBindings(self._kwEvents)
 
 
 	def _setProperties(self, properties):
