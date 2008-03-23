@@ -254,7 +254,11 @@ class PropertyHelperMixin(object):
 		for evtName, mthd in kwEvtDict.items():
 			from dabo import dEvents
 			evt = dEvents.__dict__[evtName]
-			self.bindEvent(evt, mthd)
+			if callable(mthd):
+				self.bindEvent(evt, mthd)
+			else:
+				# A string that needs to be eval'd after construction was passed.
+				self._delayedEventBindings.append((evt, mthd))
 
 		
 	def getPropertyList(cls, refresh=False, onlyDabo=False):
