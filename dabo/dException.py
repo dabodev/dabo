@@ -55,6 +55,9 @@ class ConnectionLostException(dException):
 class FieldNotFoundException(dException):
 	pass
 
+class ConnectionNotFoundException(dException):
+	pass
+
 class DatabaseException(dException):
 	pass
 
