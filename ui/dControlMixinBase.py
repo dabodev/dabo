@@ -18,4 +18,6 @@ class dControlMixinBase(dabo.ui.dPemMixin):
 		if self.Form:
 			self.Form.activeControlValid()  ## make sure prior control's value has been flushed.
 			self.Form._activeControl = self
+		if self.Parent:
+			self.Parent._activeControl = self
 

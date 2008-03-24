@@ -85,6 +85,13 @@ class _BasePanelMixin:
 		super(_PanelMixin, self)._redraw(dc)
 
 
+	# property get/set/del functions follow:
+	def _getActiveControl(self):
+		return getattr(self, "_activeControl", None)
+
+	def _setActiveControl(self, val):
+		self.setFocus(val)
+	
 	def _getAlwaysResetSizer(self):
 		return self._alwaysResetSizer
 
@@ -131,6 +138,8 @@ class _BasePanelMixin:
 		else:
 			self._properties["MinSizerWidth"] = val
 
+	ActiveControl = property(_getActiveControl, _setActiveControl, None,
+			_("""Specifies which control in the panel has the keyboard focus."""))
 
 	AlwaysResetSizer = property(_getAlwaysResetSizer, _setAlwaysResetSizer, None,
 			_("""When True, the sizer settings are always cleared before a layout() is called.
@@ -173,8 +182,7 @@ class dPanel(_PanelMixin, wx.Panel):
 		preClass = wx.PrePanel
 		_PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties, 
 				attProperties=attProperties, *args, **kwargs)
-	
-		
+
 
 class dDataPanel(_DataPanelMixin, wx.Panel):
 	"""Creates a panel, a basic container for controls. This panel, unlike the plain
