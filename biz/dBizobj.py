@@ -1309,12 +1309,12 @@ class dBizobj(dObject):
 			return cursor.getFieldVal(fld, row)
 
 
-	def setFieldVal(self, fld, val):
-		""" Set the value of the specified field in the current row."""
+	def setFieldVal(self, fld, val, row=None):
+		""" Set the value of the specified field in the current or specified row."""
 		cursor = self._CurrentCursor
 		if cursor is not None:
 			try:
-				ret = cursor.setFieldVal(fld, val)
+				ret = cursor.setFieldVal(fld, val, row)
 			except dException.NoRecordsException:
 				ret = False
 		return ret
