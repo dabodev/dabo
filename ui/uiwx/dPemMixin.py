@@ -361,7 +361,6 @@ class dPemMixin(dPemMixinBase):
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
 		self.Bind(wx.EVT_IDLE, self.__onWxIdle)
 		self.Bind(wx.EVT_MENU_OPEN, targ.__onWxMenuOpen)
-		self.Bind(wx.EVT_NAVIGATION_KEY, self.__onWxNavKey)
 
 		if isinstance(self, dabo.ui.dGrid):
 			## Ugly workaround for grids not firing focus events from the keyboard 
@@ -617,15 +616,6 @@ class dPemMixin(dPemMixinBase):
 
 	def __onWxMouseMiddleDoubleClick(self, evt):
 		self.raiseEvent(dEvents.MouseMiddleDoubleClick, evt)
-
-	def __onWxNavKey(self, evt):
-		# A navigation key event has caused this control to want to 
-		# get the focus. Only allow it if self.TabStop is True.
-		if not self.TabStop:
-			self.Parent.Navigate()
-		else:
-			evt.Skip()
-		
 
 	def __onWxContextMenu(self, evt):
 		# Hide a problem on Windows where a single context event will
@@ -1703,14 +1693,6 @@ class dPemMixin(dPemMixinBase):
 			self._preInitProperties["style"] = self._preInitProperties["style"] & (~flag)
 
 
-	def _getTabStop(self):
-		return getattr(self, "_tabStop", True)
-
-	def _setTabStop(self, val):
-		assert isinstance(val, bool)
-		self._tabStop = val
-
-
 	def _getBackColor(self):
 		return self.GetBackgroundColour().Get()
 
@@ -2698,9 +2680,6 @@ class dPemMixin(dPemMixinBase):
 
 	StatusText = property(_getStatusText, _setStatusText, None,
 			_("Specifies the text that displays in the form's status bar, if any."))
-
-	TabStop = property(_getTabStop, _setTabStop, None,
-			_("Specifies whether this control can receive focus from keyboard navigation."))
 
 	Tag = property(_getTag, _setTag, None,
 			_("A property that user code can safely use for specific purposes.") )

@@ -3,10 +3,15 @@ import time
 import wx
 import dabo.ui
 from dabo.ui.dControlMixinBase import dControlMixinBase
+from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
 
 class dControlMixin(dControlMixinBase):
+	def _initEvents(self):
+		self.super()
+		self.Bind(wx.EVT_NAVIGATION_KEY, self.__onWxNavKey)
+
 	def _onWxHit(self, evt, *args, **kwargs):
 		# This is called by a good number of the controls, when the default
 		# event happens, such as a click in a command button, text being 
@@ -21,3 +26,22 @@ class dControlMixin(dControlMixinBase):
 			self.raiseEvent(dEvents.Hit, evt, *args, **kwargs)
 			self._lastHitTime = time.time()
 		
+	def __onWxNavKey(self, evt):
+		# A navigation key event has caused this control to want to 
+		# get the focus. Only allow it if self.TabStop is True.
+		if not self.TabStop:
+			self.Parent.Navigate()
+		else:
+			evt.Skip()
+		
+
+	def _getTabStop(self):
+		return getattr(self, "_tabStop", True)
+
+	def _setTabStop(self, val):
+		assert isinstance(val, bool)
+		self._tabStop = val
+
+
+	TabStop = property(_getTabStop, _setTabStop, None,
+			_("Specifies whether this control can receive focus from keyboard navigation."))
