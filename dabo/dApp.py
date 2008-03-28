@@ -310,7 +310,8 @@ class dApp(dObject):
 			# Convenience; if you don't need to customize setup(), just
 			# call start()
 			self.setup()
-			
+
+		self._finished = False
 		if (not self.SecurityManager or not self.SecurityManager.RequireAppLogin
 			or self.SecurityManager.login()):
 			
@@ -321,7 +322,6 @@ class dApp(dObject):
 				userName = ""
 			
 			self._retrieveMRUs()
-			self._finished = False
 			self.uiApp.start(self)
 		if not self._finished:
 			self.finish()
@@ -365,20 +365,23 @@ class dApp(dObject):
 		
 		
 	def getLoginInfo(self, message=None):
-		"""Return the user/password to dSecurityManager.login().
-
-		The default is to display the standard login dialog, and return the 
-		user/password as entered by the user, but subclasses can override to get
-		the information from whereever is appropriate.
+		"""Return a tuple of (user, password) to dSecurityManager.login(). The default is to display the standard login dialog, and return the user/password as entered by the user, but subclasses can override to get the information from whereever is appropriate. You can customize the default dialog by adding your own code to the loginDialogHook() method, which will receive a reference to the login dialog.
 
 		Return a tuple of (user, pass).
 		"""
 		import dabo.ui.dialogs.login as login
 		ld = login.Login(self.MainForm)
 		ld.setMessage(message)
+		# Allow the developer to customize the default login
+		self.loginDialogHook(ld)
 		ld.show()
 		user, password = ld.user, ld.password
 		return user, password
+	
+	
+	def loginDialogHook(self, dlg):
+		"""Hook method; modify the dialog as needed."""
+		pass
 	
 	
 	def _persistMRU(self):
