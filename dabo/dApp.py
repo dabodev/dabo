@@ -728,25 +728,26 @@ class dApp(dObject):
 		super(dApp, self)._initProperties()
 
 		
-	def _initDB(self):
-		"""Set the available connection definitions for use by the app. 
-
-		First read in all .cnxml files. If no such XML definition files exist,
-		check for a python code definition file named 'dbConnectionDefs.py'.
+	def _initDB(self, pth=None):
+		"""Set the available connection definitions for use by the app. First, read in 
+		all .cnxml files in the specified directory, or the current directory if none is 
+		specified. If no such XML definition files exist, check for a python code 
+		definition file named 'dbConnectionDefs.py'.
 		"""
 		connDefs = {}
-
+		hd = self.HomeDirectory
+		if pth is None:
+			pth = os.getcwd()
 		# Import any .cnxml files in the following locations:
 		#		HomeDir
 		#		HomeDir/db
 		#		HomeDir/data
-		#		os.getcwd()
-		#		os.getcwd()/db
-		#		os.getcwd()/data
-		hd = self.HomeDirectory
-		cwd = os.getcwd()
+		#		pth
+		#		pth/db
+		#		pth/data
+		
 		dbDirs = (hd, os.path.join(hd, "db"), os.path.join(hd, "data"), 
-				cwd, os.path.join(cwd, "db"), os.path.join(cwd, "data"))
+				pth, os.path.join(pth, "db"), os.path.join(pth, "data"))
 		for dbDir in dbDirs:
 			if os.path.exists(dbDir) and os.path.isdir(dbDir):
 				files = glob.glob(os.path.join(dbDir, "*.cnxml"))
@@ -755,7 +756,6 @@ class dApp(dObject):
 					connDefs.update(cn)
 					for kk in cn.keys():
 						self.dbConnectionNameToFiles[kk] = f
-		
 		# Import any python code connection definitions (the "old" way).
 		try:
 			import dbConnectionDefs
@@ -763,7 +763,7 @@ class dApp(dObject):
 			connDefs.update(defs)
 			for kk in defs.keys():
 				self.dbConnectionNameToFiles[kk] = os.abspath("dbConnectionDefs.py")
-		except:
+		except ImportError:
 			pass
 		
 		# For each connection definition, add an entry to 
