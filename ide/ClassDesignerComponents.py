@@ -399,6 +399,7 @@ class LayoutSaverMixin(object):
 				sz = None
 			else:
 				if isinstance(self, (dabo.ui.dRadioList,
+						dabo.ui.dSpinner,
 						dabo.ui.dPageSelect,
 						dabo.ui.dColumn,
 						dabo.ui.dTreeView.getBaseNodeClass())):
