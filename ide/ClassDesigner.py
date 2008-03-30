@@ -629,6 +629,12 @@ class ClassDesigner(dabo.dApp):
 		# Convert any paths in the atts
 		self._basePath = pth
 		dabo.lib.utils.resolveAttributePathing(atts, pth)
+		# Read in any .cnxml connection defs.
+		currdir = os.path.dirname(pth)
+		self._initDB(currdir)
+		if os.path.split(currdir)[-1].lower() == "ui":
+			# Standard directory structure; process the parent directory
+			self._initDB(os.path.dirname(currdir))
 		if self._reuseMainForm(useSizers=atts.get("UseSizers", False)):
 			# Original form hasn't changed, so just use it.
 			frm = self.MainForm
@@ -1672,7 +1678,18 @@ class ClassDesigner(dabo.dApp):
 		except AttributeError, e:
 			dabo.ui.stop(_("Attribute Error: %s") % e.message, _("Attribute Error"))
 		except StandardError, e:
-			dabo.ui.stop(_("Compilation Error: %s\nCode: %s") % (e.msg, e.text.strip()),
+			if hasattr(e, "message"):
+				msg = e.message
+			elif hasattr(e, "msg"):
+				msg = e.msg
+			else:
+				msg = _("<unspecified>")
+			if hasattr(e, "text"):
+				txt = e.text.strip()
+			else:
+				txt = _("<unspecified>")
+			
+			dabo.ui.stop(_("Compilation Error: %s\nCode: %s") % (msg, txt),
 					_("Compilation Error"))
 
 
