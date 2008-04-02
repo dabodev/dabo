@@ -289,9 +289,9 @@ class PgSample(WizardPage):
 		lbl = dabo.ui.dLabel(self, Caption=_("Double-click a caption to edit"),
 				FontSize=8, FontItalic=True)
 		self.Sizer.append(lbl, halign="center")
-		lbl = dabo.ui.dLabel(self, Caption=_("Right-click a control to change its type"),
+		self.rClickLbl = dabo.ui.dLabel(self, Caption=_("Right-click a control to change its type"),
 				FontSize=8, FontItalic=True)
-		self.Sizer.append(lbl, halign="center", border=3, borderSides="top")
+		self.Sizer.append(self.rClickLbl, halign="center", border=3, borderSides="top")
 		self.samplePanel = dabo.ui.dScrollPanel(self, BackColor="papayawhip")		
 		itm = self.Sizer.append1x(self.samplePanel, border=3, borderSides="top")
 		self.samplePanel.Sizer = LayoutSizer("v")
@@ -349,6 +349,7 @@ class PgSample(WizardPage):
 		self.lastStyle = layType
 		
 		# Create the new controls
+		self.rClickLbl.Visible = (layType.lower() != "grid")
 		if layType.lower() == "grid":
 			self.makeGrid()
 			return
