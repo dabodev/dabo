@@ -63,6 +63,13 @@ class SQLite(dBackend):
 		return self._dictCursorClass
 		
 
+	def formatForQuery(self, val):
+		if isinstance(val, bool):
+			return str(int(val))
+		else:
+			return super(SQLite, self).formatForQuery(val)
+
+
 	def escQuote(self, val):			
 		sl = "\\"
 		qt = "\'"
@@ -148,6 +155,8 @@ class SQLite(dBackend):
 				fldType = "L"
 			elif typ[:4] == "clob" or typ[:8] == "longtext":
 				fldType = "M"
+			elif "bool" in typ:
+				fldType = "B"
 			else:
 				# SQLite treats everything else as text
 				fldType = "C"
