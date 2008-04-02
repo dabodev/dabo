@@ -167,7 +167,6 @@ def getDefaultTitle():
 	
 
 if __name__ == "__main__":
-	import time
 	app = dabo.dApp()
 	app.showMainFormOnStart = False
 	app.setup()
@@ -177,7 +176,7 @@ if __name__ == "__main__":
 
 	# Test requesting user attention:
 	frm = dabo.ui.dForm()
-	frm.show()
-	print info("After you click okay, switch to another running application, to test the requestUserAttention setting.", parent=frm)
+	print info("After you click okay, switch to another running application within 5 seconds, to test the requestUserAttention setting.", parent=frm)
 	dabo.ui.callAfterInterval(5000, exclaim, "Abort! Abort!", parent=frm)
+	frm.show()
 	app.start()
