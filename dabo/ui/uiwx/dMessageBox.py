@@ -22,7 +22,7 @@ class dMessageBox(wx.MessageDialog):
 				userAttentionMode=wx.USER_ATTENTION_INFO):
 		if not parent:
 			parent = getForm()
-		if wx.GetApp().IsActive() and parent and requestUserAttention:
+		if not wx.GetApp().IsActive() and parent and requestUserAttention:
 			# We only want to send the requestUserAttention to the OS if our application
 			# isn't currently the active application. Otherwise it abuses the intent...
 			parent.RequestUserAttention(userAttentionMode)
@@ -167,6 +167,7 @@ def getDefaultTitle():
 	
 
 if __name__ == "__main__":
+	import time
 	app = dabo.dApp()
 	app.showMainFormOnStart = False
 	app.setup()
@@ -176,5 +177,7 @@ if __name__ == "__main__":
 
 	# Test requesting user attention:
 	frm = dabo.ui.dForm()
-	print info("Information overload", parent=frm)
-	print exclaim("Abort! Abort!", parent=frm)
+	frm.show()
+	print info("After you click okay, switch to another running application, to test the requestUserAttention setting.", parent=frm)
+	dabo.ui.callAfterInterval(5000, exclaim, "Abort! Abort!", parent=frm)
+	app.start()
