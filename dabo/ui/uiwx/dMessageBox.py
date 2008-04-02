@@ -22,9 +22,10 @@ class dMessageBox(wx.MessageDialog):
 				userAttentionMode=wx.USER_ATTENTION_INFO):
 		if not parent:
 			parent = getForm()
-		if parent and requestUserAttention:
+		if wx.GetApp().IsActive() and parent and requestUserAttention:
+			# We only want to send the requestUserAttention to the OS if our application
+			# isn't currently the active application. Otherwise it abuses the intent...
 			parent.RequestUserAttention(userAttentionMode)
-			print "requested"
 		# Force the message and title to strings
 		message = "%s" % message
 		title = "%s" % title
