@@ -812,8 +812,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 
 
-	def getFieldVal(self, fld, row=None):
-		""" Return the value of the specified field in the current or specified row."""
+	def getFieldVal(self, fld, row=None, _rowChangeCallback=None):
+		"""Return the value of the specified field in the current or specified row."""
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException, _("No records in the data set.")
 		if row is None:
@@ -832,11 +832,20 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				if self.VirtualFields.has_key(fld):
 					# Move to specified row if necessary, and then call the VirtualFields
 					# function, which expects to be on the correct row.
-					_oldrow = self.RowNumber
-					self.RowNumber = row
-					ret = self.VirtualFields[fld]()
-					self.RowNumber = _oldrow
-					return ret
+					if not _rowChangeCallback:
+						# We aren't being called by a bizobj, so there aren't child bizobjs,
+						# so the VirtualFields won't be reliant on childen, so this should work.
+						_oldrow = self.RowNumber
+						self.RowNumber = row
+						ret = self.VirtualFields[fld]()
+						self.RowNumber = _oldrow
+						return ret
+					else:
+						# A bizobj called us, so we need to request a row change and requery
+						# of any child bizobjs as necessary, before executing the virtual
+						# field function.
+						_rowChangeCallback(row)
+						return self.VirtualFields[fld]()
 				else:
 					raise dException.FieldNotFoundException, "%s '%s' %s" % (
 							_("Field"), fld, _("does not exist in the data set"))
