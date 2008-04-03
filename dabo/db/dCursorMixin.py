@@ -1540,7 +1540,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if includeNewUnchanged:
 			# We need to also count all new records
 			chKeys = dict.fromkeys(chKeys + self._newRecords.keys()).keys()
-		return sorted(map(self._getRowByPk, chKeys), reverse=True)
+		return map(self._getRowByPk, chKeys)
 
 
 	def _getRecordByPk(self, pk):
