@@ -1304,14 +1304,31 @@ class dBizobj(dObject):
 
 
 	def getFieldVal(self, fld, row=None):
-		""" Return the value of the specified field in the current or specified row."""
+		"""Return the value of the specified field in the current or specified row."""
 		cursor = self._CurrentCursor
+		oldRow = self.RowNumber
+		ret = None
+
+		def changeRowNumCallback(row):
+			# dCursorMixin is requesting a rowchange, which we must do here so that
+			# child bizobjs get requeried. This is especially important (and only
+			# currenty happens) for virtual fields, in case they rely on values 
+			# gotten from children.
+			self._moveToRowNum(row)
+			for ch in self.__children:
+				if ch.RowCount == 0:
+					ch.requery()
+			
 		if cursor is not None:
-			return cursor.getFieldVal(fld, row)
+			ret = cursor.getFieldVal(fld, row, _rowChangeCallback=changeRowNumCallback)
+
+		if oldRow != self.RowNumber:
+			self._moveToRowNum(oldRow)
+		return ret
 
 
 	def setFieldVal(self, fld, val, row=None):
-		""" Set the value of the specified field in the current or specified row."""
+		"""Set the value of the specified field in the current or specified row."""
 		cursor = self._CurrentCursor
 		if cursor is not None:
 			try:
