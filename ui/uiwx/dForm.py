@@ -89,6 +89,8 @@ class BaseForm(fm.dFormMixin):
 		""" Displays an alert messagebox for the user. You can customize
 		this in your own classes if you prefer a different display.
 		"""
+		if exception and not dabo.settings.eatBizExceptions:
+			raise
 		if severe:
 			func = dabo.ui.stop
 		else:

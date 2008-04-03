@@ -108,6 +108,13 @@ defaultEncoding = "utf-8"
 # Default log file for the dabo.dBug.loggit function
 loggitFile = "functionCall.log"
 
+# Does the UI layer (dForm) eat exceptions from the biz layer
+# such as 'invalid row specified' or bizrule violations and
+# automatically display an informational message to the user (True), 
+# or does the exception go unhandled so that the developer can 
+# quickly diagnose the issue (False)?
+eatBizExceptions = True
+ 
 # Check for web updates?
 checkForWebUpdates = True
 
