@@ -706,7 +706,7 @@ class dBizobj(dObject):
 		for key, cursor in cursors.iteritems():
 			self._CurrentCursor = key
 			changedRows = self.getChangedRows(includeNewUnchanged)
-			for row in changedRows:
+			for row in sorted(changedRows, reverse=True):
 				self._moveToRowNum(row)
 				try:
 					func(*args, **kwargs)
