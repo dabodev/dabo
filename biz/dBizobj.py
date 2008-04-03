@@ -649,7 +649,7 @@ class dBizobj(dObject):
 		def restorePosition():
 			if self.ScanRestorePosition:
 				if currPK is not None:
-					self._positionUsingPK(currPK, updateChildren=False)
+					self._positionUsingPK(currPK)
 				else:
 					try:
 						self.RowNumber = currRow
