@@ -542,6 +542,29 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(biz.isAnyChanged(), False)
 
 
+	def testChildRowNumberResetAfterGetChangedRows(self):
+		"""My app is showing the child bo going from RowNumber 0 to
+		RowNumber -1 after calling parent.getChangedRows().
+		"""
+		bizMain = self.biz
+		bizChild = dabo.biz.dBizobj(self.con)
+		bizChild.KeyField = "pk"
+		bizChild.DataSource = self.temp_child_table_name
+		bizChild.LinkField = "parent_fk"
+		bizChild.FillLinkFromParent = True
+		
+		bizMain.addChild(bizChild)
+		bizMain.requery()
+
+		self.assertEqual(bizMain.RowNumber, 0)
+		self.assertEqual(bizChild.RowNumber, 0)
+
+		bizMain.getChangedRows()
+
+		self.assertEqual(bizMain.RowNumber, 0)
+		self.assertEqual(bizChild.RowNumber, 0)
+
+		
 if __name__ == "__main__":
 	suite = unittest.TestLoader().loadTestsFromTestCase(Test_dBizobj)
 	unittest.TextTestRunner(verbosity=2).run(suite)
