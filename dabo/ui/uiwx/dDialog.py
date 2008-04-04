@@ -238,12 +238,9 @@ class dOkCancelDialog(dDialog):
 		buttonSizer.AddButton(self.btnOK)
 		buttonSizer.AddButton(self.btnCancel)
 		buttonSizer.Realize()
+		self._btnSizer = bsWrapper = dabo.ui.dSizer("v")
+		bsWrapper.append(buttonSizer, "x")
 	
-		self._btnSizer = bs = dabo.ui.dSizer("v")
-		bs.append((0, sz.DefaultBorder/2))
-		bs.append(buttonSizer, "x")
-		bs.append((0, sz.DefaultBorder))
-
 		# Wx rearranges the order of the buttons per platform conventions, but
 		# doesn't rearrange the tab order for us. So, we do it manually:
 		buttons = []
@@ -261,6 +258,10 @@ class dOkCancelDialog(dDialog):
 
 		if self.ButtonSizerPosition is None:
 			# User code didn't add it, so we must.
+			bs = dabo.ui.dSizer("v")
+			bs.append((0, sz.DefaultBorder/2))
+			bs.append(self.ButtonSizer, "x")
+			bs.append((0, sz.DefaultBorder))
 			sz.append(bs, "x")
 		
 		self.layout()
