@@ -232,18 +232,17 @@ class dOkCancelDialog(dDialog):
 		self.btnCancel = dabo.ui.dButton(self, id=wx.ID_CANCEL, CancelButton=True)
 		self.btnCancel.bindEvent(dEvents.Hit, self.onCancel)
 		
-		# Let the user add their controls
-		super(dOkCancelDialog, self)._addControls()
-
-		# Just in case user changed Self.Sizer, update our reference:
-		sz = self.Sizer
-
 		# Put the buttons in a StdDialogButtonSizer, so they get positioned/sized
-		# per the native platform conventions, and add that sizer to self.Sizer:
+		# per the native platform conventions:
 		buttonSizer = wx.StdDialogButtonSizer()
 		buttonSizer.AddButton(self.btnOK)
 		buttonSizer.AddButton(self.btnCancel)
 		buttonSizer.Realize()
+	
+		self._btnSizer = bs = dabo.ui.dSizer("v")
+		bs.append((0, sz.DefaultBorder/2))
+		bs.append(buttonSizer, "x")
+		bs.append((0, sz.DefaultBorder))
 
 		# Wx rearranges the order of the buttons per platform conventions, but
 		# doesn't rearrange the tab order for us. So, we do it manually:
@@ -254,11 +253,15 @@ class dOkCancelDialog(dDialog):
 				buttons.append(win)
 		buttons[1].MoveAfterInTabOrder(buttons[0])
 
-		self.btnSizer = bs = dabo.ui.dSizer("v")
-		bs.append((0, sz.DefaultBorder/2))
-		bs.append(buttonSizer, "x")
-		bs.append((0, sz.DefaultBorder))
-		sz.append(bs, "x")
+		# Let the user add their controls
+		super(dOkCancelDialog, self)._addControls()
+
+		# Just in case user changed Self.Sizer, update our reference:
+		sz = self.Sizer
+
+		if self.ButtonSizerPosition is None:
+			# User code didn't add it, so we must.
+			sz.append(bs, "x")
 		
 		self.layout()
 
@@ -329,12 +332,16 @@ class dOkCancelDialog(dDialog):
 		self._accepted = val
 	
 	
+	def _getButtonSizer(self):
+		return getattr(self, "_btnSizer", None)
+
+
+	def _getButtonSizerPosition(self):
+		return self.ButtonSizer.getPositionInSizer()
+
+
 	def _getCancelButton(self):
 		return self.btnCancel
-		
-
-	def _getLastPositionInSizer(self):
-		return self.btnSizer.getPositionInSizer()
 
 
 	def _getOKButton(self):
@@ -343,15 +350,17 @@ class dOkCancelDialog(dDialog):
 
 	Accepted = property(_getAccepted, _setAccepted, None,
 			_("Specifies whether the user accepted the dialog, or canceled.  (bool)"))
-	
+
+	ButtonSizer = property(_getButtonSizer, None, None,
+			_("Returns a reference to the sizer controlling the Ok/Cancel buttons.  (dSizer)"))
+
+	ButtonSizerPosition = property(_getButtonSizerPosition, None, None,
+			_("""Returns the position of the Ok/Cancel buttons in the sizer.  (int)"""))
+
 	CancelButton = property(_getCancelButton, None, None,
 			_("Reference to the Cancel button on the form  (dButton)."))
 	
-	LastPositionInSizer = property(_getLastPositionInSizer, None, None,
-			_("""If you want to add controls after the dialog has been created,
-			use this as the argument to the sizer.insert() call. It returns 
-			the position in the sizer before the OK/Cancel buttons and the 
-			preceeding spacer.  (int)"""))
+	LastPositionInSizer = ButtonSizerPosition   ## backwards compatibility
 
 	OKButton = property(_getOKButton, None, None,
 			_("Reference to the OK button on the form  (dButton)."))
