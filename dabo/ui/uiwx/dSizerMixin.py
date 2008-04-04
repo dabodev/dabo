@@ -262,8 +262,9 @@ class dSizerMixin(dObject):
 	
 	
 	def getPositionInSizer(self):
-		""" Returns the current position of this sizer in its containing sizer."""
-		sz = self._controllingSizer
+		"""Returns the current position of this sizer in its containing sizer, or None
+		if there isn't a containing sizer."""
+		sz = getattr(self, "_controllingSizer", None)
 		if not sz:
 			return None
 		if isinstance(sz, wx.BoxSizer):
