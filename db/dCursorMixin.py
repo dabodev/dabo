@@ -934,6 +934,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				dtStrings = ("<type 'DateTime'>", "<type 'Date'>", "<type 'datetime.datetime'>")
 				if str(fldType) in dtStrings and isinstance(val, basestring):
 					ignore = True
+				elif isinstance(fldType, basestring) and isinstance(val, basestring):
+					ignore = True
 				elif val is None or fldType is type(None):
 					# Any field type can potentially hold None values (NULL). Ignore these.
 					ignore = True
