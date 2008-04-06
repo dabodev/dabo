@@ -36,13 +36,15 @@ try:
 	from decimal import InvalidOperation
 except ImportError:
 	_USE_DECIMAL = False
+	# This is needed so that references to this class don't throw
+	# errors when running in Python 2.3
+	Decimal = float
 
 
 
 class dGridDataTable(wx.grid.PyGridTableBase):
 	def __init__(self, parent):
 		super(dGridDataTable, self).__init__()
-
 		self.grid = parent
 		self._initTable()
 
@@ -135,7 +137,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				if nm in colDefs:
 					nm = ""
 			colName = "Column_%s" % nm
-
 			pos = col._getUserSetting("Order")
 			if pos is not None:
 				col.Order = pos
@@ -505,7 +506,14 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			"long" : self.longRendererClass,
 			"decimal" : self.decimalRendererClass,
 			"float" : self.floatRendererClass,
-			"list" : self.listRendererClass  }
+			"list" : self.listRendererClass,
+			str : self.stringRendererClass,
+			unicode : self.stringRendererClass,
+			bool : self.boolRendererClass,
+			int : self.intRendererClass,
+			long : self.longRendererClass,
+			float : self.floatRendererClass,
+			list : self.listRendererClass}
 		self.defaultEditors = {
 			"str" : self.stringEditorClass,
 			"string" : self.stringEditorClass,
@@ -514,7 +522,17 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			"long" : self.longEditorClass,
 			"decimal" : self.decimalEditorClass,
 			"float" : self.floatEditorClass,
-			"list" : self.listEditorClass }
+			"list" : self.listEditorClass,
+			str : self.stringEditorClass,
+			unicode : self.stringEditorClass,
+			bool : self.boolEditorClass,
+			int : self.intEditorClass,
+			long : self.longEditorClass,
+			float : self.floatEditorClass,
+			list : self.listEditorClass}
+		if _USE_DECIMAL:
+			self.defaultRenderers[Decimal] = self.decimalRendererClass
+			self.defaultEditors[Decimal] = self.decimalEditorClass
 
 		# Default to string renderer
 		self._rendererClass = self.stringRendererClass
@@ -684,6 +702,19 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _persist(self, prop):
 		"""Persist the current prop setting to the user settings table."""
 		self._setUserSetting(prop, getattr(self, prop))
+
+
+	def _setDataTypeFromDataField(self, fld):
+		"""When a column has its DataField changed, we need to set the 
+		correct DataType based on the new value.
+		"""
+		if self.Parent:
+			currDT = self.DataType
+			dt = self.Parent.typeFromDataField(fld)
+			if dt is not None and (dt != currDT):
+				self.DataType = dt
+				self._updateRenderer()
+				self._updateEditor()
 
 
 	def _getUserSetting(self, prop):
@@ -941,6 +972,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setDataField(self, val):
 		if self._constructed():
 			self._dataField = val
+			# Use a callAfter, since the parent may not be finished instantiating yet.
+			dabo.ui.callAfter(self._setDataTypeFromDataField, val)
 			if not self.Name or self.Name == "?":
 				self._name = _("col_%s") % val
 			self._updateRenderer()
@@ -1881,6 +1914,22 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		dcol.CustomRenderers[row] = rnd
 		#self.SetCellRenderer(row, col, rnd)
 
+
+	def typeFromDataField(self, df):
+		"""When the DataField is set for a column, it needs to set the corresponding 
+		value of its DataType property. Will return the Python data type, or None if 
+		there is no bizobj, or no DataStructure info available in the bizobj.
+		"""
+		biz = self.getBizobj()
+		if biz is None:
+			return None
+		try:
+			pyType = biz.getDataTypeForField(df)
+		except ValueError, e:
+			dabo.errorLog.write(e)
+			return None
+		return pyType
+		
 
 	def getTableClass(cls):
 		"""We don't expose the underlying table class to the ui namespace, as it's a 
