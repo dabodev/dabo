@@ -1440,6 +1440,21 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self._CurrentCursor.getFieldInfoFromDescription()
 
 
+	def getDataTypeForField(self, fld):
+		"""Given a field name, returns its Python type, or None if no 
+		DataStructure information is available.
+		"""
+		ds = self.getDataStructure()
+		if not ds:
+			return None
+		try:
+			fldInfo = [rec[1] for rec in ds
+					if rec[0] == fld][0]
+		except IndexError:
+			raise ValueError, _("Field '%s' does not exist in the DataStructure") % fld
+		return dabo.db.getPythonType(fldInfo)
+
+
 	def getParams(self):
 		""" Return the parameters to send to the cursor's execute method.
 
