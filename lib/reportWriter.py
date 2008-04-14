@@ -44,6 +44,7 @@ sudo apt-get install python-imaging
 del(_failedLibs)
 #######################################################
 
+import cStringIO
 import reportlab.pdfgen.canvas as canvas
 import reportlab.graphics.shapes as shapes
 import reportlab.lib.pagesizes as pagesizes
@@ -56,8 +57,8 @@ from dabo.lib.xmltodict import dicttoxml
 from dabo.dLocalize import _
 from dabo.lib.caselessDict import CaselessDict
 from reportlab.lib.utils import ImageReader
-from StringIO import StringIO
 from PIL import Image as PILImage
+import reportUtils
 
 # The below block tried to use the experimental para.Paragraph which
 # handles more html tags, including hyperlinks. However, I couldn't 
@@ -1117,20 +1118,33 @@ class ReportWriter(object):
 			p.rect(-1, -1, width+2, height+2)
 			c.clipPath(p, stroke=stroke)
 	
-			imageFile = obj.getProp("expr")
-			if imageFile and not os.path.exists(imageFile):
-				imageFile = os.path.join(self.HomeDirectory, imageFile)
-			if imageFile:
-				imageFile = str(imageFile)	
+			img = obj.getProp("expr")
+			if isinstance(img, basestring) and "\0" not in img:
+				# this is a path to image file, not the image itself
+				if not os.path.exists(img):
+					img = os.path.join(self.HomeDirectory, img)
+			else:
+				# convert stream to PIL image:
+				#buffer = cStringIO.StringIO()
+				#buffer.write(img)
+				#buffer.seek(0)				
+				#img = PILImage.open(buffer)
+				# (pkm: the above doesn't work in all reportlab versions. Safer to save a 
+				#       temp file unfortunately.)
+				imageFileName = reportUtils.getTempFile(ext="png")
+				imageFile = open(imageFileName, "wb")
+				imageFile.write(img)
+				imageFile.close()
+				img = imageFileName
 
-			if imageFile and mode == "clip":
+			if mode == "clip":
 				# Need to set w,h to None for the drawImage, which will draw it in its
 				# "natural" state 1:1 pixel:point, which could flow out of the object's
 				# width/height, resulting in clipping.
 				width, height = None, None
 
-			if imageFile:
-				c.drawImage(imageFile, 0, 0, width, height, mask)
+			if img:
+				c.drawImage(img, 0, 0, width, height, mask)
 
 		elif objType == "BarGraph":
 			# Do these imports here so as not to require the huge matplotlib unless
