@@ -1117,21 +1117,21 @@ class ReportWriter(object):
 			p.rect(-1, -1, width+2, height+2)
 			c.clipPath(p, stroke=stroke)
 	
-			if mode == "clip":
+			imageFile = obj.getProp("expr")
+			if imageFile and not os.path.exists(imageFile):
+				imageFile = os.path.join(self.HomeDirectory, imageFile)
+			if imageFile:
+				imageFile = str(imageFile)	
+
+			if imageFile and mode == "clip":
 				# Need to set w,h to None for the drawImage, which will draw it in its
 				# "natural" state 1:1 pixel:point, which could flow out of the object's
 				# width/height, resulting in clipping.
 				width, height = None, None
 
-			imageFile = obj.getProp("expr")
-			if not os.path.exists(imageFile):
-				imageFile = os.path.join(self.HomeDirectory, imageFile)
-			imageFile = str(imageFile)
-
-			try:
+			if imageFile:
 				c.drawImage(imageFile, 0, 0, width, height, mask)
-			except:
-				pass
+
 		elif objType == "BarGraph":
 			# Do these imports here so as not to require the huge matplotlib unless
 			# necessary (I was unable to get my py2exe configured correctly to handle
@@ -1557,16 +1557,18 @@ class ReportWriter(object):
 			processVariables()
 
 			# print group headers for this group if necessary:
+			brandNewPage = False
 			for idx, group in enumerate(groups):
 				vv = self._groupValues[group["expr"]]
 				if vv["curVal"] != group.getProp("expr"):
 					vv["curVal"] = group.getProp("expr")
 					np = eval(group.get("startOnNewPage", "False")) \
 							and self.RecordNumber > 0
-					if np:
+					if np and not brandNewPage:
 						endPage()
 						beginPage()
 						y = None
+						brandNewPage = True  ## don't start multiple new pages
 					y = printBand("groupHeader", y, group)
 
 
