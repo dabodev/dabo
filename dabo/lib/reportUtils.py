@@ -31,7 +31,9 @@ class TempFileHolder(object):
 		self._tempFiles.append(f)
 
 	def getTempFile(self, ext="pdf"):
-		fd, fname = tempfile.mkstemp(suffix=".%s" % ext)
+		if ext[0] != ".":
+			ext = ".%s" % ext 
+		fd, fname = tempfile.mkstemp(suffix=ext)
 		os.close(fd)
 		self.append(fname)
 		return fname
