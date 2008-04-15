@@ -1451,7 +1451,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			fldInfo = [rec[1] for rec in ds
 					if rec[0] == fld][0]
 		except IndexError:
-			raise ValueError, _("Field '%s' does not exist in the DataStructure") % fld
+			return None
+			#raise ValueError, _("Field '%s' does not exist in the DataStructure") % fld
 		return dabo.db.getPythonType(fldInfo)
 
 
