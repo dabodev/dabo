@@ -80,7 +80,8 @@ class EditorForm(dui.dForm):
 		cap = dui.dLabel(self.bg, Caption="Database Type")
 		ctl = dui.dDropdownList(self.bg, RegID="DbType", 
 				Choices=["MySQL", "Firebird", "PostgreSQL", "MsSQL", "SQLite"], 
-				DataSource="form", DataField="dbtype")
+				DataSource="form", DataField="dbtype",
+				OnHit=self.onDbTypeChanged)
 		gbsz.append(cap, halign="right")
 		gbsz.append(ctl)
 		self.dbTypeSelector = ctl
@@ -171,8 +172,8 @@ class EditorForm(dui.dForm):
 		cs.Choices = self.connDict.keys()
 		cs.PositionValue = min(pos, len(self.connDict.keys())-1)
 		self.currentConn = cs.StringValue	
-		self.updtToForm()
 		self.enableControls()
+		self.updtToForm()
 		self.update()
 			
 		
@@ -227,10 +228,14 @@ class EditorForm(dui.dForm):
 		self.saveFile()
 		
 		
-	def onValueChanged_DbType(self, evt):
+	def onDbTypeChanged(self, evt):
 		# Update the values
 		self.updtFromForm()
 		self.enableControls()
+		if self.defDbPorts[self.dbtype] is None:
+			self.port = ""
+		else:
+			self.port = self.defDbPorts[self.dbtype]
 		self.update()
 
 	
@@ -247,11 +252,6 @@ class EditorForm(dui.dForm):
 		self.pwText.Visible = not isFileBased
 		self.btnDbSelect.Visible = isFileBased
 		self.layout()
-			
-		if self.defDbPorts[dbt] is None:
-			self.port = ""
-		else:
-			self.port = self.defDbPorts[dbt]
 
 	
 	def onHit_btnDbSelect(self, evt):
@@ -439,8 +439,8 @@ class EditorForm(dui.dForm):
 			return True
 		else:
 			return False
-		
-		
+	
+	
 	def confirmChanges(self):
 		self.activeControlValid()
 		self.updtFromForm()
