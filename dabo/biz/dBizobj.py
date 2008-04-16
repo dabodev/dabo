@@ -1000,8 +1000,7 @@ class dBizobj(dObject):
 			raise dabo.dException.RowNotFoundException, _("PK Value %s not found in the dataset") % pk
 
 
-	def seek(self, val, fld=None, caseSensitive=False,
-			near=False, runRequery=False):
+	def seek(self, val, fld=None, caseSensitive=False, near=False, runRequery=True):
 		""" Search for a value in a field, and move the record pointer to the match.
 
 		Used for searching of the bizobj's cursor for a particular value in a
