@@ -1170,6 +1170,9 @@ class dBizobj(dObject):
 			self.__currentCursorKey = val
 			# Make sure there is a cursor object for this key.
 			self._CurrentCursor = val
+			# Propagate the change to any children:
+			for child in self.__children:
+				child.setCurrentParent()
 
 
 	def addChild(self, child):
