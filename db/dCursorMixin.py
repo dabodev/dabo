@@ -465,14 +465,29 @@ class dCursorMixin(dObject):
 
 
 	def sort(self, col, ord=None, caseSensitive=True):
-		""" Sort the result set on the specified column in the specified order.
-
-		If the sort direction is not specified, sort() cycles among Ascending,
-		Descending and no sort order.
+		""" Sort the result set on the specified column in the specified order. If the sort 
+		direction is not specified, default to ascending order. If 'cycle' is specified as the
+		direction, use the next ordering in the list [None, 'ASC', 'DESC']. The possible 
+		values for 'ord' are:
+			None
+			"" (i.e., an empty string)
+			ASC
+			DESC
+			CYCLE
+		Only the first three characters are significant; case is ignored.
 		"""
 		currCol = self.sortColumn
 		currOrd = self.sortOrder
 		currCase = self.sortCase
+		if ord is None:
+			ord = "ASC"
+		elif ord == "":
+			ord = None
+		else:
+			ord = ord[:3].upper()
+		if ord == "CYC":
+			ord = {"ASC": "DES", "DES": None, None: "ASC"}[currOrd]
+			col = currCol
 
 		# Make sure that the specified column is a column in the result set
 		if not [True for t in self.DataStructure if t[0] == col]  and not self.VirtualFields.has_key(col):

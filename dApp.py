@@ -901,6 +901,14 @@ class dApp(dObject):
 			return False
 
 
+	def hasTransactionToken(self, biz):
+		"""Returns True/False, depending on whether the specified
+		bizobj currently "holds" the transaction token.
+		"""
+		cn = biz._connection
+		return (self._transactionTokens.get(cn) is biz)
+
+
 	def releaseTransactionToken(self, biz):
 		"""When a process that would normally close a transaction happens, the 
 		bizobj that is holding the transaction token for its connection calls this 
