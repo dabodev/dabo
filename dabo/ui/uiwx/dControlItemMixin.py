@@ -206,20 +206,15 @@ class dControlItemMixin(dDataControlMixin):
 			for key in value:
 				if keysAreDict:
 					if not self.Keys.has_key(key):
-						# self.Keys does not have the requested key. This could happen, for
-						# example, if the bound field is a foreign key, and we are just adding
-						# a new record. In my case, the iclientid field is ''. I want the list
-						# to display "< None >" and map that to a value of None, so I set up a
-						# Choice and a Key for that in my app code.
-	
-						# setting key to None here will result in an exception if there is no
-						# key on None (user code must set their Keys to have a None key). But
-						# the effect this has is that if the control is getting set to a value
-						# that doesn't exist in self.Keys, we'll set the list to select the 
-						# item that is matched to None, if available. Else, it's a runtime
-						# exception.
+						# If the appdev set up a key for None, use it.
 						key = None
-					self.setSelection(self.Keys[key])
+					try:
+						self.setSelection(self.Keys[key])
+					except KeyError:
+						# The specified key isn't found, and there's no None key. We 
+						# can't cope but wxPython can set a blank value:
+						self._setSelection(-1)
+						
 				else:
 					# we are using a tuple/list of keys. Find its position
 					try:
