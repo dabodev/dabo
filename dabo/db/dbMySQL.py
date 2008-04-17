@@ -65,18 +65,21 @@ class MySQL(dBackend):
 		""" Begin a SQL transaction."""
 		cursor.execute("START TRANSACTION")
 		dabo.dbActivityLog.write("SQL: begin")
+		return True
 
 
 	def commitTransaction(self, cursor):
 		""" Commit a SQL transaction."""
 		cursor.execute("COMMIT")
 		dabo.dbActivityLog.write("SQL: commit")
+		return True
 
 
 	def rollbackTransaction(self, cursor):
 		""" Rollback a SQL transaction."""
 		cursor.execute("ROLLBACK")
 		dabo.dbActivityLog.write("SQL: rollback")
+		return True
 
 
 	def escQuote(self, val):

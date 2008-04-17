@@ -83,6 +83,7 @@ class SQLite(dBackend):
 		"""
 		cursor.execute("BEGIN")
 		dabo.dbActivityLog.write("SQL: begin")
+		return True
 
 
 	def commitTransaction(self, cursor):
@@ -91,6 +92,7 @@ class SQLite(dBackend):
 		try:
 			cursor.execute("COMMIT", errorClass=opError)
 			dabo.dbActivityLog.write("SQL: commit")
+			return True
 		except opError, e:
 			# There is no transaction active in this case, so ignore the error.
 			pass
@@ -103,6 +105,7 @@ class SQLite(dBackend):
 		""" Rollback a SQL transaction."""
 		cursor.execute("ROLLBACK")
 		dabo.dbActivityLog.write("SQL: rollback")
+		return True
 
 	
 	def flush(self, crs):

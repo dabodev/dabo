@@ -197,9 +197,12 @@ class Firebird(dBackend):
 	
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""
+		ret = False
 		if not self._connection._has_transaction():
 			self._connection.begin()
 			dabo.dbActivityLog.write("SQL: begin")
+			ret = True
+		return ret
 
 		
 	def flush(self, cursor):

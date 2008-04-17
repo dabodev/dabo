@@ -31,7 +31,7 @@ class Postgres(dBackend):
 	
 	def beginTransaction(self, cursor):
 		dabo.dbActivityLog.write("SQL: begin (implicit, nothing done)")
-		pass
+		return True
 
 
 	def getDictCursorClass(self):
@@ -63,12 +63,28 @@ class Postgres(dBackend):
 			sqltablestr = (("SELECT schemaname || '.' || tablename AS tablename FROM pg_tables WHERE has_table_privilege('%s', schemaname || '.' || tablename, 'SELECT')") % self.conn_user)
 		else:
 			sqltablestr = (("SELECT schemaname || '.' || tablename AS tablename FROM pg_tables WHERE (schemaname not like 'pg_%s' and schemaname not like 'information%s') and has_table_privilege('%s', schemaname || '.' || tablename, 'SELECT')") % ('%','%',self.conn_user))
-						
+
+			sqltablestr = (("""SELECT schemaname || '.' || tablename AS tablename 
+					FROM pg_tables 
+					WHERE (schemaname not like 'pg_%s' 
+						and schemaname not like 'information%s') 
+					and has_table_privilege('%s', schemaname || '.' || tablename, 'SELECT')
+					""") % ('%','%',self.conn_user))
+# 		if includeSystemTables:
+# 			sqltablestr = ("select relname from pg_class where relkind= 'r' ")
+# 		else:
+# 			sqltablestr = ("select relname from pg_class where relkind= 'r' and relname not like 'pg_%' and relname not like 'sql_%' ")
+		
+		print
+		print "sqltablestr = ", sqltablestr
+		print "conn_user = ", self.conn_user
+		print
 		cursor.execute(sqltablestr)
 		rs = cursor.getDataSet()
 		tables = []
 		for record in rs:
 			tables.append(record["tablename"])
+# 			tables.append(record["relname"])
 		return tuple(tables)
 
 	
