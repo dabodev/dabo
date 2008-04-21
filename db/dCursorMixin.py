@@ -483,10 +483,8 @@ class dCursorMixin(dObject):
 			ord = "ASC"
 		elif ord == "":
 			ord = None
-		else:
-			ord = ord[:3].upper()
-		if ord == "CYC":
-			ord = {"ASC": "DES", "DES": None, None: "ASC"}[currOrd]
+		if ord[:3].upper() == "CYC":
+			ord = {"ASC": "DESC", "DES": None, None: "ASC"}[currOrd]
 			col = currCol
 
 		# Make sure that the specified column is a column in the result set
