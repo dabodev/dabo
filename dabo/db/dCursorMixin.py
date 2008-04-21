@@ -1687,7 +1687,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				if l_fldval is not None:
 					l_fldval = l_fldval.lower()
 				if l_val is not None:
-					l_val = l_fldval.lower()
+					l_val = l_val.lower()
 				match = (l_fldval == l_val)
 
 			if match:
