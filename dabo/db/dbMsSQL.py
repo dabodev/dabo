@@ -80,7 +80,7 @@ class MSSQL(dBackend):
 		rs = cursor.getDataSet()
 		tables = [x["table_name"] for x in rs]
 		tables = tuple(tables)
-		print 'finished tbles'
+		
 		return tables
 
 	
@@ -187,7 +187,7 @@ class MSSQL(dBackend):
 			pk = (name,) in [(p["COLUMN_NAME"], ) for p in pkFields]
 			fields.append((name, ft, pk))
 			
-		print 'finished fields ' + tableName
+	
 		return tuple(fields)
 
 		
