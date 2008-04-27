@@ -1263,22 +1263,24 @@ class dBizobj(dObject):
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
 
-		if self.IsAdding and self.AutoPopulatePK:
-			pk = None
-		else:
-			try:
-				pk = self.getPK()
-			except dException.NoRecordsException:
-				# There aren't any records, all children should requery to 0 records.
-				# We can't set the pk to None, because None has special meaning 
-				# elsewhere (self.__currentCursorKey).
-				pk = NO_RECORDS_PK
+		newAutopop = (self.IsAdding and self.AutoPopulatePK)
+		try:
+			pk = self.getPK()
+		except dException.NoRecordsException:
+			# There aren't any records, all children should requery to 0 records.
+			# We can't set the pk to None, because None has special meaning 
+			# elsewhere (self.__currentCursorKey).
+			pk = NO_RECORDS_PK
 
 		for child in self.__children:
 			# Let the child know the current dependent PK
 			if child.RequeryWithParent:
 				child.setCurrentParent(pk, fromChildRequery=True)
-				if not child.isAnyChanged():
+				if newAutopop and (child.RowCount == 0):
+					parentPK = None
+				else:
+					parentPK = pk
+				if not child.isAnyChanged(parentPK=parentPK):
 					child.requery()
 		self.afterChildRequery()
 
