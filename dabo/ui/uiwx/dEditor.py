@@ -1340,7 +1340,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			fname = self._fileName
 		except:
 			fname = None
-		if fname is None:
+		if fname is None or fname is "":
 			s = "Do you want to save your changes?"
 		else:
 			s = "Do you want to save your changes to file '%s'?" % self._fileName
