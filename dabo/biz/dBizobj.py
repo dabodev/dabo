@@ -847,16 +847,12 @@ class dBizobj(dObject):
 		so an empty query	is built.
 		"""
 		if self.DataSource and self.LinkField and self.Parent:
-			if self.Parent.IsAdding or self.Parent.RowCount == 0:
+			if self.Parent.RowCount == 0:
 				# Parent is new and not yet saved, so we cannot have child records yet.
 				self.setWhereClause("")
 				filtExpr = " 1 = 0 "
 			else:
-				if self.ParentLinkField:
-					# The link to the parent is something other than the PK
-					val = self.escQuote(self.Parent.getFieldVal(self.ParentLinkField))
-				else:
-					val = self.escQuote(self.getParentPK())
+				val = self.escQuote(self.getParentLinkValue())
 				linkFieldParts = self.LinkField.split(".")
 				if len(linkFieldParts) < 2:
 					dataSource = self.DataSource
@@ -867,6 +863,23 @@ class dBizobj(dObject):
 					linkField = linkFieldParts[1]
 				filtExpr = " %s.%s = %s " % (dataSource, linkField, val)
 			self._CurrentCursor.setChildFilterClause(filtExpr)
+
+
+	def getParentLinkValue(self):
+		"""Return the value of the parent record on which this bizobj is dependent. Usually this
+		is the PK of the parent, but can be a non-PK field, if this bizobj's ParentLinkField is
+		not empty.
+		"""
+		ret = None
+		if self.Parent:
+			fld = self.ParentLinkField
+			if not fld:
+				fld = self.Parent.KeyField
+			try:
+				ret = self.Parent.getFieldVal(fld)
+			except dException.NoRecordsException:
+				ret = NO_RECORDS_PK
+		return ret
 
 
 	def sort(self, col, ord=None, caseSensitive=True):
@@ -970,10 +983,9 @@ class dBizobj(dObject):
 		"""
 		self._CurrentCursor.moveToRowNum(rownum)
 		if updateChildren:
-			pk = self.getPK()
 			for child in self.__children:
-				# Let the child know the current dependent PK
-				child.setCurrentParent(pk)
+				# Let the child update to the current record.
+				child.setCurrentParent()
 
 
 	def _positionUsingPK(self, pk, updateChildren=True):
@@ -985,8 +997,8 @@ class dBizobj(dObject):
 			self._CurrentCursor.moveToPK(pk)
 			if updateChildren:
 				for child in self.__children:
-					# Let the child know the current dependent PK
-					child.setCurrentParent(pk)
+					# Let the child update to the current record.
+					child.setCurrentParent()
 
 
 	def moveToPK(self, pk):
@@ -1021,15 +1033,16 @@ class dBizobj(dObject):
 		return ret
 
 
-	def isAnyChanged(self, parentPK=None):
+	def isAnyChanged(self, useCurrentParent=None):
 		"""Returns True if any record in the current record set has been changed."""
-		if parentPK is None:
+		if useCurrentParent is None:
 			try:
 				cc = self._CurrentCursor
 			except:
 				cc = None
 		else:
-			cc = self.__cursors.get(parentPK, None)
+			key = self.getParentLinkValue()
+			cc = self.__cursors.get(key, None)
 		if cc is None:
 			# No cursor, no changes.
 			return False
@@ -1038,14 +1051,8 @@ class dBizobj(dObject):
 			return True
 
 		# Nothing's changed in the top level, so we need to recurse the children:
-		try:
-			pk = self.getPK()
-		except dException.NoRecordsException:
-			# If there are no records, there can be no changes
-			return False
-
 		for child in self.__children:
-			if child.isAnyChanged(parentPK=pk):
+			if child.isAnyChanged(useCurrentParent=useCurrentParent):
 				return True
 		# If we made it to here, there are no changes.
 		return False
@@ -1068,13 +1075,11 @@ class dBizobj(dObject):
 
 		if not ret:
 			# see if any child bizobjs have changed
-			try:
-				pk = self.getPK()
-			except dException.NoRecordsException:
+			if not self.RowCount:
 				# If there are no records, there can be no changes
 				return False
 			for child in self.__children:
-				ret = child.isAnyChanged(parentPK=pk)
+				ret = child.isAnyChanged(useCurrentParent=True)
 				if ret:
 					break
 		return ret
@@ -1148,20 +1153,20 @@ class dBizobj(dObject):
 		"""
 		if self.LinkField:
 			if val is None:
-				val = self.getParentPK()
+				val = self.getParentLinkValue()
 			self.scan(self._setParentFK, val)
 
 	def _setParentFK(self, val):
 		self.setFieldVal(self.LinkField, val)
 
 
-	def setCurrentParent(self, val=None, fromChildRequery=None):
-		""" Lets dependent child bizobjs know the current value of their parent
+	def setCurrentParent(self, val=None):
+		""" Lets dependent child bizobjs update to the current parent
 		record.
 		"""
 		if self.LinkField:
-			if val is None and not fromChildRequery:
-				val = self.getParentPK()
+			if val is None:
+				val = self.getParentLinkValue()
 			# Update the key value for the cursor
 			self.__currentCursorKey = val
 			# Make sure there is a cursor object for this key.
@@ -1263,24 +1268,11 @@ class dBizobj(dObject):
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
 
-		newAutopop = (self.IsAdding and self.AutoPopulatePK)
-		try:
-			pk = self.getPK()
-		except dException.NoRecordsException:
-			# There aren't any records, all children should requery to 0 records.
-			# We can't set the pk to None, because None has special meaning 
-			# elsewhere (self.__currentCursorKey).
-			pk = NO_RECORDS_PK
-
 		for child in self.__children:
 			# Let the child know the current dependent PK
 			if child.RequeryWithParent:
-				child.setCurrentParent(pk, fromChildRequery=True)
-				if newAutopop and (child.RowCount == 0):
-					parentPK = None
-				else:
-					parentPK = pk
-				if not child.isAnyChanged(parentPK=parentPK):
+				child.setCurrentParent()
+				if not child.isAnyChanged(useCurrentParent=True):
 					child.requery()
 		self.afterChildRequery()
 
