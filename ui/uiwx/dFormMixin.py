@@ -448,7 +448,18 @@ class dFormMixin(pm.dPemMixin):
 				if state == "Minimized":
 					state = "Normal"
 				self.WindowState = state
-				
+			# Make sure that the frame is on the visible display
+			dispWd, dispHt = dabo.ui.getDisplaySize()
+			self.Right = min(dispWd, self.Right)
+			self.Bottom = min(dispHt, self.Bottom)
+			if self.Application.Platform == "Mac":
+				# Need to account for the menu bar
+				minTop = 23
+			else:
+				minTop = 0
+			self.Left = max(0, self.Left)
+			self.Top = max(minTop, self.Top)
+
 			self.restoredSP = True
 
 
