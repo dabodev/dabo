@@ -9,80 +9,89 @@ from dabo.ui import makeDynamicProperty
 
 
 class dSplitForm(dabo.ui.dForm):
-	def _afterInit(self):
-		win = self.splitter = dSplitter(self, createPanes=True, RegID="MainSplitter")
-		super(dSplitForm, self)._afterInit()
-		self.Sizer.append1x(win)
-		win.Visible = True
-		self.layout()
+	def __init__(self, *args, **kwargs):
+		self._splitter = None
+		super(dSplitForm, self).__init__(*args, **kwargs)
 
 
 	def unsplit(self):
-		self.splitter.unsplit()
+		self.Splitter.unsplit()
 		
 	
 	def split(self, dir=None):
-		self.splitter.split(dir)
+		self.Splitter.split(dir)
 		
 
 	def _getMinPanelSize(self):
-		return self.splitter.MinPanelSize
+		return self.Splitter.MinPanelSize
 		
 	def _setMinPanelSize(self, val):
 		if self._constructed():
-			self.splitter.MinPanelSize = val
+			self.Splitter.MinPanelSize = val
 		else:
 			self._properties["MinPanelSize"] = val
 	
 	
 	def _getOrientation(self):
-		return self.splitter.Orientation
+		return self.Splitter.Orientation
 		
 	def _setOrientation(self, val):
 		if self._constructed():
-			self.splitter.Orientation = val
+			self.Splitter.Orientation = val
 		else:
 			self._properties["MinPanelSize"] = val
 	
 	
 	def _getPanel1(self):
-		return self.splitter.Panel1
+		return self.Splitter.Panel1
 		
 	def _setPanel1(self, pnl):
 		if self._constructed():
-			self.splitter.Panel1 = pnl
+			self.Splitter.Panel1 = pnl
 		else:
 			self._properties["Panel1"] = pnl
 			
 
 	def _getPanel2(self):
-		return self.splitter.Panel2
+		return self.Splitter.Panel2
 		
 	def _setPanel2(self, pnl):
 		if self._constructed():
-			self.splitter.Panel2 = pnl
+			self.Splitter.Panel2 = pnl
 		else:
 			self._properties["Panel2"] = pnl
 	
 	
 	def _getSashPosition(self):
-		return self.splitter.SashPosition
+		return self.Splitter.SashPosition
 		
 	def _setSashPosition(self, val):
 		if self._constructed():
-			self.splitter.SashPosition = val
+			self.Splitter.SashPosition = val
 		else:
 			self._properties["SashPosition"] = val
 		
-	
+
+	def _getSplitter(self):
+		if self._splitter is None:
+			win = self._splitter = dSplitter(self, createPanes=True, RegID="MainSplitter")
+			def addToSizer(frm, itm):
+				if not frm.Sizer:
+					dabo.ui.callAfter(addToSizer, frm, itm)
+				else:
+					frm.Sizer.append1x(itm)
+					frm.layout()
+			win.Visible = True
+			dabo.ui.callAfter(addToSizer, self, win)
+		return self._splitter
+
+
 
 	MinPanelSize = property(_getMinPanelSize, _setMinPanelSize, None,
 			_("Controls the minimum width/height of the panels.  (int)"))
-	DynamicMinPanelSize = makeDynamicProperty(MinPanelSize)
 			
 	Orientation = property(_getOrientation, _setOrientation, None,
 			_("Determines if the window splits Horizontally or Vertically.  (str)"))
-	DynamicOrientation = makeDynamicProperty(Orientation)
 			
 	Panel1 = property(_getPanel1, _setPanel1, None,
 			_("Returns the Top/Left panel.  (SplitterPanel)"))
@@ -92,8 +101,15 @@ class dSplitForm(dabo.ui.dForm):
 
 	SashPosition = property(_getSashPosition, _setSashPosition, None,
 			_("Position of the sash when the window is split.  (int)"))
-	DynamicSashPosition = makeDynamicProperty(SashPosition)
 
+	Splitter = property(_getSplitter, None, None,
+			_("Reference to the main splitter in the form  (dSplitter"))
+
+
+
+	DynamicMinPanelSize = makeDynamicProperty(MinPanelSize)
+	DynamicOrientation = makeDynamicProperty(Orientation)
+	DynamicSashPosition = makeDynamicProperty(SashPosition)
 
 
 class _dSplitForm_test(dSplitForm):
@@ -101,8 +117,8 @@ class _dSplitForm_test(dSplitForm):
 		self.Caption = "Splitter Demo"
 
 	def afterInit(self):
-		self.splitter.Panel1.BackColor = dabo.dColors.randomColor()
-		self.splitter.Panel2.BackColor = dabo.dColors.randomColor()
+		self.Splitter.Panel1.BackColor = dabo.dColors.randomColor()
+		self.Splitter.Panel2.BackColor = dabo.dColors.randomColor()
 		
 				
 if __name__ == "__main__":
