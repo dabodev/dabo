@@ -23,6 +23,8 @@ class dNode(dObject):
 		self.parent = parent
 		# Nodes can have objects associated with them
 		self._object = None
+		# Custom text to display as a tooltip
+		self._toolTipText = None
 		# Add minimal Dabo functionality
 		self.afterInit()
 	
@@ -261,6 +263,16 @@ class dNode(dObject):
 		return self.tree.getSiblings(self)
 
 	
+	def _getToolTipText(self):
+		return self._toolTipText
+
+	def _setToolTipText(self, val):
+		if self._constructed():
+			self._toolTipText = val
+		else:
+			self._properties["ToolTipText"] = val
+
+
 	BackColor = property(_getBackColor, _setBackColor, None,
 			_("Background color of this node  (str, 3-tuple, or wx.Colour)") )
 			
@@ -324,7 +336,12 @@ class dNode(dObject):
 	
 	Siblings = property(_getSiblings, None, None,
 			_("List of all nodes with the same parent node.  (list of dNodes)") )
-	
+
+	ToolTipText = property(_getToolTipText, _setToolTipText, None,
+			_("""Text to display when the mouse hovers over this node. The tree's 
+			UseNodeToolTips property must be True for this to have any effect.  (str)"""))
+
+
 
 	DynamicBackColor = makeDynamicProperty(BackColor)
 	DynamicCaption = makeDynamicProperty(Caption)
@@ -337,7 +354,8 @@ class dNode(dObject):
 	DynamicForeColor = makeDynamicProperty(ForeColor)
 	DynamicImage = makeDynamicProperty(Image)
 	DynamicSelected = makeDynamicProperty(Selected)
-
+	DynamicToolTipText = makeDynamicProperty(ToolTipText)
+	
 	
 
 class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
@@ -351,6 +369,12 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		self._rootNode = None
 		# Class to use for creating nodes
 		self._nodeClass = dNode
+		# Default size for images added to the tree.
+		self._imageSize = (16, 16)
+		# Do we set tooltips from the nodes?
+		self._useNodeToolTips = False
+		# Store the default ToolTipText while UseNodeToolTips is True
+		self._storedToolTipText = None
 		
 		style = self._extractKey((properties, attProperties, kwargs), "style", 0) | wx.TR_HAS_VARIABLE_ROW_HEIGHT
 		# Default to showing buttons
@@ -404,6 +428,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		self.Bind(wx.EVT_TREE_ITEM_MENU, self.__onTreeItemContextMenu)
 		self.Bind(wx.EVT_TREE_BEGIN_DRAG, self.__onTreeBeginDrag)
 		self.Bind(wx.EVT_TREE_END_DRAG, self.__onTreeEndDrag)
+		self.Bind(wx.EVT_MOTION, self.__onTreeMouseMove)
 
 
 	def __onTreeItemContextMenu(self, evt):
@@ -445,9 +470,14 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		return tuple(original)
 
 		
-	def clear(self):
+	def clear(self, clearImageList=False):
 		self.DeleteAllItems()
 		self.nodes = []
+		if clearImageList:
+			il = self.GetImageList()
+			if il:
+				il.RemoveAll()
+			self.__imageList = {}
 	
 	
 	def refreshDisplay(self):
@@ -530,14 +560,19 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		""" Adds the passed image to the control's ImageList, and maintains
 		a reference to it that is retrievable via the key value.
 		"""
+		# Default image size
+		wd, ht = self.ImageSize
+		il = self.GetImageList()
+		if not il:
+			il = wx.ImageList(wd, ht, initialCount=0)
+			self.AssignImageList(il)
+		else:
+			if il.GetImageCount():
+				wd, ht = il.GetSize(0)
 		if key is None:
 			key = str(img)
 		if isinstance(img, basestring):
-			img = dabo.ui.strToBmp(img)
-		il = self.GetImageList()
-		if not il:
-			il = wx.ImageList(16, 16, initialCount=0)
-			self.AssignImageList(il)
+			img = dabo.ui.strToBmp(img, width=wd, height=ht)
 		idx = il.Add(img)
 		self.__imageList[key] = idx
 		
@@ -782,22 +817,41 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	
-	def makeDirTree(self, dirPath, wildcard=None, showHidden=False):
-		"""Make this dTreeView show a filesystem directory hierarchy.
+	def makeDirTree(self, dirPath, wildcard=None, ignored=None, 
+			showHidden=False, expand=False):
+		"""Make this dTreeView show a filesystem directory hierarchy. You
+		can specify a wildcard pattern: e.g., "*py" will only include files
+		ending in 'py'. If no wildcard is specified, all files will be included.
+		
+		You can also specify file patterns to ignore in the 'ignore' parameter.
+		This can be a single string of a file pattern, or a list of such patterns.
+		Any file matching any of these patterns will not be included in the tree.
+		
+		By default, hidden files (i.e., those beginning with a period) are ignored.
+		You can optionally show them by passing True in the showHidden
+		parameter.
+		
+		The tree defaults to fully collapsed; you can change it to fully 
+		expanded by passing True in the 'expand' parameter.
 
 		Warning: Don't use this for huge hierarchies, as it blocks while
 		filling the complete tree, instead of only filling the nodes as
 		they are opened.
 		"""
-		self.clear()
+		self.clear(clearImageList=True)
+		# Add the standard images for a directory tree
+		self.addImage("folder", "folder")
+		self.addImage("folderopen", "folderopen")
+		self.addImage("normalfile", "file")
+		self.addImage("executablefile", "executablefile")
+		
 		# Add any trailing slash character
 		self._pathNode = {}
 		# Define the function to be passed to os.path.walk
 		def addNode(showHid, currDir, fNames):
 			prnt, nm = os.path.split(currDir)
-			if not showHid:
-				if nm[:1] == ".":
-					return
+			if not showHid and nm.startswith("."):
+				return
 			try:
 				nd = self._pathNode[currDir] = self._pathNode[prnt].appendChild(nm)
 			except:
@@ -807,26 +861,44 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 				else:
 					# parent wasn't added, because it was hidden
 					return
+			self.setNodeImg(nd, "folder", "normal")
+			self.setNodeImg(nd, "folderopen", "expanded")
+			nd.ToolTipText = currDir
+			acceptedNames = ignoredNames = None
+			if wildcard is not None:
+				acceptedNames = glob.glob(os.path.join(currDir, wildcard))
+			if ignored is not None:
+				ignoredNames = []
+				for ig in ignored:
+					ignoredNames += glob.glob(os.path.join(currDir, ig))
 			for f in fNames:
 				fullName = os.path.join(currDir, f)
 				if os.path.isdir(fullName):
 					# it will be added as a directory
 					continue
-				if not showHid:
-					if f[:1] == ".":
+				if not showHid and f.startswith("."):
+					continue
+				if acceptedNames is not None:
+					if fullName not in acceptedNames:
 						continue
-				if wildcard is not None:
-					res = glob.glob(os.path.join(currDir, wildcard))
-					if not fullName in res:
+				if ignoredNames is not None:
+					if fullName in ignoredNames:
 						continue
-				nd.appendChild(f)
+				kid = nd.appendChild(f)
+				self.setNodeImg(kid, "file", "normal")
+				kid.ToolTipText = fullName
 
 		def sortNode(arg, currDir, fNames):
 			if currDir in self._pathNode:
 				self.SortChildren(self._pathNode[currDir].itemID)
 
+		if ignored and not isinstance(ignored, (list, tuple)):
+			# single string passed
+			ignored = [ignored]
 		os.path.walk(dirPath, addNode, showHidden)
 		os.path.walk(dirPath, sortNode, None)
+		if expand:
+			self.expandAll()
 
 
 	def _setAbsoluteFontZoom(self, newZoom):
@@ -964,6 +1036,21 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		self.raiseEvent(dEvents.TreeItemExpand, evt)
 
 
+	def __onTreeMouseMove(self, evt):
+		if self._useNodeToolTips:
+			nd = self.getNodeUnderMouse()
+			if nd:
+				if nd.ToolTipText:
+					self.ToolTipText = nd.ToolTipText
+				else:
+					self.ToolTipText = nd.Caption
+			else:
+				if self._storedToolTipText is not None:
+					self.ToolTipText = self._storedToolTipText
+				else:
+					self.ToolTipText = ""
+		
+
 	def _getBaseNodes(self):
 		if self.ShowRootNode:
 			return [self._rootNode]
@@ -980,6 +1067,16 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		self._delWindowStyleFlag(wx.TR_EDIT_LABELS)
 		if val:
 			self._addWindowStyleFlag(wx.TR_EDIT_LABELS)
+
+
+	def _getImageSize(self):
+		return self._imageSize
+
+	def _setImageSize(self, val):
+		if self._constructed():
+			self._imageSize = val
+		else:
+			self._properties["ImageSize"] = val
 
 
 	def _getMultipleSelect(self):
@@ -1099,7 +1196,22 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		except:
 			# Control may not be constructed yet
 			pass
-			
+
+
+	def _getUseNodeToolTips(self):
+		return self._useNodeToolTips
+
+	def _setUseNodeToolTips(self, val):
+		if self._constructed():
+			if val:
+				self._storedToolTipText = self.ToolTipText
+			else:
+				if self._storedToolTipText is not None:
+					self.ToolTipText = self._storedToolTipText
+			self._useNodeToolTips = val
+		else:
+			self._properties["UseNodeToolTips"] = val
+
 
 	BaseNodes = property(_getBaseNodes, None, None,
 			_("""Returns the root node if ShowRootNode is True; otherwise,
@@ -1108,6 +1220,9 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 	
 	Editable = property(_getEditable, _setEditable, None,
 		_("""Specifies whether the tree labels can be edited by the user."""))
+
+	ImageSize = property(_getImageSize, _setImageSize, None,
+			_("Size of images added to the tree. Default=(15, 15)  (2-tuple of int)"))
 
 	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
 		_("""Specifies whether more than one node may be selected at once."""))
@@ -1137,6 +1252,11 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		
 	ShowRootNodeLines = property(_getShowRootNodeLines, _setShowRootNodeLines, None,
 		_("""Specifies whether vertical lines are shown between root siblings."""))
+	
+	UseNodeToolTips = property(_getUseNodeToolTips, _setUseNodeToolTips, None,
+			_("""When True, the ToolTipText displayed is taken from the node.  
+			Default=False  (bool)"""))
+
 
 
 	DynamicEditable = makeDynamicProperty(Editable)
@@ -1162,18 +1282,10 @@ class _dTreeView_test(dTreeView):
 		self.addDummyData()
 		self.expandAll()
 		self.Hover = True
+		self.ToolTipText = _("Default ToolTip for the Tree")
+		self.ImageSize = (16, 16)
 	
-	def onMouseMove(self, evt):
-		nd = self.getNodeUnderMouse()
-		if nd:
-			self.ToolTipText = nd.Caption
-		else:
-			self.ToolTipText = ""
-
 	def onHit(self, evt):
-		## pkm: currently, Hit happens on left mouse up, which totally ignores
-		##      keyboarding through the tree. I'm wondering about mapping 
-		##      TreeSelection instead... thoughts?
 		print "Hit!"
 	
 	def onContextMenu(self, evt):
@@ -1241,6 +1353,10 @@ if __name__ == "__main__":
 					DataSource=tree, DataField="ShowRootNodeLines")
 			sz.append(chk, halign="Left")
 			
+			chk = dabo.ui.dCheckBox(mp, Caption="UseNodeToolTips", 
+					DataSource=tree, DataField="UseNodeToolTips")
+			sz.append(chk, halign="Left")
+			
 			self.update()
 			
 			btnEx = dabo.ui.dButton(mp, Caption="Expand All")
@@ -1254,10 +1370,8 @@ if __name__ == "__main__":
 			sz.append(hsz)
 			sz.appendSpacer(10)
 		
-		
 		def onExpandAll(self, evt):
 			self.tree.expandAll()
-		
 		
 		def onCollapseAll(self, evt):
 			self.tree.collapseAll()
