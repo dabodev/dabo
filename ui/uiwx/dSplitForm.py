@@ -74,7 +74,8 @@ class dSplitForm(dabo.ui.dForm):
 
 	def _getSplitter(self):
 		if self._splitter is None:
-			win = self._splitter = dSplitter(self, createPanes=True, RegID="MainSplitter")
+			win = self._splitter = dSplitter(self, createPanes=True, createSizers=True,
+					RegID="MainSplitter")
 			def addToSizer(frm, itm):
 				if not frm.Sizer:
 					dabo.ui.callAfter(addToSizer, frm, itm)
