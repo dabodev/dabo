@@ -33,6 +33,8 @@ class dPageFrameMixin(cm.dControlMixin):
 		newPageNum = evt.GetSelection()
 		if self._beforePageChange(oldPageNum, newPageNum) is False:
 			evt.Veto()
+		else:
+			evt.Skip()
 		self.raiseEvent(dEvents.PageChanging, oldPageNum=oldPageNum, 
 				newPageNum=newPageNum)
 				
