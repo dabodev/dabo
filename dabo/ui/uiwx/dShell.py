@@ -169,7 +169,7 @@ class dShell(dSplitForm):
 		self._oldRawInput = __builtin__.raw_input
 		self.bindEvent(dabo.dEvents.Destroy, self._onDestroy)
 
-		splt = self.splitter
+		splt = self.Splitter
 		splt.MinimumPanelSize = 80
 		splt.unbindEvent()
 		self.Orientation = "H"

@@ -114,6 +114,11 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 			self._createPanes = (self._createPanes == "True")
 		else:
 			self._createPanes = self._extractKey((kwargs, properties), "createPanes", False)
+		self._createSizers = self._extractKey(attProperties, "createSizers", None)
+		if self._createSizers is not None:
+			self._createSizers = (self._createSizers == "True")
+		else:
+			self._createSizers = self._extractKey((kwargs, properties), "createSizers", False)
 		self._splitOnInit = self._extractKey(attProperties, "splitOnInit", None)
 		if self._splitOnInit is not None:
 			self._splitOnInit = (self._splitOnInit == "True")
@@ -182,8 +187,12 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 			p2 = (pane == 2)
 		if p1 and (force or self.Panel1 is None):
 			self.Panel1 = spCls(self)
+			if self._createSizers:
+				self.Panel1.Sizer = dabo.ui.dSizer()
 		if p2 and (force or self.Panel2 is None):
 			self.Panel2 = spCls(self)
+			if self._createSizers:
+				self.Panel2.Sizer = dabo.ui.dSizer()
 	
 	
 	def initialize(self, pnl):
