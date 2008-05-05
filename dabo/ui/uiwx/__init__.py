@@ -151,6 +151,7 @@ except:
 # dDockForm is not available with wxPython < 2.7
 if wx.VERSION >= (2, 7):
 	from dDockForm import dDockForm
+	from dPageFrame import dDockTabs
 
 artConstants = {}
 for item in (it for it in dir(wx) if it.startswith("ART_")):
