@@ -17,11 +17,12 @@ class Test_dTextBox(unittest.TestCase):
 		self.txt = None
 		self.app = None
 
-	def mockUserInput(self, str_val):
+	def mockUserInput(self, str_val, lose_focus=True):
 		txt = self.txt
 		txt._gotFocus()
 		txt.SetValue(str_val)
-		txt._lostFocus()
+		if lose_focus:
+			txt._lostFocus()
 
 	def testStringValue(self):
 		txt = self.txt
@@ -111,7 +112,27 @@ class Test_dTextBox(unittest.TestCase):
 		self.assertEqual(txt.Value, decimal.Decimal("42.23"))
 		self.assertTrue(isinstance(txt.Value, decimal.Decimal))
 
+	def testFlushValue(self):
+		txt = self.txt
+		txt.Form.df = None
+
+		txt.DataSource = "form"
+		txt.DataField = "df"
+		txt.Value = "Paul"
+		self.assertEqual(txt.Value, "Paul")
+		self.assertEqual(txt.Value, txt.Form.df)
+
+		self.mockUserInput("kk")
+		self.assertEqual(txt.Value, "kk")
 		
+		self.mockUserInput("pp", lose_focus=False)
+		self.assertEqual(txt.Value, "pp")
+		self.assertEqual(txt.Form.df, "kk")
+		txt.flushValue()
+		self.assertEqual(txt.Form.df, "pp")
+		self.assertEqual(txt.Value, "pp")
+
+
 if __name__ == "__main__":
 	suite = unittest.TestLoader().loadTestsFromTestCase(Test_dTextBox)
 	unittest.TextTestRunner(verbosity=2).run(suite)
