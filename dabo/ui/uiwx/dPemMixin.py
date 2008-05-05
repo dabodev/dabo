@@ -432,6 +432,11 @@ class dPemMixin(dPemMixinBase):
 
 	def _bindDelayed(self):
 		for evt, mthdString in self._delayedEventBindings:
+			if not mthdString:
+				# Empty method string; this is a sign of a bug in the UI code.
+				# Log it and continue
+				dabo.errorLog.write(_("Empty Event Binding: Object: %s; Event: %s") % (self.Name, evt))
+				continue
 			try:
 				mthd = eval(mthdString)
 			except (AttributeError, NameError), e:
