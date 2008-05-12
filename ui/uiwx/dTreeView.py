@@ -549,8 +549,18 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 					if not nd.IsRootNode]
 		for n in nds:
 			self.collapse(n)
-	
-	
+
+
+	def expandBranch(self, nd):
+		"""Expands the specified node, as well as any of its child nodes."""
+		self.ExpandAllChildren(nd.itemID)
+
+
+	def collapseBranch(self, nd):
+		"""Collapses the specified node, as well as any of its child nodes."""
+		self.CollapseAllChildren(nd.itemID)
+
+
 	def showNode(self, node):
 		self.EnsureVisible(node.itemID)
 		
