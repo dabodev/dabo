@@ -1674,6 +1674,29 @@ class dPemMixin(dPemMixinBase):
 		self.raiseEvent(dEvents.FontPropertiesChanged)
 
 
+	def _uniqueNameForParent(self, name, parent=None):
+		"""Takes a given name and ensures that it is unique among the existing child
+		objects of the specified parent container. If no parent is specified, self.Parent
+		is assumed. Returns either the original name, if it is unique, or the name with
+		a numeric suffix that will make it unique.
+		"""
+		if parent is None:
+			parent = self.Parent
+		i = 0
+		nameError = True
+		candidate = name
+		while nameError:
+			if i:
+				candidate = "%s%s" % (name, i)
+			nameError = hasattr(parent, candidate) \
+					and type(getattr(parent, candidate)) != wx._core._wxPyDeadObject \
+					and getattr(parent, candidate) != self \
+					and [win for win in parent.GetChildren()
+						if win != self and win.GetName() == candidate]
+			i += 1
+		return candidate
+
+
 	# The following 3 flag functions are used in some of the property
 	# get/set functions.
 	def _hasWindowStyleFlag(self, flag):
@@ -2248,25 +2271,7 @@ class dPemMixin(dPemMixinBase):
 				if not _userExplicit:
 					# Dabo is setting the name implicitly, in which case we want to mangle
 					# the name if necessary to make it unique (we don't want a NameError).
-					i = 0
-					while True:
-						if i == 0:
-							candidate = name
-						else:
-							candidate = "%s%s" % (name, i)
-						nameError = hasattr(parent, candidate) \
-								and type(getattr(parent, candidate)) != wx._core._wxPyDeadObject \
-								and getattr(parent, candidate) != self
-						if not nameError:
-							badNames = [win for win in parent.GetChildren()
-									if win != self and win.GetName() == candidate]
-							if badNames:
-								nameError = True
-						if nameError:
-							i += 1
-						else:
-							name = candidate
-							break
+					name = self._uniqueNameForParent(name)
 				else:
 					# the user is explicitly setting the Name. If another object already
 					# has the name, we must raise an exception immediately.
