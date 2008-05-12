@@ -9,14 +9,33 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 
+flag_allow_float = aui.AUI_MGR_ALLOW_FLOATING
+flag_show_active = aui.AUI_MGR_ALLOW_ACTIVE_PANE
+flag_transparent_drag = aui.AUI_MGR_TRANSPARENT_DRAG
+flag_rectangle_hint = aui.AUI_MGR_RECTANGLE_HINT
+flag_transparent_hint = aui.AUI_MGR_TRANSPARENT_HINT
+flag_venetian_blinds_hint = aui.AUI_MGR_VENETIAN_BLINDS_HINT
+flag_no_venetian_blinds_fade = aui.AUI_MGR_NO_VENETIAN_BLINDS_FADE
+flag_hint_fade = aui.AUI_MGR_HINT_FADE
+
 
 class _dDockManager(aui.AuiManager):
 	def __init__(self, win):
-		super(_dDockManager, self).__init__(win)
+		self._managedWindow = win
+		flags = flag_allow_float | flag_transparent_drag | flag_rectangle_hint | flag_transparent_hint
+		super(_dDockManager, self).__init__(win, flags=flags)
+		self.Bind(aui.EVT_AUI_RENDER, self.aui_render)
+
+
+	def aui_render(self, evt):
+		evt.Skip()
+		dabo.ui.callAfterInterval(100, self._managedWindow.update)
 	
 	
-	def addPane(self, win, name=None, typ=None, caption=None):
+	def addPane(self, win, name=None, typ=None, caption=None, toolbar=None):
 		pi = PaneInfo()
+		if toolbar:
+			pi.ToolbarPane()
 		if name is not None:
 			pi = pi.Name(name)
 		if caption is not None:
@@ -45,16 +64,19 @@ class _dDockManager(aui.AuiManager):
 
 class _dDockPanel(dabo.ui.dPanel):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
-		pname = self._extractKey(kwargs, "name", "")
+		nmU = self._extractKey((properties, kwargs), "Name", "")
+		nb = self._extractKey((properties, kwargs), "NameBase", "")
+		nmL = self._extractKey((properties, kwargs), "name", "")
+		kwargs["NameBase"] = [txt for txt in (nmU, nb, nmL, "_dDockPanel") if txt][0]
 		pcapUp = self._extractKey(kwargs, "Caption", "")
 		pcap = self._extractKey(kwargs, "caption", "")
 		ptype = self._extractKey(kwargs, "typ", "")
-		kwargs["NameBase"] = pname
 		if pcapUp:
 			kwargs["Caption"] = pcapUp
 		else:
 			kwargs["Caption"] = pcap
 		self._paramType = ptype
+		self._toolbar = self._extractKey(kwargs, "Toolbar", False)
 		
 		# Initialize attributes that underly properties
 		self._bottomDockable = True
@@ -79,13 +101,39 @@ class _dDockPanel(dabo.ui.dPanel):
 			self._floatingPosition = self.GetParent().GetPosition().Get()
 			self._floatingSize = self.GetParent().GetSize().Get()
 	
-	
+
+	def _uniqueNameForParent(self, name, parent=None):
+		"""We need to check the AUI manager's PaneInfo name value, too, as that has to be unique 
+		there as well as the form.
+		"""
+		changed = True
+		while changed:
+			i = 0
+			auiOK = False
+			while not auiOK:
+				auiOK = True
+				candidate = name
+				if i:
+					candidate = "%s%s" % (name, i)
+				mtch = [pi.name for pi in self._Manager.GetAllPanes()
+						if pi.name == candidate]
+				if mtch:
+					auiOK = False
+					i += 1
+			changed = changed and (candidate != name)
+			name = candidate
+
+			candidate = super(_dDockPanel, self)._uniqueNameForParent(name, parent)
+			changed = changed and (candidate != name)
+			name = candidate
+
+
 	def float(self):
 		"""Float the panel if it isn't already floating."""
 		if self.Floating or not self.Floatable:
 			return
 		self.__pi.Float()
-		self.Form._refreshState()
+		self._updateAUI()
 		
 		
 	def dock(self, side=None):
@@ -103,7 +151,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			else:	
 				dabo.errorLog.write(_("Invalid dock position: '%s'.") % side)
 		inf.Dock()
-		self.Form._refreshState()
+		self._updateAUI()
 			
 		
 	def _beforeSetProperties(self, props):
@@ -113,28 +161,54 @@ class _dDockPanel(dabo.ui.dPanel):
 		them now, and then set them afterwards.
 		"""
 		self._propDelayDict = {}
-		for delayed in ("Left", "Right", "Top", "Bottom", "Width", "Height"):
-			val = self._extractKey(props, delayed)
-			if val:
+		props2Delay = ("Bottom", "BottomDockable", "Caption", "DestroyOnClose", "Dockable", "Docked", 
+				"DockSide", "Floatable", "Floating", "FloatingBottom", "FloatingHeight", "FloatingLeft", 
+				"FloatingPosition", "FloatingRight", "FloatingSize", "FloatingTop", "FloatingWidth", "Height", 
+				"Left", "LeftDockable", "Movable", "Resizable", "Right", "RightDockable", "ShowBorder", 
+				"ShowCaption", "ShowCloseButton", "ShowGripper", "ShowMaximizeButton", 
+				"ShowMinimizeButton", "ShowPinButton", "Top", "TopDockable", "Visible", "Width")
+		for delayed in props2Delay:
+			val = self._extractKey(props, delayed, None)
+			if val is not None:
 				self._propDelayDict[delayed] = val
 		return super(_dDockPanel, self)._beforeSetProperties(props)
 		
 		
-	def _setProperties(self, props):
+	def _afterSetProperties(self):
+		nm = self.Name
 		frm = self.Form
-		self.__pi = frm._mgr.addPane(self, name=props["NameBase"],
-				typ=self._paramType, caption=props["Caption"])
+		self.__pi = self._Manager.addPane(self, name=nm,
+				typ=self._paramType, caption=self._propDelayDict.get("Caption", "_dDockPanel"))
 		del self._paramType
 		self.__pi.MinSize((50,50))
-		super(_dDockPanel, self)._setProperties(props)
-
-
-	def _afterSetProperties(self):
 		if self._propDelayDict:
 			self.setProperties(self._propDelayDict)
 		del self._propDelayDict
-		
-		
+
+
+	def getState(self):
+		"""Returns the local name and a string that can be used to restore the state of this pane."""
+		inf = self._Manager.SavePaneInfo(self.__pi)
+		try:
+			infPairs = (qq.split("=") for qq in inf.split(";"))
+			nm = dict(infPairs)["name"]
+		except KeyError:
+			# For some reason a name was not returned
+			return ""
+		return (nm, inf.replace("name=%s;" % nm, ""))
+
+
+	def _updateAUI(self):
+		frm = self.Form
+		if frm is not None:
+			frm._refreshState()
+		else:
+			try:
+				self._Manager.runUpdate()
+			except AttributeError:
+				pass
+
+
 	def __getPosition(self):
 		if self.Floating:
 			obj = self.GetParent()
@@ -172,10 +246,9 @@ class _dDockPanel(dabo.ui.dPanel):
 	def _setBottomDockable(self, val):
 		if self._constructed():
 			self.__pi.BottomDockable(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["BottomDockable"] = val
-
 
 	def _getCaption(self):
 		try:
@@ -188,7 +261,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._caption = val
 			self.__pi.Caption(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["Caption"] = val
 
@@ -200,7 +273,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._destroyOnClose = val
 			self.__pi.DestroyOnClose(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["DestroyOnClose"] = val
 
@@ -212,7 +285,9 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._dockable = val
 			self.__pi.Dockable(val)
-			self.Form._refreshState()
+			if self.Docked:
+				self.Docked = val
+			self._updateAUI()
 		else:
 			self._properties["Dockable"] = val
 
@@ -231,7 +306,7 @@ class _dDockPanel(dabo.ui.dPanel):
 				self.__pi.Float()
 				chg = True
 			if chg:
-				self.Form._refreshState()
+				self._updateAUI()
 		else:
 			self._properties["Docked"] = val
 
@@ -243,7 +318,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			vUp = val[0].upper()
 			self.__pi.dock_direction = {"T": 1, "R": 2, "B": 3, "L": 4}[vUp]
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["DockSide"] = val
 
@@ -255,7 +330,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._floatable = val
 			self.__pi.Floatable(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["Floatable"] = val
 
@@ -274,9 +349,8 @@ class _dDockPanel(dabo.ui.dPanel):
 				self.__pi.Dock()
 				chg = True
 			if chg:
-				self.Form._refreshState()
+				self._updateAUI()
 		else:
-			print dir(self)
 			self._properties["Floating"] = val
 
 
@@ -414,9 +488,17 @@ class _dDockPanel(dabo.ui.dPanel):
 	def _setLeftDockable(self, val):
 		if self._constructed():
 			self.__pi.LeftDockable(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["LeftDockable"] = val
+
+
+	def _getManager(self):
+		try:
+			mgr = self._mgr
+		except AttributeError:
+			mgr = self._mgr = self.Form._mgr
+		return mgr
 
 
 	def _getMovable(self):
@@ -426,7 +508,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._movable = val
 			self.__pi.Movable(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["Movable"] = val
 
@@ -438,7 +520,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._resizable = val
 			self.__pi.Resizable(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["Resizable"] = val
 
@@ -462,7 +544,7 @@ class _dDockPanel(dabo.ui.dPanel):
 	def _setRightDockable(self, val):
 		if self._constructed():
 			self.__pi.RightDockable(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["RightDockable"] = val
 
@@ -474,7 +556,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._showBorder = val
 			self.__pi.PaneBorder(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["ShowBorder"] = val
 
@@ -486,7 +568,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._showCaption = val
 			self.__pi.CaptionVisible(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["ShowCaption"] = val
 
@@ -514,7 +596,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._showGripper = val
 			self.__pi.Gripper(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["ShowGripper"] = val
 
@@ -526,7 +608,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._showMaximizeButton = val
 			self.__pi.MaximizeButton(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["ShowMaximizeButton"] = val
 
@@ -538,7 +620,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._showMinimizeButton = val
 			self.__pi.MinimizeButton(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["ShowMinimizeButton"] = val
 
@@ -550,9 +632,14 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._showPinButton = val
 			self.__pi.PinButton(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["ShowPinButton"] = val
+
+
+
+	def _getToolbar(self):
+		return self._toolbar
 
 
 	def _getTop(self):
@@ -574,7 +661,7 @@ class _dDockPanel(dabo.ui.dPanel):
 	def _setTopDockable(self, val):
 		if self._constructed():
 			self.__pi.TopDockable(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["TopDockable"] = val
 
@@ -585,7 +672,7 @@ class _dDockPanel(dabo.ui.dPanel):
 	def _setVisible(self, val):
 		if self._constructed():
 			self.__pi.Show(val)
-			self.Form._refreshState()
+			self._updateAUI()
 		else:
 			self._properties["Visible"] = val
 
@@ -665,6 +752,9 @@ class _dDockPanel(dabo.ui.dPanel):
 	LeftDockable = property(_getLeftDockable, _setLeftDockable, None,
 			_("Can the panel be docked to the left edge of the form? Default=True  (bool)"))
 
+	_Manager = property(_getManager, None, None,
+			_("Reference to the AUI manager (for internal use only).  (_dDockManager)"))
+
 	Movable = property(_getMovable, _setMovable, None,
 			_("Can the panel be moved (True, default), or is it in a fixed position (False).  (bool)"))
 
@@ -698,6 +788,9 @@ class _dDockPanel(dabo.ui.dPanel):
 	ShowPinButton = property(_getShowPinButton, _setShowPinButton, None,
 			_("Does the panel display a pin button when floating? Default=False  (bool)"))
 
+	Toolbar = property(_getToolbar, None, None,
+			_("Returns True if this is a Toolbar pane. Default=False  (bool)"))
+
 	Top = property(_getTop, _setTop, None,
 			_("Position in pixels of the top side of the panel. Read-only when docked; read-write when floating  (int)"))
 
@@ -710,22 +803,29 @@ class _dDockPanel(dabo.ui.dPanel):
 	Width = property(_getWidth, _setWidth, None,
 			_("Position in pixels of the width of the panel. Read-only when docked; read-write when floating  (int)"))
 
+
+	DynamicCaption = makeDynamicProperty(Caption)
 	
 		
 
 class dDockForm(dabo.ui.dForm):
 	def _afterInit(self):
+		self._inUpdate = False
 		self._mgr = mgr = _dDockManager(self)
 		pc = self.getBasePanelClass()
 		self._centerPanel = pc(self, name="CenterPanel", typ="center")
 		self._centerPanel.Sizer = dabo.ui.dSizer("v")
+		self._panels = {}
 		super(dDockForm, self)._afterInit()
 		self.bindEvent(dEvents.Destroy, self.__onDestroy)
 	
 	
 	def __onDestroy(self, evt):
 		if self._finito:
+			# Need to save this here, since we can't respond to all layout changes.
+			self.saveSizeAndPosition()
 			self._mgr.UnInit()
+
 	
 	def getBasePanelClass(cls):
 		return _dDockPanel
@@ -735,19 +835,27 @@ class dDockForm(dabo.ui.dForm):
 	def onChildBorn(self, evt):
 		ok = isinstance(evt.child, (_dDockPanel, dabo.ui.dStatusBar, dabo.ui.dShell.dShell))
 		if not ok:
-			print "BORN:", evt.child
+			# This should never happen; if so, log the error
+			dabo.errorLog.write(_("Unmanaged object added to a Dock Form: %s") %evt.child)
 		
 		
 	def addObject(self, classRef, Name=None, *args, **kwargs):
+		"""To support the old addObject() syntax, we need to re-direct the request
+		to the center panel.
+		"""
 		self._centerPanel.addObject(classRef, Name=Name, *args, **kwargs)
 		
 	
 	def addPanel(self, *args, **kwargs):
+		"""Adds a dockable panel to the form."""
 		pnl = _dDockPanel(self, *args, **kwargs)
 		self._refreshState()
+		# Store the pane info
+		nm = pnl.getState()[0]
+		self._panels[pnl] = nm
 		return pnl
-	
-	
+
+
 	def _refreshState(self, interval=None):
 		if self._finito:
 				return
@@ -756,7 +864,41 @@ class dDockForm(dabo.ui.dForm):
 		if interval == 0:
 			self._mgr.Update()
 		else:
-			dabo.ui.callAfterInterval(interval, self._mgr.runUpdate)		
+			dabo.ui.callAfterInterval(interval, self._mgr.runUpdate)
+		if not self._inUpdate:
+			dabo.ui.callAfter(self.update)
+	
+	
+	def update(self):
+		if not self._inUpdate:
+			self._inUpdate = True
+			super(dDockForm, self).update()
+			# Update the panels
+			for pnl in self._panels.keys():
+				pnl.update()
+			dabo.ui.callAfterInterval(500, self._clearInUpdate)
+
+
+	def _clearInUpdate(self):
+		self._inUpdate = False
+
+
+	def saveSizeAndPosition(self):
+		""" Save the panel layout info, then call the default behavior."""
+		if self.Application:
+			if self.SaveRestorePosition and not self.TempForm:
+				self.Application.setUserSetting("perspective", self._mgr.SavePerspective())
+				if not self._finito:
+					super(dDockForm, self).saveSizeAndPosition()
+
+
+	def restoreSizeAndPosition(self):
+		"""Restore the panel layout, if possible, then call the default behavior."""
+		if self.Application and self.SaveRestorePosition:
+			super(dDockForm, self).restoreSizeAndPosition()
+			ps = self.Application.getUserSetting("perspective", "")
+			if ps:
+				self._mgr.LoadPerspective(ps)
 
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
@@ -765,34 +907,77 @@ class dDockForm(dabo.ui.dForm):
 		return self._centerPanel
 
 
+	def _getShowActivePanel(self):
+		return bool(self._mgr.GetFlags() & flag_show_active)
+
+	def _setShowActivePanel(self, val):
+		if self._constructed():
+			self._transparentDrag = val
+			flags = self._mgr.GetFlags()
+			if val:
+				newFlags = flags | flag_show_active
+			else:
+				newFlags = flags & ~flag_show_active
+			self._mgr.SetFlags(newFlags)
+		else:
+			self._properties["ShowActivePanel"] = val
+
+
+	def _getTransparentDrag(self):
+		return bool(self._mgr.GetFlags() & flag_transparent_drag)
+
+	def _setTransparentDrag(self, val):
+		if self._constructed():
+			self._transparentDrag = val
+			flags = self._mgr.GetFlags()
+			if val:
+				newFlags = flags | flag_transparent_drag
+			else:
+				newFlags = flags & ~flag_transparent_drag
+			self._mgr.SetFlags(newFlags)
+		else:
+			self._properties["TransparentDrag"] = val
+
+
 	CenterPanel = property(_getCenterPanel, None, None,
 			_("Reference to the center (i.e., non-docking) panel. (read-only) (dPanel)"))
+
+	ShowActivePanel = property(_getShowActivePanel, _setShowActivePanel, None,
+			_("When True, the title bar of the active pane is highlighted. Default=False  (bool)"))
 	
-	
+	TransparentDrag = property(_getTransparentDrag, _setTransparentDrag, None,
+			_("When dragging panes, do they appear transparent? Default=True  (bool)"))
 
 
 
 class _dDockForm_test(dDockForm):
+	def initProperties(self):
+		self.SaveRestorePosition = False
+		self.Size = (700, 500)
+
 	def afterInit(self):
-		self.fp = _dDockPanel(self, Floating=True, BackColor="orange",
-				Caption="I'm Floating!", Top=70, Left=100)
-		self.dp = _dDockPanel(self, Floating=False, BackColor="slateblue", 
+		self.fp = self.addPanel(Floating=True, BackColor="orange",
+				Caption="Initially Floating", Top=70, Left=200)
+		self.dp = self.addPanel(Floating=False, Caption="Initially Docked", BackColor="slateblue", 
 				ShowCaption=False, ShowPinButton=True, ShowCloseButton=False,
 				ShowGripper=True)
-		btn = dabo.ui.dButton(self._centerPanel, Caption="Test Orange", OnHit=self.onTestFP)
-		self._centerPanel.Sizer.append(btn)
-		btn = dabo.ui.dButton(self._centerPanel, Caption="Test Blue", OnHit=self.onTestDP)
-		self._centerPanel.Sizer.append(btn)
+		btn = dabo.ui.dButton(self.CenterPanel, Caption="Test Orange", OnHit=self.onTestFP)
+		self.CenterPanel.Sizer.append(btn)
+		btn = dabo.ui.dButton(self.CenterPanel, Caption="Test Blue", OnHit=self.onTestDP)
+		self.CenterPanel.Sizer.append(btn)
+		chk = dabo.ui.dCheckBox(self.CenterPanel, Caption="Orange Dockable", DataSource=self.fp,
+				DataField="Dockable")
+		self.CenterPanel.Sizer.append(chk)
 		self.fp.DynamicCaption = self.capForOrange
 
-
 	def capForOrange(self):
+		print "CAPFOR", self.fp.Docked
 		state = "Floating"
 		if self.fp.Docked:
 			state = "Docked"
+		print "STATE", state
 		return "I'm %s!" % state
 		
-	
 	def onTestFP(self, evt):
 		self.printTest(self.fp)
 	def onTestDP(self, evt):
