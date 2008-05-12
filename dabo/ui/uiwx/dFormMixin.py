@@ -464,22 +464,20 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def saveSizeAndPosition(self):
-		""" Save the current size and position of this form.
-		"""
+		""" Save the current size and position of this form."""
 		if self.Application:
 			if self.SaveRestorePosition and not self.TempForm:
 				name = self.getAbsoluteName()
 				state = self.WindowState
 				self.Application.setUserSetting("%s.windowstate" % name, state)
 
-				if state == 'Normal':
+				if state == "Normal":
 					# Don't save size and position when the window
 					# is minimized, maximized or fullscreen because
 					# windows doesn't supply correct value if the window
-					# is in one of these staes.
+					# is in one of these states.
 					pos = self.Position
 					size = self.Size
-
 					self.Application.setUserSetting("%s.left" % name, pos[0])
 					self.Application.setUserSetting("%s.top" % name, pos[1])
 					self.Application.setUserSetting("%s.width" % name, size[0])
