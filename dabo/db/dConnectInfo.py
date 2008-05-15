@@ -162,6 +162,9 @@ class dConnectInfo(dObject):
 				elif nm == "mssql":
 					import dbMsSQL
 					self._backendObject = dbMsSQL.MSSQL()
+				elif nm == "oracle":
+					import dbOracle
+					self._backendObject = dbOracle.Oracle()
 				else:
 					raise ValueError, "Invalid database type: %s." % nm
 			except ImportError:
