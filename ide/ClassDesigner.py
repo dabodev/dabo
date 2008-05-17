@@ -138,6 +138,7 @@ class ClassDesigner(dabo.dApp):
 				{"name" : "DateTextBox", "class" : dui.dDateTextBox, "order" : 60},
 				{"name" : "DropdownList", "class" : dui.dDropdownList, "order" : 70},
 				{"name" : "EditBox", "class" : dui.dEditBox, "order" : 80},
+				{"name" : "HtmlBox", "class" : dui.dHtmlBox, "order" : 85},
 				{"name" : "Gauge", "class" : dui.dGauge, "order" : 90},
 				{"name" : "Grid", "class" : dui.dGrid, "order" : 100},
 				{"name" : "Image", "class" : dui.dImage, "order" : 110},
@@ -343,14 +344,13 @@ class ClassDesigner(dabo.dApp):
 		baseEvents = ("DataEvent", "EditorEvent", "GridEvent", "KeyEvent",
 				"ListEvent", "MenuEvent", "MouseEvent", "SashEvent",
 				"CalendarEvent", "TreeEvent")
-		classes = (dui.dBox, dui.dBitmap, dui.dBitmapButton, dui.dButton, dui.dCheckBox,
-				dui.dComboBox, dui.dDateTextBox, dui.dDialog, dui.dDropdownList,
-				dui.dEditBox, dui.dEditor, dui.dForm, dui.dDockForm, dui.dGauge, dui.dGrid, dui.dImage, 
-				dui.dLabel, dui.dLine, dui.dListBox, dui.dListControl, dui.dOkCancelDialog,
-				dui.dPanel, dui.dPage, dui.dScrollPanel, dui.dPage, dui.dPageFrame,
-				dui.dPageList, dui.dPageSelect, dui.dPageFrameNoTabs, dui.dRadioList,
-				dui.dSlider, dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton,
-				dui.dTreeView, dlgs.Wizard, dlgs.WizardPage)
+		classes = (dui.dBox, dui.dBitmap, dui.dBitmapButton, dui.dButton, dui.dCheckBox, 
+				dui.dComboBox, dui.dDateTextBox, dui.dDialog, dui.dDropdownList, dui.dEditBox, 
+				dui.dEditor, dui.dForm, dui.dDockForm, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, 
+				dui.dLabel, dui.dLine, dui.dListBox, dui.dListControl, dui.dOkCancelDialog, dui.dPanel, 
+				dui.dPage, dui.dScrollPanel, dui.dPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect,
+				dui.dPageFrameNoTabs, dui.dRadioList, dui.dSlider, dui.dSpinner, dui.dSplitter, dui.dTextBox, 
+				dui.dToggleButton, dui.dTreeView, dlgs.Wizard, dlgs.WizardPage)
 
 		def evtsForClass(cls):
 			ret = []
@@ -1710,7 +1710,7 @@ class ClassDesigner(dabo.dApp):
 						"Wizard", "WizardPage", "PageFrame", "PageList", "PageSelect",
 						"PageNoTabs", "Box", "Bitmap", "BitmapButton", "Button", "CheckBox",
 						"ComboBox", "DateTextBox", "DropdownList", "EditBox", "Editor",
-						"Gauge", "Grid", "Image", "Label", "Line", "ListBox", "ListControl", "Page",
+						"Gauge", "Grid", "HtmlBox", "Image", "Label", "Line", "ListBox", "ListControl", "Page",
 						"RadioList", "Slider", "Spinner", "Splitter", "TextBox", "ToggleButton",
 						"TreeView"]
 				keys = [dui.dForm, dui.dDockForm, dui.dPanel, dui.dScrollPanel, dui.dDialog, 
@@ -1718,7 +1718,7 @@ class ClassDesigner(dabo.dApp):
 						dui.dPageFrame, dui.dPageList, dui.dPageSelect, dui.dPageFrameNoTabs,
 						dui.dBox, dui.dBitmap, dui.dBitmapButton, dui.dButton, dui.dCheckBox,
 						dui.dComboBox, dui.dDateTextBox, dui.dDropdownList, dui.dEditBox,
-						dui.dEditor, dui.dGauge, dui.dGrid, dui.dImage, dui.dLabel, dui.dLine,
+						dui.dEditor, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel, dui.dLine,
 						dui.dListBox, dui.dListControl, dui.dPage, dui.dRadioList, dui.dSlider,
 						dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton,
 						dui.dTreeView]
@@ -2873,6 +2873,7 @@ class ClassDesigner(dabo.dApp):
 			pop.append(_("Add DropdownList"), OnHit=self.onNewDropdownList)
 			pop.append(_("Add EditBox"), OnHit=self.onNewEditBox)
 			pop.append(_("Add Grid"), OnHit=self.onNewGrid)
+			pop.append(_("Add HtmlBox"), OnHit=self.onNewHtmlBox)
 			pop.append(_("Add ListBox"), OnHit=self.onNewListBox)
 			pop.append(_("Add ListControl"), OnHit=self.onNewListControl)
 			pop.append(_("Add RadioList"), OnHit=self.onNewRadioList)
@@ -3086,6 +3087,8 @@ class ClassDesigner(dabo.dApp):
 		dui.callAfter(self.addNewControl, None, dui.dGauge)
 	def onNewGrid(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dGrid)
+	def onNewHtmlBox(self, evt):
+		dui.callAfter(self.addNewControl, None, dui.dHtmlBox)
 	def onNewImage(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dImage)
 	def onNewLabel(self, evt):
@@ -3868,6 +3871,7 @@ if __name__ == '__main__':
 					(_("EditBox"), dui.dEditBox),
 					(_("Gauge"), dui.dGauge),
 					(_("Grid"), dui.dGrid),
+					(_("HtmlBox"), dui.dHtmlBox),
 					(_("Image"), dui.dImage),
 					(_("Label"), dui.dLabel),
 					(_("Line"), dui.dLine),

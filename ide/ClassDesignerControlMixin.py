@@ -774,7 +774,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		sliderProps = {"Max": {"type" : int, "readonly" : False},
 				"Min": {"type" : int, "readonly" : False},
 				"ShowLabels" : {"type" : bool, "readonly" : False}}
-		splitterProps = {	"MinimumPanelSize": {"type" : int, "readonly" : False},
+		splitterProps = {"MinimumPanelSize": {"type" : int, "readonly" : False},
 				"Orientation": {"type" : list, "readonly" : False,
 					"values" : ["Horizontal", "Vertical"]},
 				"PanelClass" : {"type" : unicode, "readonly" : False},
@@ -791,6 +791,11 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"ForceCase": {"type" : list, "readonly" : False,
 					"values" : ["Upper", "Lower", "Title", "None"]},		
 				"ReadOnly" : {"type" : bool, "readonly" : False}}
+		htmlTextProps = {"HorizontalScroll": {"type" : bool, "readonly" : False},
+				"Page": {"type" : unicode, "readonly" : False},
+				"RespondToLinks": {"type" : bool, "readonly" : False},
+				"ShowScrollBars": {"type" : bool, "readonly" : False},
+				"VerticalScroll": {"type" : bool, "readonly" : False}}
 		treeProps = {"Editable" : {"type" : bool, "readonly" : False},
 				"MultipleSelect" : {"type" : bool, "readonly" : False},
 				"ShowButtons" : {"type" : bool, "readonly" : False},
@@ -959,6 +964,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			if isinstance(self, dabo.ui.dTextBox):
 				ret.update({"PasswordEntry" : {"type" : bool, "readonly" : False},
 						"TextLength" : {"type" : int, "readonly" : False}})
+		elif isinstance(self, dabo.ui.dHtmlBox):
+			ret.update(htmlTextProps)
 		elif isinstance(self, dabo.ui.dTimer):
 			pass
 		elif isinstance(self, dabo.ui.dToggleButton):
