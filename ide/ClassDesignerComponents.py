@@ -106,8 +106,7 @@ class LayoutSaverMixin(object):
 		else:
 			ra["designerClass"] = self.getClassName()
 
-#		hasSizer = not isClass and (hasattr(self, "ControllingSizerItem") and self.ControllingSizerItem)
-		hasSizer = (hasattr(self, "ControllingSizerItem") and self.ControllingSizerItem)
+		hasSizer = bool(hasattr(self, "ControllingSizerItem") and self.ControllingSizerItem)
 		# We want to include some props whether they are the
 		# default or not.
 		if insideClass:
@@ -207,14 +206,9 @@ class LayoutSaverMixin(object):
 		try:
 			itmProps = self.ControllingSizer.getItemProps(self.ControllingSizerItem)
 			if insideClass:
-				itmDiffProps = self._diffSizerItemProps(itmProps, classDict)
+				itmDiffProps = self._diffSizerItemProps(itmProps, classDict, direct=True)
 			else:
 				itmDiffProps = self._diffSizerItemProps(itmProps, self.ControllingSizer)
-# 				try:
-# 					defProps = self.Controller.getDefaultSizerProps(self.superControl)
-# 					itmDiffProps = self._diffSizerItemProps(itmProps, defProps, direct=True)
-# 				except:
-# 					itmDiffProps = self._diffSizerItemProps(itmProps, self.ControllingSizer)
 			ret["attributes"]["sizerInfo"] = itmDiffProps
 		except AttributeError:
 			# Not controlled by a sizer.
@@ -235,9 +229,12 @@ class LayoutSaverMixin(object):
 
 	def _diffSizerItemProps(self, dct, szOrDict, direct=False):
 		"""Remove all of the default values from the sizer item props."""
-		# First, what type of sizer is it?
-		is2D = isinstance(szOrDict, dabo.ui.dGridSizer)
-		defaults = {True: szItemDefaults[2], False: szItemDefaults[1]}[is2D].copy()
+		if direct:
+			defaults = szOrDict
+		else:
+			# First, what type of sizer is it?
+			is2D = isinstance(szOrDict, dabo.ui.dGridSizer)
+			defaults = {True: szItemDefaults[2], False: szItemDefaults[1]}[is2D].copy()
 		if isinstance(self, LayoutPanel):
 			defaults["Expand"] = True
 			defaults["Proportion"] = 1
