@@ -352,7 +352,15 @@ class DesignerXmlConverter(dObject):
 						propString = "'%s', Caption=\"%s\"" % (self._extractKey(atts, "Orientation", "H"), 
 								self._extractKey(atts, "Caption", ""))
 					else:
-						propString = "Orientation='%s'" % self._extractKey(atts, "Orientation", "H")
+						for unneeded in ("SlotCount", "classID"):
+							try:
+								atts.pop(unneeded)
+							except KeyError:
+								pass
+						if "Orientation" not in atts:
+							# Default to Horizontal
+							atts["Orientation"] = "H"
+						propString = ", ".join(["%s='%s'" % (k,v) for k,v in atts.items()])
 				if self.CreateDesignerControls:
 					superName = clsname
 				else:
