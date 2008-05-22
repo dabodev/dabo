@@ -231,3 +231,6 @@ class MSSQL(dBackend):
 		crs = cursor.AuxCursor
 		crs.execute("select @@IDENTITY as newid")
 		return crs.getFieldVal("newid")
+	
+	def beginTransaction(self, cursor):
+		pass
