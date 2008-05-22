@@ -1160,6 +1160,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 				"DefaultBorderRight": {"type" : bool, "readonly" : False},
 				"DefaultBorderTop": {"type" : bool, "readonly" : False},
 				"DefaultBorderBottom": {"type" : bool, "readonly" : False},
+				"DefaultSpacing": {"type" : int, "readonly" : False},
 				"SlotCount" : {"type": int, "readonly" : False}}
 		# Add the controlling sizer props, if applicable
 		if self.ControllingSizer:
