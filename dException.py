@@ -70,7 +70,7 @@ class DBNoDBOnHostException(DatabaseException):
 class DBQueryException(DatabaseException):
 	def __init__(self, err, sql):
 		self.sql = sql
-		self.err_desc = str(err)
+		self.err_desc = "%s" % err
 		
 	def __str__(self):
 		return self.err_desc + '\nSQL: ' + self.sql
