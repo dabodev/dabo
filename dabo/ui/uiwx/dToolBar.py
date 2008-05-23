@@ -212,6 +212,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 		Optionally, pass the function you want to be called when this button is 
 		clicked in the bindfunc parameter.
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
 		"""
 		butt = self.AddControl(control)
 		butt.SetLabel(control.Caption)
@@ -230,6 +232,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 		Optionally, pass the function you want to be called when this button is 
 		clicked in the bindfunc parameter.
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
 		"""
 		butt = self.InsertControl(pos, control)
 		butt.SetLabel(control.Caption)
@@ -248,6 +252,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 		Optionally, pass the function you want to be called when this button is 
 		clicked in the bindfunc parameter.
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
 		"""
 		return self.insertControl(0, control, bindfunc)
 
@@ -275,21 +281,39 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		return self.insertSeparator(0)
 	
 	
-	def remove(self, index, release=True):
-		"""Removes the item at the specified index from the toolbar.
-
-		If release is True (the default), the item is deleted as well. If release 
-		is False, a reference to the  object will be returned, and the caller 
-		is responsible for deleting it.
+	def remove(self, idxOrItem, release=True):
+		"""Removes an item from the toolbar. You can either pass a reference to
+		the item, or its position in the toolbar. If release is True (the default), 
+		the item is deleted as well. If release is False, a reference to the  object 
+		will be returned, and the caller is responsible for deleting it.
 		"""
-		item = self.Children[index]
-		id_ = item._id
-		del(self._daboChildren[index])
-		self.RemoveTool(id_)
+		if isinstance(idxOrItem, (int, long)):
+			idx = idxOrItem
+			item = self.Children[idx]
+		else:
+			idx = self._getIndexByItem(idxOrItem)
+			item = idxOrItem
+		if not self.hasItem(item):
+			# Nothing to do!
+			return
+		try:
+			id_ = item._id
+			self.RemoveTool(id_)
+		except AttributeError:
+			# A control, not a toolbar tool
+			item.Visible = False					
+		del(self._daboChildren[idx])
 		item._parent = None
 		if release:
 			item.Destroy()
 		return item
+
+
+	def hasItem(self, item):
+		"""Given a toolbar item, returns True or False depending on whether
+		that item is currently in this toolbar.
+		"""
+		return (item in self._daboChildren)
 
 
 	def getItemIndex(self, caption):
