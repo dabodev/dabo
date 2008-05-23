@@ -283,7 +283,7 @@ class Hit(dEvent):
 		return issubclass(objectClass, (ui.dBitmapButton, ui.dButton,
 				ui.dCheckBox, ui.dComboBox, ui.dDropdownList, ui.dEditBox,
 				ui.dListBox, ui.dRadioList, ui.dSlider, ui.dSpinner, ui.dTextBox,
-				ui.dTimer, ui.dToggleButton, ui.dMenuItem))
+				ui.dTimer, ui.dToggleButton, ui.dMenuItem, ui.dToolBarItem))
 	appliesToClass = classmethod(appliesToClass)
 
 
