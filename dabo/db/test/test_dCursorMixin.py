@@ -12,6 +12,7 @@ db_tests = {"sqlite": True,
             "firebird": False,
             "postgresql": False,
             "mssql": False,
+	    "oracle": False,
            }
 
 # Convert the flags into class references. Setting to object will keep the tests
@@ -325,6 +326,40 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 """ % self.temp_table_name)
 
 
+class Test_dCursorMixin_oracle(Test_dCursorMixin, unittest.TestCase):
+	def setUp(self):
+		con = dabo.db.dConnection(DbType="Oracle", User="fwadm", 
+				password="V7EE74E49H6BV27TA0J65G2AS21", Database="XE",
+				Host="athlon28")
+		self.cur = con.getDaboCursor()
+		self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
+		super(Test_dCursorMixin_oracle, self).setUp()
+
+	def tearDown(self):
+		self.cur.execute("drop table %s" % self.temp_table_name)
+		super(Test_dCursorMixin_mysql, self).tearDown()
+
+	def createSchema(self):
+		cur = self.cur
+		cur.execute("""
+create table %s (pk INTEGER PRIMARY KEY, cfield CHAR (32), ifield INT, nfield DECIMAL (8,2))
+""" % self.temp_table_name)
+		cur.execute("""		
+insert into %s (cfield, ifield, nfield) values ("Paul Keith McNett", 23, 23.23)
+""" % self.temp_table_name)
+		cur.execute("""		
+insert into %s (cfield, ifield, nfield) values ("Edward Leafe", 42, 42.42)
+""" % self.temp_table_name)
+		cur.execute("""		
+insert into %s (cfield, ifield, nfield) values ("Carl Karsten", 10223, 23032.76)
+""" % self.temp_table_name)
+
+	def createNullRecord(self):
+		self.cur.AuxCursor.execute("""		
+insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
+""" % self.temp_table_name)
+
+
 class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
 	## NOTE: Firebird not set up completely yet. What is here is courtesy Uwe
 	##       Grauer. We need insert statements, and we need a firebird server.
@@ -387,7 +422,8 @@ if __name__ == "__main__":
 	testClasses = []
 	mapping = {"sqlite": Test_dCursorMixin_sqlite,
 			"mysql": Test_dCursorMixin_mysql,
-			"firebird": Test_dCursorMixin_firebird}
+			"firebird": Test_dCursorMixin_firebird,
+			"oracle": Test_dCursorMixin_oracle}
 	for k, v in db_tests.items():
 		if v:
 			testClasses.append(mapping[k])
