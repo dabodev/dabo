@@ -286,7 +286,12 @@ def busyInfo(msg="Please wait...", *args, **kwargs):
 	bi = None
 	"""
 	bi = wx.BusyInfo(msg, *args, **kwargs)
-	wx.Yield()
+	try:
+		wx.Yield()
+	except wx._core.PyAssertionError:
+		# pkm: I got a message 'wxYield called recursively' which
+		#      I'm unable to reproduce.
+		pass 
 	return bi
 
 
