@@ -19,6 +19,25 @@ except ImportError:
 	shell, shellcon = None, None
 
 
+# can't compare NoneType to some types: sort None lower than anything else:
+def noneSort(vv, ww):
+	xx, yy = vv[0], ww[0]
+	if xx is None and yy is None:
+		return 0
+	if xx is None and yy is not None:
+		return -1
+	if xx is not None and yy is None:
+		return 1
+	return cmp(xx, yy)
+
+def caseInsensitiveSort(vv, ww):
+	vv, ww = vv[0], ww[0]
+	if vv is None:
+		vv = ""
+	if ww is None:
+		ww = ""
+	return cmp(vv.lower(), ww.lower())
+
 def reverseText(tx):
 	"""Takes a string and returns it reversed. Example:
 	

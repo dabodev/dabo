@@ -22,6 +22,7 @@ import dabo.dColors as dColors
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
 import dabo.lib.dates
+from dabo.lib.utils import noneSort, caseInsensitiveSort
 
 # from dabo.lib.profilehooks import profile
 # from dabo.dBug import loggit
@@ -2662,9 +2663,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 		if compString and not caseSensitive:
 			# Use a case-insensitive sort.
-			sortList.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
+			sortfunc = caseInsensitiveSort
 		else:
-			sortList.sort()
+			sortfunc = noneSort
 
 		# Now iterate through the list to find the matching value. I know that
 		# there are more efficient search algorithms, but for this purpose, we'll
