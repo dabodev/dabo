@@ -24,7 +24,7 @@ from dNoEscQuoteStr import dNoEscQuoteStr
 from dabo.db import dTable
 from dabo.db.dDataSet import dDataSet
 from dabo.lib import dates
-
+from dabo.lib.utils import noneSort, caseInsensitiveSort
 
 class dCursorMixin(dObject):
 	"""Dabo's cursor class, representing the lowest tier."""
@@ -578,26 +578,6 @@ class dCursorMixin(dObject):
 		# First, see if we are comparing strings
 		compString = isinstance(sortList[0][0], basestring)
 		sortfunc = None
-
-		# can't compare NoneType to some types: sort None lower than anything else:
-		def noneSort(vv, ww):
-			xx, yy = vv[0], ww[0]
-			if xx is None and yy is None:
-				return 0
-			elif xx is None and yy is not None:
-				return -1
-			elif xx is not None and yy is None:
-				return 1
-			else:
-				return cmp(xx, yy)
-
-		def caseInsensitiveSort(vv, ww):
-			vv, ww = vv[0], ww[0]
-			if vv is None:
-				vv = ""
-			if ww is None:
-				ww = ""
-			return cmp(vv.lower(), ww.lower())
 
 		if compString and not caseSensitive:
 			sortfunc = caseInsensitiveSort
