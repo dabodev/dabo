@@ -2637,7 +2637,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			sortList.append( [val, i] )
 
 		# Determine if we are seeking string values
-		compString = isinstance(sortList[0][0], basestring)
+		compString = False
+		for row in sortList:
+			if row[0] is not None:
+				compString = isinstance(row[0], basestring)
+				break
+
 		if not compString:
 			# coerce srchVal to be the same type as the field type
 			listval = sortList[0][0]
@@ -2673,11 +2678,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if compString:
 			if caseSensitive:
 				mtchs = [vv for vv in sortList
-						if vv[0].startswith(srchVal)]
+						if isinstance(vv[0], basestring) and vv[0].startswith(srchVal)]
 			else:
 				srchVal = srchVal.lower()
 				mtchs = [vv for vv in sortList
-						if vv[0].lower().startswith(srchVal)]
+						if isinstance(vv[0], basestring) and vv[0].lower().startswith(srchVal)]
 		else:
 			mtchs = [vv for vv in sortList
 					if vv[0] == srchVal]
@@ -2691,7 +2696,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					match = (fldval == srchVal)
 				else:
 					# Case-insensitive string search.
-					match = (fldval.lower() == srchVal)
+					match = (isinstance(fldval, basestring) and fldval.lower() == srchVal)
 				if match:
 					newRow = row
 					break
@@ -2702,7 +2707,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					# requested matching value. If so, update the value of 'ret'. If not,
 					# we have passed the matching value, so there's no point in
 					# continuing the search, but we mu
-					if compString and not caseSensitive:
+					if compString and not caseSensitive and isinstance(fldval, basestring):
 						toofar = fldval.lower() > srchVal
 					else:
 						toofar = fldval > srchVal
