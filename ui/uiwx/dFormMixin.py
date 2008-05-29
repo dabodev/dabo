@@ -100,6 +100,7 @@ class dFormMixin(pm.dPemMixin):
 		self.useOldDebugDialog = False
 		self.restoredSP = False
 		self._holdStatusText = ""
+		self._statusStack = []
 		if app is not None:
 			app.uiForms.add(self)
 		
@@ -568,6 +569,22 @@ class dFormMixin(pm.dPemMixin):
 					% self.getAbsoluteName(), 0)
 
 
+	def pushStatusText(self, txt):
+		"""Stores the current text of the StatusBar on a LIFO stack for later retrieval."""
+		self._statusStack.append(self.StatusText)
+		self.StatusText = txt
+
+
+	def popStatusText(self):
+		"""Restores the StatusText to the last value pushed on the stack. If there
+		are no values in the stack, nothing is changed.
+		"""
+		txt = self._statusStack.pop()
+		if txt:
+			self.StatusText = txt
+
+
+	################################
 	# property get/set/del functions follow:
 	def _getActiveControl(self):
 		# Can't use FindFocus: it returns whatever control has the keyboard focus,
