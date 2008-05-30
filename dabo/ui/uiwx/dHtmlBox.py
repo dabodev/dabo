@@ -14,12 +14,15 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
-
+try:
+	import webbrowser as wb
+except ImportError:
+	wb = None
+	
 
 class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
-	"""Creates a scrolled panel that can load and display html pages
-
-	The Html Window can load any html text, file, or url that is fed to it.
+	"""Creates a scrolled panel that can load and display html pages. The Html Window 
+	can load any html text, file, or url that is fed to it.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._horizontalScroll = self._verticalScroll = True
@@ -29,6 +32,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 			kwargs["style"] = wx.TAB_TRAVERSAL
 		self._source = self._page = ""
 		self._respondToLinks = True
+		self._openLinksInBrowser = False
 		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
 				*args, **kwargs)
 		self.SetScrollRate(10, 10)
@@ -54,7 +58,11 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 
 	def __onLinkClicked(self, evt):
 		if self.RespondToLinks:
-			self.Page = evt.href
+			if wb and self.OpenLinksInBrowser:
+				wb.open(evt.href, new=True)
+			else:
+				# Open in the control itself
+				self.Page = evt.href
 
 
 	def setImageURLs(self, val):
@@ -90,6 +98,16 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
 		rt = self.GetScrollPixelsPerUnit()
 		self.SetScrollRate({True:rt[0], False:0}[val], rt[1])
+
+
+	def _getOpenLinksInBrowser(self):
+		return self._openLinksInBrowser
+
+	def _setOpenLinksInBrowser(self, val):
+		if self._constructed():
+			self._openLinksInBrowser = val
+		else:
+			self._properties["OpenLinksInBrowser"] = val
 
 
 	def _getPage(self):
@@ -163,6 +181,9 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 	HorizontalScroll = property(_getHorizontalScroll, _setHorizontalScroll, None,
 			_("Controls whether this object will scroll horizontally (default=True)  (bool)"))
 
+	OpenLinksInBrowser = property(_getOpenLinksInBrowser, _setOpenLinksInBrowser, None,
+			_("When True, clicking on an HREF link will open the URL in the default web browser instead of in the control itself. Default=False.  (bool)"))
+
 	Page = property(_getPage, _setPage, None,
 			_("URL or file path of the current page being displayed. (default='')  (string)"))
 
@@ -189,13 +210,13 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 
 class _dHtmlBox_test(dHtmlBox):
 	def initProperties(self):
-		self.Size = (300,200)
+		self.Size = (600, 450)
+		self.OpenLinksInBrowser = True
 
 	def afterInit(self):
-		self.Source = self.PageData()
-		
+		self.Source = self.getPageData()
 	
-	def PageData(self):
+	def getPageData(self):
 		return """<html>
 		<body bgcolor="#ACAA60">
 		<center>
