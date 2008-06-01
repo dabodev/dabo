@@ -218,7 +218,8 @@ class dSizerMixin(dObject):
 		
 	def addDefaultSpacer(self, pos=None):
 		spc = self.DefaultSpacing
-		if spc:
+		if spc and not hasattr(self, "isDesignerSizer"):
+			# Don't add default spacers in the Designer
 			self.addSpacer(spc, pos)
 	
 	
