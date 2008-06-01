@@ -942,6 +942,7 @@ class LayoutSpacerPanel(LayoutPanel):
 
 class LayoutSizerMixin(LayoutSaverMixin):
 	def __init__(self, *args, **kwargs):
+		self.isDesignerSizer = True
 		super(LayoutSizerMixin, self).__init__(*args, **kwargs)
 
 
@@ -1032,7 +1033,10 @@ class LayoutSizerMixin(LayoutSaverMixin):
 					pos = 1
 				else:
 					pos = 0
-				spc = kidItem.Spacing
+				try:
+					spc = kidItem.Spacing
+				except AttributeError:
+					spc = 0
 				kidDict = {"name" : "Spacer",
 					"attributes" : {"size" : spc, "Name" : "spacer"},
 					"cdata" : "",
