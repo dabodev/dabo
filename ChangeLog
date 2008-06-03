@@ -1,5 +1,58 @@
 See the Subversion log for all the details.
 
+Dabo 0.8.4 (2008-06-03) Revision 4111):
+===============================================================================
+Dabo:
++ Bugfix: grid can now search by non-string/non-numeric fields. Thanks Dennis Meulensteen
+  for pointing out the problem
+
++ Deprecated bad spelling: unBindEvent()
+
++ Web Update now works for ide and demo, as well as the base framework.
+
++ Fixed WordWrap in dGrid.
+
++ Fixed Windows dTextBox problem, which would change ReadOnly back to False when changing 
+  the Alignment.
+
++ Added StrictNumericEntry property to dTextBox and dSpinner.
+
++ Linked the Find/Replace dialog to dGrid's findReplace() method, enabling finding in a dGrid.
+  (ticket #1126)
+
++ Replace All bugfixes.
+
++ Forms were always restoring their default size, even when explicit sizes were given. Fixed.
+
++ Fixes from Kevin Edwards to make sizing sub-panels perform better, and to propertly set the
+  background color of the dGrid bool renderer checkbox.
+
++ Fixed the getLastInsertID() for dbPostgreSQL, to work with non-serial PK's as well. Thanks
+  to John Fabiani, Adrian Klaver, and Lorenzo Alberton.
+
++ Added dabo.settings.dateFormat, dateTimeFormat, and timeFormat. If None (the default) the 
+  formatting of these date types will be dependent on the user's settings in the operating
+  system. This lets the appdev specify the format desired for display and editing in text
+  controls and the grid. Prior to this, the only format was YYYY-MM-DD, which was satisfying
+  to nobody.
+
++ Added dabo.ui.getObjectAtPosition(x,y), which returns an object reference based on the
+  screen coordinates passed.
+
++ Removed unneeded, hackish code from datanav2, thanks to Pedro Vale de Gato.
+
++ John Fabiani fixed some issues with port in dbMSSQL.py.
+
++ Added dataToXML() to dBizobj.
+
++ Nate Lowrie added some niceties to dEditor, including better code folding.
+
++ Added code to allow biz.DefaultValues being set to None. If the field values are 
+  still null when saving, the insert statement won't include them, allowing 
+  database defaults to be used.
+
++ dCursorMixin no longer raises NoRecordsException from sort().. it merely returns.
+
 Dabo 0.8.3 (2007-12-11) Revision 3793):
 ===============================================================================
 Field types in the data layer are now covered better (previously only non-
