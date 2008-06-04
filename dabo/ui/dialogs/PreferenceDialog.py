@@ -72,6 +72,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		the callOnAccept list is called, followed by a call to the user-configurable 
 		onAccept() method.
 		"""
+		self.activeControlValid()
 		for fnc in self.callOnAccept:
 			fnc()
 		# Call the user-configurable method
