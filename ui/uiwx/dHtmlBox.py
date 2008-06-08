@@ -205,7 +205,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 
 	DynamicHorizontalScroll = makeDynamicProperty(HorizontalScroll)
 	DynamicVerticalScroll = makeDynamicProperty(VerticalScroll)
-
+	DynamicSource = makeDynamicProperty(Source)
 
 
 class _dHtmlBox_test(dHtmlBox):
