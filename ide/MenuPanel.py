@@ -90,13 +90,13 @@ class MenuPanel(CaptionPanel):
 
 
 	def append(self, caption, key=None, picture=None, help=None, 
-			bindfunc=None, separator=False):
+			separator=False):
 		return self.insert(None, caption, key=None, picture=picture, 
-				help=help, bindfunc=bindfunc, separator=separator)
+				help=help, separator=separator)
 	
 	
 	def insert(self, pos, caption, key=None, picture=None, help=None, 
-			bindfunc=None, separator=False):
+			separator=False):
 		if pos is None:
 			# Called from append
 			pos = len(self.itemList.Children)
@@ -109,8 +109,7 @@ class MenuPanel(CaptionPanel):
 			itm._commonName = "Menu Item"
 			itm.isMenuItem = True
 			# Add the item to the dict
-			self.itemDict[itm] = {"caption": caption, "key": key, "picture": picture, 
-					"bindfunc": bindfunc}
+			self.itemDict[itm] = {"caption": caption, "key": key, "picture": picture}
 			if picture:
 				itm.Picture = picture
 		

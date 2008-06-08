@@ -87,18 +87,18 @@ class MenuDesignerForm(dabo.ui.dForm):
 #		print "INITLAY"
 		self.menubar.clear()
 		self.mainPanel.clear()
-		self.menubar.quickMenu()
+# 		self.menubar.quickMenu()
 		self.layout()
-		dabo.ui.callAfterInterval(500, self.foo)
-	def foo(self):
-		try:
-			firstMenu = self.menubar.Menus[0]
-# 			self.menubar.hideAllBut(firstMenu)
-			self.Selection = firstMenu
-			firstMenu.PanelVisible = True
-		except IndexError:
-			# No such menu
-			pass
+# 		dabo.ui.callAfterInterval(500, self.foo)
+# 	def foo(self):
+# 		try:
+# 			firstMenu = self.menubar.Menus[0]
+# # 			self.menubar.hideAllBut(firstMenu)
+# 			self.Selection = firstMenu
+# 			firstMenu.PanelVisible = True
+# 		except IndexError:
+# 			# No such menu
+# 			pass
 		
 	
 	def afterSetMenuBar(self):
@@ -149,7 +149,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 		open(self._menuFile, "wb").write(xml)
 
 
-	def openClass(self, pth):
+	def openFile(self, pth):
 		if not os.path.exists(pth):
 			dabo.ui.stop("The file '%s' does not exist" % pth)
 			return
@@ -157,7 +157,10 @@ class MenuDesignerForm(dabo.ui.dForm):
 		try:
 			dct = xtd.xmltodict(xml)
 		except:
-			raise IOError, _("This does not appear to be a valid class file.")
+			raise IOError, _("This does not appear to be a valid menu file.")
+			return
+		self.menubar.restore(dct)
+		self.layout()
 		
 	
 	def updatePropVal(self, prop, val, typ):

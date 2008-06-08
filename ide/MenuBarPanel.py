@@ -6,7 +6,7 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from MenuDesignerComponents import MenuSaverMixin
 from MenuPanel import MenuPanel
-
+from dabo.lib.utils import dictStringify
 
 
 class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
@@ -187,7 +187,33 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		"""Hides 'em all"""
 		self.hideAllBut()
 
-	
+
+	def restore(self, dct):
+		"""Takes a dictionary created by xmltodict from a saved .mnxml file, 
+		and re-creates the saved menu.
+		"""
+		self.clear()
+		self.Form.lockDisplay()
+		for kid in dct["children"]:
+			atts = kid["attributes"]
+			mn = self.appendMenu(atts["Caption"], atts["MRU"])
+			mitems = kid["children"]
+			for mitem in mitems:
+				if mitem["name"] == "SeparatorPanel":
+					mn.appendSeparator()
+				else:
+					itm = mn.append("xx")
+					itm.Visible = False
+					itmAtts = dictStringify(mitem["attributes"])
+					for att, val in itmAtts.items():
+						setattr(itm, att, val)
+		for kid in self.Children:
+			kid.Visible = True
+		self.layout()
+		self.fitToSizer()
+		self.Form.unlockDisplay()
+
+
 	def quickMenu(self):
 		"""This creates a base menu."""
 		self.Form.lockDisplay()
