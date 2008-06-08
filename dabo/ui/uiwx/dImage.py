@@ -208,6 +208,9 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				origVal = val
 				val = dabo.ui.getImagePath(val)
 				if val is None or not os.path.exists(val):
+					# This will raise an IOError if it fails
+					val = dabo.ui.resolvePathAndUpdate(origVal)
+				if val is None or not os.path.exists(val):
 					# Bad image reference
 					raise IOError, "No file named '%s' exists." % origVal
 			self._picture = val

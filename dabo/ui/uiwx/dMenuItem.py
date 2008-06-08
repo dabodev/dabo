@@ -63,7 +63,15 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 		if hk:
 			cap = "%s\t%s" % (cap, hk)
 		curr = self.GetText()
-		if cap != curr:
+		def toUni(s):
+			if isinstance(s, str):
+				try:
+					enc = self.Application.Encoding
+				except AttributeError:	
+					enc = dabo.defaultEncoding
+				s = unicode(s, enc)
+			return s
+		if toUni(cap) != toUni(curr):
 			## Win32 seems to need to clear the caption first, or funkiness
 			## can arise. And win32 in wx2.8 needs for the caption to never be
 			## an empty string, or you'll get an invalid stock id assertion.

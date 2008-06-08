@@ -99,10 +99,7 @@ class EditMenu(dMenu):
 
 		itm = self.append(_("Pr&eferences"), OnHit=app.onEditPreferences, 
 				bmp="%s/categories/preferences-system.png" % iconPath,
-				help=_("Set user preferences") )
-
-		# Put the prefs item in the App Menu on Mac
-		wx.App_SetMacPreferencesMenuItemId(itm.GetId())
+				help=_("Set user preferences"), special="pref" )
 
 
 
@@ -137,9 +134,6 @@ class HelpMenu(dMenu):
 		itm = self.append(caption, id=wx.ID_ABOUT, 
 				OnHit=app.onHelpAbout,
 				help=_("About this application") )
-		# Put the about menu in the App Menu on Mac
-		wx.App_SetMacAboutMenuItemId(itm.GetId())
-		wx.App_SetMacHelpMenuTitleName(self.Caption)
 
 
 class dBaseMenuBar(dMenuBar):

@@ -72,10 +72,10 @@ class dPemMixin(dPemMixinBase):
 		# be modified by our pre-init method hooks if needed:
 		self._preInitProperties = {"parent": parent}
 		for arg, default in (("style", 0), ("id", -1)):
-			if kwargs.has_key(arg):
+			try:
 				self._preInitProperties[arg] = kwargs[arg]
 				del kwargs[arg]
-			else:
+			except KeyError:
 				self._preInitProperties[arg] = default
 
 		self._initProperties()
@@ -722,10 +722,12 @@ class dPemMixin(dPemMixinBase):
 		Fail silently if the key combination didn't exist already.
 		"""
 		table = self._acceleratorTable
-		if table.has_key(keyCombo):
+		try:
 			self.Unbind(wx.EVT_MENU, id=table[keyCombo][2])
 			del table[keyCombo]
 			self.SetAcceleratorTable(wx.AcceleratorTable(table.values()))
+		except KeyError:
+			pass
 
 
 	def _getID(self):
