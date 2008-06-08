@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import warnings
 import wx
 import dabo
 import dPemMixin
@@ -16,11 +15,6 @@ class dSizer(dSizerMixin.dSizerMixin, wx.BoxSizer):
 			# The orientation was passed as a standalong argument
 			kwargs["Orientation"] = args[0]
 			args = tuple(args[1:])
-		if "orientation" in kwargs:
-			warnmsg = _("Deprecated parameter 'orientation' used. Use the 'Orientation' property instead.")
-			warnings.warn(warnmsg, DeprecationWarning, stacklevel=2)
-			kwargs["Orientation"] = kwargs["orientation"]
-			del kwargs["orientation"]
 
 		properties = self._extractKey(kwargs, "properties", {})
 		orient = self._extractKey((kwargs, properties), "Orientation", "h")

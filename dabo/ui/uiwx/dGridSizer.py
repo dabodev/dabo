@@ -5,7 +5,6 @@ import dPemMixin
 import dSizerMixin
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
-import warnings
 
 
 class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
@@ -35,21 +34,6 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		self._colExpandState = {}
 
 		properties = self._extractKeywordProperties(kwargs, {})
-		if kwargs:
-			# Clean up the deprecated old parameters
-			delKeys = []
-			oldNewMap = {"vgap": "VGap", "hgap": "HGap", "maxRows": "MaxRows", "maxCols": "MaxCols"}
-			oldParams = oldNewMap.keys()
-			for k,v in kwargs.items():
-				if k in oldParams:
-					newProp = oldNewMap[k]
-					warnmsg = _("Deprecated parameter '%(k)s' used. Use the '%(newProp)s' property instead.") % locals()
-					warnings.warn(warnmsg, DeprecationWarning, stacklevel=2)
-					delKeys.append(k)
-					properties[oldNewMap[k]] = v
-			for k in delKeys:
-				del kwargs[k]
-		
 		if not ("MaxCols" in properties) and not ("MaxRows" in properties):
 			# Default to 2 columns if nothing else specified
 			properties["MaxCols"] = 2

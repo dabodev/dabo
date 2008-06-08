@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os.path
-import warnings
 import wx
 import dabo, dabo.ui
 
@@ -96,8 +95,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		return item
 
 
-	def appendButton(self, caption, pic, bindfunc=None, toggle=False, 
-			tip="", help="", *args, **kwargs):
+	def appendButton(self, caption, pic, toggle=False, tip="", 
+			help="", *args, **kwargs):
 		"""Adds a tool (button) to the toolbar. 
 
 		You must pass a caption and an image for the button. The picture can be a 
@@ -105,16 +104,13 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		toggle=True, the button will exist in an up and down state. Pass the 
 		function you want to be called when this button is clicked in an 
 		'OnHit' param.
-
-		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
-		removed	in version 0.9. Send an OnHit parameter instead.
 		"""
-		return self._appendInsertButton(None, caption, pic, bindfunc, 
-				toggle,	tip, help, *args, **kwargs)
+		return self._appendInsertButton(None, caption, pic, toggle,	tip, 
+				help, *args, **kwargs)
 
 
-	def insertButton(self, pos, caption, pic, bindfunc=None, toggle=False, 
-			tip="", help="", *args, **kwargs):
+	def insertButton(self, pos, caption, pic, toggle=False, tip="", 
+			help="", *args, **kwargs):
 		"""Inserts a tool (button) to the toolbar at the specified position. 
 
 		You must pass a caption and an image for the button. The picture can be a 
@@ -122,16 +118,13 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		toggle=True, the button will exist in an up and down state. Pass the 
 		function you want to be called when this button is clicked in an 
 		'OnHit' param.
-
-		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
-		removed	in version 0.9. Send an OnHit parameter instead.
 		"""
-		return self._appendInsertButton(pos, caption, pic, bindfunc, 
-				toggle,	tip, help, *args, **kwargs)
+		return self._appendInsertButton(pos, caption, pic, toggle,	tip, 
+				help, *args, **kwargs)
 
 
-	def prependButton(self, caption, pic, bindfunc=None, toggle=False, 
-			tip="", help="", *args, **kwargs):
+	def prependButton(self, caption, pic, toggle=False, tip="", help="", 
+			*args, **kwargs):
 		"""Inserts a tool (button) to the beginning of the toolbar. 
 
 		You must pass a caption and an image for the button. The picture can be a 
@@ -139,15 +132,12 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		toggle=True, the button will exist in an up and down state. Pass the 
 		function you want to be called when this button is clicked in an 
 		'OnHit' param.
-
-		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
-		removed	in version 0.9. Send an OnHit parameter instead.
 		"""
-		return self.insertButton(0, caption, pic, bindfunc, toggle,	tip, help, *args, **kwargs)
+		return self.insertButton(0, caption, pic, toggle,	tip, help, *args, **kwargs)
 
 
-	def _appendInsertButton(self, pos, caption, pic, bindfunc, toggle, 
-			tip, help, *args, **kwargs):
+	def _appendInsertButton(self, pos, caption, pic, toggle, tip, help, 
+			*args, **kwargs):
 		"""Common code for the append|insert|prependButton() functions."""
 		if isinstance(pic, basestring):
 			# path was passed
@@ -189,11 +179,6 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 			## The AssertionError: not implemented occurs on wxMac, even though
 			## SetToggle() obviously is implemented, because it does work.
 			pass
-
-		if bindfunc is not None:
-			warnings.warn(_("Deprecated; use 'OnHit=<func>' instead."), 
-					DeprecationWarning, 1)
-			butt.bindEvent(dEvents.Hit, bindfunc)
 		self._realize()
 		
 		# Store the button reference
@@ -207,18 +192,10 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		return butt
 			
 
-	def appendControl(self, control, bindfunc=None):
-		"""Adds any Dabo Control to the toolbar. 
-
-		Optionally, pass the function you want to be called when this button is 
-		clicked in the bindfunc parameter.
-		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
-		removed	in version 0.9. Send an OnHit parameter instead.
-		"""
+	def appendControl(self, control):
+		"""Adds any Dabo Control to the toolbar."""
 		butt = self.AddControl(control)
 		butt.SetLabel(control.Caption)
-		if bindfunc:
-			control.bindEvent(dEvents.Hit, bindfunc)
 		self._realize()
 		
 		# Store the control reference:
@@ -227,18 +204,10 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		return control
 
 
-	def insertControl(self, pos, control, bindfunc=None):
-		"""Inserts any Dabo Control to the toolbar at the specified position. 
-
-		Optionally, pass the function you want to be called when this button is 
-		clicked in the bindfunc parameter.
-		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
-		removed	in version 0.9. Send an OnHit parameter instead.
-		"""
+	def insertControl(self, pos, control):
+		"""Inserts any Dabo Control to the toolbar at the specified position."""
 		butt = self.InsertControl(pos, control)
 		butt.SetLabel(control.Caption)
-		if bindfunc:
-			control.bindEvent(dEvents.Hit, bindfunc)
 		self._realize()
 		
 		# Store the control reference:
@@ -247,15 +216,9 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		return control
 
 
-	def prependControl(self, control, bindfunc=None):
-		"""Inserts any Dabo Control to the beginning of the toolbar. 
-
-		Optionally, pass the function you want to be called when this button is 
-		clicked in the bindfunc parameter.
-		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
-		removed	in version 0.9. Send an OnHit parameter instead.
-		"""
-		return self.insertControl(0, control, bindfunc)
+	def prependControl(self, control):
+		"""Inserts any Dabo Control to the beginning of the toolbar. """
+		return self.insertControl(0, control)
 
 
 	def appendSeparator(self):

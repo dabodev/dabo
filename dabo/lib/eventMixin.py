@@ -2,7 +2,6 @@
 import string
 import types
 import traceback
-import warnings
 import dabo
 from dabo.dLocalize import _
 
@@ -316,14 +315,6 @@ class EventMixin(object):
 					validEvents.append(evt)
 		return validEvents
 	getValidEvents = classmethod(getValidEvents)
-
-
-	# Allow for alternate capitalization (deprecated):
-	def unBindEvent(self, *args, **kwargs):
-		"""Deprecated; see unbindEvent."""
-		warnings.warn("unBindEvent is deprecated and will be removed in 0.9; "
-				"change to unbindEvent", DeprecationWarning)
-		return self.unbindEvent(*args, **kwargs)
 
 
 	def _removeAutoBindings(self):
