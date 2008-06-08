@@ -8,7 +8,7 @@ import tempfile
 import ConfigParser
 import inspect
 import datetime
-import urllib
+import urllib2
 import shutil
 import dabo
 import dabo.ui
@@ -221,6 +221,11 @@ class dApp(dObject):
 		self.formsToOpen = []  
 		# Form to open if no forms were passed as a parameter
 		self.default_form = None
+		# For web-enabled apps, this is the base URL from which the source
+		# files wil be retrieved
+		self._sourceURL = ""
+		# Dict of "Last-Modified" values for dynamic web resources
+		self._sourceLastModified = {}
 
 		# For simple UI apps, this allows the app object to be created
 		# and started in one step. It also suppresses the display of
@@ -513,12 +518,11 @@ class dApp(dObject):
 					# See if there is a later version
 					url = "http://dabodev.com/frameworkVersions/latest?project=%s" % abbrev
 					try:
-						vers = int(urllib.urlopen(url).read())
+						vers = int(urllib2.urlopen(url).read())
 					except:
 						vers = -1
 					localVers = self._currentUpdateVersion(nm)
 					retAvailable = (localVers < vers)
-					urllib.urlcleanup()
 				prf.setValue("last_check", now)
 				if retFirstTime or retAvailable:
 					retUpdateNames.append(nm)
@@ -538,7 +542,7 @@ class dApp(dObject):
 			abbrev = self.projectAbbrevs[pn.lower()]
 			webpath = self.webUpdateDirs[pn.lower()]
 			try:
-				resp = urllib.urlopen(fileurl % (abbrev, currvers))
+				resp = urllib2.urlopen(fileurl % (abbrev, currvers))
 			except:
 				# No internet access, or Dabo site is down.
 				dabo.errorLog.write(_("Cannot access the Dabo site."))
@@ -565,14 +569,14 @@ class dApp(dObject):
 					if not os.path.isdir(localPath):
 						os.makedirs(localPath)
 					# Permission exceptions should be caught by the calling method.
-					urllib.urlretrieve(url % (webdir, fpth), localFile)
+					resp = urllib2.urlopen(url % (webdir, fpth))
+					file(localFile, "w").write(resp.read())
 		url = "http://dabodev.com/frameworkVersions/latest"
 		try:
-			vers = int(urllib.urlopen(url).read())
+			vers = int(urllib2.urlopen(url).read())
 		except:
 			vers = self._currentUpdateVersion()
 			self.PreferenceManager.setValue("current_version", vers)
-		urllib.urlcleanup()
 		return vers
 		
 
@@ -595,8 +599,40 @@ class dApp(dObject):
 		on; the second is the update frequency in minutes.
 		"""
 		return (self._frameworkPrefs.web_update, self._frameworkPrefs.update_interval)
-		
-		
+
+
+	def urlFetch(self, pth):
+		"""Fetches the specified resource from the internet using the SourceURL value
+		as the base for the resource URL. If a newer version is found, the local copy
+		is updated with the retrieved resource.
+		"""
+		base = self.SourceURL
+		if not base:
+			# Nothing to do
+			return
+		u2 = urllib2
+		# os.path.join works great for this
+		url = os.path.join(self.SourceURL, pth)
+		req = u2.Request(url)
+		lastmod = self._sourceLastModified.get(url)
+		resp = None
+		if lastmod:
+			req.add_header("If-Modified-Since", lastmod)
+		try:
+			resp = u2.urlopen(req)
+			lm = resp.headers.get("Last-Modified")
+			if lm:
+				self._sourceLastModified[url] = lm
+		except u2.HTTPError, e:
+			code = e.code
+			if code in (304, 404):
+				# Not changed or not found; nothing to do
+				return
+		newFile = resp.read()
+		if newFile:
+			file(pth, "w").write(newFile)
+
+
 	def getUserSettingKeys(self, spec):
 		"""Return a list of all keys underneath <spec> in the user settings table.
 		
@@ -1275,6 +1311,13 @@ class dApp(dObject):
 		self._showSizerLinesMenu = bool(val)
 
 			
+	def _getSourceURL(self):
+		return self._sourceURL
+
+	def _setSourceURL(self, val):
+		self._sourceURL = val
+
+
 	def _getUI(self):
 		try:
 			return dabo.ui.getUIType()
@@ -1443,6 +1486,11 @@ class dApp(dObject):
 
 			If True (the default), there will be a View|Show Sizer Lines option
 			available in the base menu.""") )
+
+	SourceURL = property(_getSourceURL, _setSourceURL, None,
+			_("""If this app's source files are updated dynamically via the web, 
+			this is the base URL to which the source file's name will be appended. 
+			Default="" (i.e., no source on the internet).  (str)"""))
 
 	UI = property(_getUI, _setUI, None,
 			_("""Specifies the user interface to load, or None. (str)
