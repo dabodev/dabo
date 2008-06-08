@@ -9,13 +9,15 @@ import datetime
 from dabo.dLocalize import _
 from dBackend import dBackend
 
+
 class Oracle(dBackend):
 	def __init__(self):
 		import cx_Oracle as dbapi
 		dBackend.__init__(self)
 		self.dbModuleName = "cx_Oracle"
 		self.dbapi = dbapi
-		
+
+
 	def getConnection(self, connectInfo, **kwargs):
 		import cx_Oracle as dbapi
 
@@ -26,8 +28,8 @@ class Oracle(dBackend):
 
 		dsn = dbapi.makedsn(connectInfo.Host, port, connectInfo.Database)
 		self._connection = dbapi.connect(user = connectInfo.User,
-						 password = connectInfo.revealPW(),
-						 dsn = dsn)
+				password = connectInfo.revealPW(),
+				dsn = dsn)
 		return self._connection
 
 
@@ -36,19 +38,20 @@ class Oracle(dBackend):
 
 
 	def escQuote(self, val):
-		#### TODO: Verify that NEWDATABASE uses this method for escaping quotes
 		# escape backslashes and single quotes, and
 		# wrap the result in single quotes
 		sl = "\\"
 		qt = "\'"
-		return qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
-	
+		val = val.replace(sl, sl+sl).replace(qt, sl+qt)
+		return "%s%s%s" % (qt, val, qt)
+
 
 	def processFields(self, txt):
 		# this was used for testing only
 		if isinstance(txt, unicode):
 			txt = str(txt)
 		return txt
+
 
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
@@ -77,9 +80,9 @@ class Oracle(dBackend):
 		# get PK
 		print "dbOracle.getFields(): ", tableName
 		sqlstr = """SELECT cols.column_name FROM all_constraints cons, all_cons_columns cols 
-		WHERE cols.table_name = '%s' AND cons.constraint_type = 'P'
-		AND cons.constraint_name = cols.constraint_name AND cons.owner = cols.owner
-		ORDER BY cols.table_name, cols.position"""
+				WHERE cols.table_name = '%s' AND cons.constraint_type = 'P'
+				AND cons.constraint_name = cols.constraint_name AND cons.owner = cols.owner
+				ORDER BY cols.table_name, cols.position"""
 
 		sqlstr = sqlstr % tableName
 		cursor.execute(sqlstr)
@@ -91,12 +94,11 @@ class Oracle(dBackend):
 			pkField = None
 		# Now get the field info
 		sqlstr = """SELECT column_name, data_type, COALESCE(data_precision, data_length) "LENGTH",
-		data_scale "SCALE" FROM all_tab_columns WHERE table_name = '%s' ORDER BY column_id"""
+				data_scale "SCALE" FROM all_tab_columns WHERE table_name = '%s' ORDER BY column_id"""
 		cursor.execute(sqlstr % tableName)
 		rs = cursor.getDataSet()
 		fields = []
 		for r in rs:
-			#### TODO: add missing field types
 			fname = r["COLUMN_NAME"].strip()
 			ftype = r["DATA_TYPE"].strip()
 			if ftype == "NUMBER":
@@ -122,11 +124,12 @@ class Oracle(dBackend):
 			
 			fields.append((fname.lower(), ft, pk))
 		return tuple(fields)
-		
+
 
 	def getLimitWord(self):
 		""" Oracle uses something like "where rownum <= num". """
 		return "rownum <="
+
 
 	def formSQL(self, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause, limitClause):
@@ -142,6 +145,7 @@ class Oracle(dBackend):
 		sql = "SELECT " + "\n".join( [clause.upper() for clause in clauses if clause] )
 		return sql
 
+
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""
 		ret = False
@@ -152,8 +156,10 @@ class Oracle(dBackend):
 			ret = True
 		return ret
 
+
 	def getWordMatchFormat(self):
 		return """ match (%(table)s.%(field)s) against ("%(value)s") """
+
 
 
 #
@@ -163,10 +169,9 @@ def main():
 	from dabo.db.dConnectInfo import dConnectInfo
 
 	ora = Oracle()
-        connInfo = dConnectInfo(Name="myconn", DbType="Oracle", Port=1521,
-				User="fwadm", Password="V7EE74E49H6BV27TA0J65G2AS21", Database='XE')
+	connInfo = dConnectInfo(Name="myconn", DbType="Oracle", Port=1521,
+			User="fwadm", Password="V7EE74E49H6BV27TA0J65G2AS21", Database="XE")
 	conn = ora.getConnection(connInfo)
-
 
 
 if __name__ == '__main__':
