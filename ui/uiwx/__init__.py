@@ -927,21 +927,31 @@ def getFileAndType(*args, **kwargs):
 
 
 def getSaveAs(*args, **kwargs):
-	if not kwargs.has_key("message"):
+	try:
+		kwargs["message"]
+	except KeyError:
 		kwargs["message"] = "Save to:"
-	if kwargs.has_key("wildcard"):
+	try:
+		wc = kwargs["wildcard"]
 		args = list(args)
-		args.append(kwargs["wildcard"])
+		args.append(wc)
+	except KeyError:
+		pass
 	kwargs["wildcard"] = _getWild(*args)
 	return _getPath(dSaveDialog, **kwargs)[0]
 
 
 def getSaveAsAndType(*args, **kwargs):
-	if not kwargs.has_key("message"):
+	try:
+		kwargs["message"]
+	except KeyError:
 		kwargs["message"] = "Save to:"
-	if kwargs.has_key("wildcard"):
+	try:
+		wc = kwargs["wildcard"]
 		args = list(args)
-		args.append(kwargs["wildcard"])
+		args.append(wc)
+	except KeyError:
+		pass
 	kwargs["wildcard"] = _getWild(*args)
 	pth, idx = _getPath(dSaveDialog, **kwargs)
 	if idx is None:
@@ -1047,6 +1057,44 @@ def sortList(chc, Caption="", ListCaption=""):
 	return ret
 
 
+def resolvePathAndUpdate(srcFile):
+	app = dabo.dAppRef
+	cwd = os.getcwd()
+	opexists = os.path.exists
+	# Make sure that the file exists
+	if not opexists(srcFile):
+		# Try common paths. First use the whole string; then use 
+		# each subdirectory in turn.
+		fname = srcFile
+		keepLooping = True
+		while keepLooping:
+			keepLooping = False
+			for subd in ("ui", "forms", "menus", "resources", "db", "biz"):
+				newpth = os.path.join(cwd, subd, fname)
+				if opexists(newpth):
+					srcFile = newpth
+					break
+			if not opexists(srcFile):
+				try:
+					fname = fname.split(os.path.sep, 1)[1]
+					keepLooping = True
+				except IndexError:
+					# No more directories to remove
+					break
+	if app is not None:
+		if app.SourceURL:
+			# The srcFile has an absolute path; the URLs work on relative.
+			try:
+				splt = srcFile.split(cwd)[1]
+			except IndexError:
+				splt = srcFile
+			app.urlFetch(splt)
+	# At this point the file should be present and updated. If not...
+	if not os.path.exists(srcFile):
+		raise IOError, _("The file '%s' cannot be found") % srcFile
+	return srcFile
+
+
 def createForm(srcFile, show=False, *args, **kwargs):
 	"""Pass in a .cdxml file from the Designer, and this will
 	instantiate a form from that spec. Returns a reference
@@ -1055,20 +1103,11 @@ def createForm(srcFile, show=False, *args, **kwargs):
 	from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
 	isRawXML = srcFile.strip().startswith("<")
 	if not isRawXML:
-		# Make sure that the file exists
-		if not os.path.exists(srcFile):
-			# Try common paths
-			ok = False
-			cwd = os.getcwd()
-			for subd in ("ui", "forms", "resources"):
-				newpth = os.path.join(cwd, subd, srcFile)
-				if os.path.exists(newpth):
-					srcFile = newpth
-					ok = True
-					break
-			if not ok:
-				stop(_("The file '%s' cannot be found") % srcFile, _("File Not Found"))
-				return
+		try:
+			srcFile = resolvePathAndUpdate(srcFile)
+		except IOError, e:
+			stop(e, _("File Not Found"))
+			return
 	conv = DesignerXmlConverter()
 	cls = conv.classFromXml(srcFile)
 	frm = cls(*args, **kwargs)
@@ -1112,6 +1151,7 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 				cap = itmatts["Caption"]
 				hk = itmatts["HotKey"]
 				pic = itmatts["Picture"]
+				special = itmatts.get("special", None)
 				if hk:
 					cap += "\t%s" % hk
 				txt = cap
@@ -1127,8 +1167,13 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 						binding = fnc
 				help = itmatts["HelpText"]
 				menuItem = menu.append(cap, OnHit=binding, help=help,
-						picture=pic)
+						picture=pic, special=special)
 
+	try:
+		srcFile = resolvePathAndUpdate(srcFile)
+	except IOError, e:
+		stop(e, _("File Not Found"))
+		return
 	mnd = dabo.lib.xmltodict.xmltodict(srcFile)
 	mb = dabo.ui.dMenuBar()
 	for mn in mnd["children"]:
@@ -1335,29 +1380,30 @@ def strToBmp(val, scale=None, width=None, height=None):
 	final image will be a bitmap resized to those specs.
 	"""
 	ret = None
-	if _bmpCache.has_key(val):
+	try:
 		ret = _bmpCache[val]
-	elif os.path.exists(val):
-		ret = pathToBmp(val)
-	else:
-		# Include all the pathing possibilities
-		iconpaths = [os.path.join(pth, val)
-				for pth in dabo.icons.__path__]
-		dabopaths = [os.path.join(pth, val)
-				for pth in dabo.__path__]
-		localpaths = [os.path.join(os.getcwd(), pth, val)
-				for pth in ("icons", "resources")]
-		# Create a list of the places to search for the image, with
-		# the most likely choices first.
-		paths = [val] + iconpaths + dabopaths + localpaths
-		# See if it's a standard icon
-		for pth in paths:
-			ret = dIcons.getIconBitmap(pth, noEmptyBmp=True)
-			if ret:
-				break
-		if not ret and len(val) > 0:
-			# See if it's a built-in graphic
-			ret = getCommonBitmap(val)
+	except KeyError:
+		if os.path.exists(val):
+			ret = pathToBmp(val)
+		else:
+			# Include all the pathing possibilities
+			iconpaths = [os.path.join(pth, val)
+					for pth in dabo.icons.__path__]
+			dabopaths = [os.path.join(pth, val)
+					for pth in dabo.__path__]
+			localpaths = [os.path.join(os.getcwd(), pth, val)
+					for pth in ("icons", "resources")]
+			# Create a list of the places to search for the image, with
+			# the most likely choices first.
+			paths = [val] + iconpaths + dabopaths + localpaths
+			# See if it's a standard icon
+			for pth in paths:
+				ret = dIcons.getIconBitmap(pth, noEmptyBmp=True)
+				if ret:
+					break
+			if not ret and len(val) > 0:
+				# See if it's a built-in graphic
+				ret = getCommonBitmap(val)
 	if not ret:
 		# Return an empty bitmap
 		ret = wx.EmptyBitmap(1, 1)

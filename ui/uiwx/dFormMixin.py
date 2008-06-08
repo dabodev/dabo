@@ -582,6 +582,8 @@ class dFormMixin(pm.dPemMixin):
 		txt = self._statusStack.pop()
 		if txt:
 			self.StatusText = txt
+		else:
+			self.StatusText = ""
 
 
 	################################

@@ -216,7 +216,20 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 				attProperties=attProperties, *args, **kwargs)
 		self.SetScrollRate(10, 10)
 #		self.SetScrollbars(10, 10, -1, -1)
-			
+
+
+	def scrollHorizontally(self, amt):
+		"""Change the horizontal scroll position by 'amt' units."""
+		x,y = self.GetViewStart()
+		self.Scroll(x+amt, y)
+
+
+	def scrollVertically(self, amt):
+		"""Change the vertical scroll position by 'amt' units."""
+		x,y = self.GetViewStart()
+		# Scrolling is reversed in the y-axis, so subtract
+		self.Scroll(x, y-amt)
+
 
 	def _getChildren(self):
 		ret = super(dScrollPanel, self)._getChildren()

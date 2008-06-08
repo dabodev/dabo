@@ -126,9 +126,30 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		self._daboChildren[wxItem.GetId()] = dMenuItemInstance
 		if dMenuItemInstance.Icon and sys.platform.lower()[:3] == "win":
 			wxItem.SetBitmap(dMenuItemInstance.Icon)
+		self._processNewItem(wxItem, dMenuItemInstance)
 		return wxItem
 
 
+	def _processNewItem(self, itm, daboItem):
+		"""After a menu item is created, perform any platform-specific handling."""
+		id_ = itm.GetId()
+		if id_ == wx.ID_ABOUT:
+			# Put the about menu in the App Menu on Mac
+			wx.App_SetMacAboutMenuItemId(id_)
+			cap = daboItem.Parent.Caption
+			wx.App_SetMacHelpMenuTitleName(cap)
+		
+		# Process any 'special' menus
+		try:
+			special = daboItem._special
+			print special
+		except AttributeError:
+			return
+		if special == "pref":
+			# Put the prefs item in the App Menu on Mac
+			wx.App_SetMacPreferencesMenuItemId(id_)
+
+	
 	def appendItem(self, item):
 		"""Insert a dMenuItem at the bottom of the menu."""
 		wxItem = self._getWxItem(self.AppendItem, item)
@@ -209,8 +230,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		self.appendItem(item)
 		item.Caption = caption
 		return item
-		
-	
+
+
 	def insert(self, pos, caption, bindfunc=None, help="", bmp=None, picture=None,
 			menutype="", *args, **kwargs):
 		"""Insert a dMenuItem at the given position with the specified properties.
@@ -349,12 +370,18 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		itmid = self._getItemID(menutype)
 		if itmid != wx.ID_DEFAULT:
 			kwargs["id"] = itmid
+		try:
+			itmSpecial = kwargs.pop("special")
+		except KeyError:
+			itmSpecial = None
 		cls = {NormalItemType: dabo.ui.dMenuItem,
 				CheckItemType: dabo.ui.dCheckMenuItem,
 				RadioItemType: dabo.ui.dRadioMenuItem}[itmtyp]
 		itm = cls(self, HelpText=help, Icon=icon, kind=itmtyp, *args, **kwargs)
 		if bindfunc:
 			itm.bindEvent(dEvents.Hit, bindfunc)
+		if itmSpecial:
+			itm._special = itmSpecial
 		return itm
 
 
