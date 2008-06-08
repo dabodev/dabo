@@ -745,11 +745,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"ShowRowLabels" : {"type" : bool, "readonly" : False}}
 		imageProps = {"ScaleMode" : {"type" : list, "readonly" : False,
 					"values" : ["Clip", "Proportional", "Stretch"]}}
+		labelProps = {"AutoResize": {"type" : bool, "readonly" : False}}
 		multiSelectProps = {"MultipleSelect": {"type" : bool, "readonly" : False}}
 		nodeProps = {"Image": {"type" : "path", "readonly" : False, 
 					"customEditor": "editStdPicture"}}
-		panelProps = {"Buffered" : {"type" : bool, "readonly" : False},
-				"AlwaysResetSizer": {"type" : bool, "readonly" : False}}
+		panelProps = {"AlwaysResetSizer": {"type" : bool, "readonly" : False},
+				"Buffered" : {"type" : bool, "readonly" : False},
+				"MinSizerHeight": {"type" : int, "readonly" : False},
+				"MinSizerWidth": {"type" : int, "readonly" : False}}
 		pictureProps = {"Picture": {"type" : "path", "readonly" : False, 
 					"customEditor": "editStdPicture"}}
 		posProps = {"Left": {"type" : int, "readonly" : useSizers},
@@ -791,10 +794,11 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"ForceCase": {"type" : list, "readonly" : False,
 					"values" : ["Upper", "Lower", "Title", "None"]},		
 				"ReadOnly" : {"type" : bool, "readonly" : False}}
-		htmlTextProps = {"HorizontalScroll": {"type" : bool, "readonly" : False},
-				"Page": {"type" : unicode, "readonly" : False},
+		htmlTextProps = {"Page": {"type" : unicode, "readonly" : False},
 				"RespondToLinks": {"type" : bool, "readonly" : False},
 				"ShowScrollBars": {"type" : bool, "readonly" : False},
+				"Source": {"type" : unicode, "readonly" : False}}
+		scrollProps = {"HorizontalScroll": {"type" : bool, "readonly" : False},
 				"VerticalScroll": {"type" : bool, "readonly" : False}}
 		treeProps = {"Editable" : {"type" : bool, "readonly" : False},
 				"MultipleSelect" : {"type" : bool, "readonly" : False},
@@ -882,6 +886,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(pictureProps)
 			ret.update(imageProps)
 		elif isinstance(self, dabo.ui.dLabel):
+			ret.update(labelProps)
 			ret.update(colorProps)
 			ret.update(captionProps)
 			ret.update(fontProps)
@@ -941,6 +946,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(wizardPageProps)
 		elif isinstance(self, dabo.ui.dScrollPanel):
 			ret.update(panelProps)
+			ret.update(scrollProps)
 			ret.update(colorProps)
 		elif isinstance(self, dabo.ui.dPanel):
 			ret.update(panelProps)
@@ -966,6 +972,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 						"TextLength" : {"type" : int, "readonly" : False}})
 		elif isinstance(self, dabo.ui.dHtmlBox):
 			ret.update(htmlTextProps)
+			ret.update(scrollProps)
 		elif isinstance(self, dabo.ui.dTimer):
 			pass
 		elif isinstance(self, dabo.ui.dToggleButton):

@@ -448,7 +448,8 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 					# User canceled
 					return
 				else:
-					if not os.path.splitext(self._classFile)[1] == ".cdxml":
+					self._classFile = self._classFile.rstrip(".")
+					if not self._classFile.endswith(".cdxml"):
 						self._classFile += ".cdxml"
 			fname = self._classFile
 		
@@ -483,9 +484,13 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		# Try opening the file. If it is read-only, it will raise an
 		# IOErrorrror that the calling method can catch.
 		open(fname, "wb").write(xml)
-		if not singleFile:
-			# Now write out the code file
-			cfName = "%s-code.py" % os.path.splitext(fname)[0]
+		cfName = "%s-code.py" % os.path.splitext(fname)[0]
+		if singleFile:
+			# Delete the code file if present.
+			if os.path.exists(cfName):
+				os.remove(cfName)
+		else:
+			# Write out the code file
 			open(cfName, "wb").write(self._createDesignerCode(codeDict))
 		if currForm:
 			currForm.bringToFront()
@@ -1001,14 +1006,16 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 	def hideHandles(self, ctl=None, release=False):
 		if ctl is None:
 			return
-		if self.handles.has_key(ctl):
+		try:
 			hnd = self.handles[ctl]
-			for nm,h in hnd.items():
-				h.Visible = False
-				if release:
-					h.release()
+		except KeyError:
+			return
+		for nm,h in hnd.items():
+			h.Visible = False
 			if release:
-				del self.handles[ctl]
+				h.release()
+		if release:
+			del self.handles[ctl]
 
 
 	def alignControls(self, evt, edge):

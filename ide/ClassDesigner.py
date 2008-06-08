@@ -353,16 +353,13 @@ class ClassDesigner(dabo.dApp):
 				dui.dToggleButton, dui.dTreeView, dlgs.Wizard, dlgs.WizardPage)
 
 		def evtsForClass(cls):
-			ret = []
-			for kk, vv in dEvents.__dict__.items():
-				if kk in baseEvents:
-					# These are superclasses of individual events.
-					continue
+			def safeApplies(itm, cls):
 				try:
-					if vv.appliesToClass(cls):
-						ret.append("on%s" % kk)
-				except:
-					pass
+					return itm.appliesToClass(cls)
+				except (AttributeError, NameError):
+					return False
+			ret = ["on%s" % k for k,v in dEvents.__dict__.items() 
+					if safeApplies(v,cls)]
 			ret.sort()
 			return ret
 
@@ -807,6 +804,7 @@ class ClassDesigner(dabo.dApp):
 				ornt = self._extractKey(atts, "Orientation", "h")
 				slots = int(self._extractKey(atts, "SlotCount", "1"))
 				useBox, boxCaption = None, None
+# 				defSpacing = int(self._extractKey(atts, "DefaultSpacing", "0"))
 				if clsname == "LayoutBorderSizer":
 					useBox = True
 					boxCaption = self._extractKey(atts, "Caption", None)
@@ -814,7 +812,12 @@ class ClassDesigner(dabo.dApp):
 						useBox=useBox, boxCaption=boxCaption)
 				szCont = sz.ControllingSizer
 				itm = sz.ControllingSizerItem
-
+# 				if defSpacing:
+# 					# Need to set this *after* the design has been created, or else
+# 					# it will create non-Designer spacers that will confuse things.
+# 					def setLater(sz, spc):
+# 						sz.DefaultSpacing = spc
+# 					dabo.ui.callAfter(setLater, sz, defSpacing)
 				is2D = isinstance(szCont, dabo.ui.dGridSizer)
 				defaults = {True: szItemDefaults[2],
 						False: szItemDefaults[1]}[is2D]
@@ -2047,7 +2050,9 @@ class ClassDesigner(dabo.dApp):
 			if data["propName"]:
 				if adding:
 					prop = data["propName"]
-				if not self._classPropDict.has_key(obj):
+				try:
+					self._classPropDict.["obj"]
+				except KeyError:
 					self._classPropDict[obj] = {}
 				# Make sure that there are no single quotes in the comment
 				self._classPropDict[obj][prop] = data
@@ -2532,11 +2537,13 @@ class ClassDesigner(dabo.dApp):
 			# Make sure it adds customized columns.
 			props["ColumnClass"] = self.getControlClass(dui.dColumn)
 			newCols = None
-			if not props.has_key("ColumnCount"):
+			try:
+				props["ColumnCount"]
+			except KeyError:
 				try:
 					newCols = int(dui.getString(_("How many columns?"),
 							_("New Grid Control"), "3"))
-				except:
+				except ValueError:
 					newCols = 3
 
 		if useSizers:

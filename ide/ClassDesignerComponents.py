@@ -177,25 +177,28 @@ class LayoutSaverMixin(object):
 
 			# If it hasn't changed from the default, skip it
 			if not allProps:
-				if defVals.has_key(prop):
-					if prop not in propsToInclude:
-						dv = defVals[prop]
-						if not isinstance(val, basestring) and isinstance(dv, basestring):
-							# Try to convert
-							if isinstance(val, bool):
-								dv = (dv.lower() == "true")
-							elif isinstance(val, int):
-								dv = int(dv)
-							elif isinstance(val, long):
-								dv = long(dv)
-							elif isinstance(val, float):
-								dv = float(dv)
-							elif isinstance(val, (list, tuple, dict)):
-								dv = eval(dv)
-							elif dv == "None":
-								dv = None
-						if dv == val:
-							continue
+				try:
+					defVals[prop]
+				except KeyError:
+					continue
+				if prop not in propsToInclude:
+					dv = defVals[prop]
+					if not isinstance(val, basestring) and isinstance(dv, basestring):
+						# Try to convert
+						if isinstance(val, bool):
+							dv = (dv.lower() == "true")
+						elif isinstance(val, int):
+							dv = int(dv)
+						elif isinstance(val, long):
+							dv = long(dv)
+						elif isinstance(val, float):
+							dv = float(dv)
+						elif isinstance(val, (list, tuple, dict)):
+							dv = eval(dv)
+						elif dv == "None":
+							dv = None
+					if dv == val:
+						continue
 
 			if isinstance(val, basestring):
 				strval = val

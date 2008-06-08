@@ -318,7 +318,7 @@ class PropSheet(dabo.ui.dPanel):
 		except PropertyUpdateException, e:
 			dabo.ui.stop(_("Could not set property '%s' to value '%s'\nReason: '%s'") 
 					% (prop, val, e))
-			self.updateGridValues()			
+			self.updateGridValues()	
 
 			
 	def updateGridValues(self):
