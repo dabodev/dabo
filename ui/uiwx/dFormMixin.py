@@ -535,10 +535,10 @@ class dFormMixin(pm.dPemMixin):
 		menu.append(caption, OnHit=function, bmp=bitmap)
 
 
-	def appendToolBarButton(self, name, pic, bindfunc=None, toggle=False, 
-			tip="", help="", *args, **kwargs):
-		self.ToolBar.appendButton(name, pic, bindfunc=bindfunc, toggle=toggle, 
-				tip=tip, help=help, *args, **kwargs)
+	def appendToolBarButton(self, name, pic, toggle=False, tip="", help="", 
+			*args, **kwargs):
+		self.ToolBar.appendButton(name, pic, toggle=toggle, tip=tip, 
+				help=help, *args, **kwargs)
 
 
 	def fillPreferenceDialog(self, dlg):

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import sys
-import warnings
 import wx
 import dabo
 if __name__ == "__main__":
@@ -210,67 +209,58 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		return self.PrependSeparator()
 	
 
-	def append(self, caption, bindfunc=None, help="", bmp=None, picture=None,
+	def append(self, caption, help="", bmp=None, picture=None,
 			menutype="", *args, **kwargs):
 		"""Append a dMenuItem with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
 		
-		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
-		removed	in version 0.9. Send an OnHit parameter instead.
-
 		Any additional keyword arguments passed will be interpreted as properties
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
 		if picture is None:
 			picture = bmp
-		item = self._getItem(bindfunc, help, picture, menutype, *args, **kwargs)
+		item = self._getItem(help, picture, menutype, *args, **kwargs)
 		self.appendItem(item)
 		item.Caption = caption
 		return item
 
 
-	def insert(self, pos, caption, bindfunc=None, help="", bmp=None, picture=None,
+	def insert(self, pos, caption, help="", bmp=None, picture=None,
 			menutype="", *args, **kwargs):
 		"""Insert a dMenuItem at the given position with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
 
-		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
-		removed	in version 0.9. Send an OnHit parameter instead.
-
 		Any additional keyword arguments passed will be interpreted as properties
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
 		if picture is None:
 			picture = bmp
-		item = self._getItem(bindfunc, help, picture, menutype, *args, **kwargs)
+		item = self._getItem(help, picture, menutype, *args, **kwargs)
 		self.insertItem(pos, item)
 		item.Caption = caption
 		return item
 		
 
-	def prepend(self, caption, bindfunc=None, help="", bmp=None, picture=None,
+	def prepend(self, caption, help="", bmp=None, picture=None,
 			menutype="", *args, **kwargs):
 		"""Prepend a dMenuItem with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
 
-		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
-		removed	in version 0.9. Send an OnHit parameter instead.
-
 		Any additional keyword arguments passed will be interpreted as properties
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
 		if picture is None:
 			picture = bmp
-		item = self._getItem(bindfunc, help, picture, menutype, *args, **kwargs)
+		item = self._getItem(help, picture, menutype, *args, **kwargs)
 		self.prependItem(item)
 		item.Caption = caption
 		return item
@@ -362,10 +352,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		return ret
 		
 			
-	def _getItem(self, bindfunc, help, icon, menutype, *args, **kwargs):
-		if bindfunc is not None:
-			warnings.warn(_("Deprecated; use 'OnHit=<func>' instead."), 
-					DeprecationWarning, 1)
+	def _getItem(self, help, icon, menutype, *args, **kwargs):
 		itmtyp = self._getItemType(menutype)
 		itmid = self._getItemID(menutype)
 		if itmid != wx.ID_DEFAULT:
@@ -378,8 +365,6 @@ class dMenu(pm.dPemMixin, wx.Menu):
 				CheckItemType: dabo.ui.dCheckMenuItem,
 				RadioItemType: dabo.ui.dRadioMenuItem}[itmtyp]
 		itm = cls(self, HelpText=help, Icon=icon, kind=itmtyp, *args, **kwargs)
-		if bindfunc:
-			itm.bindEvent(dEvents.Hit, bindfunc)
 		if itmSpecial:
 			itm._special = itmSpecial
 		return itm

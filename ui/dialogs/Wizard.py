@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import warnings
 import dabo
 dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
@@ -17,12 +16,6 @@ class Wizard(dabo.ui.dDialog):
 	
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		pgs = self._extractKey(kwargs, "Pages")
-		# Backwards compatibility; deprecated in 0.9
-		img = self._extractKey(kwargs, "image")
-		if img:
-			warnmsg = _("Deprecated parameter 'image' used in wizard. Use the 'Picture' property instead.")
-			warnings.warn(warnmsg, DeprecationWarning, stacklevel=2)
-			kwargs["Picture"] = img
 		kwargs["BorderResizable"] = kwargs.get("BorderResizable", False)
 		kwargs["ShowMaxButton"] = kwargs.get("ShowMaxButton", False)
 		kwargs["ShowMinButton"] = kwargs.get("ShowMinButton", False)
