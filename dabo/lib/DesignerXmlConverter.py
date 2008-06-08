@@ -86,6 +86,8 @@ class DesignerXmlConverter(dObject):
 			self._srcFile = src.name
 		else:
 			xml = src
+			if not src.startswith("<"):
+				xml = src = dabo.ui.resolvePathAndUpdate(src)
 			if os.path.exists(src):
 				self._srcFile = src
 			else:
@@ -97,7 +99,6 @@ class DesignerXmlConverter(dObject):
 		if super:
 			# We need to modify the info to incorporate the superclass info
 			xtd.addInheritedInfo(dct, super, updateCode=True)
-
 		return dct
 
 
