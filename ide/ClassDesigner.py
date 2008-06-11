@@ -2051,7 +2051,7 @@ class ClassDesigner(dabo.dApp):
 				if adding:
 					prop = data["propName"]
 				try:
-					self._classPropDict.["obj"]
+					self._classPropDict["obj"]
 				except KeyError:
 					self._classPropDict[obj] = {}
 				# Make sure that there are no single quotes in the comment
