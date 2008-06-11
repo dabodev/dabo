@@ -4331,7 +4331,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getShowColumnLabels(self):
-		return self._showColumnLabels
+		if hasattr(self, "_showColumnLabels"):
+			v = self._showColumnLabels
+		else:
+			v = self._showColumnLabels = True
+		return v
 
 	def _setShowColumnLabels(self, val):
 		if self._constructed():

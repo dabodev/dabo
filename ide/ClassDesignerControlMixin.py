@@ -742,6 +742,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"SelectionMode": {"type" : list, "readonly" : False,
 					"values" : ["Cell", "Row", "Column"]},
 				"Sortable": {"type" : bool, "readonly" : False},
+				"ShowColumnLabels":{"type" : bool, "readonly" : False},
 				"ShowRowLabels" : {"type" : bool, "readonly" : False}}
 		imageProps = {"ScaleMode" : {"type" : list, "readonly" : False,
 					"values" : ["Clip", "Proportional", "Stretch"]}}
