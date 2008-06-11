@@ -1701,6 +1701,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._inRangeSelect = False
 		# Flag to indicate we are in a selection update event
 		self._inUpdateSelection = False
+		
+		# Do we show row or column labels?
+		self._showColumnLabels = True
+		self._showRowLabels = False
 
 		# These hold the values that affect row/col hiliting
 		self._selectionForeColor = "black"
@@ -4331,11 +4335,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getShowColumnLabels(self):
-		if hasattr(self, "_showColumnLabels"):
-			v = self._showColumnLabels
-		else:
-			v = self._showColumnLabels = True
-		return v
+		return self._showColumnLabels
 
 	def _setShowColumnLabels(self, val):
 		if self._constructed():
@@ -4349,11 +4349,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getShowRowLabels(self):
-		if hasattr(self, "_showRowLabels"):
-			v = self._showRowLabels
-		else:
-			v = self._showRowLabels = False
-		return v
+		return self._showRowLabels
 
 	def _setShowRowLabels(self, val):
 		if self._constructed():
