@@ -1705,6 +1705,32 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# Do we show row or column labels?
 		self._showColumnLabels = True
 		self._showRowLabels = False
+		
+		# Declare Internal Row Attributes
+		self._rowLabels = []
+		self._sameSizeRows = True
+		
+		# Declare Internal Column Attributes
+		self._columnClass = dColumn
+		self._columns = []
+		
+		#Declare Internal Search And Sort Attributes
+		self._searchable = True
+		self._searchDelay = None
+		self._sortable = True
+		
+		#Declare Internal Header Attributes
+		self._headerVerticalAlignment = "Center"
+		self._headerHorizontalAlignment = "Center"
+		self._headerForeColor = None
+		self._headerBackColor = None
+		
+		#Set NoneDisplay attributes
+		if self.Application:
+			self.__noneDisplayDefault = self.Application.NoneDisplay
+		else:
+			self.__noneDisplayDefault = _("< None >")
+		self._noneDisplay = self.__noneDisplayDefault
 
 		# These hold the values that affect row/col hiliting
 		self._selectionForeColor = "black"
@@ -3793,19 +3819,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getColumns(self):
-		if hasattr(self, "_columns"):
-			v = self._columns
-		else:
-			v = self._columns = []
-		return v
+		return self._columns
 
 
 	def _getColumnClass(self):
-		if hasattr(self, "_columnClass"):
-			v = self._columnClass
-		else:
-			v = self._columnClass = dColumn
-		return v
+		return self._columnClass
+
 
 	def _setColumnClass(self, val):
 		self._columnClass = val
@@ -3968,11 +3987,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getHeaderBackColor(self):
-		try:
-			v = self._headerBackColor
-		except AttributeError:
-			v = self._headerBackColor = None
-		return v
+		return self._headerBackColor
 
 	def _setHeaderBackColor(self, val):
 		if self._constructed():
@@ -3985,11 +4000,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getHeaderForeColor(self):
-		try:
-			v = self._headerForeColor
-		except AttributeError:
-			v = self._headerForeColor = None
-		return v
+		return self._headerForeColor
+
 
 	def _setHeaderForeColor(self, val):
 		if self._constructed():
@@ -4012,11 +4024,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getHeaderHorizontalAlignment(self):
-		try:
-			val = self._headerHorizontalAlignment
-		except AttributeError:
-			val = self._headerHorizontalAlignment = "Center"
-		return val
+		return self._headerHorizontalAlignment
 
 	def _setHeaderHorizontalAlignment(self, val):
 		if self._constructed():
@@ -4028,11 +4036,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getHeaderVerticalAlignment(self):
-		try:
-			val = self._headerVerticalAlignment
-		except AttributeError:
-			val = self._headerVerticalAlignment = "Center"
-		return val
+		return self._headerVerticalAlignment
 
 	def _setHeaderVerticalAlignment(self, val):
 		if self._constructed():
@@ -4077,27 +4081,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getNoneDisplay(self):
-		if hasattr(self, "_noneDisplay"):
-			# overridden in this class; use it
-			v = self._noneDisplay
-		else:
-			# not overridden here; use the setting in dApp:
-			if self.Application:
-				v = self.Application.NoneDisplay
-			else:
-				# no dApp; return the default.
-				v = _("< None >")
-		return v
+		return self._noneDisplay
 
 	def _setNoneDisplay(self, val):
 		if val is None:
-			# Remove the att so that the default comes from dApp again
-			if hasattr(self, "_noneDisplay"):
-				del self._noneDisplay
-			return
-
-		assert isinstance(val, basestring)
-		self._noneDisplay = val
+			self._noneDisplay = self.__noneDisplayDefault
+		else:
+			assert isinstance(val, basestring)
+			self._noneDisplay = val
 
 
 	def _getResizableColumns(self):
@@ -4139,9 +4130,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getRowHeight(self):
-		if hasattr(self, "_rowHeight"):
+		try:
 			v = self._rowHeight
-		else:
+		except:
 			v = self._rowHeight = self.GetDefaultRowSize()
 		return v
 
@@ -4162,11 +4153,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getRowLabels(self):
-		if hasattr(self, "_rowLabels"):
-			v = self._rowLabels
-		else:
-			v = self._rowLabels = []
-		return v
+		return self._rowLabels
 
 	def _setRowLabels(self, val):
 		self._rowLabels = val
@@ -4174,9 +4161,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getRowLabelWidth(self):
-		if hasattr(self, "_rowLabelWidth"):
+		try:
 			v = self._rowLabelWidth
-		else:
+		except:
 			v = self._rowLabelWidth = self.GetDefaultRowLabelSize()
 		return v
 
@@ -4190,33 +4177,21 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getSameSizeRows(self):
-		if hasattr(self, "_sameSizeRows"):
-			v = self._sameSizeRows
-		else:
-			v = self._sameSizeRows = True
-		return v
+		return self._sameSizeRows
 
 	def _setSameSizeRows(self, val):
 		self._sameSizeRows = bool(val)
 
 
 	def _getSearchable(self):
-		try:
-			v = self._searchable
-		except:
-			v = self._searchable = True
-		return v
+		return self._searchable
 
 	def _setSearchable(self, val):
 		self._searchable = bool(val)
 
 
 	def _getSearchDelay(self):
-		if hasattr(self, "_searchDelay"):
-			v = self._searchDelay
-		else:
-			v = self._searchDelay = None
-		return v
+		return self._searchDelay
 
 	def _setSearchDelay(self, val):
 		self._searchDelay = val
@@ -4363,11 +4338,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getSortable(self):
-		try:
-			v = self._sortable
-		except:
-			v = self._sortable = True
-		return v
+		return self._sortable
 
 	def _setSortable(self, val):
 		self._sortable = bool(val)
