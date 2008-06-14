@@ -114,6 +114,7 @@ class dControlItemMixin(dDataControlMixin):
 		
 	def _setChoices(self, choices):
 		if self._constructed():
+			self.lockDisplay()
 			vm = self.ValueMode
 			oldVal = self.Value
 			self.Clear()
@@ -128,6 +129,7 @@ class dControlItemMixin(dDataControlMixin):
 				except ValueError:
 					if self._choices:
 						self.PositionValue = 0
+			self.unlockDisplay()
 		else:
 			self._properties["Choices"] = choices
 
