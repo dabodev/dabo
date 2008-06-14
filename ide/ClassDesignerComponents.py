@@ -60,17 +60,17 @@ class LayoutSaverMixin(object):
 			if insideClass:
 				try:
 					myID = self.classID.split("-")[1]
-				except:
+				except IndexError:
 					myID = abs(self.__hash__())
 				if classID is None:
 					# First-time save. Get the classID of the parent
 					try:
 						classID = self.Parent.classID.split("-")[0]
-					except:
+					except IndexError:
 						# Try the sizer
 							try:
 								classID = self.ControllingSizer.classID.split("-")[0]
-							except:
+							except IndexError:
 								classID = "?????"
 				ra["classID"] = "%s-%s" % (classID, myID)
 				self.classID = ra["classID"]
@@ -376,9 +376,9 @@ class LayoutSaverMixin(object):
 						kidDict = [cd for cd in childDict
 								if cd["attributes"]["classID"] == kidID][0]
 					except StandardError, e:
-						kidDict = None
-				except:
-					pass
+						kidDict = {}
+				except AttributeError:
+					kidDict = {}
 
 			ret.append(kid.getDesignerDict(itemNum=numItems,
 					classDict=kidDict))
@@ -419,9 +419,9 @@ class LayoutSaverMixin(object):
 						szDict = [cd for cd in childDict
 								if cd["attributes"]["classID"] == szID][0]
 					except StandardError, e:
-						szDict = None
-				except:
-					pass
+						szDict = {}
+				except AttributeError:
+					szDict = {}
 			ret.append(sz.getDesignerDict(itemNum=len(ret), classDict=szDict))
 		return ret
 
@@ -495,7 +495,7 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 			return
 		try:
 			self._defaultSizerProps = self.ControllingSizer.getItemProps(self)
-		except:
+		except AttributeError:
 			self._defaultSizerProps = {}
 		
 
@@ -885,7 +885,7 @@ class LayoutSpacerPanel(LayoutPanel):
 		pos = self.getPositionInSizer()
 		try:
 			sizerAtts = self.getDesignerDict()["attributes"]["sizerInfo"]
-		except:
+		except KeyError:
 			sizerAtts = None
 		cs.remove(self)
 		dabo.ui.callAfter(self.release)
@@ -998,7 +998,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 			try:
 				defProps = self.Controller.getDefaultSizerProps(kidItem.superControl)
 				itmDiffDict = self._diffSizerItemProps(itmDict, defProps, direct=True)
-			except:
+			except AttributeError:
 				itmDiffDict = self._diffSizerItemProps(itmDict, self)
 			if kidItem in self.ChildWindows:
 				winDict = None
@@ -1009,9 +1009,9 @@ class LayoutSizerMixin(LayoutSaverMixin):
 							winDict = [cd for cd in childDict
 									if cd["attributes"]["classID"] == winID][0]
 						except StandardError, e:
-							winDict = None
-					except:
-						pass
+							winDict = {}
+					except AttributeError:
+						winDict = {}
 				kidDict = kidItem.getDesignerDict(itemNum=numItems,
 						classDict=winDict)
 
@@ -1024,9 +1024,9 @@ class LayoutSizerMixin(LayoutSaverMixin):
 							szrDict = [cd for cd in childDict
 									if cd["attributes"]["classID"] == szrID][0]
 						except StandardError, e:
-							szrDict = None
-					except:
-						pass
+							szrDict = {}
+					except AttributeError:
+						szrDict = {}
 				kidDict = kidItem.getDesignerDict(itemNum=numItems,
 						classDict=szrDict)
 			else:
@@ -1533,7 +1533,7 @@ class LayoutGridSizer(LayoutSaverMixin, dabo.ui.dGridSizer):
 						if cd["attributes"]["classID"] == objID][0]
 			except StandardError, e:
 				ret = None
-		except:
+		except AttributeError:
 			pass
 		return ret
 
