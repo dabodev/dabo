@@ -373,13 +373,12 @@ class dPref(object):
 		sql = "select ckey from daboprefs where ckey like ?"
 		crs.execute(sql, ("%s.%%" % key, ))
 		rs = crs.getDataSet()
-		retList = [rec["ckey"].split(".")[1] for rec in rs
+		retList = [rec["ckey"].split(".")[keydots] for rec in rs
 				if len(rec["ckey"].split(".")) > 2]
 		tmp = {}
 		for itm in retList:
 			tmp[itm] = None
-		ret = tmp.keys()
-		return ret
+		return tmp.keys()
 	
 	
 	def getValue(self, key):
