@@ -37,6 +37,8 @@ class dPemMixin(dPemMixinBase):
 		# Holds event binding expressed as strings to be eval'd after this object
 		# has been constructed.
 		self._delayedEventBindings = []
+		# Transparency level
+		self._transparency = 255
 		
 		# There are a few controls that don't yet support 3-way inits (grid, for 
 		# one). These controls will send the wx classref as the preClass argument, 
@@ -2469,7 +2471,19 @@ class dPemMixin(dPemMixinBase):
 		else:
 			self._properties["Top"] = val
 
-	
+
+	def _getTransparency(self):
+		return self._transparency
+
+	def _setTransparency(self, val):
+		if self._constructed():
+			val = min(max(val, 0), 255)
+			self._transparency = val
+			self.SetTransparent(val)
+		else:
+			self._properties["Transparency"] = val
+
+
 	def _getVisible(self):
 		try:
 			return self.IsShown()
@@ -2702,6 +2716,10 @@ class dPemMixin(dPemMixinBase):
 	Top = property(_getTop, _setTop, None, 
 			_("The top position of the object. (int)") )
 	
+	Transparency = property(_getTransparency, _setTransparency, None,
+			_("""Transparency level of the control; ranges from 0 (transparent) to 255 (opaque). 
+			Default=0. Does not currently work on Gtk/Linux.  (int)"""))
+	
 	Visible = property(_getVisible, _setVisible, None,
 			_("Specifies whether the object is visible at runtime.  (bool)") )
 	
@@ -2736,6 +2754,7 @@ class dPemMixin(dPemMixinBase):
 	DynamicTag = makeDynamicProperty(Tag)
 	DynamicToolTipText = makeDynamicProperty(ToolTipText)
 	DynamicTop = makeDynamicProperty(Top)
+	DynamicTransparency = makeDynamicProperty(Transparency)
 	DynamicVisible = makeDynamicProperty(Visible)
 	DynamicWidth = makeDynamicProperty(Width)
 

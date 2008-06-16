@@ -60,8 +60,6 @@ class dFormMixin(pm.dPemMixin):
 		self._autoUpdateStatusText = False
 		# Flag to denote temporary forms
 		self._tempForm = False
-		# Transparency level
-		self._transparency = None
 		# Defaults for window sizing
 		self._defaultLeft = 50
 		self._defaultTop = 50
@@ -957,18 +955,6 @@ class dFormMixin(pm.dPemMixin):
 			val.Form = self
 
 	
-	def _getTransparency(self):
-		return self._transparency
-
-	def _setTransparency(self, val):
-		if self._constructed():
-			val = min(max(val, 0), 255)
-			self._transparency = val
-			self.SetTransparent(val)
-		else:
-			self._properties["Transparency"] = val
-
-
 	def _getWindowState(self):
 		try:
 			if self.IsFullScreen():
@@ -1115,11 +1101,6 @@ class dFormMixin(pm.dPemMixin):
 	ToolBar = property(_getToolBar, _setToolBar, None,
 			_("Tool bar for this form. (dToolBar)"))
 	
-	Transparency = property(_getTransparency, _setTransparency, None,
-			_("""Transparency level of the form; ranges from 0 (transparent) to 255 (opaque). 
-			Default=0. Does not currently work on Gtk/Linux.  (int)"""))
-	
-
 	WindowState = property(_getWindowState, _setWindowState, None,
 			_("""Specifies the current state of the form. (int)
 				
@@ -1141,5 +1122,4 @@ class dFormMixin(pm.dPemMixin):
 	DynamicStatusBar = makeDynamicProperty(StatusBar)
 	DynamicStatusText = makeDynamicProperty(StatusText)
 	DynamicToolBar = makeDynamicProperty(ToolBar)
-	DynamicTransparency = makeDynamicProperty(Transparency)
 	DynamicWindowState = makeDynamicProperty(WindowState)
