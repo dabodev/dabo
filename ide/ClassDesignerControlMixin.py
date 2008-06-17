@@ -655,7 +655,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"Name" : {"type" : unicode, "readonly" : False},
 				"RegID" : {"type" : unicode, "readonly" : False},
 				"Tag" : {"type" : "multi", "readonly" : False},
-				"ToolTipText" : {"type" : unicode, "readonly" : False}}
+				"ToolTipText" : {"type" : unicode, "readonly" : False},
+				"Transparency" : {"type" : int, "readonly" : False}}
 		captionProps = {"Caption": {"type" : unicode, "readonly" : False}}
 		choiceProps = {"Choices": {"type" : "choice", "readonly" : False, 
 				"customEditor": "editChoice"},

@@ -1460,6 +1460,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 					"customEditor": "editCxnFile"},
 				"CxnName": {"type" : unicode, "readonly" : False},
 				"Tag" : {"type" : "multi", "readonly" : False},
+				"Transparency" : {"type" : int, "readonly" : False},
 				"SaveRestorePosition": {"type" : bool, "readonly" : False}}
 		if isinstance(self, dlgs.Wizard):
 			ret["Picture"] = {"type" : "path", "readonly" : False, 
