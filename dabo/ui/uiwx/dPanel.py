@@ -231,6 +231,30 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 		self.Scroll(x, y-amt)
 
 
+	def pageLeft(self):
+		self.pageHorizontally(-1)
+	def pageRight(self):
+		self.pageHorizontally(1)
+	def pageHorizontally(self, direction):
+		"""Scroll horizontally one 'page' width."""
+		sz = self.GetScrollPageSize(wx.HORIZONTAL)
+		if sz:
+			x,y = self.GetViewStart()
+			self.Scroll(x + (direction * sz), y)
+
+
+	def pageUp(self):
+		self.pageVertically(-1)
+	def pageDown(self):
+		self.pageVertically(1)
+	def pageVertically(self, direction):
+		"""Scroll vertically one 'page' height."""
+		sz = self.GetScrollPageSize(wx.VERTICAL)
+		if sz:
+			x,y = self.GetViewStart()
+			self.Scroll(x, y + (direction * sz))
+
+
 	def _getChildren(self):
 		ret = super(dScrollPanel, self)._getChildren()
 		return [kid for kid in ret
