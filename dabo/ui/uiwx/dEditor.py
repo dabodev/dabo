@@ -2027,6 +2027,11 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		return self.GetCurrentLine()
 
 	def _setLineNumber(self, val):
+		try:
+			# Try coercing to int
+			val = int(val)
+		except ValueError:
+			pass
 		self.GotoLine(val)
 		self.EnsureCaretVisible()
 
