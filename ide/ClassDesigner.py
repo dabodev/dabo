@@ -571,8 +571,8 @@ class ClassDesigner(dabo.dApp):
 		"""
 		ret = False
 		atts = clsd.get("attributes", {})
-		szinf = atts.get("sizerInfo", "{}")
-		if szinf != "{}":
+		szinf = atts.get("sizerInfo", "")
+		if szinf != "":
 			ret = True
 		else:
 			kids = clsd.get("children", [])

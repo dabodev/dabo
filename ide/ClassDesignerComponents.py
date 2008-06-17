@@ -60,7 +60,7 @@ class LayoutSaverMixin(object):
 			if insideClass:
 				try:
 					myID = self.classID.split("-")[1]
-				except IndexError:
+				except (AttributeError, IndexError):
 					myID = abs(self.__hash__())
 				if classID is None:
 					# First-time save. Get the classID of the parent
