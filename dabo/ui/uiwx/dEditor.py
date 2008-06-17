@@ -1134,17 +1134,24 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		elif mg == 1:
 			# Line number margin; hilite the line
 			ln = self.LineFromPosition(evt.GetPosition())
-			start = self.PositionFromLine(ln)
-			end = self.PositionFromLine(ln+1)
-			if evt.GetShift():
-				# Need to extend from the current position
-				currStart = self.GetSelectionStart()
-				currEnd = self.GetSelectionEnd()
-				start = min(start, currStart)
-				end = max(end, currEnd)
-			self.SetSelection(start, end)
-				
-	
+			self.hiliteLine(ln, evt.GetShift())
+
+
+	def hiliteLine(self, lineNum, extend=False):
+		"""Selects the specified line. If the line number does not exist, 
+		a ValueError is raised.
+		"""
+		start = self.PositionFromLine(lineNum)
+		end = self.PositionFromLine(lineNum+1)
+		if extend:
+			# Need to extend from the current position
+			currStart = self.GetSelectionStart()
+			currEnd = self.GetSelectionEnd()
+			start = min(start, currStart)
+			end = max(end, currEnd)
+		self.SetSelection(start, end)
+
+
 	def callTip(self):
 		"""Present the call tip for the current object, if any."""
 		runtimeObjName = self._getRuntimeObjectName()
