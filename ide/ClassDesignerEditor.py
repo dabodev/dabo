@@ -129,6 +129,8 @@ class EditorForm(dui.dForm):
 		self._defaultTop = 620
 		self._defaultWidth = 800
 		self._defaultHeight = 260
+		self._methodNamePat = re.compile(r"^def ([^\(]+)\(")
+		self._syntaxLinePat = re.compile(r"([^\(]+) \(.*, line (\d+)\)")
 
 		self._objHierarchy = []
 		pnl = dabo.ui.dPanel(self)
@@ -136,9 +138,9 @@ class EditorForm(dui.dForm):
 		sz = pnl.Sizer = dabo.ui.dSizer("v")
 
 		dui.dLabel(pnl, Caption=_("Object:"), RegID="lblObj")
-		dui.dDropdownList(pnl, RegID="ddObject")
+		dui.dDropdownList(pnl, RegID="ddObject", OnHit=self.onHitDDObject)
 		dui.dLabel(pnl, Caption=_("Method:"), RegID="lblMethod")
-		dui.dDropdownList(pnl, RegID="ddMethod")
+		dui.dDropdownList(pnl, RegID="ddMethod", OnHit=self.onHitDDMethod)
 		hs = dui.dSizer("h", DefaultBorder=8, DefaultBorderTop=True,
 				DefaultBorderBottom=True)
 		hs.appendSpacer(8)
@@ -150,8 +152,14 @@ class EditorForm(dui.dForm):
 		hs.appendSpacer(2)
 		hs.append(self.ddMethod, 0)
 		hs.appendSpacer(4)
-		dui.dButton(pnl, Caption=_("super"), RegID="btnSuperCode", Enabled=False)
-		dui.dButton(pnl, Caption=_("New"), RegID="btnNewMethod")
+		dui.dBitmapButton(pnl, Picture="checkMark", RegID="btnCheckSyntax", 
+				ToolTipText=_("Check Syntax"), OnHit=self.onCheckSyntax)
+		dui.dButton(pnl, Caption=_("super"), RegID="btnSuperCode", Enabled=False, 
+				ToolTipText=_("Show Superclass Code"), OnHit=self.onSuperCode)
+		dui.dButton(pnl, Caption=_("New"), RegID="btnNewMethod", 
+				ToolTipText=_("Create New Method"), OnHit=self.onNewMethod)
+		hs.append(self.btnCheckSyntax, 0, border=3, valign="middle")
+		hs.appendSpacer(4)
 		hs.append(self.btnSuperCode, 0)
 		hs.appendSpacer(8)
 		hs.append(self.btnNewMethod, 0)
@@ -159,7 +167,8 @@ class EditorForm(dui.dForm):
 		hs.append(dui.dLine(pnl, Height=self.btnNewMethod.Height, Width=2),
 				valign="middle")
 		hs.appendSpacer(8)
-		dui.dButton(pnl, Caption=_("Manage Imports"), RegID="btnImports")
+		dui.dButton(pnl, Caption=_("Manage Imports"), RegID="btnImports",
+				ToolTipText=_("Manage Class-wide imports"), OnHit=self.onManageImports)
 		hs.append(self.btnImports, 0)
 
 		sz.append(hs, 0, "x")
@@ -285,24 +294,49 @@ class EditorForm(dui.dForm):
 	def onDeactivate(self, evt):
 		"""Make sure that any changes are saved."""
 		self.updateText()
-		
-		
-	def onHit_ddObject(self, evt):
+
+
+	def onCheckSyntax(self, evt):
+		ed = self.editor
+		txt = ed.Value
+		try:
+			compile(txt.strip(), "", "exec")
+			dabo.ui.exclaim(_("No syntax errors found!"), _("Compilation Succeeded"))
+		except SyntaxError, e:
+			errMsg = "%s" % e
+			try:
+				msg, num = self._syntaxLinePat.findall(errMsg)[0]
+			except (ValueError, IndexError):
+				msg = errMsg
+				num = None
+			if num is not None:
+				num = int(num)
+				# Numbers are zero-based, so convert for display
+				disp = _("Error: %s\nLine: %s") % (msg, num)
+				ed.LineNumber = num-3
+				ed.showCurrentLine()
+				ed.hiliteLine(num-1)
+			else:
+				disp = msg
+			dabo.ui.stop(disp, _("Compilation Failed"))
+
+
+	def onHitDDObject(self, evt):
 		self.refreshStatus()
 
 
-	def onHit_ddMethod(self, evt):
+	def onHitDDMethod(self, evt):
 		self.updateText()
 		dui.callAfter(self.setEditorCaption)
 		self.edit(self.ddObject.KeyValue, self.ddMethod.StringValue.replace("*", ""))
 
 
-	def onHit_btnSuperCode(self, evt):
+	def onSuperCode(self, evt):
 		self.Controller.onShowSuper(self.ddObject.KeyValue.classID, 
 				self.ddMethod.StringValue)
 	
 	
-	def onHit_btnNewMethod(self, evt):
+	def onNewMethod(self, evt):
 		nm = dabo.ui.getString(_("Name of method?"))
 		if nm:
 			# Make sure that it's legal
@@ -319,7 +353,7 @@ class EditorForm(dui.dForm):
 			self.edit(obj, nm, True)
 
 
-	def onHit_btnImports(self, evt):
+	def onManageImports(self, evt):
 		self.Controller.onDeclareImports(evt)
 
 
@@ -452,7 +486,6 @@ class EditorForm(dui.dForm):
 		rep = self.CodeRepository
 		txt = ed.Value
 		mthd = ed.Method
-
 		mb = self._getMethodBase(mthd, None)
 		isEmpty = (txt.strip() == "") or (txt in mb)
 		obj = ed.Object
@@ -460,19 +493,27 @@ class EditorForm(dui.dForm):
 		if isEmpty:
 			# No code. Delete the key if it is found in the repository
 			if objCode is not None:
-				if objCode.has_key(mthd):
+				try:
 					del objCode[mthd]
+				except KeyError:
+					# Method hadn't been stored yet; no biggie
+					pass
 		else:
-			# There is some text. First check if it is compilable, and
-			# display a message if it isn't.
-			# Maybe put this as a preference if they want continuous code checking?
-# 			try:
-# 				compile(txt.strip(), "", "exec")
-# 			except SyntaxError, e:
-# 				dabo.errorLog.write(_("Method '%s' of object '%s' has the following error: %s")
-# 						% (mthd, obj.Name, e))
+			# There is some text. First make sure that the name of the method wasn't changed
+			try:
+				codeMthd = self._methodNamePat.match(txt).groups()[0]
+			except IndexError:
+				codeMthd = None
+			if codeMthd and (codeMthd != mthd):
+				if objCode is not None:
+					try:
+						del objCode[mthd]
+					except KeyError:
+						# Method hadn't been stored yet; no biggie
+						pass
+				mthd = codeMthd
+
 			# Add it to the repository.
-			
 			if hasattr(obj, "classID"):
 				# Make sure that it differs from the base code for this class. If not, 
 				# don't save it.
