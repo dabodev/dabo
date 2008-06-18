@@ -311,7 +311,6 @@ class EditorForm(dui.dForm):
 				num = None
 			if num is not None:
 				num = int(num)
-				# Numbers are zero-based, so convert for display
 				disp = _("Error: %s\nLine: %s") % (msg, num)
 				ed.LineNumber = num-3
 				ed.showCurrentLine()
