@@ -434,6 +434,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		
 	def onSaveDesign(self, evt, useTmp=False):
 		currForm = self.Controller.CurrentForm
+		newFIle = False
 		if useTmp:
 			osp = os.path
 			if self._classFile:
@@ -451,6 +452,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 					self._classFile = self._classFile.rstrip(".")
 					if not self._classFile.endswith(".cdxml"):
 						self._classFile += ".cdxml"
+				newFile = True
 			fname = self._classFile
 		
 		# If there is a code editing form, flush the current page
@@ -469,7 +471,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 			propDict = propDictCompare = self.getClassDesignerDict(obj)
 			self.Controller.saveAllProps = False
 
-		if not useTmp and (propDictCompare == self._savedState):
+		if not useTmp and not newFile and (propDictCompare == self._savedState):
 			return
 		
 		imp = self.Controller.getImportDict(self)
