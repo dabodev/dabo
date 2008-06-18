@@ -792,14 +792,14 @@ class EditorForm(dabo.ui.dForm):
 								
 		currEditor = self.CurrentEditor
 		dlg = LineNumberDlg(self)
-		dlg.txtLine.Value = currEditor.LineNumber + 1
+		dlg.txtLine.Value = currEditor.LineNumber
 		dlg.txtLine.Min = 1
 		dlg.txtLine.Max = currEditor.LineCount
 		dlg.Centered = dlg.Modal = True
 		dlg.AutoSize = False
 		dlg.show()
 		if dlg.Accepted:
-			currEditor.LineNumber = dlg.txtLine.Value - 1
+			currEditor.LineNumber = dlg.txtLine.Value
 		dlg.release()		
 
 	
