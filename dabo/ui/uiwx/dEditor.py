@@ -393,7 +393,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		line number is passed.
 		"""
 		if line is None:
-			line = self.LineNumber
+			line = self._ZeroBasedLineNumber
 		if nm in self._bookmarks.keys():
 			self.clearBookmark(nm)
 		hnd = self.MarkerAdd(line, self._bmkPos)
@@ -414,7 +414,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self.moveToEnd()
 			# Add some breathing room above
 			self.LineNumber = foundLine-3
-			self.LineNumber = foundLine
+			self._ZeroBasedLineNumber = foundLine
 	
 	
 	def clearBookmark(self, nm):
@@ -1142,7 +1142,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		a ValueError is raised.
 		"""
 		start = self.PositionFromLine(lineNum)
-		end = self.PositionFromLine(lineNum+1)
+		end = self.PositionFromLine(lineNum+1) -1
 		if extend:
 			# Need to extend from the current position
 			currStart = self.GetSelectionStart()
@@ -2031,16 +2031,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def _getLineNumber(self):
-		return self.GetCurrentLine()
+		return self._ZeroBasedLineNumber + 1
 
 	def _setLineNumber(self, val):
-		try:
-			# Try coercing to int
-			val = int(val)
-		except ValueError:
-			pass
-		self.GotoLine(val)
-		self.EnsureCaretVisible()
+		self._ZeroBasedLineNumber = val - 1
 
 
 	def _getLineCount(self):
@@ -2279,6 +2273,22 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self.SetWrapMode(val)
 
 
+	def _getZeroBasedLineNumber(self):
+		return self.GetCurrentLine()
+
+	def _setZeroBasedLineNumber(self, val):
+		if self._constructed():
+			try:
+				# Try coercing to int
+				val = int(val)
+			except ValueError:
+				pass
+			self.GotoLine(val)
+			self.EnsureCaretVisible()
+		else:
+			self._properties["_ZeroBasedLineNumber"] = val
+
+
 	def _getZoomLevel(self):
 		return self.GetZoom()
 
@@ -2420,6 +2430,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			_("""Controls whether text lines that are wider than the window
 			are soft-wrapped or clipped. (bool)"""))
 	
+	_ZeroBasedLineNumber = property(_getZeroBasedLineNumber, _setZeroBasedLineNumber, None,
+			_("This is the underlying property that handles the wxPython zero-based line numbering. It's equal to LineNumber-1  (int)"))
+
 	ZoomLevel = property(_getZoomLevel, _setZoomLevel, None,
 			_("Point increase/decrease from normal viewing size  (int)"))
 	
