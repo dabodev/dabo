@@ -203,18 +203,33 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 
 
 
-class dOkCancelDialog(dDialog):
-	"""Creates a dialog with OK/Cancel buttons and associated functionality.
+class dStandardButtonDialog(dDialog):
+	"""Creates a dialog with standard buttons and associated functionality. You can 
+	choose the buttons that display by passing True for any of the following 
+	properties:
+	
+		OK
+		Cancel
+		Yes
+		No
+		Help
 
-	Add your custom controls in the addControls() hook method, and respond to
-	the pressing of the Ok and Cancel buttons in the onOK() and onCancel() 
-	event handlers. The default behavior in both cases is just to close the
-	form, and you can query the Accepted property to find out if the user 
-	pressed "OK" or not.
+	If you don't specify buttons, only the OK will be included; if you do specify buttons,
+	you must specify them all; in other words, OK is only assumed if nothing is specified.
+	Then add your custom controls in the addControls() hook method, and respond to
+	the pressing of the standard buttons in the on*() handlers, where * is the name of the 
+	associated property (e.g., onOK(), onNo(), etc.). You can query the Accepted property 
+	to find out if the user pressed "OK" or "Yes"; if neither of these was pressed, 
+	Accepted will be False.
 	"""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
-		super(dOkCancelDialog, self).__init__(parent=parent, properties=properties, *args, **kwargs)
-		self._baseClass = dOkCancelDialog
+		self._ok = self._extractKey((properties, kwargs), "OK")
+		self._cancel = self._extractKey((properties, kwargs), "Cancel")
+		self._yes = self._extractKey((properties, kwargs), "Yes")
+		self._no = self._extractKey((properties, kwargs), "No")
+		self._help = self._extractKey((properties, kwargs), "Help")
+		super(dStandardButtonDialog, self).__init__(parent=parent, properties=properties, *args, **kwargs)
+		self._baseClass = dStandardButtonDialog
 		self._accepted = False
 
 
@@ -225,69 +240,114 @@ class dOkCancelDialog(dDialog):
 		sz.DefaultBorderLeft = sz.DefaultBorderRight = True
 		sz.append((0, sz.DefaultBorder))
 
-		# Define Ok/Cancel, and tell wx that we want stock buttons.
-		# We are creating them now, so that the user code can access them if needed.
-		self.btnOK = dabo.ui.dButton(self, id=wx.ID_OK, DefaultButton=True)
-		self.btnOK.bindEvent(dEvents.Hit, self.onOK)
-		self.btnCancel = dabo.ui.dButton(self, id=wx.ID_CANCEL, CancelButton=True)
-		self.btnCancel.bindEvent(dEvents.Hit, self.onCancel)
+		# Add the specified buttons. If none were specified, then just add OK
+		ok = self._ok
+		cancel = self._cancel
+		yes = self._yes
+		no = self._no
+		help = self._help
+		if (ok is None and cancel is None and yes is None and 
+				no is None and help is None):
+			ok = True
 		
-		# Put the buttons in a StdDialogButtonSizer, so they get positioned/sized
-		# per the native platform conventions:
-		buttonSizer = wx.StdDialogButtonSizer()
-		buttonSizer.AddButton(self.btnOK)
-		buttonSizer.AddButton(self.btnCancel)
-		buttonSizer.Realize()
-		self._btnSizer = bsWrapper = dabo.ui.dSizer("v")
-		bsWrapper.append(buttonSizer, "x")
-	
+		flags = 0
+		if ok:
+			flags = flags | wx.OK
+		if cancel:
+			flags = flags | wx.CANCEL
+		if yes:
+			flags = flags | wx.YES
+		if no:
+			flags = flags | wx.NO
+		if help:
+			flags = flags | wx.HELP
+		if flags == 0:
+			# Nothing specified; default to just OK
+			flags = wx.OK
+		# Initialize the button references
+		self.btnOK = self.btnCancel = self.btnYes = self.btnNo = self.btnHelp = None
+		self.stdButtonSizer = sbs = self.CreateButtonSizer(flags)
+		btns = [b.GetWindow() for b in sbs.GetChildren() if b.IsWindow()]
+		for btn in btns:
+			id_ = btn.GetId()
+			if id_ == wx.ID_OK:
+				self.btnOK = btn
+				mthd = self._onOK
+			elif id_ == wx.ID_CANCEL:
+				self.btnCancel = btn
+				mthd = self._onCancel
+			elif id_ == wx.ID_YES:
+				self.btnYes = btn
+				mthd = self._onYes
+			elif id_ == wx.ID_NO:
+				self.btnNo = btn
+				mthd = self._onNo
+			elif id_ == wx.ID_HELP:
+				self.btnHelp = btn
+				mthd = self._onHelp
+			btn.Bind(wx.EVT_BUTTON, mthd)
+			
 		# Wx rearranges the order of the buttons per platform conventions, but
 		# doesn't rearrange the tab order for us. So, we do it manually:
 		buttons = []
-		for child in buttonSizer.GetChildren():
+		for child in sbs.GetChildren():
 			win = child.GetWindow()
 			if win is not None:
 				buttons.append(win)
-		buttons[1].MoveAfterInTabOrder(buttons[0])
+		for pos, btn in enumerate(buttons[1:]):
+			btn.MoveAfterInTabOrder(buttons[pos-1])
+		if cancel or no:
+			# The default Escape behavior destroys the dialog, so we need to replace
+			# this with out own.
+			self.SetEscapeId(wx.ID_NONE)
+			if cancel:
+				self.bindKey("esc", self._onCancel)
+			elif no:
+				self.bindKey("esc", self._onNo)
 
 		# Let the user add their controls
-		super(dOkCancelDialog, self)._addControls()
+		super(dStandardButtonDialog, self)._addControls()
 
 		# Just in case user changed Self.Sizer, update our reference:
-		sz = self.Sizer
+		bs = dabo.ui.dSizer("v")
+		bs.append((0, sz.DefaultBorder/2))
+		bs.append(sbs, "x")
+		bs.append((0, sz.DefaultBorder))
+		sz.append(bs, "x")
 
-		if self.ButtonSizerPosition is None:
-			# User code didn't add it, so we must.
-			bs = dabo.ui.dSizer("v")
-			bs.append((0, sz.DefaultBorder/2))
-			bs.append(self.ButtonSizer, "x")
-			bs.append((0, sz.DefaultBorder))
-			sz.append(bs, "x")
-		
-		self.layout()
+	################################################
+	#  Handlers for the standard buttons
+	def _onOK(self, evt):
+		self.Accepted = True
+		self.onOK()
+		self.EndModal(kons.DLG_OK)
+	def _onCancel(self, evt):
+		self.onCancel()
+		self.EndModal(kons.DLG_CANCEL)
+	def _onYes(self, evt):
+		self.Accepted = True
+		self.onYes()
+		self.EndModal(kons.DLG_YES)
+	def _onNo(self, evt):
+		self.onNo()
+		self.EndModal(kons.DLG_NO)
+	def _onHelp(self, evt):
+		self.onHelp()
+	# The following are stub methods that can be overridden when needed.
+	def onOK(self): pass
+	def onCancel(self): pass
+	def onYes(self): pass
+	def onNo(self): pass
+	def onHelp(self): pass
+	################################################
 
 	
 	def addControls(self):
-		"""Use this method to add controls to the dialog. 
-
-		The OK/Cancel	buttons will be added after this method runs, so that they 
-		appear at the bottom of the dialog.
+		"""Use this method to add controls to the dialog. The standard buttons will be added 
+		after this method runs, so that they appear at the bottom of the dialog.
 		"""
 		pass
 	
-	
-	def _setEscapeBehavior(self):
-		"""Bind/unbind the Cancel button to the escape key."""
-		try:
-			self.btnCancel.CancelButton = self.ReleaseOnEscape
-			if self.ReleaseOnEscape:
-				self.SetEscapeId(wx.ID_ANY)
-			else:
-				self.SetEscapeId(wx.ID_NONE)
-		except AttributeError:
-			# Button hasn't been added yet
-			dabo.ui.callAfter(self._setEscapeBehavior)
-
 	
 	def addControlSequence(self, seq):
 		"""This takes a sequence of 3-tuples or 3-lists, and adds controls 
@@ -317,15 +377,6 @@ class dOkCancelDialog(dDialog):
 		self.layout()
 		
 		
-	def onOK(self, evt):
-		self.Accepted = True
-		self.EndModal(kons.DLG_OK)
-
-	def onCancel(self, evt):
-		self.Accepted = False
-		self.EndModal(kons.DLG_CANCEL)
-
-
 	def _getAccepted(self):
 		return self._accepted		
 
@@ -334,19 +385,27 @@ class dOkCancelDialog(dDialog):
 	
 	
 	def _getButtonSizer(self):
-		return getattr(self, "_btnSizer", None)
-
-
-	def _getButtonSizerPosition(self):
-		return self.ButtonSizer.getPositionInSizer()
+		return getattr(self, "stdButtonSizer", None)
 
 
 	def _getCancelButton(self):
 		return self.btnCancel
 
 
+	def _getHelpButton(self):
+		return self.btnHelp
+		
+
 	def _getOKButton(self):
 		return self.btnOK
+		
+
+	def _getNoButton(self):
+		return self.btnNo
+		
+
+	def _getYesButton(self):
+		return self.btnYes
 		
 
 	Accepted = property(_getAccepted, _setAccepted, None,
@@ -355,21 +414,43 @@ class dOkCancelDialog(dDialog):
 	ButtonSizer = property(_getButtonSizer, None, None,
 			_("Returns a reference to the sizer controlling the Ok/Cancel buttons.  (dSizer)"))
 
-	ButtonSizerPosition = property(_getButtonSizerPosition, None, None,
-			_("""Returns the position of the Ok/Cancel buttons in the sizer.  (int)"""))
-
 	CancelButton = property(_getCancelButton, None, None,
-			_("Reference to the Cancel button on the form  (dButton)."))
+			_("Reference to the Cancel button on the form, if present  (dButton or None)."))
 	
-	LastPositionInSizer = ButtonSizerPosition   ## backwards compatibility
-
+	HelpButton = property(_getHelpButton, None, None,
+			_("Reference to the Help button on the form, if present  (dButton or None)."))
+	
+	NoButton = property(_getNoButton, None, None,
+			_("Reference to the No button on the form, if present  (dButton or None)."))
+	
 	OKButton = property(_getOKButton, None, None,
-			_("Reference to the OK button on the form  (dButton)."))
+			_("Reference to the OK button on the form, if present  (dButton or None)."))
+	
+	YesButton = property(_getYesButton, None, None,
+			_("Reference to the Yes button on the form, if present  (dButton or None)."))
 	
 	
+
+class dOkCancelDialog(dStandardButtonDialog):
+	def __init__(self, parent=None, properties=None, *args, **kwargs):
+		kwargs["Yes"] = kwargs["No"] = False
+		kwargs["OK"] = kwargs["Cancel"] = True
+		super(dOkCancelDialog, self).__init__(parent, properties, *args, **kwargs)
+		self._baseClass = dOkCancelDialog
+		
+
+class dYesNoDialog(dStandardButtonDialog):
+	def __init__(self, parent=None, properties=None, *args, **kwargs):
+		kwargs["Yes"] = kwargs["No"] = True
+		kwargs["OK"] = kwargs["Cancel"] = False
+		super(dYesNoDialog, self).__init__(parent, properties, *args, **kwargs)
+		self._baseClass = dYesNoDialog
+
 
 
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(dDialog)
+	test.Test().runTest(dStandardButtonDialog)
 	test.Test().runTest(dOkCancelDialog)
+	test.Test().runTest(dYesNoDialog)

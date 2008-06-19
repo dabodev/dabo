@@ -79,7 +79,9 @@ from dComboBox import dComboBox
 from dDateTextBox import dDateTextBox
 from dDropdownList import dDropdownList
 from dDialog import dDialog
+from dDialog import dStandardButtonDialog
 from dDialog import dOkCancelDialog
+from dDialog import dYesNoDialog
 from dEditableList import dEditableList
 from dEditBox import dEditBox
 from dEditor import dEditor
