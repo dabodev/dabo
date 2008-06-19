@@ -39,7 +39,9 @@ class dPemMixin(dPemMixinBase):
 		self._delayedEventBindings = []
 		# Transparency level
 		self._transparency = 255
-		
+		# Time to change transparency
+		self._transparencyDelay = 0.25
+
 		# There are a few controls that don't yet support 3-way inits (grid, for 
 		# one). These controls will send the wx classref as the preClass argument, 
 		# and we'll call __init__ on it when ready. We can tell if we are in a 
@@ -458,7 +460,8 @@ class dPemMixin(dPemMixinBase):
 	def __onMouseLeave(self, evt):
 		if self._hover:
 			if self._hoverTimer:
-				self._hoverTimer.stop()
+				self._hoverTimer.release()
+				self._hoverTimer = None
 			self.endHover(evt)
 	
 	
@@ -2478,10 +2481,35 @@ class dPemMixin(dPemMixinBase):
 	def _setTransparency(self, val):
 		if self._constructed():
 			val = min(max(val, 0), 255)
-			self._transparency = val
-			self.SetTransparent(val)
+			delay = self.TransparencyDelay
+			if delay:
+				sleeptime = delay / 10.0
+				oldVal = self._transparency
+				self._transparency = val
+				slice = (val - oldVal) / 10
+				newVal = oldVal
+				for i in xrange(10):
+					newVal = int(round(newVal + slice, 0))
+					newVal = min(max(newVal, 0), 255)
+					self.SetTransparent(newVal)
+					self.refresh()
+					time.sleep(sleeptime)
+				# Make sure that there is no rounding error
+				self.SetTransparent(val)
+			else:
+				self.SetTransparent(val)
 		else:
 			self._properties["Transparency"] = val
+
+
+	def _getTransparencyDelay(self):
+		return self._transparencyDelay
+
+	def _setTransparencyDelay(self, val):
+		if self._constructed():
+			self._transparencyDelay = val
+		else:
+			self._properties["TransparencyDelay"] = val
 
 
 	def _getVisible(self):
@@ -2720,6 +2748,10 @@ class dPemMixin(dPemMixinBase):
 			_("""Transparency level of the control; ranges from 0 (transparent) to 255 (opaque). 
 			Default=0. Does not currently work on Gtk/Linux.  (int)"""))
 	
+	TransparencyDelay = property(_getTransparencyDelay, _setTransparencyDelay, None,
+			_("""Time in seconds to change transparency. Set it to zero to see instant changes.
+			Default=0.25 (float)"""))
+
 	Visible = property(_getVisible, _setVisible, None,
 			_("Specifies whether the object is visible at runtime.  (bool)") )
 	
