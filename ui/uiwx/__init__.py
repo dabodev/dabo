@@ -1380,6 +1380,11 @@ def strToBmp(val, scale=None, width=None, height=None):
 	final image will be a bitmap resized to those specs.
 	"""
 	ret = None
+	cwd = os.getcwd()
+	app = dabo.dAppRef
+	if app:
+		cwd = app.HomeDirectory
+
 	try:
 		ret = _bmpCache[val]
 	except KeyError:
@@ -1391,7 +1396,7 @@ def strToBmp(val, scale=None, width=None, height=None):
 					for pth in dabo.icons.__path__]
 			dabopaths = [os.path.join(pth, val)
 					for pth in dabo.__path__]
-			localpaths = [os.path.join(os.getcwd(), pth, val)
+			localpaths = [os.path.join(cwd, pth, val)
 					for pth in ("icons", "resources")]
 			# Create a list of the places to search for the image, with
 			# the most likely choices first.
