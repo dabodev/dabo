@@ -129,12 +129,20 @@ import dLocalize
 dLocalize.install("dabo")
 
 
+# Import global settings (do this first, as other imports may rely on it):
+from settings import *
+
 # Instantiate the logger object, which will send messages to user-overridable
 # locations. Do this before any other imports.
 from dabo.lib.logger import Log
 infoLog = Log()
 infoLog.Caption = "Dabo Info Log"
-infoLog.LogObject = sys.stdout
+if verboseLogging:
+	infoLog.LogObject = sys.stdout
+else:
+	class NullWrite(object):
+		def write(self, txt): pass
+	infoLog.LogObject = NullWrite()
 errorLog = Log()
 errorLog.Caption = "Dabo Error Log"
 errorLog.LogObject = sys.stderr
@@ -147,9 +155,6 @@ eventLog.LogObject = sys.stdout
 dbActivityLog = Log()
 dbActivityLog.Caption = "Database Activity Log"
 dbActivityLog.LogObject = None
-
-# Import global settings (do this first, as other imports may rely on it):
-from settings import *
 
 from __version__ import version
 import dColors
