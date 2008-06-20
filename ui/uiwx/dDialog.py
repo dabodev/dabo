@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import warnings
 import wx
 import dabo
 if __name__ == "__main__":
@@ -95,9 +96,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 
 	def _onEscape(self, evt):
 		evt.stop()
-		if self.ReleaseOnEscape:
-			self.release()
-			self.Close()
+		self.hide()
 
 
 	def _addControls(self):
@@ -127,11 +126,6 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		super(dDialog, self).release()
 	
 	
-	def _setEscapeBehavior(self):
-		"""Allow subclasses to respond to changes in the ReleaseOnEscape property."""
-		pass
-		
-
 	def _getAutoSize(self):
 		return self._fit
 
@@ -163,18 +157,6 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		self._modal = val
 	
 
-	def _getReleaseOnEscape(self):
-		try:
-			val = self._releaseOnEscape
-		except AttributeError:
-			val = True
-		return val
-
-	def _setReleaseOnEscape(self, val):
-		self._releaseOnEscape = bool(val)
-		self._setEscapeBehavior()
-
-
 	def _getShowStat(self):
 		# Dialogs cannot have status bars.
 		return False
@@ -193,9 +175,6 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 	Modal = property(_getModal, _setModal, None,
 			"Determines if the dialog is shown modal (default) or modeless.  (bool)")
 	
-	ReleaseOnEscape = property(_getReleaseOnEscape, _setReleaseOnEscape, None,
-			"Determines if the <Esc> key releases the dialog. Default=True.  (bool)")
-
 
 	DynamicAutoSize = makeDynamicProperty(AutoSize)
 	DynamicCaption = makeDynamicProperty(Caption)
@@ -217,8 +196,8 @@ class dStandardButtonDialog(dDialog):
 	If you don't specify buttons, only the OK will be included; if you do specify buttons,
 	you must specify them all; in other words, OK is only assumed if nothing is specified.
 	Then add your custom controls in the addControls() hook method, and respond to
-	the pressing of the standard buttons in the on*() handlers, where * is the name of the 
-	associated property (e.g., onOK(), onNo(), etc.). You can query the Accepted property 
+	the pressing of the standard buttons in the run*() handlers, where * is the name of the 
+	associated property (e.g., runOK(), runOo(), etc.). You can query the Accepted property 
 	to find out if the user pressed "OK" or "Yes"; if neither of these was pressed, 
 	Accepted will be False.
 	"""
@@ -228,6 +207,7 @@ class dStandardButtonDialog(dDialog):
 		self._yes = self._extractKey((properties, kwargs), "Yes")
 		self._no = self._extractKey((properties, kwargs), "No")
 		self._help = self._extractKey((properties, kwargs), "Help")
+		self._cancelOnEscape = True
 		super(dStandardButtonDialog, self).__init__(parent=parent, properties=properties, *args, **kwargs)
 		self._baseClass = dStandardButtonDialog
 		self._accepted = False
@@ -266,7 +246,12 @@ class dStandardButtonDialog(dDialog):
 			flags = wx.OK
 		# Initialize the button references
 		self.btnOK = self.btnCancel = self.btnYes = self.btnNo = self.btnHelp = None
-		self.stdButtonSizer = sbs = self.CreateButtonSizer(flags)
+
+		# We need a Dabo sizer to wrap the wx sizer.
+		self.stdButtonSizer = dabo.ui.dSizer()
+		sbs = self.CreateButtonSizer(flags)
+		self.stdButtonSizer.append1x(sbs)
+
 		btns = [b.GetWindow() for b in sbs.GetChildren() if b.IsWindow()]
 		for btn in btns:
 			id_ = btn.GetId()
@@ -296,7 +281,7 @@ class dStandardButtonDialog(dDialog):
 				buttons.append(win)
 		for pos, btn in enumerate(buttons[1:]):
 			btn.MoveAfterInTabOrder(buttons[pos-1])
-		if cancel or no:
+		if self.CancelOnEscape:
 			# The default Escape behavior destroys the dialog, so we need to replace
 			# this with out own.
 			self.SetEscapeId(wx.ID_NONE)
@@ -304,41 +289,75 @@ class dStandardButtonDialog(dDialog):
 				self.bindKey("esc", self._onCancel)
 			elif no:
 				self.bindKey("esc", self._onNo)
+			elif ok:
+				self.bindKey("esc", self._onOK)
+			elif yes:
+				self.bindKey("esc", self._onYes)
+				
 
 		# Let the user add their controls
 		super(dStandardButtonDialog, self)._addControls()
 
 		# Just in case user changed Self.Sizer, update our reference:
-		bs = dabo.ui.dSizer("v")
-		bs.append((0, sz.DefaultBorder/2))
-		bs.append(sbs, "x")
-		bs.append((0, sz.DefaultBorder))
-		sz.append(bs, "x")
+		sz = self.Sizer
+		if self.ButtonSizerPosition is None:
+			# User code didn't add it, so we must.
+			bs = dabo.ui.dSizer("v")
+			bs.append((0, sz.DefaultBorder/2))
+			bs.append(self.ButtonSizer, "x")
+			bs.append((0, sz.DefaultBorder))
+			sz.append(bs, "x")
+		self.layout()
 
 	################################################
-	#  Handlers for the standard buttons
+	#    Handlers for the standard buttons. 
+	################################################
+	# Note that onOK() and 
+	# onCancel() are the names of the old event handlers, and 
+	# code has been written to use these. So as not to break this
+	# older code, we issue a deprecation warning and call the
+	# old handler.
 	def _onOK(self, evt):
 		self.Accepted = True
-		self.onOK()
+		try:
+			self.onOK()
+		except TypeError:
+			warnings.warn(_("The onOK() handler is deprecated. Use the runOK() method instead"), 
+				Warning)
+			self.onOK(None)
+		except AttributeError:
+			# New code should not have onOK
+			pass
+		self.runOK()
 		self.EndModal(kons.DLG_OK)
 	def _onCancel(self, evt):
-		self.onCancel()
+		try:
+			self.onCancel()
+		except TypeError:
+			warnings.warn(_("The onCancel() handler is deprecated. Use the runCancel() method instead"), 
+				Warning)
+			self.onCancel(None)
+		except AttributeError:
+			# New code should not have onCancel
+			pass
+		self.runCancel()
 		self.EndModal(kons.DLG_CANCEL)
 	def _onYes(self, evt):
 		self.Accepted = True
-		self.onYes()
+		self.runYes()
 		self.EndModal(kons.DLG_YES)
 	def _onNo(self, evt):
-		self.onNo()
+		self.runNo()
 		self.EndModal(kons.DLG_NO)
 	def _onHelp(self, evt):
-		self.onHelp()
+		self.runHelp()
+
 	# The following are stub methods that can be overridden when needed.
-	def onOK(self): pass
-	def onCancel(self): pass
-	def onYes(self): pass
-	def onNo(self): pass
-	def onHelp(self): pass
+	def runOK(self): pass
+	def runCancel(self): pass
+	def runYes(self): pass
+	def runNo(self): pass
+	def runHelp(self): pass
 	################################################
 
 	
@@ -388,8 +407,22 @@ class dStandardButtonDialog(dDialog):
 		return getattr(self, "stdButtonSizer", None)
 
 
+	def _getButtonSizerPosition(self):
+		return self.ButtonSizer.getPositionInSizer()
+
+
 	def _getCancelButton(self):
 		return self.btnCancel
+
+
+	def _getCancelOnEscape(self):
+		return self._cancelOnEscape
+
+	def _setCancelOnEscape(self, val):
+		if self._constructed():
+			self._cancelOnEscape = val
+		else:
+			self._properties["CancelOnEscape"] = val
 
 
 	def _getHelpButton(self):
@@ -414,9 +447,18 @@ class dStandardButtonDialog(dDialog):
 	ButtonSizer = property(_getButtonSizer, None, None,
 			_("Returns a reference to the sizer controlling the Ok/Cancel buttons.  (dSizer)"))
 
+	ButtonSizerPosition = property(_getButtonSizerPosition, None, None,
+			_("""Returns the position of the Ok/Cancel buttons in the sizer.  (int)"""))
+
 	CancelButton = property(_getCancelButton, None, None,
 			_("Reference to the Cancel button on the form, if present  (dButton or None)."))
 	
+	CancelOnEscape = property(_getCancelOnEscape, _setCancelOnEscape, None,
+			_("""When True (default), pressing the Escape key will perform the same action 
+			as clicking the Cancel button. If no Cancel button is present but there is a No button, 
+			the No behavior will be executed. If neither button is present, the default button's 
+			action will be executed  (bool)"""))
+
 	HelpButton = property(_getHelpButton, None, None,
 			_("Reference to the Help button on the form, if present  (dButton or None)."))
 	
@@ -437,7 +479,6 @@ class dOkCancelDialog(dStandardButtonDialog):
 		kwargs["OK"] = kwargs["Cancel"] = True
 		super(dOkCancelDialog, self).__init__(parent, properties, *args, **kwargs)
 		self._baseClass = dOkCancelDialog
-		
 
 class dYesNoDialog(dStandardButtonDialog):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
@@ -445,7 +486,6 @@ class dYesNoDialog(dStandardButtonDialog):
 		kwargs["OK"] = kwargs["Cancel"] = False
 		super(dYesNoDialog, self).__init__(parent, properties, *args, **kwargs)
 		self._baseClass = dYesNoDialog
-
 
 
 if __name__ == "__main__":
