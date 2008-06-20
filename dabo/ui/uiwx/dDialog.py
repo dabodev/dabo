@@ -207,6 +207,9 @@ class dStandardButtonDialog(dDialog):
 		self._yes = self._extractKey((properties, kwargs), "Yes")
 		self._no = self._extractKey((properties, kwargs), "No")
 		self._help = self._extractKey((properties, kwargs), "Help")
+		# Check for both OK and Yes. This simply does not work, at least with wxPython.
+		if self._ok and self._yes:
+			raise ValueError, _("Dialogs cannot have both 'OK' and 'Yes' buttons.")
 		self._cancelOnEscape = True
 		super(dStandardButtonDialog, self).__init__(parent=parent, properties=properties, *args, **kwargs)
 		self._baseClass = dStandardButtonDialog
@@ -255,22 +258,36 @@ class dStandardButtonDialog(dDialog):
 		btns = [b.GetWindow() for b in sbs.GetChildren() if b.IsWindow()]
 		for btn in btns:
 			id_ = btn.GetId()
-			if id_ == wx.ID_OK:
-				self.btnOK = btn
-				mthd = self._onOK
-			elif id_ == wx.ID_CANCEL:
-				self.btnCancel = btn
-				mthd = self._onCancel
-			elif id_ == wx.ID_YES:
-				self.btnYes = btn
+			if id_ == wx.ID_YES:
+				self.btnYes = newbtn = dabo.ui.dButton(btn.Parent)
 				mthd = self._onYes
 			elif id_ == wx.ID_NO:
-				self.btnNo = btn
+				self.btnNo = newbtn = dabo.ui.dButton(btn.Parent)
 				mthd = self._onNo
+			elif id_ == wx.ID_OK:
+				self.btnOK = newbtn = dabo.ui.dButton(btn.Parent)
+				mthd = self._onOK
+			elif id_ == wx.ID_CANCEL:
+				self.btnCancel = newbtn = dabo.ui.dButton(btn.Parent)
+				mthd = self._onCancel
 			elif id_ == wx.ID_HELP:
 				self.btnHelp = btn
+				newbtn = None
 				mthd = self._onHelp
-			btn.Bind(wx.EVT_BUTTON, mthd)
+			if newbtn is None:
+				# Only the Help button cannot be wrapped, as it is platform-specific in appearance.
+				btn.Bind(wx.EVT_BUTTON, mthd)
+			else:
+				newbtn.Caption = btn.GetLabel()
+				pos = dabo.ui.getPositionInSizer(btn)
+				sz = btn.GetContainingSizer()
+				sz.Replace(btn, newbtn)
+				btn.Destroy()
+				newbtn.bindEvent(dEvents.Hit, mthd)
+		if ok:
+			self.OKButton.DefaultButton = True
+		elif yes:
+			self.YesButton.DefaultButton = True
 			
 		# Wx rearranges the order of the buttons per platform conventions, but
 		# doesn't rearrange the tab order for us. So, we do it manually:
@@ -281,19 +298,8 @@ class dStandardButtonDialog(dDialog):
 				buttons.append(win)
 		for pos, btn in enumerate(buttons[1:]):
 			btn.MoveAfterInTabOrder(buttons[pos-1])
-		if self.CancelOnEscape:
-			# The default Escape behavior destroys the dialog, so we need to replace
-			# this with out own.
-			self.SetEscapeId(wx.ID_NONE)
-			if cancel:
-				self.bindKey("esc", self._onCancel)
-			elif no:
-				self.bindKey("esc", self._onNo)
-			elif ok:
-				self.bindKey("esc", self._onOK)
-			elif yes:
-				self.bindKey("esc", self._onYes)
-				
+		self.SetEscapeId(wx.ID_NONE)
+		self.bindKey("esc", self._onEscapePressed)
 
 		# Let the user add their controls
 		super(dStandardButtonDialog, self)._addControls()
@@ -308,6 +314,19 @@ class dStandardButtonDialog(dDialog):
 			bs.append((0, sz.DefaultBorder))
 			sz.append(bs, "x")
 		self.layout()
+
+
+	def _onEscapePressed(self, evt):
+		if self.CancelOnEscape:
+			if self.CancelButton:
+				self._onCancel(evt)
+			elif self.NoButton:
+				self._onNo(evt)
+			elif self.OKButton:
+				self._onOK(evt)
+			elif self.YesButton:
+				self._onYes(evt)
+
 
 	################################################
 	#    Handlers for the standard buttons. 
