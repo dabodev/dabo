@@ -333,9 +333,8 @@ class dApp(dObject):
 	
 	
 	def finish(self):
-		"""Called when the application event loop has ended.
-
-		You may also call this explicitly to exit the application event loop.
+		"""Called when the application event loop has ended. You may also 
+		call this explicitly to exit the application event loop.
 		"""
 		self.uiApp.exit()
 		self._persistMRU()
@@ -344,6 +343,14 @@ class dApp(dObject):
 		self._tempFileHolder.release()
 		dabo.infoLog.write(_("Application finished."))
 		self._finished = True
+		self.afterFinish()
+
+
+	def afterFinish(self):
+		"""Stub method. When this is called, the app has already terminated, and you have 
+		one last chance to execute code by overriding this method.
+		"""
+		pass
 
 
 	def _setProjInfo(self):
