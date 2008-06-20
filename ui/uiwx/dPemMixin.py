@@ -1065,34 +1065,8 @@ class dPemMixin(dPemMixinBase):
 		
 		
 	def getPositionInSizer(self):
-		""" Returns the current position of this control in its containing sizer. 
-
-		This is useful for when a control needs to be re-created in place. If the 
-		containing sizer is a box sizer, the integer position will be returned. 
-		If it is a grid sizer, a row,col tuple will be returned. If the object is 
-		not contained in a sizer, None will be returned.
-		"""
-		sz = self.GetContainingSizer()
-		if not sz:
-			return None
-		if isinstance(sz, wx.BoxSizer):
-			chil = sz.GetChildren()
-			for pos in range(len(chil)):
-				# Yeah, normally we'd just iterate over the children, but
-				# we want the position, so...
-				szitem = chil[pos]
-				if szitem.IsWindow():
-					if szitem.GetWindow() == self:
-						return pos
-			# If we reached here, something's wrong!
-			dabo.errorLog.write(_("Containing sizer did not match item %s") % self.Name)
-			return None
-		elif isinstance(sz, wx.GridBagSizer):
-			# Return a row,col tuple
-			row, col = sz.GetItemPosition(self)
-			return (row, col)
-		else:
-			return None
+		"""Convenience method to let you call this directly on the object."""
+		return dabo.ui.getPositionInSizer(self)
 	
 	
 	def setAll(self, prop, val, recurse=True, filt=None):
