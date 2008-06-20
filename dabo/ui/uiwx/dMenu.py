@@ -141,7 +141,6 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		# Process any 'special' menus
 		try:
 			special = daboItem._special
-			print special
 		except AttributeError:
 			return
 		if special == "pref":
