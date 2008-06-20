@@ -23,6 +23,9 @@
 
 ### Settings - begin
 
+# Do we write info-level messages to stdout?
+verboseLogging = False
+
 # Event logging is turned off globally by default for performance reasons.
 # Set to True (and also set LogEvents on the object(s)) to get logging.
 eventLogging = False
