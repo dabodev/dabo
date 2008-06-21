@@ -116,11 +116,14 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		the class's IncludeDefaultPages property is True.
 		"""
 		af = self.Application.ActiveForm
+		if not af or af is self:
+			af = self.Parent
 		try:
 			mb = af.MenuBar
 			menuOK = True
 		except:
 			menuOK = False
+			mb = None
 		if menuOK:
 			pm = af.PreferenceManager.menu
 			self.preferenceKeys.append(pm)
