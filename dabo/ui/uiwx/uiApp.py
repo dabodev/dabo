@@ -528,7 +528,7 @@ class uiApp(dObject, wx.App):
 			af.onEditPreferences(evt)
 		except AttributeError:
 			if self.PreferenceDialogClass:
-				dlgPref = self.PreferenceDialogClass()
+				dlgPref = self.PreferenceDialogClass(af)
 				if isinstance(dlgPref, PreferenceDialog):
 					if af:
 						af.fillPreferenceDialog(dlgPref)
