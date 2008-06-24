@@ -898,7 +898,7 @@ class LayoutSpacerPanel(LayoutPanel):
 		csi = lp.ControllingSizerItem
 		if sizerAtts:
 			cs.setItemProps(csi, sizerAtts)
-		self.Controller.select(self.Parent)
+		self.Controller.select(lp)
 		dabo.ui.callAfter(self.Form.updateApp)
 
 
