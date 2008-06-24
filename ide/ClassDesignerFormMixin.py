@@ -1472,7 +1472,8 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		elif isinstance(self, dabo.ui.dDialog):
 			ret["AutoSize"] = {"type" : bool, "readonly" : False}
 			ret["Centered"] = {"type" : bool, "readonly" : False}
-			ret["ReleaseOnEscape"] = {"type" : bool, "readonly" : False}
+			if isinstance(self, dabo.ui.dStandardButtonDialog):
+				ret["CancelOnEscape"] = {"type" : bool, "readonly" : False}
 		return ret
 		
 

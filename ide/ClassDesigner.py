@@ -3339,7 +3339,7 @@ class ClassDesigner(dabo.dApp):
 				self.Sizer.DefaultSpacing = 10
 				hsz = dui.dSizer("h")
 				lbl = dui.dLabel(self, Caption=_("Number of Slots:"))
-				txt = dui.dSpinner(self, RegID="slotcount", Value=defaultSlotCount)
+				txt = dui.dSpinner(self, RegID="slotcount", Value=defaultSlotCount, Min=1)
 				hsz.append(lbl, halign="right")
 				hsz.appendSpacer(4)
 				hsz.append(txt, 1, halign="left")
