@@ -381,7 +381,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 						# it's a locally resolvable reference.
 						try:
 							self.__src = eval(ds)
-						except: pass
+							self._srcIsBizobj = isinstance(self.__src, dabo.biz.dBizobj)
+						except:
+							dabo.errorLog.write("Couldn't evaluate DataSource '%s'" % ds)
 					else:
 						# See if it's a RegID reference to another object
 						try:
