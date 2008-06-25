@@ -187,7 +187,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		"""Return the list of (Dabo) methods for this class or instance."""
 		try:
 			methodList = cls.__methodList
-		except:
+		except AttributeError:
 			methodList = None
 
 		if refresh:

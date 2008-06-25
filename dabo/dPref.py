@@ -218,8 +218,8 @@ class dPref(object):
 		crs = self._cursor
 		try:
 			typ = self._typeDict[type(val)]
-		except:
-			print "BAD TYPE", type(val)
+		except KeyError:
+			dabo.errorLog.write(_("BAD TYPE: %s") % type(val))
 			typ = "?"
 		# Convert it to a string that can be properly converted back
 		val = self._encodeType(val, typ)

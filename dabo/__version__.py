@@ -18,7 +18,7 @@ if os.path.exists(os.path.join(package_path, ".svn")):
 		_revision = os.popen("svnversion %s" % package_path).read().strip()
 		if not _revision[0].isdigit():
 			_revision = None
-	except:
+	except IndexError:
 		_revision = None
 
 if _revision is None:

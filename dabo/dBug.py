@@ -60,9 +60,8 @@ def loggit(fnc):
 	value will be 'functionCall.log'.
 	"""
 	try:
-		if loggit.fhwr:
-			pass
-	except:
+		loggit.fhwr
+	except AttributeError:
 		# ... open it
 		fname = dabo.loggitFile
 		loggit.fhwr = open(fname, "a")
@@ -74,8 +73,8 @@ def loggit(fnc):
 			for ag in args:
 				try:
 					loggit.fhwr.write(" %s" % ag)
-				except:
-					loggit.fhwr.write(" ERR")
+				except StandardError, e:
+					loggit.fhwr.write(" ERR: %s" % e)
 			loggit.fhwr.write("\n")
 		if kwargs:
 			loggit.fhwr.write("\tKWARGS:%s\n" % kwargs)
