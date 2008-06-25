@@ -353,7 +353,9 @@ class dBizobj(dObject):
 		if current_row >= 0:
 			try:
 				self.RowNumber = current_row
-			except: pass
+			except StandardError, e:
+				# Need to record what sort of error could be thrown
+				dabo.errorLog.write(_("Failed to set RowNumber. Error: %s") % e)
 
 
 	def save(self, startTransaction=True):
@@ -638,7 +640,7 @@ class dBizobj(dObject):
 		try:
 			currPK = self.getPK()
 			currRow = None
-		except:
+		except dException.dException:
 			# No PK defined
 			currPK = None
 			currRow = self.RowNumber
@@ -708,11 +710,12 @@ class dBizobj(dObject):
 				self._moveToRowNum(row)
 				try:
 					func(*args, **kwargs)
-				except:
-					# Reset things and bail:
+				except StandardError, e:
+					# Reset things and bail
+					dabo.errorLog.write(_("Error in scanChangedRows: %s") % e)
 					self._CurrentCursor = old_currentCursorKey
 					self._positionUsingPK(old_pk)
-					raise
+					raise e
 
 		self._CurrentCursor = old_currentCursorKey
 		if old_pk is not None:
@@ -889,10 +892,7 @@ class dBizobj(dObject):
 		in a particular order. All the checking on the parameters is done
 		in the cursor.
 		"""
-		try:
-			cc = self._CurrentCursor
-		except:
-			cc = None
+		cc = self._CurrentCursor
 		if cc is not None:
 			self._CurrentCursor.sort(col, ord, caseSensitive)
 
@@ -1036,10 +1036,7 @@ class dBizobj(dObject):
 	def isAnyChanged(self, useCurrentParent=None):
 		"""Returns True if any record in the current record set has been changed."""
 		if useCurrentParent is None:
-			try:
-				cc = self._CurrentCursor
-			except:
-				cc = None
+			cc = self._CurrentCursor
 		else:
 			key = self.getParentLinkValue()
 			cc = self.__cursors.get(key, None)
@@ -1064,10 +1061,7 @@ class dBizobj(dObject):
 		By default, only the current record is checked. Call isAnyChanged() to
 		check all records.
 		"""
-		try:
-			cc = self._CurrentCursor
-		except:
-			cc = None
+		cc = self._CurrentCursor
 		if cc is None:
 			# No cursor, no changes.
 			return False
@@ -1404,10 +1398,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		to include, and rows is the number of rows to return.
 		"""
 		ret = None
-		try:
-			cc = self._CurrentCursor
-		except:
-			cc = None
+		cc = self._CurrentCursor
 		if cc is not None:
 			ret = self._CurrentCursor.getDataSet(flds, rowStart, rows)
 		return ret
@@ -1704,7 +1695,7 @@ afterDelete() which is only called after a delete().""")
 	def _getAutoSQL(self):
 		try:
 			return self._CurrentCursor.getSQL()
-		except:
+		except AttributeError:
 			return None
 
 
@@ -1951,7 +1942,7 @@ afterDelete() which is only called after a delete().""")
 	def _getRowCount(self):
 		try:
 			ret = self._CurrentCursor.RowCount
-		except:
+		except AttributeError:
 			ret = None
 		return ret
 
@@ -1959,7 +1950,7 @@ afterDelete() which is only called after a delete().""")
 	def _getRowNumber(self):
 		try:
 			ret = self._CurrentCursor.RowNumber
-		except:
+		except AttributeError:
 			ret = None
 		return ret
 
