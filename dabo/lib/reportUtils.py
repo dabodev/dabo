@@ -24,7 +24,7 @@ class TempFileHolder(object):
 		for f in self._tempFiles:
 			try:
 				os.remove(f)
-			except:
+			except OSError:
 				pass
 
 	def append(self, f):

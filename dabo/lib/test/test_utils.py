@@ -24,7 +24,7 @@ class Test_Utils(unittest.TestCase):
 		self.tempTestDir = tempfile.gettempdir() + os.sep + "relpath_tests_dir"
 		try:
 			shutil.rmtree(self.tempTestDir)
-		except:
+		except OSError:
 			pass
 		os.mkdir(self.tempTestDir)
 		os.chdir(self.tempTestDir)

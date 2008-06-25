@@ -958,6 +958,7 @@ class ReportWriter(object):
 			try:
 				c.setFont(fontName, fontSize)
 			except:
+		    	### FIXME
 				# An unavailable fontName was likely specified. The rw docs promise to
 				# default to Helvetica in this case.
 				c.setFont("Helvetica", fontSize)
@@ -1235,6 +1236,7 @@ class ReportWriter(object):
 			try:
 				c.drawImage(imageData, 0, 0, width, height, mask)
 			except:
+		    	### FIXME
 				pass			
 		## All done, restore the canvas state to how we found it (important because
 		## rotating, scaling, etc. are cumulative, not absolute and we don't want
@@ -1498,6 +1500,7 @@ class ReportWriter(object):
 						try:
 							ev = eval(show)
 						except:
+					    	### FIXME
 							## expression failed to eval: default to True (show it)
 							ev = True
 						if not ev:

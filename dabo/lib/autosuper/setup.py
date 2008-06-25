@@ -38,6 +38,6 @@ try:
     pyrex_commands.update(ext)
     setup(**pyrex_commands)
 
-except:
-    raise
+except ImportError, e:
     setup(**params)
+    raise e

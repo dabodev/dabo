@@ -146,7 +146,7 @@ def getDateFromString(strVal, formats=None):
 			# Fall back to the current locale setting in user's os account:
 			try:
 				ret = datetime.date(*time.strptime(strVal, "%x")[:3])
-			except:
+			except IndexError:
 				pass
 	return ret
 
@@ -217,7 +217,7 @@ def getDateTimeFromString(strVal, formats=None):
 			# Fall back to the current locale setting in user's os account:
 			try:
 				ret = datetime.datetime(*time.strptime(strVal, "%x %X"))
-			except:
+			except IndexError:
 				pass
 	return ret
 

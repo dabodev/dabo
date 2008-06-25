@@ -51,7 +51,7 @@ class SimpleCrypt(object):
 		try:
 			chunks = [chr(int(aString[i] + aString[i+1], 16)) 
 					for i in range(0, len(aString), 2)]
-		except:
-			raise ValueError, "Incorrectly-encrypted password"
+		except IndexError:
+			raise ValueError, _("Incorrectly-encrypted password")
 		return "".join(chunks)
 

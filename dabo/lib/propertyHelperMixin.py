@@ -186,7 +186,7 @@ class PropertyHelperMixin(object):
 					try:
 						self._setName(_propDict[prop])
 						continue
-					except:
+					except AttributeError:
 						# Not a class that implements _setName()
 						pass
 				propRef = eval("self.__class__.%s" % prop)
@@ -230,21 +230,22 @@ class PropertyHelperMixin(object):
 					continue
 				else:
 					raise AttributeError, "'%s' is not a property." % prop
-			if isinstance(eval("self.%s" % prop), basestring):
-				# If this is property holds strings, we need to quote the value.
-				try:
-					exec("self.%s = '%s'" % (prop, val) )
-				except:
-					raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
-			else:
-				try:
-					exec("self.%s = %s" % (prop, val) )
-				except:
-					# Still could be a string, if the original value was None
-					try:
-						exec("self.%s = '%s'" % (prop, val) )
-					except:
-						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
+			setattr(self, prop, val)
+# 			if isinstance(eval("self.%s" % prop), basestring):
+# 				# If this is property holds strings, we need to quote the value.
+# 				try:
+# 					exec("self.%s = '%s'" % (prop, val) )
+# 				except :
+# 					raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
+# 			else:
+# 				try:
+# 					exec("self.%s = %s" % (prop, val) )
+# 				except:
+# 					# Still could be a string, if the original value was None
+# 					try:
+# 						exec("self.%s = '%s'" % (prop, val) )
+# 					except:
+# 						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
 		
 	
 	def _setKwEventBindings(self, kwEvtDict):
@@ -314,7 +315,7 @@ class PropertyHelperMixin(object):
 			else:
 				try:
 					propVal = propRef.fget(cls)
-				except:
+				except AttributeError:
 					# There are many reasons the propval may not be determined for now, 
 					# such as not being a live instance.
 					propVal = None

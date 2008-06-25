@@ -743,7 +743,8 @@ import sys
 		else:
 			try:
 				currSizer = sizerDict[currParent].pop()
-			except: pass
+			except (KeyError, IndexError):
+				pass
 """
 		self._grdPgfText = """		parentStack.append(currParent)
 		sizerDict[currParent].append(currSizer)
@@ -769,7 +770,8 @@ import sys
 		if sizerDict[currParent]:
 			try:
 				currSizer = sizerDict[currParent].pop()
-			except: pass
+			except (KeyError, IndexError):
+				pass
 		else:
 			currSizer = None
 """
@@ -809,7 +811,8 @@ import sys
 		self._szPopText = """		if sizerDict[currParent]:
 			try:
 				currSizer = sizerDict[currParent].pop()
-			except: pass
+			except (KeyError, IndexError):
+				pass
 		else:
 			currSizer = None
 """
@@ -820,7 +823,8 @@ import sys
 		else:
 			try:
 				currSizer = sizerDict[currParent].pop()
-			except: pass
+			except (KeyError, IndexError):
+				pass
 """
 		self._innerPropText = """	%(prop)s = property(%(pdg)s, %(pds)s, %(pdd)s, 
 			\"\"\"%(pdc)s\"\"\")
