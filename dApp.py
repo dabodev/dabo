@@ -73,7 +73,7 @@ class TempFileHolder(object):
 					if not f.endswith(".pyc"):
 						# Don't worry about the .pyc files, since they may not be there
 						print "Could not delete %s: %s" % (f, e)
-		except:
+		except StandardError, e:
 			# In these rare cases, Python has already 'gone away', so just bail
 			pass
 	
@@ -436,7 +436,7 @@ class dApp(dObject):
 			localVers = dabo.version["file_revision"]
 			try:
 				localVers = localVers.split(":")[1]
-			except:
+			except IndexError:
 				# Not a mixed version
 				pass
 			ret = int("".join([ch for ch in localVers if ch.isdigit()]))
@@ -526,8 +526,10 @@ class dApp(dObject):
 					url = "http://dabodev.com/frameworkVersions/latest?project=%s" % abbrev
 					try:
 						vers = int(urllib2.urlopen(url).read())
-					except:
+					except ValueError:
 						vers = -1
+					except StandardError, e:
+						dabo.errorLog.write(_("Failed to open URL '%s'. Error: %s") % (url, e))
 					localVers = self._currentUpdateVersion(nm)
 					retAvailable = (localVers < vers)
 				prf.setValue("last_check", now)
@@ -550,9 +552,9 @@ class dApp(dObject):
 			webpath = self.webUpdateDirs[pn.lower()]
 			try:
 				resp = urllib2.urlopen(fileurl % (abbrev, currvers))
-			except:
+			except StandardError, e:
 				# No internet access, or Dabo site is down.
-				dabo.errorLog.write(_("Cannot access the Dabo site."))
+				dabo.errorLog.write(_("Cannot access the Dabo site. Error: %s") % e)
 				self._resetWebUpdateCheck()
 				return None
 			respFiles = resp.read()
@@ -581,9 +583,12 @@ class dApp(dObject):
 		url = "http://dabodev.com/frameworkVersions/latest"
 		try:
 			vers = int(urllib2.urlopen(url).read())
-		except:
+		except ValueError:
 			vers = self._currentUpdateVersion()
-			self.PreferenceManager.setValue("current_version", vers)
+		except StandardError, e:
+			dabo.errorLog.write(_("Cannot access the Dabo site. Error: %s") % e)
+			vers = self._currentUpdateVersion()
+		self.PreferenceManager.setValue("current_version", vers)
 		return vers
 		
 
@@ -886,15 +891,15 @@ class dApp(dObject):
 		for conn in self.dbConnections:
 			try:
 				conn.close()
-			except:
-				pass
+			except StandardError, e:
+				dabo.errorLog.write(_("Failed to close connection. Error: %s") % e)
 	
 	
 	def addConnectInfo(self, ci, name=None):
 		if name is None:
 			try:
 				name = ci.Name
-			except:
+			except AttributeError:
 				# Use a default name
 				name = "%s@%s" % (ci.User, ci.Host)
 		self.dbConnectionDefs[name] = ci
@@ -1100,11 +1105,13 @@ class dApp(dObject):
 		if not ret:
 			try:
 				ret = self.ActiveForm.BasePrefKey
-			except: pass
+			except AttributeError: 
+				pass
 		if not ret:
 			try:
 				ret = self.MainForm.BasePrefKey
-			except: pass
+			except AttributeError:
+				pass
 		if not ret:
 			dabo.infoLog.write(_("WARNING: No BasePrefKey has been set for this application."))
 			try:
@@ -1141,8 +1148,8 @@ class dApp(dObject):
 		if isinstance(val, basestring):
 			try:
 				f = open(val, "a")
-			except:
-				dabo.errorLog.write(_("Could not open file: '%s'") % val)
+			except IOError, e:
+				dabo.errorLog.write(_("Could not open file: '%s': %s") % (val, e))
 				return
 		else:
 			f = val

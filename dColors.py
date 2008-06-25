@@ -231,7 +231,7 @@ def colorTupleFromName(color):
 	except KeyError:
 		try:
 			ret = colorTupleFromHex(color)
-		except:
+		except InvalidCharError:
 			ret = colorTupleFromString(color)
 	return ret
 	
