@@ -108,7 +108,7 @@ class EventMixin(object):
 				break
 		try:
 			self.__raisedEvents.pop()
-		except:
+		except (AttributeError, IndexError):
 			# This is a deleted object; no need (or ability!) to do anything else.
 			return
 		
@@ -209,7 +209,7 @@ class EventMixin(object):
 				break
 			try:
 				parent = parent.Parent
-			except:
+			except AttributeError:
 				parent = self.Form
 				stop = True
 

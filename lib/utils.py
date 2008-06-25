@@ -61,10 +61,7 @@ def getUserHomeDirectory():
 
 	# os.path.expanduser should work on all posix systems (*nix, Mac, and some
 	# Windows NT setups):
-	try:
-		hd = os.path.expanduser("~")
-	except:
-		pass
+	hd = os.path.expanduser("~")
 
 	# If for some reason the posix function above didn't work, most Linux setups
 	# define the environmental variable $HOME, and perhaps this is done sometimes
@@ -122,7 +119,7 @@ def getUserAppDataDirectory(appName="Dabo"):
 			# try to create the dabo directory:
 			try:
 				os.makedirs(dd)
-			except:
+			except OSError:
 				sys.stderr.write("Couldn't create the user setting directory (%s)." % dd)
 				dd = None
 	return dd

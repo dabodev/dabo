@@ -88,7 +88,7 @@ class Form(dabo.ui.dForm):
 		for f in self._tempFiles:
 			try:
 				os.remove(f)
-			except:
+			except OSError:
 				# perhaps it is already gone, removed explicitly.
 				pass
 
@@ -328,7 +328,8 @@ class Form(dabo.ui.dForm):
 			self.pageFrame.unbindEvent()
 			self.pageFrame.release()
 			del self.__dict__["PageFrame"]
-		except: pass
+		except KeyError:
+			pass
 		
 		if self.beforeSetupPageFrame():
 			self.pageFrame = PageFrame.PageFrame(self, tabStyle=self.pageFrameStyle,
@@ -626,7 +627,8 @@ class Form(dabo.ui.dForm):
 		ret = None
 		try:
 			ret = self._allFieldSpecs[tbl]
-		except: pass
+		except KeyError:
+			pass
 		return ret
 		
 	
@@ -852,7 +854,7 @@ class Form(dabo.ui.dForm):
 				continue
 			try:
 				c.Alignment
-			except:
+			except AttributeError:
 				continue
 			objects.append(((c.Left, c.Top + currentY), c))
 		return objects

@@ -16,7 +16,7 @@ class Bizobj(dabo.biz.dBizobj):
 		try:
 			cursorInfo, alias = fld.split(" as ")
 			table, field = cursorInfo.split(".")		
-		except:
+		except ValueError:
 			# if fld wasn't sent as the conventional "table.field as alias",
 			# then there's nothing to automatically do.
 			alias, table, field = None, None, None

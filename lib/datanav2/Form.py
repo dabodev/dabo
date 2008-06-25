@@ -256,7 +256,7 @@ class Form(dabo.ui.dForm):
 			self.pageFrame.unbindEvent()
 			self.pageFrame.release()
 			del self.__dict__["PageFrame"]
-		except: pass
+		except KeyError: pass
 		
 		if self.beforeSetupPageFrame():
 			self.pageFrame = PageFrame.PageFrame(self, tabStyle=self.PageFrameStyle,
@@ -691,7 +691,7 @@ class Form(dabo.ui.dForm):
 				continue
 			try:
 				c.DataField
-			except:
+			except AttributeError:
 				continue
 			objects.append(((c.Left, c.Top + currentY), c))
 		return objects

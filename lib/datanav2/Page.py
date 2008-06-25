@@ -164,7 +164,7 @@ class SelectPage(Page):
 		if action == "remove":
 			try:
 				del self.sortFields[self.sortDS]
-			except:
+			except KeyError:
 				pass
 		elif action== "show":
 			# Get the descrips and order

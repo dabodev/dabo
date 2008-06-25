@@ -106,7 +106,7 @@ def genConnXML(d):
 				escQuote(d["name"], noQuote=True), escQuote(d["host"], noQuote=True), 
 				escQuote(d["database"], noQuote=True), escQuote(d["user"], noQuote=True), 
 				escQuote(d["password"], noQuote=True), d["port"])
-	except:
+	except KeyError:
 		# Not a valid conn info dict
 		ret = ""
 	return ret
