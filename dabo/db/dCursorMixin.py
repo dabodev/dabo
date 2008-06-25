@@ -653,7 +653,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def getType(self, val):
 		try:
 			ret = re.search("type '([^']+)'", str(type(val))).groups()[0]
-		except:
+		except IndexError:
 			ret = "-unknown-"
 		return ret
 
@@ -1303,7 +1303,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				if row is None:
 					# We deleted based on pk, don't delete flag for the current row.
 					return
-			except:
+			except KeyError:
 				pass
 
 		if row is None:
@@ -1705,7 +1705,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		try:
 			for fld in kf:
 				self._records[0][fld]
-		except:
+		except KeyError:
 			raise dException.MissingPKException, _("Primary key field does not exist in the data set: ") + fld
 
 
@@ -2359,7 +2359,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			try:
 				self._keyField = [fld[0] for fld in self.getFields(table)
 						if fld[2] ][0]
-			except: pass
+			except KeyError:
+				pass
 
 
 	def _getUserSQL(self):

@@ -90,7 +90,7 @@ class Oracle(dBackend):
 		#print "rs = cursor.getDataSet(): ", rs
 		try:
 			pkField = rs[0]["COLUMN_NAME"].strip()
-		except:
+		except KeyError:
 			pkField = None
 		# Now get the field info
 		sqlstr = """SELECT column_name, data_type, COALESCE(data_precision, data_length) "LENGTH",

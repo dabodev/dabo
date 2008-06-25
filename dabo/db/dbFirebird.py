@@ -133,7 +133,7 @@ class Firebird(dBackend):
 		rs = cursor.getDataSet(rows=1)
 		try:
 			pkField = rs[0]["column_name"].strip()
-		except:
+		except KeyError:
 			pkField = None
 		
 		# Now get the field info

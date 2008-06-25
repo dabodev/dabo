@@ -222,7 +222,7 @@ class dConnectInfo(dObject):
 	def _setPort(self, port):
 		try:
 			self._port = int(port)
-		except:
+		except ValueError:
 			self._port = None		
 
 
