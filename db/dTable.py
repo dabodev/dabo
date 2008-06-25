@@ -65,7 +65,7 @@ class dTable(dObject):
 		try:
 			idx = kwargs["Index"]
 			name = kwargs["Name"]
-		except:
+		except KeyError:
 			pass
 		else:
 			self._indexes.append(dIndex(Name=idx,Fields=name))
@@ -75,7 +75,7 @@ class dTable(dObject):
 		try:
 			pk = kwargs["IsPK"]
 			name = kwargs["Name"]
-		except:
+		except KeyError:
 			pass
 		else:
 			if pk == True:

@@ -89,7 +89,7 @@ class dConnection(dObject):
 	def _getName(self):
 		try:
 			return self.ConnectInfo.Name
-		except:
+		except AttributeError:
 			return "?"
 			
 
