@@ -26,7 +26,7 @@ class SortingForm(dabo.ui.dOkCancelDialog):
 	def _getChoices(self):
 		try:
 			return self.listBox.Choices
-		except:
+		except AttributeError:
 			return self._itms
 			
 	def _setChoices(self, chc):
@@ -39,7 +39,7 @@ class SortingForm(dabo.ui.dOkCancelDialog):
 	def _setListCaption(self, val):
 		try:
 			self.listBox.Caption = val
-		except:
+		except AttributeError:
 			self._listCaption = val
 
 
