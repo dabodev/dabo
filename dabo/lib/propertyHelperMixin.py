@@ -186,8 +186,7 @@ class PropertyHelperMixin(object):
 					try:
 						self._setName(_propDict[prop])
 						continue
-					except AttributeError:
-						# Not a class that implements _setName()
+					except NameError:
 						pass
 				propRef = eval("self.__class__.%s" % prop)
 				if type(propRef) == property:
