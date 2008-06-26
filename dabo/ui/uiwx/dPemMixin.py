@@ -2295,7 +2295,10 @@ class dPemMixin(dPemMixinBase):
 		
 		
 	def _getParent(self):
-		return self.GetParent()
+		try:
+			return self.GetParent()
+		except TypeError:
+			return None
 	
 	def _setParent(self, val):
 		if self._constructed():
