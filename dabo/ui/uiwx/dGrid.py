@@ -3512,8 +3512,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					row = bott
 				else:
 					row = top
-				self.SetGridCursor(row, self._lastCol)
-				self.SelectRow(row)
+				if self._lastCol is not None:
+					self.SetGridCursor(row, self._lastCol)
+					self.SelectRow(row)
 		elif mode == wx.grid.Grid.wxGridSelectColumns:
 			if (left != right) or (left != origCol):
 				# Attempting to select a range
@@ -4356,7 +4357,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		## pkm: we can't call this until after the grid is fully constructed. Need to fix.
 		try:
 			tbl = self.GetTable()
-		except AttributeError:
+		except TypeError:
 			tbl = None
 		if not tbl:
 			try:
