@@ -112,7 +112,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def GetRowLabelValue(self, row):
 		try:
 			return self.grid.RowLabels[row]
-		except:
+		except IndexError:
 			return ""
 
 
@@ -159,12 +159,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					typeDict[Decimal] = "decimal"
 				try:
 					col.DataType = typeDict[col.DataType]
-				except:
+				except KeyError:
 					# Not one of the standard types. Extract it from
 					# the string version of the type
 					try:
 						col.DataType = str(col.DataType).split("'")[1].lower()
-					except:
+					except IndexError:
 						# Something's odd. Print an error message and move on.
 						dabo.errorLog.write("Unknown data type found in setColumns(): %s"
 								% col.DataType)
@@ -321,7 +321,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				if rec and rec.has_key(field):
 					ret = not self.grid.DataSet[row][field]
 				return ret
-			except: pass
+			except (IndexError, KeyError):
+				pass
 			return ret
 		return True
 
@@ -342,7 +343,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		else:
 			try:
 				ret = self.grid.DataSet[row][field]
-			except:
+			except (IndexError, KeyError):
 				ret = ""
 		if ret is None:
 			ret = self.grid.NoneDisplay
@@ -569,7 +570,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 					args = ()
 				try:
 					oldVal = getattr(self, prop)
-				except:
+				except AttributeError:
 					needRefresh = True
 				setattr(self, prop, func(*args, **kwargs))
 				if needRefresh or oldVal != getattr(self, prop):
@@ -602,10 +603,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		"""Usually don't need this, but it helps to keep this in
 		line with other Dabo objects.
 		"""
-		try:
-			self.Parent.removeColumn(self)
-		except:
-			pass
+		self.Parent.removeColumn(self)
 
 
 	def _setAbsoluteFontZoom(self, newZoom):
@@ -750,7 +748,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		gridCol = -1
 		try:
 			grid = self.Parent
-		except:
+		except AttributeError:
 			grid = None
 		if grid is not None:
 			for idx, dCol in enumerate(grid.Columns):
@@ -1261,7 +1259,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _getListEditorChoices(self):
 		try:
 			v = self._listEditorChoices
-		except:
+		except AttributeError:
 			v = []
 		return v
 
@@ -1310,7 +1308,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _getSearchable(self):
 		try:
 			v = self._searchable
-		except:
+		except AttributeError:
 			v = self._searchable = True
 		return v
 
@@ -1324,7 +1322,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _getSortable(self):
 		try:
 			v = self._sortable
-		except:
+		except At:
 			v = self._sortable = True
 		return v
 
@@ -1384,7 +1382,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			# Make sure the grid is in sync:
 			try:
 				self.Parent.SetColSize(idx, v)
-			except:
+			except AttributeError:
 				# The grid may still be in the process of being created, so pass.
 				pass
 		return v
@@ -1878,7 +1876,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def GetCellValue(self, row, col):
 		try:
 			ret = self._Table.GetValue(row, col)
-		except:
+		except AttributeError:
 			ret = super(dGrid, self).GetCellValue(row, col)
 		return ret
 
@@ -1886,7 +1884,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def GetValue(self, row, col):
 		try:
 			ret = self._Table.GetValue(row, col)
-		except:
+		except AttributeError:
 			ret = super(dGrid, self).GetValue(row, col)
 		return ret
 
@@ -2115,7 +2113,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				# the grid. We can get enough info from getDataStructureFromDescription():
 				try:
 					structure = bizobj.getDataStructureFromDescription()
-				except:
+				except TypeError:
 					# Well, that call failed... seems that sqlite doesn't define a cursor
 					# description? I need to test this out. For now, fall back to the old
 					# code that gets the data structure by executing "select * from table
@@ -2139,7 +2137,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# Use the keyCaption values, if possible
 			try:
 				cap = keyCaption[colKey]
-			except:
+			except KeyError:
 				cap = colKey
 			col = self.addColumn(inBatch=True)
 			col.Caption = cap
@@ -2265,7 +2263,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				colObj._persist("Width")
 		try:
 			self.AutoSizeColumn(colNum, setAsMin=False)
-		except:
+		except wx.PyAssertionError:
 			pass
 		_setColSize(colNum)
 
@@ -2935,7 +2933,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				## it's been set as the property but because it wasn't part of the grid
 				## yet it hasn't yet taken effect: force it.
 				col.Width = col.Width
-		except:
+		except wx.PyAssertionError:
 			# If the underlying wx grid doesn't yet know about the column, such
 			# as when adding columns with inBatch=True, this can throw an error
 			if not inBatch:
@@ -3299,7 +3297,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		newCol = evt.EventData["col"]
 		try:
 			col = self.Columns[newCol]
-		except:
+		except IndexError:
 			col = None
 
 		if col:
@@ -3507,53 +3505,51 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			left, right = evt.GetLeftCol(), evt.GetRightCol()
 		except AttributeError:
 			left = right = evt.GetCol()
-		try:
-			if mode == wx.grid.Grid.wxGridSelectRows:
-				if (top != bott) or (top != origCol):
-					# Attempting to select a range
-					if top == origRow:
-						row = bott
-					else:
-						row = top
-					self.SetGridCursor(row, self._lastCol)
-					self.SelectRow(row)
-			elif mode == wx.grid.Grid.wxGridSelectColumns:
-				if (left != right) or (left != origCol):
-					# Attempting to select a range
-					if left == origCol:
-						col = right
-					else:
-						col = left
-					self.SetGridCursor(self._lastRow, col)
-					self.SelectCol(col)
-			else:
-				# Cells
-				chg = False
-				row, col = origRow, origCol
-				if top != bott:
-					chg = True
-					if top == origRow:
-						row = bott
-					else:
-						row = top
-				elif top != origRow:
-					# New row
-					chg = True
+		if mode == wx.grid.Grid.wxGridSelectRows:
+			if (top != bott) or (top != origCol):
+				# Attempting to select a range
+				if top == origRow:
+					row = bott
+				else:
 					row = top
-				if left != right:
-					chg = True
-					if left == origCol:
-						col = right
-					else:
-						col = left
-				elif left != origCol:
-					# New col
-					chg = True
+				self.SetGridCursor(row, self._lastCol)
+				self.SelectRow(row)
+		elif mode == wx.grid.Grid.wxGridSelectColumns:
+			if (left != right) or (left != origCol):
+				# Attempting to select a range
+				if left == origCol:
+					col = right
+				else:
 					col = left
-				if chg:
-					self.SetGridCursor(row, col)
-					self.SelectBlock(row, col, row, col)
-		except: pass
+				self.SetGridCursor(self._lastRow, col)
+				self.SelectCol(col)
+		else:
+			# Cells
+			chg = False
+			row, col = origRow, origCol
+			if top != bott:
+				chg = True
+				if top == origRow:
+					row = bott
+				else:
+					row = top
+			elif top != origRow:
+				# New row
+				chg = True
+				row = top
+			if left != right:
+				chg = True
+				if left == origCol:
+					col = right
+				else:
+					col = left
+			elif left != origCol:
+				# New col
+				chg = True
+				col = left
+			if chg:
+				self.SetGridCursor(row, col)
+				self.SelectBlock(row, col, row, col)
 
 
 	def __onWxGridEditorShown(self, evt):
@@ -3913,12 +3909,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			ret = None
 			bo = self.getBizobj()
 			try:
-				ret = self.getBizobj().getDataSet()
+				ret = bo.getDataSet()
 			except AttributeError:
 				# See if the DataSource is a reference
-				try:
-					ret = eval(self.DataSource)
-				except: pass
+				ret = self.Source
 			self._dataSet = ret
 		else:
 			try:
@@ -4132,7 +4126,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _getRowHeight(self):
 		try:
 			v = self._rowHeight
-		except:
+		except AttributeError:
 			v = self._rowHeight = self.GetDefaultRowSize()
 		return v
 
@@ -4163,7 +4157,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _getRowLabelWidth(self):
 		try:
 			v = self._rowLabelWidth
-		except:
+		except AttributeError:
 			v = self._rowLabelWidth = self.GetDefaultRowLabelSize()
 		return v
 
@@ -4279,19 +4273,19 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				try:
 					self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
 					self._selectionMode = "Row"
-				except:
+				except wx.PyAssertionError:
 					dabo.ui.callAfter(self._setSelectionMode, val)
 			elif val2 == "co":
 				try:
 					self.SetSelectionMode(wx.grid.Grid.wxGridSelectColumns)
 					self._selectionMode = "Col"
-				except:
+				except wx.PyAssertionError:
 					dabo.ui.callAfter(self._setSelectionMode, val)
 			else:
 				try:
 					self.SetSelectionMode(wx.grid.Grid.wxGridSelectCells)
 					self._selectionMode = "Cell"
-				except:
+				except wx.PyAssertionError:
 					dabo.ui.callAfter(self._setSelectionMode, val)
 			if self._selectionMode != orig:
 				self._checkSelectionType()
@@ -4362,7 +4356,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		## pkm: we can't call this until after the grid is fully constructed. Need to fix.
 		try:
 			tbl = self.GetTable()
-		except:
+		except AttributeError:
 			tbl = None
 		if not tbl:
 			try:

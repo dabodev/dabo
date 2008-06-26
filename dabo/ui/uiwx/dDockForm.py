@@ -253,7 +253,7 @@ class _dDockPanel(dabo.ui.dPanel):
 	def _getCaption(self):
 		try:
 			return self._caption
-		except:
+		except AttributeError:
 			self._caption = ""
 			return self._caption
 

@@ -715,7 +715,7 @@ Database error message: %s""") %	err
 		if dataSource is None and grid is not None:
 			# This is being called by a regular grid not tied to a bizobj
 			rowCount = grid.RowCount
-			rowNumber = grid.CurrentRow+1
+			rowNumber = grid.CurrentRow + 1
 		else:
 			bizobj = self.getBizobj(dataSource)
 			if bizobj is None:
@@ -723,8 +723,8 @@ Database error message: %s""") %	err
 					# Some situations, such as form preview mode, will
 					# store these directly, since they lack bizobjs
 					rowCount = self.rowCount
-					rowNumber = self.rowNumber+1
-				except:
+					rowNumber = self.rowNumber + 1
+				except AttributeError:
 					rowCount = 1
 					rowNumber = 1
 			else:

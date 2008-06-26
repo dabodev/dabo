@@ -147,7 +147,7 @@ import dShell
 
 try:
 	from dLinePlot import dLinePlot
-except:
+except ImportError:
 	pass
 
 # dDockForm is not available with wxPython < 2.7
@@ -333,26 +333,23 @@ def getEventData(wxEvt):
 			# Cycle through all the attributes of the wx events, and evaluate them
 			# for insertion into the dEvent.EventData dict.
 			d = dir(wxEvt)
-			try:
-				upPems = [p for p in d if p[0].isupper()]
-				for pem in upPems:
-					if pem in ("Skip", "Clone", "Destroy", "Button", "ButtonIsDown",
-							"GetLogicalPosition", "ResumePropagation", "SetEventObject",
-							"SetEventType", "SetId", "SetExtraLong", "SetInt", "SetString",
-							"SetTimestamp", "StopPropagation"):
-						continue
-					try:
-						pemName = pem[0].lower() + pem[1:]
-						ed[pemName] = eval("wxEvt.%s()" % pem)
-					except:
-						pass
-			except:
-				pass
+			upPems = [p for p in d if p[0].isupper()]
+			for pem in upPems:
+				if pem in ("Skip", "Clone", "Destroy", "Button", "ButtonIsDown",
+						"GetLogicalPosition", "ResumePropagation", "SetEventObject",
+						"SetEventType", "SetId", "SetExtraLong", "SetInt", "SetString",
+						"SetTimestamp", "StopPropagation"):
+					continue
+				try:
+					pemName = pem[0].lower() + pem[1:]
+					ed[pemName] = eval("wxEvt.%s()" % pem)
+				except AttributeError:
+					pass
 
 	if isinstance(wxEvt, (wx.SplitterEvent,) ):
 		try:
 			ed["mousePosition"] = (wxEvt.GetX(), wxEvt.GetY())
-		except:
+		except AttributeError:
 			ed["mousePosition"] = wx.GetMousePosition()
 
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent) ):
@@ -377,7 +374,7 @@ def getEventData(wxEvt):
 		ed["listIndex"] = idx
 		try:
 			ed["col"] = wxEvt.GetColumn()
-		except:
+		except AttributeError:
 			pass
 
 	if isinstance(wxEvt, wx.MenuEvent):
@@ -394,7 +391,8 @@ def getEventData(wxEvt):
 		# It may have mouse information
 		try:
 			ed["mousePosition"] = wxEvt.GetPoint().Get()
-		except: pass
+		except AttributeError:
+			pass
 		# See if it's a menu selection
 		obj = wxEvt.GetEventObject()
 		if isinstance(obj, dMenu):
@@ -449,18 +447,18 @@ def getEventData(wxEvt):
 		try:
 			ed["itemID"] = wxEvt.GetItem()
 			ed["itemNode"] = tree.find(ed["itemID"])[0]
-		except:
+		except (AttributeError, IndexError):
 			pass
 
 	if isinstance(wxEvt, wx.SplitterEvent):
 		try:
 			ed["sashPosition"] = wxEvt.GetSashPosition()
-		except:
+		except AttributeError:
 			ed["sashPosition"] = wxEvt.GetEventObject().SashPosition
 		if wxEvt.GetEventType() == wx.EVT_SPLITTER_UNSPLIT.evtType[0]:
 			try:
 				ed["windowRemoved"] = wxEvt.GetWindowBeingRemoved()
-			except:
+			except AttributeError:
 				ed["windowRemoved"] = None
 
 	if hasattr(wxEvt, "GetId"):
@@ -484,7 +482,8 @@ def getEventData(wxEvt):
 		try:
 			# Don't think this is implemented yet
 			ed["commandDown"] = wxEvt.CmdDown()
-		except: pass
+		except AttributeError:
+			pass
 
 	if isinstance(wxEvt, wx.grid.GridSizeEvent):
 		#ed["rowOrCol"] = wxEvt.GetRowOrCol()
@@ -500,7 +499,8 @@ def getEventData(wxEvt):
 		try:
 			# Don't think this is implemented yet
 			ed["commandDown"] = wxEvt.CmdDown()
-		except: pass
+		except AttributeError:
+			pass
 
 	if isinstance(wxEvt, wx.calendar.CalendarEvent):
 		ed["date"] = wxEvt.PyGetDate()
@@ -516,7 +516,7 @@ def getEventData(wxEvt):
 	try:
 		if isinstance(wxEvt, wx.html.HtmlLinkEvent):
 			ed["href"] = wxEvt.href
-	except:
+	except AttributeError:
 		# wxPython 2.6 and earlier doesn't seem to have this event
 		pass
 
@@ -830,7 +830,7 @@ def getDate(dt=None):
 		dt = datetime.date.today()
 	try:
 		mm, dd, yy = dt.month, dt.day, dt.year
-	except:
+	except AttributeError:
 		dabo.errorLog.write(_("Invalid date value passed to getDate(): %s") % dt)
 		return None
 	dlg = wx.lib.calendar.CalenDlg(_getActiveForm(), mm, dd, yy)
@@ -1212,7 +1212,7 @@ def browse(dataSource, parent=None, keyCaption=None, includeFields=None,
 			dataSet = dataSource.getDataSet()
 			try:
 				cap = "Browse: %s" % dataSource.Table
-			except:
+			except AttributeError:
 				cap = "Browse"
 		else:
 			raise TypeError, "Incorrect data source passed to browse()"
@@ -1305,7 +1305,7 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 	if txt is None:
 		try:
 			txt = wind.Caption
-		except:
+		except AttributeError:
 			raise ValueError, "No text supplied to fontMetric call"
 	fnt = wind.GetFont()
 	if face is not None:
@@ -1320,10 +1320,10 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 	if not isinstance(wind, (dabo.ui.dForm, wx.Frame)):
 		try:
 			wind = wind.Form
-		except:
+		except AttributeError:
 			try:
 				wind = wind.Parent
-			except:
+			except AttributeError:
 				pass
 	dc = wx.ClientDC(wind)
 	dc.SetFont(fnt)

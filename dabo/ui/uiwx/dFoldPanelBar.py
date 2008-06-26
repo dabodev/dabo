@@ -105,7 +105,7 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 		try:
 			# Call the Dabo version, if present
 			self.Sizer.layout()
-		except:
+		except AttributeError:
 			pass
 		if self.Application.Platform == "Win":
 			self.refresh()

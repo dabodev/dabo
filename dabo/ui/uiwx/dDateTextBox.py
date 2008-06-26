@@ -124,7 +124,7 @@ C: Popup Calendar to Select
 		availHt = self.Parent.Bottom - self.Bottom
 		try:
 			self.calPanel.cal.Date = self.Value
-		except:
+		except AttributeError:
 			self.calPanel = CalPanel(self.Parent, dt=self.Value, ctrl=self)
 		cp = self.calPanel
 		cp.Position = (self.Left, self.Bottom)
@@ -158,7 +158,7 @@ C: Popup Calendar to Select
 					key = {72: "h", 77: "m", 83: "s"}[evt.keyCode]
 				else:
 					key = {8: "h", 13: "m", 19: "s"}[evt.keyCode]
-		except:
+		except KeyError:
 			# spurious key event; ignore
 			return
 		
@@ -206,7 +206,8 @@ C: Popup Calendar to Select
 			newVal = self.Value
 			if newVal != val:
 				self.Value = newVal
-		except: pass
+		except ValueError:
+			pass
 		
 
 	def adjustDate(self, key, ctrl=False, shift=False):
@@ -367,7 +368,7 @@ C: Popup Calendar to Select
 			try:
 				self.Value = self.Value.replace(year=yr, month=mn, day=dy)
 				ok = True
-			except:
+			except ValueError:
 				dy -= 1
 	
 	

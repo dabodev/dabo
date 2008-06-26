@@ -140,7 +140,8 @@ class dSizerMixin(dObject):
 			if child.IsWindow():
 				try:
 					child.GetWindow().layout()
-				except: pass
+				except AttributeError:
+					pass
 	
 	
 	def prepend(self, obj, layout="normal", proportion=0, alignment=None,
@@ -172,7 +173,7 @@ class dSizerMixin(dObject):
 						item.release(True)
 					else:
 						item.release()
-				except:
+				except AttributeError:
 					item.Destroy()
 	
 	
@@ -381,7 +382,8 @@ class dSizerMixin(dObject):
 			try:
 				ret = itm.SetSpacer(val)
 				ret = True
-			except: pass
+			except AttributeError:
+				pass
 		elif lowprop in ("expand", "halign", "valign", "bordersides"):
 			ret = True
 			pd = {"left" : self.leftFlag, 
@@ -438,7 +440,7 @@ class dSizerMixin(dObject):
 
 		try:
 			itm = self.Parent
-		except:
+		except AttributeError:
 			itm = self
 		dabo.ui.callAfterInterval(50, self._safeLayout, itm)
 		return ret
@@ -458,7 +460,8 @@ class dSizerMixin(dObject):
 			return
 		try:
 			itm.layout()
-		except: pass
+		except AttributeError:
+			pass
 		
 
 	def isContainedBy(self, obj):
@@ -539,7 +542,7 @@ class dSizerMixin(dObject):
 				if recurse:
 					try:
 						ret += itm.listMembers(recurse=recurse, lvl=lvl+1)
-					except:
+					except AttributeError:
 						# not a Dabo sizer
 						pass
 			elif chl.IsWindow():
@@ -547,7 +550,7 @@ class dSizerMixin(dObject):
 				try:
 					ret += "%s%s (%s) - Pos:%s,%s - Size:%s,%s\n" % (indnt, 
 							itm.Name, itm.__class__, itm.Left, itm.Top, itm.Width, itm.Height)
-				except:
+				except AttributeError:
 					# Not a Dabo instance
 					ret += "%s%s\n" % (indnt, itm.__class__)
 			elif chl.IsSpacer():
@@ -659,7 +662,7 @@ class dSizerMixin(dObject):
 	def _getCntrlSizer(self):
 		try:
 			ret = self._controllingSizer
-		except:
+		except AttributeError:
 			ret = self._controllingSizer = None
 		return ret
 		
@@ -667,7 +670,7 @@ class dSizerMixin(dObject):
 	def _getCntrlSzItem(self):
 		try:
 			ret = self._controllingSizerItem
-		except:
+		except AttributeError:
 			ret = self._controllingSizerItem = None
 		return ret
 		
@@ -675,8 +678,9 @@ class dSizerMixin(dObject):
 	def _getDefaultBorder(self):
 		try:
 			return self._defaultBorder
-		except:
-			return 0
+		except AttributeError:
+			ret = self._defaultBorder = 0
+			return ret
 			
 	def _setDefaultBorder(self, val):
 		if isinstance(val, basestring):
@@ -688,7 +692,7 @@ class dSizerMixin(dObject):
 		try:
 			return (self._defaultBorderBottom and self._defaultBorderTop
 					and self._defaultBorderLeft and self._defaultBorderRight )
-		except:
+		except AttributeError:
 			return False
 			
 	def _setDefaultBorderAll(self, val):
@@ -701,8 +705,9 @@ class dSizerMixin(dObject):
 	def _getDefaultBorderBottom(self):
 		try:
 			return self._defaultBorderBottom
-		except:
-			return False
+		except AttributeError:
+			ret = self._defaultBorderBottom = False
+			return ret
 			
 	def _setDefaultBorderBottom(self, val):
 		if isinstance(val, basestring):
@@ -713,8 +718,9 @@ class dSizerMixin(dObject):
 	def _getDefaultBorderLeft(self):
 		try:
 			return self._defaultBorderLeft
-		except:
-			return False
+		except AttributeError:
+			ret = self._defaultBorderLeft = False
+			return ret
 			
 	def _setDefaultBorderLeft(self, val):
 		if isinstance(val, basestring):
@@ -725,8 +731,9 @@ class dSizerMixin(dObject):
 	def _getDefaultBorderRight(self):
 		try:
 			return self._defaultBorderRight
-		except:
-			return False
+		except AttributeError:
+			ret = self._defaultBorderRight = False
+			return ret
 			
 	def _setDefaultBorderRight(self, val):
 		if isinstance(val, basestring):
@@ -737,8 +744,9 @@ class dSizerMixin(dObject):
 	def _getDefaultBorderTop(self):
 		try:
 			return self._defaultBorderTop
-		except:
-			return False
+		except AttributeError:
+			ret = self._defaultBorderTop = False
+			return ret
 			
 	def _setDefaultBorderTop(self, val):
 		if isinstance(val, basestring):
@@ -749,9 +757,9 @@ class dSizerMixin(dObject):
 	def _getDefaultSpacing(self):
 		try:
 			return self._defaultSpacing
-		except:
-			# Default to zero
-			return 0
+		except AttributeError:
+			ret = self._defaultSpacing = 0
+			return ret
 			
 	def _setDefaultSpacing(self, val):
 		if isinstance(val, basestring):

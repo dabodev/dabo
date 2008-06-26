@@ -45,11 +45,12 @@ class _BasePanelMixin:
 			for child in self.Children:
 				try:
 					child.layout()
-				except: pass
+				except AttributeError:
+					pass
 		try:
 			# Call the Dabo version, if present
 			self.Sizer.layout()
-		except:
+		except AttributeError:
 			pass
 		if self._platformIsWindows:
 			self.refresh()
@@ -76,7 +77,7 @@ class _BasePanelMixin:
 			# Override the base call to provide a buffered DC.
 			try:
 				self._buffer
-			except:
+			except AttributeError:
 				# This is being called way too early; skip this call
 				return
 			if dc is None:

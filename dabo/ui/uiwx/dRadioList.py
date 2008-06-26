@@ -182,7 +182,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		try:
 			# Call the Dabo version, if present
 			self.Sizer.layout()
-		except:
+		except AttributeError:
 			pass
 		if self.Application.Platform == "Win":
 			self.refresh()
@@ -322,7 +322,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 				pass
 			try:
 				self.Parent.layout()
-			except:
+			except AttributeError:
 				self.layout()
 		else:
 			self._properties["Caption"] = val
@@ -444,7 +444,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 			for member in members[::-1]:
 				try:
 					fromSz.remove(member)
-				except:
+				except AttributeError:
 					# probably a spacer
 					pass
 			setSizer = (parent is not None) and (parent.Sizer is fromSz)
@@ -462,7 +462,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 				toSz.setItemProps(itm, memberProps[member])
 			try:
 				self.Parent.layout()
-			except:
+			except AttributeError:
 				self.layout()
 		else:
 			self._properties["ShowBox"] = val
@@ -478,7 +478,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 	def _getStringValue(self):
 		try:
 			ret = self._items[self._selpos].Caption
-		except:
+		except IndexError:
 			ret = None
 		return ret
 	

@@ -28,11 +28,12 @@ class dStatusBar(dcm.dControlMixin, wx.StatusBar):
 		for child in self.Children:
 			try:
 				child.layout()
-			except: pass
+			except AttributeError:
+				pass
 		try:
 			# Call the Dabo version, if present
 			self.Sizer.layout()
-		except:
+		except AttributeError:
 			pass
 		if self._platformIsWindows:
 			self.refresh()

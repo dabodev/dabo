@@ -32,7 +32,7 @@ class dPage(dPanel.dScrollPanel):
 		""" Set up the default vertical box sizer for the page."""
 		try:
 			szCls = self.Parent.PageSizerClass
-		except:
+		except AttributeError:
 			# Not part of a paged control
 			return
 		if szCls is not None:
@@ -69,7 +69,7 @@ class dPage(dPanel.dScrollPanel):
 		""" Returns the position of this page within its parent."""
 		try:
 			ret = self.Parent.Pages.index(self)
-		except:
+		except ValueError:
 			ret = -1
 		return ret
 

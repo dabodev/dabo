@@ -80,7 +80,7 @@ class dPageFrameMixin(cm.dControlMixin):
 				try:
 					oldPage = self.Pages[oldPageNum]
 					dabo.ui.callAfter(oldPage.raiseEvent, dEvents.PageLeave)
-				except:
+				except IndexError:
 					# Page has already been released
 					return
 
@@ -254,7 +254,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		try:
 			# Call the Dabo version, if present
 			self.Sizer.layout()
-		except:
+		except AttributeError:
 			pass
 		for pg in self.Pages:
 			try:
@@ -340,7 +340,7 @@ class dPageFrameMixin(cm.dControlMixin):
 				ret = None
 			else:
 				ret = self.GetPage(sel)
-		except:
+		except AttributeError:
 			ret = None
 		return ret		
 

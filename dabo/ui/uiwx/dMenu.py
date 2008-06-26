@@ -59,7 +59,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 				self.raiseEvent(dEvents.MenuOpen, evt)
 			else:
 				evt.Skip()
-		except:
+		except AttributeError:
 			evt.Skip()
 
 
@@ -74,7 +74,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 				self.raiseEvent(dEvents.MenuClose, evt)
 			else:
 				evt.Skip()
-		except:
+		except AttributeError:
 			evt.Skip()
 
 
@@ -104,7 +104,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			# separators haven't been abstracted yet, so there are still pure wx items.
 			try:
 				de = item.DynamicEnabled
-			except:
+			except AttributeError:
 				de = None
 			if de is not None:
 				if callable(de):
@@ -333,13 +333,13 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			if itm is target:
 				try:
 					itm.Checked =True
-				except:
+				except AttributeError:
 					pass
 			else:
 				if unCheckOthers:
 					try:
 						itm.Checked = False
-					except:
+					except AttributeError:
 						pass
 	
 	
@@ -460,7 +460,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 	def _getCaption(self):
 		try:
 			v = self._caption
-		except:
+		except AttributeError:
 			v = self._caption = ""
 		return v
 

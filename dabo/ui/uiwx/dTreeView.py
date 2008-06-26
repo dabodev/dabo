@@ -79,9 +79,7 @@ class dNode(dObject):
 
 	def _setBackColor(self, val):
 		if isinstance(val, basestring):
-			try:
-				val = dColors.colorTupleFromName(val)
-			except: pass
+			val = dColors.colorTupleFromName(val)
 		self.tree.SetItemBackgroundColour(self.itemID, val)
 	
 
@@ -137,7 +135,7 @@ class dNode(dObject):
 	def _getFontBold(self):
 		try:
 			return self.Font.Bold
-		except:
+		except AttributeError:
 			return False
 	
 	def _setFontBold(self, val):
@@ -148,21 +146,21 @@ class dNode(dObject):
 	def _getFontDescription(self):
 		try:
 			return self.Font.Description
-		except:
+		except AttributeError:
 			return ""
 
 	
 	def _getFontInfo(self):
 		try:
 			return self.Font._nativeFont.GetNativeFontInfoDesc()
-		except:
+		except AttributeError:
 			return ""
 
 		
 	def _getFontItalic(self):
 		try:
 			return self.Font.Italic
-		except:
+		except AttributeError:
 			return False
 	
 	def _setFontItalic(self, val):
@@ -173,7 +171,7 @@ class dNode(dObject):
 	def _getFontFace(self):
 		try:
 			return self.Font.Face
-		except:
+		except AttributeError:
 			return ""
 
 	def _setFontFace(self, val):
@@ -184,7 +182,7 @@ class dNode(dObject):
 	def _getFontSize(self):
 		try:
 			return self.Font.Size
-		except:
+		except AttributeError:
 			return 10
 	
 	def _setFontSize(self, val):
@@ -195,7 +193,7 @@ class dNode(dObject):
 	def _getFontUnderline(self):
 		try:
 			return self.Font.Underline
-		except:
+		except AttributeError:
 			return False
 	
 	def _setFontUnderline(self, val):
@@ -208,9 +206,7 @@ class dNode(dObject):
 
 	def _setForeColor(self, val):
 		if isinstance(val, basestring):
-			try:
-				val = dColors.colorTupleFromName(val)
-			except: pass
+			val = dColors.colorTupleFromName(val)
 		self.tree.SetItemTextColour(self.itemID, val)
 	
 	
@@ -232,7 +228,7 @@ class dNode(dObject):
 	def _getIsRootNode(self):
 		try:
 			ret = self._isRootNode
-		except:
+		except AttributeError:
 			ret = self._isRootNode = (self.tree.GetRootItem() == self.itemID)
 		return ret
 			
@@ -636,7 +632,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		try:
 			ret = [nd for nd in self.nodes
 					if nd._object is obj][0]
-		except:
+		except IndexError:
 			ret = None
 		return ret
 				
@@ -759,7 +755,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 					return None
 		try:
 			ret = self.getChildren(nd)[0]
-		except:
+		except IndexError:
 			ret = None
 		if ret is None:
 			ret = self._getRelative(nd, self.GetNextSibling)
@@ -793,7 +789,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		if ret is None:
 			try:
 				ret = self.getParentNode(nd)
-			except: pass
+			except wx.PyAssertionError:
+				pass
 		else:
 			# Find the last child of the last child of the last child...
 			nd = ret
@@ -821,7 +818,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			itemID = func(nd.itemID)
 			ret = [nod for nod in self.nodes
 					if nod.itemID == itemID][0]
-		except:
+		except IndexError:
 			ret = None
 		return ret
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -864,7 +861,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 				return
 			try:
 				nd = self._pathNode[currDir] = self._pathNode[prnt].appendChild(nm)
-			except:
+			except (KeyError, AttributeError):
 				# If this is the first entry, we need to set the root
 				if len(self._pathNode.keys()) == 0:
 					nd = self._pathNode[currDir] = self.setRootNode(nm)
@@ -1120,10 +1117,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 	def _getSelection(self):
 		if self.MultipleSelect:
-			try:
-				ids = self.GetSelections()
-			except:
-				ids = []
+			ids = self.GetSelections()
 			ret = [ n for n in self.nodes
 					if n.itemID in ids]
 		else:
@@ -1161,7 +1155,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			self._addWindowStyleFlag(wx.TR_NO_BUTTONS)
 		try:
 			self.refresh()
-		except:
+		except AttributeError:
 			# Control may not be constructed yet
 			pass
 			
@@ -1175,7 +1169,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			self._addWindowStyleFlag(wx.TR_NO_LINES)
 		try:
 			self.refresh()
-		except:
+		except AttributeError:
 			# Control may not be constructed yet
 			pass
 
@@ -1189,7 +1183,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			self._addWindowStyleFlag(wx.TR_HIDE_ROOT)
 		try:
 			self.refresh()
-		except:
+		except AttributeError:
 			# Control may not be constructed yet
 			pass
 			
@@ -1203,7 +1197,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			self._addWindowStyleFlag(wx.TR_LINES_AT_ROOT)
 		try:
 			self.refresh()
-		except:
+		except AttributeError:
 			# Control may not be constructed yet
 			pass
 

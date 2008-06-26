@@ -221,7 +221,7 @@ class dControlItemMixin(dDataControlMixin):
 					# we are using a tuple/list of keys. Find its position
 					try:
 						self.setSelection(self.Keys.index(key))
-					except:
+					except IndexError:
 						# No such key; write an info message, but otherwise ignore it.
 						dabo.infoLog.write(_("Key '%s' not found") % key)
 						continue
@@ -258,7 +258,8 @@ class dControlItemMixin(dDataControlMixin):
 					continue
 				try:
 					self._setSelection(index)
-				except: pass
+				except IndexError:
+					pass
 			self._afterValueChanged()
 		else:
 			self._properties["PositionValue"] = value
@@ -307,12 +308,12 @@ class dControlItemMixin(dDataControlMixin):
 				continue
 			try:
 				strings.append(self.GetString(index))
-			except:
+			except IndexError:
 				# If this is a list control, there is no native GetString.
 				# Use the Dabo-supplied replacement
 				try:
 					strings.append(self._GetString(index))
-				except:
+				except IndexError:
 					# Invalid index; usually an empty list
 					pass
 		if not self._isMultiSelect():
