@@ -349,7 +349,7 @@ def getEventData(wxEvt):
 	if isinstance(wxEvt, (wx.SplitterEvent,) ):
 		try:
 			ed["mousePosition"] = (wxEvt.GetX(), wxEvt.GetY())
-		except AttributeError:
+		except wx.PyAssertionError:
 			ed["mousePosition"] = wx.GetMousePosition()
 
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent) ):
