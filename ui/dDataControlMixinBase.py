@@ -116,22 +116,17 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				except (TypeError, dException.NoRecordsException):
 					self.Value = self.getBlankValue()
 		else:
-			if self._srcIsInstanceMethod is None and self.Source is not None:
-				if isinstance(self.Source, basestring):
+			src = self.Source
+			if self._srcIsInstanceMethod is None and src is not None:
+				if isinstance(src, basestring):
 					self._srcIsInstanceMethod = False
 				else:
-					self._srcIsInstanceMethod = eval("type(self.Source.%s)" % self.DataField) == type(self.update)
+					self._srcIsInstanceMethod = callable(getattr(src, self.DataField))
+			srcatt = getattr(src, self.DataField)
 			if self._srcIsInstanceMethod:
-				expr = "self.Source.%s()" % self.DataField
+				self.Value = srcatt()
 			else:
-				expr = "self.Source.%s" % self.DataField
-			try:
-				self.Value = eval(expr)
-			except:
-				## Couldn't evaluate, for whatever reason. Do the same thing that we do
-				## for bizobj datasources: fill in the blank value.
-				self.Value = self.getBlankValue()
-				#dabo.errorLog.write("Could not evaluate value for %s" % expr)
+				self.Value = srcatt
 
 
 	def select(self, position, length):
@@ -339,7 +334,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		if self._designerMode is None:
 			try:
 				self._designerMode = self.Form._designerMode
-			except:
+			except AttributeError:
 				self._designerMode = False
 		return self._designerMode
 
@@ -379,17 +374,26 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 						self.__src = self.Form
 					elif ds.startswith("self."):
 						# it's a locally resolvable reference.
-						try:
-							self.__src = eval(ds)
-							self._srcIsBizobj = isinstance(self.__src, dabo.biz.dBizobj)
-						except:
-							dabo.errorLog.write("Couldn't evaluate DataSource '%s'" % ds)
+						def resolveObjRef(txt, ref=None):
+							sp = txt.split(".", 1)
+							if ref is None:
+								ref = eval(sp[0])
+								return resolveObjRef(sp[1], ref)
+							else:
+								try:
+									ref = getattr(ref, sp[0])
+								except AttributeError:
+									return None
+								if len(sp) > 1:
+									return resolveObjRef(sp[1], ref)
+								else:
+									return ref
+						nonself = ds.split(".", 1)[1]
+						self.__src = resolveObjRef(nonself, self)
+						self._srcIsBizobj = isinstance(self.__src, dabo.biz.dBizobj)
 					else:
 						# See if it's a RegID reference to another object
-						try:
-							self.__src = self.Form.getObjectByRegID(ds)
-						except:
-							self.__src = None
+						self.__src = self.Form.getObjectByRegID(ds)
 						if self.__src is None:
 							# It's a bizobj reference; get it from the Form. Note that we could
 							# be a control in a dialog, which is in a form.
