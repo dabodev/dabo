@@ -894,10 +894,8 @@ class LayoutSpacerPanel(LayoutPanel):
 			rr, cc = pos
 			cs.append(lp, row=rr, col=cc)
 		else:
-			cs.insert(pos, lp)
+			cs.insert(pos, lp, 1, "x")
 		csi = lp.ControllingSizerItem
-		if sizerAtts:
-			cs.setItemProps(csi, sizerAtts)
 		self.Controller.select(lp)
 		dabo.ui.callAfter(self.Form.updateApp)
 
@@ -1118,9 +1116,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 		self.remove(obj)
 		if refill:
 			lp = LayoutPanel(prnt, AutoSizer=False)
-			self.insert(pos, lp)
-			newSzit = lp.ControllingSizerItem
-			self.setItemProps(newSzit, szitVals)
+			self.insert(pos, lp, 1, "x")
 		if isinstance(obj, (LayoutSizerMixin, LayoutGridSizer)):
 			dabo.ui.callAfter(obj.release, True)
 		else:
@@ -1572,8 +1568,6 @@ class LayoutGridSizer(LayoutSaverMixin, dabo.ui.dGridSizer):
 		if refill:
 			lp = LayoutPanel(prnt, AutoSizer=False)
 			self.append(lp, "x", row=pos[0], col=pos[1])
-			newSzit = lp.ControllingSizerItem
-			self.setItemProps(newSzit, szitVals)
 		if isinstance(obj, (LayoutSizerMixin, LayoutGridSizer)):
 			dabo.ui.callAfter(obj.release, True)
 		else:
