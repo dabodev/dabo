@@ -389,7 +389,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		"""
 		ret = None
 		itm = self.FindItemAtPosition((row, col))
-		if returnObject:
+		if (itm is not None) and returnObject:
 			if itm.IsWindow():
 				ret = itm.GetWindow()
 			elif itm.IsSizer():
