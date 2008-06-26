@@ -121,7 +121,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		try:
 			mb = af.MenuBar
 			menuOK = True
-		except:
+		except AttributeError:
 			menuOK = False
 			mb = None
 		if menuOK:
@@ -171,7 +171,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 			try:
 				cap = cleanMenuCaption(itm.Caption, "&")
 				prefcap = cleanMenuCaption(itm.Caption)
-			except:
+			except AttributeError:
 				# A separator line
 				continue
 			kidnode = nd.appendChild(cap)

@@ -207,7 +207,7 @@ class Wizard(dabo.ui.dDialog):
 		"""Returns the first page that is an instance of the passed class"""
 		try:
 			ret = [pg for pg in self._pages if isinstance(pg, pgClass)][0]
-		except:
+		except IndexError:
 			ret = None
 		return ret
 		
@@ -216,15 +216,11 @@ class Wizard(dabo.ui.dDialog):
 		if self.PageCount == 0:
 			return
 		if self._blankPage:
-			try:
-				self.pagePanel.Sizer.remove(self._blankPage)
-			except: pass
+			self.pagePanel.Sizer.remove(self._blankPage)
 			self._blankPage.release()
 		for idx in range(self.PageCount):
 			page = self._pages[idx] 
-			try:
-				self.pagePanel.Sizer.remove(page)
-			except: pass
+			self.pagePanel.Sizer.remove(page)
 			if idx == self._currentPage:
 				page.Visible = True
 				# Need this to keep the pages resizing correctly.
@@ -266,7 +262,7 @@ class Wizard(dabo.ui.dDialog):
 		try:
 			idx = self._pages.index(orig)
 			ret = self._pages[idx + incr]
-		except:
+		except IndexError:
 			ret = None
 		return ret
 		

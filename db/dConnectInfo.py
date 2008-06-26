@@ -77,7 +77,7 @@ class dConnectInfo(dObject):
 			# name, use that connection; otherwise, use the first.
 			try:
 				connDict = cd[nm]
-			except:
+			except KeyError:
 				nm = cd.keys()[0]
 				connDict = cd[nm]
 		
