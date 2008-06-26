@@ -55,7 +55,7 @@ class dFont(dObject):
 			if val in availableFonts:
 				try:
 					return self._nativeFont.SetFaceName(val)
-				except:
+				except AttributeError:
 					return False
 			return False
 				
@@ -109,7 +109,7 @@ class dFont(dObject):
 			val = val / .75
 		try:
 			self._nativeFont.SetPointSize(val)
-		except:
+		except ValueError:
 			dabo.errorLog.write(_("Setting FontSize to %s failed") % val)
 		self._propsChanged()
 

@@ -81,7 +81,7 @@ class SplashScreen(wx.Frame):
 		try:
 			self.fc.Stop()
 			self.fc.Destroy()
-		except:
+		except AttributeError:
 			pass
 		self.Destroy()
 
@@ -287,7 +287,7 @@ class uiApp(dObject, wx.App):
 	def setMainForm(self, val):
 		try:
 			self.dApp.MainForm.Destroy()
-		except:
+		except AttributeError:
 			pass
 		self.SetTopWindow(val)
 		# For performance, block all event bindings until after the form is shown.
@@ -301,7 +301,7 @@ class uiApp(dObject, wx.App):
 		# Manually raise Activate, as wx doesn't do that automatically
 		try:
 			self.dApp.MainForm.raiseEvent(dEvents.Activate)
-		except:
+		except AttributeError:
 			self.raiseEvent(dEvents.Activate)
 		self.MainLoop()
 
@@ -494,10 +494,10 @@ class uiApp(dObject, wx.App):
 			if win:
 				try:
 					win.SelectAll()
-				except:
+				except AttributeError:
 					try:
 						win.SetSelection(-1, -1)
-					except:
+					except AttributeError:
 						pass
 
 			

@@ -174,18 +174,15 @@ def makeProxyProperty(dct, nm, proxyAtts):
 	def _resolveGet(self, nm):
 		ret = None
 		for att in self.__class__._proxyDict[nm]:
-			try:
-				if att == "self":
-					base = getattr(self, "_baseClass", self.__class__)
-					obj = base.__bases__[0]
-					prop = getattr(obj, nm)
-					ret = prop.fget(self)
-				else:
-					obj = getattr(self, att)
-					ret = getattr(obj, nm)
-				break
-			except:
-				continue
+			if att == "self":
+				base = getattr(self, "_baseClass", self.__class__)
+				obj = base.__bases__[0]
+				prop = getattr(obj, nm)
+				ret = prop.fget(self)
+			else:
+				obj = getattr(self, att)
+				ret = getattr(obj, nm)
+			break
 		return ret
 	
 	def _resolveSet(self, nm, val):

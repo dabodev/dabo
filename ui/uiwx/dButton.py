@@ -98,7 +98,7 @@ class dButton(cm.dControlMixin, wx.Button):
 						continue
 					try:
 						db = child.DefaultButton
-					except:
+					except AttributeError:
 						db = False
 					if db:
 						child.DefaultButton = False

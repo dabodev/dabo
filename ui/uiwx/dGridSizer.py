@@ -300,7 +300,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 			obj = self.getItem(obj)
 		try:
 			row, col = self.GetItemPosition(obj)
-		except:
+		except wx.PyAssertionError:
 			# Window isn't controlled by this sizer
 			row, col = None, None
 		return (row, col)
@@ -336,7 +336,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		spn = wx.GBSpan(row, col)
 		try:
 			self.SetItemSpan(obj, spn)
-		except:
+		except wx.PyAssertionError:
 			raise dabo.ui.GridSizerSpanException, _("An item already exists in that location")
 	
 	
@@ -387,18 +387,16 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		"""Returns either the managed item or the sizer item at the 
 		given position if one exists. If not, returns None.
 		"""
-		try:
-			itm = self.FindItemAtPosition((row, col))
-			if returnObject:
-				if itm.IsWindow():
-					ret = itm.GetWindow()
-				elif itm.IsSizer():
-					ret = itm.GetSizer()
-			else:
-				# Return the sizer item itself.
-				ret = itm
-		except:
-			ret = None
+		ret = None
+		itm = self.FindItemAtPosition((row, col))
+		if returnObject:
+			if itm.IsWindow():
+				ret = itm.GetWindow()
+			elif itm.IsSizer():
+				ret = itm.GetSizer()
+		else:
+			# Return the sizer item itself.
+			ret = itm
 		return ret
 	
 	
@@ -422,13 +420,9 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		row, col = self.getGridPos(obj)
 		newRow = row + off[0]
 		newCol = col + off[1]
-		try:
-			ret = self.getItemByRowCol(newRow, newCol)
-		except:
-			ret = None
-		return ret
+		return self.getItemByRowCol(newRow, newCol)
 
-	
+
 	def getItemProp(self, itm, prop):
 		if not isinstance(itm, (self.SizerItem, self.GridSizerItem)):
 			itm = itm.ControllingSizerItem

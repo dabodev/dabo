@@ -513,21 +513,13 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		"""Given a position within the text, returns the corresponding line 
 		number. If the position is invalid, returns -1.
 		"""
-		try:
-			ret = self.LineFromPosition(pos)
-		except:
-			ret = -1
-		return ret
-	
-	
+		return self.LineFromPosition(pos)
+
+
 	def getPositionFromLine(self, linenum):
 		"""Given a line number, returns the position of the start of that line.
 		If the line number is invalid, returns -1."""
-		try:
-			ret = self.PositionFromLine(linenum)
-		except:
-			ret = -1
-		return ret
+		return self.PositionFromLine(linenum)
 
 
 	def getPositionFromXY(self, x, y=None):
@@ -827,7 +819,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				# a raw string was passed
 				try:
 					newSize = int(fontSize)
-				except:
+				except ValueError:
 					dabo.errorLog.write(_("Invalid value passed to changeFontSize: %s") % fontSize)
 					return
 		else:
@@ -1168,43 +1160,34 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				if sarg is not None and sarg == "self":
 					del args[0][0]
 				args = inspect.formatargspec(args[0], args[1], args[2], args[3])
-			except:
+			except IndexError:
 				args = ""
 
-			try:
-				if inspect.ismethod(obj):
-					funcType = "Method"
-				elif inspect.isfunction(obj):
-					funcType = "Function"
-				elif inspect.isclass(obj):
-					funcType = "Class"
-				elif inspect.ismodule(obj):
-					funcType = "Module"
-				elif inspect.isbuiltin():
-					funcType = "Built-In"
-				else:
-					funcType = ""
-			except:
+			if inspect.ismethod(obj):
+				funcType = "Method"
+			elif inspect.isfunction(obj):
+				funcType = "Function"
+			elif inspect.isclass(obj):
+				funcType = "Class"
+			elif inspect.ismodule(obj):
+				funcType = "Module"
+			elif inspect.isbuiltin():
+				funcType = "Built-In"
+			else:
 				funcType = ""
 
 			doc = ""
-			try:
-				docLines = obj.__doc__.splitlines()
-				for line in docLines:
-					doc += line.strip() + "\n"	 ## must be \n on all platforms
-				doc = doc.strip()  ## Remove trailing blank line
-			except:
-				pass
+			docLines = obj.__doc__.splitlines()
+			for line in docLines:
+				doc += line.strip() + "\n"	 ## must be \n on all platforms
+			doc = doc.strip()  ## Remove trailing blank line
 
 			try:
 				name = obj.__name__
-			except:
+			except AttributeError:
 				name = ""
 				
-			shortDoc = "%s %s%s" % (funcType,
-				name,
-				args)
-
+			shortDoc = "%s %s%s" % (funcType, name, args)
 			longDoc = "%s\n\n%s" % (shortDoc, doc)
 			
 			self.CallTipShow(pos, shortDoc)
@@ -1344,7 +1327,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def promptToSave(self):
 		try:
 			fname = self._fileName
-		except:
+		except AttributeError:
 			fname = None
 		if fname is None or fname is "":
 			s = "Do you want to save your changes?"
@@ -1359,7 +1342,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if path is None:
 			try:
 				drct = self._curdir
-			except:
+			except AttributeError:
 				drct = ""
 		else:
 			drct = path
@@ -1406,7 +1389,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if fname == None:
 			try:
 				fname = self._fileName
-			except:
+			except AttributeError:
 				fname = self._newFileName
 		
 		if not fname or (fname == self._newFileName):
@@ -1418,7 +1401,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		
 		try:
 			open(fname, "wb").write(self.GetText().encode(self.Encoding))
-		except:
+		except OSError:
 			dabo.ui.stop("Could not save %s. Please check your write permissions." % fname)
 			return False
 		# set self._fileName, in case it was changed with a Save As
@@ -1516,7 +1499,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				f = open(fileSpec, "rb")
 				text = f.read().decode(self.Encoding)
 				f.close()
-			except:
+			except OSError:
 				if os.path.exists(fileSpec):
 					dabo.ui.stop("Could not open %s.  Please check that you have read permissions." % fileSpec)
 					return False
@@ -1632,21 +1615,19 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				if obj:
 					for attr in dir(obj):
 						attr = '%s%s'%(word,attr)
-						if attr not in words: words.append(attr)
-			except:
+						if attr not in words:
+								words.append(attr)
+			except IndexError:
 				pass
 		elif word[-1] in " ()[]{}":
 			self.AutoCompCancel()
 			return
 		if words:
 			words.sort(lambda a,b: cmp(a.upper(), b.upper()))
-			try:
-				# For some reason, the STC editor in Windows likes to add icons
-				# even if they aren't requested. This explicitly removes them.
-				wds = ["%s?0" % wd for wd in words]				
-				self.AutoCompShow(len(word), " ".join(wds))
-			except:
-				pass
+			# For some reason, the STC editor in Windows likes to add icons
+			# even if they aren't requested. This explicitly removes them.
+			wds = ["%s?0" % wd for wd in words]				
+			self.AutoCompShow(len(word), " ".join(wds))
 
 	
 	def getWord(self,whole=None):
@@ -1688,11 +1669,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		
 	def getWordObject(self,word=None,whole=None):
 		if not word: word=self.getWord(whole=whole)
-		try:
-			obj = self.evaluate(word)
-			return obj
-		except:
-			return None
+		return self.evaluate(word)
 	# End of auto-completion code
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1792,7 +1769,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			if len(innerObjectNames) > 0:
 				try:
 					o = eval("o.%s" % innerObjectNames)
-				except:
+				except AttributeError:
 					o = None
 		return o
 	
@@ -2062,9 +2039,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if self._constructed():
 			self._selectionBackColor = val
 			if isinstance(val, basestring):
-				try:
-					val = dColors.colorTupleFromName(val)
-				except: pass
+				val = dColors.colorTupleFromName(val)
 			self.SetSelBackground(1, val)
 		else:
 			self._properties["SelectionBackColor"] = val
@@ -2087,9 +2062,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if self._constructed():
 			self._selectionForeColor = val
 			if isinstance(val, basestring):
-				try:
-					val = dColors.colorTupleFromName(val)
-				except: pass
+				val = dColors.colorTupleFromName(val)
 			self.SetSelForeground(1, val)
 		else:
 			self._properties["SelectionForeColor"] = val

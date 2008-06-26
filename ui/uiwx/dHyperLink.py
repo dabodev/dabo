@@ -52,17 +52,11 @@ class dHyperLink(dcm.dControlMixin, hyperlink.HyperLinkCtrl):
 		"""Updated the link with the specified colors."""
 		lc, vc, rc = self._linkColor, self._visitedColor, self._hoverColor
 		if isinstance(lc, basestring):
-			try:
-				lc = dColors.colorTupleFromName(lc)
-			except: pass
+			lc = dColors.colorTupleFromName(lc)
 		if isinstance(vc, basestring):
-			try:
-				vc = dColors.colorTupleFromName(vc)
-			except: pass
+			vc = dColors.colorTupleFromName(vc)
 		if isinstance(rc, basestring):
-			try:
-				rc = dColors.colorTupleFromName(rc)
-			except: pass
+			rc = dColors.colorTupleFromName(rc)
 		self.SetColours(lc, vc, rc)
 		self.UpdateLink(True)
 		

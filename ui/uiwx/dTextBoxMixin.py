@@ -456,7 +456,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 		elif decimal is not None and (dataType == decimal.Decimal) and self.StrictNumericEntry:
 			try:
 				_oldVal = self._oldVal
-			except:
+			except AttributeError:
 				_oldVal = None
 			
 			try:
@@ -465,7 +465,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 					retVal = decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
 				else:
 					retVal = decimal.Decimal(strVal)
-			except:
+			except ValueError:
 				raise ValueError, _("Can't convert to decimal.")
 		elif dataType in (tuple, list):
 			retVal = eval(strVal)
@@ -490,7 +490,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				dataType = unicode
 			try:
 				retVal = dataType(strVal)
-			except:
+			except ValueError:
 				# The Python object couldn't convert it. Our validator, once 
 				# implemented, won't let the user get this far. Just keep the 
 				# old value.

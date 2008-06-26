@@ -142,7 +142,7 @@ class dPageFrameNoTabs(dPanel):
 		"""Given a page, returns its position."""
 		try:
 			ret = self.Pages.index(pg)
-		except:
+		except ValueError:
 			ret = None
 		return ret
 

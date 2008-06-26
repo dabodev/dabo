@@ -37,7 +37,7 @@ class dListControl(dcm.dControlItemMixin,
 
 		try:
 			style = style | wx.LC_REPORT
-		except:
+		except NameError:
 			style = wx.LC_REPORT
 		preClass = wx.PreListCtrl
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties,
@@ -428,7 +428,7 @@ class dListControl(dcm.dControlItemMixin,
 			try:
 				itm = self.GetItem(row, col)
 				data.append((itm.GetText(), row))
-			except:
+			except AttributeError:
 				pass
 		data.sort()
 		if (self._sortOrder % 2):

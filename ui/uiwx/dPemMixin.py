@@ -116,7 +116,7 @@ class dPemMixin(dPemMixinBase):
 				else:
 					try:
 						attVal = eval(val)
-					except:
+					except (NameError, SyntaxError):
 						attVal = val
 				properties[prop] = attVal
 		properties = dictStringify(properties)
@@ -420,7 +420,7 @@ class dPemMixin(dPemMixinBase):
 		try:
 			self.Parent.bindEvent(dEvents.Update, self.__onUpdate)
 			self.Parent.bindEvent(dEvents.Resize, self.__onResize)
-		except:
+		except AttributeError:
 			## pkm: I don't think we want to bind this to self, because then you
 			##      will have recursion in the event handling. We are either a form
 			##      or somehow our Parent isn't a Dabo object. Just do nothing...
@@ -715,7 +715,7 @@ class dPemMixin(dPemMixinBase):
 		keyEvent.EventData = bnd["eventData"]
 		try:
 			callback = bnd["callback"]
-		except:
+		except KeyError:
 			# binding doesn't exist
 			return
 		callback(keyEvent)
@@ -857,7 +857,7 @@ class dPemMixin(dPemMixinBase):
 		import dabo.ui.dialogs
 		try:
 			frm = self.Form
-		except:
+		except AttributeError:
 			frm = None
 		cntnr = self
 		iswiz = isinstance(frm, dabo.ui.dialogs.Wizard)
@@ -1249,9 +1249,7 @@ class dPemMixin(dPemMixinBase):
 		"""Convert Dabo colors to wx.Colour objects"""
 		ret = None
 		if isinstance(val, basestring):
-			try:
-				val = dColors.colorTupleFromName(val)
-			except: pass
+			val = dColors.colorTupleFromName(val)
 		if isinstance(val, tuple):
 			ret = wx.Colour(*val)
 		return ret
@@ -1708,9 +1706,7 @@ class dPemMixin(dPemMixinBase):
 	def _setBackColor(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
-				try:
-					val = dColors.colorTupleFromName(val)
-				except: pass
+				val = dColors.colorTupleFromName(val)
 			if isinstance(val, tuple):
 				if val != self.GetBackgroundColour().Get():
 					self.SetBackgroundColour(val)
@@ -1726,9 +1722,7 @@ class dPemMixin(dPemMixinBase):
 	def _setBorderColor(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
-				try:
-					val = dColors.colorTupleFromName(val)
-				except: pass
+				val = dColors.colorTupleFromName(val)
 			self._borderColor = val
 			if self._border:
 				self._border.PenColor = val
@@ -1859,7 +1853,7 @@ class dPemMixin(dPemMixinBase):
 	def _getCntrlSizer(self):
 		try:
 			ret = self._controllingSizer
-		except:
+		except AttributeError:
 			ret = self._controllingSizer = None
 		return ret
 		
@@ -1867,7 +1861,7 @@ class dPemMixin(dPemMixinBase):
 	def _getCntrlSzItem(self):
 		try:
 			ret = self._controllingSizerItem
-		except:
+		except AttributeError:
 			ret = self._controllingSizerItem = None
 		return ret
 
@@ -2017,9 +2011,7 @@ class dPemMixin(dPemMixinBase):
 	def _setForeColor(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
-				try:
-					val = dColors.colorTupleFromName(val)
-				except: pass
+				val = dColors.colorTupleFromName(val)
 			if val != self.GetForegroundColour().Get():
 				self.SetForegroundColour(val)
 				# Need to jiggle the font size to force the color change to take
@@ -2383,7 +2375,8 @@ class dPemMixin(dPemMixinBase):
 				self.SetSizer(val, True)
 			try:
 				val.Parent = self
-			except: pass
+			except AttributeError:
+				pass
 		else:
 			self._properties["Sizer"] = val
 			
@@ -2975,7 +2968,7 @@ class DrawObject(dObject):
 			# pretty ugly. In this case, initialize it to the system-default font.	
 			try:
 				fnt.GetFaceName()
-			except:
+			except AttributeError:
 				fnt = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
 			if self._fontFace is not None:
 				fnt.SetFaceName(self._fontFace)

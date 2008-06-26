@@ -18,7 +18,8 @@ class dColorDialog(wx.ColourDialog):
 				try:
 					color = dColors.colorTupleFromName(color)
 					dat.SetColour(color)
-				except: pass
+				except KeyError:
+					pass
 			elif isinstance(color, tuple):
 				dat.SetColour(color)
 		

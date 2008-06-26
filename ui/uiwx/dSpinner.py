@@ -172,7 +172,7 @@ class dSpinner(dabo.ui.dDataPanel):
 				func = int
 			try:
 				ret = func(val)
-			except:
+			except ValueError:
 				ret = None
 		return ret
 

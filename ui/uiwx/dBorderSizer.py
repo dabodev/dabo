@@ -23,12 +23,9 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 		if isinstance(box, basestring):
 			box, orientation = orientation, box
 		if not isinstance(box, dabo.ui.dBox):
-			try:
-				prnt = box
-				box = dabo.ui.dBox(prnt)
-				box.sendToBack()
-			except:
-				raise dException.dException, "Must pass an instance of dBox or a parent object to dBorderSizer"
+			prnt = box
+			box = dabo.ui.dBox(prnt)
+			box.sendToBack()
 		# Convert Dabo orientation to wx orientation
 		orient = self._extractKey((kwargs, properties), "Orientation", orientation)
 		if orient[0].lower() == "v":

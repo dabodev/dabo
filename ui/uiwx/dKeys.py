@@ -6,7 +6,7 @@ key_Alt = wx.WXK_ALT
 try:
 	# Versions < 2.8 don't have this
 	key_Command = wx.WXK_COMMAND
-except:
+except AttributeError:
 	key_Command = None
 key_Back = wx.WXK_BACK
 key_Tab = wx.WXK_TAB
@@ -133,7 +133,7 @@ mod_Ctrl = wx.ACCEL_CTRL
 try:
 	# Versions < 2.8 don't have this
 	mod_Cmd = wx.ACCEL_CMD
-except:
+except AttributeError:
 	mod_Cmd = None
 mod_Normal = wx.ACCEL_NORMAL
 

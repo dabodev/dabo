@@ -224,7 +224,9 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 					idx = self.PictureIndex = maxIdx
 			try:
 				self._Image.LoadFile(val, index=idx)
-			except:
+			except IndexError:
+				# Note: when I try to load an invalid index, I get a segfault, so I don't know
+				# how useful this is.
 				self._Image.LoadFile(val, index=-1)
 		if self._Image.Ok():
 			self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
@@ -282,9 +284,8 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			if not isFile:
 				# Probably an image stream
 				try:
-					log = wx.LogNull()
 					img = dabo.ui.imageFromData(val)
-				except:
+				except TypeError:
 					# No dice, so just bail
 					img = wx.EmptyImage(1, 1)
 				self._setPic(img)

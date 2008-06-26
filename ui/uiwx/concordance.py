@@ -14,15 +14,12 @@ for daboName in daboNames:
 	if hasattr(daboClass, "__mro__"):
 		for mro in daboClass.__mro__:
 			if "<class 'wx." in str(mro):
-				try:
-					if "wx._" in str(mro):
-						# normal wx class: don't include the wx._controls. cruft
-						dabo_to_wx[daboName] = "wx.%s" % str(mro).split(".")[-1][:-2]
-					else:
-						# extra class: give the full story:
-						dabo_to_wx[daboName] = str(mro)[8:-2] 
-				except:
-					pass
+				if "wx._" in str(mro):
+					# normal wx class: don't include the wx._controls. cruft
+					dabo_to_wx[daboName] = "wx.%s" % str(mro).split(".")[-1][:-2]
+				else:
+					# extra class: give the full story:
+					dabo_to_wx[daboName] = str(mro)[8:-2] 
 				break
 
 daboNames = dabo_to_wx.items()

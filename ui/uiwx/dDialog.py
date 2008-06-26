@@ -120,9 +120,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		is removed from the app's forms collection.
 		"""
 		if self.Application is not None:
-			try:
-				self.Application.uiForms.remove(self)
-			except: pass
+			self.Application.uiForms.remove(self)
 		super(dDialog, self).release()
 	
 	

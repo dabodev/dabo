@@ -92,7 +92,7 @@ class dCheckBox(dcm.dDataControlMixin, wx.CheckBox):
 		else:
 			try:
 				state = self._ValueTo3State[val]
-			except:
+			except KeyError:
 				state = False
 			self.Set3StateValue(state)
 

@@ -134,7 +134,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 				self._source = url.read()
 				self.LoadPage(val)
 				self._page = val
-			except:
+			except urllib2.URLError:
 				self._source = "<html><body>Cannot Open URL %s</body><html>" % (val,)
 				self._page = ""
 				self.SetPage(self._source)

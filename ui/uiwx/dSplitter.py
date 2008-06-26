@@ -337,7 +337,7 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 			self._p1 = pnl
 			try:
 				old.Destroy()
-			except:
+			except AttributeError:
 				pass
 		else:
 			self._properties["Panel1"] = pnl
@@ -354,7 +354,7 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 				self.ReplaceWindow(self.GetWindow2(), pnl)
 			try:
 				old.Destroy()
-			except:
+			except AttributeError:
 				pass
 		else:
 			self._properties["Panel2"] = pnl
@@ -363,7 +363,7 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 	def _getPanelClass(self):
 		try:
 			ret = self._panelClass
-		except:
+		except AttributeError:
 			ret = self._panelClass = dabo.ui.dPanel
 		return ret
 		
@@ -413,10 +413,12 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 			self._showPanelSplitMenu = val
 			try:
 				self.Panel1.ShowSplitMenu = val
-			except: pass
+			except AttributeError:
+				pass
 			try:
 				self.Panel2.ShowSplitMenu = val
-			except: pass
+			except AttributeError:
+				pass
 		else:
 			self._properties["ShowPanelSplitMenu"] = val
 

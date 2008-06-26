@@ -161,7 +161,7 @@ class dFormMixin(pm.dPemMixin):
 				# in __init__ because we may not have our name yet.
 				try:
 					restoredSP = self.restoredSP
-				except:
+				except AttributeError:
 					restoredSP = False
 				if not restoredSP:
 					if self.SaveRestorePosition:
@@ -194,7 +194,7 @@ class dFormMixin(pm.dPemMixin):
 	def __onMove(self, evt):
 		try:
 			restoredSP = self.restoredSP
-		except:
+		except AttributeError:
 			restoredSP = False
 		if restoredSP:		
 			dabo.ui.callAfterInterval(800, self.saveSizeAndPosition)
@@ -203,7 +203,7 @@ class dFormMixin(pm.dPemMixin):
 	def __onResize(self, evt):
 		try:
 			restoredSP = self.restoredSP
-		except:
+		except AttributeError:
 			restoredSP = False
 		if restoredSP:
 			dabo.ui.callAfterInterval(800, self.saveSizeAndPosition)
@@ -247,11 +247,9 @@ class dFormMixin(pm.dPemMixin):
 		#self.SetFocus()
 
 		if app is not None:
-			try:
-				self.Application.uiForms.remove(self)
-			except: pass
-	
-	
+			self.Application.uiForms.remove(self)
+
+
 	def activeControlValid(self):
 		""" Force the control-with-focus to fire its KillFocus code.
 
@@ -494,7 +492,8 @@ class dFormMixin(pm.dPemMixin):
 		try:
 			# Call the Dabo version, if present
 			self.Sizer.layout()
-		except: pass
+		except AttributeError:
+			pass
 		if self.Application.Platform == "Win":
 			self.refresh()
 	
@@ -567,10 +566,13 @@ class dFormMixin(pm.dPemMixin):
 					% self.getAbsoluteName(), 0)
 
 
-	def pushStatusText(self, txt):
+	def pushStatusText(self, txt, duration=None):
 		"""Stores the current text of the StatusBar on a LIFO stack for later retrieval."""
 		self._statusStack.append(self.StatusText)
 		self.StatusText = txt
+		if duration is not None:
+			# Pop it after 'duration' seconds
+			dabo.ui.callAfterInterval(1000*duration, self.popStatusText)
 
 
 	def popStatusText(self):
@@ -857,7 +859,7 @@ class dFormMixin(pm.dPemMixin):
 		if hasattr(self, "GetStatusBar"):
 			try:
 				ret = self.GetStatusBar()
-			except:
+			except AttributeError:
 				# pkm: My client got a TypeError from the wx layer, perhaps because the
 				#      window is a dialog and not a form, but I can't reproduce on my end.
 				#      Just return None immediately if this happens again.
