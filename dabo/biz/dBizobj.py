@@ -77,6 +77,7 @@ class dBizobj(dObject):
 		self._newChildOnNew = False
 		self._fillLinkFromParent = False
 		self.exitScan = False
+		self.dbapiCursorClass = None
 
 		##########################################
 		### referential integrity stuff ####
@@ -146,6 +147,8 @@ class dBizobj(dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
+		if not self.dbapiCursorClass:
+			return
 		cursorClass = self._getCursorClass(self.dCursorMixinClass,
 				self.dbapiCursorClass)
 
