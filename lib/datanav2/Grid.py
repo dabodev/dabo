@@ -60,7 +60,8 @@ class Grid(dabo.ui.dGrid):
 		""" Occurs when the user double-clicks a cell in the grid. 
 		By default, this is interpreted as a request to edit the record.
 		"""
-		self.processEditRecord()
+		if evt.EventData["col"] is not None and evt.EventData["row"] is not None:
+			self.processEditRecord()
 
 	def processEditRecord(self):
 		## FormType is a prop of datanav forms. Even though we expect Grid to be 
