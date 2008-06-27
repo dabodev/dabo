@@ -807,8 +807,13 @@ class dSizerMixin(dObject):
 					
 		
 	def _getVisible(self):
-		return self._visible
-		
+		try:
+			return self._visible
+		except AttributeError:
+			default = True
+			self._setVisible(default)
+			return default
+			
 	def _setVisible(self, val):
 		if isinstance(val, basestring):
 			val = (val.lower()[0] in ("t", "y"))
@@ -876,7 +881,7 @@ class dSizerMixin(dObject):
 			sizers, it is the object that the outermost sizer belongs to. (obj)"""))
 	
 	Visible = property(_getVisible, _setVisible, None, 
-			_("Shows/hides the sizer and its contained items  (bool)" ) )
+			_("Specifies whether the sizer and contained items are shown  (bool)" ) )
 
 	Width = property(_getWd, None, None,
 			_("Width of this sizer  (int)") )

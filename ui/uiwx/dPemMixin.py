@@ -2498,6 +2498,10 @@ class dPemMixin(dPemMixinBase):
 		else:
 			self._properties["Visible"] = val
 
+	
+	def _getVisibleOnScreen(self):
+		return self.IsShownOnScreen()
+
 		
 	def _getWidth(self):
 		return self.GetSize()[0]
@@ -2724,7 +2728,17 @@ class dPemMixin(dPemMixinBase):
 
 	Visible = property(_getVisible, _setVisible, None,
 			_("Specifies whether the object is visible at runtime.  (bool)") )
-	
+
+	VisibleOnScreen = property(_getVisibleOnScreen, None, None, 
+			_("""Specifies whether the object is physically visible at runtime.  (bool)	
+
+			The Visible property could return True even if the object isn't actually
+			shown on screen, due to a parent object or sizer being invisible.
+
+			The VisibleOnScreen property will return True only if the object and all
+			parents are visible.
+			"""))
+
 	Width = property(_getWidth, _setWidth, None,
 			_("The width of the object. (int)") )
 	
