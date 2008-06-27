@@ -2359,7 +2359,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			try:
 				self._keyField = [fld[0] for fld in self.getFields(table)
 						if fld[2] ][0]
-			except KeyError:
+			except IndexError:
 				pass
 
 
