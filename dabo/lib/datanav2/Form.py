@@ -255,9 +255,13 @@ class Form(dabo.ui.dForm):
 			currPage = self.pageFrame.SelectedPage
 			self.pageFrame.unbindEvent()
 			self.pageFrame.release()
-			del self.__dict__["PageFrame"]
-		except KeyError: pass
-		
+			try:
+				del self.__dict__["PageFrame"]
+			except KeyError:
+				pass
+		except AttributeError:
+			pass
+			
 		if self.beforeSetupPageFrame():
 			self.pageFrame = PageFrame.PageFrame(self, tabStyle=self.PageFrameStyle,
 					TabPosition=self.PageTabPosition)
