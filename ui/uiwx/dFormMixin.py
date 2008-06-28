@@ -153,7 +153,7 @@ class dFormMixin(pm.dPemMixin):
 	def __onWxActivate(self, evt):
 		""" Raise the Dabo Activate or Deactivate appropriately."""
 		if bool(evt.GetActive()):
-			if self._skipActivate:
+			if False and self._skipActivate:
 				# Skip the first activate (Windows)
 				self._skipActivate = False
 			else:
