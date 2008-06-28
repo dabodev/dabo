@@ -11,10 +11,16 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 
+# Need to define this exception class for x-platform
+try:
+	WindowsError
+except:
+	class WindowsError: pass
+
 try:
 	import wx.lib.pdfwin as pdfwin
 	PDFWindow = pdfwin.PDFWindow
-except (ImportError, AttributeError):
+except (ImportError, AttributeError, WindowsError):
 	class Dummy(object):
 		_dummy = True
 	PDFWindow = Dummy
