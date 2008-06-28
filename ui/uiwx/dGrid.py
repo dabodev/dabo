@@ -1322,7 +1322,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _getSortable(self):
 		try:
 			v = self._sortable
-		except At:
+		except AttributeError:
 			v = self._sortable = True
 		return v
 
