@@ -221,7 +221,7 @@ class dControlItemMixin(dDataControlMixin):
 					# we are using a tuple/list of keys. Find its position
 					try:
 						self.setSelection(self.Keys.index(key))
-					except IndexError:
+					except ValueError:
 						# No such key; write an info message, but otherwise ignore it.
 						dabo.infoLog.write(_("Key '%s' not found") % key)
 						continue
