@@ -333,11 +333,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		bizobj = self.grid.getBizobj()
 		col_obj = self.grid.Columns[col]
 		field = col_obj.DataField
-		try:
-			dabo.ui.callAfterInterval(200, col_obj._updateDynamicProps)
-			dabo.ui.callAfterInterval(200, col_obj._updateCellDynamicProps, row)
-		except dabo.ui.deadObjectException:
-			return None
+		dabo.ui.callAfterInterval(200, col_obj._updateDynamicProps)
+		dabo.ui.callAfterInterval(200, col_obj._updateCellDynamicProps, row)
 		if bizobj:
 			if field and (row < bizobj.RowCount):
 				ret = self.getStringValue(bizobj.getFieldVal(field, row))
@@ -575,7 +572,10 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 					oldVal = getattr(self, prop)
 				except AttributeError:
 					needRefresh = True
-				setattr(self, prop, func(*args, **kwargs))
+				try:
+					setattr(self, prop, func(*args, **kwargs))
+				except dabo.ui.deadObjectException:
+					needRefresh = False
 				if needRefresh or oldVal != getattr(self, prop):
 					needRefresh = True
 		if needRefresh:
