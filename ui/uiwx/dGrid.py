@@ -333,8 +333,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		bizobj = self.grid.getBizobj()
 		col_obj = self.grid.Columns[col]
 		field = col_obj.DataField
-		dabo.ui.callAfterInterval(200, col_obj._updateDynamicProps)
-		dabo.ui.callAfterInterval(200, col_obj._updateCellDynamicProps, row)
+		try:
+			dabo.ui.callAfterInterval(200, col_obj._updateDynamicProps)
+			dabo.ui.callAfterInterval(200, col_obj._updateCellDynamicProps, row)
+		except dabo.ui.deadObjectException:
+			return None
 		if bizobj:
 			if field and (row < bizobj.RowCount):
 				ret = self.getStringValue(bizobj.getFieldVal(field, row))
