@@ -973,9 +973,10 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _setDataField(self, val):
 		if self._constructed():
+			if self._dataField:
+				# Use a callAfter, since the parent may not be finished instantiating yet.
+				dabo.ui.callAfter(self._setDataTypeFromDataField, val)
 			self._dataField = val
-			# Use a callAfter, since the parent may not be finished instantiating yet.
-			dabo.ui.callAfter(self._setDataTypeFromDataField, val)
 			if not self.Name or self.Name == "?":
 				self._name = _("col_%s") % val
 			self._updateRenderer()
@@ -2958,10 +2959,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			colNum = col
 		else:
 			# They probably passed a specific column instance
-			colNum = self.Columns.index(col)
-			if colNum == -1:
-				# No such column
-				# raise an error?
+			try:
+				colNum = self.Columns.index(col)
+			except ValueError:
+				# Column is not in the grid
 				return
 		del self.Columns[colNum]
 		self._syncColumnCount()
