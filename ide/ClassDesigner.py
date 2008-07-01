@@ -966,10 +966,20 @@ class ClassDesigner(dabo.dApp):
 
 				if kids:
 					if isGrid:
+						colClass = obj.ColumnClass
 						# All the kids will be columns, so add 'em here
 						for kid in kids:
-							col = obj.addColumn()
-							col.setPropertiesFromAtts(kid["attributes"])
+							kidatts = kid["attributes"]
+							col = colClass(obj)
+							for kprop, kval in kidatts.items():
+								if kprop in ("designerClass", ):
+									continue
+								typ = type(getattr(col, kprop))
+								if not issubclass(typ, basestring):
+									kval = typ(kval)
+								setattr(col, kprop, kval)
+							notLast = (kid is not kids[-1])
+							obj.addColumn(col, inBatch=notLast)
 						# Make it look nice
 						obj.emptyRowsToAdd = 5
 						obj.fillGrid(True)
