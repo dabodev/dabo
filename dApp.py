@@ -888,13 +888,11 @@ class dApp(dObject):
 		
 	def closeConnections(self):
 		"""Cleanup as the app is exiting."""
-		for conn in self.dbConnections:
-			try:
-				self.dbConnections[conn].close()
-			except StandardError, e:
-				dabo.errorLog.write(_("Failed to close connection. Error: %s") % e)
-	
-	
+		for key, conn in self.dbConnections.items():
+			conn.close()
+			del self.dbConnections[key]
+	      
+
 	def addConnectInfo(self, ci, name=None):
 		if name is None:
 			try:
