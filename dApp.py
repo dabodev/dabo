@@ -890,7 +890,7 @@ class dApp(dObject):
 		"""Cleanup as the app is exiting."""
 		for conn in self.dbConnections:
 			try:
-				conn.close()
+				self.dbConnections[conn].close()
 			except StandardError, e:
 				dabo.errorLog.write(_("Failed to close connection. Error: %s") % e)
 	
