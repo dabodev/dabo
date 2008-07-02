@@ -345,8 +345,8 @@ class dStandardButtonDialog(dDialog):
 		except AttributeError:
 			# New code should not have onOK
 			pass
-		self.runOK()
-		self.EndModal(kons.DLG_OK)
+		if self.runOK() is not False:
+			self.EndModal(kons.DLG_OK)
 	def _onCancel(self, evt):
 		try:
 			self.onCancel()
@@ -358,14 +358,15 @@ class dStandardButtonDialog(dDialog):
 			# New code should not have onCancel
 			pass
 		self.runCancel()
-		self.EndModal(kons.DLG_CANCEL)
+		if self.runCancel() is not False:
+			self.EndModal(kons.DLG_CANCEL)
 	def _onYes(self, evt):
 		self.Accepted = True
-		self.runYes()
-		self.EndModal(kons.DLG_YES)
+		if self.runYes() is not False:
+			self.EndModal(kons.DLG_YES)
 	def _onNo(self, evt):
-		self.runNo()
-		self.EndModal(kons.DLG_NO)
+		if self.runNo() is not False:
+			self.EndModal(kons.DLG_NO)
 	def _onHelp(self, evt):
 		self.runHelp()
 
