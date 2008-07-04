@@ -1087,10 +1087,20 @@ def resolvePathAndUpdate(srcFile):
 		if app.SourceURL:
 			# The srcFile has an absolute path; the URLs work on relative.
 			try:
-				splt = srcFile.split(cwd)[1]
+				splt = srcFile.split(cwd)[1].lstrip("/")
 			except IndexError:
 				splt = srcFile
 			app.urlFetch(splt)
+			try:
+				nm, ext = os.path.splitext(splt)
+			except ValueError:
+				# No extension; skip it
+				nm = ext = ""
+			if ext == ".cdxml":
+				# There might be an associated code file. If not, the error
+				# will be caught in the app method, and no harm will be done.
+				codefile = "%s-code.py" % nm
+				app.urlFetch(codefile)
 	# At this point the file should be present and updated. If not...
 	if not os.path.exists(srcFile):
 		raise IOError, _("The file '%s' cannot be found") % srcFile

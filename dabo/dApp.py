@@ -221,9 +221,6 @@ class dApp(dObject):
 		self.formsToOpen = []  
 		# Form to open if no forms were passed as a parameter
 		self.default_form = None
-		# For web-enabled apps, this is the base URL from which the source
-		# files wil be retrieved
-		self._sourceURL = ""
 		# Dict of "Last-Modified" values for dynamic web resources
 		self._sourceLastModified = {}
 
@@ -613,18 +610,21 @@ class dApp(dObject):
 		return (self._frameworkPrefs.web_update, self._frameworkPrefs.update_interval)
 
 
-	def urlFetch(self, pth):
+	def urlFetch(self, pth, errorOnNotFound=False):
 		"""Fetches the specified resource from the internet using the SourceURL value
 		as the base for the resource URL. If a newer version is found, the local copy
-		is updated with the retrieved resource.
+		is updated with the retrieved resource. If the resource isn't found, nothing 
+		happens by default. If you want the error to be raised, pass True for the 
+		parameter 'errorOnNotFound'.
 		"""
 		base = self.SourceURL
 		if not base:
 			# Nothing to do
 			return
 		u2 = urllib2
-		# os.path.join works great for this
-		url = os.path.join(self.SourceURL, pth)
+		# os.path.join works great for this; just make sure that the 
+		# pth value doesn't begin with a slash
+		url = os.path.join(self.SourceURL, pth.lstrip("/"))
 		req = u2.Request(url)
 		lastmod = self._sourceLastModified.get(url)
 		resp = None
@@ -639,6 +639,9 @@ class dApp(dObject):
 			code = e.code
 			if code in (304, 404):
 				# Not changed or not found; nothing to do
+				if code == 404 and errorOnNotFound:
+					# Re-raise the error
+					raise u2.HTTPError, e
 				return
 		newFile = resp.read()
 		if newFile:
@@ -1329,7 +1332,11 @@ class dApp(dObject):
 
 			
 	def _getSourceURL(self):
-		return self._sourceURL
+		try:
+			return self._sourceURL
+		except AttributeError:
+			self._sourceURL = ""
+			return self._sourceURL
 
 	def _setSourceURL(self, val):
 		self._sourceURL = val
