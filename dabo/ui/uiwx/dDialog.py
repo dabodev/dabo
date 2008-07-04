@@ -23,8 +23,12 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		self._modal = True
 		self._centered = True
 		self._fit = True
+		self._borderless = self._extractKey((properties, kwargs), "Borderless", False)
 
-		defaultStyle = wx.DEFAULT_DIALOG_STYLE
+		if self._borderless:
+			defaultStyle = wx.STAY_ON_TOP
+		else:
+			defaultStyle = wx.DEFAULT_DIALOG_STYLE
 		try:
 			kwargs["style"] = kwargs["style"] | defaultStyle
 		except KeyError:
@@ -131,6 +135,16 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		self._fit = val
 
 
+	def _getBorderless(self):
+		return self._borderless
+
+	def _setBorderless(self, val):
+		if self._constructed():
+			raise ValueError, _("Cannot set the Borderless property once the dialog is created.")
+		else:
+			self._properties["Borderless"] = val
+
+
 	def _getCaption(self):
 		return self.GetTitle()
 
@@ -162,16 +176,20 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 
 
 	AutoSize = property(_getAutoSize, _setAutoSize, None,
-			"When True, the dialog resizes to fit the added controls.  (bool)")
+			_("When True, the dialog resizes to fit the added controls.  (bool)"))
+
+	Borderless = property(_getBorderless, _setBorderless, None,
+			_("""Must be passed at construction time. When set to True, the dialog displays 
+			without a title bar or borders  (bool)"""))
 
 	Caption = property(_getCaption, _setCaption, None,
-			"The text that appears in the dialog's title bar  (str)" )
+			_("The text that appears in the dialog's title bar  (str)") )
 
 	Centered = property(_getCentered, _setCentered, None,
-			"Determines if the dialog is displayed centered on the screen.  (bool)")
+			_("Determines if the dialog is displayed centered on the screen.  (bool)"))
 
 	Modal = property(_getModal, _setModal, None,
-			"Determines if the dialog is shown modal (default) or modeless.  (bool)")
+			_("Determines if the dialog is shown modal (default) or modeless.  (bool)"))
 	
 
 	DynamicAutoSize = makeDynamicProperty(AutoSize)
