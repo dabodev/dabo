@@ -104,6 +104,12 @@ class dFont(dObject):
 		return multiplier * self._nativeFont.GetPointSize()
 
 	def _setSize(self, val):
+		try:
+			val = int(val)
+		except ValueError:
+			# Could be fractional. Try casting to float. If that fails,
+			# let the ValueError be raised.
+			val = float(val)
 		if self._useMacFontScaling():
 			self._macNonScaledSize = val
 			val = val / .75
