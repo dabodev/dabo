@@ -14,12 +14,14 @@ from dabo.ui import makeDynamicProperty
 
 
 class CalPanel(dPanel):
-	def __init__(self, parent, pos=None, dt=None, ctrl=None ):
+	def __init__(self, parent, pos=None, dt=None, ctrl=None, 
+			extended=False):
 		if isinstance(dt, (datetime.datetime, datetime.date)):
 			self.date = dt
 		else:
 			self.date = datetime.date.today()
 		self.ctrl = ctrl
+		self.extended = extended
 		super(CalPanel, self).__init__(parent, pos=pos)
 		
 	
@@ -27,7 +29,8 @@ class CalPanel(dPanel):
 		""" Create the calendar control, and resize this panel 
 		to the calendar's size.
 		"""
-		self.cal = dabo.ui.dCalendar(self, Position=(5, 5))
+		calClass = {True: dabo.ui.dExtendedCalendar, False: dabo.ui.dCalendar}[self.extended]
+		self.cal = calClass(self, Position=(5, 5))
 		self.cal.Date = self.date
 		self.cal.bindEvent(dEvents.Hit, self.onCalSelection)
 		self.cal.bindEvent(dEvents.KeyChar, self.onCalKey)
@@ -41,7 +44,7 @@ class CalPanel(dPanel):
 		if self.ctrl is not None:
 			self.ctrl.setDate(self.cal.Date)
 			self.ctrl.setFocus()
-		self.Visible = False
+		self.Form.hide()
 	
 	
 	def onCalKey(self, evt):
@@ -49,7 +52,7 @@ class CalPanel(dPanel):
 			evt.Continue = False
 			if self.ctrl is not None:
 				self.ctrl.setFocus()
-			self.Visible = False
+			self.Form.hide()
 		
 		
 
@@ -75,11 +78,14 @@ class dDateTextBox(dTextBox):
 		self.showCalButton = False
 		# Do we display datetimes in 24-hour clock, or with AM/PM?
 		self.ampm = False
-	
+		# Do we use the extended format for the calendar display?
+		self._extendedCalendar = False
+
 	
 	def afterInit(self):
 		self._baseClass = dDateTextBox
 		self.Value = datetime.date.today()
+		self._calendarPanel = None
 		if self.showCalButton:
 			# Create a button that will display the calendar
 			self.calButton = dButton(self.Parent, Size=(self.Height, self.Height),
@@ -101,9 +107,10 @@ Y : First Day of Year
 R : Last Day of yeaR
 C: Popup Calendar to Select
 """)
-		self.DynamicToolTipText = lambda: {True: self._defaultToolTipText, 
-				False: None}[self.Enabled and not self.ReadOnly]
+# 		self.DynamicToolTipText = lambda: {True: self._defaultToolTipText, 
+# 				False: None}[self.Enabled and not self.ReadOnly]
 
+		self.DynamicToolTipText = lambda: "%s, %s" % self.formCoordinates()
 
 	def initEvents(self):
 		super(dDateTextBox, self).initEvents()
@@ -121,26 +128,11 @@ C: Popup Calendar to Select
 		if self.ReadOnly:
 			# ignore
 			return
-		availHt = self.Parent.Bottom - self.Bottom
-		try:
-			self.calPanel.cal.Date = self.Value
-		except AttributeError:
-			self.calPanel = CalPanel(self.Parent, dt=self.Value, ctrl=self)
-		cp = self.calPanel
-		cp.Position = (self.Left, self.Bottom)
-		if self.Bottom + cp.Height > self.Parent.Bottom:
-			# Maybe we should move it above
-			if cp.Height <= self.Top:
-				cp.Bottom = self.Top
-			else:
-				# We can't fit it cleanly, so try to fit as much as possible
-				cp.Top = max(0, (self.Parent.Height - cp.Height) )
-		if self.Left + cp.Width > self.Parent.Right:
-			# Try moving it to the left
-			cp.Left = max(0, (self.Parent.Width - cp.Width) )
-		cp.Visible = True
-		cp.bringToFront()
-		cp.setFocus()
+		cp = self._CalendarPanel
+		cp.cal.Date = self.Value
+		fp = self.Form.FloatingPanel
+		fp.Owner = self
+		fp.show()
 		
 	
 	def __onChar(self, evt):
@@ -396,7 +388,35 @@ C: Popup Calendar to Select
 		else:
 			self.Value = dt
 
-			
+	def _getCalendarPanel(self):
+		fp = self.Form.FloatingPanel
+		if not isinstance(self._calendarPanel, CalPanel) or not (self._calendarPanel.Parent is fp):
+			fp.clear()
+			self._calendarPanel = CalPanel(fp, dt=self.Value, ctrl=self, 
+					extended=self.ExtendedCalendar)
+			fp.Sizer.append(self._calendarPanel)
+			fp.fitToSizer()
+		return self._calendarPanel
+
+
+	def _getExtendedCalendar(self):
+		return self._extendedCalendar
+
+	def _setExtendedCalendar(self, val):
+		if self._constructed():
+			self._extendedCalendar = val
+		else:
+			self._properties["ExtendedCalendar"] = val
+
+
+	_CalendarPanel = property(_getCalendarPanel, None, None,
+			_("Reference to the displayed calendar  (read-only) (CalPanel)"))
+
+	ExtendedCalendar = property(_getExtendedCalendar, _setExtendedCalendar, None,
+			_("""When True, the calendar is displayed in a larger format with more controls 
+			for quickly moving to any date. Default=False  (bool)"""))
+
+
 
 if __name__ == "__main__":
 	import test
