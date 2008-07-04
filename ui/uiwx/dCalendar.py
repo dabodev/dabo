@@ -301,56 +301,58 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 
 	Date = property(_getDate, _setDate, None,
 			_("The current Date of the calendar  (datetime.date)"))
-	DynamicDate = makeDynamicProperty(Date)
 	
 	FirstDayOfWeek = property(_getFirstDayOfWeek, None, None,
 			_("""Can be one of either 'Sunday' or 'Monday'. Determines which day
 			of the week appears in the first column. Defaults to the value set
 			in dabo.settings.firstDayOfWeek. Read-only at runtime.  (str)"""))
-	DynamicFirstDayOfWeek = makeDynamicProperty(FirstDayOfWeek)
 	
 	FixedMonth = property(_getFixedMonth, _setFixedMonth, None,
 			_("""When True, the user cannot change the displayed month. 
 			Default=False  (bool)"""))
-	DynamicFixedMonth = makeDynamicProperty(FixedMonth)
 
 	FixedYear = property(_getFixedYear, _setFixedYear, None,
 			_("""When True, the user cannot change the displayed month. 
 			Default=False  (bool)"""))
-	DynamicFixedYear = makeDynamicProperty(FixedYear)
 	
 	HeaderBackColor = property(_getHeaderBackColor, _setHeaderBackColor, None,
 			_("Background color of the calendar header  (str or tuple)"))
-	DynamicHeaderBackColor = makeDynamicProperty(HeaderBackColor)
 	
 	HeaderForeColor = property(_getHeaderForeColor, _setHeaderForeColor, None,
 			_("Forecolor of the calendar header  (str or tuple)"))
-	DynamicHeaderForeColor = makeDynamicProperty(HeaderForeColor)
 	
 	HighlightBackColor = property(_getHighlightBackColor, _setHighlightBackColor, None,
 			_("Background color of the calendar highlight  (str or tuple)"))
-	DynamicHighlightBackColor = makeDynamicProperty(HighlightBackColor)
 	
 	HighlightForeColor = property(_getHighlightForeColor, _setHighlightForeColor, None,
 			_("Forecolor of the calendar highlight  (str or tuple)"))
-	DynamicHighlightForeColor = makeDynamicProperty(HighlightForeColor)
 	
 	HolidayBackColor = property(_getHolidayBackColor, _setHolidayBackColor, None,
 			_("Background color of the calendar holiday  (str or tuple)"))
-	DynamicHolidayBackColor = makeDynamicProperty(HolidayBackColor)
 	
 	HolidayForeColor = property(_getHolidayForeColor, _setHolidayForeColor, None,
 			_("Forecolor of the calendar holiday  (str or tuple)"))
-	DynamicHolidayForeColor = makeDynamicProperty(HolidayForeColor)
 	
 	HighlightHolidays = property(_getHighlightHolidays, _setHighlightHolidays, None,
 			_("""Determines whether holidays are displayed as highlighted.
 			Default=False.  (bool)"""))
-	DynamicHighlightHolidays = makeDynamicProperty(HighlightHolidays)
 	
 	Value = Date
-	DynamicValue = makeDynamicProperty(Value)
 
+
+	DynamicDate = makeDynamicProperty(Date)
+	DynamicFirstDayOfWeek = makeDynamicProperty(FirstDayOfWeek)
+	DynamicFixedMonth = makeDynamicProperty(FixedMonth)
+	DynamicFixedYear = makeDynamicProperty(FixedYear)
+	DynamicHeaderBackColor = makeDynamicProperty(HeaderBackColor)
+	DynamicHeaderForeColor = makeDynamicProperty(HeaderForeColor)
+	DynamicHighlightBackColor = makeDynamicProperty(HighlightBackColor)
+	DynamicHighlightForeColor = makeDynamicProperty(HighlightForeColor)
+	DynamicHolidayBackColor = makeDynamicProperty(HolidayBackColor)
+	DynamicHolidayForeColor = makeDynamicProperty(HolidayForeColor)
+	DynamicHighlightHolidays = makeDynamicProperty(HighlightHolidays)
+	DynamicValue = makeDynamicProperty(Value)
+	
 
 
 class dCalendar(BaseCalendar):
