@@ -1033,7 +1033,12 @@ class dApp(dObject):
 		self.uiApp.onShowSizerLines(evt)
 
 	def onEditPreferences(self, evt):
+		if self.beforeEditPreferences() is False:
+			return
 		self.uiApp.onEditPreferences(evt)
+		self.afterEditPreferences()
+	def beforeEditPreferences(self): pass
+	def afterEditPreferences(self): pass
 
 	# These handle MRU menu requests
 	def addToMRU(self, menu, prmpt, bindfunc=None, *args, **kwargs):
