@@ -622,14 +622,20 @@ class dApp(dObject):
 			# Nothing to do
 			return
 		u2 = urllib2
-		# os.path.join works great for this; just make sure that the 
+		# os.path.join works great for this; just make sure that any Windows
+		# paths are converted to forward slashes, and that the 
 		# pth value doesn't begin with a slash
-		url = os.path.join(self.SourceURL, pth.lstrip("/"))
+		pth = pth.lstrip(os.path.sep)
+		urlparts = base.split(os.path.sep) + pth.split(os.path.sep)
+		url = "/".join(urlparts)
 		req = u2.Request(url)
 		lastmod = self._sourceLastModified.get(url)
 		resp = None
 		if lastmod:
 			req.add_header("If-Modified-Since", lastmod)
+		elif os.path.exists(pth):
+			modTime = datetime.datetime.fromtimestamp(os.stat(pth)[8])
+			req.add_header("If-Modified-Since", dabo.lib.dates.webHeaderFormat(modTime))
 		try:
 			resp = u2.urlopen(req)
 			lm = resp.headers.get("Last-Modified")
@@ -646,6 +652,7 @@ class dApp(dObject):
 		newFile = resp.read()
 		if newFile:
 			file(pth, "w").write(newFile)
+			dabo.infoLog.write(_("File %s updated") % pth)
 
 
 	def getUserSettingKeys(self, spec):
