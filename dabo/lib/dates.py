@@ -265,6 +265,17 @@ def goDate(date_datetime_exp, days):
 	return datetime.date(new_time[0], new_time[1], new_time[2])
 
 
+def webHeaderFormat(dtm):
+	"""Takes a datetime value and returns a string in the format required by 
+	HTTP headers, such as an 'If-Modified-Since' header.
+	"""
+	hereNow, utcNow = datetime.datetime.now(), datetime.datetime.utcnow()
+	offset = utcNow - hereNow
+	adjusted = dtm + offset
+	return adjusted.strftime("%a, %d %b %Y %H:%M:%S GMT")
+
+
+
 if __name__ == "__main__":
 	print "testing converting strings to dates:"
 	formats = ["ISO8601", "YYYYMMDD", "YYMMDD", "MMDD"]
