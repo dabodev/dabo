@@ -756,7 +756,6 @@ import sys
 """
 		self._grdColText = """		col = dabo.ui.dColumn(obj, attProperties=%(kidCleanAtts)s)
 		obj.addColumn(col)
-		col.setPropertiesFromAtts(%(kidCleanAtts)s)
 """
 		self._pgfPageText = """		pg = %(moduleString)s%(nm)s(%(prntName)s%(attPropString)s)
 		%(prntName)s.appendPage(pg)

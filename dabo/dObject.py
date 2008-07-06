@@ -33,7 +33,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 	# the call to setProperties() at the end!
 	_call_beforeInit, _call_afterInit, _call_initProperties = True, True, True
 
-	def __init__(self, properties=None, *args, **kwargs):
+	def __init__(self, properties=None, attProperties=None, *args, **kwargs):
 		if not hasattr(self, "_properties"):
 			self._properties = {}
 		if self._call_beforeInit:
@@ -45,6 +45,24 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		# see if there are properties sent to the constructor which will augment 
 		# or override the properties set in beforeInit().
 		
+		# Some classes that are not inherited from the ui-layer PEM mixin classes
+		# can have attProperties passed. Since these are all passed as strings, we
+		# need to convert them to their proper type and add them to the properties
+		# dict.
+		if properties is None:
+			properties = {}
+		if attProperties:
+			for prop, val in attProperties.items():
+				if prop in ("designerClass", ):
+					continue
+				if prop in properties:
+					# The properties value has precedence, so ignore.
+					continue
+				typ = type(getattr(self, prop))
+				if not issubclass(typ, basestring):
+					val = typ(val)
+				properties[prop] = val
+
 		# The keyword properties can come from either, both, or none of:
 		#    + the properties dict
 		#    + the kwargs dict
@@ -54,9 +72,6 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 			for k,v in properties.items():
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
-# 		if kwargs:
-# 			# Some kwargs haven't been handled.
-# 			raise TypeError, _("__init__() got an unexpected keyword argument '%s'") % kwargs.keys()[0]
 		if kwargs:
 			# Some kwargs haven't been handled.
 			bad = ", ".join(["'%s'" % kk for kk in kwargs.keys()])
