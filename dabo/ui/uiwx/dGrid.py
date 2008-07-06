@@ -1388,7 +1388,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			# Make sure the grid is in sync:
 			try:
 				self.Parent.SetColSize(idx, v)
-			except AttributeError:
+			except wx.PyAssertionError:
 				# The grid may still be in the process of being created, so pass.
 				pass
 		return v
