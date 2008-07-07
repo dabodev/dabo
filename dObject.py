@@ -60,7 +60,14 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 					continue
 				typ = type(getattr(self, prop))
 				if not issubclass(typ, basestring):
-					val = typ(val)
+					try:
+						val = typ(val)
+					except ValueError, e:
+						# Sometimes int values can be stored as floats
+						if typ in (int, long):
+							val = float(val)
+						else:
+							raise e
 				properties[prop] = val
 
 		# The keyword properties can come from either, both, or none of:
