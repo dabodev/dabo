@@ -408,6 +408,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		"""
 		## MenuOpen and MenuClose don't appear to be working on Linux. Need
 		## to test on Mac and Win.
+		self._wxMenuItemId = id_
+
 		if self.Application is not None:
 			# Set up a mechanism to catch menu events and re-raise Dabo events. 
 			# If Application is None, however, this won't work because of wx 
@@ -487,11 +489,11 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def _getEnabled(self):
-		return self.IsEnabled()
+		return self.Parent.IsEnabled(self._wxMenuItemId)
 
 	def _setEnabled(self, val):
 		if self._constructed():
-			self.Enable(bool(val))
+			self.Parent.Enable(self._wxMenuItemId, bool(val))
 		else:
 			self._properties["Enabled"] = val
 
