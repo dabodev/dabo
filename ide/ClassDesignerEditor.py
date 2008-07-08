@@ -201,6 +201,20 @@ class EditorForm(dui.dForm):
 		self._whiteSpaceItem = emn.append(_("White Space Characters"), 
 				OnHit=self.onWhiteSpace, bmp="", help=_("Toggle White Space Characters"), 
 				menutype="check")
+		
+		emn.appendSeparator()
+		
+		self._useSpacesItem = emn.append(_("Use Spaces Instead Of Tabs"), 
+				OnHit=self.onUseSpaces, bmp="", help=_("Toggle Using Spaces Or Tabs"), 
+				menutype="check")
+		
+		self._tabMenu = dabo.ui.dMenu(Caption="Tab Size")
+		emn.appendMenu(self._tabMenu)
+		
+		for number in [2,4,6,8,16]:
+			self._tabMenu.append(_("Tab Size %s" % number), OnHit=self.onTabSize, bmp="",
+			help=_("Set Tab Size To %s" % number), menutype="radio")
+		self._tabMenu.Children[1].Checked = True
 
 
 	def fontIncrease(self, evt):
@@ -228,6 +242,18 @@ class EditorForm(dui.dForm):
 	def onLineNumbers(self, evt):
 		ed = self.editor
 		ed.ShowLineNumbers = not ed.ShowLineNumbers
+
+
+	def onTabSize(self, evt):
+		#Captions are "Tab Size #" so doing a caption.split[-1] will get the width
+		self.editor.TabWidth = int(evt.EventObject.Caption.split()[-1])
+
+
+	def onUseSpaces(self, evt):
+		useTabs = not evt.EventObject.Checked
+		self.editor.UseTabs = useTabs
+		for child in self._tabMenu.Children:
+			child.Enabled = useTabs
 
 
 	def onWhiteSpace(self, evt):
