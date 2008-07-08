@@ -1499,7 +1499,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				f = open(fileSpec, "rb")
 				text = f.read().decode(self.Encoding)
 				f.close()
-			except OSError:
+			except IOError:
 				if os.path.exists(fileSpec):
 					dabo.ui.stop("Could not open %s.  Please check that you have read permissions." % fileSpec)
 					return False
