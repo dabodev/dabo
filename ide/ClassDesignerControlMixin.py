@@ -747,7 +747,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"ShowRowLabels" : {"type" : bool, "readonly" : False}}
 		imageProps = {"ScaleMode" : {"type" : list, "readonly" : False,
 					"values" : ["Clip", "Proportional", "Stretch"]}}
-		labelProps = {"AutoResize": {"type" : bool, "readonly" : False}}
+		labelProps = {"Alignment": {"type": list, "readonly": False,
+				"values": ["Left", "Center", "Right"]},
+				"AutoResize": {"type" : bool, "readonly" : False}}
 		multiSelectProps = {"MultipleSelect": {"type" : bool, "readonly" : False}}
 		nodeProps = {"Image": {"type" : "path", "readonly" : False, 
 					"customEditor": "editStdPicture"}}
