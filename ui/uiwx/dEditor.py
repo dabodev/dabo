@@ -241,6 +241,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._hiliteCharsBeyondLimit = False
 		self._hiliteLimitColumn = 79
 		self._encoding = self.Application.Encoding
+		self._eolMode = ""
 		self._useAntiAliasing = True
 		self._codeFolding = True
 		self._showLineNumbers = True
@@ -675,9 +676,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 		## Seems that eolmode is CRLF on Mac by default... explicitly set it!
 		if wx.Platform == "__WXMSW__":
-			self.SetEOLMode(stc.STC_EOL_CRLF)
+			self.EOLMode = "CRLF"
 		else:
-			self.SetEOLMode(stc.STC_EOL_LF)
+			self.EOLMode = "LF"
 
 		if self.HiliteCharsBeyondLimit:
 			self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
@@ -1929,6 +1930,29 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self._properties["Encoding"] = val
 
 
+	def _getEOLMode(self):
+		return self._eolMode
+
+	def _setEOLMode(self, val):
+		if _constructer():
+			if val.lower() == "crlf":
+				self.SetEOLMode(stc.STC_EOL_CRLF)
+				self.ConvertEOLs(stc.STC_EOL_CRLF)
+				self._eolMode = "CRLF"
+			elif val.lower() == "lf":
+				self.SetEOLMode(stc.STC_EOL_LF)
+				self.ConvertEOLs(stc.STC_EOL_LF)
+				self._eolMode = "LF"
+			elif val.lower() == "cr":
+				self.SetEOLMode(stc.STC_EOL_CR)
+				self.ConvertEOLs(stc.STC_EOL_CR)
+				self._eolMode = "CR"
+			else:
+				raise ValueError, "EOLMode value must be either 'LFCR', 'LF', or 'CR'"
+		else:
+			self._properties["EOLMode"] = val
+
+
 	def _getFileName(self):
 		return os.path.split(self._fileName)[1]
 
@@ -2298,6 +2322,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	
 	Encoding = property(_getEncoding, _setEncoding, None,
 			_("Type of encoding to use. Defaults to the application's default encoding.  (str)"))
+	
+	EOLMode = property(_getEOLMode, _setEOLMode, None,
+			_("End of line characters. Allowed values are 'CRLF', 'LF' and 'CR'. (default=os dependent) (str)"))
 	
 	FileName = property(_getFileName, None, None,
 			_("Name of the file being edited (without path info)  (str)"))
