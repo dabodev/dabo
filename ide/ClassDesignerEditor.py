@@ -182,8 +182,24 @@ class EditorForm(dui.dForm):
 		fmn = self.MenuBar.append(_("Font"))
 		fmn.append(_("Increase Font Size"), HotKey="Ctrl++", OnHit=self.fontIncrease)
 		fmn.append(_("Decrease Font Size"), HotKey="Ctrl+-", OnHit=self.fontDecrease)
-		self._autoAutoItem = fmn.append(_("Automa&tic AutoComplete"), 
+		
+		emn = dabo.ui.dMenu(Caption="Editor")
+		self.MenuBar.appendMenu(emn)
+		
+		self._autoAutoItem = emn.append(_("Automa&tic AutoComplete"), 
 				OnHit=self.onAutoAutoComp, bmp="", help=_("Toggle Automatic Autocomplete"), 
+				menutype="check")
+		self._autoAutoItem.Checked = True
+		self._codeFoldingItem = emn.append(_("Code Folding"), 
+				OnHit=self.onCodeFolding, bmp="", help=_("Toggle Code Folding"), 
+				menutype="check")
+		self._codeFoldingItem.Checked = True
+		self._lineNumbersItem = emn.append(_("Line Numbers"), 
+				OnHit=self.onLineNumbers, bmp="", help=_("Toggle Line Numbers"), 
+				menutype="check")
+		self._lineNumbersItem.Checked = True
+		self._whiteSpaceItem = emn.append(_("White Space Characters"), 
+				OnHit=self.onWhiteSpace, bmp="", help=_("Toggle White Space Characters"), 
 				menutype="check")
 
 
@@ -201,7 +217,22 @@ class EditorForm(dui.dForm):
 
 	def onAutoAutoComp(self, evt):
 		ed = self.editor
-		ed.AutoAutoComplete = not ed.AutoAutoComplete	
+		ed.AutoAutoComplete = not ed.AutoAutoComplete
+
+
+	def onCodeFolding(self, evt):
+		ed = self.editor
+		ed.ShowCodeFolding = not ed.ShowCodeFolding
+
+
+	def onLineNumbers(self, evt):
+		ed = self.editor
+		ed.ShowLineNumbers = not ed.ShowLineNumbers
+
+
+	def onWhiteSpace(self, evt):
+		ed = self.editor
+		ed.ShowWhiteSpace = not ed.ShowWhiteSpace
 
 
 	def getAllText(self):
