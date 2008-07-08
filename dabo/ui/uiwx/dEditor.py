@@ -1934,7 +1934,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		return self._eolMode
 
 	def _setEOLMode(self, val):
-		if _constructer():
+		if self._constructed():
 			if val.lower() == "crlf":
 				self.SetEOLMode(stc.STC_EOL_CRLF)
 				self.ConvertEOLs(stc.STC_EOL_CRLF)
