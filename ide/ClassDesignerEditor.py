@@ -250,10 +250,7 @@ class EditorForm(dui.dForm):
 
 
 	def onUseSpaces(self, evt):
-		useTabs = not evt.EventObject.Checked
-		self.editor.UseTabs = useTabs
-		for child in self._tabMenu.Children:
-			child.Enabled = useTabs
+		self._tabMenu.Enabled = self.editor.UseTabs = not evt.EventObject.Checked
 
 
 	def onWhiteSpace(self, evt):
