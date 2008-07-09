@@ -517,8 +517,6 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			strVal = value.isoformat()
 		elif value is None:
 			strVal = self.Application.NoneDisplay
-		elif isinstance(value, long):
-			strVal = value.__repr__()
 		else:
 			# convert all other data types to string:
 			strVal = str(value)   # (floats look like 25.55)
