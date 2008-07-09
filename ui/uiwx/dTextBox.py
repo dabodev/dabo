@@ -40,6 +40,10 @@ if __name__ == "__main__":
 	class IntText(TestBase):
 		def afterInit(self):
 			self.Value = 23
+	
+	class LongText(TestBase):
+		def afterInit(self):
+			self.Value = long(23)
 		
 	class FloatText(TestBase):
 		def afterInit(self):
@@ -68,7 +72,7 @@ if __name__ == "__main__":
 		def afterInit(self):
 			self.Value = datetime.datetime.now()
 	
-	testParms = [IntText, FloatText, StrText, PWText, BoolText, DateText, DateTimeText]
+	testParms = [IntText, LongText, FloatText, StrText, PWText, BoolText, DateText, DateTimeText]
 	
 	try:
 		import mx.DateTime
