@@ -202,7 +202,14 @@ class Form(dabo.ui.dForm):
 	def onDelete(self, evt):
 		super(Form, self).onDelete(evt)
 		# Make sure that the grid is properly updated.
-		self.PageFrame.Pages[1].BrowseGrid.refresh()
+		try:
+			self.PageFrame.Pages[1].BrowseGrid.refresh()
+		except AttributeError, e:
+			# Grid may not even exist yet.
+			if "BrowseGrid" in str(e):
+				pass
+			else:
+				raise
 
 
 	def enableQuickReport(self):
