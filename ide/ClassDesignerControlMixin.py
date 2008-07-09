@@ -692,7 +692,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"HorizontalAlignment": {"type" : list, "readonly" : False,
 					"values" : ["Automatic", "Left", "Center", "Right"]},
 				"VerticalAlignment" : {"type" : list, "readonly" : False,
-						"values" : ["Automatic", "Top", "Middle", "Bottom"]},
+						"values" : ["Top", "Center", "Bottom"]},
 				"Editable": {"type" : bool, "readonly" : False},
 				"Expand": {"type" : bool, "readonly" : False},
 				"Searchable": {"type" : bool, "readonly" : False},
