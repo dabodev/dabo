@@ -216,7 +216,7 @@ def getDateTimeFromString(strVal, formats=None):
 		if dtFormat is None:
 			# Fall back to the current locale setting in user's os account:
 			try:
-				ret = datetime.datetime(*time.strptime(strVal, "%x %X"))
+				ret = datetime.datetime(*time.strptime(strVal, "%x %X")[:7])
 			except IndexError:
 				pass
 	return ret
