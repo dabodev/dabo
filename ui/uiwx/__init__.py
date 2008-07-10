@@ -1164,9 +1164,6 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 				hk = itmatts["HotKey"]
 				pic = itmatts["Picture"]
 				special = itmatts.get("special", None)
-				if hk:
-					cap += "\t%s" % hk
-				txt = cap
 				binding = previewFunc
 				fnc = ""
 				useFunc = ("Action" in itmatts) and (itmatts["Action"])
@@ -1179,7 +1176,7 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 						binding = fnc
 				help = itmatts["HelpText"]
 				menuItem = menu.append(cap, OnHit=binding, help=help,
-						picture=pic, special=special)
+						picture=pic, special=special, HotKey=hk)
 
 	try:
 		srcFile = resolvePathAndUpdate(srcFile)
