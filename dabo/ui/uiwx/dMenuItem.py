@@ -82,7 +82,7 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 
 
 	def _getCaption(self):
-		return self._caption[:]
+		return self._caption
 
 	def _setCaption(self, val):
 		if self._constructed():
