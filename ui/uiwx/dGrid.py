@@ -3919,7 +3919,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				ret = bo.getDataSet()
 			except AttributeError:
 				# See if the DataSource is a reference
-				ret = self.Source
+				try:
+					ret = eval(self.DataSource)
+				except StandardError: 
+					# If it fails for any reason, bail.
+					pass
 			self._dataSet = ret
 		else:
 			try:
