@@ -86,10 +86,11 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 
 	def _setCaption(self, val):
 		if self._constructed():
-			if len(val.split("\t")) == 1:
-				self._caption = val
+			if val.count("\t"):
+				# They're using the technique of caption + tab + hotkey
+				raise ValueError, _("Please put HotKey combination in HotKey property.")
 			else:
-				raise ValueError, "Please put HotKey combination in HotKey property."
+				self._caption = val
 			self._redefine()
 		else:
 			self._properties["Caption"] = val
