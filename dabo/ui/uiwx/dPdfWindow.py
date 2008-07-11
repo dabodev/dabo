@@ -20,7 +20,8 @@ except:
 try:
 	import wx.lib.pdfwin as pdfwin
 	PDFWindow = pdfwin.PDFWindow
-except (ImportError, AttributeError, WindowsError):
+except:
+	## If there's any exception at all in importing pdfwin, use the dummy.
 	class Dummy(object):
 		_dummy = True
 	PDFWindow = Dummy
