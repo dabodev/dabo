@@ -949,14 +949,15 @@ class dPemMixin(dPemMixinBase):
 		if isinstance(cnt, dabo.ui.dPage):
 			cnt = cnt.Parent
 		p = self
+		lastPar = None
 		found = False
 		while (p is not None):
-			lastPar = p
 			if p is cnt:
 				found = True
 				break
 			l += p.Left
 			t += p.Top
+			lastPar = p
 			p = p.Parent
 		# If we didn't find the container, that means that the object
 		# is not contained by the container. This can happen when 
