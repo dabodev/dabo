@@ -213,13 +213,14 @@ class PropertyHelperMixin(object):
 		_setProps(propKw)
 
 			
-	def setPropertiesFromAtts(self, propDict={}, ignoreExtra=True):
+	def setPropertiesFromAtts(self, propDict={}, ignoreExtra=True, context=None):
 		""" Sets a group of properties on the object all at once. This
 		is different from the regular setProperties() method because
 		it only accepts a dict containing prop:value pairs, and it
 		assumes that the value is always a string. It will convert
 		the value to the correct type for the property, and then set
-		the property to that converted value.
+		the property to that converted value. If the value needs to be evaluated 
+		in a specific namespace, pass that as the 'context' parameter.
 		"""
 		for prop, val in propDict.items():
 			if not hasattr(self, prop):
@@ -229,7 +230,11 @@ class PropertyHelperMixin(object):
 					continue
 				else:
 					raise AttributeError, "'%s' is not a property." % prop
-			setattr(self, prop, val)
+			try:
+				valToSet = eval(val, context)
+			except NameError:
+				valToSet = val
+			setattr(self, prop, valToSet)
 		
 	
 	def _setKwEventBindings(self, kwEvtDict):

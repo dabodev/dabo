@@ -1160,23 +1160,23 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 				menu.appendSeparator()
 			else:
 				itmatts = itm["attributes"]
-				cap = itmatts["Caption"]
-				hk = itmatts["HotKey"]
-				pic = itmatts["Picture"]
-				special = itmatts.get("special", None)
+				cap = menu._extractKey(itmatts, "Caption")
+				hk = menu._extractKey(itmatts, "HotKey")
+				pic = menu._extractKey(itmatts, "Picture")
+				special = menu._extractKey(itmatts, "special", None)
 				binding = previewFunc
-				fnc = ""
-				useFunc = ("Action" in itmatts) and (itmatts["Action"])
-				if useFunc:
-					fnc = itmatts["Action"]
+				fnc = menu._extractKey(itmatts, "Action", "")
 				if (binding is None) and fnc:
 					try:
 						binding = eval(fnc)
 					except NameError:
 						binding = fnc
-				help = itmatts["HelpText"]
+				help = menu._extractKey(itmatts, "HelpText")
 				menuItem = menu.append(cap, OnHit=binding, help=help,
 						picture=pic, special=special, HotKey=hk)
+				if itmatts:
+					menuItem.setPropertiesFromAtts(itmatts, 
+							context={"form": form, "app": dabo.dAppRef})
 
 	try:
 		srcFile = resolvePathAndUpdate(srcFile)
