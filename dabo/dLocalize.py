@@ -88,16 +88,23 @@ def setLanguage(lang=None, charset=None):
 
 
 def getDaboLocaleDir():
-	localeDir = os.path.join(os.path.split(dabo.__file__)[0], "locale")
+	localeDirName = "locale"
+	localeDir = os.path.join(os.path.split(dabo.__file__)[0], localeDirName)
 	if not os.path.isdir(localeDir):
 		# Frozen app?
-		# First need to find the directory that contains the .exe:
+		# First need to find the directory that contains the executable. On the Mac,
+		# it might be a directory at a lower level than dabo itself.
 		startupDir = localeDir
 		while startupDir:
-			startupDir = os.path.split(startupDir)[0]
-			if os.path.isdir(startupDir):
+			newDir = os.path.split(startupDir)[0]
+			if newDir == startupDir:
+				# At the root dir
 				break
-		localeDir = os.path.join(startupDir, "dabo.locale")
+			startupDir = newDir
+			candidate = os.path.join(startupDir, localeDirName)
+			if os.path.isdir(candidate):
+				break
+		localeDir = candidate
 	return localeDir
 
 
