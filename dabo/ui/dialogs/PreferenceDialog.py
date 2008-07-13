@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
+import inspect
 import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
