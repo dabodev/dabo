@@ -232,6 +232,8 @@ class PropertyHelperMixin(object):
 					raise AttributeError, "'%s' is not a property." % prop
 			try:
 				valToSet = eval(val, context)
+			except TypeError:
+				valToSet = val
 			except NameError:
 				valToSet = val
 			setattr(self, prop, valToSet)
