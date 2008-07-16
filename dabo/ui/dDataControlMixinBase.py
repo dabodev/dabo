@@ -105,18 +105,18 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		if self._DesignerMode:
 			return
 
-		if self.Source and self._srcIsBizobj:
+		src = self.Source
+		if src and self._srcIsBizobj:
 			# First see if DataField refers to a method of the bizobj:
-			method = getattr(self.Source, self.DataField, None)
+			method = getattr(src, self.DataField, None)
 			if method is not None:
 				self.Value = method()
 			else:
 				try:
-					self.Value = self.Source.getFieldVal(self.DataField)
+					self.Value = src.getFieldVal(self.DataField)
 				except (TypeError, dException.NoRecordsException):
 					self.Value = self.getBlankValue()
 		else:
-			src = self.Source
 			if self._srcIsInstanceMethod is None and src is not None:
 				if isinstance(src, basestring):
 					self._srcIsInstanceMethod = False
@@ -124,7 +124,12 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 					self._srcIsInstanceMethod = callable(getattr(src, self.DataField))
 			srcatt = getattr(src, self.DataField)
 			if self._srcIsInstanceMethod:
-				self.Value = srcatt()
+				try:
+					self.Value = srcatt()
+				except dException.NoRecordsException:
+					## Couldn't run the method. If it was due to there being no records
+					## in the bizobj, fill in the blank value.
+					self.Value = self.getBlankValue()
 			else:
 				self.Value = srcatt
 
