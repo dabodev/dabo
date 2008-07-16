@@ -1161,7 +1161,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				if sarg is not None and sarg == "self":
 					del args[0][0]
 				args = inspect.formatargspec(args[0], args[1], args[2], args[3])
-			except IndexError:
+			except TypeError:
 				args = ""
 
 			if inspect.ismethod(obj):
@@ -1178,7 +1178,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				funcType = ""
 
 			doc = ""
-			docLines = obj.__doc__.splitlines()
+			try:
+				docLines = obj.__doc__.splitlines()
+			except AttributeError:
+				docLines = []
 			for line in docLines:
 				doc += line.strip() + "\n"	 ## must be \n on all platforms
 			doc = doc.strip()  ## Remove trailing blank line
