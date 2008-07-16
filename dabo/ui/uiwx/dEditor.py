@@ -1770,7 +1770,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			if len(innerObjectNames) > 0:
 				try:
 					o = eval("o.%s" % innerObjectNames)
-				except AttributeError:
+				except (AttributeError, SyntaxError):
 					o = None
 		return o
 	
