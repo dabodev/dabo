@@ -234,6 +234,8 @@ class PropertyHelperMixin(object):
 				valToSet = eval(val, context)
 			except TypeError:
 				valToSet = val
+			except SyntaxError:
+				valToSet = val
 			except NameError:
 				valToSet = val
 			setattr(self, prop, valToSet)
