@@ -62,7 +62,10 @@ class EditorControl(dui.dEditor):
 		exec "import dabo\ndui = dabo.ui" in self._namespaces
 		imp = self.Controller.getImportDict()
 		if imp:
-			exec imp in self._namespaces
+			try:
+				exec imp in self._namespaces
+			except SyntaxError:
+				pass #Just let namespace import fail.
 
 
 	def _getController(self):
