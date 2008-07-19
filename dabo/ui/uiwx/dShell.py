@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import __builtin__
+import time
 import wx
 import wx.stc as stc
 import wx.py
@@ -12,6 +13,131 @@ from dabo.ui import makeDynamicProperty
 from dPemMixin import dPemMixin
 
 dabo.ui.loadUI("wx")
+from dabo.ui import dKeys
+
+
+class _LookupPanel(dabo.ui.dPanel):
+	"""Used for the command history search"""
+	def afterInit(self):
+		self._history = None
+		self._displayedHistory = None
+		self.currentSearch = ""
+		self.needRefilter = False
+		self.lblSearch = dabo.ui.dLabel(self)
+		self.lstMatch = dabo.ui.dListBox(self, ValueMode="string", Choices=[],
+				OnMouseLeftDoubleClick=self.selectCmd, OnKeyChar=self.onListKey)
+		self.Sizer = dabo.ui.dSizer("v", DefaultBorder=4)
+		self.Sizer.append(self.lblSearch, halign="center")
+		self.Sizer.append(self.lstMatch, "x", 1)
+		self.Width = 400
+		self.layout()
+
+
+	def clear(self):
+		"""Reset to original state."""
+		self.ok = False
+		self.currentSearch = self.lblSearch.Caption = ""
+		self.refilter()
+
+
+	def onListKey(self, evt):
+		"""Process keypresses in the command list control"""
+		kc = evt.keyCode
+		char = evt.keyChar
+		if kc in (dKeys.key_Return, dKeys.key_Numpad_enter):
+			self.closeDialog(True)
+			return
+		elif kc == dKeys.key_Escape:
+			self.closeDialog(False)
+		if kc in dKeys.arrows or char is None:
+			#ignore
+			return
+		if kc == dKeys.key_Back:
+			self.currentSearch = self.currentSearch[:-1]
+		else:
+			self.currentSearch += char
+		self.lblSearch.Caption = self.currentSearch
+		self.layout()
+		self.needRefilter = True
+		evt.stop()	
+
+
+	def closeDialog(self, ok):
+		"""Hide the dialog, and set the ok/cancel flag"""
+		self.ok = ok
+		self.Form.hide()
+
+
+	def getCmd(self):
+		return self.lstMatch.Value
+
+
+	def selectCmd(self, evt):
+		self.closeDialog(True)
+
+
+	def onIdle(self, evt):
+		"""For performance, don't filter on every keypress. Wait until idle."""
+		if self.needRefilter:
+			self.needRefilter = False
+			self.refilter()
+
+
+	def refilter(self):
+		"""Display only those commands that contain the search string"""
+		self.DisplayedHistory = self.History.filter("cmd", self.currentSearch, "contains")
+		sel = self.lstMatch.Value
+		self.lstMatch.Choices = [rec["cmd"] for rec in self.DisplayedHistory]
+		if sel:
+			try:
+				self.lstMatch.Value = sel
+			except ValueError:
+				self._selectFirst()
+		else:
+			self._selectFirst()
+
+
+	def _selectFirst(self):
+		"""Select the first item in the list, if available."""
+		if len(self.lstMatch.Choices):
+			self.lstMatch.PositionValue = 0
+
+
+	def _getHistory(self):
+		if self._history is None:
+			self._history = dabo.db.dDataSet()
+		return self._history
+
+	def _setHistory(self, val):
+		if self._constructed():
+			self._history = self._displayedHistory = val
+			try:
+				self.lstMatch.Choices = [rec["cmd"] for rec in self.DisplayedHistory]
+				self._selectFirst()
+			except AttributeError:
+				pass
+		else:
+			self._properties["History"] = val
+
+
+	def _getDisplayedHistory(self):
+		if self._displayedHistory is None:
+			self._displayedHistory = self.History
+		return self._displayedHistory
+
+	def _setDisplayedHistory(self, val):
+		if self._constructed():
+			self._displayedHistory = val
+		else:
+			self._properties["DisplayedHistory"] = val
+
+
+	DisplayedHistory = property(_getDisplayedHistory, _setDisplayedHistory, None,
+			_("Filtered copy of the History  (dDataSet)"))
+
+	History = property(_getHistory, _setHistory, None,
+			_("Dataset containing the command history  (dDataSet)"))
+
 
 
 class _Shell(dPemMixin, wx.py.shell.Shell):
@@ -40,17 +166,17 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 			self.FontSize = 10	
 
 
-# 	def processLine(self):
-# 		"""This is a workaroundfor the fact that otherwise, the global _() function 
-# 		will get replaced by the Python interpreter's default behavior of stuffing 
-# 		the results of the last evaluation into the __builtin__ module's '_' attribute.
-# 		This results in all subsequent localization attempts failing, so after every line
-# 		that executes we re-assign the value to the one held in dabo.dLocalize.
-# 		"""
-# 		super(_Shell, self).processLine()
-# 		__builtin__._ = dabo.dLocalize._translationFunction
+	def processLine(self):
+		"""This is part of the underlying class. We need to add the command that 
+		gets processed into our internal stack.
+		"""
+		edt = self.CanEdit()
+		super(_Shell, self).processLine()
+		if edt:
+			# push the latest command into the stack
+			self.Form.addToHistory(self.history[0])
 		
-
+		
 	def setDefaultFont(self, fontFace, fontSize):
 		# Global default styles for all languages
 		self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (fontFace, fontSize))
@@ -150,6 +276,7 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 
 class dShell(dSplitForm):
 	def _onDestroy(self, evt):
+		self._clearOldHistory()
 		__builtin__.raw_input = self._oldRawInput
 
 	
@@ -161,6 +288,9 @@ class dShell(dSplitForm):
 
 	def _afterInit(self):
 		super(dShell, self)._afterInit()
+		self.cmdHistKey = self.PreferenceManager.command_history
+		self._historyPanel = None
+		self._lastCmd = None
 
 		# PyShell sets the raw_input function to a function of PyShell,
 		# but doesn't set it back on destroy, resulting in errors later
@@ -198,6 +328,10 @@ class dShell(dSplitForm):
 		
 		cp.Sizer.append1x(self.shell)
 		self.shell.Bind(wx.EVT_RIGHT_UP, self.shellRight)
+		self.shell.bindEvent(dEvents.KeyDown, self.onShellKeyDown)
+		
+		# Restore the history
+		self.restoreHistory()
 
 		# create the output control
 		outControl = dabo.ui.dEditBox(op, RegID="edtOut", 
@@ -236,6 +370,75 @@ class dShell(dSplitForm):
 		dabo.ui.callAfter(ed.SetSelection, endpos, endpos)
 
 
+	def addToHistory(self, cmd):
+		if cmd == self._lastCmd:
+			# Don't add again
+			return
+		self._lastCmd = cmd
+		stamp = "%s" % int(round(time.time() * 100, 0))
+		self.cmdHistKey.setValue(stamp, cmd)
+
+
+	def onShellKeyDown(self, evt):
+		if evt.controlDown and evt.keyChar in ("r", "R"):
+			if not (evt.commandDown or evt.altDown or evt.metaDown):
+				evt.stop()
+				self.historyPop()
+
+
+	def _loadHistory(self):
+		ck = self.cmdHistKey
+		cmds = []
+		for k in ck.getPrefKeys():
+			cmds.append({"stamp": k, "cmd": ck.get(k)})
+		dsu = dabo.db.dDataSet(cmds)
+		ds = dsu.sort("stamp", "desc")
+		return ds
+
+
+	def historyPop(self):
+		"""Let the user type in part of a command, and retrieve the matching commands
+		from their history.
+		"""
+		ds = self._loadHistory()
+		hp = self._HistoryPanel
+		hp.History = ds
+		fp = self.FloatingPanel
+		# We want it centered, so set Owner to None
+		fp.Owner = None
+		hp.clear()
+		fp.show()
+		if hp.ok:
+			cmd = hp.getCmd()
+			if cmd:
+				pos = self.shell.history.index(cmd)
+				self.shell.replaceFromHistory(pos - self.shell.historyIndex)
+
+
+	def restoreHistory(self):
+		"""Get the stored history from previous sessions, and set the shell's
+		internal command history list to it.
+		"""
+		ds = self._loadHistory()
+		self.shell.history = [rec["cmd"] for rec in ds]
+
+
+	def _clearOldHistory(self):
+		"""For performance reasons, only save up to 500 commands."""
+		numToSave = 500
+		ck = self.cmdHistKey
+		ds = self._loadHistory()
+		if len(ds) <= numToSave:
+			return
+		cutoff = ds[numToSave]["stamp"]
+		bad = []
+		for rec in ds:
+			if rec["stamp"] <= cutoff:
+				bad.append(rec["stamp"])
+		for bs in bad:
+			ck.deletePref(bs)
+
+		
 	def outputRightDown(self, evt):
 		pop = dabo.ui.dMenu()
 		pop.append(_("Clear"), OnHit=self.onClearOutput)
@@ -305,22 +508,6 @@ class dShell(dSplitForm):
 		self.shell.SetZoom(self.shell.GetZoom()-1)
 
 
-	def _getSplitState(self):
-		return self._splitState
-
-	def _setSplitState(self, val):
-		if self._splitState != val:
-			self._splitState = val
-			if val:
-				self.split()
-				self.shell.interp.stdout = self._pseudoOut
-				self.shell.interp.stderr = self._pseudoErr
-			else:
-				self.unsplit()
-				self.shell.interp.stdout = self._stdOut
-				self.shell.interp.stderr = self._stdErr
-			
-
 	def _getFontSize(self):
 		return self.shell.FontSize
 
@@ -341,11 +528,45 @@ class dShell(dSplitForm):
 			self._properties["FontFace"] = val
 
 
+	def _getHistoryPanel(self):
+		fp = self.FloatingPanel
+		try:
+			create = self._historyPanel is None
+		except AttributeError:
+			create = True
+		if create:
+			fp.clear()
+			pnl = self._historyPanel = _LookupPanel(fp)
+			pnl.Height = max(200, self.Height-100)
+			fp.Sizer.append(pnl)
+			fp.fitToSizer()
+		return self._historyPanel
+
+
+	def _getSplitState(self):
+		return self._splitState
+
+	def _setSplitState(self, val):
+		if self._splitState != val:
+			self._splitState = val
+			if val:
+				self.split()
+				self.shell.interp.stdout = self._pseudoOut
+				self.shell.interp.stderr = self._pseudoErr
+			else:
+				self.unsplit()
+				self.shell.interp.stdout = self._stdOut
+				self.shell.interp.stderr = self._stdErr
+			
+
 	FontFace = property(_getFontFace, _setFontFace, None,
 			_("Name of the font face used in the shell  (str)"))
 	
 	FontSize = property(_getFontSize, _setFontSize, None,
 			_("Size of the font used in the shell  (int)"))
+
+	_HistoryPanel = property(_getHistoryPanel, None, None,
+			_("Popup to display the command history  (read-only) (dDialog)"))
 
 	SplitState = property(_getSplitState, _setSplitState, None,
 			_("""Controls whether the output is in a separate pane (default) 
