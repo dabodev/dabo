@@ -1152,9 +1152,20 @@ class ClassDesigner(dabo.dApp):
 
 		dlg = ImportEditDialog(None, BasePrefKey=self.BasePrefKey+".ImportEditDialog")
 		dlg.edtImport.Text = txt
-		dlg.show()
-		if dlg.Accepted:
-			self._classImportDict[frm] = dlg.edtImport.Text
+		showDialog = True
+		while showDialog:
+			dlg.show()
+			showDialog = dlg.Accepted
+			if showDialog:
+				# Check the syntax before storing
+				txt = dlg.edtImport.Text
+				try:
+					compile(txt.strip(), "", "exec")
+					self._classImportDict[frm] = txt
+					showDialog = dlg.Accepted = False
+				except SyntaxError, e:
+					errMsg = _("Syntax Error: %s") % e
+					dabo.ui.stop(errMsg, _("Error Compiling Import Declarations"))
 		dlg.release()
 
 

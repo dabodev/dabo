@@ -64,8 +64,9 @@ class EditorControl(dui.dEditor):
 		if imp:
 			try:
 				exec imp in self._namespaces
-			except SyntaxError:
-				pass #Just let namespace import fail.
+			except SyntaxError, e:
+				# Record the error so that the developer knows there is a problem.
+				dabo.errorLog.write(_("Compilation error found in import code: %s") % e)
 
 
 	def _getController(self):
