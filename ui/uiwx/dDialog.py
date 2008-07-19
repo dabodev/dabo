@@ -366,6 +366,7 @@ class dStandardButtonDialog(dDialog):
 		if self.runOK() is not False:
 			self.EndModal(kons.DLG_OK)
 	def _onCancel(self, evt):
+		self.Accepted = False
 		try:
 			self.onCancel()
 		except TypeError:
@@ -383,6 +384,7 @@ class dStandardButtonDialog(dDialog):
 		if self.runYes() is not False:
 			self.EndModal(kons.DLG_YES)
 	def _onNo(self, evt):
+		self.Accepted = False
 		if self.runNo() is not False:
 			self.EndModal(kons.DLG_NO)
 	def _onHelp(self, evt):
