@@ -2600,7 +2600,8 @@ class ClassDesigner(dabo.dApp):
 
 		# Here's where the control is actually created!
 		mixedClass = self.getControlClass(cls)
-		obj = mixedClass(parent, properties=props, attProperties=attProperties)
+		obj = mixedClass(parent, properties=props)
+		obj.setPropertiesFromAtts(attProperties)
 
 		if issubclass(cls, dui.dTreeView):
 			obj.addDummyData()
