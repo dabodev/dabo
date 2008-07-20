@@ -232,7 +232,7 @@ class PropertyHelperMixin(object):
 					raise AttributeError, "'%s' is not a property." % prop
 			try:
 				valToSet = eval(val, context)
-			except (TypeError, SyntaxError, NameError):
+			except (TypeError, SyntaxError, NameError, AttributeError):
 				valToSet = val
 			setattr(self, prop, valToSet)
 		
