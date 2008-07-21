@@ -1064,7 +1064,13 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 
 	def _getForeColor(self):
-		return self._gridColAttr.GetTextColour()
+		try:
+			return self._gridColAttr.GetTextColour()
+		except wx.PyAssertionError:
+			# Getting the color failed on Mac and win: "no default attr" 
+			default = dColors.colorTupleFromName("black")
+			self._gridColAttr.SetTextColour(default)
+			return default
 
 	def _setForeColor(self, val):
 		if self._constructed():
