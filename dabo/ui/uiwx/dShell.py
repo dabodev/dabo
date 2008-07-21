@@ -49,7 +49,7 @@ class _LookupPanel(dabo.ui.dPanel):
 			return
 		elif kc == dKeys.key_Escape:
 			self.closeDialog(False)
-		if kc in dKeys.arrows or char is None:
+		if kc in dKeys.arrowKeys.values() or char is None:
 			#ignore
 			return
 		if kc == dKeys.key_Back:
@@ -328,7 +328,12 @@ class dShell(dSplitForm):
 		
 		cp.Sizer.append1x(self.shell)
 		self.shell.Bind(wx.EVT_RIGHT_UP, self.shellRight)
-		self.shell.bindEvent(dEvents.KeyDown, self.onShellKeyDown)
+		
+		if self.Application.Platform == "Mac":
+			keybnd = "cmd+R"
+		else:
+			keybnd = "ctrl+R"
+		self.bindKey(keybnd, self.onHistoryPop)
 		
 		# Restore the history
 		self.restoreHistory()
@@ -379,13 +384,6 @@ class dShell(dSplitForm):
 		self.cmdHistKey.setValue(stamp, cmd)
 
 
-	def onShellKeyDown(self, evt):
-		if evt.controlDown and evt.keyChar in ("r", "R"):
-			if not (evt.commandDown or evt.altDown or evt.metaDown):
-				evt.stop()
-				self.historyPop()
-
-
 	def _loadHistory(self):
 		ck = self.cmdHistKey
 		cmds = []
@@ -399,7 +397,7 @@ class dShell(dSplitForm):
 			return dsu
 
 
-	def historyPop(self):
+	def onHistoryPop(self, evt):
 		"""Let the user type in part of a command, and retrieve the matching commands
 		from their history.
 		"""
