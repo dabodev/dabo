@@ -392,8 +392,11 @@ class dShell(dSplitForm):
 		for k in ck.getPrefKeys():
 			cmds.append({"stamp": k, "cmd": ck.get(k)})
 		dsu = dabo.db.dDataSet(cmds)
-		ds = dsu.sort("stamp", "desc")
-		return ds
+		if dsu:
+			ds = dsu.sort("stamp", "desc")
+			return ds
+		else:
+			return dsu
 
 
 	def historyPop(self):
