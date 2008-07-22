@@ -65,6 +65,11 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 				self.Page = evt.href
 
 
+	def copy(self):
+		"""Implement the plain text version of copying"""
+		return self.SelectionToText()
+
+
 	def setImageURLs(self, val):
 		"""Replace standard image file names with 'file:///img.pth' references"""
 		pat = re.compile(r"""<img (.*)\bsrc=(['"]?)([^'">]+)(['"]?)([^>]*)>""")
