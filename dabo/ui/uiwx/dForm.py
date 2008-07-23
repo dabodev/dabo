@@ -13,69 +13,6 @@ from dabo.ui import makeDynamicProperty
 from dDialog import dDialog
 
 
-class _FloatDialog(dDialog):
-	def __init__(self, owner, *args, **kwargs):
-		self._above = None
-		self._owner = None
-		kwargs["Borderless"] = True
-		kwargs["FloatOnParent"] = True
-		super(_FloatDialog, self).__init__(*args, **kwargs)
-
-
-	def clear(self):
-		"""Releases any controls remaining from a previous usage."""
-		self.Sizer.clear(True)
-
-
-	def show(self):
-		# position by owner
-		if self.Owner is None:
-			self.Centered = True
-		else:
-			self.Centered = None
-			left, top = self.Owner.absoluteCoordinates()
-			self.Left = left
-			if self.Above:
-				self.Bottom = top
-			else:
-				self.Top = top + self.Owner.Height
-		# Make sure that we're within the display limits
-		maxW, maxH = dabo.ui.getDisplaySize()
-		self.Left = max(5, self.Left)
-		self.Top = max(5, self.Top)
-		self.Right = min(self.Right, maxW-5)
-		self.Bottom = min(self.Bottom, maxH-5)
-		super(_FloatDialog, self).show()
-		
-
-	def _getAbove(self):
-		return self._above
-
-	def _setAbove(self, val):
-		if self._constructed():
-			self._above = val
-		else:
-			self._properties["Above"] = val
-
-
-	def _getOwner(self):
-		return self._owner
-
-	def _setOwner(self, val):
-		if self._constructed():
-			self._owner = val
-		else:
-			self._properties["Owner"] = val
-
-
-	Above = property(_getAbove, _setAbove, None,
-			_("Is this dialog positioned above its owner? Default=False  (bool)"))
-
-	Owner = property(_getOwner, _setOwner, None,
-			_("Control which is currently managing this window.  (varies)"))
-
-
-
 class BaseForm(fm.dFormMixin):
 	"""Creates a bizobj-aware form.
 
@@ -85,7 +22,6 @@ class BaseForm(fm.dFormMixin):
 	def __init__(self, preClass, parent, properties, attProperties, *args, **kwargs):
 		self.bizobjs = {}
 		self._primaryBizobj = None
-		self._floatingPanel = None
 		
 		# If this is True, a panel will be automatically added to the
 		# form and sized to fill the form.
@@ -145,8 +81,6 @@ class BaseForm(fm.dFormMixin):
 		if not self._isClosed:
 			self.activeControlValid()
 			ret = self.confirmChanges()
-		if self._floatingPanel:
-			self._floatingPanel.release()
 		if ret:
 			ret = super(BaseForm, self)._beforeClose(evt)
 		return ret
@@ -862,12 +796,6 @@ Database error message: %s""") %	err
 		self._checkForChanges = bool(value)
 		
 
-	def _getFloatingPanel(self):
-		if not self._floatingPanel:
-			self._floatingPanel = _FloatDialog(self)
-		return self._floatingPanel
-
-
 	def _getPrimaryBizobj(self):
 		"""The attribute '_primaryBizobj' should be a bizobj, but due
 		to old code design, might be a data source name. These methods
@@ -927,11 +855,6 @@ Database error message: %s""") %	err
 			of the form are about to occur, the user will be presented with a dialog
 			box asking whether to save changes, discard changes, or cancel the 
 			operation that led to the dialog being presented.""") )
-
-	FloatingPanel = property(_getFloatingPanel, None, None,
-			_("""Small modal dialog that is designed to be used for temporary displays, 
-			similar to context menus, but which can contain any controls.  
-			(read-only) (dDialog)"""))
 
 	PrimaryBizobj = property(_getPrimaryBizobj, _setPrimaryBizobj, None, 
 			_("Reference to the primary bizobj for this form  (dBizobj)") )
