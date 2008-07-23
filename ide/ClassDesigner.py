@@ -622,6 +622,8 @@ class ClassDesigner(dabo.dApp):
 			self._selectedClass = {"dDialog": dui.dDialog,
 					"dOkCancelDialog": dui.dOkCancelDialog,
 					"Wizard": dlgs.Wizard}[clsd["name"]]
+		else:
+			self._selectedClass = dui.dForm
 
 		# Convert any paths in the atts
 		self._basePath = pth
