@@ -328,12 +328,8 @@ class dShell(dSplitForm):
 		
 		cp.Sizer.append1x(self.shell)
 		self.shell.Bind(wx.EVT_RIGHT_UP, self.shellRight)
-		
-		if self.Application.Platform == "Mac":
-			keybnd = "cmd+R"
-		else:
-			keybnd = "ctrl+R"
-		self.bindKey(keybnd, self.onHistoryPop)
+		# Bring up history search
+		self.bindKey("Ctrl+R", self.onHistoryPop)
 		
 		# Restore the history
 		self.restoreHistory()
