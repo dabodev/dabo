@@ -150,6 +150,9 @@ modifierStrings = {
 	"cmd": mod_Cmd,
 }
 
+arrows = (key_Up, key_Down, key_Left, key_Right)
+whitespace = (key_Tab, key_Space, key_Numpad_space, key_Numpad_tab)
+
 ## pkm: I didn't include all the keycodes below - I want to see what is
 ##      actually necessary to add. Do we really need separate codes for
 ##      the '*' on the numpad versus the '*' on the keyboard, for instance.

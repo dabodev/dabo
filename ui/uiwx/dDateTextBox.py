@@ -150,7 +150,7 @@ C: Popup Calendar to Select
 					key = {72: "h", 77: "m", 83: "s"}[evt.keyCode]
 				else:
 					key = {8: "h", 13: "m", 19: "s"}[evt.keyCode]
-		except KeyError:
+		except (KeyError, AttributeError):
 			# spurious key event; ignore
 			return
 		

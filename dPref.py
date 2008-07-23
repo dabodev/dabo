@@ -424,7 +424,7 @@ class dPref(object):
 			param = "%s.%%" % key
 		else:
 			param = "%"
-		crs.execute(sql, param)
+		crs.execute(sql, (param,))
 		rs = crs.getDataSet()
 		vs = [itm.values()[0] for itm in rs]
 

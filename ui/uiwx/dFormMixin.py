@@ -22,10 +22,11 @@ class dFormMixin(pm.dPemMixin):
 		# Skip the first one. Update: apparently on wx27 and above the 
 		# double-activation is no longer an issue.
 		self._skipActivate = (wx.VERSION < (2,7) and self.Application.Platform == "Win")
-
 		self._cxnFile = ""
 		self._cxnName = ""
 		self._connection = None
+		self._floatingPanel = None
+
 		# Extract the menu definition file, if any
 		self._menuBarFile = self._extractKey((properties, attProperties, kwargs), 
 				"MenuBarFile", "")
@@ -362,6 +363,8 @@ class dFormMixin(pm.dPemMixin):
 		form is set for checking for this. If everything's OK, call the 
 		hook method.
 		"""
+		if self._floatingPanel:
+			self._floatingPanel.release()
 		ret = self.beforeClose(evt)
 		return ret
 		
@@ -658,6 +661,14 @@ class dFormMixin(pm.dPemMixin):
 
 	def _setCxnName(self, val):
 		self._cxnName = val
+
+
+	def _getFloatingPanel(self):
+		if not self._floatingPanel:
+			# Have to import it here, as it requires that dFormMixin be defined.
+			from dDialog import _FloatDialog
+			self._floatingPanel = _FloatDialog(self)
+		return self._floatingPanel
 
 
 	def _getFloatOnParent(self):
@@ -1021,6 +1032,11 @@ class dFormMixin(pm.dPemMixin):
 	CxnName = property(_getCxnName, _setCxnName, None,
 			_("Name of the connection used for data access  (str)"))
 	
+	FloatingPanel = property(_getFloatingPanel, None, None,
+			_("""Small modal dialog that is designed to be used for temporary displays, 
+			similar to context menus, but which can contain any controls.  
+			(read-only) (dDialog)"""))
+
 	FloatOnParent = property(_getFloatOnParent, _setFloatOnParent, None,
 			_("Specifies whether the form stays on top of the parent or not."))
 	
