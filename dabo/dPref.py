@@ -2,6 +2,7 @@
 import os
 import warnings
 import datetime
+from decimal import Decimal
 import dabo
 from dabo.dLocalize import _
 import dabo.lib.utils as utils
@@ -62,7 +63,7 @@ class dPref(object):
 		self._noneType = type(None)
 		self._typeDict = {int: "int", float: "float", long: "long", str: "str", unicode: "unicode",
 				bool: "bool", list: "list", tuple: "tuple", datetime.date: "date", dict: "dict",
-				datetime.datetime: "datetime", self._noneType: "none"}
+				datetime.datetime: "datetime", Decimal: "decimal", self._noneType: "none"}
 		if crs is None:
 			prefdir = utils.getUserAppDataDirectory(appName)
 			if prefdir is None:
@@ -168,6 +169,8 @@ class dPref(object):
 			ret = str((val.year, val.month, val.day))
 		elif typ == "datetime":
 			ret = str((val.year, val.month, val.day, val.hour, val.minute, val.second, val.microsecond))
+		elif typ == "decimal":
+			ret = str(val)
 		else:
 			ret = unicode(val)
 		return ret
@@ -196,6 +199,8 @@ class dPref(object):
 			ret = eval("datetime.date%s" % val)
 		elif typ == "datetime":
 			ret = eval("datetime.datetime%s" % val)
+		elif typ == "decimal":
+			ret = Decimal(val)
 		elif typ == "none":
 			ret = None
 # 		if ret is None:
