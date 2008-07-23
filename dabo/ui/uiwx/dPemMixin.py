@@ -116,7 +116,7 @@ class dPemMixin(dPemMixinBase):
 				else:
 					try:
 						attVal = eval(val)
-					except (NameError, SyntaxError):
+					except (TypeError, SyntaxError, NameError, AttributeError):
 						attVal = val
 				properties[prop] = attVal
 		properties = dictStringify(properties)
