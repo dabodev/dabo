@@ -229,8 +229,8 @@ class dStandardButtonDialog(dDialog):
 
 
 	def _addControls(self):
-		# Tell wx not to intercept the esc key.
-		self.SetEscapeId(wx.ID_NONE)
+		# By default, don't intercept the esc key.
+		self.setEscapeButton(None)
 
 		# Set some default Sizer properties (user can easily override):
 		sz = self.Sizer
