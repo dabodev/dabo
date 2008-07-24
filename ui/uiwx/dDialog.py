@@ -50,7 +50,6 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		self.MenuBarClass = None
 		self.Sizer = dabo.ui.dSizer("V")
 		super(dDialog, self)._afterInit()
-		self.bindKey("esc", self._onEscape)
 
 
 	def Show(self, show=True, *args, **kwargs):
@@ -98,10 +97,6 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 			ret = self.Show(True)
 		return retVals.get(ret)
 		
-
-	def _onEscape(self, evt):
-		evt.stop()
-		self.hide()
 
 
 	def _addControls(self):
@@ -234,6 +229,9 @@ class dStandardButtonDialog(dDialog):
 
 
 	def _addControls(self):
+		# Tell wx not to intercept the esc key.
+		self.SetEscapeId(wx.ID_NONE)
+
 		# Set some default Sizer properties (user can easily override):
 		sz = self.Sizer
 		sz.DefaultBorder = 20
@@ -280,6 +278,7 @@ class dStandardButtonDialog(dDialog):
 				mthd = self._onYes
 			elif id_ == wx.ID_NO:
 				self.btnNo = newbtn = dabo.ui.dButton(btn.Parent)
+				self.setEscapeButton(newbtn)
 				mthd = self._onNo
 			elif id_ == wx.ID_OK:
 				self.btnOK = newbtn = dabo.ui.dButton(btn.Parent)
@@ -287,6 +286,7 @@ class dStandardButtonDialog(dDialog):
 			elif id_ == wx.ID_CANCEL:
 				self.btnCancel = newbtn = dabo.ui.dButton(btn.Parent)
 				mthd = self._onCancel
+				self.setEscapeButton(newbtn)
 			elif id_ == wx.ID_HELP:
 				self.btnHelp = btn
 				newbtn = None
@@ -315,8 +315,6 @@ class dStandardButtonDialog(dDialog):
 				buttons.append(win)
 		for pos, btn in enumerate(buttons[1:]):
 			btn.MoveAfterInTabOrder(buttons[pos-1])
-		self.SetEscapeId(wx.ID_NONE)
-		self.bindKey("esc", self._onEscapePressed)
 
 		# Let the user add their controls
 		super(dStandardButtonDialog, self)._addControls()
@@ -333,16 +331,16 @@ class dStandardButtonDialog(dDialog):
 		self.layout()
 
 
-	def _onEscapePressed(self, evt):
-		if self.CancelOnEscape:
-			if self.CancelButton:
-				self._onCancel(evt)
-			elif self.NoButton:
-				self._onNo(evt)
-			elif self.OKButton:
-				self._onOK(evt)
-			elif self.YesButton:
-				self._onYes(evt)
+	def setEscapeButton(self, btn=None):
+		"""Set which button gets hit when Esc pressed.
+
+		CancelOnEscape must be True for this to work.
+		"""
+		if not self.CancelOnEscape or not btn:
+			self.SetEscapeId(wx.ID_NONE)
+		else:
+			self.SetEscapeId(btn.GetId())
+
 
 
 	################################################
@@ -366,6 +364,7 @@ class dStandardButtonDialog(dDialog):
 			pass
 		if self.runOK() is not False:
 			self.EndModal(kons.DLG_OK)
+
 	def _onCancel(self, evt):
 		self.Accepted = False
 		try:
@@ -380,14 +379,20 @@ class dStandardButtonDialog(dDialog):
 		self.runCancel()
 		if self.runCancel() is not False:
 			self.EndModal(kons.DLG_CANCEL)
+		else:
+			evt.stop()
 	def _onYes(self, evt):
 		self.Accepted = True
 		if self.runYes() is not False:
 			self.EndModal(kons.DLG_YES)
+
 	def _onNo(self, evt):
 		self.Accepted = False
 		if self.runNo() is not False:
 			self.EndModal(kons.DLG_NO)
+		else:
+			evt.stop()
+
 	def _onHelp(self, evt):
 		self.runHelp()
 
@@ -460,6 +465,12 @@ class dStandardButtonDialog(dDialog):
 	def _setCancelOnEscape(self, val):
 		if self._constructed():
 			self._cancelOnEscape = val
+			self.setEscapeButton(None)
+			if val:
+				for trial in (self.btnCancel, self.btnNo):
+					if trial is not None:
+						self.setEscapeButton(trial)
+						break
 		else:
 			self._properties["CancelOnEscape"] = val
 
