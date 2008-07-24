@@ -278,7 +278,6 @@ class dStandardButtonDialog(dDialog):
 				mthd = self._onYes
 			elif id_ == wx.ID_NO:
 				self.btnNo = newbtn = dabo.ui.dButton(btn.Parent)
-				self.setEscapeButton(newbtn)
 				mthd = self._onNo
 			elif id_ == wx.ID_OK:
 				self.btnOK = newbtn = dabo.ui.dButton(btn.Parent)
@@ -286,7 +285,6 @@ class dStandardButtonDialog(dDialog):
 			elif id_ == wx.ID_CANCEL:
 				self.btnCancel = newbtn = dabo.ui.dButton(btn.Parent)
 				mthd = self._onCancel
-				self.setEscapeButton(newbtn)
 			elif id_ == wx.ID_HELP:
 				self.btnHelp = btn
 				newbtn = None
@@ -305,6 +303,9 @@ class dStandardButtonDialog(dDialog):
 			self.OKButton.DefaultButton = True
 		elif yes:
 			self.YesButton.DefaultButton = True
+
+		# Force the escape button to be set appropriately:
+		self.CancelOnEscape = self.CancelOnEscape
 			
 		# Wx rearranges the order of the buttons per platform conventions, but
 		# doesn't rearrange the tab order for us. So, we do it manually:
