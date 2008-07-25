@@ -563,6 +563,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		kwargs = {"row": row}
 		self._cellDynamicRow = row
 		needRefresh = False
+		oldVal = None
 		for prop, func in self._dynamic.items():
 			if prop[:4] == "Cell":
 				if isinstance(func, tuple):
