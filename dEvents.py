@@ -165,9 +165,9 @@ class KeyEvent(dEvent):
 	appliesToClass = classmethod(appliesToClass)
 
 
-class ListEvent(dEvent):
+class ListControlEvent(dEvent):
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, (dabo.ui.dListControl, dabo.ui.dListBox))
+		return issubclass(objectClass, (dabo.ui.dListControl, ))
 	appliesToClass = classmethod(appliesToClass)
 
 
@@ -542,13 +542,13 @@ class CalendarDayHeaderClicked(CalendarEvent):
 	pass
 
 
-class ListSelection(ListEvent):
-	""" Occurs when an item is highlighted in a list."""
+class ListSelection(ListControlEvent):
+	""" Occurs when an item is highlighted in a list control."""
 	pass
 
 
-class ListDeselection(ListEvent):
-	""" Occurs when a selected item is deselected in a list."""
+class ListDeselection(ListControlEvent):
+	""" Occurs when a selected item is deselected in a list control."""
 	pass
 
 
