@@ -121,7 +121,7 @@ class dNode(dObject):
 		if hasattr(self, "_font"):
 			v = self._font
 		else:
-			v = self.Font = dabo.ui.dFont(_nativeFont=self.tree.GetItemFont(self.itemID))
+			v = self.Font = dabo.ui.dFont()
 		return v
 	
 	def _setFont(self, val):
