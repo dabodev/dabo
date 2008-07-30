@@ -15,6 +15,7 @@ import dKeys
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
 from dabo.lib.utils import dictStringify
+from dDropTarget import dDropTarget
 
 
 class dPemMixin(dPemMixinBase):
@@ -296,6 +297,7 @@ class dPemMixin(dPemMixinBase):
 		# Handlers for drag/drop
 		self._droppedFileHandler = None
 		self._droppedTextHandler = None
+		self._dropTarget = None
 
 		# _beforeInit hook for Class Designer code
 		self._beforeInitDesignerHook()
@@ -1873,18 +1875,12 @@ class dPemMixin(dPemMixinBase):
 	def _setDroppedFileHandler(self, val):
 		if self._constructed():
 			self._droppedFileHandler = val
-			class FileDropTarget(wx.FileDropTarget):
-				def __init__(self):
-					wx.FileDropTarget.__init__(self)
-					self.handler = val
-				def OnDropFiles(self, xpos, ypos, filelist):
-					if self.handler:
-						self.handler.processDroppedFiles(filelist)
-					return True
-				def OnDragOver(self, xpos, ypos, result):
-					return wx.DragLink
-			self.SetDropTarget(FileDropTarget())
-			self.SetDropTarget(FileDropTarget())
+			
+			if self._dropTarget == None:
+				self._dropTarget = dDropTarget()
+				self.SetDropTarget(self._dropTarget)
+			
+			self._dropTarget.FileHandler = val
 		else:
 			self._properties["DroppedFileHandler"] = val
 
@@ -1895,18 +1891,13 @@ class dPemMixin(dPemMixinBase):
 	def _setDroppedTextHandler(self, val):
 		if self._constructed():
 			self._droppedTextHandler = val
-
-			class TextDropTarget(wx.TextDropTarget):
-				def __init__(self):
-					wx.TextDropTarget.__init__(self)
-					self.handler = val
-				def OnDropText(self, xpos, ypos, txt):
-					if self.handler:
-						self.handler.processDroppedText(txt)
-					return True
-				def OnDragOver(self, xpos, ypos, result):
-					return wx.DragLink
-			self.SetDropTarget(TextDropTarget())
+			target = self.GetDropTarget()
+			
+			if self._dropTarget == None:
+				self._dropTarget = dDropTarget()
+				self.SetDropTarget(self._dropTarget)
+			
+			self._dropTarget.TextHandler = val
 		else:
 			self._properties["DroppedTextHandler"] = val
 
@@ -2774,7 +2765,6 @@ class dPemMixin(dPemMixinBase):
 	DynamicTransparency = makeDynamicProperty(Transparency)
 	DynamicVisible = makeDynamicProperty(Visible)
 	DynamicWidth = makeDynamicProperty(Width)
-
 
 
 class DrawObject(dObject):
