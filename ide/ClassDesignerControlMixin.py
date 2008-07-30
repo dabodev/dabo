@@ -332,7 +332,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			if not self.Editable:
 				pop.append(_("Change Node Caption"), 
 						OnHit=self.onChangeCaption)
-			pop.append(_("Delete this node"), OnHit=self.onDelNode)
+			if not self.activeNode.IsRootNode:
+				pop.append(_("Delete this node"), OnHit=self.onDelNode)
 		elif isinstance(self, (dabo.ui.dLabel, dabo.ui.dButton, dabo.ui.dCheckBox,
 				dabo.ui.dBitmapButton, dabo.ui.dToggleButton, dabo.ui.dPage, 
 				dabo.ui.dColumn, dlgs.WizardPage)):
