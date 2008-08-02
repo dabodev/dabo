@@ -69,7 +69,7 @@ class dPage(dPanel.dScrollPanel):
 		""" Returns the position of this page within its parent."""
 		try:
 			ret = self.Parent.Pages.index(self)
-		except ValueError:
+		except (ValueError, AttributeError):
 			ret = -1
 		return ret
 
