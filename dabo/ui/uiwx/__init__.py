@@ -987,40 +987,16 @@ def _getWild(*args):
 			expanded += argSp
 		args = expanded
 		arglist = []
-		tmplt = "%s Files (*.%s)|*.%s"
-		fileDict = {"html" : "HTML",
-			"xml" : "XML",
-			"txt" : "Text",
-			"jpg" : "JPEG",
-			"gif" : "GIF",
-			"tif" : "TIFF",
-			"tiff" : "TIFF",
-			"png" : "PNG",
-			"ico" : "Icon",
-			"bmp" : "Bitmap" }
-
-		for a in args:
-			descrp = ext = ""
-			if a == "py":
-				fDesc = "Python Scripts (*.py)|*.py"
-			elif a == "*":
-				fDesc = "All Files (*)|*"
-			elif a == "fsxml":
-				fDesc = "Dabo FieldSpec Files (*.fsxml)|*.fsxml"
-			elif a == "cnxml":
-				fDesc = "Dabo Connection Files (*.cnxml)|*.cnxml"
-			elif a == "rfxml":
-				fDesc = "Dabo Report Format Files (*.rfxml)|*.rfxml"
-			elif a == "cdxml":
-				fDesc = "Dabo Class Designer Files (*.cdxml)|*.cdxml"
-			elif a == "mnxml":
-				fDesc = "Dabo Menu Designer Files (*.mnxml)|*.mnxml"
-			else:
-				if a in fileDict:
-					fDesc = tmplt % (fileDict[a], a, a)
-				else:
-					fDesc = "%s files (*.%s)|*.%s" % (a.upper(), a, a)
-			arglist.append(fDesc)
+		fileDict = dabo.file_extensions
+		fileDict.update(dabo.custom_extensions)
+		tmplt = "%s (*.%s)|*.%s"
+		normArgs = list(set([arg.lower() for arg in args]))
+		for ftype in normArgs:
+			try:
+				fDesc = fileDict[ftype.lower()]
+			except KeyError:
+				fDesc = "%s Files" % ftype.upper()
+			arglist.append(tmplt % (fDesc, ftype, ftype))
 		ret = "|".join(arglist)
 	return ret
 
