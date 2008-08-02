@@ -133,6 +133,46 @@ timeFormat = None
 #    locale.setlocale(locale.LC_ALL, '')
 loadUserLocale = True
 
+# File extensions understood by the getFile functions. The format is a dictionary, with
+# the extension as the key, and the descriptive text as the value. To add your own 
+# custom extensions, create a dict with this same format named 'custom_extensions'
+# in your settings_override file, and those will be added to this list.
+custom_extensions = {}
+file_extensions = {
+		"*": "All Files",
+		"py": "Python Scripts",
+		"txt": "Text Files",
+		"log": "Log Files",
+		"fsxml": "Dabo FieldSpec Files",
+		"cnxml": "Dabo Connection Files",
+		"rfxml": "Dabo Report Format Files",
+		"cdxml": "Dabo Class Designer Files",
+		"mnxml": "Dabo Menu Designer Files",
+		"pdf": "PDF Files",
+		"js": "Javascript Files",
+		"html" : "HTML Files",
+		"xml" : "XML Files",
+		"jpg" : "JPEG Images",
+		"jpeg" : "JPEG Images",
+		"gif" : "GIF Images",
+		"tif" : "TIFF Images",
+		"tiff" : "TIFF Images",
+		"png" : "PNG Images",
+		"ico" : "Icon Images",
+		"bmp" : "Bitmap Images",
+		"sh": "Shell Scripts",
+		"zip": "ZIP Files",
+		"tar": "tar Archives",
+		"gz": "gzipped Files",
+		"tgz": "gzipped tar Archives",
+		"mov": "QuickTime Movies",
+		"wmv": "Windows Media Videos",
+		"mpg": "MPEG Videos",
+		"mpeg": "MPEG Videos",
+		"mp3": "mp3 Audio Files",
+}
+		
+
 ### Settings - end
 
 # Do not copy/paste anything below this line into settings_override.py.
