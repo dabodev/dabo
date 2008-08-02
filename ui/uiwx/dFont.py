@@ -25,7 +25,9 @@ class dFont(dObject):
 
 	
 	def _getBold(self):
-		return (self._nativeFont.GetWeight() == wx.FONTWEIGHT_BOLD)
+		if self._nativeFont:
+			return (self._nativeFont.GetWeight() == wx.FONTWEIGHT_BOLD)
+		return False
 
 	def _setBold(self, val):
 		if val:
@@ -45,7 +47,9 @@ class dFont(dObject):
 
 
 	def _getFace(self):
-		return self._nativeFont.GetFaceName()
+		if self._nativeFont:
+			return self._nativeFont.GetFaceName()
+		return ""
 
 	def _setFace(self, val):
 		if not val:
@@ -86,7 +90,9 @@ class dFont(dObject):
 
 
 	def _getItalic(self):
-		return (self._nativeFont.GetStyle() == wx.FONTSTYLE_ITALIC)
+		if self._nativeFont:
+			return (self._nativeFont.GetStyle() == wx.FONTSTYLE_ITALIC)
+		return False
 
 	def _setItalic(self, val):
 		if val:
@@ -101,7 +107,10 @@ class dFont(dObject):
 			multiplier = .75
 		else:
 			multiplier = 1		
-		return multiplier * self._nativeFont.GetPointSize()
+		if self._nativeFont:
+			return multiplier * self._nativeFont.GetPointSize()
+		# No native font yet; return a reasonable default.
+		return 9
 
 	def _setSize(self, val):
 		try:
@@ -125,7 +134,9 @@ class dFont(dObject):
 
 
 	def _getUnderline(self):
-		return self._nativeFont.GetUnderlined()
+		if self._nativeFont:
+			return self._nativeFont.GetUnderlined()
+		return False
 
 	def _setUnderline(self, val):
 		self._nativeFont.SetUnderlined(val)
