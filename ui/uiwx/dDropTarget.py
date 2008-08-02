@@ -19,9 +19,7 @@ class dDropTarget(wx.DropTarget):
 	def OnData(self, x, y, defResult):
 		if self.GetData():
 			format = self.compositeDataObject.ReceivedFormat.GetType()
-			print "Data type = %s, file type = %s" % (format, wx.DF_FILENAME)
 			if format == wx.DF_FILENAME:
-				print "dropping files to file handle: %s" % self._fileHandle
 				if self._fileHandle:
 					self._fileHandle.processDroppedFiles(self.fileData.Filenames)
 			elif format == wx.DF_TEXT or wx.DF_HTML:
