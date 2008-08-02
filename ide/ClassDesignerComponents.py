@@ -145,6 +145,18 @@ class LayoutSaverMixin(object):
 			if (hasSizer or isinstance(self, dabo.ui.dPage) or isSplitPanel) and prop in ("Width",
 					"Height") and self.ControllingSizer.getItemProp(self, "Expand"):
 				continue
+			if isinstance(self, dabo.ui.dLabel) and prop in ("Width", "Height"):
+				# Don't copy the size if AutoSize=True and the width is close to the default size.
+				if self.AutoResize:
+					defWd, defHt = dabo.ui.fontMetric(wind=self)
+					isDefaultSize = False
+					if prop == "Width":
+						isDefaultSize = (abs(self.Width - defWd) <= 1)
+					elif prop == "Height":
+						isDefaultSize = (abs(self.Height - defHt) <= 1)
+					if isDefaultSize:
+						# ignore it.
+						continue
 			if prop == "BackColor" and isinstance(self, (LayoutPanel, LayoutSpacerPanel)):
 				continue
 
