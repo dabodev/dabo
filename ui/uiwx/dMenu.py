@@ -228,9 +228,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		dummySpacer = None
 		if not self.Children:
 			dummySpacer = _actualCreation(" ", "", None, "")
+			dabo.ui.callAfter(self.remove, dummySpacer)
 		item = _actualCreation(caption, help, picture, menutype, *args, **kwargs)
-		if dummySpacer:
-			self.remove(dummySpacer)
 		return item
 
 
@@ -298,6 +297,9 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		True (the default), the item is destroyed as well. If release is False, a reference 
 		to the object will be returned, and the caller is responsible for destroying it.
 		"""
+		if not self:
+			# Menu has already been destroyed.
+			return
 		item = self._resolveItem(capIdxOrItem)
 		id_ = item.GetId()
 		if self._daboChildren.has_key(id_):
