@@ -355,8 +355,23 @@ class EditorForm(dabo.ui.dForm):
 
 	def onPrint(self, evt):
 		self.CurrentEditor.onPrint()
-	
-	
+
+
+	def onActivate(self, evt):
+		"""Check the files to see if any have been updated on disk."""
+		self.checkForUpdatedFiles()
+
+
+	def checkForUpdatedFiles(self):
+		"""If any file being edited has not been modified, and there is a more recent version
+		on disk, update the file with the version on disk.
+		"""
+		for pg in self.pgfEditor.Pages:
+			ed = pg.editor
+			if not ed.isChanged() and ed.checkForDiskUpdate():
+				ed.openFile(ed._fileName)
+
+
 	def onLexSelect(self, evt):
 		self.CurrentEditor.Language = self.lexSelector.Value
 
@@ -471,6 +486,7 @@ class EditorForm(dabo.ui.dForm):
 		
 
 	def onEditorPageChanged(self, evt):
+		self.checkForUpdatedFiles()
 		self.onTitleChanged(evt)
 		self.setCheckedMenus()
 		self.updateLex()
@@ -485,9 +501,12 @@ class EditorForm(dabo.ui.dForm):
 	
 	def setCheckedMenus(self):
 		ed = self.CurrentEditor
-		self._autoAutoItem.Checked = ed.AutoAutoComplete
-		self._wrapItem.Checked = ed.WordWrap
-		self._synColorItem.Checked = ed.SyntaxColoring
+		if ed is None:
+			self._autoAutoItem.Checked = self._wrapItem.Checked = self._synColorItem.Checked = False
+		else:
+			self._autoAutoItem.Checked = ed.AutoAutoComplete
+			self._wrapItem.Checked = ed.WordWrap
+			self._synColorItem.Checked = ed.SyntaxColoring
 		self._showOutItem.Checked = self.Application.getUserSetting("visibleOutput", False)
 		
 		
