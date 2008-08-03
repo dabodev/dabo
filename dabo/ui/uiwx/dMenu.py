@@ -148,19 +148,19 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			wx.App_SetMacPreferencesMenuItemId(id_)
 
 	
-	def _appendItem(self, item):
+	def appendItem(self, item):
 		"""Insert a dMenuItem at the bottom of the menu."""
 		wxItem = self._getWxItem(self.AppendItem, item)
 		return item
-		
 
-	def _insertItem(self, pos, item):
+
+	def insertItem(self, pos, item):
 		"""Insert a dMenuItem before the specified position in the menu."""
 		wxItem = self._getWxItem(self.InsertItem, item, pos)
 		return item
 		
 
-	def _prependItem(self, item):
+	def prependItem(self, item):
 		"""Insert a dMenuItem at the top of the menu."""
 		wxItem = self._getWxItem(self.PrependItem, item)
 		return item
@@ -222,7 +222,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			picture = bmp
 		def _actualCreation(caption, help, picture, menutype, *args, **kwargs):
 			_item = self._getItem(help, picture, menutype, *args, **kwargs)
-			self._appendItem(_item)
+			self.appendItem(_item)
 			_item.Caption = caption
 			return _item
 		dummySpacer = None
