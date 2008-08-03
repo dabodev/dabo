@@ -148,19 +148,19 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			wx.App_SetMacPreferencesMenuItemId(id_)
 
 	
-	def appendItem(self, item):
+	def _appendItem(self, item):
 		"""Insert a dMenuItem at the bottom of the menu."""
 		wxItem = self._getWxItem(self.AppendItem, item)
 		return item
 		
 
-	def insertItem(self, pos, item):
+	def _insertItem(self, pos, item):
 		"""Insert a dMenuItem before the specified position in the menu."""
 		wxItem = self._getWxItem(self.InsertItem, item, pos)
 		return item
 		
 
-	def prependItem(self, item):
+	def _prependItem(self, item):
 		"""Insert a dMenuItem at the top of the menu."""
 		wxItem = self._getWxItem(self.PrependItem, item)
 		return item
@@ -214,6 +214,26 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		return self.PrependSeparator()
 	
 
+	def _createMenuItem(self, pos, caption, help, bmp, picture, menutype, *args, **kwargs):
+		"""Handles the menu item creation for append(), insert() and prepend()."""
+		if pos is None:
+			pos = len(self.Children)
+		if picture is None:
+			picture = bmp
+		def _actualCreation(caption, help, picture, menutype, *args, **kwargs):
+			_item = self._getItem(help, picture, menutype, *args, **kwargs)
+			self._appendItem(_item)
+			_item.Caption = caption
+			return _item
+		dummySpacer = None
+		if not self.Children:
+			dummySpacer = _actualCreation(" ", "", None, "")
+		item = _actualCreation(caption, help, picture, menutype, *args, **kwargs)
+		if dummySpacer:
+			self.remove(dummySpacer)
+		return item
+
+
 	def append(self, caption, help="", bmp=None, picture=None,
 			menutype="", *args, **kwargs):
 		"""Append a dMenuItem with the specified properties.
@@ -225,12 +245,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		if picture is None:
-			picture = bmp
-		item = self._getItem(help, picture, menutype, *args, **kwargs)
-		self.appendItem(item)
-		item.Caption = caption
-		return item
+		return self._createMenuItem(None, caption=caption, help=help, bmp=bmp, picture=picture, 
+				menutype=menutype, *args, **kwargs)
 
 
 	def insert(self, pos, caption, help="", bmp=None, picture=None,
@@ -244,12 +260,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		if picture is None:
-			picture = bmp
-		item = self._getItem(help, picture, menutype, *args, **kwargs)
-		self.insertItem(pos, item)
-		item.Caption = caption
-		return item
+		return self._createMenuItem(pos, caption, help=help, bmp=bmp, picture=picture, 
+				menutype=menutype, *args, **kwargs)
 		
 
 	def prepend(self, caption, help="", bmp=None, picture=None,
@@ -263,12 +275,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		if picture is None:
-			picture = bmp
-		item = self._getItem(help, picture, menutype, *args, **kwargs)
-		self.prependItem(item)
-		item.Caption = caption
-		return item
+		return self._createMenuItem(0, caption, help=help, bmp=bmp, picture=picture, 
+				menutype=menutype, *args, **kwargs)
 		
 
 	def _resolveItem(self, capIdxOrItem):
