@@ -231,6 +231,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dEditor
 		self._fileName = ""
+		self._fileModTime = None
 		self._beforeInit(None)
 		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 		# Declare the attributes that underly properties.
@@ -1372,7 +1373,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			if os.path.exists(fname):
 				r = dabo.ui.areYouSure("File '%s' already exists. "
 					"Do you want to overwrite it?" % fname, defaultNo=True)
-				if r == None:
+				if r is None:
 					# user canceled.
 					fname = None
 					break
@@ -1388,9 +1389,12 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def saveFile(self, fname=None):
+		if not self.isChanged():
+			# Nothing changed
+			return
 		if self._curdir:
 			os.chdir(self._curdir)
-		if fname == None:
+		if fname is None:
 			try:
 				fname = self._fileName
 			except AttributeError:
@@ -1455,17 +1459,33 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 				newsettings[setName] = ln
 			if newsettings:
 				app.setUserSettings(newsettings)
-		
-		
+
+
+	def isChanged(self):
+		return self.GetModify()
+
+
+	def checkForDiskUpdate(self):
+		"""Returns True or False depending on whether the file on disk has been modified
+		since it was opened. It is up to the calling code to decide what to do with this
+		information.
+		"""
+		if not self._fileName:
+			# Nothing to check
+			return False
+		currTime = os.stat(self._fileName).st_mtime
+		return currTime > self._fileModTime
+
+
 	def checkChangesAndContinue(self):
 		"""Check to see if changes need to be saved, and if so prompt the user.
 		
 		Return False if saves were needed but not made.
 		"""
 		ret = True
-		if self.GetModify():
+		if self.isChanged():
 			r = self.promptToSave()
-			if r == None:
+			if r is None:
 				# user canceled the prompt.
 				ret = False
 			elif r == True:
@@ -1565,7 +1585,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		if not fileName:
 			fileName = self._newFileName
 			
-		if self.GetModify():
+		if self.isChanged():
 			modChar = "*"
 		else:
 			modChar = ""
