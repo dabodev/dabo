@@ -1123,8 +1123,11 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		else:
 			itemID = self.GetSelection()
 			if itemID:
-				ret = [ n for n in self.nodes
-						if n.itemID == itemID][0]
+				try:
+					ret = [n for n in self.nodes
+							if n.itemID == itemID][0]
+				except IndexError:
+					ret = None
 			else:
 				ret = None
 		return ret
