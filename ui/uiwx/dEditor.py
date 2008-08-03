@@ -1402,7 +1402,12 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			if fname is None:
 				# user canceled in the prompt: don't continue
 				return False
-		
+		else:
+			fModTime = os.stat(fname).st_mtime
+			if fModTime > self._fileModTime:
+				if not dabo.ui.areYouSure(_("""The file has been modified on the disk since you opened it. 
+Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButton=False):
+					return
 		try:
 			open(fname, "wb").write(self.GetText().encode(self.Encoding))
 		except OSError:
@@ -1410,6 +1415,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			return False
 		# set self._fileName, in case it was changed with a Save As
 		self._fileName = fname
+		self._fileModTime = os.stat(fname).st_mtime
 		self._clearDocument(clearText=False)
 		# Save the appearance settings
 		app = self.Application
@@ -1513,6 +1519,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				else:
 					return False
 			self._fileName = fileSpec
+			self._fileModTime = os.stat(fileSpec).st_mtime
 			pth, fname = os.path.split(fileSpec)
 			fext = os.path.splitext(fname)[1]
 			self.Language = fileFormatsDic.get(fext, self.Language)
