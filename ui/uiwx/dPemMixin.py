@@ -1072,7 +1072,7 @@ class dPemMixin(dPemMixinBase):
 		return dabo.ui.getPositionInSizer(self)
 	
 	
-	def setAll(self, prop, val, recurse=True, filt=None):
+	def setAll(self, prop, val, recurse=True, filt=None, instancesOf=None):
 		"""Set all child object properties to the passed value.
 
 		No bad effects will happen if the property doesn't apply to a child - only
@@ -1086,6 +1086,9 @@ class dPemMixin(dPemMixinBase):
 		affect objects that are instances of dButton, you'd call:
 
 		form.setAll("FontBold", True, filt="BaseClass == dabo.ui.dButton")
+
+		If the instancesOf sequence is passed, the property will only be set if
+		the child object is an instance of one of the passed classes.
 		"""
 		if isinstance(self, dabo.ui.dGrid):
 			kids = self.Columns
@@ -1098,8 +1101,14 @@ class dPemMixin(dPemMixinBase):
 			return
 		if isinstance(filt, basestring):
 			filt = (filt, )
+
+		if isinstance(instancesOf, basestring):
+			instancesOf = (instancesOf,)
+		if instancesOf is None:
+			instancesOf = tuple()
+		
 		for kid in kids:
-			ok = hasattr(kid, prop)
+			ok = hasattr(kid, prop) and (not instancesOf or isinstance(kid, instancesOf))
 			if ok:
 				if filt:
 					for ff in filt:
