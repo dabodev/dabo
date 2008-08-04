@@ -1130,7 +1130,7 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 		except KeyError:
 			# No children defined for this menu
 			return
-		
+		app = dabo.dAppRef
 		for itm in items:
 			if "Separator" in itm["name"]:
 				menu.appendSeparator()
