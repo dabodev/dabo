@@ -867,19 +867,18 @@ class dFormMixin(pm.dPemMixin):
 	
 
 	def _getStatusBar(self):
-		if hasattr(self, "GetStatusBar"):
-			try:
-				ret = self.GetStatusBar()
-			except (TypeError, AttributeError):
-				# pkm: My client got a TypeError from the wx layer, perhaps because the
-				#      window is a dialog and not a form, but I can't reproduce on my end.
-				#      Just return None immediately if this happens again.
-				return None
-			if (ret is None
-					and not isinstance(self, wx.MDIChildFrame)
-					and self.ShowStatusBar):
-				ret = dabo.ui.dStatusBar(self)
-				self.SetStatusBar(ret)
+		try:
+			ret = self.GetStatusBar()
+		except (TypeError, AttributeError):
+			# pkm: My client got a TypeError from the wx layer, perhaps because the
+			#      window is a dialog and not a form, but I can't reproduce on my end.
+			#      Just return None immediately if this happens again.
+			return None
+		if (ret is None
+				and not isinstance(self, wx.MDIChildFrame)
+				and self.ShowStatusBar):
+			ret = dabo.ui.dStatusBar(self)
+			self.SetStatusBar(ret)
 		else:
 			ret = None
 		return ret
