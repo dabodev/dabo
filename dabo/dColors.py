@@ -254,3 +254,19 @@ def colorTupleFromString(color):
 def randomColor():
 	import random
 	return colorDict[random.choice(colorDict.keys())]
+
+
+def colorNameFromTuple(colorTuple, firstOnly=False):
+	"""Returns a list of color names, if any, whose RGB tuple matches
+	the specified tuple. If 'firstOnly' is True, then a single color name 
+	will be returned as a string, not a list; the string will be empty
+	if there is no match.
+	"""
+	ret = [nm for nm, tup in colorDict.items()
+			if tup == colorTuple]
+	if firstOnly:
+		try:
+			ret = ret[0]
+		except IndexError:
+			ret = ""
+	return ret
