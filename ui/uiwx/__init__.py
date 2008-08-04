@@ -1130,10 +1130,12 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 		except KeyError:
 			# No children defined for this menu
 			return
-		app = dabo.dAppRef
+		
 		for itm in items:
 			if "Separator" in itm["name"]:
 				menu.appendSeparator()
+			elif itm["name"] == "MenuPanel":
+				addMenu(menu, itm, form, previewFunc)
 			else:
 				itmatts = itm["attributes"]
 				cap = menu._extractKey(itmatts, "Caption")
