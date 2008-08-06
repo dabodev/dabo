@@ -675,11 +675,12 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self.SetViewEOL(self.ShowEOL)
 		self.SetUseAntiAliasing(self.UseAntiAliasing)
 
-		## Seems that eolmode is CRLF on Mac by default... explicitly set it!
-		if wx.Platform == "__WXMSW__":
-			self.EOLMode = "CRLF"
-		else:
-			self.EOLMode = "LF"
+		## Seems that eolmode is CRLF on Mac by default... explicitly set it if not set by user!
+		if not self.EOLMode:
+			if wx.Platform == "__WXMSW__":
+				self.EOLMode = "CRLF"
+			else:
+				self.EOLMode = "LF"
 
 		if self.HiliteCharsBeyondLimit:
 			self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
