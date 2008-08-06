@@ -1162,7 +1162,7 @@ class ClassDesigner(dabo.dApp):
 				# Check the syntax before storing
 				txt = dlg.edtImport.Text
 				try:
-					compile(txt.strip(), "", "exec")
+					compile(txt.strip().replace("\r\n", "\n"), "", "exec")
 					self._classImportDict[frm] = txt
 					showDialog = dlg.Accepted = False
 				except SyntaxError, e:
