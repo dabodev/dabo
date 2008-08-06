@@ -104,8 +104,20 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		can be added in this method in framework classes, or
 		in addControls() in instances.
 		"""
+		self.beforeAddControls()
 		self.addControls()
-	
+		self.afterAddControls()
+
+
+	def beforeAddControls(self):
+		"""This is a hook, called at the appropriate time by the framework."""
+		pass
+
+
+	def afterAddControls(self):
+		"""This is a hook, called at the appropriate time by the framework."""
+		pass
+
 
 	def addControls(self):
 		"""Add your custom controls to the dialog.
@@ -324,10 +336,14 @@ class dStandardButtonDialog(dDialog):
 		sz = self.Sizer
 		if self.ButtonSizerPosition is None:
 			# User code didn't add it, so we must.
+			if sz.DefaultBorder:
+				spacer = sz.DefaultBorder
+			else:
+				spacer = 10
 			bs = dabo.ui.dSizer("v")
-			bs.append((0, sz.DefaultBorder/2))
+			bs.append((0, spacer/2))
 			bs.append(self.ButtonSizer, "x")
-			bs.append((0, sz.DefaultBorder))
+			bs.append((0, spacer))
 			sz.append(bs, "x")
 		self.layout()
 
