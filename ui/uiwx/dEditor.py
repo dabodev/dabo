@@ -1978,7 +1978,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 				self.ConvertEOLs(stc.STC_EOL_CR)
 				self._eolMode = "CR"
 			else:
-				raise ValueError, "EOLMode value must be either 'LFCR', 'LF', or 'CR'"
+				raise ValueError, "EOLMode value must be either 'CRLF', 'LF', or 'CR'"
 		else:
 			self._properties["EOLMode"] = val
 
