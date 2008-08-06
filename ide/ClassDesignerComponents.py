@@ -66,11 +66,11 @@ class LayoutSaverMixin(object):
 					# First-time save. Get the classID of the parent
 					try:
 						classID = self.Parent.classID.split("-")[0]
-					except AttributeError:
+					except (IndexError, AttributeError):
 						# Try the sizer
 							try:
 								classID = self.ControllingSizer.classID.split("-")[0]
-							except AttributeError:
+							except (IndexError, AttributeError):
 								classID = "?????"
 				ra["classID"] = "%s-%s" % (classID, myID)
 				self.classID = ra["classID"]
