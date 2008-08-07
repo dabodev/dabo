@@ -393,7 +393,7 @@ class dStandardButtonDialog(dDialog):
 		except AttributeError:
 			# New code should not have onCancel
 			pass
-		self.runCancel()
+		
 		if self.runCancel() is not False:
 			self.EndModal(kons.DLG_CANCEL)
 		else:
