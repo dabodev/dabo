@@ -31,7 +31,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		# Set up a list of functions to call when the user clicks 'OK' to accept changes,
 		# and one for functions to call when the user cancels.
 		self.callOnAccept = []
-		self.callOnCancel = []
+		self.callOnCancel = [self.onRollbackMenuChanges]
 		# Create a list of preference key objects that will be have their AutoPersist turned
 		# off when the dialog is shown, and either canceled or persisted, depending
 		# on the user's action.
@@ -146,6 +146,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 				self._recurseMenu(mn, nd, menukey)
 			menuPage.Sizer.append1x(tree, border=10)
 			root.expand()
+			self._originalHotKeyMap = self._hotKeyMap.copy()
 			
 			sz = dabo.ui.dGridSizer(MaxCols=2, HGap=5, VGap=10)
 			lbl = dabo.ui.dLabel(menuPage, Caption=_("Current Key:"))
@@ -231,6 +232,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 				self.txtMenuCurrentHotKey.Value = itm.hotkey = itm.Object.HotKey = hk
 				itm.pref.setValue("hotkey", hk)
 		dlg.release()
+		self.pgMenuKeys.update()
 
 
 	def _canSetHotKey(self):
@@ -240,15 +242,22 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 	
 	def _clearHotKey(self, evt):
 		itm = self._selectedItem
+		self._hotKeyMap.pop(itm.hotkey)
 		self.txtMenuCurrentHotKey.Value = itm.hotkey = itm.Object.HotKey = None
 		itm.pref.setValue("hotkey", None)
-		
+		self.pgMenuKeys.update()
 
 	def _canClearHotKey(self):
 		itm = self._selectedItem
 		return (itm is not None) and (itm.hotkey not in ("n/a", None))
-	
-	
+
+
+	def onRollbackMenuChanges(self):
+		km = self._originalHotKeyMap
+		for key in km.keys():
+			km[key].HotKey = key
+
+
 	def _addFrameworkPages(self):
 		"""Called when no other code exists to fill the dialog, or when
 		the class's IncludeFrameworkPages property is True.
