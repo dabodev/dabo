@@ -1519,9 +1519,12 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			return False
 	
 	
-	def openFile(self, fileSpec=None):
+	def openFile(self, fileSpec=None, checkChanges=True):
 		"""Open a new file and edit it."""
-		if self.checkChangesAndContinue():
+		cc = True
+		if checkChanges:
+			cc = self.checkChangesAndContinue()
+		if cc:
 			if fileSpec is None:
 				fileSpec = self.promptForFileName("Open")
 				if fileSpec is None:
