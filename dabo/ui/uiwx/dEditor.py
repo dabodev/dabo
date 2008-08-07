@@ -1174,7 +1174,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				funcType = "Class"
 			elif inspect.ismodule(obj):
 				funcType = "Module"
-			elif inspect.isbuiltin():
+			elif inspect.isbuiltin(obj):
 				funcType = "Built-In"
 			else:
 				funcType = ""
