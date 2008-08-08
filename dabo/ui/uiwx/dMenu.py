@@ -222,7 +222,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			picture = bmp
 		def _actualCreation(caption, help, picture, menutype, *args, **kwargs):
 			_item = self._getItem(help, picture, menutype, *args, **kwargs)
-			self.appendItem(_item)
+			self.insertItem(pos, _item)
 			_item.Caption = caption
 			return _item
 		dummySpacer = None
