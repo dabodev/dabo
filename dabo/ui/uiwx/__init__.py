@@ -1119,7 +1119,10 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 	def addMenu(mb, menuDict, form, previewFunc):
 		if form is None:
 			form = dabo.dAppRef.ActiveForm
-		menu = dabo.ui.dMenu(mb)
+		if isinstance(mb, dabo.ui.dMenuBar):
+			menu = dabo.ui.dMenu(mb)
+		else:
+			menu = dabo.ui.dMenu()
 		atts = menuDict["attributes"]
 		menu.Caption = atts["Caption"]
 		menu.MRU = atts["MRU"]
