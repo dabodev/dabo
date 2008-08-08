@@ -17,7 +17,7 @@ if _defaultEncoding is None:
 _domains = {}
 _currentTrans = None
 
-_languageAliases = {"english": "en",
+_languageAliases = {"english": "en", "English_United States":"en",
 		"spanish": "es", "espanol": "es", "español": "es",
 		"french": "fr", "francais": "fr", "français": "fr", 
 		"german": "de", "deutsch": "de",
