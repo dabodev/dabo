@@ -16,6 +16,7 @@ class dFont(dObject):
 			self._nativeFont = wx.Font(dabo.settings.defaultFontSize, 
 					wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, 
 					wx.FONTWEIGHT_NORMAL)
+		self._macNonScaledSize = 0
 	
 		super(dFont, self).__init__(properties=properties, *args, **kwargs)
 
@@ -103,14 +104,18 @@ class dFont(dObject):
 
 
 	def _getSize(self):
+		ret = None
 		if self._useMacFontScaling():
-			multiplier = .75
-		else:
-			multiplier = 1		
-		if self._nativeFont:
-			return multiplier * self._nativeFont.GetPointSize()
-		# No native font yet; return a reasonable default.
-		return 9
+			ret = self._macNonScaledSize
+		if not ret:
+			# Could be zero if it is the first time referenced when using Mac font scaling
+			if self._nativeFont:
+				return self._nativeFont.GetPointSize()
+			else:
+				# No native font yet; return a reasonable default.
+				return 9
+		else:	
+			return ret
 
 	def _setSize(self, val):
 		try:
@@ -120,8 +125,10 @@ class dFont(dObject):
 			# let the ValueError be raised.
 			val = float(val)
 		if self._useMacFontScaling():
-			self._macNonScaledSize = val
-			val = val / .75
+			# Make sure that the difference is less than float rounding errors.
+			if abs(float(val) - float(self._macNonScaledSize)) < 0.1:
+				self._macNonScaledSize = val
+				val = round(val/.75, 0)
 		try:
 			self._nativeFont.SetPointSize(val)
 		except ValueError:
