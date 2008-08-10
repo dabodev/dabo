@@ -382,6 +382,7 @@ class DesignerXmlConverter(dObject):
 				attPropString = ""
 				moduleString = ""
 				isSplitter = atts.has_key("SashPosition")
+				isSlidePanel = atts.has_key("PanelCount")
 				splitterString = ""
 				if isSplitter:
 					pos = self._extractKey(cleanAtts, "SashPosition")
@@ -390,6 +391,9 @@ class DesignerXmlConverter(dObject):
 					cleanAtts["Split"] = "False"
 					cleanAtts["ShowPanelSplitMenu"] = "False"
 					splitterString = self._spltText % locals()
+				elif isSlidePanel:
+					# We don't want panels auto-created by the PanelCount prop
+					pnlCnt = self._extractKey(cleanAtts, "PanelCount")
 				if isCustom:
 					superName = "self.getCustControlClass('%s')" % nm
 				else:
@@ -466,28 +470,32 @@ class DesignerXmlConverter(dObject):
 					# We need to handle Grids and PageFrames separately,
 					# since these 'children' are not random objects, but specific
 					# classes.
-					if (atts.has_key("ColumnCount") or atts.has_key("PageCount")):
-						# Grid or pageframe
-						self.classText += LINESEP + self._grdPgfText
+					if (atts.has_key("ColumnCount") or atts.has_key("PageCount") or atts.has_key("PanelCount")):
+						# Grid, pageframe or slide panel
+						self.classText += LINESEP + self._complexCtlText
 						isGrid = atts.has_key("ColumnCount")
-						if not isGrid:
+						isPageFrame = atts.has_key("PageCount")
+						if isPageFrame or isSlidePanel:
 							# We need to set up a unique name for the control so
 							# that all of the pages/panels can reference their
 							# parent. Since these child containers can contain
 							# lots of other stuff, the default 'obj' reference
 							# will be trampled by the time the second child is
 							# created.
-							prntName = self.uniqename("pgf")
-							self.classText += LINESEP + self._grdPgdRefText % locals()
+							if isPageFrame:
+								prntName = self.uniqename("pgf")
+							elif isSlidePanel:
+								prntName = self.uniqename("sldpn")
+							self.classText += LINESEP + self._complexPrntRef % locals()
 						for kid in kids:
 							kidCleanAtts = self.cleanAttributes(kid.get("attributes", {}))
 							if isGrid:
 								self.classText += LINESEP + self._grdColText % locals()
-							else:
-								# Paged control
+							elif isPageFrame or isSlidePanel:
+								# Paged control or Slide Panel control
 								nm = kid.get("name")
 								code = kid.get("code", {})
-								pgKids = kid.get("children")
+								subKids = kid.get("children")
 								attPropString = ""
 								moduleString = ""
 								if code:
@@ -497,11 +505,15 @@ class DesignerXmlConverter(dObject):
 									moduleString = "dabo.ui."
 									attPropString = ", attProperties=%s" % kidCleanAtts
 									kidCleanAtts = {}
-								self.classText += LINESEP + self._pgfPageText % locals()
+								if isPageFrame:
+									baseText = self._pgfPageText
+								elif isSlidePanel:
+									baseText = self._slidePanelText
+								self.classText += LINESEP + baseText % locals()
 
-								if pgKids:
-									self.createChildCode(pgKids)
-									self.classText += LINESEP + self._pgfKidsText
+								if subKids:
+									self.createChildCode(subKids)
+									self.classText += LINESEP + self._complexKidsText
 
 						# We've already processed the child objects for these
 						# grid/page controls, so clear the kids list.
@@ -746,12 +758,12 @@ import sys
 			except (KeyError, IndexError):
 				pass
 """
-		self._grdPgfText = """		parentStack.append(currParent)
+		self._complexCtlText = """		parentStack.append(currParent)
 		sizerDict[currParent].append(currSizer)
 		currParent = obj
 		sizerDict[currParent] = []
 """
-		self._grdPgdRefText = """		# save a reference to the parent control
+		self._complexPrntRef = """		# save a reference to the parent control
 		%(prntName)s = obj
 """
 		self._grdColText = """		col = dabo.ui.dColumn(obj, attProperties=%(kidCleanAtts)s)
@@ -765,7 +777,7 @@ import sys
 		currParent = pg
 		sizerDict[currParent] = []
 """
-		self._pgfKidsText = """		currParent = parentStack.pop()
+		self._complexKidsText = """		currParent = parentStack.pop()
 		if sizerDict[currParent]:
 			try:
 				currSizer = sizerDict[currParent].pop()
@@ -773,6 +785,13 @@ import sys
 				pass
 		else:
 			currSizer = None
+"""
+		self._slidePanelText = """		pnl = %(moduleString)s%(nm)s(%(prntName)s%(attPropString)s)
+		currSizer = pnl.Sizer = None
+		parentStack.append(currParent)
+		sizerDict[currParent].append(currSizer)
+		currParent = pnl
+		sizerDict[currParent] = []
 """
 		self._treeNodeText = """		def _addDesTreeNode(_nodeParent, _nodeAtts, _kidNodes):
 			_nodeCaption = self._extractKey(_nodeAtts, "Caption", "")
