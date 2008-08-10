@@ -488,17 +488,17 @@ class Resize(dEvent):
 	appliesToClass = classmethod(appliesToClass)
 
 
-class FoldPanelChange(dEvent):
-	"""Occurs when a panel in a dFoldPanelBar control is hidden or shown."""
+class SlidePanelChange(dEvent):
+	"""Occurs when a panel in a dSlidePanelControl control is hidden or shown."""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, (dabo.ui.dFoldPanelBar, dabo.ui.dFoldPanel))
+		return issubclass(objectClass, (dabo.ui.dSlidePanelControl, dabo.ui.dSlidePanel))
 	appliesToClass = classmethod(appliesToClass)
 
 
-class FoldPanelCaptionClick(dEvent):
-	"""Occurs when the caption bar of a dFoldPanel is clicked."""
+class SlidePanelCaptionClick(dEvent):
+	"""Occurs when the caption bar of a dSlidePanel is clicked."""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, (dabo.ui.dFoldPanelBar, dabo.ui.dFoldPanel))
+		return issubclass(objectClass, (dabo.ui.dFoldPanelBar, dabo.ui.dSlidePanel))
 	appliesToClass = classmethod(appliesToClass)
 
 
