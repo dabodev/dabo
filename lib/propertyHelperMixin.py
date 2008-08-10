@@ -304,7 +304,7 @@ class PropertyHelperMixin(object):
 			else:
 				try:
 					propVal = propRef.fget(cls)
-				except AttributeError:
+				except StandardError:
 					# There are many reasons the propval may not be determined for now, 
 					# such as not being a live instance.
 					propVal = None
