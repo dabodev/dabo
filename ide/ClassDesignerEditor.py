@@ -217,7 +217,7 @@ class EditorForm(dui.dForm):
 		
 		for number in [2,4,6,8,16]:
 			self._tabMenu.append(_("Tab Size %s" % number), OnHit=self.onTabSize, bmp="",
-			help=_("Set Tab Size To %s" % number), menutype="radio")
+					help=_("Set Tab Size To %s" % number), menutype="radio")
 		self._tabMenu.Children[1].Checked = True
 
 

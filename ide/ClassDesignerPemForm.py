@@ -66,18 +66,18 @@ class PemForm(dabo.ui.dForm):
 		psz = pp.Sizer = dabo.ui.dSizer("v")
 		tsz = tp.Sizer = dabo.ui.dSizer("v")
 
-		dabo.ui.dFoldPanelBar(pp, SingleClick=True, Singleton=True,
-				CollapseToBottom=True, RegID="mainBar")
-		psz.append1x(self.mainBar)
+		dabo.ui.dSlidePanelControl(pp, SingleClick=True, Singleton=True,
+				CollapseToBottom=True, RegID="mainContainer")
+		psz.append1x(self.mainContainer)
 		# This helps restore the sash position on the prop grid page
 		self._propSashPct = 80
 		# Bind to panel changes
-		self.mainBar.bindEvent(dEvents.FoldPanelChange, self.onPanelChange)
-		dabo.ui.dFoldPanel(self.mainBar, Caption=_("Properties"), RegID="propPage",
+		self.mainContainer.bindEvent(dEvents.SlidePanelChange, self.onPanelChange)
+		dabo.ui.dSlidePanel(self.mainContainer, Caption=_("Properties"), RegID="propPage",
 				CaptionForeColor="blue")
-		dabo.ui.dFoldPanel(self.mainBar, Caption=_("Methods"), RegID="methodPage",
+		dabo.ui.dSlidePanel(self.mainContainer, Caption=_("Methods"), RegID="methodPage",
 				CaptionForeColor="blue")
-		dabo.ui.dFoldPanel(self.mainBar, Caption=_("Custom Properties"), RegID="objPropPage",
+		dabo.ui.dSlidePanel(self.mainContainer, Caption=_("Custom Properties"), RegID="objPropPage",
 				CaptionForeColor="blue")
 
 		# Add the PropSheet
@@ -107,7 +107,7 @@ class PemForm(dabo.ui.dForm):
 		
 		ps.Controller = ms.Controller = self._tree.Controller = ops.Controller = self.Controller
 		self.layout()
-		dabo.ui.callAfter(self.mainBar.expand, self.propPage)
+		dabo.ui.callAfter(self.mainContainer.expand, self.propPage)
 
 	
 	def onToggleTree(self, evt):
@@ -134,9 +134,9 @@ class PemForm(dabo.ui.dForm):
 
 	def onResize(self, evt):
 		try:
-			dabo.ui.callAfter(self.mainBar.refresh)
+			dabo.ui.callAfter(self.mainContainer.refresh)
 		except:
-			# 'mainBar' might not be defined yet, so ignore
+			# 'mainContainer' might not be defined yet, so ignore
 			pass
 			
 		

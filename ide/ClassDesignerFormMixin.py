@@ -65,14 +65,19 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		# When editing non-sizer designs, this holds the active container
 		# for adding controls.
 		self._activeContainer = None
+		# The auto-binding happens too late in this case, so call
+		# this method here.
+		self.onActivate(None)
+
+
+	def _beforeInit(self, pre):
+		"""Need to set this early in the process"""
 		# Convenient flag for controls determining if 
 		# they are being modified on a design surface
 		# or run interactively.
 		self.isDesignerForm = True
-		# The auto-binding happens too late in this case, so call
-		# this method here.
-		self.onActivate(None)
-	
+		return super(ClassDesignerFormMixin, self)._beforeInit(pre)
+
 	
 	def afterInit(self):
 		self._defaultLeft = 30

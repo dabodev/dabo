@@ -155,7 +155,7 @@ class LayoutSaverMixin(object):
 					elif prop == "Height":
 						isDefaultSize = (abs(self.Height - defHt) <= 1)
 					if isDefaultSize:
-						# ignore it.
+						# ignore it
 						continue
 			if prop == "BackColor" and isinstance(self, (LayoutPanel, LayoutSpacerPanel)):
 				continue

@@ -138,6 +138,7 @@ class ClassDesigner(dabo.dApp):
 				{"name" : "DateTextBox", "class" : dui.dDateTextBox, "order" : 60},
 				{"name" : "DropdownList", "class" : dui.dDropdownList, "order" : 70},
 				{"name" : "EditBox", "class" : dui.dEditBox, "order" : 80},
+				{"name" : "SlidePanelControl", "class" : dui.dSlidePanelControl, "order" : 82},
 				{"name" : "HtmlBox", "class" : dui.dHtmlBox, "order" : 85},
 				{"name" : "Gauge", "class" : dui.dGauge, "order" : 90},
 				{"name" : "Grid", "class" : dui.dGrid, "order" : 100},
@@ -267,6 +268,8 @@ class ClassDesigner(dabo.dApp):
 		dct = defVals.copy()
 		self._sizerDefaults[dui.dEditor] = dct
 		dct = defVals.copy()
+		self._sizerDefaults[dui.dSlidePanelControl] = dct
+		dct = defVals.copy()
 		dct.update({"Proportion" : 0})
 		self._sizerDefaults[dui.dGauge] = dct
 		dct = defVals.copy()
@@ -344,13 +347,13 @@ class ClassDesigner(dabo.dApp):
 		baseEvents = ("DataEvent", "EditorEvent", "GridEvent", "KeyEvent",
 				"ListEvent", "MenuEvent", "MouseEvent", "SashEvent",
 				"CalendarEvent", "TreeEvent")
-		classes = (dui.dBox, dui.dBitmap, dui.dBitmapButton, dui.dButton, dui.dCheckBox, 
-				dui.dComboBox, dui.dDateTextBox, dui.dDialog, dui.dDropdownList, dui.dEditBox, 
-				dui.dEditor, dui.dForm, dui.dDockForm, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, 
-				dui.dLabel, dui.dLine, dui.dListBox, dui.dListControl, dui.dOkCancelDialog, dui.dPanel, 
-				dui.dPage, dui.dScrollPanel, dui.dPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect,
-				dui.dPageFrameNoTabs, dui.dRadioList, dui.dSlider, dui.dSpinner, dui.dSplitter, dui.dTextBox, 
-				dui.dToggleButton, dui.dTreeView, dlgs.Wizard, dlgs.WizardPage)
+		classes = (dui.dBox, dui.dBitmap, dui.dBitmapButton, dui.dButton, dui.dCheckBox, dui.dComboBox,
+				dui.dDateTextBox, dui.dDialog, dui.dDropdownList, dui.dEditBox, dui.dEditor, dui.dSlidePanelControl,
+				dui.dForm, dui.dDockForm, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel, dui.dLine,
+				dui.dListBox, dui.dListControl, dui.dOkCancelDialog, dui.dPanel, dui.dPage, dui.dScrollPanel,
+				dui.dPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect, dui.dPageFrameNoTabs,
+				dui.dRadioList, dui.dSlider, dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton,
+				dui.dTreeView, dlgs.Wizard, dlgs.WizardPage)
 
 		def evtsForClass(cls):
 			def safeApplies(itm, cls):
@@ -634,6 +637,8 @@ class ClassDesigner(dabo.dApp):
 		if os.path.split(currdir)[-1].lower() == "ui":
 			# Standard directory structure; process the parent directory
 			self._initDB(os.path.dirname(currdir))
+		# We need to remove the menu bar class for now, since it isn't used at design time.
+		mbf = self._extractKey(atts, "MenuBarFile")
 		if self._reuseMainForm(useSizers=atts.get("UseSizers", False)):
 			# Original form hasn't changed, so just use it.
 			frm = self.MainForm
@@ -707,6 +712,8 @@ class ClassDesigner(dabo.dApp):
 		# Show it!
 		frm.Centered = True
 		frm.Visible = True
+		if mbf:
+			frm.MenuBarFile = mbf
 		# Save the initial state
 		dabo.ui.callAfter(frm.saveState)
 
@@ -913,6 +920,7 @@ class ClassDesigner(dabo.dApp):
 				isGrid = issubclass(newClass, dui.dGrid)
 				isTree = issubclass(newClass, dui.dTreeView)
 				isSplitter = issubclass(newClass, dui.dSplitter)
+				isSlidePanelControl = issubclass(newClass, dui.dSlidePanelControl)
 				isPageControl = issubclass(newClass, self.pagedControls)
 				noTabs = issubclass(newClass, dui.dPageFrameNoTabs)
 				if isGrid:
@@ -934,11 +942,17 @@ class ClassDesigner(dabo.dApp):
 					except: pass
 					if noTabs:
 						del props["TabPosition"]
+				elif isSlidePanelControl:
+					props["PanelCount"] = int(atts.get("PanelCount", "0"))
+					try:
+						del atts["PanelCount"]
+					except: pass
 				elif isSplitter:
 					ornt = self._extractKey(atts, "Orientation", "Vertical")
 					splt = self._extractKey(atts, "Split", "False")
 					props["createPanes"] = False
 					atts["Split"] = False
+
 				# If we are pasting, we can get two objects with the same
 				# Name value, so change it to NameBase.
 				nm = self._extractKey(atts, "Name", clsname)
@@ -1001,7 +1015,21 @@ class ClassDesigner(dabo.dApp):
 							if grandkids:
 								self._srcObj = pg
 								self.recreateChildren(pg, grandkids, None, False)
-
+					elif isSlidePanelControl:
+						for pos, kid in enumerate(kids):
+							pnl = obj.Children[pos]
+							kidatts = kid.get("attributes", {})
+							kidClassID = self._extractKey(kidatts, "classID", "")
+							if kidClassID:
+								pnl.classID = kidClassID
+							pnl.setPropertiesFromAtts(kidatts)
+							kidcode = kid.get("code", {})
+							if kidcode:
+								self._codeDict[pnl] = kidcode
+							grandkids = kid.get("children", [])
+							if grandkids:
+								self._srcObj = pnl
+								self.recreateChildren(pg, grandkids, None, False)
 					elif isSplitter:
 						for pos, kid in enumerate(kids):
 							pnlClass = dui.__dict__[kid["name"]]
@@ -1732,22 +1760,18 @@ class ClassDesigner(dabo.dApp):
 			def addControls(self):
 				# Create a dropdown list containing all the choices.
 				# NOTE: This would be an excellent candidate for usage ordering.
-				chc = ["Form", "DockForm", "Panel", "ScrollPanel", "Plain Dialog", "OK/Cancel Dialog", 
-						"Wizard", "WizardPage", "PageFrame", "PageList", "PageSelect",
-						"PageNoTabs", "Box", "Bitmap", "BitmapButton", "Button", "CheckBox",
-						"ComboBox", "DateTextBox", "DropdownList", "EditBox", "Editor",
-						"Gauge", "Grid", "HtmlBox", "Image", "Label", "Line", "ListBox", "ListControl", "Page",
-						"RadioList", "Slider", "Spinner", "Splitter", "TextBox", "ToggleButton",
-						"TreeView"]
-				keys = [dui.dForm, dui.dDockForm, dui.dPanel, dui.dScrollPanel, dui.dDialog, 
-						dui.dOkCancelDialog, dlgs.Wizard, dlgs.WizardPage,
-						dui.dPageFrame, dui.dPageList, dui.dPageSelect, dui.dPageFrameNoTabs,
-						dui.dBox, dui.dBitmap, dui.dBitmapButton, dui.dButton, dui.dCheckBox,
-						dui.dComboBox, dui.dDateTextBox, dui.dDropdownList, dui.dEditBox,
-						dui.dEditor, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel, dui.dLine,
-						dui.dListBox, dui.dListControl, dui.dPage, dui.dRadioList, dui.dSlider,
-						dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton,
-						dui.dTreeView]
+				chc = ["Form", "DockForm", "Panel", "ScrollPanel", "SlidePanel", "Plain Dialog", "OK/Cancel Dialog",
+				"Wizard", "WizardPage", "PageFrame", "PageList", "PageSelect", "PageNoTabs", "Box", "Bitmap",
+				"BitmapButton", "Button", "CheckBox", "ComboBox", "DateTextBox", "DropdownList", "EditBox", 
+				"Editor", "Gauge", "Grid", "HtmlBox", "Image", "Label", "Line", "ListBox", "ListControl", "Page",
+				"RadioList", "Slider", "Spinner", "Splitter", "TextBox", "ToggleButton", "TreeView"]
+				keys = [dui.dForm, dui.dDockForm, dui.dPanel, dui.dScrollPanel, dui.dSlidePanelControl, dui.dDialog,
+						dui.dOkCancelDialog, dlgs.Wizard, dlgs.WizardPage, dui.dPageFrame, dui.dPageList,
+						dui.dPageSelect, dui.dPageFrameNoTabs, dui.dBox, dui.dBitmap, dui.dBitmapButton,
+						dui.dButton, dui.dCheckBox, dui.dComboBox, dui.dDateTextBox, dui.dDropdownList,
+						dui.dEditBox, dui.dEditor, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel,
+						dui.dLine, dui.dListBox, dui.dListControl, dui.dPage, dui.dRadioList, dui.dSlider, dui.dSpinner,
+						dui.dSplitter, dui.dTextBox, dui.dToggleButton, dui.dTreeView]
 				if not _USE_DOCKFORM:
 					# The dock form reference is position 1
 					chc.pop(1)
@@ -2518,7 +2542,6 @@ class ClassDesigner(dabo.dApp):
 							self.pageClass = dabo.lib.utils.relativePath(f)
 							self.update()
 
-
 				dlg = PageInfoDialog(self.CurrentForm, NoTabs=noTabs,
 						BasePrefKey=self.BasePrefKey+".PageInfoDialog")
 				dlg.AutoSize = False
@@ -2569,6 +2592,21 @@ class ClassDesigner(dabo.dApp):
 				except ValueError:
 					newCols = 3
 
+		isSlidePanelControl = issubclass(cls, dui.dSlidePanelControl)
+		if isSlidePanelControl:
+			dabo.ui.exclaim("NOT IMPLEMENTED YET")
+			return
+			# Make sure it has some panels.
+			newPanels = None
+			cnt = props.get("PanelCount", 0)
+			if not cnt:
+				try:
+					newPanels = int(dui.getString(_("How many panels?"),
+							_("New Slide Container"), "3"))
+				except ValueError:
+					newPanels = 3
+				props["PanelCount"] = newPanels
+
 		if useSizers:
 			# Need to notify the tree that an update to a node will be
 			# happening. Get the affected node
@@ -2594,6 +2632,11 @@ class ClassDesigner(dabo.dApp):
 		if isPageControl:
 			pcount = props["PageCount"]
 			props["PageCount"] = 0
+
+		# Delay the creation of pages
+		if isSlidePanelControl:
+			pcount = props["PanelCount"]
+			props["PanelCount"] = 0
 
 		# Make sure that the RadioList's components are Designer-aware
 		if issubclass(cls, dui.dRadioList):
@@ -2673,6 +2716,29 @@ class ClassDesigner(dabo.dApp):
 							pg.Sizer = LayoutSizer("v")
 							pg0panel = LayoutPanel(pg)
 
+		if isSlidePanelControl:
+			pnlCls = obj.PanelClass
+			if isinstance(pnlCls, basestring):
+				# Saved class; let the control handle it
+				obj.PanelCount = pcount
+				# This is the key that marks it as a class, and not a base object.
+				prop = classFlagProp
+				for pnl in obj.Panels:
+					pnl.Expanded = False
+					pnl.__setattr__(prop, pnlCls)
+				pnl0panel = obj.Panels[0]
+			else:
+				pnlCtlCls = self.getControlClass(pnlCls)
+				basePanelCls = self.getControlClass(dabo.ui.dPanel)
+				obj.PanelClass = pnlCtlCls
+				obj.PanelCount = pcount
+				pnl0panel = None
+				for pnl in obj.Panels[::-1]:
+					pnl.Expanded = False
+					if useSizers:
+						sz = pnl.Sizer = LayoutSizer("v")
+						pnl0 = LayoutPanel(pnl)
+
 		if isinstance(obj, dui.dPage) and not isinstance(obj.Parent, self.pagedControls):
 			# This is a free standing page being designed. Add the sizer, if required.
 			if useSizers:
@@ -2722,6 +2788,8 @@ class ClassDesigner(dabo.dApp):
 		if not skipUpdate:
 			if useSizers and isPageControl:
 				dui.callAfter(self.select, pg0panel)
+			elif useSizers and isSlidePanelControl:
+				dui.callAfter(self.select, pnl0)
 			else:
 				dui.callAfter(self.select, obj)
 			dui.callAfterInterval(100, self.updateLayout)
@@ -2919,6 +2987,7 @@ class ClassDesigner(dabo.dApp):
 			pop.append(_("Add Line"), OnHit=self.onNewLine)
 			pop.append(_("Add Panel"), OnHit=self.onNewPanel)
 			pop.append(_("Add ScrollPanel"), OnHit=self.onNewScrollPanel)
+			pop.append(_("Add SlidePanelControl"), OnHit=self.onNewSlidePanelControl)
 			pop.append(_("Add Splitter"), OnHit=self.onNewSplitter)
 			mainpop.appendMenu(pop)
 			pop = dui.dMenu(Caption=_("Interactive Controls"))
@@ -3113,6 +3182,8 @@ class ClassDesigner(dabo.dApp):
 		dui.callAfter(self.addNewControl, None, dui.dEditBox)
 	def onNewEditor(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dEditor)
+	def onNewSlidePanelControl(self, evt):
+		dui.callAfter(self.addNewControl, None, dui.dSlidePanelControl)
 	def onNewGauge(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dGauge)
 	def onNewGrid(self, evt):
@@ -3499,6 +3570,7 @@ class ClassDesigner(dabo.dApp):
 					_("PageList") : self.onNewPageList,
 					_("PageSelect") : self.onNewPageSelect,
 					_("PageNoTabs") : self.onNewPageNoTabs,
+					_("SlidePanelControl") : self.onNewSlidePanelControl,
 					_("Slider") : self.onNewSlider,
 					_("Spinner") : self.onNewSpinner,
 					_("Splitter") : self.onNewSplitter,
@@ -3899,6 +3971,7 @@ if __name__ == '__main__':
 					(_("DateTextBox"), dui.dDateTextBox),
 					(_("DropdownList"), dui.dDropdownList),
 					(_("EditBox"), dui.dEditBox),
+					(_("SlidePanelControl"), dui.dSlidePanelControl),
 					(_("Gauge"), dui.dGauge),
 					(_("Grid"), dui.dGrid),
 					(_("HtmlBox"), dui.dHtmlBox),

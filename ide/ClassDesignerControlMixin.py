@@ -782,6 +782,22 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		sliderProps = {"Max": {"type" : int, "readonly" : False},
 				"Min": {"type" : int, "readonly" : False},
 				"ShowLabels" : {"type" : bool, "readonly" : False}}
+		slidePanelControlProps = {"CollapseToBottom" : {"type" : bool, "readonly" : False},
+				"ExpandContent": {"type" : bool, "readonly" : False},
+				"PanelCount" : {"type" : int, "readonly" : True},
+				"SingleClick" : {"type" : bool, "readonly" : False},
+				"Singleton" : {"type" : bool, "readonly" : False}}
+		slidePanelProps = {
+				"BarColor1" : {"type" : "color", "readonly" : False, 
+					"customEditor": "editColor"},
+				"BarColor2" : {"type" : "color", "readonly" : False, 
+					"customEditor": "editColor"},
+				"BarStyle": {"type" : list, "readonly" : False,
+					"values" : ["Borderless", "BorderOnly", "FilledBorder", "HorizontalFill", "VerticalFill"]},
+				"Border": {"type" : int, "readonly" : False},
+				"CaptionForeColor" : {"type" : "color", "readonly" : False, 
+					"customEditor": "editColor"},
+				"PanelPosition": {"type" : int, "readonly" : False}}
 		splitterProps = {"MinimumPanelSize": {"type" : int, "readonly" : False},
 				"Orientation": {"type" : list, "readonly" : False,
 					"values" : ["Horizontal", "Vertical"]},
@@ -956,6 +972,11 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		elif isinstance(self, dabo.ui.dPanel):
 			ret.update(panelProps)
 			ret.update(colorProps)
+		elif isinstance(self, dabo.ui.dSlidePanelControl):
+			ret.update(slidePanelControlProps)
+		elif isinstance(self, dabo.ui.dSlidePanel):
+			ret.update(slidePanelProps)
+			ret.update(captionProps)
 		elif isinstance(self, dabo.ui.dSlider):
 			ret.update(sliderProps)
 			ret.update(colorProps)
