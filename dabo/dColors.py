@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import re, types
+import re
+import random
 
 class HexError(Exception): pass
 class InvalidCharError(HexError): pass
@@ -166,7 +167,7 @@ colors = colorDict.keys()
 
 
 def hexToDec(hx):
-	if not isinstance(hx, types.StringTypes):
+	if not isinstance(hx, basestring):
 		raise TypeError, "Input must be a string"
 	# Define a dict of char-value pairs
 	hex = {"0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, 
@@ -188,7 +189,7 @@ def tupleToHex(t, includeHash=True):
 	if not len(t) == 3:
 		raise LengthError, "Color tuple needs to contain 3 elements"
 	for rgb in t:
-		if not isinstance(rgb, types.IntType):
+		if not isinstance(rgb, int):
 			raise IntegerTypeError, "Tuple elements should be all integers."
 		if not 0 <= rgb <= 255:
 			raise RgbValueError, "Rgb Value must be in the range 0-255"
@@ -252,8 +253,13 @@ def colorTupleFromString(color):
 
 
 def randomColor():
-	import random
+	"""Returns a random color tuple"""
 	return colorDict[random.choice(colorDict.keys())]
+
+
+def randomColorName():
+	"""Returns a random color name"""
+	return random.choice(colorDict.keys())
 
 
 def colorNameFromTuple(colorTuple, firstOnly=False):
