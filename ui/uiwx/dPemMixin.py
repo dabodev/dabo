@@ -1714,7 +1714,9 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _getBackColor(self):
-		return self.GetBackgroundColour().Get()
+		if self._constructed():
+			return self.GetBackgroundColour().Get()
+		return None
 
 	def _setBackColor(self, val):
 		if self._constructed():
