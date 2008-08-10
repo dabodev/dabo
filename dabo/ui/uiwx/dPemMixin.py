@@ -123,7 +123,7 @@ class dPemMixin(dPemMixinBase):
 		properties = dictStringify(properties)
 
 		# Hacks to fix up various things:
-		import dMenuBar, dMenuItem, dMenu, dFoldPanelBar, dToggleButton
+		import dMenuBar, dMenuItem, dMenu, dSlidePanelControl, dToggleButton
 		if isinstance(self, dMenuItem.dMenuItem):
 			# Hack: wx.MenuItem doesn't take a style arg,
 			# and the parent arg is parentMenu.
@@ -139,8 +139,9 @@ class dPemMixin(dPemMixinBase):
 			del(self._preInitProperties["style"])
 			del(self._preInitProperties["id"])
 			del(self._preInitProperties["parent"])
-		elif isinstance(self, (dFoldPanelBar.dFoldPanel, dFoldPanelBar.dFoldPanelBar)):
-			# Hack: the FoldPanel classes have no style arg.
+		elif isinstance(self, (dabo.ui.dSlidePanel, dabo.ui.dSlidePanelControl, 
+				dSlidePanelControl.dSlidePanel, dSlidePanelControl.dSlidePanelControl)):
+			# Hack: the Slide Panel classes have no style arg.
 			del self._preInitProperties["style"]
 			# This is needed because these classes require a 'parent' param.
 			kwargs["parent"] = parent

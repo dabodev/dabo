@@ -4666,6 +4666,18 @@ class _dGrid_test(dGrid):
 		col.HeaderBackColor = "orange"
 		col.HeaderVerticalAlignment = "Top"
 		col.HeaderHorizontalAlignment = "Left"
+		
+		# Let's make a custom editor for the name
+		class ColoredText(dabo.ui.dTextBox):
+			def initProperties(self):
+				self.ForeColor = "blue"
+				self.FontItalic = True
+				self.FontSize = 24
+			def onKeyChar(self, evt):
+				self.ForeColor = dabo.dColors.randomColor()
+				self.FontItalic = not self.FontItalic
+		# Since we're using a big font, set a minimum height for the editor
+		col.CustomEditorClass = dabo.ui.makeGridEditor(ColoredText, minHeight=40)
 
 		self.addColumn(Name="Age", Order=30, DataField="age",
 				DataType="integer", Width=40, Caption="Age",
