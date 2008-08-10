@@ -7,6 +7,7 @@ import urllib
 import datetime
 import time
 import cStringIO
+import warnings
 from dabo.dLocalize import _
 
 ######################################################
@@ -88,8 +89,8 @@ from dEditor import dEditor
 from dFileDialog import dFileDialog
 from dFileDialog import dFolderDialog
 from dFileDialog import dSaveDialog
-from dFoldPanelBar import dFoldPanelBar
-from dFoldPanelBar import dFoldPanel
+from dSlidePanelControl import dSlidePanelControl
+from dSlidePanelControl import dSlidePanel
 from dFont import dFont
 from dFontDialog import dFontDialog
 from dForm import dForm
@@ -154,6 +155,17 @@ except ImportError:
 if wx.VERSION >= (2, 7):
 	from dDockForm import dDockForm
 	from dPageFrame import dDockTabs
+
+# Support the old names, but issue deprecation warnings.
+class dFoldPanelBar(dSlidePanelControl):
+	def __init__(self, *args, **kwargs):
+		warnings.warn(_("'dFoldPanelBar' is a deprecated name. Use 'dSlidePanelControl' instead"), DeprecationWarning)
+		super(dFoldPanelBar, self).__init__(*args, **kwargs)
+class dFoldPanel(dSlidePanel):
+	def __init__(self, *args, **kwargs):
+		warnings.warn(_("'dFoldPanel' is a deprecated name. Use 'dSlidePanel' instead"), DeprecationWarning)
+		super(dFoldPanel, self).__init__(*args, **kwargs)
+
 
 artConstants = {}
 for item in (it for it in dir(wx) if it.startswith("ART_")):
@@ -1170,6 +1182,110 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 	for mn in mnd["children"]:
 		addMenu(mb, mn, form, previewFunc)
 	return mb
+
+
+def makeGridEditor(controlClass, minWidth=None, minHeight=None):
+	class _BaseCellEditor(wx.grid.PyGridCellEditor):
+		_controlClass = None
+		_minWidth = None
+		_minHeight = None
+	
+		def Create(self, parent, id, evtHandler):
+			"""Called to create the control, which must derive from wx.Control.
+			*Must Override*
+			"""
+			if not self._controlClass:
+				raise TypeError, _("Cannot create custom editor without a control class specified.")
+			self._control = self._controlClass(parent)
+			self.SetControl(self._control)
+			if evtHandler:
+				self._control.PushEventHandler(evtHandler)
+	
+		def SetSize(self, rect):
+			"""Called to position/size the edit control within the cell rectangle.
+			If you don't fill the cell (the rect) then be sure to override
+			PaintBackground and do something meaningful there.
+			"""
+			wd = rect.width + 2
+			if self._minWidth:
+				wd = max(self._minWidth, wd)
+			ht = rect.height+2
+			if self._minHeight:
+				ht = max(self._minHeight, ht)
+			self._control.SetDimensions(rect.x, rect.y, wd, ht, wx.SIZE_ALLOW_MINUS_ONE)
+	
+		def PaintBackground(self, rect, attr):
+			"""Draws the part of the cell not occupied by the edit control.  The
+			base  class version just fills it with background colour from the
+			attribute.	In this class the edit control fills the whole cell so
+			don't do anything at all in order to reduce flicker.
+			"""
+			pass
+	
+		def BeginEdit(self, row, col, grid):
+			"""Fetch the value from the table and prepare the edit control
+			to begin editing.  Set the focus to the edit control.
+			*Must Override*
+			"""
+			self.startValue = grid.GetTable().GetValue(row, col)
+			self._control.Value = self.startValue
+			self._control.setFocus()
+	
+		def EndEdit(self, row, col, grid):
+			"""Complete the editing of the current cell. Returns True if the value
+			has changed.  If necessary, the control may be destroyed.
+			*Must Override*
+			"""
+			changed = False
+			val = self._control.Value
+			if val != self.startValue:
+				changed = True
+				grid.GetTable().SetValue(row, col, val) # update the table
+			self.startValue = None
+			return changed
+
+		def Reset(self):
+			"""Reset the value in the control back to its starting value.
+			*Must Override*
+			"""
+			self._control.Value = self.startValue
+
+		def IsAcceptedKey(self, evt):
+			"""Return True to allow the given key to start editing: the base class
+			version only checks that the event has no modifiers.  F2 is special
+			and will always start the editor.
+			"""
+			return (not (evt.ControlDown() or evt.AltDown()) and
+					evt.GetKeyCode() != wx.WXK_SHIFT)
+
+		def StartingKey(self, evt):
+			"""If the editor is enabled by pressing keys on the grid, this will be
+			called to let the editor do something about that first key if desired.
+			"""
+			pass
+
+		def StartingClick(self):
+			"""If the editor is enabled by clicking on the cell, this method will be
+			called to allow the editor to simulate the click on the control if
+			needed.
+			"""
+			pass
+
+		def Destroy(self):
+			"""final cleanup"""
+			self.base_Destroy()
+
+		def Clone(self):
+			"""Create a new object which is the copy of this one
+			*Must Override*
+			"""
+			return self.__class__
+
+	class _CustomEditor(_BaseCellEditor):
+		_controlClass = controlClass
+		_minWidth = minWidth
+		_minHeight = minHeight
+	return _CustomEditor
 
 
 def browse(dataSource, parent=None, keyCaption=None, includeFields=None,

@@ -314,6 +314,7 @@ class dPageFrameMixin(cm.dControlMixin):
 					self.DeletePage(i-1)
 		else:
 			self._properties["PageCount"] = val
+
 	
 	def _getPgs(self):
 		## pkm: It is possible for pages to not be instances of dPage
