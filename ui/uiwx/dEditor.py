@@ -299,16 +299,16 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 # 			self._defaultsSet = True
 
 		app = self.Application
+		print self._fontFace
 		self._fontFace = app.getUserSetting("editor.fontface")
 		self._fontSize = app.getUserSetting("editor.fontsize")
-		if self._fontFace:
-			dabo.ui.callAfter(self.changeFontFace, self._fontFace)
-		else:
-			self._fontFace = self.GetFont().GetFaceName()
-		if self._fontSize:
-			dabo.ui.callAfter(self.changeFontSize, self._fontSize)
-		else:
-			self._fontSize = self.GetFont().GetPointSize()
+		if self._fontFace is None:
+			self._fontFace = fontFace
+		if self._fontSize is None:
+			self._fontSize = fontSize
+		
+		dabo.ui.callAfter(self.changeFontFace, self._fontFace)
+		dabo.ui.callAfter(self.changeFontSize, self._fontSize)
 
 		self._syntaxColoring = True
 		self._styleTimer = StyleTimer(self)
@@ -688,13 +688,6 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 		self._setLineNumberMarginVisibility()
 		self._setCodeFoldingMarginVisibility()
-
-		# Make some styles,	 The lexer defines what each style is used for, we
-		# just have to define what each style looks like.  This set is adapted from
-		# Scintilla sample property files.
-		self.setDefaultFont(fontFace, fontSize)
-		# Python styles
-		self.setPyFont(fontFace, fontSize)
 
 		self.SetCaretForeground("BLUE")
 
