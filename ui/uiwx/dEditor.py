@@ -299,7 +299,6 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 # 			self._defaultsSet = True
 
 		app = self.Application
-		print self._fontFace
 		self._fontFace = app.getUserSetting("editor.fontface")
 		self._fontSize = app.getUserSetting("editor.fontsize")
 		if self._fontFace is None:
