@@ -1382,7 +1382,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def saveFile(self, fname=None):
-		if not self.isChanged():
+		if not self.isChanged() and self._fileName:
 			# Nothing changed
 			return
 		if self._curdir:
@@ -1392,7 +1392,6 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				fname = self._fileName
 			except AttributeError:
 				fname = self._newFileName
-		
 		if not fname or (fname == self._newFileName):
 			# We are being asked to save a new file that doesn't exist on disk yet.
 			fname = self.promptForSaveAs()
@@ -1400,11 +1399,14 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				# user canceled in the prompt: don't continue
 				return False
 		else:
-			fModTime = os.stat(fname).st_mtime
-			if fModTime > self._fileModTime:
-				if not dabo.ui.areYouSure(_("""The file has been modified on the disk since you opened it. 
-Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButton=False):
-					return
+			try:
+				fModTime = os.stat(fname).st_mtime
+				if fModTime > self._fileModTime:
+					if not dabo.ui.areYouSure(_("""The file has been modified on the disk since you opened it. 
+	Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButton=False):
+						return
+			except StandardError:
+				pass
 		try:
 			open(fname, "wb").write(self.GetText().encode(self.Encoding))
 		except OSError:
@@ -1532,6 +1534,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 				if dabo.ui.areYouSure("File '%s' does not exist."
 						" Would you like to create it?" % fileSpec):
 					text = ""
+					self.saveFile(fileSpec)
 				else:
 					return False
 			self._fileName = fileSpec
