@@ -110,7 +110,6 @@ C: Popup Calendar to Select
 # 		self.DynamicToolTipText = lambda: {True: self._defaultToolTipText, 
 # 				False: None}[self.Enabled and not self.ReadOnly]
 
-		self.DynamicToolTipText = lambda: "%s, %s" % self.formCoordinates()
 
 	def initEvents(self):
 		super(dDateTextBox, self).initEvents()
