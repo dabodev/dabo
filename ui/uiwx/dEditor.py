@@ -446,9 +446,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		### NOT WORKING! GOTTA FIGURE OUT THE MASK STUFF!  ###
 		if line is None:
 			line = self.LineNumber
-		print "START LN", line
+# 		print "START LN", line
 		nxtLine = self.MarkerNext(line, self._bmkPos)
-		print "NEXT", nxtLine
+# 		print "NEXT LN", nxtLine
 		if nxtLine > -1:
 			self.moveToEnd()
 			self.LineNumber = nxtLine
@@ -577,7 +577,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 						"t": seltxt.title}[newcase]
 				self.ReplaceSelection(fnc())
 			except KeyError:
-				raise ValueError, "Case must be either upper, lower, capitalize, or invert."
+				raise ValueError, _("Case must be either upper, lower, capitalize, or invert.")
 		self.SelectionPosition = pos
 
 	
@@ -1334,9 +1334,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		return dabo.ui.areYouSure(s)
 
 		
-	def promptForFileName(self, prompt="Select a file", saveAs=False,
-			path=None):
+	def promptForFileName(self, prompt=None, saveAs=False, path=None):
 		"""Prompt the user for a file name."""
+		if prompt is None:
+			prompt = _("Select a file")
 		if path is None:
 			try:
 				drct = self._curdir
@@ -1359,13 +1360,13 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		If the file exists, confirm with the user that they really want to
 		overwrite.
 		"""
+		prompt = _("Save As")
 		while True:
-			fname = self.promptForFileName(prompt="Save As", saveAs=True)
+			fname = self.promptForFileName(prompt=prompt, saveAs=True)
 			if fname is None:
 				break
 			if os.path.exists(fname):
-				r = dabo.ui.areYouSure("File '%s' already exists. "
-					"Do you want to overwrite it?" % fname, defaultNo=True)
+				r = dabo.ui.areYouSure(_("File '%s' already exists. Do you want to overwrite it?") % fname, defaultNo=True)
 				if r is None:
 					# user canceled.
 					fname = None
@@ -1401,16 +1402,16 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		else:
 			try:
 				fModTime = os.stat(fname).st_mtime
-				if fModTime > self._fileModTime:
-					if not dabo.ui.areYouSure(_("""The file has been modified on the disk since you opened it. 
-	Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButton=False):
-						return
-			except StandardError:
-				pass
+			except OSError:
+				fModTime = None
+			if fModTime > self._fileModTime:
+				if not dabo.ui.areYouSure(_("""The file has been modified on the disk since you opened it. 
+Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButton=False):
+					return
 		try:
 			open(fname, "wb").write(self.GetText().encode(self.Encoding))
 		except OSError:
-			dabo.ui.stop("Could not save %s. Please check your write permissions." % fname)
+			dabo.ui.stop(_("Could not save file '%s'. Please check your write permissions.") % fname)
 			return False
 		# set self._fileName, in case it was changed with a Save As
 		self._fileName = fname
@@ -1520,7 +1521,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			cc = self.checkChangesAndContinue()
 		if cc:
 			if fileSpec is None:
-				fileSpec = self.promptForFileName("Open")
+				fileSpec = self.promptForFileName(_("Open"))
 				if fileSpec is None:
 					return False
 			try:
@@ -1529,10 +1530,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				f.close()
 			except IOError:
 				if os.path.exists(fileSpec):
-					dabo.ui.stop("Could not open %s.  Please check that you have read permissions." % fileSpec)
+					dabo.ui.stop(_("Could not open %s.  Please check that you have read permissions.") % fileSpec)
 					return False
-				if dabo.ui.areYouSure("File '%s' does not exist."
-						" Would you like to create it?" % fileSpec):
+				if dabo.ui.areYouSure(_("File '%s' does not exist. Would you like to create it?") % fileSpec):
 					text = ""
 					self.saveFile(fileSpec)
 				else:
