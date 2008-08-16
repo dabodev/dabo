@@ -369,7 +369,9 @@ class EditorForm(dabo.ui.dForm):
 		for pg in self.pgfEditor.Pages:
 			ed = pg.editor
 			if not ed.isChanged() and ed.checkForDiskUpdate():
+				selpos = ed.SelectionPosition
 				ed.openFile(ed._fileName)
+				ed.SelectionPosition = selpos
 
 
 	def onLexSelect(self, evt):
