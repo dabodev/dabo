@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 import locale
-try:
-	from decimal import Decimal as decimal
-except ImportError:
-	 decimal = float
+from decimal import Decimal as decimal
 import wx
 import dabo
 
@@ -18,16 +15,31 @@ from dabo.ui import makeDynamicProperty
 from dabo.ui import makeProxyProperty
 
 
-class dSpinButton(dcm.dDataControlMixin, wx.SpinButton):
+class _dSpinButton(dcm.dDataControlMixin, wx.SpinButton):
+	"""Simple wrapper around the base wx.SpinButton."""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
-		self._baseClass = dSpinButton
+		self._baseClass = _dSpinButton
 		preClass = wx.PreSpinButton
 		kwargs["style"] = kwargs.get("style", 0) | wx.SP_ARROW_KEYS
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, 
 				*args, **kwargs)
 
 
+	def __onWxSpinUp(self, evt):
+		self.raiseEvent(dEvents.SpinUp, spinType="button")
+		self.raiseEvent(dEvents.Spinner, spinType="button")
+
+
+	def __onWxSpinDown(self, evt):
+		self.raiseEvent(dEvents.SpinDown, spinType="button")
+		self.raiseEvent(dEvents.Spinner, spinType="button")
+
+
+
 class dSpinner(dabo.ui.dDataPanel):
+	"""Control for allowing a user to increment a value by discreet steps across a range
+	of valid values.
+	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self.__constructed = False
 		self._spinWrap = False
@@ -45,7 +57,7 @@ class dSpinner(dabo.ui.dDataPanel):
 		# Create the child controls
 		self._proxy_textbox = dabo.ui.dTextBox(self, Value=val, Width=32, 
 				StrictNumericEntry=False, _EventTarget=self)
-		self._proxy_spinner = dSpinButton(parent=self, _EventTarget=self)
+		self._proxy_spinner = _dSpinButton(parent=self, _EventTarget=self)
 		self.__constructed = True
 		self.Sizer = dabo.ui.dSizer("h")
 		self.Sizer.append(self._proxy_textbox, 1, valign="middle")
@@ -59,6 +71,10 @@ class dSpinner(dabo.ui.dDataPanel):
 		self.autoBindEvents()
 		ps = self._proxy_spinner
 		pt = self._proxy_textbox
+		# Set an essentially infinite range. We'll handle the range ourselves.
+		ps.SetRange(-2**30, 2**30)
+		# We'll also control wrapping ourselves
+		self._proxy_spinner._addWindowStyleFlag(wx.SP_WRAP)
 		ps.Bind(wx.EVT_SPIN_UP, self.__onWxSpinUp)
 		ps.Bind(wx.EVT_SPIN_DOWN, self.__onWxSpinDown)
 		ps.Bind(wx.EVT_SPIN, self._onWxHit)
@@ -72,56 +88,86 @@ class dSpinner(dabo.ui.dDataPanel):
 		return self.__constructed
 	
 
+	def _coerceTypes(self, newVal, minn, maxx, margin):
+		"""Handle the problems when min/max/increment values are
+		of one type, and the edited value another.
+		"""
+		typN = type(newVal)
+		# Only problem here is Decimal and float combinations
+		if typN == decimal:
+			def toDec(val):
+				return decimal(str(val))
+			margin = toDec(margin)
+			if type(maxx) == float:
+				maxx = toDec(maxx)
+			if type(minn) == float:
+				minn = toDec(minn)
+		elif typN == float:
+			if type(maxx) == decimal:
+				maxx = float(maxx)
+			if type(minn) == decimal:
+				minn = float(minn)
+		return minn, maxx, margin
+
+
+	def _spinUp(self, evt=None):
+		"""Handles a user request to increment the value."""
+		ret = True
+		curr = self._proxy_textbox.Value
+		newVal = curr + self.Increment
+		minn, maxx, margin = self._coerceTypes(newVal, self.Min, self.Max, 0.0001)
+		diff = newVal - maxx
+		if diff < margin:
+			self._proxy_textbox.Value = newVal
+		elif self._spinWrap:
+			self._proxy_textbox.Value = minn + diff
+		else:
+			ret = False
+		self._checkBounds()
+		self.flushValue()
+		self.raiseEvent(dEvents.Hit, hitType="button")
+		return ret
+
+
+	def _spinDown(self, evt=None):
+		"""Handles a user request to decrement the value."""
+		ret = True
+		curr = self._proxy_textbox.Value
+		newVal = curr - self.Increment
+		minn, maxx, margin = self._coerceTypes(newVal, self.Min, self.Max, -0.0001)
+		diff = newVal - minn
+		if diff > margin:
+			self._proxy_textbox.Value = newVal
+		elif self._spinWrap:
+			self._proxy_textbox.Value = maxx + diff
+		else:
+			ret = False
+		self._checkBounds()
+		self.flushValue()
+		self.raiseEvent(dEvents.Hit, hitType="button")
+		return ret
+
+
 	def __onWxSpinUp(self, evt):
+		"""Respond to the wx event by raising the Dabo event."""
 		if self._spinUp():
 			self.raiseEvent(dEvents.SpinUp, spinType="button")
 			self.raiseEvent(dEvents.Spinner, spinType="button")
 
 
 	def __onWxSpinDown(self, evt):
+		"""Respond to the wx event by raising the Dabo event."""
 		if self._spinDown():
 			self.raiseEvent(dEvents.SpinDown, spinType="button")
 			self.raiseEvent(dEvents.Spinner, spinType="button")
 	
 	
-	def _spinUp(self):
-		ret = True
-		curr = self._proxy_textbox.Value
-		new = curr + self.Increment
-		if new <= self.Max:
-			self._proxy_textbox.Value = new
-		elif self._spinWrap:
-			xs = new - self.Max
-			self._proxy_textbox.Value = self.Min + xs
-		else:
-			ret = False
-		self._checkBounds()
-		self.flushValue()
-		return ret
-
-
-	def _spinDown(self):
-		ret = True
-		curr = self._proxy_textbox.Value
-		new = curr - self.Increment
-		if new >= self.Min:
-			self._proxy_textbox.Value = new
-		elif self._spinWrap:
-			xs = self.Min - new
-			self._proxy_textbox.Value = self.Max - xs
-		else:
-			ret = False
-		self._checkBounds()
-		self.flushValue()
-		return ret
-
-
 	def _checkBounds(self):
 		"""Make sure that the value is within the current Min/Max"""
 		if self._proxy_textbox.Value < self.Min:
-			self._proxy_textbox.Value = self.Min
+			self._proxy_textbox.Value = self._proxy_spinner.Value = self.Min
 		elif self._proxy_textbox.Value > self.Max:
-			self._proxy_textbox.Value = self.Max
+			self._proxy_textbox.Value = self._proxy_spinner.Value = self.Max
 
 
 	def _onWxHit(self, evt):
@@ -138,6 +184,9 @@ class dSpinner(dabo.ui.dDataPanel):
 
 
 	def _onChar(self, evt):
+		"""Handle the case where the user presses the up/down arrows to 
+		activate the spinner.
+		"""
 		keys = dabo.ui.dKeys
 		kc = evt.keyCode
 		if kc in (keys.key_Up, keys.key_Numpad_up):
@@ -153,6 +202,9 @@ class dSpinner(dabo.ui.dDataPanel):
 
 
 	def _onLostFocus(self, evt):
+		"""We need to handle the case where the user types an invalid value
+		into the textbox and then tabs/clicks away.
+		"""
 		val = self.Value
 		pt = self._proxy_textbox
 		if (val > self.Max) or (val < self.Min):
@@ -219,7 +271,6 @@ class dSpinner(dabo.ui.dDataPanel):
 	def _setMax(self, val):
 		if self._constructed():
 			self._max = val
-			self._proxy_spinner.SetRange(self.Min, val)
 			self._checkBounds()
 		else:
 			self._properties["Max"] = val
@@ -231,24 +282,17 @@ class dSpinner(dabo.ui.dDataPanel):
 	def _setMin(self, val):
 		if self._constructed():
 			self._min = val
-			self._proxy_spinner.SetRange(val, self.Max)
 			self._checkBounds()
 		else:
 			self._properties["Min"] = val
 
 
 	def _getSpinnerWrap(self):
-		try:
-			return self._proxy_spinner._hasWindowStyleFlag(wx.SP_WRAP)
-		except AttributeError:
-			return self._spinWrap
+		return self._spinWrap
 
 	def _setSpinnerWrap(self, val):
 		if self._constructed():
 			self._spinWrap = val
-			self._proxy_spinner._delWindowStyleFlag(wx.SP_WRAP)
-			if val:
-				self._proxy_spinner._addWindowStyleFlag(wx.SP_WRAP)
 		else:
 			self._properties["SpinnerWrap"] = val
 
