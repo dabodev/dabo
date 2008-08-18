@@ -202,29 +202,29 @@ class dControlItemMixin(dDataControlMixin):
 			# Clear all current selections:
 			self.clearSelections()
 			
-			# Check what type of key collection we are using: dict or list
-			keysAreDict = isinstance(self.Keys, dict)
+			validSelections = []
 			# Select items that match indices in value:
 			for key in value:
-				if keysAreDict:
-					if not self.Keys.has_key(key):
-						# If the appdev set up a key for None, use it.
-						key = None
+				if isinstance(self.Keys, dict):
 					try:
-						self.setSelection(self.Keys[key])
+						validSelections.append(self.Keys[key])
 					except KeyError:
-						# The specified key isn't found, and there's no None key. We 
-						# can't cope but wxPython can set a blank value:
-						self._setSelection(-1)
-						
+						pass
 				else:
-					# we are using a tuple/list of keys. Find its position
 					try:
-						self.setSelection(self.Keys.index(key))
+						validSelections.append(self.Keys.index(key))
 					except ValueError:
-						# No such key; write an info message, but otherwise ignore it.
-						dabo.infoLog.write(_("Key '%s' not found") % key)
-						continue
+						pass
+
+			if validSelections:
+				self.setSelection(validSelections)
+			else:
+				# No valid selections: tell wxPython not to select anything:
+				self._setSelection(-1)
+				chc = self.Choices
+				self.Choices = []
+				self.Choices = chc
+
 			self._afterValueChanged()
 		else:
 			self._properties["KeyValue"] = value
