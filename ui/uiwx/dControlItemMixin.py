@@ -217,7 +217,8 @@ class dControlItemMixin(dDataControlMixin):
 						pass
 
 			if validSelections:
-				self.setSelection(validSelections)
+				for selection in validSelections:
+					self.setSelection(selection)
 			else:
 				# No valid selections: tell wxPython not to select anything:
 				self._setSelection(-1)
