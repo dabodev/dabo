@@ -101,6 +101,12 @@ class dControlItemMixin(dDataControlMixin):
 			sortFunction = self._sortFunction
 		self._choices.sort(sortFunction)
 
+	def _resetChoices(self):
+		self.Clear()
+		self._setSelection(-1)
+		if self._sorted:
+			self.sort()
+		self.AppendItems(self._choices)
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
@@ -117,11 +123,8 @@ class dControlItemMixin(dDataControlMixin):
 			self.lockDisplay()
 			vm = self.ValueMode
 			oldVal = self.Value
-			self.Clear()
 			self._choices = list(choices)
-			if self._sorted:
-				self.sort()
-			self.AppendItems(self._choices)
+			self._resetChoices()
 			if oldVal is not None:
 				# Try to get back to the same row:
 				try:
@@ -202,29 +205,26 @@ class dControlItemMixin(dDataControlMixin):
 			# Clear all current selections:
 			self.clearSelections()
 			
-			validSelections = []
+			invalidSelections = []
 			# Select items that match indices in value:
 			for key in value:
 				if isinstance(self.Keys, dict):
 					try:
-						validSelections.append(self.Keys[key])
+						self.setSelection(self.Keys[key])
 					except KeyError:
-						pass
+						invalidSelections.append(key)
 				else:
 					try:
-						validSelections.append(self.Keys.index(key))
+						self.setSelection(self.Keys.index(key))
 					except ValueError:
-						pass
+						invalidSelections.append(key)
 
-			if validSelections:
-				for selection in validSelections:
-					self.setSelection(selection)
-			else:
-				# No valid selections: tell wxPython not to select anything:
-				self._setSelection(-1)
-				chc = self.Choices
-				self.Choices = []
-				self.Choices = chc
+			if invalidSelections:
+				raise ValueError, _("Trying to set %s.Value to these invalid selections: %s") % (self.Name, invalidSelections)
+
+			if len(value) == 0:
+				# Value being set to an empty tuple, list, or dict, which means "nothing is selected":
+				self._resetChoices()
 
 			self._afterValueChanged()
 		else:
