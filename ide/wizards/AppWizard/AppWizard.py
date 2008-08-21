@@ -335,7 +335,7 @@ The following tables were found for that database.
 Please check all tables you want included in 
 your application.""")
 		lbl = dLabel(self, Caption=txt)
-		clb = self.addObject(dabo.ui.dCheckListBox, Name="clbTableSelection")
+		clb = self.addObject(dabo.ui.dCheckList, Name="clbTableSelection")
 		self.Sizer.append(lbl)
 		self.Sizer.append1x(clb)
 		hsz = dabo.ui.dSizer("h")

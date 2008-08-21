@@ -568,7 +568,7 @@ class PropSheet(dabo.ui.dPanel):
 						Caption=_("Select the sides to which the border will apply:"))
 				self.Sizer.append(lbl, halign="center")
 				choices = ["All", "Top", "Bottom", "Left", "Right", "None"]
-				self.editor = dabo.ui.dCheckListBox(self, Choices=choices,
+				self.editor = dabo.ui.dCheckList(self, Choices=choices,
 						ValueMode="String", Height=200)
 				self.editor.bindEvent(dEvents.Hit, self.onSidesChanged)
 				self.editor.Value = self._currVal = val

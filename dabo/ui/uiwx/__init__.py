@@ -74,7 +74,7 @@ from dButton import dButton
 from dCalendar import dCalendar
 from dCalendar import dExtendedCalendar
 from dCheckBox import dCheckBox
-from dCheckListBox import dCheckListBox
+from dCheckList import dCheckList
 from dColorDialog import dColorDialog
 from dComboBox import dComboBox
 from dDateTextBox import dDateTextBox
@@ -161,11 +161,16 @@ class dFoldPanelBar(dSlidePanelControl):
 	def __init__(self, *args, **kwargs):
 		warnings.warn(_("'dFoldPanelBar' is a deprecated name. Use 'dSlidePanelControl' instead"), DeprecationWarning)
 		super(dFoldPanelBar, self).__init__(*args, **kwargs)
+
 class dFoldPanel(dSlidePanel):
 	def __init__(self, *args, **kwargs):
 		warnings.warn(_("'dFoldPanel' is a deprecated name. Use 'dSlidePanel' instead"), DeprecationWarning)
 		super(dFoldPanel, self).__init__(*args, **kwargs)
 
+class dCheckListBox(dCheckList):
+	def __init__(self, *args, **kwargs):
+		warnings.warn(_("'dCheckListBox' is a deprecated name. Use 'dCheckList' instead"), DeprecationWarning)
+		super(dCheckListBox, self).__init__(*args, **kwargs)
 
 artConstants = {}
 for item in (it for it in dir(wx) if it.startswith("ART_")):
