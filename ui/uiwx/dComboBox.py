@@ -17,6 +17,10 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		self._baseClass = dComboBox
 		self._choices = []
 		self._userVal = False
+		# Used to force the case of entered text
+		self._forceCase = None
+		self._inForceCase = False
+		self._textLength = None
 		# Flag for appending items when the user presses 'Enter'
 		self._appendOnEnter = False
 		# Holds the text to be appended
@@ -49,7 +53,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		self._userVal = True
 		evt.Skip()
 		if self.AppendOnEnter:
-			txt = evt.GetString()
+			txt = evt.GetValue()
 			if txt not in self.Choices:
 				self._textToAppend = txt
 				if self.beforeAppendOnEnter() is not False:
@@ -58,6 +62,57 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 						self.afterAppendOnEnter()
 		self.raiseEvent(dabo.dEvents.Hit, evt)
 	
+
+	def __onKeyChar(self, evt):
+		"""This handles KeyChar events when ForceCase is set to a non-empty value."""
+		if not self:
+			# The control is being destroyed
+			return
+		keyChar = evt.keyChar
+		if keyChar is not None and (keyChar.isalnum() 
+				or keyChar in """,./<>?;':"[]\\{}|`~!@#$%%^&*()-_=+"""):
+			dabo.ui.callAfter(self._checkForceCase)
+			dabo.ui.callAfter(self._checkTextLength)
+
+
+	def _checkTextLength(self):
+		"""If the TextLength property is set, checks the current value of the control
+		and truncates it if too long"""
+		if not self:
+			# The control is being destroyed
+			return
+		if not isinstance(self.GetValue(), basestring):
+			#Don't bother if it isn't a string type
+			return
+		length = self.TextLength
+		if not length:
+			return
+		val = self.GetValue()
+		if len(val) > length:
+			dabo.ui.beep()
+			self.SetValue(val[:length])
+	
+
+	def _checkForceCase(self):
+		"""If the ForceCase property is set, casts the current value of the control
+		to the specified case.
+		"""
+		if not self:
+			# The control is being destroyed
+			return
+		if not isinstance(self.GetValue(), basestring):
+			# Don't bother if it isn't a string type
+			return
+		case = self.ForceCase
+		if not case:
+			return
+		if case == "upper":
+			self.SetValue(self.GetValue().upper())
+		elif case == "lower":
+			self.SetValue(self.GetValue().lower())
+		elif case == "title":
+			self.SetValue(self.GetValue().title())
+
 
 	def beforeAppendOnEnter(self):
 		"""Hook method that is called when user-defined text is entered
@@ -96,6 +151,46 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 			self._properties["AppendOnEnter"] = val
 
 
+	def _getForceCase(self):
+		return self._forceCase
+	
+	def _setForceCase(self, val):
+		if self._constructed():
+			if val is None:
+				valKey = None
+			else:
+				valKey = val[0].upper()
+			self._forceCase = {"U": "upper", "L": "lower", "T": "title", None: None,
+					"None": None}.get(valKey)
+			self._checkForceCase()
+			self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
+			if self._forceCase or self._textLength:
+				self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
+		else:
+			self._properties["ForceCase"] = val
+	
+	
+	def _getTextLength(self):
+		return self._textLength
+	
+	def _setTextLength(self, val):
+		if self._constructed():
+			if val == None:
+				self._textLength = None
+			else:
+				val = int(val)
+				if val < 1:
+					raise ValueError, 'TextLength must be a positve Integer'
+				self._textLength = val
+			self._checkTextLength()
+			
+			self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
+			if self._forceCase or self._textLength:
+				self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
+		else:
+			self._properties["TextLength"] = val
+	
+	
 	def _getUserValue(self):
 		if self._userVal:
 			return self.GetValue()
@@ -115,6 +210,17 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 	AppendOnEnter = property(_getAppendOnEnter, _setAppendOnEnter, None,
 			_("""Flag to determine if user-entered text is appended when they 
 			press 'Enter'  (bool)"""))
+	
+	ForceCase = property(_getForceCase, _setForceCase, None,
+			_("""Determines if we change the case of entered text. Possible values are:
+				None, "" (empty string): No changes made (default)
+				"Upper": FORCE TO UPPER CASE
+				"Lower": force to lower case
+				"Title": Force To Title Case
+			These can be abbreviated to "u", "l" or "t"  (str)"""))
+	
+	TextLength = property(_getTextLength, _setTextLength, None,
+			_("""The maximum length the entered text can be. (int)"""))
 	
 	UserValue = property(_getUserValue, _setUserValue, None,
 			_("""Specifies the text displayed in the textbox portion of the ComboBox.
@@ -155,7 +261,7 @@ class _dComboBox_test(dComboBox):
 	def beforeAppendOnEnter(self):
 		txt = self._textToAppend.strip().lower()
 		if txt == "dabo":
-			dabo.infoLog.write("Attempted to add Dabo to the list!!!")
+			print _("Attempted to add Dabo to the list!!!")
 			return False
 		elif txt.find("nixon") > -1:
 			self._textToAppend = "Tricky Dick"
