@@ -8,12 +8,12 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 
-class dCheckListBox(dcm.dControlItemMixin, wx.CheckListBox):
+class dCheckList(dcm.dControlItemMixin, wx.CheckListBox):
 	"""Creates a listbox, allowing the user to choose one or more items
 	by checking/unchecking each one.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
-		self._baseClass = dCheckListBox
+		self._baseClass = dCheckList
 		self._choices = []
 		preClass = wx.PreCheckListBox
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, 
@@ -21,7 +21,7 @@ class dCheckListBox(dcm.dControlItemMixin, wx.CheckListBox):
 
 			
 	def _initEvents(self):
-		super(dCheckListBox, self)._initEvents()
+		super(dCheckList, self)._initEvents()
 		self.Bind(wx.EVT_CHECKLISTBOX, self._onWxHit)
 	
 	
@@ -70,11 +70,11 @@ class dCheckListBox(dcm.dControlItemMixin, wx.CheckListBox):
 
 
 	MultipleSelect = property(_getMultipleSelect, None, None,
-			_("MultipleSelect for dCheckListBox is always True."))
+			_("MultipleSelect for dCheckList is always True."))
 	
 	
 	
-class _dCheckListBox_test(dCheckListBox):
+class _dCheckList_test(dCheckList):
 	def initProperties(self):
 		# Simulate a database:
 		actors = ({"lname": "Jason Leigh", "fname": "Jennifer", "iid": 42},
@@ -109,5 +109,5 @@ class _dCheckListBox_test(dCheckListBox):
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(_dCheckListBox_test)
+	test.Test().runTest(_dCheckList_test)
 
