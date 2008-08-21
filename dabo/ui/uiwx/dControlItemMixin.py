@@ -219,12 +219,14 @@ class dControlItemMixin(dDataControlMixin):
 					except ValueError:
 						invalidSelections.append(key)
 
+			if len(value) == 0 or (self._isMultiSelect() and invalidSelections == [None]):
+				# Value being set to an empty tuple, list, or dict, or to None in a Multi-Select control,
+				# which means "nothing is selected":
+				self._resetChoices()
+				invalidSelections = []
+
 			if invalidSelections:
 				raise ValueError, _("Trying to set %s.Value to these invalid selections: %s") % (self.Name, invalidSelections)
-
-			if len(value) == 0:
-				# Value being set to an empty tuple, list, or dict, which means "nothing is selected":
-				self._resetChoices()
 
 			self._afterValueChanged()
 		else:
