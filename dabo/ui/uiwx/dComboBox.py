@@ -53,7 +53,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		self._userVal = True
 		evt.Skip()
 		if self.AppendOnEnter:
-			txt = evt.GetValue()
+			txt = evt.GetString()
 			if txt not in self.Choices:
 				self._textToAppend = txt
 				if self.beforeAppendOnEnter() is not False:
