@@ -137,11 +137,11 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 
 	def _setIcon(self, val):
 		if self._constructed():
+			if val in (None, ""):
+				return
 			if isinstance(val, basestring):
 				# Icon name was passed; get the actual bitmap
 				val = dabo.ui.strToBmp(val)
-			if val is None:
-				val = wx.EmptyBitmap(1, 1)
 			self.SetBitmap(val)
 
 			# Win32 at least needs the following line, or the caption
