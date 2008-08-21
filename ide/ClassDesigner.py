@@ -670,7 +670,7 @@ class ClassDesigner(dabo.dApp):
 		frm.Controller = self
 		self.CurrentForm = frm
 		frm._classFile = pth
-		frm._formMode = frm.SaveRestorePosition = isFormClass
+		frm._formMode = isFormClass
 		if isFormClass:
 			# See if there is any code associated with the form
 			code = clsd.get("code", "")
@@ -835,7 +835,11 @@ class ClassDesigner(dabo.dApp):
 					defAtts["Sizer_%s" % key] = val
 				defAtts.update(dictStringify(atts))
 				atts = defAtts
-				sz.setPropertiesFromAtts(atts)
+				if isinstance(sz.Parent, dabo.ui.dSlidePanel):
+					# Main sizer for a slide panel; don't do anything
+					pass
+				else:
+					sz.setPropertiesFromAtts(atts)
 				if classID:
 					sz.classID = classID
 				if not fromSzr:
@@ -1029,7 +1033,7 @@ class ClassDesigner(dabo.dApp):
 							grandkids = kid.get("children", [])
 							if grandkids:
 								self._srcObj = pnl
-								self.recreateChildren(pg, grandkids, None, False)
+								self.recreateChildren(pnl, grandkids, None, False)
 					elif isSplitter:
 						for pos, kid in enumerate(kids):
 							pnlClass = dui.__dict__[kid["name"]]
@@ -1541,6 +1545,13 @@ class ClassDesigner(dabo.dApp):
 					pgf.PageCount += 1
 					obj = pgf.Pages[-1]
 					cleanup = "pgf.PageCount = %s" % pp
+				if issubclass(cls, dui.dSlidePanel) and isinstance(srcObj.Parent,
+						dui.dSlidePanelControl):
+					spc = srcObj.Parent
+					pp = spc.PanelCount
+					spc.PanelCount += 1
+					obj = spc.Panels[-1]
+					cleanup = "spc.PanelCount = %s" % pp
 				elif issubclass(cls, dui.dColumn):
 					grd = srcObj.Parent
 					cc = grd.ColumnCount
@@ -1557,8 +1568,7 @@ class ClassDesigner(dabo.dApp):
 			self._classDefaultVals[cls] = ret
 			if cleanup:
 				exec cleanup in locals()
-
-			if not issubclass(cls, dui.dPage):
+			if not issubclass(cls, (dui.dPage, dui.dSlidePanel)):
 				# Pages will be released by their parent.
 				obj.release()
 			if frm:
@@ -2594,8 +2604,6 @@ class ClassDesigner(dabo.dApp):
 
 		isSlidePanelControl = issubclass(cls, dui.dSlidePanelControl)
 		if isSlidePanelControl:
-			dabo.ui.exclaim("NOT IMPLEMENTED YET")
-			return
 			# Make sure it has some panels.
 			newPanels = None
 			cnt = props.get("PanelCount", 0)
@@ -2737,6 +2745,7 @@ class ClassDesigner(dabo.dApp):
 					pnl.Expanded = False
 					if useSizers:
 						sz = pnl.Sizer = LayoutSizer("v")
+						sz.Parent = pnl
 						pnl0 = LayoutPanel(pnl)
 
 		if isinstance(obj, dui.dPage) and not isinstance(obj.Parent, self.pagedControls):
@@ -3404,6 +3413,10 @@ class ClassDesigner(dabo.dApp):
 			itm = newSizer.ControllingSizerItem
 		except:
 			itm = None
+		if itm:
+			if isinstance(newSizer.Parent, dabo.ui.dSlidePanel):
+				#This is the main sizer
+				itm = None
 		if itm:
 			if sizerAtts:
 				if isSpacer:

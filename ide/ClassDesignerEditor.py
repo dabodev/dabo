@@ -272,7 +272,7 @@ class EditorForm(dui.dForm):
 		
 		
 	def _getMethodBase(self, mthd, isEvt):
-		cd = ("def %s(self):\n\t" % mthd, "def %s(self, evt):\n\t" % mthd)
+		cd = ("def %s(self):" % mthd, "def %s(self, evt):" % mthd)
 		if isEvt is None:
 			return cd
 		else:
@@ -544,7 +544,8 @@ class EditorForm(dui.dForm):
 		txt = ed.Value
 		mthd = ed.Method
 		mb = self._getMethodBase(mthd, None)
-		isEmpty = (txt.strip() == "") or (txt in mb)
+		ts = txt.strip()
+		isEmpty = (ts == "") or (ts in mb)
 		obj = ed.Object
 		objCode = rep.get(obj)
 		if isEmpty:

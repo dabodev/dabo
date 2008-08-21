@@ -84,6 +84,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			pass
 		elif isinstance(self, dabo.ui.dImage):
 			self.bindEvent(dEvents.Resize, self._onResize)
+		elif isinstance(self, (dabo.ui.dSlidePanelControl, dabo.ui.dSlidePanel)):
+			pass
 		else:
 			# This removes all previously-defined bindings
 			self.unbindEvent(None)
@@ -112,6 +114,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			self.defaultHt = 300
 			# Bind the active page to the current selection
 			self.bindEvent(dEvents.PageChanged, self.desSelectPage)
+		elif isinstance(self, dabo.ui.dSlidePanel): 
+			self.bindEvent(dEvents.SlidePanelChange, self.desSlidePanelChg)
 		elif isinstance(self, (dabo.ui.dPanel, dabo.ui.dImage, dabo.ui.dBitmap,
 				dabo.ui.dBitmapButton, dabo.ui.dToggleButton)):
 			self.defaultWd = 60
@@ -132,8 +136,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		if not self.UsingSizers:
 			self.Form.createControlHandles(self)
 # 		self.bindKey("left", self.Form.keyMoveLeft)
-	
-		
+
+
 	def _insertPageOverride(self, pos, pgCls=None, caption="", imgKey=None,
 			makeActive=False, ignoreOverride=False):
 		if not isinstance(self, self.Controller.pagedControls):
@@ -465,8 +469,12 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 	def desSelectNode(self, evt):
 		"""Called when a node in a tree is selected"""
 		self.Form.selectControl(self.Selection, False)
-	
-	
+
+
+	def desSlidePanelChg(self, evt):
+		dabo.ui.callAfterInterval(100, self.Form.refresh)
+
+
 	def moveControl(self, pos, shft=False):
 		""" Wraps the Move command with the necessary
 		screen updating stuff.

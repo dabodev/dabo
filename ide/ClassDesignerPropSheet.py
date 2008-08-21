@@ -708,7 +708,7 @@ class PropertyGrid(dabo.ui.dGrid):
 		if not prop:
 			return None
 		try:
-			return  self.propDict[prop]
+			return self.propDict[prop]
 		except KeyError, e:
 			print "PROP DICT ERROR: >%s<, row=%s" % (prop, row)
 		
@@ -716,6 +716,8 @@ class PropertyGrid(dabo.ui.dGrid):
 	def fillGrid(self, force=False):
 		super(PropertyGrid, self).fillGrid(force)
 		# Set the renderers and editors manually by cell
+		if not self.Application.Selection:
+			return
 		valColumn = self.Columns[1]
 		for row in range(self.RowCount):
 			pd = self.getPropDictForRow(row)
@@ -751,11 +753,15 @@ class PropertyGrid(dabo.ui.dGrid):
 		if col == 0:
 			ret = typ in ("str", "string", "unicode", "u")
 		else:
+			if not self.Application.Selection:
+				return type(None)
 			pd = self.getPropDictForRow(row)
 			
 			if not isinstance(pd, dict):
 				if pd is None:
-					print _("None PROP DICT:, ROW="), row
+					if dabo.verboseLogging:
+						# Not technically logging, but this is such a non-event...
+						print _("None PROP DICT:, ROW="), row, col, typ
 				else:
 					print _("BAD PROP DICT:"), pd, type(pd), _("ROW="), row
 			else:
@@ -809,6 +815,9 @@ class PropertyGrid(dabo.ui.dGrid):
 			row = self.CurrentRow
 		if col is None:
 			col = self.CurrentColumn
+		if not self.Application.Selection:
+			self.CurrentRow = self.CurrentColumn = 0
+			return
 		pd = self.getPropDictForRow(row)
 		if pd is None:
 			return
