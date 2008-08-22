@@ -455,7 +455,7 @@ class PageChanged(dEvent):
 	"""Occurs when a page in a pageframe-like control changes"""
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
-				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs))
+				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs, dabo.ui.dAdvancedPageFrame))
 	appliesToClass = classmethod(appliesToClass)
 
 
@@ -463,7 +463,28 @@ class PageChanging(dEvent):
 	"""Occurs when the current page in a pageframe-like control is about to change"""
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
-				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs))
+				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs, dabo.ui.dAdvancedPageFrame))
+	appliesToClass = classmethod(appliesToClass)
+
+
+class PageClosed(dEvent):
+	"""Occurs when a page in a dPageFrame control is closed"""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dAdvancedPageFrame)
+	appliesToClass = classmethod(appliesToClass)
+
+
+class PageClosing(dEvent):
+	"""Occurs when a page in a dPageFrame control is about to close"""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dAdvancedPageFrame)
+	appliesToClass = classmethod(appliesToClass)
+
+
+class PageContextMenu(dEvent):
+	"""Occurs when the user requests a context event for a dPage"""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPage)
 	appliesToClass = classmethod(appliesToClass)
 
 
