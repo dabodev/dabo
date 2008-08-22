@@ -151,6 +151,10 @@ try:
 except ImportError:
 	pass
 
+#The flatnotebook version we need is not avialable with wxPython < 2.8.4
+if wx.VERSION >= (2, 8, 4):
+	from dPageFrame import DPageFrame
+
 # dDockForm is not available with wxPython < 2.7
 if wx.VERSION >= (2, 7):
 	from dDockForm import dDockForm
