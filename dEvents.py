@@ -475,14 +475,14 @@ class PageChanging(dEvent):
 
 
 class PageClosed(dEvent):
-	"""Occurs when a page in a dPageFrame control is closed"""
+	"""Occurs when a page in a DPageFrame control is closed"""
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.DPageFrame)
 	appliesToClass = classmethod(appliesToClass)
 
 
 class PageClosing(dEvent):
-	"""Occurs when a page in a dPageFrame control is about to close"""
+	"""Occurs when a page in a DPageFrame control is about to close"""
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.DPageFrame)
 	appliesToClass = classmethod(appliesToClass)
