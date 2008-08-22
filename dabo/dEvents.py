@@ -5,7 +5,6 @@ from dabo.dObject import dObject
 import dabo.ui as ui
 from dabo.dLocalize import _
 
-
 class dEvent(dObject):
 	""" Base class for Dabo events.
 
@@ -454,30 +453,38 @@ class Paint(dEvent):
 class PageChanged(dEvent):
 	"""Occurs when a page in a pageframe-like control changes"""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
-				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs, dabo.ui.dAdvancedPageFrame))
+		try:
+			return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
+					dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs, dabo.ui.DPageFrame))
+		except AttributeError:
+			return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
+					dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs))
 	appliesToClass = classmethod(appliesToClass)
 
 
 class PageChanging(dEvent):
 	"""Occurs when the current page in a pageframe-like control is about to change"""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
-				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs, dabo.ui.dAdvancedPageFrame))
+		try:
+			return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
+					dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs, dabo.ui.DPageFrame))
+		except AttributeError:
+			return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
+					dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs))
 	appliesToClass = classmethod(appliesToClass)
 
 
 class PageClosed(dEvent):
 	"""Occurs when a page in a dPageFrame control is closed"""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, dabo.ui.dAdvancedPageFrame)
+		return issubclass(objectClass, dabo.ui.DPageFrame)
 	appliesToClass = classmethod(appliesToClass)
 
 
 class PageClosing(dEvent):
 	"""Occurs when a page in a dPageFrame control is about to close"""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, dabo.ui.dAdvancedPageFrame)
+		return issubclass(objectClass, dabo.ui.DPageFrame)
 	appliesToClass = classmethod(appliesToClass)
 
 
