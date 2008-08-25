@@ -25,8 +25,22 @@ def getUIType():
 		return uiType["shortName"]
 	except (AttributeError, NameError, KeyError):
 		return None
-		
-		
+
+
+def deadCheck(fn, *args, **kwargs):
+	"""This decorator is intended to detect dead objects (objects in the process of being
+	destroyed) from attempts to call their methods. Currently this only supports wxPython,
+	but if needed in other toolkits, different functionality will need to be coded.
+	"""
+	def retfn(self, *args, **kwargs):
+		if not self:
+			# For testing, uncomment the print line below:
+# 			print "FOUND DEAD OBJECT"
+			return
+		return fn(self, *args, **kwargs)
+	return retfn
+
+
 def loadUI(uiType):
 	""" Load the given UI into the global namespace."""
 	retVal = False

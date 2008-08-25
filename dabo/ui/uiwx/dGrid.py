@@ -5,6 +5,8 @@ import datetime
 import time
 import operator
 import re
+from decimal import Decimal
+from decimal import InvalidOperation
 import wx
 import wx.grid
 from wx._core import PyAssertionError
@@ -23,23 +25,6 @@ from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
 import dabo.lib.dates
 from dabo.lib.utils import noneSort, caseInsensitiveSort
-
-# from dabo.lib.profilehooks import profile
-# from dabo.dBug import loggit
-
-# See if the new decimal module is present. This is necessary
-# because if running under Python 2.4 or later and using MySQLdb,
-# some values will be returned as decimals, and we need to
-# conditionally convert them for display.
-_USE_DECIMAL = True
-try:
-	from decimal import Decimal
-	from decimal import InvalidOperation
-except ImportError:
-	_USE_DECIMAL = False
-	# This is needed so that references to this class don't throw
-	# errors when running in Python 2.3
-	Decimal = float
 
 
 
@@ -154,9 +139,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 						long : "long",
 						datetime.date : "date",
 						datetime.datetime : "datetime",
-						datetime.time : "time" }
-				if _USE_DECIMAL:
-					typeDict[Decimal] = "decimal"
+						datetime.time : "time",
+						Decimal: "decimal"}
 				try:
 					col.DataType = typeDict[col.DataType]
 				except KeyError:
@@ -192,9 +176,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			lowtyp = typ.lower()
 		else:
 			lowtyp = typ
-			if _USE_DECIMAL:
-				if typ is Decimal:
-					lowtyp = "decimal"
+			if typ is Decimal:
+				lowtyp = "decimal"
 		if lowtyp in (bool, "bool", "boolean", "logical", "l"):
 			ret = wx.grid.GRID_VALUE_BOOL
 		if lowtyp in (int, long, "int", "integer", "bigint", "i", "long"):
@@ -517,6 +500,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			int : self.intRendererClass,
 			long : self.longRendererClass,
 			float : self.floatRendererClass,
+			Decimal: self.decimalRendererClass,
 			list : self.listRendererClass}
 		self.defaultEditors = {
 			"str" : self.stringEditorClass,
@@ -533,10 +517,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			int : self.intEditorClass,
 			long : self.longEditorClass,
 			float : self.floatEditorClass,
+			Decimal: self.decimalEditorClass,
 			list : self.listEditorClass}
-		if _USE_DECIMAL:
-			self.defaultRenderers[Decimal] = self.decimalRendererClass
-			self.defaultEditors[Decimal] = self.decimalEditorClass
 
 		# Default to string renderer
 		self._rendererClass = self.stringRendererClass
@@ -559,6 +541,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				setattr(self, prop, func(*args))
 
 
+	@dabo.ui.deadCheck
 	def _updateCellDynamicProps(self, row):
 		kwargs = {"row": row}
 		self._cellDynamicRow = row
@@ -575,15 +558,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 					oldVal = getattr(self, prop)
 				except AttributeError:
 					needRefresh = True
-				try:
-					setattr(self, prop, func(*args, **kwargs))
-				except dabo.ui.deadObjectException:
-					pass
-				try:
-					if needRefresh or oldVal != getattr(self, prop):
-						needRefresh = True
-				except dabo.ui.deadObjectException:
-					needRefresh = False
+				setattr(self, prop, func(*args, **kwargs))
+				if needRefresh or oldVal != getattr(self, prop):
+					needRefresh = True
 		if needRefresh:
 			dabo.ui.callAfterInterval(200, self._refreshGrid)
 		del self._cellDynamicRow
@@ -2207,13 +2184,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		dabo.ui.callAfter(self._updateColumnWidths)
 
 
+	@dabo.ui.deadCheck
 	def _updateColumnWidths(self):
 		"""See if there are any dynamically-sized columns, and resize them
 		accordingly.
 		"""
-		if not self:
-			# This can be called in a callAfter(), and perhaps we are already dead.
-			return
 		dynCols = [col for col in self.Columns
 				if col.Expand]
 		if not dynCols:
@@ -2591,7 +2566,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 						dataType = "long"
 					elif isinstance(f, int):
 						dataType = "int"
-					elif _USE_DECIMAL and isinstance(f, Decimal):
+					elif isinstance(f, Decimal):
 						dataType = "decimal"
 					else:
 						dataType = None
@@ -2858,10 +2833,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				typFunc = type(val)
 				if typFunc(findString) == val:
 					# We can replace if replaceString can be the correct type
-					if _USE_DECIMAL:
-						errors = (ValueError, InvalidOperation)
-					else:
-						errors = (ValueError, )
+					errors = (ValueError, InvalidOperation)
 					try:
 						newval = typFunc(replaceString)
 						self.SetValue(currRow, currCol, newval)
