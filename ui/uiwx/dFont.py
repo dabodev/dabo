@@ -110,25 +110,19 @@ class dFont(dObject):
 		if not ret:
 			# Could be zero if it is the first time referenced when using Mac font scaling
 			if self._nativeFont:
-				return self._nativeFont.GetPointSize()
+				ret = self._nativeFont.GetPointSize()
 			else:
 				# No native font yet; return a reasonable default.
-				return 9
-		else:	
-			return ret
+				ret = 9
+		return ret
 
 	def _setSize(self, val):
-		try:
-			val = int(val)
-		except ValueError:
-			# Could be fractional. Try casting to float. If that fails,
-			# let the ValueError be raised.
+		if int(val) != val:
+			# cast to float
 			val = float(val)
 		if self._useMacFontScaling():
-			# Make sure that the difference is less than float rounding errors.
-			if abs(float(val) - float(self._macNonScaledSize)) < 0.1:
-				self._macNonScaledSize = val
-				val = round(val/.75, 0)
+			self._macNonScaledSize = val
+			val = round(val/.75, 0)
 		try:
 			self._nativeFont.SetPointSize(val)
 		except ValueError:
