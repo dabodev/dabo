@@ -497,7 +497,7 @@ class uiApp(dObject, wx.App):
 				except AttributeError:
 					try:
 						win.SetSelection(-1, -1)
-					except AttributeError:
+					except (TypeError, AttributeError):
 						pass
 
 			
