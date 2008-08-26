@@ -27,7 +27,6 @@ import dabo.lib.dates
 from dabo.lib.utils import noneSort, caseInsensitiveSort
 
 
-
 class dGridDataTable(wx.grid.PyGridTableBase):
 	def __init__(self, parent):
 		super(dGridDataTable, self).__init__()
@@ -41,7 +40,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.grid.setTableAttributes(self)
 
 
-# 	@profile
 	def GetAttr(self, row, col, kind=0):
 		## dColumn maintains one attribute object that applies to every row
 		## in the column. This can be extended later with optional cell-specific
@@ -102,10 +100,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def GetColLabelValue(self, col):
-		# The column headers are painted when the wxGrid queries this method, as
-		# this is the most appropriate time to do so. We return "" so that wx
-		# doesn't draw the string itself.
-		self.grid._paintHeader(col)
 		return ""
 
 
@@ -220,7 +214,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if bizobj:
 			dataSet = bizobj
 			_newRowCount = dataSet.RowCount
+			self._bizobj = bizobj
 		else:
+			self._bizobj = None
 			dataSet = self.grid.DataSet
 			if dataSet is None:
 				return 0
@@ -311,13 +307,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def GetValue(self, row, col):
-		if row >= self.grid.RowCount:
-			return ""
-		bizobj = self.grid.getBizobj()
-		col_obj = self.grid.Columns[col]
+		bizobj = self._bizobj
+		col_obj = self.grid._columns[col]
 		field = col_obj.DataField
-		dabo.ui.callAfterInterval(200, col_obj._updateDynamicProps)
-		dabo.ui.callAfterInterval(200, col_obj._updateCellDynamicProps, row)
+		col_obj._updateDynamicProps()
+		col_obj._updateCellDynamicProps(row)
 		if bizobj:
 			if field and (row < bizobj.RowCount):
 				ret = self.getStringValue(bizobj.getFieldVal(field, row))
@@ -530,6 +524,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		dabo.ui.callAfter(self._restoreFontZoom)
 
 
+	@dabo.ui.deadCheck
 	def _updateDynamicProps(self):
 		for prop, func in self._dynamic.items():
 			if prop[:4] != "Cell":
@@ -545,8 +540,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _updateCellDynamicProps(self, row):
 		kwargs = {"row": row}
 		self._cellDynamicRow = row
-		needRefresh = False
-		oldVal = None
 		for prop, func in self._dynamic.items():
 			if prop[:4] == "Cell":
 				if isinstance(func, tuple):
@@ -554,15 +547,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 					func = func[0]
 				else:
 					args = ()
-				try:
-					oldVal = getattr(self, prop)
-				except AttributeError:
-					needRefresh = True
 				setattr(self, prop, func(*args, **kwargs))
-				if needRefresh or oldVal != getattr(self, prop):
-					needRefresh = True
-		if needRefresh:
-			dabo.ui.callAfterInterval(200, self._refreshGrid)
 		del self._cellDynamicRow
 
 
@@ -678,10 +663,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _refreshGrid(self):
 		"""Refresh the grid region, not the header region."""
 		if self.Parent:
-			self.Parent.Freeze()
 			gw = self.Parent.GetGridWindow()
 			gw.Refresh()
-			self.Parent.Thaw()
 
 
 	def _persist(self, prop):
@@ -1865,7 +1848,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.bindEvent(dEvents.GridHeaderMouseRightUp, self._onGridHeaderMouseRightUp)
 		self.bindEvent(dEvents.GridHeaderMouseRightClick, self._onGridHeaderMouseRightClick)
 
-
+	
 	def GetCellValue(self, row, col):
 		try:
 			ret = self._Table.GetValue(row, col)
@@ -2262,22 +2245,27 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self.refresh()
 			self.unlockDisplay()
 
+	
 
-	def _paintHeader(self, col=None):
-		if col is None:
-			cols = range(self.ColumnCount)
-		else:
-			cols = (col,)
+	def _paintHeader(self, colObj=None):
 		w = self._getWxHeader()
 		dc = wx.ClientDC(w)
-
-		for col in cols:
+		if colObj is None:
+			# Normal case: from EVT_PAINT
+			updateBox = w._updateBox
+		else:
+			# Special case: redraw the header for a specific column
+			updateBox = colObj._getHeaderRect()
+		x1 = updateBox[0]
+		x2 = x1 + updateBox[2]
+		while x2 > x1:
 			sortIndicator = False
-			try:
-				colObj = self.Columns[col]
-			except IndexError:
+			left = x1
+			colObj = self.getColByX(left+1)
+			if not colObj:
 				# Grid is probably being created or destroyed, so just return
 				return
+			x1 += colObj.Width
 			rect = colObj._getHeaderRect()
 			dc.SetClippingRegion(rect.x, rect.y, rect.width, rect.height)
 
@@ -2298,14 +2286,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			if bcolor is not None:
 				dc.SetBrush(wx.Brush(bcolor, wx.SOLID))
 				dc.SetPen(wx.Pen(None, width=0))
-				dc.DrawRectangle(rect[0] - (col != 0 and 1 or 0),
+				dc.DrawRectangle(rect[0],
 					rect[1],
-					rect[2] + (col != 0 and 1 or 0),
+					rect[2],
 					rect[3])
 			dc.SetPen(holdPen)
 			dc.SetBrush(holdBrush)
 
-			if self.Columns[col].DataField == self.sortedColumn:
+			if colObj.DataField == self.sortedColumn:
 				sortIndicator = True
 				# draw a triangle, pointed up or down, at the top left
 				# of the column. TODO: Perhaps replace with prettier icons
@@ -2367,7 +2355,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			trect = wx.Rect(*trect)
 			dc.DrawLabel("%s" % colObj.Caption, trect, wxav|wxah)
 			dc.DestroyClippingRegion()
-
 
 	def showColumn(self, col, visible):
 		"""If the column is not shown and visible=True, show it. Likewise
@@ -2986,7 +2973,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def refresh(self, sort=False):
-		self.Freeze()
 		if sort:
 			ref = self._refreshAfterSort
 			self._refreshAfterSort = False
@@ -2996,14 +2982,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._syncRowCount()
 		self._syncCurrentRow()
 		super(dGrid, self).refresh()
-		self.Thaw()
 
 
 	def update(self):
-		self.Freeze()
 		super(dGrid, self).update()
 		self.fillGrid()
-		self.Thaw()
 
 
 	def _getWxHeader(self):
@@ -3443,7 +3426,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self.raiseEvent(dEvents.GridColSize, evt)
 		else:
 			evt.Veto()
-			self._paintHeader()
+			self._paintHeader(colObj=self.Columns[evt.GetRowOrCol()])
 
 
 	def __onWxGridSelectCell(self, evt):
@@ -3701,9 +3684,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxHeaderPaint(self, evt):
+		w = self._getWxHeader()
+		w._updateBox = w.GetUpdateRegion().GetBox()
 		self.raiseEvent(dEvents.GridHeaderPaint, evt)
 		evt.Skip()
-
+		dabo.ui.callAfter(self._paintHeader)
 
 	def _getColRowForPosition(self, pos):
 		"""Used in the mouse event handlers to stuff the col, row into EventData."""
@@ -4608,7 +4593,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 class _dGrid_test(dGrid):
 	def initProperties(self):
-		self.DataSet = [
+		ds = [
 				{"name" : "Ed Leafe", "age" : 49, "coder" :  True, "color": "cornsilk"},
 				{"name" : "Paul McNett", "age" : 37, "coder" :  True, "color": "wheat"},
 				{"name" : "Ted Roche", "age" : 48, "coder" :  True, "color": "goldenrod"},
@@ -4617,6 +4602,13 @@ class _dGrid_test(dGrid):
 				{"name" : "Steve Wozniak", "age" : 56, "coder" :  True, "color": "yellow"},
 				{"name" : "LeBron James", "age" : 22, "coder" :  False, "color": "gold"},
 				{"name" : "Madeline Albright", "age" : 69, "coder" :  False, "color": "red"}]
+
+
+		for row in range(len(ds)):
+			for i in range(20):
+				ds[row]["i_%s" % i] = "sss%s" % i
+		self.DataSet = ds
+
 		self.Width = 360
 		self.Height = 150
 		self.Editable = True
@@ -4630,7 +4622,8 @@ class _dGrid_test(dGrid):
 		self.addColumn(Name="Geek", DataField="coder", Caption="Geek?",
 				Order=10, DataType="bool", Width=60, Sortable=False,
 				Searchable=False, Editable=True, HeaderFontBold=False,
-				HorizontalAlignment="Center", VerticalAlignment="Center")
+				HorizontalAlignment="Center", VerticalAlignment="Center",
+				Resizable=False)
 
 		col = dColumn(self, Name="Person", Order=20, DataField="name",
 				DataType="string", Width=200, Caption="Celebrity Name",
@@ -4670,7 +4663,10 @@ class _dGrid_test(dGrid):
 		col.HeaderHorizontalAlignment = "Right"
 		col.HeaderForeColor = "brown"
 
-		self.RowLabels = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
+		for i in range(20):
+			self.addColumn(DataField="i_%s" % i, Caption="i_%s" % i)
+
+		#self.RowLabels = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 		#self.ShowRowLabels = True
 
 if __name__ == '__main__':
