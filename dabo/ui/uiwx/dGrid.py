@@ -104,7 +104,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			# Windows performs better drawing the header in response to EVT_PAINT,
 			# while Mac and Linux perform better doing it the old way, in response
 			# to table.getColLabelValue().
-			self.grid._paintHeader(self.grid.Columns[col])
+			dabo.ui.callAfter(self.grid._paintHeader, self.grid.Columns[col])  ## callAfter needed for Mac
 		return ""
 
 
