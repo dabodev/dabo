@@ -446,9 +446,9 @@ class BaseForm(fm.dFormMixin):
 			# A False from confirmChanges means "don't proceed"
 			return
 
-		self.Freeze()
 		try:
-			busy = dabo.ui.busyInfo(_("Please wait... requerying dataset..."))
+			self.StatusText = _("Please wait... requerying dataset...")
+#			busy = dabo.ui.busyInfo(_("Please wait... requerying dataset..."))
 			self.stopWatch.Start()
 #			response = dProgressDialog.displayAfterWait(self, 2, bizobj.requery)
 			response = bizobj.requery()
@@ -456,7 +456,7 @@ class BaseForm(fm.dFormMixin):
 			elapsed = round(self.stopWatch.Time()/1000.0, 3)
 			
 			self.update()
-			del busy
+#			del busy
 
 			newRowNumber = bizobj.RowNumber
 			if newRowNumber != oldRowNumber:
@@ -469,7 +469,7 @@ class BaseForm(fm.dFormMixin):
 			# We made it through without errors
 			ret = True
 		
-			self._holdStatusText = (
+			self.StatusText = (
 					_("%s record%sselected in %s second%s") % (
 					bizobj.RowCount, 
 					bizobj.RowCount == 1 and " " or "s ",
@@ -498,7 +498,6 @@ class BaseForm(fm.dFormMixin):
 
 		self.afterRequery()
 		self.refresh()
-		self.Thaw()
 		return ret
 		
 
