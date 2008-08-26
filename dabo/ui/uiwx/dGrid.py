@@ -2255,14 +2255,17 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _paintHeader(self, colObj=None):
 		w = self._getWxHeader()
 		dc = wx.ClientDC(w)
+		
 		if colObj is None:
 			# Normal case: from EVT_PAINT
 			updateBox = w._updateBox
 		else:
 			# Special case: redraw the header for a specific column
 			updateBox = colObj._getHeaderRect()
+
 		x1 = updateBox[0]
 		x2 = x1 + updateBox[2]
+
 		while x2 > x1:
 			sortIndicator = False
 			left = x1
@@ -2273,20 +2276,23 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			x1 += colObj.Width
 			rect = colObj._getHeaderRect()
 			dc.SetClippingRegion(rect.x, rect.y, rect.width, rect.height)
+	
+			holdBrush = dc.GetBrush()
+			holdPen = dc.GetPen()
 
 			fcolor = colObj.HeaderForeColor
 			if fcolor is None:
 				fcolor = self.HeaderForeColor
+				if fcolor is None:
+					fcolor = (0,0,0)
 
 			bcolor = colObj.HeaderBackColor
 			if bcolor is None:
 				bcolor = self.HeaderBackColor
 
+
 			dc.SetTextForeground(fcolor)
 			font = colObj.HeaderFont._nativeFont
-
-			holdBrush = dc.GetBrush()
-			holdPen = dc.GetPen()
 
 			if bcolor is not None:
 				dc.SetBrush(wx.Brush(bcolor, wx.SOLID))
@@ -2360,6 +2366,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			trect = wx.Rect(*trect)
 			dc.DrawLabel("%s" % colObj.Caption, trect, wxav|wxah)
 			dc.DestroyClippingRegion()
+
+
 
 	def showColumn(self, col, visible):
 		"""If the column is not shown and visible=True, show it. Likewise
