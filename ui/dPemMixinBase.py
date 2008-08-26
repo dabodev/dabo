@@ -113,19 +113,16 @@ class dPemMixinBase(dObject):
 		self._setAbsoluteFontZoom(0)
 
 	def _setRelativeFontZoom(self, amt):
-		abs_zoom = getattr(self, "_currFontZoom", 0)
-		if abs_zoom is None:
-			abs_zoom = amt
-		else:
-			abs_zoom += amt
+		abs_zoom = getattr(self, "_currFontZoom", 0) + amt
 		self._setAbsoluteFontZoom(abs_zoom)
 
 	def _setAbsoluteFontZoom(self, newZoom):
 		if not hasattr(self, "FontSize"):
 			# Menus, for instance
 			return
-		origFontSize = self._origFontSize = getattr(self, "_origFontSize", 0)
+		origFontSize = getattr(self, "_origFontSize", None)
 		if origFontSize is None:
+			self._origFontSize = self.FontSize
 			fontSize = self.FontSize + newZoom
 		else:
 			fontSize = origFontSize + newZoom
