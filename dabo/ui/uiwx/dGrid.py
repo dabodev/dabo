@@ -100,6 +100,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def GetColLabelValue(self, col):
+		if sys.platform[:3] != "win":
+			# Windows performs better drawing the header in response to EVT_PAINT,
+			# while Mac and Linux perform better doing it the old way, in response
+			# to table.getColLabelValue().
+			self.grid._paintHeader(self.grid.Columns[col])
 		return ""
 
 
@@ -3684,11 +3689,16 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxHeaderPaint(self, evt):
-		w = self._getWxHeader()
-		w._updateBox = w.GetUpdateRegion().GetBox()
 		self.raiseEvent(dEvents.GridHeaderPaint, evt)
 		evt.Skip()
-		dabo.ui.callAfter(self._paintHeader)
+		if sys.platform[:3] == "win":
+			# Windows performs better drawing the header in response to EVT_PAINT,
+			# while Mac and Linux perform better doing it the old way, in response
+			# to table.getColLabelValue().
+			w = self._getWxHeader()
+			w._updateBox = w.GetUpdateRegion().GetBox()
+			dabo.ui.callAfter(self._paintHeader)
+
 
 	def _getColRowForPosition(self, pos):
 		"""Used in the mouse event handlers to stuff the col, row into EventData."""
