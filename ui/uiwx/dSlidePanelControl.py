@@ -60,6 +60,7 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 			self.Collapsed = collapsed
 		# Enable detection of clicks on the caption bar
 		self._captionBar.Bind(wx.EVT_LEFT_UP, self.__onWxCaptionClick)
+		print "CAP BAR BINDING"
 		# Set up the sizer
 		self._baseSizer = sz = dabo.ui.dSizer("v")
 		self.SetSizer(sz, True)
@@ -85,8 +86,24 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 					if ret.GetHeight() > pHt - capHt:
 						ret.SetHeight(pHt - capHt)
 		return ret
-		
-		
+
+
+	def ResizePanel(self):
+		"""The native FoldPanelBar doesn't handle removing items form panels;
+		this removes the item from the panel's internal item tracking.
+		"""
+		for itm in self._items:
+			if not itm._wnd:
+				self._items.remove(itm)
+		super(dSlidePanel, self).ResizePanel()
+
+
+	def Destroy(self):
+		self.Parent._panels.remove(self)
+		self.Parent.raiseEvent(dEvents.SlidePanelChange)
+		super(dSlidePanel, self).Destroy()
+
+
 	def onChildBorn(self, evt):
 		self._cont.lockDisplay()
 		ch = evt.child
@@ -116,6 +133,7 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 
 	def __onWxCaptionClick(self, evt):
+		print "WX CAP CLICK"
 		self.raiseEvent(dEvents.SlidePanelCaptionClick, evt)
 				
 
@@ -237,13 +255,20 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 
 	def _getPanelPosition(self):
-		return self._cont.Children.index(self)
+		try:
+			ret = self._cont.Children.index(self)
+		except (ValueError, IndexError):
+			ret = None
+		return ret
 
 	def _setPanelPosition(self, val):
 		if self._constructed():
 			if val == self.PanelPosition:
 				return
 			cnt = self._cont
+			if self not in cnt._panels:
+				# Not fully constructed yet
+				return
 			cnt._panels.remove(self)
 			cnt._panels.insert(val, self)
 			cnt.raiseEvent(dEvents.SlidePanelChange)
@@ -382,11 +407,13 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		self.raiseEvent(dEvents.SlidePanelChange, 
 				self._createCapBarEvt(pnl))
 		pnl.bindEvent(dEvents.SlidePanelCaptionClick, 
-				self.onSlidePanelCaptionClick, pnl)
+				self.__onSlidePanelCaptionClick, pnl)
+		print "PANEL CAP CLICK BOUND"
 		return pnl
 
 
-	def onSlidePanelCaptionClick(self, evt):
+	def __onSlidePanelCaptionClick(self, evt):
+		print "DABO CAPCLK", self.SingleClick
 		if self.SingleClick:
 			obj = evt.EventObject
 			obj.Expanded = not obj.Expanded
@@ -623,7 +650,8 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 					if not pnl.Caption:
 						pnl.Caption = _("Panel %s") % (i+1,)
 			elif val < panelCount:
-				raise ValueError, _("Cannot reduce PanelCount.")
+				for i in range(panelCount, val, -1):
+					self.Panels[i-1].release()
 		else:
 			self._properties["PanelCount"] = val
 

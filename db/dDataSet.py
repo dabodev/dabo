@@ -5,12 +5,7 @@ import dabo
 from dabo.dLocalize import _
 import datetime
 
-# Make sure that the user's installation supports Decimal.
-_USE_DECIMAL = True
-try:
-	from decimal import Decimal
-except ImportError:
-	_USE_DECIMAL = False
+from decimal import Decimal
 try:
 	from pysqlite2 import dbapi2 as sqlite
 except ImportError:
@@ -50,22 +45,18 @@ class dDataSet(tuple):
 		# We may need to encode fields that are not legal names.
 		self.fieldAliases = {}
 
-		if _USE_DECIMAL:
-			sqlite.register_adapter(Decimal, self._adapt_decimal)
+		sqlite.register_adapter(Decimal, self._adapt_decimal)
 		# When filtering datasets, we need a reference to the dataset
 		# this dataset was derived from.
 		self._sourceDataSet = None
 		self._encoding = "utf8"
 
 		# Register the converters
-		if _USE_DECIMAL:
-			sqlite.register_converter("decimal", self._convert_decimal)
+		sqlite.register_converter("decimal", self._convert_decimal)
 
 		self._typeDict = {int: "integer", long: "integer", str: "text",
 				unicode: "text", float: "real", datetime.date: "date",
-				datetime.datetime: "timestamp"}
-		if _USE_DECIMAL:
-			self._typeDict[Decimal] = "decimal"
+				datetime.datetime: "timestamp", Decimal: "decimal"}
 
 
 	def __del__(self):
@@ -81,15 +72,10 @@ class dDataSet(tuple):
 
 
 	def _convert_decimal(self, strval):
-		"""This is a converter routine. Takes the string
-		representation of a Decimal value and return an actual
-		decimal, if that module is present. If not, returns a float.
+		"""This is a converter routine. Takes the string representation of a 
+		Decimal value and return an actual decimal.
 		"""
-		if _USE_DECIMAL:
-			ret = Decimal(strval)
-		else:
-			ret = float(strval)
-		return ret
+		return Decimal(strval)
 
 
 	def _index(self, rec):

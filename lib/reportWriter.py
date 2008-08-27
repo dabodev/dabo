@@ -2,12 +2,8 @@
 import copy
 import datetime
 
-_USE_DECIMAL = True
-try:
-	import decimal
-	Decimal = decimal.Decimal
-except ImportError:
-	_USE_DECIMAL = False
+import decimal
+Decimal = decimal.Decimal
 
 import locale
 import sys

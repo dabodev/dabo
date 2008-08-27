@@ -85,17 +85,12 @@ if __name__ == "__main__":
 		# skip it: mx may not be available
 		pass
 
-	try:
-		import decimal
-		class DecimalText(TestBase):
-			def afterInit(self):
-				self.Value = decimal.Decimal("23.42")
+	import decimal
+	class DecimalText(TestBase):
+		def afterInit(self):
+			self.Value = decimal.Decimal("23.42")
 
-		testParms.append(DecimalText)
-
-	except ImportError:
-		# decimal only in python >= 2.4
-		pass
+	testParms.append(DecimalText)
 
 		
 	test.Test().runTest(testParms)
