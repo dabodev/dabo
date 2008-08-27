@@ -108,7 +108,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			# Linux performs horribly with the callAfter(); Mac doesn't draw
 			# correctly without it!
 			if sys.platform[:6] == "darwin":
-				dabo.ui.callAfter(self.grid._paintHeader, colObj)
+				#self.grid._paintHeader(colObj)             ## Doesn't paint all columns; misplaces the horizontal location.
+				#dabo.ui.callAfter(self.grid._paintHeader)  ## Draws same headers multiple times, overlapping a little.
+				dabo.ui.callAfterInterval(1, self.grid._paintHeader, colObj)  ## Still leaves artifacts around the grid, but the best I can do right now.
 			else:
 				self.grid._paintHeader(colObj)
 		return ""
