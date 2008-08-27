@@ -2,6 +2,7 @@
 import sys
 import os
 import time
+import logging
 import wx
 import dabo
 import dabo.ui as ui
@@ -153,6 +154,30 @@ class uiApp(dObject, wx.App):
 		self._mruMenuLinks = {}
 		self._mruMaxItems = 12
 		wx.InitAllImageHandlers()
+		# Set up the debug logging
+		self.debugWindow = None
+		log = logging.getLogger("Debug")
+		class DebugLogHandler(logging.Handler):
+			def emit(self, record):
+				msg = record.getMessage()
+				try:
+					self.messages.append(msg)
+				except AttributeError:
+					self.messages = [msg]
+				self.updateTarget()
+			def updateTarget(self):
+				try:
+					self.target
+					self.messages
+				except AttributeError:
+					return
+				if self.target:
+					self.target.Value = "\n".join(self.messages)
+		hnd = self._debugHandler = DebugLogHandler()
+		fmt = logging.Formatter("%(message)s")
+		hnd.setFormatter(fmt)
+		log.setLevel(logging.DEBUG)
+		log.addHandler(hnd)
 		
 		
 	def OnInit(self):
@@ -345,6 +370,10 @@ class uiApp(dObject, wx.App):
 		self.showCommandWindow()
 
 
+	def onDebugWin(self, evt):
+		self.toggleDebugWindow()
+
+
 	def showCommandWindow(self, context=None):
 		"""Display a command window for debugging."""
 		if context is None:
@@ -353,6 +382,36 @@ class uiApp(dObject, wx.App):
 		dlg.show()
 
 	
+	def toggleDebugWindow(self, context=None):
+		"""Display a debug output window."""
+		class DebugWindow(dabo.ui.dToolForm):
+			def afterInit(self):
+				self.Caption = _("Debug Output")
+				self.out = dabo.ui.dEditBox(self, ReadOnly=True)
+				self.out.bindEvent(dEvents.ContextMenu, self.onContext)
+				self.Sizer.append1x(self.out)
+			def onContext(self, evt):
+				self.out.Value = ""
+
+		if not self.debugWindow:
+			if context is None:
+				context = self.ActiveForm
+			self.debugWindow = DebugWindow(context)
+			# Set the handler action
+			self._debugHandler.target = self.debugWindow.out
+		if self.debugWindow.Visible:
+			self.debugWindow.hide()
+		else:
+			self._debugHandler.updateTarget()
+			self.debugWindow.show()
+# 		# Having issues with the check mark on the menu being out of sync.
+# 		try:
+# 			context.MenuBar.debugMenuItem.Checked = self.debugWindow.Visible
+# 		except AttributeError:
+# 			# No such item
+# 			pass
+
+
 	def onWinClose(self, evt):
 		"""Close the topmost window, if any."""
 		if self.ActiveForm:
