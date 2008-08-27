@@ -10,6 +10,7 @@ import inspect
 import datetime
 import urllib2
 import shutil
+import logging
 import dabo
 import dabo.ui
 import dabo.db
@@ -999,13 +1000,23 @@ class dApp(dObject):
 		self.uiApp.showCommandWindow(context)
 
 
+	def toggleDebugWindow(self, context=None):
+		"""Shows/hodes a debug output window. It will 
+		display the output of the debugging commands 
+		from your program.
+		"""
+		self.uiApp.toggleDebugWindow(context)
+
+
 	def fontZoomIn(self, evt=None):
 		"""Increase the font size on the active form."""
 		self.uiApp.fontZoomIn()
 
+
 	def fontZoomOut(self, evt=None):
 		"""Decrease the font size on the active form."""
 		self.uiApp.fontZoomOut()
+
 
 	def fontZoomNormal(self, evt=None):
 		"""Reset the font size to normal on the active form."""
@@ -1017,6 +1028,8 @@ class dApp(dObject):
 	# layer to be handled there.
 	def onCmdWin(self, evt):
 		self.uiApp.onCmdWin(evt)
+	def onDebugWin(self, evt):
+		self.uiApp.onDebugWin(evt)
 	def onWinClose(self, evt):
 		self.uiApp.onWinClose(evt)
 	def onFileExit(self, evt):

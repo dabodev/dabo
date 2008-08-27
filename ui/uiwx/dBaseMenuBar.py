@@ -32,10 +32,14 @@ class FileMenu(dMenu):
 		self.Caption = _("&File")
 
 		if self.Application.ShowCommandWindowMenu:
-			self.append(_("Command Win&dow"), HotKey="Ctrl+D", OnHit=app.onCmdWin, 
-					bmp="%s/apps/utilities-terminal.png" % iconPath,
+			self.commandWinMenuItem = self.append(_("Command Win&dow"), HotKey="Ctrl+D", 
+					OnHit=app.onCmdWin, bmp="%s/apps/utilities-terminal.png" % iconPath,
 					help=_("Open up a command window for debugging") )
-		
+
+			self.debugMenuItem = self.append(_("De&bug Output Window"), HotKey="Ctrl+B", 
+					OnHit=app.onDebugWin, bmp="%s/apps/utilities-terminal.png" % iconPath, 
+					menutype="check", help=_("Open up a debug output window") )
+
 		prmpt = _("Close Windo&w")
 		self.append(prmpt, HotKey="Ctrl+W", OnHit=app.onWinClose,
 				help=_("Close the current window") )
@@ -154,6 +158,18 @@ class dBaseMenuBar(dMenuBar):
 		self.appendMenu(EditMenu(self))
 		self.appendMenu(ViewMenu(self))
 		self.appendMenu(HelpMenu(self))
+
+
+# Trying to expose menu atts as menubar atts. Not sure if this is a good idea yet...
+# 	def __getattr__(self, att):
+# 		ret = None
+# 		for menu in self.Children:
+# 			ret = getattr(menu, att)
+# 			if ret:
+# 				break
+# 		if not ret:
+# 			raise AttributeError
+# 		return ret
 
 if __name__ == "__main__":
 	app = dabo.dApp()
