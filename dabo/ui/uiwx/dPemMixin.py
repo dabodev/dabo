@@ -510,7 +510,8 @@ class dPemMixin(dPemMixinBase):
 
 		
 	def __onWxMenuOpen(self, evt):
-		self.raiseEvent(dEvents.MenuOpen, evt)
+		if evt.Menu:
+			evt.Menu.raiseEvent(dEvents.MenuOpen, evt)
 
 		
 	def __onWxGotFocus(self, evt):

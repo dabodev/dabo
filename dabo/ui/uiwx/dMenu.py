@@ -38,45 +38,6 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		self._daboChildren = {}
 		pm.dPemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
-		# Could be that we are used without a Dabo app object (not recommended,
-		# but should be possible). So use the wx-method for getting the uiApp ref,
-		# instead of the Dabo way of self.Application.uiApp
-		uiApp = wx.GetApp()
-		uiApp.Bind(wx.EVT_MENU_OPEN, self.__onWxMenuOpen)
-		uiApp.Bind(wx.EVT_MENU_CLOSE, self.__onWxMenuClose)
-		if self._useMRU:
-			self.bindEvent(dEvents.MenuOpen, self._onMenuOpenMRU)
-
-		
-	def __onWxMenuOpen(self, evt):
-		if not self:
-			return
-		cap = self.Caption
-		try:
-			if evt.GetMenu().Caption == cap:
-				# Opening a single menu will trigger the wx event 
-				# for every menu in the menubar.
-				self.raiseEvent(dEvents.MenuOpen, evt)
-			else:
-				evt.Skip()
-		except AttributeError:
-			evt.Skip()
-
-
-	def __onWxMenuClose(self, evt):
-		if not self:
-			return
-		cap = self.Caption
-		try:
-			if evt.GetMenu().Caption == cap:
-				# Closing a single menu will trigger the wx event 
-				# for every menu in the menubar.
-				self.raiseEvent(dEvents.MenuClose, evt)
-			else:
-				evt.Skip()
-		except AttributeError:
-			evt.Skip()
-
 
 	def _onMenuOpenMRU(self, evt):
 		if self.Application:
@@ -87,7 +48,10 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		"""See self._setId(), which is where the binding of wxEvents needs to take 
 		place.
 		"""
+		self.bindEvent(dEvents.MenuOpen, self._onMenuHighlight)
 		self.bindEvent(dEvents.MenuHighlight, self._onMenuHighlight)
+		if self._useMRU:
+			self.bindEvent(dEvents.MenuOpen, self._onMenuOpenMRU)
 
 
 	def _onMenuHighlight(self, evt):
@@ -109,6 +73,9 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			if de is not None:
 				if callable(de):
 					item.Enabled = de()
+			
+			if isinstance(item, dMenu):
+				item._setDynamicEnabled()
 
 
 	def __onWxMenuHighlight(self, evt):
