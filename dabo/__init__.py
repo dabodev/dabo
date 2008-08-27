@@ -42,23 +42,20 @@ out of this, but that is outside the scope of Dabo itself, and you'll use
 a different method for each target platform.
 
 To run Dabo, and apps based on Dabo, you need:
-	+ Python 2.3 or higher (2.5 recommended)
+	+ Python 2.4 or higher (2.5 or higher recommended)
 
-	+ wxPython 2.6.1.1 or higher (2.8.x highly recommended)
+	+ wxPython 2.8 or higher (2.8.8 or higher highly recommended)
 		(only necessary for apps with a ui: because of the modular
 		nature of Dabo's design, it is possible to use just the
 		db layer, or the db layer in conjunction with the biz
 		layer, with no ui at all.)
-	
-	+ SQLite3: this is used internally for managing preferences, as 
-		well as for cursor management.
 	
 	+	pysqlite2: The Python dbapi module for SQLite. (Not needed in 
 			Python 2.5 and higher)
 
 	+ Windows 98SE or higher
 	+ Macintosh OSX 10.2 or higher (*much* nicer in Tiger - 10.4)
-	+ Linux 2.4 with X11 running and Gtk2
+	+ Linux 2.4 with X11 running and Gtk2 
 
 	+ Access to some sort of database server, along with the 
 	appropriate Python driver(s) installed. For example, for
