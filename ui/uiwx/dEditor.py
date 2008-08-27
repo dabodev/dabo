@@ -929,7 +929,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			## PythonCard - Thanks Kevin for suggesting I take a look at it.
 			evt.Continue = False
 			self.CmdKeyExecute(stc.STC_CMD_NEWLINE)
-			line = self.LineNumber - 1
+			line = self._ZeroBasedLineNumber - 1
 			txt = self.GetLine(line).rstrip()
 			
 			currIndent = self.GetIndent()
