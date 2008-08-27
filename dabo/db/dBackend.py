@@ -8,10 +8,7 @@ import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.db import dTable
 from dNoEscQuoteStr import dNoEscQuoteStr
-try:
-	import decimal
-except ImportError:
-	decimal = None
+import decimal
 
 
 
@@ -79,7 +76,7 @@ class dBackend(dObject):
 			return self.formatDateTime(val)
 		elif isinstance(val, (int, long, float)):
 			return str(val)
-		elif decimal is not None and isinstance(val, decimal.Decimal):
+		elif isinstance(val, decimal.Decimal):
 			return str(val)
 		elif isinstance(val, dNoEscQuoteStr):
 			return val

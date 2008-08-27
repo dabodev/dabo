@@ -101,13 +101,18 @@ class dControlItemMixin(dDataControlMixin):
 			sortFunction = self._sortFunction
 		self._choices.sort(sortFunction)
 
+
 	def _resetChoices(self):
+		"""Sequence required to update the choices for the list. Refactored out
+		to avoid duplicate code.
+		"""
 		self.Clear()
 		self._setSelection(-1)
 		if self._sorted:
 			self.sort()
 		self.AppendItems(self._choices)
-		
+
+
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getChoices(self):

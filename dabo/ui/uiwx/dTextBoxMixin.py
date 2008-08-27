@@ -7,15 +7,9 @@ import wx
 import wx.lib.masked as masked
 import dabo.lib.dates
 
-try:
-	import decimal
-	numericTypes = (int, long, decimal.Decimal, float)
-	valueErrors = (ValueError, decimal.InvalidOperation)
-except ImportError:
-	# decimal is only in Python 2.4 or greater
-	decimal = None
-	numericTypes = (int, long, float)
-	valueErrors = (ValueError, )
+import decimal
+numericTypes = (int, long, decimal.Decimal, float)
+valueErrors = (ValueError, decimal.InvalidOperation)
 
 # Make this locale-independent
 decimalPoint = locale.localeconv()["decimal_point"]
@@ -453,7 +447,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				retVal = mx.DateTime.TimeFrom(str(strVal))
 			except ImportError:
 				raise ValueError, _("Can't import mx.DateTime")
-		elif decimal is not None and (dataType == decimal.Decimal) and self.StrictNumericEntry:
+		elif (dataType == decimal.Decimal) and self.StrictNumericEntry:
 			try:
 				_oldVal = self._oldVal
 			except AttributeError:
@@ -478,10 +472,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 					else:
 						retVal = int(strVal)
 				else:
-					if decimal.Decimal in numericTypes:
-						retVal = decimal.Decimal(strVal)
-					else:
-						retVal = float(strVal)
+					retVal = decimal.Decimal(strVal)
 			except valueErrors:
 				raise ValueError, _("Invalid Numeric Value: %s") % strVal
 		else:

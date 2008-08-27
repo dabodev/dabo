@@ -8,13 +8,7 @@ import random
 import sys
 import re
 import array
-# Make sure that the user's installation supports Decimal.
-_USE_DECIMAL = True
-try:
-	from decimal import Decimal
-except ImportError:
-	_USE_DECIMAL = False
-
+from decimal import Decimal
 import dabo
 import dabo.dConstants as kons
 from dabo.dLocalize import _
@@ -233,7 +227,7 @@ class dCursorMixin(dObject):
 					ret = field_val
 				else:
 					return ret
-			elif _USE_DECIMAL and pythonType in (Decimal,):
+			elif pythonType in (Decimal,):
 				ds = self.DataStructure
 				ret = None
 				_field_val = field_val
@@ -1509,7 +1503,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 			typ = dabo.db.getPythonType(field_type)
 			# Handle the non-standard cases
-			if _USE_DECIMAL and typ is Decimal:
+			if typ is Decimal:
 				newval = Decimal()
 				# If the backend reports a decimal scale, use it. Scale refers to the
 				# number of decimal places.

@@ -28,10 +28,7 @@ some rows from a backend database in a script. Here's an example of that:
 # TODO: Currently, the logic for building a dictcursor mixin is inside
 #       dabo.biz.dBiz. I think this logic should be here in dabo.db.
 import datetime
-try:
-	from decimal import Decimal
-except ImportError:
-	Decimal = float
+from decimal import Decimal
 from dConnection import dConnection
 from dCursorMixin import dCursorMixin
 from dConnectInfo import dConnectInfo
