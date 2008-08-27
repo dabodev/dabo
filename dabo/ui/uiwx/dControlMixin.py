@@ -31,11 +31,10 @@ class dControlMixin(dControlMixinBase):
 	def __onWxNavKey(self, evt):
 		# A navigation key event has caused this control to want to 
 		# get the focus. Only allow it if self.TabStop is True.
+		evt.Skip()
 		if not self.TabStop:
-			self.Parent.Navigate()
-		else:
-			evt.Skip()
-		
+			dabo.ui.callAfter(self.Navigate, evt.GetDirection())
+	
 
 	def _getTabStop(self):
 		return getattr(self, "_tabStop", True)
