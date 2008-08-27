@@ -1144,9 +1144,11 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 		else:
 			menu = dabo.ui.dMenu()
 		atts = menuDict["attributes"]
-		menu.Caption = atts["Caption"]
-		menu.MRU = atts["MRU"]
-		menu.HelpText = atts["HelpText"]
+		menu.Caption = menu._extractKey(atts, "Caption")
+		menu.MRU = menu._extractKey(atts, "MRU")
+		menu.HelpText = menu._extractKey(atts, "HelpText")
+		if atts:
+			menu.setPropertiesFromAtts(atts, context={"form": form, "app": dabo.dAppRef})
 		mb.appendMenu(menu)
 		try:
 			items = menuDict["children"]
