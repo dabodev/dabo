@@ -78,6 +78,7 @@ from dCheckList import dCheckList
 from dColorDialog import dColorDialog
 from dComboBox import dComboBox
 from dDateTextBox import dDateTextBox
+from dDockForm import dDockForm
 from dDropdownList import dDropdownList
 from dDialog import dDialog
 from dDialog import dStandardButtonDialog
@@ -126,6 +127,7 @@ from dPanel import dScrollPanel
 from dPageFrame import dPageFrame
 from dPageFrame import dPageList
 from dPageFrame import dPageSelect
+from dPageFrame import dDockTabs
 from dPageFrameNoTabs import dPageFrameNoTabs
 from dPage import dPage
 from dPdfWindow import dPdfWindow
@@ -154,11 +156,6 @@ except ImportError:
 #The flatnotebook version we need is not avialable with wxPython < 2.8.4
 if wx.VERSION >= (2, 8, 4):
 	from dPageFrame import DPageFrame
-
-# dDockForm is not available with wxPython < 2.7
-if wx.VERSION >= (2, 7):
-	from dDockForm import dDockForm
-	from dPageFrame import dDockTabs
 
 # Support the old names, but issue deprecation warnings.
 class dFoldPanelBar(dSlidePanelControl):
