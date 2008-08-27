@@ -247,6 +247,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._codeFolding = True
 		self._showLineNumbers = True
 		self._showEOL = False
+		self._showIndentationGuides = False
 		self._showWhiteSpace = False
 		self._useStyleTimer = False
 		self._tabWidth = 4
@@ -2177,6 +2178,17 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			self._properties["ShowEOL"] = val
 
 
+	def _getShowIndentationGuides(self):
+		return self._showIndentationGuides
+
+	def _setShowIndentationGuides(self, val):
+		if self._constructed():
+			self._showLineNumbers = val
+			self.SetIndentationGuides(val)
+		else:
+			self._properties["ShowIndentationGuides"] = val
+
+
 	def _getShowLineNumbers(self):
 		return self._showLineNumbers
 
@@ -2417,6 +2429,10 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 	
 	ShowEOL = property(_getShowEOL, _setShowEOL, None,
 			_("""Determines if end-of-line markers are visible 
+			(default=False)  (bool)"""))
+	
+	ShowIndentationGuides = property(_getShowIndentationGuides, _setShowIndentationGuides, None,
+			_("""Deterimnes if indentation guides are displayed
 			(default=False)  (bool)"""))
 	
 	ShowLineNumbers = property(_getShowLineNumbers, _setShowLineNumbers, None,
