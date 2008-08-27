@@ -69,10 +69,9 @@ To run Dabo, and apps based on Dabo, you need:
 	installed, because all of the demo code has the best support
 	for MySQL).
 
-How you get started is pretty much up to you. Look at the code in the
-separate dabodemo project. Run the AppWizard in the separate daboide
-project. Hand-edit the data definition files and Python code that the 
-AppWizard generates for you.
+How you get started is pretty much up to you. Run DaboDemo.py which
+is in demo/DaboDemo. Run AppWizard.py which is in ide/wizards. 
+Run ClassDesigner.py or ReportDesigner.py in the ide directory.
 
 For some quick eye-candy, once you've installed Dabo using the standard
 'python setup.py install' method, do this from your Python interpreter:
@@ -82,7 +81,7 @@ For some quick eye-candy, once you've installed Dabo using the standard
 
 press Ctrl+D and type the following into the command window that appears:
 
-	tb = self.addObject(dabo.ui.dTextBox)
+	tb = dabo.ui.dTextBox(self)
 
 Notice the textbox in the upper left hand corner?
 
