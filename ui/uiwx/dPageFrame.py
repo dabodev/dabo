@@ -11,10 +11,7 @@ from dabo.dLocalize import _
 from dPageFrameMixin import dPageFrameMixin
 import dabo.dColors as dColors
 
-# dDockForm is not available with wxPython < 2.7
-_USE_DOCK = (wx.VERSION >= (2, 7))
-if _USE_DOCK:
-	import wx.aui as aui
+import wx.aui as aui
 
 #The flatnotebook version we need is not avialable with wxPython < 2.8.4
 _USE_FLAT = (wx.VERSION >= (2, 8, 4))
@@ -144,68 +141,66 @@ class dPageSelect(dPageFrameMixin, wx.Choicebook):
 		dd.SetSelection(pos)
 
 
-if _USE_DOCK:
-	class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
-		_evtPageChanged = readonly(aui.EVT_AUINOTEBOOK_PAGE_CHANGED)
-		_evtPageChanging = readonly(aui.EVT_AUINOTEBOOK_PAGE_CHANGING)
-		_tabposBottom = readonly(aui.AUI_NB_BOTTOM)
-		_tabposRight = readonly(aui.AUI_NB_RIGHT)
-		_tabposLeft = readonly(aui.AUI_NB_LEFT)
-		_tabposTop = readonly(aui.AUI_NB_TOP)
-	
-		def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
-			self._baseClass = dDockTabs
-			preClass = aui.AuiNotebook
-			
-			newStyle = (aui.AUI_NB_TOP | aui.AUI_NB_TAB_SPLIT | aui.AUI_NB_TAB_MOVE
-					| aui.AUI_NB_SCROLL_BUTTONS | aui.AUI_NB_CLOSE_ON_ALL_TABS)
-			if "style" in kwargs:
-				newStyle = kwargs["style"] | newStyle
-			kwargs["style"] = newStyle
-			dPageFrameMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
-	
-	
-		def insertPage(self, pos, pgCls=None, caption="", imgKey=None,
-				ignoreOverride=False):
-			""" Insert the page into the pageframe at the specified position, 
-			and optionally sets the page caption and image. The image 
-			should have already been added to the pageframe if it is 
-			going to be set here.
-			"""
-			# Allow subclasses to potentially override this behavior. This will
-			# enable them to handle page creation in their own way. If overridden,
-			# the method will return the new page.
-			ret = None
-			if not ignoreOverride:
-				ret = self._insertPageOverride(pos, pgCls, caption, imgKey)
-			if ret:
-				return ret			
-			if pgCls is None:
-				pgCls = self.PageClass
-			if isinstance(pgCls, dabo.ui.dPage):
-				pg = pgCls
-			else:
-				# See if the 'pgCls' is either some XML or the path of an XML file
-				if isinstance(pgCls, basestring):
-					xml = pgCls
-					from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
-					conv = DesignerXmlConverter()
-					pgCls = conv.classFromXml(xml)
-				pg = pgCls(self)
-			if not caption:
-				# Page could have its own default caption
-				caption = pg._caption
-			if imgKey:
-				idx = self._imageList[imgKey]
-				bmp = self.GetImageList().GetBitmap(idx)
-				self.InsertPage(pos, pg, caption=caption, bitmap=bmp)
-			else:
-				self.InsertPage(pos, pg, caption=caption)
-			self.layout()
-			return self.Pages[pos]
-		def _insertPageOverride(self, pos, pgCls, caption, imgKey): pass
-else:
-	dDockTabs = dPageFrame
+class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
+	_evtPageChanged = readonly(aui.EVT_AUINOTEBOOK_PAGE_CHANGED)
+	_evtPageChanging = readonly(aui.EVT_AUINOTEBOOK_PAGE_CHANGING)
+	_tabposBottom = readonly(aui.AUI_NB_BOTTOM)
+	_tabposRight = readonly(aui.AUI_NB_RIGHT)
+	_tabposLeft = readonly(aui.AUI_NB_LEFT)
+	_tabposTop = readonly(aui.AUI_NB_TOP)
+
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
+		self._baseClass = dDockTabs
+		preClass = aui.AuiNotebook
+		
+		newStyle = (aui.AUI_NB_TOP | aui.AUI_NB_TAB_SPLIT | aui.AUI_NB_TAB_MOVE
+				| aui.AUI_NB_SCROLL_BUTTONS | aui.AUI_NB_CLOSE_ON_ALL_TABS)
+		if "style" in kwargs:
+			newStyle = kwargs["style"] | newStyle
+		kwargs["style"] = newStyle
+		dPageFrameMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+
+
+	def insertPage(self, pos, pgCls=None, caption="", imgKey=None,
+			ignoreOverride=False):
+		""" Insert the page into the pageframe at the specified position, 
+		and optionally sets the page caption and image. The image 
+		should have already been added to the pageframe if it is 
+		going to be set here.
+		"""
+		# Allow subclasses to potentially override this behavior. This will
+		# enable them to handle page creation in their own way. If overridden,
+		# the method will return the new page.
+		ret = None
+		if not ignoreOverride:
+			ret = self._insertPageOverride(pos, pgCls, caption, imgKey)
+		if ret:
+			return ret			
+		if pgCls is None:
+			pgCls = self.PageClass
+		if isinstance(pgCls, dabo.ui.dPage):
+			pg = pgCls
+		else:
+			# See if the 'pgCls' is either some XML or the path of an XML file
+			if isinstance(pgCls, basestring):
+				xml = pgCls
+				from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
+				conv = DesignerXmlConverter()
+				pgCls = conv.classFromXml(xml)
+			pg = pgCls(self)
+		if not caption:
+			# Page could have its own default caption
+			caption = pg._caption
+		if imgKey:
+			idx = self._imageList[imgKey]
+			bmp = self.GetImageList().GetBitmap(idx)
+			self.InsertPage(pos, pg, caption=caption, bitmap=bmp)
+		else:
+			self.InsertPage(pos, pg, caption=caption)
+		self.layout()
+		return self.Pages[pos]
+	def _insertPageOverride(self, pos, pgCls, caption, imgKey): pass
+
 
 if _USE_FLAT:
 	class DPageFrame(dPageFrameMixin, fnb.FlatNotebook):
