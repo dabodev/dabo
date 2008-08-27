@@ -78,7 +78,6 @@ from dCheckList import dCheckList
 from dColorDialog import dColorDialog
 from dComboBox import dComboBox
 from dDateTextBox import dDateTextBox
-from dDockForm import dDockForm
 from dDropdownList import dDropdownList
 from dDialog import dDialog
 from dDialog import dStandardButtonDialog
@@ -147,6 +146,9 @@ from dTreeView import dTreeView
 from dLed import dLed
 import dUICursors as dUICursors
 import dShell
+
+# Needs importing after at least dPanel:
+from dDockForm import dDockForm
 
 try:
 	from dLinePlot import dLinePlot
