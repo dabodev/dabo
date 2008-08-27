@@ -103,6 +103,7 @@ Have fun in your exploration of Dabo!
 
 import os
 import sys
+import logging
 try:
 	import pysqlite2
 except ImportError:
@@ -171,6 +172,20 @@ from dPref import dPref
 import dabo.db
 import dabo.biz
 import dabo.ui
+
+def debugout(*args):
+	txtargs = [unicode(arg) for arg in args]
+	txt = " ".join(txtargs)
+	log = logging.getLogger("Debug")
+	log.debug(txt)
+# Mangle the namespace so that developers can add lines like:
+# 		debugo("Some Message")
+# or
+# 		debugout("Another Message", self.Caption)
+# to their code for debugging.
+# (I added 'debugo' as an homage to Whil Hentzen!)
+import __builtin__
+__builtin__.debugo = __builtin__.debugout = dabo.debugout
 
 # Store the base path to the framework
 frameworkPath = os.path.dirname(dabo.__file__)
