@@ -446,7 +446,7 @@ class ClassDesigner(dabo.dApp):
 						# Need to ask for number of pages.
 						numPages = dabo.ui.getInt(_("How many pages?"), caption=_("Wizard Pages"),
 								defaultValue=3)
-						pgCls = self.getControlClass(dlgs.WizardPage)
+						pgCls = self.Controller.getControlClass(dlgs.WizardPage)
 						pgs = [pgCls] * max(1, numPages)
 						self.append(pgs)
 						for num, p in enumerate(self._pages):
@@ -1020,9 +1020,15 @@ class ClassDesigner(dabo.dApp):
 								self._srcObj = pg
 								self.recreateChildren(pg, grandkids, None, False)
 					elif isSlidePanelControl:
+						dabo.trace()
+
 						for pos, kid in enumerate(kids):
 							pnl = obj.Children[pos]
 							kidatts = kid.get("attributes", {})
+							try:
+								del kidatts["Name"]
+							except KeyError:
+								pass
 							kidClassID = self._extractKey(kidatts, "classID", "")
 							if kidClassID:
 								pnl.classID = kidClassID
@@ -2801,6 +2807,7 @@ class ClassDesigner(dabo.dApp):
 				dui.callAfter(self.select, pnl0)
 			else:
 				dui.callAfter(self.select, obj)
+			obj.layout()
 			dui.callAfterInterval(100, self.updateLayout)
 		return obj
 
