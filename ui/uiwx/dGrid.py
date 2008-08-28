@@ -3006,11 +3006,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		super(dGrid, self).refresh()
 
 
-	def update(self):
-		super(dGrid, self).update()
-		self.fillGrid()
-
-
 	def _getWxHeader(self):
 		"""Return the wx grid header window."""
 		return self.GetGridColLabelWindow()
