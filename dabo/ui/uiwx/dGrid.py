@@ -299,6 +299,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def IsEmptyCell(self, row, col):
 		if row >= self.grid.RowCount:
 			return True
+		return False
 		bizobj = self.grid.getBizobj()
 		field = self.grid.Columns[col].DataField
 		if bizobj:
@@ -333,7 +334,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		else:
 			try:
 				ret = self.grid.DataSet[row][field]
-			except (IndexError, KeyError):
+			except (TypeError, IndexError, KeyError):
 				ret = ""
 		if ret is None:
 			ret = self.grid.NoneDisplay
