@@ -1020,8 +1020,6 @@ class ClassDesigner(dabo.dApp):
 								self._srcObj = pg
 								self.recreateChildren(pg, grandkids, None, False)
 					elif isSlidePanelControl:
-						dabo.trace()
-
 						for pos, kid in enumerate(kids):
 							pnl = obj.Children[pos]
 							kidatts = kid.get("attributes", {})
