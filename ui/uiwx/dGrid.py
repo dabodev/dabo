@@ -1863,6 +1863,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.bindEvent(dEvents.GridHeaderMouseRightClick, self._onGridHeaderMouseRightClick)
 
 	
+
+	def update(self):
+		self.super()
+		self._syncRowCount()
+		self._syncColumnCount()
+		self._syncCurrentRow()
+
+
 	def GetCellValue(self, row, col):
 		try:
 			ret = self._Table.GetValue(row, col)
