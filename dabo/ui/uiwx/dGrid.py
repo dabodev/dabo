@@ -320,8 +320,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def GetValue(self, row, col):
-		bizobj = self._bizobj
-		col_obj = self.grid._columns[col]
+		bizobj = self.grid.getBizobj()
+		col_obj = self.grid.Columns[col]
 		field = col_obj.DataField
 		col_obj._updateDynamicProps()
 		col_obj._updateCellDynamicProps(row)
