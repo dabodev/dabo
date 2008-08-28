@@ -817,22 +817,28 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				return rec[fld]
 			else:
 				if self.VirtualFields.has_key(fld):
+					vf = self.VirtualFields[fld]
+					if not isinstance(vf, dict):
+						vf = {"func": vf}
+
+					requery_children = (vf.get("requery_children", False) and bool(_rowChangeCallback))
+
 					# Move to specified row if necessary, and then call the VirtualFields
 					# function, which expects to be on the correct row.
-					if not _rowChangeCallback:
-						# We aren't being called by a bizobj, so there aren't child bizobjs,
-						# so the VirtualFields won't be reliant on childen, so this should work.
+					if not requery_children:
+						# The VirtualFields 'requery_children' key is False, or
+						# we aren't being called by a bizobj, so there aren't child bizobjs.
 						_oldrow = self.RowNumber
 						self.RowNumber = row
-						ret = self.VirtualFields[fld]()
+						ret = vf["func"]()
 						self.RowNumber = _oldrow
 						return ret
 					else:
-						# A bizobj called us, so we need to request a row change and requery
-						# of any child bizobjs as necessary, before executing the virtual
-						# field function.
+						# The VirtualFields definition's 'requery_children' key is True, so 
+						# we need to request a row change and requery of any child bizobjs 
+						# as necessary, before executing the virtual field function.
 						_rowChangeCallback(row)
-						return self.VirtualFields[fld]()
+						return vf["func"]()
 				else:
 					raise dException.FieldNotFoundException, "%s '%s' %s" % (
 							_("Field"), fld, _("does not exist in the data set"))
