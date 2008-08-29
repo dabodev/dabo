@@ -30,9 +30,12 @@ from dabo.lib.utils import noneSort, caseInsensitiveSort
 class dGridDataTable(wx.grid.PyGridTableBase):
 	def __init__(self, parent):
 		super(dGridDataTable, self).__init__()
+		self._clearCache()
 		self.grid = parent
 		self._initTable()
 
+	def _clearCache(self):
+		self.__cachedVals = {}
 
 	def _initTable(self):
 		self.colDefs = []
@@ -321,6 +324,16 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def GetValue(self, row, col):
+		try:
+			cv = self.__cachedVals.get((row, col))
+		except KeyError:
+			cv = None
+
+		if cv:
+			diff = time.time() - cv[1]
+			if diff < 10:  ## if it's been less than this # of seconds.
+				return cv[0]
+
 		bizobj = self.grid.getBizobj()
 		col_obj = self.grid.Columns[col]
 		field = col_obj.DataField
@@ -338,6 +351,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				ret = ""
 		if ret is None:
 			ret = self.grid.NoneDisplay
+		self.__cachedVals[(row, col)] = (ret, time.time()) 
 		return ret
 
 	def getStringValue(self, val):
@@ -1866,6 +1880,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def update(self):
 		self.super()
+		self._Table._clearCache()
 		self._syncRowCount()
 		self._syncColumnCount()
 		self._syncCurrentRow()
@@ -3008,6 +3023,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self._refreshAfterSort = False
 			self._restoreSort()
 			self._refreshAfterSort = ref
+		self._Table._clearCache()
 		self._syncColumnCount()
 		self._syncRowCount()
 		self._syncCurrentRow()
