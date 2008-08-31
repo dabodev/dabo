@@ -305,6 +305,19 @@ class dPref(object):
 		self._cursor.commitTransaction()
 
 	
+	def deleteByValue(self, val):
+		"""Removes any preferences at or below this object whose value
+		matches the passed value.
+		"""
+		crs = self._cursor
+		sql = """delete from daboprefs 
+				where ckey like ?
+				and cvalue = ?"""
+		prm = ("%s%%" % self._getKey(), val)
+		crs.execute(sql, prm)
+		crs.commitTransaction()
+
+
 	def flushCache(self):
 		"""Clear the cache, forcing fresh reads from the database."""
 		for key, val in self._cache.items():

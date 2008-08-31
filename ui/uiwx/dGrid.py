@@ -1898,7 +1898,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		try:
 			ret = self._Table.GetValue(row, col)
 		except AttributeError:
-			ret = super(dGrid, self).GetValue(row, col)
+			try:
+				ret = super(dGrid, self).GetValue(row, col)
+			except AttributeError:
+				# I have no idea why this would ever happen, but it does...
+				# Returning None seems like a reasonable way to handle it.
+				ret = None
 		return ret
 
 
@@ -2150,7 +2155,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# Use the keyCaption values, if possible
 			try:
 				cap = keyCaption[colKey]
-			except KeyError:
+			except (KeyError, TypeError):
 				cap = colKey
 			col = self.addColumn(inBatch=True)
 			col.Caption = cap
