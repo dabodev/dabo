@@ -1898,12 +1898,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		try:
 			ret = self._Table.GetValue(row, col)
 		except AttributeError:
-			try:
-				ret = super(dGrid, self).GetValue(row, col)
-			except AttributeError:
-				# I have no idea why this would ever happen, but it does...
-				# Returning None seems like a reasonable way to handle it.
-				ret = None
+			ret = super(dGrid, self).GetValue(row, col)
 		return ret
 
 
