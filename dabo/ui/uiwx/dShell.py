@@ -372,9 +372,12 @@ class dShell(dSplitForm):
 
 
 	def addToHistory(self, cmd):
+		chk = self.cmdHistKey
 		if cmd == self._lastCmd:
 			# Don't add again
 			return
+		# Delete any old instances of this command
+		chk.deleteByValue(cmd)
 		self._lastCmd = cmd
 		stamp = "%s" % int(round(time.time() * 100, 0))
 		self.cmdHistKey.setValue(stamp, cmd)
