@@ -157,7 +157,7 @@ except ImportError:
 
 #The flatnotebook version we need is not avialable with wxPython < 2.8.4
 if wx.VERSION >= (2, 8, 4):
-	from dPageFrame import DPageFrame
+	from dPageFrame import dPageStyled
 
 # Support the old names, but issue deprecation warnings.
 class dFoldPanelBar(dSlidePanelControl):

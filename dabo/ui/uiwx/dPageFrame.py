@@ -203,7 +203,7 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
 
 
 if _USE_FLAT:
-	class DPageFrame(dPageFrameMixin, fnb.FlatNotebook):
+	class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
 		"""Creates a pageframe, which can contain an unlimited number of pages,
 		each of which should be a subclass/instance of the dPage class.
 		"""
@@ -212,7 +212,7 @@ if _USE_FLAT:
 		_tabposBottom = readonly(fnb.FNB_BOTTOM)
 		
 		def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
-			self._baseClass = DPageFrame
+			self._baseClass = dPageStyled
 			preClass = fnb.FlatNotebook
 			
 			self._inactiveTabTextColor = None
@@ -228,7 +228,7 @@ if _USE_FLAT:
 			dPageFrameMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		
 		def _initEvents(self):
-			super(DPageFrame, self)._initEvents()
+			super(dPageStyled, self)._initEvents()
 			self.Bind(fnb.EVT_FLATNOTEBOOK_PAGE_CLOSING, self.__onPageClosing)
 			self.Bind(fnb.EVT_FLATNOTEBOOK_PAGE_CLOSED, self.__onPageClosed)
 			self.Bind(fnb.EVT_FLATNOTEBOOK_PAGE_CONTEXT_MENU, self.__onPageContextMenu)
@@ -237,7 +237,7 @@ if _USE_FLAT:
 			if sys.platform[:3] == "win":
 				## This keeps Pages from being ugly on Windows:
 				self.SetBackgroundColour(self.GetBackgroundColour())
-			super(DPageFrame, self)._afterInit()
+			super(dPageStyled, self)._afterInit()
 		
 		def __onPageClosing(self, evt):
 			"""The page has not yet been closed, so we can veto it if conditions call for it."""
@@ -252,7 +252,7 @@ if _USE_FLAT:
 			return self.beforePageClose(page)
 		
 		def insertPage(self, *args, **kwargs):
-			page = super(DPageFrame, self).insertPage(*args, **kwargs)
+			page = super(dPageStyled, self).insertPage(*args, **kwargs)
 			self.SetAllPagesShapeAngle(self._tabSideIncline)	#incline isn't autoset on new page add so set it
 			return page
 		
@@ -517,7 +517,7 @@ class _dPageList_test(TestMixin, dPageList): pass
 class _dPageSelect_test(TestMixin, dPageSelect): pass
 class _dDockTabs_test(TestMixin, dDockTabs): pass
 if _USE_FLAT:
-	class _DPageFrame_test(TestMixin, DPageFrame): 
+	class _dPageStyled_test(TestMixin, dPageStyled): 
 		def initProperties(self):
 			print "in init properties"
 			self.Width = 400
@@ -541,4 +541,4 @@ if __name__ == "__main__":
 	test.Test().runTest(_dPageSelect_test)
 	test.Test().runTest(_dDockTabs_test)
 	if _USE_FLAT:
-		test.Test().runTest(_DPageFrame_test)
+		test.Test().runTest(_dPageStyled_test)
