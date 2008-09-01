@@ -335,6 +335,9 @@ class dPref(object):
 		crs = self._cursor
 		if key is None:
 			key = self._getKey()
+		elif key.startswith("."):
+			# It's relative to this key
+			key = ".".join((self._getKey(), key[1:]))
 		key = key.replace("_", r"\_")
 		param = "%(key)s%%" % locals()
 		sql = "select * from daboprefs where ckey like ? escape '\\' "
