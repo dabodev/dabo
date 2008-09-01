@@ -323,16 +323,16 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		return True
 
 
-	def GetValue(self, row, col):
-		try:
-			cv = self.__cachedVals.get((row, col))
-		except KeyError:
-			cv = None
-
-		if cv:
-			diff = time.time() - cv[1]
-			if diff < 10:  ## if it's been less than this # of seconds.
-				return cv[0]
+	def GetValue(self, row, col, useCache=True):
+		if useCache:
+			try:
+				cv = self.__cachedVals.get((row, col))
+			except KeyError:
+				cv = None
+			if cv:
+				diff = time.time() - cv[1]
+				if diff < 10:  ## if it's been less than this # of seconds.
+					return cv[0]
 
 		bizobj = self.grid.getBizobj()
 		col_obj = self.grid.Columns[col]
@@ -351,8 +351,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				ret = ""
 		if ret is None:
 			ret = self.grid.NoneDisplay
-		self.__cachedVals[(row, col)] = (ret, time.time()) 
+		self.__cachedVals[(row, col)] = (ret, time.time())
 		return ret
+
 
 	def getStringValue(self, val):
 		"""Get the string value to display in the grid."""
@@ -361,6 +362,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		elif isinstance(val, datetime.date):
 			return dabo.lib.dates.getStringFromDate(val)
 		return val
+
 
 	def SetValue(self, row, col, value):
 		field = self.grid.Columns[col].DataField
@@ -1886,9 +1888,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._syncCurrentRow()
 
 
-	def GetCellValue(self, row, col):
+	def GetCellValue(self, row, col, useCache=True):
 		try:
-			ret = self._Table.GetValue(row, col)
+			ret = self._Table.GetValue(row, col, useCache=useCache)
 		except AttributeError:
 			ret = super(dGrid, self).GetCellValue(row, col)
 		return ret
@@ -3123,7 +3125,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		bizobj = self.getBizobj()
 		row, col = evt.EventData["row"], evt.EventData["col"]
 		fld = self.Columns[col].DataField
-		newVal = self.GetCellValue(row, col)
+		newVal = self.GetCellValue(row, col, useCache=False)
 		if bizobj:
 			oldVal = bizobj.getFieldVal(fld, row)
 		else:
