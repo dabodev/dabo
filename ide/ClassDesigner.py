@@ -173,7 +173,10 @@ class ClassDesigner(dabo.dApp):
 				frm = self.openClass(clsFile)
 				clsOK = True
 			except IOError, e:
-				dui.stop(str(e))
+				msg = _("'%s' does not exist. Create it?") % clsFile
+				if dui.areYouSure(message=msg, title=_("File Not Found"), cancelButton=False):
+					frm = self.onNewDesign(evt=None, pth=clsFile)
+					clsOK = True
 
 		if not clsOK:
 			# Define the form class, and instantiate it.
@@ -1768,7 +1771,7 @@ class ClassDesigner(dabo.dApp):
 			dui.callAfterInterval(100, self.updateLayout)
 
 
-	def onNewDesign(self, evt):
+	def onNewDesign(self, evt, pth=None):
 		pcs = self.pagedControls
 		class NewClassPicker(dabo.ui.dOkCancelDialog):
 			def addControls(self):
@@ -1845,9 +1848,12 @@ class ClassDesigner(dabo.dApp):
 		if not isFormClass:
 			obj = self.addNewControl(frm.initLayoutPanel, newClass)
 			frm.Caption = _("Dabo Class Designer: %s") % obj.Name
+		if pth:
+			frm._classFile = pth
 		frm.Visible = True
 		dui.callAfter(frm.bringToFront)
 		dui.callAfter(frm.saveState)
+		return frm
 
 
 	def wrapSave(self, func, *args, **kwargs):
