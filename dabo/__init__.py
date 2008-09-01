@@ -164,11 +164,6 @@ trace = pdb.set_trace
 from dApp import dApp
 from dPref import dPref
 
-# Make sure dabo.db, dabo.biz, and dabo.ui are imported:
-import dabo.db
-import dabo.biz
-import dabo.ui
-
 def debugout(*args):
 	txtargs = [unicode(arg) for arg in args]
 	txt = " ".join(txtargs)
@@ -181,7 +176,12 @@ def debugout(*args):
 # to their code for debugging.
 # (I added 'debugo' as an homage to Whil Hentzen!)
 import __builtin__
-__builtin__.debugo = __builtin__.debugout = dabo.debugout
+__builtin__.debugo = __builtin__.debugout = debugout
+
+# Make sure dabo.db, dabo.biz, and dabo.ui are imported:
+import dabo.db
+import dabo.biz
+import dabo.ui
 
 # Store the base path to the framework
 frameworkPath = os.path.dirname(dabo.__file__)
