@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import types
 import re
+import warnings
 import dabo
 import dabo.dConstants as kons
 from dabo.db.dCursorMixin import dCursorMixin
@@ -10,6 +11,7 @@ from dabo.dObject import dObject
 
 
 NO_RECORDS_PK = "75426755-2f32-4d3d-86b6-9e2a1ec47f2c"  ## Can't use None
+
 
 
 class dBizobj(dObject):
@@ -1995,13 +1997,14 @@ afterDelete() which is only called after a delete().""")
 
 
 	def _getSQL(self):
-		try:
-			return self._SQL
-		except AttributeError:
-			return ""
+		warnings.warn(_("""This property is deprecated, and will be removed in the next version
+of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1)
+		return self.UserSQL
 
 	def _setSQL(self, val):
-		self._SQL = val
+		warnings.warn(_("""This property is deprecated, and will be removed in the next version
+of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1)
+		self.UserSQL = val
 
 
 	def _getSqlMgr(self):
@@ -2151,7 +2154,7 @@ afterDelete() which is only called after a delete().""")
 			_("""Do we scan the records in reverse order? (Default: False) (bool)"""))
 
 	SQL = property(_getSQL, _setSQL, None,
-			_("SQL statement used to create the cursor's data. (str)"))
+			_("DEPRECATED. Equivalent to UserSQL. (str)"))
 
 	SqlManager = property(_getSqlMgr, None, None,
 			_("Reference to the cursor that handles SQL Builder information (cursor)") )
@@ -2217,4 +2220,3 @@ class _bizIterator(object):
 	def __iter__(self):
 		self.__firstpass = True
 		return self
-
