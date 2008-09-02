@@ -96,7 +96,17 @@ inner join pg_tables b on b.tablename=c.relname
 where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName)
 		rs = cursor.getDataSet()
 
-		## get the PK the code should work well with 7.4 - 8.2 versions
+		#the code below may not work with 7.4 due to the use of the function generate_series()
+		#However a postgres function can be added to simulate generate_series()
+		#CREATE OR REPLACE FUNCTION generate_series(int, int) RETURNS setof int AS  
+		#'BEGIN
+		#FOR i IN $1..$2
+		#LOOP 
+		#RETURN NEXT i;
+		#END LOOP; 
+		#RETURN; 
+		#END; ' LANGUAGE plpgsql;
+		
 		sqlstr = """SELECT n.nspname AS schema_name, c.relname AS table_name,
            c.oid AS table_oid, a.attname AS column_name, idx.n + 1 AS ordinal_position
       FROM pg_class c, pg_attribute a, pg_index i, pg_namespace n, generate_series(0, 31) idx(n)
