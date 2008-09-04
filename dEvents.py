@@ -455,7 +455,7 @@ class PageChanged(dEvent):
 	def appliesToClass(eventClass, objectClass):
 		try:
 			return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
-					dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs, dabo.ui.DPageFrame))
+					dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs, dabo.ui.dPageStyled))
 		except AttributeError:
 			return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
 					dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs))
@@ -467,7 +467,7 @@ class PageChanging(dEvent):
 	def appliesToClass(eventClass, objectClass):
 		try:
 			return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
-					dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs, dabo.ui.DPageFrame))
+					dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs, dabo.ui.dPageStyled))
 		except AttributeError:
 			return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
 					dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs))
@@ -475,16 +475,16 @@ class PageChanging(dEvent):
 
 
 class PageClosed(dEvent):
-	"""Occurs when a page in a DPageFrame control is closed"""
+	"""Occurs when a page in a dPageStyled control is closed"""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, dabo.ui.DPageFrame)
+		return issubclass(objectClass, dabo.ui.dPageStyled)
 	appliesToClass = classmethod(appliesToClass)
 
 
 class PageClosing(dEvent):
-	"""Occurs when a page in a DPageFrame control is about to close"""
+	"""Occurs when a page in a dPageStyled control is about to close"""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, dabo.ui.DPageFrame)
+		return issubclass(objectClass, dabo.ui.dPageStyled)
 	appliesToClass = classmethod(appliesToClass)
 
 
