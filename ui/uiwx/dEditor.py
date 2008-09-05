@@ -241,6 +241,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._bufferedDrawing = True
 		self._hiliteCharsBeyondLimit = False
 		self._hiliteLimitColumn = 79
+		self._showEdgeGuide = False
+		self._edgeGuideColumn = 80
 		self._encoding = self.Application.Encoding
 		self._eolMode = ""
 		self._useAntiAliasing = True
@@ -1950,6 +1952,18 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			self._properties["CommentString"] = val
 
 
+	def _getEdgeGuideColumn(self):
+		return self._edgeGuideColumn
+	
+	def _setEdgeGuideColumn(self, val):
+		if self._constructed():
+			self._edgeGuideColumn = val
+			if self.ShowEdgeGuide:
+				self.SetEdgeColumn(val)
+		else:
+			self._properties["EdgeGuideColumn"] = val
+
+
 	def _getEncoding(self):
 		return self._encoding
 
@@ -2023,10 +2037,12 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 	def _setHiliteCharsBeyondLimit(self, val):
 		if self._constructed():
 			self._hiliteCharsBeyondLimit = val
-		if val:
-			self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
-			self.SetEdgeColumn(self.HiliteLimitColumn)
-
+			if val:
+				self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
+				self.SetEdgeColumn(self.HiliteLimitColumn)
+				self._showEdgeGuide = False
+			else:
+				self.SetEdgeMode(stc.STC_EDGE_NONE)
 		else:
 			self._properties["HiliteCharsBeyondLimit"] = val
 
@@ -2037,7 +2053,8 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 	def _setHiliteLimitColumn(self, val):
 		if self._constructed():
 			self._hiliteLimitColumn = val
-			self.SetEdgeColumn(val)
+			if self.HiliteCharsBeyondLimit:
+				self.SetEdgeColumn(val)
 		else:
 			self._properties["HiliteLimitColumn"] = val
 
@@ -2165,6 +2182,22 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			self._setCodeFoldingMarginVisibility()
 		else:
 			self._properties["ShowCodeFolding"] = val
+
+
+	def _getShowEdgeGuide(self):
+		return self._showEdgeGuide
+
+	def _setShowEdgeGuide(self, val):
+		if self._constructed():
+			self._showEdgeGuide = val
+			if val:
+				self.SetEdgeMode(stc.STC_EDGE_LINE)
+				self.SetEdgeColumn(self.EdgeGuideColumn)
+				self._hiliteCharsBeyondLimit = False
+			else:
+				self.SetEdgeMode(stc.STC_EDGE_NONE)
+		else:
+			self._properties["ShowEdgeGuide"] = val
 
 
 	def _getShowEOL(self):
@@ -2361,6 +2394,10 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 	CommentString = property(_getCommentString, _setCommentString, None,
 			_("String used to prefix lines that are commented out  (str)"))
 	
+	EdgeGuideColumn = property(_getEdgeGuideColumn, _setEdgeGuideColumn, None,
+			_("""If self.EdgeGuide is set to True, specifies the column 
+			position the guide is in(int)"""))
+	
 	Encoding = property(_getEncoding, _setEncoding, None,
 			_("Type of encoding to use. Defaults to the application's default encoding.  (str)"))
 	
@@ -2381,7 +2418,8 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 	
 	HiliteCharsBeyondLimit = property(_getHiliteCharsBeyondLimit, _setHiliteCharsBeyondLimit, None,
 			_("""When True, characters beyond the column set it 
-			self.HiliteLimitColumn are visibly hilited  (bool)"""))
+			self.HiliteLimitColumn are visibly hilited  Note: When set to True,
+			self.ShowEdgeGuide will be set to False. (bool)"""))
 	
 	HiliteLimitColumn = property(_getHiliteLimitColumn, _setHiliteLimitColumn, None,
 			_("""If self.HiliteCharsBeyondLimit is True, specifies 
@@ -2426,6 +2464,11 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 	ShowCodeFolding = property(_getShowCodeFolding, _setShowCodeFolding, None,
 			_("""Determines if the code folding symbols are displayed 
 			in the left margin (default=True)  (bool)"""))
+	
+	ShowEdgeGuide = property(_getShowEdgeGuide, _setShowEdgeGuide, None,
+			_("""When True, will display a line at the column set by 
+			self.EdgeGuideColumn.  Note: When set to True, 
+			self.HiliteCharsBeyondLimit will be set to False. (bool)"""))
 	
 	ShowEOL = property(_getShowEOL, _setShowEOL, None,
 			_("""Determines if end-of-line markers are visible 
