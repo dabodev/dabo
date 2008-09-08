@@ -66,6 +66,7 @@ class PgConnectionSelect(WizardPage):
 	def populateConnNames(self):
 		dd = self.ddNames
 		dd.Choices = self.Application.getConnectionNames()
+		dd.PositionValue = 0
 		dd.refresh()
 		
 		
@@ -783,9 +784,10 @@ class QuickLayoutWizard(Wizard):
 				info[fld]["width"] = self.controlInfo[fld]["width"]
 			ret["fldInfo"] = info
 			ret["createBizobj"] = self.createBiz
-			
+			#dabo.ui.callAfter(self.callback, ret)
 			self.callback(ret)
-		return True
+			self.hide()
+		return False
 	
 	
 	def setConnectionName(self, nm):

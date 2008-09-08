@@ -786,7 +786,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		wiz.callback = self.addQuickLayout
 		wiz.start()
 		if wiz:
-			wiz.release()
+			wiz.hide()
 
 	
 	def addQuickLayout(self, layoutInfo):
