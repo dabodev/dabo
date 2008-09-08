@@ -189,12 +189,6 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			return super(ClassDesignerControlMixin, self).makeSizer()
 			
 
-## pkm: Don't need/want to explicitly call _paintHeader(), as that already
-##      happens in dGrid.		
-#	def onGridHeaderPaint(self, evt):
-#		self._paintHeader()
-		
-	
 	def bringToFront(self):
 		super(ClassDesignerControlMixin, self).bringToFront()
 		prn = self.Parent

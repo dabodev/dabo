@@ -710,7 +710,8 @@ class PropertyGrid(dabo.ui.dGrid):
 		try:
 			return self.propDict[prop]
 		except KeyError, e:
-			print "PROP DICT ERROR: >%s<, row=%s" % (prop, row)
+			return None
+# 			print "PROP DICT ERROR: >%s<, row=%s" % (prop, row)
 		
 	
 	def fillGrid(self, force=False):

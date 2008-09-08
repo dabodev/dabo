@@ -2811,7 +2811,11 @@ class ClassDesigner(dabo.dApp):
 				dui.callAfter(self.select, pnl0)
 			else:
 				dui.callAfter(self.select, obj)
-			obj.layout()
+			try:
+				obj.layout()
+			except AttributeError:
+				# The object does not have a layout() method
+				pass
 			dui.callAfterInterval(100, self.updateLayout)
 		return obj
 
