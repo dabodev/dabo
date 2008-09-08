@@ -37,7 +37,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 	def __onCreate(self, evt):
 		if self.SaveRestoreValue:
-			dabo.ui.callAfter(self.restoreValue)
+			self.restoreValue()
 
 
 	def __onDestroy(self, evt):

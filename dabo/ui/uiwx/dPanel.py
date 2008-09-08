@@ -11,7 +11,7 @@ import dDataControlMixin as dcm
 from dabo.ui import makeDynamicProperty
 
 
-class _BasePanelMixin:
+class _BasePanelMixin(object):
 	def __init__(self, superclass, preClass, parent, properties=None, attProperties=None, 
 			*args, **kwargs):
 		self._minSizerWidth = 10
