@@ -67,7 +67,6 @@ class dBizobj(dObject):
 		self._nonUpdateFields = []
 		self._scanRestorePosition = True
 		self._scanReverse = False
-		self._SQL = ""
 		self._userSQL = None
 		self._requeryOnLoad = False
 		self._parent  = None
@@ -782,11 +781,9 @@ class dBizobj(dObject):
 			# sql not passed; get it from the sql mixin:
 			# Set the appropriate child filter on the link field
 			self.setChildLinkFilter()
-
-			self.SQL = self.getSQL()
 		else:
 			# sql passed; set it explicitly
-			self.SQL = sql
+			self.UserSQL = sql
 
 
 	def requery(self):
