@@ -61,22 +61,28 @@ class dPemMixinBase(dObject):
 			pass
 
 			
-	def _processName(self, kwargs, defaultName):
+	def _processName(self, properties, kwargs, defaultName):
 		# Called by the constructors of the dObjects, to properly set the
 		# name of the object based on whether the user set it explicitly
 		# or Dabo is to provide it implicitly.
-		_explicitName = kwargs.get("_explicitName", False)
+		propdict = {}
+		propdict.update(kwargs)
+		propdict.update(properties)
+
+		_explicitName = propdict.get("_explicitName", False)
 		
-		if "Name" in kwargs.keys():
-			if "_explicitName" not in kwargs.keys():
+		if "Name" in propdict.keys():
+			if "_explicitName" not in propdict.keys():
 				# Name was sent; _explicitName wasn't.
 				_explicitName = True
-			name = kwargs["Name"]
+			name = propdict["Name"]
 		else:
 			name = defaultName
 
 		if kwargs.has_key("_explicitName"):
 			del(kwargs["_explicitName"])
+		if properties.has_key("_explicitName"):
+			del(properties["_explicitName"])
 		return name, _explicitName
 		
 
