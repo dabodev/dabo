@@ -5,7 +5,7 @@ from dabo.dObject import dObject
 import dabo.ui as ui
 from dabo.dLocalize import _
 
-class dEvent(dObject):
+class dEvent(object):
 	""" Base class for Dabo events.
 
 	Event objects are instantiated in self.raiseEvent(), and passed to all
