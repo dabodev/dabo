@@ -48,6 +48,9 @@ class dSpinner(dabo.ui.dDataPanel):
 		self._increment = 1
 		val = self._extractKey((properties, attProperties, kwargs), "Value", 0)
 		val = self._numericStringVal(val)
+		nm = self._extractKey((properties, attProperties, kwargs), "NameBase", "")
+		if not nm:
+			nm = self._extractKey((properties, attProperties, kwargs), "Name", "dSpinner")
 		super(dSpinner, self).__init__(parent=parent, properties=properties, 
 				attProperties=attProperties, *args, **kwargs)
 		self._baseClass = dSpinner
@@ -63,6 +66,7 @@ class dSpinner(dabo.ui.dDataPanel):
 		self.fitToSizer()
 		# Because several properties could not be set until after the child
 		# objects were created, we need to manually call _setProperties() here.
+		self._properties["NameBase"] = nm
 		self._setProperties(self._properties)
 		self.autoBindEvents()
 		ps = self._proxy_spinner
@@ -78,12 +82,14 @@ class dSpinner(dabo.ui.dDataPanel):
 		self.bindEvent(dEvents.KeyChar, self._onChar)
 		self.bindEvent(dEvents.LostFocus, self._onLostFocus)
 		self._rerestoreValue()
+ 
 
 	def _rerestoreValue(self):
 		# Hack because when restoreValue() was originally called in onCreate,
 		# the name of the control hadn't been set yet.
 		if self.SaveRestoreValue:
 			self.restoreValue()
+
 
 	def _constructed(self):
 		"""Returns True if the ui object has been fully created yet, False otherwise."""
