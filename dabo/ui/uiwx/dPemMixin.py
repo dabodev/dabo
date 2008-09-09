@@ -208,7 +208,7 @@ class dPemMixin(dPemMixinBase):
 		the given Name isn't unique among siblings.
 		"""
 		if not dabo.fastNameSet:
-			name, _explicitName = self._processName(properties, kwargs, self.__class__.__name__)
+			name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 			self._initName(name, _explicitName=_explicitName)
 
 		# Add any properties that were re-set 
