@@ -177,7 +177,11 @@ class dPemMixin(dPemMixinBase):
 			self.PostCreate(pre)
 
 		self._pemObject = self
-		self._setNameAndProperties(properties, **kwargs)
+
+		if self._constructed():
+			# (some objects could have overridden _constructed() and don't want
+			# us to call _setNameAndProperties() here..)
+			self._setNameAndProperties(properties, **kwargs)
 		
 		self._initEvents()
 		self._afterInit()
