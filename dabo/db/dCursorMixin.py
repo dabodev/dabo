@@ -1810,7 +1810,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			flds = self.BackendObject.getFields(tableName, self.AuxCursor)
 			self._fieldStructure[key] = flds
 			return flds
-		return 
 
 
 	def getFieldInfoFromDescription(self):
@@ -1965,7 +1964,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Set the where clause of the sql statement."""
 		self.sqlManager._whereClause = self.sqlManager.BackendObject.setWhereClause(clause,
 					autoQuote=self.AutoQuoteNames)
-		return
 
 
 	def addWhere(self, exp, comp="and"):
