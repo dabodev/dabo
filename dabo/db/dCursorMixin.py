@@ -927,7 +927,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				dtStrings = ("<type 'DateTime'>", "<type 'Date'>", "<type 'datetime.datetime'>")
 				if str(fldType) in dtStrings and isinstance(val, basestring):
 					ignore = True
-				elif isinstance(fldType, basestring) and isinstance(val, basestring):
+				elif issubclass(fldType, basestring) and isinstance(val, basestring):
 					ignore = True
 				elif val is None or fldType is type(None):
 					# Any field type can potentially hold None values (NULL). Ignore these.
@@ -1965,6 +1965,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Set the where clause of the sql statement."""
 		self.sqlManager._whereClause = self.sqlManager.BackendObject.setWhereClause(clause,
 					autoQuote=self.AutoQuoteNames)
+		return
 
 
 	def addWhere(self, exp, comp="and"):
