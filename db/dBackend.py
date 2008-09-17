@@ -427,17 +427,17 @@ class dBackend(dObject):
 			# No table specified, so no update checking is possible
 			return None
 		# This is the current description of the cursor.
+		auxCrs = cursor._getAuxCursor()
 		if not cursor.FieldDescription:
 			# A query hasn't been run yet; so we need to get one
-			holdWhere = cursor._whereClause
-			cursor.addWhere("1 = 0")
-			cursor.execute(cursor.getSQL())
-			cursor._whereClause = holdWhere
-		descFlds = cursor.FieldDescription
+			holdWhere = auxCrs._whereClause
+			auxCrs.addWhere("1 = 0")
+			auxCrs.execute(cursor.getSQL())
+			auxCrs._whereClause = holdWhere
+		descFlds = cursor.FieldDescription = auxCrs.FieldDescription
 		# Get the raw version of the table
 		sql = "select * from %s where 1=0 " % self.encloseNames(cursor.Table, 
 				autoQuote=autoQuote)
-		auxCrs = cursor._getAuxCursor()
 		auxCrs.execute( sql )
 		# This is the clean version of the table.
 		stdFlds = auxCrs.FieldDescription
