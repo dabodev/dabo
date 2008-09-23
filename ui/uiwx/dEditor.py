@@ -1769,7 +1769,9 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			except NameError:
 				# Class is not in the namespace
 				pass
-
+			except SyntaxError:
+				# Catch user Syntax errors like no colon after class def
+				pass
 		
 	def _getRuntimeObject(self, runtimeObjectName):
 		"""Given a runtimeObjectName, get the object.
