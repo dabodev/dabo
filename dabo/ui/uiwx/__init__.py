@@ -124,6 +124,7 @@ from dPanel import dDataPanel
 from dPanel import dPanel
 from dPanel import dScrollPanel
 from dPageFrame import dPageFrame
+from dPageFrame import dPageToolBar
 from dPageFrame import dPageList
 from dPageFrame import dPageSelect
 from dPageFrame import dDockTabs
