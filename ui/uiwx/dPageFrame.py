@@ -53,6 +53,29 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 		super(dPageFrame, self)._afterInit()
 
 
+class dPageToolBar(dPageFrameMixin, wx.Toolbook):
+	_evtPageChanged = readonly(wx.EVT_TOOLBOOK_PAGE_CHANGED)
+	_evtPageChanging = readonly(wx.EVT_TOOLBOOK_PAGE_CHANGING)
+	_tabposBottom = readonly(wx.BK_BOTTOM)
+	_tabposRight = readonly(wx.BK_RIGHT)
+	_tabposLeft = readonly(wx.BK_LEFT)
+	
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
+		self._baseClass = dPageToolBar
+		preClass = wx.PreToolbook
+		
+		dPageFrameMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+	
+	def _afterInit(self):
+		if sys.platform[:3] == "win":
+			## This keeps Pages from being ugly on Windows:
+			self.SetBackgroundColour(self.GetBackgroundColour())
+		
+		il = wx.ImageList(32, 32, initialCount=0)	#Need to set image list first or else we get and error...
+		self.AssignImageList(il)
+		super(dPageToolBar, self)._afterInit()
+
+
 class dPageList(dPageFrameMixin, wx.Listbook):
 	_evtPageChanged = readonly(wx.EVT_LISTBOOK_PAGE_CHANGED)
 	_evtPageChanging = readonly(wx.EVT_LISTBOOK_PAGE_CHANGING)
@@ -512,6 +535,21 @@ class TestMixin(object):
 	def onPageChanged(self, evt):
 		print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
 
+class _dPageToolBar_test(TestMixin, dPageToolBar):
+	def afterInit(self):
+		self.addImage("themes/tango/32x32/actions/go-previous.png", "Left")
+		self.addImage("themes/tango/32x32/actions/go-next.png", "Right")
+		self.addImage("themes/tango/32x32/actions/go-up.png", "Up")
+		self.addImage("themes/tango/32x32/actions/go-down.png", "Down")
+		self.appendPage(caption="Introduction", imgKey="Left")
+		self.appendPage(caption="Chapter I", imgKey="Right")
+		self.appendPage(caption="Chapter 2", imgKey="Up")
+		self.appendPage(caption="Chapter 3", imgKey="Down")
+		self.Pages[0].BackColor = "darkred"
+		self.Pages[1].BackColor = "darkblue"
+		self.Pages[2].BackColor = "green"
+		self.Pages[3].BackColor = "yellow"
+
 class _dPageFrame_test(TestMixin, dPageFrame): pass
 class _dPageList_test(TestMixin, dPageList): pass
 class _dPageSelect_test(TestMixin, dPageSelect): pass
@@ -519,7 +557,6 @@ class _dDockTabs_test(TestMixin, dDockTabs): pass
 if _USE_FLAT:
 	class _dPageStyled_test(TestMixin, dPageStyled): 
 		def initProperties(self):
-			print "in init properties"
 			self.Width = 400
 			self.Height = 175
 			self.TabStyle = random.choice(("Default", "VC8", "VC71", "Fancy", "Firefox"))
@@ -537,6 +574,7 @@ if _USE_FLAT:
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dPageFrame_test)
+	test.Test().runTest(_dPageToolBar_test)
 	test.Test().runTest(_dPageList_test)
 	test.Test().runTest(_dPageSelect_test)
 	test.Test().runTest(_dDockTabs_test)
