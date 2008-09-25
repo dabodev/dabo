@@ -86,6 +86,13 @@ fileFormatsDic = {
 		".rfxml": "xml",
 		".xml": "xml"}
 
+bmkIconDic = {
+		"circle": stc.STC_MARK_CIRCLE,
+		"down arrow": stc.STC_MARK_ARROWDOWN,
+		"arrow": stc.STC_MARK_SHORTARROW,
+		"arrows": stc.STC_MARK_ARROWS,
+		"rectangle": stc.STC_MARK_SMALLRECT}
+
 
 ## testing load performance:
 delay = False
@@ -238,6 +245,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._autoCompleteList = False
 		self._autoIndent = True
 		self._commentString = "#- "
+		self._bookmarkBackColor = (0, 255, 255)
+		self._bookmarkForeColor = (128, 128, 128)
+		self._bookmarkIcon = "circle"
 		self._bufferedDrawing = True
 		self._hiliteCharsBeyondLimit = False
 		self._hiliteLimitColumn = 79
@@ -318,8 +328,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		
 		# Set the marker used for bookmarks
 		self._bmkPos = 5
-		self.MarkerDefine(self._bmkPos, 
-				stc.STC_MARK_CIRCLE, "gray", "cyan")
+		self._setBookmarkMarker()
 		justFname = os.path.split(self._fileName)[1]
 		svd = app.getUserSetting("bookmarks.%s" % justFname, "{}")
 		if svd:
@@ -472,10 +481,16 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		"""Returns the name of the bookmark for the current
 		line, or None if this line is not bookmarked.
 		"""
+		return self.getBookmarkFromLine(self.LineNumber)
+	
+	
+	def getBookmarkFromLine(self, line):
+		"""Returns the name of the bookmark for the passed
+		line, or None if the line is not bookmarked.
+		"""
 		ret = None
-		curr = self.LineNumber
 		for nm, hnd in self._bookmarks.items():
-			if self.MarkerLineFromHandle(hnd) == curr:
+			if self.MarkerLineFromHandle(hnd) == line:
 				ret = nm
 				break
 		return ret
@@ -703,13 +718,25 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		"""Sets the visibility of the line number margin."""
 		if self.ShowLineNumbers:
 			self.SetMarginType(1, stc.STC_MARGIN_NUMBER)
+			self.SetMarginMask(1, 0)
 			self.SetMarginSensitive(1, True)
 			self.SetMarginWidth(1, 36)
 		else:
 			self.SetMarginSensitive(1, False)
 			self.SetMarginWidth(1, 0)
-			
-		
+	
+	def _setBookmarkMarginVisibility(self):
+		"""Sets the visibility of the bookmark margin."""
+		if self.UseBookmarks:
+			self.SetMarginType(0, wx.stc.STC_MARGIN_SYMBOL)
+			self.SetMarginMask(0, ~stc.STC_MASK_FOLDERS)
+			self.SetMarginSensitive(0, True)
+			self.SetMarginWidth(0, 16)
+		else:
+			self.SetMarginSensitive(0, False)
+			self.SetMarginWidth(0, 0)
+
+	
 	def _setCodeFoldingMarginVisibility(self):
 		"""Sets the visibility of the code folding margin."""
 		if not self.ShowCodeFolding:
@@ -1101,7 +1128,6 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			if evt.GetShift() and evt.GetControl():
 				self.FoldAll()
 			else:
-
 				if self.GetFoldLevel(lineClicked) & stc.STC_FOLDLEVELHEADERFLAG:
 					if evt.GetShift():
 						self.SetFoldExpanded(lineClicked, True)
@@ -1119,6 +1145,14 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			# Line number margin; hilite the line
 			ln = self.LineFromPosition(evt.GetPosition())
 			self.hiliteLine(ln, evt.GetShift())
+		if mg == 0:
+			#Bookmark margin.  Call stubs so dev can decide how to handle it.
+			self.processBookmarkClick(lineClicked, self.getBookmarkFromLine(lineClicked))
+
+
+	def processBookmarkClick(self, lineNumber, bookmarkName):
+		"Stub function to process a left click on the bookmark margin area."
+		pass
 
 
 	def hiliteLine(self, lineNum, extend=False):
@@ -1846,6 +1880,16 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 				pass
 
 
+	def _setBookmarkMarker(self):
+		try:
+			self.MarkerDefine(self._bmkPos, bmkIconDic[self.BookmarkIcon], 
+				self.BookmarkForeColor, self.BookmarkBackColor)
+		except AttributeError:
+			#_bmkPos not created yet. Happens if set in initProperties or sooner
+			#solution is to store the value and it gets set further down in init
+			pass
+
+
 	### Property definitions start here
 	def _getAutoAutoComplete(self):
 		try:
@@ -1889,6 +1933,44 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			self._autoIndent = val
 		else:
 			self._properties["AutoIndent"] = val
+
+
+	def _getBookmarkBackColor(self):
+		return self._bookmarkBackColor
+
+	def _setBookmarkBackColor(self, val):
+		if isinstance(val, basestring):
+			val = dabo.dColors.colorTupleFromName(val)
+		if isinstance(val, tuple):
+			self._bookmarkBackColor = val
+			self._setBookmarkMarker()
+		else:
+			raise ValueError, "BookmarkBackColor must be a valid color string or tuple"
+
+
+	def _getBookmarkForeColor(self):
+		return self._bookmarkForeColor
+
+	def _setBookmarkForeColor(self, val):
+		if isinstance(val, basestring):
+			val = dabo.dColors.colorTupleFromName(val)
+		if isinstance(val, tuple):
+			self._bookmarkForeColor = val
+			self._setBookmarkMarker()
+		else:
+			raise ValueError, "BookmarkForeColor must be a valid color string or tuple"
+
+
+
+	def _getBookmarkIcon(self):
+		return self._bookmarkIcon
+
+	def _setBookmarkIcon(self, val):
+		if val in bmkIconDic.keys():
+			self._bookmarkIcon = val
+			self._setBookmarkMarker()
+		else:
+			raise ValueError, "Value of BookmarkIcon must be in %s" % (bmkIconDic.keys(),)
 
 
 	def _getBufferedDrawing(self):
@@ -2275,6 +2357,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 	def _setUseBookmarks(self, val):
 		if self._constructed():
 			self._useBookmarks = val
+			self._setBookmarkMarginVisibility()
 		else:
 			self._properties["UseBookmarks"] = val
 
@@ -2360,6 +2443,21 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 	
 	AutoIndent = property(_getAutoIndent, _setAutoIndent, None,
 			_("Controls if a newline adds the previous line's indentation  (bool)"))
+	
+	BookmarkBackColor = property(_getBookmarkBackColor, _setBookmarkBackColor, None,
+			_("The color of the icon background Default=(0,255,255) (Tuple or String)"))
+	
+	BookmarkForeColor = property(_getBookmarkForeColor, _setBookmarkForeColor, None,
+			_("The color of the icon foreground Default=(128,128,128) (Tuple or String)"))
+	
+	BookmarkIcon = property(_getBookmarkIcon, _setBookmarkIcon, None,
+			_("""The icon of bookmark that is show in the margin (default="circle") (string)
+			Available Values:
+				- "circle"
+				- "down arrow"
+				- "arrow"
+				- "arrows"
+				- "rectangle\""""))
 	
 	BufferedDrawing = property(_getBufferedDrawing, _setBufferedDrawing, None,
 			_("Setting to True (default) reduces display flicker  (bool)"))
