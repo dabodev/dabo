@@ -328,11 +328,6 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self._bookmarks = {}
 		# This holds the last saved bookmark status
 		self._lastBookmarks = []
-		# Create a timer to regularly flush the bookmarks
-		self._bookmarkTimer = bmt = dTimer.dTimer(self)
-		bmt.Interval = 20000		# 20 sec.
-		bmt.bindEvent(dEvents.Hit, self._saveBookmarks)
-		bmt.start()		
 
 		if self.UseStyleTimer:
 			self._styleTimer.mode = "container"
@@ -346,7 +341,6 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def __del__(self):
-		self._saveBookmarks()
 		self._unRegisterFunc(self)
 		super(dEditor, self).__del__()
 	
@@ -1424,8 +1418,6 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		app = self.Application
 		app.setUserSetting("editor.fontsize", self._fontSize)
 		app.setUserSetting("editor.fontface", self._fontFace)
-		# Save the bookmarks
-		self._saveBookmarks()
 		
 		#if the file extension changed, automatically set the language if extension is known.
 		fext = os.path.splitext(fname)[1]
@@ -1435,8 +1427,6 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 	
 	
 	def _saveBookmarks(self, evt=None):
-		if not self._useBookmarks:
-			self._bookmarkTimer.stop()
 		app = self.Application
 		fname = self._fileName
 		if not fname:
@@ -1449,15 +1439,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			self._lastBookmarks = currBmks
 			justFname = os.path.split(fname)[1]
 			base = ".".join(("bookmark", justFname))
-			# Clear any existing settings.
-			app.deleteAllUserSettings(base)
-			newsettings = {}
-			for nm, hnd in self._bookmarks.items():
-				ln = self.MarkerLineFromHandle(hnd)
-				setName = ".".join((base, nm))
-				newsettings[setName] = ln
-			if newsettings:
-				app.setUserSettings(newsettings)
+			app.setUserSetting(base, currBmks)
 
 
 	def isChanged(self):
@@ -1556,10 +1538,10 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		app = self.Application
 		fname = os.path.split(fileSpec)[1]
 		keyspec = ".".join(("bookmark", fname)).lower()
-		keys = app.getUserSettingKeys(keyspec)
-		for key in keys:
-			val = app.getUserSetting(".".join((keyspec, key)))
-			self.setBookmark(key, val)
+		bmks = app.getUserSetting(keyspec)
+		if bmks:
+			for (nm,line) in bmks:
+				self.setBookmark(nm, line)
 		# Restore the appearance
 		self._fontFace = app.getUserSetting("editor.fontface")
 		self._fontSize = app.getUserSetting("editor.fontsize")
@@ -2293,10 +2275,6 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 	def _setUseBookmarks(self, val):
 		if self._constructed():
 			self._useBookmarks = val
-			if val:
-				self._bookmarkTimer.start()
-			else:
-				self._bookmarkTimer.stop()
 		else:
 			self._properties["UseBookmarks"] = val
 
