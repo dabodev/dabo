@@ -434,8 +434,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		except KeyError:
 			pass
 		self._saveBookmarks()
-
-
+	
+	
 	def clearAllBookmarks(self):
 		"""Removes all bookmarks."""
 		self.MarkerDeleteAll(self._bmkPos)
@@ -449,33 +449,34 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		the current line. If there are no more bookmarks, nothing
 		happens.
 		"""
-		### NOT WORKING! GOTTA FIGURE OUT THE MASK STUFF!  ###
 		if line is None:
 			line = self.LineNumber
-# 		print "START LN", line
-		nxtLine = self.MarkerNext(line, self._bmkPos)
-# 		print "NEXT LN", nxtLine
+		line -= 1 #need Zero Based Line Number
+		if self.MarkerGet(line):
+			line += 1
+		nxtLine = self.MarkerNext(line, 1 << self._bmkPos)
+		
 		if nxtLine > -1:
 			self.moveToEnd()
-			self.LineNumber = nxtLine
-		
-		
+			self.LineNumber = nxtLine + 1
+	
+	
 	def goPrevBookMark(self, line=None):
 		"""Moves to the previous bookmark in the document. If the
 		line to start searching from is not specified, searches from
 		the current line. If there are no more bookmarks, nothing
 		happens.
 		"""
-		### NOT WORKING! GOTTA FIGURE OUT THE MASK STUFF!  ###
 		if line is None:
 			line = self.LineNumber
-		print "START LN", line
-		nxtLine = self.MarkerPrevious(line, self._bmkPos)
-		print "PREV", nxtLine
+		line -= 1 #need Zero Based Line Number
+		if self.MarkerGet(line):
+			line -= 1
+		nxtLine = self.MarkerPrevious(line, 1 << self._bmkPos)
 		if nxtLine > -1:
 			self.moveToEnd()
-			self.LineNumber = nxtLine
-		
+			self.LineNumber = nxtLine + 1
+	
 	
 	def getCurrentLineBookmark(self):
 		"""Returns the name of the bookmark for the current
