@@ -1789,6 +1789,9 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			except SyntaxError:
 				# Catch user Syntax errors like no colon after class def
 				pass
+			except AttributeError:
+				#Catch errors like module objects not having an attribute
+				pass
 		
 	def _getRuntimeObject(self, runtimeObjectName):
 		"""Given a runtimeObjectName, get the object.
