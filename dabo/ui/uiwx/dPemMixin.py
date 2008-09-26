@@ -123,7 +123,7 @@ class dPemMixin(dPemMixinBase):
 		properties = dictStringify(properties)
 
 		# Hacks to fix up various things:
-		import dMenuBar, dMenuItem, dMenu, dSlidePanelControl, dToggleButton
+		import dMenuBar, dMenuItem, dMenu, dSlidePanelControl, dToggleButton, dBorderlessButton
 		if isinstance(self, dMenuItem.dMenuItem):
 			# Hack: wx.MenuItem doesn't take a style arg,
 			# and the parent arg is parentMenu.
@@ -145,6 +145,9 @@ class dPemMixin(dPemMixinBase):
 			del self._preInitProperties["style"]
 			# This is needed because these classes require a 'parent' param.
 			kwargs["parent"] = parent
+		elif isinstance(self, (wx.lib.platebtn.PlateButton)):
+			self._preInitProperties["id_"] = self._preInitProperties["id"]
+			del self._preInitProperties["id"]
 		# This is needed when running from a saved design file
 		self._extractKey((properties, self._properties), "designerClass")
 		# This attribute is used when saving code with a design file
