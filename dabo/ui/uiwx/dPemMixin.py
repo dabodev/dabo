@@ -145,14 +145,6 @@ class dPemMixin(dPemMixinBase):
 			del self._preInitProperties["style"]
 			# This is needed because these classes require a 'parent' param.
 			kwargs["parent"] = parent
-		elif isinstance(self, dToggleButton.dToggleButton):
-			version = wx.VERSION
-			major = version[0]
-			minor = version[1]
-			if major == 2 and minor < 7:
-				# versions prior to 2.7 had the id parameter as ID, unfortunately.
-				self._preInitProperties["ID"] = self._preInitProperties["id"]
-				del self._preInitProperties["id"]
 		# This is needed when running from a saved design file
 		self._extractKey((properties, self._properties), "designerClass")
 		# This attribute is used when saving code with a design file
