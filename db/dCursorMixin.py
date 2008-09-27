@@ -362,7 +362,6 @@ class dCursorMixin(dObject):
 								_newQuery=_newQuery)
 
 		self._records = dDataSet(_records)
-
 		if self.RowCount > 0:
 			self.RowNumber = max(0, self.RowNumber)
 			maxrow = max(0, (self.RowCount-1) )
@@ -733,9 +732,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			cursor.genTempAutoPK()
 			cursor.setNewFlag()
 		"""
+		pk = None
 		if self.KeyField:
 			pk = self.getPK()
 			self._newRecords[pk] = None
+		# Add the 'new record' flag
+		self._records[self.RowNumber][kons.CURSOR_TMPKEY_FIELD] = pk
 
 
 	def genTempAutoPK(self):
@@ -1166,7 +1168,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def __saverow(self, row):
 		rec = self._records[row]
 		recKey = self.pkExpression(rec)
-		newrec = self._newRecords.has_key(recKey)
+		newrec = kons.CURSOR_TMPKEY_FIELD in rec
 		newPKVal = None
 		if newrec and self.AutoPopulatePK:
 			# Some backends do not provide a means to retrieve
@@ -2352,8 +2354,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self._table
 
 	def _setTable(self, table):
-		self._table = self.AuxCursor._table = str(table)
-		if not self._keyFieldSet:
+		self._table = self.AuxCursor._table = self.sqlManager._table = "%s" % table
+		if table and not self._keyFieldSet:
 			# Get the PK field, if any
 			try:
 				self._keyField = [fld[0] for fld in self.getFields(table)
