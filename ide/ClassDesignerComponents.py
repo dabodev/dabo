@@ -146,6 +146,21 @@ class LayoutSaverMixin(object):
 					"Height") and self.ControllingSizer.getItemProp(self, "Expand"):
 				continue
 			if isinstance(self, dabo.ui.dLabel) and prop in ("Width", "Height"):
+				# If the width/height is controlled by the sizer, don't save it.
+				csz = self.ControllingSizer
+				szornt = csz.Orientation
+				exp = csz.getItemProp(self, "Expand")
+				prptn = csz.getItemProp(self, "Proportion")
+				if szornt == "Horizontal":
+					if (prop == "Width") and (prptn > 0):
+						continue
+					elif (prop == "Height") and exp:
+						continue
+				elif szornt == "Vertical":
+					if (prop == "Width") and exp:
+						continue
+					elif (prop == "Height") and (prptn > 0):
+						continue
 				# Don't copy the size if AutoSize=True and the width is close to the default size.
 				if self.AutoResize:
 					defWd, defHt = dabo.ui.fontMetric(wind=self)

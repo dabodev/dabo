@@ -1108,6 +1108,10 @@ class ClassDesigner(dabo.dApp):
 			nm = pgDct["name"]
 			code = pgDct.get("code", {})
 			propDefs = pgDct.get("properties", {})
+			# Remove any unneeded properties
+			pgDct.pop("sizerInfo", None)
+			pgDct.pop("Width", None)
+			pgDct.pop("Height", None)
 			try:
 				imp, clsname = nm.rsplit(".", 1)
 				imptSt = "from %(imp)s import %(clsname)s" % locals()
@@ -1128,6 +1132,7 @@ class ClassDesigner(dabo.dApp):
 				pass
 			mixClass = self.getControlClass(cls)
 			wizpage = frm.append(mixClass(pp, attProperties=atts))
+# 			wizpage.AlwaysResetSizer = True
 			for mthd, cd in code.items():
 				if not self._codeDict.get(wizpage):
 					self._codeDict[wizpage] = {}
@@ -1146,11 +1151,12 @@ class ClassDesigner(dabo.dApp):
 			wizSizer.DefaultSpacing = 0
 			# The slot count before adding controls should be 4.
 			# Add any additional slots.
-			newslots = slots - 4
+			newslots = 4 - len(wizSizer.Children)
 			if newslots > 0:
 				wizSizer.SlotCount += newslots
 			self._srcObj = wizpage.Sizer.ChildWindows[-1]
 			self.recreateChildren(wizpage, kids, wizpage.Sizer, True, debug=1)
+# 			wizpage.iterateCall("layout", resetMin=True)
 		self._srcObj = saveSrc
 
 
