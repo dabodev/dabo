@@ -70,7 +70,8 @@ dabo.ui.dSizerMixin = dSizerMixin
 from dBox import dBox
 from dBitmap import dBitmap
 from dBitmapButton import dBitmapButton
-from dBorderlessButton import dBorderlessButton
+if wx.VERSION >= (2, 8, 8):
+	from dBorderlessButton import dBorderlessButton
 from dButton import dButton
 from dCalendar import dCalendar
 from dCalendar import dExtendedCalendar
