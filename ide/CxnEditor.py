@@ -273,19 +273,20 @@ class EditorForm(dui.dForm):
 		self.updtFromForm()
 		# Create a connection object.
 		ci = dabo.db.dConnectInfo(connInfo=self.connDict[self.currentConn])
+		mb = dui.stop
+		mbTitle = _("Connection Test")
 		try:
 			conn = ci.getConnection()
 			conn.close()
-		except:
-			conn = None
-		
-		if conn:
 			msg = _("The connection was successful!")
 			mb = dui.info
-		else:
-			msg = _("Unable to make connection")
-			mb = dui.stop
-		mb(message=msg, title="Connection Test")
+		except ImportError, e:
+			msg = _("Python Import Error: %s") % e
+			mbTitle += _(": FAILED!")
+		except StandardError, e:
+			msg = _("Could not connect to the database: %s") % e
+			mbTitle += _(": FAILED!")
+		mb(message=msg, title=mbTitle)
 	
 	
 	def updtFromForm(self):
