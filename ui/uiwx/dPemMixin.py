@@ -110,8 +110,8 @@ class dPemMixin(dPemMixinBase):
 					# attProperties has lower precedence, so skip it
 					continue
 				# Note: we may need to add more string props here.
-				if (val in builtinNames) and (prop in ("Caption", 
-						"FontFace", "Picture", "RegID", "ToolTipText")):
+				if (val in builtinNames) and (prop in ("Caption", "DataSource", 
+						"DataField", "FontFace", "Picture", "RegID", "ToolTipText")):
 					# It's a string that happens to be the same as a built-in name
 					attVal = val
 				else:
