@@ -433,8 +433,9 @@ class uiApp(dObject, wx.App):
 					frms.remove(frm)
 			# Now we can work with the rest
 			orphans = [frm for frm in frms
-					if frm.Parent is not app.MainForm
-					and frm is not app.MainForm]
+					if frm
+					and (frm.Parent is not app.MainForm)
+					and (frm is not app.MainForm)]
 			for orphan in orphans:
 				if orphan:
 					orphan.close(force=True)
