@@ -142,7 +142,10 @@ class LayoutSaverMixin(object):
 					## Note: there may be additional cases where we might have to fine-tune
 					## which if these parameters are skipped/included.
 				continue
-			csz = self.ControllingSizer
+			try:
+				csz = self.ControllingSizer
+			except AttributeError:
+				csz = None
 			if (hasSizer or isinstance(self, dabo.ui.dPage) or isSplitPanel) and prop in ("Width",
 					"Height") and ((csz is not None) and csz.getItemProp(self, "Expand")):
 				continue
