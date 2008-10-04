@@ -1878,10 +1878,15 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.bindEvent(dEvents.GridHeaderMouseRightUp, self._onGridHeaderMouseRightUp)
 		self.bindEvent(dEvents.GridHeaderMouseRightClick, self._onGridHeaderMouseRightClick)
 
-	
 
 	def update(self):
-		self.super()
+		"""We need to re-sync various properties after the data is updated. However,
+		with very large grids, multiple update calls can result in problems. So we 
+		use a callAfterInterval() to eliminate the duplicate calls.
+		"""
+		dabo.ui.callAfterInterval(100, self._updateSync)
+	def _updateSync(self):		
+		super(dGrid, self).update
 		self._Table._clearCache()
 		self._syncRowCount()
 		self._syncColumnCount()
