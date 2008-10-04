@@ -15,6 +15,7 @@ class connHandler(xml.sax.ContentHandler):
 				"name": "",
 				"dbtype" : "",
 				"host" : "",
+				"remotehost" : "",
 				"database" : "",
 				"user" : "",
 				"password" : "",

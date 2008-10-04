@@ -990,29 +990,39 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			rec[fld] = val
 
 
-	def getRecordStatus(self, row=None):
+	def getRecordStatus(self, row=None, pk=None):
 		""" Returns a dictionary containing an element for each changed
 		field in the specified record (or the current record if none is specified).
 		The field name is the key for each element; the value is a 2-element
 		tuple, with the first element being the original value, and the second
-		being the current value.
+		being the current value. You can specify the record by either the 
+		row number or the PK.
 		"""
 		ret = {}
-		if row is None:
-			row = self.RowNumber
+		if pk is not None:
+			recs = [r for r in self._records
+					if r[self._keyField] == pk]
+			try:
+				rec = recs[0]
+			except IndexError:
+				return ret
+		else:
+			if row is None:
+				row = self.RowNumber
+			rec = self._records[row]
+			pk = self.pkExpression(rec)
 
-		rec = self._records[row]
-		recKey = self.pkExpression(rec)
-		mem = self._mementos.get(recKey, {})
+		mem = self._mementos.get(pk, {})
 
 		for k, v in mem.items():
 			ret[k] = (v, rec[k])
 		return ret
 
 
-	def _getNewRecordDiff(self, row=None):
+	def _getNewRecordDiff(self, row=None, pk=None):
 		""" Returns a dictionary containing an element for each field
-		in the specified record (or the current record if none is specified).
+		in the specified record (or the current record if none is specified). You
+		may specify the record by either row number or PK value.
 		The field name is the key for each element; the value is a 2-element
 		tuple, with the first element being the original value, and the second
 		being the current value.
@@ -1020,10 +1030,19 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		This is used internally in __saverow, and only applies to new records.
 		"""
 		ret = {}
-		if row is None:
-			row = self.RowNumber
+		if pk is not None:
+			recs = [r for r in self._records
+					if r[self._keyField] == pk]
+			try:
+				rec = recs[0]
+			except IndexError:
+				return ret
+		else:
+			if row is None:
+				row = self.RowNumber
+			rec = self._records[row]
+			pk = self.pkExpression(rec)
 
-		rec = self._records[row]
 		for k, v in rec.items():
 			if k not in (kons.CURSOR_TMPKEY_FIELD,):
 				ret[k] = (None, v)
@@ -1066,10 +1085,39 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				if not flds and not returnInternals:
 					# user didn't specify explicit fields and doesn't want internals
 					for internal in internals:
-						if tmprec.has_key(internal):
-							del tmprec[internal]
+						tmprec.pop(internal, None)
 				ds.append(tmprec)
 		return dDataSet(ds)
+
+
+	def getDataTypes(self):
+		"""Returns the internal _types dict."""
+		return self._types
+
+
+	def _storeData(self, data, typs):
+		"""Accepts a dataset and type dict from an external source and
+		uses it as its own.
+		"""
+		# clear mementos and new record flags:
+		self._mementos = {}
+		self._newRecords = {}
+		# If None is passed as the data, exit after resetting the flags
+		if data is None:
+			return
+		# Store the values
+		self._records = data
+		self._types = typs
+		# Need to do this here to avoid lags later on.
+		self._getDataStructure()
+		# Clear the unsorted list, and then apply the current sort
+		self.__unsortedRows = []
+		if self.sortColumn:
+			try:
+				self.sort(self.sortColumn, self.sortOrder)
+			except dException.NoRecordsException, e:
+				# No big deal
+				pass
 
 
 	def replace(self, field, valOrExpr, scope=None):
@@ -1318,6 +1366,31 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		except KeyError:
 			# didn't exist
 			pass
+
+
+	def getDataDiff(self, allRows=False):
+		"""Create a compact representation of all the modified records
+		for this cursor.
+		"""
+		diff = []
+		def rowDiff(pk):
+			newrec = pk in self._newRecords
+			if newrec:
+				ret = self._getNewRecordDiff(pk=pk)
+			else:
+				ret = self.getRecordStatus(pk=pk)
+			ret[self._keyField] = pk
+			ret[kons.CURSOR_TMPKEY_FIELD] = newrec
+			return ret
+			
+		if allRows:
+			for pk in self._mementos.keys():
+				diff.append(rowDiff(pk))
+		else:
+			pk = self.getPK()
+			if pk in self._mementos:
+				diff.append(rowDiff(pk))
+		return diff
 
 
 	def pregenPK(self):

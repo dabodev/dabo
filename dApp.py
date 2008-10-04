@@ -22,6 +22,8 @@ from dabo import dSecurityManager
 from dabo.lib.SimpleCrypt import SimpleCrypt
 from dabo.dObject import dObject
 from dabo import dUserSettingProvider
+from dabo.lib.RemoteConnector import _RemoteConnector as remote
+
 
 
 class Collection(list):
@@ -224,13 +226,18 @@ class dApp(dObject):
 		self.default_form = None
 		# Dict of "Last-Modified" values for dynamic web resources
 		self._sourceLastModified = {}
-
+		
 		# For simple UI apps, this allows the app object to be created
 		# and started in one step. It also suppresses the display of
 		# the main form.
 		if selfStart:
 			self.showMainFormOnStart = False
 			self.setup()
+
+		self._initDB()
+
+		# If running as a web app, sync the files
+		self.syncFiles()
 
 		self._afterInit()
 		self.autoBindEvents()
@@ -267,7 +274,7 @@ class dApp(dObject):
 
 		self._initModuleNames()
 		self._initDB()
-		
+
 		if initUI:
 			self._initUI()
 			if self.UI is not None:
@@ -654,6 +661,44 @@ class dApp(dObject):
 		if newFile:
 			file(pth, "w").write(newFile)
 			dabo.infoLog.write(_("File %s updated") % pth)
+
+
+	def updateFromSource(self, fileOrFiles):
+		"""This method takes either a single file path or a list of paths, and if there
+		is a SourceURL set, checks the source to see if there are newer versions available,
+		and if so, downloads them.
+		"""
+		if not self.SourceURL:
+			# Nothing to do
+			return
+		if isinstance(fileOrFiles, (list, tuple)):
+			for f in fileOrFiles:
+				self.updateFromSource(f)
+			return
+		pth = fileOrFiles
+		cwd = os.getcwd()
+		# The srcFile has an absolute path; the URLs work on relative.
+		try:
+			splt = srcFile.split(cwd)[1].lstrip("/")
+		except IndexError:
+			splt = srcFile
+		app.urlFetch(splt)
+		try:
+			nm, ext = os.path.splitext(splt)
+		except ValueError:
+			# No extension; skip it
+			nm = ext = ""
+		if ext == ".cdxml":
+			# There might be an associated code file. If not, the error
+			# will be caught in the app method, and no harm will be done.
+			codefile = "%s-code.py" % nm
+			app.urlFetch(codefile)
+
+
+	@remote
+	def syncFiles(self):
+		# Currently only used in web mode
+		pass
 
 
 	def getUserSettingKeys(self, spec):

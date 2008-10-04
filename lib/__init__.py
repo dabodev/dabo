@@ -9,6 +9,20 @@
 
 import uuid
 
+try:
+	import dejavuJSON
+except:
+	jsonConverter = None
+	def jsonEncode(val): raise ImportError, "The simplejson module is not installed"
+	def jsonDecode(val): raise ImportError, "The simplejson module is not installed"
+else:
+	jsonConverter = dejavuJSON.Converter()
+	def jsonEncode(val):
+		return jsonConverter.dumps(val)
+	
+	def jsonDecode(val):
+		return jsonConverter.loads(val)
+
 
 def getRandomUUID():
 	return str(uuid.uuid4())
