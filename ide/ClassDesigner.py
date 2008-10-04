@@ -971,8 +971,12 @@ class ClassDesigner(dabo.dApp):
 					obj.setPropertiesFromAtts({"Orientation": ornt})
 					if splt:
 						dabo.ui.setAfter(obj, "Split", True)
-				sz = obj.ControllingSizer
-				itm = obj.ControllingSizerItem
+				try:
+					sz = obj.ControllingSizer
+					itm = obj.ControllingSizerItem
+				except AttributeError:
+					sz = None
+					itm = None
 				if sz is not None and itm is not None:
 					sz.setItemProps(itm, sizerInfoDict)
 				if classID:
