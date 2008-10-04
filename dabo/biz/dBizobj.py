@@ -8,7 +8,7 @@ from dabo.db.dCursorMixin import dCursorMixin
 from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
-
+from dabo.lib.RemoteConnector import _RemoteConnector as remote
 
 NO_RECORDS_PK = "75426755-2f32-4d3d-86b6-9e2a1ec47f2c"  ## Can't use None
 
@@ -111,6 +111,10 @@ class dBizobj(dObject):
 			self.createCursor()
 
 
+	def _getConnection(self):
+		return self._connection
+
+
 	def getTempCursor(self):
 		"""Occasionally it is useful to be able to run ad-hoc queries against
 		the database. For these queries, where the results are not meant to
@@ -171,6 +175,7 @@ class dBizobj(dObject):
 			crs.requery()
 			self.first()
 		self.afterCreateCursor(crs)
+		return crs
 
 
 	def _getCursorClass(self, main, secondary):
@@ -261,6 +266,7 @@ class dBizobj(dObject):
 		self.afterLast()
 
 
+	@remote
 	def beginTransaction(self):
 		"""Attempts to begin a transaction at the database level, and returns
 		True/False depending on its success. 
@@ -271,6 +277,7 @@ class dBizobj(dObject):
 		return ret
 
 
+	@remote
 	def commitTransaction(self):
 		"""Attempts to commit a transaction at the database level, and returns
 		True/False depending on its success. 
@@ -281,6 +288,7 @@ class dBizobj(dObject):
 		return ret
 
 
+	@remote
 	def rollbackTransaction(self):
 		"""Attempts to rollback a transaction at the database level, and returns
 		True/False depending on its success. 
@@ -327,6 +335,7 @@ class dBizobj(dObject):
 				del(dabo._bizTransactionToken)
 
 
+	@remote
 	def saveAll(self, startTransaction=True):
 		"""Saves all changes to the bizobj and children."""
 		cursor = self._CurrentCursor
@@ -362,6 +371,7 @@ class dBizobj(dObject):
 				dabo.errorLog.write(_("Failed to set RowNumber. Error: %s") % e)
 
 
+	@remote
 	def save(self, startTransaction=True):
 		"""Save any changes that have been made in the current row.
 
@@ -485,6 +495,7 @@ class dBizobj(dObject):
 		self.afterDeleteAllChildren()
 
 
+	@remote
 	def delete(self, startTransaction=True, inLoop=False):
 		"""Delete the current row of the data set."""
 		cursor = self._CurrentCursor
@@ -573,6 +584,24 @@ class dBizobj(dObject):
 		"""
 		self._syncWithCursors()
 		return self._CurrentCursor.executeSafe(sql, params)
+
+
+	def getDataDiff(self, allRows=False):
+		"""Get a dict that is keyed on the hash value of this bizobj, with the value
+		being  a list of record changes. Default behavior is to only consider the
+		current row; you can change that by passing allRows=True. Each changed 
+		row will be present in the diff, with its PK and any columns whose values
+		have changed. If there are any related child bizobjs, their diffs will be
+		added to the dict under the key 'children' so that they can be processed
+		accordingly.
+		"""
+		diff = {hash(self): self._CurrentCursor.getDataDiff(allRows=allRows)}
+		kids = []
+		for child in self.__children:
+			kids.append(child.getDataDiff(allRows=True))
+		if kids:
+			diff["children"] = kids
+		return diff
 
 
 	def getChangedRows(self, includeNewUnchanged=False):
@@ -786,6 +815,7 @@ class dBizobj(dObject):
 			self.UserSQL = sql
 
 
+	@remote
 	def requery(self):
 		""" Requery the data set.
 
@@ -1278,7 +1308,7 @@ class dBizobj(dObject):
 		if self.KeyField is None:
 			raise dException.dException, _("No key field defined for table: ") + self.DataSource
 		cc = self._CurrentCursor
-		return cc.getFieldVal(cc.KeyField)
+		return cc.getFieldVal(self.KeyField)
 
 
 	def getParentPK(self):
@@ -1392,7 +1422,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		callback(self._rowTemplate % ("%s%s" % (xml, kidXML)), level)
 
 
-	def getDataSet(self, flds=(), rowStart=0, rows=None):
+	def getDataSet(self, flds=(), rowStart=0, rows=None, returnInternals=False):
 		""" Get the entire data set encapsulated in a list.
 
 		If the optional	'flds' parameter is given, the result set will be filtered
@@ -1402,8 +1432,20 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		ret = None
 		cc = self._CurrentCursor
 		if cc is not None:
-			ret = self._CurrentCursor.getDataSet(flds, rowStart, rows)
+			ret = self._CurrentCursor.getDataSet(flds, rowStart, rows, returnInternals=returnInternals)
 		return ret
+
+
+	def getDataTypes(self):
+		"""Returns the field type definitions as set in the cursor."""
+		return self._CurrentCursor.getDataTypes()
+
+
+	def _storeData(self, data, typs):
+		"""Accepts a data set and type defintion dict, and updates the cursor
+		with these values.
+		"""
+		self._CurrentCursor._storeData(data, typs)
 
 
 	def getDataStructure(self):
@@ -1646,10 +1688,12 @@ values and not trigger the memento system, override onNew() instead.
 with the afterSave() hook which only gets called after a save(), and the 
 afterDelete() which is only called after a delete().""")	
 
+
 	def afterCreateCursor(self, crs):
 		"""This hook is called after the underlying cursor object is created.
 		The crs argument will contain the reference to the newly-created
 		cursor."""
+
 
 	def _syncWithCursors(self):
 		"""Many bizobj properties need to be passed through to the cursors
@@ -1672,7 +1716,16 @@ afterDelete() which is only called after a delete().""")
 		crs.Encoding = self.Encoding
 		crs.KeyField = self._keyField
 		crs.setNonUpdateFields(self._nonUpdateFields)
-	
+
+
+	def _cursorDictReference(self):
+		"""In rare situations, bizobj subclasses may need to reference the 
+		internal __cursors attribute. This provides a way to do that, but 
+		it should be stressed that this is potentially dangerous and could 
+		lead to lost data if not handled correctly.
+		"""
+		return self.__cursors
+
 
 	## Property getter/setter methods ##
 	def _getAutoPopulatePK(self):

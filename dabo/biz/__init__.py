@@ -20,6 +20,8 @@ So, dabo.biz sits in between dabo.db and dabo.ui
 
 """
 from dBizobj import dBizobj
+from RemoteBizobj import RemoteBizobj
+
 from dAutoBizobj import dAutoBizobj
 from dAutoBizobj import autoCreateTables
 from dAutoBizobj import autoCreateTables

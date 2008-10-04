@@ -68,7 +68,9 @@ class DBNoDBOnHostException(DatabaseException):
 	pass
 
 class DBQueryException(DatabaseException):
-	def __init__(self, err, sql):
+	def __init__(self, err, sql=None):
+		if sql is None:
+			sql = ""
 		self.sql = sql
 		self.err_desc = "%s" % err
 		
@@ -76,4 +78,7 @@ class DBQueryException(DatabaseException):
 		return self.err_desc + '\nSQL: ' + self.sql
 
 class XmlException(dException):
+	pass
+
+class WebServerException(dException):
 	pass
