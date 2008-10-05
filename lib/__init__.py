@@ -8,20 +8,7 @@
 #	import dabo.lib.ofFunctions as oFox
 
 import uuid
-
-try:
-	import dejavuJSON
-except:
-	jsonConverter = None
-	def jsonEncode(val): raise ImportError, "The simplejson module is not installed"
-	def jsonDecode(val): raise ImportError, "The simplejson module is not installed"
-else:
-	jsonConverter = dejavuJSON.Converter()
-	def jsonEncode(val):
-		return jsonConverter.dumps(val)
-	
-	def jsonDecode(val):
-		return jsonConverter.loads(val)
+import dabo
 
 
 def getRandomUUID():
@@ -30,3 +17,32 @@ def getRandomUUID():
 
 def getMachineUUID():
 	return str(uuid.uuid1())
+
+
+try:
+	import simplejson
+except:
+	jsonConverter = None
+	def jsonEncode(val): raise ImportError, "The simplejson module is not installed"
+	def jsonDecode(val): raise ImportError, "The simplejson module is not installed"
+else:
+	import dejavuJSON
+	jsonConverter = dejavuJSON.Converter()
+	def jsonEncode(val):
+		return jsonConverter.dumps(val)
+	
+	def jsonDecode(val):
+		ret = None
+		try:
+			ret = jsonConverter.loads(val)
+		except UnicodeDecodeError:
+			# Try typical encodings, starting with the default.
+			for enctype in (dabo.defaultEncoding, "utf-8", "latin-1"):
+				try:
+					ret = jsonConverter.loads(val, enctype)
+					break
+				except UnicodeDecodeError:
+					continue
+		if ret is None:
+			raise
+		return ret
