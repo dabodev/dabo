@@ -60,6 +60,8 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 		"""Combine the Caption and HotKey into the format needed by wxPython."""
 		cap = self.Caption
 		hk = self.HotKey
+		if not cap:
+			return
 		if hk:
 			cap = "%s\t%s" % (cap, hk)
 		curr = self.GetText()
