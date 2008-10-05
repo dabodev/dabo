@@ -31,7 +31,7 @@ class dConnectInfo(dObject):
 			"Port" : 3306, "Database" : "myData", "Name" : "mainConnection"}
 		ci = dConnectInfo(connInfo=connDict)
 		
-	Or, finally, you can create the object and then set the props
+	Or you can create the object and then set the props
 	individually:
 
 		ci = dConnectInfo()
@@ -41,11 +41,14 @@ class dConnectInfo(dObject):
 		ci.PlainTextPassword = "secret"
 		ci.Database = "myData"
 		ci.Name = "mainConnection"
+	
+	If you are running a remote app, should set the RemoteHost property instead of Host. The
+	DbType will be "web".
 	"""
 	def __init__(self, connInfo=None, **kwargs):
 		self._baseClass = dConnectInfo
 		self._backendObject = None
-		self._host = self._user = self._password = self._dbType = self._database = self._port = self._name = ""
+		self._host = self._user = self._password = self._dbType = self._database = self._port = self._name = self._remoteHost = ""
 		super(dConnectInfo, self).__init__(**kwargs)
 		if connInfo:
 			self.setConnInfo(connInfo)
@@ -85,7 +88,8 @@ class dConnectInfo(dObject):
 		# a valid property name, raise TypeError.
 		mapping = {"name": "Name", "dbtype": "DbType", "host": "Host",
 				"user": "User", "password": "Password", "database": "Database", 
-				"plaintextpassword": "PlainTextPassword", "port": "Port"}
+				"plaintextpassword": "PlainTextPassword", "port": "Port", 
+				"remotehost": "RemoteHost"}
 		for k, v in connDict.items():
 			prop = mapping.get(k, None)
 			if prop:
@@ -165,6 +169,9 @@ class dConnectInfo(dObject):
 				elif nm == "oracle":
 					import dbOracle
 					self._backendObject = dbOracle.Oracle()
+				elif nm == "web":
+					import dbWeb
+					self._backendObject = dbWeb.Web()
 				else:
 					raise ValueError, "Invalid database type: %s." % nm
 			except ImportError:
@@ -199,13 +206,6 @@ class dConnectInfo(dObject):
 		self._name = val
 
 
-	def _getUser(self): 
-		return self._user
-		
-	def _setUser(self, user): 
-		self._user = user
-
-
 	def _getPassword(self): 
 		return self._password
 		
@@ -224,6 +224,22 @@ class dConnectInfo(dObject):
 			self._port = int(port)
 		except ValueError:
 			self._port = None		
+
+
+	def _getRemoteHost(self):
+		return self._remoteHost
+		
+	def _setRemoteHost(self, host): 
+		self._remoteHost = host
+
+
+	def _getUser(self): 
+		return self._user
+		
+	def _setUser(self, user): 
+		self._user = user
+
+
 
 
 	DbType = property(_getDbType, _setDbType, None,
@@ -247,6 +263,9 @@ class dConnectInfo(dObject):
 
 	Port = property(_getPort, _setPort, None, 
 			_("The port to connect on (may not be applicable for all databases). (int)"))
+
+	RemoteHost = property(_getRemoteHost, _setRemoteHost, None, 
+			_("When running as a web app, this holds the host URL. (str)"))
 
 	User = property(_getUser, _setUser, None,
 			_("The user name. (str)"))
