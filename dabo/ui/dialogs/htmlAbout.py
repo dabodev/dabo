@@ -30,16 +30,24 @@ class HtmlAbout(dabo.ui.dDialog):
 				border=30)
 
 		# Copy info
-		btnCopy = dabo.ui.dButton(pnlBack, Caption=_("Copy Info"))
-		btnCopy.bindEvent(dEvents.Hit, self.onCopyInfo)
-		sz.append(btnCopy, 0, halign="right")
+		btnCopy = dabo.ui.dButton(pnlBack, Caption=_("Copy Info"),
+				OnHit=self.onCopyInfo)
+		btnClose = dabo.ui.dButton(pnlBack, Caption=_("OK"),
+				OnHit=self.onClose)
+		hsz = dabo.ui.dSizer("H")
+		hsz.append(btnCopy)
+		hsz.appendSpacer(20)
+		hsz.append(btnClose)
+		sz.append(hsz, halign="right", border=30, borderSides=["right"])
 
 		sz.append((0,20))
-
 		self.Layout()
-		pnlBack.Fit()
 
 		self.htmlBox.Source = self.writeHtmlPage()
+
+
+	def onClose(self, evt):
+		self.close()
 
 
 	def writeHtmlPage(self):
@@ -70,11 +78,8 @@ class HtmlAbout(dabo.ui.dDialog):
 		ds.append({"name": "Dabo Version:", "value": "Version %s; Revision %s"
 				% (dabo.version["version"], dabo.version["revision"])})
 
-#		uiName = dabo.ui.uiType["longName"]
-
 		ds.append({"name": "UI Version:", "value": "%s on %s" % (dabo.ui.uiType["version"],
 				dabo.ui.uiType["platform"])})
-
 		return ds
 
 
