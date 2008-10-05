@@ -56,6 +56,7 @@ class SQLite(dBackend):
 		pth = pth.decode(sys.getfilesystemencoding()).encode("utf-8")
 		# Need to specify "isolation_level=None" to have transactions working correctly.
 		self._connection = self.dbapi.connect(pth, factory=DictConnection, isolation_level=None)
+		self._connection.connectInfo = connectInfo
 		return self._connection
 		
 
