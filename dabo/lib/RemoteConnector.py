@@ -90,16 +90,31 @@ class _RemoteConnector(object):
 		try:
 			res = self.UrlOpener.open(url, data=prm)
 		except urllib2.HTTPError, e:
-			print "ERR %s" % e
+			dabo.errorLog.write("HTTPError: %s" % e)
 			return None
 		ret = res.read()
 		return ret
 
 
 	def _storeEncodedDataSet(self, enc):	
-		data, typs = dabo.lib.jsonDecode(enc)
-		# 'typs' is pickled, as it has actual Python types, and cannot be JSON encoded.
-		typs = pickle.loads(typs)
+		pdata, ptyps = dabo.lib.jsonDecode(enc)
+		# Both values are pickled, so we need to unpickle them first
+		def safeLoad(val):
+			ret = None
+			try:
+				ret = pickle.loads(val)
+			except UnicodeEncodeError, e:
+				for enctype in (dabo.defaultEncoding, "utf-8", "latin-1"):
+					try:
+						ret = pickle.loads(val.encode(enctype))
+						break
+					except KeyError:
+						continue
+			if ret is None:
+				raise UnicodeEncodeError, e
+			return ret
+		typs = safeLoad(ptyps)
+		data = safeLoad(pdata)
 		self.obj._storeData(data, typs)
 
 
@@ -208,7 +223,7 @@ class _RemoteConnector(object):
 		# A zero filecode represents no changed files
 		if filecode:
 			# Request the files
-			url = self._getManifestUrl("files", str(filecode))
+			url = self._getManifestUrl(appname, "files", str(filecode))
 			try:
 				res = self.UrlOpener.open(url)
 			except urllib2.HTTPError, e:

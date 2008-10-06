@@ -61,8 +61,10 @@ class RemoteBizobj(dBizobj):
 		crs.execute(sql, (hashval, ))
 		if crs.RowCount:
 			biz.KeyField = crs.Record.keyfield
-			# Unpickle
-			crsData = pickle.loads(crs.Record.pickledata)
+			try:
+				crsData = pickle.loads(crs.Record.pickledata)
+			except UnicodeEncodeError:
+				crsData = pickle.loads(crs.Record.pickledata.encode("utf-8"))
 			# This is a dict with cursor keys as the keys, and 
 			# values as a (dataset, typedef) tuple.
 			for kk, (ds, typinfo) in crsData.items():
@@ -105,9 +107,19 @@ class RemoteBizobj(dBizobj):
 		cursorDict = self._cursorDictReference()
 		for kk, cursor in cursorDict.items():
 			pd[kk] = (cursor.getDataSet(returnInternals=True), cursor.getDataTypes())
-		pklData = pickle.dumps(pd, pickle.HIGHEST_PROTOCOL)
-		print
-		print "PKTYP", type(pklData)
+		pklData = pickle.dumps(pd, 0)
+		enctype = ""
+		if isinstance(pklData, str):
+			try:
+				unicode(pklData, "utf-8")
+			except UnicodeDecodeError:
+				# Try typical encodings, starting with the default.
+				for enctype in (self.Encoding, "utf-8", "latin-1"):
+					try:
+						pklData = unicode(pklData, enctype)
+						break
+					except UnicodeDecodeError:
+						continue
 		crs.execute(sql, (hashval, updated, self.KeyField, pklData))
 
 
