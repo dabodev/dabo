@@ -2344,9 +2344,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Return True if the current record is a new record."""
 		if self.RowCount <= 0:
 			return False
-		recKey = self.pkExpression()
-		ret = self._newRecords.has_key(recKey)
-		return ret
+		try:
+			getattr(self.Record, kons.CURSOR_TMPKEY_FIELD)
+			return True
+		except dException.FieldNotFoundException:
+			return False
 
 
 	def _getIsPrefCursor(self):
