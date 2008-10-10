@@ -1795,8 +1795,9 @@ class ReportWriter(object):
 					# to ignore those if present, and make report["TestCursor"] a list of
 					# records.
 					cursor = formdict.addElement(TestCursor)
-					for childrecord in child["children"]:
-						cursor.addRecord(childrecord["attributes"])
+					if child.has_key("children"):
+						for childrecord in child["children"]:
+							cursor.addRecord(childrecord["attributes"])
 				elif child.has_key("cdata"):
 					formdict[child["name"]] = child["cdata"]
 				elif child.has_key("attributes"):
