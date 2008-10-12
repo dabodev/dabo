@@ -1366,6 +1366,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		except KeyError:
 			# didn't exist
 			pass
+		# Remove the temp key field column, if still present.
+		rec.pop(kons.CURSOR_TMPKEY_FIELD, None)
 
 
 	def getDataDiff(self, allRows=False):
