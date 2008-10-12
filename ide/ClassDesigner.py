@@ -2376,7 +2376,7 @@ class ClassDesigner(dabo.dApp):
 		if isinstance(fromSz, dui.dBorderSizer):
 			toSz = LayoutSizer()
 		else:
-			toSz = LayoutBorderSizer(parent)
+			toSz = LayoutBorderSizer(box=dui.dBox(parent))
 		toSz.Orientation = ornt
 		memberItems = fromSz.Children
 		members = [fromSz.getItem(mem) for mem in memberItems]
