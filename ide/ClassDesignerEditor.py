@@ -357,8 +357,12 @@ class EditorForm(dui.dForm):
 	def onCheckSyntax(self, evt):
 		ed = self.editor
 		txt = ed.Value
+		lns = txt.strip().splitlines()
+		# Add an extra blank line to get around the trailing comment bug
+		lns.append("")
+		compText = "\n".join(lns)
 		try:
-			compile(txt.strip(), "", "exec")
+			compile(compText, "", "exec")
 			dabo.ui.exclaim(_("No syntax errors found!"), _("Compilation Succeeded"))
 		except SyntaxError, e:
 			errMsg = "%s" % e
