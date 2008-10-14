@@ -616,8 +616,11 @@ class uiApp(dObject, wx.App):
 							k.cancel()
 							if k in keysToRevert:
 								k.AutoPersist = True
-				if dlgPref.Modal:
-					dlgPref.release()
+				try:
+					if dlgPref.Modal:
+						dlgPref.release()
+				except dabo.ui.deadObjectException:
+					pass
 			else:
 				dabo.infoLog.write(_("Stub: dApp.onEditPreferences()"))
 
