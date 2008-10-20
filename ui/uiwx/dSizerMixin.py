@@ -379,6 +379,8 @@ class dSizerMixin(dObject):
 		elif lowprop == "spacing":
 			if isinstance(val, int):
 				val = (val, val)
+			elif isinstance(val, basestring):
+				val = (int(val), int(val))
 			try:
 				ret = itm.SetSpacer(val)
 				ret = True
