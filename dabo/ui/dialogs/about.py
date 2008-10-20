@@ -50,9 +50,15 @@ class About(dabo.ui.dDialog):
 		sz.append1x(eg)
 
 		# Copy info
-		btnCopy = dabo.ui.dButton(pnlBack, Caption=_("Copy Info"))
-		btnCopy.bindEvent(dEvents.Hit, self.onCopyInfo)
-		sz.append(btnCopy, 0, halign="right")
+		btnCopy = dabo.ui.dButton(pnlBack, Caption=_("Copy Info"),
+				OnHit=self.onCopyInfo)
+		btnClose = dabo.ui.dButton(pnlBack, Caption=_("OK"),
+				OnHit=self.onClose)
+		hsz = dabo.ui.dSizer("H")
+		hsz.append(btnCopy)
+		hsz.appendSpacer(20)
+		hsz.append(btnClose)
+		sz.append(hsz, halign="right")
 
 		sz.append((0,20))		
 
