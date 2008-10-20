@@ -931,7 +931,7 @@ class LayoutSpacerPanel(LayoutPanel):
 
 
 	def _getDesProps(self):
-		return {"Spacing": {"type" : tuple, "readonly" : False}}
+		return {"Spacing": {"type" : int, "readonly" : False}}
 
 
 	def _getSpacing(self):
@@ -1015,6 +1015,13 @@ class LayoutSizerMixin(LayoutSaverMixin):
 		insideClass = clsChildren is not None
 		if insideClass:
 			childDict = clsChildren.get("children", [])
+		if isinstance(self, dabo.ui.dGridSizer):
+			szType = "Grid"
+		else:
+			try:
+				szType = self.Orientation
+			except AttributeError:
+				szType = None
 
 		for kid in kids:
 			isSpacer = False
@@ -1024,7 +1031,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 				itmDict[prop] = self.getItemProp(kid,  prop)
 			kidItem = self.getItem(kid)
 			try:
-				defProps = self.Controller.getDefaultSizerProps(kidItem.superControl)
+				defProps = self.Controller.getDefaultSizerProps(kidItem.superControl, szType)
 				itmDiffDict = self._diffSizerItemProps(itmDict, defProps, direct=True)
 			except AttributeError:
 				itmDiffDict = self._diffSizerItemProps(itmDict, self)
