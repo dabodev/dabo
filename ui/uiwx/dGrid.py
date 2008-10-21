@@ -103,19 +103,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def GetColLabelValue(self, col):
-		if sys.platform[:3] != "win":
-			# Windows performs better drawing the header in response to EVT_PAINT,
-			# while Mac and Linux perform better doing it the old way, in response
-			# to table.getColLabelValue().
-			colObj = self.grid._columns[col]
-			# Linux performs horribly with the callAfter(); Mac doesn't draw
-			# correctly without it!
-			if sys.platform[:6] == "darwin":
-				#self.grid._paintHeader(colObj)             ## Doesn't paint all columns; misplaces the horizontal location.
-				#dabo.ui.callAfter(self.grid._paintHeader)  ## Draws same headers multiple times, overlapping a little.
-				dabo.ui.callAfterInterval(1, self.grid._paintHeader, colObj)  ## Still leaves artifacts around the grid, but the best I can do right now.
-			else:
-				self.grid._paintHeader(colObj)
 		return ""
 
 
@@ -668,7 +655,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 		# Thanks Roger Binns:
 		left = -grid.GetViewStart()[0] * grid.GetScrollPixelsPerUnit()[0]
-
 		for col in range(self.Parent.ColumnCount):
 			colObj = self.Parent.Columns[col]
 			if colObj == self:
@@ -688,7 +674,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			#		self.Parent.Header.Refresh()
 			#		self.Parent._paintHeader(self._GridColumnIndex)
 			self.Parent.SetColLabelValue(self._GridColumnIndex, "")
-
 
 	def _refreshGrid(self):
 		"""Refresh the grid region, not the header region."""
@@ -1893,6 +1878,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._syncCurrentRow()
 
 
+	def _refreshHeader(self):
+		self._getWxHeader().Refresh()
+
+
 	def GetCellValue(self, row, col, useCache=True):
 		try:
 			ret = self._Table.GetValue(row, col, useCache=useCache)
@@ -2291,30 +2280,24 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	
 
-	def _paintHeader(self, colObj=None):
+	def _paintHeader(self):
 		w = self._getWxHeader()
-		dc = wx.ClientDC(w)
-		
-		if colObj is None:
-			# Normal case: from EVT_PAINT
-			updateBox = w._updateBox
-		else:
-			# Special case: redraw the header for a specific column
-			updateBox = colObj._getHeaderRect()
+		dc = wx.PaintDC(w)
+		updateBox = w.GetUpdateRegion().GetBox()
 
-		x1 = updateBox[0]
-		x2 = x1 + updateBox[2]
+		for col in self._columns:
+			headerRect = col._getHeaderRect()
+			intersect = wx.IntersectRect(updateBox, headerRect)
+			if intersect is None:
+				# column isn't visible
+				continue
 
-		while x2 > x1:
 			sortIndicator = False
-			left = x1
-			colObj = self.getColByX(left+1)
+			colObj = self.getColByX(intersect[0])
 			if not colObj:
 				# Grid is probably being created or destroyed, so just return
 				return
-			x1 += colObj.Width
-			rect = colObj._getHeaderRect()
-			dc.SetClippingRegion(rect.x, rect.y, rect.width, rect.height)
+			dc.SetClippingRegion(*headerRect)
 	
 			holdBrush = dc.GetBrush()
 			holdPen = dc.GetPen()
@@ -2335,11 +2318,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 			if bcolor is not None:
 				dc.SetBrush(wx.Brush(bcolor, wx.SOLID))
-				dc.SetPen(wx.Pen(None, width=0))
-				dc.DrawRectangle(rect[0],
-					rect[1],
-					rect[2],
-					rect[3])
+				dc.SetPen(wx.Pen(fcolor, width=0))
+				dc.DrawRectangle(*headerRect)
 			dc.SetPen(holdPen)
 			dc.SetBrush(holdBrush)
 
@@ -2347,8 +2327,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				sortIndicator = True
 				# draw a triangle, pointed up or down, at the top left
 				# of the column. TODO: Perhaps replace with prettier icons
-				left = rect[0] + self.sortIndicatorBuffer
-				top = rect[1] + self.sortIndicatorBuffer
+				left = headerRect[0] + self.sortIndicatorBuffer
+				top = headerRect[1] + self.sortIndicatorBuffer
 
 				brushColor = dColors.colorTupleFromName(self.sortIndicatorColor)
 				dc.SetBrush(wx.Brush(brushColor, wx.SOLID))
@@ -2394,7 +2374,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			if sortIndicator:
 				# If there's a sort indicator, we'll nudge the caption over
 				sortBuffer += (self.sortIndicatorBuffer + self.sortIndicatorSize)
-			trect = list(rect)
+			trect = list(headerRect)
 			trect[0] = trect[0] + sortBuffer
 			trect[1] = trect[1] + vertBuffer
 			if ah == "Center":
@@ -3150,7 +3130,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		colNum = evt.EventData["col"]
 		col = self.Columns[colNum]
 		colName = "Column_%s" % col.DataField
-
 		# Sync our column object up with what the grid is reporting, and because
 		# the user made this change, save to the userSettings:
 		width = col.Width = self.GetColSize(colNum)
@@ -3470,11 +3449,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxGridColSize(self, evt):
-		if self.ResizableColumns and self.Columns[evt.GetRowOrCol()].Resizable:
+		col = evt.GetRowOrCol()
+		if self.ResizableColumns and self.Columns[col].Resizable:
 			self.raiseEvent(dEvents.GridColSize, evt)
 		else:
+			# need to reference the Width property for some reason:
+			self.Columns[col].Width
 			evt.Veto()
-			self._paintHeader(colObj=self.Columns[evt.GetRowOrCol()])
+			self._refreshHeader()
 
 
 	def __onWxGridSelectCell(self, evt):
@@ -3733,14 +3715,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def __onWxHeaderPaint(self, evt):
 		self.raiseEvent(dEvents.GridHeaderPaint, evt)
-		evt.Skip()
-		if sys.platform[:3] == "win":
-			# Windows performs better drawing the header in response to EVT_PAINT,
-			# while Mac and Linux perform better doing it the old way, in response
-			# to table.getColLabelValue().
-			w = self._getWxHeader()
-			w._updateBox = w.GetUpdateRegion().GetBox()
-			dabo.ui.callAfter(self._paintHeader)
+		#evt.Skip()
+		self._paintHeader()
 
 
 	def _getColRowForPosition(self, pos):
