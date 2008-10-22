@@ -79,7 +79,11 @@ class dSizerMixin(dObject):
 		for item in items:
 			ret.append(self.append(item, *args, **kwargs))
 		return ret
-	appendItems.__doc__ += _doc_additions	
+	try:
+		appendItems.__doc__ += _doc_additions
+	except TypeError:
+		# If compressed to .pyo, __doc__ will be None.
+		pass	
 			
 	def append(self, obj, layout="normal", proportion=0, alignment=None,
 			halign="left", valign="top", border=None, borderSides=None):
@@ -87,7 +91,11 @@ class dSizerMixin(dObject):
 		return self.insert(len(self.Children), obj, layout=layout, proportion=proportion, 
 				alignment=alignment, halign=halign, valign=valign, border=border, 
 				borderSides=borderSides)
-	append.__doc__ += _doc_additions
+	try:
+		append.__doc__ += _doc_additions
+	except TypeError:
+		# If compressed to .pyo, __doc__ will be None.
+		pass	
 
 	def append1x(self, obj, **kwargs):
 		"""Shorthand for sizer.append(obj, 1, "expand"). """
@@ -125,7 +133,11 @@ class dSizerMixin(dObject):
 			if ret.IsSizer():
 				obj._parent = self._parent
 		return ret
-	insert.__doc__ += _doc_additions		
+	try:
+		insert.__doc__ += _doc_additions
+	except TypeError:
+		# If compressed to .pyo, __doc__ will be None.
+		pass	
 	
 	def layout(self):
 		"""Layout the items in the sizer.
@@ -150,7 +162,11 @@ class dSizerMixin(dObject):
 		return self.insert(0, obj, layout=layout, proportion=proportion,
 				alignment=alignment, halign=halign, valign=valign, border=border,
 				borderSides=None)
-	prepend.__doc__ += _doc_additions
+	try:
+		prepend.__doc__ += _doc_additions
+	except TypeError:
+		# If compressed to .pyo, __doc__ will be None.
+		pass	
 	
 	def remove(self, item, destroy=None):
 		"""This will remove the item from the sizer. It will not cause
