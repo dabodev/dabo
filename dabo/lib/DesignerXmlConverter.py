@@ -379,6 +379,20 @@ class DesignerXmlConverter(dObject):
 				spc = atts.get("Spacing", "10")
 				spcObjDef = spcObjDef % locals()
 				self.classText += LINESEP + self._spcText % locals()
+
+			elif clsname == "LayoutPanel":
+				if isinstance(szInfo, basestring):
+					szInfo = eval(szInfo)
+				defSizerInfo = {"Expand": True,  "Proportion": 1}
+				defSizerInfo.update(szInfo)
+				szInfo = defSizerInfo
+				if self.CreateDesignerControls:
+					superName = "getControlClass(%s.%s)" % (modpath, "dPanel")
+				else:
+					superName = "%s.%s" % (modpath, "dPanel")
+				attPropString = ", attProperties=%s" % cleanAtts
+				self.classText += LINESEP + self._createControlText % locals()
+
 			else:
 				# This isn't a sizer; it's a control
 				attPropString = ""
