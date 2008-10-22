@@ -2280,10 +2280,16 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	
 
-	def _paintHeader(self):
+	def _paintHeader(self, updateBox=None, _paintDC=False):
 		w = self._getWxHeader()
-		dc = wx.PaintDC(w)
-		updateBox = w.GetUpdateRegion().GetBox()
+
+		if updateBox is None:
+			updateBox = w.GetClientRect()
+
+		if _paintDC:
+			dc = wx.PaintDC(w)
+		else:
+			dc = wx.ClientDC(w)
 
 		for col in self._columns:
 			headerRect = col._getHeaderRect()
@@ -3715,9 +3721,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def __onWxHeaderPaint(self, evt):
 		self.raiseEvent(dEvents.GridHeaderPaint, evt)
-		#evt.Skip()
-		self._paintHeader()
-
+		updateBox = self._getWxHeader().GetUpdateRegion().GetBox()
+		if sys.platform.startswith("win"):
+			dabo.ui.callAfter(self._paintHeader, updateBox)
+		else:
+			self._paintHeader(updateBox, _paintDC=True)
 
 	def _getColRowForPosition(self, pos):
 		"""Used in the mouse event handlers to stuff the col, row into EventData."""
