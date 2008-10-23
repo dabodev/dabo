@@ -884,7 +884,7 @@ class dFormMixin(pm.dPemMixin):
 			#      Just return None immediately if this happens again.
 			return None
 		if (ret is None
-				and not isinstance(self, wx.MDIChildFrame)
+				and (sys.platform.startswith("darwin") or not isinstance(self, wx.MDIChildFrame))
 				and self.ShowStatusBar):
 			ret = dabo.ui.dStatusBar(self)
 			self.SetStatusBar(ret)
@@ -895,7 +895,7 @@ class dFormMixin(pm.dPemMixin):
 
 	def _getStatusText(self):
 		ret = ""
-		if isinstance(self, wx.MDIChildFrame):
+		if sys.platform.startswith("win") and isinstance(self, wx.MDIChildFrame):
 			controllingFrame = self.Application.MainForm
 		else:
 			controllingFrame = self
@@ -914,7 +914,7 @@ class dFormMixin(pm.dPemMixin):
 		versus non-MDI forms.
 		"""
 		hasStatus = True
-		if isinstance(self, wx.MDIChildFrame):
+		if sys.platform.startswith("win") and isinstance(self, wx.MDIChildFrame):
 			controllingFrame = self.Application.MainForm
 		else:
 			controllingFrame = self
