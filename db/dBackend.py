@@ -273,9 +273,11 @@ class dBackend(dObject):
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
 	
-	def addFrom(self, clause, exp, autoQuote=True):
+	def addFrom(self, clause, exp, alias=None, autoQuote=True):
 		""" Add a table to the sql statement."""
 		exp = self.encloseNames(exp, autoQuote=autoQuote, keywords=("as",))
+		if alias:
+			exp = "%(exp)s as %(alias)s" % locals()
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 	
