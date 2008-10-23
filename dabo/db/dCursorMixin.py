@@ -20,6 +20,7 @@ from dabo.db.dDataSet import dDataSet
 from dabo.lib import dates
 from dabo.lib.utils import noneSort, caseInsensitiveSort
 
+
 class dCursorMixin(dObject):
 	"""Dabo's cursor class, representing the lowest tier."""
 	_call_initProperties = False
@@ -2001,7 +2002,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					autoQuote=self.AutoQuoteNames)
 
 
-	def addFrom(self, exp):
+	def addFrom(self, exp, alias=None):
 		""" Add a table to the sql statement. For joins, use
 		the addJoin() method.
 		"""

@@ -1554,8 +1554,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	########## SQL Builder interface section ##############
 	def addField(self, exp, alias=None):
 		return self._CurrentCursor.addField(exp, alias)
-	def addFrom(self, exp):
-		return self._CurrentCursor.addFrom(exp)
+	def addFrom(self, exp, alias=None):
+		return self._CurrentCursor.addFrom(exp, alias)
 	def addJoin(self, tbl, exp, joinType=None):
 		"""Add SQL JOIN clause.
 
