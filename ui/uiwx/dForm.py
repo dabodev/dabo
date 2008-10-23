@@ -733,6 +733,8 @@ Database error message: %s""") %	err
 					rowNumber = bizobj.RowNumber+1
 				else:
 					rowNumber = 1
+		if rowCount < 1:
+			return _("No records")
 		return _("Record %s/%s") % (rowNumber, rowCount)
 
 
