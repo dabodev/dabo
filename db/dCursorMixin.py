@@ -2007,8 +2007,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		the addJoin() method.
 		"""
 		if self.sqlManager.BackendObject:
-			self.sqlManager._fromClause = self.sqlManager.BackendObject.addFrom(self.sqlManager._fromClause, exp,alias,
-					autoQuote=self.AutoQuoteNames)
+			self.sqlManager._fromClause = self.sqlManager.BackendObject.addFrom(self.sqlManager._fromClause, 
+					exp, alias, autoQuote=self.AutoQuoteNames)
 		return self.sqlManager._fromClause
 
 
