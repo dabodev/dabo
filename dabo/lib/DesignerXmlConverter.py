@@ -322,6 +322,7 @@ class DesignerXmlConverter(dObject):
 			isTree = (nm == "dTreeView")
 			# This will get set to True if we process a splitter control
 			isSplitter = False
+			splitterString = ""
 			if os.path.exists(clsname) and atts.has_key("classID"):
 				chldList = [[child]] + specChildList[:]
 				nm = self.createInheritedClass(clsname, chldList)
@@ -399,7 +400,6 @@ class DesignerXmlConverter(dObject):
 				moduleString = ""
 				isSplitter = atts.has_key("SashPosition")
 				isSlidePanel = atts.has_key("PanelCount")
-				splitterString = ""
 				if isSplitter:
 					pos = self._extractKey(cleanAtts, "SashPosition")
 					ornt = self._extractKey(cleanAtts, "Orientation")
