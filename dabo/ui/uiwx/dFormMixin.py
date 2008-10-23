@@ -15,6 +15,15 @@ from dabo.ui import makeDynamicProperty
 
 
 class dFormMixin(pm.dPemMixin):
+	def Maximize(self, maximize=True, *args, **kwargs):
+		# On Mac MDI Child Frames, Maximize(False) erroneously maximizes. Not sure
+		# how to restore a maximized frame in this case, but at least we can catch
+		# the case where the window isn't maximized already.
+		if self.MDI and sys.platform.startswith("darwin") and not maximize \
+				and not self.IsMaximized():
+			return
+		super(dFormMixin, self).Maximize(maximize, *args, **kwargs)
+	
 	def __init__(self, preClass, parent=None, properties=None, attProperties=None, 
 			src=None, *args, **kwargs):
 
