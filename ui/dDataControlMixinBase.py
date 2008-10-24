@@ -122,7 +122,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 					self._srcIsInstanceMethod = False
 				else:
 					self._srcIsInstanceMethod = callable(getattr(src, self.DataField))
+
+			if src is None:
+				# Could be testing
+				return
+
 			srcatt = getattr(src, self.DataField)
+				
 			if self._srcIsInstanceMethod:
 				try:
 					self.Value = srcatt()
