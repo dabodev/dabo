@@ -816,6 +816,22 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._properties["Caption"] = val
 
 
+	def _getCellBackColor(self):
+		row = self.Parent.CurrentRow
+		cellAttr = self._gridCellAttrs.get(row, False)
+		if cellAttr:
+			return cellAttr.GetBackgroundColour()
+		return self.BackColor
+
+	def _setCellBackColor(self, val):
+		if self._constructed():
+			if isinstance(val, basestring):
+				val = dColors.colorTupleFromName(val)
+			self._setCellProp("SetBackgroundColour", val)
+		else:
+			self._properties["CellBackColor"] = val
+
+
 	def _getCellForeColor(self):
 		row = self.Parent.CurrentRow
 		cellAttr = self._gridCellAttrs.get(row, False)
@@ -1427,6 +1443,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	ColumnIndex = property(_getColumnIndex, None,
 			_("Returns the index of this column in the parent grid."))
 
+	CellBackColor = property(_getCellBackColor, _setCellBackColor, None,
+			_("Color for the background of the current cell in the column."))
+
 	CellForeColor = property(_getCellForeColor, _setCellForeColor, None,
 			_("Color for the foreground (text) of the current cell in the column."))
 
@@ -1610,6 +1629,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	# Dynamic Property Declarations
 	DynamicBackColor = makeDynamicProperty(BackColor)
 	DynamicCaption = makeDynamicProperty(Caption)
+	DynamicCellBackColor = makeDynamicProperty(CellBackColor)
 	DynamicCellForeColor = makeDynamicProperty(CellForeColor)
 	DynamicCustomEditorClass = makeDynamicProperty(CustomEditorClass)
 	DynamicCustomEditors = makeDynamicProperty(CustomEditors)
