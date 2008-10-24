@@ -1678,7 +1678,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dGrid
-		preClass = wx.grid.PreGrid
+		preClass = wx.grid.Grid
 
 		# Internal flag to determine if the prior sort order needs to be restored:
 		self._sortRestored = False
