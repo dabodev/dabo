@@ -2917,13 +2917,20 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def addColumn(self, col=None, inBatch=False, *args, **kwargs):
 		""" Adds a column to the grid.
 
-		If no column is passed, a blank dColumn is added, which can be customized
-		later. Any extra keyword arguments are passed to the constructor of the
-		new dColumn.
+		If no col (class or instance) is passed, a blank dColumn is added, which 
+		can be customized	later. Any extra keyword arguments are passed to the 
+		constructor of the new dColumn.
 		"""
 		if col is None:
 			col = self.ColumnClass(self, *args, **kwargs)
 		else:
+			if not isinstance(col, dColumn):
+				if issubclass(col, dabo.ui.dColumn):
+					col = col(self, *args, **kwargs)
+				else:
+					raise ValueError, _("col must be a dColumn subclass or instance")
+			else:
+				col.setProperties(**kwargs)
 			col.Parent = self
 
 		if col.Order == -1:
