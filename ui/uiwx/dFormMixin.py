@@ -734,7 +734,11 @@ class dFormMixin(pm.dPemMixin):
 
 	def _getMDI(self):
 		## self._mdi defined in dForm.py/dFormMain.py:
-		return self._mdi
+		try:
+			return self._mdi
+		except AttributeError:
+			# dDialog, for instance
+			return False
 
 
 	def _getMenuBar(self):
