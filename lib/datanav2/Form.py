@@ -272,7 +272,11 @@ class Form(dabo.ui.dForm):
 		if self.beforeSetupPageFrame():
 			self.pageFrame = PageFrame.PageFrame(self, tabStyle=self.PageFrameStyle,
 					TabPosition=self.PageTabPosition)
-			self.Sizer.append(self.pageFrame, "expand", 1)
+			hs = dabo.ui.dSizer("h")
+			hs.appendSpacer((5,0))
+			hs.append1x(self.pageFrame)
+			hs.appendSpacer((5,0))
+			self.Sizer.append1x(hs)
 			self.pageFrame.addSelectPage()
 			self.pageFrame.addBrowsePage()
 			if self.FormType != "PickList":
