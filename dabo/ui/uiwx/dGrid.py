@@ -673,7 +673,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			# Other options, in case this starts to fail, are:
 			#		self.Parent.Header.Refresh()
 			#		self.Parent._paintHeader(self._GridColumnIndex)
-			self.Parent.SetColLabelValue(self._GridColumnIndex, "")
+			self.Parent.SetColLabelValue(self.ColumnIndex, "")
 
 	def _refreshGrid(self):
 		"""Refresh the grid region, not the header region."""
@@ -727,7 +727,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			app.setUserSetting(settingName, val)
 
 
-	def _getGridColumnIndex(self):
+	def _getColumnIndex(self):
 		"""Return our column index in the grid, or -1."""
 		gridCol = -1
 		try:
@@ -1364,7 +1364,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 
 	def _getWidth(self):
-		idx = self._GridColumnIndex
+		idx = self.ColumnIndex
 		try:
 			v = self._width
 		except AttributeError:
@@ -1389,7 +1389,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			grd = self.Parent
 			if grd:
 				grd._syncColumnCount()
-				idx = self._GridColumnIndex
+				idx = self.ColumnIndex
 				if idx >= 0:
 					# Change the size in the wx grid:
 					grd.SetColSize(idx, val)
@@ -1422,7 +1422,10 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			_("Color for the background of each cell in the column."))
 
 	Caption = property(_getCaption, _setCaption, None,
-			_("Caption displayed in this column's header  (str)") )
+			_("Specifies the caption displayed in this column's header.") )
+
+	ColumnIndex = property(_getColumnIndex, None,
+			_("Returns the index of this column in the parent grid."))
 
 	CellForeColor = property(_getCellForeColor, _setCellForeColor, None,
 			_("Color for the foreground (text) of the current cell in the column."))
@@ -1602,7 +1605,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			_("When True, text longer than the column width will wrap to the next line  (bool)"))
 
 
-	_GridColumnIndex = property(_getGridColumnIndex)
 
 
 	# Dynamic Property Declarations
