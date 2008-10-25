@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import os
 import traceback
 import wx
@@ -272,10 +273,17 @@ class Form(dabo.ui.dForm):
 		if self.beforeSetupPageFrame():
 			self.pageFrame = PageFrame.PageFrame(self, tabStyle=self.PageFrameStyle,
 					TabPosition=self.PageTabPosition)
+			border = 3
+			borderSides = ("top", "left", "right")
+			if sys.platform.startswith("darwin"):
+				# Apple already gives enough top border, but the side needs more
+				borderSides = ("left", "right")
+				border = 9
+			elif sys.platform.startswith("win"):
+				# Windows looks best with no border
+				borderSides = ()
 			hs = dabo.ui.dSizer("h")
-			hs.appendSpacer((5,0))
-			hs.append1x(self.pageFrame)
-			hs.appendSpacer((5,0))
+			hs.append1x(self.pageFrame, border=border, borderSides=borderSides)
 			self.Sizer.append1x(hs)
 			self.pageFrame.addSelectPage()
 			self.pageFrame.addBrowsePage()
