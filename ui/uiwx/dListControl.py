@@ -423,7 +423,8 @@ class dListControl(dcm.dControlItemMixin,
 		for each column.
 		"""
 		data = []
-		col = self._sortColumn
+		# Don't allow the default -1 for sort column.
+		col = max(0, self._sortColumn)
 		for row in range(self.RowCount):
 			try:
 				itm = self.GetItem(row, col)
