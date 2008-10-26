@@ -17,6 +17,7 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dSlider
 		self._continuous = False
+		self._lastVal = None
 		style = self._extractKey((kwargs, properties, attProperties), "style")
 		if style is None:
 			kwargs["style"] = wx.SL_AUTOTICKS
@@ -32,7 +33,10 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 
 
 	def _onWxHit(self, evt):
-		if self._continuous or not dabo.ui.isMouseLeftDown():
+		newval = self.GetValue()
+		changed = (newval != self._lastVal)
+		self._lastVal = newval
+		if (changed and self._continuous) or not dabo.ui.isMouseLeftDown():
 			self.flushValue()
 			super(dSlider, self)._onWxHit(evt)
 
