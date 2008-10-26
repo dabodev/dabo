@@ -1270,6 +1270,9 @@ class dBizobj(dObject):
 
 
 	def getAncestorByDataSource(self, ds):
+		"""Given a DataSource, finds the ancestor (parent, grandparent, etc.) of
+		this bizobj that has that DataSource. If no such ancestor exists, returns None.
+		"""
 		ret = None
 		if self.Parent:
 			if self.Parent.DataSource == ds:
@@ -1377,6 +1380,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	</child>"""
 	_childEmptyTemplate = """
 	<child table="%s" />"""
+
 
 	def dataToXML(self):
 		"""Returns XML representing the data set. If there are child bizobjs,
@@ -1544,17 +1548,27 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def getWordMatchFormat(self):
+		"""Returns the backend's SQL format for creating queries that are based 
+		on matching words in a given column.
+		"""
 		return self._CurrentCursor.getWordMatchFormat()
 
 
 	def oldVal(self, fieldName, row=None):
+		"""Returns the value that was in the specified field when it was last fetched
+		from the backend. Used to determine if the current value has been modified.
+		"""
 		return self._CurrentCursor.oldVal(fieldName, row)
 
 
 	########## SQL Builder interface section ##############
 	def addField(self, exp, alias=None):
+		""" Add a field to the field clause."""
 		return self._CurrentCursor.addField(exp, alias)
 	def addFrom(self, exp, alias=None):
+		""" Add a table to the sql statement. For joins, use
+		the addJoin() method.
+		"""
 		return self._CurrentCursor.addFrom(exp, alias)
 	def addJoin(self, tbl, exp, joinType=None):
 		"""Add SQL JOIN clause.
@@ -1565,44 +1579,66 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""
 		return self._CurrentCursor.addJoin(tbl, exp, joinType)
 	def addGroupBy(self, exp):
+		"""Add an expression to the group-by clause."""
 		return self._CurrentCursor.addGroupBy(exp)
 	def addOrderBy(self, exp):
+		"""Add an expression to the order-by clause."""
 		return self._CurrentCursor.addOrderBy(exp)
 	def addWhere(self, exp, comp="and"):
+		"""Add a filter expression to the where clause."""
 		return self._CurrentCursor.addWhere(exp)
 	def getSQL(self):
+		"""Returns the SQL statement currently set in the backend."""
 		return self._CurrentCursor.getSQL()
 	def setFieldClause(self, clause):
+		"""Explicitly set the field clause. Replaces any existing field settings."""
 		return self._CurrentCursor.setFieldClause(clause)
 	def setFromClause(self, clause):
+		"""Explicitly set the from clause. Replaces any existing from settings."""
 		return self._CurrentCursor.setFromClause(clause)
 	def setJoinClause(self, clause):
+		"""Explicitly set the join clauses. Replaces any existing join settings."""
 		return self._CurrentCursor.setJoinClause(clause)
 	def setGroupByClause(self, clause):
+		"""Explicitly set the group-by clause. Replaces any existing group-by settings."""
 		return self._CurrentCursor.setGroupByClause(clause)
 	def getLimitClause(self):
+		"""Returns the current limit clause set in the backend."""
 		return self._CurrentCursor.getLimitClause()
 	def setLimitClause(self, clause):
+		"""Explicitly set the limit clause. Replaces any existing limit settings."""
 		return self._CurrentCursor.setLimitClause(clause)
 	# For simplicity's sake, create aliases
 	setLimit, getLimit = setLimitClause, getLimitClause
 	def setOrderByClause(self, clause):
+		"""Explicitly set the order-by clause. Replaces any existing order-by settings."""
 		return self._CurrentCursor.setOrderByClause(clause)
 	def setWhereClause(self, clause):
+		"""Explicitly set the where clause. Replaces any existing where settings."""
 		return self._CurrentCursor.setWhereClause(clause)
 	def prepareWhere(self, clause):
+		"""Calls the backend's pre-processing routine for improving efficiency
+		of filter expressions. If the backend does not have this capability, 
+		nothing is done.
+		"""
 		return self._CurrentCursor.prepareWhere(clause)
 	def getFieldClause(self):
+		"""Returns the current field clause set in the backend."""
 		return self._CurrentCursor.getFieldClause()
 	def getFromClause(self):
+		"""Returns the current from clause set in the backend."""
 		return self._CurrentCursor.getFromClause()
 	def getJoinClause(self):
+		"""Returns the current join clause set in the backend."""
 		return self._CurrentCursor.getJoinClause()
 	def getWhereClause(self):
+		"""Returns the current where clause set in the backend."""
 		return self._CurrentCursor.getWhereClause()
 	def getGroupByClause(self):
+		"""Returns the current group-by clause set in the backend."""
 		return self._CurrentCursor.getGroupByClause()
 	def getOrderByClause(self):
+		"""Returns the current order-by clause set in the backend."""
 		return self._CurrentCursor.getOrderByClause()
 	########## END - SQL Builder interface section ##############
 
@@ -1631,7 +1667,6 @@ of the string will be displayed to the user."""
 
 
 	########## Pre-hook interface section ##############
-
 	beforeNew = _makeHookMethod("beforeNew", "a new record is added")
 	beforeDelete = _makeHookMethod("beforeDelete", "a record is deleted")
 	beforeFirst = _makeHookMethod("beforeFirst", "navigating to the first record")
@@ -2227,6 +2262,9 @@ class _bizIterator(object):
 		self.__nextfunc = self._next
 
 	def reverse(self):
+		"""Configures the iterator to process the records in reverse order.
+		Must be called before beginning the iteration.
+		"""
 		if not self.__firstpass:
 			raise RuntimeError, _("Cannot reverse in the middle of iteration.")
 		self.__nextfunc = self._prior
@@ -2264,6 +2302,7 @@ class _bizIterator(object):
 
 
 	def next(self):
+		"""Moves the record pointer to the next record."""
 		return self.__nextfunc()
 
 
