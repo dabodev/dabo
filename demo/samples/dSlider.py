@@ -55,7 +55,6 @@ class TestPanel(dabo.ui.dPanel):
 			return
 		sld = self.slider
 		val, smin, smax = sld.Value, float(sld.Min), float(sld.Max)
-		self.Form.logit(_("Hit: Value=%s") % val)
 		pct = (val - smin) / (smax - smin)
 		self.demoBox.Width = sld.Width * pct
 
