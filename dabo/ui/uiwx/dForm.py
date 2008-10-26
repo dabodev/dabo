@@ -25,12 +25,12 @@ class BaseForm(fm.dFormMixin):
 		
 		# If this is True, a panel will be automatically added to the
 		# form and sized to fill the form.
-		self.mainPanel = None
-		self.mkPanel = self._extractKey(attProperties, "panel", False)
-		if self.mkPanel is not False:
-			self.mkPanel = (self.mkPanel == "True")
-		else:
-			self.mkPanel = self._extractKey((kwargs, properties), "panel", False)
+# 		self.mainPanel = None
+# 		self.mkPanel = self._extractKey(attProperties, "panel", False)
+# 		if self.mkPanel is not False:
+# 			self.mkPanel = (self.mkPanel == "True")
+# 		else:
+# 			self.mkPanel = self._extractKey((kwargs, properties), "panel", False)
 		
 		# Use this for timing queries and other long-
 		# running events
@@ -63,10 +63,10 @@ class BaseForm(fm.dFormMixin):
 	def _afterInit(self):
 		self.Sizer = dabo.ui.dSizer("vertical")
 		self.Sizer.layout()
-		if self.mkPanel:
-			mp = self.mainPanel = dabo.ui.dPanel(self)
-			self.Sizer.append(mp, 1, "x")
-			mp.Sizer = dabo.ui.dSizer(self.Sizer.Orientation)
+# 		if self.mkPanel:
+# 			mp = self.mainPanel = dabo.ui.dPanel(self)
+# 			self.Sizer.append(mp, 1, "x")
+# 			mp.Sizer = dabo.ui.dSizer(self.Sizer.Orientation)
 		super(BaseForm, self)._afterInit()
 		if self.RequeryOnLoad:
 			dabo.ui.callAfter(self.requery)
