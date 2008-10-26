@@ -16,6 +16,7 @@ class dLabel(cm.dControlMixin, wx.StaticText):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dLabel
 		self._wordWrap = False
+		self._inResizeEvent = False
 		preClass = wx.PreStaticText
 		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
 				*args, **kwargs)
@@ -25,12 +26,34 @@ class dLabel(cm.dControlMixin, wx.StaticText):
 		"""Event binding is set when Wrap=True. Tell the label
 		to wrap to its current width.
 		"""
-		dabo.ui.callAfterInterval(50, self.__onResizeExecute)
+		if self._inResizeEvent:
+			return
+		self._inResizeEvent = True
+		dabo.ui.callAfter(self.__onResizeExecute)
 	def __onResizeExecute(self):
 		# We need to set the caption to the internally-saved caption, since 
 		# WordWrap can introduce additional linefeeds.
+		self.Form.lockDisplay()
+		plat = self.Application.Platform
+		try:
+			first = self._firstResizeEvent
+		except AttributeError:
+			first = True
+			self._firstResizeEvent = False
+		if plat == "Win":
+			self.InvalidateBestSize()
+			self.Parent.layout()
+		self.Parent.layout()
 		self.SetLabel(self._caption)
 		self.Wrap(self.Width)
+		if plat == "Win":
+			self.Width, self.Height = self.GetBestSize().Get()
+		elif plat == "Mac":
+			self.Parent.layout()
+			self.SetLabel(self._caption)
+			self.Wrap(self.Width)
+		self._inResizeEvent = False
+		self.Form.unlockDisplay()
 
 
 	# property get/set functions
