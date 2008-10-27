@@ -67,6 +67,9 @@ class EditorControl(dui.dEditor):
 			except SyntaxError, e:
 				# Record the error so that the developer knows there is a problem.
 				dabo.errorLog.write(_("Compilation error found in import code: %s") % e)
+			except ImportError:
+				# Ignore because it is not a code problem and will show up on runtime.
+				pass
 
 
 	def _getController(self):
