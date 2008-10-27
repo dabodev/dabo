@@ -559,7 +559,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		dlg.show()
 		if dlg.Accepted:
 			savType = dlg.saveType
-		dlg.release()
+		#dlg.release()
 		if savType is None:
 			return
 		if savType == 0:
