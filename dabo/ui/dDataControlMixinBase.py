@@ -95,8 +95,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 	def update(self):
 		""" Update control's value to match the current value from the source."""
+		# We need to do the data handling stuff before calling super()
+		self.__dataUpdate()
 		super(dDataControlMixinBase, self).update()
 
+
+	def __dataUpdate(self):
+		"""This handles all the value updating from the data source."""
 		if getattr(self, "SelectOnEntry", False) and self.Form.ActiveControl == self:
 			self.selectAll()
 
