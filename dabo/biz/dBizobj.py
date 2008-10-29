@@ -881,6 +881,7 @@ class dBizobj(dObject):
 		there is no parent record, there cannot be any child records saved yet, 
 		so an empty query	is built.
 		"""
+		currWhere = self.getWhereClause()
 		if self.DataSource and self.LinkField and self.Parent:
 			if self.Parent.RowCount == 0:
 				# Parent is new and not yet saved, so we cannot have child records yet.
@@ -898,6 +899,7 @@ class dBizobj(dObject):
 					linkField = linkFieldParts[1]
 				filtExpr = " %s.%s = %s " % (dataSource, linkField, val)
 			self._CurrentCursor.setChildFilterClause(filtExpr)
+		self.setWhereClause(currWhere)
 
 
 	def getParentLinkValue(self):
