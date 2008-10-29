@@ -182,7 +182,9 @@ class dPageFrameMixin(cm.dControlMixin):
 		else:
 			self.InsertPage(pos, pg, text=caption)
 		self.layout()
-		return self.Pages[pos]
+		insertedPage = self.Pages[pos]
+		insertedPage.Caption = caption
+		return insertedPage
 	def _insertPageOverride(self, pos, pgCls, caption, imgKey): pass
 
 
