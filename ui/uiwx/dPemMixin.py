@@ -1208,14 +1208,11 @@ class dPemMixin(dPemMixinBase):
 			# This can happen if an object is released when there is a 
 			# pending callAfter() refresh.
 			return
-
-		self.__updateDynamicProps()
-
 		if isinstance(self, dabo.ui.dForm) and self.AutoUpdateStatusText:
 			self.setStatusText(self.getCurrentRecordText())
-
 		if self.Children:
 			self.raiseEvent(dEvents.Update)
+		dabo.ui.callAfter(self.__updateDynamicProps)
 
 		
 	def __updateDynamicProps(self):
