@@ -1212,7 +1212,7 @@ class dPemMixin(dPemMixinBase):
 			self.setStatusText(self.getCurrentRecordText())
 		if self.Children:
 			self.raiseEvent(dEvents.Update)
-		dabo.ui.callAfter(self.__updateDynamicProps)
+		dabo.ui.callAfterInterval(100, self.__updateDynamicProps)
 
 		
 	def __updateDynamicProps(self):
