@@ -107,8 +107,8 @@ Y : First Day of Year
 R : Last Day of yeaR
 C: Popup Calendar to Select
 """)
-# 		self.DynamicToolTipText = lambda: {True: self._defaultToolTipText, 
-# 				False: None}[self.Enabled and not self.ReadOnly]
+		self.DynamicToolTipText = lambda: {True: self._defaultToolTipText, 
+				False: None}[self.Enabled and not self.ReadOnly]
 
 
 	def initEvents(self):
