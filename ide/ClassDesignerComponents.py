@@ -266,8 +266,15 @@ class LayoutSaverMixin(object):
 			defaults = szOrDict
 		else:
 			# First, what type of sizer is it?
-			is2D = isinstance(szOrDict, dabo.ui.dGridSizer)
-			defaults = {True: szItemDefaults[2], False: szItemDefaults[1]}[is2D].copy()
+			try:
+				cls = self.superControl
+			except AttributeError:
+				cls = self.__class__
+			if isinstance(szOrDict, dabo.ui.dGridSizer):
+				typ = "G"
+			else:
+				typ = szOrDict.Orientation.upper()[0]
+			defaults = self.Controller.getDefaultSizerProps(cls, typ).copy()
 		if isinstance(self, LayoutPanel):
 			defaults["Expand"] = True
 			defaults["Proportion"] = 1
