@@ -213,10 +213,10 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 		self._horizontalScroll = self._verticalScroll = True
 		self._baseClass = dScrollPanel
 		preClass = wx.PreScrolledWindow
+		kwargs["AlwaysResetSizer"] = self._extractKey((properties, kwargs, attProperties), "AlwaysResetSizer", True)
 		_PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties, 
 				attProperties=attProperties, *args, **kwargs)
 		self.SetScrollRate(10, 10)
-#		self.SetScrollbars(10, 10, -1, -1)
 
 
 	def scrollHorizontally(self, amt):
