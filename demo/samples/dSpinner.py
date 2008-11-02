@@ -35,6 +35,8 @@ class TestPanel(dabo.ui.dPanel):
 		sz.append(lbl, halign="center")
 		sz.append(spn, halign="center")
 		
+		self.layout()
+		
 	def onSpinnerHit(self, evt):
 		obj = evt.EventObject
 		self.Form.logit("%s Hit; Value=%s" % (obj.Name, obj.Value))
