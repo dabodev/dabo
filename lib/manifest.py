@@ -47,7 +47,7 @@ class Manifest(object):
 		pathGen = os.walk(pth)
 		for dirname, subdirs, fnames in pathGen:
 			# Remove the base path and any leading separator
-			reldir = dirname.partition(pth)[-1].split(os.path.sep, 1)[-1]
+			reldir = dirname.split(pth)[-1].split(os.path.sep, 1)[-1]
 			for fn in fnames:
 				ext = os.path.splitext(fn)[1].split(".")[-1]
 				if ext in okTypes:
