@@ -9,12 +9,13 @@ class TreeViewSample(dabo.ui.dTreeView):
 	def onTreeItemContextMenu(self, evt):
 		self.activeNode = evt.itemNode
 		self.Form.logit(_("Context menu on node %s") % self.activeNode.Caption)
+		
 		pop = dabo.ui.dMenu()
-		pop.append(_("Add Child"), self.onAddChild)
-		pop.append(_("Add Sibling"), self.onAddSibling)
+		pop.append(_("Add Child"), OnHit=self.onAddChild)
+		pop.append(_("Add Sibling"), OnHit=self.onAddSibling)
 		if not self.Editable:
-			pop.append(_("Change Caption"), self.onChangeCaption)
-		pop.append(_("Delete this node"), self.onDelNode)
+			pop.append(_("Change Caption"), OnHit=self.onChangeCaption)
+		pop.append(_("Delete this node"), OnHit=self.onDelNode)
 		self.showContextMenu(pop)
 	
 	def onAddChild(self, evt):
