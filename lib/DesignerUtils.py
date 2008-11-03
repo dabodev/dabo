@@ -255,4 +255,11 @@ def getDefaultSizerProps(cls, szType):
 	typ = szType[0].upper()
 	defaults = _sizerDefaults.get(cls, {})
 	ret = defaults.get(typ, {})
+	if not ret and isinstance(cls, basestring):
+		# Sometimes the Class Designer mangles names so that they are unique
+		# E.g., 'dTextBox' becomes 'dTextBox_323432'
+		splitname = cls.split("_")
+		if len(splitname) == 2 and splitname[1].isdigit():
+			defaults = _sizerDefaults.get(splitname[0], {})
+			ret = defaults.get(typ, {})
 	return ret
