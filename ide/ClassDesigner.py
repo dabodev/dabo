@@ -28,6 +28,7 @@ from ClassDesignerControlMixin import ClassDesignerControlMixin as cmix
 from ClassDesignerCustomPropertyDialog import ClassDesignerCustomPropertyDialog
 from ClassDesignerSizerPalette import SizerPaletteForm
 from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
+from dabo.lib import DesignerUtils
 import ClassDesignerMenu
 import dabo.lib.xmltodict as xtd
 import dabo.ui.dialogs as dlgs
@@ -162,7 +163,6 @@ class ClassDesigner(dabo.dApp):
 				{"name" : "ToggleButton", "class" : dui.dToggleButton, "order" : 280},
 				{"name" : "TreeView", "class" : dui.dTreeView, "order" : 290}
 				)
-		self._initSizerDefaults()
 		self._initClassEvents()
 
 		self.setup()
@@ -229,157 +229,6 @@ class ClassDesigner(dabo.dApp):
 		dui.callAfter(frm.bringToFront)
 		dui.callAfter(frm.saveState)
 		self.start()
-
-
-	def _initSizerDefaults(self):
-		"""Create a dict containing the sizer default settings
-		for each designer class.
-		"""
-		self._sizerDefaults = {}
-# 		defVals = {"BorderSides": ["All"], "Proportion": 1, "HAlign": "Left",
-# 				"VAlign": "Top", "Border": 0, "Expand": True}
-		defVals = {
-				"G": {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Center", "VAlign": "Middle", "Border": 0, "Expand": True, "RowExpand": False, "ColExpand": True},
-				"H": {"BorderSides": ["All"], "Proportion": 1, "HAlign": "Left", "VAlign": "Middle", "Border": 0, "Expand": True},
-				"V": {"BorderSides": ["All"], "Proportion": 1, "HAlign": "Center", "VAlign": "Top", "Border": 0, "Expand": True}
-				}
-		# Use the defaults for each class, except where specified
-		dct = copy.deepcopy(defVals)
-		self._sizerDefaults[dui.dBox] = dct
-		dct = copy.deepcopy(defVals)
-		dct["H"].update({"HAlign" : "center"})
-		dct["V"].update({"VAlign" : "middle"})
-		self._sizerDefaults[dui.dBitmap] = dct
-		dct = copy.deepcopy(defVals)
-		dct["G"].update({"Proportion" : 0, "Expand" : False, "HAlign" : "center", "VAlign" : "middle"})
-		dct["H"].update({"Proportion" : 0, "Expand" : False, "HAlign": "center"})
-		dct["V"].update({"Proportion" : 0, "Expand" : False, "VAlign": "middle"})
-		self._sizerDefaults[dui.dBitmapButton] = dct
-		dct = copy.deepcopy(defVals)
-		dct["G"].update({"Proportion" : 0, "Expand" : False})
-		dct["H"].update({"Proportion" : 0, "Expand" : False})
-		dct["V"].update({"Proportion" : 0, "Expand" : False})
-		self._sizerDefaults[dui.dButton] = dct
-		dct = copy.deepcopy(defVals)
-		dct["G"].update({"Proportion" : 0, "Expand" : False})
-		dct["H"].update({"Proportion" : 0, "Expand" : False})
-		dct["V"].update({"Proportion" : 0, "Expand" : False})
-		self._sizerDefaults[dui.dCheckBox] = dct
-		dct = copy.deepcopy(defVals)
-		dct["G"].update({"Proportion" : 0, "Expand" : False})
-		dct["H"].update({"Proportion" : 1, "Expand" : False})
-		dct["V"].update({"Proportion" : 0, "Expand" : True})
-		self._sizerDefaults[dui.dComboBox] = dct
-		dct = copy.deepcopy(defVals)
-		dct["G"].update({"Proportion" : 0, "Expand" : False})
-		dct["H"].update({"Proportion" : 1, "Expand" : False})
-		dct["V"].update({"Proportion" : 0, "Expand" : True})
-		self._sizerDefaults[dui.dDateTextBox] = dct
-		dct = copy.deepcopy(defVals)
-		self._sizerDefaults[dui.dDialog] = dct
-		dct = copy.deepcopy(defVals)
-		dct["G"].update({"Proportion" : 0, "Expand" : False})
-		dct["H"].update({"Proportion" : 1, "Expand" : False})
-		dct["V"].update({"Proportion" : 0, "Expand" : True})
-		self._sizerDefaults[dui.dDropdownList] = dct
-		dct = copy.deepcopy(defVals)
-		self._sizerDefaults[dui.dEditBox] = dct
-		dct = copy.deepcopy(defVals)
-		self._sizerDefaults[dui.dEditor] = dct
-		dct = copy.deepcopy(defVals)
-		self._sizerDefaults[dui.dSlidePanelControl] = dct
-		dct = copy.deepcopy(defVals)
-		dct["G"].update({"Proportion" : 0, "Expand" : False})
-		dct["H"].update({"Proportion" : 1, "Expand" : False})
-		dct["V"].update({"Proportion" : 0, "Expand" : True})
-		self._sizerDefaults[dui.dGauge] = dct
-		dct = copy.deepcopy(defVals)
-		self._sizerDefaults[dui.dGrid] = dct
-		dct = copy.deepcopy(defVals)
-		self._sizerDefaults[dui.dGridSizer] = dct
-		dct = copy.deepcopy(defVals)
-		self._sizerDefaults[dui.dHtmlBox] = dct
-		dct = copy.deepcopy(defVals)
-		dct["H"].update({"HAlign" : "center"})
-		dct["V"].update({"VAlign" : "middle"})
-		self._sizerDefaults[dui.dImage] = dct
-		dct = copy.deepcopy(defVals)
-		dct["G"].update({"Proportion" : 0, "Expand" : False})
-		dct["H"].update({"Proportion" : 0, "Expand" : False})
-		dct["V"].update({"Proportion" : 0, "Expand" : False})
-		self._sizerDefaults[dui.dLabel] = dct
-		dct = copy.deepcopy(defVals)
-		dct["G"].update({"Proportion" : 0, "Expand" : False, "HAlign" : "center", "VAlign" : "middle"})
-		dct["H"].update({"Proportion" : 1, "Expand" : False, "HAlign": "center"})
-		dct["V"].update({"Proportion" : 0, "Expand" : True, "VAlign": "middle"})
-		self._sizerDefaults[dui.dLine] = dct
-		dct = copy.deepcopy(defVals)
-		self._sizerDefaults[dui.dListBox] = dct
-		dct = copy.deepcopy(defVals)
-		self._sizerDefaults[dui.dListControl] = dct
-		dct = copy.deepcopy(defVals)
-		self._sizerDefaults[dui.dOkCancelDialog] = dct
-		dct = copy.deepcopy(defVals)
-		dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": True, "RowExpand": False})
-		dct["H"].update({"Proportion" : 0, "Expand" : False})
-		dct["V"].update({"Proportion" : 0, "Expand" : False})
-		self._sizerDefaults[dui.dRadioList] = dct
-		dct = copy.deepcopy(defVals)
-		self._sizerDefaults[dui.dPage] = dct
-		dct["H"].update({"HAlign" : "center"})
-		dct["V"].update({"VAlign" : "middle"})
-		self._sizerDefaults[dui.dPanel] = dct
-		dct = copy.deepcopy(defVals)
-		dct["H"].update({"HAlign" : "center"})
-		dct["V"].update({"VAlign" : "middle"})
-		self._sizerDefaults[dui.dScrollPanel] = dct
-		dct = copy.deepcopy(defVals)
-		dct["H"].update({"HAlign" : "center"})
-		dct["V"].update({"VAlign" : "middle"})
-		self._sizerDefaults[dui.dPageFrame] = dct
-		dct = copy.deepcopy(defVals)
-		dct["H"].update({"HAlign" : "center"})
-		dct["V"].update({"VAlign" : "middle"})
-		self._sizerDefaults[dui.dPageList] = dct
-		dct = copy.deepcopy(defVals)
-		dct["H"].update({"HAlign" : "center"})
-		dct["V"].update({"VAlign" : "middle"})
-		self._sizerDefaults[dui.dPageSelect] = dct
-		dct = copy.deepcopy(defVals)
-		dct["H"].update({"HAlign" : "center"})
-		dct["V"].update({"VAlign" : "middle"})
-		self._sizerDefaults[dui.dPageFrameNoTabs] = dct
-		dct = copy.deepcopy(defVals)
-		self._sizerDefaults[dui.dSizer] = dct
-		dct = copy.deepcopy(defVals)
-		dct["G"].update({"Proportion" : 0, "Expand" : False, "HAlign" : "center", "VAlign" : "middle", "ColExpand": True, "RowExpand": False})
-		dct["H"].update({"Proportion" : 1, "Expand" : False, "HAlign": "center"})
-		dct["V"].update({"Proportion" : 0, "Expand" : True, "VAlign": "middle"})
-		self._sizerDefaults[dui.dSlider] = dct
-		dct = copy.deepcopy(defVals)
-		dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": True, "RowExpand": False})
-		dct["H"].update({"Proportion" : 1, "Expand" : False})
-		dct["V"].update({"Proportion" : 0, "Expand" : True})
-		self._sizerDefaults[dui.dSpinner] = dct
-		dct = copy.deepcopy(defVals)
-		dct["H"].update({"HAlign" : "center"})
-		dct["V"].update({"VAlign" : "middle"})
-		self._sizerDefaults[dui.dSplitter] = dct
-		dct = copy.deepcopy(defVals)
-		dct["G"].update({"Proportion" : 1, "Expand" : True, "ColExpand": True, "RowExpand": False})
-		dct["H"].update({"Proportion" : 1, "Expand" : False})
-		dct["V"].update({"Proportion" : 0, "Expand" : True})
-		self._sizerDefaults[dui.dTextBox] = dct
-		dct = copy.deepcopy(defVals)
-		dct["H"].update({"HAlign" : "center", "Proportion": 0, "Expand": False})
-		dct["V"].update({"VAlign" : "middle", "Proportion": 0, "Expand": False})
-		self._sizerDefaults[dui.dToggleButton] = dct
-		dct = copy.deepcopy(defVals)
-		dct["G"].update({"Proportion" : 0, "Expand" : True, "HAlign" : "center", "VAlign" : "middle", "ColExpand": True, "RowExpand": True})
-		dct["H"].update({"Proportion" : 1, "Expand" : True, "HAlign": "center"})
-		dct["V"].update({"Proportion" : 1, "Expand" : True, "VAlign": "middle"})
-		self._sizerDefaults[dui.dTreeView] = dct
-		return
 
 
 	def _initClassEvents(self):
@@ -2491,10 +2340,7 @@ class ClassDesigner(dabo.dApp):
 		a dict containing the sizer defaults for that class.
 		# NOTE: this will eventually be made user-configurable.
 		"""
-		typ = szType[0].upper()
-		defaults = self._sizerDefaults.get(cls, {})
-		ret = defaults.get(typ, {})
-		return ret
+		return DesignerUtils.getDefaultSizerProps(cls, szType)
 
 
 	def addNewControl(self, pnl, cls, props=None, attProperties=None,
