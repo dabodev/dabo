@@ -47,6 +47,8 @@ class DesignerXmlConverter(dObject):
 		self._methodNum = 0
 		# This is the text that will go into the temp .py file for executed code
 		self._codeFileText = self._hdrText
+		# Tracks the current sizer type
+		self._sizerTypeStack = []
 		
 	
 	def classFromXml(self, src):
@@ -334,7 +336,6 @@ class DesignerXmlConverter(dObject):
 				if code or custProps:
 					nm = self.createInnerClass(nm, atts, code, custProps)
 					isCustom = True
-
 			if isSizer:
 				isGridSizer = clsname == "LayoutGridSizer"
 				if isGridSizer:
@@ -350,7 +351,13 @@ class DesignerXmlConverter(dObject):
 				isBorderSizer = clsname == "LayoutBorderSizer"
 				ornt = ""
 				prnt = ""
-				if not isGridSizer:
+				if isGridSizer:
+					szType = "G"
+				else:
+					if "Orientation" not in atts:
+						# Default to Horizontal
+						atts["Orientation"] = "H"
+					szType = atts["Orientation"]
 					if isBorderSizer:
 						prnt = "currParent, "
 						propString = "'%s', Caption=\"%s\"" % (self._extractKey(atts, "Orientation", "H"), 
@@ -361,15 +368,13 @@ class DesignerXmlConverter(dObject):
 								atts.pop(unneeded)
 							except KeyError:
 								pass
-						if "Orientation" not in atts:
-							# Default to Horizontal
-							atts["Orientation"] = "H"
 						propString = ", ".join(["%s='%s'" % (k,v) for k,v in atts.items()])
 				if self.CreateDesignerControls:
 					superName = clsname
 				else:
 					superName = "dabo.ui.%s" % nm
 				self.classText += LINESEP + self._szText % locals()
+				self._sizerTypeStack.append(szType)
 			
 			elif clsname == "LayoutSpacerPanel":
 				if self.CreateDesignerControls:
@@ -398,6 +403,16 @@ class DesignerXmlConverter(dObject):
 				# This isn't a sizer; it's a control
 				attPropString = ""
 				moduleString = ""
+				try:
+					typ = self._sizerTypeStack[-1]
+				except IndexError:
+					typ = "H"
+				szDefaults = desUtil.getDefaultSizerProps(nm, typ)
+				if isinstance(szInfo, basestring):
+					szInfo = eval(szInfo)
+				szDefaults.update(szInfo)
+				szInfo = szDefaults
+				
 				isSplitter = atts.has_key("SashPosition")
 				isSlidePanel = atts.has_key("PanelCount")
 				if isSplitter:
@@ -551,6 +566,7 @@ class DesignerXmlConverter(dObject):
 				if needPop:
 					if isSizer:
 						self.classText += LINESEP + self._szPopText
+						self._sizerTypeStack.pop()
 					else:
 						self.classText += LINESEP + self._ctlPopText
 		return				
