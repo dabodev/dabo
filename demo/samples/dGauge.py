@@ -72,3 +72,13 @@ property, and the appropriate Value for that Percentage will be set.</p>
 
 <p>Gauges do not raise any events, or respond to user interaction. They are simply a convenient way to display the progress of a task or process.</p>
 """
+
+if __name__ == "__main__":
+	app = dabo.dApp(MainFormClass=None)
+	app.setup()
+	frm = dabo.ui.dForm()
+	pan = TestPanel(frm)
+	frm.Sizer.append1x(pan)
+	frm.show()
+	app.start()
+
