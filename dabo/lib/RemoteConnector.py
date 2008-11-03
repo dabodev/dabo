@@ -58,7 +58,7 @@ class _RemoteConnector(object):
 					sys.exit()
 				else:
 					# Some other proble; raise the error so the developer can debug
-					raise
+					raise e
 		return self.fn(self.obj, *args, **kwargs)
 
 
