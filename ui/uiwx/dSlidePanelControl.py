@@ -802,7 +802,7 @@ if __name__ == "__main__":
 			self.slideControl.collapseAll()
 			
 		def onExpandAll(self, evt):
-			self.mainContainer.expandAll()
+			self.slideControl.expandAll()
 			
 	
 	app = dabo.dApp()
