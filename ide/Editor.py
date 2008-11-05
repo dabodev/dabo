@@ -810,6 +810,8 @@ class EditorForm(dabo.ui.dForm):
 				hs.append(self.txtLine, valign="middle")
 				self.Sizer.append(hs, 1, halign="center")
 				self.layout()
+				self.txtLine.setFocus()
+				self.txtLine.selectAll()
 								
 		currEditor = self.CurrentEditor
 		dlg = LineNumberDlg(self)
