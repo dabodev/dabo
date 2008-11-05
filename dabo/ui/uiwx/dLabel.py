@@ -30,6 +30,7 @@ class dLabel(cm.dControlMixin, wx.StaticText):
 			return
 		self._inResizeEvent = True
 		dabo.ui.callAfter(self.__onResizeExecute)
+
 	def __onResizeExecute(self):
 		# We need to set the caption to the internally-saved caption, since 
 		# WordWrap can introduce additional linefeeds.
@@ -48,6 +49,7 @@ class dLabel(cm.dControlMixin, wx.StaticText):
 		self.Wrap(self.Width)
 		if plat == "Win":
 			self.Width, self.Height = self.GetBestSize().Get()
+			self.Parent.layout()
 		elif plat == "Mac":
 			self.Parent.layout()
 			self.SetLabel(self._caption)
