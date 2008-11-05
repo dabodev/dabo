@@ -10,9 +10,9 @@ class Test_dBizobj(unittest.TestCase):
 	def setUp(self):
 		self.con = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
 		biz = self.biz = dabo.biz.dBizobj(self.con)
-		uniqueName = getRandomUUID().replace("-", "")[-20:]
-		self.temp_table_name = "unittest%s" % uniqueName
-		self.temp_child_table_name = "ut_child%s" % uniqueName
+		self.temp_table_name = "parent"
+		self.temp_child_table_name = "child"
+		self.temp_child2_table_name = "grandchild"
 		self.createSchema()
 		biz.KeyField = "pk"
 		biz.DataSource = self.temp_table_name
@@ -25,6 +25,7 @@ class Test_dBizobj(unittest.TestCase):
 		biz = self.biz
 		tableName = self.temp_table_name
 		childTableName = self.temp_child_table_name
+		child2TableName = self.temp_child2_table_name
 		biz._CurrentCursor.executescript("""
 create table %(tableName)s (pk INTEGER PRIMARY KEY AUTOINCREMENT, cField CHAR, iField INT, nField DECIMAL (8,2));
 insert into %(tableName)s (cField, iField, nField) values ("Paul Keith McNett", 23, 23.23);
@@ -35,6 +36,12 @@ create table %(childTableName)s (pk INTEGER PRIMARY KEY AUTOINCREMENT, parent_fk
 insert into %(childTableName)s (parent_fk, cInvNum) values (1, "IN00023");
 insert into %(childTableName)s (parent_fk, cInvNum) values (1, "IN00455");
 insert into %(childTableName)s (parent_fk, cInvNum) values (3, "IN00024");
+
+create table %(child2TableName)s (pk INTEGER PRIMARY KEY AUTOINCREMENT, parent_fk INT, cPart CHAR);
+insert into %(child2TableName)s (parent_fk, cPart) values (1, "fldk-333");
+insert into %(child2TableName)s (parent_fk, cPart) values (1, "9930");
+insert into %(child2TableName)s (parent_fk, cPart) values (2, "hhfg-234");
+insert into %(child2TableName)s (parent_fk, cPart) values (2, "pkd-8878");
 """ % locals())
 
 	def createNullRecord(self):
@@ -563,6 +570,49 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 
 		self.assertEqual(bizMain.RowNumber, 0)
 		self.assertEqual(bizChild.RowNumber, 0)
+
+	def testChangesToTwoChildRecords(self):
+		"""After the dabo web server stuff and the @remote calls got added, only
+		a single record from child bizobjs seem to get saved.
+		"""
+		bizMain = self.biz
+		bizChild = dabo.biz.dBizobj(self.con)
+		bizChild.KeyField = "pk"
+		bizChild.DataSource = self.temp_child_table_name
+		bizChild.LinkField = "parent_fk"
+		bizChild.FillLinkFromParent = True
+
+		bizChild2 = dabo.biz.dBizobj(self.con)
+		bizChild2.KeyField = "pk"
+		bizChild2.DataSource = self.temp_child2_table_name
+		bizChild2.LinkField = "parent_fk"
+		bizChild2.FillLinkFromParent = True
+		
+		bizMain.addChild(bizChild)
+		bizChild.addChild(bizChild2)
+		bizMain.requery()
+
+		bizChild.RowNumber = 0
+		bizChild.Record.cInvNum = "00293"
+		bizChild2.RowNumber = 0
+		bizChild2.Record.cPart = "flim"
+		bizChild2.RowNumber = 1
+		bizChild2.Record.cPart = "flam"
+		bizChild.RowNumber = 1
+		bizChild.Record.cInvNum = "03938"
+		bizChild2.RowNumber = 0
+		bizChild2.Record.cPart = "flim"
+		bizChild2.RowNumber = 1
+		bizChild2.Record.cPart = "flam"
+
+		self.assertEqual(bizMain.isAnyChanged(), True)
+		self.assertEqual(bizMain.getChangedRows(), [0])
+		self.assertEqual(bizChild.getChangedRows(), [0,1])
+		bizMain.save()
+		self.assertEqual(bizChild2.getChangedRows(), [])
+		self.assertEqual(bizChild.getChangedRows(), [])
+		self.assertEqual(bizMain.getChangedRows(), [])
+		self.assertEqual(bizMain.isAnyChanged(), False)
 
 		
 if __name__ == "__main__":
