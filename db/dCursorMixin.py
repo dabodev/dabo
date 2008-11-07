@@ -709,7 +709,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				return len(self._mementos) > 0
 		else:
 			row = self.RowNumber
-
 			try:
 				rec = self._records[row]
 			except IndexError:
@@ -1100,6 +1099,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Accepts a dataset and type dict from an external source and
 		uses it as its own.
 		"""
+		print "STORE"
 		# clear mementos and new record flags:
 		self._mementos = {}
 		self._newRecords = {}
@@ -1453,6 +1453,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				row, rec = self._getRecordByPk(rec_pk)
 				for fld, val in mem.items():
 					self._records[row][fld] = val
+			print "CANCEL"
 			self._mementos = {}
 
 		else:

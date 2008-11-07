@@ -80,8 +80,15 @@ class dConnection(dObject):
 		database object.
 		"""
 		return self._connectInfo.getBackendObject()
-		
-		
+
+
+	def isRemote(self):
+		"""Returns True or False, depending on whether a RemoteHost is 
+		specified in this connection.
+		"""
+		return bool(self._connectInfo.RemoteHost)
+
+
 	def _getConnInfo(self):
 		return self._connectInfo
 		

@@ -5,7 +5,7 @@ import datetime
 from dabo.dLocalize import _
 from dBackend import dBackend
 from dbSQLite import SQLite
-from dabo.lib.RemoteConnector import _RemoteConnector as remote
+from dabo.lib.RemoteConnector import RemoteConnector
 
 
 
@@ -13,6 +13,7 @@ class Web(SQLite):
 	def __init__(self):
 		SQLite.__init__(self)
 		self.nameEnclosureChar = "~~"
+		self._remoteConnector = RemoteConnector(self)
 
 
 	def getConnection(self, connectInfo, **kwargs):
@@ -21,18 +22,16 @@ class Web(SQLite):
 		return self._connection
 
 
-	@remote
 	def getTables(self, includeSystemTables=False):
-		raise ValueError, _("Table listing must come from web service")
+		return self._remoteConnector.getTables(includeSystemTables=includeSystemTables)
 		
 
 	def getTableRecordCount(self, tableName):
-		raise ValueError, _("Record Count must come from web service")
+		return self._remoteConnector.getTableRecordCount(tableName=tableName)
 
 
-	@remote
 	def getFields(self, tableName, crs=None):
-		raise ValueError, _("Field listing must come from web service")
+		return self._remoteConnector.getFields(tableName=tableName, crs=crs)
 
 
 	def _getRemoteURL(self):
