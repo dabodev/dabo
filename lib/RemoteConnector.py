@@ -129,8 +129,6 @@ class RemoteConnector(object):
 		sql = re.sub(r" += +", " = ", sql)
 		params = {"SQL": sql, "KeyField": biz.KeyField, "_method": "GET"}
 		prm = urllib.urlencode(params)
-		
-		print "REQ URL", url
 		res = self.UrlOpener.open(url, data=prm)
 		encdata = res.read()
 		self._storeEncodedDataSet(encdata)
@@ -139,7 +137,6 @@ class RemoteConnector(object):
 	def save(self, startTransaction=False, allRows=False):
 		biz = self.obj
 		url = self._getFullUrl("save")
-		print "SAVE URL:", url
 		changes = biz.getDataDiff(allRows=allRows)
 		chgDict = {hash(biz): (biz.DataSource, biz.KeyField, changes)}
 		params = {"DataDiff": dabo.lib.jsonEncode(chgDict), "_method": "POST"}
