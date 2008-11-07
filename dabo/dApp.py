@@ -22,7 +22,7 @@ from dabo import dSecurityManager
 from dabo.lib.SimpleCrypt import SimpleCrypt
 from dabo.dObject import dObject
 from dabo import dUserSettingProvider
-from dabo.lib.RemoteConnector import _RemoteConnector as remote
+from dabo.lib.RemoteConnector import RemoteConnector
 
 
 
@@ -237,7 +237,9 @@ class dApp(dObject):
 		self._initDB()
 
 		# If running as a web app, sync the files
-		self.syncFiles()
+		rp = self._RemoteProxy
+		if rp:
+			rp.syncFiles()
 
 		self._afterInit()
 		self.autoBindEvents()
@@ -693,12 +695,6 @@ class dApp(dObject):
 			# will be caught in the app method, and no harm will be done.
 			codefile = "%s-code.py" % nm
 			app.urlFetch(codefile)
-
-
-	@remote
-	def syncFiles(self):
-		# Currently only used in web mode
-		pass
 
 
 	def getUserSettingKeys(self, spec):
@@ -1346,6 +1342,17 @@ class dApp(dObject):
 		self._preferenceDialogClass = val
 
 
+	def _getRemoteProxy(self):
+		if self.SourceURL:
+			try:
+				return self._remoteProxy
+			except AttributeError:
+				self._remoteProxy = RemoteConnector(self)
+				return self._remoteProxy
+		else:
+			return None
+
+
 	def _getSearchDelay(self):
 		try:
 			return self._searchDelay
@@ -1542,6 +1549,10 @@ class dApp(dObject):
 			If None, the application will try to run the active form's onEditPreferences()
 			method, if any. Otherwise, the preference dialog will be instantiated and 
 			shown when the user chooses to see the preferences."""))
+
+	_RemoteProxy = property(_getRemoteProxy, None, None,
+			_("""If this bizobj is being run remotely, returns a reference to the RemoteConnector 
+			object that will handle communication with the server.  (read-only) (RemoteConnector)"""))
 
 	SearchDelay = property(_getSearchDelay, _setSearchDelay, None,
 			_("""Specifies the delay before incrementeal searching begins.  (int)

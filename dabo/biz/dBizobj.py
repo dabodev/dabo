@@ -8,7 +8,7 @@ from dabo.db.dCursorMixin import dCursorMixin
 from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
-from dabo.lib.RemoteConnector import _RemoteConnector as remote
+from dabo.lib.RemoteConnector import RemoteConnector
 
 NO_RECORDS_PK = "75426755-2f32-4d3d-86b6-9e2a1ec47f2c"  ## Can't use None
 
@@ -266,33 +266,39 @@ class dBizobj(dObject):
 		self.afterLast()
 
 
-	@remote
 	def beginTransaction(self):
 		"""Attempts to begin a transaction at the database level, and returns
 		True/False depending on its success. 
 		"""
+		rp = self._RemoteProxy
+		if rp:
+			return rp.beginTransaction()
 		ret = self._getTransactionToken()
 		if ret:
 			self._CurrentCursor.beginTransaction()
 		return ret
 
 
-	@remote
 	def commitTransaction(self):
 		"""Attempts to commit a transaction at the database level, and returns
 		True/False depending on its success. 
 		"""
+		rp = self._RemoteProxy
+		if rp:
+			return rp.commitTransaction()
 		ret = self._hasTransactionToken() and self._CurrentCursor.commitTransaction()
 		if ret:
 			self._releaseTransactionToken()
 		return ret
 
 
-	@remote
 	def rollbackTransaction(self):
 		"""Attempts to rollback a transaction at the database level, and returns
 		True/False depending on its success. 
 		"""
+		rp = self._RemoteProxy
+		if rp:
+			return rp.rollbackTransaction()
 		ret = self._hasTransactionToken() and self._CurrentCursor.rollbackTransaction()
 		if ret:
 			self._releaseTransactionToken()
@@ -335,9 +341,11 @@ class dBizobj(dObject):
 				del(dabo._bizTransactionToken)
 
 
-	@remote
 	def saveAll(self, startTransaction=True):
 		"""Saves all changes to the bizobj and children."""
+		rp = self._RemoteProxy
+		if rp:
+			return rp.saveAll(startTransaction=startTransaction)
 		cursor = self._CurrentCursor
 		current_row = self.RowNumber
 		startTransaction = startTransaction and self.beginTransaction()
@@ -371,13 +379,15 @@ class dBizobj(dObject):
 				dabo.errorLog.write(_("Failed to set RowNumber. Error: %s") % e)
 
 
-	@remote
 	def save(self, startTransaction=True):
 		"""Save any changes that have been made in the current row.
 
 		If the save is successful, the saveAll() of all child bizobjs will be
 		called as well.
 		"""
+		rp = self._RemoteProxy
+		if rp:
+			return rp.save(startTransaction=startTransaction)
 		cursor = self._CurrentCursor
 		errMsg = self.beforeSave()
 		if errMsg:
@@ -495,9 +505,11 @@ class dBizobj(dObject):
 		self.afterDeleteAllChildren()
 
 
-	@remote
 	def delete(self, startTransaction=True, inLoop=False):
 		"""Delete the current row of the data set."""
+		rp = self._RemoteProxy
+		if rp:
+			return rp.delete(startTransaction=startTransaction, inLoop=inLoop)
 		cursor = self._CurrentCursor
 		errMsg = self.beforeDelete()
 		if not errMsg:
@@ -595,12 +607,25 @@ class dBizobj(dObject):
 		added to the dict under the key 'children' so that they can be processed
 		accordingly.
 		"""
-		diff = {hash(self): self._CurrentCursor.getDataDiff(allRows=allRows)}
-		kids = []
-		for child in self.__children:
-			kids.append(child.getDataDiff(allRows=True))
-		if kids:
-			diff["children"] = kids
+		#
+		# Need to cycle through changedRows, and get the diff for each
+		# Currently only getting child diffs for first changed row
+		#
+		
+		if allRows:
+			rownums = self.getChangedRows()
+		else:
+			rownums = [self.RowNumber]
+		selfhash = hash(self)
+		diff = {selfhash: [], "children": []}
+		for row in rownums:
+			self._moveToRowNum(row)
+			rowdiff = self._CurrentCursor.getDataDiff()
+			diff[selfhash].append(rowdiff)
+			kids = []
+			for child in self.__children:
+				kids.append(child.getDataDiff(allRows=True))
+			diff["children"].append(kids)
 		return diff
 
 
@@ -815,13 +840,15 @@ class dBizobj(dObject):
 			self.UserSQL = sql
 
 
-	@remote
 	def requery(self):
 		""" Requery the data set.
 
 		Refreshes the data set with the current values in the database,
 		given the current state of the filtering parameters.
 		"""
+		rp = self._RemoteProxy
+		if rp:
+			return rp.requery()
 		errMsg = self.beforeRequery()
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
@@ -1990,6 +2017,17 @@ afterDelete() which is only called after a delete().""")
 		return self._CurrentCursor.Record
 
 
+	def _getRemoteProxy(self):
+		if self._connection.isRemote():
+			try:
+				return self._remoteProxy
+			except AttributeError:
+				self._remoteProxy = RemoteConnector(self)
+				return self._remoteProxy
+		else:
+			return None
+
+
 	def _getRequeryChildOnSave(self):
 		try:
 			return self._requeryChildOnSave
@@ -2201,6 +2239,10 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 	Record = property(_getRecord, None, None,
 			_("""Represents a record in the data set. You can address individual
 			columns by referring to 'self.Record.fieldName' (read-only) (no type)"""))
+
+	_RemoteProxy = property(_getRemoteProxy, None, None,
+			_("""If this bizobj is being run remotely, returns a reference to the RemoteConnector 
+			object that will handle communication with the server.  (read-only) (RemoteConnector)"""))
 
 	RequeryChildOnSave = property(_getRequeryChildOnSave, _setRequeryChildOnSave, None,
 			_("Do we requery child bizobjs after a save()? (bool)"))

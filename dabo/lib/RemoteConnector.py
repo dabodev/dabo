@@ -19,52 +19,54 @@ from dabo.lib.manifest import Manifest
 
 
 
-class _RemoteConnector(object):
+class RemoteConnector(object):
 	"""This class handles all of the methods that will need to be carried out on 
 	the server instead of locally.
 	"""
-	def __init__(self, fn):
-		self.fn = fn
-		self.fname = fn.__name__
+	def __init__(self, obj):
+		self.obj = obj
+# 		self.fn = fn
+# 		self.fname = fn.__name__
 		self._authHandler = None
 		self._urlOpener = None
-		super(_RemoteConnector, self).__init__()
-
-
-	def __call__(self, *args, **kwargs):
-		remote = bool(self.UrlBase)
-		if remote:
-			try:
-				decFunc = getattr(self, self.fname, None)
-				if decFunc:
-					return decFunc(*args, **kwargs)
-				else:
-					# Generic remote method
-					url = self._getFullUrl()
-					return self._read(url)
-			except urllib2.URLError, e:
-				try:
-					code, txt = e.reason
-				except AttributeError:
-					code = e.code
-				if code == 500:
-					# Internal server error
-					dabo.errorLog.write(_("500 Internal Server Error received"))
-					return
-				elif code == 61:
-					# Connection refused; server is down
-					dabo.errorLog.write(_("\n\nThe remote server is not responding; exiting.\n\n"))
-					# This could certainly be improved with a timeout loop instead of instantly quitting.
-					sys.exit()
-				else:
-					# Some other proble; raise the error so the developer can debug
-					raise e
-		return self.fn(self.obj, *args, **kwargs)
-
-
-	def __get__(descr, inst, instCls=None):
-		descr.obj = inst
-		return descr
+# 		super(RemoteConnector, self).__init__()
+# 
+# 
+# 	def __call__(self, *args, **kwargs):
+# 		remote = bool(self.UrlBase)
+# 		if remote:
+# 			try:
+# 				decFunc = getattr(self, self.fname, None)
+# 				if decFunc:
+# 					return decFunc(*args, **kwargs)
+# 				else:
+# 					# Generic remote method
+# 					url = self._getFullUrl()
+# 					return self._read(url)
+# 			except urllib2.URLError, e:
+# 				try:
+# 					code, txt = e.reason
+# 				except AttributeError:
+# 					code = e.code
+# 				if code == 500:
+# 					# Internal server error
+# 					dabo.errorLog.write(_("500 Internal Server Error received"))
+# 					return
+# 				elif code == 61:
+# 					# Connection refused; server is down
+# 					dabo.errorLog.write(_("\n\nThe remote server is not responding; exiting.\n\n"))
+# 					# This could certainly be improved with a timeout loop instead of instantly quitting.
+# 					sys.exit()
+# 				else:
+# 					# Some other proble; raise the error so the developer can debug
+# 					raise e
+# 		thisFn = getattr(self.obj, self.fname)
+# 		return self.fn(self.obj, *args, **kwargs)
+# 
+# 
+# 	def __get__(descr, inst, instCls=None):
+# 		descr.obj = inst
+# 		return descr
 
 
 	def _join(self, pth):
@@ -72,8 +74,8 @@ class _RemoteConnector(object):
 		return pathjoin(self.UrlBase, pth)
 
 
-	def _getFullUrl(self, *args):
-		ret = pathjoin(self.UrlBase, "bizservers", "biz", "%s" % hash(self.obj), self.obj.DataSource, self.fname, *args)
+	def _getFullUrl(self, mthd, *args):
+		ret = pathjoin(self.UrlBase, "bizservers", "biz", "%s" % hash(self.obj), self.obj.DataSource, mthd, *args)
 		return ret
 
 
@@ -120,13 +122,15 @@ class _RemoteConnector(object):
 
 	def requery(self):
 		biz = self.obj
-		url = self._getFullUrl()
+		url = self._getFullUrl("requery")
 		sql = biz.getSQL()
 		# Get rid of as much unnecessary formatting as possible.
 		sql = re.sub(r"\n *", " ", sql)
 		sql = re.sub(r" += +", " = ", sql)
 		params = {"SQL": sql, "KeyField": biz.KeyField, "_method": "GET"}
 		prm = urllib.urlencode(params)
+		
+		print "REQ URL", url
 		res = self.UrlOpener.open(url, data=prm)
 		encdata = res.read()
 		self._storeEncodedDataSet(encdata)
@@ -134,7 +138,8 @@ class _RemoteConnector(object):
 	
 	def save(self, startTransaction=False, allRows=False):
 		biz = self.obj
-		url = self._getFullUrl().replace(self.fname, "save")
+		url = self._getFullUrl("save")
+		print "SAVE URL:", url
 		changes = biz.getDataDiff(allRows=allRows)
 		chgDict = {hash(biz): (biz.DataSource, biz.KeyField, changes)}
 		params = {"DataDiff": dabo.lib.jsonEncode(chgDict), "_method": "POST"}
@@ -167,7 +172,7 @@ class _RemoteConnector(object):
 
 	def delete(self):
 		biz = self.obj
-		url = self._getFullUrl()
+		url = self._getFullUrl("delete")
 		params = {"PK": biz.getPK(), "KeyField": biz.KeyField, "_method": "DELETE"}
 		prm = urllib.urlencode(params)
 		res = self.UrlOpener.open(url, data=prm)
