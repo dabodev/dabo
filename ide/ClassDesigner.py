@@ -169,6 +169,8 @@ class ClassDesigner(dabo.dApp):
 
 		clsOK = False
 		if clsFile:
+			if not clsFile.endswith(".cdxml"):
+				clsFile += ".cdxml"
 			try:
 				frm = self.openClass(clsFile)
 				clsOK = True
