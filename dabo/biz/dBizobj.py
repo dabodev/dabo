@@ -607,25 +607,13 @@ class dBizobj(dObject):
 		added to the dict under the key 'children' so that they can be processed
 		accordingly.
 		"""
-		#
-		# Need to cycle through changedRows, and get the diff for each
-		# Currently only getting child diffs for first changed row
-		#
-		
-		if allRows:
-			rownums = self.getChangedRows()
-		else:
-			rownums = [self.RowNumber]
-		selfhash = hash(self)
-		diff = {selfhash: [], "children": []}
-		for row in rownums:
-			self._moveToRowNum(row)
-			rowdiff = self._CurrentCursor.getDataDiff()
-			diff[selfhash].append(rowdiff)
-			kids = []
-			for child in self.__children:
-				kids.append(child.getDataDiff(allRows=True))
-			diff["children"].append(kids)
+
+		diff = {hash(self): self._CurrentCursor.getDataDiff(allRows=allRows)}
+		kids = []
+		for child in self.__children:
+			kids.append(child.getDataDiff(allRows=True))
+		if kids:
+			diff["children"] = kids
 		return diff
 
 
