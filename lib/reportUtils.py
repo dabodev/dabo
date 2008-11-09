@@ -54,7 +54,7 @@ def previewPDF(path, modal=False):
 
 			viewer = None
 			for v in viewers:
-				r = os.system("which %s > /dev/null" % v)
+				r = os.system("which %s 1> /dev/null 2> /dev/null" % v)
 				if r == 0:
 					viewer = v
 					break
