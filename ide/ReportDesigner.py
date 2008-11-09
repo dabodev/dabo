@@ -538,6 +538,7 @@ def DesignerController():
 		PropSheet = property(_getPropSheet, _setPropSheet)
 		ReportForm = property(_getReportForm)
 		SelectedObjects = property(_getSelectedObjects, _setSelectedObjects)
+		Selection = SelectedObjects  ## compatability with ClassDesignerPropSheet
 	
 
 	global rdc
