@@ -702,6 +702,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"Expand": {"type" : bool, "readonly" : False},
 				"Searchable": {"type" : bool, "readonly" : False},
 				"Sortable": {"type" : bool, "readonly" : False}}
+		comboProps = {"AppendOnEnter" : {"type" : bool, "readonly" : False}}
 		dataProps = {"DataSource" : {"type" : unicode, "readonly" : False},
 				"DataField" : {"type" : unicode, "readonly" : False},
 				"Value" : {"type" : "multi", "readonly" : False}}
@@ -891,6 +892,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(fontProps)
 		elif isinstance(self, dabo.ui.dComboBox):
 			ret.update(colorProps)
+			ret.update(comboProps)
 			ret.update(fontProps)
 			ret.update(choiceProps)
 		elif isinstance(self, dabo.ui.dDropdownList):
