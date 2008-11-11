@@ -1666,6 +1666,18 @@ def setdFormClass(typ):
 		dabo.ui.__dict__["dForm"] = dFormSDI
 
 
+def spawnProcess(cmd, wait=False):
+	"""Launch a separate process. Control is immediately returned to the 
+	calling program, unless you call this with 'wait=True'.
+	"""
+	if wait:
+		flag = wx.EXEC_SYNC
+	else:
+		flag = wx.EXEC_ASYNC
+	return wx.Execute(cmd, flag)
+
+
+
 class GridSizerSpanException(dabo.dException.dException):
 	"""Raised when an attempt is made to set the RowSpan or
 	ColSpan of an item to an illegal value.
