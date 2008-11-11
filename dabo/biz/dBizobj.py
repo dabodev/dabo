@@ -9,6 +9,8 @@ from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.lib.RemoteConnector import RemoteConnector
+from dabo.lib.profilehooks import profile
+
 
 NO_RECORDS_PK = "75426755-2f32-4d3d-86b6-9e2a1ec47f2c"  ## Can't use None
 
@@ -509,7 +511,7 @@ class dBizobj(dObject):
 		"""Delete the current row of the data set."""
 		rp = self._RemoteProxy
 		if rp:
-			return rp.delete(startTransaction=startTransaction, inLoop=inLoop)
+			return rp.delete()
 		cursor = self._CurrentCursor
 		errMsg = self.beforeDelete()
 		if not errMsg:
@@ -560,6 +562,9 @@ class dBizobj(dObject):
 
 	def deleteAll(self, startTransaction=True):
 		""" Delete all rows in the data set."""
+		rp = self._RemoteProxy
+		if rp:
+			return rp.deleteAll()
 		cursor = self._CurrentCursor
 		startTransaction = startTransaction and self.beginTransaction()
 		try:
@@ -607,7 +612,6 @@ class dBizobj(dObject):
 		added to the dict under the key 'children' so that they can be processed
 		accordingly.
 		"""
-
 		diff = {hash(self): self._CurrentCursor.getDataDiff(allRows=allRows)}
 		kids = []
 		for child in self.__children:
@@ -1307,7 +1311,7 @@ class dBizobj(dObject):
 		automatically when appropriate, but user code may call this as well
 		if needed.
 		"""
-		if len(self.__children) == 0:
+		if not self.__children:
 			return True
 
 		errMsg = self.beforeChildRequery()
@@ -1462,10 +1466,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self._CurrentCursor.getDataTypes()
 
 
-	def _storeData(self, data, typs):
+	def _storeData(self, data, typs, stru):
 		"""Accepts a data set and type defintion dict, and updates the cursor
 		with these values.
 		"""
+		self.DataStructure = stru
 		self._CurrentCursor._storeData(data, typs)
 
 
@@ -1476,7 +1481,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
 			2: boolean specifying whether this is a pk field.
 		"""
-		return self._CurrentCursor.getFields(self.DataSource)
+		return self._CurrentCursor.DataStructure
 
 
 	def getDataStructureFromDescription(self):
@@ -1762,6 +1767,8 @@ afterDelete() which is only called after a delete().""")
 		"""
 		crs.AutoPopulatePK = self._autoPopulatePK
 		crs.AutoQuoteNames = self._autoQuoteNames
+		if self._dataStructure is not None:
+			crs.DataStructure = self._dataStructure
 		crs.Table = self._dataSource
 		crs.UserSQL = self._userSQL
 		crs.VirtualFields = self._virtualFields
@@ -1863,6 +1870,7 @@ afterDelete() which is only called after a delete().""")
 		for key, cursor in self.__cursors.items():
 			cursor.DataStructure = val
 		self._dataStructure = val
+
 
 	def _getDefaultValues(self):
 		return self._defaultValues
