@@ -16,6 +16,8 @@ import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.dLocalize import _
 from dabo.lib.manifest import Manifest
+jsonEncode = dabo.lib.jsonEncode
+jsonDecode = dabo.lib.jsonDecode
 
 
 
@@ -25,48 +27,11 @@ class RemoteConnector(object):
 	"""
 	def __init__(self, obj):
 		self.obj = obj
-# 		self.fn = fn
-# 		self.fname = fn.__name__
+		self._baseURL = None
 		self._authHandler = None
 		self._urlOpener = None
-# 		super(RemoteConnector, self).__init__()
-# 
-# 
-# 	def __call__(self, *args, **kwargs):
-# 		remote = bool(self.UrlBase)
-# 		if remote:
-# 			try:
-# 				decFunc = getattr(self, self.fname, None)
-# 				if decFunc:
-# 					return decFunc(*args, **kwargs)
-# 				else:
-# 					# Generic remote method
-# 					url = self._getFullUrl()
-# 					return self._read(url)
-# 			except urllib2.URLError, e:
-# 				try:
-# 					code, txt = e.reason
-# 				except AttributeError:
-# 					code = e.code
-# 				if code == 500:
-# 					# Internal server error
-# 					dabo.errorLog.write(_("500 Internal Server Error received"))
-# 					return
-# 				elif code == 61:
-# 					# Connection refused; server is down
-# 					dabo.errorLog.write(_("\n\nThe remote server is not responding; exiting.\n\n"))
-# 					# This could certainly be improved with a timeout loop instead of instantly quitting.
-# 					sys.exit()
-# 				else:
-# 					# Some other proble; raise the error so the developer can debug
-# 					raise e
-# 		thisFn = getattr(self.obj, self.fname)
-# 		return self.fn(self.obj, *args, **kwargs)
-# 
-# 
-# 	def __get__(descr, inst, instCls=None):
-# 		descr.obj = inst
-# 		return descr
+		appDir = dabo.lib.utils.getUserAppDataDirectory()
+		self._dataDir = pathjoin(appDir, "webapps")
 
 
 	def _join(self, pth):
@@ -99,8 +64,8 @@ class RemoteConnector(object):
 
 
 	def _storeEncodedDataSet(self, enc):	
-		pdata, ptyps = dabo.lib.jsonDecode(enc)
-		# Both values are pickled, so we need to unpickle them first
+		pdata, ptyps, pstru = jsonDecode(enc)
+		# The values are pickled, so we need to unpickle them first
 		def safeLoad(val):
 			ret = None
 			try:
@@ -117,19 +82,26 @@ class RemoteConnector(object):
 			return ret
 		typs = safeLoad(ptyps)
 		data = safeLoad(pdata)
-		self.obj._storeData(data, typs)
+		stru = safeLoad(pstru)
+		self.obj._storeData(data, typs, stru)
 
 
-	def requery(self):
+	def requery(self):	
 		biz = self.obj
+		biz.setChildLinkFilter()
 		url = self._getFullUrl("requery")
 		sql = biz.getSQL()
+
 		# Get rid of as much unnecessary formatting as possible.
 		sql = re.sub(r"\n *", " ", sql)
 		sql = re.sub(r" += +", " = ", sql)
-		params = {"SQL": sql, "KeyField": biz.KeyField, "_method": "GET"}
-		prm = urllib.urlencode(params)
-		res = self.UrlOpener.open(url, data=prm)
+		sqlparams = str(biz.getParams())
+		params = {"SQL": sql, "SQLParams": sqlparams, "KeyField": biz.KeyField, "_method": "GET"}
+		try:
+			res = self.UrlOpener.open(url, data=prm)
+		except urllib2.HTTPError, e:
+			print "ERR", e
+			return
 		encdata = res.read()
 		self._storeEncodedDataSet(encdata)
 	
@@ -139,7 +111,7 @@ class RemoteConnector(object):
 		url = self._getFullUrl("save")
 		changes = biz.getDataDiff(allRows=allRows)
 		chgDict = {hash(biz): (biz.DataSource, biz.KeyField, changes)}
-		params = {"DataDiff": dabo.lib.jsonEncode(chgDict), "_method": "POST"}
+		params = {"DataDiff": jsonEncode(chgDict), "_method": "POST"}
 		prm = urllib.urlencode(params)
 		try:
 			res = self.UrlOpener.open(url, data=prm)
@@ -177,33 +149,102 @@ class RemoteConnector(object):
 		self._storeEncodedDataSet(encdata)
 
 
-	def syncFiles(self):
-		app = self.obj
-		homedir = app.HomeDirectory
+	def deleteAll(self):
+		biz = self.obj
+		url = self._getFullUrl("deleteAll")
+		params = {"KeyField": biz.KeyField, "_method": "DELETE"}
+		prm = urllib.urlencode(params)
+		res = self.UrlOpener.open(url, data=prm)
+		encdata = res.read()
+		self._storeEncodedDataSet(encdata)
+
+
+	def launch(self, url):
+		"""Check with the server for available apps if no app name is passed.
+		If an app name is passed, run it directly if it exists on the server.
+		"""
+		# Just use the first 3 split parts.
+		scheme, host, path = urlparse.urlsplit(url)[:3]
+		path = path.lstrip("/")
+		self._baseURL = "%s://%s" % (scheme, host)
+		listURL = "%s://%s/manifest" % (scheme, host)
 		try:
-			appname = file(os.path.join(homedir, ".appname")).read()
-		except IOError:
-			# Use the HomeDirectory name
-			appname = os.path.split(homedir.rstrip("/"))[1]
+			res = jsonDecode(self._read(listURL))
+		except urllib2.HTTPError, e:
+			errcode = e.code
+			errText = e.read()
+			errMsg = "\n".join(errText.splitlines()[4:])
+			dabo.errorLog.write(_("HTTP Error getting app list: %s") % e)
+			raise e
+		# If they passed an app name, and it's in the returned app list, run it
+		if path and (path in res):
+			return path
+		# We have a list of available apps. Let the user select one
+		class AppPicker(dabo.ui.dOkCancelDialog):
+			def addControls(self):
+				self.AutoSize = False
+				self.Width = 400
+				self.Height = 300
+				self.Caption = _("Select Application")
+				sz = self.Sizer
+				lbl = dabo.ui.dLabel(self, Caption=_("The server has the following app(s):"))
+				lst = dabo.ui.dListBox(self, RegID="appList")
+				sz.DefaultBorder = 30
+				sz.DefaultBorderSides = ["left", "right"]
+				sz.DefaultSpacing = 20
+				sz.append(lbl, halign="center")
+				sz.append(lst, "x", halign="center")
+			
+			def setChoices(self, chc):
+				self.appList.Choices = chc
+		
+		dlg = AppPicker()
+		dlg.setChoices(res)
+		dlg.show()
+		if dlg.Accepted:
+			path = dlg.appList.StringValue
+		dlg.release()
+		return path
+		
+
+	def syncFiles(self, path=None):
+		app = self.obj
+		if isinstance(app, dabo.dApp):
+			homedir = app.HomeDirectory
+			try:
+				appname = file(pathjoin(homedir, ".appname")).read()
+			except IOError:
+				# Use the HomeDirectory name
+				appname = os.path.split(homedir.rstrip("/"))[1]
+		else:
+			# Running from the launch method. The path will contain the app name
+			appname = path
+			homedir = pathjoin(self._dataDir, path)
+			if not os.path.exists(homedir):
+				os.makedirs(homedir)
+			os.chdir(homedir)
 		url = self._getManifestUrl(appname, "diff")
 		# Get the current manifest
 		currentMf = Manifest.getManifest(homedir)
-		params = {"current": dabo.lib.jsonEncode(currentMf)}
+		params = {"current": jsonEncode(currentMf)}
 		prm = urllib.urlencode(params)
 		try:
 			res = self.UrlOpener.open(url, data=prm)
+		except urllib2.URLError, e:
+			# Right now re-raise it and let the UI handle it
+			raise e
 		except urllib2.HTTPError, e:
 			errcode = e.code
 			errText = e.read()
 			errMsg = "\n".join(errText.splitlines()[4:])
 			if errcode == 304:
 				# Nothing has changed on the server, so we're cool...
-				return
+				return homedir
 			else:
 				dabo.errorLog.write(_("HTTP Error syncing files: %s") % e)
 				return
 		pickleRet = res.read()
-		filecode, chgs, serverMf = pickle.loads(dabo.lib.jsonDecode(pickleRet))
+		filecode, chgs, serverMf = pickle.loads(jsonDecode(pickleRet))
 		# Everything after this is relative to the app's home directory, so 
 		# change to it
 		currdir = os.getcwd()
@@ -256,12 +297,24 @@ class RemoteConnector(object):
 # 						if modl:
 # 							reload(modl)
 		os.chdir(currdir)
+		return homedir
 
 
-	# These are not handled by the local bizobjs, so just skip these
-	def beginTransaction(self): pass
-	def commitTransaction(self): pass
-	def rollbackTransaction(self): pass
+	# These are not handled by the local bizobjs, so just return False
+	def beginTransaction(self): return False
+	def commitTransaction(self): return False
+	def rollbackTransaction(self): return False
+
+
+	def getFields(self, tableName):
+		saveObj = self.obj
+		class Dummy(object):
+			DataSource = tableName
+		self.obj = Dummy()
+		url = self._getFullUrl("fields")
+		enc = self._read(url)
+		flds = jsonDecode(enc)
+		return flds
 
 
 	def _getConnection(self):
@@ -284,6 +337,9 @@ class RemoteConnector(object):
 
 
 	def _getUrlBase(self):
+		if self._baseURL:
+			# Set explicitly by the launch() method
+			return self._baseURL
 		try:
 			ret = self.Connection.ConnectInfo.RemoteHost
 		except AttributeError:
