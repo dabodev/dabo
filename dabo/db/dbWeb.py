@@ -31,7 +31,7 @@ class Web(SQLite):
 
 
 	def getFields(self, tableName, crs=None):
-		return self._remoteConnector.getFields(tableName=tableName, crs=crs)
+		return self._remoteConnector.getFields(tableName=tableName)
 
 
 	def _getRemoteURL(self):
