@@ -24,20 +24,28 @@ def parseCodeFile(txt):
 	# Replace any DOS-style newlines
 	txt = txt.replace("\r\n", "\n")
 	# The zero-th piece is the comments at the top of the file.
-	codeObjs = txt.split(codeObjectSep)[1:]
+	codeParts = txt.split(codeObjectSep)
+	imptPart = codeParts[0]
+	codeObjs = codeParts[1:]
+	# See if there are import statements
+	imptLines = [ln for ln in imptPart.splitlines()
+			if ln.strip()
+			and not ln.strip().startswith("#")]
+	ret["importStatements"] = "\n".join(imptLines)
+	
 	for codeObj in codeObjs:
 		cd = {}
-		impt = ""
 		# The first line in the code-ID, the rest is the code for
 		# that object
 		codeID, mthds = codeObj.split("\n", 1)
+
 		mthdList = pat.split(mthds)
 		# Element 0 is either empty or an import statement; the methods appear is
 		# groups of three elements each: the 'def' line, followed by the method
 		# name, followed by the method body.
 		impt = mthdList[0]
 		if impt:
-			cd["importStatements"] = impt
+			ret["importStatements"] += impt
 		mthdList = mthdList[1:]
 		while mthdList:
 			cd[mthdList[1]] = "\n".join((mthdList[0], mthdList[2].rstrip()))

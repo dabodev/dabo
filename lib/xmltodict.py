@@ -190,6 +190,7 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False):
 		if os.path.exists(codePth):
 			try:
 				codeDict = desUtil.parseCodeFile(open(codePth).read())
+				ret["importStatements"] = codeDict.pop("importStatements", "")
 				desUtil.addCodeToClassDict(ret, codeDict)
 			except StandardError, e:
 				print "Failed to parse code file:", e

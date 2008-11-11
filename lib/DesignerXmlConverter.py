@@ -68,7 +68,7 @@ class DesignerXmlConverter(dObject):
 		## so that you can help determine any problems.
 		## egl: removed 2007-02-10. If you want to see the output, 
 		##   just uncomment the next line.
-#  		open("CLASSTEXT.py", "w").write(self.classText)
+ 		open("CLASSTEXT.py", "w").write(self.classText)
 
 		# jfcs added self._codeFileName to below
 		# egl - created a tmp file for the main class code that we can use 
@@ -124,6 +124,7 @@ class DesignerXmlConverter(dObject):
 		nm = dct.get("name")
 		atts = dct.get("attributes", {})
 		code = dct.get("code", {})
+		self._import = dct.get("importStatements", "")
 		propDefs = dct.get("properties", {})
 		kids = dct.get("children", [])
 		clsID = atts.get("classID", None)
