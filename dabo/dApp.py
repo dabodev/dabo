@@ -239,7 +239,21 @@ class dApp(dObject):
 		# If running as a web app, sync the files
 		rp = self._RemoteProxy
 		if rp:
-			rp.syncFiles()
+			try:
+				rp.syncFiles()
+			except urllib2.URLError, e:
+				code, msg = e.reason
+				if code == 61:
+					# Connection refused; server's down
+					print _("""
+
+
+The connection was refused by the server. Most likely this means that
+the server is not running. Please have that problem corrected, and
+try again when it is running.
+
+""")
+					sys.exit(61)
 
 		self._afterInit()
 		self.autoBindEvents()
