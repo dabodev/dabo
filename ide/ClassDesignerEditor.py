@@ -184,6 +184,15 @@ class EditorForm(dui.dForm):
 		dabo.ui.callAfter(self.refreshStatus)
 
 
+	def afterInitAll(self):
+		"""Set the checked status of the various menu items."""
+		ed = self.editor
+		self._autoAutoItem.Checked = ed.AutoAutoComplete
+		self._codeFoldingItem.Checked = ed.ShowCodeFolding
+		self._lineNumbersItem.Checked = ed.ShowLineNumbers
+		self._whiteSpaceItem.Checked = ed.ShowWhiteSpace
+
+
 	def afterSetMenuBar(self):
 		ClassDesignerMenu.mkDesignerMenu(self)
 		fmn = self.MenuBar.append(_("Font"))
@@ -196,15 +205,12 @@ class EditorForm(dui.dForm):
 		self._autoAutoItem = emn.append(_("Automa&tic AutoComplete"), 
 				OnHit=self.onAutoAutoComp, bmp="", help=_("Toggle Automatic Autocomplete"), 
 				menutype="check")
-		self._autoAutoItem.Checked = True
 		self._codeFoldingItem = emn.append(_("Code Folding"), 
 				OnHit=self.onCodeFolding, bmp="", help=_("Toggle Code Folding"), 
 				menutype="check")
-		self._codeFoldingItem.Checked = True
 		self._lineNumbersItem = emn.append(_("Line Numbers"), 
 				OnHit=self.onLineNumbers, bmp="", help=_("Toggle Line Numbers"), 
 				menutype="check")
-		self._lineNumbersItem.Checked = True
 		self._whiteSpaceItem = emn.append(_("White Space Characters"), 
 				OnHit=self.onWhiteSpace, bmp="", help=_("Toggle White Space Characters"), 
 				menutype="check")
