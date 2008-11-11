@@ -10,25 +10,16 @@ import dabo.dException as dException
 from dBizobj import dBizobj
 
 
-
-def getCacheDB():
-	curr = os.getcwd()
-	db = os.path.join(curr, "DaboBizCache.db")
-	cxn = dabo.db.dConnection(connectInfo={"DbType": "SQLite", "Database": db})
-	cursor = cxn.getDaboCursor()
-	return cursor
+cacheDir = os.path.join(os.getcwd(), "cache")
+if not os.path.exists(cacheDir):
+	os.makedirs(cacheDir)
+else:
+	# Clean up old files?
+	pass
 
 
 class RemoteBizobj(dBizobj):
 	def _beforeInit(self):
-		crs = getCacheDB()
-		sql = """create table if not exists bizcache (
-			hashval text, 
-			updated int,
-			keyfield text,
-			pickledata text)
-			"""
-		crs.execute(sql)
 		return super(RemoteBizobj, self)._beforeInit()
 
 
@@ -53,18 +44,16 @@ class RemoteBizobj(dBizobj):
 
 	@classmethod
 	def load(cls, hashval, ds):
-		crs = getCacheDB()
 		biz = cls()
 		biz.DataSource = ds
 		biz.hashval = hashval
-		sql = "select * from bizcache where hashval = ?"
-		crs.execute(sql, (hashval, ))
-		if crs.RowCount:
-			biz.KeyField = crs.Record.keyfield
-			try:
-				crsData = pickle.loads(crs.Record.pickledata)
-			except UnicodeEncodeError:
-				crsData = pickle.loads(crs.Record.pickledata.encode("utf-8"))
+
+		pth = os.path.join(cacheDir, hashval)
+		if os.path.exists(pth):
+			f = file(pth)
+			kf, crsData = pickle.load(f)
+			f.close()
+			biz.KeyField = kf
 			# This is a dict with cursor keys as the keys, and 
 			# values as a (dataset, typedef) tuple.
 			for kk, (ds, typinfo) in crsData.items():
@@ -97,30 +86,15 @@ class RemoteBizobj(dBizobj):
 		"""Store data info to the cache for the next time the same bizobj
 		is needed.
 		"""
-		crs = getCacheDB()
-		sql = """delete from bizcache where hashval = ?"""
-		crs.execute(sql, (hashval,))
-		sql = """insert into bizcache (hashval, updated, keyfield, pickledata)
-			values (?, ?, ?, ?)"""
-		updated = int(time.time())
+		pth = os.path.join(cacheDir, hashval)
+		f = file(pth, "w")
 		pd = {}
 		cursorDict = self._cursorDictReference()
 		for kk, cursor in cursorDict.items():
 			pd[kk] = (cursor.getDataSet(returnInternals=True), cursor.getDataTypes())
-		pklData = pickle.dumps(pd, 0)
-		enctype = ""
-		if isinstance(pklData, str):
-			try:
-				unicode(pklData, "utf-8")
-			except UnicodeDecodeError:
-				# Try typical encodings, starting with the default.
-				for enctype in (self.Encoding, "utf-8", "latin-1"):
-					try:
-						pklData = unicode(pklData, enctype)
-						break
-					except UnicodeDecodeError:
-						continue
-		crs.execute(sql, (hashval, updated, self.KeyField, pklData))
+		dataToStore = (self.KeyField, pd)
+		pickle.dump(dataToStore, f)
+		f.close()
 
 
 	def storeRemoteSQL(self, sql):
@@ -130,7 +104,7 @@ class RemoteBizobj(dBizobj):
 		remoteChar = "~~"
 		localChar = self._CurrentCursor.BackendObject.nameEnclosureChar
 		self.UserSQL = sql.replace(remoteChar, localChar)
-
+		
 
 	def applyDiffAndSave(self, diff, primary=False):
 		"""Diffs are dicts in the format:
