@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<dForm Name="dForm" Caption="Dabo Preference Editor" Top="86" Height="602" Width="605" designerClass="DesForm" UseSizers="True" Left="201">
+<dForm Name="dForm" Caption="Dabo Preference Editor" SaveRestorePosition="False" Top="143" Height="631" Width="689" designerClass="DesForm" Left="375">
 	<code>
 		<expandAll><![CDATA[
 def expandAll(self):
@@ -125,15 +125,15 @@ from dabo.dLocalize import _
 	</code>
 
 	<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-		<dPanel sizerInfo="{'Proportion': 1, 'HAlign': 'Center', 'VAlign': 'Middle', 'Expand': True}" designerClass="controlMix">
+		<dPanel sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix">
 			<dSizer SlotCount="3" designerClass="LayoutSizer" Orientation="Vertical">
-				<dTextBox sizerInfo="{'VAlign': 'Middle', 'Border': 6, 'Expand': True}" ReadOnly="True" FontSize="10.5" DataField="pth" designerClass="controlMix" Alignment="Center" DataSource="self.Form"></dTextBox>
-				<dSizer SlotCount="1" sizerInfo="{'Proportion': 1, 'Expand': True}" designerClass="LayoutSizer" Orientation="Horizontal">
-					<dPageFrame sizerInfo="{'Proportion': 1, 'HAlign': 'Center', 'VAlign': 'Middle', 'Expand': True}" designerClass="controlMix" PageCount="2">
-						<dPage Caption="Tree" designerClass="controlMix" Name="dPage">
+				<dTextBox sizerInfo="{}" ReadOnly="True" FontSize="10.5" DataField="pth" designerClass="controlMix" Alignment="Center" DataSource="None"></dTextBox>
+				<dSizer SlotCount="1" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutSizer" Orientation="Horizontal">
+					<dPageFrame sizerInfo="{'HAlign': 'Center'}" designerClass="controlMix" PageCount="2">
+						<dPage Caption="Tree" designerClass="controlMix">
 							<dSizer SlotCount="2" designerClass="LayoutSizer" Orientation="Vertical">
-								<dSizer SlotCount="2" sizerInfo="{'Proportion': 1, 'Expand': True}" designerClass="LayoutSizer" Orientation="Horizontal">
-									<dTreeView RegID="tree" sizerInfo="{'Proportion': 1, 'HAlign': 'Center', 'VAlign': 'Middle', 'Expand': True}" designerClass="controlMix" Name="treePrefs1" ShowRootNode="False">
+								<dSizer SlotCount="2" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutSizer" Orientation="Horizontal">
+									<dTreeView RegID="tree" sizerInfo="{'HAlign': 'Center'}" designerClass="controlMix" Name="treePrefs1" ShowRootNode="False">
 										<code>
 											<getKeyPathForNode><![CDATA[
 def getKeyPathForNode(self, node):
@@ -202,10 +202,10 @@ def onContextMenu(self, evt):
 										</dNode>
 										<dNode Caption="Third Child" designerClass="controlMix"></dNode>
 									</dTreeView>
-									<dGridSizer sizerInfo="{'Border': 30, 'Expand': True}" Rows="3" designerClass="LayoutGridSizer" VGap="10" MaxDimension="r" Columns="2">
-										<dLabel Caption="Pref Name:" sizerInfo="{'Proportion': 0, 'HAlign': 'Right', 'ColExpand': True, 'VAlign': 'Middle', 'Expand': False, 'RowExpand': False}" designerClass="controlMix" Name="dLabel3" rowColPos="(0, 0)"></dLabel>
-										<dLabel Caption="Value:" sizerInfo="{'Proportion': 0, 'HAlign': 'Right', 'ColExpand': True, 'VAlign': 'Middle', 'Expand': False, 'RowExpand': False}" designerClass="controlMix" Name="dLabel11" rowColPos="(1, 0)"></dLabel>
-										<dTextBox RegID="txtPrefValue" sizerInfo="{'Proportion': 0, 'ColExpand': True, 'Expand': True, 'RowExpand': False}" designerClass="controlMix" Name="dTextBox3" rowColPos="(1, 1)">
+									<dGridSizer HGap="3" sizerInfo="{'BorderSides': ['All'], 'Proportion': 2, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 30, 'Expand': True}" Rows="3" designerClass="LayoutGridSizer" VGap="10" MaxDimension="Rows" Columns="2">
+										<dLabel Caption="Pref Name:" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right'}" designerClass="controlMix" Name="dLabel3" rowColPos="(0, 0)"></dLabel>
+										<dLabel Caption="Value:" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right'}" designerClass="controlMix" Name="dLabel11" rowColPos="(1, 0)"></dLabel>
+										<dTextBox RegID="txtPrefValue" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0}" designerClass="controlMix" Name="dTextBox3" rowColPos="(1, 1)">
 											<code>
 												<onKeyUp><![CDATA[
 def onKeyUp(self, evt):
@@ -214,8 +214,8 @@ def onKeyUp(self, evt):
 												</onKeyUp>
 											</code>
 										</dTextBox>
-										<dTextBox sizerInfo="{'Proportion': 0, 'ColExpand': True, 'Expand': True, 'RowExpand': False}" Name="dTextBox11" rowColPos="(0, 1)" ReadOnly="True" designerClass="controlMix" RegID="txtPrefName"></dTextBox>
-										<dDropdownList sizerInfo="{'Proportion': 0, 'ColExpand': True, 'Expand': True, 'RowExpand': False}" Name="dDropdownList1" rowColPos="(2, 1)" Choices="[u&apos;-None-&apos;, u&apos;String&apos;, u&apos;Unicode&apos;, u&apos;Integer&apos;, u&apos;Float&apos;, u&apos;Boolean&apos;, u&apos;List&apos;, u&apos;Tuple&apos;, u&apos;Dict&apos;, u&apos;Datetime&apos;, u&apos;Date&apos;]" designerClass="controlMix" RegID="ddType">
+										<dTextBox sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0}" Name="dTextBox11" rowColPos="(0, 1)" ReadOnly="True" designerClass="controlMix" RegID="txtPrefName"></dTextBox>
+										<dDropdownList sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Left'}" Name="dDropdownList1" rowColPos="(2, 1)" Choices="[u&apos;-None-&apos;, u&apos;String&apos;, u&apos;Unicode&apos;, u&apos;Integer&apos;, u&apos;Float&apos;, u&apos;Boolean&apos;, u&apos;List&apos;, u&apos;Tuple&apos;, u&apos;Dict&apos;, u&apos;Datetime&apos;, u&apos;Date&apos;]" Width="105" designerClass="controlMix" RegID="ddType">
 											<code>
 												<afterInit><![CDATA[
 def afterInit(self):
@@ -225,11 +225,11 @@ def afterInit(self):
 												</afterInit>
 											</code>
 										</dDropdownList>
-										<dLabel Caption="Type:" sizerInfo="{'Proportion': 0, 'HAlign': 'Right', 'ColExpand': True, 'VAlign': 'Middle', 'Expand': False, 'RowExpand': False}" designerClass="controlMix" Name="dLabel21" rowColPos="(2, 0)"></dLabel>
+										<dLabel Caption="Type:" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right'}" designerClass="controlMix" Name="dLabel21" rowColPos="(2, 0)"></dLabel>
 									</dGridSizer>
 								</dSizer>
-								<dSizer SlotCount="2" sizerInfo="{'HAlign': 'Center'}" designerClass="LayoutSizer" Orientation="Horizontal">
-									<dButton Caption="Expand All" sizerInfo="{'HAlign': 'Center', 'VAlign': 'Middle', 'Border': 5}" designerClass="controlMix">
+								<dSizer SlotCount="2" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Center', 'VAlign': 'Top', 'Border': 0, 'Expand': False}" designerClass="LayoutSizer" Orientation="Horizontal">
+									<dButton Width="92" sizerInfo="{}" designerClass="controlMix" Caption="Expand All">
 										<code>
 											<onHit><![CDATA[
 def onHit(self, evt):
@@ -238,7 +238,7 @@ def onHit(self, evt):
 											</onHit>
 										</code>
 									</dButton>
-									<dButton Caption="Collapse All" sizerInfo="{'HAlign': 'Center', 'VAlign': 'Middle', 'Border': 5}" designerClass="controlMix" Name="dButton1">
+									<dButton Width="99" sizerInfo="{}" designerClass="controlMix" Name="dButton1" Caption="Collapse All">
 										<code>
 											<onHit><![CDATA[
 def onHit(self, evt):
@@ -258,9 +258,10 @@ def onPageEnter(self, evt):
 ]]>
 								</onPageEnter>
 							</code>
+
 							<dSizer SlotCount="4" designerClass="LayoutSizer" Orientation="Vertical">
-								<dBorderSizer SlotCount="1" Caption="Filter Expression" sizerInfo="{'BorderSides': ['Right'], 'Border': 200, 'Expand': True}" designerClass="LayoutBorderSizer" Orientation="Horizontal">
-									<dTextBox RegID="txtFilter" sizerInfo="{'Proportion': 1, 'VAlign': 'Middle', 'Border': 3, 'Expand': True}" designerClass="controlMix" Name="txtFilter">
+								<dBorderSizer SlotCount="1" Caption="Filter Expression" sizerInfo="{'BorderSides': ['Right'], 'Proportion': 0, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 200, 'Expand': True}" designerClass="LayoutBorderSizer" Orientation="Horizontal">
+									<dTextBox RegID="txtFilter" Width="461" sizerInfo="{}" designerClass="controlMix" Name="txtFilter">
 										<code>
 											<onKeyChar><![CDATA[
 def onKeyChar(self, evt):
@@ -270,7 +271,7 @@ def onKeyChar(self, evt):
 										</code>
 									</dTextBox>
 								</dBorderSizer>
-								<dGrid ColumnCount="2" sizerInfo="{'Proportion': 1, 'Border': 8, 'Expand': True}" Name="grdFilteredPrefs" designerClass="controlMix" RegID="grdFilteredPrefs" SelectionMode="Row">
+								<dGrid ColumnCount="2" sizerInfo="{}" Name="grdFilteredPrefs" designerClass="controlMix" RegID="grdFilteredPrefs" SelectionMode="Row">
 									<code>
 										<rowChanged><![CDATA[
 def rowChanged(self):
@@ -290,17 +291,17 @@ def onGridCellSelected(self, evt):
 										</onGridCellSelected>
 									</code>
 
-									<dColumn FontSize="9.0" HeaderFontFace="Arial" Caption="Preference" Width="497" designerClass="controlMix" HorizontalAlignment="Left" FontFace="Arial" HeaderFontSize="9.0" Order="0" DataField="ckey"></dColumn>
-									<dColumn FontSize="9.0" HeaderFontFace="Arial" Caption="Value" Width="123" designerClass="controlMix" HorizontalAlignment="Left" FontFace="Arial" HeaderFontSize="9.0" Order="10" DataField="cvalue"></dColumn>
+									<dColumn FontSize="9" HeaderFontFace="Arial" Caption="Preference" Width="497" designerClass="controlMix" HorizontalAlignment="Left" FontFace="Arial" HeaderFontSize="9" Order="0" DataField="ckey"></dColumn>
+									<dColumn FontSize="9" HeaderFontFace="Arial" Caption="Value" Width="123" designerClass="controlMix" HorizontalAlignment="Left" FontFace="Arial" HeaderFontSize="9" Order="10" DataField="cvalue"></dColumn>
 								</dGrid>
-								<dLabel RegID="lblResults" Caption="-" sizerInfo="{'VAlign': 'Middle', 'Border': 3, 'Expand': True}" designerClass="controlMix"></dLabel>
-								<dPanel sizerInfo="{'Proportion': 1, 'Border': 10, 'Expand': True}" designerClass="LayoutPanel"></dPanel>
+								<dLabel RegID="lblResults" Caption="-" sizerInfo="{}" designerClass="controlMix"></dLabel>
+								<dPanel sizerInfo="{'BorderSides': ['All'], 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 10}" designerClass="LayoutPanel"></dPanel>
 							</dSizer>
 						</dPage>
 					</dPageFrame>
 				</dSizer>
-				<dSizer SlotCount="3" sizerInfo="{'HAlign': 'Right', 'VAlign': 'Bottom', 'Border': 20}" designerClass="LayoutSizer" Orientation="Horizontal">
-					<dButton Caption="Exit, no save" sizerInfo="{'HAlign': 'Center', 'VAlign': 'Middle', 'Expand': True}" designerClass="controlMix" Name="dButton21">
+				<dSizer SlotCount="3" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Right', 'VAlign': 'Bottom', 'Border': 20, 'Expand': False}" designerClass="LayoutSizer" Orientation="Horizontal">
+					<dButton Width="104" sizerInfo="{}" designerClass="controlMix" Name="dButton21" Caption="Exit, no save">
 						<code>
 							<onHit><![CDATA[
 def onHit(self, evt):
@@ -309,8 +310,8 @@ def onHit(self, evt):
 							</onHit>
 						</code>
 					</dButton>
-					<dPanel Spacing="10" sizerInfo="{'Expand': True}" designerClass="LayoutSpacerPanel"></dPanel>
-					<dButton Caption="Save and Exit" sizerInfo="{'HAlign': 'Center', 'VAlign': 'Middle', 'Expand': True}" designerClass="controlMix" Name="dButton11">
+					<dPanel Spacing="10" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': False}" designerClass="LayoutSpacerPanel"></dPanel>
+					<dButton Width="108" sizerInfo="{}" designerClass="controlMix" Name="dButton11" Caption="Save and Exit">
 						<code>
 							<onHit><![CDATA[
 def onHit(self, evt):
