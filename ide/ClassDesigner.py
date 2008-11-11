@@ -491,6 +491,7 @@ class ClassDesigner(dabo.dApp):
 		self._superClassInfo = {}
 		# Translate the file path into a class dictionary.
 		clsd = self._importClassXML(pth)
+		importStatements = clsd.pop("importStatements", "")
 		# See if the class name requires a separate import
 		nm = clsd["name"]
 		try:
@@ -549,6 +550,7 @@ class ClassDesigner(dabo.dApp):
 				# Clear the children dict
 				clsd["children"] = []
 			frm._setupPanels(fromNew=False)
+		self._classImportDict[frm] = importStatements
 		lp = frm.initLayoutPanel
 		if isFormClass and frm.UseSizers and not isWiz:
 			# Remove the LayoutPanel that was added
@@ -572,10 +574,7 @@ class ClassDesigner(dabo.dApp):
 				# Each method will be a separate dict
 				for mthd, cd in code.items():
 					cd = cd.replace("\n]", "]")
-					if mthd == "importStatements":
-						self._classImportDict[frm] = cd
-					else:
-						self._codeDict[frm][mthd] = cd
+					self._codeDict[frm][mthd] = cd
 			# Do the same for the properties
 			propDefs = clsd.get("properties", {})
 			# Restore any prop definitions.

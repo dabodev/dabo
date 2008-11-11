@@ -522,16 +522,19 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 					code += "\n"
 			except KeyError:
 				code = ""
+			if code:
+				body.insert(0, code)
+				code = ""
 			# Sort the methods alphabetically
 			mthNames = mthds.keys()
 			mthNames.sort()
 			for mthd in mthNames:
 				code += mthds[mthd].strip()
-				while not code.endswith("\n\n"):
+				while not code.endswith("\n\n\n"):
 					code += "\n"
 			hdr = codeHeaderTemplate % codeKey
 			body.append("%s\n%s" % (hdr, code))
-		return ret + "\n\n".join(body)
+		return ret + "\n".join(body)
 
 	
 	def onSaveClassDesign(self, evt):
