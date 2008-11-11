@@ -1099,7 +1099,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Accepts a dataset and type dict from an external source and
 		uses it as its own.
 		"""
-		print "STORE"
 		# clear mementos and new record flags:
 		self._mementos = {}
 		self._newRecords = {}
@@ -1109,8 +1108,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		# Store the values
 		self._records = data
 		self._types = typs
-		# Need to do this here to avoid lags later on.
-		self._getDataStructure()
 		# Clear the unsorted list, and then apply the current sort
 		self.__unsortedRows = []
 		if self.sortColumn:
@@ -1453,7 +1450,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				row, rec = self._getRecordByPk(rec_pk)
 				for fld, val in mem.items():
 					self._records[row][fld] = val
-			print "CANCEL"
 			self._mementos = {}
 
 		else:
@@ -2435,9 +2431,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def _setTable(self, table):
 		self._table = self.AuxCursor._table = self.sqlManager._table = "%s" % table
 		if table and not self._keyFieldSet:
+			flds = self.getFields(table)
+			if flds is None:
+				return
 			# Get the PK field, if any
 			try:
-				self._keyField = [fld[0] for fld in self.getFields(table)
+				self._keyField = [fld[0] for fld in flds
 						if fld[2] ][0]
 			except IndexError:
 				pass
