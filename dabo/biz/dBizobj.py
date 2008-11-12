@@ -9,7 +9,6 @@ from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.lib.RemoteConnector import RemoteConnector
-from dabo.lib.profilehooks import profile
 
 
 NO_RECORDS_PK = "75426755-2f32-4d3d-86b6-9e2a1ec47f2c"  ## Can't use None
