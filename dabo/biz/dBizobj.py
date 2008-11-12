@@ -1470,6 +1470,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		for rec in ds:
 			self.new()
 			for col, val in rec.items():
+				if self.AutoPopulatePK and (col == self.KeyField):
+					continue
 				self.setFieldVal(col, val)
 
 
