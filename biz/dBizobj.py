@@ -1461,6 +1461,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 
 
+	def appendDataSet(self, ds):
+		"""Appends the rows in the passed dataset to this bizobj's dataset. No checking
+		is done on the dataset columns to make sure that they are correct for this bizobj;
+		it is the responsibility of the caller to make sure that they match. If invalid data is
+		passed, a dException.FieldNotFoundException will be raised.
+		"""
+		for rec in ds:
+			self.new()
+			for col, val in rec.items():
+				self.setFieldVal(col, val)
+
+
 	def getDataTypes(self):
 		"""Returns the field type definitions as set in the cursor."""
 		return self._CurrentCursor.getDataTypes()
