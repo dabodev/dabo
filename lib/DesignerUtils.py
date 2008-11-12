@@ -88,31 +88,32 @@ def getSizerDefaults():
 	szDefaults[dui.dBitmap] = dct
 	szDefaults["dBitmap"] = dct
 	dct = copy.deepcopy(defVals)
-	dct["G"].update({"Proportion" : 0, "Expand" : False, "HAlign" : "center", "VAlign" : "middle"})
+	dct["G"].update({"Proportion" : 0, "Expand" : False, "HAlign" : "center", "VAlign" : "middle", 
+			"ColExpand": False})
 	dct["H"].update({"Proportion" : 0, "Expand" : False, "HAlign": "center"})
 	dct["V"].update({"Proportion" : 0, "Expand" : False, "VAlign": "middle"})
 	szDefaults[dui.dBitmapButton] = dct
 	szDefaults["dBitmapButton"] = dct
 	dct = copy.deepcopy(defVals)
-	dct["G"].update({"Proportion" : 0, "Expand" : False})
+	dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": False})
 	dct["H"].update({"Proportion" : 0, "Expand" : False})
 	dct["V"].update({"Proportion" : 0, "Expand" : False})
 	szDefaults[dui.dButton] = dct
 	szDefaults["dButton"] = dct
 	dct = copy.deepcopy(defVals)
-	dct["G"].update({"Proportion" : 0, "Expand" : False})
+	dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": False})
 	dct["H"].update({"Proportion" : 0, "Expand" : False})
 	dct["V"].update({"Proportion" : 0, "Expand" : False})
 	szDefaults[dui.dCheckBox] = dct
 	szDefaults["dCheckBox"] = dct
 	dct = copy.deepcopy(defVals)
-	dct["G"].update({"Proportion" : 0, "Expand" : False})
+	dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": False})
 	dct["H"].update({"Proportion" : 1, "Expand" : False})
 	dct["V"].update({"Proportion" : 0, "Expand" : True})
 	szDefaults[dui.dComboBox] = dct
 	szDefaults["dComboBox"] = dct
 	dct = copy.deepcopy(defVals)
-	dct["G"].update({"Proportion" : 0, "Expand" : False})
+	dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": False})
 	dct["H"].update({"Proportion" : 1, "Expand" : False})
 	dct["V"].update({"Proportion" : 0, "Expand" : True})
 	szDefaults[dui.dDateTextBox] = dct
@@ -121,7 +122,7 @@ def getSizerDefaults():
 	szDefaults[dui.dDialog] = dct
 	szDefaults["dDialog"] = dct
 	dct = copy.deepcopy(defVals)
-	dct["G"].update({"Proportion" : 0, "Expand" : False})
+	dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": False})
 	dct["H"].update({"Proportion" : 1, "Expand" : False})
 	dct["V"].update({"Proportion" : 0, "Expand" : True})
 	szDefaults[dui.dDropdownList] = dct
@@ -136,7 +137,7 @@ def getSizerDefaults():
 	szDefaults[dui.dSlidePanelControl] = dct
 	szDefaults["dSlidePanelControl"] = dct
 	dct = copy.deepcopy(defVals)
-	dct["G"].update({"Proportion" : 0, "Expand" : False})
+	dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": False})
 	dct["H"].update({"Proportion" : 1, "Expand" : False})
 	dct["V"].update({"Proportion" : 0, "Expand" : True})
 	szDefaults[dui.dGauge] = dct
@@ -156,7 +157,7 @@ def getSizerDefaults():
 	szDefaults[dui.dImage] = dct
 	szDefaults["dImage"] = dct
 	dct = copy.deepcopy(defVals)
-	dct["G"].update({"Proportion" : 0, "Expand" : False})
+	dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": False})
 	dct["H"].update({"Proportion" : 0, "Expand" : False})
 	dct["V"].update({"Proportion" : 0, "Expand" : False})
 	szDefaults[dui.dLabel] = dct
@@ -224,7 +225,7 @@ def getSizerDefaults():
 	szDefaults[dui.dSlider] = dct
 	szDefaults["dSlider"] = dct
 	dct = copy.deepcopy(defVals)
-	dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": True, "RowExpand": False})
+	dct["G"].update({"Proportion" : 0, "Expand" : False, "RowExpand": False})
 	dct["H"].update({"Proportion" : 1, "Expand" : False})
 	dct["V"].update({"Proportion" : 0, "Expand" : True})
 	szDefaults[dui.dSpinner] = dct
