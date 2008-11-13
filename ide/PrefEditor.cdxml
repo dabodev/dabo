@@ -23,11 +23,6 @@ def syncTree(self, key):
 		self.tree.Selection = ret[0]
 ]]>
 		</syncTree>
-		<collapseAll><![CDATA[
-def collapseAll(self):
-	self.tree.collapseAll()
-]]>
-		</collapseAll>
 		<deletePref><![CDATA[
 def deletePref(self, key):
 	self.pref.deletePref(key, nested=True)
@@ -46,13 +41,30 @@ def afterInitAll(self):
 	self.pref._persistAll = True
 	stru = self.pref.getPrefTree()
 	root = self.tree.getRootNode()
-	root.Caption = ""
+	if root:
+		root.Caption = ""
 	self.tree.treeFromStructure(stru, topNode=root)
 	basenode = self.tree.nodes[1]
 	[sib.expand() for sib in basenode.Siblings]
 	self.tree.ShowRootNode = False
 ]]>
 		</afterInitAll>
+		<addPref><![CDATA[
+def addPref(self, base, key, typ):
+	if base:
+		newkey = "%s.%s" % (base, key)
+	else:
+		newkey = key
+	if typ == "Node":
+		# Just set the node
+		eval("self.pref.%s" % newkey)
+	else:
+		typDict = {"String": str, "Unicode": unicode, "Integer": int, "Float": float, 
+				"Boolean": bool, "List": list, "Tuple": tuple, "Dict": dict, 
+				"Datetime": datetime.datetime, "Date": datetime.date}
+		self.pref.addKey(newkey, typDict[typ], typDict[typ]())
+]]>
+		</addPref>
 		<getNodeValue><![CDATA[
 def getNodeValue(self, nd):
 	pth = self.tree.getKeyPathForNode(nd)
@@ -84,22 +96,11 @@ def filterPrefs(self):
 	self.lblResults.Caption = "%(numMatch)s Match%(suffix)s" % locals()
 ]]>
 		</filterPrefs>
-		<addPref><![CDATA[
-def addPref(self, base, key, typ):
-	if base:
-		newkey = "%s.%s" % (base, key)
-	else:
-		newkey = key
-	if typ == "Node":
-		# Just set the node
-		eval("self.pref.%s" % newkey)
-	else:
-		typDict = {"String": str, "Unicode": unicode, "Integer": int, "Float": float, 
-				"Boolean": bool, "List": list, "Tuple": tuple, "Dict": dict, 
-				"Datetime": datetime.datetime, "Date": datetime.date}
-		self.pref.addKey(newkey, typDict[typ], typDict[typ]())
+		<collapseAll><![CDATA[
+def collapseAll(self):
+	self.tree.collapseAll()
 ]]>
-		</addPref>
+		</collapseAll>
 		<updatePref><![CDATA[
 def updatePref(self):
 	if not self or not self.tree:
@@ -125,15 +126,15 @@ from dabo.dLocalize import _
 	</code>
 
 	<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-		<dPanel sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix">
+		<dPanel sizerInfo="{}" designerClass="controlMix">
 			<dSizer SlotCount="3" designerClass="LayoutSizer" Orientation="Vertical">
 				<dTextBox sizerInfo="{}" ReadOnly="True" FontSize="10.5" DataField="pth" designerClass="controlMix" Alignment="Center" DataSource="None"></dTextBox>
 				<dSizer SlotCount="1" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutSizer" Orientation="Horizontal">
-					<dPageFrame sizerInfo="{'HAlign': 'Center'}" designerClass="controlMix" PageCount="2">
+					<dPageFrame RegID="mainPageFrame" sizerInfo="{}" designerClass="controlMix" PageCount="2">
 						<dPage Caption="Tree" designerClass="controlMix">
 							<dSizer SlotCount="2" designerClass="LayoutSizer" Orientation="Vertical">
 								<dSizer SlotCount="2" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutSizer" Orientation="Horizontal">
-									<dTreeView RegID="tree" sizerInfo="{'HAlign': 'Center'}" designerClass="controlMix" Name="treePrefs1" ShowRootNode="False">
+									<dTreeView RegID="tree" sizerInfo="{'Proportion': 2}" designerClass="controlMix" Name="treePrefs1" ShowRootNode="False">
 										<code>
 											<getKeyPathForNode><![CDATA[
 def getKeyPathForNode(self, node):
@@ -191,21 +192,11 @@ def onContextMenu(self, evt):
 ]]>
 											</onContextMenu>
 										</code>
-
-										<dNode Caption="First Child" designerClass="controlMix"></dNode>
-										<dNode Caption="Second Child" designerClass="controlMix">
-											<dNode Caption="Grandkid #1" designerClass="controlMix"></dNode>
-											<dNode Caption="Grandkid #2" designerClass="controlMix">
-												<dNode Caption="Great-Grandkid #1" designerClass="controlMix"></dNode>
-											</dNode>
-											<dNode Caption="Grandkid #3" designerClass="controlMix"></dNode>
-										</dNode>
-										<dNode Caption="Third Child" designerClass="controlMix"></dNode>
 									</dTreeView>
-									<dGridSizer HGap="3" sizerInfo="{'BorderSides': ['All'], 'Proportion': 2, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 30, 'Expand': True}" Rows="3" designerClass="LayoutGridSizer" VGap="10" MaxDimension="Rows" Columns="2">
-										<dLabel Caption="Pref Name:" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right'}" designerClass="controlMix" Name="dLabel3" rowColPos="(0, 0)"></dLabel>
-										<dLabel Caption="Value:" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right'}" designerClass="controlMix" Name="dLabel11" rowColPos="(1, 0)"></dLabel>
-										<dTextBox RegID="txtPrefValue" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0}" designerClass="controlMix" Name="dTextBox3" rowColPos="(1, 1)">
+									<dGridSizer HGap="3" sizerInfo="{'BorderSides': ['All'], 'Proportion': 3, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 30, 'Expand': True}" Rows="3" designerClass="LayoutGridSizer" VGap="10" MaxDimension="Rows" Columns="2">
+										<dLabel Caption="Pref Name:" sizerInfo="{'RowSpan': 1, 'BorderSides': ['All'], 'ColSpan': 1, 'Proportion': 0, 'HAlign': 'Right', 'ColExpand': False, 'VAlign': 'Middle', 'Border': 0, 'Expand': False, 'RowExpand': False}" designerClass="controlMix" Name="dLabel3" rowColPos="(0, 0)"></dLabel>
+										<dLabel Caption="Value:" sizerInfo="{'RowSpan': 1, 'BorderSides': ['All'], 'ColSpan': 1, 'Proportion': 0, 'HAlign': 'Right', 'ColExpand': False, 'VAlign': 'Middle', 'Border': 0, 'Expand': False, 'RowExpand': False}" designerClass="controlMix" Name="dLabel11" rowColPos="(1, 0)"></dLabel>
+										<dTextBox RegID="txtPrefValue" sizerInfo="{'RowSpan': 1, 'BorderSides': ['All'], 'ColSpan': 1, 'Proportion': 0, 'HAlign': 'Center', 'ColExpand': True, 'VAlign': 'Middle', 'Border': 0, 'Expand': True, 'RowExpand': False}" designerClass="controlMix" Name="dTextBox3" rowColPos="(1, 1)">
 											<code>
 												<onKeyUp><![CDATA[
 def onKeyUp(self, evt):
@@ -214,8 +205,8 @@ def onKeyUp(self, evt):
 												</onKeyUp>
 											</code>
 										</dTextBox>
-										<dTextBox sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0}" Name="dTextBox11" rowColPos="(0, 1)" ReadOnly="True" designerClass="controlMix" RegID="txtPrefName"></dTextBox>
-										<dDropdownList sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Left'}" Name="dDropdownList1" rowColPos="(2, 1)" Choices="[u&apos;-None-&apos;, u&apos;String&apos;, u&apos;Unicode&apos;, u&apos;Integer&apos;, u&apos;Float&apos;, u&apos;Boolean&apos;, u&apos;List&apos;, u&apos;Tuple&apos;, u&apos;Dict&apos;, u&apos;Datetime&apos;, u&apos;Date&apos;]" Width="105" designerClass="controlMix" RegID="ddType">
+										<dTextBox sizerInfo="{'RowSpan': 1, 'BorderSides': ['All'], 'ColSpan': 1, 'Proportion': 0, 'HAlign': 'Center', 'ColExpand': True, 'VAlign': 'Middle', 'Border': 0, 'Expand': True, 'RowExpand': False}" Name="dTextBox11" rowColPos="(0, 1)" ReadOnly="True" designerClass="controlMix" RegID="txtPrefName"></dTextBox>
+										<dDropdownList sizerInfo="{'RowSpan': 1, 'BorderSides': ['All'], 'ColSpan': 1, 'Proportion': 0, 'HAlign': 'Left', 'ColExpand': True, 'VAlign': 'Middle', 'Border': 0, 'Expand': False, 'RowExpand': False}" Name="dDropdownList1" rowColPos="(2, 1)" Choices="[u&apos;-None-&apos;, u&apos;String&apos;, u&apos;Unicode&apos;, u&apos;Integer&apos;, u&apos;Float&apos;, u&apos;Boolean&apos;, u&apos;List&apos;, u&apos;Tuple&apos;, u&apos;Dict&apos;, u&apos;Datetime&apos;, u&apos;Date&apos;]" Width="105" designerClass="controlMix" RegID="ddType">
 											<code>
 												<afterInit><![CDATA[
 def afterInit(self):
@@ -225,10 +216,10 @@ def afterInit(self):
 												</afterInit>
 											</code>
 										</dDropdownList>
-										<dLabel Caption="Type:" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right'}" designerClass="controlMix" Name="dLabel21" rowColPos="(2, 0)"></dLabel>
+										<dLabel Caption="Type:" sizerInfo="{'RowSpan': 1, 'BorderSides': ['All'], 'ColSpan': 1, 'Proportion': 0, 'HAlign': 'Right', 'ColExpand': False, 'VAlign': 'Middle', 'Border': 0, 'Expand': False, 'RowExpand': False}" designerClass="controlMix" Name="dLabel21" rowColPos="(2, 0)"></dLabel>
 									</dGridSizer>
 								</dSizer>
-								<dSizer SlotCount="2" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Center', 'VAlign': 'Top', 'Border': 0, 'Expand': False}" designerClass="LayoutSizer" Orientation="Horizontal">
+								<dSizer SlotCount="2" DefaultBorder="4" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Center', 'VAlign': 'Top', 'Border': 0, 'Expand': False}" designerClass="LayoutSizer" Orientation="Horizontal">
 									<dButton Width="92" sizerInfo="{}" designerClass="controlMix" Caption="Expand All">
 										<code>
 											<onHit><![CDATA[
@@ -283,6 +274,11 @@ def rowChanged(self):
 		pass
 ]]>
 										</rowChanged>
+										<onGridMouseLeftDoubleClick><![CDATA[
+def onGridMouseLeftDoubleClick(self, evt):
+	self.Form.mainPageFrame.SelectedPageNumber = 0
+]]>
+										</onGridMouseLeftDoubleClick>
 										<onGridCellSelected><![CDATA[
 def onGridCellSelected(self, evt):
 	if evt.row != self.CurrentRow:
