@@ -97,6 +97,7 @@ class RemoteConnector(object):
 		sql = re.sub(r" += +", " = ", sql)
 		sqlparams = str(biz.getParams())
 		params = {"SQL": sql, "SQLParams": sqlparams, "KeyField": biz.KeyField, "_method": "GET"}
+		prm = urllib.urlencode(params)
 		try:
 			res = self.UrlOpener.open(url, data=prm)
 		except urllib2.HTTPError, e:
@@ -230,9 +231,6 @@ class RemoteConnector(object):
 		prm = urllib.urlencode(params)
 		try:
 			res = self.UrlOpener.open(url, data=prm)
-		except urllib2.URLError, e:
-			# Right now re-raise it and let the UI handle it
-			raise e
 		except urllib2.HTTPError, e:
 			errcode = e.code
 			errText = e.read()
@@ -243,6 +241,9 @@ class RemoteConnector(object):
 			else:
 				dabo.errorLog.write(_("HTTP Error syncing files: %s") % e)
 				return
+		except urllib2.URLError, e:
+			# Right now re-raise it and let the UI handle it
+			raise e
 		pickleRet = res.read()
 		filecode, chgs, serverMf = pickle.loads(jsonDecode(pickleRet))
 		# Everything after this is relative to the app's home directory, so 
