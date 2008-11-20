@@ -455,6 +455,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 
 			# Preprocess trying to do a decimal conversion, to filter out
 			# invalid input before doing a number of things below:
+			strVal = strVal.strip()
 			try:
 				decimal.Decimal(strVal)
 			except decimal.InvalidOperation:
@@ -479,7 +480,10 @@ class dTextBoxMixin(dTextBoxMixinBase):
 					else:
 						retVal = int(strVal)
 				else:
-					retVal = decimal.Decimal(strVal)
+					try:
+						retVal = decimal.Decimal(strVal.strip())
+					except decimal.InvalidOperation:
+						raise ValueError, _("Invalid decimal value.")
 			except valueErrors:
 				raise ValueError, _("Invalid Numeric Value: %s") % strVal
 		else:
