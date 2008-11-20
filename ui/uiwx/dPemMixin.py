@@ -1920,7 +1920,7 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _getDaboFont(self):
-		if hasattr(self, "_font"):
+		if hasattr(self, "_font") and isinstance(self._font, dabo.ui.dFont):
 			v = self._font
 		else:
 			v = self.Font = dabo.ui.dFont(_nativeFont=self.GetFont())
