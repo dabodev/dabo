@@ -452,6 +452,13 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				_oldVal = self._oldVal
 			except AttributeError:
 				_oldVal = None
+
+			# Preprocess trying to do a decimal conversion, to filter out
+			# invalid input before doing a number of things below:
+			try:
+				decimal.Decimal(strVal)
+			except decimal.InvalidOperation:
+				raise ValueError, _("Invalid decimal value.")
 			
 			try:
 				if type(_oldVal) == decimal.Decimal:
