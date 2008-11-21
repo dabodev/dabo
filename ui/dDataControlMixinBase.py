@@ -13,7 +13,7 @@ from dabo.dLocalize import _
 class dDataControlMixinBase(dabo.ui.dControlMixin):
 	""" Provide common functionality for the data-aware controls."""
 	def __init__(self, *args, **kwargs):
-		self._inFldValid = False
+		self._fldValidFailed = False
 		self.__src = self._srcIsBizobj = self._srcIsInstanceMethod = None
 		self._designerMode = None
 		self._oldVal = None
@@ -50,13 +50,15 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def __onLostFocus(self, evt):
-		self._lostFocus()
+		if not self._lostFocus():
+			evt.stop()
 
 
 	def _gotFocus(self):
 		# self._oldVal will be compared to self.Value in flushValue()
-		if not self._inFldValid:
+		if not self._fldValidFailed:
 			self._oldVal = self.Value
+		self._fldValidFailed = False
 		try:
 			if self.SelectOnEntry:
 				self.selectAll()
@@ -66,20 +68,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def _lostFocus(self):
-		ok = True
-		if self._inFldValid or (self._oldVal != self.Value):
-			# Call the field-level validation if indicated.
-			if hasattr(self.Form, "validateField"):
-				ok = self.Form.validateField(self)
-		if not ok:
-			# If validation fails, don't write the value to the source. Also,
-			# flag this field so that the gotFocus() doesn't set _oldVal
-			# to the invalid value.
-			self._inFldValid = True
-		else:
-			# Everything's hunky dory; push the value to the DataSource.
-			self.flushValue()
-			self._inFldValid = False
+		if not self.flushValue():
+			# Field validation failed
+			self._fldValidFailed = True			
+			return False
 		try:
 			if self.SelectOnEntry:
 				self.selectNone()
@@ -170,7 +162,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def flushValue(self):
-		""" Save any changes to the underlying source field."""
+		""" Save any changes to the underlying source field. First check to make sure
+		that any changes are validated.
+		"""
+		if (self._oldVal != self.Value) and hasattr(self.Form, "validateField"):
+			if not self.Form.validateField(self):
+				# Validation failed; the form will handle notifying the user
+				return False
 		curVal = self.Value
 		ret = None
 		isChanged = False
@@ -219,7 +217,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 							if isinstance(self.DataSource, basestring):
 								self._srcIsInstanceMethod = False
 							else:
-								self._srcIsInstanceMethod = eval("type(src.%s)" % self.DataField) == type(self.flushValue)
+								self._srcIsInstanceMethod = callable(getattr(src, self.DataField))
 						if self._srcIsInstanceMethod:
 							return
 						if isinstance(src, basestring):
