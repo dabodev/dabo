@@ -895,13 +895,11 @@ class dForm(BaseForm, wx.Frame):
 		##  we are modifying the dForm class definition globally.)
 		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
+
 	def Show(self, show=True, *args, **kwargs):
 		self._gtk_show_fix(show)
 		dForm.__bases__[-1].Show(self, show, *args, **kwargs)
 
-	def Layout(self):
-		super(dForm, self).Layout()
-		wx.CallAfter(self.update)
 
 	def _getModal(self):
 		return getattr(self, "_modal", False)
