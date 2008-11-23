@@ -482,7 +482,7 @@ class dCursorMixin(dObject):
 			col = currCol
 
 		# Make sure that the specified column is a column in the result set
-		if not [True for t in self.DataStructure if t[0] == col]  and not self.VirtualFields.has_key(col):
+		if not [True for t in self.DataStructure if t[0] == col]  and col not in self.VirtualFields:
 			raise dException.dException, _("Invalid column specified for sort: ") + col
 
 		newCol = col
@@ -789,7 +789,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			raise dException.NoRecordsException, _("No records in the data set.")
 		rec = self._records[self.RowNumber]
 		recKey = self.pkExpression()
-		if self._newRecords.has_key(recKey) and self.AutoPopulatePK:
+		if (recKey in self._newRecords) and self.AutoPopulatePK:
 			# New, unsaved record
 			ret = rec[kons.CURSOR_TMPKEY_FIELD]
 		else:
@@ -815,10 +815,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				ret.append(self.getFieldVal(xFld, row=row))
 			return tuple(ret)
 		else:
-			if rec.has_key(fld):
+			try:
 				return rec[fld]
-			else:
-				if self.VirtualFields.has_key(fld):
+			except KeyError:
+				try:
 					vf = self.VirtualFields[fld]
 					if not isinstance(vf, dict):
 						vf = {"func": vf}
@@ -841,7 +841,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						# as necessary, before executing the virtual field function.
 						_rowChangeCallback(row)
 						return vf["func"]()
-				else:
+				except KeyError:
 					raise dException.FieldNotFoundException, "%s '%s' %s" % (
 							_("Field"), fld, _("does not exist in the data set"))
 
@@ -887,16 +887,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec = self._records[row]
 		valid_pk = self._hasValidKeyField()
 		keyField = self.KeyField
-		if not rec.has_key(fld):
-			if self.VirtualFields.has_key(fld):
+		if fld not in rec:
+			if fld in self.VirtualFields:
 				# ignore
 				return
 			ss = _("Field '%s' does not exist in the data set.") % (fld,)
 			raise dException.FieldNotFoundException, ss
 
-		if self._types.has_key(fld):
+		try:
 			fldType = self._types[fld]
-		else:
+		except KeyError:
 			fldType = self._fldTypeFromDB(fld)
 		nonUpdateFields = self.getNonUpdateFields()
 		if fldType is not None:
@@ -943,7 +943,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				else:
 					# This can also happen with a new record, since we just stuff the
 					# fields full of empty strings.
-					ignore = self._newRecords.has_key(rec.get(keyField, None))
+					ignore = (rec.get(keyField, None) in self._newRecords)
 
 				if not ignore:
 					msg = _("!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s") \
@@ -970,15 +970,19 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					else:
 						keyFieldValue = rec[keyField]
 				mem = self._mementos.get(keyFieldValue, {})
-				if mem.has_key(fld) or fld in nonUpdateFields:
+				if (fld in mem) or (fld in nonUpdateFields):
 					# Memento is already there, or it isn't updateable.
 					pass
 				else:
 					# Save the memento for this field.
 					mem[fld] = old_val
-				if mem.has_key(fld) and mem[fld] == val:
+				
+				try:
+					if mem[fld] == val:
 					# Value changed back to the original memento value; delete the memento.
 					del mem[fld]
+				except KeyError:
+					pass
 				if mem:
 					self._mementos[keyFieldValue] = mem
 				else:
@@ -1456,7 +1460,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			row = self.RowNumber
 			rec = self._records[row]
 			recKey = self.pkExpression(rec)
-			if self._newRecords.has_key(recKey):
+			if recKey in self._newRecords:
 				# We simply need to remove the row, and clear the memento and newrec flag.
 				self._clearMemento(row)
 				self._clearNewRecord(row)
@@ -1484,10 +1488,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		rec = self._records[delRowNum]
 		pk = self.pkExpression(rec)
-		if self._newRecords.has_key(pk):
+		if pk in self._newRecords:
 			res = True
 			del self._newRecords[pk]
-			if self._mementos.has_key(pk):
+			if pk in self._mementos:
 				del self._mementos[pk]
 		else:
 			pkWhere = self.makePkWhere()
@@ -1541,7 +1545,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self._nullDefaults = (vals is None)
 
 		def setDefault(field, val):
-			if rec.has_key(field):
+			if field in rec:
 				# If it is a function, execute it to get the value, else use literal.
 				if callable(val):
 					val = val()
@@ -1680,7 +1684,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		# Make sure that this is a valid field
 		if not fld:
 			raise dException.FieldNotFoundException, _("No field specified for seek()")
-		if not self._records[0].has_key(fld) and not self.VirtualFields.has_key(fld):
+		if (fld not in self._records[0]) and (fld not it self.VirtualFields):
 			raise dException.FieldNotFoundException, _("Non-existent field '%s'") % fld
 
 		# Copy the specified field vals and their row numbers to a list, and
@@ -1807,9 +1811,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		mem = self._mementos.get(recKey, {})
 
 		def getPkVal(fld):
-			if mem.has_key(fld):
+			try:
 				return mem[fld]
-			else:
+			except KeyError:
 				return rec[fld]
 
 		ret = ""
@@ -2212,7 +2216,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec = self._records[row]
 		pk = self.pkExpression(rec)
 		mem = self._mementos.get(pk, None)
-		if mem and mem.has_key(fieldName):
+		if mem and (fieldName in mem):
 			return mem[fieldName]
 		return self.getFieldVal(fieldName, row)
 
