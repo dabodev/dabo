@@ -269,8 +269,9 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		ac = self.ActiveControl
 		if ac is not None and isinstance(ac, dabo.ui.dDataControlMixinBase.dDataControlMixinBase):
-			if not hasattr(ac, "_oldVal") or ac._oldVal != ac.Value:
-				ac.flushValue()
+			if not hasattr(ac, "_oldVal") or (not ac._oldVal) or (ac._oldVal != ac.Value):
+				return ac.flushValue()
+		return True
 				
 	
 	def createBizobjs(self):

@@ -50,8 +50,9 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			return
 		self._inFlush = True
 		self._updateStringDisplay()
-		super(dTextBoxMixinBase, self).flushValue()
+		ret = super(dTextBoxMixinBase, self).flushValue()
 		self._inFlush = False
+		return ret
 	
 
 	def _updateStringDisplay(self):
