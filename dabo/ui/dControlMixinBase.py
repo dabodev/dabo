@@ -16,8 +16,10 @@ class dControlMixinBase(dabo.ui.dPemMixin):
 
 	def __onGotFocus(self, evt):
 		if self.Form:
-			sfac = self.Form.ActiveControl  ## cache current ac
-			self.Form._activeControl = self ## set new ac
+			  # Grab reference to current ActiveControl
+			sfac = self.Form.ActiveControl
+			# Set the form's ActiveControl reference
+			self.Form._activeControl = self
 			if sfac is not None and sfac is not self:
 				# make sure prior control's value has been flushed
 				self.Form.activeControlValid()
