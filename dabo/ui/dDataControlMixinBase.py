@@ -165,10 +165,16 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		""" Save any changes to the underlying source field. First check to make sure
 		that any changes are validated.
 		"""
-		if (self._oldVal != self.Value) and hasattr(self.Form, "validateField"):
-			if not self.Form.validateField(self):
-				# Validation failed; the form will handle notifying the user
-				return False
+		# We need to test empty oldvals because of the way that textboxes work; they
+		# can set _oldVal to "" before the actual Value is set.
+		if (not self._oldVal) or (self._oldVal != self.Value):
+			try:
+				if not self.Form.validateField(self):
+					# Validation failed; the form will handle notifying the user
+					return False
+			except AttributeError:
+				# Form doesn't have a validateField() method
+				pass
 		curVal = self.Value
 		ret = None
 		isChanged = False

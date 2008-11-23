@@ -254,7 +254,9 @@ class BaseForm(fm.dFormMixin):
 			biz = self.getBizobj(dataSource)
 		oldRowNum = biz.RowNumber
 
-		self.activeControlValid()
+		if not self.activeControlValid():
+			# Field validation failed
+			return False
 		err = self.beforePointerMove()
 		if err:
 			self.notifyUser(err)
