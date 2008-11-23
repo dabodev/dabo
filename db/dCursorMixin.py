@@ -979,8 +979,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				
 				try:
 					if mem[fld] == val:
-					# Value changed back to the original memento value; delete the memento.
-					del mem[fld]
+						# Value changed back to the original memento value; delete the memento.
+						del mem[fld]
 				except KeyError:
 					pass
 				if mem:
@@ -1684,7 +1684,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		# Make sure that this is a valid field
 		if not fld:
 			raise dException.FieldNotFoundException, _("No field specified for seek()")
-		if (fld not in self._records[0]) and (fld not it self.VirtualFields):
+		if (fld not in self._records[0]) and (fld not in self.VirtualFields):
 			raise dException.FieldNotFoundException, _("Non-existent field '%s'") % fld
 
 		# Copy the specified field vals and their row numbers to a list, and
