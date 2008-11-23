@@ -171,8 +171,12 @@ class RemoteConnector(object):
 		listURL = "%s://%s/manifest" % (scheme, host)
 		try:
 			res = jsonDecode(self._read(listURL))
+		except urllib2.URLError, e:
+			code, msg = e.reason
+			if code == 61:
+				# Connection refused; server's down
+				return "Error: The server is not responding. Please try later"
 		except urllib2.HTTPError, e:
-			errcode = e.code
 			errText = e.read()
 			errMsg = "\n".join(errText.splitlines()[4:])
 			dabo.errorLog.write(_("HTTP Error getting app list: %s") % e)
