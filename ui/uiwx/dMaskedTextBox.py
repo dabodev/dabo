@@ -65,26 +65,36 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 			"ip": "IPADDR"}
 
 
-	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):	
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dMaskedTextBox
 		self._mask = self._extractKey((properties, attProperties, kwargs), "Mask", "")
 		self._format = self._extractKey((properties, attProperties, kwargs), "Format", "")
+		self._validregex = self._extractKey((properties, attProperties, kwargs), "ValidRegex", "")
 		self._inputCodes = self._uniqueCodes(self._extractKey((properties, attProperties, kwargs), 
 				"InputCodes", "_>"))
 		kwargs["mask"] = self._mask
 		kwargs["formatcodes"] = self._inputCodes
+		kwargs["validRegex"] = self._validregex
 		if self._format:
 			code = self._formatMap.get(self._format.lower(), "")
 			if code:
 				kwargs["autoformat"] = code
 				kwargs.pop("mask")
 				kwargs.pop("formatcodes")
+				kwargs.pop("validRegex")
 		kwargs["useFixedWidthFont"] = False
 		
 		preClass = wx.lib.masked.TextCtrl
 		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties, attProperties, 
 				*args, **kwargs)
-
+		
+	
+	
+	def _getUsePlainValue(self):
+		return getattr(self, "_usePlainValue", False)
+		
+	def _setUsePlainValue(self, val):
+		self._usePlainValue = bool(val)
 
 	def getFormats(cls):
 		"""Return a list of available format codes."""
@@ -257,6 +267,8 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 	
 	MaskedValue = property(_getMaskedValue, None, None,
 			_("Value of the control, including mask characters, if any. (read-only) (str)"))
+	UsePlainValue = property(_getUsePlainValue, _setUsePlainValue, None, 
+			_("Specifies whether or not to use the GetPlainValue or GetValue. (bool)"))
 	
 
 	
@@ -279,9 +291,19 @@ if __name__ == "__main__":
 			lbl = dabo.ui.dLabel(pg1, Caption="Basic Masks")
 			lbl.FontSize += 2
 			sz.append(lbl, colSpan=2, halign="center")
-	
-			sz.append(dabo.ui.dLabel(pg1, Caption="Uppercase Letters Only:"), halign="right")
+			"""The below code does not work currently because of a bug discovered in wxPython 2.8.9.1 
+			maskededit.py.  Should you want to fix the issue you can find the following in maskededit.py
+			'if field._forcelower and key in range(97,123):' 
+			and replace it with
+			'if field._forcelower and key in range(65,90):'  """
+			#sz.append(dabo.ui.dLabel(pg1, Caption="Forced Lowercase Letters Only:"), halign="right")
+			#sz.append(dMaskedTextBox(pg1, Width=240, InputCodes='^',Mask="C{20}"))
+			
+			sz.append(dabo.ui.dLabel(pg1, Caption="Accepts Uppercase Letters Only:"), halign="right")
 			sz.append(dMaskedTextBox(pg1, Width=240, Mask="A{20}"))
+			
+			sz.append(dabo.ui.dLabel(pg1, Caption="Forced Uppercase Letters Only:"), halign="right")
+			sz.append(dMaskedTextBox(pg1, Width=240,InputCodes='!>',Mask="C{20}"))
 			
 			sz.append(dabo.ui.dLabel(pg1, Caption="Lowercase Letters Only:"), halign="right")
 			sz.append(dMaskedTextBox(pg1, Width=240, Mask="a{20}"))
@@ -353,7 +375,7 @@ if __name__ == "__main__":
 			sz.append(gsz, 1, halign="center")
 			sz.appendSpacer(5)
 
-			gsz = dabo.ui.dGridSizer(MaxCols=2, HGap=25, VGap=5)			
+			gsz = dabo.ui.dGridSizer(MaxCols=2, HGap=25, VGap=5)
 			lbl = dabo.ui.dLabel(pg3, Caption="Character Codes", FontBold=True)
 			gsz.append(lbl, halign="center", colSpan=2)
 			chk = dabo.ui.dCheckBox(pg3, Caption="!", ToolTipText="Force Upper Case",
@@ -398,7 +420,8 @@ if __name__ == "__main__":
 			gsz.append(txt, "x", colSpan=2)
 			sz.append(gsz, 1, halign="center")
 		
-		
+		def _lookup(self,evt):
+			pass
 		def onCheckHit(self, evt):
 			chk = evt.EventObject
 			cap = chk.Caption
