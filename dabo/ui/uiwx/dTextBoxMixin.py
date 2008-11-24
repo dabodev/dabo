@@ -615,7 +615,10 @@ class dTextBoxMixin(dTextBoxMixinBase):
 		# Get the string value as reported by wx, which is the up-to-date 
 		# string value of the control:
 		if isinstance(self, masked.TextCtrl) and hasattr(self, "_template"):
-			strVal = self.GetPlainValue()
+			if self.UsePlainValue:
+				strVal = self.GetPlainValue()
+			else:
+				strVal = self.GetValue()
 		else:
 			strVal = self.GetValue()
 		
