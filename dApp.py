@@ -182,7 +182,6 @@ class dApp(dObject):
 		# initially. The default behavior is for it to be shown, as usual.
 		self.showMainFormOnStart = True
 		self._wasSetup = False
-		self._cryptoProvider = None
 		# Track names of menus whose MRUs need to be persisted. Set
 		# the key for each entry to the menu caption, and the value to
 		# the bound function.
@@ -1213,7 +1212,7 @@ try again when it is running.
 
 
 	def _getCrypto(self):
-		if self._cryptoProvider is None:
+		if getattr(self, "_cryptoProvider", None) is None:
 			# Use the default crypto
 			self._cryptoProvider = SimpleCrypt()
 		return self._cryptoProvider
