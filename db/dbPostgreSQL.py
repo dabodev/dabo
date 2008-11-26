@@ -14,7 +14,9 @@ class Postgres(dBackend):
 
 
 	def getConnection(self, connectInfo, **kwargs):
-		kwargs.pop('forceCreate') 
+		# forceCreate maybe used in the future
+		if 'forceCreate' in kwargs:
+			kwargs.pop('forceCreate') 
 		import psycopg2 as dbapi
 		#from pyPgSQL import PgSQL as dbapi
 		self.conn_user = connectInfo.User
