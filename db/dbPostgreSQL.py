@@ -89,11 +89,16 @@ class Postgres(dBackend):
 		tableNameBreak=tableName.split('.',1)
 		localSchemaName = tableNameBreak[0]
 		localTableName = tableNameBreak[1]
-		cursor.execute("""select c.oid,a.attname, t.typname, b.schemaname from pg_class c 
-inner join pg_attribute a on a.attrelid = c.oid 
-inner join pg_type t on a.atttypid = t.oid 
-inner join pg_tables b on b.tablename=c.relname
-where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName)
+		
+
+			
+		cursor.execute("""SELECT a.attname, t.typname from pg_attribute a,pg_type t, pg_class c 
+		LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+		where a.attrelid = c.oid 
+		and a.atttypid = t.oid 
+		AND n.nspname || '.'||c.relname = '%s'
+		order by c.relname,a.attname""" % tableName)
+
 		rs = cursor.getDataSet()
 
 		#the code below may not work with 7.4 due to the use of the function generate_series()
@@ -124,7 +129,7 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
 		else:
 			#thestr = rs2[0][3]
 			thePKFieldName = rs2[0]['column_name']
-		
+
 		fields = []
 		for r in rs:
 			name = r["attname"]
