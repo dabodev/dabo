@@ -74,7 +74,8 @@ class dPref(object):
 				#      chdir() accordingly)..
 				prefdir = os.getcwd()
 			db = os.path.join(prefdir, "DaboPreferences.db")
-			self._cxn = dabo.db.dConnection(connectInfo={"DbType": "SQLite", "Database": db})
+			self._cxn = dabo.db.dConnection(connectInfo={"DbType": "SQLite", "Database": db},
+					forceCreate=True)
 			self._cursor = self._cxn.getDaboCursor()
 			self._cursor.IsPrefCursor = True
 			# Make sure that the table exists

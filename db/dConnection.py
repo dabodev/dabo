@@ -7,8 +7,9 @@ from dCursorMixin import dCursorMixin
 
 class dConnection(dObject):
 	""" Hold a connection to a backend database. """
-	def __init__(self, connectInfo=None, parent=None, **kwargs):
+	def __init__(self, connectInfo=None, parent=None, forceCreate=False, **kwargs):
 		self._baseClass = dConnection
+		self._forceCreate = forceCreate
 		super(dConnection, self).__init__()
 		# Store a reference to the parent object (bizobj maybe; app 
 		# object connection collection most likely)
@@ -72,7 +73,7 @@ class dConnection(dObject):
 
 	def _openConnection(self, **kwargs):
 		""" Open a connection to the database and store it for future use. """
-		return self._connectInfo.getConnection(**kwargs)
+		return self._connectInfo.getConnection(forceCreate=self._forceCreate, **kwargs)
 		
 	
 	def getBackendObject(self):
