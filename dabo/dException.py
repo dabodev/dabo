@@ -67,6 +67,9 @@ class DBNoAccessException(DatabaseException):
 class DBNoDBOnHostException(DatabaseException):
 	pass
 
+class DBFileDoesNotExistException(DatabaseException):
+	pass
+
 class DBQueryException(DatabaseException):
 	def __init__(self, err, sql=None):
 		if sql is None:

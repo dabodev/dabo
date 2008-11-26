@@ -171,6 +171,10 @@ file_extensions = {
 		"mpeg": "MPEG Videos",
 		"mp3": "mp3 Audio Files",
 }
+
+# For file-based data backends such as SQLite, do we allow creating a connection to
+# a non-existent file, which SQLite will then create? 
+createDbFiles = False
 		
 
 ### Settings - end

@@ -4,7 +4,7 @@ import os
 import re
 import dabo
 from dabo.dLocalize import _
-from dabo.dException import dException
+from dabo.dException import dException, DBFileDoesNotExistException
 from dBackend import dBackend
 from dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 from dCursorMixin import dCursorMixin
@@ -23,7 +23,7 @@ class SQLite(dBackend):
 		self._alreadyCorrectedFieldTypes = True
 		
 
-	def getConnection(self, connectInfo, **kwargs):
+	def getConnection(self, connectInfo, forceCreate=False, **kwargs):
 		## Mods to sqlite to return DictCursors by default, so that dCursor doesn't
 		## need to do the conversion:
 		dbapi = self.dbapi
@@ -53,6 +53,10 @@ class SQLite(dBackend):
 
 		self._dictCursorClass = DictCursor
 		pth = os.path.expanduser(connectInfo.Database)
+		if not forceCreate and not dabo.createDbFiles:
+			if not os.path.exists(pth):
+				# Database file does not exist; raise an error
+				raise DBFileDoesNotExistException, _("Database file '%s' does not exist") % pth
 		pth = pth.decode(sys.getfilesystemencoding()).encode("utf-8")
 		# Need to specify "isolation_level=None" to have transactions working correctly.
 		self._connection = self.dbapi.connect(pth, factory=DictConnection, isolation_level=None)
