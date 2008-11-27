@@ -818,20 +818,37 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 			cd = {}
 		currCode = cd.get("createBizobjs", "")
 		
-		bizcode = self.getBizobjTemplate()
+		bizCodeTemplate = self.getBizobjTemplate()
+		loadCodeTemplate = self.getBizobjLoadTemplate()
 		addFlds = []
 		for fld in flds:
-			addFlds.append("\t\t\tself.addField(\"%s\")" % fld)
+			addFlds.append("\t\tself.addField(\"%s\")" % fld)
 		fldDefs = "\n".join(addFlds)
 		tq = "\"" * 3
-		code = bizcode % locals()
+		bizcode = bizCodeTemplate % locals()
+		# Get the biz directory
+		bizdir = self.Application.getStandardAppDirectory("biz", os.path.abspath(self._classFile))
+		if not bizdir:
+			bizdir = dabo.ui.getDirectory(message=_("Please select your bizobj directory"))
+		if not bizdir:
+			if dabo.ui.areYouSure(message=_("Cannot create bizobj class without a directory. Do you want to copy the code to the clipboard?"),
+					title=_("Copy Bizobj Code"), cancelButton=False):
+				self.Application.copyToClipboard(bizcode)
+		else:
+			fname = "%(tblTitle)sBizobj.py" % locals()
+			file(os.path.join(bizdir, fname), "w").write(bizcode)
+			clsname = fname.strip(".py")
+			file(os.path.join(bizdir, "__init__.py"), "a").write("\nfrom %(clsname)s import %(clsname)s\n" % locals())
+
+		# Now create the import code for the form.
+		loadcode = loadCodeTemplate % locals()
 		if currCode:
 			# Add some blank lines
 			currCode += "\n\n"
 		else:
 			# No 'def' line yet
 			currCode = "def createBizobjs(self):\n"
-		currCode += code
+		currCode += loadcode
 		cd["createBizobjs"] = currCode
 		rep[self] = cd
 		self.Controller.updateCodeEditor()
@@ -1368,23 +1385,31 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 
 
 	def getBizobjTemplate(self):
-		return """
-	class %(tblTitle)sBizobj(dabo.biz.dBizobj):
-		def afterInit(self):
-			self.DataSource = "%(tbl)s"
-			self.KeyField = "%(pk)s"
-			self.addFrom("%(tbl)s")
+		return """#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import dabo
+
+class %(tblTitle)sBizobj(dabo.biz.dBizobj):
+	def afterInit(self):
+		self.DataSource = "%(tbl)s"
+		self.KeyField = "%(pk)s"
+		self.addFrom("%(tbl)s")
 %(fldDefs)s
 
-		def validateRecord(self):
-			%(tq)sReturning anything other than an empty string from
-			this method will prevent the data from being saved.
-			%(tq)s
-			ret = ""
-			# Add your business rules here. 
-			return ret
+	def validateRecord(self):
+		%(tq)sReturning anything other than an empty string from
+		this method will prevent the data from being saved.
+		%(tq)s
+		ret = ""
+		# Add your business rules here. 
+		return ret
 
-	%(lowbiz)s = %(tblTitle)sBizobj(self.Connection)
+"""
+
+	def getBizobjLoadTemplate(self):
+		return """
+	%(lowbiz)s = self.Application.biz.%(tblTitle)sBizobj(self.Connection)
 	self.addBizobj(%(lowbiz)s)
 """	
 		
