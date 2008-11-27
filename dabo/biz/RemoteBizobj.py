@@ -11,11 +11,11 @@ from dBizobj import dBizobj
 
 
 cacheDir = os.path.join(os.getcwd(), "cache")
-if not os.path.exists(cacheDir):
-	os.makedirs(cacheDir)
-else:
-	# Clean up old files?
-	pass
+
+def _createCacheDir():
+	if not os.path.exists(cacheDir):
+		os.makedirs(cacheDir)
+
 
 
 class RemoteBizobj(dBizobj):
@@ -48,6 +48,7 @@ class RemoteBizobj(dBizobj):
 		biz.DataSource = ds
 		biz.hashval = hashval
 
+		_createCacheDir()
 		pth = os.path.join(cacheDir, hashval)
 		if os.path.exists(pth):
 			f = file(pth)
@@ -86,6 +87,7 @@ class RemoteBizobj(dBizobj):
 		"""Store data info to the cache for the next time the same bizobj
 		is needed.
 		"""
+		_createCacheDir()
 		pth = os.path.join(cacheDir, hashval)
 		f = file(pth, "w")
 		pd = {}
