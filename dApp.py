@@ -1001,6 +1001,34 @@ try again when it is running.
 				self.dbConnectionNameToFiles[k] = connFile
 
 
+	def getStandardAppDirectory(self, dirname, start=None):
+		"""Return the path to one of the standard Dabo application directories.
+		If a starting file path is provided, use that first. If not, use the 
+		HomeDirectory as the starting point.
+		"""
+		stdDirs = ("biz", "cache", "db", "main.py", "reports", "resources", "test", "ui")
+		if dirname not in stdDirs:
+			dabo.errorLog.write(_("Non-standard directory '%s' requested") % dirname)
+			return None
+		osp = os.path
+		if start is not None:
+			if not osp.isdir(start):
+				# Use the file's directory
+				start = osp.split(start)[0]
+		for target in (start, self.HomeDirectory):
+			if target is None:
+				continue
+			pth = osp.join(target, dirname)
+			if osp.isdir(pth):
+				return pth
+			else:
+				# Try the parent
+				pth = osp.normpath(osp.join(target, "..", dirname))
+				if osp.isdir(pth):
+					return pth
+		return None
+
+
 	def getTransactionToken(self, biz):
 		"""Only one bizobj at a time can begin and end transactions per connection. 
 		This allows the bizobj to query the app for the 'token', which is simply an 
