@@ -5,6 +5,7 @@ import locale
 import warnings
 import glob
 import tempfile
+import imp
 import ConfigParser
 import inspect
 import datetime
@@ -909,7 +910,11 @@ try again when it is running.
 				except ImportError:
 					self.__setattr__(dd, currmod)
 			else:
-				self.__setattr__(dd, currmod)
+				try:
+					(f, p, d) = imp.find_module(dd)
+					setattr(self, dd, imp.load_module(dd, f, p, d))
+				except ImportError, e:
+					self.__setattr__(dd, currmod)
 		sys.path = currsyspath
 
 
