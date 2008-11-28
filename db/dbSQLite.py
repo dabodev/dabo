@@ -53,7 +53,7 @@ class SQLite(dBackend):
 
 		self._dictCursorClass = DictCursor
 		pth = os.path.expanduser(connectInfo.Database)
-		if not forceCreate and not dabo.createDbFiles:
+		if not forceCreate and not dabo.createDbFiles and (pth != ":memory:"):
 			if not os.path.exists(pth):
 				# Database file does not exist; raise an error
 				raise DBFileDoesNotExistException, _("Database file '%s' does not exist") % pth
