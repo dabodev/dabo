@@ -1,16 +1,16 @@
-# Finnish translation for dabo
-# Copyright (c) 2007 Rosetta Contributors and Canonical Ltd 2007
+# Polish translation for dabo
+# Copyright (c) 2008 Rosetta Contributors and Canonical Ltd 2008
 # This file is distributed under the same license as the dabo package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2007.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2008.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: dabo\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2007-08-26 10:04+0000\n"
-"PO-Revision-Date: 2007-07-31 20:27+0000\n"
-"Last-Translator: Lauri Ojansivu <Unknown>\n"
-"Language-Team: Finnish <fi@li.org>\n"
+"PO-Revision-Date: 2008-10-16 21:53+0000\n"
+"Last-Translator: Brech <Unknown>\n"
+"Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,12 +19,11 @@ msgstr ""
 
 #: ./dAutoBizobj.py:42
 msgid "No tables have been setup for autocreation."
-msgstr "Yhtään taulukkoa ei ole asetettu luotavaksi automaattisesti."
+msgstr ""
 
 #: ./dAutoBizobj.py:61
 msgid "The database could not be setup. Contact your DB administrator."
 msgstr ""
-"Tietokantaa ei pystytty asettamaan. Ota yhteyttä tietokannan ylläpitäjään."
 
 #: ./dAutoBizobj.py:62
 msgid ""
@@ -34,51 +33,43 @@ msgid ""
 "database to create the needed tables.\n"
 "  2. or executing all the quries in the 'queries.sql' file."
 msgstr ""
-"Tietokannan ylläpitäjälle:\n"
-" Taulukot täytyy luoda joko:\n"
-"  1. käytämällä tätä ohjelmaa antaen VÄLIAIKAISESTI tälle ohjelmalle "
-"oikeudet tehdä tarvittavat taulukot tietokantaan.\n"
-"  2. tai suorittamalla kaikki kyselyt 'queries.sql' tiedostosta."
 
 #: ./dAutoBizobj.py:67
 msgid ""
 "DBA, please enter the username and password that has access to create tables "
 "for database on server '%s' and database '%s'"
 msgstr ""
-"Tietokannan ylläpitäjä, ole hyvä ja kirjoita käyttäjänimi ja salasana joilla "
-"on oikeudet luoda taulukot palvelimelle '%s' ja tietokantaan '%s'"
 
 #: ./dAutoBizobj.py:69
 msgid "Username"
-msgstr "Käyttäjätunnus"
+msgstr "Nazwa użytkownika"
 
 #: ./dAutoBizobj.py:74
 msgid "Password"
-msgstr "Salasana"
+msgstr "Hasło"
 
 #: ./dAutoBizobj.py:80
 msgid "OK"
-msgstr "OK"
+msgstr "Ok"
 
 #: ./dAutoBizobj.py:84
 #: ./lib/datanav/Form.py:179
 #: ./lib/datanav2/Form.py:98
 #: ./ui/dialogs/Wizard.py:102
 msgid "Cancel"
-msgstr "Hylkää"
+msgstr "Anuluj"
 
 #: ./dAutoBizobj.py:98
 msgid "You must enter the username first."
-msgstr "Sinun täytyy kirjoittaa käyttäjätunnus ensin."
+msgstr "Najpierw musisz wpisać nazwę użytkownika."
 
 #: ./dAutoBizobj.py:102
 msgid "You must enter the password first."
-msgstr "Sinun täytyy kirjoittaa salasana ensin."
+msgstr "Najpierw musisz podać hasło."
 
 #: ./dAutoBizobj.py:136
 msgid "Could not access the database with the given username and password."
 msgstr ""
-"Ei saatu yhteyttä tietokantaan annetulla käyttänimellä ja salasanalla."
 
 #: ./dAutoBizobj.py:147
 msgid "Could not setup the database. Access was denied."
@@ -90,17 +81,17 @@ msgstr ""
 
 #: ./dAutoBizobj.py:248
 msgid "No table has been defined for this bizobj."
-msgstr "Yhtään taulukkoa ei ole määritelly tälle Bizobjektille."
+msgstr ""
 
 #: ./dAutoBizobj.py:301
 msgid "The table definition for this bizobj.  (object)"
-msgstr "Taulukon määritelmä tälle Bizobjektille. (object)"
+msgstr ""
 
 #: ./dBizobj.py:317
 #: ./biz/dBizobj.py:457
 #: ./biz/dBizobj.py:1265
 msgid "No key field defined for table: "
-msgstr "Avainkenttää ei ole määritelty taulukolle: "
+msgstr ""
 
 #: ./dBizobj.py:463
 msgid "Deletion prohibited - there are related child records."
@@ -466,19 +457,6 @@ msgid ""
 "\t\t\t>>> app.MainForm = myMainFormInstance\n"
 "\t\t\t>>> app.start()"
 msgstr ""
-"Objektin viittaus ohjelman päälomakkeeseen, tai Ei mitään.\n"
-"\n"
-"\t\t\tPäälomakkeesta luodaan esiintymä automaattisesti ohjelmaa "
-"asetettaessa,\n"
-"\t\t\tperustuen arvoon MainFormClass:issa. Jos haluat vaihtaa siihen oman\n"
-"\t\t\tMainForm esiintymäsi, tee se setup():n jälkeen mutta ennen start():ia, "
-"kuten seuraavassa:\n"
-"\n"
-"\t\t\t>>> import dabo\n"
-"\t\t\t>>> app = dabo.dApp()\n"
-"\t\t\t>>> app.setup()\n"
-"\t\t\t>>> app.MainForm = myMainFormInstance\n"
-"\t\t\t>>> app.start()"
 
 #: ./dApp.py:1209
 msgid ""
@@ -500,7 +478,7 @@ msgstr ""
 #: ./dApp.py:1223
 #: ./ui/uiwx/dGrid.py:4289
 msgid "Text to display for null (None) values.  (str)"
-msgstr "Teksti joka näytetään null (Ei mitään) arvoille. (str)"
+msgstr ""
 
 #: ./dApp.py:1226
 msgid ""
