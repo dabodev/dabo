@@ -81,7 +81,7 @@ class dNode(dObject):
 		if isinstance(val, basestring):
 			val = dColors.colorTupleFromName(val)
 		self.tree.SetItemBackgroundColour(self.itemID, val)
-	
+
 
 	def _getCap(self):
 		try:
@@ -1071,9 +1071,12 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		return self._hasWindowStyleFlag(wx.TR_EDIT_LABELS)
 
 	def _setEditable(self, val):
-		self._delWindowStyleFlag(wx.TR_EDIT_LABELS)
-		if val:
-			self._addWindowStyleFlag(wx.TR_EDIT_LABELS)
+		if self._constructed():
+			self._delWindowStyleFlag(wx.TR_EDIT_LABELS)
+			if val:
+				self._addWindowStyleFlag(wx.TR_EDIT_LABELS)
+		else:
+			self._properties["Editable"] = val
 
 
 	def _getImageSize(self):
@@ -1090,19 +1093,22 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		return self._hasWindowStyleFlag(wx.TR_MULTIPLE)
 
 	def _setMultipleSelect(self, val):
-		self._delWindowStyleFlag(wx.TR_MULTIPLE)
-		self._delWindowStyleFlag(wx.TR_EXTENDED)
-		self._delWindowStyleFlag(wx.TR_SINGLE)
-		if val:
-			self._addWindowStyleFlag(wx.TR_MULTIPLE)
-			self._addWindowStyleFlag(wx.TR_EXTENDED)
+		if self._constructed():
+			self._delWindowStyleFlag(wx.TR_MULTIPLE)
+			self._delWindowStyleFlag(wx.TR_EXTENDED)
+			self._delWindowStyleFlag(wx.TR_SINGLE)
+			if val:
+				self._addWindowStyleFlag(wx.TR_MULTIPLE)
+				self._addWindowStyleFlag(wx.TR_EXTENDED)
+			else:
+				self.lockDisplay()
+				sel = self.Selection
+				self.UnselectAll()
+				self._addWindowStyleFlag(wx.TR_SINGLE)
+				self.Selection = sel
+				self.unlockDisplay()
 		else:
-			self.lockDisplay()
-			sel = self.Selection
-			self.UnselectAll()
-			self._addWindowStyleFlag(wx.TR_SINGLE)
-			self.Selection = sel
-			self.unlockDisplay()
+			self._properties["MultipleSelect"] = val
 			
 
 	def _getNodeClass(self):
@@ -1150,59 +1156,71 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		return self._hasWindowStyleFlag(wx.TR_HAS_BUTTONS)
 
 	def _setShowButtons(self, val):
-		self._delWindowStyleFlag(wx.TR_HAS_BUTTONS)
-		self._delWindowStyleFlag(wx.TR_NO_BUTTONS)
-		if val:
-			self._addWindowStyleFlag(wx.TR_HAS_BUTTONS)
+		if self._constructed():
+			self._delWindowStyleFlag(wx.TR_HAS_BUTTONS)
+			self._delWindowStyleFlag(wx.TR_NO_BUTTONS)
+			if val:
+				self._addWindowStyleFlag(wx.TR_HAS_BUTTONS)
+			else:
+				self._addWindowStyleFlag(wx.TR_NO_BUTTONS)
+			try:
+				self.refresh()
+			except AttributeError:
+				# Control may not be constructed yet
+				pass
 		else:
-			self._addWindowStyleFlag(wx.TR_NO_BUTTONS)
-		try:
-			self.refresh()
-		except AttributeError:
-			# Control may not be constructed yet
-			pass
+			self._properties["ShowButtons"] = val
 			
 
 	def _getShowLines(self):
 		return not self._hasWindowStyleFlag(wx.TR_NO_LINES)
 
 	def _setShowLines(self, val):
-		self._delWindowStyleFlag(wx.TR_NO_LINES)
-		if not val:
-			self._addWindowStyleFlag(wx.TR_NO_LINES)
-		try:
-			self.refresh()
-		except AttributeError:
-			# Control may not be constructed yet
-			pass
+		if self._constructed():
+			self._delWindowStyleFlag(wx.TR_NO_LINES)
+			if not val:
+				self._addWindowStyleFlag(wx.TR_NO_LINES)
+			try:
+				self.refresh()
+			except AttributeError:
+				# Control may not be constructed yet
+				pass
+		else:
+			self._properties["ShowLines"] = val
 
 
 	def _getShowRootNode(self):
 		return not self._hasWindowStyleFlag(wx.TR_HIDE_ROOT)
 
 	def _setShowRootNode(self, val):
-		self._delWindowStyleFlag(wx.TR_HIDE_ROOT)
-		if not val:
-			self._addWindowStyleFlag(wx.TR_HIDE_ROOT)
-		try:
-			self.refresh()
-		except AttributeError:
-			# Control may not be constructed yet
-			pass
+		if self._constructed():
+			self._delWindowStyleFlag(wx.TR_HIDE_ROOT)
+			if not val:
+				self._addWindowStyleFlag(wx.TR_HIDE_ROOT)
+			try:
+				self.refresh()
+			except AttributeError:
+				# Control may not be constructed yet
+				pass
+		else:
+			self._properties["ShowRootNode"] = val
 			
 
 	def _getShowRootNodeLines(self):
 		return self._hasWindowStyleFlag(wx.TR_LINES_AT_ROOT)
 
 	def _setShowRootNodeLines(self, val):
-		self._delWindowStyleFlag(wx.TR_LINES_AT_ROOT)
-		if val:
-			self._addWindowStyleFlag(wx.TR_LINES_AT_ROOT)
-		try:
-			self.refresh()
-		except AttributeError:
-			# Control may not be constructed yet
-			pass
+		if self._constructed():
+			self._delWindowStyleFlag(wx.TR_LINES_AT_ROOT)
+			if val:
+				self._addWindowStyleFlag(wx.TR_LINES_AT_ROOT)
+			try:
+				self.refresh()
+			except AttributeError:
+				# Control may not be constructed yet
+				pass
+		else:
+			self._properties["ShowRootNodeLines"] = val
 
 
 	def _getUseNodeToolTips(self):
