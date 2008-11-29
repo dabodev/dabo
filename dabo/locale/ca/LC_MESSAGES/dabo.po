@@ -1,4 +1,4 @@
-# Finnish translation for dabo
+# Catalan translation for dabo
 # Copyright (c) 2007 Rosetta Contributors and Canonical Ltd 2007
 # This file is distributed under the same license as the dabo package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2007.
@@ -8,9 +8,9 @@ msgstr ""
 "Project-Id-Version: dabo\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2007-08-26 10:04+0000\n"
-"PO-Revision-Date: 2007-07-31 20:27+0000\n"
-"Last-Translator: Lauri Ojansivu <Unknown>\n"
-"Language-Team: Finnish <fi@li.org>\n"
+"PO-Revision-Date: 2008-05-11 17:45+0000\n"
+"Last-Translator: el_libre XDDDDDDDDDDDDDDDDDDDDDDDDDDD <el.libre@gmail.com>\n"
+"Language-Team: Catalan <ca@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,12 +19,11 @@ msgstr ""
 
 #: ./dAutoBizobj.py:42
 msgid "No tables have been setup for autocreation."
-msgstr "Yhtään taulukkoa ei ole asetettu luotavaksi automaattisesti."
+msgstr ""
 
 #: ./dAutoBizobj.py:61
 msgid "The database could not be setup. Contact your DB administrator."
 msgstr ""
-"Tietokantaa ei pystytty asettamaan. Ota yhteyttä tietokannan ylläpitäjään."
 
 #: ./dAutoBizobj.py:62
 msgid ""
@@ -34,51 +33,43 @@ msgid ""
 "database to create the needed tables.\n"
 "  2. or executing all the quries in the 'queries.sql' file."
 msgstr ""
-"Tietokannan ylläpitäjälle:\n"
-" Taulukot täytyy luoda joko:\n"
-"  1. käytämällä tätä ohjelmaa antaen VÄLIAIKAISESTI tälle ohjelmalle "
-"oikeudet tehdä tarvittavat taulukot tietokantaan.\n"
-"  2. tai suorittamalla kaikki kyselyt 'queries.sql' tiedostosta."
 
 #: ./dAutoBizobj.py:67
 msgid ""
 "DBA, please enter the username and password that has access to create tables "
 "for database on server '%s' and database '%s'"
 msgstr ""
-"Tietokannan ylläpitäjä, ole hyvä ja kirjoita käyttäjänimi ja salasana joilla "
-"on oikeudet luoda taulukot palvelimelle '%s' ja tietokantaan '%s'"
 
 #: ./dAutoBizobj.py:69
 msgid "Username"
-msgstr "Käyttäjätunnus"
+msgstr "Nom d'usuari/a"
 
 #: ./dAutoBizobj.py:74
 msgid "Password"
-msgstr "Salasana"
+msgstr "﻿Contrasenya"
 
 #: ./dAutoBizobj.py:80
 msgid "OK"
-msgstr "OK"
+msgstr "SÍ"
 
 #: ./dAutoBizobj.py:84
 #: ./lib/datanav/Form.py:179
 #: ./lib/datanav2/Form.py:98
 #: ./ui/dialogs/Wizard.py:102
 msgid "Cancel"
-msgstr "Hylkää"
+msgstr "Canceŀla"
 
 #: ./dAutoBizobj.py:98
 msgid "You must enter the username first."
-msgstr "Sinun täytyy kirjoittaa käyttäjätunnus ensin."
+msgstr ""
 
 #: ./dAutoBizobj.py:102
 msgid "You must enter the password first."
-msgstr "Sinun täytyy kirjoittaa salasana ensin."
+msgstr ""
 
 #: ./dAutoBizobj.py:136
 msgid "Could not access the database with the given username and password."
 msgstr ""
-"Ei saatu yhteyttä tietokantaan annetulla käyttänimellä ja salasanalla."
 
 #: ./dAutoBizobj.py:147
 msgid "Could not setup the database. Access was denied."
@@ -90,17 +81,17 @@ msgstr ""
 
 #: ./dAutoBizobj.py:248
 msgid "No table has been defined for this bizobj."
-msgstr "Yhtään taulukkoa ei ole määritelly tälle Bizobjektille."
+msgstr ""
 
 #: ./dAutoBizobj.py:301
 msgid "The table definition for this bizobj.  (object)"
-msgstr "Taulukon määritelmä tälle Bizobjektille. (object)"
+msgstr ""
 
 #: ./dBizobj.py:317
 #: ./biz/dBizobj.py:457
 #: ./biz/dBizobj.py:1265
 msgid "No key field defined for table: "
-msgstr "Avainkenttää ei ole määritelty taulukolle: "
+msgstr ""
 
 #: ./dBizobj.py:463
 msgid "Deletion prohibited - there are related child records."
@@ -368,7 +359,7 @@ msgstr ""
 #: ./dApp.py:1018
 #: ./ui/uiwx/dGrid.py:3866
 msgid "< None >"
-msgstr ""
+msgstr "< Cap >"
 
 #: ./dApp.py:1066
 msgid "SecurityManager previously set"
@@ -466,19 +457,6 @@ msgid ""
 "\t\t\t>>> app.MainForm = myMainFormInstance\n"
 "\t\t\t>>> app.start()"
 msgstr ""
-"Objektin viittaus ohjelman päälomakkeeseen, tai Ei mitään.\n"
-"\n"
-"\t\t\tPäälomakkeesta luodaan esiintymä automaattisesti ohjelmaa "
-"asetettaessa,\n"
-"\t\t\tperustuen arvoon MainFormClass:issa. Jos haluat vaihtaa siihen oman\n"
-"\t\t\tMainForm esiintymäsi, tee se setup():n jälkeen mutta ennen start():ia, "
-"kuten seuraavassa:\n"
-"\n"
-"\t\t\t>>> import dabo\n"
-"\t\t\t>>> app = dabo.dApp()\n"
-"\t\t\t>>> app.setup()\n"
-"\t\t\t>>> app.MainForm = myMainFormInstance\n"
-"\t\t\t>>> app.start()"
 
 #: ./dApp.py:1209
 msgid ""
@@ -500,7 +478,7 @@ msgstr ""
 #: ./dApp.py:1223
 #: ./ui/uiwx/dGrid.py:4289
 msgid "Text to display for null (None) values.  (str)"
-msgstr "Teksti joka näytetään null (Ei mitään) arvoille. (str)"
+msgstr ""
 
 #: ./dApp.py:1226
 msgid ""
@@ -859,7 +837,7 @@ msgstr ""
 
 #: ./db/dCursorMixin.py:782
 msgid "Field"
-msgstr ""
+msgstr "Camp"
 
 #: ./db/dCursorMixin.py:782
 msgid "does not exist in the data set"
@@ -1113,7 +1091,7 @@ msgstr ""
 #: ./lib/datanav/Form.py:157
 #: ./lib/datanav2/Form.py:76
 msgid "First"
-msgstr ""
+msgstr "Primera"
 
 #: ./lib/datanav/Form.py:157
 #: ./lib/datanav2/Form.py:76
@@ -1128,7 +1106,7 @@ msgstr ""
 #: ./lib/datanav/Form.py:159
 #: ./lib/datanav2/Form.py:78
 msgid "Prior"
-msgstr ""
+msgstr "Anterior"
 
 #: ./lib/datanav/Form.py:161
 #: ./lib/datanav2/Form.py:80
@@ -1148,7 +1126,7 @@ msgstr ""
 #: ./lib/datanav/Form.py:163
 #: ./lib/datanav2/Form.py:82
 msgid "Next"
-msgstr ""
+msgstr "Següent"
 
 #: ./lib/datanav/Form.py:165
 #: ./lib/datanav2/Form.py:84
@@ -1158,7 +1136,7 @@ msgstr ""
 #: ./lib/datanav/Form.py:165
 #: ./lib/datanav2/Form.py:84
 msgid "Last"
-msgstr ""
+msgstr "Darrera"
 
 #: ./lib/datanav/Form.py:170
 #: ./lib/datanav/Grid.py:171
@@ -1170,7 +1148,7 @@ msgstr ""
 #: ./lib/datanav/Form.py:170
 #: ./lib/datanav2/Form.py:89
 msgid "New"
-msgstr ""
+msgstr "Nova"
 
 #: ./lib/datanav/Form.py:172
 #: ./lib/datanav/Grid.py:175
@@ -1182,22 +1160,22 @@ msgstr ""
 #: ./lib/datanav/Form.py:172
 #: ./lib/datanav2/Form.py:91
 msgid "Delete"
-msgstr ""
+msgstr "Suprimeix"
 
 #: ./lib/datanav/Form.py:177
 #: ./lib/datanav2/Form.py:96
 msgid "Save"
-msgstr ""
+msgstr "Salva"
 
 #: ./lib/datanav/Form.py:177
 #: ./lib/datanav2/Form.py:96
 msgid "Save changes"
-msgstr ""
+msgstr "Desa els canvis"
 
 #: ./lib/datanav/Form.py:179
 #: ./lib/datanav2/Form.py:98
 msgid "Cancel changes"
-msgstr ""
+msgstr "Cancel·la les modificacions"
 
 #: ./lib/datanav/Form.py:183
 #: ./lib/datanav/Form.py:184
@@ -1214,7 +1192,7 @@ msgstr ""
 #: ./lib/datanav/Form.py:191
 #: ./lib/datanav2/Form.py:110
 msgid "&Actions"
-msgstr ""
+msgstr "A&ccions"
 
 #: ./lib/datanav/Form.py:193
 #: ./lib/datanav2/Form.py:112
@@ -1345,13 +1323,13 @@ msgstr ""
 #: ./lib/datanav/Form.py:300
 #: ./lib/datanav2/Form.py:219
 msgid "Actions"
-msgstr ""
+msgstr "Accions"
 
 #: ./lib/datanav/Form.py:306
 #: ./lib/datanav2/Form.py:225
 #: ./ui/uiwx/dShell.py:280
 msgid "View"
-msgstr ""
+msgstr "Mostra"
 
 #: ./lib/datanav/Form.py:356
 #: ./lib/datanav/Form.py:358
@@ -1361,7 +1339,7 @@ msgstr ""
 #: ./lib/datanav2/PageFrame.py:44
 #: ./ui/uiwx/dShell.py:289
 msgid "Edit"
-msgstr ""
+msgstr "Edita"
 
 #: ./lib/datanav/Form.py:397
 #: ./lib/datanav2/Form.py:309
@@ -1452,7 +1430,7 @@ msgstr ""
 #: ./lib/datanav/Grid.py:170
 #: ./lib/datanav2/Grid.py:143
 msgid "&New"
-msgstr ""
+msgstr "&Nou"
 
 #: ./lib/datanav/Grid.py:173
 #: ./lib/datanav2/Grid.py:146
@@ -1476,12 +1454,12 @@ msgstr ""
 #: ./lib/datanav/Page.py:152
 #: ./lib/datanav2/Page.py:148
 msgid "Sort Ascending"
-msgstr ""
+msgstr "Ordena de manera ascendent"
 
 #: ./lib/datanav/Page.py:153
 #: ./lib/datanav2/Page.py:149
 msgid "Sort Descending"
-msgstr ""
+msgstr "Ordena de manera descendent"
 
 #: ./lib/datanav/Page.py:420
 msgid "Please enter your record selection criteria:"
@@ -1505,12 +1483,12 @@ msgstr ""
 #: ./lib/datanav/PageFrame.py:63
 #: ./lib/datanav2/PageFrame.py:38
 msgid "Select"
-msgstr ""
+msgstr "Selecciona"
 
 #: ./lib/datanav/PageFrame.py:66
 #: ./lib/datanav2/PageFrame.py:41
 msgid "Browse"
-msgstr ""
+msgstr "Navega"
 
 #: ./lib/datanav/__init__.py:11
 msgid ""
@@ -1597,7 +1575,7 @@ msgstr ""
 
 #: ./lib/propertyHelperMixin.py:42
 msgid "and"
-msgstr ""
+msgstr "i"
 
 #: ./lib/reportWriter.py:100
 #: ./lib/reportWriter.py:301
@@ -2002,20 +1980,20 @@ msgstr ""
 
 #: ./ui/dialogs/Wizard.py:53
 msgid "Are you sure you want to exit?"
-msgstr ""
+msgstr "Estàs segur que vols abandonar el programa?"
 
 #: ./ui/dialogs/Wizard.py:100
 msgid "< Back"
-msgstr ""
+msgstr "< Enrera"
 
 #: ./ui/dialogs/Wizard.py:101
 #: ./ui/dialogs/Wizard.py:244
 msgid "Next >"
-msgstr ""
+msgstr "Següent >"
 
 #: ./ui/dialogs/Wizard.py:246
 msgid "Finish"
-msgstr ""
+msgstr "Finalitza"
 
 #: ./ui/dialogs/Wizard.py:260
 msgid "This Space For Rent"
@@ -2142,7 +2120,7 @@ msgstr ""
 #: ./ui/dialogs/about.py:13
 #: ./ui/dialogs/htmlAbout.py:16
 msgid "About"
-msgstr ""
+msgstr "Sobre"
 
 #: ./ui/dialogs/about.py:53
 #: ./ui/dialogs/htmlAbout.py:33
@@ -2171,15 +2149,15 @@ msgstr ""
 
 #: ./ui/uiwx/__init__.py:727
 msgid "Select All"
-msgstr ""
+msgstr "Sel·lecciona-ho tot"
 
 #: ./ui/uiwx/__init__.py:729
 msgid "Unselect All"
-msgstr ""
+msgstr "Deselecciona-ho tot"
 
 #: ./ui/uiwx/__init__.py:731
 msgid "Invert Selection"
-msgstr ""
+msgstr "Inverteix selecció"
 
 #: ./ui/uiwx/__init__.py:795
 msgid "Invalid date value passed to getDate(): %s"
@@ -2188,7 +2166,7 @@ msgstr ""
 #: ./ui/uiwx/__init__.py:917
 #: ./ui/uiwx/dFileDialog.py:116
 msgid "Choose a folder"
-msgstr ""
+msgstr "Escull una carpeta"
 
 #: ./ui/uiwx/__init__.py:1218
 msgid "No Active Form"
@@ -2200,7 +2178,7 @@ msgstr ""
 
 #: ./ui/uiwx/dBaseMenuBar.py:32
 msgid "&File"
-msgstr ""
+msgstr "&Arxiu"
 
 #: ./ui/uiwx/dBaseMenuBar.py:35
 msgid "Command Win&dow"
@@ -2216,31 +2194,31 @@ msgstr ""
 
 #: ./ui/uiwx/dBaseMenuBar.py:41
 msgid "Close the current window"
-msgstr ""
+msgstr "Tanca la finestra actual"
 
 #: ./ui/uiwx/dBaseMenuBar.py:45
 msgid "&Quit"
-msgstr ""
+msgstr "&Surt"
 
 #: ./ui/uiwx/dBaseMenuBar.py:48
 msgid "Exit the application"
-msgstr ""
+msgstr "Surt de l'aplicació"
 
 #: ./ui/uiwx/dBaseMenuBar.py:56
 msgid "&Edit"
-msgstr ""
+msgstr "&Edita"
 
 #: ./ui/uiwx/dBaseMenuBar.py:58
 msgid "&Undo"
-msgstr ""
+msgstr "&Desfés"
 
 #: ./ui/uiwx/dBaseMenuBar.py:60
 msgid "Undo last action"
-msgstr ""
+msgstr "Desfés l'ultima acció"
 
 #: ./ui/uiwx/dBaseMenuBar.py:62
 msgid "&Redo"
-msgstr ""
+msgstr "&Refés"
 
 #: ./ui/uiwx/dBaseMenuBar.py:64
 msgid "Undo last undo"
@@ -2248,7 +2226,7 @@ msgstr ""
 
 #: ./ui/uiwx/dBaseMenuBar.py:68
 msgid "Cu&t"
-msgstr ""
+msgstr "&Talla"
 
 #: ./ui/uiwx/dBaseMenuBar.py:70
 msgid "Cut selected text"
@@ -2256,7 +2234,7 @@ msgstr ""
 
 #: ./ui/uiwx/dBaseMenuBar.py:72
 msgid "&Copy"
-msgstr ""
+msgstr "&Copia"
 
 #: ./ui/uiwx/dBaseMenuBar.py:74
 msgid "Copy selected text"
@@ -2264,19 +2242,19 @@ msgstr ""
 
 #: ./ui/uiwx/dBaseMenuBar.py:76
 msgid "&Paste"
-msgstr ""
+msgstr "&Enganxa"
 
 #: ./ui/uiwx/dBaseMenuBar.py:78
 msgid "Paste text from clipboard"
-msgstr ""
+msgstr "Enganxa el text del portapapers"
 
 #: ./ui/uiwx/dBaseMenuBar.py:80
 msgid "Select &All"
-msgstr ""
+msgstr "&Selecciona-ho tot"
 
 #: ./ui/uiwx/dBaseMenuBar.py:82
 msgid "Select all text"
-msgstr ""
+msgstr "Selecciona tot el text"
 
 #: ./ui/uiwx/dBaseMenuBar.py:88
 msgid "&Find / Replace"
@@ -2292,7 +2270,7 @@ msgstr ""
 
 #: ./ui/uiwx/dBaseMenuBar.py:96
 msgid "Repeat the last search"
-msgstr ""
+msgstr "Repeteix l'última cerca"
 
 #: ./ui/uiwx/dBaseMenuBar.py:100
 msgid "Pr&eferences"
@@ -2304,15 +2282,15 @@ msgstr ""
 
 #: ./ui/uiwx/dBaseMenuBar.py:113
 msgid "&View"
-msgstr ""
+msgstr "&Visualitza"
 
 #: ./ui/uiwx/dBaseMenuBar.py:115
 msgid "Increase Font Size"
-msgstr ""
+msgstr "Incrementa la mida de la font"
 
 #: ./ui/uiwx/dBaseMenuBar.py:116
 msgid "Decrease Font Size"
-msgstr ""
+msgstr "Disminueix la mida de la lletra"
 
 #: ./ui/uiwx/dBaseMenuBar.py:117
 msgid "Normal Font Size"
@@ -2328,15 +2306,15 @@ msgstr ""
 
 #: ./ui/uiwx/dBaseMenuBar.py:130
 msgid "&Help"
-msgstr ""
+msgstr "A&juda"
 
 #: ./ui/uiwx/dBaseMenuBar.py:133
 msgid "&About"
-msgstr ""
+msgstr "&Quant a"
 
 #: ./ui/uiwx/dBaseMenuBar.py:139
 msgid "About this application"
-msgstr ""
+msgstr "Quant a l'aplicació"
 
 #: ./ui/uiwx/dBaseMenuBar.py:145
 msgid "Framework Web Update Settings"
@@ -2943,7 +2921,7 @@ msgstr ""
 
 #: ./ui/uiwx/dEditor.py:201
 msgid "Page: %d"
-msgstr ""
+msgstr "Pàgina: %d"
 
 #: ./ui/uiwx/dEditor.py:221
 msgid "warning: on page %s: not enough chars rendered, diff: %s"
@@ -2959,7 +2937,7 @@ msgstr ""
 
 #: ./ui/uiwx/dEditor.py:367
 msgid "Print Preview"
-msgstr ""
+msgstr "Vista prèvia de la impressió"
 
 #: ./ui/uiwx/dEditor.py:382
 msgid "An error occured while printing."
@@ -3193,11 +3171,11 @@ msgstr ""
 
 #: ./ui/uiwx/dFileDialog.py:96
 msgid "Choose a file"
-msgstr ""
+msgstr "Selecciona un fitxer"
 
 #: ./ui/uiwx/dFileDialog.py:128
 msgid "Save to:"
-msgstr ""
+msgstr "Desa a:"
 
 #: ./ui/uiwx/dFoldPanelBar.py:145
 msgid "Unknown BarStyle passed: %s. BarStyle must be one of: %s"
@@ -3307,11 +3285,11 @@ msgstr ""
 
 #: ./ui/uiwx/dForm.py:200
 msgid "Do you wish to save your changes?"
-msgstr ""
+msgstr "Vols desar els canvis?"
 
 #: ./ui/uiwx/dForm.py:223
 msgid "added"
-msgstr ""
+msgstr "afegit"
 
 #: ./ui/uiwx/dForm.py:254
 msgid "No records in dataset."
@@ -3335,12 +3313,12 @@ msgstr ""
 #: ./ui/uiwx/dForm.py:360
 #: ./ui/uiwx/dForm.py:366
 msgid "Save failed."
-msgstr ""
+msgstr "El desat ha fallat."
 
 #: ./ui/uiwx/dForm.py:361
 #: ./ui/uiwx/dForm.py:367
 msgid "Save Failed"
-msgstr ""
+msgstr "Ha fallat el desat"
 
 #: ./ui/uiwx/dForm.py:399
 msgid "Changes to %s canceled."
@@ -3502,11 +3480,11 @@ msgstr ""
 
 #: ./ui/uiwx/dForm.py:953
 msgid "Activate"
-msgstr ""
+msgstr "Activa"
 
 #: ./ui/uiwx/dForm.py:955
 msgid "Deactivate"
-msgstr ""
+msgstr "Desactiva"
 
 #: ./ui/uiwx/dForm.py:959
 msgid "Close Borderless Form"
@@ -4637,7 +4615,7 @@ msgstr ""
 
 #: ./ui/uiwx/dListControl.py:487
 msgid "Column %s"
-msgstr ""
+msgstr "Columna %s"
 
 #: ./ui/uiwx/dListControl.py:501
 msgid "Invalid column %s specified for dListControl.ExpandColumn"
@@ -4815,7 +4793,7 @@ msgstr ""
 
 #: ./ui/uiwx/dPageFrameMixin.py:304
 msgid "Page %s"
-msgstr ""
+msgstr "Pàgina %s"
 
 #: ./ui/uiwx/dPageFrameMixin.py:384
 msgid "The only possible values are 'Top', 'Left', 'Right', and 'Bottom'"
@@ -5554,16 +5532,16 @@ msgstr ""
 
 #: ./ui/uiwx/dShell.py:241
 msgid "Clear"
-msgstr ""
+msgstr "Elimina"
 
 #: ./ui/uiwx/dShell.py:253
 msgid "Unsplit"
-msgstr ""
+msgstr "Ajunta"
 
 #: ./ui/uiwx/dShell.py:255
 #: ./ui/uiwx/dShell.py:262
 msgid "Split"
-msgstr ""
+msgstr "Divideix"
 
 #: ./ui/uiwx/dShell.py:283
 msgid "Zoom &In\tCtrl+="
@@ -5571,7 +5549,7 @@ msgstr ""
 
 #: ./ui/uiwx/dShell.py:284
 msgid "Zoom In"
-msgstr ""
+msgstr "Amplia"
 
 #: ./ui/uiwx/dShell.py:285
 msgid "&Normal Zoom\tCtrl+/"
@@ -6148,11 +6126,11 @@ msgstr ""
 
 #: ./ui/uiwx/uiApp.py:128
 msgid "Mac"
-msgstr ""
+msgstr "Mac"
 
 #: ./ui/uiwx/uiApp.py:130
 msgid "Win"
-msgstr ""
+msgstr "Win"
 
 #: ./ui/uiwx/uiApp.py:173
 msgid "Framework updates are available. Do you want to update now?"
@@ -6180,7 +6158,7 @@ msgstr ""
 
 #: ./ui/uiwx/uiApp.py:516
 msgid "Find"
-msgstr ""
+msgstr "Troba"
 
 #: ./ui/uiwx/uiApp.py:625
 msgid "%s replacements were made"
@@ -6200,7 +6178,7 @@ msgstr ""
 
 #: ./ui/uiwx/uiApp.py:720
 msgid "Not found"
-msgstr ""
+msgstr "No trobat"
 
 #: ./ui/uiwx/uiApp.py:841
 msgid "Returns the form that currently has focus, or None.\t(dForm)"

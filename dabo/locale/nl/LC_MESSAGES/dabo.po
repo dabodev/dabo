@@ -4505,24 +4505,15 @@ msgstr ""
 
 #: ./ui/uiwx/dLinePlot.py:123
 msgid ""
-"The style for the marker (default='circle) (str)
-\n"
-"\t\t\t
-\n"
-"\t\t\tThe marker style can be any of the following:
-\n"
-"\t\t\t\t- 'circle'
-\n"
-"\t\t\t\t- 'dot'
-\n"
-"\t\t\t\t- 'square'
-\n"
-"\t\t\t\t- 'triangle'
-\n"
-"\t\t\t\t- 'triangle_down'
-\n"
-"\t\t\t\t- 'cross'
-\n"
+"The style for the marker (default='circle) (str)\n"
+"\t\t\t\n"
+"\t\t\tThe marker style can be any of the following:\n"
+"\t\t\t\t- 'circle'\n"
+"\t\t\t\t- 'dot'\n"
+"\t\t\t\t- 'square'\n"
+"\t\t\t\t- 'triangle'\n"
+"\t\t\t\t- 'triangle_down'\n"
+"\t\t\t\t- 'cross'\n"
 "\t\t\t\t- 'plus'"
 msgstr ""
 
@@ -4594,14 +4585,10 @@ msgstr ""
 
 #: ./ui/uiwx/dLinePlot.py:475
 msgid ""
-"Defines x axis type. Can be 'none', 'min' or 'auto'
-\n"
-"\twhere:
-\n"
-"\t\t'none' - shows no axis or tick mark values
-\n"
-"\t\t'min' - shows min bounding box values
-\n"
+"Defines x axis type. Can be 'none', 'min' or 'auto'\n"
+"\twhere:\n"
+"\t\t'none' - shows no axis or tick mark values\n"
+"\t\t'min' - shows min bounding box values\n"
 "\t\t'auto' - rounds axis range to sensible values"
 msgstr ""
 
@@ -4611,14 +4598,10 @@ msgstr ""
 
 #: ./ui/uiwx/dLinePlot.py:485
 msgid ""
-"defines y axis type. Can be 'none', 'min' or 'auto'
-\n"
-"\twhere:
-\n"
-"\t\t'none' - shows no axis or tick mark values
-\n"
-"\t\t'min' - shows min bounding box values
-\n"
+"defines y axis type. Can be 'none', 'min' or 'auto'\n"
+"\twhere:\n"
+"\t\t'none' - shows no axis or tick mark values\n"
+"\t\t'min' - shows min bounding box values\n"
 "\t\t'auto' - rounds axis range to sensible values"
 msgstr ""
 
