@@ -305,6 +305,15 @@ try again when it is running.
 			self.uiApp = None
 		# Flip the flag
 		self._wasSetup = True
+		# Call the afterSetup hook
+		self.afterSetup()
+
+
+	def afterSetup(self):
+		"""Hook method that is called after the app's setup code has run, and the
+		database, UI and module references have all been established.
+		"""
+		pass
 
 
 	def startupForms(self):
@@ -328,8 +337,8 @@ try again when it is running.
 		splash screen, if any, to be shown quickly.
 		"""
 		self.uiApp.setup()
-		
-	
+
+
 	def start(self):
 		"""Start the application event loop."""
 		if not self._wasSetup:
@@ -550,7 +559,7 @@ try again when it is running.
 					except ValueError:
 						vers = -1
 					except StandardError, e:
-						dabo.errorLog.write(_("Failed to open URL '%s'. Error: %s") % (url, e))
+						dabo.errorLog.write(_("Failed to open URL '%(url)s'. Error: %(e)s") % locals())
 					localVers = self._currentUpdateVersion(nm)
 					retAvailable = (localVers < vers)
 				prf.setValue("last_check", now)
@@ -1262,7 +1271,7 @@ try again when it is running.
 			try:
 				f = open(val, "a")
 			except IOError, e:
-				dabo.errorLog.write(_("Could not open file: '%s': %s") % (val, e))
+				dabo.errorLog.write(_("Could not open file: '%(val)s': %(e)s") % locals())
 				return
 		else:
 			f = val
