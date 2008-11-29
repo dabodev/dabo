@@ -143,6 +143,9 @@ class dDataSet(tuple):
 			endswith: LIKE '%<expr>'
 			contains: LIKE '%<expr>%'
 		"""
+		if not self:
+			# No rows, so nothing to filter
+			return self
 		opDict = {"eq": " = ?",
 			"equals": " = ?",
 			"gt": " > ?",
@@ -256,7 +259,7 @@ class dDataSet(tuple):
 			alias = "dataset"
 		if len(ds) == 0:
 			# Can't create and populate a table without a structure
-			dabo.errorLog.write(_("Cannot populate without data for alias %s")
+			dabo.errorLog.write(_("Cannot populate without data for alias '%s'")
 					% alias)
 			return None
 		if ds._populated:
@@ -323,6 +326,9 @@ class dDataSet(tuple):
 
 		# Create the table for this dDataSet
 		self._populate(self, "dataset")
+		if not self._populated:
+			# No data in the dataset
+			return None
 
 # 		pt = time.clock()
 # 		print "POPULATED", pt-st
@@ -657,13 +663,29 @@ class dDataSet(tuple):
 
 
 if __name__ == "__main__":
-	data = [{"name" : "Ed Leafe", "age" : 48, "coder" :  True, "color": "brown"},
-				{"name" : "Mike Leafe", "age" : 19, "coder" :  False, "color": "purple"},
-				{"name" : "Dan Leafe", "age" : 14, "coder" :  False, "color": "green"},
-				{"name" : "Paul McNett", "age" : 38, "coder" :  True, "color": "red"}]
+	data = [{"name" : "Ed Leafe", "age" : 51, "coder" :  True, "color": "brown"},
+				{"name" : "Mike Leafe", "age" : 21, "coder" :  False, "color": "purple"},
+				{"name" : "Dan Leafe", "age" : 17, "coder" :  False, "color": "green"},
+				{"name" : "Paul McNett", "age" : 39, "coder" :  True, "color": "red"}]
 	ds = dDataSet(data)
 
 	newDS = ds.execute("select name, age from dataset where age > 30")
 	print "Over 30:"
 	for rec in newDS:
 		print "\tName: %(name)s, Age: %(age)s" % rec
+	
+	emptyDS = ds.filter("age", 99, "gt")
+	if not emptyDS:
+		print "No one is over 99 years old"
+	else:
+		print "There are %s people over 99 years old" % len(emptyDS)
+	filt = emptyDS.filter("foo", "bar")
+	
+	leafeDS = ds.filter("name", "Leafe", "endswith")
+	if not leafeDS:
+		print "No one is is named 'Leafe'"
+	else:
+		print "There are %s people named 'Leafe'" % len(leafeDS)
+	orig = leafeDS.removeFilters()
+	print "The original dataset has %s records." % len(orig)
+
