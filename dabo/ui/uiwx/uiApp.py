@@ -178,6 +178,7 @@ class uiApp(dObject, wx.App):
 		hnd.setFormatter(fmt)
 		log.setLevel(logging.DEBUG)
 		log.addHandler(hnd)
+		super(uiApp, self).__init__(*args)
 		
 		
 	def OnInit(self):
@@ -335,15 +336,31 @@ class uiApp(dObject, wx.App):
 		"""Exit the application event loop."""
 		self.Exit()
 
-	
+
 	def finish(self):
 		# Manually raise Deactivate, as wx doesn't do that automatically
 		self.raiseEvent(dEvents.Deactivate)
-	
-	
+
+
 	def _getPlatform(self):
 		return self._platform
-		
+
+
+	def MacOpenFile(self, filename, *args, **kwargs):
+		self.dApp.onUiOpenFile(filename, *args, **kwargs)
+
+
+	def MacPrintFile(self, filename, *args, **kwargs):
+		self.dApp.onUiPrintFile(filename, *args, **kwargs)
+
+
+	def MacNewFile(self, filename, *args, **kwargs):
+		self.dApp.onUiNewFile(filename, *args, **kwargs)
+
+
+	def MacReopenApp(self, filename, *args, **kwargs):
+		self.dApp.onUiReopenFile(filename, *args, **kwargs)
+
 
 	def _onWxActivate(self, evt):
 		""" Raise the Dabo Activate or Deactivate appropriately."""
@@ -352,19 +369,22 @@ class uiApp(dObject, wx.App):
 		else:
 			self.dApp.raiseEvent(dEvents.Deactivate, evt)
 		evt.Skip()
-	
+
+
 	def _onWxKeyChar(self, evt):
 		self.dApp.raiseEvent(dEvents.KeyChar, evt)
 		evt.Skip()
-			
+
+
 	def _onWxKeyDown(self, evt):
 		self.dApp.raiseEvent(dEvents.KeyDown, evt)
 		evt.Skip()
-			
+
+
 	def _onWxKeyUp(self, evt):
 		self.dApp.raiseEvent(dEvents.KeyUp, evt)
 		evt.Skip()
-			
+
 
 	def onCmdWin(self, evt):
 		self.showCommandWindow()
@@ -381,7 +401,7 @@ class uiApp(dObject, wx.App):
 		dlg = dabo.ui.dShell.dShell(context)
 		dlg.show()
 
-	
+
 	def toggleDebugWindow(self, context=None):
 		"""Display a debug output window."""
 		class DebugWindow(dabo.ui.dToolForm):

@@ -1158,15 +1158,22 @@ try again when it is running.
 		self.afterEditPreferences()
 	def beforeEditPreferences(self): pass
 	def afterEditPreferences(self): pass
-
+	############################	
 	# These handle MRU menu requests
 	def addToMRU(self, menu, prmpt, bindfunc=None, *args, **kwargs):
 		self.uiApp.addToMRU(menu, prmpt, bindfunc, *args, **kwargs)
 	def onMenuOpenMRU(self, menu):
 		self.uiApp.onMenuOpenMRU(menu)
 	############################	
-	
-	
+	# These methods handle AppleEvents (on Mac) and possibly other
+	# similar system events caught by the uiApp object
+	def onUiOpenFile(self, filename, *args, **kwargs): pass
+	def onUiPrintFile(self, filename, *args, **kwargs): pass
+	def onUiNewFile(self, filename, *args, **kwargs): pass
+	def onUiReopenApp(self, filename, *args, **kwargs): pass
+	############################	
+
+
 	def copyToClipboard(self, txt):
 		"""Place the passed text onto the clipboard."""
 		self.uiApp.copyToClipboard(txt)
