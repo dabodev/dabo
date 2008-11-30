@@ -346,19 +346,19 @@ class uiApp(dObject, wx.App):
 		return self._platform
 
 
-	def MacOpenFile(self, filename, *args, **kwargs):
+	def MacOpenFile(self, filename=None, *args, **kwargs):
 		self.dApp.onUiOpenFile(filename, *args, **kwargs)
 
 
-	def MacPrintFile(self, filename, *args, **kwargs):
+	def MacPrintFile(self, filename=None, *args, **kwargs):
 		self.dApp.onUiPrintFile(filename, *args, **kwargs)
 
 
-	def MacNewFile(self, filename, *args, **kwargs):
+	def MacNewFile(self, filename=None, *args, **kwargs):
 		self.dApp.onUiNewFile(filename, *args, **kwargs)
 
 
-	def MacReopenApp(self, filename, *args, **kwargs):
+	def MacReopenApp(self, filename=None, *args, **kwargs):
 		self.dApp.onUiReopenFile(filename, *args, **kwargs)
 
 
