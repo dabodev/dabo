@@ -10,15 +10,11 @@ class Postgres(dBackend):
 		""" JFCS 08/23/07 Currently supporting only psycopg2"""
 		dBackend.__init__(self)
 		self.dbModuleName = "psycopg"
-		self.conn_user = ''
+		self.conn_user = ""
 
 
 	def getConnection(self, connectInfo, **kwargs):
-		# forceCreate maybe used in the future
-		if 'forceCreate' in kwargs:
-			kwargs.pop('forceCreate') 
 		import psycopg2 as dbapi
-		#from pyPgSQL import PgSQL as dbapi
 		self.conn_user = connectInfo.User
 		#- jfcs 11/01/04 port needs to be a string
 		port = str(connectInfo.Port)
@@ -26,12 +22,15 @@ class Postgres(dBackend):
 			port = "5432"
 				
 		DSN = "host=%s port=%s dbname=%s user=%s password=%s" % (connectInfo.Host,
-			port, connectInfo.Database, connectInfo.User, connectInfo.revealPW())
-		for kw, val in kwargs:
-			DSN += " %s=%s" % (kw, val)
+				port, connectInfo.Database, connectInfo.User, connectInfo.revealPW())
+		# Instead of blindly appending kwargs here, it would be preferable to only accept
+		# those that can be used safely.
+# 		for kw, val in kwargs:
+# 			DSN += " %s=%s" % (kw, val)
 		self._connection = dbapi.connect(DSN)
 		return self._connection
-	
+
+
 	def beginTransaction(self, cursor):
 		dabo.dbActivityLog.write("SQL: begin (implicit, nothing done)")
 		return True
@@ -49,15 +48,15 @@ class Postgres(dBackend):
 		sl = "\\"
 		qt = "\'"
 		return qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
-	
-	
+
+
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
 		val = self._stringify(val)
 		return "%s%s%s" % (sqt, val, sqt)
-	
-	
+
+
 	def getTables(self, cursor, includeSystemTables=False):
 		# jfcs 11/01/04 assumed public schema
 		# jfcs 01/22/07 added below to support schema 
@@ -65,14 +64,14 @@ class Postgres(dBackend):
 		if includeSystemTables:
 			sqltablestr = (("SELECT schemaname || '.' || tablename AS tablename FROM pg_tables WHERE has_table_privilege('%s', schemaname || '.' || tablename, 'SELECT')") % self.conn_user)
 		else:
-			#sqltablestr = (("SELECT schemaname || '.' || tablename AS tablename FROM pg_tables WHERE (schemaname not like 'pg_%s' and schemaname not like 'information%s') and has_table_privilege('%s', schemaname || '.' || tablename, 'SELECT')") % ('%','%',self.conn_user))
+			#sqltablestr = (("SELECT schemaname || '.' || tablename AS tablename FROM pg_tables WHERE (schemaname not like 'pg_%s' and schemaname not like 'information%s') and has_table_privilege('%s', schemaname || '.' || tablename, 'SELECT')") % ('%', '%', self.conn_user))
 		# jfcs 06/19/08 	
 			sqltablestr = (("""SELECT schemaname || '.' || tablename AS tablename 
 					FROM pg_tables 
 					WHERE (schemaname not like 'pg_%s' 
 						and schemaname not like 'information%s') 
 					and has_table_privilege('%s', schemaname || '.' || tablename, 'SELECT')
-					""") % ('%','%',self.conn_user))
+					""") % ("%", "%", self.conn_user))
 		cursor.execute(sqltablestr)
 		rs = cursor.getDataSet()
 		tables = []
@@ -80,7 +79,7 @@ class Postgres(dBackend):
 			tables.append(record["tablename"])
 		return tuple(tables)
 
-	
+
 	def getTableRecordCount(self, tableName, cursor):
 		cursor.execute("select count(*) as ncount from %s" % tableName)
 		return cursor.getDataSet()[0]["ncount"]
@@ -89,18 +88,16 @@ class Postgres(dBackend):
 	def getFields(self, tableName, cursor):
 		"""JFCS support for 7.4 and greater
 		   Requires that each table have a primary key"""
-		tableNameBreak=tableName.split('.',1)
+		tableNameBreak=tableName.split(".", 1)
 		localSchemaName = tableNameBreak[0]
 		localTableName = tableNameBreak[1]
-		
 
-			
-		cursor.execute("""SELECT a.attname, t.typname from pg_attribute a,pg_type t, pg_class c 
+		cursor.execute("""SELECT a.attname, t.typname from pg_attribute a, pg_type t, pg_class c 
 		LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
 		where a.attrelid = c.oid 
 		and a.atttypid = t.oid 
 		AND n.nspname || '.'||c.relname = '%s'
-		order by c.relname,a.attname""" % tableName)
+		order by c.relname, a.attname""" % tableName)
 
 		rs = cursor.getDataSet()
 
@@ -123,15 +120,15 @@ class Postgres(dBackend):
        AND has_schema_privilege(n.oid, 'USAGE'::text)
        AND n.nspname NOT LIKE 'pg!_%s' ESCAPE '!'
        AND has_table_privilege(c.oid, 'SELECT'::text)
-       AND c.relnamespace = n.oid and c.relname = '%s' and n.nspname = '%s' """ % ('%',localTableName,localSchemaName)
-		
+       AND c.relnamespace = n.oid and c.relname = '%s' and n.nspname = '%s' """ % ('%', localTableName, localSchemaName)
+
 		cursor.execute(sqlstr)
 		rs2 = cursor.getDataSet()
 		if rs2 == ():
 			thePKFieldName = None
 		else:
 			#thestr = rs2[0][3]
-			thePKFieldName = rs2[0]['column_name']
+			thePKFieldName = rs2[0]["column_name"]
 
 		fields = []
 		for r in rs:
@@ -182,7 +179,7 @@ class Postgres(dBackend):
 				fldType = "?"
 			fields.append((name.strip(), fldType, pk))
 		return tuple(fields)
-		
+
 
 	def getUpdateTablePrefix(self, tbl, autoQuote=True):
 		""" By default, the update SQL statement will be in the form of
@@ -192,8 +189,8 @@ class Postgres(dBackend):
 		preceed the field name in an update statement.
 		 Postgres needs to return an empty string."""
 		return ""
-		
-		
+
+
 	def noResultsOnSave(self):
 		""" Most backends will return a non-zero number if there are updates.
 		Some do not, so this will have to be customized in those cases.
@@ -208,7 +205,7 @@ class Postgres(dBackend):
 		#raise dException.dException, _("No records deleted")
 		return 
 
-	
+
 	def flush(self, cursor):
 		""" Postgres requires an explicit commit in order to have changes
 		to the database written to disk.
@@ -233,10 +230,9 @@ class Postgres(dBackend):
 		currval() will return the correct value for each session.
 		
 		"""
-		tableNameBreak=cursor.Table.split('.',1)
+		tableNameBreak=cursor.Table.split(".", 1)
 		localSchemaName = tableNameBreak[0]
 		localTableName = tableNameBreak[1]
-		
 
 		tempCursor =self._connection.cursor()
 
@@ -256,16 +252,15 @@ class Postgres(dBackend):
 		AND a.attname = %s and n.nspname=%s AND NOT a.attisdropped AND a.attnum > 0 AND pg_get_expr(d.adbin, d.adrelid) LIKE 'nextval%%' 
 		"""
 
-		tempCursor.execute(sql, ( localTableName,cursor.KeyField,localSchemaName))
+		tempCursor.execute(sql, ( localTableName, cursor.KeyField, localSchemaName))
 		rs = tempCursor.fetchall()
 		#if rs is None:
 			#dabo.dbActivityLog.write("no data in getLastInsertID")
 
-		sqlWithseq_name="""select currval('%s') as curval""" % (rs[0][0],)
+		sqlWithseq_name="""select currval('%s') as curval""" % (rs[0][0], )
 		tempCursor.execute(sqlWithseq_name) 
 		rs = tempCursor.fetchall()
 		if not rs[0][0] is None:
 			return rs[0][0]
 		else:
 			raise AttributeError, "Unable to determine the sequence used or the sequence return a strange value."
-
