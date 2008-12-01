@@ -816,7 +816,12 @@ class PropertyGrid(dabo.ui.dGrid):
 			row = self.CurrentRow
 		if col is None:
 			col = self.CurrentColumn
-		if not self.Application.Selection:
+		try:
+			sel = self.Application.Selection
+		except AttributeError:
+			# App doesn't support this property yet
+			sel = None
+		if not sel:
 			self.CurrentRow = self.CurrentColumn = 0
 			return
 		pd = self.getPropDictForRow(row)
