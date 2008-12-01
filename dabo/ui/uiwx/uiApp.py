@@ -359,7 +359,7 @@ class uiApp(dObject, wx.App):
 
 
 	def MacReopenApp(self, filename=None, *args, **kwargs):
-		self.dApp.onUiReopenFile(filename, *args, **kwargs)
+		self.dApp.onUiReopenApp(filename, *args, **kwargs)
 
 
 	def _onWxActivate(self, evt):
