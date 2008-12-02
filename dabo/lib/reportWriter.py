@@ -434,10 +434,13 @@ class Group(ReportObject):
 				be started.""")
 
 		self.AvailableProps["StartOnNewPage"] = toPropDict(bool, False, 
-				"""Specifies whether new groups should begin on a new page.""")
+				_("""Specifies whether new groups should begin on a new page."""))
 
 		self.AvailableProps["ReprintHeaderOnNewPage"] = toPropDict(bool, False, 
-				"""Specifies whether the group header gets reprinted on new pages.""")
+				_("""Specifies whether the group header gets reprinted on new pages."""))
+
+		self.AvailableProps["ResetPageNumber"] = toPropDict(bool, False, 
+				_("""Specifies whether the page number gets reset with a new group."""))
 
 	def insertRequiredElements(self):
 		if not self.has_key("GroupHeader"):
@@ -1589,6 +1592,11 @@ class ReportWriter(object):
 			for idx, group in enumerate(groups):
 				vv = self._groupValues[group["expr"]]
 				if vv["curVal"] != group.getProp("expr"):
+					rp = eval(group.get("resetPageNumber", "False"))
+					if rp and self._recordNumber == 0:
+						self.ReportForm._pageNumber = 1
+					elif rp:
+						self.ReportForm._pageNumber = 0
 					vv["curVal"] = group.getProp("expr")
 					np = eval(group.get("startOnNewPage", "False")) \
 							and self.RecordNumber > 0
