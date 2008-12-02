@@ -176,14 +176,20 @@ class dPemMixinBase(dObject):
 		return self.Top + self.Height
 		
 	def _setBottom(self, bottom):
-		self.Top = int(bottom) - self.Height
+		if self._constructed():
+			self.Top = int(bottom) - self.Height
+		else:
+			self._properties["Bottom"] = bottom
 
 
 	def _getRight(self):
 		return self.Left + self.Width
 		
 	def _setRight(self, right):
-		self.Left = int(right) - self.Width
+		if self._constructed():
+			self.Left = int(right) - self.Width
+		else:
+			self._properties["Right"] = right
 
 
 	Bottom = property(_getBottom, _setBottom, None,
