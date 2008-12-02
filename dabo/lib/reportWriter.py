@@ -116,13 +116,10 @@ class ReportObject(CaselessDict):
 
 		# 1) Try mapping the requested attribute to the reportWriter. This will handle
 		#    things like 'self.Application'.
-		failed = False
 		try:
-			ret = getattr(rw, att)
+			return getattr(rw, att)
 		except AttributeError:
-			failed = True
-		if not failed:
-			return ret
+			pass
 
 		# 2) Try mapping to a variable (self.ord_amount -> self.Variables["ord_amount"])
 		if self.Variables.has_key(att):
@@ -131,6 +128,12 @@ class ReportObject(CaselessDict):
 		# 3) Try mapping to a field in the dataset (self.ordid -> self.Record["ordid"])
 		if self.Record.has_key(att):
 			return self.Record.get(att)
+
+		# 4) Try the Report object:
+		try:
+			return getattr(self.Report, att)
+		except AttributeError:
+			pass
 
 		raise AttributeError, "Can't get attribute '%s'." % att
 
@@ -351,6 +354,11 @@ class Drawable(ReportObject):
 
 class Report(ReportObject):
 	"""Represents the report."""
+
+	def __init__(self, *args, **kwargs):
+		self._pageNumber = 0
+		super(Report, self).__init__(*args, **kwargs)
+
 	def initAvailableProps(self):
 		super(Report, self).initAvailableProps()
 
@@ -371,6 +379,12 @@ class Report(ReportObject):
 		self.setdefault("PageForeground", PageForeground(self))
 		self.setdefault("Groups", Groups(self))
 		self.setdefault("Variables", Variables(self))
+
+	def _getPageNumber(self):
+		return self._pageNumber
+
+	PageNumber = property(_getPageNumber, None, None, 
+			_("""Returns the current page number at runtime."""))
 
 
 class Page(ReportObject):
@@ -1514,6 +1528,7 @@ class ReportWriter(object):
 
 		def beginPage():
 			# Print the static bands that appear below detail in z-order:
+			self.ReportForm._pageNumber += 1
 			for band in ("pageBackground", "pageHeader", "pageFooter"):
 				printBand(band)
 			self._brandNewPage = True
