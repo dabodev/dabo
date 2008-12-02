@@ -126,9 +126,9 @@ def sortLists(self):
 	</properties>
 
 	<dSizer classID="116714768-116188336" Orientation="Horizontal" DefaultBorderTop="False" DefaultBorderRight="False" DefaultBorderBottom="False" DefaultBorder="0" DefaultBorderLeft="False" designerClass="LayoutSizer" SlotCount="3">
-		<dListBox FontUnderline="False" BorderColor="(0, 0, 0)" sizerInfo="{'BorderSides': ['All'], 'Proportion': 2, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" FontFace="Lucida Grande" BorderWidth="0" BorderStyle="Default" FontBold="False" ForeColor="(0, 0, 0)" BackColor="(221, 221, 221)" FontItalic="False" DataField="" classID="116714768-116189872" ValueMode="string" Name="lstSource" Enabled="True" Value="()" Choices="[]" designerClass="controlMix" MultipleSelect="True" BorderLineStyle="Solid" DataSource="" FontSize="13" ToolTipText="None"></dListBox>
+		<dListBox FontUnderline="False" BorderColor="(0, 0, 0)" sizerInfo="{'BorderSides': ['All'], 'Proportion': 2, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" BorderWidth="0" BorderStyle="Default" FontBold="False" ForeColor="(0, 0, 0)" BackColor="(221, 221, 221)" FontItalic="False" DataField="" classID="116714768-116189872" ValueMode="string" Name="lstSource" Enabled="True" Value="()" Choices="[]" designerClass="controlMix" MultipleSelect="True" BorderLineStyle="Solid" DataSource="" FontSize="13" ToolTipText="None"></dListBox>
 		<dSizer classID="116714768-116190448" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Center', 'VAlign': 'Middle', 'Border': 12, 'Expand': False}" Orientation="Vertical" DefaultBorderTop="False" DefaultBorderRight="False" DefaultBorderBottom="False" DefaultBorder="0" DefaultBorderLeft="False" designerClass="LayoutSizer" SlotCount="5">
-			<dButton classID="116714768-119806416" BorderColor="(0, 0, 0)" FontBold="False" Name="btnAdd" FontFace="Lucida Grande" Enabled="True" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 6, 'Expand': True}" Caption="Add &#062;" ForeColor="(0, 0, 0)" designerClass="controlMix" BorderWidth="0" BackColor="(221, 221, 221)" FontSize="13" BorderStyle="Default" ToolTipText="None" BorderLineStyle="Solid" FontItalic="False" FontUnderline="False">
+			<dButton classID="116714768-119806416" BorderColor="(0, 0, 0)" FontBold="False" Name="btnAdd"  Enabled="True" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 6, 'Expand': True}" Caption="Add &#062;" ForeColor="(0, 0, 0)" designerClass="controlMix" BorderWidth="0" BackColor="(221, 221, 221)" FontSize="13" BorderStyle="Default" ToolTipText="None" BorderLineStyle="Solid" FontItalic="False" FontUnderline="False">
 				<code>
 					<onHit><![CDATA[
 def onHit(self, evt):
@@ -137,7 +137,7 @@ def onHit(self, evt):
 					</onHit>
 				</code>
 			</dButton>
-			<dButton classID="116714768-119806928" BorderColor="(0, 0, 0)" FontBold="False" Name="btnAddAll" FontFace="Lucida Grande" Enabled="True" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 6, 'Expand': True}" Caption="Add All &#062;&#062;" ForeColor="(0, 0, 0)" designerClass="controlMix" BorderWidth="0" BackColor="(221, 221, 221)" FontSize="13" BorderStyle="Default" ToolTipText="None" BorderLineStyle="Solid" FontItalic="False" FontUnderline="False">
+			<dButton classID="116714768-119806928" BorderColor="(0, 0, 0)" FontBold="False" Name="btnAddAll" Enabled="True" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 6, 'Expand': True}" Caption="Add All &#062;&#062;" ForeColor="(0, 0, 0)" designerClass="controlMix" BorderWidth="0" BackColor="(221, 221, 221)" FontSize="13" BorderStyle="Default" ToolTipText="None" BorderLineStyle="Solid" FontItalic="False" FontUnderline="False">
 				<code>
 					<onHit><![CDATA[
 def onHit(self, evt):
@@ -147,7 +147,7 @@ def onHit(self, evt):
 				</code>
 			</dButton>
 			<dLine classID="116714768-91173584" BorderColor="(0, 0, 0)" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Center', 'VAlign': 'Middle', 'Border': 0, 'Expand': True}" Name="dLine" Enabled="True" designerClass="controlMix" BorderWidth="0" BorderStyle="Default" BorderLineStyle="Solid" ToolTipText="None"></dLine>
-			<dButton classID="116714768-119833136" BorderColor="(0, 0, 0)" FontBold="False" Name="btnRemove" FontFace="Lucida Grande" Enabled="True" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 6, 'Expand': True}" Caption="&#060; Remove" ForeColor="(0, 0, 0)" designerClass="controlMix" BorderWidth="0" BackColor="(221, 221, 221)" FontSize="13" BorderStyle="Default" ToolTipText="None" BorderLineStyle="Solid" FontItalic="False" FontUnderline="False">
+			<dButton classID="116714768-119833136" BorderColor="(0, 0, 0)" FontBold="False" Name="btnRemove" Enabled="True" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 6, 'Expand': True}" Caption="&#060; Remove" ForeColor="(0, 0, 0)" designerClass="controlMix" BorderWidth="0" BackColor="(221, 221, 221)" FontSize="13" BorderStyle="Default" ToolTipText="None" BorderLineStyle="Solid" FontItalic="False" FontUnderline="False">
 				<code>
 					<onHit><![CDATA[
 def onHit(self, evt):
@@ -156,7 +156,7 @@ def onHit(self, evt):
 					</onHit>
 				</code>
 			</dButton>
-			<dButton classID="116714768-119835152" BorderColor="(0, 0, 0)" FontBold="False" Name="btnRemoveAll" FontFace="Lucida Grande" Enabled="True" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 6, 'Expand': True}" Caption="&#060;&#060; Remove All" ForeColor="(0, 0, 0)" designerClass="controlMix" BorderWidth="0" BackColor="(221, 221, 221)" FontSize="13" BorderStyle="Default" ToolTipText="None" BorderLineStyle="Solid" FontItalic="False" FontUnderline="False">
+			<dButton classID="116714768-119835152" BorderColor="(0, 0, 0)" FontBold="False" Name="btnRemoveAll" Enabled="True" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 6, 'Expand': True}" Caption="&#060;&#060; Remove All" ForeColor="(0, 0, 0)" designerClass="controlMix" BorderWidth="0" BackColor="(221, 221, 221)" FontSize="13" BorderStyle="Default" ToolTipText="None" BorderLineStyle="Solid" FontItalic="False" FontUnderline="False">
 				<code>
 					<onHit><![CDATA[
 def onHit(self, evt):
@@ -166,6 +166,6 @@ def onHit(self, evt):
 				</code>
 			</dButton>
 		</dSizer>
-		<dListBox FontUnderline="False" BorderColor="(0, 0, 0)" sizerInfo="{'BorderSides': ['All'], 'Proportion': 2, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" FontFace="Lucida Grande" BorderWidth="0" BorderStyle="Default" FontBold="False" ForeColor="(0, 0, 0)" BackColor="(221, 221, 221)" FontItalic="False" DataField="" classID="116714768-119835888" ValueMode="string" Name="lstTarget" Enabled="True" Value="()" Choices="[]" designerClass="controlMix" MultipleSelect="True" BorderLineStyle="Solid" DataSource="" FontSize="13" ToolTipText="None"></dListBox>
+		<dListBox FontUnderline="False" BorderColor="(0, 0, 0)" sizerInfo="{'BorderSides': ['All'], 'Proportion': 2, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" BorderWidth="0" BorderStyle="Default" FontBold="False" ForeColor="(0, 0, 0)" BackColor="(221, 221, 221)" FontItalic="False" DataField="" classID="116714768-119835888" ValueMode="string" Name="lstTarget" Enabled="True" Value="()" Choices="[]" designerClass="controlMix" MultipleSelect="True" BorderLineStyle="Solid" DataSource="" FontSize="13" ToolTipText="None"></dListBox>
 	</dSizer>
 </dPanel>
