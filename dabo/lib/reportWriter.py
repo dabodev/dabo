@@ -75,6 +75,8 @@ def toPropDict(dataType, default, doc):
 
 
 class ReportObjectCollection(list):
+	"""Abstract ordered list of things like variables, groups, and band objects."""
+
 	def __init__(self, parent=None, *args, **kwargs):
 		super(ReportObjectCollection, self).__init__(*args, **kwargs)
 		self.parent = parent
@@ -970,8 +972,7 @@ class ReportWriter(object):
 			c.setFillColor(fontColor)
 			try:
 				c.setFont(fontName, fontSize)
-			except:
-		    	### FIXME
+			except StandardError:
 				# An unavailable fontName was likely specified. The rw docs promise to
 				# default to Helvetica in this case.
 				c.setFont("Helvetica", fontSize)
@@ -1241,16 +1242,13 @@ class ReportWriter(object):
 			
 			canvas.draw()
 			size = canvas.get_renderer().get_canvas_width_height()
-			buf=canvas.tostring_rgb()
-			im=PILImage.fromstring('RGB', size, buf, 'raw', 'RGB', 0, 1)
+			buf = canvas.tostring_rgb()
+			im = PILImage.fromstring('RGB', size, buf, 'raw', 'RGB', 0, 1)
 			im.fp = "PILIMAGE"
 			imageData = ImageReader(im)
 
-			try:
-				c.drawImage(imageData, 0, 0, width, height, mask)
-			except:
-		    	### FIXME
-				pass			
+			c.drawImage(imageData, 0, 0, width, height, mask)
+
 		## All done, restore the canvas state to how we found it (important because
 		## rotating, scaling, etc. are cumulative, not absolute and we don't want
 		## to start with a canvas in an unknown state.)
@@ -1512,8 +1510,7 @@ class ReportWriter(object):
 					if show is not None:
 						try:
 							ev = eval(show)
-						except:
-					    	### FIXME
+						except StandardError:
 							## expression failed to eval: default to True (show it)
 							ev = True
 						if not ev:
