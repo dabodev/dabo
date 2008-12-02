@@ -297,7 +297,6 @@ def _ipconfig_getnode():
         ctypes.windll.kernel32.GetSystemDirectoryA(buffer, 300)
         dirs.insert(0, buffer.value.decode('mbcs'))
     except:
-    	### FIXME
         pass
     for dir in dirs:
         try:
@@ -352,7 +351,6 @@ try:
         try:
             lib = ctypes.CDLL(ctypes.util.find_library(libname))
         except:
-	    	### FIXME
             continue
         if hasattr(lib, 'uuid_generate_random'):
             _uuid_generate_random = lib.uuid_generate_random
@@ -366,12 +364,10 @@ try:
     try:
         lib = ctypes.windll.rpcrt4
     except:
-    	### FIXME
         lib = None
     _UuidCreate = getattr(lib, 'UuidCreateSequential',
                           getattr(lib, 'UuidCreate', None))
 except:
-   	### FIXME
     pass
 
 def _unixdll_getnode():
@@ -411,7 +407,6 @@ def getnode():
         try:
             _node = getter()
         except:
-	    	### FIXME
             continue
         if _node is not None:
             return _node
@@ -465,7 +460,6 @@ def uuid4():
         import os
         return UUID(bytes=os.urandom(16), version=4)
     except:
-    	### FIXME
         import random
         bytes = [chr(random.randrange(256)) for i in range(16)]
         return UUID(bytes=bytes, version=4)
