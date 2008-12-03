@@ -1884,7 +1884,11 @@ class dPemMixin(dPemMixinBase):
 			self._droppedFileHandler = val
 			if self._dropTarget == None:
 				self._dropTarget = _DropTarget()
-				self.SetDropTarget(self._dropTarget)
+				if isinstance(self, dabo.ui.dGrid):
+					wxObj = self.GetGridWindow()
+				else:
+					wxObj = self
+				wxObj.SetDropTarget(self._dropTarget)
 			self._dropTarget.FileHandler = val
 		else:
 			self._properties["DroppedFileHandler"] = val
@@ -1899,7 +1903,11 @@ class dPemMixin(dPemMixinBase):
 			target = self.GetDropTarget()
 			if self._dropTarget == None:
 				self._dropTarget = _DropTarget()
-				self.SetDropTarget(self._dropTarget)
+				if isinstance(self, dabo.ui.dGrid):
+					wxObj = self.GetGridWindow()
+				else:
+					wxObj = self
+				wxObj.SetDropTarget(self._dropTarget)
 			self._dropTarget.TextHandler = val
 		else:
 			self._properties["DroppedTextHandler"] = val
