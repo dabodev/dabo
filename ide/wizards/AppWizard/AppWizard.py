@@ -388,7 +388,7 @@ your application.""")
 			if not self.Form.selectedTables:
 				dabo.ui.stop(_("No tables were selected. " + 
 						"Please select the tables you want to include in your application"), 
-						Caption=_("No Tables Selected"))
+						title=_("No Tables Selected"))
 				return False		
 			self.fillFieldDict()
 		return True
