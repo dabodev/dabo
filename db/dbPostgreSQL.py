@@ -174,7 +174,8 @@ class Postgres(dBackend):
 			elif "path" in fldType:
 				fldType = "C"
 			elif "oid" in fldType:
-				fldType = "G"
+				fldType = "I"
+				#fldType = "G"
 			else:
 				fldType = "?"
 			fields.append((name.strip(), fldType, pk))
