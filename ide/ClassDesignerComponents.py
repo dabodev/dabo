@@ -7,6 +7,7 @@ import dabo.dEvents as dEvents
 import dabo.ui.dialogs as dlgs
 from ClassDesignerExceptions import PropertyUpdateException
 from dabo.lib.xmltodict import xmltodict
+from dabo.lib.DesignerUtils import addSizerDefaults
 from DragHandle import DragHandle
 
 # Defaults for sizer items
@@ -275,7 +276,7 @@ class LayoutSaverMixin(object):
 			else:
 				typ = szOrDict.Orientation.upper()[0]
 			defaults = self.Controller.getDefaultSizerProps(cls, typ).copy()
-		if isinstance(self, LayoutPanel):
+		if isinstance(self, LayoutPanel) and not isinstance(self, LayoutSpacerPanel):
 			defaults["Expand"] = True
 			defaults["Proportion"] = 1
 		for key, val in dct.items():
@@ -899,6 +900,12 @@ class LayoutSpacerPanel(LayoutPanel):
 		self.hiliteColor = "white"
 		self.hiliteBorder = "blue"
 		self.BorderLineStyle = "dot"
+		# Set up sizer defaults
+		addSizerDefaults({self.__class__: {
+				"G": {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Center", "VAlign": "Middle", "Border": 70, "Expand": False, "RowExpand": False, "ColExpand": False},
+				"H": {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Left", "VAlign": "Middle", "Border": 80, "Expand": False},
+				"V": {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Center", "VAlign": "Top", "Border": 90, "Expand": False}
+				}})
 
 
 	def onMouseRightClick(self, evt):
