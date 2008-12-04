@@ -255,12 +255,26 @@ def getSizerDefaults():
 	return szDefaults
 
 _sizerDefaults = {}
+_extraSizerDefaults = {}
+
+
+def addSizerDefaults(defaults):
+	"""Takes a dict of defaults, with the class as the key and the various defaults as 
+	the values. Used by external apps to customize behaviors for their own classes.
+	"""
+	global _extraSizerDefaults
+	_extraSizerDefaults.update(defaults)
 
 
 def getDefaultSizerProps(cls, szType):
 	global _sizerDefaults
+	global _extraSizerDefaults
 	if not _sizerDefaults:
 		_sizerDefaults = getSizerDefaults()
+	# Add custom defaults, if any
+	if _extraSizerDefaults:
+		_sizerDefaults.update(_extraSizerDefaults)
+		_extraSizerDefaults = {}
 	typ = szType[0].upper()
 	defaults = _sizerDefaults.get(cls, {})
 	ret = defaults.get(typ, {})
