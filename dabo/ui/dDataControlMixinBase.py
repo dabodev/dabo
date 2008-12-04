@@ -124,7 +124,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				# Could be testing
 				return
 
-			srcatt = getattr(src, self.DataField)
+			try:
+				srcatt = getattr(src, self.DataField)
+			except AttributeError:
+				# This happens in design tools, where a control might bind to a property
+				# that the current object doesn't have.
+				return
+			
 				
 			if self._srcIsInstanceMethod:
 				try:
