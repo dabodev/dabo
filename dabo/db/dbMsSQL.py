@@ -34,7 +34,7 @@ class MSSQL(dBackend):
 		self.database = database
 				
 		self._connection = pymssql.connect(host=host, user=user, password=password, 
-				database=database, **kwargs)
+				database=database)
 		return self._connection
 
 
