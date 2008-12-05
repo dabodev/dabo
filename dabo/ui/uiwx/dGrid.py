@@ -113,6 +113,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			return
 
 		for idx, col in enumerate(colDefs):
+			if not col.Visible:
+				continue
 			nm = col.DataField
 			while not nm:
 				nm = str(idx)
@@ -460,6 +462,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		# Custom editors/renderers
 		self._customRenderers = {}
 		self._customEditors = {}
+		self._headerVerticalAlignment = "Center"
+		self._headerHorizontalAlignment = "Center"
+		self._visible = True
 		
 		self._beforeInit()
 		kwargs["Parent"] = parent
@@ -657,6 +662,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		left = -grid.GetViewStart()[0] * grid.GetScrollPixelsPerUnit()[0]
 		for col in range(self.Parent.ColumnCount):
 			colObj = self.Parent.Columns[col]
+			if not colObj.Visible:
+				continue
 			if colObj == self:
 				break
 			left += colObj.Width
@@ -1190,7 +1197,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		try:
 			val = self._headerHorizontalAlignment
 		except AttributeError:
-			val = self._headerHorizontalAlignment = None
+			# Not set yet
+			return "Center"
 		return val
 
 	def _setHeaderHorizontalAlignment(self, val):
@@ -1206,7 +1214,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		try:
 			val = self._headerVerticalAlignment
 		except AttributeError:
-			val = self._headerVerticalAlignment = None
+			# Not set yet
+			return "Center"
 		return val
 
 	def _setHeaderVerticalAlignment(self, val):
@@ -2314,6 +2323,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			dc = wx.ClientDC(w)
 
 		for col in self._columns:
+			if not col.Visible:
+				continue
 			headerRect = col._getHeaderRect()
 			intersect = wx.IntersectRect(updateBox, headerRect)
 			if intersect is None:
@@ -2415,7 +2426,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			dc.DestroyClippingRegion()
 
 
-
 	def showColumn(self, col, visible):
 		"""If the column is not shown and visible=True, show it. Likewise
 		but opposite if visible=False.
@@ -2426,14 +2436,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			else:
 				dabo.errorLog.write(_("Invalid column number passed to 'showColumn()'."))
 				return
-		if visible:
-			if col in self.Columns:
-				# already shown
-				return
-			self.addColumn(col)
-		else:
-			if col in self.Columns:
-				self.removeColumn(col)
+		col._visible = visible
+		self._syncColumnCount()
 
 
 	def moveColumn(self, colNum, toNum):
@@ -2915,7 +2919,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if (colNum < 0) or (colNum > self.ColumnCount-1):
 			return None
 		else:
-			return self.Columns[colNum]
+			return [col for col in self.Columns if col.Visible][colNum]
 
 
 	def getColByDataField(self, df):
@@ -3072,7 +3076,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		"""Sync wx's rendition of column count with our self.ColumnCount"""
 		msg = None
 		wxColumnCount = self.GetNumberCols()
-		daboColumnCount = len(self.Columns)
+		daboColumnCount = len([col for col in self.Columns if col.Visible])
 		diff = daboColumnCount - wxColumnCount
 		if diff < 0:
 			msg = wx.grid.GridTableMessage(self._Table,
