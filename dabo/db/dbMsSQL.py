@@ -15,7 +15,7 @@ class MSSQL(dBackend):
 		import pymssql 
 
 
-	def getConnection(self, connectInfo, **kwargs):
+	def getConnection(self, connectInfo, forceCreate=False, **kwargs):
 		"""The pymssql module requires the connection be created for the FreeTDS libraries first.  Therefore, the 
 		DSN is really the name of the connection for FreeTDS
 		  __init__(self, dsn, user, passwd, database = None, strip = 0)"""
@@ -34,7 +34,7 @@ class MSSQL(dBackend):
 		self.database = database
 				
 		self._connection = pymssql.connect(host=host, user=user, password=password, 
-				database=database)
+				database=database, **kwargs)
 		return self._connection
 
 
