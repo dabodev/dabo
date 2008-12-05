@@ -44,6 +44,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def GetAttr(self, row, col, kind=0):
+		col = self._convertWxColNumToDaboColNum(col)
+		if col is None:
+			# Empty grid so far, no biggie:
+			return self.grid._defaultGridColAttr.Clone()
+
 		## dColumn maintains one attribute object that applies to every row
 		## in the column. This can be extended later with optional cell-specific
 		## attributes to override the column-specific ones, but I'll wait for
@@ -61,15 +66,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 		## The column attr object is maintained in dColumn:
 
-		try:
-			dcol = self.grid.Columns[col]
-		except IndexError:
-			# Something is out of order in the setting up of the grid: the grid table
-			# has columns, but self.grid.Columns doesn't know about it yet. Just return
-			# the default:
-			return self.grid._defaultGridColAttr.Clone()
-			# (further testing reveals that this really isn't a problem: the grid is
-			#  just empty - no columns or rows added yet)
+		dcol = self.grid.Columns[col]
 
 		# If a cell attr is set up, use it. Else, use the one set up for the column.
 		if dcol._gridCellAttrs:
@@ -113,8 +110,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			return
 
 		for idx, col in enumerate(colDefs):
-			if not col.Visible:
-				continue
 			nm = col.DataField
 			while not nm:
 				nm = str(idx)
@@ -192,6 +187,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def CanGetValueAs(self, row, col, typ):
+		col = self._convertWxColNumToDaboColNum(col)
 		if self.grid.useCustomGetValue:
 			return self.grid.customCanGetValueAs(row, col, typ)
 		else:
@@ -200,6 +196,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def CanSetValueAs(self, row, col, typ):
+		col = self._convertWxColNumToDaboColNum(col)
 		if self.grid.useCustomSetValue:
 			return self.grid.customCanSetValueAs(row, col, typ)
 		else:
@@ -242,8 +239,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		#   2) col.Width (as set by the Width prop or by the fieldspecs)
 		#   3) have the grid autosize
 
-		self.grid.BeginBatch()
-		for idx, col in enumerate(self.grid.Columns):
+		for idx, col in enumerate(self.grid._columns):
 			gridCol = idx
 
 			# 1) Try to get the column width from the saved user settings:
@@ -262,7 +258,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		# Show the row labels, if any
 		for idx, label in enumerate(self.grid.RowLabels):
 			self.SetRowLabelValue(idx, label)
-		self.grid.EndBatch()
 
 		self._oldRowCount = _newRowCount
 		return _newRowCount
@@ -289,6 +284,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def IsEmptyCell(self, row, col):
+		col = self._convertWxColNumToDaboColNum(col)
 		if row >= self.grid.RowCount:
 			return True
 		return False
@@ -313,6 +309,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def GetValue(self, row, col, useCache=True):
+		col = self._convertWxColNumToDaboColNum(col)
 		if useCache:
 			try:
 				cv = self.__cachedVals.get((row, col))
@@ -354,6 +351,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def SetValue(self, row, col, value):
+		col = self._convertWxColNumToDaboColNum(col)
 		field = self.grid.Columns[col].DataField
 		bizobj = self.grid.getBizobj()
 		if bizobj:
@@ -364,7 +362,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			self.grid.DataSet[row][field] = value
 		self.grid.afterCellEdit(row, col)
 
-
+	def _convertWxColNumToDaboColNum(self, wxCol):
+		return self.grid._convertWxColNumToDaboColNum(wxCol)
+	
 
 class GridListEditor(wx.grid.GridCellChoiceEditor):
 	def __init__(self, *args, **kwargs):
@@ -462,9 +462,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		# Custom editors/renderers
 		self._customRenderers = {}
 		self._customEditors = {}
-		self._headerVerticalAlignment = "Center"
-		self._headerHorizontalAlignment = "Center"
-		self._visible = True
 		
 		self._beforeInit()
 		kwargs["Parent"] = parent
@@ -1197,8 +1194,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		try:
 			val = self._headerHorizontalAlignment
 		except AttributeError:
-			# Not set yet
-			return "Center"
+			val = self._headerHorizontalAlignment = None
 		return val
 
 	def _setHeaderHorizontalAlignment(self, val):
@@ -1214,8 +1210,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		try:
 			val = self._headerVerticalAlignment
 		except AttributeError:
-			# Not set yet
-			return "Center"
+			val = self._headerVerticalAlignment = None
 		return val
 
 	def _setHeaderVerticalAlignment(self, val):
@@ -1389,12 +1384,12 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 
 	def _getWidth(self):
-		idx = self.ColumnIndex
+		idx = self.Parent._convertDaboColNumToWxColNum(self.ColumnIndex)
 		try:
 			v = self._width
 		except AttributeError:
 			v = self._width = 150
-		if self.Parent and idx >= 0:
+		if self.Parent and idx is not None:
 			# Make sure the grid is in sync:
 			try:
 				self.Parent.SetColSize(idx, v)
@@ -1414,8 +1409,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			grd = self.Parent
 			if grd:
 				grd._syncColumnCount()
-				idx = self.ColumnIndex
-				if idx >= 0:
+				idx = self.grid._convertDaboColNumToWxColNum(self.ColumnIndex)
+				if idx is not None:
 					# Change the size in the wx grid:
 					grd.SetColSize(idx, val)
 					self.Parent.refresh(sort=False)
@@ -2059,6 +2054,36 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		dabo.ui.callAfterInterval(200, self.refresh)
 
 
+	def _getDaboVisibleCols(self):
+		return [e[0] for e in enumerate(self._columns) if e[1].Visible]
+
+
+	def _convertWxColNumToDaboColNum(self, wxCol):
+		"""For the Visible property to work, we need to convert the column number
+		wx sends to the actual column index in grid.Columns.
+		
+		Returns None if there is no corresponding dabo column.
+		"""
+		try:
+			return self._getDaboVisibleCols()[wxCol]
+		except IndexError:
+			return None
+
+
+	def _convertDaboColNumToWxColNum(self, daboCol):
+		"""For the Visible property to work, we need to convert the column number
+		dabo uses in grid.Columns to the wx column.
+
+		Returns None if there is no corresponding wx column.
+		"""
+
+		daboVis = self._getDaboVisibleCols()
+		try:
+			return daboVis.index(daboCol)
+		except ValueError:
+			return None
+
+		
 	def _restoreSort(self):
 		self.sortedColumn = self._getUserSetting("sortedColumn")
 		self.sortOrder = self._getUserSetting("sortOrder")
@@ -2263,7 +2288,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		Set colNum='all' to auto-size all columns. Set persist=True to persist the
 		new width to the user settings table.
 		"""
-		if isinstance(colNum, str):
+		if isinstance(colNum, basestring) and colNum.lower() == "all":
 			self.lockDisplay()
 			self._inAutoSizeLoop = True
 			for ii in range(len(self.Columns)):
@@ -2271,16 +2296,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self.unlockDisplay()
 			self._inAutoSizeLoop = False
 			return
+
 		maxWidth = 250  ## limit the width of the column to something reasonable
+
 		if not self._inAutoSizeLoop:
 			# lock the screen
 			self.lockDisplay()
-		# We need to account for header caption width, too. Add
-		# a row to the data set containing the header captions, and
-		# then remove the row afterwards.
-		capRow = {}
-		for col in self.Columns:
-			capRow[col.DataField] = col.Caption
 
 		## This function will get used in both if/elif below:
 		def _setColSize(idx):
@@ -2299,8 +2320,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			colObj.Width = w
 			if persist:
 				colObj._persist("Width")
+
 		try:
-			self.AutoSizeColumn(colNum, setAsMin=False)
+			self.AutoSizeColumn(self._convertDaboColNumToWxColNum(colNum), setAsMin=False)
 		except wx.PyAssertionError:
 			pass
 		_setColSize(colNum)
@@ -2322,9 +2344,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		else:
 			dc = wx.ClientDC(w)
 
-		for col in self._columns:
-			if not col.Visible:
-				continue
+		for idx, col in enumerate(self._columns):
 			headerRect = col._getHeaderRect()
 			intersect = wx.IntersectRect(updateBox, headerRect)
 			if intersect is None:
@@ -2437,7 +2457,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				dabo.errorLog.write(_("Invalid column number passed to 'showColumn()'."))
 				return
 		col._visible = visible
-		self._syncColumnCount()
+		#self._syncColumnCount()
+		self.refresh()
 
 
 	def moveColumn(self, colNum, toNum):
@@ -2898,10 +2919,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def getColNumByX(self, x):
-		""" Given the x-coordinate, return the column number."""
+		""" Given the x-coordinate, return the column index in self.Columns."""
 		col = self.XToCol(x + (self.GetViewStart()[0]*self.GetScrollPixelsPerUnit()[0]))
 		if col == wx.NOT_FOUND:
 			col = -1
+		else:
+			col = self._convertWxColNumToDaboColNum(col)
 		return col
 
 
@@ -2919,7 +2942,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if (colNum < 0) or (colNum > self.ColumnCount-1):
 			return None
 		else:
-			return [col for col in self.Columns if col.Visible][colNum]
+			return self.Columns[colNum]
 
 
 	def getColByDataField(self, df):
@@ -3078,6 +3101,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		wxColumnCount = self.GetNumberCols()
 		daboColumnCount = len([col for col in self.Columns if col.Visible])
 		diff = daboColumnCount - wxColumnCount
+
+		self.BeginBatch()
 		if diff < 0:
 			msg = wx.grid.GridTableMessage(self._Table,
 					wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
@@ -3088,6 +3113,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					diff)
 		if msg:
 			self.ProcessTableMessage(msg)
+		self.EndBatch()
+
+		# We need to adjust the Width of visible columns here, in case any 
+		# columns have Visible = False.
+		for daboCol, colObj in enumerate(self._columns):
+			wxCol = self._convertDaboColNumToWxColNum(daboCol)
+			if wxCol is not None:
+				self.SetColSize(wxCol, colObj.Width)
 
 
 	def _syncRowCount(self):
