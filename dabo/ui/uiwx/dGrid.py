@@ -4771,6 +4771,13 @@ if __name__ == '__main__':
 			radSelect.refresh()
 			gsz.append(radSelect, row=0, col=1, rowSpan=3)
 
+			def visible(evt):
+				g.Columns[1].Visible = not g.Columns[1].Visible
+			chkVisible = dabo.ui.dCheckBox(self, Caption="Column 2 Visible",
+				OnHit=visible, Value=True)
+			chk.refresh()
+			gsz.append(chkVisible, row=3, col=0)
+
 			self.Sizer.append(gsz, halign="Center", border=10)
 			gsz.setColExpand(True, 1)
 			self.layout()
