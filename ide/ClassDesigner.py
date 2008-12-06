@@ -3675,7 +3675,7 @@ class ClassDesigner(dabo.dApp):
 				lbls.append(lbl)
 				# Need to add this after the fact, so that when the form is saved,
 				# the caption is different than the original value.
-				lbl.Caption = "%s%s" % (fldData["caption"], colonSep)
+				lbl.Caption = "%s%s" % (fldData["caption"].rstrip(":"), colonSep)
 				ctlClass = self.getControlClass(fldData["class"])
 				ctl = ctlClass(pnl, DataSource=table, DataField=fld)
 				if isinstance(ctl, dui.dTextBox):
