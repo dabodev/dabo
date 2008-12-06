@@ -240,5 +240,9 @@ def makeProxyProperty(dct, nm, proxyAtts):
 		return _resolveGet(self, nm)
 	def fset(self, val):
 		return _resolveSet(self, nm, val)
-	return property(fget, fset)
+	try:
+		doc = getattr(dabo.ui.dPemMixin, nm).__doc__
+	except AttributeError:
+		doc = None
+	return property(fget, fset, None, doc)
 
