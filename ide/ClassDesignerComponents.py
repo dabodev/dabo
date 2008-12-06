@@ -1175,6 +1175,23 @@ class LayoutSizerMixin(LayoutSaverMixin):
 		dabo.ui.callAfter(self.Controller.updateLayout)
 
 
+	def _updateChildBorderSides(self):
+		"""Set the BorderSides property for each child to match the default setting."""
+		val = []
+		if self.DefaultBorderBottom:
+			val.append("Bottom")
+		if self.DefaultBorderLeft:
+			val.append("Left")
+		if self.DefaultBorderRight:
+			val.append("Right")
+		if self.DefaultBorderTop:
+			val.append("Top")
+		if not val:
+			val = ["All"]
+		for itm in self.Children:
+			self.setItemProp(itm, "BorderSides", val)
+
+
 	def _getDefaultBorder(self):
 		return super(LayoutSizerMixin, self)._getDefaultBorder()
 
@@ -1186,6 +1203,66 @@ class LayoutSizerMixin(LayoutSaverMixin):
 		if self.Controller._propagateDefaultBorder:
 			for itm in self.Children:
 				self.setItemProp(itm, "Border", val)
+
+
+	def _getDefaultBorderAll(self):
+		return super(LayoutSizerMixin, self)._getDefaultBorderAll()
+
+	def _setDefaultBorderAll(self, val):
+		"""The idea here is to propagate the DefaultBorderAll setting to all child
+		objects, instead of just future additions.
+		"""
+		super(LayoutSizerMixin, self)._setDefaultBorderAll(val)
+		if self.Controller._propagateDefaultBorder:
+			self._updateChildBorderSides()
+
+
+	def _getDefaultBorderBottom(self):
+		return super(LayoutSizerMixin, self)._getDefaultBorderBottom()
+
+	def _setDefaultBorderBottom(self, val):
+		"""The idea here is to propagate the DefaultBorderBottom setting to all child
+		objects, instead of just future additions.
+		"""
+		super(LayoutSizerMixin, self)._setDefaultBorderBottom(val)
+		if self.Controller._propagateDefaultBorder:
+			self._updateChildBorderSides()
+
+
+	def _getDefaultBorderLeft(self):
+		return super(LayoutSizerMixin, self)._getDefaultBorderLeft()
+
+	def _setDefaultBorderLeft(self, val):
+		"""The idea here is to propagate the DefaultBorderLeft setting to all child
+		objects, instead of just future additions.
+		"""
+		super(LayoutSizerMixin, self)._setDefaultBorderLeft(val)
+		if self.Controller._propagateDefaultBorder:
+			self._updateChildBorderSides()
+
+
+	def _getDefaultBorderRight(self):
+		return super(LayoutSizerMixin, self)._getDefaultBorderRight()
+
+	def _setDefaultBorderRight(self, val):
+		"""The idea here is to propagate the DefaultBorderRight setting to all child
+		objects, instead of just future additions.
+		"""
+		super(LayoutSizerMixin, self)._setDefaultBorderRight(val)
+		if self.Controller._propagateDefaultBorder:
+			self._updateChildBorderSides()
+
+
+	def _getDefaultBorderTop(self):
+		return super(LayoutSizerMixin, self)._getDefaultBorderTop()
+
+	def _setDefaultBorderTop(self, val):
+		"""The idea here is to propagate the DefaultBorderTop setting to all child
+		objects, instead of just future additions.
+		"""
+		super(LayoutSizerMixin, self)._setDefaultBorderTop(val)
+		if self.Controller._propagateDefaultBorder:
+			self._updateChildBorderSides()
 
 
 	def _getController(self):
@@ -1365,6 +1442,26 @@ class LayoutSizerMixin(LayoutSaverMixin):
 	DefaultBorder = property(_getDefaultBorder, _setDefaultBorder, None,
 			_("""Not only changes the current setting, but goes back and applies
 			it to all existing children  (int)"""))
+
+	DefaultBorderAll = property(_getDefaultBorderAll, _setDefaultBorderAll, None,
+			_("""Not only changes the current setting, but goes back and applies
+			it to all existing children  (bool)"""))
+
+	DefaultBorderBottom = property(_getDefaultBorderBottom, _setDefaultBorderBottom, None,
+			_("""Not only changes the current setting, but goes back and applies
+			it to all existing children  (bool)"""))
+
+	DefaultBorderLeft = property(_getDefaultBorderLeft, _setDefaultBorderLeft, None,
+			_("""Not only changes the current setting, but goes back and applies
+			it to all existing children  (bool)"""))
+
+	DefaultBorderRight = property(_getDefaultBorderRight, _setDefaultBorderRight, None,
+			_("""Not only changes the current setting, but goes back and applies
+			it to all existing children  (bool)"""))
+
+	DefaultBorderTop = property(_getDefaultBorderTop, _setDefaultBorderTop, None,
+			_("""Not only changes the current setting, but goes back and applies
+			it to all existing children  (bool)"""))
 
 	DesignerEvents = property(_getDesEvents, None, None,
 			_("""Returns a list of the most common events for the control.
