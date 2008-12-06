@@ -285,4 +285,4 @@ def getDefaultSizerProps(cls, szType):
 		if len(splitname) == 2 and splitname[1].isdigit():
 			defaults = _sizerDefaults.get(splitname[0], {})
 			ret = defaults.get(typ, {})
-	return ret
+	return copy.deepcopy(ret)
