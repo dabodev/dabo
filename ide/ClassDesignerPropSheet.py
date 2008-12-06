@@ -273,11 +273,13 @@ class PropSheet(dabo.ui.dPanel):
 			prop = "Sizer_%s" % prop
 		try:
 			doc = getattr(obj.__class__, prop).__doc__
-		except:
+		except AttributeError:
 			try:
 				doc = self.Controller.getPropDictForObject(obj)[prop]["comment"]
-			except:
+			except (AttributeError, KeyError, IndexError):
 				doc = ""
+		if doc is None:
+			doc = ""
 		return self.formatDocString(doc)
 		
 

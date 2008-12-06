@@ -368,7 +368,7 @@ class TreeSheet(dui.dPanel):
 						self._recurseChildren(itm.Children, childNode, noDisplay)
 						return
 					if not isinstance(itm, (dui.dPageFrameNoTabs, dui.dRadioList, 
-							dui.dialogs.Wizard, dui.dialogs.WizardPage)):
+							dui.dSpinner, dui.dialogs.Wizard, dui.dialogs.WizardPage)):
 						self.recurseLayout(itm.Sizer, childNode, noDisplay=noDisplay)
 			if isinstance(itm, dui.dGrid):
 				children = itm.Columns
