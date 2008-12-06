@@ -1409,7 +1409,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			grd = self.Parent
 			if grd:
 				grd._syncColumnCount()
-				idx = self.grid._convertDaboColNumToWxColNum(self.ColumnIndex)
+				idx = grd._convertDaboColNumToWxColNum(self.ColumnIndex)
 				if idx is not None:
 					# Change the size in the wx grid:
 					grd.SetColSize(idx, val)
