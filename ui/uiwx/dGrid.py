@@ -4805,11 +4805,16 @@ if __name__ == '__main__':
 			gsz.append(radSelect, row=0, col=1, rowSpan=3)
 
 			def visible(evt):
-				g.Columns[1].Visible = not g.Columns[1].Visible
-			chkVisible = dabo.ui.dCheckBox(self, Caption="Column 2 Visible",
-				OnHit=visible, Value=True)
-			chk.refresh()
-			gsz.append(chkVisible, row=3, col=0)
+				col = g.getColByDataField("name")
+				but = evt.EventObject
+				col.Visible = not col.Visible
+				if col.Visible:
+					but.Caption = "Make Celebrity Invisible"
+				else:
+					but.Caption = "Make Celebrity Visible"
+			butVisible = dabo.ui.dButton(self, Caption="Toggle Celebrity Visibility",
+				OnHit=visible)
+			gsz.append(butVisible, row=3, col=0)
 
 			self.Sizer.append(gsz, halign="Center", border=10)
 			gsz.setColExpand(True, 1)
