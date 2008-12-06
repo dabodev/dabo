@@ -340,10 +340,10 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			pop.append(_("Change Caption"), 
 					OnHit=self.onChangeCaption)
 		if self.UsingSizers:
-			self.Controller.addSlotOptions(self, pop, sepBefore=True)
-			# Add the Sizer editing option
-			pop.appendSeparator()
-			pop.append(_("Edit Sizer Settings"), OnHit=self.onEditSizer)
+			if self.Controller.addSlotOptions(self, pop, sepBefore=True):
+				# Add the Sizer editing option
+				pop.appendSeparator()
+				pop.append(_("Edit Sizer Settings"), OnHit=self.onEditSizer)
 		return pop
 		
 
@@ -438,7 +438,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			dabo.ui.callAfter(self.Parent.removePage, self)
 			dabo.ui.callAfter(self.Controller.updateLayout)
 			return
-		if self.UsingSizers:
+		if self.UsingSizers and hasattr(self, "ControllingSizer"):
 			self.ControllingSizer.delete(self)
 		else:
 			self.Form.select(self.Parent)
@@ -661,7 +661,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"RegID" : {"type" : unicode, "readonly" : False},
 				"Tag" : {"type" : "multi", "readonly" : False},
 				"ToolTipText" : {"type" : unicode, "readonly" : False},
-				"Transparency" : {"type" : int, "readonly" : False}}
+				"Transparency" : {"type" : int, "readonly" : False},
+				"Visible": {"type" : bool, "readonly" : False}}
 		captionProps = {"Caption": {"type" : unicode, "readonly" : False}}
 		choiceProps = {"Choices": {"type" : "choice", "readonly" : False, 
 				"customEditor": "editChoice"},
@@ -890,6 +891,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret = columnProps
 			ret.update(captionProps)
 			ret.update(fontProps)
+			ret["Visible"] = {"type" : bool, "readonly" : False}
 		elif isinstance(self, dabo.ui.dComboBox):
 			ret.update(colorProps)
 			ret.update(comboProps)
@@ -965,6 +967,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			del ret["Width"]
 			del ret["Height"]
 			del ret["Buffered"]
+			del ret["Visible"]
 		elif isinstance(self, dlgs.WizardPage):
 			ret.update(captionProps)
 			ret.update(panelProps)
@@ -1260,10 +1263,13 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 	
 	def _getTreeDisp(self):
 		if isinstance(self, dabo.ui.dColumn):
+			prfx = "Column"
+			if not self.Visible:
+				prfx = "Hidden Column"
 			if self.DataField:
-				ret = ("Column", self.DataField)
+				ret = (prfx, self.DataField)
 			else:
-				ret = ("Column", self.Parent.Columns.index(self))
+				ret = (prfx, self.Parent.Columns.index(self))
 		elif isinstance(self, dabo.ui.dLabel):
 			ret = ("\"%s\"" % self.Caption, self._baseClass)
 		elif isinstance(self, dabo.ui.dTreeView.getBaseNodeClass()):

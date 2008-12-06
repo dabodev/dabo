@@ -2765,7 +2765,11 @@ class ClassDesigner(dabo.dApp):
 		depending on its position in the design surface.
 		"""
 		self._contextObj = obj
-		sz = obj.ControllingSizer
+		try:
+			sz = obj.ControllingSizer
+		except AttributeError:
+			# Some objects, such as grid columns and pages, do not have a ControllingSizer
+			return False
 		items = []
 		if isinstance(sz, (dui.dSizer, dui.dBorderSizer)):
 			if sz.Orientation == "Vertical":
@@ -2804,7 +2808,7 @@ class ClassDesigner(dabo.dApp):
 				pop.append(cap, OnHit=func)
 			if sepAfter:
 				pop.appendSeparator()
-
+		return True
 
 
 	def onAddSlotBefore(self, evt):
@@ -3604,6 +3608,7 @@ class ClassDesigner(dabo.dApp):
 		colSpacing = layoutInfo["colspacing"]
 		outBorder = layoutInfo["border"]
 		lblAlign = layoutInfo["labelAlignment"]
+		useColons = layoutInfo["useColons"]
 		# Update the outBorder value before adding the controls.
 		pnl.Sizer_Border = outBorder
 
@@ -3639,6 +3644,9 @@ class ClassDesigner(dabo.dApp):
 
 		elif typ.startswith("column;"):
 			useGrid = typ.endswith("labels on left")
+			colonSep = ""
+			if useColons:
+				colonSep = ":"
 			# Collections of the added labels/controls. Used
 			# for final alignment in non-sizer cases.
 			lbls = []
@@ -3667,7 +3675,7 @@ class ClassDesigner(dabo.dApp):
 				lbls.append(lbl)
 				# Need to add this after the fact, so that when the form is saved,
 				# the caption is different than the original value.
-				lbl.Caption = fldData["caption"]
+				lbl.Caption = "%s%s" % (fldData["caption"], colonSep)
 				ctlClass = self.getControlClass(fldData["class"])
 				ctl = ctlClass(pnl, DataSource=table, DataField=fld)
 				if isinstance(ctl, dui.dTextBox):

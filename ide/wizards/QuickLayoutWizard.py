@@ -287,6 +287,7 @@ class PgSample(WizardPage):
 		self._labels = []
 		self._layoutControls = []
 		self._controlSizer = None
+		self._useColons = False
 		lbl = dabo.ui.dLabel(self, Caption=_("Double-click a caption to edit"),
 				FontSize=8, FontItalic=True)
 		self.Sizer.append(lbl, halign="center")
@@ -367,7 +368,11 @@ class PgSample(WizardPage):
 		# Go through the list, and add the items to the sizer in order. Any
 		# field which was previously created will be restored
 		for fld in flds:
-			lbl = self.editLabelClass(sp, Caption=fld)
+			if self._useColons:
+				cap = "%s:" % fld
+			else:
+				cap = fld
+			lbl = self.editLabelClass(sp, Caption=cap)
 			self._labels.append(lbl)
 			cls = dabo.ui.dTextBox
 			ctl = cls(sp)
@@ -391,6 +396,7 @@ class PgSample(WizardPage):
 		sp.Sizer.append(cs, 0, "x", border=self.OutsideBorder, borderSides="all")
 		
 		# Now create the spacer controls
+		self.UseColons = False
 		self.OutsideBorder = 10
 		self.BetweenSpacing = 5
 		self.ColumnSpacing = 5
@@ -400,6 +406,7 @@ class PgSample(WizardPage):
 			self.Sizer.appendSpacer(5)
 			self.Sizer.append(gs, 0, halign="center")
 		gs.clear()
+
 		lbl = dabo.ui.dLabel(self, Caption=_("Outside Border:"))
 		gs.append(lbl, halign="right")
 		spn = dabo.ui.dSpinner(self, DataSource="self.Parent",
@@ -438,6 +445,15 @@ class PgSample(WizardPage):
 		gs.append(dd)
 		self._layoutControls.append(lbl)
 		self._layoutControls.append(dd)
+
+		lbl = dabo.ui.dLabel(self, Caption=_("Labels with Colons:"))
+		gs.append(lbl, halign="right")
+		chk = dabo.ui.dCheckBox(self, DataSource="self.Parent",
+				DataField="UseColons")
+		chk.Value = self.UseColons
+		gs.append(chk)
+		self._layoutControls.append(lbl)
+		self._layoutControls.append(chk)
 		
 		self.refresh()
 		self.samplePanel.Width = self.sampleWidth
@@ -533,6 +549,8 @@ class PgSample(WizardPage):
 		
 	def onEndLblEdit(self, evt):			
 		tx = self.editText.Value
+		if self.UseColons:
+			tx = "%s:" % tx.rstrip(":")
 		if tx:
 			#### ALSO: need to update the wizard's fields
 			self.editLabel.Caption = tx
@@ -666,6 +684,21 @@ class PgSample(WizardPage):
 		cs = sps.Children[0]
 		sps.setItemProp(cs, "Border", val)
 		self.samplePanel.layout()
+
+
+	def _getUseColons(self):
+		return self._useColons
+	
+	def _setUseColons(self, val):
+		self._useColons = val
+		for lbl in self._labels:
+			cap = lbl.Caption
+			if val:
+				cap = "%s:" % cap.rstrip(":")
+			else:
+				cap = cap.rstrip(":")
+			lbl.Caption = cap
+		self.samplePanel.layout()
 	
 	
 	BetweenSpacing = property(_getBetweenSpacing, _setBetweenSpacing, None,
@@ -679,6 +712,9 @@ class PgSample(WizardPage):
 	
 	OutsideBorder = property(_getOutsideBorder, _setOutsideBorder, None,
 			_("Size of the surrounding border in pixels  (int)"))
+	
+	UseColons = property(_getUseColons, _setUseColons, None,
+			_("Do we append colons to the field labels?  (bool)"))
 	
 
 
@@ -776,6 +812,7 @@ class QuickLayoutWizard(Wizard):
 			ret["spacing"] = pgSample.BetweenSpacing
 			ret["colspacing"] = pgSample.ColumnSpacing
 			ret["labelAlignment"] = pgSample.LabelAlignment
+			ret["useColons"] = pgSample.UseColons
 			info = {}
 			for fld in self.flds:
 				info[fld] = {}

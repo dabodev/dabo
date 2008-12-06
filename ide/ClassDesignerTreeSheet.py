@@ -87,7 +87,8 @@ class TreeSheet(dui.dPanel):
 			menu = self.Controller.getTreeContextMenu(obj)
 			if menu:
 				dabo.ui.callAfter(self.showContextMenu, menu)
-		except: pass
+		except IndexError:
+			pass
 		
 
 	def expandAll(self):

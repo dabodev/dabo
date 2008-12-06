@@ -216,7 +216,10 @@ class PemForm(dabo.ui.dForm):
 						typ = _("Grid")
 					lbl = "%s Spacer - (%s)" % (typ, spc)
 				elif isColumn:
-					lbl = "Column %s ('%s')" % (ob.Parent.Columns.index(ob)+1, ob.Caption)
+					if ob.Visible:
+						lbl = "Column %s ('%s')" % (ob.Parent.Columns.index(ob)+1, ob.Caption)
+					else:
+						lbl = "Hidden Column ('%s')" % ob.Caption
 				elif isNode:
 					lbl = "TreeNode: ('%s')" % (ob.Caption)
 				else:
