@@ -656,204 +656,204 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 	
 	def _getDesProps(self):
 		useSizers = self.Controller.UseSizers
-		ret = {"Enabled": {"type" : bool, "readonly" : False},
-				"Name" : {"type" : unicode, "readonly" : False},
-				"RegID" : {"type" : unicode, "readonly" : False},
-				"Tag" : {"type" : "multi", "readonly" : False},
-				"ToolTipText" : {"type" : unicode, "readonly" : False},
-				"Transparency" : {"type" : int, "readonly" : False},
-				"Visible": {"type" : bool, "readonly" : False}}
-		captionProps = {"Caption": {"type" : unicode, "readonly" : False}}
-		choiceProps = {"Choices": {"type" : "choice", "readonly" : False, 
+		ret = {"Enabled": {"type": bool, "readonly": False},
+				"Name": {"type": unicode, "readonly": False},
+				"RegID": {"type": unicode, "readonly": False},
+				"Tag": {"type": "multi", "readonly": False},
+				"ToolTipText": {"type": unicode, "readonly": False},
+				"Transparency": {"type": int, "readonly": False},
+				"Visible": {"type": bool, "readonly": False}}
+		captionProps = {"Caption": {"type": unicode, "readonly": False}}
+		choiceProps = {"Choices": {"type": "choice", "readonly": False, 
 				"customEditor": "editChoice"},
-				"Keys": {"type" : "choice", "readonly" : False, 
+				"Keys": {"type": "choice", "readonly": False, 
 					"customEditor": "editKeys"},
-				"ValueMode": {"type" : list, "readonly" : False,
-					"values" : ["String", "Position", "Key"]}}
-		colorProps = {"BackColor": {"type" : "color", "readonly" : False, 
+				"ValueMode": {"type": list, "readonly": False,
+					"values": ["String", "Position", "Key"]}}
+		colorProps = {"BackColor": {"type": "color", "readonly": False, 
 					"customEditor": "editColor"},
-				"ForeColor": {"type" : "color", "readonly" : False, 
+				"ForeColor": {"type": "color", "readonly": False, 
 					"customEditor": "editColor"}}
-		columnProps = {"Order" :  {"type" : int, "readonly" : False}, 
-				 "Width" : {"type" : int, "readonly" : False},
-				"DataField" : {"type" : unicode, "readonly" : False},
-				"HeaderBackColor" : {"type" : "color", "readonly" : False,
+		columnProps = {"Order": {"type": int, "readonly": False}, 
+				 "Width": {"type": int, "readonly": False},
+				"DataField": {"type": unicode, "readonly": False},
+				"HeaderBackColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
-				"HeaderFont" : {"type" : "font", "readonly" : False, 
+				"HeaderFont": {"type": "font", "readonly": False, 
 						"customEditor": "editHeaderFont"},
-				"HeaderFontBold" : {"type" : bool, "readonly" : False},
-				"HeaderFontFace" :  {"type" : list, "readonly" : False,
-						"values" : dabo.ui.getAvailableFonts()},
-				"HeaderFontItalic" : {"type" : bool, "readonly" : False},
-				"HeaderFontSize" : {"type" : int, "readonly" : False},
-				"HeaderFontUnderline" : {"type" : bool, "readonly" : False},
-				"HeaderForeColor" : {"type" : "color", "readonly" : False,
+				"HeaderFontBold": {"type": bool, "readonly": False},
+				"HeaderFontFace": {"type": list, "readonly": False,
+						"values": dabo.ui.getAvailableFonts()},
+				"HeaderFontItalic": {"type": bool, "readonly": False},
+				"HeaderFontSize": {"type": int, "readonly": False},
+				"HeaderFontUnderline": {"type": bool, "readonly": False},
+				"HeaderForeColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
-				"HeaderHorizontalAlignment" : {"type" : list, "readonly" : False,
-						"values" : ["Automatic", "Left", "Center", "Right"]},
-				"HeaderVerticalAlignment" : {"type" : list, "readonly" : False,
-						"values" : ["Automatic", "Top", "Middle", "Bottom"]},
-				"ListEditorChoices" : {"type" : "choice", "readonly" : False, 
+				"HeaderHorizontalAlignment": {"type": list, "readonly": False,
+						"values": ["Automatic", "Left", "Center", "Right"]},
+				"HeaderVerticalAlignment": {"type": list, "readonly": False,
+						"values": ["Automatic", "Top", "Middle", "Bottom"]},
+				"ListEditorChoices": {"type": "choice", "readonly": False, 
 						"customEditor": "editChoice"},
-				"HorizontalAlignment": {"type" : list, "readonly" : False,
-					"values" : ["Automatic", "Left", "Center", "Right"]},
-				"VerticalAlignment" : {"type" : list, "readonly" : False,
-						"values" : ["Top", "Center", "Bottom"]},
-				"Editable": {"type" : bool, "readonly" : False},
-				"Expand": {"type" : bool, "readonly" : False},
-				"Searchable": {"type" : bool, "readonly" : False},
-				"Sortable": {"type" : bool, "readonly" : False}}
-		comboProps = {"AppendOnEnter" : {"type" : bool, "readonly" : False}}
-		dataProps = {"DataSource" : {"type" : unicode, "readonly" : False},
-				"DataField" : {"type" : unicode, "readonly" : False},
-				"Value" : {"type" : "multi", "readonly" : False}}
-		editorProps = {"ShowCallTips": {"type" : bool, "readonly" : False},
-				"ShowCodeFolding": {"type" : bool, "readonly" : False},
-				"ShowEOL": {"type" : bool, "readonly" : False},
-				"ShowLineNumbers": {"type" : bool, "readonly" : False},
-				"ShowWhiteSpace": {"type" : bool, "readonly" : False},
-				"SyntaxColoring": {"type" : bool, "readonly" : False},
-				"TabWidth" : {"type" : int, "readonly" : False},
-				"WordWrap": {"type" : bool, "readonly" : False}}
-		fontProps = {"Font": {"type" : "font", "readonly" : False, 
+				"HorizontalAlignment": {"type": list, "readonly": False,
+					"values": ["Automatic", "Left", "Center", "Right"]},
+				"VerticalAlignment": {"type": list, "readonly": False,
+						"values": ["Top", "Center", "Bottom"]},
+				"Editable": {"type": bool, "readonly": False},
+				"Expand": {"type": bool, "readonly": False},
+				"Searchable": {"type": bool, "readonly": False},
+				"Sortable": {"type": bool, "readonly": False}}
+		comboProps = {"AppendOnEnter": {"type": bool, "readonly": False}}
+		dataProps = {"DataSource": {"type": unicode, "readonly": False},
+				"DataField": {"type": unicode, "readonly": False},
+				"Value": {"type": "multi", "readonly": False}}
+		editorProps = {"ShowCallTips": {"type": bool, "readonly": False},
+				"ShowCodeFolding": {"type": bool, "readonly": False},
+				"ShowEOL": {"type": bool, "readonly": False},
+				"ShowLineNumbers": {"type": bool, "readonly": False},
+				"ShowWhiteSpace": {"type": bool, "readonly": False},
+				"SyntaxColoring": {"type": bool, "readonly": False},
+				"TabWidth": {"type": int, "readonly": False},
+				"WordWrap": {"type": bool, "readonly": False}}
+		fontProps = {"Font": {"type": "font", "readonly": False, 
 					"customEditor": "editFont"},
-				"FontBold": {"type" : bool, "readonly" : False},
-				"FontFace": {"type" : list, "readonly" : False,
-						"values" : dabo.ui.getAvailableFonts()},
-				"FontItalic": {"type" : bool, "readonly" : False},
-				"FontSize": {"type" : int, "readonly" : False},
-				"FontUnderline": {"type" : bool, "readonly" : False}}
-		gridProps = {"ActivateEditorOnSelect" : {"type" : bool, "readonly" : False},
-				"AlternateRowColoring" : {"type" : bool, "readonly" : False},
-				"ColumnCount" : {"type" : int, "readonly" : False},
-				"DataSource" : {"type" : unicode, "readonly" : False},
-				"Editable": {"type" : bool, "readonly" : False},
-				"HeaderBackColor": {"type" : "color", "readonly" : False, 
+				"FontBold": {"type": bool, "readonly": False},
+				"FontFace": {"type": list, "readonly": False,
+						"values": dabo.ui.getAvailableFonts()},
+				"FontItalic": {"type": bool, "readonly": False},
+				"FontSize": {"type": int, "readonly": False},
+				"FontUnderline": {"type": bool, "readonly": False}}
+		gridProps = {"ActivateEditorOnSelect": {"type": bool, "readonly": False},
+				"AlternateRowColoring": {"type": bool, "readonly": False},
+				"ColumnCount": {"type": int, "readonly": False},
+				"DataSource": {"type": unicode, "readonly": False},
+				"Editable": {"type": bool, "readonly": False},
+				"HeaderBackColor": {"type": "color", "readonly": False, 
 					"customEditor": "editColor"},
-				"HeaderForeColor": {"type" : "color", "readonly" : False, 
+				"HeaderForeColor": {"type": "color", "readonly": False, 
 					"customEditor": "editColor"},
-				"HeaderHeight" : {"type" : int, "readonly" : False},
-				"HeaderHorizontalAlignment": {"type" : list, "readonly" : False,
-					"values" : ["Left", "Center", "Right"]},
-				"HeaderVerticalAlignment": {"type" : list, "readonly" : False,
-					"values" : ["Top", "Middle", "Bottom"]},
-				"RowColorEven": {"type" : "color", "readonly" : False, 
+				"HeaderHeight": {"type": int, "readonly": False},
+				"HeaderHorizontalAlignment": {"type": list, "readonly": False,
+					"values": ["Left", "Center", "Right"]},
+				"HeaderVerticalAlignment": {"type": list, "readonly": False,
+					"values": ["Top", "Middle", "Bottom"]},
+				"RowColorEven": {"type": "color", "readonly": False, 
 					"customEditor": "editColor"},
-				"RowColorOdd": {"type" : "color", "readonly" : False, 
+				"RowColorOdd": {"type": "color", "readonly": False, 
 					"customEditor": "editColor"},
-				"RowHeight" : {"type" : int, "readonly" : False},
-				"Searchable": {"type" : bool, "readonly" : False},
-				"SelectionBackColor": {"type" : "color", "readonly" : False, 
+				"RowHeight": {"type": int, "readonly": False},
+				"Searchable": {"type": bool, "readonly": False},
+				"SelectionBackColor": {"type": "color", "readonly": False, 
 					"customEditor": "editColor"},
-				"SelectionForeColor": {"type" : "color", "readonly" : False, 
+				"SelectionForeColor": {"type": "color", "readonly": False, 
 					"customEditor": "editColor"},
-				"SelectionMode": {"type" : list, "readonly" : False,
-					"values" : ["Cell", "Row", "Column"]},
-				"Sortable": {"type" : bool, "readonly" : False},
-				"ShowColumnLabels":{"type" : bool, "readonly" : False},
-				"ShowRowLabels" : {"type" : bool, "readonly" : False}}
-		imageProps = {"ScaleMode" : {"type" : list, "readonly" : False,
-					"values" : ["Clip", "Proportional", "Stretch"]}}
+				"SelectionMode": {"type": list, "readonly": False,
+					"values": ["Cell", "Row", "Column"]},
+				"Sortable": {"type": bool, "readonly": False},
+				"ShowColumnLabels":{"type": bool, "readonly": False},
+				"ShowRowLabels": {"type": bool, "readonly": False}}
+		imageProps = {"ScaleMode": {"type": list, "readonly": False,
+					"values": ["Clip", "Proportional", "Stretch"]}}
 		labelProps = {"Alignment": {"type": list, "readonly": False,
 				"values": ["Left", "Center", "Right"]},
-				"AutoResize": {"type" : bool, "readonly" : False}}
-		multiSelectProps = {"MultipleSelect": {"type" : bool, "readonly" : False}}
-		nodeProps = {"Image": {"type" : "path", "readonly" : False, 
+				"AutoResize": {"type": bool, "readonly": False}}
+		multiSelectProps = {"MultipleSelect": {"type": bool, "readonly": False}}
+		nodeProps = {"Image": {"type": "path", "readonly": False, 
 					"customEditor": "editStdPicture"}}
-		panelProps = {"AlwaysResetSizer": {"type" : bool, "readonly" : False},
-				"Buffered" : {"type" : bool, "readonly" : False},
-				"MinSizerHeight": {"type" : int, "readonly" : False},
-				"MinSizerWidth": {"type" : int, "readonly" : False}}
-		pictureProps = {"Picture": {"type" : "path", "readonly" : False, 
+		panelProps = {"AlwaysResetSizer": {"type": bool, "readonly": False},
+				"Buffered": {"type": bool, "readonly": False},
+				"MinSizerHeight": {"type": int, "readonly": False},
+				"MinSizerWidth": {"type": int, "readonly": False}}
+		pictureProps = {"Picture": {"type": "path", "readonly": False, 
 					"customEditor": "editStdPicture"}}
-		posProps = {"Left": {"type" : int, "readonly" : useSizers},
-				"Right": {"type" : int, "readonly" : useSizers},
-				"Top": {"type" : int, "readonly" : useSizers},
-				"Bottom": {"type" : int, "readonly" : useSizers},
-				"Height": {"type" : int, "readonly" : False},
-				"Width": {"type" : int, "readonly" : False}}
-		radioProps = {"Orientation": {"type" : list, "readonly" : False,
-					"values" : ["Horizontal", "Vertical"]},
-				"ShowBox": {"type" : bool, "readonly" : False}}
-		sizerProps = {"Sizer_Border": {"type" : int, "readonly" : False}, 
-				"Sizer_BorderSides": {"type" : list, "readonly" : False,
-					"values" : ["All", "Top", "Bottom", "Left", "Right", "None"],
+		posProps = {"Left": {"type": int, "readonly": useSizers},
+				"Right": {"type": int, "readonly": useSizers},
+				"Top": {"type": int, "readonly": useSizers},
+				"Bottom": {"type": int, "readonly": useSizers},
+				"Height": {"type": int, "readonly": False},
+				"Width": {"type": int, "readonly": False}}
+		radioProps = {"Orientation": {"type": list, "readonly": False,
+					"values": ["Horizontal", "Vertical"]},
+				"ShowBox": {"type": bool, "readonly": False}}
+		sizerProps = {"Sizer_Border": {"type": int, "readonly": False}, 
+				"Sizer_BorderSides": {"type": list, "readonly": False,
+					"values": ["All", "Top", "Bottom", "Left", "Right", "None"],
 					"customEditor": "editBorderSides"},
-				"Sizer_Expand" : {"type" : bool, "readonly" : False},
-				"Sizer_Proportion": {"type" : int, "readonly" : False},
-				"Sizer_HAlign": {"type" : list, "readonly" : False,
-					"values" : ["Left", "Right", "Center"]},
-				"Sizer_VAlign": {"type" : list, "readonly" : False,
-					"values" : ["Top", "Bottom", "Middle"]}}
-		sliderProps = {"Max": {"type" : int, "readonly" : False},
-				"Min": {"type" : int, "readonly" : False},
-				"ShowLabels" : {"type" : bool, "readonly" : False}}
-		slidePanelControlProps = {"CollapseToBottom" : {"type" : bool, "readonly" : False},
-				"ExpandContent": {"type" : bool, "readonly" : False},
-				"PanelCount" : {"type" : int, "readonly" : True},
-				"SingleClick" : {"type" : bool, "readonly" : False},
-				"Singleton" : {"type" : bool, "readonly" : False}}
+				"Sizer_Expand": {"type": bool, "readonly": False},
+				"Sizer_Proportion": {"type": int, "readonly": False},
+				"Sizer_HAlign": {"type": list, "readonly": False,
+					"values": ["Left", "Right", "Center"]},
+				"Sizer_VAlign": {"type": list, "readonly": False,
+					"values": ["Top", "Bottom", "Middle"]}}
+		sliderProps = {"Max": {"type": int, "readonly": False},
+				"Min": {"type": int, "readonly": False},
+				"ShowLabels": {"type": bool, "readonly": False}}
+		slidePanelControlProps = {"CollapseToBottom": {"type": bool, "readonly": False},
+				"ExpandContent": {"type": bool, "readonly": False},
+				"PanelCount": {"type": int, "readonly": True},
+				"SingleClick": {"type": bool, "readonly": False},
+				"Singleton": {"type": bool, "readonly": False}}
 		slidePanelProps = {
-				"BarColor1" : {"type" : "color", "readonly" : False, 
+				"BarColor1": {"type": "color", "readonly": False, 
 					"customEditor": "editColor"},
-				"BarColor2" : {"type" : "color", "readonly" : False, 
+				"BarColor2": {"type": "color", "readonly": False, 
 					"customEditor": "editColor"},
-				"BarStyle": {"type" : list, "readonly" : False,
-					"values" : ["Borderless", "BorderOnly", "FilledBorder", "HorizontalFill", "VerticalFill"]},
-				"Border": {"type" : int, "readonly" : False},
-				"CaptionForeColor" : {"type" : "color", "readonly" : False, 
+				"BarStyle": {"type": list, "readonly": False,
+					"values": ["Borderless", "BorderOnly", "FilledBorder", "HorizontalFill", "VerticalFill"]},
+				"Border": {"type": int, "readonly": False},
+				"CaptionForeColor": {"type": "color", "readonly": False, 
 					"customEditor": "editColor"},
-				"PanelPosition": {"type" : int, "readonly" : False}}
-		splitterProps = {"MinimumPanelSize": {"type" : int, "readonly" : False},
-				"Orientation": {"type" : list, "readonly" : False,
-					"values" : ["Horizontal", "Vertical"]},
-				"PanelClass" : {"type" : unicode, "readonly" : False},
-				"SashPosition": {"type" : int, "readonly" : False},
-				"ShowPanelSplitMenu" : {"type" : bool, "readonly" : False},
-				"Split" : {"type" : bool, "readonly" : False}}
+				"PanelPosition": {"type": int, "readonly": False}}
+		splitterProps = {"MinimumPanelSize": {"type": int, "readonly": False},
+				"Orientation": {"type": list, "readonly": False,
+					"values": ["Horizontal", "Vertical"]},
+				"PanelClass": {"type": unicode, "readonly": False},
+				"SashPosition": {"type": int, "readonly": False},
+				"ShowPanelSplitMenu": {"type": bool, "readonly": False},
+				"Split": {"type": bool, "readonly": False}}
 		spinnerProps = {
-				"Increment": {"type": float, "readonly": False},
-				"Max": {"type" : int, "readonly" : False},
-				"Min": {"type" : int, "readonly" : False},
-				"SpinnerWrap": {"type" : bool, "readonly" : False}}
+				"Increment": {"type": "multi", "readonly": False},
+				"Max": {"type": int, "readonly": False},
+				"Min": {"type": int, "readonly": False},
+				"SpinnerWrap": {"type": bool, "readonly": False}}
 		textProps = {"Alignment": {"type": list, "readonly": False,
 					"values": ["Left", "Center", "Right"]},
-				"ForceCase": {"type" : list, "readonly" : False,
-					"values" : ["Upper", "Lower", "Title", "None"]},		
-				"ReadOnly" : {"type" : bool, "readonly" : False}}
-		htmlTextProps = {"Page": {"type" : unicode, "readonly" : False},
-				"RespondToLinks": {"type" : bool, "readonly" : False},
-				"ShowScrollBars": {"type" : bool, "readonly" : False},
-				"Source": {"type" : unicode, "readonly" : False}}
-		scrollProps = {"HorizontalScroll": {"type" : bool, "readonly" : False},
-				"VerticalScroll": {"type" : bool, "readonly" : False}}
-		treeProps = {"Editable" : {"type" : bool, "readonly" : False},
-				"MultipleSelect" : {"type" : bool, "readonly" : False},
-				"ShowButtons" : {"type" : bool, "readonly" : False},
-				"ShowLines" : {"type" : bool, "readonly" : False},
-				"ShowRootNode" : {"type" : bool, "readonly" : False},
-				"ShowRootNodeLines" : {"type" : bool, "readonly" : False}}
-		gridSizerProps = {"Sizer_RowExpand" : {"type" : bool, "readonly" : False},
-				"Sizer_ColExpand" : {"type" : bool, "readonly" : False},
-				"Sizer_RowSpan" : {"type" : int, "readonly" : False},
-				"Sizer_ColSpan" : {"type" : int, "readonly" : False}}
-		pageFrameProps = {"PageCount" : {"type" : int, "readonly" : False},
-				"TabPosition" : {"type" : list, "readonly" : False, 
-				"values" : ["Top", "Bottom", "Left", "Right"] }}
-		pageListProps = {"ListSpacing" : {"type" : int, "readonly" : False}}
-		borderProps = {"BorderColor" : {"type" : "color", "readonly" : False, 
+				"ForceCase": {"type": list, "readonly": False,
+					"values": ["Upper", "Lower", "Title", "None"]},		
+				"ReadOnly": {"type": bool, "readonly": False}}
+		htmlTextProps = {"Page": {"type": unicode, "readonly": False},
+				"RespondToLinks": {"type": bool, "readonly": False},
+				"ShowScrollBars": {"type": bool, "readonly": False},
+				"Source": {"type": unicode, "readonly": False}}
+		scrollProps = {"HorizontalScroll": {"type": bool, "readonly": False},
+				"VerticalScroll": {"type": bool, "readonly": False}}
+		treeProps = {"Editable": {"type": bool, "readonly": False},
+				"MultipleSelect": {"type": bool, "readonly": False},
+				"ShowButtons": {"type": bool, "readonly": False},
+				"ShowLines": {"type": bool, "readonly": False},
+				"ShowRootNode": {"type": bool, "readonly": False},
+				"ShowRootNodeLines": {"type": bool, "readonly": False}}
+		gridSizerProps = {"Sizer_RowExpand": {"type": bool, "readonly": False},
+				"Sizer_ColExpand": {"type": bool, "readonly": False},
+				"Sizer_RowSpan": {"type": int, "readonly": False},
+				"Sizer_ColSpan": {"type": int, "readonly": False}}
+		pageFrameProps = {"PageCount": {"type": int, "readonly": False},
+				"TabPosition": {"type": list, "readonly": False, 
+				"values": ["Top", "Bottom", "Left", "Right"] }}
+		pageListProps = {"ListSpacing": {"type": int, "readonly": False}}
+		borderProps = {"BorderColor": {"type": "color", "readonly": False, 
 					"customEditor": "editColor"},
-				"BorderLineStyle" : {"type" : list, "readonly" : False,
-						"values" : ["Solid", "Dot", "Dash", "DotDash"]},
-				"BorderStyle" : {"type" : list, "readonly" : False,
-						"values" : ["None", "Simple", "Sunken", "Raised", 
+				"BorderLineStyle": {"type": list, "readonly": False,
+						"values": ["Solid", "Dot", "Dash", "DotDash"]},
+				"BorderStyle": {"type": list, "readonly": False,
+						"values": ["None", "Simple", "Sunken", "Raised", 
 						"Double", "Static", "Default"]},
-				"BorderWidth" : {"type" : int, "readonly" : False}}
-		wizardPageProps = {"TitleBold": {"type" : bool, "readonly" : False},
-				"TitleFace": {"type" : list, "readonly" : False,
-						"values" : dabo.ui.getAvailableFonts()},
-				"TitleItalic": {"type" : bool, "readonly" : False},
-				"TitleSize": {"type" : int, "readonly" : False}}
+				"BorderWidth": {"type": int, "readonly": False}}
+		wizardPageProps = {"TitleBold": {"type": bool, "readonly": False},
+				"TitleFace": {"type": list, "readonly": False,
+						"values": dabo.ui.getAvailableFonts()},
+				"TitleItalic": {"type": bool, "readonly": False},
+				"TitleSize": {"type": int, "readonly": False}}
 
 		# Add the controlling sizer props
 		if hasattr(self, "ControllingSizer"):
@@ -891,7 +891,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret = columnProps
 			ret.update(captionProps)
 			ret.update(fontProps)
-			ret["Visible"] = {"type" : bool, "readonly" : False}
+			ret["Visible"] = {"type": bool, "readonly": False}
 		elif isinstance(self, dabo.ui.dComboBox):
 			ret.update(colorProps)
 			ret.update(comboProps)
@@ -1003,8 +1003,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(fontProps)
 			ret.update(textProps)
 			if isinstance(self, dabo.ui.dTextBox):
-				ret.update({"PasswordEntry" : {"type" : bool, "readonly" : False},
-						"TextLength" : {"type" : int, "readonly" : False}})
+				ret.update({"PasswordEntry": {"type": bool, "readonly": False},
+						"TextLength": {"type": int, "readonly": False}})
 		elif isinstance(self, dabo.ui.dHtmlBox):
 			ret.update(htmlTextProps)
 			ret.update(scrollProps)
@@ -1029,7 +1029,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 					typ = "varies"
 				else:
 					typ = type(val)
-				ret[prop] = {"type" : typ, "readonly" : False}
+				ret[prop] = {"type": typ, "readonly": False}
 		
 		return ret
 		
