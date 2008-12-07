@@ -1384,18 +1384,19 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 
 	def _getWidth(self):
-		idx = self.Parent._convertDaboColNumToWxColNum(self.ColumnIndex)
 		try:
 			v = self._width
 		except AttributeError:
 			v = self._width = 150
-		if self.Parent and idx is not None:
-			# Make sure the grid is in sync:
-			try:
-				self.Parent.SetColSize(idx, v)
-			except wx.PyAssertionError:
-				# The grid may still be in the process of being created, so pass.
-				pass
+		if self.Parent:
+			idx = self.Parent._convertDaboColNumToWxColNum(self.ColumnIndex)
+			if idx is not None:
+				# Make sure the grid is in sync:
+				try:
+					self.Parent.SetColSize(idx, v)
+				except wx.PyAssertionError:
+					# The grid may still be in the process of being created, so pass.
+					pass
 		return v
 
 	def _setWidth(self, val):
