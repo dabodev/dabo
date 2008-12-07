@@ -181,15 +181,7 @@ class ClassDesigner(dabo.dApp):
 					clsOK = True
 
 		if not clsOK:
-			# Define the form class, and instantiate it.
-			frmClass = self.getFormClass()
-
-			# Temp! for development
-# 			useSz = not os.path.exists("/Users/ed/dls")
-# 			frm = frmClass(UseSizers=useSz)
-			frm = frmClass(UseSizers=True)
-
-			frm._setupPanels()
+			frm = self.onNewDesign(None)
 			# Use this to determine if an empty class should be released
 			frm._initialStateDict = frm.getDesignerDict()
 		else:
@@ -330,7 +322,7 @@ class ClassDesigner(dabo.dApp):
 				self.btnOK.Enabled = self.btnCancel.Enabled = False
 
 
-			def _setupPanels(self, fromNew=True):
+			def _setupPanels(self, fromNew=True, addBasePanel=False):
 				if isinstance(self, dlgs.Wizard):
 					self.mainPanel = self.pagePanel
 					if self.UseSizers:
@@ -371,8 +363,15 @@ class ClassDesigner(dabo.dApp):
 						self.Sizer.append1x(self.mainPanel)
 					
 					self.mainPanel.Sizer = LayoutSizer("v")
-					# Use a Layout Sizer instead of the default sizer.
-					self.initLayoutPanel = LayoutPanel(self.mainPanel)
+					if addBasePanel:
+						pnlCls = self.Controller.getControlClass(dui.dPanel)
+						pnl = pnlCls(self.mainPanel)
+						self.mainPanel.Sizer.append1x(pnl)
+						pnl.Sizer = LayoutSizer("v")
+						self.initLayoutPanel = LayoutPanel(pnl)
+					else:
+						# Use a Layout Sizer instead of the default sizer.
+						self.initLayoutPanel = LayoutPanel(self.mainPanel)
 				else:
 					self.Sizer.release()
 					self.Sizer = None
@@ -1357,7 +1356,6 @@ class ClassDesigner(dabo.dApp):
 						dlg.alignControls.append(ctl)
 				dlg.update()
 
-
 		# OK, we've defined the code for creating the dialog on the fly.
 		# Now let's run it. If they click OK, the values will already be set
 		# by the data binding. If they cancel, we have to revert them to
@@ -1706,8 +1704,11 @@ class ClassDesigner(dabo.dApp):
 				self.Sizer.append1x(self.dd, halign="Center")
 				self.Sizer.appendSpacer(10)
 
-				self.chk = dabo.ui.dCheckBox(self, Value=True, Caption=_("Use Sizers"))
-				self.Sizer.append(self.chk, halign="Center")
+				self.szChk = dabo.ui.dCheckBox(self, Value=True, Caption=_("Use Sizers"), OnHit=self.onSzChk)
+				self.Sizer.append(self.szChk, halign="Center")
+				self.Sizer.appendSpacer(6)
+				self.baseChk = dabo.ui.dCheckBox(self, Value=True, Caption=_("Add Base Panel"))
+				self.Sizer.append(self.baseChk, halign="Center")
 				self.Sizer.appendSpacer(25)
 
 			def onClassSel(self, evt):
@@ -1716,7 +1717,12 @@ class ClassDesigner(dabo.dApp):
 				sizerClasses = (dui.dForm, dui.dDockForm, dui.dPanel, dui.dScrollPanel, dui.dDialog, 
 						dui.dOkCancelDialog, dlgs.Wizard, dlgs.WizardPage,
 						dui.dPage, dui.dSplitter) + pcs
-				self.chk.Visible = cls in sizerClasses
+				self.szChk.Visible = cls in sizerClasses
+				self.baseChk.Visible = cls in (dui.dForm, dui.dDialog) and self.szChk.Value
+			
+			def onSzChk(self, evt):
+				self.baseChk.Visible = self.szChk.Value
+
 
 		dlg = NewClassPicker(self.CurrentForm, Caption=_("New Class"),
 				BasePrefKey=self.BasePrefKey+".NewClassPicker")
@@ -1732,7 +1738,8 @@ class ClassDesigner(dabo.dApp):
 		isDialog = issubclass(newClass, dui.dDialog)
 		isWizard = issubclass(newClass, dlgs.Wizard)
 		isFormClass = issubclass(newClass, (dui.dForm, dui.dDialog, dlgs.Wizard))
-		useSizers = dlg.chk.Visible and dlg.chk.Value
+		useSizers = dlg.szChk.Visible and dlg.szChk.Value
+		addBasePanel = dlg.baseChk.Visible and dlg.baseChk.Value
 		dlg.release()
 
 		if (useSizers and not isDialog and self._reuseMainForm() and
@@ -1742,7 +1749,7 @@ class ClassDesigner(dabo.dApp):
 		else:
 			frmClass = self.getFormClass()
 			frm = frmClass(SaveRestorePosition=False, UseSizers=useSizers)
-			frm._setupPanels()
+			frm._setupPanels(addBasePanel=addBasePanel)
 		frm.UseSizers = useSizers
 		frm.Controller = self
 		self.CurrentForm = frm
