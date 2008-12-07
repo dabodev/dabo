@@ -2356,7 +2356,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			colObj = self.getColByX(intersect[0])
 			if not colObj:
 				# Grid is probably being created or destroyed, so just return
-				return
+				continue
 			dc.SetClippingRegion(*headerRect)
 	
 			holdBrush = dc.GetBrush()
