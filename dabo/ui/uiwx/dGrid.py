@@ -4784,19 +4784,19 @@ if __name__ == '__main__':
 
 			chk = dabo.ui.dCheckBox(self, Caption="Edit Table", RegID="geekEdit",
 					DataSource="sampleGrid", DataField="Editable")
-			chk.refresh()
+			chk.update()
 			gsz.append(chk, row=0, col=0)
 
 			chk = dabo.ui.dCheckBox(self, Caption="Show Row Labels",
 					RegID="showRowLabels", DataSource="sampleGrid",
 					DataField="ShowRowLabels")
 			gsz.append(chk, row=1, col=0)
-			chk.refresh()
+			chk.update()
 
 			chk = dabo.ui.dCheckBox(self, Caption="Allow Multiple Selection",
 					RegID="multiSelect", DataSource="sampleGrid",
 					DataField="MultipleSelection")
-			chk.refresh()
+			chk.update()
 			gsz.append(chk, row=2, col=0)
 
 			radSelect = dabo.ui.dRadioList(self, Choices=["Row", "Col", "Cell"],
