@@ -3365,7 +3365,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 		oldRow = self.CurrentRow
 		newRow = evt.EventData["row"]
-		newCol = evt.EventData["col"]
+		newCol = self._convertWxColNumToDaboColNum(evt.EventData["col"])
 		try:
 			col = self.Columns[newCol]
 		except IndexError:
