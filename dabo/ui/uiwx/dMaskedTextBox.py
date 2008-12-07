@@ -7,7 +7,6 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-from dTextBox import dTextBox
 from dabo.ui import makeDynamicProperty
 import dTextBoxMixin as tbm
 
@@ -67,6 +66,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dMaskedTextBox
+		self._valueMode = None
 		self._mask = self._extractKey((properties, attProperties, kwargs), "Mask", "")
 		self._format = self._extractKey((properties, attProperties, kwargs), "Format", "")
 		self._validregex = self._extractKey((properties, attProperties, kwargs), "ValidRegex", "")
@@ -87,14 +87,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 		preClass = wx.lib.masked.TextCtrl
 		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties, attProperties, 
 				*args, **kwargs)
-		
-	
-	
-	def _getUsePlainValue(self):
-		return getattr(self, "_usePlainValue", False)
-		
-	def _setUsePlainValue(self, val):
-		self._usePlainValue = bool(val)
+
 
 	def getFormats(cls):
 		"""Return a list of available format codes."""
@@ -161,6 +154,39 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 
 	def _getMaskedValue(self):
 		return self.GetValue()
+
+
+	def _getUnmaskedValue(self):
+		return self.GetPlainValue()
+
+
+	def _getValue(self):
+		if self.ValueMode == "Masked":
+			ret = self.GetValue()
+		else:
+			ret = self.GetPlainValue()
+		return ret
+
+	def _setValue(self, val):
+		super(dMaskedTextBox, self)._setValue(val)
+
+
+	def _getValueMode(self):
+		try:
+			if self._valueMode.lower().startswith("m"):
+				return "Masked"
+			else:
+				return "Unmasked"
+		except (TypeError, AttributeError):
+			return "Unmasked"
+
+	def _setValueMode(self, val):
+		if self._constructed():
+			self._valueMode = val
+		else:
+			self._properties["ValueMode"] = val
+
+
 
 
 	# Property definitions:
@@ -267,11 +293,25 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 	
 	MaskedValue = property(_getMaskedValue, None, None,
 			_("Value of the control, including mask characters, if any. (read-only) (str)"))
-	UsePlainValue = property(_getUsePlainValue, _setUsePlainValue, None, 
-			_("Specifies whether or not to use the GetPlainValue or GetValue. (bool)"))
-	
 
+	UnmaskedValue = property(_getUnmaskedValue, None, None,
+			_("Value of the control, removing mask characters, if any. (read-only) (str)"))
+
+	Value = property(_getValue, _setValue, None,
+			_("""Specifies the content of this control. (str) If ValueMode is set to 'Masked',
+			this will include the mask characters. Otherwise it will be the contents without
+			any mask characters."""))
 	
+	ValueMode = property(_getValueMode, _setValueMode, None,
+			_("""Specifies the information that the Value property refers to. (str)
+			If it is set to 'Masked' (or anything that begins with the letter 'm'), the
+			Value property will return the contents of the control, including any mask 
+			characters. If this is set to anything other than a string that begins with 'm',
+			Value will return the control's contents without the mask characters.
+			NOTE: This only affects the results of *reading* the Value property. Setting
+			Value is not affected in any way."""))
+
+
 
 if __name__ == "__main__":
 	import test
