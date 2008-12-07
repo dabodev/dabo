@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-import wx.lib.platebtn as platebtn
+import sys
 import wx
+try:
+	import wx.lib.platebtn as platebtn
+except ImportError:
+	raise ImportError, "Your version of wxPython is too old for dBorderlessButton"
 import dabo
 import dabo.ui
 

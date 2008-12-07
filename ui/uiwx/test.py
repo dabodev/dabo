@@ -18,8 +18,9 @@ import os
 import traceback
 import wx
 import dabo
-import dabo.ui as ui
-ui.loadUI("wx")
+dabo.ui.loadUI("wx")
+# Shorthand
+ui = dabo.ui
 
 # Log all events except the really frequent ones:
 logEvents = ["All", "Idle", "MouseMove"]
@@ -91,22 +92,28 @@ class Test(object):
 		modules.sort()
 
 		for modname in modules:
+			print "==> ", modname
 			# if the module has a test class, instantiate it:
 			if modname == "__init__":
 				# importing __init__ will pollute the dabo.ui namespace and cause 
 				# isinstance() problems.
 				continue
-			mod = __import__(modname)
+			try:
+				mod = __import__(modname)
+			except ImportError, e:
+				print "ImportError:", e
+				continue
 			objname = "_%s_test" % modname
 			if mod.__dict__.has_key(objname):
 				print "Trying to instantiate %s..." % objname
 				try:
 					obj = mod.__dict__[objname](panel)
-				except Exception, e:
+				except StandardError, e:
 					print "+++++++++++++++++++++++++++++++++++++++"
 					print "+++ Instantiating %s caused:" % objname
 					print traceback.print_exception(*sys.exc_info())
 					print "+++++++++++++++++++++++++++++++++++++++"
+					continue
 
 				if objname == "_dToolBar_test":
 					frame.ToolBar = obj

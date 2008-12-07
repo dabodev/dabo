@@ -206,7 +206,13 @@ C: Popup Calendar to Select
 		shortcut keys.
 		"""
 		# Save the original value for comparison
-		orig = self.Value.toordinal()
+		try:
+			orig = self.Value.toordinal()
+		except AttributeError:
+			# Value isn't a date for some reason
+			val = self.Value
+			dabo.errorLog.write(_("Non-date value in %s: '%s' is type '%s'") % (self.Name, val, type(val)))
+			return
 		# Default direction
 		forward = True
 		# Flag to indicate errors in date processing
