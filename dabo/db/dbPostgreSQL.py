@@ -235,8 +235,10 @@ class Postgres(dBackend):
 		currval() will return the correct value for each session.
 		
 		"""
-		tableNameBreak=cursor.Table.split(".", 1)
-		localSchemaName = tableNameBreak[0]
+		try:
+			localSchemaName, localTableName = tableName.split(".", 1)
+		except ValueError:
+			raise ValueError("Please use schema-qualified datasource names " "(e.g. 'public.%s')" % tableName)
 		localTableName = tableNameBreak[1]
 
 		tempCursor =self._connection.cursor()
