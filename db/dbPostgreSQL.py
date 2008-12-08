@@ -235,7 +235,7 @@ class Postgres(dBackend):
 		"""
 		
 		try:
-			localSchemaName, localTableName = tableName.split(".", 1)
+			localSchemaName, localTableName = cursor.Table.split(".",1) ##tableName.split(".", 1)
 		except ValueError:
 			raise ValueError,_("Please use schema-qualified datasource names (e.g. 'public.%s')" )% tableName
 		
