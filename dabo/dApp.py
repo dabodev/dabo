@@ -869,8 +869,8 @@ try again when it is running.
 		#		pth/db
 		#		pth/data
 		
-		dbDirs = (hd, os.path.join(hd, "db"), os.path.join(hd, "data"), 
-				pth, os.path.join(pth, "db"), os.path.join(pth, "data"))
+		dbDirs = set((hd, os.path.join(hd, "db"), os.path.join(hd, "data"), 
+				pth, os.path.join(pth, "db"), os.path.join(pth, "data")))
 		for dbDir in dbDirs:
 			if os.path.exists(dbDir) and os.path.isdir(dbDir):
 				files = glob.glob(os.path.join(dbDir, "*.cnxml"))

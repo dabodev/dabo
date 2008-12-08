@@ -7,6 +7,10 @@ from xmltodict import escQuote
 import dabo
 import dabo.lib.utils as utils
 
+# Tuple containing all file-based database types.
+FILE_DATABASES = ("sqlite", )
+
+
 
 class connHandler(xml.sax.ContentHandler):
 	def __init__(self):
@@ -64,16 +68,18 @@ def importConnections(pth=None):
 	ch = connHandler()
 	xml.sax.parse(f, ch)
 	ret = ch.getConnectionDict()
-	
+
 	for cxn, data in ret.items():
-		for key, val in data.items():
-			if key=="database":
-				osp = os.path
-				relpath = utils.resolvePath(val, pth, abspath=False)
-				pth = pth.decode(sys.getfilesystemencoding())
-				abspath = osp.abspath(osp.join(osp.split(pth)[0], relpath))
-				if osp.exists(abspath):
-					ret[cxn][key] = abspath	
+		dbtype = data.get("dbtype", "")
+		if dbtype.lower() in FILE_DATABASES:
+			for key, val in data.items():
+				if key=="database":
+					osp = os.path
+					relpath = utils.resolvePath(val, pth, abspath=False)
+					pth = pth.decode(sys.getfilesystemencoding())
+					abspath = osp.abspath(osp.join(osp.split(pth)[0], relpath))
+					if osp.exists(abspath):
+						ret[cxn][key] = abspath	
 	return ret
 
 
