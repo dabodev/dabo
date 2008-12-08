@@ -88,7 +88,7 @@ class Postgres(dBackend):
 	def getFields(self, tableName, cursor):
 		"""JFCS support for 7.4 and greater
 		   Requires that each table have a primary key"""
-		#tableNameBreak=tableName.split(".", 1)
+		tableNameBreak=tableName.split(".", 1)
 		#localSchemaName = tableNameBreak[0]
 		try:
 			localSchemaName, localTableName = tableName.split(".", 1)
@@ -235,6 +235,7 @@ class Postgres(dBackend):
 		currval() will return the correct value for each session.
 		
 		"""
+		tableNameBreak=tableName.split(".", 1)
 		try:
 			localSchemaName, localTableName = tableName.split(".", 1)
 		except ValueError:
