@@ -88,8 +88,12 @@ class Postgres(dBackend):
 	def getFields(self, tableName, cursor):
 		"""JFCS support for 7.4 and greater
 		   Requires that each table have a primary key"""
-		tableNameBreak=tableName.split(".", 1)
-		localSchemaName = tableNameBreak[0]
+		#tableNameBreak=tableName.split(".", 1)
+		#localSchemaName = tableNameBreak[0]
+		try:
+			localSchemaName, localTableName = tableName.split(".", 1)
+		except ValueError:
+			raise ValueError("Please use schema-qualified datasource names " "(e.g. 'public.%s')" % tableName)
 		localTableName = tableNameBreak[1]
 
 		cursor.execute("""SELECT a.attname, t.typname from pg_attribute a, pg_type t, pg_class c 
