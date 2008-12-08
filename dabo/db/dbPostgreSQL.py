@@ -91,7 +91,7 @@ class Postgres(dBackend):
 		try:
 			localSchemaName, localTableName = tableName.split(".", 1)
 		except ValueError:
-			raise ValueError("Please use schema-qualified datasource names " "(e.g. 'public.%s')" % tableName)
+			raise ValueError,_("Please use schema-qualified datasource names (e.g. 'public.%s')" )% tableName
 		
 
 		cursor.execute("""SELECT a.attname, t.typname from pg_attribute a, pg_type t, pg_class c 
@@ -237,7 +237,7 @@ class Postgres(dBackend):
 		try:
 			localSchemaName, localTableName = tableName.split(".", 1)
 		except ValueError:
-			raise ValueError("Please use schema-qualified datasource names " "(e.g. 'public.%s')" % tableName)
+			raise ValueError,_("Please use schema-qualified datasource names (e.g. 'public.%s')" )% tableName
 		
 
 		tempCursor =self._connection.cursor()
