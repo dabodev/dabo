@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import locale
 from decimal import Decimal as decimal
+import operator
 import wx
 import dabo
 
@@ -96,6 +97,16 @@ class dSpinner(dabo.ui.dDataPanel):
 		return self.__constructed
 	
 
+	def _toDec(self, val):
+		"""Convenience method for converting various types to decimal."""
+		return decimal(str(val))
+
+
+	def _toFloat(self, val):
+		"""Convenience method for converting various types to float."""
+		return float(str(val))
+
+
 	def _coerceTypes(self, newVal, minn, maxx, margin):
 		"""Handle the problems when min/max/increment values are
 		of one type, and the edited value another.
@@ -103,13 +114,11 @@ class dSpinner(dabo.ui.dDataPanel):
 		typN = type(newVal)
 		# Only problem here is Decimal and float combinations
 		if typN == decimal:
-			def toDec(val):
-				return decimal(str(val))
-			margin = toDec(margin)
+			margin = self._toDec(margin)
 			if type(maxx) == float:
-				maxx = toDec(maxx)
+				maxx = self._toDec(maxx)
 			if type(minn) == float:
-				minn = toDec(minn)
+				minn = self._toDec(minn)
 		elif typN == float:
 			if type(maxx) == decimal:
 				maxx = float(maxx)
@@ -118,11 +127,31 @@ class dSpinner(dabo.ui.dDataPanel):
 		return minn, maxx, margin
 
 
+	def _applyIncrement(self, op):
+		"""Returns the value obtained by modifying the current value by the increment 
+		according to the passed operation. It expects to be passed either 
+		operator.add or operator.sub.
+		"""
+		curr = self.Value
+		inc = self.Increment
+		try:
+			ret = op(curr, inc)
+		except TypeError:
+			# Usually Decimal/float problems
+			tCurr = type(curr)
+			tInc = type(inc)
+			if tCurr == decimal:
+				ret = op(curr, self._toDec(inc))
+			elif tCurr == float:
+				ret = op(curr, self._toFloat(inc))
+		return ret
+		
+
 	def _spinUp(self, evt=None):
 		"""Handles a user request to increment the value."""
 		ret = True
 		curr = self._proxy_textbox.Value
-		newVal = curr + self.Increment
+		newVal = self._applyIncrement(operator.add)
 		minn, maxx, margin = self._coerceTypes(newVal, self.Min, self.Max, 0.0001)
 		diff = newVal - maxx
 		if diff < margin:
@@ -141,7 +170,7 @@ class dSpinner(dabo.ui.dDataPanel):
 		"""Handles a user request to decrement the value."""
 		ret = True
 		curr = self._proxy_textbox.Value
-		newVal = curr - self.Increment
+		newVal = self._applyIncrement(operator.sub)
 		minn, maxx, margin = self._coerceTypes(newVal, self.Min, self.Max, -0.0001)
 		diff = newVal - minn
 		if diff > margin:
