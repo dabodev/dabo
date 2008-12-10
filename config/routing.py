@@ -22,6 +22,7 @@ def make_map():
 	map.connect("man1", "/manifest/:app/:fnc/:id", controller="bizservers", action="manifest")
 	map.connect("man2", "/manifest/:app/:fnc", controller="bizservers", action="manifest")
 	map.connect("man3", "/manifest/:app", controller="bizservers", action="manifest")
+	map.connect("man3", "/manifest", controller="bizservers", action="manifest")
 	map.connect("biz1", "/:controller/:action/:hashval/:ds/:method")
 	
 	return map
