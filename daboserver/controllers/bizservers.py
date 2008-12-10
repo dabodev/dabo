@@ -23,6 +23,8 @@ from dabo.dLocalize import _
 from daboserver.lib.base import BaseController, render
 from dabo.dException import WebServerException
 from dabo.lib.manifest import Manifest
+jsonEncode = dabo.lib.jsonEncode
+jsonDecode = dabo.lib.jsonDecode
 #-------------------------------------------------------
 
 #-------------------------------------------------------
@@ -77,20 +79,24 @@ class BizserversController(BaseController):
 		params = request.params
 		sql = params.get("SQL")
 		kf = params.get("KeyField")
+		sqlparams = params.get("SQLParams")
+		evParams = eval(sqlparams)
 		biz.KeyField = kf
+		biz.setParams(evParams)
 		biz.storeRemoteSQL(sql)
 		biz.requery()
 		data = biz.getDataSet(returnInternals=True)
 		dumped = pickle.dumps(data)
 		typs = pickle.dumps(biz.getDataTypes())
-		ret = dabo.lib.jsonEncode((dumped, typs))
+		stru = pickle.dumps(biz.getDataStructure())
+		ret = jsonEncode((dumped, typs, stru))
 		return ret
 
 
 	def save(self, biz, hashval, ds, *args, **kwargs):
 		params = request.params
 		encdiff = params.get("DataDiff")
-		diff = dabo.lib.jsonDecode(encdiff)
+		diff = jsonDecode(encdiff)
 		try:
 			err = biz.applyDiffAndSave(diff, primary=True)
 		except WebServerException, e:
@@ -101,7 +107,7 @@ class BizserversController(BaseController):
 			abort(err[0], err[1])
 		data = biz.getDataSet(returnInternals=True)
 		typs = pickle.dumps(biz.getDataTypes())
-		ret = dabo.lib.jsonEncode((data, typs))
+		ret = jsonEncode((data, typs))
 		return ret
 
 
@@ -115,7 +121,7 @@ class BizserversController(BaseController):
 			abort(500, e)
 		data = biz.getDataSet(returnInternals=True)
 		typs = pickle.dumps(biz.getDataTypes())
-		ret = dabo.lib.jsonEncode((data, typs))
+		ret = jsonEncode((data, typs))
 		return ret
 
 
@@ -127,20 +133,30 @@ class BizserversController(BaseController):
 		return cursor
 
 
-	def manifest(self, app, fnc=None, id=None, *args, **kwargs):
+	def manifest(self, app=None, fnc=None, id=None, *args, **kwargs):
+		if app is None:
+			# Return list of available apps.
+			dirnames = [d for d in os.listdir(sourcePath)
+					if not d.startswith(".")]
+			return jsonEncode(dirnames)
+			
 		crs = self.getFileRequestDB()
+		enclocal = request.params.get("current", "")
+		try:
+			local = jsonDecode(enclocal)
+		except ValueError:
+			# No local manifest passed
+			local = None
 		appPath = os.path.join(sourcePath, app)
 		mf = Manifest.getManifest(appPath)
 		# Handle the various functions
 		if fnc is None or fnc ==  "full":
 			# Send the full manifest
 			pmf = pickle.dumps(mf)
-			ret = dabo.lib.jsonEncode(pmf)
+			ret = jsonEncode(pmf)
 			return ret
 
 		elif fnc == "diff":
-			enclocal = request.params.get("current")
-			local = dabo.lib.jsonDecode(enclocal)
 			chgs = Manifest.diff(mf, local)
 			if not chgs:
 				abort(304, _("No changes"))
@@ -161,13 +177,14 @@ class BizserversController(BaseController):
 				updated = int(time.time())
 				sql = """insert into filecache (hashval, updated, pickledata)
 						values (?, ?, ?)"""
-				crs.execute(sql, (hashval, updated, pickle.dumps(chgs)))
+				pkData = str(chgs)
+				crs.execute(sql, (hashval, updated, pkData))
 			else:
 				# No added/updated files. Return a zero filecode to signify nothing to download
 				hashval = 0
 			# Return the hashval and manifest so that the user can request the files
 			retPickle = pickle.dumps((hashval, chgs, mf))
-			return dabo.lib.jsonEncode(retPickle)
+			return jsonEncode(retPickle)
 
 		elif fnc == "files":
 			# The client is requesting the changed files. The hashval will
@@ -175,7 +192,7 @@ class BizserversController(BaseController):
 			sql = """select pickledata from filecache
 					where hashval = ?"""
 			crs.execute(sql, (id, ))
-			chgs = pickle.loads(crs.Record.pickledata)
+			chgs = eval(crs.Record.pickledata)
 			# Need to cd to the source directory
 			currdir = os.getcwd()
 			os.chdir(appPath)
@@ -193,4 +210,9 @@ class BizserversController(BaseController):
 			ret = file(tmpname).read()
 			os.remove(tmpname)
 			return ret
+
+
+	def fields(self, biz, hashval, ds, *args, **kwargs):
+		ret = (biz.DataSource, hashval, ds, args, kwargs)
+		return jsonEncode(ret)
 
