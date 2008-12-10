@@ -1,5 +1,333 @@
 See the Subversion log for all the details.
 
+Dabo 0.9.0 (2008-12-10) Revision 4816):
+===============================================================================
++ Removed the conditional import on the decimal module, as we are now requiring Python 2.4.
+
++ Removed bare 'except:' from the code. Errors are now explicitly caught and handled. This allowed us to identify and fix several insidious bugs that were suppressed by these bare exception handlers.
+
++ Major re-write to the dDialog subclasses. Specifically, there is now a subclass called 'dStandardButtonDialog' that can accept one or more of the following parameters when it is created:
+	OK
+	Cancel
+	Yes
+	No
+	Help
+It uses the wx standard button sizer methods to create the buttons following platform-specific layout guidelines. Each button has a corresponding on* (e.g., onYes, onHelp) handler which is called when the button is clicked.
+
++ There are two subclasses of dStandardButtonDialog included: dOkCancelDialog, and dYesNoDialog. dOkCancelDialog is pretty much the same as before; while dYesNoDialog is like dOkCancelDialog, except with Yes/No buttons. If you call dStandardButtonDialog without passing any parameters, a single OK button will be displayed.
+
++ Removed the ReleaseOnEscape property from dDialog. Added the CancelOnEscape property to dStandardButtonDialog; when this is True (default), pressing the Escape key will be handled by the appropriate standard button handler.
+
++ Re-instituted the ButtonSizerPosition property.
+
++ Deprecated onOK() and onCancel(). The methods that will be used by developers to react to standard buttons being clicked are now named run*; e.g., runOK(), runHelp().
+
++ Fixed a bug that has been around in dDialog for years. It used to be that pressing the Escape key destroyed the dialog if ReleaseOnEscape was True; the code in the class would still try to access the now-destroyed object, throwing an error. Now dialogs are never destroyed in these classes; if you create them, you have to manually call their release() method.
+
++ Changed the default for output to not print all the infoLog messages to stdout. Instead, infoLog messages are ignored unless the dabo.verboseLogging setting is set to False. The errorLog still prints to stderr, of course.
+
++ Added the FloatingPanel property. This references a borderless dialog that can be used similarly to a context menu, but which can contain any controls you want. Additionally, it will guarantee that it is displayed completely within the available screen real estate. 
+It has two properties itself:
+	Above: by default the dialog is positioned below its owning control. This changes the behavior so that it is positioned above the control.
+	Owner: this is the control used to position the dialog.
+Typical usage (written in a custom control):
+	fp = self.Form.FloatingPanel
+	fp.clear()
+	# Add controls
+	ctrl = dabo.ui.dTextBox(fp, ...)
+	ctrl2 = ...
+	# Set the Owner to the control
+	fp.Owner = self
+	fp.show()
+The controls in the FloatingPanel should hide or release it, depending on whether you expect to re-use it. See the update to dDateTextBox for an implementation of it.
+
++ Re-write the way that the calendar is displayed. It now is contained by the FloatingPanel of the form, and thus is not bound by panels or other container. 
+
++ Also added the ExtendedCalendar property. When True, the larger version of the calendar control is used. This version has additional controls for quickly moving to any date.
+
++ Added the method 'resolvePathAndUpdate()' to dabo.ui. This introduces much more robust path resolution, especially in cases where files are within a project structure. It also allows to dynamically updated files via the changes in dApp.
+
++ Changed several of the creation routines to use resolvePathAndUpdate().
+
++ Changed several 'has_key()' calls to try/except structures. Profiling showed has_key() to be very slow. It is also deprecated for Python 3.0
+
++ Changed the way 'special' items are handled in menus. Previously, the only way that the About and Preference menu items were handled on OS X was some special code inserted in dBaseMenuBar. That code is now abstracted out to dMenu and dMenuItem; there is now an additional parameter that can be included called 'special': right now, the only special item is 'pref', indicating the Preferences menu. The About menu is keyed off of the id of wx.ID_ABOUT. If either of these two cases are found, the appropriate Mac-specific menu handling will occur.
+
++ Added 'scrollVertically()' and 'scrollHorizontally()' methods to dScrollPanel, allowing for external scrolling.
+
++ Added the 'SourceURL' property to dApp, along with the 'urlFetch()' method. The main idea behind this is that if this property is filled in, calls to dabo.ui.resolvePathAndUpdate() will also check the URL specified in SourceURL for updates to the file, enabling more dynamic deployments. This feature is largely untested and should be considered experimental for the time being.
+
++ Added a call to resolvePathAndUpdate() to the DesignerXmlConverter.
+
++ Removed all the deprecated code for 0.9.
+
++ Added a property entry for ShowColumnLabels for a dGrid in the ClassDesigner.
+
++ Moved the Transparency property from dFormMixin to dPemMixin, as it is possible to set it for individual controls. This doesn't break any existing uses at the form level, but enables control-by-control adjustment of transparency.
+
++ Added pageUp, pageDown, pageLeft and pageRight methods to dScrollPanel.
+
++ Changed the 'LineNumber' property in dEditor to be one-based, to match the displayed line numbers in the editor. Added the '_ZeroBasedLineNumber' property that does the actual communication with the wx layer. 
+
++ Added the TransparencyDelay property. It is simply eye candy; it smooths out changes in transparency over the time specified in this property (default=0.25 sec.). 
+
++ Changed strToBmp() to use app.HomeDirectory as the cwd, if there's an app defined, as app.HomeDirectory always refers to the app's root directory, even if the cwd is somewhere else, even if the app is frozen with py2exe.
+
++ Added the 'afterFinish()' hook method. This fires after the app has terminated, allowing you to do cleanup stuff in the app instead of in the calling program.
+
++ Moved the 'getPositionInSizer()' method to the module level, allowing it to be called for any object, even a non-Dabo item. Changed the version in dPemMixin to call the module method.
+
++ Fixed an error when using a bizobj without a data connection.
+
++ Added VisibleOnScreen property to all ui controls. This is a read-only property that tells you if the object is actually visible or not, taking into account visibility of parent objects and sizers.
+
++ Fixed the datanav2 Grid to only process the double-click if it happened in an actual cell. Prior to this, I was getting NoRecordsException from my app when the user double-clicked an empty grid. Also, clicking in an area of a grid with no cells will no longer do the processEditRecord(), which is what we really expect.
+
++ Enabled skipping the dialog-ending behavior by returning False from the runOK/Cancel/Yes/No methods.
+
++ Added before- and after- hooks to the onEditPreferences() handler, enabling you to hook into preference changes and fire any appropriate update code.
+
++ Added the Borderless property. When True, the dialog will have no title bar or border.
+
++ Updated dApp to optionall raise a 404 Not Found error if a requested file is not found from urlFetch(). Also fixed a potential bug in which setting the SourceURL property could get erased by the init code in dApp.
+
++ Updated the resolvePathAndUpdate() method of dabo.ui to also check for code files when updating a .cdxml file.
+
++ Added the 'webHeaderFormat()' method that takes a datetime value and returns a formatted string that conforms with the standard expected by HTTP headers.
+
++ Extended the handling of attProperties to all classes, not just those that inherit from dPemMixin. This was the cause of the problems reported by Nate Lowrie regarding grids created in the ClassDesigner, since dColumn is subclassed directly from dObject, and setting the properties of dColumn objects from attProperties was not being handled.
+
++ Added an EOLMode property.  The property the is stored as a string and allows you to set the EOLMode of the file to CRLF, LF, or CR standards.  If not explicitly set by the user, the standard will default to the OS standard.  Upon setting the EOLMode, all end of line markers are automatically converted to the new standard.
+
++ Tracked down and found the errors associated with the dMenu problems I was having.  The main problem was that in the mnxml files, a Caption and Hotkey would be specified separately, but they would be combined into the Caption property by createMenuBar and that would cause a slew of problems.  In addition, if you had a Caption w/ a hotkey in it and then specified the hotkey property, wx would have a conniption fit.  I added a check to the Caption property to raise an error if the Caption has a HotKey in it.
+
++ Removed the raising of the ValueError if you set a menu item Caption in the form of "Open\tCtrl+O". Instead, simply override any existing HotKey with the hotkey provided in the string, and only set the caption part to the Caption property.
+The only potential problem with this is in this example:
+item.Caption = "Open\tCtrl+O"
+...
+item.Caption = "Close"
+In this case, the item will still have the Ctrl+O hotkey, and if you didn't want a hotkey, you'd have to then set it explicitly with:
+item.HotKey = None
+
++ Added explicit setting of Accepted to False to the _onCancel() and _onNo() methods. If a dialog was re-used, and Accepted was set to True in the first use, clicking Cancel the second time resulted in Accepted=True again, which is not correct.
+
++ Added features similar to the bash history and reverse-i-search to the shell. Pressing Ctrl-R will bring up a dialog containing your previous commands; you can type to filter only those containing your search string. You can then press Enter or double-click on the command, and it will be entered into the shell.
+
++ For some reason, the dShell form was intercepting key characters with "Ctrl+Character" and stopping the KeyDown event from firing on Windows.  Now, instead of catching the KeyDown event and looking for the specific sequence, the form's bindKey method is used instead.  This works on Windows.  I have bound cmd+R to Mac, but I need someone to test the changes.
+
++ Fixed a typo in _LookupPanel's onListKey.  dKeys.arrows should be dKeys.arrowKeys.  arrowKeys is a dict, so we need to reference values. Again, test the changes on Mac.
+
++ Changed the key binding for the history search to be Ctrl-R on all platforms. On the Mac, Cmd-R is the 'Redo' command, and anyways, the Mac Terminal works just like Linux terminals, in that Ctrl-R is what is used to bring up command history searching.
+
++ Added a new class dDropTarget.  The drop target using the wx.DataObjectComposite class to be able to handle both files and text drops.  The class is built to allow for easy interfacing with the DroppedTextHandler and DroppedFileHandler properties in dPemMixin.
+
++ Modified the DroppedTextHandler and DroppedFileHandler properties to support the new drop target.  User code shouldn't need to change.
+
++ Revamped the code for how file extension limits are handled in the getFile classes. Instead of hardcoding the allowed types into the dabo.ui.uiwx.__init__.py file, I've moved them to a dict in dabo.settings. I've also added an empty dict named 'custom_extensions' to dabo.settings that can be used by developers in case they want to add additional extensions with custom descriptions.
+
++ Added code to prevent saving a file that has been modified on disk since it was opened in the editor.
+
++ Added the method checkForDiskUpdate(). This will return True or False, depending on whether the file on disk has been modified since it was opened in the editor.
+
++ Added the isChanged() method as a wrapper around the wxPython GetModify().
+
++ Moved the dDropTarget class definition into dPemMixin.py, and renamed it _DropTarget. The reason is that this is a wxPython-specific implementation detail, and we don't want to expose this as a Dabo base class to users.
+
++ Added the 'colorNameFromTuple()' method. Given an RGB color tuple, it will return a list of the common names for that tuple, or an empty list if there is no match. If the 'firstOnly' parameter is passed as True, only the first element in the list will be returned as a simple string value, or an empty string if there are no matches.
+
++ I found the filt argument to setAll() to be hard to use: the expression has to be written so that the leftmost word is a member of the current child object being evaluated, and any names in the expression need to be local to dPemMixin, not the caller. So the simple case in the docstring works, but how to evaluate if the child is an instance of my special subclass?
+I couldn't do filt="'TxtFraction' in str(BaseClass)" because of the requirement that the left-most word must be an attribute or member of the child being evaluated.
+I couldn't do filt="BaseClass == TxtFraction" because TxtFraction doesn't exist in dPemMixin's namespace.
+So, I added a instancesOf argument, that accepts a single or sequence of class(es), and added logic to setAll() to handle this. It shouldn't have any effect on current uses of filt, but I feel this better satisfies the common case of wanting to call setAll() only on instances of specific classes.
+Perhaps an improvement to filt would be to add a placeholder, instead of it being fixed to the left. Another improvement could be to pass in the locals and/or globals to setAll(), so the eval() takes place in the environment of the caller.
+
++ I added two user level hooks to dDialog called beforeAddControls and afterAddControls.  If you design a dialog in the ClassDesigner, addControls is already used internally by the framework to add the controls.  So, both these hooks make it possible to add controls afterward and set the dialog's sizer properties before.
+
++ This commit fixes some problems with the menu hot key editor in the preference pages.  First, fixed the issue where the clear key button wasn't getting updated after clear and set events.  Second, if you cleared a key using the clear key button, that key wasn't clear from the hotkey map so if you tried to set a control with the cleared key combo, it would give you an erroneous warning.  Fixed that.  Last, if you clicked the cancel button, you menu changes were not rolled back.  Fixed that.
+
++ Fixed the submenu display problem when using mnxml format.  Instead of creating a dMenu with no parent, we would create a menu with the menubar as the parent and that would lead to trying to set the top label upon setting the caption which we don't want.
+
++ Finally fixed the bug in the Mac font scaling logic. The problem is that when *any* font property changed, the font would be re-set, and the scaling factory re-applied, making the font size shrink. Now it keeps track of when it applies the scaling, and only re-applies it if a different FontSize value is passed.
+
++ Made it simple to create custom grid editors using Dabo controls.
+To create the editor, just pass the control that you want to use to dabo.ui.makeGridEditor(). It will return a class that you can then assign to a column's CustomEditorClass property.
+Since editors by default will be sized to the grid cell they are editing, I added two optional parameters to makeGridEditor(). You can pass 'minWidth' and 'minHeight' values; the class will then ensure that the editor is displayed with at least those dimensions.
+
++ Renamed the dFoldPanelBar/dFoldPanel classes to dSlidePanelControl/dSlidePanel, repectively. Added deprecation warnings if the old names are used.
+
++ dColors adds randomColorName(), which returns a random color name instead of a random color tuple. dEvents has been updated to use the dSlidePanelControl naming.
+
++ The setDefaults method of dEditor was interfering with the setting of the FontFace and FontSize properties from application.  It would override the settings on the Wx level.  So, I pulled the setting of the font out of setDefaults and merged it with the setting of the font from the preference setting.  If there is a preference setting, it will be used.  Else, the face and size used are the defaults specified in the module level variables fontFace and fontSize.
+
++ Fixed a long-standing bug in this composite control. There were several situations where it appeared that the spin buttons stopped responding to clicks, even though the displayed value was within range. The problem turns out to be that while we were correctly setting the textbox's value, we were not setting the spinner's value; instead, it was incrementing by +1/-1 for each click. This commit fixes that problem by eliminating the spinner's settings from the mix; instead, we govern min/max/wrap through our own code.
+
++ I also fixed the problem with the collision between float and Decimal values. All values in the comparisons are now cast to the type of the edited value when there is a conflict.
+
++ Fixed the missing docstring for the class, and added some other docstrings to methods.
+
++ Renamed dSpinButton to _dSpinButton, as it is not meant to be a public class, and is not available in dabo.ui.uiwx.__init__.py.
+
++ Fixed up the setting of KeyValue in dControlItemMixin, so that if KeyValue is getting set to a non-existent key, the control will have nothing selected and the Value will be None. This I believe was the intent all along but visually, at least dDropdownList wasn't doing it, and confusing infoLog messages were being generated.
+
++ Changed KeyValue in subclasses of dControlItemMixin to raise a ValueError if you try to set the Value to a non-existent key.
+
++ Changed the name of dCheckListBox to dCheckList, which is consistent with dRadioList. Deprecated the old name, and fixed all references.
+
++ Created a decorator to detect dead objects so that we no longer encounter wx._core.PyDeadObjectError exceptions. I created it in the dabo.ui module, as it needs to be able to be referenced during loadUI().
+
++ Replaced the dead object trapping code in dGrid.py and decorated the affected methods instead.
+
++ Fixed much of the flickering problems with dGrid on Windows, which had to do with the way we were painting the grid header. Reworked it to be called from EVT_PAINT instead. Played around with various options such as using a PaintDC or a BufferedPaintDC, and overriding EVT_ERASE_BACKGROUND, but the tradeoffs weren't worth it. As it is, I don't know if I haven't harmed Linux or Mac.
+
++ Changed the "Please wait... requerying dataset" busyinfo to just push it to the StatusText.
+
++ [3996] and [3998] added property TabStop, which when True allows focus to the control (the default). However, I've run into oddities when creating panels with some controls with TabStop=False. Turns out, I was calling Navigate() without a needed argument, the event needs to be skipped, and the Navigate() needs to be done in a callAfter().
+
++ Implemented a basic debugging output window. It's fairly simple now, but can be customized further based on feedback.
+
++ There is a new menu item in the base menubar class "Debug Output Window". It's designed to be a checked menu item, but the check always appears to be out of sync with the debug window. Selecting that menu shows/hides the debug output window.
+To add debug output, add this line to your app where you want to record information:
+	debugout("Some stuff")
+You can add multiple items, much like the print command, and they will be output with a space separator
+	debugout("Status", self.status)
+
++ Fixed the issue with AutoIndent not working.  The issue was that GetLineIndentation wanted wx's zero based line number instead of the 1 based line number we use.  We were using the 1 based line number, and the indentation level of the new blank line was returned and always zero.  This fixes that.
+
++ Added a new property to the dEditor widget which exposes the ability to show indentation guides.  The property is called ShowIndentationGuides.
+
++ Improved VirtualFields by adding the option to set a given VirtualField to a dict instead of a function. Currently, this dict has one required key, "func", that stores the function object, and an optional key, "requery_children", that determines whether or not child records are requeried before the virtual field function is run.
+
++ Changed default behavior to *not run* the child requeries, as this was a performance hog for an uncommon case. If your VirtualFields function requires that child records have been requeried before running, then you can either requery them inside the function itself, or define the VirtualFields like the following:
+old:
+  self.VirtualFields["myfield"] = myFunc
+new:
+  self.VirtualFields["myfield"] = {"func": myFunc, "requery_children": True}
+
++ Worked around a substantial source of the flickering of dGrid on Windows, by caching the cell values for 10 seconds to avoid unneccesary calls to biz.getFieldVal(). This will probably improve performance on Mac and Lin as well, even though those platforms didn't exhibit the flickering. Now, the windows grid will flicker at most once every 10 seconds. Call grid.update() or grid.refresh() will clear all cached values immediately.
+
++ Added the deleteByValue() method to dPref. This enables you to delete all pref entries that contain the passed value.
+
++ Updated dShell so that if you re-use a command from its history, the old entry for the command is deleted. The effect is that the history only contains one instance of each command, with the most recent usage at the top.
+
++ When calling getPrefs(), you can now indicate a key that is relative to the current pref by prefixing it with a period.
+
++ Deprecated the SQL property. It now issues a deprecation warning, and then passes the values through to the UserSQL prop.
+
++ Added 2 new properties to the dEditor widget.  They are ShowEdgeGuide and EdgeGuideColumn.  Basically, ShowEdgeGuide will display a line at the specified column position.  Note that if the editor has a variable spaced font set, wx uses the average of the characters' widths to determine where to put the line.  Also note that wx will only allow for either HiliteCharsBeyondLimit or ShowEdgeGuide to be True, not both.  So, when one is set to True, the other is set to False.
+
++ Removed the setting of UserSQL when setSql() called without arguments. Removed setting the SQL property, and instead set UserSQL directly.
+
++ Changed the superclass of dEvent from dObject to the base Python object class.
+
++ Fixed the goNextBookMark and goPrevBookMark function.  The mask trouble was that the marker identifier is really a bit in a marker mask.  Since, _bmkPos was 5, it was the 5th bit which corresponds to the integer value 32.  So, by doing a left shift on the marker, we can get the proper mask.
+
++ Also, fixed the issue with zero based line numbers and the line number being off by one.  Furthermore, if there was a marker on the line, we had to move to the next line to search otherwise MarkerNext would return the line to search from.
+
++ Wrapped the wx.Toolbook class.  It's another dPageFrame like widget, only it uses a ToolBar instead of tabs.  Things to note:
+
++ Images must be 32x32 or they fail to add (same as the other page frame widgets except they are 16x16).  Also, images cannot be changed after a page is created.
+
++ Wrapped the wx PlateButton widget into Dabo.  Everything works and is tested.  I did a minimalist wrap for the things I needed.  If somebody wants another feature wrapped, let me know.  I called it dBorderlessButton because it seemed to fit well.
+
++ Fixed the bug that failed to discern that a new record with a manually-populated PK was in fact new. Thanks to Dr. Sibylle Koczian for reporting this and working with me to help track it down.
+
++ Tracked down and fixed the problem that caused all those 'GTK-Critical' messages. 
+
++ Added an 'OK' button to make it clear how to dismiss the dialog when running under a window manager that does not have a title bar present.
+
++ Refactored the imports to better catch cases where simplejson is not installed.
+
++ Changed the way that 'IsAdding' is determined to take into account manually-entered PKs.
+
++ Added a fix to dSizerMixin when setting the Spacing property - sometimes the value can come from the edited grid cell in the Property sheet as a string instead of an int. I think I fixed the prop sheet, but I left this fix in just in case.
+
++ Fixed a problem when running designs containing unfilled LayoutPanels. The default settings of the panel were being ignored, resulting in a zero-sized panel in the runtime.
+
++ Worked around an apparent bug with MDI Child Windows on Mac, where calling Maximize(False) will maximize instead of restore the window.
+
++ Fixed the status bar displaying "Record 1/0" when there are no records.
+
++ Fixed status text to still go to the MDI child form on Mac, instead of the MDI parent. On Mac, the MDI parent frame isn't shown and the children are still fully SDI so the whole MDI thing is kind of a misnomer.
+
++ Fixed dGrid.addColumn() to accept not just a custom dColumn instance, but also a custom dColumn subclass, which it'll instantiate with any passed property settings. If an instance is passed, the properties will be applied to the instance.
+
++ Added [Dynamic]CellBackColor property to dColumn.
+
++ Commented out the code that allows for an optional main panel to be added to a form upon creation. I left the code in while we test existing code, but I haven't found anything in the framework that uses this. Trac issue #1033.
+
++ Modified the firing of the Hit event when the slider is set to Continuous=True. Now it will only fire if the underlying value changes. This may be what was responsible for Trac Issue #1054, in which multiple events were recorded.
+
++ Fixes the issues noted in Trac #1114: WordWrap was not showing properly on Mac and Windows when a label was initially shown.
+
++ Changed the order that the update() steps are carried out. I had noticed a bug in some of my Dynamic* properties that depended on the control's Value. The cause was that the dynamic props are evaluated *before* the Value gets updated.
+
++ Moved the sizer default logic into the DesignerUtils script. 
+
++ Enhanced the getDefaultSizerProps() method to handle the mangled names that the Class Designer sometimes creates.
+
++ Changed the way that the import statement block is handled in the .cdxml. This *should* be backwards-compatible, but may require re-creating your import statements in your design. 
+
++ The change was required because the previous code sometimes resulted in import statements not being run before code that depended on those names was called.
+
++ Added the dabo.ui.spawnProcess() method. This allows to to run another application in a completely independent process.
+
++ Added the method 'appendDataSet()'. 
+
++ This fixes the issue with the Font property and dMaskedTextBox. We were only checking for the existence of a '_font' attribute, and apparently the masked classes defined that att themselves.
+
++ Changed the field validation so that it is triggered by any call to flushValue(). Previously it only fired on LostFocus events, meaning that you could set the Value directly in code without validation.
+
++ Fixed the call to activeControlValid() to only be made if there is an active control, and it's not the current control.
+
++ added support to allow the retrieval of un-masked values or masked values for the dMaskTextBox.
+
++ dApp wasn't allowing the setting of a custom Crypto instance in initProperties, because it was reinitializing self._cryptoProvider to None *after* the custom Crypto was already set by the user. Fixed, by taking away the unneeded assignment in __init__, and adding a getattr() wrapper in _getCrypto().
+
++ Changed the default for SQLite to not create the database file if it doesn't already exist. This setting is controlled by dabo.createDbFiles, which defaults to False.
+
++ Added dException.DBFileDoesNotExistException class. This is raised if you try to connect to an SQLite file that does not exist and dabo.createDbFiles is False. This exception can be caught in the calling routines and handled appropriately. dConnection now takes an optional constructor parameter 'forceCreate'; if that is True (default=False), the db file will be created no matter what the system setting is. dbSQLite.getConnection() takes that same parameter, and passes it to the connection constructor. dPref, which is supposed to create the DaboPreferences.db file no matter what, has been modified to pass  forceCreate=True to the connection.
+
++ Added the improvement provided by 'cowo' for proper importing of project subdirectory modules. Added the method 'getStandardAppDirectory()'. This takes one of the following standard Dabo directory names and returns the path to that directory. It takes an optional path location to start looking from; it will also search the app's HomeDirectory. The standard directory names are:
+"biz", "cache", "db", "main.py", "reports", "resources", "test", "ui"
+If the user requests a non-standard directory, a message is printed to the errorLog and None is returned. 
+If the specified standard directory cannot be found, None is returned.
+
++ Removing the deprecated first datanav classes.
+
++ Moved the datanav2 code into 'datanav'. Modified the datanav2 __init__.py to import datanav classes so as not to break existing references to datanav2.
+
++ Improved the handling of empty datasets. No longer will exceptions be raised; instead, None will be returned on an execute against an empty dataset, and the original will be returned on a filter on an empty dataset.
+
++ Added an afterSetup() hook method at the suggestion of Henning Hraban Ramm.
+
++ Added the ValueMode property to dMaskedTextBox. This will control whether the Value property returns the masked value or the plain value. Default is plain.
+
++ Improved the import logic in test.py. Also fixed the import of dBorderlessButton so that when it is run inside of test.py it doesn't break the test.
+
++ Added a check for non-date values in dDateTextBox to prevent the errors reported earlier this week.
+
++ Reworked the column.Visible functionality, and as of now it displays the test correctly in dGrid, although I'm sure I've missed some things. I tested on Linux.
+
++ Changed the way that the Visible property works with columns. Now the column is not removed from the grid's Columns collection; instead, its Visible status is taken into account when drawing the grid.
+
++ Added the 'addSizerDefaults()' method. This is to be used by external tools to set defaults for controls that are not part of dabo.ui. 
+
++ Found a case where a Designer tool (the view palette) had controls that were bound to properties that not all the controls they were modifying had. This may be related to some of the abends encountered when using the View Palette on Windows and Linux.
+
++ Improved the drag/drop behavior of grids.
+
++ Fixed Bottom and Right properties to get set after the wx object is fully instantiated. Thanks to Alex Tweedly for reporting the issue.
+
++ Implemented the ResetPageNumber property of reportwriter group objects. If it evaluates to True, the page number will be reset when the group expr evaluates differently.
+
++ Added PageNumber read-only (runtime) property of the Report object, accessible from report designs by 'self.PageNumber'. For example, put this in an expr for a string object:
+	"Page %s" % self.PageNumber
+This is just the first step. The PageNumber at this point will just keep incrementing with no way to reset it during the report run.
+
++ Added handlers in the UI layer for some of wxPython's AppleEvent handler methods. These catch the methods and propagate them to the dApp layer, where they can be overridden in an app subclass.
+
+
+
 Dabo 0.8.4 (2008-06-03) Revision 4111):
 ===============================================================================
 Dabo:
