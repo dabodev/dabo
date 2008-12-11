@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 class dException(StandardError):
 	"""	Base class in the framework for passing exceptions."""
-	
+
 
 class FontException(dException):
 	pass
@@ -27,10 +27,10 @@ class QueryException(dException):
 
 class BusinessRuleViolation(dException):
 	pass
-	
+
 class BusinessRulePassed(dException):
 	pass
-	
+
 class RowNotFoundException(dException):
 	pass
 
@@ -40,7 +40,7 @@ class FeatureNotImplementedException(dException):
 
 class StopIterationException(dException):
 	pass
-	
+
 
 class FeatureNotSupportedException(dException):
 	pass
@@ -63,7 +63,7 @@ class DatabaseException(dException):
 
 class DBNoAccessException(DatabaseException):
 	pass
-	
+
 class DBNoDBOnHostException(DatabaseException):
 	pass
 
@@ -72,13 +72,14 @@ class DBFileDoesNotExistException(DatabaseException):
 
 class DBQueryException(DatabaseException):
 	def __init__(self, err, sql=None):
-		if sql is None:
-			sql = ""
-		self.sql = sql
-		self.err_desc = "%s" % err
-		
+		self.err_desc = unicode(str(err), 'utf-8').rstrip()
+		self.sql = sql and sql.strip() or None
+
 	def __str__(self):
-		return self.err_desc + '\nSQL: ' + self.sql
+		err = self.err_desc
+		if self.sql:
+			err += '\nSQL: ' + self.sql
+		return err
 
 class XmlException(dException):
 	pass
