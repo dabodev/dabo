@@ -450,6 +450,15 @@ class dPemMixin(dPemMixinBase):
 				continue
 			self.bindEvent(evt, mthd)
 
+	def _popStatusText(self):
+		if self.StatusText and self.Form is not None:
+			self.Form.setStatusText("")
+
+	def _pushStatusText(self):
+		st = self.StatusText
+		if st and self.Form is not None:
+			self.Form.setStatusText(st)
+
 
 	def __onMouseEnter(self, evt):
 		if self._hover:
@@ -514,6 +523,7 @@ class dPemMixin(dPemMixinBase):
 
 		
 	def __onWxGotFocus(self, evt):
+		self._pushStatusText()
 		if isinstance(self, dabo.ui.dGrid):
 			## Continuation of ugly workaround for grid focus event. Only raise the
 			## Dabo event if we are reasonably sure it isn't a repeat.
@@ -529,6 +539,16 @@ class dPemMixin(dPemMixinBase):
 
 		
 	def __onWxKeyUp(self, evt):
+		if sys.platform.startswith("win"):
+			# Windows doesn't automatically catch Ctrl+A
+			ctrl = evt.ControlDown()
+			kc = evt.GetRawKeyCode()
+			try:
+				char = chr(kc).lower()
+			except ValueError:
+				char = None
+			if ctrl and char == "a":
+				self.selectAll()
 		self.raiseEvent(dEvents.KeyUp, evt)
 
 		
@@ -539,6 +559,7 @@ class dPemMixin(dPemMixinBase):
 	def __onWxLostFocus(self, evt):
 		if self._finito:
 			return
+		self._popStatusText()
 		self.raiseEvent(dEvents.LostFocus, evt)
 	
 
@@ -549,17 +570,13 @@ class dPemMixin(dPemMixinBase):
 	
 
 	def __onWxMouseEnter(self, evt):
-		st = self.StatusText
-		if st is not None and self.Form is not None:
-			self.Form.setStatusText(st)
+		self._pushStatusText()
 		self.raiseEvent(dEvents.MouseEnter, evt)
 		
 
 	def __onWxMouseLeave(self, evt):
+		self._popStatusText()
 		self._mouseLeftDown, self._mouseRightDown = False, False
-		st = self.StatusText
-		if st is not None and self.Form is not None:
-			self.Form.setStatusText("")
 		self.raiseEvent(dEvents.MouseLeave, evt)
 		
 
@@ -2713,7 +2730,13 @@ class dPemMixin(dPemMixinBase):
 			_("The sizer for the object.") )
 
 	StatusText = property(_getStatusText, _setStatusText, None,
-			_("Specifies the text that displays in the form's status bar, if any."))
+			_("""Specifies the text that displays in the form's status bar, if any.
+
+			The text will appear when the control gets the focus, or when the
+			mouse hovers over the control, and will clear when the control loses
+			the focus, or when the mouse is no longer hovering.
+
+			For forms, set StatusText whenever you want to display a message."""))
 
 	Tag = property(_getTag, _setTag, None,
 			_("A property that user code can safely use for specific purposes.") )
