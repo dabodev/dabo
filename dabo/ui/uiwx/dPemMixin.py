@@ -2413,6 +2413,9 @@ class dPemMixin(dPemMixinBase):
 		return getattr(self, "_toolTipText", None)
 
 	def _setToolTipText(self, val):
+		if not self._constructed():
+			self._properties["ToolTipText"] = val
+			return
 		if not val and not self.ToolTipText:
 			# Don't keep setting blank tooltip repeatedly.
 			pass
