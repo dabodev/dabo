@@ -106,7 +106,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		if src and self._srcIsBizobj:
 			# First see if DataField refers to a method of the bizobj:
 			method = getattr(src, self.DataField, None)
-			if method is not None:
+			if callable(method):
 				self.Value = method()
 			else:
 				try:
@@ -123,15 +123,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			if src is None:
 				# Could be testing
 				return
-
 			try:
 				srcatt = getattr(src, self.DataField)
 			except AttributeError:
 				# This happens in design tools, where a control might bind to a property
 				# that the current object doesn't have.
 				return
-			
-				
+
 			if self._srcIsInstanceMethod:
 				try:
 					self.Value = srcatt()
