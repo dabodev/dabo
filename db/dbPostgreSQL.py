@@ -195,9 +195,9 @@ class Postgres(dBackend):
 		currval() will return the correct value for each session.
 
 		"""
-
+		tableName = cursor.Table
 		try:
-			schemaName, tableName = cursor.Table.split(".", 1)
+			schemaName, tableName = tableName.split(".", 1)
 		except ValueError:
 			schemaName = None
 
@@ -205,23 +205,23 @@ class Postgres(dBackend):
 		#on a serial data type to work.
 		# special thanks to Lorenzo Alberton for his help with parsing of the fields.
 		# It has been confirmed that the statement works with 7.4 through 8.3.x
-		sql = ["SELECT substring((SELECT substring("
-				"pg_get_expr(d.adbin, d.adrelid) for 128) as curval"
+		sql = ["SELECT currval(substring((SELECT substring("
+				"pg_get_expr(d.adbin, d.adrelid) for 128)"
 				" FROM pg_attrdef d WHERE d.adrelid = a.attrelid"
 				" AND d.adnum = a.attnum AND a.atthasdef)"
-				" FROM 'nextval[^'']*''([^'']*)')"
+				" FROM 'nextval[^'']*''([^'']*)')) as currval"
 				" FROM pg_attribute a"
 				" LEFT JOIN pg_class c ON c.oid = a.attrelid"
 				" LEFT JOIN pg_attrdef d ON d.adrelid = a.attrelid"
 				" AND d.adnum = a.attnum AND a.atthasdef"
 				" LEFT JOIN pg_namespace n ON c.relnamespace = n.oid",
-				" WHERE a.attname = '%s'" % cursor.KeyField,
-				" AND (c.relname = '%s')" % tableName]
+				"WHERE a.attname = '%s'" % cursor.KeyField,
+				"AND (c.relname = '%s')" % tableName]
 		if schemaName:
-			sql.append(" AND n.nspname = '%s'" % schemaName)
+			sql.append("AND n.nspname = '%s'" % schemaName)
 		else:
-			sql.append(" AND pg_table_is_visible(c.oid)")
-		sql.append(" AND NOT a.attisdropped AND a.attnum > 0"
+			sql.append("AND pg_table_is_visible(c.oid)")
+		sql.append("AND NOT a.attisdropped AND a.attnum > 0"
 				" AND pg_get_expr(d.adbin, d.adrelid) LIKE 'nextval%'")
 
 		tempCursor = self._connection.cursor()
