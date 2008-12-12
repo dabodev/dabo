@@ -181,7 +181,7 @@ class PgSelect(WizardPage):
 		flds.sort()
 		pktext={True:"X", False:""}
 		typeText = {"C": "char", "I": "int", "M": "text", "D": "date", "L": "blob",
-				"T": "datetime", "B": "bool", "N": "float", "E": "enum","F":"float", "?": "unknown"}
+				"T": "datetime", "B": "bool", "N": "float", "E": "enum","F":"float","G":"long", "?": "unknown"}
 		fldInfo = [ (pktext[fldDict[p]["pk"]], typeText[fldDict[p]["type"]], p ) for p in flds]
 		self.lstFields.appendRows(fldInfo)
 
