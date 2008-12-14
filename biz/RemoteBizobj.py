@@ -141,7 +141,8 @@ class RemoteBizobj(dBizobj):
 					try:
 						self.moveToPK(pk)
 					except dException.RowNotFoundException:
-						raise dException.WebServerException, _("PK '%s' not present in dataset for DataSource '%s'") % (pk, self.DataSource)
+						ds = self.DataSource
+						raise dException.WebServerException, _("PK '%(pk)s' not present in dataset for DataSource '%(ds)s'") % locals()
 				for col, vals in rec.items():
 					if col in (kf, kons.CURSOR_TMPKEY_FIELD):
 						continue
