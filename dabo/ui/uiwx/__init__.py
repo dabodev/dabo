@@ -1060,7 +1060,7 @@ def sortList(chc, Caption="", ListCaption=""):
 
 def resolvePathAndUpdate(srcFile):
 	app = dabo.dAppRef
-	cwd = os.getcwd()
+	hd = app.HomeDirectory
 	opexists = os.path.exists
 	# Make sure that the file exists
 	if not opexists(srcFile):
@@ -1071,7 +1071,7 @@ def resolvePathAndUpdate(srcFile):
 		while keepLooping:
 			keepLooping = False
 			for subd in ("ui", "forms", "menus", "resources", "db", "biz"):
-				newpth = os.path.join(cwd, subd, fname)
+				newpth = os.path.join(hd, subd, fname)
 				if opexists(newpth):
 					srcFile = newpth
 					break
@@ -1086,7 +1086,7 @@ def resolvePathAndUpdate(srcFile):
 		if app.SourceURL:
 			# The srcFile has an absolute path; the URLs work on relative.
 			try:
-				splt = srcFile.split(cwd)[1].lstrip("/")
+				splt = srcFile.split(hd)[1].lstrip("/")
 			except IndexError:
 				splt = srcFile
 			app.urlFetch(splt)
@@ -1106,21 +1106,35 @@ def resolvePathAndUpdate(srcFile):
 	return srcFile
 
 
-def createForm(srcFile, show=False, *args, **kwargs):
-	"""Pass in a .cdxml file from the Designer, and this will
-	instantiate a form from that spec. Returns a reference
-	to the newly-created form.
-	"""
-	from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
+def _checkForRawXML(srcFile):
 	isRawXML = srcFile.strip().startswith("<")
 	if not isRawXML:
 		try:
 			srcFile = resolvePathAndUpdate(srcFile)
 		except IOError, e:
-			stop(e, _("File Not Found"))
-			return
+			dabo.errorLog.write(_("Class file '%s' not found") % srcFile)
+			raise
+	return srcFile, isRawXML
+
+
+def createClass(srcFile, *args, **kwargs):
+	"""Given a .cdxml class definition file path, will return the 
+	corresponding Python class."""
+	from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
+	srcFile, isRaw = _checkForRawXML(srcFile)
 	conv = DesignerXmlConverter()
 	cls = conv.classFromXml(srcFile)
+	if not isRaw:
+		cls._sourceFilePath = srcFile
+	return cls
+
+
+def createForm(srcFile, show=False, *args, **kwargs):
+	"""Pass in a .cdxml file from the Designer, and this will
+	instantiate a form from that spec. Returns a reference
+	to the newly-created form.
+	"""
+	cls = createClass(srcFile)
 	frm = cls(*args, **kwargs)
 	if show:
 		frm.show()

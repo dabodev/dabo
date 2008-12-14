@@ -99,31 +99,6 @@ class BaseForm(fm.dFormMixin):
 		func(message=msg, title=title)
 
 
-	def refresh(self, interval=None):
-		"""Repaints the form and all contained objects.
-
-		This method is called repeatedly from many different places during
-		a single change in the UI, so by default the actual execution is cached
-		using callAfterInterval(). The default interval is 100 milliseconds. You
-		can change that to suit your app needs by passing a different interval
-		in milliseconds.
-		
-		Sometimes, though, you want to force immediate execution of the 
-		refresh. In these cases, pass an interval of 0 to this method, which
-		means don't wait; execute now.
-		"""
-		if interval is None:
-			interval = 100
-		if interval == 0:
-			self.__refresh()
-		else:
-			dabo.ui.callAfterInterval(interval, self.__refresh)
-	def __refresh(self):
-		self.Freeze()
-		super(BaseForm, self).refresh()
-		self.Thaw()
-
-
 	def update(self, interval=None):
 		"""Updates the contained controls with current values from the source. 
 
