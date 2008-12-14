@@ -1,4 +1,5 @@
-﻿import sys
+﻿# -*- coding: utf-8 -*-
+import sys
 import locale
 import os
 import gettext
@@ -49,7 +50,7 @@ def install(domain="dabo", localedir=None, unicode_mo=True):
 			raise ValueError, "Must send your application's localedir explicitly."
 		localedir = getDaboLocaleDir()
 	_domains[domain] = localedir
-	#gettext.install(domain, localedir, unicode=unicode_mo)  ## No, don't globally bind _
+	#gettext.install(domain, localedir, unicode=unicode_mo)	 ## No, don't globally bind _
 	setLanguage(_defaultLanguage, _defaultEncoding)
 
 
