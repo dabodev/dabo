@@ -1150,6 +1150,8 @@ try again when it is running.
 		self.uiApp.onEditFindAgain(evt)
 	def onShowSizerLines(self, evt):
 		self.uiApp.onShowSizerLines(evt)
+	def onReloadForm(self, evt):
+		self.uiApp.onReloadForm(evt)
 
 	def onEditPreferences(self, evt):
 		if self.beforeEditPreferences() is False:

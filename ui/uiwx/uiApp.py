@@ -1007,6 +1007,29 @@ class uiApp(dObject, wx.App):
 			self.ActiveForm.refresh()
 
 
+	def onReloadForm(self, evt):
+		"""Re-creates the active form with a newer class definition."""
+		frm = evt.EventObject
+		if not frm:
+			frm = self.ActiveForm
+		try:
+			pth = frm._sourceFilePath
+		except AttributeError:
+			dabo.errorLog.write(_("Only .cdxml forms can be re-loaded"))
+			return
+		frm.lockDisplay()
+		# Store the old form's bizobj dict
+		bizDict = frm.bizobjs
+		bizPrimary = frm.PrimaryBizobj
+		newForm = dabo.ui.createForm(pth)
+		newForm.Position = frm.Position
+		newForm.Size = frm.Size
+		newForm.bizobjs = bizDict
+		newForm.PrimaryBizobj = bizPrimary
+		dabo.ui.callAfter(frm.release)
+		newForm.show()
+
+
 	def _getActiveForm(self):
 		af = getattr(self, "_activeForm", None)
 		if af is None:
