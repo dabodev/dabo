@@ -64,7 +64,7 @@ class Form(dabo.ui.dForm):
 	
 	
 	def setupToolBar(self):
-		tb = self.ToolBar
+		tb = self.ToolBar = dabo.ui.dToolBar(self)
 		if tb.Children:
 			# It's already been set up
 			return

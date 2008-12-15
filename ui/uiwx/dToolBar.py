@@ -354,17 +354,6 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 			self._addWindowStyleFlag(wx.TB_DOCKABLE)
 		
 		
-	def _getForm(self):
-		try:
-			v = self._form
-		except AttributeError:
-			v = self._form = None
-		return v
-
-	def _setForm(self, val):
-		self._form = val	
-
-	
 	def _getMaxHt(self):
 		try:
 			v = self._maxHt
@@ -427,9 +416,6 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 			Currently, this only seems to work on Linux, and can't be changed after
 			instantiation. Default is True."""))
 
-	Form = property(_getForm, _setForm, None,
-		_("Specifies the form that we are a member of."))
-	
 	MaxHeight = property(_getMaxHt, _setMaxHt, None,
 		_("""Specifies the maximum height of added buttons.  (int)
 

@@ -177,13 +177,25 @@ class dFormMixin(pm.dPemMixin):
 			
 	def __onActivate(self, evt): 
 		# If the ShowStatusBar property was set to True, this will create it
-		sb = self.StatusBar
+		self._createStatusBar()
 		# If the ShowToolBar property was set to True, this will create it
-		tb = self.ToolBar
-		
+		self._createToolBar()
+
 		if self.Application is not None:
 			if self.Application.Platform != "Win":
 				self.Application.ActiveForm = self
+
+
+	def _createToolBar(self):
+		if self.ShowToolBar and self.ToolBar is None:
+			self.ToolBar = dabo.ui.dToolBar(self)
+
+
+	def _createStatusBar(self):
+		if (self.ShowStatusBar 
+				and self.StatusBar is None
+				and (sys.platform.startswith("darwin") or not isinstance(self, wx.MDIChildFrame))):
+			self.StatusBar = dabo.ui.dStatusBar(self)
 		
 	
 	def __onDeactivate(self, evt):
@@ -909,21 +921,15 @@ class dFormMixin(pm.dPemMixin):
 
 	def _getStatusBar(self):
 		try:
-			ret = self.GetStatusBar()
+			return self.GetStatusBar()
 		except (TypeError, AttributeError):
 			# pkm: My client got a TypeError from the wx layer, perhaps because the
 			#      window is a dialog and not a form, but I can't reproduce on my end.
 			#      Just return None immediately if this happens again.
 			return None
-		if (ret is None
-				and (sys.platform.startswith("darwin") or not isinstance(self, wx.MDIChildFrame))
-				and self.ShowStatusBar):
-			ret = dabo.ui.dStatusBar(self)
-			self.SetStatusBar(ret)
-		else:
-			ret = None
-		return ret
-		
+
+	def _setStatusBar(self, val):
+		self.SetStatusBar(val)
 
 	def _getStatusText(self):
 		ret = ""
@@ -992,21 +998,26 @@ class dFormMixin(pm.dPemMixin):
 			
 
 	def _getToolBar(self):
-		if hasattr(self, "GetToolBar"):
-			ret = self.GetToolBar()
-			if ret is None and self.ShowToolBar:
-				ret = dabo.ui.dToolBar(self)
-				self.ToolBar = ret
-		else:
-			ret = None
-		return ret
+		try:
+			return self.GetToolBar()
+		except AttributeError:
+			# We are probably a dialog
+			return None
+		except TypeError:
+			# May be too early in control instantiation: I'm seeing this
+			# in my error logs for my app, but can't reproduce on my end:
+			# Traceback (most recent call last):
+			#  File "dabo\ui\uiwx\dFormMixin.pyc", line 180, in __onWxActivate
+			#  File "dabo\ui\uiwx\dPemMixin.pyc", line 942, in raiseEvent
+			#  File "dabo\lib\eventMixin.pyc", line 92, in raiseEvent
+			#  File "dabo\ui\uiwx\dFormMixin.pyc", line 191, in __onActivate
+			#  File "dabo\ui\uiwx\dFormMixin.pyc", line 969, in _getToolBar
+			#  File "wx\_windows.pyc", line 578, in GetToolBar
+			#<type 'exceptions.TypeError'>: in method 'Frame_GetToolBar', expected argument 1 of type 'wxFrame const *'
+			return None
 		
 	def _setToolBar(self, val):
 		self.SetToolBar(val)
-		if val is not None:
-			# the wx toolbar doesn't otherwise know what form it is attached to:
-			val.Form = self
-
 	
 	def _getWindowState(self):
 		try:
@@ -1140,7 +1151,7 @@ class dFormMixin(pm.dPemMixin):
 	ShowToolBar = property(_getShowToolBar, _setShowToolBar, None,
 			_("Specifies whether the Tool bar gets automatically created."))
 
-	StatusBar = property(_getStatusBar, None, None,
+	StatusBar = property(_getStatusBar, _setStatusBar, None,
 			_("Status bar for this form. (dStatusBar)"))
 
 	StatusText = property(_getStatusText, _setStatusText, None,
