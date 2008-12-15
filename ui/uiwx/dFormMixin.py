@@ -27,10 +27,6 @@ class dFormMixin(pm.dPemMixin):
 	def __init__(self, preClass, parent=None, properties=None, attProperties=None, 
 			src=None, *args, **kwargs):
 
-		# Windows sends two Activate events, and one of them is too early.
-		# Skip the first one. Update: apparently on wx27 and above the 
-		# double-activation is no longer an issue.
-		self._skipActivate = (wx.VERSION < (2,7) and self.Application.Platform == "Win")
 		self._cxnFile = ""
 		self._cxnName = ""
 		self._connection = None
@@ -163,22 +159,17 @@ class dFormMixin(pm.dPemMixin):
 	def __onWxActivate(self, evt):
 		""" Raise the Dabo Activate or Deactivate appropriately."""
 		if bool(evt.GetActive()):
-			if False and self._skipActivate:
-				# Skip the first activate (Windows)
-				self._skipActivate = False
-			else:
-				# Restore the saved size and position, which can't happen 
-				# in __init__ because we may not have our name yet.
-				try:
-					restoredSP = self.restoredSP
-				except AttributeError:
-					restoredSP = False
-				if not restoredSP:
-					if self.SaveRestorePosition:
-						dabo.ui.callAfter(self.restoreSizeAndPosition)
+			# Restore the saved size and position, which can't happen 
+			# in __init__ because we may not have our name yet.
+			try:
+				restoredSP = self.restoredSP
+			except AttributeError:
+				restoredSP = False
+			if not restoredSP:
+				if self.SaveRestorePosition:
+					dabo.ui.callAfter(self.restoreSizeAndPosition)
 				
-				self.raiseEvent(dEvents.Activate, evt)
-				self._skipActivate = (self.Application.Platform == "Win")
+			self.raiseEvent(dEvents.Activate, evt)
 		else:
 			self.raiseEvent(dEvents.Deactivate, evt)
 		evt.Skip()
