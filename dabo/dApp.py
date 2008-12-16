@@ -1159,10 +1159,14 @@ try again when it is running.
 		self.uiApp.onReloadForm(evt)
 
 	def onEditPreferences(self, evt):
+		af = self.ActiveForm
 		if self.beforeEditPreferences() is False:
 			return
 		self.uiApp.onEditPreferences(evt)
 		self.afterEditPreferences()
+		if af:
+			af.update()  ## in case setting of preferences changed VirtualField calcs
+
 	def beforeEditPreferences(self): pass
 	def afterEditPreferences(self): pass
 	############################	
