@@ -518,8 +518,10 @@ class dPemMixin(dPemMixinBase):
 
 		
 	def __onWxMenuOpen(self, evt):
-		if evt.Menu:
-			evt.Menu.raiseEvent(dEvents.MenuOpen, evt)
+		menu = evt.GetMenu()
+		if menu and isinstance(menu, dabo.ui.dMenu):
+			menu.raiseEvent(dEvents.MenuOpen, evt)
+		evt.Skip()
 
 		
 	def __onWxGotFocus(self, evt):
