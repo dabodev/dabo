@@ -187,13 +187,16 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def _createToolBar(self):
-		if self.ShowToolBar and self.ToolBar is None:
+		if (self.ShowToolBar
+				and self.ToolBar is None
+				and not isinstance(self, wx.Dialog)):
 			self.ToolBar = dabo.ui.dToolBar(self)
 
 
 	def _createStatusBar(self):
 		if (self.ShowStatusBar 
 				and self.StatusBar is None
+				and not isinstance (self, wx.Dialog)
 				and (sys.platform.startswith("darwin") or not isinstance(self, wx.MDIChildFrame))):
 			self.StatusBar = dabo.ui.dStatusBar(self)
 		
