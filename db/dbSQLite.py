@@ -102,8 +102,12 @@ class SQLite(dBackend):
 			# There is no transaction active in this case, so ignore the error.
 			pass
 		except Exception, e:
-			dabo.dbActivityLog.write("SQL: commit failed: %s" % e)
-			raise dException.DBQueryException, e			
+			try:
+				errMsg = str(e).decode(self.Encoding)
+			except UnicodeError:
+				errMsg = unicode(e)
+			dabo.dbActivityLog.write("SQL: commit failed: %s" % errMsg)
+			raise dException.DBQueryException(errMsg)
 
 
 	def rollbackTransaction(self, cursor):

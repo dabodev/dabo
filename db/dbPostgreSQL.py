@@ -1,11 +1,61 @@
 # -*- coding: utf-8 -*-
+
+import codecs
 import datetime
 import dabo
 from dabo.dLocalize import _
 from dBackend import dBackend
 
+
 class Postgres(dBackend):
 	"""Class providing PostgreSQL connectivity. Uses psycopg."""
+
+
+	_encodings = {
+		# mapping from Python encoding names
+		# to PostgreSQL character set names
+		'big5': 'BIG5',
+		'cp866': 'WIN866',
+		'cp874': 'WIN874',
+		'cp949': 'UHC',
+		'cp1250': 'WIN1250',
+		'cp1251': 'WIN1251',
+		'cp1252': 'WIN1252',
+		'cp1253': 'WIN1253',
+		'cp1254': 'WIN1254',
+		'cp1255': 'WIN1255',
+		'cp1256': 'WIN1256',
+		'cp1257': 'WIN1257',
+		'cp1258': 'WIN1258',
+		'euc_jis_2004': 'EUC_JIS_2004',
+		'euc_jp': 'EUC_JP',
+		'euc_kr': 'EUC_KR',
+		'euc_tw': 'EUC_TW',
+		'gb18030': 'GB18030',
+		'gb2312': 'EUC_CN',
+		'gbk': 'GBK',
+		'iso8859-1': 'LATIN1',
+		'iso8859-2': 'LATIN2',
+		'iso8859-3': 'LATIN3',
+		'iso8859-4': 'LATIN4',
+		'iso8859-5': 'ISO_8859_5',
+		'iso8859-6': 'ISO_8859_6',
+		'iso8859-7': 'ISO_8859_7',
+		'iso8859-8': 'ISO_8859_8',
+		'iso8859-9': 'LATIN5',
+		'iso8859-10': 'LATIN6',
+		'iso8859-13': 'LATIN7',
+		'iso8859-14': 'LATIN8',
+		'iso8859-15': 'LATIN9',
+		'iso8859-16': 'LATIN10',
+		'johab': 'JOHAB',
+		'koi8-r': 'KOI8',
+		'shift_jis': 'SJIS',
+		'shift_jis_2004': 'SHIFT_JIS_2004',
+		'utf-8': 'UTF8'
+	}
+
+
 	def __init__(self):
 		""" JFCS 08/23/07 Currently supporting only psycopg2"""
 		dBackend.__init__(self)
@@ -16,19 +66,31 @@ class Postgres(dBackend):
 	def getConnection(self, connectInfo, **kwargs):
 		import psycopg2 as dbapi
 		self.conn_user = connectInfo.User
-		#- jfcs 11/01/04 port needs to be a string
-		port = str(connectInfo.Port)
-		if not port or port == "None":
-			port = "5432"
-
-		DSN = "host=%s port=%s dbname=%s user=%s password=%s" % (connectInfo.Host,
-				port, connectInfo.Database, connectInfo.User, connectInfo.revealPW())
-		# Instead of blindly appending kwargs here, it would be preferable to only accept
-		# those that can be used safely.
-# 		for kw, val in kwargs:
-# 			DSN += " %s=%s" % (kw, val)
+		DSN = "host=%s port=%d dbname=%s user=%s password=%s" % (
+			connectInfo.Host, connectInfo.Port or 5432, connectInfo.Database,
+				self.conn_user, connectInfo.revealPW())
 		self._connection = dbapi.connect(DSN)
+		self.setClientEncoding()
 		return self._connection
+
+
+	def setClientEncoding(self, encoding=None):
+		if not encoding:
+			encoding = self.Encoding
+		try:
+			encoding = codecs.lookup(encoding).name
+		except (AttributeError, LookupError):
+			pass
+		try:
+			encoding = self._encodings[encoding]
+		except KeyError:
+			dabo.dbActivityLog.write("unknown encoding %r" % encoding)
+		if self._connection.encoding != encoding:
+			try:
+				self._connection.set_client_encoding(encoding)
+			except Exception:
+				dabo.dbActivityLog.write("cannot set database client encoding")
+		return encoding
 
 
 	def beginTransaction(self, cursor):

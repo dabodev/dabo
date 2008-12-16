@@ -123,13 +123,13 @@ class RemoteConnector(object):
 			errText = e.read()
 			errMsg = "\n".join(errText.splitlines()[4:])
 			if errcode == 409:
-				raise dException.BusinessRuleViolation, errMsg
+				raise dException.BusinessRuleViolation(errMsg)
 			elif errcode == 500:
-				raise dException.ConnectionLostException, errMsg
+				raise dException.ConnectionLostException(errMsg)
 			elif errcode == 204:
-				raise dException.NoRecordsException, errMsg
+				raise dException.NoRecordsException(errMsg)
 			elif errcode == 400:
-				raise dException.DBQueryException, errMsg
+				raise dException.DBQueryException(errMsg)
 		else:
 			# If successful, we need to clear the mementos. We don't need to 
 			# store anything; passing None will just  clear the mementos.

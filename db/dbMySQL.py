@@ -44,11 +44,15 @@ class MySQL(dBackend):
 			self._connection = dbapi.connect(host=connectInfo.Host, 
 					user = connectInfo.User, passwd = connectInfo.revealPW(),
 					db=connectInfo.Database, port=port, **kwargs)
-		except Exception, e:			
-			if "access denied" in str(e).lower():
-				raise dException.DBNoAccessException(e)
+		except Exception, e:
+			try:
+				errMsg = str(e).decode(self.Encoding)
+			except UnicodeError:
+				errMsg = unicode(e)
+			if "access denied" in errMsg.lower():
+				raise dException.DBNoAccessException(errMsg)
 			else:
-				raise dException.DatabaseException(e)
+				raise dException.DatabaseException(errMsg)
 		return self._connection
 
 

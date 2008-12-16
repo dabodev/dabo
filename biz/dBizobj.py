@@ -151,7 +151,7 @@ class dBizobj(dObject):
 			self._virtualFields = {}
 		errMsg = self.beforeCreateCursor()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.dException(errMsg)
 
 		if not self.dbapiCursorClass:
 			return
@@ -201,7 +201,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.BusinessRuleViolation, errMsg
+			raise dException.BusinessRuleViolation(errMsg)
 
 		self._CurrentCursor.first()
 		self.requeryAllChildren()
@@ -220,7 +220,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.BusinessRuleViolation, errMsg
+			raise dException.BusinessRuleViolation(errMsg)
 
 		self._CurrentCursor.prior()
 		self.requeryAllChildren()
@@ -239,7 +239,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.BusinessRuleViolation, errMsg
+			raise dException.BusinessRuleViolation(errMsg)
 
 		self._CurrentCursor.next()
 		self.requeryAllChildren()
@@ -258,7 +258,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.BusinessRuleViolation, errMsg
+			raise dException.BusinessRuleViolation(errMsg)
 
 		self._CurrentCursor.last()
 		self.requeryAllChildren()
@@ -358,19 +358,19 @@ class dBizobj(dObject):
 
 		except dException.ConnectionLostException, e:
 			self.RowNumber = current_row
-			raise dException.ConnectionLostException, e
+			raise e
 		except dException.DBQueryException, e:
 			# Something failed; reset things.
 			if startTransaction:
 				self.rollbackTransaction()
 			# Pass the exception to the UI
 			self.RowNumber = current_row
-			raise dException.DBQueryException, e
+			raise e
 		except dException.dException, e:
 			if startTransaction:
 				self.rollbackTransaction()
 			self.RowNumber = current_row
-			raise
+			raise e
 
 		if current_row >= 0:
 			try:
@@ -392,10 +392,11 @@ class dBizobj(dObject):
 		cursor = self._CurrentCursor
 		errMsg = self.beforeSave()
 		if errMsg:
-			raise dException.BusinessRuleViolation, errMsg
+			raise dException.BusinessRuleViolation(errMsg)
 
 		if self.KeyField is None:
-			raise dException.MissingPKException, _("No key field defined for table: ") + self.DataSource
+			raise dException.MissingPKException(
+					_("No key field defined for table: ") + self.DataSource)
 
 		# Validate any changes to the data. If there is data that fails
 		# validation, an Exception will be raised.
@@ -435,14 +436,14 @@ class dBizobj(dObject):
 			if startTransaction:
 				self.rollbackTransaction()
 			# Pass the exception to the UI
-			raise dException.DBQueryException, e
+			raise e
 
 		except dException.dException, e:
 			# Something failed; reset things.
 			if startTransaction:
 				self.rollbackTransaction()
 			# Pass the exception to the UI
-			raise
+			raise e
 
 		# Two hook methods: one specific to Save(), and one which is called after any change
 		# to the data (either save() or delete()).
@@ -467,7 +468,7 @@ class dBizobj(dObject):
 		"""
 		errMsg = self.beforeCancel()
 		if errMsg:
-			raise dException.BusinessRuleViolation, errMsg
+			raise dException.BusinessRuleViolation(errMsg)
 		if ignoreNoRecords is None:
 			# Canceling changes when there are no records should
 			# normally not be a problem.
@@ -486,7 +487,7 @@ class dBizobj(dObject):
 		cursor = self._CurrentCursor
 		errMsg = self.beforeDeleteAllChildren()
 		if errMsg:
-			raise dException.BusinessRuleViolation, errMsg
+			raise dException.BusinessRuleViolation(errMsg)
 
 		startTransaction = startTransaction and self.beginTransaction()
 		try:
@@ -498,11 +499,11 @@ class dBizobj(dObject):
 		except dException.DBQueryException, e:
 			if startTransaction:
 				self.rollbackTransaction()
-			raise dException.DBQueryException, e
+			raise e
 		except StandardError, e:
 			if startTransaction:
 				self.rollbackTransaction()
-			raise StandardError, e
+			raise e
 		self.afterDeleteAllChildren()
 
 
@@ -516,16 +517,18 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.BusinessRuleViolation, errMsg
+			raise dException.BusinessRuleViolation(errMsg)
 
 		if self.KeyField is None:
-			raise dException.dException, _("No key field defined for table: ") + self.DataSource
+			raise dException.dException(
+					_("No key field defined for table: ") + self.DataSource)
 
 		if self.deleteChildLogic == kons.REFINTEG_RESTRICT:
 			# See if there are any child records
 			for child in self.__children:
 				if child.RowCount > 0:
-					raise dException.dException, _("Deletion prohibited - there are related child records.")
+					raise dException.dException(
+							_("Deletion prohibited - there are related child records."))
 
 		startTransaction = startTransaction and self.beginTransaction()
 		try:
@@ -552,11 +555,11 @@ class dBizobj(dObject):
 		except dException.DBQueryException, e:
 			if startTransaction:
 				self.rollbackTransaction()
-			raise dException.DBQueryException, e
+			raise e
 		except StandardError, e:
 			if startTransaction:
 				self.rollbackTransaction()
-			raise StandardError, e
+			raise e
 
 
 	def deleteAll(self, startTransaction=True):
@@ -579,11 +582,11 @@ class dBizobj(dObject):
 		except dException.DBQueryException, e:
 			if startTransaction:
 				self.rollbackTransaction()
-			raise dException.DBQueryException, e
+			raise e
 		except StandardError, e:
 			if startTransaction:
 				self.rollbackTransaction()
-			raise StandardError, e
+			raise e
 
 
 	def execute(self, sql, params=None):
@@ -798,7 +801,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.BusinessRuleViolation, errMsg
+			raise dException.BusinessRuleViolation(errMsg)
 
 		self._CurrentCursor.new()
 		self._onNew()
@@ -842,7 +845,7 @@ class dBizobj(dObject):
 			return rp.requery()
 		errMsg = self.beforeRequery()
 		if errMsg:
-			raise dException.BusinessRuleViolation, errMsg
+			raise dException.BusinessRuleViolation(errMsg)
 		if self.KeyField is None:
 			errMsg = _("No Primary Key defined in the Bizobj for %s") % self.DataSource
 			raise dException.MissingPKException, errMsg
@@ -865,20 +868,18 @@ class dBizobj(dObject):
 		try:
 			cursor.requery(params)
 
-		except dException.ConnectionLostException, e:
-			raise dException.ConnectionLostException, e
+		except dException.ConnectionLostException:
+			raise
 
-		except dException.DBQueryException, e:
-			# Pass the exception to the UI
-			raise dException.DBQueryException, e
+		except dException.DBQueryException:
+			raise
 
 		except dException.NoRecordsException:
 			# Pass the exception to the UI
 			uiException = dException.NoRecordsException
 
-		except dException.dException, e:
-			# Pass the exception to the UI
-			raise dException.dException, e
+		except dException.dException:
+			raise
 
 		if self.RestorePositionOnRequery:
 			self._positionUsingPK(currPK)
@@ -974,7 +975,7 @@ class dBizobj(dObject):
 			if message:
 				errMsg += message
 		if errMsg:
-			raise dException.BusinessRuleViolation, errMsg
+			raise dException.BusinessRuleViolation(errMsg)
 
 
 	def validateRecord(self):
@@ -1012,7 +1013,7 @@ class dBizobj(dObject):
 		if message:
 			errMsg += message
 		if errMsg:
-			raise dException.BusinessRuleViolation, errMsg
+			raise dException.BusinessRuleViolation(errMsg)
 		else:
 			raise dException.BusinessRulePassed
 
@@ -1315,7 +1316,7 @@ class dBizobj(dObject):
 
 		errMsg = self.beforeChildRequery()
 		if errMsg:
-			raise dException.BusinessRuleViolation, errMsg
+			raise dException.BusinessRuleViolation(errMsg)
 
 		for child in self.__children:
 			# Let the child know the current dependent PK
@@ -1329,7 +1330,8 @@ class dBizobj(dObject):
 	def getPK(self):
 		""" Return the value of the PK field."""
 		if self.KeyField is None:
-			raise dException.dException, _("No key field defined for table: ") + self.DataSource
+			raise dException.dException(
+					_("No key field defined for table: ") + self.DataSource)
 		cc = self._CurrentCursor
 		return cc.getFieldVal(self.KeyField)
 
@@ -2098,7 +2100,7 @@ afterDelete() which is only called after a delete().""")
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.BusinessRuleViolation, errMsg
+			raise dException.BusinessRuleViolation(errMsg)
 		self._moveToRowNum(rownum)
 		self.requeryAllChildren()
 		self.afterPointerMove()

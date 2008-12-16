@@ -961,7 +961,8 @@ try again when it is running.
 		try:
 			ret = self.dbConnections[connName]
 		except KeyError:
-			raise dException.ConnectionNotFoundException, _("No connection named '%s' is defined") % connName
+			raise dException.ConnectionNotFoundException(
+					_("No connection named '%s' is defined") % connName)
 		return ret
 	
 	

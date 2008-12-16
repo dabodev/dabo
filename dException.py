@@ -72,7 +72,7 @@ class DBFileDoesNotExistException(DatabaseException):
 
 class DBQueryException(DatabaseException):
 	def __init__(self, err, sql=None):
-		self.err_desc = unicode(str(err), 'utf-8').rstrip()
+		self.err_desc = err.rstrip()
 		self.sql = sql and sql.strip() or None
 
 	def __str__(self):
