@@ -556,10 +556,15 @@ try again when it is running.
 					url = "http://dabodev.com/frameworkVersions/latest?project=%s" % abbrev
 					try:
 						vers = int(urllib2.urlopen(url).read())
+					except urllib2.URLError:
+						# Could not connect
+						dabo.errorLog.write(_("Could not connect to the Dabo servers"))
+						return (None, None)
 					except ValueError:
 						vers = -1
 					except StandardError, e:
 						dabo.errorLog.write(_("Failed to open URL '%(url)s'. Error: %(e)s") % locals())
+						return (None, None)
 					localVers = self._currentUpdateVersion(nm)
 					retAvailable = (localVers < vers)
 				prf.setValue("last_check", now)
