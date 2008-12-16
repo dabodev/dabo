@@ -702,6 +702,9 @@ class dFormMixin(pm.dPemMixin):
 		return self._cxnFile
 
 	def _setCxnFile(self, val):
+		if isinstance(val, unicode):
+			# file names should be byte strings
+			val = val.encode(sys.getfilesystemencoding())
 		self._cxnFile = val
 
 
