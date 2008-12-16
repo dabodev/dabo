@@ -373,8 +373,8 @@ class dFormMixin(pm.dPemMixin):
 		NOTE: wxPython does not currently support this. DO NOT USE 
 		this method.
 		"""
-		raise dException.FeatureNotSupportedException, \
-				_("The underlying UI toolkit does not support modal forms. Use a dDialog instead.")
+		raise dException.FeatureNotSupportedException(
+				_("The underlying UI toolkit does not support modal forms. Use a dDialog instead."))
 		
 		
 	def release(self):

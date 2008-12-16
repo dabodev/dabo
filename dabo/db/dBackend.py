@@ -108,14 +108,14 @@ class dBackend(dObject):
 		""" Most backends will return a non-zero number if there are updates.
 		Some do not, so this will have to be customized in those cases.
 		"""
-		raise dException.dException, _("No records updated")
+		raise dException.dException(_("No records updated"))
 
 
 	def noResultsOnDelete(self):
 		""" Most backends will return a non-zero number if there are deletions.
 		Some do not, so this will have to be customized in those cases.
 		"""
-		raise dException.dException, _("No records deleted")
+		raise dException.dException(_("No records deleted"))
 
 
 	def flush(self, cursor):

@@ -315,15 +315,20 @@ class dCursorMixin(dObject):
 				raise errorClass, e
 			paramStr = ["%s" % p for p in params]
 			dabo.dbActivityLog.write("FAILED SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(paramStr)))
+			# Database errors need to be decoded from database encoding.
+			try:
+				errMsg = str(e).decode(self.Encoding)
+			except UnicodeError:
+				errMsg = unicode(e)
 			# If this is due to a broken connection, let the user know.
 			# Different backends have different messages, but they
 			# should all contain the string 'connect' in them.
-			if "connect" in str(e).lower():
-				raise dException.ConnectionLostException, e
-			if "access" in str(e).lower():
-				raise dException.DBNoAccessException(e)
+			if "connect" in errMsg.lower():
+				raise dException.ConnectionLostException(errMsg)
+			elif "access" in errMsg.lower():
+				raise dException.DBNoAccessException(errMsg)
 			else:
-				raise dException.DBQueryException(e, sql)
+				raise dException.DBQueryException(errMsg, sql)
 
 		# Some backend programs do odd things to the description
 		# This allows each backend to handle these quirks individually.
@@ -483,7 +488,8 @@ class dCursorMixin(dObject):
 
 		# Make sure that the specified column is a column in the result set
 		if not [True for t in self.DataStructure if t[0] == col]  and col not in self.VirtualFields:
-			raise dException.dException, _("Invalid column specified for sort: ") + col
+			raise dException.dException(
+					_("Invalid column specified for sort: ") + col)
 
 		newCol = col
 		if col == currCol:
@@ -501,7 +507,8 @@ class dCursorMixin(dObject):
 				if ord.upper() in ("ASC", "DESC", ""):
 					newOrd = ord.upper()
 				else:
-					raise dException.dException, _("Invalid Sort direction specified: ") + ord
+					raise dException.dException(
+							_("Invalid Sort direction specified: ") + ord)
 
 		else:
 			# Different column specified.
@@ -512,7 +519,8 @@ class dCursorMixin(dObject):
 				if ord.upper() in ("ASC", "DESC", ""):
 					newOrd = ord.upper()
 				else:
-					raise dException.dException, _("Invalid Sort direction specified: ") + ord
+					raise dException.dException(
+							_("Invalid Sort direction specified: ") + ord)
 
 		self.__sortRows(newCol, newOrd, caseSensitive)
 		# Save the current sort values
@@ -786,7 +794,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""
 		ret = None
 		if self.RowCount <= 0:
-			raise dException.NoRecordsException, _("No records in the data set.")
+			raise dException.NoRecordsException(
+					_("No records in the data set."))
 		rec = self._records[self.RowNumber]
 		recKey = self.pkExpression()
 		if (recKey in self._newRecords) and self.AutoPopulatePK:
@@ -842,8 +851,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						_rowChangeCallback(row)
 						return vf["func"]()
 				except KeyError:
-					raise dException.FieldNotFoundException, "%s '%s' %s" % (
-							_("Field"), fld, _("does not exist in the data set"))
+					raise dException.FieldNotFoundException("%s '%s' %s" % (
+							_("Field"), fld, _("does not exist in the data set")))
 
 
 	def _fldTypeFromDB(self, fld):
@@ -891,8 +900,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if fld in self.VirtualFields:
 				# ignore
 				return
-			ss = _("Field '%s' does not exist in the data set.") % (fld,)
-			raise dException.FieldNotFoundException, ss
+			raise dException.FieldNotFoundException(
+					_("Field '%s' does not exist in the data set.") % (fld,))
 
 		try:
 			fldType = self._types[fld]
@@ -1143,7 +1152,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if self.RowCount > 0:
 			self.RowNumber = 0
 		else:
-			raise dException.NoRecordsException, _("No records in data set")
+			raise dException.NoRecordsException(_("No records in data set"))
 
 
 	def prior(self):
@@ -1152,9 +1161,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if self.RowNumber > 0:
 				self.RowNumber -= 1
 			else:
-				raise dException.BeginningOfFileException, _("Already at the beginning of the data set.")
+				raise dException.BeginningOfFileException(
+						_("Already at the beginning of the data set."))
 		else:
-			raise dException.NoRecordsException, _("No records in data set")
+			raise dException.NoRecordsException(
+					_("No records in data set"))
 
 
 	def next(self):
@@ -1163,9 +1174,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if self.RowNumber < (self.RowCount-1):
 				self.RowNumber += 1
 			else:
-				raise dException.EndOfFileException, _("Already at the end of the data set.")
+				raise dException.EndOfFileException(
+						_("Already at the end of the data set."))
 		else:
-			raise dException.NoRecordsException, _("No records in data set")
+			raise dException.NoRecordsException(_("No records in data set"))
 
 
 	def last(self):
@@ -1173,14 +1185,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if self.RowCount > 0:
 			self.RowNumber = self.RowCount-1
 		else:
-			raise dException.NoRecordsException, _("No records in data set")
+			raise dException.NoRecordsException(_("No records in data set"))
 
 
 	def save(self, allRows=False):
 		""" Save any changes to the data back to the data store."""
 		# Make sure that there is data to save
 		if self.RowCount <= 0:
-			raise dException.NoRecordsException, _("No data to save")
+			raise dException.NoRecordsException(_("No data to save"))
 		# Make sure that there is a PK
 		self.checkPK()
 
@@ -1190,12 +1202,19 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			except dException.DBQueryException, e:
 				# Error was encountered. Raise an exception so that the
 				# calling bizobj can rollback the transaction if necessary
-				dabo.dbActivityLog.write(_("DBQueryException encountered in save(): %s") % e)
-				raise dException.DBQueryException, e
+				try:
+					errMsg = str(e).decode(self.Encoding)
+				except UnicodeError:
+					errMsg = unicode(e)
+				dabo.dbActivityLog.write(
+						_("DBQueryException encountered in save(): %s") % errMsg)
+				raise e
 			except StandardError, e:
-				if "connect" in str(e).lower():
-					dabo.dbActivityLog.write(_("Connection Lost exception encountered in saverow(): %s") % e)
-					raise dException.ConnectionLostException, e
+				errMsg = str(e)
+				if "connect" in errMsg.lower():
+					dabo.dbActivityLog.write(
+							_("Connection Lost exception encountered in saverow(): %s") % errMsg)
+					raise dException.ConnectionLostException(errMsg)
 				else:
 					# Error was encountered. Raise an exception so that the
 					# calling bizobj can rollback the transaction if necessary
@@ -1426,7 +1445,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# Nothing to do!
 				return
 			else:
-				raise dException.NoRecordsException, _("No data to cancel.")
+				raise dException.NoRecordsException(_("No data to cancel."))
 
 		# Faster to deal with 2 specific cases: all rows or just current row
 		if allRows:
@@ -1481,7 +1500,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Delete the specified row, or the currently active row."""
 		if self.RowNumber < 0 or self.RowCount == 0:
 			# No query has been run yet
-			raise dException.NoRecordsException, _("No record to delete")
+			raise dException.NoRecordsException(_("No record to delete"))
 		if delRowNum is None:
 			# assume that it is the current row that is to be deleted
 			delRowNum = self.RowNumber
@@ -1556,7 +1575,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					val = fnc(*prms)
 				self.setFieldVal(field, val)
 			else:
-				raise dException.FieldNotFoundException, _("Can't set default value for nonexistent field '%s'.") % field
+				raise dException.FieldNotFoundException(
+						_("Can't set default value for nonexistent field '%s'.") % field)
 
 		if self._nullDefaults:
 			for field in rec.keys():
@@ -1661,7 +1681,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		and an exception is raised.
 		"""
 		if (rownum >= self.RowCount) or (rownum < 0):
-			raise dException.dException, _("Invalid row specified.")
+			raise dException.dException(_("Invalid row specified."))
 		self.RowNumber = rownum
 
 
@@ -1683,9 +1703,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			return ret
 		# Make sure that this is a valid field
 		if not fld:
-			raise dException.FieldNotFoundException, _("No field specified for seek()")
+			raise dException.FieldNotFoundException(_("No field specified for seek()"))
 		if (fld not in self._records[0]) and (fld not in self.VirtualFields):
-			raise dException.FieldNotFoundException, _("Non-existent field '%s'") % fld
+			raise dException.FieldNotFoundException(_("Non-existent field '%s'") % (fld,))
 
 		# Copy the specified field vals and their row numbers to a list, and
 		# add those lists to the sort list
@@ -1776,7 +1796,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		# First, make sure that there is *something* in the field
 		kf = self.KeyField
 		if not kf:
-			raise dException.MissingPKException, _("checkPK failed; no primary key specified")
+			raise dException.MissingPKException(
+					_("checkPK failed; no primary key specified"))
 
 		if isinstance(kf, basestring):
 			kf = [kf]
@@ -1785,7 +1806,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			for fld in kf:
 				self._records[0][fld]
 		except KeyError:
-			raise dException.MissingPKException, _("Primary key field does not exist in the data set: ") + fld
+			raise dException.MissingPKException(
+					_("Primary key field does not exist in the data set: ") + fld)
 
 
 	def makePkWhere(self, row=None):

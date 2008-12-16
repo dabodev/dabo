@@ -142,7 +142,8 @@ class RemoteBizobj(dBizobj):
 						self.moveToPK(pk)
 					except dException.RowNotFoundException:
 						ds = self.DataSource
-						raise dException.WebServerException, _("PK '%(pk)s' not present in dataset for DataSource '%(ds)s'") % locals()
+						raise dException.WebServerException(
+								_("PK '%(pk)s' not present in dataset for DataSource '%(ds)s'") % locals())
 				for col, vals in rec.items():
 					if col in (kf, kons.CURSOR_TMPKEY_FIELD):
 						continue
@@ -151,7 +152,8 @@ class RemoteBizobj(dBizobj):
 						# Check for update conflicts; abort if found
 						currval = self.getFieldVal(col)
 						if currval != oldval:
-							raise dException.WebServerException, _("Update Conflict: the value in column '%s' has been changed by someone else.") % col
+							raise dException.WebServerException(
+									_("Update Conflict: the value in column '%s' has been changed by someone else.") % col)
 					self.setFieldVal(col, newval)
 
 			kids = diff.pop("children", None)

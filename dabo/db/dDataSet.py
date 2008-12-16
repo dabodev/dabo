@@ -584,7 +584,7 @@ class dDataSet(tuple):
 # 		if len(condList) == 1:
 # 			# No equality specified
 # 			errMsg = _("Bad join: no '==' in join condition: %s") % condition
-# 			raise dException.QueryException, errMsg
+# 			raise dException.QueryException(errMsg)
 #
 # 		leftCond = None
 # 		rightCond = None
@@ -613,7 +613,7 @@ class dDataSet(tuple):
 # 				condError += "; "
 # 			condError += _("No join condition specified for alias '%s'") % rightAlias
 # 		if condError:
-# 			raise dException.QueryException, condError
+# 			raise dException.QueryException(condError)
 #
 # 		# OK, we now know how to do the join. The plan is this:
 # 		# 	create an empty result list
