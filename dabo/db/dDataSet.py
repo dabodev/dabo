@@ -36,8 +36,8 @@ class dDataSet(tuple):
 	warning message will be printed out and the SQL functions will return
 	None. The data will still be usable, though.
 	"""
-	def __init__(self, *args, **kwargs):
-		super(dDataSet, self).__init__(*args, **kwargs)
+	def __init__(self):
+		super(dDataSet, self).__init__()
 		self._connection = None
 		self._cursor = None
 		self._bizobj = None
