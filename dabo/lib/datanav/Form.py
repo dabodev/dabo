@@ -407,7 +407,7 @@ class Form(dabo.ui.dForm):
 						"\n\nGenerate the report form file?", cancelButton=False):
 					self.saveNamedReportForm = True
 
-			def onOK(self, evt):
+			def runOK(self):
 				self.mode = self.radMode.Value
 				self.records = self.radRecords.Value
 
