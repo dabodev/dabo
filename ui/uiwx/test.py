@@ -89,9 +89,8 @@ class Test(object):
 
 		# Get all the python modules in this directory into a list:
 		modules = [modname.split(".")[0] for modname in os.listdir(".") if modname[-3:] == ".py"]
-		modules.sort()
 
-		for modname in modules:
+		for modname in sorted(modules):
 			print "==> ", modname
 			# if the module has a test class, instantiate it:
 			if modname == "__init__":
