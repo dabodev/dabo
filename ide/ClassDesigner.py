@@ -3202,8 +3202,10 @@ class ClassDesigner(dabo.dApp):
 			obj = self.getMainLayoutPanel(obj)
 		try:
 			sizerAtts = obj.getDesignerDict()["attributes"]["sizerInfo"]
-			sizerAtts["Expand"] = True
-			sizerAtts["Proportion"] = 1
+			if sizerAtts.get("Expand") is None:
+				sizerAtts["Expand"] = True
+			if sizerAtts.get("Proportion") is None:
+				sizerAtts["Proportion"] = 1
 		except:
 			sizerAtts = None
 		while isinstance(obj, LayoutPanel):
