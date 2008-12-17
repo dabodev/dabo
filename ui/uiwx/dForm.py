@@ -392,7 +392,7 @@ class BaseForm(fm.dFormMixin):
 		except dException.NoRecordsException, e:
 			dabo.errorLog.write(_("Cancel failed; no records to cancel."))
 		except dException.dException, e:
-			dabo.errorLog.write(_("Cancel failed with response: %s") % str(e))
+			dabo.errorLog.write(_("Cancel failed with response: %s") % e)
 			self.notifyUser(str(e), title=_("Cancel Not Allowed"), exception=e)
 		self.afterCancel()
 		self.refresh()
@@ -464,12 +464,12 @@ class BaseForm(fm.dFormMixin):
 			sys.exit()
 
 		except dException.DBQueryException, e:
-			dabo.errorLog.write(_("Database Execution failed with response: %s") % str(e))
+			dabo.errorLog.write(_("Database Execution failed with response: %s") % e)
 			self.notifyUser(str(e), title=_("Database Action Failed"), severe=True, exception=e)
 			self.StatusText = ""
 
 		except dException.dException, e:
-			dabo.errorLog.write(_("Requery failed with response: %s") % str(e))
+			dabo.errorLog.write(_("Requery failed with response: %s") % e)
 			self.notifyUser(str(e), title=_("Requery Not Allowed"), severe=True, exception=e)
 			self.StatusText = ""
 
@@ -515,7 +515,7 @@ class BaseForm(fm.dFormMixin):
 				self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
 				sys.exit()
 			except dException.dException, e:
-				dabo.errorLog.write(_("Delete failed with response: %s") % str(e))
+				dabo.errorLog.write(_("Delete failed with response: %s") % e)
 				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True, exception=e)
 			self.afterDelete()
 		self.update()
@@ -548,7 +548,7 @@ class BaseForm(fm.dFormMixin):
 				self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
 				sys.exit()
 			except dException.dException, e:
-				dabo.errorLog.write(_("Delete All failed with response: %s") % str(e))
+				dabo.errorLog.write(_("Delete All failed with response: %s") % e)
 				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True, exception=e)
 		self.afterDeleteAll()
 		self.update()
@@ -571,7 +571,7 @@ class BaseForm(fm.dFormMixin):
 		try:
 			bizobj.new()
 		except dException.dException, e:
-			self.notifyUser(_("Add new record failed with response:\n\n%s") % str(e), 
+			self.notifyUser(_("Add new record failed with response:\n\n%s") % e, 
 					severe=True, exception=e)
 
 		statusText = self.getCurrentRecordText(dataSource)
