@@ -273,7 +273,7 @@ class dCursorMixin(dObject):
 							return ret
 							break
 				else:
-					raise UnicodeDecodeError, e
+					raise e
 # 		elif isinstance(field_val, array.array):
 # 			# Usually blob data
 # 			ret = field_val.tostring()
@@ -312,7 +312,7 @@ class dCursorMixin(dObject):
 			# calling routine will pass the class of the expected error, and will
 			# handle it appropriately.
 			if errorClass is not None and isinstance(e, errorClass):
-				raise errorClass, e
+				raise e
 			paramStr = ["%s" % p for p in params]
 			dabo.dbActivityLog.write("FAILED SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(paramStr)))
 			# Database errors need to be decoded from database encoding.
@@ -813,7 +813,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def getFieldVal(self, fld, row=None, _rowChangeCallback=None):
 		"""Return the value of the specified field in the current or specified row."""
 		if self.RowCount <= 0:
-			raise dException.NoRecordsException, _("No records in the data set.")
+			raise dException.NoRecordsException(_("No records in the data set."))
 		if row is None:
 			row = self.RowNumber
 
@@ -888,7 +888,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def setFieldVal(self, fld, val, row=None):
 		"""Set the value of the specified field."""
 		if self.RowCount <= 0:
-			raise dException.NoRecordsException, _("No records in the data set")
+			raise dException.NoRecordsException(_("No records in the data set"))
 
 		if row is None:
 			row = self.RowNumber

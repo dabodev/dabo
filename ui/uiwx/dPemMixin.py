@@ -2253,7 +2253,7 @@ class dPemMixin(dPemMixinBase):
 					if hasattr(self.Parent, name) \
 							and type(getattr(self.Parent, name)) != wx._core._wxPyDeadObject \
 							and getattr(self.Parent, name) != self:
-						raise NameError, "Name '%s' is already in use." % name
+						raise NameError("Name '%s' is already in use." % name)
 				try:
 					self.Parent.__dict__[name] = self
 				except AttributeError:
@@ -2273,11 +2273,11 @@ class dPemMixin(dPemMixinBase):
 					if hasattr(parent, name) \
 							and type(getattr(parent, name)) != wx._core._wxPyDeadObject \
 							and getattr(parent, name) != self:
-						raise NameError, "Name '%s' is already in use." % name
+						raise NameError("Name '%s' is already in use." % name)
 					else:
 						for window in parent.GetChildren():
 							if str(window.GetName()) == str(name) and window != self:
-								raise NameError, "Name '%s' is already in use." % name
+								raise NameError("Name '%s' is already in use." % name)
 					
 			else:
 				# Can't do the name check for siblings, so allow it for now.
@@ -2352,14 +2352,14 @@ class dPemMixin(dPemMixinBase):
 			return
 		if self._registryID:
 			# These should be immutable once set
-			raise AttributeError, _("RegIDs cannot be changed once they are set")
+			raise AttributeError(_("RegIDs cannot be changed once they are set"))
 		self._registryID = val
 		try:
 			self.Form.registerObject(self)
 		except KeyError:
 			err = _("Attempt in object '%s' to set duplicate RegID: '%s'") % (self, val)
 			dabo.errorLog.write(err)
-			raise KeyError, err
+			raise KeyError(err)
 			
 		# When the object's RegID is set, we need to autobind again:
 		self.autoBindEvents(force=False)

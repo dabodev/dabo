@@ -26,7 +26,7 @@ class EventMixin(object):
 			for binding in bindings:
 				self.bindEvent(binding[0], binding[1])
 		else:
-			raise TypeError, "Sequence expected."
+			raise TypeError("Sequence expected.")
 		
 
 	def raiseEvent(self, eventClass, uiEvent=None, uiCallAfterFunc=None, 
@@ -54,7 +54,8 @@ class EventMixin(object):
 
 		# self.__raisedEvents keeps track of a possible problem identified by 
 		# Vladimir. It is debug code that isn't intended to stick around.
-		try: self.__raisedEvents
+		try:
+			self.__raisedEvents
 		except AttributeError:
 			self.__raisedEvents = []
 			
@@ -339,7 +340,7 @@ class EventMixin(object):
 		if isinstance(val, list):
 			self._eventBindings = val
 		else:
-			raise ValueError, "EventBindings must be a list."
+			raise ValueError("EventBindings must be a list.")
 
 	_EventBindings = property(_getEventBindings, _setEventBindings, None, 
 		_("The list of event bindings ([Event, callback]) for this object."))		

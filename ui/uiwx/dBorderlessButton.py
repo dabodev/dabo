@@ -4,7 +4,7 @@ import wx
 try:
 	import wx.lib.platebtn as platebtn
 except ImportError:
-	raise ImportError, "Your version of wxPython is too old for dBorderlessButton"
+	raise ImportError("Your version of wxPython is too old for dBorderlessButton")
 import dabo
 import dabo.ui
 
@@ -70,7 +70,7 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 				self._backColoHover = val
 				self.SetPressColor(wx.Color(*val))
 			else:
-				raise ValueError, "BackColorHover must be a valid color string or tuple"
+				raise ValueError("BackColorHover must be a valid color string or tuple")
 		else:
 			self._properties["BackColorHover"] = val
 

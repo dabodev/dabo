@@ -115,7 +115,7 @@ class dPageFrameNoTabs(dPanel):
 				self.Sizer.Show(ch, (ch is pg))
 			self.layout()
 		else:
-			raise AttributeError, _("Attempt to show non-member page")
+			raise AttributeError(_("Attempt to show non-member page"))
 
 	
 	def nextPage(self):

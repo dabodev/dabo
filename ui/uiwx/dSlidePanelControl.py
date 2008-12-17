@@ -389,7 +389,7 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		if pnl is None:
 			# Make sure that the Caption property has been passed
 			if not "Caption" in kwargs:
-				raise ValueError, _("You must specify a Caption when adding a panel")
+				raise ValueError(_("You must specify a Caption when adding a panel"))
 			pnl = dabo.ui.dSlidePanel(self, **kwargs)
 		elif isinstance(pnl, basestring):
 			# Just the caption; create the panel and use that
@@ -640,7 +640,7 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		if self._constructed():
 			val = int(val)
 			if val < 0:
-				raise ValueError, _("Cannot set PanelCount to less than zero.")
+				raise ValueError(_("Cannot set PanelCount to less than zero."))
 			panelCount = len(self.Children)
 			panelClass = self.PanelClass
 		

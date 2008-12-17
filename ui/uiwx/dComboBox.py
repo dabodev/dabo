@@ -180,7 +180,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 			else:
 				val = int(val)
 				if val < 1:
-					raise ValueError, 'TextLength must be a positve Integer'
+					raise ValueError('TextLength must be a positve Integer')
 				self._textLength = val
 			self._checkTextLength()
 			

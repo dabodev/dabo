@@ -303,7 +303,7 @@ if _USE_FLAT:
 					self.SetActiveTabTextColour(wx.Colour(*val))
 					self.Refresh()
 				else:
-					raise ValueError, (_("'%s' can not be translated into a color" % val))
+					raise ValueError(_("'%s' can not be translated into a color" % val))
 			else:
 				self._properties["ActiveTabTextColor"] = val
 		
@@ -320,7 +320,7 @@ if _USE_FLAT:
 					self.SetNonActiveTabTextColour(wx.Colour(*val))
 					self.Refresh()
 				else:
-					raise ValueError, (_("'%s' can not be translated into a color" % val))
+					raise ValueError(_("'%s' can not be translated into a color" % val))
 			else:
 				self._properties["InactiveTabTextColor"] = val
 		
@@ -337,7 +337,7 @@ if _USE_FLAT:
 					self.SetTabAreaColour(wx.Colour(*val))
 					self.Refresh()
 				else:
-					raise ValueError, (_("'%s' can not be translated into a color" % val))
+					raise ValueError(_("'%s' can not be translated into a color" % val))
 			else:
 				self._properties["MenuBackColor"] = val
 		
@@ -424,7 +424,7 @@ if _USE_FLAT:
 			elif val == "Bottom":
 				self._addWindowStyleFlag(self._tabposBottom)
 			else:
-				raise ValueError, (_("The only possible values are 'Top' and 'Bottom'"))
+				raise ValueError(_("The only possible values are 'Top' and 'Bottom'"))
 		
 		
 		def _getTabSideIncline(self):
@@ -433,7 +433,7 @@ if _USE_FLAT:
 		def _setTabSideIncline(self, val):
 			val = int(val)
 			if val<0 or val>15:
-				raise ValueError, (_("Value must be 0 through 15"))
+				raise ValueError(_("Value must be 0 through 15"))
 			
 			self._tabSideIncline = val
 			self.SetAllPagesShapeAngle(val)

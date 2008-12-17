@@ -1102,7 +1102,7 @@ def resolvePathAndUpdate(srcFile):
 				app.urlFetch(codefile)
 	# At this point the file should be present and updated. If not...
 	if not os.path.exists(srcFile):
-		raise IOError, _("The file '%s' cannot be found") % srcFile
+		raise IOError(_("The file '%s' cannot be found") % srcFile)
 	return srcFile
 
 
@@ -1222,7 +1222,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 			*Must Override*
 			"""
 			if not self._controlClass:
-				raise TypeError, _("Cannot create custom editor without a control class specified.")
+				raise TypeError(_("Cannot create custom editor without a control class specified."))
 			self._control = self._controlClass(parent)
 			self.SetControl(self._control)
 			if evtHandler:
@@ -1347,7 +1347,7 @@ def browse(dataSource, parent=None, keyCaption=None, includeFields=None,
 			except AttributeError:
 				cap = "Browse"
 		else:
-			raise TypeError, "Incorrect data source passed to browse()"
+			raise TypeError("Incorrect data source passed to browse()")
 	else:
 		dataSet = dataSource
 		cap = "Browse"
@@ -1438,7 +1438,7 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 		try:
 			txt = wind.Caption
 		except AttributeError:
-			raise ValueError, "No text supplied to fontMetric call"
+			raise ValueError("No text supplied to fontMetric call")
 	fnt = wind.GetFont()
 	if face is not None:
 		fnt.SetFaceName(face)

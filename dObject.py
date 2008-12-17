@@ -82,7 +82,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		if kwargs:
 			# Some kwargs haven't been handled.
 			bad = ", ".join(["'%s'" % kk for kk in kwargs.keys()])
-			raise TypeError, ("Invalid keyword arguments passed to %s: %s") % (self.__repr__(), bad)
+			raise TypeError("Invalid keyword arguments passed to %s: %s" % (self.__repr__(), bad))
 
 		if self._call_afterInit:
 			self._afterInit()
@@ -290,7 +290,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 
 	def _setBasePrefKey(self, val):
 		if not isinstance(val, types.StringTypes):
-			raise TypeError, 'BasePrefKey must be a string.'
+			raise TypeError('BasePrefKey must be a string.')
 		self._basePrefKey = val
 		pm = self.PreferenceManager
 		if pm is not None:
@@ -336,9 +336,9 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 	
 	def _setName(self, val):
 		if not isinstance(val, types.StringTypes):
-			raise TypeError, 'Name must be a string.'
+			raise TypeError('Name must be a string.')
 		if not len(val.split()) == 1:
-			raise KeyError, 'Name must not contain any spaces'
+			raise KeyError('Name must not contain any spaces')
 		self._name = val
 		
 		
@@ -371,7 +371,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 
 	def _setPreferenceManager(self, val):
 		if not isinstance(val, dPref):
-			raise TypeError, 'PreferenceManager must be a dPref object'
+			raise TypeError('PreferenceManager must be a dPref object')
 		self._preferenceManager = val
 	
 

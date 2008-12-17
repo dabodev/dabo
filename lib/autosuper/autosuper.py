@@ -449,7 +449,7 @@ except ImportError:
         if cur_class is None:
             # We could fail to find the class if we're called from a function
             # nested in a method
-            raise TypeError, "Can only call 'super' in a bound method"
+            raise TypeError("Can only call 'super' in a bound method")
 
         if __super_modify_bytecode__:
             _bind_autosuper(last_method.im_func, cur_class)

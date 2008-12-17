@@ -599,7 +599,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			"selected": wx.TreeItemIcon_Selected,
 			"selectedexpanded": wx.TreeItemIcon_SelectedExpanded}
 		if which.lower() not in whichdict.keys():
-			raise ValueError, _("Invalid Node State: %s") % which
+			raise ValueError(_("Invalid Node State: %s") % which)
 		if isinstance(imgKey, int):
 			imgIdx = imgKey
 		else:
@@ -622,7 +622,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			"selected": wx.TreeItemIcon_Selected,
 			"selectedexpanded": wx.TreeItemIcon_SelectedExpanded}
 		if not which in whichdict.keys():
-			raise ValueError, _("Invalid Node State: %s") % which
+			raise ValueError(_("Invalid Node State: %s") % which)
 		ret = self.GetItemImage(node.itemID, whichdict[which.lower()])
 		return ret		
 	

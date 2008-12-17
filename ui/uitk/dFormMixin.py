@@ -274,7 +274,7 @@ class dFormMixin(pm.dPemMixin):
 # 		elif value == 'FullScreen':
 # 			self.ShowFullScreen()
 # 		else:
-# 			raise ValueError, ("The only possible values are "
+# 			raise ValueError("The only possible values are "
 # 							"'Normal', 'Minimized', 'Maximized', and 'FullScreen'")
 # 
 # 	# property definitions follow:

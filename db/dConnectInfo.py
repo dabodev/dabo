@@ -95,7 +95,7 @@ class dConnectInfo(dObject):
 			if prop:
 				setattr(self, prop, v)
 			else:
-				raise TypeError, "Property '%s' invalid." % k				
+				raise TypeError("Property '%s' invalid." % k)
 	
 	
 	def getConnection(self, **kwargs):
@@ -173,7 +173,7 @@ class dConnectInfo(dObject):
 					import dbWeb
 					self._backendObject = dbWeb.Web()
 				else:
-					raise ValueError, "Invalid database type: %s." % nm
+					raise ValueError("Invalid database type: %s." % nm)
 			except ImportError:
 				dabo.errorLog.write(_("You do not have the database module for %s installed") % dbType)
 				self._dbType = None

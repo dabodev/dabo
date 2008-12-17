@@ -316,7 +316,7 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 					self.split()
 					self.unlockDisplay()
 			else:
-				raise ValueError, "Orientation can only be 'Horizontal' or 'Vertical'"
+				raise ValueError("Orientation can only be 'Horizontal' or 'Vertical'")
 		else:
 			self._properties["Orientation"] = val
 	

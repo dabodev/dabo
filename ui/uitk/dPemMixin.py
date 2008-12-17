@@ -70,8 +70,8 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 				exit
 				
 		if not ret:
-			raise AttributeError, "%s object has no attribute %s" % (
-				self._name, att)
+			raise AttributeError("%s object has no attribute %s" % (
+				self._name, att))
 		else:
 			return ret
 
@@ -524,7 +524,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		elif style == 'Default':
 			pass
 		else:
-			raise ValueError, ("The only possible values are 'None', "
+			raise ValueError("The only possible values are 'None', "
 							"'Simple', 'Sunken', and 'Raised.'")
 
 

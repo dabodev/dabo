@@ -499,7 +499,7 @@ class dListControl(dcm.dControlItemMixin,
 				val = val.upper().strip()
 			else:
 				if val >= self.ColumnCount:
-					raise IndexError, _("Invalid column %s specified for dListControl.ExpandColumn") % val
+					raise IndexError(_("Invalid column %s specified for dListControl.ExpandColumn") % val)
 			if self._expandColumn != val:
 				self._resetSize(self._expandColumn)
 				self._expandColumn = val

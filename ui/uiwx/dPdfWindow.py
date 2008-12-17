@@ -34,7 +34,7 @@ class dPdfWindow(cm.dControlMixin, PDFWindow):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		if hasattr(PDFWindow, "_dummy"):
-			raise ImportError, "wx.lib.pdfwin couldn't be imported, so dPdfWindow cannot instantiate."
+			raise ImportError("wx.lib.pdfwin couldn't be imported, so dPdfWindow cannot instantiate.")
 
 		self._baseClass = dPdfWindow
 		preClass = pdfwin.PDFWindow

@@ -41,7 +41,7 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 		menu = dabo.ui.dMenu()
 		for value in valueList:
 			if not type(value) in (str, unicode):
-				raise ValueError, "All elements in the List must be strings"
+				raise ValueError("All elements in the List must be strings")
 			else:
 				menu.append(value)
 		
@@ -78,7 +78,7 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 				self._setupMenuFromList(val)
 				self._list = val
 			else:
-				raise TypeError, "List must be either a tuple, list, or None"
+				raise TypeError("List must be either a tuple, list, or None")
 		else:
 			self._properties["List"] = val
 	

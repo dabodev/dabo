@@ -36,7 +36,7 @@ sudo apt-get install python-imaging
 
 	""" % "\n\t".join(_failedLibs)
 
-	raise ImportError, msg
+	raise ImportError(msg)
 del(_failedLibs)
 #######################################################
 
@@ -131,7 +131,7 @@ class ReportObject(CaselessDict):
 		if self.Record.has_key(att):
 			return self.Record.get(att)
 
-		raise AttributeError, "Can't get attribute '%s'." % att
+		raise AttributeError("Can't get attribute '%s'." % att)
 
 
 	def initAvailableProps(self):
@@ -189,7 +189,7 @@ class ReportObject(CaselessDict):
 					val = repr(val)
 				return val
 			else:
-				raise ValueError, "Property name '%s' unrecognized." % prop
+				raise ValueError("Property name '%s' unrecognized." % prop)
 
 		if self.has_key(prop):
 			if not evaluate or prop == "type":
@@ -209,7 +209,7 @@ class ReportObject(CaselessDict):
 	def setProp(self, prop, val):
 		"""Update the value of the property."""
 		if not self.AvailableProps.has_key(prop):
-			raise ValueError, "Property '%s' doesn't exist." % prop
+			raise ValueError("Property '%s' doesn't exist." % prop)
 		self[prop] = val
 
 
@@ -1310,7 +1310,7 @@ class ReportWriter(object):
 		"""
 		_form = self.ReportForm
 		if _form is None:
-			raise ValueError, "ReportForm must be set first."
+			raise ValueError("ReportForm must be set first.")
 
 		_form.reportWriter = self
 
@@ -1935,7 +1935,7 @@ class ReportWriter(object):
 			if len(s[0]) == 0 or os.path.exists(s[0]):
 				self._outputFile = val
 			else:
-				raise ValueError, "Path '%s' doesn't exist." % s[0]
+				raise ValueError("Path '%s' doesn't exist." % s[0])
 
 	def _getPageNumber(self):
 		return self._pageNumber
@@ -2009,11 +2009,11 @@ class ReportWriter(object):
 				self._reportForm = self._getFormFromXML(self._reportFormXML)
 				self._setMemento()
 			else:
-				raise ValueError, "Invalid file type."
+				raise ValueError("Invalid file type.")
 			self._reportFormFile = val
 			self.HomeDirectory = os.path.join(os.path.split(val)[:-1])[0]
 		else:
-			raise ValueError, "Specified file does not exist."
+			raise ValueError("Specified file does not exist.")
 		
 
 	def _getReportFormXML(self):

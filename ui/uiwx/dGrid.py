@@ -2978,7 +2978,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				if issubclass(col, dabo.ui.dColumn):
 					col = col(self, *args, **kwargs)
 				else:
-					raise ValueError, _("col must be a dColumn subclass or instance")
+					raise ValueError(_("col must be a dColumn subclass or instance"))
 			else:
 				col.setProperties(**kwargs)
 			col.Parent = self
@@ -4006,7 +4006,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _setDataSet(self, val):
 		if self._constructed():
 			if (self.DataSource is not None) and not hasattr(self, "isDesignerControl"):
-				raise ValueError, "Cannot set DataSet: DataSource defined."
+				raise ValueError("Cannot set DataSet: DataSource defined.")
 			# We must make sure the grid's table is initialized first:
 			self._Table
 			if not isinstance(val, dabo.db.dDataSet):

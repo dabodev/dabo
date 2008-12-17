@@ -28,7 +28,7 @@ class dConnection(dObject):
 			# dConnectInfo class.
 			self._connectInfo = dConnectInfo(connInfo=connectInfo)
 		else:
-			raise TypeError, "dConnectInfo instance or kwargs not sent."
+			raise TypeError("dConnectInfo instance or kwargs not sent.")
 		self._connection = self._openConnection(**kwargs)
 		
 		

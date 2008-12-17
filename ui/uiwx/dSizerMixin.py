@@ -814,7 +814,7 @@ class dSizerMixin(dObject):
 			cs = ob.ControllingSizer
 			if cs is None:
 				# Something's wrong!
-				raise RuntimeError, _("Nested sizer missing its ControllingSizer")
+				raise RuntimeError(_("Nested sizer missing its ControllingSizer"))
 			else:
 				ob = cs
 				ret = ob._parent 

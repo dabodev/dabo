@@ -145,7 +145,7 @@ class dSecurityManager(dObject):
 		if isinstance(value, basestring):
 			self._userCaption = value
 		else:
-			raise TypeError, 'User caption must be string or unicode.'
+			raise TypeError('User caption must be string or unicode.')
 			
 	
 	def _getUserGroups(self):

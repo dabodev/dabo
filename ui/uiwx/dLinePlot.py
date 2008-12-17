@@ -35,7 +35,7 @@ class _TraceMixin(object):
 	def _setPoints(self, val):
 		for point in val:
 			if not (point is tuple and len(point)==2):
-				raise ValueError, 'Points must be tuples of length 2'
+				raise ValueError('Points must be tuples of length 2')
 	
 	
 	def _getTraceColor(self):
@@ -80,7 +80,7 @@ class plotLine(_TraceMixin, plot.PolyLine):
 			self.attributes['style'] = dict(solid=wx.SOLID, dot=wx.DOT, dash=wx.DOT_DASH)[val]
 			self._lineStyle = val
 		else:
-			raise ValueError, "LineStyle must be either 'solid', 'dash', or 'dot'"
+			raise ValueError("LineStyle must be either 'solid', 'dash', or 'dot'")
 	
 	
 	#Property Definitions
@@ -102,7 +102,7 @@ class plotMarkers(_TraceMixin, plot.PolyMarker):
 			self.attributes['style'] = dict(solid=wx.SOLID, empty=wx.TRANSPARENT)[val]
 			self._fillStyle = val
 		else:
-			raise ValueError, "LineStyle must be either 'solid' or 'empty'"
+			raise ValueError("LineStyle must be either 'solid' or 'empty'")
 	
 	
 	def _getMarkerShape(self):
@@ -112,7 +112,7 @@ class plotMarkers(_TraceMixin, plot.PolyMarker):
 		if val in ['circle', 'dot', 'square', 'triangle', 'triangle_down', 'cross', 'plus']:
 			self.attributes['marker'] = val
 		else:
-			raise ValueError, "MarkerShape must be either 'circle', 'dot', 'square', 'triangle', 'triangle_down', 'cross', or 'plus'"
+			raise ValueError("MarkerShape must be either 'circle', 'dot', 'square', 'triangle', 'triangle_down', 'cross', or 'plus'")
 	
 	
 	def _getMarkerSize(self):
@@ -146,7 +146,7 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 	"""Creates a panel that can load and display a line graph."""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		if not _Numeric:
-			raise ImportError, "numpy.oldnumeric is not present, so dLinePlot cannot instantiate."
+			raise ImportError("numpy.oldnumeric is not present, so dLinePlot cannot instantiate.")
 		self._plotManager = plot.PlotGraphics([])
 		
 		self._baseClass = dLinePlot
@@ -404,7 +404,7 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 				self._xSpec = val
 				self.Redraw()
 			else:
-				raise ValueError, "XAxisType must be either 'none', 'min', or 'auto'"
+				raise ValueError("XAxisType must be either 'none', 'min', or 'auto'")
 		else:
 			self._properties["XAxisType"] = val
 	
@@ -429,7 +429,7 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 				self._ySpec = val
 				self.Redraw()
 			else:
-				raise ValueError, "YAxisType must be either 'none', 'min', or 'auto'"
+				raise ValueError("YAxisType must be either 'none', 'min', or 'auto'")
 		else:
 			self._properties["YAxisType"] = val
 	

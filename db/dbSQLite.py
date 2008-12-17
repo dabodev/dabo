@@ -56,7 +56,7 @@ class SQLite(dBackend):
 		if not forceCreate and not dabo.createDbFiles and (pth != ":memory:"):
 			if not os.path.exists(pth):
 				# Database file does not exist; raise an error
-				raise DBFileDoesNotExistException, _("Database file '%s' does not exist") % pth
+				raise DBFileDoesNotExistException(_("Database file '%s' does not exist") % pth)
 		pth = pth.decode(sys.getfilesystemencoding()).encode("utf-8")
 		# Need to specify "isolation_level=None" to have transactions working correctly.
 		self._connection = self.dbapi.connect(pth, factory=DictConnection, isolation_level=None)

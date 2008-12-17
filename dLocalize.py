@@ -41,13 +41,13 @@ def install(domain="dabo", localedir=None, unicode_mo=True):
 	"""Install the gettext translation service for the passed domain.
 
 	Either Dabo will be the only domain, or Dabo will be the fallback for a 
-  different domain that the user's application set up.
+	different domain that the user's application set up.
 	"""
 	global _domains, _defaultLanguage, _defaultEncoding
 
 	if localedir is None:
 		if domain != "dabo":
-			raise ValueError, "Must send your application's localedir explicitly."
+			raise ValueError("Must send your application's localedir explicitly.")
 		localedir = getDaboLocaleDir()
 	_domains[domain] = localedir
 	#gettext.install(domain, localedir, unicode=unicode_mo)	 ## No, don't globally bind _
@@ -81,7 +81,7 @@ def setLanguage(lang=None, charset=None):
 		try:
 			translation = gettext.translation(domain, localedir, languages=lang, codeset=charset)
 		except IOError:
-			raise IOError, "No translation found for domain '%s' and language %s." % (domain, lang)
+			raise IOError("No translation found for domain '%s' and language %s." % (domain, lang))
 		if daboTranslation:
 			translation.add_fallback(daboTranslation)
 #		translation.install()  ## No, don't globally bind _

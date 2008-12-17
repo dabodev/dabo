@@ -848,7 +848,7 @@ class dBizobj(dObject):
 			raise dException.BusinessRuleViolation(errMsg)
 		if self.KeyField is None:
 			errMsg = _("No Primary Key defined in the Bizobj for %s") % self.DataSource
-			raise dException.MissingPKException, errMsg
+			raise dException.MissingPKException(errMsg)
 
 		# If this is a dependent (child) bizobj, this will enforce the relation
 		self.setChildLinkFilter()
@@ -1521,7 +1521,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					if rec[0] == fld][0]
 		except IndexError:
 			return None
-			#raise ValueError, _("Field '%s' does not exist in the DataStructure") % fld
+			#raise ValueError(_("Field '%s' does not exist in the DataStructure") % fld)
 		return dabo.db.getPythonType(fldInfo)
 
 
@@ -2011,7 +2011,7 @@ afterDelete() which is only called after a delete().""")
 		if isinstance(val, dBizobj):
 			self._parent = val
 		else:
-			raise TypeError, _("Parent must descend from dBizobj")
+			raise TypeError(_("Parent must descend from dBizobj"))
 
 
 	def _getParentLinkField(self):
@@ -2321,7 +2321,7 @@ class _bizIterator(object):
 		Must be called before beginning the iteration.
 		"""
 		if not self.__firstpass:
-			raise RuntimeError, _("Cannot reverse in the middle of iteration.")
+			raise RuntimeError(_("Cannot reverse in the middle of iteration."))
 		self.__nextfunc = self._prior
 		return self
 
