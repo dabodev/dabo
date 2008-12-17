@@ -1876,8 +1876,8 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 	def saveFile(self, fileSpec=None):
 		if fileSpec == None:
-			fileSpec = self._rw.ReportFormFile
-			if fileSpec is None:
+			fileSpec = self._fileName
+			if not fileSpec or fileSpec == "< New >":
 				fileSpec = self.promptForSaveAs()
 				if fileSpec is None:
 					return False
@@ -1897,6 +1897,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		if result is not None:
 			self._rw.ReportFormFile = None
 			self.clearReportForm()
+			self._fileName = ""
 		return result
 
 
@@ -1979,7 +1980,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		addBand(rf["PageBackground"])			
 		addBand(rf["PageForeground"])			
 
-		self._rw.write()
+		#self._rw.write()  ## 12/16/2008: No need to write the report form at this time.
 		self.drawReportForm()
 
 
