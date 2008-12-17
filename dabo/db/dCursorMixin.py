@@ -18,7 +18,7 @@ from dNoEscQuoteStr import dNoEscQuoteStr
 from dabo.db import dTable
 from dabo.db.dDataSet import dDataSet
 from dabo.lib import dates
-from dabo.lib.utils import noneSort, caseInsensitiveSort
+from dabo.lib.utils import noneSortKey, caseInsensitiveSortKey
 
 
 class dCursorMixin(dObject):
@@ -579,21 +579,15 @@ class dCursorMixin(dObject):
 		# the first element.
 		# First, see if we are comparing strings
 		compString = isinstance(sortList[0][0], basestring)
-		sortfunc = None
 
 		if compString and not caseSensitive:
-			sortfunc = caseInsensitiveSort
+			sortKey = caseInsensitiveSortKey
 		else:
-			sortfunc = noneSort
-		sortList.sort(sortfunc)
+			sortKey = noneSortKey
+		sortList.sort(key=sortKey, reverse=(ord == "DESC"))
 
-		# Unless DESC was specified as the sort order, we're done sorting
-		if ord == "DESC":
-			sortList.reverse()
 		# Extract the rows into a new list, then convert them back to the _records tuple
-		newRows = []
-		for elem in sortList:
-			newRows.append(elem[1])
+		newRows = [elem[1] for elem in sortList]
 		self._records = dDataSet(newRows)
 
 		# restore the RowNumber
@@ -1738,19 +1732,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					val = float(0)
 
 		if compString and not caseSensitive:
-			# Use a case-insensitive sort.
-			def case_insensitive(x, y):
-				x = x[0]
-				y = y[0]
-				if x is None and y is None:
-					return 0
-				elif x is None:
-					return -1
-				elif y is None:
-					return 1
-				else:
-					return cmp(x.lower(), y.lower())
-			sortList.sort(case_insensitive)
+			sortList.sort(key=caseInsensitiveSortKey)
 		else:
 			sortList.sort()
 

@@ -24,7 +24,7 @@ import dabo.dColors as dColors
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
 import dabo.lib.dates
-from dabo.lib.utils import noneSort, caseInsensitiveSort
+from dabo.lib.utils import noneSortkey, caseInsensitiveSortkey
 
 
 class dGridDataTable(wx.grid.PyGridTableBase):
@@ -2649,33 +2649,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 				sortfunc = None
 				if sortingStrings and not caseSensitive:
-					def sortfunc(x, y):
-						if x[0] is None and y[0] is None:
-							return 0
-						elif x[0] is None:
-							return -1
-						elif y[0] is None:
-							return 1
-						else:
-							return cmp(x[0].lower(), y[0].lower())
+					sortKey = caseInsensitiveSortkey
 				elif dataType in ("date", "datetime"):
 					# can't compare NoneType to these types:
-					def datetimesort(v,w):
-						x, y = v[0], w[0]
-						if x is None and y is None:
-							return 0
-						elif x is None and y is not None:
-							return -1
-						elif x is not None and y is None:
-							return 1
-						else:
-							return cmp(x,y)
-					sortfunc = datetimesort
-				sortList.sort(sortfunc)
+					sortKey = noneSortkey
+				sortList.sort(key=sortKey, reverse=(sortOrder == "DESC"))
 
-				# Unless DESC was specified as the sort order, we're done sorting
-				if sortOrder == "DESC":
-					sortList.reverse()
 				# Extract the rows into a new list, then set the dataSet to the new list
 				newRows = []
 				newLabels = []

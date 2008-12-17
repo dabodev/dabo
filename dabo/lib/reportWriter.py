@@ -1710,10 +1710,8 @@ class ReportWriter(object):
 			elif element.lower() == "testcursor":
 				cursor = []
 				for row in form["testcursor"]:
-					fields = row.keys()
-					fields.sort()
 					attr = {}
-					for field in fields:
+					for field in sorted(row):
 						attr[field] = row[field]
 					cursor.append({"name": "record", "attributes": attr})
 					child["children"] = cursor

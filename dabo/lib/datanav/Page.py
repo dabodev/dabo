@@ -172,8 +172,7 @@ class SelectPage(Page):
 			sfk = sf.keys()
 			dd = [(sf[kk][0], kk, "%s %s" % (sf[kk][2], sf[kk][1]))
 					for kk in sfk ]
-			dd.sort()
-			sortDesc = [itm[2] for itm in dd]
+			sortDesc = [itm[2] for itm in sorted(dd)]
 			sortedList = dabo.ui.sortList(sortDesc)
 			newPos = 0
 			for itm in sortedList:
@@ -223,9 +222,8 @@ class SelectPage(Page):
 		else:
 			parts = lambda (k): (k, sf[k][1].upper())
 
-		flds = [(self.sortFields[k][0], k, " ".join(parts(k)))
-			for k in self.sortFields.keys()]
-		flds.sort()
+		flds = sorted((self.sortFields[k][0], k, " ".join(parts(k)))
+			for k in self.sortFields.keys())
 		if infoOnly:
 			return [e[1:] for e in flds]
 		else:

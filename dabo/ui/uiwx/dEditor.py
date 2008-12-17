@@ -1243,7 +1243,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				if not k.startswith("_")]
 			
 			# Sort upper case:
-			kw.sort(lambda a,b: cmp(a.upper(), b.upper()))
+			kw.sort(key=lambda k: k.upper())
 			# Images are specified with a appended "?type"
 			for i in range(len(kw)):
 				try:
@@ -1673,7 +1673,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			self.AutoCompCancel()
 			return
 		if words:
-			words.sort(lambda a,b: cmp(a.upper(), b.upper()))
+			words.sort(key=lambda word: word.upper())
 			# For some reason, the STC editor in Windows likes to add icons
 			# even if they aren't requested. This explicitly removes them.
 			wds = ["%s?0" % wd for wd in words]				

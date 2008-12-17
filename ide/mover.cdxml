@@ -89,14 +89,14 @@ def moveAllItems(self):
 def sortLists(self):
 	chc = self.lstSource.Choices[:]
 	if self.CaseSensitiveSort:
-		chc.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
+		chc.sort(key=lambda x: x[0].lower())
 	else:
 		chc.sort()
 	self.lstSource.Choices = chc
 	
 	chc = self.lstTarget.Choices[:]
 	if self.CaseSensitiveSort:
-		chc.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
+		chc.sort(key=lambda x: x[0].lower())
 	else:
 		chc.sort()
 	self.lstTarget.Choices = chc

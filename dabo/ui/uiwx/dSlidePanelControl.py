@@ -572,7 +572,7 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			return
 		if self.CollapseToBottom:
 			# Sort so that the first panel is the expanded one.
-			pnlList.sort(lambda x, y: cmp(x.Collapsed, y.Collapsed))
+			pnlList.sort(key=lambda x: x.Collapsed)
 		fp = pnlList[0]		
 		fp.Reposition(0)
 		self.RefreshPanelsFrom(fp)

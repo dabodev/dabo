@@ -84,13 +84,9 @@ def afterInitAll(self):
 	tree = self.tree
 	tree.clear()
 	root = tree.setRootNode(_("Dabo Overview"))
-	mKeys = demos.keys()
-	mKeys.sort()
-	for mc in mKeys:
+	for mc in sorted(demos):
 		nd = tree.appendNode(root, mc)
-		sKeys = demos[mc].keys()
-		sKeys.sort()
-		for sc in sKeys:
+		for sc in sorted(demos[mc]):
 			sn = tree.appendNode(nd, sc)
 			sn._obj = demos[mc][sc]
 	tree.expandAll()
