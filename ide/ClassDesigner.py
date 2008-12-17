@@ -425,9 +425,9 @@ class ClassDesigner(dabo.dApp):
 			dct = xtd.xmltodict(pth, addCodeFile=True)
 		except StandardError, e:
 			if pth.strip().startswith("<?xml") or os.path.exists(pth):
-				raise IOError, _("This does not appear to be a valid class file.")
+				raise IOError(_("This does not appear to be a valid class file."))
 			else:
-				raise IOError, _("The class file '%s' was not found.") % pth
+				raise IOError(_("The class file '%s' was not found.") % pth)
 			
 
 		# Traverse the dct, looking for superclass information
@@ -615,7 +615,7 @@ class ClassDesigner(dabo.dApp):
 		try:
 			superdct = xtd.xmltodict(pth, addCodeFile=True)
 		except:
-			raise IOError, _("This does not appear to be a valid class file.")
+			raise IOError(_("This does not appear to be a valid class file."))
 		# Traverse the dct, looking for superclass information
 		sup = xtd.flattenClassDict(superdct)
 		# Store the base code so that we can determine if instances have
@@ -1152,7 +1152,7 @@ class ClassDesigner(dabo.dApp):
 			try:
 				exec("obj.%s = %s" % (prop, strVal) )
 			except StandardError, e:
-				raise PropertyUpdateException, e
+				raise PropertyUpdateException(str(e))
 
 
 	def updatePropVal(self, prop, val, typ):
@@ -3051,7 +3051,7 @@ class ClassDesigner(dabo.dApp):
 					try:
 						exec "obj.%s = '%s'" % (att, escVal)
 					except:
-						raise ValueError, _("Could not set attribute '%s' to value: %s") % (att, val)
+						raise ValueError(_("Could not set attribute '%s' to value: %s") % (att, val))
 		# If the item has children, set their atts, too.
 		isSizer = isinstance(obj, dui.dSizerMixin)
 		if isSizer:

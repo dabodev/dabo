@@ -42,7 +42,7 @@ class PropertyHelperMixin(object):
 						s += """%s '%s'.""" % (_("and"), p)
 					else:
 						s += """'%s', """ % p
-				raise ValueError, s
+				raise ValueError(s)
 		return value
 
 
@@ -143,10 +143,10 @@ class PropertyHelperMixin(object):
 							propDict[prop] = e
 					else:
 						if not ignoreErrors:
-							raise ValueError, "Property '%s' is not readable." % prop
+							raise ValueError("Property '%s' is not readable." % prop)
 						pass
 				else:
-					raise AttributeError, "'%s' is not a property." % prop
+					raise AttributeError("'%s' is not a property." % prop)
 					
 		if isinstance(propertySequence, (list, tuple)):
 			_fillPropDict(propertySequence)
@@ -199,9 +199,9 @@ class PropertyHelperMixin(object):
 							setter(self, _propDict[prop])
 					else:
 						if not ignoreErrors:
-							raise ValueError, "Property '%s' is read-only." % prop
+							raise ValueError("Property '%s' is read-only." % prop)
 				else:
-					raise AttributeError, "'%s' is not a property." % prop
+					raise AttributeError("'%s' is not a property." % prop)
 			if delayedSettings is not None:
 				for setter, val in delayedSettings.items():
 					setter(self, val)
@@ -229,7 +229,7 @@ class PropertyHelperMixin(object):
 					# ignore
 					continue
 				else:
-					raise AttributeError, "'%s' is not a property." % prop
+					raise AttributeError("'%s' is not a property." % prop)
 			try:
 				valToSet = eval(val, context)
 			except (TypeError, SyntaxError, NameError, AttributeError):
@@ -333,7 +333,7 @@ class PropertyHelperMixin(object):
 
 			return d
 		else:
-			raise AttributeError, "%s is not a property." % name
+			raise AttributeError("%s is not a property." % name)
 	getPropertyInfo = classmethod(getPropertyInfo)
 	
 	

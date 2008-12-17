@@ -47,7 +47,7 @@ class dLine(cm.dControlMixin, wx.StaticLine):
 		elif value == "Horizontal":
 			self._addWindowStyleFlag(wx.LI_HORIZONTAL)
 		else:
-			raise ValueError, ("The only possible values are "
+			raise ValueError("The only possible values are "
 					"'Horizontal' and 'Vertical'.")
 
 	# property definitions follow:

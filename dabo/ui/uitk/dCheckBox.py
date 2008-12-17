@@ -70,7 +70,7 @@ class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
 # 		elif str(value) == 'Left':
 # 			pass
 # 		else:
-# 			raise ValueError, "The only possible values are 'Left' and 'Right'."
+# 			raise ValueError("The only possible values are 'Left' and 'Right'.")
 # 
 # 	# property definitions follow:
 # 	Alignment = property(_getAlignment, _setAlignment, None,

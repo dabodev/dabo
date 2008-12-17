@@ -182,7 +182,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			elif val == "r":
 				self._addWindowStyleFlag(wx.TE_RIGHT)
 			else:
-				raise ValueError, _("The only possible values are 'Left', 'Center', and 'Right'")
+				raise ValueError(_("The only possible values are 'Left', 'Center', and 'Right'"))
 			self.SetEditable(rw)
 		else:
 			self._properties["Alignment"] = val
@@ -276,7 +276,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			else:
 				val = int(val)
 				if val < 1:
-					raise ValueError, 'TextLength must be a positve Integer'
+					raise ValueError('TextLength must be a positve Integer')
 				self._textLength = val
 			self._checkTextLength()
 			
@@ -433,21 +433,21 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				retVal = self._getTimeFromString(strVal)
 				
 			if retVal is None:
-				raise ValueError, _("String not in ISO 8601 format.")
+				raise ValueError(_("String not in ISO 8601 format."))
 		elif str(dataType) == "<type 'DateTime'>":
 			# mx DateTime type. MySQLdb will use this if mx is installed.
 			try:
 				import mx.DateTime
 				retVal = mx.DateTime.DateTimeFrom(str(strVal))
 			except ImportError:
-				raise ValueError, _("Can't import mx.DateTime")
+				raise ValueError(_("Can't import mx.DateTime"))
 		elif str(dataType) == "<type 'DateTimeDelta'>":
 			# mx TimeDelta type. MySQLdb will use this for Time columns if mx is installed.
 			try:
 				import mx.DateTime
 				retVal = mx.DateTime.TimeFrom(str(strVal))
 			except ImportError:
-				raise ValueError, _("Can't import mx.DateTime")
+				raise ValueError(_("Can't import mx.DateTime"))
 		elif (dataType == decimal.Decimal) and self.StrictNumericEntry:
 			try:
 				_oldVal = self._oldVal
@@ -460,7 +460,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			try:
 				decimal.Decimal(strVal)
 			except decimal.InvalidOperation:
-				raise ValueError, _("Invalid decimal value.")
+				raise ValueError(_("Invalid decimal value."))
 			
 			try:
 				if type(_oldVal) == decimal.Decimal:
@@ -469,7 +469,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				else:
 					retVal = decimal.Decimal(strVal)
 			except ValueError:
-				raise ValueError, _("Can't convert to decimal.")
+				raise ValueError(_("Can't convert to decimal."))
 		elif dataType in (tuple, list):
 			retVal = eval(strVal)
 		elif not self.StrictNumericEntry and (dataType in numericTypes):
@@ -484,9 +484,9 @@ class dTextBoxMixin(dTextBoxMixinBase):
 					try:
 						retVal = decimal.Decimal(strVal.strip())
 					except decimal.InvalidOperation:
-						raise ValueError, _("Invalid decimal value.")
+						raise ValueError(_("Invalid decimal value."))
 			except valueErrors:
-				raise ValueError, _("Invalid Numeric Value: %s") % strVal
+				raise ValueError(_("Invalid Numeric Value: %s") % strVal)
 		else:
 			# Other types can convert directly.
 			if dataType == str:
@@ -497,7 +497,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				# The Python object couldn't convert it. Our validator, once 
 				# implemented, won't let the user get this far. Just keep the 
 				# old value.
-				raise ValueError, _("Can't convert.")
+				raise ValueError(_("Can't convert."))
 		return retVal
 	
 	

@@ -39,7 +39,7 @@ class Manifest(object):
 		# Make sure the path exists
 		pth = os.path.expanduser(pth)
 		if not os.path.exists(pth):
-			raise OSError, "Path '%s' does not exist." % pth
+			raise OSError("Path '%s' does not exist." % pth)
 
 		# Returned paths are relative to the starting path.
 		baseDirName = os.path.split(pth)[-1]

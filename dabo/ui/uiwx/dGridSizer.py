@@ -42,7 +42,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		if kwargs:
 			# Some kwargs haven't been handled.
 			bad = ", ".join(kwargs.keys())
-			raise TypeError, ("Invalid keyword arguments passed to dGridSizer: %s") % bad
+			raise TypeError(("Invalid keyword arguments passed to dGridSizer: %s") % bad)
 
 
 	def append(self, item, layout="normal", row=-1, col=-1, 
@@ -90,7 +90,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		
 	def insert(self, *args, **kwargs):
 		""" This is not supported for this type of sizer """
-		raise NotImplementedError, _("Grid Sizers do not support insert()")
+		raise NotImplementedError(_("Grid Sizers do not support insert()"))
 	
 	
 	def removeRow(self, rowNum):
@@ -164,8 +164,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 				for col in xrange(self.HighCol+1):
 					self.setColExpand(expand, col, proportion)
 			else:
-				raise ValueError, \
-						_("Invalid value passed for 'colNum' parameter: '%s'. Only column numbers or the word 'all' are valid.") % colNum
+				raise ValueError(
+						_("Invalid value passed for 'colNum' parameter: '%s'. Only column numbers or the word 'all' are valid.") % colNum)
 		else:
 			curr = self.getColExpand(colNum)
 			self._colExpandState[colNum] = expand
@@ -190,8 +190,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 				for row in xrange(self.HighRow+1):
 					self.setRowExpand(expand, row, proportion)
 			else:
-				raise ValueError, \
-						_("Invalid value passed for 'rowNum' parameter: '%s'. Only row numbers or the word 'all' are valid.") % rowNum
+				raise ValueError(
+						_("Invalid value passed for 'rowNum' parameter: '%s'. Only row numbers or the word 'all' are valid.") % rowNum)
 		else:
 			curr = self.getRowExpand(rowNum)
 			self._rowExpandState[rowNum] = expand
@@ -337,7 +337,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		try:
 			self.SetItemSpan(obj, spn)
 		except wx.PyAssertionError:
-			raise dabo.ui.GridSizerSpanException, _("An item already exists in that location")
+			raise dabo.ui.GridSizerSpanException(_("An item already exists in that location"))
 	
 	
 	def _clearCells(self, obj, span, typ):

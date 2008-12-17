@@ -304,7 +304,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			pageCount = self.GetPageCount()
 			pageClass = self.PageClass
 			if val < 0:
-				raise ValueError, _("Cannot set PageCount to less than zero.")
+				raise ValueError(_("Cannot set PageCount to less than zero."))
 		
 			if val > pageCount:
 				for i in range(pageCount, val):
@@ -391,7 +391,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		elif val == "Bottom":
 			self._addWindowStyleFlag(self._tabposBottom)
 		else:
-			raise ValueError, (_("The only possible values are 'Top', 'Left', 'Right', and 'Bottom'"))
+			raise ValueError(_("The only possible values are 'Top', 'Left', 'Right', and 'Bottom'"))
 
 
 	# Property definitions:

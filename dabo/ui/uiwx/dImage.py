@@ -212,7 +212,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 					val = dabo.ui.resolvePathAndUpdate(origVal)
 				if val is None or not os.path.exists(val):
 					# Bad image reference
-					raise IOError, "No file named '%s' exists." % origVal
+					raise IOError("No file named '%s' exists." % origVal)
 			self._picture = val
 			self._rotation = 0
 			idx = self.PictureIndex

@@ -157,8 +157,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 		try:
 			dct = xtd.xmltodict(xml)
 		except:
-			raise IOError, _("This does not appear to be a valid menu file.")
-			return
+			raise IOError(_("This does not appear to be a valid menu file."))
 		self.menubar.restore(dct)
 		self.layout()
 		
@@ -180,7 +179,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 		try:
 			exec("obj.%s = %s" % (prop, strVal) )
 		except StandardError, e:
-			raise PropertyUpdateException, e
+			raise PropertyUpdateException(str(e))
 		self.PropForm.updatePropGrid()
 		# This is necessary to force a redraw when some props change.
 		self.select(obj)

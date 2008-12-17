@@ -590,7 +590,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 						"t": seltxt.title}[newcase]
 				self.ReplaceSelection(fnc())
 			except KeyError:
-				raise ValueError, _("Case must be either upper, lower, capitalize, or invert.")
+				raise ValueError(_("Case must be either upper, lower, capitalize, or invert."))
 		self.SelectionPosition = pos
 
 	
@@ -1949,7 +1949,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			self._bookmarkBackColor = val
 			self._setBookmarkMarker()
 		else:
-			raise ValueError, "BookmarkBackColor must be a valid color string or tuple"
+			raise ValueError("BookmarkBackColor must be a valid color string or tuple")
 
 
 	def _getBookmarkForeColor(self):
@@ -1962,7 +1962,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			self._bookmarkForeColor = val
 			self._setBookmarkMarker()
 		else:
-			raise ValueError, "BookmarkForeColor must be a valid color string or tuple"
+			raise ValueError("BookmarkForeColor must be a valid color string or tuple")
 
 
 
@@ -1974,7 +1974,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			self._bookmarkIcon = val
 			self._setBookmarkMarker()
 		else:
-			raise ValueError, "Value of BookmarkIcon must be in %s" % (bmkIconDic.keys(),)
+			raise ValueError("Value of BookmarkIcon must be in %s" % (bmkIconDic.keys(),))
 
 
 	def _getBufferedDrawing(self):
@@ -2062,7 +2062,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 				self.ConvertEOLs(stc.STC_EOL_CR)
 				self._eolMode = "CR"
 			else:
-				raise ValueError, "EOLMode value must be either 'CRLF', 'LF', or 'CR'"
+				raise ValueError("EOLMode value must be either 'CRLF', 'LF', or 'CR'")
 		else:
 			self._properties["EOLMode"] = val
 

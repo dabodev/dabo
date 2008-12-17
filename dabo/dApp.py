@@ -685,7 +685,7 @@ try again when it is running.
 				# Not changed or not found; nothing to do
 				if code == 404 and errorOnNotFound:
 					# Re-raise the error
-					raise u2.HTTPError, e
+					raise e
 				return
 		newFile = resp.read()
 		if newFile:
@@ -797,21 +797,19 @@ try again when it is running.
 			strVal = strVal.__str__()
 		if isinstance(strVal, unicode):
 			return strVal
-		ret = None
 		try:
 			ret = unicode(strVal, self.Encoding)
 		except UnicodeDecodeError, e:
 			# Try some common encodings:
-			for enc in ("utf-8", "latin-1", "iso-8859-1"):
+			for enc in ("utf-8", "iso8859-1", "cp1252"):
 				if enc != self.Encoding:
 					try:
 						ret = unicode(strVal, enc)
-						break
 					except UnicodeDecodeError:
 						continue
-		if ret is None:
-			# All attempts failed
-			raise UnicodeDecodeError, e
+					break
+			else: # All attempts failed
+				raise e
 		return ret
 
 
@@ -1349,7 +1347,7 @@ try again when it is running.
 		if os.path.exists(val):
 			self._homeDirectory = os.path.abspath(val)
 		else:
-			raise ValueError, _("%s: Path does not exist.") % val
+			raise ValueError(_("%s: Path does not exist.") % val)
 
 
 	def _getIcon(self):
@@ -1452,7 +1450,7 @@ try again when it is running.
 				warnings.warn(Warning, _("SecurityManager previously set"))
 			self._securityManager = value
 		else:
-			raise TypeError, _("SecurityManager must descend from dSecurityManager.")
+			raise TypeError(_("SecurityManager must descend from dSecurityManager."))
 			
 			
 	def _getShowCommandWindowMenu(self):
@@ -1507,7 +1505,7 @@ try again when it is running.
 			else:
 				dabo.infoLog.write(_("Tried to set UI to '%s', but it failed.") % uiType)
 		else:
-			raise RuntimeError, _("The UI cannot be reset once assigned.")
+			raise RuntimeError(_("The UI cannot be reset once assigned."))
 
 	
 	def _getUserSettingProvider(self):

@@ -563,7 +563,7 @@ class dFormMixin(pm.dPemMixin):
 			id = obj.RegID
 			if self._objectRegistry.has_key(id):
 				if not isinstance(self._objectRegistry[id], dabo.ui.deadObject):
-					raise KeyError, _("Duplicate RegID '%s' found") % id
+					raise KeyError(_("Duplicate RegID '%s' found") % id)
 				else:
 					del self.__dict__[id]
 			self._objectRegistry[id] = obj
@@ -1059,7 +1059,7 @@ class dFormMixin(pm.dPemMixin):
 			elif lowvalue == "fullscreen":
 				self.ShowFullScreen()
 			else:
-				raise ValueError, ("The only possible values are "
+				raise ValueError("The only possible values are "
 								"'Normal', 'Minimized', 'Maximized', and 'FullScreen'")
 		else:
 			self._properties["WindowState"] = value

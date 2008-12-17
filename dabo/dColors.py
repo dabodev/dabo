@@ -168,7 +168,7 @@ colors = colorDict.keys()
 
 def hexToDec(hx):
 	if not isinstance(hx, basestring):
-		raise TypeError, "Input must be a string"
+		raise TypeError("Input must be a string")
 	# Define a dict of char-value pairs
 	hex = {"0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, 
 			"9": 9, "A": 10, "B": 11, "C": 12, "D": 13, "E": 14, "F": 15}
@@ -178,7 +178,7 @@ def hexToDec(hx):
 	pos = 1
 	for c in rev:
 		if hex.get(c) == None:
-			raise InvalidCharError, "%s is an invalid hex character" % (c, )
+			raise InvalidCharError("%s is an invalid hex character" % (c, ))
 		ret += (hex[c] * pos)
 		pos = pos * 16
 	return ret
@@ -187,12 +187,12 @@ def hexToDec(hx):
 def tupleToHex(t, includeHash=True):
 	"""Convert a color tuple into an HTML hex format."""
 	if not len(t) == 3:
-		raise LengthError, "Color tuple needs to contain 3 elements"
+		raise LengthError("Color tuple needs to contain 3 elements")
 	for rgb in t:
 		if not isinstance(rgb, int):
-			raise IntegerTypeError, "Tuple elements should be all integers."
+			raise IntegerTypeError("Tuple elements should be all integers.")
 		if not 0 <= rgb <= 255:
-			raise RgbValueError, "Rgb Value must be in the range 0-255"
+			raise RgbValueError("Rgb Value must be in the range 0-255")
 	rx, gx, bx = hex(t[0]), hex(t[1]), hex(t[2])
 	# Each is in the format '0x00'.
 	r = rx[2:].upper()
@@ -246,9 +246,9 @@ def colorTupleFromString(color):
 		ret = (int(grps[0]), int(grps[1]), int(grps[2]))
 		for val in ret:
 			if not 0 <= val <= 255:
-				raise KeyError, "Color tuple integer must range from 0-255"
+				raise KeyError("Color tuple integer must range from 0-255")
 	else:
-		raise KeyError, "Color '%s' is not defined." % color
+		raise KeyError("Color '%s' is not defined." % color)
 	return ret
 
 

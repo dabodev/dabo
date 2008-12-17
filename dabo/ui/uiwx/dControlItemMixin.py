@@ -162,7 +162,7 @@ class dControlItemMixin(dDataControlMixin):
 			self._keys = val
 			self._invertedKeys = None
 		else:
-			raise TypeError, _("Keys must be a dictionary or list/tuple.")
+			raise TypeError(_("Keys must be a dictionary or list/tuple."))
 			
 
 	def _getKeyValue(self):
@@ -236,7 +236,7 @@ class dControlItemMixin(dDataControlMixin):
 				invalidSelections = []
 
 			if invalidSelections:
-				raise ValueError, _("Trying to set %s.Value to these invalid selections: %s") % (self.Name, invalidSelections)
+				raise ValueError(_("Trying to set %s.Value to these invalid selections: %s") % (self.Name, invalidSelections))
 
 			self._afterValueChanged()
 		else:
@@ -303,7 +303,7 @@ class dControlItemMixin(dDataControlMixin):
 					# Force a re-ordering
 					self.sort()
 			else:
-				raise TypeError, _("SortFunction must be callable")
+				raise TypeError(_("SortFunction must be callable"))
 		else:
 			self._properties["SortFunction"] = val
 
@@ -353,11 +353,11 @@ class dControlItemMixin(dDataControlMixin):
 				if isinstance(string, basestring):
 					index = self.FindString(string)
 					if index < 0:
-						raise ValueError, _("String must be present in the choices.")
+						raise ValueError(_("String must be present in the choices."))
 					else:
 						self.setSelection(index)
 				else:
-					raise TypeError, _("Unicode or string required.")
+					raise TypeError(_("Unicode or string required."))
 			self._afterValueChanged()
 		else:
 			self._properties["StringValue"] = value

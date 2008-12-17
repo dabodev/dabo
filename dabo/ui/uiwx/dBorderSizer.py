@@ -49,7 +49,7 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 		if kwargs:
 			# Some kwargs haven't been handled.
 			bad = ", ".join(kwargs.keys())
-			raise TypeError, ("Invalid keyword arguments passed to dBorderSizer: %s") % kwargs
+			raise TypeError(("Invalid keyword arguments passed to dBorderSizer: %s") % kwargs)
 		
 		# Mark the box as part of the sizer
 		self.Box._belongsToBorderSizer = True

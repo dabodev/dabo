@@ -67,18 +67,17 @@ class RemoteConnector(object):
 		pdata, ptyps, pstru = jsonDecode(enc)
 		# The values are pickled, so we need to unpickle them first
 		def safeLoad(val):
-			ret = None
 			try:
 				ret = pickle.loads(val)
 			except UnicodeEncodeError, e:
-				for enctype in (dabo.defaultEncoding, "utf-8", "latin-1"):
+				for enctype in (dabo.defaultEncoding, "utf-8", "iso8859-1"):
 					try:
 						ret = pickle.loads(val.encode(enctype))
-						break
 					except KeyError:
 						continue
-			if ret is None:
-				raise UnicodeEncodeError, e
+					break
+				else:
+					raise e
 			return ret
 		typs = safeLoad(ptyps)
 		data = safeLoad(pdata)

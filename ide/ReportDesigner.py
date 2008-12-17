@@ -1932,7 +1932,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			rdc.ActiveEditor = self
 			rdc.SelectedObjects = [self._rw.ReportForm]
 		else:
-			raise ValueError, "File %s does not exist." % fileSpec
+			raise ValueError("File %s does not exist." % fileSpec)
 		return True
 
 	def reInitReportForm(self):

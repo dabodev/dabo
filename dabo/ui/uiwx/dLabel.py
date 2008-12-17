@@ -81,7 +81,7 @@ class dLabel(cm.dControlMixin, wx.StaticText):
 		elif value == "right":
 			self._addWindowStyleFlag(wx.ALIGN_RIGHT)
 		else:
-			raise ValueError, ("The only possible values are "
+			raise ValueError("The only possible values are "
 							"'Left', 'Center', and 'Right'.")
 							
 	

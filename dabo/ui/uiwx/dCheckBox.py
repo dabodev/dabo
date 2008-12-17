@@ -59,7 +59,7 @@ class dCheckBox(dcm.dDataControlMixin, wx.CheckBox):
 		elif val.lower()[0] == "l":
 			pass
 		else:
-			raise ValueError, _("The only possible values are 'Left' and 'Right'.")
+			raise ValueError(_("The only possible values are 'Left' and 'Right'."))
 		
 
 	def _getThreeState(self):

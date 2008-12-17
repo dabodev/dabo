@@ -148,7 +148,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 
 	def _setBorderless(self, val):
 		if self._constructed():
-			raise ValueError, _("Cannot set the Borderless property once the dialog is created.")
+			raise ValueError(_("Cannot set the Borderless property once the dialog is created."))
 		else:
 			self._properties["Borderless"] = val
 
@@ -233,7 +233,7 @@ class dStandardButtonDialog(dDialog):
 		self._help = self._extractKey((properties, kwargs), "Help")
 		# Check for both OK and Yes. This simply does not work, at least with wxPython.
 		if self._ok and self._yes:
-			raise ValueError, _("Dialogs cannot have both 'OK' and 'Yes' buttons.")
+			raise ValueError(_("Dialogs cannot have both 'OK' and 'Yes' buttons."))
 		self._cancelOnEscape = True
 		super(dStandardButtonDialog, self).__init__(parent=parent, properties=properties, *args, **kwargs)
 		self._baseClass = dStandardButtonDialog

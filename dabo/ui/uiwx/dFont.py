@@ -84,7 +84,7 @@ class dFont(dObject):
 						break
 
 			if not automatic_face:
-				raise dabo.dException.FontNotFoundException, _("The font '%s' doesn't exist on this system.") % val
+				raise dabo.dException.FontNotFoundException(_("The font '%s' doesn't exist on this system.") % val)
  
 		self._propsChanged()
 

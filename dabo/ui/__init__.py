@@ -51,7 +51,7 @@ def loadUI(uiType):
 	elif uiType.lower() in ("tk", "tkinter", "uitk"):
 		typ = "tk"
 	else:
-		raise ValueError, "Unknown UI type '%s' passed to loadUI()" % uiType
+		raise ValueError("Unknown UI type '%s' passed to loadUI()" % uiType)
 	
 	if currType is None:
 		try:

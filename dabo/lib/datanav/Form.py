@@ -571,7 +571,7 @@ class Form(dabo.ui.dForm):
 		elif mode.lower() == "expanded":
 			return self.getAutoReportForm_expanded()
 		else:
-			raise ValueError, "'list' or 'expanded' are the only choices."
+			raise ValueError("'list' or 'expanded' are the only choices.")
 
 
 	def getAutoReportForm_list(self):
@@ -925,7 +925,7 @@ class Form(dabo.ui.dForm):
 		elif value == "edit":
 			self._formType = "Edit"
 		else:
-			raise ValueError, "Form type must be 'Normal', 'PickList', or 'Edit'."
+			raise ValueError("Form type must be 'Normal', 'PickList', or 'Edit'.")
 			
 
 	def _getPageFrameStyle(self):

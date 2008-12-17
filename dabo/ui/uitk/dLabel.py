@@ -61,7 +61,7 @@ class dLabel(Tkinter.Label, cm.dControlMixin):
 # 		elif value == 'Right':
 # 			self._addWindowStyleFlag(wx.ALIGN_RIGHT)
 # 		else:
-# 			raise ValueError, ("The only possible values are "
+# 			raise ValueError("The only possible values are "
 # 							"'Left', 'Center', and 'Right'.")
 # 
 # 	# property definitions follow:

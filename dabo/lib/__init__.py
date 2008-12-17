@@ -23,8 +23,10 @@ try:
 	import simplejson
 except:
 	jsonConverter = None
-	def jsonEncode(val): raise ImportError, "The simplejson module is not installed"
-	def jsonDecode(val): raise ImportError, "The simplejson module is not installed"
+	def jsonEncode(val):
+		raise ImportError("The simplejson module is not installed")
+	def jsonDecode(val):
+		raise ImportError("The simplejson module is not installed")
 else:
 	import dejavuJSON
 	jsonConverter = dejavuJSON.Converter()
