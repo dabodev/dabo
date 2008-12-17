@@ -778,7 +778,7 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
 			lbl = dabo.ui.dLabel(self, Caption=message)
 			self.lst = dabo.ui.dListBox(self, Choices=choices,
 					PositionValue=defaultPos, MultipleSelect=mult,
-					OnMouseLeftDoubleClick=self.onOK)
+					OnMouseLeftDoubleClick=self.onMouseLeftDoubleClick)
 			sz = self.Sizer
 			sz.appendSpacer(25)
 			sz.append(lbl, halign="center")
@@ -803,6 +803,9 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
 				sz.append(dabo.ui.dLine(self), "x", border=44,
 						borderSides=("left", "right"))
 			sz.appendSpacer(24)
+
+		def onMouseLeftDoubleClick(self, evt):
+			self.runOK()
 
 		def selectAll(self, evt):
 			self.lst.selectAll()
