@@ -364,7 +364,7 @@ class Board(dabo.ui.dPanel):
 			else:
 				o.Caption = str(a)
 				o.Enabled = False
-		o.unBindEvent(dabo.dEvents.Hit)
+		o.unbindEvent(dabo.dEvents.Hit)
 		self._firstHit = False
 
 
@@ -1045,7 +1045,7 @@ Note that this will require an internet connection.
 			pgf.SelectedPageNumber = 1
 	
 	
-	def onOK(self, evt):
+	def runOK(self):
 		self.accepted = True
 		p = self.PageFrame.SelectedPage
 		self.boardWidth = p.oWidth.Value
@@ -1198,3 +1198,8 @@ class MinesweeperBO_scores(dabo.biz.dBizobj):
 				
 	GameId = property(_getGameId, _setGameId)
 	Limit = property(_getLimit, _setLimit)
+
+if __name__ == "__main__":
+	app = dabo.dApp(MainFormClass=MinesweeperForm)
+	app.start()
+
