@@ -2649,7 +2649,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 				sortfunc = None
 				if sortingStrings and not caseSensitive:
-					sortKey = caseInsensitiveSortkey
+					sortKey = caseInsensitiveSortKey
 				elif dataType in ("date", "datetime"):
 					# can't compare NoneType to these types:
 					sortKey = noneSortKey
