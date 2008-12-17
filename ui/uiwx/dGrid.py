@@ -2647,12 +2647,13 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				else:
 					sortingStrings = dataType in ("unicode", "string")
 
-				sortfunc = None
 				if sortingStrings and not caseSensitive:
 					sortKey = caseInsensitiveSortKey
 				elif dataType in ("date", "datetime"):
 					# can't compare NoneType to these types:
 					sortKey = noneSortKey
+				else:
+					sortKey = None
 				sortList.sort(key=sortKey, reverse=(sortOrder == "DESC"))
 
 				# Extract the rows into a new list, then set the dataSet to the new list
@@ -2736,12 +2737,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				# We need to convert the sort vals into strings
 				sortList = [(str(vv), i) for vv, i in sortList]
 				compString = True
-
-		if compString and not caseSensitive:
-			# Use a case-insensitive sort.
-			sortfunc = caseInsensitiveSort
-		else:
-			sortfunc = noneSort
 
 		# Now iterate through the list to find the matching value. I know that
 		# there are more efficient search algorithms, but for this purpose, we'll
