@@ -131,12 +131,6 @@ class ReportObject(CaselessDict):
 		if self.Record.has_key(att):
 			return self.Record.get(att)
 
-		# 4) Try the Report object:
-		try:
-			return getattr(self.Report, att)
-		except AttributeError:
-			pass
-
 		raise AttributeError, "Can't get attribute '%s'." % att
 
 
@@ -357,10 +351,6 @@ class Drawable(ReportObject):
 class Report(ReportObject):
 	"""Represents the report."""
 
-	def __init__(self, *args, **kwargs):
-		self._pageNumber = 0
-		super(Report, self).__init__(*args, **kwargs)
-
 	def initAvailableProps(self):
 		super(Report, self).initAvailableProps()
 
@@ -381,12 +371,6 @@ class Report(ReportObject):
 		self.setdefault("PageForeground", PageForeground(self))
 		self.setdefault("Groups", Groups(self))
 		self.setdefault("Variables", Variables(self))
-
-	def _getPageNumber(self):
-		return self._pageNumber
-
-	PageNumber = property(_getPageNumber, None, None, 
-			_("""Returns the current page number at runtime."""))
 
 
 class Page(ReportObject):
@@ -1334,6 +1318,7 @@ class ReportWriter(object):
 
 		pageSize = self.getPageSize()		
 		pageWidth, pageHeight = pageSize
+		self._pageNumber = 0
 
 		c = self.Canvas
 		if not c:
@@ -1528,7 +1513,7 @@ class ReportWriter(object):
 
 		def beginPage():
 			# Print the static bands that appear below detail in z-order:
-			self.ReportForm._pageNumber += 1
+			self._pageNumber += 1
 			for band in ("pageBackground", "pageHeader", "pageFooter"):
 				printBand(band)
 			self._brandNewPage = True
@@ -1591,9 +1576,9 @@ class ReportWriter(object):
 				if vv["curVal"] != group.getProp("expr"):
 					rp = eval(group.get("resetPageNumber", "False"))
 					if rp and self._recordNumber == 0:
-						self.ReportForm._pageNumber = 1
+						self._pageNumber = 1
 					elif rp:
-						self.ReportForm._pageNumber = 0
+						self._pageNumber = 0
 					vv["curVal"] = group.getProp("expr")
 					np = eval(group.get("startOnNewPage", "False")) \
 							and self.RecordNumber > 0
@@ -1952,6 +1937,8 @@ class ReportWriter(object):
 			else:
 				raise ValueError, "Path '%s' doesn't exist." % s[0]
 
+	def _getPageNumber(self):
+		return self._pageNumber
 
 	def _getRecord(self):
 		try:
@@ -2088,6 +2075,9 @@ class ReportWriter(object):
 
 	OutputFile = property(_getOutputFile, _setOutputFile, None,
 		_("Specifies the output PDF file (name or file object)."))
+
+	PageNumber = property(_getPageNumber, None, None, 
+			_("""Returns the current page number at runtime."""))
 
 	Record = property(_getRecord, _setRecord, None,
 		_("""Specifies the dictionary that represents the current record.
