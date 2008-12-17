@@ -54,7 +54,7 @@ class Login(dabo.ui.dOkCancelDialog):
 		
 
 	def addControls(self):
-		super(Login, self).afterInit()
+		self.super()
 		
 		self.addObject(lbl, 'lblUserName')
 		self.addObject(txt, 'txtUserName')
@@ -103,25 +103,28 @@ class Login(dabo.ui.dOkCancelDialog):
 		
 		mainSizer.layout()
 
-		# Map enter key to accept button (because DefaultButton doesn't work):
-		self.bindKey("enter", self.onOK)
+		self.txtUserName.setFocus()
 
 		
 	def setMessage(self, message):
 		self.lblMessage.Caption = message
 		self.Sizer.layout()
 				
-	def onCancel(self, evt):
+	def runCancel(self):
 		self.user, self.password = None, None
-		self.super(evt)
+		self.super()
 		
-	def onOK(self, evt):
+	def onEnterKey(self, evt):
+		self.runOK()
+
+	def runOK(self):
 		self.user, self.password = self.txtUserName.Value, self.txtPassword.Value
-		self.super(evt)
+		self.super()
 		
 		
 if __name__ == '__main__':
-	app = wx.PySimpleApp()
+	app = dabo.dApp(MainFormClass=None)
+	app.setup()
 	form = Login(None)
 	form.show()
 	print form.user, form.password
