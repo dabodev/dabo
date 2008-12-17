@@ -1143,7 +1143,10 @@ class ReportWriter(object):
 				width, height = None, None
 
 			if img:
-				c.drawImage(img, 0, 0, width, height, mask)
+				try:
+					c.drawImage(img, 0, 0, width, height, mask)
+				except StandardError:
+					c.drawCentredString(0, 0, "<< Image expr error >>")
 
 		elif objType == "BarGraph":
 			# Do these imports here so as not to require the huge matplotlib unless
