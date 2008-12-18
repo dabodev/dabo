@@ -36,7 +36,9 @@ class dDataSet(tuple):
 	warning message will be printed out and the SQL functions will return
 	None. The data will still be usable, though.
 	"""
-	def __init__(self):
+	def __init__(self, sequence=None):
+		# Note that as immutable objects, tuples are created with __new__,
+		# so we must not pass the argument to the __init__ method of tuple.
 		super(dDataSet, self).__init__()
 		self._connection = None
 		self._cursor = None
