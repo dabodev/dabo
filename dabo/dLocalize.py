@@ -1,19 +1,21 @@
 ﻿# -*- coding: utf-8 -*-
+
 import sys
-import locale
 import os
+import locale
 import gettext
 import warnings
 import dabo
 
 
-_defaultLanguage, _defaultEncoding = locale.getlocale()
+_defaultLanguage, _defaultEncoding = locale.getdefaultlocale()
 
 if _defaultLanguage is None:
-	_defaultLanguage = "en"
+	_defaultLanguage = dabo.settings.defaultLanguage
 
 if _defaultEncoding is None:
-	_defaultEncoding = "utf-8"
+	_defaultEncoding = dabo.settings.defaultEncoding
+
 
 _domains = {}
 _currentTrans = None
@@ -113,10 +115,19 @@ def getDaboLocaleDir():
 
 
 if __name__ == "__main__":
+
 	install()
+
+	print
 	print "sys.getdefaultencoding():", sys.getdefaultencoding()
-	print "locale.getlocale():", locale.getlocale()
+	if dabo.settings.loadUserLocale:
+		locale.setlocale(locale.LC_ALL, '')
+		print "locale.getlocale():", locale.getlocale()
+	else:
+		print "locale.getdefaultlocale():", locale.getdefaultlocale()
 	print "_defaultLanguage, _defaultEncoding:", _defaultLanguage, _defaultEncoding
+	print
+
 	stringsToTranslate = ("&File", "&Edit", "&Help", "Application finished.")
 	max_len = {}
 	for s in stringsToTranslate:
@@ -132,24 +143,21 @@ if __name__ == "__main__":
 		translatedStrings.append(tuple(translatedStringsLine))
 
 	def line(strings=None):
+		lin = []
+		add = lin.append
 		if strings is None:
 			# print the boundary
-			lin =  "+----"
+			add("+----")
 			for s in stringsToTranslate:
-				lin += "+-%s-" % ("-" * max_len[s])
-			lin += "+"
+				add("+-%s-" % ("-" * max_len[s]))
+			add("+")
 		else:
 			# print the text
-			lin = ''
-			for idx, s in enumerate(strings):
-				if idx == 0:
-					len_s = 2
-				else:
-					len_s = max_len.get(stringsToTranslate[idx-1], len(s))
-				s = s.decode("utf-8")
-				lin += "| %s " % s.ljust(len_s)
-			lin += "|"
-		return lin
+			for i, s in enumerate(strings):
+				len_s = max_len.get(i and stringsToTranslate[i-1], len(s))
+				add("| %s " % s.ljust(len_s))
+			add("|")
+		return ''.join(lin)
 
 	print line()
 	print line(("en",) + stringsToTranslate)

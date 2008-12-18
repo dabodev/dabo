@@ -15,13 +15,14 @@ import dabo.lib.DesignerUtils as desUtil
 from dabo.dLocalize import _
 from dabo.lib.utils import resolvePath
 app = dabo.dAppRef
-if app is not None:
+if app:
 	default_encoding = app.Encoding
 else:
-		enc = locale.getlocale()[1]
-		if enc is None:
-			enc = dabo.defaultEncoding
-		default_encoding = enc
+	default_encoding = locale.getlocale()[1]
+	if default_encoding is None:
+		default_encoding = locale.getdefaultlocale()[1]
+		if default_encoding is None:
+			default_encoding = dabo.defaultEncoding
 		
 # Python seems to need to compile code with \n linesep:
 code_linesep = "\n"

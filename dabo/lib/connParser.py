@@ -76,7 +76,7 @@ def importConnections(pth=None):
 				if key=="database":
 					osp = os.path
 					relpath = utils.resolvePath(val, pth, abspath=False)
-					pth = pth.decode(sys.getfilesystemencoding())
+					pth = pth.decode(dabo.fileSystemEncoding)
 					abspath = osp.abspath(osp.join(osp.split(pth)[0], relpath))
 					if osp.exists(abspath):
 						ret[cxn][key] = abspath	

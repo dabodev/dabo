@@ -105,6 +105,9 @@ dateFormat = "American"		# MM/DD/YYYY
 # Default font size when none other is specified
 defaultFontSize = 10
 
+# Default language to use when none is specified
+defaultLanguage = "en"
+
 # Default encoding to use when none is specified
 defaultEncoding = "utf-8"
 
