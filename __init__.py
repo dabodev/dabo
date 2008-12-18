@@ -97,8 +97,9 @@ the command window.
 Have fun in your exploration of Dabo! 
 """
 
-import os
 import sys
+import os
+import locale
 import logging
 try:
 	import pysqlite2
@@ -124,7 +125,9 @@ dAppRef = None
 # for the user application separately.
 import dLocalize
 dLocalize.install("dabo")
-
+# On some platforms getfilesystemencoding() can return None,
+# in these cases we wimply use the encoding from the default locale
+fileSystemEncoding = sys.getfilesystemencoding() or locale.getdefaultlocale()[1]
 
 # Import global settings (do this first, as other imports may rely on it):
 from settings import *
