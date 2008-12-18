@@ -121,6 +121,9 @@ pysqlite2: http://initd.org/tracker/pysqlite
 # dApp will change the following values upon its __init__:
 dAppRef = None
 
+# Import global settings (do this first, as other imports may rely on it):
+from settings import *
+
 # Install localization service for dabo. dApp will install localization service
 # for the user application separately.
 import dLocalize
@@ -128,9 +131,6 @@ dLocalize.install("dabo")
 # On some platforms getfilesystemencoding() can return None,
 # in these cases we wimply use the encoding from the default locale
 fileSystemEncoding = sys.getfilesystemencoding() or locale.getdefaultlocale()[1]
-
-# Import global settings (do this first, as other imports may rely on it):
-from settings import *
 
 # Instantiate the logger object, which will send messages to user-overridable
 # locations. Do this before any other imports.
