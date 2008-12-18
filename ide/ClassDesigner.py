@@ -182,6 +182,9 @@ class ClassDesigner(dabo.dApp):
 
 		if not clsOK:
 			frm = self.onNewDesign(None)
+			if not frm:
+				# They canceled
+				sys.exit(0)
 			# Use this to determine if an empty class should be released
 			frm._initialStateDict = frm.getDesignerDict()
 		else:
