@@ -33,7 +33,6 @@ class Form(dabo.ui.dForm):
 		self.AutoUpdateStatusText = True
 		self.ShowToolBar = True
 		self.Size = (640, 480)
-	
 
 	def afterInit(self):
 		if self.FormType == 'PickList':
@@ -49,6 +48,9 @@ class Form(dabo.ui.dForm):
 		# Create the various elements:
 		self.setupPageFrame()
 
+		if self.Modal and self.FormType == "Edit":
+			self.setupSaveCancelButtons()
+
 		if not self.Testing and not self.Modal:
 			self.setupToolBar()
 			self.setupMenu()
@@ -60,9 +62,26 @@ class Form(dabo.ui.dForm):
 		ret = super(Form, self).save(dataSource)
 		self.update()
 		self.refresh()
+		if self.FormType == "Edit" and self.Modal:
+			dabo.ui.callAfter(self.hide)
 		return ret
-	
-	
+
+	def cancel(self, dataSource=None):
+		ret = super(Form, self).cancel(dataSource)
+		self.update()
+		self.refresh()
+		if self.FormType == "Edit" and self.Modal:
+			dabo.ui.callAfter(self.hide)
+		return ret
+
+	def setupSaveCancelButtons(self):
+		vs = self.Sizer
+		hs = dabo.ui.dSizer("h")
+		hs.append(dabo.ui.dButton(self, Caption="Save Changes", DefaultButton=True, OnHit=self.onSave))
+		hs.appendSpacer((3,0))
+		hs.append(dabo.ui.dButton(self, Caption="Cancel Changes", CancelButton=True, OnHit=self.onCancel))
+		vs.append(hs, alignment="right")	
+
 	def setupToolBar(self):
 		tb = self.ToolBar = dabo.ui.dToolBar(self)
 		if tb.Children:
@@ -285,8 +304,9 @@ class Form(dabo.ui.dForm):
 			hs = dabo.ui.dSizer("h")
 			hs.append1x(self.pageFrame, border=border, borderSides=borderSides)
 			self.Sizer.append1x(hs)
-			self.pageFrame.addSelectPage()
-			self.pageFrame.addBrowsePage()
+			if self.FormType != "Edit":
+				self.pageFrame.addSelectPage()
+				self.pageFrame.addBrowsePage()
 			if self.FormType != "PickList":
 				self.addEditPages(ds)
 			self.pageFrame.SelectedpageNum = currPage
@@ -512,7 +532,7 @@ class Form(dabo.ui.dForm):
 
 
 	def requery(self, dataSource=None, _fromSelectPage=False):
-		if not _fromSelectPage:
+		if not _fromSelectPage and self.FormType != "Edit":
 			# re-route the form's requery through the select page's requery.
 			self.pageFrame.GetPage(0).requery()
 		else:
