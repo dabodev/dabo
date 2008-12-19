@@ -945,7 +945,7 @@ class dFormMixin(pm.dPemMixin):
 			controllingFrame = self
 		try:
 			sb = controllingFrame.GetStatusBar()
-		except AttributeError:
+		except (AttributeError, TypeError):
 			# certain dialogs don't have status bars
 			sb = None
 		if sb:
@@ -1006,20 +1006,8 @@ class dFormMixin(pm.dPemMixin):
 	def _getToolBar(self):
 		try:
 			return self.GetToolBar()
-		except AttributeError:
-			# We are probably a dialog
-			return None
-		except TypeError:
-			# May be too early in control instantiation: I'm seeing this
-			# in my error logs for my app, but can't reproduce on my end:
-			# Traceback (most recent call last):
-			#  File "dabo\ui\uiwx\dFormMixin.pyc", line 180, in __onWxActivate
-			#  File "dabo\ui\uiwx\dPemMixin.pyc", line 942, in raiseEvent
-			#  File "dabo\lib\eventMixin.pyc", line 92, in raiseEvent
-			#  File "dabo\ui\uiwx\dFormMixin.pyc", line 191, in __onActivate
-			#  File "dabo\ui\uiwx\dFormMixin.pyc", line 969, in _getToolBar
-			#  File "wx\_windows.pyc", line 578, in GetToolBar
-			#<type 'exceptions.TypeError'>: in method 'Frame_GetToolBar', expected argument 1 of type 'wxFrame const *'
+		except (AttributeError, TypeError):
+			# We are probably a dialog or some other form that doesn't support ToolBars.
 			return None
 		
 	def _setToolBar(self, val):
