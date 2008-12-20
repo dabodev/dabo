@@ -44,12 +44,15 @@ class Form(dabo.ui.dForm):
 				dabo.ui.callAfter(self.hide)
 			# Pressing Esc hides the form
 			self.bindKey("esc", _onHide)
-	
+
 		# Create the various elements:
 		self.setupPageFrame()
 
-		if self.Modal and self.FormType == "Edit":
-			self.setupSaveCancelButtons()
+		if self.FormType == "Edit":
+			self.pageFrame.Pages[0].setFocus()
+			if self.Modal:
+				self.setupSaveCancelButtons()
+				self.bindKey("esc", self.onCancel)	
 
 		if not self.Testing and not self.Modal:
 			self.setupToolBar()
