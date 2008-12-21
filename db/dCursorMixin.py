@@ -2303,13 +2303,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					pass
 				else:
 					ds = self.BackendObject.getStructureDescription(self)
+					gf_names = [gf[0] for gf in self.getFields(self.Table)]
 					for field in ds:
 						field_name, field_type, pk = field[0], field[1], field[2]
 						try:
 							field_scale = field[5]
 						except IndexError:
 							field_scale = None
-						val.append((field_name, field_type, pk, self.Table, field_name, field_scale))
+						if field_name in gf_names:
+							table_name = self.Table
+						else:
+							table_name = "_foreign_table_"
+						val.append((field_name, field_type, pk, table_name, field_name, field_scale))
 				self._savedStructureDescription = val
 			self._dataStructure = val
 		return tuple(val)
