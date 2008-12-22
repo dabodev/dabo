@@ -288,7 +288,7 @@ class dBackend(dObject):
 		joinType = self.formatJoinType(joinType)
 		indent = len("select ") * " "
 		clause = "%(joinType)s join %(tbl)s on %(joinCondition)s" % locals()
-		return self.addWithSep(clause, exp, sep="\n%s" % indent)
+		return self.addWithSep(exp, clause, sep="\n%s" % indent)
 
 
 	def addWhere(self, clause, exp, comp="and", autoQuote=True):
