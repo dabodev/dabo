@@ -685,9 +685,15 @@ class PropertyGrid(dabo.ui.dGrid):
 		if self.Application.Platform == "Win":
 			self.setAll("FontSize", fsize-2, filt="BaseClass == dabo.ui.dColumn")
 		# Set the row height to match
-		self.RowHeight = dabo.ui.fontMetric("M", face=c0.FontFace, size=c0.FontSize, 
-				bold=c0.FontBold, italic=c0.FontItalic)[1] + 7
-
+		face = c0.FontFace
+		size = c0.FontSize
+		bold = c0.FontBold
+		italic = c0.FontItalic
+		rh  = dabo.ui.fontMetric("M", wind=self.Form, face=face, size=size,
+				bold=bold, italic=italic)[1] + 7
+		if 0 < rh < 999:
+			# Make sure that these are sane values
+			self.RowHeight = rh
 		# Reference to default classes. Don't know if this is the best solution...
 		self.stringRendererClass = col.stringRendererClass
 		self.boolRendererClass = col.boolRendererClass
