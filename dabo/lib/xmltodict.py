@@ -23,7 +23,13 @@ else:
 		default_encoding = locale.getdefaultlocale()[1]
 		if default_encoding is None:
 			default_encoding = dabo.defaultEncoding
-		
+# Normalize the names, as xml.sax running on Gtk will complain for some variations
+deLow = default_encoding.lower()
+if deLow in ("utf8", "utf-8"):
+	default_encoding = "utf-8"
+if deLow in ("utf16", "utf-16"):
+	default_encoding = "utf-16"
+
 # Python seems to need to compile code with \n linesep:
 code_linesep = "\n"
 eol = os.linesep
