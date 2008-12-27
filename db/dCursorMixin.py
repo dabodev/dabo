@@ -879,11 +879,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return True
 
 
+	def setValuesByDict(self, valDict, row=None):
+		"""Set the value for multiple fields with one call by passing a dict containing
+		the field names as keys, and the new values as values.
+		"""
+		for fld, val in valDict.items():
+			self.setFieldVal(fld, val, row)
+
+
 	def setFieldVal(self, fld, val, row=None):
 		"""Set the value of the specified field."""
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException(_("No records in the data set"))
-
 		if row is None:
 			row = self.RowNumber
 

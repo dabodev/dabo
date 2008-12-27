@@ -1381,6 +1381,19 @@ class dBizobj(dObject):
 		return ret
 
 
+	def setValuesByDict(self, valDict, row=None):
+		"""Allows you to set the value for multiple fields with one call by passing a dict
+		containing the field names as keys, and the new values as values.
+		"""
+		cursor = self._CurrentCursor
+		if cursor is not None:
+			try:
+				ret = cursor.setValuesByDict(valDict, row)
+			except dException.NoRecordsException:
+				ret = False
+		return ret
+			
+
 	_baseXML = """<?xml version="1.0" encoding="%s"?>
 <dabocursor xmlns="http://www.dabodev.com"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
