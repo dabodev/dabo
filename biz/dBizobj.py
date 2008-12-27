@@ -1381,10 +1381,14 @@ class dBizobj(dObject):
 		return ret
 
 
-	def setValuesByDict(self, valDict, row=None):
+	def setValues(self, valDict=None, row=None, **kwargs):
 		"""Allows you to set the value for multiple fields with one call by passing a dict
 		containing the field names as keys, and the new values as values.
 		"""
+		if valDict is None:
+			valDict = kwargs
+		else:
+			valDict.update(kwargs)
 		cursor = self._CurrentCursor
 		if cursor is not None:
 			try:
