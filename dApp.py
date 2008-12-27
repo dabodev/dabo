@@ -1328,13 +1328,27 @@ try again when it is running.
 			# that the first entry is not a valid directory. Go through the path
 			# and use the first valid directory.
 			hd = None
-			for pth in sys.path:
-				if os.path.exists(os.path.join(pth, ".")):
-					hd = pth
-					break
+
+			# This first way is the only thing we should really use, because it
+			# gets the path of the App directory. However, if it doesn't work, 
+			# we'll use the old methods below.
+			hd = os.path.split(inspect.getabsfile(self.__class__))[0]
+
+			# This way isn't ideal because it simply returns the first valid
+			# path in sys.path. This could be the app directory, but may not be.
+			if hd is None:
+				for pth in sys.path:
+					if os.path.exists(os.path.join(pth, ".")):
+						hd = pth
+						warnings.warn(Warning, _("Setting App.HomeDirectory based on sys.path"))
+						break
+
+			# This way is really lame and shouldn't even be here, as it merely
+			# sets HomeDirectory to the current working directory.
 			if hd is None or len(hd.strip()) == 0:
 				# punt:
 				hd = os.getcwd()
+				warnings.warn(Warning, _("Setting App.HomeDirectory based on os.getcwd()"))
 
 			if os.path.split(hd)[1][-4:].lower() in (".zip", ".exe"):
 				# mangle HomeDirectory to not be the py2exe library.zip file,
