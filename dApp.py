@@ -1324,31 +1324,29 @@ try again when it is running.
 		try:
 			hd = self._homeDirectory
 		except AttributeError:
-			# Note: sometimes the runtime distros will alter the path so
-			# that the first entry is not a valid directory. Go through the path
-			# and use the first valid directory.
-			hd = None
+			scriptDir = os.path.split(os.path.join(os.getcwd(), sys.argv[0]))[0]
+			appDir = os.path.split(inspect.getabsfile(self.__class__))[0]
 
-			# This first way is the only thing we should really use, because it
-			# gets the path of the App directory. However, if it doesn't work, 
-			# we'll use the old methods below.
-			hd = os.path.split(inspect.getabsfile(self.__class__))[0]
+			def issubdir(d1, d2):
+				while True:
+					if len(d1) < len(d2) or len(d1) <= 1:
+						return False
+					d1 = os.path.split(d1)[0]
+					if d1 == d2:
+						return True 
 
-			# This way isn't ideal because it simply returns the first valid
-			# path in sys.path. This could be the app directory, but may not be.
-			if hd is None:
-				for pth in sys.path:
-					if os.path.exists(os.path.join(pth, ".")):
-						hd = pth
-						warnings.warn(Warning, _("Setting App.HomeDirectory based on sys.path"))
-						break
-
-			# This way is really lame and shouldn't even be here, as it merely
-			# sets HomeDirectory to the current working directory.
-			if hd is None or len(hd.strip()) == 0:
-				# punt:
-				hd = os.getcwd()
-				warnings.warn(Warning, _("Setting App.HomeDirectory based on os.getcwd()"))
+			if issubdir(scriptDir, appDir):
+				# The directory where the main script is executing is a subdirectory of the
+				# location of the application object in use. So we can safely make the app
+				# directory the HomeDirectory.
+				hd = appDir
+			else:
+				# The directory where the main script is executing is *not* a subdirectory
+				# of the location of the app object in use. The app object is likely an
+				# instance of a raw dApp. So the only thing we can really do is make the 
+				# HomeDirectory the location of the main script, since we can't guess at
+				# the application's directory structure.
+				hd = scriptDir
 
 			if os.path.split(hd)[1][-4:].lower() in (".zip", ".exe"):
 				# mangle HomeDirectory to not be the py2exe library.zip file,
