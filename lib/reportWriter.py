@@ -569,6 +569,9 @@ class String(Drawable):
 		self.AvailableProps["FontColor"] = toPropDict(tuple, (0, 0, 0), 
 				"""Specifies the color of the text.""")
 
+		self.AvailableProps["ScalePercent"] = toPropDict(tuple, (100.0, 100.0), 
+				"""Specifies the scaling of the string. Set to (150,100) to make it wide.""")
+
 
 class Image(Drawable):
 	"""Represents an image."""
@@ -947,10 +950,12 @@ class ReportWriter(object):
 			fontName = obj.getProp("fontName")
 			fontSize = obj.getProp("fontSize")
 			fontColor = obj.getProp("fontColor")
+			scalePercent = [val/100.0 for val in obj.getProp("scalePercent")]
 
 			## Set canvas props based on our props:
 			c.translate(x, y)
 			c.rotate(rotation)
+			c.scale(scalePercent[0], scalePercent[1])
 			c.setLineWidth(borderWidth)
 			c.setStrokeColor(borderColor)
 			c.setFillColor(fontColor)
