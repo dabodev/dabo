@@ -80,8 +80,8 @@ class dSpinner(dabo.ui.dDataPanel):
 		ps.Bind(wx.EVT_SPIN_DOWN, self.__onWxSpinDown)
 		ps.Bind(wx.EVT_SPIN, self._onWxHit)
 		pt.Bind(wx.EVT_TEXT, self._onWxHit)
+		pt.Bind(wx.EVT_KILL_FOCUS, self._onLostFocus)
 		self.bindEvent(dEvents.KeyChar, self._onChar)
-		self.bindEvent(dEvents.LostFocus, self._onLostFocus)
 		self._rerestoreValue()
  
 
@@ -161,6 +161,7 @@ class dSpinner(dabo.ui.dDataPanel):
 		else:
 			ret = False
 		self._checkBounds()
+		self._userChanged = True
 		self.flushValue()
 		self.raiseEvent(dEvents.Hit, hitType="button")
 		return ret
@@ -180,6 +181,7 @@ class dSpinner(dabo.ui.dDataPanel):
 		else:
 			ret = False
 		self._checkBounds()
+		self._userChanged = True
 		self.flushValue()
 		self.raiseEvent(dEvents.Hit, hitType="button")
 		return ret
@@ -215,8 +217,6 @@ class dSpinner(dabo.ui.dDataPanel):
 			typ = "text"
 		else:
 			typ = "spin"
-		# Flush the data on each hit, not just when focus is lost.
-		self.flushValue()
 		super(dSpinner, self)._onWxHit(evt, hitType=typ)
 
 
@@ -247,7 +247,7 @@ class dSpinner(dabo.ui.dDataPanel):
 		if (val > self.Max) or (val < self.Min):
 			self.Value = pt._oldVal
 		pt._oldVal = self.Value
-
+		self.flushValue()
 
 	def _numericStringVal(self, val):
 		"""If passed a string, attempts to convert it to the appropriate numeric
@@ -416,6 +416,13 @@ class _dSpinner_test(dSpinner):
 		
 	def onHit(self, evt):
 		print "HIT!", self.Value, "Hit Type", evt.hitType
+
+	def onValueChanged(self, evt):
+		print "Value Changed", self.Value
+		print "___"
+
+	def onInteractiveChange(self, evt):
+		print "Interactive Change", self.Value
 	
 	def onSpinUp(self, evt):
 		print "Spin up event."
