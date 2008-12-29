@@ -1236,6 +1236,8 @@ class dPemMixin(dPemMixinBase):
 		
 	def __updateDynamicProps(self):
 		"""Updates the object's dynamic properties."""
+		if not self:
+			return
 		self.__updateObjectDynamicProps(self)
 		for obj in self._drawnObjects:
 			self.__updateObjectDynamicProps(obj)
