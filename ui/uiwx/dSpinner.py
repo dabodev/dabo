@@ -26,14 +26,14 @@ class _dSpinButton(dcm.dDataControlMixin, wx.SpinButton):
 				*args, **kwargs)
 
 
-	def __onWxSpinUp(self, evt):
-		self.raiseEvent(dEvents.SpinUp, spinType="button")
-		self.raiseEvent(dEvents.Spinner, spinType="button")
+#	def __onWxSpinUp(self, evt):
+#		self.raiseEvent(dEvents.SpinUp, spinType="button")
+#		self.raiseEvent(dEvents.Spinner, spinType="button")
 
 
-	def __onWxSpinDown(self, evt):
-		self.raiseEvent(dEvents.SpinDown, spinType="button")
-		self.raiseEvent(dEvents.Spinner, spinType="button")
+#	def __onWxSpinDown(self, evt):
+#		self.raiseEvent(dEvents.SpinDown, spinType="button")
+#		self.raiseEvent(dEvents.Spinner, spinType="button")
 
 
 
@@ -78,10 +78,12 @@ class dSpinner(dabo.ui.dDataPanel):
 		self._proxy_spinner._addWindowStyleFlag(wx.SP_WRAP)
 		ps.Bind(wx.EVT_SPIN_UP, self.__onWxSpinUp)
 		ps.Bind(wx.EVT_SPIN_DOWN, self.__onWxSpinDown)
-		ps.Bind(wx.EVT_SPIN, self._onWxHit)
+		#ps.Bind(wx.EVT_SPIN, self._onWxHit)
 		pt.Bind(wx.EVT_TEXT, self._onWxHit)
+		pt.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
+		ps.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
 		pt.Bind(wx.EVT_KILL_FOCUS, self._onLostFocus)
-		self.bindEvent(dEvents.KeyChar, self._onChar)
+		#self.bindEvent(dEvents.KeyChar, self._onChar)
 		self._rerestoreValue()
  
 
@@ -147,58 +149,58 @@ class dSpinner(dabo.ui.dDataPanel):
 		return ret
 		
 
-	def _spinUp(self, evt=None):
-		"""Handles a user request to increment the value."""
+	def _spin(self, direction, spinType=None):
+		assert direction in ("up", "down")
+
+		incrementFunc = operator.add
+		margin = 0.0001
+		if direction == "down":
+			incrementFunc = operator.sub
+			margin = -0.0001
+
 		ret = True
 		curr = self._proxy_textbox.Value
-		newVal = self._applyIncrement(operator.add)
-		minn, maxx, margin = self._coerceTypes(newVal, self.Min, self.Max, 0.0001)
-		diff = newVal - maxx
-		if diff < margin:
-			self._proxy_textbox.Value = newVal
-		elif self._spinWrap:
-			self._proxy_textbox.Value = minn + diff
+		newVal = self._applyIncrement(incrementFunc)
+		minn, maxx, margin = self._coerceTypes(newVal, self.Min, self.Max, margin)
+
+		if direction == "up":
+			diff = newVal - maxx
+			if diff < margin:
+				self._proxy_textbox.Value = newVal
+			elif self._spinWrap:
+				self._proxy_textbox.Value = minn
+			else:
+				ret = False
+			if ret:
+				self.raiseEvent(dEvents.SpinUp, spinType=spinType)
+				self.raiseEvent(dEvents.Spinner, spinType=spinType)
+				
 		else:
-			ret = False
+			diff = newVal - minn
+			if diff > margin:
+				self._proxy_textbox.Value = newVal
+			elif self._spinWrap:
+				self._proxy_textbox.Value = maxx
+			else:
+				ret = False
+			if ret:
+				self.raiseEvent(dEvents.SpinDown, spinType=spinType)
+				self.raiseEvent(dEvents.Spinner, spinType=spinType)
+
 		self._checkBounds()
 		self._userChanged = True
 		self.flushValue()
-		self.raiseEvent(dEvents.Hit, hitType="button")
-		return ret
-
-
-	def _spinDown(self, evt=None):
-		"""Handles a user request to decrement the value."""
-		ret = True
-		curr = self._proxy_textbox.Value
-		newVal = self._applyIncrement(operator.sub)
-		minn, maxx, margin = self._coerceTypes(newVal, self.Min, self.Max, -0.0001)
-		diff = newVal - minn
-		if diff > margin:
-			self._proxy_textbox.Value = newVal
-		elif self._spinWrap:
-			self._proxy_textbox.Value = maxx + diff
-		else:
-			ret = False
-		self._checkBounds()
-		self._userChanged = True
-		self.flushValue()
-		self.raiseEvent(dEvents.Hit, hitType="button")
+		self.raiseEvent(dEvents.Hit, hitType=spinType)
 		return ret
 
 
 	def __onWxSpinUp(self, evt):
 		"""Respond to the wx event by raising the Dabo event."""
-		if self._spinUp():
-			self.raiseEvent(dEvents.SpinUp, spinType="button")
-			self.raiseEvent(dEvents.Spinner, spinType="button")
-
+		self._spin("up", spinType="button")
 
 	def __onWxSpinDown(self, evt):
 		"""Respond to the wx event by raising the Dabo event."""
-		if self._spinDown():
-			self.raiseEvent(dEvents.SpinDown, spinType="button")
-			self.raiseEvent(dEvents.Spinner, spinType="button")
+		self._spin("down", spinType="button")
 	
 	
 	def _checkBounds(self):
@@ -220,23 +222,18 @@ class dSpinner(dabo.ui.dDataPanel):
 		super(dSpinner, self)._onWxHit(evt, hitType=typ)
 
 
-	def _onChar(self, evt):
+	def _onWxKeyDown(self, evt):
 		"""Handle the case where the user presses the up/down arrows to 
 		activate the spinner.
 		"""
 		keys = dabo.ui.dKeys
-		kc = evt.keyCode
+		kc = evt.GetKeyCode()
 		if kc in (keys.key_Up, keys.key_Numpad_up):
-			if self._spinUp():
-				self.raiseEvent(dEvents.SpinUp, spinType="key")
-				self.raiseEvent(dEvents.Spinner, spinType="key")
-			self._onWxHit(None)
+			self._spin("up", spinType="key")
 		elif kc in (keys.key_Down, keys.key_Numpad_down):
-			if self._spinDown():
-				self.raiseEvent(dEvents.SpinDown, spinType="key")
-				self.raiseEvent(dEvents.Spinner, spinType="key")
-			self._onWxHit(None)
-
+			self._spin("down", spinType="key")
+		else:
+			evt.Skip()
 
 	def _onLostFocus(self, evt):
 		"""We need to handle the case where the user types an invalid value
