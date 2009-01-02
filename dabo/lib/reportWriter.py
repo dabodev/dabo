@@ -974,9 +974,11 @@ class ReportWriter(object):
 			# clip the text to the specified width and height
 			p = c.beginPath()
 	
-			## HACK! the -5, +5 thing is to keep the area below the font's baseline
-			## from being clipped. I've got to learn the right way to handle this.
-			p.rect(0, -5, width, height+5)
+			## HACK! the -5000 thing is to keep the area below the font's baseline
+			## from being clipped. I've got to learn the right way to handle this, probably
+			## by calculating the amount needed based on the font size. But, 5000 is enough
+			## for anything, and we don't need to clip anything but the horizontal anyway. 
+			p.rect(0, -5000, width, height+5000)
 			c.clipPath(p, stroke=stroke)
 	
 			funcs = {"center": c.drawCentredString,
