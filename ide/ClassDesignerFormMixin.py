@@ -852,6 +852,8 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		cd["createBizobjs"] = currCode
 		rep[self] = cd
 		self.Controller.updateCodeEditor()
+		# Add the classes to the app's namespace
+		self.Controller.updateNamespace(os.path.abspath(self._classFile))
 
 		
 	def onAddControl(self, evt):

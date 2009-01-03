@@ -189,7 +189,7 @@ class LayoutSaverMixin(object):
 
 			# Convert any paths, but ignore the string properties that may
 			# accidentally contain a legal path but which do not represent paths.
-			if not prop in ("Alignment", "Caption", "DataField", "DataSource",
+			if not prop in ("Alignment", "Caption", "CxnName", "DataField", "DataSource",
 					"FontFace", "HAlign", "Name", "RegID", "SelectionMode",
 					"ToolTipText", "VAlign", "Value") and (not prop.startswith("Border")
 					and not prop.startswith("Header") and not prop.startswith("Sizer_")):

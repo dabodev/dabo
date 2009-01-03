@@ -411,6 +411,22 @@ class ClassDesigner(dabo.dApp):
 		return ret
 
 
+	def updateNamespace(self, startFile=None):
+		"""When classes are added to the application being edited, we need to re-create the 
+		application namespaces.
+		"""
+		stdBiz = self.Application.getStandardAppDirectory("biz", startFile)
+		stdHome = os.path.split(stdBiz)[0]
+		hd = self.Application.HomeDirectory
+		if stdHome != hd:
+			self.Application.HomeDirectory = stdHome
+		if stdHome not in sys.path:
+			sys.path.append(stdHome)
+		self._initModuleNames()
+		if stdHome != hd:
+			self.Application.HomeDirectory = hd
+
+
 	def onEditUndo(self, evt):
 		dabo.infoLog.write(_("Not implemented yet"))
 	def onEditRedo(self, evt):
