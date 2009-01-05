@@ -36,7 +36,7 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		##      we are exposing two menu events: dEvents.Hit and dEvents.Highlight.
 		menu = evt.GetMenu()
 		if menu and isinstance(menu, dMenu.dMenu):
-			menu.raiseEvent(dEvents.MenuHighlight)
+			menu.raiseEvent(dEvents.MenuHighlight, evt)
 		evt.Skip()
 
 
