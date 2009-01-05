@@ -39,7 +39,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		pm.dPemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
-	def _onMenuOpenMRU(self, evt):
+	def __onMenuOpenMRU(self, evt):
 		if self.Application:
 			self.Application.onMenuOpenMRU(self)
 	
@@ -48,13 +48,14 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		"""See self._setId(), which is where the binding of wxEvents needs to take 
 		place.
 		"""
-		self.bindEvent(dEvents.MenuOpen, self._onMenuHighlight)
-		self.bindEvent(dEvents.MenuHighlight, self._onMenuHighlight)
+		self.bindEvent(dEvents.MenuOpen, self.__onMenuHighlight)
+		self.bindEvent(dEvents.MenuHighlight, self.__onMenuHighlight)
 		if self._useMRU:
-			self.bindEvent(dEvents.MenuOpen, self._onMenuOpenMRU)
+			self.bindEvent(dEvents.MenuOpen, self.__onMenuOpenMRU)
 
+		
 
-	def _onMenuHighlight(self, evt):
+	def __onMenuHighlight(self, evt):
 		"""Note that this code is here in a dabo binding instead of in the wx binding
 		because of the way we've worked around wx limitations: dMenu as a top-level
 		menu in a menu bar doesn't send wx events.
@@ -73,7 +74,6 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			if de is not None:
 				if callable(de):
 					item.Enabled = de()
-			
 			if isinstance(item, dMenu):
 				item._setDynamicEnabled()
 
@@ -393,8 +393,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			# limitations.
 			self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT,
 					self.__onWxMenuHighlight, id=id_)
-	
-	
+
+
 	def _itemByCaption(self, cap, returnPos=False):
 		"""Common method for locating a menu item by its caption, ignoring
 		all the 'special' characters for acceleration.
