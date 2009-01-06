@@ -308,14 +308,17 @@ class EditorForm(dabo.ui.dForm):
 		self._lastPath = self.Application.getUserSetting("lastPath", os.getcwd())
 		super(EditorForm, self).afterInit()
 		self.Caption = _("Dabo Editor")
-		self.funcButton = dabo.ui.dImage(pnl, ScaleMode="Clip", Size=(22,22))
+		self.funcButton = dabo.ui.dImage(pnl, ScaleMode="Clip", Size=(22,22),
+				ToolTipText=_("Show list of functions"))
 		self.funcButton.Picture = dabo.ui.imageFromData(funcButtonData())
 		self.funcButton.bindEvent(dEvents.MouseLeftDown, self.onFuncButton)
-		self.bmkButton = dabo.ui.dImage(pnl, ScaleMode="Clip", Size=(22,22))
+		self.bmkButton = dabo.ui.dImage(pnl, ScaleMode="Clip", Size=(22,22),
+				ToolTipText=_("Manage Bookmarks"))
 		self.bmkButton.Picture = dabo.ui.imageFromData(bmkButtonData())
 		self.bmkButton.bindEvent(dEvents.MouseLeftDown, self.onBmkButton)
 
-		self.prntButton = dabo.ui.dBitmapButton(pnl, Size=(22,22))
+		self.prntButton = dabo.ui.dBitmapButton(pnl, Size=(22,22),
+				ToolTipText=_("Print..."))
 		self.prntButton.Picture = "print"
 		self.prntButton.bindEvent(dEvents.Hit, self.onPrint)
 		
@@ -382,12 +385,15 @@ class EditorForm(dabo.ui.dForm):
 		evt.stop()
 		flist = self.CurrentEditor.getFunctionList()
 		pop = dabo.ui.dMenu()
-		for nm, pos, iscls in flist:
-			prompt = nm
-			if not iscls:
-				prompt = " - %s" % nm
-			itm = pop.append(prompt, OnHit=self.onFunctionPop)
-			itm.textPosition = pos
+		if flist:
+			for nm, pos, iscls in flist:
+				prompt = nm
+				if not iscls:
+					prompt = " - %s" % nm
+				itm = pop.append(prompt, OnHit=self.onFunctionPop)
+				itm.textPosition = pos
+		else:
+			pop.append(_("- no functions found -"))
 		self.showContextMenu(pop)
 		del pop
 	
@@ -646,7 +652,8 @@ class EditorForm(dabo.ui.dForm):
 					menutype="Radio")
 		
 		vp = mb.getMenuIndex(_("Font"))
-		edtMenu = mb.insert(vp+1, _("E&ditors"))
+		editorMenu = mb.insert(vp+1, _("E&ditors"))
+		editorMenu.bindEvent(dEvents.MenuHighlight, self.onMenuOpen)
 		
 		# On non-Mac platforms, we may need to move the Help Menu
 		# to the end.
@@ -687,7 +694,7 @@ class EditorForm(dabo.ui.dForm):
 		"""Currently this never fires under Windows."""
 		mn = evt.menuObject
 		prm = evt.prompt
-		if prm == _("Editors"):
+		if prm.replace("&", "") == _("Editors"):
 			mn.clear()
 			for pg in self.pgfEditor.Pages:
 				prmpt = pg.editor._title				
