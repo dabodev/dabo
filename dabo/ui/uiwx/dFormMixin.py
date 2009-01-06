@@ -722,7 +722,7 @@ class dFormMixin(pm.dPemMixin):
 		if not self._floatingPanel:
 			# Have to import it here, as it requires that dFormMixin be defined.
 			from dDialog import _FloatDialog
-			self._floatingPanel = _FloatDialog(self)
+			self._floatingPanel = _FloatDialog(owner=None, parent=self)
 		return self._floatingPanel
 
 
