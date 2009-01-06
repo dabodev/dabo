@@ -953,7 +953,13 @@ class dPemMixin(dPemMixinBase):
 		to the containing form. If no position is passed, returns the position
 		of this control relative to the form.
 		"""
-		return self.containerCoordinates(self.Form, pos)
+		if isinstance(self, dabo.ui.dFormMixin):
+			frm = self.Parent
+		else:
+			frm = self.Form
+		if frm is None:
+			return None
+		return self.containerCoordinates(frm, pos)
 
 
 	def containerCoordinates(self, cnt, pos=None):
@@ -1014,7 +1020,11 @@ class dPemMixin(dPemMixinBase):
 		"""Translates a position value for a control to absolute screen position."""
 		if pos is None:
 			pos = self.Position
-		return self.ClientToScreen(pos)
+		if self.Parent:
+			src = self.Parent
+		else:
+			src = self
+		return src.ClientToScreen(pos)
 	
 	
 	def relativeCoordinates(self, pos=None):
