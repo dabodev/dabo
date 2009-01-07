@@ -366,7 +366,7 @@ def getEventData(wxEvt):
 				try:
 					pemName = pem[0].lower() + pem[1:]
 					ed[pemName] = eval("wxEvt.%s()" % pem)
-				except AttributeError:
+				except (AttributeError, TypeError, wx._core.PyAssertionError):
 					pass
 
 	if isinstance(wxEvt, (wx.SplitterEvent,) ):
