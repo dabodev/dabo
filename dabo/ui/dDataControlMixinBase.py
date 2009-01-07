@@ -50,7 +50,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def __onLostFocus(self, evt):
-		if not self._lostFocus():
+		if self._lostFocus() is False:
 			evt.stop()
 
 
@@ -68,7 +68,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def _lostFocus(self):
-		if not self.flushValue():
+		if self.flushValue() is False:
 			# Field validation failed
 			self._fldValidFailed = True			
 			return False
