@@ -1324,7 +1324,10 @@ try again when it is running.
 		try:
 			hd = self._homeDirectory
 		except AttributeError:
-			scriptDir = os.path.split(os.path.join(os.getcwd(), sys.argv[0]))[0]
+			# Get the script name that launched the app. In case it was run
+			# as an executable, strip the leading './'
+			calledScript = sys.argv[0].lstrip("./")
+			scriptDir = os.path.split(os.path.join(os.getcwd(), calledScript))[0]
 			appDir = os.path.split(inspect.getabsfile(self.__class__))[0]
 
 			def issubdir(d1, d2):
