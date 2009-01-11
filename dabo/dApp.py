@@ -577,6 +577,9 @@ try again when it is running.
 		"""Get any changed files from the dabodev.com server, and replace 
 		the local copies with them. Return the new revision number"""
 		fileurl = "http://dabodev.com/frameworkVersions/changedFiles/%s/%s"
+		if projNames is None:
+			dabo.errorLog.write(_("No project specified for _updateFramework()"))
+			return
 		for pn in projNames:
 			currvers = self._currentUpdateVersion(pn)
 			if pn == "Dabo":
@@ -595,7 +598,7 @@ try again when it is running.
 			respFiles = resp.read()
 			if not respFiles:
 				# No updates available
-				dabo.errorLog.write(_("No changed files available for %s.") % pn)
+				dabo.infoLog.write(_("No changed files available for %s.") % pn)
 				continue
 			flist = eval(respFiles)
 			# First element is the web directory
@@ -616,6 +619,7 @@ try again when it is running.
 					resp = urllib2.urlopen(url % (webdir, fpth))
 					file(localFile, "w").write(resp.read())
 		url = "http://dabodev.com/frameworkVersions/latest"
+		vers = None
 		try:
 			vers = int(urllib2.urlopen(url).read())
 		except ValueError:
@@ -623,7 +627,8 @@ try again when it is running.
 		except StandardError, e:
 			dabo.errorLog.write(_("Cannot access the Dabo site. Error: %s") % e)
 			vers = self._currentUpdateVersion()
-		self.PreferenceManager.setValue("current_version", vers)
+		if vers:
+			self.PreferenceManager.setValue("current_version", vers)
 		return vers
 		
 
