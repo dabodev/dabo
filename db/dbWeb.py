@@ -22,7 +22,7 @@ class Web(SQLite):
 		return self._connection
 
 
-	def getTables(self, includeSystemTables=False):
+	def getTables(self, cursor, includeSystemTables=False):
 		return self._remoteConnector.getTables(includeSystemTables=includeSystemTables)
 		
 
