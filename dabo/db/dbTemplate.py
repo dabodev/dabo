@@ -76,12 +76,11 @@ class NEWDATABASE(dBackend):
 		return "%s%s%s" % (sqt, val, sqt)
 		
 
-	def getTables(self, includeSystemTables=False):
+	def getTables(self, cursor, includeSystemTables=False):
 		#### TODO: Verify that this works with NEWDATABASE, including
 		####    the option for including/excluding system tables.
-		tempCursor = self._connection.cursor()
-		tempCursor.execute("show tables")
-		rs = tempCursor.fetchall()
+		cursor.execute("show tables")
+		rs = cursor.fetchall()
 		tables = []
 		for record in rs:
 			tables.append(record[0])
