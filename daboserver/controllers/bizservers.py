@@ -34,19 +34,22 @@ jsonDecode = dabo.lib.jsonDecode
 ## NOTE: the next line is an example from the demonstration app.
 ## Be sure to CHANGE it to whatever is required for your app.
 from OrdersBizobj import OrdersBizobj
+from PeopleBizobj import PeopleBizobj
+from ActivitiesBizobj import ActivitiesBizobj
 #-------------------------------------------------------
 
 
 # The bizobj class *MUST* be defined here for each data source that is to be 
 # handled by this server. Be sure that these classes are imported above.
 ## NOTE: as mentioned above, this is for the demo app.
-bizDict = {"orders": OrdersBizobj}
+bizDict = {"orders": OrdersBizobj,
+	  "people": PeopleBizobj,
+	  "activities": ActivitiesBizobj}
 
 # The path to the server copy of the web application source files *MUST* be
 # defined here. It is used to compare local app manifests in order to 
 # determine what changes, if any, have been made to the app. 
 sourcePath = os.path.join(os.getcwd(), "daboserver/appSource")
-
 
 
 class BizserversController(BaseController):
@@ -128,7 +131,8 @@ class BizserversController(BaseController):
 	def getFileRequestDB(self):
 		curr = os.getcwd()
 		db = os.path.join(curr, "DaboFileCache.db")
-		cxn = dabo.db.dConnection(connectInfo={"DbType": "SQLite", "Database": db})
+		cxn = dabo.db.dConnection(connectInfo={"DbType": "SQLite", "Database": db},
+			forceCreate=True)
 		cursor = cxn.getDaboCursor()
 		return cursor
 

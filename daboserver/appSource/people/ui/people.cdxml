@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<dForm code-ID="dForm-top" CxnFile="path://../db/default.cnxml" Name="dForm" Caption="PyWorks 2008" SaveRestorePosition="False" Top="107" Height="703" Width="748" designerClass="DesForm" CxnName="people" Left="346">
+	<dSizer SlotCount="2" designerClass="LayoutSizer" Orientation="Vertical">
+		<dLabel FontBold="True" FontFace="Gill Sans" sizerInfo="{'Proportion': 0, 'HAlign': 'Center', 'Expand': False}" Caption="Incident Reports" FontSize="24" designerClass="controlMix" FontItalic="True"></dLabel>
+		<dSizer SlotCount="2" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutSizer" Orientation="Vertical">
+			<dBorderSizer SlotCount="2" Caption="Search" sizerInfo="{'BorderSides': ['All'], 'Proportion': 2, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutBorderSizer" Orientation="Vertical">
+				<dSizer SlotCount="4" DefaultBorder="5" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 10, 'Expand': True}" designerClass="LayoutSizer" Orientation="Horizontal">
+					<dPanel Spacing="60" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 5}" designerClass="LayoutSpacerPanel"></dPanel>
+					<dLabel Caption="Enter last name:" sizerInfo="{}" designerClass="controlMix" Name="dLabel1"></dLabel>
+					<dTextBox RegID="searchText" sizerInfo="{}" code-ID="dTextBox-dForm" designerClass="controlMix"></dTextBox>
+					<dButton code-ID="dButton-dForm" Caption="Search" sizerInfo="{}" designerClass="controlMix" RegID="searchButton" Enabled="False"></dButton>
+				</dSizer>
+				<dListBox code-ID="dListBox-dForm" sizerInfo="{'Expand': False}" designerClass="controlMix" RegID="nameList" Choices="[]"></dListBox>
+			</dBorderSizer>
+			<dSizer SlotCount="5" sizerInfo="{'BorderSides': ['All'], 'Proportion': 3, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutSizer" Orientation="Horizontal">
+				<dPanel Spacing="15" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': False}" designerClass="LayoutSpacerPanel"></dPanel>
+				<dBorderSizer SlotCount="1" Caption="Details" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutBorderSizer" Orientation="Vertical">
+					<dGridSizer HGap="11" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Center', 'VAlign': 'Top', 'Border': 15, 'Expand': True}" Rows="6" designerClass="LayoutGridSizer" VGap="6" MaxDimension="r" Columns="2">
+						<dLabel Caption="First" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right', 'ColExpand': False}" designerClass="controlMix" Name="dLabel2" rowColPos="(0, 0)"></dLabel>
+						<dTextBox sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0, 'HAlign': 'Left'}" Name="dTextBox1" rowColPos="(0, 1)" designerClass="controlMix" DataSource="people" DataField="firstname"></dTextBox>
+						<dLabel Caption="Last" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right', 'ColExpand': False}" designerClass="controlMix" Name="dLabel3" rowColPos="(1, 0)"></dLabel>
+						<dTextBox sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0, 'HAlign': 'Left'}" Name="dTextBox2" rowColPos="(1, 1)" designerClass="controlMix" DataSource="people" DataField="lastname"></dTextBox>
+						<dLabel Caption="Address" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right', 'ColExpand': False}" designerClass="controlMix" Name="dLabel4" rowColPos="(2, 0)"></dLabel>
+						<dTextBox sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0, 'HAlign': 'Left'}" Name="dTextBox3" rowColPos="(2, 1)" designerClass="controlMix" DataSource="people" DataField="fullname"></dTextBox>
+						<dLabel Caption="City" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right', 'ColExpand': False}" designerClass="controlMix" Name="dLabel5" rowColPos="(3, 0)"></dLabel>
+						<dTextBox sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0, 'HAlign': 'Left'}" Name="dTextBox4" rowColPos="(3, 1)" designerClass="controlMix" DataSource="people" DataField="city"></dTextBox>
+						<dLabel Caption="State" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right', 'ColExpand': False}" designerClass="controlMix" Name="dLabel6" rowColPos="(4, 0)"></dLabel>
+						<dTextBox sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0, 'HAlign': 'Left'}" Name="dTextBox5" rowColPos="(4, 1)" designerClass="controlMix" DataSource="people" DataField="stateprov"></dTextBox>
+						<dLabel Caption="Zip" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right', 'ColExpand': False}" designerClass="controlMix" Name="dLabel7" rowColPos="(5, 0)"></dLabel>
+						<dTextBox sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0, 'HAlign': 'Left'}" Name="dTextBox6" rowColPos="(5, 1)" designerClass="controlMix" DataSource="people" DataField="postalcode"></dTextBox>
+					</dGridSizer>
+				</dBorderSizer>
+				<dPanel sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': False}" designerClass="LayoutSpacerPanel"></dPanel>
+				<dBorderSizer SlotCount="1" Caption="Incidents" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutBorderSizer" Orientation="Vertical">
+					<dPageSelect sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix" PageCount="1">
+						<dPage classID="285146608" Caption="Page 1" designerClass="controlMix">
+							<dSizer classID="285146608-285147024" SlotCount="5" designerClass="LayoutSizer" Orientation="Vertical">
+								<dLabel classID="285146608-296126768" Caption="Label" sizerInfo="{}" designerClass="controlMix"></dLabel>
+								<dTextBox classID="285146608-296127184" sizerInfo="{}" designerClass="controlMix"></dTextBox>
+								<dPanel classID="285146608-295905456" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': False}" designerClass="LayoutSpacerPanel"></dPanel>
+								<dLabel classID="285146608-296127280" Caption="Label" sizerInfo="{}" designerClass="controlMix" Name="dLabel1"></dLabel>
+								<dEditBox classID="285146608-296127536" sizerInfo="{}" designerClass="controlMix"></dEditBox>
+							</dSizer>
+						</dPage>
+					</dPageSelect>
+				</dBorderSizer>
+				<dPanel Spacing="15" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': False}" designerClass="LayoutSpacerPanel"></dPanel>
+			</dSizer>
+		</dSizer>
+	</dSizer>
+</dForm>
