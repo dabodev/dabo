@@ -1331,7 +1331,9 @@ try again when it is running.
 		except AttributeError:
 			# Get the script name that launched the app. In case it was run
 			# as an executable, strip the leading './'
-			calledScript = sys.argv[0].lstrip("./")
+			calledScript = sys.argv[0]
+			if calledScript.startswith("./"):
+				calledScript = calledScript.lstrip("./")
 			scriptDir = os.path.split(os.path.join(os.getcwd(), calledScript))[0]
 			appDir = os.path.split(inspect.getabsfile(self.__class__))[0]
 
