@@ -3034,8 +3034,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				if hasattr(form, "getBizobj"):
 					newDS = form.getBizobj(ds)
 					if isinstance(newDS, dabo.biz.dBizobj):
-						# Store the reference
-						self._dataSource = newDS
+						if not newDS.isRemote():
+							# Store the reference if local
+							self._dataSource = newDS
 					return newDS
 				form = form.Form
 		return None
