@@ -775,6 +775,9 @@ class dBizobj(dObject):
 
 	def getFieldNames(self):
 		"""Returns a tuple of all the field names in the cursor."""
+		rp = self._RemoteProxy
+		if rp:
+			return rp.getFieldNames()
 		flds = self._CurrentCursor.getFields()
 		# This is a tuple of 3-tuples; we just want the names
 		return tuple([ff[0] for ff in flds])
@@ -1153,7 +1156,7 @@ class dBizobj(dObject):
 		pass
 
 
-	def _onNew(self):
+	def _onNew(self, setDefaults=True):
 		""" Populate the record with any default values.
 
 		User subclasses should leave this alone and instead override onNew().
@@ -1168,7 +1171,8 @@ class dBizobj(dObject):
 				self.__currentCursorKey = tmpKey
 				del self.__cursors[currKey]
 				self.__cursors[tmpKey] = cursor
-		cursor.setDefaults(self.DefaultValues)
+		if setDefaults:
+			cursor.setDefaults(self.DefaultValues)
 		cursor.setNewFlag()
 		# Fill in the link to the parent record
 		if self.Parent and self.FillLinkFromParent and self.LinkField:
@@ -1363,7 +1367,10 @@ class dBizobj(dObject):
 					ch.requery()
 			
 		if cursor is not None:
-			ret = cursor.getFieldVal(fld, row, _rowChangeCallback=changeRowNumCallback)
+			try:
+				ret = cursor.getFieldVal(fld, row, _rowChangeCallback=changeRowNumCallback)
+			except dException.RowNotFoundException:
+				return None
 
 		if oldRow != self.RowNumber:
 			self._moveToRowNum(oldRow)
@@ -1376,7 +1383,7 @@ class dBizobj(dObject):
 		if cursor is not None:
 			try:
 				ret = cursor.setFieldVal(fld, val, row)
-			except dException.NoRecordsException:
+			except (dException.NoRecordsException, dException.RowNotFoundException):
 				ret = False
 		return ret
 
@@ -1484,12 +1491,22 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		it is the responsibility of the caller to make sure that they match. If invalid data is
 		passed, a dException.FieldNotFoundException will be raised.
 		"""
-		for rec in ds:
-			self.new()
-			for col, val in rec.items():
-				if self.AutoPopulatePK and (col == self.KeyField):
-					continue
-				self.setFieldVal(col, val)
+		self._CurrentCursor.appendDataSet(ds)
+
+
+	def cloneRecord(self):
+		"""Creates a copy of the current record and adds it to the dataset. The KeyField
+		is not copied.
+		"""
+		self._CurrentCursor.cloneRecord()
+		self._onNew(setDefaults=False)
+
+
+	def isRemote(self):
+		"""Returns True/False, depending on whether this bizobj's connection
+		is remote or not.
+		"""
+		return self._connection.isRemote()
 
 
 	def getDataTypes(self):
@@ -1800,7 +1817,8 @@ afterDelete() which is only called after a delete().""")
 		crs.AutoQuoteNames = self._autoQuoteNames
 		if self._dataStructure is not None:
 			crs.DataStructure = self._dataStructure
-		crs.Table = self._dataSource
+		if not self._RemoteProxy:
+			crs.Table = self._dataSource
 		crs.UserSQL = self._userSQL
 		crs.VirtualFields = self._virtualFields
 		crs.Encoding = self.Encoding
@@ -2045,7 +2063,7 @@ afterDelete() which is only called after a delete().""")
 
 
 	def _getRemoteProxy(self):
-		if self._connection.isRemote():
+		if self.isRemote():
 			try:
 				return self._remoteProxy
 			except AttributeError:

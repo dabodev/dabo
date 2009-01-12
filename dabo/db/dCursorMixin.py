@@ -811,7 +811,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if row is None:
 			row = self.RowNumber
 
-		rec = self._records[row]
+		try:
+			rec = self._records[row]
+		except IndexError:
+			raise dException.RowNotFoundException(
+					_("Row #%s requested, but the data set has only %s row(s),") % (row, len(self._records)))
 		if isinstance(fld, (tuple, list)):
 			ret = []
 			for xFld in fld:
@@ -894,7 +898,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if row is None:
 			row = self.RowNumber
 
-		rec = self._records[row]
+		try:
+			rec = self._records[row]
+		except IndexError:
+			raise dException.RowNotFoundException(
+					_("Row #%s requested, but the data set has only %s row(s),") % (row, len(self._records)))
 		valid_pk = self._hasValidKeyField()
 		keyField = self.KeyField
 		if fld not in rec:
@@ -1102,6 +1110,38 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						tmprec.pop(internal, None)
 				ds.append(tmprec)
 		return dDataSet(ds)
+
+
+	def appendDataSet(self, ds):
+		"""Appends the rows in the passed dataset to this cursor's dataset. No checking
+		is done on the dataset columns to make sure that they are correct for this cursor;
+		it is the responsibility of the caller to make sure that they match. If invalid data is
+		passed, a dException.FieldNotFoundException will be raised.
+		"""
+		kf = self.KeyField
+		if not isinstance(kf, tuple):
+			kf = (kf, )
+		for rec in ds:
+			self.new()
+			for col, val in rec.items():
+				if self.AutoPopulatePK and (col in kf):
+					continue
+				self.setFieldVal(col, val)
+
+
+	def cloneRecord(self):
+		"""Creates a copy of the current record and adds it to the dataset."""
+		if not self.RowCount:
+			raise dException.NoRecordsException(_("No records in the data set."))
+		rec = self._records[self.RowNumber]
+		if self.AutoPopulatePK:
+			kf = self.KeyField
+			blank = self._getBlankRecord()
+			if not isinstance(kf, tuple):
+				kf = (kf, )
+			for fld in kf:
+				rec[fld] = blank[fld]
+		self.appendDataSet((rec, ))
 
 
 	def getDataTypes(self):
@@ -1427,11 +1467,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self.BackendObject.pregenPK(self.AuxCursor)
 
 
-	def new(self):
-		"""Add a new record to the data set."""
+	def _getBlankRecord(self):
+		"""Returns a record template, with each field set to the 'blank' value 
+		for that data type.
+		"""
 		if not self._blank:
 			self.__setStructure()
-		blank = self._blank.copy()
+		return self._blank.copy()
+
+
+	def new(self):
+		"""Add a new record to the data set."""
+		blank = self._getBlankRecord()
 		self._records += dDataSet((blank,))
 		# Adjust the RowCount and position
 		self.RowNumber = self.RowCount - 1
