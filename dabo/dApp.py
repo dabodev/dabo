@@ -257,7 +257,20 @@ try again when it is running.
 
 		self._afterInit()
 		self.autoBindEvents()
-		
+
+
+	def resyncFiles(self):
+		""" In the middle of an app's lifetime, files on the remote server may
+		have been updated. This will ensure that the local copy is in sync.
+		"""
+		rp = self._RemoteProxy
+		if rp:
+			try:
+				rp.syncFiles()
+			except urllib2.URLError, e:
+				# Cannot sync; record the error and move on
+				dabo.errorLog.write(_("File re-sync failed. Reason: %s") % e)
+
 
 	def __del__(self):
 		"""Make sure that temp files are removed"""
