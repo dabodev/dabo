@@ -1017,6 +1017,7 @@ class uiApp(dObject, wx.App):
 		except AttributeError:
 			dabo.errorLog.write(_("Only .cdxml forms can be re-loaded"))
 			return
+		self.dApp.resyncFiles()
 		frm.lockDisplay()
 		# Store the old form's bizobj dict
 		bizDict = frm.bizobjs
@@ -1027,6 +1028,7 @@ class uiApp(dObject, wx.App):
 		newForm.bizobjs = bizDict
 		newForm.PrimaryBizobj = bizPrimary
 		dabo.ui.callAfter(frm.release)
+		newForm.update()
 		newForm.show()
 
 
