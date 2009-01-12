@@ -168,10 +168,12 @@ class RemoteConnector(object):
 		path = path.lstrip("/")
 		self._baseURL = "%s://%s" % (scheme, host)
 		listURL = "%s://%s/manifest" % (scheme, host)
+		res = None
 		try:
 			res = jsonDecode(self._read(listURL))
 		except urllib2.URLError, e:
 			code, msg = e.reason
+#			print "CODE<MSG", code, msg
 			if code == 61:
 				# Connection refused; server's down
 				return "Error: The server is not responding. Please try later"
@@ -183,6 +185,8 @@ class RemoteConnector(object):
 		# If they passed an app name, and it's in the returned app list, run it
 		if path and (path in res):
 			return path
+		else:
+			return res
 		# We have a list of available apps. Let the user select one
 		class AppPicker(dabo.ui.dOkCancelDialog):
 			def addControls(self):
@@ -310,11 +314,14 @@ class RemoteConnector(object):
 	def rollbackTransaction(self): return False
 
 
-	def getFields(self, tableName):
-		saveObj = self.obj
-		class Dummy(object):
-			DataSource = tableName
-		self.obj = Dummy()
+	def getFieldNames(self):
+		url = self._getFullUrl("fields")
+		enc = self._read(url)
+		flds = jsonDecode(enc)
+		return flds
+
+
+	def getFieldNames(self):
 		url = self._getFullUrl("fields")
 		enc = self._read(url)
 		flds = jsonDecode(enc)
@@ -344,6 +351,8 @@ class RemoteConnector(object):
 		if self._baseURL:
 			# Set explicitly by the launch() method
 			return self._baseURL
+		app = dabo.dAppRef
+		ret = ""
 		try:
 			ret = self.Connection.ConnectInfo.RemoteHost
 		except AttributeError:
@@ -351,9 +360,10 @@ class RemoteConnector(object):
 			try:
 				ret = self.obj.SourceURL
 			except AttributeError:
-				ret = ""
+				# Use the app object
+				if app:
+					ret = app.SourceURL
 		else:
-			app = dabo.dAppRef
 			if app and not app.SourceURL:
 				app.SourceURL = ret
 		return ret
