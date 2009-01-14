@@ -184,10 +184,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		isChanged = False
 		oldVal = self._oldVal
 
-		if self._userChanged:
-			self.raiseEvent(dabo.dEvents.InteractiveChange, oldVal=oldVal)
-			self._userChanged = False
-		
 		if oldVal is None and curVal is None:
 			# Could be changed and we just don't know it...
 			isChanged = True
@@ -203,6 +199,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			else:
 				isChanged = (curVal != oldVal)
 		if isChanged:
+			if self._userChanged:
+				self.raiseEvent(dabo.dEvents.InteractiveChange, oldVal=oldVal)
+				self._userChanged = False
+		
 			if not self._DesignerMode:
 				if self.DataSource and self.DataField:
 					src = self.Source
