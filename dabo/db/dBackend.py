@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import sys
+import time
 import re
 import datetime
+import threading
 import dabo
 from dabo.dLocalize import _
 import dabo.dException as dException
@@ -552,6 +554,38 @@ class dBackend(dObject):
 		return clause
 	###########################################
 
+	def _applyKeepAlive(self):
+		"""Start a thread to keep the connection alive."""
+
+		class WorkerThread(threading.Thread):
+			def __init__(self, backendObj):
+				threading.Thread.__init__(self)
+				self._toStop = False
+				self.backendObj = backendObj
+
+			def run(self):
+				last_hit = time.time()
+				while True:
+					kal = self.backendObj.KeepAliveInterval
+					app = self.backendObj.Application
+					if kal is None or not app or getattr(app, "_finished", False):
+						self._toStop = True
+					if self._toStop:
+						return
+					if time.time() - last_hit > kal:
+						con = self.backendObj._connection
+						cur = con.cursor()
+						cur.execute("select 1")
+						last_hit = time.time()
+						time.sleep(0.1)
+
+		existingThread = getattr(self, "_keepAliveThread", None)
+		if existingThread:
+			existingThread._toStop = True
+		if self.KeepAliveInterval is not None:
+			wt = self._keepAliveThread = WorkerThread(self)
+			wt.start()
+
 	def _setEncoding(self, enc):
 		""" Set backend encoding. Must be overridden in the subclass
 		to notify database about proper charset conversion.
@@ -563,5 +597,25 @@ class dBackend(dObject):
 		return self._encoding
 
 
+	def _getKeepAliveInterval(self):
+		try:
+			ret = self._keepAliveInterval
+		except AttributeError:
+			ret = self._keepAliveInterval = None
+		return ret
+
+	def _setKeepAliveInterval(self, val):
+		self._keepAliveInterval = val
+		self._applyKeepAlive()
+
+
 	Encoding = property(_getEncoding, _setEncoding, None,
 			_("Backend encoding  (str)"))
+
+	KeepAliveInterval = property(_getKeepAliveInterval, _setKeepAliveInterval, None,
+			_("""Specifies how often a KeepAlive query should be sent to the server.
+
+			Defaults to None, meaning we never send a KeepAlive query. The interval
+			is expressed in seconds.
+			"""))
+
