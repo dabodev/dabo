@@ -1152,7 +1152,7 @@ class dPemMixin(dPemMixinBase):
 				setattr(kid, prop, val)
 			if recurse:
 				if hasattr(kid, "setAll"):
-					kid.setAll(prop, val, recurse=recurse, filt=filt)
+					kid.setAll(prop, val, recurse=recurse, filt=filt, instancesOf=instancesOf)
 
 	
 	def recreate(self, child=None):
