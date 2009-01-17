@@ -3,6 +3,7 @@
 
 import types
 import datetime
+import time
 import inspect
 import random
 import sys
@@ -68,6 +69,8 @@ class dCursorMixin(dObject):
 		self.sortCase = True
 		# Holds the last SQL run in a requery() call.
 		self._lastSQL = ""
+		# Hold the time that this cursor was last requeried.
+		self.lastRequeryTime = 0
 		# These are used to determine if the field list of successive select statements
 		# are identical.
 		self.__lastExecute = ""
@@ -436,6 +439,8 @@ class dCursorMixin(dObject):
 		# clear mementos and new record flags:
 		self._mementos = {}
 		self._newRecords = {}
+		# Record the requery time for caching purposes
+		self.lastRequeryTime = time.time()
 
 		if newQuery:
 			# Check for any derived fields that should not be included in
@@ -1151,11 +1156,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _storeData(self, data, typs):
 		"""Accepts a dataset and type dict from an external source and
-		uses it as its own.
+		uses it as its own. Also resets the lastRequeryTime value.
 		"""
 		# clear mementos and new record flags:
 		self._mementos = {}
 		self._newRecords = {}
+		self.lastRequeryTime = time.time()
 		# If None is passed as the data, exit after resetting the flags
 		if data is None:
 			return

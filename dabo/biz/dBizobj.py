@@ -2,6 +2,7 @@
 import types
 import re
 import warnings
+import time
 import dabo
 import dabo.dConstants as kons
 from dabo.db.dCursorMixin import dCursorMixin
@@ -80,6 +81,8 @@ class dBizobj(dObject):
 		self._fillLinkFromParent = False
 		self.exitScan = False
 		self.dbapiCursorClass = None
+		self._childCacheInterval = None
+
 
 		##########################################
 		### referential integrity stuff ####
@@ -1326,8 +1329,19 @@ class dBizobj(dObject):
 			if child.RequeryWithParent:
 				child.setCurrentParent()
 				if not child.isAnyChanged(useCurrentParent=True):
-					child.requery()
+					# Check for caching
+					if child.cacheExpired():
+						child.requery()
 		self.afterChildRequery()
+
+
+	def cacheExpired(self):
+		"""This controls if a child requery is needed when a parent is requeried."""
+		ret = True
+		if self._childCacheInterval:
+			last = self._CurrentCursor.lastRequeryTime
+			ret = ((time.time() - last) > self._childCacheInterval)
+		return ret
 
 
 	def getPK(self):
@@ -1872,6 +1886,13 @@ afterDelete() which is only called after a delete().""")
 		self._caption = str(val)
 
 
+	def _getChildCacheInterval(self):
+		return self._childCacheInterval
+
+	def _setChildCacheInterval(self, val):
+		self._childCacheInterval = val
+
+
 	def _getCurrentSQL(self):
 		return self._CurrentCursor.CurrentSQL
 
@@ -2213,6 +2234,10 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("The friendly title of the cursor, used in messages to the end user. (str)"))
+
+	ChildCacheInterval = property(_getChildCacheInterval, _setChildCacheInterval, None,
+			_("""If this is a child bizobj, this represents the length of time in seconds that a 
+			subsequent requery request will be ignored.  (int)"""))
 
 	CurrentSQL = property(_getCurrentSQL, None, None,
 			_("Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."))
