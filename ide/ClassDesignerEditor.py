@@ -321,6 +321,8 @@ class EditorForm(dui.dForm):
 			if nonEvent is None:
 				nonEvent = mthd not in self.Controller.getClassEvents(obj._baseClass)
 			txt = self._getMethodBase(mthd, not (nonEvent is True))
+		if isinstance(txt, str):
+			txt = txt.decode(ed.Encoding)
 		if ed.Value != txt:
 			ed.Value = txt
 			ed._clearDocument(clearText=False)
@@ -597,7 +599,7 @@ class EditorForm(dui.dForm):
 # 					txt = ""
 			if objCode:
 				txt = self._extractImports(txt)
-				objCode[mthd] = txt.rstrip() + "\n"
+				objCode[mthd] = txt	
 			else:
 				rep[obj] = {}
 				rep[obj][mthd] = txt

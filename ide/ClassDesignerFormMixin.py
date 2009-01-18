@@ -4,6 +4,7 @@ import sys
 import time
 import random
 import new
+import codecs
 import dabo
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
@@ -490,7 +491,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		xml = xtd.dicttoxml(propDict)
 		# Try opening the file. If it is read-only, it will raise an
 		# IOErrorrror that the calling method can catch.
-		open(fname, "wb").write(xml)
+		codecs.open(fname, "wb", encoding="utf-8").write(xml)
 		cfName = "%s-code.py" % os.path.splitext(fname)[0]
 		if singleFile:
 			# Delete the code file if present.
@@ -498,7 +499,8 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 				os.remove(cfName)
 		else:
 			# Write out the code file
-			open(cfName, "wb").write(self._createDesignerCode(codeDict))
+			desCode = self._createDesignerCode(codeDict)
+			codecs.open(cfName, "w", encoding="utf-8").write(desCode)
 		if currForm:
 			currForm.bringToFront()
 		self.saveState()
@@ -587,7 +589,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		xml = xtd.dicttoxml(propDict)
 		# Try opening the file. If it is read-only, it will raise an
 		# IOError that the calling method can catch.
-		open(clsFile, "wb").write(xml)
+		codecs.open(clsFile, "wb", encoding="utf-8").write(xml)
 	
 	
 	def getClass(self):
@@ -754,7 +756,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		except IndexError:
 			nxtClsLn = -1
 		# Read in the file, and extract this class's code.
-		f = open(inf.file)
+		f = codecs.open(inf.file, "r", encoding="utf-8")
 		txt = []
 		for i in range(thisClsLn-1):
 			f.readline()
@@ -836,9 +838,9 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 				self.Application.copyToClipboard(bizcode)
 		else:
 			fname = "%(tblTitle)sBizobj.py" % locals()
-			file(os.path.join(bizdir, fname), "w").write(bizcode)
+			codecs.open(os.path.join(bizdir, fname), "w", encoding="utf-8").write(bizcode)
 			clsname = fname.strip(".py")
-			file(os.path.join(bizdir, "__init__.py"), "a").write("\nfrom %(clsname)s import %(clsname)s\n" % locals())
+			codecs.open(os.path.join(bizdir, "__init__.py"), "a", encoding="utf-8").write("\nfrom %(clsname)s import %(clsname)s\n" % locals())
 
 		# Now create the import code for the form.
 		loadcode = loadCodeTemplate % locals()

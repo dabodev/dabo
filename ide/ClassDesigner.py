@@ -1809,7 +1809,7 @@ class ClassDesigner(dabo.dApp):
 		code = tmpl % fname
 		out = os.path.splitext(nm)[0] + ".py"
 		try:
-			open(out, "w").write(code)
+			codecs.open(out, "w", encoding="utf-8").write(code)
 			dui.info(_("You can run your form by running the file\n%s")
 					% out, title=_("Runnable App Saved"))
 		except IOError, e:

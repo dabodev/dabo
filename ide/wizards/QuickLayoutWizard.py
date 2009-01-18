@@ -757,12 +757,15 @@ class QuickLayoutWizard(Wizard):
 
 	def start(self):
 		pgs = [PgConnectionSelect, PgSelect, PgOrdering, PgLayout, PgSample, PgBiz]
-		cxn = False
+		cxn = None
 		if self.ConnectionName:
 			cxn = self.makeConnection(showAlert=False)
 		if cxn:
 			# We don't need the connection selector page
 			pgs.pop(0)
+		elif cxn is False:
+			# Error; do not proceed.
+			return False
 		self.append(pgs)
 		super(QuickLayoutWizard, self).start()
 		
@@ -770,8 +773,11 @@ class QuickLayoutWizard(Wizard):
 	def makeConnection(self, showAlert=True):
 		if self.ConnectionFile:
 			self.Application.addConnectFile(self.ConnectionFile)
+		conn = self.Application.getConnectionByName(self.ConnectionName)
+		if conn.ConnectInfo.DbType == "web":
+			dabo.ui.stop(_("Sorry, you cannot use web connections with this wizard."))
+			return False
 		try:
-			conn = self.Application.getConnectionByName(self.ConnectionName)
 			crs = conn.getDaboCursor()
 			self.ConnectionFile = self.Application.dbConnectionNameToFiles[self.ConnectionName]
 		except StandardError, e:
@@ -779,7 +785,6 @@ class QuickLayoutWizard(Wizard):
 				dabo.ui.stop(_("Could not make connection to '%s'") % 
 						self.ConnectionName)
 			return False
-		
 		tbls = crs.getTables()
 		for tb in tbls:
 			fldDict = {}
