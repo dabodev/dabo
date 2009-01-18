@@ -2392,6 +2392,8 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		
 	def _setValue(self, val):
 		if self._constructed():
+			if isinstance(val, str):
+				val = val.decode(self.Encoding)
 			if self.Text != val:
 				try:
 					self.Text = val

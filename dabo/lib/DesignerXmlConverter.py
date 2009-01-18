@@ -62,13 +62,15 @@ class DesignerXmlConverter(dObject):
 		self.createClassText(dct)
 		# Work-around for bug in which a trailing comment line throws an error
 		self.classText += "\n"
+		if isinstance(self.classText, unicode):
+			self.classText = self.classText.encode(self.Application.Encoding)
 		open(self._classFileName, "w").write(self.classText)
 		
 		## For debugging. This creates a copy of the generated code
 		## so that you can help determine any problems.
 		## egl: removed 2007-02-10. If you want to see the output, 
 		##   just uncomment the next line.
-#  		open("CLASSTEXT.py", "w").write(self.classText)
+ 		open("CLASSTEXT.py", "w").write(self.classText)
 
 		# jfcs added self._codeFileName to below
 		# egl - created a tmp file for the main class code that we can use 
@@ -97,7 +99,7 @@ class DesignerXmlConverter(dObject):
 			else:
 				parseCode = False
 				self._srcFile = os.getcwd()
-		dct = xtd.xmltodict(xml, addCodeFile=True)
+		dct = xtd.xmltodict(xml, addCodeFile=True, encoding="utf-8")
 		# Traverse the dct, looking for superclass information
 		super = xtd.flattenClassDict(dct)
 		if super:
@@ -203,7 +205,7 @@ class DesignerXmlConverter(dObject):
 			if mthd == "importStatements":
 				self._import += cd + LINESEP
 				continue
-			self.classText += LINESEP + self.indentCode(cd, 1)
+			self.classText = "%s%s%s" % (self.classText, LINESEP, self.indentCode(cd, 1))
 		# Add any property definitions
 		for prop, propDef in propDefs.items():
 			pdg = propDef["getter"]
@@ -230,6 +232,9 @@ class DesignerXmlConverter(dObject):
 			impt = self._import
 		else:
 			impt = ""
+		ct = self.classText
+		if isinstance(ct, unicode):
+			self.classText = ct.encode(self.Application.Encoding)
 		self.classText = self.classText.replace("|classImportStatements|", impt)
 		
 		# We're done!
@@ -635,6 +640,8 @@ class DesignerXmlConverter(dObject):
 
 	def indentCode(self, cd, level):
 		"""Takes code and indents it to the desired level"""
+# 		if isinstance(cd, str):
+# 			cd = cd.decode(self.Application.Encoding)
 		lns = cd.splitlines()
 		indent = "\t" * level
 		# Compiled code needs newlines, no matter what platform.
