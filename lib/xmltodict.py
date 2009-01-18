@@ -7,6 +7,7 @@ This was copied and modified from John Bair's recipe at aspn.activestate.com:
 import os
 import string
 import locale
+import codecs
 from xml.parsers import expat
 
 # If we're in Dabo, get the default encoding.
@@ -35,9 +36,9 @@ code_linesep = "\n"
 eol = os.linesep
 
 
-class Xml2Obj:
+class Xml2Obj(object):
 	"""XML to Object"""
-	def __init__(self):
+	def __init__(self, encoding=None):
 		self.root = None
 		self.nodeStack = []
 		self.attsToSkip = []
@@ -51,6 +52,10 @@ class Xml2Obj:
 		self._propDict = None
 		self._currPropAtt = ""
 		self._currPropDict = None
+		if encoding is None:
+			self._encoding = dabo.defaultEncoding
+		else:
+			self._encoding = encoding
 		
 
 	def StartElement(self, name, attributes):
@@ -154,7 +159,7 @@ class Xml2Obj:
 
 	def Parse(self, xml):
 		# Create a SAX parser
-		Parser = expat.ParserCreate()
+		Parser = expat.ParserCreate(self._encoding)
 		# SAX event handlers
 		Parser.StartElementHandler = self.StartElement
 		Parser.EndElementHandler = self.EndElement
@@ -168,9 +173,11 @@ class Xml2Obj:
 		return self.Parse(open(filename,"r").read())
 
 
-def xmltodict(xml, attsToSkip=[], addCodeFile=False):
+def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
 	"""Given an xml string or file, return a Python dictionary."""
-	parser = Xml2Obj()
+	if encoding is None:
+		encoding = dabo.defaultEncoding
+	parser = Xml2Obj(encoding=encoding)
 	parser.attsToSkip = attsToSkip
 	if eol in xml and "<?xml" in xml:
 		isPath = False
@@ -179,8 +186,11 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False):
 	errmsg = ""
 	if eol not in xml and isPath:
 		# argument was a file
+		xmlContent = codecs.open(xml, "r", encoding).read()
+		if isinstance(xmlContent, unicode):
+			xmlContent = xmlContent.encode(encoding)
 		try:
-			ret = parser.ParseFromFile(xml)
+			ret = parser.Parse(xmlContent)
 		except expat.ExpatError, e:
 			errmsg = _("The XML in '%s' is not well-formed and cannot be parsed: %s") % (xml, e)
 	else:
@@ -196,7 +206,8 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False):
 		codePth = "%s-code.py" % os.path.splitext(xml)[0]
 		if os.path.exists(codePth):
 			try:
-				codeDict = desUtil.parseCodeFile(open(codePth).read())
+				codeContent = codecs.open(codePth, "r", encoding).read()
+				codeDict = desUtil.parseCodeFile(codeContent)
 				ret["importStatements"] = codeDict.pop("importStatements", "")
 				desUtil.addCodeToClassDict(ret, codeDict)
 			except StandardError, e:
