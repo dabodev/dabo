@@ -257,14 +257,15 @@ class dCursorMixin(dObject):
 		# Do the unicode conversion last:
 		if isinstance(field_val, str) and self._convertStrToUnicode:
 			try:
-				return unicode(field_val, self.Encoding)
+				decoded = field_val.decode(self.Encoding)
+				return decoded
 			except UnicodeDecodeError, e:
 				# Try some common encodings:
 				ok = False
 				for enc in ("utf-8", "latin-1", "iso-8859-1"):
 					if enc != self.Encoding:
 						try:
-							ret = unicode(field_val, enc)
+							ret = field_val.decode(enc)
 							ok = True
 						except UnicodeDecodeError:
 							continue
@@ -292,8 +293,8 @@ class dCursorMixin(dObject):
 		# retrieving the data. However, many cursor classes can only return
 		# row information as a list, not as a dictionary. This method will
 		# detect that, and convert the results to a dictionary.
-		if not isinstance(sql, unicode):
-			sql = unicode(sql, self.Encoding)
+		if isinstance(sql, unicode):
+			sql = sql.encode(self.Encoding)
 		# Some backends, notably Firebird, require that fields be specially marked.
 		sql = self.processFields(sql)
 
