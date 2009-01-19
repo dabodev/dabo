@@ -104,15 +104,15 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 		src = self.Source
 		if src and self._srcIsBizobj:
-			# First see if DataField refers to a method of the bizobj:
-			method = getattr(src, self.DataField, None)
-			if callable(method):
-				self.Value = method()
-			else:
-				try:
-					self.Value = src.getFieldVal(self.DataField)
-				except (TypeError, dException.NoRecordsException):
-					self.Value = self.getBlankValue()
+			try:
+				self.Value = src.getFieldVal(self.DataField)
+			except (TypeError, dException.NoRecordsException):
+				self.Value = self.getBlankValue()
+			except dException.FieldNotFoundException:
+				# See if DataField refers to a method of the bizobj:
+				method = getattr(src, self.DataField, None)
+				if callable(method):
+					self.Value = method()
 		else:
 			if self._srcIsInstanceMethod is None and src is not None:
 				if isinstance(src, basestring):
@@ -207,20 +207,14 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				if self.DataSource and self.DataField:
 					src = self.Source
 					if self._srcIsBizobj:
-						# First see if DataField refers to a method of the bizobj, in which
-						# case do not try to assign to it:
-						method = getattr(self.Source, self.DataField, None)
-						if method is None:
-							try:
-								ret = src.setFieldVal(self.DataField, curVal)
-							except AttributeError:
-								# Eventually, we'll want our global error handler be the one to write
-								# to the errorLog, at which point we should reraise the exception as
-								# commented below. However, raising the exception here without a global
-								# handler results in some ugly GTK messages and a segfault, so for now
-								# let's just log the problem and let the app continue on.
-								#raise AttributeError, "No source object found for datasource '%s'" % self.DataSource
-								dabo.errorLog.write("No source object found for datasource '%s'" % self.DataSource)
+						try:
+							ret = src.setFieldVal(self.DataField, curVal)
+						except dException.FieldNotFoundException:
+							# First see if DataField refers to a method of the bizobj, in which
+							# case it is read-only; do not try to assign to it:
+							method = getattr(self.Source, self.DataField, None)
+							if method is None:
+								raise
 					else:
 						# If the binding is to a method, do not try to assign to that method.
 						if self._srcIsInstanceMethod is None:
