@@ -4,8 +4,8 @@
 
 Dabo is for developing multi-platform database business applications -
 you know, applications that need to connect to a database server (MySQL,
-Oracle, MS-SQL, whatever), get recordsets of data based on criteria 
-set by the user, provide easy ways to edit and commit changes to the 
+Oracle, MS-SQL, whatever), get recordsets of data based on criteria
+set by the user, provide easy ways to edit and commit changes to the
 data, and to report on the data.
 
 You either program using Python, importing the dabo library, or you
@@ -13,9 +13,9 @@ use the Dabo Class Designer to create xml files to define your classes.
 These xml files can contain embedded python code for the best of all worlds.
 
 So, the basic idea is that you have a functional, working, albeit basic
-application up and running very quickly, and you can then spend time 
-getting all the fancy bells and whistles implemented. Keep things as 
-simple as possible though, while still fulfilling your customer's 
+application up and running very quickly, and you can then spend time
+getting all the fancy bells and whistles implemented. Keep things as
+simple as possible though, while still fulfilling your customer's
 specifications. Simplicity is the better part of elegance.
 
 Beyond the wizards and xml definition files, Dabo exposes a nice
@@ -36,8 +36,8 @@ ui libraries, such as PyQt, tk, and curses.
 
 The Dabo framework will have to be distributed to your client's machine(s),
 along with your project-specific data definitions and (if applicable), your
-subclasses of the Dabo classes and additional Python scripts, if any. There 
-are ways to do runtime deployment via installers that take the complexity 
+subclasses of the Dabo classes and additional Python scripts, if any. There
+are ways to do runtime deployment via installers that take the complexity
 out of this, but that is outside the scope of Dabo itself, and you'll use
 a different method for each target platform.
 
@@ -49,28 +49,28 @@ To run Dabo, and apps based on Dabo, you need:
 		nature of Dabo's design, it is possible to use just the
 		db layer, or the db layer in conjunction with the biz
 		layer, with no ui at all.)
-	
-	+	pysqlite2: The Python dbapi module for SQLite. (Not needed in 
+
+	+	pysqlite2: The Python dbapi module for SQLite. (Not needed in
 			Python 2.5 and higher)
 
 	+ Windows 98SE or higher
 	+ Macintosh OSX 10.2 or higher (*much* nicer in Tiger - 10.4)
-	+ Linux 2.4 with X11 running and Gtk2 
+	+ Linux 2.4 with X11 running and Gtk2
 
-	+ Access to some sort of database server, along with the 
+	+ Access to some sort of database server, along with the
 	appropriate Python driver(s) installed. For example, for
 	MySQL you'll need to have the MySQL client libraries
 	installed, as well as the MySQLDb Python module. (Dabo
 	does not use ODBC: it connects directly using the Python
 	DB API coupled with the individual database drivers. This
 	is, at the same time, less flexible, tougher to get started
-	with, but more capable, more multi-platform, and better 
+	with, but more capable, more multi-platform, and better
 	performing, than ODBC is.) (we recommend starting with MySQL
 	installed, because all of the demo code has the best support
 	for MySQL).
 
 How you get started is pretty much up to you. Run DaboDemo.py which
-is in demo/DaboDemo. Run AppWizard.py which is in ide/wizards. 
+is in demo/DaboDemo. Run AppWizard.py which is in ide/wizards.
 Run ClassDesigner.py or ReportDesigner.py in the ide directory.
 
 For some quick eye-candy, once you've installed Dabo using the standard
@@ -94,7 +94,7 @@ the command window.
 
 	print tb.Value
 
-Have fun in your exploration of Dabo! 
+Have fun in your exploration of Dabo!
 """
 
 import sys
@@ -115,7 +115,7 @@ free products before running Dabo. You can get them from the following locations
 SQLite: http://www.sqlite.org/download.html
 pysqlite2: http://initd.org/tracker/pysqlite
 
-"""	
+"""
 		sys.exit(msg)
 
 # dApp will change the following values upon its __init__:
@@ -128,9 +128,10 @@ from settings import *
 # for the user application separately.
 import dLocalize
 dLocalize.install("dabo")
-# On some platforms getfilesystemencoding() can return None,
-# in these cases we wimply use the encoding from the default locale
-fileSystemEncoding = sys.getfilesystemencoding() or locale.getdefaultlocale()[1]
+# On some platforms getfilesystemencoding() and even getdefaultlocale()
+# can return None, so we make sure we always set a reasonable encoding:
+fileSystemEncoding = (sys.getfilesystemencoding()
+    or locale.getdefaultlocale()[1] or settings.defaultEncoding)
 
 # Instantiate the logger object, which will send messages to user-overridable
 # locations. Do this before any other imports.
@@ -150,7 +151,7 @@ errorLog.LogObject = sys.stderr
 eventLog = Log()
 eventLog.Caption = "Dabo Event Log"
 eventLog.LogObject = sys.stdout
-# This log is set to None by default. It must be manually activated 
+# This log is set to None by default. It must be manually activated
 # via the Application object.
 dbActivityLog = Log()
 dbActivityLog.Caption = "Database Activity Log"
@@ -193,8 +194,8 @@ frameworkPath = os.path.dirname(dabo.__file__)
 # Define the standard Dabo subdirectory stucture for apps.
 def _getAppDirectoryNames():
 	return ("biz", "db", "ui", "resources", "reports", "test")
-	
-	
+
+
 # Method to create a standard Dabo directory structure layout
 def makeDaboDirectories(homedir=None):
 	"""If homedir is passed, the directories will be created off of that
@@ -211,7 +212,7 @@ def makeDaboDirectories(homedir=None):
 
 
 def quickStart(homedir=None):
-	"""This creates a bare-bones application in either the specified 
+	"""This creates a bare-bones application in either the specified
 	directory, or the current one if none is specified.
 	"""
 	currLoc = os.getcwd()
@@ -238,14 +239,14 @@ app.start()
 	template = """#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ######
-# In order for Dabo to 'see' classes in your %(dd)s directory, add an 
+# In order for Dabo to 'see' classes in your %(dd)s directory, add an
 # import statement here for each class. E.g., if you have a file named
 # 'MyClasses.py' in this directory, and it defines two classes named 'FirstClass'
 # and 'SecondClass', add these lines:
-# 
+#
 # from MyClass import FirstClass
 # from MyClass import SecondClass
-# 
+#
 # Now you can refer to these classes as: self.Application.%(dd)s.FirstClass and
 # self.Application.%(dd)s.SecondClass
 ######
