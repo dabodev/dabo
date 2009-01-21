@@ -205,7 +205,7 @@ class EventMixin(object):
 		stop = False
 		while parent:
 			lastParent = parent
-			self._autoBindEvents(context=parent, force=force)
+			stop = self._autoBindEvents(context=parent, force=force)
 			if stop:
 				break
 			try:
@@ -216,15 +216,17 @@ class EventMixin(object):
 
 
 	def _autoBindEvents(self, context, force=False):
-		import dabo.dEvents as dEvents
-
+		"""This tries to do the actual auto-binding. If returns a bool to indicate
+		whether the calling process should stop searching for objects auto-bind
+		opportunities.
+		"""
 		if not (force or dabo.autoBindEvents):
 			# autobinding is switched off globally
-			return
+			return True
 		if context is None:
 			# context could be None if during the setting of RegID property, 
 			# self.Form evaluates to None.
-			return
+			return True
 
 		regid = None
 		contextText = ""
@@ -236,9 +238,11 @@ class EventMixin(object):
 				## classes derive directly from dObject. dColumn, for example. 
 				regid = None
 			if regid is None or regid == "":
-				return
+				return False
 			contextText = "_%s" % regid
-						
+
+		# Do the import here; putting it at the top throws errors while Dabo is starting up.
+		import dabo.dEvents as dEvents
 		funcNames = [i for i in dir(context) if i[:2] == "on"]
 		for funcName in funcNames:
 			# if funcName is onActivate, then parsedEvtName == "Activate" and parsedRegID=""
@@ -260,9 +264,9 @@ class EventMixin(object):
 				continue
 
 			# If we got this far, we have a match. 
-
 			# Get the object reference to the function:
 			funcObj = None
+			retVal = False
 			### Paul: this is the major change I propose: looking
 			### in the 'context' object first, instead of its __class__
 			try:
@@ -284,6 +288,8 @@ class EventMixin(object):
 					evtObj = dEvents.__dict__[parsedEvtName]
 					funcObj = eval("context.%s" % funcName)  ## (can't use __class__.dict...)
 					self.bindEvent(evtObj, funcObj, _auto=True)
+					retVal = True
+			return retVal
 
 
 	def getEventList(cls):
