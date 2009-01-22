@@ -34,14 +34,17 @@ class FileMenu(dMenu):
 		if self.Application.ShowCommandWindowMenu:
 			self.commandWinMenuItem = self.append(_("Command Win&dow"), HotKey="Ctrl+D", 
 					OnHit=app.onCmdWin, bmp="%s/apps/utilities-terminal.png" % iconPath,
+					ItemID="file_commandwin",
 					help=_("Open up a command window for debugging") )
 
 			self.debugMenuItem = self.append(_("De&bug Output Window"), HotKey="Ctrl+B", 
 					OnHit=app.onDebugWin, bmp="%s/apps/utilities-terminal.png" % iconPath, 
+					ItemID="file_debugwin",
 					menutype="check", help=_("Open up a debug output window") )
 
 		prmpt = _("Close Windo&w")
 		self.append(prmpt, HotKey="Ctrl+W", OnHit=app.onWinClose,
+				ItemID="file_close",
 				help=_("Close the current window") )
 
 		self.appendSeparator()
@@ -49,6 +52,7 @@ class FileMenu(dMenu):
 		prmpt = _("&Quit")
 		self.append(prmpt, HotKey="Ctrl+Q", id=wx.ID_EXIT, OnHit=app.onFileExit, 
 				bmp="%s/actions/system-log-out.png" % iconPath, 
+				ItemID="file_quit",
 				help=_("Exit the application") )
 
 
@@ -61,28 +65,34 @@ class EditMenu(dMenu):
 
 		self.append(_("&Undo"), HotKey="Ctrl+Z", OnHit=app.onEditUndo, 
 				bmp="%s/actions/edit-undo.png" % iconPath,
+				ItemID="edit_undo",
 				help=_("Undo last action") )
 
 		self.append(_("&Redo"), HotKey="Ctrl+R", OnHit=app.onEditRedo, 
 				bmp="%s/actions/edit-redo.png" % iconPath,
+				ItemID="edit_redo",
 				help=_("Undo last undo") )
 
 		self.appendSeparator()
 
 		self.append(_("Cu&t"), HotKey="Ctrl+X", OnHit=app.onEditCut, 
 				bmp="%s/actions/edit-cut.png" % iconPath,
+				ItemID="edit_cut",
 				help=_("Cut selected text") )
 
 		self.append(_("&Copy"), HotKey="Ctrl+C", OnHit=app.onEditCopy, 
 				bmp="%s/actions/edit-copy.png" % iconPath,
+				ItemID="edit_copy",
 				help=_("Copy selected text") )
 
 		self.append(_("&Paste"), HotKey="Ctrl+V", OnHit=app.onEditPaste, 
 				bmp="%s/actions/edit-paste.png" % iconPath,
+				ItemID="edit_paste",
 				help=_("Paste text from clipboard") )
 
 		self.append(_("Select &All"), HotKey="Ctrl+A", OnHit=app.onEditSelectAll, 
 				bmp="%s/actions/edit-select-all.png" % iconPath,
+				ItemID="edit_selectall",
 				help=_("Select all text") )
 
 		self.appendSeparator()
@@ -90,19 +100,22 @@ class EditMenu(dMenu):
 		# By default, the Find and Replace functions use a single dialog. The
 		# commented lines below this enable the plain Find dialog call.
 		self.append(_("&Find / Replace"), HotKey="Ctrl+F", OnHit=app.onEditFind, 
-				bmp="%s/actions/edit-find-replace.png" % iconPath, 
+				bmp="%s/actions/edit-find-replace.png" % iconPath,
+				ItemID="edit_findreplace",
 				help=_("Find or Replace text in the active window") )
 
 # 		self.append(_("Find"), HotKey="Shift+Ctrl+F", OnHit=app.onEditFindAlone, 
 # 				bmp="%s/actions/edit-find.png" % iconPath, help=_("Find text in the active window") )
 
 		self.append(_("Find A&gain"), HotKey="Ctrl+G", OnHit=app.onEditFindAgain, bmp="",
+				ItemID="edit_findagain",
 				help=_("Repeat the last search") )
 
 		self.appendSeparator()
 
 		itm = self.append(_("Pr&eferences"), OnHit=app.onEditPreferences, 
 				bmp="%s/categories/preferences-system.png" % iconPath,
+				ItemID="edit_preferences",
 				help=_("Set user preferences"), special="pref" )
 
 
@@ -113,14 +126,18 @@ class ViewMenu(dMenu):
 		app = self.Application
 		self.Caption = _("&View")
 	
-		self.append(_("Increase Font Size"), HotKey="Ctrl++", OnHit=app.fontZoomIn)
-		self.append(_("Decrease Font Size"), HotKey="Ctrl+-", OnHit=app.fontZoomOut)
-		self.append(_("Normal Font Size"), HotKey="Ctrl+/", OnHit=app.fontZoomNormal)
+		self.append(_("Increase Font Size"), HotKey="Ctrl++", 
+				ItemID="view_zoomin", OnHit=app.fontZoomIn)
+		self.append(_("Decrease Font Size"), HotKey="Ctrl+-", 
+				ItemID="view_zoomout", OnHit=app.fontZoomOut)
+		self.append(_("Normal Font Size"), HotKey="Ctrl+/", 
+				ItemID="view_zoomnormal", OnHit=app.fontZoomNormal)
 	
 		if app.ShowSizerLinesMenu:
 			self.appendSeparator()
 			self.append(_("Show/Hide Sizer &Lines"), HotKey="Ctrl+L",	
-					OnHit=app.onShowSizerLines, menutype="check",
+					OnHit=app.onShowSizerLines, menutype="check", 
+					ItemID="view_showsizerlines",
 					help=_("Cool sizer visualizing feature; check it out!"))
 
 
@@ -137,6 +154,7 @@ class HelpMenu(dMenu):
 
 		itm = self.append(caption, id=wx.ID_ABOUT, 
 				OnHit=app.onHelpAbout,
+				ItemID="help_about",
 				help=_("About this application") )
 
 
@@ -154,10 +172,10 @@ class dBaseMenuBar(dMenuBar):
 	"""
 	def _afterInit(self):
 		super(dBaseMenuBar, self)._afterInit()
-		self.appendMenu(FileMenu(self))
-		self.appendMenu(EditMenu(self))
-		self.appendMenu(ViewMenu(self))
-		self.appendMenu(HelpMenu(self))
+		self.appendMenu(FileMenu(self, MenuID="base_file"))
+		self.appendMenu(EditMenu(self, MenuID="base_edit"))
+		self.appendMenu(ViewMenu(self, MenuID="base_view"))
+		self.appendMenu(HelpMenu(self, MenuID="base_help"))
 
 
 # Trying to expose menu atts as menubar atts. Not sure if this is a good idea yet...

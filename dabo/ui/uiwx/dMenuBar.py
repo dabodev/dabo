@@ -129,15 +129,21 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		return menu
 
 
-	def getMenu(self, caption):
-		"""Returns a reference to the menu with the specified caption.
-
-		If the menu isn't found, None is returned.
+	def getMenu(self, idOrCaption):
+		"""Returns a reference to the menu with the specified MenuID or Caption. 
+		The MenuID property is checked first; then the Caption. If no match is found, 
+		None is returned.
 		"""
-		idx = self.getMenuIndex(caption)
-		if idx is not None:
-			return self.GetMenu(idx)
-		return None
+		try:
+			ret = [mn for mn in self.Children
+					if mn.MenuID == idOrCaption][0]
+		except IndexError:
+			ret = None
+			# Try the Caption
+			idx = self.getMenuIndex(idOrCaption)
+			if idx is not None:
+				ret = self.GetMenu(idx)
+		return ret
 
 
 	def getMenuIndex(self, caption):
