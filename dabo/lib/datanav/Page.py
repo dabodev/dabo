@@ -36,7 +36,7 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 	def initProperties(self):
 		self.super()
 		self.SaveRestoreValue = True
-		
+
 	def initEvents(self):
 		self.super()
 		self.bindEvent(dEvents.Hit, self.onChoiceMade)
@@ -44,12 +44,12 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 		
 	def onValueChanged(self, evt):
 		# italicize if we are ignoring the field:
-		self.FontItalic = (IGNORE_STRING in self.Value)
+		self.FontItalic = (_(IGNORE_STRING) in self.Value)
 		if self.Target:
 			self.Target.FontItalic = self.FontItalic
 		
 	def onChoiceMade(self, evt):
-		if IGNORE_STRING not in self.StringValue:
+		if _(IGNORE_STRING) not in self.StringValue:
 			# A comparison op was selected; let 'em enter a value
 			self.Target.setFocus()
 		
@@ -131,7 +131,7 @@ class SelectPage(Page):
 		self.selectFields = {}
 		self.sortFields = {}
 		self.sortIndex = 0
-
+	
 
 	def onSortLabelRClick(self, evt):
 		obj = self.sortObj = evt.EventObject
@@ -257,23 +257,23 @@ class SelectPage(Page):
 
 			opVal = self.selectFields[fld]["op"].Value
 			opStr = opVal
-			if not IGNORE_STRING in opVal:
+			if not _(IGNORE_STRING) in opVal:
 				fldType = self.selectFields[fld]["type"]
 				ctrl = self.selectFields[fld]["ctrl"]
 				if fldType == "bool":
 					# boolean fields won't have a control; opVal will
 					# be either 'Is True' or 'Is False'
-					matchVal = (opVal == CHOICE_TRUE)
+					matchVal = (opVal == _(CHOICE_TRUE))
 				else:
 					matchVal = ctrl.Value
 				matchStr = "%s" % matchVal
 				useStdFormat = True
 
 				if fldType in ("char", "memo"):
-					if opVal.lower() in ("equals", "is"):
+					if opVal.lower() in (_("equals"), _("is")):
 						opStr = "="
 						matchStr = biz.escQuote(matchVal)
-					elif opVal.lower() == "matches words":
+					elif opVal.lower() == _("matches words"):
 						useStdFormat = False
 						whrMatches = []
 						for word in matchVal.split():
@@ -297,32 +297,32 @@ class SelectPage(Page):
 					else:
 						dt = matchVal
 					matchStr = biz.formatDateTime(dt)
-					if opVal.lower() in ("equals", "is"):
+					if opVal.lower() in (_("equals"), _("is")):
 						opStr = "="
-					elif opVal.lower() == "on or before":
+					elif opVal.lower() == _("on or before"):
 						opStr = "<="
-					elif opVal.lower() == "on or after":
+					elif opVal.lower() == _("on or after"):
 						opStr = ">="
-					elif opVal.lower() == "before":
+					elif opVal.lower() == _("before"):
 						opStr = "<"
-					elif opVal.lower() == "after":
+					elif opVal.lower() == _("after"):
 						opStr = ">"
 
 				elif fldType in ("int", "float"):
-					if opVal.lower() in ("equals", "is"):
+					if opVal.lower() in (_("equals"), _("is")):
 						opStr = "="
-					elif opVal.lower() == "less than/equal to":
+					elif opVal.lower() == _("less than/equal to"):
 						opStr = "<="
-					elif opVal.lower() == "greater than/equal to":
+					elif opVal.lower() == _("greater than/equal to"):
 						opStr = ">="
-					elif opVal.lower() == "less than":
+					elif opVal.lower() == _("less than"):
 						opStr = "<"
-					elif opVal.lower() == "greater than":
+					elif opVal.lower() == _("greater than"):
 						opStr = ">"
 						
 				elif fldType == "bool":
 					opStr = "="
-					if opVal == CHOICE_TRUE:
+					if opVal == _(CHOICE_TRUE):
 						matchStr = "True"
 					else:
 						matchStr = "False"
@@ -378,38 +378,39 @@ class SelectPage(Page):
 		wordSearch = bool(int(wordSearch))
 		if typ in ("char", "memo"):
 			if typ == "char":
-				chcList = [n_("Equals"), 
-						n_("Begins With"),
-						n_("Contains")]
+				chcList = [_("Equals"), 
+						_("Begins With"),
+						_("Contains")]
 			elif typ == "memo":
-				chcList = [n_("Begins With"),
-						n_("Contains")]
+				chcList = [_("Begins With"),
+						_("Contains")]
 			if wordSearch:
-				chcList.append(n_("Matches Words"))
+				chcList.append(_("Matches Words"))
 			chc = tuple(chcList)
 		elif typ in ("date", "datetime"):
-			chc = (n_("Equals"),
-					n_("On or Before"),
-					n_("On or After"),
-					n_("Before"),
-					n_("After") )
+			chc = (_("Equals"),
+					_("On or Before"),
+					_("On or After"),
+					_("Before"),
+					_("After") )
 		elif typ in ("int", "float", "decimal"):
-			chc = (n_("Equals"), 
-					n_("Greater than"),
-					n_("Greater than/Equal to"),
-					n_("Less than"),
-					n_("Less than/Equal to"))
+			chc = (_("Equals"), 
+					_("Greater than"),
+					_("Greater than/Equal to"),
+					_("Less than"),
+					_("Less than/Equal to"))
 		elif typ == "bool":
-			chc = (CHOICE_TRUE, CHOICE_FALSE)
+			chc = (_(CHOICE_TRUE), _(CHOICE_FALSE))
 		else:
-			dabo.errorLog.write("Type '%s' not recognized." % typ)
+			dabo.errorLog.write(_("Type '%s' not recognized.") % typ)
 			chc = ()
 		return chc
 
 
 	def getSelectOptionsPanel(self):
 		"""Subclass hook. Return the panel instance to display on the select page."""
-		
+		pass
+
 
 	def onCustomSQL(self, evt):
 		cb = evt.EventObject
