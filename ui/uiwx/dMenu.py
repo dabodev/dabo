@@ -31,6 +31,10 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		else:
 			self._useMRU = self._extractKey((properties, kwargs), "MRU", False)
 		self._mruSeparator = None
+		# Identifying attribute that can be used to locate the menu 
+		# independent of its Caption or index.
+		self._menuID = None
+		
 		## pkm: When a dMenuItem is added to a dMenu, the wx functions only
 		##      add the C++ portion, not the mixed-in dabo dMenuItem object.
 		##      To work around this, we maintain an internal dictionary that
@@ -418,18 +422,28 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		return self._itemByCaption(caption, True)
 		
 
-	def getItem(self, caption):
-		"""Returns a reference to the menu item with the specified caption. If the item
-		isn't found, None is returned.
+	def getItem(self, idOrCaption):
+		"""Returns a reference to the menu item with the specified ItemID or Caption. 
+		The ItemID property is checked first; then the Caption. If no match is found, 
+		None is returned.
 		"""
-		return self._itemByCaption(caption)
+		menuitems = (itm for itm in self.Children
+				if hasattr(itm, "ItemID"))
+		try:
+			ret = [mn for mn in menuitems
+					if mn.ItemID == idOrCaption][0]
+		except IndexError:
+			ret = None
+			# Try the Caption
+			ret = self._itemByCaption(idOrCaption)
+		return ret
 
 
 	def GetChildren(self):
 		"""wx doesn't provide GetChildren() for menubars or menus, but dPemMixin
 		calls it in _getChildren(). The Dabo developer wants the submenus and
 		items in this menu, but is using the consistent Children property to 
-		do it.
+		do it. The Children property will thus return both menu items and separators.
 		"""
 		children = self.GetMenuItems()
 		daboChildren = [self._daboChildren.get(c.GetId(), c) for c in children]
@@ -492,6 +506,16 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		self._helpText = val
 
 
+	def _getMenuID(self):
+		return self._menuID
+
+	def _setMenuID(self, val):
+		if self._constructed():
+			self._menuID = val
+		else:
+			self._properties["MenuID"] = val
+
+
 	def _getParent(self):
 		try:
 			v = self._parent
@@ -514,6 +538,11 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 	HelpText = property(_getHelpText, _setHelpText, None,
 			_("Specifies the help text associated with this menu. (str)"))
+
+	MenuID = property(_getMenuID, _setMenuID, None,
+			_("""Identifying value for this menu. NOTE: there is no checking for
+			duplicate values; it is the responsibility to ensure that MenuID values
+			are unique.  (varies)"""))
 
 	Parent = property(_getParent, _setParent, None, 
 			_("Specifies the parent menu or menubar."))

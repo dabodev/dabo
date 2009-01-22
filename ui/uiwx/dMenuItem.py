@@ -24,7 +24,9 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 		# Main text of the menu item
 		self._caption = ""
 		# Holds the key combination used to trigger the menu
-		self._hotKey = None		
+		self._hotKey = None
+		# Holds the unique ID, if any
+		self._itemID = None
 		
 		pm.dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
@@ -157,6 +159,16 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 			self._properties["Icon"] = val
 
 
+	def _getItemID(self):
+		return self._itemID
+
+	def _setItemID(self, val):
+		if self._constructed():
+			self._itemID = val
+		else:
+			self._properties["ItemID"] = val
+
+
 	def _getParent(self):
 		try:
 			ret = self._parent
@@ -174,17 +186,22 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("Specifies whether the menu item can be interacted with."))
 
+	Form = property(_getForm, None, None,
+			_("Specifies the containing form."))
+
+	HelpText = property(_getHelpText, _setHelpText, None,
+			_("Specifies the help text associated with this menu. (str)"))
+
 	HotKey = property(_getHotKey, _setHotKey, None,
 			_("Key combination that will trigger the menu  (str)"))
 	
 	Icon = property(_getIcon, _setIcon, None,
 			_("Specifies the icon for the menu item."))
 
-	Form = property(_getForm, None, None,
-			_("Specifies the containing form."))
-
-	HelpText = property(_getHelpText, _setHelpText, None,
-			_("Specifies the help text associated with this menu. (str)"))
+	ItemID = property(_getItemID, _setItemID, None,
+			_("""Identifying value for this menuitem. NOTE: there is no checking for
+			duplicate values; it is the responsibility to ensure that ItemID values
+			are unique within a menu.  (varies)"""))
 
 	Parent = property(_getParent, _setParent, None, 
 			_("Specifies the parent menu."))
