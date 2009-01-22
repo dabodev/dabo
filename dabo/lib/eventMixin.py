@@ -194,25 +194,21 @@ class EventMixin(object):
 		# the object is changing: we don't want the old bindings to stay active).
 		self._removeAutoBindings()
 
-		# We call _autoBindEvents for self and all parent containers, and force 
-		# it because it was asked for explicitly.
+		# We call _autoBindEvents for self, as well as the self.Parent object and  
+		# the self.Form object, if they exist.
 		self._autoBindEvents(context=self, force=force)
-
 		try:
-			parent = self.Parent
+			prnt = self.Parent
 		except AttributeError:
-			parent = None
-		stop = False
-		while parent:
-			lastParent = parent
-			stop = self._autoBindEvents(context=parent, force=force)
-			if stop:
-				break
-			try:
-				parent = parent.Parent
-			except AttributeError:
-				parent = self.Form
-				stop = True
+			prnt = None
+		try:
+			frm = self.Form
+		except AttributeError:
+			frm = None
+		if prnt:
+			self._autoBindEvents(context=prnt, force=force)
+		if frm:
+			self._autoBindEvents(context=frm, force=force)
 
 
 	def _autoBindEvents(self, context, force=False):
@@ -266,7 +262,6 @@ class EventMixin(object):
 			# If we got this far, we have a match. 
 			# Get the object reference to the function:
 			funcObj = None
-			retVal = False
 			### Paul: this is the major change I propose: looking
 			### in the 'context' object first, instead of its __class__
 			try:
@@ -288,8 +283,6 @@ class EventMixin(object):
 					evtObj = dEvents.__dict__[parsedEvtName]
 					funcObj = eval("context.%s" % funcName)  ## (can't use __class__.dict...)
 					self.bindEvent(evtObj, funcObj, _auto=True)
-					retVal = True
-			return retVal
 
 
 	def getEventList(cls):
