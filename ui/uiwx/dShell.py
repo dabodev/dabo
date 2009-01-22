@@ -240,6 +240,61 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 				"fore:#000000,face:%s,back:#E0C0E0,eol,size:%d" % (fontFace, fontSize))
 	
 
+	def OnKeyDown(self, evt):
+		"""Override on the Mac, as the navigation defaults are different than on Win/Lin"""
+		if self.Application.Platform == "Mac":
+			key = evt.GetKeyCode()
+			# If the auto-complete window is up let it do its thing.
+			if self.AutoCompActive():
+				evt.Skip()
+				return
+			
+			# Prevent modification of previously submitted
+			# commands/responses.
+			controlDown = evt.ControlDown()
+			altDown = evt.AltDown()
+			shiftDown = evt.ShiftDown()
+			cmdDown = evt.CmdDown()
+			currpos = self.GetCurrentPos()
+			endpos = self.GetTextLength()
+			selecting = self.GetSelectionStart() != self.GetSelectionEnd()
+			if cmdDown and (key == wx.WXK_LEFT):
+				# Equivalent to Home
+				home = self.promptPosEnd
+				if currpos > home:
+					self.SetCurrentPos(home)
+					if not selecting and not shiftDown:
+						self.SetAnchor(home)
+						self.EnsureCaretVisible()
+				return
+			if cmdDown and (key == wx.WXK_RIGHT):
+				# Equivalent to End
+				linepos = self.GetLineEndPosition(self.GetCurrentLine())
+				if shiftDown:
+					start = currpos
+				else:
+					start = linepos
+				self.SetSelection(start, linepos)
+				return
+			elif cmdDown and (key == wx.WXK_UP):
+				# Equivalent to Ctrl-Home
+				if shiftDown:
+					end = currpos
+				else:
+					end = 0
+				self.SetSelection(0, end)
+				return
+			elif cmdDown and (key == wx.WXK_DOWN):
+				# Equivalent to Ctrl-End
+				if shiftDown:
+					start = currpos
+				else:
+					start = endpos
+				self.SetSelection(start, endpos)
+				return
+			return super(_Shell, self).OnKeyDown(evt)
+
+
 	def _getFontSize(self):
 		return self._fontSize
 
@@ -442,6 +497,8 @@ class dShell(dSplitForm):
 	def outputRightDown(self, evt):
 		pop = dabo.ui.dMenu()
 		pop.append(_("Clear"), OnHit=self.onClearOutput)
+		if self.edtOut.SelectionLength:
+			pop.append(_("Copy"), OnHit=self.Application.onEditCopy)
 		self.showContextMenu(pop)
 		evt.stop()
 	
@@ -480,19 +537,23 @@ class dShell(dSplitForm):
 		
 		
 	def fillMenu(self):
-		viewMenu = self.MenuBar.getMenu(_("View"))
+		viewMenu = self.MenuBar.getMenu("base_view")
 		if viewMenu.Children:
 			viewMenu.appendSeparator()
-		viewMenu.append(_("Zoom &In"), HotKey="Ctrl+=", OnHit=self.onViewZoomIn, 
+		viewMenu.append(_("Zoom &In"), HotKey="Ctrl+=", OnHit=self.onViewZoomIn,
+				ItemID="view_zoomin",
 				bmp="zoomIn", help=_("Zoom In"))
 		viewMenu.append(_("&Normal Zoom"), HotKey="Ctrl+/", OnHit=self.onViewZoomNormal, 
+				ItemID="view_zoomnormal",
 				bmp="zoomNormal", help=_("Normal Zoom"))
 		viewMenu.append(_("Zoom &Out"), HotKey="Ctrl+-", OnHit=self.onViewZoomOut, 
+				ItemID="view_zoomout",
 				bmp="zoomOut", help=_("Zoom Out"))
-		editMenu = self.MenuBar.getMenu(_("Edit"))
+		editMenu = self.MenuBar.getMenu("base_edit")
 		if editMenu.Children:
 			editMenu.appendSeparator()
-		editMenu.append(_("Clear O&utput"), HotKey="Ctrl+Back", 
+		editMenu.append(_("Clear O&utput"), HotKey="Ctrl+Back",
+				ItemID="edit_clearoutput",
 				OnHit=self.onClearOutput, help=_("Clear Output Window"))
 		
 		
