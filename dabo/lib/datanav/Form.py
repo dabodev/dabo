@@ -5,7 +5,7 @@ import traceback
 import wx
 import dabo.dEvents as dEvents
 import dabo.ui
-from dabo.dLocalize import _, n_
+from dabo.dLocalize import _
 import dabo.lib.reportUtils as reportUtils
 import PageFrame
 import Page
