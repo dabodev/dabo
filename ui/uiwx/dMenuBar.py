@@ -140,19 +140,20 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		except IndexError:
 			ret = None
 			# Try the Caption
-			idx = self.getMenuIndex(idOrCaption)
-			if idx is not None:
+			idx = self.FindMenu(idOrCaption)
+			if idx > 0:
 				ret = self.GetMenu(idx)
 		return ret
 
 
-	def getMenuIndex(self, caption):
-		"""Returns the index of the menu with the specified caption.
-
+	def getMenuIndex(self, idOrCaption):
+		"""Returns the index of the menu with the specified ID or caption.
 		If the menu isn't found, None is returned.
 		"""
-		ret = self.FindMenu(caption)
-		if ret < 0:
+		mn = self.getMenu(idOrCaption)
+		if mn:
+			ret = self.Children.index(mn)
+		else:
 			ret = None
 		return ret
 
