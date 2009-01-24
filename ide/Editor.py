@@ -560,107 +560,113 @@ class EditorForm(dabo.ui.dForm):
 	def fillMenu(self):
 		app = self.Application
 		mb = self.MenuBar
-		fileMenu = mb.getMenu(_("File"))
+		fileMenu = mb.getMenu("base_file")
 		app.onMenuOpenMRU(fileMenu)
 		
-		editMenu = mb.getMenu(_("Edit"))
-		mb.remove(mb.getMenuIndex(_("View")))
-		runMenu = dabo.ui.dMenu(Caption=_("&Run"))
-		mb.insertMenu(3, runMenu)		
+		editMenu = mb.getMenu("base_edit")
+		mb.remove(mb.getMenuIndex("base_view"))
+		runMenu = dabo.ui.dMenu(Caption=_("&Run"), MenuID="base_run")
+		mb.insertMenu(3, runMenu)
 		dIcons = dabo.ui.dIcons
 				
 		fileMenu.prependSeparator()
-		itm = fileMenu.prepend(_("Reload from Disk"), OnHit=self.onFileReload, 
+		itm = fileMenu.prepend(_("Reload from Disk"), OnHit=self.onFileReload, ItemID="file_reload",
 				help=_("Refresh the editor with the current version of the file on disk"))
 		itm.DynamicEnabled = self.hasFile
 		
 		fileMenu.prependSeparator()
 		fileMenu.prepend(_("Save &As"), HotKey="Ctrl+Shift+S", OnHit=self.onFileSaveAs, bmp="saveAs", 
-				help=_("Save under a different file name"))
-		fileMenu.prepend(_("&Save"), HotKey="Ctrl+S", OnHit=self.onFileSave, 
+				ItemID="file_saveas", help=_("Save under a different file name"))
+		fileMenu.prepend(_("&Save"), HotKey="Ctrl+S", OnHit=self.onFileSave, ItemID="file_save", 
 				DynamicEnabled=lambda:self.CurrentEditor.Modified, bmp="save", help=_("Save file"))
-		cPos = fileMenu.getItemIndex(_("Close Window"))
-		if cPos is not None:
-			fileMenu.remove(cPos)
+		clsItem = fileMenu.getItem("file_close")
+		if clsItem is not None:
+			fileMenu.remove(clsItem)
 		fileMenu.prepend(_("&Close Editor"), HotKey="Ctrl+W", OnHit=self.onFileClose, bmp="close",
-				help=_("Close file"))
+				ItemID="file_close_editor", help=_("Close file"))
 		fileMenu.prepend(_("&Open"), HotKey="Ctrl+O", OnHit=self.onFileOpen, bmp="open",
-				help=_("Open file"))
+				ItemID="file_open", help=_("Open file"))
 		fileMenu.prepend(_("&New"), HotKey="Ctrl+N", OnHit=self.onFileNew, bmp="new",
-				help=_("New file"))
+				ItemID="file_new", help=_("New file"))
 
 		editMenu.appendSeparator()
 		editMenu.append(_("&Jump to line..."), HotKey="Ctrl+J", OnHit=self.onEditJumpToLine, 
-				bmp="", help=_("Jump to line"))
+				bmp="", ItemID="edit_jump", help=_("Jump to line"))
 		editMenu.appendSeparator()
 		editMenu.append(_("Co&mment Line"), HotKey="Ctrl+M", OnHit=self.onCommentLine,
-				bmp="", help=_("Comment out selection"))
+				bmp="", ItemID="edit_comment", help=_("Comment out selection"))
 		editMenu.append(_("&Uncomment Line"), HotKey="Ctrl+Shift+M", 
-				OnHit=self.onUncommentLine, bmp="", 
+				OnHit=self.onUncommentLine, bmp="", ItemID="edit_uncomment", 
 				help=_("Uncomme&nt selection"))
 		editMenu.append(_("&AutoComplete"), HotKey="F5", 
-				OnHit=self.onAutoComplete, bmp="", 
+				OnHit=self.onAutoComplete, bmp="", ItemID="edit_autocomplete", 
 				help=_("Auto-complete the current text"))
 		self._autoAutoItem = editMenu.append(_("Automa&tic AutoComplete"), 
 				OnHit=self.onAutoAutoComp, bmp="", help=_("Toggle Automatic Autocomplete"), 
-				menutype="check")
+				ItemID="edit_autoautocomplete", menutype="check")
 		editMenu.appendSeparator()
-		moveMenu = dabo.ui.dMenu(Caption=_("Move..."))
+		moveMenu = dabo.ui.dMenu(Caption=_("Move..."), MenuID="edit_move")
 		editMenu.appendMenu(moveMenu)
 		moveMenu.append(_("Previous Page"), HotKey="Alt+Left", OnHit=self.onPrevPage, 
-				DynamicEnabled=lambda:self.pgfEditor.PageCount>1, bmp="", help=_("Switch to the tab to the left"))
+				DynamicEnabled=lambda:self.pgfEditor.PageCount>1, bmp="", 
+				ItemID="move_prev", help=_("Switch to the tab to the left"))
 		moveMenu.append(_("Next Page"), HotKey="Alt+Right", OnHit=self.onNextPage, 
-				DynamicEnabled=lambda:self.pgfEditor.PageCount>1, bmp="", help=_("Switch to the tab to the right"))
+				DynamicEnabled=lambda:self.pgfEditor.PageCount>1, bmp="", 
+				ItemID="move_next", help=_("Switch to the tab to the right"))
 		moveMenu.append(_("Move Page Left"), HotKey="Alt+Shift+Left", OnHit=self.onMovePageLeft, 
-				DynamicEnabled=lambda:self.pgfEditor.PageCount>1, bmp="", help=_("Move this editor tab to the left"))
+				DynamicEnabled=lambda:self.pgfEditor.PageCount>1, bmp="", 
+				ItemID="move_pageleft", help=_("Move this editor tab to the left"))
 		moveMenu.append(_("Move Page Right"), HotKey="Alt+Shift+Right", OnHit=self.onMovePageRight, 
-				DynamicEnabled=lambda:self.pgfEditor.PageCount>1, bmp="", help=_("Move this editor tab to the right"))
+				DynamicEnabled=lambda:self.pgfEditor.PageCount>1, bmp="", 
+				ItemID="move_pageright", help=_("Move this editor tab to the right"))
 		moveMenu.append(_("Next Block"), HotKey="Ctrl+Shift+K", OnHit=self.onMoveUpBlock, 
-				DynamicEnabled=lambda:self.CurrentEditor.Language=="python", bmp="", help=_("Move to the next 'def' or 'class' statement"))
+				DynamicEnabled=lambda:self.CurrentEditor.Language=="python", bmp="", 
+				ItemID="move_nextblock", help=_("Move to the next 'def' or 'class' statement"))
 		moveMenu.append(_("Previous Block"), HotKey="Ctrl+Shift+D", OnHit=self.onMoveDownBlock, 
-				DynamicEnabled=lambda:self.CurrentEditor.Language=="python", bmp="", help=_("Move to the previous 'def' or 'class' statement"))
+				DynamicEnabled=lambda:self.CurrentEditor.Language=="python", bmp="", 
+				ItemID="move_prevblock", help=_("Move to the previous 'def' or 'class' statement"))
 
 		editMenu.appendSeparator()
 		self._wrapItem = editMenu.append(_("&Word Wrap"), HotKey="Ctrl+Shift+W", OnHit=self.onWordWrap, 
-				bmp="", help=_("Toggle WordWrap"), menutype="check")
+				bmp="", ItemID="edit_wordwrap", help=_("Toggle WordWrap"), menutype="check")
 		self._synColorItem = editMenu.append(_("S&yntax Coloring"), HotKey="Ctrl+Shift+Y", 
-				OnHit=self.onSyntaxColoring, bmp="", help=_("Toggle Syntax Coloring"), 
-				menutype="check")
+				OnHit=self.onSyntaxColoring, bmp="", ItemID="edit_syntaxcolor", 
+				help=_("Toggle Syntax Coloring"), menutype="check")
 		
 		runMenu.append(_("&Run Script"), HotKey="F7", OnHit=self.onRunScript,
-				bmp="", help=_("Run Script"))		
+				bmp="", ItemID="run_script", help=_("Run Script"))		
 		self._showOutItem = runMenu.append(_("Hide/Show Output"), HotKey="F8", OnHit=self.onOutput, bmp="",
-				help=_("Toggle the visibility of the Output pane"), menutype="check")
+				ItemID="run_output", help=_("Toggle the visibility of the Output pane"), menutype="check")
 		runMenu.append(_("Clear Output"), OnHit=self.onClearOutput, bmp="",
-				help=_("Clear the contents of the Output pane"))
+				ItemID="run_clear", help=_("Clear the contents of the Output pane"))
 
-		fontMenu = dabo.ui.dMenu(Caption=_("Fo&nt"))
+		fontMenu = dabo.ui.dMenu(Caption=_("Fo&nt"), MenuID="base_font")
 		mb.insertMenu(4, fontMenu)
-		fontMenu.append(_("Set Font Size"), OnHit=self.onFontSize, 
+		fontMenu.append(_("Set Font Size"), OnHit=self.onFontSize, ItemID="font_setsize", 
 				help=_("Set Default Font Size"))
 		fontMenu.appendSeparator()
 		fontMenu.append(_("Zoom &In"), HotKey="Ctrl++", OnHit=self.onViewZoomIn, 
-				bmp="zoomIn", help=_("Zoom In"))
+				bmp="zoomIn", ItemID="font_zoomin", help=_("Zoom In"))
 		fontMenu.append(_("&Normal Zoom"), HotKey="Ctrl+/", OnHit=self.onViewZoomNormal, 
-				bmp="zoomNormal", help=_("Normal Zoom"))
+				bmp="zoomNormal", ItemID="font_zoomnormal", help=_("Normal Zoom"))
 		fontMenu.append(_("Zoom &Out"), HotKey="Ctrl+-", OnHit=self.onViewZoomOut, 
-				bmp="zoomOut", help=_("Zoom Out"))
+				bmp="zoomOut", ItemID="font_zoomout", help=_("Zoom Out"))
 		fonts = dabo.ui.getAvailableFonts()
 		fontMenu.appendSeparator()
 		for font in fonts:
 			fontMenu.append(font, OnHit=self.onFontSelection, 
-					menutype="Radio")
+					ItemID="font_%s" % font.replace(" ", "_"), menutype="Radio")
 		
-		vp = mb.getMenuIndex(_("Font"))
-		editorMenu = mb.insert(vp+1, _("E&ditors"))
+		vp = mb.getMenuIndex("base_font")
+		editorMenu = mb.insert(vp+1, _("E&ditors"), MenuID="base_editors")
 		editorMenu.bindEvent(dEvents.MenuHighlight, self.onMenuOpen)
 		
 		# On non-Mac platforms, we may need to move the Help Menu
 		# to the end.
 		if app.Platform != "Mac":
-			hlp = mb.getMenu(_("Help"))
+			hlp = mb.getMenu("base_help")
 			if hlp:
-				mb.remove(mb.getMenuIndex(_("Help")), False)
+				mb.remove(hlp, False)
 				mb.appendMenu(hlp)				
 		
 	

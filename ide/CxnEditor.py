@@ -41,8 +41,12 @@ class EditorForm(dui.dForm):
 	
 	def createMenu(self):
 		mb = self.MenuBar
-		fm = mb.getMenu("File")
-		fm.prepend(_("Open Connection File..."), HotKey="Ctrl+O", OnHit=self.onOpenFile)
+		fm = mb.getMenu("base_file")
+		fm.prepend(_("Open Connection File..."),
+				HotKey="Ctrl+O",
+				OnHit=self.onOpenFile
+				ItemID="file_open",
+				help=_("Open an existing connection file"))
 	
 	
 	def onOpenFile(self, evt):
