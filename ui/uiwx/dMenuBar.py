@@ -65,45 +65,45 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		return ret
 
 
-	def append(self, caption):
+	def append(self, caption, MenuID=None):
 		"""Appends a dMenu to the end of the dMenuBar.
 
 		A generic dMenu will be created with the passed caption. Also see the
 		appendMenu() function, which takes a dMenu instance as an argument.
 		"""
-		menu = self._getGenericMenu(caption)
+		menu = self._getGenericMenu(caption, MenuID)
 		self.appendMenu(menu)
 		return menu
 
 
-	def insert(self, pos, caption):
+	def insert(self, pos, caption, MenuID=None):
 		"""Inserts a dMenu at the specified position in the dMenuBar.
 
 		A generic dMenu will be created with the passed caption. Also see the
 		insertMenu() function, which takes a dMenu instance as an argument.
 		"""
-		menu = self._getGenericMenu(caption)
+		menu = self._getGenericMenu(caption, MenuID)
 		self.insertMenu(pos, menu)
 		return menu
 
 
-	def prepend(self, caption):
+	def prepend(self, caption, MenuID=None):
 		"""Prepends a dMenu to the beginning of the dMenuBar.
 
 		A generic dMenu will be created with the passed caption. Also see the
 		prependMenu() function, which takes a dMenu instance as an argument.
 		"""
-		menu = self._getGenericMenu(caption)
+		menu = self._getGenericMenu(caption, MenuID)
 		self.prependMenu(menu)
 		return menu
 
 
-	def _getGenericMenu(self, caption):
+	def _getGenericMenu(self, caption, MenuID=None):
 		"""Returns a dMenu instance with the passed caption.
 
 		This is used by the append(), insert(), and prepend() functions.
 		"""
-		return dMenu.dMenu(self, Caption=caption)
+		return dMenu.dMenu(self, Caption=caption, MenuID=MenuID)
 		
 
 	def remove(self, indexOrMenu, release=True):
@@ -141,8 +141,10 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 			ret = None
 			# Try the Caption
 			idx = self.FindMenu(idOrCaption)
-			if idx > 0:
+			try:
 				ret = self.GetMenu(idx)
+			except dabo.ui.assertionException:
+				ret = None
 		return ret
 
 
