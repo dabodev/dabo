@@ -26,7 +26,7 @@ params = {
 
 try:
     # If either Pyrex or a usable compiler is not installed, we still want
-    # to install the python version
+    # to install the Python version
     from Pyrex.Distutils import build_ext
 
     ext = {
@@ -38,6 +38,6 @@ try:
     pyrex_commands.update(ext)
     setup(**pyrex_commands)
 
-except ImportError, e:
+except ImportError:
     setup(**params)
     raise
