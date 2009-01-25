@@ -428,9 +428,9 @@ class Board(dabo.ui.dPanel):
 
 	def _fillAdjacentCounts(self):
 		for key in self._boardDict.keys():
-			as = self.getAdjacentSquares(key)
+			adj = self.getAdjacentSquares(key)
 			c = 0
-			for s in as:
+			for s in adj:
 				if self._boardDict[s]["mine"]:
 					c += 1
 			self._boardDict[key]["adjacent"] = c
