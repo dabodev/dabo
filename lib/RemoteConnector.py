@@ -22,7 +22,7 @@ jsonDecode = dabo.lib.jsonDecode
 
 
 class RemoteConnector(object):
-	"""This class handles all of the methods that will need to be carried out on 
+	"""This class handles all of the methods that will need to be carried out on
 	the server instead of locally.
 	"""
 	def __init__(self, obj):
@@ -63,13 +63,13 @@ class RemoteConnector(object):
 		return ret
 
 
-	def _storeEncodedDataSet(self, enc):	
+	def _storeEncodedDataSet(self, enc):
 		pdata, ptyps, pstru = jsonDecode(enc)
 		# The values are pickled, so we need to unpickle them first
 		def safeLoad(val):
 			try:
 				ret = pickle.loads(val)
-			except UnicodeEncodeError, e:
+			except UnicodeEncodeError:
 				for enctype in (dabo.defaultEncoding, "utf-8", "iso8859-1"):
 					try:
 						ret = pickle.loads(val.encode(enctype))
@@ -85,7 +85,7 @@ class RemoteConnector(object):
 		self.obj._storeData(data, typs, stru)
 
 
-	def requery(self):	
+	def requery(self):
 		biz = self.obj
 		biz.setChildLinkFilter()
 		url = self._getFullUrl("requery")
@@ -104,8 +104,8 @@ class RemoteConnector(object):
 			return
 		encdata = res.read()
 		self._storeEncodedDataSet(encdata)
-	
-	
+
+
 	def save(self, startTransaction=False, allRows=False):
 		biz = self.obj
 		url = self._getFullUrl("save")
@@ -130,10 +130,10 @@ class RemoteConnector(object):
 			elif errcode == 400:
 				raise dException.DBQueryException(errMsg)
 		else:
-			# If successful, we need to clear the mementos. We don't need to 
+			# If successful, we need to clear the mementos. We don't need to
 			# store anything; passing None will just  clear the mementos.
 			self.obj._storeData(None, None)
-		
+
 
 	def saveAll(self, startTransaction=True):
 		self.save(startTransaction=startTransaction, allRows=True)
@@ -202,10 +202,10 @@ class RemoteConnector(object):
 				sz.DefaultSpacing = 20
 				sz.append(lbl, halign="center")
 				sz.append(lst, "x", halign="center")
-			
+
 			def setChoices(self, chc):
 				self.appList.Choices = chc
-		
+
 		dlg = AppPicker()
 		dlg.setChoices(res)
 		dlg.show()
@@ -213,7 +213,7 @@ class RemoteConnector(object):
 			path = dlg.appList.StringValue
 		dlg.release()
 		return path
-		
+
 
 	def syncFiles(self, path=None):
 		app = self.obj
@@ -248,12 +248,12 @@ class RemoteConnector(object):
 			else:
 				dabo.errorLog.write(_("HTTP Error syncing files: %s") % e)
 				return
-		except urllib2.URLError, e:
+		except urllib2.URLError:
 			# Right now re-raise it and let the UI handle it
 			raise
 		pickleRet = res.read()
 		filecode, chgs, serverMf = pickle.loads(jsonDecode(pickleRet))
-		# Everything after this is relative to the app's home directory, so 
+		# Everything after this is relative to the app's home directory, so
 		# change to it
 		currdir = os.getcwd()
 		os.chdir(homedir)

@@ -272,7 +272,7 @@ class dBizobj(dObject):
 
 	def beginTransaction(self):
 		"""Attempts to begin a transaction at the database level, and returns
-		True/False depending on its success. 
+		True/False depending on its success.
 		"""
 		rp = self._RemoteProxy
 		if rp:
@@ -285,7 +285,7 @@ class dBizobj(dObject):
 
 	def commitTransaction(self):
 		"""Attempts to commit a transaction at the database level, and returns
-		True/False depending on its success. 
+		True/False depending on its success.
 		"""
 		rp = self._RemoteProxy
 		if rp:
@@ -298,7 +298,7 @@ class dBizobj(dObject):
 
 	def rollbackTransaction(self):
 		"""Attempts to rollback a transaction at the database level, and returns
-		True/False depending on its success. 
+		True/False depending on its success.
 		"""
 		rp = self._RemoteProxy
 		if rp:
@@ -310,7 +310,7 @@ class dBizobj(dObject):
 
 
 	def _getTransactionToken(self):
-		"""Ask the Application for the transaction token. If the token is granted, 
+		"""Ask the Application for the transaction token. If the token is granted,
 		then this bizobj has the ability to begin and end transactions.
 		"""
 		try:
@@ -323,7 +323,7 @@ class dBizobj(dObject):
 
 
 	def _hasTransactionToken(self):
-		"""Returns True/False, depending on whether this bizobj 
+		"""Returns True/False, depending on whether this bizobj
 		currently "holds" the transaction token.
 		"""
 		try:
@@ -334,7 +334,7 @@ class dBizobj(dObject):
 
 
 	def _releaseTransactionToken(self):
-		"""Ask the Application to give up the transaction token. Once this is done, 
+		"""Ask the Application to give up the transaction token. Once this is done,
 		other bizobjs can receive the token to begin and end transactions.
 		"""
 		try:
@@ -359,17 +359,17 @@ class dBizobj(dObject):
 			if startTransaction:
 				self.commitTransaction()
 
-		except dException.ConnectionLostException, e:
+		except dException.ConnectionLostException:
 			self.RowNumber = current_row
 			raise
-		except dException.DBQueryException, e:
+		except dException.DBQueryException:
 			# Something failed; reset things.
 			if startTransaction:
 				self.rollbackTransaction()
 			# Pass the exception to the UI
 			self.RowNumber = current_row
 			raise
-		except dException.dException, e:
+		except dException.dException:
 			if startTransaction:
 				self.rollbackTransaction()
 			self.RowNumber = current_row
@@ -434,14 +434,14 @@ class dBizobj(dObject):
 		except dException.NoRecordsException, e:
 			raise
 
-		except dException.DBQueryException, e:
+		except dException.DBQueryException:
 			# Something failed; reset things.
 			if startTransaction:
 				self.rollbackTransaction()
 			# Pass the exception to the UI
 			raise
 
-		except dException.dException, e:
+		except dException.dException:
 			# Something failed; reset things.
 			if startTransaction:
 				self.rollbackTransaction()
@@ -499,11 +499,11 @@ class dBizobj(dObject):
 			if startTransaction:
 				self.commitTransaction()
 
-		except dException.DBQueryException, e:
+		except dException.DBQueryException:
 			if startTransaction:
 				self.rollbackTransaction()
 			raise
-		except StandardError, e:
+		except StandardError:
 			if startTransaction:
 				self.rollbackTransaction()
 			raise
@@ -555,11 +555,11 @@ class dBizobj(dObject):
 				self.afterPointerMove()
 				self.afterChange()
 				self.afterDelete()
-		except dException.DBQueryException, e:
+		except dException.DBQueryException:
 			if startTransaction:
 				self.rollbackTransaction()
 			raise
-		except StandardError, e:
+		except StandardError:
 			if startTransaction:
 				self.rollbackTransaction()
 			raise
@@ -582,11 +582,11 @@ class dBizobj(dObject):
 			self.afterPointerMove()
 			self.afterChange()
 			self.afterDelete()
-		except dException.DBQueryException, e:
+		except dException.DBQueryException:
 			if startTransaction:
 				self.rollbackTransaction()
 			raise
-		except StandardError, e:
+		except StandardError:
 			if startTransaction:
 				self.rollbackTransaction()
 			raise
@@ -611,7 +611,7 @@ class dBizobj(dObject):
 	def getDataDiff(self, allRows=False):
 		"""Get a dict that is keyed on the hash value of this bizobj, with the value
 		being  a list of record changes. Default behavior is to only consider the
-		current row; you can change that by passing allRows=True. Each changed 
+		current row; you can change that by passing allRows=True. Each changed
 		row will be present in the diff, with its PK and any columns whose values
 		have changed. If there are any related child bizobjs, their diffs will be
 		added to the dict under the key 'children' so that they can be processed
@@ -902,7 +902,7 @@ class dBizobj(dObject):
 		""" If this is a child bizobj, its record set is dependent on its parent's
 		current PK value. This will add the appropriate WHERE clause to
 		filter the child records. If the parent is a new, unsaved record, or if
-		there is no parent record, there cannot be any child records saved yet, 
+		there is no parent record, there cannot be any child records saved yet,
 		so an empty query	is built.
 		"""
 		currWhere = self.getWhereClause()
@@ -1354,7 +1354,7 @@ class dBizobj(dObject):
 
 
 	def getParentPK(self):
-		""" Return the value of the parent bizobjs' PK field. Alternatively, 
+		""" Return the value of the parent bizobjs' PK field. Alternatively,
 		user code can just call self.Parent.getPK().
 		"""
 		try:
@@ -1373,13 +1373,13 @@ class dBizobj(dObject):
 		def changeRowNumCallback(row):
 			# dCursorMixin is requesting a rowchange, which we must do here so that
 			# child bizobjs get requeried. This is especially important (and only
-			# currenty happens) for virtual fields, in case they rely on values 
+			# currenty happens) for virtual fields, in case they rely on values
 			# gotten from children.
 			self._moveToRowNum(row)
 			for ch in self.__children:
 				if ch.RowCount == 0:
 					ch.requery()
-			
+
 		if cursor is not None:
 			try:
 				ret = cursor.getFieldVal(fld, row, _rowChangeCallback=changeRowNumCallback)
@@ -1417,7 +1417,7 @@ class dBizobj(dObject):
 			except dException.NoRecordsException:
 				ret = False
 		return ret
-			
+
 
 	_baseXML = """<?xml version="1.0" encoding="%s"?>
 <dabocursor xmlns="http://www.dabodev.com"
@@ -1443,7 +1443,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def dataToXML(self):
 		"""Returns XML representing the data set. If there are child bizobjs,
-		the data for the related child records will be nested inside of the 
+		the data for the related child records will be nested inside of the
 		parent record; this nesting can go as many levels deep as there are
 		child/grandchild/etc. bizobjs.
 		"""
@@ -1465,7 +1465,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if rows is None:
 			self.scan(self._xmlForRow, level=level+1, callback=addToBody)
 		else:
-			self.scanRows(self._xmlForRow, self.RowNumber, level=level+1, 
+			self.scanRows(self._xmlForRow, self.RowNumber, level=level+1,
 					callback=addToBody)
 		return self._xmlBody
 
@@ -1557,7 +1557,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def getDataTypeForField(self, fld):
-		"""Given a field name, returns its Python type, or None if no 
+		"""Given a field name, returns its Python type, or None if no
 		DataStructure information is available.
 		"""
 		ds = self.getDataStructure()
@@ -1632,7 +1632,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def getWordMatchFormat(self):
-		"""Returns the backend's SQL format for creating queries that are based 
+		"""Returns the backend's SQL format for creating queries that are based
 		on matching words in a given column.
 		"""
 		return self._CurrentCursor.getWordMatchFormat()
@@ -1702,7 +1702,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self._CurrentCursor.setWhereClause(clause)
 	def prepareWhere(self, clause):
 		"""Calls the backend's pre-processing routine for improving efficiency
-		of filter expressions. If the backend does not have this capability, 
+		of filter expressions. If the backend does not have this capability,
 		nothing is done.
 		"""
 		return self._CurrentCursor.prepareWhere(clause)
@@ -1758,19 +1758,19 @@ of the string will be displayed to the user."""
 	beforeNext = _makeHookMethod("beforeNext", "navigating to the next record")
 	beforeFirst = _makeHookMethod("beforeFirst", "navigating to the next record")
 	beforeLast = _makeHookMethod("beforeLast", "navigating to the last record")
-	beforePointerMove = _makeHookMethod("beforePointerMove", 
+	beforePointerMove = _makeHookMethod("beforePointerMove",
 			"the record pointer moves")
-	beforeDeleteAllChildren = _makeHookMethod("beforeDeleteAllChildren", 
+	beforeDeleteAllChildren = _makeHookMethod("beforeDeleteAllChildren",
 			"all child records are deleted")
-	beforeSetRowNumber = _makeHookMethod("beforeSetRowNumber", 
+	beforeSetRowNumber = _makeHookMethod("beforeSetRowNumber",
 			"the RowNumber property is set")
 	beforeSave = _makeHookMethod("beforeSave", "the changed records are saved.")
-	beforeCancel = _makeHookMethod("beforeCancel", 
+	beforeCancel = _makeHookMethod("beforeCancel",
 			"the changed records are canceled.")
 	beforeRequery = _makeHookMethod("beforeRequery", "the cursor is requeried")
 	beforeChildRequery = _makeHookMethod("beforeChildRequery",
 			"the child bizobjs are requeried")
-	beforeCreateCursor = _makeHookMethod("beforeCreateCursor", 
+	beforeCreateCursor = _makeHookMethod("beforeCreateCursor",
 			"the underlying cursor object is created")
 
 
@@ -1789,14 +1789,14 @@ values and not trigger the memento system, override onNew() instead.
 	afterNext = _makeHookMethod("afterNext", "navigating to the next record")
 	afterFirst = _makeHookMethod("afterFirst", "navigating to the next record")
 	afterLast = _makeHookMethod("afterLast", "navigating to the last record")
-	afterPointerMove = _makeHookMethod("afterPointerMove", 
+	afterPointerMove = _makeHookMethod("afterPointerMove",
 			"the record pointer moves")
-	afterDeleteAllChildren = _makeHookMethod("afterDeleteAllChildren", 
+	afterDeleteAllChildren = _makeHookMethod("afterDeleteAllChildren",
 			"all child records are deleted")
-	afterSetRowNumber = _makeHookMethod("afterSetRowNumber", 
+	afterSetRowNumber = _makeHookMethod("afterSetRowNumber",
 			"the RowNumber property is set")
 	afterSave = _makeHookMethod("afterSave", "the changed records are saved.")
-	afterCancel = _makeHookMethod("afterCancel", 
+	afterCancel = _makeHookMethod("afterCancel",
 			"the changed records are canceled.")
 	afterRequery = _makeHookMethod("afterRequery", "the cursor is requeried")
 	afterChildRequery = _makeHookMethod("afterChildRequery",
@@ -1804,8 +1804,8 @@ values and not trigger the memento system, override onNew() instead.
 	afterChange = _makeHookMethod("afterChange", "a record is changed",
 			additionalDoc=\
 """This hook will be called after a successful save() or delete(). Contrast
-with the afterSave() hook which only gets called after a save(), and the 
-afterDelete() which is only called after a delete().""")	
+with the afterSave() hook which only gets called after a save(), and the
+afterDelete() which is only called after a delete().""")
 
 
 	def afterCreateCursor(self, crs):
@@ -1821,8 +1821,8 @@ afterDelete() which is only called after a delete().""")
 		"""
 		for crs in self.__cursors.values():
 			self._syncCursorProps(crs)
-	
-	
+
+
 	def _syncCursorProps(self, crs):
 		"""This method ensures that the passed cursor's properties
 		are in sync with this bizobj.
@@ -1841,9 +1841,9 @@ afterDelete() which is only called after a delete().""")
 
 
 	def _cursorDictReference(self):
-		"""In rare situations, bizobj subclasses may need to reference the 
-		internal __cursors attribute. This provides a way to do that, but 
-		it should be stressed that this is potentially dangerous and could 
+		"""In rare situations, bizobj subclasses may need to reference the
+		internal __cursors attribute. This provides a way to do that, but
+		it should be stressed that this is potentially dangerous and could
 		lead to lost data if not handled correctly.
 		"""
 		return self.__cursors
@@ -2236,7 +2236,7 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 			_("The friendly title of the cursor, used in messages to the end user. (str)"))
 
 	ChildCacheInterval = property(_getChildCacheInterval, _setChildCacheInterval, None,
-			_("""If this is a child bizobj, this represents the length of time in seconds that a 
+			_("""If this is a child bizobj, this represents the length of time in seconds that a
 			subsequent requery request will be ignored.  (int)"""))
 
 	CurrentSQL = property(_getCurrentSQL, None, None,
@@ -2311,7 +2311,7 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 			columns by referring to 'self.Record.fieldName' (read-only) (no type)"""))
 
 	_RemoteProxy = property(_getRemoteProxy, None, None,
-			_("""If this bizobj is being run remotely, returns a reference to the RemoteConnector 
+			_("""If this bizobj is being run remotely, returns a reference to the RemoteConnector
 			object that will handle communication with the server.  (read-only) (RemoteConnector)"""))
 
 	RequeryChildOnSave = property(_getRequeryChildOnSave, _setRequeryChildOnSave, None,
