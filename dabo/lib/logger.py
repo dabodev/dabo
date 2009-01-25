@@ -45,6 +45,11 @@ class Log(dObject):
 			self.LogObject.write(msg)
 		except UnicodeEncodeError:
 			self.LogObject.write(msg.encode('utf-8'))
+		except UnicodeDecodeError:
+			try:
+				self.LogObject.write(msg.decode('utf-8'))
+			except UnicodeDecodeError:
+				self.LogObject.write(msg.decode('latin-1'))
 		# Flush the log entry to the file
 		try:
 			self.LogObject.flush()
