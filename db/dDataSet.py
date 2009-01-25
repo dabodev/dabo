@@ -137,6 +137,7 @@ class dDataSet(tuple):
 		instead of the equals sign, unless it is one of the following strings,
 		which will be interpreted as indicated:
 			eq, equals: =
+			ne, nequals: !=
 			gt: >
 			gte: >=
 			lt: <
@@ -148,31 +149,36 @@ class dDataSet(tuple):
 		if not self:
 			# No rows, so nothing to filter
 			return self
-		opDict = {"eq": " = ?",
-			"equals": " = ?",
-			"gt": " > ?",
-			"gte": " >= ?",
-			"lt": " < ?",
-			"lte": " <= ?",
-			"startswith": " LIKE ? ",
-			"beginswith": " LIKE ? ",
-			"endswith": " LIKE ? ",
-			"contains": " LIKE ? " }
-		if (expr in opDict) and (op not in opDict):
-			# They sent the params in reverse order
-			op, expr = expr, op
-		clause = opDict.get(op.lower(), " = ?")
-		oplow = op.lower()
-		if oplow in ("startswith", "beginswith"):
+		op = op.strip().lower()
+		if op in ("=", "!=", ">", "<", ">=", "<="):
+			clause = "%s ?" % op
+		else:
+			opDict = {"eq": " = ?",
+				"equals": " = ?",
+				"ne": " != ?",
+				"nequals": " != ?",
+				"gt": " > ?",
+				"gte": " >= ?",
+				"lt": " < ?",
+				"lte": " <= ?",
+				"startswith": " LIKE ? ",
+				"beginswith": " LIKE ? ",
+				"endswith": " LIKE ? ",
+				"contains": " LIKE ? " }
+			if (expr in opDict) and (op not in opDict):
+				# They sent the params in reverse order
+				op, expr = expr, op
+			clause = opDict.get(op.lower(), " = ?")
+		if op in ("startswith", "beginswith"):
 			param = "%s%%" % expr
-		elif oplow == "endswith":
+		elif op == "endswith":
 			param = "%%%s" % expr
-		elif oplow == "contains":
+		elif op == "contains":
 			param = "%%%s%%" % expr
 		else:
 			param = expr
 		stmnt = "select * from dataset where %s %s" % (fld, clause)
-		ret = self.execute(stmnt, params=param)
+		ret = self.execute(stmnt, (param, ))
 		ret._sourceDataSet = self
 		return ret
 
