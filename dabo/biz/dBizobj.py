@@ -361,19 +361,19 @@ class dBizobj(dObject):
 
 		except dException.ConnectionLostException, e:
 			self.RowNumber = current_row
-			raise e
+			raise
 		except dException.DBQueryException, e:
 			# Something failed; reset things.
 			if startTransaction:
 				self.rollbackTransaction()
 			# Pass the exception to the UI
 			self.RowNumber = current_row
-			raise e
+			raise
 		except dException.dException, e:
 			if startTransaction:
 				self.rollbackTransaction()
 			self.RowNumber = current_row
-			raise e
+			raise
 
 		if current_row >= 0:
 			try:
@@ -439,14 +439,14 @@ class dBizobj(dObject):
 			if startTransaction:
 				self.rollbackTransaction()
 			# Pass the exception to the UI
-			raise e
+			raise
 
 		except dException.dException, e:
 			# Something failed; reset things.
 			if startTransaction:
 				self.rollbackTransaction()
 			# Pass the exception to the UI
-			raise e
+			raise
 
 		# Two hook methods: one specific to Save(), and one which is called after any change
 		# to the data (either save() or delete()).
@@ -502,11 +502,11 @@ class dBizobj(dObject):
 		except dException.DBQueryException, e:
 			if startTransaction:
 				self.rollbackTransaction()
-			raise e
+			raise
 		except StandardError, e:
 			if startTransaction:
 				self.rollbackTransaction()
-			raise e
+			raise
 		self.afterDeleteAllChildren()
 
 
@@ -558,11 +558,11 @@ class dBizobj(dObject):
 		except dException.DBQueryException, e:
 			if startTransaction:
 				self.rollbackTransaction()
-			raise e
+			raise
 		except StandardError, e:
 			if startTransaction:
 				self.rollbackTransaction()
-			raise e
+			raise
 
 
 	def deleteAll(self, startTransaction=True):
@@ -585,11 +585,11 @@ class dBizobj(dObject):
 		except dException.DBQueryException, e:
 			if startTransaction:
 				self.rollbackTransaction()
-			raise e
+			raise
 		except StandardError, e:
 			if startTransaction:
 				self.rollbackTransaction()
-			raise e
+			raise
 
 
 	def execute(self, sql, params=None):
@@ -769,7 +769,7 @@ class dBizobj(dObject):
 					dabo.errorLog.write(_("Error in scanChangedRows: %s") % e)
 					self._CurrentCursor = old_currentCursorKey
 					self._positionUsingPK(old_pk)
-					raise e
+					raise
 
 		self._CurrentCursor = old_currentCursorKey
 		if old_pk is not None:

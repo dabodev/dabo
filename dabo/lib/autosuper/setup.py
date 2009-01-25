@@ -40,4 +40,4 @@ try:
 
 except ImportError, e:
     setup(**params)
-    raise e
+    raise
