@@ -40,6 +40,7 @@ class TestPanel(dabo.ui.dPanel):
 		sz.append(chk, halign="center")
 		
 		self.update()
+		dabo.ui.callAfter(self.updtBox)
 		self.layout()
 		
 
