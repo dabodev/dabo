@@ -787,7 +787,7 @@ class EditorForm(dabo.ui.dForm):
 				dabo.errorLog.write(_("Could not open file: %s") % e)
 				target = None
 			else:
-				raise e
+				raise
 		if target:
 			# Add to the MRU list
 			self.Application.addToMRU(_("File"), pth, self.onMRUSelection)
