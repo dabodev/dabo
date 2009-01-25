@@ -703,7 +703,7 @@ try again when it is running.
 				# Not changed or not found; nothing to do
 				if code == 404 and errorOnNotFound:
 					# Re-raise the error
-					raise e
+					raise
 				return
 		newFile = resp.read()
 		if newFile:
@@ -827,7 +827,7 @@ try again when it is running.
 						continue
 					break
 			else: # All attempts failed
-				raise e
+				raise
 		return ret
 
 

@@ -77,7 +77,7 @@ class RemoteConnector(object):
 						continue
 					break
 				else:
-					raise e
+					raise
 			return ret
 		typs = safeLoad(ptyps)
 		data = safeLoad(pdata)
@@ -181,7 +181,7 @@ class RemoteConnector(object):
 			errText = e.read()
 			errMsg = "\n".join(errText.splitlines()[4:])
 			dabo.errorLog.write(_("HTTP Error getting app list: %s") % e)
-			raise e
+			raise
 		# If they passed an app name, and it's in the returned app list, run it
 		if path and (path in res):
 			return path
@@ -250,7 +250,7 @@ class RemoteConnector(object):
 				return
 		except urllib2.URLError, e:
 			# Right now re-raise it and let the UI handle it
-			raise e
+			raise
 		pickleRet = res.read()
 		filecode, chgs, serverMf = pickle.loads(jsonDecode(pickleRet))
 		# Everything after this is relative to the app's home directory, so 
