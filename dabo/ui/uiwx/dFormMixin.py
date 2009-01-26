@@ -187,10 +187,12 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def _createToolBar(self):
-		if (self.ShowToolBar
-				and self.ToolBar is None
-				and not isinstance(self, wx.Dialog)):
-			self.ToolBar = dabo.ui.dToolBar(self)
+		if self.ShowToolBar and self.ToolBar is None:
+			try:
+				self.ToolBar = dabo.ui.dToolBar(self)
+			except TypeError:
+				# We are a dialog, an MDI Child, or some other toolbar-unworthy form
+				pass
 
 
 	def _createStatusBar(self):
