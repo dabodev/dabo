@@ -151,7 +151,7 @@ class dDataSet(tuple):
 			return self
 		op = op.strip().lower()
 		if op in ("=", "!=", ">", "<", ">=", "<="):
-			clause = "%s ?" % op
+			clause = " %s ?" % op
 		else:
 			opDict = {"eq": " = ?",
 				"equals": " = ?",
@@ -177,8 +177,20 @@ class dDataSet(tuple):
 			param = "%%%s%%" % expr
 		else:
 			param = expr
-		stmnt = "select * from dataset where %s %s" % (fld, clause)
-		ret = self.execute(stmnt, (param, ))
+		# sqlite doesn't handle None parameter correctly, so fudge it here
+		if param is None:
+			if clause == " = ?":
+				stmnt = "select * from dataset where %s is null" % fld
+			elif clause == " != ?":
+				stmnt = "select * from dataset where %s is not null" % fld
+			else:
+				# The only cases that make sense are equals or not equals. For anything
+				# else, just return the original
+				return self
+			ret = self.execute(stmnt)
+		else:
+			stmnt = "select * from dataset where %s %s" % (fld, clause)
+			ret = self.execute(stmnt, (param, ))
 		ret._sourceDataSet = self
 		return ret
 
