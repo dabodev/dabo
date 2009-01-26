@@ -2,7 +2,7 @@
 # The following 3 lines are the only thing you should change in this file.
 # Everything else is boilerplate copied also to other dabo repositories.
 package_name = "dabo"
-_version = "0.9.0"
+_version = "0.9.1"
 _approximateRevision = "~4972"
 
 import os
