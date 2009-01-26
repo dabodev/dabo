@@ -1,5 +1,90 @@
 See the Subversion log for all the details.
 
+Dabo 0.9.1 (2009-01-25) Revision 4976):
+===============================================================================
+Lots and lots of bug fixes as more people worked with the 0.9.0 changes. Here are some of the changes:
+
++ Some improvements of the PostgreSQL support (see ticket #1189).
+
++ Fixed an issue where a table with a column with the same name as a bizobj property (such as 'Name') would throw an error.
+
++ Added the ability to reload a live form when it is based on a .cdxml file. This is analogous to reloading a web page, except that all the bizobj information is preserved.
+
++ Removed the pre-wx2.7 code that handled skipping a spurious second Activate event.
+
++ Asking for the values of the properties ToolBar and StatusBar resulted in the side-effect of creating the ToolBar or StatusBar if they weren't already created, which it really shouldn't do. Fixed to create ToolBar and StatusBar at the appropriate time, if not already created by user code.
+
++ Setting ToolBar had the side-effect of creating a reference to the Form property, which isn't necessary because Form is derived from Parent, and Parent gets set when the toolbar is constructed. Removed the Form property from dToolBar.py (so now it comes from dPemMixinBase like all other controls).
+
++ Consistently use new style of raise statement (this is actually not necessary but will make transition to Python 3.0 easier).
+
++ Fixed reportwriter so if the image to draw is invalid or not found, we don't get a reportlab traceback. Just display text in the report.
+
++ Moved the importing of settings above dLocalize, to make it possible to run the dLocalize.py as a script.
+
++ Got a step closer to fixing the problem where NonUpdateFields isn't automatically set anymore for foreign fields. This workaround fills in '_foreign_field_' for the table name in DataStructure. The better fix will be to get the actual foreign table name filled in, but this at least makes the NonUpdateFields work again, I believe.
+
++ addJoin() was adding join conditions in backwards order:
+  addFrom("customers")
+  addJoin("invoices", "invoices.customer_id = customers.id")
+  addJoin("invoice_lines", "invoice_lines.invoice_id = invoices.id")
+ would result in:
+ from customers
+  inner join invoice_lines on invoice_lines.invoice_id = invoices.id
+  inner join invoices on invoices.customer_id = customers.id
+ which would result in an error in the sql.
+
++ Added the method 'setValues()' to allow setting several fields with new values by passing them to the bizobj as a dictionary in the form of: fieldName: newValue. No UI updating is done.
+
++ dSpinner was firing ValueChanged and InteractiveChange with each keypress in the textbox (IOW, these events fired as often as Hit). For text controls, ValueChanged should fire if the value was changed from _oldVal, when the focus is lost.
+
++ This should fix some of the problems noticed by Ricardo Ar‡oz concerning the placement of the calendar when editing the dDateTextBox control.
+
++ Added the 'cloneRecord()' method to dBizobj. This will make a copy of the current record and append it as a new record in the dataset. The copy will contain all of the columns of the current record except for PK columns.
+
++ Added the 'appendDataSet()' method to dCursorMixin. This assumes that the dataset to be appended has the same table structure as the current dataset; if not, an error is raised.
+
++ Added the 'isRemote()' method to dBizobj. This returns True if the connection for the bizobj is a remote web connection.
+
++ Implemented remote proxy support in the getFieldNames() method.
+
++ Implemented the getFieldNames() method to support remote discovery of table structures.
+
++ Improved the code for determining the remote URL.
+
++ Improved the reload() functionality to better handle changes on the server.
+
++ Added the resyncFiles() method to dApp(). This is needed for reloading parts of the app while the app is running.
+
++ For performance reasons, we were storing an actual bizobj reference instead of the DataSource string in the grid's DataSource property. This was interfering with reloaded forms, since the bizobjs have to be changed. Now this performance shortcut is only used if the bizobj is not remote.
+
++ Added KeepAliveInterval to dBackend, which by default is None so has the old behavior. But set it to a number of seconds, if desired, to cause a small query to the server to be made in order to keep the connection alive. This is useful to me for a MySQL app I have. Currently, there's no way to set this other than e.g.:
+   form.getBizobj()._CurrentCursor.BackendObject.KeepAliveInterval = 3600
+
++ Added lots of changes to better handle unicode within the editor and the Class Designer. I've adopted the convention that all of the Dabo files will be written and read using utf-8 encoding, making the handling of any non-ASCII text much simpler.
+
++ Also fixed a bug when a field in the DataSource is named the same as a method in the DataSource. Previously we looked for methods in the DataSource first, and then tried to call get/setFieldVal(); this would cause Dabo to call the method instead of getting the field value. Now we look for fields first, and only look for methods if there is no such field in the dataset.
+
++ Initial work on implementing an ID-based system for menus and menu items. They now have MenuID and ItemID properties, respectively. dMenuBar.getMenu() now will find based on MenuID or Caption, and dMenu.getItem() will likewise search on ItemID or Caption.
+
++ Fixed some bugs in the filter() method for dDataSet reported by Sibylle Koczian. Also added support for 'not equals', using either '!=' or 'ne'.
+
++ FIxed menu problems in DaboDemo. Also added code to re-use the modules if you re-selected the same sample.
+
++ Fixed an error that only happened on Gtk, where the font metric call was referring to a released window, causing a segfault.
+
++ Improved the DE Wizard so that newly-created bizobjs are added to the app's biz module namespace.
+
++ Fixed a bug that would incorrectly store a CxnName if happened to be the same as an existing directory or file.
+
++ Adopted the standard that all Class Designer files will be written/read with utf-8 encoding.
+
++ Fixed a problem in which a newline was added to code, which didn't affect execution, but dirtied the buffer when nothing had actually changed.
+
++ Updated the QuickLayoutWizard to recognize web-based connections and notify the user that they cannot use that wizard with remote connections. 
+
+
+
 Dabo 0.9.0 (2008-12-10) Revision 4816):
 ===============================================================================
 + Removed the conditional import on the decimal module, as we are now requiring Python 2.4.
