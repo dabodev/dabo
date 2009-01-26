@@ -134,18 +134,22 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		The MenuID property is checked first; then the Caption. If no match is found, 
 		None is returned.
 		"""
+		id = caption = idOrCaption
 		try:
-			ret = [mn for mn in self.Children
-					if mn.MenuID == idOrCaption][0]
+			return [mn for mn in self.Children if mn.MenuID == id][0]
 		except IndexError:
-			ret = None
-			# Try the Caption
-			idx = self.FindMenu(idOrCaption)
-			try:
-				ret = self.GetMenu(idx)
-			except dabo.ui.assertionException:
-				ret = None
-		return ret
+			pass
+
+		# Finding the id failed; try the Caption
+		idx = self.FindMenu(caption)
+		if idx is None or idx < 0:
+			return None
+
+		# The menu index was found by caption: return the menu:
+		try:
+			return self.GetMenu(idx)
+		except dabo.ui.assertionException:
+			return None
 
 
 	def getMenuIndex(self, idOrCaption):
