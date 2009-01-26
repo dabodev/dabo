@@ -1,0 +1,18 @@
+This is the main server portion of a Pylons installation that will serve
+Dabo applications, making them true web apps.
+
+The primary files of interest are:
+
+controllers/bizservers.py: the main controller that handles web requests
+	and works with the Dabo bizobjs as needed.
+
+config/routing.py: routes the URLs of the requests to the appropriate
+	controller methods.
+
+controllers/OrdersBizobj.py: sample remote bizobj for the demo app.
+
+appSource: the directory containing the source files for your
+	application.
+
+
+To use this, you will need Pylons installed. You would then create a new app using paste named 'daboserver'. This will create a directory named 'daboserver', which will contain a subdirectory also named 'daboserver'. Replace that subdirectory with the one included here, and start the webserver.

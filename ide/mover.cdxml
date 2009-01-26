@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<dPanel classID="116714768"  sizerInfo="{}" Name="pnlMover" designerClass="path://mover.cdxml" savedClass="True">
+	<code>
+		<removeAllItems><![CDATA[
+def removeAllItems(self):
+	self.change(self.lstTarget, self.lstSource, "all")
+]]>
+		</removeAllItems>
+		<moveItem><![CDATA[
+def moveItem(self):
+	self.change(self.lstSource, self.lstTarget)
+]]>
+		</moveItem>
+		<setLists><![CDATA[
+def setLists(self, fromList, toList=None):
+	if toList is None:
+		toList = []
+	self.lstSource.Choices = fromList
+	self.lstTarget.Choices = toList
+	if self.SortedLists:
+		self.sortLists()
+]]>
+		</setLists>
+		<_getCaseSensitiveSort><![CDATA[
+def _getCaseSensitiveSort(self):
+	try:
+		return self._caseSensitiveSort
+	except AttributeError:
+		return None
+]]>
+		</_getCaseSensitiveSort>
+		<_setCaseSensitiveSort><![CDATA[
+def _setCaseSensitiveSort(self, val):
+	self._caseSensitiveSort = val
+]]>
+		</_setCaseSensitiveSort>
+		<change><![CDATA[
+def change(self, src, tgt, moveAll=None):
+	self.lockDisplay()
+	if moveAll is None:
+		lst2Move = []
+		chc = src.Choices
+		for pos in src.Selections:
+			lst2Move.append(chc[pos])
+	else:
+		lst2Move = src.Choices[:]
+	# Add them to the target
+	chc = tgt.Choices[:]
+	chc += lst2Move
+	tgt.Choices = chc
+	# Remove them from the source
+	chc = src.Choices[:]
+	for itm in lst2Move:
+		try:
+			chc.remove(itm)
+		except: pass
+	src.Choices = chc
+	if self.SortedLists:
+		self.sortLists()
+	self.unlockDisplay()
+]]>
+		</change>
+		<_setSortedLists><![CDATA[
+def _setSortedLists(self, val):
+	self._sortedLists = val
+	if val:
+		self.sortLists()
+]]>
+		</_setSortedLists>
+		<_getSortedLists><![CDATA[
+def _getSortedLists(self):
+	try:
+		return self._sortedLists
+	except AttributeError:
+		return None
+]]>
+		</_getSortedLists>
+		<removeItem><![CDATA[
+def removeItem(self):
+	self.change(self.lstTarget, self.lstSource)
+]]>
+		</removeItem>
+		<moveAllItems><![CDATA[
+def moveAllItems(self):
+	self.change(self.lstSource, self.lstTarget, "all")
+]]>
+		</moveAllItems>
+		<sortLists><![CDATA[
+def sortLists(self):
+	chc = self.lstSource.Choices[:]
+	if self.CaseSensitiveSort:
+		chc.sort(key=lambda x: x[0].lower())
+	else:
+		chc.sort()
+	self.lstSource.Choices = chc
+	
+	chc = self.lstTarget.Choices[:]
+	if self.CaseSensitiveSort:
+		chc.sort(key=lambda x: x[0].lower())
+	else:
+		chc.sort()
+	self.lstTarget.Choices = chc
+]]>
+		</sortLists>
+	</code>
+
+	<properties>
+		<SortedLists>
+			<comment>When True, the lists are displayed in alpha sort order</comment>
+			<defaultValue>False</defaultValue>
+			<deller>None</deller>
+			<getter>_getSortedLists</getter>
+			<propName>SortedLists</propName>
+			<defaultType>boolean</defaultType>
+			<setter>_setSortedLists</setter>
+		</SortedLists>
+		<CaseSensitiveSort>
+			<comment>Determines if items are sorted in a case-sensitive manner. No effect if SortedLists is False</comment>
+			<defaultValue>False</defaultValue>
+			<deller>None</deller>
+			<getter>_getCaseSensitiveSort</getter>
+			<propName>CaseSensitiveSort</propName>
+			<defaultType>boolean</defaultType>
+			<setter>_setCaseSensitiveSort</setter>
+		</CaseSensitiveSort>
+	</properties>
+
+	<dSizer classID="116714768-116188336" Orientation="Horizontal" DefaultBorderTop="False" DefaultBorderRight="False" DefaultBorderBottom="False" DefaultBorder="0" DefaultBorderLeft="False" designerClass="LayoutSizer" SlotCount="3">
+		<dListBox FontUnderline="False" BorderColor="(0, 0, 0)" sizerInfo="{'BorderSides': ['All'], 'Proportion': 2, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" BorderWidth="0" BorderStyle="Default" FontBold="False" ForeColor="(0, 0, 0)" BackColor="(221, 221, 221)" FontItalic="False" DataField="" classID="116714768-116189872" ValueMode="string" Name="lstSource" Enabled="True" Value="()" Choices="[]" designerClass="controlMix" MultipleSelect="True" BorderLineStyle="Solid" DataSource="" FontSize="13" ToolTipText="None"></dListBox>
+		<dSizer classID="116714768-116190448" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Center', 'VAlign': 'Middle', 'Border': 12, 'Expand': False}" Orientation="Vertical" DefaultBorderTop="False" DefaultBorderRight="False" DefaultBorderBottom="False" DefaultBorder="0" DefaultBorderLeft="False" designerClass="LayoutSizer" SlotCount="5">
+			<dButton classID="116714768-119806416" BorderColor="(0, 0, 0)" FontBold="False" Name="btnAdd"  Enabled="True" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 6, 'Expand': True}" Caption="Add &#062;" ForeColor="(0, 0, 0)" designerClass="controlMix" BorderWidth="0" BackColor="(221, 221, 221)" FontSize="13" BorderStyle="Default" ToolTipText="None" BorderLineStyle="Solid" FontItalic="False" FontUnderline="False">
+				<code>
+					<onHit><![CDATA[
+def onHit(self, evt):
+	self.Parent.moveItem()
+]]>
+					</onHit>
+				</code>
+			</dButton>
+			<dButton classID="116714768-119806928" BorderColor="(0, 0, 0)" FontBold="False" Name="btnAddAll" Enabled="True" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 6, 'Expand': True}" Caption="Add All &#062;&#062;" ForeColor="(0, 0, 0)" designerClass="controlMix" BorderWidth="0" BackColor="(221, 221, 221)" FontSize="13" BorderStyle="Default" ToolTipText="None" BorderLineStyle="Solid" FontItalic="False" FontUnderline="False">
+				<code>
+					<onHit><![CDATA[
+def onHit(self, evt):
+	self.Parent.moveAllItems()
+]]>
+					</onHit>
+				</code>
+			</dButton>
+			<dLine classID="116714768-91173584" BorderColor="(0, 0, 0)" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Center', 'VAlign': 'Middle', 'Border': 0, 'Expand': True}" Name="dLine" Enabled="True" designerClass="controlMix" BorderWidth="0" BorderStyle="Default" BorderLineStyle="Solid" ToolTipText="None"></dLine>
+			<dButton classID="116714768-119833136" BorderColor="(0, 0, 0)" FontBold="False" Name="btnRemove" Enabled="True" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 6, 'Expand': True}" Caption="&#060; Remove" ForeColor="(0, 0, 0)" designerClass="controlMix" BorderWidth="0" BackColor="(221, 221, 221)" FontSize="13" BorderStyle="Default" ToolTipText="None" BorderLineStyle="Solid" FontItalic="False" FontUnderline="False">
+				<code>
+					<onHit><![CDATA[
+def onHit(self, evt):
+	self.Parent.removeItem()
+]]>
+					</onHit>
+				</code>
+			</dButton>
+			<dButton classID="116714768-119835152" BorderColor="(0, 0, 0)" FontBold="False" Name="btnRemoveAll" Enabled="True" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 6, 'Expand': True}" Caption="&#060;&#060; Remove All" ForeColor="(0, 0, 0)" designerClass="controlMix" BorderWidth="0" BackColor="(221, 221, 221)" FontSize="13" BorderStyle="Default" ToolTipText="None" BorderLineStyle="Solid" FontItalic="False" FontUnderline="False">
+				<code>
+					<onHit><![CDATA[
+def onHit(self, evt):
+	self.Parent.removeAllItems()
+]]>
+					</onHit>
+				</code>
+			</dButton>
+		</dSizer>
+		<dListBox FontUnderline="False" BorderColor="(0, 0, 0)" sizerInfo="{'BorderSides': ['All'], 'Proportion': 2, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" BorderWidth="0" BorderStyle="Default" FontBold="False" ForeColor="(0, 0, 0)" BackColor="(221, 221, 221)" FontItalic="False" DataField="" classID="116714768-119835888" ValueMode="string" Name="lstTarget" Enabled="True" Value="()" Choices="[]" designerClass="controlMix" MultipleSelect="True" BorderLineStyle="Solid" DataSource="" FontSize="13" ToolTipText="None"></dListBox>
+	</dSizer>
+</dPanel>

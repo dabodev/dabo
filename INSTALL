@@ -1,0 +1,58 @@
+Dabo - Some brief installation notes.
+
+PREREQUISITES:
++ Python (we recommend the latest, currently 2.5)
++ sqlite3 (comes with Python 2.5) or pysqlite2 (install separately)
++ wxPython UNICODE BUILD (we recommend the latest, currently 2.8)
++ MySQLdb (to run the demos)
++ reportlab
++ PIL (also known as Imaging or the Python Imaging Library)
+
+
+INSTALLATION:
+Windows: run 'win_setup.bat'
+Mac or Linux: As root or administrator, execute the following shell command:
+    python setup.py install
+
+That's it! 
+
+
+OTHER STUFF:
+There are two other directories in the same folder as this file: 'demo' and 
+'ide'. They contain useful programs (written in Dabo, of course!) to help
+you explore and develop with Dabo. You should move these to a convenient 
+folder on your system, such as 'My Documents\Dabo' on Windows, or '~/dabo' on 
+Linux or Mac.
+
+The 'demo' folder contains the DaboDemo application, which shows off a lot of
+the cool things in Dabo. This is still a work-in-progress, with more demos
+being added all the time. Be sure to check the website for updates!
+
+The 'ide' folder contains our visual tools, such as the Class Designer, which
+you can use to visually design your UI; the connection editor ('CxnEditor'),
+which is used to create connections to database servers, as well as several 
+other useful visual tools.
+
+There's also the new 'daboserver' directory. This is the 'guts' of a
+Pylons server that will work with the web app features of Dabo. The only
+modified files are the 'bizservers.py' controller, the routing.py file
+in config, the OrdersBizobj.py sample for a remote bizobj, and the
+'appSource' directory, which contains the source of the remote app. I
+plan on documenting how all this stuff works over the next few months,
+so keep an eye out for that!
+
+
+HAVING PROBLEMS?
+But... if you have trouble installing, and for whatever reason the setup.py 
+doesn't work, just add a file named 'dabo.pth' to your site-packages directory,
+with the path to dabo e.g. '/home/pmcnett/projects/dabo'.
+
+If you are on Linux and got the following error:
+error: invalid Python installation: unable to open /usr/lib/python2.6/config/Makefile (No such file or directory)
+
+and you really want to get setup.py to install dabo for you, you need to
+install the python-dev package. For instance (on Debian):
+
+apt-get install python2.6-dev
+
+(assuming you are running python2.6; change the version number as appropriate).

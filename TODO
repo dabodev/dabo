@@ -1,0 +1,30 @@
+See:
+
+http://dabodev.com/wiki/ReleaseRoadmap
+http://dabodev.com/wiki/DeveloperRoadmap
+http://trac.dabodev.com/report/3
+
+##pkm: Here are some open items:
+
++ Undo/Redo in RD and CD
+
++ Make dShell's editor more like dEditor
+
++ Find/Replace:
+	On Gtk at least, enter will re-run the last find string, not the current one.
+
+	+ Replace All:
+Traceback (most recent call last):
+  File "/home/pmcnett/projects/dabo/dabo/ui/uiwx/uiApp.py", line 509, in OnFindReplaceAll
+    ret = self.OnFind(evt, action="Replace")
+  File "/home/pmcnett/projects/dabo/dabo/ui/uiwx/uiApp.py", line 582, in OnFind    win.ReplaceSelection(replaceString)
+AttributeError: 'XmlEditor' object has no attribute 'ReplaceSelection'
+
++ dEditor:
+	+ Get a keyboard shortcut (Alt+1, Alt+2, ...) to switch between pages.
+
+	+ Ed, show me how to jump to a bookmark. Also, it doesn't appear to be saving.
+
++ Report Designer:
+	+ Implement rulers
+	+ File|Save sometimes (usually?) pulls up the Save As dialog.
