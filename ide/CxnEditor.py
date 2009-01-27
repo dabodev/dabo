@@ -44,7 +44,7 @@ class EditorForm(dui.dForm):
 		fm = mb.getMenu("base_file")
 		fm.prepend(_("Open Connection File..."),
 				HotKey="Ctrl+O",
-				OnHit=self.onOpenFile
+				OnHit=self.onOpenFile,
 				ItemID="file_open",
 				help=_("Open an existing connection file"))
 	
