@@ -26,6 +26,7 @@ from dabo.ui import makeDynamicProperty
 
 class dTextBoxMixinBase(dcm.dDataControlMixin):
 	def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
+		self._oldVal = u""
 		self._forceCase = None
 		self._inForceCase = False
 		self._inFlush = False
