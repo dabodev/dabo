@@ -190,7 +190,7 @@ class dFormMixin(pm.dPemMixin):
 		if self.ShowToolBar and self.ToolBar is None:
 			try:
 				self.ToolBar = dabo.ui.dToolBar(self)
-			except TypeError:
+			except (AttributeError, TypeError):
 				# We are a dialog, an MDI Child, or some other toolbar-unworthy form
 				pass
 
