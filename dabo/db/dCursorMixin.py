@@ -165,7 +165,7 @@ class dCursorMixin(dObject):
 		"""Returns the PK expression for the passed record."""
 		if rec is None:
 			try:
-				rec = self._records[self.RowNumber]
+				rec = self._records.UnfilteredDataSet[self.RowNumber]
 			except IndexError:
 				rec = {}
 		if isinstance(self.KeyField, tuple):
@@ -372,11 +372,8 @@ class dCursorMixin(dObject):
 								field_name=fld, _newQuery=_newQuery)
 
 		self._records = dDataSet(_records)
-		if self.RowCount > 0:
-			self.RowNumber = max(0, self.RowNumber)
-			maxrow = max(0, (self.RowCount-1) )
-			self.RowNumber = min(self.RowNumber, maxrow)
-
+		# This will handle bounds issues
+		self.RowNumber = self.RowNumber
 		return res
 
 
@@ -816,7 +813,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			raise dException.NoRecordsException(_("No records in the data set."))
 		if row is None:
 			row = self.RowNumber
-
 		try:
 			rec = self._records[row]
 		except IndexError:
@@ -1140,7 +1136,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Creates a copy of the current record and adds it to the dataset."""
 		if not self.RowCount:
 			raise dException.NoRecordsException(_("No records in the data set."))
-		rec = self._records[self.RowNumber]
+		rec = self._records[self.RowNumber].copy()
 		if self.AutoPopulatePK:
 			kf = self.KeyField
 			blank = self._getBlankRecord()
@@ -1180,6 +1176,21 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				pass
 
 
+	def filter(self, fld, expr, op="="):
+		"""Apply a filter to the current records."""
+		self._records = self._records.filter(fld=fld, expr=expr, op=op)
+
+
+	def removeFilter(self):
+		"""Remove the most recently applied filter."""
+		self._records = self._records.removeFilter()
+
+
+	def removeFilters(self):
+		"""Remove all applied filters, going back to the original data set."""
+		self._records = self._records.removeFilters()
+
+
 	def replace(self, field, valOrExpr, scope=None):
 		"""Replaces the value of the specified field with the given value
 		or expression. All records matching the scope are affected; if
@@ -1189,11 +1200,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		with an equals sign. All expressions will therefore be a string
 		beginning with '='. Literals can be of any type.
 		"""
-		if isinstance(self._records, dDataSet):
-			# Make sure that the data set object has any necessary references
-			self._records.Cursor = self
-			self._records.Bizobj = self._bizobj
-			self._records.replace(field, valOrExpr, scope=scope)
+		# Make sure that the data set object has any necessary references
+		self._records.Cursor = self
+		self._records.Bizobj = self._bizobj
+		self._records.replace(field, valOrExpr, scope=scope)
 
 
 	def first(self):
@@ -1287,6 +1297,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec = self._records[row]
 		recKey = self.pkExpression(rec)
 		newrec = kons.CURSOR_TMPKEY_FIELD in rec
+		
+		print "newrec = ", newrec
+		print "recKey = ", recKey
+		
 		newPKVal = None
 		if newrec and self.AutoPopulatePK:
 			# Some backends do not provide a means to retrieve
@@ -1505,7 +1519,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		# Faster to deal with 2 specific cases: all rows or just current row
 		if allRows:
-			recs = self._records
+			recs = self._records.UnfilteredDataSet
 
 			if self._newRecords:
 				recs = list(recs)
@@ -2490,14 +2504,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _getRowNumber(self):
 		try:
-			ret = self.__rownumber
+			ret = min(self.__rownumber, self._getRowCount()-1)
 		except AttributeError:
 			ret = -1
 		return ret
 
 
 	def _setRowNumber(self, num):
-		self.__rownumber = num
+		rn = max(0, num)
+		maxrow = max(0, (self.RowCount-1) )
+		self.__rownumber = min(rn, maxrow)
 
 
 	def _getTable(self):

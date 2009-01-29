@@ -757,6 +757,8 @@ class dBizobj(dObject):
 		else:
 			cursors = {old_currentCursorKey: currCursor}
 
+		dabo.trace()
+
 		for key, cursor in cursors.iteritems():
 			self._CurrentCursor = key
 			changedRows = self.getChangedRows(includeNewUnchanged)
@@ -964,6 +966,47 @@ class dBizobj(dObject):
 		if not isinstance(params, tuple):
 			params = (params, )
 		self.__params = params
+
+
+	def filter(self, fld, expr, op="="):
+		"""
+		This takes a field name, an expression, and an optional operator, and applies that 
+		to the current dataset. The original dataset is preserved; calling removeFilter() will 
+		remove the last filter applied to the bizobj. If the current record is in the filtered 
+		dataset, that record will still be current; if it is filtered out, the current row will 
+		be row 0.
+		If the operator is specified, it will be used literally in the evaluation instead of the 
+		equals sign, unless it is one of the following strings, which will be interpreted 
+		as indicated:
+			eq, equals: =
+			ne, nequals: !=
+			gt: >
+			gte: >=
+			lt: <
+			lte: <=
+			startswith, beginswith: fld.startswith(expr)
+			endswith: fld.endswith(expr)
+			contains: expr in fld
+		"""
+		currPK = self.getPK()
+		self._CurrentCursor.filter(fld=fld, expr=expr, op=op)
+		newPK = self.getPK()
+		if newPK != currPK:
+			try:
+				self.moveToPK(currPK)
+			except dabo.dException.RowNotFoundException:
+				# The old row was filtered out of the dataset
+				self.first()
+
+
+	def removeFilter(self):
+		"""Remove the most recently applied filter."""
+		self._CurrentCursor.removeFilter()
+
+
+	def removeFilters(self):
+		"""Remove all applied filters, going back to the original data set."""
+		self._CurrentCursor.removeFilters()
 
 
 	def _validate(self):

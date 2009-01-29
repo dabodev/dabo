@@ -275,6 +275,7 @@ class BaseForm(fm.dFormMixin):
 		self._moveRecordPointer(bizobj.first, dataSource)
 		self.afterFirst()
 
+
 	def last(self, dataSource=None):
 		""" Ask the bizobj to move to the last record."""
 		bizobj = self.getBizobj(dataSource)
@@ -288,6 +289,7 @@ class BaseForm(fm.dFormMixin):
 		self._moveRecordPointer(bizobj.last, dataSource)
 		self.afterLast()
 
+
 	def prior(self, dataSource=None):
 		""" Ask the bizobj to move to the previous record."""
 		bizobj = self.getBizobj(dataSource)
@@ -300,7 +302,8 @@ class BaseForm(fm.dFormMixin):
 			return
 		self._moveRecordPointer(bizobj.prior, dataSource)
 		self.afterPrior()
-		
+
+
 	def next(self, dataSource=None):
 		""" Ask the bizobj to move to the next record."""
 		bizobj = self.getBizobj(dataSource)
@@ -313,6 +316,41 @@ class BaseForm(fm.dFormMixin):
 			return
 		self._moveRecordPointer(bizobj.next, dataSource)
 		self.afterNext()
+		
+
+	def filter(self, dataSource=None, fld=None, expr=None, op="="):
+		"""Apply a filter to the bizobj's data."""
+		bizobj = self.getBizobj(dataSource)
+		if bizobj is None:
+			# Running in preview or some other non-live mode
+			return
+		# Make sure that they passed 'fld' and 'expr'
+		if fld is None or expr is None:
+			raise ValueError(_("Both 'fld' and 'expr' need to be supplied to the call to filter()."))
+		err = self.beforeFilter()
+		if err:
+			self.notifyUser(err)
+			return
+		self._moveRecordPointer(bizobj.filter, dataSource, fld=fld, expr=expr, op=op)
+		self.afterFilter()
+
+
+	def removeFilter(self, dataSource=None):
+		"""Remove the most recently applied filter from the bizobj's data."""
+		bizobj = self.getBizobj(dataSource)
+		if bizobj is None:
+			# Running in preview or some other non-live mode
+			return
+		self._moveRecordPointer(bizobj.removeFilter, dataSource)
+		
+
+	def removeFilters(self, dataSource=None):
+		"""Remove all filters from the bizobj's data."""
+		bizobj = self.getBizobj(dataSource)
+		if bizobj is None:
+			# Running in preview or some other non-live mode
+			return
+		self._moveRecordPointer(bizobj.removeFilters, dataSource)
 		
 
 	def save(self, dataSource=None):
@@ -666,7 +704,8 @@ Database error message: %s""") %	err
 	def beforeLast(self): pass
 	def beforePrior(self): pass
 	def beforeNext(self): pass
-	def beforeSave(self): pass
+	def beforeNext(self): pass
+	def beforeFilter(self): pass
 	def beforeCancel(self): pass
 	def beforeRequery(self): pass
 	def beforeDelete(self): pass
@@ -677,6 +716,7 @@ Database error message: %s""") %	err
 	def afterLast(self): pass
 	def afterPrior(self): pass
 	def afterNext(self): pass
+	def afterFilter(self): pass
 	def afterSave(self): pass
 	def afterCancel(self): pass
 	def afterRequery(self): pass

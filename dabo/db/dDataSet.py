@@ -192,6 +192,9 @@ class dDataSet(tuple):
 			stmnt = "select * from dataset where %s %s" % (fld, clause)
 			ret = self.execute(stmnt, (param, ))
 		ret._sourceDataSet = self
+		ret._filtered_fld = fld
+		ret._filtered_expr = expr
+		ret._filtered_op = op
 		return ret
 
 
@@ -420,6 +423,13 @@ class dDataSet(tuple):
 			pass
 
 
+	def _getUnfilteredDataSet(self):
+		ret = self
+		while ret._sourceDataSet:
+			ret = ret._sourceDataSet
+		return ret
+
+
 	Bizobj = property(_getBizobj, _setBizobj, None,
 			_("Reference to the bizobj that 'owns' this data set. Default=None  (bizobj)"))
 
@@ -428,6 +438,9 @@ class dDataSet(tuple):
 
 	Encoding = property(_getEncoding, _setEncoding, None,
 			_(" The encoding used for data in the dataset.  (str)"))
+
+	UnfilteredDataSet = property(_getUnfilteredDataSet, None, None,
+			_("""If filters have been applied, returns the unfiltered dataset that would be returned if removeFilters() had been called. If no filters have been applied, returns self  (dDataSet)"""))
 
 
 
