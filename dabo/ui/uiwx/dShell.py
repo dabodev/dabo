@@ -154,14 +154,14 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 	def _afterInit(self):
 		super(_Shell, self)._afterInit()
 		# Set some font defaults
-		plat = wx.Platform
-		if plat == "__WXGTK__":
+		self.plat = self.Application.Platform
+		if self.plat == "GTK":
 			self.FontFace = "Monospace"
 			self.FontSize = 10
-		elif plat == "__WXMAC__":
+		elif self.plat == "Mac":
 			self.FontFace = "Monaco"
 			self.FontSize = 12
-		if plat == "__WXMSW__":
+		elif self.plat == "Win":
 			self.FontFace = "Courier New"
 			self.FontSize = 10	
 
@@ -242,57 +242,59 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 
 	def OnKeyDown(self, evt):
 		"""Override on the Mac, as the navigation defaults are different than on Win/Lin"""
-		if self.Application.Platform == "Mac":
-			key = evt.GetKeyCode()
-			# If the auto-complete window is up let it do its thing.
-			if self.AutoCompActive():
-				evt.Skip()
-				return
-			
-			# Prevent modification of previously submitted
-			# commands/responses.
-			controlDown = evt.ControlDown()
-			altDown = evt.AltDown()
-			shiftDown = evt.ShiftDown()
-			cmdDown = evt.CmdDown()
-			currpos = self.GetCurrentPos()
-			endpos = self.GetTextLength()
-			selecting = self.GetSelectionStart() != self.GetSelectionEnd()
-			if cmdDown and (key == wx.WXK_LEFT):
-				# Equivalent to Home
-				home = self.promptPosEnd
-				if currpos > home:
-					self.SetCurrentPos(home)
-					if not selecting and not shiftDown:
-						self.SetAnchor(home)
-						self.EnsureCaretVisible()
-				return
-			if cmdDown and (key == wx.WXK_RIGHT):
-				# Equivalent to End
-				linepos = self.GetLineEndPosition(self.GetCurrentLine())
-				if shiftDown:
-					start = currpos
-				else:
-					start = linepos
-				self.SetSelection(start, linepos)
-				return
-			elif cmdDown and (key == wx.WXK_UP):
-				# Equivalent to Ctrl-Home
-				if shiftDown:
-					end = currpos
-				else:
-					end = 0
-				self.SetSelection(0, end)
-				return
-			elif cmdDown and (key == wx.WXK_DOWN):
-				# Equivalent to Ctrl-End
-				if shiftDown:
-					start = currpos
-				else:
-					start = endpos
-				self.SetSelection(start, endpos)
-				return
+		if self.plat != "Mac":
 			return super(_Shell, self).OnKeyDown(evt)
+		key = evt.GetKeyCode()
+		# If the auto-complete window is up let it do its thing.
+		if self.AutoCompActive():
+			evt.Skip()
+			return
+		
+		# Prevent modification of previously submitted
+		# commands/responses.
+		controlDown = evt.ControlDown()
+		altDown = evt.AltDown()
+		shiftDown = evt.ShiftDown()
+		cmdDown = evt.CmdDown()
+		currpos = self.GetCurrentPos()
+		endpos = self.GetTextLength()
+		selecting = self.GetSelectionStart() != self.GetSelectionEnd()
+		if cmdDown and (key == wx.WXK_LEFT):
+			# Equivalent to Home
+			home = self.promptPosEnd
+			print home
+			if currpos > home:
+				self.SetCurrentPos(home)
+				if not selecting and not shiftDown:
+					self.SetAnchor(home)
+					self.EnsureCaretVisible()
+			return
+		if cmdDown and (key == wx.WXK_RIGHT):
+			# Equivalent to End
+			linepos = self.GetLineEndPosition(self.GetCurrentLine())
+			if shiftDown:
+				start = currpos
+			else:
+				start = linepos
+			self.SetSelection(start, linepos)
+			return
+		elif cmdDown and (key == wx.WXK_UP):
+			# Equivalent to Ctrl-Home
+			if shiftDown:
+				end = currpos
+			else:
+				end = 0
+			self.SetSelection(0, end)
+			return
+		elif cmdDown and (key == wx.WXK_DOWN):
+			# Equivalent to Ctrl-End
+			if shiftDown:
+				start = currpos
+			else:
+				start = endpos
+			self.SetSelection(start, endpos)
+			return
+		return super(_Shell, self).OnKeyDown(evt)
 
 
 	def _getFontSize(self):
