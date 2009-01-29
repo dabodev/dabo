@@ -757,8 +757,6 @@ class dBizobj(dObject):
 		else:
 			cursors = {old_currentCursorKey: currCursor}
 
-		dabo.trace()
-
 		for key, cursor in cursors.iteritems():
 			self._CurrentCursor = key
 			changedRows = self.getChangedRows(includeNewUnchanged)
