@@ -235,6 +235,8 @@ class DesignerXmlConverter(dObject):
 		ct = self.classText
 		if isinstance(ct, unicode):
 			self.classText = ct.encode(self.Application.Encoding)
+		if isinstance(impt, unicode):
+			impt = impt.encode(self.Application.Encoding)
 		self.classText = self.classText.replace("|classImportStatements|", impt)
 		
 		# We're done!
