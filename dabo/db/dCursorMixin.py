@@ -1523,7 +1523,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				recs = self._records.UnfilteredDataSet
 			except AttributeError:
 				# Not a dDataSet
-				recs = self_records
+				recs = self._records
 
 			if self._newRecords:
 				recs = list(recs)
