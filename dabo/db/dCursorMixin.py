@@ -344,7 +344,7 @@ class dCursorMixin(dObject):
 		try:
 			_records = self.fetchall()
 		except Exception, e:
-			_records = tuple()
+			_records = dabo.db.dDataSet()
 			# Database errors need to be decoded from database encoding.
 			try:
 				errMsg = str(e).decode(self.Encoding)
@@ -1501,7 +1501,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def new(self):
 		"""Add a new record to the data set."""
 		blank = self._getBlankRecord()
-		self._records += dDataSet((blank,))
+		self._records = dDataSet(self._records + (blank,))
 		# Adjust the RowCount and position
 		self.RowNumber = self.RowCount - 1
 
