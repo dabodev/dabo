@@ -628,6 +628,10 @@ try again when it is running.
 				else:
 					if not os.path.isdir(localPath):
 						os.makedirs(localPath)
+					if (mtype == "M") and os.path.isdir(localFile):
+						# The folder was modified, such as by a permission change. 
+						# We should ignore this.
+						continue
 					# Permission exceptions should be caught by the calling method.
 					resp = urllib2.urlopen(url % (webdir, fpth))
 					file(localFile, "w").write(resp.read())
