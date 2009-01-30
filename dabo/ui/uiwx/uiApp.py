@@ -205,6 +205,7 @@ class uiApp(dObject, wx.App):
 	def checkForUpdates(self, force=False):
 		answer = False
 		msg = ""
+		vers = None
 		isFirst, projNames = self.dApp._checkForUpdates(force=force)
 		updAvail = bool(projNames)
 		if isFirst:
