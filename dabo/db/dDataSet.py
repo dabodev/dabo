@@ -68,6 +68,14 @@ class dDataSet(tuple):
 			self._connection.close()
 
 
+	def __add__(self, *args, **kwargs):
+		return dDataSet(super(dDataSet, self).__add__(*args, **kwargs))
+
+
+	def __mul__(self, *args, **kwargs):
+		return dDataSet(super(dDataSet, self).__mul__(*args, **kwargs))
+
+
 	def _adapt_decimal(self, decVal):
 		"""Converts the decimal value to a string for storage"""
 		return str(decVal)
