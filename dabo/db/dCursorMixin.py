@@ -165,7 +165,7 @@ class dCursorMixin(dObject):
 		"""Returns the PK expression for the passed record."""
 		if rec is None:
 			try:
-				rec = self._records.UnfilteredDataSet[self.RowNumber]
+				rec = self._records[self.RowNumber]
 			except IndexError:
 				rec = {}
 		if isinstance(self.KeyField, tuple):
@@ -1519,7 +1519,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		# Faster to deal with 2 specific cases: all rows or just current row
 		if allRows:
-			recs = self._records.UnfilteredDataSet
+			try:
+				recs = self._records.UnfilteredDataSet
+			except AttributeError:
+				# Not a dDataSet
+				recs = self_records
 
 			if self._newRecords:
 				recs = list(recs)
