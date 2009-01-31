@@ -168,6 +168,7 @@ class ClassDesigner(dabo.dApp):
 		self.setup()
 
 		clsOK = False
+
 		if clsFile:
 			if not clsFile.endswith(".cdxml"):
 				clsFile += ".cdxml"
@@ -180,15 +181,20 @@ class ClassDesigner(dabo.dApp):
 					frm = self.onNewDesign(evt=None, pth=clsFile)
 					clsOK = True
 
+		print 184
 		if not clsOK:
 			frm = self.onNewDesign(None)
+			print 187
 			if not frm:
 				# They canceled
 				sys.exit(0)
 			# Use this to determine if an empty class should be released
+			print 192
 			frm._initialStateDict = frm.getDesignerDict()
+			print 194
 		else:
 			frm._initialStateDict = {}
+		print 197
 		frm.Controller = self
 		self.MainForm = frm
 		# When more than one ClassDesigner is open, this will
@@ -416,6 +422,9 @@ class ClassDesigner(dabo.dApp):
 		application namespaces.
 		"""
 		stdBiz = self.Application.getStandardAppDirectory("biz", startFile)
+		if not stdBiz:
+			# Not running from a standard Dabo project
+			return
 		stdHome = os.path.split(stdBiz)[0]
 		hd = self.Application.HomeDirectory
 		if stdHome != hd:
@@ -1692,6 +1701,7 @@ class ClassDesigner(dabo.dApp):
 
 	def onNewDesign(self, evt, pth=None):
 		pcs = self.pagedControls
+		print 1685
 		class NewClassPicker(dabo.ui.dOkCancelDialog):
 			def addControls(self):
 				# Create a dropdown list containing all the choices.
@@ -1760,14 +1770,16 @@ class ClassDesigner(dabo.dApp):
 		useSizers = dlg.szChk.Visible and dlg.szChk.Value
 		addBasePanel = dlg.baseChk.Visible and dlg.baseChk.Value
 		dlg.release()
-
+		
 		if (useSizers and not isDialog and self._reuseMainForm() and
 				self.MainForm.UseSizers == useSizers):
 			# Original form hasn't changed, so just use it.
 			frm = self.MainForm
 		else:
 			frmClass = self.getFormClass()
-			frm = frmClass(SaveRestorePosition=False, UseSizers=useSizers)
+			print 1761
+			frm = frmClass(parent=None, SaveRestorePosition=False, UseSizers=useSizers)
+			print 1763
 			frm._setupPanels(addBasePanel=addBasePanel)
 		frm.UseSizers = useSizers
 		frm.Controller = self
