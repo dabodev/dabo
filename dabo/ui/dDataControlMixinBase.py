@@ -41,6 +41,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def __onDestroy(self, evt):
+		if not self:
+			return
 		if self.SaveRestoreValue:
 			self.saveValue()
 
@@ -50,6 +52,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def __onLostFocus(self, evt):
+		if not self:
+			return
 		if self._lostFocus() is False:
 			evt.stop()
 
@@ -68,6 +72,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def _lostFocus(self):
+		if not self:
+			return
 		if self.flushValue() is False:
 			# Field validation failed
 			self._fldValidFailed = True			
