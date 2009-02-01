@@ -121,9 +121,9 @@ class Postgres(dBackend):
 		if not includeSystemTables:
 			query.append("(schemaname NOT LIKE 'pg_%' AND "
 					"schemaname NOT LIKE 'information%') AND")
-		query.append("has_schema_privilege(schemaname, 'usage') AND "
-				"has_table_privilege(schemaname||'.'||tablename, 'select')")
-		cursor.execute(' '.join(query))
+		query.append("has_schema_privilege('"'||schemaname||'"', 'usage') AND "
+				"has_table_privilege('"'||schemaname||'"."'||tablename||'"', 'select')")
+		cursor.execute(" ".join(query))
 		return tuple(record["tablename"] for record in cursor.getDataSet())
 
 
