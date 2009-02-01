@@ -436,9 +436,9 @@ class dBackend(dObject):
 			# A query hasn't been run yet; so we need to get one
 			holdWhere = auxCrs._whereClause
 			auxCrs.addWhere("1 = 0")
-			auxCrs.execute(cursor.getSQL())
+			auxCrs.execute(auxCrs.getSQL())
 			auxCrs._whereClause = holdWhere
-		descFlds = cursor.FieldDescription = auxCrs.FieldDescription
+		descFlds = auxCrs.FieldDescription
 		# Get the raw version of the table
 		sql = "select * from %s where 1=0 " % self.encloseNames(cursor.Table, 
 				autoQuote=autoQuote)
@@ -618,4 +618,3 @@ class dBackend(dObject):
 			Defaults to None, meaning we never send a KeepAlive query. The interval
 			is expressed in seconds.
 			"""))
-
