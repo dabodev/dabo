@@ -706,6 +706,7 @@ Database error message: %s""") %	err
 	def beforeNext(self): pass
 	def beforeNext(self): pass
 	def beforeFilter(self): pass
+	def beforeSave(self): pass
 	def beforeCancel(self): pass
 	def beforeRequery(self): pass
 	def beforeDelete(self): pass
