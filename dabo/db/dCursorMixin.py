@@ -1298,9 +1298,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		recKey = self.pkExpression(rec)
 		newrec = kons.CURSOR_TMPKEY_FIELD in rec
 		
-		print "newrec = ", newrec
-		print "recKey = ", recKey
-		
 		newPKVal = None
 		if newrec and self.AutoPopulatePK:
 			# Some backends do not provide a means to retrieve
