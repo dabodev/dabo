@@ -469,7 +469,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 					retVal = decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
 				else:
 					retVal = decimal.Decimal(strVal)
-			except ValueError:
+			except (ValueError, decimal.InvalidOperation):
 				raise ValueError(_("Can't convert to decimal."))
 		elif dataType in (tuple, list):
 			retVal = eval(strVal)
