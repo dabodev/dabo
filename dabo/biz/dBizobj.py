@@ -1573,7 +1573,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Accepts a data set and type defintion dict, and updates the cursor
 		with these values.
 		"""
-		self.DataStructure = stru
+		if stru:
+			self.DataStructure = stru
 		self._CurrentCursor._storeData(data, typs)
 
 
@@ -1874,6 +1875,8 @@ afterDelete() which is only called after a delete().""")
 			crs.DataStructure = self._dataStructure
 		if not self._RemoteProxy:
 			crs.Table = self._dataSource
+		else:
+			crs._setTableForRemote(self._dataSource)
 		crs.UserSQL = self._userSQL
 		crs.VirtualFields = self._virtualFields
 		crs.Encoding = self.Encoding

@@ -1755,7 +1755,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		and an exception is raised.
 		"""
 		if (rownum >= self.RowCount) or (rownum < 0):
-			raise dException.dException(_("Invalid row specified."))
+			raise dException.dException(_("Invalid row specified: %s. RowCount=%s") % (rownum, self.RowCount))
 		self.RowNumber = rownum
 
 
@@ -2303,6 +2303,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if mem and (fieldName in mem):
 			return mem[fieldName]
 		return self.getFieldVal(fieldName, row)
+
+
+	def _setTableForRemote(self, tbl):
+		"""Used when running as a remote application. We don't want to trigger
+		the methods to query the database for field information.
+		"""
+		self._table = self.AuxCursor._table = self.sqlManager._table = "%s" % tbl
 
 
 	## Property getter/setter methods ##
