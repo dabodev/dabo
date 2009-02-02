@@ -132,7 +132,7 @@ class RemoteConnector(object):
 		else:
 			# If successful, we need to clear the mementos. We don't need to
 			# store anything; passing None will just  clear the mementos.
-			self.obj._storeData(None, None)
+			self.obj._storeData(None, None, None)
 
 
 	def saveAll(self, startTransaction=True):
