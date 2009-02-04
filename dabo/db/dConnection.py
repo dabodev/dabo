@@ -73,6 +73,7 @@ class dConnection(dObject):
 
 	def _openConnection(self, **kwargs):
 		""" Open a connection to the database and store it for future use. """
+		self.getBackendObject().KeepAliveInterval = self._connectInfo.KeepAliveInterval
 		return self._connectInfo.getConnection(forceCreate=self._forceCreate, **kwargs)
 		
 	

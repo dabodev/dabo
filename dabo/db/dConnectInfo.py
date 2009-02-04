@@ -49,6 +49,7 @@ class dConnectInfo(dObject):
 		self._baseClass = dConnectInfo
 		self._backendObject = None
 		self._host = self._user = self._password = self._dbType = self._database = self._port = self._name = self._remoteHost = ""
+		self._keepAliveInterval = None
 		super(dConnectInfo, self).__init__(**kwargs)
 		if connInfo:
 			self.setConnInfo(connInfo)
@@ -86,14 +87,16 @@ class dConnectInfo(dObject):
 		
 		# Run through the connDict, and set the appropriate properties. If it isn't
 		# a valid property name, raise TypeError.
-		mapping = {"name": "Name", "dbtype": "DbType", "host": "Host",
-				"user": "User", "password": "Password", "database": "Database", 
-				"plaintextpassword": "PlainTextPassword", "port": "Port", 
-				"remotehost": "RemoteHost"}
+		props = ["Name", "DbType", "Host", "User", "Password", "Database",
+				"PlainTextPassword", "Port", "RemoteHost", "KeepAliveInterval"]
+		lprops = [p.lower() for p in props]
 		for k, v in connDict.items():
-			prop = mapping.get(k, None)
-			if prop:
-				setattr(self, prop, v)
+			try:
+				propidx = lprops.index(k.lower())
+			except ValueError:
+				propidx = None
+			if propidx is not None:
+				setattr(self, props[propidx], v)
 			else:
 				raise TypeError("Property '%s' invalid." % k)
 	
@@ -199,6 +202,17 @@ class dConnectInfo(dObject):
 		self._host = host
 
 
+	def _getKeepAliveInterval(self):
+		return self._keepAliveInterval
+		
+	def _setKeepAliveInterval(self, val):
+		if not val:
+			val = None
+		else:
+			val = int(val) 
+		self._keepAliveInterval = val
+
+
 	def _getName(self):
 		return self._name
 		
@@ -251,6 +265,13 @@ class dConnectInfo(dObject):
 	Host = property(_getHost, _setHost, None, 
 			_("The host name or ip address. (str)"))
 
+	KeepAliveInterval = property(_getKeepAliveInterval, _setKeepAliveInterval, None,
+			_("""Specifies how often a KeepAlive query should be sent to the server. (int)
+
+			Defaults to None, meaning we never send a KeepAlive query. The interval
+			is expressed in seconds.
+			"""))
+			
 	Name = property(_getName, _setName, None, 
 			_("The name used to reference this connection. (str)"))
 
