@@ -138,20 +138,26 @@ class dPageFrameMixin(cm.dControlMixin):
 		return ret
 		
 	
-	def appendPage(self, pgCls=None, caption="", imgKey=None):
+	def appendPage(self, pgCls=None, caption="", imgKey=None, **kwargs):
 		""" Appends the page to the pageframe, and optionally sets
 		the page caption and image. The image should have already
 		been added to the pageframe if it is going to be set here.
+
+		Any kwargs sent will be passed on to the constructor of the 
+		page class.
 		"""
-		return self.insertPage(self.GetPageCount(), pgCls, caption, imgKey)
+		return self.insertPage(self.GetPageCount(), pgCls, caption, imgKey, **kwargs)
 		
 	
 	def insertPage(self, pos, pgCls=None, caption="", imgKey=None,
-			ignoreOverride=False):
+			ignoreOverride=False, **kwargs):
 		""" Insert the page into the pageframe at the specified position, 
 		and optionally sets the page caption and image. The image 
 		should have already been added to the pageframe if it is 
 		going to be set here.
+
+		Any kwargs sent will be passed on to the constructor of the
+		page class.
 		"""
 		# Allow subclasses to potentially override this behavior. This will
 		# enable them to handle page creation in their own way. If overridden,
@@ -172,7 +178,7 @@ class dPageFrameMixin(cm.dControlMixin):
 				from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
 				conv = DesignerXmlConverter()
 				pgCls = conv.classFromXml(xml)
-			pg = pgCls(self)
+			pg = pgCls(self, **kwargs)
 		if not caption:
 			# Page could have its own default caption
 			caption = pg._caption
