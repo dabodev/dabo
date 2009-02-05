@@ -678,8 +678,12 @@ class dBizobj(dObject):
 		Set self.exitScan to True to exit the scan on the next iteration.
 
 		If self.ScanRestorePosition is True, the position of the current
-		record in the recordset is restored after the iteration. If
-		self.ScanReverse is True, the records are processed in reverse order.
+		record in the recordset is restored after the iteration.
+
+		You may optionally send reverse=True to scan the records in reverse
+		order, which you'll want to do if, for example, you are deleting 
+		records in your scan function. If the reverse argument is not sent,
+		self.ScanReverse will be queried to determine the behavior.
 		"""
 		self.scanRows(func, range(self.RowCount), *args, **kwargs)
 
@@ -692,6 +696,11 @@ class dBizobj(dObject):
 		# Flag that the function can set to prematurely exit the scan
 		self.exitScan = False
 		rows = list(rows)
+		try:
+			reverse = kwargs["reverse"]
+			del(kwargs["reverse"])
+		except KeyError:
+			reverse = self.ScanReverse
 		try:
 			currPK = self.getPK()
 			currRow = None
@@ -715,7 +724,7 @@ class dBizobj(dObject):
 							self.RowNumber = row
 
 		try:
-			if self.ScanReverse:
+			if reverse:
 				rows.reverse()
 			for i in rows:
 				self._moveToRowNum(i)
