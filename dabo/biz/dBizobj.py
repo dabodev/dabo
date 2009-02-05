@@ -1443,7 +1443,7 @@ class dBizobj(dObject):
 		return ret
 
 
-	def setValues(self, valDict=None, row=None, **kwargs):
+	def setFieldVals(self, valDict=None, row=None, **kwargs):
 		"""Allows you to set the value for multiple fields with one call by passing a dict
 		containing the field names as keys, and the new values as values.
 		"""
@@ -1458,6 +1458,8 @@ class dBizobj(dObject):
 			except dException.NoRecordsException:
 				ret = False
 		return ret
+
+	setValues = setFieldVals  ## deprecate setValues in future version
 
 
 	_baseXML = """<?xml version="1.0" encoding="%s"?>
