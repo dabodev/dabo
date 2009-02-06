@@ -75,7 +75,9 @@ class dFormMixin(pm.dPemMixin):
 
 		super(dFormMixin, self).__init__(preClass, parent, properties, 
 				attProperties, *args, **kwargs)
-		
+	
+		self.restoreSizeAndPosition()
+
 
 	def _getInitPropertiesList(self):
 		additional = ["BorderResizable", "FloatOnParent", "ShowCloseButton", "ShowInTaskBar", 
@@ -102,7 +104,6 @@ class dFormMixin(pm.dPemMixin):
 
 		self.debugText = ""
 		self.useOldDebugDialog = False
-		self.restoredSP = False
 		self._holdStatusText = ""
 		self._statusStack = []
 		if app is not None:
@@ -159,16 +160,6 @@ class dFormMixin(pm.dPemMixin):
 	def __onWxActivate(self, evt):
 		""" Raise the Dabo Activate or Deactivate appropriately."""
 		if bool(evt.GetActive()):
-			# Restore the saved size and position, which can't happen 
-			# in __init__ because we may not have our name yet.
-			try:
-				restoredSP = self.restoredSP
-			except AttributeError:
-				restoredSP = False
-			if not restoredSP:
-				if self.SaveRestorePosition:
-					dabo.ui.callAfter(self.restoreSizeAndPosition)
-				
 			self.raiseEvent(dEvents.Activate, evt)
 		else:
 			self.raiseEvent(dEvents.Deactivate, evt)
@@ -210,21 +201,11 @@ class dFormMixin(pm.dPemMixin):
 	
 
 	def __onMove(self, evt):
-		try:
-			restoredSP = self.restoredSP
-		except AttributeError:
-			restoredSP = False
-		if restoredSP:		
-			dabo.ui.callAfterInterval(800, self.saveSizeAndPosition)
+		dabo.ui.callAfterInterval(800, self.saveSizeAndPosition)
 	
 	
 	def __onResize(self, evt):
-		try:
-			restoredSP = self.restoredSP
-		except AttributeError:
-			restoredSP = False
-		if restoredSP:
-			dabo.ui.callAfterInterval(800, self.saveSizeAndPosition)
+		dabo.ui.callAfterInterval(800, self.saveSizeAndPosition)
 			
 	
 	def __onPaint(self, evt):
@@ -483,38 +464,45 @@ class dFormMixin(pm.dPemMixin):
 		Ask dApp for the last saved setting of height, width, left, and top, 
 		and set those properties on this form.
 		"""
-		if self.Application and self.SaveRestorePosition:
-			name = self.getAbsoluteName()
-			if not self.Centered:
-				left = self.Application.getUserSetting("%s.left" % name, self._defaultLeft)
-				top = self.Application.getUserSetting("%s.top" % name, self._defaultTop)
-				if isinstance(left, int) and isinstance(top, int):
-					self.Position = (left,top)
-			width = self.Application.getUserSetting("%s.width" % name, self._defaultWidth)
-			height = self.Application.getUserSetting("%s.height" % name, self._defaultHeight)
-			state = self.Application.getUserSetting("%s.windowstate" % name, self._defaultState)
+		if not self.Application or not self.SaveRestorePosition:
+			return
 
-			if isinstance(width, int) and isinstance(height, int):
-				if self.BorderResizable:
-					self.Size = (width,height)
+		name = self.getAbsoluteName()
+		state = self.Application.getUserSetting("%s.windowstate" % name, self._defaultState)
+		width = self.Application.getUserSetting("%s.width" % name, self._defaultWidth)
+		height = self.Application.getUserSetting("%s.height" % name, self._defaultHeight)
+		left = self.Application.getUserSetting("%s.left" % name, self._defaultLeft)
+		top = self.Application.getUserSetting("%s.top" % name, self._defaultTop)
 
-			if state is not None:
-				if state == "Minimized":
-					state = "Normal"
-				self.WindowState = state
-			# Make sure that the frame is on the visible display
-			dispWd, dispHt = dabo.ui.getDisplaySize()
-			self.Right = min(dispWd, self.Right)
-			self.Bottom = min(dispHt, self.Bottom)
+		if not isinstance(width, int) or not isinstance(height, int) \
+				or not isinstance(left, int) or not isinstance(top, int):
+			# size/position unsaved from before
+			return
+
+		if state not in ("Minimized", "Maximized", "Normal", "FullScreen"):
+			state = self.WindowState
+			
+		if state == "Minimized":
+			state = "Normal"
+
+		if self.BorderResizable:
+			self.Size = (width, height)
+
+		if not self.Centered:
+			# Make sure that the frame is on the visible display:
+			self.Position = (left, top)
 			if self.Application.Platform == "Mac":
 				# Need to account for the menu bar
 				minTop = 23
 			else:
 				minTop = 0
+			dispWd, dispHt = dabo.ui.getDisplaySize()
+			self.Right = min(dispWd, self.Right)
+			self.Bottom = min(dispHt, self.Bottom)
 			self.Left = max(0, self.Left)
 			self.Top = max(minTop, self.Top)
 
-			self.restoredSP = True
+		self.WindowState = state
 
 
 	def saveSizeAndPosition(self):
