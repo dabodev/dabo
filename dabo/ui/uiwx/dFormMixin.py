@@ -104,7 +104,6 @@ class dFormMixin(pm.dPemMixin):
 
 		self.debugText = ""
 		self.useOldDebugDialog = False
-		self._holdStatusText = ""
 		self._statusStack = []
 		if app is not None:
 			app.uiForms.add(self)
@@ -947,22 +946,19 @@ class dFormMixin(pm.dPemMixin):
 		send the text to the main frame or this frame. This matters with MDI
 		versus non-MDI forms.
 		"""
-		hasStatus = True
 		if sys.platform.startswith("win") and isinstance(self, wx.MDIChildFrame):
 			controllingFrame = self.Application.MainForm
 		else:
 			controllingFrame = self
+
 		try:
-			controllingFrame.GetStatusBar
-		except AttributeError:
-			hasStatus = False
-		if hasStatus and controllingFrame.GetStatusBar():
-			if self._holdStatusText:
-				controllingFrame.SetStatusText(self._holdStatusText)
-				self._holdStatusText = ""
-			else:
-				controllingFrame.SetStatusText(val)
-			controllingFrame.GetStatusBar().Update()
+			statusBar = controllingFrame.GetStatusBar()
+		except (AttributeError, TypeError):
+			statusBar = None
+
+		if statusBar:
+			controllingFrame.SetStatusText(val)
+			statusBar.Update()
 			
 
 	def _getStayOnTop(self):
