@@ -23,7 +23,8 @@ class connHandler(xml.sax.ContentHandler):
 				"database" : "",
 				"user" : "",
 				"password" : "",
-				"port" : ""
+				"port" : "",
+				"KeepAliveInterval": "",
 				}
 		self.currDict = self.blankConn.copy()
 		self.element = None
