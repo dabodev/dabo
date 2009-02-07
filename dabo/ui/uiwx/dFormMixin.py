@@ -649,7 +649,7 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def _getBorderResizable(self):
-		return self._hasWindowStyleFlag(wx.RESIZE_BORDER)
+		return (self.MDI or self._hasWindowStyleFlag(wx.RESIZE_BORDER))
 		
 	def _setBorderResizable(self, value):
 		self._delWindowStyleFlag(wx.RESIZE_BORDER)
