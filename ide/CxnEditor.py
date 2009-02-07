@@ -18,9 +18,10 @@ dui.loadUI("wx")
 class EditorForm(dui.dForm):
 	def afterSetMenuBar(self):
 		self.createMenu()
-		
-		
+
+
 	def afterInit(self):
+		self.Size = (600, 400)
 		self.newFileName = "Untitled"
 		self.fileExtension = "cnxml"
 		self.defDbPorts = {"MySQL" : 3306,
@@ -28,7 +29,7 @@ class EditorForm(dui.dForm):
 				"PostgreSQL" : 5432,
 				"MsSQL" : 1433,
 				"SQLite" : None }
-		connKeys = ["host", "dbtype", "port", "database", "user", "password"]
+		connKeys = ["name", "host", "dbtype", "port", "database", "user", "password"]
 		self.connDict = dict.fromkeys(connKeys)
 		self._origConnDict = dict.fromkeys(connKeys)
 		self.currentConn = None
@@ -38,7 +39,7 @@ class EditorForm(dui.dForm):
 		# temp hack to be polymorphic with dEditor (dIDE):
 		self.editor = self
 
-	
+
 	def createMenu(self):
 		mb = self.MenuBar
 		fm = mb.getMenu("base_file")
@@ -47,86 +48,88 @@ class EditorForm(dui.dForm):
 				OnHit=self.onOpenFile,
 				ItemID="file_open",
 				help=_("Open an existing connection file"))
-	
-	
+
+
 	def onOpenFile(self, evt):
 		self.openFile()
-	
-	
+
+
 	def createControls(self):
 		self.Caption = "Connection Editor"
-		self.Size= (500, 800)
 		self.bg = dui.dPanel(self, BackColor="LightSteelBlue")
-		
+
 		gbsz = dui.dGridSizer(VGap=12, HGap=5, MaxCols=2)
-		
+
 		# Add the fields
 		# Connection Dropdown
 		cap = dui.dLabel(self.bg, Caption="Connection")
-		ctl = dui.dDropdownList(self.bg, Choices=[""], 
-				RegID="connectionSelector")
+		ctl = dui.dDropdownList(self.bg, Choices=[""],
+				RegID="connectionSelector",
+				OnHit=self.onConnectionSelector)
 		ctl.bindEvent(dEvents.Hit, self.onConnectionChange)
-		btn = dui.dButton(self.bg, Caption="Edit Name", RegID="cxnEdit")
+		btn = dui.dButton(self.bg, Caption="Edit Name", RegID="cxnEdit",
+				OnHit=self.onCxnEdit)
 		hsz = dui.dSizer("h")
 		hsz.append(ctl)
 		hsz.appendSpacer(10)
 		hsz.append(btn)
 
 		btn = dui.dButton(self.bg, Caption="Delete This Connection", RegID="cxnDelete",
-				DynamicEnabled=self.hasMultipleConnections)
+				DynamicEnabled=self.hasMultipleConnections,
+				OnHit=self.onCxnDelete)
 		hsz.appendSpacer(10)
 		hsz.append(btn)
 
 		gbsz.append(cap, halign="right", valign="middle")
 		gbsz.append(hsz, valign="middle")
-		
+
 		# Backend Type
 		cap = dui.dLabel(self.bg, Caption="Database Type")
-		ctl = dui.dDropdownList(self.bg, RegID="DbType", 
-				Choices=["MySQL", "Firebird", "PostgreSQL", "MsSQL", "SQLite"], 
+		ctl = dui.dDropdownList(self.bg, RegID="DbType",
+				Choices=["MySQL", "Firebird", "PostgreSQL", "MsSQL", "SQLite"],
 				DataSource="form", DataField="dbtype",
 				OnHit=self.onDbTypeChanged)
 		gbsz.append(cap, halign="right")
 		gbsz.append(ctl)
 		self.dbTypeSelector = ctl
-		
+
 		# Host
 		cap = dui.dLabel(self.bg, Caption="Host")
 		ctl = dui.dTextBox(self.bg, DataSource="form", DataField="host")
 		gbsz.append(cap, halign="right")
 		gbsz.append(ctl, "expand")
 		self.hostText = ctl
-		
+
 		# Port
 		cap = dui.dLabel(self.bg, Caption="Port")
 		ctl = dui.dTextBox(self.bg, DataSource="form", DataField="port")
 		gbsz.append(cap, halign="right")
 		gbsz.append(ctl, "expand")
 		self.portText = ctl
-		
+
 		# Database
 		cap = dui.dLabel(self.bg, Caption="Database")
 		ctl = dui.dTextBox(self.bg, DataSource="form", DataField="database")
 		hsz = dui.dSizer("h")
 		self.btnDbSelect = dui.dButton(self.bg, Caption=" ... ", RegID="btnDbSelect",
-				Visible=False)
+				Visible=False, OnHit=self.onDbSelect)
 		hsz.append1x(ctl)
 		hsz.appendSpacer(2)
 		hsz.append(self.btnDbSelect, 0, "x")
 		gbsz.append(cap, halign="right")
 		gbsz.append(hsz, "expand")
 		self.dbText = ctl
-		
+
 		# Username
 		cap = dui.dLabel(self.bg, Caption="User Name")
 		ctl = dui.dTextBox(self.bg, DataSource="form", DataField="user")
 		gbsz.append(cap, halign="right")
 		gbsz.append(ctl, "expand")
 		self.userText = ctl
-		
+
 		# Password
 		cap = dui.dLabel(self.bg, Caption="Password")
-		ctl = dui.dTextBox(self.bg, PasswordEntry=True, 
+		ctl = dui.dTextBox(self.bg, PasswordEntry=True,
 				DataSource="form", DataField="password")
 		gbsz.append(cap, halign="right")
 		gbsz.append(ctl, "expand")
@@ -135,23 +138,28 @@ class EditorForm(dui.dForm):
 		# Open Button
 		btnSizer1 = dui.dSizer("h")
 		btnSizer2 = dui.dSizer("h")
-		btnTest = dui.dButton(self.bg, RegID="btnTest", Caption="Test...")
-		btnSave = dui.dButton(self.bg, RegID="btnSave", Caption="Save")
-		btnNewConn = dui.dButton(self.bg, RegID="btnNewConn", 
-				Caption="New Connection")
-		btnNewFile = dui.dButton(self.bg, RegID="btnNewFile", 
-				Caption="New File")
-		btnOpen = dui.dButton(self.bg, RegID="btnOpen", 
-				Caption="Open File...")
+		btnTest = dui.dButton(self.bg, RegID="btnTest", Caption="Test...",
+				OnHit=self.onTest)
+		btnSave = dui.dButton(self.bg, RegID="btnSave", Caption="Save",
+				OnHit=self.onSave)
+		btnNewConn = dui.dButton(self.bg, RegID="btnNewConn",
+				Caption="New Connection",
+				OnHit=self.onNewConn)
+		btnNewFile = dui.dButton(self.bg, RegID="btnNewFile",
+				Caption="New File",
+				OnHit=self.onNewFile)
+		btnOpen = dui.dButton(self.bg, RegID="btnOpen",
+				Caption="Open File...",
+				OnHit=self.onOpen)
 		btnSizer1.append(btnTest, 0, border=3)
 		btnSizer1.append(btnSave, 0, border=3)
 		btnSizer2.append(btnNewConn, 0, border=3)
 		btnSizer2.append(btnNewFile, 0, border=3)
 		btnSizer2.append(btnOpen, 0, border=3)
-		
+
 		gbsz.setColExpand(True, 1)
 		self.gridSizer = gbsz
-		
+
 		self.bg.Sizer = dui.dSizer("v")
 		self.bg.Sizer.append(gbsz, 0, "expand", halign="center", border=20)
 		self.bg.Sizer.append(btnSizer1, 0, halign="center")
@@ -163,10 +171,10 @@ class EditorForm(dui.dForm):
 
 	def hasMultipleConnections(self):
 		return len(self.connDict.keys()) > 1
-	
-	
-	def onHit_cxnDelete(self, evt):
-		if not dabo.ui.areYouSure(_("Delete this connection?"), 
+
+
+	def onCxnDelete(self, evt):
+		if not dabo.ui.areYouSure(_("Delete this connection?"),
 				title=_("Confirm Deletion"), cancelButton=False):
 			return
 		cs = self.connectionSelector
@@ -175,17 +183,17 @@ class EditorForm(dui.dForm):
 		del self.connDict[delkey]
 		cs.Choices = self.connDict.keys()
 		cs.PositionValue = min(pos, len(self.connDict.keys())-1)
-		self.currentConn = cs.StringValue	
+		self.currentConn = cs.StringValue
 		self.enableControls()
 		self.updtToForm()
 		self.update()
-			
-		
-	def onHit_cxnEdit(self, evt):
+
+
+	def onCxnEdit(self, evt):
 		chc = self.connectionSelector.Choices
 		idx = self.connectionSelector.PositionValue
 		orig = chc[idx]
-		new = dui.getString(_("Enter the name for the connection"), 
+		new = dui.getString(_("Enter the name for the connection"),
 				caption="Connection Name", defaultValue=orig)
 		if new is not None:
 			if new != orig:
@@ -199,39 +207,39 @@ class EditorForm(dui.dForm):
 				self.currentConn = new
 				self.name = new
 			self.connectionSelector.PositionValue = idx
-				
 
-	def onHit_btnTest(self, evt):
+
+	def onTest(self, evt):
 		self.testConnection()
-	
-	
-	def onHit_btnOpen(self, evt):
+
+
+	def onOpen(self, evt):
 		# Update the values
 		self.updtFromForm()
 		# Now open the file
 		self.openFile()
-	
-	
-	def onHit_btnNewFile(self, evt):
+
+
+	def onNewFile(self, evt):
 		# Update the values
 		self.updtFromForm()
 		# See if the user wants to save changes (if any)
 		if not self.confirmChanges():
 			return
 		self.newFile()
-		
-	
-	def onHit_btnNewConn(self, evt):
+
+
+	def onNewConn(self, evt):
 		# Update the values
 		self.updtFromForm()
 		# Create the new connection
 		self.newConnection()
-		
-		
-	def onHit_btnSave(self, evt):
+
+
+	def onSave(self, evt):
 		self.saveFile()
-		
-		
+
+
 	def onDbTypeChanged(self, evt):
 		# Update the values
 		self.updtFromForm()
@@ -242,11 +250,11 @@ class EditorForm(dui.dForm):
 			self.port = self.defDbPorts[self.dbtype]
 		self.update()
 
-	
+
 	def isFileBasedBackend(self, dbtype):
 		return dbtype in ("SQLite", )
-		
-		
+
+
 	def enableControls(self):
 		dbt = self.dbtype
 		isFileBased = self.isFileBasedBackend(dbt)
@@ -257,21 +265,21 @@ class EditorForm(dui.dForm):
 		self.btnDbSelect.Visible = isFileBased
 		self.layout()
 
-	
-	def onHit_btnDbSelect(self, evt):
+
+	def onDbSelect(self, evt):
 		dbFile = dui.getFile()
 		if dbFile:
 			self.database = dbFile
 		self.update()
-	
 
-	def onHit_connectionSelector(self, evt):
-		self.currentConn = self.connectionSelector.StringValue		
+
+	def onConnectionSelector(self, evt):
+		self.currentConn = self.connectionSelector.StringValue
 		self.updtToForm()
 		self.enableControls()
 		self.update()
-		
-	
+
+
 	def testConnection(self):
 		# Update the values
 		self.updtFromForm()
@@ -291,8 +299,8 @@ class EditorForm(dui.dForm):
 			msg = _("Could not connect to the database: %s") % e
 			mbTitle += _(": FAILED!")
 		mb(message=msg, title=mbTitle)
-	
-	
+
+
 	def updtFromForm(self):
 		""" Grab the current values from the form, and update
 		the connection dictionary with them.
@@ -316,7 +324,7 @@ class EditorForm(dui.dForm):
 
 
 	def updtToForm(self):
-		""" Populate the current values from the connection 
+		""" Populate the current values from the connection
 		dictionary.
 		"""
 		if self.currentConn is not None:
@@ -331,7 +339,7 @@ class EditorForm(dui.dForm):
 					val = self.escQuote(val)		# Add quotes
 				exec("self.%s = %s" % (fld, val) )
 
-	
+
 	def escQuote(self, val):
 		"""Escape backslashes and single quotes, and wrap the result in single quotes."""
 		sl = "\\"
@@ -346,36 +354,41 @@ class EditorForm(dui.dForm):
 		self.Caption = "Dabo Connection Editor: %s" % os.path.basename(self.connFile)
 		# Add a new blank connection
 		self.newConnection()
-		self._origConnDict = copy.deepcopy(self.connDict)		
+		self._origConnDict = copy.deepcopy(self.connDict)
 		# Fill the controls
 		self.populate()
 
-	
+
 	def newConnection(self):
 		# Update the values
 		self.updtFromForm()
-		newName = "Connection " + str(len(self.connDict.keys()) + 1)
+		# Get the current dbtype
+		if self.currentConn is not None:
+			currDbType = self.connDict[self.currentConn]["dbtype"]
+		else:
+			currDbType = u"MySQL"
+		newName = u"Connection_" + str(len(self.connDict.keys()) + 1)
 		self.connDict[newName] = {
-				"dbtype" : u"MySQL",
-				"name" : "",
+				"dbtype" : currDbType,
+				"name" : newName,
 				"host" : "",
 				"database" : "",
 				"user" : "",
 				"password" : "",
-				"port" : 3306
+				"port" : self.defDbPorts[currDbType]
 				}
 		self.currentConn = newName
 		self.connectionSelector.Choices = self.connDict.keys()
 		self.populate()
-		
-	
+
+
 	def saveFile(self):
 		self.updtFromForm()
 		if self._origConnDict != self.connDict:
 			self.writeChanges()
 			self._origConnDict = copy.deepcopy(self.connDict)
 
-	
+
 	def onConnectionChange(self, evt):
 		newConn = self.connectionSelector.StringValue
 		if newConn != self.currentConn:
@@ -383,8 +396,8 @@ class EditorForm(dui.dForm):
 			self.updtFromForm()
 			self.currentConn = newConn
 			self.populate()
-	
-	
+
+
 	def setFieldVal(self, fld, val):
 		""" This will get called when the control detects a changed value. We
 		need to update the current dict with the new value.
@@ -399,13 +412,13 @@ class EditorForm(dui.dForm):
 		except StandardError, e:
 			print "Can't update:", e
 
-	
+
 	def populate(self):
 		self.updtToForm()
 		self.update()
 		conn = self.currentConn
 		self.connectionSelector.Value = conn
-		
+
 
 	def openFile(self, connFile=None):
 		self.activeControlValid()
@@ -419,13 +432,13 @@ class EditorForm(dui.dForm):
 			if not os.path.exists(self.connFile):
 				dabo.errorLog.write("The connection file '%s' does not exist." % self.connFile)
 				self.connFile = None
-				
+
 		if self.connFile is None:
-			f = dui.getFile(self.fileExtension, message="Select a file...", 
+			f = dui.getFile(self.fileExtension, message="Select a file...",
 			defaultPath=os.getcwd() )
 			if f is not None:
 				self.connFile = f
-			
+
 		if self.connFile is not None:
 			self.connFile = str(self.connFile)
 			# Read the XML into a local dictionary
@@ -440,12 +453,14 @@ class EditorForm(dui.dForm):
 			self.Caption = _("Dabo Connection Editor: %s") % os.path.basename(self.connFile)
 			# Fill the controls
 			self.populate()
+			# Show/hide controls as needed
+			self.enableControls()
 			self.layout()
 			return True
 		else:
 			return False
-	
-	
+
+
 	def confirmChanges(self):
 		self.activeControlValid()
 		self.updtFromForm()
@@ -457,12 +472,12 @@ class EditorForm(dui.dForm):
 			elif response:
 				self.writeChanges()
 		return True
-	
-	
+
+
 	def writeChanges(self):
 		if self.connFile == self.newFileName:
 			# Ask for a file name
-			pth = dui.getSaveAs(message="Save File As...", 
+			pth = dui.getSaveAs(message="Save File As...",
 					wildcard=self.fileExtension)
 			if pth is None:
 				return
@@ -474,14 +489,16 @@ class EditorForm(dui.dForm):
 						pth += "."
 					pth += self.fileExtension
 				self.connFile = pth
+		# Create the file so that the relative pathing works correctly
+		file(self.connFile, "w")
 		# Get the values from the connDict, and adjust any pathing
 		# to be relative
 		vals = self.relPaths(self.connDict.values())
 		xml = createXML(vals)
-		open(self.connFile, "w").write(xml)
+		file(self.connFile, "w").write(xml)
 		dabo.ui.callAfter(self.bringToFront)
-	
-	
+
+
 	def relPaths(self, vals):
 		for val in vals:
 			if self.isFileBasedBackend(val["dbtype"]):
@@ -489,34 +506,33 @@ class EditorForm(dui.dForm):
 				if os.path.exists(db):
 					val["database"] = utils.relativePath(db, self.connFile)
 		return vals
-	
-	
-	
+
+
+
 def main():
 	files = sys.argv[1:]
 	app = dabo.dApp()
 	app.BasePrefKey = "CxnEditor"
 	app.MainFormClass = None
 	app.setup()
-	app.start()
-			
+
 	if len(files) == 0:
 		# The form can either edit a new file, or the user can open the file
 		# from the form
 		o = EditorForm()
 		o.newFile()
-		o.Show()
+		o.show()
 	else:
 		for file in files:
 			o = EditorForm()
 			o.openFile(file)
 			if o.connFile:
-				o.Show()
+				o.show()
 			else:
-				o.Close()
-			
+				o.close()
+
 	app.start()
-	
-	
+
+
 if __name__ == "__main__":
-	main()	
+	main()
