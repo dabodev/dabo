@@ -75,8 +75,9 @@ class dFormMixin(pm.dPemMixin):
 
 		super(dFormMixin, self).__init__(preClass, parent, properties, 
 				attProperties, *args, **kwargs)
-	
-		self.restoreSizeAndPosition()
+
+		if not self._designerMode:	
+			self.restoreSizeAndPosition()
 
 
 	def _getInitPropertiesList(self):
