@@ -145,8 +145,6 @@ class dFormMixin(pm.dPemMixin):
 		self.bindEvent(dEvents.Activate, self.__onActivate)
 		self.bindEvent(dEvents.Deactivate, self.__onDeactivate)
 		self.bindEvent(dEvents.Close, self.__onClose)
-		self.bindEvent(dEvents.Resize, self.__onResize)
-		self.bindEvent(dEvents.Move, self.__onMove)
 		self.bindEvent(dEvents.Paint, self.__onPaint)
 		self.bindEvent(dEvents.Idle, self.__onIdle)
 	
@@ -195,18 +193,9 @@ class dFormMixin(pm.dPemMixin):
 		
 	
 	def __onDeactivate(self, evt):
-#		self.saveSizeAndPosition()
 		if self.Application is not None and self.Application.ActiveForm == self:
 			self.Application.clearActiveForm(self)
-	
 
-	def __onMove(self, evt):
-		dabo.ui.callAfterInterval(800, self.saveSizeAndPosition)
-	
-	
-	def __onResize(self, evt):
-		dabo.ui.callAfterInterval(800, self.saveSizeAndPosition)
-			
 	
 	def __onPaint(self, evt):
 		if self.Application:
@@ -222,6 +211,7 @@ class dFormMixin(pm.dPemMixin):
 	
 	
 	def __onClose(self, evt):
+		self.saveSizeAndPosition()
 		force = evt.EventData["force"]
 		if not force:
 			if self._beforeClose(evt) == False:
@@ -238,12 +228,6 @@ class dFormMixin(pm.dPemMixin):
 
 		# On the Mac, this next line prevents Bus Errors when closing a form.
 		self.Visible = False	
-
-		# pkm: Not sure about this SetFocus() call, but there may have been a 
-		#      good reason. On Windows, though, it results in an extra cycle
-		#      of deactivate/activate, and it doesn't seem right that this 
-		#      would be needed, so I'm commenting it out.
-		#self.SetFocus()
 
 		if app is not None:
 			self.Application.uiForms.remove(self)
