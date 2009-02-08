@@ -1399,7 +1399,7 @@ def getPositionInSizer(obj):
 		return None
 	elif isinstance(sz, wx.GridBagSizer):
 		# Return a row,col tuple
-		row, col = sz.GetItemPosition(obj)
+		row, col = sz.getGridPos(obj)
 		return (row, col)
 	else:
 		return None

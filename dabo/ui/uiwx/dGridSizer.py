@@ -57,7 +57,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 			# spacer
 			if isinstance(item, int):
 				item = (item, item)
-			szItem = self.Add(item, (targetRow, targetCol), span=(rowSpan, colSpan) )
+			szItem = self.Add(item, (targetRow, targetCol), span=(rowSpan, colSpan))
 			spc = szItem.GetSpacer()
 			spc._controllingSizer = self
 			spc._controllingSizerItem = szItem
@@ -296,10 +296,12 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		"""Given an object that is contained in this grid
 		sizer, returns a (row,col) tuple for that item's location.
 		"""
-		if isinstance(obj, (self.GridSizerItem, self.SizerItem)):
-			obj = self.getItem(obj)
+		if isinstance(obj, self.SizerItem):
+			szit = obj
+		else:
+			szit = obj.ControllingSizerItem
 		try:
-			row, col = self.GetItemPosition(obj)
+			row, col = szit.GetPos()
 		except wx.PyAssertionError:
 			# Window isn't controlled by this sizer
 			row, col = None, None
@@ -310,10 +312,12 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		"""Given an object that is contained in this grid
 		sizer, returns a (row,col) tuple for that item's cell span.
 		"""
-		if isinstance(obj, (self.GridSizerItem, self.SizerItem)):
-			obj = self.getItem(obj)
+		if isinstance(obj, self.SizerItem):
+			szit = obj
+		else:
+			szit = obj.ControllingSizerItem
 		try:
-			row, col = self.GetItemSpan(obj)
+			row, col = szit.GetSpan()
 		except wx.PyAssertionError, e:
 			# Window isn't controlled by this sizer
 			row, col = None, None
@@ -326,18 +330,26 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		True if successful, or False if it fails, due to another
 		item in the way.
 		"""
+		itm = None
 		if isinstance(obj, (self.GridSizerItem, self.SizerItem)):
+			itm = obj
 			obj = self.getItem(obj)
-		currRow, currCol = self.getGridSpan(obj)
+		else:
+			try:
+				itm = obj.ControllingSizerItem
+			except AttributeError:
+				itm = None
+		currRow, currCol = self.getGridSpan(itm)
 		if row is None:
 			row = currRow
 		if col is None:
 			col = currCol
 		spn = wx.GBSpan(row, col)
-		try:
-			self.SetItemSpan(obj, spn)
-		except wx.PyAssertionError:
-			raise dabo.ui.GridSizerSpanException(_("An item already exists in that location"))
+		if itm is not None:
+			try:
+				itm.SetSpan(spn)
+			except wx.PyAssertionError:
+				raise dabo.ui.GridSizerSpanException(_("An item already exists in that location"))
 	
 	
 	def _clearCells(self, obj, span, typ):
