@@ -211,7 +211,11 @@ class dFormMixin(pm.dPemMixin):
 	
 	
 	def __onClose(self, evt):
-		self.saveSizeAndPosition()
+		app = self.Application
+
+		if not self._designerMode:	
+			self.saveSizeAndPosition()
+
 		force = evt.EventData["force"]
 		if not force:
 			if self._beforeClose(evt) == False:
@@ -220,8 +224,6 @@ class dFormMixin(pm.dPemMixin):
 			# Run the cleanup code.
 			self.closing()
 		
-		app = self.Application
-
 		self._isClosed = True
 		if self._isModal:
 			self.MakeModal(False)
@@ -230,7 +232,7 @@ class dFormMixin(pm.dPemMixin):
 		self.Visible = False	
 
 		if app is not None:
-			self.Application.uiForms.remove(self)
+			app.uiForms.remove(self)
 
 
 	def activeControlValid(self):
