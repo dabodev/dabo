@@ -131,7 +131,8 @@ class RemoteBizobj(dBizobj):
 		if myDiff:
 			self.DataSource = myDiff[0]
 			self.KeyField = kf = myDiff[1]
-			changeRecs = myDiff[2].get(self.hashval, [])
+			changeRecs = myDiff[2]
+			kids = myDiff[3]
 			for rec in changeRecs:
 				newrec = rec.get(kons.CURSOR_TMPKEY_FIELD, False)
 				if newrec:
@@ -156,19 +157,15 @@ class RemoteBizobj(dBizobj):
 									_("Update Conflict: the value in column '%s' has been changed by someone else.") % col)
 					self.setFieldVal(col, newval)
 
-			kids = diff.pop("children", None)
 			if kids:
-				for kid in kids:
-					for kk, vv in kid.items:
-						# The key will either be the kid's hashval, or the string 'children'.
-						# Skip 'children', as the child bizobj will process that.
-						if kk == "children":
-							continue
-						kidHash = kk
-						kidDS = vv[0]
-						kidBiz = RemoteBizobj.load(kidHash, kidDS)
-						kidBiz.applyDiffAndSave(kid)
-
+				for kidHash, kidInfo in kids.items():
+					kidDS, kidKey, kidData, kidKids = kidInfo
+					kidClass = dabo._bizDict.get(kidDS)
+					if not kidClass:
+						abort(404, _("DataSource '%s' not found") % kidDS)
+					kidBiz = kidClass.load(kidHash, kidDS)
+					kidBiz.applyDiffAndSave({kidHash: kidInfo})
+			
 			try:
 				self.saveAll()
 			except dException.ConnectionLostException, e:
