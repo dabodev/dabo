@@ -132,6 +132,11 @@ class Form(dabo.ui.dForm):
 					OnHit=self.onQuickReport, tip=_("Quick Report"), Enabled=_has_reporting_libs,
 					help=_("Run a Quick Report on the current dataset"))
 
+			tb.appendSeparator()
+			self.appendToolBarButton(_("Close"), "%s/actions/system-log-out.png" % iconPath,
+						OnHit=self.close, tip=_("Close"),
+						help=_("Close Form"))
+
 
 	def getMenu(self):
 		iconPath = "themes/tango/16x16"	
