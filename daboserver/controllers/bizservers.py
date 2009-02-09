@@ -36,20 +36,23 @@ jsonDecode = dabo.lib.jsonDecode
 from OrdersBizobj import OrdersBizobj
 from PeopleBizobj import PeopleBizobj
 from ActivitiesBizobj import ActivitiesBizobj
+from ZipcodesBizobj import ZipcodesBizobj
 #-------------------------------------------------------
 
 
 # The bizobj class *MUST* be defined here for each data source that is to be 
 # handled by this server. Be sure that these classes are imported above.
 ## NOTE: as mentioned above, this is for the demo app.
-bizDict = {"orders": OrdersBizobj,
+dabo._bizDict = {"orders": OrdersBizobj,
 	  "people": PeopleBizobj,
-	  "activities": ActivitiesBizobj}
+	  "activities": ActivitiesBizobj,
+	  "zipcodes": ZipcodesBizobj}
 
 # The path to the server copy of the web application source files *MUST* be
 # defined here. It is used to compare local app manifests in order to 
 # determine what changes, if any, have been made to the app. 
 sourcePath = os.path.join(os.getcwd(), "daboserver/appSource")
+
 
 
 class BizserversController(BaseController):
@@ -62,7 +65,7 @@ class BizserversController(BaseController):
 			method: The method of the bizobj to be called.
 		"""
 		params = dict(request.GET)
-		bizClass = bizDict.get(ds)
+		bizClass = dabo._bizDict.get(ds)
 		if not bizClass:
 			abort(404, _("DataSource '%s' not found") % ds)
 		biz = bizClass.load(hashval, ds)
