@@ -960,7 +960,7 @@ class Form(dabo.ui.dForm):
 
 	def _setPageFrameStyle(self, val):
 		assert val.lower() in ("tabs", "list", "select")
-		self._setPageFrameStyle = val
+		self._pageFrameStyle = val
 
 
 	def _getPageTabPosition(self):
