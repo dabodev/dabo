@@ -13,11 +13,6 @@ class dFormMainBase(fm.dFormMixin):
 	def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
 		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 	
-#		self.Size = (640, 480)
-#		self.Position = (-1, -1)
-
-		if wx.Platform != '__WXMAC__':
-			self.CreateStatusBar()
 
 	def _beforeClose(self, evt=None):
 		forms2close = [frm for frm in self.Application.uiForms

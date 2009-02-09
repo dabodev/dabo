@@ -23,6 +23,20 @@ class dFormMixin(pm.dPemMixin):
 				and not self.IsMaximized():
 			return
 		super(dFormMixin, self).Maximize(maximize, *args, **kwargs)
+
+	def SetPosition(self, val):
+		# On Windows MDI Child frames when the main form has a toolbar, setting the
+		# top position results in a position too low by the height of the toolbar. 
+		left, top = val
+		tb = None
+		if self.Form:
+			tb = self.Form.ToolBar
+		if sys.platform.startswith("win") \
+				and self.MDI \
+				and tb:
+			top -= tb.Height 
+		super(dFormMixin, self).SetPosition((left, top))
+
 	
 	def __init__(self, preClass, parent=None, properties=None, attProperties=None, 
 			src=None, *args, **kwargs):
@@ -76,6 +90,8 @@ class dFormMixin(pm.dPemMixin):
 		super(dFormMixin, self).__init__(preClass, parent, properties, 
 				attProperties, *args, **kwargs)
 
+		self._createStatusBar()
+		self._createToolBar()	
 		if not self._designerMode:	
 			self.restoreSizeAndPosition()
 
@@ -142,7 +158,6 @@ class dFormMixin(pm.dPemMixin):
 		super(dFormMixin, self)._initEvents()
 		self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)
 		self.Bind(wx.EVT_CLOSE, self.__onWxClose)
-		self.bindEvent(dEvents.Activate, self.__onActivate)
 		self.bindEvent(dEvents.Deactivate, self.__onDeactivate)
 		self.bindEvent(dEvents.Close, self.__onClose)
 		self.bindEvent(dEvents.Paint, self.__onPaint)
@@ -159,20 +174,15 @@ class dFormMixin(pm.dPemMixin):
 		""" Raise the Dabo Activate or Deactivate appropriately."""
 		if bool(evt.GetActive()):
 			self.raiseEvent(dEvents.Activate, evt)
+			app = self.Application
+			if app is not None:
+				if app.Platform != "Win":
+					app.ActiveForm = self
 		else:
 			self.raiseEvent(dEvents.Deactivate, evt)
 		evt.Skip()
 			
 			
-	def __onActivate(self, evt): 
-		# If the ShowStatusBar property was set to True, this will create it
-		self._createStatusBar()
-		# If the ShowToolBar property was set to True, this will create it
-		self._createToolBar()
-
-		if self.Application is not None:
-			if self.Application.Platform != "Win":
-				self.Application.ActiveForm = self
 
 
 	def _createToolBar(self):
@@ -493,23 +503,24 @@ class dFormMixin(pm.dPemMixin):
 
 	def saveSizeAndPosition(self):
 		""" Save the current size and position of this form."""
-		if self.Application:
+		app = self.Application
+		if app:
 			if self.SaveRestorePosition and not self.TempForm:
 				name = self.getAbsoluteName()
 				state = self.WindowState
-				self.Application.setUserSetting("%s.windowstate" % name, state)
+				app.setUserSetting("%s.windowstate" % name, state)
 
 				if state == "Normal":
 					# Don't save size and position when the window
 					# is minimized, maximized or fullscreen because
 					# windows doesn't supply correct value if the window
 					# is in one of these states.
-					pos = self.Position
-					size = self.Size
-					self.Application.setUserSetting("%s.left" % name, pos[0])
-					self.Application.setUserSetting("%s.top" % name, pos[1])
-					self.Application.setUserSetting("%s.width" % name, size[0])
-					self.Application.setUserSetting("%s.height" % name, size[1])
+					left, top = self.Position
+					width, height = self.Size
+					app.setUserSetting("%s.left" % name, left)
+					app.setUserSetting("%s.top" % name, top)
+					app.setUserSetting("%s.width" % name, width)
+					app.setUserSetting("%s.height" % name, height)
 				
 
 	def setStatusText(self, *args):

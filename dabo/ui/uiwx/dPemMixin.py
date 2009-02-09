@@ -1568,9 +1568,6 @@ class dPemMixin(dPemMixinBase):
 			obj.draw(dc)
 		# Call the hook
 		self.redraw(dc)
-#- 		if self.Application.Platform == "Win":
-#- 			print "REFRESH", time.time()
-#- 			dabo.ui.callAfterInterval(300, self.refresh)
 			
 
 	def redraw(self, dc): 
@@ -2342,15 +2339,17 @@ class dPemMixin(dPemMixinBase):
 		else:
 			self._properties["Parent"] = val
 
-		
+
+
 	def _getPosition(self):
 		return self.GetPosition().Get()
 
 	def _setPosition(self, val):
 		if self._constructed():
-			self.SetPosition(val)
-		if isinstance(self, dabo.ui.dFormMixin):
-			self._defaultLeft, self._defaultTop = val
+			left, top = val
+			if isinstance(self, dabo.ui.dFormMixin):
+				self._defaultLeft, self._defaultTop = (left, top)
+			self.SetPosition((left, top))
 		else:
 			self._properties["Position"] = val
 
@@ -2475,9 +2474,9 @@ class dPemMixin(dPemMixinBase):
 	
 	def _setTop(self, val):
 		if self._constructed():
+			if isinstance(self, dabo.ui.dFormMixin):
+				self._defaultTop = val
 			self.SetPosition((self.Left, int(val)))
-		if isinstance(self, dabo.ui.dFormMixin):
-			self._defaultTop = val
 		else:
 			self._properties["Top"] = val
 
@@ -3662,8 +3661,6 @@ class _DropTarget(wx.DropTarget):
 					self._fileHandle.processDroppedFiles(self.fileData.Filenames)
 			elif format == wx.DF_TEXT or wx.DF_HTML:
 				self._textHandle.processDroppedText(self.textData.Text)
-# 		else:
-# 			print false
 		return defResult
 
 
