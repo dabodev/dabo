@@ -617,12 +617,11 @@ class dBizobj(dObject):
 		added to the dict under the key 'children' so that they can be processed
 		accordingly.
 		"""
-		diff = {hash(self): self._CurrentCursor.getDataDiff(allRows=allRows)}
-		kids = []
+		myData = self._CurrentCursor.getDataDiff(allRows=allRows)
+		kids = {}
 		for child in self.__children:
-			kids.append(child.getDataDiff(allRows=True))
-		if kids:
-			diff["children"] = kids
+			kids.update(child.getDataDiff(allRows=True))
+		diff = {hash(self): (self.DataSource, self.KeyField, myData, kids)}
 		return diff
 
 

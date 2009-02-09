@@ -109,8 +109,7 @@ class RemoteConnector(object):
 	def save(self, startTransaction=False, allRows=False):
 		biz = self.obj
 		url = self._getFullUrl("save")
-		changes = biz.getDataDiff(allRows=allRows)
-		chgDict = {hash(biz): (biz.DataSource, biz.KeyField, changes)}
+		chgDict = biz.getDataDiff(allRows=allRows)
 		params = {"DataDiff": jsonEncode(chgDict), "_method": "POST"}
 		prm = urllib.urlencode(params)
 		try:
