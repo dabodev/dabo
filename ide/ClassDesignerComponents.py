@@ -902,13 +902,14 @@ class LayoutSpacerPanel(LayoutPanel):
 				}})
 
 
-	def onMouseRightClick(self, evt):
+	def onContextMenu(self, evt):
 		if isinstance(self.Parent, dabo.ui.dPage):
 			self.Parent.activePanel = self
 		pop = dabo.ui.dMenu()
 		pop.prepend(_("Delete"), OnHit=self.onDelete)
 		pop.prepend(_("Copy"), OnHit=self.onCopy)
 		pop.prepend(_("Cut"), OnHit=self.onCut)
+		self.Controller.addSlotOptions(self, pop, sepBefore=True)
 		# Add the Sizer editing option
 		pop.appendSeparator()
 		pop.append(_("Edit Sizer Settings"), OnHit=self.onEditSizer)
@@ -934,6 +935,7 @@ class LayoutSpacerPanel(LayoutPanel):
 		else:
 			cs.insert(pos, lp, 1, "x")
 		csi = lp.ControllingSizerItem
+		cs.setItemProps(csi, sizerAtts)
 		self.Controller.select(lp)
 		dabo.ui.callAfter(self.Form.updateApp)
 
