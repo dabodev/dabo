@@ -128,6 +128,10 @@ class Form(dabo.ui.dForm):
 			tb.appendSeparator()
 
 		if self.FormType == "Normal":
+			self.appendToolBarButton(_("Configure Grid"), "%s/categories/preferences-system.png" % iconPath,
+					OnHit=self.onConfigGrid, tip=_("Configure Grid"), 
+					help=_("Configure grid columns"))
+
 			self.appendToolBarButton(_("Quick Report"), "%s/actions/document-print-preview.png" % iconPath,
 					OnHit=self.onQuickReport, tip=_("Quick Report"), Enabled=_has_reporting_libs,
 					help=_("Run a Quick Report on the current dataset"))
@@ -225,6 +229,63 @@ class Form(dabo.ui.dForm):
 					DynamicEnabled=self.enableQuickReport)
 
 		return menu
+
+	def onConfigGrid(self, evt):
+		try:
+			grid = self.PageFrame.Pages[1].BrowseGrid
+			ds = grid.DataSet
+		except:
+			dabo.ui.info(_("Sorry, there are no records in the grid, please requery first."))
+			return
+		
+		#cols
+		cols = [col.Caption for col in grid.Columns]
+		
+		#keys
+		keys = [col.DataField for col in grid.Columns]
+
+		class GridColumnsDialog(dabo.ui.dOkCancelDialog):
+
+			def addControls(self):
+				self.addObject(dabo.ui.dLabel, RegID="label", 
+						Caption=_("You can customize grid appearence by selecting\nthe columns you wish to see bellow:"), WordWrap=True)
+				
+				self.addObject(dabo.ui.dCheckList, RegID="columns",
+						Height=150, ValueMode="Key",
+						Choices=cols, 
+						Keys=keys)
+
+				for col in grid.Columns:
+					if col.Visible:
+						self.columns.setSelection(col.ColumnIndex)
+
+				self.Sizer.DefaultBorder = 5
+				self.Sizer.DefaultBorderAll = True
+
+				self.Sizer.append(self.label, border=5)
+				self.Sizer.append1x(self.columns)
+
+			def runOK(self):
+				self.selectedColumns = self.columns.Value
+
+			def runCancel(self):
+				self.selectedColumns = None
+				
+		d = GridColumnsDialog(self, Caption=_("Select Columns"))
+		d.show()
+
+		#the user has canceled, just return
+		if d.selectedColumns == None:
+			return
+
+		for col in grid.Columns:
+			if col.DataField in d.selectedColumns:
+				col.Visible = True
+			else:
+				col.Visible = False
+
+		#release the window
+		d.release()
 
 
 	def onDelete(self, evt):
