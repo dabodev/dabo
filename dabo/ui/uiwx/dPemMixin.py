@@ -935,17 +935,9 @@ class dPemMixin(dPemMixinBase):
 			# Perhaps we should log this too?
 			return
 	
-		##- 2004/01/07: Problems with segfaults and illegal instructions in some cases
-		##-             with the wx.CallAfter. Revert back for now to calling in the
-		##-             callstack.
-		if True or eventClass is dabo.dEvents.Destroy:
-			# Call immediately in this callstack so the object isn't completely
-			# gone by the time the callback is called.
-			super(dPemMixin, self).raiseEvent(eventClass, nativeEvent, *args, **kwargs)
-		else:
-			# Call with wx.CallAfter in the next Idle.
-			super(dPemMixin, self).raiseEvent(eventClass, nativeEvent,
-					uiCallAfterFunc=wx.CallAfter, *args, **kwargs)
+		# Call immediately in this callstack so the object isn't completely
+		# gone by the time the callback is called.
+		super(dPemMixin, self).raiseEvent(eventClass, nativeEvent, *args, **kwargs)
 	
 	
 	def formCoordinates(self, pos=None):
