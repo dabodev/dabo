@@ -2033,10 +2033,14 @@ class ClassDesigner(dabo.dApp):
 			propDict["propName"] = newPropCaption
 			propDict["comment"] = ""
 			propDict["defaultValue"] = ""
-			propDict["defaultType"] = "string"
+			propDict["defaultType"] = ""
 			propDict["getter"] = ""
 			propDict["setter"] = ""
 			propDict["deller"] = None
+		else:
+			for mthd in ("getter", "setter", "deller"):
+				if propDict[mthd] == "None":
+					propDict[mthd] = None
 		dlgProp = ClassDesignerCustomPropertyDialog()
 		dlgProp.setData(propDict)
 		dlgProp.show()

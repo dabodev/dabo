@@ -28,7 +28,6 @@ class ClassDesignerCustomPropertyDialog(dui.dOkCancelDialog):
 		self.ddType = dui.dDropdownList(self, Choices=["", "string", 
 				"integer", "float", "boolean", "datetime"])
 		self.ddType.PositionValue = 0
-		self.ddType.DynamicEnabled = self.needDefType
 		sz.append(lbl, halign="right")
 		hsz = dui.dSizer("h")
 		hsz.append(self.txtDefaultVal, 1)
