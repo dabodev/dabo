@@ -169,7 +169,7 @@ class DesignerXmlConverter(dObject):
 		propInit = ""
 		for prop, propDef in propDefs.items():
 			val = propDef["defaultValue"]
-			if not val:
+			if val == "" and propDef["defaultType"] != "string":
 				continue
 			if propDef["defaultType"] == "string":
 				val = "\"" + val + "\""
@@ -584,7 +584,6 @@ class DesignerXmlConverter(dObject):
 		"""Define a class that will be used to create an instance of
 		an object that contains its own method code and/or Properties.
 		"""
-
 		try:
 			modpath, shortClsName = nm.rsplit(".", 1)
 		except ValueError:
@@ -596,6 +595,8 @@ class DesignerXmlConverter(dObject):
 		propInit = ""
 		for prop, propDef in custProps.items():
 			val = propDef["defaultValue"]
+			if val == "" and propDef["defaultType"] != "string":
+				continue
 			if propDef["defaultType"] == "string":
 				val = "\"" + val + "\""
 			propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
