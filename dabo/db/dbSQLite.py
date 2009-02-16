@@ -55,6 +55,13 @@ class SQLite(dBackend):
 		pth = os.path.expanduser(connectInfo.Database)
 		if not forceCreate and not dabo.createDbFiles and (pth != ":memory:"):
 			if not os.path.exists(pth):
+				# See if it's in a standard data directory off of the current directory.
+				for subdir in ("db", "data"):
+					newpth = os.path.join(subdir, pth)
+					if os.path.exists(newpth):
+						pth = newpth
+						break
+			if not os.path.exists(pth):
 				# Database file does not exist; raise an error
 				raise DBFileDoesNotExistException(_("Database file '%s' does not exist") % pth)
 		pth = pth.decode(dabo.fileSystemEncoding).encode("utf-8")
