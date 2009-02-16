@@ -246,6 +246,9 @@ class Form(dabo.ui.dForm):
 
 		class GridColumnsDialog(dabo.ui.dOkCancelDialog):
 
+			def initProperties(self):
+				self.selectedColumns = None
+
 			def addControls(self):
 				self.addObject(dabo.ui.dLabel, RegID="label", 
 						Caption=_("You can customize grid appearence by selecting\nthe columns you wish to see bellow:"), WordWrap=True)
