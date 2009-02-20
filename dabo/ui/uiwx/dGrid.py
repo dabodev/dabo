@@ -1945,6 +1945,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	# Wrapper methods to Dabo-ize these calls.
 	def getValue(self, row=None, col=None):
+		"""Returns the value of the specified row and column.
+
+		If no row/col is specified, the current row/col will be used. 
+		"""
 		if row is None:
 			row = self.CurrentRow
 		if col is None:
