@@ -3423,15 +3423,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# keycode not in ascii range
 			return
 
-		if char.isspace() or keyCode in (dKeys.key_Left, dKeys.key_Right,
+		if keyCode in (dKeys.key_Left, dKeys.key_Right,
 				dKeys.key_Up, dKeys.key_Down, dKeys.key_Pageup, dKeys.key_Pagedown,
 				dKeys.key_Home, dKeys.key_End, dKeys.key_Prior, dKeys.key_Next) \
 				or evt.EventData["hasModifiers"]:
-			# Enter, Tab, Space and Arrow Keys shouldn't be searched on.
+			# Enter, Tab, and Arrow Keys shouldn't be searched on.
 			return
 
-		if (self.Searchable and self.Columns[self.CurrentColumn].Searchable) \
-				and char.isalnum():
+		if (self.Searchable and self.Columns[self.CurrentColumn].Searchable):
 			self.addToSearchStr(char)
 			# For some reason, without this the key happens twice
 			evt.stop()
