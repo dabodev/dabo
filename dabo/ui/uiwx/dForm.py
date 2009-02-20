@@ -890,34 +890,47 @@ Database error message: %s""") %	err
 class dForm(BaseForm, wx.Frame):
 	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dForm
+		self._mdi = False
 
 		if kwargs.pop("Modal", False):
 			# Hack this into a wx.Dialog, for true modality
-			dForm.__bases__ = (BaseForm, wx.Dialog)
+			self._hackToDialog()
 			preClass = wx.PreDialog
 			self._modal = True
 		else:
 			# Normal dForm
 			if dabo.settings.MDI and isinstance(parent, wx.MDIParentFrame):
 				# Hack this into an MDI Child:
-				dForm.__bases__ = (BaseForm, wx.MDIChildFrame)
 				preClass = wx.PreMDIChildFrame
 				self._mdi = True
 			else:
 				# This is a normal SDI form:
-				dForm.__bases__ = (BaseForm, wx.Frame)
 				preClass = wx.PreFrame
 				self._mdi = False
+			self._hackToFrame()
 
 		## (Note that it is necessary to run the above blocks each time, because
 		##  we are modifying the dForm class definition globally.)
 		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		self._hackToFrame()
+
+
+	def _hackToDialog(self):
+		dForm.__bases__ = (BaseForm, wx.Dialog)
+
+	def _hackToFrame(self):
+		if self._mdi:
+			dForm.__bases__ = (BaseForm, wx.MDIChildFrame)
+		else:
+			dForm.__bases__ = (BaseForm, wx.Frame)
 
 
 	def Show(self, show=True, *args, **kwargs):
 		self._gtk_show_fix(show)
+		if self.Modal:
+			self._hackToDialog()
 		dForm.__bases__[-1].Show(self, show, *args, **kwargs)
-
+		self._hackToFrame()
 
 	def _getModal(self):
 		return getattr(self, "_modal", False)
@@ -928,8 +941,10 @@ class dForm(BaseForm, wx.Frame):
 	def _setVisible(self, val):
 		if self._constructed():
 			val = bool(val)
-			if val and self.Modal and hasattr(self, "ShowModal"):
+			if val and self.Modal:
+				self._hackToDialog()
 				self.ShowModal()
+				self._hackToFrame()
 			else:
 				self.Show(val)
 		else:
