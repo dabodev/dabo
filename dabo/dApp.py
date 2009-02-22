@@ -1015,8 +1015,10 @@ try again when it is running.
 
 	def addConnectFile(self, connFile):
 		"""Accepts a cnxml file path, and reads in the connections
-		defined in it, adding them to self.dbConnectionDefs.
+		defined in it, adding them to self.dbConnectionDefs. If the 
+		file cannot be found, an exception is raised.
 		"""
+		origFile = connFile
 		if not os.path.exists(connFile):
 			homeFile = os.path.join(self.HomeDirectory, connFile)
 			if os.path.exists(homeFile):
@@ -1038,6 +1040,8 @@ try again when it is running.
 				ci.setConnInfo(v)
 				self.dbConnectionDefs[k] = ci
 				self.dbConnectionNameToFiles[k] = connFile
+		else:
+			raise IOError(_("File '%s' passed to dApp.addConnectFile() does not exist.") % origFile)
 
 
 	def getStandardAppDirectory(self, dirname, start=None):
