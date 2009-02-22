@@ -127,15 +127,19 @@ class dApp(dObject):
 	Normally, dApp gets instantiated from the client app's main Python script,
 	and lives through the life of the application.
 
-		-- set up an empty data connections object which holds
-		-- connectInfo objects connected to pretty names. If there
-		-- is a file named 'default.cnxml' present, it will import the
-		-- connection definitions contained in that. If no file of that
-		-- name exists, it will import any .cnxml file it finds. If there
-		-- are no such files, it will then revert to the old behavior
-		-- of importing a file in the current directory called
-		-- 'dbConnectionDefs.py', which contains connection
-		-- definitions in python code format instead of XML.
+		-- Set up an empty data connections dict that contains connection objects
+		-- that use descriptive names as their keys. Obviously this requires that
+		-- each connection has a unique name; if you create connections with
+		-- identical names, the second one read in will overwrite the first, and
+		-- the results are not guaranteed. Once read in, the only identifier for a
+		-- connection is its name; the file from which it was read in, if any, is
+		-- irrelevant. Any .cnxml files found in the app home directory, the
+		-- current directory (if different) or any subdirectory named 'db' or
+		-- 'data' of the home/current directory will be automatically read into the
+		-- connections dict, but the connections aren't made until requested by the
+		-- app. Additionally, connections defined in Python code in a file named
+		-- 'dbConnectionDefs.py' will be imported. This is an old behavior that
+		-- should no longer be used.
 
 		-- Set up a DB Connection manager, that is basically a dictionary
 		-- of dConnection objects. This allows connections to be shared
