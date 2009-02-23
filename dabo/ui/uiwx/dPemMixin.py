@@ -483,6 +483,13 @@ class dPemMixin(dPemMixinBase):
 	
 	
 	def _checkMouseOver(self):
+		"""Called as part of the Hover mechanism for determining if the mouse 
+		is no longer over the object.
+		"""
+		if not self:
+			# Object has been released
+			self._hoverTimer = None
+			return
 		mx, my = self.Parent.ScreenToClient(wx.GetMousePosition())
 		if not self.posIsWithin(mx, my):
 			self.__onMouseLeave(None)
