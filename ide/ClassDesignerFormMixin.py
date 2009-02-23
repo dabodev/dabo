@@ -794,7 +794,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 						_("No Slot Selected"))
 				return
 		wiz = QuickLayoutWizard(self)
-		wiz.ConnectionFile = self.CxnFile
 		wiz.ConnectionName = self.CxnName
 		wiz.callback = self.addQuickLayout
 		wiz.start()
@@ -803,7 +802,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 
 	
 	def addQuickLayout(self, layoutInfo):
-		self.CxnFile = layoutInfo["connectionFile"]
 		self.CxnName = layoutInfo["connectionName"]
 		if layoutInfo["createBizobj"]:
 			self.addBizobjCode(layoutInfo)
@@ -1503,8 +1501,6 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
 				"ShowCaption": {"type" : bool, "readonly" : False},
 				"MenuBarFile": {"type" : "path", "readonly" : False, 
 					"customEditor": "editMenuBarFile"},
-				"CxnFile": {"type" : "path", "readonly" : False, 
-					"customEditor": "editCxnFile"},
 				"CxnName": {"type" : unicode, "readonly" : False},
 				"Tag" : {"type" : "multi", "readonly" : False},
 				"Transparency" : {"type" : int, "readonly" : False},

@@ -502,16 +502,6 @@ class PropSheet(dabo.ui.dPanel):
 		dlg.release()
 		
 
-	def editCxnFile(self, objs, prop, val):
-		# Select a connection file
-		obj = objs[0]
-		newVal = dabo.ui.getFile("cnxml", "*")
-		if newVal is not None:
-			self.propGrid.CurrentValue = newVal
-			self.updateVal(prop, newVal, unicode)
-			self.propGrid.refresh()
-
-
 	def editMenuBarFile(self, objs, prop, val):
 		# Select a connection file
 		obj = objs[0]

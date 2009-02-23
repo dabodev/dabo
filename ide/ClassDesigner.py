@@ -124,7 +124,6 @@ class ClassDesigner(dabo.dApp):
 		# Get rid of the update/refresh delays
 		dabo.useUpdateDelays = False
 
-
 		# Define the controls that can be added to the ClassDesigner. The
 		# 'order' value will determine their order in the menu. One plan
 		# is to keep track of the user's choices, and weight the orders
@@ -554,6 +553,8 @@ class ClassDesigner(dabo.dApp):
 			self._initDB(os.path.dirname(currdir))
 		# We need to remove the menu bar class for now, since it isn't used at design time.
 		mbf = self._extractKey(atts, "MenuBarFile")
+		# 'CxnFile' has been removed as a property, but some old cdxml files may still reference it.
+		self._extractKey(atts, "CxnFile")
 		if self._reuseMainForm(useSizers=atts.get("UseSizers", False)):
 			# Original form hasn't changed, so just use it.
 			frm = self.MainForm
