@@ -1966,6 +1966,10 @@ class LayoutGridSizer(LayoutSaverMixin, dabo.ui.dGridSizer):
 
 
 class LayoutBasePanel(dabo.ui.dPanel, LayoutSaverMixin):
+	def createContextMenu(self):
+		"""Only here for compatibility"""
+		return
+
 	def _getController(self):
 		try:
 			return self._controller

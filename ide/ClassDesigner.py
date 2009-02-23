@@ -1666,6 +1666,9 @@ class ClassDesigner(dabo.dApp):
 
 	def onRunDesign(self, evt):
 		self.flushCodeEditor()
+		currbiz = self.biz
+		full = os.path.join(os.getcwd(), self.CurrentForm._classFile)
+		self.updateNamespace(full)
 		try:
 			self.CurrentForm.onRunDesign(evt)
 		except AttributeError, e:
@@ -1681,9 +1684,9 @@ class ClassDesigner(dabo.dApp):
 				txt = e.text.strip()
 			else:
 				txt = _("<unspecified>")
-			
 			dabo.ui.stop(_("Compilation Error: %s\nCode: %s") % (msg, txt),
 					_("Compilation Error"))
+		self.biz = currbiz
 
 
 	def onOpenDesign(self, evt):
@@ -2508,6 +2511,7 @@ class ClassDesigner(dabo.dApp):
 				dlg.show()
 				if not dlg.Accepted:
 					# User canceled
+					dlg.release()
 					return
 				try:
 					newPgs = dlg.pageCount
@@ -3433,6 +3437,7 @@ class ClassDesigner(dabo.dApp):
 		ret = (None, None, None)
 		if dlg.Accepted:
 			ret = (dlg.slotcount.Value, dlg.chkBox.Value, dlg.boxcaption.Value)
+		dlg.release()
 		return ret
 
 

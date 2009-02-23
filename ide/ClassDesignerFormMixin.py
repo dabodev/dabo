@@ -174,8 +174,16 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 	def onDeactivate(self, evt):
 		if self.Controller is not None:
 			self._selection = self.Controller.Selection
-		
-	
+
+
+	def createContextMenu(self):
+		"""The form doesn't allow direct access in design mode. Instead, call the
+		base panel, if any, and use its context menu.
+		"""
+		if self.mainPanel:
+			return self.mainPanel.createContextMenu()
+
+
 	def beforeClose(self, evt):
 		ret = True
 		curr = self._getSavedState()
@@ -203,8 +211,8 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 				self._finito = True
 				self.Controller.designerFormClosing(self)
 		return True
-	
-	
+
+
 	def _configureForDockForm(self):
 		"""If the form being edited is a dDockForm, we need to fake it by adding
 		all the functionality to the DesignerForm.
