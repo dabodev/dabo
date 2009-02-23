@@ -40,8 +40,6 @@ class dFormMixin(pm.dPemMixin):
 	
 	def __init__(self, preClass, parent=None, properties=None, attProperties=None, 
 			src=None, *args, **kwargs):
-
-		self._cxnFile = ""
 		self._cxnName = ""
 		self._connection = None
 		self._floatingPanel = None
@@ -129,18 +127,6 @@ class dFormMixin(pm.dPemMixin):
 		self._normLeft = self.Left
 		self._normTop = self.Top
 
-		if self._cxnFile:
-			if hasattr(self, "_classFile") and self._classFile is not None:
-				if not os.path.exists(self._cxnFile):
-					# The path should be relative to the _classFile, not
-					# the current directory
-					rp = dabo.lib.utils.relativePath
-					osp = os.path
-					cwd = os.getcwd()
-					relCP = rp(self._classFile, cwd)
-					newpth = osp.join(cwd, osp.split(relCP)[0], rp(self._cxnFile, self._classFile))
-					self._cxnFile = osp.normpath(newpth)
-			app.addConnectFile(self._cxnFile)
 		if self._cxnName:
 			self.Connection = app.getConnectionByName(self._cxnName)
 			if self.Connection is None:
@@ -688,16 +674,6 @@ class dFormMixin(pm.dPemMixin):
 		self._connection = val
 
 
-	def _getCxnFile(self):
-		return self._cxnFile
-
-	def _setCxnFile(self, val):
-		if isinstance(val, unicode):
-			# file names should be byte strings
-			val = val.encode(dabo.fileSystemEncoding)
-		self._cxnFile = val
-
-
 	def _getCxnName(self):
 		return self._cxnName
 
@@ -1055,9 +1031,6 @@ class dFormMixin(pm.dPemMixin):
 	Connection = property(_getConnection, _setConnection, None,
 			_("The connection to the database used by this form  (dConnection)"))
 
-	CxnFile = property(_getCxnFile, _setCxnFile, None,
-			_("Path to the connection file used for data access  (str)"))
-	
 	CxnName = property(_getCxnName, _setCxnName, None,
 			_("Name of the connection used for data access  (str)"))
 	
