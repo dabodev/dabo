@@ -3,6 +3,7 @@
 import sys
 import os
 import copy
+import codecs
 import inspect
 import dabo
 from dabo.dLocalize import _
