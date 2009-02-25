@@ -469,8 +469,15 @@ class dPref(object):
 			return ret
 		
 		return mkTree(vs)
-		
-	
+
+
+	def __nonzero__(self):
+		"""Preference instances should always evaluate to a boolean False, 
+		as they represent a lack of a value; i.e., a dot-separated path, but
+		not an actual stored value."""
+		return False
+
+
 	# Property definitions start here
 	def _getAutoPersist(self):
 		ret = self._autoPersist
