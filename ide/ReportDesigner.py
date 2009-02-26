@@ -1981,6 +1981,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		addBand(rf["PageForeground"])			
 
 		#self._rw.write()  ## 12/16/2008: No need to write the report form at this time.
+		self._rw.write()   ## 02/25/2009: Some cases it is needed, and could be Rodgy's problem with TestCursor.
 		self.drawReportForm()
 
 
