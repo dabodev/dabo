@@ -456,7 +456,7 @@ class dPref(object):
 			lev0keys = [itm[0] for itm in lev0]
 			keys = {}
 			[uniqKeys(keys, itm[0]) for itm in lev0]
-			for key in keys:
+			for key in sorted(keys):
 				keylist = [key]
 				try:
 					kids = [itm[1] for itm in lev0
