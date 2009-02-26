@@ -214,7 +214,7 @@ def onContextMenu(self, evt):
 													<code>
 														<onKeyUp><![CDATA[
 def onKeyUp(self, evt):
-	dabo.ui.callAfterInterval(250, self.Form.savePref())
+	dabo.ui.callAfterInterval(250, self.Form.savePref)
 ]]>
 														</onKeyUp>
 													</code>
