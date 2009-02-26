@@ -59,7 +59,7 @@ def afterInitAll(self):
 		root.Caption = ""
 	self.tree.treeFromStructure(stru, topNode=root)
 	basenode = self.tree.nodes[1]
-	[sib.expand() for sib in basenode.Siblings]
+	#[sib.expand() for sib in basenode.Siblings]  ## pkm: I got annoyed by this... :)
 	self.tree.ShowRootNode = False
 ]]>
 		</afterInitAll>
