@@ -154,6 +154,8 @@ class dPemMixin(dPemMixinBase):
 		self._extractKey((properties, self._properties), "designerClass")
 		# This attribute is used when saving code with a design file
 		self._extractKey((properties, self._properties), "code-ID")
+		# Remove the CxnFile property that is no longer used
+		self._extractKey((properties, self._properties), "CxnFile")
 		
 		# The user's subclass code has had a chance to tweak the init properties.
 		# Insert any of those into the arguments to send to the wx constructor:
