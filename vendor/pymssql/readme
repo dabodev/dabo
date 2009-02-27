@@ -1,0 +1,3 @@
+The pymssql.py in this directory has been modified by the dabo project
+and is a fork of the "official" version. The LGPL license does not
+infect dabo's MIT license.
