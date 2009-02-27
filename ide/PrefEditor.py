@@ -44,7 +44,7 @@ class PrefEditorPrefDialog(PreferenceDialog):
 		
 		
 	def onCheckNow(self, evt):
-		ret = self.Application.checkForUpdates(project="prf")
+		ret = self.Application.checkForUpdates()
 
 
 		
