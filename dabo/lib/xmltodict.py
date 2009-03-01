@@ -91,10 +91,15 @@ class Xml2Obj(object):
 					self._currPropAtt = ""
 			else:
 				element = {"name": name}	#.encode()}
-				if len(attributes) > 0:
+				if attributes:
 					for att in self.attsToSkip:
-						if attributes.has_key(att):
+						try:
 							del attributes[att]
+						except KeyError:
+							pass
+					# Unescape any escaped values
+					for kk, vv in attributes.items():
+						attributes[kk] = unescape(vv)
 					element["attributes"] = attributes
 		
 				# Push element onto the stack and make it a child of parent
@@ -230,21 +235,34 @@ def escQuote(val, noEscape=False, noQuote=False):
 	slsh = "\\"
 # 	val = val.replace(slsh, slsh+slsh)
 	if not noEscape:
-		# First escape internal ampersands. We need to double them up due to a 
-		# quirk in wxPython and the way it displays this character.
-		val = val.replace("&", "&amp;&amp;")
-		# Escape any internal quotes
-		val = val.replace('"', '&quot;').replace("'", "&apos;")
-		# Escape any high-order characters
-		chars = []
-		for pos, char in enumerate(list(val)):
-			if ord(char) > 127:
-				chars.append("&#%s;" % ord(char))
-			else:
-					chars.append(char)
-		val = "".join(chars)
-	val = val.replace("<", "&#060;").replace(">", "&#062;")
+		val = escape(val)
 	return "%s%s%s" % (qt, val, qt)
+
+
+def escape(val):
+	"""Escape any characters that cannot be stored directly in XML."""
+	# First escape internal ampersands. We need to double them up due to a 
+	# quirk in wxPython and the way it displays this character.
+	val = val.replace("&", "&amp;&amp;")
+	# Escape any internal quotes
+	val = val.replace('"', '&quot;').replace("'", "&apos;")
+	# Escape any high-order characters
+	chars = []
+	for pos, char in enumerate(list(val)):
+		if ord(char) > 127:
+			chars.append("&#%s;" % ord(char))
+		else:
+				chars.append(char)
+	val = "".join(chars)
+	val = val.replace("<", "&#060;").replace(">", "&#062;")
+	return val
+
+
+def unescape(val):
+	"""Reverse the escape() process to re-create the original values. The parser
+	handles the XML conventions; we need to reverse the doubled-up ampersands."""
+	val = val.replace("&&", "&")
+	return val
 
 
 def dicttoxml(dct, level=0, header=None, linesep=None):
@@ -284,7 +302,6 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 				for mthd, cd in dct["code"].items():
 					# Convert \n's in the code to eol:
 					cd = eol.join(cd.splitlines())
-
 					# Make sure that the code ends with a linefeed
 					if not cd.endswith(eol):
 						cd += eol
