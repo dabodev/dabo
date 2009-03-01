@@ -1702,6 +1702,20 @@ class ClassDesigner(dabo.dApp):
 		pcs = self.pagedControls
 		class NewClassPicker(dabo.ui.dOkCancelDialog):
 			def addControls(self):
+				self.fileToOpen = None
+				def onOpenSaved(evt):
+					f = dabo.ui.getFile("cdxml")
+					if f:
+						self.fileToOpen = f
+						self._onOK(None)
+				# Give the option of opening an existing class.
+				self.openButton = dabo.ui.dButton(self, Caption=_("Open Saved Class"),
+						OnHit=onOpenSaved)
+								
+				self.Sizer.append(self.openButton, halign="center")
+				self.Sizer.appendSpacer(20)
+				self.Sizer.append(dabo.ui.dLine(self), "x", border=5, halign="center")
+
 				# Create a dropdown list containing all the choices.
 				# NOTE: This would be an excellent candidate for usage ordering.
 				chc = ["Form", "DockForm", "Panel", "ScrollPanel", "SlidePanel", "Plain Dialog", "OK/Cancel Dialog",
@@ -1750,13 +1764,14 @@ class ClassDesigner(dabo.dApp):
 			def onSzChk(self, evt):
 				self.baseChk.Visible = self.szChk.Value
 
-
-		dlg = NewClassPicker(self.CurrentForm, Caption=_("New Class"),
+		dlg = NewClassPicker(self.CurrentForm, Caption=_("Open / Create Class"),
 				BasePrefKey=self.BasePrefKey+".NewClassPicker")
 		dlg.show()
 		if not dlg.Accepted:
 			dlg.release()
 			return
+		if dlg.fileToOpen:
+			return self.openClass(dlg.fileToOpen)
 		newClass = self._selectedClass = dlg.dd.Value
 		if newClass is dabo.ui.dDockForm:
 			dabo.ui.exclaim(_("Sorry, the Dock Form class does not currently work in the Class Designer."),
