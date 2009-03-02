@@ -49,7 +49,7 @@ class RemoteConnector(object):
 		return ret
 
 
-	def _read(self, url, params=None):
+	def _read(self, url, params=None, reRaise=False):
 		if params:
 			prm = urllib.urlencode(params)
 		else:
@@ -57,6 +57,8 @@ class RemoteConnector(object):
 		try:
 			res = self.UrlOpener.open(url, data=prm)
 		except urllib2.HTTPError, e:
+			if reRaise:
+				raise
 			dabo.errorLog.write("HTTPError: %s" % e)
 			return None
 		ret = res.read()
@@ -169,14 +171,22 @@ class RemoteConnector(object):
 		listURL = "%s://%s/manifest" % (scheme, host)
 		res = None
 		try:
-			res = jsonDecode(self._read(listURL))
+			res = jsonDecode(self._read(listURL, reRaise=True))
 		except urllib2.URLError, e:
-			code, msg = e.reason
-#			print "CODE<MSG", code, msg
+			try:
+				code, msg = e.reason
+			except AttributeError:
+				# Probably an HTTP code
+				code = e.code
+				msg = e.msg
 			if code == 61:
 				# Connection refused; server's down
 				return "Error: The server is not responding. Please try later"
+			elif code == 404:
+				# Not a Dabo application server
+				return "404 Not Found"
 		except urllib2.HTTPError, e:
+			print dir(e)
 			errText = e.read()
 			errMsg = "\n".join(errText.splitlines()[4:])
 			dabo.errorLog.write(_("HTTP Error getting app list: %s") % e)
@@ -351,19 +361,14 @@ class RemoteConnector(object):
 			# Set explicitly by the launch() method
 			return self._baseURL
 		app = dabo.dAppRef
-		ret = ""
-		try:
-			ret = self.Connection.ConnectInfo.RemoteHost
-		except AttributeError:
-			# Might be an application object
-			try:
-				ret = self.obj.SourceURL
-			except AttributeError:
-				# Use the app object
-				if app:
-					ret = app.SourceURL
+		if app:
+			ret = app.SourceURL
 		else:
-			if app and not app.SourceURL:
+			ret = ""
+		if not ret:
+			# See if it's specified in the connection
+			ret = self.Connection.ConnectInfo.RemoteHost
+			if app:
 				app.SourceURL = ret
 		return ret
 
