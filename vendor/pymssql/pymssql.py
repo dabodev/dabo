@@ -200,9 +200,10 @@ class pymssqlCursor:
 		pass
 
 def _quote(x):
-	if type(x) == types.StringType:
+	if isinstance(x,basestring):
 		x = "'" + string.replace(str(x), "'", "''") + "'"
-	elif type(x) in (types.IntType, types.LongType, types.FloatType):
+	#elif type(x) in (types.IntType, types.LongType, types.FloatType):
+	elif isinstance(x, (int, long, float)):
 		pass
 	elif x is None:
 		x = 'NULL'
