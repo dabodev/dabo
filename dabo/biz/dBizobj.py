@@ -1937,7 +1937,7 @@ afterDelete() which is only called after a delete().""")
 			return self.DataSource
 
 	def _setCaption(self, val):
-		self._caption = str(val)
+		self._caption = u"%s" % val
 
 
 	def _getChildCacheInterval(self):
@@ -1978,7 +1978,7 @@ afterDelete() which is only called after a delete().""")
 			return ""
 
 	def _setDataSource(self, val):
-		self._dataSource = str(val)
+		self._dataSource = u"%s" % val
 		self._syncWithCursors()
 
 
@@ -2077,7 +2077,7 @@ afterDelete() which is only called after a delete().""")
 			return ""
 
 	def _setLinkField(self, val):
-		self._linkField = str(val)
+		self._linkField = u"%s" % val
 
 
 	def _getNewChildOnNew(self):
@@ -2130,7 +2130,7 @@ afterDelete() which is only called after a delete().""")
 			return ""
 
 	def _setParentLinkField(self, val):
-		self._parentLinkField = str(val)
+		self._parentLinkField = u"%s" % val
 
 
 	def _getRecord(self):
