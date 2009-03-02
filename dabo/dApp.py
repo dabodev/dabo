@@ -978,8 +978,8 @@ try again when it is running.
 		connections. If the name doesn't exist in self.dbConnectionDefs,
 		then an exception is raised.
 		"""
-		if not self.dbConnections.has_key(connName):
-			if self.dbConnectionDefs.has_key(connName):
+		if not connName in self.dbConnections:
+			if connName in self.dbConnectionDefs:
 				ci = self.dbConnectionDefs[connName]
 				self.dbConnections[connName] = dabo.db.dConnection(ci)
 		try:
