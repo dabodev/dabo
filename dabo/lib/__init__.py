@@ -9,6 +9,8 @@
 
 import uuid
 import dabo
+import profilehooks
+
 
 
 def getRandomUUID():
