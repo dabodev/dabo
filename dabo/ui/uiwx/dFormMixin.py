@@ -128,7 +128,10 @@ class dFormMixin(pm.dPemMixin):
 		self._normTop = self.Top
 
 		if self._cxnName:
-			self.Connection = app.getConnectionByName(self._cxnName)
+			try:
+				self.Connection = app.getConnectionByName(self._cxnName)
+			except dException.ConnectionNotFoundException:
+				self.Connection = None
 			if self.Connection is None:
 				dabo.infoLog.write(_("Could not establish connection '%s'") %
 						self._cxnName)
