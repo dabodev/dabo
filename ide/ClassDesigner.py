@@ -823,8 +823,14 @@ class ClassDesigner(dabo.dApp):
 							# It has a given position, so use that. Otherwise,
 							# they may be pasting into a grid sizer.
 							self._srcObj = szr.getItemByRowCol(row, col)
+					grdsz = isinstance(szr, dui.dGridSizer)
+					if grdsz:
+						szType = "Grid"
+					else:
+						szType = szr.Orientation
+					# Get the defaults for this class of control.
+					defSizerProps = self.getDefaultSizerProps(cls, szType)
 				props = {}
-
 				try:
 					imp, clsname = cls.rsplit(".", 1)
 					imptSt = "from %(imp)s import %(clsname)s" % locals()
@@ -835,7 +841,6 @@ class ClassDesigner(dabo.dApp):
 				except ValueError:
 					dct["fullname"] = cls
 					newClass = dui.__dict__[cls]
-
 				isGrid = issubclass(newClass, dui.dGrid)
 				isTree = issubclass(newClass, dui.dTreeView)
 				isSplitter = issubclass(newClass, dui.dSplitter)
@@ -890,7 +895,8 @@ class ClassDesigner(dabo.dApp):
 					sz = None
 					itm = None
 				if sz is not None and itm is not None:
-					sz.setItemProps(itm, sizerInfoDict)
+					defSizerProps.update(sizerInfoDict)
+					sz.setItemProps(itm, defSizerProps)
 				if classID:
 					obj.classID = classID
 
