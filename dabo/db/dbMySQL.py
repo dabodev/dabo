@@ -39,11 +39,33 @@ class MySQL(dBackend):
 
 		conversions[decimal.Decimal] = dec2str
 		kwargs["conv"] = conversions
+		
+		# Determine default charset
+		charset = None
+		db = connectInfo.Database
+		if db:
+			try:
+				cn = dbapi.connect(host=connectInfo.Host, user=connectInfo.User, 
+						passwd=connectInfo.revealPW(), port=port)
+				crs =  cn.cursor()
+				# Params don't work here; need direct string to execute
+				crs.execute("show create database %s" % (db, ))
+				charset = crs.fetchone()[1].split("DEFAULT CHARACTER SET")[1].split()[0]
+				self.Encoding = charset
+			except IndexError:
+				pass
+		if charset is None:
+			# Use the app encoding
+			try:
+				charset = self.Application.Encoding
+			except AttributeError:
+				charset = dabo.defaultEncoding
+			charset = charset.lower().replace("-", "")
 
 		try:
 			self._connection = dbapi.connect(host=connectInfo.Host, 
 					user = connectInfo.User, passwd = connectInfo.revealPW(),
-					db=connectInfo.Database, port=port, **kwargs)
+					db=connectInfo.Database, port=port, charset=charset, **kwargs)
 		except Exception, e:
 			try:
 				errMsg = str(e).decode(self.Encoding)
