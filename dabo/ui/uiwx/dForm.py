@@ -48,11 +48,12 @@ class BaseForm(fm.dFormMixin):
 # 			# applied at that point.
 # 			self.mainPanel.BackColor = self.BackColor
 		
-		
 		# Used to override some cases where the status
 		# text should be displayed despite other processes
 		# trying to overwrite it
 		self._holdStatusText = ""
+		# Holds the dataSource passed to the method
+		self.dataSourceParameter = None
 
 
 	def _beforeSetProperties(self, props):
@@ -210,6 +211,7 @@ class BaseForm(fm.dFormMixin):
 
 	def moveToRowNumber(self, rowNumber, dataSource=None):
 		""" Move the record pointer to the specified row."""
+		self.dataSourceParameter = dataSource
 		if isinstance(dataSource, dabo.biz.dBizobj):
 			bizobj = dataSource
 		else:
@@ -223,6 +225,7 @@ class BaseForm(fm.dFormMixin):
 
 	def _moveRecordPointer(self, func, dataSource=None, *args, **kwargs):
 		""" Move the record pointer using the specified function."""
+		self.dataSourceParameter = dataSource
 		if isinstance(dataSource, dabo.biz.dBizobj):
 			biz = dataSource
 		else:
@@ -264,6 +267,7 @@ class BaseForm(fm.dFormMixin):
 
 	def first(self, dataSource=None):
 		""" Ask the bizobj to move to the first record."""
+		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -278,6 +282,7 @@ class BaseForm(fm.dFormMixin):
 
 	def last(self, dataSource=None):
 		""" Ask the bizobj to move to the last record."""
+		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -292,6 +297,7 @@ class BaseForm(fm.dFormMixin):
 
 	def prior(self, dataSource=None):
 		""" Ask the bizobj to move to the previous record."""
+		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -306,6 +312,7 @@ class BaseForm(fm.dFormMixin):
 
 	def next(self, dataSource=None):
 		""" Ask the bizobj to move to the next record."""
+		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -320,6 +327,7 @@ class BaseForm(fm.dFormMixin):
 
 	def filter(self, dataSource=None, fld=None, expr=None, op="="):
 		"""Apply a filter to the bizobj's data."""
+		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -337,6 +345,7 @@ class BaseForm(fm.dFormMixin):
 
 	def removeFilter(self, dataSource=None):
 		"""Remove the most recently applied filter from the bizobj's data."""
+		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -346,6 +355,7 @@ class BaseForm(fm.dFormMixin):
 
 	def removeFilters(self, dataSource=None):
 		"""Remove all filters from the bizobj's data."""
+		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -355,6 +365,7 @@ class BaseForm(fm.dFormMixin):
 
 	def save(self, dataSource=None):
 		""" Ask the bizobj to commit its changes to the backend."""
+		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -407,6 +418,7 @@ class BaseForm(fm.dFormMixin):
 		This will revert back to the state of the records when they were last
 		requeried or saved.
 		"""
+		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -445,6 +457,7 @@ class BaseForm(fm.dFormMixin):
 
 	def requery(self, dataSource=None):
 		""" Ask the bizobj to requery."""
+		self.dataSourceParameter = dataSource
 		ret = False
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
@@ -512,12 +525,14 @@ class BaseForm(fm.dFormMixin):
 			self.StatusText = ""
 
 		self.afterRequery()
+		self.update()
 		self.refresh()
 		return ret
 		
 
 	def delete(self, dataSource=None, message=None, prompt=True):
 		""" Ask the bizobj to delete the current record."""
+		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -562,6 +577,7 @@ class BaseForm(fm.dFormMixin):
 
 	def deleteAll(self, dataSource=None, message=None):
 		""" Ask the primary bizobj to delete all records from the recordset."""
+		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -595,6 +611,7 @@ class BaseForm(fm.dFormMixin):
 
 	def new(self, dataSource=None):
 		""" Ask the bizobj to add a new record to the recordset."""
+		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -728,8 +745,8 @@ Database error message: %s""") %	err
 
 
 	def getCurrentRecordText(self, dataSource=None, grid=None):
-		""" Get the text to describe which record is current.
-		"""
+		""" Get the text to describe which record is current."""
+		self.dataSourceParameter = dataSource
 		if dataSource is None and grid is not None:
 			# This is being called by a regular grid not tied to a bizobj
 			rowCount = grid.RowCount
