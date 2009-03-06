@@ -485,9 +485,9 @@ class MontanaForm(dabo.ui.dForm):
 		
 
 	def getDeckDir(self):
-		ret = "cards/large"
+		ret = "media/cards/large"
 		if self.PreferenceManager.smallDeck:
-			ret = "cards/small"
+			ret = "media/cards/small"
 		return ret
 
 
