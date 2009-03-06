@@ -967,7 +967,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			if self.UseTabs:
 				padchar = "\t"
 			else:
-				padchar = " "
+				padchar = " " * self.GetIndent()
 			padding = padchar * indentLevel
 			pos = self.GetCurrentPos()
 			
