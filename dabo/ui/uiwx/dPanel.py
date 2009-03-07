@@ -221,15 +221,19 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 
 	def scrollHorizontally(self, amt):
 		"""Change the horizontal scroll position by 'amt' units."""
-		x,y = self.GetViewStart()
-		self.Scroll(x+amt, y)
+		self._scroll(amt, 0)
 
 
 	def scrollVertically(self, amt):
 		"""Change the vertical scroll position by 'amt' units."""
+		# Y scrolling is a negative change
+		self._scroll(0, -amt)
+
+
+	def _scroll(self, xOff, yOff):
 		x,y = self.GetViewStart()
-		# Scrolling is reversed in the y-axis, so subtract
-		self.Scroll(x, y-amt)
+		self.Scroll(x+xOff, y+yOff)
+		dabo.ui.callAfterInterval(250, self.layout)
 
 
 	def pageLeft(self):
