@@ -1683,16 +1683,40 @@ def setdFormClass(typ):
 		dabo.ui.__dict__["dForm"] = dFormSDI
 
 
-def spawnProcess(cmd, wait=False):
+def spawnProcess(cmd, wait=False, handler=None):
 	"""Launch a separate process. Control is immediately returned to the 
 	calling program, unless you call this with 'wait=True'.
 	"""
+	class Proc(wx.Process):
+		def __init__(self, parent, *args, **kwargs):
+			super(Proc, self).__init__(parent, *args, **kwargs)
+			self._handler = parent
+		def OnTerminate(self, pid, status):
+			if self._handler:
+				try:
+					handler.onProcTermintated(self, pid, status)
+				except AttributeError:
+					pass
+		def read(self):
+			# This is still not working; I'm not sure how it's supposed to work,
+			# based on the scanty documentation.
+			out = ""
+			stream = self.GetInputStream()
+			if stream.CanRead():
+				 out = stream.read()
+			stream = self.GetErrorStream()
+			err = ""
+			if stream.CanRead():
+				err = "Errors:\n%s" % stream.read()
+			return (out, err)
+	proc = Proc(handler)
+	proc.Redirect()
 	if wait:
 		flag = wx.EXEC_SYNC
 	else:
 		flag = wx.EXEC_ASYNC
-	return wx.Execute(cmd, flag)
-
+	pidOrResult = wx.Execute(cmd, flag, proc)
+	return pidOrResult, proc
 
 
 class GridSizerSpanException(dabo.dException.dException):
