@@ -943,7 +943,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		if self._constructed():
 			self._gridColAttr.SetReadOnly(not val)
 			if self.Parent:
-				self.Parent.refresh(sort=False)
+				self.Parent.refresh()
 		else:
 			self._properties["Editable"] = val
 
@@ -1414,7 +1414,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				if idx is not None:
 					# Change the size in the wx grid:
 					grd.SetColSize(idx, val)
-					self.Parent.refresh(sort=False)
+					self.Parent.refresh()
 		else:
 			self._properties["Width"] = val
 
@@ -2674,7 +2674,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self.CurrentRow = biz.RowNumber
 
 		if self._refreshAfterSort:
-			self.refresh(sort=False)
+			self.refresh()
 
 		self._setUserSetting("sortedColumn", columnToSort)
 		self._setUserSetting("sortOrder", sortOrder)
@@ -3046,12 +3046,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return None
 
 
-	def refresh(self, sort=False):
-		if sort:
-			ref = self._refreshAfterSort
-			self._refreshAfterSort = False
-			self._restoreSort()
-			self._refreshAfterSort = ref
+	def refresh(self):
 		self._Table._clearCache()
 		self._syncColumnCount()
 		self._syncRowCount()
