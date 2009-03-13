@@ -232,7 +232,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 		if _oldRowCount == _newRowCount and not force:
 			return _newRowCount
-
+		
 		self.grid._syncRowCount()
 		# Column widths come from multiple places. In decreasing precedence:
 		#   1) dApp user settings,
@@ -1892,18 +1892,24 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def update(self):
-		"""We need to re-sync various properties after the data is updated. However,
-		with very large grids, multiple update calls can result in problems. So we 
-		use a callAfterInterval() to eliminate the duplicate calls.
+		"""Call this when your datasource or dataset has changed to get the grid showing
+		the proper number of rows with current data.
 		"""
-		dabo.ui.callAfterInterval(100, self._updateSync)
-	def _updateSync(self):		
-		super(dGrid, self).update
-		self._Table._clearCache()
+		# Note that we never call self.super(), because we don't need/want that behavior.
+		self._syncRowCount()
+		self._syncCurrentRow()
+		self.refresh()  ## to clear the cache and repaint the cells
+
+
+	def _syncAll(self):
 		self._syncRowCount()
 		self._syncColumnCount()
 		self._syncCurrentRow()
 
+	def refresh(self):
+		"""Repaint the grid."""
+		self._Table._clearCache()  ## Make sure the proper values are filled into the cells
+		super(dGrid, self).refresh()
 
 	def _refreshHeader(self):
 		self._getWxHeader().Refresh()
@@ -3044,14 +3050,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					return newDS
 				form = form.Form
 		return None
-
-
-	def refresh(self):
-		self._Table._clearCache()
-		self._syncColumnCount()
-		self._syncRowCount()
-		self._syncCurrentRow()
-		super(dGrid, self).refresh()
 
 
 	def _getWxHeader(self):
