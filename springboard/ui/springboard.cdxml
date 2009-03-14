@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<dForm code-ID="dForm-top" Name="dForm" Caption="Dabo Springboard" SaveRestorePosition="False" Top="136" Height="381" Width="430" designerClass="DesForm" Left="486">
+	<properties>
+		<Address>
+			<comment>The URL typed by the user</comment>
+			<defaultValue></defaultValue>
+			<deller>None</deller>
+			<getter>_getAddress</getter>
+			<propName>Address</propName>
+			<defaultType>string</defaultType>
+			<setter>None</setter>
+		</Address>
+	</properties>
+
+	<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
+		<dPanel sizerInfo="{'HAlign': 'Left', 'VAlign': 'Top'}" designerClass="controlMix" BackColor="lightSteelBlue">
+			<dSizer SlotCount="5" designerClass="LayoutSizer" Orientation="Vertical">
+				<dPanel Spacing="40" sizerInfo="{'HAlign': 'Left', 'Border': 0}" designerClass="LayoutSpacerPanel"></dPanel>
+				<dBorderSizer SlotCount="2" Caption="Server Address:" sizerInfo="{'BorderSides': ['Right', 'Left'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 20, 'Expand': True}" designerClass="LayoutBorderSizer" Orientation="Horizontal">
+					<dTextBox RegID="txtAddress" Width="287" sizerInfo="{}" code-ID="dTextBox-dPanel" designerClass="controlMix"></dTextBox>
+					<dButton code-ID="dButton-dPanel" Width="76" sizerInfo="{'BorderSides': ['Left'], 'Border': 5}" designerClass="controlMix" Caption="Connect"></dButton>
+				</dBorderSizer>
+				<dPanel Spacing="15" sizerInfo="{'HAlign': 'Left', 'Border': 0, 'Expand': True}" designerClass="LayoutSpacerPanel"></dPanel>
+				<dBorderSizer SlotCount="1" Caption="Available Applications:" sizerInfo="{'BorderSides': ['Right', 'Left'], 'Proportion': 2, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 20, 'Expand': True}" designerClass="LayoutBorderSizer" Orientation="Horizontal">
+					<dListBox RegID="appList" code-ID="dListBox-dPanel" sizerInfo="{'Proportion': 2}" designerClass="controlMix" Choices="[]"></dListBox>
+				</dBorderSizer>
+				<dPanel sizerInfo="{'Proportion': 0, 'VAlign': 'Middle', 'Border': 8}" designerClass="controlMix" Name="dPanel1">
+					<dSizer SlotCount="3" designerClass="LayoutSizer" Orientation="Horizontal">
+						<dPanel sizerInfo="{'BorderSides': ['All'], 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0}" designerClass="LayoutPanel"></dPanel>
+						<dPanel sizerInfo="{'BorderSides': ['All'], 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0}" designerClass="LayoutPanel"></dPanel>
+						<dButton code-ID="dButton-dPanel-553" Width="99" sizerInfo="{'Border': 6}" designerClass="controlMix" Caption="Launch App"></dButton>
+					</dSizer>
+				</dPanel>
+			</dSizer>
+		</dPanel>
+	</dSizer>
+</dForm>
