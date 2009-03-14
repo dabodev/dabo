@@ -384,12 +384,13 @@ class dPageFrameMixin(cm.dControlMixin):
 	def _setTabPosition(self, val):
 		val = str(val)
 
+		self._delWindowStyleFlag(self._tabposTop)
 		self._delWindowStyleFlag(self._tabposBottom)
 		self._delWindowStyleFlag(self._tabposRight)
 		self._delWindowStyleFlag(self._tabposLeft)
 
 		if val == "Top":
-			pass
+			self._addWindowStyleFlag(self._tabposTop)
 		elif val == "Left":
 			self._addWindowStyleFlag(self._tabposLeft)
 		elif val == "Right":

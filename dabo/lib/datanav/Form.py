@@ -362,10 +362,6 @@ class Form(dabo.ui.dForm):
 			pass
 			
 		if self.beforeSetupPageFrame():
-			#PageTabPosition other than Left causes a c++ assert on wxBookCtrlBase
-			if self.PageFrameStyle.lower() == "list":
-				self.PageTabPosition = "Left"
-
 			self.pageFrame = PageFrame.PageFrame(self, tabStyle=self.PageFrameStyle,
 					TabPosition=self.PageTabPosition)
 			border = 3
