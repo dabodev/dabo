@@ -202,10 +202,10 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
 		# argument must have been raw xml:
 		try:
 			ret = parser.Parse(xml)
-		except expat.ExpatError:
-			errmsg = _("An invalid XML string was encountered")
+		except expat.ExpatError, e:
+			errmsg = _("An invalid XML string was encountered: %s") % e
 	if errmsg:
-		raise dabo.dException.XmlException, errmsg
+		raise dabo.dException.XmlException(errmsg)
 	if addCodeFile and isPath:
 		# Get the associated code file, if any
 		codePth = "%s-code.py" % os.path.splitext(xml)[0]
