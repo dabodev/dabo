@@ -1906,10 +1906,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._syncColumnCount()
 		self._syncCurrentRow()
 
+
 	def refresh(self):
 		"""Repaint the grid."""
 		self._Table._clearCache()  ## Make sure the proper values are filled into the cells
 		super(dGrid, self).refresh()
+
 
 	def _refreshHeader(self):
 		self._getWxHeader().Refresh()
@@ -3984,6 +3986,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				val = dabo.db.dDataSet(val)
 			self._dataSet = val
 			self.fillGrid()
+			self._syncAll()
 			dabo.ui.callAfter(self.refresh)
 			if self.getBizobj():
 				self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
