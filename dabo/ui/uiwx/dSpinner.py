@@ -68,8 +68,10 @@ class dSpinner(dabo.ui.dDataPanel):
 		# Because several properties could not be set until after the child
 		# objects were created, we need to manually call _setProperties() here.
 		self._properties["NameBase"] = nm
-		self._setProperties(self._properties)
-		self.autoBindEvents()
+		
+		self._setNameAndProperties(self._properties, **kwargs)
+# 		self._setProperties(self._properties)
+# 		self.autoBindEvents()
 		ps = self._proxy_spinner
 		pt = self._proxy_textbox
 		# Set an essentially infinite range. We'll handle the range ourselves.
@@ -431,70 +433,10 @@ class _dSpinner_test(dSpinner):
 		print "Spinner event."
 
 
-
-if __name__ == '__main__':
-	class TestForm(dabo.ui.dForm):
-		def afterInit(self):
-			pnl = dabo.ui.dPanel(self)
-			self.Sizer.append1x(pnl)
-			sz = pnl.Sizer = dabo.ui.dSizer("v")
-			
-			spn = self.spinner = _dSpinner_test(pnl)
-			sz.append(spn, border=10, halign="center")
-			
-			lbl = dabo.ui.dLabel(pnl, Caption=_("Spinner Properties"), FontSize=18,
-					FontBold=True)
-			sz.appendSpacer(10)
-			sz.append(lbl, halign="center")
-			sz.appendSpacer(4)
-			
-			gsz = dabo.ui.dGridSizer(MaxCols=2, HGap=4, VGap=6)
-			lbl = dabo.ui.dLabel(pnl, Caption="Min")
-			txt = dabo.ui.dTextBox(pnl, DataSource=spn, DataField="Min", StrictNumericEntry=False)
-			gsz.append(lbl, halign="right")
-			gsz.append(txt)
-			lbl = dabo.ui.dLabel(pnl, Caption="Max")
-			txt = dabo.ui.dTextBox(pnl, DataSource=spn, DataField="Max", StrictNumericEntry=False)
-			gsz.append(lbl, halign="right")
-			gsz.append(txt)
-			lbl = dabo.ui.dLabel(pnl, Caption="Increment")
-			txt = dabo.ui.dTextBox(pnl, DataSource=spn, DataField="Increment", StrictNumericEntry=False)
-			gsz.append(lbl, halign="right")
-			gsz.append(txt)
-			lbl = dabo.ui.dLabel(pnl, Caption="SpinnerWrap")
-			chk = dabo.ui.dCheckBox(pnl, DataSource=spn, DataField="SpinnerWrap")
-			gsz.append(lbl, halign="right")
-			gsz.append(chk)
-			lbl = dabo.ui.dLabel(pnl, Caption="FontSize")
-			txt = dabo.ui.dTextBox(pnl, DataSource=spn, DataField="FontSize")
-			gsz.append(lbl, halign="right")
-			gsz.append(txt)
-			lbl = dabo.ui.dLabel(pnl, Caption="Height")
-			txt = dabo.ui.dTextBox(pnl, DataSource=spn, DataField="Height")
-			gsz.append(lbl, halign="right")
-			gsz.append(txt)
-			lbl = dabo.ui.dLabel(pnl, Caption="ForeColor")
-			txt = dabo.ui.dTextBox(pnl, ReadOnly=True, DataSource=spn, DataField="ForeColor")
-			btn = dabo.ui.dButton(pnl, Caption="...", OnHit=self.onColor, Width=36)
-			hsz = dabo.ui.dSizer("h")
-			hsz.append(txt, 1)
-			hsz.append(btn)
-			gsz.append(lbl, halign="right")
-			gsz.append(hsz)
-			lbl = dabo.ui.dLabel(pnl, Caption="Enabled")
-			chk = dabo.ui.dCheckBox(pnl, DataSource=spn, DataField="Enabled")
-			gsz.append(lbl, halign="right")
-			gsz.append(chk)
-			
-			sz.append(gsz, halign="center")
-			self.update()
-			self.layout()
-
-		def onColor(self, evt):
-			color = dabo.ui.getColor(self.spinner.ForeColor)
-			if color is not None:
-				self.spinner.ForeColor = color
-				self.update()
-
-	app = dabo.dApp(MainFormClass=TestForm)
+if __name__ == "__main__":
+	class Test(dabo.ui.dForm):
+		def OH(self, evt): print "HIT"
+		def afterInitAll(self):
+			self.spn = dabo.ui.dSpinner(self, Value=3, OnHit=self.OH)
+	app = dabo.dApp(MainFormClass=Test)
 	app.start()

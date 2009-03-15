@@ -99,7 +99,7 @@ class dPemMixin(dPemMixinBase):
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
 		
-		kwEvents = self._extractKeyWordEventBindings(kwargs, self._kwEvents)
+		self._extractKeyWordEventBindings(kwargs, self._kwEvents)
 		# Objects created from XML files will have their props passed
 		# in the 'attProperties' parameter, in which all values are strings.
 		# Convert these to the properties dict.

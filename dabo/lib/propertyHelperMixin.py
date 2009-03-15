@@ -73,7 +73,6 @@ class PropertyHelperMixin(object):
 		for kw, evtName in onKWs:			
 			evtdict[evtName] = kwdict[kw]
 			del kwdict[kw]
-		return evtdict
 	
 	
 	def _extractKey(self, kwdict, key, defaultVal=None):
@@ -95,7 +94,6 @@ class PropertyHelperMixin(object):
 					ret = dd[key]
 					found = True
 				del dd[key]
-# 				break
 			except KeyError:
 				pass
 		return ret
