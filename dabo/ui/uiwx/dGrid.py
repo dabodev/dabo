@@ -2470,7 +2470,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				dabo.errorLog.write(_("Invalid column number passed to 'showColumn()'."))
 				return
 		col._visible = visible
-		#self._syncColumnCount()
+
+		self._syncColumnCount()
 		self.refresh()
 
 
