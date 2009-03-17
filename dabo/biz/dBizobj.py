@@ -37,6 +37,10 @@ class dBizobj(dObject):
 		# now the DefaultValues property (used to be self.defaultValues attribute)
 		self._defaultValues = {}
 
+		# PKId's of rows to be filtered out when
+		# filtering Virtual fields
+		self.__filterPKVirtual = []
+
 		self._beforeInit()
 		self.setConnection(conn)
 		# We need to make sure the cursor is created *before* the call to
@@ -994,16 +998,66 @@ class dBizobj(dObject):
 			endswith: fld.endswith(expr)
 			contains: expr in fld
 		"""
-		currPK = self.getPK()
-		self._CurrentCursor.filter(fld=fld, expr=expr, op=op)
-		newPK = self.getPK()
-		if newPK != currPK:
-			try:
-				self.moveToPK(currPK)
-			except dabo.dException.RowNotFoundException:
-				# The old row was filtered out of the dataset
-				self.first()
+		#currPK = self.getPK()
+		if self.VirtualFields.has_key(fld):
+			self.scan(self.scanVirtualFields, fld=fld, expr=expr, op=op, reverse=True)
+			self._CurrentCursor.filterByExpression("%s IN (%s)" % (self.KeyField, ", ".join( "%i" % key for key in self.__filterPKVirtual)))
 
+			# clear filter id's
+			self.__filterPKVirtual = []
+		else:
+			self._CurrentCursor.filter(fld=fld, expr=expr, op=op)
+
+		#try:
+		#	newPK = self.getPK()
+		#except dException.NoRecordsException:
+		#	newPK = currPK
+
+		#if newPK != currPK:
+		#	try:
+		#		self.moveToPK(currPK)
+		#	except dabo.dException.RowNotFoundException:
+				# The old row was filtered out of the dataset
+		#		self.first()
+
+	def scanVirtualFields(self, fld, expr, op):
+		virtValue = self.getFieldVal(fld)
+
+		if op.lower() in ("eq", "equals", "="):
+			if virtValue == expr:
+				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
+
+		elif op.lower() in ("ne", "nequals", "!="):
+			if virtValue != expr:
+				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
+
+		elif op.lower() in ("gt", ">", "greater than"):
+			if expr > virtValue:
+				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
+
+		elif op.lower() in ("gte", ">=", "greater than/equal to"):
+			if expr >= virtValue:
+				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
+
+		elif op.lower() in ("lt", "<", "less than"):
+			if expr < virtValue:
+				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
+
+		elif op.lower() in ("lte", "<=", "less than/equal to"):
+			if expr <= virtValue:
+				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
+
+		elif op.lower() in ("starts with", "begins with"):
+			if virtValue.startswith(expr):
+				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
+
+		elif op.lower() in ("endswith"):
+			if virtValue.endswith(expr):
+				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
+
+		elif op.lower() in ("contains"):
+			if expr in virtValue:
+				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
 
 	def removeFilter(self):
 		"""Remove the most recently applied filter."""

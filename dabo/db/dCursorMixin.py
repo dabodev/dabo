@@ -1180,6 +1180,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Apply a filter to the current records."""
 		self._records = self._records.filter(fld=fld, expr=expr, op=op)
 
+	def filterByExpression(self, expr):
+		"""Allows you to filter by any expression that would make a
+		valid 'where' clause in SQLite.
+		"""
+		self._records = self._records.filterByExpression(expr)
 
 	def removeFilter(self):
 		"""Remove the most recently applied filter."""

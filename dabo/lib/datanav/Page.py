@@ -130,6 +130,7 @@ class SelectPage(Page):
 		# WHERE clause based on user input
 		self.selectFields = {}
 		self.sortFields = {}
+		self.__virtualFilters = []
 		self.sortIndex = 0
 	
 
@@ -242,6 +243,10 @@ class SelectPage(Page):
 		flds = self.selectFields.keys()
 		whr = ""
 		for fld in flds:
+			if biz.VirtualFields.has_key(fld):
+				#virtual field, save for later use and ignore
+				self.__virtualFilters.append(fld)
+				continue
 			if fld == "limit":
 				# Handled elsewhere
 				continue
@@ -365,6 +370,15 @@ class SelectPage(Page):
 				bizobj.setSQL(sql)
 	
 			ret = frm.requery(_fromSelectPage=True)
+
+		if bizobj.RowCount > 0: # don't bother applying this if there are no records to work on
+			# filter virtual fields
+			for vField in self.__virtualFilters:
+				opVal = self.selectFields[vField]["op"].Value
+				ctrl = self.selectFields[vField]["ctrl"]
+
+				if not _(IGNORE_STRING) in opVal:
+					bizobj.filter(vField, ctrl.Value, opVal.lower())
 
 		if ret:
 			if self.Parent.SelectedPageNumber == 0:

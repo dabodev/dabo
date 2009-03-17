@@ -210,6 +210,10 @@ class dDataSet(tuple):
 		"""Allows you to filter by any expression that would make a
 		valid 'where' clause in SQLite.
 		"""
+		if not self:
+			# No rows, so nothing to filter
+			return self
+
 		stmnt = "select * from dataset where %s" % (expr)
 		ret = self.execute(stmnt)
 		ret._sourceDataSet = self
