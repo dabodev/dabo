@@ -1048,15 +1048,15 @@ class dBizobj(dObject):
 				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
 
 		elif op.lower() in ("starts with", "begins with"):
-			if virtValue.startswith(expr):
+			if virtValue.lower().startswith(expr.lower()):
 				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
 
 		elif op.lower() in ("endswith"):
-			if virtValue.endswith(expr):
+			if virtValue.lower().endswith(expr.lower()):
 				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
 
 		elif op.lower() in ("contains"):
-			if expr in virtValue:
+			if expr.lower() in virtValue.lower():
 				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
 
 	def removeFilter(self):
