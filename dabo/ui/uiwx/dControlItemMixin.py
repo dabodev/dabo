@@ -236,7 +236,7 @@ class dControlItemMixin(dDataControlMixin):
 				invalidSelections = []
 
 			if invalidSelections:
-				raise ValueError(_("Trying to set %s.Value to these invalid selections: %s") % (self.Name, invalidSelections))
+				dabo.errorLog.write(_("Trying to set %s.Value to these invalid selections: %s") % (self.Name, invalidSelections))
 
 			self._afterValueChanged()
 		else:
