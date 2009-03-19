@@ -2496,13 +2496,13 @@ class ReportDesignerForm(dabo.ui.dForm):
 
 		viewMenu.appendSeparator()
 
-		viewMenu.append(_("Zoom &In"), HotKey="Ctrl++", OnHit=self.onViewZoomIn, 
+		viewMenu.append(_("Zoom &In"), HotKey="Ctrl+]", OnHit=self.onViewZoomIn, 
 				bmp="zoomIn", help=_("Zoom In"))
 
-		viewMenu.append(_("&Normal Zoom"), HotKey="Ctrl+/", OnHit=self.onViewZoomNormal, 
+		viewMenu.append(_("&Normal Zoom"), HotKey="Ctrl+\\", OnHit=self.onViewZoomNormal, 
 				bmp="zoomNormal", help=_("Normal Zoom"))
 
-		viewMenu.append(_("Zoom &Out"), HotKey="Ctrl+-", OnHit=self.onViewZoomOut, 
+		viewMenu.append(_("Zoom &Out"), HotKey="Ctrl+[", OnHit=self.onViewZoomOut, 
 				bmp="zoomOut", help=_("Zoom Out"))
 
 		viewMenu.appendSeparator()
