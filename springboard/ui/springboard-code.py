@@ -7,6 +7,7 @@
 import os
 import time
 import urlparse
+import re
 import dabo
 from dabo.lib.RemoteConnector import RemoteConnector
 from dabo.dLocalize import _
@@ -46,9 +47,12 @@ def onHit(self, evt):
 ## *!* ## Dabo Code ID: dForm-top
 def _getAddress(self):
 	try:
-		return self.txtAddress.Value
+		addr = self.txtAddress.Value
 	except AttributeError:
 		return None
+	if not re.match("https?://.*", addr):
+		addr = "http://%s" % addr
+	return addr
 
 
 def _runApp(self, path):
@@ -139,6 +143,10 @@ def completeURL(self, key=None):
 
 def connectToServer(self, key=None):
 	addr = self.Address
+	if not addr:
+		dabo.ui.stop("Please enter the address of the server.")
+		self.txtAddress.setFocus()
+		return
 	try:
 		result = self._proxy.launch(url=addr)
 	except StandardError, e:

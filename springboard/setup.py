@@ -16,7 +16,7 @@ DATA_FILES = []
 plat = sys.platform
 if plat == "darwin":
 	# OS X
-	OPTIONS = {"argv_emulation": True, "excludes": ["psycopg2", "MySQLdb", "numpy"],
+	OPTIONS = {"argv_emulation": True, "excludes": ["psycopg2", "MySQLdb", "numpy", "mx", "mx.DateTime"],
 		"iconfile": "springboard.icns"}
 elif plat == "win32":
 	# Windows
@@ -73,9 +73,10 @@ setup(
 		data_files=DATA_FILES,
 		version = "1.0",
 		description = "Dabo Springboard",
-		name = "dabo_springboard",
+		name = "Dabo Springboard",
 		# targets to build
 		app = ["main.py"],
+		#windows = ["main.py"],
 		#windows = [{"script": "tweezer.py", "icon_resources": [(0, "tweezer.ico")]}],
 		#console = [{"script": "tweezer.py", "icon_resources": [(0, "tweezer.ico")]}],
 		options={"py2app": OPTIONS,
