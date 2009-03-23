@@ -271,7 +271,11 @@ class SelectPage(Page):
 					matchVal = (opVal == _(CHOICE_TRUE))
 				else:
 					matchVal = ctrl.Value
-				matchStr = "%s" % matchVal
+				try:
+					matchStr = "%s" % matchVal
+				except TypeError:
+					matchStr = ""
+				#matchStr = "%s" % matchVal
 				useStdFormat = True
 
 				if fldType in ("char", "memo"):
@@ -314,6 +318,15 @@ class SelectPage(Page):
 						opStr = ">"
 
 				elif fldType in ("int", "float"):
+					#PVG: if we have a int tuple, use all values
+					if isinstance(matchVal, tuple):
+						useStdFormat = False
+						whrMatches = []
+						for word in matchVal:
+							mtch = {"table": table, "field": field, "value": word}
+							whrMatches.append( biz.getWordMatchFormat() % mtch )
+						if len(whrMatches) > 0:
+							whr = "(" + " or ".join(whrMatches) + ")"
 					if opVal.lower() in (_("equals"), _("is")):
 						opStr = "="
 					elif opVal.lower() == _("less than/equal to"):
