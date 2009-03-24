@@ -592,7 +592,7 @@ class Image(Drawable):
 		self.AvailableProps["ScaleMode"] = toPropDict(str, "scale", 
 				"""Specifies how to handle frame and image of differing size.
 
-				"scale" or "strech" will change the image size to fit the frame. 
+				"scale" or "stretch" will change the image size to fit the frame. 
 				"clip" will display the image in the frame as-is.
 				"proportional" resizes the image to fit in the frame without changing its proportions.""")
 
