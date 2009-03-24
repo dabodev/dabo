@@ -592,8 +592,9 @@ class Image(Drawable):
 		self.AvailableProps["ScaleMode"] = toPropDict(str, "scale", 
 				"""Specifies how to handle frame and image of differing size.
 
-				"scale" will change the image size to fit the frame. "clip" will
-				display the image in the frame as-is.""")
+				"scale" or "strech" will change the image size to fit the frame. 
+				"clip" will display the image in the frame as-is.
+				"proportional" resizes the image to fit in the frame without changing its proportions.""")
 
 class BarGraph(Drawable):
         """Represents a bar graph"""
@@ -1108,6 +1109,7 @@ class ReportWriter(object):
 			borderColor = obj.getProp("borderColor")
 			mask = obj.getProp("imageMask")
 			mode = obj.getProp("scaleMode")
+			preserveRatio = False
 
 			c.translate(x, y)
 			c.rotate(rotation)
@@ -1149,9 +1151,12 @@ class ReportWriter(object):
 				# width/height, resulting in clipping.
 				width, height = None, None
 
+			elif mode == "proportional":
+				preserveRatio = True
+
 			if img:
 				try:
-					c.drawImage(img, 0, 0, width, height, mask)
+					c.drawImage(img, 0, 0, width, height, mask, preserveAspectRatio=preserveRatio)
 				except StandardError:
 					c.drawCentredString(0, 0, "<< Image expr error >>")
 
