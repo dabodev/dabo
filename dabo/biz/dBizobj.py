@@ -549,7 +549,8 @@ class dBizobj(dObject):
 			for child in self.__children:
 				if self.deleteChildLogic == kons.REFINTEG_CASCADE:
 					child.deleteAll(startTransaction=False)
-				child.cancelAll()
+				else:
+					child.cancelAll()
 				child.requery()
 			if startTransaction:
 				self.commitTransaction()
