@@ -1126,13 +1126,7 @@ class DesignerBand(DesignerPanel):
 
 	def onMouseLeftDown(self, evt):
 		self.updateSelected(evt)
-
-		if self.Application.Platform == "Mac":
-			# Mac needs the following line, or LeftUp will never fire. TODO:
-			# figure out how to abstract this into dPemMixin (if possible).
-			# I posted a message to wxPython-mac regarding this - not sure if
-			# it is a bug or a "by design" platform inconsistency.
-			evt.stop()
+		evt.stop()  ## Otherwise the default of scrolling the panel will occur
 
 		self._mouseDown = True
 		mouseObj = self.getMouseObject()
@@ -2006,7 +2000,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 	def drawReportForm(self):
 		"""Resize and position the bands accordingly, and draw the objects."""
-
 		viewStart = self.GetViewStart()
 		self.SetScrollbars(0,0,0,0)
 		rw = self._rw
