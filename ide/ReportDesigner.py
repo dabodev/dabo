@@ -1126,7 +1126,16 @@ class DesignerBand(DesignerPanel):
 
 	def onMouseLeftDown(self, evt):
 		self.updateSelected(evt)
-		evt.stop()  ## Otherwise the default of scrolling the panel will occur
+
+		# If we let the default event handler run, self.SetFocus() will happen,
+		# which we want so that we can receive keyboard focus, but SetFocus() has
+		# the side-effect of also scrolling the panel in both directions, for some
+		# reason. So, we need to work around this annoyance and call SetFocus()
+		# manually:
+		evt.stop() 
+		self.Parent.SetScrollRate(0, 0)
+		self.SetFocus()
+		self.Parent.SetScrollRate(*self.Parent._scrollRate)
 
 		self._mouseDown = True
 		mouseObj = self.getMouseObject()
@@ -2078,6 +2087,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		##      But on Windows, that resulted in the report
 		##      drawing on the panel at the wrong offset. 
 		##      Separating into these 2 calls fixed the issue.
+		self._scrollRate = (u, u)
 		self.SetScrollbars(u, u, _scrollWidth, _scrollHeight)
 		self.Scroll(viewStart[0], viewStart[1])
 
