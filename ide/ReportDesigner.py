@@ -1132,10 +1132,10 @@ class DesignerBand(DesignerPanel):
 		# the side-effect of also scrolling the panel in both directions, for some
 		# reason. So, we need to work around this annoyance and call SetFocus()
 		# manually:
-		evt.stop() 
-		self.Parent.SetScrollRate(0, 0)
+		evt.stop()
+		vs = self.Parent.GetViewStart() 
 		self.SetFocus()
-		self.Parent.SetScrollRate(*self.Parent._scrollRate)
+		self.Parent.Scroll(*vs)
 
 		self._mouseDown = True
 		mouseObj = self.getMouseObject()
@@ -1261,7 +1261,6 @@ class DesignerBand(DesignerPanel):
 		selectColor = (128,192,0)
 		dc = wx.PaintDC(self)
 		dc.Clear()
-
 		selObjs = []
 
 		for obj in self.ReportObject.get("Objects", []):
