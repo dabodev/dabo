@@ -1420,7 +1420,7 @@ class DesignerBand(DesignerPanel):
 
 					if imageFile is not None:
 						if os.path.exists(imageFile) and not os.path.isdir(imageFile):
-							bmp = self._cachedBitmaps.get(imageFile, None)
+							bmp = self._cachedBitmaps.get((imageFile, self.Parent.ZoomFactor), None)
 							if bmp is None:
 								import wx
 								expr = None
@@ -1429,7 +1429,7 @@ class DesignerBand(DesignerPanel):
 								## scalemode prop. For now, we just unconditionally rescale:
 								img.Rescale(rect[2], rect[3])
 								bmp = img.ConvertToBitmap()
-								self._cachedBitmaps[imageFile] = bmp
+								self._cachedBitmaps[(imageFile, self.Parent.ZoomFactor)] = bmp
 						else:
 							expr = "<< file not found >>"
 					else:
