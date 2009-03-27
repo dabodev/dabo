@@ -962,6 +962,7 @@ class DesignerBand(DesignerPanel):
 
 
 	def afterInit(self):
+		self._cachedBitmaps = {}
 		self._rd = self.Form.editor
 		self._rw = self._rd._rw
 		self.Bands = self._rw.Bands
@@ -1419,13 +1420,16 @@ class DesignerBand(DesignerPanel):
 
 					if imageFile is not None:
 						if os.path.exists(imageFile) and not os.path.isdir(imageFile):
-							import wx
-							expr = None
-							img = wx.Image(imageFile)
-							## Whether rescaling, resizing, or nothing happens depends on the 
-							## scalemode prop. For now, we just unconditionally rescale:
-							img.Rescale(rect[2], rect[3])
-							bmp = img.ConvertToBitmap()
+							bmp = self._cachedBitmaps.get(imageFile, None)
+							if bmp is None:
+								import wx
+								expr = None
+								img = wx.Image(imageFile)
+								## Whether rescaling, resizing, or nothing happens depends on the 
+								## scalemode prop. For now, we just unconditionally rescale:
+								img.Rescale(rect[2], rect[3])
+								bmp = img.ConvertToBitmap()
+								self._cachedBitmaps[imageFile] = bmp
 						else:
 							expr = "<< file not found >>"
 					else:
@@ -2002,6 +2006,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 	def drawReportForm(self):
 		"""Resize and position the bands accordingly, and draw the objects."""
+
 		viewStart = self.GetViewStart()
 		self.SetScrollbars(0,0,0,0)
 		rw = self._rw
