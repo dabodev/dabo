@@ -69,6 +69,7 @@ def previewPDF(path, modal=False):
 
 def getTestCursorXmlFromDataSet(dataset):
 	"""Returns the xml for insertion into a .rfxml file from a dataset."""
+	from dabo.lib.xmltodict import escape
 
 	assert len(dataset) > 0
 
@@ -93,9 +94,17 @@ def getTestCursorXmlFromDataSet(dataset):
 			if isinstance(v, basestring):
 				v = v.replace("'", "")
 			v = repr(v)
+			v = escape(v, escapeAmp=False)
 			v = v.replace('"', "'")
 			xml += """%s="%s" """ % (k, v)
 		xml += """ />\n"""
 	
 	xml += """\t</testcursor>\n"""
 	return xml
+
+
+if __name__ == "__main__":
+	ds = [{"name": "Paul McNett"},
+	      {"name": "A & B Motors"},
+	      {"name": '9" Nails'}]
+	print getTestCursorXmlFromDataSet(ds)

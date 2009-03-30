@@ -239,11 +239,14 @@ def escQuote(val, noEscape=False, noQuote=False):
 	return "%s%s%s" % (qt, val, qt)
 
 
-def escape(val):
+def escape(val, escapeAmp=True):
 	"""Escape any characters that cannot be stored directly in XML."""
 	# First escape internal ampersands. We need to double them up due to a 
 	# quirk in wxPython and the way it displays this character.
-	val = val.replace("&", "&amp;&amp;")
+	if escapeAmp:
+		val = val.replace("&", "&amp;&amp;")
+	else:
+		val = val.replace("&", "&amp;")
 	# Escape any internal quotes
 	val = val.replace('"', '&quot;').replace("'", "&apos;")
 	# Escape any high-order characters
