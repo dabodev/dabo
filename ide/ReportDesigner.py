@@ -244,7 +244,7 @@ def DesignerController():
 
 
 		def showPropSheet(self, bringToTop=False, refresh=False, prop=None,
-				enableEditor=False):
+				enableEditor=False, focusBack=False):
 			ps = self.PropSheet
 			if ps is None:
 				refresh = True
@@ -268,6 +268,8 @@ def DesignerController():
 				for idx, record in enumerate(ds):
 					if record["prop"].lower() == prop.lower():
 						pg.CurrentRow = idx
+						if focusBack:
+							pg._focusToDesigner = True
 						break
 
 			if bringToTop:
@@ -767,7 +769,11 @@ class ReportPropSheet(ClassDesignerPropSheet.PropSheet):
 			if isinstance(obj, Group) and prop.lower() == "expr":
 				reInit = True
 		rdc.ActiveEditor.propsChanged(reinit=reInit)
-		rdc.ObjectTree.refreshCaption()
+		if rdc.ObjectTree:
+			rdc.ObjectTree.refreshCaption()
+		if getattr(self.propGrid, "_focusToDesigner", False):
+			rdc.ActiveEditor.Form.bringToFront()
+			self.propGrid._focusToDesigner = False
 
 	def refreshSelection(self):
 		objs = rdc.SelectedObjects
@@ -1690,7 +1696,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		if not selectedDrawables:
 			return
 
-		if ctrlDown and key == "enter":
+		if key == "enter":
 			# Bring the prop sheet to top and activate the editor for the
 			# most appropriate property for the selected object(s).
 			evt.stop()
@@ -1701,7 +1707,8 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 					break
 			self.editProperty(propName)
 
-		elif key != "enter":
+		else:
+			## arrow key
 			evt.stop()  ## don't let the arrow key scroll the window.
 			size, turbo = False, False
 			if shiftDown:
@@ -1815,8 +1822,10 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		"""Display the property dialog, and bring it to top.
 
 		If a valid propname is passed, start the editor for that property.
+		After the property is edited, send focus back to the designer.
 		"""
-		rdc.showPropSheet(bringToTop=True, prop=prop, enableEditor=True)
+		rdc.showPropSheet(bringToTop=True, prop=prop, enableEditor=True,
+		                  focusBack=True)
 
 
 	def promptToSave(self):
