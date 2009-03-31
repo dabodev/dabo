@@ -663,17 +663,7 @@ class ReportObjectTree(dabo.ui.dTreeView):
 			return
 
 		if isinstance(frm, dict):
-			expr = rdc.getShortExpr(frm.get("expr", ""))
-			caption = frm.__class__.__name__
-			if expr:
-				if caption.lower() in ("group",):
-					caption = expr
-				elif caption.lower() in ("variable",):
-					caption = frm.getProp("Name", evaluate=False)
-				else:
-					expr = ": %s" % expr
-					caption = "%s%s" % (frm.__class__.__name__, expr)
-			node = parentNode.appendChild(caption)
+			node = parentNode.appendChild(self.getNodeCaption(frm))
 			node.ReportObject = frm
 			node.FontSize = fontSize
 			for child in frm.get("Objects", []):
@@ -683,12 +673,25 @@ class ReportObjectTree(dabo.ui.dTreeView):
 					self.recurseLayout(frm=frm[band], parentNode=node)
 
 		elif frm.__class__.__name__ in ("Variables", "Groups", "TestCursor"):
-			caption = frm.__class__.__name__
-			node = parentNode.appendChild(caption)
+			node = parentNode.appendChild(self.getNodeCaption(frm))
 			node.ReportObject = frm
 			node.FontSize = fontSize
 			for child in frm:
 				self.recurseLayout(frm=child, parentNode=node)						
+
+	def getNodeCaption(self, frm):
+		caption = frm.__class__.__name__
+		if not frm.__class__.__name__ in ("Variables", "Groups", "TestCursor"):
+			expr = rdc.getShortExpr(frm.get("expr", ""))
+			if expr:
+				if caption.lower() in ("group",):
+					caption = expr
+				elif caption.lower() in ("variable",):
+					caption = frm.getProp("Name", evaluate=False)
+				else:
+					expr = ": %s" % expr
+					caption = "%s%s" % (frm.__class__.__name__, expr)
+		return caption
 
 	def refreshSelection(self):
 		"""Iterate through the nodes, and set their Selected status
@@ -718,7 +721,10 @@ class ReportObjectTree(dabo.ui.dTreeView):
 		if selNodes:
 			self.showNode(selNodes[0])
 		
-
+	def refreshCaption(self):
+		"""Iterate the Selection, and refresh the Caption."""
+		for node in self.Selection:
+			node.Caption = self.getNodeCaption(node.ReportObject)
 	
 class ObjectTreeForm(DesignerControllerForm):
 	def initProperties(self):
@@ -761,6 +767,7 @@ class ReportPropSheet(ClassDesignerPropSheet.PropSheet):
 			if isinstance(obj, Group) and prop.lower() == "expr":
 				reInit = True
 		rdc.ActiveEditor.propsChanged(reinit=reInit)
+		rdc.ObjectTree.refreshCaption()
 
 	def refreshSelection(self):
 		objs = rdc.SelectedObjects
