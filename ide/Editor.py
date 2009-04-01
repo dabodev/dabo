@@ -809,7 +809,7 @@ class EditorForm(dabo.ui.dForm):
 	def onFileSaveAs(self, evt):
 		fname = self.CurrentEditor.promptForSaveAs()
 		if fname:
-			self.CurrentEditor.saveFile(fname)
+			self.CurrentEditor.saveFile(fname, force=True)
 			
 			
 	def onEditJumpToLine(self, evt):
