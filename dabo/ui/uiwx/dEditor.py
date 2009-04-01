@@ -1414,8 +1414,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		return fname
 
 
-	def saveFile(self, fname=None):
-		if not self.isChanged() and self._fileName:
+	def saveFile(self, fname=None, force=False):
+		if not force and (not self.isChanged() and self._fileName):
 			# Nothing changed
 			return
 		if self._curdir:

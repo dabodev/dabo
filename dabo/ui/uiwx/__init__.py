@@ -1569,6 +1569,16 @@ def strToBmp(val, scale=None, width=None, height=None):
 			# Create a list of the places to search for the image, with
 			# the most likely choices first.
 			paths = [val] + iconpaths + dabopaths + localpaths
+			# See if it's running as a Mac application
+			macAppIndicator = "/Contents/Resources"
+			dpth = dabo.__path__[0]
+			if macAppIndicator in dpth:
+				# Running as a py2app application
+				resPth = "%s%s" % (dpth.split(macAppIndicator)[0], macAppIndicator)
+				macPaths = [os.path.join(resPth, pth, val)
+					for pth in ("icons", "resources")]
+				paths += macPaths
+				
 			# See if it's a standard icon
 			for pth in paths:
 				ret = dIcons.getIconBitmap(pth, noEmptyBmp=True)
