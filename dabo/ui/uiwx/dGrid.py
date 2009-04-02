@@ -69,6 +69,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		dcol = self.grid.Columns[col]
 
 		# If a cell attr is set up, use it. Else, use the one set up for the column.
+		
+		# PVG: we need to update dynamic properties before checkin for cellAttrs
+		dcol._updateCellDynamicProps(row)
+
 		if dcol._gridCellAttrs:
 			attr = dcol._gridCellAttrs.get(row, dcol._gridColAttr).Clone()
 		else:
