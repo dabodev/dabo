@@ -83,28 +83,29 @@ def getTestCursorXmlFromDataSet(dataset):
 			datetime.datetime: "datetime.datetime",
 			Decimal: "Decimal"}
 
-	xml = """\t<testcursor """
-	for k, v in dataset[0].items():
-		xml += """%s="%s" """ % (k, typemap.get(type(v)))
-	xml += """ >\n"""
+	xml = """\t<TestCursor\n"""
+	for k, v in sorted(dataset[0].items()):
+		xml += """\t\t%s = "%s"\n""" % (k, typemap.get(type(v)))
+	xml += """\t>\n\n"""
 
 	for r in dataset:
-		xml += """\t\t<record """
-		for k, v in r.items():
+		xml += """\t\t<Record\n"""
+		for k, v in sorted(r.items()):
 			if isinstance(v, basestring):
 				v = v.replace("'", "")
 			v = repr(v)
 			v = escape(v, escapeAmp=False)
 			v = v.replace('"', "'")
-			xml += """%s="%s" """ % (k, v)
-		xml += """ />\n"""
+			xml += """\t\t\t%s = "%s"\n""" % (k, v)
+		xml += """\t\t/>\n"""
 	
-	xml += """\t</testcursor>\n"""
+	xml += """\t</TestCursor>\n"""
 	return xml
 
 
 if __name__ == "__main__":
 	ds = [{"name": "Paul McNett"},
 	      {"name": "A & B Motors"},
-	      {"name": '9" Nails'}]
+	      {"name": '9" Nails'},
+	      {"name": "<None>"}]
 	print getTestCursorXmlFromDataSet(ds)
