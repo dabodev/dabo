@@ -1282,21 +1282,12 @@ class DesignerBand(DesignerPanel):
 			size, position = self.getObjSizeAndPosition(obj)
 			rect = [position[0], position[1], size[0], size[1]]
 
-			if objType == "String":
-				# wx.DC draws the text string too high versus reportlab. This appears to
-				# be due to Reportlab using true baseline (where the lower part of the
-				# letter y will be below the baseline, while wx makes the bottom part of
-				# the y the bottom.
-				vFudge = 2
-				rect[1] = rect[1] + vFudge
-				rect[3] = rect[3] + vFudge
 			dc.DestroyClippingRegion()
 
 			dc.SetBrush(wx.Brush((0,0,0), wx.TRANSPARENT))
 			dc.SetPen(wx.Pen(selectColor, 0.1, wx.DOT))
-			dc.DrawRectangle(position[0],position[1],size[0],size[1])
+			dc.DrawRectangle(position[0], position[1], size[0], size[1])
 
-			dc.SetClippingRect(rect)
 
 			if objType == "String":
 				dc.SetBackgroundMode(wx.TRANSPARENT)
@@ -1354,12 +1345,23 @@ class DesignerBand(DesignerPanel):
 				dc.SetFont(font._nativeFont)
 				dc.SetTextForeground(self._rw.getColorTupleFromReportLab(obj.getProp("fontColor")))
 
+				top_fudge = .25   ## wx draws a tad too high
+				left_fudge = .25  ## and a tad too far to the left
+				# We need the y value to match up with the font at the baseline, but to clip
+				# the entire region, including descent.
+				descent = dc.GetFullTextExtent(expr)[2]
+				rect[0] += left_fudge
+				rect[2] += left_fudge
+				rect[1] += top_fudge
+				rect[3] += top_fudge + descent
+				dc.SetClippingRect(rect)
+
 				if False and rotation != 0:
 					# We lose the ability to have the alignment and exact rect positioning.
 					# But we get to show it rotated. The x,y values below are hacks.
 					dc.DrawRotatedText(expr, rect[0]+(rect[2]/4), rect[3] - (rect[3]/2), rotation)
 				else:
-					dc.DrawLabel(expr, (rect[0]+2, rect[1], rect[2]-4, rect[3]),
+					dc.DrawLabel(expr, (rect[0], rect[1], rect[2], rect[3]),
 							alignments[alignment]|wx.ALIGN_BOTTOM)
 
 			if objType == "Rectangle":
