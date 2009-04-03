@@ -73,20 +73,7 @@ def getTestCursorXmlFromDataSet(dataset):
 
 	assert len(dataset) > 0
 
-	typemap = {int: "int",
-			long: "long",
-			float: "float",
-			str: "str",
-			unicode: "str",
-			bool: "bool",
-			datetime.date: "datetime.date",
-			datetime.datetime: "datetime.datetime",
-			Decimal: "Decimal"}
-
-	xml = """\t<TestCursor\n"""
-	for k, v in sorted(dataset[0].items()):
-		xml += """\t\t%s = "%s"\n""" % (k, typemap.get(type(v)))
-	xml += """\t>\n\n"""
+	xml = """\t<TestCursor>\n"""
 
 	for r in dataset:
 		xml += """\t\t<Record\n"""
