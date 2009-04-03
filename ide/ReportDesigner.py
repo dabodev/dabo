@@ -304,11 +304,13 @@ def DesignerController():
 				self.PropSheet.refreshSelection()
 
 			
-		def refreshSelection(self):
+		def refreshSelection(self, refreshEditor=False):
 			self._inSelection = True
-			for obj in (self.ActiveEditor, self.PropSheet, self.ObjectTree):
+			for obj in (self.PropSheet, self.ObjectTree):
 				if obj is not None:
 					obj.refreshSelection()
+			if refreshEditor:
+				self.ActiveEditor.refresh()
 			self._inSelection = False
 
 
@@ -533,7 +535,7 @@ def DesignerController():
 
 		def _setSelectedObjects(self, val):
 			self.ActiveEditor._selectedObjects = val
-			self.refreshSelection()
+			self.refreshSelection(refreshEditor=True)
 		
 		ActiveEditor = property(_getActiveEditor, _setActiveEditor)
 		ObjectTree = property(_getObjectTree, _setObjectTree)
@@ -1032,7 +1034,9 @@ class DesignerBand(DesignerPanel):
 				self._dragStart = evt.EventData["mousePosition"]
 		else:
 			self._setMouseMoveMode(evt.EventData["mousePosition"])
-
+		
+		evt.stop()
+		return
 		if self._dragging:
 			dragObj = self._dragObject
 #			self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENWSE))
@@ -1134,12 +1138,12 @@ class DesignerBand(DesignerPanel):
 					new = self._rw.ptToUnit(new, unit)
 					dragObject.setProp(propName, repr(new))
 			self.refresh()
-			dabo.ui.callAfterInterval(rdc.refreshProps, 200)
+			rdc.refreshProps(refreshEditor=False)
+
 
 
 	def onMouseLeftDown(self, evt):
 		self.updateSelected(evt)
-
 		# If we let the default event handler run, self.SetFocus() will happen,
 		# which we want so that we can receive keyboard focus, but SetFocus() has
 		# the side-effect of also scrolling the panel in both directions, for some
@@ -1271,202 +1275,11 @@ class DesignerBand(DesignerPanel):
 	def onPaint(self, evt):
 		import wx		## (need to abstract DC drawing)
 
-		selectColor = (128,192,0)
 		dc = wx.PaintDC(self)
 		dc.Clear()
-		selObjs = []
 
 		for obj in self.ReportObject.get("Objects", []):
-			obj._anchors = {}
-			objType = obj.__class__.__name__
-			size, position = self.getObjSizeAndPosition(obj)
-			rect = [position[0], position[1], size[0], size[1]]
-
-			dc.DestroyClippingRegion()
-
-			dc.SetBrush(wx.Brush((0,0,0), wx.TRANSPARENT))
-			dc.SetPen(wx.Pen(selectColor, 0.1, wx.DOT))
-			dc.DrawRectangle(position[0], position[1], size[0], size[1])
-
-
-			if objType == "String":
-				dc.SetBackgroundMode(wx.TRANSPARENT)
-				expr = rdc.getShortExpr(obj.getProp("expr", evaluate=False))
-				alignments = {"left": wx.ALIGN_LEFT,
-						"center": wx.ALIGN_CENTER,
-						"right": wx.ALIGN_RIGHT,}
-
-				alignment = obj.getProp("align")
-				fontName = obj.getProp("fontName")
-				fontSize = obj.getProp("fontSize")
-				rotation = obj.getProp("rotation")
-
-				fontSize = fontSize * self.Parent.Zoom
-
-				if "helvetica" in fontName.lower():
-					fontFamily = wx.MODERN
-					fontBold = "bold" in fontName.lower()
-					fontItalic = "oblique" in fontName.lower()
-					fontName = "Helvetica"
-				elif "times" in fontName.lower():
-					fontFamily = wx.ROMAN
-					fontBold = "bold" in fontName.lower()
-					fontItalic = "italic" in fontName.lower()
-					fontName = "Times"
-				elif "courier" in fontName.lower():
-					fontFamily = wx.TELETYPE
-					fontBold = "bold" in fontName.lower()
-					fontItalic = "oblique" in fontName.lower()
-					fontName = "Courier"
-				elif "symbol" in fontName.lower():
-					fontFamily = wx.DEFAULT
-					fontBold = False
-					fontItalic = False
-					fontName = "Symbol"
-				elif "zapfdingbats" in fontName.lower():
-					fontFamily = wx.DEFAULT
-					fontBold = False
-					fontItalic = False
-					fontName = "ZapfDingbats"
-				else:
-					fontName = "Helvetica"
-					fontFamily = wx.MODERN
-					fontBold = False
-					fontItalic = False
-
-				# Can't seem to get different faces represented
-				font = dabo.ui.dFont()
-				font._nativeFont.SetFamily(fontFamily)
-				font.Bold = fontBold
-				font.Italic = fontItalic
-				font.Face = fontName
-				font.Size = fontSize
-
-				dc.SetFont(font._nativeFont)
-				dc.SetTextForeground(self._rw.getColorTupleFromReportLab(obj.getProp("fontColor")))
-
-				top_fudge = .25   ## wx draws a tad too high
-				left_fudge = .25  ## and a tad too far to the left
-				# We need the y value to match up with the font at the baseline, but to clip
-				# the entire region, including descent.
-				descent = dc.GetFullTextExtent(expr)[2]
-				rect[0] += left_fudge
-				rect[2] += left_fudge
-				rect[1] += top_fudge
-				rect[3] += top_fudge + descent
-				dc.SetClippingRect(rect)
-
-				if False and rotation != 0:
-					# We lose the ability to have the alignment and exact rect positioning.
-					# But we get to show it rotated. The x,y values below are hacks.
-					dc.DrawRotatedText(expr, rect[0]+(rect[2]/4), rect[3] - (rect[3]/2), rotation)
-				else:
-					dc.DrawLabel(expr, (rect[0], rect[1], rect[2], rect[3]),
-							alignments[alignment]|wx.ALIGN_BOTTOM)
-
-			if objType == "Rectangle":
-				strokeWidth = self._rw.getPt(obj.getProp("strokeWidth")) * self.Parent.Zoom
-				sc = obj.getProp("strokeColor")
-				if sc is None:
-					sc = (0, 0, 0)
-				strokeColor = self._rw.getColorTupleFromReportLab(sc)
-				fillColor = obj.getProp("fillColor")
-				if fillColor is not None:
-					fillColor = self._rw.getColorTupleFromReportLab(fillColor)
-					fillMode = wx.SOLID
-				else:
-					fillColor = (255, 255, 255)
-					fillMode = wx.TRANSPARENT
-				dc.SetPen(wx.Pen(strokeColor, strokeWidth, wx.SOLID))
-				dc.SetBrush(wx.Brush(fillColor, fillMode))
-				dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
-
-
-			if objType == "Line":
-				strokeWidth = self._rw.getPt(obj.getProp("strokeWidth")) * self.Parent.Zoom
-				strokeColor = self._rw.getColorTupleFromReportLab(obj.getProp("strokeColor"))
-				dc.SetPen(wx.Pen(strokeColor, strokeWidth, wx.SOLID))
-
-				lineSlant = obj.getProp("lineSlant")
-				anchors = {"left": rect[0],
-						"center": rect[0] + (rect[2]/2),
-						"right": rect[0] + rect[2],
-						"top": rect[1],
-						"middle": rect[1] + (rect[3]/2),
-						"bottom": rect[1] + rect[3]}
-
-				if lineSlant == "-":
-					# draw line from (left,middle) to (right,middle) anchors
-					beg = (anchors["left"], anchors["middle"])
-					end = (anchors["right"], anchors["middle"])
-				elif lineSlant == "|":
-					# draw line from (center,bottom) to (center,top) anchors
-					beg = (anchors["center"], anchors["bottom"])
-					end = (anchors["center"], anchors["top"])
-				elif lineSlant == "\\":
-					# draw line from (right,bottom) to (left,top) anchors
-					beg = (anchors["right"], anchors["bottom"])
-					end = (anchors["left"], anchors["top"])
-				elif lineSlant == "/":
-					# draw line from (left,bottom) to (right,top) anchors
-					beg = (anchors["left"], anchors["bottom"])
-					end = (anchors["right"], anchors["top"])
-				else:
-					# don't draw the line
-					lineSlant = None
-
-				if lineSlant:
-					dc.DrawLine(beg[0], beg[1], end[0], end[1])
-
-
-			if objType == "Image":
-				bmp = None
-				expr = obj.getProp("expr", evaluate=False)
-				if expr is None:
-					expr = "<< missing expression >>"
-				else:
-					try:
-						imageFile = eval(expr)
-					except:
-						imageFile = None
-
-					if imageFile is not None:
-						if not os.path.exists(imageFile):
-							imageFile = os.path.join(self._rw.HomeDirectory, imageFile)
-						imageFile = str(imageFile)
-
-					if imageFile is not None:
-						if os.path.exists(imageFile) and not os.path.isdir(imageFile):
-							bmp = self._cachedBitmaps.get((imageFile, self.Parent.ZoomFactor), None)
-							if bmp is None:
-								import wx
-								expr = None
-								img = wx.Image(imageFile)
-								## Whether rescaling, resizing, or nothing happens depends on the 
-								## scalemode prop. For now, we just unconditionally rescale:
-								img.Rescale(rect[2], rect[3])
-								bmp = img.ConvertToBitmap()
-								self._cachedBitmaps[(imageFile, self.Parent.ZoomFactor)] = bmp
-						else:
-							expr = "<< file not found >>"
-					else:
-						expr = "<< error parsing expr >>"
-				if bmp is not None:
-					dc.DrawBitmap(bmp, rect[0], rect[1])
-				else:
-					dc.DrawLabel(expr, (rect[0]+2, rect[1], rect[2]-4, rect[3]), wx.ALIGN_LEFT)
-
-			dc.SetBrush(wx.Brush((0,0,0), wx.TRANSPARENT))
-
-			# Draw a border around the object, if appropriate:
-			if obj.has_key("BorderWidth"):
-				borderWidth = self._rw.getPt(obj.getProp("BorderWidth")) * self.Parent.Zoom
-				if borderWidth > 0:
-					borderColor = self._rw.getColorTupleFromReportLab(obj.getProp("BorderColor"))
-					dc.SetPen(wx.Pen(borderColor, borderWidth, wx.SOLID))
-					dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
-
-			selObjs.append((obj, size, position, rdc.isSelected(obj)))
+			self._paintObj(obj, dc)
 
 		dc.DestroyClippingRegion()
 
@@ -1479,44 +1292,232 @@ class DesignerBand(DesignerPanel):
 			colWidth = self.Width / columnCount
 			dc.DrawRectangle(colWidth, 0, colWidth*(columnCount-1) + 10, self.Height)
 
-		for obj, size, position, selected in selObjs:
-			rect = (position[0], position[1], size[0], size[1])
-			if selected:
-				# border around selected control with sizer boxes:
-				dc.SetBrush(wx.Brush((0,0,0), wx.TRANSPARENT))
-				dc.SetPen(wx.Pen(selectColor, 0.25, wx.SOLID))
-				dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
 
-				x,y = (rect[0], rect[1])
-				width, height = (rect[2], rect[3])
-				thickness = self._anchorThickness
+	def _paintObj(self, obj, dc=None):
+		import wx
 
-				hAnchor = obj.getProp("hAnchor").lower()
-				vAnchor = obj.getProp("vAnchor").lower()
+		obj._anchors = {}
+		objType = obj.__class__.__name__
+		size, position = self.getObjSizeAndPosition(obj)
+		rect = [position[0], position[1], size[0], size[1]]
+		selectColor = (128,192,0)
 
-				anchors = {"lt": ["left", "top", x-1, y-1],
-						"lb": ["left", "bottom", x-1, y+height-thickness+1],
-						"ct": ["center", "top", x+(.5*width)-(.5*thickness), y-1],
-						"cb": ["center", "bottom", x+(.5*width)-(.5*thickness), y+height-thickness+1],
-						"rt": ["right", "top", x+width-thickness+1, y-1],
-						"rb": ["right", "bottom", x+width-thickness+1, y+height-thickness+1],
-						"lm": ["left", "middle", x-1, y+(.5*height)-(.5*thickness)],
-						"rm": ["right", "middle", x+width-thickness+1, y+(.5*height)-(.5*thickness)]}
+		dc.DestroyClippingRegion()
 
-				obj._anchors = anchors
+		dc.SetBrush(wx.Brush((0,0,0), wx.TRANSPARENT))
+		dc.SetPen(wx.Pen(selectColor, 0.1, wx.DOT))
+		dc.DrawRectangle(position[0], position[1], size[0], size[1])
 
-				for k,v in anchors.items():
-					dc.SetBrush(wx.Brush((0,0,0), wx.SOLID))
-					dc.SetPen(wx.Pen((0,0,0), 0.25, wx.SOLID))
-					if hAnchor == v[0] and vAnchor == v[1]:
-						dc.SetBrush(wx.Brush(selectColor, wx.SOLID))
-						dc.SetPen(wx.Pen(selectColor, 1, wx.SOLID))
-					dc.DrawRectangle(v[2], v[3], thickness, thickness)
+
+		if objType == "String":
+			dc.SetBackgroundMode(wx.TRANSPARENT)
+			expr = rdc.getShortExpr(obj.getProp("expr", evaluate=False))
+			alignments = {"left": wx.ALIGN_LEFT,
+					"center": wx.ALIGN_CENTER,
+					"right": wx.ALIGN_RIGHT,}
+
+			alignment = obj.getProp("align")
+			fontName = obj.getProp("fontName")
+			fontSize = obj.getProp("fontSize")
+			rotation = obj.getProp("rotation")
+
+			fontSize = fontSize * self.Parent.Zoom
+
+			if "helvetica" in fontName.lower():
+				fontFamily = wx.MODERN
+				fontBold = "bold" in fontName.lower()
+				fontItalic = "oblique" in fontName.lower()
+				fontName = "Helvetica"
+			elif "times" in fontName.lower():
+				fontFamily = wx.ROMAN
+				fontBold = "bold" in fontName.lower()
+				fontItalic = "italic" in fontName.lower()
+				fontName = "Times"
+			elif "courier" in fontName.lower():
+				fontFamily = wx.TELETYPE
+				fontBold = "bold" in fontName.lower()
+				fontItalic = "oblique" in fontName.lower()
+				fontName = "Courier"
+			elif "symbol" in fontName.lower():
+				fontFamily = wx.DEFAULT
+				fontBold = False
+				fontItalic = False
+				fontName = "Symbol"
+			elif "zapfdingbats" in fontName.lower():
+				fontFamily = wx.DEFAULT
+				fontBold = False
+				fontItalic = False
+				fontName = "ZapfDingbats"
 			else:
-				# border around unselected control
-				# (no, moved to the drawing of the control)
-				pass
+				fontName = "Helvetica"
+				fontFamily = wx.MODERN
+				fontBold = False
+				fontItalic = False
+
+			# Can't seem to get different faces represented
+			font = dabo.ui.dFont()
+			font._nativeFont.SetFamily(fontFamily)
+			font.Bold = fontBold
+			font.Italic = fontItalic
+			font.Face = fontName
+			font.Size = fontSize
+
+			dc.SetFont(font._nativeFont)
+			dc.SetTextForeground(self._rw.getColorTupleFromReportLab(obj.getProp("fontColor")))
+
+			top_fudge = .25   ## wx draws a tad too high
+			left_fudge = .25  ## and a tad too far to the left
+			# We need the y value to match up with the font at the baseline, but to clip
+			# the entire region, including descent.
+			descent = dc.GetFullTextExtent(expr)[2]
+			rect[0] += left_fudge
+			rect[2] += left_fudge
+			rect[1] += top_fudge
+			rect[3] += top_fudge + descent
+			dc.SetClippingRect(rect)
+
+			if False and rotation != 0:
+				# We lose the ability to have the alignment and exact rect positioning.
+				# But we get to show it rotated. The x,y values below are hacks.
+				dc.DrawRotatedText(expr, rect[0]+(rect[2]/4), rect[3] - (rect[3]/2), rotation)
+			else:
+				dc.DrawLabel(expr, (rect[0], rect[1], rect[2], rect[3]),
+						alignments[alignment]|wx.ALIGN_BOTTOM)
+
+		if objType == "Rectangle":
+			strokeWidth = self._rw.getPt(obj.getProp("strokeWidth")) * self.Parent.Zoom
+			sc = obj.getProp("strokeColor")
+			if sc is None:
+				sc = (0, 0, 0)
+			strokeColor = self._rw.getColorTupleFromReportLab(sc)
+			fillColor = obj.getProp("fillColor")
+			if fillColor is not None:
+				fillColor = self._rw.getColorTupleFromReportLab(fillColor)
+				fillMode = wx.SOLID
+			else:
+				fillColor = (255, 255, 255)
+				fillMode = wx.TRANSPARENT
+			dc.SetPen(wx.Pen(strokeColor, strokeWidth, wx.SOLID))
+			dc.SetBrush(wx.Brush(fillColor, fillMode))
+			dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
+
+
+		if objType == "Line":
+			strokeWidth = self._rw.getPt(obj.getProp("strokeWidth")) * self.Parent.Zoom
+			strokeColor = self._rw.getColorTupleFromReportLab(obj.getProp("strokeColor"))
+			dc.SetPen(wx.Pen(strokeColor, strokeWidth, wx.SOLID))
+
+			lineSlant = obj.getProp("lineSlant")
+			anchors = {"left": rect[0],
+					"center": rect[0] + (rect[2]/2),
+					"right": rect[0] + rect[2],
+					"top": rect[1],
+					"middle": rect[1] + (rect[3]/2),
+					"bottom": rect[1] + rect[3]}
+
+			if lineSlant == "-":
+				# draw line from (left,middle) to (right,middle) anchors
+				beg = (anchors["left"], anchors["middle"])
+				end = (anchors["right"], anchors["middle"])
+			elif lineSlant == "|":
+				# draw line from (center,bottom) to (center,top) anchors
+				beg = (anchors["center"], anchors["bottom"])
+				end = (anchors["center"], anchors["top"])
+			elif lineSlant == "\\":
+				# draw line from (right,bottom) to (left,top) anchors
+				beg = (anchors["right"], anchors["bottom"])
+				end = (anchors["left"], anchors["top"])
+			elif lineSlant == "/":
+				# draw line from (left,bottom) to (right,top) anchors
+				beg = (anchors["left"], anchors["bottom"])
+				end = (anchors["right"], anchors["top"])
+			else:
+				# don't draw the line
+				lineSlant = None
+
+			if lineSlant:
+				dc.DrawLine(beg[0], beg[1], end[0], end[1])
+
+
+		if objType == "Image":
+			bmp = None
+			expr = obj.getProp("expr", evaluate=False)
+			if expr is None:
+				expr = "<< missing expression >>"
+			else:
+				try:
+					imageFile = eval(expr)
+				except:
+					imageFile = None
+
+				if imageFile is not None:
+					if not os.path.exists(imageFile):
+						imageFile = os.path.join(self._rw.HomeDirectory, imageFile)
+					imageFile = str(imageFile)
+
+				if imageFile is not None:
+					if os.path.exists(imageFile) and not os.path.isdir(imageFile):
+						bmp = self._cachedBitmaps.get((imageFile, self.Parent.ZoomFactor), None)
+						if bmp is None:
+							import wx
+							expr = None
+							img = wx.Image(imageFile)
+							## Whether rescaling, resizing, or nothing happens depends on the 
+							## scalemode prop. For now, we just unconditionally rescale:
+							img.Rescale(rect[2], rect[3])
+							bmp = img.ConvertToBitmap()
+							self._cachedBitmaps[(imageFile, self.Parent.ZoomFactor)] = bmp
+					else:
+						expr = "<< file not found >>"
+				else:
+					expr = "<< error parsing expr >>"
+			if bmp is not None:
+				dc.DrawBitmap(bmp, rect[0], rect[1])
+			else:
+				dc.DrawLabel(expr, (rect[0]+2, rect[1], rect[2]-4, rect[3]), wx.ALIGN_LEFT)
+
+		dc.SetBrush(wx.Brush((0,0,0), wx.TRANSPARENT))
+
+		# Draw a border around the object, if appropriate:
+		if obj.has_key("BorderWidth"):
+			borderWidth = self._rw.getPt(obj.getProp("BorderWidth")) * self.Parent.Zoom
+			if borderWidth > 0:
+				borderColor = self._rw.getColorTupleFromReportLab(obj.getProp("BorderColor"))
+				dc.SetPen(wx.Pen(borderColor, borderWidth, wx.SOLID))
+				dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
 	
+		if rdc.isSelected(obj):
+			rect = (position[0], position[1], size[0], size[1])
+			# border around selected control with sizer boxes:
+			dc.SetBrush(wx.Brush((0,0,0), wx.TRANSPARENT))
+			dc.SetPen(wx.Pen(selectColor, 0.25, wx.SOLID))
+			dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
+
+			x,y = (rect[0], rect[1])
+			width, height = (rect[2], rect[3])
+			thickness = self._anchorThickness
+
+			hAnchor = obj.getProp("hAnchor").lower()
+			vAnchor = obj.getProp("vAnchor").lower()
+
+			anchors = {"lt": ["left", "top", x-1, y-1],
+					"lb": ["left", "bottom", x-1, y+height-thickness+1],
+					"ct": ["center", "top", x+(.5*width)-(.5*thickness), y-1],
+					"cb": ["center", "bottom", x+(.5*width)-(.5*thickness), y+height-thickness+1],
+					"rt": ["right", "top", x+width-thickness+1, y-1],
+					"rb": ["right", "bottom", x+width-thickness+1, y+height-thickness+1],
+					"lm": ["left", "middle", x-1, y+(.5*height)-(.5*thickness)],
+					"rm": ["right", "middle", x+width-thickness+1, y+(.5*height)-(.5*thickness)]}
+
+			obj._anchors = anchors
+
+			for k,v in anchors.items():
+				dc.SetBrush(wx.Brush((0,0,0), wx.SOLID))
+				dc.SetPen(wx.Pen((0,0,0), 0.25, wx.SOLID))
+				if hAnchor == v[0] and vAnchor == v[1]:
+					dc.SetBrush(wx.Brush(selectColor, wx.SOLID))
+					dc.SetPen(wx.Pen(selectColor, 1, wx.SOLID))
+				dc.DrawRectangle(v[2], v[3], thickness, thickness)
 
 	def getProp(self, prop, evaluate=True, fillDefault=True):
 		if evaluate and fillDefault:
@@ -1678,7 +1679,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			if selObj[0] != rdc.ReportForm:
 				rdc.getParentBand(selObj[0]).DesignerObject.refresh()
 			# delay the refreshing of the property grid/position:
-			dabo.ui.callAfterInterval(rdc.refreshSelection, 200)
+			rdc.refreshSelection()
 			return
 
 
@@ -1762,11 +1763,8 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 				# refresh the parent bands immediately to reflect the drawing:
 				bandObj.DesignerObject.refresh()
 			# delay the refreshing of the property grid/position:
-			dabo.ui.callAfterInterval(rdc.refreshProps, 100)
+			rdc.refreshProps(refreshEditor=False)
 
-
-	def refreshSelection(self):
-		self.refresh()
 
 	def refresh(self):
 		ReportDesigner.doDefault()
@@ -2019,7 +2017,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			self.drawReportForm()
 		self.Form.setModified(self)
 		rdc.refreshProps()
-		self.refresh()
 		
 	def _onFormResize(self, evt):
 		self.drawReportForm()
@@ -2109,7 +2106,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self.Scroll(viewStart[0], viewStart[1])
 
 		self.showPosition()
-		self.refreshSelection()
 
 
 	def getRuler(self, orientation):
