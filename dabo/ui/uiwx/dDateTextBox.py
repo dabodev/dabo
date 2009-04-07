@@ -169,7 +169,8 @@ C: Popup Calendar to Select
 			if val:
 				valDt = self.Value
 				if valDt is None:
-					adjust = False
+					adjust = (val == self.Application.NoneDisplay)
+					evt.Continue = not adjust
 				else:
 					# They've just finished typing a new date, or are just
 					# positioned on the field. Either way, update the stored 
@@ -185,7 +186,7 @@ C: Popup Calendar to Select
 		elif evt.keyCode in range(32, 129):
 			# key is in ascii range, but isn't one of the above
 			# allowed key sets. Disallow.
-			evt.stop()
+			evt.Continue = False
 		else:
 			# Pass the key up the chain to process - perhaps a Tab, Enter, or Backspace...
 			pass
@@ -211,8 +212,12 @@ C: Popup Calendar to Select
 		except AttributeError:
 			# Value isn't a date for some reason
 			val = self.Value
-			dabo.errorLog.write(_("Non-date value in %s: '%s' is type '%s'") % (self.Name, val, type(val)))
-			return
+			if val is None:
+				# Probably just a null value
+				orig = None
+			else:
+				dabo.errorLog.write(_("Non-date value in %s: '%s' is type '%s'") % (self.Name, val, type(val)))
+				return
 		# Default direction
 		forward = True
 		# Flag to indicate errors in date processing
@@ -221,6 +226,12 @@ C: Popup Calendar to Select
 		checkBoundary = True
 		# Are we working with dates or datetimes
 		isDateTime = isinstance(self.Value, datetime.datetime)
+		if orig is None:
+			if isDateTime:
+				self.Value = datetime.datetime.now()
+			else:
+				self.Value = datetime.date.today()
+
 		# Did the key move to a boundary?
 		toBoundary = False
 		
