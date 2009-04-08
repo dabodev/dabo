@@ -313,10 +313,10 @@ try again when it is running.
 			if self.UI is not None:
 				if self.showSplashScreen:
 					#self.uiApp = dabo.ui.uiApp(self, callback=self.initUIApp)
-					self.uiApp = dabo.ui.getUiApp(self, callback=self.initUIApp)
+					self.uiApp = dabo.ui.getUiApp(self, callback=self.initUIApp, forceNew=True)
 				else:
 					#self.uiApp = dabo.ui.uiApp(self, callback=None)
-					self.uiApp = dabo.ui.getUiApp(self, callback=None)
+					self.uiApp = dabo.ui.getUiApp(self, callback=None, forceNew=True)
 					self.initUIApp()
 		else:
 			self.uiApp = None
