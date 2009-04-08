@@ -123,9 +123,16 @@ class Postgres(dBackend):
 					"schemaname NOT LIKE 'information%') AND")
 		query.append("""has_schema_privilege(schemaname, 'usage') AND """ 
                                  """has_table_privilege('"'||schemaname||'"."'||tablename||'"', 'select')""") 
-
+		record=[]
 		cursor.execute(" ".join(query))
-		return tuple(record["tablename"] for record in cursor.getDataSet())
+		for rec1 in cursor.getDataSet():
+			record.append(rec1["tablename"])
+		cursor.execute("SELECT schemaname||'.'||viewname as tablename FROM pg_views WHERE schemaname NOT IN('information_schema', 'pg_catalog')")
+		
+		for rec in cursor.getDataSet():
+			record.append(rec["tablename"])
+				      
+		return tuple(record)
 
 
 	def getTableRecordCount(self, tableName, cursor):
