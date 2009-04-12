@@ -186,7 +186,6 @@ class dCursorMixin(dObject):
 		return pkField
 
 
-
 	def _correctFieldType(self, field_val, field_name, _newQuery=False):
 		"""Correct the type of the passed field_val, based on self.DataStructure.
 

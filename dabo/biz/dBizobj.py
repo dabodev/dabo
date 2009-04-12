@@ -946,10 +946,12 @@ class dBizobj(dObject):
 		ret = None
 		if self.Parent:
 			fld = self.ParentLinkField
-			if not fld:
-				fld = self.Parent.KeyField
 			try:
-				ret = self.Parent.getFieldVal(fld)
+				if not fld:
+					# Use the PK value
+					ret = self.getParentPK()
+				else:
+					ret = self.Parent.getFieldVal(fld)
 			except dException.NoRecordsException:
 				ret = NO_RECORDS_PK
 		return ret
@@ -1453,7 +1455,7 @@ class dBizobj(dObject):
 			raise dException.dException(
 					_("No key field defined for table: ") + self.DataSource)
 		cc = self._CurrentCursor
-		return cc.getFieldVal(self.KeyField)
+		return cc.pkExpression()
 
 
 	def getParentPK(self):
