@@ -29,7 +29,7 @@ class MSSQL(dBackend):
 		user = connectInfo.User
 		password = connectInfo.revealPW()
 		database = connectInfo.Database
-		
+
 		# hack to make this work.  I am sure there is a better way.
 		self.database = database
 				
@@ -42,12 +42,16 @@ class MSSQL(dBackend):
 		"""Currently this is not working completely"""
 		import pymssql
 		class conCursor(pymssql.pymssqlCursor):
+			def __init__(self, src):
+				self.super(src._cnx)
+
 			def _getconn(self):
 				return self.__source
 			# pymssql doesn't supply this optional dbapi attribute, so create it here.
 			connection = property(_getconn, None, None)
 		return conCursor
 		#return cursors.Connection.cursor
+		#return self._connection.cursor()
 		
 
 	def escQuote(self, val):
@@ -64,7 +68,10 @@ class MSSQL(dBackend):
 		val = self._stringify(val)
 		return "%s%s%s" % (sqt, val, sqt)
 	
-	
+
+	#def getCursor(self, cursorClass):
+	#	return self._connection.cursor()
+
 	def getTables(self, cursor, includeSystemTables=False):
 		# jfcs 11/01/06 assumed public schema
 		# cfk: this worries me: how does it know what db is being used?
