@@ -2144,6 +2144,21 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					autoQuote=self.AutoQuoteNames)
 
 
+	def setChildFilter(self, fld, val):
+		""" This method sets the appropriate filter for dependent child queries."""
+		# The alias is the last 'word' in the FROM clause
+		alias = self.sqlManager._fromClause.split()[-1]
+		filtExpr = " %s.%s = %s " % (alias, fld, val)
+		self.setChildFilterClause(filtExpr)
+
+
+	def setNonMatchChildFilterClause(self):
+		""" Called when the parent has no records, which implies that the child
+		cannot have any, either.
+		"""
+		self.setChildFilterClause(" 1 = 0 ")
+
+
 	def getChildFilterClause(self):
 		""" Get the child filter part of the sql statement."""
 		return self.sqlManager._childFilterClause

@@ -915,27 +915,21 @@ class dBizobj(dObject):
 		current PK value. This will add the appropriate WHERE clause to
 		filter the child records. If the parent is a new, unsaved record, or if
 		there is no parent record, there cannot be any child records saved yet,
-		so an empty query	is built.
+		so an empty query is built.
 		"""
-		currWhere = self.getWhereClause()
 		if self.DataSource and self.LinkField and self.Parent:
 			if self.Parent.RowCount == 0:
 				# Parent is new and not yet saved, so we cannot have child records yet.
-				self.setWhereClause("")
-				filtExpr = " 1 = 0 "
+				self._CurrentCursor.setNonMatchChildFilterClause()
 			else:
 				val = self.escQuote(self.getParentLinkValue())
 				linkFieldParts = self.LinkField.split(".")
 				if len(linkFieldParts) < 2:
-					dataSource = self.DataSource
 					linkField = self.LinkField
 				else:
 					# The source table was specified in the LinkField
-					dataSource = linkFieldParts[0]
 					linkField = linkFieldParts[1]
-				filtExpr = " %s.%s = %s " % (dataSource, linkField, val)
-			self._CurrentCursor.setChildFilterClause(filtExpr)
-		self.setWhereClause(currWhere)
+				self._CurrentCursor.setChildFilter(linkField, val)
 
 
 	def getParentLinkValue(self):
