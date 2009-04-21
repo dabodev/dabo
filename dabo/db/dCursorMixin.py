@@ -169,7 +169,10 @@ class dCursorMixin(dObject):
 			except IndexError:
 				rec = {}
 		if isinstance(self.KeyField, tuple):
-			pk = tuple([rec[kk] for kk in self.KeyField])
+			if rec:
+				pk = tuple([rec[kk] for kk in self.KeyField])
+			else:
+				pk = tuple([None for kk in self.KeyField])
 		else:
 			pk = rec.get(self.KeyField, None)
 		return pk
