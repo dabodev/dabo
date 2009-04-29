@@ -434,8 +434,6 @@ C: Popup Calendar to Select
 		else:
 			self._properties["ExtendedCalendar"] = val
 			
-	def flushValue(self,*args, **kwargs):
-		self.super(*args,**kwargs)
 		
 
 
