@@ -91,7 +91,7 @@ class dDateTextBox(dTextBox):
 			self.calButton = dButton(self.Parent, Size=(self.Height, self.Height),
 					Right=self.Right, Caption="V")
 			self.calButton.Visible = True
-			self.calButton.bindEvent(dEvents.Hit, self.onDblClick)
+			self.calButton.bindEvent(dEvents.Hit, __onBtnClick)
 			
 		# Tooltip help
 		self._defaultToolTipText = _("""Available Keys:
@@ -122,6 +122,12 @@ C: Popup Calendar to Select
 		""" Display a calendar to allow users to select dates."""
 		self.showCalendar()
 		
+	def __onBtnClick(self,evt):
+		""" Display a calendar to allow users to select dates."""
+		self.showCalendar()
+		
+		
+		
 		
 	def showCalendar(self):
 		if self.ReadOnly:
@@ -132,6 +138,9 @@ C: Popup Calendar to Select
 		fp = self.Form.FloatingPanel
 		fp.Owner = self
 		fp.show()
+		
+		
+		
 		
 	
 	def __onChar(self, evt):
@@ -403,6 +412,7 @@ C: Popup Calendar to Select
 			self.Value = val.replace(year=dt.year, month=dt.month, day=dt.day)
 		else:
 			self.Value = dt
+		self.flushValue()
 
 	def _getCalendarPanel(self):
 		fp = self.Form.FloatingPanel
@@ -423,6 +433,10 @@ C: Popup Calendar to Select
 			self._extendedCalendar = val
 		else:
 			self._properties["ExtendedCalendar"] = val
+			
+	def flushValue(self,*args, **kwargs):
+		self.super(*args,**kwargs)
+		
 
 
 	_CalendarPanel = property(_getCalendarPanel, None, None,
