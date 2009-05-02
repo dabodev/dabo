@@ -1103,7 +1103,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if row >= rowStart and row < (rowStart+rows):
 				tmprec = rec.copy()
 				for k, v in self.VirtualFields.items():
-					tmprec.update({k: self.getFieldVal(k, row)})
+					# only calc requested virtualFields
+					if (flds and k in flds) or not flds:
+						tmprec.update({k: self.getFieldVal(k, row)})
 				if flds:
 					# user specified specific fields - get rid of all others
 					for k in tmprec.keys():
