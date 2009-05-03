@@ -5,12 +5,18 @@ import dabo
 
 class ActivitiesBizobj(dabo.biz.RemoteBizobj):
 	def defineConnection(self):
+# 		self.setConnectionParams(
+# 				dbType="MySQL", 
+# 				database="webtest", 
+# 				host="dabodev.com",
+# 				user="webuser",
+# 				plainTextPassword="foxrocks")
 		self.setConnectionParams(
-				dbType="MySQL", 
+				dbType="PostgreSQL", 
 				database="webtest", 
-				host="dabodev.com",
+				host="localhost",
 				user="webuser",
-				plainTextPassword="foxrocks")
+				plainTextPassword="foxrox")
 
 
 	def validateRecord(self):

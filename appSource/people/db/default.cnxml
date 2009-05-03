@@ -4,15 +4,6 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://www.dabodev.com conn.xsd"
 xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/conn.xsd">
 
-	<connection dbtype="SQLite">
-		<name>localpeople</name>
-		<host></host>
-		<database>/Users/ed/apps/pyworks.db</database>
-		<user></user>
-		<password></password>
-		<port></port>
-	</connection>
-
 	<connection dbtype="web">
 		<name>people</name>
 		<remotehost>http://daboserver.com:7777</remotehost>
