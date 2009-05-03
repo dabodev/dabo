@@ -1,6 +1,7 @@
 import logging
 import pickle
 import os
+import sys
 import time
 import tempfile
 from zipfile import ZipFile
@@ -51,7 +52,13 @@ dabo._bizDict = {"orders": OrdersBizobj,
 # The path to the server copy of the web application source files *MUST* be
 # defined here. It is used to compare local app manifests in order to 
 # determine what changes, if any, have been made to the app. 
-sourcePath = os.path.join(os.getcwd(), "daboserver/appSource")
+cd = os.getcwd()
+if cd == "/":
+	# Running as an egg through WSGI
+	cd = [p for p in sys.path
+			if "daboserver" in p][0]
+home_dir = os.path.join(cd, "daboserver")
+sourcePath = os.path.join(home_dir, "appSource")
 
 
 
@@ -132,8 +139,7 @@ class BizserversController(BaseController):
 
 
 	def getFileRequestDB(self):
-		curr = os.getcwd()
-		db = os.path.join(curr, "DaboFileCache.db")
+		db = os.path.join(home_dir, "DaboFileCache.db")
 		cxn = dabo.db.dConnection(connectInfo={"DbType": "SQLite", "Database": db},
 			forceCreate=True)
 		cursor = cxn.getDaboCursor()
@@ -146,7 +152,7 @@ class BizserversController(BaseController):
 			dirnames = [d for d in os.listdir(sourcePath)
 					if not d.startswith(".")]
 			return jsonEncode(dirnames)
-			
+
 		crs = self.getFileRequestDB()
 		enclocal = request.params.get("current", "")
 		try:

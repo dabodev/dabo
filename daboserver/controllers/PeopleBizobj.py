@@ -6,14 +6,16 @@ import dabo
 class PeopleBizobj(dabo.biz.RemoteBizobj):
 	def defineConnection(self):
 		self.setConnectionParams(
-				dbType="MySQL", 
+				dbType="PostgreSQL", 
 				database="webtest", 
-				host="dabodev.com",
+				host="localhost",
 				user="webuser",
-				plainTextPassword="foxrocks")
+				plainTextPassword="foxrox")
 
 
 	def validateRecord(self):
 		"""Place record validation code here"""
-		pass
+		if "leafe" in self.Record.lastname.lower():
+			return "Keep Leafe out of here!"
+			
 			

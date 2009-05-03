@@ -16,7 +16,6 @@ class PeopleBizobj(dabo.biz.dBizobj):
 		self.addField("id")
 		self.addOrderBy("lastname")
 		self.VirtualFields = {"fullname": self.getFullName}
-		self.setWhereClause(" lastname like %s ")
 		
 	
 	def getFullName(self):
