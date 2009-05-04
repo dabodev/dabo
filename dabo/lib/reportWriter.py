@@ -338,7 +338,7 @@ class Drawable(ReportObject):
 
 				Must evaluate to 'bottom', 'middle', or 'top'.""")
 
-		self.AvailableProps["Show"] = toPropDict(bool, None, 
+		self.AvailableProps["Show"] = toPropDict(bool, True, 
 				"""Determines if the object is shown on the report.
 
 				Specify an expression that evaluates to True or False. If False,
@@ -1506,16 +1506,9 @@ class ReportWriter(object):
 
 			if bandDict.has_key("Objects"):
 				for obj in bandDict["Objects"]:
-					show = obj.get("show")
-					if show is not None:
-						try:
-							ev = eval(show)
-						except StandardError:
-							## expression failed to eval: default to True (show it)
-							ev = True
-						if not ev:
-							# user's show evaluated to False: don't print!
-							continue
+					show = obj.getProp("show", returnException=True)
+					if show == False:
+						continue
 
 					x1 = self.getPt(obj.getProp("x"))
 					y1 = self.getPt(obj.getProp("y"))
