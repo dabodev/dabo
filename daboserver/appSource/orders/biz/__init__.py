@@ -1,6 +1,0 @@
-# -*- coding: utf-8 -*-
-
-## To have your bizobjs available from Application.biz, you need to explicitly
-## import them by name here.
-
-from Orders import Orders

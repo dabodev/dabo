@@ -29,25 +29,30 @@ jsonDecode = dabo.lib.jsonDecode
 #-------------------------------------------------------
 
 #-------------------------------------------------------
+#			START OF CUSTOMIZIATION
+#-------------------------------------------------------
+#		The next two sections are the only parts you have to edit
+#		for your application. Be sure to specify the bizobj classes
+#		you will be using, and make sure that they are located in
+#		the same 'controllers' directory as this file.
+#-------------------------------------------------------
 # Import the bizobj classes here that will be used in this application
 # Then be sure to link them to their DataSource in the 'bizDict' 
 # definition below.
 ## NOTE: the next line is an example from the demonstration app.
 ## Be sure to CHANGE it to whatever is required for your app.
-from OrdersBizobj import OrdersBizobj
 from PeopleBizobj import PeopleBizobj
 from ActivitiesBizobj import ActivitiesBizobj
-from ZipcodesBizobj import ZipcodesBizobj
 #-------------------------------------------------------
-
-
 # The bizobj class *MUST* be defined here for each data source that is to be 
 # handled by this server. Be sure that these classes are imported above.
 ## NOTE: as mentioned above, this is for the demo app.
-dabo._bizDict = {"orders": OrdersBizobj,
+dabo._bizDict = {
 	  "people": PeopleBizobj,
-	  "activities": ActivitiesBizobj,
-	  "zipcodes": ZipcodesBizobj}
+	  "activities": ActivitiesBizobj}
+#-------------------------------------------------------
+#			END OF CUSTOMIZIATION
+#-------------------------------------------------------
 
 # The path to the server copy of the web application source files *MUST* be
 # defined here. It is used to compare local app manifests in order to 
