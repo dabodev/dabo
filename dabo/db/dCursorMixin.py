@@ -2151,8 +2151,21 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def setChildFilter(self, fld, val):
 		""" This method sets the appropriate filter for dependent child queries."""
-		# The alias is the last 'word' in the FROM clause
-		alias = self.sqlManager._fromClause.split()[-1]
+
+		def getTableAlias(fromClause):
+			joinStrings = ["left join", "right join", "outer join", "inner join", "join"]
+			foundAlias = None
+			for joinString in joinStrings:
+				at = fromClause.lower().find(joinString)
+				if at >= 0:
+					foundAlias = fromClause[:at].strip()
+					break
+			if not foundAlias:
+				# The alias is the last 'word' in the FROM clause
+				foundAlias = fromClause.strip().split()[-1]
+			return foundAlias
+
+		alias = getTableAlias(self.sqlManager._fromClause)
 		filtExpr = " %s.%s = %s " % (alias, fld, val)
 		self.setChildFilterClause(filtExpr)
 
