@@ -517,6 +517,11 @@ You can always move the directory later."""
 					os.makedirs(directory)
 				else:
 					return False
+			else:
+				if not os.path.isdir(directory):
+					dabo.ui.stop(_("The target of '%s' is a pre-existing file, not a directory. "
+							"Please pick a different directory name.") % directory)
+					return False
 			self.Form.outputDirectory = directory
 			app.setUserSetting("defaultLocation", appdir)
 
