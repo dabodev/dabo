@@ -7,6 +7,7 @@ later on to support other UI toolkits.
 from datetime import datetime
 import os
 import re
+from hashlib import md5
 import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
@@ -333,7 +334,7 @@ class DesignerXmlConverter(dObject):
 			# This will get set to True if we process a splitter control
 			isSplitter = False
 			splitterString = ""
-			if os.path.exists(clsname) and atts.has_key("classID"):
+			if os.path.exists(clsname) and ("classID" in atts):
 				chldList = [[child]] + specChildList[:]
 				nm = self.createInheritedClass(clsname, chldList)
 				code = {}
@@ -372,10 +373,7 @@ class DesignerXmlConverter(dObject):
 								self._extractKey(atts, "Caption", ""))
 					else:
 						for unneeded in ("SlotCount", "classID"):
-							try:
-								atts.pop(unneeded)
-							except KeyError:
-								pass
+							atts.pop(unneeded, None)
 						propString = ", ".join(["%s='%s'" % (k,v) for k,v in atts.items()])
 				if self.CreateDesignerControls:
 					superName = clsname
@@ -421,8 +419,8 @@ class DesignerXmlConverter(dObject):
 				szDefaults.update(szInfo)
 				szInfo = szDefaults
 				
-				isSplitter = atts.has_key("SashPosition")
-				isSlidePanel = atts.has_key("PanelCount")
+				isSplitter = ("SashPosition" in atts)
+				isSlidePanel = ("PanelCount" in atts)
 				if isSplitter:
 					pos = self._extractKey(cleanAtts, "SashPosition")
 					ornt = self._extractKey(cleanAtts, "Orientation")
@@ -455,24 +453,24 @@ class DesignerXmlConverter(dObject):
 				elif isSplitter:
 					# Create the two panels as custom classes, and add them to the 
 					# splitter as those classes
-					self.classText += LINESEP + \
-							"""		splt = obj"""
+					splitName = self.uniqename("splt")
+					self.classText += LINESEP + ("""		%s = obj""" % splitName)
 					kid = kids[0]
 					kidCleanAtts = self.cleanAttributes(kid.get("attributes", {}))
 					nm = kid.get("name")
 					code = kid.get("code", {})
 					grandkids1 = kid.get("children")
 					p1nm = self.createInnerClass(nm, kidCleanAtts, code, custProps)
-					self.classText += LINESEP + \
-							"""		splt.createPanes(self.getCustControlClass('%(p1nm)s'), pane=1)""" % locals()
+					self.classText += LINESEP + (
+							"""		%(splitName)s.createPanes(self.getCustControlClass('%(p1nm)s'), pane=1)""" % locals())
 					kid = kids[1]
 					kidCleanAtts = self.cleanAttributes(kid.get("attributes", {}))
 					nm = kid.get("name")
 					code = kid.get("code", {})
 					grandkids2 = kid.get("children")
 					p2nm = self.createInnerClass(nm, kidCleanAtts, code, custProps)
-					self.classText += LINESEP + \
-							"""		splt.createPanes(self.getCustControlClass('%(p2nm)s'), pane=2)""" % locals()
+					self.classText += LINESEP + (
+							"""		%(splitName)s.createPanes(self.getCustControlClass('%(p2nm)s'), pane=2)""" % locals())
 					hasGK = grandkids1 or grandkids2
 					if hasGK:
 						self.classText += LINESEP + self._childPushText
@@ -483,14 +481,14 @@ class DesignerXmlConverter(dObject):
 					needPop = False
 					# Now create the panel kids, if any.
 					if grandkids1:
-						self.classText += LINESEP + self._gk1Text
+						self.classText += LINESEP + (self._gk1Text % locals())
 						# Call the create method recursively. When execution
 						# returns to this level, all the children for this object will
 						# have been added.
 						self.createChildCode(grandkids1, specKids)
 
 					if grandkids2:
-						self.classText += LINESEP + self._gk2Text
+						self.classText += LINESEP + (self._gk2Text % locals())
 						# Call the create method recursively. When execution
 						# returns to this level, all the children for this object will
 						# have been added.
@@ -509,11 +507,11 @@ class DesignerXmlConverter(dObject):
 					# We need to handle Grids and PageFrames separately,
 					# since these 'children' are not random objects, but specific
 					# classes.
-					if (atts.has_key("ColumnCount") or atts.has_key("PageCount") or atts.has_key("PanelCount")):
+					if (("ColumnCount" in atts) or ("PageCount" in atts) or ("PanelCount" in atts)):
 						# Grid, pageframe or slide panel
 						self.classText += LINESEP + self._complexCtlText
-						isGrid = atts.has_key("ColumnCount")
-						isPageFrame = atts.has_key("PageCount")
+						isGrid = ("ColumnCount" in atts)
+						isPageFrame = ("PageCount" in atts)
 						if isPageFrame or isSlidePanel:
 							# We need to set up a unique name for the control so
 							# that all of the pages/panels can reference their
@@ -659,7 +657,7 @@ class DesignerXmlConverter(dObject):
 	def uniqename(self, nm):
 		ret = ""
 		while not ret or ret in self._generatedNames:
-			ret = "%s_%s" % (nm, str(datetime.utcnow().__hash__()).replace("-", "9"))
+			ret = "%s_%s" % (nm, md5(str(datetime.utcnow())).hexdigest()[:10])
 		self._generatedNames.append(ret)
 		return ret
 	
@@ -781,18 +779,18 @@ import sys
 		if not currParent.Sizer:
 			currParent.Sizer = obj
 """
-		self._gk1Text = """		currParent = splt.Panel1
+		self._gk1Text = """		currParent = %(splitName)s.Panel1
 		currSizer = None
-		if not sizerDict.has_key(currParent):
+		if not (currParent in sizerDict):
 			sizerDict[currParent] = []
 """
-		self._gk2Text = """		currParent = splt.Panel2
+		self._gk2Text = """		currParent = %(splitName)s.Panel2
 		currSizer = None
-		if not sizerDict.has_key(currParent):
+		if not (currParent in sizerDict):
 			sizerDict[currParent] = []
 """
 		self._gkPopText = """		currParent = parentStack.pop()
-		if not sizerDict.has_key(currParent):
+		if not (currParent in sizerDict):
 			sizerDict[currParent] = []
 			currSizer = None
 		else:
@@ -866,7 +864,7 @@ import sys
 		sizerDict[currParent].append(currSizer)
 		currParent = obj
 		currSizer = None
-		if not sizerDict.has_key(currParent):
+		if not (currParent in sizerDict):
 			sizerDict[currParent] = []
 """
 		self._szPopText = """		if sizerDict[currParent]:
@@ -878,7 +876,7 @@ import sys
 			currSizer = None
 """
 		self._ctlPopText = """		currParent = parentStack.pop()
-		if not sizerDict.has_key(currParent):
+		if not (currParent in sizerDict):
 			sizerDict[currParent] = []
 			currSizer = None
 		else:
