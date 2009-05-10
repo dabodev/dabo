@@ -1929,6 +1929,7 @@ afterDelete() which is only called after a delete().""")
 		"""This method ensures that the passed cursor's properties
 		are in sync with this bizobj.
 		"""
+		crs.KeyField = self._keyField
 		crs.AutoPopulatePK = self._autoPopulatePK
 		crs.AutoQuoteNames = self._autoQuoteNames
 		if self._dataStructure is not None:
@@ -1940,7 +1941,6 @@ afterDelete() which is only called after a delete().""")
 		crs.UserSQL = self._userSQL
 		crs.VirtualFields = self._virtualFields
 		crs.Encoding = self.Encoding
-		crs.KeyField = self._keyField
 		crs.setNonUpdateFields(self._nonUpdateFields)
 
 

@@ -19,6 +19,8 @@ from dabo.lib.utils import noneSortKey, caseInsensitiveSortKey
 class dCursorMixin(dObject):
 	"""Dabo's cursor class, representing the lowest tier."""
 	_call_initProperties = False
+	# Make this a class attribute, so that it is shared among all instances
+	_fieldStructure = {}
 
 	def __init__(self, sql="", *args, **kwargs):
 		self._convertStrToUnicode = True
@@ -49,8 +51,6 @@ class dCursorMixin(dObject):
 		self._blank = {}
 		# Flag for indicating NULL default values were set
 		self._nullDefaults = False
-		# Holds the result of getFields() for each table/sql combination.
-		self._fieldStructure = {}
 		# Writable version of the dbapi 'description' attribute
 		self.descriptionClean = None
 		# Last executed sql params
