@@ -710,6 +710,7 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
 			hs.append(self.strVal, 1)
 			self.Sizer.append(hs, "expand")
 			dabo.ui.callAfter(self.strVal.setFocus)
+			dabo.ui.callAfter(self.strVal.selectAll)
 
 	if defaultValue:
 		kwargs["Value"] = defaultValue
