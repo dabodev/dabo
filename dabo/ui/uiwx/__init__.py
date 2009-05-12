@@ -704,13 +704,13 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
 			self.Caption = caption
 			lbl = dabo.ui.dLabel(self, Caption=message)
 			self.strVal = dabo.ui.dTextBox(self, **kwargs)
+			print self.strVal.SelectOnEntry
 			hs = dabo.ui.dSizer("h")
 			hs.append(lbl, halign="Right")
 			hs.appendSpacer(5)
 			hs.append(self.strVal, 1)
 			self.Sizer.append(hs, "expand")
 			dabo.ui.callAfter(self.strVal.setFocus)
-			dabo.ui.callAfter(self.strVal.selectAll)
 
 	if defaultValue:
 		kwargs["Value"] = defaultValue
