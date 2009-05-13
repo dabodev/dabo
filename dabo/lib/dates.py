@@ -12,6 +12,8 @@ _dregex = {}
 _dtregex = {}
 _tregex = {}
 
+_usedDateFormats = ["%x"]
+
 
 def _getDateRegex(format):
 	elements = {}
@@ -100,17 +102,23 @@ def getStringFromDate(d):
 def getDateFromString(strVal, formats=None):
 	"""Given a string in a defined format, return a date object or None."""
 	global _dregex
+	global _usedDateFormats
 
-	dateFormat = dabo.settings.dateFormat
 	ret = None
 
 	if formats is None:
 		formats = ["ISO8601"]
 
-	if dateFormat is not None:
-		# Take the date format as set in dabo into account, when trying 
-		# to make a date out of the string.
-		formats.append(dateFormat)
+	sdf = dabo.settings.dateFormat
+	if sdf is not None:
+		if _usedDateFormats[0] == sdf:
+			# current date format is already first in the list; do nothing
+			pass
+		else:
+			if sdf in _usedDateFormats:
+				del(_usedDateFormats[_usedDateFormats.index(sdf)])
+			_usedDateFormats.insert(0, sdf)
+	formats.extend(_usedDateFormats)
 
 	# Try each format in order:
 	for format in formats:
@@ -119,7 +127,10 @@ def getDateFromString(strVal, formats=None):
 		except KeyError:
 			regex = _getDateRegex(format)
 			if regex is None:
-				continue
+				try:
+					return datetime.date(*time.strptime(strVal, format)[:3])
+				except ValueError:
+					continue
 			_dregex[format] = regex
 		m = regex.match(strVal)
 		if m is not None:
@@ -141,13 +152,6 @@ def getDateFromString(strVal, formats=None):
 				pass
 		if ret is not None:
 			break	
-	if ret is None:
-		if dateFormat is None:
-			# Fall back to the current locale setting in user's os account:
-			try:
-				ret = datetime.date(*time.strptime(strVal, "%x")[:3])
-			except ValueError:  ## ValueError from time.strptime()
-				pass
 	return ret
 
 
