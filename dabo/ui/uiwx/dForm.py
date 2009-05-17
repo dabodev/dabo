@@ -821,7 +821,7 @@ Database error message: %s""") %	err
 		You should override it with your own code to handle this event 
 		appropriately for your application.
 		"""
-		self.StatusText = ""
+		pass
 		
 	
 	# Property get/set/del functions follow.
