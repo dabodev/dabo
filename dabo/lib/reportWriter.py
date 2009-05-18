@@ -1539,7 +1539,7 @@ class ReportWriter(object):
 					# band height is fixed, won't flow to next page. 
 					check += bandHeight
 
-				if y < check:
+				if y <= check:
 					if self._currentColumn >= columnCount-1:
 						endPage()
 						beginPage()
