@@ -462,10 +462,17 @@ class Band(ReportObject):
 	def initAvailableProps(self):
 		super(Band, self).initAvailableProps()
 		self.AvailableProps["Height"] = toPropDict(float, 0.0, 
-				"""Specifies the height of the band.
+				"""Specifies the height of the band, not including growable objects.
 
 				If the height evaluates to None, the height of the band will size
 				itself dynamically at runtime.""")
+
+		self.AvailableProps["TotalHeight"] = toPropDict(float, 0.0, 
+				"""Specifies the height of the band, including growable objects.
+
+				Read-only/calculated at runtime. Specifies the height of the band
+				on the page, and gets reevaluated for each page the band continues
+				printing on.""")
 
 		self.AvailableProps["DesignerLock"] = toPropDict(bool, False, 
 				"""Specifies whether the band height can be changed interactively.
@@ -693,6 +700,7 @@ class Frameset(Drawable):
 	"""Represents a frameset."""
 	def initAvailableProps(self):
 		super(Frameset, self).initAvailableProps()
+
 		self.AvailableProps["FrameId"] = toPropDict(str, None, 
 				"""(to remove)""")
 
@@ -717,8 +725,6 @@ class Frameset(Drawable):
 		self.AvailableProps["ColumnCount"] = toPropDict(int, 1, 
 				"""Specifies the number of columns in the frame.""")
 
-		self.AvailableProps["calculatedHeight"] = toPropDict(float, 0, 
-				"""(to remove)""")
 
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the frameset."""
@@ -807,19 +813,21 @@ class ReportWriter(object):
 	"""
 	_clearMemento = True
 
-
-	def draw(self, obj, origin, getNeededHeight=False):
+	def draw(self, obj, origin=(0,0),	availableHeight=None, deferred=None):
 		"""Draw the given object on the Canvas.
 
 		The object is a dictionary containing properties, and	origin is the (x,y)
 		tuple where the object will be drawn. 
-		"""
-		neededHeight = 0
 
+		availableHeight is the height available on the current page; deferred is 
+		the contents of the object partially printed on the last page that needs
+		to continue printing now (paragraph story). 
+		"""
 		## (Can't get x,y directly from object because it may have been modified 
 		## by the calling program to adjust for	band position, and draw() 
 		## doesn't know about bands.)
-
+		neededHeight = 0
+		objType = obj.__class__.__name__
 		c = self.Canvas
 		x,y = origin
 
@@ -828,17 +836,10 @@ class ReportWriter(object):
 		## returns between c.saveState() and c.restoreState()!
 		c.saveState()
 
+		neededHeight = 0
+
 		## These properties can apply to all objects:
 		width = self.getPt(obj.getProp("width"))
-	
-		try:
-			height = obj.getProp("calculatedHeight")
-		except ValueError:
-			height = None
-		if height is not None:
-			height = self.getPt(height)
-		else:
-			height = self.getPt(obj.getProp("Height"))
 	
 		rotation = obj.getProp("rotation")
 		hAnchor = obj.getProp("hAnchor").lower()
@@ -848,15 +849,16 @@ class ReportWriter(object):
 			x = x - width
 		elif hAnchor == "center":
 			x = x - (width / 2)
-		
-		if vAnchor == "top":
-			y = y - height
-		elif vAnchor == "middle":
-			y = y - (height / 2)
+	
+		if objType != "Frameset":	
+			height = self.getPt(obj.getProp("Height"))
+			if vAnchor == "top":
+				y = y - height
+			elif vAnchor == "middle":
+				y = y - (height / 2)
 	
 		
 		## Do specific things based on object type:
-		objType = obj.__class__.__name__
 		if objType == "Rectangle":
 			d = shapes.Drawing(width, height)
 			d.rotate(rotation)
@@ -1009,16 +1011,42 @@ class ReportWriter(object):
 	
 		elif objType == "Frameset":
 			# A frame is directly related to reportlab's platypus Frame.
+				
 			borderWidth = self.getPt(obj.getProp("borderWidth"))
 			borderColor = obj.getProp("borderColor")
-			frameId = obj.getProp("frameId")
+			columnCount = obj.getProp("columnCount")
+			columnWidth = width/columnCount
 			padLeft = self.getPt(obj.getProp("padLeft"))
 			padRight = self.getPt(obj.getProp("padRight"))
 			padTop = self.getPt(obj.getProp("padTop"))
 			padBottom = self.getPt(obj.getProp("padBottom"))
-			columnCount = obj.getProp("columnCount")
-	
-			columnWidth = width/columnCount
+			frameId = obj.getProp("frameId")
+
+			if deferred:
+				story = deferred
+				neededHeight = sum([s[1] for s in story])
+			else:
+				story, neededHeight = self.getStory(obj)
+			printStory = story
+			deferredStory = []
+			tot_p_height = 0
+			printStoryHeight = deferredStoryHeight = 0
+			if neededHeight >= availableHeight:
+				printStory = []
+				for p, p_height in story:
+					tot_p_height += p_height
+					if tot_p_height + padTop + padBottom >= availableHeight:
+						deferredStory.append((p, p_height))
+						deferredStoryHeight += p_height
+					else:
+						printStory.append((p, p_height))
+						printStoryHeight += p_height
+				neededHeight = printStoryHeight + padTop + padBottom
+		
+			if vAnchor == "top":
+				y = y - neededHeight
+			elif vAnchor == "middle":
+				y = y - (neededHeight / 2)
 
 			## Set canvas props based on our props:
 			c.translate(x, y)
@@ -1031,79 +1059,17 @@ class ReportWriter(object):
 			else:
 				boundary = 0
 
-			story = []	
-			
-			styles_ = styles.getSampleStyleSheet()
-
-			objects = obj["Objects"]
-			story = []
-			for fobject in objects:
-				objNeededHeight = 0
-
-				t = fobject.__class__.__name__
-				s = styles_[fobject.getProp("style")]
-				expr = fobject.getProp("expr", returnException=True)
-
-				if isinstance(s, basestring):
-					expr = expr.encode(self.Encoding)
-				else:
-					expr = unicode(expr)
-				s = copy.deepcopy(s)
-
-				if fobject.has_key("fontSize"):
-					s.fontSize = fobject.getProp("fontSize")
-
-				if fobject.has_key("fontName"):
-					s.fontName = fobject.getProp("fontName")
-				
-				if fobject.has_key("leading"):
-					s.leading = fobject.getProp("leading")
-
-				if fobject.has_key("spaceAfter"):
-					s.spaceAfter = fobject.getProp("spaceAfter")
-	
-				if fobject.has_key("spaceBefore"):
-					s.spaceBefore = fobject.getProp("spaceBefore")
-
-				if fobject.has_key("leftIndent"):
-					s.leftIndent = fobject.getProp("leftIndent")
-
-				if fobject.has_key("firstLineIndent"):
-					s.firstLineIndent = fobject.getProp("firstLineIndent")
-
-				if t.lower() == "paragraph":
-					paras = expr.split("\n")
-					for para in paras:
-						if len(para) == 0: 
-							# Blank line
-							p = platypus.Spacer(0, s.leading)
-						else:
-							def escapePara(para):
-								words = para.split(" ")
-								for idx, word in enumerate(words):
-									if "&" in word and ";" not in word:
-										word = word.replace("&", "&amp;")
-									if "<" in word and ">" not in word:
-										word = word.replace("<", "&lt;")
-									words[idx] = word
-								return " ".join(words)
-							para = escapePara(para)
-							p = ParaClass(para, s)
-						story.append(p)
-						objNeededHeight += p.wrap(columnWidth-padLeft-padRight, None)[1]
-
-				neededHeight = max(neededHeight, objNeededHeight) + padTop + padBottom
-
 			for columnIndex in range(columnCount):
-				f = platypus.Frame(columnIndex*columnWidth, 0, columnWidth, height, leftPadding=padLeft,
+				f = platypus.Frame(columnIndex*columnWidth, 0, columnWidth, neededHeight, leftPadding=padLeft,
 						rightPadding=padRight, topPadding=padTop,
 						bottomPadding=padBottom, id=frameId, 
 						showBoundary=boundary)
-				if getNeededHeight:
-					obj["calculatedHeight"] = "%s" % neededHeight
-				else:
-					f.addFromList(story, c)
+				f.addFromList([s[0] for s in printStory], c)
 	
+			deferred = deferredStory
+			neededHeight = deferredStoryHeight
+
+
 		elif objType == "Image":
 			borderWidth = self.getPt(obj.getProp("borderWidth"))
 			borderColor = obj.getProp("borderColor")
@@ -1252,7 +1218,88 @@ class ReportWriter(object):
 		## rotating, scaling, etc. are cumulative, not absolute and we don't want
 		## to start with a canvas in an unknown state.)
 		c.restoreState()
-		return neededHeight
+		return deferred, neededHeight
+
+
+	def getStory(self, obj):
+		width = self.getPt(obj.getProp("width"))
+		padLeft = self.getPt(obj.getProp("padLeft"))
+		padRight = self.getPt(obj.getProp("padRight"))
+		padTop = self.getPt(obj.getProp("padTop"))
+		padBottom = self.getPt(obj.getProp("padBottom"))
+		columnCount = obj.getProp("columnCount")
+		columnWidth = width/columnCount
+
+		styles_ = styles.getSampleStyleSheet()
+
+		objects = obj["Objects"]
+		story = []
+		for fobject in objects:
+			objNeededHeight = 0
+
+			t = fobject.__class__.__name__
+			s = styles_[fobject.getProp("style")]
+			expr = fobject.getProp("expr", returnException=True)
+
+			if isinstance(s, basestring):
+				expr = expr.encode(self.Encoding)
+			else:
+				expr = unicode(expr)
+			s = copy.deepcopy(s)
+
+			if fobject.has_key("fontSize"):
+				s.fontSize = fobject.getProp("fontSize")
+
+			if fobject.has_key("fontName"):
+				s.fontName = fobject.getProp("fontName")
+				
+			if fobject.has_key("leading"):
+				s.leading = fobject.getProp("leading")
+
+			if fobject.has_key("spaceAfter"):
+				s.spaceAfter = fobject.getProp("spaceAfter")
+	
+			if fobject.has_key("spaceBefore"):
+				s.spaceBefore = fobject.getProp("spaceBefore")
+
+			if fobject.has_key("leftIndent"):
+				s.leftIndent = fobject.getProp("leftIndent")
+
+			if fobject.has_key("firstLineIndent"):
+				s.firstLineIndent = fobject.getProp("firstLineIndent")
+
+			if t.lower() == "paragraph":
+				paras = expr.splitlines()
+				for idx, para in enumerate(paras):
+					if len(para) == 0: 
+						# Blank line
+						p = platypus.Spacer(0, s.leading)
+					else:
+						def escapePara(para):
+							words = para.split(" ")
+							for idx, word in enumerate(words):
+								if "&" in word and ";" not in word:
+									word = word.replace("&", "&amp;")
+								if "<" in word and ">" not in word:
+									word = word.replace("<", "&lt;")
+								words[idx] = word
+							return " ".join(words)
+						para = escapePara(para)
+						p = ParaClass(para, s)
+					p_height = p.wrap(columnWidth-padLeft-padRight, None)[1]
+					objNeededHeight += p_height
+					story.append((p, p_height))
+
+				def hackDeferredPara():
+					"""When a paragraph wraps to the next page, the last line won't print if this isn't done."""
+					append_p = ParaClass("Hack: see hackDeferredPara() in reportWriter.py", s)
+					p_height = p.wrap(99999, None)[1]
+					story.append((p, p_height))
+				if paras:
+					hackDeferredPara()
+
+		neededHeight = objNeededHeight + padTop + padBottom
+		return story, neededHeight
 
 
 	def getColorTupleFromReportLab(self, val):
@@ -1323,6 +1370,7 @@ class ReportWriter(object):
 		the PDF file will be left open so that additional pages can be added 
 		with another call, perhaps after creating a different report form.
 		"""
+		self._calcObjectHeights = {}
 		_form = self.ReportForm
 		if _form is None:
 			raise ValueError("ReportForm must be set first.")
@@ -1403,7 +1451,7 @@ class ReportWriter(object):
 				self.Variables[varName] = vv["value"]			
 					
 
-		def printBand(band, y=None, group=None):
+		def printBand(band, y=None, group=None, deferred=None):
 			"""Generic function for printing any band."""
 
 			_form = self.ReportForm
@@ -1425,6 +1473,12 @@ class ReportWriter(object):
 #			print workingPageWidth / 72, columnWidth / 72
 #			print columnWidth, columnCount
 
+			pf = _form.get("pageFooter")
+			if pf is None:
+				pfHeight = 0
+			else:
+				pfHeight = self.getPt(pf.getProp("Height"))
+
 			if y is None:
 				y = pageHeaderOrigin[1]
 
@@ -1439,16 +1493,65 @@ class ReportWriter(object):
 
 			self.ReportForm.Bands[band] = CaselessDict()
 
-			height = bandDict.getProp("Height")
-			if height is not None:
-				height = self.getPt(height)
-			else:
-				# figure out height based on the objects in the band.
-				height = self.calculateBandHeight(bandDict)
+			bandHeight = self.getBandHeight(bandDict)
+			if not deferred:
+				y -= bandHeight
 
-			y = y - height
 			width = pageWidth - ml - mr
 
+			# Set this property as quickly as possible as other properties (y, for example)
+			# could depend on it.
+			self.ReportForm.Bands[band]["Height"] = bandHeight
+
+			def getTotalBandHeight():
+				maxBandHeight = bandHeight
+				if deferred:
+					for obj, obj_deferred, neededHeight in deferred:
+						needed = neededHeight
+						maxBandHeight = max(maxBandHeight, neededHeight)
+				else:
+					for obj in bandDict.get("Objects", []):
+						if obj.getProp("Height") is None:
+							story = self.getStory(obj)
+							storyheight = story[1]
+							needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))  ## y could be dep. on band height.
+			
+							maxBandHeight = max(maxBandHeight, needed)
+				availableHeight = y - (pageFooterOrigin[1] + pfHeight)
+				if maxBandHeight > availableHeight:
+					maxBandHeight = availableHeight
+				return maxBandHeight
+
+			maxBandHeight = getTotalBandHeight()
+
+			if band in ("groupHeader", "groupFooter", "detail"):
+				extraHeight = 0
+				if band == "groupHeader":
+					# Also account for the height of the first detail record: don't print the
+					# group header on this page if we don't get at least one detail record
+					# printed as well. Actually, this should be reworked so that any subsequent
+					# group header records get accounted for as well...
+					b = _form["detail"]
+					extraHeight = self.getBandHeight(b)
+
+				check = pageFooterOrigin[1] + pfHeight + extraHeight
+				if bandDict.getProp("height") is not None:
+					# band height is fixed, won't flow to next page. 
+					check += bandHeight
+
+				if y < check:
+					if self._currentColumn >= columnCount-1:
+						endPage()
+						beginPage()
+					else:
+						self._currentColumn += 1
+					y = pageHeaderOrigin[1]
+					maxBandHeight = getTotalBandHeight()
+					if band == "detail":
+						y = reprintGroupHeaders(y)
+					if not deferred:
+						y -= bandHeight
+				
 			# Non-detail band special cases:
 			if band == "pageHeader":
 				x,y = pageHeaderOrigin
@@ -1458,65 +1561,90 @@ class ReportWriter(object):
 				x,y = 0,1
 				width, height = pageWidth-1, pageHeight-1
 
-
-			pf = _form.get("pageFooter")
-			if pf is None:
-				pfHeight = 0
-			else:
-				pfHeight = self.getPt(pf.getProp("Height"))
-
-			if band in ("detail", "groupHeader", "groupFooter"):
-				extraHeight = 0
-				if band == "groupHeader":
-					# Also account for the height of the first detail record: don't print the
-					# group header on this page if we don't get at least one detail record
-					# printed as well. Actually, this should be reworked so that any subsequent
-					# group header records get accounted for as well...
-					b = _form["detail"]
-					extraHeight = b.get("Height")
-					if extraHeight is None:
-						extraHeight = b.AvailableProps["Height"]["default"]
-					else:
-						extraHeight = eval(extraHeight)
-					if extraHeight is None:
-						extraHeight = self.calculateBandHeight(b)
-					else:
-						extraHeight = self.getPt(extraHeight)
-				if y < pageFooterOrigin[1] + pfHeight + extraHeight:
-					if self._currentColumn >= columnCount-1:
-						endPage()
-						beginPage()
-					else:
-						self._currentColumn += 1
-					y = pageHeaderOrigin[1]
-					if band == "detail":
-						y = reprintGroupHeaders(y)
-					y = y - height
-				
 			x = ml + (self._currentColumn * columnWidth)
 				
 			self.ReportForm.Bands[band]["x"] = x
 			self.ReportForm.Bands[band]["y"] = y
 			self.ReportForm.Bands[band]["Width"] = width
-			self.ReportForm.Bands[band]["Height"] = height
-		
+			self.ReportForm.Bands[band]["TotalHeight"] = maxBandHeight	
+
 			if self.ShowBandOutlines:
 				self.printBandOutline("%s (record %s)" % (band, self.RecordNumber), 
-						x, y, width, height)
+						x, y, width, bandHeight)
 
-			if bandDict.has_key("Objects"):
-				for obj in bandDict["Objects"]:
-					show = obj.getProp("show", returnException=True)
-					if show == False:
-						continue
+			del_deferred_idxs = []
+			objects = bandDict.get("Objects", [])
+			was_deferred = False
+			if deferred:
+				was_deferred = True
+				objects = deferred
+			for idx, obj in enumerate(objects):
+				if isinstance(obj, tuple):
+					# deferred (obj, obj_deferred)
+					obj, obj_deferred, neededHeight = obj
+				else:
+					obj_deferred = None
+					neededHeight = 0
+				show = obj.getProp("show", returnException=True)
+				if show == False:
+					continue
 
-					x1 = self.getPt(obj.getProp("x"))
-					y1 = self.getPt(obj.getProp("y"))
-					x1 = x + x1
+				x1 = self.getPt(obj.getProp("x"))
+				y1 = obj_y = self.getPt(obj.getProp("y"))
+				x1 = x + x1
+				if obj_deferred:
+					y1 = y
+				else:
 					y1 = y + y1
-					self.draw(obj, (x1, y1))
-						
-			return y		
+
+				availableHeight = y - (pageFooterOrigin[1] + pfHeight)
+				obj_height = obj.getProp("height")
+				if obj_height is not None:
+					obj_height = self.getPt(obj_height)
+					if availableHeight > obj_height:
+						availableHeight = obj_height
+				if bandDict.getProp("height") is not None:
+					if availableHeight > obj_y:
+						availableHeight = obj_y
+				#availableHeight = min(availableHeight, bandHeight+y)
+				new_obj_deferred, neededHeight = self.draw(obj, (x1, y1),	availableHeight=availableHeight,
+						deferred=obj_deferred)
+
+				if bandDict.getProp("height") is not None:
+					# Band height is fixed; cancel any deferrals.
+					new_obj_deferred = None
+
+				if new_obj_deferred:
+					if obj_deferred:
+						# was already deferred, and now deferred again. WARNING: if para longer 
+						# than a page, we'll recurse forever. FIXME.
+						deferred[idx] = (obj, new_obj_deferred, neededHeight)
+					else:
+						# new deferral.
+						if deferred is None:
+							deferred = []
+						deferred.append((obj, new_obj_deferred, neededHeight))
+				else:
+					if obj_deferred:
+						# need to delete the old deferral
+						del_deferred_idxs.append(idx)
+
+			del_deferred_idxs.sort(reverse=True)
+			for idx in del_deferred_idxs:
+				del(deferred[idx])
+
+			if was_deferred and not deferred:
+				# just printed the last page of deferreds
+				return y - maxBandHeight
+
+			elif deferred:
+				# the deferred objs will print on the next page. RECURSE WARNING.
+				dy = printBand(band=band, y=-1, group=group, deferred=deferred)
+				return dy
+			else:
+				# no deferreds ever involved
+				y -= (maxBandHeight-bandHeight)
+				return y
 
 
 		def beginPage():
@@ -1597,10 +1725,8 @@ class ReportWriter(object):
 						brandNewPage = True  ## don't start multiple new pages
 					y = printBand("groupHeader", y, group)
 
-
 			# print the detail band:
 			y = printBand("detail", y)
-
 			self._recordNumber += 1
 
 
@@ -1616,25 +1742,32 @@ class ReportWriter(object):
 			self._canvas = None
 
 
-	def calculateBandHeight(self, bandDict):
-		maxHeight = 0
-		if bandDict.has_key("Objects"):
-			for obj in bandDict["Objects"]:
-				y = self.getPt(obj.getProp("y"))
+	def getBandHeight(self, bandDict):
+		"""Return the height of the band.
 
-				ht = obj.getProp("Height")
-				if ht is None:
-					ht = self.calculateObjectHeight(obj)
-				ht = self.getPt(ht)
+		If the band's Height property is None, the height will be
+		calculated based on the objects in the band.
+		"""
 
-				thisHeight = y + ht
-				maxHeight = max(thisHeight, maxHeight)
-		return maxHeight
+		bandHeight = bandDict.getProp("Height")
+		if bandHeight is not None:
+			# explicitly-set height
+			return self.getPt(bandHeight)
 
-		
-	def calculateObjectHeight(self, obj):
-		neededHeight = self.draw(obj, (0,0), getNeededHeight=True)
-		return neededHeight
+		# dynamic height: figure out based on the objects in the band.
+		bandHeight = 0
+		objects = bandDict.get("objects", [])
+
+		for obj in objects:
+			obj_y = self.getPt(obj.getProp("y"))
+			obj_ht = obj.getProp("Height")
+			if obj_ht is None:
+				continue
+			# object height is fixed.
+			obj_ht = self.getPt(obj_ht)
+			thisHeight = obj_y + obj_ht
+			bandHeight = max(thisHeight, bandHeight)
+		return bandHeight
 
 
 	def getPageSize(self):

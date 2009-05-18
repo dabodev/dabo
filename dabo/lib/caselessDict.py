@@ -24,7 +24,7 @@ class CaselessDict(dict):
 		return dict.__getitem__(self, key.lower())
 
 	def __delitem__(self, key):
-		dict.__delitem__(self, key)
+		dict.__delitem__(self, key.lower())
 		del(self._OriginalCase[key.lower()])
 
 	def __contains__(self, key):
