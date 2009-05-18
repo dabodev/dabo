@@ -1352,7 +1352,7 @@ class ReportWriter(object):
 			## caption at the origin of the band.
 			c = self.Canvas
 			c.saveState()
-			c.setLineWidth(0.1)
+			c.setLineWidth(0.75)
 			c.setStrokeColorRGB(0.8, 0.5, 0.7)
 			c.setDash(1, 2)
 			c.rect(x, y, width, height)
@@ -1643,7 +1643,8 @@ class ReportWriter(object):
 				return dy
 			else:
 				# no deferreds ever involved
-				y -= (maxBandHeight-bandHeight)
+				if maxBandHeight > bandHeight:
+					y -= (maxBandHeight-bandHeight)
 				return y
 
 
