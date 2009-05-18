@@ -1298,9 +1298,10 @@ class DesignerBand(DesignerPanel):
 
 		obj._anchors = {}
 		objType = obj.__class__.__name__
+		selectColor = (128,192,0)
+
 		size, position = self.getObjSizeAndPosition(obj)
 		rect = [position[0], position[1], size[0], size[1]]
-		selectColor = (128,192,0)
 
 		dc.DestroyClippingRegion()
 
@@ -1321,7 +1322,7 @@ class DesignerBand(DesignerPanel):
 			fontSize = obj.getProp("fontSize")
 			rotation = obj.getProp("rotation")
 
-			fontSize = fontSize * self.Parent.Zoom
+			z = self.Parent.Zoom
 
 			if "helvetica" in fontName.lower():
 				fontFamily = wx.MODERN
@@ -1360,12 +1361,12 @@ class DesignerBand(DesignerPanel):
 			font.Bold = fontBold
 			font.Italic = fontItalic
 			font.Face = fontName
-			font.Size = fontSize
+			font.Size = fontSize * z
 
 			dc.SetFont(font._nativeFont)
 			dc.SetTextForeground(self._rw.getColorTupleFromReportLab(obj.getProp("fontColor")))
 
-			top_fudge = .25   ## wx draws a tad too high
+			top_fudge = .5   ## wx draws a tad too high
 			left_fudge = .25  ## and a tad too far to the left
 			# We need the y value to match up with the font at the baseline, but to clip
 			# the entire region, including descent.
@@ -1383,6 +1384,7 @@ class DesignerBand(DesignerPanel):
 			else:
 				dc.DrawLabel(expr, (rect[0], rect[1], rect[2], rect[3]),
 						alignments[alignment]|wx.ALIGN_BOTTOM)
+
 
 		if objType == "Rectangle":
 			strokeWidth = self._rw.getPt(obj.getProp("strokeWidth")) * self.Parent.Zoom
@@ -1519,6 +1521,7 @@ class DesignerBand(DesignerPanel):
 					dc.SetPen(wx.Pen(selectColor, 1, wx.SOLID))
 				dc.DrawRectangle(v[2], v[3], thickness, thickness)
 
+
 	def getProp(self, prop, evaluate=True, fillDefault=True):
 		if evaluate and fillDefault:
 			# The report object can do it all:
@@ -1648,7 +1651,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			selObj = []
 			if len(selectedDrawables) > 1:
 				# Multiple selected; don't tab traverse; select the first drawable.
-				selObj = [firstDrawable,]
+				selObj = [selectedDrawables[0],]
 			elif not selectedDrawables:
 				# No objects selected; select first drawable in selected band,
 				# or if no band selected, in the detail band:
