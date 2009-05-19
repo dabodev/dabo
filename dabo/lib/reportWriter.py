@@ -480,6 +480,16 @@ class Band(ReportObject):
 				Setting designerLock to True protects you from accidentally changing
 				the height of the band with the mouse at design time.""")
 
+		self.AvailableProps["Show"] = toPropDict(bool, True, 
+				"""Determines if the band is shown or skipped.
+
+				Specify an expression that evaluates to True or False. If False,
+				the band will not print. 
+
+				Just like all other properties, your expression will be evaluated
+				every time this object is to be printed.
+				""")
+
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the band."""
 		self.setdefault("Objects", Objects(self))
@@ -1491,6 +1501,10 @@ class ReportWriter(object):
 				# Band name doesn't exist.
 				return y
 
+	
+			if bandDict.getProp("show", returnException=True) == False:
+				return y
+	
 			self.ReportForm.Bands[band] = CaselessDict()
 
 			bandHeight = self.getBandHeight(bandDict)
