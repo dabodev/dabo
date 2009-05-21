@@ -7,7 +7,7 @@ later on to support other UI toolkits.
 from datetime import datetime
 import os
 import re
-from hashlib import md5
+import random
 import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
@@ -35,7 +35,7 @@ class DesignerXmlConverter(dObject):
 		# Expression for substituing default parameters
 		self.prmDefPat = re.compile(r"([^=]+)=?.*")
 		# Added to ensure unique object names
-		self._generatedNames = []
+		self._generatedNames = [""]
 		# Holds the class file we will create in order to aid introspection
 		self._classFileName = self.Application.getTempFile("py")
 		self._codeImportAs = "_daboCode"
@@ -461,7 +461,7 @@ class DesignerXmlConverter(dObject):
 					code = kid.get("code", {})
 					grandkids1 = kid.get("children")
 					p1nm = self.createInnerClass(nm, kidCleanAtts, code, custProps)
-					self.classText += LINESEP + (
+					self.classText += (LINESEP +
 							"""		%(splitName)s.createPanes(self.getCustControlClass('%(p1nm)s'), pane=1)""" % locals())
 					kid = kids[1]
 					kidCleanAtts = self.cleanAttributes(kid.get("attributes", {}))
@@ -469,7 +469,7 @@ class DesignerXmlConverter(dObject):
 					code = kid.get("code", {})
 					grandkids2 = kid.get("children")
 					p2nm = self.createInnerClass(nm, kidCleanAtts, code, custProps)
-					self.classText += LINESEP + (
+					self.classText += (LINESEP +
 							"""		%(splitName)s.createPanes(self.getCustControlClass('%(p2nm)s'), pane=2)""" % locals())
 					hasGK = grandkids1 or grandkids2
 					if hasGK:
@@ -657,7 +657,8 @@ class DesignerXmlConverter(dObject):
 	def uniqename(self, nm):
 		ret = ""
 		while not ret or ret in self._generatedNames:
-			ret = "%s_%s" % (nm, md5(str(datetime.utcnow())).hexdigest()[:10])
+			# The empty string is always in the list, so it will run at least once.
+			ret = "%s_%s" % (nm, random.randint(0,99999))
 		self._generatedNames.append(ret)
 		return ret
 	
