@@ -210,7 +210,7 @@ def onContextMenu(self, evt):
 										<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
 											<dGridSizer HGap="3" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 30, 'Expand': True}" Rows="3" designerClass="LayoutGridSizer" VGap="10" Columns="2">
 												<dTextBox RegID="txtPrefName" ReadOnly="True" designerClass="controlMix" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0}" rowColPos="(0, 1)"></dTextBox>
-												<dTextBox RegID="txtPrefValue" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0}" designerClass="controlMix" Name="dTextBox1" rowColPos="(1, 1)">
+												<dTextBox RegID="txtPrefValue" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0, 'Expand': True}" designerClass="controlMix" Name="dTextBox1" rowColPos="(1, 1)">
 													<code>
 														<onKeyUp><![CDATA[
 def onKeyUp(self, evt):
