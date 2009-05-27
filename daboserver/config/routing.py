@@ -18,6 +18,10 @@ def make_map():
 	map.connect('/error/:action', controller='error')
 	map.connect('/error/:action/:id', controller='error')
 
+	# Web update controller
+	map.connect("wup", "/webupdate/:action/:val", controller="webupdate")
+	map.connect("wup", "/webupdate/:action", controller="webupdate")
+	
 	# CUSTOM ROUTES HERE
 	map.connect("man1", "/manifest/:app/:fnc/:id", controller="bizservers", action="manifest")
 	map.connect("man2", "/manifest/:app/:fnc", controller="bizservers", action="manifest")
