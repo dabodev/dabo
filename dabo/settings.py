@@ -172,6 +172,9 @@ file_extensions = {
 # For file-based data backends such as SQLite, do we allow creating a connection to
 # a non-existent file, which SQLite will then create? 
 createDbFiles = False
+
+# URL of the Web Update server
+webupdate_urlbase = "http://daboserver.com/webupdate"
 		
 
 ### Settings - end

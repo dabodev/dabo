@@ -12,6 +12,9 @@ import datetime
 import urllib2
 import shutil
 import logging
+import simplejson
+from cStringIO import StringIO
+from zipfile import ZipFile
 import dabo
 import dabo.ui
 import dabo.db
@@ -200,7 +203,7 @@ class dApp(dObject):
 		# the current database transaction
 		self._transactionTokens = {}
 		# Holds update check times in case of errors.
-		self._lastCheckInfo = []
+		self._lastCheckInfo = None
 		# Location and Name of the project; used for Web Update
 		self._projectInfo = (None, None)
 		self._setProjInfo()
@@ -478,19 +481,14 @@ try again when it is running.
 		self._appInfo[item] = value
 
 
-	def _currentUpdateVersion(self, proj):
-		if proj == "Dabo":
-			localVers = dabo.version["file_revision"]
-			try:
-				localVers = localVers.split(":")[1]
-			except IndexError:
-				# Not a mixed version
-				pass
-			ret = int("".join([ch for ch in localVers if ch.isdigit()]))
-		else:
-			ret = self.PreferenceManager.getValue("current_version")
-			if ret is None:
-				ret = 0
+	def _currentUpdateVersion(self):
+		localVers = dabo.version["file_revision"]
+		try:
+			localVers = localVers.split(":")[1]
+		except IndexError:
+			# Not a mixed version
+			pass
+		ret = int("".join([ch for ch in localVers if ch.isdigit()]))
 		return ret
 
 
@@ -498,8 +496,10 @@ try again when it is running.
 		"""Sets the time that Web Update was last checked to the passed value. Used
 		in cases where errors prevent an update from succeeding.
 		"""
-		for setter, val in self._lastCheckInfo:
-			setter("last_check", val)
+		if self._lastCheckInfo is None:
+			return
+		setter, val = self._lastCheckInfo
+		setter("last_check", val)
 
 
 	def checkForUpdates(self, evt=None):
@@ -517,140 +517,128 @@ try again when it is running.
 		"""This is the actual code that checks if a) we are using Web Update; b) if we are
 		due for a check; and then c) returns the status of the available updates, if any.
 		"""
-		frameloc = dabo.frameworkPath
-		pth, projectName = self._projectInfo
 		if not force:
 			# Check for cases where we absolutely will not Web Update.
 			update = dabo.settings.checkForWebUpdates
 			if update:
 				# If they are running Subversion, don't update.
-				if pth is None:
-					pth = frameloc
-				if os.path.isdir(os.path.join(pth, ".svn")):
+				if os.path.isdir(os.path.join(dabo.frameworkPath, ".svn")):
 					update = False
 				# Frozen App:
 				if hasattr(sys, "frozen") and inspect.stack()[-1][1] != "daborun.py":
 					update = False
-
 			if not update:
 				self._setWebUpdate(False)
-				return (False, [])
+				return (False, {})
 
 		# First check the framework. If it has updates available, return that info. If not,
 		# see if this is an updatable project. If so, check if it has updates available, and
 		# return that info.
-		prefs = [("Dabo", self._frameworkPrefs)]
-		if projectName is not None:
-			prefs.insert(0, (projectName, self.PreferenceManager))
-		retFirstTime = False
-		retUpdateNames = []
-		self._lastCheckInfo = []
-		for nm, prf in prefs:
-			val = prf.getValue
-			abbrev = self.projectAbbrevs.get(nm.lower())
-			retFirstTime = (nm == "Dabo") and not prf.hasKey("web_update")
-			retAvailable = False
-			lastcheck = val("last_check")
-			# Store the pref setter and the time so that we can reset the value
-			# in case the update fails later.
-			self._lastCheckInfo.append((prf.setValue, lastcheck))
-			if not retFirstTime:
-				runCheck = force
-				now = datetime.datetime.now()
-				if not force:
-					webUpdate = val("web_update")
-					if webUpdate:
-						checkInterval = val("update_interval")
-						if checkInterval is None:
-							# Default to one day
-							checkInterval = 24 * 60
-						mins = datetime.timedelta(minutes=checkInterval)
-						if lastcheck is None:
-							lastcheck = datetime.datetime(1900, 1, 1)
-						runCheck = (now > (lastcheck + mins))
-				if runCheck:
-					# See if there is a later version
-					url = "http://dabodev.com/frameworkVersions/latest?project=%s" % abbrev
-					try:
-						vers = int(urllib2.urlopen(url).read())
-					except urllib2.URLError:
-						# Could not connect
-						dabo.errorLog.write(_("Could not connect to the Dabo servers"))
-						return (None, None)
-					except ValueError:
-						vers = -1
-					except StandardError, e:
-						dabo.errorLog.write(_("Failed to open URL '%(url)s'. Error: %(e)s") % locals())
-						return (None, None)
-					localVers = self._currentUpdateVersion(nm)
-					retAvailable = (localVers < vers)
-				prf.setValue("last_check", now)
-				if retFirstTime or retAvailable:
-					retUpdateNames.append(nm)
-		return (retFirstTime, retUpdateNames)
+		prf = self._frameworkPrefs
+		resp = {}
+		val = prf.getValue
+		firstTime = prf.hasKey("web_update")
+		lastcheck = val("last_check")
+		# Hold this in case the update fails.
+		self._lastCheckInfo = (val, lastcheck)
 
-
-	def _updateFramework(self, projNames=None):
-		"""Get any changed files from the dabodev.com server, and replace
-		the local copies with them. Return the new revision number"""
-		fileurl = "http://dabodev.com/frameworkVersions/changedFiles/%s/%s"
-		if projNames is None:
-			dabo.errorLog.write(_("No project specified for _updateFramework()"))
-			return
-		for pn in projNames:
-			currvers = self._currentUpdateVersion(pn)
-			if pn == "Dabo":
-				localBasePath = dabo.frameworkPath
-			else:
-				localBasePath = self._projectInfo[0]
-			abbrev = self.projectAbbrevs[pn.lower()]
-			webpath = self.webUpdateDirs[pn.lower()]
+		runCheck = force
+		now = datetime.datetime.now()
+		if not force:
+			webUpdate = val("web_update")
+			if webUpdate:
+				checkInterval = val("update_interval")
+				if checkInterval is None:
+					# Default to one day
+					checkInterval = 24 * 60
+				mins = datetime.timedelta(minutes=checkInterval)
+				if lastcheck is None:
+					lastcheck = datetime.datetime(1900, 1, 1)
+				runCheck = (now > (lastcheck + mins))
+		
+		if runCheck:
+			currVers = self._currentUpdateVersion()
+			# See if there is a later version
+			url = "%s/check/%s" % (dabo.webupdate_urlbase, currVers)
 			try:
-				resp = urllib2.urlopen(fileurl % (abbrev, currvers))
+				resp = simplejson.loads(urllib2.urlopen(url).read())
+			except urllib2.URLError, e:
+				# Could not connect
+				dabo.errorLog.write(_("Could not connect to the Dabo servers: %s") % e)
+				return e
+			except ValueError:
+				vers = -1
 			except StandardError, e:
-				# No internet access, or Dabo site is down.
-				dabo.errorLog.write(_("Cannot access the Dabo site. Error: %s") % e)
-				self._resetWebUpdateCheck()
-				return None
-			respFiles = resp.read()
-			if not respFiles:
-				# No updates available
-				dabo.infoLog.write(_("No changed files available for %s.") % pn)
-				continue
-			flist = eval(respFiles)
-			# First element is the web directory
-			webdir = flist.pop(0)
-			url = "http://dabodev.com/versions/%s/%s"
-			for mtype, fpth in flist:
-				localFile = os.path.join(localBasePath, fpth)
-				localPath = os.path.dirname(localFile)
-				if mtype == "D" and os.path.exists(localFile):
-					if os.path.isdir(localFile):
-						shutil.rmtree(localFile)
-					else:
-						os.remove(localFile)
-				else:
-					if not os.path.isdir(localPath):
-						os.makedirs(localPath)
-					if (mtype == "M") and os.path.isdir(localFile):
-						# The folder was modified, such as by a permission change. 
-						# We should ignore this.
-						continue
-					# Permission exceptions should be caught by the calling method.
-					resp = urllib2.urlopen(url % (webdir, fpth))
-					file(localFile, "w").write(resp.read())
-		url = "http://dabodev.com/frameworkVersions/latest"
-		vers = None
+				dabo.errorLog.write(_("Failed to open URL '%(url)s'. Error: %(e)s") % locals())
+				return e
+		prf.setValue("last_check", now)
+		return (firstTime, resp)
+
+
+	def _updateFramework(self):
+		"""Get any changed files from the dabodev.com server, and replace
+		the local copies with them."""
+		currVers = self._currentUpdateVersion()
+		fileurl = "%s/files/%s" % (dabo.webupdate_urlbase, currVers)
 		try:
-			vers = int(urllib2.urlopen(url).read())
-		except ValueError:
-			vers = self._currentUpdateVersion()
+			resp = urllib2.urlopen(fileurl)
 		except StandardError, e:
+			# No internet access, or Dabo site is down.
 			dabo.errorLog.write(_("Cannot access the Dabo site. Error: %s") % e)
-			vers = self._currentUpdateVersion()
-		if vers:
-			self.PreferenceManager.setValue("current_version", vers)
-		return vers
+			self._resetWebUpdateCheck()
+			return None
+
+		f = StringIO(resp.read())
+		zip = ZipFile(f)
+		zipfiles = zip.namelist()
+		if "DELETEDFILES" in zipfiles:
+			delfiles = zip.read("DELETEDFILES").splitlines()
+		else:
+			delfiles = []
+		if not zipfiles:
+			# No updates available
+			dabo.infoLog.write(_("No changed files available."))
+			return
+		projects = ("dabo", "demo", "ide")
+		prf = self._frameworkPrefs
+		loc_demo = prf.getValue("demo_directory")
+		loc_ide = prf.getValue("ide_directory")
+		updates = {}
+		for project in projects:
+			updates[project] = [f for f in zipfiles
+					if f.startswith(project)]
+		need_demoPath = (not loc_demo) and updates["demo"]
+		need_idePath = (not loc_ide) and updates["ide"]
+		if need_idePath or need_demoPath:
+			missing = []
+			if need_demoPath and not loc_demo:
+				missing.append(_("Demo path is missing"))
+			if need_idePath and not loc_ide:
+				missing.append(_("IDE path is missing"))
+			if missing:
+				return "\n".join(missing)
+
+		locations = {"dabo": dabo.frameworkPath,
+				"demo": loc_demo,
+				"ide": loc_ide}
+		for project in projects:
+			chgs = updates[project]
+			if not chgs:
+				continue
+			os.chdir(locations[project])
+			prefix = "%s/" % project
+			for pth in chgs:
+				target = pth.replace(prefix, "")
+				dirname = os.path.split(target)[0]
+				if dirname and not os.path.exists(dirname):
+					os.makedirs(dirname)
+				file(target, "wb").write(zip.read(pth))
+			for delfile in delfiles:
+				if delfile.startswith(prefix):
+					target = delfile.replace(prefix, "")
+					shutil.rmtree(target, ignore_errors=True)
+		return True
+
 
 
 	def _setWebUpdate(self, auto, interval=None):
@@ -1260,10 +1248,11 @@ try again when it is running.
 			return None
 
 	def _setActiveForm(self, frm):
-		if hasattr(self, "uiApp") and self.uiApp is not None:
+		try:
 			self.uiApp._setActiveForm(frm)
-		else:
-			dabo.errorLog.write(_("Can't set ActiveForm: no uiApp."))
+		except AttributeError:
+			# self.uiApp hasn't been created yet.
+			pass
 
 
 	def _getBasePrefKey(self):
@@ -1337,7 +1326,11 @@ try again when it is running.
 
 
 	def _getDrawSizerOutlines(self):
-		return self.uiApp.DrawSizerOutlines
+		try:
+			return self.uiApp.DrawSizerOutlines
+		except AttributeError:
+			# self.uiApp hasn't been created yet.
+			return False
 
 	def _setDrawSizerOutlines(self, val):
 		self.uiApp.DrawSizerOutlines = val

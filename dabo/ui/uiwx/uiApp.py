@@ -206,26 +206,83 @@ class uiApp(dObject, wx.App):
 		answer = False
 		msg = ""
 		vers = None
-		isFirst, projNames = self.dApp._checkForUpdates(force=force)
-		updAvail = bool(projNames)
-		if isFirst:
-			msg = _("This appears to be the first time you are running Dabo. If you are "
-					"connected to the internet, Dabo will check for updates and install them "
-					"if you wish. Click 'Yes' to get the latest version of Dabo now, or 'No' if "
-					"you do not have internet access.")
-			# Default to checking once a day.
-			self.dApp._setWebUpdate(True, 24*60)
-		elif updAvail:
-			if len(projNames) > 1:
-				nms = " and ".join(projNames)
-			else:
-				nms = projNames[0]
-			msg = _("Updates are available for %s. Do you want to update now?") % nms
+		updAvail = False
+		checkResult = self.dApp._checkForUpdates(force=force)
+		if isinstance(checkResult, Exception):
+			dabo.ui.stop(_("There was an error encountered when checking Web Update: %s") % checkResult,
+					_("Web Update Problem"))
+		else:
+			# The response will be a boolean for 'first time', along with the dict of updates.
+			isFirst, updates = checkResult
+			fileUpdates = updates.get("files")
+			updAvail = bool(fileUpdates)
+			if updAvail:
+				notes = ["%s: %s" % tuple(nt) for nt in updates.get("notes", "")]
+				noteText = "\n\n".join(notes)
+				# The format of each entry is the output from svn, and has the format:
+				#			'M      dabo/ui/uiwx/dFormMixin.py'
+				# We need to break that up into: (changeType, project, file)
+				step1 = [ch.split() for ch in fileUpdates]
+				# This is now in the format of [['M', 'dabo/ui/uiwx/dFormMixin.py'], ...]
+				# Filter out non-standard projects. Do this first, since some base trunk
+				# files can be in the list, and will throw an IndexError.
+				step2 = [(ch[0], ch[1]) for ch in step1
+						if ch[1].split("/", 1)[0] in ("dabo", "demo", "ide")]
+				step2.sort(lambda x,y: cmp(x[1], y[1]))
+				# Now split off the project
+				step3 = [{"mod":ch[0], "project":ch[1].split("/", 1)[0], "file":ch[1].split("/", 1)[1]} for ch in step2]
+				changedFiles = step3
+				updAvail = bool(changedFiles)
+
+		if updAvail:
+			msg = _("Updates are available. Do you want to install them now?")
+			if isFirst:
+				msg = _(
+"""This appears to be the first time you are running Dabo. When starting
+up, Dabo will check for updates and install them if you wish. Click 'Yes'
+to get the latest version of Dabo now, or 'No' if you do not wish to run
+these automatic updates.""").replace("\n", " ")
+				# Default to checking once a day.
+				self.dApp._setWebUpdate(True, 24*60)
+
 		if msg:
-			answer = dabo.ui.areYouSure(msg, title=_("Web Update Available"), cancelButton=False)
+			class WebUpdateConfirmDialog(dabo.ui.dYesNoDialog):
+				def initProperties(self):
+					self.Caption = "Updates Available"
+					self.AutoSize = False
+					self.Height = 600
+					self.Width = 500
+				def addControls(self):
+					headline = dabo.ui.dLabel(self, Caption=msg, FontSize=10,
+							WordWrap=True, ForeColor="blue")
+					self.Sizer.append1x(headline, halign="center")
+					self.Sizer.appendSpacer(12)
+					edtNotes = dabo.ui.dEditBox(self, Value=noteText)
+					self.Sizer.append(edtNotes, 1, "x")
+					self.Sizer.appendSpacer(12)
+					grd = dabo.ui.dGrid(self, ColumnCount=3)
+					col0, col1, col2 = grd.Columns
+					col0.DataField = "mod"
+					col1.DataField = "project"
+					col2.DataField = "file"
+					col0.Caption = "Change"
+					col1.Caption = "Project"
+					col2.Caption = "File"
+					col0.Width = 60
+					col1.Width = 60
+					col2.Width = 300
+					grd.DataSet = changedFiles
+					self.Sizer.append(grd, 3, "x")
+					self.Sizer.appendSpacer(20)
+					
+			dlg = WebUpdateConfirmDialog()
+			dlg.show()
+			answer = dlg.Accepted
+			dlg.release()
 			if answer:
+				self._setUpdatePathLocations()
 				try:
-					vers = self.dApp._updateFramework(projNames)
+					success = self.dApp._updateFramework()
 				except IOError, e:
 					dabo.errorLog.write(_("Cannot update files; Error: %s") % e)
 					dabo.ui.info(_("You do not have permission to update the necessary files. "
@@ -233,21 +290,72 @@ class uiApp(dObject, wx.App):
 					self.dApp._resetWebUpdateCheck()
 					answer = False
 
-				if vers is None:
+				if success is None:
 					# Update was not successful
 					dabo.ui.info(_("There was a problem getting a response from the Dabo site. "
 							"Please check your internet connection and try again later."), title=_("Update Failed"))
 					answer = False
 					self.dApp._resetWebUpdateCheck()
-				elif vers == 0:
+				elif isinstance(success, basestring):
+					# Error message was returned
+					dabo.ui.stop(success, title=_("Update Failure"))
+				elif success is False:
 					# There were no changed files available.
 					dabo.ui.info(_("There were no changed files available - your system is up-to-date!"), 
 							title=_("No Update Needed"))
 					answer = False
 				else:
-					dabo.ui.info(_("Dabo has been updated to revision %s. The app "
-							"will now exit. Please re-run the application.") % vers, title=_("Success!"))
+					dabo.ui.info(_("Dabo has been updated to the current revision. The app "
+							"will now exit. Please re-run the application."), title=_("Success!"))
 		return not answer
+
+
+	def _setUpdatePathLocations(self):
+		projects = ("dabo", "demo", "ide")
+		prf = self.dApp._frameworkPrefs
+		loc_demo = prf.getValue("demo_directory")
+		loc_ide = prf.getValue("ide_directory")
+		if loc_demo and loc_ide:
+			return
+
+		class PathDialog(dabo.ui.dOkCancelDialog):
+			def initProperties(self):
+				self.Caption = _("Dabo Project Locations")
+			def addControls(self):
+				gsz = dabo.ui.dGridSizer(MaxCols=3)
+				lbl = dabo.ui.dLabel(self, Caption=_("IDE Directory:"))
+				txt = dabo.ui.dTextBox(self, Enabled=False, Value=loc_ide, RegID="txtIDE", Width=200)
+				btn = dabo.ui.dButton(self, Caption="...", OnHit=self.onGetIdeDir)
+				gsz.appendItems((lbl, txt, btn), border=5)
+				gsz.appendSpacer(10, colSpan=3)
+				lbl = dabo.ui.dLabel(self, Caption=_("Demo Directory:"))
+				txt = dabo.ui.dTextBox(self, Enabled=False, Value=loc_demo, RegID="txtDemo", Width=200)
+				btn = dabo.ui.dButton(self, Caption="...", OnHit=self.onGetDemoDir)
+				gsz.appendItems((lbl, txt, btn), border=5)
+				gsz.setColExpand(True, 1)
+				self.Sizer.append(gsz, halign="center", border=10)
+				self.Sizer.appendSpacer(25)
+			def onGetIdeDir(self, evt):
+				default = loc_ide
+				if default is None:
+					default = dabo.frameworkPath
+				f = dabo.ui.getDirectory(_("Select the location of the IDE folder"), defaultPath=default)
+				if f:
+					self.txtIDE.Value = f
+			def onGetDemoDir(self, evt):
+				default = loc_demo
+				if default is None:
+					default = dabo.frameworkPath
+				f = dabo.ui.getDirectory(_("Select the location of the Demo folder"), defaultPath=default)
+				if f:
+					self.txtDemo.Value = f
+		
+		dlg = PathDialog()
+		dlg.show()
+		if dlg.Accepted:
+			prf.ide_directory = dlg.txtIDE.Value
+			prf.demo_directory = dlg.txtDemo.Value
+		dlg.release()
 		
 	
 	def _onKeyPress(self, evt):
