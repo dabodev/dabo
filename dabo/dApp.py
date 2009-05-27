@@ -12,7 +12,6 @@ import datetime
 import urllib2
 import shutil
 import logging
-import simplejson
 from cStringIO import StringIO
 from zipfile import ZipFile
 import dabo
@@ -28,6 +27,11 @@ from dabo.dObject import dObject
 from dabo import dUserSettingProvider
 from dabo.lib.RemoteConnector import RemoteConnector
 
+try:
+	import simplejson
+except ImportError:
+	# Not installed on the user's Python; use the included version
+	from dabo.lib import simplejson as simplejson
 
 
 class Collection(list):
@@ -503,12 +507,8 @@ try again when it is running.
 
 
 	def checkForUpdates(self, evt=None):
-		"""Public interface to the web updates mechanism. Returns a 2-tuple
-		consisting of a boolean and a list of projects available for update. The boolean
-		indicates whether this is the first time that the framework is being run and the list
-		contains the updatable project names; e.g., if both project 'Foo' and the framework
-		have updates, it will return ["Dabo", "Foo"]; if only the framework has updates, it will
-		return ["Dabo"]. If there are no updates available, an empty list will be returned.
+		"""Public interface to the web updates mechanism. Returns a boolean
+		indicating whether the update was successful.
 		"""
 		return self.uiApp.checkForUpdates(force=True)
 
