@@ -30,8 +30,9 @@ from dabo.lib.RemoteConnector import RemoteConnector
 try:
 	import simplejson
 except ImportError:
-	# Not installed on the user's Python; use the included version
-	from dabo.lib import simplejson as simplejson
+	# Not installed on the user's Python
+	simplejson = None
+
 
 
 class Collection(list):
@@ -559,9 +560,13 @@ try again when it is running.
 		if runCheck:
 			currVers = self._currentUpdateVersion()
 			# See if there is a later version
-			url = "%s/check/%s" % (dabo.webupdate_urlbase, currVers)
+			if simplejson:
+				# It's installed
+				url = "%s/check/%s" % (dabo.webupdate_urlbase, currVers)
+			else:
+				url = "%s/checkNoJson/%s" % (dabo.webupdate_urlbase, currVers)
 			try:
-				resp = simplejson.loads(urllib2.urlopen(url).read())
+				resp = urllib2.urlopen(url).read()
 			except urllib2.URLError, e:
 				# Could not connect
 				dabo.errorLog.write(_("Could not connect to the Dabo servers: %s") % e)
@@ -571,6 +576,12 @@ try again when it is running.
 			except StandardError, e:
 				dabo.errorLog.write(_("Failed to open URL '%(url)s'. Error: %(e)s") % locals())
 				return e
+			if simplejson:
+				resp = simplejson.loads(resp)
+			else:
+				# Sucks using eval(), but that's really the only choice without simplejson
+				# (or rewriting yet again).
+				resp = eval(resp)
 		prf.setValue("last_check", now)
 		return (firstTime, resp)
 
