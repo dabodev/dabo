@@ -1,5 +1,53 @@
 See the Subversion log for all the details.
 
+Dabo 0.9.2 (2009-05-27) Revision 5238):
+===============================================================================
+There were two unfortunate bugs that made it into the 0.9.1 release that prevented new installs of that release from working. I'm embarrassed that it took us over 4 months to fix this, but since most active developers are using subversion, it didn't seem like much of a problem. But newcomers who downloaded the release version were turned off, so this finally addresses the problem.
+
+In addition, there were several other significant changes since then.
+
++ Added the ability to filter data in the current dataset rather than running another query against the database.
+
++ Improved the wizard for adding data-bound controls to handle cases where you are not working in a standard directory structure.
+
++ Improved cursor handling when running as a web app.
+
++ Added a reverse argument to dBizobj.scan().
+
++ Fixed type issues when working with StatusText in dialogs. Also removed a call that was occasionally clearing StatusText when it shouldn't have.
+
++ Fixed pathing and name issues in CxnEditor.
+
++ Added parent/child support to RemoteBizobjs. Prior versions only supported single, unrelated tables.
+
++ Fixed a bug in the grid's incremental search that ignored non-alphanumeric keys.
+
++ Removed the CxnFile property from forms, as some people consistenly mis-interpreted how it was to be used.
+
++ Fixed an issue with escaping/unescaping ampersands being saved in XML files.
+
++ Improved encoding detection with databases that have a default encoding.
+
++ Moved the image files for the playing cards to the demo directory.
+
++ Added the code for Springboard into the repository.
+
++ Improved error reporting when parsing XML strings.
+
++ Many improvements to the ReportWriter / ReportDesigner affecting performance, display and usability.
+
++ Added a Show property to bands in the ReportDesigner.
+
++ Fixed bug in which 'Save As' in the Editor wasn't saving a file if it wasn't modified.
+
++ Improved handling of compound PKs in child requeries.
+
++ Fixed problem with handling nested splitters in the Class Designer.
+
++ Re-wrote the Web Update code to update the entire Dabo codebase (framework, demo, ide) instead of updating each piece separately. Added more information as to what is being updated.
+
+
+
 Dabo 0.9.1 (2009-01-25) Revision 4976):
 ===============================================================================
 Lots and lots of bug fixes as more people worked with the 0.9.0 changes. Here are some of the changes:
