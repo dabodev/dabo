@@ -1363,8 +1363,8 @@ try again when it is running.
 			calledScript = sys.argv[0]
 			if calledScript.startswith("./"):
 				calledScript = calledScript.lstrip("./")
-			scriptDir = os.path.split(os.path.join(os.getcwd(), calledScript))[0]
-			appDir = os.path.split(inspect.getabsfile(self.__class__))[0]
+			scriptDir = os.path.realpath(os.path.split(os.path.join(os.getcwd(), calledScript))[0])
+			appDir = os.path.realpath(os.path.split(inspect.getabsfile(self.__class__))[0])
 
 			def issubdir(d1, d2):
 				while True:
@@ -1385,6 +1385,7 @@ try again when it is running.
 				# instance of a raw dApp. So the only thing we can really do is make the
 				# HomeDirectory the location of the main script, since we can't guess at
 				# the application's directory structure.
+				dabo.infoLog.write("Can't deduce HomeDirectory:setting to the script directory.")
 				hd = scriptDir
 
 			if os.path.split(hd)[1][-4:].lower() in (".zip", ".exe"):
