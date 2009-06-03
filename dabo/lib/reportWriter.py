@@ -1776,7 +1776,7 @@ class ReportWriter(object):
 		for obj in objects:
 			obj_y = self.getPt(obj.getProp("y"))
 			obj_ht = obj.getProp("Height")
-			if obj_ht is None:
+			if obj_ht is None or obj.getProp("Show") == False:
 				continue
 			# object height is fixed.
 			obj_ht = self.getPt(obj_ht)
@@ -1890,7 +1890,7 @@ class ReportWriter(object):
 									self._getXMLDictFromForm(formobj, obj)
 									break
 								else:
-									if element != "groups":
+									if element.lower() != "groups":
 										newchild = {"name": prop, "cdata": formobj[prop]}
 										obj["children"].append(newchild)
 					objects.append(obj)
