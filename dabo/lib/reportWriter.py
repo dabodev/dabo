@@ -354,15 +354,27 @@ class Report(ReportObject):
 	def initAvailableProps(self):
 		super(Report, self).initAvailableProps()
 
+		self.AvailableProps["Author"] = toPropDict(str, "", 
+				"""Specifies the author of the report. Appears in PDF properties.""")
+
+		self.AvailableProps["Subject"] = toPropDict(str, "", 
+				"""Specifies the subject of the report. Appears in PDF properties.""")
+
+		self.AvailableProps["Keywords"] = toPropDict(tuple, (), 
+				"""Specifies keywords for the report. Appears in PDF properties.""")
+
 		self.AvailableProps["Title"] = toPropDict(str, "", 
-				"""Specifies the title of the report.""")
+		"""Specifies the title of the report. Appears in PDF properties.""")
 
 		self.AvailableProps["ColumnCount"] = toPropDict(int, 1, 
 				"""Specifies the number of columns to divide the report into.""")
 
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the report form."""
-		self.setdefault("Title", "")
+		self.setdefault("Title", '"Dabo Report"')
+		self.setdefault("Subject", '"http://dabodev.com"')
+		self.setdefault("Author", '"Dabo Report Writer"')
+		self.setdefault("Keywords", '("dabo", "report", "writer", "banded", "free")')
 		self.setdefault("Page", Page(self))
 		self.setdefault("PageHeader", PageHeader(self))
 		self.setdefault("Detail", Detail(self))
@@ -706,6 +718,23 @@ class Line(Drawable):
 				give you a dash-dot look.""")
 
 
+class SpanningLine(Line):
+	"""Represents a line that spans from a group or page header to a group or page footer."""
+	def initAvailableProps(self):
+		super(SpanningLine, self).initAvailableProps()
+		del self.AvailableProps["x"]
+		del self.AvailableProps["y"]
+		del self.AvailableProps["LineSlant"]
+		self.AvailableProps["x"] = toPropDict(float, 0.0, 
+				"""Specifies the x of the starting point of the line, in the group or page header.""")
+		self.AvailableProps["y"] = toPropDict(float, 0.0, 
+				"""Specifies the y of the starting point of the line, in the group or page header.""")
+		self.AvailableProps["xFooter"] = toPropDict(float, 0.0, 
+				"""Specifies the x of the ending point of the line, in the group or page footer.""")
+		self.AvailableProps["yFooter"] = toPropDict(float, 0.0, 
+				"""Specifies the y of the ending point of the line, in the group or page footer.""")
+
+
 class Frameset(Drawable):
 	"""Represents a frameset."""
 	def initAvailableProps(self):
@@ -823,6 +852,38 @@ class ReportWriter(object):
 	"""
 	_clearMemento = True
 
+	def storeSpanningObject(self, obj, origin=(0,0), group=None):
+		"""Store the passed spanning object for printing when the group or
+		page ends. Pass the group expr to identify group headers, or None to refer
+		to the pageHeader.
+		"""
+		obj["xFrom"] = origin[0]
+		obj["yFrom"] = origin[1]
+		spanList = self._spanningObjects.setdefault(group, [])
+		if obj not in spanList:
+			spanList.append(obj)
+
+	def drawSpanningObjects(self, origin=(0,0), group=None):
+		"""Draw all spanning objects. Called when page is changing or group is ending."""
+		x,y = origin
+		if group is None:
+			spanList = []
+			for g in self._spanningObjects:
+				for l in self._spanningObjects[g]:
+					spanList.append(l)
+		else:
+			spanList = self._spanningObjects.setdefault(group, [])
+		for obj in spanList:
+			y1 = self.getPt(obj.getProp("yFooter")) + y
+			x1 = self.getPt(obj.getProp("xFooter")) + x
+			self.draw(obj, (x1, y1))
+
+	def clearSpanningObjects(self, group=None):
+		try:
+			del self._spanningObjects[group]
+		except KeyError:
+			pass
+ 		
 	def draw(self, obj, origin=(0,0),	availableHeight=None, deferred=None):
 		"""Draw the given object on the Canvas.
 
@@ -898,10 +959,7 @@ class ReportWriter(object):
 			d.add(r)
 			d.drawOn(c, x, y)
 	
-		if objType == "Line":
-			d = shapes.Drawing(width, height)
-			d.rotate(rotation)
-	
+		if objType in ("Line", "SpanningLine"):
 			props = {}
 			## props available in reportlab that we use:
 			##   x,y,width,height
@@ -921,39 +979,51 @@ class ReportWriter(object):
 				props[prop] = obj.getProp(prop)
 			props["strokeWidth"] = self.getPt(props["strokeWidth"])
 
-			lineSlant = obj.getProp("lineSlant")
-			anchors = {"left": 0,
-					"center": width/2,
-					"right": width,
-					"top": height,
-					"middle": height/2,
-					"bottom": 0}
-
-			if lineSlant == "-":
-				# draw line from (left,middle) to (right,middle) anchors
-				beg = (anchors["left"], anchors["middle"])
-				end = (anchors["right"], anchors["middle"])
-			elif lineSlant == "|":
-				# draw line from (center,bottom) to (center,top) anchors
-				beg = (anchors["center"], anchors["bottom"])
-				end = (anchors["center"], anchors["top"])
-			elif lineSlant == "\\":
-				# draw line from (right,bottom) to (left,top) anchors
-				beg = (anchors["right"], anchors["bottom"])
-				end = (anchors["left"], anchors["top"])
-			elif lineSlant == "/":
-				# draw line from (left,bottom) to (right,top) anchors
-				beg = (anchors["left"], anchors["bottom"])
-				end = (anchors["right"], anchors["top"])
+			if objType == "SpanningLine":
+				# Line gets drawn from fixed (x,y) to fixed (xFooter, yFooter) points.
+				x = obj["xFrom"]
+				y = obj["yFrom"]
+				xFooter, yFooter = origin
+				c.setStrokeColorRGB(*props["strokeColor"])
+				c.setLineWidth(props["strokeWidth"])
+				c.line(x, y, xFooter, yFooter)
 			else:
-				# don't draw the line
-				lineSlant = None
+				d = shapes.Drawing(width, height)
+				d.rotate(rotation)
+	
+				lineSlant = obj.getProp("lineSlant")
+				anchors = {"left": 0,
+						"center": width/2,
+						"right": width,
+						"top": height,
+						"middle": height/2,
+						"bottom": 0}
 
-			if lineSlant:
-				r = shapes.Line(beg[0], beg[1], end[0], end[1])
-				r.setProperties(props)
-				d.add(r)
-				d.drawOn(c, x, y)
+				if lineSlant == "-":
+					# draw line from (left,middle) to (right,middle) anchors
+					beg = (anchors["left"], anchors["middle"])
+					end = (anchors["right"], anchors["middle"])
+				elif lineSlant == "|":
+					# draw line from (center,bottom) to (center,top) anchors
+					beg = (anchors["center"], anchors["bottom"])
+					end = (anchors["center"], anchors["top"])
+				elif lineSlant == "\\":
+					# draw line from (right,bottom) to (left,top) anchors
+					beg = (anchors["right"], anchors["bottom"])
+					end = (anchors["left"], anchors["top"])
+				elif lineSlant == "/":
+					# draw line from (left,bottom) to (right,top) anchors
+					beg = (anchors["left"], anchors["bottom"])
+					end = (anchors["right"], anchors["top"])
+				else:
+					# don't draw the line
+					lineSlant = None
+
+				if lineSlant:
+					r = shapes.Line(beg[0], beg[1], end[0], end[1])
+					r.setProperties(props)
+					d.add(r)
+					d.drawOn(c, x, y)
 
 		elif objType == "String":
 			## Set the props for strings:
@@ -1397,7 +1467,12 @@ class ReportWriter(object):
 		if not c:
 			# Create the reportlab canvas:
 			c = self._canvas = canvas.Canvas(_outputFile, pagesize=pageSize)
-		
+
+		c.setAuthor(_form.getProp("Author"))
+		c.setKeywords(_form.getProp("Keywords"))	
+		c.setSubject(_form.getProp("Subject"))	
+		c.setTitle(_form.getProp("Title"))
+	
 		# Get the number of columns:
 		columnCount = _form.getProp("columnCount")
 		
@@ -1426,6 +1501,7 @@ class ReportWriter(object):
 				self.Variables[varName] = variable.getProp("InitialValue")
 				self._variableValues[varName] = vv
 
+		self._spanningObjects = {}
 		self._recordNumber = 0
 		self._currentColumn = 0
 
@@ -1611,6 +1687,11 @@ class ReportWriter(object):
 				else:
 					y1 = y + y1
 
+				if obj.__class__.__name__ == "SpanningLine":
+					print y, y1, obj_deferred
+					self.storeSpanningObject(obj, (x1, y1), group["expr"])
+					continue
+
 				availableHeight = y - (pageFooterOrigin[1] + pfHeight)
 				obj_height = obj.getProp("height")
 				if obj_height is not None:
@@ -1643,6 +1724,10 @@ class ReportWriter(object):
 						# need to delete the old deferral
 						del_deferred_idxs.append(idx)
 
+			if band == "groupFooter":
+				self.drawSpanningObjects((x,y), group["expr"])
+				self.clearSpanningObjects(group["expr"])
+
 			del_deferred_idxs.sort(reverse=True)
 			for idx in del_deferred_idxs:
 				del(deferred[idx])
@@ -1671,6 +1756,8 @@ class ReportWriter(object):
 
 		def endPage():
 			self._currentColumn = 0
+			x = self.getPt(self.ReportForm["Page"].getProp("MarginLeft"))
+			self.drawSpanningObjects((x,y))
 			printBand("pageForeground")
 			self.Canvas.showPage()
 		
@@ -1681,7 +1768,6 @@ class ReportWriter(object):
 					reprint = eval(reprint)
 					if reprint is not None:
 						y = printBand("groupHeader", y, group)
-		
 			return y
 
 		# Need to process the variables before the first beginPage() in case
@@ -1834,7 +1920,9 @@ class ReportWriter(object):
 
 
 	def _elementSort(self, x, y):
-		positions = CaselessDict({"title": 0, "columnCount": 5, "page": 10, 
+		positions = CaselessDict({"author": 0, "title": 2,
+				"subject": 3, "keywords": 4,
+				"columnCount": 5, "page": 10, 
 				"groups": 50, "variables": 40, "pageBackground": 55, 
 				"pageHeader": 60, "groupHeader": 65, "detail": 70, 
 				"groupFooter": 75, "pageFooter": 80, "pageForeground": 90, 
@@ -1988,7 +2076,8 @@ class ReportWriter(object):
 				"String": String, "Image": Image, "BarGraph": BarGraph, "Line": Line,
 				"Frameset": Frameset, "Paragraph": Paragraph,
 				"Variables": Variables, "Groups": Groups, "Objects": Objects,
-				"TestCursor": TestCursor, "TestRecord": TestRecord})
+				"TestCursor": TestCursor, "TestRecord": TestRecord,
+				"SpanningLine": SpanningLine})
 
 		cls = typeMapping.get(objectType)
 		ref = cls(parent)
