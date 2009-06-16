@@ -191,7 +191,11 @@ def DesignerController():
 									fields = tc[0].keys()
 							elif typ == var:
 								for v in var:
-									fields.append(v["Name"])
+									try:
+										fields.append(v["Name"])
+									except KeyError:
+										# variable not given a name
+										pass
 							fields.sort()
 							for field in fields:
 								submenu.append(field, OnHit=onNewObject, 
