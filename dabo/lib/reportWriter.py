@@ -859,6 +859,8 @@ class ReportWriter(object):
 		"""
 		obj["xFrom"] = origin[0]
 		obj["yFrom"] = origin[1]
+		if group is not None:
+			group = group["expr"]
 		spanList = self._spanningObjects.setdefault(group, [])
 		if obj not in spanList:
 			spanList.append(obj)
@@ -872,13 +874,15 @@ class ReportWriter(object):
 				for l in self._spanningObjects[g]:
 					spanList.append(l)
 		else:
-			spanList = self._spanningObjects.setdefault(group, [])
+			spanList = self._spanningObjects.setdefault(group["expr"], [])
 		for obj in spanList:
 			y1 = self.getPt(obj.getProp("yFooter")) + y
 			x1 = self.getPt(obj.getProp("xFooter")) + x
 			self.draw(obj, (x1, y1))
 
 	def clearSpanningObjects(self, group=None):
+		if group is not None:
+			group = group["expr"]
 		try:
 			del self._spanningObjects[group]
 		except KeyError:
@@ -1688,8 +1692,7 @@ class ReportWriter(object):
 					y1 = y + y1
 
 				if obj.__class__.__name__ == "SpanningLine":
-					print y, y1, obj_deferred
-					self.storeSpanningObject(obj, (x1, y1), group["expr"])
+					self.storeSpanningObject(obj, (x1, y1), group)
 					continue
 
 				availableHeight = y - (pageFooterOrigin[1] + pfHeight)
@@ -1725,8 +1728,8 @@ class ReportWriter(object):
 						del_deferred_idxs.append(idx)
 
 			if band == "groupFooter":
-				self.drawSpanningObjects((x,y), group["expr"])
-				self.clearSpanningObjects(group["expr"])
+				self.drawSpanningObjects((x,y), group)
+				self.clearSpanningObjects(group)
 
 			del_deferred_idxs.sort(reverse=True)
 			for idx in del_deferred_idxs:
