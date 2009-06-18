@@ -1111,11 +1111,15 @@ class ReportWriter(object):
 				neededHeight = sum([s[1] for s in story])
 			else:
 				story, neededHeight = self.getStory(obj)
+
+			dynamicHeight = obj.getProp("Height") is None
+
 			printStory = story
 			deferredStory = []
 			tot_p_height = 0
 			printStoryHeight = deferredStoryHeight = 0
-			if neededHeight >= availableHeight:
+
+			if dynamicHeight and neededHeight >= availableHeight:
 				printStory = []
 				for p, p_height in story:
 					tot_p_height += p_height
@@ -1126,7 +1130,12 @@ class ReportWriter(object):
 						printStory.append((p, p_height))
 						printStoryHeight += p_height
 				neededHeight = printStoryHeight + padTop + padBottom
-		
+
+			if not dynamicHeight:
+				frameHeight = self.getPt(obj.getProp("Height"))
+			else:
+				frameHeight = neededHeight
+
 			if vAnchor == "top":
 				y = y - neededHeight
 			elif vAnchor == "middle":
@@ -1144,7 +1153,7 @@ class ReportWriter(object):
 				boundary = 0
 
 			for columnIndex in range(columnCount):
-				f = platypus.Frame(columnIndex*columnWidth, 0, columnWidth, neededHeight, leftPadding=padLeft,
+				f = platypus.Frame(columnIndex*columnWidth, 0, columnWidth, frameHeight, leftPadding=padLeft,
 						rightPadding=padRight, topPadding=padTop,
 						bottomPadding=padBottom, id=frameId, 
 						showBoundary=boundary)
@@ -1378,8 +1387,8 @@ class ReportWriter(object):
 					"""When a paragraph wraps to the next page, the last line won't print if this isn't done."""
 					append_p = ParaClass("Hack: see hackDeferredPara() in reportWriter.py", s)
 					p_height = p.wrap(99999, None)[1]
-					story.append((p, p_height))
-				if paras:
+					story.append((append_p, p_height))
+				if obj.getProp("Height") is None and paras:
 					hackDeferredPara()
 
 		neededHeight = objNeededHeight + padTop + padBottom
