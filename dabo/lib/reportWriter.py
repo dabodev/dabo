@@ -1638,11 +1638,8 @@ class ReportWriter(object):
 					extraHeight = self.getBandHeight(b)
 
 				check = pageFooterOrigin[1] + pfHeight + extraHeight
-				if bandDict.getProp("height") is not None:
-					# band height is fixed, won't flow to next page. 
-					check += bandHeight
 
-				if y <= check:
+				if y < check:
 					if self._currentColumn >= columnCount-1:
 						endPage()
 						beginPage()
