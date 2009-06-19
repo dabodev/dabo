@@ -284,7 +284,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			if value is not None:
 				try:
 					self.Value = value
-				except TypeError:
+				except (ValueError, TypeError):
 					self.Value = self.getBlankValue()
 
 
