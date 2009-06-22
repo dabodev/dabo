@@ -1685,6 +1685,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			rdc.ActiveEditor._selectedObjects = selObj
 			if selObj[0] != rdc.ReportForm:
 				rdc.getParentBand(selObj[0]).DesignerObject.refresh()
+
 			# delay the refreshing of the property grid/position:
 			rdc.refreshSelection()
 			return
@@ -1769,6 +1770,11 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			for bandObj in parentBands:
 				# refresh the parent bands immediately to reflect the drawing:
 				bandObj.DesignerObject.refresh()
+
+			# Don't refresh() because that takes too long for no reason:	
+			self.showPosition()
+			self.setCaption()
+
 			# delay the refreshing of the property grid/position:
 			rdc.refreshProps(refreshEditor=False)
 
