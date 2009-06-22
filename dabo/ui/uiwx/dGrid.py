@@ -1285,6 +1285,13 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._properties["ListEditorChoices"] = val
 
 
+	def _getMovable(self):
+		return getattr(self, "_movable", True)
+
+	def _setMovable(self, val):
+		self._movable = bool(val)
+
+
 	def _getOrder(self):
 		try:
 			v = self._order
@@ -1590,6 +1597,13 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	ListEditorChoices = property(_getListEditorChoices, _setListEditorChoices, None,
 		_("""Specifies the list of choices that will appear in the list. Only applies
 		if the DataType is set as "list".  (list)"""))
+
+	Movable = property(_getMovable, _setMovable, None,
+			_("""Specifies whether this column is movable by the user.
+
+			Note also the dGrid.MovableColumns property - if that is set
+			to False, columns will not be movable even if their Movable
+			property is set to True."""))
 
 	Order = property(_getOrder, _setOrder, None,
 			_("""Order of this column. Columns in the grid are arranged according
@@ -3201,7 +3215,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 			if not headerIsSizing and (self.getColNumByX(x) == self.getColNumByX(x-5) == self.getColNumByX(x+5)):
 				if not headerIsDragging:
-					if self.MovableColumns:
+					curCol = self.getColByX(x)
+					if self.MovableColumns and curCol.Movable:
 						# A header reposition is beginning
 						self._headerDragging = True
 						self._headerDragFrom = (x,y)
