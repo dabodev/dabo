@@ -264,6 +264,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._useStyleTimer = False
 		self._tabWidth = 4
 		self._useTabs = True
+		self._backSpaceUnindents = False
 		self._showCallTips = True
 		self._codeCompletion = True
 		self._syntaxColoring = True
@@ -660,6 +661,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def setDefaults(self):
 		self.UsePopUp(0)
 		self.SetUseTabs(self.UseTabs)
+		self.SetBackSpaceUnIndents(self.BackSpaceUnindents)
 		self.SetTabIndents(True)
 
 		## Autocomplete settings:
@@ -2387,6 +2389,17 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			self._properties["UseTabs"] = val
 
 
+	def _getBackSpaceUnindents(self):
+		return self._backSpaceUnindents
+
+	def _setBackSpaceUnindents(self, val):
+		if self._constructed():
+			self._backSpaceUnindents = val
+			self.SetBackSpaceUnIndents(val)
+		else:
+			self._properties["BackSpaceUnindents"] = val
+
+
 	def _getValue(self):
 		return self.Text
 		
@@ -2594,6 +2607,11 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			_("""Indentation will only use space characters if useTabs 
 			is False; if True, it will use a combination of tabs and 
 			spaces (default=True)  (bool)"""))
+	
+	BackSpaceUnindents = property(_getBackSpaceUnindents, _setBackSpaceUnindents, None,
+			_("""If set True then backspace, when in indentation, will go back
+			TabWidth positions; if set False then backspace will go back only one
+			position. If UseTabs is True this should be set to False. (default=False)  (bool)"""))
 	
 	Value = property(_getValue, _setValue, None,
 		_("""Specifies the current contents of the editor.  (basestring)"""))
