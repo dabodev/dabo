@@ -11,7 +11,10 @@ from dabo.ui import dKeys
 import ClassDesignerPropSheet
 
 
+NEW_FILE_CAPTION = "< New >"
+
 rdc = None
+
 
 def DesignerController():
 	# Wrapper function to enforce singleton class instance
@@ -1893,7 +1896,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 				r = dabo.ui.areYouSure("File '%s' already exists. "
 					"Do you want to overwrite it?" % fname, defaultNo=True)
 					
-				if r == None:
+				if r is None:
 					# user canceled.
 					fname = None
 					break
@@ -1910,16 +1913,13 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 
 	def saveFile(self, fileSpec=None):
-		if fileSpec == None:
+		if fileSpec is None:
 			fileSpec = self._fileName
-			if not fileSpec or fileSpec == "< New >":
+			if not fileSpec or fileSpec == NEW_FILE_CAPTION:
 				fileSpec = self.promptForSaveAs()
 				if fileSpec is None:
 					return False
-				else:
-					self._fileName = fileSpec
-		else:
-			self._fileName = fileSpec
+		self._fileName = fileSpec
 		xml = self._rw._getXMLFromForm(self._rw.ReportForm)
 		file(fileSpec, "wb").write(xml.encode(dabo.defaultEncoding))
 		self._rw._setMemento()
@@ -1955,7 +1955,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		if self.closeFile():
 			self._rw.ReportForm = self._rw._getEmptyForm()
 			self.initReportForm()
-			self._fileName = "< New >"
+			self._fileName = NEW_FILE_CAPTION
 		rdc.ActiveEditor = self
 		rdc.SelectedObjects = [self._rw.ReportForm]
 
