@@ -1576,7 +1576,10 @@ class ReportWriter(object):
 			if pf is None:
 				pfHeight = 0
 			else:
-				pfHeight = self.getPt(pf.getProp("Height"))
+				pfHeight = pf.getProp("Height")
+				if pfHeight is None:
+					pfHeight = self.getBandHeight(pf)
+				pfHeight = self.getPt(pfHeight)
 
 			if y is None:
 				y = pageHeaderOrigin[1]
