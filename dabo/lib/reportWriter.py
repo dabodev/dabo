@@ -1781,17 +1781,17 @@ class ReportWriter(object):
 
 		# Need to process the variables before the first beginPage() in case
 		# any of the static bands reference the variables.
-		processVariables(forceReset=True)
+		processVariables()
 		beginPage()
 
 		# Print the dynamic bands (Detail, GroupHeader, GroupFooter):
 		y = None
-		for idx, record in enumerate(self.Cursor):
+		for cursor_idx, record in enumerate(self.Cursor):
 			_lastRecord = self.Record
 			self.Record = record
 
 			# print group footers for previous group if necessary:
-			if idx > 0:
+			if cursor_idx > 0:
 				# First pass, iterate through the groups outer->inner, and if any group
 				# expr has changed, reset the curval for the group and all child groups.
 				resetCurVals = False
@@ -1811,9 +1811,10 @@ class ReportWriter(object):
 						self.Record = _lastRecord
 						y = printBand("groupFooter", y, group)
 						self.Record = record
-						
-			# Any report variables need their values evaluated again:
-			processVariables()
+
+			if cursor_idx > 0:						
+				# Any report variables need their values evaluated again:
+				processVariables()
 
 			# print group headers for this group if necessary:
 			brandNewPage = False
