@@ -35,6 +35,10 @@ def DesignerController():
 			# Mac-specific behavior
 			self.ActiveEditor.onKeyDown(evt)
 
+		def onFileExit(self, evt):
+			ret = self.ActiveEditor.closeFile()
+			if ret is not None:
+				self.finish()
 
 		def getShortExpr(self, expr):
 			"""Given an expression, return a shortened version for display in designer."""
@@ -1926,6 +1930,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self.setCaption()
 
 
+
 	def closeFile(self):
 		result = self.promptToSave()
 
@@ -2325,6 +2330,7 @@ class ReportDesignerForm(dabo.ui.dForm):
 
 		self._xmlEditorUpToDate = False
 		self.editor = self.pgf.Pages[0]
+
 
 
 	def onActivate(self, evt):
