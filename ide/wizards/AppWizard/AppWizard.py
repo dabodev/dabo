@@ -641,13 +641,14 @@ class AppWizard(Wizard):
 			os.chmod(fname, 0744)
 
 			## Create a shell script to run the main script:
-			f = open("./go.sh", "w")
-			f.write("# go.sh\n")
-			f.write("# launches the %s app.\n" % appName)
-			f.write("cd %s\n" % self.outputDirectory )
-			f.write("python %s.py %s\n" % (appName, tableName))
-			f.write("# python %s.py --OpenAll\n" % (appName) )
-			f.close()
+			filecont = "# go.sh\n"
+			filecont += "# launches the %s app.\n" % appName
+			filecont += "cd %s\n" % self.outputDirectory 
+			filecont += "python %s.py %s\n" % (appName, tableName)
+			filecont += "# python %s.py --OpenAll\n" % (appName) 
+			f = open("./go.sh", "w").write(filecont)
+			f = open("./go.bat", "w").write(filecont)
+
 			import stat
 			os.chmod('go.sh',stat.S_IRWXU )  ## rwx for user, nothing else.
 
