@@ -1586,14 +1586,6 @@ class ReportWriter(object):
 #			print workingPageWidth / 72, columnWidth / 72
 #			print columnWidth, columnCount
 
-			pf = _form.get("pageFooter")
-			if pf is None:
-				pfHeight = 0
-			else:
-				pfHeight = pf.getProp("Height")
-				if pfHeight is None:
-					pfHeight = self.getBandHeight(pf)
-				pfHeight = self.getPt(pfHeight)
 
 			if y is None:
 				y = pageHeaderOrigin[1]
@@ -1606,6 +1598,18 @@ class ReportWriter(object):
 			except KeyError:
 				# Band name doesn't exist.
 				return y
+
+			if band.lower() == "pagefooter" and bandDict.getProp("Height") == None:
+				raise ValueError, "PageFooter height must be fixed (not None)."
+
+			pf = _form.get("pageFooter")
+			if pf is None or pf is bandDict:
+				pfHeight = 0
+			else:
+				pfHeight = pf.getProp("Height")
+				if pfHeight is None:
+					pfHeight = self.getBandHeight(pf)
+				pfHeight = self.getPt(pfHeight)
 
 			if band.lower() == "reportend" and bandDict.getProp("PageBreakBefore"):
 				endPage()
@@ -2120,7 +2124,8 @@ class ReportWriter(object):
 				"Frameset": Frameset, "Paragraph": Paragraph,
 				"Variables": Variables, "Groups": Groups, "Objects": Objects,
 				"TestCursor": TestCursor, "TestRecord": TestRecord,
-				"SpanningLine": SpanningLine})
+				"SpanningLine": SpanningLine, "ReportBegin": ReportBegin,
+				"ReportEnd": ReportEnd})
 
 		cls = typeMapping.get(objectType)
 		ref = cls(parent)
