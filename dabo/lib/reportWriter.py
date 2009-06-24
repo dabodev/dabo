@@ -381,6 +381,8 @@ class Report(ReportObject):
 		self.setdefault("PageFooter", PageFooter(self))
 		self.setdefault("PageBackground", PageBackground(self))
 		self.setdefault("PageForeground", PageForeground(self))
+		self.setdefault("ReportBegin", ReportBegin(self))
+		self.setdefault("ReportEnd", ReportEnd(self))
 		self.setdefault("Groups", Groups(self))
 		self.setdefault("Variables", Variables(self))
 
@@ -518,6 +520,18 @@ class PageFooter(Band): pass
 class GroupHeader(Band): pass
 class GroupFooter(Band): pass
 class PageForeground(Band): pass
+
+class ReportBegin(Band):
+	def initAvailableProps(self):
+		super(ReportBegin, self).initAvailableProps()
+		self.AvailableProps["PageBreakAfter"] = toPropDict(bool, False, 
+				"""Specifies whether a page break is inserted after the band prints.""")
+
+class ReportEnd(Band):
+	def initAvailableProps(self):
+		super(ReportEnd, self).initAvailableProps()
+		self.AvailableProps["PageBreakBefore"] = toPropDict(bool, False, 
+				"""Specifies whether a page break is inserted before the band prints.""")
 
 
 class Rectangle(Drawable):
@@ -1593,6 +1607,9 @@ class ReportWriter(object):
 				# Band name doesn't exist.
 				return y
 
+			if band.lower() == "reportend" and bandDict.getProp("PageBreakBefore"):
+				endPage()
+				beginPage()
 	
 			if bandDict.getProp("show", returnException=True) == False:
 				return y
@@ -1630,7 +1647,7 @@ class ReportWriter(object):
 
 			maxBandHeight = getTotalBandHeight()
 
-			if band in ("groupHeader", "groupFooter", "detail"):
+			if band in ("groupHeader", "groupFooter", "detail", "ReportBegin", "ReportEnd"):
 				extraHeight = 0
 				if band == "groupHeader":
 					# Also account for the height of the first detail record: don't print the
@@ -1744,6 +1761,10 @@ class ReportWriter(object):
 			for idx in del_deferred_idxs:
 				del(deferred[idx])
 
+			if band.lower() == "reportbegin" and bandDict.getProp("PageBreakAfter"):
+				endPage()
+				beginPage()
+
 			if was_deferred and not deferred:
 				# just printed the last page of deferreds
 				return y - maxBandHeight
@@ -1786,6 +1807,7 @@ class ReportWriter(object):
 		# any of the static bands reference the variables.
 		processVariables()
 		beginPage()
+		y = printBand("ReportBegin")
 
 		# Print the dynamic bands (Detail, GroupHeader, GroupFooter):
 		y = None
@@ -1847,6 +1869,8 @@ class ReportWriter(object):
 		# print the group footers for the last group:
 		for idx, group in enumerate(groupsDesc):
 			y = printBand("groupFooter", y, group)
+
+		y = printBand("ReportEnd", y)
 
 		endPage()
 		
