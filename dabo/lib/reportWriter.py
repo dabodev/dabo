@@ -1875,10 +1875,16 @@ class ReportWriter(object):
 		for obj in objects:
 			obj_y = self.getPt(obj.getProp("y"))
 			obj_ht = obj.getProp("Height")
-			if obj_ht is None or obj.getProp("Show") == False:
+			if obj.getProp("Show") == False:
 				continue
-			# object height is fixed.
-			obj_ht = self.getPt(obj_ht)
+			if obj_ht is None:
+				# Dynamic object height: TotalHeight gets calc'd for the
+				# object elsewhere. Assume a height of 0 but still allow
+				# the position of the object to have an effect on this calc.
+				obj_ht = 0
+			else:
+				# object height is fixed.
+				obj_ht = self.getPt(obj_ht)
 			thisHeight = obj_y + obj_ht
 			bandHeight = max(thisHeight, bandHeight)
 		return bandHeight
