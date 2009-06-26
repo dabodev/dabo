@@ -119,6 +119,9 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		return self._page
 
 	def _setPage(self, val):
+		if not self._constructed():
+			self._properties["Page"] = val
+			return
 		if isinstance(val, basestring):
 			try:
 				if os.path.exists(val):
@@ -156,6 +159,9 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		return self._source
 
 	def _setSource(self, val):
+		if not self._constructed():
+			self._properties["Source"] = val
+			return
 		if isinstance(val, types.StringTypes):
 			self._source = val
 			self._page = ""
@@ -217,10 +223,8 @@ class _dHtmlBox_test(dHtmlBox):
 	def initProperties(self):
 		self.Size = (600, 450)
 		self.OpenLinksInBrowser = True
-
-	def afterInit(self):
 		self.Source = self.getPageData()
-	
+
 	def getPageData(self):
 		return """<html>
 		<body bgcolor="#ACAA60">
