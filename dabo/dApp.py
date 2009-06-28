@@ -246,7 +246,11 @@ class dApp(dObject):
 			self.showMainFormOnStart = False
 			self.setup()
 
-		self._initDB()
+		### egl: 2009.06.28 - commented this out. This was added when the 
+		###    remote proxy code was added, and I'm not sure why. I am removing
+		###    it for now to satisfy ticket #1241, but I need to do full testing with
+		###    remote apps to make sure that it is truly not needed.
+		#self._initDB()
 
 		# If running as a web app, sync the files
 		rp = self._RemoteProxy
