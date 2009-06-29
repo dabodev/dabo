@@ -1590,8 +1590,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if pk in self._newRecords:
 			res = True
 			del self._newRecords[pk]
-			if pk in self._mementos:
-				del self._mementos[pk]
 		else:
 			pkWhere = self.makePkWhere()
 			# some backends(PostgreSQL) don't return information about number of deleted rows
@@ -1604,12 +1602,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				sql = "delete from %s where %s" % (self.Table, pkWhere)
 				aux.execute(sql)
 
-
 		if not res:
 			# Nothing was deleted
 			self.BackendObject.noResultsOnDelete()
 		else:
 			# Delete the record from the current dataset
+			if pk in self._mementos:
+				del self._mementos[pk]
 			self._removeRow(delRowNum)
 
 
