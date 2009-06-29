@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import re
+import operator
 import dabo
 from dabo.dLocalize import _
 import datetime
@@ -150,55 +151,41 @@ class dDataSet(tuple):
 			gte: >=
 			lt: <
 			lte: <=
-			startswith, beginswith: LIKE '<expr>%'
-			endswith: LIKE '%<expr>'
-			contains: LIKE '%<expr>%'
+			startswith, beginswith: fld.startswith(expr)
+			endswith: fld.endswith(expr)
+			contains: expr in fld
 		"""
 		if not self:
 			# No rows, so nothing to filter
 			return self
 		op = op.strip().lower()
-		if op in ("=", "!=", ">", "<", ">=", "<="):
-			clause = " %s ?" % op
-		else:
-			opDict = {"eq": " = ?",
-				"equals": " = ?",
-				"ne": " != ?",
-				"nequals": " != ?",
-				"gt": " > ?",
-				"gte": " >= ?",
-				"lt": " < ?",
-				"lte": " <= ?",
-				"startswith": " LIKE ? ",
-				"beginswith": " LIKE ? ",
-				"endswith": " LIKE ? ",
-				"contains": " LIKE ? " }
-			if (expr in opDict) and (op not in opDict):
-				# They sent the params in reverse order
-				op, expr = expr, op
-			clause = opDict.get(op.lower(), " = ?")
-		if op in ("startswith", "beginswith"):
-			param = "%s%%" % expr
-		elif op == "endswith":
-			param = "%%%s" % expr
-		elif op == "contains":
-			param = "%%%s%%" % expr
-		else:
-			param = expr
-		# sqlite doesn't handle None parameter correctly, so fudge it here
-		if param is None:
-			if clause == " = ?":
-				stmnt = "select * from dataset where %s is null" % fld
-			elif clause == " != ?":
-				stmnt = "select * from dataset where %s is not null" % fld
-			else:
-				# The only cases that make sense are equals or not equals. For anything
-				# else, just return the original
-				return self
-			ret = self.execute(stmnt)
-		else:
-			stmnt = "select * from dataset where %s %s" % (fld, clause)
-			ret = self.execute(stmnt, (param, ))
+		opDict = {"eq": operator.eq,
+				"=": operator.eq,
+				"equals": operator.eq,
+				"ne": operator.ne,
+				"!=": operator.ne,
+				"nequals": operator.ne,
+				"gt": operator.gt,
+				">": operator.gt,
+				"gte": operator.ge,
+				">=": operator.ge,
+				"lt": operator.lt,
+				"<": operator.lt,
+				"lte": operator.le,
+				"<=": operator.le}
+		try:
+			fnc = opDict[op]
+		except KeyError:
+			fnc = None
+		if fnc:
+			filtered = [rec for rec in self if fnc(rec[fld], expr)]
+		elif op in ("startswith", "beginswith"): 
+			filtered = [rec for rec in self if rec[fld].startswith(expr)]
+		elif op =="endswith": 
+			filtered = [rec for rec in self if rec[fld].endswith(expr)]
+		elif op =="contains": 
+			filtered = [rec for rec in self if expr in rec[fld]]
+		ret = self.__class__(filtered)
 		ret._sourceDataSet = self
 		ret._filtered_fld = fld
 		ret._filtered_expr = expr
