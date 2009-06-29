@@ -1726,7 +1726,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return map(self._getRowByPk, chKeys)
 
 
-	def _getRecordByPk(self, pk):
+	def _getRecordByPk(self, pk, raiseRowNotFound=True):
 		"""Find the record with the passed primary key; return (row, record)."""
 		kf = self.KeyField
 		if kf:
@@ -1734,6 +1734,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				key = self.getFieldVal(kf, row=idx)
 				if key == pk:
 					return (idx, rec)
+		if raiseRowNotFound:
+			raise dException.RowNotFoundException, _("PK '%s' not found in table '%s' (RowCount: %s)") % (pk, self.Table, self.RowCount)
 		return (None, None)
 
 
@@ -1748,7 +1750,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		If the record is not found, the position is set to the first record.
 		"""
-		row, rec = self._getRecordByPk(pk)
+		row, rec = self._getRecordByPk(pk, raiseRowNotFound=False)
 		if row is None:
 			row = 0
 		self.RowNumber = row
