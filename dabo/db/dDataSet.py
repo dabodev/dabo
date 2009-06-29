@@ -200,9 +200,9 @@ class dDataSet(tuple):
 		if not self:
 			# No rows, so nothing to filter
 			return self
-
-		stmnt = "select * from dataset where %s" % (expr)
-		ret = self.execute(stmnt)
+		stmnt = """ [rec for rec in self if %s] """ % self._fldReplace(expr, "rec")
+		recs = eval(stmnt)
+		ret = self.__class__(recs)
 		ret._sourceDataSet = self
 		return ret
 
@@ -228,13 +228,20 @@ class dDataSet(tuple):
 		in a dictionary expression. Users, though, should not have to know
 		about this. This takes a user-defined, SQL-like expressions, and
 		substitutes any field name with the corresponding dict
-		expression.
+		expression. If no dictName is supplied, the name 'rec' will be used,
+		for the typical list comprehension of :
+			[rec for rec in self where ...]
+		Examples (assuming 'price' is a column in the data):
+			self._fldReplace("price > 50")
+				=> returns "rec['price'] > 50"
+			self._fldReplace("price > 50", "foo")
+				=> returns "foo['price'] > 50"
 		"""
 		keys = self[0].keys()
 		patTemplate = "(.*\\b)%s(\\b.*)"
 		ret = expr
 		if dictName is None:
-			dictName = self._dictSubName
+			dictName = "rec"
 		for kk in keys:
 			pat = patTemplate % kk
 			mtch = re.match(pat, ret)
