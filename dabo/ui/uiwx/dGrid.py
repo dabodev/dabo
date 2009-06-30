@@ -1354,6 +1354,17 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		else:
 			self._properties["Sortable"] = val
 
+	
+	def _getValue(self):
+		grid = self.Parent
+		biz = grid.getBizobj()
+		if self.DataField: 
+			if biz and (grid.CurrentRow < biz.RowCount):
+				return biz.getFieldVal(self.DataField)
+			if grid.DataSet:
+				return grid.DataSet[grid.CurrentRow][self.DataField]
+		return None
+
 
 	def _getVerticalAlignment(self):
 		mapping = {wx.ALIGN_TOP: "Top", wx.ALIGN_BOTTOM: "Bottom",
@@ -1632,6 +1643,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	Sortable = property(_getSortable, _setSortable, None,
 			_("""Specifies whether this column can be sorted. Default: True. The grid's
 			Sortable property will override this setting.  (bool)"""))
+
+	Value = property(_getValue, None, None,
+			_("""Returns the current value of the column from the underlying dataset or bizobj."""))
 
 	VerticalAlignment = property(_getVerticalAlignment, _setVerticalAlignment, None,
 			_("""Vertical alignment for all cells in this column. Acceptable values
