@@ -3345,10 +3345,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		the user sized.
 		"""
 		row = evt.EventData["row"]
-		size = self.GetRowSize(row)
+		if row is None or row < 0 or row > self.RowCount:
+			# pkm: This has happened but I don't know why. Treat as spurious.
+			return
 
 		if self.SameSizeRows:
-			self.RowHeight = size
+			self.RowHeight = self.GetRowSize(row)
 
 
 	def _onGridCellSelected(self, evt):
