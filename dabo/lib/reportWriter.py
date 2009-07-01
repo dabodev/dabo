@@ -1642,11 +1642,12 @@ class ReportWriter(object):
 							story = self.getStory(obj)
 							storyheight = story[1]
 							needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))  ## y could be dep. on band height.
-			
 							maxBandHeight = max(maxBandHeight, needed)
 				availableHeight = y - (pageFooterOrigin[1] + pfHeight)
 				if maxBandHeight > availableHeight:
-					maxBandHeight = availableHeight
+					# Signal that we need a page change as there isn't room:
+					#maxBandHeight = availableHeight
+					return None
 				return maxBandHeight
 
 			maxBandHeight = getTotalBandHeight()
@@ -1663,7 +1664,7 @@ class ReportWriter(object):
 
 				check = pageFooterOrigin[1] + pfHeight + extraHeight
 
-				if y < check:
+				if y < check or maxBandHeight is None:
 					if self._currentColumn >= columnCount-1:
 						endPage()
 						beginPage()
