@@ -213,6 +213,7 @@ class Postgres(dBackend):
 			else:
 				fldType = "?"
 			fields.append((name, fldType, pk))
+		cursor.execute('rollback')
 		return tuple(fields)
 
 
