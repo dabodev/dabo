@@ -321,7 +321,7 @@ class dControlItemMixin(dDataControlMixin):
 				continue
 			try:
 				strings.append(self.GetString(index))
-			except IndexError:
+			except AttributeError:
 				# If this is a list control, there is no native GetString.
 				# Use the Dabo-supplied replacement
 				try:
