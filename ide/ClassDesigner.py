@@ -830,6 +830,8 @@ class ClassDesigner(dabo.dApp):
 						szType = szr.Orientation
 					# Get the defaults for this class of control.
 					defSizerProps = self.getDefaultSizerProps(cls, szType)
+				else:
+					defSizerProps = {}
 				props = {}
 				try:
 					imp, clsname = cls.rsplit(".", 1)
