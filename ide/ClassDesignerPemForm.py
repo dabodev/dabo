@@ -240,8 +240,10 @@ class PemForm(dabo.ui.dForm):
 			codeEvents = nonCodeEvents = []
 			if obEvtCode is not None:
 				codeEvents = obEvtCode.keys()
+				codeEvents.sort()
 			nonCodeEvents = [ev for ev in evts
 					if ev not in codeEvents]
+			nonCodeEvents.sort()
 			# Add the events with code first
 			for evt in codeEvents:
 				newItem = self.MethodList.append(evt)
