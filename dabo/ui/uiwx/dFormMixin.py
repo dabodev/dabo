@@ -1008,7 +1008,7 @@ class dFormMixin(pm.dPemMixin):
 			elif lowvalue == "maximized":
 				self.Maximize()
 			elif lowvalue == "fullscreen":
-				self.ShowFullScreen()
+				self.ShowFullScreen(True)
 			else:
 				raise ValueError("The only possible values are "
 								"'Normal', 'Minimized', 'Maximized', and 'FullScreen'")
