@@ -345,7 +345,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 			self._checkSizer(forceRecreate=True)
 			# Save the current values for possible re-setting afterwards.
 			old_length = len(self.Choices)
-			sv = (self.StringValue, self.KeyValue, self.PositionValue)
+			sv = (self.KeyValue, self.StringValue, self.PositionValue)
 			[itm.release() for itm in self._items]
 			self._choices = choices
 			self._items = []
@@ -364,11 +364,14 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 				self._items.append(btn)
 
 			if old_length:
-				# Try each saved value
-				self.StringValue = sv[0]
-				if self.StringValue != sv[0]:
-					self.KeyValue = sv[1]
-					if self.KeyValue != sv[1]:
+				# Try each saved value to restore which button is active:
+				if self.Keys:
+					self.KeyValue = sv[0]
+
+				if not self.Keys or self.KeyValue != sv[0]:
+					try:
+						self.StringValue = sv[1]
+					except ValueError:
 						self.PositionValue = sv[2]
 						if self.PositionValue != sv[2]:
 							# Bail!
@@ -495,7 +498,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 			except IndexError:
 				if val is not None:
 					# No such string.
-					dabo.errorLog.write(_("No radio button matching '%s' was found.") % val)
+					raise ValueError, _("No radio button matching '%s' was found.") % val
 		else:
 			self._properties["StringValue"] = val
 	
