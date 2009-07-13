@@ -154,16 +154,21 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 			ret = list(ret)
 		ret.remove("Orientation")
 		return ret
-		
-		
+	
+
+	def _resetChoices(self):
+		# Need to override as the base behavior calls undefined Clear() and AppendItems()
+		pass	
+	
+	
 	def getBaseButtonClass(cls):
 		return _dRadioButton
 	getBaseButtonClass = classmethod(getBaseButtonClass)
 	
 	
-	def _checkSizer(self):
+	def _checkSizer(self, forceRecreate=False):
 		"""Makes sure the sizer is created before setting props that need it."""
-		if self.Sizer is None:
+		if self.Sizer is None or forceRecreate:
 			self.Sizer = self.SizerClass(self, orientation="v")
 
 	
@@ -337,7 +342,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		
 	def _setChoices(self, choices):
 		if self._constructed():
-			self._checkSizer()
+			self._checkSizer(forceRecreate=True)
 			# Save the current values for possible re-setting afterwards.
 			old_length = len(self.Choices)
 			sv = (self.StringValue, self.KeyValue, self.PositionValue)
