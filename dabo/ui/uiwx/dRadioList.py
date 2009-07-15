@@ -169,7 +169,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 	def _checkSizer(self, forceRecreate=False):
 		"""Makes sure the sizer is created before setting props that need it."""
 		if self.Sizer is None or forceRecreate:
-			self.Sizer = self.SizerClass(self, orientation="v")
+			self.Sizer = self.SizerClass(self, orientation="v", Caption=self.Caption)
 
 	
 	def _onWxHit(self, evt):
