@@ -884,13 +884,22 @@ class ReportWriter(object):
 		x,y = origin
 		if group is None:
 			spanList = []
+			spanList_page = []
 			for g in self._spanningObjects:
 				for l in self._spanningObjects[g]:
-					spanList.append(l)
+					if g is None:
+						spanList_page.append(l)
+					else:
+						spanList.append(l)
 		else:
 			spanList = self._spanningObjects.setdefault(group["expr"], [])
+			spanList_page = []
 		for obj in spanList:
 			y1 = self.getPt(obj.getProp("yFooter")) + y
+			x1 = self.getPt(obj.getProp("xFooter")) + x
+			self.draw(obj, (x1, y1))
+		for obj in spanList_page:
+			y1 = self.getPt(obj.getProp("yFooter")) + self.getPt(self.ReportForm["page"].getProp("marginBottom"))
 			x1 = self.getPt(obj.getProp("xFooter")) + x
 			self.draw(obj, (x1, y1))
 
