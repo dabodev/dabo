@@ -146,7 +146,7 @@ class Xml2Obj(object):
 	def CharacterData(self, data):
 		"""SAX character data event handler"""
 		if self._inCode or data.strip():
-			data = data.replace("&lt;", "<")
+			data = data.replace("&lt;", "<").replace("&gt;",">")
 			data = data	#.encode()
 			if self._inCode:
 				if self._mthdCode:
@@ -296,7 +296,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 	else:
 		ret += ">"
 		if dct.has_key("cdata"):
-			ret += "%s" % dct["cdata"].replace("<", "&lt;")
+			ret += "%s" % dct["cdata"].replace("<", "&lt;").replace(">", "&gt;")
 
 		if dct.has_key("code"):
 			if len(dct["code"].keys()):
