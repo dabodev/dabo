@@ -159,6 +159,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 	def _getUnmaskedValue(self):
 		ret =self.GetPlainValue()
 		if ret is None or ret=='':
+			self.ClearValue()
 			ret = self.MaskedValue
 		return ret
 
@@ -171,12 +172,16 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 			ret = self.GetPlainValue()
 			#add this to cover blank or None for field values
 			if ret is None or ret=='':
+				self.ClearValue()
 				ret= self.MaskedValue  #I believe every val has a mask??
 		return ret
 
 	def _setValue(self, val):
 		# added below to cover blank or None for field values
+		if self.RegID == 'txtConFax':
+			pass
 		if val is None or val =='':
+			self.ClearValue()
 			val=self.MaskedValue
 		super(dMaskedTextBox, self)._setValue(val)
 
