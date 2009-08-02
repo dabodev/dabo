@@ -182,8 +182,11 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 			if itm.Children:
 				self._recurseMenu(itm, kidnode, subpref)
 			else:
-				kidnode.hotkey = itm.HotKey
-				self._hotKeyMap[itm.HotKey] = itm
+				try:
+					kidnode.hotkey = itm.HotKey
+					self._hotKeyMap[itm.HotKey] = itm
+				except AttributeError:
+					pass
 				kidnode.Object = itm
 
 	
