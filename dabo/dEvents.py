@@ -516,6 +516,13 @@ class Resize(dEvent):
 	appliesToClass = classmethod(appliesToClass)
 
 
+class SearchButtonClicked(dEvent):
+	"""Occurs when the user clicks the search button in a dSearchBox."""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, (dabo.ui.dSearchBox,))
+	appliesToClass = classmethod(appliesToClass)
+
+
 class SlidePanelChange(dEvent):
 	"""Occurs when a panel in a dSlidePanelControl control is hidden or shown."""
 	def appliesToClass(eventClass, objectClass):

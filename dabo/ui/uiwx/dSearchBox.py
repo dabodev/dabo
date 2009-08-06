@@ -177,17 +177,6 @@ if __name__ == "__main__":
 	
 	testParms = [IntText, FloatText, StrText, PWText, BoolText, DateText, DateTimeText]			
 	
-	try:
-		import mx.DateTime
-		class MxDateTimeText(TestBase):
-			def afterInit(self):
-				self.Value = mx.DateTime.now()
-				
-		testParms.append(MxDateTimeText)
-	except ImportError:
-		# skip it: mx may not be available
-		pass
-
 	import decimal
 	class DecimalText(TestBase):
 		def afterInit(self):

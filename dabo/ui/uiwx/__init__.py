@@ -133,6 +133,7 @@ from dPageFrame import dDockTabs
 from dPageFrameNoTabs import dPageFrameNoTabs
 from dPage import dPage
 from dPdfWindow import dPdfWindow
+from dSearchBox import dSearchBox
 from dSizer import dSizer
 from dBorderSizer import dBorderSizer
 from dSlider import dSlider
