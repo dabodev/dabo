@@ -20,29 +20,12 @@ class dHyperLink(dcm.dControlMixin, hyperlink.HyperLinkCtrl):
 			*args, **kwargs):
 		self._baseClass = dHyperLink
 		preClass = hyperlink.HyperLinkCtrl
-		self._hoverColor = None
-		self._linkColor = None
-		self._visitedColor = None
-		self._hoverUnderline = None
-		self._linkUnderline = None
-		self._visitedUnderline = None
 		
-		# Make the rollover effect the default, unless it was specified as False.
-
-		self._showHover = self._extractKey(attProperties, "ShowHover", None)
-		if self._showHover is not None:
-			self._showHover = (self._showHover == "True")
-		else:
-			self._showHover = self._extractKey((kwargs, properties, attProperties), 
-					"ShowHover", True)
-		kwargs["ShowHover"] = self._showHover
-
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
 				attProperties, *args, **kwargs)
 		
-		# Initialize the local atts to match the control.
-		self._linkColor, self._visitedColor, self._hoverColor = self.GetColours()
-		self._linkUnderline, self._visitedUnderline, self._hoverUnderline = self.GetUnderlines()
+		# Make the rollover effect the default, unless it was specified as False.
+		self.ShowHover = self.ShowHover
 
 		self.Bind(hyperlink.EVT_HYPERLINK_LEFT, self._onWxHit)  ## only called if ShowInBrowser False
 		
@@ -54,7 +37,7 @@ class dHyperLink(dcm.dControlMixin, hyperlink.HyperLinkCtrl):
 	
 	def _setColors(self):
 		"""Updated the link with the specified colors."""
-		lc, vc, rc = self._linkColor, self._visitedColor, self._hoverColor
+		lc, vc, rc = self.LinkColor, self.VisitedColor, self.HoverColor
 		if isinstance(lc, basestring):
 			lc = dColors.colorTupleFromName(lc)
 		if isinstance(vc, basestring):
@@ -65,10 +48,9 @@ class dHyperLink(dcm.dControlMixin, hyperlink.HyperLinkCtrl):
 		self.UpdateLink(True)
 		
 	
-	def _setUnderlines(self):
+	def _setUnderlines(self, link, visited, hover):
 		"""Updated the link with the specified underline settings."""
-		self.SetUnderlines(self._linkUnderline, self._visitedUnderline, 
-				self._hoverUnderline)
+		self.SetUnderlines(link, visited, hover)
 		self.UpdateLink(True)
 		
 	
@@ -76,48 +58,64 @@ class dHyperLink(dcm.dControlMixin, hyperlink.HyperLinkCtrl):
 		return getattr(self, "_showInBrowser", True)
 
 	def _setShowInBrowser(self, val):
-		self._showInBrowser = bool(val)
-		self.AutoBrowse(val)
+		if self._constructed():
+			self._showInBrowser = bool(val)
+			self.AutoBrowse(val)
+		else:
+			self._properties["ShowInBrowser"] = val
 
 
 	def _getHoverColor(self):
-		return self._hoverColor
+		return getattr(self, "_hoverColor", self.GetColours()[2])
 
 	def _setHoverColor(self, val):
-		self._hoverColor = val
-		self._setColors()
+		if self._constructed():
+			self._hoverColor = val
+			self._setColors()
+		else:
+			self._properties["HoverColor"] = val
 
 
 	def _getHoverUnderline(self):
-		return self._hoverUnderline
+		return self.GetUnderlines()[2]
 
 	def _setHoverUnderline(self, val):
-		self._hoverUnderline = val
-		self._setUnderlines()
+		if self._constructed():
+			self._setUnderlines(self.LinkUnderline, self.VisitedUnderline, bool(val))
+		else:
+			self._properties["HoverUnderline"] = val
 
 
 	def _getLinkColor(self):
-		return self._linkColor
+		return getattr(self, "_linkColor", self.GetColours()[0])
 
 	def _setLinkColor(self, val):
-		self._linkColor = val
-		self._setColors()
+		if self._constructed():
+			self._linkColor = val
+			self._setColors()
+		else:
+			self._properties["LinkColor"] = val
 
 
 	def _getLinkUnderline(self):
-		return self._linkUnderline
+		return self.GetUnderlines()[0]
 
 	def _setLinkUnderline(self, val):
-		self._linkUnderline = val
-		self._setUnderlines()
+		if self._constructed():
+			self._setUnderlines(bool(val), self.VisitedUnderline, self.HoverUnderline)
+		else:
+			self._properties["LinkUnderline"] = val
 
 
 	def _getShowHover(self):
-		return self._showHover
+		return getattr(self, "_showHover", True)
 
 	def _setShowHover(self, val):
-		self._showHover = val
-		self.EnableRollover(val)
+		if self._constructed():
+			self._showHover = bool(val)
+			self.EnableRollover(val)
+		else:
+			self._properties["ShowHover"] = val
 
 
 	def _getURL(self):
@@ -136,19 +134,24 @@ class dHyperLink(dcm.dControlMixin, hyperlink.HyperLinkCtrl):
 
 
 	def _getVisitedColor(self):
-		return self._visitedColor
+		return getattr(self, "_visitedColor", self.GetColours()[1])
 
 	def _setVisitedColor(self, val):
-		self._visitedColor = val
-		self._setColors()
+		if self._constructed():
+			self._visitedColor = val
+			self._setColors()
+		else:
+			self._properties["VisitedColor"] = val
 
 
 	def _getVisitedUnderline(self):
-		return self._visitedUnderline
+		return self.GetUnderlines()[1]
 
 	def _setVisitedUnderline(self, val):
-		self._visitedUnderline = val
-		self._setUnderlines()
+		if self._constructed():
+			self._setUnderlines(self.LinkUnderline, bool(val), self.HoverUnderline)
+		else:
+			self._properties["VisitedUnderline"] = val
 
 
 	ShowInBrowser = property(_getShowInBrowser, _setShowInBrowser, None,
