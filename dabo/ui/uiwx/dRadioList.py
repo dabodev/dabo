@@ -155,9 +155,9 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 	getBaseButtonClass = classmethod(getBaseButtonClass)
 	
 	
-	def _checkSizer(self, forceRecreate=False):
+	def _checkSizer(self):
 		"""Makes sure the sizer is created before setting props that need it."""
-		if self.Sizer is None or forceRecreate:
+		if self.Sizer is None:
 			self.Sizer = self.SizerClass(self, orientation=self.Orientation, Caption=self.Caption)
 	
 	def _onWxHit(self, evt):
@@ -330,13 +330,14 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		
 	def _setChoices(self, choices):
 		if self._constructed():
-			self._checkSizer(forceRecreate=True)
+			self._checkSizer()
 			# Save the current values for possible re-setting afterwards.
 			old_length = len(self.Choices)
 			sv = (self.KeyValue, self.StringValue, self.PositionValue)
 			[itm.release() for itm in self._items]
 			self._choices = choices
 			self._items = []
+			self.Sizer.clear()
 			for idx, itm in enumerate(choices):
 				style = 0
 				if idx == 0:
@@ -369,7 +370,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 
 			self.layout()
 		else:
-			self._choices = self._properties["Choices"] = choices
+			self._properties["Choices"] = choices
 	
 	
 	def _getOrientation(self):
@@ -544,13 +545,14 @@ class _dRadioList_test(dRadioList):
 	def afterInit(self):
 		self.Caption = "Developers"
 		self.BackColor = "lightyellow"
-		developers = ({"lname": "McNett", "fname": "Paul", "iid": 42},
+		developers = [{"lname": "McNett", "fname": "Paul", "iid": 42},
 				{"lname": "Leafe", "fname": "Ed", "iid": 23},
-				{"lname": "Roche", "fname": "Ted", "iid": 11})
+				{"lname": "Roche", "fname": "Ted", "iid": 11}]
 			
-		choices = ["%s %s" % (dev["fname"], dev["lname"]) for dev in developers]
+		self.Choices = ["%s %s" % (dev["fname"], dev["lname"]) for dev in developers]
+		developers.append({"lname": "Hentzen", "fname": "Whil", "iid": 93})
+		self.Choices = ["%s %s" % (dev["fname"], dev["lname"]) for dev in developers]
 		keys = [dev["iid"] for dev in developers]
-		self.Choices = choices
 		self.Keys = keys
 		self.ValueMode = "key"
 
