@@ -9,9 +9,10 @@ if __name__ == "__main__":
 
 import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
+from alignmentMixin import AlignmentMixin
 
 
-class dLabel(cm.dControlMixin, wx.StaticText):
+class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 	"""Creates a static label, to make a caption for another control, for example."""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dLabel
@@ -59,31 +60,6 @@ class dLabel(cm.dControlMixin, wx.StaticText):
 
 
 	# property get/set functions
-	def _getAlignment(self):
-		if self._hasWindowStyleFlag(wx.ALIGN_RIGHT):
-			return "Right"
-		elif self._hasWindowStyleFlag(wx.ALIGN_CENTRE):
-			return "Center"
-		else:
-			return "Left"
-
-	def _setAlignment(self, value):
-		# Note: Alignment must be set before object created.
-		self._delWindowStyleFlag(wx.ALIGN_LEFT)
-		self._delWindowStyleFlag(wx.ALIGN_CENTRE)
-		self._delWindowStyleFlag(wx.ALIGN_RIGHT)
-		value = str(value).lower()
-
-		if value == "left":
-			self._addWindowStyleFlag(wx.ALIGN_LEFT)
-		elif value == "center":
-			self._addWindowStyleFlag(wx.ALIGN_CENTRE)
-		elif value == "right":
-			self._addWindowStyleFlag(wx.ALIGN_RIGHT)
-		else:
-			raise ValueError("The only possible values are "
-							"'Left', 'Center', and 'Right'.")
-							
 	
 	def _getAutoResize(self):
 		return not self._hasWindowStyleFlag(wx.ST_NO_AUTORESIZE)
@@ -152,12 +128,6 @@ class dLabel(cm.dControlMixin, wx.StaticText):
 
 
 	# property definitions follow:
-	Alignment = property(_getAlignment, _setAlignment, None,
-			_("""Specifies the alignment of the text. (str)
-			Left (default)
-			Center
-			Right""") )
-			
 	AutoResize = property(_getAutoResize, _setAutoResize, None,
 			_("""Specifies whether the length of the caption determines
 			the size of the label. This cannot be True if WordWrap is
@@ -181,7 +151,6 @@ class dLabel(cm.dControlMixin, wx.StaticText):
 			Default=False  (bool)"""))
 	
 
-	DynamicAlignment = makeDynamicProperty(Alignment)
 	DynamicFontBold = makeDynamicProperty(FontBold)
 	DynamicFontFace = makeDynamicProperty(FontFace)
 	DynamicFontItalic = makeDynamicProperty(FontItalic)
