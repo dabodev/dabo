@@ -145,17 +145,6 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		cim.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
-	def _getInitPropertiesList(self):
-		"""We want to remove 'Orientation' from this list, as it needs to be set
-		after the control is instantiated.
-		"""
-		ret = super(dRadioList, self)._getInitPropertiesList()
-		if isinstance(ret, tuple):
-			ret = list(ret)
-		ret.remove("Orientation")
-		return ret
-	
-
 	def _resetChoices(self):
 		# Need to override as the base behavior calls undefined Clear() and AppendItems()
 		pass	
@@ -169,8 +158,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 	def _checkSizer(self, forceRecreate=False):
 		"""Makes sure the sizer is created before setting props that need it."""
 		if self.Sizer is None or forceRecreate:
-			self.Sizer = self.SizerClass(self, orientation="v", Caption=self.Caption)
-
+			self.Sizer = self.SizerClass(self, orientation=self.Orientation, Caption=self.Caption)
 	
 	def _onWxHit(self, evt):
 		pos = self._items.index(evt.GetEventObject())
@@ -385,15 +373,14 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 	
 	
 	def _getOrientation(self):
-		self._checkSizer()
-		return self.Sizer.Orientation
+		return getattr(self, "_orientation", "Vertical")
 	
 	def _setOrientation(self, val):
 		if self._constructed():
 			self._checkSizer()
 			if val[0].lower() not in "hv":
 				val = "vertical"
-			self.Sizer.Orientation = val
+			self._orientation = self.Sizer.Orientation = val
 			self.layout()
 		else:
 			self._properties["Orientation"] = val
