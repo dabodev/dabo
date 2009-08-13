@@ -13,7 +13,8 @@ from dabo.ui import makeDynamicProperty
 
 class dHyperLink(dcm.dControlMixin, hyperlink.HyperLinkCtrl):
 	"""Creates a hyperlink that, when clicked, launches the specified
-	URL in the user's default browser.
+	URL in the user's default browser, or raises a Hit event for your
+	code to catch and take the appropriate action.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None,
 			*args, **kwargs):
@@ -27,6 +28,7 @@ class dHyperLink(dcm.dControlMixin, hyperlink.HyperLinkCtrl):
 		self._visitedUnderline = None
 		
 		# Make the rollover effect the default, unless it was specified as False.
+
 		self._showHover = self._extractKey(attProperties, "ShowHover", None)
 		if self._showHover is not None:
 			self._showHover = (self._showHover == "True")
@@ -41,8 +43,10 @@ class dHyperLink(dcm.dControlMixin, hyperlink.HyperLinkCtrl):
 		# Initialize the local atts to match the control.
 		self._linkColor, self._visitedColor, self._hoverColor = self.GetColours()
 		self._linkUnderline, self._visitedUnderline, self._hoverUnderline = self.GetUnderlines()
+
+		self.Bind(hyperlink.EVT_HYPERLINK_LEFT, self._onWxHit)  ## only called if ShowInBrowser False
 		
-		
+
 	def refresh(self):
 		super(dHyperLink, self).refresh()
 		self.UpdateLink(True)
@@ -68,6 +72,14 @@ class dHyperLink(dcm.dControlMixin, hyperlink.HyperLinkCtrl):
 		self.UpdateLink(True)
 		
 	
+	def _getShowInBrowser(self):
+		return getattr(self, "_showInBrowser", True)
+
+	def _setShowInBrowser(self, val):
+		self._showInBrowser = bool(val)
+		self.AutoBrowse(val)
+
+
 	def _getHoverColor(self):
 		return self._hoverColor
 
@@ -139,6 +151,11 @@ class dHyperLink(dcm.dControlMixin, hyperlink.HyperLinkCtrl):
 		self._setUnderlines()
 
 
+	ShowInBrowser = property(_getShowInBrowser, _setShowInBrowser, None,
+			_("""Specifies the behavior of clicking on the hyperlink:
+					True: open URL in user's default web browser (default)
+					False: raise Hit event for your code to handle"""))
+
 	HoverColor = property(_getHoverColor, _setHoverColor, None,
 			_("Color of the link when the mouse passes over it.  (str or tuple)"))
 	
@@ -169,6 +186,9 @@ class dHyperLink(dcm.dControlMixin, hyperlink.HyperLinkCtrl):
 
 
 class _dHyperLink_test(dHyperLink):
+	def _onHit(self, evt):
+		print "hit"
+
 	def afterInit(self):
 		self.Caption = "The Dabo Wiki"
 		self.FontSize = 24
@@ -179,7 +199,8 @@ class _dHyperLink_test(dHyperLink):
 		self.LinkUnderline = True
 		self.HoverUnderline = False
 		self.VisitedUnderline = True
-
+		self.bindEvent(dabo.dEvents.Hit, self._onHit)
+		#self.ShowInBrowser = False
 
 if __name__ == "__main__":
 	import test
