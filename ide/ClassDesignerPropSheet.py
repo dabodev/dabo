@@ -714,6 +714,7 @@ class PropertyGrid(dabo.ui.dGrid):
 	
 	def fillGrid(self, force=False):
 		super(PropertyGrid, self).fillGrid(force)
+		self.refresh()
 		# Set the renderers and editors manually by cell
 		if not self.Application.Selection:
 			return
@@ -721,6 +722,8 @@ class PropertyGrid(dabo.ui.dGrid):
 		for row in range(self.RowCount):
 			pd = self.getPropDictForRow(row)
 			if pd is None:
+				dabo.errorLog.write(_("Property Grid out of sync for property '%s' of object '%'") % 
+						(self.getValue(row, 0), self.Application.Selection[0]))
 				continue
 			if not isinstance(pd, dict):
 				print _("BAD PROP DICT:"), pd, type(pd), _("ROW"), row
