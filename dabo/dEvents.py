@@ -523,6 +523,13 @@ class SearchButtonClicked(dEvent):
 	appliesToClass = classmethod(appliesToClass)
 
 
+class SearchCancelButtonClicked(dEvent):
+	"""Occurs when the user clicks the cancel button in a dSearchBox."""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, (dabo.ui.dSearchBox,))
+	appliesToClass = classmethod(appliesToClass)
+
+
 class SlidePanelChange(dEvent):
 	"""Occurs when a panel in a dSlidePanelControl control is hidden or shown."""
 	def appliesToClass(eventClass, objectClass):
