@@ -15,6 +15,8 @@ from dabo.ui.uiwx.dPageFrameMixin import dPageFrameMixin
 from ClassDesignerExceptions import PropertyUpdateException
 from dabo.ui import dKeys
 
+dui = dabo.ui
+
 
 class ClassDesignerControlMixin(LayoutSaverMixin):
 	"""	The purpose of this mixin class is to add the features to the native
@@ -58,7 +60,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		for prop in self.DesignerProps.keys():
 			self._propDefaults[prop] = eval("self.%s" % prop)
 		# Update bindings; do control-specific things.
-		if isinstance(self, dabo.ui.dGrid):
+		if isinstance(self, dui.dGrid):
 			coolEvents = (dEvents.GridHeaderPaint, 
 					dEvents.GridRowSize,
 					dEvents.GridColSize,
@@ -80,11 +82,11 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 					self.Controller.onGridCellSelected)
 			self.bindEvent(dEvents.GridHeaderMouseLeftUp,
 					self.Controller.onGridHeaderSelected)
-		elif isinstance(self, dabo.ui.dSplitter):
+		elif isinstance(self, dui.dSplitter):
 			pass
-		elif isinstance(self, dabo.ui.dImage):
+		elif isinstance(self, dui.dImage):
 			self.bindEvent(dEvents.Resize, self._onResize)
-		elif isinstance(self, (dabo.ui.dSlidePanelControl, dabo.ui.dSlidePanel)):
+		elif isinstance(self, (dui.dSlidePanelControl, dui.dSlidePanel)):
 			pass
 		else:
 			# This removes all previously-defined bindings
@@ -92,32 +94,32 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		self.noUpdateForm = False
 		
 		# Set up some defaults
-		if isinstance(self, dabo.ui.dButton):
+		if isinstance(self, dui.dButton):
 			self.defaultWd = 100
 			self.defaultHt = 24
 			if not self.Caption:
 				self.Caption = "Button"
-		elif isinstance(self, (dabo.ui.dLabel, dabo.ui.dTextBox)):
+		elif isinstance(self, (dui.dLabel, dui.dTextBox)):
 			self.defaultWd = 100
 			self.defaultHt = 24
-			if isinstance(self, dabo.ui.dLabel) and not self.Caption:
+			if isinstance(self, dui.dLabel) and not self.Caption:
 				self.Caption = "Label"
-		elif isinstance(self, dabo.ui.dTreeView):
+		elif isinstance(self, dui.dTreeView):
 			self.defaultWd = 200
 			self.defaultHt = 360
 			self.setRootNode("Tree")
 			# Bind the selected node to the current selection
 			self.bindEvent(dEvents.TreeSelection, self.desSelectNode)
-		elif isinstance(self, (dabo.ui.dPageFrame, dabo.ui.dPageList, 
-				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs)):
+		elif isinstance(self, (dui.dPageFrame, dui.dPageList, 
+				dui.dPageSelect, dui.dPageFrameNoTabs)):
 			self.defaultWd = 400
 			self.defaultHt = 300
 			# Bind the active page to the current selection
 			self.bindEvent(dEvents.PageChanged, self.desSelectPage)
-		elif isinstance(self, dabo.ui.dSlidePanel): 
+		elif isinstance(self, dui.dSlidePanel): 
 			self.bindEvent(dEvents.SlidePanelChange, self.desSlidePanelChg)
-		elif isinstance(self, (dabo.ui.dPanel, dabo.ui.dImage, dabo.ui.dBitmap,
-				dabo.ui.dBitmapButton, dabo.ui.dToggleButton)):
+		elif isinstance(self, (dui.dPanel, dui.dImage, dui.dBitmap,
+				dui.dBitmapButton, dui.dToggleButton)):
 			self.defaultWd = 60
 			self.defaultHt = 60
 		else:
@@ -145,7 +147,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 		cnt = self.Controller
 		if cnt.openingClassXML or not isinstance(pgCls, basestring):
-			tmpPgCls = self.Controller.getControlClass(dabo.ui.dPage)
+			tmpPgCls = self.Controller.getControlClass(dui.dPage)
 			pg = self.insertPage(pos, tmpPgCls, ignoreOverride=True)
 			pg.Sizer = LayoutSizer("v")
 			LayoutPanel(pg)
@@ -154,7 +156,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			atts = dct["attributes"]
 			nm = self._extractKey(atts, "Name")
 			atts["NameBase"] = nm
-			tmpPgCls = cnt.getControlClass(dabo.ui.dPage)
+			tmpPgCls = cnt.getControlClass(dui.dPage)
 			pg = self.insertPage(pos, tmpPgCls, ignoreOverride=True)
 			classID = self._extractKey(atts, "classID", "")
 			pg.setPropertiesFromAtts(atts)
@@ -212,7 +214,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		
 		
 	def onKeyChar(self, evt):
-		if isinstance(self, (dabo.ui.dPage, dabo.ui.dColumn)):
+		if isinstance(self, (dui.dPage, dui.dColumn)):
 			# The key will get processed by the container
 			return
 		self.Form.onKeyChar(evt)
@@ -239,20 +241,20 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		
 	
 	def onMouseLeftDown(self, evt):
-		if isinstance(self, (dPageFrameMixin, dabo.ui.dSplitter)):
+		if isinstance(self, (dPageFrameMixin, dui.dSplitter)):
 			pass
 		else:
-			if not isinstance(self, dabo.ui.dTreeView):
+			if not isinstance(self, dui.dTreeView):
 				evt.stop()
 			if not self.UsingSizers:
 				self.Form.onControlLeftDown(evt)
 
 
 	def onMouseLeftUp(self, evt):
-		if isinstance(self, (dabo.ui.dSplitter, )):
+		if isinstance(self, (dui.dSplitter, )):
 			pass
 		else:
-			if not isinstance(self, dabo.ui.dTreeView):
+			if not isinstance(self, dui.dTreeView):
 				evt.stop()
 			else:
 				nd = self.getNodeUnderMouse(includeSpace=True, includeButton=False)
@@ -270,7 +272,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		
 
 	def onMouseRightClick(self, evt):
-		if isinstance(self, dabo.ui.dTreeView):
+		if isinstance(self, dui.dTreeView):
 			evt.stop()
 			self.onContextMenu(evt)
 			
@@ -279,9 +281,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		# If it is a LayoutPanel or page, return - the event 
 		# is handled elsewhere
 		evt.stop()
-		if self.UsingSizers and isinstance(self, (dabo.ui.dPage, LayoutPanel)):
+		if self.UsingSizers and isinstance(self, (dui.dPage, LayoutPanel)):
 			return
-		if isinstance(self.Parent, dabo.ui.dRadioList):
+		if isinstance(self.Parent, dui.dRadioList):
 			self.Parent.onContextMenu(evt)
 			return
 		pop = self.createContextMenu(evt)
@@ -291,14 +293,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 	def createContextMenu(self, evt=None):
 		pop = None
 		if self.UsingSizers:
-			if isinstance(self, (dabo.ui.dPanel, dabo.ui.dScrollPanel, dabo.ui.dPage)):
+			if isinstance(self, (dui.dPanel, dui.dScrollPanel, dui.dPage)):
 				pop = self.Controller.getControlMenu(self, True)
 		else:
 			if self is self.Form.ActiveContainer:
 				# If the control can contain child objects, get that menu.
 				pop = self.Controller.getControlMenu(self, False)
 		if pop is None:
-			pop = dabo.ui.dMenu()
+			pop = dui.dMenu()
 		if len(pop.Children):
 			pop.prependSeparator()
 		if not self.UsingSizers and self.IsContainer \
@@ -315,14 +317,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			pop.prepend(_("Delete"), OnHit=self.onDelete)
 			pop.prepend(_("Copy"), OnHit=self.onCopy)
 			pop.prepend(_("Cut"), OnHit=self.onCut)
-		if isinstance(self, dabo.ui.dPage):
+		if isinstance(self, dui.dPage):
 			# Add option to delete the page or the entire pageframe
 			pop.prependSeparator()
 			sepAdded =True
 			pop.prepend(_("Delete the entire Paged Control"), self.Parent.onDelete)
 			pop.prepend(_("Delete this Page"), OnHit=self.onDelete)
 			
-		if isinstance(self, dabo.ui.dTreeView):
+		if isinstance(self, dui.dTreeView):
 			self.activeNode = self.Selection
 			if isinstance(self.activeNode, (list, tuple)):
 				self.activeNode = self.activeNode[0]
@@ -334,9 +336,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 						OnHit=self.onChangeCaption)
 			if not self.activeNode.IsRootNode:
 				pop.append(_("Delete this node"), OnHit=self.onDelNode)
-		elif isinstance(self, (dabo.ui.dLabel, dabo.ui.dButton, dabo.ui.dCheckBox,
-				dabo.ui.dBitmapButton, dabo.ui.dToggleButton, dabo.ui.dPage, 
-				dabo.ui.dColumn, dlgs.WizardPage)):
+		elif isinstance(self, (dui.dLabel, dui.dButton, dui.dCheckBox,
+				dui.dBitmapButton, dui.dToggleButton, dui.dPage, 
+				dui.dColumn, dlgs.WizardPage)):
 			pop.append(_("Change Caption"), 
 					OnHit=self.onChangeCaption)
 		if self.UsingSizers:
@@ -362,7 +364,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
  	def onAddChild(self, evt):
  		nd = self.activeNode
  		self.activeNode = None
- 		txt = dabo.ui.getString(_("New Node Caption?"), _("Adding Child Node"))
+ 		txt = dui.getString(_("New Node Caption?"), _("Adding Child Node"))
  		if txt is not None:
  			nd.appendChild(txt)
  		self.Controller.updateLayout()
@@ -371,7 +373,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
  	def onAddSibling(self, evt):
  		nd = self.activeNode
  		self.activeNode = None
- 		txt = dabo.ui.getString(_("New Node Caption?"), _("Adding Sibling Node"))
+ 		txt = dui.getString(_("New Node Caption?"), _("Adding Sibling Node"))
  		if txt is not None:
  			nd.parent.appendChild(txt)
  		self.Controller.updateLayout()
@@ -385,7 +387,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
  
  
  	def onChangeCaption(self, evt):
- 		if isinstance(self, dabo.ui.dTreeView):
+ 		if isinstance(self, dui.dTreeView):
 			nd = self.activeNode
 			self.activeNode = None
 			target = nd
@@ -395,7 +397,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			target = self
 			title = _("Changing Caption")
 			defVal = self.Caption
-		txt = dabo.ui.getString(_("New Caption"), caption=title, 
+		txt = dui.getString(_("New Caption"), caption=title, 
 				defaultValue=defVal, Width=500, SelectOnEntry=True)
 		if txt is not None:
 			target.Caption = txt
@@ -434,16 +436,16 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 	def onDelete(self, evt):
 		# When a page in a pageframe gets this event, pass it up
 		# to its parent.
-		if isinstance(self, dabo.ui.dPage):
-			dabo.ui.callAfter(self.Parent.removePage, self)
-			dabo.ui.callAfter(self.Controller.updateLayout)
+		if isinstance(self, dui.dPage):
+			dui.callAfter(self.Parent.removePage, self)
+			dui.callAfter(self.Controller.updateLayout)
 			return
 		if self.UsingSizers and hasattr(self, "ControllingSizer"):
 			self.ControllingSizer.delete(self)
 		else:
 			self.Form.select(self.Parent)
-			dabo.ui.callAfter(self.release)
-			dabo.ui.callAfter(self.Controller.updateLayout)
+			dui.callAfter(self.release)
+			dui.callAfter(self.Controller.updateLayout)
 		
 
 	def isSelected(self):
@@ -468,7 +470,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 
 	def desSlidePanelChg(self, evt):
-		dabo.ui.callAfterInterval(100, self.Form.refresh)
+		dui.callAfterInterval(100, self.Form.refresh)
 
 
 	def moveControl(self, pos, shft=False):
@@ -659,6 +661,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		ret = {"Enabled": {"type": bool, "readonly": False},
 				"Name": {"type": unicode, "readonly": False},
 				"RegID": {"type": unicode, "readonly": False},
+				"TabStop": {"type": bool, "readonly": False},
 				"Tag": {"type": "multi", "readonly": False},
 				"ToolTipText": {"type": unicode, "readonly": False},
 				"Transparency": {"type": int, "readonly": False},
@@ -683,7 +686,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 						"customEditor": "editHeaderFont"},
 				"HeaderFontBold": {"type": bool, "readonly": False},
 				"HeaderFontFace": {"type": list, "readonly": False,
-						"values": dabo.ui.getAvailableFonts()},
+						"values": dui.getAvailableFonts()},
 				"HeaderFontItalic": {"type": bool, "readonly": False},
 				"HeaderFontSize": {"type": int, "readonly": False},
 				"HeaderFontUnderline": {"type": bool, "readonly": False},
@@ -719,7 +722,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 					"customEditor": "editFont"},
 				"FontBold": {"type": bool, "readonly": False},
 				"FontFace": {"type": list, "readonly": False,
-						"values": dabo.ui.getAvailableFonts()},
+						"values": dui.getAvailableFonts()},
 				"FontItalic": {"type": bool, "readonly": False},
 				"FontSize": {"type": int, "readonly": False},
 				"FontUnderline": {"type": bool, "readonly": False}}
@@ -757,6 +760,11 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		labelProps = {"Alignment": {"type": list, "readonly": False,
 				"values": ["Left", "Center", "Right"]},
 				"AutoResize": {"type": bool, "readonly": False}}
+		ledProps = {"OffColor": {"type": "color", "readonly": False, 
+					"customEditor": "editColor"},
+				"OnColor": {"type": "color", "readonly": False, 
+					"customEditor": "editColor"},
+				"On": {"type": bool, "readonly": False}}
 		multiSelectProps = {"MultipleSelect": {"type": bool, "readonly": False}}
 		nodeProps = {"Image": {"type": "path", "readonly": False, 
 					"customEditor": "editStdPicture"}}
@@ -851,7 +859,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"BorderWidth": {"type": int, "readonly": False}}
 		wizardPageProps = {"TitleBold": {"type": bool, "readonly": False},
 				"TitleFace": {"type": list, "readonly": False,
-						"values": dabo.ui.getAvailableFonts()},
+						"values": dui.getAvailableFonts()},
 				"TitleItalic": {"type": bool, "readonly": False},
 				"TitleSize": {"type": int, "readonly": False}}
 
@@ -862,7 +870,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				ret.update(sizerProps)
 			if isinstance(csz, LayoutGridSizer):
 				ret.update(gridSizerProps)
-		if isinstance(self, dabo.ui.dDataControlMixin):
+		if isinstance(self, dui.dDataControlMixin):
 			ret.update(dataProps)
 			
 		# Do we want to show postions?
@@ -872,95 +880,95 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		ret.update(borderProps)
 		
 		# Add all of the class-specific properties
-		if isinstance(self, dabo.ui.dBitmap):
+		if isinstance(self, dui.dBitmap):
 			pass
-		elif isinstance(self, dabo.ui.dBitmapButton):
+		elif isinstance(self, dui.dBitmapButton):
 			ret.update(captionProps)
 			ret.update(pictureProps)
 			ret.update(colorProps)
-		elif isinstance(self, dabo.ui.dButton):
+		elif isinstance(self, dui.dButton):
 			ret.update(colorProps)
 			ret.update(captionProps)
 			ret.update(fontProps)
-		elif isinstance(self, dabo.ui.dCheckBox):
+		elif isinstance(self, dui.dCheckBox):
 			ret.update(colorProps)
 			ret.update(captionProps)
 			ret.update(fontProps)
-		elif isinstance(self, dabo.ui.dColumn):
+		elif isinstance(self, dui.dColumn):
 			# This class is very different than the rest.
 			ret = columnProps
 			ret.update(captionProps)
 			ret.update(fontProps)
 			ret["Visible"] = {"type": bool, "readonly": False}
-		elif isinstance(self, dabo.ui.dComboBox):
+		elif isinstance(self, dui.dComboBox):
 			ret.update(colorProps)
 			ret.update(comboProps)
 			ret.update(fontProps)
 			ret.update(choiceProps)
-		elif isinstance(self, dabo.ui.dDropdownList):
+		elif isinstance(self, dui.dDropdownList):
 			ret.update(colorProps)
 			ret.update(fontProps)
 			ret.update(choiceProps)
-		elif isinstance(self, dabo.ui.dEditor):
+		elif isinstance(self, dui.dEditor):
 			ret.update(fontProps)
 			ret.update(editorProps)
-		elif isinstance(self, dabo.ui.dGauge):
+		elif isinstance(self, dui.dGauge):
 			pass
-		elif isinstance(self, dabo.ui.dGrid):
+		elif isinstance(self, dui.dGrid):
 			ret.update(fontProps)
 			ret.update(gridProps)
-		elif isinstance(self, dabo.ui.dColumn):
+		elif isinstance(self, dui.dColumn):
 			pass
-		elif isinstance(self, dabo.ui.dImage):
+		elif isinstance(self, dui.dImage):
 			ret.update(pictureProps)
 			ret.update(imageProps)
-		elif isinstance(self, dabo.ui.dLabel):
+		elif isinstance(self, dui.dLabel):
 			ret.update(labelProps)
 			ret.update(colorProps)
 			ret.update(captionProps)
 			ret.update(fontProps)
 			ret.update(borderProps)
-		elif isinstance(self, dabo.ui.dLine):
+		elif isinstance(self, dui.dLine):
 			pass
-		elif isinstance(self, dabo.ui.dListBox):
+		elif isinstance(self, dui.dListBox):
 			ret.update(colorProps)
 			ret.update(fontProps)
 			ret.update(choiceProps)
 			ret.update(multiSelectProps)
-		elif isinstance(self, dabo.ui.dListControl):
+		elif isinstance(self, dui.dListControl):
 			ret.update(colorProps)
 			ret.update(fontProps)
 			ret.update(multiSelectProps)
-		elif isinstance(self, dabo.ui.dMenuBar):
+		elif isinstance(self, dui.dMenuBar):
 			pass
-		elif isinstance(self, dabo.ui.dMenu):
+		elif isinstance(self, dui.dMenu):
 			pass
-		elif isinstance(self, dabo.ui.dMenuItem):
+		elif isinstance(self, dui.dMenuItem):
 			ret.update(captionProps)
-		elif isinstance(self, dabo.ui.dTreeView.getBaseNodeClass()):
+		elif isinstance(self, dui.dTreeView.getBaseNodeClass()):
 			ret = nodeProps
 			ret.update(captionProps)
 			ret.update(fontProps)
 			ret.update(colorProps)
-		elif isinstance(self, dabo.ui.dRadioList):
+		elif isinstance(self, dui.dRadioList):
 			ret.update(radioProps)
 			ret.update(colorProps)
 			ret.update(captionProps)
 			ret.update(fontProps)
 			ret.update(choiceProps)
-		elif isinstance(self, dabo.ui.dPageList):
+		elif isinstance(self, dui.dPageList):
 			ret.update(colorProps)
 			ret.update(fontProps)
 			ret.update(pageFrameProps)
 			ret.update(pageListProps)
-		elif isinstance(self, (dabo.ui.dPageFrame, dabo.ui.dPageList, 
-				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs)):
+		elif isinstance(self, (dui.dPageFrame, dui.dPageList, 
+				dui.dPageSelect, dui.dPageFrameNoTabs)):
 			ret.update(colorProps)
 			ret.update(fontProps)
 			ret.update(pageFrameProps)
-			if isinstance(self, dabo.ui.dPageFrameNoTabs):
+			if isinstance(self, dui.dPageFrameNoTabs):
 				del ret["TabPosition"]
-		elif isinstance(self, dabo.ui.dPage):
+		elif isinstance(self, dui.dPage):
 			ret.update(captionProps)
 			ret.update(colorProps)
 			ret.update(panelProps)
@@ -974,47 +982,49 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(colorProps)
 			ret.update(pictureProps)
 			ret.update(wizardPageProps)
-		elif isinstance(self, dabo.ui.dScrollPanel):
+		elif isinstance(self, dui.dLed):
+			ret.update(ledProps)
+		elif isinstance(self, dui.dScrollPanel):
 			ret.update(panelProps)
 			ret.update(scrollProps)
 			ret.update(colorProps)
-		elif isinstance(self, dabo.ui.dPanel):
+		elif isinstance(self, dui.dPanel):
 			ret.update(panelProps)
 			ret.update(colorProps)
-		elif isinstance(self, dabo.ui.dSlidePanelControl):
+		elif isinstance(self, dui.dSlidePanelControl):
 			ret.update(slidePanelControlProps)
-		elif isinstance(self, dabo.ui.dSlidePanel):
+		elif isinstance(self, dui.dSlidePanel):
 			ret.update(slidePanelProps)
 			ret.update(captionProps)
-		elif isinstance(self, dabo.ui.dSlider):
+		elif isinstance(self, dui.dSlider):
 			ret.update(sliderProps)
 			ret.update(colorProps)
 			ret.update(fontProps)
-		elif isinstance(self, dabo.ui.dSpinner):
+		elif isinstance(self, dui.dSpinner):
 			ret.update(spinnerProps)
 			ret.update(colorProps)
 			ret.update(fontProps)
-		elif isinstance(self, dabo.ui.dSplitter):
+		elif isinstance(self, dui.dSplitter):
 			ret.update(splitterProps)
-		elif isinstance(self, dabo.ui.dStatusBar):
+		elif isinstance(self, dui.dStatusBar):
 			ret.update(fontProps)
-		elif isinstance(self, (dabo.ui.dEditBox, dabo.ui.dTextBox)):
+		elif isinstance(self, (dui.dEditBox, dui.dTextBox)):
 			ret.update(colorProps)
 			ret.update(fontProps)
 			ret.update(textProps)
-			if isinstance(self, dabo.ui.dTextBox):
+			if isinstance(self, dui.dTextBox):
 				ret.update({"PasswordEntry": {"type": bool, "readonly": False},
 						"TextLength": {"type": int, "readonly": False}})
-		elif isinstance(self, dabo.ui.dHtmlBox):
+		elif isinstance(self, dui.dHtmlBox):
 			ret.update(htmlTextProps)
 			ret.update(scrollProps)
-		elif isinstance(self, dabo.ui.dTimer):
+		elif isinstance(self, dui.dTimer):
 			pass
-		elif isinstance(self, dabo.ui.dToggleButton):
+		elif isinstance(self, dui.dToggleButton):
 			ret.update(captionProps)
 			ret.update(colorProps)
 			ret.update(fontProps)
-		elif isinstance(self, dabo.ui.dTreeView):
+		elif isinstance(self, dui.dTreeView):
 			ret.update(treeProps)
 			ret.update(colorProps)
 			ret.update(fontProps)		
@@ -1099,8 +1109,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		
 		
 	def _getContainerState(self):
-		return isinstance(self, (dabo.ui.dPanel, dabo.ui.dScrollPanel, dabo.ui.dPage, 
-				dabo.ui.dForm, dabo.ui.dDialog) )
+		return isinstance(self, (dui.dPanel, dui.dScrollPanel, dui.dPage, 
+				dui.dForm, dui.dDialog) )
 	
 	
 	def _getRegID(self):
@@ -1132,7 +1142,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		if not val:
 			self.Form.hideHandles(self)
 		else:
-			if isinstance(self, dabo.ui.dPage):
+			if isinstance(self, dui.dPage):
 				self.Parent.SelectedPage = self
 		if hasattr(self, "_redraw"):
 			autoclear = self.autoClearDrawings
@@ -1188,7 +1198,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			return
 		try:
 			self.ControllingSizer.setItemProp(self, "ColSpan", val)
-		except dabo.ui.GridSizerSpanException, e:
+		except dui.GridSizerSpanException, e:
 			raise PropertyUpdateException(str(e))
 		
 		
@@ -1207,7 +1217,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			return
 		try:
 			self.ControllingSizer.setItemProp(self, "RowSpan", val)
-		except dabo.ui.GridSizerSpanException, e:
+		except dui.GridSizerSpanException, e:
 			raise PropertyUpdateException(str(e))
 
 
@@ -1256,7 +1266,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 	
 	
 	def _getTreeDisp(self):
-		if isinstance(self, dabo.ui.dColumn):
+		if isinstance(self, dui.dColumn):
 			prfx = "Column"
 			if not self.Visible:
 				prfx = "Hidden Column"
@@ -1264,9 +1274,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				ret = (prfx, self.DataField)
 			else:
 				ret = (prfx, self.Parent.Columns.index(self))
-		elif isinstance(self, dabo.ui.dLabel):
+		elif isinstance(self, dui.dLabel):
 			ret = ("\"%s\"" % self.Caption, self._baseClass)
-		elif isinstance(self, dabo.ui.dTreeView.getBaseNodeClass()):
+		elif isinstance(self, dui.dTreeView.getBaseNodeClass()):
 			ret = ("\"%s\"" % self.Caption, self._baseClass)
 		elif isinstance(self, dlgs.WizardPage):
 			ret = "WizardPage", self.Caption
