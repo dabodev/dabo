@@ -1499,6 +1499,7 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
 				"Top": {"type" : int, "readonly" : False},
 				"Bottom": {"type" : int, "readonly" : False},
 				"ShowCaption": {"type" : bool, "readonly" : False},
+				"ShowMenuBar": {"type" : bool, "readonly" : False},
 				"MenuBarFile": {"type" : "path", "readonly" : False, 
 					"customEditor": "editMenuBarFile"},
 				"CxnName": {"type" : unicode, "readonly" : False},
