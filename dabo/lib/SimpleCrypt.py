@@ -17,7 +17,22 @@ class SimpleCrypt(object):
 	Thanks to Raymond Hettinger for this code, originally found on
 	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/266586
 	"""
+
+	def showWarning(self):
+		import warnings
+		warnings.warn("""
+WARNING: 
+Your application uses SimpleCrypt, which is fine for testing but should
+not be used in production, because:
+
+1) Anyone with a copy of Dabo could decrypt your password.
+
+2) It isn't portable between 32-bit and 64-bit python. See the trac
+   ticket at http://trac.dabodev.com/ticket/1179 for more information.
+""", UserWarning)
+
 	def encrypt(self, aString):
+		self.showWarning()
 		tmpKey = self.generateKey(aString)
 		myRand = random.Random(tmpKey).randrange
 		crypted = [chr(ord(elem)^myRand(256)) for elem in aString]
@@ -27,6 +42,7 @@ class SimpleCrypt(object):
 		
 
 	def decrypt(self, aString):
+		self.showWarning()
 		tmpKey = "".join([aString[i] for i in range(0, len(aString), 3)])
 		val = "".join([aString[i+1:i+3] for i in range(0, len(aString), 3)])
 		myRand = random.Random(tmpKey).randrange
