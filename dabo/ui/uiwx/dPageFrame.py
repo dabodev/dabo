@@ -16,14 +16,15 @@ import wx.aui as aui
 #The flatnotebook version we need is not avialable with wxPython < 2.8.4
 _USE_FLAT = (wx.VERSION >= (2, 8, 4))
 if _USE_FLAT:
-	#The Editra flatnotebook module takes care of the Nav Buttons and Dropdown Tab List overlap problem, so import that module
+	#The Editra flatnotebook module takes care of the Nav Buttons and Dropdown Tab List 
+	#overlap problem, so we try to import that module first.  If that doesn't
 	#Why wxPython doesn't fold this flatnotebook module into the main one is beyond me...
-	if (wx.VERSION >= (2, 8, 7, 1)):
-		_USE_EDITRA = True
+	try:
 		import wx.tools.Editra.src.extern.flatnotebook as fnb
-	else:
-		_USE_EDITRA = False
+		_USE_EDITRA = True
+	except ImportError:
 		import wx.lib.flatnotebook as fnb
+		_USE_EDITRA = False
 
 
 def readonly(value):
