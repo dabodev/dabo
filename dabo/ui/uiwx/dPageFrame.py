@@ -23,9 +23,9 @@ if _USE_FLAT:
 		import wx.tools.Editra.src.extern.flatnotebook as fnb
 		_USE_EDITRA = True
 	except ImportError:
-		if (wx.VERSION >= (2, 8, 9, 2))
+		if (wx.VERSION >= (2, 8, 9, 2)):
 			import wx.lib.agw.flatnotebook as fnb
-		else
+		else:
 			import wx.lib.flatnotebook as fnb
 		_USE_EDITRA = False
 
