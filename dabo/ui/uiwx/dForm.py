@@ -911,7 +911,7 @@ class dForm(BaseForm, wx.Frame):
 
 		if kwargs.pop("Modal", False):
 			# Hack this into a wx.Dialog, for true modality
-			self._hackToDialog()
+			dForm._hackToDialog()
 			preClass = wx.PreDialog
 			self._modal = True
 		else:
@@ -924,30 +924,31 @@ class dForm(BaseForm, wx.Frame):
 				# This is a normal SDI form:
 				preClass = wx.PreFrame
 				self._mdi = False
-			self._hackToFrame()
+			dForm._hackToFrame()
 
 		## (Note that it is necessary to run the above blocks each time, because
 		##  we are modifying the dForm class definition globally.)
 		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
-		self._hackToFrame()
+		dForm._hackToFrame()
 
 
-	def _hackToDialog(self):
+	def _hackToDialog(cls):
 		dForm.__bases__ = (BaseForm, wx.Dialog)
+	_hackToDialog = classmethod(_hackToDialog)
 
-	def _hackToFrame(self):
-		if self._mdi:
+	def _hackToFrame(cls):
+		if dabo.settings.MDI:
 			dForm.__bases__ = (BaseForm, wx.MDIChildFrame)
 		else:
 			dForm.__bases__ = (BaseForm, wx.Frame)
-
+	_hackToFrame = classmethod(_hackToFrame)
 
 	def Show(self, show=True, *args, **kwargs):
 		self._gtk_show_fix(show)
 		if self.Modal:
-			self._hackToDialog()
+			dForm._hackToDialog()
 		dForm.__bases__[-1].Show(self, show, *args, **kwargs)
-		self._hackToFrame()
+		dForm._hackToFrame()
 
 	def _getModal(self):
 		return getattr(self, "_modal", False)
@@ -959,9 +960,9 @@ class dForm(BaseForm, wx.Frame):
 		if self._constructed():
 			val = bool(val)
 			if val and self.Modal:
-				self._hackToDialog()
+				dForm._hackToDialog()
 				self.ShowModal()
-				self._hackToFrame()
+				dForm._hackToFrame()
 			else:
 				self.Show(val)
 		else:
