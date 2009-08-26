@@ -722,8 +722,12 @@ class PropertyGrid(dabo.ui.dGrid):
 		for row in range(self.RowCount):
 			pd = self.getPropDictForRow(row)
 			if pd is None:
-				dabo.errorLog.write(_("Property Grid out of sync for property '%s' of object '%'") % 
-						(self.getValue(row, 0), self.Application.Selection[0]))
+				if row == 0 and self.getValue(row, 0) == "":
+					# skip the below errorLog entry for ReportDesigner
+					pass
+				else:
+					dabo.errorLog.write(_("Property Grid out of sync for property '%s' of object '%'") % 
+							(self.getValue(row, 0), self.Application.Selection[0]))
 				continue
 			if not isinstance(pd, dict):
 				print _("BAD PROP DICT:"), pd, type(pd), _("ROW"), row
