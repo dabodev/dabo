@@ -1901,7 +1901,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		header = self._getWxHeader()
 		self.defaultHdrCursor = header.GetCursor()
 		self._headerNeedsRedraw = False
-		self._headerMousePosition = (0,0)
+		self._lastHeaderMousePosition = None
 		self._headerMouseLeftDown, self._headerMouseRightDown = False, False
 
 		header.Bind(wx.EVT_LEFT_DCLICK, self.__onWxHeaderMouseLeftDoubleClick)
@@ -3218,14 +3218,15 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			col._persist("Width")
 
 	def _onGridHeaderMouseMove(self, evt):
+		curMousePosition = evt.EventData["mousePosition"]
 		headerIsDragging = self._headerDragging
 		headerIsSizing = self._headerSizing
-		dragging = evt.EventData["mouseDown"]
+		dragging = evt.EventData["mouseDown"] and (curMousePosition != self._lastHeaderMousePosition)
 		header = self._getWxHeader()
-		self._headerMousePosition = evt.EventData["mousePosition"]
 
 		if dragging:
-			x,y = evt.EventData["mousePosition"]
+			self._lastHeaderMousePosition = evt.EventData["mousePosition"]
+			x,y = self._lastHeaderMousePosition
 
 			if not headerIsSizing and (self.getColNumByX(x) == self.getColNumByX(x-5) == self.getColNumByX(x+5)):
 				if not headerIsDragging:
@@ -3281,6 +3282,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# we weren't dragging, and the mouse was just released.
 			# Find out the column we are in based on the x-coord, and
 			# do a processSort() on that column.
+			"do sort"
 			if self.DataSet:
 				# No need to sort if there is no data.
 				col = self.getColNumByX(x)
@@ -3293,17 +3295,20 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _onGridHeaderMouseRightClick(self, evt):
+		dabo.ui.callAfter(self._showHeaderContextMenu)
+
+	def _showHeaderContextMenu(self):
 		# Make the popup menu appear in the location that was clicked. We init
 		# the menu here, then call the user hook method to optionally fill the
 		# menu. If we get a menu back from the user hook, we display it.
-
 		menu = dabo.ui.dMenu()
 
 		# Fill the default menu item(s):
 		def _autosizeColumn(evt):
-			self.autoSizeCol(self.getColNumByX(self._headerMousePosition[0]), persist=True)
+			self.autoSizeCol(self.getColNumByX(self.getMousePosition()[0]), persist=True)
 		def _autosizeAllColumns(evt):
 			self.autoSizeCol("All")
+
 		menu.append(_("&Autosize Column"), OnHit=_autosizeColumn,
 				help=_("Autosize the column based on the data in the column."))
 		menu.append(_("&Autosize All Columns"), OnHit=_autosizeAllColumns,
@@ -3345,6 +3350,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# way to handle this, because eating events could cause some hard-to-debug
 		# problems later (there could be other, more critical code, that isn't
 		# being allowed to run).
+		self._lastHeaderMousePosition = evt.EventData["mousePosition"]
+		self._headerDragging = False
+		self._headerSizing = False
 		evt.Continue = False
 
 
