@@ -62,7 +62,10 @@ class dDateTextBox(dTextBox):
 	to the date value they need. The keystrokes are the same as those used
 	by Quicken, the popular personal finance program.
 	"""
-	def beforeInit(self):
+	def _beforeInit(self, *args, **kwargs):
+		self._baseClass = dDateTextBox
+		self._calendarPanel = None
+		self.Value = None
 		# Two-digit year value that is the cutoff in interpreting 
 		# dates as being either 19xx or 20xx.
 		self.rollover = 50
@@ -80,12 +83,10 @@ class dDateTextBox(dTextBox):
 		self.ampm = False
 		# Do we use the extended format for the calendar display?
 		self._extendedCalendar = False
-
+		return super(dDateTextBox, self)._beforeInit(*args, **kwargs)
 	
-	def afterInit(self):
-		self._baseClass = dDateTextBox
-		self.Value = datetime.date.today()
-		self._calendarPanel = None
+	def _afterInit(self):
+		#self.Value = datetime.date.today()  ## no, don't set default, it could override val. in db.
 		if self.showCalButton:
 			# Create a button that will display the calendar
 			self.calButton = dButton(self.Parent, Size=(self.Height, self.Height),
@@ -110,9 +111,11 @@ C: Popup Calendar to Select
 		self.DynamicToolTipText = lambda: {True: self._defaultToolTipText, 
 				False: None}[self.Enabled and not self.ReadOnly]
 
+		super(dDateTextBox, self)._afterInit()
 
-	def initEvents(self):
-		super(dDateTextBox, self).initEvents()
+
+	def _initEvents(self):
+		super(dDateTextBox, self)._initEvents()
 		self.bindEvent(dEvents.KeyChar, self.__onChar)
 		self.bindEvent(dEvents.LostFocus, self.__onLostFocus)
 		self.bindEvent(dEvents.MouseLeftDoubleClick, self.__onDblClick)
@@ -174,20 +177,19 @@ C: Popup Calendar to Select
 			# a value.
 			adjust = True
 			val = self.GetValue()
-			
-			if val:
-				valDt = self.Value
-				if valDt is None:
-					adjust = (val == self.Application.NoneDisplay)
-					evt.Continue = not adjust
-				else:
-					# They've just finished typing a new date, or are just
-					# positioned on the field. Either way, update the stored 
-					# date to make sure they are in sync.
-					self.Value = valDt
-					evt.Continue = False
-				if adjust:
-					self.adjustDate(key, ctrl, shift)
+			valDt = self.Value
+
+			if valDt is None:
+				adjust = (val == self.Application.NoneDisplay)
+				evt.Continue = not adjust
+			else:
+				# They've just finished typing a new date, or are just
+				# positioned on the field. Either way, update the stored 
+				# date to make sure they are in sync.
+				self.Value = valDt
+				evt.Continue = False
+			if adjust:
+				self.adjustDate(key, ctrl, shift)
 	
 		elif key in dateEntryKeys:
 			# key can be used for date entry: allow
