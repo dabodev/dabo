@@ -468,20 +468,19 @@ def DesignerController():
 					# paste into the parent band of the first selected object:
 					selBand = self.getParentBand(self.SelectedObjects[-1])
 
-			
-			if selBand is None:
-				# Nowhere to paste to
-				return
-
 			selectedObjects = []
 			for obj in objs:
 				if isinstance(obj, Variable):
-					pfObjects = self.ReportForm.setdefault("Variables", Variables(self._rw))
+					# paste into Variables whether or not Variables selected
+					pfObjects = self.ReportForm.setdefault("Variables", Variables(self.ReportForm))
+					obj.parent = pfObjects
 				elif isinstance(obj, Group):
-					pfObjects = self.ReportForm.setdefault("Groups", Groups(self._rw))
+					# paste into Groups whether or not Groups selected
+					pfObjects = self.ReportForm.setdefault("Groups", Groups(self.ReportForm))
+					obj.parent = pfObjects	
 				else:
 					pfObjects = selBand.setdefault("Objects", [])
-				obj.parent = selBand
+					obj.parent = selBand
 				pfObjects.append(obj)
 				selectedObjects.append(obj)
 
