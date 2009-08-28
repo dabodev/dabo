@@ -3282,7 +3282,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# we weren't dragging, and the mouse was just released.
 			# Find out the column we are in based on the x-coord, and
 			# do a processSort() on that column.
-			"do sort"
 			if self.DataSet:
 				# No need to sort if there is no data.
 				col = self.getColNumByX(x)
