@@ -462,11 +462,10 @@ class dBizobj(dObject):
 		"""Cancel all changes made to the current dataset, including all children
 		and all new, unmodified records.
 		"""
-		self.scanChangedRows(self.cancel, allCursors=False, includeNewUnchanged=True,
-				ignoreNoRecords=ignoreNoRecords)
+		return self.cancel(ignoreNoRecords=ignoreNoRecords, allRows=True)
 
 
-	def cancel(self, ignoreNoRecords=None):
+	def cancel(self, ignoreNoRecords=None, allRows=False):
 		"""Cancel all changes to the current record and all children.
 
 		Two hook methods will be called: beforeCancel() and afterCancel(). The
@@ -481,7 +480,7 @@ class dBizobj(dObject):
 			# normally not be a problem.
 			ignoreNoRecords = True
 		# Tell the cursor and all children to cancel themselves:
-		self._CurrentCursor.cancel(ignoreNoRecords=ignoreNoRecords)
+		self._CurrentCursor.cancel(ignoreNoRecords=ignoreNoRecords, allRows=allRows)
 		for child in self.__children:
 			child.cancelAll(ignoreNoRecords=ignoreNoRecords)
 		self.afterCancel()
