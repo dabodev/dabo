@@ -1652,8 +1652,8 @@ class ReportWriter(object):
 							storyheight = story[1]
 							needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))  ## y could be dep. on band height.
 							maxBandHeight = max(maxBandHeight, needed)
-				availableHeight = (y + bandHeight) - (pageFooterOrigin[1] + pfHeight)
-				if maxBandHeight > availableHeight:
+				availableHeight = y - (pageFooterOrigin[1] + pfHeight)
+				if (maxBandHeight - bandHeight) > availableHeight:
 					# Signal that we need a page change as there isn't room:
 					return None
 				return maxBandHeight
@@ -1734,7 +1734,7 @@ class ReportWriter(object):
 					self.storeSpanningObject(obj, (x1, y1), group)
 					continue
 
-				availableHeight = y - (pageFooterOrigin[1] + pfHeight)
+				availableHeight = (y + bandHeight) - (pageFooterOrigin[1] + pfHeight)
 				obj_height = obj.getProp("height")
 				if obj_height is not None:
 					obj_height = self.getPt(obj_height)
