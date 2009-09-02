@@ -146,6 +146,9 @@ def DesignerController():
 				tag = evt.EventObject.Tag
 				self.newObject(tag, mousePosition)
 
+			def onSelectAll(evt):
+				self.selectAllObjects()
+
 			def onCopy(evt):
 				self.copy()
 
@@ -213,6 +216,8 @@ def DesignerController():
 			if len(menu.Children) > 0:
 				menu.appendSeparator()
 
+			menu.append(_("Select All"), HotKey="Ctrl+A", OnHit=onSelectAll)
+			menu.appendSeparator()
 			menu.append(_("Copy"), HotKey="Ctrl+C", OnHit=onCopy)
 			menu.append(_("Cut"), HotKey="Ctrl+X", OnHit=onCut)
 			menu.append(_("Paste"), HotKey="Ctrl+V", OnHit=onPaste)
@@ -223,6 +228,15 @@ def DesignerController():
 				menu.append(_("Move to bottom"), HotKey="Ctrl+J", OnHit=onMoveToBottom)
 
 			return menu
+
+
+		def selectAllObjects(self):
+			"""Select all objects in the selected band(s)."""
+			selection = []
+		 	for band in self.getSelectedBands():
+				for obj in band["Objects"]:
+					selection.append(obj)
+			self.SelectedObjects = selection
 
 
 		def showObjectTree(self, bringToTop=False, refresh=False):
@@ -739,12 +753,16 @@ class ReportObjectTree(dabo.ui.dTreeView):
 		"""Iterate the Selection, and refresh the Caption."""
 		for node in self.Selection:
 			node.Caption = self.getNodeCaption(node.ReportObject)
+
 	
 class ObjectTreeForm(DesignerControllerForm):
 	def initProperties(self):
 		ObjectTreeForm.doDefault()
 		self.Caption = "Report Object Tree"
 		self.EditorClass = ReportObjectTree
+
+	def selectAll(self):
+		rdc.selectAllObjects()
 
 
 class ReportPropSheet(ClassDesignerPropSheet.PropSheet):
@@ -2462,6 +2480,9 @@ class ReportDesignerForm(dabo.ui.dForm):
 	def onEditSendToBack(self, evt):
 		self.editor.sendToBack()
 
+	def selectAll(self):
+		rdc.selectAllObjects()
+	
 	def onViewZoomIn(self, evt):
 		ed = self.editor
 		if ed.Zoom < 10:

@@ -678,16 +678,20 @@ these automatic updates.""").replace("\n", " ")
 		
 
 	def onEditSelectAll(self, evt):
-		if self.ActiveForm:
-			win = self.ActiveForm.ActiveControl
-			if win:
+		af = self.ActiveForm
+		if af:
+			ac = af.ActiveControl
+			if ac:
 				try:
-					win.SelectAll()
+					ac.SelectAll()
 				except AttributeError:
 					try:
-						win.SetSelection(-1, -1)
+						ac.SetSelection(-1, -1)
 					except (TypeError, AttributeError):
-						pass
+						try:
+							af.selectAll()
+						except AttributeError:
+							pass
 
 			
 	def _getContainingGrid(self, win):
