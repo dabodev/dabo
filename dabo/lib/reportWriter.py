@@ -736,13 +736,30 @@ class SpanningLine(Line):
 	"""Represents a line that spans from a group or page header to a group or page footer."""
 	def initAvailableProps(self):
 		super(SpanningLine, self).initAvailableProps()
-		del self.AvailableProps["x"]
-		del self.AvailableProps["y"]
-		del self.AvailableProps["LineSlant"]
+		for prop in ("x", "y", "Width", "Height", "LineSlant", "Rotation",
+				"vAnchor", "hAnchor"):
+			del self.AvailableProps[prop]
 		self.AvailableProps["x"] = toPropDict(float, 0.0, 
 				"""Specifies the x of the starting point of the line, in the group or page header.""")
 		self.AvailableProps["y"] = toPropDict(float, 0.0, 
 				"""Specifies the y of the starting point of the line, in the group or page header.""")
+		self.AvailableProps["xFooter"] = toPropDict(float, 0.0, 
+				"""Specifies the x of the ending point of the line, in the group or page footer.""")
+		self.AvailableProps["yFooter"] = toPropDict(float, 0.0, 
+				"""Specifies the y of the ending point of the line, in the group or page footer.""")
+
+
+class SpanningRectangle(Rectangle):
+	"""Represents a rectangle that spans from a group or page header to a group or page footer."""
+	def initAvailableProps(self):
+		super(SpanningRectangle, self).initAvailableProps()
+		for prop in ("x", "y", "Width", "Height", "Rotation",
+				"vAnchor", "hAnchor"):
+			del self.AvailableProps[prop]
+		self.AvailableProps["x"] = toPropDict(float, 0.0, 
+				"""Specifies the x of the starting point of the rectangle, in the group or page header.""")
+		self.AvailableProps["y"] = toPropDict(float, 0.0, 
+				"""Specifies the y of the starting point of the rectangle, in the group or page header.""")
 		self.AvailableProps["xFooter"] = toPropDict(float, 0.0, 
 				"""Specifies the x of the ending point of the line, in the group or page footer.""")
 		self.AvailableProps["yFooter"] = toPropDict(float, 0.0, 
@@ -937,18 +954,18 @@ class ReportWriter(object):
 		neededHeight = 0
 
 		## These properties can apply to all objects:
-		width = self.getPt(obj.getProp("width"))
-	
-		rotation = obj.getProp("rotation")
-		hAnchor = obj.getProp("hAnchor").lower()
-		vAnchor = obj.getProp("vAnchor").lower()
+		if "Spanning" not in objType:
+			width = self.getPt(obj.getProp("width"))
+			rotation = obj.getProp("rotation")
+			hAnchor = obj.getProp("hAnchor").lower()
+			vAnchor = obj.getProp("vAnchor").lower()
 
-		if hAnchor == "right":
-			x = x - width
-		elif hAnchor == "center":
-			x = x - (width / 2)
+			if hAnchor == "right":
+				x = x - width
+			elif hAnchor == "center":
+				x = x - (width / 2)
 	
-		if objType != "Frameset":	
+		if objType not in ("Frameset", "SpanningLine", "SpanningRectangle"):	
 			height = self.getPt(obj.getProp("Height"))
 			if vAnchor == "top":
 				y = y - height
@@ -957,7 +974,38 @@ class ReportWriter(object):
 	
 		
 		## Do specific things based on object type:
-		if objType == "Rectangle":
+		if objType == "SpanningRectangle":
+			# Rectangle gets drawn from fixed (x,y) to fixed (xFooter, yFooter) points.
+			props = {}
+			## props available in reportlab that we use:
+			##   x,y,width,height
+			##   fillColor: None for transparent, or (r,g,b)
+			##   strokeColor: None for transparent, or (r,g,b)
+			##   strokeDashArray: None
+			##   strokeWidth: 0.25
+	
+			## props available that we don't currently use:
+			##   rx, ry
+			##   strokeMiterLimit: 0
+			##   strokeLineJoin: 0
+			##   strokeLineCap: 0
+			##
+	
+			for prop in ("strokeWidth", "fillColor", "strokeColor", 
+					"strokeDashArray", ):
+				props[prop] = obj.getProp(prop)
+			props["strokeWidth"] = self.getPt(props["strokeWidth"])
+			x = obj["xFrom"]
+			y = obj["yFrom"]
+			xFooter, yFooter = origin
+			c.setStrokeColorRGB(*props["strokeColor"])
+			c.setLineWidth(props["strokeWidth"])
+			c.rect(xFooter, yFooter, x-xFooter, y-yFooter)
+			# done drawing it, so remove the cached values:
+			del obj["xFrom"]
+			del obj["yFrom"]
+
+		elif objType == "Rectangle":
 			d = shapes.Drawing(width, height)
 			d.rotate(rotation)
 	
@@ -1014,6 +1062,9 @@ class ReportWriter(object):
 				c.setStrokeColorRGB(*props["strokeColor"])
 				c.setLineWidth(props["strokeWidth"])
 				c.line(x, y, xFooter, yFooter)
+				# done drawing it, so remove the cached values:
+				del obj["xFrom"]
+				del obj["yFrom"]
 			else:
 				d = shapes.Drawing(width, height)
 				d.rotate(rotation)
@@ -1647,7 +1698,7 @@ class ReportWriter(object):
 						maxBandHeight = max(maxBandHeight, neededHeight)
 				else:
 					for obj in bandDict.get("Objects", []):
-						if obj.getProp("Height") is None:
+						if "height" in obj and obj.getProp("Height") is None:
 							story = self.getStory(obj)
 							storyheight = story[1]
 							needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))  ## y could be dep. on band height.
@@ -1732,7 +1783,7 @@ class ReportWriter(object):
 				else:
 					y1 = y + y1
 
-				if obj.__class__.__name__ == "SpanningLine":
+				if obj.__class__.__name__ in ("SpanningLine", "SpanningRectangle"):
 					self.storeSpanningObject(obj, (x1, y1), group)
 					continue
 

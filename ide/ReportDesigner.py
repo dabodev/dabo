@@ -187,6 +187,10 @@ def DesignerController():
 					for choice in (Image, Line, Rectangle, String):
 						objectChoices.append(choice.__name__, 
 								OnHit=onNewObject, Tag=choice)
+					objectChoices.appendSeparator()
+					for choice in (SpanningLine, SpanningRectangle):
+						objectChoices.append(choice.__name__,
+								OnHit=onNewObject, Tag=choice)
 					tc = self.ReportForm.get("TestCursor", [])
 					var = self.ReportForm.get("Variables", [])
 					if tc or var:
@@ -1064,74 +1068,6 @@ class DesignerBand(DesignerPanel):
 			self._setMouseMoveMode(evt.EventData["mousePosition"])
 		
 		evt.stop()
-		return
-		if self._dragging:
-			dragObj = self._dragObject
-#			self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENWSE))
-			pos = evt.EventData["mousePosition"]
-
-			if self._mouseDragMode == "sizing":
-				z = self.Parent.ZoomFactor
-				oldPos = self._mousePosition
-				curPos = evt.EventData["mousePosition"]
-				self._mousePosition = curPos
-
-				offset = {"x": (curPos[0] - oldPos[0]) / z,
-						"y": -1*((curPos[1] - oldPos[1]) / z)}
-
-				if offset["x"] != 0 or offset["y"] != 0:
-					# dragging the object is resizing it.
-					hAnchor = dragObj.getProp("hAnchor").lower()
-					vAnchor = dragObj.getProp("vAnchor").lower()
-					w, h = dragObj.getProp("width"), dragObj.getProp("height")
-					x, y = dragObj.getProp("x"), dragObj.getProp("y")
-					getPt = self._rw.getPt
-					x,y,w,h = getPt(x), getPt(y), getPt(w), getPt(h)
-					anchor = self._anchor
-
-					newWidth = w
-					newHeight = h
-					newX = x
-					newY = y
-					
-					if anchor[0] == "l":
-						newWidth = w-offset["x"]
-		
-						if hAnchor == "left":
-							newX = x + offset["x"]
-						elif hAnchor == "center":
-							newWidth = w - (2 * offset["x"])
-
-					if anchor[0] == "r":
-						newWidth = w+offset["x"]
-
-						if hAnchor == "right":
-							newX = x + offset["x"]
-						elif hAnchor == "center":
-							newWidth = w + (2 * offset["x"])
-
-					if anchor[1] == "b":
-						newHeight = h-offset["y"]
-		
-						if vAnchor == "bottom":
-							newY = y + offset["y"]
-						elif vAnchor == "middle":
-							newHeight = h - (2 * offset["y"])
-
-					if anchor[1] == "t":
-						newHeight = h+offset["y"]
-		
-						if vAnchor == "top":
-							newY = y + offset["y"]
-						elif vAnchor == "middle":
-							newHeight = h - (2 * offset["y"])
-
-					dragObj.setProp("x", repr(newX))
-					dragObj.setProp("width", repr(newWidth))
-					dragObj.setProp("y", repr(newY))
-					dragObj.setProp("height", repr(newHeight))
-						
-					self.refresh()
 				
 
 	def onMouseLeftUp(self, evt):
@@ -1232,8 +1168,16 @@ class DesignerBand(DesignerPanel):
 
 		for obj in objs:
 			size, position = self.getObjSizeAndPosition(obj)
-			if mousePos[0] > position[0] and mousePos[0] < position[0] + size[0] \
-					and mousePos[1] > position[1] and mousePos[1] < position[1] + size[1]:			
+			if isinstance(obj, SpanningLine):
+				# Allow the object to be selected when clicked on by adding some sensitivity
+				size = list(size)
+				position = list(position)
+				size[0] += 2
+				size[1] += 2
+				position[0] -= 1
+				position[1] -= 1
+			if mousePos[0] >= position[0] and mousePos[0] <= position[0] + size[0] \
+					and mousePos[1] >= position[1] and mousePos[1] <= position[1] + size[1]:			
 				mouseObj = obj
 				break
 		return mouseObj
@@ -1262,31 +1206,40 @@ class DesignerBand(DesignerPanel):
 		rw = self._rw
 		z = self.Parent.ZoomFactor
 		x = rw.getPt(obj.getProp("x"))
-		y = rw.getPt(obj.getProp("y"))
-		y = ((self.Height - self._bandLabelHeight)/z) - y
+		y_ = rw.getPt(obj.getProp("y"))
+		y = ((self.Height - self._bandLabelHeight)/z) - y_
 
-		width = rw.getPt(obj.getProp("Width"))
-		height = obj.getProp("Height")
+		if isinstance(obj, (SpanningLine, SpanningRectangle)):
+			xFooter = rw.getPt(obj.getProp("xFooter"))
+			yFooter = rw.getPt(obj.getProp("yFooter"))
+			width = xFooter - x
+			height = y_  ## currently can't draw down to the footer because painting doesn't cross panels
+		else:
+			width = rw.getPt(obj.getProp("Width"))
+			height = obj.getProp("Height")
+			hAnchor = obj.getProp("hAnchor").lower()
+			vAnchor = obj.getProp("vAnchor").lower()
+
+			if hAnchor == "right":
+				x = x - width
+			elif hAnchor == "center":
+				x = x - (width/2)
+	
+			if vAnchor == "top":
+				y = y + height
+			elif vAnchor == "middle":
+				y = y + (height/2)
+
 		if height is None:
 			# dynamic height. Fake it here for now:
 			height = 23
 		height = rw.getPt(height)
 
-		hAnchor = obj.getProp("hAnchor").lower()
-		vAnchor = obj.getProp("vAnchor").lower()
-
-		if hAnchor == "right":
-			x = x - width
-		elif hAnchor == "center":
-			x = x - (width/2)
-	
-		if vAnchor == "top":
-			y = y + height
-		elif vAnchor == "middle":
-			y = y + (height/2)
-
 		size = (z*width, z*height)
-		position = (z*x, (z*y) - (z*height))
+		if isinstance(obj, (SpanningLine, SpanningRectangle)):
+			position = (z*x, z*y)
+		else:
+			position = (z*x, (z*y) - (z*height))
 		return (size, position)
 
 
@@ -1414,7 +1367,7 @@ class DesignerBand(DesignerPanel):
 						alignments[alignment]|wx.ALIGN_BOTTOM)
 
 
-		if objType == "Rectangle":
+		if objType in ("Rectangle", "SpanningRectangle"):
 			strokeWidth = self._rw.getPt(obj.getProp("strokeWidth")) * self.Parent.Zoom
 			sc = obj.getProp("strokeColor")
 			if sc is None:
@@ -1432,40 +1385,44 @@ class DesignerBand(DesignerPanel):
 			dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
 
 
-		if objType == "Line":
+		if objType in ("Line", "SpanningLine"):
 			strokeWidth = self._rw.getPt(obj.getProp("strokeWidth")) * self.Parent.Zoom
 			strokeColor = self._rw.getColorTupleFromReportLab(obj.getProp("strokeColor"))
 			dc.SetPen(wx.Pen(strokeColor, strokeWidth, wx.SOLID))
 
-			lineSlant = obj.getProp("lineSlant")
-			anchors = {"left": rect[0],
-					"center": rect[0] + (rect[2]/2),
-					"right": rect[0] + rect[2],
-					"top": rect[1],
-					"middle": rect[1] + (rect[3]/2),
-					"bottom": rect[1] + rect[3]}
+			if objType != "SpanningLine":
+				lineSlant = obj.getProp("lineSlant")
+				anchors = {"left": rect[0],
+						"center": rect[0] + (rect[2]/2),
+						"right": rect[0] + rect[2],
+						"top": rect[1],
+						"middle": rect[1] + (rect[3]/2),
+						"bottom": rect[1] + rect[3]}
 
-			if lineSlant == "-":
-				# draw line from (left,middle) to (right,middle) anchors
-				beg = (anchors["left"], anchors["middle"])
-				end = (anchors["right"], anchors["middle"])
-			elif lineSlant == "|":
-				# draw line from (center,bottom) to (center,top) anchors
-				beg = (anchors["center"], anchors["bottom"])
-				end = (anchors["center"], anchors["top"])
-			elif lineSlant == "\\":
-				# draw line from (right,bottom) to (left,top) anchors
-				beg = (anchors["right"], anchors["bottom"])
-				end = (anchors["left"], anchors["top"])
-			elif lineSlant == "/":
-				# draw line from (left,bottom) to (right,top) anchors
-				beg = (anchors["left"], anchors["bottom"])
-				end = (anchors["right"], anchors["top"])
-			else:
-				# don't draw the line
-				lineSlant = None
+				if lineSlant == "-":
+					# draw line from (left,middle) to (right,middle) anchors
+					beg = (anchors["left"], anchors["middle"])
+					end = (anchors["right"], anchors["middle"])
+				elif lineSlant == "|":
+					# draw line from (center,bottom) to (center,top) anchors
+					beg = (anchors["center"], anchors["bottom"])
+					end = (anchors["center"], anchors["top"])
+				elif lineSlant == "\\":
+					# draw line from (right,bottom) to (left,top) anchors
+					beg = (anchors["right"], anchors["bottom"])
+					end = (anchors["left"], anchors["top"])
+				elif lineSlant == "/":
+					# draw line from (left,bottom) to (right,top) anchors
+					beg = (anchors["left"], anchors["bottom"])
+					end = (anchors["right"], anchors["top"])
+				else:
+					# don't draw the line
+					lineSlant = None
 
-			if lineSlant:
+			if objType == "SpanningLine":
+				rect = [rect[0], rect[1], rect[0] + rect[2], rect[1] + rect[3]]
+				dc.DrawLine(*rect)
+			elif lineSlant:
 				dc.DrawLine(beg[0], beg[1], end[0], end[1])
 
 
@@ -1527,8 +1484,15 @@ class DesignerBand(DesignerPanel):
 			width, height = (rect[2], rect[3])
 			thickness = self._anchorThickness
 
-			hAnchor = obj.getProp("hAnchor").lower()
-			vAnchor = obj.getProp("vAnchor").lower()
+			if "hAnchor" in obj:
+				hAnchor = obj.getProp("hAnchor").lower()
+			else:
+				hAnchor = "left"
+
+			if "vAnchor" in obj:
+				vAnchor = obj.getProp("vAnchor").lower()
+			else:
+				vAnchor = "top"
 
 			anchors = {"lt": ["left", "top", x-1, y-1],
 					"lb": ["left", "bottom", x-1, y+height-thickness+1],
@@ -1823,8 +1787,12 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 				else:
 					st = ""
 			else:
-				st = "x:%s y:%s  width:%s height:%s" % (so.getProp("x"),
-						so.getProp("y"), so.getProp("width"), so.getProp("Height"))
+				if isinstance(so, (SpanningLine, SpanningRectangle)):
+					st = "x:%s y:%s  xFooter:%s yFooter:%s" % (so.getProp("x"),
+							so.getProp("y"), so.getProp("xFooter"), so.getProp("yFooter"))
+				else:
+					st = "x:%s y:%s  width:%s height:%s" % (so.getProp("x"),
+							so.getProp("y"), so.getProp("width"), so.getProp("Height"))
 		elif len(so) > 1:
 			st = " -multiple objects selected- "
 		else:
