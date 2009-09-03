@@ -1874,7 +1874,7 @@ class ReportWriter(object):
 					if np and not brandNewPage:
 						endPage()
 						self._pageNumber = 0
-						pgreset=False
+						pgreset = False
 						beginPage()
 						y = None
 						brandNewPage = True  ## don't start multiple new pages
@@ -1882,7 +1882,7 @@ class ReportWriter(object):
 					y = printBand("groupHeader", y, group)
 					
 					if pgreset:
-						self._pageNumber=1
+						self._pageNumber = 1
 			
 			# print the detail band:
 			y = printBand("detail", y)
