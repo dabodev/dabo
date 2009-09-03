@@ -250,13 +250,30 @@ class dListControl(dcm.dControlItemMixin,
 		"""
 		if row < self.RowCount:
 			self.DeleteItem(row)
+			self._restoreRowSelection(row)
 		else:
 			dabo.errorLog.write("An attempt was made to remove a non-existent row")
 
 
+	def _restoreRowSelection(self, row):
+		"""Restores selection of last selected row, helpful in list item
+		manipulation conditions, e.g. removing list items.
+		"""
+		if self._lastSelectedIndex:
+			rowcnt = self.RowCount
+			if rowcnt == 0 or self.MultipleSelect:
+				self._lastSelectedIndex = None
+			else:
+				if row < rowcnt:
+					self.select(row)
+				else:
+					self.select(rowcnt - 1)
+		
+
 	def clear(self):
 		""" Remove all the rows in the control. """
 		self.DeleteAllItems()
+		self._lastSelectedIndex = None
 
 
 	def _GetString(self, idx=None, col=None):
