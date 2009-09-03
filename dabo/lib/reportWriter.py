@@ -865,7 +865,7 @@ class ReportWriter(object):
 	More documentation will come.
 	"""
 	_clearMemento = True
-
+	being_deferred = False
 	def storeSpanningObject(self, obj, origin=(0,0), group=None):
 		"""Store the passed spanning object for printing when the group or
 		page ends. Pass the group expr to identify group headers, or None to refer
@@ -1659,7 +1659,7 @@ class ReportWriter(object):
 				return maxBandHeight
 
 			maxBandHeight = getTotalBandHeight()
-
+			
 			if band in ("groupHeader", "groupFooter", "detail", "ReportBegin", "ReportEnd"):
 				extraHeight = 0
 				if band == "groupHeader":
@@ -1674,7 +1674,9 @@ class ReportWriter(object):
 
 				if y < check or maxBandHeight is None:
 					if self._currentColumn >= columnCount-1:
+						self.being_deferred = True
 						endPage()
+						self.being_deferred = False
 						beginPage()
 					else:
 						self._currentColumn += 1
@@ -1796,7 +1798,7 @@ class ReportWriter(object):
 		def beginPage():
 			# Print the static bands that appear below detail in z-order:
 			self._pageNumber += 1
-			for band in ("pageBackground", "pageHeader", "pageFooter"):
+			for band in ("pageBackground", "pageHeader"):
 				printBand(band)
 			self._brandNewPage = True
 
@@ -1804,7 +1806,8 @@ class ReportWriter(object):
 			self._currentColumn = 0
 			x = self.getPt(self.ReportForm["Page"].getProp("MarginLeft"))
 			self.drawSpanningObjects((x,y))
-			printBand("pageForeground")
+			for band in ("pageFooter", "pageForeground"):
+				print Band(band)
 			self.Canvas.showPage()
 		
 		def reprintGroupHeaders(y):
@@ -1860,20 +1863,27 @@ class ReportWriter(object):
 				vv = self._groupValues[group["expr"]]
 				if vv["curVal"] != group.getProp("expr"):
 					rp = eval(group.get("resetPageNumber", "False"))
-					if rp and self._recordNumber == 0:
-						self._pageNumber = 1
-					elif rp:
-						self._pageNumber = 0
+					
+					pgreset = False
+					if not self.being_deferred and rp:
+						pgreset = True
+						
 					vv["curVal"] = group.getProp("expr")
 					np = eval(group.get("startOnNewPage", "False")) \
 							and self.RecordNumber > 0
 					if np and not brandNewPage:
 						endPage()
+						self._pageNumber = 0
+						pgreset=False
 						beginPage()
 						y = None
 						brandNewPage = True  ## don't start multiple new pages
+						
 					y = printBand("groupHeader", y, group)
-
+					
+					if pgreset:
+						self._pageNumber=1
+			
 			# print the detail band:
 			y = printBand("detail", y)
 			self._recordNumber += 1
