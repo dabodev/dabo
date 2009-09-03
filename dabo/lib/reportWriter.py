@@ -1807,7 +1807,7 @@ class ReportWriter(object):
 			x = self.getPt(self.ReportForm["Page"].getProp("MarginLeft"))
 			self.drawSpanningObjects((x,y))
 			for band in ("pageFooter", "pageForeground"):
-				print Band(band)
+				printBand(band)
 			self.Canvas.showPage()
 		
 		def reprintGroupHeaders(y):
