@@ -1210,10 +1210,7 @@ class ReportWriter(object):
 			else:
 				frameHeight = neededHeight
 
-			if vAnchor == "top":
-				y = y - neededHeight
-			elif vAnchor == "middle":
-				y = y - (neededHeight / 2)
+			y = y - frameHeight
 
 			## Set canvas props based on our props:
 			c.translate(x, y)
