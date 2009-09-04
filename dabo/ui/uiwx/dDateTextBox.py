@@ -242,7 +242,8 @@ C: Popup Calendar to Select
 				self.Value = datetime.datetime.now()
 			else:
 				self.Value = datetime.date.today()
-
+			self.flushValue()
+			
 		# Did the key move to a boundary?
 		toBoundary = False
 		
@@ -338,6 +339,7 @@ C: Popup Calendar to Select
 				else:
 					self.dayInterval(-1)
 				self.adjustDate(key)
+		self.flushValue()
 	
 	
 	def hourInterval(self, hours):
