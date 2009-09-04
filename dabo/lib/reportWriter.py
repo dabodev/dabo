@@ -2194,8 +2194,8 @@ class ReportWriter(object):
 				"Frameset": Frameset, "Paragraph": Paragraph,
 				"Variables": Variables, "Groups": Groups, "Objects": Objects,
 				"TestCursor": TestCursor, "TestRecord": TestRecord,
-				"SpanningLine": SpanningLine, "ReportBegin": ReportBegin,
-				"ReportEnd": ReportEnd})
+				"SpanningLine": SpanningLine, "SpanningRectangle": SpanningRectangle, 
+				"ReportBegin": ReportBegin,	"ReportEnd": ReportEnd})
 
 		cls = typeMapping.get(objectType)
 		ref = cls(parent)
