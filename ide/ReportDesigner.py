@@ -2497,9 +2497,9 @@ class ReportDesignerForm(dabo.ui.dForm):
 
 	def fillMenu(self):
 		mb = self.MenuBar
-		fileMenu = mb.getMenu("File")
-		editMenu = mb.getMenu("Edit")
-		viewMenu = mb.getMenu("View")
+		fileMenu = mb.getMenu("base_file")
+		editMenu = mb.getMenu("base_edit")
+		viewMenu = mb.getMenu("base_view")
 		dIcons = dabo.ui.dIcons
 				
 		fileMenu.prependSeparator()
