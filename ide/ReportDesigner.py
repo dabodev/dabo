@@ -750,8 +750,6 @@ class ReportObjectTree(dabo.ui.dTreeView):
 					selNodes.append(node)
 
 		self.Selection = selNodes
-		if selNodes:
-			self.showNode(selNodes[0])
 		
 	def refreshCaption(self):
 		"""Iterate the Selection, and refresh the Caption."""
