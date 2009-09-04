@@ -1220,6 +1220,10 @@ class DesignerBand(DesignerPanel):
 			hAnchor = obj.getProp("hAnchor").lower()
 			vAnchor = obj.getProp("vAnchor").lower()
 
+			if height is None:
+				# dynamic height. Fake it here for now:
+				height = 23
+	
 			if hAnchor == "right":
 				x = x - width
 			elif hAnchor == "center":
@@ -1230,9 +1234,6 @@ class DesignerBand(DesignerPanel):
 			elif vAnchor == "middle":
 				y = y + (height/2)
 
-		if height is None:
-			# dynamic height. Fake it here for now:
-			height = 23
 		height = rw.getPt(height)
 
 		size = (z*width, z*height)
