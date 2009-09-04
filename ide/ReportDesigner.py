@@ -1712,7 +1712,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			size, turbo = False, False
 			if shiftDown:
 				if key in ["up", "down"]:
-					propName = "Height"
+					propName = "height"
 				else:
 					propName = "width"
 			else:
@@ -1733,27 +1733,38 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			for o in rdc.SelectedObjects:
 				if not isinstance(o, Drawable) or o.getProp("designerLock"):
 					continue
-				val = o.getProp(propName)
-				unit = "pt"
+
+				propNames = [propName]
+				if isinstance(o, (SpanningLine, SpanningRectangle)):
+					if propName == "x":
+						propNames.append("xFooter")
+					if propName == "width":
+						propNames = ["xFooter"]
+					if propName == "height":
+						propNames = ["yFooter"]
+
+				for propName in propNames:
+					val = o.getProp(propName)
+					unit = "pt"
 		
-				parentBand = rdc.getParentBand(o)
-				if parentBand not in parentBands:
-					parentBands.append(parentBand)
+					parentBand = rdc.getParentBand(o)
+					if parentBand not in parentBands:
+						parentBands.append(parentBand)
 
-				if isinstance(val, basestring) and len(val) > 3:
-					if val[-4] == "pica":
-						unit = "pica"
-					elif val[-2].isalpha():
-						unit = val[-2:]
+					if isinstance(val, basestring) and len(val) > 3:
+						if val[-4] == "pica":
+							unit = "pica"
+						elif val[-2].isalpha():
+							unit = val[-2:]
 
-				val = self._rw.getPt(val)
-				newval = val + adj
-				newval = self._rw.ptToUnit(newval, unit)
+					val = self._rw.getPt(val)
+					newval = val + adj
+					newval = self._rw.ptToUnit(newval, unit)
 
-				if propName.lower() in ("width", "height") and self._rw.getPt(newval) < 0:
-					# don't allow width or height to be negative
-					newval = "0 pt"
-				o.setProp(propName, repr(newval))
+					if propName.lower() in ("width", "height") and self._rw.getPt(newval) < 0:
+						# don't allow width or height to be negative
+						newval = "0 pt"
+					o.setProp(propName, repr(newval))
 
 			for bandObj in parentBands:
 				# refresh the parent bands immediately to reflect the drawing:
