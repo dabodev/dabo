@@ -166,7 +166,8 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		# This allows the event processing to properly 
 		# set the EventData["index"] properly.
 		evt.SetInt(pos)
-		self.super(evt)
+		self._userChanged = True
+		super(dRadioList, self)._onWxHit(evt)
 		
 		
 	def layout(self):
