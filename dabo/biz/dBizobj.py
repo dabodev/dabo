@@ -462,10 +462,11 @@ class dBizobj(dObject):
 		"""Cancel all changes made to the current dataset, including all children
 		and all new, unmodified records.
 		"""
-		return self.cancel(ignoreNoRecords=ignoreNoRecords, allRows=True)
+		self.scanChangedRows(self.cancel, allCursors=False, includeNewUnchanged=True,
+				ignoreNoRecords=ignoreNoRecords)
 
 
-	def cancel(self, ignoreNoRecords=None, allRows=False):
+	def cancel(self, ignoreNoRecords=None):
 		"""Cancel all changes to the current record and all children.
 
 		Two hook methods will be called: beforeCancel() and afterCancel(). The
@@ -480,7 +481,7 @@ class dBizobj(dObject):
 			# normally not be a problem.
 			ignoreNoRecords = True
 		# Tell the cursor and all children to cancel themselves:
-		self._CurrentCursor.cancel(ignoreNoRecords=ignoreNoRecords, allRows=allRows)
+		self._CurrentCursor.cancel(ignoreNoRecords=ignoreNoRecords)
 		for child in self.__children:
 			child.cancelAll(ignoreNoRecords=ignoreNoRecords)
 		self.afterCancel()
@@ -993,7 +994,7 @@ class dBizobj(dObject):
 			endswith: fld.endswith(expr)
 			contains: expr in fld
 		"""
-		#currPK = self.getPK()
+		currPK = self.getPK()
 		if self.VirtualFields.has_key(fld):
 			self.scan(self.scanVirtualFields, fld=fld, expr=expr, op=op, reverse=True)
 			self._CurrentCursor.filterByExpression("%s IN (%s)" % (self.KeyField, ", ".join( "%i" % key for key in self.__filterPKVirtual)))
@@ -1003,17 +1004,17 @@ class dBizobj(dObject):
 		else:
 			self._CurrentCursor.filter(fld=fld, expr=expr, op=op)
 
-		#try:
-		#	newPK = self.getPK()
-		#except dException.NoRecordsException:
-		#	newPK = currPK
+		try:
+			newPK = self.getPK()
+		except dException.NoRecordsException:
+			newPK = currPK
 
-		#if newPK != currPK:
-		#	try:
-		#		self.moveToPK(currPK)
-		#	except dabo.dException.RowNotFoundException:
+		if newPK != currPK:
+			try:
+				self.moveToPK(currPK)
+			except dabo.dException.RowNotFoundException:
 				# The old row was filtered out of the dataset
-		#		self.first()
+				self.first()
 
 	def scanVirtualFields(self, fld, expr, op):
 		virtValue = self.getFieldVal(fld)
