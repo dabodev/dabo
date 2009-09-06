@@ -1137,7 +1137,14 @@ class dPemMixin(dPemMixinBase):
 			instancesOf = (instancesOf,)
 		if instancesOf is None:
 			instancesOf = tuple()
-		
+	
+		def setProp(obj, prop, val):
+			try:
+				setattr(obj, prop, val)
+			except AttributeError:
+				# okay, just skip it
+				pass
+	
 		for kid in kids:
 			ok = hasattr(kid, prop) and (not instancesOf or isinstance(kid, instancesOf))
 			if ok:
@@ -1150,7 +1157,9 @@ class dPemMixin(dPemMixinBase):
 						if not ok:
 							break							
 			if ok:
-				setattr(kid, prop, val)
+				setProp(kid, prop, val)
+				if isinstance(kid, dabo.ui.dColumn):
+					setProp(kid, "Header%s" % prop, val)
 			if recurse:
 				if hasattr(kid, "setAll"):
 					kid.setAll(prop, val, recurse=recurse, filt=filt, instancesOf=instancesOf)
