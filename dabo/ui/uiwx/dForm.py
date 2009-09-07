@@ -87,7 +87,7 @@ class BaseForm(fm.dFormMixin):
 		return ret
 		
 		
-	def notifyUser(self, msg, title="Notice", severe=False, exception=None):
+	def notifyUser(self, msg, title=None, severe=False, exception=None):
 		""" Displays an alert messagebox for the user. You can customize
 		this in your own classes if you prefer a different display.
 		"""
@@ -97,6 +97,8 @@ class BaseForm(fm.dFormMixin):
 			func = dabo.ui.stop
 		else:
 			func = dabo.ui.info
+		if title is None:
+			title = _("Notice")
 		func(message=msg, title=title)
 
 
