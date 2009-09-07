@@ -143,9 +143,9 @@ class Grid(dabo.ui.dGrid):
 			else:
 				menu.append(_("&New"), OnHit=self._onNewRecord, bmp="blank",
 						help=_("Add a new record"))
-				menu.append("&Edit", OnHit=self._onEditRecord, bmp="edit",
+				menu.append(_("&Edit"), OnHit=self._onEditRecord, bmp="edit",
 						help=_("Edit this record"))
-				menu.append("&Delete", OnHit=self._onDeleteRecord, bmp="delete",
+				menu.append(_("&Delete"), OnHit=self._onDeleteRecord, bmp="delete",
 						help=_("Delete this record"))
 			return menu
 		except AttributeError:
