@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import time
 import wx
 import dabo
 if __name__ == "__main__":
@@ -40,6 +41,9 @@ class _dRadioButton(dcm.dDataControlMixin, wx.RadioButton):
 			self.Bind(wx.EVT_MOTION, self.__onWxMouseMove)
 			self.Bind(wx.EVT_MOUSEWHEEL, self.__onWxMouseWheel)
 			self.Bind(wx.EVT_CONTEXT_MENU, self.__onWxContextMenu)
+			# These need to be handled by the parent dRadioList
+			self.Bind(wx.EVT_SET_FOCUS, self.Parent._onButtonGotFocus)
+			self.Bind(wx.EVT_KILL_FOCUS, self.Parent._onButtonLostFocus)
 		
 		if False:
 			## Failed attempt to get arrow-key navigation of the buttons working on 
@@ -138,6 +142,9 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		# Tracks individual member radio buttons.
 		self._items = []
 		self._selpos = 0
+		# Tracks timing to determine whether any of the buttons 
+		# have changed focus so got/lost events can be raised
+		self._lastFocusEvent = 0
 		# Default spacing between buttons. Can be changed with the
 		# 'ButtonSpacing' property.
 		self._buttonSpacing = 5
@@ -168,7 +175,29 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		evt.SetInt(pos)
 		self._userChanged = True
 		super(dRadioList, self)._onWxHit(evt)
-		
+
+
+	def _onButtonGotFocus(self, wxEvt):
+		# Received from individual buttons
+		now = time.time()
+		if now - self._lastFocusEvent > .01:
+			# Newly focused; raise the event.
+			self.raiseEvent(dEvents.GotFocus, wxEvt)
+		self._lastFocusEvent = now
+
+
+	def _onButtonLostFocus(self, wxEvt):
+		# Received from individual buttons
+		now = time.time()
+		self._lastFocusEvent = now
+		def checkForFocus(timeCalled):
+			if self._lastFocusEvent == timeCalled:
+				# No other button has gotten focus in the intervening time
+				self.raiseEvent(dEvents.LostFocus, wxEvt)
+		# Normal chaning selection of buttons will cause buttons to lose focus;
+		# we need to see if this control has truly lost focus.
+		dabo.ui.callAfter(checkForFocus, now)
+
 		
 	def layout(self):
 		""" Wrap the wx version of the call, if possible. """
