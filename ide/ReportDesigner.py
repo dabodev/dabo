@@ -441,16 +441,25 @@ def DesignerController():
 				wx.TheClipboard.Close()
 			if cut:
 				parent = None
+				reInit = False
 				for obj in copyObjs:
 					parent = obj.parent
+					removeNode = False
 					if isinstance(parent, dict):
 						for typ in ("Objects", "Variables", "Groups"):
 							if parent.has_key(typ):
 								if obj in parent[typ]:
 									parent[typ].remove(obj)
+									removeNode = True
 					elif isinstance(parent, list):
 						parent.remove(obj)
-				dabo.ui.callAfterInterval(self.refreshTree, 200)
+						removeNode = True
+					if removeNode:
+						self.ObjectTree.removeNode(self.ObjectTree.nodeForObject(obj))
+						if isinstance(obj, Group):
+							reInit = True
+				self.ActiveEditor.propsChanged(reinit=reInit)
+
 	
 		def cut(self):
 			self.copy(cut=True)
@@ -649,7 +658,7 @@ class ReportObjectTree(dabo.ui.dTreeView):
 	def syncSelected(self):
 		"""Sync the treeview's selection to the rdc."""
 		if not rdc._inSelection:
-			rdc.SelectedObjects = [obj.ReportObject for obj in self.Selection]
+			rdc.SelectedObjects = [obj.Object for obj in self.Selection]
 
 		
 	def onHit(self, evt):
@@ -683,7 +692,7 @@ class ReportObjectTree(dabo.ui.dTreeView):
 			frm = rf
 			parentNode = self.setRootNode(frm.__class__.__name__)
 			parentNode.FontSize = fontSize
-			parentNode.ReportObject = frm
+			parentNode.Object = frm
 			elements = frm.keys()
 			elements.sort(rw._elementSort)
 			for name in elements:
@@ -692,7 +701,7 @@ class ReportObjectTree(dabo.ui.dTreeView):
 
 		if isinstance(frm, dict):
 			node = parentNode.appendChild(self.getNodeCaption(frm))
-			node.ReportObject = frm
+			node.Object = frm
 			node.FontSize = fontSize
 			for child in frm.get("Objects", []):
 				self.recurseLayout(frm=child, parentNode=node)
@@ -702,7 +711,7 @@ class ReportObjectTree(dabo.ui.dTreeView):
 
 		elif frm.__class__.__name__ in ("Variables", "Groups", "TestCursor"):
 			node = parentNode.appendChild(self.getNodeCaption(frm))
-			node.ReportObject = frm
+			node.Object = frm
 			node.FontSize = fontSize
 			for child in frm:
 				self.recurseLayout(frm=child, parentNode=node)						
@@ -730,7 +739,7 @@ class ReportObjectTree(dabo.ui.dTreeView):
 		for obj in objList:
 			rep = False
 			for node in self.nodes:
-				if id(node.ReportObject) == id(obj):
+				if id(node.Object) == id(obj):
 					rep = True
 					break
 			if not rep:
@@ -742,7 +751,7 @@ class ReportObjectTree(dabo.ui.dTreeView):
 		selNodes = []
 		for obj in objList:
 			for node in self.nodes:
-				if id(node.ReportObject) == id(obj):
+				if id(node.Object) == id(obj):
 					selNodes.append(node)
 
 		self.Selection = selNodes
@@ -750,7 +759,7 @@ class ReportObjectTree(dabo.ui.dTreeView):
 	def refreshCaption(self):
 		"""Iterate the Selection, and refresh the Caption."""
 		for node in self.Selection:
-			node.Caption = self.getNodeCaption(node.ReportObject)
+			node.Caption = self.getNodeCaption(node.Object)
 
 	
 class ObjectTreeForm(DesignerControllerForm):
