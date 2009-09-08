@@ -450,12 +450,6 @@ def DesignerController():
 									parent[typ].remove(obj)
 					elif isinstance(parent, list):
 						parent.remove(obj)
-					else:
-						print type(parent)
-				if parent:
-					self.SelectedObjects = [parent]
-				else:
-					self.SelectedObjects = []
 				dabo.ui.callAfterInterval(self.refreshTree, 200)
 	
 		def cut(self):
