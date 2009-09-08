@@ -491,6 +491,7 @@ def DesignerController():
 					# paste into the parent band of the first selected object:
 					selBand = self.getParentBand(self.SelectedObjects[-1])
 
+			reInit = False
 			selectedObjects = []
 			for obj in objs:
 				if isinstance(obj, Variable):
@@ -500,15 +501,17 @@ def DesignerController():
 				elif isinstance(obj, Group):
 					# paste into Groups whether or not Groups selected
 					pfObjects = self.ReportForm.setdefault("Groups", Groups(self.ReportForm))
-					obj.parent = pfObjects	
+					obj.parent = pfObjects
+					reInit = True
 				else:
 					pfObjects = selBand.setdefault("Objects", [])
 					obj.parent = selBand
 				pfObjects.append(obj)
 				selectedObjects.append(obj)
 
-			self.ActiveEditor.drawReportForm()
+			self.ActiveEditor.propsChanged(reinit=reInit)
 			self.SelectedObjects = selectedObjects
+
 
 		def getParentBand(self, obj):
 			"""Return the band that the obj is a member of."""
