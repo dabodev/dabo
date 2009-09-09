@@ -298,6 +298,13 @@ class ReportObject(CaselessDict):
 		return desProps
 
 
+	def _getMajorProperty(self):
+		return getattr(self, "_majorProperty", None)
+
+	def _setMajorProperty(self, val):
+		self._majorProperty = val
+
+
 	def _getRecord(self):
 		if hasattr(self.Report, "_liveRecord"):
 			return self.Report._liveRecord
@@ -325,6 +332,7 @@ class ReportObject(CaselessDict):
 		and edit the property, and 'readonly', which will prevent editing
 		when True. (dict)""") )
 
+	MajorProperty = property(_getMajorProperty, _setMajorProperty)
 	Record = property(_getRecord)
 	Report = property(_getReport)
 	Variables = property(_getVariables)
@@ -375,6 +383,8 @@ class Drawable(ReportObject):
 				every time this object is to be printed.
 				""")
 
+		self.MajorProperty = "x"
+
 
 class Report(ReportObject):
 	"""Represents the report."""
@@ -396,6 +406,9 @@ class Report(ReportObject):
 
 		self.AvailableProps["ColumnCount"] = toPropDict(int, 1, 
 				"""Specifies the number of columns to divide the report into.""")
+
+		self.MajorProperty = "Title"
+
 
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the report form."""
@@ -450,6 +463,8 @@ class Page(ReportObject):
 				See also the Orientation property, which merely swaps
 				the width and height values. """)
 
+		self.MajorProperty = "Size"
+
 
 class Group(ReportObject):
 	"""Represents report groups."""
@@ -470,11 +485,16 @@ class Group(ReportObject):
 		self.AvailableProps["ResetPageNumber"] = toPropDict(bool, False, 
 				_("""Specifies whether the page number gets reset with a new group."""))
 
+		self.MajorProperty = "expr"
+
+
 	def insertRequiredElements(self):
 		if not self.has_key("GroupHeader"):
 			self["GroupHeader"] = GroupHeader(self)
 		if not self.has_key("GroupFooter"):
 			self["GroupFooter"] = GroupFooter(parent=self)
+
+
 
 class Variable(ReportObject):
 	"""Represents report variables."""
@@ -496,6 +516,8 @@ class Variable(ReportObject):
 				"""Specifies when to reset the variable to the initial value.
 
 				Typically, this will match a particular group expression.""")
+
+		self.MajorProperty = "Name"
 
 
 
@@ -531,6 +553,9 @@ class Band(ReportObject):
 				Just like all other properties, your expression will be evaluated
 				every time this object is to be printed.
 				""")
+
+		self.MajorProperty = "Height"
+
 
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the band."""
@@ -643,6 +668,8 @@ class String(Drawable):
 		self.AvailableProps["ScalePercent"] = toPropDict(tuple, (100.0, 100.0), 
 				"""Specifies the scaling of the string. Set to (150,100) to make it wide.""")
 
+		self.MajorProperty = "expr"
+
 
 class Image(Drawable):
 	"""Represents an image."""
@@ -666,6 +693,10 @@ class Image(Drawable):
 				"scale" or "stretch" will change the image size to fit the frame. 
 				"clip" will display the image in the frame as-is.
 				"proportional" resizes the image to fit in the frame without changing its proportions.""")
+
+		self.MajorProperty = "expr"
+
+
 
 class BarGraph(Drawable):
         """Represents a bar graph"""
@@ -734,6 +765,10 @@ class BarGraph(Drawable):
 
 				"scale" will change the image size to fit the frame. "clip" will
 				display the image in the frame as-is.""")        
+
+		self.MajorProperty = "expr"
+
+
 		
 class Line(Drawable):
 	"""Represents a line."""
@@ -859,6 +894,10 @@ class Paragraph(Drawable):
 
 		self.AvailableProps["expr"] = toPropDict(str, "", 
 				"""Specifies the text to print.""")
+
+		self.MajorProperty = "expr"
+
+
 
 class TestCursor(ReportObjectCollection):
 	def addRecord(self, record):

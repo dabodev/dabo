@@ -93,7 +93,26 @@ def DesignerController():
 				expr = name
 			return expr
 
-			
+		
+		def objectDoubleClicked(self, obj):
+			"""A report object was double-clicked: edit its major property in the propsheet."""
+			prop = getattr(obj, "MajorProperty", None)
+			if prop is not None:
+				self.editProperty(obj.MajorProperty)
+
+
+		def editProperty(self, prop=None):
+			"""Display the property dialog, and bring it to top.
+
+			If a valid propname is passed, start the editor for that property.
+			After the property is edited, send focus back to the designer or
+			object tree.
+			"""
+			activeForm = self.ActiveForm
+			self.showPropSheet(bringToTop=True, prop=prop, enableEditor=True,
+			                   focusBack=activeForm)
+
+
 		def newObject(self, typ, mousePosition):
 			"""Add a new object of the passed type to the selected band."""
 			rf = self.ReportForm
@@ -273,7 +292,7 @@ def DesignerController():
 
 
 		def showPropSheet(self, bringToTop=False, refresh=False, prop=None,
-				enableEditor=False, focusBack=False):
+				enableEditor=False, focusBack=None):
 			ps = self.PropSheet
 			if ps is None:
 				refresh = True
@@ -297,8 +316,7 @@ def DesignerController():
 				for idx, record in enumerate(ds):
 					if record["prop"].lower() == prop.lower():
 						pg.CurrentRow = idx
-						if focusBack:
-							pg._focusToDesigner = True
+						pg._focusBack = focusBack
 						break
 
 			if bringToTop:
@@ -667,6 +685,9 @@ class ReportObjectTree(dabo.ui.dTreeView):
 	def onHit(self, evt):
 		self.syncSelected()
 
+	def onMouseLeftDoubleClick(self, evt):
+		node = evt.EventData["selectedNode"][0]
+		rdc.objectDoubleClicked(node.Object)
 
 	def onContextMenu(self, evt):
 		evt.stop()
@@ -811,9 +832,10 @@ class ReportPropSheet(ClassDesignerPropSheet.PropSheet):
 		rdc.ActiveEditor.propsChanged(reinit=reInit)
 		if rdc.ObjectTree:
 			rdc.ObjectTree.refreshCaption()
-		if getattr(self.propGrid, "_focusToDesigner", False):
-			rdc.ActiveEditor.Form.bringToFront()
-			self.propGrid._focusToDesigner = False
+		focusBack = getattr(self.propGrid, "_focusBack", None)
+		if focusBack:
+			focusBack.bringToFront()
+			self.propGrid._focusBack = None
 
 	def refreshSelection(self):
 		objs = rdc.SelectedObjects
@@ -964,7 +986,7 @@ class BandLabel(DesignerPanel):
 
 
 	def onMouseLeftDoubleClick(self, evt):
-		self.Parent._rd.editProperty("Height")
+		rdc.objectDoubleClicked(self.Parent.ReportObject)
 
 
 	def onPaint(self, evt):
@@ -1055,13 +1077,7 @@ class DesignerBand(DesignerPanel):
 
 
 	def onMouseLeftDoubleClick(self, evt):
-		mouseObj = self.getMouseObject()
-		propName = None
-		for prop in ("expr",):
-			if prop in mouseObj.AvailableProps:
-				propName = prop
-				break
-		self._rd.editProperty(propName)
+		rdc.objectDoubleClicked(self.getMouseObject())
 
 
 	def onMouseMove(self, evt):
@@ -1839,16 +1855,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		rw = self._rw
 
 		rdc.showObjectTree(bringToTop=True, refresh=True)
-
-
-	def editProperty(self, prop=None):
-		"""Display the property dialog, and bring it to top.
-
-		If a valid propname is passed, start the editor for that property.
-		After the property is edited, send focus back to the designer.
-		"""
-		rdc.showPropSheet(bringToTop=True, prop=prop, enableEditor=True,
-		                  focusBack=True)
 
 
 	def promptToSave(self):
