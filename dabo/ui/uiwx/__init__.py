@@ -351,7 +351,11 @@ def discontinueEvent(evt):
 def getEventData(wxEvt):
 	ed = {}
 	eventType = wxEvt.GetEventType()
-	obj = wxEvt.GetEventObject()
+	if isinstance(wxEvt, wx._core.FocusEvent):
+		## segfault when dRadioList loses focus, on Gtk 2.8.10
+		obj = None
+	else:
+		obj = wxEvt.GetEventObject()
 
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent, wx.TreeEvent,
 			wx.CommandEvent, wx.CloseEvent, wx.grid.GridEvent,
