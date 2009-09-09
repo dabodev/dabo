@@ -466,7 +466,8 @@ def getEventData(wxEvt):
 	if isinstance(wxEvt, wx.CloseEvent):
 		ed["force"] = not wxEvt.CanVeto()
 
-	if isinstance(wxEvt, wx.TreeEvent) or isinstance(obj, dabo.ui.dTreeView):
+	if (isinstance(wxEvt, wx.TreeEvent) or isinstance(obj, dabo.ui.dTreeView)) \
+			and not isinstance(wxEvt, wx.WindowDestroyEvent:
 		sel = obj.Selection
 		ed["selectedNode"] = sel
 		if isinstance(sel, list):
