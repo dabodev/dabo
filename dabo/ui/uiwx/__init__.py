@@ -351,6 +351,7 @@ def discontinueEvent(evt):
 def getEventData(wxEvt):
 	ed = {}
 	eventType = wxEvt.GetEventType()
+	obj = wxEvt.GetEventObject()
 
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent, wx.TreeEvent,
 			wx.CommandEvent, wx.CloseEvent, wx.grid.GridEvent,
@@ -461,19 +462,18 @@ def getEventData(wxEvt):
 	if isinstance(wxEvt, wx.CloseEvent):
 		ed["force"] = not wxEvt.CanVeto()
 
-	if isinstance(wxEvt, wx.TreeEvent):
-		tree = wxEvt.GetEventObject()
-		sel = tree.Selection
+	if isinstance(wxEvt, wx.TreeEvent) or isinstance(obj, dabo.ui.dTreeView):
+		sel = obj.Selection
 		ed["selectedNode"] = sel
 		if isinstance(sel, list):
 			ed["selectedCaption"] = ", ".join([ss.Caption for ss in sel])
-		elif tree.Selection is not None:
-			ed["selectedCaption"] = tree.Selection.Caption
+		elif obj.Selection is not None:
+			ed["selectedCaption"] = obj.Selection.Caption
 		else:
 			ed["selectedCaption"] = ""
 		try:
 			ed["itemID"] = wxEvt.GetItem()
-			ed["itemNode"] = tree.find(ed["itemID"])[0]
+			ed["itemNode"] = obj.find(ed["itemID"])[0]
 		except (AttributeError, IndexError):
 			pass
 
