@@ -74,6 +74,34 @@ def toPropDict(dataType, default, doc):
 	return {"dataType": dataType, "default": default, "doc": doc}
 
 
+
+class PageCountCanvas(canvas.Canvas):
+	"""Solves the 'page x of y' problem without needing to run the report twice.
+
+	Inspired by ActiveState recipe #576832 by Vinay Sajip.
+	"""
+	def __init__(self, rw, *args, **kwargs):
+		canvas.Canvas.__init__(self, *args, **kwargs)
+		self.__rw = rw
+		self.__saved_page_states = []
+
+	def showPage(self):
+		self.__saved_page_states.append(dict(self.__dict__))
+		self._startPage()
+
+	def showPages(self):
+		for idx, state in enumerate(self.__saved_page_states):
+			self.__dict__.update(state)
+			self.drawPageCounts(idx)
+			canvas.Canvas.showPage(self)
+		self.__saved_page_states = []
+
+	def drawPageCounts(self, page):
+		# callback to the rw to draw the cached pagecount strings
+		self.__rw.drawPageCounts(page, len(self.__saved_page_states))
+
+
+
 class ReportObjectCollection(list):
 	"""Abstract ordered list of things like variables, groups, and band objects."""
 
@@ -883,6 +911,7 @@ class ReportWriter(object):
 	"""
 	_clearMemento = True
 	being_deferred = False
+
 	def storeSpanningObject(self, obj, origin=(0,0), group=None):
 		"""Store the passed spanning object for printing when the group or
 		page ends. Pass the group expr to identify group headers, or None to refer
@@ -1155,7 +1184,10 @@ class ReportWriter(object):
 				posx = 0
 	
 			# draw the string using the function that matches the alignment:
-			s = obj.getProp("expr", returnException=True)
+			if "expr_pagecount" in obj:
+				s = obj.getProp("expr_pagecount", returnException=True)
+			else:
+				s = obj.getProp("expr", returnException=True)
 
 			if isinstance(s, basestring):
 				try:
@@ -1525,7 +1557,16 @@ class ReportWriter(object):
 			c.drawString(x, y, band)
 			c.restoreState()
 		
-		
+	
+	def drawPageCounts(self, pageNum, pageCount):
+		self._pageCount = pageCount
+		page_count_objects = self.page_count_objects.get(pageNum, [])
+		for x, y, obj, expr in page_count_objects:
+			obj["expr_pagecount"] = expr.replace("^^^PageCount^^^", str(self.PageCount))
+			self.draw(obj, (x,y))
+			del obj["expr_pagecount"]
+
+	
 	def write(self, save=True):
 		"""Write the PDF file based on the ReportForm spec.
 		
@@ -1546,11 +1587,13 @@ class ReportWriter(object):
 		pageSize = self.getPageSize()		
 		pageWidth, pageHeight = pageSize
 		self._pageNumber = 0
+		self._pageCount = 0
+		self.page_count_objects = {}
 
 		c = self.Canvas
 		if not c:
 			# Create the reportlab canvas:
-			c = self._canvas = canvas.Canvas(_outputFile, pagesize=pageSize)
+			c = self._canvas = PageCountCanvas(self, _outputFile, pagesize=pageSize)
 
 		c.setAuthor(_form.getProp("Author"))
 		c.setKeywords(_form.getProp("Keywords"))	
@@ -1780,6 +1823,16 @@ class ReportWriter(object):
 				else:
 					y1 = y + y1
 
+				if obj.__class__.__name__ in ("String",) and "self.PageCount" in obj["expr"]:
+					# We'll stuff the pagecount in later (when we know the value), but we still 
+					# must evaluate the rest of the expression now, because it could be dependent
+					# on whatever the current record or page number is.
+					expr = obj["expr"].replace("self.PageCount", "'^^^PageCount^^^'")
+					expr = "'''%s'''" % eval(expr)
+					page_count_objects = self.page_count_objects.setdefault(self.PageNumber-1, [])
+					page_count_objects.append((x1, y1, obj, expr))
+					continue
+
 				if obj.__class__.__name__ in ("SpanningLine", "SpanningRectangle"):
 					self.storeSpanningObject(obj, (x1, y1), group)
 					continue
@@ -1908,10 +1961,9 @@ class ReportWriter(object):
 			# print group headers for this group if necessary:
 			brandNewPage = False
 			for idx, group in enumerate(groups):
+				rp = eval(group.get("resetPageNumber", "False"))
 				vv = self._groupValues[group["expr"]]
 				if vv["curVal"] != group.getProp("expr"):
-					rp = eval(group.get("resetPageNumber", "False"))
-					
 					pgreset = False
 					if not self.being_deferred and rp:
 						pgreset = True
@@ -1919,8 +1971,10 @@ class ReportWriter(object):
 					vv["curVal"] = group.getProp("expr")
 					np = eval(group.get("startOnNewPage", "False")) \
 							and self.RecordNumber > 0
+
 					if np and not brandNewPage:
 						endPage()
+						self.Canvas.showPages()
 						self._pageNumber = 0
 						pgreset = False
 						beginPage()
@@ -1931,7 +1985,8 @@ class ReportWriter(object):
 					
 					if pgreset:
 						self._pageNumber = 1
-			
+
+
 			# print the detail band:
 			y = printBand("detail", y)
 			self._recordNumber += 1
@@ -1944,7 +1999,7 @@ class ReportWriter(object):
 		y = printBand("ReportEnd", y)
 
 		endPage()
-		
+		self.Canvas.showPages()
 		if save:
 			if self.OutputFile is not None:
 				c.save()
@@ -2295,6 +2350,9 @@ class ReportWriter(object):
 			else:
 				raise ValueError("Path '%s' doesn't exist." % s[0])
 
+	def _getPageCount(self):
+		return self._pageCount
+
 	def _getPageNumber(self):
 		return self._pageNumber
 
@@ -2434,6 +2492,9 @@ class ReportWriter(object):
 	OutputFile = property(_getOutputFile, _setOutputFile, None,
 		_("Specifies the output PDF file (name or file object)."))
 
+	PageCount = property(_getPageCount, None, None, 
+			_("""Returns the page count at runtime."""))
+
 	PageNumber = property(_getPageNumber, None, None, 
 			_("""Returns the current page number at runtime."""))
 
@@ -2492,3 +2553,4 @@ if __name__ == "__main__":
 				rw.write()
 	else:
 		print "Usage: reportWriter <specFile> [<specFile>...]"
+
