@@ -177,6 +177,9 @@ def DesignerController():
 			def onCut(evt):
 				self.cut()
 
+			def onDelete(evt):
+				self.delete()
+
 			def onMoveToTop(evt):
 				self.ActiveEditor.sendToBack()
 
@@ -244,6 +247,8 @@ def DesignerController():
 			menu.append(_("Copy"), HotKey="Ctrl+C", OnHit=onCopy)
 			menu.append(_("Cut"), HotKey="Ctrl+X", OnHit=onCut)
 			menu.append(_("Paste"), HotKey="Ctrl+V", OnHit=onPaste)
+			menu.appendSeparator()
+			menu.append(_("Delete"), HotKey="Del", OnHit=onDelete)
 
 			if variableSelected or groupSelected:
 				menu.appendSeparator()
@@ -458,25 +463,33 @@ def DesignerController():
 				wx.TheClipboard.SetData(do)
 				wx.TheClipboard.Close()
 			if cut:
-				parent = None
-				reInit = False
-				for obj in copyObjs:
-					parent = obj.parent
-					removeNode = False
-					if isinstance(parent, dict):
-						for typ in ("Objects", "Variables", "Groups"):
-							if parent.has_key(typ):
-								if obj in parent[typ]:
-									parent[typ].remove(obj)
-									removeNode = True
-					elif isinstance(parent, list):
-						parent.remove(obj)
-						removeNode = True
-					if removeNode:
-						self.ObjectTree.removeNode(self.ObjectTree.nodeForObject(obj))
-						if isinstance(obj, Group):
-							reInit = True
-				self.ActiveEditor.propsChanged(reinit=reInit)
+				self.delete()
+
+
+		def delete(self):
+			objs = [obj for obj in self.SelectedObjects \
+			        if not isinstance(obj, (Report, Band, list))]
+			if not objs:
+				return
+			parent = None
+			reInit = False
+			for obj in objs:
+				parent = obj.parent
+				removeNode = False
+				if isinstance(parent, dict):
+					for typ in ("Objects", "Variables", "Groups"):
+						if parent.has_key(typ):
+							if obj in parent[typ]:
+								parent[typ].remove(obj)
+								removeNode = True
+				elif isinstance(parent, list):
+					parent.remove(obj)
+					removeNode = True
+				if removeNode:
+					self.ObjectTree.removeNode(self.ObjectTree.nodeForObject(obj))
+					if isinstance(obj, Group):
+						reInit = True
+			self.ActiveEditor.propsChanged(reinit=reInit)
 
 	
 		def cut(self):
@@ -2466,6 +2479,9 @@ class ReportDesignerForm(dabo.ui.dForm):
 		self.editor._rw.write()
 		reportUtils.previewPDF(fname)
 
+	def onEditDelete(self, evt):
+		rdc.delete()
+
 	def onEditBringToFront(self, evt):
 		self.editor.bringToFront()
 
@@ -2536,6 +2552,11 @@ class ReportDesignerForm(dabo.ui.dForm):
 		fileMenu.prepend(_("&New"), HotKey="Ctrl+N", OnHit=self.onFileNew, bmp="new",
 				help=_("New file"))
 
+
+		editMenu.appendSeparator()
+
+		editMenu.append(_("Delete"), HotKey="Del", OnHit=self.onEditDelete, 
+				help=_("Delete the selected object(s)."))
 
 		editMenu.appendSeparator()
 
