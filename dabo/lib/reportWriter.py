@@ -70,6 +70,11 @@ else:
 	ParaClass = platypus.Paragraph
 
 
+## Can't use None for uninitialized group values, because None
+## could be a meaningful value in the dataset.
+UNINITIALIZED_VALUE = 'UNINITIALIZED_f49dc68b-1e4c-43ad-81c1-227c1e4f59e6'
+
+
 def toPropDict(dataType, default, doc):
 	return {"dataType": dataType, "default": default, "doc": doc}
 
@@ -1648,7 +1653,7 @@ class ReportWriter(object):
 		self._groupValues = {}
 		for group in groups:
 			vv = {}
-			vv["curVal"] = None
+			vv["curVal"] = UNINITIALIZED_VALUE
 			self._groupValues[group.get("expr")] = vv
 
 		groupsDesc = [i for i in groups]
@@ -1980,7 +1985,7 @@ class ReportWriter(object):
 					vv = self._groupValues[group["expr"]]
 					if resetCurVals or vv["curVal"] != group.getProp("expr"):
 						resetCurVals = True
-						vv["curVal"] = None
+						vv["curVal"] = UNINITIALIZED_VALUE
 
 				# Second pass, iterate through the groups inner->outer, and print the 
 				# group footers for groups that have changed.
