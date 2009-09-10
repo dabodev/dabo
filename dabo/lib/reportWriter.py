@@ -239,10 +239,12 @@ class ReportObject(CaselessDict):
 			return getDefault()
 
 
-	def setProp(self, prop, val):
+	def setProp(self, prop, val, logUndo=True):
 		"""Update the value of the property."""
 		if not self.AvailableProps.has_key(prop):
 			raise ValueError("Property '%s' doesn't exist." % prop)
+		if logUndo:
+			self.Report.reportWriter.storeUndo(self, prop, self.getProp(prop, evaluate=False), val)
 		self[prop] = val
 
 
@@ -955,6 +957,20 @@ class ReportWriter(object):
 	"""
 	_clearMemento = True
 	being_deferred = False
+	undoLog = None
+
+	def storeUndo(self, *args):
+		if self.undoLog is None:
+			self.undoLog = []
+		self.undoLog.append(args)
+
+	def undo(self):
+		try:
+			obj, prop, oldval, newval = self.undoLog.pop()
+		except IndexError:
+			print "nothing to undo"
+			return
+		obj.setProp(prop, oldval, logUndo=False)
 
 	def storeSpanningObject(self, obj, origin=(0,0), group=None):
 		"""Store the passed spanning object for printing when the group or

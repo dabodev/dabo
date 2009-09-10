@@ -2430,7 +2430,10 @@ class ReportDesignerForm(dabo.ui.dForm):
 			self.Application.setUserSetting("ReportDesigner_ShowPropSheet", psVisible)
 			self.Application.setUserSetting("ReportDesigner_ShowObjectTree", otVisible)
 
-
+	def onEditUndo(self, evt):
+		self.editor._rw.undo()
+		self.editor.propsChanged()
+		
 	def onFileNew(self, evt):
 		o = self.editor
 		if o._rw.ReportFormFile is None and not o._rw._isModified():
