@@ -1259,6 +1259,8 @@ class DesignerBand(DesignerPanel):
 				# dynamic height. Fake it here for now:
 				height = 23
 	
+			height = rw.getPt(height)
+
 			if hAnchor == "right":
 				x = x - width
 			elif hAnchor == "center":
@@ -1269,13 +1271,13 @@ class DesignerBand(DesignerPanel):
 			elif vAnchor == "middle":
 				y = y + (height/2)
 
-		height = rw.getPt(height)
-
 		size = (z*width, z*height)
+
 		if isinstance(obj, (SpanningLine, SpanningRectangle)):
 			position = (z*x, z*y)
 		else:
 			position = (z*x, (z*y) - (z*height))
+
 		return (size, position)
 
 
