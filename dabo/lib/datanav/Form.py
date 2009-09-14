@@ -90,6 +90,10 @@ class Form(dabo.ui.dForm):
 		if tb.Children:
 			# It's already been set up
 			return
+
+		if not self.ToolBar:
+			# MDI on Linux doesn't add the toolbar in the above call
+			return
 	
 		if self.Application.Platform == "Mac":
 			# Toolbar looks better with larger icons on Mac. In fact, I believe HIG
