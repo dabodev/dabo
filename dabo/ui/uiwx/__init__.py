@@ -1152,9 +1152,17 @@ def createClass(srcFile, *args, **kwargs):
 
 
 def createForm(srcFile, show=False, *args, **kwargs):
-	"""Pass in a .cdxml file from the Designer, and this will
-	instantiate a form from that spec. Returns a reference
-	to the newly-created form.
+	"""Instantiate and return a form instance, given a .cdxml file.
+
+	srcFile may be a path to the file on disk, or the cdxml text. If 
+	show is True, the form will be automatically displayed. Any 
+	additional arguments will be passed on to the constructor of the
+	class.
+
+	A common question on the dabo-users mailing list is how to 
+	instantiate a cdxml form as a child of another form. Easy!
+
+		frm = dabo.ui.createForm("my.cdxml", parent=self)
 	"""
 	cls = createClass(srcFile)
 	frm = cls(*args, **kwargs)
