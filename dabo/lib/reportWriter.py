@@ -1824,16 +1824,19 @@ class ReportWriter(object):
 				check = pageFooterOrigin[1] + pfHeight + extraHeight
 
 				if y < check or maxBandHeight is None:
+					headers_printed = False
 					if self._currentColumn >= columnCount-1:
 						self.being_deferred = True
 						endPage()
 						self.being_deferred = False
 						beginPage()
+						y = reprintGroupHeaders(None)
+						headers_printed = True
 					else:
 						self._currentColumn += 1
-					y = pageHeaderOrigin[1]
+						y = pageHeaderOrigin[1]
 					maxBandHeight = getTotalBandHeight()
-					if band == "detail":
+					if band == "detail" and not headers_printed:
 						y = reprintGroupHeaders(y)
 					if not deferred:
 						y -= bandHeight
@@ -1961,7 +1964,7 @@ class ReportWriter(object):
 			self._pageNumber += 1
 			for band in ("pageBackground", "pageHeader"):
 				printBand(band)
-			self._brandNewPage = True
+			
 
 		def endPage():
 			self._currentColumn = 0
@@ -1970,13 +1973,14 @@ class ReportWriter(object):
 			for band in ("pageFooter", "pageForeground"):
 				printBand(band)
 			self.Canvas.showPage()
+
 		
 		def reprintGroupHeaders(y):
 			for group in groups:
 				reprint = group.get("reprintHeaderOnNewPage")
 				if reprint is not None:
 					reprint = eval(reprint)
-					if reprint is not None:
+					if reprint:
 						y = printBand("groupHeader", y, group)
 			return y
 
@@ -2018,34 +2022,42 @@ class ReportWriter(object):
 				# Any report variables need their values evaluated again:
 				processVariables()
 
-			# print group headers for this group if necessary:
-			brandNewPage = False
-			for idx, group in enumerate(groups):
-				rp = eval(group.get("resetPageNumber", "False"))
-				vv = self._groupValues[group["expr"]]
-				if vv["curVal"] != group.getProp("expr"):
-					pgreset = False
-					if not self.being_deferred and rp:
-						pgreset = True
-						
-					vv["curVal"] = group.getProp("expr")
-					np = eval(group.get("startOnNewPage", "False")) \
-							and self.RecordNumber > 0
 
-					if np and not brandNewPage:
-						endPage()
-						self.Canvas.showPages()
-						self._pageNumber = 0
-						pgreset = False
-						beginPage()
-						y = None
-						brandNewPage = True  ## don't start multiple new pages
-						
-					y = printBand("groupHeader", y, group)
-					
-					if pgreset:
+			# print group headers for this group if necessary:
+
+			# First, start a new page if necessary. But only one new page:
+			startNewPage = False
+			if self.RecordNumber > 0:
+				# Find out if any group is going to start on a new page.
+				for group in groups:
+					curVal = self._groupValues[group["expr"]]["curVal"]
+					if group.getProp("StartOnNewPage") and curVal != group.getProp("expr"):
+						startNewPage = True
+						break
+
+			if startNewPage:
+				endPage()
+				self.Canvas.showPages()
+				self._pageNumber = 0
+				beginPage()
+				y = None
+
+			# Now, iterate the groups and print them as necessary:
+			for idx, group in enumerate(groups):
+				resetPageNum = eval(group.get("resetPageNumber", "False"))
+				curVal = self._groupValues[group["expr"]]["curVal"]
+
+				if curVal != group.getProp("expr") or (startNewPage and group.getProp("StartOnNewPage")):
+					# first reset curVal:						
+					self._groupValues[group["expr"]]["curVal"] = group.getProp("expr")
+
+					# next reset page number:
+					if not self.being_deferred and resetPageNum:
 						self._pageNumber = 1
 
+					# now print the band:
+					y = printBand("groupHeader", y, group)
+					
 
 			# print the detail band:
 			y = printBand("detail", y)
