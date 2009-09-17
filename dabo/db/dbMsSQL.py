@@ -42,16 +42,11 @@ class MSSQL(dBackend):
 		"""Currently this is not working completely"""
 		import pymssql
 		class conCursor(pymssql.pymssqlCursor):
-			def __init__(self, src):
-				self.super(src._cnx)
-
 			def _getconn(self):
 				return self.__source
 			# pymssql doesn't supply this optional dbapi attribute, so create it here.
 			connection = property(_getconn, None, None)
 		return conCursor
-		#return cursors.Connection.cursor
-		#return self._connection.cursor()
 		
 
 	def escQuote(self, val):
@@ -69,21 +64,22 @@ class MSSQL(dBackend):
 		return "%s%s%s" % (sqt, val, sqt)
 	
 
-	#def getCursor(self, cursorClass):
-	#	return self._connection.cursor()
-
 	def getTables(self, cursor, includeSystemTables=False):
 		# jfcs 11/01/06 assumed public schema
 		# cfk: this worries me: how does it know what db is being used?
 		# tempCursor.execute("select name from sysobjects where xtype = 'U' order by name")
-		
+
 		dbName = self.database
-		cursor.execute("select table_name"
-			" from INFORMATION_SCHEMA.TABLES"
-			" where table_catalog = %(db)s"
-			" and table_type = 'BASE TABLE'"
-			" order by table_name",
-			 {'db':dbName} )
+
+		sql = """
+select table_name
+  from INFORMATION_SCHEMA.TABLES
+ where table_catalog = '%(db)s'
+   and table_type = 'BASE TABLE'
+ order by table_name """
+
+		cursor.execute(sql % {'db':dbName})
+
 		rs = cursor.getDataSet()
 		tables = [x["table_name"] for x in rs]
 		tables = tuple(tables)
@@ -165,26 +161,28 @@ class MSSQL(dBackend):
 		# fairly standard way of getting column settings
 		# this may be standard enough to put in the super class
 		dbName = self.database
-		
-		cursor.execute(
-			"select COLUMN_NAME, DATA_TYPE" 
-			" from INFORMATION_SCHEMA.COLUMNS"
-			" where table_catalog = %(db)s"
-			" and table_name = %(table)s"
-			" order by ORDINAL_POSITION",
-			 {'table':tableName, 'db':dbName} )
+
+		sql = """
+select COLUMN_NAME, 
+       DATA_TYPE 
+  from INFORMATION_SCHEMA.COLUMNS
+ where table_catalog = '%(db)s'
+   and table_name = '%(table)s'
+ order by ORDINAL_POSITION """
+
+		cursor.execute(sql % {'table': tableName, 'db': dbName})
 		fieldDefs = cursor.getDataSet()
 
-		cursor.execute(
-			"select COLUMN_NAME "
-			" from information_schema.Constraint_Column_Usage CCU"
-			" join information_schema.TABLE_CONSTRAINTS TC"
-			" on CCU.CONSTRAINT_NAME = TC.CONSTRAINT_NAME"
-			" where"
-			" CONSTRAINT_TYPE = 'PRIMARY KEY'"
-			" and TC.CONSTRAINT_CATALOG = %(db)s" 
-			" and TC.Table_Name = %(table)s",
-			 {'table':tableName, 'db':dbName} )
+		sql = """
+select COLUMN_NAME
+  from information_schema.Constraint_Column_Usage CCU
+  join information_schema.TABLE_CONSTRAINTS TC
+    on CCU.CONSTRAINT_NAME = TC.CONSTRAINT_NAME
+ where CONSTRAINT_TYPE = 'PRIMARY KEY'
+   and TC.CONSTRAINT_CATALOG = '%(db)s'
+   and TC.Table_Name = '%(table)s' """
+
+		cursor.execute(sql % {'table': tableName, 'db': dbName})
 		pkFields = cursor.getDataSet()
 
 		fields = []
