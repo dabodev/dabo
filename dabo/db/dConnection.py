@@ -69,6 +69,8 @@ class dConnection(dObject):
 		# Return the AuxCursor, as it skips some of the unnecessary
 		# configuration and housekeeping
 		return crs.AuxCursor
+	
+	cursor = getDaboCursor
 
 
 	def _openConnection(self, **kwargs):
