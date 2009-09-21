@@ -70,3 +70,13 @@ def getDataType(pythonType):
 	if pythonType is float:
 		ret = daboTypes["N"]
 	return ret
+
+def connect(*args, **kwargs):
+	"""Convenience method: given connection info, return a dConnection instance.
+
+	Passed connection info can either be in the form of a dConnectInfo object,
+	or individual arguments to pass to dConnection's constructor.
+	"""
+	return dConnection(*args, **kwargs)
+
+	
