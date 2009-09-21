@@ -442,7 +442,8 @@ def DesignerController():
 			"""Return the list of bands that are currently selected."""
 			selBands = []
 			for selObj in self.SelectedObjects:
-				if not isinstance(selObj, Band) and isinstance(selObj.parent.parent, Band):
+				if not isinstance(selObj, Band) and selObj.parent is not None \
+						and isinstance(selObj.parent.parent, Band):
 					selObj = selObj.parent.parent
 				if isinstance(selObj, Band):
 					if selObj not in selBands:
