@@ -2528,7 +2528,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		try:
 			ret = self._cursorRecord
 		except AttributeError:
-			class CursorRecord(object):
+			class CursorRecord(dict):
 				def __init__(self):
 					self.cursor = None
 					super(CursorRecord, self).__init__()
@@ -2541,6 +2541,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						super(CursorRecord, self).__setattr__(att, val)
 					else:
 						self.cursor.setFieldVal(att, val)
+
+				def __getitem__(self, key):
+					return self.__getattr__(key)
+
+				def __setitem__(self, key, val):
+					return self.__setattr__(key, val)
 
 			ret = self._cursorRecord = CursorRecord()
 			self._cursorRecord.cursor = self
