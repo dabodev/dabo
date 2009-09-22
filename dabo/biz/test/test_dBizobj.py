@@ -571,7 +571,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(bizMain.RowNumber, 0)
 		self.assertEqual(bizChild.RowNumber, 0)
 
-	def testChangesToTwoChildRecords(self):
+	def testChangesToTwoChildRecords(self, mode="save"):
 		"""After the dabo web server stuff and the @remote calls got added, only
 		a single record from child bizobjs seem to get saved.
 		"""
@@ -608,12 +608,18 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(bizMain.isAnyChanged(), True)
 		self.assertEqual(bizMain.getChangedRows(), [0])
 		self.assertEqual(bizChild.getChangedRows(), [0,1])
-		bizMain.save()
+		if mode == "save":
+			bizMain.save()
+		elif mode == "cancel":
+			bizMain.cancelAll()
 		self.assertEqual(bizChild2.getChangedRows(), [])
 		self.assertEqual(bizChild.getChangedRows(), [])
 		self.assertEqual(bizMain.getChangedRows(), [])
 		self.assertEqual(bizMain.isAnyChanged(), False)
 
+	def testChangesToTwoChildRecords_cancel(self):
+		"""Do the same test as for save, but with cancelAll()."""
+		self.testChangesToTwoChildRecords("cancel")
 		
 if __name__ == "__main__":
 	suite = unittest.TestLoader().loadTestsFromTestCase(Test_dBizobj)
