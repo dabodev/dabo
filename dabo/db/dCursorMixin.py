@@ -788,7 +788,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def getPK(self):
 		""" Returns the value of the PK field in the current record. If that record
-		is new an unsaved record, return the temp PK value. If this is a compound
+		is a new unsaved record, return the temp PK value. If this is a compound
 		PK, return a tuple containing each field's values.
 		"""
 		ret = None
@@ -796,7 +796,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			raise dException.NoRecordsException(
 					_("No records in the data set."))
 		rec = self._records[self.RowNumber]
-		recKey = self.pkExpression()
+		recKey = self.pkExpression(rec)
 		if (recKey in self._newRecords) and self.AutoPopulatePK:
 			# New, unsaved record
 			ret = rec[kons.CURSOR_TMPKEY_FIELD]
@@ -1460,6 +1460,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec.pop(kons.CURSOR_TMPKEY_FIELD, None)
 
 
+
 	def getDataDiff(self, allRows=False):
 		"""Create a compact representation of all the modified records
 		for this cursor.
@@ -1545,7 +1546,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				for idx in delrecs_idx:
 					del recs[idx]
 				self._newRecords = {}
-				recs = dDataSet(recs)
+				self._records = dDataSet(recs)
 				if self.RowNumber >= self.RowCount:
 					self.RowNumber = self.RowCount - 1
 
