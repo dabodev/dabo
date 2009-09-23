@@ -86,8 +86,10 @@ def DesignerController():
 				else:
 					for quote in quotes:
 						if expr.count(quote) >= 2:
-							name = expr[expr.find(quote)+1:]
-							name = name[:name.find(quote)]
+							name_candidate = expr[expr.find(quote)+1:]
+							name_candidate = name_candidate[:name_candidate.find(quote)]
+							if name_candidate.strip():
+								name = name_candidate
 							break
 			if name:
 				expr = name
