@@ -786,16 +786,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 
 
-	def getPK(self):
-		""" Returns the value of the PK field in the current record. If that record
-		is a new unsaved record, return the temp PK value. If this is a compound
-		PK, return a tuple containing each field's values.
+	def getPK(self, row=None):
+		""" Returns the value of the PK field in the current or passed record number. 
+		If that record is a new unsaved record, return the temp PK value. If this is a 
+		compound PK, return a tuple containing each field's values.
 		"""
-		ret = None
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException(
 					_("No records in the data set."))
-		rec = self._records[self.RowNumber]
+		ret = None
+		if row is None:
+			row = self.RowNumber
+		rec = self._records[row]
 		recKey = self.pkExpression(rec)
 		if (recKey in self._newRecords) and self.AutoPopulatePK:
 			# New, unsaved record
@@ -1427,7 +1429,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec = self._records[row]
 
 		try:
-			pk = self.getPK()
+			pk = self.getPK(row)
 			del self._mementos[pk]
 		except KeyError:
 			# didn't exist
@@ -1451,7 +1453,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec = self._records[row]
 
 		try:
-			pk = self.getPK()
+			pk = self.getPK(row)
 			del self._newRecords[pk]
 		except KeyError:
 			# didn't exist
@@ -2528,7 +2530,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		try:
 			ret = self._cursorRecord
 		except AttributeError:
-			class CursorRecord(dict):
+			class CursorRecord(object):
 				def __init__(self):
 					self.cursor = None
 					super(CursorRecord, self).__init__()
