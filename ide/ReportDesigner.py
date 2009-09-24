@@ -1243,8 +1243,14 @@ class DesignerBand(DesignerPanel):
 		"""Return the size and position needed to draw the object at the current zoom factor."""
 		rw = self._rw
 		z = self.Parent.ZoomFactor
-		x = rw.getPt(obj.getProp("x"))
-		y_ = rw.getPt(obj.getProp("y"))
+		try:
+			x = rw.getPt(obj.getProp("x"))
+		except ValueError:
+			x = 0
+		try:
+			y_ = rw.getPt(obj.getProp("y"))
+		except ValueError:
+			y_ = 0
 		y = ((self.Height - self._bandLabelHeight)/z) - y_
 
 		if isinstance(obj, (SpanningLine, SpanningRectangle)):
