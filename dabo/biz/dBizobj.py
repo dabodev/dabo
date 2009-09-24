@@ -639,18 +639,18 @@ class dBizobj(dObject):
 		if self.__children:
 			# Must iterate all records to find potential changes in children:
 			self.__changedRows = []
-			self.scan(self._listChangedRows)
+			self.scan(self._listChangedRows, includeNewUnchanged)
 			return self.__changedRows
 		else:
 			# Can use the much faster cursor.getChangedRows():
 			return self._CurrentCursor.getChangedRows(includeNewUnchanged)
 
 
-	def _listChangedRows(self):
+	def _listChangedRows(self, includeNewUnchanged=False):
 		""" Called from a scan loop. If the current record is changed,
 		append the RowNumber to the list.
 		"""
-		if self.isChanged():
+		if self.isChanged(includeNewUnchanged):
 			self.__changedRows.append(self.RowNumber)
 
 
@@ -1190,8 +1190,10 @@ class dBizobj(dObject):
 		return ret
 
 
-	def isAnyChanged(self, useCurrentParent=None):
+	def isAnyChanged(self, useCurrentParent=None, includeNewUnchanged=None):
 		"""Returns True if any record in the current record set has been changed."""
+		if includeNewUnchanged is None:
+			includeNewUnchanged = self.SaveNewUnchanged
 		if useCurrentParent is None:
 			cc = self._CurrentCursor
 		else:
@@ -1201,28 +1203,30 @@ class dBizobj(dObject):
 			# No cursor, no changes.
 			return False
 
-		if cc.isChanged(allRows=True, includeNewUnchanged=self.SaveNewUnchanged):
+		if cc.isChanged(allRows=True, includeNewUnchanged=includeNewUnchanged):
 			return True
 
 		# Nothing's changed in the top level, so we need to recurse the children:
 		for child in self.__children:
-			if child.isAnyChanged(useCurrentParent=useCurrentParent):
+			if child.isAnyChanged(useCurrentParent=useCurrentParent, includeNewUnchanged=includeNewUnchanged):
 				return True
 		# If we made it to here, there are no changes.
 		return False
 
 
-	def isChanged(self):
+	def isChanged(self, includeNewUnchanged=None):
 		""" Return True if data has changed in this bizobj and any children.
 
 		By default, only the current record is checked. Call isAnyChanged() to
 		check all records.
 		"""
+		if includeNewUnchanged is None:
+			includeNewUnchanged = self.SaveNewUnchanged
 		cc = self._CurrentCursor
 		if cc is None:
 			# No cursor, no changes.
 			return False
-		ret = cc.isChanged(allRows=False, includeNewUnchanged=self.SaveNewUnchanged)
+		ret = cc.isChanged(allRows=False, includeNewUnchanged=includeNewUnchanged)
 
 		if not ret:
 			# see if any child bizobjs have changed
@@ -1230,7 +1234,7 @@ class dBizobj(dObject):
 				# If there are no records, there can be no changes
 				return False
 			for child in self.__children:
-				ret = child.isAnyChanged(useCurrentParent=True)
+				ret = child.isAnyChanged(useCurrentParent=True, includeNewUnchanged=includeNewUnchanged)
 				if ret:
 					break
 		return ret
