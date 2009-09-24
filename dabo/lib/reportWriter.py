@@ -1743,9 +1743,6 @@ class ReportWriter(object):
 		
 			workingPageWidth = pageWidth - ml - mr
 			columnWidth = workingPageWidth / columnCount
-#			print workingPageWidth / 72, columnWidth / 72
-#			print columnWidth, columnCount
-
 
 			if y is None:
 				y = pageHeaderOrigin[1]
@@ -1830,7 +1827,8 @@ class ReportWriter(object):
 						endPage()
 						self.being_deferred = False
 						beginPage()
-						y = reprintGroupHeaders(None)
+						y = pageHeaderOrigin[1]
+						y = reprintGroupHeaders(y)
 						headers_printed = True
 					else:
 						self._currentColumn += 1
