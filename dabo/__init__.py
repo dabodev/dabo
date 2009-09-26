@@ -122,6 +122,8 @@ pysqlite2: http://initd.org/tracker/pysqlite
 dAppRef = None
 
 # Import global settings (do this first, as other imports may rely on it):
+# NOTE: Yeah, it's namespace pollution, but in this case it is deliberate: 
+# we want to make them part of the dabo namespace.
 from settings import *
 
 # Install localization service for dabo. dApp will install localization service
@@ -130,8 +132,9 @@ import dLocalize
 dLocalize.install("dabo")
 # On some platforms getfilesystemencoding() and even getdefaultlocale()
 # can return None, so we make sure we always set a reasonable encoding:
+# NOTE: 'defaultEncoding' is imported from 'from settings import *' line above.
 fileSystemEncoding = (sys.getfilesystemencoding()
-    or locale.getdefaultlocale()[1] or settings.defaultEncoding)
+    or locale.getdefaultlocale()[1] or defaultEncoding)
 
 # Instantiate the logger object, which will send messages to user-overridable
 # locations. Do this before any other imports.

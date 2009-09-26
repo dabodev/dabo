@@ -390,7 +390,6 @@ class dPref(object):
 		key = self._getKey()
 		if spec is not None:
 			key = ".".join((key, spec))
-		keylen = len(key) + 1
 		keydots = len(key.split("."))
 		sql = "select ckey from daboprefs where ckey like ?"
 		crs.execute(sql, ("%s.%%" % key, ))
@@ -434,8 +433,6 @@ class dPref(object):
 		key = self._getKey()
 		if spec is not None:
 			key = ".".join((key, spec))
-		keylen = len(key) + 1
-		keydots = len(key.split("."))
 		sql = "select ckey from daboprefs where ckey like ? order by ckey"
 		if key:
 			param = "%s.%%" % key
@@ -453,7 +450,6 @@ class dPref(object):
 			# Get all the first-tier keys
 			# get all the first level values
 			lev0 = [val.split(".", 1)  for val in vals]
-			lev0keys = [itm[0] for itm in lev0]
 			keys = {}
 			[uniqKeys(keys, itm[0]) for itm in lev0]
 			for key in sorted(keys):

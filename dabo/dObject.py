@@ -185,10 +185,10 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 	def getAbsoluteName(self):
 		"""Return the fully qualified name of the object."""
 		names = [self.Name, ]
-		object = self
+		obj = self
 		while True:
 			try:
-				parent = object.Parent
+				parent = obj.Parent
 			except AttributeError:
 				# Parent not necessarily defined
 				parent = None
@@ -198,7 +198,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 				except AttributeError:
 					name = "?"
 				names.append(name)
-				object = parent
+				obj = parent
 			else:
 				break
 		names.reverse()
@@ -242,7 +242,6 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		compiled successfully, an error message will be added
 		to the Dabo ErrorLog, and the method will not be added.
 		"""
-		cls = self.__class__
 		for nm, code in cd.items():
 			try:
 				code = code.replace("\n]", "]")
