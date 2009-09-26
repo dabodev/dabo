@@ -261,7 +261,7 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 		ret = self.IsSplit()
 		if not ret:
 			# Make sure that there is at least one level of splitting somewhere
-			obj = self
+			obj = pnl
 			while obj.Parent and not ret:
 				obj = obj.Parent
 				if isinstance(obj, dSplitter):

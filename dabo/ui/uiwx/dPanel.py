@@ -57,6 +57,8 @@ class _BasePanelMixin(object):
 
 
 	def _onPaintBuffer(self, evt):
+		# We create it; as soon as 'dc' goes out of scope, the
+		# DC is destroyed, which copies its contents to the display
 		dc = wx.BufferedPaintDC(self, self._buffer)
 	
 	
@@ -90,8 +92,8 @@ class _BasePanelMixin(object):
 	def _getActiveControl(self):
 		return getattr(self, "_activeControl", None)
 
-	def _setActiveControl(self, val):
-		self.setFocus(val)
+	def _setActiveControl(self, obj):
+		obj.setFocus()
 	
 	def _getAlwaysResetSizer(self):
 		return self._alwaysResetSizer

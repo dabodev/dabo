@@ -246,7 +246,7 @@ class dPemMixin(dPemMixinBase):
 	def _constructed(self):
 		"""Returns True if the ui object has been fully created yet, False otherwise."""
 		try:
-			return self == self._pemObject
+			return self is self._pemObject
 		except Exception, e:
 			return False
 	
@@ -978,7 +978,6 @@ class dPemMixin(dPemMixinBase):
 		if isinstance(cnt, dabo.ui.dPage):
 			cnt = cnt.Parent
 		p = self
-		lastPar = None
 		found = False
 		while (p is not None):
 			if p is cnt:
@@ -986,7 +985,6 @@ class dPemMixin(dPemMixinBase):
 				break
 			l += p.Left
 			t += p.Top
-			lastPar = p
 			p = p.Parent
 		# If we didn't find the container, that means that the object
 		# is not contained by the container. This can happen when 
@@ -1330,6 +1328,7 @@ class dPemMixin(dPemMixinBase):
 				# Need to adjust for the title bar
 				offset = self.Top - cltTop
 			elif self.Application.Platform == "GTK":
+				# Probably no longer needed; currently commented out below.
 				htReduction = cltTop - self.Top
 		else:
 			dc = wx.ClientDC(obj)
@@ -1491,7 +1490,7 @@ class dPemMixin(dPemMixinBase):
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, DrawMode=mode, 
-				Shape="line", Points=((x1,y1), (x2,y2)) )
+				Shape="line", Points=((x1,y1), (x2,y2)), Visible=visible)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1938,7 +1937,8 @@ class dPemMixin(dPemMixinBase):
 	def _setDroppedTextHandler(self, val):
 		if self._constructed():
 			self._droppedTextHandler = val
-			target = self.GetDropTarget()
+			# EGL: 2009-09-22 - is this needed? The name 'target' is never used.
+			#target = self.GetDropTarget()
 			if self._dropTarget == None:
 				self._dropTarget = _DropTarget()
 				if isinstance(self, dabo.ui.dGrid):
@@ -1980,7 +1980,7 @@ class dPemMixin(dPemMixinBase):
 			self._font = val
 			try:
 				self.SetFont(val._nativeFont)
-			except AttributeError, e:
+			except AttributeError:
 				dabo.errorLog.write(_("Error setting font for %s") % self.Name)
 			val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onFontPropsChanged)
 		else:
@@ -2302,7 +2302,8 @@ class dPemMixin(dPemMixinBase):
 				# Can't do the name check for siblings, so allow it for now.
 				# This problem would only apply to top-level forms, so it really
 				# wouldn't matter anyway in a practical sense.
-				name = name
+				pass
+
 	
 			name = str(name)
 			self._name = name
@@ -2502,10 +2503,10 @@ class dPemMixin(dPemMixinBase):
 				sleeptime = delay / 10.0
 				oldVal = self._transparency
 				self._transparency = val
-				slice = (val - oldVal) / 10
+				incr = (val - oldVal) / 10
 				newVal = oldVal
 				for i in xrange(10):
-					newVal = int(round(newVal + slice, 0))
+					newVal = int(round(newVal + incr, 0))
 					newVal = min(max(newVal, 0), 255)
 					self.SetTransparent(newVal)
 					self.refresh()

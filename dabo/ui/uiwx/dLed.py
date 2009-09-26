@@ -9,6 +9,7 @@ from dabo.dLocalize import _
 
 class dLed(dabo.ui.dPanel):
 	def afterInit(self):
+		self._baseClass = dLed
 		self._offColor = "darkred"
 		self._onColor = "green"
 		self._on = False

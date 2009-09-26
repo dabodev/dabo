@@ -79,12 +79,10 @@ class dPageFrameNoTabs(dPanel):
 		the page is released, and None is returned. If delPage is
 		False, the page is returned.
 		"""
-		pos = pgOrPos
 		if isinstance(pgOrPos, int):
 			pg = self.Pages[pgOrPos]
 		else:
 			pg = pgOrPos
-			pos = self.Pages.index(pg)
 		self._pages.remove(pg)
 		if delPage:
 			pg.release()
@@ -188,8 +186,9 @@ class dPageFrameNoTabs(dPanel):
 		diff = (val - len(self._pages))
 		if diff > 0:
 			# Need to add pages
-			for ii in range(diff):
+			while diff:
 				self.appendPage()
+				diff -= 1
 		elif diff < 0:
 			# Need to remove pages. If the active page is one 
 			# of those being removed, set the active page to the

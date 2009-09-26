@@ -219,83 +219,83 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 			itm.SetValue(pos==val)
 		
 
-	def enableKey(self, item, val=True):
+	def enableKey(self, itm, val=True):
 		"""Enables or disables an individual button, referenced by key value."""
-		index = self.Keys[item]
+		index = self.Keys[itm]
 		self._items[index].Enabled = val
 	
 
-	def enablePosition(self, item, val=True):
+	def enablePosition(self, itm, val=True):
 		"""Enables or disables an individual button, referenced by position (index)."""
-		self._items[item].Enabled = val
+		self._items[itm].Enabled = val
 		
 
-	def enableString(self, item, val=True):
+	def enableString(self, itm, val=True):
 		"""Enables or disables an individual button, referenced by string display value."""
 		mtch = [btn for btn in self.Children
 				if isinstance(btn, _dRadioButton)
-				and btn.Caption == item]
+				and btn.Caption == itm]
 		try:
 			itm = mtch[0]
 			idx = self._items.index(itm)
 			self._items[idx].Enabled = val
 		except IndexError:
-			dabo.errorLog.write(_("Could not find a button with Caption of '%s'") % item)
+			dabo.errorLog.write(_("Could not find a button with Caption of '%s'") % itm)
 		
 
-	def enable(self, item, val=True):
+	def enable(self, itm, val=True):
 		"""Enables or disables an individual button.
 		
-		The item argument specifies which button to enable/disable, and its type
+		The itm argument specifies which button to enable/disable, and its type
 		depends on the setting of self.ValueType:		
 			"position" : The item is referenced by index position.
 			"string"   : The item is referenced by its string display value.
 			"key"      : The item is referenced by its key value.
 		"""
 		if self.ValueMode == "position":
-			self.enablePosition(item, val)
+			self.enablePosition(itm, val)
 		elif self.ValueMode == "string":
-			self.enableString(item, val)
+			self.enableString(itm, val)
 		elif self.ValueMode == "key":
-			self.enableKey(item, val)
+			self.enableKey(itm, val)
 		
 		
-	def showKey(self, item, val=True):
+	def showKey(self, itm, val=True):
 		"""Shows or hides an individual button, referenced by key value."""
-		index = self.Keys[item]
+		index = self.Keys[itm]
 		self._items[index].Visible = val
 		self.layout()
 		
 	
-	def showPosition(self, item, val=True):
+	def showPosition(self, itm, val=True):
 		"""Shows or hides an individual button, referenced by position (index)."""
-		self._items[item].Visible = val
+		self._items[itm].Visible = val
 		self.layout()
 		
 		
-	def showString(self, item, val=True):
+	def showString(self, itm, val=True):
 		"""Shows or hides an individual button, referenced by string display value."""
-		mtch = [btn for btn in self._items if btn.Caption == item]
+		mtch = [btn for btn in self._items if btn.Caption == itm]
 		if mtch:
 			mtch[0].Visible = val
 		self.layout()
 		
 		
-	def show(self, item, val=True):
+	def show(self, itm, val=True):
 		"""Shows or hides an individual button.
 		
-		The item argument specifies which button to hide/show, and its type
+		The itm argument specifies which button to hide/show, and its type
 		depends on the setting of self.ValueType:		
 			"position" : The item is referenced by index position.
 			"string"   : The item is referenced by its string display value.
 			"key"      : The item is referenced by its key value.
 		"""
 		if self.ValueMode == "position":
-			self.showPosition(item, val)
+			self.showPosition(itm, val)
 		elif self.ValueMode == "string":
-			self.showString(item, val)
+			self.showString(itm, val)
 		elif self.ValueMode == "key":
-			self.showKey(item, val)
+			self.showKey(itm, val)
 		
 
 	def _getFudgedButtonSpacing(self):

@@ -640,7 +640,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			try:
 				convertedVal = self.convertStringValueToDataType(strVal, dataType)
 				if self.getStringValue(convertedVal) != self.GetValue():
-					self._updateStringDisplay
+					self._updateStringDisplay()
 			except ValueError:
 				# It couldn't convert; return the previous value.
 				convertedVal = self._value
@@ -694,7 +694,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			if strVal != _oldVal:
 				try:
 					setter(strVal)
-				except ValueError, e:
+				except ValueError:
 					#PVG: maskedtextedit sometimes fails, on value error..allow the code to continue
 					uStrVal = self.Application.str2Unicode(strVal)
 					dabo.errorLog.write(_("Error setting value to '%(uStrVal)s: %(e)s") % locals())

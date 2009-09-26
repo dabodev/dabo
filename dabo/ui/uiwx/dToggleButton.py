@@ -69,7 +69,6 @@ class dToggleButton(dcm.dDataControlMixin, dim.dImageMixin,
 				bmp = val
 			else:
 				bmp = dabo.ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
-			all = not self._downPicture
 			self.SetBitmapSelected(bmp)
 			self.refresh()
 		else:
@@ -86,8 +85,8 @@ class dToggleButton(dcm.dDataControlMixin, dim.dImageMixin,
 				bmp = val
 			else:
 				bmp = dabo.ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
-			all = not self._downPicture
-			self.SetBitmapLabel(bmp, all)
+			notdown = not self._downPicture
+			self.SetBitmapLabel(bmp, notdown)
 			self.refresh()
 		else:
 			self._properties["Picture"] = val

@@ -469,7 +469,7 @@ if _USE_FLAT:
 			elif val == "Firefox":
 				self._addWindowStyleFlag(fnb.FNB_FF2)
 			else:
-				ValueError, (_("The only possible values are 'Default' and 'VC8', 'VC71', 'Fancy', or 'Firefox'"))
+				raise ValueError(_("The only possible values are 'Default' and 'VC8', 'VC71', 'Fancy', or 'Firefox'"))
 
 			self._tabStyle = val
 

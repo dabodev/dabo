@@ -66,33 +66,33 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		"""
 		try:
 			self.Realize()
-		except wx._core.PyAssertionError, e:
+		except wx._core.PyAssertionError:
 			# Only happens on the Mac
 			pass
 
 
-	def appendItem(self, item):
+	def appendItem(self, itm):
 		"""Insert a dToolBarItem at the end of the toolbar."""
-		wxItem = self.AddToolItem(item._wxToolBarItem)
-		self._daboChildren.append(item)
-		item._parent = self
+		self.AddToolItem(itm._wxToolBarItem)
+		self._daboChildren.append(itm)
+		itm._parent = self
 		self._realize()
-		return item
+		return itm
 
 
-	def insertItem(self, pos, item):
+	def insertItem(self, pos, itm):
 		"""Insert a dToolBarItem before the specified position in the toolbar."""
-		wxItem = self.InsertToolItem(pos, item._wxToolBarItem)
-		self._daboChildren.insert(pos, item)
-		item._parent = self
+		self.InsertToolItem(pos, itm._wxToolBarItem)
+		self._daboChildren.insert(pos, itm)
+		itm._parent = self
 		self._realize()
-		return item
+		return itm
 		
 
-	def prependItem(self, item):
+	def prependItem(self, itm):
 		"""Insert a dToolBarItem at the beginning of the toolbar."""
-		self.insertItem(0, item)
-		return item
+		self.insertItem(0, itm)
+		return itm
 
 
 	def appendButton(self, caption, pic, toggle=False, tip="", 
@@ -252,31 +252,31 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		"""
 		if isinstance(idxOrItem, (int, long)):
 			idx = idxOrItem
-			item = self.Children[idx]
+			itm = self.Children[idx]
 		else:
 			idx = self._getIndexByItem(idxOrItem)
-			item = idxOrItem
-		if not self.hasItem(item):
+			itm = idxOrItem
+		if not self.hasItem(itm):
 			# Nothing to do!
 			return
 		try:
-			id_ = item._id
+			id_ = itm._id
 			self.RemoveTool(id_)
 		except AttributeError:
 			# A control, not a toolbar tool
-			item.Visible = False					
+			itm.Visible = False					
 		del(self._daboChildren[idx])
-		item._parent = None
+		itm._parent = None
 		if release:
-			item.Destroy()
-		return item
+			itm.Destroy()
+		return itm
 
 
-	def hasItem(self, item):
+	def hasItem(self, itm):
 		"""Given a toolbar item, returns True or False depending on whether
 		that item is currently in this toolbar.
 		"""
-		return (item in self._daboChildren)
+		return (itm in self._daboChildren)
 
 
 	def getItemIndex(self, caption):
@@ -321,26 +321,25 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		return self._daboChildren
 
 	
-	def _recreateItem(self, item):
+	def _recreateItem(self, itm):
 		"""Recreate the passed dToolBarItem, and put it back in its original place.
 
 		This is necessary when changing some or all of the dToolBarItem properties,
 		and is called from within that object as a callafter.
 		"""
-		id_ = item._id
-		idx = self._getIndexByItem(item)
+		idx = self._getIndexByItem(itm)
 		if idx is not None:
 			self.remove(idx, False)
-			self.insertItem(idx, item)		
+			self.insertItem(idx, itm)		
 
 
-	def _getIndexByItem(self, item):
+	def _getIndexByItem(self, itm):
 		"""Given a dToolBarItem object reference, return the index in the toolbar.
 
 		Return None if the item doesn't exist in the toolbar.
 		"""
 		for idx, o in enumerate(self.Children):
-			if o == item:
+			if o == itm:
 				return idx
 		return None
 

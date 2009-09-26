@@ -251,8 +251,10 @@ class dPageFrameMixin(cm.dControlMixin):
 		"""
 		fwd = num > 0
 		self.lockDisplay()
-		for ii in range(abs(num)):
+		numToMove = abs(num)
+		while numToMove:
 			self.AdvanceSelection(fwd)
+			numToMove -= 1
 		self.unlockDisplay()
 		
 		
@@ -312,14 +314,17 @@ class dPageFrameMixin(cm.dControlMixin):
 			if val < 0:
 				raise ValueError(_("Cannot set PageCount to less than zero."))
 		
-			if val > pageCount:
-				for i in range(pageCount, val):
+			diff = val - pageCount
+			if diff > 0:
+				while diff:
 					pg = self.appendPage(pageClass)
+					diff -= 1
 					if not pg.Caption:
 						pg.Caption = _("Page %s") % (i+1,)
-			elif val < pageCount:
-				for i in range(pageCount, val, -1):
+			else:
+				while diff:
 					self.DeletePage(i-1)
+					diff += 1
 		else:
 			self._properties["PageCount"] = val
 

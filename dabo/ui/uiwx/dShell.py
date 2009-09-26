@@ -175,8 +175,8 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 		if edt:
 			# push the latest command into the stack
 			self.Form.addToHistory(self.history[0])
-		
-		
+
+
 	def setDefaultFont(self, fontFace, fontSize):
 		# Global default styles for all languages
 		self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (fontFace, fontSize))

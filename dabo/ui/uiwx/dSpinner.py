@@ -143,7 +143,6 @@ class dSpinner(dabo.ui.dDataPanel):
 		except TypeError:
 			# Usually Decimal/float problems
 			tCurr = type(curr)
-			tInc = type(inc)
 			if tCurr == decimal:
 				ret = op(curr, self._toDec(inc))
 			elif tCurr == float:
@@ -161,7 +160,6 @@ class dSpinner(dabo.ui.dDataPanel):
 			margin = -0.0001
 
 		ret = True
-		curr = self._proxy_textbox.Value
 		newVal = self._applyIncrement(incrementFunc)
 		minn, maxx, margin = self._coerceTypes(newVal, self.Min, self.Max, margin)
 

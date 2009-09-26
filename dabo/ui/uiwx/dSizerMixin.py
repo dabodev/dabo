@@ -76,8 +76,8 @@ class dSizerMixin(dObject):
 	def appendItems(self, items, *args, **kwargs):
 		"""Append each item to the sizer."""
 		ret = []
-		for item in items:
-			ret.append(self.append(item, *args, **kwargs))
+		for itm in items:
+			ret.append(self.append(itm, *args, **kwargs))
 		return ret
 	try:
 		appendItems.__doc__ += _doc_additions
@@ -161,36 +161,36 @@ class dSizerMixin(dObject):
 		"""Insert the object at the beginning of the sizer layout."""
 		return self.insert(0, obj, layout=layout, proportion=proportion,
 				alignment=alignment, halign=halign, valign=valign, border=border,
-				borderSides=None)
+				borderSides=borderSides)
 	try:
 		prepend.__doc__ += _doc_additions
 	except TypeError:
 		# If compressed to .pyo, __doc__ will be None.
 		pass	
 	
-	def remove(self, item, destroy=None):
+	def remove(self, itm, destroy=None):
 		"""This will remove the item from the sizer. It will not cause
 		the item to be destroyed unless the 'destroy' parameter is True. 
 		If the item is not one of this sizer's items, no error will be 
 		raised - it will simply do nothing.
 		"""
 		try:
-			item.Name
+			itm.Name
 		except dabo.ui.deadObjectException:
 			# The use of callAfter can sometimes result in destroyed
 			# objects being removed.
 			return
-		if self.Detach(item):
-			item._controllingSizer = None
-			item._controllingSizerItem = None
+		if self.Detach(itm):
+			itm._controllingSizer = None
+			itm._controllingSizerItem = None
 			if destroy:
 				try:
-					if isinstance(item, dabo.ui.dSizerMixin):
-						item.release(True)
+					if isinstance(itm, dabo.ui.dSizerMixin):
+						itm.release(True)
 					else:
-						item.release()
+						itm.release()
 				except AttributeError:
-					item.Destroy()
+					itm.Destroy()
 	
 	
 	def clear(self, destroy=False):

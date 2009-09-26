@@ -205,7 +205,6 @@ class uiApp(dObject, wx.App):
 	def checkForUpdates(self, force=False):
 		answer = False
 		msg = ""
-		vers = None
 		updAvail = False
 		checkResult = self.dApp._checkForUpdates(force=force)
 		if isinstance(checkResult, Exception):
@@ -311,7 +310,6 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def _setUpdatePathLocations(self):
-		projects = ("dabo", "demo", "ide")
 		prf = self.dApp._frameworkPrefs
 		loc_demo = prf.getValue("demo_directory")
 		loc_ide = prf.getValue("ide_directory")
@@ -363,10 +361,6 @@ these automatic updates.""").replace("\n", " ")
 		alt = evt.AltDown()
 		ctl = evt.ControlDown()
 		kcd = evt.GetKeyCode()
-		uch = evt.GetUniChar()
-		uk = evt.GetUnicodeKey()
-		met = evt.MetaDown()
-		sh = evt.ShiftDown()
 		if not self.ActiveForm or alt or not ctl:
 			evt.Skip()
 			return
@@ -374,9 +368,9 @@ these automatic updates.""").replace("\n", " ")
 			char = chr(evt.GetKeyCode())
 		except (ValueError, OverflowError):
 			char = None
-		plus = (char == "=") or (char == "+") or (kcd == wx.WXK_NUMPAD_ADD)
-		minus = (char == "-") or (kcd == wx.WXK_NUMPAD_SUBTRACT)
-		slash = (char == "/") or (kcd == wx.WXK_NUMPAD_DIVIDE)
+		plus = char in ("=", "+", wx.WXK_NUMPAD_ADD)
+		minus = char in ("-", wx.WXK_NUMPAD_SUBTRACT)
+		slash = char in ("/", wx.WXK_NUMPAD_DIVIDE)
 		if plus:
 			self.fontZoomIn()
 		elif minus:
@@ -432,7 +426,7 @@ these automatic updates.""").replace("\n", " ")
 		val._EventBindings = eb
 
 
-	def start(self, dApp):
+	def start(self):
 		# Manually raise Activate, as wx doesn't do that automatically
 		try:
 			self.dApp.MainForm.raiseEvent(dEvents.Activate)
@@ -578,7 +572,7 @@ these automatic updates.""").replace("\n", " ")
 				# This will allow forms to veto closing (i.e., user doesn't
 				# want to save pending changes). 
 				if frm:
-					if frm.close(force=True) == False:
+					if frm.close(force=True) is False:
 						# The form stopped the closing process. The user
 						# must deal with this form (save changes, etc.) 
 						# before the app can exit.
@@ -891,7 +885,7 @@ these automatic updates.""").replace("\n", " ")
 		try:
 			fd = self.findReplaceData
 			self.OnFind(fd)
-		except AttributeError, e:
+		except AttributeError:
 			self.onEditFind(None)
 			return
 			
@@ -945,7 +939,6 @@ these automatic updates.""").replace("\n", " ")
 		flags = self.findReplaceData.GetFlags()
 		findString = self.findReplaceData.GetFindString()
 		replaceString = self.findReplaceData.GetReplaceString()
-		replaceString2 = self.findReplaceData.GetReplaceString()
 		downwardSearch = (flags & wx.FR_DOWN) == wx.FR_DOWN
 		wholeWord = (flags & wx.FR_WHOLEWORD) == wx.FR_WHOLEWORD
 		matchCase = (flags & wx.FR_MATCHCASE) == wx.FR_MATCHCASE
@@ -1090,7 +1083,7 @@ these automatic updates.""").replace("\n", " ")
 				try:
 					pos = kids.index(itm)
 					menu.remove(pos, True)
-				except IndexError, ValueErrror:
+				except (IndexError, ValueError):
 					pass
 			# Add them all back
 			lnks = {}
