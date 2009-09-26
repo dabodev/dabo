@@ -321,9 +321,7 @@ class PropertyHelperMixin(object):
 				d["writable"] = False
 
 			d["doc"] = propRef.__doc__
-
-			dataType = d["type"] = type(propVal)
-
+			d["type"] = type(propVal)
 			d["definedIn"] = None			
 			for o in classRef.__mro__:
 				if o.__dict__.has_key(name):
