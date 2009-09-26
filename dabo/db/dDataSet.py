@@ -194,9 +194,7 @@ class dDataSet(tuple):
 
 
 	def filterByExpression(self, expr):
-		"""Allows you to filter by any expression that would make a
-		valid 'where' clause in SQLite.
-		"""
+		"""Allows you to filter by any valid Python expression."""
 		if not self:
 			# No rows, so nothing to filter
 			return self
@@ -296,11 +294,10 @@ class dDataSet(tuple):
 			return
 		self._cursor.execute(self._makeCreateTable(ds, alias))
 
-		flds, vals = ds[0].keys(), ds[0].values()
+		flds = ds[0].keys()[:]
 		# Fields may contain illegal names. This will correct them
 		flds = [fld.replace("dabo-", "dabo_") for fld in flds]
 		fldParams = [":%s" % fld for fld in flds]
-		fldCnt = len(flds)
 		insStmnt = "insert into %s (%s) values (%s)" % (alias,
 				", ".join(flds), ", ".join(fldParams))
 

@@ -468,11 +468,11 @@ class dCursorMixin(dObject):
 			target._types[field_alias] = dabo.db.getPythonType(field_type)
 
 
-	def sort(self, col, ord=None, caseSensitive=True):
+	def sort(self, col, ordr=None, caseSensitive=True):
 		""" Sort the result set on the specified column in the specified order. If the sort
 		direction is not specified, default to ascending order. If 'cycle' is specified as the
 		direction, use the next ordering in the list [None, 'ASC', 'DESC']. The possible
-		values for 'ord' are:
+		values for 'ordr' are:
 			None
 			"" (i.e., an empty string)
 			ASC
@@ -482,13 +482,12 @@ class dCursorMixin(dObject):
 		"""
 		currCol = self.sortColumn
 		currOrd = self.sortOrder
-		currCase = self.sortCase
-		if ord is None:
-			ord = "ASC"
-		elif ord == "":
-			ord = None
-		if ord[:3].upper() == "CYC":
-			ord = {"ASC": "DESC", "DES": None, None: "ASC"}[currOrd]
+		if ordr is None:
+			ordr = "ASC"
+		elif ordr == "":
+			ordr = None
+		if ordr[:3].upper() == "CYC":
+			ordr = {"ASC": "DESC", "DES": None, None: "ASC"}[currOrd]
 			col = currCol
 
 		# Make sure that the specified column is a column in the result set
@@ -500,7 +499,7 @@ class dCursorMixin(dObject):
 		if col == currCol:
 			# Not changing the column; most likely they are flipping
 			# the sort order.
-			if (ord is None) or not ord:
+			if (ordr is None) or not ordr:
 				# They didn't specify the sort order. Cycle through the sort orders
 				if currOrd == "ASC":
 					newOrd = "DESC"
@@ -509,23 +508,23 @@ class dCursorMixin(dObject):
 				else:
 					newOrd = "ASC"
 			else:
-				if ord.upper() in ("ASC", "DESC", ""):
-					newOrd = ord.upper()
+				if ordr.upper() in ("ASC", "DESC", ""):
+					newOrd = ordr.upper()
 				else:
 					raise dException.dException(
-							_("Invalid Sort direction specified: ") + ord)
+							_("Invalid Sort direction specified: ") + ordr)
 
 		else:
 			# Different column specified.
-			if (ord is None) or not ord:
+			if (ordr is None) or not ordr:
 				# Start in ASC order
 				newOrd = "ASC"
 			else:
-				if ord.upper() in ("ASC", "DESC", ""):
-					newOrd = ord.upper()
+				if ordr.upper() in ("ASC", "DESC", ""):
+					newOrd = ordr.upper()
 				else:
 					raise dException.dException(
-							_("Invalid Sort direction specified: ") + ord)
+							_("Invalid Sort direction specified: ") + ordr)
 
 		self.__sortRows(newCol, newOrd, caseSensitive)
 		# Save the current sort values
@@ -534,7 +533,7 @@ class dCursorMixin(dObject):
 		self.sortCase = caseSensitive
 
 
-	def __sortRows(self, col, ord, caseSensitive):
+	def __sortRows(self, col, ordr, caseSensitive):
 		""" Sort the rows of the cursor.
 
 		At this point, we know we have a valid column and order. We need to
@@ -568,7 +567,7 @@ class dCursorMixin(dObject):
 			currRowKey = None
 		# Create the list to hold the rows for sorting
 		sortList = []
-		if not ord:
+		if not ordr:
 			# Restore the rows to their unsorted order
 			for row in self._records:
 				if self._compoundKey:
@@ -589,7 +588,7 @@ class dCursorMixin(dObject):
 			sortKey = caseInsensitiveSortKey
 		else:
 			sortKey = noneSortKey
-		sortList.sort(key=sortKey, reverse=(ord == "DESC"))
+		sortList.sort(key=sortKey, reverse=(ordr == "DESC"))
 
 		# Extract the rows into a new list, then convert them back to the _records tuple
 		newRows = [elem[1] for elem in sortList]
@@ -646,8 +645,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		the current row is used.
 		"""
 		colTemplate = """	<column name="%s" type="%s">%s</column>"""
-		recInfo = [ colTemplate % (k, self.getType(v), self.escape(v))
-				for k,v in self._records[self.RowNumber].items() ]
+		if row is None:
+			row = self.RowNumber
+		recInfo = [colTemplate % (k, self.getType(v), self.escape(v))
+				for k,v in self._records[row].items()]
 		return "\n".join(recInfo)
 
 
@@ -1186,11 +1187,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Apply a filter to the current records."""
 		self._records = self._records.filter(fld=fld, expr=expr, op=op)
 
+
 	def filterByExpression(self, expr):
-		"""Allows you to filter by any expression that would make a
-		valid 'where' clause in SQLite.
-		"""
+		"""Allows you to filter by any valid Python expression."""
 		self._records = self._records.filterByExpression(expr)
+
 
 	def removeFilter(self):
 		"""Remove the most recently applied filter."""
