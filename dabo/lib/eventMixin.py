@@ -143,7 +143,7 @@ class EventMixin(object):
 			num = len(self._EventBindings)
 			self._EventBindings = []
 			newBindings = []
-			for index in range(num, 0, -1):
+			while eb:
 				binding = eb.pop()
 				bindingClass, bindingFunction = binding[0], binding[1]
 				
@@ -225,7 +225,6 @@ class EventMixin(object):
 			return True
 
 		regid = None
-		contextText = ""
 		if context != self:
 			try:
 				regid = self.RegID
@@ -235,7 +234,6 @@ class EventMixin(object):
 				regid = None
 			if regid is None or regid == "":
 				return False
-			contextText = "_%s" % regid
 
 		# Do the import here; putting it at the top throws errors while Dabo is starting up.
 		import dabo.dEvents as dEvents
