@@ -314,17 +314,14 @@ class dPageFrameMixin(cm.dControlMixin):
 			if val < 0:
 				raise ValueError(_("Cannot set PageCount to less than zero."))
 		
-			diff = val - pageCount
-			if diff > 0:
-				while diff:
+			if val > pageCount:
+				for i in range(pageCount, val):
 					pg = self.appendPage(pageClass)
-					diff -= 1
 					if not pg.Caption:
 						pg.Caption = _("Page %s") % (i+1,)
-			else:
-				while diff:
+			elif val < pageCount:
+				for i in range(pageCount, val, -1):
 					self.DeletePage(i-1)
-					diff += 1
 		else:
 			self._properties["PageCount"] = val
 
