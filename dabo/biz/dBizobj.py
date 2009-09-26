@@ -365,6 +365,7 @@ class dBizobj(dObject):
 
 		except dException.ConnectionLostException:
 			self.RowNumber = current_row
+			self._CurrentCursor = cursor
 			raise
 		except dException.DBQueryException:
 			# Something failed; reset things.
@@ -372,13 +373,16 @@ class dBizobj(dObject):
 				self.rollbackTransaction()
 			# Pass the exception to the UI
 			self.RowNumber = current_row
+			self._CurrentCursor = cursor
 			raise
 		except dException.dException:
 			if startTransaction:
 				self.rollbackTransaction()
 			self.RowNumber = current_row
+			self._CurrentCursor = cursor
 			raise
 
+		self._CurrentCursor = cursor
 		if current_row >= 0:
 			try:
 				self.RowNumber = current_row
@@ -432,10 +436,10 @@ class dBizobj(dObject):
 			if self.RequeryChildOnSave:
 				self.requeryAllChildren()
 
-		except dException.ConnectionLostException, e:
+		except dException.ConnectionLostException:
 			raise
 
-		except dException.NoRecordsException, e:
+		except dException.NoRecordsException:
 			raise
 
 		except dException.DBQueryException:
@@ -506,11 +510,14 @@ class dBizobj(dObject):
 		except dException.DBQueryException:
 			if startTransaction:
 				self.rollbackTransaction()
+			self._CurrentCursor = cursor
 			raise
 		except StandardError:
 			if startTransaction:
 				self.rollbackTransaction()
+			self._CurrentCursor = cursor
 			raise
+		self._CurrentCursor = cursor
 		self.afterDeleteAllChildren()
 
 
@@ -579,7 +586,7 @@ class dBizobj(dObject):
 		try:
 			while self.RowCount > 0:
 				self.first()
-				ret = self.delete(startTransaction=False, inLoop=True)
+				self.delete(startTransaction=False, inLoop=True)
 			if startTransaction:
 				self.commitTransaction()
 
@@ -589,11 +596,14 @@ class dBizobj(dObject):
 		except dException.DBQueryException:
 			if startTransaction:
 				self.rollbackTransaction()
+			self._CurrentCursor = cursor
 			raise
 		except StandardError:
 			if startTransaction:
 				self.rollbackTransaction()
+			self._CurrentCursor = cursor
 			raise
+		self._CurrentCursor = cursor
 
 
 	def execute(self, sql, params=None):
@@ -734,7 +744,7 @@ class dBizobj(dObject):
 				func(*args, **kwargs)
 				if self.exitScan:
 					break
-		except Exception, e:
+		except Exception:
 			restorePosition()
 			raise
 		restorePosition()
@@ -951,7 +961,7 @@ class dBizobj(dObject):
 		return ret
 
 
-	def sort(self, col, ord=None, caseSensitive=True):
+	def sort(self, col, ordr=None, caseSensitive=True):
 		""" Sort the rows based on values in a specified column.
 
 		Called when the data is to be sorted on a particular column
@@ -960,7 +970,7 @@ class dBizobj(dObject):
 		"""
 		cc = self._CurrentCursor
 		if cc is not None:
-			self._CurrentCursor.sort(col, ord, caseSensitive)
+			self._CurrentCursor.sort(col, ordr, caseSensitive)
 
 
 	def setParams(self, params):
@@ -995,11 +1005,11 @@ class dBizobj(dObject):
 			contains: expr in fld
 		"""
 		currPK = self.getPK()
-		if self.VirtualFields.has_key(fld):
+		if fld in self.VirtualFields:
 			self.scan(self.scanVirtualFields, fld=fld, expr=expr, op=op, reverse=True)
-			self._CurrentCursor.filterByExpression("%s IN (%s)" % (self.KeyField, ", ".join( "%i" % key for key in self.__filterPKVirtual)))
-
-			# clear filter id's
+			self._CurrentCursor.filterByExpression("%s IN (%s)" % (
+					self.KeyField, ", ".join( "%i" % key for key in self.__filterPKVirtual)))
+			# clear filter ids
 			self.__filterPKVirtual = []
 		else:
 			self._CurrentCursor.filter(fld=fld, expr=expr, op=op)
@@ -1016,8 +1026,16 @@ class dBizobj(dObject):
 				# The old row was filtered out of the dataset
 				self.first()
 
+
+	def filterByExpression(self, expr):
+		"""Allows you to filter by any valid Python expression."""
+		self._CurrentCursor.filterByExpression(expr)
+
+
 	def scanVirtualFields(self, fld, expr, op):
 		virtValue = self.getFieldVal(fld)
+		virtLower = virtValue.lower()
+		exprLower = expr.lower()
 
 		if op.lower() in ("eq", "equals", "="):
 			if virtValue == expr:
@@ -1044,16 +1062,17 @@ class dBizobj(dObject):
 				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
 
 		elif op.lower() in ("starts with", "begins with"):
-			if virtValue.lower().startswith(expr.lower()):
+			if virtLower.startswith(exprLower):
 				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
 
-		elif op.lower() in ("endswith"):
-			if virtValue.lower().endswith(expr.lower()):
+		elif op.lower() == "endswith":
+			if virtLower.endswith(exprLower):
 				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
 
-		elif op.lower() in ("contains"):
-			if expr.lower() in virtValue.lower():
+		elif op.lower() == "contains":
+			if exprLower in virtLower:
 				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
+
 
 	def removeFilter(self):
 		"""Remove the most recently applied filter."""
@@ -1342,61 +1361,6 @@ class dBizobj(dObject):
 		if child not in self.__children:
 			self.__children.append(child)
 			child.Parent = self
-
-
-	def _addChildByRelationDict(self, dict, bizModule):
-		""" Deprecated; used in old datanav framework."""
-		addedChildren = []
-		if self.__relationDictSet:
-			# already done this...
-			return addedChildren
-		self.__relationDictSet = True
-
-		myRelations = [ dict[k] for k in dict.keys()
-				if dict[k]["source"].lower() == self.DataSource.lower() ]
-		if not myRelations:
-			return addedChildren
-
-		for relation in myRelations:
-			if relation["relationType"] == "1M":
-				# Each 'relation' is a dict with the following structure:
-				# 'target': child table
-				# 'targetField': field in child table linked to parent
-				# 'source': parent table
-				# 'sourceField': field in parent table linked to child
-				target = relation["target"]
-				targetField = relation["targetField"]
-				source = relation["source"]
-				sourceField = relation["sourceField"]
-
-				if self.getAncestorByDataSource(target):
-					# The 'child' already exists as an ancestor of this bizobj. This can
-					# happen in many-to-many relationships. We don't want to add it,
-					# as this creates infinite loops.
-					continue
-
-				childBiz = self.getChildByDataSource(target)
-				if not childBiz:
-					# target is the datasource of the bizobj to find.
-					childBizClass = None
-					for candidate, candidateClass in bizModule.__dict__.items():
-						if type(candidateClass) == type:
-							candidateInstance = candidateClass(self._cursorFactory)
-							if candidateInstance.DataSource.lower() == target.lower():
-								childBizClass = candidateClass
-
-					childBiz = childBizClass(self._cursorFactory)
-					self.addChild(childBiz)
-					addedChildren.append(childBiz)
-					childBiz.LinkField = targetField
-					childBiz.FillLinkFromParent = True
-					if sourceField != self.KeyField:
-						childBiz.ParentLinkField = sourceField
-				# Now pass this on to the child
-				addedGrandChildren = childBiz.addChildByRelationDict(dict, bizModule)
-				for gc in addedGrandChildren:
-					addedChildren.append(gc)
-		return addedChildren
 
 
 	def getAncestorByDataSource(self, ds):
@@ -1776,7 +1740,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self._CurrentCursor.addOrderBy(exp)
 	def addWhere(self, exp, comp="and"):
 		"""Add a filter expression to the where clause."""
-		return self._CurrentCursor.addWhere(exp)
+		return self._CurrentCursor.addWhere(exp, comp=comp)
 	def getSQL(self):
 		"""Returns the SQL statement currently set in the backend."""
 		return self._CurrentCursor.getSQL()
@@ -2482,6 +2446,7 @@ class _bizIterator(object):
 		self.obj = obj
 		self.__firstpass = True
 		self.__nextfunc = self._next
+
 
 	def reverse(self):
 		"""Configures the iterator to process the records in reverse order.
