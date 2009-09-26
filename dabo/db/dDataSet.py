@@ -105,9 +105,7 @@ class dDataSet(tuple):
 
 		Scope is a boolean expression.
 		"""
-		if scope is None:
-			scope = "True"
-		else:
+		if scope is not None:
 			scope = self._fldReplace(scope, "rec")
 
 		literal = True
@@ -116,11 +114,17 @@ class dDataSet(tuple):
 				literal = False
 				valOrExpr = valOrExpr.replace("=", "", 1)
 			valOrExpr = self._fldReplace(valOrExpr, "rec")
-		for rec in self:
-			if eval(scope):
-				if literal:
-					rec[field] = valOrExpr
-				else:
+		if literal:
+			upDict = {field: valOrExpr}
+			if scope is None:
+				[rec.update(upDict) for rec in self]
+			else:
+				[rec.update(upDict) for rec in self
+						if eval(scope)]
+		else:
+			# Need to go record-by-record so that the expression evaluates correctly
+			for rec in self:
+				if eval(scope):
 					rec[field] = eval(valOrExpr)
 
 

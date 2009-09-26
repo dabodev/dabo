@@ -1211,6 +1211,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		'valOrExpr' will be treated as a literal value, unless it is prefixed
 		with an equals sign. All expressions will therefore be a string
 		beginning with '='. Literals can be of any type.
+		
+		NOTE: this does NOT work with the memento framework for 
+		determining modified records. It is strongly recommended that 
+		instead of calling this directly that the bizobj.replace() method
+		be used in any programming.
 		"""
 		# Make sure that the data set object has any necessary references
 		self._records.Cursor = self

@@ -37,10 +37,9 @@ class dBizobj(dObject):
 		# now the DefaultValues property (used to be self.defaultValues attribute)
 		self._defaultValues = {}
 
-		# PKId's of rows to be filtered out when
-		# filtering Virtual fields
+		# PKs of rows to be filtered out when filtering Virtual fields
 		self.__filterPKVirtual = []
-
+		
 		self._beforeInit()
 		self.setConnection(conn)
 		# We need to make sure the cursor is created *before* the call to
@@ -808,6 +807,23 @@ class dBizobj(dObject):
 		return tuple([ff[0] for ff in flds])
 
 
+	def _fldReplace(self, expr):
+		"""Takes a user-defined, SQL-like expression, and substitutes any 
+		field name with the reference for that value in the bizobj.
+		Example (assuming 'price' is a column in the data):
+			self._fldReplace("price > 50")
+				=> returns "self.Record.price > 50"
+		"""
+		patTemplate = r"(.*\b)%s(\b.*)"
+		ret = expr
+		for fld in self.getFieldNames():
+			pat = patTemplate % fld
+			mtch = re.match(pat, ret)
+			if mtch:
+				ret = mtch.groups()[0] + "self.Record.%s" % fld + mtch.groups()[1]
+		return ret
+
+
 	def replace(self, field, valOrExpr, scope=None):
 		"""Replaces the value of the specified field with the given value
 		or expression. All records matching the scope are affected; if
@@ -817,7 +833,29 @@ class dBizobj(dObject):
 		with an equals sign. All expressions will therefore be a string
 		beginning with '='. Literals can be of any type.
 		"""
-		self._CurrentCursor.replace(field, valOrExpr, scope=scope)
+		self.scan(self._replace, field, valOrExpr, scope)
+
+
+	def _replace(self, field, valOrExpr, scope):
+		"""Called once for each record in the bizobj when the replace() method
+		is invoked.
+		"""
+		if scope is not None:
+			scope = self._fldReplace(scope)
+			if not eval(scope):
+				return
+		literal = True
+		try:
+			if valOrExpr.startswith("="):
+				literal = False
+				valOrExpr = valOrExpr.strip()[1:]
+				valOrExpr = self._fldReplace(valOrExpr)
+				print "VOEX", valOrExpr
+				valOrExpr = eval(valOrExpr)
+		except AttributeError:
+			# Not a string expression; no worries
+			pass
+		self.setFieldVal(field, valOrExpr)
 
 
 	def new(self):

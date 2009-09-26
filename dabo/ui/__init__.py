@@ -57,10 +57,9 @@ def loadUI(uiType):
 		try:
 			exec("from %s import *" % mods[typ], globals())
 			retVal = True
-		except Exception, e:
+		except Exception:
 			retVal = False
 			# Record the actual problem
-			#dabo.errorLog.write("Error Loading UI: %s" % e)
 			traceback.print_exc()
 	else:
 		if currType == typ:
