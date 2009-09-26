@@ -386,7 +386,7 @@ try again when it is running.
 				userName = ""
 
 			self._retrieveMRUs()
-			self.uiApp.start(self)
+			self.uiApp.start()
 		if not self._finished:
 			self.finish()
 
@@ -576,7 +576,7 @@ try again when it is running.
 				dabo.errorLog.write(_("Could not connect to the Dabo servers: %s") % e)
 				return e
 			except ValueError:
-				vers = -1
+				pass
 			except StandardError, e:
 				dabo.errorLog.write(_("Failed to open URL '%(url)s'. Error: %(e)s") % locals())
 				return e
@@ -734,14 +734,14 @@ try again when it is running.
 			for f in fileOrFiles:
 				self.updateFromSource(f)
 			return
-		pth = fileOrFiles
+		srcFile = fileOrFiles
 		cwd = os.getcwd()
 		# The srcFile has an absolute path; the URLs work on relative.
 		try:
 			splt = srcFile.split(cwd)[1].lstrip("/")
 		except IndexError:
 			splt = srcFile
-		app.urlFetch(splt)
+		self.urlFetch(splt)
 		try:
 			nm, ext = os.path.splitext(splt)
 		except ValueError:
@@ -751,7 +751,7 @@ try again when it is running.
 			# There might be an associated code file. If not, the error
 			# will be caught in the app method, and no harm will be done.
 			codefile = "%s-code.py" % nm
-			app.urlFetch(codefile)
+			self.urlFetch(codefile)
 
 
 	def getUserSettingKeys(self, spec):
@@ -917,7 +917,7 @@ try again when it is running.
 			defs = dbConnectionDefs.getDefs()
 			connDefs.update(defs)
 			for kk in defs.keys():
-				self.dbConnectionNameToFiles[kk] = os.abspath("dbConnectionDefs.py")
+				self.dbConnectionNameToFiles[kk] = os.path.abspath("dbConnectionDefs.py")
 		except ImportError:
 			pass
 
