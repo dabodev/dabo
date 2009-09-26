@@ -166,6 +166,12 @@ def getSizerDefaults():
 	dct["G"].update({"Proportion" : 0, "Expand" : False, "HAlign" : "center", "VAlign" : "middle"})
 	dct["H"].update({"Proportion" : 1, "Expand" : False, "HAlign": "center"})
 	dct["V"].update({"Proportion" : 0, "Expand" : True, "VAlign": "middle"})
+	dct = copy.deepcopy(defVals)
+	dct["G"].update({"Proportion" : 1, "Expand" : True, "HAlign" : "center", "VAlign" : "middle"})
+	dct["H"].update({"Proportion" : 1, "Expand" : True, "HAlign": "center"})
+	dct["V"].update({"Proportion" : 1, "Expand" : True, "VAlign": "middle"})
+	szDefaults[dui.dLed] = dct
+	szDefaults["dLed"] = dct
 	szDefaults[dui.dLine] = dct
 	szDefaults["dLine"] = dct
 	dct = copy.deepcopy(defVals)
