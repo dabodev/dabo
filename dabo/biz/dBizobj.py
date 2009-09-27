@@ -353,7 +353,7 @@ class dBizobj(dObject):
 		rp = self._RemoteProxy
 		if rp:
 			return rp.saveAll(startTransaction=startTransaction)
-		cursor = self._CurrentCursor
+		cursorKey = self.__currentCursorKey
 		current_row = self.RowNumber
 		startTransaction = startTransaction and self.beginTransaction()
 		try:
@@ -363,25 +363,24 @@ class dBizobj(dObject):
 				self.commitTransaction()
 
 		except dException.ConnectionLostException:
+			self._CurrentCursor = cursorKey
 			self.RowNumber = current_row
-			self._CurrentCursor = cursor
 			raise
 		except dException.DBQueryException:
 			# Something failed; reset things.
 			if startTransaction:
 				self.rollbackTransaction()
-			# Pass the exception to the UI
+			self._CurrentCursor = cursorKey
 			self.RowNumber = current_row
-			self._CurrentCursor = cursor
+			# Pass the exception to the UI
 			raise
 		except dException.dException:
 			if startTransaction:
 				self.rollbackTransaction()
+			self._CurrentCursor = cursorKey
 			self.RowNumber = current_row
-			self._CurrentCursor = cursor
 			raise
-
-		self._CurrentCursor = cursor
+		self._CurrentCursor = cursorKey
 		if current_row >= 0:
 			try:
 				self.RowNumber = current_row
@@ -494,7 +493,7 @@ class dBizobj(dObject):
 		"""Delete all children associated with the current record without
 		deleting the current record in this bizobj.
 		"""
-		cursor = self._CurrentCursor
+		cursorKey = self.__currentCursorKey
 		errMsg = self.beforeDeleteAllChildren()
 		if errMsg:
 			raise dException.BusinessRuleViolation(errMsg)
@@ -509,14 +508,14 @@ class dBizobj(dObject):
 		except dException.DBQueryException:
 			if startTransaction:
 				self.rollbackTransaction()
-			self._CurrentCursor = cursor
+			self._CurrentCursor = cursorKey
 			raise
 		except StandardError:
 			if startTransaction:
 				self.rollbackTransaction()
-			self._CurrentCursor = cursor
+			self._CurrentCursor = cursorKey
 			raise
-		self._CurrentCursor = cursor
+		self._CurrentCursor = cursorKey
 		self.afterDeleteAllChildren()
 
 
@@ -580,7 +579,7 @@ class dBizobj(dObject):
 		rp = self._RemoteProxy
 		if rp:
 			return rp.deleteAll()
-		cursor = self._CurrentCursor
+		cursorKey = self.__currentCursorKey
 		startTransaction = startTransaction and self.beginTransaction()
 		try:
 			while self.RowCount > 0:
@@ -595,14 +594,14 @@ class dBizobj(dObject):
 		except dException.DBQueryException:
 			if startTransaction:
 				self.rollbackTransaction()
-			self._CurrentCursor = cursor
+			self._CurrentCursor = cursorKey
 			raise
 		except StandardError:
 			if startTransaction:
 				self.rollbackTransaction()
-			self._CurrentCursor = cursor
+			self._CurrentCursor = cursorKey
 			raise
-		self._CurrentCursor = cursor
+		self._CurrentCursor = cursorKey
 
 
 	def execute(self, sql, params=None):
@@ -850,7 +849,6 @@ class dBizobj(dObject):
 				literal = False
 				valOrExpr = valOrExpr.strip()[1:]
 				valOrExpr = self._fldReplace(valOrExpr)
-				print "VOEX", valOrExpr
 				valOrExpr = eval(valOrExpr)
 		except AttributeError:
 			# Not a string expression; no worries
