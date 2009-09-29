@@ -972,6 +972,20 @@ class ReportWriter(object):
 			return
 		obj.setProp(prop, oldval, logUndo=False)
 
+	def _onReportBegin(self):
+		if self.PrintStatus:
+			print "Report Begin."
+			sys.stdout.flush()
+
+	def _onReportIteration(self):
+		if self.PrintStatus:
+			print "Processing row %s of %s..." % (self.RecordNumber + 1, len(self.Cursor))
+			sys.stdout.flush()
+
+	def _onReportEnd(self):
+		if self.PrintStatus:
+			print "Report End."
+
 	def storeSpanningObject(self, obj, origin=(0,0), group=None):
 		"""Store the passed spanning object for printing when the group or
 		page ends. Pass the group expr to identify group headers, or None to refer
@@ -1986,6 +2000,7 @@ class ReportWriter(object):
 		# any of the static bands reference the variables.
 		processVariables()
 		beginPage()
+		self._onReportBegin()
 		y = printBand("ReportBegin")
 
 		# Print the dynamic bands (Detail, GroupHeader, GroupFooter):
@@ -1994,7 +2009,9 @@ class ReportWriter(object):
 			_lastRecord = self.Record
 			self.Record = record
 
-			# print group footers for previous group if necessary:
+			self._onReportIteration()
+	
+		# print group footers for previous group if necessary:
 			if cursor_idx > 0:
 				# First pass, iterate through the groups outer->inner, and if any group
 				# expr has changed, reset the curval for the group and all child groups.
@@ -2066,6 +2083,7 @@ class ReportWriter(object):
 		for idx, group in enumerate(groupsDesc):
 			y = printBand("groupFooter", y, group)
 
+		self._onReportEnd()
 		y = printBand("ReportEnd", y)
 
 		endPage()
@@ -2401,6 +2419,17 @@ class ReportWriter(object):
 	def _setHomeDirectory(self, val):
 		self._homeDirectory = val
 
+	
+	def _getPrintStatus(self):
+		try:
+			v = self._printStatus
+		except AttributeError:
+			v = self._printStatus = False
+		return v
+
+	def _setPrintStatus(self, val):
+		self._printStatus = bool(val)
+
 
 	def _getOutputFile(self):
 		try:
@@ -2558,6 +2587,9 @@ class ReportWriter(object):
 		HomeDirectory if specified with relative pathing. The HomeDirectory should
 		be the directory that contains the report form file. If you set 
 		self.ReportFormFile, HomeDirectory will be set for you automatically."""))
+
+	PrintStatus = property(_getPrintStatus, _setPrintStatus, None,
+		_("""Specifies whether status info is printed to stdout."""))
 
 	OutputFile = property(_getOutputFile, _setOutputFile, None,
 		_("Specifies the output PDF file (name or file object)."))

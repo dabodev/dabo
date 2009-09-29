@@ -207,6 +207,12 @@ class SpinnerEvent(dEvent):
 	appliesToClass = classmethod(appliesToClass)
 
 
+class ReportEvent(dEvent):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.dReportWriter.dReportWriter)
+	appliesToClass = classmethod(appliesToClass)
+
+
 class Activate(dEvent):
 	"""Occurs when the form or application becomes active."""
 	def appliesToClass(eventClass, objectClass):
@@ -881,4 +887,19 @@ class Spinner(SpinnerEvent):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dSpinner)
 	appliesToClass = classmethod(appliesToClass)
+
+
+class ReportBegin(ReportEvent):
+	"""Occurs at the beginning of the report."""
+	pass
+
+
+class ReportEnd(ReportEvent):
+	"""Occurs at the end of the report."""
+	pass
+
+
+class ReportIteration(ReportEvent):
+	"""Occurs when the RecordNumber changes at report runtime."""
+	pass
 

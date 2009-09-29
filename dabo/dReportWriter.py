@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import dabo
 from dabo.dLocalize import _
 from dabo.lib.reportWriter import ReportWriter
 from dabo.dObject import dObject
@@ -20,6 +21,38 @@ class dReportWriter(dObject, ReportWriter):
 
 	There is also a pure-python interface available.
 	"""
+
+	def _onReportBegin(self):
+		self.super()
+		self.raiseEvent(dabo.dEvents.ReportBegin)
+		if self.ShowProgress:
+			self._createProgress()
+
+	def _onReportEnd(self):
+		self.super()
+		self.raiseEvent(dabo.dEvents.ReportEnd)
+		if self.ShowProgress:
+			self._hideProgress()
+
+	def _onReportIteration(self):
+		dabo.ui.yieldUI()
+		self.super()
+		self.raiseEvent(dabo.dEvents.ReportIteration)
+		if self.ShowProgress:
+			self._updateProgress()
+
+	def _createProgress(self):	
+		win = self._progressWindow = dabo.ui.dReportProgress(self.Application.ActiveForm)
+		win.updateProgress(0, len(self.Cursor))
+		win.Visible = True
+
+	def _updateProgress(self):
+		self._progressWindow.updateProgress(self.RecordNumber+1, len(self.Cursor))
+
+	def _hideProgress(self):
+		self._progressWindow.close()
+		dabo.ui.yieldUI()  ## or else a segfault occurs when the parent dialog is closed
+
 	def _getEncoding(self):
 		try:
 			v = self._encoding
@@ -45,6 +78,17 @@ class dReportWriter(dObject, ReportWriter):
 	def _setHomeDirectory(self, val):
 		self._homeDirectory = val
 
+	
+	def _getShowProgress(self):
+		try:
+			v = self._showProgress
+		except AttributeError:
+			v = self._showProgress = True
+		return v
+
+	def _setShowProgress(self, val):
+		self._showProgress = bool(val)
+
 
 	Encoding = property(_getEncoding, _setEncoding, None,
 		_("Specifies the encoding for unicode strings.  (str)"))
@@ -58,6 +102,13 @@ class dReportWriter(dObject, ReportWriter):
 		self.ReportFormFile, HomeDirectory will be set for you automatically.
 		Otherwise, it will get set to self.Application.HomeDirectory."""))
 
+	ShowProgress = property(_getShowProgress, _setShowProgress, None,
+		_("""Specified whether a default progress window is shown at runtime.
+
+		If True, a progress bar will be shown during the processing of the report.
+		Note that you can provide your own progress window by binding to the 
+		dabo.dEvents.ReportIteration event and setting this ShowProgress property
+		to False."""))
 
 if __name__ == "__main__":
 	## run a test:

@@ -91,6 +91,7 @@ from dEditor import dEditor
 from dFileDialog import dFileDialog
 from dFileDialog import dFolderDialog
 from dFileDialog import dSaveDialog
+from dReportProgress import dReportProgress
 from dSlidePanelControl import dSlidePanelControl
 from dSlidePanelControl import dSlidePanel
 from dFont import dFont
