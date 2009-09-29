@@ -603,7 +603,11 @@ try again when it is running.
 			self._resetWebUpdateCheck()
 			return None
 
-		f = StringIO(resp.read())
+		respContent = resp.read()
+		if not respContent:
+			# No update
+			return False
+		f = StringIO(respContent)
 		zip = ZipFile(f)
 		zipfiles = zip.namelist()
 		if "DELETEDFILES" in zipfiles:
