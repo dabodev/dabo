@@ -972,6 +972,15 @@ class ReportWriter(object):
 			return
 		obj.setProp(prop, oldval, logUndo=False)
 
+	def cancel(self):
+		"""Cancel the report printout on the next iteration of self.Cursor."""
+		self._cancel = True
+
+	def _onReportCancel(self):
+		if self.PrintStatus:
+			print "Report cancelled."
+			sys.stdout.flush()
+
 	def _onReportBegin(self):
 		if self.PrintStatus:
 			print "Report Begin."
@@ -1649,6 +1658,7 @@ class ReportWriter(object):
 		the PDF file will be left open so that additional pages can be added 
 		with another call, perhaps after creating a different report form.
 		"""
+		self._cancel = False
 		self._calcObjectHeights = {}
 		_form = self.ReportForm
 		if _form is None:
@@ -2006,6 +2016,9 @@ class ReportWriter(object):
 		# Print the dynamic bands (Detail, GroupHeader, GroupFooter):
 		y = None
 		for cursor_idx, record in enumerate(self.Cursor):
+			if self._cancel:
+				self._onReportCancel()
+				return
 			_lastRecord = self.Record
 			self.Record = record
 

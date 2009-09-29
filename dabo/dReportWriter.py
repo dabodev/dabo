@@ -22,36 +22,46 @@ class dReportWriter(dObject, ReportWriter):
 	There is also a pure-python interface available.
 	"""
 
+	def _onReportCancel(self):
+		self.super()
+		self.raiseEvent(dabo.dEvents.ReportCancel)
+		self._hideProgress()
+
 	def _onReportBegin(self):
 		self.super()
 		self.raiseEvent(dabo.dEvents.ReportBegin)
-		if self.ShowProgress:
-			self._createProgress()
+		self._showProgress()
 
 	def _onReportEnd(self):
 		self.super()
 		self.raiseEvent(dabo.dEvents.ReportEnd)
-		if self.ShowProgress:
-			self._hideProgress()
+		self._hideProgress()
 
 	def _onReportIteration(self):
-		dabo.ui.yieldUI()
 		self.super()
 		self.raiseEvent(dabo.dEvents.ReportIteration)
-		if self.ShowProgress:
-			self._updateProgress()
+		self._updateProgress()
 
-	def _createProgress(self):	
-		win = self._progressWindow = dabo.ui.dReportProgress(self.Application.ActiveForm)
-		win.updateProgress(0, len(self.Cursor))
-		win.Visible = True
+	def _showProgress(self):
+		win = self.ProgressControl
+		if win:
+			win.updateProgress(0, len(self.Cursor))
+			win.Visible = True
+			win.Form.fitToSizer()
+			dabo.ui.yieldUI()
 
 	def _updateProgress(self):
-		self._progressWindow.updateProgress(self.RecordNumber+1, len(self.Cursor))
+		win = self.ProgressControl
+		if win:
+			win.updateProgress(self.RecordNumber+1, len(self.Cursor))
+			dabo.ui.yieldUI()
 
 	def _hideProgress(self):
-		self._progressWindow.close()
-		dabo.ui.yieldUI()  ## or else a segfault occurs when the parent dialog is closed
+		win = self.ProgressControl
+		if win:
+			win.Visible = False
+			win.Form.fitToSizer()
+			dabo.ui.yieldUI()
 
 	def _getEncoding(self):
 		try:
@@ -79,15 +89,15 @@ class dReportWriter(dObject, ReportWriter):
 		self._homeDirectory = val
 
 	
-	def _getShowProgress(self):
+	def _getProgressControl(self):
 		try:
-			v = self._showProgress
+			v = self._progressControl
 		except AttributeError:
-			v = self._showProgress = True
+			v = self._progressControl = None
 		return v
 
-	def _setShowProgress(self, val):
-		self._showProgress = bool(val)
+	def _setProgressControl(self, val):
+		self._progressControl = val
 
 
 	Encoding = property(_getEncoding, _setEncoding, None,
@@ -102,13 +112,14 @@ class dReportWriter(dObject, ReportWriter):
 		self.ReportFormFile, HomeDirectory will be set for you automatically.
 		Otherwise, it will get set to self.Application.HomeDirectory."""))
 
-	ShowProgress = property(_getShowProgress, _setShowProgress, None,
-		_("""Specified whether a default progress window is shown at runtime.
+	ProgressControl = property(_getProgressControl, _setProgressControl, None,
+		_("""Specifies the control to receive progress updates.
 
-		If True, a progress bar will be shown during the processing of the report.
-		Note that you can provide your own progress window by binding to the 
-		dabo.dEvents.ReportIteration event and setting this ShowProgress property
-		to False."""))
+		The specified control will be updated with every record processed. It must have
+		a updateProgress(current_row, num_rows) method.
+
+		For the default control, use dabo.ui.dReportProgress.
+		"""))
 
 if __name__ == "__main__":
 	## run a test:

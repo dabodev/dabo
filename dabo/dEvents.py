@@ -889,6 +889,10 @@ class Spinner(SpinnerEvent):
 	appliesToClass = classmethod(appliesToClass)
 
 
+class ReportCancel(ReportEvent):
+	"""Occurs when the user cancels the report."""
+	pass
+
 class ReportBegin(ReportEvent):
 	"""Occurs at the beginning of the report."""
 	pass
