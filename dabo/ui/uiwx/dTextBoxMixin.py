@@ -640,7 +640,13 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			try:
 				convertedVal = self.convertStringValueToDataType(strVal, dataType)
 				if self.getStringValue(convertedVal) != self.GetValue():
-					self._updateStringDisplay()
+					pass
+					## pkm, for a long time, we had:
+					##  self._updateStringDisplay  (without the ())
+					## and everything seemed to work. Then we added the () in r5431 and
+					## I started seeing recursion problems. I'm commenting it out but if
+					## needed, we should experiment with:
+					#dabo.ui.callAfter(self._updateStringDisplay)
 			except ValueError:
 				# It couldn't convert; return the previous value.
 				convertedVal = self._value
