@@ -1860,6 +1860,8 @@ class ReportWriter(object):
 					maxBandHeight = getTotalBandHeight()
 					if band == "detail" and not headers_printed:
 						y = reprintGroupHeaders(y)
+					if band != "detail" and headers_printed:
+						return y
 					if not deferred:
 						y -= bandHeight
 				
