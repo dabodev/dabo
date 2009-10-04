@@ -103,7 +103,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		if getattr(self, "SelectOnEntry", False) and self.Form.ActiveControl == self:
 			self.selectAll()
 
-		if not self.DataSource or not self.DataField:
+		if not (self.DataSource or isinstance(self.DataSource, dabo.dPref)) or not self.DataField:
 			return
 		if self._DesignerMode:
 			return
@@ -210,7 +210,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				self._userChanged = False
 		
 			if not self._DesignerMode:
-				if self.DataSource and self.DataField:
+				if (self.DataSource or isinstance(self.DataSource, dabo.dPref)) and self.DataField:
 					src = self.Source
 					if self._srcIsBizobj:
 						try:
@@ -388,7 +388,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		if self.__src is None:
 			ds = self.DataSource
 			self._srcIsBizobj = False
-			if ds:
+			if (ds or isinstance(ds, dabo.dPref)):
 				# First, see if it's a string
 				if isinstance(ds, basestring):
 					# Source can be a bizobj, which we get from the form, or

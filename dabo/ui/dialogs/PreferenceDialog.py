@@ -62,6 +62,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		if incl or self.IncludeFrameworkPages:
 			self._addFrameworkPages()
 		self.Sizer.append1x(self.pglCategory)
+		self.update()
 		self.layout()
 	
 	
