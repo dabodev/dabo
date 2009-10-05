@@ -1757,17 +1757,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			## arrow key
 			evt.stop()  ## don't let the arrow key scroll the window.
 			size, turbo = False, False
-			if shiftDown:
-				if key in ["up", "down"]:
-					propName = "height"
-				else:
-					propName = "width"
-			else:
-				if key in ["up", "down"]:
-					propName = "y"
-				else:
-					propName = "x"
-			
+
 			if key in ["up", "right"]:
 				adj = 1
 			else:
@@ -1781,6 +1771,17 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 				if not isinstance(o, Drawable) or o.getProp("designerLock"):
 					continue
 
+				if shiftDown:
+					if key in ["up", "down"]:
+						propName = "height"
+					else:
+						propName = "width"
+				else:
+					if key in ["up", "down"]:
+						propName = "y"
+					else:
+						propName = "x"
+			
 				propNames = [propName]
 				if isinstance(o, (SpanningLine, SpanningRectangle)):
 					if propName == "x":
