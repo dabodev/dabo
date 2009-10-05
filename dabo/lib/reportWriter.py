@@ -2066,7 +2066,11 @@ class ReportWriter(object):
 						break
 
 			if startNewPage:
+				# We are starting a new page because a group expr changed; temporarily put
+				# the record back on the last one to print the footer that is expected.
+				self.Record = _lastRecord
 				endPage()
+				self.Record = record
 				self.Canvas.showPages()
 				self._pageNumber = 0
 				beginPage()
