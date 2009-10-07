@@ -64,7 +64,7 @@ def previewPDF(path, modal=False):
 					sysfunc = os.system
 				else:
 					sysfunc = os.popen2
-				sysfunc("%s %s" % (viewer, path))
+				sysfunc("%s '%s'" % (viewer, path))
 
 
 def getTestCursorXmlFromDataSet(dataset):
