@@ -918,11 +918,14 @@ class dFormMixin(pm.dPemMixin):
 			ret = sb.GetStatusText()
 		return ret
 
-	def _setStatusText(self, val):
+	def _setStatusText(self, val, _callAfter=True):
 		""" Set the text of the status bar. Dabo will decide whether to 
 		send the text to the main frame or this frame. This matters with MDI
 		versus non-MDI forms.
 		"""
+		if _callAfter:
+			dabo.ui.callAfterInterval(250, self._setStatusText, val, _callAfter=False)
+			return
 		if sys.platform.startswith("win") and isinstance(self, wx.MDIChildFrame):
 			controllingFrame = self.Application.MainForm
 		else:
