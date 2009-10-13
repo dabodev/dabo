@@ -88,7 +88,7 @@ class dFormMixin(pm.dPemMixin):
 		super(dFormMixin, self).__init__(preClass, parent, properties, 
 				attProperties, *args, **kwargs)
 
-		self._createStatusBar()
+		dabo.ui.callAfter(self._createStatusBar)
 		self._createToolBar()	
 		if not self._designerMode:	
 			self.restoreSizeAndPosition()
