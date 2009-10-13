@@ -1077,12 +1077,20 @@ class ReportWriter(object):
 			elif hAnchor == "center":
 				x = x - (width / 2)
 	
-		if objType not in ("Frameset", "SpanningLine", "SpanningRectangle"):	
-			height = self.getPt(obj.getProp("Height"))
-			if vAnchor == "top":
-				y = y - height
-			elif vAnchor == "middle":
-				y = y - (height / 2)
+		if objType not in ("SpanningLine", "SpanningRectangle"):	
+			height = obj.getProp("Height")
+			if height is not None:
+				height = self.getPt(height)
+				if objType == "Frameset":
+					if vAnchor == "bottom":
+						y = y + height
+					elif vAnchor == "middle":
+						y = y + (height / 2)
+				else:
+					if vAnchor == "top":
+						y = y - height
+					elif vAnchor == "middle":
+						y = y - (height / 2)
 	
 		
 		## Do specific things based on object type:
