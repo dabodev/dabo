@@ -1866,10 +1866,12 @@ class ReportWriter(object):
 						self._currentColumn += 1
 						y = pageHeaderOrigin[1]
 					maxBandHeight = getTotalBandHeight()
-					if band == "detail" and not headers_printed:
+					
+					if band in ("detail", "groupFooter") and not headers_printed:
 						y = reprintGroupHeaders(y)
-					if band != "detail" and headers_printed:
+					else:
 						return y
+					
 					if not deferred:
 						y -= bandHeight
 				
@@ -2080,7 +2082,6 @@ class ReportWriter(object):
 				endPage()
 				self.Record = record
 				self.Canvas.showPages()
-				self._pageNumber = 0
 				beginPage()
 				y = None
 
@@ -2088,8 +2089,8 @@ class ReportWriter(object):
 			for idx, group in enumerate(groups):
 				resetPageNum = eval(group.get("resetPageNumber", "False"))
 				curVal = self._groupValues[group["expr"]]["curVal"]
-
-				if curVal != group.getProp("expr") or (startNewPage and group.getProp("StartOnNewPage")):
+				
+				if curVal != group.getProp("expr") or (startNewPage and (group.getProp("StartOnNewPage") or group.getProp("ReprintHeaderOnNewPage"))):
 					# first reset curVal:						
 					self._groupValues[group["expr"]]["curVal"] = group.getProp("expr")
 
@@ -2099,7 +2100,6 @@ class ReportWriter(object):
 
 					# now print the band:
 					y = printBand("groupHeader", y, group)
-					
 
 			# print the detail band:
 			y = printBand("detail", y)
