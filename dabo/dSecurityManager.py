@@ -20,7 +20,17 @@ class dSecurityManager(dObject):
 			if attempt > 0:
 				message = _("Login incorrect, please try again. (%s/%s)") % (
 						attempt+1, self.LoginAttemptsAllowed)
-			user, password = self.Application.getLoginInfo(message)
+			loginInfo = self.Application.getLoginInfo(message)
+			
+			if isinstance(loginInfo[1], dict):
+				# loginInfo variable is a tuple (userName (str), loginInfo (dict)).
+				# Dictionary keys are: user, password, connection.
+				user = loginInfo[1]["user"]
+				password = loginInfo[1]
+			else:
+				# loginInfo variable is a tuple of user name and password.
+				user = loginInfo[0]
+				password = loginInfo[1]
 
 			if user is None:
 				# login form canceled.
