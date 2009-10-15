@@ -356,7 +356,7 @@ try again when it is running.
 			for form_name in form_names:
 				if arg == form_name.lower():
 					self.formsToOpen.append(getattr(self.ui, "Frm%s" % form_name))
-		if not self.formsToOpen:
+		if not self.formsToOpen and self.default_form:
 			self.formsToOpen.append(self.default_form)
 		for frm in self.formsToOpen:
 			frm(self.MainForm).show()
@@ -445,7 +445,7 @@ try again when it is running.
 		# Allow the developer to customize the login dialog:
 		self.loginDialogHook(loginDialog)
 		loginDialog.show()
-		user, password = ld.user, ld.password
+		user, password = loginDialog.user, loginDialog.password
 		return user, password
 
 
