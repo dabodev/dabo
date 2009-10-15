@@ -1419,7 +1419,7 @@ try again when it is running.
 	def _getLoginDialogClass(self):
 		import dabo.ui.dialogs.login as login
 		defaultDialogClass = login.Login
-		ret = getattr(self, "_loginDialogClass", defaultDialogClass)
+		return getattr(self, "_loginDialogClass", defaultDialogClass)
 		
 	def _setLoginDialogClass(self, val):
 		self._loginDialogClass = val
