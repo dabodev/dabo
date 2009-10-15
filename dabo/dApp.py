@@ -440,12 +440,11 @@ try again when it is running.
 
 		Return a tuple of (user, pass).
 		"""
-		import dabo.ui.dialogs.login as login
-		ld = login.Login(self.MainForm)
-		ld.setMessage(message)
-		# Allow the developer to customize the default login
-		self.loginDialogHook(ld)
-		ld.show()
+		loginDialog = self.LoginDialogClass(self.MainForm)
+		loginDialog.setMessage(message)
+		# Allow the developer to customize the login dialog:
+		self.loginDialogHook(loginDialog)
+		loginDialog.show()
 		user, password = ld.user, ld.password
 		return user, password
 
@@ -1417,6 +1416,15 @@ try again when it is running.
 		self._icon = val
 
 
+	def _getLoginDialogClass(self):
+		import dabo.ui.dialogs.login as login
+		defaultDialogClass = login.Login
+		ret = getattr(self, "_loginDialogClass", defaultDialogClass)
+		
+	def _setLoginDialogClass(self, val):
+		self._loginDialogClass = val
+
+
 	def _getMainForm(self):
 		try:
 			frm = self._mainForm
@@ -1640,6 +1648,9 @@ try again when it is running.
 			icons at expected dimensions like 16, 22, and 32 px means that the
 			system will not have to scale the icon, resulting in a much better
 			appearance."""))
+
+	LoginDialogClass = property(_getLoginDialogClass, _setLoginDialogClass, None,
+			_("""The class to use for logging in."""))
 
 	MainForm = property(_getMainForm, _setMainForm, None,
 			_("""The object reference to the main form of the application, or None.
