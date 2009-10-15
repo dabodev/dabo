@@ -184,7 +184,7 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def _createStatusBar(self):
-		if (self.ShowStatusBar 
+		if (self and self.ShowStatusBar 
 				and self.StatusBar is None
 				and not isinstance (self, wx.Dialog)
 				and (sys.platform.startswith("darwin") or not isinstance(self, wx.MDIChildFrame))):
