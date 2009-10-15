@@ -364,13 +364,16 @@ these automatic updates.""").replace("\n", " ")
 		if not self.ActiveForm or alt or not ctl:
 			evt.Skip()
 			return
+
 		try:
 			char = chr(evt.GetKeyCode())
 		except (ValueError, OverflowError):
 			char = None
-		plus = char in ("=", "+", wx.WXK_NUMPAD_ADD)
-		minus = char in ("-", wx.WXK_NUMPAD_SUBTRACT)
-		slash = char in ("/", wx.WXK_NUMPAD_DIVIDE)
+
+		plus = char in ("=", "+") or kcd == wx.WXK_NUMPAD_ADD
+		minus = char == "-" or kcd == wx.WXK_NUMPAD_SUBTRACT
+		slash = char == "/" or kcd == wx.WXK_NUMPAD_DIVIDE
+		
 		if plus:
 			self.fontZoomIn()
 		elif minus:
