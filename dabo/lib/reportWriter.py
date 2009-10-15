@@ -1869,7 +1869,7 @@ class ReportWriter(object):
 					
 					if band in ("detail", "groupFooter") and not headers_printed:
 						y = reprintGroupHeaders(y)
-					else:
+					if band != "detail" and headers_printed:
 						return y
 					
 					if not deferred:
