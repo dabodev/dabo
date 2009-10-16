@@ -1852,8 +1852,9 @@ class ReportWriter(object):
 
 				check = pageFooterOrigin[1] + pfHeight + extraHeight
 
+				isNewPageOrColumn = False
 				if y < check or maxBandHeight is None:
-					headers_printed = False
+					isNewPageOrColumn = True
 					if self._currentColumn >= columnCount-1:
 						self.being_deferred = True
 						endPage()
@@ -1861,15 +1862,12 @@ class ReportWriter(object):
 						beginPage()
 						y = pageHeaderOrigin[1]
 						y = reprintGroupHeaders(y)
-						headers_printed = True
 					else:
 						self._currentColumn += 1
 						y = pageHeaderOrigin[1]
 					maxBandHeight = getTotalBandHeight()
 					
-					if band in ("detail", "groupFooter") and not headers_printed:
-						y = reprintGroupHeaders(y)
-					if band != "detail" and headers_printed:
+					if not isNewPageOrColumn:
 						return y
 					
 					if not deferred:
