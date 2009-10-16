@@ -1852,24 +1852,43 @@ class ReportWriter(object):
 
 				check = pageFooterOrigin[1] + pfHeight + extraHeight
 
-				isNewPageOrColumn = False
 				if y < check or maxBandHeight is None:
-					isNewPageOrColumn = True
+					# Move to the next page or column
+					headers_reprinted = False
 					if self._currentColumn >= columnCount-1:
+						# Move to next page
 						self.being_deferred = True
 						endPage()
 						self.being_deferred = False
 						beginPage()
 						y = pageHeaderOrigin[1]
 						y = reprintGroupHeaders(y)
+						headers_reprinted = True
 					else:
+						# Move to next column
 						self._currentColumn += 1
 						y = pageHeaderOrigin[1]
+
+					# We must call again, because it recomputes available height:
 					maxBandHeight = getTotalBandHeight()
 					
-					if not isNewPageOrColumn:
-						return y
-					
+					if band == "groupHeader":
+						if headers_reprinted and bandDict["ReprintHeaderOnNewPage"]:
+							# This header was reprinted above; return now to avoid dupe.
+							return y
+						else:
+							# Keep going, as this header hasn't been printed yet
+							pass
+					elif band == "groupFooter":
+						# Keep going, because we want to continue printing the groupFooter band,
+						# only it will print on the new page or column instead of the old.
+						pass
+					elif band in ("detail", "ReportBegin", "ReportEnd"):
+						# These still need to be printed, so let it continue
+						pass
+					else:
+						raise ValueError, "Unexpected band value '%s'" % band
+		
 					if not deferred:
 						y -= bandHeight
 				
