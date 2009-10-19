@@ -94,6 +94,8 @@ class dSpinner(dabo.ui.dDataPanel):
 		# the name of the control hadn't been set yet.
 		if self.SaveRestoreValue:
 			self.restoreValue()
+			# Additionally, if the user never changes the Value, _value will be None:
+			self._value = self.Value
 
 
 	def _constructed(self):
@@ -410,7 +412,7 @@ class _dSpinner_test(dSpinner):
 		self.SpinnerWrap = True
 		self.FontSize = 10
 		self.Width = 80
-		
+	
 	def onHit(self, evt):
 		print "HIT!", self.Value, "Hit Type", evt.hitType
 
