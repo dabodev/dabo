@@ -2028,7 +2028,7 @@ class ReportWriter(object):
 		
 		def reprintGroupHeaders(y):
 			for group in groups:
-				reprint = group.get("reprintHeaderOnNewPage")
+				reprint = group.get("ReprintHeaderOnNewPage")
 				if reprint is not None:
 					reprint = eval(reprint)
 					if reprint:
