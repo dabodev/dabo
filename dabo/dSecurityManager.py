@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import time
+import dabo
 from dabo.dObject import dObject
 from dLocalize import _
 
@@ -49,6 +50,7 @@ class dSecurityManager(dObject):
 			time.sleep(self.LoginPause)
 		
 		if ret:
+			self.Application._loggedIn = True
 			self.afterLoginSuccess()
 		else:
 			self.afterLoginFailure()
@@ -188,4 +190,20 @@ class dSecurityManager(dObject):
 	UserName = property(_getUserName, None, None, 
 		_("""The name of the logged-on user. Read-only."""))
 					
-					
+
+if __name__ == "__main__":
+	app = dabo.dApp(MainFormClass=None)
+	app.setup()
+
+	class TestSM(dSecurityManager):
+		def validateLogin(self, user, passwd):
+			print user, passwd
+			if user == "paul" and passwd == "23":
+				return True
+			return False
+
+	app.SecurityManager = TestSM()
+	if app.SecurityManager.login():
+		app.MainForm = dabo.ui.dFormMain()
+		app.start()
+	

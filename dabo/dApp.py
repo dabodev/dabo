@@ -21,7 +21,7 @@ import dabo.dLocalize as dLocalize
 import dabo.dException as dException
 from dabo.dLocalize import _
 from dabo.lib.connParser import importConnections
-from dabo import dSecurityManager
+from dSecurityManager import dSecurityManager
 from dabo.lib.SimpleCrypt import SimpleCrypt
 from dabo.dObject import dObject
 from dabo import dUserSettingProvider
@@ -377,7 +377,7 @@ try again when it is running.
 
 		self._finished = False
 		if (not self.SecurityManager or not self.SecurityManager.RequireAppLogin
-			or self.SecurityManager.login()):
+			or getattr(self, "_loggedIn", False) or self.SecurityManager.login()):
 
 			userName = self.getUserCaption()
 			if userName:
@@ -440,7 +440,7 @@ try again when it is running.
 
 		Return a tuple of (user, pass).
 		"""
-		loginDialog = self.LoginDialogClass(self.MainForm)
+		loginDialog = self.LoginDialogClass(None)
 		loginDialog.setMessage(message)
 		# Allow the developer to customize the login dialog:
 		self.loginDialogHook(loginDialog)
@@ -1513,12 +1513,9 @@ try again when it is running.
 			return None
 
 	def _setSecurityManager(self, value):
-		if isinstance(value, dSecurityManager.dSecurityManager):
-			if self.SecurityManager:
-				warnings.warn(Warning, _("SecurityManager previously set"))
-			self._securityManager = value
-		else:
-			raise TypeError(_("SecurityManager must descend from dSecurityManager."))
+		if self.SecurityManager:
+			warnings.warn(Warning, _("SecurityManager previously set"))
+		self._securityManager = value
 
 
 	def _getShowCommandWindowMenu(self):
