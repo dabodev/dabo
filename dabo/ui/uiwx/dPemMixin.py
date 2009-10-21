@@ -346,7 +346,8 @@ class dPemMixin(dPemMixinBase):
 		constructor. This tells Dabo which properties to specially handle.
 		"""
 		return ("Alignment", "BorderStyle", "ButtonClass", "MultipleSelect", 
-				"Orientation", "PasswordEntry", "ShowLabels", "SizerClass", "TabPosition")
+				"Orientation", "PasswordEntry", "ShowLabels", "SizerClass", "TabPosition",
+				"CancelButton")
 		
 
 	def _setInitProperties(self, **_properties):

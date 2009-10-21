@@ -46,15 +46,7 @@ class dButton(cm.dControlMixin, wx.Button):
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getCancelButton(self):
-# 		try:
-# 			return self.Parent._acceleratorTable["esc"] == self.__onCancelButton
-# 		except KeyError:
-# 			return False
-		try:
-			v = self._cancelButton
-		except AttributeError:
-			v = self._cancelButton = False
-		return v
+		return self.GetId() == wx.ID_CANCEL
 
 
 	def _setCancelButton(self, val):
@@ -68,8 +60,9 @@ class dButton(cm.dControlMixin, wx.Button):
 			##      self.Parent is also a valid choice.
 			### egl: changed the binding on OS X to the form. Parent just doesn't work.
 			### pkm: followed suit with GTK (we should test Win too).
+			### pkm: removed GTK to bind to parent because it wasn't working on the form.
 			target = self.Parent
-			if self.Application.Platform in ("Mac", "GTK"):
+			if self.Application.Platform in ("Mac"):
 				target = self.Form
 			if val:
 				target.bindKey("esc", self.__onCancelButton)
@@ -77,9 +70,14 @@ class dButton(cm.dControlMixin, wx.Button):
 			else:
 				target.unbindKey("esc")
 				self.SetId(wx.NewId())
-			self._cancelButton = val
 		else:
-			self._properties["CancelButton"] = value
+			# In order to get the stock cancel button behavior from the OS, we need
+			# to set the id here. So, getting the stock button behavior must happen
+			# in the constructor, but theoretically we can get the excape behavior
+			# anytime.
+			if val:
+				self._preInitProperties["id"] = wx.ID_CANCEL
+			self._properties["CancelButton"] = val
 
 
 	def _getDefaultButton(self):
