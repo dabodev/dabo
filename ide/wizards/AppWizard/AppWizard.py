@@ -297,13 +297,13 @@ class PageDatabase(AppWizardPage):
 					ci.Port = None
 			# Try to get a connection:
 			busy = dabo.ui.busyInfo(_("Connecting to database..."))
-			# try:
-			conn = dabo.db.dConnection(ci)
-			cursor = self.Form.cursor = conn.getDaboCursor(ci.getDictCursorClass())
-			cursor.BackendObject = ci.getBackendObject()
 			try:
+				conn = dabo.db.dConnection(ci)
+				cursor = self.Form.cursor = conn.getDaboCursor(ci.getDictCursorClass())
+				cursor.BackendObject = ci.getBackendObject()
 				tables = cursor.getTables()
 			except Exception, e:
+				busy = None
 				traceback.print_exc()
 				dabo.ui.stop(_("Could not connect to the database server. " + 
 						"Please check your parameters and try again."))
