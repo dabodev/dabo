@@ -2038,6 +2038,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			b._rw = self._rw
 			self._bands.append(b)
 
+		addBand(rf["ReportBegin"])
 		addBand(rf["PageHeader"])
 
 		groups = copy.copy(rf["Groups"])
@@ -2051,6 +2052,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			addBand(groupObj["GroupFooter"])
 
 		addBand(rf["PageFooter"])
+		addBand(rf["ReportEnd"])
 		addBand(rf["PageBackground"])			
 		addBand(rf["PageForeground"])			
 
