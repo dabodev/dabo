@@ -208,7 +208,7 @@ def DesignerController():
 				if not newObjectMenuCreated and isinstance(robj, Band):
 					newObjectMenuCreated = True
 					objectChoices = dabo.ui.dMenu(Caption="New object")
-					for choice in (Image, Line, Rectangle, String):
+					for choice in (Image, Line, Rectangle, String, Paragraph):
 						objectChoices.append(choice.__name__, 
 								OnHit=onNewObject, Tag=choice)
 					objectChoices.appendSeparator()

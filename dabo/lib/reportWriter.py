@@ -182,6 +182,10 @@ class ReportObject(CaselessDict):
 		return obj
 
 	def addObject(self, cls, collectionClass=Objects):
+		if cls is Paragraph and not isinstance(self, Frameset):
+			fs = self.addObject(Frameset)
+			fs.addObject(Paragraph)
+			return fs
 		obj = cls(self)
 		collectionName = Objects.__name__
 		objects = self.get(collectionName, collectionClass(self))
