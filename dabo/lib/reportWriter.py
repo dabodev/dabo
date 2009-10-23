@@ -1877,7 +1877,7 @@ class ReportWriter(object):
 					maxBandHeight = getTotalBandHeight()
 					
 					if band == "groupHeader":
-						if headers_reprinted and bandDict["ReprintHeaderOnNewPage"]:
+						if headers_reprinted and bandDict.get("ReprintHeaderOnNewPage", False):
 							# This header was reprinted above; return now to avoid dupe.
 							return y
 						else:
