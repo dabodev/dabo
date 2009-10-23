@@ -36,12 +36,11 @@ class _dSpinButton(dcm.dDataControlMixin, wx.SpinButton):
 #		self.raiseEvent(dEvents.Spinner, spinType="button")
 
 
-
 class dSpinner(dabo.ui.dDataPanel):
 	"""Control for allowing a user to increment a value by discreet steps across a range
 	of valid values.
 	"""
-	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, TextBoxClass=None,  *args, **kwargs):
 		self.__constructed = False
 		self._spinWrap = False
 		self._min = 0
@@ -56,7 +55,9 @@ class dSpinner(dabo.ui.dDataPanel):
 				attProperties=attProperties, *args, **kwargs)
 		self._baseClass = dSpinner
 		# Create the child controls
-		self._proxy_textbox = dabo.ui.dTextBox(self, Value=val, Width=32, 
+		if TextBoxClass is None:
+			TextBoxClass = dabo.ui.dTextBox
+		self._proxy_textbox = TextBoxClass(self, Value=val, Width=32, 
 				StrictNumericEntry=False, _EventTarget=self)
 		self._proxy_spinner = _dSpinButton(parent=self, _EventTarget=self)
 		self.__constructed = True
