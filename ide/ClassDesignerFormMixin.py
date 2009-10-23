@@ -446,6 +446,18 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		return self._classFile
 		
 		
+	def onSaveAsDesign(self, evt):
+		self._classFile = dabo.ui.getSaveAs(wildcard="cdxml")
+		if not self._classFile:
+			# User canceled
+			return
+		self._classFile = self._classFile.rstrip(".")
+		if not self._classFile.endswith(".cdxml"):
+			self._classFile += ".cdxml"
+		self._savedState = {}
+		self.onSaveDesign(evt)
+
+
 	def onSaveDesign(self, evt, useTmp=False):
 		currForm = self.Controller.CurrentForm
 		newFile = False

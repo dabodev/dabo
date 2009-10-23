@@ -98,6 +98,11 @@ def mkDesignerMenu(parent, target=None):
 				ItemID="file_saveasclass",
 				help=_("Save the ClassDesigner contents as a class"))
 		itm.DynamicEnabled = app.shouldEnableSaveAsClass
+		fm.prepend(_("Save &As..."),
+				HotKey="Ctrl+Shift+V",
+				OnHit=app.onSaveAsDesign,
+				ItemID="file_saveas",
+				help=_("Save the ClassDesigner contents in a new file"))
 		fm.prepend(_("&Save"),
 				HotKey="Ctrl+S",
 				OnHit=app.onSaveDesign,
