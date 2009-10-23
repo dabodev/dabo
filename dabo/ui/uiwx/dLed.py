@@ -8,17 +8,21 @@ from dabo.dLocalize import _
 
 
 class dLed(dabo.ui.dPanel):
-	def afterInit(self):
-		self._baseClass = dLed
+	def __init__(self, *args, **kwargs):
 		self._offColor = "darkred"
 		self._onColor = "green"
 		self._on = False
-		self.Buffered = False
+		super(dLed, self).__init__(*args, **kwargs)
+
+
+	def _afterInit(self):
+		self._baseClass = dLed
 		self.led = self.drawCircle(1,1,1)
 		self.led.DynamicXpos = lambda: self.Width/2
 		self.led.DynamicYpos = lambda: self.Height/2
 		self.led.DynamicRadius = lambda: min(self.Width, self.Height)/2
 		self.led.DynamicFillColor = lambda: self.Color
+		super(dLed, self)._afterInit()
 		self.update()
 
 
@@ -39,24 +43,32 @@ class dLed(dabo.ui.dPanel):
 		return self._offColor
 
 	def _setOffColor(self, val):
-		self._offColor = val
-		self.update()
+		if self._constructed():
+			self._offColor = val
+			self.update()
+		else:
+			self._properties["OffColor"] = val
 
 
 	def _getOn(self):
 		return self._on
 
 	def _setOn(self, val):
-		self._on = val
-		self.update()
-
+		if self._constructed():
+			self._on = val
+			self.update()
+		else:
+			self._properties["On"] = val
 
 	def _getOnColor(self):
 		return self._onColor
 
 	def _setOnColor(self, val):
-		self._onColor = val
-		self.update()
+		if self._constructed():
+			self._onColor = val
+			self.update()
+		else:
+			self._properties["OnColor"] = val
 
 
 	# Property Definitions
@@ -90,18 +102,18 @@ if __name__ == '__main__':
 			vs.appendSpacer(12)
 			vs.append(dabo.ui.dLabel(mp, Caption="On Color:"))
 			dd = dabo.ui.dDropdownList(mp, Choices=dabo.dColors.colors,
-					DataSource=self.LED, DataField="OnColor", Value="green")
+					DataSource=self.LED, DataField="OnColor", Value="mediumseagreen")
 			vs.append(dd)
 			vs.appendSpacer(12)
 			vs.append(dabo.ui.dLabel(mp, Caption="Off Color:"))
 			dd = dabo.ui.dDropdownList(mp, Choices=dabo.dColors.colors,
-					DataSource=self.LED, DataField="OffColor", Value="darkred")
+					DataSource=self.LED, DataField="OffColor", Value="orangered")
 			vs.append(dd)
 			mp.Sizer.append(vs)
 			
 			self.LED.On = True
-			
-			self.layout()
+			self.update()
+
 	
 	app = dabo.dApp()
 	app.MainFormClass = TestForm
