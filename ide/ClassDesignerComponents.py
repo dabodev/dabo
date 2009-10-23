@@ -224,6 +224,8 @@ class LayoutSaverMixin(object):
 							dv = long(dv)
 						elif isinstance(val, float):
 							dv = float(dv)
+						elif dv in dabo.dColors.colors:
+							dv = dabo.dColors.colorDict[dv]
 						elif isinstance(val, (list, tuple, dict)):
 							dv = eval(dv)
 						elif dv == "None":

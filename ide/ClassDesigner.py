@@ -145,6 +145,7 @@ class ClassDesigner(dabo.dApp):
 				{"name" : "Grid", "class" : dui.dGrid, "order" : 100},
 				{"name" : "Image", "class" : dui.dImage, "order" : 110},
 				{"name" : "Label", "class" : dui.dLabel, "order" : 120},
+				{"name" : "LED", "class" : dui.dLed, "order" : 40},
 				{"name" : "Line", "class" : dui.dLine, "order" : 130},
 				{"name" : "ListBox", "class" : dui.dListBox, "order" : 140},
 				{"name" : "ListControl", "class" : dui.dListControl, "order" : 150},
@@ -237,10 +238,10 @@ class ClassDesigner(dabo.dApp):
 				"CalendarEvent", "TreeEvent")
 		classes = (dui.dBox, dui.dBitmap, dui.dBitmapButton, dui.dButton, dui.dCheckBox, dui.dComboBox,
 				dui.dDateTextBox, dui.dDialog, dui.dDropdownList, dui.dEditBox, dui.dEditor, dui.dSlidePanelControl,
-				dui.dForm, dui.dDockForm, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel, dui.dLine,
-				dui.dListBox, dui.dListControl, dui.dOkCancelDialog, dui.dPanel, dui.dPage, dui.dScrollPanel,
-				dui.dPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect, dui.dPageFrameNoTabs,
-				dui.dRadioList, dui.dSlider, dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton,
+				dui.dForm, dui.dDockForm, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel, dui.dLed, 
+				dui.dLine, dui.dListBox, dui.dListControl, dui.dOkCancelDialog, dui.dPanel, dui.dPage, 
+				dui.dScrollPanel, dui.dPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect, dui.dPageFrameNoTabs, 
+				dui.dRadioList, dui.dSlider, dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton, 
 				dui.dTreeView, dlgs.Wizard, dlgs.WizardPage)
 
 		def evtsForClass(cls):
@@ -1670,6 +1671,10 @@ class ClassDesigner(dabo.dApp):
 		self.wrapSave(self.CurrentForm.onSaveDesign, evt)
 
 
+	def onSaveAsDesign(self, evt):
+		self.wrapSave(self.CurrentForm.onSaveAsDesign, evt)
+
+
 	def onSaveClassDesign(self, evt):
 		self.wrapSave(self.CurrentForm.onSaveClassDesign, evt)
 
@@ -1729,15 +1734,15 @@ class ClassDesigner(dabo.dApp):
 				chc = ["Form", "DockForm", "Panel", "ScrollPanel", "SlidePanel", "Plain Dialog", "OK/Cancel Dialog",
 				"Wizard", "WizardPage", "PageFrame", "PageList", "PageSelect", "PageNoTabs", "Box", "Bitmap",
 				"BitmapButton", "Button", "CheckBox", "ComboBox", "DateTextBox", "DropdownList", "EditBox", 
-				"Editor", "Gauge", "Grid", "HtmlBox", "Image", "Label", "Line", "ListBox", "ListControl", "Page",
+				"Editor", "Gauge", "Grid", "HtmlBox", "Image", "Label", "LED", "Line", "ListBox", "ListControl", "Page",
 				"RadioList", "Slider", "Spinner", "Splitter", "TextBox", "ToggleButton", "TreeView"]
 				keys = [dui.dForm, dui.dDockForm, dui.dPanel, dui.dScrollPanel, dui.dSlidePanelControl, dui.dDialog,
 						dui.dOkCancelDialog, dlgs.Wizard, dlgs.WizardPage, dui.dPageFrame, dui.dPageList,
 						dui.dPageSelect, dui.dPageFrameNoTabs, dui.dBox, dui.dBitmap, dui.dBitmapButton,
 						dui.dButton, dui.dCheckBox, dui.dComboBox, dui.dDateTextBox, dui.dDropdownList,
 						dui.dEditBox, dui.dEditor, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel,
-						dui.dLine, dui.dListBox, dui.dListControl, dui.dPage, dui.dRadioList, dui.dSlider, dui.dSpinner,
-						dui.dSplitter, dui.dTextBox, dui.dToggleButton, dui.dTreeView]
+						dui.dLine, dui.dLed, dui.dListBox, dui.dListControl, dui.dPage, dui.dRadioList, dui.dSlider,
+						dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton, dui.dTreeView]
 				if not _USE_DOCKFORM:
 					# The dock form reference is position 1
 					chc.pop(1)
@@ -1826,6 +1831,9 @@ class ClassDesigner(dabo.dApp):
 		except IOError, e:
 			dabo.ui.stop(_("Save failed; reason: %s") % e)
 			return False
+		except StandardError, e:
+			dabo.ui.stop(_("Save failed; reason: %s") % e)
+			raise e
 
 
 	def onSaveRunnable(self, evt):
@@ -2980,6 +2988,7 @@ class ClassDesigner(dabo.dApp):
 			pop.append(_("Add Bitmap"), OnHit=self.onNewBitmap)
 			pop.append(_("Add Image"), OnHit=self.onNewImage)
 			pop.append(_("Add Label"), OnHit=self.onNewLabel)
+			pop.append(_("Add LED"), OnHit=self.onNewLed)
 			pop.append(_("Add Line"), OnHit=self.onNewLine)
 			pop.append(_("Add Panel"), OnHit=self.onNewPanel)
 			pop.append(_("Add ScrollPanel"), OnHit=self.onNewScrollPanel)
@@ -3190,6 +3199,8 @@ class ClassDesigner(dabo.dApp):
 		dui.callAfter(self.addNewControl, None, dui.dImage)
 	def onNewLabel(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dLabel)
+	def onNewLed(self, evt):
+		dui.callAfter(self.addNewControl, None, dui.dLed)
 	def onNewLine(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dLine)
 	def onNewListBox(self, evt):
@@ -3985,6 +3996,7 @@ if __name__ == '__main__':
 					(_("Image"), dui.dImage),
 					(_("Label"), dui.dLabel),
 					(_("Line"), dui.dLine),
+					(_("LED"), dui.dLed),
 					(_("ListBox"), dui.dListBox),
 					(_("ListControl"), dui.dListControl),
 					(_("Panel"), dui.dPanel),
