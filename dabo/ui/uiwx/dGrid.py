@@ -584,8 +584,13 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				Underline=False)
 		if sys.platform.startswith("win"):
 			# The wx default is quite ugly
-			ret.Face = "Arial"
-			ret.Size = 9
+			try:
+				ret.Face = "Arial"
+				ret.Size = 9
+			except dException.FontNotFoundException:
+				# I had this happen to a customer running Win XP. No idea why Arial
+				# would be missing. --pkm 2009-10-24
+				pass
 		return ret
 
 
