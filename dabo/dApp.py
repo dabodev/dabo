@@ -446,6 +446,7 @@ try again when it is running.
 		self.loginDialogHook(loginDialog)
 		loginDialog.show()
 		user, password = loginDialog.user, loginDialog.password
+		loginDialog.release()
 		return user, password
 
 
