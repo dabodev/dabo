@@ -183,6 +183,12 @@ class MouseEvent(dEvent):
 	appliesToClass = classmethod(appliesToClass)
 
 
+class ControlNavigationEvent(dEvent):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, (dabo.ui.dPage, dabo.ui.dForm))
+	appliesToClass = classmethod(appliesToClass)
+
+
 class SashEvent(dEvent):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dSplitter)
@@ -828,6 +834,11 @@ class TitleChanged(EditorEvent):
 
 class ContentChanged(EditorEvent):
 	"""Occurs when the contents of the Editor are modified."""
+	pass
+
+
+class EditorStyleNeeded(EditorEvent):
+	"""Occurs when the underlying editor control requires restyling."""
 	pass
 
 

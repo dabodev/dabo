@@ -645,6 +645,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			return
 		self._styleTimer.mode = self.Language.lower()
 		self._styleTimer.start()
+		self.raiseEvent(dEvents.EditorStyleNeeded, evt)
 		
 		
 	def onIdle(self, evt):

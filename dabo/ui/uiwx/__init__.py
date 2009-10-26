@@ -552,6 +552,37 @@ def getEventData(wxEvt):
 	except AttributeError:
 		# wxPython 2.6 and earlier doesn't seem to have this event
 		pass
+		
+	if isinstance(wxEvt, wx.stc.StyledTextEvent):
+		# Adding all the event getters, even though most don't seem
+		# to do anything.
+		ed["alt"] = wxEvt.GetAlt()
+		ed["control"] = wxEvt.GetControl()
+		ed["dragAllowMove"] = wxEvt.GetDragAllowMove()
+		ed["dragResult"] = wxEvt.GetDragResult()
+		ed["dragText"] = wxEvt.GetDragText()
+		ed["extraLong"] = wxEvt.GetExtraLong()
+		ed["foldLevelNow"] = wxEvt.GetFoldLevelNow()
+		ed["foldLevelPrev"] = wxEvt.GetFoldLevelPrev()
+		ed["int"] = wxEvt.GetInt()
+		ed["key"] = wxEvt.GetKey()
+		ed["lParam"] = wxEvt.GetLParam()
+		ed["length"] = wxEvt.GetLength()
+		ed["line"] = wxEvt.GetLine()
+		ed["linesAdded"] = wxEvt.GetLinesAdded()
+		ed["listType"] = wxEvt.GetListType()
+		ed["margin"] = wxEvt.GetMargin()
+		ed["message"] = wxEvt.GetMessage()
+		ed["modificationType"] = wxEvt.GetModificationType()
+		ed["modifiers"] = wxEvt.GetModifiers()
+		ed["position"] = wxEvt.GetPosition()
+		ed["selection"] = wxEvt.GetSelection()
+		ed["shift"] = wxEvt.GetShift()
+		ed["string"] = wxEvt.GetString()
+		ed["text"] = wxEvt.GetText()
+		ed["wParam"] = wxEvt.GetWParam()
+		ed["x"] = wxEvt.GetX()
+		ed["y"] = wxEvt.GetY()
 
 	return ed
 
