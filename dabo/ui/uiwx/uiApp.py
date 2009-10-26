@@ -409,24 +409,25 @@ these automatic updates.""").replace("\n", " ")
 					frm = self.dApp.MainForm = dabo.ui.createForm(mfc)
 				else:
 					frm = self.dApp.MainForm = mfc()
-		if frm is not None:
-			if len(frm.Caption) == 0:
-				# The MainForm has no caption. Put in the application name, which by
-				# default (as of this writing) is "Dabo Application"
-				frm.Caption = self.dApp.getAppInfo("appName")
 
 			
-	def setMainForm(self, val):
+	def setMainForm(self, frm):
+		"""Hook called when dApp.MainForm is set."""
 		try:
 			self.dApp.MainForm.Destroy()
 		except AttributeError:
 			pass
-		self.SetTopWindow(val)
+
+		self.SetTopWindow(frm)
+
+		if not frm.Caption:
+			frm.Caption = self.dApp.getAppInfo("appName")
+
 		# For performance, block all event bindings until after the form is shown.
-		eb = val._EventBindings[:]
-		val._EventBindings = []
-		val.Show(self.dApp.showMainFormOnStart)
-		val._EventBindings = eb
+		eb = frm._EventBindings[:]
+		frm._EventBindings = []
+		frm.Show(self.dApp.showMainFormOnStart)
+		frm._EventBindings = eb
 
 
 	def start(self):

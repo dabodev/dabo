@@ -377,14 +377,7 @@ try again when it is running.
 
 		self._finished = False
 		if (not self.SecurityManager or not self.SecurityManager.RequireAppLogin
-			or getattr(self, "_loggedIn", False) or self.SecurityManager.login()):
-
-			userName = self.getUserCaption()
-			if userName:
-				userName = " (%s)" % userName
-			else:
-				userName = ""
-
+				or getattr(self, "_loggedIn", False) or self.SecurityManager.login()):
 			self._retrieveMRUs()
 			self.uiApp.start()
 		if not self._finished:
