@@ -121,17 +121,17 @@ class Postgres(dBackend):
 		if not includeSystemTables:
 			query.append("(schemaname NOT LIKE 'pg_%' AND "
 					"schemaname NOT LIKE 'information%') AND")
-		query.append("""has_schema_privilege(schemaname, 'usage') AND """ 
-                                 """has_table_privilege('"'||schemaname||'"."'||tablename||'"', 'select')""") 
+		query.append("""has_schema_privilege(schemaname, 'usage') AND """
+                                 """has_table_privilege('"'||schemaname||'"."'||tablename||'"', 'select')""")
 		record=[]
 		cursor.execute(" ".join(query))
 		for rec1 in cursor.getDataSet():
 			record.append(rec1["tablename"])
 		cursor.execute("SELECT schemaname||'.'||viewname as tablename FROM pg_views WHERE schemaname NOT IN('information_schema', 'pg_catalog')")
-		
+
 		for rec in cursor.getDataSet():
 			record.append(rec["tablename"])
-				      
+
 		return tuple(record)
 
 
@@ -159,12 +159,14 @@ class Postgres(dBackend):
 				"WHERE c.relname = '%s'" % tableName]
 		if schemaName:
 			sql.append("AND n.nspname = '%s'" % schemaName)
+		else:
+			sql.append("AND pg_table_is_visible(c.oid)")
 		if not includeSystemFields:
 			sql.append("AND a.attname NOT IN "
 					" ('ctid', 'cmin', 'cmax', 'tableoid', 'xmax', 'xmin')")
 		sql.append("AND has_schema_privilege(n.oid, 'usage')"
 				" AND has_table_privilege(c.oid, 'select')"
-				" ORDER BY c.relname, a.attname")  ##" AND pg_table_is_visible(c.oid)"
+				" ORDER BY c.relname, a.attname")
 		cursor.execute(' '.join(sql))
 		fldTypeDict= {"int4":"I", "int8":"I", "int2":"I","varchar": "C",  "char": "C",'bpchar': 'C', "bool":"B", "text": "M", "numeric":"N", "double":"F", "real":"F","float4":"F", "float4":"F", "datetime":"T", "timestamp":"T", "date": "D","bytea": "L", "point":"C", "box":"C", "circle":"C", "lseg":"C", "polygon":"C", "path":"C","oid":"I"}
 		fields = []
