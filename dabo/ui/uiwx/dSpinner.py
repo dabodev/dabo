@@ -50,9 +50,9 @@ class dSpinner(dabo.ui.dDataPanel):
 		self._proxy_spinner = _dSpinButton(parent=self, _EventTarget=self)
 		self.__constructed = True
 		self.Sizer = dabo.ui.dSizer("h")
-		self.Sizer.append(self._proxy_textbox, 1, valign="middle")
+		self.Sizer.append1x(self._proxy_textbox, valign="middle")
 		#self.Sizer.appendSpacer((2,0))  ## pkm: I think it looks better without...
-		self.Sizer.append(self._proxy_spinner, valign="middle")
+		self.Sizer.append(self._proxy_spinner, "expand", valign="middle")
 		self.layout()
 
 		# Because several properties could not be set until after the child
