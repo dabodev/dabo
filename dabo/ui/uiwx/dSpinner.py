@@ -270,6 +270,19 @@ class dSpinner(dabo.ui.dDataPanel):
 
 
 	# Property get/set definitions begin here
+	def _getButtonWidth(self):
+		return self._proxy_spinner.Width
+
+	def _setButtonWidth(self, val):
+		print "buttonWidth"
+		if self._constructed():
+			print 1
+			#raise NotImplementedError, "Can't set ButtonWidth after initProperties"
+			self._proxy_spinner.Width = val
+		else:
+			print 2
+			self._properties["ButtonWidth"] = val
+
 	def _getChildren(self):
 		# The native wx control will return the items that make up this composite
 		# control, which our user doesn't want.
@@ -338,6 +351,9 @@ class dSpinner(dabo.ui.dDataPanel):
 			self._properties["Value"] = val
 
 
+
+	ButtonWidth = property(_getButtonWidth, _setButtonWidth, None,
+			_("""Allows the developer to explicitly specify the width of the up/down buttons."""))
 
 	Children = property(_getChildren, None, None, 
 			_("""Returns a list of object references to the children of 

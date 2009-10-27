@@ -771,8 +771,10 @@ class dPemMixin(dPemMixinBase):
 		"""Override the default behavior to return the wxPython ID."""
 		try:
 			ret = self.GetId()
-		except AttributeError:
-			# Object doesn't support GetID()
+		except (TypeError, AttributeError):
+			# Object doesn't support GetID(), which includes trying
+			# to get the id of a not-yet-fully-instantiated wxPython
+			# object. 
 			ret = super(dPemMixin, self)._getID()
 		return ret
 
@@ -2235,9 +2237,10 @@ class dPemMixin(dPemMixinBase):
 	def _getName(self):
 		try:
 			name = self.GetName()
-		except AttributeError:
+		except (TypeError, AttributeError):
 			# Some objects that inherit from dPemMixin (dMenu*) don't have GetName()
-			# or SetName() methods.
+			# or SetName() methods. Or, the wxPython object isn't fully
+			# instantiated yet.
 			name = self._name
 		# keep name available even after C++ object is gone:
 		self._name = name
