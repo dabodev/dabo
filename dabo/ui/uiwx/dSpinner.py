@@ -26,16 +26,6 @@ class _dSpinButton(dcm.dDataControlMixin, wx.SpinButton):
 				*args, **kwargs)
 
 
-#	def __onWxSpinUp(self, evt):
-#		self.raiseEvent(dEvents.SpinUp, spinType="button")
-#		self.raiseEvent(dEvents.Spinner, spinType="button")
-
-
-#	def __onWxSpinDown(self, evt):
-#		self.raiseEvent(dEvents.SpinDown, spinType="button")
-#		self.raiseEvent(dEvents.Spinner, spinType="button")
-
-
 class dSpinner(dabo.ui.dDataPanel):
 	"""Control for allowing a user to increment a value by discreet steps across a range
 	of valid values.
