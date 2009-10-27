@@ -164,55 +164,16 @@ class Postgres(dBackend):
 					" ('ctid', 'cmin', 'cmax', 'tableoid', 'xmax', 'xmin')")
 		sql.append("AND has_schema_privilege(n.oid, 'usage')"
 				" AND has_table_privilege(c.oid, 'select')"
-				" AND pg_table_is_visible(c.oid)"
-				" ORDER BY c.relname, a.attname")
+				" ORDER BY c.relname, a.attname")  ##" AND pg_table_is_visible(c.oid)"
 		cursor.execute(' '.join(sql))
+		fldTypeDict= {"int4":"I", "int8":"I", "int2":"I","varchar": "C",  "char": "C",'bpchar': 'C', "bool":"B", "text": "M", "numeric":"N", "double":"F", "real":"F","float4":"F", "float4":"F", "datetime":"T", "timestamp":"T", "date": "D","bytea": "L", "point":"C", "box":"C", "circle":"C", "lseg":"C", "polygon":"C", "path":"C","oid":"I"}
 		fields = []
 		for r in cursor.getDataSet():
 			name = r["attname"].strip()
 			fldType = r["typname"]
 			pk = r["isprimary"]
-			if "int" in fldType:
-				fldType = "I"
-			elif "char" in fldType :
-				fldType = "C"
-			elif "bool" in fldType :
-				fldType = "B"
-			elif "text" in fldType:
-				fldType = "M"
-			elif "numeric" in fldType:
-				fldType = "N"
-			elif "double" in fldType:
-				fldType = "F"
-			elif "real" in fldType:
-				fldType = "F"
-			elif "float" in fldType:
-				fldType = "F"
-			elif "datetime" in fldType:
-				fldType = "T"
-			elif "timestamp" in fldType:
-				fldType = "T"
-			elif "date" in fldType:
-				fldType = "D"
-			elif "bytea" in fldType:
-				fldType = "L"
-			elif "point" in fldType:
-				fldType = "C"
-			elif "box" in fldType:
-				fldType = "C"
-			elif "circle" in fldType:
-				fldType = "C"
-			elif "lseg" in fldType:
-				fldType = "C"
-			elif "polygon" in fldType:
-				fldType = "C"
-			elif "path" in fldType:
-				fldType = "C"
-			elif "oid" in fldType:
-				fldType = "I"
-			else:
-				fldType = "?"
-			fields.append((name, fldType, pk))
+			fieldType = fldTypeDict.get(fldType, '?')
+			fields.append((name, fieldType, pk))
 		cursor.execute('rollback')
 		return tuple(fields)
 
