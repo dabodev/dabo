@@ -69,7 +69,6 @@ class dSpinner(dabo.ui.dDataPanel):
 		# Because several properties could not be set until after the child
 		# objects were created, we need to manually call _setProperties() here.
 		self._properties["NameBase"] = nm
-		
 		self._setNameAndProperties(self._properties, **kwargs)
 # 		self._setProperties(self._properties)
 # 		self.autoBindEvents()
@@ -438,6 +437,6 @@ if __name__ == "__main__":
 	class Test(dabo.ui.dForm):
 		def OH(self, evt): print "HIT"
 		def afterInitAll(self):
-			self.spn = dabo.ui.dSpinner(self, Value=3, OnHit=self.OH)
+			self.spn = _dSpinner_test(self, Value=3, OnHit=self.OH)
 	app = dabo.dApp(MainFormClass=Test)
 	app.start()
