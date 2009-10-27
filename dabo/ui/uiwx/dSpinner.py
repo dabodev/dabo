@@ -36,8 +36,6 @@ class dSpinner(dabo.ui.dDataPanel):
 		self._min = 0
 		self._max = 100
 		self._increment = 1
-		val = self._extractKey((properties, attProperties, kwargs), "Value", 0)
-		val = self._numericStringVal(val)
 		nm = self._extractKey((properties, attProperties, kwargs), "NameBase", "")
 		if not nm:
 			nm = self._extractKey((properties, attProperties, kwargs), "Name", "dSpinner")
@@ -47,7 +45,7 @@ class dSpinner(dabo.ui.dDataPanel):
 		# Create the child controls
 		if TextBoxClass is None:
 			TextBoxClass = dabo.ui.dTextBox
-		self._proxy_textbox = TextBoxClass(self, Value=val, Width=32, 
+		self._proxy_textbox = TextBoxClass(self, Value=42, Width=32, 
 				StrictNumericEntry=False, _EventTarget=self)
 		self._proxy_spinner = _dSpinButton(parent=self, _EventTarget=self)
 		self.__constructed = True
@@ -60,8 +58,6 @@ class dSpinner(dabo.ui.dDataPanel):
 		# objects were created, we need to manually call _setProperties() here.
 		self._properties["NameBase"] = nm
 		self._setNameAndProperties(self._properties, **kwargs)
-# 		self._setProperties(self._properties)
-# 		self.autoBindEvents()
 		ps = self._proxy_spinner
 		pt = self._proxy_textbox
 		# Set an essentially infinite range. We'll handle the range ourselves.
@@ -77,7 +73,6 @@ class dSpinner(dabo.ui.dDataPanel):
 		pt.Bind(wx.EVT_KILL_FOCUS, self._onLostFocus)
 		#self.bindEvent(dEvents.KeyChar, self._onChar)
 		self._rerestoreValue()
- 
 
 	def _rerestoreValue(self):
 		# Hack because when restoreValue() was originally called in onCreate,
