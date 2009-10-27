@@ -45,7 +45,7 @@ class dSpinner(dabo.ui.dDataPanel):
 		# Create the child controls
 		if TextBoxClass is None:
 			TextBoxClass = dabo.ui.dTextBox
-		self._proxy_textbox = TextBoxClass(self, Value=42, Width=32, 
+		self._proxy_textbox = TextBoxClass(self, Value=0, Width=32, 
 				StrictNumericEntry=False, _EventTarget=self)
 		self._proxy_spinner = _dSpinButton(parent=self, _EventTarget=self)
 		self.__constructed = True
