@@ -77,6 +77,11 @@ def connect(*args, **kwargs):
 	Passed connection info can either be in the form of a dConnectInfo object,
 	or individual arguments to pass to dConnection's constructor.
 	"""
+	if args == (":memory:",) and not kwargs:
+		# special case:
+		kwargs["DbType"] = "SQLite"
+		kwargs["Database"] = ":memory:"
+		args = ()
 	return dConnection(*args, **kwargs)
 
 	
