@@ -75,11 +75,11 @@ class SQLite(dBackend):
 		return self._dictCursorClass
 		
 
-	def formatForQuery(self, val):
+	def formatForQuery(self, val, fieldType=None):
 		if isinstance(val, bool):
 			return str(int(val))
 		else:
-			return super(SQLite, self).formatForQuery(val)
+			return super(SQLite, self).formatForQuery(val, fieldType)
 
 
 	def escQuote(self, val):			

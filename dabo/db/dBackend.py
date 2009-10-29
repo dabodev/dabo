@@ -72,7 +72,7 @@ class dBackend(dObject):
 		return cursorClass(self._connection)
 
 
-	def formatForQuery(self, val):
+	def formatForQuery(self, val, fieldType=None):
 		if isinstance(val, (datetime.date, datetime.datetime)):
 			# Some databases have specific rules for formatting date values.
 			return self.formatDateTime(val)
@@ -81,6 +81,8 @@ class dBackend(dObject):
 		elif isinstance(val, decimal.Decimal):
 			return str(val)
 		elif isinstance(val, dNoEscQuoteStr):
+			return val
+		elif fieldType == "L":
 			return val
 		elif val is None:
 			return self.formatNone()

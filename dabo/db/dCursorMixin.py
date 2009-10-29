@@ -1355,7 +1355,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					# Append the field and its value.
 					flds += ", " + self.BackendObject.encloseNames(kk, aq)
 					# add value to expression
-					vals += ", %s" % (self.formatForQuery(vv[1]),)
+					fieldType = [ds[1] for ds in self.DataStructure if ds[0] == kk][0]
+					vals += ", %s" % (self.formatForQuery(vv[1], fieldType))
 
 				# Trim leading comma-space from the strings
 				flds = flds[2:]
@@ -1945,7 +1946,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				continue
 			if ret:
 				ret += ", "
-			ret += tblPrefix + bo.encloseNames(fld, aq) + " = " + self.formatForQuery(new_val)
+			fieldType = [ds[1] for ds in self.DataStructure if ds[0] == fld][0]
+			ret += tblPrefix + bo.encloseNames(fld, aq) + " = " + self.formatForQuery(new_val, fieldType)
 		return ret
 
 
@@ -2010,11 +2012,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 
 
-	def formatForQuery(self, val):
+	def formatForQuery(self, val, fieldType=None):
 		""" Format any value for the backend """
 		ret = val
 		if self.BackendObject:
-			ret = self.BackendObject.formatForQuery(val)
+			ret = self.BackendObject.formatForQuery(val, fieldType)
 		return ret
 
 
