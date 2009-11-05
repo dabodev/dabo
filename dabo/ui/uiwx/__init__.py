@@ -16,10 +16,18 @@ _failedLibs = []
 # note: may need wx.animate as well
 for lib in ("wx", "wx.stc", "wx.lib.foldpanelbar", "wx.gizmos",
 		"wx.lib.calendar", "wx.lib.masked", "wx.lib.buttons"):
-	try:
+
+	if getattr(sys, "frozen", False):
+		# Just import it without catching the ImportError. This will let the
+		# developer know which libs are essential to distribute, when trying
+		# to run the exe on the target system. Could be some sub-library, not
+		# simply "wx", "wx.stc", etc.
 		__import__(lib)
-	except ImportError:
-		_failedLibs.append(lib)
+	else:
+		try:
+			__import__(lib)
+		except ImportError:
+			_failedLibs.append(lib)
 
 if len(_failedLibs) > 0:
 	msg = """
