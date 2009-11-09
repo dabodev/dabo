@@ -3376,7 +3376,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			return
 
 		if self.SameSizeRows:
-			self.RowHeight = self.GetRowSize(row)
+			try:
+				self.RowHeight = self.GetRowSize(row)
+			except wx._core.PyAssertionError:
+				# pkm: I don't understand how it could have gotten this far, but
+				#      I got an error report that the c++ assertion row>=0 && row<m_numrows failed.
+				pass
 
 
 	def _onGridCellSelected(self, evt):
