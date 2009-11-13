@@ -2727,7 +2727,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.raiseEvent(dEvents.GridAfterSort, eventObject=self,
 				eventData=eventData)
 
-
 	def runIncSearch(self):
 		""" Run the incremental search."""
 		gridCol = self.CurrentColumn
@@ -2743,7 +2742,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			return
 		newRow = self.CurrentRow
 		biz = self.getBizobj()
-		ds = self.DataSet
 		srchVal = origSrchStr = self.currSearchStr
 		self.currSearchStr = ""
 		near = self.searchNearest
@@ -2753,9 +2751,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		sortList = []
 		for i in range(0, self.RowCount):
 			if biz:
-				val = biz.getFieldVal(fld, i)
+				val = biz.getFieldVal(fld, i, _forceNoCallback=True)
 			else:
-				val = ds[i][fld]
+				val = self.DataSet[i][fld]
 			sortList.append( [val, i] )
 
 		# Determine if we are seeking string values

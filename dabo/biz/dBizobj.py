@@ -1467,7 +1467,7 @@ class dBizobj(dObject):
 			return None
 
 
-	def getFieldVal(self, fld, row=None):
+	def getFieldVal(self, fld, row=None, _forceNoCallback=False):
 		"""Return the value of the specified field in the current or specified row."""
 		cursor = self._CurrentCursor
 		oldRow = self.RowNumber
@@ -1476,12 +1476,15 @@ class dBizobj(dObject):
 		def changeRowNumCallback(row):
 			# dCursorMixin is requesting a rowchange, which we must do here so that
 			# child bizobjs get requeried. This is especially important (and only
-			# currenty happens) for virtual fields, in case they rely on values
+			# currently happens) for virtual fields, in case they rely on values
 			# gotten from children.
 			self._moveToRowNum(row)
 			for ch in self.__children:
 				if ch.RowCount == 0:
 					ch.requery()
+
+		if _forceNoCallback:
+			changeRowNumCallback = None
 
 		if cursor is not None:
 			try:
