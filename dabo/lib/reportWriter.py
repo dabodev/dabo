@@ -2111,7 +2111,9 @@ class ReportWriter(object):
 				resetPageNum = eval(group.get("resetPageNumber", "False"))
 				curVal = self._groupValues[group["expr"]]["curVal"]
 				
-				if curVal != group.getProp("expr") or (startNewPage and (group.getProp("StartOnNewPage") or group.getProp("ReprintHeaderOnNewPage"))):
+				if curVal != group.getProp("expr") \
+				or (startNewPage and (group.getProp("StartOnNewPage") \
+				    or group.getProp("ReprintHeaderOnNewPage"))):
 					# first reset curVal:						
 					self._groupValues[group["expr"]]["curVal"] = group.getProp("expr")
 
