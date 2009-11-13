@@ -366,7 +366,7 @@ class SelectPage(Page):
 		frm = self.Form
 		bizobj = frm.getBizobj()
 		ret = False
-		if bizobj is not None:
+		if bizobj:
 			sql = frm.CustomSQL
 			if sql is not None:
 				bizobj.UserSQL = sql
@@ -384,14 +384,14 @@ class SelectPage(Page):
 	
 			ret = frm.requery(_fromSelectPage=True)
 
-		if bizobj.RowCount > 0: # don't bother applying this if there are no records to work on
-			# filter virtual fields
-			for vField in self.__virtualFilters:
-				opVal = self.selectFields[vField]["op"].Value
-				ctrl = self.selectFields[vField]["ctrl"]
+			if bizobj.RowCount > 0:  # don't bother applying this if there are no records to work on
+				# filter virtual fields
+				for vField in self.__virtualFilters:
+					opVal = self.selectFields[vField]["op"].Value
+					ctrl = self.selectFields[vField]["ctrl"]
 
-				if not _(IGNORE_STRING) in opVal:
-					bizobj.filter(vField, ctrl.Value, opVal.lower())
+					if not _(IGNORE_STRING) in opVal:
+						bizobj.filter(vField, ctrl.Value, opVal.lower())
 
 		if ret:
 			if self.Parent.SelectedPageNumber == 0:
