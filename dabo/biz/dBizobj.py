@@ -36,13 +36,16 @@ class dBizobj(dObject):
 		# Dictionary holding any default values to apply when a new record is created. This is
 		# now the DefaultValues property (used to be self.defaultValues attribute)
 		self._defaultValues = {}
+
 		# PKs of rows to be filtered out when filtering Virtual fields
 		self.__filterPKVirtual = []
 		
 		self._beforeInit()
-
-		# This must be set before the call to setConnection(). Thanks to Jacek Kałucki for 
-		# noticing this problem.
+		# This starts as a list that will hold cursors created in the initial process
+		# if RequeryOnLoad is True. This is necessary because not all of the required
+		# properties will have been set at this point. 
+		# It will be set to None in the _afterInit() code, to indicate that it is no longer relevant.
+		self.__cursorsToRequery = []
 		self._requeryOnLoad = self._extractKey((properties, kwargs), "RequeryOnLoad", False)
 		self.setConnection(conn)
 		# We need to make sure the cursor is created *before* the call to
@@ -88,7 +91,6 @@ class dBizobj(dObject):
 		self.dbapiCursorClass = None
 		self._childCacheInterval = None
 
-
 		##########################################
 		### referential integrity stuff ####
 		##########################################
@@ -104,6 +106,14 @@ class dBizobj(dObject):
 		##########################################
 
 		self.beforeInit()
+
+
+	def _afterInit(self):
+		super(dBizobj, self)._afterInit()
+		for crs in self.__cursorsToRequery:
+			self._syncCursorProps(crs)
+			crs.requery()
+		self.__cursorsToRequery = None
 
 
 	def setConnection(self, conn):
@@ -181,8 +191,13 @@ class dBizobj(dObject):
 		crs._bizobj = self
 		self._syncCursorProps(crs)
 		if self.RequeryOnLoad:
-			crs.requery()
-			self.first()
+			if self.__cursorsToRequery is None:
+				# We've already passed the bizobj init process
+				crs.requery()
+				self.first()
+			else:
+				# Still in the init, so add it to the list
+				self.__cursorsToRequery.append(crs)
 		self.afterCreateCursor(crs)
 		return crs
 
