@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import random
+import warnings
 
 class SimpleCrypt(object):
 	""" Provides basic encryption for Dabo. Perhaps a better term would
@@ -19,17 +20,8 @@ class SimpleCrypt(object):
 	"""
 
 	def showWarning(self):
-		import warnings
-		warnings.warn("""
-WARNING: 
-Your application uses SimpleCrypt, which is fine for testing but should
-not be used in production, because:
+		warnings.warn("WARNING: SimpleCrypt is not secure. Please see http://wiki.dabodev.com/SimpleCrypt for more information")
 
-1) Anyone with a copy of Dabo could decrypt your password.
-
-2) It isn't portable between 32-bit and 64-bit python. See the trac
-   ticket at http://trac.dabodev.com/ticket/1179 for more information.
-""", UserWarning)
 
 	def encrypt(self, aString):
 		self.showWarning()
