@@ -43,7 +43,7 @@ class dBizobj(dObject):
 
 		# This must be set before the call to setConnection(). Thanks to Jacek Kałucki for 
 		# noticing this problem.
-		self._requeryOnLoad = self._extractKey((properties, attProperties, kwargs), "RequeryOnLoad", False)
+		self._requeryOnLoad = self._extractKey((properties, kwargs), "RequeryOnLoad", False)
 		self.setConnection(conn)
 		# We need to make sure the cursor is created *before* the call to
 		# initProperties()
