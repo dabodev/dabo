@@ -36,11 +36,14 @@ class dBizobj(dObject):
 		# Dictionary holding any default values to apply when a new record is created. This is
 		# now the DefaultValues property (used to be self.defaultValues attribute)
 		self._defaultValues = {}
-
 		# PKs of rows to be filtered out when filtering Virtual fields
 		self.__filterPKVirtual = []
 		
 		self._beforeInit()
+
+		# This must be set before the call to setConnection(). Thanks to Jacek Kałucki for 
+		# noticing this problem.
+		self._requeryOnLoad = self._extractKey((properties, attProperties, kwargs), "RequeryOnLoad", False)
 		self.setConnection(conn)
 		# We need to make sure the cursor is created *before* the call to
 		# initProperties()
@@ -73,7 +76,6 @@ class dBizobj(dObject):
 		self._scanRestorePosition = True
 		self._scanReverse = False
 		self._userSQL = None
-		self._requeryOnLoad = False
 		self._parent  = None
 		self._autoPopulatePK = True
 		self._autoQuoteNames = True
