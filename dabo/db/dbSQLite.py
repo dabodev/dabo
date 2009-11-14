@@ -15,6 +15,7 @@ class SQLite(dBackend):
 	def __init__(self):
 		dBackend.__init__(self)
 		self.dbModuleName = "pysqlite2"
+		self.paramPlaceholder = "?"
 		try:
 			from pysqlite2 import dbapi2 as dbapi
 		except ImportError:

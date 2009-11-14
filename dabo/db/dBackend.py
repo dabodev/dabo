@@ -21,6 +21,8 @@ class dBackend(dObject):
 	# When enclosing table or field names that contain spaces, what
 	# character is used? Default to double quote.
 	nameEnclosureChar = '"'
+	# The character used in sql to represent parameters to be substituted
+	paramPlaceholder = "%s"
 
 	def __init__(self):
 		self._baseClass = dBackend

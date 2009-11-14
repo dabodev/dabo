@@ -290,14 +290,17 @@ class dCursorMixin(dObject):
 			sql = sql.encode(self.Encoding)
 		# Some backends, notably Firebird, require that fields be specially marked.
 		sql = self.processFields(sql)
-
 		try:
 			if params:
 				res = self.superCursor.execute(self, sql, params)
 				if not self.IsPrefCursor:
-					dabo.dbActivityLog.write("SQL: %s, PARAMS: %s" % (
-							sql.decode(self.Encoding).replace("\n", " "),
-							', '.join("%s" % p for p in params)))
+					try:
+						dabo.dbActivityLog.write("SQL: %s, PARAMS: %s" % (
+								sql.decode(self.Encoding).replace("\n", " "),
+								', '.join("%s" % p for p in params)))
+					except StandardError:
+						# A problem with writing to the log, most likely due to encoding issues
+						dabo.dbActivityLog.write("FAILED SQL: %s")
 			else:
 				res = self.superCursor.execute(self, sql)
 				if not self.IsPrefCursor:
@@ -310,9 +313,13 @@ class dCursorMixin(dObject):
 			if errorClass is not None and isinstance(e, errorClass):
 				raise e
 			if params:
-				dabo.dbActivityLog.write("FAILED SQL: %s, PARAMS: %s" % (
-						sql.decode(self.Encoding).replace("\n", " "),
-						', '.join("%s" % p for p in params)))
+				try:
+					dabo.dbActivityLog.write("FAILED SQL: %s, PARAMS: %s" % (
+							sql.decode(self.Encoding).replace("\n", " "),
+							', '.join("%s" % p for p in params)))
+				except StandardError:
+					# A problem with writing to the log, most likely due to encoding issues
+					dabo.dbActivityLog.write("FAILED SQL: %s")
 			else:
 				dabo.dbActivityLog.write("FAILED SQL: %s" % (
 						sql.decode(self.Encoding).replace("\n", " "),))
@@ -1334,7 +1341,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if diff:
 			if newrec:
 				flds = ""
-				vals = ""
+				vals = []
 				kf = self.KeyField
 				for kk, vv in diff.items():
 					if self.AutoPopulatePK:
@@ -1356,29 +1363,29 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					flds += ", " + self.BackendObject.encloseNames(kk, aq)
 					# add value to expression
 					fieldType = [ds[1] for ds in self.DataStructure if ds[0] == kk][0]
-					vals += ", %s" % (self.formatForQuery(vv[1], fieldType))
+					vals.append(self.formatForQuery(vv[1], fieldType))
 
-				# Trim leading comma-space from the strings
+				# Trim leading comma-space from the 'flds' string
 				flds = flds[2:]
-				vals = vals[2:]
 				if not flds:
 					# Some backends (sqlite) require non-empty field clauses. We already
 					# know that we are expecting the backend to generate the PK, so send
 					# NULL as the PK Value:
 					flds = self.KeyField
 					vals = "NULL"
-				sql = "insert into %s (%s) values (%s) " % (
-						self.BackendObject.encloseNames(self.Table, aq), flds, vals)
+				nms = self.BackendObject.encloseNames(self.Table, aq)
+				sql = "insert into %s (%s) values (%s) " % (nms, flds, self.BackendObject.paramPlaceholder)
+				params = tuple(vals)
 
 			else:
 				pkWhere = self.makePkWhere(row)
-				updClause = self.makeUpdClause(diff)
+				updClause, params = self.makeUpdClause(diff)
 				sql = "update %s set %s where %s" % (self.BackendObject.encloseNames(self.Table, aq),
 						updClause, pkWhere)
 
 			#run the update
 			aux = self.AuxCursor
-			res = aux.execute(sql)
+			res = aux.execute(sql, params)
 
 			if newrec and self.AutoPopulatePK and (newPKVal is None):
 				# Call the database backend-specific code to retrieve the
@@ -1933,8 +1940,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def makeUpdClause(self, diff):
-		""" Create the 'set field=val' section of the Update statement. """
-		ret = ""
+		"""Create the 'set field=val' section of the Update statement. Return a 2-tuple
+		containing the sql portion as the first element, and the parameters for the 
+		values as the second.
+		"""
+		retSql = ""
+		retParams = []
 		bo = self.BackendObject
 		aq = self.AutoQuoteNames
 		tblPrefix = bo.getUpdateTablePrefix(self.Table, autoQuote=aq)
@@ -1947,8 +1958,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if ret:
 				ret += ", "
 			fieldType = [ds[1] for ds in self.DataStructure if ds[0] == fld][0]
-			ret += tblPrefix + bo.encloseNames(fld, aq) + " = " + self.formatForQuery(new_val, fieldType)
-		return ret
+			nms = bo.encloseNames(fld, aq)
+			retSql = "%s%s%s = %s" % (retSql, tblPrefix, nms, self.BackendObject.paramPlaceholder)
+			print "CURS FT", fieldType
+			thisVal =self.formatForQuery(new_val, fieldType)
+			retParams.append(thisVal)
+		return (retSql, tuple(retParams))
 
 
 	def processFields(self, txt):
