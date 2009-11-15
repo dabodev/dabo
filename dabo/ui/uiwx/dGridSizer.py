@@ -302,7 +302,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 			szit = obj.ControllingSizerItem
 		try:
 			row, col = szit.GetPos()
-		except wx.PyAssertionError:
+		except (wx.PyAssertionError, AttributeError):
 			# Window isn't controlled by this sizer
 			row, col = None, None
 		return (row, col)
