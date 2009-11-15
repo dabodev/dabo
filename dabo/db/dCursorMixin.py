@@ -1363,7 +1363,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					flds += ", " + self.BackendObject.encloseNames(kk, aq)
 					# add value to expression
 					fieldType = [ds[1] for ds in self.DataStructure if ds[0] == kk][0]
-					vals.append(self.formatForQuery(vv[1], fieldType))
+					vals.append(vv[1])
 
 				# Trim leading comma-space from the 'flds' string
 				flds = flds[2:]
@@ -1374,9 +1374,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					flds = self.KeyField
 					vals = "NULL"
 				nms = self.BackendObject.encloseNames(self.Table, aq)
-				sql = "insert into %s (%s) values (%s) " % (nms, flds, self.BackendObject.paramPlaceholder)
+				placeHolders = len(vals) * [self.BackendObject.paramPlaceholder]
+				sql = "insert into %s (%s) values (%s) " % (nms, flds, ",".join(placeHolders))
 				params = tuple(vals)
-
 			else:
 				pkWhere = self.makePkWhere(row)
 				updClause, params = self.makeUpdClause(diff)
