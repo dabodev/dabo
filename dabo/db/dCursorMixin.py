@@ -1382,7 +1382,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				updClause, params = self.makeUpdClause(diff)
 				sql = "update %s set %s where %s" % (self.BackendObject.encloseNames(self.Table, aq),
 						updClause, pkWhere)
-
 			#run the update
 			aux = self.AuxCursor
 			res = aux.execute(sql, params)
@@ -1944,7 +1943,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		containing the sql portion as the first element, and the parameters for the 
 		values as the second.
 		"""
-		retSql = ""
+		retSql = []
 		retParams = []
 		bo = self.BackendObject
 		aq = self.AutoQuoteNames
@@ -1955,15 +1954,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			# Skip the fields that are not to be updated.
 			if fld in nonup:
 				continue
-			if ret:
-				ret += ", "
 			fieldType = [ds[1] for ds in self.DataStructure if ds[0] == fld][0]
 			nms = bo.encloseNames(fld, aq)
-			retSql = "%s%s%s = %s" % (retSql, tblPrefix, nms, self.BackendObject.paramPlaceholder)
-			print "CURS FT", fieldType
-			thisVal =self.formatForQuery(new_val, fieldType)
-			retParams.append(thisVal)
-		return (retSql, tuple(retParams))
+			retSql.append("%s%s = %s" % (tblPrefix, nms, 
+					self.BackendObject.paramPlaceholder))
+			#thisVal =self.formatForQuery(new_val, fieldType)
+			retParams.append(new_val)
+		return (", ".join(retSql), tuple(retParams))
 
 
 	def processFields(self, txt):
