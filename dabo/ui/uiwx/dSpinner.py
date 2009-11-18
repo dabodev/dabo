@@ -151,12 +151,14 @@ class dSpinner(dabo.ui.dDataPanel):
 		newVal = self._applyIncrement(incrementFunc)
 		minn, maxx, margin = self._coerceTypes(newVal, self.Min, self.Max, margin)
 
+		valueToSet = None
+
 		if direction == "up":
 			diff = newVal - maxx
 			if diff < margin:
-				self._proxy_textbox.Value = newVal
+				valueToSet = newVal
 			elif self._spinWrap:
-				self._proxy_textbox.Value = minn
+				valueToSet = minn
 			else:
 				ret = False
 			if ret:
@@ -166,9 +168,9 @@ class dSpinner(dabo.ui.dDataPanel):
 		else:
 			diff = newVal - minn
 			if diff > margin:
-				self._proxy_textbox.Value = newVal
+				valueToSet = newVal
 			elif self._spinWrap:
-				self._proxy_textbox.Value = maxx
+				valueToSet = maxx
 			else:
 				ret = False
 			if ret:
@@ -176,8 +178,10 @@ class dSpinner(dabo.ui.dDataPanel):
 				self.raiseEvent(dEvents.Spinner, spinType=spinType)
 
 		self._checkBounds()
-		self._userChanged = True
-		self.flushValue()
+
+		if ret:
+			self._userChanged = True
+			self.Value = valueToSet
 		self.raiseEvent(dEvents.Hit, hitType=spinType)
 		return ret
 
