@@ -74,6 +74,8 @@ class dSpinner(dabo.ui.dDataPanel):
 		pt.Bind(wx.EVT_KILL_FOCUS, self._onLostFocus)
 		#self.bindEvent(dEvents.KeyChar, self._onChar)
 		self._rerestoreValue()
+		dabo.ui.callAfter(self.layout)
+
 
 	def _rerestoreValue(self):
 		# Hack because when restoreValue() was originally called in onCreate,
