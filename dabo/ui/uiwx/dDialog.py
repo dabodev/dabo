@@ -46,6 +46,11 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		self.setFocus()
 
 
+	def EndModal(self, *args, **kwargs):
+		self.saveSizeAndPosition()
+		super(dDialog, self).EndModal(*args, **kwargs)
+
+
 	def _afterInit(self):
 		self.MenuBarClass = None
 		self.Sizer = dabo.ui.dSizer("V")
