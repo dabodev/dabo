@@ -97,8 +97,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		""" Deletes any items contained in the specified row, and
 		then moves all items below it up to fill the space.
 		"""
-		for c in range(self._highCol+1):
-			szitm = self.FindItemAtPosition( (rowNum, c) )
+		for c in range(self.HighCol + 1):
+			szitm = self.FindItemAtPosition((rowNum, c))
 			if not szitm:
 				continue
 			itm = None
@@ -144,10 +144,9 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 				self.remove(itm)
 		# OK, all items are removed. Now move all higher columns to the left
 		for r in range(self.HighRow+1):
-			for c in range(colNum+1, self._highCol+1):
+			for c in range(colNum+1, self.HighCol+1):
 				self.moveCell(r, c, r, c-1, delay=True)
 		self.layout()
-		self._highCol -= 1
 		
 		
 	def setColExpand(self, expand, colNum, proportion=0):
