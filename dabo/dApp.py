@@ -940,7 +940,7 @@ try again when it is running.
 		currsyspath = sys.path
 		if not currdir in sys.path:
 			sys.path.insert(0, currdir)
-		for dd in ("biz", "db", "ui", "resources", "reports"):
+		for dd in ("biz", "db", "ui", "lib", "resources", "reports"):
 			currmod = getattr(self, dd, None)
 			if sys.version.split()[0].split(".") >= ["2", "5"]:
 				try:
