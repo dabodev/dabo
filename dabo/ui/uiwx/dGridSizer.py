@@ -296,15 +296,12 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		sizer, returns a (row,col) tuple for that item's location.
 		"""
 		if isinstance(obj, self.SizerItem):
-			szit = obj
+			# Two of these will return None and one will return the actual object
+			# The line below will return the one that is not None.
+			itm = obj.GetWindow() or obj.GetSpacer() or obj.GetSizer()
 		else:
-			szit = obj.ControllingSizerItem
-		try:
-			row, col = szit.GetPos()
-		except (wx.PyAssertionError, AttributeError):
-			# Window isn't controlled by this sizer
-			row, col = None, None
-		return (row, col)
+			itm = obj
+		return self.GetItemPosition(itm).Get()
 
 
 	def getGridSpan(self, obj):
