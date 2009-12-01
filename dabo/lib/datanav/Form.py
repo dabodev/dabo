@@ -297,6 +297,21 @@ class Form(dabo.ui.dForm):
 
 	def onDelete(self, evt):
 		super(Form, self).onDelete(evt)
+		self._afterDeleteOrCancel()
+
+
+	def onCancel(self, evt):
+		super(Form, self).onCancel(evt)
+		self._afterDeleteOrCancel()
+
+
+	def _afterDeleteOrCancel(self):
+		# If the delete or cancel resulted in 0 records, activate the Select page
+		# so that the user can't interact with any controls on the edit page.
+		biz = self.getBizobj()
+		if biz.RowCount < 1:
+			self.PageFrame.SelectedPageNumber = 0
+
 		# Make sure that the grid is properly updated.
 		try:
 			self.PageFrame.Pages[1].BrowseGrid.refresh()
