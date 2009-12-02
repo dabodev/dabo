@@ -1066,7 +1066,7 @@ def _getWild(*args):
 		fileDict = dabo.file_extensions
 		fileDict.update(dabo.custom_extensions)
 		tmplt = "%s (*.%s)|*.%s"
-		normArgs = list(set([arg.lower() for arg in args]))
+		normArgs = [arg.lower() for arg in args]
 		for ftype in normArgs:
 			try:
 				fDesc = fileDict[ftype.lower()]
