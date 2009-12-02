@@ -1067,15 +1067,6 @@ def _getWild(*args):
 		fileDict.update(dabo.custom_extensions)
 		tmplt = "%s (*.%s)|*.%s"
 		normArgs = list(set([arg.lower() for arg in args]))
-		normArgs.sort()
-		try:
-			# Move the asterisk, if present, to the end.
-			asterisk = normArgs.pop(normArgs.index("*"))
-			normArgs.append(asterisk)
-		except:
-			# '*' is not present; ignore
-			pass
-
 		for ftype in normArgs:
 			try:
 				fDesc = fileDict[ftype.lower()]
