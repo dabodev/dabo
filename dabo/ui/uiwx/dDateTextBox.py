@@ -65,7 +65,6 @@ class dDateTextBox(dTextBox):
 	def _beforeInit(self, *args, **kwargs):
 		self._baseClass = dDateTextBox
 		self._calendarPanel = None
-		self.Value = None
 		# Two-digit year value that is the cutoff in interpreting 
 		# dates as being either 19xx or 20xx.
 		self.rollover = 50
@@ -87,6 +86,10 @@ class dDateTextBox(dTextBox):
 	
 	def _afterInit(self):
 		#self.Value = datetime.date.today()  ## no, don't set default, it could override val. in db.
+		if not self.Value:
+			self.update()  ## First try to get it from the db
+		if not self.Value and self.Value is not None:
+			self.Value = None  ## If it is still blank, default to None so the control works correctly
 		if self.showCalButton:
 			# Create a button that will display the calendar
 			self.calButton = dButton(self.Parent, Size=(self.Height, self.Height),
