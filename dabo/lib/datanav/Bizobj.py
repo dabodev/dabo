@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import dabo.biz
+from dabo.dLocalize import _
+
 
 class Bizobj(dabo.biz.dBizobj):
 	def getBaseWhereClause(self):
@@ -10,7 +12,12 @@ class Bizobj(dabo.biz.dBizobj):
 	
 		Don't include the word "where": that'll be added automatically later.
 		"""
-		return ""
+		return getattr(self, "_baseWhereClause", "")
+
+
+	def _setBaseWhereClause(self, val):
+		self._baseWhereClause = val
+
 
 	def addField(self, fld):
 		try:
@@ -39,7 +46,7 @@ class Bizobj(dabo.biz.dBizobj):
 
 	BackendTableFields = property(_getBackendTableFields,
 			_setBackendTableFields, None, 
-			"""Contains information for properly filling out the where clause.
+			_("""Contains information for properly filling out the where clause.
 
 			If you have the following base sql:
 
@@ -65,4 +72,8 @@ class Bizobj(dabo.biz.dBizobj):
 
 				self.addField("invoice.number as invoicenumber")
 				self.addField("customer.name as name")
-			""")
+			"""))
+
+	BaseWhereClause = property(getBaseWhereClause, _setBaseWhereClause, None,
+			_("""A where-clause stub that will get prepended to whatever the user chooses."""))
+
