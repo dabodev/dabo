@@ -3459,7 +3459,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _onKeyDown(self, evt):
-		if evt.EventData["keyCode"] == 9 and self.TabNavigates:
+		keycode = evt.EventData["keyCode"]
+
+		if keycode == 27:
+			# esc pressed. Grid will eat it by default. But if we are in a dialog with
+			# a cancel button, let's runCancel() since that's what the user likely wants:
+			if hasattr(self.Form, "runCancel"):			
+				self.Form.runCancel()
+		if keycode == 9 and self.TabNavigates:
 			evt.stop()
 			self.Navigate(not evt.EventData["shiftDown"])
 
