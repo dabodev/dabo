@@ -414,6 +414,7 @@ class dPemMixin(dPemMixinBase):
 		self.Bind(wx.EVT_CONTEXT_MENU, targ.__onWxContextMenu)
 		
 		self.Bind(wx.EVT_PAINT, self.__onWxPaint)
+		self.Bind(wx.EVT_ERASE_BACKGROUND, self.__onWxEraseBackground)
 		self.Bind(wx.EVT_SIZE, self.__onWxResize)
 		
 		self.bindEvent(dEvents.Create, self.__onCreate)
@@ -674,6 +675,12 @@ class dPemMixin(dPemMixinBase):
 			return
 		self._needRedraw = bool(self._drawnObjects)
 		self.raiseEvent(dEvents.Paint, evt)
+
+
+	def __onWxEraseBackground(self, evt):
+		if self._finito:
+			return
+		self.raiseEvent(dEvents.BackgroundErased, evt)
 	
 
 	def __onWxResize(self, evt):

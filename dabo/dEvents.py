@@ -462,6 +462,13 @@ class Paint(dEvent):
 	appliesToClass = classmethod(appliesToClass)
 
 
+class BackgroundErased(dEvent):
+	"""Occurs when a window background has been erased and needs repainting."""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
+
+
 class PageChanged(dEvent):
 	"""Occurs when a page in a pageframe-like control changes"""
 	def appliesToClass(eventClass, objectClass):
