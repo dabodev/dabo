@@ -3234,7 +3234,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			if not headerIsSizing and (self.getColNumByX(x) == self.getColNumByX(x-5) == self.getColNumByX(x+5)):
 				if not headerIsDragging:
 					curCol = self.getColByX(x)
-					if self.MovableColumns and curCol.Movable:
+					if self.MovableColumns and curCol and curCol.Movable:
 						# A header reposition is beginning
 						self._headerDragging = True
 						self._headerDragFrom = (x,y)
