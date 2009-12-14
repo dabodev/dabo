@@ -55,7 +55,7 @@ setup(
 		name = "Dabo",
 		version = daboVersion,
 		url = 'http://dabodev.com/',
-		download_url = 'ftp://dabodev.com/dabo/dabo-%s-win.zip' % daboVersion,
+		download_url = 'http://cdn.cloudfiles.mosso.com/c118811/dabo/dabo-%s-win.zip',
 		author = 'Ed Leafe and Paul McNett',
 		author_email = 'dev@dabodev.com',
 		description = 'Dabo 3-tier Application Framework',
