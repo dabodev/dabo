@@ -7,9 +7,10 @@ from setuptools import setup, find_packages
 from dabo.__version__ import version
 
 daboVersion = version["version"]
+setupDir = os.path.dirname(__file__)
 
 # List the paths under dabo/icon/themes:
-iconDir = os.path.join("dabo", "icons", "themes")
+iconDir = os.path.join(setupDir, "dabo", "icons", "themes")
 iconDirs = {}
 def getIconSubDir(arg, dirname, fnames):
 	if ".svn" not in dirname and "cards" not in dirname.lower() and dirname[-1] != "\\":
@@ -21,7 +22,7 @@ def getIconSubDir(arg, dirname, fnames):
 os.path.walk(iconDir, getIconSubDir, iconDir)
 
 # locale dirs:
-localeDir = os.path.join("dabo", "locale")
+localeDir = os.path.join(setupDir, "dabo", "locale")
 localeDirs = []
 def getLocaleDirs(arg, dirname, fnames):
 	if ".svn" not in dirname and dirname[-1] != "\\":
