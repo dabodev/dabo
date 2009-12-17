@@ -286,7 +286,7 @@ class SelectPage(Page):
 						useStdFormat = False
 						whrMatches = []
 						for word in matchVal.split():
-							mtch = {"table": table, "field": field, "value": word}
+							mtch = {"table": table.strip(), "field": field.strip(), "value": word.strip()}
 							whrMatches.append( biz.getWordMatchFormat() % mtch )
 						if len(whrMatches) > 0:
 							whr = " and ".join(whrMatches)
