@@ -511,12 +511,13 @@ class EditorForm(dabo.ui.dForm):
 		ed = self.CurrentEditor
 		if ed is None:
 			self._autoAutoItem.Checked = self._wrapItem.Checked = False
-			self._synColorItem.Checked = self._useTabsItem.Checked = False
+			self._synColorItem.Checked = self._useTabsItem.Checked = self._lineNumItem = False
 		else:
 			self._autoAutoItem.Checked = ed.AutoAutoComplete
 			self._wrapItem.Checked = ed.WordWrap
 			self._synColorItem.Checked = ed.SyntaxColoring
 			self._useTabsItem.Checked = ed.UseTabs
+			self._lineNumItem.Checked = ed.ShowLineNumbers
 		self._showOutItem.Checked = self.Application.getUserSetting("visibleOutput", False)
 		
 		
@@ -603,6 +604,9 @@ class EditorForm(dabo.ui.dForm):
 		editMenu.append(_("&AutoComplete"), HotKey="F5", 
 				OnHit=self.onAutoComplete, bmp="", ItemID="edit_autocomplete", 
 				help=_("Auto-complete the current text"))
+		editMenu.append(_("AutoComplete Length"), OnHit=self.onSetAutoCompleteLength, 
+				bmp="", ItemID="edit_autocompletelength", 
+				help=_("Set the length to trigger the AutoCompletion popup"))		
 		self._autoAutoItem = editMenu.append(_("Automa&tic AutoComplete"), 
 				OnHit=self.onAutoAutoComp, bmp="", help=_("Toggle Automatic Autocomplete"), 
 				ItemID="edit_autoautocomplete", menutype="check")
@@ -637,6 +641,9 @@ class EditorForm(dabo.ui.dForm):
 		self._useTabsItem = editMenu.append(_("&Tabs"), HotKey="Ctrl+Shift+T", 
 				OnHit=self.onUseTabs, bmp="", ItemID="edit_usetabs", 
 				help=_("Toggle Tabs"), menutype="check")
+		self._lineNumItem = editMenu.append(_("Show &Line Numbers"), HotKey="Ctrl+Shift+L", 
+				OnHit=self.onLineNumber, bmp="", ItemID="edit_linenum", help=_("Toggle Line Numbers"), 
+				menutype="check")
 		
 		runMenu.append(_("&Run Script"), HotKey="F7", OnHit=self.onRunScript,
 				bmp="", ItemID="run_script", help=_("Run Script"))		
@@ -856,8 +863,17 @@ class EditorForm(dabo.ui.dForm):
 	
 	def onAutoComplete(self, evt):
 		self.CurrentEditor.autoComplete()
-		
-		
+
+
+	def onSetAutoCompleteLength(self, evt):
+		ed = self.CurrentEditor
+		curr = ed.AutoAutoCompleteMinLen
+		import dabo
+		newlen = dabo.ui.getInt(_("Number of characters?"), _("Set AutoComplete Trigger"), curr)
+		if newlen:
+			ed.AutoAutoCompleteMinLen = newlen
+
+
 	def onAutoAutoComp(self, evt):
 		ed = self.CurrentEditor
 		ed.AutoAutoComplete = not ed.AutoAutoComplete	
@@ -917,12 +933,19 @@ class EditorForm(dabo.ui.dForm):
 	def onSyntaxColoring(self, evt):
 		ed = self.CurrentEditor
 		ed.SyntaxColoring = not ed.SyntaxColoring
-	
+
+
 	def onUseTabs(self, evt):
 		ed = self.CurrentEditor
 		ed.UseTabs = not ed.UseTabs
 		ed.BackSpaceUnindents = not ed.UseTabs
-	
+
+
+	def onLineNumber(self, evt):
+		ed = self.CurrentEditor
+		ed.ShowLineNumbers = not ed.ShowLineNumbers
+
+
 	def onOutput(self, evt):
 		show = self.MenuBar.getMenu(_("Run")).isItemChecked(_("Hide/Show Output"))
 		self.Application.setUserSetting("visibleOutput", show)
