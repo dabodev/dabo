@@ -674,12 +674,18 @@ class ClassDesigner(dabo.dApp):
 			# See if this is a saved class inserted into another design
 			isCustomClass = False
 			customClassPath = None
-			if os.path.exists(clsname) and atts.has_key("classID"):
+			if "classID" in atts:
+				# This is a custom class; make sure that the relative path is correct
+				if not os.path.exists(clsname):
+					clsname = dabo.lib.utils.locateRelativeTo(self._basePath, clsname)
 				isCustomClass = True
 				customClassPath = clsname
 				# Start with the custom class, and then update it with the current stuff
 				self.extractSuperClassInfo(clsname)
+			# Add any superclass information.
 			self.inherit(dct)
+			# Need to re-assign the atts from the inherited dct
+			atts = dct["attributes"]
 			cls = dct["name"]
 			classID = self._extractKey(atts, "classID", "")
 			kids = dct.get("children", None)

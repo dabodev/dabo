@@ -98,9 +98,11 @@ class LayoutSaverMixin(object):
 				relPath = self._classFile
 			else:
 				relPath = self.Form._classFile
-			rp = dabo.lib.utils.relativePath(clsRef, relPath)
-			if not rp:
+			if not relPath:
 				relPath = os.path.split(relPath)[0]
+			if clsRef == relPath:
+				rp = clsRef
+			else:
 				rp = dabo.lib.utils.relativePath(clsRef, relPath)
 			ra["designerClass"] = dabo.lib.utils.getPathAttributePrefix() + rp
 			ra["savedClass"] = True
@@ -1034,7 +1036,6 @@ class LayoutSizerMixin(LayoutSaverMixin):
 				szType = self.Orientation
 			except AttributeError:
 				szType = None
-
 		for kid in kids:
 			isSpacer = False
 			numItems = len(ret)
@@ -1074,6 +1075,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 							szrDict = {}
 					except AttributeError:
 						szrDict = {}
+				
 				kidDict = kidItem.getDesignerDict(itemNum=numItems,
 						classDict=szrDict)
 			else:
