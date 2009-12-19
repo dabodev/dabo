@@ -177,6 +177,9 @@ class dApp(dObject):
 		if dabo.settings.loadUserLocale:
 			locale.setlocale(locale.LC_ALL, '')
 
+		# Subdirectories that make up a standard Dabo app
+		self._standardDirs = ("biz", "cache", "db", "lib", "reports", "resources", "test", "ui")
+
 		self._uiAlreadySet = False
 		dabo.dAppRef = self
 		self._beforeInit()
@@ -940,7 +943,7 @@ try again when it is running.
 		currsyspath = sys.path
 		if not currdir in sys.path:
 			sys.path.insert(0, currdir)
-		for dd in ("biz", "db", "ui", "lib", "resources", "reports"):
+		for dd in self._standardDirs:
 			currmod = getattr(self, dd, None)
 			if sys.version.split()[0].split(".") >= ["2", "5"]:
 				try:
@@ -954,6 +957,14 @@ try again when it is running.
 				except ImportError, e:
 					self.__setattr__(dd, currmod)
 		sys.path = currsyspath
+
+
+	def getStandardDirectories(self):
+		"""Return a tuple of the fullpath to each standard directory"""
+		hd = self.HomeDirectory
+		subdirs = [os.path.join(hd, dd) for dd in self._standardDirs]
+		subdirs.insert(0, hd)
+		return tuple(subdirs)
 
 
 	def _initUI(self):
@@ -1049,7 +1060,7 @@ try again when it is running.
 		If a starting file path is provided, use that first. If not, use the
 		HomeDirectory as the starting point.
 		"""
-		stdDirs = ("biz", "cache", "db", "main.py", "reports", "resources", "test", "ui")
+		stdDirs = self._standardDirs + ("main.py", )
 		if dirname not in stdDirs:
 			dabo.errorLog.write(_("Non-standard directory '%s' requested") % dirname)
 			return None

@@ -50,6 +50,8 @@ class DesignerXmlConverter(dObject):
 		self._codeFileText = self._hdrText
 		# Tracks the current sizer type
 		self._sizerTypeStack = []
+		# Location of the cdxml source file, if any
+		self._srcFile = None
 		
 	
 	def classFromXml(self, src):
@@ -334,7 +336,9 @@ class DesignerXmlConverter(dObject):
 			# This will get set to True if we process a splitter control
 			isSplitter = False
 			splitterString = ""
-			if os.path.exists(clsname) and ("classID" in atts):
+			if "classID" in atts:
+				if not os.path.exists(clsname):
+					clsname = dabo.lib.utils.locateRelativeTo(self._srcFile, clsname)
 				chldList = [[child]] + specChildList[:]
 				nm = self.createInheritedClass(clsname, chldList)
 				code = {}

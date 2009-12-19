@@ -11,6 +11,7 @@
 #	utils.foo()
 
 import os
+osp = os.path
 import sys
 import dabo
 try:
@@ -55,7 +56,7 @@ def getUserHomeDirectory():
 
 	# os.path.expanduser should work on all posix systems (*nix, Mac, and some
 	# Windows NT setups):
-	hd = os.path.expanduser("~")
+	hd = osp.expanduser("~")
 
 	# If for some reason the posix function above didn't work, most Linux setups
 	# define the environmental variable $HOME, and perhaps this is done sometimes
@@ -108,8 +109,8 @@ def getUserAppDataDirectory(appName="Dabo"):
 		dd = getUserHomeDirectory()
 
 	if dd is not None:
-		dd = os.path.join(dd, appName)
-		if not os.path.exists(dd):
+		dd = osp.join(dd, appName)
+		if not osp.exists(dd):
 			# try to create the dabo directory:
 			try:
 				os.makedirs(dd)
@@ -148,21 +149,21 @@ def relativePathList(toLoc, fromLoc=None):
 	if fromLoc is None:
 		fromLoc = os.getcwd()
 	if toLoc.startswith(".."):
-		if os.path.isdir(fromLoc):
-			toLoc = os.path.join(fromLoc, toLoc)
+		if osp.isdir(fromLoc):
+			toLoc = osp.join(fromLoc, toLoc)
 		else:
-			toLoc = os.path.join(os.path.split(fromLoc)[0], toLoc)
-	toLoc = os.path.abspath(toLoc)
-	if os.path.isfile(toLoc):
-		toDir, toFile = os.path.split(toLoc)
+			toLoc = osp.join(osp.split(fromLoc)[0], toLoc)
+	toLoc = osp.abspath(toLoc)
+	if osp.isfile(toLoc):
+		toDir, toFile = osp.split(toLoc)
 	else:
 		toDir = toLoc
 		toFile = ""
-	fromLoc = os.path.abspath(fromLoc)
-	if os.path.isfile(fromLoc):
-		fromLoc = os.path.split(fromLoc)[0]
-	fromList = fromLoc.split(os.path.sep)
-	toList = toDir.split(os.path.sep)
+	fromLoc = osp.abspath(fromLoc)
+	if osp.isfile(fromLoc):
+		fromLoc = osp.split(fromLoc)[0]
+	fromList = fromLoc.split(osp.sep)
+	toList = toDir.split(osp.sep)
 	# There can be empty strings from the split
 	while len(fromList) > 0 and not fromList[0]:
 		fromList.pop(0)
@@ -184,7 +185,7 @@ def relativePathList(toLoc, fromLoc=None):
 
 def relativePath(toLoc, fromLoc=None):
 	"""Given two paths, returns a relative path from fromLoc to toLoc."""
-	return os.path.sep.join(relativePathList(toLoc, fromLoc))
+	return osp.sep.join(relativePathList(toLoc, fromLoc))
 
 
 def getPathAttributePrefix():
@@ -228,8 +229,40 @@ def resolvePath(val, pth=None, abspath=False):
 	# Convert to relative path
 	ret = relativePath(val, pth)
 	if abspath:
-		ret = os.path.abspath(ret)
+		ret = osp.abspath(ret)
 	return ret
+
+
+def locateRelativeTo(containerPath, itemPath):
+	"""Paths to items, such as custom contained classes, should be relative to
+	the container they are in.
+	"""
+	# Start with the item's current location
+	dirsToCheck = [""]
+	if containerPath:
+		# Add the location of the containing form or class
+		containerDir = osp.dirname(containerPath)
+		dirsToCheck.append(containerDir)
+	try:
+		# Look in the standard Dabo app directories. We may not be
+		# running with an active app reference, so the try/except
+		# will handle that.
+		appPaths = dabo.dAppRef.getStandardDirectories()
+		dirsToCheck.extend(appPaths)
+	except AttributeError:
+		pass
+	# Add the current working directory
+	dirsToCheck.append(os.getcwd())
+	itemName = osp.basename(itemPath)
+	# Default to the original value
+	resolved = itemPath
+	for testDir in dirsToCheck:
+		testPath = osp.join(testDir, itemName)
+		if osp.exists(testPath):
+			# We found the file
+			resolved = testPath
+			break
+	return resolved
 
 
 def cleanMenuCaption(cap, bad=None):
