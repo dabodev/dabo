@@ -165,7 +165,10 @@ import dColors
 import dEvents
 
 from dBug import logPoint
-import pdb
+try:
+	import pudb as pdb
+except ImportError:
+	import pdb
 trace = pdb.set_trace
 
 from dApp import dApp
