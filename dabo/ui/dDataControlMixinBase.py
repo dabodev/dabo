@@ -18,6 +18,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		self._designerMode = None
 		self._oldVal = None
 		self._userChanged = False
+		# Flags to avoid calling flushValue() when it is not needed.
+		self._inDataUpdate = False
+		self._from_flushValue = False
 
 		dabo.ui.dControlMixin.__init__(self, *args, **kwargs)
 
@@ -102,14 +105,14 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		"""This handles all the value updating from the data source."""
 		if getattr(self, "SelectOnEntry", False) and self.Form.ActiveControl == self:
 			self.selectAll()
-
-		if not (self.DataSource or isinstance(self.DataSource, dabo.dPref)) or not self.DataField:
+		if not self.DataField or not (self.DataSource or isinstance(self.DataSource, dabo.dPref)):
 			return
 		if self._DesignerMode:
 			return
 
 		src = self.Source
 		if src and self._srcIsBizobj:
+			self._inDataUpdate = True
 			try:
 				self.Value = src.getFieldVal(self.DataField)
 			except (TypeError, dException.NoRecordsException):
@@ -119,6 +122,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				method = getattr(src, self.DataField, None)
 				if callable(method):
 					self.Value = method()
+			self._inDataUpdate = False
 		else:
 			if self._srcIsInstanceMethod is None and src is not None:
 				if isinstance(src, basestring):
@@ -136,6 +140,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				# that the current object doesn't have.
 				return
 
+			self._inDataUpdate = True
 			if self._srcIsInstanceMethod:
 				try:
 					self.Value = srcatt()
@@ -145,6 +150,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 					self.Value = self.getBlankValue()
 			else:
 				self.Value = srcatt
+			self._inDataUpdate = False
 
 
 	def select(self, position, length):
@@ -246,7 +252,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 									nm = str(self.DataSource)
 								dabo.errorLog.write("Could not bind to '%s.%s'\nReason: %s" % (nm, self.DataField, e) )
 				self._oldVal = curVal
-			self._afterValueChanged(_from_flushValue=True)
+			self._from_flushValue = True
+			self._afterValueChanged()
+			self._from_flushValue = False
 
 			# Raise an event so that user code can react if needed:
 			dabo.ui.callAfterInterval(200, self.raiseEvent, dabo.dEvents.ValueChanged)
@@ -302,7 +310,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return "?"
 
 
-	def _afterValueChanged(self, _from_flushValue=False):
+	def _afterValueChanged(self):
 		"""Called after the control's value has changed.
 
 		This is defined as one of:
@@ -311,7 +319,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 		User code shouldn't need to access or override this.
 		"""
-
+		if self._inDataUpdate or self._from_flushValue:
+			return
 		# Maintain an internal copy of the value, separate from the
 		# property, so that we still have the value regardless of whether
 		# or not the underlying ui object still exists (in wx at least,
@@ -320,7 +329,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		# upon Destroy (saveValue, for instance)):
 		self._value = self.Value
 
-		if not _from_flushValue and (self.Form.ActiveControl != self
+		if (self.Form.ActiveControl != self
 				or not getattr(self, "_flushOnLostFocus", False)):
 			# Value was changed programatically, and flushValue won't ever be
 			# called automatically (either the control won't flush itself upon
