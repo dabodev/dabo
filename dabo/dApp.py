@@ -1370,35 +1370,44 @@ try again when it is running.
 		try:
 			hd = self._homeDirectory
 		except AttributeError:
-			# Get the script name that launched the app. In case it was run
-			# as an executable, strip the leading './'
-			calledScript = sys.argv[0]
-			if calledScript.startswith("./"):
-				calledScript = calledScript.lstrip("./")
-			scriptDir = os.path.realpath(os.path.split(os.path.join(os.getcwd(), calledScript))[0])
-			appDir = os.path.realpath(os.path.split(inspect.getabsfile(self.__class__))[0])
+			# See if we're running in Runtime Engine mode.
+			try:
+				hd = sys._daboRunHomeDir
+			except AttributeError:
+				calledScript = None
+				try:
+					# Get the script name that launched the app. In case it was run
+					# as an executable, strip the leading './'
+					calledScript = sys.argv[0]
+				except IndexError:
+					# Give up... just assume the current directory.
+					hd = os.getcwd()
+				if calledScript:
+					if calledScript.startswith("./"):
+						calledScript = calledScript.lstrip("./")
+					scriptDir = os.path.realpath(os.path.split(os.path.join(os.getcwd(), calledScript))[0])
+					appDir = os.path.realpath(os.path.split(inspect.getabsfile(self.__class__))[0])
+					def issubdir(d1, d2):
+						while True:
+							if len(d1) < len(d2) or len(d1) <= 1:
+								return False
+							d1 = os.path.split(d1)[0]
+							if d1 == d2:
+								return True
 
-			def issubdir(d1, d2):
-				while True:
-					if len(d1) < len(d2) or len(d1) <= 1:
-						return False
-					d1 = os.path.split(d1)[0]
-					if d1 == d2:
-						return True
-
-			if issubdir(scriptDir, appDir):
-				# The directory where the main script is executing is a subdirectory of the
-				# location of the application object in use. So we can safely make the app
-				# directory the HomeDirectory.
-				hd = appDir
-			else:
-				# The directory where the main script is executing is *not* a subdirectory
-				# of the location of the app object in use. The app object is likely an
-				# instance of a raw dApp. So the only thing we can really do is make the
-				# HomeDirectory the location of the main script, since we can't guess at
-				# the application's directory structure.
-				dabo.infoLog.write("Can't deduce HomeDirectory:setting to the script directory.")
-				hd = scriptDir
+					if issubdir(scriptDir, appDir):
+						# The directory where the main script is executing is a subdirectory of the
+						# location of the application object in use. So we can safely make the app
+						# directory the HomeDirectory.
+						hd = appDir
+					else:
+						# The directory where the main script is executing is *not* a subdirectory
+						# of the location of the app object in use. The app object is likely an
+						# instance of a raw dApp. So the only thing we can really do is make the
+						# HomeDirectory the location of the main script, since we can't guess at
+						# the application's directory structure.
+						dabo.infoLog.write("Can't deduce HomeDirectory:setting to the script directory.")
+						hd = scriptDir
 
 			if os.path.split(hd)[1][-4:].lower() in (".zip", ".exe"):
 				# mangle HomeDirectory to not be the py2exe library.zip file,
