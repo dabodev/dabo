@@ -184,6 +184,8 @@ class dSpinner(dabo.ui.dDataPanel):
 		if ret:
 			self._userChanged = True
 			self.Value = valueToSet
+			self._userChanged = True
+			self.flushValue()
 		self.raiseEvent(dEvents.Hit, hitType=spinType)
 		return ret
 
