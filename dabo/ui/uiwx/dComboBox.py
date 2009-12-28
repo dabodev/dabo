@@ -40,7 +40,8 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 	def _initEvents(self):
 		super(dComboBox, self)._initEvents()
 		self.Bind(wx.EVT_COMBOBOX, self.__onComboBox)
-		self.Bind(wx.EVT_TEXT_ENTER, self.__onTextBox)
+# 		self.Bind(wx.EVT_TEXT_ENTER, self.__onTextBox)
+		self.Bind(wx.EVT_KEY_DOWN, self.__onWxKeyDown)
 			
 	
 	def __onComboBox(self, evt):
@@ -49,18 +50,35 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		self._onWxHit(evt)
 		
 		
-	def __onTextBox(self, evt):
-		self._userVal = True
-		evt.Skip()
-		if self.AppendOnEnter:
-			txt = evt.GetString()
-			if txt not in self.Choices:
-				self._textToAppend = txt
-				if self.beforeAppendOnEnter() is not False:
-					if self._textToAppend:
-						self.appendItem(self._textToAppend, select=True)
-						self.afterAppendOnEnter()
-		self.raiseEvent(dabo.dEvents.Hit, evt)
+	def __onWxKeyDown(self, evt):
+		"""We need to capture the Enter/Return key in order to implement
+		the AppendOnEnter behavior. However, under Windows this leads to 
+		navigation issues, so we also need to capture when Tab is pressed, 
+		and handle the navigation ourselves.
+		"""
+		# Shorthand for easy reference
+		dk = dabo.ui.dKeys
+		# Don't call the native Skip() if Tab is pressed; we'll handle it ourselves.
+		callSkip = True
+		enter_codes = (dk.key_Return, dk.key_Numpad_enter)
+		keyCode = evt.GetKeyCode()
+		if keyCode in enter_codes:
+			self._userVal = True
+			if self.AppendOnEnter:
+				txt = self.GetValue()
+				if txt not in self.Choices:
+					self._textToAppend = txt
+					if self.beforeAppendOnEnter() is not False:
+						if self._textToAppend:
+							self.appendItem(self._textToAppend, select=True)
+							self.afterAppendOnEnter()
+			self.raiseEvent(dabo.dEvents.Hit, evt)
+		elif keyCode == dk.key_Tab:
+			forward = not evt.ShiftDown()
+			self.Navigate(forward)
+			callSkip = False
+		if callSkip:
+			evt.Skip()
 	
 
 	def __onKeyChar(self, evt):
