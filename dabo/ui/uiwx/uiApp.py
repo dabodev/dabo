@@ -634,13 +634,25 @@ these automatic updates.""").replace("\n", " ")
 						win.Remove(win.GetSelection()[0], win.GetSelection()[1])
 	
 
-	def copyToClipboard(self, txt):
-		data = wx.TextDataObject()
-		data.SetText(txt)
-		cb = wx.TheClipboard
-		cb.Open()
-		cb.SetData(data)
-		cb.Close()
+	@classmethod
+	def copyToClipboard(cls, val):
+		txtData = wx.TextDataObject()
+		bmpData = wx.BitmapDataObject()
+		ok = False
+		for (data, setMethod) in ((txtData, txtData.SetText), (bmpData, bmpData.SetBitmap)):
+			try:
+				setMethod(val)
+				ok = True
+				break
+			except TypeError:
+				continue
+		if ok:
+			cb = wx.TheClipboard
+			cb.Open()
+			cb.SetData(data)
+			cb.Close()
+		else:
+			raise TypeError(_("Only text and bitmaps are supported."))
 
 
 	def onEditPaste(self, evt):
