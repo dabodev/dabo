@@ -192,7 +192,12 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 	def _setPic(self, val):
 		if isinstance(val, wx.Image):
 			# An image stored as a stream is being used
-			self.__image = val
+			self.__image = self.__val = val
+			self._picture = "(stream)"
+		elif isinstance(val, wx.Bitmap):
+			# a raw bitmap is being supplied
+			self._bmp = val
+			self.__image = self.__val = val.ConvertToImage()
 			self._picture = "(stream)"
 		else:
 			pathExists = os.path.exists(val)
@@ -201,7 +206,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				self._picture = ""
 				self._rotation = 0
 				self._bmp = wx.EmptyBitmap(1, 1, 1)
-				self.__image = wx.EmptyImage(1, 1)		# self._bmp.ConvertToImage()
+				self.__image = self.__val = wx.EmptyImage(1, 1)		# self._bmp.ConvertToImage()
 				self._showPic()
 				return
 			elif not pathExists:
@@ -265,12 +270,10 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 
 
 	def _getValue(self):
-		return self.__val
-		try:
-			ret = self.__imageData
-		except AttributeError:
-			ret = self.__imageData = u""
-		return ret
+		if self._Image.IsOk():
+			return self._Image.GetData()
+		else:
+			return None
 
 	def _setValue(self, val):
 		if self._constructed():
