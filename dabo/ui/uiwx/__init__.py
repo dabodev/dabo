@@ -1159,6 +1159,29 @@ def resolvePathAndUpdate(srcFile):
 	return srcFile
 
 
+def copyToClipboard(val):
+	uiApp.copyToClipboard(val)
+
+
+def getFromClipboard():
+	data = wx.TextDataObject()
+	cb = wx.TheClipboard
+	cb.Open()
+	success = cb.GetData(data)
+	cb.Close()
+	if success:
+		return data.GetText()
+	else:
+		# See if it's bitmap data
+		data = wx.BitmapDataObject()
+		cb.Open()
+		success = cb.GetData(data)
+		cb.Close()
+		if success:
+			return data.GetBitmap()
+		else:
+			return None
+
 def _checkForRawXML(srcFile):
 	isRawXML = srcFile.strip().startswith("<")
 	if not isRawXML:
