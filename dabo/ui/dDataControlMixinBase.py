@@ -251,7 +251,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 								else:
 									nm = str(self.DataSource)
 								dabo.errorLog.write("Could not bind to '%s.%s'\nReason: %s" % (nm, self.DataField, e) )
-				self._oldVal = curVal
+			self._oldVal = curVal
 			self._from_flushValue = True
 			self._afterValueChanged()
 			self._from_flushValue = False
