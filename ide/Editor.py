@@ -518,6 +518,7 @@ class EditorForm(dabo.ui.dForm):
 			self._synColorItem.Checked = ed.SyntaxColoring
 			self._useTabsItem.Checked = ed.UseTabs
 			self._lineNumItem.Checked = ed.ShowLineNumbers
+			self._whiteSpaceItem.Checked = ed.ShowWhiteSpace
 		self._showOutItem.Checked = self.Application.getUserSetting("visibleOutput", False)
 		
 		
@@ -643,6 +644,9 @@ class EditorForm(dabo.ui.dForm):
 				help=_("Toggle Tabs"), menutype="check")
 		self._lineNumItem = editMenu.append(_("Show &Line Numbers"), HotKey="Ctrl+Shift+L", 
 				OnHit=self.onLineNumber, bmp="", ItemID="edit_linenum", help=_("Toggle Line Numbers"), 
+				menutype="check")
+		self._whiteSpaceItem = editMenu.append(_("Show WhiteSpace"), HotKey="Ctrl+Shift+E", 
+				OnHit=self.onWhiteSpace, bmp="", ItemID="edit_whiteSpace", help=_("Toggle WhiteSpace Visibility"), 
 				menutype="check")
 		
 		runMenu.append(_("&Run Script"), HotKey="F7", OnHit=self.onRunScript,
@@ -944,6 +948,11 @@ class EditorForm(dabo.ui.dForm):
 	def onLineNumber(self, evt):
 		ed = self.CurrentEditor
 		ed.ShowLineNumbers = not ed.ShowLineNumbers
+
+
+	def onWhiteSpace(self, evt):
+		ed = self.CurrentEditor
+		ed.ShowWhiteSpace = not ed.ShowWhiteSpace
 
 
 	def onOutput(self, evt):
