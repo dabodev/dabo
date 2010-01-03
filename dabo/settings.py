@@ -175,12 +175,16 @@ createDbFiles = False
 
 # URL of the Web Update server
 webupdate_urlbase = "http://daboserver.com/webupdate"
-		
+
+# Customized encryption key if using the DES cipher from the Crypto package.
+# If you are using that package, you need to override this in the settings_override.py
+# file to something unique for your application.
+cryptoKeyDES = None
+
 
 ### Settings - end
 
 # Do not copy/paste anything below this line into settings_override.py.
-
 try:
 	from settings_override import *
 except ImportError:
