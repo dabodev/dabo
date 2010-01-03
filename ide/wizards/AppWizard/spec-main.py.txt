@@ -14,12 +14,12 @@ dabo.ui.loadUI("wx")
 if sys.platform[:3] == "win":
 	dabo.settings.MDI = True
 
-from App import App
-app = App(SourceURL=remotehost)
-
 import db
 import biz
 import ui
+
+from App import App
+app = App(SourceURL=remotehost)
 
 app.db = db
 app.biz = biz
