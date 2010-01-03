@@ -219,16 +219,18 @@ artConstants["info"] = artConstants.get("information")
 artConstants["file"] = artConstants.get("normalfile")
 
 
-def getUiApp(app, callback=None, forceNew=False):
+def getUiApp(app, uiAppClass=None, callback=None, forceNew=False):
 	"""This returns an instance of uiApp. If one is already running, that
 	instance is returned. Otherwise, a new instance is created.
 	"""
+	if uiAppClass is None:
+		uiAppClass = uiApp
 	if forceNew:
 		ret = None
 	else:
 		ret = wx.GetApp()
 	if ret is None:
-		ret = uiApp(app, callback)
+		ret = uiAppClass(app, callback)
 	else:
 		# existing app; fire the callback, if any
 		if callback is not None:

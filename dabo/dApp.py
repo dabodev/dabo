@@ -327,11 +327,10 @@ try again when it is running.
 			self._initUI()
 			if self.UI is not None:
 				if self.showSplashScreen:
-					#self.uiApp = dabo.ui.uiApp(self, callback=self.initUIApp)
-					self.uiApp = dabo.ui.getUiApp(self, callback=self.initUIApp, forceNew=True)
+					self.uiApp = dabo.ui.getUiApp(self, self.UIAppClass, callback=self.initUIApp, forceNew=True)
 				else:
 					#self.uiApp = dabo.ui.uiApp(self, callback=None)
-					self.uiApp = dabo.ui.getUiApp(self, callback=None, forceNew=True)
+					self.uiApp = dabo.ui.getUiApp(self, self.UIAppClass, callback=None, forceNew=True)
 					self.initUIApp()
 		else:
 			self.uiApp = None
@@ -363,6 +362,7 @@ try again when it is running.
 			self.formsToOpen.append(self.default_form)
 		for frm in self.formsToOpen:
 			frm(self.MainForm).show()
+
 
 	def initUIApp(self):
 		"""Callback from the initial app setup. Used to allow the
@@ -1587,6 +1587,16 @@ try again when it is running.
 			raise RuntimeError(_("The UI cannot be reset once assigned."))
 
 
+	def _getUIAppClass(self):
+		try:
+			return self._uiAppClass
+		except AttributeError:
+			return None
+
+	def _setUIAppClass(self, val):
+		self._uiAppClass = val
+
+			
 	def _getUserSettingProvider(self):
 		try:
 			ret = self._userSettingProvider
@@ -1751,6 +1761,15 @@ try again when it is running.
 
 			This is the user interface library, such as 'wx' or 'tk'. Note that
 			'wx' is the only supported user interface library at this point."""))
+
+	UIAppClass = property(_getUIAppClass, _setUIAppClass, None,
+			_("""The name of the ui-specific app subclass to instantiate.
+			
+			This will allow ui toolkit-specific behaviors to be added to a Dabo
+			application. It MUST be either defined in the application subclass, or
+			passed in the call to create the app object, since the UI App cannot
+			be changed once the app is running. Defaults to dabo.ui.uiApp 
+			if not specified.  (dabo.ui.uiApp)"""))
 
 	UserSettingProvider = property(_getUserSettingProvider,
 			_setUserSettingProvider, None,
