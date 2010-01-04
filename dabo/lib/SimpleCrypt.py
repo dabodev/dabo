@@ -74,10 +74,11 @@ class SimpleCrypt(object):
 		if not aString:
 			return ""
 		try:
+			decryptMethod = self._cryptoProvider.decrypt
 			decString = base64.b64decode(aString)
 			padlen = int(decString[0])
 			encval = decString[1:]
-			ret = self._cryptoProvider.decrypt(encval)
+			ret = decryptMethod(encval)
 			if padlen:
 				ret = ret[:-padlen]
 			return ret
