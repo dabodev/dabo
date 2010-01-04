@@ -81,7 +81,7 @@ class SimpleCrypt(object):
 			if padlen:
 				ret = ret[:-padlen]
 			return ret
-		except AttributeError:
+		except (ValueError, AttributeError):
 			self.showWarning()
 			tmpKey = "".join([aString[i] for i in range(0, len(aString), 3)])
 			val = "".join([aString[i+1:i+3] for i in range(0, len(aString), 3)])
