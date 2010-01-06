@@ -1637,7 +1637,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Creates a copy of the current record and adds it to the dataset. The KeyField
 		is not copied.
 		"""
-		self._CurrentCursor.cloneRecord()
+		cc = self._CurrentCursor
+		# Cloning the record affects the cursor's _mementos dict. Save a copy
+		# beforehand, and restore after the call to cloneRecord().
+		memsave = cc._mementos.copy()
+		cc.cloneRecord()
+		cc._mementos = memsave
 		self._onNew(setDefaults=False)
 
 
