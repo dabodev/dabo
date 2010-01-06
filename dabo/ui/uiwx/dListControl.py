@@ -274,6 +274,8 @@ class dListControl(dcm.dControlItemMixin,
 		""" Remove all the rows in the control. """
 		self.DeleteAllItems()
 		self._lastSelectedIndex = None
+	# Need to alias this to work like other list controls.
+	removeAll = clear
 
 
 	def _GetString(self, idx=None, col=None):
