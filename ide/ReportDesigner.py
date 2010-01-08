@@ -1751,7 +1751,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 				if prop in selectedDrawables[0].AvailableProps:
 					propName = prop
 					break
-			self.editProperty(propName)
+			rdc.editProperty(propName)
 
 		else:
 			## arrow key
