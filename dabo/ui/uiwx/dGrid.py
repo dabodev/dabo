@@ -2373,7 +2373,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 		try:
 			self.AutoSizeColumn(self._convertDaboColNumToWxColNum(colNum), setAsMin=False)
-		except wx.PyAssertionError:
+		except (TypeError, wx.PyAssertionError):
 			pass
 		_setColSize(colNum)
 
