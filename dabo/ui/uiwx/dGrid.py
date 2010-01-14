@@ -287,11 +287,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 # 			return self.grid.ColumnCount
 
 
-	def IsEmptyCell(self, row, col):
-		col = self._convertWxColNumToDaboColNum(col)
-		if row >= self.grid.RowCount:
-			return True
-		return False
+#	def IsEmptyCell(self, row, col):
+#		if row >= self.grid.RowCount:
+#			return True
+#		return False
 
 
 	def GetValue(self, row, col, useCache=True):
