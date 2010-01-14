@@ -462,7 +462,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 
 	def _beforeInit(self):
-		super(dColumn, self)._beforeInit()
 		# Define the cell renderer and editor classes
 		import gridRenderers
 		self.stringRendererClass = wx.grid.GridCellStringRenderer
@@ -520,6 +519,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 		# Default to string renderer
 		self._rendererClass = self.stringRendererClass
+		super(dColumn, self)._beforeInit()
 
 
 	def _afterInit(self):
