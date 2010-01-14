@@ -489,7 +489,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.boolRendererClass = gridRenderers.BoolRenderer
 		self.intRendererClass = wx.grid.GridCellNumberRenderer
 		self.longRendererClass = wx.grid.GridCellNumberRenderer
-		self.decimalRendererClass = wx.grid.GridCellNumberRenderer
+		self.decimalRendererClass = wx.grid.GridCellFloatRenderer
 		self.floatRendererClass = wx.grid.GridCellFloatRenderer
 		self.listRendererClass = wx.grid.GridCellStringRenderer
 		self.stringEditorClass = wx.grid.GridCellTextEditor
@@ -497,7 +497,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.boolEditorClass = wx.grid.GridCellBoolEditor
 		self.intEditorClass = wx.grid.GridCellNumberEditor
 		self.longEditorClass = wx.grid.GridCellNumberEditor
-		self.decimalEditorClass = wx.grid.GridCellNumberEditor
+		self.decimalEditorClass = wx.grid.GridCellFloatEditor
 		self.floatEditorClass = wx.grid.GridCellFloatEditor
 		self.listEditorClass = wx.grid.GridCellChoiceEditor
 #		self.listEditorClass = GridListEditor
