@@ -292,24 +292,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if row >= self.grid.RowCount:
 			return True
 		return False
-		bizobj = self.grid.getBizobj()
-		field = self.grid.Columns[col].DataField
-		if bizobj:
-			if field and (row < bizobj.RowCount):
-				return not bizobj.getFieldVal(field, row)
-			else:
-				return True
-		if field:
-			ret = True
-			try:
-				rec = self.grid.DataSet[row]
-				if rec and rec.has_key(field):
-					ret = not self.grid.DataSet[row][field]
-				return ret
-			except (IndexError, KeyError):
-				pass
-			return ret
-		return True
 
 
 	def GetValue(self, row, col, useCache=True):
