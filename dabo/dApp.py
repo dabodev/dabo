@@ -1367,6 +1367,8 @@ try again when it is running.
 
 
 	def _getHomeDirectory(self):
+		# start with the current directory as a default
+		hd = os.getcwd()
 		try:
 			hd = self._homeDirectory
 		except AttributeError:
