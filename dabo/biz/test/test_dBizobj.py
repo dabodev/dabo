@@ -243,6 +243,28 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(biz.RowNumber, 0)
 
 
+	def testDeleteChildThenDeleteParent(self):
+		"""See ticket #1312"""
+		bizMain = self.biz
+		bizChild = dabo.biz.dBizobj(self.con)
+		bizChild.KeyField = "pk"
+		bizChild.DataSource = self.temp_child_table_name
+		bizChild.LinkField = "parent_fk"
+		bizChild.FillLinkFromParent = True
+		
+		bizMain.addChild(bizChild)
+		bizMain.requery()
+
+		# bizMain is on row 0, id 1. bizChild is on row 0 with 2 rows.
+		self.assertEqual(bizMain.Record.pk, 1)
+		self.assertEqual(bizChild.RowCount, 2)
+		self.assertEqual(bizChild.RowNumber, 0)
+		self.assertEqual(bizChild.Record.parent_fk, 1)
+		bizChild.delete()
+		bizMain.delete()
+		self.assertEqual(bizChild.RowCount, 0)
+		self.assertEqual(bizMain.RowCount, 2)
+
 	def testMementos(self):
 		biz = self.biz
 		cur = biz._CurrentCursor
