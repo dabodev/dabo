@@ -1271,8 +1271,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			raise dException.NoRecordsException(_("No records in data set"))
 
 
-	def save(self, allRows=False):
-		""" Save any changes to the data back to the data store."""
+	def save(self, allRows=False, includeNewUnchanged=False):
+		""" Save any changes to the current record back to the data store."""
 		# Make sure that there is data to save
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException(_("No data to save"))
@@ -1305,16 +1305,19 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		self._syncAuxProperties()
 
-		# Faster to deal with 2 specific cases: all rows or just current row
 		if allRows:
-			pks_to_save = self._mementos.keys()
-			for pk_id in pks_to_save:
-				row, rec = self._getRecordByPk(pk_id)
-				saverow(row)
+			# This branch doesn't happen when called from dBizobj (not sure if 
+			# we really need the allRows arg at all).
+			rows = self.getChangedRows(includeNewUnchanged=includeNewUnchanged)
 		else:
-			pk = self.pkExpression()
-			if pk in self._mementos.keys():
-				saverow(self.RowNumber)
+			# This branch results in redundant isChanged() call when called from
+			# dBizobj.saveAll(), but it needs to be here because dBizobj.save()
+			# doesn't check it.
+			rows = []
+			if self.isChanged(allRows=False, includeNewUnchanged=includeNewUnchanged):
+				rows = [self.RowNumber]
+		for row in rows:		
+			saverow(row)
 
 
 	def __saverow(self, row):

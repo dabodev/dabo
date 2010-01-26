@@ -433,7 +433,7 @@ class dBizobj(dObject):
 		# will reset it to False:
 		isAdding = self.IsAdding
 		try:
-			cursor.save()
+			cursor.save(includeNewUnchanged=self.SaveNewUnchanged)
 			if isAdding:
 				# Call the hook method for saving new records.
 				self._onSaveNew()
