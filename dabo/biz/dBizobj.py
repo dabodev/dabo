@@ -1087,8 +1087,6 @@ class dBizobj(dObject):
 
 	def scanVirtualFields(self, fld, expr, op):
 		virtValue = self.getFieldVal(fld)
-		virtLower = virtValue.lower()
-		exprLower = expr.lower()
 
 		if op.lower() in ("eq", "equals", "="):
 			if virtValue == expr:
@@ -1114,17 +1112,22 @@ class dBizobj(dObject):
 			if expr <= virtValue:
 				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
 
-		elif op.lower() in ("starts with", "begins with"):
-			if virtLower.startswith(exprLower):
-				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
+		else:
+			if isinstance(virtValue, basestring) and isinstance(expr, basestring):
+				virtLower = virtValue.lower()
+				exprLower = expr.lower()
 
-		elif op.lower() == "endswith":
-			if virtLower.endswith(exprLower):
-				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
+			if op.lower() in ("starts with", "begins with"):
+				if virtLower.startswith(exprLower):
+					self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
 
-		elif op.lower() == "contains":
-			if exprLower in virtLower:
-				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
+			elif op.lower() == "endswith":
+				if virtLower.endswith(exprLower):
+					self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
+
+			elif op.lower() == "contains":
+				if exprLower in virtLower:
+					self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
 
 
 	def removeFilter(self):
