@@ -293,7 +293,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 #		return False
 
 
-	def GetValue(self, row, col, useCache=True):
+	def GetValue(self, row, col, useCache=True, convertNoneToString=True): 
 		col = self._convertWxColNumToDaboColNum(col)
 		if useCache:
 			try:
@@ -320,7 +320,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				ret = self.grid.DataSet[row][field]
 			except (TypeError, IndexError, KeyError):
 				ret = ""
-		if ret is None:
+		if ret is None and convertNoneToString:
 			ret = self.grid.NoneDisplay
 		self.__cachedVals[(row, col)] = (ret, time.time())
 		return ret

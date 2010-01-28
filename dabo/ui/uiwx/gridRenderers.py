@@ -35,14 +35,14 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 		return wx.Size(checkedBitmap.GetWidth(), checkedBitmap.GetHeight())
 
 
-	def getValueBitmap( self, grid, row, col ): 
-		value = grid._Table.GetValue(row, col)
+	def getValueBitmap(self, grid, row, col): 
+		value = grid._Table.GetValue(row, col, convertNoneToString=False)
 		if value:
 			return checkedBitmap
 		return uncheckedBitmap
 
 
-	def drawBitmap( self, bitmap, attr, dc, rect, isSelected):
+	def drawBitmap(self, bitmap, attr, dc, rect, isSelected):
 		# draw background:
 		if isSelected:
 			syscolor = wx.SYS_COLOUR_HIGHLIGHT
