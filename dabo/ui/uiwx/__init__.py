@@ -10,13 +10,15 @@ import cStringIO
 import warnings
 from dabo.dLocalize import _
 
-# Very VERY first thing: ensure a minimal wx is selected:
-minWx = "2.8"
-try:
-	import wxversion
-except ImportError:
-	sys.exit("wxPython needs to be at least version %s." % minWx)
-wxversion.ensureMinimal(minWx)
+# Very VERY first thing: ensure a minimal wx is selected, but only if
+# wx hasn't already been imported, and if we aren't running frozen:
+if 'wx' not in sys.modules and not getattr(sys, "frozen", False):
+	minWx = "2.8"
+	try:
+		import wxversion
+	except ImportError:
+		sys.exit("wxPython needs to be at least version %s." % minWx)
+	wxversion.ensureMinimal(minWx)
 
 ######################################################
 # Very first thing: check for proper wxPython build:
