@@ -336,7 +336,9 @@ class dCursorMixin(dObject):
 			elif "access" in errMsg.lower():
 				raise dException.DBNoAccessException(errMsg)
 			else:
-				raise dException.DBQueryException(errMsg, sql)
+				dabo.dbActivityLog.write(
+						_("DBQueryException encountered in execute(): %s\n%s") % (errMsg, sql))
+				raise dException.DBQueryException(errMsg)
 
 		# Some backend programs do odd things to the description
 		# This allows each backend to handle these quirks individually.
