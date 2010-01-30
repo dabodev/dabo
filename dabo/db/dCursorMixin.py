@@ -1806,20 +1806,37 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		# Make sure that this is a valid field
 		if not fld:
 			raise dException.FieldNotFoundException(_("No field specified for seek()"))
-		if (fld not in self._records[0]) and (fld not in self.VirtualFields):
-			raise dException.FieldNotFoundException(_("Non-existent field '%s'") % (fld,))
+
+		simpleKey = ("," not in fld)
+		if simpleKey:
+			flds = [fld]
+		else:
+			flds = [f.strip() for f in fld.split(",")]
+		badflds = []
+		for fldname in flds:
+			if (fldname not in self._records[0]) and (fldname not in self.VirtualFields):
+				badflds.append(fldname)
+		if badflds:
+			raise dException.FieldNotFoundException(_("Non-existent field(s) '%s'") % ", ".join(badflds))
 
 		# Copy the specified field vals and their row numbers to a list, and
 		# add those lists to the sort list
 		sortList = []
-		for row in range(0, self.RowCount):
-			sortList.append([self.getFieldVal(fld, row=row), row])
+		for row in xrange(0, self.RowCount):
+			if simpleKey:
+				rowval = self.getFieldVal(fld, row=row)
+			else:
+				rowval = tuple([self.getFieldVal(f, row=row) for f in flds])
+			sortList.append([rowval, row])
 
-		# Determine if we are seeking string values
-		field_type = self._types.get(fld, type(sortList[0][0]))
-		compString = issubclass(field_type, basestring)
+		if simpleKey:
+			# Determine if we are seeking string values
+			field_type = self._types.get(fld, type(sortList[0][0]))
+			compString = issubclass(field_type, basestring)
+		else:
+			compString = False
 
-		if not compString:
+		if simpleKey and not compString:
 			# coerce val to be the same type as the field type
 			if issubclass(field_type, int):
 				try:
@@ -1844,37 +1861,27 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		else:
 			sortList.sort()
 
-		# Now iterate through the list to find the matching value. I know that
-		# there are more efficient search algorithms, but for this purpose, we'll
-		# just use brute force
-		for fldval, row in sortList:
-			if not compString or caseSensitive:
-				match = (fldval == val)
-			else:
-				# Case-insensitive string search.
-				l_fldval, l_val = fldval, val
-				if l_fldval is not None:
-					l_fldval = l_fldval.lower()
-				if l_val is not None:
-					l_val = l_val.lower()
-				match = (l_fldval == l_val)
+		if compString and not caseSensitive:
+			# Change all of the first elements to lower case
+			searchList = [first.lower() for first, second in sortList]
+			matchVal = val.lower()
+		else:
+			matchVal = val
+			searchList = [first for first, second in sortList]
 
-			if match:
-				ret = row
-				break
-			else:
-				if near:
-					ret = row
-				# If we are doing a near search, see if the row is less than the
-				# requested matching value. If so, update the value of 'ret'. If not,
-				# we have passed the matching value, so there's no point in
-				# continuing the search.
-				if compString and not caseSensitive:
-					toofar = l_fldval > l_val
-				else:
-					toofar = fldval > val
-				if toofar:
-					break
+		# See if we have an exact match before we look for 'near' values
+		try:
+			idx = searchList.index(matchVal)
+			ret = sortList[idx][1]
+		except ValueError:
+			if near:
+				# Find the first row greater than the match value
+				numSmaller = len([testVal for testVal in searchList
+						if testVal < matchVal])
+				try:
+					ret = sortList[numSmaller][1]
+				except IndexError:
+					ret = 0
 		if movePointer and ret > -1:
 			# Move the record pointer
 			self.RowNumber = ret
