@@ -1238,7 +1238,8 @@ class dBizobj(dObject):
 		row = self.seek(pk, self.KeyField, caseSensitive=True, near=False,
 				runRequery=True)
 		if row == -1:
-			raise dabo.dException.RowNotFoundException, _("PK Value %s not found in the dataset") % pk
+			# Need to use str(pk) because pk might be a tuple.
+			raise dabo.dException.RowNotFoundException, _("PK Value '%s' not found in the dataset") % str(pk)
 
 
 	def seek(self, val, fld=None, caseSensitive=False, near=False, runRequery=True):
