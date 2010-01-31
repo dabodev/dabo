@@ -1077,7 +1077,11 @@ class dBizobj(dObject):
 				self.moveToPK(currPK)
 			except dabo.dException.RowNotFoundException:
 				# The old row was filtered out of the dataset
-				self.first()
+				try:
+					self.first()
+				except dException.NoRecordsException:
+					# All records were filtered out
+					pass
 
 
 	def filterByExpression(self, expr):
