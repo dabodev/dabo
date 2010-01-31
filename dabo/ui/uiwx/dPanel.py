@@ -2,6 +2,7 @@
 import wx
 import dabo
 from dabo.dLocalize import _
+import dabo.dEvents as dEvents
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -18,6 +19,7 @@ class _BasePanelMixin(object):
 		self._minSizerHeight = 10
 		self._alwaysResetSizer = False
 		self._buffered = None
+		self._square = False
 		buff = self._extractKey(attProperties, "Buffered", None)
 		if buff is not None:
 			buff = (buff == "True")
@@ -31,11 +33,59 @@ class _BasePanelMixin(object):
 		self._platformIsWindows = (self.Application.Platform == "Win")
 		superclass.__init__(self, preClass=preClass, parent=parent, 
 				properties=properties, attProperties=attProperties, *args, **kwargs)
-	
+
+		self._inResizeHandler = False
+		self.Bind(wx.EVT_SIZE, self._onWxResize)
+
+
+	def _onWxResize(self, evt):
+		if self._inResizeHandler:
+			return
+		if not self.Square:
+			evt.Skip()
+			return
+		self._inResizeHandler = True
+		minsize = min(evt.GetSize())
+		self.SetSize((minsize, minsize))
+		self._positionSquareInSizer(evt, minsize)
+		# We need to NOT skip the event. Otherwise, resizing gets stuck
+		# at the largest size
+		#evt.Skip()
+		self._inResizeHandler = False
+
+
+	def _positionSquareInSizer(self, evt, sz):
+		"""When resizing to a square, we have to manually handle alignment if
+		this panel is in a sizer and set to expand.
+		"""
+		cs = self.ControllingSizer
+		try:
+			expand = cs.getItemProp(self, "expand")
+		except AttributeError:
+			# Not in a sizer
+			return
+		if not expand:
+			return			
+		ewd, eht = evt.GetSize()
+		halign = cs.getItemProp(self, "halign")[0]
+		valign = cs.getItemProp(self, "valign")[0]
+		orient = cs.Orientation[0]
+		if (self.Left + sz) < ewd:
+			if halign == "C":
+				# Center the square
+				self.Left += (ewd - sz) / 2
+			elif halign == "R":
+				self.Right = self.Left + ewd
+		elif (self.Top + sz) < eht:
+			if valign == "M":
+				self.Top += (eht - sz) / 2
+			elif valign == "B":
+				self.Bottom = self.Top + eht
+
 
 	def layout(self, resetMin=False):
 		""" Wrap the wx version of the call, if possible. """
-		if resetMin or self._alwaysResetSizer:
+		if resetMin or self._alwaysResetSizer or self._square:
 			# Set the panel's minimum size back to zero. This is sometimes
 			# necessary when the items in the panel have reduced in size.
 			self.SetMinSize((self.MinSizerWidth, self.MinSizerHeight))
@@ -72,7 +122,13 @@ class _BasePanelMixin(object):
 		dc = wx.BufferedDC(wx.ClientDC(self), self._buffer)
 		dc.Clear() # make sure you clear the bitmap! 
 		self._redraw(dc)
-		
+
+
+	def _onResizeSquare(self, evt):
+		smaller = min(self.Size)
+		self.SetMinSize((self.MinSizerWidth, self.MinSizerHeight))
+		self.Size = (smaller, smaller)
+
 
 	def _redraw(self, dc=None):
 		if self._buffered:
@@ -141,6 +197,22 @@ class _BasePanelMixin(object):
 		else:
 			self._properties["MinSizerWidth"] = val
 
+
+	def _getSquare(self):
+		return self._square
+
+	def _setSquare(self, val):
+		self._square = val
+		if self._constructed():
+			self._square = val
+			if val:
+				self.bindEvent(dEvents.Resize, self._onResizeSquare)
+			else:
+				self.unbindEvent(dEvents.Resize, self._onResizeSquare)
+		else:
+			self._properties["Square"] = val
+
+
 	ActiveControl = property(_getActiveControl, _setActiveControl, None,
 			_("""Specifies which control in the panel has the keyboard focus."""))
 
@@ -156,6 +228,10 @@ class _BasePanelMixin(object):
 	
 	MinSizerWidth = property(_getMinSizerWidth, _setMinSizerWidth, None,
 			_("Minimum width for the panel. Default=10px  (int)"))
+
+	Square = property(_getSquare, _setSquare, None,
+			_("""When True, the panel will keep all of its sides the same length.
+			Default=False  (bool)"""))
 	
 	
 
@@ -353,9 +429,35 @@ class _dScrollPanel_test(dScrollPanel):
 
 
 if __name__ == "__main__":
-	import test
-	test.Test().runTest(_dPanel_test)
-	test.Test().runTest(_dScrollPanel_test)
+	class SquarePanel(dPanel):
+		def afterInit(self):
+			self.Square = True
+			self.BackColor = "green"
+	
+	class RegularPanel(dPanel):
+		def afterInit(self):
+			self.Square = False
+			self.BackColor = "blue"
+	
+	class SquareForm(dabo.ui.dForm):
+		def afterInit(self):
+			self.pnl = SquarePanel(self, Width=100)
+			sz = self.Sizer
+			sz.appendSpacer(20)
+			sz.append(self.pnl,  1, "x", halign="right", valign="bottom", border=5)
+			sz.appendSpacer(20)
+			self.regPanel = RegularPanel(self, Width=100)
+			sz.append1x(self.regPanel, halign="center", border=5)
+			sz.appendSpacer(20)
+			self.layout()
+			
+	app = dabo.dApp(MainFormClass = SquareForm)
+	app.start()
+	
+	
+# 	import test
+# 	test.Test().runTest(_dPanel_test)
+# 	test.Test().runTest(_dScrollPanel_test)
 
 
 
