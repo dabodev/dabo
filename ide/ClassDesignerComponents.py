@@ -152,7 +152,7 @@ class LayoutSaverMixin(object):
 			if (hasSizer or isinstance(self, dabo.ui.dPage) or isSplitPanel) and prop in ("Width",
 					"Height") and ((csz is not None) and csz.getItemProp(self, "Expand")):
 				continue
-			if isinstance(self, dabo.ui.dLabel) and prop in ("Width", "Height"):
+			if isinstance(self, dabo.ui.dLabel) and prop in ("Width", "Height") and csz is not None:
 				# If the width/height is controlled by the sizer, don't save it.
 				szornt = csz.Orientation
 				exp = csz.getItemProp(self, "Expand")
