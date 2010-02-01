@@ -1863,7 +1863,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		if compString and not caseSensitive:
 			# Change all of the first elements to lower case
-			searchList = [first.lower() for first, second in sortList]
+			def safeLower(val):
+				try:
+					return val.lower()
+				except AttributeError:
+					return val
+			searchList = [safeLower(first) for first, second in sortList]
 			matchVal = val.lower()
 		else:
 			matchVal = val
