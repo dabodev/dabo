@@ -969,11 +969,10 @@ class ReportWriter(object):
 		self.undoLog.append(args)
 
 	def undo(self):
-		try:
-			obj, prop, oldval, newval = self.undoLog.pop()
-		except IndexError:
+		if not self.undoLog:
 			print "nothing to undo"
 			return
+		obj, prop, oldval, newval = self.undoLog.pop()
 		obj.setProp(prop, oldval, logUndo=False)
 
 	def cancel(self):
