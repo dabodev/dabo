@@ -1869,7 +1869,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				except AttributeError:
 					return val
 			searchList = [safeLower(first) for first, second in sortList]
-			matchVal = val.lower()
+			try:
+				matchVal = val.lower()
+			except AttributeError:
+				# this is a string colum, but seeking a null value.
+				matchVal = val
 		else:
 			matchVal = val
 			searchList = [first for first, second in sortList]
