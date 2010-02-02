@@ -161,6 +161,13 @@ def DesignerController():
 			dabo.ui.callAfter(self.ActiveEditor.Form.Raise)
 
 
+		def getGroupBandByExpr(self, expr):
+			for g in self.ReportForm["Groups"]:
+				if g["expr"] == expr:
+					return g
+			return None
+
+
 		def getContextMenu(self, mousePosition):
 			def onNewObject(evt):
 				"""Called from the context menu."""
@@ -410,6 +417,12 @@ def DesignerController():
 					copyObjs = []
 					for obj in objs:
 						copyObj = obj.getMemento()
+						parentBand = rdc.getParentBand(obj)
+						parentBandInfo = [str(type(parentBand)).split(".")[-1][:-2], None]
+						if "Group" in parentBandInfo[0]:
+							group = parentBand.parent
+							parentBandInfo[1] = group.get("expr")
+						copyObj["_parentBandInfo_"] = parentBandInfo
 						copyObjs.append(copyObj)
 					self.SetData(pickle.dumps(copyObjs))
 
@@ -424,6 +437,11 @@ def DesignerController():
 					return objs
 
 				def getReportObjectFromMemento(self, memento, parent=None):
+					parentInfo = memento.pop("_parentBandInfo_")
+					if "Group" in parentInfo[0]:
+						parent = rdc.getGroupBandByExpr(parentInfo[1])[parentInfo[0]]
+					else:
+						parent = rdc.ReportForm[parentInfo[0]]
 					obj = rw._getReportObject(memento["type"], parent)
 					del(memento["type"])
 					for k, v in memento.items():
@@ -489,7 +507,11 @@ def DesignerController():
 					parent.remove(obj)
 					removeNode = True
 				if removeNode:
-					self.ObjectTree.removeNode(self.ObjectTree.nodeForObject(obj))
+					nd = self.ObjectTree.nodeForObject(obj)
+					if nd is None:
+						print "!!! nd is None for object: ", obj
+					else:
+						self.ObjectTree.removeNode(nd)
 					if isinstance(obj, Group):
 						reInit = True
 			self.ActiveEditor.propsChanged(reinit=reInit)
@@ -513,17 +535,28 @@ def DesignerController():
 				# nothing valid in the clipboard
 				return
 
-			# Figure out the band to paste the obj(s) into:
-			selBands = self.getSelectedBands()
+			# Figure out the band to paste the obj(s) into. If the objects are from multiple
+			# bands, then paste the new objects into the same bands. If the objects are all
+			# from the same band, paste the new objects into the currently-selected band.
+			parents = []
 			selBand = None
+			for obj in objs:
+				if obj.parent not in parents:
+					parents.append(obj)
 
-			if len(selBands) > 0:
-				# paste into the first selected band
-				selBand = selBands[-1]
+			if len(parents) > 1:
+				# keep pasted objects in the same parents 
+				pass
 			else:
-				if len(self.SelectedObjects) > 0:
-					# paste into the parent band of the first selected object:
-					selBand = self.getParentBand(self.SelectedObjects[-1])
+				selBands = self.getSelectedBands()
+
+				if len(selBands) > 0:
+					# paste into the first selected band
+					selBand = selBands[-1]
+				else:
+					if len(self.SelectedObjects) > 0:
+						# paste into the parent band of the first selected object:
+						selBand = self.getParentBand(self.SelectedObjects[-1])
 
 			reInit = False
 			selectedObjects = []
@@ -538,8 +571,11 @@ def DesignerController():
 					obj.parent = pfObjects
 					reInit = True
 				else:
-					pfObjects = selBand.setdefault("Objects", [])
-					obj.parent = selBand
+					if selBand is not None:
+						pfObjects = selBand.setdefault("Objects", [])
+						obj.parent = selBand
+					else:
+						pfObjects = obj.parent.setdefault("Objects", [])
 				pfObjects.append(obj)
 				selectedObjects.append(obj)
 
