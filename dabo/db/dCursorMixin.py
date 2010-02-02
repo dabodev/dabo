@@ -19,8 +19,9 @@ from dabo.lib.utils import noneSortKey, caseInsensitiveSortKey
 class dCursorMixin(dObject):
 	"""Dabo's cursor class, representing the lowest tier."""
 	_call_initProperties = False
-	# Make this a class attribute, so that it is shared among all instances
+	# Make these class attributes, so that they are shared among all instances
 	_fieldStructure = {}
+	_fieldsToAlwaysCorrectType = []
 
 	def __init__(self, sql="", *args, **kwargs):
 		self._convertStrToUnicode = True
@@ -198,10 +199,11 @@ class dCursorMixin(dObject):
 		which only knows about a quite limited number of types.
 		"""
 		ret = field_val
-		if _newQuery:
+		if _newQuery or (field_name in self._fieldsToAlwaysCorrectType):
 			pythonType = self._types.get(field_name, type(field_val))
 			if pythonType is None or pythonType == type(None):
 				pythonType = self._types[field_name] = dabo.db.getDataType(type(field_val))
+				self._fieldsToAlwaysCorrectType.append(field_name)
 
 			if pythonType is None or isinstance(field_val, pythonType):
 				# No conversion needed.
