@@ -23,6 +23,7 @@ class Firebird(dBackend):
 		import kinterbasdb
 		initialized = getattr(kinterbasdb, "initialized", None)
 		if not initialized:
+			self.paramPlaceholder = "?"
 			if initialized is None:
 				# type_conv=200 KeyError with the older versions. User will need 
 				# mxDateTime installed as well:
