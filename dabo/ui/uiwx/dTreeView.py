@@ -623,18 +623,15 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			"selectedexpanded": wx.TreeItemIcon_SelectedExpanded}
 		if not which in whichdict.keys():
 			raise ValueError(_("Invalid Node State: %s") % which)
-		ret = self.GetItemImage(node.itemID, whichdict[which.lower()])
-		return ret		
+		return self.GetItemImage(node.itemID, whichdict[which.lower()])
 	
 	
 	def nodeForObject(self, obj):
 		"""Given an object, returns the corresponding node."""
 		try:
-			ret = [nd for nd in self.nodes
-					if nd._object is obj][0]
+			return [nd for nd in self.nodes	if nd._object is obj][0]
 		except IndexError:
-			ret = None
-		return ret
+			return None
 				
 	
 	def getParentNode(self, node):
