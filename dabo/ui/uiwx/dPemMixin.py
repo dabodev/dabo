@@ -1322,39 +1322,33 @@ class dPemMixin(dPemMixinBase):
 	
 	
 	def getCaptureBitmap(self):
-		"""Returns a bitmap snapshot of self, as it appears in the 
-		UI at this moment. NOTE: recent changes in wxPython may cause
-		the bitmap to be returned as monochrome under OS X.
-		"""
+		"""Return a bitmap snapshot of self as it appears in the UI at this moment."""
 		obj = self.Parent
 		if self.Parent is None:
 			obj = self
 		offset = 0
 		htReduction = 0
 		cltTop = self.absoluteCoordinates(self.GetClientAreaOrigin())[1]
-		if isinstance(self, dabo.ui.dForm):
+		if isinstance(self, (dabo.ui.dForm, dabo.ui.dDialog, dabo.ui.dPanel)):
 			dc = wx.WindowDC(self)
 			if self.Application.Platform == "Mac":
 				# Need to adjust for the title bar
 				offset = self.Top - cltTop
-			elif self.Application.Platform == "GTK":
-				# Probably no longer needed; currently commented out below.
-				htReduction = cltTop - self.Top
 		else:
 			dc = wx.ClientDC(obj)
 		# Make sure that the elements are all current
 		obj.iterateCall("_redraw", dc)
-		#obj._redraw(dc)
 
 		# Suggested as an alternative for OS X
 		if wx.Platform == "__WXMAC__":
 			return dc.GetAsBitmap()
+
 		rect = self.GetRect()
-		bmp = wx.EmptyBitmap(rect.width, rect.height, -1)	# - htReduction)
+		bmp = wx.EmptyBitmap(rect.width, rect.height, -1)  ## -1: use same color depth
 		memdc = wx.MemoryDC()
 		memdc.SelectObject(bmp)
-		
-		memdc.Blit(0, 0, self.Width, self.Height, dc, 0, offset)
+	
+		memdc.Blit(0, 0, rect.width, rect.height, dc, 0, offset)
 		memdc.SelectObject(wx.NullBitmap)
 		memdc.Destroy()
 		return bmp
