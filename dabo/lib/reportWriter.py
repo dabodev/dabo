@@ -397,6 +397,19 @@ class Drawable(ReportObject):
 		self.MajorProperty = "x"
 
 
+	def getTopPt(self):
+		"""Return the top pt of the object. Convenient as y can designate the
+		top, bottom, or middle of the object, depending on the vAnchor setting."""
+		ret = self.getPt(self.getProp("y"))
+		vAnchor = self.getProp("vAnchor").lower()
+		height = self.getPt(self.getProp("height"))
+		if vAnchor == "bottom":
+			ret += height
+		if vAnchor == "middle":
+			ret += (height / Decimal("2"))
+		return ret
+
+
 class Report(ReportObject):
 	"""Represents the report."""
 

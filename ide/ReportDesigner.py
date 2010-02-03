@@ -437,11 +437,16 @@ def DesignerController():
 					return objs
 
 				def getReportObjectFromMemento(self, memento, parent=None):
-					parentInfo = memento.pop("_parentBandInfo_")
-					if "Group" in parentInfo[0]:
-						parent = rdc.getGroupBandByExpr(parentInfo[1])[parentInfo[0]]
-					else:
-						parent = rdc.ReportForm[parentInfo[0]]
+					try:
+						parentInfo = memento.pop("_parentBandInfo_")
+					except KeyError:
+						parentInfo = None
+
+					if parentInfo:
+						if "Group" in parentInfo[0]:
+							parent = rdc.getGroupBandByExpr(parentInfo[1])[parentInfo[0]]
+						else:
+							parent = rdc.ReportForm[parentInfo[0]]
 					obj = rw._getReportObject(memento["type"], parent)
 					del(memento["type"])
 					for k, v in memento.items():
@@ -560,6 +565,7 @@ def DesignerController():
 
 			reInit = False
 			selectedObjects = []
+			max_y_needed = 0  # resize band if needed to show any objects
 			for obj in objs:
 				if isinstance(obj, Variable):
 					# paste into Variables whether or not Variables selected
@@ -572,6 +578,7 @@ def DesignerController():
 					reInit = True
 				else:
 					if selBand is not None:
+						max_y_needed = max(max_y_needed, obj.getTopPt())
 						pfObjects = selBand.setdefault("Objects", [])
 						obj.parent = selBand
 					else:
@@ -579,6 +586,10 @@ def DesignerController():
 				pfObjects.append(obj)
 				selectedObjects.append(obj)
 
+			if selBand and selBand.getProp("Height") is not None:
+				# Resize the pasted-into band to accomodate the new object, if necessary:
+				selBand.setProp("Height", str(max(selBand.getProp("Height"), max_y_needed)))
+			
 			self.ActiveEditor.propsChanged(reinit=reInit)
 			self.SelectedObjects = selectedObjects
 
