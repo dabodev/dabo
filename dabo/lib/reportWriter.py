@@ -819,6 +819,11 @@ class Line(Drawable):
 				give you a dash-dot look.""")
 
 
+def getTopPt_spanning(self):
+	# spanning objects don't have height: y is the top point.
+	return self.getPt(self.getProp("y"))
+
+
 class SpanningLine(Line):
 	"""Represents a line that spans from a group or page header to a group or page footer."""
 	def initAvailableProps(self):
@@ -834,6 +839,9 @@ class SpanningLine(Line):
 				"""Specifies the x of the ending point of the line, in the group or page footer.""")
 		self.AvailableProps["yFooter"] = toPropDict(float, 0.0, 
 				"""Specifies the y of the ending point of the line, in the group or page footer.""")
+
+	getTopPt = getTopPt_spanning
+	getTopPt.__doc__ = Drawable.getTopPt.__doc__
 
 
 class SpanningRectangle(Rectangle):
@@ -851,6 +859,10 @@ class SpanningRectangle(Rectangle):
 				"""Specifies the x of the ending point of the line, in the group or page footer.""")
 		self.AvailableProps["yFooter"] = toPropDict(float, 0.0, 
 				"""Specifies the y of the ending point of the line, in the group or page footer.""")
+
+	getTopPt = getTopPt_spanning
+	getTopPt.__doc__ = Drawable.getTopPt.__doc__
+
 
 
 class Frameset(Drawable):
