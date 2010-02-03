@@ -168,7 +168,7 @@ class Postgres(dBackend):
 				" AND has_table_privilege(c.oid, 'select')"
 				" ORDER BY c.relname, a.attname")
 		cursor.execute(' '.join(sql))
-		fldTypeDict= {"int4":"I", "int8":"I", "int2":"I","varchar": "C",  "char": "C",'bpchar': 'C', "bool":"B", "text": "M", "numeric":"N", "double":"F", "real":"F","float4":"F", "float4":"F", "datetime":"T", "timestamp":"T", "date": "D","bytea": "L", "point":"C", "box":"C", "circle":"C", "lseg":"C", "polygon":"C", "path":"C","oid":"I"}
+		fldTypeDict= {"int4":"I", "int8":"I", "int2":"I","varchar": "C",  "char": "C",'bpchar': 'C', "bool":"B", "text": "M", "numeric":"N", "double":"F", "real":"F","float4":"F", "float8":"F", "datetime":"T", "timestamp":"T", "date": "D","bytea": "L", "point":"C", "box":"C", "circle":"C", "lseg":"C", "polygon":"C", "path":"C","oid":"I"}
 		fields = []
 		for r in cursor.getDataSet():
 			name = r["attname"].strip()
