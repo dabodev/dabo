@@ -180,6 +180,9 @@ class LayoutSaverMixin(object):
 						continue
 			if prop == "BackColor" and isinstance(self, (LayoutPanel, LayoutSpacerPanel)):
 				continue
+			if isinstance(self, dabo.ui.dImage) and (prop == "Value") and self.Picture:
+				# Don't save the byte stream if there is an image path
+				continue
 
 			if hasattr(self, prop):
 				val = eval("self.%s" % prop)
