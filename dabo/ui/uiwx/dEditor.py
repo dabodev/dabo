@@ -1385,7 +1385,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			func = dabo.ui.getSaveAs
 		else:
 			func = dabo.ui.getFile
-		fname = func("py", "cdxml", "cnxml", "mnxml", "rfxml", "*", message=prompt, defaultPath=drct)
+		fname = func("py", "txt", "cdxml", "cnxml", "mnxml", "rfxml", "*", message=prompt, defaultPath=drct)
 		return fname
 	
 		
