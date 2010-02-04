@@ -442,7 +442,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				else:
 					# It's an object reference
 					self.__src = ds
-					self._srcIsInstanceMethod = False
 					if not isinstance(ds, (dObject, dPref)):
 						# Warn about possible unsupported behavior.
 						dabo.infoLog.write(_("DataSource '%s' does not inherit from a proper Dabo class. This may result in unsupported problems.") % ds.__repr__())
