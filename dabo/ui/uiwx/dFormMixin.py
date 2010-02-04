@@ -15,35 +15,13 @@ from dabo.ui import makeDynamicProperty
 
 
 class dFormMixin(pm.dPemMixin):
-	def Maximize(self, maximize=True, *args, **kwargs):
-		# On Mac MDI Child Frames, Maximize(False) erroneously maximizes. Not sure
-		# how to restore a maximized frame in this case, but at least we can catch
-		# the case where the window isn't maximized already.
-		if self.MDI and sys.platform.startswith("darwin") and not maximize \
-				and not self.IsMaximized():
-			return
-		super(dFormMixin, self).Maximize(maximize, *args, **kwargs)
-
-	def SetPosition(self, val):
-		# On Windows MDI Child frames when the main form has a toolbar, setting the
-		# top position results in a position too low by the height of the toolbar. 
-		left, top = val
-		tb = None
-		if self.Form:
-			tb = self.Form.ToolBar
-		if sys.platform.startswith("win") \
-				and self.MDI \
-				and tb:
-			top -= tb.Height 
-		super(dFormMixin, self).SetPosition((left, top))
-
-	
 	def __init__(self, preClass, parent=None, properties=None, attProperties=None, 
 			src=None, *args, **kwargs):
 		self._cxnName = ""
 		self._connection = None
 		self._floatingPanel = None
-
+		self._statusBarClass = dabo.ui.dStatusBar
+		
 		# Extract the menu definition file, if any
 		self._menuBarFile = self._extractKey((properties, attProperties, kwargs), 
 				"MenuBarFile", "")
@@ -63,6 +41,7 @@ class dFormMixin(pm.dPemMixin):
 				style = wx.DEFAULT_FRAME_STYLE
 		kwargs["style"] = style
 
+		# Manages RegID values and their controls
 		self._objectRegistry = {}
 
 		# Flag to skip updates when they aren't needed
@@ -172,6 +151,28 @@ class dFormMixin(pm.dPemMixin):
 		evt.Skip()
 			
 			
+	def Maximize(self, maximize=True, *args, **kwargs):
+		# On Mac MDI Child Frames, Maximize(False) erroneously maximizes. Not sure
+		# how to restore a maximized frame in this case, but at least we can catch
+		# the case where the window isn't maximized already.
+		if self.MDI and sys.platform.startswith("darwin") and not maximize \
+				and not self.IsMaximized():
+			return
+		super(dFormMixin, self).Maximize(maximize, *args, **kwargs)
+
+
+	def SetPosition(self, val):
+		# On Windows MDI Child frames when the main form has a toolbar, setting the
+		# top position results in a position too low by the height of the toolbar. 
+		left, top = val
+		tb = None
+		if self.Form:
+			tb = self.Form.ToolBar
+		if sys.platform.startswith("win") \
+				and self.MDI \
+				and tb:
+			top -= tb.Height 
+		super(dFormMixin, self).SetPosition((left, top))
 
 
 	def _createToolBar(self):
@@ -188,9 +189,10 @@ class dFormMixin(pm.dPemMixin):
 				and self.StatusBar is None
 				and not isinstance (self, wx.Dialog)
 				and (sys.platform.startswith("darwin") or not isinstance(self, wx.MDIChildFrame))):
-			self.StatusBar = dabo.ui.dStatusBar(self)
-		
-	
+			SBC = self.StatusBarClass
+			self.StatusBar = SBC(self)
+
+
 	def __onDeactivate(self, evt):
 		if self.Application is not None and self.Application.ActiveForm == self:
 			self.Application.clearActiveForm(self)
@@ -903,6 +905,17 @@ class dFormMixin(pm.dPemMixin):
 	def _setStatusBar(self, val):
 		self.SetStatusBar(val)
 
+
+	def _getStatusBarClass(self):
+		return self._statusBarClass
+
+	def _setStatusBarClass(self, val):
+		if self._constructed():
+			self._statusBarClass = val
+		else:
+			self._properties["StatusBarClass"] = val
+
+
 	def _getStatusText(self):
 		ret = ""
 		if sys.platform.startswith("win") and isinstance(self, wx.MDIChildFrame):
@@ -936,8 +949,9 @@ class dFormMixin(pm.dPemMixin):
 		except (AttributeError, TypeError):
 			statusBar = None
 
-		if statusBar:
-			controllingFrame.SetStatusText(val)
+		if statusBar:	
+			sb = controllingFrame.GetStatusBar()
+			sb.SetStatusText(val)
 			statusBar.Update()
 			
 
@@ -1110,6 +1124,9 @@ class dFormMixin(pm.dPemMixin):
 
 	StatusBar = property(_getStatusBar, _setStatusBar, None,
 			_("Status bar for this form. (dStatusBar)"))
+
+	StatusBarClass = property(_getStatusBarClass, _setStatusBarClass, None,
+			_("Class to be used for this form's status bar. Default=dStatusBar (dStatusBar)"))
 
 	StatusText = property(_getStatusText, _setStatusText, None,
 			_("Text displayed in the form's status bar. (string)"))
