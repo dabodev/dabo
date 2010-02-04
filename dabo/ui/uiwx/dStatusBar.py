@@ -18,9 +18,10 @@ class dStatusBar(dcm.dControlMixin, wx.StatusBar):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dStatusBar
 		preClass = wx.PreStatusBar
+		self._platformIsWindows = (self.Application.Platform == "Win")
+		self._fieldCount = 1
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
 				*args, **kwargs)
-		self._platformIsWindows = (self.Application.Platform == "Win")
 
 
 	def layout(self):
@@ -38,4 +39,19 @@ class dStatusBar(dcm.dControlMixin, wx.StatusBar):
 			pass
 		if self._platformIsWindows:
 			self.refresh()
-		
+
+
+	def _getFieldCount(self):
+		return self._fieldCount
+
+	def _setFieldCount(self, val):
+		if self._constructed():
+			self._fieldCount = val
+			self.SetFieldsCount(val)
+		else:
+			self._properties["FieldCount"] = val
+
+
+	FieldCount = property(_getFieldCount, _setFieldCount, None,
+			_("Number of areas, or 'fields', in the status bar. Default=1  (int)"))
+
