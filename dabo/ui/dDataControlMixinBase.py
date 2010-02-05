@@ -269,7 +269,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		if self._DesignerMode:
 			# Don't bother in design mode.
 			return
-		value = self.Value
+		value = self._value  ## on Win, the C++ object is already gone
 		if self.Application:
 			if self.RegID:
 				name = "%s.%s" % (self.Form.Name, self.RegID)
@@ -317,8 +317,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 		User code shouldn't need to access or override this.
 		"""
-		if self._inDataUpdate or self._from_flushValue:
-			return
 		# Maintain an internal copy of the value, separate from the
 		# property, so that we still have the value regardless of whether
 		# or not the underlying ui object still exists (in wx at least,
@@ -326,6 +324,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		# so we need a copy of the value for any routine that happens
 		# upon Destroy (saveValue, for instance)):
 		self._value = self.Value
+
+		if self._inDataUpdate or self._from_flushValue:
+			return
 
 		if (self.Form.ActiveControl != self
 				or not getattr(self, "_flushOnLostFocus", False)):
