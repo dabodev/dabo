@@ -367,6 +367,15 @@ class dPemMixin(dPemMixinBase):
 	def _initEvents(self):
 		# Bind wx events to handlers that re-raise the Dabo events:
 		targ = self._EventTarget
+
+		# Bind EVT_WINDOW_DESTROY twice: once to parent, and once to self. Binding 
+		# to the parent allows for attribute access of the child in the dEvents.Destroy
+		# handler, in most cases. In some cases (panels at least), the self binding fires
+		# first. We sort it out in __onWxDestroy, only reacting to the first destroy
+		# event.
+		parent = self.GetParent()
+		if parent:
+			parent.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
 		self.Bind(wx.EVT_IDLE, self.__onWxIdle)
 		self.Bind(wx.EVT_MENU_OPEN, targ.__onWxMenuOpen)
@@ -518,7 +527,12 @@ class dPemMixin(dPemMixinBase):
 		
 		
 	def __onWxDestroy(self, evt):
-		self._finito = (self == evt.GetEventObject() )
+		if getattr(self, "_destroyAlreadyFired", False):
+			# we bind twice, once to parent and once to self, because some wxPython
+			# objects are still accessible this way while others are not. 
+			return
+		self._finito = (self is evt.GetEventObject() )
+		self._destroyAlreadyFired = True
 		self.raiseEvent(dEvents.Destroy, evt)
 
 		
