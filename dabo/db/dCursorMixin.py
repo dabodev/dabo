@@ -1767,6 +1767,15 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return row
 
 
+	def hasPK(self, pk):
+		"""Return True if the passed pk is present in the dataset."""
+		pks = (v[self.KeyField] for v in self._records)
+		for trial_pk in pks:
+			if trial_pk == pk:
+				return True
+		return False
+
+		
 	def moveToPK(self, pk):
 		""" Find the record with the passed primary key, and make it active.
 

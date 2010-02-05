@@ -1246,6 +1246,11 @@ class dBizobj(dObject):
 			raise dabo.dException.RowNotFoundException, _("PK Value '%s' not found in the dataset") % str(pk)
 
 
+	def hasPK(self, pk):
+		"""Return True if the passed PK value is present in the dataset."""
+		return self._CurrentCursor.hasPK(pk)
+
+
 	def seek(self, val, fld=None, caseSensitive=False, near=False, runRequery=True):
 		""" Search for a value in a field, and move the record pointer to the match.
 
