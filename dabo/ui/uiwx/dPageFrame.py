@@ -492,7 +492,7 @@ if _USE_FLAT:
 				Setting this property to True will set ShowNavButtons to False"""))
 
 		ShowMenuCloseButton = property(_getShowMenuCloseButton, _setShowMenuCloseButton, None,
-				_("Specifies whether the close button is visible in the menu (bool) (Default=False)"))
+				_("Specifies whether the close button is visible in the menu (bool) (Default=True)"))
 
 		ShowMenuOnSingleTab = property(_getShowMenuOnSingleTab, _setShowMenuOnSingleTab, None,
 				_("Specifies whether the tab thumbs and nav buttons are shown when there is a single tab. (bool) (Default=True)"))
