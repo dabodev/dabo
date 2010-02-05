@@ -1769,11 +1769,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def hasPK(self, pk):
 		"""Return True if the passed pk is present in the dataset."""
-		pks = (v[self.KeyField] for v in self._records)
-		for trial_pk in pks:
-			if trial_pk == pk:
-				return True
-		return False
+		kf = self.KeyField
+		return bool([v[kf] for v in self._records if v[kf] == pk])
 
 		
 	def moveToPK(self, pk):
