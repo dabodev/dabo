@@ -533,8 +533,10 @@ class dPemMixin(dPemMixinBase):
 			return
 		self._finito = (self is evt.GetEventObject() )
 		self._destroyAlreadyFired = True
-		self.raiseEvent(dEvents.Destroy, evt)
-
+		try:
+			self.raiseEvent(dEvents.Destroy, evt)
+		except dabo.ui.deadObjectException:
+			pass
 		
 	def __onWxIdle(self, evt):
 		if self._needRedraw:
