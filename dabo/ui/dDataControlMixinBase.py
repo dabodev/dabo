@@ -269,9 +269,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		if self._DesignerMode:
 			# Don't bother in design mode.
 			return
-		# It is too late to get Value directly (since we are being called from Destroy, and wx
-		# has already released the C++ part of the object).
-		value = self._value
+		value = self.Value
 		if self.Application:
 			if self.RegID:
 				name = "%s.%s" % (self.Form.Name, self.RegID)
