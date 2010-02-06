@@ -85,6 +85,8 @@ class _BasePanelMixin(object):
 
 	def layout(self, resetMin=False):
 		""" Wrap the wx version of the call, if possible. """
+		if not self:
+			return
 		if resetMin or self._alwaysResetSizer or self._square:
 			# Set the panel's minimum size back to zero. This is sometimes
 			# necessary when the items in the panel have reduced in size.
