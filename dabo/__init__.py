@@ -222,10 +222,14 @@ def quickStart(homedir=None):
 	directory, or the current one if none is specified.
 	"""
 	currLoc = os.getcwd()
-	if homedir is not None:
-		if not os.path.exists(homedir):
-			os.makedirs(homedir)
-		os.chdir(homedir)
+	if homedir is None:
+		homedir = raw_input("Enter the name for your application: ")
+	if not homedir:
+		return
+
+	if not os.path.exists(homedir):
+		os.makedirs(homedir)
+	os.chdir(homedir)
 	makeDaboDirectories()
 	open("main.py", "w").write("""#!/usr/bin/env python
 # -*- coding: utf-8 -*-
@@ -264,3 +268,4 @@ app.start()
 		open(fname, "w").write(txt)
 	os.chmod("main.py", 0744)
 	os.chdir(currLoc)
+	print "Application '%s' has been created for you" % homedir
