@@ -5,6 +5,7 @@ import datetime
 import time
 import operator
 import re
+import warnings
 from decimal import Decimal
 from decimal import InvalidOperation
 import wx
@@ -1737,7 +1738,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._inUpdateSelection = False
 		
 		# Do we show row or column labels?
-		self._showColumnLabels = True
+		self._showHeaders = True
 		self._showRowLabels = False
 		
 		# Declare Internal Row Attributes
@@ -4112,6 +4113,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def _setHeaderHeight(self, val):
 		if self._constructed():
+			if val <= 0:
+				self._lastPositiveHeaderHeight = self.GetColLabelSize()
 			self.SetColLabelSize(val)
 		else:
 			self._properties["HeaderHeight"] = val
@@ -4404,17 +4407,43 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getShowColumnLabels(self):
-		return self._showColumnLabels
+		warnings.warn(_("ShowColumnLabels is deprecated. Use ShowHeaders instead"), DeprecationWarning)
+		return self._showHeaders
 
 	def _setShowColumnLabels(self, val):
 		if self._constructed():
-			self._showColumnLabels = val
+			warnings.warn(_("ShowColumnLabels is deprecated. Use ShowHeaders instead"), DeprecationWarning)
+			self._showHeaders = val
 			if val:
 				self.SetColLabelSize(self.HeaderHeight)
 			else:
 				self.SetColLabelSize(0)
 		else:
 			self._properties["ShowColumnLabels"] = val
+
+
+	def _getShowHeaders(self):
+		return self._showHeaders
+
+	def _setShowHeaders(self, val):
+		if self._constructed():
+			self._showHeaders = val
+			if val:
+				hh = getattr(self, "_lastPositiveHeaderHeight", None)
+				if not hh:
+					# Use current if already positive:
+					hh = self.GetColLabelSize()
+				if not hh:
+					# Set a reasonable default (should never happen)
+					hh = 32
+				self.SetColLabelSize(hh)
+			else:
+				curr = self.GetColLabelSize()
+				if curr > 0:
+					self._lastPositiveHeaderHeight = curr
+				self.SetColLabelSize(0)
+		else:
+			self._properties["ShowHeaders"] = val
 
 
 	def _getShowRowLabels(self):
@@ -4662,7 +4691,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			_("Are borders around cells shown?  (bool)") )
 
 	ShowColumnLabels = property(_getShowColumnLabels, _setShowColumnLabels, None,
-			_("Are column labels shown?  (bool)") )
+			_("""Are column labels shown?  (bool)
+
+			DEPRECATED: Use ShowHeaders instead.""") )
+
+	ShowHeaders = property(_getShowHeaders, _setShowHeaders, None,
+			_("""Are grid column headers shown?  (bool)""") )
 
 	ShowRowLabels = property(_getShowRowLabels, _setShowRowLabels, None,
 			_("Are row labels shown?  (bool)") )
@@ -4714,6 +4748,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	DynamicSelectionMode = makeDynamicProperty(SelectionMode)
 	DynamicShowCellBorders = makeDynamicProperty(ShowCellBorders)
 	DynamicShowColumnLabels = makeDynamicProperty(ShowColumnLabels)
+	DynamicShowHeaders = makeDynamicProperty(ShowHeaders)
 	DynamicShowRowLabels = makeDynamicProperty(ShowRowLabels)
 	DynamicSortable = makeDynamicProperty(Sortable)
 	DynamicTabNavigates = makeDynamicProperty(TabNavigates)
@@ -4800,8 +4835,6 @@ class _dGrid_test(dGrid):
 		for i in range(20):
 			self.addColumn(DataField="i_%s" % i, Caption="i_%s" % i)
 
-		#self.RowLabels = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
-		#self.ShowRowLabels = True
 
 if __name__ == '__main__':
 	class TestForm(dabo.ui.dForm):
@@ -4817,9 +4850,9 @@ if __name__ == '__main__':
 			chk.update()
 			gsz.append(chk, row=0, col=0)
 
-			chk = dabo.ui.dCheckBox(self, Caption="Show Row Labels",
-					RegID="showRowLabels", DataSource="sampleGrid",
-					DataField="ShowRowLabels")
+			chk = dabo.ui.dCheckBox(self, Caption="Show Headers",
+					RegID="showHeaders", DataSource="sampleGrid",
+					DataField="ShowHeaders")
 			gsz.append(chk, row=1, col=0)
 			chk.update()
 
