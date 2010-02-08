@@ -570,7 +570,7 @@ class AppWizard(Wizard):
 		self.Size = (520, 560)
 		
 		if defaultDirectory is None:
-			self.wizDir = sys.path[0]
+			self.wizDir = self.Application.HomeDirectory
 		else:
 			self.wizDir = defaultDirectory
 		self.tableDict = {}
@@ -1183,10 +1183,8 @@ if __name__ == "__main__":
 	app.setAppInfo("appShortName", "AppWizard")
 
 	app.MainFormClass = None
-	# Need to capture this before app.setup() is called.
-	defdir = sys.path[0]
 	app.setup()
-	wiz = AppWizard(None, defaultDirectory=defdir)
+	wiz = AppWizard(None)
 	
 	# No need to start the app; when the wizard exits, so will the app.
 	
