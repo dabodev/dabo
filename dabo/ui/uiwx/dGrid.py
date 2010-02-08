@@ -4410,7 +4410,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if self._constructed():
 			self._showColumnLabels = val
 			if val:
-				self.SetColLabelSize(self.ColumnLabelHeight)
+				self.SetColLabelSize(self.HeaderHeight)
 			else:
 				self.SetColLabelSize(0)
 		else:
