@@ -1839,10 +1839,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# Set the header props/events
 		self.initHeader()
 		# Make sure that the columns are sized properly
-		self._updateColumnWidths()
+		dabo.ui.callAfter(self._updateColumnWidths)
 
 
-	def initEvents(self):
+	def _initEvents(self):
 		## pkm: Don't do the grid_cell mouse events, because we handle it manually and it
 		##      would result in doubling up the events.
 		#self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__onWxGridCellMouseLeftDoubleClick)
@@ -1881,6 +1881,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 #		self.bindEvent(dEvents.GridContextMenu, self._onContextMenu)
 		self.bindEvent(dEvents.GridMouseRightClick, self._onGridMouseRightClick)
 		self.bindEvent(dEvents.Resize, self._onGridResize)
+		super(dGrid, self)._initEvents()
 
 
 	def initHeader(self):
@@ -2285,7 +2286,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _onGridResize(self, evt):
-		dabo.ui.callAfter(self._updateColumnWidths)
+		dabo.ui.callAfterInterval(50, self._updateColumnWidths)
 
 
 	@dabo.ui.deadCheck
@@ -2301,7 +2302,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# Add up the current widths
 		wds = [col.Width for col in self.Columns]
 		wd = reduce(lambda x, y: x+y, wds)
-		diff = self.Width - wd
+		# Subtract one extra pixel to avoid triggering the scroll bar.
+		diff = self.Width - wd - 1
 		if not diff:
 			return
 		adj = diff/ dynColCnt
@@ -3201,6 +3203,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		app = self.Application
 		if app is not None:
 			col._persist("Width")
+		dabo.ui.callAfterInterval(50, self._updateColumnWidths)
+
 
 	def _onGridHeaderMouseMove(self, evt):
 		curMousePosition = evt.EventData["mousePosition"]
@@ -4058,6 +4062,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self.fillGrid(True)
 			biz = self.getBizobj()
 			if biz:
+				self.SelectRow(biz.RowNumber)
 				self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		else:
 			self._properties["DataSource"] = val
