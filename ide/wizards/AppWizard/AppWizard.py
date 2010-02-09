@@ -252,14 +252,23 @@ class PageDatabase(AppWizardPage):
 		else:
 			showFields = self.serverFields
 		for fld in self.fieldNames:
+			ctl = getattr(self, "ctl%s" % fld)
 			if fld in showFields:
 				val = dbdefs[fld]
-				exec("self.ctl%s.Value = r'%s' " % (fld, val) )
-				exec("self.ctl%s.Visible = True " % fld )
+				try:
+					ctl.Value = val
+				except ValueError, e:
+					if "string must be present in the choices" in str(e).lower():
+						# Not sure why the saved profile dbType is empty. No time to 
+						# find out why now, but at least the AW won't crash anymore.
+						pass
+					else:
+						raise
+				ctl.Visible = True
 			else:
 				# Not a field used for this db type
-				exec("self.ctl%s.Value = None" % fld )
-				exec("self.ctl%s.Visible = False " % fld )
+				ctl.Value = None
+				ctl.Visible = False
 		# Enable the file search button if this is a file-based backend
 		if embedded:
 			self.szDB.showItem(self.btnSrch)
