@@ -2286,7 +2286,34 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _onGridResize(self, evt):
-		dabo.ui.callAfterInterval(50, self._updateColumnWidths)
+		dabo.ui.callAfter(self._updateColumnWidths)
+
+
+	def _totalContentWidth(self):
+		ret = sum([col.Width for col in self.Columns])
+		if self.ShowRowLabels:
+			ret += self.RowLabelWidth
+		return ret
+
+
+	def _totalContentHeight(self):
+		if self.SameSizeRows:
+			ret = self.RowHeight * self.RowCount
+		else:
+			ret = sum([self.GetRowSize(r) for r in xrange(self.RowCount)])
+		if self.ShowHeaders:
+			ret += self.HeaderHeight
+		return ret
+
+
+	def isScrollBarVisible(self, which):
+		whichSide = {"h": wx.HORIZONTAL, "v": wx.VERTICAL}[which[0].lower()]
+		sr = self.GetScrollRange(whichSide)
+		if self.Application.Platform == "Win":
+			# For some reason, GetScrollRange() returns either 1 or 101 when the scrollbar
+			# is not visible under Windows. Under OS X, it returns 0 as expected.
+			return sr not in (1, 101)
+		return bool(sr)
 
 
 	@dabo.ui.deadCheck
@@ -2294,16 +2321,22 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		"""See if there are any dynamically-sized columns, and resize them
 		accordingly.
 		"""
+		if not [col for col in self.Columns if col.Expand]:
+			return
+		dabo.ui.callAfterInterval(10, self._delayedUpdateColumnWidths)
+	def _delayedUpdateColumnWidths(self):
 		dynCols = [col for col in self.Columns
 				if col.Expand]
-		if not dynCols:
-			return
 		dynColCnt = len(dynCols)
-		# Add up the current widths
-		wds = [col.Width for col in self.Columns]
-		wd = reduce(lambda x, y: x+y, wds)
-		# Subtract one extra pixel to avoid triggering the scroll bar.
-		diff = self.Width - wd - 1
+		colWd = self._totalContentWidth()
+		rowHt = self._totalContentHeight()
+		if self.isScrollBarVisible("v"):
+			# This will probably be OS-dependent. This works on OS X.
+			colWd += 17
+		wd, ht = self.Size
+		# Subtract extra pixels to avoid triggering the scroll bar. Again, this
+		# will probably be OS-dependent
+		diff = self.Width - colWd - 10
 		if not diff:
 			return
 		adj = diff/ dynColCnt
@@ -4801,7 +4834,7 @@ class _dGrid_test(dGrid):
 
 		col = dColumn(self, Name="Person", Order=20, DataField="name",
 				DataType="string", Width=200, Caption="Celebrity Name",
-				Sortable=True, Searchable=True, Editable=True, Expand=False)
+				Sortable=True, Searchable=True, Editable=True, Expand=True)
 		self.addColumn(col)
 
 		col.HeaderFontItalic = True
@@ -4837,7 +4870,8 @@ class _dGrid_test(dGrid):
 		col.HeaderHorizontalAlignment = "Right"
 		col.HeaderForeColor = "brown"
 
-		for i in range(20):
+		for i in range(1):
+			# Can't test Expand with so many columns! Just add one.
 			self.addColumn(DataField="i_%s" % i, Caption="i_%s" % i)
 
 
