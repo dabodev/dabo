@@ -85,7 +85,7 @@ class _LookupPanel(dabo.ui.dPanel):
 
 	def refilter(self):
 		"""Display only those commands that contain the search string"""
-		self.DisplayedHistory = self.History.filter("cmd", self.currentSearch, "contains")
+		self.DisplayedHistory = self.History.filterByExpression(" '%s' in cmd.lower() " % self.currentSearch.lower())
 		sel = self.lstMatch.Value
 		self.lstMatch.Choices = [rec["cmd"] for rec in self.DisplayedHistory]
 		if sel:
