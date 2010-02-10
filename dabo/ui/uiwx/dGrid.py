@@ -1736,7 +1736,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._inRangeSelect = False
 		# Flag to indicate we are in a selection update event
 		self._inUpdateSelection = False
-		
+
 		# Do we show row or column labels?
 		self._showHeaders = True
 		self._showRowLabels = False
@@ -1800,6 +1800,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.searchCaseSensitive = False
 		# How many characters of strings do we display?
 		self.stringDisplayLen = 64
+
+		scrollbars = [kid for kid in self.GetChildren() if isinstance(kid, wx.ScrollBar)]
+		try:
+			self._scrollbarDim = min(scrollbars[0].GetSize())
+		except (IndexError, AttributeError):
+			self._scrollbarDim = 15
 
 		self.currSearchStr = ""
 		self.incSearchTimer = dabo.ui.dTimer(self)
@@ -2289,20 +2295,24 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		dabo.ui.callAfter(self._updateColumnWidths)
 
 
-	def _totalContentWidth(self):
+	def _totalContentWidth(self, addScrollBar=False):
 		ret = sum([col.Width for col in self.Columns])
 		if self.ShowRowLabels:
 			ret += self.RowLabelWidth
+		if addScrollBar and self.isScrollBarVisible("v"):
+			ret += self._scrollbarDim
 		return ret
 
 
-	def _totalContentHeight(self):
+	def _totalContentHeight(self, addScrollBar=False):
 		if self.SameSizeRows:
 			ret = self.RowHeight * self.RowCount
 		else:
 			ret = sum([self.GetRowSize(r) for r in xrange(self.RowCount)])
 		if self.ShowHeaders:
 			ret += self.HeaderHeight
+		if addScrollBar and self.isScrollBarVisible("h"):
+			ret += self._scrollbarDim
 		return ret
 
 
@@ -2321,24 +2331,43 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		"""See if there are any dynamically-sized columns, and resize them
 		accordingly.
 		"""
+		try:
+			if self._inColWidthUpdate:
+				return
+		except AttributeError:
+			pass
+		self._inColWidthUpdate = False
 		if not [col for col in self.Columns if col.Expand]:
 			return
 		dabo.ui.callAfterInterval(10, self._delayedUpdateColumnWidths)
-	def _delayedUpdateColumnWidths(self):
+	def _delayedUpdateColumnWidths(self, redo=False):
+		def _setFlag():
+			self._inColWidthUpdate = True
+# 			self.lockDisplay()
+		def _clearFlag():
+			self._inColWidthUpdate = False
+# 			self.unlockDisplay()
+
+		if self._inColWidthUpdate:
+			return
+		_setFlag()
 		dynCols = [col for col in self.Columns
 				if col.Expand]
 		dynColCnt = len(dynCols)
-		colWd = self._totalContentWidth()
+		colWd = self._totalContentWidth(addScrollBar=True)
 		rowHt = self._totalContentHeight()
-		if self.isScrollBarVisible("v"):
-			# This will probably be OS-dependent. This works on OS X.
-			colWd += 17
 		wd, ht = self.Size
 		# Subtract extra pixels to avoid triggering the scroll bar. Again, this
 		# will probably be OS-dependent
 		diff = self.Width - colWd - 10
+		if redo and not diff:
+			diff = -10
 		if not diff:
+			dabo.ui.callAfterInterval(5, _clearFlag)
 			return
+		if not redo and (diff == self._scrollbarDim):
+			# This can cause infinite loops as we adjust constantly
+			diff -= 1
 		adj = diff/ dynColCnt
 		mod = diff % dynColCnt
 		for col in dynCols:
@@ -2347,6 +2376,15 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				mod -= 1
 			else:
 				col.Width += adj
+			col.Width = max(24, col.Width)
+		# Check to see if we need a further adjustment
+		adjWd = self._totalContentWidth()
+		if self.isScrollBarVisible("h") and (adjWd < self.Width):
+			_clearFlag()
+			#dabo.ui.callAfterInterval(20, self._delayedUpdateColumnWidths, redo=True)
+			self._delayedUpdateColumnWidths(redo=True)
+		else:
+			dabo.ui.callAfterInterval(5, _clearFlag)
 
 
 	def autoSizeCol(self, colNum, persist=False):
@@ -2363,9 +2401,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self.unlockDisplay()
 			self._inAutoSizeLoop = False
 			return
-
 		maxWidth = 250  ## limit the width of the column to something reasonable
-
 		if not self._inAutoSizeLoop:
 			# lock the screen
 			self.lockDisplay()
@@ -2397,8 +2433,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if not self._inAutoSizeLoop:
 			self.refresh()
 			self.unlockDisplay()
+			self._updateColumnWidths()
 
-	
 
 	def _paintHeader(self, updateBox=None, _paintDC=False):
 		w = self._getWxHeader()
@@ -3236,7 +3272,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		app = self.Application
 		if app is not None:
 			col._persist("Width")
-		dabo.ui.callAfterInterval(50, self._updateColumnWidths)
+		dabo.ui.callAfterInterval(20, self._updateColumnWidths)
 
 
 	def _onGridHeaderMouseMove(self, evt):
