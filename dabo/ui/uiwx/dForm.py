@@ -198,12 +198,13 @@ class BaseForm(fm.dFormMixin):
 		""" Add a bizobj to this form.
 
 		Make the bizobj the form's primary bizobj if it is the first bizobj to 
-		be added.
+		be added. For convenience, return the bizobj to the caller
 		"""
 		self.bizobjs[bizobj.DataSource] = bizobj
 		if len(self.bizobjs) == 1:
 			self.PrimaryBizobj = bizobj
 		self.setStatusText("Bizobj '%s' %s." % (bizobj.DataSource, _("added")))
+		return bizobj
 
 
 	def afterSetPrimaryBizobj(self):
