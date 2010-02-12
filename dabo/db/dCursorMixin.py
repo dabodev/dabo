@@ -198,23 +198,26 @@ class dCursorMixin(dObject):
 		self.DataStructure reports. The latter can happen with SQLite, for example,
 		which only knows about a quite limited number of types.
 		"""
+		if field_val is None:
+			return field_val
 		ret = field_val
 		if _newQuery or (field_name in self._fieldsToAlwaysCorrectType):
-			pythonType = self._types.get(field_name, type(field_val))
+			pythonType = self._types.get(field_name, None)
 			if pythonType is None or pythonType == type(None):
 				pythonType = self._types[field_name] = dabo.db.getDataType(type(field_val))
-				self._fieldsToAlwaysCorrectType.append(field_name)
 
-			if pythonType is None or isinstance(field_val, pythonType):
+			if isinstance(field_val, str) and self._convertStrToUnicode:
+				# convert to unicode
+				pass
+			elif pythonType is None or isinstance(field_val, pythonType):
 				# No conversion needed.
 				return ret
+			else:
+				self._fieldsToAlwaysCorrectType.append(field_name)
 
 			if pythonType in (unicode,):
 				# Unicode conversion happens below.
 				pass
-			elif field_val is None:
-				# Fields of any type can be None (NULL).
-				return field_val
 			elif pythonType in (datetime.datetime, ) and isinstance(field_val, basestring):
 				ret = dates.getDateTimeFromString(field_val)
 				if ret is None:
