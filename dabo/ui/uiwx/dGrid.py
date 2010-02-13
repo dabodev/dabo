@@ -746,6 +746,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			kwargs = {}
 			if editorClass in (wx.grid.GridCellChoiceEditor,):
 				kwargs["choices"] = self.ListEditorChoices
+			# Fix for editor precision issue.
+			elif editorClass in (wx.grid.GridCellFloatEditor,):
+				kwargs["precision"] = self.Precision
 			editor = editorClass(**kwargs)
 		self._gridColAttr.SetEditor(editor)
 
@@ -1701,6 +1704,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	screen is copied and displayed.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
+		# Get scrollbar size from system metrics.
+		self._scrollBarSize = wx.SystemSettings_GetMetric(wx.SYS_VSCROLL_X)
 		self._baseClass = dGrid
 		preClass = wx.grid.Grid
 
@@ -1800,12 +1805,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.searchCaseSensitive = False
 		# How many characters of strings do we display?
 		self.stringDisplayLen = 64
-
-		scrollbars = [kid for kid in self.GetChildren() if isinstance(kid, wx.ScrollBar)]
-		try:
-			self._scrollbarDim = min(scrollbars[0].GetSize())
-		except (IndexError, AttributeError):
-			self._scrollbarDim = 15
 
 		self.currSearchStr = ""
 		self.incSearchTimer = dabo.ui.dTimer(self)
@@ -2094,7 +2093,15 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getDaboVisibleCols(self):
-		return [e[0] for e in enumerate(self._columns) if e[1].Visible]
+		try:
+			return [e[0] for e in enumerate(self._columns) if e[1].Visible]
+		except wx._core.PyAssertionError, e:	
+			# Can happen when an editor is active and columns resize
+			ret = []
+			for pos, col in enumerate(self._columns):
+				if col.Visible:
+					ret.append(pos)
+			return ret
 
 
 	def _convertWxColNumToDaboColNum(self, wxCol):
@@ -2292,7 +2299,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _onGridResize(self, evt):
-		dabo.ui.callAfter(self._updateColumnWidths)
+		# Prevent unnecessary event processing.
+		try:
+			updCol = (self._lastSize != evt._uiEvent.Size)
+		except AttributeError:
+			updCol = True
+		if updCol:
+			self._lastSize = evt._uiEvent.Size
+			dabo.ui.callAfter(self._updateColumnWidths)
 
 
 	def _totalContentWidth(self, addScrollBar=False):
@@ -2300,7 +2314,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if self.ShowRowLabels:
 			ret += self.RowLabelWidth
 		if addScrollBar and self.isScrollBarVisible("v"):
-			ret += self._scrollbarDim
+			ret += self._scrollBarSize
 		return ret
 
 
@@ -2312,7 +2326,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if self.ShowHeaders:
 			ret += self.HeaderHeight
 		if addScrollBar and self.isScrollBarVisible("h"):
-			ret += self._scrollbarDim
+			ret += self._scrollBarSize
 		return ret
 
 
@@ -2337,16 +2351,16 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		except AttributeError:
 			pass
 		self._inColWidthUpdate = False
-		if not [col for col in self.Columns if col.Expand]:
-			return
-		dabo.ui.callAfterInterval(10, self._delayedUpdateColumnWidths)
+		if [col for col in self.Columns if col.Expand]:
+			dabo.ui.callAfterInterval(10, self._delayedUpdateColumnWidths)
+
 	def _delayedUpdateColumnWidths(self, redo=False):
 		def _setFlag():
 			self._inColWidthUpdate = True
-# 			self.lockDisplay()
+			self.BeginBatch()
 		def _clearFlag():
 			self._inColWidthUpdate = False
-# 			self.unlockDisplay()
+			self.EndBatch()
 
 		if self._inColWidthUpdate:
 			return
@@ -2356,32 +2370,32 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		dynColCnt = len(dynCols)
 		colWd = self._totalContentWidth(addScrollBar=True)
 		rowHt = self._totalContentHeight()
-		wd, ht = self.Size
+		grdWd = self.Width
 		# Subtract extra pixels to avoid triggering the scroll bar. Again, this
 		# will probably be OS-dependent
-		diff = self.Width - colWd - 10
+		diff = grdWd - colWd - 10
 		if redo and not diff:
 			diff = -10
 		if not diff:
 			dabo.ui.callAfterInterval(5, _clearFlag)
 			return
-		if not redo and (diff == self._scrollbarDim):
+		if not redo and (diff == self._scrollBarSize):
 			# This can cause infinite loops as we adjust constantly
 			diff -= 1
 		adj = diff/ dynColCnt
 		mod = diff % dynColCnt
 		for col in dynCols:
 			if mod:
-				col.Width += (adj+1)
+				newWidth = col.Width (adj+1)
 				mod -= 1
 			else:
-				col.Width += adj
-			col.Width = max(24, col.Width)
+				newWidth = col.Width + adj
+			# Don't allow the Expand columns to shrink below 24px wide.
+			col.Width = max(24, newWidth)
 		# Check to see if we need a further adjustment
 		adjWd = self._totalContentWidth()
-		if self.isScrollBarVisible("h") and (adjWd < self.Width):
+		if self.isScrollBarVisible("h") and (adjWd < grdWd):
 			_clearFlag()
-			#dabo.ui.callAfterInterval(20, self._delayedUpdateColumnWidths, redo=True)
 			self._delayedUpdateColumnWidths(redo=True)
 		else:
 			dabo.ui.callAfterInterval(5, _clearFlag)
@@ -2394,11 +2408,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		new width to the user settings table.
 		"""
 		if isinstance(colNum, basestring) and colNum.lower() == "all":
-			self.lockDisplay()
+			self.BeginBatch()
 			self._inAutoSizeLoop = True
 			for ii in range(len(self.Columns)):
 				self.autoSizeCol(ii, persist=persist)
-			self.unlockDisplay()
+			self._updateColumnWidths()
+			self.EndBatch()
 			self._inAutoSizeLoop = False
 			return
 		maxWidth = 250  ## limit the width of the column to something reasonable
@@ -4916,7 +4931,7 @@ if __name__ == '__main__':
 		def afterInit(self):
 			self.BackColor = "khaki"
 			g = self.grid = _dGrid_test(self, RegID="sampleGrid")
-			self.Sizer.append(g, 1, "x", border=40, borderSides="all")
+			self.Sizer.append(g, 1, "x", border=0, borderSides="all")
 			self.Sizer.appendSpacer(10)
 			gsz = dabo.ui.dGridSizer(HGap=50)
 
