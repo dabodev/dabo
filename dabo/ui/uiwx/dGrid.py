@@ -2386,7 +2386,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		mod = diff % dynColCnt
 		for col in dynCols:
 			if mod:
-				newWidth = col.Width (adj+1)
+				newWidth = col.Width + (adj+1)
 				mod -= 1
 			else:
 				newWidth = col.Width + adj
