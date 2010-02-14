@@ -62,13 +62,27 @@ class connHandler(xml.sax.ContentHandler):
 		return self.connDict
 	
 
-def importConnections(pth=None):
+def importConnections(pth=None, useHomeDir=False):
+	"""Read the connection info in the file passed as 'pth', and return
+	a dict containing connection names as keys and connection info
+	dicts as the values.
+	
+	If 'useHomeDir' is True, any file-based database connections
+	will have their pathing resolved based upon the app's current 
+	HomeDirectory. Otherwise, the path will be resolved relative to
+	the connection file itself.
+	"""
 	if pth is None:
 		return None
 	f = fileRef(pth)
 	ch = connHandler()
 	xml.sax.parse(f, ch)
 	ret = ch.getConnectionDict()
+	basePath = pth
+	if useHomeDir:
+		basePath = dabo.dAppRef.HomeDirectory
+	else:
+		basePath = pth
 
 	for cxn, data in ret.items():
 		dbtype = data.get("dbtype", "")
@@ -76,9 +90,9 @@ def importConnections(pth=None):
 			for key, val in data.items():
 				if key=="database":
 					osp = os.path
-					relpath = utils.resolvePath(val, pth, abspath=False)
+					relpath = utils.resolvePath(val, basePath, abspath=False)
 					pth = pth.decode(dabo.fileSystemEncoding)
-					abspath = osp.abspath(osp.join(osp.split(pth)[0], relpath))
+					abspath = osp.abspath(osp.join(osp.split(basePath)[0], relpath))
 					if osp.exists(abspath):
 						ret[cxn][key] = abspath	
 	return ret

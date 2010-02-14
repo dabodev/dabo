@@ -147,13 +147,13 @@ def relativePathList(toLoc, fromLoc=None):
 	is assumed.
 	"""
 	if fromLoc is None:
-		fromLoc = os.getcwd()
+		fromLoc = dabo.dAppRef.HomeDirectory
 	if toLoc.startswith(".."):
 		if osp.isdir(fromLoc):
 			toLoc = osp.join(fromLoc, toLoc)
 		else:
 			toLoc = osp.join(osp.split(fromLoc)[0], toLoc)
-	toLoc = osp.abspath(toLoc)
+	toLoc = osp.abspath(osp.normpath(toLoc))
 	if osp.isfile(toLoc):
 		toDir, toFile = osp.split(toLoc)
 	else:
@@ -192,7 +192,7 @@ def getPathAttributePrefix():
 	return "path://"
 
 
-def resolveAttributePathing(atts, pth=None):
+def resolveAttributePathing(atts, pth=None, abspath=False):
 	"""Dabo design files store their information in XML, which means
 	when they are 'read' the values come back in a dictionary of 
 	attributes, which are then used to restore the designed object to its
@@ -206,15 +206,21 @@ def resolveAttributePathing(atts, pth=None):
 	those new values.
 	"""
 	prfx = getPathAttributePrefix()
-	pathsToConvert = [(kk, vv) for kk, vv in atts.items()
-			if isinstance(vv, basestring) and vv.startswith(prfx)]
+	pathsToConvert = ((kk, vv) for kk, vv in atts.items()
+			if isinstance(vv, basestring) and vv.startswith(prfx))
 	for convKey, convVal in pathsToConvert:
 		# Strip the path designator
 		convVal = convVal.replace(prfx, "")
-		# Convert to relative path
-		relPath = relativePath(convVal, pth)
+		if abspath:
+			if pth:
+				retPath = osp.normpath(osp.join(pth, convVal))
+			else:
+				retPath = resolvePath(convVal, pth, True)
+		else:
+			# Convert to relative path
+			retPath = relativePath(convVal, pth)
 		# Update the atts
-		atts[convKey] = relPath
+		atts[convKey] = retPath
 
 
 def resolvePath(val, pth=None, abspath=False):

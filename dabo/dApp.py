@@ -173,12 +173,16 @@ class dApp(dObject):
 	isDesigner = False
 
 
-	def __init__(self, selfStart=False, properties=None, *args, **kwargs):
+	def __init__(self, selfStart=False, ignoreScriptDir=False, properties=None, *args, **kwargs):
 		if dabo.settings.loadUserLocale:
 			locale.setlocale(locale.LC_ALL, '')
 
 		# Subdirectories that make up a standard Dabo app
 		self._standardDirs = ("biz", "cache", "db", "lib", "reports", "resources", "test", "ui")
+		
+		# Some apps, such as the visual tools, are meant to be run from directories
+		# other than that where they are located. In those cases, use the current dir.
+		self._ignoreScriptDir = ignoreScriptDir
 
 		self._uiAlreadySet = False
 		dabo.dAppRef = self
@@ -907,7 +911,7 @@ try again when it is running.
 			if os.path.exists(dbDir) and os.path.isdir(dbDir):
 				files = glob.glob(os.path.join(dbDir, "*.cnxml"))
 				for f in files:
-					cn = importConnections(f)
+					cn = importConnections(f, useHomeDir=True)
 					connDefs.update(cn)
 					for kk in cn.keys():
 						self.dbConnectionNameToFiles[kk] = f
@@ -1042,7 +1046,7 @@ try again when it is running.
 					connFile = sysFile
 					break
 		if os.path.exists(connFile):
-			connDefs = importConnections(connFile)
+			connDefs = importConnections(connFile, useHomeDir=True)
 			# For each connection definition, add an entry to
 			# self.dbConnectionDefs that contains a key on the
 			# name, and a value of a dConnectInfo object.
@@ -1322,6 +1326,10 @@ try again when it is running.
 		self._cryptoProvider = val
 
 
+	def _setCryptoKey(self, val):
+		self._cryptoProvider = SimpleCrypt(key=val)
+
+
 	def _getDatabaseActivityLog(self):
 		return dabo.dbActivityLog.LogObject
 
@@ -1377,39 +1385,42 @@ try again when it is running.
 				hd = sys._daboRunHomeDir
 			except AttributeError:
 				calledScript = None
-				try:
-					# Get the script name that launched the app. In case it was run
-					# as an executable, strip the leading './'
-					calledScript = sys.argv[0]
-				except IndexError:
-					# Give up... just assume the current directory.
+				if self._ignoreScriptDir:
 					hd = os.getcwd()
-				if calledScript:
-					if calledScript.startswith("./"):
-						calledScript = calledScript.lstrip("./")
-					scriptDir = os.path.realpath(os.path.split(os.path.join(os.getcwd(), calledScript))[0])
-					appDir = os.path.realpath(os.path.split(inspect.getabsfile(self.__class__))[0])
-					def issubdir(d1, d2):
-						while True:
-							if len(d1) < len(d2) or len(d1) <= 1:
-								return False
-							d1 = os.path.split(d1)[0]
-							if d1 == d2:
-								return True
-
-					if issubdir(scriptDir, appDir):
-						# The directory where the main script is executing is a subdirectory of the
-						# location of the application object in use. So we can safely make the app
-						# directory the HomeDirectory.
-						hd = appDir
-					else:
-						# The directory where the main script is executing is *not* a subdirectory
-						# of the location of the app object in use. The app object is likely an
-						# instance of a raw dApp. So the only thing we can really do is make the
-						# HomeDirectory the location of the main script, since we can't guess at
-						# the application's directory structure.
-						dabo.infoLog.write("Can't deduce HomeDirectory:setting to the script directory.")
-						hd = scriptDir
+				else:
+					try:
+						# Get the script name that launched the app. In case it was run
+						# as an executable, strip the leading './'
+						calledScript = sys.argv[0]
+					except IndexError:
+						# Give up... just assume the current directory.
+						hd = os.getcwd()
+					if calledScript:
+						if calledScript.startswith("./"):
+							calledScript = calledScript.lstrip("./")
+						scriptDir = os.path.realpath(os.path.split(os.path.join(os.getcwd(), calledScript))[0])
+						appDir = os.path.realpath(os.path.split(inspect.getabsfile(self.__class__))[0])
+						def issubdir(d1, d2):
+							while True:
+								if len(d1) < len(d2) or len(d1) <= 1:
+									return False
+								d1 = os.path.split(d1)[0]
+								if d1 == d2:
+									return True
+	
+						if issubdir(scriptDir, appDir):
+							# The directory where the main script is executing is a subdirectory of the
+							# location of the application object in use. So we can safely make the app
+							# directory the HomeDirectory.
+							hd = appDir
+						else:
+							# The directory where the main script is executing is *not* a subdirectory
+							# of the location of the app object in use. The app object is likely an
+							# instance of a raw dApp. So the only thing we can really do is make the
+							# HomeDirectory the location of the main script, since we can't guess at
+							# the application's directory structure.
+							dabo.infoLog.write("Can't deduce HomeDirectory:setting to the script directory.")
+							hd = scriptDir
 
 			if os.path.split(hd)[1][-4:].lower() in (".zip", ".exe"):
 				# mangle HomeDirectory to not be the py2exe library.zip file,
@@ -1640,6 +1651,11 @@ try again when it is running.
 
 	Crypto = property(_getCrypto, _setCrypto, None,
 			_("Reference to the object that provides cryptographic services.  (varies)" ) )
+
+	CryptoKey = property(None, _setCryptoKey, None,
+			_("""When set, creates a DES crypto object if PyCrypto is installed. Note that
+			each time this property is set, a new PyCrypto instance is created, and 
+			any previous crypto objects are released. Write-only.  (varies)"""))
 
 	DatabaseActivityLog = property(_getDatabaseActivityLog, _setDatabaseActivityLog, None,
 			_("""Path to the file (or file-like object) to be used for logging all database

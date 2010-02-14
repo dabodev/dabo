@@ -136,6 +136,19 @@ class dConnectInfo(dObject):
 		return self._backendObject
 
 
+	def _getCrypto(self):
+		try:
+			return self.Application.Crypto
+		except AttributeError:
+			if not getattr(self, "_cryptoProvider"):
+				# Use the default crypto
+				self._cryptoProvider = SimpleCrypt()
+			return self._cryptoProvider
+
+	def _setCrypto(self, val):
+		self._cryptoProvider = val
+
+
 	def _getDbType(self): 
 		try:
 			return self._dbType
@@ -255,6 +268,10 @@ class dConnectInfo(dObject):
 
 
 
+
+	Crypto = property(_getCrypto, _setCrypto, None,
+			_("""Reference to the object that provides cryptographic services if run
+			outside of an application.  (varies)"""))
 
 	DbType = property(_getDbType, _setDbType, None,
 			_("Name of the backend database type.  (str)"))

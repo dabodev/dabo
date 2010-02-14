@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import random
+import string
 import warnings
 import base64
 import dabo
@@ -11,6 +12,11 @@ class SimpleCrypt(object):
 	security. Since this class is provided to all Dabo users, anyone with
 	a copy of Dabo can decrypt your encrypted values.
 	
+	You can make your application more secure by making sure that the
+	PyCrypto package is installed, and then setting the application's 
+	'CryptoKey' property to a string that is not publicly discoverable. This
+	will provide security as strong as the secrecy of this key.
+	
 	For real-world applications, you should provide your own security
 	class, and then set the Application's 'Crypto' property to an instance
 	of that class. That class must provide the following interface:
@@ -21,23 +27,26 @@ class SimpleCrypt(object):
 	Thanks to Raymond Hettinger for the default (non-DES) code, originally found on
 	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/266586
 	"""
-	def __init__(self):
+	def __init__(self, key=None):
 		super(SimpleCrypt, self).__init__()
+		if callable(key):
+			# Providing a callable is probably more secure than storing the key
+			# directly in your code
+			self.__key = key()
+		else:
+			self.__key = key
 		self._cryptoProvider = None
 		# If the Crypto package is available, use it.
-		useDES = True
-		try:
-			from Crypto.Cipher import DES
-		except ImportError:
-			useDES = False
-		try:
-			ckey = dabo.cryptoKeyDES[:8].rjust(8, "@")
-		except TypeError:
-			dabo.errorLog.write("The 'cryptoKey' value has not been configured in dabo")
-			useDES = False
-		if useDES:
-				self._cryptoProvider = DES.new(ckey, DES.MODE_ECB)
-			
+		self._useDES3 = (self.__key is not None)
+		if self._useDES3:
+			try:
+				from Crypto.Cipher import DES3
+			except ImportError:
+				self._useDES3 = False
+		if self._useDES3:
+			self.__key = self.__key[:16].rjust(16, "@")
+			self._cryptoProvider = DES3.new(self.__key, DES3.MODE_CBC)
+
 
 	def showWarning(self):
 		warnings.warn("WARNING: SimpleCrypt is not secure. Please see http://wiki.dabodev.com/SimpleCrypt for more information")
@@ -46,21 +55,18 @@ class SimpleCrypt(object):
 	def encrypt(self, aString):
 		if not aString:
 			return ""
-		try:
-			# If we are not using 
-			encMethod = self._cryptoProvider.encrypt
-			# Strings must be multiples of 8 in length
-			padlen = 0
-			pad = ""
-			diffToEight = len(aString) % 8
-			if diffToEight:
-				padlen = 8 - diffToEight
-				pad = "@" * padlen
-			padVal = "%s%s" % (aString, pad)
-			ret = "%s%s" % (padlen, encMethod(padVal))
-			ret = base64.b64encode(ret)
-			return ret
-		except AttributeError:
+		if self._useDES3:
+			# Strings must have an introductory 8 byte string
+			initialPad = "".join(random.sample(string.printable, 8))
+			# Strings must be multiples of 8 bytes
+			strLen = len(aString)
+			diffToEight = 8 - (strLen % 8)
+			pad = "@" * diffToEight
+			paddedText = "%s%s%s" % (initialPad, pad, aString)
+			enc = self._cryptoProvider.encrypt(paddedText)
+			retText = "%s%s" % (diffToEight, enc)
+			return base64.b64encode(retText)
+		else:
 			self.showWarning()
 			tmpKey = self.generateKey(aString)
 			myRand = random.Random(tmpKey).randrange
@@ -68,21 +74,19 @@ class SimpleCrypt(object):
 			hex = self.strToHex("".join(crypted))
 			ret = "".join([tmpKey[i/2]  + hex[i:i+2] for i in range(0, len(hex), 2)])
 			return ret
-		
+
 
 	def decrypt(self, aString):
 		if not aString:
 			return ""
-		try:
-			decryptMethod = self._cryptoProvider.decrypt
+		if self._useDES3:
 			decString = base64.b64decode(aString)
-			padlen = int(decString[0])
-			encval = decString[1:]
-			ret = decryptMethod(encval)
-			if padlen:
-				ret = ret[:-padlen]
-			return ret
-		except (ValueError, AttributeError):
+			# We need to chop off any padding, along with the first 8 garbage bytes
+			padlen = int(decString[0]) + 8
+			decString = decString[1:]
+			ret = self._cryptoProvider.decrypt(decString)
+			return ret[padlen:]
+		else:
 			self.showWarning()
 			tmpKey = "".join([aString[i] for i in range(0, len(aString), 3)])
 			val = "".join([aString[i+1:i+3] for i in range(0, len(aString), 3)])
@@ -97,12 +101,13 @@ class SimpleCrypt(object):
 		for i in range(len(s)):
 			chars.append(chr(65 + random.randrange(26)))
 		return "".join(chars)
-		
+
 
 	def strToHex(self, aString):
 		hexlist = ["%02X" % ord(x) for x in aString]
 		return ''.join(hexlist)
-	
+
+
 	def hexToStr(self, aString):
 		# Break the string into 2-character chunks
 		try:
