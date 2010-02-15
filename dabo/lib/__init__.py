@@ -20,13 +20,20 @@ def getMachineUUID():
 
 
 try:
-	import simplejson
-except:
-	jsonConverter = None
-	def jsonEncode(val):
-		raise ImportError("The simplejson module is not installed")
-	def jsonDecode(val):
-		raise ImportError("The simplejson module is not installed")
+	# cjson is fastest; use that if available.
+	import cjson as json
+except ImportError:
+	try:
+		import simplejson as json
+	except ImportError:
+		# Python 2.6 comes with the json module built-in
+		try:
+			import json
+		except ImportError:
+			json = None
+if json:
+	jsonEncode = json.dumps
+	jsonDecode = json.loads
 else:
 	import dejavuJSON
 	jsonConverter = dejavuJSON.Converter()
