@@ -3,7 +3,9 @@ import simplejson
 import os
 import tempfile
 from zipfile import ZipFile
+from dabo.lib.xmltodict import xmltodict, dicttoxml
 
+from pylons.decorators import jsonify
 from pylons import request, response, session, tmpl_context as c
 from pylons.controllers.util import abort, redirect_to
 
@@ -20,8 +22,29 @@ class WebupdateController(BaseController):
 	_deletedFilesName = "DELETEDFILES"
 	
 	
+	@jsonify
+	def xxx(self, val):
+		return "You typed: %s" % val
+
+
+	@jsonify
 	def check(self, val):
-		return simplejson.dumps(Versions.changes(val))
+		return Versions.changes(val)
+
+
+	@jsonify
+	def latest(self):
+		return Versions.latest()
+
+
+	def checkNoJson(self, val):
+		chgs = Versions.changes(val)
+		return str(chgs)
+
+
+	@jsonify
+	def changelog(self):
+		return Versions.getLog()
 
 
 	def files(self, val):		

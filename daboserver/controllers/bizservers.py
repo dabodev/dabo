@@ -29,7 +29,7 @@ jsonDecode = dabo.lib.jsonDecode
 #-------------------------------------------------------
 
 #-------------------------------------------------------
-#			START OF CUSTOMIZIATION
+#			START OF CUSTOMIZATION
 #-------------------------------------------------------
 #		The next two sections are the only parts you have to edit
 #		for your application. Be sure to specify the bizobj classes
@@ -50,20 +50,14 @@ from ActivitiesBizobj import ActivitiesBizobj
 dabo._bizDict = {
 	  "people": PeopleBizobj,
 	  "activities": ActivitiesBizobj}
-#-------------------------------------------------------
-#			END OF CUSTOMIZIATION
-#-------------------------------------------------------
 
 # The path to the server copy of the web application source files *MUST* be
 # defined here. It is used to compare local app manifests in order to 
 # determine what changes, if any, have been made to the app. 
-cd = os.getcwd()
-if cd == "/":
-	# Running as an egg through WSGI
-	cd = [p for p in sys.path
-			if "daboserver" in p][0]
-home_dir = os.path.join(cd, "daboserver")
-sourcePath = os.path.join(home_dir, "appSource")
+sourcePath = "/home/dabo/appSource"
+#-------------------------------------------------------
+#			END OF CUSTOMIZIATION
+#-------------------------------------------------------
 
 
 
@@ -144,18 +138,20 @@ class BizserversController(BaseController):
 
 
 	def getFileRequestDB(self):
-		db = os.path.join(home_dir, "DaboFileCache.db")
+		db = "/tmp/DaboFileCache.db"
 		cxn = dabo.db.dConnection(connectInfo={"DbType": "SQLite", "Database": db},
-			forceCreate=True)
+				forceCreate=True)
 		cursor = cxn.getDaboCursor()
 		return cursor
 
 
 	def manifest(self, app=None, fnc=None, id=None, *args, **kwargs):
+		file("/tmp/manifest", "a").write("MANIFEST: app=%s\n" % app)
 		if app is None:
 			# Return list of available apps.
 			dirnames = [d for d in os.listdir(sourcePath)
 					if not d.startswith(".")]
+			file("/tmp/manifest", "a").write("%s\n" % str(dirnames))
 			return jsonEncode(dirnames)
 
 		crs = self.getFileRequestDB()
@@ -167,6 +163,8 @@ class BizserversController(BaseController):
 			local = None
 		appPath = os.path.join(sourcePath, app)
 		mf = Manifest.getManifest(appPath)
+		file("/tmp/manifest", "a").write("appPath: %s\n" % appPath)
+		file("/tmp/manifest", "a").write("mf: %s\n" % str(mf))
 		# Handle the various functions
 		if fnc is None or fnc ==  "full":
 			# Send the full manifest
@@ -201,8 +199,7 @@ class BizserversController(BaseController):
 				# No added/updated files. Return a zero filecode to signify nothing to download
 				hashval = 0
 			# Return the hashval and manifest so that the user can request the files
-			retPickle = pickle.dumps((hashval, chgs, mf))
-			return jsonEncode(retPickle)
+			return jsonEncode((hashval, chgs, mf))
 
 		elif fnc == "files":
 			# The client is requesting the changed files. The hashval will
@@ -225,7 +222,7 @@ class BizserversController(BaseController):
 			z.close()
 			response.headers['content-type'] = "application/x-zip-compressed"
 			os.chdir(currdir)
-			ret = file(tmpname).read()
+			ret = file(tmpname, "rb").read()
 			os.remove(tmpname)
 			return ret
 
