@@ -260,8 +260,8 @@ class RemoteConnector(object):
 		except urllib2.URLError:
 			# Right now re-raise it and let the UI handle it
 			raise
-		pickleRet = res.read()
-		filecode, chgs, serverMf = pickle.loads(jsonDecode(pickleRet))
+		nonpickleRet = res.read()
+		filecode, chgs, serverMf = jsonDecode(nonpickleRet)
 		# Everything after this is relative to the app's home directory, so
 		# change to it
 		currdir = os.getcwd()
