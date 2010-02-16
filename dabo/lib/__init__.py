@@ -22,19 +22,23 @@ def getMachineUUID():
 try:
 	# cjson is fastest; use that if available.
 	import cjson as json
+	jsonEncode = json.encode
+	jsonDecode = json.decode
 except ImportError:
 	try:
 		import simplejson as json
+		jsonEncode = json.dumps
+		jsonDecode = json.loads
 	except ImportError:
 		# Python 2.6 comes with the json module built-in
 		try:
 			import json
+			jsonEncode = json.dumps
+			jsonDecode = json.loads
 		except ImportError:
 			json = None
-if json:
-	jsonEncode = json.dumps
-	jsonDecode = json.loads
-else:
+
+if not json:
 	import dejavuJSON
 	jsonConverter = dejavuJSON.Converter()
 	def jsonEncode(val):
