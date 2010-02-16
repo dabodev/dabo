@@ -269,6 +269,12 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		wuPage = self.pgWebUpdate = self.addCategory(_("Web Update"))
 		# Set the framework-level pref manager
 		fp = self.Application._frameworkPrefs
+		# Make sure that there is an update frequency pref
+		update_choices = [_("Every time an app is run"), _("Once a day"), _("Once a week"), _("Once a month")]
+		update_keys = [0, dayMins, dayMins*7, dayMins*30]
+		freq = fp.update_interval
+		if freq not in update_keys:
+			fp.update_interval = dayMins
 		self.preferenceKeys.append(fp)
 		sz = wuPage.Sizer = dabo.ui.dSizer("v")
 		hsz = dabo.ui.dSizer("h")
@@ -285,8 +291,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		
 		radFrequency = dabo.ui.dRadioList(wuPage, Orientation="Vertical", 
 				Caption=_("Check every..."), RegID="radWebUpdateFrequency", 
-				Choices=[_("Every time an app is run"), _("Once a day"), _("Once a week"), _("Once a month")],
-				Keys = [0, dayMins, dayMins*7,dayMins*30],
+				Choices=update_choices, Keys=update_keys,
 				ValueMode="Keys", DataSource=fp, DataField="update_interval",
 				ToolTipText=_("How often does the framework check for updates?"),
 				DynamicEnabled = lambda: self.chkForWebUpdates.Value)
