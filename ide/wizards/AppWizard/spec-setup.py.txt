@@ -149,7 +149,7 @@ elif sys.platform.startswith("darwin"):
 			#"iconfile": "resources/logo_green.icns",
 			}}
 
-	setup(name="%(appName)s",
+	setup(name=_appName,
 		app=[_script],
 		version=_appVersion,
 		description=_appDescription,

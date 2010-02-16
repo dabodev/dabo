@@ -1,7 +1,3 @@
 rm -rf build dist
 python -OO setup.py py2app
 
-# Recent py2app doesn't set executable bit:
-chmod 755 dist/%(appName)s.app/Contents/MacOS/%(appName)s
-chmod 755 dist/%(appName)s.app
-
