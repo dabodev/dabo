@@ -147,7 +147,7 @@ class HelpMenu(dMenu):
 		app = self.Application
 		self.Caption = _("&Help")
 
-		appName = app.getAppInfo("appShortName")
+		appName = app.getAppInfo("appName")
 		caption = _("&About")
 		if appName:
 			caption += " %s" % appName
