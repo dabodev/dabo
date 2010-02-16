@@ -23,10 +23,11 @@ import glob
 if sys.platform.startswith("win"):
 	from distutils.core import setup
 	import py2exe
-else:
+elif sys.platform.startswith("darwin"):
 	from setuptools import setup
-	if sys.platform.startswith("darwin"):
-		import py2app
+	import py2app
+elif sys.platform.startswith("linux"):
+	from cx_Freeze import setup, Executable
 import dabo.icons
 from App import App
 
@@ -159,4 +160,26 @@ elif sys.platform.startswith("darwin"):
 		#data_files=data_files,
 		setup_requires=["py2app"]
 	)
+
+elif sys.platform.startswith("linux"):
+	## cx_Freeze needs the globs unpacked: 
+	include_files = [(i[1], i[0]) for i in data_files]
+	unpacked = []
+	for source, destination in include_files:
+		for source_item in source:
+			destination_item = os.path.join(destination, os.path.split(source_item)[-1])
+			unpacked.append((source_item, destination_item))
+	include_files = unpacked
+	options = {"build_exe": {"include_files": include_files,
+	                         "includes": ["wx.gizmos", "wx.lib.calendar",
+	                                      "distutils.unixccompiler"],
+	                         "optimize": 2,
+	                         "create_shared_zip": False
+	}}
+	setup(name=_appName,
+		version=_appVersion,
+		description=_appDescription,
+		executables=[Executable(_script, compress=True,
+				appendScriptToExe=True)],
+		options=options)
 

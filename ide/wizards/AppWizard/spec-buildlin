@@ -1,0 +1,4 @@
+rm -rf dist
+python -OO setup.py build --build-exe ./dist
+cp -d /usr/lib/libwx* ./dist
+

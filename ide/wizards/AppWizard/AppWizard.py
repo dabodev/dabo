@@ -678,8 +678,10 @@ class AppWizard(Wizard):
 			open("./setup.py", "w").write(self.getSetup(appName))
 			open("./buildwin.bat", "w").write(self.getBuildwin(appName))
 			open("./buildmac", "w").write(self.getBuildMac(appName))
+			open("./buildlin", "w").write(self.getBuildLin(appName))
 			if not sys.platform.startswith("win"):
 				os.system("chmod 755 ./buildmac")
+				os.system("chmod 755 ./buildlin")
 
 			# Db module:
 			os.chdir("./db")
@@ -1028,6 +1030,10 @@ class AppWizard(Wizard):
 	def getBuildMac(self, appName):
 		return open(os.path.join(self.wizDir, 
 				"spec-buildmac")).read() % locals()
+
+	def getBuildLin(self, appName):
+		return open(os.path.join(self.wizDir, 
+				"spec-buildlin")).read() % locals()
 
 	def getModuleInit_db(self):
 		return open(os.path.join(self.wizDir, 
