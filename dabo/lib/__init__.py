@@ -2,7 +2,7 @@
 """ External libraries that can be loaded into Daboized applications.
 """
 
-# Don't put any import statements here. Code will explicitly import 
+# Don't put any import statements here. Code will explicitly import
 # what it needs. For example:
 #	from dabo.lib.ListSorter import ListSorter
 #	import dabo.lib.ofFunctions as oFox
@@ -27,8 +27,26 @@ try:
 except ImportError:
 	try:
 		import simplejson as json
-		jsonEncode = json.dumps
-		jsonDecode = json.loads
+		import dejavuJSON
+		jsonConverter = dejavuJSON.Converter()
+		def jsonEncode(val):
+			return jsonConverter.dumps(val)
+
+		def jsonDecode(val):
+			ret = None
+			try:
+				ret = jsonConverter.loads(val)
+			except UnicodeDecodeError:
+				# Try typical encodings, starting with the default.
+				for enctype in (dabo.defaultEncoding, "utf-8", "latin-1"):
+					try:
+						ret = jsonConverter.loads(val, enctype)
+						break
+					except UnicodeDecodeError:
+						continue
+			if ret is None:
+				raise
+			return ret
 	except ImportError:
 		# Python 2.6 comes with the json module built-in
 		try:
@@ -36,27 +54,8 @@ except ImportError:
 			jsonEncode = json.dumps
 			jsonDecode = json.loads
 		except ImportError:
-			json = None
-
-if not json:
-	import dejavuJSON
-	jsonConverter = dejavuJSON.Converter()
-	def jsonEncode(val):
-		return jsonConverter.dumps(val)
-	
-	def jsonDecode(val):
-		ret = None
-		try:
-			ret = jsonConverter.loads(val)
-		except UnicodeDecodeError:
-			# Try typical encodings, starting with the default.
-			for enctype in (dabo.defaultEncoding, "utf-8", "latin-1"):
-				try:
-					ret = jsonConverter.loads(val, enctype)
-					break
-				except UnicodeDecodeError:
-					continue
-		if ret is None:
-			raise
-		return ret
-
+			jsonConverter = None
+			def jsonEncode(val):
+				raise ImportError("The cjson, simplejson, or json modules are not installed")
+			def jsonDecode(val):
+				raise ImportError("The cjson, simplejson, or json modules are not installed")
