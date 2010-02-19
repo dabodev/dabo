@@ -739,7 +739,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			recKey = self.pkExpression(rec)
 			modrec = self._mementos.get(recKey, None)
 			if not modrec and includeNewUnchanged:
-				modrec = self._newRecords.get(recKey, None)
+				modrec = recKey in self._newRecords
 			return bool(modrec)
 
 
