@@ -893,8 +893,11 @@ try again when it is running.
 		specified. If no such XML definition files exist, check for a python code
 		definition file named 'dbConnectionDefs.py'.
 		"""
-		connDefs = {}
 		hd = self.HomeDirectory
+		if not self.AutoImportConnections:
+			return
+ 
+		connDefs = {}
 		if pth is None:
 			pth = os.getcwd()
 		# Import any .cnxml files in the following locations:
@@ -911,7 +914,7 @@ try again when it is running.
 			if os.path.exists(dbDir) and os.path.isdir(dbDir):
 				files = glob.glob(os.path.join(dbDir, "*.cnxml"))
 				for f in files:
-					cn = importConnections(f, useHomeDir=True)
+					cn = self.getConnectionsFromFile(f)
 					connDefs.update(cn)
 					for kk in cn.keys():
 						self.dbConnectionNameToFiles[kk] = f
@@ -929,9 +932,7 @@ try again when it is running.
 		# self.dbConnectionDefs that contains a key on the
 		# name, and a value of a dConnectInfo object.
 		for k,v in connDefs.items():
-			ci = dabo.db.dConnectInfo()
-			ci.setConnInfo(v)
-			self.dbConnectionDefs[k] = ci
+			self.dbConnectionDefs[k] = v
 
 		dabo.infoLog.write(_("%s database connection definition(s) loaded.")
 			% (len(self.dbConnectionDefs)))
@@ -984,6 +985,17 @@ try again when it is running.
 			# Custom app code or the dabo.ui module already set this: don't touch
 			dabo.infoLog.write(_("User interface already set to '%s', so dApp didn't touch it.")
 					% self.UI)
+
+
+	def getConnectionsFromFile(self, filePath):
+		"""Given an absolute path to a .cnxml file, return the connection defs."""
+		connDefs = importConnections(filePath, useHomeDir=True)
+		# Convert the connect info dicts to dConnectInfo instances:
+		for k,v in connDefs.items():
+			ci = dabo.db.dConnectInfo()
+			ci.setConnInfo(v)
+			connDefs[k] = ci
+		return connDefs
 
 
 	def getConnectionByName(self, connName):
@@ -1046,14 +1058,12 @@ try again when it is running.
 					connFile = sysFile
 					break
 		if os.path.exists(connFile):
-			connDefs = importConnections(connFile, useHomeDir=True)
+			connDefs = self.getConnectionsFromFile(connFile)
 			# For each connection definition, add an entry to
 			# self.dbConnectionDefs that contains a key on the
 			# name, and a value of a dConnectInfo object.
 			for k,v in connDefs.items():
-				ci = dabo.db.dConnectInfo()
-				ci.setConnInfo(v)
-				self.dbConnectionDefs[k] = ci
+				self.dbConnectionDefs[k] = v
 				self.dbConnectionNameToFiles[k] = connFile
 		else:
 			raise IOError(_("File '%s' passed to dApp.addConnectFile() does not exist.") % origFile)
@@ -1280,6 +1290,13 @@ try again when it is running.
 		except AttributeError:
 			# self.uiApp hasn't been created yet.
 			pass
+
+
+	def _getAutoImportConnections(self):
+		return getattr(self, "_autoImportConnections", True)
+
+	def _setAutoImportConnections(self, val):
+		self._autoImportConnections = bool(val)
 
 
 	def _getBasePrefKey(self):
@@ -1642,6 +1659,9 @@ try again when it is running.
 
 	ActiveForm = property(_getActiveForm, _setActiveForm, None,
 			_("Returns the form that currently has focus, or None.  (dForm)" ) )
+
+	AutoImportConnections = property(_getAutoImportConnections, _setAutoImportConnections, None,
+			_("Specifies whether .cnxml connection files are automatically imported. (Default True)" ) )
 
 	BasePrefKey = property(_getBasePrefKey, _setBasePrefKey, None,
 			_("""Base key used when saving/restoring preferences. This differs
