@@ -293,6 +293,7 @@ class dCursorMixin(dObject):
 		# detect that, and convert the results to a dictionary.
 		if isinstance(sql, unicode):
 			sql = sql.encode(self.Encoding)
+		sql = self._qMarkToParamPlaceholder(sql)
 		# Some backends, notably Firebird, require that fields be specially marked.
 		sql = self.processFields(sql)
 		try:
@@ -2399,6 +2400,15 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if mem and (fieldName in mem):
 			return mem[fieldName]
 		return self.getFieldVal(fieldName, row)
+
+
+	def _qMarkToParamPlaceholder(self, sql):
+		"""Given SQL with ? placeholders, convert to the placeholder for the current backend.
+
+		Allows for all UserSQL to be written with ? as the placeholder. dCursor.execute() will
+		call this to convert them to the current backend's placeholder, such as %s.
+		"""
+		return sql.replace("?", "%s" % self.BackendObject.paramPlaceholder)
 
 
 	def _setTableForRemote(self, tbl):
