@@ -985,14 +985,13 @@ class dBizobj(dObject):
 				# Parent is new and not yet saved, so we cannot have child records yet.
 				self._CurrentCursor.setNonMatchChildFilterClause()
 			else:
-				val = self.escQuote(self.getParentLinkValue())
 				linkFieldParts = self.LinkField.split(".")
 				if len(linkFieldParts) < 2:
 					linkField = self.LinkField
 				else:
 					# The source table was specified in the LinkField
 					linkField = linkFieldParts[1]
-				self._CurrentCursor.setChildFilter(linkField, val)
+				self._CurrentCursor.setChildFilter(linkField, self.getParentLinkValue())
 
 
 	def getParentLinkValue(self):

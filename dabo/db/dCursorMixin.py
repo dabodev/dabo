@@ -16,6 +16,9 @@ from dabo.lib import dates
 from dabo.lib.utils import noneSortKey, caseInsensitiveSortKey
 
 
+CHILD_FILTER_PARAM_FLAG = "^^^CHILD_FILTER_PARAM^^^"
+
+
 class dCursorMixin(dObject):
 	"""Dabo's cursor class, representing the lowest tier."""
 	_call_initProperties = False
@@ -285,6 +288,20 @@ class dCursorMixin(dObject):
 		return ret
 
 
+	def _injectChildFilterParam(self, sql, params):
+		"""Inject the child filter into the params, in the correct position."""
+		if CHILD_FILTER_PARAM_FLAG not in sql: 
+			return sql, params
+		placeholder = self.BackendObject.paramPlaceholder
+		insertPos = sql.count(placeholder, 0, sql.find(CHILD_FILTER_PARAM_FLAG))
+		if params is None:
+			params = []
+		params = list(params)  ## could have been a tuple
+		params.insert(insertPos, self._childFilterParam)
+		sql = sql.replace(CHILD_FILTER_PARAM_FLAG, placeholder)
+		return sql, tuple(params)
+
+
 	def execute(self, sql, params=None, _newQuery=False, errorClass=None):
 		"""Execute the sql, and populate the DataSet if it is a select statement."""
 		# The idea here is to let the super class do the actual work in
@@ -293,6 +310,7 @@ class dCursorMixin(dObject):
 		# detect that, and convert the results to a dictionary.
 		if isinstance(sql, unicode):
 			sql = sql.encode(self.Encoding)
+		sql, params = self._injectChildFilterParam(sql, params)
 		# Some backends, notably Firebird, require that fields be specially marked.
 		sql = self.processFields(sql)
 		try:
@@ -2205,7 +2223,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					autoQuote=self.AutoQuoteNames)
 
 
-	def setChildFilter(self, fld, val):
+	def setChildFilter(self, fld, param):
 		""" This method sets the appropriate filter for dependent child queries."""
 
 		def getTableAlias(fromClause):
@@ -2228,15 +2246,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if not alias:
 			# Use the old way (pre 2180) of using the Table (DataSource) property.
 			alias = self.Table
-		filtExpr = " %s.%s = %s " % (alias, fld, val)
-		self.setChildFilterClause(filtExpr)
+
+		filtExpr = " %s.%s = %s" % (alias, fld, CHILD_FILTER_PARAM_FLAG)
+		self.setChildFilterClause(filtExpr, param)
 
 
 	def setNonMatchChildFilterClause(self):
 		""" Called when the parent has no records, which implies that the child
 		cannot have any, either.
 		"""
-		self.setChildFilterClause(" 1 = 0 ")
+		self.setChildFilterClause(" 1 = %s " % (CHILD_FILTER_PARAM_FLAG,), 0)
 
 
 	def getChildFilterClause(self):
@@ -2244,9 +2263,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self.sqlManager._childFilterClause
 
 
-	def setChildFilterClause(self, clause):
+	def setChildFilterClause(self, clause, param):
 		""" Set the child filter clause of the sql statement."""
 		self.sqlManager._childFilterClause = self.sqlManager.BackendObject.setChildFilterClause(clause)
+		self._childFilterParam = param
 
 
 	def getGroupByClause(self):
@@ -2399,6 +2419,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if mem and (fieldName in mem):
 			return mem[fieldName]
 		return self.getFieldVal(fieldName, row)
+
+
+	def _qMarkToParamPlaceholder(self, sql):
+		"""Given SQL with ? placeholders, convert to the placeholder for the current backend.
+
+		Allows for all UserSQL to be written with ? as the placeholder.
+		"""
+		boPlaceholder = self.BackendObject.paramPlaceholder
+		if boPlaceholder in sql:
+			# Better not change the sql, because the ? might have a different meaning.
+			return sql
+		return sql.replace("?", "%s" % self.BackendObject.paramPlaceholder)
 
 
 	def _setTableForRemote(self, tbl):
@@ -2650,6 +2682,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self._userSQL
 
 	def _setUserSQL(self, val):
+		if val:
+			val = self._qMarkToParamPlaceholder(val)
 		self._userSQL = val
 
 
