@@ -134,12 +134,27 @@ class dBizobj(dObject):
 		return self._connection
 
 
-	def getTempCursor(self):
+	def getTempCursor(self, sql=None, params=None, requery=True):
 		"""Occasionally it is useful to be able to run ad-hoc queries against
 		the database. For these queries, where the results are not meant to
 		be managed as in regular bizobj/cursor relationships, a temp cursor
 		will allow you to run those queries, get the results, and then dispose
 		of the cursor.
+
+		If you send no arguments, you'll get a cursor to use how you want, like:
+
+			cur = self.getTempCursor()
+			cur.UserSQL = "select count(*) as count from invoices where cust_id = ?"
+			cur.requery((883929,))
+			invoiceCount = cur.Record.count
+
+		But you can also simplify by sending the sql and params in the call:
+
+			cur = self.getTempCursor("select count(*) as count...", (883929,))
+			invoiceCount = cur.Record.count
+
+		Note that if you send params, the cursor will be requeried even if
+		the requery arg is False.
 		"""
 		cf = self._cursorFactory
 		cursorClass = self._getCursorClass(self.dCursorMixinClass,
@@ -147,8 +162,15 @@ class dBizobj(dObject):
 		crs = cf.getCursor(cursorClass)
 		crs.BackendObject = cf.getBackendObject()
 		crs.setCursorFactory(cf.getCursor, cursorClass)
-		return crs.AuxCursor
 
+		cur = crs.AuxCursor
+
+		if sql:
+			cur.UserSQL = sql
+			if params or requery:
+				cur.requery(params)
+		return cur
+		
 
 	def createCursor(self, key=None):
 		""" Create the cursor that this bizobj will be using for data, and store it
