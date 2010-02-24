@@ -758,7 +758,7 @@ class dFormMixin(pm.dPemMixin):
 	def _getMenuBar(self):
 		try:
 			return self.GetMenuBar()
-		except AttributeError:
+		except (TypeError, AttributeError):
 			# dDialogs don't have menu bars
 			return None
 
@@ -766,7 +766,7 @@ class dFormMixin(pm.dPemMixin):
 		if self._constructed():
 			try:
 				self.SetMenuBar(val)
-			except AttributeError:
+			except (TypeError, AttributeError):
 				# dDialogs don't have menu bars
 				pass
 		else:
@@ -897,13 +897,15 @@ class dFormMixin(pm.dPemMixin):
 		try:
 			return self.GetStatusBar()
 		except (TypeError, AttributeError):
-			# pkm: My client got a TypeError from the wx layer, perhaps because the
-			#      window is a dialog and not a form, but I can't reproduce on my end.
-			#      Just return None immediately if this happens again.
+			# dialogs don't have status bars
 			return None
 
 	def _setStatusBar(self, val):
-		self.SetStatusBar(val)
+		try:
+			self.SetStatusBar(val)
+		except (TypeError, AttributeError):
+			# dialogs don't have status bars
+			pass
 
 
 	def _getStatusBarClass(self):
