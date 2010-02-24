@@ -20,11 +20,27 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 		self._lastVal = None
 		style = self._extractKey((kwargs, properties, attProperties), "style")
 		if style is None:
-			kwargs["style"] = wx.SL_AUTOTICKS
+			style = wx.SL_AUTOTICKS
 		else:
-			kwargs["style"] = style | wx.SL_AUTOTICKS		
+			style = style | wx.SL_AUTOTICKS		
+		kwargs["style"] = style
+		# These need to be added to the style kwarg in _initProperties
+		self._tickPosition = None
+		self._reversed = False
+
 		preClass = wx.PreSlider
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+
+
+	def _initProperties(self):
+		super(dSlider, self)._initProperties()
+		style = self._preInitProperties["style"]
+		if self._tickPosition:
+			tickpos = self.TickPosition[0].upper()
+			style = style | {"T": wx.SL_TOP, "B": wx.SL_BOTTOM, "L": wx.SL_LEFT, "R": wx.SL_RIGHT}[tickpos]
+		if reversed:
+			style = style | wx.SL_INVERSE
+		self._preInitProperties["style"] = style
 
 	
 	def _initEvents(self):
@@ -90,12 +106,27 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 			return "Horizontal"
 			
 	def _setOrientation(self, val):
+		tickpos = self._tickPosition
+		isHoriz = (val.lower()[:1] == "h")
+		if isHoriz and tickpos in ("Left", "Right"):
+			dabo.errorLog.write(_("Cannot set the slider to Horizontal when TickPosition is %s.") % tickpos)
+		elif not isHoriz and tickpos in ("Top", "Bottom"):
+			dabo.errorLog.write(_("Cannot set the slider to Vertical when TickPosition is %s.") % tickpos)
 		self._delWindowStyleFlag(wx.SL_HORIZONTAL)
 		self._delWindowStyleFlag(wx.SL_VERTICAL)
-		if val.lower()[:1] == "h":
+		if isHoriz:
 			self._addWindowStyleFlag(wx.SL_HORIZONTAL)
 		else:
 			self._addWindowStyleFlag(wx.SL_VERTICAL)
+
+
+	def _getReversed(self):
+		return self._reversed
+
+	def _setReversed(self, val):
+		# Ignore this once constructed
+		if not self._constructed():
+			self._reversed = val
 
 
 	def _getShowLabels(self):
@@ -105,6 +136,20 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 		self._delWindowStyleFlag(wx.SL_LABELS)
 		if val:
 			self._addWindowStyleFlag(wx.SL_LABELS)
+
+
+	def _getTickPosition(self):
+		try:
+			tp = self._tickPosition[0].upper()
+		except TypeError:
+			# No tick position set; return Bottom
+			return "Bottom"
+		return {"T": "Top", "B": "Bottom", "L": "Left", "R": "Right"}[tp]
+
+	def _setTickPosition(self, val):
+		# Ignore this once constructed
+		if not self._constructed():
+			self._tickPosition = val
 
 
 	# Property definitions:
@@ -119,13 +164,21 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 			_("Specifies the minimum value for the Slider. Default=0  (int)"))
 
 	Orientation = property(_getOrientation, _setOrientation, None, 
-			_("""Specifies whether the Slider is displayed as Horizontal or Vertical. Must be set
-			when the object is created; setting it afterwards has no effect. Default='Horizontal'  (str)"""))
+			_("""Specifies whether the Slider is displayed as Horizontal or Vertical. 
+			Default='Horizontal'  (str)"""))
+
+	Reversed = property(_getReversed, _setReversed, None,
+			_("""When True, the position of the Min and Max values are reversed. Must be set
+			when the object is created; setting it afterwards has no effect. Default=False  (bool)"""))
 
 	ShowLabels = property(_getShowLabels, _setShowLabels, None, 
-			_("""Specifies if the labels are shown on the slider. Must be set
-			when the object is created; setting it afterwards has no effect. Default=True  (bool)"""))
+			_("""Specifies if the labels are shown on the slider. Must be set when the object is 
+			created; setting it afterwards has no effect. Default=True  (bool)"""))
 
+	TickPosition = property(_getTickPosition, _setTickPosition, None,
+			_("""Position of the tick marks; must be one of Top, Bottom (default), Left or Right.
+			Not fully supported on all platforms. Must be set during object creation; has no 
+			effect once created.  (str)"""))
 
 	DynamicOrientation = makeDynamicProperty(Orientation)
 	DynamicMax = makeDynamicProperty(Max)
@@ -136,12 +189,13 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
  
 class _dSlider_test(dSlider):
 	def initProperties(self):
-		self.Size = (200, 40)
+		self.Size = (300, 300)
 		self.Max = 95
 		self.Min = 23
 		self.Value = 75
 		self.ShowLabels = True
-		self.Orientation = "Horizontal"
+# 		self.Reversed = True
+#  		self.TickPosition = "Left"
 	
 	def onHit(self, evt):
 		print "Hit! Value =", self.Value
