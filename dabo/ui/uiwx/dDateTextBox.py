@@ -106,6 +106,7 @@ T : Today
 [ : Up One Month
 ] : Down One Month
 M : First Day of Month
+N : Clear the date
 H : Last Day of montH
 Y : First Day of Year
 R : Last Day of yeaR
@@ -168,7 +169,7 @@ C: Popup Calendar to Select
 			# spurious key event; ignore
 			return
 		
-		shortcutKeys = "t+-mhsyrc[]"
+		shortcutKeys = "nt+-mhsyrc[]"
 		dateEntryKeys = "0123456789/- :."
 		if self.ampm:
 			dateEntryKeys + "apm"
@@ -325,6 +326,11 @@ C: Popup Calendar to Select
 			# Show the calendar
 			self.showCalendar()
 			checkBoundary = False
+		elif key == "n":
+			# Null the value
+			self.Value = None
+			
+			#checkBoundary = False
 		else:
 			# This shouldn't happen, because onChar would have filtered it out.
 			dabo.infoLog.write("Warning in dDateTextBox.adjustDate: %s key sent." % key)
