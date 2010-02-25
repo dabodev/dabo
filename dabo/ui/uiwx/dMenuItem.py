@@ -75,6 +75,10 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 					enc = dabo.defaultEncoding
 				s = unicode(s, enc)
 			return s
+
+		## pkm: On Windows at least, setting the Icon needs to happen before setting the caption.
+		self.SetBitmap(self.Icon)
+
 		if toUni(cap) != toUni(curr):
 			## Win32 seems to need to clear the caption first, or funkiness
 			## can arise. And win32 in wx2.8 needs for the caption to never be
