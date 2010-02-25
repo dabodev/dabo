@@ -185,10 +185,11 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def _createStatusBar(self):
+		modal = getattr(self, "Modal", False)
 		if (self and self.ShowStatusBar 
 				and self.StatusBar is None
 				and not isinstance (self, wx.Dialog)
-				and not self.Modal
+				and not modal
 				and (sys.platform.startswith("darwin") or not isinstance(self, wx.MDIChildFrame))):
 			SBC = self.StatusBarClass
 			self.StatusBar = SBC(self)
