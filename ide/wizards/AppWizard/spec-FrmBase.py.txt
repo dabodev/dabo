@@ -26,7 +26,7 @@ class FrmBase(datanav.Form):
 	def fillFileOpenMenu(self):
 		"""Add the File|Open menu, with menu items for opening each form."""
 		app = self.Application
-		fileMenu = self.MenuBar.getMenu("File")
+		fileMenu = self.MenuBar.getMenu("base_file")
 		fileMenu.prependMenu(MenFileOpen(fileMenu))
 
 
@@ -36,7 +36,7 @@ class FrmBase(datanav.Form):
 		menReports = MenReports()
 
 		# We want the reports menu right after the Actions menu:
-		idx = self.MenuBar.getMenuIndex("Actions")
+		idx = self.MenuBar.getMenuIndex("actions")
 		if idx is None:
 			# punt:
 			idx = 3
@@ -45,11 +45,11 @@ class FrmBase(datanav.Form):
 
 		# The datanav form puts a Quick Report option at the end of the Actions
 		# menu, but let's move it over to the Reports menu instead.
-		menu = self.MenuBar.getMenu("Actions")
-		idx = menu.getItemIndex("Quick Report")
+		menu = self.MenuBar.getMenu("actions")
+		idx = menu.getItemIndex("actions_quickreport")
 		if idx is not None:
 			qrItem = menu.remove(idx, False)
-			menReports = self.MenuBar.getMenu("Reports")
+			menReports = self.MenuBar.getMenu("reports")
 			menReports.prependSeparator()
 			menReports.prependItem(qrItem)
 

@@ -150,13 +150,16 @@ class Form(dabo.ui.dForm):
 		iconPath = "themes/tango/16x16"	
 		menu = super(Form, self).getMenu()
 		menu.Caption = _("&Actions")
+		menu.MenuID = "actions"
 
 		menu.append(_("Set Selection &Criteria")+"\tAlt+1", 
 				OnHit=self.onSetSelectionCriteria, bmp="%s/actions/system-search.png" % iconPath,
+				ItemID="actions_select",
 				help=_("Set the selection criteria for the recordset."))
 
 		menu.append(_("&Browse Records")+"\tAlt+2", 
 				OnHit=self.onBrowseRecords, bmp="%s/actions/format-justify-fill.png" % iconPath,
+				ItemID="actions_browse",
 				help=_("Browse the records in the current recordset."))
 
 		def onActivatePage(evt):
@@ -177,20 +180,23 @@ class Form(dabo.ui.dForm):
 					help = ""
 					
 				menu.append(title, OnHit=onHit, bmp="%s/apps/accessories-text-editor.png" % iconPath,	
-						help=help, Tag=tag)
+						help=help, Tag=tag, ItemID="actions_edit")
 			menu.appendSeparator()
 
 		if self.FormType != "Edit":
 			menu.append(_("&Requery")+"\tCtrl+R", OnHit=self.onRequery, 
 					bmp="%s/actions/view-refresh.png" % iconPath,
+					ItemID="actions_requery",
 					help=_("Get a new recordset from the backend."), menutype="check")		
 	
 		if self.FormType != "PickList":
 			menu.append(_("&Save Changes")+"\tCtrl+S", OnHit=self.onSave, 
 					bmp="%s/actions/document-save.png" % iconPath,
+					ItemID="actions_save",
 					help=_("Save any changes made to the records."))	
 			menu.append(_("&Cancel Changes"), OnHit=self.onCancel, 
 					bmp="%s/actions/edit-undo.png" % iconPath,
+					ItemID="actions_cancel",
 					help=_("Cancel any changes made to the records."))
 			menu.appendSeparator()
 		
@@ -203,24 +209,30 @@ class Form(dabo.ui.dForm):
 
 			menu.append(_("Select &First Record")+"\t%s+UP" % altKey, 
 					OnHit=self.onFirst, bmp="%s/actions/go-first.png" % iconPath, 
+					ItemID="actions_first",
 					help=_("Go to the first record in the set.")) 
 			menu.append(_("Select &Prior Record")+"\t%s+LEFT" % altKey, 
 					OnHit=self.onPrior, bmp="%s/actions/go-previous.png" % iconPath, 
+					ItemID="actions_prior",
 					help=_("Go to the prior record in the set."))	
 			menu.append(_("Select Ne&xt Record")+"\t%s+RIGHT" % altKey, 
 					OnHit=self.onNext, bmp="%s/actions/go-next.png" % iconPath, 
+					ItemID="actions_next",
 					help=_("Go to the next record in the set."))
 			menu.append(_("Select &Last Record")+"\t%s+DOWN" % altKey, 
 					OnHit=self.onLast, bmp="%s/actions/go-last.png" % iconPath, 
+					ItemID="actions_last",
 					help=_("Go to the last record in the set."))
 			menu.appendSeparator()
 		
 		if self.FormType == "Normal":
 			menu.append(_("&New Record")+"\tCtrl+N", OnHit=self.onNew, 
 					bmp="%s/actions/document-new.png" % iconPath,
+					ItemID="actions_new",
 					help=_("Add a new record to the dataset."))
 			menu.append(_("&Delete Current Record"), OnHit=self.onDelete, 
 					bmp="%s/actions/edit-delete" % iconPath,
+					ItemID="actions_delete",
 					help=_("Delete the current record from the dataset."))
 			menu.appendSeparator()
 
@@ -230,6 +242,7 @@ class Form(dabo.ui.dForm):
 		if self.FormType == "Normal":
 			menu.append(_("Quick &Report"), OnHit=self.onQuickReport, 
 					bmp="%s/actions/document-print-preview.png" % iconPath,
+					ItemID="actions_quickreport",
 					DynamicEnabled=self.enableQuickReport)
 
 		return menu
