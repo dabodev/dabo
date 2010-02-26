@@ -20,10 +20,10 @@ class Firebird(dBackend):
 		dBackend.__init__(self)
 		self.dbModuleName = "kinterbasdb"
 		self.fieldPat = re.compile("([A-Za-z_][A-Za-z0-9-_$]+)\.([A-Za-z_][A-Za-z0-9-_$]+)")
+		self.paramPlaceholder = "?"
 		import kinterbasdb
 		initialized = getattr(kinterbasdb, "initialized", None)
 		if not initialized:
-			self.paramPlaceholder = "?"
 			if initialized is None:
 				# type_conv=200 KeyError with the older versions. User will need 
 				# mxDateTime installed as well:
