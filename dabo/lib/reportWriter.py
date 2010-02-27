@@ -1104,6 +1104,12 @@ class ReportWriter(object):
 				x = x - width
 			elif hAnchor == "center":
 				x = x - (width / 2)
+		else:
+			if "xFrom" not in obj or "yFrom" not in obj:
+				# bail: the spanning object didn't start drawing, for whatever reason.
+				# Perhaps there weren't any detail records in the group.
+				c.restoreState()
+				return deferred, neededHeight
 	
 		if objType not in ("SpanningLine", "SpanningRectangle"):	
 			height = obj.getProp("Height")
