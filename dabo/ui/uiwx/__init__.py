@@ -777,7 +777,6 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
 		val = dlg.strVal.Value
 	else:
 		val = None
-	dlg.Destroy()
 	return val
 
 
