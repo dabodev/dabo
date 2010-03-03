@@ -2623,7 +2623,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		""" Occurs when the incremental search timer reaches its interval.
 		It is time to run the search, if there is any search in the buffer.
 		"""
-		if len(self.currSearchStr) > 0:
+		if self.currSearchStr not in ("", "\n", "\r", "\r\n"):
 			self.runIncSearch()
 		else:
 			self.incSearchTimer.stop()
