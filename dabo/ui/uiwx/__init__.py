@@ -10,6 +10,7 @@ import cStringIO
 import warnings
 from dabo.dLocalize import _
 from dabo.lib import utils
+import dabo.dEvents as dEvents
 
 # Very VERY first thing: ensure a minimal wx is selected, but only if
 # wx hasn't already been imported, and if we aren't running frozen:
@@ -311,7 +312,7 @@ def callEvery(interval, func, *args, **kwargs):
 	def _onHit(evt):
 		func(*args, **kwargs)
 	ret = dTimer(Interval=interval)
-	ret.bindEvent(dabo.dEvents.Hit, _onHit)
+	ret.bindEvent(dEvents.Hit, _onHit)
 	ret.start()
 	return ret
 
@@ -351,7 +352,7 @@ def continueEvent(evt):
 		evt.Skip()
 	except AttributeError, e:
 		# Event could be a Dabo event, not a wx event
-		if isinstance(evt, dabo.dEvents.dEvent):
+		if isinstance(evt, dEvents.dEvent):
 			pass
 		else:
 			dabo.errorLog.write("Incorrect event class (%s) passed to continueEvent. Error: %s"
@@ -363,7 +364,7 @@ def discontinueEvent(evt):
 		evt.Skip(False)
 	except AttributeError, e:
 		# Event could be a Dabo event, not a wx event
-		if isinstance(evt, dabo.dEvents.dEvent):
+		if isinstance(evt, dEvents.dEvent):
 			pass
 		else:
 			dabo.errorLog.write("Incorrect event class (%s) passed to continueEvent. Error: %s"
@@ -1150,6 +1151,25 @@ def getFromClipboard():
 			return data.GetBitmap()
 		else:
 			return None
+
+
+def getScrollWinEventClass(evt):
+	"""Window scroll events use different codes across different platforms.
+	This code identifies the appropriate event and returns the appropriate
+	Dabo event class.
+	"""
+	evtType = evt.GetEventType()
+	plat = wx.Platform
+	# Each of the events has an 'event type' value, which are serially-ordered
+	# integers; each platform starts with a different base for numbering.
+	baseEvtNum = {"__WXMAC__": 10064, "__WXGTK__": 10138, "__WXMSW__": 10069}[plat]
+	evtOffset = evtType - baseEvtNum
+	# Get the corresponding Dabo event class for the wx event.
+	daboEvents = (dEvents.ScrollTop, dEvents.ScrollBottom, dEvents.ScrollLineUp, 
+			dEvents.ScrollLineDown, dEvents.ScrollPageUp, dEvents.ScrollPageDown, 
+			dEvents.ScrollThumbDrag, dEvents.ScrollThumbRelease)
+	return daboEvents[evtOffset]
+
 
 def _checkForRawXML(srcFile):
 	isRawXML = srcFile.strip().startswith("<")

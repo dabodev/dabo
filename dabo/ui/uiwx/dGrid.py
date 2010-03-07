@@ -3674,12 +3674,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxScrollWin(self, evt):
-		typ = evt.GetEventType()
-		# Get the corresponding Dabo event class for the wx event.
-		evtClass = {10064: dEvents.ScrollTop, 10065: dEvents.ScrollBottom, 
-				10066: dEvents.ScrollLineUp, 10067: dEvents.ScrollLineDown, 
-				10068: dEvents.ScrollPageUp, 10069: dEvents.ScrollPageDown, 
-				10070: dEvents.ScrollThumbDrag, 10071: dEvents.ScrollThumbRelease}[typ]
+		evtClass = dabo.ui.getScrollWinEventClass(evt)
 		self.raiseEvent(evtClass, evt)
 		evt.Skip()
 
