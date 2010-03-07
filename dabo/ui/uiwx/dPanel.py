@@ -297,6 +297,18 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 		_PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties, 
 				attProperties=attProperties, *args, **kwargs)
 		self.SetScrollRate(10, 10)
+		self.Bind(wx.EVT_SCROLLWIN, self.__onWxScrollWin)
+
+
+	def __onWxScrollWin(self, evt):
+		typ = evt.GetEventType()
+		# Get the corresponding Dabo event class for the wx event.
+		evtClass = {10064: dEvents.ScrollTop, 10065: dEvents.ScrollBottom, 
+				10066: dEvents.ScrollLineUp, 10067: dEvents.ScrollLineDown, 
+				10068: dEvents.ScrollPageUp, 10069: dEvents.ScrollPageDown, 
+				10070: dEvents.ScrollThumbDrag, 10071: dEvents.ScrollThumbRelease}[typ]
+		self.raiseEvent(evtClass, evt)
+		evt.Skip()
 
 
 	def scrollHorizontally(self, amt):
@@ -427,6 +439,30 @@ class _dScrollPanel_test(dScrollPanel):
 
 	def onKeyDown(self, evt):
 		print evt.EventData["keyCode"]
+	
+	def onScrollLineUp(self, evt):
+		if evt.orientation == "Horizontal":
+			print "Scroll Line Left"
+		else:
+			print "Scroll Line Up"
+	
+	def onScrollLineDown(self, evt):
+		if evt.orientation == "Horizontal":
+			print "Scroll Line Right"
+		else:
+			print "Scroll Line Down"
+	
+	def onScrollPageUp(self, evt):
+		if evt.orientation == "Horizontal":
+			print "Scroll Page Left"
+		else:
+			print "Scroll Page Up"
+	
+	def onScrollPageDown(self, evt):
+		if evt.orientation == "Horizontal":
+			print "Scroll Page Right"
+		else:
+			print "Scroll Page Down"
 
 
 
@@ -453,13 +489,13 @@ if __name__ == "__main__":
 			sz.appendSpacer(20)
 			self.layout()
 			
-	app = dabo.dApp(MainFormClass = SquareForm)
-	app.start()
+# 	app = dabo.dApp(MainFormClass = SquareForm)
+# 	app.start()
 	
 	
-# 	import test
-# 	test.Test().runTest(_dPanel_test)
-# 	test.Test().runTest(_dScrollPanel_test)
+	import test
+	test.Test().runTest(_dPanel_test)
+	test.Test().runTest(_dScrollPanel_test)
 
 
 

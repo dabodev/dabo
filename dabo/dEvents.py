@@ -219,6 +219,12 @@ class ReportEvent(dEvent):
 	appliesToClass = classmethod(appliesToClass)
 
 
+class ScrollEvent(dEvent):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, (dabo.ui.dScrollPanel, dabo.ui.dGrid))
+	appliesToClass = classmethod(appliesToClass)
+	
+
 class Activate(dEvent):
 	"""Occurs when the form or application becomes active."""
 	def appliesToClass(eventClass, objectClass):
@@ -924,4 +930,45 @@ class ReportEnd(ReportEvent):
 class ReportIteration(ReportEvent):
 	"""Occurs when the RecordNumber changes at report runtime."""
 	pass
+
+
+class ScrollTop(ScrollEvent):
+	"""Occurs when a scrollable window reaches the top or left."""
+	pass
+
+
+class ScrollBottom(ScrollEvent):
+	"""Occurs when a scrollable window reaches the bottom or right."""
+	pass
+
+
+class ScrollLineUp(ScrollEvent):
+	"""Occurs when a scrollable window is scrolled a line up or left."""
+	pass
+
+
+class ScrollLineDown(ScrollEvent):
+	"""Occurs when a scrollable window is scrolled a line down or right."""
+	pass
+
+
+class ScrollPageUp(ScrollEvent):
+	"""Occurs when a scrollable window is scrolled up or left by a full page."""
+	pass
+
+
+class ScrollPageDown(ScrollEvent):
+	"""Occurs when a scrollable window is scrolled down or right by a full page."""
+	pass
+
+
+class ScrollThumbDrag(ScrollEvent):
+	"""Occurs when the 'thumb' control of a scrollable window's scrollbars is moved."""
+	pass
+
+
+class ScrollThumbRelease(ScrollEvent):
+	"""Occurs when the 'thumb' control of a scrollable window's scrollbars is released."""
+	pass
+
 

@@ -1860,6 +1860,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.Bind(wx.grid.EVT_GRID_EDITOR_SHOWN, self.__onWxGridEditorShown)
 		self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxGridCellChange)
 		self.Bind(wx.grid.EVT_GRID_RANGE_SELECT, self.__onWxGridRangeSelect)
+		self.Bind(wx.EVT_SCROLLWIN, self.__onWxScrollWin)
 
 		# Testing bool cell renderer/editor single-click-toggle:
 		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_CLICK, self.__onGridCellLeftClick_toggleCB)
@@ -3672,6 +3673,17 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._inRangeSelect = False
 
 
+	def __onWxScrollWin(self, evt):
+		typ = evt.GetEventType()
+		# Get the corresponding Dabo event class for the wx event.
+		evtClass = {10064: dEvents.ScrollTop, 10065: dEvents.ScrollBottom, 
+				10066: dEvents.ScrollLineUp, 10067: dEvents.ScrollLineDown, 
+				10068: dEvents.ScrollPageUp, 10069: dEvents.ScrollPageDown, 
+				10070: dEvents.ScrollThumbDrag, 10071: dEvents.ScrollThumbRelease}[typ]
+		self.raiseEvent(evtClass, evt)
+		evt.Skip()
+
+
 	def _updateWxSelection(self, evt):
 		if self.MultipleSelection:
 			# Nothing to do
@@ -4886,7 +4898,7 @@ class _dGrid_test(dGrid):
 
 		col = dColumn(self, Name="Person", Order=20, DataField="name",
 				DataType="string", Width=200, Caption="Celebrity Name",
-				Sortable=True, Searchable=True, Editable=True, Expand=True)
+				Sortable=True, Searchable=True, Editable=True, Expand=False)
 		self.addColumn(col)
 
 		col.HeaderFontItalic = True
@@ -4926,6 +4938,14 @@ class _dGrid_test(dGrid):
 			# Can't test Expand with so many columns! Just add one.
 			self.addColumn(DataField="i_%s" % i, Caption="i_%s" % i)
 
+	def onScrollLineUp(self, evt):
+		print "LINE UP", evt.EventData
+	def onScrollPageUp(self, evt):
+		print "PAGE UP", evt.EventData
+	def onScrollThumbDrag(self, evt):
+		print "DRAG", evt.EventData
+	def onScrollThumbRelease(self, evt):
+		print "THUMB REL", evt.EventData
 
 if __name__ == '__main__':
 	class TestForm(dabo.ui.dForm):

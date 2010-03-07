@@ -573,7 +573,12 @@ def getEventData(wxEvt):
 	except AttributeError:
 		# wxPython 2.6 and earlier doesn't seem to have this event
 		pass
-		
+
+	if isinstance(wxEvt, wx.ScrollWinEvent):
+		ishz = (wxEvt.GetOrientation() == wx.HORIZONTAL)
+		ed["orientation"] = {True: "Horizontal", False: "Vertical"}[ishz]
+		ed["scrollpos"] = wxEvt.GetPosition()
+
 	if isinstance(wxEvt, wx.stc.StyledTextEvent):
 		# Adding all the event getters, even though most don't seem
 		# to do anything.
