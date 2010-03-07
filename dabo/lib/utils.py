@@ -147,7 +147,11 @@ def relativePathList(toLoc, fromLoc=None):
 	is assumed.
 	"""
 	if fromLoc is None:
-		fromLoc = dabo.dAppRef.HomeDirectory
+		try:
+			fromLoc = dabo.dAppRef.HomeDirectory
+		except AttributeError:
+			# No app object
+			fromLoc = os.getcwd()
 	if toLoc.startswith(".."):
 		if osp.isdir(fromLoc):
 			toLoc = osp.join(fromLoc, toLoc)
@@ -269,6 +273,58 @@ def locateRelativeTo(containerPath, itemPath):
 			resolved = testPath
 			break
 	return resolved
+
+
+def resolvePathAndUpdate(srcFile):
+	app = dabo.dAppRef
+	try:
+		hd = app.HomeDirectory
+	except AttributeError:
+		# There is no app object
+		hd = os.getcwd()
+	opexists = os.path.exists
+	# Make sure that the file exists
+	if not opexists(srcFile):
+		# Try common paths. First use the whole string; then use 
+		# each subdirectory in turn.
+		fname = srcFile
+		keepLooping = True
+		while keepLooping:
+			keepLooping = False
+			for subd in ("ui", "forms", "menus", "resources", "db", "biz"):
+				newpth = os.path.join(hd, subd, fname)
+				if opexists(newpth):
+					srcFile = newpth
+					break
+			if not opexists(srcFile):
+				try:
+					fname = fname.split(os.path.sep, 1)[1]
+					keepLooping = True
+				except IndexError:
+					# No more directories to remove
+					break
+	if app is not None:
+		if app.SourceURL:
+			# The srcFile has an absolute path; the URLs work on relative.
+			try:
+				splt = srcFile.split(hd)[1].lstrip("/")
+			except IndexError:
+				splt = srcFile
+			app.urlFetch(splt)
+			try:
+				nm, ext = os.path.splitext(splt)
+			except ValueError:
+				# No extension; skip it
+				nm = ext = ""
+			if ext == ".cdxml":
+				# There might be an associated code file. If not, the error
+				# will be caught in the app method, and no harm will be done.
+				codefile = "%s-code.py" % nm
+				app.urlFetch(codefile)
+	# At this point the file should be present and updated. If not...
+	if not os.path.exists(srcFile):
+		raise IOError(_("The file '%s' cannot be found") % srcFile)
+	return srcFile
 
 
 def cleanMenuCaption(cap, bad=None):

@@ -9,6 +9,7 @@ import time
 import cStringIO
 import warnings
 from dabo.dLocalize import _
+from dabo.lib import utils
 
 # Very VERY first thing: ensure a minimal wx is selected, but only if
 # wx hasn't already been imported, and if we aren't running frozen:
@@ -1122,54 +1123,6 @@ def sortList(chc, Caption="", ListCaption=""):
 	return ret
 
 
-def resolvePathAndUpdate(srcFile):
-	app = dabo.dAppRef
-	hd = app.HomeDirectory
-	opexists = os.path.exists
-	# Make sure that the file exists
-	if not opexists(srcFile):
-		# Try common paths. First use the whole string; then use 
-		# each subdirectory in turn.
-		fname = srcFile
-		keepLooping = True
-		while keepLooping:
-			keepLooping = False
-			for subd in ("ui", "forms", "menus", "resources", "db", "biz"):
-				newpth = os.path.join(hd, subd, fname)
-				if opexists(newpth):
-					srcFile = newpth
-					break
-			if not opexists(srcFile):
-				try:
-					fname = fname.split(os.path.sep, 1)[1]
-					keepLooping = True
-				except IndexError:
-					# No more directories to remove
-					break
-	if app is not None:
-		if app.SourceURL:
-			# The srcFile has an absolute path; the URLs work on relative.
-			try:
-				splt = srcFile.split(hd)[1].lstrip("/")
-			except IndexError:
-				splt = srcFile
-			app.urlFetch(splt)
-			try:
-				nm, ext = os.path.splitext(splt)
-			except ValueError:
-				# No extension; skip it
-				nm = ext = ""
-			if ext == ".cdxml":
-				# There might be an associated code file. If not, the error
-				# will be caught in the app method, and no harm will be done.
-				codefile = "%s-code.py" % nm
-				app.urlFetch(codefile)
-	# At this point the file should be present and updated. If not...
-	if not os.path.exists(srcFile):
-		raise IOError(_("The file '%s' cannot be found") % srcFile)
-	return srcFile
-
-
 def copyToClipboard(val):
 	uiApp.copyToClipboard(val)
 
@@ -1197,7 +1150,7 @@ def _checkForRawXML(srcFile):
 	isRawXML = srcFile.strip().startswith("<")
 	if not isRawXML:
 		try:
-			srcFile = resolvePathAndUpdate(srcFile)
+			srcFile = utils.resolvePathAndUpdate(srcFile)
 		except IOError, e:
 			dabo.errorLog.write(_("Class file '%s' not found") % srcFile)
 			raise
@@ -1295,7 +1248,7 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 							context={"form": form, "app": dabo.dAppRef})
 
 	try:
-		srcFile = resolvePathAndUpdate(srcFile)
+		srcFile = utils.resolvePathAndUpdate(srcFile)
 	except IOError, e:
 		stop(e, _("File Not Found"))
 		return

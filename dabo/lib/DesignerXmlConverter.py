@@ -16,6 +16,7 @@ from dabo.dObject import dObject
 import dabo.ui.dialogs as dlgs
 import dabo.lib.xmltodict as xtd
 import dabo.lib.DesignerUtils as desUtil
+from dabo.lib import utils
 # Doesn't matter what platform we're on; Python needs 
 # newlines in its compiled code.
 LINESEP = "\n"
@@ -96,7 +97,7 @@ class DesignerXmlConverter(dObject):
 		else:
 			xml = src
 			if not src.startswith("<"):
-				xml = src = dabo.ui.resolvePathAndUpdate(src)
+				xml = src = utils.resolvePathAndUpdate(src)
 			if os.path.exists(src):
 				self._srcFile = src
 			else:
@@ -338,7 +339,7 @@ class DesignerXmlConverter(dObject):
 			splitterString = ""
 			if "classID" in atts:
 				if not os.path.exists(clsname):
-					clsname = dabo.lib.utils.locateRelativeTo(self._srcFile, clsname)
+					clsname = utils.locateRelativeTo(self._srcFile, clsname)
 				chldList = [[child]] + specChildList[:]
 				nm = self.createInheritedClass(clsname, chldList)
 				code = {}
@@ -682,7 +683,7 @@ class DesignerXmlConverter(dObject):
 					ret["NameBase"] = val
 				else:
 					ret[key] = val
-		dabo.lib.utils.resolveAttributePathing(ret, self._srcFile)
+		utils.resolveAttributePathing(ret, self._srcFile)
 		return ret
 	
 

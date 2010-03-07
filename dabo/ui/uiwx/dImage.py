@@ -8,6 +8,8 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.lib import utils
+
 #import dControlMixin as dcm
 from dDataControlMixin import dDataControlMixin as dcm
 import dImageMixin as dim
@@ -214,7 +216,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				val = dabo.ui.getImagePath(val)
 				if val is None or not os.path.exists(val):
 					# This will raise an IOError if it fails
-					val = dabo.ui.resolvePathAndUpdate(origVal)
+					val = utils.resolvePathAndUpdate(origVal)
 				if val is None or not os.path.exists(val):
 					# Bad image reference
 					raise IOError("No file named '%s' exists." % origVal)
