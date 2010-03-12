@@ -1159,10 +1159,11 @@ def getScrollWinEventClass(evt):
 	Dabo event class.
 	"""
 	evtType = evt.GetEventType()
-	plat = wx.Platform
-	# Each of the events has an 'event type' value, which are serially-ordered
-	# integers; each platform starts with a different base for numbering.
-	baseEvtNum = {"__WXMAC__": 10064, "__WXGTK__": 10138, "__WXMSW__": 10069}[plat]
+	# Seems as though the wx events for window scrolling use a series of IDs
+	# for these events, but the numbering changes with different platforms and
+	# builds of wx. However, it seems that the base is always the generic 
+	# EVT_SCROLLWIN's typeId value.
+	baseEvtNum = wx.EVT_SCROLLWIN.typeId
 	evtOffset = evtType - baseEvtNum
 	# Get the corresponding Dabo event class for the wx event.
 	daboEvents = (dEvents.ScrollTop, dEvents.ScrollBottom, dEvents.ScrollLineUp, 
