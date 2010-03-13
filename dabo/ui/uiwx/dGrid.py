@@ -1741,6 +1741,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._inRangeSelect = False
 		# Flag to indicate we are in a selection update event
 		self._inUpdateSelection = False
+		# Flag to avoid record pointer movement during DataSource setting
+		self._dataSourceBeingSet = False
 
 		# Do we show row or column labels?
 		self._showHeaders = True
@@ -3481,7 +3483,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			dabo.ui.callAfter(self.EnableCellEditControl)
 		if oldRow != newRow:
 			bizobj = self.getBizobj()
-			if bizobj:
+			if bizobj and not self._dataSourceBeingSet:
+				# Don't run any of this code if this is the initial setting of the DataSource
 				if bizobj.RowCount > newRow and bizobj.RowNumber != newRow:
 					if self._mediateRowNumberThroughForm and isinstance(self.Form, dabo.ui.dForm):
 						# run it through the form:
@@ -3501,6 +3504,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					##     unneccesary.
 					#self.SetGridCursor(0,0)
 					pass
+		self._dataSourceBeingSet = False
 		dabo.ui.callAfter(self._updateSelection)
 
 
@@ -4153,8 +4157,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self._dataSource = val
 			self.fillGrid(True)
 			biz = self.getBizobj()
+			self._dataSourceBeingSet = True
 			if biz:
-				self.SelectRow(biz.RowNumber)
+				dabo.ui.setAfter(self, "CurrentRow", biz.RowNumber)
 				self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		else:
 			self._properties["DataSource"] = val
