@@ -62,7 +62,11 @@ def isValidDomain(domain, localedir):
 
 
 def setLanguage(lang=None, charset=None):
-	"""Change the language that strings get translated to, for all installed domains."""
+	"""Change the language that strings get translated to, for all installed domains.
+	NOTE: rather than call the install() method of the gettext.translation objects,
+	which would globally bind the '_' name, we'll just set the '_currentTrans' 
+	name to the translation object.	
+	"""
 	global _domains, _currentTrans
 	lang = _languageAliases.get(lang, lang)
 
