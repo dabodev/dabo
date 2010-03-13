@@ -920,6 +920,7 @@ class ClassDesigner(dabo.dApp):
 
 				if kids:
 					if isGrid:
+						noneTyp = type(None)
 						colClass = obj.ColumnClass
 						# All the kids will be columns, so add 'em here
 						for kid in kids:
@@ -929,8 +930,18 @@ class ClassDesigner(dabo.dApp):
 								if kprop in ("designerClass", ):
 									continue
 								typ = type(getattr(col, kprop))
-								if not issubclass(typ, basestring):
-									kval = typ(kval)
+								if typ is noneTyp:
+									try:
+										kval = eval(kval)
+									except StandardError, e:
+										# Leave it as it is
+										pass
+								else:
+									if not issubclass(typ, basestring):
+										if typ is bool and isinstance(kval, basestring):
+											kval = (kval.lower() in ("true", "t", "yes", "y", "1"))
+										else:
+											kval = typ(kval)
 								setattr(col, kprop, kval)
 							notLast = (kid is not kids[-1])
 							obj.addColumn(col, inBatch=notLast)
