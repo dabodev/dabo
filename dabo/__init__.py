@@ -126,16 +126,6 @@ dAppRef = None
 # we want to make them part of the dabo namespace.
 from settings import *
 
-# Install localization service for dabo. dApp will install localization service
-# for the user application separately.
-import dLocalize
-dLocalize.install("dabo")
-# On some platforms getfilesystemencoding() and even getdefaultlocale()
-# can return None, so we make sure we always set a reasonable encoding:
-# NOTE: 'defaultEncoding' is imported from 'from settings import *' line above.
-fileSystemEncoding = (sys.getfilesystemencoding()
-    or locale.getdefaultlocale()[1] or defaultEncoding)
-
 # Instantiate the logger object, which will send messages to user-overridable
 # locations. Do this before any other imports.
 from dabo.lib.logger import Log
@@ -159,6 +149,16 @@ eventLog.LogObject = sys.stdout
 dbActivityLog = Log()
 dbActivityLog.Caption = "Database Activity Log"
 dbActivityLog.LogObject = None
+
+# Install localization service for dabo. dApp will install localization service
+# for the user application separately.
+import dLocalize
+dLocalize.install("dabo")
+# On some platforms getfilesystemencoding() and even getdefaultlocale()
+# can return None, so we make sure we always set a reasonable encoding:
+# NOTE: 'defaultEncoding' is imported from 'from settings import *' line above.
+fileSystemEncoding = (sys.getfilesystemencoding()
+    or locale.getdefaultlocale()[1] or defaultEncoding)
 
 from __version__ import version
 import dColors

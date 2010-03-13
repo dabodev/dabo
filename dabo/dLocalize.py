@@ -30,9 +30,10 @@ _languageAliases = {"english": "en", "English_United States":"en",
 
 def _(s):
 	"""Return the localized translation of s, or s if translation not possible."""
-	if _currentTrans is not None:
+	try:
 		return _currentTrans(s)
-	return s
+	except TypeError:
+		return s
 
 
 def n_(s):
@@ -52,7 +53,6 @@ def install(domain="dabo", localedir=None, unicode_mo=True):
 			raise ValueError("Must send your application's localedir explicitly.")
 		localedir = getDaboLocaleDir()
 	_domains[domain] = localedir
-	#gettext.install(domain, localedir, unicode=unicode_mo)	 ## No, don't globally bind _
 	setLanguage(_defaultLanguage, _defaultEncoding)
 
 
@@ -64,7 +64,6 @@ def isValidDomain(domain, localedir):
 def setLanguage(lang=None, charset=None):
 	"""Change the language that strings get translated to, for all installed domains."""
 	global _domains, _currentTrans
-
 	lang = _languageAliases.get(lang, lang)
 
 	if lang is not None and isinstance(lang, basestring):
@@ -73,9 +72,16 @@ def setLanguage(lang=None, charset=None):
 	daboTranslation = None
 	daboLocaleDir = _domains.get("dabo", None)
 	if daboLocaleDir:
-		daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=lang, codeset=charset)
-#		daboTranslation.install()  ## No, don't globally bind _
-		_currentTrans = daboTranslation.ugettext
+		try:
+			daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=lang, codeset=charset)
+			_currentTrans = daboTranslation.ugettext
+		except IOError:
+			# No translation file found
+			dabo.errorLog.write("""
+No translation file found for domain 'dabo'.
+    Locale dir = %s
+    Languages = %s
+    Codeset = %s """ % (daboLocaleDir, str(lang), charset))
 
 	for domain, localedir in _domains.items():
 		if domain == "dabo":
@@ -83,10 +89,14 @@ def setLanguage(lang=None, charset=None):
 		try:
 			translation = gettext.translation(domain, localedir, languages=lang, codeset=charset)
 		except IOError:
-			raise IOError("No translation found for domain '%s' and language %s." % (domain, lang))
+			dabo.errorLog.write("No translation found for domain '%s' and language %s." % (domain, lang))
+			dabo.errorLog.write("""
+No translation file found for domain '%s'.
+    Locale dir = %s
+    Languages = %s
+    Codeset = %s """ % (domain, daboLocaleDir, str(lang), charset))
 		if daboTranslation:
 			translation.add_fallback(daboTranslation)
-#		translation.install()  ## No, don't globally bind _
 		_currentTrans = translation.ugettext
 
 
