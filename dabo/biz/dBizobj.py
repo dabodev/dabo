@@ -953,10 +953,11 @@ class dBizobj(dObject):
 			raise dException.MissingPKException(errMsg)
 
 		# If this is a dependent (child) bizobj, this will enforce the relation
-		self.setChildLinkFilter()
+		_childParamTuple = self.setChildLinkFilter()
 
-		# Hook method for creating the param list
-		params = self.getParams()
+		# Hook method for creating the param tuple. Note that the child filter
+		# clause, if any, will always be the first clause in the WHERE expression.
+		params = _childParamTuple + self.getParams()
 
 		# Record this in case we need to restore the record position
 		try:
@@ -1002,18 +1003,23 @@ class dBizobj(dObject):
 		there is no parent record, there cannot be any child records saved yet,
 		so an empty query is built.
 		"""
+		# Return a tuple of the params. Default to an empty tuple.
+		ret = tuple()
 		if self.DataSource and self.LinkField and self.Parent:
 			if self.Parent.RowCount == 0:
 				# Parent is new and not yet saved, so we cannot have child records yet.
 				self._CurrentCursor.setNonMatchChildFilterClause()
 			else:
+				val = self.getParentLinkValue()
 				linkFieldParts = self.LinkField.split(".")
 				if len(linkFieldParts) < 2:
 					linkField = self.LinkField
 				else:
 					# The source table was specified in the LinkField
 					linkField = linkFieldParts[1]
-				self._CurrentCursor.setChildFilter(linkField, self.getParentLinkValue())
+				self._CurrentCursor.setChildFilter(linkField)
+				ret = (val, )
+		return ret
 
 
 	def getParentLinkValue(self):
