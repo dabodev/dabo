@@ -124,6 +124,8 @@ class ClassDesigner(dabo.dApp):
 		gsa["MaxDimension"] = atts["MaxDimension"]
 		# Get rid of the update/refresh delays
 		dabo.useUpdateDelays = False
+		# Flag that is set when the user is editing a property value
+		self._inPropertyEditing = False
 
 		# Define the controls that can be added to the ClassDesigner. The
 		# 'order' value will determine their order in the menu. One plan
@@ -1207,6 +1209,14 @@ class ClassDesigner(dabo.dApp):
 				raise PropertyUpdateException(str(e))
 
 
+	def startPropEdit(self):
+		self._inPropertyEditing = True
+
+
+	def endPropEdit(self):
+		self._inPropertyEditing = False
+
+
 	def updatePropVal(self, prop, val, typ):
 		"""Called whenever the user edits a property. We need to
 		update the object accordingly.
@@ -1485,7 +1495,7 @@ class ClassDesigner(dabo.dApp):
 			cleanup = ""
 			if issubclass(cls, (dui.dSizer, dui.dGridSizer)):
 				obj = cls()
-			elif issubclass(cls, (dui.dBorderSizer,	 )):
+			elif issubclass(cls, (dui.dBorderSizer, )):
 				frm = dui.dForm(None, Visible=False, NameBase="BORD")
 				obj = cls(frm)
 			elif issubclass(cls, (dui.dForm, dui.dDialog)):
@@ -1987,6 +1997,9 @@ class ClassDesigner(dabo.dApp):
 
 
 	def moveInTree(self, drct):
+		if self._inPropertyEditing:
+			# Can't navigate while there is a pending change
+			return
 		if drct == "next":
 			obj = self.Tree.nextObj()
 		else:
@@ -4180,10 +4193,10 @@ if __name__ == '__main__':
 
 
 	Clipboard = property(_getClipboard, None, None,
-			_("Holds dict of controls that have been copied	 (dict)"))
+			_("Holds dict of controls that have been copied.  (dict)"))
 
 	ControlPalette= property(_getPalette, None, None,
-			_("Reference to the Control Palette	 (dToolForm)") )
+			_("Reference to the Control Palette  (dToolForm)") )
 
 	CurrentForm = property(_getCurrentForm, _setCurrentForm, None,
 			_("Currently active designer surface  (DesForm)"))
