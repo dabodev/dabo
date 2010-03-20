@@ -1860,6 +1860,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.Bind(wx.grid.EVT_GRID_COL_SIZE, self.__onWxGridColSize)
 		self.Bind(wx.grid.EVT_GRID_EDITOR_CREATED, self.__onWxGridEditorCreated)
 		self.Bind(wx.grid.EVT_GRID_EDITOR_SHOWN, self.__onWxGridEditorShown)
+		self.Bind(wx.grid.EVT_GRID_EDITOR_HIDDEN, self.__onWxGridEditorHidden)
 		self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxGridCellChange)
 		self.Bind(wx.grid.EVT_GRID_RANGE_SELECT, self.__onWxGridRangeSelect)
 		self.Bind(wx.EVT_SCROLLWIN, self.__onWxScrollWin)
@@ -3747,6 +3748,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def __onWxGridEditorShown(self, evt):
 		self.raiseEvent(dEvents.GridCellEditBegin, evt)
+		evt.Skip()
+
+
+	def __onWxGridEditorHidden(self, evt):
+		self.raiseEvent(dEvents.GridCellEditEnd, evt)
 		evt.Skip()
 
 

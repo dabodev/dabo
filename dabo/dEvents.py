@@ -779,6 +779,11 @@ class GridCellEditBegin(GridEvent):
 	pass
 
 
+class GridCellEditEnd(GridEvent):
+	"""Occurs when the editor for a grid cell is hidden."""
+	pass
+
+
 class GridCellEdited(GridEvent):
 	"""Occurs when the user edits the content of a grid cell."""
 	pass
