@@ -806,6 +806,7 @@ class PropertyGrid(dabo.ui.dGrid):
 	def onGridCellEditBegin(self, evt):
 		# Save the pre-editing value so we only update 
 		# if it changes.
+		self.Controller.startPropEdit()
 		self._origVal = self.getValue(evt.row, evt.col)
 		
 		
@@ -862,6 +863,10 @@ class PropertyGrid(dabo.ui.dGrid):
 			pd = self.getPropDictForRow(row)
 			typ = pd["type"]
 			self.Handler.updateVal(prop, newVal, typ)
+
+
+	def onGridCellEditEnd(self, evt):
+		self.Controller.endPropEdit()
 	
 	
 	def _getController(self):
