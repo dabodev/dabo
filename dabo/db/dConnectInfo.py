@@ -116,16 +116,14 @@ class dConnectInfo(dObject):
 		if self.Application:
 			return self.Application.encrypt(val)
 		else:
-			cryp = SimpleCrypt()
-			return cryp.encrypt(val)
+			return self.Crypto.encrypt(val)
 			
 
 	def decrypt(self, val):
 		if self.Application:
 			return self.Application.decrypt(val)
 		else:
-			cryp = SimpleCrypt()
-			return cryp.decrypt(val)
+			return self.Crypto.decrypt(val)
 	
 	
 	def revealPW(self):
@@ -167,9 +165,6 @@ class dConnectInfo(dObject):
 				if nm == "mysql":
 					import dbMySQL
 					self._backendObject = dbMySQL.MySQL()
-				elif nm == "gadfly":
-					import dbGadfly
-					self._backendObject = dbGadfly.Gadfly()
 				elif nm == "sqlite":
 					import dbSQLite
 					self._backendObject = dbSQLite.SQLite()
@@ -265,7 +260,6 @@ class dConnectInfo(dObject):
 		
 	def _setUser(self, user): 
 		self._user = user
-
 
 
 
