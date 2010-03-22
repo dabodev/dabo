@@ -87,7 +87,7 @@ class dFont(dObject):
 			if not automatic_face:
 				if not lowVal.startswith("ms shell dlg"):
 					# Ignore the non-existent MS Shell Dlg font names; they are Windows aliases 
-					raise dabo.dException.FontNotFoundException(_("The font '%s' doesn't exist on this system.") % val)
+					dabo.errorLog.write(_("The font '%s' doesn't exist on this system.") % val)
  
 		self._propsChanged()
 
