@@ -136,12 +136,16 @@ class dConnectInfo(dObject):
 
 	def _getCrypto(self):
 		try:
-			return self.Application.Crypto
+			ret = self.Application.Crypto
 		except AttributeError:
-			if not getattr(self, "_cryptoProvider"):
-				# Use the default crypto
-				self._cryptoProvider = SimpleCrypt()
-			return self._cryptoProvider
+			try:
+				ret = self._cryptoProvider
+			except AttributeError:
+				ret = self._cryptoProvider = None
+		if ret is None:
+			# Use the default crypto
+			ret = self._cryptoProvider = SimpleCrypt()
+		return self._cryptoProvider
 
 	def _setCrypto(self, val):
 		self._cryptoProvider = val
