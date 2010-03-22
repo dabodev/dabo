@@ -1450,7 +1450,7 @@ try again when it is running.
 		if os.path.exists(val):
 			self._homeDirectory = os.path.abspath(val)
 		else:
-			raise ValueError(_("%s: Path does not exist.") % val)
+			dabo.errorLog.write(_("Setting App HomeDirectory: Path does not exist. '%s'") % val)
 
 
 	def _getIcon(self):
