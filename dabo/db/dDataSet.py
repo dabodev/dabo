@@ -240,15 +240,14 @@ class dDataSet(tuple):
 				=> returns "foo['price'] > 50"
 		"""
 		keys = self[0].keys()
-		patTemplate = "(.*\\b)%s(\\b.*)"
+		patTemplate = r"\b%s\b"
 		ret = expr
 		if dictName is None:
 			dictName = "rec"
 		for kk in keys:
 			pat = patTemplate % kk
-			mtch = re.match(pat, ret)
-			if mtch:
-				ret = mtch.groups()[0] + "%s['%s']" % (dictName, kk) + mtch.groups()[1]
+			replacement = "%s['%s']" % (dictName, kk)
+			ret = re.sub(pat, replacement, ret)
 		return ret
 
 
