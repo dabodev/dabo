@@ -67,24 +67,27 @@ class dFont(dObject):
 			# The font wasn't found on the user's system. Try to set it
 			# automatically based on some common-case mappings.
 			automatic_face = None
-			if val.lower() in ("courier", "courier new", "monospace", "mono"):
+			lowVal = val.lower()
+			if lowVal in ("courier", "courier new", "monospace", "mono"):
 				for trial in ("Courier New", "Courier", "Monaco", "Monospace", "Mono"):
 					if trySetFont(trial):
 						automatic_face = trial
 						break
-			elif val.lower() in ("arial", "helvetica", "geneva", "sans"):
+			elif lowVal in ("arial", "helvetica", "geneva", "sans"):
 				for trial in ("Arial", "Helvetica", "Geneva", "Sans Serif", "Sans"):
 					if trySetFont(trial):
 						automatic_face = trial
 						break
-			elif val.lower() in ("times", "times new roman", "Georgia", "serif"):
+			elif lowVal in ("times", "times new roman", "georgia", "serif"):
 				for trial in ("Times New Roman", "Times", "Georgia", "Serif"):
 					if trySetFont(trial):
 						automatic_face = trial
 						break
 
 			if not automatic_face:
-				raise dabo.dException.FontNotFoundException(_("The font '%s' doesn't exist on this system.") % val)
+				if not lowVal.startswith("ms shell dlg"):
+					# Ignore the non-existent MS Shell Dlg font names; they are Windows aliases 
+					raise dabo.dException.FontNotFoundException(_("The font '%s' doesn't exist on this system.") % val)
  
 		self._propsChanged()
 
