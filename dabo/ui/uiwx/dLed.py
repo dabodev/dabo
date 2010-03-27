@@ -7,11 +7,12 @@ if __name__ == "__main__":
 from dabo.dLocalize import _
 
 
-class dLed(dabo.ui.dPanel):
+class dLed(dabo.ui.dDataPanel):
 	def __init__(self, *args, **kwargs):
 		self._offColor = "darkred"
 		self._onColor = "green"
 		self._on = False
+		self._inUpdate = False
 		super(dLed, self).__init__(*args, **kwargs)
 
 
@@ -29,6 +30,15 @@ class dLed(dabo.ui.dPanel):
 	def onResize(self, evt):
 		"""Update the size of the LED."""
 		self.update()
+
+
+	def update(self):
+		#Avoid recursive calls to this method.
+		if self._inUpdate:
+			return
+		self._inUpdate = True
+		super(dLed, self).update()
+		self._inUpdate = False
 
 
 	# Getters and Setters
@@ -73,16 +83,21 @@ class dLed(dabo.ui.dPanel):
 
 	# Property Definitions
 	Color = property(_getColor, None, None,
-		_("The color of the LED (color)"))
+			_("The current color of the LED (color)"))
 
 	OffColor = property(_getOffColor, _setOffColor, None,
-		_("The color of the LED when it is off.  (color)"))
+			_("The color of the LED when it is off.  (color)"))
 
 	On = property(_getOn, _setOn, None,
-		_("Is the LED is on? Default=False  (bool)"))
+			_("Is the LED is on? Default=False  (bool)"))
 
 	OnColor = property(_getOnColor, _setOnColor, None,
-		_("The color of the LED when it is on.  (color)"))
+			_("The color of the LED when it is on.  (color)"))
+
+	# To make this data-aware, we need a Value property. However,
+	# we already have the 'On' property that does the exact same thing.
+	Value = On
+
 
 
 if __name__ == '__main__':
