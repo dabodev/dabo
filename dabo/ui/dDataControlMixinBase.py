@@ -344,11 +344,19 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		except AttributeError:
 			return ""
 
-	def _setDataSource(self, value):
-		# Clear any old DataSource
-		self.__src = None
-		self._oldVal = None
-		self._DataSource = value
+	def _setDataSource(self, val):
+		# There can be race conditions where an object's DataSource is being set
+		# at the same time as other properties, such as when these are all set at
+		# instantiation. There can be cases, such as list controls, where the Choices
+		# or Keys gets set after the DataSource/DataField props, leading to the 
+		# "Value not present" types of errors. By setting DataSource last, through
+		# the callAfter, the race condition should be avoided.
+		def _delayedSetDataSource():
+			# Clear any old DataSource
+			self.__src = None
+			self._oldVal = None
+			self._DataSource = val
+		dabo.ui.callAfter(_delayedSetDataSource)
 
 
 	def _getDataField(self):
