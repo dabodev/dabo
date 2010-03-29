@@ -31,6 +31,14 @@ def DesignerController():
 			if sys.platform == "darwin":
 				self.bindEvent(dEvents.KeyDown, self._onKeyDown)
 
+		def startPropEdit(self):
+			## Class Designer uses this; don't think it's necessary here.
+			pass
+
+		def endPropEdit(self):
+			## Class Designer uses this; don't think it's necessary here.
+			pass
+
 		def _onKeyDown(self, evt):
 			# Mac-specific behavior
 			self.ActiveEditor.onKeyDown(evt)
