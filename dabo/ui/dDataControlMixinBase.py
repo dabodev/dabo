@@ -79,7 +79,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return
 		if self.flushValue() is False:
 			# Field validation failed
-			self._fldValidFailed = True			
+			self._fldValidFailed = True
 			return False
 		try:
 			if self.SelectOnEntry:
@@ -214,7 +214,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			if self._userChanged:
 				self.raiseEvent(dabo.dEvents.InteractiveChange, oldVal=oldVal)
 				self._userChanged = False
-		
+
 			if not self._DesignerMode:
 				if (self.DataSource or isinstance(self.DataSource, dabo.dPref)) and self.DataField:
 					src = self.Source
@@ -348,7 +348,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		# There can be race conditions where an object's DataSource is being set
 		# at the same time as other properties, such as when these are all set at
 		# instantiation. There can be cases, such as list controls, where the Choices
-		# or Keys gets set after the DataSource/DataField props, leading to the 
+		# or Keys gets set after the DataSource/DataField props, leading to the
 		# "Value not present" types of errors. By setting DataSource last, through
 		# the callAfter, the race condition should be avoided.
 		def _delayedSetDataSource():
@@ -356,6 +356,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			self.__src = None
 			self._oldVal = None
 			self._DataSource = val
+			self.update()
 		dabo.ui.callAfter(_delayedSetDataSource)
 
 
@@ -470,7 +471,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			in design mode. Default=False.  (bool)"""))
 
 	IsSecret = property(_getSecret, _setSecret, None,
-			_("""Flag for indicating sensitive data, such as Password field, that is not 
+			_("""Flag for indicating sensitive data, such as Password field, that is not
 			to be persisted. Default=False.  (bool)""") )
 
 	SaveRestoreValue = property(_getSaveRestoreValue, _setSaveRestoreValue, None,
