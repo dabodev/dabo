@@ -350,7 +350,7 @@ class EditorForm(dui.dForm):
 
 	def setEditorCaption(self):
 		obj = self.ddObject.KeyValue
-		if obj is None:
+		if not obj:
 			nm = _("No object")
 		else:
 			nm = obj.Name
