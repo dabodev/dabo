@@ -12,12 +12,17 @@ from dabo.lib.connParser import createXML
 from dabo.lib.connParser import importConnections
 import dabo.lib.utils as utils
 dui.loadUI("wx")
+from HomeDirectoryStatusBar import HomeDirectoryStatusBar
 
 
 
 class EditorForm(dui.dForm):
 	def afterSetMenuBar(self):
 		self.createMenu()
+	
+	
+	def beforeInit(self):
+		self.StatusBarClass = HomeDirectoryStatusBar
 
 
 	def afterInit(self):
@@ -33,7 +38,6 @@ class EditorForm(dui.dForm):
 		self.connDict = dict.fromkeys(connKeys)
 		self._origConnDict = dict.fromkeys(connKeys)
 		self.currentConn = None
-		self.crypt = dabo.db.dConnectInfo()
 		self.createControls()
 
 		# temp hack to be polymorphic with dEditor (dIDE):
@@ -312,13 +316,13 @@ class EditorForm(dui.dForm):
 			for fld in dd.keys():
 				val = eval("self.%s" % fld)
 				if fld == "password":
-					origVal = self.crypt.decrypt(dd[fld])
+					origVal = self.Crypto.decrypt(dd[fld])
 				else:
 					origVal = dd[fld]
 				if val == origVal:
 					continue
 				if fld == "password":
-					dd[fld] = self.crypt.encrypt(val)
+					dd[fld] = self.Crypto.encrypt(val)
 				else:
 					dd[fld] = val
 
@@ -332,7 +336,7 @@ class EditorForm(dui.dForm):
 			for fld in dd.keys():
 				val = dd[fld]
 				if fld == "password":
-					val = self.crypt.decrypt(dd[fld])
+					val = self.Crypto.decrypt(dd[fld])
 				else:
 					val = dd[fld]
 				if isinstance(val, basestring):
@@ -405,8 +409,8 @@ class EditorForm(dui.dForm):
 		try:
 			dd = self.connDict[self.currentConn]
 			if fld == "password":
-				if val != self.crypt.decrypt(dd["password"]):
-					dd[fld] = self.crypt.encrypt(val)
+				if val != self.Crypto.decrypt(dd["password"]):
+					dd[fld] = self.Crypto.encrypt(val)
 			else:
 				dd[fld] = val
 		except StandardError, e:
@@ -494,6 +498,11 @@ class EditorForm(dui.dForm):
 		# Get the values from the connDict, and adjust any pathing
 		# to be relative
 		vals = self.relPaths(self.connDict.values())
+		v0 = vals[0]
+		if self.isFileBasedBackend(v0["dbtype"]):
+			# Previous values from the form might still be in the dict.
+			# Blank them out, as they are not valid for file-based backends.
+			v0["host"] = v0["user"] = v0["password"] = v0["port"] = ""
 		xml = createXML(vals)
 		file(self.connFile, "w").write(xml)
 		dabo.ui.callAfter(self.bringToFront)
@@ -504,14 +513,24 @@ class EditorForm(dui.dForm):
 			if self.isFileBasedBackend(val["dbtype"]):
 				db = val["database"]
 				if os.path.exists(db):
-					val["database"] = utils.relativePath(db, self.connFile)
+					val["database"] = self.connDict["database"] = utils.relativePath(db, self.Application.HomeDirectory)
 		return vals
 
+
+	def _getCrypto(self):
+		try:
+			return self.Application.Crypto
+		except:
+			pass
+
+
+	Crypto = property(_getCrypto, None, None,
+			_("A reference to the application-supplied encryption object (dabo.lib.SimpleCrypt)"))
 
 
 def main():
 	files = sys.argv[1:]
-	app = dabo.dApp()
+	app = dabo.dApp(ignoreScriptDir=True)
 	app.BasePrefKey = "CxnEditor"
 	app.MainFormClass = None
 	app.setup()
