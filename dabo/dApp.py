@@ -14,6 +14,7 @@ import shutil
 import logging
 from cStringIO import StringIO
 from zipfile import ZipFile
+from xml.sax._exceptions import SAXParseException
 import dabo
 import dabo.ui
 import dabo.db
@@ -989,7 +990,11 @@ try again when it is running.
 
 	def getConnectionsFromFile(self, filePath):
 		"""Given an absolute path to a .cnxml file, return the connection defs."""
-		connDefs = importConnections(filePath, useHomeDir=True)
+		try:
+			connDefs = importConnections(filePath, useHomeDir=True)
+		except SAXParseException, e:
+			dabo.errorLog.write(_("Error parsing '%s': %s") % (filePath, e))
+			return {}
 		# Convert the connect info dicts to dConnectInfo instances:
 		for k,v in connDefs.items():
 			ci = dabo.db.dConnectInfo()
