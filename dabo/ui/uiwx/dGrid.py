@@ -2337,9 +2337,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def isScrollBarVisible(self, which):
 		whichSide = {"h": wx.HORIZONTAL, "v": wx.VERTICAL}[which[0].lower()]
 		sr = self.GetScrollRange(whichSide)
-		if self.Application.Platform == "Win":
+		if self.Application.Platform in ("Win", "GTK"):
 			# For some reason, GetScrollRange() returns either 1 or 101 when the scrollbar
-			# is not visible under Windows. Under OS X, it returns 0 as expected.
+			# is not visible under Windows or GTK. Under OS X, it returns 0 as expected.
 			return sr not in (1, 101)
 		return bool(sr)
 
