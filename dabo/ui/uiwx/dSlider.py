@@ -38,7 +38,7 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 		if self._tickPosition:
 			tickpos = self.TickPosition[0].upper()
 			style = style | {"T": wx.SL_TOP, "B": wx.SL_BOTTOM, "L": wx.SL_LEFT, "R": wx.SL_RIGHT}[tickpos]
-		if reversed:
+		if self._reversed:
 			style = style | wx.SL_INVERSE
 		self._preInitProperties["style"] = style
 
@@ -194,6 +194,7 @@ class _dSlider_test(dSlider):
 		self.Min = 23
 		self.Value = 75
 		self.ShowLabels = True
+		# Try changing these to see their effects
 # 		self.Reversed = True
 #  		self.TickPosition = "Left"
 	
