@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<dForm Name="dForm" Caption="Dabo: A Demonstration" SaveRestorePosition="False" Top="94" Height="724" Width="1041" designerClass="DesForm" Left="211">
+<dForm Name="dForm" Caption="Dabo: A Demonstration" SaveRestorePosition="True" designerClass="DesForm">
 	<code>
 		<editorChanged><![CDATA[
 def editorChanged(self):
