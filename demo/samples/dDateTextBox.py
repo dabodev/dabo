@@ -21,7 +21,8 @@ class TestPanel(dabo.ui.dPanel):
 				WordWrap=True, Alignment="center")
 		sz.append(lbl, "x", halign="center")
 		sz.appendSpacer(10)
-		txt = dabo.ui.dDateTextBox(self, Value=datetime.date.today())
+		txt = dabo.ui.dDateTextBox(self, Value=datetime.date.today(), FontSize=18,
+			Height=36, Width=180)
 		sz.append(txt, halign="center")
 		dabo.ui.callAfter(self.layout)
 		

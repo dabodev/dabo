@@ -26,21 +26,21 @@ class TestPanel(dabo.ui.dPanel):
 		sz.appendSpacer(10)
 
 		hsz = dabo.ui.dSizer("h")
-		btn = dabo.ui.dBitmapButton(self, Picture="cards/small/s1.png", 
-				FocusPicture="cards/small/h1.png", DownPicture="cards/small/s13.png",
+		btn = dabo.ui.dBitmapButton(self, Picture="media/cards/small/s1.png", 
+				FocusPicture="media/cards/small/h1.png", DownPicture="media/cards/small/s13.png",
 				Height=80, Width=80)
 		btn.bindEvent(dEvents.Hit, self.onButtonHit)
 		hsz.append(btn)
 		sz.appendSpacer(10)
 
-		btn = dabo.ui.dBitmapButton(self, Picture="cards/small/s1.png", 
-				FocusPicture="cards/small/h1.png", DownPicture="cards/small/s13.png",
+		btn = dabo.ui.dBitmapButton(self, Picture="media/cards/small/s1.png", 
+				FocusPicture="media/cards/small/h1.png", DownPicture="media/cards/small/s13.png",
 				Height=80, Width=80)
 		btn.bindEvent(dEvents.Hit, self.onButtonHit)
 		hsz.append(btn)
 		
-		btn = dabo.ui.dBitmapButton(self, Picture="cards/small/s1.png", 
-				FocusPicture="cards/small/h1.png", DownPicture="cards/small/s13.png",
+		btn = dabo.ui.dBitmapButton(self, Picture="media/cards/small/s1.png", 
+				FocusPicture="media/cards/small/h1.png", DownPicture="media/cards/small/s13.png",
 				Height=80, Width=80)
 		btn.bindEvent(dEvents.Hit, self.onButtonHit)
 		hsz.append(btn)
