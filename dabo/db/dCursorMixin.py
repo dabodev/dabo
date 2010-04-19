@@ -781,7 +781,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				pkVal = rec[kf[0]]
 			else:
 				pkVal = rec[kf]
-		except IndexError:
+		except (IndexError, KeyError):
 			# No records; default to string
 			pkVal = ""
 
