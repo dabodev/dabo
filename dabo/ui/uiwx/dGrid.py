@@ -3495,6 +3495,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 						# run it through the bizobj directly:
 						try:
 							bizobj.RowNumber = newRow
+							self.Form.update()
 						except dException.BusinessRuleViolation, e:
 							dabo.ui.stop(e)
 							dabo.ui.callAfter(self.refresh)
