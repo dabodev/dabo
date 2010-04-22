@@ -1703,6 +1703,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	be accessed efficiently: only the data that needs to be shown on the current
 	screen is copied and displayed.
 	"""
+
+	USE_DATASOURCE_BEING_SET_HACK = True
+
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		# Get scrollbar size from system metrics.
 		self._scrollBarSize = wx.SystemSettings_GetMetric(wx.SYS_VSCROLL_X)
@@ -4164,7 +4167,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self._dataSource = val
 			self.fillGrid(True)
 			biz = self.getBizobj()
-			self._dataSourceBeingSet = True
+			if self.USE_DATASOURCE_BEING_SET_HACK:
+				self._dataSourceBeingSet = True
 			if biz:
 				dabo.ui.setAfter(self, "CurrentRow", biz.RowNumber)
 				self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
