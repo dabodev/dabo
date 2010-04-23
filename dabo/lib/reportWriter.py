@@ -2070,9 +2070,26 @@ class ReportWriter(object):
 				reprint = group.get("ReprintHeaderOnNewPage")
 				if reprint is not None:
 					reprint = eval(reprint)
-					if reprint:
-						y = printBand("groupHeader", y, group)
+				if reprint:
+					y = printBand("groupHeader", y, group)
+				else:
+					# Even though we aren't reprinting this header, we still need to restart
+					# any spanning objects which would have been closed at the end of the 
+					# last page.
+					y = storeSpanningObjects("groupHeader", y, group)
 			return y
+
+
+		def storeSpanningObjects(band, y, group):
+			bandDict = group[band]
+			x = bandDict.getPt(bandDict.ReportForm["Page"].getProp("MarginLeft"))
+			objects = bandDict.get("Objects", [])
+			for object in objects:
+				if object.__class__.__name__ in ("SpanningLine", "SpanningRectangle"):
+					x1 = object.getPt(object.getProp("x")) + x
+					self.storeSpanningObject(object, (x1, y), group)
+			return y	
+
 
 		# Need to process the variables before the first beginPage() in case
 		# any of the static bands reference the variables.
