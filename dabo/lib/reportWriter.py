@@ -402,7 +402,11 @@ class Drawable(ReportObject):
 		top, bottom, or middle of the object, depending on the vAnchor setting."""
 		ret = self.getPt(self.getProp("y"))
 		vAnchor = self.getProp("vAnchor").lower()
-		height = self.getPt(self.getProp("height"))
+		height = self.getProp("height")
+		if height is None:
+			height = 0
+		else:
+			height = self.getPt("height")
 		if vAnchor == "bottom":
 			ret += height
 		if vAnchor == "middle":
