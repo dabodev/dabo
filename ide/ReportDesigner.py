@@ -555,7 +555,7 @@ def DesignerController():
 			selBand = None
 			for obj in objs:
 				if obj.parent not in parents:
-					parents.append(obj)
+					parents.append(obj.parent)
 
 			if len(parents) > 1:
 				# keep pasted objects in the same parents 
