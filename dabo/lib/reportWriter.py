@@ -1900,7 +1900,7 @@ class ReportWriter(object):
 						self.being_deferred = False
 						beginPage()
 						y = pageHeaderOrigin[1]
-						y = reprintGroupHeaders(y)
+						y = reprintGroupHeaders(bandDict, y)
 						headers_reprinted = True
 					else:
 						# Move to next column
@@ -2064,7 +2064,8 @@ class ReportWriter(object):
 			self.Canvas.showPage()
 
 		
-		def reprintGroupHeaders(y):
+		def reprintGroupHeaders(bandDict, y):
+			self = bandDict  ## to allow "self" references from groupHeader object
 			for group in groups:
 				reprint = group.get("ReprintHeaderOnNewPage")
 				if reprint is not None:
