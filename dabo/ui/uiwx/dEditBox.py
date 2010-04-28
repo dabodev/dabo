@@ -73,7 +73,7 @@ class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
 
 class _dEditBox_test(dEditBox):
 	def initProperties(self):
-		self.Size = (333, 175)
+		self.Size = (444, 244)
 		self.Value = """Love, exciting and new
 Come aboard, were expecting you
 Love, lifes sweetest reward
@@ -102,9 +102,7 @@ Its love...
 Its the Love Boat
 Its the Love Boat 
 """
-		self.TextLength = 50
-		self.ForceCase = "u"
-
+	
 
 if __name__ == "__main__":
 	import test
