@@ -48,7 +48,8 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 
 	def EndModal(self, *args, **kwargs):
 		self.saveSizeAndPosition()
-		super(dDialog, self).EndModal(*args, **kwargs)
+		if self.Modal:
+			super(dDialog, self).EndModal(*args, **kwargs)
 
 
 	def _afterInit(self):
