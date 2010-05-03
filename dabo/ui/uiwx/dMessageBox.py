@@ -58,7 +58,7 @@ def areYouSure(message="Are you sure?", title=None, defaultNo=False,
 	if cancelButton:
 		style = style|wx.CANCEL
 	else:
-		stile = style & ~wx.CANCEL
+		style = style & ~wx.CANCEL
 	if defaultNo:
 		style = style|wx.NO_DEFAULT
 
