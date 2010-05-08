@@ -58,10 +58,11 @@ class dConnection(dObject):
 			superMixin = dCursorMixin
 			superCursor = cursorClass
 			def __init__(self, *args, **kwargs):
-				if hasattr(dCursorMixin, "__init__"):
-					apply(dCursorMixin.__init__,(self,) + args, kwargs)
-				if hasattr(cursorClass, "__init__"):
-					apply(cursorClass.__init__,(self,) + args, kwargs)
+				for cls in (dCursorMixin, cursorClass):
+					try:
+						apply(cls.__init__, (self, ) + args, kwargs)
+					except AttributeError:
+						pass
 		
 		bo = self.getBackendObject()
 		crs = bo.getCursor(DaboCursor)

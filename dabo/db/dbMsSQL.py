@@ -41,12 +41,16 @@ class MSSQL(dBackend):
 	def getDictCursorClass(self):
 		"""Currently this is not working completely"""
 		import pymssql
-		class conCursor(pymssql.pymssqlCursor):
+		class ConCursor(pymssql.pymssqlCursor):
+			def __init__(self, *args, **kwargs):
+				# pymssql requires an additional param to its __init__() method
+				kwargs["as_dict"] = True
+				super(ConCursor, self).__init__(*args, **kwargs)
 			def _getconn(self):
 				return self.__source
 			# pymssql doesn't supply this optional dbapi attribute, so create it here.
 			connection = property(_getconn, None, None)
-		return conCursor
+		return ConCursor
 		
 
 	def escQuote(self, val):
