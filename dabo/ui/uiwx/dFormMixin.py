@@ -564,12 +564,12 @@ class dFormMixin(pm.dPemMixin):
 	
 	
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
-		menu.append(caption, OnHit=function, bmp=bitmap)
+		return menu.append(caption, OnHit=function, bmp=bitmap)
 
 
 	def appendToolBarButton(self, name, pic, toggle=False, tip="", help="", 
 			*args, **kwargs):
-		self.ToolBar.appendButton(name, pic, toggle=toggle, tip=tip, 
+		return self.ToolBar.appendButton(name, pic, toggle=toggle, tip=tip, 
 				help=help, *args, **kwargs)
 
 
