@@ -311,7 +311,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 
 	def _getImg(self):
 		if self.__image is None:
-			self.__image = wx.NullImage
+			self.__image = wx.NullImage.Copy()
 		return self.__image
 
 	
