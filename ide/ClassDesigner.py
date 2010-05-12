@@ -80,7 +80,9 @@ class ClassDesigner(dabo.dApp):
 		self.pagedControls = (dui.dPageFrame, dui.dPageList, dui.dPageSelect,
 				dui.dPageFrameNoTabs)
 		self.MainFormClass = None
-		self.setAppInfo("appName", "Class Designer")
+		# Only applies when running as an app
+		if isinstance(self, dabo.dApp):
+			self.setAppInfo("appName", "Class Designer")
 		# Some processes need to behave differently when we are
 		# importing a class from a cdxml file; this flag lets them
 		# determine what process is being run.
@@ -660,7 +662,7 @@ class ClassDesigner(dabo.dApp):
 		return dct
 
 
-	def recreateChildren(self, parent, chld, szr, fromSzr, debug=0):
+	def recreateChildren(self, parent, chld, szr, fromSizer, debug=0):
 		"""Recursive routine to re-create the sizer/object structure of
 		the class.
 		"""
@@ -768,7 +770,7 @@ class ClassDesigner(dabo.dApp):
 					sz.setPropertiesFromAtts(atts)
 				if classID:
 					sz.classID = classID
-				if not fromSzr:
+				if not fromSizer:
 					parent.Sizer = sz
 				if szCont is not None and itm is not None:
 					szCont.setItemProps(itm, sizerInfoDict)
@@ -800,7 +802,7 @@ class ClassDesigner(dabo.dApp):
 				defAtts.update(dictStringify(atts))
 				atts = defAtts
 				sz.setPropertiesFromAtts(atts)
-				if not fromSzr:
+				if not fromSizer:
 					parent.Sizer = sz
 				itm = sz.ControllingSizerItem
 				if szCont is not None and itm is not None:
@@ -1605,15 +1607,12 @@ class ClassDesigner(dabo.dApp):
 				pos = self._srcPos
 			clip = copy.deepcopy(self._clipboard)
 			self._srcObj = pnl
-			fromSizer = False
 			cs = pnl.ControllingSizer
-			if cs is not None:
-				fromSizer = (len(cs.Children) != 1)
 			try:
 				self._basePath = pnl.Form._classFile
 			except:
 				self._basePath = os.getcwd()
-			obj = self.recreateChildren(pnl, clip, cs, fromSizer)
+			obj = self.recreateChildren(pnl, clip, cs, fromSizer=bool(cs))
 			self._basePath = None
 			if not self.UseSizers:
 				if pos is not None:
@@ -3086,14 +3085,14 @@ class ClassDesigner(dabo.dApp):
 			szr = self._srcObj.ControllingSizer
 		except:
 			szr = None
-		fromSzr = (szr is not None)
 		# OK, add it in...
 		self._basePath = self._srcObj.Form._classFile
 
 		isMainPanel = self._extractKey(clsd["attributes"], "mainPanel", "False")
 		ac = self._addingClass
 		self._addingClass = True
-		mainObj = self.recreateChildren(self._srcObj, clsd, szr, fromSzr)
+		mainObj = self.recreateChildren(self._srcObj, clsd, szr,
+				fromSizer=(szr is not None))
 		self._addingClass = ac
 		self._basePath = None
 		# This is the key that marks it as a class, and not a base object.
