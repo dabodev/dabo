@@ -14,6 +14,7 @@ import os
 osp = os.path
 import sys
 import dabo
+from dabo.dLocalize import _
 try:
 	from win32com.shell import shell, shellcon
 except ImportError:
