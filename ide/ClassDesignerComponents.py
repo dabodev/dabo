@@ -378,7 +378,7 @@ class LayoutSaverMixin(object):
 		if insideClass:
 			childDict = clsChildren.get("children", [])
 		if isinstance(self, (dabo.ui.dPageFrame, dabo.ui.dPageList,
-				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs)):
+				dabo.ui.dPageSelect, dabo.ui.dPageStyled, dabo.ui.dPageFrameNoTabs)):
 			nonSizerKids = kids
 		elif isinstance(self, dabo.ui.dGrid):
 			# Grid children are Columns
@@ -446,6 +446,7 @@ class LayoutSaverMixin(object):
 				if isinstance(self, (dabo.ui.dRadioList,
 						dabo.ui.dSpinner,
 						dabo.ui.dPageSelect,
+						dabo.ui.dPageStyled,
 						dabo.ui.dColumn,
 						dabo.ui.dTreeView.getBaseNodeClass())):
 					sz = None

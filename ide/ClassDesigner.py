@@ -78,7 +78,7 @@ class ClassDesigner(dabo.dApp):
 		self._addingClass = False
 		# Tuple of all paged-control classes
 		self.pagedControls = (dui.dPageFrame, dui.dPageList, dui.dPageSelect,
-				dui.dPageFrameNoTabs)
+				dui.dPageFrameNoTabs, dui.dPageStyled)
 		self.MainFormClass = None
 		# Only applies when running as an app
 		if isinstance(self, dabo.dApp):
@@ -160,6 +160,7 @@ class ClassDesigner(dabo.dApp):
 				{"name" : "PageFrame", "class" : dui.dPageFrame, "order" : 200},
 				{"name" : "PageList", "class" : dui.dPageList, "order" : 210},
 				{"name" : "PageSelect", "class" : dui.dPageSelect, "order" : 220},
+				{"name" : "PageStyled", "class" : dui.dPageStyled, "order" : 225},
 				{"name" : "PageFrameNoTabs", "class" : dui.dPageFrameNoTabs, "order" : 230},
 				{"name" : "Slider", "class" : dui.dSlider, "order" : 240},
 				{"name" : "Spinner", "class" : dui.dSpinner, "order" : 250},
@@ -243,10 +244,10 @@ class ClassDesigner(dabo.dApp):
 		classes = (dui.dBox, dui.dBitmap, dui.dBitmapButton, dui.dButton, dui.dCheckBox, dui.dComboBox,
 				dui.dDateTextBox, dui.dDialog, dui.dDropdownList, dui.dEditBox, dui.dEditor, dui.dSlidePanelControl,
 				dui.dForm, dui.dDockForm, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel, dui.dLed, 
-				dui.dLine, dui.dListBox, dui.dListControl, dui.dOkCancelDialog, dui.dPanel, dui.dPage, 
-				dui.dScrollPanel, dui.dPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect, dui.dPageFrameNoTabs, 
-				dui.dRadioList, dui.dSlider, dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton, 
-				dui.dTreeView, dlgs.Wizard, dlgs.WizardPage)
+				dui.dLine, dui.dListBox, dui.dListControl, dui.dOkCancelDialog, dui.dPanel, dui.dPage, dui.dScrollPanel,
+				dui.dPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs,
+				dui.dRadioList, dui.dSlider, dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton, dui.dTreeView,
+				dlgs.Wizard, dlgs.WizardPage)
 
 		def evtsForClass(cls):
 			def safeApplies(itm, cls):
@@ -1760,13 +1761,13 @@ class ClassDesigner(dabo.dApp):
 				# Create a dropdown list containing all the choices.
 				# NOTE: This would be an excellent candidate for usage ordering.
 				chc = ["Form", "DockForm", "Panel", "ScrollPanel", "SlidePanel", "Plain Dialog", "OK/Cancel Dialog",
-				"Wizard", "WizardPage", "PageFrame", "PageList", "PageSelect", "PageNoTabs", "Box", "Bitmap",
+				"Wizard", "WizardPage", "PageFrame", "PageList", "PageSelect", "PageStyled", "PageNoTabs", "Box", "Bitmap",
 				"BitmapButton", "Button", "CheckBox", "ComboBox", "DateTextBox", "DropdownList", "EditBox", 
 				"Editor", "Gauge", "Grid", "HtmlBox", "Image", "Label", "LED", "Line", "ListBox", "ListControl", "Page",
 				"RadioList", "Slider", "Spinner", "Splitter", "TextBox", "ToggleButton", "TreeView"]
 				keys = [dui.dForm, dui.dDockForm, dui.dPanel, dui.dScrollPanel, dui.dSlidePanelControl, dui.dDialog,
 						dui.dOkCancelDialog, dlgs.Wizard, dlgs.WizardPage, dui.dPageFrame, dui.dPageList,
-						dui.dPageSelect, dui.dPageFrameNoTabs, dui.dBox, dui.dBitmap, dui.dBitmapButton,
+						dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs, dui.dBox, dui.dBitmap, dui.dBitmapButton,
 						dui.dButton, dui.dCheckBox, dui.dComboBox, dui.dDateTextBox, dui.dDropdownList,
 						dui.dEditBox, dui.dEditor, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel,
 						dui.dLine, dui.dLed, dui.dListBox, dui.dListControl, dui.dPage, dui.dRadioList, dui.dSlider,
@@ -3037,6 +3038,7 @@ class ClassDesigner(dabo.dApp):
 			pop.append(_("Add PageFrame"), OnHit=self.onNewPageFrame)
 			pop.append(_("Add PageList"), OnHit=self.onNewPageList)
 			pop.append(_("Add PageSelect"), OnHit=self.onNewPageSelect)
+			pop.append(_("Add PageStyled"), OnHit=self.onNewPageStyled)
 			pop.append(_("Add PageNoTabs"), OnHit=self.onNewPageNoTabs)
 			mainpop.appendMenu(pop)
 			pop = dui.dMenu(Caption=self._customClassCaption)
@@ -3250,6 +3252,8 @@ class ClassDesigner(dabo.dApp):
 		dui.callAfter(self.addNewControl, None, dui.dPageList)
 	def onNewPageSelect(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dPageSelect)
+	def onNewPageStyled(self, evt):
+		dui.callAfter(self.addNewControl, None, dui.dPageStyled)
 	def onNewPageNoTabs(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dPageFrameNoTabs)
 	def onNewSlider(self, evt):
@@ -3614,6 +3618,7 @@ class ClassDesigner(dabo.dApp):
 					_("PageFrame") : self.onNewPageFrame,
 					_("PageList") : self.onNewPageList,
 					_("PageSelect") : self.onNewPageSelect,
+					_("PageStyled") : self.onNewPageStyled,
 					_("PageNoTabs") : self.onNewPageNoTabs,
 					_("SlidePanelControl") : self.onNewSlidePanelControl,
 					_("Slider") : self.onNewSlider,
@@ -4035,6 +4040,7 @@ if __name__ == '__main__':
 					(_("PageFrame"), dui.dPageFrame),
 					(_("PageList"), dui.dPageList),
 					(_("PageSelect"), dui.dPageSelect),
+					(_("PageStyled"), dui.dPageStyled),
 					(_("PageNoTabs"), dui.dPageFrameNoTabs),
 					(_("RadioList"), dui.dRadioList),
 					(_("Slider"), dui.dSlider),

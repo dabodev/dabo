@@ -111,7 +111,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			# Bind the selected node to the current selection
 			self.bindEvent(dEvents.TreeSelection, self.desSelectNode)
 		elif isinstance(self, (dui.dPageFrame, dui.dPageList, 
-				dui.dPageSelect, dui.dPageFrameNoTabs)):
+				dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs)):
 			self.defaultWd = 400
 			self.defaultHt = 300
 			# Bind the active page to the current selection
@@ -847,8 +847,27 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"Sizer_ColSpan": {"type": int, "readonly": False}}
 		pageFrameProps = {"PageCount": {"type": int, "readonly": False},
 				"TabPosition": {"type": list, "readonly": False, 
-				"values": ["Top", "Bottom", "Left", "Right"] }}
+					"values": ["Top", "Bottom", "Left", "Right"] }}
 		pageListProps = {"ListSpacing": {"type": int, "readonly": False}}
+		pageStyleProps = {"ActiveTabColor":  {"type": "color", "readonly": False, 
+						"customEditor": "editColor"},
+					"ActiveTabTextColor":  {"type": "color", "readonly": False, 
+						"customEditor": "editColor"},
+					"InactiveTabTextColor":  {"type": "color", "readonly": False, 
+						"customEditor": "editColor"},
+					"ShowDropdownTabList":  {"type": "bool", "readonly": False},
+					"ShowMenuCloseButton":  {"type": "bool", "readonly": False},
+					"ShowMenuOnSingleTab":  {"type": "bool", "readonly": False},
+					"ShowPageCloseButtons":  {"type": "bool", "readonly": False},
+					"ShowNavButtons":  {"type": "bool", "readonly": False},
+					"TabAreaColor":  {"type": "color", "readonly": False, 
+						"customEditor": "editColor"},
+					"TabPosition": {"type": list, "readonly": False, 
+						"values": ["Top", "Bottom"]},
+					"TabSideIncline": {"type": int, "readonly": False},
+					"TabStyle": {"type": list, "readonly": False, 
+						"values": ["Default", "VC8", "VC71", "Fancy", "Firefox"]}
+					}
 		borderProps = {"BorderColor": {"type": "color", "readonly": False, 
 					"customEditor": "editColor"},
 				"BorderLineStyle": {"type": list, "readonly": False,
@@ -962,12 +981,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(pageFrameProps)
 			ret.update(pageListProps)
 		elif isinstance(self, (dui.dPageFrame, dui.dPageList, 
-				dui.dPageSelect, dui.dPageFrameNoTabs)):
+				dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs)):
 			ret.update(colorProps)
 			ret.update(fontProps)
 			ret.update(pageFrameProps)
 			if isinstance(self, dui.dPageFrameNoTabs):
 				del ret["TabPosition"]
+			if isinstance(self, dui.dPageStyled):
+				ret.update(pageStyleProps)
 		elif isinstance(self, dui.dPage):
 			ret.update(captionProps)
 			ret.update(colorProps)
