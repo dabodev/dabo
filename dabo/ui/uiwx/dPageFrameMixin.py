@@ -35,7 +35,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			evt.Veto()
 		else:
 			evt.Skip()
-		self.raiseEvent(dEvents.PageChanging, oldPageNum=oldPageNum, 
+		self.raiseEvent(dEvents.PageChanging, oldPageNum=oldPageNum,
 				newPageNum=newPageNum)
 				
 	
@@ -49,7 +49,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		
 		
 	def __onCreate(self, evt):
-		# Make sure the PageEnter fires for the current page on 
+		# Make sure the PageEnter fires for the current page on
 		# pageframe instantiation, as this doesn't happen automatically.
 		# Putting this code in afterInit() results in a segfault on Linux, btw.
 		dabo.ui.callAfter(self.__pageChanged, 0, None)
@@ -86,7 +86,7 @@ class dPageFrameMixin(cm.dControlMixin):
 
 		if newPageNum >= 0 and self.PageCount > newPageNum:
 			dabo.ui.callAfter(self.Pages[newPageNum].raiseEvent, dEvents.PageEnter)
-			dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged, 
+			dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged,
 					oldPageNum=oldPageNum, newPageNum=newPageNum)
 			
 	
@@ -109,7 +109,7 @@ class dPageFrameMixin(cm.dControlMixin):
 	
 	def setPageImage(self, pg, imgKey):
 		""" Sets the specified page's image to the image corresponding
-		to the specified key. May also optionally pass the index of the 
+		to the specified key. May also optionally pass the index of the
 		image in the ImageList rather than the key.
 		"""
 		pgIdx = self._getPageIndex(pg)
@@ -128,7 +128,7 @@ class dPageFrameMixin(cm.dControlMixin):
 
 	
 	def getPageImage(self, pg):
-		""" Returns the index of the specified page's image in the 
+		""" Returns the index of the specified page's image in the
 		current image list, or -1 if no image is set for the page.
 		"""
 		ret = -1
@@ -143,7 +143,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		the page caption and image. The image should have already
 		been added to the pageframe if it is going to be set here.
 
-		Any kwargs sent will be passed on to the constructor of the 
+		Any kwargs sent will be passed on to the constructor of the
 		page class.
 		"""
 		return self.insertPage(self.GetPageCount(), pgCls, caption, imgKey, **kwargs)
@@ -151,9 +151,9 @@ class dPageFrameMixin(cm.dControlMixin):
 	
 	def insertPage(self, pos, pgCls=None, caption="", imgKey=None,
 			ignoreOverride=False, **kwargs):
-		""" Insert the page into the pageframe at the specified position, 
-		and optionally sets the page caption and image. The image 
-		should have already been added to the pageframe if it is 
+		""" Insert the page into the pageframe at the specified position,
+		and optionally sets the page caption and image. The image
+		should have already been added to the pageframe if it is
 		going to be set here.
 
 		Any kwargs sent will be passed on to the constructor of the
@@ -166,7 +166,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		if not ignoreOverride:
 			ret = self._insertPageOverride(pos, pgCls, caption, imgKey)
 		if ret:
-			return ret			
+			return ret
 		if pgCls is None:
 			pgCls = self.PageClass
 		if isinstance(pgCls, dPage):
@@ -329,7 +329,7 @@ class dPageFrameMixin(cm.dControlMixin):
 	def _getPgs(self):
 		## pkm: It is possible for pages to not be instances of dPage
 		##      (such as in the AppWizard), resulting in self.PageCount > len(self.Pages)
-		##      if using the commented code below. 
+		##      if using the commented code below.
 		#return [pg for pg in self.Children	if isinstance(pg, dabo.ui.dPage) ]
 		return [self.GetPage(pg) for pg in range(self.PageCount)]
 
@@ -353,7 +353,7 @@ class dPageFrameMixin(cm.dControlMixin):
 				ret = self.GetPage(sel)
 		except AttributeError:
 			ret = None
-		return ret		
+		return ret
 
 	@dabo.ui.deadCheck
 	def _setSelectedPage(self, pg):
@@ -407,14 +407,14 @@ class dPageFrameMixin(cm.dControlMixin):
 
 	# Property definitions:
 	PageClass = property(_getPageClass, _setPageClass, None,
-			_("""Specifies the class of control to use for pages by default. (classRef) 
+			_("""Specifies the class of control to use for pages by default. (classRef)
 			This really only applies when using the PageCount property to set the
-			number of pages. If you instead use AddPage() you still need to send 
+			number of pages. If you instead use AddPage() you still need to send
 			an instance as usual. Class must descend from a dabo base class.""") )
 						
-	PageCount = property(_getPageCount, _setPageCount, None, 
-			_("""Specifies the number of pages in the pageframe. (int) 
-			When using this to increase the number of pages, PageClass 
+	PageCount = property(_getPageCount, _setPageCount, None,
+			_("""Specifies the number of pages in the pageframe. (int)
+			When using this to increase the number of pages, PageClass
 			will be queried as the object to use as the page object.""") )
 	
 	Pages = property(_getPgs, None, None,
@@ -428,15 +428,15 @@ class dPageFrameMixin(cm.dControlMixin):
 	SelectedPage = property(_getSelectedPage, _setSelectedPage, None,
 			_("References the current frontmost page.  (dPage)") )
 						
-	SelectedPageNumber = property(_getSelectedPageNumber, _setSelectedPageNumber, 
+	SelectedPageNumber = property(_getSelectedPageNumber, _setSelectedPageNumber,
 			None,
 			_("Returns the index of the current frontmost page.  (int)") )
 						
-	TabPosition = property(_getTabPosition, _setTabPosition, None, 
-			_("""Specifies where the page tabs are located. (int) 
-				Top (default) 
-				Left 
-				Right 
+	TabPosition = property(_getTabPosition, _setTabPosition, None,
+			_("""Specifies where the page tabs are located. (int)
+				Top (default)
+				Left
+				Right
 				Bottom""") )
 
 
