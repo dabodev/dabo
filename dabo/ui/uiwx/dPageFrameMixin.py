@@ -355,6 +355,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			ret = None
 		return ret		
 
+	@dabo.ui.deadCheck
 	def _setSelectedPage(self, pg):
 		if self._constructed():
 			idx = self._getPageIndex(pg)
@@ -366,6 +367,7 @@ class dPageFrameMixin(cm.dControlMixin):
 	def _getSelectedPageNumber(self):
 		return self.GetSelection()
 
+	@dabo.ui.deadCheck
 	def _setSelectedPageNumber(self, val):
 		if self._constructed():
 			self.SetSelection(val)

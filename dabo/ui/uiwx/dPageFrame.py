@@ -238,7 +238,8 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
 if _USE_FLAT:
 	class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
 		"""Creates a pageframe, which can contain an unlimited number of pages,
-		each of which should be a subclass/instance of the dPage class.
+		each of which should be a subclass/instance of the dPage class. Note that there
+		is no visible border around the pages.
 		"""
 		_evtPageChanged = readonly(fnb.EVT_FLATNOTEBOOK_PAGE_CHANGED)
 		_evtPageChanging = readonly(fnb.EVT_FLATNOTEBOOK_PAGE_CHANGING)
@@ -247,18 +248,14 @@ if _USE_FLAT:
 		def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 			self._baseClass = dPageStyled
 			preClass = fnb.FlatNotebook
-
-			self._inactiveTabTextColor = None
-			self._menuBackColor = None
-			self._showDropdownTabList = False
-			self._showMenuCloseButton = True
-			self._showMenuOnSingleTab = True
-			self._showNavButtons = True
-			self._showPageCloseButtons = False
-			self._tabSideIncline = 0
-			self._tabStyle = "Default"
-
+			# For some reason this class always opens to the *last* page, unlike all other
+			# paged controls. This will make it open to the first page, unless otherwise
+			# explicitly set.
+			selpg = int(self._extractKey((properties, attProperties, kwargs), "SelectedPageNumber",
+					defaultVal=0))
 			dPageFrameMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+			dabo.ui.setAfter(self, "SelectedPageNumber", selpg)
+
 
 		def _initEvents(self):
 			super(dPageStyled, self)._initEvents()
@@ -266,11 +263,13 @@ if _USE_FLAT:
 			self.Bind(fnb.EVT_FLATNOTEBOOK_PAGE_CLOSED, self.__onPageClosed)
 			self.Bind(fnb.EVT_FLATNOTEBOOK_PAGE_CONTEXT_MENU, self.__onPageContextMenu)
 
+
 		def _afterInit(self):
 			if sys.platform[:3] == "win":
 				## This keeps Pages from being ugly on Windows:
 				self.SetBackgroundColour(self.GetBackgroundColour())
 			super(dPageStyled, self)._afterInit()
+
 
 		def __onPageClosing(self, evt):
 			"""The page has not yet been closed, so we can veto it if conditions call for it."""
@@ -281,12 +280,15 @@ if _USE_FLAT:
 				evt.Skip()
 			self.raiseEvent(dEvents.PageClosing, pageNum=pageNum)
 
+
 		def _beforePageClose(self, page):
 			return self.beforePageClose(page)
 
+
 		def insertPage(self, *args, **kwargs):
 			page = super(dPageStyled, self).insertPage(*args, **kwargs)
-			self.SetAllPagesShapeAngle(self._tabSideIncline)	#incline isn't autoset on new page add so set it
+			# incline isn't autoset on new page add so set it
+			self.SetAllPagesShapeAngle(self.TabSideIncline)
 			return page
 
 
@@ -294,15 +296,43 @@ if _USE_FLAT:
 			"""Return False from this method to prevent the page from closing."""
 			pass
 
+
 		def __onPageClosed(self, evt):
 			self.raiseEvent(dEvents.PageClosed)
+
 
 		def __onPageContextMenu(self, evt):
 			self.GetPage(self.GetSelection()).raiseEvent(dEvents.PageContextMenu)
 
+
 		#Property getters and setters
+		def _getActiveTabColor(self):
+			try:
+				ret = self._activeTabColor
+			except AttributeError:
+				ret = self._activeTabColor = None
+			return ret
+
+		def _setActiveTabColor(self, val):
+			if self._constructed():
+				self._activeTabColor = val
+				if isinstance(val, basestring):
+					val = dColors.colorTupleFromName(val)
+				if isinstance(val, tuple):
+					self.SetActiveTabColour(wx.Colour(*val))
+					self.Refresh()
+				else:
+					raise ValueError(_("'%s' can not be translated into a color" % val))
+			else:
+				self._properties["ActiveTabColor"] = val
+
+
 		def _getActiveTabTextColor(self):
-			return self._activeTabTextColor
+			try:
+				ret = self._activeTabTextColor
+			except AttributeError:
+				ret = self._activeTabTextColor = None
+			return ret
 
 		def _setActiveTabTextColor(self, val):
 			if self._constructed():
@@ -319,7 +349,11 @@ if _USE_FLAT:
 
 
 		def _getInactiveTabTextColor(self):
-			return self._inactiveTabTextColor
+			try:
+				ret = self._inactiveTabTextColor
+			except AttributeError:
+				ret = self._inactiveTabTextColor = None
+			return ret
 
 		def _setInactiveTabTextColor(self, val):
 			if self._constructed():
@@ -335,12 +369,16 @@ if _USE_FLAT:
 				self._properties["InactiveTabTextColor"] = val
 
 
-		def _getMenuBackColor(self):
-			return self._menuBackColor
+		def _getTabAreaColor(self):
+			try:
+				ret = self._tabAreaColor
+			except AttributeError:
+				ret = self._tabAreaColor = None
+			return ret
 
-		def _setMenuBackColor(self, val):
+		def _setTabAreaColor(self, val):
 			if self._constructed():
-				self._menuBackColor = val
+				self._tabAreaColor = val
 				if isinstance(val, basestring):
 					val = dColors.colorTupleFromName(val)
 				if isinstance(val, tuple):
@@ -353,7 +391,11 @@ if _USE_FLAT:
 
 
 		def _getShowDropdownTabList(self):
-			return self._showDropdownTabList
+			try:
+				ret = self._showDropdownTabList
+			except AttributeError:
+				ret = self._showDropdownTabList = False
+			return ret
 
 		def _setShowDropdownTabList(self, val):
 			val = bool(val)
@@ -369,7 +411,11 @@ if _USE_FLAT:
 
 
 		def _getShowMenuCloseButton(self):
-			return self._showMenuCloseButton
+			try:
+				ret = self._showMenuCloseButton
+			except AttributeError:
+				ret = self._showMenuCloseButton = True
+			return ret
 
 		def _setShowMenuCloseButton(self, val):
 			val = bool(val)
@@ -381,7 +427,11 @@ if _USE_FLAT:
 
 
 		def _getShowMenuOnSingleTab(self):
-			return self._showMenuOnSingleTab
+			try:
+				ret = self._showMenuOnSingleTab
+			except AttributeError:
+				ret = self._showMenuOnSingleTab = True
+			return ret
 
 		def _setShowMenuOnSingleTab(self, val):
 			val = bool(val)
@@ -393,7 +443,11 @@ if _USE_FLAT:
 
 
 		def _getShowNavButtons(self):
-			return self._showNavButtons
+			try:
+				ret = self._showNavButtons
+			except AttributeError:
+				ret = self._showNavButtons = True
+			return ret
 
 		def _setShowNavButtons(self, val):
 			val = bool(val)
@@ -408,7 +462,11 @@ if _USE_FLAT:
 
 
 		def _getShowPageCloseButtons(self):
-			return self._showPageCloseButtons
+			try:
+				ret = self._showPageCloseButtons
+			except AttributeError:
+				ret = self._showPageCloseButtons = False
+			return ret
 
 		def _setShowPageCloseButtons(self, val):
 			val = bool(val)
@@ -426,66 +484,75 @@ if _USE_FLAT:
 				return "Top"
 
 		def _setTabPosition(self, val):
-			val = str(val)
+			lowval = str(val).lower()[0]
 			self._delWindowStyleFlag(self._tabposBottom)
 
-			if val == "Top":
+			if lowval == "t":
 				pass
-			elif val == "Bottom":
+			elif lowval == "b":
 				self._addWindowStyleFlag(self._tabposBottom)
 			else:
 				raise ValueError(_("The only possible values are 'Top' and 'Bottom'"))
 
 
 		def _getTabSideIncline(self):
-			return self._tabSideIncline
+			try:
+				ret = self._tabSideIncline
+			except AttributeError:
+				ret = self._tabSideIncline = 0
+			return ret
 
 		def _setTabSideIncline(self, val):
 			val = int(val)
-			if val<0 or val>15:
+			if not (0 <= val <= 15):
 				raise ValueError(_("Value must be 0 through 15"))
-
 			self._tabSideIncline = val
 			self.SetAllPagesShapeAngle(val)
 
 
 		def _getTabStyle(self):
-			return self._tabStyle
+			try:
+				ret = self._tabStyle
+			except AttributeError:
+				ret = self._tabStyle = "Default"
+			return ret
 
 		def _setTabStyle(self, val):
 			self._delWindowStyleFlag(fnb.FNB_VC8)
 			self._delWindowStyleFlag(fnb.FNB_VC71)
 			self._delWindowStyleFlag(fnb.FNB_FANCY_TABS)
 			self._delWindowStyleFlag(fnb.FNB_FF2)
-
-			if val == "Default":
-				pass
-			elif val == "VC8":
-				self._addWindowStyleFlag(fnb.FNB_VC8)
-			elif val == "VC71":
-				self._addWindowStyleFlag(fnb.FNB_VC71)
-			elif val == "Fancy":
-				self._addWindowStyleFlag(fnb.FNB_FANCY_TABS)
-			elif val == "Firefox":
-				self._addWindowStyleFlag(fnb.FNB_FF2)
-			else:
+			lowval = str(val).lower()
+			flags = {"default": "", "vc8": fnb.FNB_VC8, "vc71": fnb.FNB_VC71,
+					"fancy": fnb.FNB_FANCY_TABS, "firefox": fnb.FNB_FF2}
+			cleanStyles = {"default": "Default", "vc8": "VC8", "vc71": "VC71",
+					"fancy": "Fancy", "firefox": "Firefox"}
+			try:
+				flagToSet = flags[lowval]
+				self._tabStyle = cleanStyles[lowval]
+			except KeyError:
 				raise ValueError(_("The only possible values are 'Default' and 'VC8', 'VC71', 'Fancy', or 'Firefox'"))
-
-			self._tabStyle = val
+			if flagToSet:
+				self._addWindowStyleFlag(flagToSet)
 
 
 		#Property definitions
+		ActiveTabColor = property(_getActiveTabColor, _setActiveTabColor, None,
+				_("""Specifies the color of the active tab (str or 3-tuple) (Default=None)
+				Note: is not visible with the 'VC8' TabStyle"""))
+
 		ActiveTabTextColor = property(_getActiveTabTextColor, _setActiveTabTextColor, None,
-			_("""Specifies the color of the text of the active tab (str or 3-tuple) (Default=None)
-				Note, is not visible with the 'VC8' TabStyle"""))
+				_("""Specifies the color of the text of the active tab (str or 3-tuple) (Default=None)
+				Note: is not visible with the 'VC8' TabStyle"""))
 
 		InactiveTabTextColor = property(_getInactiveTabTextColor, _setInactiveTabTextColor, None,
-			_("""Specifies the color of the text of non active tabs (str or 3-tuple) (Default=None)
-				Note, is not visible with the 'VC8' TabStyle"""))
+				_("""Specifies the color of the text of non active tabs (str or 3-tuple) (Default=None)
+				Note: is not visible with the 'VC8' TabStyle"""))
 
-		MenuBackColor = property(_getMenuBackColor, _setMenuBackColor, None,
-			_("""Specifies the background color of the menu (str or 3-tuple) (Default=None)
-				Note, is not visible with 'VC71' TabStyle."""))
+		MenuBackColor = property(_getTabAreaColor, _setTabAreaColor, None,
+				_("""Specifies the background color of the tab area. This is exactly the same as
+				the 'TabAreaColor' property, but is maintained for backwards compatibility.
+				Default = None.  (str or 3-tuple) Note: is not visible with 'VC71' TabStyle."""))
 
 		ShowDropdownTabList = property(_getShowDropdownTabList, _setShowDropdownTabList, None,
 				_("""Specifies whether the dropdown tab list button is visible in the menu (bool) (Default=False)
@@ -497,12 +564,17 @@ if _USE_FLAT:
 		ShowMenuOnSingleTab = property(_getShowMenuOnSingleTab, _setShowMenuOnSingleTab, None,
 				_("Specifies whether the tab thumbs and nav buttons are shown when there is a single tab. (bool) (Default=True)"))
 
-		ShowPageCloseButtons = property(_getShowPageCloseButtons, _setShowPageCloseButtons, None,
-				_("Specifies whether the close button is visible on the page tab (bool) (Default=False)"))
-
 		ShowNavButtons = property(_getShowNavButtons, _setShowNavButtons, None,
 				_("""Specifies whether the left and right nav buttons are visible in the menu (bool) (Default=True)
 				Setting this property to True will set ShowDropdownTabList to False"""))
+
+		ShowPageCloseButtons = property(_getShowPageCloseButtons, _setShowPageCloseButtons, None,
+				_("Specifies whether the close button is visible on the page tab (bool) (Default=False)"))
+
+		TabAreaColor = property(_getTabAreaColor, _setTabAreaColor, None,
+				_("""Specifies the background color of the tab area. This is exactly the same as
+				the 'MenuBackColor' property, but with a more intuitive name.  (str or 3-tuple)
+				(Default=None) Note: is not visible with 'VC71' TabStyle."""))
 
 		TabPosition = property(_getTabPosition, _setTabPosition, None,
 				_("""Specifies where the page tabs are located. (string)
@@ -512,7 +584,7 @@ if _USE_FLAT:
 		TabSideIncline = property(_getTabSideIncline, _setTabSideIncline, None,
 				_("""Specifies the incline of the sides of the tab in degrees (int) (Default=0)
 					Acceptable values are 0  - 15.
-					Note this property will have no effect on TabStyles other than Default.
+					Note: this property will have no effect on TabStyles other than Default.
 					"""))
 
 		TabStyle = property(_getTabStyle, _setTabStyle, None,
@@ -567,17 +639,60 @@ class _dDockTabs_test(TestMixin, dDockTabs): pass
 if _USE_FLAT:
 	class _dPageStyled_test(TestMixin, dPageStyled):
 		def initProperties(self):
-			self.Width = 400
-			self.Height = 175
+			self.Width = 500
+			self.Height = 250
+			self.PageCount = 4
 			self.TabStyle = random.choice(("Default", "VC8", "VC71", "Fancy", "Firefox"))
 			self.TabPosition = random.choice(("Top", "Bottom"))
-			self.ShowPageCloseButtons = random.choice(("True", "False"))
-			self.ShowDropdownTabList = random.choice(("True", "False"))
-			self.ShowMenuClose = random.choice(("True", "False"))
-			self.ShowMenuOnSingleTab = random.choice(("True", "False"))
-			self.MenuBackColor = random.choice(dColors.colors)
-			self.InactiveTabTextColor = random.choice(dColors.colors)
-			self.ActiveTabTextColor = random.choice(dColors.colors)
+			self.ShowPageCloseButtons = random.choice((True, False))
+			self.ShowDropdownTabList = random.choice((True, False))
+			self.ShowMenuClose = random.choice((True, False))
+			self.ShowMenuOnSingleTab = random.choice((True, False))
+			self.ShowNavButtons = random.choice((True, False))
+			self.MenuBackColor = "lightsteelblue"
+			self.InactiveTabTextColor = "darkcyan"
+			self.ActiveTabTextColor = "blue"
+
+		def afterInit(self):
+			# Make the pages visible by setting a BackColor
+			self.Pages[0].BackColor = "darkred"
+			self.Pages[1].BackColor = "darkblue"
+			self.Pages[2].BackColor = "green"
+			self.Pages[3].BackColor = "yellow"
+			# Can't add controls to the Test form now, so use callAfter() to delay
+			# the actual control creation.
+			dabo.ui.callAfter(self._addControls)
+
+		def _addControls(self):
+			pnl = self.Form.Children[0]
+			szr = pnl.Sizer
+			szr.DefaultBorder = 2
+			chk = dabo.ui.dCheckBox(pnl, Caption="Show Page Close Buttons",
+					DataSource=self, DataField="ShowPageCloseButtons")
+			szr.append(chk, halign="center")
+			chk = dabo.ui.dCheckBox(pnl, Caption="Show Nav Buttons",
+					DataSource=self, DataField="ShowNavButtons")
+			szr.append(chk, halign="center")
+			chk = dabo.ui.dCheckBox(pnl, Caption="Show Menu Close",
+					DataSource=self, DataField="ShowMenuClose")
+			szr.append(chk, halign="center")
+			lbl = dabo.ui.dLabel(pnl, Caption="Tab Style:")
+			dd = dabo.ui.dDropdownList(pnl,
+					Choices=["Default", "VC8", "VC71", "Fancy", "Firefox"],
+					DataSource=self, DataField="TabStyle")
+			hsz = dabo.ui.dSizer("h")
+			hsz.append(lbl)
+			hsz.append(dd)
+			szr.append(hsz, halign="center")
+			lbl = dabo.ui.dLabel(pnl, Caption="Tab Position:")
+			dd = dabo.ui.dDropdownList(pnl, Choices=["Top", "Bottom"],
+					DataSource=self, DataField="TabPosition")
+			hsz = dabo.ui.dSizer("h")
+			hsz.append(lbl)
+			hsz.append(dd)
+			szr.append(hsz, halign="center")
+			self.Form.layout()
+			self.Form.fitToSizer()
 
 
 
