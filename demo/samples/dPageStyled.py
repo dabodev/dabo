@@ -73,7 +73,7 @@ class TestPanel(dabo.ui.dPanel):
 		hsz = dabo.ui.dSizer("h")
 		lblATC = dabo.ui.dLabel(self, Caption="ActiveTabColor:")
 		pnlATC = dabo.ui.dPanel(self, BorderWidth=2, BorderColor="black", BorderStyle="Simple",
-				Size=(20, 20), DynamicBackColor=lambda:self.pgf.ActiveTabColor,
+				Size=(20, 20), DynamicBackColor=lambda:self.pgf.ActiveTabColor, Name="foo",
 				OnMouseLeftClick=self.onSetActiveTabColor)
 		hsz.append(lblATC)
 		hsz.appendSpacer(2)
@@ -119,37 +119,48 @@ class TestPanel(dabo.ui.dPanel):
 		self.update()
 		self.Form.logit("Style changed to '%s'" % evt.EventObject.StringValue)
 
+	def getColorName(self, curr):
+		ret = dabo.ui.getColor(curr)
+		try:
+			nm = dabo.dColors.colorNameFromTuple(ret, firstOnly=True)
+			if nm:
+				ret = nm
+		except ValueError:
+			# An invalid RGB 3-tuple was returned
+			pass
+		return ret
+
 	def onSetActiveTabColor(self, evt):
 		curr = self.pgf.ActiveTabColor
-		newcolor = dabo.ui.getColor(curr)
+		newcolor = self.getColorName(curr)
 		if newcolor:
 			self.pgf.ActiveTabColor = newcolor
 			self.update()
-			self.Form.logit("ActiveTabColor changed to '%s'" % newcolor)
+			self.Form.logit("ActiveTabColor changed to '%s'" % str(newcolor))
 
 	def onSetTabAreaColor(self, evt):
 		curr = self.pgf.TabAreaColor
-		newcolor = dabo.ui.getColor(curr)
+		newcolor = self.getColorName(curr)
 		if newcolor:
 			self.pgf.TabAreaColor = newcolor
 			self.update()
-			self.Form.logit("TabAreaColor changed to '%s'" % newcolor)
+			self.Form.logit("TabAreaColor changed to '%s'" % str(newcolor))
 
 	def onSetActiveTabTextColor(self, evt):
 		curr = self.pgf.ActiveTabTextColor
-		newcolor = dabo.ui.getColor(curr)
+		newcolor = self.getColorName(curr)
 		if newcolor:
 			self.pgf.ActiveTabTextColor = newcolor
 			self.update()
-			self.Form.logit("ActiveTabTextColor changed to '%s'" % newcolor)
+			self.Form.logit("ActiveTabTextColor changed to '%s'" % str(newcolor))
 
 	def onSetInactiveTabTextColor(self, evt):
 		curr = self.pgf.InactiveTabTextColor
-		newcolor = dabo.ui.getColor(curr)
+		newcolor = self.getColorName(curr)
 		if newcolor:
 			self.pgf.InactiveTabTextColor = newcolor
 			self.update()
-			self.Form.logit("InactiveTabTextColor changed to '%s'" % newcolor)
+			self.Form.logit("InactiveTabTextColor changed to '%s'" % str(newcolor))
 
 
 
