@@ -406,7 +406,7 @@ class Drawable(ReportObject):
 		if height is None:
 			height = 0
 		else:
-			height = self.getPt("height")
+			height = self.getPt(height)
 		if vAnchor == "bottom":
 			ret += height
 		if vAnchor == "middle":
