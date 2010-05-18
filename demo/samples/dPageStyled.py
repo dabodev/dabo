@@ -156,5 +156,23 @@ class TestPanel(dabo.ui.dPanel):
 category = "Controls.dPageStyled"
 
 overview = """
-Styled Paged Control
+<p><b>Paged Controls</b> allow you to organize the visual presentation of
+your data and UI controls onto separate 'pages' that are selected by various
+means. Only one page is visible at any given time.</p>
+
+<p>The <b>dPageStyled</b> control is not a native control, but rather one
+that was created by Andrea Gavana and later incorporated into wxPython as
+the <b>Flat Notebook</b> control. We wrapped it an renamed it to be consistent
+with our other paged controls.</p>
+
+<p>This control has several properties that control the appearance of the tabs,
+as well as several other optional controls that can appear in the tab area. This demo
+is designed to demonstrate the effect of changing these properties. Please note
+that some properties only have an effect with certain TabStyle settings.</p>
+
+<p>Unlike the other paged controls, you can change the <b>TabPosition</b>
+property after the control has been created, although I can't imagine any
+user-friendly interface where that would be needed. Also, you are limited
+to Top and Bottom for tab positions; tabs along the sides is not supported.
+You can also re-order the tabs by dragging them to their new position.</p>
 """
