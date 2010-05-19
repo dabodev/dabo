@@ -19,7 +19,7 @@ class FrmMain(dabo.ui.dFormMain):
 	def fillFileOpenMenu(self):
 		"""Add the File|Open menu, with menu items for opening each form."""
 		app = self.Application
-		fileMenu = self.MenuBar.getMenu("File")
+		fileMenu = self.MenuBar.getMenu("base_file")
 		fileMenu.prependMenu(MenFileOpen(fileMenu))
 
 
