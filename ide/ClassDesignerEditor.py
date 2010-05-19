@@ -357,7 +357,7 @@ class EditorForm(dui.dForm):
 		mthd = self.ddMethod.StringValue
 		if not mthd:
 			mthd = _("no method")
-		self.Caption = _("Editing: %s, %s") % (nm, mthd)
+		self.Caption = _("Editing: %(nm)s, %(mthd)s") % locals()
 
 
 	def onDeactivate(self, evt):
@@ -384,7 +384,7 @@ class EditorForm(dui.dForm):
 				num = None
 			if num is not None:
 				num = int(num)
-				disp = _("Error: %s\nLine: %s") % (msg, num)
+				disp = _("Error: %(msg)s\nLine: %(num)s") % locals()
 				ed.LineNumber = num-3
 				ed.showCurrentLine()
 				ed.hiliteLine(num-1)

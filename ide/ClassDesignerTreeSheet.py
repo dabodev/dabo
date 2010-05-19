@@ -198,7 +198,7 @@ class TreeSheet(dui.dPanel):
 				if isinstance(obj, dui.dBorderSizer):
 					itmCap = obj.Caption
 					if itmCap:
-						ret = _("BorderSizer ('%s'): %s") % (itmCap, ornt)
+						ret = _("BorderSizer ('%(itmCap)s'): %(ornt)s") % locals()
 					else:
 						ret = _("BorderSizer: %s") % ornt
 				else:

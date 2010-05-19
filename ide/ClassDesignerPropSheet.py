@@ -318,8 +318,8 @@ class PropSheet(dabo.ui.dPanel):
 			if prop.startswith("Font"):
 				self.updateGridValues()
 		except PropertyUpdateException, e:
-			dabo.ui.stop(_("Could not set property '%s' to value '%s'\nReason: '%s'") 
-					% (prop, val, e))
+			dabo.ui.stop(_("Could not set property '%(prop)s' to value '%(val)s'\nReason: '%(e)s'") 
+					% locals())
 			self.updateGridValues()	
 
 			

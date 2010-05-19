@@ -1728,7 +1728,7 @@ class ClassDesigner(dabo.dApp):
 				txt = e.text.strip()
 			else:
 				txt = _("<unspecified>")
-			dabo.ui.stop(_("Compilation Error: %s\nCode: %s") % (msg, txt),
+			dabo.ui.stop(_("Compilation Error: %(msg)s\nCode: %(txt)s") % locals(),
 					_("Compilation Error"))
 		self.biz = currbiz
 
@@ -2082,8 +2082,8 @@ class ClassDesigner(dabo.dApp):
 		try:
 			del self._classPropDict[obj][prop]
 		except StandardError, e:
-			dabo.errorLog.write(_("Could not delete custom property '%s': %s")
-					% (prop, e))
+			dabo.errorLog.write(_("Could not delete custom property '%(prop)s': %(e)s")
+					% locals())
 
 
 	def editObjectProperty(self, prop):
@@ -2467,8 +2467,8 @@ class ClassDesigner(dabo.dApp):
 			szit = pnl.ControllingSizerItem
 			if szit is None:
 				# Something is wrong; write it to the log and return
-				dabo.errorLog.write(_("Attempted to add an object of class %s to parent %s, but parent has no sizer information.")
-						% (cls, pnl))
+				dabo.errorLog.write(_("Attempted to add an object of class %(cls)s to parent %(pnl)s, but parent has no sizer information.")
+						% locals())
 				return
 				
 			grdsz = isinstance(szit, dui.dSizer.GridSizerItem)
@@ -3148,7 +3148,7 @@ class ClassDesigner(dabo.dApp):
 					try:
 						exec "obj.%s = '%s'" % (att, escVal)
 					except:
-						raise ValueError(_("Could not set attribute '%s' to value: %s") % (att, val))
+						raise ValueError(_("Could not set attribute '%(att)s' to value: %(val)s") % locals())
 		# If the item has children, set their atts, too.
 		isSizer = isinstance(obj, dui.dSizerMixin)
 		if isSizer:
