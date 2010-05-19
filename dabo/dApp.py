@@ -993,7 +993,7 @@ try again when it is running.
 		try:
 			connDefs = importConnections(filePath, useHomeDir=True)
 		except SAXParseException, e:
-			dabo.errorLog.write(_("Error parsing '%s': %s") % (filePath, e))
+			dabo.errorLog.write(_("Error parsing '%(filePath)s': %(e)s") % locals())
 			return {}
 		# Convert the connect info dicts to dConnectInfo instances:
 		for k,v in connDefs.items():

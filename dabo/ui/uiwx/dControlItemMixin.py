@@ -236,7 +236,8 @@ class dControlItemMixin(dDataControlMixin):
 				invalidSelections = []
 
 			if invalidSelections:
-				raise ValueError(_("Trying to set %s.Value to these invalid selections: %s") % (self.Name, invalidSelections))
+				snm = self.Name
+				raise ValueError(_("Trying to set %(snm)s.Value to these invalid selections: %(invalidSelections)s") % locals())
 
 			self._afterValueChanged()
 		else:

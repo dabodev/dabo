@@ -67,8 +67,8 @@ def loadUI(uiType):
 			# No problem; just a redundant call
 			pass
 		else:
-			dabo.infoLog.write(_("Cannot change the uiType to '%s', because UI '%s' is already loaded.")
-				% (typ, currType))
+			dabo.infoLog.write(_("Cannot change the uiType to '%(typ)s', because UI '%(currType)s' is already loaded.")
+					% locals())
 	return retVal
 
 	
@@ -137,13 +137,13 @@ def makeDynamicProperty(prop, additionalDoc=None):
 		else:
 			self._dynamic[propName] = func
 
-	doc = _("""Dynamically determine the value of the %s property.
+	doc = _("""Dynamically determine the value of the %(propName)s property.
 
 Specify a function and optional arguments that will get called from the
 update() method. The return value of the function will get set to the
-%s property. If Dynamic%s is set to None (the default), %s 
+%(propName)s property. If Dynamic%(propName)s is set to None (the default), %(propName)s 
 will not be dynamically evaluated.
-""") % (propName, propName, propName, propName)
+""") % locals()
 
 	if additionalDoc:
 		doc += "\n\n" + additionalDoc

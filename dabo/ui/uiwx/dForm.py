@@ -496,16 +496,13 @@ class BaseForm(fm.dFormMixin):
 						newRowNumber=newRowNumber, oldRowNumber=oldRowNumber,
 						bizobj=bizobj)
 
-
 			# We made it through without errors
 			ret = True
-		
+			rc = bizobj.RowCount
+			plcnt = bizobj.RowCount == 1 and " " or "s "
+			plelap = elapsed == 1 and "." or "s."
 			self.StatusText = (
-					_("%s record%sselected in %s second%s") % (
-					bizobj.RowCount, 
-					bizobj.RowCount == 1 and " " or "s ",
-					elapsed,
-					elapsed == 1 and "." or "s."))
+					_("%(rc)s record%(plcnt)sselected in %(elapsed)s second%(plelap)s") % locals())
 
 		except dException.MissingPKException, e:
 			self.notifyUser(str(e), title=_("Requery Failed"), severe=True, exception=e)
@@ -773,7 +770,7 @@ Database error message: %s""") %	err
 					rowNumber = 1
 		if rowCount < 1:
 			return _("No records")
-		return _("Record %s/%s") % (rowNumber, rowCount)
+		return _("Record %(rowNumber)s/%(rowCount)s") % locals()
 
 
 	def validateField(self, ctrl):
@@ -815,7 +812,7 @@ Database error message: %s""") %	err
 		override it with your own code to handle this failure 
 		appropriately for your application.
 		"""
-		self.StatusText = _(u"Validation failed for %s: %s") % (df, err)
+		self.StatusText = _(u"Validation failed for %(df)s: %(err)s") % locals()
 		dabo.ui.callAfter(ctrl.setFocus)
 		
 	

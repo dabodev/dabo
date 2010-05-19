@@ -288,8 +288,8 @@ def setAfter(obj, prop, val):
 		fnc = eval("obj.__class__.%s.fset" % prop)
 		wx.CallAfter(fnc, obj, val)
 	except StandardError, e:
-		dabo.errorLog.write(_("setAfter() failed to set property '%s' to value '%s': %s.")
-				% (prop, val, e))
+		dabo.errorLog.write(_("setAfter() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
+				% locals())
 
 
 def setAfterInterval(interval, obj, prop, val):
@@ -300,8 +300,8 @@ def setAfterInterval(interval, obj, prop, val):
 		fnc = eval("obj.__class__.%s.fset" % prop)
 		callAfterInterval(interval, fnc, obj, val)
 	except StandardError, e:
-		dabo.errorLog.write(_("setAfterInterval() failed to set property '%s' to value '%s': %s.")
-				% (prop, val, e))
+		dabo.errorLog.write(_("setAfterInterval() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
+				% locals())
 
 
 def callEvery(interval, func, *args, **kwargs):

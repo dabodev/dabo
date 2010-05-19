@@ -253,8 +253,9 @@ class dCursorMixin(dObject):
 				try:
 					return pythonType(field_val)
 				except Exception, e:
-					dabo.infoLog.write(_("_correctFieldType() failed for field: '%s'; value: '%s'; type: '%s'") %
-							(field_name, field_val, type(field_val)))
+					tfv = type(field_val)
+					dabo.infoLog.write(_("_correctFieldType() failed for field: '%(field_name)s'; value: '%(field_val)s'; type: '%(tfv)s'")
+							% locals())
 
 		# Do the unicode conversion last:
 		if isinstance(field_val, str) and self._convertStrToUnicode:
@@ -283,8 +284,9 @@ class dCursorMixin(dObject):
 # 			# Usually blob data
 # 			ret = field_val.tostring()
 
-			dabo.errorLog.write(_("%s couldn't be converted to %s (field %s)")
-					% (repr(field_val), pythonType, field_name))
+			rfv = repr(field_val)
+			dabo.errorLog.write(_("%(rfv)s couldn't be converted to %(pythonType)s (field %(field_name)s)")
+					% locals())
 		return ret
 
 
@@ -841,8 +843,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		try:
 			rec = self._records[row]
 		except IndexError:
+			cnt = len(self._records)
 			raise dException.RowNotFoundException(
-					_("Row #%s requested, but the data set has only %s row(s),") % (row, len(self._records)))
+					_("Row #%(row)s requested, but the data set has only %(cnt)s row(s),") % locals())
 		if isinstance(fld, (tuple, list)):
 			ret = []
 			for xFld in fld:
@@ -928,8 +931,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		try:
 			rec = self._records[row]
 		except IndexError:
+			cnt = len(self._records)
 			raise dException.RowNotFoundException(
-					_("Row #%s requested, but the data set has only %s row(s),") % (row, len(self._records)))
+					_("Row #%(row)s requested, but the data set has only %(cnt)s row(s),") % locals())
 		valid_pk = self._hasValidKeyField()
 		keyField = self.KeyField
 		if fld not in rec:
@@ -991,8 +995,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					ignore = (rec.get(keyField, None) in self._newRecords)
 
 				if not ignore:
-					msg = _("!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s") \
-							% (fld, str(fldType), str(type(val)))
+					sft, stv = str(fldType), str(type(val))
+					msg = _("!!! Data Type Mismatch: field=%(fld)s. Expecting: %(sft)s; got: %(stv)s") % locals()
 					dabo.errorLog.write(msg)
 
 		# If the new value is different from the current value, change it and also
@@ -1766,7 +1770,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				if key == pk:
 					return (idx, rec)
 		if raiseRowNotFound:
-			raise dException.RowNotFoundException, _("PK '%s' not found in table '%s' (RowCount: %s)") % (pk, self.Table, self.RowCount)
+			tbl, rc = self.Table, self.RowCount
+			raise dException.RowNotFoundException(_("PK '%(pk)s' not found in table '%(tbl)s' (RowCount: %(rc)s)") % locals())
 		return (None, None)
 
 
@@ -1800,7 +1805,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		and an exception is raised.
 		"""
 		if (rownum >= self.RowCount) or (rownum < 0):
-			raise dException.dException(_("Invalid row specified: %s. RowCount=%s") % (rownum, self.RowCount))
+			rc = self.RowCount
+			raise dException.dException(_("Invalid row specified: %(rownum)s. RowCount=%(rc)s") % locals())
 		self.RowNumber = rownum
 
 

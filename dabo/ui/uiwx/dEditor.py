@@ -225,7 +225,8 @@ class STCPrintout(wx.Printout):
 		# printing
 		if not self.IsPreview():
 			if ep < stcEndPos:
-				print _('warning: on page %s: not enough chars rendered, diff: %s')%(page, stcEndPos-ep)
+				posdiff = stcEndPos-ep
+				dabo.errorLog.write(_('warning: on page %(page)s: not enough chars rendered, diff: %(posdiff)s') % locals())
 		return True
 
 
@@ -2412,8 +2413,9 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 				try:
 					self.Text = val
 				except TypeError, e:
-					dabo.errorLog.write(_("Could not set value of %s to %s. Error message: %s")
-							% (self._name, val, e))
+					nm = self._name
+					dabo.errorLog.write(_("Could not set value of %(nm)s to %(val)s. Error message: %(e)s")
+							% locals())
 				self._afterValueChanged()
 			self.flushValue()
 		else:

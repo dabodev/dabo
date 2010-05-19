@@ -64,7 +64,8 @@ def autoCreateTables(noAccessDialog=None):
   1. using this program by TEMPORARLY giving this program access to the database to create the needed tables.
   2. or executing all the quries in the 'queries.sql' file."""))
 
-					lblinst2 = self.addObject(dabo.ui.dLabel, Caption=_("DBA, please enter the username and password that has access to create tables for database on server '%s' and database '%s'") % (self._conn.ConnectInfo.Host, self._conn.ConnectInfo.Database))
+					hst, db = self._conn.ConnectInfo.Host, self._conn.ConnectInfo.Database
+					lblinst2 = self.addObject(dabo.ui.dLabel, Caption=_("DBA, please enter the username and password that has access to create tables for database on server '%(hst)s' and database '%(db)s'") % locals())
 
 					o = self.addObject(dabo.ui.dLabel, Caption=_("Username"))
 					cs.append(o, row=0, col=0, border=3)
@@ -161,10 +162,10 @@ def autoCreateTables(noAccessDialog=None):
 def _writeQueriesToFile(queries):
 	f = open("queries.sql", "w")
 	for k in queries.keys():
-		f.write(_("#Queries for DB '%s' on host '%s':\n") % (k.ConnectInfo.Database, k.ConnectInfo.Host))
+		db, hst = k.ConnectInfo.Database, k.ConnectInfo.Host
+		f.write(_("#Queries for DB '%(db)s' on host '%(hst)s':\n") % locals())
 		for query in queries[k]:
 			f.write("%s;\n" % (query))
-
 	f.close()
 
 

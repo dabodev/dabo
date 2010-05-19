@@ -454,12 +454,13 @@ class dPemMixin(dPemMixinBase):
 			if not mthdString:
 				# Empty method string; this is a sign of a bug in the UI code.
 				# Log it and continue
-				dabo.errorLog.write(_("Empty Event Binding: Object: %s; Event: %s") % (self.Name, evt))
+				nm = self.Name
+				dabo.errorLog.write(_("Empty Event Binding: Object: %(nm)s; Event: %(evt)s") % locals())
 				continue
 			try:
 				mthd = eval(mthdString)
 			except (AttributeError, NameError), e:
-				dabo.errorLog.write(_("Could not evaluate method '%s': %s") % (mthdString, e))
+				dabo.errorLog.write(_("Could not evaluate method '%(mthdString)s': %(e)s") % locals())
 				continue
 			self.bindEvent(evt, mthd)
 
@@ -2400,7 +2401,7 @@ class dPemMixin(dPemMixinBase):
 		try:
 			self.Form.registerObject(self)
 		except KeyError:
-			err = _("Attempt in object '%s' to set duplicate RegID: '%s'") % (self, val)
+			err = _("Attempt in object '%(self)s' to set duplicate RegID: '%(val)s'") % locals()
 			dabo.errorLog.write(err)
 			raise KeyError(err)
 			

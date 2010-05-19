@@ -197,7 +197,7 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
 		try:
 			ret = parser.Parse(xmlContent)
 		except expat.ExpatError, e:
-			errmsg = _("The XML in '%s' is not well-formed and cannot be parsed: %s") % (xml, e)
+			errmsg = _("The XML in '%(xml)s' is not well-formed and cannot be parsed: %(e)s") % locals()
 	else:
 		# argument must have been raw xml:
 		try:

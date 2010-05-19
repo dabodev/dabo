@@ -231,7 +231,8 @@ C: Popup Calendar to Select
 				# Probably just a null value
 				orig = None
 			else:
-				dabo.errorLog.write(_("Non-date value in %s: '%s' is type '%s'") % (self.Name, val, type(val)))
+				nm, tv = self.Name, type(val)
+				dabo.errorLog.write(_("Non-date value in %(nm)s: '%(val)s' is type '%(tv)s'") % locals())
 				return
 		# Default direction
 		forward = True

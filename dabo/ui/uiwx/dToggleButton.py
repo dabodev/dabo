@@ -111,10 +111,11 @@ class _dToggleButton_test(dToggleButton):
 
 	def onHit(self, evt):
 		if self.Value:
-			state = ("down", "True")
+			state = "down"
 		else:
-			state = ("up", "False")
-		self.Caption = _("State: %s (Boolean: %s)") % state
+			state = "up"
+		bval = self.Value
+		self.Caption = _("State: %(state)s (Boolean: %(bval)s)") % locals()
 
 
 if __name__ == "__main__":
