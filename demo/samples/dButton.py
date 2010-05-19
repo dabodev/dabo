@@ -29,8 +29,8 @@ class TestPanel(dabo.ui.dPanel):
 
 	def onButtonHit(self, evt):
 		obj = evt.EventObject
-		self.Form.logit(_("Hit: %s; Default=%s; Cancel=%s") % (obj.Caption, obj.DefaultButton,
-				obj.CancelButton) )
+		cap, dft, cncl = obj.Caption, obj.DefaultButton, obj.CancelButton
+		self.Form.logit(_("Hit: %(cap)s; Default=%(dft)s; Cancel=%(cncl)s") % locals())
 
 
 category = "Controls.dButton"

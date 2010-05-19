@@ -36,7 +36,8 @@ class TestPanel(dabo.ui.dPanel):
 	
 	def onCheckHit(self, evt):
 		obj = evt.EventObject
-		self.Form.logit(_("Hit: %s; Value=%s") % (obj.Name, obj.Value) )
+		nm, val = obj.Name, obj.Value
+		self.Form.logit(_("Hit: %(nm)s; Value=%(val)s") % locals())
 
 
 category = "Controls.dCheckBox"

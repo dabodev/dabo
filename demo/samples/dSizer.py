@@ -135,7 +135,8 @@ class SizerController(dabo.ui.dPanel):
 		prop = obj.sizerProp
 		ts.setItemProp(tsi, prop, val)
 		self.Form.layout()
-		self.Form.logit(_("%s.%s changed to '%s'") % (self.Target.Name, prop, val))
+		nm = self.Target.Name
+		self.Form.logit(_("%(nm)s.%(prop)s changed to '%(val)s'") % locals())
 		
 
 	def onProportionChange(self, evt):
@@ -146,7 +147,8 @@ class SizerController(dabo.ui.dPanel):
 		val = self.proportionSpinner.Value
 		ts.setItemProp(tsi, "Proportion", val)
 		self.Form.layout()
-		self.Form.logit(_("%s.Proportion changed to '%s'") % (self.Target.Name, val))
+		nm = self.Target.Name
+		self.Form.logit(_("%(nm)s.Proportion changed to '%(val)s'") % locals())
 		
 	
 	def onBorderChange(self, evt):
@@ -157,7 +159,8 @@ class SizerController(dabo.ui.dPanel):
 		val = self.borderSpinner.Value
 		ts.setItemProp(tsi, "Border", val)
 		self.Form.layout()
-		self.Form.logit(_("%s.Border changed to '%s'") % (self.Target.Name, val))
+		nm = self.Target.Name
+		self.Form.logit(_("%(nm)s.Border changed to '%(val)s'") % locals())
 		
 	
 	def onExpandChange(self, evt):
@@ -168,7 +171,8 @@ class SizerController(dabo.ui.dPanel):
 		val = self.expandChk.Value
 		ts.setItemProp(tsi, "Expand", val)
 		self.Form.layout()
-		self.Form.logit(_("%s.Expand changed to '%s'") % (self.Target.Name, val))
+		nm = self.Target.Name
+		self.Form.logit(_("%(nm)s.Expand changed to '%(val)s'") % locals())
 		
 	
 	def _setCaption(self, val):

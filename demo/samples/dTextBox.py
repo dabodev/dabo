@@ -53,8 +53,8 @@ class TestPanel(dabo.ui.dPanel):
 		self.Form.logit(_("%s Destroy") % evt.EventObject.Name)
 
 	def onTextKeyChar(self, evt):
-		self.Form.logit(_("KeyChar event; code=%s, char=%s") %
-				(evt.keyCode, evt.keyChar))
+		cd, ch = evt.keyCode, evt.keyChar
+		self.Form.logit(_("KeyChar event; code=%(cd)s, char=%(ch)s") % locals())
 
 	def onTextHit(self, evt):
 		self.Form.logit(_("Hit event; new value='%s'") %
