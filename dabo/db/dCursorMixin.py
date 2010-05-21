@@ -1013,6 +1013,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					if old_mem is not None:
 						self._mementos[keyFieldValue] = old_mem
 						del self._mementos[old_val]
+				elif self._compoundKey and fld in keyField:
+					# Changing the value of one key field, need to key the mementos on
+					# the new compound key value not the old. Additionally, need
+					#to copy the mementos from the old key value to the new one.
+					oldKeyFieldValue = tuple([rec[k] for k in keyField])
+					old_mem = self._mementos.get(oldKeyFieldValue, None)
+					keyFieldValue = list(oldKeyFieldValue)
+					keyFieldValue[list(keyField).index(fld)] = val
+					keyFieldValue = tuple(keyFieldValue)
+					if old_mem is not None:
+						self._mementos[keyFieldValue] = old_mem
+						del self._mementos[oldKeyFieldValue]
 				else:
 					if self._compoundKey:
 						keyFieldValue = tuple([rec[k] for k in keyField])
