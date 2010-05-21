@@ -129,7 +129,7 @@ class dCursorMixin(dObject):
 
 		# Flag preference cursors so that they don't fill up the logs
 		self._isPrefCursor = False
-		
+
 		# Get the parameter for the backend type
 		self._paramPlaceholder = None
 
@@ -810,8 +810,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def getPK(self, row=None):
-		""" Returns the value of the PK field in the current or passed record number. 
-		If that record is a new unsaved record, return the temp PK value. If this is a 
+		""" Returns the value of the PK field in the current or passed record number.
+		If that record is a new unsaved record, return the temp PK value. If this is a
 		compound PK, return a tuple containing each field's values.
 		"""
 		if self.RowCount <= 0:
@@ -1235,9 +1235,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		'valOrExpr' will be treated as a literal value, unless it is prefixed
 		with an equals sign. All expressions will therefore be a string
 		beginning with '='. Literals can be of any type.
-		
-		NOTE: this does NOT work with the memento framework for 
-		determining modified records. It is strongly recommended that 
+
+		NOTE: this does NOT work with the memento framework for
+		determining modified records. It is strongly recommended that
 		instead of calling this directly that the bizobj.replace() method
 		be used in any programming.
 		"""
@@ -1323,7 +1323,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self._syncAuxProperties()
 
 		if allRows:
-			# This branch doesn't happen when called from dBizobj (not sure if 
+			# This branch doesn't happen when called from dBizobj (not sure if
 			# we really need the allRows arg at all).
 			rows = self.getChangedRows(includeNewUnchanged=includeNewUnchanged)
 		else:
@@ -1333,7 +1333,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			rows = []
 			if self.isChanged(allRows=False, includeNewUnchanged=includeNewUnchanged):
 				rows = [self.RowNumber]
-		for row in rows:		
+		for row in rows:
 			saverow(row)
 
 
@@ -1341,7 +1341,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec = self._records[row]
 		recKey = self.pkExpression(rec)
 		newrec = kons.CURSOR_TMPKEY_FIELD in rec
-		
+
 		newPKVal = None
 		if newrec and self.AutoPopulatePK:
 			# Some backends do not provide a means to retrieve
@@ -1786,7 +1786,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		kf = self.KeyField
 		return bool([v[kf] for v in self._records if v[kf] == pk])
 
-		
+
 	def moveToPK(self, pk):
 		""" Find the record with the passed primary key, and make it active.
 
@@ -1984,7 +1984,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def makeUpdClause(self, diff):
 		"""Create the 'set field=val' section of the Update statement. Return a 2-tuple
-		containing the sql portion as the first element, and the parameters for the 
+		containing the sql portion as the first element, and the parameters for the
 		values as the second.
 		"""
 		retSql = []
@@ -2749,7 +2749,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			separate the fields with commas. (str)"""))
 
 	ParamPlaceholder = property(_getParamPlaceholder, None, None,
-			_("""The character(s) used to indicate a parameter in an SQL statement. 
+			_("""The character(s) used to indicate a parameter in an SQL statement.
 			This can be different for different backend systems. Read-only.  (str)"""))
 
 	Record = property(_getRecord, None, None,
