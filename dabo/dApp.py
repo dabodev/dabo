@@ -543,7 +543,7 @@ try again when it is running.
 		prf = self._frameworkPrefs
 		resp = {}
 		val = prf.getValue
-		firstTime = prf.hasKey("web_update")
+		firstTime = not prf.hasKey("web_update")
 		lastcheck = val("last_check")
 		# Hold this in case the update fails.
 		self._lastCheckInfo = (val, lastcheck)
