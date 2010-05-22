@@ -37,7 +37,7 @@ class ContentBoxSizerPanel(dui.dPanel):
 		lbl.DynamicEnabled = ctl.DynamicEnabled = self.checkIfSpacer
 		sz.append(lbl, halign="right")
 		sz.append(ctl)
-		
+
 		self.Sizer = dui.dSizer("v")
 		self.Sizer.append1x(sz, border=20,
 				borderSides=("left", "right", "bottom"))
@@ -45,7 +45,7 @@ class ContentBoxSizerPanel(dui.dPanel):
 
 	def checkIfSpacer(self):
 		return isinstance(self.Form.currObj, LayoutSpacerPanel)
-		
+
 
 class ContentGridSizerPanel(dui.dPanel):
 	def afterInit(self):
@@ -135,12 +135,12 @@ class BoxSizerSelfPanel(dui.dPanel):
 		ctl = dui.dCheckBox(self, DataField="DefaultBorderBottom")
 		sz.append(lbl, halign="right")
 		sz.append(ctl)
-		
+
 		self.Sizer = dui.dSizer("v")
 		self.Sizer.append1x(sz, border=20,
 				borderSides=("left", "right", "bottom"))
 		self.Sizer.appendSpacer(20)
-		
+
 
 class GridSizerSelfPanel(dui.dPanel):
 	def afterInit(self):
@@ -166,12 +166,12 @@ class GridSizerSelfPanel(dui.dPanel):
 				Choices=["C", "R"], Value="C")
 		sz.append(lbl, halign="right")
 		sz.append(ctl)
-		
+
 		self.Sizer = dui.dSizer("v")
 		self.Sizer.append1x(sz, border=20,
 				borderSides=("left", "right", "bottom"))
 		self.Sizer.appendSpacer(20)
-		
+
 
 class SizerInfoFrame(dui.dPageFrameNoTabs):
 	boxClass = dui.dPanel
@@ -181,7 +181,7 @@ class SizerInfoFrame(dui.dPageFrameNoTabs):
 		self.blankPage.Sizer = dui.dSizer("v")
 		self.boxPage = self.appendPage(self.boxClass)
 		self.gridPage = self.appendPage(self.gridClass)
-	
+
 	def layout(self):
 		super(SizerInfoFrame, self).layout()
 		pg = self.SelectedPage
@@ -194,11 +194,11 @@ class SizerInfoFrame(dui.dPageFrameNoTabs):
 			# blankPage hasn't been created yet
 			pass
 
-		
+
 class SizerContentFrame(SizerInfoFrame):
 	boxClass = ContentBoxSizerPanel
 	gridClass = ContentGridSizerPanel
-	
+
 	def setFromObject(self, obj):
 		try:
 			csz = obj.ControllingSizer
@@ -210,18 +210,18 @@ class SizerContentFrame(SizerInfoFrame):
 			self.SelectedPage = self.gridPage
 		else:
 			self.SelectedPage = self.boxPage
-		
+
 		self.Visible = (obj is not None)
 		self.update()
 		self.SelectedPage.setAll("DataSource", obj, filt="Enabled is True")
 		#dabo.ui.callAfterInterval(100, self.layout)
 		self.layout()
-		
+
 
 class SizerSelfFrame(SizerInfoFrame):
 	boxClass = BoxSizerSelfPanel
 	gridClass = GridSizerSelfPanel
-	
+
 	def setFromObject(self, obj):
 		if isinstance(obj, dui.dGridSizer):
 			self.SelectedPage = self.gridPage
@@ -234,7 +234,7 @@ class SizerSelfFrame(SizerInfoFrame):
 		self.SelectedPage.setAll("DataSource", obj, filt="Enabled is True")
 		self.update()
 		self.layout()
-			
+
 
 class AbstractSizerPanel(dui.dPanel):
 	pgfClass = None
@@ -244,10 +244,10 @@ class AbstractSizerPanel(dui.dPanel):
 		self.pgf = self.pgfClass(self)
 		self.Sizer.append(self.pgf, halign="center")
 		self.DynamicVisible = self.notBlank
-	
+
 	def notBlank(self):
 		return self.pgf.SelectedPage is not self.pgf.blankPage
-	
+
 	def layout(self, resetMin=True):
 		super(AbstractSizerPanel, self).layout(resetMin)
 		self.Size = self.pgf.Size
@@ -256,7 +256,7 @@ class AbstractSizerPanel(dui.dPanel):
 class SizerContentPanel(AbstractSizerPanel):
 	pgfClass = SizerContentFrame
 	_cap = _("Object Settings")
-		
+
 
 class SizerSelfPanel(AbstractSizerPanel):
 	pgfClass = SizerSelfFrame
@@ -274,10 +274,10 @@ class SizerPaletteForm(dui.dToolForm):
 			kwargs["ShowMinButton"] = False
 			kwargs["TinyTitleBar"] = True
 		super(SizerPaletteForm, self).__init__(*args, **kwargs)
-		
+
 	def beforeInit(self):
 		self.MenuBarClass = None
-		
+
 	def afterInit(self):
 		self.currObj = None
 		self.inFitToSizer = False
@@ -293,7 +293,7 @@ class SizerPaletteForm(dui.dToolForm):
 		sz.append(scpnl, halign="center", border=10)
 		sz.append(sspnl, halign="center", border=10)
 		self.layout()
-		
+
 	def select(self, objs):
 		if not self.Visible:
 			return
@@ -308,7 +308,7 @@ class SizerPaletteForm(dui.dToolForm):
 		self.sizerFrame.setFromObject(obj)
 		self.layout()
 		self.update()
-	
+
 	def layout(self):
 		if self.inFitToSizer:
 			return
@@ -316,12 +316,12 @@ class SizerPaletteForm(dui.dToolForm):
 	def _delayedLayout(self):
 		self.lockDisplay()
 		super(SizerPaletteForm, self).layout()
-		
+
 		self.inFitToSizer = True
 		self.fitToSizer()
 		self.inFitToSizer = False
 		self.unlockDisplay()
-	
+
 	def _getController(self):
 		try:
 			return self._controller

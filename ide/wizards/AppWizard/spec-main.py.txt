@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# If this is a web application, set the remote host here 
+# If this is a web application, set the remote host here
 remotehost = ""
 
 import sys
 import os
 import dabo
 
-# The loading of the UI needs to happen before the importing of the 
+# The loading of the UI needs to happen before the importing of the
 # db, biz, and ui packages:
 dabo.ui.loadUI("wx")
 if sys.platform[:3] == "win":
@@ -28,7 +28,7 @@ app.ui = ui
 # If we are running frozen, let's reroute the errorLog:
 if hasattr(sys, "frozen"):
 	dabo.errorLog.Caption = ""
-	dabo.errorLog.LogObject = open(os.path.join(app.HomeDirectory, 
+	dabo.errorLog.LogObject = open(os.path.join(app.HomeDirectory,
 			"error.log"), "a")
 
 # Make it easy to find any images or other files you put in the resources
@@ -43,7 +43,7 @@ app.setup()
 app.dbConnection = app.getConnectionByName("%(dbConnectionDef)s")
 
 # Open one or more of the defined forms. A default one was picked by the app
-# generator, but you can change that here. Additionally, if form names were 
+# generator, but you can change that here. Additionally, if form names were
 # passed on the command line, they will be opened instead of the default one
 # as long as they exist.
 ui = app.ui

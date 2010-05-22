@@ -17,7 +17,7 @@ class MenReports(dabo.ui.dMenu):
 		app = self.Application
 		autoHotKeys = False
 
-		# Define the forms you want in your report menu here. Insert a ("-", None) 
+		# Define the forms you want in your report menu here. Insert a ("-", None)
 		# tuple and the code below will insert a separator in its place. Explicitly
 		# set up which character has the hotkey by adding a & in front of it and
 		# by turning off the autoHotKeys flag. eg:

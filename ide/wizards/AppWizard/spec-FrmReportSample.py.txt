@@ -2,7 +2,7 @@
 
 ## This is a sample form for putting together a report form xml (rfxml file)
 ## and a dataset, and previewing the report. Study this code, as well as the
-## code in FrmReportBase, and then rework it to your specific needs. To put 
+## code in FrmReportBase, and then rework it to your specific needs. To put
 ## your report in the reports menu, see MenReports.py.
 
 import datetime

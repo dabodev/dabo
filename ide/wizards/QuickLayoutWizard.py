@@ -22,7 +22,7 @@ class PgConnectionSelect(WizardPage):
 		sz.DefaultBorderBottom = False
 		sz.appendSpacer(1)
 		sz.DefaultBorderTop = False
-		
+
 		gsz = dabo.ui.dGridSizer(MaxCols=2)
 		lbl = dabo.ui.dLabel(self, Caption=_("Select a Connection:"))
 		dd = self.ddNames = dabo.ui.dListBox(self, RegID="ddName",
@@ -44,7 +44,7 @@ class PgConnectionSelect(WizardPage):
 		gsz.appendItems((lbl, btn))
 		if self.Application.Platform == "GTK":
 			# Gtk does not allow a modal form to invoke another modal form.
-			btn.Enabled = False	
+			btn.Enabled = False
 			btn.Caption = _(" Not available in Gtk ")
 			btn.FontSize -=2
 			btn.FontItalic = True
@@ -52,34 +52,34 @@ class PgConnectionSelect(WizardPage):
 		sz.append1x(gsz)
 		sz.appendSpacer(1)
 		self.layout()
-		
-	
+
+
 	def onEnterPage(self, dir):
 		self.populateConnNames()
-	
-	
+
+
 	def onLeavePage(self, dir):
 		# This will return False if the connection cannot be made.
 		return self.Wizard.makeConnection()
 
-	
+
 	def populateConnNames(self):
 		dd = self.ddNames
 		dd.Choices = self.Application.getConnectionNames()
 		dd.PositionValue = 0
 		dd.refresh()
-		
-		
+
+
 	def setConnectionNames(self, names):
 		self.ddNames.Choices = names
 		self.ddNames.PositionValue = 0
 		self._connectionName = self.ddName.StringValue
-		
-		
+
+
 	def afterInit(self):
 		self._connectionName = ""
-		
-		
+
+
 	def onFileSelect(self, evt):
 		f = dabo.ui.getFile("cnxml", message=_("Select the connection file to use"))
 		if not f:
@@ -105,7 +105,7 @@ class PgConnectionSelect(WizardPage):
 		self.Application.addConnectFile(frm.connFile)
 		self.populateConnNames()
 		self.ddNames.StringValue = frm.currentConn
-		
+
 
 class PgSelect(WizardPage):
 	def createBody(self):
@@ -127,8 +127,8 @@ class PgSelect(WizardPage):
 		hsz.append(tb)
 		sz.append(hsz, alignment="center")
 		sz.appendSpacer(16)
-		
-		# Now create the field list, and populate it with the 
+
+		# Now create the field list, and populate it with the
 		# selected table's fields
 		lbl = dabo.ui.dLabel(self, Caption=_("Fields:"))
 		sz.append(lbl, 0, alignment="left")
@@ -148,10 +148,10 @@ class PgSelect(WizardPage):
 		btnSz.append(btnNone, 1, "x")
 		sz.append(btnSz, 0, "x")
 		sz.appendSpacer(20)
-		
+
 		self.onTableSelection(None)
 
-	
+
 	def onEnterPage(self, dir):
 		dd = self.tblSelector
 		chc = dd.Choices
@@ -164,11 +164,11 @@ class PgSelect(WizardPage):
 			# DE has changed
 			dd.Choices = keys
 			dd.PositionValue = 0
-			self.onTableSelection(None)			
+			self.onTableSelection(None)
 
 
 	def onTableSelection(self, evt):
-		"""Populate the field list control with a list of the fields in the 
+		"""Populate the field list control with a list of the fields in the
 		selected table.
 		"""
 		self._currTable = self.tblSelector.Value
@@ -188,10 +188,10 @@ class PgSelect(WizardPage):
 
 	def onSelectAll(self, evt):
 		self.lstFields.selectAll()
-		
+
 	def onSelectNone(self, evt):
 		self.lstFields.unselectAll()
-	
+
 	def onLeavePage(self, dir):
 		selFlds = self.lstFields.Values
 		selTbl = self._currTable
@@ -209,34 +209,34 @@ class PgLayout(WizardPage):
 		self.Caption = _("Layout Selection")
 		self.layouts = []
 		# select a layout type
-		lt = self.layoutType = dabo.ui.dListBox(self, 
+		lt = self.layoutType = dabo.ui.dListBox(self,
 				Height=160, ValueMode="Position")
 		lt.bindEvent(dEvents.Hit, self.onLayoutSelect)
-		
-		# Define images for each layout. They will be 
-		# accessed by position relative to the choices 
+
+		# Define images for each layout. They will be
+		# accessed by position relative to the choices
 		# in the dripdown list
 		self.imgs = (dabo.ui.imageFromData(ImageData.getLayoutLabelLeftData()),
 				dabo.ui.imageFromData(ImageData.getLayoutLabelTopData()),
 				dabo.ui.imageFromData(ImageData.getLayoutGridData()))
 		img = self.layoutImg = dabo.ui.dImage(self, Width=200)
-		
+
 		sz = self.Sizer
 		sz.append(lt, 0, "x")
 		sz.appendSpacer(20)
 		sz.append(img, 1, alignment="center")
-		
-		
+
+
 	def onLayoutSelect(self, evt=None):
 		self.Wizard.layoutType = self.Wizard.availableLayouts[self.layoutType.Value]
 		self.layoutImg.Picture = self.imgs[self.layoutType.Value]
 		self.layout()
-		
-		
+
+
 	def onEnterPage(self, dir):
 		layouts = self.Wizard.availableLayouts
 		if len(self.Wizard.flds) == 1:
-			layouts.remove("Grid") 
+			layouts.remove("Grid")
 		self.layoutType.Choices = layouts
 		if dir == "forward":
 			self.layoutType.Value = 0
@@ -244,11 +244,11 @@ class PgLayout(WizardPage):
 
 
 
-		
+
 class PgOrdering(WizardPage):
 	def createBody(self):
 		self.Caption = _("Order Fields")
-		
+
 # 		lbl = dabo.ui.dLabel(self, Caption="""Select a field, and then use the buttons
 # to change its order""")
 		fs = self.fldSorter = dabo.ui.dEditableList(self, Caption=_("Set the field order"),
@@ -294,10 +294,10 @@ class PgSample(WizardPage):
 		self.rClickLbl = dabo.ui.dLabel(self, Caption=_("Right-click a control to change its type"),
 				FontSize=8, FontItalic=True)
 		self.Sizer.append(self.rClickLbl, halign="center", border=3, borderSides="top")
-		self.samplePanel = dabo.ui.dScrollPanel(self, BackColor="papayawhip")		
+		self.samplePanel = dabo.ui.dScrollPanel(self, BackColor="papayawhip")
 		itm = self.Sizer.append1x(self.samplePanel, border=3, borderSides="top")
 		self.samplePanel.Sizer = LayoutSizer("v")
-			
+
 		# Define an editable label class
 		class EditLabel(dabo.ui.dLabel):
 			def afterInit(self):
@@ -306,14 +306,14 @@ class PgSample(WizardPage):
 				self.bindEvent(dEvents.MouseLeftDoubleClick, self.Parent.Parent.onLblEdit)
 				# Store the original caption for later reference
 				dabo.ui.callAfter(self._storeCaption)
-				
+
 			def _storeCaption(self):
 				# Save the Caption as an editing reference
 				self.origCap = self.Caption
 		#Save the classdef for future use
 		self.editLabelClass = EditLabel
-		
-		
+
+
 	def onEnterPage(self, dir):
 		if dir != "forward":
 			return
@@ -326,7 +326,7 @@ class PgSample(WizardPage):
 		if (layType == self.lastStyle) and (flds == self.lastFldList):
 			# Nothing has changed
 			return
-		
+
 		# Release all existing controls
 		sc = self.controls
 		for kk in sc.keys():
@@ -345,11 +345,11 @@ class PgSample(WizardPage):
 			pass
 		sp = self.samplePanel
 		sp.Sizer.clear()
-		
+
 		# Update the lastX props
 		self.lastFldList = flds
 		self.lastStyle = layType
-		
+
 		# Create the new controls
 		self.rClickLbl.Visible = (layType.lower() != "grid")
 		if layType.lower() == "grid":
@@ -362,7 +362,7 @@ class PgSample(WizardPage):
 			cs = self.controlSizer = LayoutSizer("v")
 		else:
 			style = "left"
-			cs = self.controlSizer = LayoutGridSizer(MaxCols=2, 
+			cs = self.controlSizer = LayoutGridSizer(MaxCols=2,
 				HGap=0, VGap=self.BetweenSpacing)
 			cs.setColExpand(True, 1)
 		# Go through the list, and add the items to the sizer in order. Any
@@ -394,7 +394,7 @@ class PgSample(WizardPage):
 					cs.appendSpacer(self.BetweenSpacing)
 
 		sp.Sizer.append(cs, 0, "x", border=self.OutsideBorder, borderSides="all")
-		
+
 		# Now create the spacer controls
 		self.UseColons = False
 		self.OutsideBorder = 10
@@ -424,7 +424,7 @@ class PgSample(WizardPage):
 		gs.append(spn)
 		self._layoutControls.append(lbl)
 		self._layoutControls.append(spn)
-		
+
 		if style == "left":
 			# Add a spinner for column separation
 			lbl = dabo.ui.dLabel(self, Caption=_("Column Separation:"))
@@ -435,7 +435,7 @@ class PgSample(WizardPage):
 			gs.append(spn)
 			self._layoutControls.append(lbl)
 			self._layoutControls.append(spn)
-		
+
 		lbl = dabo.ui.dLabel(self, Caption=_("Label Alignment:"))
 		gs.append(lbl, halign="right")
 		dd = dabo.ui.dDropdownList(self, DataSource="self.Parent",
@@ -454,12 +454,12 @@ class PgSample(WizardPage):
 		gs.append(chk)
 		self._layoutControls.append(lbl)
 		self._layoutControls.append(chk)
-		
+
 		self.refresh()
 		self.samplePanel.Width = self.sampleWidth
 		self.layout()
 
-	
+
 	def onCtlRightClick(self, evt):
 		self._editedControl = evt.EventObject
 		pop = dabo.ui.dMenu()
@@ -479,7 +479,7 @@ class PgSample(WizardPage):
 
 
 	def onChangeControl(self, evt):
-	
+
 			#### ALSO: need to update the wizard's fields
 # 			self.editLabel.Caption = tx
 # 			self.controls[self.editLabel.origCap]["caption"] = tx
@@ -513,12 +513,12 @@ class PgSample(WizardPage):
 		else:
 			sz.insert(pos, newobj, "expand")
 		self.layout()
-		
-		
+
+
 	def onLblEdit(self, evt):
 		lbl = self.editLabel = evt.EventObject
 		oldCap = lbl.Caption
-		
+
 		et = self.editText
 		if et is None:
 			et = self.editText = dabo.ui.dTextBox(self.samplePanel, SelectOnEntry=True)
@@ -526,14 +526,14 @@ class PgSample(WizardPage):
 			et.bindEvent(dEvents.KeyChar, self.onTextKey)
 			et.Visible = False
 		et.Value = oldCap
-		
+
 		et.Position = lbl.Position
 		et.Width = lbl.Width + 100
 		et.Visible = True
 		et.SetFocus()
 		dabo.ui.callAfter(et.selectAll)
-		
-	
+
+
 	def onTextKey(self, evt):
 		keyCode = evt.EventData["keyCode"]
 		keys = dabo.ui.dKeys
@@ -545,9 +545,9 @@ class PgSample(WizardPage):
 		if exit:
 			self.editText.Visible = False
 			self.editText.Position = (-50, -50)
-			
-		
-	def onEndLblEdit(self, evt):			
+
+
+	def onEndLblEdit(self, evt):
 		tx = self.editText.Value
 		if self.UseColons:
 			tx = "%s:" % tx.rstrip(":")
@@ -559,7 +559,7 @@ class PgSample(WizardPage):
 		self.editText.Visible = False
 		self.editText.Position = (-50, -50)
 
-	
+
 	def makeGrid(self):
 		frm = self.Wizard
 		flds = frm.flds
@@ -570,11 +570,11 @@ class PgSample(WizardPage):
 			cs = self.controlSizer = dabo.ui.dSizer("v")
 		# Go through the list, and add the items to the grid as columns
 		self.grid = grd = dabo.ui.dGrid(sp)
-		
+
 		class sampleCol(dabo.ui.dColumn):
 			def afterInit(self):
 				self.Width=40
-		
+
 		dummyRec = {}
 		for fld in flds:
 			c = sampleCol(grd)
@@ -590,7 +590,7 @@ class PgSample(WizardPage):
 			else:
 				dummyRec[fld] = _("dummy")
 				c.DataType = str
-				
+
 			grd.addColumn(c)
 		# Make some dummy data
 		ds = []
@@ -600,29 +600,29 @@ class PgSample(WizardPage):
 		grd.fillGrid(True)
 		grd.RowHeight = 18
 		grd.processSort = self.gridProcessSort
-		grd.bindEvent(dEvents.GridHeaderMouseLeftDoubleClick, 
+		grd.bindEvent(dEvents.GridHeaderMouseLeftDoubleClick,
 				self.onHeaderDClick)
-		
+
 		cs.append1x(grd)
 		sp.Sizer.append1x(cs, border=20, borderSides="all")
 		self.layout()
-	
-	
+
+
 	def onHeaderDClick(self, evt):
 		xPos = evt.mousePosition[0]
 		grid = evt.EventObject
-		col = grid.Columns[grid.getColNumByX(xPos)]		
+		col = grid.Columns[grid.getColNumByX(xPos)]
 		oldcap = col.Caption
-		newcap = dabo.ui.getString(message=_("Enter a new caption:"), 
+		newcap = dabo.ui.getString(message=_("Enter a new caption:"),
 				caption=_("New Caption"), defaultValue=oldcap)
 		if newcap is not None and newcap != oldcap:
 			col.Caption = newcap
-		
-	
+
+
 	def gridProcessSort(self, col):
 		# Dummy method; we don't want anything to happen
 		pass
-		
+
 
 	def onLeavePage(self, dir):
 		if dir == "forward":
@@ -637,11 +637,11 @@ class PgSample(WizardPage):
 			else:
 				self.Wizard.controlInfo = self.controls
 		return True
-		
-	
+
+
 	def _getBetweenSpacing(self):
 		return self._betweenSpacing
-	
+
 	def _setBetweenSpacing(self, val):
 		self._betweenSpacing = val
 		cs = self.controlSizer
@@ -652,8 +652,8 @@ class PgSample(WizardPage):
 				if not isinstance(itm, dabo.ui.dLabel):
 					cs.setItemProp(itm, "border", val)
 		cs.layout()
-	
-	
+
+
 	def _getColumnSpacing(self):
 		return self._columnSpacing
 
@@ -677,7 +677,7 @@ class PgSample(WizardPage):
 
 	def _getOutsideBorder(self):
 		return self._outsideBorder
-	
+
 	def _setOutsideBorder(self, val):
 		self._outsideBorder = val
 		sps = self.samplePanel.Sizer
@@ -688,7 +688,7 @@ class PgSample(WizardPage):
 
 	def _getUseColons(self):
 		return self._useColons
-	
+
 	def _setUseColons(self, val):
 		self._useColons = val
 		for lbl in self._labels:
@@ -699,8 +699,8 @@ class PgSample(WizardPage):
 				cap = cap.rstrip(":")
 			lbl.Caption = cap
 		self.samplePanel.layout()
-	
-	
+
+
 	BetweenSpacing = property(_getBetweenSpacing, _setBetweenSpacing, None,
 			_("Spacing added between elements in pixels  (int)"))
 
@@ -709,13 +709,13 @@ class PgSample(WizardPage):
 
 	LabelAlignment = property(_getLabelAlignment, _setLabelAlignment, None,
 			_("Alignment of the labels  (enum: left, center, right)"))
-	
+
 	OutsideBorder = property(_getOutsideBorder, _setOutsideBorder, None,
 			_("Size of the surrounding border in pixels  (int)"))
-	
+
 	UseColons = property(_getUseColons, _setUseColons, None,
 			_("Do we append colons to the field labels?  (bool)"))
-	
+
 
 
 class PgBiz(WizardPage):
@@ -723,9 +723,9 @@ class PgBiz(WizardPage):
 		self.Caption = _("Bizobj Code")
 		lbl = dabo.ui.dLabel(self, Alignment="Center")
 		lbl.Caption = """
-You can optionally have the Wizard add code 
-to create a business object for your selected 
-table. The code is fairly basic, allowing you 
+You can optionally have the Wizard add code
+to create a business object for your selected
+table. The code is fairly basic, allowing you
 to customize it as needed.""".strip()
 		self.Sizer.append(lbl)
 		rad = dabo.ui.dRadioList(self, Caption="", ValueMode="Key",
@@ -768,8 +768,8 @@ class QuickLayoutWizard(Wizard):
 			return False
 		self.append(pgs)
 		super(QuickLayoutWizard, self).start()
-		
-	
+
+
 	def makeConnection(self, showAlert=True):
 		if self.ConnectionFile:
 			self.Application.addConnectFile(self.ConnectionFile)
@@ -782,7 +782,7 @@ class QuickLayoutWizard(Wizard):
 			self.ConnectionFile = self.Application.dbConnectionNameToFiles[self.ConnectionName]
 		except StandardError, e:
 			if showAlert:
-				dabo.ui.stop(_("Could not make connection to '%s'") % 
+				dabo.ui.stop(_("Could not make connection to '%s'") %
 						self.ConnectionName)
 			return False
 		tbls = crs.getTables()
@@ -802,7 +802,7 @@ class QuickLayoutWizard(Wizard):
 		if callable(self.callback):
 			# Get the wizard info into a usable form.
 			ret = {}
-			
+
 			de = self._dataEnv[self.tbl]
 			pkFlds = [fld for fld in de.keys()
 					if de[fld]["pk"] ]
@@ -830,12 +830,12 @@ class QuickLayoutWizard(Wizard):
 			self.callback(ret)
 			self.hide()
 		return False
-	
-	
+
+
 	def setConnectionName(self, nm):
 		self.ConnectionName = nm
 
-	
+
 	def _getConnectionFile(self):
 		return self._connectionFile
 
@@ -852,17 +852,17 @@ class QuickLayoutWizard(Wizard):
 
 	def _getDE(self):
 		return self._dataEnv
-		
+
 	def _setDE(self, deDict):
 		self._dataEnv = deDict
-		
+
 
 	ConnectionFile = property(_getConnectionFile, _setConnectionFile, None,
 			_("Path to the connection file used to access the database  (str)"))
-	
+
 	ConnectionName = property(_getConnectionName, _setConnectionName, None,
 			_("Name of the connection used to access the database  (str)"))
-	
+
 	DE = property(_getDE, _setDE, None,
 			_("Reference to the data env dictionary   (dict)") )
 

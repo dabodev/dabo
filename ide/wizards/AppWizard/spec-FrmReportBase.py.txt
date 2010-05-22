@@ -8,7 +8,7 @@ class FrmReportBase(dabo.ui.dDialog):
 
 	def initProperties(self):
 		self.super()
-		## Do this import here: in case prerequisites aren't installed, the app 
+		## Do this import here: in case prerequisites aren't installed, the app
 		## will still start.
 		from dabo.dReportWriter import dReportWriter
 
@@ -24,7 +24,7 @@ class FrmReportBase(dabo.ui.dDialog):
 
 
 	def addControls(self):
-		preview = self.addObject(dabo.ui.dButton, Caption="Run Report", 
+		preview = self.addObject(dabo.ui.dButton, Caption="Run Report",
 		                         RegID="cmdRunReport")
 		hs = dabo.ui.dSizer("h")
 		hs.append(preview, alignment="right", border=self.SizerBorder)

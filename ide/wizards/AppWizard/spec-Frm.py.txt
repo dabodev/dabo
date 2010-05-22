@@ -23,7 +23,7 @@ class Frm%(tableName)s(FrmBase):
 
 	def afterInit(self):
 		if not self.Testing:
-			# Instantiate the bizobj and register it with dForm, and then let the 
+			# Instantiate the bizobj and register it with dForm, and then let the
 			# superclass take over.
 			app = self.Application
 			biz%(tableName)s = app.biz.%(tableName)s(app.dbConnection)

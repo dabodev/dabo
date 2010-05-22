@@ -43,7 +43,7 @@ class PemForm(dabo.ui.dForm):
 		txt = dabo.ui.dTextBox(pnl, ReadOnly=True, RegID="txtObj")
 		hsz = dabo.ui.dSizer("h")
 		hsz.append1x(txt)
-		self.treeBtn = dabo.ui.dToggleButton(pnl, Height=txt.Height, 
+		self.treeBtn = dabo.ui.dToggleButton(pnl, Height=txt.Height,
 				Width=txt.Height, Caption="", Picture="downTriangleBlack",
 				DownPicture="upTriangleBlack")
 		self.treeBtn.bindEvent(dEvents.Hit, self.onToggleTree)
@@ -55,7 +55,7 @@ class PemForm(dabo.ui.dForm):
 		sz.DefaultBorder = brdr
 		sz.append(hsz, "x")
 		sz.appendSpacer(5)
-		
+
 		self.mainPager = mp = dabo.ui.dPageFrameNoTabs(pnl, PageClass=dabo.ui.dPanel)
 		mp.PageCount=2
 		mp.bindEvent(dEvents.PageChanged, self.onMainPageChanged)
@@ -85,43 +85,43 @@ class PemForm(dabo.ui.dForm):
 		self.propPage.Sizer = dabo.ui.dSizer("v")
 		self.propPage.Sizer.appendSpacer(self.propPage.CaptionHeight)
 		self.propPage.Sizer.append1x(ps)
-		
+
 		# Create the MethodSheet
 		ms = MethodSheet(self.methodPage, RegID="_methodSheet")
 		self.methodPage.Sizer = dabo.ui.dSizer("v")
 		self.methodPage.Sizer.appendSpacer(self.methodPage.CaptionHeight)
 		self.methodPage.Sizer.append1x(ms)
 		self._methodList = ms.MethodList
-		
+
 		# Create the tree
 		self._tree = TreeSheet(tp)
 		tp.Sizer.append1x(self._tree, border=10)
-		
+
 		# Create the Object Properties sheet
 		ops = ObjectPropertySheet(self.objPropPage, RegID="_objPropSheet")
 		self.objPropPage.Sizer = dabo.ui.dSizer("v")
 		self.objPropPage.Sizer.appendSpacer(self.methodPage.CaptionHeight)
 		self.objPropPage.Sizer.append1x(ops)
-		
+
 		mp.SelectedPage = pp
-		
+
 		ps.Controller = ms.Controller = self._tree.Controller = ops.Controller = self.Controller
 		self.layout()
 		dabo.ui.callAfter(self.mainContainer.expand, self.propPage)
 
-	
+
 	def onToggleTree(self, evt):
 		self.mainPager.nextPage()
-		
-	
+
+
 	def onMainPageChanged(self, evt):
 		self.treeBtn.Value = self.mainPager.SelectedPage is self.treePage
-	
+
 
 	def hideTree(self):
 		self.mainPager.SelectedPage = self.pemPage
-		
-		
+
+
 	def onPanelChange(self, evt):
 		if evt.panel is self.propPage:
 			try:
@@ -138,26 +138,26 @@ class PemForm(dabo.ui.dForm):
 		except:
 			# 'mainContainer' might not be defined yet, so ignore
 			pass
-			
-		
+
+
 	def showPropPage(self):
 		self.mainPager.SelectedPage = self.pemPage
 		self.refresh()
 		self.propPage.Expanded = True
 		self.bringToFront()
 
-		
+
 	def showTreePage(self):
 		self.mainPager.SelectedPage = self.treePage
 		self.bringToFront()
 
-		
+
 	def showMethodsPage(self):
 		self.mainPager.SelectedPage = self.pemPage
 		self.methodPage.Expanded = True
 		self.bringToFront()
-	
-	
+
+
 	def select(self, obj):
 		"""Called when the selected object changes. 'obj' will
 		be a list containing either a single object or multiple
@@ -189,7 +189,7 @@ class PemForm(dabo.ui.dForm):
 				lbl = _(" -multiple- ")
 			else:
 				if isSlot or isSizer:
-					ornt = sz.Orientation[0].lower() 
+					ornt = sz.Orientation[0].lower()
 					if ornt == "h":
 						lbl = _("Horizontal")
 					elif ornt == "v":
@@ -248,13 +248,13 @@ class PemForm(dabo.ui.dForm):
 			for evt in codeEvents:
 				newItem = self.MethodList.append(evt)
 				self.MethodList.setItemBackColor(newItem, "lightblue")
-				
+
 			for evt in nonCodeEvents:
 				newItem = self.MethodList.append(evt)
 				self.MethodList.setItemBackColor(newItem, "lightgrey")
 		self.refresh()
 		self.layout()
-		
+
 
 	def _getController(self):
 		try:
@@ -309,16 +309,16 @@ class PemForm(dabo.ui.dForm):
 			_("Object to which this one reports events  (object (varies))"))
 
 	MethodList = property(_getMethodList, _setMethodList, None,
-			_("""List control containing all available methods for the 
+			_("""List control containing all available methods for the
 			selected object  (dListControl)"""))
-	
+
 	MethodSheet = property(_getMethodSheet, _setMethodSheet, None,
 			_("Reference to the panel containing the MethodList  (MethodSheet)"))
-	
-	ObjectPropertySheet = property(_getObjectPropertySheet, 
-			_setObjectPropertySheet, None, _("""Reference to the panel 
+
+	ObjectPropertySheet = property(_getObjectPropertySheet,
+			_setObjectPropertySheet, None, _("""Reference to the panel
 			containing the ObjectPropertySheet  (ObjectPropertySheet)"""))
-	
+
 	Tree = property(_getTree, _setTree, None,
 			_("Reference to the contained object tree  (TreeSheet)"))
 

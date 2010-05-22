@@ -13,11 +13,11 @@ class MethodSheet(dabo.ui.dPanel):
 		sz = self.Sizer = dabo.ui.dSizer("v")
 		sz.append1x(self._methodList)
 		self._methodList.addColumn(_("Event/Method"))
-	
+
 
 	def onList(self, evt):
-		self.Application.editCode(self._methodList.StringValue)		
-		
+		self.Application.editCode(self._methodList.StringValue)
+
 
 	def _getMethodList(self):
 		return self._methodList

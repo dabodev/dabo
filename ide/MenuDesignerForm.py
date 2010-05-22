@@ -27,7 +27,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 		self.mainPanel = dabo.ui.dPanel(self)
 		self.Sizer.append1x(self.mainPanel)
 		sz = self.mainPanel.Sizer = dabo.ui.dSizer("v")
-		self.previewButton = btn = dabo.ui.dButton(self.mainPanel, 
+		self.previewButton = btn = dabo.ui.dButton(self.mainPanel,
 				Caption="Preview", OnHit=self.onPreview)
 		sz.append(btn, border=10, halign="center")
 		sz.append(dabo.ui.dLine(self.mainPanel), "x", border=10)
@@ -36,8 +36,8 @@ class MenuDesignerForm(dabo.ui.dForm):
 		self.menubar.Controller = self
 		self.clear()
 		self.layout()
-	
-	
+
+
 	def onPreview(self, evt):
 		class PreviewWindow(dabo.ui.dForm):
 			def initProperties(self):
@@ -66,23 +66,23 @@ class MenuDesignerForm(dabo.ui.dForm):
 					cap = "%sFunction: %s" % (cap, fncText)
 				self.lblResult.Caption = cap
 				self.layout()
-				
+
 		propDict = self.menubar.getDesignerDict()
 		xml = xtd.dicttoxml(propDict)
 		win = PreviewWindow(self, Centered=True)
 		mb = dabo.ui.createMenuBar(xml, win, win.notify)
 		win.MenuBar = mb
 		win.show()
-		
-		
+
+
 	def afterInitAll(self):
 		self.PropSheet.Controller = self
 		self.PropForm.show()
 		self.Selection = None
 		#dabo.ui.callAfterInterval(300, self.initialLayout)
 		self.initialLayout()
-	
-	
+
+
 	def initialLayout(self):
 #		print "INITLAY"
 		self.menubar.clear()
@@ -99,15 +99,15 @@ class MenuDesignerForm(dabo.ui.dForm):
 # 		except IndexError:
 # 			# No such menu
 # 			pass
-		
-	
+
+
 	def afterSetMenuBar(self):
 		mbar = self.MenuBar
 		fm = mbar.getMenu(_("File"))
 		fm.append(_("Save"), HotKey="Ctrl+S", OnHit=self.onSave,
 				help=_("Save the menu"))
-	
-	
+
+
 	def getObjectHierarchy(self, parent=None, level=0):
 		"""Returns a list of 2-tuples representing the structure of
 		the objects on this form. The first element is the nesting level,
@@ -120,20 +120,20 @@ class MenuDesignerForm(dabo.ui.dForm):
 		for kid in parent.Children:
 			ret += self.getObjectHierarchy(kid, level+1)
 		return ret
-	
-	
+
+
 	def updateLayout(self):
 		try:
 			self.PropForm.updateLayout()
 		except AttributeError:
 			# Prop form not yet created
 			pass
-		
-	
+
+
 	def onSave(self, evt):
 		self.saveMenu()
-	
-	
+
+
 	def saveMenu(self):
 		if not self._menuFile:
 			self._menuFile = dabo.ui.getSaveAs(wildcard="mnxml")
@@ -143,7 +143,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 			else:
 				if not os.path.splitext(self._menuFile)[1] == ".mnxml":
 					self._menuFile += ".mnxml"
-		
+
 		propDict = self.menubar.getDesignerDict()
 		xml = xtd.dicttoxml(propDict)
 		open(self._menuFile, "wb").write(xml)
@@ -160,8 +160,8 @@ class MenuDesignerForm(dabo.ui.dForm):
 			raise IOError(_("This does not appear to be a valid menu file."))
 		self.menubar.restore(dct)
 		self.layout()
-		
-	
+
+
 	def updatePropVal(self, prop, val, typ):
 		obj = self.Selection
 		if obj is None:
@@ -173,7 +173,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 		else:
 			strVal = unicode(val)
 		if typ in (str, unicode) or ((typ is list) and isinstance(val, basestring)):
-			# Escape any single quotes, and then enclose 
+			# Escape any single quotes, and then enclose
 			# the value in single quotes
 			strVal = "u'" + self.escapeQt(strVal) + "'"
 		try:
@@ -188,13 +188,13 @@ class MenuDesignerForm(dabo.ui.dForm):
 		except AttributeError:
 			pass
 		self.layout()
-					
+
 
 	def onShowPanel(self, menu):
 		"""Called when code makes a menu panel visible."""
 		self.menubar.hideAllBut(menu)
-		
-		
+
+
 	def select(self, obj):
 		if obj is self._selection:
 			return
@@ -213,12 +213,12 @@ class MenuDesignerForm(dabo.ui.dForm):
 
 
 	def treeSelect(self):
-		"""Called by the tree when a new selection has been made 
+		"""Called by the tree when a new selection has been made
 		by the user.
 		"""
 		dabo.ui.callAfter(self.afterTreeSelect)
-		
-		
+
+
 	def afterTreeSelect(self):
 		self.PropForm.Tree._inAppSelection = True
 		try:
@@ -228,8 +228,8 @@ class MenuDesignerForm(dabo.ui.dForm):
 			return
 		self.select(selObj)
 		self.PropForm.Tree._inAppSelection = False
-		
-	
+
+
 	def ensureVisible(self, obj):
 		"""When selecting a menu item, make sure that its menu is open."""
 		if isinstance(obj, (list, tuple)):
@@ -238,8 +238,8 @@ class MenuDesignerForm(dabo.ui.dForm):
 			obj.Controller.PanelVisible = True
 		elif isinstance(obj, MenuPanel):
 			obj.PanelVisible = True
-			
-	
+
+
 	def escapeQt(self, s):
 		sl = "\\"
 		qt = "\'"
@@ -267,8 +267,8 @@ class MenuDesignerForm(dabo.ui.dForm):
 		if self._propSheet is None:
 			self._propSheet = self.PropForm.PropSheet
 		return self._propSheet
-		
-		
+
+
 	def _getSelection(self):
 		return self._selection
 
@@ -279,10 +279,10 @@ class MenuDesignerForm(dabo.ui.dForm):
 	PropForm = property(_getPropForm, None, None,
 			_("""Reference to the form that contains the PropSheet
 			object (MenuPropForm)"""))
-	
-	PropSheet = property(_getPropSheet, None, None, 
+
+	PropSheet = property(_getPropSheet, None, None,
 			_("Reference to the Property Sheet (PropSheet)") )
-	
+
 	Selection = property(_getSelection, _setSelection, None,
 			_("Currently selected item  (CaptionPanel)"))
-	
+

@@ -28,7 +28,7 @@ class MenuPanel(CaptionPanel):
 				self._controller = None
 				super(_ItemPanel, self).__init__(*args, **kwargs)
 				self.DynamicWidth = self._calcWidth
-			
+
 			def _calcWidth(self):
 				kids = self.Children
 				if not kids:
@@ -37,7 +37,7 @@ class MenuPanel(CaptionPanel):
 					wd = max([kid.Width for kid in kids])
 					dabo.ui.callAfter(self._resizeItems, wd)
 					return wd
-			
+
 			def _resizeItems(self, wd):
 				if not self:
 					return
@@ -47,55 +47,55 @@ class MenuPanel(CaptionPanel):
 				self.refresh()
 
 			def processContextMenu(self, obj, evt):
-				self.Controller.processContextMenu(obj, evt)					
-			
+				self.Controller.processContextMenu(obj, evt)
+
 			def _getController(self):
 				return self._controller
-		
+
 			def _setController(self, val):
 				self._controller = val
-		
+
 			Controller = property(_getController, _setController, None,
 					_("Object to which this panel is associated  (MenuPanel)"))
-			
+
 
 		# Add the panel that will hold the menu items. It needs to
-		# be a child of the menu bar's parent, which would be this 
+		# be a child of the menu bar's parent, which would be this
 		# control's grandparent.
 		gp = self.Parent.Parent
 		localPos = (self.Left, self.Bottom)
 		formPos = self.Parent.formCoordinates(localPos)
 		self.itemList = lst = _ItemPanel(gp, Controller=self, Position=formPos,
 				Visible=True)
-		
+
 		sz = lst.Sizer = dabo.ui.dSizer("V")
 		sz.DefaultBorder = 1
 		sz.DefaultBorderTop = True
-		
+
 		# Dict to hold additional item information
 		self.itemDict = {}
 		# Holds the active object during context menu actions
 		self._contextObj = None
-		
-	
+
+
 	def __del__(self):
 		try:
 			self.itemList.release()
 		except: pass
-		
-		
+
+
 # 	def layout(self):
 # 		dabo.ui.callAfterInterval(100, self.itemList.layout, resetMin=True)
 #  		dabo.ui.callAfterInterval(100, self.itemList.fitToSizer)
 
 
-	def append(self, caption, key=None, picture=None, help=None, 
+	def append(self, caption, key=None, picture=None, help=None,
 			separator=False):
-		return self.insert(None, caption, key=None, picture=picture, 
+		return self.insert(None, caption, key=None, picture=picture,
 				help=help, separator=separator)
-	
-	
-	def insert(self, pos, caption, key=None, picture=None, help=None, 
+
+
+	def insert(self, pos, caption, key=None, picture=None, help=None,
 			separator=False):
 		if pos is None:
 			# Called from append
@@ -112,29 +112,29 @@ class MenuPanel(CaptionPanel):
 			self.itemDict[itm] = {"caption": caption, "key": key, "picture": picture}
 			if picture:
 				itm.Picture = picture
-		
+
 		itm.Visible = True
 		self.itemList.Height += itm.Height
 		self.itemList.Sizer.insert(pos, itm, "x")
 		self.layout()
 		self.Controller.updateLayout()
 		return itm
-		
-	
+
+
 	def appendSeparator(self):
 		ret = self.append("", separator=True)
 		self.layout()
 		self.Controller.updateLayout()
 		return ret
-	
+
 
 	def insertSeparator(self, pos):
 		ret = self.insert(pos, "", separator=True)
 		self.layout()
 		self.Controller.updateLayout()
 		return ret
-		
-	
+
+
 	def processContextMenu(self, obj, evt):
 		self._contextObj = obj
 		pop = dabo.ui.dMenu()
@@ -162,13 +162,13 @@ class MenuPanel(CaptionPanel):
 		txt.bindEvent(dEvents.KeyChar, self.onTextCapChar)
 		obj.hide()
 		txt.setFocus()
-		
-		
+
+
 	def onTextCapChar(self, evt):
 		if evt.keyCode == 13:
 			self.onEndEdit(evt)
-			
-	
+
+
 	def onEndEdit(self, evt):
 		cap = self.capText.Value
 		self.capText.release()
@@ -178,18 +178,18 @@ class MenuPanel(CaptionPanel):
 		self._contextObj = None
 		self.layout()
 		self.Controller.updateLayout()
-		
-		
+
+
 	def onAddAbove(self, evt):
 		pos = self._contextObj.getPositionInSizer()
 		return self.addFromContextMenu(pos, evt)
-	
-	
+
+
 	def onAddBelow(self, evt):
 		pos = self._contextObj.getPositionInSizer() + 1
 		return self.addFromContextMenu(pos, evt)
-		
-		
+
+
 	def addFromContextMenu(self, pos, evt):
 		obj = self._contextObj
 		self._contextObj = None
@@ -198,7 +198,7 @@ class MenuPanel(CaptionPanel):
 		else:
 			return self.addItem(pos)
 
-	
+
 	def addItem(self, pos):
 		itm = None
 		cap = dabo.ui.getString("Caption for new menu item?")
@@ -206,8 +206,8 @@ class MenuPanel(CaptionPanel):
 			itm = self.insert(pos, cap)
 			self.Controller.select(itm)
 		return itm
-		
-	
+
+
 	def onMoveDown(self, evt):
 		obj = self._contextObj
 		pos = obj.getPositionInSizer()
@@ -216,8 +216,8 @@ class MenuPanel(CaptionPanel):
 		sz.insert(pos+1, obj, "x")
 		sz.layout()
 		self.Controller.updateLayout()
-	
-	
+
+
 	def onMoveUp(self, evt):
 		obj = self._contextObj
 		pos = obj.getPositionInSizer()
@@ -226,8 +226,8 @@ class MenuPanel(CaptionPanel):
 		sz.insert(pos-1, obj, "x")
 		sz.layout()
 		self.Controller.updateLayout()
-	
-	
+
+
 	def onDelete(self, evt):
 		obj = self._contextObj
 		if not obj:
@@ -240,8 +240,8 @@ class MenuPanel(CaptionPanel):
 
 	def onMouseLeftClick(self, evt):
 		self.Parent.menuClick(self)
-	
-	
+
+
 	def _getChildren(self):
 		try:
 			return self.itemList.Children
@@ -270,7 +270,7 @@ class MenuPanel(CaptionPanel):
 # 			else:
 # 				obj = getattr(self, xx)
 # 				print xx, obj.Visible
-		
+
 		self.itemList.update()
 		self.itemList.Parent.clear()
 		self.layout()
@@ -279,7 +279,7 @@ class MenuPanel(CaptionPanel):
 
 	Children = property(_getChildren, None, None,
 			_("Returns a list of menu items for this menu (read-only) (list)"))
-	
+
 	PanelVisible = property(_getPanelVisible, _setPanelVisible, None,
 			_("Determines if the menu is currently 'open'  (bool)"))
 

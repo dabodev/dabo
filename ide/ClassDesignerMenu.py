@@ -22,7 +22,7 @@ def mkDesignerMenu(parent, target=None):
 		fm = mb.getMenu("base_file")
 		em = mb.getMenu("base_edit")
 		vm = mb.getMenu("base_view")
-		
+
 		app.barShowPropSheet = vm.append(_("Hide Object Info Form"),
 				OnHit=app.onTogglePropSheet,
 				ItemID="view_objinfo",
@@ -61,8 +61,8 @@ def mkDesignerMenu(parent, target=None):
 				OnHit=app.onNextObj,
 				ItemID="view_nextobj",
 				help=_("Select the object on the next node of the object tree"))
-		
-		
+
+
 		# Add a separator and the 'Run...' item after the
 		# Open/Save items. Since we are prepending, we need
 		# to prepend them in reverse order.
@@ -118,7 +118,7 @@ def mkDesignerMenu(parent, target=None):
 				OnHit=app.onNewDesign,
 				ItemID="file_new",
 				help=_("Create a new design file"))
-					
+
 		alignMenu = dabo.ui.dMenu(Caption=_("Align"), MenuID="base_align")
 		itm = alignMenu.append(_("Align Top Edges"),
 				OnHit=app.onAlignTopEdge,
@@ -150,11 +150,11 @@ def mkDesignerMenu(parent, target=None):
 				ItemID="align_sendtoback",
 				help=_("Move control to the bottom of the visible stack"))
 		itm.DynamicEnabled = app.shouldEnableZOrdering
-		
+
 		emCnt = len(em.Children)
 		em.insertMenu(emCnt-1, alignMenu)
 # 		alignMenu.DynamicEnabled = app.shouldEnableAlignMenu
-		
+
 		try:
 			isMain = parent._isMain
 		except:

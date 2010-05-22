@@ -20,7 +20,7 @@ dui = dabo.ui
 
 class ClassDesignerControlMixin(LayoutSaverMixin):
 	"""	The purpose of this mixin class is to add the features to the native
-	controls so that they will work in the dabo form design surface. 
+	controls so that they will work in the dabo form design surface.
 	"""
 	def __init__(self, parent, *args, **kwargs):
 		# Smallest dimension a control can be sized
@@ -49,23 +49,23 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		self._startX = self._startY = self._startWd = self._startHt = 0
 		# Reference for dragging interactively
 		self._startDragPos = (0,0)
-		
-		# Turned this off in Win; it was making controls disappear 
+
+		# Turned this off in Win; it was making controls disappear
 		# on that platform only.
 		### NOTE: seems to not flicker as much with this commented out (at least on Mac).
 		#self.autoClearDrawings = (self.Application.Platform != "Win")
-		
+
 		# Store the defaults for the various props
 		self._propDefaults = {}
 		for prop in self.DesignerProps.keys():
 			self._propDefaults[prop] = eval("self.%s" % prop)
 		# Update bindings; do control-specific things.
 		if isinstance(self, dui.dGrid):
-			coolEvents = (dEvents.GridHeaderPaint, 
+			coolEvents = (dEvents.GridHeaderPaint,
 					dEvents.GridRowSize,
 					dEvents.GridColSize,
 					dEvents.GridHeaderMouseLeftDown,
-					dEvents.GridHeaderMouseMove, 
+					dEvents.GridHeaderMouseMove,
 					dEvents.GridHeaderMouseLeftUp)
 			badEvents = []
 			for bnd in self._eventBindings:
@@ -92,7 +92,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			# This removes all previously-defined bindings
 			self.unbindEvent(None)
 		self.noUpdateForm = False
-		
+
 		# Set up some defaults
 		if isinstance(self, dui.dButton):
 			self.defaultWd = 100
@@ -110,13 +110,13 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			self.setRootNode("Tree")
 			# Bind the selected node to the current selection
 			self.bindEvent(dEvents.TreeSelection, self.desSelectNode)
-		elif isinstance(self, (dui.dPageFrame, dui.dPageList, 
+		elif isinstance(self, (dui.dPageFrame, dui.dPageList,
 				dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs)):
 			self.defaultWd = 400
 			self.defaultHt = 300
 			# Bind the active page to the current selection
 			self.bindEvent(dEvents.PageChanged, self.desSelectPage)
-		elif isinstance(self, dui.dSlidePanel): 
+		elif isinstance(self, dui.dSlidePanel):
 			self.bindEvent(dEvents.SlidePanelChange, self.desSlidePanelChg)
 		elif isinstance(self, (dui.dPanel, dui.dImage, dui.dBitmap,
 				dui.dBitmapButton, dui.dToggleButton)):
@@ -125,15 +125,15 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		else:
 			self.defaultWd = self.defaultHt = 100
 
-		# This seems to happen after the main autobinding, so 
+		# This seems to happen after the main autobinding, so
 		# it is necessary to call this manually.
 # 		self.autoBindEvents()
 		# Need to set the properties here to get the drawing updated.
 		self.HiliteBorderColor = "gold"
 		self.HiliteBorderLineStyle = "dot"
 		self.HiliteBorderWidth = 0
-		
-		# If we are on a sizer-less design, create the handles for the 
+
+		# If we are on a sizer-less design, create the handles for the
 		# control ahead of time.
 		if not self.UsingSizers:
 			self.Form.createControlHandles(self)
@@ -181,15 +181,15 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		if makeActive:
 			self.SelectedPage = pg
 		return pg
-		
-	
+
+
 	def makeSizer(self):
 		if isinstance(self, dlgs.WizardPage):
 			self.Sizer = LayoutSizer("v", DefaultSpacing=5, DefaultBorder=12,
 					DefaultBorderLeft=True, DefaultBorderRight=True)
 		else:
 			return super(ClassDesignerControlMixin, self).makeSizer()
-			
+
 
 	def bringToFront(self):
 		super(ClassDesignerControlMixin, self).bringToFront()
@@ -200,8 +200,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		kids.remove(self)
 		kids.append(self)
 		prn.zChildren = kids
-		
-		
+
+
 	def sendToBack(self):
 		super(ClassDesignerControlMixin, self).sendToBack()
 		prn = self.Parent
@@ -211,21 +211,21 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		kids.remove(self)
 		kids.insert(0, self)
 		prn.zChildren = kids
-		
-		
+
+
 	def onKeyChar(self, evt):
 		if isinstance(self, (dui.dPage, dui.dColumn)):
 			# The key will get processed by the container
 			return
 		self.Form.onKeyChar(evt)
 
-		
+
 	def _onResizeHiliteBorder(self, evt):
 		"""Called when the control is resized."""
 		brd = self._hiliteBorder
 		brd.Width, brd.Height = self.Width, self.Height
 
-		
+
 	def setMouseHandling(self, turnOn):
 		"""When turnOn is True, sets all the mouse event bindings. When
 		it is False, removes the bindings.
@@ -238,8 +238,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 	def handleMouseMove(self, evt):
 		self.Form.onMouseDrag(evt)
-		
-	
+
+
 	def onMouseLeftDown(self, evt):
 		if isinstance(self, (dPageFrameMixin, dui.dSplitter)):
 			pass
@@ -265,20 +265,20 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 	def onMouseLeftDoubleClick(self, evt):
 		self.Form.processLeftDoubleClick(evt)
-	
-	
+
+
 	def onEditContainer(self, evt):
 		self.Form.ActiveContainer = self
-		
+
 
 	def onMouseRightClick(self, evt):
 		if isinstance(self, dui.dTreeView):
 			evt.stop()
 			self.onContextMenu(evt)
-			
-			
+
+
 	def onContextMenu(self, evt):
-		# If it is a LayoutPanel or page, return - the event 
+		# If it is a LayoutPanel or page, return - the event
 		# is handled elsewhere
 		evt.stop()
 		if self.UsingSizers and isinstance(self, (dui.dPage, LayoutPanel)):
@@ -305,7 +305,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			pop.prependSeparator()
 		if not self.UsingSizers and self.IsContainer \
 				and not self is self.Form.ActiveContainer:
-			pop.prepend(_("Edit Contents"), OnHit=self.onEditContainer)			
+			pop.prepend(_("Edit Contents"), OnHit=self.onEditContainer)
 		if len(pop.Children):
 			pop.prependSeparator()
 		pop.prepend(_("Edit Code"), OnHit=self.onEditCode)
@@ -323,7 +323,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			sepAdded =True
 			pop.prepend(_("Delete the entire Paged Control"), self.Parent.onDelete)
 			pop.prepend(_("Delete this Page"), OnHit=self.onDelete)
-			
+
 		if isinstance(self, dui.dTreeView):
 			self.activeNode = self.Selection
 			if isinstance(self.activeNode, (list, tuple)):
@@ -332,14 +332,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			if not self.activeNode.IsRootNode:
 				pop.append(_("Add Sibling Node"), OnHit=self.onAddSibling)
 			if not self.Editable:
-				pop.append(_("Change Node Caption"), 
+				pop.append(_("Change Node Caption"),
 						OnHit=self.onChangeCaption)
 			if not self.activeNode.IsRootNode:
 				pop.append(_("Delete this node"), OnHit=self.onDelNode)
 		elif isinstance(self, (dui.dLabel, dui.dButton, dui.dCheckBox,
-				dui.dBitmapButton, dui.dToggleButton, dui.dPage, 
+				dui.dBitmapButton, dui.dToggleButton, dui.dPage,
 				dui.dColumn, dlgs.WizardPage)):
-			pop.append(_("Change Caption"), 
+			pop.append(_("Change Caption"),
 					OnHit=self.onChangeCaption)
 		if self.UsingSizers:
 			if self.Controller.addSlotOptions(self, pop, sepBefore=True):
@@ -347,7 +347,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				pop.appendSeparator()
 				pop.append(_("Edit Sizer Settings"), OnHit=self.onEditSizer)
 		return pop
-		
+
 
 	def getClass(self):
 		"""Returns a string representing the class's name. Default behavior
@@ -359,8 +359,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		else:
 			ret = super(ClassDesignerControlMixin, self).getClass()
 		return ret
-		
-		
+
+
  	def onAddChild(self, evt):
  		nd = self.activeNode
  		self.activeNode = None
@@ -368,8 +368,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
  		if txt is not None:
  			nd.appendChild(txt)
  		self.Controller.updateLayout()
- 
- 	
+
+
  	def onAddSibling(self, evt):
  		nd = self.activeNode
  		self.activeNode = None
@@ -377,15 +377,15 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
  		if txt is not None:
  			nd.parent.appendChild(txt)
  		self.Controller.updateLayout()
- 
- 
+
+
  	def onDelNode(self, evt):
  		nd = self.activeNode
  		self.activeNode = None
  		self.removeNode(nd)
  		self.Controller.updateLayout()
- 
- 
+
+
  	def onChangeCaption(self, evt):
  		if isinstance(self, dui.dTreeView):
 			nd = self.activeNode
@@ -397,7 +397,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			target = self
 			title = _("Changing Caption")
 			defVal = self.Caption
-		txt = dui.getString(_("New Caption"), caption=title, 
+		txt = dui.getString(_("New Caption"), caption=title,
 				defaultValue=defVal, Width=500, SelectOnEntry=True)
 		if txt is not None:
 			target.Caption = txt
@@ -406,33 +406,33 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 	def onPaste(self, evt):
 		self.Controller.pasteObject(self)
-		
+
 
 	def onEditSizer(self, evt):
 		"""Called when the user selects the context menu option
 		to edit this control's sizer information.
 		"""
 		self.Controller.editSizerSettings(self)
-		
-		
+
+
 	def onCut(self, evt):
 		"""Place a copy of this control on the Controller clipboard,
 		and then delete the control
 		"""
 		self.Controller.copyObject(self)
 		self.onDelete(evt)
-		
+
 
 	def onCopy(self, evt):
 		"""Place a copy of this control on the Controller clipboard"""
 		self.Controller.copyObject(self)
-		
+
 
 	def onEditCode(self, evt):
 		"""Open the editor"""
 		self.Form.editCode(self)
-	
-	
+
+
 	def onDelete(self, evt):
 		# When a page in a pageframe gets this event, pass it up
 		# to its parent.
@@ -446,12 +446,12 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			self.Form.select(self.Parent)
 			dui.callAfter(self.release)
 			dui.callAfter(self.Controller.updateLayout)
-		
+
 
 	def isSelected(self):
 		return self.Parent.isSelected(self)
-		
-	
+
+
 	def desSelectPage(self, evt):
 		"""Called when a page is selected"""
 		if not self.UsingSizers: return
@@ -462,8 +462,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				return
 		except: pass
 		self.Form.selectControl(self.SelectedPage, False)
-	
-	
+
+
 	def desSelectNode(self, evt):
 		"""Called when a node in a tree is selected"""
 		self.Form.selectControl(self.Selection, False)
@@ -478,19 +478,19 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		screen updating stuff.
 		"""
 		self.Position = pos
-	######		
+	######
 		if not self.noUpdateForm:
 			self.Form.redrawHandles(self)
-	
-	
+
+
 	def resizeControl(self, sz):
 		""" Wraps the SetSize command with the necessary
 		screen updating stuff.
 		"""
 		self.Size = sz
 		self.Form.redrawHandles(self)
-	
-	
+
+
 	def nudgeControl(self, horiz, vert):
 		""" Used to move the control relative to its current position.
 		Each direction is the number of pixels to move in that direction,
@@ -500,34 +500,34 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		lfNew = lf + horiz
 		topNew = top + vert
 		self.moveControl( (lfNew, topNew) )
-		
-		
+
+
 	def growControl(self, horiz, vert):
 		""" Used to resize the control relative to its current size.
-		Each direction is the number of pixels to change the 
+		Each direction is the number of pixels to change the
 		size in that direction
 		"""
 		wd, ht = self.Size
 		wdNew = max(wd + horiz, self.minDimension)
 		htNew = max(ht + vert, self.minDimension)
 		self.resizeControl( (wdNew, htNew) )
-		
-		
+
+
 	def startResize(self, evt, up, right, down, left):
-		""" Determine the offset of the mouse, depending on the 
+		""" Determine the offset of the mouse, depending on the
 		handle selected.
 		"""
 		self._startX, self._startY = self.lastPos = self.Position
 		self._startWd, self._startHt = self.lastSize = self.Size
-		
-	
+
+
 	def resize(self, evt, up, right, down, left):
 		self.noUpdateForm = True
 		self.stopResize(evt, up, right, down, left)
 		self.noUpdateForm = False
 		return
-	
-		
+
+
 	def stopResize(self, evt, up, right, down, left):
 		mouseX, mouseY = evt.mousePosition
 		obj = evt.EventObject
@@ -551,14 +551,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		origY = self._startY
 		origRt = self._startX + self._startWd
 		origBot = self._startY + self._startHt
-		
+
 		yBot = y+ht
 		xRt = x+wd
 		newX = x
 		newY = y
 		newWd = wd
 		newHt = ht
-		
+
 		# Check boundary conditions
 		if up:
 			if mouseY > origBot:
@@ -595,11 +595,11 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			else:
 				newX = x
 				newWd = max(mouseX - newX, self.minDimension)
-		
+
 		self.Left = newX
 		self.Top = newY
 		self.Size = (newWd, newHt)
-		
+
 		# Reset the last pos/size info
 		self.lastPos = (newX, newY)
 		self.lastSize = (newWd, newHt)
@@ -611,7 +611,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		"""
 		evt.stop()
 		pass
-			
+
 
 	def customUpdate(self, prop, val):
 		""" We need to check if the property being changed requires custom
@@ -620,7 +620,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		"""
 		ret = False
 		return ret
-	
+
 
 	## property defs start here  ##
 	def _getChildren(self):
@@ -655,7 +655,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 	def _getDesEvents(self):
 		return self.Controller.getClassEvents(self._baseClass)
 
-	
+
 	def _getDesProps(self):
 		useSizers = self.Controller.UseSizers
 		ret = {"Enabled": {"type": bool, "readonly": False},
@@ -667,22 +667,22 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"Transparency": {"type": int, "readonly": False},
 				"Visible": {"type": bool, "readonly": False}}
 		captionProps = {"Caption": {"type": unicode, "readonly": False}}
-		choiceProps = {"Choices": {"type": "choice", "readonly": False, 
+		choiceProps = {"Choices": {"type": "choice", "readonly": False,
 				"customEditor": "editChoice"},
-				"Keys": {"type": "choice", "readonly": False, 
+				"Keys": {"type": "choice", "readonly": False,
 					"customEditor": "editKeys"},
 				"ValueMode": {"type": list, "readonly": False,
 					"values": ["String", "Position", "Key"]}}
-		colorProps = {"BackColor": {"type": "color", "readonly": False, 
+		colorProps = {"BackColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
-				"ForeColor": {"type": "color", "readonly": False, 
+				"ForeColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"}}
-		columnProps = {"Order": {"type": int, "readonly": False}, 
+		columnProps = {"Order": {"type": int, "readonly": False},
 				 "Width": {"type": int, "readonly": False},
 				"DataField": {"type": unicode, "readonly": False},
 				"HeaderBackColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
-				"HeaderFont": {"type": "font", "readonly": False, 
+				"HeaderFont": {"type": "font", "readonly": False,
 						"customEditor": "editHeaderFont"},
 				"HeaderFontBold": {"type": bool, "readonly": False},
 				"HeaderFontFace": {"type": list, "readonly": False,
@@ -696,7 +696,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 						"values": ["Automatic", "Left", "Center", "Right"]},
 				"HeaderVerticalAlignment": {"type": list, "readonly": False,
 						"values": ["Automatic", "Top", "Middle", "Bottom"]},
-				"ListEditorChoices": {"type": "choice", "readonly": False, 
+				"ListEditorChoices": {"type": "choice", "readonly": False,
 						"customEditor": "editChoice"},
 				"HorizontalAlignment": {"type": list, "readonly": False,
 					"values": ["Automatic", "Left", "Center", "Right"]},
@@ -718,7 +718,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"SyntaxColoring": {"type": bool, "readonly": False},
 				"TabWidth": {"type": int, "readonly": False},
 				"WordWrap": {"type": bool, "readonly": False}}
-		fontProps = {"Font": {"type": "font", "readonly": False, 
+		fontProps = {"Font": {"type": "font", "readonly": False,
 					"customEditor": "editFont"},
 				"FontBold": {"type": bool, "readonly": False},
 				"FontFace": {"type": list, "readonly": False,
@@ -731,24 +731,24 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"ColumnCount": {"type": int, "readonly": False},
 				"DataSource": {"type": unicode, "readonly": False},
 				"Editable": {"type": bool, "readonly": False},
-				"HeaderBackColor": {"type": "color", "readonly": False, 
+				"HeaderBackColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
-				"HeaderForeColor": {"type": "color", "readonly": False, 
+				"HeaderForeColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
 				"HeaderHeight": {"type": int, "readonly": False},
 				"HeaderHorizontalAlignment": {"type": list, "readonly": False,
 					"values": ["Left", "Center", "Right"]},
 				"HeaderVerticalAlignment": {"type": list, "readonly": False,
 					"values": ["Top", "Middle", "Bottom"]},
-				"RowColorEven": {"type": "color", "readonly": False, 
+				"RowColorEven": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
-				"RowColorOdd": {"type": "color", "readonly": False, 
+				"RowColorOdd": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
 				"RowHeight": {"type": int, "readonly": False},
 				"Searchable": {"type": bool, "readonly": False},
-				"SelectionBackColor": {"type": "color", "readonly": False, 
+				"SelectionBackColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
-				"SelectionForeColor": {"type": "color", "readonly": False, 
+				"SelectionForeColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
 				"SelectionMode": {"type": list, "readonly": False,
 					"values": ["Cell", "Row", "Column"]},
@@ -760,19 +760,19 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		labelProps = {"Alignment": {"type": list, "readonly": False,
 				"values": ["Left", "Center", "Right"]},
 				"AutoResize": {"type": bool, "readonly": False}}
-		ledProps = {"OffColor": {"type": "color", "readonly": False, 
+		ledProps = {"OffColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
-				"OnColor": {"type": "color", "readonly": False, 
+				"OnColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
 				"On": {"type": bool, "readonly": False}}
 		multiSelectProps = {"MultipleSelect": {"type": bool, "readonly": False}}
-		nodeProps = {"Image": {"type": "path", "readonly": False, 
+		nodeProps = {"Image": {"type": "path", "readonly": False,
 					"customEditor": "editStdPicture"}}
 		panelProps = {"AlwaysResetSizer": {"type": bool, "readonly": False},
 				"Buffered": {"type": bool, "readonly": False},
 				"MinSizerHeight": {"type": int, "readonly": False},
 				"MinSizerWidth": {"type": int, "readonly": False}}
-		pictureProps = {"Picture": {"type": "path", "readonly": False, 
+		pictureProps = {"Picture": {"type": "path", "readonly": False,
 					"customEditor": "editStdPicture"}}
 		posProps = {"Left": {"type": int, "readonly": useSizers},
 				"Right": {"type": int, "readonly": useSizers},
@@ -783,7 +783,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		radioProps = {"Orientation": {"type": list, "readonly": False,
 					"values": ["Horizontal", "Vertical"]},
 				"ShowBox": {"type": bool, "readonly": False}}
-		sizerProps = {"Sizer_Border": {"type": int, "readonly": False}, 
+		sizerProps = {"Sizer_Border": {"type": int, "readonly": False},
 				"Sizer_BorderSides": {"type": list, "readonly": False,
 					"values": ["All", "Top", "Bottom", "Left", "Right", "None"],
 					"customEditor": "editBorderSides"},
@@ -802,14 +802,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"SingleClick": {"type": bool, "readonly": False},
 				"Singleton": {"type": bool, "readonly": False}}
 		slidePanelProps = {
-				"BarColor1": {"type": "color", "readonly": False, 
+				"BarColor1": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
-				"BarColor2": {"type": "color", "readonly": False, 
+				"BarColor2": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
 				"BarStyle": {"type": list, "readonly": False,
 					"values": ["Borderless", "BorderOnly", "FilledBorder", "HorizontalFill", "VerticalFill"]},
 				"Border": {"type": int, "readonly": False},
-				"CaptionForeColor": {"type": "color", "readonly": False, 
+				"CaptionForeColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
 				"PanelPosition": {"type": int, "readonly": False}}
 		splitterProps = {"MinimumPanelSize": {"type": int, "readonly": False},
@@ -827,7 +827,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		textProps = {"Alignment": {"type": list, "readonly": False,
 					"values": ["Left", "Center", "Right"]},
 				"ForceCase": {"type": list, "readonly": False,
-					"values": ["Upper", "Lower", "Title", "None"]},		
+					"values": ["Upper", "Lower", "Title", "None"]},
 				"ReadOnly": {"type": bool, "readonly": False}}
 		htmlTextProps = {"Page": {"type": unicode, "readonly": False},
 				"RespondToLinks": {"type": bool, "readonly": False},
@@ -846,34 +846,34 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"Sizer_RowSpan": {"type": int, "readonly": False},
 				"Sizer_ColSpan": {"type": int, "readonly": False}}
 		pageFrameProps = {"PageCount": {"type": int, "readonly": False},
-				"TabPosition": {"type": list, "readonly": False, 
+				"TabPosition": {"type": list, "readonly": False,
 					"values": ["Top", "Bottom", "Left", "Right"] }}
 		pageListProps = {"ListSpacing": {"type": int, "readonly": False}}
-		pageStyleProps = {"ActiveTabColor":  {"type": "color", "readonly": False, 
+		pageStyleProps = {"ActiveTabColor":  {"type": "color", "readonly": False,
 						"customEditor": "editColor"},
-					"ActiveTabTextColor":  {"type": "color", "readonly": False, 
+					"ActiveTabTextColor":  {"type": "color", "readonly": False,
 						"customEditor": "editColor"},
-					"InactiveTabTextColor":  {"type": "color", "readonly": False, 
+					"InactiveTabTextColor":  {"type": "color", "readonly": False,
 						"customEditor": "editColor"},
 					"ShowDropdownTabList":  {"type": "bool", "readonly": False},
 					"ShowMenuCloseButton":  {"type": "bool", "readonly": False},
 					"ShowMenuOnSingleTab":  {"type": "bool", "readonly": False},
 					"ShowPageCloseButtons":  {"type": "bool", "readonly": False},
 					"ShowNavButtons":  {"type": "bool", "readonly": False},
-					"TabAreaColor":  {"type": "color", "readonly": False, 
+					"TabAreaColor":  {"type": "color", "readonly": False,
 						"customEditor": "editColor"},
-					"TabPosition": {"type": list, "readonly": False, 
+					"TabPosition": {"type": list, "readonly": False,
 						"values": ["Top", "Bottom"]},
 					"TabSideIncline": {"type": int, "readonly": False},
-					"TabStyle": {"type": list, "readonly": False, 
+					"TabStyle": {"type": list, "readonly": False,
 						"values": ["Default", "VC8", "VC71", "Fancy", "Firefox"]}
 					}
-		borderProps = {"BorderColor": {"type": "color", "readonly": False, 
+		borderProps = {"BorderColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
 				"BorderLineStyle": {"type": list, "readonly": False,
 						"values": ["Solid", "Dot", "Dash", "DotDash"]},
 				"BorderStyle": {"type": list, "readonly": False,
-						"values": ["None", "Simple", "Sunken", "Raised", 
+						"values": ["None", "Simple", "Sunken", "Raised",
 						"Double", "Static", "Default"]},
 				"BorderWidth": {"type": int, "readonly": False}}
 		wizardPageProps = {"TitleBold": {"type": bool, "readonly": False},
@@ -891,13 +891,13 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				ret.update(gridSizerProps)
 		if isinstance(self, dui.dDataControlMixin):
 			ret.update(dataProps)
-			
+
 		# Do we want to show postions?
 		ret.update(posProps)
-		
+
 		# All controls should have the various Border* properties
 		ret.update(borderProps)
-		
+
 		# Add all of the class-specific properties
 		if isinstance(self, dui.dBitmap):
 			pass
@@ -980,7 +980,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(fontProps)
 			ret.update(pageFrameProps)
 			ret.update(pageListProps)
-		elif isinstance(self, (dui.dPageFrame, dui.dPageList, 
+		elif isinstance(self, (dui.dPageFrame, dui.dPageList,
 				dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs)):
 			ret.update(colorProps)
 			ret.update(fontProps)
@@ -1048,9 +1048,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		elif isinstance(self, dui.dTreeView):
 			ret.update(treeProps)
 			ret.update(colorProps)
-			ret.update(fontProps)		
+			ret.update(fontProps)
 			ret.update(multiSelectProps)
-		
+
 		# Now see if there are any custom properties defined for this class
 		custProps = self.Controller.getPropDictForObject(self)
 		if custProps:
@@ -1061,9 +1061,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				else:
 					typ = type(val)
 				ret[prop] = {"type": typ, "readonly": False}
-		
+
 		return ret
-		
+
 
 	def _getHiliteBorderColor(self):
 		return self._hiliteBorderColor
@@ -1080,14 +1080,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			self._needRedraw = True
 		else:
 			self._properties["HiliteBorderColor"] = val
-			
+
 
 	def _getHiliteBorderLineStyle(self):
 		return self._hiliteBorderLineStyle
 
 	def _setHiliteBorderLineStyle(self, val):
 		if self._constructed():
-			val = self._expandPropStringValue(val, ("Solid", "Dash", "Dashed", "Dot", 
+			val = self._expandPropStringValue(val, ("Solid", "Dash", "Dashed", "Dot",
 					"Dotted", "DotDash", "DashDot"))
 			self._hiliteBorderLineStyle = val
 			if self._hiliteBorder:
@@ -1111,7 +1111,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			else:
 				if val > 0:
 					if hasattr(self, "drawRectangle"):
-						self._hiliteBorder = self.drawRectangle(0, 0, self.Width, 
+						self._hiliteBorder = self.drawRectangle(0, 0, self.Width,
 								self.Height, penColor=self.HiliteBorderColor, penWidth=val)
 			if self._hiliteBorder:
 				# Tie it to resizing
@@ -1124,16 +1124,16 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 	def _getIsMain(self):
 		return self._isMain
-		
+
 	def _setIsMain(self, val):
 		self._isMain = val
-		
-		
+
+
 	def _getContainerState(self):
-		return isinstance(self, (dui.dPanel, dui.dScrollPanel, dui.dPage, 
+		return isinstance(self, (dui.dPanel, dui.dScrollPanel, dui.dPage,
 				dui.dForm, dui.dFormMain, dui.dDialog) )
-	
-	
+
+
 	def _getRegID(self):
 		ret = self._tmpRegID
 		if ret is None:
@@ -1178,42 +1178,42 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 
 	def _getSzBorder(self):
-		return self.ControllingSizer.getItemProp(self.ControllingSizerItem, 
+		return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
 				"Border")
-				
+
 	def _setSzBorder(self, val):
-		self.ControllingSizer.setItemProp(self.ControllingSizerItem, 
+		self.ControllingSizer.setItemProp(self.ControllingSizerItem,
 				"Border", val)
-		
-	
+
+
 	def _getSzBorderSides(self):
-		return self.ControllingSizer.getItemProp(self.ControllingSizerItem, 
+		return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
 				"BorderSides")
 
 	def _setSzBorderSides(self, val):
-		self.ControllingSizer.setItemProp(self.ControllingSizerItem, 
+		self.ControllingSizer.setItemProp(self.ControllingSizerItem,
 				"BorderSides", val)
-		
-		
+
+
 	def _getSzExpand(self):
 		return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
 				"Expand")
 
 	def _setSzExpand(self, val):
-		self.ControllingSizer.setItemProp(self.ControllingSizerItem, 
+		self.ControllingSizer.setItemProp(self.ControllingSizerItem,
 				"Expand", val)
-				
+
 
 	def _getSzColExpand(self):
 		return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "ColExpand")
-		
+
 	def _setSzColExpand(self, val):
 		self.ControllingSizer.setItemProp(self.ControllingSizerItem, "ColExpand", val)
-		
-		
+
+
 	def _getSzColSpan(self):
 		return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "ColSpan")
-		
+
 	def _setSzColSpan(self, val):
 		if val == self._getSzColSpan():
 			return
@@ -1221,18 +1221,18 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			self.ControllingSizer.setItemProp(self, "ColSpan", val)
 		except dui.GridSizerSpanException, e:
 			raise PropertyUpdateException(str(e))
-		
-		
+
+
 	def _getSzRowExpand(self):
 		return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "RowExpand")
-		
+
 	def _setSzRowExpand(self, val):
 		self.ControllingSizer.setItemProp(self.ControllingSizerItem, "RowExpand", val)
 
 
 	def _getSzRowSpan(self):
 		return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "RowSpan")
-		
+
 	def _setSzRowSpan(self, val):
 		if val == self._getSzRowSpan():
 			return
@@ -1245,27 +1245,27 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 	def _getSzProp(self):
 		return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
 				"Proportion")
-				
+
 	def _setSzProp(self, val):
-		self.ControllingSizer.setItemProp(self.ControllingSizerItem, 
+		self.ControllingSizer.setItemProp(self.ControllingSizerItem,
 				"Proportion", val)
-		
-		
+
+
 	def _getSzHalign(self):
 		return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
 				"Halign")
-				
+
 	def _setSzHalign(self, val):
-		self.ControllingSizer.setItemProp(self.ControllingSizerItem, 
+		self.ControllingSizer.setItemProp(self.ControllingSizerItem,
 				"Halign", val)
-	
-	
+
+
 	def _getSzValign(self):
-		return self.ControllingSizer.getItemProp(self.ControllingSizerItem, 
+		return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
 				"Valign")
-				
+
 	def _setSzValign(self, val):
-		self.ControllingSizer.setItemProp(self.ControllingSizerItem, 
+		self.ControllingSizer.setItemProp(self.ControllingSizerItem,
 				"Valign", val)
 
 
@@ -1284,8 +1284,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		ver = sz.getItemProp(szit, "Valign")
 		ret += "%s, %s" % (ver, hor)
 		return ret
-	
-	
+
+
 	def _getTreeDisp(self):
 		if isinstance(self, dui.dColumn):
 			prfx = "Column"
@@ -1305,7 +1305,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret = (str(self.Name), self._baseClass)
 		return ret
 
-	
+
 	def _getUsingSizers(self):
 		if self._usingSizers is None:
 			try:
@@ -1317,45 +1317,45 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 	Children = property(_getChildren, None, None,
 			_("Returns a list of the designer-relevant child controls (read-only) (list)"))
-	
+
 	Controller = property(_getController, _setController, None,
 			_("Object to which this one reports events  (object (varies))"))
-			
+
 	DesignerEvents = property(_getDesEvents, None, None,
 			_("""Returns a list of the most common events for the control.
 			This will determine which events are displayed in the PropSheet
 			for the developer to attach code to.  (list)""") )
-		
+
 	DesignerProps = property(_getDesProps, None, None,
-			_("""Returns a dict of editable properties for the control, with the 
-			prop names as the keys, and the value for each another dict, 
+			_("""Returns a dict of editable properties for the control, with the
+			prop names as the keys, and the value for each another dict,
 			containing the following keys: 'type', which controls how to display
 			and edit the property, and 'readonly', which will prevent editing
 			when True. (dict)""") )
 
 	HiliteBorderColor = property(_getHiliteBorderColor, _setHiliteBorderColor, None,
 			_("Color of the border when the control is selected  (str or color tuple"))
-	
+
 	HiliteBorderLineStyle = property(_getHiliteBorderLineStyle, _setHiliteBorderLineStyle, None,
 			_("Line style of the displayed border when the control is selected  (str"))
-	
+
 	HiliteBorderWidth = property(_getHiliteBorderWidth, _setHiliteBorderWidth, None,
 			_("Width of the border around the control when selected  (int"))
-	
+
 	IsContainer = property(_getContainerState, None, None,
 			_("Can we add controls to this control?  (bool)") )
 
 	IsMainControl = property(_getIsMain, _setIsMain, None,
-			_("""Is this the main control of the designer, or contained within the 
+			_("""Is this the main control of the designer, or contained within the
 			main control?  (bool)"""))
-	
+
 	# Placeholder for the actual RegID property
 	RegID = property(_getRegID, _setRegID, None,
 			_("A unique identifier used for referencing by other objects. (str)"))
-	
+
 	Selected = property(_getSelected, _setSelected, None,
 			_("Is this control selected for editing?  (bool)"))
-	
+
 	Sizer_Border = property(_getSzBorder, _setSzBorder, None,
 			_("Border setting of controlling sizer item  (int)"))
 
@@ -1385,7 +1385,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 	Sizer_VAlign = property(_getSzValign, _setSzValign, None,
 			_("Vert. Alignment setting of controlling sizer item  (choice)"))
-	
+
 	TreeDisplayCaption = property(_getTreeDisp, None, None,
 			_("Displayed text in the Designer Tree.  (tuple)") )
 

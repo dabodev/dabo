@@ -33,7 +33,7 @@ class MenuPropForm(dabo.ui.dForm):
 		txt = dabo.ui.dTextBox(pnl, ReadOnly=True, RegID="txtObj")
 		hsz = dabo.ui.dSizer("h")
 		hsz.append1x(txt)
-		self.treeBtn = dabo.ui.dToggleButton(pnl, Height=txt.Height, 
+		self.treeBtn = dabo.ui.dToggleButton(pnl, Height=txt.Height,
 				Width=txt.Height, Caption="", Picture="downTriangleBlack",
 				DownPicture="upTriangleBlack")
 		self.treeBtn.bindEvent(dEvents.Hit, self.onToggleTree)
@@ -45,7 +45,7 @@ class MenuPropForm(dabo.ui.dForm):
 		sz.DefaultBorder = brdr
 		sz.append(hsz, "x")
 		sz.appendSpacer(5)
-		
+
 		self.mainPager = mp = dabo.ui.dPageFrameNoTabs(pnl, PageClass=dabo.ui.dPanel)
 		mp.PageCount=2
 		mp.bindEvent(dEvents.PageChanged, self.onMainPageChanged)
@@ -57,11 +57,11 @@ class MenuPropForm(dabo.ui.dForm):
 		tsz = tp.Sizer = dabo.ui.dSizer("v")
 
 		# Add the PropSheet
-		ps = PropSheet(self.propPage, RegID="_propSheet", 
+		ps = PropSheet(self.propPage, RegID="_propSheet",
 				Controller=self.Controller)
 		self.propPage.Sizer = dabo.ui.dSizer("v")
 		self.propPage.Sizer.append1x(ps)
-		
+
 		# Create the tree
 		self._tree = TreeSheet(tp, MultipleSelect=False, Controller=self.Controller)
 		self._tree.MultipleSelect = False
@@ -70,27 +70,27 @@ class MenuPropForm(dabo.ui.dForm):
 		mp.SelectedPage = pp
 		self.layout()
 
-	
+
 	def updatePropGrid(self, propDict=None):
 		self.PropSheet.updatePropGrid(propDict=propDict)
-		
-		
+
+
 	def updateLayout(self):
 		self._tree.updateDisplay(self.Controller)
-		
-		
+
+
 	def onToggleTree(self, evt):
 		self.mainPager.nextPage()
-		
-	
+
+
 	def onMainPageChanged(self, evt):
 		self.treeBtn.Value = self.mainPager.SelectedPage is self.treePage
-	
+
 
 	def hideTree(self):
 		self.mainPager.SelectedPage = self.propPage
-		
-		
+
+
 	def onPanelChange(self, evt):
 		if evt.expanded:
 			pnl = evt.panel
@@ -104,14 +104,14 @@ class MenuPropForm(dabo.ui.dForm):
 		self.propPage.Expanded = True
 		self.bringToFront()
 
-		
+
 	def showTreePage(self):
 		self.mainPager.SelectedPage = self.treePage
 		self.bringToFront()
 
-		
+
 	def select(self, obj):
-		"""Called when the selected object changes. 'obj' will be a single object. 
+		"""Called when the selected object changes. 'obj' will be a single object.
 		We then need to update the components of this form appropriately.
 		"""
 		if obj is None:
@@ -123,7 +123,7 @@ class MenuPropForm(dabo.ui.dForm):
 		self.Tree.select(obj)
 		self.refresh()
 		self.layout()
-		
+
 
 	def _getController(self):
 		try:
@@ -178,16 +178,16 @@ class MenuPropForm(dabo.ui.dForm):
 			_("Object to which this one reports events  (object (varies))"))
 
 	MethodList = property(_getMethodList, _setMethodList, None,
-			_("""List control containing all available methods for the 
+			_("""List control containing all available methods for the
 			selected object  (dListControl)"""))
-	
+
 	MethodSheet = property(_getMethodSheet, _setMethodSheet, None,
 			_("Reference to the panel containing the MethodList  (MethodSheet)"))
-	
-	ObjectPropertySheet = property(_getObjectPropertySheet, 
-			_setObjectPropertySheet, None, _("""Reference to the panel 
+
+	ObjectPropertySheet = property(_getObjectPropertySheet,
+			_setObjectPropertySheet, None, _("""Reference to the panel
 			containing the ObjectPropertySheet  (ObjectPropertySheet)"""))
-	
+
 	Tree = property(_getTree, _setTree, None,
 			_("Reference to the contained object tree  (TreeSheet)"))
 

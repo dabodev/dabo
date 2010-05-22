@@ -17,7 +17,7 @@ class MenuSaverMixin(object):
 		ret = {}
 		ret["name"] = self._className
 		ret["attributes"] = ra = {}
-		propsToExclude = ("HotKeyChar", "HotKeyControl", 
+		propsToExclude = ("HotKeyChar", "HotKeyControl",
 				"HotKeyAlt", "HotKeyShift")
 		for prop in self.DesignerProps:
 			if prop in propsToExclude:
@@ -46,11 +46,11 @@ class MenuSaverMixin(object):
 			except:
 				evalStrVal = None
 			ra[prop] = val
-		ret["children"] = [kid.getDesignerDict() 
+		ret["children"] = [kid.getDesignerDict()
 				for kid in self.Children
 				if hasattr(kid, "getDesignerDict")]
 		return ret
-	
+
 
 
 class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
@@ -59,7 +59,7 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 	# Displayed name
 	_commonName = "Generic Item"
 	_kids = []
-	
+
 	def __init__(self, parent, *args, **kwargs):
 		self._caption = ""
 		self._MRU = False
@@ -112,9 +112,9 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 		self.Hover = True
 		# Smooth the drawing
  		self.Buffered = True
- 		
+
  		self._kids = [self._background, self._hotKeyText, self._capText]
-	
+
 	def getBack(self):
 		if self._selected:
 			ret = self._selectedBackColor
@@ -135,7 +135,7 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 # 	def onMouseLeftDown(self, evt):
 # 		self._dragging = True
 # 		self._dragImg = dabo.ui.dDragImage(self)
-# 	
+#
 # 	def onMouseMove(self, evt):
 # 		if not self._dragging:
 # 			return
@@ -145,7 +145,7 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 # 			self._dragImg.clear()
 # 			self._dragImg = None
 # 			self._dragging = False
-# 	
+#
 # 	def onMouseLeftUp(self, evt):
 # 		print "LEFT UP", self._caption,  self._dragging,
 # 		self._dragging = False
@@ -175,10 +175,10 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 		wd = dabo.ui.fontMetricFromDrawObject(hkt)[0]
 		margin = 10
 		return (self.Width - wd) - margin
-		
-	
+
+
 	def getAdditionalWidth(self):
-		"""Provide for a little 'breathing room' on the panel. Subclasses 
+		"""Provide for a little 'breathing room' on the panel. Subclasses
 		can override as needed if they contain additional items.
 		"""
 		return 10
@@ -200,11 +200,11 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 
 	def onContextMenu(self, evt):
 		self.Parent.processContextMenu(self, evt)
-	
-	
+
+
 	def onMouseLeftClick(self, evt):
 		self.Form.select(self)
-	
+
 
 	def _updateHotKey(self):
 		"""Called when the user changes any component of the hotkey combo."""
@@ -218,9 +218,9 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 			if newHK != currHK:
 				self.HotKey = newHK
 				self.refresh()
-			self._inUpdate = False	
-	
-	
+			self._inUpdate = False
+
+
 	def _updateHotKeyProps(self, val=None):
 		"""Called when the user changes the hotkey combo to reset the components."""
 		if not self._inUpdate:
@@ -232,7 +232,7 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 			self.HotKeyAlt = ("Alt+" in val)
 			self.HotKeyChar = val.split("+")[-1]
 			self._inUpdate = False
-		
+
 
 	def _getAbbreviatedHotKey(self):
 		ctlTxt = {True: "c", False: ""}[self.HotKeyControl]
@@ -279,11 +279,11 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 
 
 	def _getDesignerProps(self):
-		ret = {"Caption": {"type" : unicode, "readonly" : False}, 
-				"HelpText" : {"type" : unicode, "readonly" : False}, 
+		ret = {"Caption": {"type" : unicode, "readonly" : False},
+				"HelpText" : {"type" : unicode, "readonly" : False},
 				"MRU": {"type" : bool, "readonly" : False}}
 		if self.isMenuItem:
-			ret.update({"HotKey": {"type" : unicode, "readonly" : False, 
+			ret.update({"HotKey": {"type" : unicode, "readonly" : False,
 					"customEditor": "editHotKey"},
 					"HotKeyAlt": {"type" : bool, "readonly" : False},
 					"HotKeyChar": {"type" : unicode, "readonly" : False},
@@ -292,7 +292,7 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 					"Action": {"type" : unicode, "readonly" : False}})
 			del ret["MRU"]
 		return ret
-		
+
 
 	def _getDisplayText(self):
 		return "%s: '%s'" % (self._commonName, self.Caption)
@@ -380,7 +380,7 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 			self._selected = val
 # 			self.clear()
 # 			self.lockDisplay()
-# 			backcolor = {True: self._selectedBackColor, 
+# 			backcolor = {True: self._selectedBackColor,
 # 					False: self._unselectedBackColor}[val]
 # 			forecolor = {True: self._selectedForeColor,
 # 					False: self._unselectedForeColor}[val]
@@ -400,49 +400,49 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 
 	AbbreviatedHotKey = property(_getAbbreviatedHotKey, None, None,
 			_("Short version of the HotKey string (read-only) (str)"))
-	
+
 	Action = property(_getAction, _setAction, None,
 			_("Action to be called when a menu item is selected.  (str)"))
-	
+
 	Caption = property(_getCaption, _setCaption, None,
 			_("Caption displayed on this panel  (str)"))
-	
+
 	Controller = property(_getController, _setController, None,
 			_("Object to which this one reports events  (object (varies))"))
 
 	DesignerProps = property(_getDesignerProps, None, None,
 			_("Properties exposed in the Menu Designer (read-only) (dict)"))
-	
+
 	DisplayText = property(_getDisplayText, None, None,
 			_("Text used in the prop sheet to identify this object (read-only) (str)"))
-	
+
 	HelpText = property(_getHelpText, _setHelpText, None,
 			_("Help string displayed when the menu item is selected.  (str)"))
-	
+
 	HotKey = property(_getHotKey, _setHotKey, None,
 			_("Displayed version of the hotkey combination  (str)"))
 
 	HotKeyAlt = property(_getHotKeyAlt, _setHotKeyAlt, None,
 			_("Is the Alt key part of the hotkey combo?  (bool)"))
-	
+
 	HotKeyChar = property(_getHotKeyChar, _setHotKeyChar, None,
 			_("Character part of the hot key for this menu  (str)"))
-	
+
 	HotKeyControl = property(_getHotKeyControl, _setHotKeyControl, None,
 			_("Is the Control key part of the hotkey combo?  (bool)"))
-	
+
 	HotKeyShift = property(_getHotKeyShift, _setHotKeyShift, None,
 			_("Is the Shift key part of the hotkey combo?  (bool)"))
-	
+
 	MRU = property(_getMRU, _setMRU, None,
 			_("Should this menu be tracked for MRU lists  (bool)"))
-	
+
 	Selected = property(_getSelected, _setSelected, None,
 			_("Is this the currently selected item?  (bool)"))
-	
+
 	TreeDisplayCaption = property(_getTreeDisplayCaption, None, None,
 			_("Identifying label displayed in the prop sheet tree (read-only) (str)"))
-		
+
 
 	_proxyDict = {}
 	Visible = makeProxyProperty(_proxyDict, "Visible", ("self", "_kids"))
@@ -454,14 +454,14 @@ class CaptionBitmapPanel(CaptionPanel):
 	"""
 	# Name for the saved mnxml file
 	_className = "CaptionBitmapPanel"
-	
+
 	def __init__(self, parent, *args, **kwargs):
 		self._bitmap = None
 		self._bmp = None
 		self._picture = None
 		super(CaptionBitmapPanel, self).__init__(parent, *args, **kwargs)
-	
-	
+
+
 	def getAdditionalWidth(self):
 		"""Add in the width of the bitmap."""
 		ret = super(CaptionBitmapPanel, self).getAdditionalWidth()
@@ -486,7 +486,7 @@ class CaptionBitmapPanel(CaptionPanel):
 			self._kids.remove(self._bmp)
 			self._bmp = None
 		self._bmp = self.drawBitmap(bmp, 5, 5, visible=self.Parent.Visible)
-		
+
  		self._kids.append(self._bmp)
 
 		wd = self._bmp.Width
@@ -497,14 +497,14 @@ class CaptionBitmapPanel(CaptionPanel):
 
 	def _getDesignerProps(self):
 		ret = self.doDefault()
-		ret.update({"Picture": {"type" : "path", "readonly" : False, 
+		ret.update({"Picture": {"type" : "path", "readonly" : False,
 				"customEditor": "editStdPicture"}})
 		return ret
 
 
 	def _getPicture(self):
 		return self._picture
-		
+
 	def _setPicture(self, val):
 		self._picture = val
 		if isinstance(val, dabo.ui.dBitmap):
@@ -512,14 +512,14 @@ class CaptionBitmapPanel(CaptionPanel):
 		else:
 			bmp = dabo.ui.strToBmp(val)
 		self._setBitmap(bmp)
-	
-	
+
+
 	Bitmap = property(_getBitmap, _setBitmap, None,
 			_("Bitmap to display on the panel  (bitmap)"))
-	
+
 	DesignerProps = property(_getDesignerProps, None, None,
 			_("Properties exposed in the Menu Designer (read-only) (dict)"))
-	
+
 	Picture = property(_getPicture, _setPicture, None,
 			_("The file used as the source for the displayed image.  (str)") )
 
@@ -533,21 +533,21 @@ class SeparatorPanel(CaptionBitmapPanel):
 	_commonName = "Separator"
 	# Displayed separator line
 	_line = None
-	
+
 	def afterInitAll(self):
 		self.Height = 16
 		midHt = self.Height / 2.0
-		self._line = self.drawLine(4, midHt, self.Width-4, midHt, 
+		self._line = self.drawLine(4, midHt, self.Width-4, midHt,
 				penColor="gray", penWidth=1)
 		self._line.DynamicPoints = self.setLineWidth
 		self._line.DynamicPenWidth = self.setLineThick
 		self._kids.append(self._line)
-		
-		
+
+
 	def onResize(self, evt):
 		if self._line:
 			self.update()
-			
+
 
 	def setLineWidth(self):
 		"""We want the line to be the full width of the panel,
@@ -558,24 +558,24 @@ class SeparatorPanel(CaptionBitmapPanel):
 		x2 = self.Width - 4
 		y1 = y2 = midHt
 		return ((x1, y1), (x2, y2))
-	
-	
+
+
 	def setLineThick(self):
 		"""Make it look thicker when selected."""
 		return {True: 2, False: 1}[self.Selected]
 
-	
+
 	def _getDesignerProps(self):
 		return {}
-	
-	
+
+
 	def _getDisplayText(self):
 		return "Separator"
-		
-		
+
+
 	DesignerProps = property(_getDesignerProps, None, None,
 			_("Properties exposed in the Menu Designer (read-only) (dict)"))
-	
+
 	DisplayText = property(_getDisplayText, None, None,
 			_("Text used in the prop sheet to identify this object (read-only) (str)"))
-	
+

@@ -19,8 +19,8 @@ from ClassDesignerExceptions import PropertyUpdateException
 class PropSheet(dabo.ui.dPanel):
 	def afterInit(self):
 		self._sashPct = 80
-		self.mainSplit = msp = dabo.ui.dSplitter(self, Orientation="H", createPanes=True, 
-				MinimumPanelSize=75, SashPercent=self._sashPct, 
+		self.mainSplit = msp = dabo.ui.dSplitter(self, Orientation="H", createPanes=True,
+				MinimumPanelSize=75, SashPercent=self._sashPct,
 				OnSashDoubleClick=self.onSash2Click)
 		self.mainSplit.bindEvent(dEvents.SashPositionChanged, self.onSashPosChanged)
 		self.panePropGrid = ppg = msp.Panel1
@@ -29,7 +29,7 @@ class PropSheet(dabo.ui.dPanel):
 		pg.Handler = self
 		self.btnEdit = dabo.ui.dButton(ppg, Caption=_("Edit..."), Visible=False)
 		self.btnEdit.bindEvent(dEvents.Hit, self.onBtnEdit)
-		self.edtPropDoc = dabo.ui.dEditBox(ppd, ReadOnly=True, 
+		self.edtPropDoc = dabo.ui.dEditBox(ppd, ReadOnly=True,
 			FontSize=9, Height=49)
 		sz = self.Sizer = dabo.ui.dSizer("v")
 		sz.appendSpacer(10)
@@ -48,10 +48,10 @@ class PropSheet(dabo.ui.dPanel):
 		self._custEditor = None
 		dabo.ui.callAfter(self.setInitialSizing)
 		dabo.ui.callAfter(self.layout)
-		
-		
+
+
 	def setPanels(self):
-		# On some platforms (Gtk especially), the final size is not 
+		# On some platforms (Gtk especially), the final size is not
 		# set, even with callAfter(). But with two levels of callAfter()
 		# it seems to work properly
 		dabo.ui.callAfter(self._setPanels1)
@@ -63,9 +63,9 @@ class PropSheet(dabo.ui.dPanel):
 
 
 	def onSashPosChanged(self, evt):
-		if self.mainSplit.SashPercent: 
+		if self.mainSplit.SashPercent:
 			self._sashPct = self.mainSplit.SashPercent
-		
+
 
 	def setInitialSizing(self):
 		"""Called to fit the prop sheet to the form"""
@@ -74,37 +74,37 @@ class PropSheet(dabo.ui.dPanel):
 		self.propGrid.Columns[0].Width += 25
 		self.sizeGrid(True)
 		dabo.ui.callAfter(self.setPanels)
-	
-	
+
+
 	def onResize(self, evt):
 		"""Size the value column to fit the panel"""
 		dabo.ui.callAfter(self.sizeGrid)
-	
-	
+
+
 	def sizeGrid(self, initial=False):
 		try:
 			pg = self.propGrid
 		except dabo.ui.deadObjectException:
 			return
-		# Grid has already been resized by the sizer; 
+		# Grid has already been resized by the sizer;
 		# adjust the columns if needed
 		col1 = pg.Columns[1]
 		col1Allot = pg.Parent.Width - pg.Columns[0].Width - 20
 		if initial or (col1.Width > col1Allot):
 			col1.Width = col1Allot
-		
-	
+
+
 	def onSash2Click(self, evt):
 		"""Prevent the splitter from closing."""
 		evt.stop()
-		
-		
+
+
 	def select(self, obj):
 		"""Called when the selected object changes. 'obj' will
 		be a list containing either a single object or multiple
-		objects. We need to query those objects for their editable 
-		properties, and if there are multiple objects, limit the 
-		editing to only those props that are common to all of 
+		objects. We need to query those objects for their editable
+		properties, and if there are multiple objects, limit the
+		editing to only those props that are common to all of
 		the selection.
 		"""
 		if not isinstance(obj, (list, tuple)):
@@ -138,8 +138,8 @@ class PropSheet(dabo.ui.dPanel):
 
 		# Copy it to the grid
 		self.updatePropGrid(propDict)
-	
-	
+
+
 	def updatePropGrid(self, propDict=None):
 		if propDict is None:
 			obj = self._selected[0]
@@ -154,8 +154,8 @@ class PropSheet(dabo.ui.dPanel):
 			pg.DataSet = ds
 			pg.Enable
 			d = (len(ds) > 0)
-			
-		
+
+
 	def dataSetFromPropDict(self, propDict):
 		props = propDict.keys()
 		props.sort()
@@ -178,12 +178,12 @@ class PropSheet(dabo.ui.dPanel):
 			if isSizer:
 				sz = ob
 			obRest = obj[1:]
-			# This dict holds all common props among the remaining 
-			# objects. If they all share a value, that value will be set; 
+			# This dict holds all common props among the remaining
+			# objects. If they all share a value, that value will be set;
 			# otherwise, the value will be None.
 			restDict = {}
 			restProps = []
-		
+
 			if not mult:
 				restDict = propDict
 				restProps = props
@@ -197,7 +197,7 @@ class PropSheet(dabo.ui.dPanel):
 					else:
 						indivDict = indiv.DesignerProps
 						indivProps = indivDict.keys()
-					
+
 					badProps = []
 					for prop in props:
 						if prop not in indivProps:
@@ -228,8 +228,8 @@ class PropSheet(dabo.ui.dPanel):
 					# Remove all non-common props
 					props = [pp for pp in props
 						if pp not in badProps]
-						
-			if len(props) == 0:		
+
+			if len(props) == 0:
 				ds = [{"prop" : "", "val" : "", "type" : unicode, "readonly" : True}]
 			else:
 				# Construct the data set from the props
@@ -255,7 +255,7 @@ class PropSheet(dabo.ui.dPanel):
 					rec["val"] = val
 					rec["type"] = propInfo["type"]
 					rec["readonly"] = propInfo["readonly"]
-					
+
 					if mult:
 						# Make sure that all the other objects share the values.
 						rp = restDict[prop]
@@ -264,7 +264,7 @@ class PropSheet(dabo.ui.dPanel):
 						rec["readonly"] = rec["readonly"] and rp["readonly"]
 					ds.append(rec)
 		return ds
-	
+
 
 	def getObjPropDoc(self, obj, prop):
 		"""Return the docstring for the passed property."""
@@ -281,7 +281,7 @@ class PropSheet(dabo.ui.dPanel):
 		if doc is None:
 			doc = ""
 		return self.formatDocString(doc)
-		
+
 
 	def formatDocString(self, doc):
 		doc = pydoc.splitdoc(doc)
@@ -294,7 +294,7 @@ class PropSheet(dabo.ui.dPanel):
 		ret = "%s\n\n%s" % (doc[0], body)
 		return ret.strip()
 
-	
+
 	def getObjPropVal(self, obj, prop):
 		"""Subclasses (ie the report designer) can override."""
 		ret = None
@@ -310,7 +310,7 @@ class PropSheet(dabo.ui.dPanel):
 
 	def updateVal(self, prop, val, typ):
 		"""Called from the grid to notify that the current cell's
-		value has been changed. Update the corresponding 
+		value has been changed. Update the corresponding
 		property value.
 		"""
 		try:
@@ -318,11 +318,11 @@ class PropSheet(dabo.ui.dPanel):
 			if prop.startswith("Font"):
 				self.updateGridValues()
 		except PropertyUpdateException, e:
-			dabo.ui.stop(_("Could not set property '%(prop)s' to value '%(val)s'\nReason: '%(e)s'") 
+			dabo.ui.stop(_("Could not set property '%(prop)s' to value '%(val)s'\nReason: '%(e)s'")
 					% locals())
-			self.updateGridValues()	
+			self.updateGridValues()
 
-			
+
 	def updateGridValues(self):
 		"""Updates all the cells in the Value column.
 		NOTE: only works with single-selection for now. Code to handle
@@ -347,7 +347,7 @@ class PropSheet(dabo.ui.dPanel):
 		self.btnEdit.Caption = _("Edit %s") % propName
 		self.btnEdit.Visible = (ed is not None)
 		self.layout()
-		
+
 
 	def onBtnEdit(self, evt):
 		ed = self._custEditor
@@ -364,7 +364,7 @@ class PropSheet(dabo.ui.dPanel):
 			obj = self._selected[0]
 			prop = pg.CurrentProperty
 			self.edtPropDoc.Value = self.getObjPropDoc(obj, prop)
-			
+
 
 	##############################
 	#  Custom property editor methods
@@ -377,8 +377,8 @@ class PropSheet(dabo.ui.dPanel):
 			self.propGrid.CurrentValue = newVal
 			self.updateVal(prop, newVal, "color")
 			self.propGrid.refresh()
-	
-	
+
+
 	def editFont(self, objs, prop, val):
 		# Call the Font selection dialog
 		obj = objs[0]
@@ -386,8 +386,8 @@ class PropSheet(dabo.ui.dPanel):
 		if newVal is not None:
 			self.updateVal(prop, newVal, "font")
 			self.select(self._selected)
-			
-	
+
+
 	def editHeaderFont(self, objs, prop, val):
 		# Call the Font selection dialog
 		obj = objs[0]
@@ -395,8 +395,8 @@ class PropSheet(dabo.ui.dPanel):
 		if newVal is not None:
 			self.updateVal(prop, newVal, "font")
 			self.select(self._selected)
-			
-	
+
+
 	def editPicture(self, objs, prop, val):
 		# Select an image file to display
 		obj = objs[0]
@@ -412,7 +412,7 @@ class PropSheet(dabo.ui.dPanel):
 		an image file.
 		"""
 		defIcons = dabo.icons.getAvailableIcons()
-		
+
 		class IconSelectDialog(dabo.ui.dDialog):
 			def addControls(self):
 				self.useStandard = True
@@ -449,18 +449,18 @@ class PropSheet(dabo.ui.dPanel):
 				sz.append(btn, halign="right", border=20, borderSides=("right",))
 				sz.appendSpacer(25)
 				self._selected = False
-			
+
 			def onSelect(self, evt):
 				self._selected = True
 				self.hide()
-			
+
 			def onCancel(self, evt):
 				self.hide()
-				
+
 			def onSelectOwn(self, evt):
 				self.useStandard = False
 				self.hide()
-			
+
 			def updImage(self, evt=None):
 				pic = self.ddIcons.StringValue
 				self.img.Picture = pic
@@ -469,13 +469,13 @@ class PropSheet(dabo.ui.dPanel):
 					self.img.ScaleMode = "clip"
 				else:
 					self.img.ScaleMode = "proportional"
-					
+
 			def getSelectedIcon(self):
 				if self._selected:
 					return self.ddIcons.StringValue
 				else:
 					return None
-			
+
 			def setCurrent(self, strval):
 				try:
 					self.ddIcons.StringValue = strval
@@ -500,7 +500,7 @@ class PropSheet(dabo.ui.dPanel):
 		else:
 			self.editPicture(objs, prop, val)
 		dlg.release()
-		
+
 
 	def editMenuBarFile(self, objs, prop, val):
 		# Select a connection file
@@ -520,7 +520,7 @@ class PropSheet(dabo.ui.dPanel):
 				self.editor = dabo.ui.dEditableList(self, Choices=val,
 						Caption=_("Editing choices for '%s'") % prop)
 				self.Sizer.append1x(self.editor)
-				
+
 		dlg = ChoiceDialog(self, Modal=True)
 		dlg.show()
 		if dlg.Accepted:
@@ -539,7 +539,7 @@ class PropSheet(dabo.ui.dPanel):
 				self.editor = dabo.ui.dEditableList(self, Choices=val,
 						Caption=_("Editing keys for '%s'") % prop)
 				self.Sizer.append1x(self.editor)
-				
+
 		dlg = KeysDialog(self, Modal=True)
 		dlg.show()
 		if dlg.Accepted:
@@ -551,12 +551,12 @@ class PropSheet(dabo.ui.dPanel):
 
 
 	def editBorderSides(self, objs, prop, val=[]):
-		# Select one or more border sides from a list of choices. 
+		# Select one or more border sides from a list of choices.
 		obj = objs[0]
 		class MultiListDialog(dabo.ui.dOkCancelDialog):
 			def addControls(self):
 				self.Caption = _("Border Sides")
-				lbl = dabo.ui.dLabel(self, 
+				lbl = dabo.ui.dLabel(self,
 						Caption=_("Select the sides to which the border will apply:"))
 				self.Sizer.append(lbl, halign="center")
 				choices = ["All", "Top", "Bottom", "Left", "Right", "None"]
@@ -565,7 +565,7 @@ class PropSheet(dabo.ui.dPanel):
 				self.editor.bindEvent(dEvents.Hit, self.onSidesChanged)
 				self.editor.Value = self._currVal = val
 				self.Sizer.append1x(self.editor)
-			
+
 			def onSidesChanged(self, evt):
 				newVal = list(self.editor.Value)
 				if "All" in newVal:
@@ -584,7 +584,7 @@ class PropSheet(dabo.ui.dPanel):
 						newVal = ["None"]
 				self.editor.Value = self._currVal = newVal
 				self.editor.refresh()
-				
+
 		dlg = MultiListDialog(self, Modal=True)
 		dlg.show()
 		if dlg.Accepted:
@@ -597,8 +597,8 @@ class PropSheet(dabo.ui.dPanel):
 			self.updateVal(prop, newVal, list)
 			self.propGrid.refresh()
 		dlg.release()
-	
-	
+
+
 	def editHotKey(self, objs, prop, val):
 		obj = objs[0]
 		from dabo.ui.dialogs.HotKeyEditor import HotKeyEditor
@@ -638,15 +638,15 @@ class PropSheet(dabo.ui.dPanel):
 
 
 
-class PropertyGrid(dabo.ui.dGrid):	
+class PropertyGrid(dabo.ui.dGrid):
 	def initProperties(self):
 		self.SelectionMode = "Row"
 		self.MultipleSelection = False
 		self.RowColorEven = "papayawhip"
 		self.RowColorOdd = "white"
 		self.AlternateRowColoring = True
-		
-		
+
+
 	def afterInit(self):
 		self._handler = None
 		self.HeaderHeight = 20
@@ -654,8 +654,8 @@ class PropertyGrid(dabo.ui.dGrid):
 		self.propDict = {}
 		self.useCustomGetValue = self.useCustomSetValue = True
 		self.Editable = True
-		self.ActivateEditorOnSelect = False		
-		
+		self.ActivateEditorOnSelect = False
+
 		# Create the property name column
 		col = dabo.ui.dColumn(self, Order=10, DataField="prop",
 				DataType="string", Width=100, Caption=_("Property"), Sortable=True,
@@ -668,7 +668,7 @@ class PropertyGrid(dabo.ui.dGrid):
 				Searchable=False, Editable=True)
 		self.addColumn(col, inBatch=True)
 		self.autoBindEvents()
-		
+
 		# Set the font size for each platform
 		c0 = self.Columns[0]
 		fsize = c0.FontSize
@@ -699,7 +699,7 @@ class PropertyGrid(dabo.ui.dGrid):
 		self.decimalEditorClass = col.decimalEditorClass
 		self.floatEditorClass = col.floatEditorClass
 		self.listEditorClass = col.listEditorClass
-		
+
 
 	def getPropDictForRow(self, row):
 		prop = self.getValue(row, 0)
@@ -710,8 +710,8 @@ class PropertyGrid(dabo.ui.dGrid):
 		except KeyError, e:
 			return None
 # 			print "PROP DICT ERROR: >%s<, row=%s" % (prop, row)
-		
-	
+
+
 	def fillGrid(self, force=False):
 		super(PropertyGrid, self).fillGrid(force)
 		self.refresh()
@@ -726,7 +726,7 @@ class PropertyGrid(dabo.ui.dGrid):
 					# skip the below errorLog entry for ReportDesigner
 					pass
 				else:
-					dabo.errorLog.write(_("Property Grid out of sync for property '%s' of object '%'") % 
+					dabo.errorLog.write(_("Property Grid out of sync for property '%s' of object '%'") %
 							(self.getValue(row, 0), self.Application.Selection[0]))
 				continue
 			if not isinstance(pd, dict):
@@ -752,8 +752,8 @@ class PropertyGrid(dabo.ui.dGrid):
 			valColumn.CustomEditors[row] = ed
 			valColumn.CustomRenderers[row] = rnd
 		self.updateGridDisplay()
-		
-	
+
+
 	def customCanGetValueAs(self, row, col, typ):
 		ret = True
 		if col == 0:
@@ -762,7 +762,7 @@ class PropertyGrid(dabo.ui.dGrid):
 			if not self.Application.Selection:
 				return type(None)
 			pd = self.getPropDictForRow(row)
-			
+
 			if not isinstance(pd, dict):
 				if pd is None:
 					if dabo.verboseLogging:
@@ -772,7 +772,7 @@ class PropertyGrid(dabo.ui.dGrid):
 					print _("BAD PROP DICT:"), pd, type(pd), _("ROW="), row
 			else:
 				if pd["type"] == "multi":
-					# This is a catch-all setting for props such as 'Value' that 
+					# This is a catch-all setting for props such as 'Value' that
 					# can have any number of types.
 					ret = True
 				else:
@@ -780,43 +780,43 @@ class PropertyGrid(dabo.ui.dGrid):
 							"szinfo" : str, "double" : float}[typ]
 					ret = pd["type"] == typtyp
 		return ret
-		
-			
+
+
 	def customCanSetValueAs(self, row, col, typ):
 		if col == 0:
 			return isinstance(typ, basestring)
 		else:
 			pd = self.getPropDictForRow(row)
 			if pd["type"] == "multi":
-				# This is a catch-all setting for props such as 'Value' that 
+				# This is a catch-all setting for props such as 'Value' that
 				# can have any number of types.
 				return True
 			else:
 				typtyp = {"str" : str, "unicode" : str, "bool" : bool, "int" : int, "long" : int,
 						"double" : float}[typ]
 				return pd["type"] == typtyp
-	
-	
+
+
 	def selectPropColumn(self):
 		"""Move the selected cell to the prop column."""
 		if self.CurrentColumn is 1:
 			self.CurrentColumn = 0
-		
-		
+
+
 	def onGridCellEditBegin(self, evt):
-		# Save the pre-editing value so we only update 
+		# Save the pre-editing value so we only update
 		# if it changes.
 		self.Controller.startPropEdit()
 		self._origVal = self.getValue(evt.row, evt.col)
-		
-		
+
+
 	def onGridCellSelected(self, evt):
 		row, col = evt.EventData["row"], evt.EventData["col"]
 		self.updateGridDisplay(row, col)
 		if self.Handler:
 			dabo.ui.callAfter(self.Handler.gridCellChanged)
-		
-	
+
+
 	def updateGridDisplay(self, row=None, col=None):
 		if row is None:
 			row = self.CurrentRow
@@ -854,7 +854,7 @@ class PropertyGrid(dabo.ui.dGrid):
 			else:
 				dabo.ui.callAfter(self.DisableCellEditControl)
 
-	
+
 	def onGridCellEdited(self, evt):
 		row, col = evt.EventData["row"], evt.EventData["col"]
 		newVal = self.getValue(row, col)
@@ -867,8 +867,8 @@ class PropertyGrid(dabo.ui.dGrid):
 
 	def onGridCellEditEnd(self, evt):
 		self.Controller.endPropEdit()
-	
-	
+
+
 	def _getController(self):
 		try:
 			return self._controller
@@ -885,7 +885,7 @@ class PropertyGrid(dabo.ui.dGrid):
 
 	def _getCurrProp(self):
 		return self.getValue(self.CurrentRow, 0)
-		
+
 
 	def _getCurrVal(self):
 		return self.getValue(self.CurrentRow, 1)
@@ -893,7 +893,7 @@ class PropertyGrid(dabo.ui.dGrid):
 	def _setCurrVal(self, val):
 		self.setValue(self.CurrentRow, 1, val)
 
-		
+
 	def _getHandler(self):
 		return self._handler
 
@@ -906,13 +906,13 @@ class PropertyGrid(dabo.ui.dGrid):
 
 	CurrentProperty = property(_getCurrProp, None, None,
 			_("Name of currently selected property  (string)") )
-			
+
 	CurrentValue = property(_getCurrVal, _setCurrVal, None,
 			_("Value of currently selected property  (varies)") )
-	
+
 	Handler = property(_getHandler, _setHandler, None,
 			_("Target object to handle events for this grid  (PropSheet)"))
-	
+
 
 
 

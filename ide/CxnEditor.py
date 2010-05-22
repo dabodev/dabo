@@ -19,8 +19,8 @@ from HomeDirectoryStatusBar import HomeDirectoryStatusBar
 class EditorForm(dui.dForm):
 	def afterSetMenuBar(self):
 		self.createMenu()
-	
-	
+
+
 	def beforeInit(self):
 		self.StatusBarClass = HomeDirectoryStatusBar
 

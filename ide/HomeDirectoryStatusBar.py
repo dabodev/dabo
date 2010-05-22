@@ -7,7 +7,7 @@ dabo.ui.loadUI("wx")
 
 class HomeDirectoryStatusBar(dabo.ui.dStatusBar):
 	"""This class is designed to be used in the visual tools to replace the regular StatusBar
-	in the main form. The idea is that when using the tools, it is important to know the 
+	in the main form. The idea is that when using the tools, it is important to know the
 	HomeDirectory that Dabo is using, as pathing is calculated relative to that for all
 	values that contain paths. It also provides a convenient way to change the HomeDirectory
 	by clicking on the hyperlink.

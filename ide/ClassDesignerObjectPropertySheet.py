@@ -21,30 +21,30 @@ class ObjectPropertySheet(dui.dPanel):
 		sz = self.Sizer = dui.dSizer("v")
 		sz.append1x(self.propGrid)
 		col = dui.dColumn(grd, Caption=_("Property Name"), Order=10,
-				DataField="propName", DataType=str, Name="PropName", 
+				DataField="propName", DataType=str, Name="PropName",
 				Width=100, Sortable=True)
 		grd.addColumn(col)
 		col = dui.dColumn(grd, Caption=_("Default Value"), Order=20,
-				DataField="defaultValue",  Name="DefaultValue", 
+				DataField="defaultValue",  Name="DefaultValue",
 				Width=80, Sortable=False)
 		grd.addColumn(col)
 		col = dui.dColumn(grd, Caption=_("Comment"), Order=30,
-				DataField="comment", DataType=str, Name="Comment", 
+				DataField="comment", DataType=str, Name="Comment",
 				Width=200, Sortable=False)
 		grd.addColumn(col)
 		col = dui.dColumn(grd, Caption=_("Get"), Order=40,
-				DataField="getter", DataType=bool, Name="Get", Width=40, 
+				DataField="getter", DataType=bool, Name="Get", Width=40,
 				Sortable=False)
 		grd.addColumn(col)
 		col = dui.dColumn(grd, Caption=_("Set"), Order=50,
-				DataField="setter", DataType=bool, Name="Set", Width=40, 
+				DataField="setter", DataType=bool, Name="Set", Width=40,
 				Sortable=False)
 		grd.addColumn(col)
 		col = dui.dColumn(grd, Caption=_("Del"), Order=60,
-				DataField="deller", DataType=bool, Name="Del", Width=40, 
+				DataField="deller", DataType=bool, Name="Del", Width=40,
 				Sortable=False)
 		grd.addColumn(col)
-		
+
 		self.addButton = dui.dButton(self, Caption=_("Add"))
 		self.addButton.bindEvent(dEvents.Hit, self.onAdd)
 		self.editButton = dui.dButton(self, Caption=_("Edit"))
@@ -59,26 +59,26 @@ class ObjectPropertySheet(dui.dPanel):
 		hsz.append(self.delButton)
 		sz.append(hsz, border=10)
 		self.populatePropList()
-	
+
 
 	def onAdd(self, evt):
 		"""Add a custom property to the object."""
 		self.app.editObjectProperty(None)
 		self.populatePropList()
-		
-	
+
+
 	def onEdit(self, evt):
 		currProp = self.propGrid.getValue(col=0)
 		self.app.editObjectProperty(currProp)
 		self.populatePropList()
-	
-	
+
+
 	def onDelete(self, evt):
 		currProp = self.propGrid.getValue(col=0)
 		self.app.deleteObjectProperty(currProp)
 		self.populatePropList()
-	
-	
+
+
 	def select(self, obj):
 		"""Called when the selected object changes."""
 		if isinstance(obj, (list, tuple)):
@@ -87,11 +87,11 @@ class ObjectPropertySheet(dui.dPanel):
 			else:
 				obj = obj[0]
 		self.addButton.Enabled = self.editButton.Enabled = \
-				self.delButton.Enabled = not isinstance(obj, 
-				(LayoutPanel, LayoutBasePanel, LayoutSpacerPanel, LayoutSizer, 
+				self.delButton.Enabled = not isinstance(obj,
+				(LayoutPanel, LayoutBasePanel, LayoutSpacerPanel, LayoutSizer,
 				LayoutBorderSizer, LayoutGridSizer))
 		self.populatePropList()
-		
+
 
 	def populatePropList(self):
 		"""Fill the grid with the custom Properties for the selected object."""

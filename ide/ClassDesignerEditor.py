@@ -17,13 +17,13 @@ class EditorControl(dui.dEditor):
 		self._originalText = ""
 		self._method = ""
 
-	
+
 	def afterInit(self):
 		self.Language = "Python"
 		key = self.Application.getUserSetting("autoCompleteKey", "F5")
 		self.bindKey(key, self.autoComplete)
-		
-	
+
+
 	def _getTextSource(self):
 		return self.Form.getAllText()
 
@@ -36,7 +36,7 @@ class EditorControl(dui.dEditor):
 			return obj.Parent
 		else:
 			return super(EditorControl, self)._getRuntimeObject(runtimeObjectName)
-			
+
 
 	def _makeContainingClassIntoSelf(self):
 		"""Override the default behavior. Get the 'self' class from the form."""
@@ -118,16 +118,16 @@ class EditorControl(dui.dEditor):
 
 	Controller = property(_getController, _setController, None,
 			_("Object to which this one reports events  (object (varies))"))
-	
+
 	Object = property(_getObject, _setObject, None,
 			_("Reference to the object whose code is being edited  (obj)"))
-	
+
 	OriginalText = property(_getOriginalText, _setOriginalText, None,
 			_("Stores a copy of the contents of the editor when first invoked  (str)"))
-	
+
 	Method = property(_getMethod, _setMethod, None,
 			_("Name of the method of the object being edited  (str)"))
-	
+
 
 
 class EditorForm(dui.dForm):
@@ -159,11 +159,11 @@ class EditorForm(dui.dForm):
 		hs.appendSpacer(2)
 		hs.append(self.ddMethod, 0)
 		hs.appendSpacer(4)
-		dui.dBitmapButton(pnl, Picture="checkMark", RegID="btnCheckSyntax", 
+		dui.dBitmapButton(pnl, Picture="checkMark", RegID="btnCheckSyntax",
 				ToolTipText=_("Check Syntax"), OnHit=self.onCheckSyntax)
-		dui.dButton(pnl, Caption=_("super"), RegID="btnSuperCode", Enabled=False, 
+		dui.dButton(pnl, Caption=_("super"), RegID="btnSuperCode", Enabled=False,
 				ToolTipText=_("Show Superclass Code"), OnHit=self.onSuperCode)
-		dui.dButton(pnl, Caption=_("New"), RegID="btnNewMethod", 
+		dui.dButton(pnl, Caption=_("New"), RegID="btnNewMethod",
 				ToolTipText=_("Create New Method"), OnHit=self.onNewMethod)
 		hs.append(self.btnCheckSyntax, 0, border=3, valign="middle")
 		hs.appendSpacer(4)
@@ -198,32 +198,32 @@ class EditorForm(dui.dForm):
 		fmn = self.MenuBar.append(_("Font"))
 		fmn.append(_("Increase Font Size"), HotKey="Ctrl++", OnHit=self.fontIncrease)
 		fmn.append(_("Decrease Font Size"), HotKey="Ctrl+-", OnHit=self.fontDecrease)
-		
+
 		emn = dabo.ui.dMenu(Caption="Editor")
 		self.MenuBar.appendMenu(emn)
-		
-		self._autoAutoItem = emn.append(_("Automa&tic AutoComplete"), 
-				OnHit=self.onAutoAutoComp, bmp="", help=_("Toggle Automatic Autocomplete"), 
+
+		self._autoAutoItem = emn.append(_("Automa&tic AutoComplete"),
+				OnHit=self.onAutoAutoComp, bmp="", help=_("Toggle Automatic Autocomplete"),
 				menutype="check")
-		self._codeFoldingItem = emn.append(_("Code Folding"), 
-				OnHit=self.onCodeFolding, bmp="", help=_("Toggle Code Folding"), 
+		self._codeFoldingItem = emn.append(_("Code Folding"),
+				OnHit=self.onCodeFolding, bmp="", help=_("Toggle Code Folding"),
 				menutype="check")
-		self._lineNumbersItem = emn.append(_("Line Numbers"), 
-				OnHit=self.onLineNumbers, bmp="", help=_("Toggle Line Numbers"), 
+		self._lineNumbersItem = emn.append(_("Line Numbers"),
+				OnHit=self.onLineNumbers, bmp="", help=_("Toggle Line Numbers"),
 				menutype="check")
-		self._whiteSpaceItem = emn.append(_("White Space Characters"), 
-				OnHit=self.onWhiteSpace, bmp="", help=_("Toggle White Space Characters"), 
+		self._whiteSpaceItem = emn.append(_("White Space Characters"),
+				OnHit=self.onWhiteSpace, bmp="", help=_("Toggle White Space Characters"),
 				menutype="check")
-		
+
 		emn.appendSeparator()
-		
-		self._useSpacesItem = emn.append(_("Use Spaces Instead Of Tabs"), 
-				OnHit=self.onUseSpaces, bmp="", help=_("Toggle Using Spaces Or Tabs"), 
+
+		self._useSpacesItem = emn.append(_("Use Spaces Instead Of Tabs"),
+				OnHit=self.onUseSpaces, bmp="", help=_("Toggle Using Spaces Or Tabs"),
 				menutype="check")
-		
+
 		self._tabMenu = dabo.ui.dMenu(Caption="Tab Size")
 		emn.appendMenu(self._tabMenu)
-		
+
 		for number in [2,4,6,8,16]:
 			self._tabMenu.append(_("Tab Size %s" % number), OnHit=self.onTabSize, bmp="",
 					help=_("Set Tab Size To %s" % number), menutype="radio")
@@ -278,8 +278,8 @@ class EditorForm(dui.dForm):
 		for dct in codeDict:
 			cd += dct.values()
 		return " ".join(cd)
-		
-		
+
+
 	def _getMethodBase(self, mthd, isEvt):
 		cd = ("def %s(self):" % mthd, "def %s(self, evt):" % mthd)
 		if isEvt is None:
@@ -289,11 +289,11 @@ class EditorForm(dui.dForm):
 
 
 	def refreshCode(self):
-		"""When an external event modified an object's code, this will update the 
+		"""When an external event modified an object's code, this will update the
 		code displayed in the editor.
 		"""
 		self.edit(self.ddObject.KeyValue, discardChanges=True)
-		
+
 
 	def edit(self, obj, mthd=None, nonEvent=None, discardChanges=False):
 		"""Opens an editor for the specified object and method."""
@@ -404,10 +404,10 @@ class EditorForm(dui.dForm):
 
 
 	def onSuperCode(self, evt):
-		self.Controller.onShowSuper(self.ddObject.KeyValue.classID, 
+		self.Controller.onShowSuper(self.ddObject.KeyValue.classID,
 				self.ddMethod.StringValue)
-	
-	
+
+
 	def onNewMethod(self, evt):
 		nm = dabo.ui.getString(_("Name of method?"))
 		if nm:
@@ -458,17 +458,17 @@ class EditorForm(dui.dForm):
 				try:
 					mthds.remove(mthd)
 				except: pass
-		
+
 		# This may eventually be replaced by code that records your choices
 		# and moves the most commonly selected methods to the top
-		topMethods = ["onHit", "onContextMenu", "onKeyChar", "onMouseLeftClick", 
-				"onMouseRightClick", "afterInit", "afterInitAll", "initProperties", "initEvents", 
+		topMethods = ["onHit", "onContextMenu", "onKeyChar", "onMouseLeftClick",
+				"onMouseRightClick", "afterInit", "afterInitAll", "initProperties", "initEvents",
 				"validateRecord", "validateField"]
 		for mthd in topMethods:
 			if mthd in mthds:
 				chc.append(mthd)
 				mthds.remove(mthd)
-		
+
 		# Now add all the event methods
 		evtMethods = [mthd for mthd in mthds
 				if mthd.startswith("on")]
@@ -588,7 +588,7 @@ class EditorForm(dui.dForm):
 
 			# Add it to the repository.
 			if hasattr(obj, "classID"):
-				# Make sure that it differs from the base code for this class. If not, 
+				# Make sure that it differs from the base code for this class. If not,
 				# don't save it.
 				cid = obj.classID
 				cb = self._getClassMethod(cid, mthd)
@@ -599,7 +599,7 @@ class EditorForm(dui.dForm):
 # 					txt = ""
 			if objCode:
 				txt = self._extractImports(txt)
-				objCode[mthd] = txt	
+				objCode[mthd] = txt
 			else:
 				rep[obj] = {}
 				rep[obj][mthd] = txt
@@ -614,8 +614,8 @@ class EditorForm(dui.dForm):
 
 	def _getClassMethod(self, clsID, mthd):
 		return self.Controller._getClassMethod(clsID, mthd)
-		
-		
+
+
 	def _extractImports(self, cd):
 		if not cd:
 			return ""

@@ -32,16 +32,16 @@ class DragHandle(dabo.ui.dPanel):
 		else:
 			cursor = dabo.ui.dUICursors.Cursor_Size_WE
 		self.MousePointer = dabo.ui.dUICursors.getStockCursor(cursor)
-		
+
 		self.selection = None
-		
+
 		ud = handleName[0]
 		lr = handleName[1]
 		self.up = (ud == "T")
 		self.down = (ud == "B")
 		self.left = (lr == "L")
 		self.right = (lr == "R")
-		
+
 		self.bindEvent(dEvents.MouseLeftDown, self.onLeftDown)
 		self.bindEvent(dEvents.MouseLeftUp, self.onLeftUp)
 		self.bindEvent(dEvents.MouseMove, self.onMouseDrag)
@@ -51,14 +51,14 @@ class DragHandle(dabo.ui.dPanel):
 	def onLeftDown(self, evt):
 		self.dragging = True
 		self.Form.startResize(self, evt)
-		
-	
+
+
 	def onLeftUp(self, evt):
 		self.dragging = False
 		self.Form.processLeftUp(self, evt)
 		evt.stop()
-	
-	
+
+
 	def onMouseDrag(self, evt, shft=None):
 		if shft is None:
 			try:

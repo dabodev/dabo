@@ -24,7 +24,7 @@ def main():
 		frm.openFile(file)
 	frm.show()
 	app.start()
-	
+
 
 
 if __name__ == "__main__":

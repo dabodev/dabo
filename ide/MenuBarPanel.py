@@ -10,7 +10,7 @@ from dabo.lib.utils import dictStringify
 
 
 class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
-	"""This panel represents the menu bar. It contains the 
+	"""This panel represents the menu bar. It contains the
 	top-level menus.
 	"""
 	def afterInit(self):
@@ -23,11 +23,11 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		sz.DefaultBorderRight = True
 		self.Height = 24
 		self.BackColor = "white"
-		# We don't need a real property here, so just create an 
+		# We don't need a real property here, so just create an
 		# attribute that looks like the required prop.
 		self.DesignerProps = {}
-		
-	
+
+
 	def appendMenu(self, caption, useMRU=False):
 		mn = MenuPanel(self, Caption=caption, MRU=useMRU, Visible=True)
 		self.Sizer.append(mn)
@@ -35,16 +35,16 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		self.fit()
 		self.Controller.updateLayout()
 		return mn
-	
-	
+
+
 	def insertMenu(self, pos, caption, useMRU=False):
 		mn = MenuPanel(self, Caption=caption, MRU=useMRU)
 		self.Sizer.insert(pos, mn)
 		self.fit()
 		self.Controller.updateLayout()
 		return mn
-		
-		
+
+
 	def menuClick(self, menu):
 		self.select(menu)
 
@@ -53,12 +53,12 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		self.Controller.Selection = menu
 		menu.PanelVisible = True
 
-		
+
 	def fit(self):
 		self.layout(resetMin=True)
 		self.Width = reduce(lambda x, y: x+y, [ch.Width for ch in self.Children])
-	
-	
+
+
 	def processContextMenu(self, obj, evt):
 		self._contextObj = obj
 		pop = dabo.ui.dMenu()
@@ -76,8 +76,8 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		pop.appendSeparator()
 		pop.append("Delete", OnHit=self.onDelete)
 		self.showContextMenu(pop)
-	
-	
+
+
 	def onAppendItem(self, evt):
 		obj = self._contextObj
 		self._contextObj = None
@@ -86,16 +86,16 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 			itm = obj.append(cap)
 			obj.PanelVisible = True
 			self.Controller.Selection = itm
-	
-	
+
+
 	def onAppendSep(self, evt):
 		obj = self._contextObj
 		self._contextObj = None
 		itm = obj.appendSeparator()
 		obj.PanelVisible = True
 		self.Controller.Selection = itm
-		
-	
+
+
 	def onEdit(self, evt):
 		obj = self._contextObj
 		txt = self.capText = dabo.ui.dTextBox(self, Value=obj.Caption,
@@ -104,13 +104,13 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		txt.bindEvent(dEvents.KeyChar, self.onTextCapChar)
 		obj.hide()
 		txt.setFocus()
-		
-		
+
+
 	def onTextCapChar(self, evt):
 		if evt.keyCode == 13:
 			self.onEndEdit(evt)
-			
-			
+
+
 	def onEndEdit(self, evt):
 		cap = self.capText.Value
 		self.capText.release()
@@ -121,26 +121,26 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		self._contextObj = None
 		self.Controller.updateLayout()
 		self.fit()
-	
-	
+
+
 	def onAddLeft(self, evt):
 		pos = self._contextObj.getPositionInSizer()
 		itm = self.addItem(pos)
 		self.Controller.Selection = itm
-		
-	
+
+
 	def onAddRight(self, evt):
 		pos = self._contextObj.getPositionInSizer() + 1
 		itm = self.addItem(pos)
 		self.Controller.Selection = itm
-	
-	
+
+
 	def addItem(self, pos):
 		cap = dabo.ui.getString("Caption for new menu?")
 		if cap:
 			return self.insertMenu(pos, cap)
 		return None
-		
+
 
 	def onMoveRight(self, evt):
 		obj = self._contextObj
@@ -150,8 +150,8 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		sz.insert(pos+1, obj)
 		sz.layout()
 		self.Controller.updateLayout()
-	
-	
+
+
 	def onMoveLeft(self, evt):
 		obj = self._contextObj
 		pos = obj.getPositionInSizer()
@@ -160,8 +160,8 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		sz.insert(pos-1, obj)
 		sz.layout()
 		self.Controller.updateLayout()
-		
-	
+
+
 	def onDelete(self, evt):
 		obj = self._contextObj
 		if not obj:
@@ -170,26 +170,26 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		obj.release()
 		self.fit()
 		self.Controller.updateLayout()
-	
-		
+
+
 	def update(self):
 		super(MenuBarPanel, self).update()
 		dabo.ui.callAfter(self.fitToSizer)
-	
-	
+
+
 	def hideAllBut(self, menu=None):
 		for mn in self.Menus:
 			if not mn is menu and mn.PanelVisible:
 				mn.PanelVisible = False
-	
-	
+
+
 	def hideAll(self):
 		"""Hides 'em all"""
 		self.hideAllBut()
 
 
 	def restore(self, dct):
-		"""Takes a dictionary created by xmltodict from a saved .mnxml file, 
+		"""Takes a dictionary created by xmltodict from a saved .mnxml file,
 		and re-creates the saved menu.
 		"""
 		self.clear()
@@ -225,7 +225,7 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		fm.append("SaveAs", key="Ctrl-Shift-S", picture="saveas")
 		fm.appendSeparator()
 		fm.append("Command Window", key="Ctrl-D", picture="")
-		
+
 		em = self.appendMenu(_("Edit"), False)
 		em.append("Undo", key="Ctrl-Z", picture="undo")
 		em.append("Redo", key="Ctrl-R", picture="redo")
@@ -238,7 +238,7 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 		em.append("Find Again", key="Ctrl-G", picture="")
 		self.appendMenu(_("View"), False)
 		self.appendMenu(_("Help"), False)
-		
+
 		for kid in self.Children:
 			kid.Visible = True
 		self.layout()
@@ -277,7 +277,7 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 			return vis[0]
 		else:
 			return None
-			
+
 
 	def _getDisplayText(self):
 		return self._commonName
@@ -293,9 +293,9 @@ class MenuBarPanel(MenuSaverMixin, dabo.ui.dPanel):
 
 	DisplayedMenu = property(_getDisplayedMenu, None, None,
 			_("Reference to the menu that is currently 'open' (read-only) (MenuPanel)"))
-	
+
 	DisplayText = property(_getDisplayText, None, None,
 			_("Text used in the prop sheet to identify this object (read-only) (str)"))
-	
+
 	Menus = property(_getMenus, None, None,
 			_("List of all menus in this menubar  (list of MenuPanels)"))

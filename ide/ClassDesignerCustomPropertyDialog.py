@@ -25,7 +25,7 @@ class ClassDesignerCustomPropertyDialog(dui.dOkCancelDialog):
 		lbl = dui.dLabel(self, Caption=_("Default Value"))
 		self.txtDefaultVal = dui.dTextBox(self, SelectOnEntry=True, Value=None,
 				OnKeyChar=self.updEnabled)
-		self.ddType = dui.dDropdownList(self, Choices=["", "string", 
+		self.ddType = dui.dDropdownList(self, Choices=["", "string",
 				"integer", "float", "boolean", "datetime"])
 		self.ddType.PositionValue = 0
 		sz.append(lbl, halign="right")
@@ -34,7 +34,7 @@ class ClassDesignerCustomPropertyDialog(dui.dOkCancelDialog):
 		hsz.append(self.ddType, halign="right", border=5, borderSides="left")
 		sz.append(hsz, "x")
 
-		self.chkGet = chk = dui.dCheckBox(self, Alignment="right", 
+		self.chkGet = chk = dui.dCheckBox(self, Alignment="right",
 				Caption=_("Get Method"))
 		self.txtGet = dui.dTextBox(self, SelectOnEntry=True)
 		sz.append(chk, halign="right")
@@ -43,7 +43,7 @@ class ClassDesignerCustomPropertyDialog(dui.dOkCancelDialog):
 		chk.DataField = "Enabled"
 		chk.Value = True
 
-		self.chkSet = chk = dui.dCheckBox(self, Alignment="right", 
+		self.chkSet = chk = dui.dCheckBox(self, Alignment="right",
 				Caption=_("Set Method"))
 		self.txtSet = dui.dTextBox(self, SelectOnEntry=True)
 		sz.append(chk, halign="right")
@@ -52,7 +52,7 @@ class ClassDesignerCustomPropertyDialog(dui.dOkCancelDialog):
 		chk.DataField = "Enabled"
 		chk.Value = True
 
-		self.chkDel = chk = dui.dCheckBox(self, Alignment="right", 
+		self.chkDel = chk = dui.dCheckBox(self, Alignment="right",
 				Caption=_("Del Method"))
 		self.txtDel = dui.dTextBox(self, SelectOnEntry=True)
 		sz.append(chk, halign="right")
@@ -60,7 +60,7 @@ class ClassDesignerCustomPropertyDialog(dui.dOkCancelDialog):
 		chk.DataSource = self.txtDel
 		chk.DataField = "Enabled"
 		chk.Value = False
-		
+
 		sz.setColExpand(True, 1)
 		self.Sizer.append1x(sz, border=12)
 		self.AutoSize = False
@@ -72,8 +72,8 @@ class ClassDesignerCustomPropertyDialog(dui.dOkCancelDialog):
 
 	def onKeyPropName(self, evt):
 		dui.callAfter(self.createPropNames)
-		
-	
+
+
 	def createPropNames(self):
 		"""Occurs when the user types anything in the Prop Name textbox."""
 		pos = self.txtPropName.InsertionPosition
@@ -97,10 +97,10 @@ class ClassDesignerCustomPropertyDialog(dui.dOkCancelDialog):
 			self.txtDel.Value = delName
 		self.txtPropName.InsertionPosition = pos
 		self.refresh()
-		
-		
+
+
 	def setData(self, dct):
-		"""This method receives a dict containing the various 
+		"""This method receives a dict containing the various
 		property values as the keys.
 		"""
 		self.txtPropName.Value = dct["propName"]
@@ -130,7 +130,7 @@ class ClassDesignerCustomPropertyDialog(dui.dOkCancelDialog):
 
 
 	def getData(self):
-		"""This method returns a dict containing the various 
+		"""This method returns a dict containing the various
 		property values as the keys.
 		"""
 		ret = {}
@@ -156,12 +156,12 @@ class ClassDesignerCustomPropertyDialog(dui.dOkCancelDialog):
 	def needDefType(self):
 		ret = bool(self.txtDefaultVal.Value)
 		return ret
-	
-	
+
+
 	def updEnabled(self, evt):
 		dabo.ui.callAfterInterval(500, self.setEnabled)
-	
-	
+
+
 	def setEnabled(self):
 		hasDefault = bool(self.txtDefaultVal.Value)
 		self.ddType.Enabled = hasDefault

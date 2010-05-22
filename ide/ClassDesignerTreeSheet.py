@@ -23,12 +23,12 @@ class TreeSheet(dui.dPanel):
 	def _initProperties(self):
 		self.tree = None
 		return super(TreeSheet, self)._initProperties()
-		
-	
+
+
 	def _constructed(self):
 		return hasattr(self, "tree") and isinstance(self.tree, dui.dTreeView)
-		
-		
+
+
 	def afterInit(self):
 		self._slotCaption = _("Empty Sizer Slot")
 		self._spacerCaption = _("Spacer")
@@ -42,7 +42,7 @@ class TreeSheet(dui.dPanel):
 			self.tree.FontSize -= 1
 
 		self.tree.bindEvent(dEvents.TreeSelection, self.onTreeSel)
-		self.tree.bindEvent(dEvents.TreeItemContextMenu, 
+		self.tree.bindEvent(dEvents.TreeItemContextMenu,
 				self.onTreeContextMenu)
 		self.tree.bindEvent(dEvents.MouseLeftDoubleClick, self.onTreeAction)
 		self.tree.bindKey("enter", self.onTreeAction)
@@ -53,25 +53,25 @@ class TreeSheet(dui.dPanel):
 		self.Sizer.append1x(self.tree)
 		# Flag for determining if the user or the app is selecting
 		self._inAppSelection = False
-	
-	
+
+
 	def onTreeAction(self, evt):
 		self.Form.hideTree()
 
-	
+
 # 	def onTreeBeginDrag(self, evt):
 # 		print "BEGIN DRAG"
 # 		print "ALLOWED?",evt._uiEvent.IsAllowed()
 # 		print evt.EventData
 # 		print evt.selectedCaption
-# 	
-# 	
+#
+#
 # 	def onTreeEndDrag(self, evt):
 # 		print "End DRAG"
 # 		print evt.EventData
 # 		print evt.selectedCaption
 
-		
+
 	def onTreeSel(self, evt):
 		if self._inAppSelection:
 			# Otherwise, this would be infinite recursion
@@ -89,16 +89,16 @@ class TreeSheet(dui.dPanel):
 				dabo.ui.callAfter(self.showContextMenu, menu)
 		except IndexError:
 			pass
-		
+
 
 	def expandAll(self):
 		self.tree.expandAll()
-		
-	
+
+
 	def collapseAll(self):
 		self.tree.collapseAll()
-		
-		
+
+
 	def getSelection(self):
 		if self.MultipleSelect:
 			nds = self.tree.Selection
@@ -110,8 +110,8 @@ class TreeSheet(dui.dPanel):
 		else:
 			ret = self.tree.Selection.Object
 		return ret
-	
-	
+
+
 	def select(self, ctls):
 		"""Iterate through the nodes, and set their Selected status
 		to match if they are in the current selection of controls.
@@ -125,8 +125,8 @@ class TreeSheet(dui.dPanel):
 				if nn.Object in ctls]
 		self.tree.Selection = selNodes
 		self._inAppSelection = False
-		
-		
+
+
 	def priorObj(self):
 		"""Return the next node up from the current selection"""
 		ret = None
@@ -134,8 +134,8 @@ class TreeSheet(dui.dPanel):
 		if nx is not None:
 			ret = nx._object
 		return ret
-		
-		
+
+
 	def nextObj(self):
 		"""Return the next node down from the current selection"""
 		ret = None
@@ -143,13 +143,13 @@ class TreeSheet(dui.dPanel):
 		if nx is not None:
 			ret = nx._object
 		return ret
-		
-		
+
+
 	def getNodeFor(self, obj):
 		"""Return the node whose Object property is the passed object."""
 		return self.tree.nodeForObject(obj)
-	
-	
+
+
 	def updateDisplay(self, frm):
 		"""Constructs the tree for the form's layout."""
 		sel = self.tree.Selection
@@ -158,7 +158,7 @@ class TreeSheet(dui.dPanel):
 				selObjs = [nn.Object for nn in sel]
 		# Preserve the expand/collapse state if possible.
 		expState = [(nn.Object, nn.Expanded) for nn in self.tree.nodes]
-		
+
 		self.tree.clear()
 		topObj = frm.getObjectHierarchy()[0][1]
 		self.recurseLayout(topObj, None)
@@ -173,8 +173,8 @@ class TreeSheet(dui.dPanel):
 			nn = self.tree.nodeForObject(obj)
 			if nn:
 				nn.Expanded = expand
-		
-	
+
+
 	def updateNames(self, frm):
 		"""Refreshes the object names without changing the layout."""
 		sel = self.tree.Selection
@@ -183,9 +183,9 @@ class TreeSheet(dui.dPanel):
 		for nd in sel:
 			obj = nd.Object
 			nd.Caption = self._getDisplayName(obj)
-			
-			
-			
+
+
+
 	def _getDisplayName(self, obj):
 		"""Create the name displayed on the tree for a given object."""
 		ret = str(obj)
@@ -212,7 +212,7 @@ class TreeSheet(dui.dPanel):
 				ret = "%s r:%s, c:%s" % (self._slotCaption, r, c)
 			else:
 				ret = "%s - (%s)" % (self._spacerCaption, obj.Spacing)
-	
+
 		elif isinstance(obj, SeparatorPanel):
 			return " (Separator) "
 		else:
@@ -235,8 +235,8 @@ class TreeSheet(dui.dPanel):
 			except: pass
 			ret = "%s (%s)" % dsp
 		return ret
-		
-	
+
+
 	def _getClassName(self, cls):
 		"""Takes a string representation of the form:
 			<class 'dabo.ui.uiwx.dTextBox.dTextBox'>
@@ -248,12 +248,12 @@ class TreeSheet(dui.dPanel):
 			# Just include the class name
 			ret = ret.split("'")[1].split(".")[-1]
 		return ret
-		
-	
+
+
 	def onTreeItemContextMenu(self, evt):
 		print evt.itemID
-		
-		
+
+
 	def recurseLayout(self, itm, node, noDisplay=False, sz=None):
 		## Is this good to do? Or am I masking problems?
 		if itm is None:
@@ -269,7 +269,7 @@ class TreeSheet(dui.dPanel):
 				childNode = node.appendChild(cap)
 				childNode.Object = itm
 			if isinstance(itm, dui.dGridSizer):
-				# Grid Sizer children are in the order they are added; 
+				# Grid Sizer children are in the order they are added;
 				# instead, get items into r,c order
 				kids = [itm.getItemByRowCol(rr, cc, False)
 						for rr in range(itm._rows)
@@ -279,13 +279,13 @@ class TreeSheet(dui.dPanel):
 			for kid in kids:
 				self.recurseLayout(kid, childNode, noDisplay=noDisplay, sz=itm)
 
-		elif isinstance(itm, (dabo.ui.dSizer.SizerItem, 
+		elif isinstance(itm, (dabo.ui.dSizer.SizerItem,
 				dabo.ui.dSizer.GridSizerItem)):
 			if itm.IsWindow():
 				recurse = True
 				noDisplay = False
 				win = itm.GetWindow()
-				
+
 				if isinstance(win, LayoutSpacerPanel):
 					cap = self._getDisplayName(win)
 					childNode = node.appendChild(cap)
@@ -296,12 +296,12 @@ class TreeSheet(dui.dPanel):
 					sz = win.Sizer
 					if sz is None:
 						# Empty slot; display it in the tree.
-						childNode = node.appendChild(cap)				
+						childNode = node.appendChild(cap)
 						childNode.Object = win
 						recurse = False
 					if isinstance(sz, LayoutSizer) and sz.SlotCount == 0:
 						# Empty slot; display it in the tree.
-						childNode = node.appendChild(cap)				
+						childNode = node.appendChild(cap)
 						childNode.Object = win
 					else:
 						childNode = node
@@ -315,7 +315,7 @@ class TreeSheet(dui.dPanel):
 					childNode = node
 				if recurse:
 					self.recurseLayout(win, childNode, noDisplay=noDisplay)
-					
+
 			elif itm.IsSizer():
 				sz = itm.GetSizer()
 				childNode = node
@@ -328,7 +328,7 @@ class TreeSheet(dui.dPanel):
 					DragHandle)):
 				# ignore
 				return
-			elif isinstance(itm, (dui.dForm, dui.dToolForm, 
+			elif isinstance(itm, (dui.dForm, dui.dToolForm,
 					dui.dDialog)) and node is not None:
 				# This is a child form; ignore it
 				return
@@ -346,12 +346,12 @@ class TreeSheet(dui.dPanel):
 
 			elif isinstance(itm, LayoutBasePanel):
 				return self.recurseLayout(itm.Sizer, node, noDisplay=False)
-				
+
 			cap = self._getDisplayName(itm)
 			if hasattr(itm, "_hideInTree"):
 				if itm._hideInTree:
 					# Don't continue to drill into object
-					return				
+					return
 			if noDisplay:
 				childNode = node
 			else:
@@ -367,7 +367,7 @@ class TreeSheet(dui.dPanel):
 					if isinstance(itm, dui.dialogs.WizardPage):
 						self._recurseChildren(itm.Children, childNode, noDisplay)
 						return
-					if not isinstance(itm, (dui.dPageFrameNoTabs, dui.dRadioList, 
+					if not isinstance(itm, (dui.dPageFrameNoTabs, dui.dRadioList,
 							dui.dSpinner, dui.dialogs.Wizard, dui.dialogs.WizardPage)):
 						self.recurseLayout(itm.Sizer, childNode, noDisplay=noDisplay)
 			if isinstance(itm, dui.dGrid):
@@ -377,7 +377,7 @@ class TreeSheet(dui.dPanel):
 				children = itm.BaseNodes
 			elif isinstance(itm, (dui.dComboBox, dui.dSpinner,
 					dui.dListControl, dui.dRadioList)):
-				# These compound controls don't need their parts listed 
+				# These compound controls don't need their parts listed
 				children = None
 			elif isinstance(itm, SeparatorPanel):
 				children = None
@@ -388,8 +388,8 @@ class TreeSheet(dui.dPanel):
 					children = None
 			if children:
 				self._recurseChildren(children, childNode, noDisplay)
-			
-			
+
+
 	def _recurseChildren(self, children, childNode, noDisplay):
 		for chil in children:
 			if chil is self:
@@ -429,7 +429,7 @@ class TreeSheet(dui.dPanel):
 # 		except AttributeError:
 # 			ret = self._multipleSelect = True
 # 		return ret
-# 
+#
 # 	def _setMultipleSelect(self, val):
 # 		if self._constructed():
 # 			self._multipleSelect = val
@@ -447,6 +447,6 @@ class TreeSheet(dui.dPanel):
 
 # 	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
 # 			_("Determines if the tree supports multiple selection  (bool)"))
-	
+
 	_proxyDict = {}
 	MultipleSelect = makeProxyProperty(_proxyDict, "MultipleSelect", "tree", )

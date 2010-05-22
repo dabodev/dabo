@@ -17,7 +17,7 @@ from dabo.lib.untabify import process as untabify
 
 
 def getSafeTableName(tableName):
-	"""Return a table name that can safely be used in generated code.""" 
+	"""Return a table name that can safely be used in generated code."""
 	return tableName.title().replace(" ", "").replace(".", "_")
 
 
@@ -28,14 +28,14 @@ class AppWizardPage(WizardPage):
 class PageIntro(AppWizardPage):
 	def __init__(self, parent, Caption=_("Introduction")):
 		super(PageIntro, self).__init__(parent=parent, Caption=Caption)
-	
+
 	def createBody(self):
 		txt = _("Use this wizard to quickly create an application "
 "for your database. Point the wizard at a database; "
 "specify a target directory; the wizard will create "
 "a full-fledged Dabo application with forms for each "
 "table in the database that allow you to run queries "
-"and edit the results. You can then edit the resulting " 
+"and edit the results. You can then edit the resulting "
 "application to fit your exact requirements. "
 "\n\n"
 "Right now Dabo supports the MySQL, Firebird, "
@@ -43,31 +43,31 @@ class PageIntro(AppWizardPage):
 "In time the number of supported databases will grow."
 "\n\n"
 "Press 'Next' to enter database parameters.")
-		lbl = dabo.ui.dEditBox(self, Value=txt, ReadOnly=True, BorderStyle="None", 
+		lbl = dabo.ui.dEditBox(self, Value=txt, ReadOnly=True, BorderStyle="None",
 				BackColor=self.BackColor)
 		self.Sizer.append1x(lbl, border=10)
-		
+
 
 class PageDatabase(AppWizardPage):
 	def __init__(self, parent, Caption=_("Database Parameters")):
 		super(PageDatabase, self).__init__(parent=parent, Caption=Caption)
-	
-	
+
+
 	def createBody(self):
 		self.embeddedDbTypes = ("SQLite", )
 		self.embeddedFields = ("DbType", "Database", "Name")
-		self.serverFields = self.embeddedFields + ("Host", "User", 
+		self.serverFields = self.embeddedFields + ("Host", "User",
 				"Password", "Port")
-	
+
 		sz = self.Sizer
 		lbl = dLabel(self, Caption=_("Enter the parameters here, and then click 'Next'."))
 		sz.append(lbl)
 		lbl = dLabel(self, Caption=_("Profile:"))
-		
+
 		self.dbDefaults = {}
 		self.dbDefaults["MySQL"] = {
 				"DbType" : "MySQL",
-				"Host" : "dabodev.com", 
+				"Host" : "dabodev.com",
 				"Database" : "webtest",
 				"User" : "webuser",
 				"Password" : "foxrocks",
@@ -75,7 +75,7 @@ class PageDatabase(AppWizardPage):
 				"Name" : "MySQL-default" }
 		self.dbDefaults["Firebird"] = {
 				"DbType" : "Firebird",
-				"Host" : "dabodev.com", 
+				"Host" : "dabodev.com",
 				"Database" : "webtest",
 				"User" : "webuser",
 				"Password" : "foxrox",
@@ -83,7 +83,7 @@ class PageDatabase(AppWizardPage):
 				"Name" : "Firebird-default" }
 		self.dbDefaults["PostgreSQL"] = {
 				"DbType" : "PostgreSQL",
-				"Host" : "dabodev.com", 
+				"Host" : "dabodev.com",
 				"Database" : "webtest",
 				"User" : "webuser",
 				"Password" : "foxrox",
@@ -91,25 +91,25 @@ class PageDatabase(AppWizardPage):
 				"Name" : "PostgreSQL-default" }
 		self.dbDefaults["MsSQL"] = {
 				"DbType" : "MsSQL",
-				"Host" : "", 
+				"Host" : "",
 				"Database" : "",
 				"User" : "",
 				"Password" : "",
 				"Port" : "1433",
-				"Name" : "MsSQL-default" }		
+				"Name" : "MsSQL-default" }
 		self.dbDefaults["SQLite"] = {
 				"DbType" : "SQLite",
 				"Database" : "webtest.sqlite",
 				"Name" : "SQLite-default" }
-		
+
 		# Save the supported dbTypes into a list
 		self.supportedDbTypes = self.dbDefaults.keys()
-		
+
 		# List of all fields to create for the user to select
-		self.fieldNames = ("DbType", "Name", "Host", "Database", "User", 
+		self.fieldNames = ("DbType", "Name", "Host", "Database", "User",
 				"Password", "Port")
-		
-		# Now go through the profiles that the user may have saved in the 
+
+		# Now go through the profiles that the user may have saved in the
 		# user settings file:
 		app = self.Application
 		userProfiles = app.getUserSettingKeys("dbDefaults")
@@ -127,16 +127,16 @@ class PageDatabase(AppWizardPage):
 			for field in (self.fieldNames):
 				name = "dbDefaults.%s.%s" % (profile, field)
 				val = app.getUserSetting(name)
-				if val is None: 
+				if val is None:
 					val = ""
 				userDict[field] = val
 			if profile in dbDefaultMap.keys():
 				profile = dbDefaultMap[profile]
 			self.dbDefaults[profile] = userDict
-			
+
 			# Override the default with the last user profile:
 			defaultUserProfileName=profile
-		
+
 		# Set up the dropdown list based on the keys in the dbDefaults dict.
 		self.ddProfile = dabo.ui.dDropdownList(self, Name="ddProfile")
 		self.ddProfile.ValueMode = "string"
@@ -146,11 +146,11 @@ class PageDatabase(AppWizardPage):
 		else:
 			self.ddProfile.Value = defaultProfileName
 		self.ddProfile.bindEvent(dabo.dEvents.ValueChanged, self.onProfileChoice)
-		
-		cmd = self.addObject(dabo.ui.dButton, 
+
+		cmd = self.addObject(dabo.ui.dButton,
 			Caption=_("New Profile..."), Name="cmdNewProfile")
 		cmd.bindEvent(dabo.dEvents.Hit, self.onNewProfile)
-		
+
 		gs = dabo.ui.dGridSizer()
 		gs.MaxCols = 2
 		gs.setColExpand(True, 1)
@@ -161,20 +161,20 @@ class PageDatabase(AppWizardPage):
 		hs.append(cmd, 0)
 		gs.append(hs, "x")
 		gs.appendSpacer(20, colSpan=2)
-		
+
 		for field in self.fieldNames:
 			lbl = dLabel(self, Name=("lbl%s" % field), Width=75, Caption=("%s:" % field) )
 			if field == "DbType":
-				obj = dabo.ui.dDropdownList(self, Name=("ctl%s" % field), 
+				obj = dabo.ui.dDropdownList(self, Name=("ctl%s" % field),
 						Choices=self.supportedDbTypes, ValueMode="string")
 			else:
 				pw = (field.lower() == "password")
-				obj = dabo.ui.dTextBox(self, PasswordEntry=pw, 
+				obj = dabo.ui.dTextBox(self, PasswordEntry=pw,
 						Name=("ctl%s" % field), SelectOnEntry=True )
 			obj.bindEvent(dabo.dEvents.ValueChanged, self.onParmValueChanged)
-			
+
 			gs.append(lbl)
-			# Add a file search button. It will be hidden for all 
+			# Add a file search button. It will be hidden for all
 			# non-file-based backends.
 			if field == "Database":
 				self.btnSrch = dabo.ui.dButton(self, Caption="...")
@@ -184,20 +184,20 @@ class PageDatabase(AppWizardPage):
 				hs.append1x(obj)
 				hs.append(self.btnSrch, border=10, borderSides="left")
 				gs.append(hs, "x")
-			else:	
+			else:
 				gs.append(obj, "x")
 		sz.append(gs, 1, "x")
 		self.onProfileChoice()
-	
-	
+
+
 	def onDbSearch(self, evt):
 		"""Select a file for the database"""
 		pth = dabo.ui.getFile(message=_("Select the database"))
 		if pth:
 			self.ctlDatabase.Value = pth
 			self.refresh()
-			
-		
+
+
 	def onParmValueChanged(self, evt):
 		# write the new value back to the user settings table.
 		obj = evt.EventObject
@@ -210,8 +210,8 @@ class PageDatabase(AppWizardPage):
 			# User could have changed from an embedded type to a regular type, in
 			# which case more/fewer fields need to be displayed:
 			self.onProfileChoice()
-		
-		
+
+
 	def onNewProfile(self, evt):
 		base = _("New Profile")
 		i = 1
@@ -221,16 +221,16 @@ class PageDatabase(AppWizardPage):
 				i += 1
 			else:
 				break
-				
-		name = dabo.ui.getString(_("Please enter a name for the profile"), 
+
+		name = dabo.ui.getString(_("Please enter a name for the profile"),
 				defaultValue=default)
 		if name is not None:
 			# Defualt to the current DbType
 			currDbType = self.ctlDbType.Value
 			self.dbDefaults[name] = {
 					"DbType" : currDbType,
-					"Name" : "", 
-					"Host" : "", 
+					"Name" : "",
+					"Host" : "",
 					"Database" : "",
 					"User" : "",
 					"Password" : "",
@@ -241,7 +241,7 @@ class PageDatabase(AppWizardPage):
 			self.ctlDbType.Value = "MySQL"
 			self.ctlPort.Value = "3306"
 			self.ctlDbType.setFocus()
-			
+
 
 	def onProfileChoice(self, evt=None):
 		choice = self.ddProfile.Value
@@ -259,7 +259,7 @@ class PageDatabase(AppWizardPage):
 					ctl.Value = val
 				except ValueError, e:
 					if "string must be present in the choices" in str(e).lower():
-						# Not sure why the saved profile dbType is empty. No time to 
+						# Not sure why the saved profile dbType is empty. No time to
 						# find out why now, but at least the AW won't crash anymore.
 						pass
 					else:
@@ -281,14 +281,14 @@ class PageDatabase(AppWizardPage):
 			if len(self.Form.tableDict) > 0:
 				if not dabo.ui.areYouSure(_("Overwrite the current table information?")):
 					return True
-					
+
 			# Set the wizard's connect info based on the user input:
 			ci = self.Form.connectInfo
 			dbType = self.ctlDbType.Value
 			try:
 				ci.DbType = dbType
 			except ValueError:
-				dabo.ui.stop(_("The database type '%s' is invalid. " + 
+				dabo.ui.stop(_("The database type '%s' is invalid. " +
 						"Please reenter and try again.") % dbType)
 				self.ctlDbType.setFocus()
 				return False
@@ -314,7 +314,7 @@ class PageDatabase(AppWizardPage):
 			except Exception, e:
 				busy = None
 				traceback.print_exc()
-				dabo.ui.stop(_("Could not connect to the database server. " + 
+				dabo.ui.stop(_("Could not connect to the database server. " +
 						"Please check your parameters and try again."))
 				return False
 			busy = None
@@ -335,13 +335,13 @@ class PageDatabase(AppWizardPage):
 class PageTableSelection(AppWizardPage):
 	def __init__(self, parent, Caption=_("Table Selection")):
 		super(PageTableSelection, self).__init__(parent=parent, Caption=Caption)
-	
-	
+
+
 	def createBody(self):
 		self.tableSelections = {}
-		txt = _("""The connection to the database was successful. 
+		txt = _("""The connection to the database was successful.
 The following tables were found for that database.
-Please check all tables you want included in 
+Please check all tables you want included in
 your application.""")
 		lbl = dLabel(self, Caption=txt)
 		clb = self.addObject(dabo.ui.dCheckList, Name="clbTableSelection")
@@ -359,7 +359,7 @@ your application.""")
 		hsz.append(btn, border=5)
 		self.Sizer.append(hsz, halign="center")
 
-		
+
 	def onEnterPage(self, direction):
 		if direction == "forward":
 			tbls = [t for t in self.Form.getTables()]
@@ -375,30 +375,30 @@ your application.""")
 
 	def onSelectAll(self, evt):
 		self.clbTableSelection.selectAll()
-		
-		
+
+
 	def onSelectNone(self, evt):
 		self.clbTableSelection.clearSelections()
-		
-		
+
+
 	def onInvertSelect(self, evt):
 		self.clbTableSelection.invertSelections()
-		
-	
+
+
 	def getSelection(self):
 		for choice in self.clbTableSelection.Choices:
 			self.tableSelections[choice] = (choice in self.clbTableSelection.Value)
 		return list(self.clbTableSelection.Value)
-	
+
 
 	def onLeavePage(self, direction):
 		if direction == "forward":
 			self.Form.selectedTables = self.getSelection()
 			if not self.Form.selectedTables:
-				dabo.ui.stop(_("No tables were selected. " + 
-						"Please select the tables you want to include in your application"), 
+				dabo.ui.stop(_("No tables were selected. " +
+						"Please select the tables you want to include in your application"),
 						title=_("No Tables Selected"))
-				return False		
+				return False
 			self.fillFieldDict()
 		return True
 
@@ -423,18 +423,18 @@ your application.""")
 				tableDict["fields"][fieldName]["order"] = fieldOrder
 				tableDict["fields"][fieldName]["pk"] = field[2]
 				fieldOrder += 1
-					
+
 
 
 class PageOutput(AppWizardPage):
 	def __init__(self, parent, Caption=_("Output Options")):
 		self.super(parent=parent, Caption=Caption)
-		
-	
+
+
 	def createBody(self):
 		self.Form._convertTabs = False
 		self.Sizer.appendSpacer(5)
-		
+
 		lbl = dLabel(self, Caption=_("Enter the name of your app:"))
 		self.txtAppName = dabo.ui.dTextBox(self)
 		hs = dabo.ui.dSizer("h")
@@ -443,10 +443,10 @@ class PageOutput(AppWizardPage):
 		hs.append1x(self.txtAppName)
 		self.Sizer.append(hs, "x")
 		self.Sizer.appendSpacer(10)
-		
-		txt = """Enter the directory where you wish to place your 
+
+		txt = """Enter the directory where you wish to place your
 new application. It will be placed in a folder in that
-directory with the application name chosen above. 
+directory with the application name chosen above.
 You can always move the directory later."""
 		lbl = dLabel(self, Caption=txt)
 		self.Sizer.append(lbl)
@@ -458,7 +458,7 @@ You can always move the directory later."""
 		self.txtDir.Value = ""
 		hs.append(self.txtDir, 1)
 		hs.appendSpacer(4)
-		
+
 		self.cmdPick = dabo.ui.dButton(self, Caption="...", Width=30,
 				Height=self.txtDir.Height)
 		self.cmdPick.bindEvent(dEvents.Hit, self.onPick)
@@ -480,21 +480,21 @@ You can always move the directory later."""
 		lbl = dabo.ui.dLabel(self, Caption=_("Tabs are the default for indentation."))
 		lbl.FontSize -= 1
 		self.Sizer.append(lbl)
-		chkConvertTabs = dabo.ui.dCheckBox(self, RegID="chkConvertTabs", 
+		chkConvertTabs = dabo.ui.dCheckBox(self, RegID="chkConvertTabs",
 				Caption=_("Check this if you insist on using spaces."),
 				DataSource=self.Form, DataField="ConvertTabs",
 				SaveRestoreValue=True)
 		chkConvertTabs.FontSize -= 1
 		self.Sizer.append(chkConvertTabs, valign="bottom")
-	
+
 
 
 	def onPick(self, evt):
 		pth = dabo.ui.getFolder(defaultPath=self.txtDir.Value)
 		if pth:
 			self.txtDir.Value = pth
-	
-	
+
+
 	def onEnterPage(self, direction):
 		app = self.Application
 		if direction == "forward":
@@ -552,7 +552,7 @@ class PageGo(AppWizardPage):
 		lbl = dLabel(self, Caption=txt)
 		self.Sizer.append1x(lbl)
 
-		
+
 	def onLeavePage(self, direction):
 		if direction == "forward":
 			if not self.Form.createApp():
@@ -561,7 +561,7 @@ class PageGo(AppWizardPage):
 				appdir = self.Form.outputDirectory
 				appname = os.path.split(appdir)[-1]
 				dabo.ui.info(_("""
-Your application has been created. 
+Your application has been created.
 
 To see your app in action, navigate to:
 %(appdir)s
@@ -573,11 +573,11 @@ and type 'python %(appname)s.py' at the commandline.
 class AppWizard(Wizard):
 	def __init__(self, parent=None, defaultDirectory=None, *args, **kwargs):
 		super(AppWizard, self).__init__(parent=parent, *args, **kwargs)
-		
+
 		self.Caption = _("Dabo Application Wizard")
 		self.Picture = "daboIcon064"
 		self.Size = (520, 560)
-		
+
 		if defaultDirectory is None:
 			self.wizDir = self.Application.HomeDirectory
 		else:
@@ -592,33 +592,33 @@ class AppWizard(Wizard):
 		self.usePKUI = True
 		self.useUnknown = False
 		self.sortFieldsAlpha = False
-		
+
 		pgs = [PageIntro, PageDatabase, PageTableSelection,	PageOutput, PageGo]
 		self.append(pgs)
 		self.layout()
 		self.Centered = True
 		self.start()
-		
+
 
 	def getTables(self):
 		return self.tableDict.keys()
-		
+
 
 	def getSortedFieldNames( self, fieldDict ):
 		sortedFieldNames = []
 		for fld in fieldDict.keys():
 			# next line hard to follow....
 			# if we want a UI for PK's gen code for all fields,
-			# if not UI for PK's, gen code for all "not PK fields" 
-			if self.usePKUI or not fieldDict[fld]["pk"]: 
+			# if not UI for PK's, gen code for all "not PK fields"
+			if self.usePKUI or not fieldDict[fld]["pk"]:
 				# slightly less confusing code:
-				# if we are using all filds (including unknown) 
+				# if we are using all filds (including unknown)
 				# or the fieldtype is known (so not ?)
 				# use it.
 				if self.useUnknown or not fieldDict[fld]["type"]=='?':
 					if self.sortFieldsAlpha:
 						order = fieldDict[fld]["name"]
-					else: 
+					else:
 						order = fieldDict[fld]["order"]
 					sortedFieldNames.append((order, fld))
 
@@ -627,7 +627,7 @@ class AppWizard(Wizard):
 
 
 	def createApp(self):
-		directory = self.outputDirectory		
+		directory = self.outputDirectory
 		if os.path.exists(directory):
 			td = self.tableDict
 			selTb = self.selectedTables
@@ -635,10 +635,10 @@ class AppWizard(Wizard):
 			os.chdir(directory)
 			appName = os.path.split(self.outputDirectory)[-1]
 			self.appKey = ".".join(("dabo", "app", appName))
-			
+
 			## Create the directory structure:
 			dabo.makeDaboDirectories()
-		
+
 			tableName = selTb[0].title().replace(" ", "")
 			formOpenString = "\"Frm%s\" % form_name"
 
@@ -652,9 +652,9 @@ class AppWizard(Wizard):
 			## Create a shell script to run the main script:
 			filecont = "# go.sh\n"
 			filecont += "# launches the %s app.\n" % appName
-			filecont += "cd %s\n" % self.outputDirectory 
+			filecont += "cd %s\n" % self.outputDirectory
 			filecont += "python %s.py %s\n" % (appName, tableName)
-			filecont += "# python %s.py --OpenAll\n" % (appName) 
+			filecont += "# python %s.py --OpenAll\n" % (appName)
 			f = open("./go.sh", "w").write(filecont)
 			f = open("./go.bat", "w").write(filecont)
 
@@ -712,18 +712,18 @@ class AppWizard(Wizard):
 			os.chdir("../ui")
 
 			# Holds a list of classes that we'll import in ui/__init__.py:
-			uiImports = []	
-		
+			uiImports = []
+
 			## File|Open menu:
 			f = open("./MenFileOpen.py", "w")
 			f.write(self.getFileOpenMenu(selTb))
 			f.close()
-			
+
 			## Reports menu:
 			f = open("./MenReports.py", "w")
 			f.write(self.getReportsMenu())
 			f.close()
-			
+
 			## FrmReportBase and FrmReportSample:
 			uiImports.append("FrmReportSample")
 			open("./FrmReportBase.py", "w").write(self.getFrmReportBase())
@@ -745,7 +745,7 @@ class AppWizard(Wizard):
 
 			# Write each form/grid/pageset:
 			for table in selTb:
-				for classType in (("Frm", self.getForm), ("Grd", self.getGrd), 
+				for classType in (("Frm", self.getForm), ("Grd", self.getGrd),
 						("PagEdit", self.getPagEdit), ("PagSelect", self.getPagSelect)):
 					className = "%s%s" % (classType[0], getSafeTableName(table))
 					if classType[0] == "Frm":
@@ -756,7 +756,7 @@ class AppWizard(Wizard):
 
 			uiImports.sort()
 			open("./__init__.py", "w").write(self.getModuleInit_ui(uiImports))
-		
+
 			# reports dir:
 			os.chdir("../reports")
 			open("./sampleReport.rfxml", "w").write(self.getSampleReport())
@@ -774,7 +774,7 @@ class AppWizard(Wizard):
 			return True
 
 		else:
-			dabo.ui.stop(_("The target directory does not exist. Cannot continue."))		
+			dabo.ui.stop(_("The target directory does not exist. Cannot continue."))
 			return False
 
 
@@ -790,24 +790,24 @@ class AppWizard(Wizard):
 		tables.sort()
 		forms = ""
 		for table in tables:
-			forms = "".join((forms, """("%s", app.ui.Frm%s),\n\t\t\t\t""" % 
+			forms = "".join((forms, """("%s", app.ui.Frm%s),\n\t\t\t\t""" %
 				(table.title(), getSafeTableName(table))))
 		forms = "".join((forms, """("-", None),\n\t\t\t\t"""))
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-MenFileOpen.py.txt")).read() % locals()
 
 
 	def getReportsMenu(self):
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-MenReports.py.txt")).read() % locals()
 
-	
+
 	def getForm(self, table):
 		tableName = getSafeTableName(table)
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-Frm.py.txt")).read() % locals()
 
-						
+
 	def getGrd(self, table):
 		tableName = getSafeTableName(table)
 		colDefs = ""
@@ -816,41 +816,41 @@ class AppWizard(Wizard):
 		colDefs += """
 		# Delete or comment out any columns you don't want..."""
 		colSpec = """
-		self.addColumn(dabo.ui.dColumn(self, DataField="%s", Caption="%s", 
+		self.addColumn(dabo.ui.dColumn(self, DataField="%s", Caption="%s",
 				Sortable=True, Searchable=True, Editable=False))
 """
 		sortedFieldNames = self.getSortedFieldNames(fieldDict)
-			
+
 		for tup in sortedFieldNames:
 			field = tup[1]
 			colDefs += colSpec % (field, field.title())
 
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-Grd.py.txt")).read() % locals()
 
-						
+
 	def getPagEdit(self, table):
 		tableName = getSafeTableName(table)
 		createItems = ""
 		fieldDict = self.tableDict[table]["fields"]
-			
+
 		createItems += """
 		mainSizer = self.Sizer = dabo.ui.dSizer("v")
 		gs = dabo.ui.dGridSizer(VGap=7, HGap=5, MaxCols=3)
-"""		
+"""
 		sortedFieldNames = self.getSortedFieldNames( fieldDict )
 
-		typeConversion = {"I" : "int", "C" : "char", "M" : "memo", "D" : "date", 
+		typeConversion = {"I" : "int", "C" : "char", "M" : "memo", "D" : "date",
 				"N" : "float", "F" : "float", "?" : "char", "L" : "blob", "B" : "bool", "T" : "datetime"}
-			
+
 		itemSpec = """
 		## Field %(table)s.%(fieldName)s
-		label = self.addObject(dabo.ui.dLabel, NameBase="lbl%(fieldName)s", 
+		label = self.addObject(dabo.ui.dLabel, NameBase="lbl%(fieldName)s",
 				Caption="%(labelCaption)s")
-		objectRef = self.addObject(%(classRef)s, NameBase="%(fieldName)s", 
+		objectRef = self.addObject(%(classRef)s, NameBase="%(fieldName)s",
 				DataSource="%(table)s", DataField="%(fieldName)s"%(ctrlCap)s)
-			
-		gs.append(label, alignment=("top", "right") )%(memo_sizer)s	
+
+		gs.append(label, alignment=("top", "right") )%(memo_sizer)s
 		gs.append(objectRef, "expand")
 		gs.append( (25, 1) )
 """
@@ -870,7 +870,7 @@ class AppWizard(Wizard):
 			elif fieldType in ["date",]:
 				#pkm: temporary: dDateTextBox is misbehaving still. So, until we get
 				#     it figured out, change the type of control used for date editing
-				#     to a raw dTextBox, which can handle viewing/setting dates but 
+				#     to a raw dTextBox, which can handle viewing/setting dates but
 				#     doesn't have all the extra features of dDateTextBox. (2005/08/28)
 				#classRef = dabo.ui.dDateTextBox
 				classRef = "dabo.ui.dTextBox"
@@ -882,7 +882,7 @@ class AppWizard(Wizard):
 		currRow = gs.findFirstEmptyCell()[0]
 		gs.setRowExpand(True, currRow)"""
 			createItems += itemSpec % locals()
-			
+
 		createItems += """
 		gs.setColExpand(True, 1)
 
@@ -896,16 +896,16 @@ class AppWizard(Wizard):
 		self.itemsCreated = True
 """
 
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-PagEdit.py.txt")).read() % locals()
 
-						
+
 	def getPagSelect(self, table):
 		tableName = getSafeTableName(table)
 
 		selectOptionsPanel = ""
 		fieldDict = self.tableDict[table]["fields"]
-			
+
 		selectOptionsPanel += '''
 	def getSelectOptionsPanel(self):
 		"""Return the panel to contain all the select options."""
@@ -920,9 +920,9 @@ class AppWizard(Wizard):
 		gsz.append(label, colSpan=3, alignment="center")'''
 		sortedFieldNames = self.getSortedFieldNames( fieldDict )
 
-		typeConversion = {"I" : "int", "C" : "char", "M" : "memo", "D" : "date", 
+		typeConversion = {"I" : "int", "C" : "char", "M" : "memo", "D" : "date",
 				"N" : "float", "F" : "float", "?" : "char", "L" : "blob", "B" : "bool", "T" : "datetime"}
-			
+
 		itemSpec = """
 
 		##
@@ -938,7 +938,7 @@ class AppWizard(Wizard):
 		# Add the blank choice and create the dropdown:
 		opt = (IGNORE_STRING,) + tuple(opt)
 		opList = SelectionOpDropdown(panel, Choices=opt)
-			
+
 		# Automatically get the control class based on the field type:
 		ctrlClass = self.getSearchCtrlClass("%(fieldType)s")
 
@@ -947,11 +947,11 @@ class AppWizard(Wizard):
 			if not opList.StringValue:
 				opList.PositionValue = 0
 			opList.Target = ctrl
-				
+
 			gsz.append(lbl, halign="right")
 			gsz.append(opList, halign="left")
 			gsz.append(ctrl, "expand")
-				
+
 			# Store the info for later use when constructing the query
 			self.selectFields["%(fieldName)s"] = {
 					"ctrl" : ctrl,
@@ -971,7 +971,7 @@ class AppWizard(Wizard):
 			if fieldType in ("memo",):
 				wordSearch = True
 			selectOptionsPanel += itemSpec % locals()
-			
+
 		selectOptionsPanel += """
 		# Now add the limit field
 		lbl = dabo.ui.dLabel(panel)
@@ -994,76 +994,76 @@ class AppWizard(Wizard):
 		requeryButton.DefaultButton = True
 		requeryButton.bindEvent(dEvents.Hit, self.onRequery)
 		btnRow = gsz.findFirstEmptyCell()[0] + 1
-		gsz.append(requeryButton, "expand", row=btnRow, col=1, 
+		gsz.append(requeryButton, "expand", row=btnRow, col=1,
 				halign="right", border=3)
-		
+
 		# Make the last column growable
 		gsz.setColExpand(True, 2)
 		panel.Sizer = gsz
-		
+
 		vsz = dabo.ui.dSizer("v")
 		vsz.append(gsz, 1, "expand")
 		return panel
 
 
 """
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-PagSelect.py.txt")).read() % locals()
 
-						
+
 	def getMain(self, dbConnectionDef, table, appName):
 		tableName = getSafeTableName(table)
 		formOpenString = "\"Frm%s\" % form_name"
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-main.py.txt")).read() % locals()
 
 
 	def getSetup(self, appName):
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-setup.py.txt")).read() % locals()
 
 
 	def getBuildwin(self, appName):
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-buildwin.bat")).read() % locals()
 
 	def getBuildMac(self, appName):
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-buildmac")).read() % locals()
 
 	def getBuildLin(self, appName):
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-buildlin")).read() % locals()
 
 	def getModuleInit_db(self):
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-db__init__.py.txt")).read() % locals()
 
 
 	def getModuleInit_biz(self, bizImports):
 		lines = ["from %s import %s" % (class_, class_) for class_ in bizImports]
 		bizInit = os.linesep.join(lines)
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-biz__init__.py.txt")).read() % locals()
 
 
 	def getModuleInit_ui(self, uiImports):
 		lines = ["from %s import %s" % (class_, class_) for class_ in uiImports]
 		uiInit = os.linesep.join(lines)
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-ui__init__.py.txt")).read() % locals()
 
 
 	def getApp(self, appName):
 		appName = appName.title()
 		appKey = self.appKey
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-App.py.txt")).read() % locals()
 
 
 	def getDbConnXML(self, ci):
-		cxnDict = {"dbtype" : ci.DbType, "host" : ci.Host, 
-				"database" : ci.Database, "user" : ci.User, 
+		cxnDict = {"dbtype" : ci.DbType, "host" : ci.Host,
+				"database" : ci.Database, "user" : ci.User,
 				"password" : ci.Password, "port" : ci.Port,
 				"name" : ci.Name}
 		return createXML(cxnDict)
@@ -1103,53 +1103,53 @@ class AppWizard(Wizard):
 			dataStructure += """\n\t\t\t\t("%s", "%s", %s, "%s", "%s"),""" % (
 					field_name, field_type, field_pk, tableNameQt, field_name)
 		dataStructure += "\n\t\t)"
-						
-		return open(os.path.join(self.wizDir, 
+
+		return open(os.path.join(self.wizDir,
 				"spec-Biz.py.txt")).read() % locals()
 
 
 	def getGrdBase(self):
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-GrdBase.py.txt")).read() % locals()
 
 
 	def getFrmBase(self):
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-FrmBase.py.txt")).read() % locals()
 
 
 	def getFrmMain(self):
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-FrmMain.py.txt")).read() % locals()
 
 
 	def getFrmReportBase(self):
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-FrmReportBase.py.txt")).read() % locals()
 
 
 	def getFrmReportSample(self):
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-FrmReportSample.py.txt")).read() % locals()
 
 
 	def getPagBase(self, pageName):
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-%s.py.txt" % pageName)).read() % locals()
 
 
 	def getVersion(self):
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-__version__.py.txt")).read() % locals()
 
 	def getSampleDataSet(self):
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-getSampleDataSet.py.txt")).read() % locals()
 
 
 	def getSampleReport(self):
 		enc = dabo.defaultEncoding
-		return open(os.path.join(self.wizDir, 
+		return open(os.path.join(self.wizDir,
 				"spec-sampleReport.rfxml")).read() % locals()
 
 	def _onConvertTabs(evt):
@@ -1163,7 +1163,7 @@ class AppWizard(Wizard):
 				self.Form._convertTabs = False
 		else:
 			self.Form._convertTabs = False
-	
+
 	def _getConvertTabs(self):
 		return self._convertTabs
 
@@ -1186,10 +1186,10 @@ class AppWizard(Wizard):
 
 	ConvertTabs = property(_getConvertTabs, _setConvertTabs, None,
 			_("Do we convert tabs to spaces? Default=False  (bool)"))
-	
+
 	SpacesPerTab = property(_getSpacesPerTab, _setSpacesPerTab, None,
 			_("When converting tabs, the number of spaces to use per tab. Default=4  (int)"))
-	
+
 
 
 if __name__ == "__main__":
@@ -1200,6 +1200,6 @@ if __name__ == "__main__":
 	app.MainFormClass = None
 	app.setup()
 	wiz = AppWizard(None)
-	
+
 	# No need to start the app; when the wizard exits, so will the app.
-	
+

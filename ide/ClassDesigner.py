@@ -255,7 +255,7 @@ class ClassDesigner(dabo.dApp):
 					return itm.appliesToClass(cls)
 				except (AttributeError, NameError):
 					return False
-			ret = ["on%s" % k for k,v in dEvents.__dict__.items() 
+			ret = ["on%s" % k for k,v in dEvents.__dict__.items()
 					if safeApplies(v,cls)]
 			ret.sort()
 			return ret
@@ -370,7 +370,7 @@ class ClassDesigner(dabo.dApp):
 						self.Sizer = dui.dSizer("v")
 						self.mainPanel = LayoutBasePanel(self)
 						self.Sizer.append1x(self.mainPanel)
-					
+
 					self.mainPanel.Sizer = LayoutSizer("v")
 					if addBasePanel:
 						pnlCls = self.Controller.getControlClass(dui.dPanel)
@@ -418,7 +418,7 @@ class ClassDesigner(dabo.dApp):
 
 
 	def updateNamespace(self, startFile=None):
-		"""When classes are added to the application being edited, we need to re-create the 
+		"""When classes are added to the application being edited, we need to re-create the
 		application namespaces.
 		"""
 		stdBiz = self.Application.getStandardAppDirectory("biz", startFile)
@@ -456,7 +456,7 @@ class ClassDesigner(dabo.dApp):
 				raise IOError(_("This does not appear to be a valid class file."))
 			else:
 				raise IOError(_("The class file '%s' was not found.") % pth)
-			
+
 
 		# Traverse the dct, looking for superclass information
 		super = xtd.flattenClassDict(dct)
@@ -531,7 +531,7 @@ class ClassDesigner(dabo.dApp):
 			clsd["fullname"] = nm
 
 		# See if it is a full form-based class, or an individual component.
-		isFormClass = (clsd["name"] in ("dForm", "dFormMain", "dDockForm", 
+		isFormClass = (clsd["name"] in ("dForm", "dFormMain", "dDockForm",
 				"dDialog", "dOkCancelDialog", "Wizard"))
 		if isFormClass:
 			atts = clsd["attributes"]
@@ -1754,7 +1754,7 @@ class ClassDesigner(dabo.dApp):
 				# Give the option of opening an existing class.
 				self.openButton = dabo.ui.dButton(self, Caption=_("Open Saved Class"),
 						OnHit=onOpenSaved)
-								
+
 				self.Sizer.append(self.openButton, halign="center")
 				self.Sizer.appendSpacer(20)
 				self.Sizer.append(dabo.ui.dLine(self), "x", border=5, halign="center")
@@ -1805,7 +1805,7 @@ class ClassDesigner(dabo.dApp):
 						dlgs.WizardPage, dui.dPage, dui.dSplitter) + pcs
 				self.szChk.Visible = cls in sizerClasses
 				self.baseChk.Visible = cls in (dui.dForm, dui.dFormMain, dui.dDialog) and self.szChk.Value
-			
+
 			def onSzChk(self, evt):
 				self.baseChk.Visible = self.szChk.Value
 
@@ -2473,7 +2473,7 @@ class ClassDesigner(dabo.dApp):
 				dabo.errorLog.write(_("Attempted to add an object of class %(cls)s to parent %(pnl)s, but parent has no sizer information.")
 						% locals())
 				return
-				
+
 			grdsz = isinstance(szit, dui.dSizer.GridSizerItem)
 			if grdsz:
 				szType = "Grid"
@@ -2675,7 +2675,7 @@ class ClassDesigner(dabo.dApp):
 		# Here's where the control is actually created!
 		mixedClass = self.getControlClass(cls)
 		obj = mixedClass(parent, properties=props, attProperties=attProperties)
-		
+
 		if issubclass(cls, dui.dTreeView):
 			obj.addDummyData()
 
@@ -4244,7 +4244,7 @@ if __name__ == '__main__':
 # 		pth, fname = os.path.split(f)
 # 		if pth:
 # 			os.chdir(pth)
-# 
+#
 # 	clsDes = ClassDesigner(fname)
 
 if __name__ == "__main__":
