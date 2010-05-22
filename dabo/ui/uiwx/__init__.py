@@ -180,6 +180,11 @@ try:
 except ImportError:
 	pass
 
+try:
+	from dRichTextBox import dRichTextBox
+except ImportError:
+	pass
+
 #The flatnotebook version we need is not avialable with wxPython < 2.8.4
 if wx.VERSION >= (2, 8, 4):
 	from dPageFrame import dPageStyled
