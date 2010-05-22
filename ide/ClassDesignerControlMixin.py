@@ -1131,7 +1131,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		
 	def _getContainerState(self):
 		return isinstance(self, (dui.dPanel, dui.dScrollPanel, dui.dPage, 
-				dui.dForm, dui.dDialog) )
+				dui.dForm, dui.dFormMain, dui.dDialog) )
 	
 	
 	def _getRegID(self):

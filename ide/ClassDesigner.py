@@ -243,11 +243,11 @@ class ClassDesigner(dabo.dApp):
 				"CalendarEvent", "TreeEvent")
 		classes = (dui.dBox, dui.dBitmap, dui.dBitmapButton, dui.dButton, dui.dCheckBox, dui.dComboBox,
 				dui.dDateTextBox, dui.dDialog, dui.dDropdownList, dui.dEditBox, dui.dEditor, dui.dSlidePanelControl,
-				dui.dForm, dui.dDockForm, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel, dui.dLed, 
-				dui.dLine, dui.dListBox, dui.dListControl, dui.dOkCancelDialog, dui.dPanel, dui.dPage, dui.dScrollPanel,
-				dui.dPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs,
-				dui.dRadioList, dui.dSlider, dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton, dui.dTreeView,
-				dlgs.Wizard, dlgs.WizardPage)
+				dui.dForm, dui.dFormMain, dui.dDockForm, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage,
+				dui.dLabel, dui.dLed, dui.dLine, dui.dListBox, dui.dListControl, dui.dOkCancelDialog, dui.dPanel,
+				dui.dPage, dui.dScrollPanel, dui.dPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect, dui.dPageStyled,
+				dui.dPageFrameNoTabs, dui.dRadioList, dui.dSlider, dui.dSpinner, dui.dSplitter, dui.dTextBox,
+				dui.dToggleButton, dui.dTreeView, dlgs.Wizard, dlgs.WizardPage)
 
 		def evtsForClass(cls):
 			def safeApplies(itm, cls):
@@ -275,7 +275,7 @@ class ClassDesigner(dabo.dApp):
 		"""If the selected class is a form/dialog, return a mixed-in
 		subclass of it. Otherwise, return the base ClassDesignerForm.
 		"""
-		formIsMain = issubclass(self._selectedClass, (dui.dForm, dui.dDialog))
+		formIsMain = issubclass(self._selectedClass, (dui.dForm, dui.dFormMain, dui.dDialog))
 		isDialog = issubclass(self._selectedClass, (dui.dDialog, ))
 		isWizard = issubclass(self._selectedClass, (dlgs.Wizard, ))
 		isDockForm = _USE_DOCKFORM and issubclass(self._selectedClass, (dui.dDockForm, ))
@@ -531,7 +531,8 @@ class ClassDesigner(dabo.dApp):
 			clsd["fullname"] = nm
 
 		# See if it is a full form-based class, or an individual component.
-		isFormClass = (clsd["name"] in ("dForm", "dDockForm", "dDialog", "dOkCancelDialog", "Wizard"))
+		isFormClass = (clsd["name"] in ("dForm", "dFormMain", "dDockForm", 
+				"dDialog", "dOkCancelDialog", "Wizard"))
 		if isFormClass:
 			atts = clsd["attributes"]
 			del atts["designerClass"]
@@ -1760,18 +1761,20 @@ class ClassDesigner(dabo.dApp):
 
 				# Create a dropdown list containing all the choices.
 				# NOTE: This would be an excellent candidate for usage ordering.
-				chc = ["Form", "DockForm", "Panel", "ScrollPanel", "SlidePanel", "Plain Dialog", "OK/Cancel Dialog",
-				"Wizard", "WizardPage", "PageFrame", "PageList", "PageSelect", "PageStyled", "PageNoTabs", "Box", "Bitmap",
-				"BitmapButton", "Button", "CheckBox", "ComboBox", "DateTextBox", "DropdownList", "EditBox", 
-				"Editor", "Gauge", "Grid", "HtmlBox", "Image", "Label", "LED", "Line", "ListBox", "ListControl", "Page",
-				"RadioList", "Slider", "Spinner", "Splitter", "TextBox", "ToggleButton", "TreeView"]
-				keys = [dui.dForm, dui.dDockForm, dui.dPanel, dui.dScrollPanel, dui.dSlidePanelControl, dui.dDialog,
-						dui.dOkCancelDialog, dlgs.Wizard, dlgs.WizardPage, dui.dPageFrame, dui.dPageList,
-						dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs, dui.dBox, dui.dBitmap, dui.dBitmapButton,
-						dui.dButton, dui.dCheckBox, dui.dComboBox, dui.dDateTextBox, dui.dDropdownList,
-						dui.dEditBox, dui.dEditor, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel,
-						dui.dLine, dui.dLed, dui.dListBox, dui.dListControl, dui.dPage, dui.dRadioList, dui.dSlider,
-						dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton, dui.dTreeView]
+				chc = ["Form", "MDI MainForm", "DockForm", "Panel", "ScrollPanel", "SlidePanel",
+						"Plain Dialog", "OK/Cancel Dialog", "Wizard", "WizardPage", "PageFrame", "PageList",
+						"PageSelect", "PageStyled", "PageNoTabs", "Box", "Bitmap", "BitmapButton", "Button",
+						"CheckBox", "ComboBox", "DateTextBox", "DropdownList", "EditBox", "Editor", "Gauge",
+						"Grid", "HtmlBox", "Image", "Label", "LED", "Line", "ListBox", "ListControl", "Page",
+						"RadioList", "Slider", "Spinner", "Splitter", "TextBox", "ToggleButton", "TreeView"]
+				keys = [dui.dForm, dui.dFormMain, dui.dDockForm, dui.dPanel, dui.dScrollPanel,
+						dui.dSlidePanelControl, dui.dDialog, dui.dOkCancelDialog, dlgs.Wizard, dlgs.WizardPage,
+						dui.dPageFrame, dui.dPageList, dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs,
+						dui.dBox, dui.dBitmap, dui.dBitmapButton, dui.dButton, dui.dCheckBox, dui.dComboBox,
+						dui.dDateTextBox, dui.dDropdownList, dui.dEditBox, dui.dEditor, dui.dGauge, dui.dGrid,
+						dui.dHtmlBox, dui.dImage, dui.dLabel, dui.dLine, dui.dLed, dui.dListBox, dui.dListControl,
+						dui.dPage, dui.dRadioList, dui.dSlider, dui.dSpinner, dui.dSplitter, dui.dTextBox,
+						dui.dToggleButton, dui.dTreeView]
 				if not _USE_DOCKFORM:
 					# The dock form reference is position 1
 					chc.pop(1)
@@ -1797,11 +1800,11 @@ class ClassDesigner(dabo.dApp):
 			def onClassSel(self, evt):
 				# This should be the key value, which is a class name
 				cls = self.dd.KeyValue
-				sizerClasses = (dui.dForm, dui.dDockForm, dui.dPanel, dui.dScrollPanel, dui.dDialog, 
-						dui.dOkCancelDialog, dlgs.Wizard, dlgs.WizardPage,
-						dui.dPage, dui.dSplitter) + pcs
+				sizerClasses = (dui.dForm, dui.dFormMain, dui.dDockForm, dui.dPanel,
+						dui.dScrollPanel, dui.dDialog, dui.dOkCancelDialog, dlgs.Wizard,
+						dlgs.WizardPage, dui.dPage, dui.dSplitter) + pcs
 				self.szChk.Visible = cls in sizerClasses
-				self.baseChk.Visible = cls in (dui.dForm, dui.dDialog) and self.szChk.Value
+				self.baseChk.Visible = cls in (dui.dForm, dui.dFormMain, dui.dDialog) and self.szChk.Value
 			
 			def onSzChk(self, evt):
 				self.baseChk.Visible = self.szChk.Value
@@ -1821,7 +1824,7 @@ class ClassDesigner(dabo.dApp):
 			return
 		isDialog = issubclass(newClass, dui.dDialog)
 		isWizard = issubclass(newClass, dlgs.Wizard)
-		isFormClass = issubclass(newClass, (dui.dForm, dui.dDialog, dlgs.Wizard))
+		isFormClass = issubclass(newClass, (dui.dForm, dui.dFormMain, dui.dDialog, dlgs.Wizard))
 		useSizers = dlg.szChk.Visible and dlg.szChk.Value
 		addBasePanel = dlg.baseChk.Visible and dlg.baseChk.Value
 		dlg.release()
@@ -2320,7 +2323,7 @@ class ClassDesigner(dabo.dApp):
 			pnl = self._selection[0]
 		# Handle the odd behavior of pages and when adding
 		# controls programmatically.
-		if self.UseSizers and isinstance(pnl, (dui.dPage, dui.dForm)):
+		if self.UseSizers and isinstance(pnl, (dui.dPage, dui.dForm, dui.dFormMain)):
 			pnl = self.getMainLayoutPanel(pnl)
 		elif pnl is None and not self.UseSizers:
 			pnl = self.CurrentForm.ActiveContainer

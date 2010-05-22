@@ -12,7 +12,7 @@ from DragHandle import DragHandle
 
 # Defaults for sizer items
 szItemDefaults = {1: {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Left", "VAlign": "Top",
-		"Border": 0, "Expand": False}, 
+		"Border": 0, "Expand": False},
 		2: {"RowSpan": 1, "BorderSides": ["All"], "ColSpan": 1, "Proportion": 1,
 		"HAlign": "Left", "VAlign": "Top", "Border": 0}}
 # This odd attribute name is given to any object that is added
@@ -94,7 +94,7 @@ class LayoutSaverMixin(object):
 				defVals.update(classDict.get("attributes", {}))
 		if isClass:
 			clsRef = os.path.abspath(clsPath)
-			if isinstance(self, dabo.ui.dForm):
+			if isinstance(self, (dabo.ui.dForm, dabo.ui.dFormMain)):
 				relPath = self._classFile
 			else:
 				relPath = self.Form._classFile
@@ -128,7 +128,7 @@ class LayoutSaverMixin(object):
 		isSplitPanel = (isinstance(self, dabo.ui.dPanel)
 				and isinstance(self.Parent, dabo.ui.dSplitter))
 		desProps = self.DesignerProps.keys()
-		if isinstance(self, dabo.ui.dForm) and hasattr(self, "UseSizers"):
+		if isinstance(self, (dabo.ui.dForm, dabo.ui.dFormMain)) and hasattr(self, "UseSizers"):
 			desProps += ["UseSizers"]
 		elif isinstance(self, self.Controller.pagedControls) and isinstance(self.PageClass, basestring):
 			desProps += ["PageClass"]
@@ -200,7 +200,7 @@ class LayoutSaverMixin(object):
 					and not prop.startswith("Header") and not prop.startswith("Sizer_")):
 				if isinstance(val, basestring) and os.path.exists(val):
 					# It's a path; convert it to a relative path
-					if isinstance(self, (dabo.ui.dForm, dabo.ui.dDialog)):
+					if isinstance(self, (dabo.ui.dForm, dabo.ui.dFormMain, dabo.ui.dDialog)):
 						ref = self._classFile
 					else:
 						ref = self.Form._classFile
@@ -387,7 +387,7 @@ class LayoutSaverMixin(object):
 			nonSizerKids = [self.Panel1, self.Panel2]
 		elif isinstance(self, dlgs.Wizard):
 			nonSizerKids = self._pages
-		elif isinstance(self, dabo.ui.dForm) and not self.UseSizers:
+		elif isinstance(self, (dabo.ui.dForm, dabo.ui.dFormMain)) and not self.UseSizers:
 			nonSizerKids = kids
 		elif isinstance(self, (dabo.ui.dRadioList, dabo.ui.dSpinner)):
 			nonSizerKids = []
@@ -398,7 +398,7 @@ class LayoutSaverMixin(object):
 
 		for kid in nonSizerKids:
 			numItems = len(ret)
-			if isinstance(kid, dabo.ui.dForm):
+			if isinstance(kid, (dabo.ui.dForm, dabo.ui.dFormMain)):
 				# This is a child window; most likely part of the
 				# ClassDesigner interface, but certainly not part of
 				# the class defintion. Sklp it!
@@ -543,7 +543,7 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 			self._defaultSizerProps = self.ControllingSizer.getItemProps(self)
 		except AttributeError:
 			self._defaultSizerProps = {}
-		
+
 
 	def getDesignerDict(self, itemNum=0, allProps=False,
 			classID=None, classDict=None, propsToExclude=None):
@@ -1079,7 +1079,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 							szrDict = {}
 					except AttributeError:
 						szrDict = {}
-				
+
 				kidDict = kidItem.getDesignerDict(itemNum=numItems,
 						classDict=szrDict)
 			else:
@@ -1108,7 +1108,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 	def createContextMenu(self):
 		pop = dabo.ui.dMenu()
 		isMain = (self.ControllingSizer is None
-				and isinstance(self.Parent, dabo.ui.dForm))
+				and isinstance(self.Parent, (dabo.ui.dForm, dabo.ui.dFormMain)))
 		if not isMain:
 			pop.append(_("Cut"), OnHit=self.Controller.onTreeCut)
 		pop.append(_("Copy"), OnHit=self.Controller.onTreeCopy)
@@ -1603,7 +1603,7 @@ class LayoutGridSizer(LayoutSaverMixin, dabo.ui.dGridSizer):
 	def createContextMenu(self):
 		pop = dabo.ui.dMenu()
 		isMain = (self.ControllingSizer is None
-				and isinstance(self.Parent, dabo.ui.dForm))
+				and isinstance(self.Parent, (dabo.ui.dForm, dabo.ui.dFormMain)))
 		if not isMain:
 			pop.append(_("Cut"), OnHit=self.Controller.onTreeCut)
 		pop.append(_("Copy"), OnHit=self.Controller.onTreeCopy)
