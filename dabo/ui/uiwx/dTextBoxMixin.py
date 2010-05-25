@@ -213,7 +213,16 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 	
 	def _setInsertionPosition(self, val):
 		self.SetInsertionPoint(val)
+
 	
+	def _getNoneDisplay(self):
+		ret = getattr(self, "_noneDisplay", None)
+		if ret is None:
+			ret = self.Application.NoneDisplay
+		return ret
+
+	def _setNoneDisplay(self, val):
+		self._noneDisplay = val
 	
 	def _getReadOnly(self):
 		return not self.IsEditable()
@@ -299,7 +308,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		strVal = self.GetValue()
 		
 		if _value is None:
-			if strVal == self.Application.NoneDisplay:
+			if strVal == self.NoneDisplay:
 				# Keep the value None
 				return None
 		return strVal
@@ -326,7 +335,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 				dabo.ui.callAfter(self._checkTextLength)
 		
 			if val is None:
-				strVal = self.Application.NoneDisplay
+				strVal = self.NoneDisplay
 			else:
 				strVal = val
 			_oldVal = self._oldVal = self.Value
@@ -364,6 +373,11 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 	
 	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
 			_("Specifies whether or not the text can be edited. (bool)"))
+	
+	NoneDisplay = property(_getNoneDisplay, _setNoneDisplay, None,
+			_("""Specifies the string displayed if Value is None  (str or None)
+
+				If None, self.Application.NoneDisplay will be used."""))
 	
 	SelectedText = property(_getSelectedText, None, None,
 			_("Currently selected text. Returns the empty string if nothing is selected  (str)"))	
@@ -520,7 +534,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			# Use the ISO 8601 time string format
 			strVal = value.isoformat()
 		elif value is None:
-			strVal = self.Application.NoneDisplay
+			strVal = self.NoneDisplay
 		else:
 			# convert all other data types to string:
 			strVal = str(value)   # (floats look like 25.55)
@@ -627,7 +641,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 		# user, into the proper data type.
 		skipConversion = False
 		if _value is None:
-			if strVal == self.Application.NoneDisplay:
+			if strVal == self.NoneDisplay:
 				# Keep the value None
 				convertedVal = None
 				skipConversion = True

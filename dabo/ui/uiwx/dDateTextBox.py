@@ -184,7 +184,7 @@ C: Popup Calendar to Select
 			valDt = self.Value
 
 			if valDt is None:
-				adjust = (val == self.Application.NoneDisplay)
+				adjust = (val == self.NoneDisplay)
 				evt.Continue = not adjust
 			else:
 				# They've just finished typing a new date, or are just
