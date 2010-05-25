@@ -311,7 +311,10 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 
 	def _getImg(self):
 		if self.__image is None:
-			self.__image = wx.NullImage.Copy()
+			try:
+				self.__image = wx.NullImage.Copy()
+			except dabo.ui.assertionException:
+				self.__image = wx.NullImage
 		return self.__image
 
 	
