@@ -196,9 +196,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		isChanged = False
 		oldVal = self._oldVal
 
-		if oldVal is None and curVal is None:
-			# Could be changed and we just don't know it...
-			isChanged = True
+		##- pkm 2010-05-26: If oldVal is None and curVal is None, I don't see why we would
+		##-                 think the value was changed. Commenting this out makes 
+		##-                 dDropdownList behave better, in that it doesn't raise ValueChanged
+		##-                 when the oldVal was None and the curVal is None.
+		##- #if oldVal is None and curVal is None:
+		##-	# Could be changed and we just don't know it...
+		##- #	isChanged = True
 		if isinstance(self, (dabo.ui.dToggleButton,)):
 			# These classes change their value before the GotFocus event
 			# can store the oldval, so always flush 'em.
