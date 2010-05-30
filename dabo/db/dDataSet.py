@@ -2,9 +2,8 @@
 import sys
 import re
 import operator
-import dabo
-from dabo.dLocalize import _
 import datetime
+import hashlib
 
 from decimal import Decimal
 try:
@@ -23,6 +22,9 @@ pysqlite2: http://initd.org/tracker/pysqlite
 
 """
 		sys.exit(msg)
+
+import dabo
+from dabo.dLocalize import _
 
 
 
@@ -48,7 +50,7 @@ class dDataSet(tuple):
 		# We may need to encode fields that are not legal names.
 		self.fieldAliases = {}
 		# Keep a hash value to tell if we need to re-populate
-		self._dataHash = 0
+		self._dataHash = ""
 
 		sqlite.register_adapter(Decimal, self._adapt_decimal)
 		# When filtering datasets, we need a reference to the dataset
@@ -294,9 +296,7 @@ class dDataSet(tuple):
 			dabo.errorLog.write(_("Cannot populate without data for alias '%s'")
 					% alias)
 			return None
-		hs = 0
-		for rec in ds:
-			hs = hs + hash(hash((val for val in rec.values())))
+		hs = hashlib.md5(str(ds)).hexdigest()
 		if hs == ds._dataHash:
 			# Data's already there and hasn't changed; no need to re-load it
 			return
