@@ -47,6 +47,8 @@ class dDataSet(tuple):
 		self._populated = False
 		# We may need to encode fields that are not legal names.
 		self.fieldAliases = {}
+		# Keep a hash value to tell if we need to re-populate
+		self._dataHash = 0
 
 		sqlite.register_adapter(Decimal, self._adapt_decimal)
 		# When filtering datasets, we need a reference to the dataset
@@ -292,10 +294,19 @@ class dDataSet(tuple):
 			dabo.errorLog.write(_("Cannot populate without data for alias '%s'")
 					% alias)
 			return None
-		if ds._populated:
-			# Data's already there; no need to re-load it
+		hs = 0
+		for rec in ds:
+			hs = hs + hash(hash((val for val in rec.values())))
+		if hs == ds._dataHash:
+			# Data's already there and hasn't changed; no need to re-load it
 			return
-		self._cursor.execute(self._makeCreateTable(ds, alias))
+		ds._dataHash = hs
+		if ds._populated:
+			# Clear out the old records
+			self._cursor.execute("delete from %s" % alias)
+		else:
+			# Create the table
+			self._cursor.execute(self._makeCreateTable(ds, alias))
 
 		flds = ds[0].keys()[:]
 		# Fields may contain illegal names. This will correct them
