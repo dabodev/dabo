@@ -3,6 +3,8 @@ import wx
 import os.path
 import dabo.icons
 
+_bmpCache = {}
+
 
 def getIconBitmap(iconName, setMask=True, noEmptyBmp=False):
 	""" Get a bitmap rendition of the icon.
@@ -11,11 +13,15 @@ def getIconBitmap(iconName, setMask=True, noEmptyBmp=False):
 	return a wx.Bitmap object. If not found, return a wx.NullBitmap object
 	if noEmptyBmp is False; otherwise, return None.
 	"""
+	if iconName in _bmpCache:
+		return _bmpCache[iconName]
 	fileName = dabo.icons.getIconFileName(iconName)
 	if fileName and os.path.exists(fileName):
-		return dabo.ui.pathToBmp(fileName)
+		ret = dabo.ui.pathToBmp(fileName)
 	else:
 		if noEmptyBmp:
-			return None
+			ret = None
 		else:
-			return wx.EmptyBitmap(1, 1)
+			ret = wx.EmptyBitmap(1, 1)
+	_bmpCache[iconName] = ret
+	return ret
