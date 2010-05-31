@@ -199,7 +199,7 @@ frameworkPath = os.path.dirname(dabo.__file__)
 
 # Define the standard Dabo subdirectory stucture for apps.
 def _getAppDirectoryNames():
-	return ("biz", "db", "ui", "resources", "reports", "test")
+	return ("biz", "cache", "db", "lib", "reports", "resources", "test", "ui")
 
 
 # Method to create a standard Dabo directory structure layout

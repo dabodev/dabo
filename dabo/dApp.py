@@ -179,7 +179,7 @@ class dApp(dObject):
 			locale.setlocale(locale.LC_ALL, '')
 
 		# Subdirectories that make up a standard Dabo app
-		self._standardDirs = ("biz", "cache", "db", "lib", "reports", "resources", "test", "ui")
+		self._standardDirs = dabo._getAppDirectoryNames()
 		
 		# Some apps, such as the visual tools, are meant to be run from directories
 		# other than that where they are located. In those cases, use the current dir.
@@ -325,6 +325,10 @@ try again when it is running.
 			dLocalize.install(localeDomain, localeDir)
 			dLocalize.setLanguage(lang, charset)
 
+		# Add the 'lib' directory, if present, to sys.path
+		libdir = os.path.join(self.HomeDirectory, "lib")
+		sys.path.append(libdir)
+		# Initialize the Dabo modules into the app namespace
 		self._initModuleNames()
 		self._initDB()
 
