@@ -343,8 +343,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			bizobj.setFieldVal(field, value)
 		else:
 			self.grid.DataSet[row][field] = value
-Ê Ê Ê Ê # Update the cache
-Ê Ê Ê Ê self.__cachedVals[(row, col)] = (value, time.time())Ê
+		# Update the cache
+		self.__cachedVals[(row, col)] = (value, time.time())
 		self.grid.afterCellEdit(row, col)
 
 
