@@ -77,6 +77,7 @@ class dBizobj(dObject):
 		self._dataSource = ""
 		self._nonUpdateFields = []
 		self._scanRestorePosition = True
+		self._scanRequeryChildren = False
 		self._scanReverse = False
 		self._userSQL = None
 		self._parent  = None
@@ -729,6 +730,10 @@ class dBizobj(dObject):
 
 		If self.ScanRestorePosition is True, the position of the current
 		record in the recordset is restored after the iteration.
+		
+		If self.ScanRequeryChildren is True, any child bizobjs will be requeried
+		for each row in the bizobj. Only use this if you know the size of the data
+		involved will be small.
 
 		You may optionally send reverse=True to scan the records in reverse
 		order, which you'll want to do if, for example, you are deleting 
@@ -772,12 +777,12 @@ class dBizobj(dObject):
 						row = self.RowCount  - 1
 						if row >= 0:
 							self.RowNumber = row
-
+		requeryChildren = self.ScanRequeryChildren
 		try:
 			if reverse:
 				rows.reverse()
 			for i in rows:
-				self._moveToRowNum(i)
+				self._moveToRowNum(i, updateChildren=requeryChildren)
 				func(*args, **kwargs)
 				if self.exitScan:
 					break
@@ -2353,6 +2358,13 @@ afterDelete() which is only called after a delete().""")
 		self._scanRestorePosition = val
 
 
+	def _getScanRequeryChildren(self):
+		return self._scanRequeryChildren
+
+	def _setScanRequeryChildren(self, val):
+		self._scanRequeryChildren = val
+
+
 	def _getScanReverse(self):
 		return self._scanReverse
 
@@ -2521,6 +2533,11 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 			_("""After running a scan, do we attempt to restore the record position to
 			where it was before the scan (True, default), or do we leave the pointer
 			at the end of the recordset (False). (bool)"""))
+
+	ScanRequeryChildren = property(_getScanRequeryChildren, _setScanRequeryChildren, None,
+			_("""When calling the scan() function, this property determines if we 
+			requery any child bizobjs for each row in this bizobj. The default is False,
+			as this has the potential to cause performance issues.  (bool)"""))
 
 	ScanReverse = property(_getScanReverse, _setScanReverse, None,
 			_("""Do we scan the records in reverse order? (Default: False) (bool)"""))
