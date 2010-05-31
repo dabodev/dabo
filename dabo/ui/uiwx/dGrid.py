@@ -297,10 +297,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def GetValue(self, row, col, useCache=True, convertNoneToString=True):
 		col = self._convertWxColNumToDaboColNum(col)
 		if useCache:
-			try:
-				cv = self.__cachedVals.get((row, col))
-			except KeyError:
-				cv = None
+			cv = self.__cachedVals.get((row, col))
 			if cv:
 				diff = time.time() - cv[1]
 				if diff < 10:  ## if it's been less than this # of seconds.
@@ -346,11 +343,15 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			bizobj.setFieldVal(field, value)
 		else:
 			self.grid.DataSet[row][field] = value
+Ê Ê Ê Ê # Update the cache
+Ê Ê Ê Ê self.__cachedVals[(row, col)] = (value, time.time())Ê
 		self.grid.afterCellEdit(row, col)
+
 
 	def _convertWxColNumToDaboColNum(self, wxCol):
 		return self.grid._convertWxColNumToDaboColNum(wxCol)
 
+	
 
 class GridListEditor(wx.grid.GridCellChoiceEditor):
 	def __init__(self, *args, **kwargs):
