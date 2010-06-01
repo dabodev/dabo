@@ -728,6 +728,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"FontUnderline": {"type": bool, "readonly": False}}
 		gridProps = {"ActivateEditorOnSelect": {"type": bool, "readonly": False},
 				"AlternateRowColoring": {"type": bool, "readonly": False},
+				"CellHighlightWidth": {"type": int, "readonly": False},
 				"ColumnCount": {"type": int, "readonly": False},
 				"DataSource": {"type": unicode, "readonly": False},
 				"Editable": {"type": bool, "readonly": False},
