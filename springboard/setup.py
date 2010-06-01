@@ -12,18 +12,10 @@ import glob
 import dabo
 import dabo.icons
 
+APP = ['main.py']
 DATA_FILES = []
+OPTIONS = {'argv_emulation': True}
 plat = sys.platform
-if plat == "darwin":
-	# OS X
-	OPTIONS = {"argv_emulation": True, "excludes": ["psycopg2", "MySQLdb", "numpy", "mx", "mx.DateTime"],
-		"iconfile": "springboard.icns"}
-elif plat == "win32":
-	# Windows
-	import py2exe
-	OPTIONS = {"excludes": ["psycopg2", "MySQLdb", "numpy", "kinterbasdb"]}
-
-
 daboDir = os.path.split(dabo.__file__)[0]
 
 # Find the location of the dabo icons:
@@ -69,16 +61,31 @@ def getAppFiles(arg, dirname, fnames):
 os.path.walk(appDir, getAppFiles, appDir)
 DATA_FILES.extend(appFiles)
 
+if plat == "darwin":
+	# OS X
+	OPTIONS = {
+			"excludes": ["psycopg2", "MySQLdb", "numpy", "wxPython"],
+			"includes": ["mx", "wx", "wx.lib.calendar", "wx.gizmos"],
+			"optimize": 2,
+			"argv_emulation": True,
+			"resources": DATA_FILES,
+			"plist": dict(CFBundleGetInfoString="1.1",
+					CFBundleIdentifier="com.dabodev.springboard",
+					LSPrefersPPC=False,
+					NSHumanReadableCopyright="Copyright 2009-2010 Ed Leafe"
+			),
+			"iconfile": "springboard.icns"}
+elif plat == "win32":
+	# Windows
+	import py2exe
+	OPTIONS = {"excludes": ["psycopg2", "MySQLdb", "numpy", "kinterbasdb"]}
+
 setup(
-		data_files=DATA_FILES,
-		version = "1.0",
-		description = "Dabo Springboard",
-		name = "Dabo Springboard",
-		# targets to build
-		app = ["main.py"],
-		#windows = ["main.py"],
-		#windows = [{"script": "tweezer.py", "icon_resources": [(0, "tweezer.ico")]}],
-		#console = [{"script": "tweezer.py", "icon_resources": [(0, "tweezer.ico")]}],
-		options={"py2app": OPTIONS,
-			"py2exe": OPTIONS},
+    app=APP,
+	version = "1.1",
+	description = "Dabo Springboard",
+	name = "Dabo Springboard",
+    data_files=DATA_FILES,
+    options={'py2app': OPTIONS},
+    setup_requires=['py2app'],
 )
