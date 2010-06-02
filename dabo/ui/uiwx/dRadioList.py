@@ -144,7 +144,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		self._selpos = 0
 		# Tracks timing to determine whether any of the buttons 
 		# have changed focus so got/lost events can be raised
-		self._lastFocusEvent = 0
+		self._lastGotFocusEvent = self._lastLostFocusEvent = 0
 		# Default spacing between buttons. Can be changed with the
 		# 'ButtonSpacing' property.
 		self._buttonSpacing = 5
@@ -180,21 +180,28 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 	def _onButtonGotFocus(self, wxEvt):
 		# Received from individual buttons
 		now = time.time()
-		if now - self._lastFocusEvent > .01:
+		if now - self._lastLostFocusEvent > .01:
 			# Newly focused; raise the event.
 			self.raiseEvent(dEvents.GotFocus, wxEvt)
-		self._lastFocusEvent = now
+		self._lastGotFocusEvent = now
 
 
 	def _onButtonLostFocus(self, wxEvt):
 		# Received from individual buttons
 		now = time.time()
-		self._lastFocusEvent = now
+		self._lastLostFocusEvent = now
+		
+		@dabo.ui.deadCheck
 		def checkForFocus(timeCalled):
-			if self._lastFocusEvent == timeCalled:
+			if self._lastGotFocusEvent != timeCalled:
 				# No other button has gotten focus in the intervening time
-				self.raiseEvent(dEvents.LostFocus, wxEvt)
-		# Normal chaning selection of buttons will cause buttons to lose focus;
+				# Don't raise event if parent form loses focus!
+				# Doing it on Windows platform raises global Python exception. 
+				app = self.Application
+				if app is None or app.ActiveForm == self.Form:
+					self.raiseEvent(dEvents.LostFocus, wxEvt)					
+					
+		# Normal changing selection of buttons will cause buttons to lose focus;
 		# we need to see if this control has truly lost focus.
 		dabo.ui.callAfter(checkForFocus, now)
 
@@ -303,6 +310,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		if "linux" in sys.platform:
 			# Buttons too widely spaced on Linux. Fudge it down...
 			val -= 9
+		val = (val, 0) if self.Orientation[:1].lower() == "h" else (0, val)
 		return val
 
 
@@ -322,8 +330,10 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		if self._constructed():
 			self._buttonSpacing = val
 			self._checkSizer()
-			for itm in self.Sizer.ChildSpacers:
-				self.Sizer.setItemProp(itm, "Spacing", self._getFudgedButtonSpacing())
+			sizer = self.Sizer
+			spacing = self._getFudgedButtonSpacing()
+			for itm in sizer.ChildSpacers:
+				sizer.setItemProp(itm, "Spacing", spacing)
 			self.layout()
 		else:
 			self._properties["ButtonSpacing"] = val
@@ -412,7 +422,8 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 			if val[0].lower() not in "hv":
 				val = "vertical"
 			self._orientation = self.Sizer.Orientation = val
-			self.layout()
+			# Reset button spacing also.
+			self.ButtonSpacing = self.ButtonSpacing
 		else:
 			self._properties["Orientation"] = val
 
