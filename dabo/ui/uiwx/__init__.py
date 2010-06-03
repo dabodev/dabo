@@ -171,6 +171,7 @@ from dTreeView import dTreeView
 from dLed import dLed
 import dUICursors as dUICursors
 import dShell
+import gridRenderers
 
 # Needs importing after at least dPanel:
 from dDockForm import dDockForm
@@ -629,7 +630,10 @@ def getFormMousePosition():
 	corner of the form.
 	"""
 	actwin = dabo.dAppRef.ActiveForm
-	return actwin.relativeCoordinates(wx.GetMousePosition())
+	if actwin is not None:
+		return actwin.relativeCoordinates(wx.GetMousePosition())
+	else:
+		return None
 
 
 def getMouseObject():
