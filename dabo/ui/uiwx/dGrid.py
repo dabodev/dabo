@@ -344,7 +344,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def _convertWxColNumToDaboColNum(self, wxCol):
 		return self.grid._convertWxColNumToDaboColNum(wxCol)
 
-	
+
 
 class GridListEditor(wx.grid.GridCellChoiceEditor):
 	def __init__(self, *args, **kwargs):
@@ -1707,8 +1707,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._baseClass = dGrid
 		preClass = wx.grid.Grid
 
-		# Internal flag to determine if the prior sort order needs to be restored:
+		# Internal flag to determine if the prior sort order needs to be restored.
 		self._sortRestored = False
+		# Internal flag to determine if the resorting is the result of the DataSet property.
+		self._settingDataSetFromSort = False
 		# Internal flag to determine if refresh should be called after sorting.
 		self._refreshAfterSort = True
 		# Local count of rows in the data table
@@ -2085,7 +2087,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self._addEmptyRows()
 		tbl.setColumns(self.Columns)
 		self._tableRows = tbl.fillTable(force)
-
 		if not self._sortRestored:
 			dabo.ui.callAfter(self._restoreSort)
 			self._sortRestored = True
@@ -2793,7 +2794,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					if self.RowLabels:
 						newLabels.append(elem[2])
 				self.RowLabels = newLabels
+				# Set this to avoid infinite loops
+				self._settingDataSetFromSort = True
 				self.DataSet = newRows
+				self._settingDataSetFromSort = False
 
 		if biz:
 			self.CurrentRow = biz.RowNumber
@@ -2805,6 +2809,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._setUserSetting("sortOrder", sortOrder)
 		self.raiseEvent(dEvents.GridAfterSort, eventObject=self,
 				eventData=eventData)
+
 
 	def runIncSearch(self):
 		""" Run the incremental search."""
@@ -4145,7 +4150,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self._dataSet = val
 			self.fillGrid()
 			self._syncAll()
-			dabo.ui.callAfter(self.refresh)
+			if not self._settingDataSetFromSort:
+				# Force the grid to maintain its current sort order
+				self._restoreSort()
+				dabo.ui.callAfter(self.refresh)
 			if self.getBizobj():
 				self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		else:
