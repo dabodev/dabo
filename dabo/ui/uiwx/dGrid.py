@@ -335,14 +335,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 	def SetValue(self, row, col, value):
 		col = self._convertWxColNumToDaboColNum(col)
-		field = self.grid.Columns[col].DataField
-		bizobj = self.grid.getBizobj()
-		if bizobj:
-			# make sure we are on the correct row already (we should be already):
-			bizobj.RowNumber = row
-			bizobj.setFieldVal(field, value)
-		else:
-			self.grid.DataSet[row][field] = value
+		self.grid._setCellValue(row, col, value)
 		# Update the cache
 		self.__cachedVals[(row, col)] = (value, time.time())
 		self.grid.afterCellEdit(row, col)
@@ -1972,10 +1965,17 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self._Table.SetValue(row, col, val)
 		except StandardError, e:
 			super(dGrid, self).SetCellValue(row, col, val)
-		# Update the main data source
+			# Update the main data source
+			self._setCellValue(row, col, val)
+
+
+	def _setCellValue(self, row, col, val):
 		try:
-			fld = self.Columns[col].DataField
+			column = self.Columns[col]
+			fld = column.DataField
 			biz = self.getBizobj()
+			if isinstance(val, float) and column.DataType == "decimal":
+				 val = Decimal(str(val))
 			if biz:
 				biz.RowNumber = row
 				biz.setFieldVal(fld, val)
