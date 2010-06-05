@@ -382,6 +382,14 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
+		try:
+			# See if we use the original attribute name
+			self._extraStyle
+			self._stylePropName = "_extraStyle"
+		except AttributeError:
+			# Newer versions use a different attribute name
+			self._stylePropName = "_agwStyle"
+			
 		self._setInitialOpenPanel()
 		self.bindEvent(dEvents.SlidePanelChange, self.__onSlidePanelChange)
 	
@@ -595,14 +603,15 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 	
 	
 	def _getCollapseToBottom(self):
-		return bool(self._extraStyle & fpb.FPB_COLLAPSE_TO_BOTTOM)
+		return bool(getattr(self, self._stylePropName) & fpb.FPB_COLLAPSE_TO_BOTTOM)
 
 	def _setCollapseToBottom(self, val):
 		self._collapseToBottom = val
 		if val:
-			self._extraStyle = self._extraStyle | fpb.FPB_COLLAPSE_TO_BOTTOM
+			newStyle = getattr(self, self._stylePropName) | fpb.FPB_COLLAPSE_TO_BOTTOM
 		else:
-			self._extraStyle = self._extraStyle &  ~fpb.FPB_COLLAPSE_TO_BOTTOM
+			newStyle = getattr(self, self._stylePropName) &  ~fpb.FPB_COLLAPSE_TO_BOTTOM
+		setattr(self, self._stylePropName, newStyle)
 		if self._panels:
 			fp = self._panels[0]
 			fp.Reposition(0)
