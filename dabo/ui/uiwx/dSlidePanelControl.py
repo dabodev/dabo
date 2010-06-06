@@ -374,6 +374,7 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		self._collapseToBottom = False
 		self._singleton = False
 		self._expandContent = True
+		self._styleAttributeVal = None
 		# Flag to indicate whether panels are being expanded
 		# or collapsed due to internal rules for Singleton format.
 		self.__inSingletonProcess = False
@@ -382,14 +383,6 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
-		try:
-			# See if we use the original attribute name
-			self._extraStyle
-			self._stylePropName = "_extraStyle"
-		except AttributeError:
-			# Newer versions use a different attribute name
-			self._stylePropName = "_agwStyle"
-			
 		self._setInitialOpenPanel()
 		self.bindEvent(dEvents.SlidePanelChange, self.__onSlidePanelChange)
 	
@@ -596,22 +589,32 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			pnl.layout()
 			top += pnl.Height
 		dabo.ui.callAfter(self.layout)
-		
+
+
+	def _setUnderlyingStyleAtt(self):
+		try:
+			# See if we use the original attribute name
+			self._extraStyle
+			self._styleAttributeVal = "_extraStyle"
+		except AttributeError:
+			# Newer versions use a different attribute name
+			self._styleAttributeVal = "_agwStyle"
+
 
 	def _getChildren(self):
 		return self._panels
 	
 	
 	def _getCollapseToBottom(self):
-		return bool(getattr(self, self._stylePropName) & fpb.FPB_COLLAPSE_TO_BOTTOM)
+		return bool(self._StyleAttribute & fpb.FPB_COLLAPSE_TO_BOTTOM)
 
 	def _setCollapseToBottom(self, val):
 		self._collapseToBottom = val
 		if val:
-			newStyle = getattr(self, self._stylePropName) | fpb.FPB_COLLAPSE_TO_BOTTOM
+			newStyle = self._StyleAttribute | fpb.FPB_COLLAPSE_TO_BOTTOM
 		else:
-			newStyle = getattr(self, self._stylePropName) &  ~fpb.FPB_COLLAPSE_TO_BOTTOM
-		setattr(self, self._stylePropName, newStyle)
+			newStyle = self._StyleAttribute &  ~fpb.FPB_COLLAPSE_TO_BOTTOM
+		self._StyleAttribute = newStyle
 		if self._panels:
 			fp = self._panels[0]
 			fp.Reposition(0)
@@ -680,7 +683,26 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		self._singleton = val
 		# Make sure that only one panel is open
 		self._setInitialOpenPanel()
-			
+
+
+	def _getStyleAttribute(self):
+		try:
+			return getattr(self, self._styleAttributeVal)
+		except TypeError:
+			self._setUnderlyingStyleAtt()
+			return getattr(self, self._styleAttributeVal)
+
+	def _setStyleAttribute(self, val):
+		if self._constructed():
+			try:
+				setattr(self, self._styleAttributeVal, val)
+			except TypeError:
+				self._setUnderlyingStyleAtt()
+				setattr(self, self._styleAttributeVal, val)
+		else:
+			self._properties["StyleAttribute"] = val
+
+
 
 	Children = property(_getChildren, None, None,
 			_("List of all panels in the control  (list))"))
@@ -709,6 +731,11 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 	
 	Singleton = property(_getSingleton, _setSingleton, None,
 			_("When True, one and only one panel at a time will be expanded  (bool)"))
+
+	_StyleAttribute = property(_getStyleAttribute, _setStyleAttribute, None,
+			_("""FOR INTERNAL USE ONLY! Internally the code for foldpanelbar changed 
+			the name of a 'private' attribute that the Dabo wrapper needs to address. 
+			This property handles the interaction with that private attribute.  (str)"""))
 
 
 	DynamicCollapseToBottom = makeDynamicProperty(CollapseToBottom)
