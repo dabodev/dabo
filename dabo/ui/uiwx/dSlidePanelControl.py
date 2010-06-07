@@ -132,8 +132,25 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 			self.refresh()
 
 
+	def _clickedOnIcon(self, evt):
+		cb = self._captionBar
+		vertical = self.IsVertical()
+		if cb._foldIcons:
+			pt = evt.GetPosition()
+			rect = cb.GetRect()
+			drw = (rect.GetWidth() - cb._iconWidth - cb._rightIndent)
+			if ((vertical and (pt.x > drw)) or 
+					(not vertical and (pt.y < (cb._iconHeight + cb._rightIndent)))):
+				# They clicked the expand/collapse icon
+				return True
+		return False
+
+
 	def __onWxCaptionClick(self, evt):
 # 		print "WX CAP CLICK"
+		if self._clickedOnIcon(evt):
+			# Already handled
+			return
 		self.raiseEvent(dEvents.SlidePanelCaptionClick, evt)
 				
 
