@@ -461,6 +461,11 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 	def onSaveDesign(self, evt, useTmp=False):
 		currForm = self.Controller.CurrentForm
 		newFile = False
+		
+		# Replace this with a setting of some sort
+		self.useJSON = False
+		fileExt = {True: "json", False: "cdxml"}[self.useJSON]
+		
 		if useTmp:
 			osp = os.path
 			if self._classFile:
@@ -508,10 +513,13 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		singleFile = useTmp or self.Application.getUserSetting("saveCodeInXML", False)
 		if not singleFile:
 			propDict, codeDict = self._extractCodeFromPropDict(propDict)
-		xml = xtd.dicttoxml(propDict)
+		if self.useJSON:
+			textToSave = pformat(propDict)
+		else:
+			textToSave = xtd.dicttoxml(propDict)
 		# Try opening the file. If it is read-only, it will raise an
 		# IOErrorrror that the calling method can catch.
-		codecs.open(fname, "wb", encoding="utf-8").write(xml)
+		codecs.open(fname, "wb", encoding="utf-8").write(textToSave)
 		cfName = "%s-code.py" % os.path.splitext(fname)[0]
 		if singleFile:
 			# Delete the code file if present.
@@ -1503,6 +1511,7 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
 
 	def _getDesProps(self):
 		ret = {"Caption": {"type" : unicode, "readonly" : False},
+				"CxnName": {"type" : unicode, "readonly" : False},
 				"Height": {"type" : int, "readonly" : False},
 				"Width": {"type" : int, "readonly" : False},
 				"Name" : {"type" : unicode, "readonly" : False},
@@ -1512,9 +1521,9 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
 				"Bottom": {"type" : int, "readonly" : False},
 				"ShowCaption": {"type" : bool, "readonly" : False},
 				"ShowMenuBar": {"type" : bool, "readonly" : False},
+				"ShowToolBar": {"type" : bool, "readonly" : False},
 				"MenuBarFile": {"type" : "path", "readonly" : False,
 					"customEditor": "editMenuBarFile"},
-				"CxnName": {"type" : unicode, "readonly" : False},
 				"Tag" : {"type" : "multi", "readonly" : False},
 				"Transparency" : {"type" : int, "readonly" : False},
 				"SaveRestorePosition": {"type" : bool, "readonly" : False}}
