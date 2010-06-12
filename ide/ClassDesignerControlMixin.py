@@ -87,7 +87,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		elif isinstance(self, dui.dImage):
 			self.bindEvent(dEvents.Resize, self._onResize)
 		elif isinstance(self, (dui.dSlidePanelControl, dui.dSlidePanel)):
-			pass
+			coolEvents = (dEvents.SlidePanelCaptionClick,
+						dEvents.SlidePanelChange)
+			badEvents = []
+			for bnd in self._eventBindings:
+				if bnd[0] not in coolEvents:
+					badEvents.append(bnd)
+			for bad in badEvents:
+				self._eventBindings.remove(bad)
 		else:
 			# This removes all previously-defined bindings
 			self.unbindEvent(None)
