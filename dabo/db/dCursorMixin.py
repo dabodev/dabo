@@ -482,6 +482,11 @@ class dCursorMixin(dObject):
 
 	def _storeFieldTypes(self, target=None):
 		"""Stores the data type for each column in the result set."""
+		try:
+			## The Record object must be reinstantiated to reflect the new structure:
+			del(self._cursorRecord)
+		except AttributeError:
+			pass
 		if target is None:
 			target = self
 		target._types = {}
@@ -2626,18 +2631,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			ret = self._cursorRecord
 		except AttributeError:
 			class CursorRecord(object):
-				def __init__(self):
-					self.cursor = None
+				def __init__(self, _cursor):
+					self._cursor = _cursor
 					super(CursorRecord, self).__init__()
 
 				def __getattr__(self, att):
-					return self.cursor.getFieldVal(att)
+					return self._cursor.getFieldVal(att)
 
 				def __setattr__(self, att, val):
-					if att in ("cursor", ):
+					if att in ("_cursor"):
 						super(CursorRecord, self).__setattr__(att, val)
 					else:
-						self.cursor.setFieldVal(att, val)
+						self._cursor.setFieldVal(att, val)
 
 				def __getitem__(self, key):
 					return self.__getattr__(key)
@@ -2645,8 +2650,21 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				def __setitem__(self, key, val):
 					return self.__setattr__(key, val)
 
-			ret = self._cursorRecord = CursorRecord()
-			self._cursorRecord.cursor = self
+			## The rest of this block add a property to the Record object
+			## for each field, the sole purpose being to have the field
+			## names appear in the command window intellisense dropdown.
+			def getFieldProp(field_name):
+				def fget(self):
+					return self._cursor.getFieldVal(field_name)
+				def fset(self, val):
+					self._cursor.setFieldVal(field_name, val)
+				return property(fget, fset)
+
+			field_aliases = [ds[0] for ds in self.DataStructure]
+			field_aliases.extend(self.VirtualFields.keys())
+			for field_alias in field_aliases:
+				setattr(CursorRecord, field_alias, getFieldProp(field_alias))
+			ret = self._cursorRecord = CursorRecord(self)
 		return ret
 
 
