@@ -195,9 +195,10 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 
 
 
-
-
-class YesNoBoolRenderer(wx.grid.PyGridCellRenderer): 
+class AbstractTextRenderer(wx.grid.PyGridCellRenderer): 
+	"""This is a starting point for all renderers that simply involve controlling
+	the text displayed in a cell.
+	"""
 	def Draw(self, grid, attr, dc, rect, row, col, isSelected): 
 		"""Customisation Point: Draw the data from grid in the rectangle with attributes using the dc""" 
 		self.clip(dc, rect) 
@@ -211,6 +212,32 @@ class YesNoBoolRenderer(wx.grid.PyGridCellRenderer):
 			self.unclip(dc) 
 
 
+	def getValueText(self, grid, row, col):
+		"""Return the text you want displayed in the cell. By default
+		the value in the cell is returned unchanged; override for 
+		your class's needs.
+		"""
+		value = grid.getValue(row, col)
+		return value
+
+
+	def drawText( self, txt, attr, dc, rect):
+		"""Customize this method to set different background colors, etc."""
+		dc.DrawText(txt, rect.x, rect.y) 
+
+
+	def clip( self, dc, rect ): 
+		"""Setup the clipping rectangle""" 
+		dc.SetClippingRegion( rect.x, rect.y, rect.width, rect.height ) 
+
+
+	def unclip( self, dc ): 
+		"""Destroy the clipping rectangle""" 
+		dc.DestroyClippingRegion( ) 
+
+
+
+class YesNoBoolRenderer(AbstractTextRenderer): 
 	def getValueText( self, grid, row, col ): 
 		value = grid._Table.GetValue(row, col)
 		if value:
@@ -224,14 +251,3 @@ class YesNoBoolRenderer(wx.grid.PyGridCellRenderer):
 		else:
 			dc.SetTextForeground((0, 128, 0))
 		dc.DrawText(txt, rect.x, rect.y) 
-
-
-	def clip( self, dc, rect ): 
-		"""Setup the clipping rectangle""" 
-		dc.SetClippingRegion( rect.x, rect.y, rect.width, rect.height ) 
-
-
-	def unclip( self, dc ): 
-		"""Destroy the clipping rectangle""" 
-		dc.DestroyClippingRegion( ) 
-
