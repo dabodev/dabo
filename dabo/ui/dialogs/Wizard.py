@@ -191,9 +191,9 @@ class Wizard(dabo.ui.dDialog):
 				else:
 					if isinstance(pg, basestring):
 						xml = pg
-						from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
-						conv = DesignerXmlConverter()
-						pg = conv.classFromXml(xml)
+						from dabo.lib.DesignerClassConverter import DesignerClassConverter
+						conv = DesignerClassConverter()
+						pg = conv.classFromText(xml)
 					page = pg(self.pagePanel)
 				page.Size = self.pagePanel.Size
 				self._pages.insert(pos, page)

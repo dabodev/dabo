@@ -1,31 +1,34 @@
 # -*- coding: utf-8 -*-
-"""This is a class designed to take the XML in a Class Designer .cdxml file
-and return the class object represented by that XML. Right now it's wxPython-
+"""This is a class designed to take the JSON or XML in a Class Designer file
+and return the class object represented by that file. Right now it's wxPython-
 specific, since we only support wxPython, but I suppose that it could be updated
 later on to support other UI toolkits.
 """
 from datetime import datetime
+import time
 import os
 import re
 import random
+import codecs
+import tempfile
 import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.dObject import dObject
+from dabo.lib import utils
 import dabo.ui.dialogs as dlgs
 import dabo.lib.xmltodict as xtd
 import dabo.lib.DesignerUtils as desUtil
-from dabo.lib import utils
 # Doesn't matter what platform we're on; Python needs 
 # newlines in its compiled code.
 LINESEP = "\n"
 
 
-class DesignerXmlConverter(dObject):
+class DesignerClassConverter(dObject):
 	def __init__(self, *args, **kwargs):
 		self._createDesignerControls = False
-		super(DesignerXmlConverter, self).__init__(*args, **kwargs)
+		super(DesignerClassConverter, self).__init__(*args, **kwargs)
 		
 
 	def afterInit(self):
@@ -38,7 +41,12 @@ class DesignerXmlConverter(dObject):
 		# Added to ensure unique object names
 		self._generatedNames = [""]
 		# Holds the class file we will create in order to aid introspection
-		self._classFileName = self.Application.getTempFile("py")
+		try:
+			self._classFileName = self.Application.getTempFile("py")
+		except AttributeError:
+			# No app object
+			fd, self._classFileName = tempfile.mkstemp(suffix="py")
+			os.close(fd)
 		self._codeImportAs = "_daboCode"
 		# Holds any import statements to apply to the class code.
 		self._import = ""
@@ -53,28 +61,39 @@ class DesignerXmlConverter(dObject):
 		self._sizerTypeStack = []
 		# Location of the cdxml source file, if any
 		self._srcFile = None
+		# Encoding to be used
+		try:
+			self._encoding = self.Application.Encoding
+		except AttributeError:
+			# No app object
+			self._encoding = dabo.defaultEncoding
 		
 	
-	def classFromXml(self, src):
-		"""Given a cdxml file, returns a class object that that file 
-		represents. You can pass the cdxml as either a file path, 
-		a file object, or xml text.
+	def classFromText(self, src):
+		"""Given a text file, returns a class object that that file 
+		represents. You can pass the text as either a file path, 
+		a file object, or raw XML/JSON text.
 		"""
-		# Import the XML source
-		dct = self.importSrc(src)
-		# Parse the XML and create the class definition text
+		dct = self.dictFromStoredText(src)
+		# Traverse the dct, looking for superclass information
+		super = self.flattenClassDict(dct)
+		if super:
+			# We need to modify the info to incorporate the superclass info
+			self.addInheritedInfo(dct, super, updateCode=True)
+		# Parse the returned dict and create the class definition text
 		self.createClassText(dct)
 		# Work-around for bug in which a trailing comment line throws an error
 		self.classText += "\n"
 		if isinstance(self.classText, unicode):
-			self.classText = self.classText.encode(self.Application.Encoding)
+			self.classText = self.classText.encode(self._encoding)
 		open(self._classFileName, "w").write(self.classText)
 		
 		## For debugging. This creates a copy of the generated code
 		## so that you can help determine any problems.
 		## egl: removed 2007-02-10. If you want to see the output, 
-		##   just uncomment the next line.
-#  		open("CLASSTEXT.py", "w").write(self.classText)
+		##   just uncomment the next 2 lines.
+# 		debugName = "CLASSTEXT_%s.py" % time.strftime("%H%M%S", time.localtime())
+#  		open(debugName, "w").write(self.classText)
 
 		# jfcs added self._codeFileName to below
 		# egl - created a tmp file for the main class code that we can use 
@@ -84,8 +103,61 @@ class DesignerXmlConverter(dObject):
 		exec compClass in nmSpace
 		return nmSpace[self.mainClassName]
 
-	
-	def importSrc(self, src):
+
+	def dictFromStoredText(self, src):
+		"""Takes either a path to a text file, an open file containing the text,
+		or the raw text itself. Determines the format of the stored text, and
+		returns the corresponding dict.
+		"""
+		# Determine the type of the text. Try JSON first, then XML.
+		try:
+			dct = self.importXmlSrc(src)
+		except ValueError:
+			# Try JSON format
+			dct = self.importJsonSource(src)
+		self.addCodeFile(dct)
+		return dct
+
+
+	def addCodeFile(self, dct, pth=None, encoding=None):
+		if pth is None:
+			pth = self._srcFile
+		if encoding is None:
+			encoding = self._encoding
+		# Get the associated code file, if any
+		codePth = "%s-code.py" % os.path.splitext(pth)[0]
+		if os.path.exists(codePth):
+			try:
+				codeContent = codecs.open(codePth, "r", encoding).read()
+				codeDict = desUtil.parseCodeFile(codeContent)
+				dct["importStatements"] = codeDict.pop("importStatements", "")
+				desUtil.addCodeToClassDict(dct, codeDict)
+			except StandardError, e:
+				print "Failed to parse code file:", e
+
+
+	def importJsonSource(self, src):
+		"""This will read in a JSON source. The parameter can be a 
+		file path, an open file object, or the raw XML. It will look for
+		a matching code file and, if found, import that code.
+		"""
+		parseCode = True
+		try:
+			# Try a file object
+			jsonText = src.read()
+			self._srcFile = src.name
+		except AttributeError:
+			if os.path.exists(src):
+				self._srcFile = src = utils.resolvePathAndUpdate(src)
+				jsonText = file(src).read()
+			else:
+				# It must be raw json
+				jsonText = src
+				self._srcFile = os.getcwd()
+		return dabo.lib.jsonDecode(jsonText)
+
+
+	def importXmlSrc(self, src):
 		"""This will read in an XML source. The parameter can be a 
 		file path, an open file object, or the raw XML. It will look for
 		a matching code file and, if found, import that code.
@@ -103,15 +175,84 @@ class DesignerXmlConverter(dObject):
 			else:
 				parseCode = False
 				self._srcFile = os.getcwd()
-		dct = xtd.xmltodict(xml, addCodeFile=True, encoding="utf-8")
-		# Traverse the dct, looking for superclass information
-		super = xtd.flattenClassDict(dct)
-		if super:
-			# We need to modify the info to incorporate the superclass info
-			xtd.addInheritedInfo(dct, super, updateCode=True)
-		return dct
+		return xtd.xmltodict(xml, encoding="utf-8")
 
 
+	@classmethod
+	def addInheritedInfo(cls, src, super, updateCode=False):
+		"""Called recursively on the class container structure, modifying 
+		the attributes to incorporate superclass information. When the 
+		'updateCode' parameter is True, superclass code is added to the 
+		object's code
+		"""
+		atts = src.get("attributes", {})
+		props = src.get("properties", {})
+		kids = src.get("children", [])
+		code = src.get("code", {})
+		classID = atts.get("classID", "")
+		if classID:
+			superInfo = super.get(classID, {"attributes": {}, "code": {}, "properties": {}})
+			src["attributes"] = superInfo["attributes"].copy()
+			src["attributes"].update(atts)
+			src["properties"] = superInfo.get("properties", {}).copy()
+			src["properties"].update(props)
+			if updateCode:
+				src["code"] = superInfo["code"].copy()
+				src["code"].update(code)
+		if kids:
+			for kid in kids:
+				cls.addInheritedInfo(kid, super, updateCode)
+	
+
+	def flattenClassDict(self, cd, retDict=None):
+		"""Given a dict containing a series of nested objects such as would
+		be created by restoring from a stored class file, returns a dict with all classIDs
+		as keys, and a dict as the corresponding value. The dict value will have 
+		keys for the attributes and/or code, depending on what was in the original
+		dict. The end result is to take a nested dict structure and return a flattened
+		dict with all objects at the top level.
+		"""
+		if retDict is None:
+			retDict = {}
+		atts = cd.get("attributes", {})
+		props = cd.get("properties", {})
+		kids = cd.get("children", [])
+		code = cd.get("code", {})
+		classID = atts.get("classID", "")
+		classFile = utils.resolvePath(atts.get("designerClass", ""))
+		superclass = utils.resolvePath(atts.get("superclass", ""))
+		superclassID = atts.get("superclassID", "")
+		if superclassID and os.path.exists(superclass):
+			# Get the superclass info
+			superCD = self.dictFromStoredText(superclass)
+			flattenClassDict(superCD, retDict)
+		if classID:
+			if os.path.exists(classFile):
+				# Get the class info
+				classCD = self.dictFromStoredText(classFile)
+				classAtts = classCD.get("attributes", {})
+				classProps = classCD.get("properties", {})
+				classCode = classCD.get("code", {})
+				classKids = classCD.get("children", [])
+				currDict = retDict.get(classID, {})
+				retDict[classID] = {"attributes": classAtts, "code": classCode, 
+						"properties": classProps}
+				retDict[classID].update(currDict)
+				# Now update the child objects in the dict
+				for kid in classKids:
+					self.flattenClassDict(kid, retDict)
+			else:
+				# Not a file; most likely just a component in another class
+				currDict = retDict.get(classID, {})
+				retDict[classID] = {"attributes": atts, "code": code, 
+						"properties": props}
+				retDict[classID].update(currDict)
+		if kids:
+			for kid in kids:
+				self.flattenClassDict(kid, retDict)
+		return retDict
+	
+	
 	def createClassText(self, dct, addImports=True, specList=[]):
 		# 'self.classText' will contain the generated code
 		self.classText = ""
@@ -238,9 +379,9 @@ class DesignerXmlConverter(dObject):
 			impt = ""
 		ct = self.classText
 		if isinstance(ct, unicode):
-			self.classText = ct.encode(self.Application.Encoding)
+			self.classText = ct.encode(self._encoding)
 		if isinstance(impt, unicode):
-			impt = impt.encode(self.Application.Encoding)
+			impt = impt.encode(self._encoding)
 		self.classText = self.classText.replace("|classImportStatements|", impt)
 		
 		# We're done!
@@ -339,7 +480,7 @@ class DesignerXmlConverter(dObject):
 			splitterString = ""
 			if "classID" in atts:
 				if not os.path.exists(clsname):
-					clsname = utils.locateRelativeTo(self._srcFile, clsname)
+					clsname = dabo.lib.utils.locateRelativeTo(self._srcFile, clsname)
 				chldList = [[child]] + specChildList[:]
 				nm = self.createInheritedClass(clsname, chldList)
 				code = {}
@@ -635,7 +776,7 @@ class DesignerXmlConverter(dObject):
 		dictionaries that contains a dict for each level of specialization
 		for this class. 
 		"""
-		conv = DesignerXmlConverter()
+		conv = DesignerClassConverter()
 		xmlDict = conv.importSrc(pth)
 		conv.createClassText(xmlDict, addImports=False, specList=specList)
 		self.innerClassText += conv.classText + (2 * LINESEP)
@@ -683,7 +824,7 @@ class DesignerXmlConverter(dObject):
 					ret["NameBase"] = val
 				else:
 					ret[key] = val
-		utils.resolveAttributePathing(ret, self._srcFile)
+		dabo.lib.utils.resolveAttributePathing(ret, self._srcFile)
 		return ret
 	
 

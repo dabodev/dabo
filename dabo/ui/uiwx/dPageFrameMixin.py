@@ -175,9 +175,9 @@ class dPageFrameMixin(cm.dControlMixin):
 			# See if the 'pgCls' is either some XML or the path of an XML file
 			if isinstance(pgCls, basestring):
 				xml = pgCls
-				from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
-				conv = DesignerXmlConverter()
-				pgCls = conv.classFromXml(xml)
+				from dabo.lib.DesignerClassConverter import DesignerClassConverter
+				conv = DesignerClassConverter()
+				pgCls = conv.classFromText(xml)
 			pg = pgCls(self, **kwargs)
 		if not caption:
 			# Page could have its own default caption

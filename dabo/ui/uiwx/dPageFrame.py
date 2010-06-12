@@ -217,9 +217,9 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
 			# See if the 'pgCls' is either some XML or the path of an XML file
 			if isinstance(pgCls, basestring):
 				xml = pgCls
-				from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
-				conv = DesignerXmlConverter()
-				pgCls = conv.classFromXml(xml)
+				from dabo.lib.DesignerClassConverter import DesignerClassConverter
+				conv = DesignerClassConverter()
+				pgCls = conv.classFromText(xml)
 			pg = pgCls(self)
 		if not caption:
 			# Page could have its own default caption
@@ -693,6 +693,9 @@ if _USE_FLAT:
 			szr.append(hsz, halign="center")
 			self.Form.layout()
 			self.Form.fitToSizer()
+
+	def onPageChanged(self, evt):
+		print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
 
 
 

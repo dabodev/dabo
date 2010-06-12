@@ -1195,10 +1195,10 @@ def _checkForRawXML(srcFile):
 def createClass(srcFile, *args, **kwargs):
 	"""Given a .cdxml class definition file path, will return the 
 	corresponding Python class."""
-	from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
+	from dabo.lib.DesignerClassConverter import DesignerClassConverter
 	srcFile, isRaw = _checkForRawXML(srcFile)
-	conv = DesignerXmlConverter()
-	cls = conv.classFromXml(srcFile)
+	conv = DesignerClassConverter()
+	cls = conv.classFromText(srcFile)
 	if not isRaw:
 		cls._sourceFilePath = srcFile
 	return cls
@@ -1596,10 +1596,6 @@ def _saveScreenShot(obj, imgType, pth):
 			pth = "%s.%s" % (pth, typ)
 	img = wx.ImageFromBitmap(bmp)
 	img.SaveFile(pth, wxTypeDict[typ])
-
-
-
-
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

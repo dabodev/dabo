@@ -58,9 +58,9 @@ class dPageFrameNoTabs(dPanel):
 			# See if the 'pgCls' is either some XML or the path of an XML file
 			if isinstance(pgCls, basestring):
 				xml = pgCls
-				from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
-				conv = DesignerXmlConverter()
-				pgCls = conv.classFromXml(xml)
+				from dabo.lib.DesignerClassConverter import DesignerClassConverter
+				conv = DesignerClassConverter()
+				pgCls = conv.classFromText(xml)
 			pg = pgCls(self)
 		self.Sizer.insert(pos, pg, 1, "x")
 		self._pages.insert(pos, pg)
@@ -172,9 +172,9 @@ class dPageFrameNoTabs(dPanel):
 		
 	def _setPgCls(self, val):
 		if isinstance(val, basestring):
-			from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
-			conv = DesignerXmlConverter()
-			self._pageClass = conv.classFromXml(val)
+			from dabo.lib.DesignerClassConverter import DesignerClassConverter
+			conv = DesignerClassConverter()
+			self._pageClass = conv.classFromText(val)
 		elif issubclass(val, (dPage, dPanel)):
 			self._pageClass = val
 	
