@@ -828,14 +828,14 @@ class dPemMixin(dPemMixinBase):
 			self.ControllingSizer.setItemProp(self, prop, val)
 		
 		
-	def processDroppedFiles(self, filelist):
+	def processDroppedFiles(self, filelist, x, y):
 		"""Handler for files dropped on the control. Override in your
 		subclass/instance for your needs .
 		"""
 		pass
 		
 		
-	def processDroppedText(self, txt):
+	def processDroppedText(self, txt, x, y):
 		"""Handler for text dropped on the control. Override in your
 		subclass/instance for your needs .
 		"""
@@ -947,9 +947,9 @@ class dPemMixin(dPemMixinBase):
 		# See if the 'classRef' is either some XML or the path of an XML file
 		if isinstance(classRef, basestring):
 			xml = classRef
-			from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
-			conv = DesignerXmlConverter()
-			classRef = conv.classFromXml(xml)
+			from dabo.lib.DesignerClassConverter import DesignerClassConverter
+			conv = DesignerClassConverter()
+			classRef = conv.classFromText(xml)
 		# Note that we could have just given addObject() a signature of:
 		#   addObject(self, classRef, *args, **kwargs)
 		# Which would simplify the implementation somewhat. However, we want
@@ -3692,11 +3692,21 @@ class _DropTarget(wx.DropTarget):
 	def OnData(self, x, y, defResult):
 		if self.GetData():
 			format = self.compositeDataObject.ReceivedFormat.GetType()
+			mthd = param = None
 			if format == wx.DF_FILENAME:
 				if self._fileHandle:
-					self._fileHandle.processDroppedFiles(self.fileData.Filenames)
+					mthd = self._fileHandle.processDroppedFiles
+					param = self.fileData.Filenames
 			elif format == wx.DF_TEXT or wx.DF_HTML:
-				self._textHandle.processDroppedText(self.textData.Text)
+				if self._textHandle:
+					mthd = self._textHandle.processDroppedText
+					param = self.textData.Text
+			if mthd:
+				try:
+					mthd(param, x, y)
+				except TypeError, e:
+					# Older implementation that doesn't accept x, y
+					mthd(param)
 		return defResult
 
 
