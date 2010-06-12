@@ -28,10 +28,9 @@ from ClassDesignerComponents import classFlagProp
 from ClassDesignerControlMixin import ClassDesignerControlMixin as cmix
 from ClassDesignerCustomPropertyDialog import ClassDesignerCustomPropertyDialog
 from ClassDesignerSizerPalette import SizerPaletteForm
-from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
+from dabo.lib.DesignerClassConverter import DesignerClassConverter
 from dabo.lib import DesignerUtils
 import ClassDesignerMenu
-import dabo.lib.xmltodict as xtd
 import dabo.ui.dialogs as dlgs
 from dabo.lib.utils import dictStringify
 from ClassDesignerExceptions import PropertyUpdateException
@@ -42,6 +41,58 @@ try:
 except:
 	dabo.ui.dDockForm = None
 	_USE_DOCKFORM = False
+
+
+class PageInfoDialog(dui.dOkCancelDialog):
+	def __init__(self, *args, **kwargs):
+		self.noTabs = self._extractKey(kwargs, "NoTabs", False)
+		self.pageCount = 3
+		self.pageClass = _("<default>")
+		self.tabPositions = ("Top", "Bottom", "Left", "Right")
+		self.tabPosSelection = 0
+		super(PageInfoDialog, self).__init__(*args, **kwargs)
+
+	def addControls(self):
+		self.Caption = _("Paged Control Settings")
+		gsz = dui.dGridSizer(MaxCols=2, HGap=5, VGap=12)
+		lbl = dui.dLabel(self, Caption=_("Number of pages:"))
+		spn = dui.dSpinner(self, DataSource="form",
+				DataField="pageCount", Min=1, Max=20, Value=3)
+		gsz.append(lbl, halign="right")
+		gsz.append(spn)
+
+		if not self.noTabs:
+			lbl = dui.dLabel(self, Caption=_("Tab Position:"))
+			dd = dui.dDropdownList(self, Choices=(_("Top"),
+					_("Bottom"), _("Left"), _("Right")), ValueMode="Position",
+					Value=0, DataSource="form", DataField="tabPosSelection")
+			gsz.append(lbl, halign="right")
+			gsz.append(dd)
+
+		lbl = dui.dLabel(self, Caption=_("Default Page Class:"))
+		txt = dui.dTextBox(self, DataSource="form", DataField="pageClass",
+				Enabled=False)
+		btn = dui.dButton(self, Caption="...")
+		btn.bindEvent(dEvents.Hit, self.onSelectClass)
+		hsz = dui.dSizer("h")
+		hsz.append1x(txt)
+		hsz.appendSpacer(4)
+		hsz.append(btn)
+		gsz.append(lbl, halign="right")
+		gsz.append(hsz)
+
+		gsz.setColExpand("all", True)
+
+		self.Sizer.append1x(gsz, border=30, halign="Center", valign="Middle")
+		self.update()
+		self.layout()
+
+	def onSelectClass(self, evt):
+		f = dui.getFile("cdxml")
+		if f:
+			self.pageClass = dabo.lib.utils.relativePath(f)
+			self.update()
+
 
 
 
@@ -107,6 +158,9 @@ class ClassDesigner(dabo.dApp):
 		# Store the name of the custom class menu here instead of
 		# hard-coding it in several places.
 		self._customClassCaption = _("Custom Classes")
+		# Temporary storage for values to avoid passing these among methods
+		self._recreateValsDict = {}
+		self._valsDictLIFO = []
 		# Add this to the persistent MRUs
 		self._persistentMRUs[self._customClassCaption] = self.addCustomClass
 		# Save the default atts for sizers. This way we can distinguish
@@ -180,6 +234,9 @@ class ClassDesigner(dabo.dApp):
 			try:
 				frm = self.openClass(clsFile)
 				clsOK = True
+			except dabo.dException.XmlException, e:
+				msg = _("Error: %s\n\nA new file will be created.") % e
+				dui.stop(message=msg, title=_("Invalid XML File"))
 			except IOError, e:
 				msg = _("'%s' does not exist. Create it?") % clsFile
 				if dui.areYouSure(message=msg, title=_("File Not Found"), cancelButton=False):
@@ -450,19 +507,21 @@ class ClassDesigner(dabo.dApp):
 			if not os.path.exists(pth):
 				if os.path.exists(os.path.abspath(pth)):
 					pth = os.path.abspath(pth)
-			dct = xtd.xmltodict(pth, addCodeFile=True)
+			converter = DesignerClassConverter()
+			dct = converter.dictFromStoredText(pth)
+		except dabo.dException.XmlException, e:
+			raise 
 		except StandardError, e:
 			if pth.strip().startswith("<?xml") or os.path.exists(pth):
 				raise IOError(_("This does not appear to be a valid class file."))
 			else:
 				raise IOError(_("The class file '%s' was not found.") % pth)
 
-
 		# Traverse the dct, looking for superclass information
-		super = xtd.flattenClassDict(dct)
+		super = converter.flattenClassDict(dct)
 		if super:
 			# We need to modify the info to incorporate the superclass info
-			xtd.addInheritedInfo(dct, super)
+			converter.addInheritedInfo(dct, super, updateCode=True)
 			# Store the base code so that we can determine if instances have
 			# modified it.
 			self._updateClassCodeRepository(super)
@@ -519,6 +578,9 @@ class ClassDesigner(dabo.dApp):
 		# Translate the file path into a class dictionary.
 		clsd = self._importClassXML(pth)
 		importStatements = clsd.pop("importStatements", "")
+		if not importStatements:
+			# If stored in a single file, 'importStatements' will be in the outermost 'code' dict.
+			importStatements = clsd.get("code", {}).get("importStatements", "")
 		# See if the class name requires a separate import
 		nm = clsd["name"]
 		try:
@@ -551,8 +613,14 @@ class ClassDesigner(dabo.dApp):
 			self._selectedClass = dui.dForm
 
 		# Convert any paths in the atts
-		self._basePath = pth
-		dabo.lib.utils.resolveAttributePathing(atts, pth)
+		try:
+			self._basePath = atts["HomeDirectory"]
+		except KeyError:
+			if os.path.isfile(pth):
+				self._basePath = os.path.dirname(os.path.abspath(pth))
+			else:
+				self._basePath = pth
+		dabo.lib.utils.resolveAttributePathing(atts, self._basePath)
 		# Read in any .cnxml connection defs.
 		currdir = os.path.dirname(pth)
 		self._initDB(currdir)
@@ -575,11 +643,18 @@ class ClassDesigner(dabo.dApp):
 				self._extractKey(atts, "PageCount")
 			frm = frmClass(None, Name=nm, SaveRestorePosition=False,
 					attProperties=atts)
+			# The overall size is stored in the out child object's atts
+			sz = self._extractKey(clsd["attributes"], "FormSize")
+			if sz:
+				# It's a string
+				sz = eval(sz)
+				frm.Size = sz
 			if isWiz:
 				self._recreateWizardPages(frm, clsd["children"])
 				# Clear the children dict
 				clsd["children"] = []
 			frm._setupPanels(fromNew=False)
+		frm.HomeDirectory = self._basePath
 		self._classImportDict[frm] = importStatements
 		lp = frm.initLayoutPanel
 		if isFormClass and frm.UseSizers and not isWiz:
@@ -643,12 +718,13 @@ class ClassDesigner(dabo.dApp):
 
 
 	def extractSuperClassInfo(self, pth):
+		converter = DesignerClassConverter()
 		try:
-			superdct = xtd.xmltodict(pth, addCodeFile=True)
+			superClassDict = converter.dictFromStoredText(pth)
 		except:
-			raise IOError(_("This does not appear to be a valid class file."))
+			raise IOError(_("The file '%s' does not appear to be a valid class file.") % pth)
 		# Traverse the dct, looking for superclass information
-		sup = xtd.flattenClassDict(superdct)
+		sup = converter.flattenClassDict(superClassDict)
 		# Store the base code so that we can determine if instances have
 		# modified it.
 		self._updateClassCodeRepository(sup)
@@ -660,8 +736,408 @@ class ClassDesigner(dabo.dApp):
 		super = self._superClassInfo
 		if super:
 			# We need to modify the info to incorporate the superclass info
-			xtd.addInheritedInfo(dct, super)
+			DesignerClassConverter.addInheritedInfo(dct, super)
 		return dct
+
+
+	def _recreateLayoutPanel(self):
+		# Panel has already been created by the sizer's slots;
+		# just set any sizer item props.
+		classID = self._recreateValsDict["classID"]
+		sizerInfoDict = self._recreateValsDict["sizerInfoDict"]
+		kids = self._recreateValsDict["kids"]
+		pnl = self._srcObj
+		sz = pnl.ControllingSizer
+		itm = pnl.ControllingSizerItem
+		sz.setItemProps(itm, sizerInfoDict)
+		if classID:
+			pnl.classID = classID
+		if kids:
+			self.recreateChildren(pnl, kids, None, False)
+
+
+	def _recreateLayoutSpacerPanel(self):
+		atts = self._recreateValsDict["atts"]
+		classID = self._recreateValsDict["classID"]
+		sizerInfoDict = self._recreateValsDict["sizerInfoDict"]
+		spc = int(atts.get("Spacing", "20"))
+		pnl = self._srcObj
+		prnt = pnl.Parent
+		pos = pnl.getPositionInSizer()
+		sz = pnl.ControllingSizer
+		sz.remove(pnl)
+		dui.callAfter(pnl.release)
+		obj = LayoutSpacerPanel(prnt, Spacing=spc)
+		if isinstance(sz, dui.dGridSizer):
+			itm = sz.append(obj, row=pos[0], col=pos[1])
+		else:
+			itm = sz.insert(pos, obj)
+		sz.setItemProps(itm, sizerInfoDict)
+		if classID:
+			obj.classID = classID
+		return obj
+
+
+	def _recreateLayoutSizer(self):
+		atts = self._recreateValsDict["atts"]
+		parent = self._recreateValsDict["parent"]
+		sizerInfoDict = self._recreateValsDict["sizerInfoDict"]
+		clsname = self._recreateValsDict["clsname"]
+		classID = self._recreateValsDict["classID"]
+		fromSizer = self._recreateValsDict["fromSizer"]
+		kids = self._recreateValsDict["kids"]
+		ornt = self._extractKey(atts, "Orientation", "h")
+		slots = int(self._extractKey(atts, "SlotCount", "1"))
+		useBox, boxCaption = None, None
+		if clsname == "LayoutBorderSizer":
+			useBox = True
+			boxCaption = self._extractKey(atts, "Caption", None)
+		sz, pnl = self.addSizer("box", orient=ornt, slots=slots,
+				useBox=useBox, boxCaption=boxCaption)
+		szCont = sz.ControllingSizer
+		itm = sz.ControllingSizerItem
+		is2D = isinstance(szCont, dabo.ui.dGridSizer)
+		defaults = {True: szItemDefaults[2],
+				False: szItemDefaults[1]}[is2D]
+		defAtts = {}
+		for key, val in defaults.items():
+			defAtts["Sizer_%s" % key] = val
+		defAtts.update(dictStringify(atts))
+		atts = defAtts
+		if isinstance(sz.Parent, dabo.ui.dSlidePanel):
+			# Main sizer for a slide panel; don't do anything
+			pass
+		else:
+			sz.setPropertiesFromAtts(atts)
+		if classID:
+			sz.classID = classID
+		if not fromSizer:
+			parent.Sizer = sz
+		if szCont is not None and itm is not None:
+			szCont.setItemProps(itm, sizerInfoDict)
+		if kids:
+			# We need to set the value of _srcObj to the individual
+			# LayoutPanel in the sizer. The number of kids should
+			# match the number of slots created when the sizer
+			# was created.
+			childWindowList = sz.ChildWindows[:]
+			for pos, kid in enumerate(kids):
+				# Set the LayoutPanel to the 'source' object
+				pnl = self._srcObj = childWindowList[pos]
+				# Pass the 'kid' as a list, since that's what
+				# recreateChildren() expects.
+				self.recreateChildren(parent, [kid], sz, True)
+		return sz
+
+
+	def _recreateLayoutGridSizer(self):
+		atts = self._recreateValsDict["atts"]
+		sizerInfoDict = self._recreateValsDict["sizerInfoDict"]
+		fromSizer = self._recreateValsDict["fromSizer"]
+		classID = self._recreateValsDict["classID"]
+		parent = self._recreateValsDict["parent"]
+		kids = self._recreateValsDict["kids"]
+		rows = int(self._extractKey(atts, "Rows", "1"))
+		cols = int(self._extractKey(atts, "Columns", "1"))
+		sz, pnl = self.addSizer("grid", rows=rows, cols=cols)
+		szCont = sz.ControllingSizer
+		is2D = isinstance(szCont, dabo.ui.dGridSizer)
+		defaults = {True: szItemDefaults[2],
+				False: szItemDefaults[1]}[is2D]
+		defAtts = {}
+		for key, val in defaults.items():
+			defAtts["Sizer_%s" % key] = val
+		defAtts.update(dictStringify(atts))
+		atts = defAtts
+		sz.setPropertiesFromAtts(atts)
+		if not fromSizer:
+			parent.Sizer = sz
+		itm = sz.ControllingSizerItem
+		if szCont is not None and itm is not None:
+			szCont.setItemProps(itm, sizerInfoDict)
+		if classID:
+			sz.classID = classID
+		if kids:
+			for kid in kids:
+				kidatts = kid["attributes"]
+				rowCol = kidatts.get("rowColPos")
+				if isinstance(rowCol, tuple):
+					row, col = rowCol
+				else:
+					row, col = eval(kidatts.get("rowColPos"))
+				# Set the LayoutPanel to the 'source' object
+				pnl = self._srcObj = sz.getItemByRowCol(row, col)
+				# Pass the 'kid' as a list, since that's what
+				# recreateChildren() expects.
+				obj = self.recreateChildren(parent, [kid], sz, True)
+		return sz
+
+
+	def _recreateControl(self):
+		rv  = self._recreateValsDict
+		dct = rv["dct"]
+		atts = rv["atts"]
+		szr = rv["szr"]
+		sizerInfoDict = rv["sizerInfoDict"]
+		rowColAtts = rv["rowColAtts"]
+		cls = rv["cls"]
+		clsname = rv["clsname"]
+		classID = rv["classID"]
+		code = rv["code"]
+		kids = rv["kids"]
+		if szr:
+			if isinstance(szr, LayoutGridSizer):
+				if isinstance(rowColAtts, tuple):
+					row, col = rowColAtts
+				else:
+					row, col = eval(rowColAtts)
+				if row is not None and col is not None:
+					# It has a given position, so use that. Otherwise,
+					# they may be pasting into a grid sizer.
+					self._srcObj = szr.getItemByRowCol(row, col)
+			grdsz = isinstance(szr, dui.dGridSizer)
+			if grdsz:
+				szType = "Grid"
+			else:
+				szType = szr.Orientation
+			# Get the defaults for this class of control.
+			defSizerProps = self.getDefaultSizerProps(cls, szType)
+		else:
+			defSizerProps = {}
+		props = rv["props"] = {}
+		try:
+			imp, clsname = cls.rsplit(".", 1)
+			imptSt = "from %(imp)s import %(clsname)s" % locals()
+			exec imptSt in locals()
+			dct["fullname"] = cls
+			dct["name"] = clsname
+			newClass = eval(clsname)
+		except ValueError:
+			dct["fullname"] = cls
+			newClass = dui.__dict__[cls]
+		
+		# See if it's a class that requires special handling
+		rv["newClass"] = newClass
+		isGrid = rv["isGrid"] = issubclass(newClass, dui.dGrid)
+		isTree = rv["isTree"] = issubclass(newClass, dui.dTreeView)
+		isSplitter = rv["isSplitter"] = issubclass(newClass, dui.dSplitter)
+		isSlidePanelControl = rv["isSlidePanelControl"] = issubclass(newClass, dui.dSlidePanelControl)
+		isPageControl = rv["isPageControl"] = issubclass(newClass, self.pagedControls)
+		noTabs = rv["noTabs"] = issubclass(newClass, dui.dPageFrameNoTabs)
+
+		self._preHandleComplexControls()
+
+		# If we are pasting, we can get two objects with the same
+		# Name value, so change it to NameBase.
+		nm = self._extractKey(atts, "Name", clsname)
+		props["NameBase"] = nm
+		obj = self.addNewControl(None, newClass, props=props,
+				skipUpdate=True, attProperties=atts)
+		ret = obj
+		if isSplitter:
+			obj.setPropertiesFromAtts({"Orientation": rv["ornt"]})
+			if rv["splt"]:
+				dabo.ui.setAfter(obj, "Split", True)
+		try:
+			sz = obj.ControllingSizer
+			itm = obj.ControllingSizerItem
+		except AttributeError:
+			sz = None
+			itm = None
+		if sz is not None and itm is not None:
+			defSizerProps.update(sizerInfoDict)
+			sz.setItemProps(itm, defSizerProps)
+		if classID:
+			obj.classID = classID
+
+		for mthd, cd in code.items():
+			if not self._codeDict.get(obj):
+				self._codeDict[obj] = {}
+			cd = cd.replace("\n]", "]")
+			self._codeDict[obj][mthd] = cd
+		# Restore any prop definitions.
+		propDefs = dct.get("properties", {})
+		if propDefs:
+			self._classPropDict[obj] = propDefs
+
+		if kids:
+			if isGrid:
+				self._recreateKidsForGrid(obj, kids)
+			elif isPageControl:
+				self._recreateKidsForPageControl(obj, kids)
+			elif isSlidePanelControl:
+				self._recreateKidsForSlidePanel(obj, kids)
+			elif isSplitter:
+				self._recreateKidsForSplitter(obj, kids)
+			elif isTree:
+				self._recreateKidsForTree(obj, kids)
+			else:
+				currPnl = self._srcObj
+				if isinstance(obj, (dui.dPanel, dui.dScrollPanel)):
+					self._srcObj = obj
+				self.recreateChildren(obj, kids, None, False)
+				self._srcObj = currPnl
+		return ret
+
+
+	def _recreateKidsForGrid(self, obj, kids):
+		noneTyp = type(None)
+		colClass = obj.ColumnClass
+		# All the kids will be columns, so add 'em here
+		for kid in kids:
+			kidatts = kid["attributes"]
+			col = colClass(obj)
+			for kprop, kval in kidatts.items():
+				if kprop in ("designerClass", ):
+					continue
+				typ = type(getattr(col, kprop))
+				if typ is noneTyp:
+					try:
+						kval = eval(kval)
+					except StandardError, e:
+						# Leave it as it is
+						pass
+				else:
+					if not issubclass(typ, basestring):
+						if typ is bool and isinstance(kval, basestring):
+							kval = (kval.lower() in ("true", "t", "yes", "y", "1"))
+						else:
+							kval = typ(kval)
+				setattr(col, kprop, kval)
+			notLast = (kid is not kids[-1])
+			obj.addColumn(col, inBatch=notLast)
+		# Make it look nice
+		obj.emptyRowsToAdd = 5
+		obj.fillGrid(True)
+
+
+	def _recreateKidsForPageControl(self, obj, kids):
+		for pos, kid in enumerate(kids):
+			pg = obj.Pages[pos]
+			kidatts = kid.get("attributes", {})
+			kidClassID = self._extractKey(kidatts, "classID", "")
+			if kidClassID:
+				pg.classID = kidClassID
+			pg.setPropertiesFromAtts(kidatts)
+			kidcode = kid.get("code", {})
+			if kidcode:
+				self._codeDict[pg] = kidcode
+			grandkids = kid.get("children", [])
+			if grandkids:
+				self._srcObj = pg
+				self.recreateChildren(pg, grandkids, None, False)
+
+
+	def _recreateKidsForSlidePanel(self, obj, kids):
+		for pos, kid in enumerate(kids):
+			pnl = obj.Children[pos]
+			kidatts = kid.get("attributes", {})
+			try:
+				del kidatts["Name"]
+			except KeyError:
+				pass
+			kidClassID = self._extractKey(kidatts, "classID", "")
+			if kidClassID:
+				pnl.classID = kidClassID
+			pnl.setPropertiesFromAtts(kidatts)
+			kidcode = kid.get("code", {})
+			if kidcode:
+				self._codeDict[pnl] = kidcode
+			grandkids = kid.get("children", [])
+			if grandkids:
+				self._srcObj = pnl
+				self.recreateChildren(pnl, grandkids, None, False)
+
+
+	def _recreateKidsForSplitter(self, obj, kids):
+		for pos, kid in enumerate(kids):
+			pnlClass = dui.__dict__[kid["name"]]
+			obj.createPanes(pnlClass, pane=pos+1, force=True)
+			if pos == 0:
+				pnl = obj.Panel1
+			else:
+				pnl = obj.Panel2
+			if pnl is None:
+				continue
+			kidatts = kid.get("attributes", {})
+			pnl.setPropertiesFromAtts(kidatts)
+			kidcode = kid.get("code", {})
+			if kidcode:
+				self._codeDict[pnl] = kidcode
+			grandkids = kid.get("children", [])
+			if grandkids:
+				curr = self._srcObj
+				self._srcObj = pnl
+				self.recreateChildren(pnl, grandkids, None, False)
+				self._srcObj = curr
+
+
+	def _recreateKidsForTree(self, obj, kids):
+		def addTreeNode(parent, atts, kidnodes):
+			cap = self._extractKey(atts, "Caption", "")
+			if parent is None:
+				obj.clear()
+				nd = obj.setRootNode(cap)
+			else:
+				nd = parent.appendChild(cap)
+			# Remove the name and designerClass atts
+			self._extractKey(atts, "name")
+			self._extractKey(atts, "designerClass")
+			for prop, val in atts.items():
+				try:
+					exec "nd.%s = %s" % (prop, val) in locals()
+				except (SyntaxError, NameError):
+					exec "nd.%s = '%s'" % (prop, val) in locals()
+			for kidnode in kidnodes:
+				kidatts = kidnode.get("attributes", {})
+				kidkids = kidnode.get("children", {})
+				addTreeNode(nd, kidatts, kidkids)
+		# Set the root
+		root = kids[0]
+		rootAtts = root.get("attributes", {})
+		rootKids = root.get("children", {})
+		addTreeNode(None, rootAtts, rootKids)
+
+
+	def _preHandleComplexControls(self):
+		rv = self._recreateValsDict
+		isGrid = rv["isGrid"]
+		isTree = rv["isTree"]
+		isSplitter = rv["isSplitter"]
+		isSlidePanelControl = rv["isSlidePanelControl"]
+		isPageControl = rv["isPageControl"]
+		noTabs = rv["noTabs"]
+		atts = rv["atts"]
+		props = rv["props"]
+		if isGrid:
+			try:
+				# The column entries will create themselves, so
+				# we don't want to create them now.
+				del atts["ColumnCount"]
+			except:
+				pass
+			props["ColumnCount"] = 0
+		elif isPageControl:
+			props["PageCount"] = int(atts.get("PageCount", "0"))
+			props["TabPosition"] = atts.get("TabPosition", "")
+			try:
+				del atts["PageCount"]
+			except: pass
+			try:
+				del atts["TabPosition"]
+			except: pass
+			if noTabs:
+				del props["TabPosition"]
+		elif isSlidePanelControl:
+			props["PanelCount"] = int(atts.get("PanelCount", "0"))
+			try:
+				del atts["PanelCount"]
+			except: pass
+		elif isSplitter:
+			ornt = rv["ornt"] = self._extractKey(atts, "Orientation", "Vertical")
+			splt = rv["splt"] = self._extractKey(atts, "Split", "False")
+			props["createPanes"] = False
+			atts["Split"] = False
 
 
 	def recreateChildren(self, parent, chld, szr, fromSizer, debug=0):
@@ -673,9 +1149,12 @@ class ClassDesigner(dabo.dApp):
 			# Single child passed
 			chld = [chld]
 		for dct in chld:
+			self._valsDictLIFO.append(self._recreateValsDict)
+			rv = self._recreateValsDict = {"parent": parent, "szr": szr, 
+					"fromSizer": fromSizer, "dct": dct}
 			atts = dct["attributes"]
 			# Convert any paths in the atts
-			dabo.lib.utils.resolveAttributePathing(atts, self._basePath)
+			dabo.lib.utils.resolveAttributePathing(atts, self._basePath, True)
 			clsname = self._extractKey(atts, "designerClass", "")
 			# See if this is a saved class inserted into another design
 			isCustomClass = False
@@ -685,369 +1164,48 @@ class ClassDesigner(dabo.dApp):
 				if cid and (not "-" in cid):
 					# This is a custom class; make sure that the relative path is correct
 					if not os.path.exists(clsname):
-							clsname = dabo.lib.utils.locateRelativeTo(self._basePath, clsname)
+						clsname = dabo.lib.utils.locateRelativeTo(self._basePath, clsname)
 					isCustomClass = True
 					customClassPath = clsname
 					# Start with the custom class, and then update it with the current stuff
 					self.extractSuperClassInfo(clsname)
+			rv["clsname"] = clsname
 			# Add any superclass information.
 			self.inherit(dct)
 			# Need to re-assign the atts from the inherited dct
-			atts = dct["attributes"]
-			cls = dct["name"]
-			classID = self._extractKey(atts, "classID", "")
-			kids = dct.get("children", None)
+			atts = rv["atts"] = dct["attributes"]
+			cls = rv["cls"] = dct["name"]
+			classID = rv["classID"] = self._extractKey(atts, "classID", "")
+			kids = rv["kids"] = dct.get("children", None)
 			if self._addingClass:
 				code = {}
 			else:
 				code = dct.get("code", {})
-			propDefs = dct.get("properties", {})
-			sizerInfo = self._extractKey(atts, "sizerInfo", "{}")
+			rv["code"] = code
+			sizerInfo = rv["sizerInfo"] = self._extractKey(atts, "sizerInfo", "{}")
 			if isinstance(sizerInfo, basestring):
 				sizerInfoDict = eval(sizerInfo)
 			else:
 				sizerInfoDict = sizerInfo
-
-			rowColAtts = self._extractKey(atts, "rowColPos", "(None,None)")
+			rv["sizerInfoDict"] = sizerInfoDict
+			
+			rowColAtts = rv["rowColAtts"] = self._extractKey(atts, "rowColPos", "(None,None)")
+			# Refactored these calls to make this method a little less lengthy.
 			if clsname == "LayoutPanel":
-				# Panel has already been created by the sizer's slots;
-				# just set any sizer item props.
-				pnl = self._srcObj
-				sz = pnl.ControllingSizer
-				itm = pnl.ControllingSizerItem
-				sz.setItemProps(itm, sizerInfoDict)
-				if classID:
-					pnl.classID = classID
-				if kids:
-					self.recreateChildren(pnl, kids, None, False)
-
+				ret = self._recreateLayoutPanel()
 			elif clsname == "LayoutSpacerPanel":
-				spc = int(atts.get("Spacing", "20"))
-				pnl = self._srcObj
-				prnt = pnl.Parent
-				pos = pnl.getPositionInSizer()
-				sz = pnl.ControllingSizer
-				sz.remove(pnl)
-				dui.callAfter(pnl.release)
-				obj = LayoutSpacerPanel(prnt, Spacing=spc)
-				if isinstance(sz, dui.dGridSizer):
-					itm = sz.append(obj, row=pos[0], col=pos[1])
-				else:
-					itm = sz.insert(pos, obj)
-				sz.setItemProps(itm, sizerInfoDict)
-				if classID:
-					obj.classID = classID
-				ret = obj
-
+				ret = self._recreateLayoutSpacerPanel()
 			elif clsname in ("LayoutSizer", "LayoutBorderSizer"):
-				ornt = self._extractKey(atts, "Orientation", "h")
-				slots = int(self._extractKey(atts, "SlotCount", "1"))
-				useBox, boxCaption = None, None
-# 				defSpacing = int(self._extractKey(atts, "DefaultSpacing", "0"))
-				if clsname == "LayoutBorderSizer":
-					useBox = True
-					boxCaption = self._extractKey(atts, "Caption", None)
-				sz, pnl = self.addSizer("box", orient=ornt, slots=slots,
-						useBox=useBox, boxCaption=boxCaption)
-				szCont = sz.ControllingSizer
-				itm = sz.ControllingSizerItem
-# 				if defSpacing:
-# 					# Need to set this *after* the design has been created, or else
-# 					# it will create non-Designer spacers that will confuse things.
-# 					def setLater(sz, spc):
-# 						sz.DefaultSpacing = spc
-# 					dabo.ui.callAfter(setLater, sz, defSpacing)
-				is2D = isinstance(szCont, dabo.ui.dGridSizer)
-				defaults = {True: szItemDefaults[2],
-						False: szItemDefaults[1]}[is2D]
-				defAtts = {}
-				for key, val in defaults.items():
-					defAtts["Sizer_%s" % key] = val
-				defAtts.update(dictStringify(atts))
-				atts = defAtts
-				if isinstance(sz.Parent, dabo.ui.dSlidePanel):
-					# Main sizer for a slide panel; don't do anything
-					pass
-				else:
-					sz.setPropertiesFromAtts(atts)
-				if classID:
-					sz.classID = classID
-				if not fromSizer:
-					parent.Sizer = sz
-				if szCont is not None and itm is not None:
-					szCont.setItemProps(itm, sizerInfoDict)
-				if kids:
-					# We need to set the value of _srcObj to the individual
-					# LayoutPanel in the sizer. The number of kids should
-					# match the number of slots created when the sizer
-					# was created.
-					childWindowList = sz.ChildWindows[:]
-					for pos, kid in enumerate(kids):
-						# Set the LayoutPanel to the 'source' object
-						pnl = self._srcObj = childWindowList[pos]
-						# Pass the 'kid' as a list, since that's what
-						# recreateChildren() expects.
-						self.recreateChildren(parent, [kid], sz, True)
-				ret = sz
-
+				ret = self._recreateLayoutSizer()
 			elif clsname == "LayoutGridSizer":
-				rows = int(self._extractKey(atts, "Rows", "1"))
-				cols = int(self._extractKey(atts, "Columns", "1"))
-				sz, pnl = self.addSizer("grid", rows=rows, cols=cols)
-				szCont = sz.ControllingSizer
-				is2D = isinstance(szCont, dabo.ui.dGridSizer)
-				defaults = {True: szItemDefaults[2],
-						False: szItemDefaults[1]}[is2D]
-				defAtts = {}
-				for key, val in defaults.items():
-					defAtts["Sizer_%s" % key] = val
-				defAtts.update(dictStringify(atts))
-				atts = defAtts
-				sz.setPropertiesFromAtts(atts)
-				if not fromSizer:
-					parent.Sizer = sz
-				itm = sz.ControllingSizerItem
-				if szCont is not None and itm is not None:
-					szCont.setItemProps(itm, sizerInfoDict)
-				if classID:
-					sz.classID = classID
-				if kids:
-					for kid in kids:
-						kidatts = kid["attributes"]
-						rowCol = kidatts.get("rowColPos")
-						if isinstance(rowCol, tuple):
-							row, col = rowCol
-						else:
-							row, col = eval(kidatts.get("rowColPos"))
-						# Set the LayoutPanel to the 'source' object
-						pnl = self._srcObj = sz.getItemByRowCol(row, col)
-						# Pass the 'kid' as a list, since that's what
-						# recreateChildren() expects.
-						obj = self.recreateChildren(parent, [kid], sz, True)
-				ret = sz
-
+				ret = self._recreateLayoutGridSizer()
 			else:
 				# An actual control!
-				if szr:
-					if isinstance(szr, LayoutGridSizer):
-						if isinstance(rowColAtts, tuple):
-							row, col = rowColAtts
-						else:
-							row, col = eval(rowColAtts)
-						if row is not None and col is not None:
-							# It has a given position, so use that. Otherwise,
-							# they may be pasting into a grid sizer.
-							self._srcObj = szr.getItemByRowCol(row, col)
-					grdsz = isinstance(szr, dui.dGridSizer)
-					if grdsz:
-						szType = "Grid"
-					else:
-						szType = szr.Orientation
-					# Get the defaults for this class of control.
-					defSizerProps = self.getDefaultSizerProps(cls, szType)
-				else:
-					defSizerProps = {}
-				props = {}
-				try:
-					imp, clsname = cls.rsplit(".", 1)
-					imptSt = "from %(imp)s import %(clsname)s" % locals()
-					exec imptSt in locals()
-					dct["fullname"] = cls
-					dct["name"] = clsname
-					newClass = eval(clsname)
-				except ValueError:
-					dct["fullname"] = cls
-					newClass = dui.__dict__[cls]
-				isGrid = issubclass(newClass, dui.dGrid)
-				isTree = issubclass(newClass, dui.dTreeView)
-				isSplitter = issubclass(newClass, dui.dSplitter)
-				isSlidePanelControl = issubclass(newClass, dui.dSlidePanelControl)
-				isPageControl = issubclass(newClass, self.pagedControls)
-				noTabs = issubclass(newClass, dui.dPageFrameNoTabs)
-				if isGrid:
-					try:
-						# The column entries will create themselves, so
-						# we don't want to create them now.
-						del atts["ColumnCount"]
-					except:
-						pass
-					props["ColumnCount"] = 0
-				elif isPageControl:
-					props["PageCount"] = int(atts.get("PageCount", "0"))
-					props["TabPosition"] = atts.get("TabPosition", "")
-					try:
-						del atts["PageCount"]
-					except: pass
-					try:
-						del atts["TabPosition"]
-					except: pass
-					if noTabs:
-						del props["TabPosition"]
-				elif isSlidePanelControl:
-					props["PanelCount"] = int(atts.get("PanelCount", "0"))
-					try:
-						del atts["PanelCount"]
-					except: pass
-				elif isSplitter:
-					ornt = self._extractKey(atts, "Orientation", "Vertical")
-					splt = self._extractKey(atts, "Split", "False")
-					props["createPanes"] = False
-					atts["Split"] = False
-
-				# If we are pasting, we can get two objects with the same
-				# Name value, so change it to NameBase.
-				nm = self._extractKey(atts, "Name", clsname)
-				props["NameBase"] = nm
-				obj = self.addNewControl(None, newClass, props=props,
-						skipUpdate=True, attProperties=atts)
-				ret = obj
-				if isSplitter:
-					obj.setPropertiesFromAtts({"Orientation": ornt})
-					if splt:
-						dabo.ui.setAfter(obj, "Split", True)
-				try:
-					sz = obj.ControllingSizer
-					itm = obj.ControllingSizerItem
-				except AttributeError:
-					sz = None
-					itm = None
-				if sz is not None and itm is not None:
-					defSizerProps.update(sizerInfoDict)
-					sz.setItemProps(itm, defSizerProps)
-				if classID:
-					obj.classID = classID
-
-				for mthd, cd in code.items():
-					if not self._codeDict.get(obj):
-						self._codeDict[obj] = {}
-					cd = cd.replace("\n]", "]")
-					self._codeDict[obj][mthd] = cd
-				# Restore any prop definitions.
-				if propDefs:
-					self._classPropDict[obj] = propDefs
-
-				if kids:
-					if isGrid:
-						noneTyp = type(None)
-						colClass = obj.ColumnClass
-						# All the kids will be columns, so add 'em here
-						for kid in kids:
-							kidatts = kid["attributes"]
-							col = colClass(obj)
-							for kprop, kval in kidatts.items():
-								if kprop in ("designerClass", ):
-									continue
-								typ = type(getattr(col, kprop))
-								if typ is noneTyp:
-									try:
-										kval = eval(kval)
-									except StandardError, e:
-										# Leave it as it is
-										pass
-								else:
-									if not issubclass(typ, basestring):
-										if typ is bool and isinstance(kval, basestring):
-											kval = (kval.lower() in ("true", "t", "yes", "y", "1"))
-										else:
-											kval = typ(kval)
-								setattr(col, kprop, kval)
-							notLast = (kid is not kids[-1])
-							obj.addColumn(col, inBatch=notLast)
-						# Make it look nice
-						obj.emptyRowsToAdd = 5
-						obj.fillGrid(True)
-
-					elif isPageControl:
-						for pos, kid in enumerate(kids):
-							pg = obj.Pages[pos]
-							kidatts = kid.get("attributes", {})
-							kidClassID = self._extractKey(kidatts, "classID", "")
-							if kidClassID:
-								pg.classID = kidClassID
-							pg.setPropertiesFromAtts(kidatts)
-							kidcode = kid.get("code", {})
-							if kidcode:
-								self._codeDict[pg] = kidcode
-							grandkids = kid.get("children", [])
-							if grandkids:
-								self._srcObj = pg
-								self.recreateChildren(pg, grandkids, None, False)
-					elif isSlidePanelControl:
-						for pos, kid in enumerate(kids):
-							pnl = obj.Children[pos]
-							kidatts = kid.get("attributes", {})
-							try:
-								del kidatts["Name"]
-							except KeyError:
-								pass
-							kidClassID = self._extractKey(kidatts, "classID", "")
-							if kidClassID:
-								pnl.classID = kidClassID
-							pnl.setPropertiesFromAtts(kidatts)
-							kidcode = kid.get("code", {})
-							if kidcode:
-								self._codeDict[pnl] = kidcode
-							grandkids = kid.get("children", [])
-							if grandkids:
-								self._srcObj = pnl
-								self.recreateChildren(pnl, grandkids, None, False)
-					elif isSplitter:
-						for pos, kid in enumerate(kids):
-							pnlClass = dui.__dict__[kid["name"]]
-							obj.createPanes(pnlClass, pane=pos+1, force=True)
-							if pos == 0:
-								pnl = obj.Panel1
-							else:
-								pnl = obj.Panel2
-							if pnl is None:
-								continue
-							kidatts = kid.get("attributes", {})
-							pnl.setPropertiesFromAtts(kidatts)
-							kidcode = kid.get("code", {})
-							if kidcode:
-								self._codeDict[pnl] = kidcode
-							grandkids = kid.get("children", [])
-							if grandkids:
-								curr = self._srcObj
-								self._srcObj = pnl
-								self.recreateChildren(pnl, grandkids, None, False)
-								self._srcObj = curr
-
-					elif isTree:
-						def addTreeNode(parent, atts, kidnodes):
-							cap = self._extractKey(atts, "Caption", "")
-							if parent is None:
-								obj.clear()
-								nd = obj.setRootNode(cap)
-							else:
-								nd = parent.appendChild(cap)
-							# Remove the name and designerClass atts
-							self._extractKey(atts, "name")
-							self._extractKey(atts, "designerClass")
-							for prop, val in atts.items():
-								try:
-									exec "nd.%s = %s" % (prop, val) in locals()
-								except (SyntaxError, NameError):
-									exec "nd.%s = '%s'" % (prop, val) in locals()
-							for kidnode in kidnodes:
-								kidatts = kidnode.get("attributes", {})
-								kidkids = kidnode.get("children", {})
-								addTreeNode(nd, kidatts, kidkids)
-						# Set the root
-						root = kids[0]
-						rootAtts = root.get("attributes", {})
-						rootKids = root.get("children", {})
-						addTreeNode(None, rootAtts, rootKids)
-
-					else:
-						currPnl = self._srcObj
-						if isinstance(obj, (dui.dPanel, dui.dScrollPanel)):
-							self._srcObj = obj
-						self.recreateChildren(obj, kids, None, False)
-						self._srcObj = currPnl
+				ret = self._recreateControl()
 			if isCustomClass:
 				prop = classFlagProp
-				obj.__setattr__(prop, customClassPath)
+				setattr(ret, prop, customClassPath)
+			self._recreateValsDict = self._valsDictLIFO.pop()
 		return ret
 
 
@@ -2448,6 +2606,81 @@ class ClassDesigner(dabo.dApp):
 		return DesignerUtils.getDefaultSizerProps(cls, szType)
 
 
+	def _afterAddNewControlSplitter(self, obj, attProperties):
+		# Add the panels
+		pnlClass = self.getControlClass(obj.PanelClass)
+		obj.createPanes(cls=pnlClass)
+		if attProperties is None or (not attProperties.has_key("Split")):
+			obj.Split = True
+		try:
+			obj.Panel1.Sizer = LayoutSizer("v")
+			LayoutPanel(obj.Panel1)
+		except AttributeError: pass
+		try:
+			obj.Panel2.Sizer = LayoutSizer("v")
+			LayoutPanel(obj.Panel2)
+		except AttributeError: pass
+
+
+	def _afterAddNewControlWizardPage(self, obj):
+		if not attProperties:
+			# Being added as a new page; need to add the child panel
+			LayoutPanel(obj)
+			# Set a default title
+			cap = dabo.ui.getString(_("Enter the page Caption:"),
+					caption=_("Wizard Page Caption"), defaultValue=_("Title"))
+			if not cap:
+				cap = default=_("Title")
+			obj.Caption = cap
+
+
+	def _afterAddNewControlPaged(self, obj, pcount, classFlagProp, pgCls, useSizers):
+		pgCls = obj.PageClass
+		if isinstance(pgCls, basestring):
+			# Saved class; let the control handle it
+			obj.PageCount = pcount
+			# This is the key that marks it as a class, and not a base object.
+			prop = classFlagProp
+			for pg in obj.Pages:
+				pg.__setattr__(prop, pgCls)
+			pg0panel = obj.Pages[0]
+		else:
+			pgCtlCls = self.getControlClass(pgCls)
+			obj.PageClass = pgCtlCls
+			obj.PageCount = pcount
+			pg0panel = None
+			if useSizers:
+				for pg in obj.Pages[::-1]:
+					if not pg.Sizer or not isinstance(pg.Sizer, (LayoutSizer, LayoutBorderSizer, LayoutGridSizer)):
+						pg.Sizer = LayoutSizer("v")
+						pg0panel = LayoutPanel(pg)
+
+
+	def _afterAddNewControlSlidePanel(self, obj, classFlagProp):
+		pnlCls = obj.PanelClass
+		if isinstance(pnlCls, basestring):
+			# Saved class; let the control handle it
+			obj.PanelCount = pcount
+			# This is the key that marks it as a class, and not a base object.
+			prop = classFlagProp
+			for pnl in obj.Panels:
+				pnl.Expanded = False
+				pnl.__setattr__(prop, pnlCls)
+			pnl0panel = obj.Panels[0]
+		else:
+			pnlCtlCls = self.getControlClass(pnlCls)
+			basePanelCls = self.getControlClass(dabo.ui.dPanel)
+			obj.PanelClass = pnlCtlCls
+			obj.PanelCount = pcount
+			pnl0panel = None
+			for pnl in obj.Panels[::-1]:
+				pnl.Expanded = False
+				if useSizers:
+					sz = pnl.Sizer = LayoutSizer("v")
+					sz.Parent = pnl
+					pnl0 = LayoutPanel(pnl)
+
+
 	def addNewControl(self, pnl, cls, props=None, attProperties=None,
 			skipUpdate=False):
 		"""We need to replace the layout panel with an instance of
@@ -2514,6 +2747,10 @@ class ClassDesigner(dabo.dApp):
 			parent = pnl
 
 		isPageControl = issubclass(cls, self.pagedControls)
+		isTree = issubclass(cls, dui.dTreeView)
+		isGrid = issubclass(cls, dui.dGrid)
+		isSlidePanelControl = issubclass(cls, dui.dSlidePanelControl)
+		isRadioList = issubclass(cls, dui.dRadioList)
 		if isPageControl:
 			noTabs = issubclass(cls, dui.dPageFrameNoTabs)
 			pgCls = None
@@ -2522,56 +2759,6 @@ class ClassDesigner(dabo.dApp):
 				props["PageSizerClass"] = None
 
 			if not props.get("PageCount", 0):
-				class PageInfoDialog(dui.dOkCancelDialog):
-					def __init__(self, *args, **kwargs):
-						self.noTabs = self._extractKey(kwargs, "NoTabs", False)
-						self.pageCount = 3
-						self.pageClass = defaultPgClsDisplay
-						self.tabPositions = ("Top", "Bottom", "Left", "Right")
-						self.tabPosSelection = 0
-						super(PageInfoDialog, self).__init__(*args, **kwargs)
-
-					def addControls(self):
-						self.Caption = _("Paged Control Settings")
-						gsz = dui.dGridSizer(MaxCols=2, HGap=5, VGap=12)
-						lbl = dui.dLabel(self, Caption=_("Number of pages:"))
-						spn = dui.dSpinner(self, DataSource="form",
-								DataField="pageCount", Min=1, Max=20, Value=3)
-						gsz.append(lbl, halign="right")
-						gsz.append(spn)
-
-						if not self.noTabs:
-							lbl = dui.dLabel(self, Caption=_("Tab Position:"))
-							dd = dui.dDropdownList(self, Choices=(_("Top"),
-									_("Bottom"), _("Left"), _("Right")), ValueMode="Position",
-									Value=0, DataSource="form", DataField="tabPosSelection")
-							gsz.append(lbl, halign="right")
-							gsz.append(dd)
-
-						lbl = dui.dLabel(self, Caption=_("Default Page Class:"))
-						txt = dui.dTextBox(self, DataSource="form", DataField="pageClass",
-								Enabled=False)
-						btn = dui.dButton(self, Caption="...")
-						btn.bindEvent(dEvents.Hit, self.onSelectClass)
-						hsz = dui.dSizer("h")
-						hsz.append1x(txt)
-						hsz.appendSpacer(4)
-						hsz.append(btn)
-						gsz.append(lbl, halign="right")
-						gsz.append(hsz)
-
-						gsz.setColExpand("all", True)
-
-						self.Sizer.append1x(gsz, border=30, halign="Center", valign="Middle")
-						self.update()
-						self.layout()
-
-					def onSelectClass(self, evt):
-						f = dui.getFile("cdxml")
-						if f:
-							self.pageClass = dabo.lib.utils.relativePath(f)
-							self.update()
-
 				dlg = PageInfoDialog(self.CurrentForm, NoTabs=noTabs,
 						BasePrefKey=self.BasePrefKey+".PageInfoDialog")
 				dlg.AutoSize = False
@@ -2606,11 +2793,11 @@ class ClassDesigner(dabo.dApp):
 				if not props.get("TabPosition") and not noTabs:
 					props["TabPosition"] = "Top"
 
-		if issubclass(cls, dui.dTreeView):
+		if isTree:
 			# Make sure it adds customized nodes.
 			props["NodeClass"] = self.getControlClass(dui.dTreeView.getBaseNodeClass())
 
-		if issubclass(cls, dui.dGrid):
+		if isGrid:
 			# Make sure it adds customized columns.
 			props["ColumnClass"] = self.getControlClass(dui.dColumn)
 			newCols = None
@@ -2623,7 +2810,6 @@ class ClassDesigner(dabo.dApp):
 				except ValueError:
 					newCols = 3
 
-		isSlidePanelControl = issubclass(cls, dui.dSlidePanelControl)
 		if isSlidePanelControl:
 			# Make sure it has some panels.
 			newPanels = None
@@ -2668,17 +2854,15 @@ class ClassDesigner(dabo.dApp):
 			props["PanelCount"] = 0
 
 		# Make sure that the RadioList's components are Designer-aware
-		if issubclass(cls, dui.dRadioList):
+		if isRadioList:
 			props["SizerClass"] = LayoutBorderSizer
 			props["ButtonClass"] = self.getControlClass(dui.dRadioList.getBaseButtonClass())
 
 		# Here's where the control is actually created!
 		mixedClass = self.getControlClass(cls)
 		obj = mixedClass(parent, properties=props, attProperties=attProperties)
-
-		if issubclass(cls, dui.dTreeView):
+		if isTree:
 			obj.addDummyData()
-
 		if attNmBase and attNmBase != "controlMix":
 			obj.NameBase = attNmBase
 		elif propNmBase and propNmBase != "controlMix":
@@ -2699,75 +2883,13 @@ class ClassDesigner(dabo.dApp):
 				self._srcPos = None
 
 		if issubclass(cls, dui.dSplitter):
-			# Add the panels
-			pnlClass = self.getControlClass(obj.PanelClass)
-			obj.createPanes(cls=pnlClass)
-			if attProperties is None or (not attProperties.has_key("Split")):
-				obj.Split = True
-			try:
-				obj.Panel1.Sizer = LayoutSizer("v")
-				LayoutPanel(obj.Panel1)
-			except AttributeError: pass
-			try:
-				obj.Panel2.Sizer = LayoutSizer("v")
-				LayoutPanel(obj.Panel2)
-			except AttributeError: pass
-
-		if issubclass(cls, dlgs.WizardPage):
-			if not attProperties:
-				# Being added as a new page; need to add the child panel
-				LayoutPanel(obj)
-				# Set a default title
-				cap = dabo.ui.getString(_("Enter the page Caption:"),
-						caption=_("Wizard Page Caption"), defaultValue=_("Title"))
-				if not cap:
-					cap = default=_("Title")
-				obj.Caption = cap
-
-		if isPageControl:
-			pgCls = obj.PageClass
-			if isinstance(pgCls, basestring):
-				# Saved class; let the control handle it
-				obj.PageCount = pcount
-				# This is the key that marks it as a class, and not a base object.
-				prop = classFlagProp
-				for pg in obj.Pages:
-					pg.__setattr__(prop, pgCls)
-				pg0panel = obj.Pages[0]
-			else:
-				pgCtlCls = self.getControlClass(pgCls)
-				obj.PageClass = pgCtlCls
-				obj.PageCount = pcount
-				pg0panel = None
-				if useSizers:
-					for pg in obj.Pages[::-1]:
-						if not pg.Sizer or not isinstance(pg.Sizer, (LayoutSizer, LayoutBorderSizer, LayoutGridSizer)):
-							pg.Sizer = LayoutSizer("v")
-							pg0panel = LayoutPanel(pg)
-
-		if isSlidePanelControl:
-			pnlCls = obj.PanelClass
-			if isinstance(pnlCls, basestring):
-				# Saved class; let the control handle it
-				obj.PanelCount = pcount
-				# This is the key that marks it as a class, and not a base object.
-				prop = classFlagProp
-				for pnl in obj.Panels:
-					pnl.Expanded = False
-					pnl.__setattr__(prop, pnlCls)
-				pnl0panel = obj.Panels[0]
-			else:
-				pnlCtlCls = self.getControlClass(pnlCls)
-				basePanelCls = self.getControlClass(dabo.ui.dPanel)
-				obj.PanelClass = pnlCtlCls
-				obj.PanelCount = pcount
-				pnl0panel = None
-				for pnl in obj.Panels[::-1]:
-					pnl.Expanded = False
-					if useSizers:
-						sz = pnl.Sizer = LayoutSizer("v")
-						sz.Parent = pnl
-						pnl0 = LayoutPanel(pnl)
+			self._afterAddNewControlSplitter(obj, attProperties)
+		elif issubclass(cls, dlgs.WizardPage):
+			self._afterAddNewControlWizardPage(obj)
+		elif isPageControl:
+			self._afterAddNewControlPaged(obj, pcount, classFlagProp, pgCls, useSizers)
+		elif isSlidePanelControl:
+			self._afterAddNewControlSlidePanel(obj, classFlagProp, pnlCtlCls)
 
 		if isinstance(obj, dui.dPage) and not isinstance(obj.Parent, self.pagedControls):
 			# This is a free standing page being designed. Add the sizer, if required.
