@@ -108,8 +108,10 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		val = self.GetValue()
 		if len(val) > length:
 			dabo.ui.beep()
+			ip = self.InsertionPoint
 			self.SetValue(val[:length])
-	
+			self.InsertionPoint = ip
+
 
 	def _checkForceCase(self):
 		"""If the ForceCase property is set, casts the current value of the control
@@ -124,12 +126,14 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		case = self.ForceCase
 		if not case:
 			return
+		ip = self.InsertionPoint
 		if case == "upper":
 			self.SetValue(self.GetValue().upper())
 		elif case == "lower":
 			self.SetValue(self.GetValue().lower())
 		elif case == "title":
 			self.SetValue(self.GetValue().title())
+		self.InsertionPoint = ip
 
 
 	def beforeAppendOnEnter(self):
@@ -259,7 +263,8 @@ class _dComboBox_test(dComboBox):
 	def initProperties(self):
 		self.setup()
 		self.AppendOnEnter = True
-		
+
+
 	def setup(self):
 		# Simulating a database:
 		wannabeCowboys = ({"lname": "Reagan", "fname": "Ronald", "iid": 42},
