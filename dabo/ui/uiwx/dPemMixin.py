@@ -563,11 +563,12 @@ class dPemMixin(dPemMixinBase):
 				return
 		self.raiseEvent(dEvents.GotFocus, evt)
 
-		
-	def __onWxKeyChar(self, evt):
-		self.raiseEvent(dEvents.KeyChar, evt)
 
-		
+	def __onWxKeyChar(self, evt):
+		if not (isinstance(self, dabo.ui.dComboBox) and evt.KeyCode == 9):
+			self.raiseEvent(dEvents.KeyChar, evt)
+
+
 	def __onWxKeyUp(self, evt):
 		if sys.platform.startswith("win"):
 			# Windows doesn't automatically catch Ctrl+A
@@ -720,7 +721,10 @@ class dPemMixin(dPemMixinBase):
 			# When user presses <ctrl><alt><w>, close the form:
 			form.bindKey("ctrl+alt+w", form.Close)
 		"""
-		keys = keyCombo.split("+")
+		if keyCombo == "+":
+			keys = [keyCombo]
+		else:
+			keys = keyCombo.split("+")
 		# The modifier keys, if any, comprise all but the last key in keys
 		mods = keys[:-1]
 		key = keys[-1]
