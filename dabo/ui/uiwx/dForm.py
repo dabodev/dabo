@@ -721,7 +721,6 @@ Database error message: %s""") %	err
 	def beforeLast(self): pass
 	def beforePrior(self): pass
 	def beforeNext(self): pass
-	def beforeNext(self): pass
 	def beforeFilter(self): pass
 	def beforeSave(self): pass
 	def beforeCancel(self): pass
