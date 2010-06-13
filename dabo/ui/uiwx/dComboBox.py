@@ -108,9 +108,9 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		val = self.GetValue()
 		if len(val) > length:
 			dabo.ui.beep()
-			ip = self.InsertionPoint
+			ip = self.GetInsertionPoint()
 			self.SetValue(val[:length])
-			self.InsertionPoint = ip
+			self.SetInsertionPoint(ip)
 
 
 	def _checkForceCase(self):
@@ -126,14 +126,14 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		case = self.ForceCase
 		if not case:
 			return
-		ip = self.InsertionPoint
+		ip = self.GetInsertionPoint()
 		if case == "upper":
 			self.SetValue(self.GetValue().upper())
 		elif case == "lower":
 			self.SetValue(self.GetValue().lower())
 		elif case == "title":
 			self.SetValue(self.GetValue().title())
-		self.InsertionPoint = ip
+		self.SetInsertionPoint(ip)
 
 
 	def beforeAppendOnEnter(self):
