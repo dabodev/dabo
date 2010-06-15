@@ -1421,7 +1421,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				if idx is not None:
 					# Change the size in the wx grid:
 					grd.SetColSize(idx, val)
-					self.Parent.refresh()
 		else:
 			self._properties["Width"] = val
 
@@ -1699,7 +1698,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	screen is copied and displayed.
 	"""
 
-	USE_DATASOURCE_BEING_SET_HACK = True
+	USE_DATASOURCE_BEING_SET_HACK = False
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		# Get scrollbar size from system metrics.
@@ -1707,6 +1706,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._baseClass = dGrid
 		preClass = wx.grid.Grid
 
+		# Internal flag indicates update invoked by grid itself.
+		self._inUpdate = False
 		# Internal flag to determine if the prior sort order needs to be restored.
 		self._sortRestored = False
 		# Internal flag to determine if the resorting is the result of the DataSet property.
@@ -1741,7 +1742,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._inRangeSelect = False
 		# Flag to indicate we are in a selection update event
 		self._inUpdateSelection = False
-		# Flag to avoid record pointer movement during DataSource setting
+		# Flag to avoid record pointer movement during DataSource setting. Only
+		# applies if dGrid.USE_DATASOURCE_BEING_SET_HACK is True (default False)
 		self._dataSourceBeingSet = False
 
 		# Do we show row or column labels?
@@ -1789,6 +1791,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
 				*args, **kwargs)
 
+		# Reduces grid flickering on Windows platform.
+		self._enableGridWindowBuffering()
 		# Need to sync the size reported by wx to the size reported by Dabo:
 		self.RowHeight = self.RowHeight
 		self.ShowRowLabels = self.ShowRowLabels
@@ -1927,7 +1931,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# Note that we never call self.super(), because we don't need/want that behavior.
 		self._syncRowCount()
 		self._syncCurrentRow()
-		self.refresh()  ## to clear the cache and repaint the cells
+		if self._inUpdate:
+			self._inUpdate = False
+		else:
+			self.refresh()  ## to clear the cache and repaint the cells
 
 
 	def _syncAll(self):
@@ -3265,13 +3272,24 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			settingName = "%s.%s.%s" % (form.Name, self.Name, prop)
 			app.setUserSetting(settingName, val)
 
+			
+	def _enableGridWindowBuffering(self):
+		grdwin = self.GetGridWindow()
+		if not grdwin.IsDoubleBuffered():
+			grdwin.SetDoubleBuffered(True)
+
+
+	def _disableGridWindowBuffering(self):
+		grdwin = self.GetGridWindow()
+		if grdwin.IsDoubleBuffered():
+			grdwin.SetDoubleBuffered(False)
+
 
 	##----------------------------------------------------------##
 	##        begin: dEvent callbacks for internal use          ##
 	##----------------------------------------------------------##
-	def __onRowNumChanged(self, evt):
-		# The form reports that the rownum has changed: sync the grid CurrentRow
-		self.refresh()
+	def __onRowNumChanged(self, evt): pass
+
 
 	def _onGridCellEdited(self, evt):
 		bizobj = self.getBizobj()
@@ -3299,10 +3317,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		colName = "Column_%s" % col.DataField
 		# Sync our column object up with what the grid is reporting, and because
 		# the user made this change, save to the userSettings:
-		width = col.Width = self.GetColSize(colNum)
-		app = self.Application
-		if app is not None:
-			col._persist("Width")
+		col.Width = self.GetColSize(colNum)
+		col._persist("Width")
 		dabo.ui.callAfterInterval(20, self._updateColumnWidths)
 
 
@@ -3498,6 +3514,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			if bizobj and not self._dataSourceBeingSet:
 				# Don't run any of this code if this is the initial setting of the DataSource
 				if bizobj.RowCount > newRow and bizobj.RowNumber != newRow:
+					self._inUpdate = True
 					if self._mediateRowNumberThroughForm and isinstance(self.Form, dabo.ui.dForm):
 						# run it through the form:
 						if not self.Form.moveToRowNumber(newRow, bizobj):
@@ -3890,6 +3907,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxHeaderMouseLeftUp(self, evt):
+		dabo.ui.callAfter(self._enableGridWindowBuffering)
 		col, row = self._getColRowForPosition(evt.GetPosition())
 		self.raiseEvent(dEvents.GridHeaderMouseLeftUp, evt, col=col)
 		if self._headerMouseLeftDown:
@@ -3900,6 +3918,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxHeaderMouseMotion(self, evt):
+		if dabo.ui.isMouseLeftDown():
+			self._disableGridWindowBuffering()
 		col, row = self._getColRowForPosition(evt.GetPosition())
 		self.raiseEvent(dEvents.GridHeaderMouseMove, evt, col=col)
 		evt.Skip()
@@ -3954,6 +3974,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxMouseLeftUp(self, evt):
+		dabo.ui.callAfter(self._enableGridWindowBuffering)
 		col, row = self._getColRowForPosition(evt.GetPosition())
 		self.raiseEvent(dEvents.GridMouseLeftUp, evt, col=col, row=row)
 		if getattr(self, "_mouseLeftDown", (None, None)) == (col, row):
@@ -3964,6 +3985,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxMouseMotion(self, evt):
+		if dabo.ui.isMouseLeftDown():
+			self._disableGridWindowBuffering()
 		col, row = self._getColRowForPosition(evt.GetPosition())
 		self.raiseEvent(dEvents.GridMouseMove, evt, col=col, row=row)
 		evt.Skip()
