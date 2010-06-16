@@ -200,6 +200,12 @@ def DesignerController():
 			def onMoveToTop(evt):
 				self.ActiveEditor.sendToBack()
 
+			def onMoveUp(evt):
+				self.ActiveEditor.sendBackwards()
+
+			def onMoveDown(evt):
+				self.ActiveEditor.sendUpwards()
+
 			def onMoveToBottom(evt):
 				self.ActiveEditor.bringToFront()
 
@@ -269,8 +275,10 @@ def DesignerController():
 
 			if variableSelected or groupSelected:
 				menu.appendSeparator()
-				menu.append(_("Move to top"), HotKey="Ctrl+H", OnHit=onMoveToTop)
-				menu.append(_("Move to bottom"), HotKey="Ctrl+J", OnHit=onMoveToBottom)
+				menu.append(_("Move to top"), HotKey="Ctrl+Shift+H", OnHit=onMoveToTop)
+				menu.append(_("Move up"), HotKey="Ctrl+H", OnHit=onMoveUp)
+				menu.append(_("Move down"), HotKey="Ctrl+J", OnHit=onMoveDown)
+				menu.append(_("Move to bottom"), HotKey="Ctrl+Shift+J", OnHit=onMoveToBottom)
 
 			return menu
 
@@ -2334,6 +2342,13 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 	def bringToFront(self):
 		self._arrange("bringToFront")
 
+	def sendBackwards(self):
+		self._arrange("sendBackwards")
+	
+	def sendUpwards(self):
+		self._arrange("sendUpwards")
+
+
 	def _arrange(self, mode):
 		toRedraw = []
 		for selObj in rdc.SelectedObjects:
@@ -2357,15 +2372,24 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 				del objects[idx]
 				if mode == "sendToBack":
 					objects.insert(0, obj)
+				elif mode == "sendBackwards":
+					objects.insert(max(idx-1, 0), obj)
+				elif mode == "sendUpwards":
+					objects.insert(min(idx+1, len(objects)), obj)
 				else:
 					objects.append(obj)
 
 				if parentObj not in toRedraw:
 					toRedraw.append(parentObj)
 
-		for parent in toRedraw:
-			if hasattr(parent, "DesignerObject"):
-				parent.DesignerObject.refresh()
+		if rdc.ReportForm in toRedraw:
+			# must redraw the entire design surface (if e.g. a group changed position)
+			self.propsChanged(reinit=True)
+		else:
+			# only need to redraw selected object(s)
+			for parent in toRedraw:
+				if hasattr(parent, "DesignerObject"):
+					parent.DesignerObject.refresh()
 
 		if toRedraw:
 			rdc.refreshTree()
