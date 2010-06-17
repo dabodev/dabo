@@ -3665,11 +3665,18 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def __onWxGridColSize(self, evt):
 		col = evt.GetRowOrCol()
-		if self.ResizableColumns and self.Columns[col].Resizable:
+		try:
+			daboCol = self.Columns[col]
+		except IndexError:
+			# PKM: I've received an IndexError from one of my customers. Not sure what the 
+			#      sequence is, but perhaps they managed to resize the column *before* the 
+			#      grid was instantiated.
+			return
+		if self.ResizableColumns and daboCol.Resizable:
 			self.raiseEvent(dEvents.GridColSize, evt)
 		else:
 			# need to reference the Width property for some reason:
-			self.Columns[col].Width
+			daboCol.Width
 			evt.Veto()
 			self._refreshHeader()
 
