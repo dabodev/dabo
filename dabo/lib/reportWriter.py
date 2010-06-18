@@ -11,7 +11,7 @@ import os
 ######################################################
 # Very first thing: check for required libraries:
 _failedLibs = []
-for lib in ("reportlab", "PIL"):
+for lib in ("reportlab", "Image"):
 	try:
 		__import__(lib)
 	except ImportError:
@@ -24,7 +24,7 @@ don't appear to have installed. You still need:
 
 	%s
 
-PIL is the Python Imaging Library available from
+Image is the Python Imaging Library available from
 http://www.pythonware.com/products/pil
 
 reportlab is the ReportLab toolkit available from
@@ -53,7 +53,7 @@ from dabo.lib.xmltodict import dicttoxml
 from dabo.dLocalize import _
 from dabo.lib.caselessDict import CaselessDict
 from reportlab.lib.utils import ImageReader
-from PIL import Image as PILImage
+import Image as PILImage
 import reportUtils
 
 # The below block tried to use the experimental para.Paragraph which
