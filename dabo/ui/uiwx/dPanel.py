@@ -359,22 +359,28 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 	def _getHorizontalScroll(self):
 		return self._horizontalScroll
 
-	def _setHorizontalScroll(self, val):
-		self._horizontalScroll = val
-		self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
-		rt = self.GetScrollPixelsPerUnit()
-		self.SetScrollRate({True:rt[0], False:0}[val], rt[1])
-		
+	def _setHorizontalScroll(self, val, do=False):
+		if do:
+			self._horizontalScroll = val
+			self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
+			rt = self.GetScrollPixelsPerUnit()
+			self.SetScrollRate({True:rt[0], False:0}[val], rt[1])
+		else:
+			# on Mac at least, this is needed when setting from the constructor.
+			dabo.ui.callAfter(self._setHorizontalScroll, val, do=True)
 
 	def _getVerticalScroll(self):
 		return self._verticalScroll
 
-	def _setVerticalScroll(self, val):
-		self._verticalScroll = val
-		self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
-		rt = self.GetScrollPixelsPerUnit()
-		self.SetScrollRate(rt[0], {True:rt[1], False:0}[val])
-		
+	def _setVerticalScroll(self, val, do=False):
+		if do:
+			self._verticalScroll = val
+			self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
+			rt = self.GetScrollPixelsPerUnit()
+			self.SetScrollRate(rt[0], {True:rt[1], False:0}[val])
+		else:
+			dabo.ui.callAfter(self._setVerticalScroll, val, do=True)
+	
 
 	Children = property(_getChildren, _setChildren, None,
 			_("""Child controls of this panel. This excludes the wx-specific 
