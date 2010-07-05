@@ -39,7 +39,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		self._namedConnection = ""
 		self._selection = [self]
 		self._classFile = ""
-		self.redrawOutlines = False
 		self._canContain = self._isMain
 		self._currContainer = None
 		self._dragObject = None
@@ -85,6 +84,10 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		self._defaultTop = 50
 		self._defaultWidth = 570
 		self._defaultHeight = 550
+		self._alwaysDrawSizerOutlines = True
+		self._drawSizerChildren = True
+		self._recurseOutlinedSizers = False
+		self._sizersToOutline = []
 
 
 	def afterInitAll(self):
@@ -895,7 +898,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 				# Nothing changed; we're switching active forms
 				return
 		self.lockDisplay()
-		self.setAll("Selected", False)
 		if not isinstance(ctls, (list, tuple)):
 			ctls = [ctls]
 		for ct in ctls:

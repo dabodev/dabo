@@ -3,6 +3,7 @@ import os
 import dabo
 dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
+from dabo.dObject import dObject
 import dabo.dEvents as dEvents
 import dabo.ui.dialogs as dlgs
 from ClassDesignerExceptions import PropertyUpdateException
@@ -22,10 +23,14 @@ classFlagProp = "_CLASS_PATH_"
 
 
 
-class LayoutSaverMixin(object):
+class LayoutSaverMixin(dObject):
 	"""Contains the basic code for generating the dict required
 	to save the ClassDesigner item's contents.
 	"""
+	def __init__(self, *args, **kwargs):
+		super(LayoutSaverMixin, self).__init__(*args, **kwargs)
+
+	
 	def getDesignerDict(self, itemNum=0, allProps=False,
 			classID=None, classDict=None, propsToExclude=None):
 		app = self.Controller
@@ -992,7 +997,17 @@ class LayoutSpacerPanel(LayoutPanel):
 class LayoutSizerMixin(LayoutSaverMixin):
 	def __init__(self, *args, **kwargs):
 		self.isDesignerSizer = True
+		self._selected = False
 		super(LayoutSizerMixin, self).__init__(*args, **kwargs)
+
+
+	def _afterInit(self):
+		super(LayoutSizerMixin, self)._afterInit()
+		# No special reason for these choices, except that they make the
+		# sizer clearly visible.
+		self.outlineColor = "ORCHID"
+		self.outlineStyle = "solid"
+		self.outlineWidth = 2
 
 
 	def getItemProps(self, itm):
@@ -1317,6 +1332,28 @@ class LayoutSizerMixin(LayoutSaverMixin):
 		return ret
 
 
+	def _getSel(self):
+		return self._selected
+
+	def _setSel(self, val):
+		if self._selected != val:
+			frm = None
+			obj = self
+			while obj.Parent:
+				try:
+					frm = obj.Parent.Form
+					break
+				except AttributeError:
+					pass
+				obj = obj.Parent
+			if frm:
+				if val:
+					frm.addToOutlinedSizers(self)
+				else:
+					frm.removeFromOutlinedSizers(self)
+		self._selected = val
+
+
 	def _getSzItmProps(self):
 		return {"Border": {"type" : int, "readonly" : False},
 				"BorderSides": {"type" : list, "readonly" : False,
@@ -1479,6 +1516,9 @@ class LayoutSizerMixin(LayoutSaverMixin):
 			subclass the sizer item, custom stuff like this will always have to
 			be done through the sizer class.  (dict)""") )
 
+	Selected = property(_getSel, _setSel, None,
+			_("Denotes if this sizer is selected for user interaction.  (bool)") )
+
 	Sizer_Border = property(_getSzBorder, _setSzBorder, None,
 			_("Border setting of controlling sizer item  (int)"))
 
@@ -1514,6 +1554,10 @@ class LayoutSizerMixin(LayoutSaverMixin):
 
 
 class LayoutSizer(LayoutSizerMixin, dabo.ui.dSizer):
+	def __init__(self, *args, **kwargs):
+		super(LayoutSizer, self).__init__(*args, **kwargs)
+
+	
 	def getBorderedClass(self):
 		"""Return the class that is the border sizer version of this class."""
 		return LayoutBorderSizer
@@ -1558,7 +1602,7 @@ class LayoutBorderSizer(LayoutSizerMixin, dabo.ui.dBorderSizer):
 
 
 
-class LayoutGridSizer(LayoutSaverMixin, dabo.ui.dGridSizer):
+class LayoutGridSizer(LayoutSizerMixin, dabo.ui.dGridSizer):
 	def __init__(self, *args, **kwargs):
 		super(LayoutGridSizer, self).__init__(*args, **kwargs)
 		self._rows = self._cols = 0
@@ -1638,6 +1682,8 @@ class LayoutGridSizer(LayoutSaverMixin, dabo.ui.dGridSizer):
 			if insideClass:
 				clsDict = self.getChildClassDict(clsChildren, kid)
 
+			# Make sure that the clsDict is not None.
+			clsDict = clsDict or {}
 			for prop in self.ItemDesignerProps.keys():
 				itmDict[prop] = self.getItemProp(kid,  prop)
 			itmDiffDict = self._diffSizerItemProps(itmDict, self)
