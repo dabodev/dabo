@@ -41,10 +41,7 @@ class dSizer(dSizerMixin.dSizerMixin, wx.BoxSizer):
 			bad = ", ".join(kwargs.keys())
 			raise TypeError("Invalid keyword arguments passed to dSizer: %s" % bad)
 
-		self.afterInit()
-
-
-	def afterInit(self): pass	
+		dSizerMixin.dSizerMixin.__init__(self, *args, **kwargs)
 	
 	
 	def getBorderedClass(self):

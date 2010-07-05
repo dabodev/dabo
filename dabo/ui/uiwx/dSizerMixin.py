@@ -72,7 +72,16 @@ class dSizerMixin(dObject):
 	SizerItem = wx.SizerItem
 	GridSizerItem = wx.GBSizerItem
 
+
+	def __init__(self, *args, **kwargs):
+		super(dSizerMixin, self).__init__(*args, **kwargs)
+
 	
+	def _afterInit(self):
+		self.outlineColor = self.outlineStyle = self.outlineWidth = None
+		super(dSizerMixin, self)._afterInit()
+
+
 	def appendItems(self, items, *args, **kwargs):
 		"""Append each item to the sizer."""
 		ret = []
@@ -84,7 +93,8 @@ class dSizerMixin(dObject):
 	except TypeError:
 		# If compressed to .pyo, __doc__ will be None.
 		pass	
-			
+
+
 	def append(self, obj, layout="normal", proportion=0, alignment=None,
 			halign="left", valign="top", border=None, borderSides=None):
 		"""Adds the passed object to the end of the sizer layout."""
@@ -497,32 +507,57 @@ class dSizerMixin(dObject):
 		return ret
 	
 	
-	def drawOutline(self, win, recurse=False):
+	def _resolveOutlineSettings(self):
+		if self.outlineColor is None:
+			if self.Orientation == "Vertical":
+				self.outlineColor = wx.BLUE
+			else:
+				self.outlineColor = wx.RED
+		else:
+			if isinstance(self.outlineColor, basestring):
+				# translate to a wx.Colour
+				self.outlineColor = wx.NamedColour(self.outlineColor)
+		if self.outlineWidth is None:
+			if self.Application.Platform == "Win":
+				# Make 'em a bit wider.
+				self.outlineWidth = 3
+			else:
+				self.outlineWidth = 1
+		if self.outlineStyle is None:
+			self.outlineStyle = wx.SHORT_DASH
+		else:
+			if isinstance(self.outlineStyle, basestring):
+				sty = self.outlineStyle.lower()
+				if sty == "dot":
+					self.outlineStyle = wx.DOT
+				elif sty == "dash":
+					self.outlineStyle = wx.SHORT_DASH
+				elif sty == "solid":
+					self.outlineStyle = wx.SOLID
+
+
+	def drawOutline(self, win, recurse=False, drawChildren=False):
 		""" There are some cases where being able to see the sizer
 		is helpful, such as at design time. This method can be called
 		to see the outline; it needs to be called whenever the containing
 		window is resized or repainted.
 		"""
-		if self.Orientation == "Vertical":
-			self.outlineColor = wx.BLUE
+		self._resolveOutlineSettings()
+		if drawChildren:
+			objs = self.GetChildren()
 		else:
-			self.outlineColor = wx.RED
-		x, y = self.GetPosition()
-		w, h = self.GetSize()
-		# Offset
-		off = 0
-		# Pen Width
-		pw = 1
-		if self.Application.Platform == "Win":
-			# Make 'em a bit wider.
-			pw = 3
-		
-		dc = wx.ClientDC(win)
-		dc.SetPen(wx.Pen(self.outlineColor, pw, wx.SHORT_DASH))
-		dc.SetBrush(wx.TRANSPARENT_BRUSH)
-		dc.SetLogicalFunction(wx.COPY)
-		# Draw the outline
-		dabo.ui.callAfter(dc.DrawRectangle, x+off, y+off, w-(2*off), h-(2*off) )
+			objs = [self]
+		for obj in objs:
+			x, y = obj.GetPosition()
+			w, h = obj.GetSize()
+			# Offset
+			off = (self.outlineWidth / 2)
+			dc = wx.ClientDC(win)
+			dc.SetPen(wx.Pen(self.outlineColor, self.outlineWidth, self.outlineStyle))
+			dc.SetBrush(wx.TRANSPARENT_BRUSH)
+			dc.SetLogicalFunction(wx.COPY)
+			# Draw the outline
+			dabo.ui.callAfter(dc.DrawRectangle, x+off, y+off, w-(2*off), h-(2*off) )
 		
 		if recurse:
 			for ch in self.GetChildren():
