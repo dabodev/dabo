@@ -2406,7 +2406,13 @@ class ClassDesigner(dabo.dApp):
 			for obj in objs:
 				try:
 					self._selection.remove(obj)
-				except: pass
+				except ValueError:
+					# Object is no longer in the list
+					pass
+				try:
+					obj.Selected = False
+				except AttributeError:
+					pass
 		else:
 			if not shift and (objs == self._selection):
 				# No change
@@ -2419,6 +2425,11 @@ class ClassDesigner(dabo.dApp):
 					else:
 						self._selection.remove(obj)
 			else:
+				for obj in oldsel:
+					try:
+						obj.Selected = False
+					except AttributeError:
+						pass
 				self._selection = []
 				for obj in objs:
 					if obj is not None:
