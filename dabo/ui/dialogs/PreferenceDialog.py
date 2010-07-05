@@ -52,21 +52,32 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 	
 	
 	def _addPages(self):
-		self.pglCategory = dabo.ui.dPageList(self, TabPosition="Left",
-				ListSpacing=20)
+#		self.pgfMain = dabo.ui.dPageList(self, TabPosition="Left",
+# 				ListSpacing=20)
+		self.pgfMain = dabo.ui.dPageFrame(self, TabPosition="Top")
 		self.addPages()
-		incl = (self.pglCategory.PageCount == 0)
+		incl = (self.pgfMain.PageCount == 0)
 		if incl or self.IncludeDefaultPages:
 			self._addDefaultPages()
-		incl = (self.pglCategory.PageCount == 0)
+		incl = (self.pgfMain.PageCount == 0)
 		if incl or self.IncludeFrameworkPages:
 			self._addFrameworkPages()
-		self.Sizer.append1x(self.pglCategory)
+		self.Sizer.append1x(self.pgfMain)
 		self.update()
 		self.layout()
 	
 	
 	def addPages(self): pass
+
+
+	def appendPage(self, pgCls=None, *args, **kwargs):
+		"""Pass-through method to the internal paged control"""
+		return self.pgfMain.appendPage(pgCls, *args, **kwargs)
+	
+	
+	def insertPage(self, pos, pgCls=None, *args, **kwargs):
+		"""Pass-through method to the internal paged control"""
+		return self.pgfMain.insertPage(pos, pgCls, *args, **kwargs)
 	
 	
 	def _onAcceptPref(self):
@@ -109,8 +120,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		is appended after any existing pages.
 		"""
 		if pos is None:
-			pos = self.pglCategory.PageCount
-		return self.pglCategory.insertPage(pos, caption=category)
+			pos = self.pgfMain.PageCount
+		return self.pgfMain.insertPage(pos, caption=category)
 	
 	
 	def _addDefaultPages(self):
