@@ -336,7 +336,7 @@ class DesignerClassConverter(dObject):
 		else:
 			template = self.containerClassTemplate
 			stackinit = self._stackInitText
-		self.classText += 	template  % locals()
+		self.classText += template  % locals()
 		self.classText += stackinit
 		
 		if isWiz:
@@ -478,7 +478,14 @@ class DesignerClassConverter(dObject):
 			# This will get set to True if we process a splitter control
 			isSplitter = False
 			splitterString = ""
-			if "classID" in atts:
+			try:
+				# Classes will have a single numeric classID (e.g.: 123456789).
+				# Components inside those classes will have the outer ID hypenated
+				# with their own ID (e.g.: 123456789-987654321).
+				isInherited = (len(atts["classID"].split("-")) == 1)
+			except KeyError:
+				isInherited = False
+			if isInherited:
 				if not os.path.exists(clsname):
 					clsname = dabo.lib.utils.locateRelativeTo(self._srcFile, clsname)
 				chldList = [[child]] + specChildList[:]
@@ -777,7 +784,7 @@ class DesignerClassConverter(dObject):
 		for this class. 
 		"""
 		conv = DesignerClassConverter()
-		xmlDict = conv.importSrc(pth)
+		xmlDict = conv.importXmlSrc(pth)
 		conv.createClassText(xmlDict, addImports=False, specList=specList)
 		self.innerClassText += conv.classText + (2 * LINESEP)
 		self.innerClassNames.append(conv.mainClassName)
