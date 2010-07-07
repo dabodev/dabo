@@ -77,7 +77,7 @@ class dBizobj(dObject):
 		self._dataSource = ""
 		self._nonUpdateFields = []
 		self._scanRestorePosition = True
-		self._scanRequeryChildren = False
+		self._scanRequeryChildren = True
 		self._scanReverse = False
 		self._userSQL = None
 		self._parent  = None
