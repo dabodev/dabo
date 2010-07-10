@@ -53,6 +53,7 @@ from dabo.lib.xmltodict import dicttoxml
 from dabo.dLocalize import _
 from dabo.lib.caselessDict import CaselessDict
 from reportlab.lib.utils import ImageReader
+from dabo.lib.utils import ustr
 import Image as PILImage
 import reportUtils
 
@@ -259,7 +260,7 @@ class ReportObject(CaselessDict):
 		return self.AvailableProps[propName]["doc"]
 
 	def updatePropVal(self, propName, propVal):
-		self.setProp(str(propName), str(propVal))
+		self.setProp(ustr(propName), ustr(propVal))
 
 
 	def _getAvailableProps(self):
@@ -1691,7 +1692,7 @@ class ReportWriter(object):
 		self._pageCount = pageCount
 		page_count_objects = self.page_count_objects.get(pageNum, [])
 		for x, y, obj, expr in page_count_objects:
-			obj["expr_pagecount"] = expr.replace("^^^PageCount^^^", str(self.PageCount))
+			obj["expr_pagecount"] = expr.replace("^^^PageCount^^^", ustr(self.PageCount))
 			self.draw(obj, (x,y))
 			del obj["expr_pagecount"]
 
@@ -2255,7 +2256,7 @@ class ReportWriter(object):
 		import time, md5, random
 		t1 = time.time()
 		t2 = t1 + random.random()
-		base = md5.new(str(t1 +t2))
+		base = md5.new(ustr(t1 +t2))
 		name = "_" + base.hexdigest()
 		return name
 	

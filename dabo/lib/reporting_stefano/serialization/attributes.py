@@ -3,6 +3,8 @@
 #           if serialization lib is specific to reporting, it should be moved
 #           to dabo.lib.reporting.serialization. Stefano, thoughts?
 from reportlab.lib import pagesizes
+import dabo
+from dabo.lib.utils import ustr
 
 
 class SerializableAttribute(object):
@@ -69,8 +71,8 @@ class ColorAttr(SerializableAttribute):
 
 class PagesizesAttr(SerializableAttribute):
 	def evaluate(self, value, env):
-		pageSize = getattr(pagesizes, str(value).upper(), None)
+		pageSize = getattr(pagesizes, ustr(value).upper(), None)
 		if pageSize is None:
-			pageSize = getattr(pagesizes, str(self.default).upper(), None)
+			pageSize = getattr(pagesizes, ustr(self.default).upper(), None)
 		return pageSize
 

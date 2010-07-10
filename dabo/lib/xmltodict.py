@@ -15,6 +15,8 @@ import dabo
 import dabo.lib.DesignerUtils as desUtil
 from dabo.dLocalize import _
 from dabo.lib.utils import resolvePath
+from dabo.lib.utils import ustr
+
 app = dabo.dAppRef
 if app:
 	default_encoding = app.Encoding
@@ -34,6 +36,7 @@ if deLow in ("utf16", "utf-16"):
 # Python seems to need to compile code with \n linesep:
 code_linesep = "\n"
 eol = os.linesep
+
 
 
 class Xml2Obj(object):
@@ -225,7 +228,7 @@ def escQuote(val, noEscape=False, noQuote=False):
 	any illegal XML characters.
 	"""
 	if not isinstance(val, basestring):
-		val = str(val)
+		val = ustr(val)
 	if not isinstance(val, unicode):
 		val = unicode(val, default_encoding)
 	if noQuote:

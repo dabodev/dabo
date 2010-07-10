@@ -3,9 +3,10 @@ import unittest
 import datetime
 import dabo
 from dabo.lib import dates
+from dabo.lib.utils import ustr
 
 year = datetime.date.today().year
-year_str4 = str(year)
+year_str4 = ustr(year)
 year_str2 = year_str4[-2:]
 
 class Test_Dates(unittest.TestCase):

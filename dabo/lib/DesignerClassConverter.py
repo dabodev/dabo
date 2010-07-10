@@ -20,6 +20,7 @@ from dabo.lib import utils
 import dabo.ui.dialogs as dlgs
 import dabo.lib.xmltodict as xtd
 import dabo.lib.DesignerUtils as desUtil
+from dabo.lib.utils import ustr
 # Doesn't matter what platform we're on; Python needs 
 # newlines in its compiled code.
 LINESEP = "\n"
@@ -883,6 +884,7 @@ dabo.ui.loadUI("wx")
 		self._clsHdrText = """import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
+from dabo.lib.utils import ustr
 import sys
 |classImportStatements|
 
@@ -1054,7 +1056,7 @@ from ClassDesignerComponents import NoSizerBasePanel
 
 def getControlClass(base):
 	# Create a pref key that is the Designer key plus the name of the control
-	prefkey = str(base).split(".")[-1].split("'")[0]
+	prefkey = ustr(base).split(".")[-1].split("'")[0]
 	class controlMix(cmix, base):
 		superControl = base
 		superMixin = cmix
@@ -1063,7 +1065,7 @@ def getControlClass(base):
 				apply(base.__init__,(self,) + args, kwargs)
 			parent = self._extractKey(kwargs, "parent")
 			cmix.__init__(self, parent, **kwargs)
-			self.NameBase = str(self._baseClass).split(".")[-1].split("'")[0]
+			self.NameBase = ustr(self._baseClass).split(".")[-1].split("'")[0]
 			self.BasePrefKey = prefkey
 	return controlMix
 

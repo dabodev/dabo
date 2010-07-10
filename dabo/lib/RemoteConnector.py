@@ -15,6 +15,7 @@ import dabo
 import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.lib.manifest import Manifest
 jsonEncode = dabo.lib.jsonEncode
 jsonDecode = dabo.lib.jsonDecode
@@ -96,7 +97,7 @@ class RemoteConnector(object):
 		# Get rid of as much unnecessary formatting as possible.
 		sql = re.sub(r"\n *", " ", sql)
 		sql = re.sub(r" += +", " = ", sql)
-		sqlparams = str(biz.getParams())
+		sqlparams = ustr(biz.getParams())
 		params = {"SQL": sql, "SQLParams": sqlparams, "KeyField": biz.KeyField, "_method": "GET"}
 		prm = urllib.urlencode(params)
 		try:
@@ -283,7 +284,7 @@ class RemoteConnector(object):
 		# A zero filecode represents no changed files
 		if filecode:
 			# Request the files
-			url = self._getManifestUrl(appname, "files", str(filecode))
+			url = self._getManifestUrl(appname, "files", ustr(filecode))
 			try:
 				res = self.UrlOpener.open(url)
 			except urllib2.HTTPError, e:

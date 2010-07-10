@@ -13,6 +13,8 @@ import dabo
 import types
 
 import dabo.dEvents as dEvents
+from dabo.lib.utils import ustr
+
 
 
 class EasyDialogBuilder(object):
@@ -30,7 +32,7 @@ class EasyDialogBuilder(object):
 		
 		for page in pageData:
 			if page.get("image"):
-				page["imgKey"]=str(pageFrame.PageCount)
+				page["imgKey"] = ustr(pageFrame.PageCount)
 				pageFrame.addImage(page["image"], imgKey=page["imgKey"])
 			elif not page.get("caption"):
 				caption = "Page%i" % (pageFrame.PageCount,) 

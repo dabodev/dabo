@@ -6,6 +6,7 @@ import locale
 import gettext
 import warnings
 import dabo
+from dabo.lib.utils import ustr
 
 
 _defaultLanguage, _defaultEncoding = locale.getdefaultlocale()
@@ -85,7 +86,7 @@ def setLanguage(lang=None, charset=None):
 No translation file found for domain 'dabo'.
     Locale dir = %s
     Languages = %s
-    Codeset = %s """ % (daboLocaleDir, str(lang), charset))
+    Codeset = %s """ % (daboLocaleDir, ustr(lang), charset))
 
 	for domain, localedir in _domains.items():
 		if domain == "dabo":
@@ -98,7 +99,7 @@ No translation file found for domain 'dabo'.
 No translation file found for domain '%s'.
     Locale dir = %s
     Languages = %s
-    Codeset = %s """ % (domain, daboLocaleDir, str(lang), charset))
+    Codeset = %s """ % (domain, daboLocaleDir, ustr(lang), charset))
 		if daboTranslation:
 			translation.add_fallback(daboTranslation)
 		_currentTrans = translation.ugettext

@@ -16,6 +16,7 @@ try:
 	import dabo.lib.reportWriter as lrw
 except ImportError, e:
 	_has_reporting_libs = False
+from dabo.lib.utils import ustr
 
 dabo.ui.loadUI("wx")
 
@@ -330,7 +331,7 @@ class Form(dabo.ui.dForm):
 			self.PageFrame.Pages[1].BrowseGrid.refresh()
 		except AttributeError, e:
 			# Grid may not even exist yet.
-			if "BrowseGrid" in str(e):
+			if "BrowseGrid" in ustr(e):
 				pass
 			else:
 				raise
@@ -579,14 +580,14 @@ class Form(dabo.ui.dForm):
 				rw.write()
 			except (UnicodeDecodeError,), e:
 				#error_string = traceback.format_exc()
-				error_string = str(e)
+				error_string = ustr(e)
 				row_number = rw.RecordNumber
 				dabo.ui.stop("There was a problem having to do with the Unicode encoding "
 						"of your table, and ReportLab's inability to deal with any encoding "
 						"other than UTF-8. Sorry, but currently we don't have a resolution to "
 						"the problem, other than to recommend that you convert your data to "
 						"UTF-8 encoding. Here's the exact error message received:\n\n%s" 
-						"\n\nThis occurred in Record %s of your cursor." % (str(e), row_number))
+						"\n\nThis occurred in Record %s of your cursor." % (ustr(e), row_number))
 				return 
 
 			# Now, preview using the platform's default pdf viewer:

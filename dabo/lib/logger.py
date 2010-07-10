@@ -2,6 +2,9 @@
 import sys, os, time
 from dabo.dObject import dObject
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
+
+
 
 class Log(dObject):
 	""" Generic logger object for Dabo.
@@ -64,7 +67,7 @@ class Log(dObject):
 			return ""
 
 	def _setCaption(self, val):
-		self._caption = str(val)
+		self._caption = ustr(val)
 
 
 	def _getLogObject(self):

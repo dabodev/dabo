@@ -7,6 +7,7 @@ import datetime
 import re
 import time
 import dabo
+from dabo.lib.utils import ustr
 
 _dregex = {}
 _dtregex = {}
@@ -138,7 +139,7 @@ def getDateFromString(strVal, formats=None):
 			if not groups.has_key("year"):
 				curYear = datetime.date.today().year
 				if groups.has_key("shortyear"):
-					groups["year"] = int("%s%s" % (str(curYear)[:2], 
+					groups["year"] = int("%s%s" % (ustr(curYear)[:2], 
 							groups["shortyear"]))
 				else:
 					groups["year"] = curYear
@@ -196,7 +197,7 @@ def getDateTimeFromString(strVal, formats=None):
 			if not groups.has_key("year"):
 				curYear = datetime.date.today().year
 				if groups.has_key("shortyear"):
-					groups["year"] = int("%s%s" % (str(curYear)[:2], 
+					groups["year"] = int("%s%s" % (ustr(curYear)[:2], 
 							groups["shortyear"]))
 				else:
 					groups["year"] = curYear

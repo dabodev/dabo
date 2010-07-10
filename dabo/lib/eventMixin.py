@@ -6,6 +6,7 @@ import dabo
 from dabo.dLocalize import _
 
 
+
 class EventMixin(object):
 	"""Mix-in class making objects know how to bind and raise Dabo events.
 
@@ -63,8 +64,6 @@ class EventMixin(object):
 		if eventSig in self.__raisedEvents:
 			# The event has already been called, for reasons we don't understand.
 			# Just return and do nothing.
-			#dabo.errorLog.write("End-around call of event %s" % str(eventSig))
-			#traceback.print_stack()
 			return None
 		else:
 			self.__raisedEvents.append(eventSig)

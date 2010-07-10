@@ -5,6 +5,7 @@ import time
 import inspect
 from cStringIO import StringIO
 import dabo
+from dabo.lib.utils import ustr
 
 
 def logPoint(msg="", levels=None):
@@ -17,7 +18,7 @@ def logPoint(msg="", levels=None):
 	stack.reverse()
 	output = StringIO()
 	if msg:
-		output.write(str(msg) + "\n")
+		output.write(ustr(msg) + "\n")
 	
 	stackSection = stack[-1*levels:]
 	for stackLine in stackSection:

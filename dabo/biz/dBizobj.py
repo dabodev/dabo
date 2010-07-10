@@ -7,6 +7,7 @@ import dabo
 import dabo.dConstants as kons
 from dabo.db.dCursorMixin import dCursorMixin
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.lib.RemoteConnector import RemoteConnector
@@ -1274,8 +1275,8 @@ class dBizobj(dObject):
 		row = self.seek(pk, self.KeyField, caseSensitive=True, near=False,
 				runRequery=True)
 		if row == -1:
-			# Need to use str(pk) because pk might be a tuple.
-			raise dabo.dException.RowNotFoundException, _("PK Value '%s' not found in the dataset") % str(pk)
+			# Need to use ustr(pk) because pk might be a tuple.
+			raise dabo.dException.RowNotFoundException, _("PK Value '%s' not found in the dataset") % ustr(pk)
 
 
 	def hasPK(self, pk):
