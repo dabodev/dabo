@@ -5,6 +5,9 @@ import dabo
 from dabo.dLocalize import _
 import dabo.ui.dPemMixinBase
 import dabo.dEvents as dEvents
+from dabo.lib.utils import ustr
+
+
 
 class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	""" Provide Property/Event/Method interfaces for dForms and dControls.
@@ -392,9 +395,9 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 			
 	def _setCaption(self, caption):
 		try:
-			self.wm_title(str(caption))
+			self.wm_title(ustr(caption))
 		except AttributeError:
-			self.configure(text=str(caption))
+			self.configure(text=ustr(caption))
 
 	def _getEnabled(self):
 		return self.IsEnabled()
@@ -448,14 +451,14 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 			t.SetTip(value)
 		else:
 			if value:
-				t = wx.ToolTip(str(value))
+				t = wx.ToolTip(ustr(value))
 				self.SetToolTip(t)
 
 
 	def _getHelpContextText(self):
 		return self.GetHelpText()
 	def _setHelpContextText(self, value):
-		self.SetHelpText(str(value))
+		self.SetHelpText(ustr(value))
 
 
 	def _getVisible(self):
@@ -507,7 +510,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._delWindowStyleFlag(wx.DOUBLE_BORDER)
 		self._delWindowStyleFlag(wx.STATIC_BORDER)
 
-		style = str(style)
+		style = ustr(style)
 
 		if style == 'None':
 			self._addWindowStyleFlag(wx.NO_BORDER)

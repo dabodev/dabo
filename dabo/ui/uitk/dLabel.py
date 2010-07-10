@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import Tkinter, dabo, dabo.ui
+from dabo.lib.utils import ustr
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("tk")
@@ -52,7 +53,7 @@ class dLabel(Tkinter.Label, cm.dControlMixin):
 # 		self._delWindowStyleFlag(wx.ALIGN_CENTRE)
 # 		self._delWindowStyleFlag(wx.ALIGN_RIGHT)
 # 
-# 		value = str(value)
+# 		value = ustr(value)
 # 
 # 		if value == 'Left':
 # 			self._addWindowStyleFlag(wx.ALIGN_LEFT)

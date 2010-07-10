@@ -7,6 +7,7 @@ if __name__ == "__main__":
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 
 
 class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
@@ -65,9 +66,9 @@ class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
 # 
 # 	def _setAlignment(self, value):
 # 		self._delWindowStyleFlag(wx.ALIGN_RIGHT)
-# 		if str(value) == 'Right':
+# 		if ustr(value) == 'Right':
 # 			self._addWindowStyleFlag(wx.ALIGN_RIGHT)
-# 		elif str(value) == 'Left':
+# 		elif ustr(value) == 'Left':
 # 			pass
 # 		else:
 # 			raise ValueError("The only possible values are 'Left' and 'Right'.")

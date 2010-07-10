@@ -8,6 +8,8 @@ import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.dPref import dPref
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
+
 
 
 class dDataControlMixinBase(dabo.ui.dControlMixin):
@@ -253,7 +255,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 								if hasattr(self.DataSource, "_name"):
 									nm = self.DataSource._name
 								else:
-									nm = str(self.DataSource)
+									nm = ustr(self.DataSource)
 								dabo.errorLog.write("Could not bind to '%s.%s'\nReason: %s" % (nm, self.DataField, e) )
 			self._oldVal = curVal
 			self._from_flushValue = True
@@ -372,7 +374,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 	def _setDataField(self, value):
 		self._oldVal = None
-		self._DataField = str(value)
+		self._DataField = ustr(value)
 
 
 	def _getDesignerMode(self):

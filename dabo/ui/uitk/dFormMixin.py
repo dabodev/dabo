@@ -2,6 +2,7 @@
 """ dFormMixin.py """
 import dPemMixin as pm
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 
 class dFormMixin(pm.dPemMixin):
@@ -256,7 +257,7 @@ class dFormMixin(pm.dPemMixin):
 # 		return {'editor': 'list', 'values': ['Normal', 'Minimized', 'Maximized', 'FullScreen']}
 # 
 # 	def _setWindowState(self, value):
-# 		value = str(value)
+# 		value = ustr(value)
 # 		if value == 'Normal':
 # 			if self.IsFullScreen():
 # 				self.ShowFullScreen(False)
