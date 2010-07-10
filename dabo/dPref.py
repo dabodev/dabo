@@ -6,6 +6,7 @@ from decimal import Decimal
 import dabo
 from dabo.dLocalize import _
 import dabo.lib.utils as utils
+from dabo.lib.utils import ustr
 
 try:
 	from pysqlite2 import dbapi2 as sqlite
@@ -24,6 +25,7 @@ regularAtts = ("AutoPersist", "__base__", "__bases__", "__basicsize__", "__call_
 		"__members__", "__methods__", "__mro__", "__name__", "__subclasses__", 
 		"__weakrefoffset__", "_autoPersist", "_cache", "_cursor", "_cxn", "get",
 		"_getAttributeNames", "_key", "_noneType", "_parent", "_persistAll", "_typeDict", "mro")
+
 
 
 class dPref(object):
@@ -164,16 +166,12 @@ class dPref(object):
 		"""Takes various value types and converts them to a string formats that
 		can be converted back when needed.
 		"""
-		if typ in ("str", "unicode"):
-			ret = val
-		elif typ == "date":
-			ret = str((val.year, val.month, val.day))
+		if typ == "date":
+			ret = ustr((val.year, val.month, val.day))
 		elif typ == "datetime":
-			ret = str((val.year, val.month, val.day, val.hour, val.minute, val.second, val.microsecond))
-		elif typ == "decimal":
-			ret = str(val)
+			ret = ustr((val.year, val.month, val.day, val.hour, val.minute, val.second, val.microsecond))
 		else:
-			ret = unicode(val)
+			ret = ustr(val)
 		return ret
 		
 	

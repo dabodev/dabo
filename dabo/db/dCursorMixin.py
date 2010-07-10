@@ -14,6 +14,7 @@ from dNoEscQuoteStr import dNoEscQuoteStr
 from dabo.db.dDataSet import dDataSet
 from dabo.lib import dates
 from dabo.lib.utils import noneSortKey, caseInsensitiveSortKey
+from dabo.lib.utils import ustr
 
 
 class dCursorMixin(dObject):
@@ -239,7 +240,7 @@ class dCursorMixin(dObject):
 				_field_val = field_val
 				if type(field_val) in (float,):
 					# Can't convert to decimal directly from float
-					_field_val = str(_field_val)
+					_field_val = ustr(_field_val)
 				# Need to convert to the correct scale:
 				scale = None
 				for s in ds:
@@ -338,7 +339,7 @@ class dCursorMixin(dObject):
 						sql.decode(self.Encoding).replace("\n", " "),))
 			# Database errors need to be decoded from database encoding.
 			try:
-				errMsg = str(e).decode(self.Encoding)
+				errMsg = ustr(e).decode(self.Encoding)
 			except UnicodeError:
 				errMsg = unicode(e)
 			# If this is due to a broken connection, let the user know.
@@ -371,7 +372,7 @@ class dCursorMixin(dObject):
 			_records = dabo.db.dDataSet()
 			# Database errors need to be decoded from database encoding.
 			try:
-				errMsg = str(e).decode(self.Encoding)
+				errMsg = ustr(e).decode(self.Encoding)
 			except UnicodeError:
 				errMsg = unicode(e)
 			dabo.errorLog.write("Error fetching records: %s" % errMsg)
@@ -681,7 +682,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def getType(self, val):
 		try:
-			ret = re.search("type '([^']+)'", str(type(val))).groups()[0]
+			ret = re.search("type '([^']+)'", ustr(type(val))).groups()[0]
 		except IndexError:
 			ret = "-unknown-"
 		return ret
@@ -958,7 +959,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				convTypes = (str, unicode, int, float, long, complex)
 				if isinstance(val, convTypes) and isinstance(rec[fld], basestring):
 					if isinstance(fldType, str):
-						val = str(val)
+						val = ustr(val)
 					else:
 						val = unicode(val)
 				elif isinstance(rec[fld], int) and isinstance(val, bool):
@@ -981,7 +982,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# string representation of these classes, as there is no primitive for either
 				# 'DateTime' or 'Date'.
 				dtStrings = ("<type 'DateTime'>", "<type 'Date'>", "<type 'datetime.datetime'>")
-				if str(fldType) in dtStrings and isinstance(val, basestring):
+				if ustr(fldType) in dtStrings and isinstance(val, basestring):
 					ignore = True
 				elif issubclass(fldType, basestring) and isinstance(val, basestring):
 					ignore = True
@@ -1000,7 +1001,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					ignore = (rec.get(keyField, None) in self._newRecords)
 
 				if not ignore:
-					sft, stv = str(fldType), str(type(val))
+					sft, stv = ustr(fldType), ustr(type(val))
 					msg = _("!!! Data Type Mismatch: field=%(fld)s. Expecting: %(sft)s; got: %(stv)s") % locals()
 					dabo.errorLog.write(msg)
 
@@ -1320,14 +1321,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# Error was encountered. Raise an exception so that the
 				# calling bizobj can rollback the transaction if necessary
 				try:
-					errMsg = str(e).decode(self.Encoding)
+					errMsg = ustr(e).decode(self.Encoding)
 				except UnicodeError:
 					errMsg = unicode(e)
 				dabo.dbActivityLog.write(
 						_("DBQueryException encountered in save(): %s") % errMsg)
 				raise e
 			except StandardError, e:
-				errMsg = str(e)
+				errMsg = ustr(e)
 				if "connect" in errMsg.lower():
 					dabo.dbActivityLog.write(
 							_("Connection Lost exception encountered in saverow(): %s") % errMsg)
@@ -1446,7 +1447,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					elif isinstance(val, (datetime.date, datetime.datetime)):
 						val = self.formatDateTime(val)
 					else:
-						val = str(val)
+						val = ustr(val)
 					wheres.append("%s = %s" % (fld, val))
 				where = " and ".join(wheres)
 				aux.execute("select * from %s where %s" % (self.Table, where))
@@ -1760,7 +1761,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					newval = typ()
 				except Exception, e:
 					dabo.errorLog.write(_("Failed to create newval for field '%s'") % field_alias)
-					dabo.errorLog.write(str(e))
+					dabo.errorLog.write(ustr(e))
 					newval = u""
 
 			self._blank[field_alias] = newval
@@ -1984,19 +1985,19 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			except KeyError:
 				return rec[fld]
 
-		ret = ""
+		ret = []
 		for fld in keyFields:
 			fldSafe = bo.encloseNames(fld, self.AutoQuoteNames)
 			if ret:
-				ret += " AND "
+				ret.append(" AND ")
 			pkVal = getPkVal(fld)
 			if isinstance(pkVal, basestring):
-				ret += tblPrefix + fldSafe + "='" + pkVal.encode(self.Encoding) + "' "
+				ret.extend([tblPrefix, fldSafe, "='", pkVal.encode(self.Encoding), "' "])
 			elif isinstance(pkVal, (datetime.date, datetime.datetime)):
-				ret += tblPrefix + fldSafe + "=" + self.formatDateTime(pkVal) + " "
+				ret.extend([tblPrefix, fldSafe, "=", self.formatDateTime(pkVal), " "])
 			else:
-				ret += tblPrefix + fldSafe + "=" + str(pkVal) + " "
-		return ret
+				ret.extend(tblPrefix, fldSafe, "=", ustr(pkVal), " "])
+		return "".join(ret)
 
 
 	def makeUpdClause(self, diff):
@@ -2603,7 +2604,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			self._keyField = tuple(flds)
 			self._compoundKey = True
 		else:
-			self._keyField = str(kf)
+			self._keyField = ustr(kf)
 			self._compoundKey = False
 		self.AuxCursor._keyField = self._keyField
 		self.AuxCursor._compoundKey = self._compoundKey

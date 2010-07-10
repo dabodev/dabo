@@ -6,6 +6,9 @@ from dabo.dLocalize import _
 from dBackend import dBackend
 import dabo.dException as dException
 from dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
+from dabo.lib.utils import ustr
+
+
 
 class MySQL(dBackend):
 	"""Class providing MySQL connectivity. Uses MySQLdb."""
@@ -68,7 +71,7 @@ class MySQL(dBackend):
 					db=connectInfo.Database, port=port, charset=charset, **kwargs)
 		except Exception, e:
 			try:
-				errMsg = str(e).decode(self.Encoding)
+				errMsg = ustr(e).decode(self.Encoding)
 			except UnicodeError:
 				errMsg = unicode(e)
 			if "access denied" in errMsg.lower():
@@ -116,7 +119,7 @@ class MySQL(dBackend):
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
-		val = self._stringify(val)
+		val = ustr(val)
 		return "%s%s%s" % (sqt, val, sqt)
 	
 	
@@ -271,16 +274,16 @@ class MySQL(dBackend):
 											
 				elif fld.DataType == "Float":
 					if fld.Size in (0,1,2,3,4):
-						sql = sql + "FLOAT(" + str(fld.TotalDP) + "," + str(fld.RightDP) + ") "
+						sql = sql + "FLOAT(" + ustr(fld.TotalDP) + "," + ustr(fld.RightDP) + ") "
 					elif fld.Size in (5,6,7,8):
-						sql = sql + "DOUBLE(" + str(fld.TotalDP) + "," + str(fld.RightDP) + ") "
+						sql = sql + "DOUBLE(" + ustr(fld.TotalDP) + "," + ustr(fld.RightDP) + ") "
 					else:
 						raise #what should happen?
 				elif fld.DataType == "Decimal":
-					sql = sql + "DECIMAL(" + str(fld.TotalDP) + "," + str(fld.RightDP) + ") "
+					sql = sql + "DECIMAL(" + ustr(fld.TotalDP) + "," + ustr(fld.RightDP) + ") "
 				elif fld.DataType == "String":
 					if fld.Size <= 255:
-						sql = sql + "VARCHAR(" + str(fld.Size) + ") "
+						sql = sql + "VARCHAR(" + ustr(fld.Size) + ") "
 					elif fld.Size <= 65535:
 						sql = sql + "TEXT "
 					elif fld.Size <= 16777215:

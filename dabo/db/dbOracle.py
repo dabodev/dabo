@@ -8,6 +8,7 @@
 import datetime
 from dabo.dLocalize import _
 from dBackend import dBackend
+from dabo.lib.utils import ustr
 
 
 class Oracle(dBackend):
@@ -49,14 +50,14 @@ class Oracle(dBackend):
 	def processFields(self, txt):
 		# this was used for testing only
 		if isinstance(txt, unicode):
-			txt = str(txt)
+			txt = ustr(txt)
 		return txt
 
 
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
-		val = self._stringify(val)
+		val = ustr(val)
 		return "%s%s%s" % (sqt, val, sqt)
 
 		

@@ -4,13 +4,14 @@ import time
 import re
 import datetime
 import threading
+import decimal
 import dabo
 from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.db import dTable
 from dNoEscQuoteStr import dNoEscQuoteStr
-import decimal
+from dabo.lib.utils import ustr
 
 
 
@@ -43,13 +44,6 @@ class dBackend(dObject):
 		self._cursor = None
 
 
-	def _stringify(self, val):
-		"""Convert passed val to string; if unicode, leave as-is."""
-		if not isinstance(val, basestring):
-			val = str(val)
-		return val
-
-
 	def isValidModule(self):
 		""" Test the dbapi to see if it is supported on this computer."""
 		try:
@@ -79,9 +73,9 @@ class dBackend(dObject):
 			# Some databases have specific rules for formatting date values.
 			return self.formatDateTime(val)
 		elif isinstance(val, (int, long, float)):
-			return str(val)
+			return ustr(val)
 		elif isinstance(val, decimal.Decimal):
-			return str(val)
+			return ustr(val)
 		elif isinstance(val, dNoEscQuoteStr):
 			return val
 		elif fieldType == "L":

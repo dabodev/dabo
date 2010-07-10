@@ -8,6 +8,7 @@ from dabo.dException import dException, DBFileDoesNotExistException
 from dBackend import dBackend
 from dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 from dCursorMixin import dCursorMixin
+from dabo.lib.utils import ustr
 
 
 class SQLite(dBackend):
@@ -78,7 +79,7 @@ class SQLite(dBackend):
 
 	def formatForQuery(self, val, fieldType=None):
 		if isinstance(val, bool):
-			return str(int(val))
+			return ustr(int(val))
 		else:
 			return super(SQLite, self).formatForQuery(val, fieldType)
 
@@ -86,7 +87,7 @@ class SQLite(dBackend):
 	def escQuote(self, val):			
 		sl = "\\"
 		qt = "\'"
-		val = self._stringify(val)
+		val = ustr(val)
 		return qt + val.replace(sl, sl+sl).replace(qt, qt+qt) + qt
 	
 	
@@ -111,7 +112,7 @@ class SQLite(dBackend):
 			pass
 		except Exception, e:
 			try:
-				errMsg = str(e).decode(self.Encoding)
+				errMsg = ustr(e).decode(self.Encoding)
 			except UnicodeError:
 				errMsg = unicode(e)
 			dabo.dbActivityLog.write("SQL: commit failed: %s" % errMsg)
@@ -133,7 +134,7 @@ class SQLite(dBackend):
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
-		val = self._stringify(val)
+		val = ustr(val)
 		return "%s%s%s" % (sqt, val, sqt)
 		
 	

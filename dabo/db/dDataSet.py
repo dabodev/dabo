@@ -25,6 +25,7 @@ pysqlite2: http://initd.org/tracker/pysqlite
 
 import dabo
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 
 
 
@@ -83,7 +84,7 @@ class dDataSet(tuple):
 
 	def _adapt_decimal(self, decVal):
 		"""Converts the decimal value to a string for storage"""
-		return str(decVal)
+		return ustr(decVal)
 
 
 	def _convert_decimal(self, strval):
@@ -296,7 +297,7 @@ class dDataSet(tuple):
 			dabo.errorLog.write(_("Cannot populate without data for alias '%s'")
 					% alias)
 			return None
-		hs = hashlib.md5(str(ds)).hexdigest()
+		hs = hashlib.md5(ustr(ds)).hexdigest()
 		if hs == ds._dataHash:
 			# Data's already there and hasn't changed; no need to re-load it
 			return

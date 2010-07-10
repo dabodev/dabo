@@ -5,6 +5,8 @@ import datetime
 import dabo
 from dabo.dLocalize import _
 from dBackend import dBackend
+from dabo.lib.utils import ustr
+
 
 
 class Postgres(dBackend):
@@ -112,7 +114,7 @@ class Postgres(dBackend):
 
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
-		return "'%s'" % self._stringify(val)
+		return "'%s'" % ustr(val)
 
 
 	def getTables(self, cursor, includeSystemTables=False):

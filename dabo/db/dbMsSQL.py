@@ -2,6 +2,9 @@
 import datetime
 from dabo.dLocalize import _
 from dBackend import dBackend
+from dabo.lib.utils import ustr
+
+
 
 class MSSQL(dBackend):
 	"""Class providing Microsoft SQL Server connectivity. Uses pymssql."""
@@ -21,7 +24,7 @@ class MSSQL(dBackend):
 		  __init__(self, dsn, user, passwd, database = None, strip = 0)"""
 		import pymssql 
 		
-		port = str(connectInfo.Port)
+		port = ustr(connectInfo.Port)
 		#if not port or port == "None":
 			#port = 1433
 		#host = "%s:%s" % (connectInfo.Host, port)
@@ -64,7 +67,7 @@ class MSSQL(dBackend):
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
-		val = self._stringify(val)
+		val = ustr(val)
 		return "%s%s%s" % (sqt, val, sqt)
 	
 

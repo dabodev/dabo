@@ -139,7 +139,18 @@ def dictStringify(dct):
 		else:
 			ret[kk] = vv
 	return ret
-		
+
+
+def ustr(val):
+	"""When converting to a string, do not use the str() function, which
+	can create encoding errors with non-ASCII text.
+	"""
+	try:
+		return "%s" % val
+	except TypeError:
+		# tuples
+		return val.__repr__()
+
 
 def relativePathList(toLoc, fromLoc=None):
 	"""Given two paths, returns a list that, when joined with 

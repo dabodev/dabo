@@ -5,6 +5,8 @@ import dabo
 from dabo.dLocalize import _
 from dBackend import dBackend
 from dCursorMixin import dCursorMixin
+from dabo.lib.utils import ustr
+
 
 
 class Firebird(dBackend):
@@ -50,10 +52,10 @@ class Firebird(dBackend):
 		if not port:
 			port = 3050
 		# kinterbasdb will barf with unicode strings:
-		host = str(connectInfo.Host)
-		user = str(connectInfo.User)
-		password = str(connectInfo.revealPW())
-		database = str(connectInfo.Database)
+		host = ustr(connectInfo.Host)
+		user = ustr(connectInfo.User)
+		password = ustr(connectInfo.revealPW())
+		database = ustr(connectInfo.Database)
 		
 		self._connection = self.dbapi.connect(host=host, user=user, 
 				password=password, database=database, **kwargs)
@@ -98,7 +100,7 @@ class Firebird(dBackend):
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
-		val = self._stringify(val)
+		val = ustr(val)
 		return "%s%s%s" % (sqt, val, sqt)
 
 

@@ -26,6 +26,8 @@ particular database.
 import datetime
 from dabo.dLocalize import _
 from dBackend import dBackend
+from dabo.lib.utils import ustr
+
 
 
 class NEWDATABASE(dBackend):
@@ -72,7 +74,7 @@ class NEWDATABASE(dBackend):
 		#### TODO: Make sure that the format for DateTime 
 		####    values is returned correctly 
 		sqt = "'"		# single quote
-		val = self._stringify(val)
+		val = ustr(val)
 		return "%s%s%s" % (sqt, val, sqt)
 		
 
