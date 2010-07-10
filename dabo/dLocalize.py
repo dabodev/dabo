@@ -6,7 +6,6 @@ import locale
 import gettext
 import warnings
 import dabo
-from dabo.lib.utils import ustr
 
 
 _defaultLanguage, _defaultEncoding = locale.getdefaultlocale()
@@ -68,6 +67,7 @@ def setLanguage(lang=None, charset=None):
 	which would globally bind the '_' name, we'll just set the '_currentTrans' 
 	name to the translation object.	
 	"""
+	from dabo.lib.utils import ustr
 	global _domains, _currentTrans
 	lang = _languageAliases.get(lang, lang)
 

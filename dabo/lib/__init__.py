@@ -9,15 +9,14 @@
 
 import uuid
 import dabo
-from dabo.lib.utils import ustr
 
 
 def getRandomUUID():
-	return ustr(uuid.uuid4())
+	return str(uuid.uuid4())
 
 
 def getMachineUUID():
-	return ustr(uuid.uuid1())
+	return str(uuid.uuid1())
 
 
 try:

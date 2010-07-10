@@ -46,8 +46,6 @@ Typical usage:
 
 This module works with Python 2.3 or higher."""
 
-from dabo.lib.utils import ustr
-
 
 __author__ = 'Ka-Ping Yee <ping@zesty.ca>'
 __date__ = '$Date: 2006/06/12 23:15:40 $'.split()[1].replace('/', '-')
@@ -181,7 +179,7 @@ class UUID(object):
         return self.int
 
     def __repr__(self):
-        return 'UUID(%r)' % ustr(self)
+        return 'UUID(%r)' % str(self)
 
     def __setattr__(self, name, value):
         raise TypeError('UUID objects are immutable')
@@ -253,7 +251,7 @@ class UUID(object):
     hex = property(get_hex)
 
     def get_urn(self):
-        return 'urn:uuid:' + ustr(self)
+        return 'urn:uuid:' + str(self)
 
     urn = property(get_urn)
 
