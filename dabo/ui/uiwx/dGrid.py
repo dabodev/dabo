@@ -17,6 +17,7 @@ if __name__ == "__main__":
 import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.dLocalize import _, n_
+from dabo.lib.utils import ustr
 import dControlMixin as cm
 import dKeys
 import dUICursors
@@ -117,7 +118,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		for idx, col in enumerate(colDefs):
 			nm = col.DataField
 			while not nm:
-				nm = str(idx)
+				nm = ustr(idx)
 				idx += 1
 				if nm in colDefs:
 					nm = ""
@@ -146,12 +147,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					# Not one of the standard types. Extract it from
 					# the string version of the type
 					try:
-						col.DataType = str(col.DataType).split("'")[1].lower()
+						col.DataType = ustr(col.DataType).split("'")[1].lower()
 					except IndexError:
 						# Something's odd. Print an error message and move on.
 						dabo.errorLog.write("Unknown data type found in setColumns(): %s"
 								% col.DataType)
-						col.DataType = str(col.DataType)
+						col.DataType = ustr(col.DataType)
 
 		# Make sure that all cols have an Order set
 		for num in range(len(colDefs)):
@@ -349,15 +350,15 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 class GridListEditor(wx.grid.GridCellChoiceEditor):
 	def __init__(self, *args, **kwargs):
 		dabo.infoLog.write("GridListEditor: Init ")
-		dabo.infoLog.write(str(args))
-		dabo.infoLog.write(str(kwargs))
+		dabo.infoLog.write(ustr(args))
+		dabo.infoLog.write(ustr(kwargs))
 		super(GridListEditor, self).__init__(*args, **kwargs)
 
 
 	def Create(self, parent, id, evtHandler, *args, **kwargs):
 		dabo.infoLog.write("GridListEditor: Create")
-		dabo.infoLog.write(str(args))
-		dabo.infoLog.write(str(kwargs))
+		dabo.infoLog.write(ustr(args))
+		dabo.infoLog.write(ustr(kwargs))
 		self.control = dabo.ui.dDropdownList(parent=parent, id=id,
 				ValueMode="String")
 		self.SetControl(self.control)
@@ -1984,7 +1985,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			fld = column.DataField
 			biz = self.getBizobj()
 			if isinstance(val, float) and column.DataType == "decimal":
-				 val = Decimal(str(val))
+				 val = Decimal(ustr(val))
 			if biz:
 				biz.RowNumber = row
 				biz.setFieldVal(fld, val)
@@ -2874,7 +2875,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					srchVal = float(0)
 			elif isinstance(listval, (datetime.datetime, datetime.date, datetime.time)):
 				# We need to convert the sort vals into strings
-				sortList = [(str(vv), i) for vv, i in sortList]
+				sortList = [(ustr(vv), i) for vv, i in sortList]
 				compString = True
 
 		# Now iterate through the list to find the matching value. I know that
@@ -2968,27 +2969,27 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				srch = r"\b%s\b" % findString
 				findGen = ((r,c) for r in xrange(self.RowCount) for c in xrange(self.ColumnCount)
 						if op((r,c), rowcol)
-						and re.search(srch, str(self.GetValue(r, c))))
+						and re.search(srch, ustr(self.GetValue(r, c))))
 			else:
 				srch = r"\b%s\b" % findString.lower()
 				findGen = ((r,c) for r in xrange(self.RowCount) for c in xrange(self.ColumnCount)
 						if op((r,c), rowcol)
-						and re.search(srch, str(self.GetValue(r, c)).lower()))
+						and re.search(srch, ustr(self.GetValue(r, c)).lower()))
 		else:
 			if matchCase:
 				findGen = ((r,c) for r in xrange(self.RowCount) for c in xrange(self.ColumnCount)
 						if op((r,c), rowcol)
-						and findString in str(self.GetValue(r, c)))
+						and findString in ustr(self.GetValue(r, c)))
 			else:
 				findGen = ((r,c) for r in xrange(self.RowCount) for c in xrange(self.ColumnCount)
 						if op((r,c), rowcol)
-						and findString.lower() in str(self.GetValue(r, c)).lower())
+						and findString.lower() in ustr(self.GetValue(r, c)).lower())
 		if action == "Find":
 			try:
 				while True:
 					newR, newC = findGen.next()
 					targetVal = self.GetValue(newR, newC)
-					targetString = str(targetVal)
+					targetString = ustr(targetVal)
 					if isinstance(targetVal, (basestring, datetime.datetime, datetime.date)):
 						# Values can be inexact matches
 						break

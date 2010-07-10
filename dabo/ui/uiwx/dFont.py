@@ -3,7 +3,9 @@ import wx
 import dabo
 from dabo.dObject import dObject
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
+
 
 
 class dFont(dObject):
@@ -38,7 +40,7 @@ class dFont(dObject):
 
 
 	def _getDescription(self):
-		ret = self.Face + " " + str(self.Size)
+		ret = self.Face + " " + ustr(self.Size)
 		if self.Bold:
 			ret += " B"
 		if self.Italic:

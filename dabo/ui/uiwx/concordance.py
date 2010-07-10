@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+from dabo.lib.utils import ustr
 
 dabo.ui.loadUI("wx")
 
@@ -13,13 +14,13 @@ for daboName in daboNames:
 	daboClass = getattr(dabo.ui, daboName)
 	if hasattr(daboClass, "__mro__"):
 		for mro in daboClass.__mro__:
-			if "<class 'wx." in str(mro):
-				if "wx._" in str(mro):
+			if "<class 'wx." in ustr(mro):
+				if "wx._" in ustr(mro):
 					# normal wx class: don't include the wx._controls. cruft
-					dabo_to_wx[daboName] = "wx.%s" % str(mro).split(".")[-1][:-2]
+					dabo_to_wx[daboName] = "wx.%s" % ustr(mro).split(".")[-1][:-2]
 				else:
 					# extra class: give the full story:
-					dabo_to_wx[daboName] = str(mro)[8:-2] 
+					dabo_to_wx[daboName] = ustr(mro)[8:-2] 
 				break
 
 daboNames = dabo_to_wx.items()

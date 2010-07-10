@@ -7,6 +7,7 @@ import dPemMixin as pm
 import dMenu
 import dabo.icons
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.lib.xmltodict import xmltodict as XTD
@@ -20,6 +21,10 @@ class dFormMixin(pm.dPemMixin):
 		self._cxnName = ""
 		self._connection = None
 		self._floatingPanel = None
+		self._sizersToOutline = []
+		self._recurseOutlinedSizers = True
+		self._alwaysDrawSizerOutlines = False
+		self._drawSizerChildren = False
 		self._statusBarClass = dabo.ui.dStatusBar
 		
 		# Extract the menu definition file, if any
@@ -208,9 +213,10 @@ class dFormMixin(pm.dPemMixin):
 	
 	
 	def __onIdle(self, evt):
-		if self.__needOutlineRedraw:
-			if self.Sizer:
-				self.Sizer.drawOutline(self, recurse=True)
+		if self.__needOutlineRedraw or self._alwaysDrawSizerOutlines:
+			for sz in self.SizersToOutline:
+				sz.drawOutline(self, recurse=self._recurseOutlinedSizers,
+						drawChildren=self._drawSizerChildren)
 	
 	
 	def __onClose(self, evt):
@@ -294,8 +300,20 @@ class dFormMixin(pm.dPemMixin):
 		code that the user can later enhance.
 		"""
 		pass
-	
-	
+
+
+	def addToOutlinedSizers(self, val):
+		self._sizersToOutline.append(val)
+
+
+	def removeFromOutlinedSizers(self, val):
+		try:
+			self._sizersToOutline.remove(val)
+		except ValueError:
+			# already removed
+			pass
+
+
 	def _restoreMenuPrefs(self):
 		if not self:
 			# Form has already been released
@@ -893,7 +911,20 @@ class dFormMixin(pm.dPemMixin):
 		
 	def _setShowToolBar(self, val):
 		self._showToolBar = bool(val)	
-	
+
+
+	def _getSizersToOutline(self):
+		if self._alwaysDrawSizerOutlines:
+			return self._sizersToOutline
+		else:
+			ret = self._sizersToOutline or self.Sizer
+			if not isinstance(ret, list):
+				ret = [ret]
+			return ret
+
+	def _setSizersToOutline(self, val):
+		self._sizersToOutline = val
+
 
 	def _getStatusBar(self):
 		try:
@@ -1013,7 +1044,7 @@ class dFormMixin(pm.dPemMixin):
 
 	def _setWindowState(self, value):
 		if self._constructed():
-			lowvalue = str(value).lower().strip()
+			lowvalue = ustr(value).lower().strip()
 			if lowvalue == "normal":
 				if self.IsFullScreen():
 					self.ShowFullScreen(False)
@@ -1125,6 +1156,10 @@ class dFormMixin(pm.dPemMixin):
 
 	ShowToolBar = property(_getShowToolBar, _setShowToolBar, None,
 			_("Specifies whether the Tool bar gets automatically created."))
+
+	SizersToOutline = property(_getSizersToOutline, _setSizersToOutline, None,
+			_("""When drawing the outline of sizers, the sizer(s) to draw. 
+			Default=self.Sizer  (dSizer)"""))
 
 	StatusBar = property(_getStatusBar, _setStatusBar, None,
 			_("Status bar for this form. (dStatusBar)"))

@@ -2,7 +2,9 @@
 import dabo
 from dabo.ui.dDataControlMixinBase import dDataControlMixinBase
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
+
 
 
 class dDataControlMixin(dDataControlMixinBase):
@@ -45,7 +47,7 @@ class dDataControlMixin(dDataControlMixinBase):
 		oldType = type(oldval)
 		if isinstance(val, convTypes) and isinstance(oldval, basestring):
 			if isinstance(oldType, str):
-				val = str(val)
+				val = ustr(val)
 			else:
 				if not isinstance(val, unicode):
 					val = unicode(val, self.Application.Encoding)

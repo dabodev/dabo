@@ -9,6 +9,7 @@ import time
 import cStringIO
 import warnings
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.lib import utils
 import dabo.dEvents as dEvents
 
@@ -362,7 +363,7 @@ def continueEvent(evt):
 			pass
 		else:
 			dabo.errorLog.write("Incorrect event class (%s) passed to continueEvent. Error: %s"
-					% (str(evt), str(e)))
+					% (ustr(evt), ustr(e)))
 
 
 def discontinueEvent(evt):
@@ -374,7 +375,7 @@ def discontinueEvent(evt):
 			pass
 		else:
 			dabo.errorLog.write("Incorrect event class (%s) passed to continueEvent. Error: %s"
-					% (str(evt), str(e)))
+					% (ustr(evt), ustr(e)))
 
 
 def getEventData(wxEvt):
@@ -1121,7 +1122,7 @@ def sortList(chc, Caption="", ListCaption=""):
 		key = itm
 		if not isinstance(itm, basestring):
 			needConvert = True
-			key = str(itm)
+			key = ustr(itm)
 			strChc.append(key)
 		else:
 			strChc.append(itm)

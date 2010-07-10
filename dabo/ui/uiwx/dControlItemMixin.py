@@ -4,6 +4,7 @@ import dabo
 import dabo.dEvents as dEvents
 from dDataControlMixin import dDataControlMixin
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
 
 
@@ -392,7 +393,7 @@ class dControlItemMixin(dDataControlMixin):
 		
 		
 	def _setValueMode(self, val):
-		val = str(val).lower()[0]
+		val = ustr(val).lower()[0]
 		if val in ("p", "s", "k"):
 			self._valueMode = val
 			

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
 
 class AlignmentMixin(object):
@@ -17,7 +18,7 @@ class AlignmentMixin(object):
 		self._delWindowStyleFlag(wx.ALIGN_LEFT)
 		self._delWindowStyleFlag(wx.ALIGN_CENTRE)
 		self._delWindowStyleFlag(wx.ALIGN_RIGHT)
-		value = str(value).lower()
+		value = ustr(value).lower()
 
 		if value == "left":
 			self._addWindowStyleFlag(wx.ALIGN_LEFT)

@@ -6,6 +6,8 @@ if __name__ == "__main__":
 
 import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
+from dabo.lib.utils import ustr
+
 
 
 class dLine(cm.dControlMixin, wx.StaticLine):
@@ -40,7 +42,7 @@ class dLine(cm.dControlMixin, wx.StaticLine):
 		self._delWindowStyleFlag(wx.LI_VERTICAL)
 		self._delWindowStyleFlag(wx.LI_HORIZONTAL)
 
-		value = str(value)
+		value = ustr(value)
 
 		if value == "Vertical":
 			self._addWindowStyleFlag(wx.LI_VERTICAL)
