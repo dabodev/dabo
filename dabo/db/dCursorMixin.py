@@ -1996,7 +1996,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			elif isinstance(pkVal, (datetime.date, datetime.datetime)):
 				ret.extend([tblPrefix, fldSafe, "=", self.formatDateTime(pkVal), " "])
 			else:
-				ret.extend(tblPrefix, fldSafe, "=", ustr(pkVal), " "])
+				ret.extend([tblPrefix, fldSafe, "=", ustr(pkVal), " "])
 		return "".join(ret)
 
 
