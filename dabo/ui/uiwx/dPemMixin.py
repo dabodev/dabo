@@ -7,6 +7,7 @@ import wx
 from wx._core import PyAssertionError
 import dabo
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.ui.dPemMixinBase import dPemMixinBase
 import dabo.dEvents as dEvents
 import dabo.dException as dException
@@ -2321,7 +2322,17 @@ class dPemMixin(dPemMixinBase):
 						raise NameError("Name '%s' is already in use." % name)
 					else:
 						for window in parent.GetChildren():
-							if str(window.GetName()) == str(name) and window != self:
+							if window is self:
+								continue
+							try:
+								winname = window.GetName()
+							except AttributeError:
+								try:
+									winname = window._name
+								except AttributeError:
+									# Not an object with a Name, so ignore
+									continue
+							if ustr(winname) == ustr(name):
 								raise NameError("Name '%s' is already in use." % name)
 					
 			else:
@@ -2331,7 +2342,7 @@ class dPemMixin(dPemMixinBase):
 				pass
 
 	
-			name = str(name)
+			name = ustr(name)
 			self._name = name
 			try:
 				self.SetName(name)

@@ -12,6 +12,7 @@ if __name__ == "__main__":
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
 from dabo.ui import makeProxyProperty
 
@@ -26,7 +27,7 @@ class _dSpinButton(dcm.dDataControlMixin, wx.SpinButton):
 				*args, **kwargs)
 
 
-class dSpinner(dabo.ui.dDataPanel):
+class dSpinner(dabo.ui.dDataPanel, wx.Control):
 	"""Control for allowing a user to increment a value by discreet steps across a range
 	of valid values.
 	"""
@@ -93,12 +94,12 @@ class dSpinner(dabo.ui.dDataPanel):
 
 	def _toDec(self, val):
 		"""Convenience method for converting various types to decimal."""
-		return decimal(str(val))
+		return decimal(ustr(val))
 
 
 	def _toFloat(self, val):
 		"""Convenience method for converting various types to float."""
-		return float(str(val))
+		return float(ustr(val))
 
 
 	def _coerceTypes(self, newVal, minn, maxx, margin):

@@ -7,6 +7,7 @@ if __name__ == "__main__":
 import dPemMixin as pm
 import dIcons
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 from dabo.lib.utils import cleanMenuCaption
@@ -355,7 +356,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def _getItemID(self,typ):
-		typ = str(typ).lower()
+		typ = ustr(typ).lower()
 		ret = wx.ID_DEFAULT
 		if typ == "exit":
 			ret = wx.ID_EXIT
@@ -367,7 +368,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		
 
 	def _getItemType(self, typ):
-		typ = str(typ).lower()[:3]
+		typ = ustr(typ).lower()[:3]
 		ret = NormalItemType
 		if typ in ("che", "chk"):
 			ret = CheckItemType

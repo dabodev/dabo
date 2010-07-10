@@ -6,6 +6,7 @@ import locale
 import wx
 import wx.lib.masked as masked
 import dabo.lib.dates
+from dabo.lib.utils import ustr
 
 import decimal
 numericTypes = (int, long, decimal.Decimal, float)
@@ -449,18 +450,18 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				
 			if retVal is None:
 				raise ValueError(_("String not in ISO 8601 format."))
-		elif str(dataType) == "<type 'DateTime'>":
+		elif ustr(dataType) == "<type 'DateTime'>":
 			# mx DateTime type. MySQLdb will use this if mx is installed.
 			try:
 				import mx.DateTime
-				retVal = mx.DateTime.DateTimeFrom(str(strVal))
+				retVal = mx.DateTime.DateTimeFrom(ustr(strVal))
 			except ImportError:
 				raise ValueError(_("Can't import mx.DateTime"))
-		elif str(dataType) == "<type 'DateTimeDelta'>":
+		elif ustr(dataType) == "<type 'DateTimeDelta'>":
 			# mx TimeDelta type. MySQLdb will use this for Time columns if mx is installed.
 			try:
 				import mx.DateTime
-				retVal = mx.DateTime.TimeFrom(str(strVal))
+				retVal = mx.DateTime.TimeFrom(ustr(strVal))
 			except ImportError:
 				raise ValueError(_("Can't import mx.DateTime"))
 		elif (dataType == decimal.Decimal) and self.StrictNumericEntry:
@@ -537,7 +538,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			strVal = self.NoneDisplay
 		else:
 			# convert all other data types to string:
-			strVal = str(value)   # (floats look like 25.55)
+			strVal = ustr(value)   # (floats look like 25.55)
 			#strVal = repr(value) # (floats look like 25.55000000000001)
 		return strVal
 	

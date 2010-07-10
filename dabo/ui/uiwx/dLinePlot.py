@@ -18,6 +18,7 @@ if __name__ == "__main__":
 import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 
 
 class _TraceMixin(object):
@@ -26,7 +27,7 @@ class _TraceMixin(object):
 		return self.attributes['legend']
 	
 	def _setCaption(self, val):
-		self.attributes['legend'] = str(val)
+		self.attributes['legend'] = ustr(val)
 	
 	
 	def _getPoints(self):

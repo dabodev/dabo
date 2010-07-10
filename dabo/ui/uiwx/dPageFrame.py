@@ -8,6 +8,7 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dPageFrameMixin import dPageFrameMixin
 import dabo.dColors as dColors
 
@@ -484,7 +485,7 @@ if _USE_FLAT:
 				return "Top"
 
 		def _setTabPosition(self, val):
-			lowval = str(val).lower()[0]
+			lowval = ustr(val).lower()[0]
 			self._delWindowStyleFlag(self._tabposBottom)
 
 			if lowval == "t":
@@ -522,7 +523,7 @@ if _USE_FLAT:
 			self._delWindowStyleFlag(fnb.FNB_VC71)
 			self._delWindowStyleFlag(fnb.FNB_FANCY_TABS)
 			self._delWindowStyleFlag(fnb.FNB_FF2)
-			lowval = str(val).lower()
+			lowval = ustr(val).lower()
 			flags = {"default": "", "vc8": fnb.FNB_VC8, "vc71": fnb.FNB_VC71,
 					"fancy": fnb.FNB_FANCY_TABS, "firefox": fnb.FNB_FF2}
 			cleanStyles = {"default": "Default", "vc8": "VC8", "vc71": "VC71",

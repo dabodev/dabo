@@ -7,6 +7,7 @@ if __name__ == "__main__":
 import dControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 import dabo.dColors as dColors
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
@@ -576,7 +577,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			if il.GetImageCount():
 				wd, ht = il.GetSize(0)
 		if key is None:
-			key = str(img)
+			key = ustr(img)
 		if isinstance(img, basestring):
 			img = dabo.ui.strToBmp(img, width=wd, height=ht)
 		idx = il.Add(img)

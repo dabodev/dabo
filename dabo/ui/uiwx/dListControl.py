@@ -7,6 +7,7 @@ import wx.lib.mixins.listctrl	as ListMixin
 import dControlItemMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
 
 
@@ -305,7 +306,7 @@ class dListControl(dcm.dControlItemMixin,
 		a reference to it that is retrievable via the key value.
 		"""
 		if key is None:
-			key = str(img)
+			key = ustr(img)
 		if isinstance(img, basestring):
 			img = dabo.ui.strToBmp(img)
 		il = self.GetImageList(wx.IMAGE_LIST_NORMAL)
@@ -608,6 +609,7 @@ class dListControl(dcm.dControlItemMixin,
 	def _getSortColumn(self):
 		return self._sortColumn
 
+	@dabo.ui.deadCheck
 	def _setSortColumn(self, val):
 		if self._constructed():
 			self._sortColumn = val

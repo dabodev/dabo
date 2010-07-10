@@ -9,6 +9,7 @@ import dControlMixin as cm
 from dPage import dPage
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
 	
 
@@ -96,7 +97,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		a reference to it that is retrievable via the key value.
 		"""
 		if key is None:
-			key = str(img)
+			key = ustr(img)
 		if isinstance(img, basestring):
 			img = dabo.ui.strToBmp(img)
 		il = self.GetImageList()
@@ -386,7 +387,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			return "Top"
 
 	def _setTabPosition(self, val):
-		val = str(val)
+		val = ustr(val)
 
 		self._delWindowStyleFlag(self._tabposTop)
 		self._delWindowStyleFlag(self._tabposBottom)
