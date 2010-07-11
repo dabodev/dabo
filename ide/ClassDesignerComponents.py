@@ -3,6 +3,7 @@ import os
 import dabo
 dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.dObject import dObject
 import dabo.dEvents as dEvents
 import dabo.ui.dialogs as dlgs
@@ -481,14 +482,14 @@ class LayoutSaverMixin(dObject):
 		"""Return a string representing the item's class. Can
 		be overridden by subclasses.
 		"""
-		return str(self.BaseClass).split("'")[1].split(".")[-1]
+		return ustr(self.BaseClass).split("'")[1].split(".")[-1]
 
 
 	def getClassName(self):
 		"""Return a string representing the item's class name. Can
 		be overridden by subclasses.
 		"""
-		return str(self.__class__).split("'")[1].split(".")[-1]
+		return ustr(self.__class__).split("'")[1].split(".")[-1]
 
 
 class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
@@ -781,7 +782,7 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 		try:
 			cs.setItemProp(self, "ColSpan", val)
 		except dabo.ui.GridSizerSpanException, e:
-			raise PropertyUpdateException(str(e))
+			raise PropertyUpdateException(ustr(e))
 
 
 	def _getSzRowExpand(self):
@@ -801,7 +802,7 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 		try:
 			cs.setItemProp(self, "RowSpan", val)
 		except dabo.ui.GridSizerSpanException, e:
-			raise PropertyUpdateException(str(e))
+			raise PropertyUpdateException(ustr(e))
 
 
 	def _getSzProp(self):
@@ -1406,7 +1407,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 		try:
 			self.ControllingSizer.setItemProp(self, "ColSpan", val)
 		except dabo.ui.GridSizerSpanException, e:
-			raise PropertyUpdateException(str(e))
+			raise PropertyUpdateException(ustr(e))
 
 
 	def _getSzRowExpand(self):
@@ -1425,7 +1426,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 		try:
 			self.ControllingSizer.setItemProp(self, "RowSpan", val)
 		except dabo.ui.GridSizerSpanException, e:
-			raise PropertyUpdateException(str(e))
+			raise PropertyUpdateException(ustr(e))
 
 
 	def _getSzProp(self):
@@ -1917,7 +1918,7 @@ class LayoutGridSizer(LayoutSizerMixin, dabo.ui.dGridSizer):
 		try:
 			self.ControllingSizer.setItemProp(self, "ColSpan", val)
 		except dabo.ui.GridSizerSpanException, e:
-			raise PropertyUpdateException(str(e))
+			raise PropertyUpdateException(ustr(e))
 
 
 	def _getSzRowExpand(self):
@@ -1936,7 +1937,7 @@ class LayoutGridSizer(LayoutSizerMixin, dabo.ui.dGridSizer):
 		try:
 			self.ControllingSizer.setItemProp(self, "RowSpan", val)
 		except dabo.ui.GridSizerSpanException, e:
-			raise PropertyUpdateException(str(e))
+			raise PropertyUpdateException(ustr(e))
 
 
 	def _getSzProp(self):

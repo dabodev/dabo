@@ -7,6 +7,7 @@ import new
 import codecs
 import dabo
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 import ClassDesignerPropSheet
 import dabo.dConstants as kons
@@ -414,7 +415,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 				if isinstance(ch, (dui.dForm, dui.dToolForm,
 						dui.dDialog, dui.dStatusBar, LayoutPanel)):
 					continue
-				elif str(ch).startswith("<wx."):
+				elif ustr(ch).startswith("<wx."):
 					# These are low-level items, such as scrollbars, and do not need
 					# to be included.
 					continue
@@ -677,7 +678,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 			seed = obj.classID
 		except:
 			# Use the hash function to generate the base for class IDs
-			seed = str(abs(obj.__hash__()))
+			seed = ustr(abs(obj.__hash__()))
 		# Create the property dictionary
 		ret = obj.getDesignerDict(classID=seed, propsToExclude=propsToExclude)
 		# We don't want to save the controlling sizer's info

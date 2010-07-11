@@ -2,6 +2,7 @@
 import os
 import dabo
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 import dabo.ui.dialogs as dlgs
@@ -1229,7 +1230,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		try:
 			self.ControllingSizer.setItemProp(self, "ColSpan", val)
 		except dui.GridSizerSpanException, e:
-			raise PropertyUpdateException(str(e))
+			raise PropertyUpdateException(ustr(e))
 
 
 	def _getSzRowExpand(self):
@@ -1248,7 +1249,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		try:
 			self.ControllingSizer.setItemProp(self, "RowSpan", val)
 		except dui.GridSizerSpanException, e:
-			raise PropertyUpdateException(str(e))
+			raise PropertyUpdateException(ustr(e))
 
 
 	def _getSzProp(self):
@@ -1311,7 +1312,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		elif isinstance(self, dlgs.WizardPage):
 			ret = "WizardPage", self.Caption
 		else:
-			ret = (str(self.Name), self._baseClass)
+			ret = (ustr(self.Name), self._baseClass)
 		return ret
 
 

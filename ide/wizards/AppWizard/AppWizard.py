@@ -6,6 +6,7 @@ import time
 import traceback
 import dabo
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
 dabo.ui.loadUI("wx")
@@ -258,7 +259,7 @@ class PageDatabase(AppWizardPage):
 				try:
 					ctl.Value = val
 				except ValueError, e:
-					if "string must be present in the choices" in str(e).lower():
+					if "string must be present in the choices" in ustr(e).lower():
 						# Not sure why the saved profile dbType is empty. No time to
 						# find out why now, but at least the AW won't crash anymore.
 						pass

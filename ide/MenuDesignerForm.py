@@ -4,6 +4,7 @@ import os
 import dabo
 dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 import dabo.lib.xmltodict as xtd
 from ClassDesignerExceptions import PropertyUpdateException
@@ -179,7 +180,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 		try:
 			exec("obj.%s = %s" % (prop, strVal) )
 		except StandardError, e:
-			raise PropertyUpdateException(str(e))
+			raise PropertyUpdateException(ustr(e))
 		self.PropForm.updatePropGrid()
 		# This is necessary to force a redraw when some props change.
 		self.select(obj)

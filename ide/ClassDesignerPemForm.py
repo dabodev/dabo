@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import dabo
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 from ClassDesignerPropSheet import PropSheet
 from ClassDesignerTreeSheet import TreeSheet
@@ -226,7 +227,7 @@ class PemForm(dabo.ui.dForm):
 					if hasattr(ob, "Name"):
 						lbl = ob.Name
 					else:
-						lbl = str(ob.__class__)
+						lbl = ustr(ob.__class__)
 		self.txtObj.Value = lbl
 		self.PropSheet.select(obj)
 		self.MethodList.clear()

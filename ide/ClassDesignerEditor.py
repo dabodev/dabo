@@ -5,6 +5,7 @@ dabo.ui.loadUI("wx")
 dui = dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 import ClassDesignerMenu
 
 
@@ -46,7 +47,7 @@ class EditorControl(dui.dEditor):
 			dabo.ErrorLog.write(_("Bad object ref returned to _makeContainingClassIntoSelf()"))
 			return None
 		try:
-			args = "dabo.ui.%s" % str(obj.BaseClass).split("'")[1].split(".")[-1]
+			args = "dabo.ui.%s" % ustr(obj.BaseClass).split("'")[1].split(".")[-1]
 			classdef = "import dabo\nclass self(%s): pass" % args
 			exec classdef in self._namespaces
 		except:

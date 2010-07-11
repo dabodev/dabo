@@ -7,6 +7,7 @@ import codecs
 import inspect
 import dabo
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -1360,7 +1361,7 @@ class ClassDesigner(dabo.dApp):
 			if isinstance(val, basestring):
 				strVal = val
 			else:
-				strVal = str(val)
+				strVal = ustr(val)
 			if typ in (str, unicode) or ((typ is list) and isinstance(val, basestring)):
 				# Escape any single quotes, and then enclose
 				# the value in single quotes
@@ -1368,7 +1369,7 @@ class ClassDesigner(dabo.dApp):
 			try:
 				exec("obj.%s = %s" % (prop, strVal) )
 			except StandardError, e:
-				raise PropertyUpdateException(str(e))
+				raise PropertyUpdateException(ustr(e))
 
 
 	def startPropEdit(self):
@@ -2971,7 +2972,7 @@ class ClassDesigner(dabo.dApp):
 		ret = self._mixedControlClasses.get(base, None)
 		if not ret:
 			# Create a pref key that is the Designer key plus the name of the control
-			prefkey = self.BasePrefKey + "." + str(base).split(".")[-1].split("'")[0]
+			prefkey = self.BasePrefKey + "." + ustr(base).split(".")[-1].split("'")[0]
 			class controlMix(cmix, base):
 				superControl = base
 				superMixin = cmix
@@ -2980,7 +2981,7 @@ class ClassDesigner(dabo.dApp):
 						apply(base.__init__,(self,) + args, kwargs)
 					parent = args[0]
 					cmix.__init__(self, parent, **kwargs)
-					self.NameBase = str(self._baseClass).split(".")[-1].split("'")[0]
+					self.NameBase = ustr(self._baseClass).split(".")[-1].split("'")[0]
 					self.BasePrefKey = prefkey
 			ret = controlMix
 			self._mixedControlClasses[base] = ret

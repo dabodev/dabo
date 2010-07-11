@@ -3,6 +3,7 @@ import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.ui import dKeys
 from ClassDesignerComponents import LayoutPanel
 from ClassDesignerComponents import LayoutBasePanel
@@ -188,7 +189,7 @@ class TreeSheet(dui.dPanel):
 
 	def _getDisplayName(self, obj):
 		"""Create the name displayed on the tree for a given object."""
-		ret = str(obj)
+		ret = ustr(obj)
 		if isinstance(obj, (dui.dSizer, dui.dBorderSizer, dui.dGridSizer)):
 			ornt = obj.Orientation
 			if ornt in ("r", "c"):
@@ -243,7 +244,7 @@ class TreeSheet(dui.dPanel):
 		and returns just the actual class name (i.e., in this
 		case, 'dTextBox').
 		"""
-		ret = str(cls)
+		ret = ustr(cls)
 		if ret.startswith("<class 'dabo."):
 			# Just include the class name
 			ret = ret.split("'")[1].split(".")[-1]

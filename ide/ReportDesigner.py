@@ -7,6 +7,7 @@ import dabo.dEvents as dEvents
 from dabo.dReportWriter import dReportWriter
 from dabo.lib.reportWriter import *
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.ui import dKeys
 import ClassDesignerPropSheet
 
@@ -434,7 +435,7 @@ def DesignerController():
 					for obj in objs:
 						copyObj = obj.getMemento()
 						parentBand = rdc.getParentBand(obj)
-						parentBandInfo = [str(type(parentBand)).split(".")[-1][:-2], None]
+						parentBandInfo = [ustr(type(parentBand)).split(".")[-1][:-2], None]
 						if "Group" in parentBandInfo[0]:
 							group = parentBand.parent
 							parentBandInfo[1] = group.get("expr")
@@ -604,7 +605,7 @@ def DesignerController():
 
 			if selBand and selBand.getProp("Height") is not None:
 				# Resize the pasted-into band to accomodate the new object, if necessary:
-				selBand.setProp("Height", str(max(selBand.getProp("Height"), max_y_needed)))
+				selBand.setProp("Height", ustr(max(selBand.getProp("Height"), max_y_needed)))
 
 			self.ActiveEditor.propsChanged(reinit=reInit)
 			self.SelectedObjects = selectedObjects
@@ -1550,7 +1551,7 @@ class DesignerBand(DesignerPanel):
 				if imageFile is not None:
 					if not os.path.exists(imageFile):
 						imageFile = os.path.join(self._rw.HomeDirectory, imageFile)
-					imageFile = str(imageFile)
+					imageFile = ustr(imageFile)
 
 				if imageFile is not None:
 					if os.path.exists(imageFile) and not os.path.isdir(imageFile):
@@ -1639,7 +1640,7 @@ class DesignerBand(DesignerPanel):
 			try:
 				vale = eval(val)
 			except:
-				vale = "?: %s" % str(val)
+				vale = "?: %s" % ustr(val)
 		else:
 			vale = val
 		return vale
@@ -1650,7 +1651,7 @@ class DesignerBand(DesignerPanel):
 
 		If setting more than one property, self.setProps() is faster.
 		"""
-		self.ReportObject.setProp(prop, str(val))
+		self.ReportObject.setProp(prop, ustr(val))
 		if sendPropsChanged:
 			self.Parent.propsChanged()
 

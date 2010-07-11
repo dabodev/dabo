@@ -8,6 +8,7 @@ import dabo.ui as dui
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.lib.connParser import createXML
 from dabo.lib.connParser import importConnections
 import dabo.lib.utils as utils
@@ -371,7 +372,7 @@ class EditorForm(dui.dForm):
 			currDbType = self.connDict[self.currentConn]["dbtype"]
 		else:
 			currDbType = u"MySQL"
-		newName = u"Connection_" + str(len(self.connDict.keys()) + 1)
+		newName = u"Connection_" + ustr(len(self.connDict.keys()) + 1)
 		self.connDict[newName] = {
 				"dbtype" : currDbType,
 				"name" : newName,
@@ -444,7 +445,7 @@ class EditorForm(dui.dForm):
 				self.connFile = f
 
 		if self.connFile is not None:
-			self.connFile = str(self.connFile)
+			self.connFile = ustr(self.connFile)
 			# Read the XML into a local dictionary
 			self.connDict = importConnections(self.connFile)
 			# Save a copy for comparison
