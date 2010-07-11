@@ -11,6 +11,7 @@ if __name__ == "__main__":
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
 
 
@@ -25,35 +26,46 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 				wx.TEXT_ATTR_FONT_SIZE | wx.TEXT_ATTR_FONT_UNDERLINE |
 				wx.TEXT_ATTR_FONT_WEIGHT | wx.TEXT_ATTR_TEXT_COLOUR)
 		# Used for saving/loading rich text from files
-		self._htmlHandler = wx.richtext.RichTextHTMLHandler()
 		self._xmlHandler = wx.richtext.RichTextXMLHandler()
+		self._htmlHandler = wx.richtext.RichTextHTMLHandler()
+		self._handlers = (self._xmlHandler, self._htmlHandler)
 		preClass = wx.richtext.PreRichTextCtrl
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties,
 				attProperties, *args, **kwargs)
 
 
-	def loadFromFile(self, filename=None):
-		if filename is None:
-			filename = dabo.ui.getFile("xml", "html")
-		if filename:
-			handler = {".xml": self._xmlHandler,
-					".html": self._htmlHandler}.get(os.path.splitext(filename)[1])
-			if not handler:
-				dabo.ui.stop(_("Only .xml and .html files are supported"))
-				return
-			handler.LoadFile(self.GetBuffer(), filename)
-			self.refresh()
+	def load(self, fileOrObj=None):
+		"""Takes either a file-like object or a file path, and loads the content
+		into the control.
+		"""
+		if fileOrObj is None:
+			fileOrObj = dabo.ui.getFile("xml", "html")
+		if isinstance(fileOrObj, basestring):
+			mthdName = "LoadFile"
+		else:
+			mthdName = "LoadStream"
+		buff = self.GetBuffer()
+		for handler in self._handlers:
+			mthd = getattr(handler, mthdName)
+			try:
+				if mthd(buff, fileOrObj):
+					break
+			except StandardError, e:
+				print e, type(e)
+		dabo.ui.callAfter(self.Form.refresh)
 
 
-	def saveToFile(self, filename=None):
+	def save(self, filename=None):
 		if filename is None:
 			filename = dabo.ui.getSaveAs("xml", "html")
 		if filename:
+			# Default to xml if not found
 			handler = {".xml": self._xmlHandler,
 					".html": self._htmlHandler}.get(os.path.splitext(filename)[1])
-			if not handler:
-				dabo.ui.stop(_("Only .xml and .html files are supported"))
-				return
+			if handler is None:
+				handler = self._xmlHandler
+				filename = "%s.xml" % filename
+				dabo.infoLog.write(_("Forcing to RichText XML format"))
 			handler.SaveFile(self.GetBuffer(), filename)
 
 
@@ -127,14 +139,14 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 		return tuple(out)
 
 
-	def _getInsertionPoint(self):
+	def _getInsertionPosition(self):
 		return self.GetInsertionPoint()
 
-	def _setInsertionPoint(self, val):
+	def _setInsertionPosition(self, val):
 		if self._constructed():
 			self.SetInsertionPoint(val)
 		else:
-			self._properties["InsertionPoint"] = val
+			self._properties["InsertionPosition"] = val
 
 
 	def _getSelectionBackColor(self):
@@ -164,7 +176,7 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 	def _getSelectionEnd(self):
 		ret = self._getSelectionRange()[1]
 		if ret is None:
-			ret = self._getInsertionPoint()
+			ret = self._getInsertionPosition()
 		return ret
 
 	def _setSelectionEnd(self, val):
@@ -332,7 +344,7 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 	def _getSelectionStart(self):
 		ret = self._getSelectionRange()[0]
 		if ret is None:
-			ret = self._getInsertionPoint()
+			ret = self._getInsertionPosition()
 		return ret
 
 	def _setSelectionStart(self, val):
@@ -369,7 +381,7 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 			typed at that position. Returns a tuple containing one or more
 			of 'Plain', 'Bold', 'Italic', 'Underline'.  (read-only) (tuple)"""))
 
-	InsertionPoint = property(_getInsertionPoint, _setInsertionPoint, None,
+	InsertionPosition = property(_getInsertionPosition, _setInsertionPosition, None,
 			_("Current position of the insertion point in the control.  (int)"))
 
 	SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
@@ -466,16 +478,40 @@ class RichTextTestForm(dabo.ui.dForm):
 		tb.appendControl(self.tbFontFace)
 		self.tbFontSize = dabo.ui.dDropdownList(tb, Caption="FontSize",
 				ValueMode="String", OnHit=self.onSetFontSize)
-		self.tbFontSize.Choices = [str(i) for i in xrange(6, 129)]
+		self.tbFontSize.Choices = [ustr(i) for i in xrange(6, 129)]
+		
+		# Tried a spinner, but this doesn't work in toolbars.
+# 		self.tbFontSize = dabo.ui.dSpinner(tb, 
+# 				Min=7, Max=128, OnHit=self.onSetFontSize)
+
 		tb.appendControl(self.tbFontSize)
+
 		self.tbBackColor = dabo.ui.dToggleButton(tb, Caption="BackColor", FontSize=8,
 				Size=(54, 32), OnHit=self.onSetBackColor, BezelWidth=0, Value=True)
 		tb.appendControl(self.tbBackColor)
 		self.tbForeColor = dabo.ui.dToggleButton(tb, Caption="ForeColor", FontSize=8,
 				Size=(54, 32), OnHit=self.onSetForeColor, BezelWidth=0, Value=True)
 		tb.appendControl(self.tbForeColor)
+		self.openButton = dabo.ui.dButton(tb, Caption="Open", OnHit=self.onOpen)
+		tb.appendControl(self.openButton)
+		self.saveButton = dabo.ui.dButton(tb, Caption="Save", OnHit=self.onSave)
+		tb.appendControl(self.saveButton)
 		self.styleTimer = dabo.ui.dTimer(self, Interval=500, Enabled=True,
 				OnHit=self.checkForUpdate)
+		
+		# For development: uncomment the next line, and add the code you want to
+		# run to the onTest() method.
+# 		btn = tb.appendControl(dabo.ui.dButton(tb, Caption="TEST", OnHit=self.onTest))
+	
+	
+	def onTest(self, evt):
+		pass
+	
+	def onOpen(self, evt):
+		self.textControl.load()
+	
+	def onSave(self, evt):
+		self.textControl.save()
 
 	def onSetFontSize(self, evt):
 		if self.textControl.SelectionRange == (None, None):
@@ -544,7 +580,7 @@ class RichTextTestForm(dabo.ui.dForm):
 			style = self.getCurrentStyle()
 		cff, cfs, cfb, cfi, cfu, bc, fc = style
 		self.tbFontFace.Value = cff
-		self.tbFontSize.Value = str(cfs)
+		self.tbFontSize.Value = ustr(cfs)
 		self.tbbBold.Value = cfb
 		self.tbbItalic.Value = cfi
 		self.tbbUnderline.Value = cfu
