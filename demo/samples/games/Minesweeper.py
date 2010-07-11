@@ -24,6 +24,7 @@ import dabo.ui
 import dabo.lib.StopWatch as StopWatch
 dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 # import dabo.lib.datanav as datanav
 from dabo.lib import specParser
@@ -362,7 +363,7 @@ class Board(dabo.ui.dPanel):
 				# recursively clear all adjacent 0 squares
 				self.clearZeros(o.square)
 			else:
-				o.Caption = str(a)
+				o.Caption = ustr(a)
 				o.Enabled = False
 		o.unbindEvent(dabo.dEvents.Hit)
 		self._firstHit = False
@@ -381,7 +382,7 @@ class Board(dabo.ui.dPanel):
 			elif bd[sq]["adjacent"] == 0:
 				o.Visible = False
 			else:
-				o.Caption = str(bd[sq]["adjacent"])
+				o.Caption = ustr(bd[sq]["adjacent"])
 				o.Enabled = False
 
 
@@ -397,7 +398,7 @@ class Board(dabo.ui.dPanel):
 					self.clearZeros(sq)
 				else:
 					if bd[sq]["obj"].Visible and bd[sq]["adjacent"] > 0:
-						bd[sq]["obj"].Caption = str(bd[sq]["adjacent"])
+						bd[sq]["obj"].Caption = ustr(bd[sq]["adjacent"])
 						bd[sq]["obj"].State = "UnMarked"
 						bd[sq]["obj"].Enabled = False
 
@@ -843,7 +844,7 @@ this to work."""
 						self.Application.PreferenceManager.playername = biz.Record.playername
 						break
 					except dabo.dException.BusinessRuleViolation, e:
-						dabo.ui.exclaim(str(e))
+						dabo.ui.exclaim(ustr(e))
 					dlg.show()
 					if not dlg.Accepted:
 						break

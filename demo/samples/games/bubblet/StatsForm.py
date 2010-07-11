@@ -2,6 +2,9 @@
 import dabo
 dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
+
+
 
 class StatsForm(dabo.ui.dDialog):
 	def beforeInit(self):
@@ -20,23 +23,23 @@ class StatsForm(dabo.ui.dDialog):
 		lb = dabo.ui.dLabel(self, Caption="Number of Games:", 
 				FontSize=16, ForeColor=(0,0,128))
 		sz.append(lb, halign="right")
-		lb = dabo.ui.dLabel(self, Caption=str(self.Games), FontSize=16)
+		lb = dabo.ui.dLabel(self, Caption=ustr(self.Games), FontSize=16)
 		sz.append(lb, halign="left")
 		
 		lb = dabo.ui.dLabel(self, Caption="Average:", 
 				FontSize=16, ForeColor = (0,0,128))
 		sz.append(lb, halign="right")
 		if self.Games > 0:
-			avg = str( round( (float(self.Points) / self.Games), 4) )
+			avg = ustr(round((float(self.Points) / self.Games), 4))
 		else:
 			avg = 0
-		lb = dabo.ui.dLabel(self, Caption=str(avg), FontSize=16)
+		lb = dabo.ui.dLabel(self, Caption=ustr(avg), FontSize=16)
 		sz.append(lb, halign="left")
 		
 		lb = dabo.ui.dLabel(self, Caption="High Game:", 
 			FontSize=16, ForeColor=(0,0,128))
 		sz.append(lb, halign="right")
-		lb = dabo.ui.dLabel(self, Caption=str(self.HighGame), FontSize=16)
+		lb = dabo.ui.dLabel(self, Caption=ustr(self.HighGame), FontSize=16)
 		sz.append(lb, halign="left")
 
 		# OK, that does it for the display fields. Now add an OK button

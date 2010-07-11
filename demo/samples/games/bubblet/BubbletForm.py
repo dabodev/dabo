@@ -5,6 +5,7 @@ dabo.ui.loadUI("wx")
 dui = dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 from BubblePanel import BubblePanel
 from BubbleBizobj import BubbleBizobj
 from StatsForm import StatsForm
@@ -174,7 +175,7 @@ class BubbletForm(dabo.ui.dForm):
 	def _setScore(self, score):
 		if self._score != score:
 			self._score = score
-			self.scoreLabel.Caption = str(score)
+			self.scoreLabel.Caption = ustr(score)
 		
 	Bizobj = property(_getBizobj, None, None,
 			_("Reference to the form's bizobj"))

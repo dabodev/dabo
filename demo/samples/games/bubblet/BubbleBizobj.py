@@ -2,6 +2,7 @@
 import dabo
 import dabo.biz as biz
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 import random
 import time
 import os
@@ -45,7 +46,7 @@ class BubbleBizobj(biz.dBizobj):
 		else:
 			self.unselectBubbles()
 			self.selectBubbles(bubble)
-			self.Message = _("Bubble Points: ") + str( self.BubbleScore )
+			self.Message = _("Bubble Points: ") + ustr(self.BubbleScore)
 		return ret
 		
 

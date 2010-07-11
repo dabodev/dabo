@@ -3,6 +3,7 @@ import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 
 
 class TestPanel(dabo.ui.dPanel):
@@ -136,7 +137,7 @@ class TestPanel(dabo.ui.dPanel):
 		if newcolor:
 			self.pgf.ActiveTabColor = newcolor
 			self.update()
-			self.Form.logit("ActiveTabColor changed to '%s'" % str(newcolor))
+			self.Form.logit("ActiveTabColor changed to '%s'" % ustr(newcolor))
 
 	def onSetTabAreaColor(self, evt):
 		curr = self.pgf.TabAreaColor
@@ -144,7 +145,7 @@ class TestPanel(dabo.ui.dPanel):
 		if newcolor:
 			self.pgf.TabAreaColor = newcolor
 			self.update()
-			self.Form.logit("TabAreaColor changed to '%s'" % str(newcolor))
+			self.Form.logit("TabAreaColor changed to '%s'" % ustr(newcolor))
 
 	def onSetActiveTabTextColor(self, evt):
 		curr = self.pgf.ActiveTabTextColor
@@ -152,7 +153,7 @@ class TestPanel(dabo.ui.dPanel):
 		if newcolor:
 			self.pgf.ActiveTabTextColor = newcolor
 			self.update()
-			self.Form.logit("ActiveTabTextColor changed to '%s'" % str(newcolor))
+			self.Form.logit("ActiveTabTextColor changed to '%s'" % ustr(newcolor))
 
 	def onSetInactiveTabTextColor(self, evt):
 		curr = self.pgf.InactiveTabTextColor
@@ -160,7 +161,7 @@ class TestPanel(dabo.ui.dPanel):
 		if newcolor:
 			self.pgf.InactiveTabTextColor = newcolor
 			self.update()
-			self.Form.logit("InactiveTabTextColor changed to '%s'" % str(newcolor))
+			self.Form.logit("InactiveTabTextColor changed to '%s'" % ustr(newcolor))
 
 
 

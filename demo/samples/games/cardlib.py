@@ -2,6 +2,7 @@
 import dabo
 dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 
 
 class Card(dabo.ui.dBitmap):
@@ -21,7 +22,7 @@ class Card(dabo.ui.dBitmap):
 			else:
 				rank = self.Rank
 				suit = self.Suit.lower()
-				pic = "%s/%s%s" % (self.Parent.DeckDirectory, suit, str(rank))
+				pic = "%s/%s%s" % (self.Parent.DeckDirectory, suit, ustr(rank))
 		self.Picture = pic
 		
 
@@ -40,7 +41,7 @@ class Card(dabo.ui.dBitmap):
 			elif rank == 13:
 				ret = "King"
 			else:
-				ret = str(rank)
+				ret = ustr(rank)
 			suitNames = {"S" : "Spades", "D" : "Diamonds", "H" : "Hearts", "C" : "Clubs"}
 			ret += " of %s" % suitNames[suit]
 		return ret

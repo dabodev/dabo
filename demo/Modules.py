@@ -25,6 +25,8 @@ dabo.ui.loadUI("wx")
 import dabo.lib.utils as utils
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
+
 
 
 class ModuleDictWrapper:
@@ -235,7 +237,7 @@ class DemoError:
 				self.traceback.append( (filename, lineno, "", line) )
 				excValue = msg
 		try:
-			self.exception_details = str(excValue)
+			self.exception_details = ustr(excValue)
 		except:
 			self.exception_details = "<unprintable %s object>" & type(excValue).__name__
 
@@ -244,7 +246,7 @@ class DemoError:
 	def __str__(self):
 		ret = "Type %s \n \
 		Traceback: %s \n \
-		Details	 : %s" % ( str(self.exception_type), str(self.traceback), self.exception_details )
+		Details	 : %s" % (ustr(self.exception_type), ustr(self.traceback), self.exception_details)
 		return ret
 
 #---------------------------------------------------------------------------
@@ -295,7 +297,7 @@ Double-click on them to go to the offending line."""))
 		#Add the traceback data
 		for tbNum in range(len(traceback)):
 			data = traceback[tbNum]
-			lst.append( (os.path.basename(data[0]), str(data[1]), str(data[2]), str(data[3])) )
+			lst.append( (os.path.basename(data[0]), ustr(data[1]), ustr(data[2]), ustr(data[3])))
 			
 			# Check whether this entry is from the demo module
 			pth = os.path.split(data[0])[0]
