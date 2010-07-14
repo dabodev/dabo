@@ -20,7 +20,7 @@ if __name__ == "__main__":
 	class TestForm(Frm%(tableName)s):
 		def afterInit(self): pass
 	frm = TestForm(Caption="Test Of Grd%(tableName)s", Testing=True)
-	test = frm.addObject(Grd%(tableName)s)
+	test = Grd%(tableName)s(frm)
 	frm.Sizer.append1x(test)
 	frm.show()
 	app.start()

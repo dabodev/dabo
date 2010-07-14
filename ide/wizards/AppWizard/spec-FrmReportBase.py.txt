@@ -24,8 +24,7 @@ class FrmReportBase(dabo.ui.dDialog):
 
 
 	def addControls(self):
-		preview = self.addObject(dabo.ui.dButton, Caption="Run Report",
-		                         RegID="cmdRunReport")
+		preview = dabo.ui.dButton(self, Caption="Run Report", RegID="cmdRunReport")
 		hs = dabo.ui.dSizer("h")
 		hs.append(preview, alignment="right", border=self.SizerBorder)
 		self.Sizer.append(hs, alignment="bottom", border=self.SizerBorder)

@@ -21,7 +21,7 @@ if __name__ == "__main__":
 	class TestForm(Frm%(tableName)s):
 		def afterInit(self): pass
 	frm = TestForm(Caption="Test Of PagEdit%(tableName)s", Testing=True)
-	test = frm.addObject(PagEdit%(tableName)s)
+	test = PagEdit%(tableName)s(frm)
 	test.createItems()
 	frm.Sizer.append1x(test)
 	frm.show()

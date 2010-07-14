@@ -22,7 +22,7 @@ if __name__ == "__main__":
 	class TestForm(Frm%(tableName)s):
 		def afterInit(self): pass
 	frm = TestForm(Caption="Test Of PagSelect%(tableName)s", Testing=True)
-	test = frm.addObject(PagSelect%(tableName)s)
+	test = PagSelect%(tableName)s(frm)
 	test.createItems()
 	frm.Sizer.append1x(test)
 	frm.show()
