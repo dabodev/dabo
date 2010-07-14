@@ -148,8 +148,7 @@ class PageDatabase(AppWizardPage):
 			self.ddProfile.Value = defaultProfileName
 		self.ddProfile.bindEvent(dabo.dEvents.ValueChanged, self.onProfileChoice)
 
-		cmd = self.addObject(dabo.ui.dButton,
-			Caption=_("New Profile..."), Name="cmdNewProfile")
+		cmd = dabo.ui.dButton(self, Caption=_("New Profile..."), Name="cmdNewProfile")
 		cmd.bindEvent(dabo.dEvents.Hit, self.onNewProfile)
 
 		gs = dabo.ui.dGridSizer()
@@ -345,7 +344,7 @@ The following tables were found for that database.
 Please check all tables you want included in
 your application.""")
 		lbl = dLabel(self, Caption=txt)
-		clb = self.addObject(dabo.ui.dCheckList, Name="clbTableSelection")
+		clb = dabo.ui.dCheckList(self, Name="clbTableSelection")
 		self.Sizer.append(lbl)
 		self.Sizer.append1x(clb)
 		hsz = dabo.ui.dSizer("h")
@@ -846,9 +845,8 @@ class AppWizard(Wizard):
 
 		itemSpec = """
 		## Field %(table)s.%(fieldName)s
-		label = self.addObject(dabo.ui.dLabel, NameBase="lbl%(fieldName)s",
-				Caption="%(labelCaption)s")
-		objectRef = self.addObject(%(classRef)s, NameBase="%(fieldName)s",
+		label = dabo.ui.dLabel(self, NameBase="lbl%(fieldName)s", Caption="%(labelCaption)s")
+		objectRef = %(classRef)s(self, NameBase="%(fieldName)s",
 				DataSource="%(table)s", DataField="%(fieldName)s"%(ctrlCap)s)
 
 		gs.append(label, alignment=("top", "right") )%(memo_sizer)s
@@ -985,7 +983,7 @@ class AppWizard(Wizard):
 		gsz.append(limTxt)
 
 		# Custom SQL checkbox:
-		chkCustomSQL = panel.addObject(dabo.ui.dCheckBox, Caption="Use Custom SQL")
+		chkCustomSQL = dabo.ui.dCheckBox(panel, Caption="Use Custom SQL")
 		chkCustomSQL.bindEvent(dEvents.Hit, self.onCustomSQL)
 		gsz.append(chkCustomSQL)
 
