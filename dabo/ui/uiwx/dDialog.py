@@ -48,8 +48,13 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 
 	def EndModal(self, *args, **kwargs):
 		self.saveSizeAndPosition()
+		self.hide()
 		if self.Modal:
-			super(dDialog, self).EndModal(*args, **kwargs)
+			try:
+				super(dDialog, self).EndModal(*args, **kwargs)
+			except wx._core.PyAssertionError:
+				# The modal hack is causing problems in some edge cases.
+				pass
 
 
 	def _afterInit(self):
@@ -62,9 +67,10 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		self._gtk_show_fix(show)
 		wx.Dialog.Show(self, show, *args, **kwargs)
 
+
 	def ShowModal(self, *args, **kwargs):
 		self._gtk_show_fix(True)
-		wx.Dialog.ShowModal(self, *args, **kwargs)
+		return wx.Dialog.ShowModal(self, *args, **kwargs)
 
 
 	def showModal(self):
@@ -95,13 +101,10 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		# risk the dialog being too jumpy.
 		self._afterShow()
 		dabo.ui.callAfter(self._afterShow)
-		retVals = {wx.ID_OK : kons.DLG_OK, 
-				wx.ID_CANCEL : kons.DLG_CANCEL}
 		if self.Modal:
 			ret = self.ShowModal()
-		else:
-			ret = self.Show(True)
-		return retVals.get(ret)
+			return {wx.ID_OK: kons.DLG_OK, wx.ID_CANCEL: kons.DLG_CANCEL}.get(ret, ret)
+		return self.Show(True)
 		
 
 
