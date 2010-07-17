@@ -2253,10 +2253,10 @@ class ReportWriter(object):
 
 	def _getUniqueName(self):
 		"""Returns a name that should be unique, but it doesn't check to make sure."""
-		import time, md5, random
+		import time, hashlib, random
 		t1 = time.time()
 		t2 = t1 + random.random()
-		base = md5.new(ustr(t1 +t2))
+		base = hashlib.md5(ustr(t1 +t2))
 		name = "_" + base.hexdigest()
 		return name
 	
