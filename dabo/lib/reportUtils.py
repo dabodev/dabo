@@ -67,6 +67,17 @@ def previewPDF(path, modal=False):
 				sysfunc("%s '%s'" % (viewer, path))
 
 
+
+def printPDF(path):
+	"""Print the passed PDF file to the default printer."""
+	try:
+		os.startfile(path, "print")
+	except AttributeError:
+		# startfile() only available on Windows
+		os.system("lpr %s" % path)
+
+
+
 def getTestCursorXmlFromDataSet(dataset):
 	"""Returns the xml for insertion into a .rfxml file from a dataset."""
 	from dabo.lib.xmltodict import escape

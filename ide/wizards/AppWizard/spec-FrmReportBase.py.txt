@@ -24,14 +24,20 @@ class FrmReportBase(dabo.ui.dDialog):
 
 
 	def addControls(self):
-		preview = dabo.ui.dButton(self, Caption="Run Report", RegID="cmdRunReport")
 		hs = dabo.ui.dSizer("h")
-		hs.append(preview, alignment="right", border=self.SizerBorder)
+		hs.append(dabo.ui.dButton(self, Caption="Preview", RegID="butPreview"), 
+				alignment="right", border=self.SizerBorder)
+		hs.append(dabo.ui.dButton(self, Caption="Print", RegID="butPrint"), 
+				alignment="right", border=self.SizerBorder)
 		self.Sizer.append(hs, alignment="bottom", border=self.SizerBorder)
 
 
-	def onHit_cmdRunReport(self, evt):
-		self.runReport()
+	def onHit_butPreview(self, evt):
+		self.runReport("preview")	
+
+
+	def onHit_butPrint(self, evt):
+		self.runReport("print")
 
 
 	def requery(self):
@@ -39,12 +45,16 @@ class FrmReportBase(dabo.ui.dDialog):
 		pass
 
 
-	def runReport(self, requery=True):
-		"""Preview the report in the default pdf viewer."""
-		if requery:
-			self.requery()
+	def runReport(self, mode):
+		"""Run the report and then preview or print it."""
+		self.requery()
 		f = self.write()
-		reportUtils.previewPDF(f)
+		if mode == "preview":
+			reportUtils.previewPDF(f)
+		elif mode == "print":
+			reportUtils.printPDF(f)
+		else:
+			raise ValueError, "Mode needs to be 'preview' or 'print'."
 
 
 	def write(self):
