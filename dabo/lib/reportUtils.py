@@ -49,7 +49,7 @@ def previewPDF(path, modal=False):
 			# On Linux, try to find an installed viewer and just use the first one
 			# found. I just don't know how to reliably get the default viewer from 
 			# the many distros.
-			viewers = ("gpdf", "kpdf", "evince", "acroread", "xpdf", "firefox", 
+			viewers = ("gpdf", "kpdf", "okular", "evince", "acroread", "xpdf", "firefox", 
 					"mozilla-firefox")
 
 			viewer = None
