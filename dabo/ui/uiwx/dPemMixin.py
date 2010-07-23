@@ -1277,7 +1277,8 @@ class dPemMixin(dPemMixinBase):
 			# This can happen if an object is released when there is a 
 			# pending callAfter() refresh.
 			return
-		if isinstance(self, dabo.ui.dForm) and self.AutoUpdateStatusText:
+		if isinstance(self, dabo.ui.dForm) and self.AutoUpdateStatusText \
+				and self.Visible:
 			self.setStatusText(self.getCurrentRecordText())
 		if self.Children:
 			self.raiseEvent(dEvents.Update)
