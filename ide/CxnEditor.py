@@ -268,6 +268,8 @@ class EditorForm(dui.dForm):
 		self.userText.Visible = not isFileBased
 		self.pwText.Visible = not isFileBased
 		self.btnDbSelect.Visible = isFileBased
+		if isFileBased:
+			self.dbText.setFocus()
 		self.layout()
 
 
@@ -340,16 +342,7 @@ class EditorForm(dui.dForm):
 					val = self.Crypto.decrypt(dd[fld])
 				else:
 					val = dd[fld]
-				if isinstance(val, basestring):
-					val = self.escQuote(val)		# Add quotes
-				exec("self.%s = %s" % (fld, val) )
-
-
-	def escQuote(self, val):
-		"""Escape backslashes and single quotes, and wrap the result in single quotes."""
-		sl = "\\"
-		qt = "\'"
-		return qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
+ 				setattr(self, fld, val)
 
 
 	def newFile(self):
@@ -514,7 +507,7 @@ class EditorForm(dui.dForm):
 			if self.isFileBasedBackend(val["dbtype"]):
 				db = val["database"]
 				if os.path.exists(db):
-					val["database"] = self.connDict["database"] = utils.relativePath(db, self.Application.HomeDirectory)
+					val["database"] = utils.relativePath(db, self.Application.HomeDirectory)
 		return vals
 
 
