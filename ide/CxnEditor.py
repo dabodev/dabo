@@ -463,6 +463,9 @@ class EditorForm(dui.dForm):
 		self.activeControlValid()
 		self.updtFromForm()
 		if self._origConnDict != self.connDict:
+			# Could be relative path differences
+			self.relPaths(self.connDict.values())
+		if self._origConnDict != self.connDict:
 			response = dui.areYouSure(_("Do you wish to save your changes?"),
 					cancelButton=True)
 			if response is None:
