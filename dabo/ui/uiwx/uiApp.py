@@ -234,6 +234,8 @@ class uiApp(dObject, wx.App):
 				updAvail = bool(changedFiles)
 
 		if updAvail:
+			prop = 0
+			xpand = "n"
 			msg = _("Updates are available. Do you want to install them now?")
 			if isFirst:
 				msg = _(
@@ -241,6 +243,8 @@ class uiApp(dObject, wx.App):
 up, Dabo will check for updates and install them if you wish. Click 'Yes'
 to get the latest version of Dabo now, or 'No' if you do not wish to run
 these automatic updates.""").replace("\n", " ")
+				prop = 2
+				xpand = "x"
 				# Default to checking once a day.
 				self.dApp._setWebUpdate(True, 24*60)
 
@@ -252,12 +256,13 @@ these automatic updates.""").replace("\n", " ")
 					self.Height = 600
 					self.Width = 500
 				def addControls(self):
-					headline = dabo.ui.dLabel(self, Caption=msg, FontSize=10,
-							WordWrap=True, ForeColor="blue")
-					self.Sizer.append1x(headline, halign="center")
+					headline = dabo.ui.dLabel(self, Caption=msg, FontSize=12,
+							WordWrap=True, ForeColor="darkblue")
+ 					self.Sizer.appendSpacer(12)
+					self.Sizer.append(headline, proportion=prop, layout=xpand, halign="center", border=12)
 					self.Sizer.appendSpacer(12)
 					edtNotes = dabo.ui.dEditBox(self, Value=noteText)
-					self.Sizer.append(edtNotes, 1, "x")
+					self.Sizer.append(edtNotes, 2, "x")
 					self.Sizer.appendSpacer(12)
 					grd = dabo.ui.dGrid(self, ColumnCount=3)
 					col0, col1, col2 = grd.Columns
