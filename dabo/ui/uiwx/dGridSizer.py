@@ -8,7 +8,7 @@ from dabo.ui import makeDynamicProperty
 
 
 class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
-	def __init__(self, **kwargs):
+	def __init__(self, *args, **kwargs):
 		"""dGridSizer is a sizer that can lay out items in a virtual grid arrangement.
 		Items can be placed is specific row/column positions if that position is
 		unoccupied. You can specify either MaxCols or MaxRows, and then append
@@ -43,6 +43,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 			# Some kwargs haven't been handled.
 			bad = ", ".join(kwargs.keys())
 			raise TypeError(("Invalid keyword arguments passed to dGridSizer: %s") % bad)
+
+		dSizerMixin.dSizerMixin.__init__(self, *args, **kwargs)
 
 
 	def append(self, item, layout="normal", row=-1, col=-1, 
@@ -509,10 +511,11 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 				self.append(itm, flag=f)
 
 
-	def drawOutline(self, win, recurse=False):
+	def drawOutline(self, win, recurse=False, drawChildren=False):
 		""" Need to override this method to draw the outline
 		properly for the grid.
 		"""
+		self._resolveOutlineSettings()
 		dc = wx.ClientDC(win)
 		dc.SetBrush(wx.TRANSPARENT_BRUSH)
 		dc.SetLogicalFunction(wx.COPY)
@@ -524,18 +527,18 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		hgap = self.GetHGap()
 		x2,y2 = x,y
 		rhts = self.GetRowHeights()
-		dc.SetPen(wx.Pen("blue", 1, wx.SOLID))
+		dc.SetPen(wx.Pen(self.outlineColor, self.outlineWidth, self.outlineStyle))
 		for hh in rhts:
 			dc.DrawRectangle(x2, y2, w, hh)
 			y2 += hh+vgap
 		x2 = x
 		y2 = y
 		cwds = self.GetColWidths()
-		dc.SetPen(wx.Pen("red", 1, wx.SOLID))
+		dc.SetPen(wx.Pen(self.outlineColor, self.outlineWidth, self.outlineStyle))
 		for ww in cwds:
 			dc.DrawRectangle(x2, y2, ww, h)
 			x2 += ww+hgap
-		dc.SetPen(wx.Pen("green", 3, wx.LONG_DASH))
+		dc.SetPen(wx.Pen(self.outlineColor, self.outlineWidth, self.outlineStyle))
 		dc.DrawRectangle(x,y,w,h)
 		
 		for ch in self.Children:
