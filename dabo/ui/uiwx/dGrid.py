@@ -3326,6 +3326,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# the user made this change, save to the userSettings:
 		col.Width = self.GetColSize(colNum)
 		col._persist("Width")
+		self._disableDoubleBuffering()
+		self._enableDoubleBuffering()
 		dabo.ui.callAfterInterval(20, self._updateColumnWidths)
 
 
