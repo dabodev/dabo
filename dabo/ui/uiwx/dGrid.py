@@ -1793,7 +1793,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				*args, **kwargs)
 
 		# Reduces grid flickering on Windows platform.
-		self._enableGridWindowBuffering()
+		self._enableDoubleBuffering()
 		# Need to sync the size reported by wx to the size reported by Dabo:
 		self.RowHeight = self.RowHeight
 		self.ShowRowLabels = self.ShowRowLabels
@@ -2471,16 +2471,13 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 
-	def _paintHeader(self, updateBox=None, _paintDC=False):
+	def _paintHeader(self, updateBox=None):
 		w = self._getWxHeader()
 
 		if updateBox is None:
 			updateBox = w.GetClientRect()
 
-		if _paintDC:
-			dc = wx.PaintDC(w)
-		else:
-			dc = wx.ClientDC(w)
+		dc = wx.PaintDC(w)
 
 		for idx, col in enumerate(self._columns):
 			headerRect = col._getHeaderRect()
@@ -2488,6 +2485,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			if intersect is None:
 				# column isn't visible
 				continue
+			headerRect[0] -= 1
+			headerRect[2] += 1
 
 			sortIndicator = False
 			colObj = self.getColByX(intersect[0])
@@ -2513,10 +2512,17 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			dc.SetTextForeground(fcolor)
 			font = colObj.HeaderFont._nativeFont
 
+			# draw the col. header background:
 			if bcolor is not None:
 				dc.SetBrush(wx.Brush(bcolor, wx.SOLID))
 				dc.SetPen(wx.Pen(fcolor, width=0))
 				dc.DrawRectangle(*headerRect)
+
+			# draw the col. border:
+			dc.SetBrush(wx.TRANSPARENT_BRUSH)
+			dc.SetPen(self.GetDefaultGridLinePen())
+			dc.DrawRectangle(*headerRect)
+
 			dc.SetPen(holdPen)
 			dc.SetBrush(holdBrush)
 
@@ -3274,16 +3280,16 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			app.setUserSetting(settingName, val)
 
 			
-	def _enableGridWindowBuffering(self):
-		grdwin = self.GetGridWindow()
-		if not grdwin.IsDoubleBuffered():
-			grdwin.SetDoubleBuffered(True)
+	def _enableDoubleBuffering(self):
+		for win in (self.GetGridWindow(), self.GetGridColLabelWindow()):
+			if not win.IsDoubleBuffered():
+				win.SetDoubleBuffered(True)
 
 
-	def _disableGridWindowBuffering(self):
-		grdwin = self.GetGridWindow()
-		if grdwin.IsDoubleBuffered():
-			grdwin.SetDoubleBuffered(False)
+	def _disableDoubleBuffering(self):
+		for win in (self.GetGridWindow(), self.GetGridColLabelWindow()):
+			if win.IsDoubleBuffered():
+				win.SetDoubleBuffered(False)
 
 
 	##----------------------------------------------------------##
@@ -3915,7 +3921,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxHeaderMouseLeftUp(self, evt):
-		dabo.ui.callAfter(self._enableGridWindowBuffering)
+		dabo.ui.callAfter(self._enableDoubleBuffering)
 		col, row = self._getColRowForPosition(evt.GetPosition())
 		self.raiseEvent(dEvents.GridHeaderMouseLeftUp, evt, col=col)
 		if self._headerMouseLeftDown:
@@ -3927,7 +3933,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def __onWxHeaderMouseMotion(self, evt):
 		if dabo.ui.isMouseLeftDown():
-			self._disableGridWindowBuffering()
+			self._disableDoubleBuffering()
 		col, row = self._getColRowForPosition(evt.GetPosition())
 		self.raiseEvent(dEvents.GridHeaderMouseMove, evt, col=col)
 		evt.Skip()
@@ -3953,10 +3959,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def __onWxHeaderPaint(self, evt):
 		self.raiseEvent(dEvents.GridHeaderPaint, evt)
 		updateBox = self._getWxHeader().GetUpdateRegion().GetBox()
-		if sys.platform.startswith("win"):
-			dabo.ui.callAfter(self._paintHeader, updateBox)
-		else:
-			self._paintHeader(updateBox, _paintDC=True)
+		self._paintHeader(updateBox)
+
 
 	def _getColRowForPosition(self, pos):
 		"""Used in the mouse event handlers to stuff the col, row into EventData."""
@@ -3982,7 +3986,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxMouseLeftUp(self, evt):
-		dabo.ui.callAfter(self._enableGridWindowBuffering)
+		dabo.ui.callAfter(self._enableDoubleBuffering)
 		col, row = self._getColRowForPosition(evt.GetPosition())
 		self.raiseEvent(dEvents.GridMouseLeftUp, evt, col=col, row=row)
 		if getattr(self, "_mouseLeftDown", (None, None)) == (col, row):
@@ -3994,7 +3998,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def __onWxMouseMotion(self, evt):
 		if dabo.ui.isMouseLeftDown():
-			self._disableGridWindowBuffering()
+			self._disableDoubleBuffering()
 		col, row = self._getColRowForPosition(evt.GetPosition())
 		self.raiseEvent(dEvents.GridMouseMove, evt, col=col, row=row)
 		evt.Skip()
