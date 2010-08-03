@@ -125,6 +125,8 @@ class dFormMixin(pm.dPemMixin):
 		wx.CallAfter(self._restoreMenuPrefs)
 		
 		super(dFormMixin, self)._afterInit()
+
+		self.SetDoubleBuffered(True)
 	
 	
 	def _initEvents(self):
