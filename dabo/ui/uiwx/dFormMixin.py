@@ -126,7 +126,14 @@ class dFormMixin(pm.dPemMixin):
 		
 		super(dFormMixin, self)._afterInit()
 
-		self.SetDoubleBuffered(True)
+		## pkm 2010-08-03: The below results in smoother, nicer forms (no menu flickering or
+		##                 other weird artifacts like page tabs partially disappearing), 
+		##                 however there are reports of python.exe maxing out the CPU and the 
+		##                 process needing to be killed by the user. My testing was with 
+		##                 Python 2.5.4 / wx 2.8.11.0 / Windows Vista. Perhaps we just need to
+		##                 play around with where we make this call, or set double buffered off
+		##                 every now and then with a timer or something...
+		##self.SetDoubleBuffered(True)
 	
 	
 	def _initEvents(self):
