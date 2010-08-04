@@ -14,7 +14,7 @@ class dReportProgress(dPanel):
 		ms = self.Sizer = dabo.ui.dBorderSizer(self, "v", DefaultBorder=5)
 		self.gauge = dGauge(self, Size=(75,12))
 		lblTitle = dLabel(self, Caption="Processing report...", FontBold=True)
-		butCancel = dButton(self, CancelButton=True, Caption="Cancel", OnHit=self.onCancel)
+		butCancel = dButton(self, NameBase="butCancelReportProgress", CancelButton=True, Caption="Cancel", OnHit=self.onCancel)
 		ms.append(lblTitle)
 		ms.append(self.gauge, "expand")
 		ms.append(butCancel, alignment="right")

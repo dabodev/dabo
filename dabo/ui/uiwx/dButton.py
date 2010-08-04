@@ -37,10 +37,17 @@ class dButton(cm.dControlMixin, wx.Button):
 		self.Bind(wx.EVT_BUTTON, self._onWxHit)
 		
 	
-	def __onCancelButton(self, evt):
+	def _onCancelButton(self, evt, recurse=True):
 		# This callback exists for when the user presses ESC and this button
 		# is the cancel button. Raise dEvents.Hit.
-		self.raiseEvent(dEvents.Hit)
+		if self.VisibleOnScreen:
+			self.raiseEvent(dEvents.Hit)
+		else:
+			# There may be another cancel button: give it a chance, too:
+			if recurse:
+				otherCancelButton = self.Form.FindWindowById(wx.ID_CANCEL)
+				if otherCancelButton:
+					otherCancelButton._onCancelButton(evt, recurse=False)
 
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
@@ -65,7 +72,7 @@ class dButton(cm.dControlMixin, wx.Button):
 			if self.Application.Platform in ("Mac"):
 				target = self.Form
 			if val:
-				target.bindKey("esc", self.__onCancelButton)
+				target.bindKey("esc", self._onCancelButton)
 				self.SetId(wx.ID_CANCEL)
 			else:
 				target.unbindKey("esc")
@@ -73,7 +80,7 @@ class dButton(cm.dControlMixin, wx.Button):
 		else:
 			# In order to get the stock cancel button behavior from the OS, we need
 			# to set the id here. So, getting the stock button behavior must happen
-			# in the constructor, but theoretically we can get the excape behavior
+			# in the constructor, but theoretically we can get the escape behavior
 			# anytime.
 			if val:
 				self._preInitProperties["id"] = wx.ID_CANCEL
