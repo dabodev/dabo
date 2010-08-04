@@ -46,7 +46,7 @@ class dReportWriter(dObject, ReportWriter):
 		win = self.ProgressControl
 		if win:
 			win.updateProgress(0, len(self.Cursor))
-			win.Visible = True
+			win.show()
 			win.Form.fitToSizer()
 			#dabo.ui.yieldUI()  ## getting wxYield called recursively, sometimes. Doesn't appear to be needed, here
 
@@ -59,7 +59,7 @@ class dReportWriter(dObject, ReportWriter):
 	def _hideProgress(self):
 		win = self.ProgressControl
 		if win:
-			win.Visible = False
+			win.hide()
 			win.Form.fitToSizer()
 			dabo.ui.yieldUI()
 
