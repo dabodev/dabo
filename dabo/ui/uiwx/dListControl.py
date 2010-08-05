@@ -20,7 +20,8 @@ class dListControl(dcm.dControlItemMixin,
 	elements inside of the row. If you need to be able to work with individual
 	elements, you should use a dGrid.
 	"""
-	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, 
+			style=None, *args, **kwargs):
 		self._baseClass = dListControl
 
 		self._lastSelectedIndex = None
@@ -38,7 +39,7 @@ class dListControl(dcm.dControlItemMixin,
 
 		try:
 			style = style | wx.LC_REPORT
-		except NameError:
+		except TypeError:
 			style = wx.LC_REPORT
 		preClass = wx.PreListCtrl
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties,
