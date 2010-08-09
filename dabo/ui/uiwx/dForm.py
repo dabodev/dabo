@@ -399,15 +399,10 @@ class BaseForm(fm.dFormMixin):
 			self.setStatusText(_("Nothing to save!"))
 			return True
 			
-		except dException.BusinessRuleViolation, e:
+		except (dException.BusinessRuleViolation, dException.DBQueryException), e:
 			self.setStatusText(_("Save failed."))
-			msg = "%s:\n\n%s" % (_("Save Failed"), self.Application.str2Unicode(e))
-			self.notifyUser(msg, severe=True, exception=e)
-			return False
-
-		except dException.DBQueryException, e:
-			self.setStatusText(_("Save failed."))
-			msg = "%s:\n\n%s" % (_("Save Failed"), e)
+			txt = _("Save Failed")
+			msg = "%(txt)s:\n\n%(e)s" % locals()
 			self.notifyUser(msg, severe=True, exception=e)
 			return False
 
