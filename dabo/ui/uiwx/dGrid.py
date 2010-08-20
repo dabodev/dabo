@@ -1434,11 +1434,13 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			if val != self._wordWrap:
 				self._wordWrap = val
 				if val:
-					self.defaultRenderers["str"] = self.defaultRenderers["string"] = self.wrapStringRendererClass
-					self.defaultEditors["str"] = self.defaultEditors["string"] = self.wrapStringEditorClass
+					for typ in (unicode, "str", "string"):
+						self.defaultRenderers[typ] = self.wrapStringRendererClass
+						self.defaultEditors[typ] = self.wrapStringEditorClass
 				else:
-					self.defaultRenderers["str"] = self.defaultRenderers["string"] = self.stringRendererClass
-					self.defaultEditors["str"] = self.defaultEditors["string"] = self.stringEditorClass
+					for typ in (unicode, "str", "string"):
+						self.defaultRenderers[typ] = self.stringRendererClass
+						self.defaultEditors[typ] = self.stringEditorClass
 				self._updateEditor()
 				self._updateRenderer()
 				self._refreshGrid()
