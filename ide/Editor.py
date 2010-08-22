@@ -258,7 +258,7 @@ class EditorPageFrame(dabo.ui.dPageFrame):
 		if pgs:
 			pg = pgs[0]
 		else:
-			dabo.errorLog.write(_("No matching page for %s") % cap)
+			dabo.log.error(_("No matching page for %s") % cap)
 			return
 		self.SelectedPage = pg
 		pg.editor.setFocus()
@@ -553,7 +553,7 @@ class EditorForm(dabo.ui.dForm):
 	def onDocumentationHint(self, evt):
 		# Eventually, a separate IDE window can optionally display help contents
 		# for the object. For now, just print the longdoc to the infolog.
-		dabo.infoLog.write(_("Documentation Hint received:\n\n%s") % evt.EventData["longDoc"])
+		dabo.log.info(_("Documentation Hint received:\n\n%s") % evt.EventData["longDoc"])
 
 
 	def onTitleChanged(self, evt):
@@ -800,7 +800,7 @@ class EditorForm(dabo.ui.dForm):
 			target = self.pgfEditor.editFile(pth, True)
 		except StandardError, e:
 			if justReportErrors:
-				dabo.errorLog.write(_("Could not open file: %s") % e)
+				dabo.log.error(_("Could not open file: %s") % e)
 				target = None
 			else:
 				raise

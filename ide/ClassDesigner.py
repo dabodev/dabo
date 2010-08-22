@@ -495,9 +495,9 @@ class ClassDesigner(dabo.dApp):
 
 
 	def onEditUndo(self, evt):
-		dabo.infoLog.write(_("Not implemented yet"))
+		dabo.log.info(_("Not implemented yet"))
 	def onEditRedo(self, evt):
-		dabo.infoLog.write(_("Not implemented yet"))
+		dabo.log.info(_("Not implemented yet"))
 
 
 	def _importClassXML(self, pth):
@@ -1230,7 +1230,7 @@ class ClassDesigner(dabo.dApp):
 				cls = eval(clsname)
 			except ValueError:
 				# Should never happen, so if it does, log it!
-				dabo.errorLog.write("Invalid wizard page class: %s" % nm)
+				dabo.log.error("Invalid wizard page class: %s" % nm)
 				dabo.ui.stop("Invalid wizard page class: %s" % nm)
 				pgDct["fullname"] = nm
 				cls = dabo.ui.__dict__[nm]
@@ -2244,7 +2244,7 @@ class ClassDesigner(dabo.dApp):
 		try:
 			del self._classPropDict[obj][prop]
 		except StandardError, e:
-			dabo.errorLog.write(_("Could not delete custom property '%(prop)s': %(e)s")
+			dabo.log.error(_("Could not delete custom property '%(prop)s': %(e)s")
 					% locals())
 
 
@@ -2479,7 +2479,7 @@ class ClassDesigner(dabo.dApp):
 				try:
 					ret = lps[0]
 				except:
-					dabo.errorLog.write(_("Problem adding to a page: no ClassDesigner information."))
+					dabo.log.error(_("Problem adding to a page: no ClassDesigner information."))
 			else:
 				ret = obj.mainPanel
 		return ret
@@ -2715,7 +2715,7 @@ class ClassDesigner(dabo.dApp):
 			szit = pnl.ControllingSizerItem
 			if szit is None:
 				# Something is wrong; write it to the log and return
-				dabo.errorLog.write(_("Attempted to add an object of class %(cls)s to parent %(pnl)s, but parent has no sizer information.")
+				dabo.log.error(_("Attempted to add an object of class %(cls)s to parent %(pnl)s, but parent has no sizer information.")
 						% locals())
 				return
 
@@ -3311,7 +3311,7 @@ class ClassDesigner(dabo.dApp):
 									if cd["attributes"]["classID"] == kidID][0]
 							self.setCustomChanges(kid, kidDct)
 						except StandardError, e:
-							dabo.errorLog.write(_("Error locating sizer: %s") % e)
+							dabo.log.error(_("Error locating sizer: %s") % e)
 		else:
 			if obj.Sizer:
 				childList = dct["children"]
@@ -3321,7 +3321,7 @@ class ClassDesigner(dabo.dApp):
 							if cd["attributes"]["classID"] == szID][0]
 					self.setCustomChanges(obj.Sizer, szDct)
 				except StandardError, e:
-					dabo.errorLog.write(_("Error locating sizer: %s") % e)
+					dabo.log.error(_("Error locating sizer: %s") % e)
 			else:
 				if obj.Children:
 					childList = dct["children"]
@@ -3334,7 +3334,7 @@ class ClassDesigner(dabo.dApp):
 									if cd["attributes"]["classID"] == kidID][0]
 							self.setCustomChanges(kid, kidDct)
 						except StandardError, e:
-							dabo.errorLog.write(_("Error locating child object: %s") % e)
+							dabo.log.error(_("Error locating child object: %s") % e)
 
 
 	def onNewBox(self, evt):

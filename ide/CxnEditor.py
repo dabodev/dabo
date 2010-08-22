@@ -428,7 +428,7 @@ class EditorForm(dui.dForm):
 		if self.connFile:
 			# Make sure that the passed file exists!
 			if not os.path.exists(self.connFile):
-				dabo.errorLog.write("The connection file '%s' does not exist." % self.connFile)
+				dabo.log.error("The connection file '%s' does not exist." % self.connFile)
 				self.connFile = None
 
 		if self.connFile is None:

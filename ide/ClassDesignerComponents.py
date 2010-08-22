@@ -460,7 +460,7 @@ class LayoutSaverMixin(dObject):
 					try:
 						sz = self.Sizer
 					except AttributeError:
-						dabo.errorLog.write(_("No sizer information available for %s") % self)
+						dabo.log.error(_("No sizer information available for %s") % self)
 						sz = None
 		if sz:
 			szDict = None
@@ -1633,7 +1633,7 @@ class LayoutGridSizer(LayoutSizerMixin, dabo.ui.dGridSizer):
 	def switchObjects(self, obj1, obj2):
 		"""Swaps the location of the two objects."""
 		if not obj1 or not obj2:
-			dabo.errorLog.write(_("Cannot swap with non-existent object."))
+			dabo.log.error(_("Cannot swap with non-existent object."))
 			return
 		row1, col1 = self.getGridPos(obj1)
 		row2, col2 = self.getGridPos(obj2)

@@ -958,7 +958,7 @@ class AppWizard(Wizard):
 					"type": "%(fieldType)s"
 					}
 		else:
-			dabo.errorLog.write("No control class found for field '%(fieldName)s'.")
+			dabo.log.error("No control class found for field '%(fieldName)s'.")
 			lbl.release()
 			opList.release()
 """

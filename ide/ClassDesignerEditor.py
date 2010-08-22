@@ -44,7 +44,7 @@ class EditorControl(dui.dEditor):
 		obj = self.Form.getEditedObject()
 		if not obj:
 			# Should never happen!
-			dabo.ErrorLog.write(_("Bad object ref returned to _makeContainingClassIntoSelf()"))
+			dabo.log.error(_("Bad object ref returned to _makeContainingClassIntoSelf()"))
 			return None
 		try:
 			args = "dabo.ui.%s" % ustr(obj.BaseClass).split("'")[1].split(".")[-1]
@@ -67,7 +67,7 @@ class EditorControl(dui.dEditor):
 				exec imp in self._namespaces
 			except SyntaxError, e:
 				# Record the error so that the developer knows there is a problem.
-				dabo.errorLog.write(_("Compilation error found in import code: %s") % e)
+				dabo.log.error(_("Compilation error found in import code: %s") % e)
 			except ImportError:
 				# Ignore because it is not a code problem and will show up on runtime.
 				pass
@@ -543,7 +543,7 @@ class EditorForm(dui.dForm):
 					chc.append("%s %s" % ("-"*lev, obj.Name))
 					keylist.append(obj)
 				except:
-					dabo.errorLog.write(_("Could not add to hierarchy: %s") % obj)
+					dabo.log.error(_("Could not add to hierarchy: %s") % obj)
 			self.ddObject.Choices = chc
 			self.ddObject.Keys = keylist
 			try:

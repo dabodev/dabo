@@ -726,7 +726,7 @@ class PropertyGrid(dabo.ui.dGrid):
 					# skip the below errorLog entry for ReportDesigner
 					pass
 				else:
-					dabo.errorLog.write(_("Property Grid out of sync for property '%s' of object '%'") %
+					dabo.log.error(_("Property Grid out of sync for property '%s' of object '%'") %
 							(self.getValue(row, 0), self.Application.Selection[0]))
 				continue
 			if not isinstance(pd, dict):

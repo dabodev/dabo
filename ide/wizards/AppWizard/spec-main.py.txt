@@ -25,12 +25,6 @@ app.db = db
 app.biz = biz
 app.ui = ui
 
-# If we are running frozen, let's reroute the errorLog:
-if hasattr(sys, "frozen"):
-	dabo.errorLog.Caption = ""
-	dabo.errorLog.LogObject = open(os.path.join(app.HomeDirectory,
-			"error.log"), "a")
-
 # Make it easy to find any images or other files you put in the resources
 # directory.
 sys.path.append(os.path.join(app.HomeDirectory, "resources"))
