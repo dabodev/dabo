@@ -255,7 +255,7 @@ class dCursorMixin(dObject):
 					return pythonType(field_val)
 				except Exception, e:
 					tfv = type(field_val)
-					dabo.infoLog.write(_("_correctFieldType() failed for field: '%(field_name)s'; value: '%(field_val)s'; type: '%(tfv)s'")
+					dabo.log.info(_("_correctFieldType() failed for field: '%(field_name)s'; value: '%(field_val)s'; type: '%(tfv)s'")
 							% locals())
 
 		# Do the unicode conversion last:
@@ -276,7 +276,7 @@ class dCursorMixin(dObject):
 						if ok:
 							# change self.Encoding and log the message
 							self.Encoding = enc
-							dabo.errorLog.write(_("Field %(fname)s: Incorrect unicode encoding set; using '%(enc)s' instead")
+							dabo.log.error(_("Field %(fname)s: Incorrect unicode encoding set; using '%(enc)s' instead")
 								% {'fname':field_name, 'enc':enc} )
 							return ret
 				else:
@@ -286,7 +286,7 @@ class dCursorMixin(dObject):
 # 			ret = field_val.tostring()
 
 			rfv = repr(field_val)
-			dabo.errorLog.write(_("%(rfv)s couldn't be converted to %(pythonType)s (field %(field_name)s)")
+			dabo.log.error(_("%(rfv)s couldn't be converted to %(pythonType)s (field %(field_name)s)")
 					% locals())
 		return ret
 
@@ -309,16 +309,16 @@ class dCursorMixin(dObject):
 				res = self.superCursor.execute(self, sql, params)
 				if not self.IsPrefCursor:
 					try:
-						dabo.dbActivityLog.write("SQL: %s, PARAMS: %s" % (
+						dabo.dbActivityLog.info("SQL: %s, PARAMS: %s" % (
 								sql.decode(self.Encoding).replace("\n", " "),
 								', '.join("%s" % p for p in params)))
 					except StandardError:
 						# A problem with writing to the log, most likely due to encoding issues
-						dabo.dbActivityLog.write("FAILED SQL: %s")
+						dabo.dbActivityLog.info("FAILED SQL: %s")
 			else:
 				res = self.superCursor.execute(self, sql)
 				if not self.IsPrefCursor:
-					dabo.dbActivityLog.write("SQL: %s" % (
+					dabo.dbActivityLog.info("SQL: %s" % (
 							sql.decode(self.Encoding).replace("\n", " "),))
 		except Exception, e:
 			# There can be cases where errors are expected. In those cases, the
@@ -328,14 +328,14 @@ class dCursorMixin(dObject):
 				raise e
 			if params:
 				try:
-					dabo.dbActivityLog.write("FAILED SQL: %s, PARAMS: %s" % (
+					dabo.dbActivityLog.info("FAILED SQL: %s, PARAMS: %s" % (
 							sql.decode(self.Encoding).replace("\n", " "),
 							', '.join("%s" % p for p in params)))
 				except StandardError:
 					# A problem with writing to the log, most likely due to encoding issues
-					dabo.dbActivityLog.write("FAILED SQL: %s")
+					dabo.dbActivityLog.info("FAILED SQL: %s")
 			else:
-				dabo.dbActivityLog.write("FAILED SQL: %s" % (
+				dabo.dbActivityLog.info("FAILED SQL: %s" % (
 						sql.decode(self.Encoding).replace("\n", " "),))
 			# Database errors need to be decoded from database encoding.
 			try:
@@ -350,7 +350,7 @@ class dCursorMixin(dObject):
 			elif "access" in errMsg.lower():
 				raise dException.DBNoAccessException(errMsg)
 			else:
-				dabo.dbActivityLog.write(
+				dabo.dbActivityLog.info(
 						_("DBQueryException encountered in execute(): %s\n%s") % (errMsg, sql))
 				raise dException.DBQueryException(errMsg)
 
@@ -375,7 +375,7 @@ class dCursorMixin(dObject):
 				errMsg = ustr(e).decode(self.Encoding)
 			except UnicodeError:
 				errMsg = unicode(e)
-			dabo.errorLog.write("Error fetching records: %s" % errMsg)
+			dabo.log.error("Error fetching records: %s" % errMsg)
 
 		if _records and not self.BackendObject._alreadyCorrectedFieldTypes:
 			if isinstance(_records[0], (tuple, list)):
@@ -1003,7 +1003,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				if not ignore:
 					sft, stv = ustr(fldType), ustr(type(val))
 					msg = _("!!! Data Type Mismatch: field=%(fld)s. Expecting: %(sft)s; got: %(stv)s") % locals()
-					dabo.errorLog.write(msg)
+					dabo.log.error(msg)
 
 		# If the new value is different from the current value, change it and also
 		# update the mementos if necessary.
@@ -1055,7 +1055,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				else:
 					self._clearMemento(row)
 			else:
-				dabo.infoLog.write("Field value changed, but the memento"
+				dabo.log.info("Field value changed, but the memento"
 						" can't be saved, because there is no valid KeyField.")
 
 			# Finally, save the new value to the field:
@@ -1324,13 +1324,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					errMsg = ustr(e).decode(self.Encoding)
 				except UnicodeError:
 					errMsg = unicode(e)
-				dabo.dbActivityLog.write(
+				dabo.dbActivityLog.info(
 						_("DBQueryException encountered in save(): %s") % errMsg)
 				raise e
 			except StandardError, e:
 				errMsg = ustr(e)
 				if "connect" in errMsg.lower():
-					dabo.dbActivityLog.write(
+					dabo.dbActivityLog.info(
 							_("Connection Lost exception encountered in saverow(): %s") % errMsg)
 					raise dException.ConnectionLostException(errMsg)
 				else:
@@ -1760,8 +1760,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				try:
 					newval = typ()
 				except Exception, e:
-					dabo.errorLog.write(_("Failed to create newval for field '%s'") % field_alias)
-					dabo.errorLog.write(ustr(e))
+					dabo.log.error(_("Failed to create newval for field '%s'") % field_alias)
+					dabo.log.error(ustr(e))
 					newval = u""
 
 			self._blank[field_alias] = newval

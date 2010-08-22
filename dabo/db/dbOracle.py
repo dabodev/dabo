@@ -153,7 +153,7 @@ class Oracle(dBackend):
 		# used for testing
 		if not self._connection._has_transaction():
 			self._connection.begin()
-			dabo.dbActivityLog.write("SQL: begin")
+			dabo.dbActivityLog.info("SQL: begin")
 			ret = True
 		return ret
 

@@ -294,7 +294,7 @@ class dDataSet(tuple):
 			alias = "dataset"
 		if len(ds) == 0:
 			# Can't create and populate a table without a structure
-			dabo.errorLog.write(_("Cannot populate without data for alias '%s'")
+			dabo.log.error(_("Cannot populate without data for alias '%s'")
 					% alias)
 			return None
 		hs = hashlib.md5(ustr(ds)).hexdigest()

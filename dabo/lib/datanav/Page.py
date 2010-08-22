@@ -430,7 +430,7 @@ class SelectPage(Page):
 		elif typ == "bool":
 			chc = (_(CHOICE_TRUE), _(CHOICE_FALSE))
 		else:
-			dabo.errorLog.write(_("Type '%s' not recognized.") % typ)
+			dabo.log.error(_("Type '%s' not recognized.") % typ)
 			chc = ()
 		return chc
 

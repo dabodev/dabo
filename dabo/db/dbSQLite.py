@@ -96,7 +96,7 @@ class SQLite(dBackend):
 		'begin' all the time, simply do nothing.
 		"""
 		cursor.execute("BEGIN")
-		dabo.dbActivityLog.write("SQL: begin")
+		dabo.dbActivityLog.info("SQL: begin")
 		return True
 
 
@@ -105,7 +105,7 @@ class SQLite(dBackend):
 		opError = self.dbapi.OperationalError
 		try:
 			cursor.execute("COMMIT", errorClass=opError)
-			dabo.dbActivityLog.write("SQL: commit")
+			dabo.dbActivityLog.info("SQL: commit")
 			return True
 		except opError, e:
 			# There is no transaction active in this case, so ignore the error.
@@ -115,19 +115,19 @@ class SQLite(dBackend):
 				errMsg = ustr(e).decode(self.Encoding)
 			except UnicodeError:
 				errMsg = unicode(e)
-			dabo.dbActivityLog.write("SQL: commit failed: %s" % errMsg)
+			dabo.dbActivityLog.info("SQL: commit failed: %s" % errMsg)
 			raise dException.DBQueryException(errMsg)
 
 
 	def rollbackTransaction(self, cursor):
 		""" Rollback a SQL transaction."""
 		cursor.execute("ROLLBACK")
-		dabo.dbActivityLog.write("SQL: rollback")
+		dabo.dbActivityLog.info("SQL: rollback")
 		return True
 
 	
 	def flush(self, crs):
-		dabo.dbActivityLog.write("SQL: flush")
+		dabo.dbActivityLog.info("SQL: flush")
 		self._connection.commit()
 
 

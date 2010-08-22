@@ -281,7 +281,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		return {'editor': 'font'}
 	
 	def _setFont(self, font):
-		dabo.errorLog.write("_setFont not implemented yet.")
+		dabo.log.error("_setFont not implemented yet.")
 
 		
 	def _getFontInfo(self):
@@ -290,12 +290,12 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _getFontBold(self):
 		return "Not implemented yet."
 	def _setFontBold(self, fontBold):
-		dabo.errorLog.write("_setFontBold not implemented yet.")
+		dabo.log.error("_setFontBold not implemented yet.")
 
 	def _getFontItalic(self):
 		return "Not implemented yet."
 	def _setFontItalic(self, fontItalic):
-		dabo.errorLog.write("_setFontItalic not implemented yet.")
+		dabo.log.error("_setFontItalic not implemented yet.")
 
 	def _getFontFace(self):
 		return "Not implemented yet."
@@ -303,12 +303,12 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _getFontSize(self):
 		return "Not implemented yet."
 	def _setFontSize(self, fontSize):
-		dabo.errorLog.write("_setFontSize not implemented yet.")
+		dabo.log.error("_setFontSize not implemented yet.")
 
 	def _getFontUnderline(self):
 		return "Not implemented yet."
 	def _setFontUnderline(self, val):
-		dabo.errorLog.write("_setFontUnderline not implemented yet.")
+		dabo.log.error("_setFontUnderline not implemented yet.")
 
 
 	def _getTop(self):

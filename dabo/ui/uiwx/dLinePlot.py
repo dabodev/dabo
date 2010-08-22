@@ -8,7 +8,7 @@ except ImportError:
 	_Numeric = False
 except StandardError, e:
 	# Report the error, and abandon the import
-	dabo.errorLog.write(_("Error importing numpy.oldnumeric: %s") % e)
+	dabo.log.error(_("Error importing numpy.oldnumeric: %s") % e)
 	_Numeric = False
 
 import dabo

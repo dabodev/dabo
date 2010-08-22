@@ -112,7 +112,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 				self.SetAutoformat(self._formatMap.get(val))
 				self._format = val
 			except AttributeError:
-				dabo.errorLog.write(_("Invalid Format value: %s") % val)
+				dabo.log.error(_("Invalid Format value: %s") % val)
 		else:
 			self._properties["Format"] = val
 
@@ -124,11 +124,11 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 		if self._constructed():
 			if self.GetAutoformat() and val:
 				# Cannot have both a mask and a format
-				dabo.errorLog.write(_("Cannot set InputCodes when a Format has been set"))
+				dabo.log.error(_("Cannot set InputCodes when a Format has been set"))
 			elif [cd for cd in val if cd not in self._allowedInputCodes]:
 				# Illegal codes
 				bad = "".join([cd for cd in val if cd not in self._allowedInputCodes])
-				dabo.errorLog.write(_("Invalid InputCodes: %s") % bad)				
+				dabo.log.error(_("Invalid InputCodes: %s") % bad)				
 			else:
 				val = self._uniqueCodes(val)
 				self._inputCodes = val
@@ -144,7 +144,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 		if self._constructed():
 			if self.GetAutoformat() and val:
 				# Cannot have both a mask and a format
-				dabo.errorLog.write(_("Cannot set a Mask when a Format has been set"))
+				dabo.log.error(_("Cannot set a Mask when a Format has been set"))
 			else:
 				self._mask = val
 				self.SetMask(val)

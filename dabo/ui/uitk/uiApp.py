@@ -79,7 +79,7 @@ class uiApp(dObject):
 
 
 	def onEditPreferences(self, evt):
-		dabo.infoLog.write("Stub: uiApp.onEditPreferences()")
+		dabo.log.info("Stub: uiApp.onEditPreferences()")
 
 
 	def onEditFind(self, evt):
@@ -134,7 +134,7 @@ class uiApp(dObject):
 # 			except AttributeError:
 # 				value = None
 # 			if type(value) not in (type(str()), type(unicode())):
-# 				dabo.errorLog.write("Active control isn't text-based.")
+# 				dabo.log.error("Active control isn't text-based.")
 # 				return
 # 
 # 			flags = event.GetFlags()
@@ -168,7 +168,7 @@ class uiApp(dObject):
 # 					win.SetSelection(currentPos-result, currentPos-result-len(findString))
 # 				win.ShowPosition(win.GetSelection()[1])
 # 			else:
-# 				dabo.infoLog.write("Not found")
+# 				dabo.log.info("Not found")
 
 
 	def onHelpAbout(self, event):

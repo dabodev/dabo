@@ -67,7 +67,7 @@ def loadUI(uiType):
 			# No problem; just a redundant call
 			pass
 		else:
-			dabo.infoLog.write(_("Cannot change the uiType to '%(typ)s', because UI '%(currType)s' is already loaded.")
+			dabo.log.info(_("Cannot change the uiType to '%(typ)s', because UI '%(currType)s' is already loaded.")
 					% locals())
 	return retVal
 
@@ -84,7 +84,7 @@ except KeyError:
 	__defaultUI = None
 
 if __defaultUI:
-	dabo.infoLog.write(_("Automatically loading default ui '%s'...") % __defaultUI)
+	dabo.log.info(_("Automatically loading default ui '%s'...") % __defaultUI)
 	# For now, don't do the tempting option:
 	#loadUI(defaultUI)
 	# ...unless it will work with single-file installers. I think that
@@ -94,7 +94,7 @@ if __defaultUI:
 		from uiwx import *
 else:
 	pass
-	#dabo.infoLog.write(_("No default UI set. (DABO_DEFAULT_UI)"))
+	#dabo.log.info(_("No default UI set. (DABO_DEFAULT_UI)"))
 
 	
 	

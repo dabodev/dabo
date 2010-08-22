@@ -2,6 +2,7 @@
 
 import os
 import sys
+import logging
 
 # Dabo Global Settings
 
@@ -179,8 +180,27 @@ createDbFiles = False
 # URL of the Web Update server
 webupdate_urlbase = "http://daboserver.com/webupdate"
 
+########################################################
+#### The commented out code was a first attempt at using Python logging, but with
+#### the dabo.settings file being used to configure instead of logging.conf
+########################################################
+# Logging settings
+# logLevel = logging.DEBUG
+# logFile = "dabo.log"
+# logConsoleLevel = logging.ERROR
+# logFileLevel = logging.ERROR
+# logName = "DaboLog"
+# consoleFormat = "%(asctime)s - %(levelname)s - %(message)s"
+# fileFormat = "%(asctime)s - %(levelname)s - %(message)s"
+# # Set the db file to the null device initially
+# dbLogFile = os.devnull
+# dbLogFileLevel = logging.DEBUG
+# maxLogFileSize = 5242880		# 5 MB
+########################################################
+
 
 ### Settings - end
+
 
 # Make sure that the current directory is in the sys.path
 sys.path.append(os.getcwd())

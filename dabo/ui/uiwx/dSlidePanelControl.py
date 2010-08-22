@@ -194,7 +194,7 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 	def _setBarStyle(self, val):
 		if val.lower().strip() not in self._barStylesLow:
 			bs = ", ".join(self._barStyles)
-			dabo.errorLog.write(_("Unknown BarStyle passed: %(val)s. BarStyle must be one of: %(bs)s")
+			dabo.log.error(_("Unknown BarStyle passed: %(val)s. BarStyle must be one of: %(bs)s")
 					% locals())
 		else:
 			self._barStyle = val

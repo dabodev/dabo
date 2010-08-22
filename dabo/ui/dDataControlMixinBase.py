@@ -246,7 +246,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 							try:
 								exec ("src.%s = curVal" % self.DataField)
 							except StandardError, e:
-								dabo.errorLog.write("Could not bind to '%s.%s'\nReason: %s" % (self.DataSource, self.DataField, e) )
+								dabo.log.error("Could not bind to '%s.%s'\nReason: %s" % (self.DataSource, self.DataField, e) )
 						else:
 							# The source is a direct object reference
 							try:
@@ -256,7 +256,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 									nm = self.DataSource._name
 								else:
 									nm = ustr(self.DataSource)
-								dabo.errorLog.write("Could not bind to '%s.%s'\nReason: %s" % (nm, self.DataField, e) )
+								dabo.log.error("Could not bind to '%s.%s'\nReason: %s" % (nm, self.DataField, e) )
 			self._oldVal = curVal
 			self._from_flushValue = True
 			self._afterValueChanged()
@@ -310,7 +310,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		elif isinstance(value, bool):
 			return "L"
 		else:
-			dabo.infoLog.write(_("getShortDataType - unknown type: %s") % (value,))
+			dabo.log.info(_("getShortDataType - unknown type: %s") % (value,))
 			return "?"
 
 
@@ -458,7 +458,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 					self.__src = ds
 					if not isinstance(ds, (dObject, dPref)):
 						# Warn about possible unsupported behavior.
-						dabo.infoLog.write(_("DataSource '%s' does not inherit from a proper Dabo class. This may result in unsupported problems.") % ds.__repr__())
+						dabo.log.info(_("DataSource '%s' does not inherit from a proper Dabo class. This may result in unsupported problems.") % ds.__repr__())
 					else:
 						self._srcIsBizobj = isinstance(ds, dabo.biz.dBizobj)
 		return self.__src

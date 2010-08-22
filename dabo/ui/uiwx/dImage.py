@@ -227,7 +227,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				# The image count is 1-based.
 				maxIdx = self.FrameCount - 1
 				if idx > maxIdx:
-					dabo.errorLog.write(_("Attempt to set PictureIndex (%(idx)s)to a value greater than the maximum index available (%(maxIdx)s).") % locals())
+					dabo.log.error(_("Attempt to set PictureIndex (%(idx)s)to a value greater than the maximum index available (%(maxIdx)s).") % locals())
 					idx = self.PictureIndex = maxIdx
 			try:
 				self._Image.LoadFile(val, index=idx)
@@ -268,7 +268,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self._scaleMode = modes[initial]
 			self._showPic()
 		except KeyError:
-			dabo.errorLog.write(_("ScaleMode must be either 'Clip', 'Proportional' or 'Stretch'.") )
+			dabo.log.error(_("ScaleMode must be either 'Clip', 'Proportional' or 'Stretch'.") )
 
 
 	def _getValue(self):

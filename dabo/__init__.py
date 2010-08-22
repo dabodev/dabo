@@ -101,6 +101,7 @@ import sys
 import os
 import locale
 import logging
+import logging.handlers
 try:
 	import pysqlite2
 except ImportError:
@@ -126,29 +127,58 @@ dAppRef = None
 # we want to make them part of the dabo namespace.
 from settings import *
 
-# Instantiate the logger object, which will send messages to user-overridable
-# locations. Do this before any other imports.
-from dabo.lib.logger import Log
-infoLog = Log()
-infoLog.Caption = "Dabo Info Log"
-if verboseLogging:
-	infoLog.LogObject = sys.stdout
-else:
-	class NullWrite(object):
-		def write(self, txt): pass
-	infoLog.LogObject = NullWrite()
-errorLog = Log()
-errorLog.Caption = "Dabo Error Log"
-errorLog.LogObject = sys.stderr
-# Create a separate log reference for event tracking.
-eventLog = Log()
-eventLog.Caption = "Dabo Event Log"
-eventLog.LogObject = sys.stdout
-# This log is set to None by default. It must be manually activated
-# via the Application object.
-dbActivityLog = Log()
-dbActivityLog.Caption = "Database Activity Log"
-dbActivityLog.LogObject = None
+_logConfFileName = "logging.conf"
+logConfFile = os.path.join(os.getcwd(), _logConfFileName)
+if not os.path.exists(logConfFile):
+	daboloc = os.path.dirname(__file__)
+	logConfFile = os.path.join(daboloc, _logConfFileName)
+import logging.config
+logging.config.fileConfig(logConfFile)
+
+log = logging.getLogger("dabo.mainLog")
+dbActivityLog = logging.getLogger("dabo.dbActivityLog")
+consoleLog = fileLog = dbLog = None
+for _handler in log.handlers:
+	try:
+		_handler.baseFilename
+		fileLog = _handler
+	except AttributeError:
+		consoleLog = _handler
+for _handler in dbActivityLog.handlers:
+	try:
+		_handler.baseFilename
+		dbLog = _handler
+		break
+	except AttributeError:
+		pass
+
+
+########################################################
+#### The commented out code was a first attempt at using Python logging, but with
+#### the dabo.settings file being used to configure instead of logging.conf
+########################################################
+# logConsoleHandler = logging.StreamHandler()
+# logConsoleHandler.setLevel(logConsoleLevel)
+# logFileHandler = logging.handlers.RotatingFileHandler(filename=logFile, maxBytes=maxLogFileSize,
+# 		encoding=defaultEncoding)
+# logFileHandler.setLevel(logFileLevel)
+# consoleFormatter = logging.Formatter(consoleFormat)
+# fileFormatter = logging.Formatter(fileFormat)
+# logConsoleHandler.setFormatter(consoleFormatter)
+# logFileHandler.setFormatter(fileFormatter)
+# log = logging.getLogger(logName)
+# log.setLevel(logging.DEBUG)
+# log.addHandler(logConsoleHandler)
+# log.addHandler(logFileHandler)
+# 
+# This log is set to the null output device ('nul' on Windows; /dev/null on the rest)
+# dbActivityLog = logging.getLogger("dabo.dbActivityLog")
+# dbLogHandler = logging.handlers.RotatingFileHandler(filename=dbLogFile, maxBytes=maxLogFileSize,
+# 		encoding=defaultEncoding)
+# dbActivityLog.addHandler(dbLogHandler)
+# dbActivityLog.setLevel(dbLogFileLevel)
+# dbLogHandler.setLevel(dbLogFileLevel)
+########################################################
 
 # Install localization service for dabo. dApp will install localization service
 # for the user application separately.

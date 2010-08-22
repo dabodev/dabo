@@ -86,17 +86,17 @@ class Postgres(dBackend):
 		try:
 			encoding = self._encodings[encoding]
 		except KeyError:
-			dabo.dbActivityLog.write("unknown encoding %r" % encoding)
+			dabo.dbActivityLog.info("unknown encoding %r" % encoding)
 		if self._connection.encoding != encoding:
 			try:
 				self._connection.set_client_encoding(encoding)
 			except Exception:
-				dabo.dbActivityLog.write("cannot set database client encoding")
+				dabo.dbActivityLog.info("cannot set database client encoding")
 		return encoding
 
 
 	def beginTransaction(self, cursor):
-		dabo.dbActivityLog.write("SQL: begin (implicit, nothing done)")
+		dabo.dbActivityLog.info("SQL: begin (implicit, nothing done)")
 		return True
 
 
@@ -212,7 +212,7 @@ class Postgres(dBackend):
 		to the database written to disk.
 		"""
 		self.commitTransaction(cursor)
-		dabo.dbActivityLog.write("SQL: Commit")
+		dabo.dbActivityLog.info("SQL: Commit")
 
 
 	def getLastInsertID(self, cursor):

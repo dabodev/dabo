@@ -293,7 +293,7 @@ try again when it is running.
 				rp.syncFiles()
 			except urllib2.URLError, e:
 				# Cannot sync; record the error and move on
-				dabo.errorLog.write(_("File re-sync failed. Reason: %s") % e)
+				dabo.log.error(_("File re-sync failed. Reason: %s") % e)
 
 
 	def __del__(self):
@@ -405,7 +405,7 @@ try again when it is running.
 		self.uiApp.finish()
 		self.closeConnections()
 		self._tempFileHolder.release()
-		dabo.infoLog.write(_("Application finished."))
+		dabo.log.info(_("Application finished."))
 		self._finished = True
 		self.afterFinish()
 
@@ -578,12 +578,12 @@ try again when it is running.
 				resp = urllib2.urlopen(url).read()
 			except urllib2.URLError, e:
 				# Could not connect
-				dabo.errorLog.write(_("Could not connect to the Dabo servers: %s") % e)
+				dabo.log.error(_("Could not connect to the Dabo servers: %s") % e)
 				return e
 			except ValueError:
 				pass
 			except StandardError, e:
-				dabo.errorLog.write(_("Failed to open URL '%(url)s'. Error: %(e)s") % locals())
+				dabo.log.error(_("Failed to open URL '%(url)s'. Error: %(e)s") % locals())
 				return e
 			if simplejson:
 				resp = simplejson.loads(resp)
@@ -604,7 +604,7 @@ try again when it is running.
 			resp = urllib2.urlopen(fileurl)
 		except StandardError, e:
 			# No internet access, or Dabo site is down.
-			dabo.errorLog.write(_("Cannot access the Dabo site. Error: %s") % e)
+			dabo.log.error(_("Cannot access the Dabo site. Error: %s") % e)
 			self._resetWebUpdateCheck()
 			return None
 
@@ -621,7 +621,7 @@ try again when it is running.
 			delfiles = []
 		if not zipfiles:
 			# No updates available
-			dabo.infoLog.write(_("No changed files available."))
+			dabo.log.info(_("No changed files available."))
 			return
 		projects = ("dabo", "demo", "ide")
 		prf = self._frameworkPrefs
@@ -728,7 +728,7 @@ try again when it is running.
 		newFile = resp.read()
 		if newFile:
 			file(pth, "w").write(newFile)
-			dabo.infoLog.write(_("File %s updated") % pth)
+			dabo.log.info(_("File %s updated") % pth)
 
 
 	def updateFromSource(self, fileOrFiles):
@@ -939,7 +939,7 @@ try again when it is running.
 		for k,v in connDefs.items():
 			self.dbConnectionDefs[k] = v
 
-		dabo.infoLog.write(_("%s database connection definition(s) loaded.")
+		dabo.log.info(_("%s database connection definition(s) loaded.")
 			% (len(self.dbConnectionDefs)))
 
 
@@ -988,7 +988,7 @@ try again when it is running.
 			self.UI = "wx"
 		else:
 			# Custom app code or the dabo.ui module already set this: don't touch
-			dabo.infoLog.write(_("User interface already set to '%s', so dApp didn't touch it.")
+			dabo.log.info(_("User interface already set to '%s', so dApp didn't touch it.")
 					% self.UI)
 
 
@@ -997,7 +997,7 @@ try again when it is running.
 		try:
 			connDefs = importConnections(filePath, useHomeDir=True)
 		except SAXParseException, e:
-			dabo.errorLog.write(_("Error parsing '%(filePath)s': %(e)s") % locals())
+			dabo.log.error(_("Error parsing '%(filePath)s': %(e)s") % locals())
 			return {}
 		# Convert the connect info dicts to dConnectInfo instances:
 		for k,v in connDefs.items():
@@ -1085,7 +1085,7 @@ try again when it is running.
 		"""
 		stdDirs = self._standardDirs + ("main.py", )
 		if dirname not in stdDirs:
-			dabo.errorLog.write(_("Non-standard directory '%s' requested") % dirname)
+			dabo.log.error(_("Non-standard directory '%s' requested") % dirname)
 			return None
 		osp = os.path
 		if start is not None:
@@ -1324,7 +1324,7 @@ try again when it is running.
 			except AttributeError:
 				pass
 		if not ret:
-			dabo.infoLog.write(_("WARNING: No BasePrefKey has been set for this application."))
+			dabo.log.info(_("WARNING: No BasePrefKey has been set for this application."))
 			try:
 				f = inspect.stack()[-1][1]
 				pth = os.path.abspath(f)
@@ -1356,19 +1356,22 @@ try again when it is running.
 		self._cryptoProvider = SimpleCrypt(key=val)
 
 
-	def _getDatabaseActivityLog(self):
-		return dabo.dbActivityLog.LogObject
-
-	def _setDatabaseActivityLog(self, val):
-		if isinstance(val, basestring):
-			try:
-				f = open(val, "a")
-			except IOError, e:
-				dabo.errorLog.write(_("Could not open file: '%(val)s': %(e)s") % locals())
-				return
-		else:
-			f = val
-		dabo.dbActivityLog.LogObject = f
+# 	def _getDatabaseActivityLog(self):
+# 		return dabo.dbActivityLog
+# 
+# 	def _setDatabaseActivityLog(self, val):
+# 		try:
+# 			dbLogger = dabo.dbActivityLog
+# 			for hnd in dbLogger.handlers:
+# 				dbLogger.removeHandler(hnd)
+# 			dabo.dbLogHandler = logging.handlers.RotatingFileHandler(filename=val,
+# 					maxBytes=dabo.maxLogFileSize, encoding=self.Encoding)
+# 			dbLogger.addHandler(dabo.dbLogHandler)
+# 			dbLogger.setLevel(logging.INFO)
+# 			dabo.dbLogHandler.setLevel(logging.INFO)
+# 		except IOError, e:
+# 			dabo.log.error(_("Could not open file: '%(val)s': %(e)s") % locals())
+# 			return
 
 
 	def _getDefaultMenuBarClass(self):
@@ -1445,7 +1448,7 @@ try again when it is running.
 							# instance of a raw dApp. So the only thing we can really do is make the
 							# HomeDirectory the location of the main script, since we can't guess at
 							# the application's directory structure.
-							dabo.infoLog.write("Can't deduce HomeDirectory:setting to the script directory.")
+							dabo.log.info("Can't deduce HomeDirectory:setting to the script directory.")
 							hd = scriptDir
 
 			if os.path.split(hd)[1][-4:].lower() in (".zip", ".exe"):
@@ -1459,7 +1462,7 @@ try again when it is running.
 		if os.path.exists(val):
 			self._homeDirectory = os.path.abspath(val)
 		else:
-			dabo.errorLog.write(_("Setting App HomeDirectory: Path does not exist. '%s'") % val)
+			dabo.log.error(_("Setting App HomeDirectory: Path does not exist. '%s'") % val)
 
 
 	def _getIcon(self):
@@ -1616,12 +1619,12 @@ try again when it is running.
 		if self.UI is None:
 			if uiType is None:
 				self._uiAlreadySet = True
-				dabo.infoLog.write(_("User interface set set to None."))
+				dabo.log.info(_("User interface set set to None."))
 			elif dabo.ui.loadUI(uiType):
 				self._uiAlreadySet = True
-				dabo.infoLog.write(_("User interface set to '%s' by dApp.") % uiType)
+				dabo.log.info(_("User interface set to '%s' by dApp.") % uiType)
 			else:
-				dabo.infoLog.write(_("Tried to set UI to '%s', but it failed.") % uiType)
+				dabo.log.info(_("Tried to set UI to '%s', but it failed.") % uiType)
 		else:
 			raise RuntimeError(_("The UI cannot be reset once assigned."))
 
@@ -1686,9 +1689,9 @@ try again when it is running.
 			each time this property is set, a new PyCrypto instance is created, and 
 			any previous crypto objects are released. Write-only.  (varies)"""))
 
-	DatabaseActivityLog = property(_getDatabaseActivityLog, _setDatabaseActivityLog, None,
-			_("""Path to the file (or file-like object) to be used for logging all database
-			activity. Default=None, which means no log is kept.   (file or str)"""))
+# 	DatabaseActivityLog = property(_getDatabaseActivityLog, _setDatabaseActivityLog, None,
+# 			_("""Path to the file (or file-like object) to be used for logging all database
+# 			activity. Default=None, which means no log is kept.   (file or str)"""))
 
 	DefaultMenuBarClass = property(_getDefaultMenuBarClass, _setDefaultMenuBarClass, None,
 			_("""The class used by all forms in the application when no specific MenuBarClass

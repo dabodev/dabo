@@ -251,7 +251,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 				compCode = compile(code, "", "exec")
 			except SyntaxError, e:
 				snm = self.Name
-				dabo.errorLog.write(_("Method '%(nm)s' of object '%(snm)s' has the following error: %(e)s") % locals())
+				dabo.log.error(_("Method '%(nm)s' of object '%(snm)s' has the following error: %(e)s") % locals())
 				continue
 			# OK, we have the compiled code. Add it to the class definition.
 			# NOTE: if the method name and the name in the 'def' statement

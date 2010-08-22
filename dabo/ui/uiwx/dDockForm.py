@@ -149,7 +149,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			if func:
 				func()
 			else:	
-				dabo.errorLog.write(_("Invalid dock position: '%s'.") % side)
+				dabo.log.error(_("Invalid dock position: '%s'.") % side)
 		inf.Dock()
 		self._updateAUI()
 			
@@ -235,7 +235,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			if self.Floating:
 				self.FloatingBottom = val
 			else:
-				dabo.errorLog.write(_("Cannot set the position of a docked panel"))
+				dabo.log.error(_("Cannot set the position of a docked panel"))
 		else:
 			self._properties["Bottom"] = val
 
@@ -464,7 +464,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			if self.Floating:
 				self.FloatingHeight = val
 			else:
-				dabo.errorLog.write(_("Cannot set the Size of a docked panel"))
+				dabo.log.error(_("Cannot set the Size of a docked panel"))
 		else:
 			self._properties["Height"] = val
 
@@ -477,7 +477,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			if self.Floating:
 				self.FloatingLeft = val
 			else:
-				dabo.errorLog.write(_("Cannot set the position of a docked panel"))
+				dabo.log.error(_("Cannot set the position of a docked panel"))
 		else:
 			self._properties["Left"] = val
 
@@ -533,7 +533,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			if self.Floating:
 				self.FloatingRight = val
 			else:
-				dabo.errorLog.write(_("Cannot set the position of a docked panel"))
+				dabo.log.error(_("Cannot set the position of a docked panel"))
 		else:
 			self._properties["Right"] = val
 
@@ -650,7 +650,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			if self.Floating:
 				self.FloatingTop = val
 			else:
-				dabo.errorLog.write(_("Cannot set the position of a docked panel"))
+				dabo.log.error(_("Cannot set the position of a docked panel"))
 		else:
 			self._properties["Top"] = val
 
@@ -685,7 +685,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			if self.Floating:
 				self.FloatingWidth = val
 			else:
-				dabo.errorLog.write(_("Cannot set the Size of a docked panel"))
+				dabo.log.error(_("Cannot set the Size of a docked panel"))
 		else:
 			self._properties["Width"] = val
 
@@ -836,7 +836,7 @@ class dDockForm(dabo.ui.dForm):
 		ok = isinstance(evt.child, (_dDockPanel, dabo.ui.dStatusBar, dabo.ui.dShell.dShell))
 		if not ok:
 			# This should never happen; if so, log the error
-			dabo.errorLog.write(_("Unmanaged object added to a Dock Form: %s") %evt.child)
+			dabo.log.error(_("Unmanaged object added to a Dock Form: %s") %evt.child)
 		
 		
 	def addObject(self, classRef, Name=None, *args, **kwargs):

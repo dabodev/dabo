@@ -295,7 +295,7 @@ def setAfter(obj, prop, val):
 		fnc = eval("obj.__class__.%s.fset" % prop)
 		wx.CallAfter(fnc, obj, val)
 	except StandardError, e:
-		dabo.errorLog.write(_("setAfter() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
+		dabo.log.error(_("setAfter() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
 				% locals())
 
 
@@ -307,7 +307,7 @@ def setAfterInterval(interval, obj, prop, val):
 		fnc = eval("obj.__class__.%s.fset" % prop)
 		callAfterInterval(interval, fnc, obj, val)
 	except StandardError, e:
-		dabo.errorLog.write(_("setAfterInterval() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
+		dabo.log.error(_("setAfterInterval() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
 				% locals())
 
 
@@ -362,7 +362,7 @@ def continueEvent(evt):
 		if isinstance(evt, dEvents.dEvent):
 			pass
 		else:
-			dabo.errorLog.write("Incorrect event class (%s) passed to continueEvent. Error: %s"
+			dabo.log.error("Incorrect event class (%s) passed to continueEvent. Error: %s"
 					% (ustr(evt), ustr(e)))
 
 
@@ -374,7 +374,7 @@ def discontinueEvent(evt):
 		if isinstance(evt, dEvents.dEvent):
 			pass
 		else:
-			dabo.errorLog.write("Incorrect event class (%s) passed to continueEvent. Error: %s"
+			dabo.log.error("Incorrect event class (%s) passed to continueEvent. Error: %s"
 					% (ustr(evt), ustr(e)))
 
 
@@ -935,7 +935,7 @@ def getDate(dt=None):
 	try:
 		mm, dd, yy = dt.month, dt.day, dt.year
 	except AttributeError:
-		dabo.errorLog.write(_("Invalid date value passed to getDate(): %s") % dt)
+		dabo.log.error(_("Invalid date value passed to getDate(): %s") % dt)
 		return None
 	dlg = wx.lib.calendar.CalenDlg(_getActiveForm(), mm, dd, yy)
 	dlg.Centre()
@@ -965,7 +965,7 @@ def getFont(font=None):
 	else:
 		if not isinstance(font, dFont):
 			# This will help identify older code
-			dabo.errorLog.write("Invalid font class passed to getFont")
+			dabo.log.error("Invalid font class passed to getFont")
 			return None
 		param = font._nativeFont
 	dlg = dFontDialog(_getActiveForm(), param)
@@ -1188,7 +1188,7 @@ def _checkForRawXML(srcFile):
 		try:
 			srcFile = utils.resolvePathAndUpdate(srcFile)
 		except IOError, e:
-			dabo.errorLog.write(_("Class file '%s' not found") % srcFile)
+			dabo.log.error(_("Class file '%s' not found") % srcFile)
 			raise
 	return srcFile, isRawXML
 
@@ -1476,7 +1476,7 @@ def getPositionInSizer(obj):
 				if szitem.GetWindow() == obj:
 					return pos
 		# If we reached here, something's wrong!
-		dabo.errorLog.write(_("Containing sizer did not match item %s") % obj.Name)
+		dabo.log.error(_("Containing sizer did not match item %s") % obj.Name)
 		return None
 	elif isinstance(sz, wx.GridBagSizer):
 		# Return a row,col tuple

@@ -82,7 +82,7 @@ def setLanguage(lang=None, charset=None):
 			_currentTrans = daboTranslation.ugettext
 		except IOError:
 			# No translation file found
-			dabo.errorLog.write("""
+			dabo.log.error("""
 No translation file found for domain 'dabo'.
     Locale dir = %s
     Languages = %s
@@ -94,8 +94,8 @@ No translation file found for domain 'dabo'.
 		try:
 			translation = gettext.translation(domain, localedir, languages=lang, codeset=charset)
 		except IOError:
-			dabo.errorLog.write("No translation found for domain '%s' and language %s." % (domain, lang))
-			dabo.errorLog.write("""
+			dabo.log.error("No translation found for domain '%s' and language %s." % (domain, lang))
+			dabo.log.error("""
 No translation file found for domain '%s'.
     Locale dir = %s
     Languages = %s

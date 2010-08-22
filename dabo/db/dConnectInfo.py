@@ -190,7 +190,7 @@ class dConnectInfo(dObject):
 				else:
 					raise ValueError("Invalid database type: %s." % nm)
 			except ImportError:
-				dabo.errorLog.write(_("You do not have the database module for %s installed") % dbType)
+				dabo.log.error(_("You do not have the database module for %s installed") % dbType)
 				self._dbType = None
 				self._backendObject = None
 			if _oldObject != self._backendObject:

@@ -302,7 +302,7 @@ class dSizerMixin(dObject):
 					if szitem.GetSizer() == self:
 						return pos
 			# If we reached here, something's wrong!
-			dabo.errorLog.write(_("Containing sizer did not match item %s") % self.Name)
+			dabo.log.error(_("Containing sizer did not match item %s") % self.Name)
 			return None
 		elif isinstance(sz, wx.GridBagSizer):
 			# Return a row,col tuple

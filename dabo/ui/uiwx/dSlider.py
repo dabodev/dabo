@@ -109,9 +109,9 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 		tickpos = self._tickPosition
 		isHoriz = (val.lower()[:1] == "h")
 		if isHoriz and tickpos in ("Left", "Right"):
-			dabo.errorLog.write(_("Cannot set the slider to Horizontal when TickPosition is %s.") % tickpos)
+			dabo.log.error(_("Cannot set the slider to Horizontal when TickPosition is %s.") % tickpos)
 		elif not isHoriz and tickpos in ("Top", "Bottom"):
-			dabo.errorLog.write(_("Cannot set the slider to Vertical when TickPosition is %s.") % tickpos)
+			dabo.log.error(_("Cannot set the slider to Vertical when TickPosition is %s.") % tickpos)
 		self._delWindowStyleFlag(wx.SL_HORIZONTAL)
 		self._delWindowStyleFlag(wx.SL_VERTICAL)
 		if isHoriz:

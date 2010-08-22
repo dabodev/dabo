@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 import time
 import dabo
 from dabo.dObject import dObject
@@ -92,9 +93,12 @@ class dEvent(object):
 		if eventName not in noLogEvents:
 			for logEventName in logEvents:
 				if logEventName.lower() == "all" or logEventName == eventName:
-					dabo.eventLog.write("dEvent Fired: %s %s" %
+					holdLevel = dabo.log.level
+					dabo.log.setLevel(logging.INFO)
+					dabo.log.info("dEvent Fired: %s %s" %
 							(self._eventObject.getAbsoluteName(),
 							self.__class__.__name__,))
+					dabo.log.setLevel(holdLevel)
 					break
 
 

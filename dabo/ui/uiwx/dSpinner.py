@@ -350,7 +350,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 			else:
 				numVal = self._numericStringVal(val)
 				if numVal is None:
-					dabo.errorLog.write(_("Spinner values must be numeric. Invalid:'%s'") % val)
+					dabo.log.error(_("Spinner values must be numeric. Invalid:'%s'") % val)
 				else:
 					self._proxy_textbox.Value = val
 		else:

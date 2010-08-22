@@ -456,12 +456,12 @@ class dPemMixin(dPemMixinBase):
 				# Empty method string; this is a sign of a bug in the UI code.
 				# Log it and continue
 				nm = self.Name
-				dabo.errorLog.write(_("Empty Event Binding: Object: %(nm)s; Event: %(evt)s") % locals())
+				dabo.log.error(_("Empty Event Binding: Object: %(nm)s; Event: %(evt)s") % locals())
 				continue
 			try:
 				mthd = eval(mthdString)
 			except (AttributeError, NameError), e:
-				dabo.errorLog.write(_("Could not evaluate method '%(mthdString)s': %(e)s") % locals())
+				dabo.log.error(_("Could not evaluate method '%(mthdString)s': %(e)s") % locals())
 				continue
 			self.bindEvent(evt, mthd)
 
@@ -877,7 +877,7 @@ class dPemMixin(dPemMixinBase):
 		except dabo.ui.assertionException:
 			# Too many 'unlockDisplay' calls to the same object were made. Log
 			# the mistake, but don't throw a Python error.
-			dabo.errorLog.write(_("Extra call to unlockDisplay() for object %s") % self)
+			dabo.log.error(_("Extra call to unlockDisplay() for object %s") % self)
 
 
 	def getDisplayLocker(self):
@@ -898,7 +898,7 @@ class dPemMixin(dPemMixinBase):
 					# Create an error log message. We can't record the obj reference, 
 					# since it is most likely deleted, but the presence of these messages
 					# will ensure that possible problems will not be silenced.
-					dabo.errorLog.write(_("Failed to unlock display: %s") % e)
+					dabo.log.error(_("Failed to unlock display: %s") % e)
 			release = __del__
 		return DisplayLocker(self)
 
@@ -2008,7 +2008,7 @@ class dPemMixin(dPemMixinBase):
 			try:
 				self.SetFont(val._nativeFont)
 			except AttributeError:
-				dabo.errorLog.write(_("Error setting font for %s") % self.Name)
+				dabo.log.error(_("Error setting font for %s") % self.Name)
 			val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onFontPropsChanged)
 		else:
 			self._properties["Font"] = val
@@ -2248,7 +2248,7 @@ class dPemMixin(dPemMixinBase):
 						try:
 							crsName = eval("uic.%s%s" % (prfx, valTitle))
 						except AttributeError:
-							dabo.errorLog.write(_("Invalid MousePointer value: '%s'") % val)
+							dabo.log.error(_("Invalid MousePointer value: '%s'") % val)
 							return
 				crs = uic.getStockCursor(crsName)
 			else:
@@ -2418,7 +2418,7 @@ class dPemMixin(dPemMixinBase):
 			self.Form.registerObject(self)
 		except KeyError:
 			err = _("Attempt in object '%(self)s' to set duplicate RegID: '%(val)s'") % locals()
-			dabo.errorLog.write(err)
+			dabo.log.error(err)
 			raise KeyError(err)
 			
 		# When the object's RegID is set, we need to autobind again:
@@ -2571,7 +2571,7 @@ class dPemMixin(dPemMixinBase):
 		try:
 			return self.IsShown()
 		except AttributeError:
-			dabo.errorLog.write(_("The object %s does not support the Visible property.") % self)
+			dabo.log.error(_("The object %s does not support the Visible property.") % self)
 			return None
 	
 	def _setVisible(self, val):
@@ -2579,7 +2579,7 @@ class dPemMixin(dPemMixinBase):
 			try:
 				self.Show(bool(val))
 			except AttributeError:
-				dabo.errorLog.write(_("The object %s does not support the Visible property.") % self)
+				dabo.log.error(_("The object %s does not support the Visible property.") % self)
 		else:
 			self._properties["Visible"] = val
 

@@ -14,10 +14,10 @@ class Log(dObject):
 	messages.
 
 	So, to display general informational messages, call:
-		dabo.infoLog.write("message")
+		dabo.log.info("message")
 
 	For error messages, call:
-		dabo.errorLog.write("message")
+		dabo.log.error("message")
 
 	By default, infoLog writes to stdout and errorLog to stderr. But your code
 	can redirect these messages however you please. Just set the LogObject property

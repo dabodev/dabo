@@ -117,7 +117,7 @@ class dFormMixin(pm.dPemMixin):
 			except dException.ConnectionNotFoundException:
 				self.Connection = None
 			if self.Connection is None:
-				dabo.infoLog.write(_("Could not establish connection '%s'") %
+				dabo.log.info(_("Could not establish connection '%s'") %
 						self._cxnName)
 		# If code to create bizobjs is present, run it.
 		self.createBizobjs()
@@ -575,7 +575,7 @@ class dFormMixin(pm.dPemMixin):
 					del self.__dict__[id]
 			self._objectRegistry[id] = obj
 			if hasattr(self, id) or self.__dict__.has_key(id):
-				dabo.errorLog.write(_("RegID '%s' conflicts with existing name") % id)
+				dabo.log.error(_("RegID '%s' conflicts with existing name") % id)
 			else:
 				self.__dict__[id] = obj
 		

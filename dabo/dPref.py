@@ -17,7 +17,7 @@ except ImportError:
 		# pkm: We can't use the errorLog to warn of this problem, because errorLog
 		#      descends from dObject, which needs to load dPref.py first.
 		warnings.warn("Class dPref requires package 'pysqlite2'.")
-		#dabo.errorLog.write("This class requires SQLite")
+		#dabo.log.error("This class requires SQLite")
 
 # We don't want to deal with these as preferences.
 regularAtts = ("AutoPersist", "__base__", "__bases__", "__basicsize__", "__call__", 
@@ -213,7 +213,7 @@ class dPref(object):
 		baseKey = self._getKey()
 		if not baseKey:
 			if not self._persistAll:
-				dabo.errorLog.write(_("No base key set; preference will not be persisted."))
+				dabo.log.error(_("No base key set; preference will not be persisted."))
 				return
 			else:
 				key = att
@@ -223,7 +223,7 @@ class dPref(object):
 		try:
 			typ = self._typeDict[type(val)]
 		except KeyError:
-			dabo.errorLog.write(_("BAD TYPE: %s") % type(val))
+			dabo.log.error(_("BAD TYPE: %s") % type(val))
 			typ = "?"
 		# Convert it to a string that can be properly converted back
 		val = self._encodeType(val, typ)

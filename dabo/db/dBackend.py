@@ -202,21 +202,21 @@ class dBackend(dObject):
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction. Override in subclasses if needed."""
 		self._connection.begin()
-		dabo.dbActivityLog.write("SQL: begin")
+		dabo.dbActivityLog.info("SQL: begin")
 		return True
 
 
 	def commitTransaction(self, cursor):
 		""" Commit a SQL transaction."""
 		self._connection.commit()
-		dabo.dbActivityLog.write("SQL: commit")
+		dabo.dbActivityLog.info("SQL: commit")
 		return True
 
 
 	def rollbackTransaction(self, cursor):
 		""" Roll back (revert) a SQL transaction."""
 		self._connection.rollback()
-		dabo.dbActivityLog.write("SQL: rollback")
+		dabo.dbActivityLog.info("SQL: rollback")
 		return True
 
 

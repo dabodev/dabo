@@ -232,7 +232,7 @@ C: Popup Calendar to Select
 				orig = None
 			else:
 				nm, tv = self.Name, type(val)
-				dabo.errorLog.write(_("Non-date value in %(nm)s: '%(val)s' is type '%(tv)s'") % locals())
+				dabo.log.error(_("Non-date value in %(nm)s: '%(val)s' is type '%(tv)s'") % locals())
 				return
 		# Default direction
 		forward = True
@@ -334,7 +334,7 @@ C: Popup Calendar to Select
 			#checkBoundary = False
 		else:
 			# This shouldn't happen, because onChar would have filtered it out.
-			dabo.infoLog.write("Warning in dDateTextBox.adjustDate: %s key sent." % key)
+			dabo.log.info("Warning in dDateTextBox.adjustDate: %s key sent." % key)
 			return
 		
 		if not self.dateOK:

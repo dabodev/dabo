@@ -35,10 +35,10 @@ class Firebird(dBackend):
 				if kinterbasdb.__version__[0] == 3 and kinterbasdb.__version__[1] >= 3:
 					# use type_conv=300 for blob encoding
 					kinterbasdb.init(type_conv=300)
-					dabo.dbActivityLog.write("kinterbasdb.init(type_conv=300)")
+					dabo.dbActivityLog.info("kinterbasdb.init(type_conv=300)")
 				else:
 					kinterbasdb.init(type_conv=200)
-					dabo.dbActivityLog.write("kinterbasdb.init(type_conv=200)")
+					dabo.dbActivityLog.info("kinterbasdb.init(type_conv=200)")
 			if initialized is None:
 				# Older versions of kinterbasedb didn't have this attribute, so we write
 				# it ourselves:
@@ -209,7 +209,7 @@ class Firebird(dBackend):
 		ret = False
 		if not self._connection._has_transaction():
 			self._connection.begin()
-			dabo.dbActivityLog.write("SQL: begin")
+			dabo.dbActivityLog.info("SQL: begin")
 			ret = True
 		return ret
 
@@ -219,7 +219,7 @@ class Firebird(dBackend):
 		to the database written to disk.
 		"""
 		self._connection.commit()
-		dabo.dbActivityLog.write("SQL: commit")
+		dabo.dbActivityLog.info("SQL: commit")
 
 	
 	def getLimitWord(self):
@@ -266,7 +266,7 @@ class Firebird(dBackend):
 					from rdb$database""" % gen
 			cursor.execute(sql)
 			ret = cursor.getFieldVal("nextval")
-		dabo.dbActivityLog.write("SQL: result of pregenPK: %d" % ret)
+		dabo.dbActivityLog.info("SQL: result of pregenPK: %d" % ret)
 		return ret
 	
 

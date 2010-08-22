@@ -65,7 +65,7 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 			if handler is None:
 				handler = self._xmlHandler
 				filename = "%s.xml" % filename
-				dabo.infoLog.write(_("Forcing to RichText XML format"))
+				dabo.log.info(_("Forcing to RichText XML format"))
 			handler.SaveFile(self.GetBuffer(), filename)
 
 

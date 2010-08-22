@@ -111,7 +111,7 @@ class dListControl(dcm.dControlItemMixin,
 		if row < self.RowCount:
 			self.SetItemState(row, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
 		else:
-			dabo.errorLog.write("An attempt was made to select a non-existent row")
+			dabo.log.error("An attempt was made to select a non-existent row")
 
 
 	def selectOnly(self, row):
@@ -138,7 +138,7 @@ class dListControl(dcm.dControlItemMixin,
 			for row in range(self.RowCount):
 				self.select(row)
 		else:
-			dabo.errorLog.write("'selectAll()' may only be called on List Controls that designated as MultipleSelect")
+			dabo.log.error("'selectAll()' may only be called on List Controls that designated as MultipleSelect")
 
 
 	def unselectAll(self):
@@ -254,7 +254,7 @@ class dListControl(dcm.dControlItemMixin,
 			self.DeleteItem(row)
 			self._restoreRowSelection(row)
 		else:
-			dabo.errorLog.write("An attempt was made to remove a non-existent row")
+			dabo.log.error("An attempt was made to remove a non-existent row")
 
 
 	def _restoreRowSelection(self, row):

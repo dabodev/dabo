@@ -60,7 +60,7 @@ class RemoteConnector(object):
 		except urllib2.HTTPError, e:
 			if reRaise:
 				raise
-			dabo.errorLog.write("HTTPError: %s" % e)
+			dabo.log.error("HTTPError: %s" % e)
 			return None
 		ret = res.read()
 		return ret
@@ -190,7 +190,7 @@ class RemoteConnector(object):
 			print dir(e)
 			errText = e.read()
 			errMsg = "\n".join(errText.splitlines()[4:])
-			dabo.errorLog.write(_("HTTP Error getting app list: %s") % e)
+			dabo.log.error(_("HTTP Error getting app list: %s") % e)
 			raise
 		# If they passed an app name, and it's in the returned app list, run it
 		if path and (path in res):
@@ -256,7 +256,7 @@ class RemoteConnector(object):
 				# Nothing has changed on the server, so we're cool...
 				return homedir
 			else:
-				dabo.errorLog.write(_("HTTP Error syncing files: %s") % e)
+				dabo.log.error(_("HTTP Error syncing files: %s") % e)
 				return
 		except urllib2.URLError:
 			# Right now re-raise it and let the UI handle it
@@ -288,7 +288,7 @@ class RemoteConnector(object):
 			try:
 				res = self.UrlOpener.open(url)
 			except urllib2.HTTPError, e:
-				dabo.errorLog.write(_("HTTP Error retrieving files: %s") % e)
+				dabo.log.error(_("HTTP Error retrieving files: %s") % e)
 			# res holds a zip file
 			f = StringIO(res.read())
 			zip = ZipFile(f)

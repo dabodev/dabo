@@ -247,7 +247,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 			idx = self._items.index(itm)
 			self._items[idx].Enabled = val
 		except IndexError:
-			dabo.errorLog.write(_("Could not find a button with Caption of '%s'") % itm)
+			dabo.log.error(_("Could not find a button with Caption of '%s'") % itm)
 		
 
 	def enable(self, itm, val=True):

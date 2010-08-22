@@ -89,7 +89,7 @@ class dFont(dObject):
 			if not automatic_face:
 				if not lowVal.startswith("ms shell dlg"):
 					# Ignore the non-existent MS Shell Dlg font names; they are Windows aliases 
-					dabo.errorLog.write(_("The font '%s' doesn't exist on this system.") % val)
+					dabo.log.error(_("The font '%s' doesn't exist on this system.") % val)
  
 		self._propsChanged()
 
@@ -130,7 +130,7 @@ class dFont(dObject):
 		try:
 			self._nativeFont.SetPointSize(val)
 		except ValueError:
-			dabo.errorLog.write(_("Setting FontSize to %s failed") % val)
+			dabo.log.error(_("Setting FontSize to %s failed") % val)
 		self._propsChanged()
 
 

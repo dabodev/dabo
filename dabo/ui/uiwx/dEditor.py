@@ -226,7 +226,7 @@ class STCPrintout(wx.Printout):
 		if not self.IsPreview():
 			if ep < stcEndPos:
 				posdiff = stcEndPos-ep
-				dabo.errorLog.write(_('warning: on page %(page)s: not enough chars rendered, diff: %(posdiff)s') % locals())
+				dabo.log.error(_('warning: on page %(page)s: not enough chars rendered, diff: %(posdiff)s') % locals())
 		return True
 
 
@@ -371,7 +371,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				self._fileName, False)
 		self._printPreview = wx.PrintPreview(po1, po2, self._printData)
 		if not self._printPreview.Ok():
-			dabo.errorLog.write(_("An error occured while preparing preview."))
+			dabo.log.error(_("An error occured while preparing preview."))
 			return
 		frame = wx.PreviewFrame(self._printPreview, self.Form, _("Print Preview"))
 		frame.Initialize()
@@ -388,7 +388,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				self._fileName, False)
 
 		if not printer.Print(self.Form, printout):
-			dabo.errorLog.write(_("An error occured while printing."))
+			dabo.log.error(_("An error occured while printing."))
 		else:
 			self.printData = wx.PrintData(printer.GetPrintDialogData().GetPrintData())
 		printout.Destroy()
@@ -844,7 +844,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				try:
 					newSize = int(fontSize)
 				except ValueError:
-					dabo.errorLog.write(_("Invalid value passed to changeFontSize: %s") % fontSize)
+					dabo.log.error(_("Invalid value passed to changeFontSize: %s") % fontSize)
 					return
 		else:
 			newSize = fontSize
@@ -2142,7 +2142,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 				if val.lower() in LexerDic.keys():
 					self._language = val.lower()
 				else:
-					dabo.errorLog.write(_("Currently only %s are supported") % ", ".join(LexerDic.keys()))
+					dabo.log.error(_("Currently only %s are supported") % ", ".join(LexerDic.keys()))
 				self.setDefaults()
 				self._defaultsSet = True
 
@@ -2414,7 +2414,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 					self.Text = val
 				except TypeError, e:
 					nm = self._name
-					dabo.errorLog.write(_("Could not set value of %(nm)s to %(val)s. Error message: %(e)s")
+					dabo.log.error(_("Could not set value of %(nm)s to %(val)s. Error message: %(e)s")
 							% locals())
 				self._afterValueChanged()
 			self.flushValue()

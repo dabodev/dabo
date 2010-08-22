@@ -134,7 +134,7 @@ class uiApp(dObject, wx.App):
 			self._platform = _("Mac")
 		elif wx.PlatformInfo[0] == "__WXMSW__":
 			self._platform = _("Win")
-		dabo.infoLog.write(txt)
+		dabo.log.info(txt)
 		self.Bind(wx.EVT_ACTIVATE_APP, self._onWxActivate)
 		self.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
 		self.Bind(wx.EVT_KEY_UP, self._onWxKeyUp)
@@ -288,7 +288,7 @@ these automatic updates.""").replace("\n", " ")
 				try:
 					success = self.dApp._updateFramework()
 				except IOError, e:
-					dabo.errorLog.write(_("Cannot update files; Error: %s") % e)
+					dabo.log.error(_("Cannot update files; Error: %s") % e)
 					dabo.ui.info(_("You do not have permission to update the necessary files. "
 							"Please re-run the app with administrator privileges."), title=_("Permission Denied"))
 					self.dApp._resetWebUpdateCheck()
@@ -770,7 +770,7 @@ these automatic updates.""").replace("\n", " ")
 				except dabo.ui.deadObjectException:
 					pass
 			else:
-				dabo.infoLog.write(_("Stub: dApp.onEditPreferences()"))
+				dabo.log.info(_("Stub: dApp.onEditPreferences()"))
 
 
 	def onEditUndo(self, evt):
@@ -781,7 +781,7 @@ these automatic updates.""").replace("\n", " ")
 				try:
 					win.Undo()
 				except AttributeError:
-					dabo.errorLog.write(_("No apparent way to undo."))
+					dabo.log.error(_("No apparent way to undo."))
 	
 
 	def onEditRedo(self, evt):
@@ -792,7 +792,7 @@ these automatic updates.""").replace("\n", " ")
 				try:
 					win.Redo()
 				except AttributeError:
-					dabo.errorLog.write(_("No apparent way to redo."))
+					dabo.log.error(_("No apparent way to redo."))
 
 
 	def onEditFindAlone(self, evt):
@@ -1009,7 +1009,7 @@ these automatic updates.""").replace("\n", " ")
 				except AttributeError:
 					value = None
 				if not isinstance(value, basestring):
-					dabo.errorLog.write(_("Active control isn't text-based."))
+					dabo.log.error(_("Active control isn't text-based."))
 					return
 
 				if action == "Replace":
@@ -1044,7 +1044,7 @@ these automatic updates.""").replace("\n", " ")
 					win.SetSelection(selStart, selEnd)
 					win.ShowPosition(win.GetSelection()[1])
 				else:
-					dabo.infoLog.write(_("Not found"))
+					dabo.log.info(_("Not found"))
 				return ret
 				
 
@@ -1142,7 +1142,7 @@ these automatic updates.""").replace("\n", " ")
 		try:
 			pth = frm._sourceFilePath
 		except AttributeError:
-			dabo.errorLog.write(_("Only .cdxml forms can be re-loaded"))
+			dabo.log.error(_("Only .cdxml forms can be re-loaded"))
 			return
 		self.dApp.resyncFiles()
 		frm.lockDisplay()

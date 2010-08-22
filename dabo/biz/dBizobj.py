@@ -427,7 +427,7 @@ class dBizobj(dObject):
 				self.RowNumber = current_row
 			except StandardError, e:
 				# Need to record what sort of error could be thrown
-				dabo.errorLog.write(_("Failed to set RowNumber. Error: %s") % e)
+				dabo.log.error(_("Failed to set RowNumber. Error: %s") % e)
 
 
 	def save(self, startTransaction=True):
@@ -831,7 +831,7 @@ class dBizobj(dObject):
 					func(*args, **kwargs)
 				except StandardError, e:
 					# Reset things and bail
-					dabo.errorLog.write(_("Error in scanChangedRows: %s") % e)
+					dabo.log.error(_("Error in scanChangedRows: %s") % e)
 					self._CurrentCursor = old_currentCursorKey
 					self._positionUsingPK(old_pk)
 					raise

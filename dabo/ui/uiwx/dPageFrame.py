@@ -132,7 +132,7 @@ class dPageList(dPageFrameMixin, wx.Listbook):
 			except AttributeError:
 				# Changed this to write to the info log to avoid error messages that
 				#  unnecessarily exaggerate the problem.
-				dabo.infoLog.write(_("ListSpacing is not supported in wxPython %s") % wx.__version__)
+				dabo.log.info(_("ListSpacing is not supported in wxPython %s") % wx.__version__)
 		else:
 			self._properties["ListSpacing"] = val
 

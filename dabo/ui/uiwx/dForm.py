@@ -439,9 +439,9 @@ class BaseForm(fm.dFormMixin):
 					self.SaveAllRows and "all records" or "current record",))
 			self.update()
 		except dException.NoRecordsException, e:
-			dabo.errorLog.write(_("Cancel failed; no records to cancel."))
+			dabo.log.error(_("Cancel failed; no records to cancel."))
 		except dException.dException, e:
-			dabo.errorLog.write(_("Cancel failed with response: %s") % e)
+			dabo.log.error(_("Cancel failed with response: %s") % e)
 			self.notifyUser(ustr(e), title=_("Cancel Not Allowed"), exception=e)
 		self.afterCancel()
 		self.refresh()
@@ -511,12 +511,12 @@ class BaseForm(fm.dFormMixin):
 			sys.exit()
 
 		except dException.DBQueryException, e:
-			dabo.errorLog.write(_("Database Execution failed with response: %s") % e)
+			dabo.log.error(_("Database Execution failed with response: %s") % e)
 			self.notifyUser(ustr(e), title=_("Database Action Failed"), severe=True, exception=e)
 			self.StatusText = ""
 
 		except dException.dException, e:
-			dabo.errorLog.write(_("Requery failed with response: %s") % e)
+			dabo.log.error(_("Requery failed with response: %s") % e)
 			self.notifyUser(ustr(e), title=_("Requery Not Allowed"), severe=True, exception=e)
 			self.StatusText = ""
 
@@ -564,7 +564,7 @@ class BaseForm(fm.dFormMixin):
 				self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
 				sys.exit()
 			except dException.dException, e:
-				dabo.errorLog.write(_("Delete failed with response: %s") % e)
+				dabo.log.error(_("Delete failed with response: %s") % e)
 				self.notifyUser(ustr(e), title=_("Deletion Not Allowed"), severe=True, exception=e)
 			self.afterDelete()
 		self.update()
@@ -598,7 +598,7 @@ class BaseForm(fm.dFormMixin):
 				self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
 				sys.exit()
 			except dException.dException, e:
-				dabo.errorLog.write(_("Delete All failed with response: %s") % e)
+				dabo.log.error(_("Delete All failed with response: %s") % e)
 				self.notifyUser(ustr(e), title=_("Deletion Not Allowed"), severe=True, exception=e)
 		self.afterDeleteAll()
 		self.update()
@@ -784,7 +784,7 @@ Database error message: %s""") %	err
 		if not biz:
 			# Now that DataSources are not always bizobjs, just return
 			## No bizobj for that DataSource; record the error
-			#dabo.errorLog.write("No business object found for DataSource: '%s', DataField: '%s' "
+			#dabo.log.error("No business object found for DataSource: '%s', DataField: '%s' "
 			#		% (ds, df))
 			return True
 		if not isinstance(biz, dabo.biz.dBizobj):
@@ -855,7 +855,7 @@ Database error message: %s""") %	err
 				self._primaryBizobj = bo
 				self.afterSetPrimaryBizobj()
 			else:
-				dabo.infoLog.write(_("bizobj for data source %s does not exist.") % bizOrDataSource)
+				dabo.log.info(_("bizobj for data source %s does not exist.") % bizOrDataSource)
 
 
 	def _getRequeryOnLoad(self):

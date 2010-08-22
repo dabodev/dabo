@@ -50,7 +50,7 @@ class dFormMixin(pm.dPemMixin):
 # 				bo = self.getBizobj()
 # 				exec(self.debugText)
 # 			except: 
-# 				dabo.infoLog.write(_("Could not execute: %s") % self.debugText)
+# 				dabo.log.info(_("Could not execute: %s") % self.debugText)
 # 		dlg.Destroy()	
 # 
 # 
