@@ -14,10 +14,7 @@ except ImportError:
 	try:
 		import sqlite3 as sqlite
 	except ImportError:
-		# pkm: We can't use the errorLog to warn of this problem, because errorLog
-		#      descends from dObject, which needs to load dPref.py first.
-		warnings.warn("Class dPref requires package 'pysqlite2'.")
-		#dabo.log.error("This class requires SQLite")
+		dabo.log.error("Class dPref requires package 'pysqlite2'.")
 
 # We don't want to deal with these as preferences.
 regularAtts = ("AutoPersist", "__base__", "__bases__", "__basicsize__", "__call__", 
