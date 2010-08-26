@@ -127,57 +127,66 @@ dAppRef = None
 # we want to make them part of the dabo namespace.
 from settings import *
 
+# See if a logging.conf file exists in either the current directory or
+# the base directory for the dabo module. If such a file is found, use
+# it to configure logging. Otherwise, use the values gotten from
+# dabo.settings.
 _logConfFileName = "logging.conf"
-logConfFile = os.path.join(os.getcwd(), _logConfFileName)
-if not os.path.exists(logConfFile):
-	daboloc = os.path.dirname(__file__)
-	logConfFile = os.path.join(daboloc, _logConfFileName)
-import logging.config
-logging.config.fileConfig(logConfFile)
-
-log = logging.getLogger("dabo.mainLog")
-dbActivityLog = logging.getLogger("dabo.dbActivityLog")
-consoleLog = fileLog = dbLog = None
-for _handler in log.handlers:
-	try:
-		_handler.baseFilename
-		fileLog = _handler
-	except AttributeError:
-		consoleLog = _handler
-for _handler in dbActivityLog.handlers:
-	try:
-		_handler.baseFilename
-		dbLog = _handler
-		break
-	except AttributeError:
-		pass
+_hasConfFile = False
+_logConfFile = os.path.join(os.getcwd(), _logConfFileName)
+if not os.path.exists(_logConfFile):
+	_daboloc = os.path.dirname(__file__)
+	_logConfFile = os.path.join(_daboloc, _logConfFileName)
+if os.path.exists(_logConfFile):
+	import logging.config
+	logging.config.fileConfig(_logConfFile)
+	# Populate the module namespace with the appropriate loggers
+	log = logging.getLogger(mainLogQualName)
+	dbActivityLog = logging.getLogger(dbLogQualName)
+	consoleLog = fileLog = dbLog = None
+	for _handler in log.handlers:
+		try:
+			_handler.baseFilename
+			fileLog = _handler
+		except AttributeError:
+			consoleLog = _handler
+	for _handler in dbActivityLog.handlers:
+		try:
+			_handler.baseFilename
+			dbLog = _handler
+			break
+		except AttributeError:
+			pass
+else:
+	# Use dabo.settings values to configure the logs
+	consoleLog = logging.StreamHandler()
+	consoleLog.setLevel(mainLogConsoleLevel)
+	fileLog = logging.handlers.RotatingFileHandler(filename=mainLogFile, maxBytes=maxLogFileSize,
+			encoding=defaultEncoding)
+	fileLog.setLevel(mainLogFileLevel)
+	consoleFormatter = logging.Formatter(consoleFormat)
+	consoleFormatter.datefmt = mainLogDateFormat
+	fileFormatter = logging.Formatter(fileFormat)
+	fileFormatter.datefmt = mainLogDateFormat
+	consoleLog.setFormatter(consoleFormatter)
+	fileLog.setFormatter(fileFormatter)
+	log = logging.getLogger(mainLogQualName)
+	log.setLevel(logging.DEBUG)
+	log.addHandler(consoleLog)
+	log.addHandler(fileLog)
+	
+	dbActivityLog = logging.getLogger(dbLogQualName)
+	dbLog = logging.handlers.RotatingFileHandler(filename=dbLogFile, maxBytes=maxLogFileSize,
+			encoding=defaultEncoding)
+	dbActivityLog.addHandler(dbLog)
+	dbActivityLog.setLevel(dbLogFileLevel)
+	dbLog.setLevel(dbLogFileLevel)
 
 
 ########################################################
 #### The commented out code was a first attempt at using Python logging, but with
 #### the dabo.settings file being used to configure instead of logging.conf
 ########################################################
-# logConsoleHandler = logging.StreamHandler()
-# logConsoleHandler.setLevel(logConsoleLevel)
-# logFileHandler = logging.handlers.RotatingFileHandler(filename=logFile, maxBytes=maxLogFileSize,
-# 		encoding=defaultEncoding)
-# logFileHandler.setLevel(logFileLevel)
-# consoleFormatter = logging.Formatter(consoleFormat)
-# fileFormatter = logging.Formatter(fileFormat)
-# logConsoleHandler.setFormatter(consoleFormatter)
-# logFileHandler.setFormatter(fileFormatter)
-# log = logging.getLogger(logName)
-# log.setLevel(logging.DEBUG)
-# log.addHandler(logConsoleHandler)
-# log.addHandler(logFileHandler)
-# 
-# This log is set to the null output device ('nul' on Windows; /dev/null on the rest)
-# dbActivityLog = logging.getLogger("dabo.dbActivityLog")
-# dbLogHandler = logging.handlers.RotatingFileHandler(filename=dbLogFile, maxBytes=maxLogFileSize,
-# 		encoding=defaultEncoding)
-# dbActivityLog.addHandler(dbLogHandler)
-# dbActivityLog.setLevel(dbLogFileLevel)
-# dbLogHandler.setLevel(dbLogFileLevel)
 ########################################################
 
 # Install localization service for dabo. dApp will install localization service
