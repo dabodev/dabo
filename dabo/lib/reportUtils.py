@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import datetime
-
-from decimal import Decimal
 import os
 import sys
+import subprocess
 import tempfile
+import datetime
+from decimal import Decimal
 
 
 class TempFileHolder(object):
@@ -40,9 +40,10 @@ getTempFile = tempFileHolder.getTempFile
 def previewPDF(path, modal=False):
 	"""Preview the passed PDF file in the default PDF viewer."""
 	try:
+		# On Windows, use the default PDF viewer (probably Adobe Acrobat)
 		os.startfile(path)
 	except AttributeError:
-		# startfile only available on Windows
+		# On Mac, use the default PDF viewer (probably Preview.app)
 		if sys.platform == "darwin":
 			os.system("open %s" % path)
 		else:
@@ -60,11 +61,7 @@ def previewPDF(path, modal=False):
 					break
 
 			if viewer:
-				if modal:
-					sysfunc = os.system
-				else:
-					sysfunc = os.popen2
-				sysfunc("%s '%s'" % (viewer, path))
+				subprocess.call((viewer, path))
 
 
 
@@ -74,7 +71,7 @@ def printPDF(path):
 		os.startfile(path, "print")
 	except AttributeError:
 		# startfile() only available on Windows
-		os.system("lpr %s" % path)
+		subprocess.call(("lpr", path))
 
 
 
