@@ -61,8 +61,10 @@ def previewPDF(path, modal=False):
 					break
 
 			if viewer:
-				subprocess.call((viewer, path))
-
+				if modal:
+					subprocess.call((viewer, path))
+				else:
+					subprocess.Popen((viewer, path))
 
 
 def printPDF(path):
@@ -71,7 +73,7 @@ def printPDF(path):
 		os.startfile(path, "print")
 	except AttributeError:
 		# startfile() only available on Windows
-		subprocess.call(("lpr", path))
+		subprocess.Popen(("lpr", path))
 
 
 
