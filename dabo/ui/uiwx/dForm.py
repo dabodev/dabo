@@ -813,12 +813,6 @@ Database error message: %s""") %	err
 		self.StatusText = _(u"Validation failed for %(df)s: %(err)s") % locals()
 		dabo.ui.callAfter(ctrl.setFocus)
 		self._fieldValidationControl = ctrl
-
-
-	def _controlGotFocus(self, ctrl):
-		if self._fieldValidationControl is ctrl:
-			# Clear it
-			self._fieldValidationControl = None
 		
 	
 	def onFieldValidationPassed(self, ctrl, ds, df, val):
