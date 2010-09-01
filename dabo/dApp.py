@@ -157,7 +157,7 @@ class dApp(dObject):
 		-- decide which ui to use (wx) and gets that ball rolling
 
 		-- look for a MainForm in an expected place, otherwise use default dabo
-		-- dMainForm, and instantiate that.
+		-- dFormMain, and instantiate that.
 
 		-- maintain a forms collection and provide interfaces for
 		-- opening dForms, closing them, and iterating through them.
