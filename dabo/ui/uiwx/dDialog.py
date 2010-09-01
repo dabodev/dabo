@@ -143,8 +143,13 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		if self.Application is not None:
 			self.Application.uiForms.remove(self)
 		super(dDialog, self).release()
-	
-	
+
+
+	def _controlGotFocus(self, ctrl):
+		# Placeholder until we unify dForm and dDialog
+		pass
+
+
 	def _getAutoSize(self):
 		return self._fit
 
