@@ -12,7 +12,7 @@ class dFormMainBase(fm.dFormMixin):
 	"""
 	def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
 		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
-	
+
 
 	def _beforeClose(self, evt=None):
 		forms2close = [frm for frm in self.Application.uiForms
@@ -20,17 +20,17 @@ class dFormMainBase(fm.dFormMixin):
 		while forms2close:
 			frm = forms2close[0]
 			# This will allow forms to veto closing (i.e., user doesn't
-			# want to save pending changes). 
+			# want to save pending changes).
 			if frm.close() == False:
 				# The form stopped the closing process. The user
-				# must deal with this form (save changes, etc.) 
+				# must deal with this form (save changes, etc.)
 				# before the app can exit.
 				frm.bringToFront()
 				return False
 			else:
 				forms2close.remove(frm)
 
-	
+
 
 
 class dFormMain(dFormMainBase, wx.Frame):
