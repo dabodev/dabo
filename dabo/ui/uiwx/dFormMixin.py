@@ -68,6 +68,8 @@ class dFormMixin(pm.dPemMixin):
 		self._defaultWidth = 600
 		self._defaultHeight = 500
 		self._defaultState = "Normal"
+		# Flag to prevent infinite loops when doing field-level validation
+		self._fieldValidationControl = None
 
 		super(dFormMixin, self).__init__(preClass, parent, properties, 
 				attProperties, *args, **kwargs)
@@ -163,6 +165,12 @@ class dFormMixin(pm.dPemMixin):
 		else:
 			self.raiseEvent(dEvents.Deactivate, evt)
 		evt.Skip()
+
+
+	def _controlGotFocus(self, ctrl):
+		if self._fieldValidationControl is ctrl:
+			# Clear it
+			self._fieldValidationControl = None
 			
 			
 	def Maximize(self, maximize=True, *args, **kwargs):

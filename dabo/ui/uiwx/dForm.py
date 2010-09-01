@@ -55,8 +55,6 @@ class BaseForm(fm.dFormMixin):
 		self._holdStatusText = ""
 		# Holds the dataSource passed to the method
 		self.dataSourceParameter = None
-		# Flag to prevent infinite loops when doing field-level validation
-		self._fieldValidationControl = None
 
 
 	def _beforeSetProperties(self, props):
