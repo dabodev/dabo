@@ -127,6 +127,9 @@ dAppRef = None
 # we want to make them part of the dabo namespace.
 from settings import *
 
+# These are the various standard log handlers.
+consoleLogHandler = fileLogHandler = None
+dbConsoleLogHandler = dbFileLogHandler = None
 # See if a logging.conf file exists in either the current directory or
 # the base directory for the dabo module. If such a file is found, use
 # it to configure logging. Otherwise, use the values gotten from
@@ -138,56 +141,119 @@ if not os.path.exists(_logConfFile):
 	_daboloc = os.path.dirname(__file__)
 	_logConfFile = os.path.join(_daboloc, _logConfFileName)
 if os.path.exists(_logConfFile):
+	# If a 'logging.conf' file exists, use it instead of dabo.settings.
 	import logging.config
 	logging.config.fileConfig(_logConfFile)
 	# Populate the module namespace with the appropriate loggers
 	log = logging.getLogger(mainLogQualName)
 	dbActivityLog = logging.getLogger(dbLogQualName)
-	consoleLog = fileLog = dbLog = None
 	for _handler in log.handlers:
 		try:
 			_handler.baseFilename
-			fileLog = _handler
+			fileLogHandler = _handler
 		except AttributeError:
-			consoleLog = _handler
+			consoleLogHandler = _handler
 	for _handler in dbActivityLog.handlers:
 		try:
 			_handler.baseFilename
-			dbLog = _handler
+			dbFileLogHandler = _handler
 			break
 		except AttributeError:
-			pass
+			dbConsoleLogHandler = _handler
 else:
 	# Use dabo.settings values to configure the logs
-	consoleLog = logging.StreamHandler()
-	consoleLog.setLevel(mainLogConsoleLevel)
-	fileLog = logging.handlers.RotatingFileHandler(filename=mainLogFile, maxBytes=maxLogFileSize,
-			encoding=defaultEncoding)
-	fileLog.setLevel(mainLogFileLevel)
+	consoleLogHandler = logging.StreamHandler()
+	consoleLogHandler.setLevel(mainLogConsoleLevel)
 	consoleFormatter = logging.Formatter(consoleFormat)
 	consoleFormatter.datefmt = mainLogDateFormat
-	fileFormatter = logging.Formatter(fileFormat)
-	fileFormatter.datefmt = mainLogDateFormat
-	consoleLog.setFormatter(consoleFormatter)
-	fileLog.setFormatter(fileFormatter)
+	consoleLogHandler.setFormatter(consoleFormatter)
 	log = logging.getLogger(mainLogQualName)
 	log.setLevel(logging.DEBUG)
-	log.addHandler(consoleLog)
-	log.addHandler(fileLog)
+	log.addHandler(consoleLogHandler)
+	if mainLogFile is not None:
+		fileLogHandler = logging.handlers.RotatingFileHandler(filename=mainLogFile,
+				maxBytes=maxLogFileSize, encoding=defaultEncoding)
+		fileLogHandler.setLevel(mainLogFileLevel)
+		fileFormatter = logging.Formatter(fileFormat)
+		fileFormatter.datefmt = mainLogDateFormat
+		fileLogHandler.setFormatter(fileFormatter)
+		log.addHandler(fileLogHandler)
 	
+	dbConsoleLogHandler = logging.StreamHandler()
+	dbConsoleLogHandler.setLevel(dbLogConsoleLevel)
+	dbConsoleFormatter = logging.Formatter(dbConsoleFormat)
+	dbConsoleFormatter.datefmt = dbLogDateFormat
+	dbConsoleLogHandler.setFormatter(dbConsoleFormatter)
 	dbActivityLog = logging.getLogger(dbLogQualName)
-	dbLog = logging.handlers.RotatingFileHandler(filename=dbLogFile, maxBytes=maxLogFileSize,
-			encoding=defaultEncoding)
-	dbActivityLog.addHandler(dbLog)
-	dbActivityLog.setLevel(dbLogFileLevel)
-	dbLog.setLevel(dbLogFileLevel)
+	dbActivityLog.setLevel(dbLogLevel)
+	dbActivityLog.addHandler(dbConsoleLogHandler)
+	if dbLogFile is not None:
+		dbFileLogHandler = logging.handlers.RotatingFileHandler(filename=dbLogFile,
+				maxBytes=maxLogFileSize, encoding=defaultEncoding)
+		dbFileLogHandler.setLevel(dbLogFileLevel)
+		dbFileFormatter = logging.Formatter(dbFileFormat)
+		dbFileFormatter.datefmt = dbLogDateFormat
+		dbFileLogHandler.setFormatter(dbFileFormatter)
+		dbActivityLog.addHandler(dbFileLogHandler)
 
 
-########################################################
-#### The commented out code was a first attempt at using Python logging, but with
-#### the dabo.settings file being used to configure instead of logging.conf
-########################################################
-########################################################
+def setMainLogFile(fname, level=None):
+	"""Create the main file-based logger for the framework, and optionally
+	set the log level. If the passed 'fname' is None, any existing file-based
+	logger will be closed.
+	"""
+	if fname is None:
+		if dabo.fileLogHandler:
+			# Remove the existing handler
+			dabo.log.removeHandler(dabo.fileLogHandler)
+			dabo.fileLogHandler.close()
+			dabo.fileLogHandler = None
+	else:
+		if dabo.fileLogHandler:
+			# Close the existing handler first
+			dabo.log.removeHandler(dabo.fileLogHandler)
+			dabo.fileLogHandler.close()
+			dabo.fileLogHandler = None
+		dabo.fileLogHandler = logging.handlers.RotatingFileHandler(filename=fname,
+				maxBytes=dabo.maxLogFileSize, encoding=dabo.defaultEncoding)
+		if level:
+			dabo.fileLogHandler.setLevel(level)
+		else:
+			dabo.fileLogHandler.setLevel(dabo.mainLogFileLevel)
+		dabo.fileFormatter = logging.Formatter(dabo.fileFormat)
+		dabo.fileFormatter.datefmt = dabo.mainLogDateFormat
+		dabo.fileLogHandler.setFormatter(dabo.fileFormatter)
+		dabo.log.addHandler(dabo.fileLogHandler)
+
+
+def setDbLogFile(fname, level=None):
+	"""Create the dbActivity file-based logger for the framework, and optionally
+	set the log level. If the passed 'fname' is None, any existing file-based
+	logger will be closed.
+	"""
+	if fname is None:
+		if dabo.dbFileLogHandler:
+			# Remove the existing handler
+			dabo.dbActivityLog.removeHandler(dabo.dbFileLogHandler)
+			dabo.dbFileLogHandler.close()
+			dabo.dbFileLogHandler = None
+	else:
+		if dabo.dbFileLogHandler:
+			# Close the existing handler first
+			dabo.dbActivityLog.removeHandler(dabo.dbFileLogHandler)
+			dabo.dbFileLogHandler.close()
+			dabo.dbFileLogHandler = None
+		dabo.dbFileLogHandler = logging.handlers.RotatingFileHandler(filename=fname,
+				maxBytes=dabo.maxLogFileSize, encoding=dabo.defaultEncoding)
+		if level:
+			dabo.dbFileLogHandler.setLevel(level)
+		else:
+			dabo.dbFileLogHandler.setLevel(dabo.mainLogFileLevel)
+		dabo.dbFileFormatter = logging.Formatter(dabo.dbFileFormat)
+		dabo.dbFileFormatter.datefmt = dabo.dbLogDateFormat
+		dabo.dbFileLogHandler.setFormatter(dabo.dbFileFormatter)
+		dabo.dbActivityLog.addHandler(dabo.dbFileLogHandler)
+
 
 # Install localization service for dabo. dApp will install localization service
 # for the user application separately.

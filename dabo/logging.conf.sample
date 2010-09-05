@@ -1,8 +1,9 @@
+
 [loggers]
 keys=root,daboLog,dbActivity
 
 [handlers]
-keys=consoleHandler,fileHandler,dbHandler
+keys=consoleHandler,fileHandler,dbConsoleHandler,dbFileHandler
 
 [formatters]
 keys=basicFormatter
@@ -19,7 +20,7 @@ propagate=0
 
 [logger_dbActivity]
 level=DEBUG
-handlers=dbHandler
+handlers=dbConsoleHandler,dbFileHandler
 qualname=dabo.dbActivityLog
 propagate=0
 
@@ -35,7 +36,13 @@ level=ERROR
 formatter=basicFormatter
 args=("dabo.log", "a", 5242880, 7, "utf8")
 
-[handler_dbHandler]
+[handler_dbConsoleHandler]
+class=StreamHandler
+level=ERROR
+formatter=basicFormatter
+args=(sys.stdout, )
+
+[handler_dbFileHandler]
 class=handlers.RotatingFileHandler
 level=DEBUG
 formatter=basicFormatter

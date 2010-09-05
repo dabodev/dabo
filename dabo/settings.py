@@ -183,18 +183,23 @@ webupdate_urlbase = "http://daboserver.com/webupdate"
 # Logging settings
 mainLogLevel = logging.DEBUG
 mainLogQualName = "dabo.mainLog"
-# Set the main log file to the null device initially
-mainLogFile = os.devnull
+# Set the main log file to None initially
+mainLogFile = None
 mainLogConsoleLevel = logging.ERROR
 mainLogFileLevel = logging.ERROR
 mainLogDateFormat = "%Y-%m-%d %H:%M:%S"
-consoleFormat = "%(asctime)s - %(levelname)s - %(message)s"
-fileFormat = "%(asctime)s - %(levelname)s - %(message)s"
-# Set the db file to the null device initially
-dbLogFile = os.devnull
-dbLogQualName = "dabo.dbActivityLog"
-dbLogFileLevel = logging.DEBUG
+consoleFormat = fileFormat = "%(asctime)s - %(levelname)s - %(message)s"
 maxLogFileSize = 5242880		# 5 MB
+
+dbLogLevel = logging.DEBUG
+dbLogQualName = "dabo.dbActivityLog"
+# Set the db file to None initially
+dbLogFile = None
+dbLogConsoleLevel = logging.ERROR
+dbLogFileLevel = logging.DEBUG
+dbLogDateFormat = "%Y-%m-%d %H:%M:%S"
+dbConsoleFormat = dbFileFormat = "%(asctime)s - %(levelname)s - %(message)s"
+dbMaxLogFileSize = 5242880		# 5 MB
 
 
 ### Settings - end
