@@ -10,15 +10,10 @@ import dabo.dException as dException
 from dBizobj import dBizobj
 
 
-cacheDir = os.path.join(os.getcwd(), "cache")
-
-def _createCacheDir():
-	if not os.path.exists(cacheDir):
-		os.makedirs(cacheDir)
-
-
 
 class RemoteBizobj(dBizobj):
+	cacheDir = None
+
 	def _beforeInit(self):
 		return super(RemoteBizobj, self)._beforeInit()
 
@@ -28,6 +23,17 @@ class RemoteBizobj(dBizobj):
 		self.hashval = None
 		self.defineConnection()
 		super(RemoteBizobj, self)._afterInit()
+
+
+	@classmethod
+	def _createCacheDir(cls, pth=None):
+		if cls.cacheDir is not None:
+			return
+		if pth is None:
+			pth = os.getcwd()
+		cls.cacheDir = os.path.join(pth, "cache")
+		if not os.path.exists(cls.cacheDir):
+			os.makedirs(cls.cacheDir)
 
 
 	def defineConnection(self):
@@ -43,13 +49,13 @@ class RemoteBizobj(dBizobj):
 
 
 	@classmethod
-	def load(cls, hashval, ds):
+	def load(cls, hashval, ds, pth):
 		biz = cls()
 		biz.DataSource = ds
 		biz.hashval = hashval
 
-		_createCacheDir()
-		pth = os.path.join(cacheDir, hashval)
+		cls._createCacheDir(pth)
+		pth = os.path.join(cls.cacheDir, hashval)
 		if os.path.exists(pth):
 			f = file(pth)
 			kf, crsData = pickle.load(f)
@@ -87,8 +93,8 @@ class RemoteBizobj(dBizobj):
 		"""Store data info to the cache for the next time the same bizobj
 		is needed.
 		"""
-		_createCacheDir()
-		pth = os.path.join(cacheDir, hashval)
+		self._createCacheDir()
+		pth = os.path.join(self.cacheDir, hashval)
 		f = file(pth, "w")
 		pd = {}
 		cursorDict = self._cursorDictReference()
