@@ -1572,6 +1572,7 @@ class dPemMixin(dPemMixinBase):
 	
 	
 	def clear(self):
+		"""Clears the background of custom-drawn objects."""
 		self.ClearBackground()
 		
 		
