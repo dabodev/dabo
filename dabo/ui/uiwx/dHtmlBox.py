@@ -155,6 +155,10 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		self._respondToLinks = val
 		
 
+	def _getSelectedText(self):
+		return self.SelectionToText()
+	
+	
 	def _getSource(self):
 		return self._source
 
@@ -180,6 +184,11 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 			self._delWindowStyleFlag(wx.html.HW_SCROLLBAR_AUTO)
 			self._addWindowStyleFlag(wx.html.HW_SCROLLBAR_NEVER)
 
+
+	def _getText(self):
+		return self.ToText()
+	
+	
 	def _getVerticalScroll(self):
 		return self._verticalScroll
 
@@ -193,7 +202,8 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 			_("Controls whether this object will scroll horizontally (default=True)  (bool)"))
 
 	OpenLinksInBrowser = property(_getOpenLinksInBrowser, _setOpenLinksInBrowser, None,
-			_("When True, clicking on an HREF link will open the URL in the default web browser instead of in the control itself. Default=False.  (bool)"))
+			_("""When True, clicking on an HREF link will open the URL in the default web browser
+			instead of in the control itself. Default=False.  (bool)"""))
 
 	Page = property(_getPage, _setPage, None,
 			_("URL or file path of the current page being displayed. (default='')  (string)"))
@@ -201,12 +211,19 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 	RespondToLinks = property(_getRespondToLinks, _setRespondToLinks, None,
 			_("When True (default), clicking a link will attempt to load that linked page.  (bool)"))
 
+	SelectedText = property(_getSelectedText, None, None,
+			_("Currently selected text. Returns the empty string if nothing is selected. Read-only  (str)"))	
+	
 	ShowScrollBars = property(_getShowScrollBars, _setShowScrollBars, None,
 			_("When Tru (default), scrollbars will be shown as needed.  (bool)"))
 
 	Source = property(_getSource, _setSource, None,
 			_("Html source of the current page being display. (default='')  (string)"))
 
+	Text = property(_getText, None, None,
+			_("""Returns the displayed plain text content of the control, free of any 
+			HTML markup. Read-only  (str)"""))	
+	
 	# alias to fall in line with the rest of Dabo.
 	Value = Source
 
@@ -219,29 +236,32 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 	DynamicSource = makeDynamicProperty(Source)
 
 
+
 class _dHtmlBox_test(dHtmlBox):
 	def initProperties(self):
-		self.Size = (600, 450)
+		self.BorderWidth = 5
+		self.BorderColor = "darkblue"
 		self.OpenLinksInBrowser = True
 		self.Source = self.getPageData()
 
 	def getPageData(self):
 		return """<html>
-		<body bgcolor="#ACAA60">
+		<body bgcolor="#B0C4DE">
 		<center>
-			<table bgcolor="#455481" width="100%%" cellspacing="0" cellpadding="0" 
+			<table bgcolor="#8470FF" width="100%%" cellspacing="0" cellpadding="0" 
 					border="1">
 				<tr>
 					<td align="center"><h1>dHtmlBox</h1></td>
 				</tr>
 			</table>
 		</center>
-		<p><b><font size="160%%" color="#FFFFFF">dHtmlBox</font></b> is a Dabo UI widget that is designed to display html text. 
+		<p><b><font size="+2" color="#FFFFFF">dHtmlBox</font></b> is a Dabo UI widget that is designed to display html text. 
 		Be careful, though, because the widget doesn't support advanced functions like 
 		Javascript parsing.</p>
 		<p>It's better to think of it as a way to display <b>rich text</b> using 
 		<font size="+1" color="#993300">HTML markup</font>, rather
-		than a web browser replacement.</p>
+		than a web browser replacement, although you <i>can</i> create links that will open
+		in a web browser, like this: <a href="http://wiki.dabodev.com">Dabo Wiki</a>.</p>
 		
 		<p>&nbsp;</p>
 		<div align="center"><img src="daboIcon.ico"></div>
@@ -261,8 +281,34 @@ class _dHtmlBox_test(dHtmlBox):
 		print "Key Code:", evt.EventData["keyCode"]
 
 
+def textChangeHandler(evt):
+	dabo.ui.callAfter(evt.EventObject.flushValue)
+
+def resetHTML(evt):
+	frm = evt.EventObject.Form
+	frm.htmlbox.Source = frm.htmlbox.getPageData()
+	frm.update()
+	
+	
 
 if __name__ == "__main__":
-	import test
-	test.Test().runTest(_dHtmlBox_test)
+	app = dabo.dApp(MainFormClass=None)
+	app.setup()
+	frm = dabo.ui.dForm()
+	pnl = dabo.ui.dPanel(frm)
+	frm.Sizer.append1x(pnl)
+	sz = pnl.Sizer = dabo.ui.dSizer("v")
+	ht = _dHtmlBox_test(pnl, RegID="htmlbox")
+	sz.append(ht, 2, "x", border=10)
+	lbl = dabo.ui.dLabel(pnl, Caption="Edit the HTML below, then press 'Tab' to update the rendered HTML")
+	sz.appendSpacer(5)
+	sz.append(lbl, halign="center")
+	edt = dabo.ui.dEditBox(pnl, RegID="editbox", DataSource=ht, DataField="Source")
+	edt.bindEvent(dEvents.KeyChar, textChangeHandler)
+	sz.append1x(edt, border=10)
+	btn = dabo.ui.dButton(pnl, Caption="Reset", OnHit=resetHTML)
+	sz.append(btn, halign="right", border=10, borderSides=["right", "bottom"])
+	
+	frm.show()
+	app.start()
 
