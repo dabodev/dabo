@@ -554,7 +554,11 @@ class dPemMixin(dPemMixinBase):
 
 		
 	def __onWxGotFocus(self, evt):
-		self.Form._controlGotFocus(self)
+		try:
+			self.Form._controlGotFocus(self)
+		except AttributeError:
+			# 'Form' is None
+			pass
 		self._pushStatusText()
 		if isinstance(self, dabo.ui.dGrid):
 			## Continuation of ugly workaround for grid focus event. Only raise the
