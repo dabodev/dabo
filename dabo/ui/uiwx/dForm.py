@@ -636,9 +636,6 @@ class BaseForm(fm.dFormMixin):
 		self.refresh()
 
 
-	def afterNew(self): pass
-
-
 	def getSQL(self, dataSource=None):
 		""" Get the current SQL from the bizobj."""
 		return self.getBizobj(dataSource).getSQL()
