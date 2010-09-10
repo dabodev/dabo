@@ -54,10 +54,7 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 		# Mark the box as part of the sizer
 		self.Box._belongsToBorderSizer = True
 
-		self.afterInit()
-
-
-	def afterInit(self): pass	
+		self._afterInit()
 
 
 	def getNonBorderedClass(self):
