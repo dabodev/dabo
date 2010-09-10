@@ -2464,7 +2464,7 @@ class ReportWriter(object):
 		try:
 			v = self._bands
 		except AttributeError:
-			v = self._bands = {}
+			v = self._bands = CaselessDict()
 		return v
 
 
