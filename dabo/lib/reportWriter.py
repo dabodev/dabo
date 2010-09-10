@@ -53,7 +53,7 @@ from dabo.lib.xmltodict import dicttoxml
 from dabo.dLocalize import _
 from dabo.lib.caselessDict import CaselessDict
 from reportlab.lib.utils import ImageReader
-from dabo.lib.utils import ustr
+from dabo.lib.utils import ustr, resolvePathAndUpdate
 import Image as PILImage
 import reportUtils
 
@@ -2608,7 +2608,11 @@ class ReportWriter(object):
 			self._reportForm = None
 			self._setMemento()
 			return
-
+		
+		if not os.path.exists(val):
+			# Might be a relative path so let's try resolving it.
+			val = resolvePathAndUpdate(val)
+				
 		if os.path.exists(val):
 			ext = os.path.splitext(val)[1] 
 			if ext == ".py":

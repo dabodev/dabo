@@ -303,7 +303,7 @@ def resolvePathAndUpdate(srcFile):
 		keepLooping = True
 		while keepLooping:
 			keepLooping = False
-			for subd in ("ui", "forms", "menus", "resources", "db", "biz"):
+			for subd in ("ui", "forms", "menus", "resources", "db", "biz", "reports"):
 				newpth = os.path.join(hd, subd, fname)
 				if opexists(newpth):
 					srcFile = newpth
