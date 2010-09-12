@@ -450,7 +450,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				
 			if retVal is None:
 				raise ValueError(_("String not in ISO 8601 format."))
-		elif ustr(dataType) == "<type 'DateTime'>":
+		elif ustr(dataType) in ("<type 'DateTime'>", "<type 'mx.DateTime.DateTime'>"):
 			# mx DateTime type. MySQLdb will use this if mx is installed.
 			try:
 				import mx.DateTime
