@@ -8,7 +8,7 @@ from dabo.dLocalize import _
 
 class TestPanel(dabo.ui.dPanel):
 	def afterInit(self):
-		sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20, 
+		sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20,
 				DefaultBorderLeft=True)
 		sz.appendSpacer(25)
 
@@ -25,16 +25,16 @@ class TestPanel(dabo.ui.dPanel):
 			Height=36, Width=180)
 		sz.append(txt, halign="center")
 		dabo.ui.callAfter(self.layout)
-		
+
 
 category = "Controls.dDateTextBox"
 
 overview = """
 <p>The dDateTextBox class is a specialized subclass of dTextBox. It is
-optimized for handling date values, and includes a popup calendar 
+optimized for handling date values, and includes a popup calendar
 for selecting date values.</p>
 
-<p>It also features several keyboard shortcuts for quickly changing the 
+<p>It also features several keyboard shortcuts for quickly changing the
 date. If you are familiar with the behavior of date fields in the personal
 finance program '<b>Quicken</b>', you will recognize these keys. They are:</p>
 

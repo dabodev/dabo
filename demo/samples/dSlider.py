@@ -18,36 +18,36 @@ class TestPanel(dabo.ui.dPanel):
 		self.slider.bindEvent(dEvents.Hit, self.onSliderHit)
 		sz.append(self.slider, "x", border=30, borderSides=("Left", "Right"))
 		sz.appendSpacer(25)
-		
+
 		lbl = dabo.ui.dLabel(self, Caption="Min:")
 		spn = dabo.ui.dSpinner(self, Max=1000000, DataSource=self.slider,
 				DataField="Min", OnValueChanged=self.updtBox)
 		hsz = dabo.ui.dSizer("h")
 		hsz.append(lbl, valign="middle")
 		hsz.append(spn, valign="middle")
-		hsz.appendSpacer(40)		
-		
+		hsz.appendSpacer(40)
+
 		lbl = dabo.ui.dLabel(self, Caption="Max:")
 		spn = dabo.ui.dSpinner(self, Max=1000000, DataSource=self.slider,
 				DataField="Max", OnValueChanged=self.updtBox)
 		hsz.append(lbl, valign="middle")
 		hsz.append(spn, valign="middle")
 		sz.append(hsz, halign="center")
-		
+
 		sz.appendSpacer(25)
-		chk = dabo.ui.dCheckBox(self, Caption="Continuous Update", 
-				DataSource=self.slider, DataField="Continuous")		
+		chk = dabo.ui.dCheckBox(self, Caption="Continuous Update",
+				DataSource=self.slider, DataField="Continuous")
 		sz.append(chk, halign="center")
-		
+
 		self.update()
 		dabo.ui.callAfter(self.updtBox)
 		self.layout()
-		
+
 
 	def onSliderHit(self, evt):
 		self.Form.logit(_("Hit: Value=%s") % self.slider.Value)
 		self.updtBox()
-	
+
 	def updtBox(self, evt=None):
 		try:
 			self.demoBox
@@ -67,10 +67,10 @@ overview = """
 <p>The <b>dSlider</b> class is a handy UI tool to display a value in relation
 to a range of possible values.</p>
 
-<p>You control the range of the slider using the <b>Min</b> and <b>Max</b> 
-properties, and set its value with the <b>Value</b> property. The slider will then 
-display its 'thumb control' in a position proportional to its value in relation to the Min and 
-Max values. Dragging the 'thumb control' changes the Value property, and also generates 
+<p>You control the range of the slider using the <b>Min</b> and <b>Max</b>
+properties, and set its value with the <b>Value</b> property. The slider will then
+display its 'thumb control' in a position proportional to its value in relation to the Min and
+Max values. Dragging the 'thumb control' changes the Value property, and also generates
 a <b>Hit event</b>.</p>
 
 <p>There are two modes for generating Hit events in a slider, and this is controlled
@@ -78,7 +78,7 @@ by the <b>Continuous</b> property. When Continuous is False (<i>default</i>), Hi
 are only raised when the thumb control is released. With Continuous set to True, however,
 Hit events are generated continuously as the thumb control is dragged.</p>
 
-<p>If the <b>ShowLabels</b> property is True, then the slider will also display 
-its Min and Max values, as well as its current Value. Please note that this is must be 
+<p>If the <b>ShowLabels</b> property is True, then the slider will also display
+its Min and Max values, as well as its current Value. Please note that this is must be
 set when the control is created; it has no effect once the control exists.</p>
 """

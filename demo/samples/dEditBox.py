@@ -9,7 +9,7 @@ class TestPanel(dabo.ui.dPanel):
 	def afterInit(self):
 		sz = self.Sizer = dabo.ui.dSizer("v")
 		sz.appendSpacer(25)
-		
+
 		self.edt = dabo.ui.dEditBox(self, Width=400, Height=200)
 		self.edt.Value = self.getGetty()
 		sz.append(self.edt, halign="center")
@@ -18,13 +18,13 @@ class TestPanel(dabo.ui.dPanel):
 		btn = dabo.ui.dButton(self, Caption="Selection Info")
 		btn.bindEvent(dEvents.Hit, self.onSelectionInfo)
 		sz.append(btn, halign="center")
-		
-	
+
+
 	def onSelectionInfo(self, evt):
 		self.Form.logit(_("Selected Text: %s") % self.edt.SelectedText)
 		self.Form.logit(_("Selection Start position: %s") % self.edt.SelectionStart)
 		self.Form.logit(_("Selection End position: %s") % self.edt.SelectionEnd)
-		
+
 
 
 	def getGetty(self):
@@ -60,8 +60,8 @@ class TestPanel(dabo.ui.dPanel):
 category = "Controls.dEditBox"
 
 overview = """
-<p>The <b>dEditBox</b> class allows text to be displayed and edited (if desired). 
-It is best suited for cases where there can be a large amount of text 
-that needs to be displayed in a small area on the screen. You should 
+<p>The <b>dEditBox</b> class allows text to be displayed and edited (if desired).
+It is best suited for cases where there can be a large amount of text
+that needs to be displayed in a small area on the screen. You should
 use <b>dTextBox</b> instead if you only need to display a single line of text.</p>
 """

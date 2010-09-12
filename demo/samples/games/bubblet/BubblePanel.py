@@ -9,14 +9,14 @@ import random
 class BubblePanel(dabo.ui.dPanel):
 	def afterInit(self):
 		self.Buffered = False
-		
+
 		self._popped = False
 		self._selected = False
 		self._colors = ["blue", "green", "red", "yellow", "purple"]
 		self._color = random.choice(self._colors)
 		# Used to detect size changes
 		self._sizeCache = (0, 0)
-		
+
 		plat = self.Application.Platform
 		if plat == "Win":
 			self.selectedBackColor = (192,192,255)
@@ -27,21 +27,21 @@ class BubblePanel(dabo.ui.dPanel):
 		self.row = -1
 		self.col = -1
 		# Create a background that will change to indicate
-		# selected status. 
+		# selected status.
 		self.back = self.drawRectangle(0,0,1,1, penWidth=0)
 		# Create a dummy circle, and store the reference
 		self.circle = self.drawCircle(0,0,1)
 		self.DynamicVisible = lambda: not self.Popped
 		self.onResize(None)
 		self.update()
-		
-	
+
+
 	def setRandomColor(self, repaint=False):
 		self.Color = random.choice(self._colors)
 		if repaint:
 			self.Popped = False
-		
-	
+
+
 	def update(self):
 		dabo.ui.callAfterInterval(50, self._delayedUpdate)
 	def _delayedUpdate(self):
@@ -63,22 +63,22 @@ class BubblePanel(dabo.ui.dPanel):
 		circ.AutoUpdate = back.AutoUpdate = True
 		self._needRedraw = True
 		super(BubblePanel, self).update()
-		
+
 
 	def onResize(self, evt):
 		sz = self.Size
 		if sz != self._sizeCache:
 			self._sizeCache = sz
 			self.update()
-	
-	
+
+
 	def onMouseLeftClick(self, evt):
 		self.Parent.bubbleClick(self)
-	
-	
+
+
 	def _getColor(self):
 		return self._color
-		
+
 	def _setColor(self, val):
 		if val != self._color:
 			if val is None:
@@ -86,7 +86,7 @@ class BubblePanel(dabo.ui.dPanel):
 			else:
 				self._color = val.lower()
 
-			
+
 	def _getPopped(self):
 		return self._popped
 
@@ -112,7 +112,7 @@ class BubblePanel(dabo.ui.dPanel):
 
 	Selected = property(_getSelected, _setSelected, None,
 			_("Selection Status  (bool)"))
-	
+
 
 	_proxyDict = {}
 	Visible = makeProxyProperty(_proxyDict, "Visible", ("circle", ))

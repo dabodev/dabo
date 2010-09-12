@@ -37,7 +37,7 @@ class TestPanel(dabo.ui.dPanel):
 		return self.pgf
 
 	def onPageChanged(self, evt):
-		self.Form.logit("Page number changed from %s to %s" % 
+		self.Form.logit("Page number changed from %s to %s" %
 				(evt.oldPageNum, evt.newPageNum))
 
 	def onNewPosition(self, evt):
@@ -49,7 +49,7 @@ class TestPanel(dabo.ui.dPanel):
 			except AttributeError:
 				self.Form.seenTabPositionWarning = True
 				msg = """TabPosition must be defined when the control
-is created, and cannot be changed afterwards. 
+is created, and cannot be changed afterwards.
 
 The current dPageFrame control will be destroyed,
 and a new control with the position you selected
@@ -57,7 +57,7 @@ will then be created."""
 				dabo.ui.info(msg, "TabPosition Limitation")
 			self.currentTabPosition = newpos
 			self.createPageFrame()
-			# Need to update the 
+			# Need to update the
 
 # 		gsz = dabo.ui.dGridSizer(MaxCols=2)
 # 		for num, pos in enumerate(("Top", "Right", "Bottom", "Left")):
@@ -74,9 +74,9 @@ will then be created."""
 # 		gsz.setColExpand(True, "all")
 # 		gsz.setRowExpand(True, "all")
 # 		self.Sizer.append1x(gsz)
-# 
+#
 # 	def onPageChanged(self, evt):
-# 		self.Form.logit("TabPosition: %s; page number changed from %s to %s" % 
+# 		self.Form.logit("TabPosition: %s; page number changed from %s to %s" %
 # 				(evt.EventObject.TabPosition, evt.oldPageNum, evt.newPageNum))
 
 

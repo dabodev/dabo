@@ -9,7 +9,7 @@ class TestPanel(dabo.ui.dPanel):
 	def afterInit(self):
 		sz = self.Sizer = dabo.ui.dSizer("V")
 		sz.appendSpacer(50)
-		
+
 		intro = _("This demo shows the effect of the HGap and VGap properties on a GridSizer. "
 				"The panel containing the grid sizer has a tan background, and the various controls "
 				"in the sizer have a light blue background. These colors help you to visualize the effect "
@@ -17,11 +17,11 @@ class TestPanel(dabo.ui.dPanel):
 		cap = dabo.ui.dLabel(self, Caption=intro, Width=400, WordWrap=True)
 		sz.append(cap, halign="center")
 		sz.appendSpacer(25)
-		
+
 		# Create the grid sizer
 		gridPanel = dabo.ui.dPanel(self, BackColor="moccasin")
 		gs = self.gridSizer = gridPanel.Sizer = dabo.ui.dGridSizer(MaxCols=2, HGap=3, VGap=8)
-		
+
 		lbl = dabo.ui.dLabel(gridPanel, Caption="First", BackColor="powderblue")
 		ctl = dabo.ui.dTextBox(gridPanel, BackColor="powderblue")
 		gs.append(lbl, halign="right")
@@ -38,7 +38,7 @@ class TestPanel(dabo.ui.dPanel):
 		ctl = dabo.ui.dTextBox(gridPanel, BackColor="powderblue")
 		gs.append(lbl, halign="right")
 		gs.append(ctl)
-		
+
 		hs = dabo.ui.dSizer("H")
 		hs.append(gridPanel, valign="middle")
 
@@ -56,7 +56,7 @@ class TestPanel(dabo.ui.dPanel):
 				DataField="VGap")
 		spn.bindEvent(dEvents.Hit, self.onChangeLayout)
 		gs.append(spn)
-		
+
 		# Add this *before* the first grid sizer
 		hs.prependSpacer(30)
 		hs.insert(0, gs, valign="middle")
@@ -73,7 +73,7 @@ class TestPanel(dabo.ui.dPanel):
 category = "Layout.dGridSizer"
 
 overview = """
-<p><b>dGridSizer</b> is a two-dimensional sizer for laying out items in a grid 
+<p><b>dGridSizer</b> is a two-dimensional sizer for laying out items in a grid
 of rows and columns. You can specify a particular row/col position when you add
 an item, or simply call '<b>append()</b>' and the grid will place it in the first
 available cell.</p>

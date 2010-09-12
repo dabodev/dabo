@@ -18,15 +18,15 @@ class BubbletForm(dabo.ui.dForm):
 		self._score = 0
 		# Used to control unnecessary screen redraws
 		self.noUpdate = False
-		
+
 		# Rows and columns
 		self.rows = 7
 		self.columns = 10
 		bubbles = [ [] for r in range(self.rows)]
-		
+
 		vsz = dui.dSizer("v")
 		gsz = dui.dGridSizer(MaxCols=self.columns)
-		
+
 		for rr in range(self.rows):
 			for cc in range(self.columns):
 				pn = BubblePanel(self)
@@ -39,8 +39,8 @@ class BubbletForm(dabo.ui.dForm):
 		gsz.setColExpand(True, "all")
 		gsz.setRowExpand(True, "all")
 		vsz.append1x(gsz)
-		
-		# Add the score 
+
+		# Add the score
 		sp = self.scorePanel = dabo.ui.dPanel(self)
 		sp.Sizer = hsz = dui.dSizer("h")
 		label = dabo.ui.dLabel(sp, Caption=_("Score:"), FontSize=12)
@@ -48,19 +48,19 @@ class BubbletForm(dabo.ui.dForm):
 		self.scoreLabel = dabo.ui.dLabel(sp, FontSize=14, FontBold=True)
 		hsz.append1x(self.scoreLabel)
 		vsz.append(sp, 0, "x")
-		
+
 		# This should set the label, too
 		self.Score = 0
-		
+
 		self.Sizer = vsz
 		self.layout()
-		
+
 		biz = BubbleBizobj(None)
 		biz.bubbles = bubbles
 		biz.callbackFunc = self.update
 		self.addBizobj(biz)
-		
-		self.Caption = "Bubblet"	
+
+		self.Caption = "Bubblet"
 
 		# Add the menu items
 		mb = self.MenuBar
@@ -76,12 +76,12 @@ class BubbletForm(dabo.ui.dForm):
 		fm.insert(quitPos, _("&Statistics"), HotKey="Ctrl+T", OnHit=self.onStats)
 		fm.insertSeparator(0)
 		fm.insert(0, _("&New Game"), HotKey="Ctrl+N", OnHit=self.onNewGame)
-	
+
 		self.unbindEvent(dEvents.Paint)
 		biz.newGame()
 		dabo.ui.callAfter(self.update)
 
-	
+
 	def saveScreenShot(self, evt):
 		"""Saves a screenshot of the current board."""
 		dabo.ui.saveScreenShot(self)
@@ -101,29 +101,29 @@ class BubbletForm(dabo.ui.dForm):
 		pts = biz.bubbleClick(bubble)
 		if pts:
 			self.Score += pts
-	
+
 		func = biz.getCallback()
 		if func:
 			dabo.ui.callAfter(func, self.updateBoard)
 		self.StatusText = biz.Message
 		self.noUpdate = False
 		self.update()
-		
+
 		if biz.GameOver:
 			dabo.ui.callAfterInterval(500, self.gameOverMsg)
 
 
 	def updateBoard(self):
 		self.tmr.start(100)
-		
-	
+
+
 	def onTimer(self, evt):
 		self.tmr.stop()
 		self.update()
 		if self.Bizobj.GameOver:
 			dabo.ui.callAfterInterval(500, self.gameOverMsg)
-	
-	
+
+
 	def gameOverMsg(self):
 		msg = _("Game Over!")
 		if self.Bizobj.IsNewHighGame:
@@ -143,8 +143,8 @@ class BubbletForm(dabo.ui.dForm):
 		biz.newGame()
 		self.Score = 0
 		self.update()
-	
-	
+
+
 	def onStats(self, evt):
 		biz = self.Bizobj
 		num = biz.NumberOfGames
@@ -152,8 +152,8 @@ class BubbletForm(dabo.ui.dForm):
 		high = biz.HighGame
 		statsForm = StatsForm(self, Games=num, Points=pts, HighGame=high)
 		statsForm.show()
-	
-	
+
+
 	def onResetStats(self, evt):
 		biz = self.Bizobj
 		if biz.NumberOfGames > 0:
@@ -164,7 +164,7 @@ class BubbletForm(dabo.ui.dForm):
 				return
 			else:
 				biz.resetStats()
-				
+
 
 	def _getBizobj(self):
 		return self.PrimaryBizobj
@@ -176,7 +176,7 @@ class BubbletForm(dabo.ui.dForm):
 		if self._score != score:
 			self._score = score
 			self.scoreLabel.Caption = ustr(score)
-		
+
 	Bizobj = property(_getBizobj, None, None,
 			_("Reference to the form's bizobj"))
 

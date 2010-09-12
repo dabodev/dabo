@@ -7,7 +7,7 @@ from dabo.dLocalize import _
 
 class TestPanel(dabo.ui.dPanel):
 	def afterInit(self):
-		sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20, 
+		sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20,
 				DefaultBorderLeft=True)
 		sz.appendSpacer(25)
 
@@ -40,8 +40,8 @@ overview = """
 order to start some action. You can display a text prompt on the button
 by setting its Caption property.</p>
 
-<p>Two other properties affect behavior: <b>DefaultButton</b> and 
-<b>CancelButton</b>. When DefaultButton is True, the button will respond 
+<p>Two other properties affect behavior: <b>DefaultButton</b> and
+<b>CancelButton</b>. When DefaultButton is True, the button will respond
 when the user presses the 'Enter' key as if it had been clicked. When CancelButton
 is True, it responds to pressing the 'Escape' key as if it were clicked.</p>
 """

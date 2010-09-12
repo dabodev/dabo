@@ -62,13 +62,13 @@ class TestPanel(dabo.ui.dPanel):
 category = "Controls.dGauge"
 
 overview = """
-<p>A <b>dGauge</b> is a horizontal or vertical bar which shows a quantity in a graphical 
-fashion. It is often used to indicate progress through lengthy tasks, such as file copying or 
+<p>A <b>dGauge</b> is a horizontal or vertical bar which shows a quantity in a graphical
+fashion. It is often used to indicate progress through lengthy tasks, such as file copying or
 data analysis.</p>
 
-<p>You set the Range property of dGauge to set the 'total' for the task, and then update it 
-by setting the <b>Value</b> property to the current value; the gauge then updates to 
-reflect the percentage of the total for that value. You can alternately set the <b>Percentage</b> 
+<p>You set the Range property of dGauge to set the 'total' for the task, and then update it
+by setting the <b>Value</b> property to the current value; the gauge then updates to
+reflect the percentage of the total for that value. You can alternately set the <b>Percentage</b>
 property, and the appropriate Value for that Percentage will be set.</p>
 
 <p>Gauges do not raise any events, or respond to user interaction. They are simply a convenient way to display the progress of a task or process.</p>

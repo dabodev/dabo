@@ -9,7 +9,7 @@ class TestPanel(dabo.ui.dPanel):
 	def afterInit(self):
 		sz = self.Sizer = dabo.ui.dSizer("v")
 		sz.appendSpacer(50)
-		spn = self.spinner = dabo.ui.dSpinner(self, Max=25, Min=0, Value=4.75, 
+		spn = self.spinner = dabo.ui.dSpinner(self, Max=25, Min=0, Value=4.75,
 				Increment=1.25, SpinnerWrap=False, FontSize=12, Width=100)
 		spn.bindEvent(dEvents.Hit, self.onSpinnerHit)
 		spn.bindEvent(dEvents.SpinUp, self.onSpinUp)
@@ -22,7 +22,7 @@ class TestPanel(dabo.ui.dPanel):
 		sz.appendSpacer(10)
 		sz.append(lbl, halign="center")
 		sz.appendSpacer(4)
-		
+
 		gsz = dabo.ui.dGridSizer(MaxCols=2, HGap=4, VGap=6)
 		lbl = dabo.ui.dLabel(self, Caption="Min")
 		txt = dabo.ui.dTextBox(self, DataSource=spn, DataField="Min", StrictNumericEntry=False)
@@ -85,17 +85,17 @@ class TestPanel(dabo.ui.dPanel):
 			self.spinner.ForeColor = color
 			self.update()
 		self.layout()
-		
+
 	def onSpinnerHit(self, evt):
 		obj = evt.EventObject
 		self.Form.logit("Hit! (%s); Value=%s" % (evt.hitType, obj.Value))
 
 	def onSpinUp(self, evt):
 		self.Form.logit("Spin up event.")
-	
+
 	def onSpinDown(self, evt):
 		self.Form.logit("Spin down event.")
-	
+
 	def onSpinner(self, evt):
 		self.Form.logit("Spinner event.")
 
@@ -105,10 +105,10 @@ category = "Controls.dSpinner"
 
 overview = """
 <p>The <b>dSpinner</b> class is optimal for displaying integer values that vary
-within a moderate range. The value can be changed by editing the text 
+within a moderate range. The value can be changed by editing the text
 portion of the control, or by clicking the up/down arrows to increase or
 decrease the value.</p>
 
-<p>Besides changing the value, clicking the buttons fires the spinner's 
+<p>Besides changing the value, clicking the buttons fires the spinner's
 <b>Hit</b> event, which you can trap and respond to in your code.</p>
 """

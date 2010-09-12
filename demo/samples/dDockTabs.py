@@ -42,7 +42,7 @@ class TestPanel(dabo.ui.dPanel):
 		return self.pgf
 
 	def onPageChanged(self, evt):
-		self.Form.logit("Page number changed from %s to %s" % 
+		self.Form.logit("Page number changed from %s to %s" %
 				(evt.oldPageNum, evt.newPageNum))
 
 
@@ -56,7 +56,7 @@ means. Only one page is visible at any given time.</p>
 
 <p><b>dDockTabs</b> is a variation on the common tabbed page control.
 The tabs are fully draggable, allowing you to not only re-arrange their order, but
-also detach them and dock their page to any edge of the control. You can place the 
+also detach them and dock their page to any edge of the control. You can place the
 tabs at the top or bottom of the pages, and change that interactively. dDockTabs
 does not support tabs on the left or right sides, though.
 </p>

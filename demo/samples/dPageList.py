@@ -38,7 +38,7 @@ class TestPanel(dabo.ui.dPanel):
 		return self.pgf
 
 	def onPageChanged(self, evt):
-		self.Form.logit("Page number changed from %s to %s" % 
+		self.Form.logit("Page number changed from %s to %s" %
 				(evt.oldPageNum, evt.newPageNum))
 
 	def onNewPosition(self, evt):
@@ -50,7 +50,7 @@ class TestPanel(dabo.ui.dPanel):
 			except AttributeError:
 				self.Form.seenTabPositionWarning = True
 				msg = """TabPosition must be defined when the control
-is created, and cannot be changed afterwards. 
+is created, and cannot be changed afterwards.
 
 The current dPageList control will be destroyed,
 and a new control with the position you selected

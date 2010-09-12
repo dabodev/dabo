@@ -11,7 +11,7 @@ class StatsForm(dabo.ui.dDialog):
 		self._games = 0
 		self._highGame = 0
 		self._points = 0
-		
+
 	def addControls(self):
 		self.Caption = "Bubblet Statistics"
 		self.Centered = True
@@ -19,14 +19,14 @@ class StatsForm(dabo.ui.dDialog):
 		self.Sizer.DefaultBorderAll = True
 		sz = dabo.ui.dGridSizer(MaxCols=2, VGap=8, HGap=4)
 		self.Sizer.append1x(sz)
-		
-		lb = dabo.ui.dLabel(self, Caption="Number of Games:", 
+
+		lb = dabo.ui.dLabel(self, Caption="Number of Games:",
 				FontSize=16, ForeColor=(0,0,128))
 		sz.append(lb, halign="right")
 		lb = dabo.ui.dLabel(self, Caption=ustr(self.Games), FontSize=16)
 		sz.append(lb, halign="left")
-		
-		lb = dabo.ui.dLabel(self, Caption="Average:", 
+
+		lb = dabo.ui.dLabel(self, Caption="Average:",
 				FontSize=16, ForeColor = (0,0,128))
 		sz.append(lb, halign="right")
 		if self.Games > 0:
@@ -35,8 +35,8 @@ class StatsForm(dabo.ui.dDialog):
 			avg = 0
 		lb = dabo.ui.dLabel(self, Caption=ustr(avg), FontSize=16)
 		sz.append(lb, halign="left")
-		
-		lb = dabo.ui.dLabel(self, Caption="High Game:", 
+
+		lb = dabo.ui.dLabel(self, Caption="High Game:",
 			FontSize=16, ForeColor=(0,0,128))
 		sz.append(lb, halign="right")
 		lb = dabo.ui.dLabel(self, Caption=ustr(self.HighGame), FontSize=16)
@@ -49,10 +49,10 @@ class StatsForm(dabo.ui.dDialog):
 		self.Sizer.appendSpacer(10)
 		# Add the button
 		self.Sizer.append(btn, halign="right")
-		
+
 		self.layout()
-	
-	
+
+
 	def onHit_btnOK(self, evt):
 		self.release()
 
