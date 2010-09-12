@@ -20,7 +20,7 @@ class dListControl(dcm.dControlItemMixin,
 	elements inside of the row. If you need to be able to work with individual
 	elements, you should use a dGrid.
 	"""
-	def __init__(self, parent, properties=None, attProperties=None, 
+	def __init__(self, parent, properties=None, attProperties=None,
 			style=None, *args, **kwargs):
 		self._baseClass = dListControl
 
@@ -270,7 +270,7 @@ class dListControl(dcm.dControlItemMixin,
 					self.select(row)
 				else:
 					self.select(rowcnt - 1)
-		
+
 
 	def clear(self):
 		""" Remove all the rows in the control. """

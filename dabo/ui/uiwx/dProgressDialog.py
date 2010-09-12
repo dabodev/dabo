@@ -96,12 +96,12 @@ class dProgressTimer(wx.Timer):
 		self.Stop()
 		if self.dlg is not None:
 			self.dlg.Destroy()
-	
+
 
 	def Notify(self):
 		self.dlg = dProgressDialog(self.parent, caption="Running...")
 		self.dlg.Show(True)
-		
+
 
 # GUI Frame class that spins off the worker thread
 class dProgressDialog(wx.Dialog):
@@ -115,7 +115,7 @@ class dProgressDialog(wx.Dialog):
 def displayAfterWait(parentWindow, seconds, func):
 	# Start <func>, but if it hasn't finished in <seconds>, display a
 	# 'please wait' dialog box.
-	
+
 	tm = dProgressTimer(parentWindow, func, seconds)
 # 	window = dProgressDialog(parentWindow, "Please Wait...", func, seconds)
 # 	window.ShowModal()

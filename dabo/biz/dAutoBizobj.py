@@ -283,7 +283,7 @@ class dAutoBizobj(dBizobj):
 					self.new()
 					for col, val in zip(to_insert[0], row):
 						self.setFieldVal(col, val)
-					
+
 					try:
 						self.save()
 					except dException.DBQueryException, e:

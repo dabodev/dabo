@@ -15,18 +15,18 @@ class dPage(dabo.ui.dScrollPanel):
 		super(dPage, self).__init__(*args, **kwargs)
 		self._baseClass = dPage
 
-		
+
 	def _afterInit(self):
 		self.initSizer()
 		self.itemsCreated = False
 		super(dPage, self)._afterInit()
-		
-		
+
+
 	def _initEvents(self):
 		super(dPage, self)._initEvents()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
-		
+
 
 	def initSizer(self):
 		""" Set up the default vertical box sizer for the page."""
@@ -37,7 +37,7 @@ class dPage(dabo.ui.dScrollPanel):
 			return
 		if szCls is not None:
 			self.Sizer = szCls("vertical")
-		
+
 
 	def _createItems(self):
 		self.createItems()
@@ -58,12 +58,12 @@ class dPage(dabo.ui.dScrollPanel):
 		if not self.itemsCreated:
 			self._createItems()
 
-	
+
 	def __onPageLeave(self, evt):
 		if hasattr(self, "Form"):
 			if hasattr(self.Form, "activeControlValid"):
 				self.Form.activeControlValid()
-			
+
 
 	def _getPagePosition(self):
 		""" Returns the position of this page within its parent."""
@@ -73,7 +73,7 @@ class dPage(dabo.ui.dScrollPanel):
 			ret = -1
 		return ret
 
-	
+
 
 	def _getCaption(self):
 		# Need to determine which page we are
@@ -91,8 +91,8 @@ class dPage(dabo.ui.dScrollPanel):
 				self.Parent.SetPageText(pos, val)
 		else:
 			self._properties["Caption"] = val
-			
-	
+
+
 	def _getImage(self):
 		return self.Parent.getPageImage(self)
 
@@ -101,14 +101,14 @@ class dPage(dabo.ui.dScrollPanel):
 			self.Parent.setPageImage(self, imgKey)
 		else:
 			self._properties["Image"] = imgKey
-		
-	
-	Caption = property(_getCaption, _setCaption, None, 
+
+
+	Caption = property(_getCaption, _setCaption, None,
 			_("The text identifying this particular page.  (str)") )
 
-	Image = property(_getImage, _setImage, None, 
+	Image = property(_getImage, _setImage, None,
 			_("""Sets the image that is displayed on the page tab. This is
-			determined by the key value passed, which must refer to an 
+			determined by the key value passed, which must refer to an
 			image already added to the parent pageframe.
 			When used to retrieve an image, it returns the index of the
 			page's image in the parent pageframe's image list.   (int)""") )
@@ -122,7 +122,7 @@ class _dPage_test(dPage):
 	def initProperties(self):
 		self.BackColor = "Red"
 
-		
+
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dPage_test)

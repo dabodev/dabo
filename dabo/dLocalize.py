@@ -22,9 +22,9 @@ _currentTrans = None
 
 _languageAliases = {"english": "en", "English_United States":"en",
 		"spanish": "es", "espanol": "es", "español": "es",
-		"french": "fr", "francais": "fr", "français": "fr", 
+		"french": "fr", "francais": "fr", "français": "fr",
 		"german": "de", "deutsch": "de",
-		"italian": "it", "italiano": "it", 
+		"italian": "it", "italiano": "it",
 		"portuguese": "pt", "portuguése": "pt",
 		"russian": "ru"}
 
@@ -43,7 +43,7 @@ def n_(s):
 def install(domain="dabo", localedir=None, unicode_mo=True):
 	"""Install the gettext translation service for the passed domain.
 
-	Either Dabo will be the only domain, or Dabo will be the fallback for a 
+	Either Dabo will be the only domain, or Dabo will be the fallback for a
 	different domain that the user's application set up.
 	"""
 	global _domains, _defaultLanguage, _defaultEncoding
@@ -64,8 +64,8 @@ def isValidDomain(domain, localedir):
 def setLanguage(lang=None, charset=None):
 	"""Change the language that strings get translated to, for all installed domains.
 	NOTE: rather than call the install() method of the gettext.translation objects,
-	which would globally bind the '_' name, we'll just set the '_currentTrans' 
-	name to the translation object.	
+	which would globally bind the '_' name, we'll just set the '_currentTrans'
+	name to the translation object.
 	"""
 	from dabo.lib.utils import ustr
 	global _domains, _currentTrans
@@ -181,4 +181,4 @@ if __name__ == "__main__":
 		setLanguage(l[0])
 		print line(l)
 	print line()
-	
+

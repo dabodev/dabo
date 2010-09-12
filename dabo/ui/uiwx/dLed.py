@@ -107,7 +107,7 @@ if __name__ == '__main__':
 			self.Sizer.append1x(mp)
 			mp.Sizer = dabo.ui.dSizer("h")
 			mp.Sizer.append1x(dLed(self, RegID="LED"))
-			
+
 			vs = dabo.ui.dSizer("v", DefaultBorder=20)
 			vs.appendSpacer(20)
 			vs.DefaultBorderLeft = vs.DefaultBorderRight = True
@@ -125,11 +125,11 @@ if __name__ == '__main__':
 					DataSource=self.LED, DataField="OffColor", Value="orangered")
 			vs.append(dd)
 			mp.Sizer.append(vs)
-			
+
 			self.LED.On = True
 			self.update()
 
-	
+
 	app = dabo.dApp()
 	app.MainFormClass = TestForm
 	app.start()

@@ -10,7 +10,7 @@ from dabo.dLocalize import _
 class EventMixin(object):
 	"""Mix-in class making objects know how to bind and raise Dabo events.
 
-	All Dabo objects inherit this functionality.	
+	All Dabo objects inherit this functionality.
 	"""
 	def bindEvent(self, eventClass, function, _auto=False):
 		"""Bind a dEvent to a callback function.
@@ -28,38 +28,38 @@ class EventMixin(object):
 				self.bindEvent(binding[0], binding[1])
 		else:
 			raise TypeError("Sequence expected.")
-		
 
-	def raiseEvent(self, eventClass, uiEvent=None, uiCallAfterFunc=None, 
+
+	def raiseEvent(self, eventClass, uiEvent=None, uiCallAfterFunc=None,
 			*args, **kwargs):
 		"""Send the event to all registered listeners.
-		
+
 		If uiEvent is sent, dEvents.Event will be able to parse it for useful
 		information to send along to the callback. If uiCallAfterFunc is sent, the
 		callbacks will be wrapped in that function so that the UI-lib can process
 		our Dabo events at next idle instead of immediately in this event cycle.
-		
-		Additional arguments, if any, are sent along to the constructor	of the 
-		event. While this feature exists so that UI-lib event handlers can pass 
-		along information (such as the keystroke information in a key event), user 
-		code may pass along additional arguments as well, which	will exist in the 
+
+		Additional arguments, if any, are sent along to the constructor	of the
+		event. While this feature exists so that UI-lib event handlers can pass
+		along information (such as the keystroke information in a key event), user
+		code may pass along additional arguments as well, which	will exist in the
 		event.EventData dictionary property.
-		
-		User code need not worry too much about all these extra arguments, as in 
+
+		User code need not worry too much about all these extra arguments, as in
 		most cases they'll be completely unnecessary. Just call raiseEvent() with
 		the event class (dEvents.Hit, for example) as the only parameter.
 		"""
-		
+
 		# Instantiate the event, no matter if there aren't any bindings: the event
 		# did happen, after all, and perhaps we want to log that fact.
 
-		# self.__raisedEvents keeps track of a possible problem identified by 
+		# self.__raisedEvents keeps track of a possible problem identified by
 		# Vladimir. It is debug code that isn't intended to stick around.
 		try:
 			self.__raisedEvents
 		except AttributeError:
 			self.__raisedEvents = []
-			
+
 		eventSig = (eventClass, args, kwargs)
 		if eventSig in self.__raisedEvents:
 			# The event has already been called, for reasons we don't understand.
@@ -67,7 +67,7 @@ class EventMixin(object):
 			return None
 		else:
 			self.__raisedEvents.append(eventSig)
-		
+
 		eventData = None
 		if kwargs.has_key("eventData"):
 			eventData = kwargs["eventData"]
@@ -76,10 +76,10 @@ class EventMixin(object):
 		if kwargs.has_key("eventObject"):
 			evtObject = kwargs["eventObject"]
 			del kwargs["eventObject"]
-		
-		event = eventClass(evtObject, uiEvent=uiEvent, 
+
+		event = eventClass(evtObject, uiEvent=uiEvent,
 				eventData=eventData, *args, **kwargs)
-		
+
 		# Now iterate the bindings, and execute the callbacks:
 		for binding in self._EventBindings:
 			bindingClass, bindingFunction = binding[0], binding[1]
@@ -90,11 +90,11 @@ class EventMixin(object):
 					uiCallAfterFunc(bindingFunction, event)
 				else:
 					bindingFunction(event)
-					# Previously, we were printing any raised exception and then 
+					# Previously, we were printing any raised exception and then
 					# letting it go, which just seems wrong. Commented out:
 
 					# Wrap the call so that if an exception is raised in one
-					# handler, the rest of the handlers still get a whack at 
+					# handler, the rest of the handlers still get a whack at
 					# the event. This matches the behavior as if we were using
 					# the real event loop in the ui lib. This is only necessary
 					# because we aren't using a uiCallAfterFunc().
@@ -111,7 +111,7 @@ class EventMixin(object):
 		except (AttributeError, IndexError):
 			# This is a deleted object; no need (or ability!) to do anything else.
 			return
-		
+
 		if uiEvent is not None:
 			# Let the UI lib know whether to do the default event behavior
 			if event.Continue:
@@ -120,23 +120,23 @@ class EventMixin(object):
 				r = dabo.ui.discontinueEvent(uiEvent)
 		else:
 			r = None
-			
+
 		return r
-			
-			
+
+
 	def unbindEvent(self, eventClass=None, function=None):
 		""" Remove a previously registered event binding.
-		
+
 		Removes all registrations that exist for the given binding for this
-		object. If event is None, all bindings for the passed function are 
-		removed. If function is None, all bindings for the passed event are 
-		removed. If both event and function are None, all event bindings are 
+		object. If event is None, all bindings for the passed function are
+		removed. If function is None, all bindings for the passed event are
+		removed. If both event and function are None, all event bindings are
 		removed.
 		"""
 		if eventClass is None and function is None:
 			# Short-circuit: blank the entire list of _EventBindings
 			self._EventBindings = []
-		else:			
+		else:
 			# Iterate through _EventBindings and remove the appropriate ones
 			eb = self._EventBindings[:]
 			num = len(self._EventBindings)
@@ -145,7 +145,7 @@ class EventMixin(object):
 			while eb:
 				binding = eb.pop()
 				bindingClass, bindingFunction = binding[0], binding[1]
-				
+
 				if (eventClass is None or bindingClass == eventClass) and (
 					function is None or bindingFunction == function):
 						# Matched: already popped off, do nothing
@@ -155,16 +155,16 @@ class EventMixin(object):
 					newBindings.append(binding)
 			self._EventBindings = newBindings
 
-	
+
 	def autoBindEvents(self, force=True):
 		"""Automatically bind any on*() methods to the associated event.
 
 		User code only needs to define the callback, and Dabo will automatically
-		set up the event binding. This will satisfy lots of common cases where 
-		you want an object or its parent to respond to the object's events. 
+		set up the event binding. This will satisfy lots of common cases where
+		you want an object or its parent to respond to the object's events.
 
-		To use this feature, just define a method on<EventName>(), or	if you 
-		want a parent container to respond to the event, make a method in the 
+		To use this feature, just define a method on<EventName>(), or	if you
+		want a parent container to respond to the event, make a method in the
 		parent on<EventName>_<object Name or RegID>().
 
 		For example:
@@ -193,7 +193,7 @@ class EventMixin(object):
 		# the object is changing: we don't want the old bindings to stay active).
 		self._removeAutoBindings()
 
-		# We call _autoBindEvents for self, as well as the self.Parent object and  
+		# We call _autoBindEvents for self, as well as the self.Parent object and
 		# the self.Form object, if they exist.
 		self._autoBindEvents(context=self, force=force)
 		try:
@@ -219,7 +219,7 @@ class EventMixin(object):
 			# autobinding is switched off globally
 			return True
 		if context is None:
-			# context could be None if during the setting of RegID property, 
+			# context could be None if during the setting of RegID property,
 			# self.Form evaluates to None.
 			return True
 
@@ -229,7 +229,7 @@ class EventMixin(object):
 				regid = self.RegID
 			except AttributeError:
 				## As of this writing, RegID is defined in dPemMixin, but some of our
-				## classes derive directly from dObject. dColumn, for example. 
+				## classes derive directly from dObject. dColumn, for example.
 				regid = None
 			if regid is None or regid == "":
 				return False
@@ -256,7 +256,7 @@ class EventMixin(object):
 				# The function's event name isn't recognized
 				continue
 
-			# If we got this far, we have a match. 
+			# If we got this far, we have a match.
 			# Get the object reference to the function:
 			funcObj = None
 			### Paul: this is the major change I propose: looking
@@ -265,7 +265,7 @@ class EventMixin(object):
 				funcObj = context.__dict__[funcName]
 			except KeyError:
 				pass
-			
+
 			if funcObj is None:
 				for m in context.__class__.mro():
 					try:
@@ -303,7 +303,7 @@ class EventMixin(object):
 			# we are an instance, cls is self.
 			classRef = cls.__class__
 
-		import dabo.dEvents as e  # imported here to avoid circular import 
+		import dabo.dEvents as e  # imported here to avoid circular import
 		validEvents = []
 		events = [e.__dict__[evt] for evt in dir(e)]
 		for evt in events:
@@ -331,34 +331,34 @@ class EventMixin(object):
 		except AttributeError:
 			self._eventBindings = []
 			return self._eventBindings
-			
+
 	def _setEventBindings(self, val):
 		if isinstance(val, list):
 			self._eventBindings = val
 		else:
 			raise ValueError("EventBindings must be a list.")
 
-	_EventBindings = property(_getEventBindings, _setEventBindings, None, 
-		_("The list of event bindings ([Event, callback]) for this object."))		
-	
+	_EventBindings = property(_getEventBindings, _setEventBindings, None,
+		_("The list of event bindings ([Event, callback]) for this object."))
+
 
 if __name__ == "__main__":
 
 	def testFunc(event):
 		print "testFunc", event
-		
+
 	class TestEvent(object):
 		def __init__(self, eventObject):
 			print "evtObject:", eventObject
-		
+
 	o = EventMixin()
 	print "EventBindings:", o._EventBindings
-	
+
 	o.bindEvent(TestEvent, testFunc)
 	print "EventBindings:", o._EventBindings
 
 	o.raiseEvent(TestEvent)
-	
+
 	o.unBindEvent(TestEvent)
 	print "EventBindings:", o._EventBindings
-		
+

@@ -13,11 +13,11 @@ class SortingForm(dabo.ui.dOkCancelDialog):
 		self.AutoSize = False
 		self.Size = (330, 300)
 		self._listCaption = ""
-	
-	
+
+
 	def addControls(self):
 		self.listBox = dabo.ui.dEditableList(self, Caption=self._listCaption,
-				Choices=self._itms, Editable=False, CanDelete=False, 
+				Choices=self._itms, Editable=False, CanDelete=False,
 				CanAdd=False)
 		self.Sizer.append(self.listBox, 1, "expand", border=30, borderSides="all")
 		self.layout()
@@ -28,11 +28,11 @@ class SortingForm(dabo.ui.dOkCancelDialog):
 			return self.listBox.Choices
 		except AttributeError:
 			return self._itms
-			
+
 	def _setChoices(self, chc):
 		self._itms = self.listBox.Choices = list(chc)
-		
-		
+
+
 	def _getListCaption(self):
 		return self.listBox.Caption
 
@@ -45,7 +45,7 @@ class SortingForm(dabo.ui.dOkCancelDialog):
 
 	ListCaption = property(_getListCaption, _setListCaption, None,
 			_("Caption for the sorting list  (str)"))
-	
+
 	Choices = property(_getChoices, _setChoices, None,
 			_("Items in the list to sort.   (list)") )
 
@@ -54,9 +54,9 @@ if __name__ == "__main__":
 	class DummyForm(dabo.ui.dForm):
 		def onActivate(self, evt):
 			self.Visible = False
-			dlg = SortingForm(self, Caption="Fruit Sort", 
+			dlg = SortingForm(self, Caption="Fruit Sort",
 					ListCaption="Which do you like best?",
-					Choices = ["apple", "pear", "banana", "peach", 
+					Choices = ["apple", "pear", "banana", "peach",
 					"strawberry", "lime"])
 			dlg.show()
 			if dlg.Accepted:
@@ -65,8 +65,8 @@ if __name__ == "__main__":
 				print "Cancel was pressed"
 			dlg.release()
 			dabo.ui.callAfter(self.release)
-	
+
 	app = dabo.dApp()
 	app.MainFormClass = DummyForm
 	app.start()
-	
+

@@ -3281,7 +3281,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			settingName = "%s.%s.%s" % (form.Name, self.Name, prop)
 			app.setUserSetting(settingName, val)
 
-			
+
 	def _enableDoubleBuffering(self):
 		for win in (self.GetGridWindow(), self.GetGridColLabelWindow()):
 			if not win.IsDoubleBuffered():
@@ -3679,8 +3679,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		try:
 			daboCol = self.Columns[col]
 		except IndexError:
-			# PKM: I've received an IndexError from one of my customers. Not sure what the 
-			#      sequence is, but perhaps they managed to resize the column *before* the 
+			# PKM: I've received an IndexError from one of my customers. Not sure what the
+			#      sequence is, but perhaps they managed to resize the column *before* the
 			#      grid was instantiated.
 			return
 		if self.ResizableColumns and daboCol.Resizable:

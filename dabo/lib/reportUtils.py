@@ -8,7 +8,7 @@ from decimal import Decimal
 
 
 class TempFileHolder(object):
-	"""Utility class to get temporary file names and to make sure they are 
+	"""Utility class to get temporary file names and to make sure they are
 	deleted when the Python session ends.
 	"""
 	def __init__(self):
@@ -27,7 +27,7 @@ class TempFileHolder(object):
 
 	def getTempFile(self, ext="pdf"):
 		if ext[0] != ".":
-			ext = ".%s" % ext 
+			ext = ".%s" % ext
 		fd, fname = tempfile.mkstemp(suffix=ext)
 		os.close(fd)
 		self.append(fname)
@@ -48,9 +48,9 @@ def previewPDF(path, modal=False):
 			os.system("open %s" % path)
 		else:
 			# On Linux, try to find an installed viewer and just use the first one
-			# found. I just don't know how to reliably get the default viewer from 
+			# found. I just don't know how to reliably get the default viewer from
 			# the many distros.
-			viewers = ("gpdf", "kpdf", "okular", "evince", "acroread", "xpdf", "firefox", 
+			viewers = ("gpdf", "kpdf", "okular", "evince", "acroread", "xpdf", "firefox",
 					"mozilla-firefox")
 
 			viewer = None
@@ -95,7 +95,7 @@ def getTestCursorXmlFromDataSet(dataset):
 			v = v.replace('"', "'")
 			xml += """\t\t\t%s = "%s"\n""" % (k, v)
 		xml += """\t\t/>\n"""
-	
+
 	xml += """\t</TestCursor>\n"""
 	return xml
 

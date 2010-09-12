@@ -3,7 +3,7 @@ import reportlab.lib.units as units
 
 def dictunion(lhs, rhs):
 	""" Dictionary union
-	
+
 	>>> util.dictunion({1:'a'}, {2:'b'})
 	{1: 'a', 2: 'b'}
 	"""
@@ -14,7 +14,7 @@ def dictunion(lhs, rhs):
 
 def getPt(val):
 	"""Get numeric pt value from string value.
-	
+
 	Strings can have the unit appended, like "3.5 in", "2 cm", "3 pica", "10 mm".
 
 	> print self.getPt("1 in")

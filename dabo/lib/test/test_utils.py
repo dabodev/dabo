@@ -51,7 +51,7 @@ class Test_Utils(unittest.TestCase):
 		cap = "&File"
 		self.assertEqual(utils.cleanMenuCaption(cap), "File")
 		self.assertEqual(utils.cleanMenuCaption(cap, "e"), "&Fil")
-		
+
 
 	def test_DictFuncs(self):
 		testdict = {u"First": 1, u"Second": 2, "Th”rd": 3}

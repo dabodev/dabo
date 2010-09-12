@@ -22,7 +22,7 @@ def _getDateRegex(format):
 	elements["shortyear"] = "(?P<shortyear>[0-9]{2,2})"    ## year 00-99
 	elements["month"] = "(?P<month>0[1-9]|1[012])"         ## month 01-12
 	elements["day"] = "(?P<day>0[1-9]|[1-2][0-9]|3[0-1])"  ## day 01-31
-	
+
 	if format == "ISO8601":
 		exp = "^%(year)s-%(month)s-%(day)s$"
 	elif format == "YYYYMMDD":
@@ -46,7 +46,7 @@ def _getDateRegex(format):
 
 	return re.compile(exp % elements)
 
-		
+
 def _getDateTimeRegex(format):
 	elements = {}
 	elements["year"] = "(?P<year>[0-9]{4,4})"              ## year 0000-9999
@@ -58,7 +58,7 @@ def _getDateTimeRegex(format):
 	elements["second"] = "(?P<second>[0-5][0-9])"          ## second 00-59
 	elements["ms"] = "\.{0,1}(?P<ms>[0-9]{0,6})"           ## optional ms
 	elements["sep"] = "(?P<sep> |T)"                       ## separator between date and time
-	
+
 	if format == "ISO8601":
 		exp = "^%(year)s-%(month)s-%(day)s%(sep)s%(hour)s:%(minute)s:%(second)s%(ms)s$"
 	elif format == "YYYYMMDDHHMMSS":
@@ -139,12 +139,12 @@ def getDateFromString(strVal, formats=None):
 			if not groups.has_key("year"):
 				curYear = datetime.date.today().year
 				if groups.has_key("shortyear"):
-					groups["year"] = int("%s%s" % (ustr(curYear)[:2], 
+					groups["year"] = int("%s%s" % (ustr(curYear)[:2],
 							groups["shortyear"]))
 				else:
 					groups["year"] = curYear
-			try:		
-				ret = datetime.date(int(groups["year"]), 
+			try:
+				ret = datetime.date(int(groups["year"]),
 					int(groups["month"]),
 					int(groups["day"]))
 			except ValueError:
@@ -152,7 +152,7 @@ def getDateFromString(strVal, formats=None):
 				# (Sept. only has 30 days but the regex will allow 31, etc.)
 				pass
 		if ret is not None:
-			break	
+			break
 	return ret
 
 
@@ -179,7 +179,7 @@ def getDateTimeFromString(strVal, formats=None):
 
 	if dtFormat is not None:
 		formats.append(dtFormat)
-	
+
 	for format in formats:
 		regex = _dtregex.get(format, None)
 		if regex is None:
@@ -197,13 +197,13 @@ def getDateTimeFromString(strVal, formats=None):
 			if not groups.has_key("year"):
 				curYear = datetime.date.today().year
 				if groups.has_key("shortyear"):
-					groups["year"] = int("%s%s" % (ustr(curYear)[:2], 
+					groups["year"] = int("%s%s" % (ustr(curYear)[:2],
 							groups["shortyear"]))
 				else:
 					groups["year"] = curYear
 
-			try:		
-				return datetime.datetime(int(groups["year"]), 
+			try:
+				return datetime.datetime(int(groups["year"]),
 					int(groups["month"]),
 					int(groups["day"]),
 					int(groups["hour"]),
@@ -253,7 +253,7 @@ def getTimeFromString(strVal, formats=None):
 				int(groups["second"]),
 				int(groups["ms"]))
 		if ret is not None:
-			break	
+			break
 	return ret
 
 
@@ -271,7 +271,7 @@ def goDate(date_datetime_exp, days):
 
 
 def webHeaderFormat(dtm):
-	"""Takes a datetime value and returns a string in the format required by 
+	"""Takes a datetime value and returns a string in the format required by
 	HTTP headers, such as an 'If-Modified-Since' header.
 	"""
 	hereNow, utcNow = datetime.datetime.now(), datetime.datetime.utcnow()

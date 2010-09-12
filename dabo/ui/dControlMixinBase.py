@@ -11,7 +11,7 @@ class dControlMixinBase(dabo.ui.dPemMixin):
 	"""
 	def _initEvents(self):
 		super(dControlMixinBase, self)._initEvents()
-		
+
 		self.bindEvent(dEvents.GotFocus, self.__onGotFocus)
 
 	def __onGotFocus(self, evt):

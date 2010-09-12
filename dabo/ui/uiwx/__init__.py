@@ -350,7 +350,7 @@ def busyInfo(msg="Please wait...", *args, **kwargs):
 	except wx._core.PyAssertionError:
 		# pkm: I got a message 'wxYield called recursively' which
 		#      I'm unable to reproduce.
-		pass 
+		pass
 	return bi
 
 
@@ -428,7 +428,7 @@ def getEventData(wxEvt):
 				ed["wheelRotation"] = wxEvt.WheelRotation * wxEvt.LinesPerAction
 			except AttributeError:
 				pass
-			
+
 	if isinstance(wxEvt, wx.ListEvent):
 		pos = wxEvt.GetPosition()
 		obj = wxEvt.GetEventObject()
@@ -666,7 +666,7 @@ def getMouseObject():
 
 def getObjectAtPosition(x, y=None):
 	"""Given a screen position, returns the object immediately under that
-	position, or None if there is no such object. You can pass separate 
+	position, or None if there is no such object. You can pass separate
 	x,y coordinates, or an x,y tuple.
 	"""
 	if y is None:
@@ -1171,13 +1171,13 @@ def getScrollWinEventClass(evt):
 	evtType = evt.GetEventType()
 	# Seems as though the wx events for window scrolling use a series of IDs
 	# for these events, but the numbering changes with different platforms and
-	# builds of wx. However, it seems that the base is always the generic 
+	# builds of wx. However, it seems that the base is always the generic
 	# EVT_SCROLLWIN's typeId value.
 	baseEvtNum = wx.EVT_SCROLLWIN.typeId
 	evtOffset = evtType - baseEvtNum
 	# Get the corresponding Dabo event class for the wx event.
-	daboEvents = (dEvents.ScrollTop, dEvents.ScrollBottom, dEvents.ScrollLineUp, 
-			dEvents.ScrollLineDown, dEvents.ScrollPageUp, dEvents.ScrollPageDown, 
+	daboEvents = (dEvents.ScrollTop, dEvents.ScrollBottom, dEvents.ScrollLineUp,
+			dEvents.ScrollLineDown, dEvents.ScrollPageUp, dEvents.ScrollPageDown,
 			dEvents.ScrollThumbDrag, dEvents.ScrollThumbRelease)
 	return daboEvents[evtOffset]
 
@@ -1194,7 +1194,7 @@ def _checkForRawXML(srcFile):
 
 
 def createClass(srcFile, *args, **kwargs):
-	"""Given a .cdxml class definition file path, will return the 
+	"""Given a .cdxml class definition file path, will return the
 	corresponding Python class."""
 	from dabo.lib.DesignerClassConverter import DesignerClassConverter
 	srcFile, isRaw = _checkForRawXML(srcFile)
@@ -1208,12 +1208,12 @@ def createClass(srcFile, *args, **kwargs):
 def createForm(srcFile, show=False, *args, **kwargs):
 	"""Instantiate and return a form instance, given a .cdxml file.
 
-	srcFile may be a path to the file on disk, or the cdxml text. If 
-	show is True, the form will be automatically displayed. Any 
+	srcFile may be a path to the file on disk, or the cdxml text. If
+	show is True, the form will be automatically displayed. Any
 	additional arguments will be passed on to the constructor of the
 	class.
 
-	A common question on the dabo-users mailing list is how to 
+	A common question on the dabo-users mailing list is how to
 	instantiate a cdxml form as a child of another form. Easy!
 
 		frm = dabo.ui.createForm("my.cdxml", parent=self)
@@ -1280,7 +1280,7 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 				menuItem = menu.append(cap, OnHit=binding, help=help,
 						picture=pic, special=special, HotKey=hk, menutype=mtype)
 				if itmatts:
-					menuItem.setPropertiesFromAtts(itmatts, 
+					menuItem.setPropertiesFromAtts(itmatts,
 							context={"form": form, "app": dabo.dAppRef})
 
 	try:
@@ -1300,7 +1300,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 		_controlClass = None
 		_minWidth = None
 		_minHeight = None
-	
+
 		def Create(self, parent, id, evtHandler):
 			"""Called to create the control, which must derive from wx.Control.
 			*Must Override*
@@ -1311,7 +1311,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 			self.SetControl(self._control)
 			if evtHandler:
 				self._control.PushEventHandler(evtHandler)
-	
+
 		def SetSize(self, rect):
 			"""Called to position/size the edit control within the cell rectangle.
 			If you don't fill the cell (the rect) then be sure to override
@@ -1324,7 +1324,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 			if self._minHeight:
 				ht = max(self._minHeight, ht)
 			self._control.SetDimensions(rect.x, rect.y, wd, ht, wx.SIZE_ALLOW_MINUS_ONE)
-	
+
 		def PaintBackground(self, rect, attr):
 			"""Draws the part of the cell not occupied by the edit control.  The
 			base  class version just fills it with background colour from the
@@ -1332,7 +1332,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 			don't do anything at all in order to reduce flicker.
 			"""
 			pass
-	
+
 		def BeginEdit(self, row, col, grid):
 			"""Fetch the value from the table and prepare the edit control
 			to begin editing.  Set the focus to the edit control.
@@ -1341,7 +1341,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 			self.startValue = grid.GetTable().GetValue(row, col)
 			self._control.Value = self.startValue
 			self._control.setFocus()
-	
+
 		def EndEdit(self, row, col, grid):
 			"""Complete the editing of the current cell. Returns True if the value
 			has changed.  If necessary, the control may be destroyed.
@@ -1457,10 +1457,10 @@ def browse(dataSource, parent=None, keyCaption=None, includeFields=None,
 
 
 def getPositionInSizer(obj):
-	""" Returns the current position of this control in its containing 
-	sizer. This is useful for when a control needs to be re-created in place. 
-	If the containing sizer is a box sizer, the integer position will be returned. 
-	If it is a grid sizer, a row,col tuple will be returned. If the object is 
+	""" Returns the current position of this control in its containing
+	sizer. This is useful for when a control needs to be re-created in place.
+	If the containing sizer is a box sizer, the integer position will be returned.
+	If it is a grid sizer, a row,col tuple will be returned. If the object is
 	not contained in a sizer, None will be returned.
 	"""
 	sz = obj.GetContainingSizer()
@@ -1655,7 +1655,7 @@ def strToBmp(val, scale=None, width=None, height=None):
 				macPaths = [os.path.join(resPth, pth, val)
 					for pth in ("icons", "resources")]
 				paths += macPaths
-				
+
 			# See if it's a standard icon
 			for pth in paths:
 				ret = dIcons.getIconBitmap(pth, noEmptyBmp=True)
@@ -1771,7 +1771,7 @@ def setdFormClass(typ):
 
 
 def spawnProcess(cmd, wait=False, handler=None):
-	"""Launch a separate process. Control is immediately returned to the 
+	"""Launch a separate process. Control is immediately returned to the
 	calling program, unless you call this with 'wait=True'.
 	"""
 	class Proc(wx.Process):

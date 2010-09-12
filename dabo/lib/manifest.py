@@ -8,8 +8,8 @@ import dabo
 
 class Manifest(object):
 	"""This class encapsulates all of the methods needed to create and manage
-	a manifest system for syncing directories. 
-	
+	a manifest system for syncing directories.
+
 	A manifest is simply a dictionary with the keys being the file paths, and the
 	values being a timestamp. Two manifests, referred to as 'source' and 'target',
 	can be compared to find the changes required to make 'target' match 'source'.
@@ -19,12 +19,12 @@ class Manifest(object):
 			"jpg" , "jpeg" , "gif" , "tif" , "tiff" , "png" , "ico" , "bmp" , "sh", "mo", "po"]
 	# Format for stroring time values
 	dtFormat = "%Y-%m-%d %H:%M:%S"
-	
-	
+
+
 	@classmethod
 	def getManifest(cls, pth, extraTypes=None, restrictTypes=None):
 		"""Given a path, returns the manifest for the files on that path. Only the
-		main file types are included; if you require additional types, pass them in 
+		main file types are included; if you require additional types, pass them in
 		the 'extraTypes' parameter as a list or tuple. If you don't want the standard
 		included types, pass a list/tuple of the types you want in the 'restrictTypes'
 		parameter, and only those types will be included.
@@ -62,16 +62,16 @@ class Manifest(object):
 	@classmethod
 	def diff(cls, source, target):
 		"""Returns a dict containing the changes that need to be made to make the target
-		match the source. Files on the source that have been added or modified will be 
+		match the source. Files on the source that have been added or modified will be
 		included as usual. Files that have been deleted on the source will also be included,
 		but the timestamp will be empty to indicate that it no longer exists on the source.
 		"""
 		ret = {}
-		# These are copies of the original keys in the target. As keys from the source are 
-		# processed, they will be popped from this list. Any leftover keys indicate deleted 
+		# These are copies of the original keys in the target. As keys from the source are
+		# processed, they will be popped from this list. Any leftover keys indicate deleted
 		# files.
 		targetKeys = target.keys()
-		# Iterate through the source. If the key exists in the target, and the source is 
+		# Iterate through the source. If the key exists in the target, and the source is
 		# newer than the target, add it to the return dict, and then pop the values from both
 		# key lists.
 		for srcKey, srcTimeString in source.items():
@@ -90,7 +90,7 @@ class Manifest(object):
 				# Pop it from the target keys
 				targetKeys.remove(srcKey)
 		# Ok, we've processed all the source files. Are there any target files remaining?
-		# If so, add them with no time value to indicate that they have been deleted from 
+		# If so, add them with no time value to indicate that they have been deleted from
 		# the source.
 		for tk in targetKeys:
 			ret[tk] = ""

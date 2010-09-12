@@ -12,7 +12,7 @@ class SerializableMeta(type):
 			if hasattr(base, '_xmlSerializationAttributes'):
 				attributes.extend(base._xmlSerializationAttributes)
 		for name, obj in dict.items():
-			if (isinstance(obj, SerializableAttribute) 
+			if (isinstance(obj, SerializableAttribute)
 					or isinstance(obj, SerializableObjectChild)):
 				attributes.append( (name, obj) )
 				delattr(cls, name)
@@ -27,7 +27,7 @@ class Serializable(object):
 
 	def __init__(self, **args):
 		self.srcValues = {}
-		attributeNames = [attrName for attrName, 
+		attributeNames = [attrName for attrName,
 				attrType in self._xmlSerializationAttributes]
 		for key, value in args.iteritems():
 			assert key in attributeNames, "Unknown attribute name %r for object %s" \
@@ -71,8 +71,8 @@ class Serializable(object):
 				import traceback
 				traceback.print_exc()
 				raise Exception("Error validating value %r for attribute %r (type %r) "
-						"in object %s" % (value, attrName, 
-						attrType.__class__.__name__, 
+						"in object %s" % (value, attrName,
+						attrType.__class__.__name__,
 						self.__class__.__name__))
 			setattr(self, attrName, value)
 

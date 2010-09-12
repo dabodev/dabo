@@ -337,7 +337,7 @@ except ImportError:
 
         if co_lnotab:
             co_lnotab[0] += len(setup_code)
-        
+
         co_lnotab = ''.join(map(chr, co_lnotab))
 
         # Our code consists of the setup code and the modified code.
@@ -415,7 +415,7 @@ except ImportError:
         #     pass
         #
         # then calling getattr(B, 'test') will return A.test, with no way to
-        # determine that it's A.test. We only want to use this after calling 
+        # determine that it's A.test. We only want to use this after calling
         # getattr(A, 'test') otherwise we will determine the wrong class.
 
         cur_class = None

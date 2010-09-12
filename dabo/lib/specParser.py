@@ -5,14 +5,14 @@ import os.path
 
 class specHandler(xml.sax.ContentHandler):
 	_IsContainer = False
-	
+
 	def __init__(self):
 		self.appDict = {}
 		self.relaDict = {}
 		self.currTableDict = {}
 		self.currTable = ""
 #		self.currFieldDict = {}
-	
+
 	def startElement(self, name, attrs):
 		if name == "table":
 			# New table starting
@@ -29,7 +29,7 @@ class specHandler(xml.sax.ContentHandler):
 				else:
 					fieldDict[att] = attrs.getValue(att)
 			self.currTableDict[fldName] = fieldDict.copy()
-			
+
 		elif name == "join":
 			joinDict = {}
 			for att in attrs.keys():
@@ -37,7 +37,7 @@ class specHandler(xml.sax.ContentHandler):
 					name = "_join%s" % attrs["order"]
 				joinDict[att] = attrs[att]
 			self.currTableDict[name] = joinDict.copy()
-			
+
 		elif name == "relation":
 			relType = attrs.getValue("relationType")
 			if relType == "1M":
@@ -48,19 +48,19 @@ class specHandler(xml.sax.ContentHandler):
 				self.relaDict[nm]["target"] = attrs.getValue("target")
 				self.relaDict[nm]["sourceField"] = attrs.getValue("sourceField")
 				self.relaDict[nm]["targetField"] = attrs.getValue("targetField")
-			
-	
+
+
 	def endElement(self, name):
 		if name == "table":
 			# Save it to the app dict
 			self.appDict[self.currTable] = self.currTableDict.copy()
-	
+
 	def getFieldDict(self):
 		return self.appDict
-	
+
 	def getRelationDict(self):
 		return self.relaDict
-	
+
 
 def importFieldSpecs(file=None, tbl=None):
 	if file is None:
@@ -69,12 +69,12 @@ def importFieldSpecs(file=None, tbl=None):
 	sh = specHandler()
 	xml.sax.parse(file, sh)
 	ret = sh.getFieldDict()
-	
+
 	# Limit it to a specific table if requested
 	if tbl is not None:
 		ret = ret[tbl]
 	return ret
-	
+
 
 def importRelationSpecs(file=None):
 	if file is None:
@@ -97,4 +97,4 @@ def fileRef(ref=""):
 		else:
 			ret = StringIO(ref)
 	return ret
-	
+

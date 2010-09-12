@@ -20,27 +20,27 @@ class dPemMixinBase(dObject):
 	def _initUI(self):
 		""" Abstract method: subclasses MUST override for UI-specifics."""
 		pass
-		
-	
+
+
 	def getPropertyInfo(cls, name):
 		""" Abstract method: subclasses MUST override for UI-specifics."""
 		return super(dPemMixinBase, cls).getPropertyInfo(name)
 	getPropertyInfo = classmethod(getPropertyInfo)
-	
-	
+
+
 	def addObject(self, classRef, name=None, *args, **kwargs):
 		""" Create an instance of classRef, and make it a child of self.
-		
+
 		Abstract method: subclasses MUST override for UI-specifics.
 		"""
 		pass
-		
+
 
 	def reCreate(self, child=None):
 		""" Abstract method: subclasses MUST override for UI-specifics."""
 		pass
-	
-	
+
+
 	def clone(self, obj, name=None):
 		""" Abstract method: subclasses MUST override for UI-specifics."""
 		pass
@@ -60,13 +60,13 @@ class dPemMixinBase(dObject):
 			# names after instantiation.
 			pass
 
-			
+
 	def _processName(self, kwargs, defaultName):
 		# Called by the constructors of the dObjects, to properly set the
 		# name of the object based on whether the user set it explicitly
 		# or Dabo is to provide it implicitly.
 		_explicitName = kwargs.get("_explicitName", False)
-		
+
 		if "Name" in kwargs.keys():
 			if "_explicitName" not in kwargs.keys():
 				# Name was sent; _explicitName wasn't.
@@ -78,12 +78,12 @@ class dPemMixinBase(dObject):
 		if kwargs.has_key("_explicitName"):
 			del(kwargs["_explicitName"])
 		return name, _explicitName
-		
+
 
 	def iterateCall(self, funcName, *args, **kwargs):
 		"""Call the given function on this object and all of its Children. If
 		any object does not have the given function, no error is raised; it
-		is simply ignored. 
+		is simply ignored.
 		"""
 		func = getattr(self, funcName, None)
 		if func:
@@ -137,7 +137,7 @@ class dPemMixinBase(dObject):
 			frm = self.Form
 		if frm is not None:
 			dabo.ui.callAfterInterval(200, frm.layout)
-	
+
 	def _restoreFontZoom(self):
 		"""Called when object is instantiated: restore the zoom based on the form."""
 		if not hasattr(self.Form, "_currFontZoom"):
@@ -146,7 +146,7 @@ class dPemMixinBase(dObject):
 		if zoom and not isinstance(self, (dabo.ui.dPanel, dabo.ui.dScrollPanel)):
 			dabo.ui.callAfter(self._setAbsoluteFontZoom, zoom)
 
-	 		
+
 	# Property get/set/delete methods follow.
 	def _getChildren(self):
 		return []
@@ -174,7 +174,7 @@ class dPemMixinBase(dObject):
 
 	def _getBottom(self):
 		return self.Top + self.Height
-		
+
 	def _setBottom(self, bottom):
 		if self._constructed():
 			self.Top = int(bottom) - self.Height
@@ -184,7 +184,7 @@ class dPemMixinBase(dObject):
 
 	def _getRight(self):
 		return self.Left + self.Width
-		
+
 	def _setRight(self, right):
 		if self._constructed():
 			self.Left = int(right) - self.Width
@@ -193,19 +193,19 @@ class dPemMixinBase(dObject):
 
 
 	Bottom = property(_getBottom, _setBottom, None,
-			_("""The position of the bottom side of the object. This is a 
-			convenience property, and is equivalent to setting the Top property 
+			_("""The position of the bottom side of the object. This is a
+			convenience property, and is equivalent to setting the Top property
 			to this value minus the Height of the control.  (int)"""))
 
 	Children = property(_getChildren, None, None,
 			_("""List of child objects."""))
-	
+
 	Form = property(_getForm, None, None,
 			_("Object reference to the dForm containing the object. Read-only. (dForm)."))
-	
+
 	Right = property(_getRight, _setRight, None,
-			_("""The position of the right side of the object. This is a 
-			convenience property, and is equivalent to setting the Left property 
+			_("""The position of the right side of the object. This is a
+			convenience property, and is equivalent to setting the Left property
 			to this value minus the Width of the control.  (int)"""))
 
 

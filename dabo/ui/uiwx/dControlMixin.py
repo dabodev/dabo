@@ -14,7 +14,7 @@ class dControlMixin(dControlMixinBase):
 
 	def _onWxHit(self, evt, *args, **kwargs):
 		# This is called by a good number of the controls, when the default
-		# event happens, such as a click in a command button, text being 
+		# event happens, such as a click in a command button, text being
 		# entered in a text control, a timer reaching its interval, etc.
 		# We catch the wx event, and raise the dabo Hit event for user code
 		# to work with.
@@ -27,14 +27,14 @@ class dControlMixin(dControlMixinBase):
 			self.raiseEvent(dEvents.Hit, evt, *args, **kwargs)
 #			print "CONTROL RAISING HIT"
 			self._lastHitTime = time.time()
-		
+
 	def __onWxNavKey(self, evt):
-		# A navigation key event has caused this control to want to 
+		# A navigation key event has caused this control to want to
 		# get the focus. Only allow it if self.TabStop is True.
 		evt.Skip()
 		if not self.TabStop:
 			dabo.ui.callAfter(self.Navigate, evt.GetDirection())
-	
+
 
 	def _getTabStop(self):
 		return getattr(self, "_tabStop", True)

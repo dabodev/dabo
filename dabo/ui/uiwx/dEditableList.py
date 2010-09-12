@@ -12,7 +12,7 @@ from dabo.ui import makeDynamicProperty
 class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
 	"""Creates an editable list box, complete with buttons to control
 	editing, adding/deleting items, and re-ordering them.
-	"""	
+	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dEditableList
 		preClass = wx.gizmos.EditableListBox
@@ -42,18 +42,18 @@ class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
 		self._upButton = None
 		self._panel = None
 
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
 				*args, **kwargs)
 
 
 	def GetValue(self):
 		"""This control doesn't natively support values, as it is designed
-		to simply order and/or edit the list. We need to provide this so that 
+		to simply order and/or edit the list. We need to provide this so that
 		the dControlMixin code which calls GetValue() doesn't barf.
 		"""
 		return None
-	
-	
+
+
 	def layout(self):
 		"""Calling the native Layout() method isn't sufficient, as it doesn't seem
 		to call the top panel's Layout(). So we'll do it manually.
@@ -62,7 +62,7 @@ class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
 		self._Panel.Layout()
 		if self.Application.Platform == "Win":
 			self.refresh()
-		
+
 
 	## property get/set methods follow ##
 	def _getAddButton(self):
@@ -106,8 +106,8 @@ class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
 		else:
 			self._properties["CanOrder"] = val
 		self.layout()
-	
-	
+
+
 	def _getCaption(self):
 		return self._Panel.GetChildren()[0].GetLabel()
 
@@ -178,11 +178,11 @@ class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
 
 	_AddButton = property(_getAddButton, None, None,
 			_("Reference to the new item button  (wx.Button)"))
-	
+
 	CanAdd = property(_getCanAdd, _setCanAdd, None,
 			_("Determines if the user can add new entries to the list  (bool)"))
 	DynamicCanAdd = makeDynamicProperty(CanAdd)
-	
+
 	CanDelete = property(_getCanDelete, _setCanDelete, None,
 			_("Determines if the user can delete entries from the list  (bool)"))
 	DynamicCanDelete = makeDynamicProperty(CanDelete)
@@ -190,48 +190,48 @@ class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
 	CanOrder = property(_getCanOrder, _setCanOrder, None,
 			_("Determines if the user can re-order items  (bool)"))
 	DynamicCanOrder = makeDynamicProperty(CanOrder)
-	
+
 	Caption = property(_getCaption, _setCaption, None,
 			_("Text that appears in the top panel of the control  (str)"))
 	DynamicCaption = makeDynamicProperty(Caption)
-	
+
 	Choices = property(_getChoices, _setChoices, None,
 			_("List that contains the entries in the control  (list)"))
-	
+
 	_DeleteButton = property(_getDeleteButton, None, None,
 			_("Reference to the delete item button  (wx.Button)"))
-	
+
 	_DownButton = property(_getDownButton, None, None,
 			_("Reference to the move item down button  (wx.Button)"))
-	
+
 	Editable = property(_getEditable, _setEditable, None,
 			_("Determines if the user can change existing entries  (bool)"))
 	DynamicEditable = makeDynamicProperty(Editable)
-	
+
 	_EditButton = property(_getEditButton, None, None,
 			_("Reference to the edit item button  (wx.Button)"))
-	
+
 	_Panel = property(_getPanel, None, None,
-			_("""Reference to the panel that contains the caption 
+			_("""Reference to the panel that contains the caption
 			and buttons  (wx.Panel)"""))
-	
+
 	_UpButton = property(_getUpButton, None, None,
 			_("Reference to the move item up button  (wx.Button)"))
-	
+
 
 
 class _dEditableList_test(dEditableList):
 	def afterInit(self):
 		self.Choices = ["Johnny", "Joey", "DeeDee"]
 		self.Caption = "Gabba Gabba Hey"
-	
+
 	def onDestroy(self, evt):
 		# Need to check this, because apparently under the hood
-		# wxPython destroys and re-creates the control when you 
+		# wxPython destroys and re-creates the control when you
 		# edit, add or delete an entry.
 		if self._finito:
 			print "Result:", self.Choices
-		
+
 
 if __name__ == "__main__":
 	import test

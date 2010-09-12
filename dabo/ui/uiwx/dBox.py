@@ -16,7 +16,7 @@ class dBox(cm.dControlMixin, wx.StaticBox):
 		preClass = wx.PreStaticBox
 		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
-	
+
 	def _initEvents(self):
 		super(dBox, self)._initEvents()
 

@@ -38,14 +38,14 @@ class Test_Dates(unittest.TestCase):
 		test_str = "2006-05-03"
 		test_date = dates.getDateFromString(test_str)
 		dabo.settings.dateFormat = "%Y-%m-%d"
-		self.assertEqual(dates.getStringFromDate(test_date), test_str) 
+		self.assertEqual(dates.getStringFromDate(test_date), test_str)
 
 	def test_getStringFromDateTime(self):
 		test_str = "2006-05-03 12:15:00"
 		test_datetime = dates.getDateTimeFromString(test_str)
 		dabo.settings.dateTimeFormat = "%Y-%m-%d %H:%M:%S"
-		self.assertEqual(dates.getStringFromDateTime(test_datetime), test_str) 
-		
+		self.assertEqual(dates.getStringFromDateTime(test_datetime), test_str)
+
 	def test_goDate(self):
 		self.assertEqual(dates.goDate(datetime.date(2006, 05, 03), 10), datetime.date(2006, 05, 13))
 		self.assertEqual(dates.goDate(datetime.datetime(2006, 05, 03, 12, 15, 23), 10), datetime.datetime(2006, 05, 13, 12, 15, 23))
@@ -53,7 +53,7 @@ class Test_Dates(unittest.TestCase):
 		self.assertEqual(dates.goDate(datetime.date(2006, 05, 03), -2), datetime.date(2006, 05, 01))
 		self.assertEqual(dates.goDate(datetime.datetime(2006, 05, 03, 12, 15, 23), -2), datetime.datetime(2006, 05, 01, 12, 15, 23))
 		self.assertEqual(dates.goDate(datetime.datetime(2006, 05, 03, 12, 15, 00), -2), datetime.datetime(2006, 05, 01, 12, 15, 00))
-		
+
 
 if __name__ == "__main__":
 	suite = unittest.TestLoader().loadTestsFromTestCase(Test_Dates)

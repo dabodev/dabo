@@ -57,7 +57,7 @@ insert into %(childTableName)s (parent_fk, cInvNum) values (3, "IN00024");
 """ % locals())
 
 	def createNullRecord(self):
-		self.biz._CurrentCursor.AuxCursor.execute("""		
+		self.biz._CurrentCursor.AuxCursor.execute("""
 insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 """ % self.temp_table_name)
 

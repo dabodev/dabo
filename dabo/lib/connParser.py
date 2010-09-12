@@ -28,8 +28,8 @@ class connHandler(xml.sax.ContentHandler):
 				}
 		self.currDict = self.blankConn.copy()
 		self.element = None
-				
-	
+
+
 	def startElement(self, name, attrs):
 		self.element = name
 		if name == "connection":
@@ -42,8 +42,8 @@ class connHandler(xml.sax.ContentHandler):
 		if self.element:
 			if self.currDict.has_key(self.element):
 				self.currDict[self.element] += content
-			
-	
+
+
 	def endElement(self, name):
 		if name == "connection":
 			if self.currDict:
@@ -51,24 +51,24 @@ class connHandler(xml.sax.ContentHandler):
 				nm = self.currDict["name"]
 				if not nm:
 					# name not defined: follow the old convention of user@host
-					nm = self.currDict["name"] = ("%s@%s" 
+					nm = self.currDict["name"] = ("%s@%s"
 						% (self.currDict["user"], self.currDict["host"]))
 				self.connDict[nm] = self.currDict.copy()
 				self.currDict = self.blankConn.copy()
 		self.element = None
-		
-	
+
+
 	def getConnectionDict(self):
 		return self.connDict
-	
+
 
 def importConnections(pth=None, useHomeDir=False):
 	"""Read the connection info in the file passed as 'pth', and return
 	a dict containing connection names as keys and connection info
 	dicts as the values.
-	
+
 	If 'useHomeDir' is True, any file-based database connections
-	will have their pathing resolved based upon the app's current 
+	will have their pathing resolved based upon the app's current
 	HomeDirectory. Otherwise, the path will be resolved relative to
 	the connection file itself.
 	"""
@@ -94,7 +94,7 @@ def importConnections(pth=None, useHomeDir=False):
 					pth = pth.decode(dabo.fileSystemEncoding)
 					abspath = osp.abspath(osp.join(osp.split(basePath)[0], relpath))
 					if osp.exists(abspath):
-						ret[cxn][key] = abspath	
+						ret[cxn][key] = abspath
 	return ret
 
 
@@ -111,8 +111,8 @@ def createXML(cxns):
 	else:
 		cxml = genConnXML(cxns)
 	return ret % cxml
-	
-	
+
+
 def genConnXML(d):
 	""" Receive a dict containing connection info, and return
 	a 'connection' XML element.
@@ -124,9 +124,9 @@ def genConnXML(d):
 			if not d["host"]:
 				d["host"] = "local"
 			d["name"] = "%s@%s" % (d["user"], d["host"])
-		ret = getConnTemplate() % (escQuote(d["dbtype"], noQuote=True), 
-				escQuote(d["name"], noQuote=True), escQuote(d["host"], noQuote=True), 
-				escQuote(d["database"], noQuote=True), escQuote(d["user"], noQuote=True), 
+		ret = getConnTemplate() % (escQuote(d["dbtype"], noQuote=True),
+				escQuote(d["name"], noQuote=True), escQuote(d["host"], noQuote=True),
+				escQuote(d["database"], noQuote=True), escQuote(d["user"], noQuote=True),
 				escQuote(d["password"], noQuote=True), d["port"])
 	except KeyError:
 		# Not a valid conn info dict
@@ -148,8 +148,8 @@ def fileRef(ref=""):
 		else:
 			ret = StringIO(ref)
 	return ret
-	
-	
+
+
 def getXMLWrapper():
 	return """<?xml version="1.0" encoding="%s" standalone="yes"?>
 <connectiondefs xmlns="http://www.dabodev.com"
@@ -173,4 +173,4 @@ def getConnTemplate():
 		<port>%s</port>
 	</connection>
 """
-				
+

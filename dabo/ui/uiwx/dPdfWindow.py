@@ -38,14 +38,14 @@ class dPdfWindow(cm.dControlMixin, PDFWindow):
 
 		self._baseClass = dPdfWindow
 		preClass = pdfwin.PDFWindow
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
 				*args, **kwargs)
-	
+
 
 
 class _dPdfWindow_test(dPdfWindow):
 	def afterInit(self):
-		# Run the dReportWriter test, which will output a test 
+		# Run the dReportWriter test, which will output a test
 		# pdf in this directory, and load that into the dPdfWindow:
 		os.system("python ../../dReportWriter.py")
 		self.LoadFile(os.path.abspath("dRW-test.pdf"))

@@ -10,7 +10,7 @@ class dFormMain(Tkinter.Tk, fm.dFormMixin):
 		self._baseClass = dFormMain
 		preClass = Tkinter.Tk
 		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
-	
+
 		self.Size = (640,480)
 		self.Position = (0,0)
 
@@ -23,7 +23,7 @@ class dFormMain(Tkinter.Tk, fm.dFormMixin):
 #		self.Sizer.layout()
 
 
-		
+
 	def afterInit(self):
 		self.Caption = "Dabo"
 		self.setStatusText("Welcome to Dabo!")

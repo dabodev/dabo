@@ -61,7 +61,7 @@ class RemoteBizobj(dBizobj):
 			kf, crsData = pickle.load(f)
 			f.close()
 			biz.KeyField = kf
-			# This is a dict with cursor keys as the keys, and 
+			# This is a dict with cursor keys as the keys, and
 			# values as a (dataset, typedef) tuple.
 			for kk, (ds, typinfo) in crsData.items():
 				tmpCursor = biz.createCursor(key=kk)
@@ -69,7 +69,7 @@ class RemoteBizobj(dBizobj):
 		return biz
 
 
-	def setConnectionParams(self, cxnfile=None, dbType=None, database=None, 
+	def setConnectionParams(self, cxnfile=None, dbType=None, database=None,
 			host=None, user=None, password=None, plainTextPassword=None):
 		if cxnfile:
 			cxDict = importConnections(cxnfile)
@@ -112,7 +112,7 @@ class RemoteBizobj(dBizobj):
 		remoteChar = "~~"
 		localChar = self._CurrentCursor.BackendObject.nameEnclosureChar
 		self.UserSQL = sql.replace(remoteChar, localChar)
-		
+
 
 	def applyDiffAndSave(self, diff, primary=False):
 		"""Diffs are dicts in the format:
@@ -127,7 +127,7 @@ class RemoteBizobj(dBizobj):
 		be present is the hashval for this bizobj. If this bizobj has related child
 		bizobjs, and they have changes, there will be a 'children' key that will
 		contain a list of one diff for each child bizobj with changes.
-		
+
 		If this is the primary bizobj called from the web server, the 'primary'
 		parameter will be true, meaning that this bizobj will handle transactions.
 		"""
@@ -171,7 +171,7 @@ class RemoteBizobj(dBizobj):
 						abort(404, _("DataSource '%s' not found") % kidDS)
 					kidBiz = kidClass.load(kidHash, kidDS)
 					kidBiz.applyDiffAndSave({kidHash: kidInfo})
-			
+
 			try:
 				self.saveAll()
 			except dException.ConnectionLostException, e:

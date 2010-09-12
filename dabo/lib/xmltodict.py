@@ -59,7 +59,7 @@ class Xml2Obj(object):
 			self._encoding = dabo.defaultEncoding
 		else:
 			self._encoding = encoding
-		
+
 
 	def StartElement(self, name, attributes):
 		"""SAX start element even handler"""
@@ -104,7 +104,7 @@ class Xml2Obj(object):
 					for kk, vv in attributes.items():
 						attributes[kk] = unescape(vv)
 					element["attributes"] = attributes
-		
+
 				# Push element onto the stack and make it a child of parent
 				if len(self.nodeStack) > 0:
 					parent = self.nodeStack[-1]
@@ -163,7 +163,7 @@ class Xml2Obj(object):
 				if not element.has_key("cdata"):
 					element["cdata"] = ""
 				element["cdata"] += data
-			
+
 
 	def Parse(self, xml):
 		# Create a SAX parser
@@ -244,7 +244,7 @@ def escQuote(val, noEscape=False, noQuote=False):
 
 def escape(val, escapeAmp=True):
 	"""Escape any characters that cannot be stored directly in XML."""
-	# First escape internal ampersands. We need to double them up due to a 
+	# First escape internal ampersands. We need to double them up due to a
 	# quirk in wxPython and the way it displays this character.
 	if escapeAmp:
 		val = val.replace("&", "&amp;&amp;")
@@ -293,7 +293,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 			att += " %s=%s" % (key, val)
 	ret += "%s<%s%s" % ("\t" * level, dct["name"], att)
 
-	if (not dct.has_key("cdata") and not dct.has_key("children") 
+	if (not dct.has_key("cdata") and not dct.has_key("children")
 			and not dct.has_key("code") and not dct.has_key("properties")):
 		ret += " />%s" % eol
 	else:
@@ -313,7 +313,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 						cd += eol
 
 					ret += "%s<%s><![CDATA[%s%s]]>%s%s</%s>%s" % (methodTab,
-							mthd, eol, cd, eol, 
+							mthd, eol, cd, eol,
 							methodTab, mthd, eol)
 				ret += "%s</code>%s"	% ("\t" * (level+1), eol)
 
@@ -325,11 +325,11 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 					ret += "%s<%s>%s" % (currTab, prop, eol)
 					for propItm, itmVal in val.items():
 						itmTab = "\t" * (level+3)
-						ret += "%s<%s>%s</%s>%s" % (itmTab, propItm, itmVal, 
+						ret += "%s<%s>%s</%s>%s" % (itmTab, propItm, itmVal,
 								propItm, eol)
 					ret += "%s</%s>%s" % (currTab, prop, eol)
 				ret += "%s</properties>%s"	% ("\t" * (level+1), eol)
-					
+
 		if dct.has_key("children") and len(dct["children"]) > 0:
 			ret += eol
 			for child in dct["children"]:
@@ -355,7 +355,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 def flattenClassDict(cd, retDict=None):
 	"""Given a dict containing a series of nested objects such as would
 	be created by restoring from a cdxml file, returns a dict with all classIDs
-	as keys, and a dict as the corresponding value. The dict value will have 
+	as keys, and a dict as the corresponding value. The dict value will have
 	keys for the attributes and/or code, depending on what was in the original
 	dict. The end result is to take a nested dict structure and return a flattened
 	dict with all objects at the top level.
@@ -383,7 +383,7 @@ def flattenClassDict(cd, retDict=None):
 			classCode = classCD.get("code", {})
 			classKids = classCD.get("children", [])
 			currDict = retDict.get(classID, {})
-			retDict[classID] = {"attributes": classAtts, "code": classCode, 
+			retDict[classID] = {"attributes": classAtts, "code": classCode,
 					"properties": classProps}
 			retDict[classID].update(currDict)
 			# Now update the child objects in the dict
@@ -392,7 +392,7 @@ def flattenClassDict(cd, retDict=None):
 		else:
 			# Not a file; most likely just a component in another class
 			currDict = retDict.get(classID, {})
-			retDict[classID] = {"attributes": atts, "code": code, 
+			retDict[classID] = {"attributes": atts, "code": code,
 					"properties": props}
 			retDict[classID].update(currDict)
 	if kids:
@@ -402,9 +402,9 @@ def flattenClassDict(cd, retDict=None):
 
 
 def addInheritedInfo(src, super, updateCode=False):
-	"""Called recursively on the class container structure, modifying 
-	the attributes to incorporate superclass information. When the 
-	'updateCode' parameter is True, superclass code is added to the 
+	"""Called recursively on the class container structure, modifying
+	the attributes to incorporate superclass information. When the
+	'updateCode' parameter is True, superclass code is added to the
 	object's code
 	"""
 	atts = src.get("attributes", {})

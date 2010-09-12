@@ -19,7 +19,7 @@ RadioItemType = wx.ITEM_RADIO
 
 
 class dMenu(pm.dPemMixin, wx.Menu):
-	"""Creates a menu, which can contain submenus, menu items, 
+	"""Creates a menu, which can contain submenus, menu items,
 	and separators.
 	"""
 	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
@@ -32,10 +32,10 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		else:
 			self._useMRU = self._extractKey((properties, kwargs), "MRU", False)
 		self._mruSeparator = None
-		# Identifying attribute that can be used to locate the menu 
+		# Identifying attribute that can be used to locate the menu
 		# independent of its Caption or index.
 		self._menuID = None
-		
+
 		## pkm: When a dMenuItem is added to a dMenu, the wx functions only
 		##      add the C++ portion, not the mixed-in dabo dMenuItem object.
 		##      To work around this, we maintain an internal dictionary that
@@ -47,10 +47,10 @@ class dMenu(pm.dPemMixin, wx.Menu):
 	def __onMenuOpenMRU(self, evt):
 		if self.Application:
 			self.Application.onMenuOpenMRU(self)
-	
-	
+
+
 	def _initEvents(self):
-		"""See self._setId(), which is where the binding of wxEvents needs to take 
+		"""See self._setId(), which is where the binding of wxEvents needs to take
 		place.
 		"""
 		self.bindEvent(dEvents.MenuOpen, self.__onMenuHighlight)
@@ -58,7 +58,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		if self._useMRU:
 			self.bindEvent(dEvents.MenuOpen, self.__onMenuOpenMRU)
 
-		
+
 
 	def __onMenuHighlight(self, evt):
 		"""Note that this code is here in a dabo binding instead of in the wx binding
@@ -107,7 +107,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			wx.App_SetMacAboutMenuItemId(id_)
 			cap = daboItem.Parent.Caption
 			wx.App_SetMacHelpMenuTitleName(cap)
-		
+
 		# Process any 'special' menus
 		try:
 			special = daboItem._special
@@ -117,7 +117,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			# Put the prefs item in the App Menu on Mac
 			wx.App_SetMacPreferencesMenuItemId(id_)
 
-	
+
 	def appendItem(self, item):
 		"""Insert a dMenuItem at the bottom of the menu."""
 		wxItem = self._getWxItem(self.AppendItem, item)
@@ -128,7 +128,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		"""Insert a dMenuItem before the specified position in the menu."""
 		wxItem = self._getWxItem(self.InsertItem, item, pos)
 		return item
-		
+
 
 	def prependItem(self, item):
 		"""Insert a dMenuItem at the top of the menu."""
@@ -149,7 +149,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		if dummySpacer:
 			self.remove(dummySpacer)
 		return menu
-		
+
 
 	def insertMenu(self, pos, menu):
 		"""Insert a dMenu before the specified position in the menu."""
@@ -158,8 +158,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		menu.Parent = self
 		self._daboChildren[wxMenuItem.GetId()] = menu
 		return menu
-		
-		
+
+
 	def prependMenu(self, menu):
 		"""Insert a dMenu at the top of the menu."""
 		wxMenuItem = self.PrependMenu(-1, menu.Caption, menu, help=menu.HelpText)
@@ -172,7 +172,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 	def appendSeparator(self):
 		"""Insert a separator at the bottom of the menu."""
 		return self.AppendSeparator()
-		
+
 
 	def insertSeparator(self, pos):
 		"""Insert a separator before the specified position in the menu."""
@@ -182,7 +182,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 	def prependSeparator(self):
 		"""Insert a separator at the top of the menu."""
 		return self.PrependSeparator()
-	
+
 
 	def _createMenuItem(self, pos, caption, help, bmp, picture, menutype, *args, **kwargs):
 		"""Handles the menu item creation for append(), insert() and prepend()."""
@@ -209,12 +209,12 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
-		
+
 		Any additional keyword arguments passed will be interpreted as properties
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		return self._createMenuItem(None, caption=caption, help=help, bmp=bmp, picture=picture, 
+		return self._createMenuItem(None, caption=caption, help=help, bmp=bmp, picture=picture,
 				menutype=menutype, *args, **kwargs)
 
 
@@ -229,9 +229,9 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		return self._createMenuItem(pos, caption, help=help, bmp=bmp, picture=picture, 
+		return self._createMenuItem(pos, caption, help=help, bmp=bmp, picture=picture,
 				menutype=menutype, *args, **kwargs)
-		
+
 
 	def prepend(self, caption, help="", bmp=None, picture=None,
 			menutype="", *args, **kwargs):
@@ -244,9 +244,9 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		return self._createMenuItem(0, caption, help=help, bmp=bmp, picture=picture, 
+		return self._createMenuItem(0, caption, help=help, bmp=bmp, picture=picture,
 				menutype=menutype, *args, **kwargs)
-		
+
 
 	def _resolveItem(self, capIdxOrItem):
 		"""Returns the menu item specified by either its index or caption. In the
@@ -259,12 +259,12 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		else:
 			ret = capIdxOrItem
 		return ret
-		
+
 
 	def remove(self, capIdxOrItem, release=True):
 		"""Removes the specified item from the menu. You may specify the item by
-		passing its index, its Caption, or by passing the item itself. If release is 
-		True (the default), the item is destroyed as well. If release is False, a reference 
+		passing its index, its Caption, or by passing the item itself. If release is
+		True (the default), the item is destroyed as well. If release is False, a reference
 		to the object will be returned, and the caller is responsible for destroying it.
 		"""
 		if not self:
@@ -293,18 +293,18 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		"""Removes all items in this menu."""
 		while self.Children:
 			self.remove(0)
-	
-	
+
+
 	def setItemCheck(self, itm, val):
 		"""Pass a menu item and a boolean value, and the checked
 		state of that menu item will be set accordingly.
 		"""
 		itm.Check(val)
-		
-		
+
+
 	def setCheck(self, capIdxOrItem, unCheckOthers=True):
 		"""When using checkmark-type menus, passing either the item
-		itself, or the index or caption of the item you want checked to 
+		itself, or the index or caption of the item you want checked to
 		this method will check that item. If unCheckOthers is True, non-
 		matching items will be unchecked.
 		"""
@@ -321,13 +321,13 @@ class dMenu(pm.dPemMixin, wx.Menu):
 						itm.Checked = False
 					except AttributeError:
 						pass
-	
-	
+
+
 	def clearChecks(self):
 		"""Unchecks any checkmark-type menu items."""
 		self.setCheck(None)
-	
-	
+
+
 	def isItemChecked(self, capIdxOrItem):
 		itm = self._resolveItem(capIdxOrItem)
 		if itm is not None and itm.IsCheckable():
@@ -335,8 +335,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		else:
 			ret = None
 		return ret
-		
-			
+
+
 	def _getItem(self, help, icon, menutype, *args, **kwargs):
 		itmtyp = self._getItemType(menutype)
 		itmid = self._getItemID(menutype)
@@ -365,7 +365,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		elif typ in ("pref", "prefs"):
 			ret = wx.ID_PREFERENCES
 		return ret
-		
+
 
 	def _getItemType(self, typ):
 		typ = ustr(typ).lower()[:3]
@@ -373,15 +373,15 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		if typ in ("che", "chk"):
 			ret = CheckItemType
 		elif typ == "rad":
-			# Currently only implemented under Windows and GTK, 
-			# use #if wxHAS_RADIO_MENU_ITEMS to test for 
+			# Currently only implemented under Windows and GTK,
+			# use #if wxHAS_RADIO_MENU_ITEMS to test for
 			# availability of this feature.
 			ret = RadioItemType
 		return ret
 
 
 	def _setId(self, id_):
-		"""wxMenus don't have ids of their own - they only get set when the 
+		"""wxMenus don't have ids of their own - they only get set when the
 		menu gets added as a submenu - and then it becomes a wxMenuItem with a
 		special submenu flag. This hook, called from append|insert|prependMenu(),
 		allows the menu event bindings to take place.
@@ -391,8 +391,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		self._wxMenuItemId = id_
 
 		if self.Application is not None:
-			# Set up a mechanism to catch menu events and re-raise Dabo events. 
-			# If Application is None, however, this won't work because of wx 
+			# Set up a mechanism to catch menu events and re-raise Dabo events.
+			# If Application is None, however, this won't work because of wx
 			# limitations.
 			self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT,
 					self.__onWxMenuHighlight, id=id_)
@@ -419,11 +419,11 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		isn't found, None is returned.
 		"""
 		return self._itemByCaption(caption, True)
-		
+
 
 	def getItem(self, idOrCaption):
-		"""Returns a reference to the menu item with the specified ItemID or Caption. 
-		The ItemID property is checked first; then the Caption. If no match is found, 
+		"""Returns a reference to the menu item with the specified ItemID or Caption.
+		The ItemID property is checked first; then the Caption. If no match is found,
 		None is returned.
 		"""
 		menuitems = (itm for itm in self.Children
@@ -441,7 +441,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 	def GetChildren(self):
 		"""wx doesn't provide GetChildren() for menubars or menus, but dPemMixin
 		calls it in _getChildren(). The Dabo developer wants the submenus and
-		items in this menu, but is using the consistent Children property to 
+		items in this menu, but is using the consistent Children property to
 		do it. The Children property will thus return both menu items and separators.
 		"""
 		children = self.GetMenuItems()
@@ -525,7 +525,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 	def _setParent(self, val):
 		self._parent = val
 
-		
+
 	Caption = property(_getCaption, _setCaption, None,
 			_("Specifies the text of the menu."))
 
@@ -543,7 +543,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			duplicate values; it is the responsibility to ensure that MenuID values
 			are unique.  (varies)"""))
 
-	Parent = property(_getParent, _setParent, None, 
+	Parent = property(_getParent, _setParent, None,
 			_("Specifies the parent menu or menubar."))
 
 

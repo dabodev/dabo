@@ -8,22 +8,22 @@ import dabo
 
 class SimpleCrypt(object):
 	""" Provides basic encryption for Dabo. Perhaps a better term would
-	be 'obscure' rather than 'encrypt', since the latter implies strong 
+	be 'obscure' rather than 'encrypt', since the latter implies strong
 	security. Since this class is provided to all Dabo users, anyone with
 	a copy of Dabo can decrypt your encrypted values.
-	
+
 	You can make your application more secure by making sure that the
-	PyCrypto package is installed, and then setting the application's 
+	PyCrypto package is installed, and then setting the application's
 	'CryptoKey' property to a string that is not publicly discoverable. This
 	will provide security as strong as the secrecy of this key.
-	
+
 	For real-world applications, you should provide your own security
 	class, and then set the Application's 'Crypto' property to an instance
 	of that class. That class must provide the following interface:
-	
+
 		encrypt(val)
 		decrypt(val)
-	
+
 	Thanks to Raymond Hettinger for the default (non-DES) code, originally found on
 	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/266586
 	"""
@@ -94,8 +94,8 @@ class SimpleCrypt(object):
 			out = self.hexToStr(val)
 			decrypted = [chr(ord(elem)^myRand(256)) for elem in out]
 			return "".join(decrypted)
-		
-		
+
+
 	def generateKey(self, s):
 		chars = []
 		for i in range(len(s)):
@@ -111,7 +111,7 @@ class SimpleCrypt(object):
 	def hexToStr(self, aString):
 		# Break the string into 2-character chunks
 		try:
-			chunks = [chr(int(aString[i] + aString[i+1], 16)) 
+			chunks = [chr(int(aString[i] + aString[i+1], 16))
 					for i in range(0, len(aString), 2)]
 		except IndexError:
 			raise ValueError(_("Incorrectly-encrypted password"))

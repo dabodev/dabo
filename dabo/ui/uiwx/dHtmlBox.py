@@ -18,10 +18,10 @@ try:
 	import webbrowser as wb
 except ImportError:
 	wb = None
-	
+
 
 class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
-	"""Creates a scrolled panel that can load and display html pages. The Html Window 
+	"""Creates a scrolled panel that can load and display html pages. The Html Window
 	can load any html text, file, or url that is fed to it.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
@@ -33,7 +33,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		self._source = self._page = ""
 		self._respondToLinks = True
 		self._openLinksInBrowser = False
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
 				*args, **kwargs)
 		self.SetScrollRate(10, 10)
 		if wx.VERSION >= (2, 7):
@@ -50,7 +50,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 
 	def __OnCellClicked(self, cell, x, y, evt):
 		self.raiseEvent(dEvents.HtmlLinkClicked, href=cell.GetLink().GetHref())
-		
+
 
 	def __onWxLinkClicked(self, evt):
 		self.raiseEvent(dEvents.HtmlLinkClicked, href=evt.GetLinkInfo().GetHref())
@@ -90,7 +90,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 				if pos:
 					drive_letter = url[pos-1]
 					if drive_letter in string.ascii_letters:
-						url = url.replace("%s:/" % drive_letter, "") 
+						url = url.replace("%s:/" % drive_letter, "")
 			return "<img %(befSrc)ssrc=%(qt1)s%(url)s%(qt2)s%(aftSrc)s>" % locals()
 		return pat.sub(repl, val)
 
@@ -153,12 +153,12 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 
 	def _setRespondToLinks(self, val):
 		self._respondToLinks = val
-		
+
 
 	def _getSelectedText(self):
 		return self.SelectionToText()
-	
-	
+
+
 	def _getSource(self):
 		return self._source
 
@@ -175,7 +175,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 
 	def _getShowScrollBars(self):
 		return not self._hasWindowStyleFlag(wx.html.HW_SCROLLBAR_NEVER)
-	
+
 	def _setShowScrollBars(self, val):
 		if bool(val):
 			self._delWindowStyleFlag(wx.html.HW_SCROLLBAR_NEVER)
@@ -187,8 +187,8 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 
 	def _getText(self):
 		return self.ToText()
-	
-	
+
+
 	def _getVerticalScroll(self):
 		return self._verticalScroll
 
@@ -212,8 +212,8 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 			_("When True (default), clicking a link will attempt to load that linked page.  (bool)"))
 
 	SelectedText = property(_getSelectedText, None, None,
-			_("Currently selected text. Returns the empty string if nothing is selected. Read-only  (str)"))	
-	
+			_("Currently selected text. Returns the empty string if nothing is selected. Read-only  (str)"))
+
 	ShowScrollBars = property(_getShowScrollBars, _setShowScrollBars, None,
 			_("When Tru (default), scrollbars will be shown as needed.  (bool)"))
 
@@ -221,9 +221,9 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 			_("Html source of the current page being display. (default='')  (string)"))
 
 	Text = property(_getText, None, None,
-			_("""Returns the displayed plain text content of the control, free of any 
-			HTML markup. Read-only  (str)"""))	
-	
+			_("""Returns the displayed plain text content of the control, free of any
+			HTML markup. Read-only  (str)"""))
+
 	# alias to fall in line with the rest of Dabo.
 	Value = Source
 
@@ -248,21 +248,21 @@ class _dHtmlBox_test(dHtmlBox):
 		return """<html>
 		<body bgcolor="#B0C4DE">
 		<center>
-			<table bgcolor="#8470FF" width="100%%" cellspacing="0" cellpadding="0" 
+			<table bgcolor="#8470FF" width="100%%" cellspacing="0" cellpadding="0"
 					border="1">
 				<tr>
 					<td align="center"><h1>dHtmlBox</h1></td>
 				</tr>
 			</table>
 		</center>
-		<p><b><font size="+2" color="#FFFFFF">dHtmlBox</font></b> is a Dabo UI widget that is designed to display html text. 
-		Be careful, though, because the widget doesn't support advanced functions like 
+		<p><b><font size="+2" color="#FFFFFF">dHtmlBox</font></b> is a Dabo UI widget that is designed to display html text.
+		Be careful, though, because the widget doesn't support advanced functions like
 		Javascript parsing.</p>
-		<p>It's better to think of it as a way to display <b>rich text</b> using 
+		<p>It's better to think of it as a way to display <b>rich text</b> using
 		<font size="+1" color="#993300">HTML markup</font>, rather
 		than a web browser replacement, although you <i>can</i> create links that will open
 		in a web browser, like this: <a href="http://wiki.dabodev.com">Dabo Wiki</a>.</p>
-		
+
 		<p>&nbsp;</p>
 		<div align="center"><img src="daboIcon.ico"></div>
 
@@ -288,8 +288,8 @@ def resetHTML(evt):
 	frm = evt.EventObject.Form
 	frm.htmlbox.Source = frm.htmlbox.getPageData()
 	frm.update()
-	
-	
+
+
 
 if __name__ == "__main__":
 	app = dabo.dApp(MainFormClass=None)
@@ -308,7 +308,7 @@ if __name__ == "__main__":
 	sz.append1x(edt, border=10)
 	btn = dabo.ui.dButton(pnl, Caption="Reset", OnHit=resetHTML)
 	sz.append(btn, halign="right", border=10, borderSides=["right", "bottom"])
-	
+
 	frm.show()
 	app.start()
 

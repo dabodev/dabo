@@ -21,7 +21,7 @@ import dabo.ui.dialogs as dlgs
 import dabo.lib.xmltodict as xtd
 import dabo.lib.DesignerUtils as desUtil
 from dabo.lib.utils import ustr
-# Doesn't matter what platform we're on; Python needs 
+# Doesn't matter what platform we're on; Python needs
 # newlines in its compiled code.
 LINESEP = "\n"
 
@@ -30,11 +30,11 @@ class DesignerClassConverter(dObject):
 	def __init__(self, *args, **kwargs):
 		self._createDesignerControls = False
 		super(DesignerClassConverter, self).__init__(*args, **kwargs)
-		
+
 
 	def afterInit(self):
-		# Set the text definitions separately. Since they require special indentation to match the 
-		# generated code and not the code in this class, it is much cleaner to define them 
+		# Set the text definitions separately. Since they require special indentation to match the
+		# generated code and not the code in this class, it is much cleaner to define them
 		# separately.
 		self._defineTextBlocks()
 		# Expression for substituing default parameters
@@ -68,11 +68,11 @@ class DesignerClassConverter(dObject):
 		except AttributeError:
 			# No app object
 			self._encoding = dabo.defaultEncoding
-		
-	
+
+
 	def classFromText(self, src):
-		"""Given a text file, returns a class object that that file 
-		represents. You can pass the text as either a file path, 
+		"""Given a text file, returns a class object that that file
+		represents. You can pass the text as either a file path,
 		a file object, or raw XML/JSON text.
 		"""
 		dct = self.dictFromStoredText(src)
@@ -88,16 +88,16 @@ class DesignerClassConverter(dObject):
 		if isinstance(self.classText, unicode):
 			self.classText = self.classText.encode(self._encoding)
 		open(self._classFileName, "w").write(self.classText)
-		
+
 		## For debugging. This creates a copy of the generated code
 		## so that you can help determine any problems.
-		## egl: removed 2007-02-10. If you want to see the output, 
+		## egl: removed 2007-02-10. If you want to see the output,
 		##   just uncomment the next 2 lines.
 # 		debugName = "CLASSTEXT_%s.py" % time.strftime("%H%M%S", time.localtime())
 #  		open(debugName, "w").write(self.classText)
 
 		# jfcs added self._codeFileName to below
-		# egl - created a tmp file for the main class code that we can use 
+		# egl - created a tmp file for the main class code that we can use
 		#   for compiling. This allows for full Python introspection.
 		compClass = compile(self.classText, self._classFileName, "exec")
 		nmSpace = {}
@@ -138,7 +138,7 @@ class DesignerClassConverter(dObject):
 
 
 	def importJsonSource(self, src):
-		"""This will read in a JSON source. The parameter can be a 
+		"""This will read in a JSON source. The parameter can be a
 		file path, an open file object, or the raw XML. It will look for
 		a matching code file and, if found, import that code.
 		"""
@@ -159,7 +159,7 @@ class DesignerClassConverter(dObject):
 
 
 	def importXmlSrc(self, src):
-		"""This will read in an XML source. The parameter can be a 
+		"""This will read in an XML source. The parameter can be a
 		file path, an open file object, or the raw XML. It will look for
 		a matching code file and, if found, import that code.
 		"""
@@ -181,9 +181,9 @@ class DesignerClassConverter(dObject):
 
 	@classmethod
 	def addInheritedInfo(cls, src, super, updateCode=False):
-		"""Called recursively on the class container structure, modifying 
-		the attributes to incorporate superclass information. When the 
-		'updateCode' parameter is True, superclass code is added to the 
+		"""Called recursively on the class container structure, modifying
+		the attributes to incorporate superclass information. When the
+		'updateCode' parameter is True, superclass code is added to the
 		object's code
 		"""
 		atts = src.get("attributes", {})
@@ -203,12 +203,12 @@ class DesignerClassConverter(dObject):
 		if kids:
 			for kid in kids:
 				cls.addInheritedInfo(kid, super, updateCode)
-	
+
 
 	def flattenClassDict(self, cd, retDict=None):
 		"""Given a dict containing a series of nested objects such as would
 		be created by restoring from a stored class file, returns a dict with all classIDs
-		as keys, and a dict as the corresponding value. The dict value will have 
+		as keys, and a dict as the corresponding value. The dict value will have
 		keys for the attributes and/or code, depending on what was in the original
 		dict. The end result is to take a nested dict structure and return a flattened
 		dict with all objects at the top level.
@@ -236,7 +236,7 @@ class DesignerClassConverter(dObject):
 				classCode = classCD.get("code", {})
 				classKids = classCD.get("children", [])
 				currDict = retDict.get(classID, {})
-				retDict[classID] = {"attributes": classAtts, "code": classCode, 
+				retDict[classID] = {"attributes": classAtts, "code": classCode,
 						"properties": classProps}
 				retDict[classID].update(currDict)
 				# Now update the child objects in the dict
@@ -245,15 +245,15 @@ class DesignerClassConverter(dObject):
 			else:
 				# Not a file; most likely just a component in another class
 				currDict = retDict.get(classID, {})
-				retDict[classID] = {"attributes": atts, "code": code, 
+				retDict[classID] = {"attributes": atts, "code": code,
 						"properties": props}
 				retDict[classID].update(currDict)
 		if kids:
 			for kid in kids:
 				self.flattenClassDict(kid, retDict)
 		return retDict
-	
-	
+
+
 	def createClassText(self, dct, addImports=True, specList=[]):
 		# 'self.classText' will contain the generated code
 		self.classText = ""
@@ -268,7 +268,7 @@ class DesignerClassConverter(dObject):
 		self.sizerDict = {}
 		self.indent = 1
 		self.currParent = None
-	
+
 		nm = dct.get("name")
 		atts = dct.get("attributes", {})
 		code = dct.get("code", {})
@@ -291,7 +291,7 @@ class DesignerClassConverter(dObject):
 		for rm in rmv:
 			specList.remove(rm)
 		cleanAtts = self.cleanAttributes(atts)
-		
+
 		# Create the main class definition. Split off any module pathing first.
 		try:
 			modpath, shortClsName = nm.rsplit(".", 1)
@@ -300,7 +300,7 @@ class DesignerClassConverter(dObject):
 			modpath = "dabo.ui"
 			shortClsName = nm
 		self.mainClassName = clsName = self.uniqename(shortClsName)
-		
+
 		# Wizards are constructed differently than other top-level classes.
 		tmpSpace = {}
 		stmnt = "from %s import %s" % (modpath, shortClsName)
@@ -309,7 +309,7 @@ class DesignerClassConverter(dObject):
 		except (ImportError, ValueError):
 			pass
 		isWiz = issubclass(tmpSpace.get(shortClsName), dlgs.Wizard)
-		
+
 		# Leave the third %s in place. That will be replaced by any
 		# inner class definitions we create
 		propInit = ""
@@ -326,7 +326,7 @@ class DesignerClassConverter(dObject):
 			superName = "%s.%s" % (modpath, shortClsName)
 		prnt = self.currParent
 		indCode = self.indentCode(propInit, 2)
-		
+
 		isOkDlg = (nm == "dOkCancelDialog")
 		if isOkDlg:
 			template = self.okCancelDialogClassTemplate
@@ -339,13 +339,13 @@ class DesignerClassConverter(dObject):
 			stackinit = self._stackInitText
 		self.classText += template  % locals()
 		self.classText += stackinit
-		
+
 		if isWiz:
 			self.createWizardPages(kids, specKids)
 		else:
 			# Add the child code.
 			self.createChildCode(kids, specKids, isOkDlg)
-		
+
 		# Add any main class code
 		for mthd, cd in code.items():
 			if mthd == "importStatements":
@@ -359,11 +359,11 @@ class DesignerClassConverter(dObject):
 			pdd = propDef["deller"]
 			pdc = propDef["comment"]
 			self.classText += LINESEP + self._propDefText % locals()
-		
+
 		# Add any contained class definitions.
 		if self.innerClassText:
 			innerTxt = (3 * LINESEP) + self._innerClsDefText
-			
+
 			if self.CreateDesignerControls:
 				superEval = "getControlClass(eval(clsName))"
 			else:
@@ -372,7 +372,7 @@ class DesignerClassConverter(dObject):
 			indCode = self.indentCode(self.innerClassText, 2)
 			innerTxt = innerTxt % locals()
 			self.classText += innerTxt
-		
+
 		# Add any import statements
 		if addImports:
 			impt = self._import
@@ -384,13 +384,13 @@ class DesignerClassConverter(dObject):
 		if isinstance(impt, unicode):
 			impt = impt.encode(self._encoding)
 		self.classText = self.classText.replace("|classImportStatements|", impt)
-		
+
 		# We're done!
 		return
-	
-	
+
+
 	def createWizardPages(self, pgList, specPgList=[]):
-		"""Takes a list of wizard page dicts, and adds their code to the 
+		"""Takes a list of wizard page dicts, and adds their code to the
 		generated class text.
 		"""
 		for pg in pgList:
@@ -413,7 +413,7 @@ class DesignerClassConverter(dObject):
 			else:
 				txt = self._wizardPageTemplate % locals()
 			self.classText += LINESEP + txt
-			
+
 			# The page should only have one child: its main sizer. It will
 			# already have been created when the page was appended, so
 			# we just need to add its children to it.
@@ -422,7 +422,7 @@ class DesignerClassConverter(dObject):
 
 
 	def createChildCode(self, childList, specChildList=[], force1x=False):
-		"""Takes a list of child object dicts, and adds their code to the 
+		"""Takes a list of child object dicts, and adds their code to the
 		generated class text.
 		"""
 		if not isinstance(childList, (list, tuple)):
@@ -440,7 +440,7 @@ class DesignerClassConverter(dObject):
 				# Default to the dabo.ui module
 				modpath = "dabo.ui"
 				shortClsName = nm
-	
+
 			atts = child.get("attributes", {})
 			clsID = atts.get("classID", "")
 			specChild = {}
@@ -471,7 +471,7 @@ class DesignerClassConverter(dObject):
 			isInherited = False
 			# Do we need to pop the containership/sizer stacks?
 			needPop = True
-			
+
 			clsname = self._extractKey(atts, "designerClass", "")
 			isSizer = (clsname in ("LayoutSizer", "LayoutGridSizer",
 					"LayoutBorderSizer")) or (nm in ("dSizer", "dBorderSizer", "dGridSizer"))
@@ -523,7 +523,7 @@ class DesignerClassConverter(dObject):
 					szType = atts["Orientation"]
 					if isBorderSizer:
 						prnt = "currParent, "
-						propString = "'%s', Caption=\"%s\"" % (self._extractKey(atts, "Orientation", "H"), 
+						propString = "'%s', Caption=\"%s\"" % (self._extractKey(atts, "Orientation", "H"),
 								self._extractKey(atts, "Caption", ""))
 					else:
 						for unneeded in ("SlotCount", "classID"):
@@ -535,7 +535,7 @@ class DesignerClassConverter(dObject):
 					superName = "dabo.ui.%s" % nm
 				self.classText += LINESEP + self._szText % locals()
 				self._sizerTypeStack.append(szType)
-			
+
 			elif clsname == "LayoutSpacerPanel":
 				if self.CreateDesignerControls:
 					spcObjDef = "currSizer.append(LayoutSpacerPanel(currParent, Spacing=%(spc)s))"
@@ -572,7 +572,7 @@ class DesignerClassConverter(dObject):
 					szInfo = eval(szInfo)
 				szDefaults.update(szInfo)
 				szInfo = szDefaults
-				
+
 				isSplitter = ("SashPosition" in atts)
 				isSlidePanel = ("PanelCount" in atts)
 				if isSplitter:
@@ -594,7 +594,7 @@ class DesignerClassConverter(dObject):
 						superName = "%s.%s" % (modpath, shortClsName)
 					attPropString = ", attProperties=%s" % cleanAtts
 				self.classText += LINESEP + self._createControlText % locals()
-			
+
 			# If this item has child objects, push the appropriate objects
 			# on their stacks, and add the push statements to the code.
 			# We'll pop them back off at the end.
@@ -605,7 +605,7 @@ class DesignerClassConverter(dObject):
 					self.classText += LINESEP + self._kidSzText
 
 				elif isSplitter:
-					# Create the two panels as custom classes, and add them to the 
+					# Create the two panels as custom classes, and add them to the
 					# splitter as those classes
 					splitName = self.uniqename("splt")
 					self.classText += LINESEP + ("""		%s = obj""" % splitName)
@@ -647,16 +647,16 @@ class DesignerClassConverter(dObject):
 						# returns to this level, all the children for this object will
 						# have been added.
 						self.createChildCode(grandkids2, specKids)
-					
+
 					if hasGK:
 						self.classText += LINESEP + self._gkPopText
-				
+
 				elif isTree:
 					self.classText += LINESEP + self._treeNodeText
 					self.classText += LINESEP + (self._treeRootText % kids[0])
 					needPop = False
 					kids = []
-					
+
 				else:
 					# We need to handle Grids and PageFrames separately,
 					# since these 'children' are not random objects, but specific
@@ -712,7 +712,7 @@ class DesignerClassConverter(dObject):
 
 					else:
 						# We're adding things to a control. We have to clear
-						# the current sizer, since the most likely child will 
+						# the current sizer, since the most likely child will
 						# be the sizer that governs the contained controls.
 						# Tell the class that we are dealing with a new parent object
 						self.classText += LINESEP + self._childPushText
@@ -721,7 +721,7 @@ class DesignerClassConverter(dObject):
 					# returns to this level, all the children for this object will
 					# have been added.
 					self.createChildCode(kids, specKids)
-					
+
 				# Pop as needed off of the stacks.
 				if needPop:
 					if isSizer:
@@ -729,9 +729,9 @@ class DesignerClassConverter(dObject):
 						self._sizerTypeStack.pop()
 					else:
 						self.classText += LINESEP + self._ctlPopText
-		return				
+		return
 
-	
+
 	def createInnerClass(self, nm, atts, code, custProps):
 		"""Define a class that will be used to create an instance of
 		an object that contains its own method code and/or Properties.
@@ -775,14 +775,14 @@ class DesignerClassConverter(dObject):
 			self.innerClassText += LINESEP + self._innerPropText % locals()
 		self.innerClassText += (2 * LINESEP)
 		return clsName
-	
-	
+
+
 	def createInheritedClass(self, pth, specList):
 		"""When a custom class is contained in a cdxml file, we need
-		to add that class separately, and inherit from that. We will 
-		be passed a path to the cdxml file, along with a list of 
+		to add that class separately, and inherit from that. We will
+		be passed a path to the cdxml file, along with a list of
 		dictionaries that contains a dict for each level of specialization
-		for this class. 
+		for this class.
 		"""
 		conv = DesignerClassConverter()
 		xmlDict = conv.importXmlSrc(pth)
@@ -790,7 +790,7 @@ class DesignerClassConverter(dObject):
 		self.innerClassText += conv.classText + (2 * LINESEP)
 		self.innerClassNames.append(conv.mainClassName)
 		return conv.mainClassName
-		
+
 
 
 	def indentCode(self, cd, level):
@@ -806,8 +806,8 @@ class DesignerClassConverter(dObject):
 			# Need to add the indent to the first line, too
 			ret = indent + ret
 		return ret
-	
-	
+
+
 	def uniqename(self, nm):
 		ret = ""
 		while not ret or ret in self._generatedNames:
@@ -815,16 +815,16 @@ class DesignerClassConverter(dObject):
 			ret = "%s_%s" % (nm, random.randint(0,99999))
 		self._generatedNames.append(ret)
 		return ret
-	
+
 
 	def cleanAttributes(self, attDict):
-		"""Return a dict that is the same as the source dict, dropping any 
+		"""Return a dict that is the same as the source dict, dropping any
 		attributes that the Designer added that are not used
 		in the runtime objects.
 		"""
 		ret = {}
 		for key, val in attDict.items():
-			if key not in ("SlotCount", "designerClass", "rowColPos", 
+			if key not in ("SlotCount", "designerClass", "rowColPos",
 					"sizerInfo", "PageCount", "ColumnCount", "propertyDefinitions",
 					"classID", "savedClass"):
 				if key == "Name":
@@ -834,7 +834,7 @@ class DesignerClassConverter(dObject):
 					ret[key] = val
 		dabo.lib.utils.resolveAttributePathing(ret, self._srcFile)
 		return ret
-	
+
 
 	def _getCreateDesignerControls(self):
 		return self._createDesignerControls
@@ -845,8 +845,8 @@ class DesignerClassConverter(dObject):
 
 	CreateDesignerControls = property(_getCreateDesignerControls, _setCreateDesignerControls, None,
 			_("When True, classes are mixed-in with the DesignerControlMixin  (bool)"))
-	
-		
+
+
 	### Text block definitions follow. They're going after the prop defs ###
 	### so as not to clutter the rest of the code visually.  ###
 	def _defineTextBlocks(self):
@@ -868,7 +868,7 @@ class DesignerClassConverter(dObject):
 		self.classTemplate = """class %(clsName)s(%(modpath)s.%(shortClsName)s):
 	def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
 		%(modpath)s.%(shortClsName)s.__init__(self, parent=parent, attProperties=attProperties, *args, **kwargs)
-%(indCode)s		
+%(indCode)s
 
 """
 		# OK/Cancel dialog class template
@@ -894,22 +894,22 @@ import sys
 		currParent = self
 		currSizer = None
 		sizerDict[currParent] = []
-"""	
+"""
 		self._okCancelStackInitText = """	def addControls(self):
 		parentStack = []
 		sizerDict = {}
 		currParent = self
 		currSizer = self.Sizer
 		sizerDict[currParent] = []
-"""	
-		self._propDefText = """	%(prop)s = property(%(pdg)s, %(pds)s, %(pdd)s, 
+"""
+		self._propDefText = """	%(prop)s = property(%(pdg)s, %(pds)s, %(pdd)s,
 			\"\"\"%(pdc)s\"\"\")
 """
 		self._innerClsDefText = """	def getCustControlClass(self, clsName):
 		# Define the classes, and return the matching class
 %(indCode)s
 		return %(superEval)s"""
-		
+
 		self._szText = """		obj = %(superName)s(%(prnt)s%(propString)s)
 		if currSizer:
 			currSizer.append(obj%(rowColString)s)
@@ -1041,7 +1041,7 @@ import sys
 			except (KeyError, IndexError):
 				pass
 """
-		self._innerPropText = """	%(prop)s = property(%(pdg)s, %(pds)s, %(pdd)s, 
+		self._innerPropText = """	%(prop)s = property(%(pdg)s, %(pds)s, %(pdd)s,
 			\"\"\"%(pdc)s\"\"\")
 """
 		self._designerClassGenText = """from ClassDesignerControlMixin import ClassDesignerControlMixin as cmix

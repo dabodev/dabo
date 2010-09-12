@@ -19,7 +19,7 @@ def logPoint(msg="", levels=None):
 	output = StringIO()
 	if msg:
 		output.write(ustr(msg) + "\n")
-	
+
 	stackSection = stack[-1*levels:]
 	for stackLine in stackSection:
 		frame, filename, line, funcname, lines, unknown = stackLine
@@ -39,23 +39,23 @@ def logPoint(msg="", levels=None):
 def mainProgram():
 	"""Returns the name of first program in the call stack"""
 	return inspect.stack()[-1][1]
-	
+
 
 def loggit(fnc):
 	"""Decorator function to create a log of all methods as they are called. To use
 	it, modify all your methods from:
-	
+
 		def someMethod(...):
-		
+
 	to:
-	
+
 		@loggit
 		def someMethod(...):
-		
+
 	Be sure to add:
-	
+
 	from dabo.dBug import loggit
-	
+
 	to the import statements for every file that uses loggit. You can set the name and
 	location of the log file by overriding the setting for dabo.loggitFile. By default, this
 	value will be 'functionCall.log'.

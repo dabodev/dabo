@@ -84,7 +84,7 @@ for autosuper in autosuper_modules:
             self.super()
 
     class E (A):
-        
+
         def __init__(self):
             def helper (super):
                 super()
@@ -100,7 +100,7 @@ for autosuper in autosuper_modules:
             helper(self.super)
 
     class F (A):
-        
+
         def __init__(self):
             def helper (super):
                 super.__init__()
@@ -116,7 +116,7 @@ for autosuper in autosuper_modules:
             helper(self.super)
 
     class G (A):
-        
+
         def __init__(self):
             def helper():
                 self.super()
@@ -132,7 +132,7 @@ for autosuper in autosuper_modules:
             helper()
 
     class H (A):
-        
+
         def __init__(self):
             def helper():
                 self.super.__init__()
@@ -162,7 +162,7 @@ for autosuper in autosuper_modules:
         def __init__(self):
             increment_call('Fail.__init__')
             self.__private = None
-        
+
         def test (self):
             increment_call('Fail.test')
             print self.super()
@@ -211,7 +211,7 @@ for autosuper in autosuper_modules:
             assert CALLS['A.test'] == 1
             assert len(CALLS) == 2
 
-        def test2 (self):            
+        def test2 (self):
             B().test()
 
             assert CALLS['B.__init__'] == 1
@@ -220,7 +220,7 @@ for autosuper in autosuper_modules:
             assert CALLS['A.test'] == 1
             assert len(CALLS) == 4
 
-        def test3 (self):            
+        def test3 (self):
             C().test()
 
             assert CALLS['C.__init__'] == 1
@@ -229,7 +229,7 @@ for autosuper in autosuper_modules:
             assert CALLS['A.test'] == 1
             assert len(CALLS) == 4
 
-        def test4 (self):            
+        def test4 (self):
             D().test()
 
             assert CALLS['D.__init__'] == 1
@@ -243,7 +243,7 @@ for autosuper in autosuper_modules:
             assert CALLS['A.test2'] == 1
             assert len(CALLS) == 9
 
-        def test5 (self):            
+        def test5 (self):
             E().test()
 
             assert CALLS['E.__init__'] == 1
@@ -252,7 +252,7 @@ for autosuper in autosuper_modules:
             assert CALLS['A.test'] == 1
             assert len(CALLS) == 4
 
-        def test6 (self):            
+        def test6 (self):
             F().test()
 
             assert CALLS['F.__init__'] == 1
@@ -261,7 +261,7 @@ for autosuper in autosuper_modules:
             assert CALLS['A.test'] == 1
             assert len(CALLS) == 4
 
-##        def test7 (self):            
+##        def test7 (self):
 ##            G().test()
 ##
 ##            assert CALLS['G.__init__'] == 1
@@ -270,7 +270,7 @@ for autosuper in autosuper_modules:
 ##            assert CALLS['A.test'] == 1
 ##            assert len(CALLS) == 4
 ##
-##        def test8 (self):            
+##        def test8 (self):
 ##            H().test()
 ##
 ##            assert CALLS['H.__init__'] == 1
@@ -279,7 +279,7 @@ for autosuper in autosuper_modules:
 ##            assert CALLS['A.test'] == 1
 ##            assert len(CALLS) == 4
 
-        def test9 (self):            
+        def test9 (self):
             try:
                 Fail().test()
                 self.fail()
@@ -290,7 +290,7 @@ for autosuper in autosuper_modules:
             assert CALLS['Fail.test'] == 1
             assert len(CALLS) == 2
 
-        def test10 (self):            
+        def test10 (self):
             try:
                 Fail2().test()
                 self.fail()
@@ -301,7 +301,7 @@ for autosuper in autosuper_modules:
             assert CALLS['Fail2.test'] == 1
             assert len(CALLS) == 2
 
-        def test11 (self):            
+        def test11 (self):
             try:
                 Fail3().test()
                 self.fail()
@@ -312,7 +312,7 @@ for autosuper in autosuper_modules:
             assert CALLS['Fail3.test'] == 1
             assert len(CALLS) == 2
 
-        def test12 (self):            
+        def test12 (self):
             try:
                 Fail4().test()
                 self.fail()
@@ -352,7 +352,7 @@ for autosuper in autosuper_modules:
 class A1 (object):
     def __init__(self):
         pass
-    
+
     def test (self):
         pass
 
@@ -440,7 +440,7 @@ base_titles = [
 ]
 
 for t in (D1, D2, E1, E2):
-    
+
     t().test()
 
     start = time.clock()
@@ -465,7 +465,7 @@ for autosuper in autosuper_modules:
     class A3 (autosuper.autosuper):
         def __init__(self):
             pass
-        
+
         def test (self):
             pass
 
@@ -501,7 +501,7 @@ for autosuper in autosuper_modules:
     class A4 (autosuper.autosuper):
         def __init__(self):
             pass
-        
+
         def test (self):
             pass
 

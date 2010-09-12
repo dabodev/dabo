@@ -123,7 +123,7 @@ pysqlite2: http://initd.org/tracker/pysqlite
 dAppRef = None
 
 # Import global settings (do this first, as other imports may rely on it):
-# NOTE: Yeah, it's namespace pollution, but in this case it is deliberate: 
+# NOTE: Yeah, it's namespace pollution, but in this case it is deliberate:
 # we want to make them part of the dabo namespace.
 from settings import *
 
@@ -178,7 +178,7 @@ else:
 		fileFormatter.datefmt = mainLogDateFormat
 		fileLogHandler.setFormatter(fileFormatter)
 		log.addHandler(fileLogHandler)
-	
+
 	dbConsoleLogHandler = logging.StreamHandler()
 	dbConsoleLogHandler.setLevel(dbLogConsoleLevel)
 	dbConsoleFormatter = logging.Formatter(dbConsoleFormat)

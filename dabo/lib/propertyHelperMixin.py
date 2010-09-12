@@ -13,7 +13,7 @@ class PropertyHelperMixin(object):
 		for user code to just set the property using the first letter.
 		"""
 		value = value.lower().strip()
-		
+
 		uniqueFirstLetter = True
 		firstLetterCounts = {}
 		firstLetters = {}
@@ -33,7 +33,7 @@ class PropertyHelperMixin(object):
 			value = firstLetters.get(value[0:1])
 		else:
 			value = lowerPropMap.get(value)
-		
+
 		if value is None:
 			if None not in propList:
 				s = _("The only accepted values for this property are ")
@@ -48,7 +48,7 @@ class PropertyHelperMixin(object):
 
 	def _extractKeywordProperties(self, kwdict, propdict):
 		""" Called from __init__: puts any property keyword arguments into
-		the property dictionary, so that __init__ can pass that dict to 
+		the property dictionary, so that __init__ can pass that dict to
 		setProperties() when appropriate (and so the property keywords are
 		removed before sending **kwargs to the wx constructor).
 		"""
@@ -60,8 +60,8 @@ class PropertyHelperMixin(object):
 				propdict[arg] = kwdict[arg]
 				del kwdict[arg]
 		return propdict
-	
-	
+
+
 	def _extractKeyWordEventBindings(self, kwdict, evtdict):
 		""" Called from __init__: puts any On* event keyword arguments into
 		the event dictionary.
@@ -70,11 +70,11 @@ class PropertyHelperMixin(object):
 			evtdict = {}
 		onKWs = [(kw, kw[2:]) for kw in kwdict.keys()
 				if kw.startswith("On")]
-		for kw, evtName in onKWs:			
+		for kw, evtName in onKWs:
 			evtdict[evtName] = kwdict[kw]
 			del kwdict[kw]
-	
-	
+
+
 	def _extractKey(self, kwdict, key, defaultVal=None):
 		""" If the supplied key is present in the kwdict, the associated
 		value is returned, and that key's element is deleted from the
@@ -97,36 +97,36 @@ class PropertyHelperMixin(object):
 			except KeyError:
 				pass
 		return ret
-			
-				
+
+
 	def getProperties(self, propertySequence=(), propsToSkip=(),
 			ignoreErrors=False, *propertyArguments):
 		""" Returns a dictionary of property name/value pairs.
-		
+
 		If a sequence of properties is passed, just those property values
 		will be returned. Otherwise, all property values will be returned.
 		The sequence of properties can be a list, tuple, or plain string
 		positional arguments. For instance, all of the following are
 		equivilent:
-			
+
 			print self.getProperties("Caption", "FontInfo", "Form")
 			print self.getProperties(["Caption", "FontInfo", "Form"])
 			t = ("Caption", "FontInfo", "Form")
 			print self.getProperties(t)
 			print self.getProperties(*t)
-			
-		An exception will be raised if any passed property names don't 
+
+		An exception will be raised if any passed property names don't
 		exist, aren't actual properties, or are not readable (do not have
 		getter functions).
-		
+
 		However, if an exception is raised from the property getter function,
-		the exception will get caught and used as the property value in the 
-		returned property dictionary. This allows the property list to be 
-		returned even if some properties can't be evaluated correctly by the 
+		the exception will get caught and used as the property value in the
+		returned property dictionary. This allows the property list to be
+		returned even if some properties can't be evaluated correctly by the
 		object yet.
 		"""
 		propDict = {}
-		
+
 		def _fillPropDict(_propSequence):
 			for prop in _propSequence:
 				if prop in propsToSkip:
@@ -145,7 +145,7 @@ class PropertyHelperMixin(object):
 						pass
 				else:
 					raise AttributeError("'%s' is not a property." % prop)
-					
+
 		if isinstance(propertySequence, (list, tuple)):
 			_fillPropDict(propertySequence)
 		else:
@@ -156,22 +156,22 @@ class PropertyHelperMixin(object):
 				propertyArguments.append(propertySequence)
 				propertyArguments = tuple(propertyArguments)
 		_fillPropDict(propertyArguments)
-		
+
 		if len(propertyArguments) == 0 and len(propertySequence) == 0:
 			# User didn't send a list of properties, so return all properties:
 			_fillPropDict(self.getPropertyList())
-			
+
 		return propDict
 
-	
+
 	def setProperties(self, propDict={}, ignoreErrors=False, **propKw):
 		""" Sets a group of properties on the object all at once.
-			
+
 		You have the following options for sending the properties:
 			1) Property/Value pair dictionary
 			2) Keyword arguments
 			3) Both
-	
+
 		The following examples all do the same thing:
 		self.setProperties(FontBold=True, ForeColor="Red")
 		self.setProperties({"FontBold": True, "ForeColor": "Red"})
@@ -203,21 +203,21 @@ class PropertyHelperMixin(object):
 			if delayedSettings is not None:
 				for setter, val in delayedSettings.items():
 					setter(self, val)
-					
+
 		# Set the props specified in the passed propDict dictionary:
 		_setProps(propDict)
-	
+
 		# Set the props specified in the keyword arguments:
 		_setProps(propKw)
 
-			
+
 	def setPropertiesFromAtts(self, propDict={}, ignoreExtra=True, context=None):
 		""" Sets a group of properties on the object all at once. This
 		is different from the regular setProperties() method because
 		it only accepts a dict containing prop:value pairs, and it
 		assumes that the value is always a string. It will convert
 		the value to the correct type for the property, and then set
-		the property to that converted value. If the value needs to be evaluated 
+		the property to that converted value. If the value needs to be evaluated
 		in a specific namespace, pass that as the 'context' parameter.
 		"""
 		for prop, val in propDict.items():
@@ -233,8 +233,8 @@ class PropertyHelperMixin(object):
 			except (TypeError, SyntaxError, NameError, AttributeError):
 				valToSet = val
 			setattr(self, prop, valToSet)
-		
-	
+
+
 	def _setKwEventBindings(self, kwEvtDict):
 		"""This method takes a dict of event names and method to which they are
 		to be bound, and binds the corresponding event to that method.
@@ -248,12 +248,12 @@ class PropertyHelperMixin(object):
 				# A string that needs to be eval'd after construction was passed.
 				self._delayedEventBindings.append((evt, mthd))
 
-		
+
 	def getPropertyList(cls, refresh=False, onlyDabo=False):
 		""" Returns the list of properties for this object (class or instance).
 
 		If refresh is passed, the cached property list (if any) will be rebuilt.
-		If onlyDabo is passed, we won't list the properties underneath the 
+		If onlyDabo is passed, we won't list the properties underneath the
 		__mro__ of dObject.
 		"""
 		propLists = getattr(cls, "_propLists", {})
@@ -303,10 +303,10 @@ class PropertyHelperMixin(object):
 				try:
 					propVal = propRef.fget(cls)
 				except StandardError:
-					# There are many reasons the propval may not be determined for now, 
+					# There are many reasons the propval may not be determined for now,
 					# such as not being a live instance.
 					propVal = None
-	
+
 			d = {}
 			d["name"] = name
 
@@ -322,7 +322,7 @@ class PropertyHelperMixin(object):
 
 			d["doc"] = propRef.__doc__
 			d["type"] = type(propVal)
-			d["definedIn"] = None			
+			d["definedIn"] = None
 			for o in classRef.__mro__:
 				if o.__dict__.has_key(name):
 					d["definedIn"] = o
@@ -331,5 +331,5 @@ class PropertyHelperMixin(object):
 		else:
 			raise AttributeError("%s is not a property." % name)
 	getPropertyInfo = classmethod(getPropertyInfo)
-	
-	
+
+

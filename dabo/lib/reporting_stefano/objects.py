@@ -14,7 +14,7 @@ from serialization import *
 class GenericObject(Serializable):
 	"""This object implements the functionalities that are common to every object.
 
-	It cannot be used as is, but must be subclassed.  Subclasses must implement 
+	It cannot be used as is, but must be subclassed.  Subclasses must implement
 	the _draw() method, in order to perform the actual drawing.
 	"""
 	name = UnevalStringAttr('???')
@@ -154,20 +154,20 @@ class Image(GenericObject):
 
 ## pkm: Yes, let's discuss. I implemented the frameset thing rather quickly, to
 ##      be able to get columns working. But that was columns within a flowable,
-##      for our banded report writer we want to be able to define columns per 
+##      for our banded report writer we want to be able to define columns per
 ##      page. Different things.
 
 
 #class Frameset(GenericObject):
-#    def __init__(self, borderWidth='0', 
-#                       borderColor='(0, 0, 0)', 
-#                       frameId='None', 
-#                       padLeft='0', 
-#                       padRight='0', 
-#                       padTop='0', 
-#                       padBottom='0', 
-#                       columns='1', 
-#                       expr='""', 
+#    def __init__(self, borderWidth='0',
+#                       borderColor='(0, 0, 0)',
+#                       frameId='None',
+#                       padLeft='0',
+#                       padRight='0',
+#                       padTop='0',
+#                       padBottom='0',
+#                       columns='1',
+#                       expr='""',
 #                       **args):
 #        super(Frameset, self).__init__(**args)
 #        self.borderWidth = self.getPt(eval(borderWidth))
@@ -179,7 +179,7 @@ class Image(GenericObject):
 #        self.padBottom = self.getPt(eval(padBottom, self.env))
 #        self.columns = eval(columns, self.env)
 #        self.expr = eval(expr, self.env)
-#        
+#
 #    def _draw(self, canvas, x, y):
 #        # A frame is directly related to reportlab's platypus Frame.
 #        columnWidth = self.width/self.columns
@@ -195,8 +195,8 @@ class Image(GenericObject):
 #        else:
 #            boundary = 0
 #
-#        story = []  
-#        
+#        story = []
+#
 #        styles_ = styles.getSampleStyleSheet()
 #
 #        story = []
@@ -213,7 +213,7 @@ class Image(GenericObject):
 #
 #            if object.has_key("fontName"):
 #                s.fontName = eval(object["fontName"])
-#            
+#
 #            if object.has_key("leading"):
 #                s.leading = eval(object["leading"])
 #
@@ -235,7 +235,7 @@ class Image(GenericObject):
 #        for columnIndex in range(columns):
 #            f = platypus.Frame(columnIndex*columnWidth, 0, columnWidth, height, leftPadding=padLeft,
 #                               rightPadding=padRight, topPadding=padTop,
-#                               bottomPadding=padBottom, id=frameId, 
+#                               bottomPadding=padBottom, id=frameId,
 #                               showBoundary=boundary)
 #
 #            f.addFromList(story, canvas)

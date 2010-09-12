@@ -14,7 +14,7 @@ from dabo.ui import makeDynamicProperty
 
 
 class CalPanel(dPanel):
-	def __init__(self, parent, pos=None, dt=None, ctrl=None, 
+	def __init__(self, parent, pos=None, dt=None, ctrl=None,
 			extended=False):
 		if isinstance(dt, (datetime.datetime, datetime.date)):
 			self.date = dt
@@ -23,10 +23,10 @@ class CalPanel(dPanel):
 		self.ctrl = ctrl
 		self.extended = extended
 		super(CalPanel, self).__init__(parent, pos=pos)
-		
-	
+
+
 	def afterInit(self):
-		""" Create the calendar control, and resize this panel 
+		""" Create the calendar control, and resize this panel
 		to the calendar's size.
 		"""
 		calClass = {True: dabo.ui.dExtendedCalendar, False: dabo.ui.dCalendar}[self.extended]
@@ -38,23 +38,23 @@ class CalPanel(dPanel):
 		self.Size = (wd+10, ht+10)
 		self.BackColor = (192, 192, 0)
 		self.cal.Visible = True
-		
-		
+
+
 	def onCalSelection(self, evt):
 		if self.ctrl is not None:
 			self.ctrl.setDate(self.cal.Date)
 			self.ctrl.setFocus()
 		self.Form.hide()
-	
-	
+
+
 	def onCalKey(self, evt):
 		if evt.keyCode == wx.WXK_ESCAPE:
 			evt.Continue = False
 			if self.ctrl is not None:
 				self.ctrl.setFocus()
 			self.Form.hide()
-		
-		
+
+
 
 class dDateTextBox(dTextBox):
 	""" This is a specialized textbox class designed to work with date values.
@@ -65,13 +65,13 @@ class dDateTextBox(dTextBox):
 	def _beforeInit(self, *args, **kwargs):
 		self._baseClass = dDateTextBox
 		self._calendarPanel = None
-		# Two-digit year value that is the cutoff in interpreting 
+		# Two-digit year value that is the cutoff in interpreting
 		# dates as being either 19xx or 20xx.
 		self.rollover = 50
 		# Optional behavior: if a key is pressed for moving to the first
 		# or last of a period and the date is already at that boundary, do
-		# we continue to the next period? E.g.: if the current date is 
-		# March 31 and the user presses 'H'. We are already at the end of 
+		# we continue to the next period? E.g.: if the current date is
+		# March 31 and the user presses 'H'. We are already at the end of
 		# the month, so do we interpret this to mean continue to the end
 		# of the following month, or do we do nothing?
 		self.continueAtBoundary = True
@@ -83,7 +83,7 @@ class dDateTextBox(dTextBox):
 		# Do we use the extended format for the calendar display?
 		self._extendedCalendar = False
 		return super(dDateTextBox, self)._beforeInit(*args, **kwargs)
-	
+
 	def _afterInit(self):
 		#self.Value = datetime.date.today()  ## no, don't set default, it could override val. in db.
 		if not self.Value:
@@ -96,7 +96,7 @@ class dDateTextBox(dTextBox):
 					Right=self.Right, Caption="V")
 			self.calButton.Visible = True
 			self.calButton.bindEvent(dEvents.Hit, __onBtnClick)
-			
+
 		# Tooltip help
 		self._defaultToolTipText = _("""Available Keys:
 =============
@@ -112,7 +112,7 @@ Y : First Day of Year
 R : Last Day of yeaR
 C: Popup Calendar to Select
 """)
-		self.DynamicToolTipText = lambda: {True: self._defaultToolTipText, 
+		self.DynamicToolTipText = lambda: {True: self._defaultToolTipText,
 				False: None}[self.Enabled and not self.ReadOnly]
 
 		super(dDateTextBox, self)._afterInit()
@@ -123,19 +123,19 @@ C: Popup Calendar to Select
 		self.bindEvent(dEvents.KeyChar, self.__onChar)
 		self.bindEvent(dEvents.LostFocus, self.__onLostFocus)
 		self.bindEvent(dEvents.MouseLeftDoubleClick, self.__onDblClick)
-	
-	
+
+
 	def __onDblClick(self, evt):
 		""" Display a calendar to allow users to select dates."""
 		self.showCalendar()
-		
+
 	def __onBtnClick(self,evt):
 		""" Display a calendar to allow users to select dates."""
 		self.showCalendar()
-		
-		
-		
-		
+
+
+
+
 	def showCalendar(self):
 		if self.ReadOnly:
 			# ignore
@@ -145,20 +145,20 @@ C: Popup Calendar to Select
 		fp = self.Form.FloatingPanel
 		fp.Owner = self
 		fp.show()
-		
-		
-		
-		
-	
+
+
+
+
+
 	def __onChar(self, evt):
-		""" If a shortcut key was pressed, process that. Otherwise, eat 
+		""" If a shortcut key was pressed, process that. Otherwise, eat
 		inappropriate characters.
 		"""
 		try:
 			key = evt.keyChar.lower()
 			ctrl = evt.controlDown
 			shift = evt.shiftDown
-			
+
 			if ctrl:
 				if shift and self.Application.Platform == "GTK":
 					# Linux reads keys differently depending on the Shift key
@@ -168,14 +168,14 @@ C: Popup Calendar to Select
 		except (KeyError, AttributeError):
 			# spurious key event; ignore
 			return
-		
+
 		shortcutKeys = "nt+-mhsyrc[]"
 		dateEntryKeys = "0123456789/- :."
 		if self.ampm:
 			dateEntryKeys + "apm"
-		
+
 		if key in shortcutKeys and not self.ReadOnly:
-			# There is a conflict if the key, such as '-', is used in both the 
+			# There is a conflict if the key, such as '-', is used in both the
 			# date formatting and as a shortcut. So let's check the text
 			# of this field to see if it is a full date or if the user is typing in
 			# a value.
@@ -188,13 +188,13 @@ C: Popup Calendar to Select
 				evt.Continue = not adjust
 			else:
 				# They've just finished typing a new date, or are just
-				# positioned on the field. Either way, update the stored 
+				# positioned on the field. Either way, update the stored
 				# date to make sure they are in sync.
 				self.Value = valDt
 				evt.Continue = False
 			if adjust:
 				self.adjustDate(key, ctrl, shift)
-	
+
 		elif key in dateEntryKeys:
 			# key can be used for date entry: allow
 			pass
@@ -206,7 +206,7 @@ C: Popup Calendar to Select
 			# Pass the key up the chain to process - perhaps a Tab, Enter, or Backspace...
 			pass
 
-	
+
 	def __onLostFocus(self, evt):
 		val = self.Value
 		try:
@@ -215,10 +215,10 @@ C: Popup Calendar to Select
 				self.Value = newVal
 		except ValueError:
 			pass
-		
+
 
 	def adjustDate(self, key, ctrl=False, shift=False):
-		""" Modifies the current date value if the key is one of the 
+		""" Modifies the current date value if the key is one of the
 		shortcut keys.
 		"""
 		# Save the original value for comparison
@@ -248,10 +248,10 @@ C: Popup Calendar to Select
 			else:
 				self.Value = datetime.date.today()
 			self.flushValue()
-			
+
 		# Did the key move to a boundary?
 		toBoundary = False
-		
+
 		if key == "t":
 			# Today
 			if isDateTime:
@@ -330,13 +330,13 @@ C: Popup Calendar to Select
 		elif key == "n":
 			# Null the value
 			self.Value = None
-			
+
 			#checkBoundary = False
 		else:
 			# This shouldn't happen, because onChar would have filtered it out.
 			dabo.log.info("Warning in dDateTextBox.adjustDate: %s key sent." % key)
 			return
-		
+
 		if not self.dateOK:
 			return
 		if toBoundary and checkBoundary and self.continueAtBoundary:
@@ -350,38 +350,38 @@ C: Popup Calendar to Select
 					self.dayInterval(-1)
 				self.adjustDate(key)
 		self.flushValue()
-	
-	
+
+
 	def hourInterval(self, hours):
 		"""Adjusts the date by the given number of hours; negative
 		values move backwards.
 		"""
 		self.Value += datetime.timedelta(hours=hours)
 
-	
+
 	def minuteInterval(self, minutes):
 		"""Adjusts the date by the given number of minutes; negative
 		values move backwards.
 		"""
 		self.Value += datetime.timedelta(minutes=minutes)
 
-	
+
 	def secondInterval(self, seconds):
 		"""Adjusts the date by the given number of seconds; negative
 		values move backwards.
 		"""
 		self.Value += datetime.timedelta(seconds=seconds)
 
-	
+
 	def dayInterval(self, days):
 		"""Adjusts the date by the given number of days; negative
 		values move backwards.
 		"""
 		self.Value += datetime.timedelta(days)
 
-	
+
 	def monthInterval(self, months):
-		"""Adjusts the date by the given number of months; negative 
+		"""Adjusts the date by the given number of months; negative
 		values move backwards.
 		"""
 		mn = self.Value.month + months
@@ -401,8 +401,8 @@ C: Popup Calendar to Select
 				ok = True
 			except ValueError:
 				dy -= 1
-	
-	
+
+
 	def setToLastMonthDay(self):
 		mn = self.Value.month
 		td = datetime.timedelta(1)
@@ -410,7 +410,7 @@ C: Popup Calendar to Select
 			self.Value += td
 		# We're now at the first of the next month. Go back one.
 		self.Value -= td
-		
+
 
 	def getDateTuple(self):
 		dt = self.Value
@@ -432,7 +432,7 @@ C: Popup Calendar to Select
 		fp = self.Form.FloatingPanel
 		if not isinstance(self._calendarPanel, CalPanel) or not (self._calendarPanel.Parent is fp):
 			fp.clear()
-			self._calendarPanel = CalPanel(fp, dt=self.Value, ctrl=self, 
+			self._calendarPanel = CalPanel(fp, dt=self.Value, ctrl=self,
 					extended=self.ExtendedCalendar)
 			fp.Sizer.append(self._calendarPanel)
 			fp.fitToSizer()
@@ -447,15 +447,15 @@ C: Popup Calendar to Select
 			self._extendedCalendar = val
 		else:
 			self._properties["ExtendedCalendar"] = val
-			
-		
+
+
 
 
 	_CalendarPanel = property(_getCalendarPanel, None, None,
 			_("Reference to the displayed calendar  (read-only) (CalPanel)"))
 
 	ExtendedCalendar = property(_getExtendedCalendar, _setExtendedCalendar, None,
-			_("""When True, the calendar is displayed in a larger format with more controls 
+			_("""When True, the calendar is displayed in a larger format with more controls
 			for quickly moving to any date. Default=False  (bool)"""))
 
 

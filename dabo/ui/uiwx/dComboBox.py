@@ -11,7 +11,7 @@ import dKeys
 
 class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 	"""Creates a combobox, which combines a dropdown list with a textbox.
-	
+
 	The user can choose an item in the dropdown, or enter freeform text.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
@@ -43,18 +43,18 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		self.Bind(wx.EVT_COMBOBOX, self.__onComboBox)
 # 		self.Bind(wx.EVT_TEXT_ENTER, self.__onTextBox)
 		self.Bind(wx.EVT_KEY_DOWN, self.__onWxKeyDown)
-			
-	
+
+
 	def __onComboBox(self, evt):
 		self._userVal = False
 		evt.Skip()
 		self._onWxHit(evt)
-		
-		
+
+
 	def __onWxKeyDown(self, evt):
 		"""We need to capture the Enter/Return key in order to implement
-		the AppendOnEnter behavior. However, under Windows this leads to 
-		navigation issues, so we also need to capture when Tab is pressed, 
+		the AppendOnEnter behavior. However, under Windows this leads to
+		navigation issues, so we also need to capture when Tab is pressed,
 		and handle the navigation ourselves.
 		"""
 		# Shorthand for easy reference
@@ -80,7 +80,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 			callSkip = False
 		if callSkip:
 			evt.Skip()
-	
+
 
 	def __onKeyChar(self, evt):
 		"""This handles KeyChar events when ForceCase is set to a non-empty value."""
@@ -140,9 +140,9 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		"""Hook method that is called when user-defined text is entered
 		into the combo box and Enter is pressed (when self.AppendOnEnter
 		is True). This gives the programmer the ability to interact with such
-		events, and optionally prevent them from happening. Returning 
+		events, and optionally prevent them from happening. Returning
 		False will prevent the append from happening.
-		
+
 		The text value to be appended is stored in self._textToAppend. You
 		may modify this value (e.g., force to upper case), or delete it entirely
 		(e.g., filter out obscenities and such). If you set self._textToAppend
@@ -151,16 +151,16 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		empty value, or clear out self._textToAppend.
 		"""
 		pass
-		
-		
+
+
 	def afterAppendOnEnter(self):
 		"""Hook method that provides a means to interact with the newly-
-		changed list of items after a new item has been added by the user 
+		changed list of items after a new item has been added by the user
 		pressing Enter, but before control returns to the program.
 		"""
 		pass
-		
-		
+
+
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getAppendOnEnter(self):
@@ -175,7 +175,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 
 	def _getForceCase(self):
 		return self._forceCase
-	
+
 	def _setForceCase(self, val):
 		if self._constructed():
 			if val is None:
@@ -190,11 +190,11 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 				self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
 		else:
 			self._properties["ForceCase"] = val
-	
-	
+
+
 	def _getTextLength(self):
 		return self._textLength
-	
+
 	def _setTextLength(self, val):
 		if self._constructed():
 			if val == None:
@@ -205,20 +205,20 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 					raise ValueError('TextLength must be a positve Integer')
 				self._textLength = val
 			self._checkTextLength()
-			
+
 			self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
 			if self._forceCase or self._textLength:
 				self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
 		else:
 			self._properties["TextLength"] = val
-	
-	
+
+
 	def _getUserValue(self):
 		if self._userVal:
 			return self.GetValue()
 		else:
 			return self.GetStringSelection()
-				
+
 	def _setUserValue(self, value):
 		if self._constructed():
 			self.SetValue(value)
@@ -227,12 +227,12 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 			# add it to the list, if appropriate.
 		else:
 			self._properties["UserValue"] = value
-	
-	
+
+
 	AppendOnEnter = property(_getAppendOnEnter, _setAppendOnEnter, None,
-			_("""Flag to determine if user-entered text is appended when they 
+			_("""Flag to determine if user-entered text is appended when they
 			press 'Enter'  (bool)"""))
-	
+
 	ForceCase = property(_getForceCase, _setForceCase, None,
 			_("""Determines if we change the case of entered text. Possible values are:
 				None, "" (empty string): No changes made (default)
@@ -240,21 +240,21 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 				"Lower": force to lower case
 				"Title": Force To Title Case
 			These can be abbreviated to "u", "l" or "t"  (str)"""))
-	
+
 	TextLength = property(_getTextLength, _setTextLength, None,
 			_("""The maximum length the entered text can be. (int)"""))
-	
+
 	UserValue = property(_getUserValue, _setUserValue, None,
 			_("""Specifies the text displayed in the textbox portion of the ComboBox.
-			
+
 			String. Read-write at runtime.
-			
+
 			UserValue can differ from StringValue, which would mean that the user
-			has typed in arbitrary text. Unlike StringValue, PositionValue, and 
+			has typed in arbitrary text. Unlike StringValue, PositionValue, and
 			KeyValue, setting UserValue does not change the currently selected item
 			in the list portion of the ComboBox."""))
-		
-		
+
+
 	DynamicUserValue = makeDynamicProperty(UserValue)
 
 
@@ -269,18 +269,18 @@ class _dComboBox_test(dComboBox):
 		# Simulating a database:
 		wannabeCowboys = ({"lname": "Reagan", "fname": "Ronald", "iid": 42},
 			{"lname": "Bush", "fname": "George W.", "iid": 23})
-			
+
 		choices = []
 		keys = {}
 		for wannabe in wannabeCowboys:
 			choices.append("%s %s" % (wannabe['fname'], wannabe['lname']))
 			keys[wannabe["iid"]] = len(choices) - 1
-			
+
 		self.Choices = choices
 		self.Keys = keys
 		self.ValueMode = 'key'
-	
-	
+
+
 	def beforeAppendOnEnter(self):
 		txt = self._textToAppend.strip().lower()
 		if txt == "dabo":
@@ -288,16 +288,16 @@ class _dComboBox_test(dComboBox):
 			return False
 		elif txt.find("nixon") > -1:
 			self._textToAppend = "Tricky Dick"
-		
-		
+
+
 	def onHit(self, evt):
 		print "KeyValue: ", self.KeyValue
 		print "PositionValue: ", self.PositionValue
 		print "StringValue: ", self.StringValue
 		print "Value: ", self.Value
 		print "UserValue: ", self.UserValue
-		
-			
+
+
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dComboBox_test)

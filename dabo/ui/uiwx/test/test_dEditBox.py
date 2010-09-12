@@ -36,7 +36,7 @@ class Test_dEditBox(unittest.TestCase):
 		self.mockUserInput("hi there")
 		self.assertEqual(edt.Value, "hi there")
 
-		
+
 if __name__ == "__main__":
 	suite = unittest.TestLoader().loadTestsFromTestCase(Test_dEditBox)
 	unittest.TextTestRunner(verbosity=2).run(suite)

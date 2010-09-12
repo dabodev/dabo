@@ -28,15 +28,15 @@ class dButton(cm.dControlMixin, wx.Button):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dButton
 		preClass = wx.PreButton
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,  
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
 				*args, **kwargs)
 
 
 	def _initEvents(self):
 		super(dButton, self)._initEvents()
 		self.Bind(wx.EVT_BUTTON, self._onWxHit)
-		
-	
+
+
 	def _onCancelButton(self, evt, recurse=True):
 		# This callback exists for when the user presses ESC and this button
 		# is the cancel button. Raise dEvents.Hit.
@@ -60,7 +60,7 @@ class dButton(cm.dControlMixin, wx.Button):
 		if self._constructed():
 			## pkm: We can bind the key to self, Parent, or Form (or any object).
 			##      If bound to self, the <esc> keypress will only fire the Hit
-			##      when self has the focus. If bound to self.Parent, Hit will 
+			##      when self has the focus. If bound to self.Parent, Hit will
 			##      fire when self.Parent or any of its children has the focus.
 			##      If bound to self.Form, Hit will fire whenever <esc> is pressed.
 			##      I'm making the decision to bind it to self.Form, even though
@@ -122,11 +122,11 @@ class dButton(cm.dControlMixin, wx.Button):
 	# Property definitions:
 	CancelButton = property(_getCancelButton, _setCancelButton, None,
 			_("Specifies whether this command button gets clicked on -Escape-."))
-						
-	DefaultButton = property(_getDefaultButton, _setDefaultButton, None, 
+
+	DefaultButton = property(_getDefaultButton, _setDefaultButton, None,
 			_("Specifies whether this command button gets clicked on -Enter-."))
-		
-		
+
+
 	DynamicCancelButton = makeDynamicProperty(CancelButton)
 	DynamicDefaultButton = makeDynamicProperty(DefaultButton)
 

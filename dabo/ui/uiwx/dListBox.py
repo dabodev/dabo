@@ -19,27 +19,27 @@ class dListBox(dcm.dControlItemMixin, wx.ListBox):
 		preClass = wx.PreListBox
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
-			
+
 	def _initEvents(self):
 		super(dListBox, self)._initEvents()
 		self.Bind(wx.EVT_LISTBOX, self._onWxHit)
-	
-	
+
+
 	def clearSelections(self):
 		for elem in self.GetSelections():
 			self.SetSelection(elem, False)
-	
-	
+
+
 	def selectAll(self):
 		if self.MultipleSelect:
 			for ii in xrange(self.Count):
 				self.SetSelection(ii)
-	
-	
+
+
 	def unselectAll(self):
 		self.clearSelections()
 
-		
+
 	def invertSelections(self):
 		"""Switch all the items from False to True, and vice-versa."""
 		for ii in xrange(self.Count):
@@ -47,8 +47,8 @@ class dListBox(dcm.dControlItemMixin, wx.ListBox):
 				self.Deselect(ii)
 			else:
 				self.SetSelection(ii)
-		
-	
+
+
 	def _getMultipleSelect(self):
 		return self._hasWindowStyleFlag(wx.LB_EXTENDED)
 	def _setMultipleSelect(self, val):
@@ -61,8 +61,8 @@ class dListBox(dcm.dControlItemMixin, wx.ListBox):
 
 	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
 			_("Can multiple items be selected at once?  (bool)") )
-			
-			
+
+
 	DynamicMultipleSelect = makeDynamicProperty(MultipleSelect)
 
 
@@ -72,7 +72,7 @@ class _dListBox_test(dListBox):
 		actors = ({"lname": "Jason Leigh", "fname": "Jennifer", "iid": 42},
 			{"lname": "Cates", "fname": "Phoebe", "iid": 23},
 			{"lname": "Reinhold", "fname": "Judge", "iid": 13})
-			
+
 		choices = []
 		keys = {}
 
@@ -93,12 +93,12 @@ class _dListBox_test(dListBox):
 		print "\tStringValue: ", self.StringValue
 		print "\tValue: ", self.Value
 		print "\tCount: ", self.Count
-	
+
 	def onMouseLeftDoubleClick(self, evt):
 		print "double click at position %s" % self.PositionValue
 
 	def onMouseLeftDown(self, evt):
-		print "mousedown"	
+		print "mousedown"
 
 if __name__ == "__main__":
 	import test

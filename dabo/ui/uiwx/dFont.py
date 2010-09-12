@@ -14,18 +14,18 @@ class dFont(dObject):
 		if _nativeFont is not None:
 			self._nativeFont = _nativeFont
 		else:
-			self._nativeFont = wx.Font(dabo.settings.defaultFontSize, 
-					wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, 
+			self._nativeFont = wx.Font(dabo.settings.defaultFontSize,
+					wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL,
 					wx.FONTWEIGHT_NORMAL)
 		self._macNonScaledSize = 0
-	
+
 		super(dFont, self).__init__(properties=properties, *args, **kwargs)
 
 
 	def _propsChanged(self):
 		self.raiseEvent(dabo.dEvents.FontPropertiesChanged)
 
-	
+
 	def _getBold(self):
 		if self._nativeFont:
 			return (self._nativeFont.GetWeight() == wx.FONTWEIGHT_BOLD)
@@ -64,7 +64,7 @@ class dFont(dObject):
 				except AttributeError:
 					return False
 			return False
-				
+
 		if not trySetFont(val):
 			# The font wasn't found on the user's system. Try to set it
 			# automatically based on some common-case mappings.
@@ -88,9 +88,9 @@ class dFont(dObject):
 
 			if not automatic_face:
 				if not lowVal.startswith("ms shell dlg"):
-					# Ignore the non-existent MS Shell Dlg font names; they are Windows aliases 
+					# Ignore the non-existent MS Shell Dlg font names; they are Windows aliases
 					dabo.log.error(_("The font '%s' doesn't exist on this system.") % val)
- 
+
 		self._propsChanged()
 
 
@@ -151,22 +151,22 @@ class dFont(dObject):
 	Bold = property(_getBold, _setBold, None,
 			_("Bold setting for this font  (bool)"))
 	FontBold = Bold
-	
+
 	Description = property(_getDescription, None, None,
 			_("Read-only plain text description of the font  (str)"))
-	
+
 	Face = property(_getFace, _setFace, None,
 			_("Name of the font face  (str)"))
 	FontFace = Face
-	
+
 	Italic = property(_getItalic, _setItalic, None,
 			_("Italic setting for this font  (bool)"))
 	FontItalic = Italic
-	
+
 	Size = property(_getSize, _setSize, None,
 			_("Size in points for this font  (int)"))
 	FontSize = Size
-	
+
 	Underline = property(_getUnderline, _setUnderline, None,
 			_("Underline setting for this font  (bool)"))
 	FontUnderline = Underline

@@ -11,7 +11,7 @@ class About(dabo.ui.dDialog):
 		self.AutoSize = True
 		self.Centered = True
 		self.Caption = _("About")
-		
+
 	def initEvents(self):
 		self.bindKey("space", self.onClear)
 		self.bindKey("enter", self.onClear)
@@ -25,7 +25,7 @@ class About(dabo.ui.dDialog):
 		pnlHead.Sizer = ps = dabo.ui.dSizer("h")
 
 		ps.DefaultBorder = 0
-		lblHead = dabo.ui.dLabel(pnlHead, Caption="Dabo", FontSize=24, 
+		lblHead = dabo.ui.dLabel(pnlHead, Caption="Dabo", FontSize=24,
 								FontBold=True)
 
 		ps.append(lblHead, 3, "x", halign="left", valign="middle")
@@ -34,8 +34,8 @@ class About(dabo.ui.dDialog):
 		sz.DefaultBorder = 20
 		sz.DefaultBorderTop = sz.DefaultBorderLeft = sz.DefaultBorderRight = True
 		sz.append(pnlHead, 0, "x")
-		
-		eg = dabo.ui.dGrid(pnlBack, DataSet=self.getInfoDataSet(), 
+
+		eg = dabo.ui.dGrid(pnlBack, DataSet=self.getInfoDataSet(),
 				ShowColumnLabels=False, ShowCellBorders=False,
 				CellHighlightWidth=0)
 		eg.addColumn(dabo.ui.dColumn(eg, Name="Name", DataField="name",
@@ -60,11 +60,11 @@ class About(dabo.ui.dDialog):
 		hsz.append(btnClose)
 		sz.append(hsz, halign="right")
 
-		sz.append((0,20))		
+		sz.append((0,20))
 
 		self.Layout()
 		pnlBack.Fit()
-	
+
 
 	def getInfoDataSet(self):
 		"""Return Application Information in a sequence of dicts."""
@@ -77,7 +77,7 @@ class About(dabo.ui.dDialog):
 		else:
 			plat = sys.platform
 		ds.append({"name": "Platform:", "value": plat})
-		ds.append({"name": "Python Version:", "value": "%s on %s" 
+		ds.append({"name": "Python Version:", "value": "%s on %s"
 				% (sys.version.split()[0], sys.platform)})
 		if app:
 			appVersion = app.getAppInfo("appVersion")
@@ -85,14 +85,14 @@ class About(dabo.ui.dDialog):
 		else:
 			appVersion = "?"
 			appName = "Dabo"
-		ds.append({"name": "Dabo Version:", "value": "Version %s; Revision %s" 
+		ds.append({"name": "Dabo Version:", "value": "Version %s; Revision %s"
 				% (dabo.version["version"], dabo.version["revision"])})
 
 #		uiName = dabo.ui.uiType["longName"]
 
-		ds.append({"name": "UI Version:", "value": "%s on %s" % (dabo.ui.uiType["version"], 
+		ds.append({"name": "UI Version:", "value": "%s on %s" % (dabo.ui.uiType["version"],
 				dabo.ui.uiType["platform"])})
-		
+
 		if app:
 			appSpecific = app.addToAbout()
 			if appSpecific:
@@ -113,7 +113,7 @@ class About(dabo.ui.dDialog):
 			eol = "\n"
 
 		return eol.join(lines)
-	
+
 
 	def onCopyInfo(self, evt):
 		"""Copy the system information to the Clipboard"""
@@ -122,10 +122,10 @@ class About(dabo.ui.dDialog):
 
 	def onClear(self, evt):
 		self.Close()
-	
+
 	def onClose(self, evt=None):
 		self.release()
-	
+
 
 def main():
 	app = dabo.dApp()

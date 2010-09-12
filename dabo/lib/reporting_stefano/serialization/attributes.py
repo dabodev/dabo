@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pkm TODO: serialization lib shouldn't have to rely on reporting lib's, or, 
+# pkm TODO: serialization lib shouldn't have to rely on reporting lib's, or,
 #           if serialization lib is specific to reporting, it should be moved
 #           to dabo.lib.reporting.serialization. Stefano, thoughts?
 from reportlab.lib import pagesizes
@@ -15,7 +15,7 @@ class SerializableAttribute(object):
 	def evaluate(self, value, env):
 		""" Abstract method, must be overridden in subclasses. """
 		return "--SerializableAttribute not overridden--"
-		
+
 
 class GenericAttr(SerializableAttribute):
 	def evaluate(self, value, env):

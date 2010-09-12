@@ -16,7 +16,7 @@ class PageFrameMixin(object):
 
 		self.dsEditPages = {}
 
-	
+
 	def beforePageChange(self, fromPage, toPage):
 		"""If there are no records, don't let them go to Pages 1 or 2."""
 		if toPage != 0:
@@ -25,15 +25,15 @@ class PageFrameMixin(object):
 				self.SelectedPageNumber = 0
 				self.Form.StatusText = "No records available"
 				return False
-		
-		
+
+
 	def addPage(self, pageClass, caption="", imgKey=None):
 		page = self.appendPage(pageClass, imgKey=imgKey)
 		if not page.Caption and caption:
 			# Only set the caption to the default if the page class didn't define it.
 			page.Caption = caption
 		return page
-		
+
 
 	def addSelectPage(self, caption=_("Select")):
 		self.addPage(self.Form.SelectPageClass, caption, "select")
@@ -64,7 +64,7 @@ class PageFrameMixin(object):
 	def deleteByDataSource(self, ds):
 		if isinstance(ds, dabo.biz.dBizobj):
 			ds = ds.DataSource
-		self.Form.delete(ds)	
+		self.Form.delete(ds)
 
 
 def PageFrame(parent, tabStyle="tabs", *args, **kwargs):

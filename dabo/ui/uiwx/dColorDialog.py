@@ -12,7 +12,7 @@ class dColorDialog(wx.ColourDialog):
 		dat = wx.ColourData()
 		# Needed in Windows
 		dat.SetChooseFull(True)
-		
+
 		if color is not None:
 			if isinstance(color, basestring):
 				try:
@@ -22,12 +22,12 @@ class dColorDialog(wx.ColourDialog):
 					pass
 			elif isinstance(color, tuple):
 				dat.SetColour(color)
-		
+
 		if parent is None:
 			parent = dabo.dAppRef.ActiveForm
 		super(dColorDialog, self).__init__(parent, data=dat)
 		self._selColor = None
-	
+
 
 	def show(self):
 		self._selColor = None
@@ -38,7 +38,7 @@ class dColorDialog(wx.ColourDialog):
 			col = self.GetColourData().GetColour()
 			self._selColor = col.Red(), col.Green(), col.Blue()
 		return ret
-	
+
 
 	def release(self):
 		self.Destroy()

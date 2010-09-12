@@ -22,7 +22,7 @@ class dLabel(Tkinter.Label, cm.dControlMixin):
 		self._afterInit()
 
 		self.pack()
-		
+
 
 	def initEvents(self):
 		self.super()
@@ -35,7 +35,7 @@ class dLabel(Tkinter.Label, cm.dControlMixin):
 # 		self._delWindowStyleFlag(wx.ST_NO_AUTORESIZE)
 # 		if not value:
 # 			self._addWindowStyleFlag(wx.ST_NO_AUTORESIZE)
-# 
+#
 # 	def _getAlignment(self):
 # 		if self._hasWindowStyleFlag(wx.ALIGN_RIGHT):
 # 			return 'Right'
@@ -43,18 +43,18 @@ class dLabel(Tkinter.Label, cm.dControlMixin):
 # 			return 'Center'
 # 		else:
 # 			return 'Left'
-# 
+#
 # 	def _getAlignmentEditorInfo(self):
 # 		return {'editor': 'list', 'values': ['Left', 'Center', 'Right']}
-# 
+#
 # 	def _setAlignment(self, value):
 # 		# Note: Alignment must be set before object created.
 # 		self._delWindowStyleFlag(wx.ALIGN_LEFT)
 # 		self._delWindowStyleFlag(wx.ALIGN_CENTRE)
 # 		self._delWindowStyleFlag(wx.ALIGN_RIGHT)
-# 
+#
 # 		value = ustr(value)
-# 
+#
 # 		if value == 'Left':
 # 			self._addWindowStyleFlag(wx.ALIGN_LEFT)
 # 		elif value == 'Center':
@@ -64,7 +64,7 @@ class dLabel(Tkinter.Label, cm.dControlMixin):
 # 		else:
 # 			raise ValueError("The only possible values are "
 # 							"'Left', 'Center', and 'Right'.")
-# 
+#
 # 	# property definitions follow:
 # 	AutoResize = property(_getAutoResize, _setAutoResize, None,
 # 		'Specifies whether the length of the caption determines the size of the label. (bool)')

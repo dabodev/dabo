@@ -479,9 +479,9 @@ class RichTextTestForm(dabo.ui.dForm):
 		self.tbFontSize = dabo.ui.dDropdownList(tb, Caption="FontSize",
 				ValueMode="String", OnHit=self.onSetFontSize)
 		self.tbFontSize.Choices = [ustr(i) for i in xrange(6, 129)]
-		
+
 		# Tried a spinner, but this doesn't work in toolbars.
-# 		self.tbFontSize = dabo.ui.dSpinner(tb, 
+# 		self.tbFontSize = dabo.ui.dSpinner(tb,
 # 				Min=7, Max=128, OnHit=self.onSetFontSize)
 
 		tb.appendControl(self.tbFontSize)
@@ -498,18 +498,18 @@ class RichTextTestForm(dabo.ui.dForm):
 		tb.appendControl(self.saveButton)
 		self.styleTimer = dabo.ui.dTimer(self, Interval=500, Enabled=True,
 				OnHit=self.checkForUpdate)
-		
+
 		# For development: uncomment the next line, and add the code you want to
 		# run to the onTest() method.
 # 		btn = tb.appendControl(dabo.ui.dButton(tb, Caption="TEST", OnHit=self.onTest))
-	
-	
+
+
 	def onTest(self, evt):
 		pass
-	
+
 	def onOpen(self, evt):
 		self.textControl.load()
-	
+
 	def onSave(self, evt):
 		self.textControl.save()
 

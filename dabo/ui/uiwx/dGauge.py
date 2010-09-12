@@ -21,7 +21,7 @@ class dGauge(cm.dControlMixin, wx.Gauge):
 	def _initEvents(self):
 		super(dGauge, self)._initEvents()
 
-		
+
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getPercentage(self):
@@ -51,36 +51,36 @@ class dGauge(cm.dControlMixin, wx.Gauge):
 
 	def _getRange(self):
 		return self.GetRange()
-			
+
 	def _setRange(self, value):
 		if self._constructed():
 			self.SetRange(value)
 		else:
 			self._properties["Range"] = value
-		
-		
+
+
 	def _getValue(self):
 		return self.GetValue()
-		
+
 	def _setValue(self, value):
 		if self._constructed():
 			self.SetValue(value)
 		else:
 			self._properties["Value"] = value
-		
-		
+
+
 	# Property definitions:
 	Percentage = property(_getPercentage, _setPercentage, None,
-			_("""Alternate way of setting/getting the Value, using percentage 
+			_("""Alternate way of setting/getting the Value, using percentage
 			of the Range.  (float)"""))
-	
-	Orientation = property(_getOrientation, _setOrientation, None, 
+
+	Orientation = property(_getOrientation, _setOrientation, None,
 			_("Specifies whether the gauge is displayed as Horizontal or Vertical.  (str)"))
 
-	Range = property(_getRange, _setRange, None, 
+	Range = property(_getRange, _setRange, None,
 			_("Specifies the maximum value for the gauge.  (int)"))
 
-	Value = property(_getValue, _setValue, None, 
+	Value = property(_getValue, _setValue, None,
 			_("Specifies the state of the gauge, relative to max value."))
 
 
@@ -96,12 +96,12 @@ class _dGauge_test(dGauge):
 		self._timer.bindEvent(dabo.dEvents.Hit, self.onTimer)
 		self._timer.Interval = 23
 		self._timer.start()
-			
+
 	def initProperties(self):
 		self.Range = 1000
 		self.Value = 0
 		self.Width = 300
-			
+
 	def onTimer(self, evt):
 		if not self:
 			return
@@ -110,7 +110,7 @@ class _dGauge_test(dGauge):
 		else:
 			self._timer.stop()
 			self.Value = 0
-			self._timer.start()				
+			self._timer.start()
 
 
 if __name__ == "__main__":
