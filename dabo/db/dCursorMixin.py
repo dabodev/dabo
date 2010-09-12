@@ -683,7 +683,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def getType(self, val):
 		try:
 			ret = re.search("type '([^']+)'", ustr(type(val))).groups()[0]
-		except IndexError:
+		except (IndexError, AttributeError):
 			ret = "-unknown-"
 		return ret
 
