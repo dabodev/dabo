@@ -3,22 +3,22 @@ import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+import datetime
 
 
 class DemoGrid(dabo.ui.dGrid):
 	def initProperties(self):
+		thisYear = datetime.datetime.now().year
 		self.DataSet = [
-				{"name" : "Ed Leafe", "age" : 49, "coder" :  True, "color": "cornsilk"},
-				{"name" : "Paul McNett", "age" : 37, "coder" :  True, "color": "wheat"},
-				{"name" : "Ted Roche", "age" : 48, "coder" :  True, "color": "goldenrod"},
-				{"name" : "Derek Jeter", "age": 32 , "coder" :  False, "color": "white"},
-				{"name" : "Halle Berry", "age" : 38, "coder" :  False, "color": "orange"},
-				{"name" : "Steve Wozniak", "age" : 56, "coder" :  True, "color": "yellow"},
-				{"name" : "LeBron James", "age" : 22, "coder" :  False, "color": "gold"},
-				{"name" : "Madeline Albright", "age" : 69, "coder" :  False, "color": "red"}]
-		self.Editable = True
-		#self.Sortable = False
-		#self.Searchable = False
+				{"name" : "Ed Leafe", "age" : thisYear - 1957, "coder" :  True, "color": "cornsilk"},
+				{"name" : "Paul McNett", "age" : thisYear - 1969, "coder" :  True, "color": "wheat"},
+				{"name" : "Ted Roche", "age" : thisYear - 1958, "coder" :  True, "color": "goldenrod"},
+				{"name" : "Derek Jeter", "age": thisYear - 1974, "coder" :  False, "color": "white"},
+				{"name" : "Halle Berry", "age" : thisYear - 1966, "coder" :  False, "color": "orange"},
+				{"name" : "Steve Wozniak", "age" : thisYear - 1950, "coder" :  True, "color": "yellow"},
+				{"name" : "LeBron James", "age" : thisYear - 1984, "coder" :  False, "color": "gold"},
+				{"name" : "Madeline Albright", "age" : thisYear - 1937, "coder" :  False, "color": "red"}]
+		self.Editable = False
 
 	def afterInit(self):
 		col = dabo.ui.dColumn(self, Name="Geek", Order=10, DataField="coder",
