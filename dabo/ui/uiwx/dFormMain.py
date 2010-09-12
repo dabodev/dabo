@@ -4,7 +4,6 @@ import wx
 import dabo
 import dabo.dEvents as dEvents
 import dFormMixin as fm
-import dPanel, dIcons, dSizer
 
 
 class dFormMainBase(fm.dFormMixin):
