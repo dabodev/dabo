@@ -2345,7 +2345,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 	def sendBackwards(self):
 		self._arrange("sendBackwards")
-	
+
 	def sendUpwards(self):
 		self._arrange("sendUpwards")
 

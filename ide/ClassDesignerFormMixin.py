@@ -465,11 +465,11 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 	def onSaveDesign(self, evt, useTmp=False):
 		currForm = self.Controller.CurrentForm
 		newFile = False
-		
+
 		# Replace this with a setting of some sort
 		self.useJSON = False
 		fileExt = {True: "json", False: "cdxml"}[self.useJSON]
-		
+
 		if useTmp:
 			osp = os.path
 			if self._classFile:

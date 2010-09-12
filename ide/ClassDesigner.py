@@ -511,7 +511,7 @@ class ClassDesigner(dabo.dApp):
 			converter = DesignerClassConverter()
 			dct = converter.dictFromStoredText(pth)
 		except dabo.dException.XmlException, e:
-			raise 
+			raise
 		except StandardError, e:
 			if pth.strip().startswith("<?xml") or os.path.exists(pth):
 				raise IOError(_("This does not appear to be a valid class file."))
@@ -916,7 +916,7 @@ class ClassDesigner(dabo.dApp):
 		except ValueError:
 			dct["fullname"] = cls
 			newClass = dui.__dict__[cls]
-		
+
 		# See if it's a class that requires special handling
 		rv["newClass"] = newClass
 		isGrid = rv["isGrid"] = issubclass(newClass, dui.dGrid)
@@ -1151,7 +1151,7 @@ class ClassDesigner(dabo.dApp):
 			chld = [chld]
 		for dct in chld:
 			self._valsDictLIFO.append(self._recreateValsDict)
-			rv = self._recreateValsDict = {"parent": parent, "szr": szr, 
+			rv = self._recreateValsDict = {"parent": parent, "szr": szr,
 					"fromSizer": fromSizer, "dct": dct}
 			atts = dct["attributes"]
 			# Convert any paths in the atts
@@ -1189,7 +1189,7 @@ class ClassDesigner(dabo.dApp):
 			else:
 				sizerInfoDict = sizerInfo
 			rv["sizerInfoDict"] = sizerInfoDict
-			
+
 			rowColAtts = rv["rowColAtts"] = self._extractKey(atts, "rowColPos", "(None,None)")
 			# Refactored these calls to make this method a little less lengthy.
 			if clsname == "LayoutPanel":
