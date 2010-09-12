@@ -232,8 +232,12 @@ class dFormMixin(pm.dPemMixin):
 	def __onIdle(self, evt):
 		if self.__needOutlineRedraw or self._alwaysDrawSizerOutlines:
 			for sz in self.SizersToOutline:
-				sz.drawOutline(self, recurse=self._recurseOutlinedSizers,
-						drawChildren=self._drawSizerChildren)
+				try:
+					sz.drawOutline(self, recurse=self._recurseOutlinedSizers,
+							drawChildren=self._drawSizerChildren)
+				except AttributeError:
+					# Will happen if sz is None
+					self.removeFromOutlinedSizers(sz)
 
 
 	def __onClose(self, evt):
