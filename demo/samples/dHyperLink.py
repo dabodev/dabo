@@ -19,7 +19,7 @@ class TestPanel(dabo.ui.dPanel):
 		
 		bs = dabo.ui.dBorderSizer(self)
 		lnk = self.link = dabo.ui.dHyperLink(self, Caption="The Dabo Wiki", FontSize=24,
-				URL="http://dabodev.com/wiki/", LinkColor="olive",
+				URL="http://wiki.dabodev.com/", LinkColor="olive",
 				VisitedColor="maroon", HoverColor="crimson", LinkUnderline=True,
 				HoverUnderline=False, VisitedUnderline=True)
 		bs.append(lnk, border=20)
