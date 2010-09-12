@@ -1,19 +1,19 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import dPanel, dSizer
+import dabo
+dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dPage(dPanel.dScrollPanel):
-#class dPage(dPanel.dPanel):
+class dPage(dabo.ui.dScrollPanel):
 	"""Creates a page to appear as a tab in a pageframe."""
 	def __init__(self, *args, **kwargs):
 		self._caption = ""
 		kwargs["AlwaysResetSizer"] = self._extractKey(kwargs, "AlwaysResetSizer", True)
 		super(dPage, self).__init__(*args, **kwargs)
 		self._baseClass = dPage
-#		self.SetScrollbars(10, 10, -1, -1)
 
 		
 	def _afterInit(self):
@@ -117,3 +117,12 @@ class dPage(dPanel.dScrollPanel):
 	DynamicCaption = makeDynamicProperty(Caption)
 	DynamicImage = makeDynamicProperty(Image)
 
+
+class _dPage_test(dPage):
+	def initProperties(self):
+		self.BackColor = "Red"
+
+		
+if __name__ == "__main__":
+	import test
+	test.Test().runTest(_dPage_test)
