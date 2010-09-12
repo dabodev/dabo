@@ -104,7 +104,13 @@ class dPemMixin(dPemMixinBase):
 		# Objects created from XML files will have their props passed
 		# in the 'attProperties' parameter, in which all values are strings.
 		# Convert these to the properties dict.
-		builtinNames = __builtins__.keys()
+		
+		try:
+			builtinNames = __builtins__.keys()
+		except AttributeError:
+			# '__builtins__' is a module here
+			builtinNames = dir(__builtins__)
+		
 		if attProperties:
 			for prop, val in attProperties.items():
 				if prop in properties:
@@ -3764,7 +3770,9 @@ class _DropTarget(wx.DropTarget):
 
 
 if __name__ == "__main__":
-	o = dPemMixin()
-	print o.BaseClass
-	o.BaseClass = "dForm"
-	print o.BaseClass
+	# Instantiating the mixin directly creates circular imports
+	# o = dPemMixin()
+	# print o.BaseClass
+	# o.BaseClass = "dForm"
+	# print o.BaseClass
+	print "OK"
