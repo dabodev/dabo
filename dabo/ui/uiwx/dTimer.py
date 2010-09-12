@@ -100,9 +100,11 @@ class dTimer(cm.dControlMixin, wx.Timer):
 	DynamicEnabled = makeDynamicProperty(Enabled)
 	DynamicInterval = makeDynamicProperty(Interval)
 	
-	
+
 class _dTimer_test(dPanel.dPanel):
 	def afterInit(self):
+		# Only setting this so that the test Caption is correct
+		self._baseClass = dTimer
 		self.fastTimer = dTimer(self, Interval=500)
 		self.fastTimer.bindEvent(dEvents.Hit, self.onFastTimerHit)
 		self.slowTimer = dTimer(Interval=2000)
