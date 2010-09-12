@@ -346,13 +346,17 @@ if __name__ == "__main__":
 			lbl = dabo.ui.dLabel(pg1, Caption="Basic Masks")
 			lbl.FontSize += 2
 			sz.append(lbl, colSpan=2, halign="center")
-			"""The below code does not work currently because of a bug discovered in wxPython 2.8.9.1 
-			maskededit.py.  Should you want to fix the issue you can find the following in maskededit.py
+			"""The below code does not work in some versions of wxPython because of a bug discovered
+			in wxPython 2.8.9.1 maskededit.py.  If you find that you have such a version, either upgrade
+			to a newer wxPython, or you can fix it in your own wx code. Find the line in
+			'lib/masked/maskededit.py' that reads:
 			'if field._forcelower and key in range(97,123):' 
 			and replace it with
 			'if field._forcelower and key in range(65,90):'  """
-			#sz.append(dabo.ui.dLabel(pg1, Caption="Forced Lowercase Letters Only:"), halign="right")
-			#sz.append(dMaskedTextBox(pg1, Width=240, InputCodes='^',Mask="C{20}"))
+			sz.append(dabo.ui.dLabel(pg1, Caption="""Forced Lowercase Letters Only:
+(May not work in older
+versions of wxPython)"""), halign="right")
+			sz.append(dMaskedTextBox(pg1, Width=240, InputCodes='^',Mask="C{20}"), valign="Top")
 			
 			sz.append(dabo.ui.dLabel(pg1, Caption="Accepts Uppercase Letters Only:"), halign="right")
 			sz.append(dMaskedTextBox(pg1, Width=240, Mask="A{20}"))
