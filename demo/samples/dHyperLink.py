@@ -124,5 +124,7 @@ category = "Controls.dHyperLink"
 
 overview = """
 <b>dHyperLink</b> creates a text link that, when clicked, launches the 
-specified URL in the user's default browser.
+specified URL in the user's default browser (if the <b>ShowInBrowser</b> property
+is True), or raises a Hit event for your code to respond to (if the <b>ShowInBrowser</b>
+property is False). You can control the appearance of the link through its various properties.
 """
