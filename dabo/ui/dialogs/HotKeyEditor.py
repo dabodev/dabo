@@ -50,9 +50,9 @@ class HotKeyEditor(dabo.ui.dOkCancelDialog):
 		self._ctrl = dabo.ui.isControlDown() or dabo.ui.isCommandDown()
 		self._shift = dabo.ui.isShiftDown()
 		self._alt = dabo.ui.isAltDown()
-		keyStrings = {dKeys.key_Back: "Back", dKeys.key_Delete: "Del", dKeys.key_Pageup: "PgUp", 
-				dKeys.key_Pagedown: "PgDn", dKeys.key_Insert: "Ins", dKeys.key_Home: "Home", 
-				dKeys.key_End: "End", dKeys.key_Left: "Left", dKeys.key_Right: "Right", 
+		keyStrings = {dKeys.key_Back: "Back", dKeys.key_Delete: "Del", dKeys.key_Pageup: "PgUp",
+				dKeys.key_Pagedown: "PgDn", dKeys.key_Insert: "Ins", dKeys.key_Home: "Home",
+				dKeys.key_End: "End", dKeys.key_Left: "Left", dKeys.key_Right: "Right",
 				dKeys.key_Up: "Up", dKeys.key_Down: "Down"}
 		if 340 <= kcd <= 354:
 			# Function keys
@@ -106,22 +106,22 @@ class HotKeyEditor(dabo.ui.dOkCancelDialog):
 
 	Alt = property(_getAlt, None, None,
 			_("Reflects the presence of the Alt key in the selected key combo. Default=False.  (bool)"))
-	
+
 	Changed = property(_getChanged, None, None,
 			_("Returns True only if the current key is different than the starting value. (read-only) (bool)"))
-	
+
 	Ctrl = property(_getCtrl, None, None,
 			_("Reflects the presence of the Ctrl key in the selected key combo. Default=False. (read-only) (bool)"))
-	
+
 	KeyChar = property(_getKeyChar, None, None,
 			_("The non-modifier key in the selected key combo. Default="". (read-only) (str)"))
 
 	KeyCode = property(_getKeyCode, None, None,
 			_("Underlying key code of the key/modifier combo. Default=-1 (read-only) (int)"))
-	
+
 	KeyText = property(_getKeyText, None, None,
 			_("The displayed text for the key/modifier combo. Default="" (read-only) (str)"))
-	
+
 	Shift = property(_getShift, None, None,
 			_("Reflects the presence of the Alt key in the selected key combo. Default=False. (read-only) (bool)"))
-	
+

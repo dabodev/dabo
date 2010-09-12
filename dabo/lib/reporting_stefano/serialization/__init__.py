@@ -2,7 +2,7 @@
 """
 Serialization machinery.
 
-Objects 
+Objects
 """
 
 from serialization import *

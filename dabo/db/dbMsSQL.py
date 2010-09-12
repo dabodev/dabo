@@ -11,19 +11,19 @@ class MSSQL(dBackend):
 	def __init__(self):
 		dBackend.__init__(self)
 		#- jfcs 11/06/06 first try getting Microsoft SQL 2000 server working
-		# MSSQL requires the installation of FreeTDS.  FreeTDS can be downloaded from 
-		# http://www.freetds.org/ 
+		# MSSQL requires the installation of FreeTDS.  FreeTDS can be downloaded from
+		# http://www.freetds.org/
 		self.dbModuleName = "pymssql"
 		self.useTransactions = True  # this does not appear to be required
-		import pymssql 
+		import pymssql
 
 
 	def getConnection(self, connectInfo, forceCreate=False, **kwargs):
-		"""The pymssql module requires the connection be created for the FreeTDS libraries first.  Therefore, the 
+		"""The pymssql module requires the connection be created for the FreeTDS libraries first.  Therefore, the
 		DSN is really the name of the connection for FreeTDS
 		  __init__(self, dsn, user, passwd, database = None, strip = 0)"""
-		import pymssql 
-		
+		import pymssql
+
 		port = ustr(connectInfo.Port)
 		#if not port or port == "None":
 			#port = 1433
@@ -35,8 +35,8 @@ class MSSQL(dBackend):
 
 		# hack to make this work.  I am sure there is a better way.
 		self.database = database
-				
-		self._connection = pymssql.connect(host=host, user=user, password=password, 
+
+		self._connection = pymssql.connect(host=host, user=user, password=password,
 				database=database, **kwargs)
 		return self._connection
 
@@ -54,7 +54,7 @@ class MSSQL(dBackend):
 			# pymssql doesn't supply this optional dbapi attribute, so create it here.
 			connection = property(_getconn, None, None)
 		return ConCursor
-		
+
 
 	def escQuote(self, val):
 		# escape backslashes and single quotes, and
@@ -62,14 +62,14 @@ class MSSQL(dBackend):
 		sl = "\\"
 		qt = "\'"
 		return qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
-	
-	
+
+
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
 		val = ustr(val)
 		return "%s%s%s" % (sqt, val, sqt)
-	
+
 
 	def getTables(self, cursor, includeSystemTables=False):
 		# jfcs 11/01/06 assumed public schema
@@ -90,25 +90,25 @@ select table_name
 		rs = cursor.getDataSet()
 		tables = [x["table_name"] for x in rs]
 		tables = tuple(tables)
-		
+
 		return tables
 
-	
+
 	def getTableRecordCount(self, tableName, cursor):
 		cursor.execute("select count(*) as ncount from '%(tablename)'" % tableName)
 		return cursor.getDataSet()[0]["ncount"]
-		
+
 
 	def _fieldTypeNativeToDabo(self, nativeType):
-		""" converts the results of 
+		""" converts the results of
 		select DATA_TYPE from INFORMATION_SCHEMA.COLUMNS
 		to a dabo datatype.
 		"""
-		
+
 		# todo: break out the dict into a constant defined somewhere
-		# todo: make a formal definition of the dabo datatypes.  
+		# todo: make a formal definition of the dabo datatypes.
 		# (at least document them)
-		
+
 		try:
 			ret = {
 			"BINARY": "I",
@@ -159,7 +159,7 @@ select table_name
 			print 'KeyError:', nativeType
 			ret = '?'
 		return ret
-		
+
 
 	def getFields(self, tableName, cursor):
 		""" Returns the list of fields of the passed table
@@ -170,8 +170,8 @@ select table_name
 		dbName = self.database
 
 		sql = """
-select COLUMN_NAME, 
-       DATA_TYPE 
+select COLUMN_NAME,
+       DATA_TYPE
   from INFORMATION_SCHEMA.COLUMNS
  where table_catalog = '%(db)s'
    and table_name = '%(table)s'
@@ -198,16 +198,16 @@ select COLUMN_NAME
 			ft = self._fieldTypeNativeToDabo(r["DATA_TYPE"])
 			pk = (name,) in [(p["COLUMN_NAME"], ) for p in pkFields]
 			fields.append((name, ft, pk))
-			
-	
+
+
 		return tuple(fields)
 
-		
+
 	def noResultsOnSave(self):
 		""" Most backends will return a non-zero number if there are updates.
 		Some do not, so this will have to be customized in those cases.
 		"""
-		return 
+		return
 
 
 	def noResultsOnDelete(self):
@@ -215,21 +215,21 @@ select COLUMN_NAME
 		Some do not, so this will have to be customized in those cases.
 		"""
 		#raise dException.dException(_("No records deleted"))
-		return 
+		return
 
-	
+
 	def flush(self, cursor):
 		self.commitTransaction(cursor)
-		
-		
+
+
 	def getLimitWord(self):
 		return "TOP"
-	
-	
+
+
 	def formSQL(self, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause, limitClause):
 		""" MS SQL wants the limit clause before the field clause.	"""
-		clauses =  (limitClause, fieldClause, fromClause, joinClause, 
+		clauses =  (limitClause, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause)
 		sql = "SELECT " + "\n".join( [clause for clause in clauses if clause] )
 		return sql
@@ -243,6 +243,6 @@ select COLUMN_NAME
 		crs = cursor.AuxCursor
 		crs.execute("select @@IDENTITY as newid")
 		return crs.getFieldVal("newid")
-	
+
 	def beginTransaction(self, cursor):
 		pass

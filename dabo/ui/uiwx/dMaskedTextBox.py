@@ -70,7 +70,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 		self._mask = self._extractKey((properties, attProperties, kwargs), "Mask", "")
 		self._format = self._extractKey((properties, attProperties, kwargs), "Format", "")
 		self._validregex = self._extractKey((properties, attProperties, kwargs), "ValidRegex", "")
-		self._inputCodes = self._uniqueCodes(self._extractKey((properties, attProperties, kwargs), 
+		self._inputCodes = self._uniqueCodes(self._extractKey((properties, attProperties, kwargs),
 				"InputCodes", "_>"))
 		kwargs["mask"] = self._mask
 		kwargs["formatcodes"] = self._inputCodes
@@ -83,9 +83,9 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 				kwargs.pop("formatcodes")
 				kwargs.pop("validRegex")
 		kwargs["useFixedWidthFont"] = False
-		
+
 		preClass = wx.lib.masked.TextCtrl
-		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties, attProperties, 
+		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties, attProperties,
 				*args, **kwargs)
 
 
@@ -94,14 +94,14 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 		return cls._formatMap.keys()
 	getFormats = classmethod(getFormats)
 
-	
+
 	def _uniqueCodes(self, codes):
 		"""Take a string and return the same string with any duplicate characters removed.
 		The order of the characters is not preserved.
 		"""
 		return "".join(dict.fromkeys(codes).keys())
-		
-		
+
+
 	# property get/set functions
 	def _getFormat(self):
 		return self._format
@@ -128,7 +128,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 			elif [cd for cd in val if cd not in self._allowedInputCodes]:
 				# Illegal codes
 				bad = "".join([cd for cd in val if cd not in self._allowedInputCodes])
-				dabo.log.error(_("Invalid InputCodes: %s") % bad)				
+				dabo.log.error(_("Invalid InputCodes: %s") % bad)
 			else:
 				val = self._uniqueCodes(val)
 				self._inputCodes = val
@@ -167,7 +167,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 	def _getValue(self):
 		if self.ValueMode == "Masked":
 			ret = self.GetValue()
-			
+
 		else:
 			ret = self.GetPlainValue()
 			#add this to cover blank or None for field values
@@ -206,10 +206,10 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 
 	# Property definitions:
 	Format = property(_getFormat, _setFormat, None,
-			_("""Several pre-defined formats are available. When you set the Format 
-			property, any Mask setting is ignored, and the specified Format is 
+			_("""Several pre-defined formats are available. When you set the Format
+			property, any Mask setting is ignored, and the specified Format is
 			used instead. The format codes are NOT case-sensitive.  (str)
-			
+
 			Formats are available in several categories:
 				Date (US and European)
 				DateTime (US and European)
@@ -220,10 +220,10 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 				Zip Code (US)
 				Phone (US)
 				"""))
-	
+
 	InputCodes = property(_getInputCodes, _setInputCodes, None,
 			_("""Characters that define the type of input that the control will accept.  (str)
-			
+
 			These are the available input codes and their meaning:
 			===============================================
 			Character   Meaning
@@ -236,24 +236,24 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 				R        Right-align field(s)
 				r        Right-insert in field(s) (implies R)
 				<        Stay in field until explicit navigation out of it
-				
+
 				>        Allow insert/delete within partially filled fields (as
 				         opposed to the default "overwrite" mode for fixed-width
 				         masked edit controls.)  This allows single-field controls
 				         or each field within a multi-field control to optionally
 				         behave more like standard text controls.
 				         (See EMAIL or phone number autoformat examples.)
-				
+
 				         *Note: This also governs whether backspace/delete operations
 				         shift contents of field to right of cursor, or just blank the
 				         erased section.
-				
+
 				         Also, when combined with 'r', this indicates that the field
 				         or control allows right insert anywhere within the current
 				         non-empty value in the field.  (Otherwise right-insert behavior
 				         is only performed to when the entire right-insertable field is
 				         selected or the cursor is at the right edge of the field.*
-				
+
 				,        Allow grouping character in integer fields of numeric controls
 				         and auto-group/regroup digits (if the result fits) when leaving
 				         such a field.  (If specified, .SetValue() will attempt to
@@ -281,10 +281,10 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 				         (See USSTATE autoformat demo for how this can be used.)
 				S        select entire field when navigating to new field
 			"""))
-	
+
 	Mask = property(_getMask, _setMask, None,
 			_("""Display Mask for the control.  (str)
-			
+
 			These are the allowed mask characters and their function:
 			===============================================
 			Character   Function
@@ -302,10 +302,10 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 						eg: '&|###' means "field 0 = '&', field 1 = '###'", but there's
 						no fixed characters in between.
 			===============================================
-			
+
 			Repetitions of the same mask code can be represented by placing the number
 			of repetitions in curly braces after the code. E.g.: CCCCCCCC = C{6} """))
-	
+
 	MaskedValue = property(_getMaskedValue, None, None,
 			_("Value of the control, including mask characters, if any. (read-only) (str)"))
 
@@ -316,11 +316,11 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 			_("""Specifies the content of this control. (str) If ValueMode is set to 'Masked',
 			this will include the mask characters. Otherwise it will be the contents without
 			any mask characters."""))
-	
+
 	ValueMode = property(_getValueMode, _setValueMode, None,
 			_("""Specifies the information that the Value property refers to. (str)
 			If it is set to 'Masked' (or anything that begins with the letter 'm'), the
-			Value property will return the contents of the control, including any mask 
+			Value property will return the contents of the control, including any mask
 			characters. If this is set to anything other than a string that begins with 'm',
 			Value will return the control's contents without the mask characters.
 			NOTE: This only affects the results of *reading* the Value property. Setting
@@ -342,7 +342,7 @@ if __name__ == "__main__":
 			pg3.Caption = "Input Codes"
 
 			sz = pg1.Sizer = dabo.ui.dGridSizer(MaxCols=2, HGap=5, VGap=5)
-			
+
 			lbl = dabo.ui.dLabel(pg1, Caption="Basic Masks")
 			lbl.FontSize += 2
 			sz.append(lbl, colSpan=2, halign="center")
@@ -350,32 +350,32 @@ if __name__ == "__main__":
 			in wxPython 2.8.9.1 maskededit.py.  If you find that you have such a version, either upgrade
 			to a newer wxPython, or you can fix it in your own wx code. Find the line in
 			'lib/masked/maskededit.py' that reads:
-			'if field._forcelower and key in range(97,123):' 
+			'if field._forcelower and key in range(97,123):'
 			and replace it with
 			'if field._forcelower and key in range(65,90):'  """
 			sz.append(dabo.ui.dLabel(pg1, Caption="""Forced Lowercase Letters Only:
 (May not work in older
 versions of wxPython)"""), halign="right")
 			sz.append(dMaskedTextBox(pg1, Width=240, InputCodes='^',Mask="C{20}"), valign="Top")
-			
+
 			sz.append(dabo.ui.dLabel(pg1, Caption="Accepts Uppercase Letters Only:"), halign="right")
 			sz.append(dMaskedTextBox(pg1, Width=240, Mask="A{20}"))
-			
+
 			sz.append(dabo.ui.dLabel(pg1, Caption="Forced Uppercase Letters Only:"), halign="right")
 			sz.append(dMaskedTextBox(pg1, Width=240,InputCodes='!>',Mask="C{20}"))
-			
+
 			sz.append(dabo.ui.dLabel(pg1, Caption="Lowercase Letters Only:"), halign="right")
 			sz.append(dMaskedTextBox(pg1, Width=240, Mask="a{20}"))
-			
+
 			sz.append(dabo.ui.dLabel(pg1, Caption="Letters (any case) Only:"), halign="right")
 			sz.append(dMaskedTextBox(pg1, Width=240, Mask="C{20}"))
-			
+
 			sz.append(dabo.ui.dLabel(pg1, Caption="Punctuation Only:"), halign="right")
 			sz.append(dMaskedTextBox(pg1, Width=240, Mask="&{20}"))
-			
+
 			sz.append(dabo.ui.dLabel(pg1, Caption="Letter left; Numbers right:"), halign="right")
 			sz.append(dMaskedTextBox(pg1, Width=240, Mask="C{6} - #{6}"))
-			
+
 			sz.append(dabo.ui.dLabel(pg1, Caption="No Mask:"), halign="right")
 			sz.append(dMaskedTextBox(pg1, Width=240, Mask=""))
 			lbl = dabo.ui.dLabel(pg1, FontItalic=True,
@@ -383,23 +383,23 @@ versions of wxPython)"""), halign="right")
 			lbl.FontSize -= 2
 			sz.append(lbl, colSpan=2, halign="center")
 			sz.setColExpand(1, True)
-			
+
 			sz = pg2.Sizer = dabo.ui.dGridSizer(MaxCols=2, HGap=5, VGap=5)
-		
+
 			lbl = dabo.ui.dLabel(pg2, Caption="Pre-defined Formats")
 			lbl.FontSize += 2
 			sz.append(lbl, colSpan=2, halign="center")
-	
+
 			fmts = dMaskedTextBox.getFormats()
 			fmts.sort()
 			for fmt in fmts:
 				self.addRow(fmt, pg2)
 			sz.setColExpand(1, True)
-			
+
 			sz = pg3.Sizer = dabo.ui.dSizer("V", DefaultBorder=10, DefaultBorderLeft=True,
 					DefaultBorderRight=True)
 			sz.appendSpacer(10)
-			lbl = dabo.ui.dLabel(pg3, Caption="Check/Uncheck the following InputCodes to apply them\n" + 
+			lbl = dabo.ui.dLabel(pg3, Caption="Check/Uncheck the following InputCodes to apply them\n" +
 					"to the textbox below. Then type into the textbox to see\nthe effect that each code has.",
 					FontBold=True, Alignment="Center")
 			sz.append(lbl, "x")
@@ -478,7 +478,7 @@ versions of wxPython)"""), halign="right")
 			txt = self.dateText = dabo.ui.dMaskedTextBox(pg3, InputCodes="D", Value=datetime.date.today())
 			gsz.append(txt, "x", colSpan=2)
 			sz.append(gsz, 1, halign="center")
-		
+
 		def _lookup(self,evt):
 			pass
 		def onCheckHit(self, evt):
@@ -503,11 +503,11 @@ versions of wxPython)"""), halign="right")
 					txt.InputCodes = txt.InputCodes.replace(chk.Caption, "")
 				txt.setFocus()
 				txt.refresh()
-			
+
 
 		def addRow(self, fmt, parent):
 			sz = parent.Sizer
 			sz.append(dabo.ui.dLabel(parent, Caption="%s:" % fmt), halign="right")
 			sz.append(dMaskedTextBox(parent, Width=240, Format=fmt))
-			
+
 	test.Test().runTest(MaskedForm)

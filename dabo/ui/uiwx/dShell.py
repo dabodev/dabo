@@ -59,7 +59,7 @@ class _LookupPanel(dabo.ui.dPanel):
 		self.lblSearch.Caption = self.currentSearch
 		self.layout()
 		self.needRefilter = True
-		evt.stop()	
+		evt.stop()
 
 
 	def closeDialog(self, ok):
@@ -149,8 +149,8 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 		self._baseClass = _Shell
 		preClass = wx.py.shell.Shell
 		dPemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
-	
-	
+
+
 	def _afterInit(self):
 		super(_Shell, self)._afterInit()
 		# Set some font defaults
@@ -163,11 +163,11 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 			self.FontSize = 12
 		elif self.plat == "Win":
 			self.FontFace = "Courier New"
-			self.FontSize = 10	
+			self.FontSize = 10
 
 
 	def processLine(self):
-		"""This is part of the underlying class. We need to add the command that 
+		"""This is part of the underlying class. We need to add the command that
 		gets processed into our internal stack.
 		"""
 		edt = self.CanEdit()
@@ -238,7 +238,7 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 		# End of line where string is not closed
 		self.StyleSetSpec(stc.STC_P_STRINGEOL,
 				"fore:#000000,face:%s,back:#E0C0E0,eol,size:%d" % (fontFace, fontSize))
-	
+
 
 	def OnKeyDown(self, evt):
 		"""Override on the Mac, as the navigation defaults are different than on Win/Lin"""
@@ -249,7 +249,7 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 		if self.AutoCompActive():
 			evt.Skip()
 			return
-		
+
 		# Prevent modification of previously submitted
 		# commands/responses.
 		controlDown = evt.ControlDown()
@@ -325,7 +325,7 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 
 	FontFace = property(_getFontFace, _setFontFace, None,
 			_("Name of the font face used in the shell  (str)"))
-	
+
 	FontSize = property(_getFontSize, _setFontSize, None,
 			_("Size of the font used in the shell  (int)"))
 
@@ -336,12 +336,12 @@ class dShell(dSplitForm):
 		self._clearOldHistory()
 		__builtin__.raw_input = self._oldRawInput
 
-	
+
 	def _beforeInit(self, pre):
 		# Set the sash
 		self._sashPct = 0.6
 		super(dShell, self)._beforeInit(pre)
-		
+
 
 	def _afterInit(self):
 		super(dShell, self)._afterInit()
@@ -362,16 +362,16 @@ class dShell(dSplitForm):
 		self.Orientation = "H"
 		self.unsplit()
 		self._splitState = False
-		self.MainSplitter.bindEvent(dEvents.SashDoubleClick, 
+		self.MainSplitter.bindEvent(dEvents.SashDoubleClick,
 				self.sashDoubleClick)
-		self.MainSplitter.bindEvent(dEvents.SashPositionChanged, 
+		self.MainSplitter.bindEvent(dEvents.SashPositionChanged,
 				self.sashPosChanged)
-		
+
 		cp = self.CmdPanel = self.Panel1
 		op = self.OutPanel = self.Panel2
 		cp.unbindEvent(dEvents.ContextMenu)
 		op.unbindEvent(dEvents.ContextMenu)
-		
+
 		cp.Sizer = dabo.ui.dSizer()
 		op.Sizer = dabo.ui.dSizer()
 		self.shell = _Shell(self.CmdPanel)
@@ -382,28 +382,28 @@ class dShell(dSplitForm):
 		self.shell.AutoCompSetFillUps(".(")
 		# This lets you go all the way back to the '.' without losing the AutoComplete
 		self.shell.AutoCompSetCancelAtStart(False)
-		
+
 		cp.Sizer.append1x(self.shell)
 		self.shell.Bind(wx.EVT_RIGHT_UP, self.shellRight)
 		# Bring up history search
 		self.bindKey("Ctrl+R", self.onHistoryPop)
-		
+
 		# Restore the history
 		self.restoreHistory()
 
 		# create the output control
-		outControl = dabo.ui.dEditBox(op, RegID="edtOut", 
+		outControl = dabo.ui.dEditBox(op, RegID="edtOut",
 				ReadOnly=True)
 		op.Sizer.append1x(outControl)
-		outControl.bindEvent(dEvents.MouseRightDown, 
+		outControl.bindEvent(dEvents.MouseRightDown,
 				self.outputRightDown)
-		
+
 		self._stdOut = self.shell.interp.stdout
 		self._stdErr = self.shell.interp.stderr
 		self._pseudoOut = pseudo.PseudoFileOut(write=self.appendOut)
 		self._pseudoErr = pseudo.PseudoFileOut(write=self.appendOut)
 		self.SplitState = True
-		
+
 		# Make 'self' refer to the calling form, or this form if no calling form.
 		if self.Parent is None:
 			ns = self
@@ -415,14 +415,14 @@ class dShell(dSplitForm):
 		self.setStatusText(_("Use this shell to interact with the runtime environment"))
 		self.fillMenu()
 		self.shell.SetFocus()
-		
-	
+
+
 	def appendOut(self, tx):
 		ed = self.edtOut
 		ed.Value += tx
 		endpos = ed.GetLastPosition()
 		# Either of these commands should scroll the edit box
-		# to the bottom, but neither do (at least on OS X) when 
+		# to the bottom, but neither do (at least on OS X) when
 		# called directly or via callAfter().
 		dabo.ui.callAfter(ed.ShowPosition, endpos)
 		dabo.ui.callAfter(ed.SetSelection, endpos, endpos)
@@ -495,7 +495,7 @@ class dShell(dSplitForm):
 		for bs in bad:
 			ck.deletePref(bs)
 
-		
+
 	def outputRightDown(self, evt):
 		pop = dabo.ui.dMenu()
 		pop.append(_("Clear"), OnHit=self.onClearOutput)
@@ -503,12 +503,12 @@ class dShell(dSplitForm):
 			pop.append(_("Copy"), OnHit=self.Application.onEditCopy)
 		self.showContextMenu(pop)
 		evt.stop()
-	
-	
+
+
 	def onClearOutput(self, evt):
 		self.edtOut.Value = ""
-	
-	
+
+
 	def shellRight(self, evt):
 		pop = dabo.ui.dMenu()
 		if self.SplitState:
@@ -518,26 +518,26 @@ class dShell(dSplitForm):
 		pop.append(pmpt, OnHit=self.onSplitContext)
 		self.showContextMenu(pop)
 		evt.StopPropagation()
-		
+
 
 	def onSplitContext(self, evt):
 		self.SplitState = (evt.EventObject.Caption == _("Split"))
 		evt.stop()
-		
-		
+
+
 	def onResize(self, evt):
 		self.SashPosition = self._sashPct * self.Height
-	
+
 
 	def sashDoubleClick(self, evt):
 		# We don't want the window to unsplit
 		evt.stop()
-		
-		
+
+
 	def sashPosChanged(self, evt):
 		self._sashPct = float(self.SashPosition) / self.Height
-		
-		
+
+
 	def fillMenu(self):
 		viewMenu = self.MenuBar.getMenu("base_view")
 		if viewMenu.Children:
@@ -545,10 +545,10 @@ class dShell(dSplitForm):
 		viewMenu.append(_("Zoom &In"), HotKey="Ctrl+=", OnHit=self.onViewZoomIn,
 				ItemID="view_zoomin",
 				bmp="zoomIn", help=_("Zoom In"))
-		viewMenu.append(_("&Normal Zoom"), HotKey="Ctrl+/", OnHit=self.onViewZoomNormal, 
+		viewMenu.append(_("&Normal Zoom"), HotKey="Ctrl+/", OnHit=self.onViewZoomNormal,
 				ItemID="view_zoomnormal",
 				bmp="zoomNormal", help=_("Normal Zoom"))
-		viewMenu.append(_("Zoom &Out"), HotKey="Ctrl+-", OnHit=self.onViewZoomOut, 
+		viewMenu.append(_("Zoom &Out"), HotKey="Ctrl+-", OnHit=self.onViewZoomOut,
 				ItemID="view_zoomout",
 				bmp="zoomOut", help=_("Zoom Out"))
 		editMenu = self.MenuBar.getMenu("base_edit")
@@ -557,8 +557,8 @@ class dShell(dSplitForm):
 		editMenu.append(_("Clear O&utput"), HotKey="Ctrl+Back",
 				ItemID="edit_clearoutput",
 				OnHit=self.onClearOutput, help=_("Clear Output Window"))
-		
-		
+
+
 	def onViewZoomIn(self, evt):
 		self.shell.SetZoom(self.shell.GetZoom()+1)
 
@@ -620,11 +620,11 @@ class dShell(dSplitForm):
 				self.unsplit()
 				self.shell.interp.stdout = self._stdOut
 				self.shell.interp.stderr = self._stdErr
-			
+
 
 	FontFace = property(_getFontFace, _setFontFace, None,
 			_("Name of the font face used in the shell  (str)"))
-	
+
 	FontSize = property(_getFontSize, _setFontSize, None,
 			_("Size of the font used in the shell  (int)"))
 
@@ -632,13 +632,13 @@ class dShell(dSplitForm):
 			_("Popup to display the command history  (read-only) (dDialog)"))
 
 	SplitState = property(_getSplitState, _setSplitState, None,
-			_("""Controls whether the output is in a separate pane (default) 
+			_("""Controls whether the output is in a separate pane (default)
 			or intermixed with the commands.  (bool)"""))
-			
-			
+
+
 	DynamicSplitState = makeDynamicProperty(SplitState)
-	
-		
+
+
 
 def main():
 	app = dabo.dApp(BasePrefKey="dabo.ui.dShell")

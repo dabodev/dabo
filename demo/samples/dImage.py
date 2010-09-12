@@ -9,14 +9,14 @@ class TestPanel(dabo.ui.dPanel):
 	def afterInit(self):
 		# Set the idle update flag
 		self.needUpdate = False
-		
+
 		# Create a panel with horiz. and vert.  sliders
 		self.imgPanel = dabo.ui.dPanel(self)
 		self.VSlider = dabo.ui.dSlider(self, Orientation="V", Min=1, Max=100,
 				Value=100, Continuous=True, OnHit=self.onSlider)
 		self.HSlider = dabo.ui.dSlider(self, Orientation="H", Min=1, Max=100,
 				Value=100, Continuous=True, OnHit=self.onSlider)
-		
+
 		mainSizer = self.Sizer = dabo.ui.dSizer("V")
 		psz = self.imgPanel.Sizer = dabo.ui.dSizer("V")
 		hsz = dabo.ui.dSizer("H")
@@ -34,36 +34,36 @@ class TestPanel(dabo.ui.dPanel):
 		# Create the image control
 		self.img = dabo.ui.dImage(self.imgPanel, BackColor="yellow",
 			DroppedFileHandler=self)
-		
+
 		hsz = dabo.ui.dSizer("H")
 		hsz.DefaultSpacing = 10
 		btn = dabo.ui.dBitmapButton(self, Picture="rotateCW", OnHit=self.rotateCW)
 		hsz.append(btn)
 		btn = dabo.ui.dBitmapButton(self, Picture="rotateCCW", OnHit=self.rotateCCW)
-		hsz.append(btn)	
-			
-		self.ddScale = dabo.ui.dDropdownList(self, 
+		hsz.append(btn)
+
+		self.ddScale = dabo.ui.dDropdownList(self,
 				Choices = ["Proportional", "Stretch", "Clip"],
 				PositionValue = 0,
 				ValueMode = "String")
 		self.ddScale.DataSource = self.img
 		self.ddScale.DataField = "ScaleMode"
-				
+
 		btn = dabo.ui.dButton(self, Caption=_("Load Your Own Image"),
 				OnHit=self.onLoadImage)
-				
+
 		hsz.append(self.ddScale, "x")
 		hsz.append(btn, "x")
 		mainSizer.append(hsz, alignment="right")
 		mainSizer.appendSpacer(25)
-		
+
 		# Load an image
 		self.img.Picture = "media/homer.jpg"
-		
-	
+
+
 	def processDroppedFiles(self, filelist):
 		self.img.Picture = filelist[0]
-		
+
 	def rotateCW(self, evt):
 		self.img.rotateClockwise()
 
@@ -81,15 +81,15 @@ class TestPanel(dabo.ui.dPanel):
 			self.img.Height = (self.imgPanel.Height * val)
 
 	# Without Dabo, you need to create this exact string to get the same behavior.
-	#	JPEG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|GIF Files (*.gif)|*.gif|Bitmap Files (*.bmp)|*.bmp|All Files (*)|*		
-	def onLoadImage(self, evt): 
+	#	JPEG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|GIF Files (*.gif)|*.gif|Bitmap Files (*.bmp)|*.bmp|All Files (*)|*
+	def onLoadImage(self, evt):
 		f = dabo.ui.getFile("jpg", "png", "gif", "bmp", "*")
 		if f:
 			self.img.Picture = f
-	
+
 	def onResize(self, evt):
 		self.needUpdate = True
-		
+
 	def onIdle(self, evt):
 		if self.needUpdate:
 			self.needUpdate = False
@@ -101,12 +101,12 @@ class TestPanel(dabo.ui.dPanel):
 category = "Controls.dImage"
 
 overview = """
-<p>The <b>dImage</b> class is used to display images in your app. It provides 
-simple ways to control the sizing, scaling and rotation of images. It can use any 
-of the following common image formats: <b>PNG</b>, <b>JPEG</b>, 
+<p>The <b>dImage</b> class is used to display images in your app. It provides
+simple ways to control the sizing, scaling and rotation of images. It can use any
+of the following common image formats: <b>PNG</b>, <b>JPEG</b>,
 <b>GIF</b> and <b>BMP</b>.</p>
 
-<p>To display an image, just set the <b>Picture</b> property to the path to the 
+<p>To display an image, just set the <b>Picture</b> property to the path to the
 file containing the image; the class will do the rest. You can also set the DataSource
 and DataField to an image column in a database.</p>
 

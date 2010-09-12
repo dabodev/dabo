@@ -6,13 +6,13 @@ import logging
 
 # Dabo Global Settings
 
-# Do not modify this file directly. Instead, create a file called 
-# settings_override.py, and copy/paste the settings section below into the 
-# settings_override.py file. This way, when you update Dabo, you won't blow 
+# Do not modify this file directly. Instead, create a file called
+# settings_override.py, and copy/paste the settings section below into the
+# settings_override.py file. This way, when you update Dabo, you won't blow
 # away your custom tweaks.
 
-# Note that creating a settings_override.py isn't the only way to tweak the 
-# settings - your custom code can also just make the settings in the dabo 
+# Note that creating a settings_override.py isn't the only way to tweak the
+# settings - your custom code can also just make the settings in the dabo
 # namespace at runtime, eg:
 #
 #  import dabo
@@ -20,8 +20,8 @@ import logging
 #  <do stuff>
 #  dabo.eventLogging = False
 
-# Also note that settings_override.py is not the appropriate place to put 
-# application-specific settings, although it may seem at first like an easy 
+# Also note that settings_override.py is not the appropriate place to put
+# application-specific settings, although it may seem at first like an easy
 # place to do so.
 
 
@@ -42,7 +42,7 @@ allNativeEventInfo = False
 # Set dabo.fastNameSet to True to bypass Dabo's checking to make sure siblings
 # have unique names, greatly speeding up instantiation of many objects. If you
 # do this, your code takes responsibility for ensuring that sibling names are
-# in fact unique. We recommend you leave fastNameSet to False here, and wrap 
+# in fact unique. We recommend you leave fastNameSet to False here, and wrap
 # your object creations around setting it to True. eg:
 #
 #   dabo.fastNameSet = True
@@ -74,7 +74,7 @@ autoBindEvents = True
 # If you set MDI to True, then dFormMain and dForm will default to being MDI
 # parent and MDI child, respectively. IOW, you don't have to change your dForm
 # and dFormMain subclasses to inherit from dFormChildMDI, etc., but it comes at
-# the cost of being a global setting. This must be set before dabo.ui is 
+# the cost of being a global setting. This must be set before dabo.ui is
 # imported (ie right at the top of your app). Note that you could instead choose
 # to deal with MDI/SDI explicitly in your form subclasses. IOW:
 #		class MyForm(dabo.ui.dFormChildMDI)
@@ -92,10 +92,10 @@ MDI = False
 # macFontScaling: If you set a font to 10 pt it'll look medium-small on most
 # Windows and Linux screens. However, it will look very small on Mac because
 # of automatic conversion in OS X. 8pt fonts on Mac are barely even readable.
-# Set macFontScaling to True to make your fonts appear the same size on all 
+# Set macFontScaling to True to make your fonts appear the same size on all
 # platforms.
 macFontScaling = True
- 
+
 # When doing date calculations, displaying calendars, etc., this determines whether
 # 'Sunday' or 'Monday' is considered the beginning of the week
 firstDayOfWeek = "Sunday"
@@ -114,11 +114,11 @@ loggitFile = "functionCall.log"
 
 # Does the UI layer (dForm) eat exceptions from the biz layer
 # such as 'invalid row specified' or bizrule violations and
-# automatically display an informational message to the user (True), 
-# or does the exception go unhandled so that the developer can 
+# automatically display an informational message to the user (True),
+# or does the exception go unhandled so that the developer can
 # quickly diagnose the issue (False)?
 eatBizExceptions = True
- 
+
 # Check for web updates?
 checkForWebUpdates = True
 
@@ -129,13 +129,13 @@ dateFormat = None
 dateTimeFormat = None
 timeFormat = None
 
-# Do we load the os user's locale settings automatically? 
-# Pythonista note: this executes: 
+# Do we load the os user's locale settings automatically?
+# Pythonista note: this executes:
 #    locale.setlocale(locale.LC_ALL, '')
 loadUserLocale = True
 
 # File extensions understood by the getFile functions. The format is a dictionary, with
-# the extension as the key, and the descriptive text as the value. To add your own 
+# the extension as the key, and the descriptive text as the value. To add your own
 # custom extensions, create a dict with this same format named 'custom_extensions'
 # in your settings_override file, and those will be added to this list.
 custom_extensions = {}
@@ -174,7 +174,7 @@ file_extensions = {
 }
 
 # For file-based data backends such as SQLite, do we allow creating a connection to
-# a non-existent file, which SQLite will then create? 
+# a non-existent file, which SQLite will then create?
 createDbFiles = False
 
 # URL of the Web Update server

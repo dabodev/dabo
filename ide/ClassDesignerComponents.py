@@ -31,7 +31,7 @@ class LayoutSaverMixin(dObject):
 	def __init__(self, *args, **kwargs):
 		super(LayoutSaverMixin, self).__init__(*args, **kwargs)
 
-	
+
 	def getDesignerDict(self, itemNum=0, allProps=False,
 			classID=None, classDict=None, propsToExclude=None):
 		app = self.Controller
@@ -1558,7 +1558,7 @@ class LayoutSizer(LayoutSizerMixin, dabo.ui.dSizer):
 	def __init__(self, *args, **kwargs):
 		super(LayoutSizer, self).__init__(*args, **kwargs)
 
-	
+
 	def getBorderedClass(self):
 		"""Return the class that is the border sizer version of this class."""
 		return LayoutBorderSizer

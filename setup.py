@@ -44,7 +44,7 @@ package_data = {
 		'dabo.ui.uiwx.macImageProblem':['*.png'],
 		'dabo.ui.uiwx.masked':['README'],
 		}
-	
+
 package_data.update(iconDirs)
 
 data_files = [

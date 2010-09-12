@@ -14,15 +14,15 @@ from dabo.ui import makeDynamicProperty
 
 class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 	"""This is the base wrapper of the wx calendar control. Do not
-	use this directly; instead, use either the 'dCalendar' or the 
+	use this directly; instead, use either the 'dCalendar' or the
 	'dExtendedCalendar' subclasses.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dCalendar
 		preClass = wxcal.PreCalendarCtrl
-		
+
 		style = kwargs.get("style", 0)
-		dow = self._firstDayOfWeek = self._extractKey((kwargs, properties, attProperties), 
+		dow = self._firstDayOfWeek = self._extractKey((kwargs, properties, attProperties),
 				"FirstDayOfWeek", "Sunday")
 		if dow.lower().strip()[0] == "m":
 			style = style | wxcal.CAL_MONDAY_FIRST
@@ -40,7 +40,7 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 		self._currentYear = None
 
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
-		
+
 		# Store some event types in case we need to raise them
 		self._setCalEventTypes()
 		# Bind the native events
@@ -53,11 +53,11 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 		self.bindEvent(dEvents.CalendarDateChanged, self.__onDateChanged)
 		# Get the events flowing!
 		self.Date = self.Date
-	
-	
+
+
 	def setHoliday(self, val):
 		"""Adds the specified date to the list of holidays. This should be
-		a tuple in the format (Y, M, D). If this is a holiday that is to apply 
+		a tuple in the format (Y, M, D). If this is a holiday that is to apply
 		to every year, pass the year as None (e.g.: (None, 12, 25)"""
 		if val not in self._holidays:
 			self._holidays.append(val)
@@ -66,8 +66,8 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 	def setHolidays(self, dtList):
 		for dt in dtList:
 			self.setHoliday(dt)
-	
-	
+
+
 	def __onDateChanged(self, evt):
 		if not self.HighlightHolidays:
 			return
@@ -78,8 +78,8 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 			self._currentYear = yr
 			# Update the holidays
 			self._updateHolidays()
-	
-	
+
+
 	def _updateHolidays(self):
 		mn, yr = self._currentMonth, self._currentYear
 		hdays = [d for d in self._holidays if d[1] == mn]
@@ -87,16 +87,16 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 			hyr = hday[0]
 			if hyr is None or hyr == self._currentYear:
 				self.SetHoliday(hday[2])
-		
-	
+
+
 	def nextDay(self):
 		self.goDays(1)
-		
-		
+
+
 	def priorDay(self):
 		self.goDays(-1)
-		
-		
+
+
 	def goDays(self, val):
 		self.Value += datetime.timedelta(val)
 
@@ -130,7 +130,7 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 					except ValueError:
 						pass
 		self.Date = newDt
-		
+
 
 	def __onWxCalendar(self, evt):
 		evt.Skip()
@@ -164,7 +164,7 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 
 	def _setCalEventTypes(self):
 		"""When we raise events, we need to include a native wx
-		event type. Rather than compute them repeatedly, do it 
+		event type. Rather than compute them repeatedly, do it
 		once here.
 		"""
 		self._evtCalType = wxcal.EVT_CALENDAR.evtType[0]
@@ -172,8 +172,8 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 		self._evtCalDayType = wxcal.EVT_CALENDAR_DAY.evtType[0]
 		self._evtCalMonthType = wxcal.EVT_CALENDAR_MONTH.evtType[0]
 		self._evtCalYearType = wxcal.EVT_CALENDAR_YEAR.evtType[0]
-		
-		
+
+
 	### Begin property defs  ###
 	def _getDate(self):
 		return self.PyGetDate()
@@ -183,7 +183,7 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 		if isinstance(val, tuple):
 			val = datetime.date(*val)
 		self.PySetDate(val)
-		# Raise the events, since the control doesn't raise native 
+		# Raise the events, since the control doesn't raise native
 		# events when changing the date programatically.
 		evtClass = wxcal.CalendarEvent
 		chg = False
@@ -201,9 +201,9 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 			chg = True
 		if chg:
 			evt = evtClass(self, self._evtCalSelType)
-			self.raiseEvent(dEvents.CalendarDateChanged, evt)		
+			self.raiseEvent(dEvents.CalendarDateChanged, evt)
 		self.Refresh()
-		
+
 
 	def _getFirstDayOfWeek(self):
 		return self._firstDayOfWeek
@@ -229,7 +229,7 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 			# Enabling the year will also enable the month
 			self._fixedMonth = False
 		self.EnableYearChange(not val)
-	
+
 
 	def _getHeaderBackColor(self):
 		return self.GetHeaderColourBg().Get()
@@ -301,42 +301,42 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 
 	Date = property(_getDate, _setDate, None,
 			_("The current Date of the calendar  (datetime.date)"))
-	
+
 	FirstDayOfWeek = property(_getFirstDayOfWeek, None, None,
 			_("""Can be one of either 'Sunday' or 'Monday'. Determines which day
 			of the week appears in the first column. Defaults to the value set
 			in dabo.settings.firstDayOfWeek. Read-only at runtime.  (str)"""))
-	
+
 	FixedMonth = property(_getFixedMonth, _setFixedMonth, None,
-			_("""When True, the user cannot change the displayed month. 
+			_("""When True, the user cannot change the displayed month.
 			Default=False  (bool)"""))
 
 	FixedYear = property(_getFixedYear, _setFixedYear, None,
-			_("""When True, the user cannot change the displayed month. 
+			_("""When True, the user cannot change the displayed month.
 			Default=False  (bool)"""))
-	
+
 	HeaderBackColor = property(_getHeaderBackColor, _setHeaderBackColor, None,
 			_("Background color of the calendar header  (str or tuple)"))
-	
+
 	HeaderForeColor = property(_getHeaderForeColor, _setHeaderForeColor, None,
 			_("Forecolor of the calendar header  (str or tuple)"))
-	
+
 	HighlightBackColor = property(_getHighlightBackColor, _setHighlightBackColor, None,
 			_("Background color of the calendar highlight  (str or tuple)"))
-	
+
 	HighlightForeColor = property(_getHighlightForeColor, _setHighlightForeColor, None,
 			_("Forecolor of the calendar highlight  (str or tuple)"))
-	
+
 	HolidayBackColor = property(_getHolidayBackColor, _setHolidayBackColor, None,
 			_("Background color of the calendar holiday  (str or tuple)"))
-	
+
 	HolidayForeColor = property(_getHolidayForeColor, _setHolidayForeColor, None,
 			_("Forecolor of the calendar holiday  (str or tuple)"))
-	
+
 	HighlightHolidays = property(_getHighlightHolidays, _setHighlightHolidays, None,
 			_("""Determines whether holidays are displayed as highlighted.
 			Default=False.  (bool)"""))
-	
+
 	Value = Date
 
 
@@ -352,7 +352,7 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 	DynamicHolidayForeColor = makeDynamicProperty(HolidayForeColor)
 	DynamicHighlightHolidays = makeDynamicProperty(HighlightHolidays)
 	DynamicValue = makeDynamicProperty(Value)
-	
+
 
 
 class dCalendar(BaseCalendar):
@@ -367,8 +367,8 @@ class dCalendar(BaseCalendar):
 
 
 class dExtendedCalendar(BaseCalendar):
-	"""This formats the calendar into an extended layout, with a 
-	dropdown list for selecting any month, and a spinner for 
+	"""This formats the calendar into an extended layout, with a
+	dropdown list for selecting any month, and a spinner for
 	moving from year to year. Use this when you need to be able
 	to navigate to any date quickly.
 	"""
@@ -382,11 +382,11 @@ class dExtendedCalendar(BaseCalendar):
 if __name__ == "__main__":
 	class TestForm(dabo.ui.dForm):
 		def afterInit(self):
-			dCalendar(self, FirstDayOfWeek="monday", 
+			dCalendar(self, FirstDayOfWeek="monday",
 					Position=(0,0), RegID="cal")
 			self.cal.HighlightHolidays = True
-			self.cal.setHolidays(((None,12,25), (2006, 1, 4)))			
-		
+			self.cal.setHolidays(((None,12,25), (2006, 1, 4)))
+
 		def onCalendarDayHeaderClicked_cal(self, evt):
 			print "Day of week:", evt.weekday
 		def onCalendarDateChanged_cal(self, evt):
@@ -400,11 +400,11 @@ if __name__ == "__main__":
 		def onHit_cal(self, evt):
 			print "Hit!", evt.date
 			self.release()
-			
-			
+
+
 	app = dabo.dApp()
 	app.MainFormClass = TestForm
 	app.start()
-			
+
 
 

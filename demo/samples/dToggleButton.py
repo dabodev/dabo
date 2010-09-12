@@ -7,17 +7,17 @@ from dabo.dLocalize import _
 
 class TestPanel(dabo.ui.dPanel):
 	def afterInit(self):
-		sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20, 
+		sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20,
 				DefaultBorderLeft=True)
 		sz.appendSpacer(25)
 
-		btn = dabo.ui.dToggleButton(self, Caption="Toggle Me", Name="togg", 
-				Picture="boolRendererUnchecked", DownPicture="boolRendererChecked", 
+		btn = dabo.ui.dToggleButton(self, Caption="Toggle Me", Name="togg",
+				Picture="boolRendererUnchecked", DownPicture="boolRendererChecked",
 				Width=100, Height=100)
 		btn.bindEvent(dEvents.Hit, self.onButtonHit)
 		sz.append(btn, halign="center")
 		sz.appendSpacer(40)
-		
+
 		gs = dabo.ui.dGridSizer(MaxCols=2)
 		lbl = dabo.ui.dLabel(self, Caption="BezelWidth")
 		spn = dabo.ui.dSpinner(self, Min=0, Max=25, DataSource="self.Parent.togg",
@@ -30,7 +30,7 @@ class TestPanel(dabo.ui.dPanel):
 				DataField="Caption")
 		gs.append(lbl, halign="right")
 		gs.append(txt)
-		
+
 		sz.append(gs, halign="center")
 		self.update()
 		self.layout()
@@ -44,8 +44,8 @@ class TestPanel(dabo.ui.dPanel):
 category = "Controls.dToggleButton"
 
 overview = """
-<p>The <b>dToggleButton</b> class, despite its name, is not for situations that 
-you might use <b>dButton</b>; instead, it is used like a <b>dCheckbox</b>. 
+<p>The <b>dToggleButton</b> class, despite its name, is not for situations that
+you might use <b>dButton</b>; instead, it is used like a <b>dCheckbox</b>.
 It represents a boolean value: On/Off, True/False, Active/Inactive, etc.</p>
 
 <p>It can display a text <b>Caption</b>, and can also display different images depending on

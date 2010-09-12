@@ -40,11 +40,11 @@ class dBizobj(dObject):
 
 		# PKs of rows to be filtered out when filtering Virtual fields
 		self.__filterPKVirtual = []
-		
+
 		self._beforeInit()
 		# This starts as a list that will hold cursors created in the initial process
 		# if RequeryOnLoad is True. This is necessary because not all of the required
-		# properties will have been set at this point. 
+		# properties will have been set at this point.
 		# It will be set to None in the _afterInit() code, to indicate that it is no longer relevant.
 		self.__cursorsToRequery = []
 		self._requeryOnLoad = self._extractKey((properties, kwargs), "RequeryOnLoad", False)
@@ -172,7 +172,7 @@ class dBizobj(dObject):
 			if params or requery:
 				cur.requery(params)
 		return cur
-		
+
 
 	def createCursor(self, key=None):
 		""" Create the cursor that this bizobj will be using for data, and store it
@@ -731,13 +731,13 @@ class dBizobj(dObject):
 
 		If self.ScanRestorePosition is True, the position of the current
 		record in the recordset is restored after the iteration.
-		
+
 		If self.ScanRequeryChildren is True, any child bizobjs will be requeried
 		for each row in the bizobj. Only use this if you know the size of the data
 		involved will be small.
 
 		You may optionally send reverse=True to scan the records in reverse
-		order, which you'll want to do if, for example, you are deleting 
+		order, which you'll want to do if, for example, you are deleting
 		records in your scan function. If the reverse argument is not sent,
 		self.ScanReverse will be queried to determine the behavior.
 		"""
@@ -852,7 +852,7 @@ class dBizobj(dObject):
 
 
 	def _fldReplace(self, expr):
-		"""Takes a user-defined, SQL-like expression, and substitutes any 
+		"""Takes a user-defined, SQL-like expression, and substitutes any
 		field name with the reference for that value in the bizobj.
 		Example (assuming 'price' is a column in the data):
 			self._fldReplace("price > 50")
@@ -1072,13 +1072,13 @@ class dBizobj(dObject):
 
 	def filter(self, fld, expr, op="="):
 		"""
-		This takes a field name, an expression, and an optional operator, and applies that 
-		to the current dataset. The original dataset is preserved; calling removeFilter() will 
-		remove the last filter applied to the bizobj. If the current record is in the filtered 
-		dataset, that record will still be current; if it is filtered out, the current row will 
+		This takes a field name, an expression, and an optional operator, and applies that
+		to the current dataset. The original dataset is preserved; calling removeFilter() will
+		remove the last filter applied to the bizobj. If the current record is in the filtered
+		dataset, that record will still be current; if it is filtered out, the current row will
 		be row 0.
-		If the operator is specified, it will be used literally in the evaluation instead of the 
-		equals sign, unless it is one of the following strings, which will be interpreted 
+		If the operator is specified, it will be used literally in the evaluation instead of the
+		equals sign, unless it is one of the following strings, which will be interpreted
 		as indicated:
 			eq, equals: =
 			ne, nequals: !=
@@ -2536,7 +2536,7 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 			at the end of the recordset (False). (bool)"""))
 
 	ScanRequeryChildren = property(_getScanRequeryChildren, _setScanRequeryChildren, None,
-			_("""When calling the scan() function, this property determines if we 
+			_("""When calling the scan() function, this property determines if we
 			requery any child bizobjs for each row in this bizobj. The default is False,
 			as this has the potential to cause performance issues.  (bool)"""))
 

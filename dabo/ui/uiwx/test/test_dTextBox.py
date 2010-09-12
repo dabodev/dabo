@@ -124,7 +124,7 @@ class Test_dTextBox(unittest.TestCase):
 
 		self.mockUserInput("kk")
 		self.assertEqual(txt.Value, "kk")
-		
+
 		self.mockUserInput("pp", lose_focus=False)
 		self.assertEqual(txt.Value, "pp")
 		self.assertEqual(txt.Form.df, "kk")

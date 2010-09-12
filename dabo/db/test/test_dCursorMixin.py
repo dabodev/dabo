@@ -145,7 +145,7 @@ class Test_dCursorMixin(object):
 		self.assertEqual(cur.RowCount, 2)
 		cur.new()
 		self.assertEqual(cur.RowCount, 3)
-		
+
 
 	def test_RowNumber(self):
 		cur = self.cur
@@ -165,7 +165,7 @@ class Test_dCursorMixin(object):
 		cur = self.cur
 		testSQL = "select * from %s where nfield = 23.23" % self.temp_table_name
 		addWhere = self.getAdditionalWhere()
-		if addWhere:	
+		if addWhere:
 			testSQL += " AND %s" % addWhere
 		cur.UserSQL = testSQL
 		cur.requery()
@@ -183,7 +183,7 @@ class Test_dCursorMixin(object):
 		cur = self.cur
 		self.assertEqual(cur.oldVal("cfield"), cur.Record.cfield)
 		self.assertEqual(cur.oldVal("cfield", 1), cur.getFieldVal("cfield", 1))
-		oldVal = cur.Record.cfield 
+		oldVal = cur.Record.cfield
 		newVal = "pkm23"
 		cur.Record.cfield = newVal
 		self.assertEqual(cur.oldVal("cfield"), oldVal)
@@ -197,7 +197,7 @@ class Test_dCursorMixin(object):
 		# With a new requery, mementos and new records should be empty.
 		self.assertEqual(cur._mementos, {})
 		self.assertEqual(cur._newRecords, {})
-	
+
 		priorVal = cur.Record.cfield
 		# Make a change that is the same as the prior value:
 		cur.Record.cfield = priorVal
@@ -226,7 +226,7 @@ class Test_dCursorMixin(object):
 
 		# Add a record:
 		cur.new()
-		
+
 		# The following 2 calls are normally done in dBizobj.new():
 		cur.genTempAutoPK()
 		cur.setNewFlag()
@@ -287,14 +287,14 @@ insert into %s (cfield, ifield, nfield) values ("Carl Karsten", 10223, 23032.76)
 """ % (tableName, tableName, tableName, tableName, ))
 
 	def createNullRecord(self):
-		self.cur.AuxCursor.execute("""		
+		self.cur.AuxCursor.execute("""
 insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 """ % self.temp_table_name)
 
 
 class Test_dCursorMixin_mysql(Test_dCursorMixin, unittest.TestCase):
 	def setUp(self):
-		con = dabo.db.dConnection(DbType="MySQL", User="dabo_unittest", 
+		con = dabo.db.dConnection(DbType="MySQL", User="dabo_unittest",
 				password="T30T35DB4K30Z45I67N60", Database="dabo_unittest",
 				Host="paulmcnett.com")
 		self.cur = con.getDaboCursor()
@@ -310,25 +310,25 @@ class Test_dCursorMixin_mysql(Test_dCursorMixin, unittest.TestCase):
 		cur.execute("""
 create table %s (pk INTEGER PRIMARY KEY AUTO_INCREMENT, cfield CHAR (32), ifield INT, nfield DECIMAL (8,2))
 """ % self.temp_table_name)
-		cur.execute("""		
+		cur.execute("""
 insert into %s (cfield, ifield, nfield) values ("Paul Keith McNett", 23, 23.23)
 """ % self.temp_table_name)
-		cur.execute("""		
+		cur.execute("""
 insert into %s (cfield, ifield, nfield) values ("Edward Leafe", 42, 42.42)
 """ % self.temp_table_name)
-		cur.execute("""		
+		cur.execute("""
 insert into %s (cfield, ifield, nfield) values ("Carl Karsten", 10223, 23032.76)
 """ % self.temp_table_name)
 
 	def createNullRecord(self):
-		self.cur.AuxCursor.execute("""		
+		self.cur.AuxCursor.execute("""
 insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 """ % self.temp_table_name)
 
 
 class Test_dCursorMixin_oracle(Test_dCursorMixin, unittest.TestCase):
 	def setUp(self):
-		con = dabo.db.dConnection(DbType="Oracle", User="fwadm", 
+		con = dabo.db.dConnection(DbType="Oracle", User="fwadm",
 				password="V7EE74E49H6BV27TA0J65G2AS21", Database="XE",
 				Host="athlon28")
 		self.cur = con.getDaboCursor()
@@ -344,18 +344,18 @@ class Test_dCursorMixin_oracle(Test_dCursorMixin, unittest.TestCase):
 		cur.execute("""
 create table %s (pk INTEGER PRIMARY KEY, cfield CHAR (32), ifield INT, nfield DECIMAL (8,2))
 """ % self.temp_table_name)
-		cur.execute("""		
+		cur.execute("""
 insert into %s (cfield, ifield, nfield) values ("Paul Keith McNett", 23, 23.23)
 """ % self.temp_table_name)
-		cur.execute("""		
+		cur.execute("""
 insert into %s (cfield, ifield, nfield) values ("Edward Leafe", 42, 42.42)
 """ % self.temp_table_name)
-		cur.execute("""		
+		cur.execute("""
 insert into %s (cfield, ifield, nfield) values ("Carl Karsten", 10223, 23032.76)
 """ % self.temp_table_name)
 
 	def createNullRecord(self):
-		self.cur.AuxCursor.execute("""		
+		self.cur.AuxCursor.execute("""
 insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 """ % self.temp_table_name)
 
@@ -363,10 +363,10 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
 	## NOTE: Firebird not set up completely yet. What is here is courtesy Uwe
 	##       Grauer. We need insert statements, and we need a firebird server.
-	##       I intend to set up a test server, but don't know when it will 
+	##       I intend to set up a test server, but don't know when it will
 	##       actually occur.
 	def setUp(self):
-		con = dabo.db.dConnection(DbType="Firebird", User="dabotester", 
+		con = dabo.db.dConnection(DbType="Firebird", User="dabotester",
 				password="Y57W8EN6CB06KBCCDCX01D6B", Database="dabo_unittest",
 				Host="dabodev.com")
 		cur = self.cur = con.getDaboCursor()
@@ -396,19 +396,19 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
 		tableName = self.temp_table_name
 
 		cur.execute("commit")
-		cur.execute("""		
+		cur.execute("""
 insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Paul Keith McNett', 23, 23.23)
 """ % (tableName, self.jobid))
-		cur.execute("""		
+		cur.execute("""
 insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Edward Leafe', 42, 42.42)
 """ % (tableName, self.jobid))
-		cur.execute("""		
+		cur.execute("""
 insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Carl Karsten', 10223, 23032.76)
 """ % (tableName, self.jobid))
 		cur.execute("commit")
 
 	def createNullRecord(self):
-		self.cur.AuxCursor.execute("""		
+		self.cur.AuxCursor.execute("""
 insert into %s (jobid, cfield, ifield, nfield) values (%f, NULL, NULL, NULL)
 """ % (self.temp_table_name, self.jobid))
 

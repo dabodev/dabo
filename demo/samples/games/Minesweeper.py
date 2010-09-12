@@ -6,11 +6,11 @@
 How To Play
 
 Use your mouse button to clear a square. If the square was a mine,
-you lose. Otherwise, a number will appear telling you how many 
+you lose. Otherwise, a number will appear telling you how many
 adjacent squares have mines. Use your right mouse button (Linux and
 Windows) or Control+Click (Mac) to mark a square. Successive clicks
-will change the mark from a '@' (flagged as a mine), to a '?' (a 
-helpful marker for your own use in solving the puzzle) and then 
+will change the mark from a '@' (flagged as a mine), to a '?' (a
+helpful marker for your own use in solving the puzzle) and then
 back to a blank square (ready to clear).
 
 You win when all squares are either flagged as mines or cleared.
@@ -34,8 +34,8 @@ from dabo.lib import specParser
 #
 # Begun 10/22/2004 while I was waiting for a program to compile.
 # I wanted to see how useful dEditor was, so I developed minesweeper
-# completely with dEditor. It isn't finished, but is playable. The 
-# code needs to be cleaned/refactored in places. But it does use the 
+# completely with dEditor. It isn't finished, but is playable. The
+# code needs to be cleaned/refactored in places. But it does use the
 # Dabo UI exclusively.
 #
 # My idea is to make a network-playable "battle minesweeper" where 2 or
@@ -43,19 +43,19 @@ from dabo.lib import specParser
 # user's form would show how many mines their opponent has cleared.
 #
 # Another idea is to make a network "team minesweeper" where 2 or more
-# players can collaborate on clearing the same minefield. Each user's 
-# minefield would get updated as other players flag mines and clear 
+# players can collaborate on clearing the same minefield. Each user's
+# minefield would get updated as other players flag mines and clear
 # squares.
 #
 # Perhaps the high-scores can be recorded using a database/bizobj just
 # to stay relevant with the Dabo project. <g>
 #
 # Anyway, this is also a good test for Dabo's performance, as each square
-# is a dButton: make a 20x20 grid and all of a sudden you are 
+# is a dButton: make a 20x20 grid and all of a sudden you are
 # instantiating 400 dButtons, each responding to mouse clicks.
 #
 # (if someone really wants to speed it up, I'd suggest using a DC to draw
-# directly on the panel, and divining the current square based on the 
+# directly on the panel, and divining the current square based on the
 # position of the mouse click).
 #
 # pkm
@@ -80,17 +80,17 @@ class StateChanged(dabo.dEvents.Event): pass
 class Square(dabo.ui.dPanel):
 	def initProperties(self):
 		self.BackColor = "slategrey"
-	
-	
+
+
 	def afterInit(self):
 		self.image = self.drawText("", fontSize=14, x=3)
 		self.image.DynamicText = self.getSquareText
 		self.image.DynamicFontSize = self.Parent.getFontSize
 		self.image.DynamicForeColor = self.getForeColor
 
-	
+
 	def getForeColor(self):
-		return {"UnMarked": _hintColor, "MarkedMine": _mineMarkerColor, 
+		return {"UnMarked": _hintColor, "MarkedMine": _mineMarkerColor,
 			"QuestionMarked": _questionColor, "Cleared": _hintColor}[self.State]
 
 
@@ -99,10 +99,10 @@ class Square(dabo.ui.dPanel):
 		if txt in (_questionMarkChar, _mineMarkChar) and (self.State == "UnMarked"):
 			ret = ""
 		else:
-			ret = {"UnMarked": txt, "MarkedMine": _mineMarkChar, 
+			ret = {"UnMarked": txt, "MarkedMine": _mineMarkChar,
 				"QuestionMarked": _questionMarkChar, "Cleared": ""}[self.State]
 		return ret
-		
+
 
 	def cycleState(self):
 		orig = self.State
@@ -120,15 +120,15 @@ class Square(dabo.ui.dPanel):
 			self.update()
 			self.refresh()
 
-	
+
 	def onResize(self, evt):
 		self.autoClearDrawings = (self.Application.Platform.lower() == "win")
 		self.update()
 		self.autoClearDrawings = False
 		if self.image.Text:
 			self.centerText()
-	
-	
+
+
 	def reset(self):
 		self.lockDisplay()
 		self.image.Text = ""
@@ -150,8 +150,8 @@ class Square(dabo.ui.dPanel):
 		ht = dabo.ui.fontMetricFromDrawObject(self.image)[1]
 		if ht != 0:
 			self.image.Ypos = max(1, int((self.Height - ht)/2))
-			
-		
+
+
 	def _getState(self):
 		"""Returns one of: 'UnMarked', 'MarkedMine', 'QuestionMarked', 'Cleared'
 		"""
@@ -160,10 +160,10 @@ class Square(dabo.ui.dPanel):
 		except AttributeError:
 			state = self._state = "UnMarked"
 		return state
-		
+
 	def _setState(self, val):
-		"""Sets State to one of: 
-			
+		"""Sets State to one of:
+
 			+ "UnMarked"
 			+ "MarkedMine"
 			+ "QuestionMarked"
@@ -193,11 +193,11 @@ class Square(dabo.ui.dPanel):
 
 
 	Caption = property(_getCaption, _setCaption)
-		
+
 	State = property(_getState, _setState, None, "")
-			
-			
-			
+
+
+
 class Board(dabo.ui.dPanel):
 	def initProperties(self):
 		self.squares = []
@@ -206,12 +206,12 @@ class Board(dabo.ui.dPanel):
 		self.needResize = False
 		self._squareFontSize = 12
 		self._filledSize = (0, 0)
-		
-	
+
+
 	def onResize(self, evt):
 		self.needResize = True
-		
-	
+
+
 	def onIdle(self, evt):
 		if not self.needResize or not self.Sizer:
 			return
@@ -234,8 +234,8 @@ class Board(dabo.ui.dPanel):
 
 	def getFontSize(self):
 		return self._squareFontSize
-		
-	
+
+
 	def calcFontSize(self, sz):
 		try:
 			img = self.square_0_0.image
@@ -248,7 +248,7 @@ class Board(dabo.ui.dPanel):
 			# Object isn't finished sizing yet.
 			return fs
 		while True:
-			fm = dabo.ui.fontMetric(txt="M", face=img.FontFace, 
+			fm = dabo.ui.fontMetric(txt="M", face=img.FontFace,
 					size=fs, bold=img.FontBold, italic=img.FontItalic)
 			maxFont = max(fm)
 			diff = sz - maxFont
@@ -260,8 +260,8 @@ class Board(dabo.ui.dPanel):
 			else:
 				fs += tolerance
 		return fs
-	
-	
+
+
 	def newGame(self):
 		sw = StopWatch.StopWatch()
 		sw.start()
@@ -316,8 +316,8 @@ class Board(dabo.ui.dPanel):
 				self.Form.StatusText = "You win!!! Picture fireworks bursting in air, in your honor!"
 				self.Form.recordScore()
 #				dabo.ui.info("You win!")
-			
-		
+
+
 	def allCleared(self):
 		"""Return True if all non-mine squares have been cleared."""
 		bd = self._boardDict
@@ -330,15 +330,15 @@ class Board(dabo.ui.dPanel):
 				else:
 					return False
 		return True
-		
-		
+
+
 	def onContextMenu(self, evt):
 		# stop the event from propagating, so that the click isn't processed (Mac):
 		evt.stop()
 		o = evt.EventObject
 		if o != self and self._GameInProgress and o.Enabled:
 			o.cycleState()
-		
+
 
 	def showSquare(self, square):
 		i = self._boardDict[square]
@@ -409,7 +409,7 @@ class Board(dabo.ui.dPanel):
 		height = self.BoardSize[1]
 		for h in range(height):
 			for w in range(width):
-				self._boardDict[(w,h)] = {"mine": False, 
+				self._boardDict[(w,h)] = {"mine": False,
 					"flag": False, "adjacent": 0}
 		self._fillMines()
 		self._fillAdjacentCounts()
@@ -435,8 +435,8 @@ class Board(dabo.ui.dPanel):
 				if self._boardDict[s]["mine"]:
 					c += 1
 			self._boardDict[key]["adjacent"] = c
-			
-		
+
+
 	def _fillBoard(self):
 		cols = self.BoardSize[0]
 		rows = self.BoardSize[1]
@@ -444,7 +444,7 @@ class Board(dabo.ui.dPanel):
 
 		sw = StopWatch.StopWatch()
 		sw.start()
-		
+
 		# Release any existing squares
 		[sq.release() for sq in self.squares]
 		self.squares = []
@@ -464,7 +464,7 @@ class Board(dabo.ui.dPanel):
 		self._filledSize = self.BoardSize
 		self.Sizer = sizer
 		self.needResize = True
-		
+
 		sw.stop()
 		print "\n\nTime creating squares:", sw.Value
 
@@ -602,14 +602,14 @@ class Board(dabo.ui.dPanel):
 		_("Sets the number of mines on the board."))
 
 	StopWatch = property(_getStopWatch)
-	
+
 	Timer = property(_getTimer)
 
 	_MinesRemaining = property(_getMinesRemaining, _setMinesRemaining)
 
 	_GameInProgress = property(_getGameInProgress, _setGameInProgress)
-		
-		
+
+
 class MinesweeperForm(dabo.ui.dForm):
 	def afterInit(self):
 		self.fillMenu()
@@ -619,7 +619,7 @@ class MinesweeperForm(dabo.ui.dForm):
 
 
 	def _initPrefs(self):
-		"""Make sure that the prefs exist. If not, initialize them to 
+		"""Make sure that the prefs exist. If not, initialize them to
 		their default value.
 		"""
 		pfm = self.Application.PreferenceManager
@@ -640,13 +640,13 @@ class MinesweeperForm(dabo.ui.dForm):
 		self.preset["Width"] = pfm.preset.width
 		self.preset["Height"] = pfm.preset.height
 		self.preset["Mines"] = pfm.preset.mines
-			
-			
+
+
 	def initProperties(self):
 		self.Caption = "Dabo MineSweeper"
 		self.Sizer = dabo.ui.dSizer("vertical")
 		self._autopause = False
-		
+
 
 	def onDeactivate(self, evt):
 		"""Pause the game automatically when form loses focus."""
@@ -744,8 +744,8 @@ class MinesweeperForm(dabo.ui.dForm):
 
 
 	def onRules(self, evt):
-		win = dabo.ui.dDialog(self, NameBase="frmRulesDialog", 
-				Caption="Minesweeper Rules", SaveRestorePosition=True, 
+		win = dabo.ui.dDialog(self, NameBase="frmRulesDialog",
+				Caption="Minesweeper Rules", SaveRestorePosition=True,
 				Centered=True, Modal=False)
 		pnl = dabo.ui.dScrollPanel(win)
 		win.Sizer.append1x(pnl)
@@ -757,7 +757,7 @@ class MinesweeperForm(dabo.ui.dForm):
 		pnl.fitToSizer()
 		win.Visible = True
 
-		# Not real sure why the dialog doesn't release itself upon Close, but 
+		# Not real sure why the dialog doesn't release itself upon Close, but
 		# the following handles that until I figure it out:
 		def onClose(evt):
 			win.release()
@@ -795,7 +795,7 @@ class MinesweeperForm(dabo.ui.dForm):
 						self.Alignment = "Right"
 						self.AutoResize = False
 						self.Width = 100
-				
+
 				vs = self.Sizer
 				message = """Since you are playing a game defined in the public presets,
 you can record your score in the public database. If you'd like to do this, just
@@ -850,7 +850,7 @@ this to work."""
 						break
 		dlg.release()
 
-						
+
 	def fillMenu(self):
 		iconPath = "themes/tango/16x16"
 
@@ -858,7 +858,7 @@ this to work."""
 		fileMenu = mb.getMenu(_("File"))
 
 		fileMenu.prependSeparator()
-		fileMenu.prepend(_("&New Game"), HotKey="Ctrl+N", help=_("Start a new game"), 
+		fileMenu.prepend(_("&New Game"), HotKey="Ctrl+N", help=_("Start a new game"),
 				OnHit=self.onNewGame, bmp="%s/actions/document-new.png" % iconPath)
 
 		viewMenu = mb.getMenu(_("View"))
@@ -881,16 +881,16 @@ this to work."""
 		tb.SetToolBitmapSize(iconSize)  ## need to abstract in dToolBar!
 		iconPath = "themes/tango/%sx%s" % iconSize
 
-		tb.appendButton("New", pic="%s/actions/document-new.png" % iconPath, 
-				toggle=False, OnHit=self.onNewGame, 
+		tb.appendButton("New", pic="%s/actions/document-new.png" % iconPath,
+				toggle=False, OnHit=self.onNewGame,
 				tip="New Game", help="Start a new game")
 
-		tb.appendButton("End", pic="%s/actions/process-stop.png" % iconPath, 
-				toggle=False, OnHit=self.onEndGame, 
+		tb.appendButton("End", pic="%s/actions/process-stop.png" % iconPath,
+				toggle=False, OnHit=self.onEndGame,
 				tip="End Game", help="End the current game")
 
-		tb.appendButton("Preferences", pic="%s/categories/preferences-system.png" % iconPath, 
-				toggle=False,	OnHit=self.onEditPreferences, 
+		tb.appendButton("Preferences", pic="%s/categories/preferences-system.png" % iconPath,
+				toggle=False,	OnHit=self.onEditPreferences,
 				tip="Preferences", help="Edit preferences")
 
 		tb.appendSeparator()
@@ -900,7 +900,7 @@ this to work."""
 
 		self.pausebutton = tb.appendControl(dabo.ui.dToggleButton(tb, Caption="Pause",
 				ToolTipText="Pause/Resume",
-				StatusText="Pause/Resume the game", 
+				StatusText="Pause/Resume the game",
 				OnHit=self.onPause))
 
 		tb.appendSeparator()
@@ -939,7 +939,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 				self.Centered = True
 				self.FormType = "PickList"
 				self.accepted = False
-			
+
 			def pickRecord(self):
 				self.accepted = True
 				self.hide()
@@ -952,7 +952,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 				conn = dabo.db.dConnection(MinesweeperCI())
 				biz = self.biz = MinesweeperBO_gamedefs(conn)
 				biz.requery()
-				
+
 				g = self.grid = self.addObject(Browse)
 				g.FieldSpecs = biz.getGameDefFieldSpecs()
 				g.DataSource = biz.DataSource
@@ -1012,9 +1012,9 @@ Note that this will require an internet connection.
 		hs.append(cb, "fixed", alignment="right", border=b)
 		hs.append(t, 1, border=b)
 		vs.append(hs, "expand")
-		
+
 		cb.bindEvent(dEvents.Hit, self.onPickPreset)
-		
+
 		for name in ("Width", "Height", "Mines"):
 			hs = dabo.ui.dSizer("horizontal")
 			l = p1.addObject(lbl, Name="lbl%s" % name, Caption="%s:" % name)
@@ -1022,7 +1022,7 @@ Note that this will require an internet connection.
 			hs.append(l, "fixed", alignment="right", border=b)
 			hs.append(s, border=b)
 			vs.append(hs)
-			
+
 		p1.Sizer = vs
 
 		# p2:
@@ -1035,7 +1035,7 @@ Note that this will require an internet connection.
 			hs.append(l, "fixed", alignment="right", border=b)
 			hs.append(s, border=b)
 			vs.append(hs)
-			
+
 		p2.Sizer = vs
 
 		self.Sizer.append1x(pgf)
@@ -1044,8 +1044,8 @@ Note that this will require an internet connection.
 				preset["Height"] != self.boardHeight or
 				preset["Mines"] != self.boardMines):
 			pgf.SelectedPageNumber = 1
-	
-	
+
+
 	def runOK(self):
 		self.accepted = True
 		p = self.PageFrame.SelectedPage
@@ -1081,7 +1081,7 @@ class MinesweeperBO_gamedefs(dabo.biz.dBizobj):
 
 	def afterInit(self):
 		self.setBaseSQL()
-		
+
 	def setBaseSQL(self):
 		self.addFrom("minesweeper_gamedefs")
 		self.setLimitClause("500")
@@ -1099,41 +1099,41 @@ class MinesweeperBO_gamedefs(dabo.biz.dBizobj):
 <daboAppSpecs>
 	<table name="minesweeper_gamedefs">
 		<fields>
-			<field name="id"	type="int"	caption="id" 
-				searchInclude="0"	searchOrder="0"	wordSearch="0" 
+			<field name="id"	type="int"	caption="id"
+				searchInclude="0"	searchOrder="0"	wordSearch="0"
 				listInclude="0"	listColWidth="-1"	listOrder="0"
 				editInclude="0"	editReadOnly="0"	editOrder="0"  />
-				
-			<field name="name"	type="char"	caption="Name" 
-				searchInclude="1"	searchOrder="10"	wordSearch="0" 
+
+			<field name="name"	type="char"	caption="Name"
+				searchInclude="1"	searchOrder="10"	wordSearch="0"
 				listInclude="1"	listColWidth="-1"	listOrder="10"
 				editInclude="1"	editReadOnly="0"	editOrder="10"  />
-				
-			<field name="width"	type="int"	caption="Width" 
-				searchInclude="1"	searchOrder="20"	wordSearch="0" 
+
+			<field name="width"	type="int"	caption="Width"
+				searchInclude="1"	searchOrder="20"	wordSearch="0"
 				listInclude="1"	listColWidth="-1"	listOrder="20"
 				editInclude="1"	editReadOnly="0"	editOrder="20"  />
-				
-			<field name="height"	type="int"	caption="Height" 
-				searchInclude="1"	searchOrder="30"	wordSearch="0" 
+
+			<field name="height"	type="int"	caption="Height"
+				searchInclude="1"	searchOrder="30"	wordSearch="0"
 				listInclude="1"	listColWidth="-1"	listOrder="30"
 				editInclude="1"	editReadOnly="0"	editOrder="30"  />
-				
-			<field name="mines"	type="int"	caption="Mines" 
-				searchInclude="1"	searchOrder="40"	wordSearch="0" 
+
+			<field name="mines"	type="int"	caption="Mines"
+				searchInclude="1"	searchOrder="40"	wordSearch="0"
 				listInclude="1"	listColWidth="-1"	listOrder="40"
 				editInclude="1"	editReadOnly="0"	editOrder="40"  />
-				
-			<field name="comments"	type="memo"	caption="Comments" 
-				searchInclude="1"	searchOrder="50"	wordSearch="0" 
+
+			<field name="comments"	type="memo"	caption="Comments"
+				searchInclude="1"	searchOrder="50"	wordSearch="0"
 				listInclude="0"	listColWidth="-1"	listOrder="50"
 				editInclude="1"	editReadOnly="0"	editOrder="50"  />
-				
-			<field name="submittedby"	type="char"	caption="Submitted By" 
-				searchInclude="1"	searchOrder="60"	wordSearch="0" 
+
+			<field name="submittedby"	type="char"	caption="Submitted By"
+				searchInclude="1"	searchOrder="60"	wordSearch="0"
 				listInclude="1"	listColWidth="-1"	listOrder="60"
 				editInclude="1"	editReadOnly="0"	editOrder="60"  />
-				
+
 		</fields>
 	</table>
 
@@ -1195,8 +1195,8 @@ class MinesweeperBO_scores(dabo.biz.dBizobj):
 	def _setLimit(self, val):
 		self._limit = val
 		self.setLimitClause("%s" % val)
-		
-				
+
+
 	GameId = property(_getGameId, _setGameId)
 	Limit = property(_getLimit, _setLimit)
 

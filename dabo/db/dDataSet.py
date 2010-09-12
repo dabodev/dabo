@@ -88,7 +88,7 @@ class dDataSet(tuple):
 
 
 	def _convert_decimal(self, strval):
-		"""This is a converter routine. Takes the string representation of a 
+		"""This is a converter routine. Takes the string representation of a
 		Decimal value and return an actual decimal.
 		"""
 		return Decimal(strval)
@@ -105,7 +105,7 @@ class dDataSet(tuple):
 	def replace(self, field, valOrExpr, scope=None):
 		"""Replaces the value of the specified field with the given expression.
 
-		All records matching the scope are affected; if	no scope is specified, 
+		All records matching the scope are affected; if	no scope is specified,
 		all records are affected.
 
 		Scope is a boolean expression.
@@ -188,11 +188,11 @@ class dDataSet(tuple):
 			fnc = None
 		if fnc:
 			filtered = [rec for rec in self if fnc(rec[fld], expr)]
-		elif op in ("startswith", "beginswith"): 
+		elif op in ("startswith", "beginswith"):
 			filtered = [rec for rec in self if rec[fld].startswith(expr)]
-		elif op =="endswith": 
+		elif op =="endswith":
 			filtered = [rec for rec in self if rec[fld].endswith(expr)]
-		elif op =="contains": 
+		elif op =="contains":
 			filtered = [rec for rec in self if expr in rec[fld]]
 		ret = self.__class__(filtered)
 		ret._sourceDataSet = self
@@ -724,14 +724,14 @@ if __name__ == "__main__":
 	print "Over 30:"
 	for rec in newDS:
 		print "\tName: %(name)s, Age: %(age)s" % rec
-	
+
 	emptyDS = ds.filter("age", 99, "gt")
 	if not emptyDS:
 		print "No one is over 99 years old"
 	else:
 		print "There are %s people over 99 years old" % len(emptyDS)
 	filt = emptyDS.filter("foo", "bar")
-	
+
 	leafeDS = ds.filter("name", "Leafe", "endswith")
 	if not leafeDS:
 		print "No one is is named 'Leafe'"

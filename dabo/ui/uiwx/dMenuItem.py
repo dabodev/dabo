@@ -15,7 +15,7 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 		self._baseClass = dMenuItem
 		preClass = wx.MenuItem
 		self.Parent = parent
-		
+
 		## see comments in _setCaption for explanation of below:
 		text = kwargs.get("text", "")
 		if not text:
@@ -27,12 +27,12 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 		self._hotKey = None
 		# Holds the unique ID, if any
 		self._itemID = None
-		
+
 		pm.dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
 	def _initEvents(self):
-		## wx.MenuItems don't have a Bind() of their own, so this serves to 
+		## wx.MenuItems don't have a Bind() of their own, so this serves to
 		## override the base behavior in dPemMixin._initEvents() which has
 		## a bunch of wx Events that don't exist for menu items (IOW, don't
 		## call the superclass method!).
@@ -42,7 +42,7 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 			# and re-raise Dabo dEvents.Hit events. If Application
 			# is None, however, this won't work because of wx limitations.
 			self.Application.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, self)
-			self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT, 
+			self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT,
 					self.__onWxMenuHighlight, self)
 		# Handle delayed event bindings
 		if self._delayedEventBindings:
@@ -71,7 +71,7 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 			if isinstance(s, str):
 				try:
 					enc = self.Application.Encoding
-				except AttributeError:	
+				except AttributeError:
 					enc = dabo.defaultEncoding
 				s = unicode(s, enc)
 			return s
@@ -182,7 +182,7 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 
 	def _setParent(self, val):
 		self._parent = val
-		
+
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("Specifies the text of the menu item."))
@@ -198,7 +198,7 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 
 	HotKey = property(_getHotKey, _setHotKey, None,
 			_("Key combination that will trigger the menu  (str)"))
-	
+
 	Icon = property(_getIcon, _setIcon, None,
 			_("Specifies the icon for the menu item."))
 
@@ -207,7 +207,7 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 			duplicate values; it is the responsibility to ensure that ItemID values
 			are unique within a menu.  (varies)"""))
 
-	Parent = property(_getParent, _setParent, None, 
+	Parent = property(_getParent, _setParent, None,
 			_("Specifies the parent menu."))
 
 
@@ -221,11 +221,11 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 class dCheckMenuItem(dMenuItem):
 	"""Creates a checkbox-like item in a menu."""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
-		# Remove the 'Icon' property, as it interferes with the 'selected' display 
+		# Remove the 'Icon' property, as it interferes with the 'selected' display
 		self._extractKey((properties, kwargs), "Icon")
 		super(dCheckMenuItem, self).__init__(parent=parent, properties=properties,
 				*args, **kwargs)
-				
+
 
 	def _getChecked(self):
 		return self.IsChecked()
@@ -239,13 +239,13 @@ class dCheckMenuItem(dMenuItem):
 
 	Checked = property(_getChecked, _setChecked, None,
 			_("Is this menu item checked?  (bool)"))
-	
+
 
 
 class dRadioMenuItem(dMenuItem):
 	"""Creates a radiobox-like item in a menu."""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
-		# Remove the 'Icon' property, as it interferes with the 'selected' display 
+		# Remove the 'Icon' property, as it interferes with the 'selected' display
 		self._extractKey((properties, kwargs), "Icon")
 		super(dRadioMenuItem, self).__init__(parent=parent, properties=properties,
 				*args, **kwargs)
@@ -263,5 +263,5 @@ class dRadioMenuItem(dMenuItem):
 
 	Checked = property(_getChecked, _setChecked, None,
 			_("Is this menu item checked?  (bool)"))
-	
+
 

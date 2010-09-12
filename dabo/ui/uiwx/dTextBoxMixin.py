@@ -34,15 +34,15 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		self._textLength = None
 		self._inTextLength = False
 		self._flushOnLostFocus = True  ## see dabo.ui.dDataControlMixinBase::flushValue()
-		
+
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
-	
-	
+
+
 	def _initEvents(self):
 		super(dTextBoxMixinBase, self)._initEvents()
 		self.Bind(wx.EVT_TEXT, self._onWxHit)
-	
-	
+
+
 	def flushValue(self):
 		# Call the wx SetValue() directly to reset the string value displayed to the user.
 		# This resets the value to the string representation as Python shows it. Also, we
@@ -55,7 +55,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		ret = super(dTextBoxMixinBase, self).flushValue()
 		self._inFlush = False
 		return ret
-	
+
 
 	def _updateStringDisplay(self):
 		insPos = self.InsertionPosition
@@ -68,36 +68,36 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		self.InsertionPosition = insPos
 		self.SelectionStart = startPos
 		self.SelectionEnd = endPos
-		
-	
+
+
 	def getStringValue(self, val):
 		"""Hook function if you want to implement dataTypes other than str"""
 		return val
-	
-	
+
+
 	def selectAll(self):
-		"""Each subclass must define their own selectAll method. This will 
+		"""Each subclass must define their own selectAll method. This will
 		be called if SelectOnEntry is True when the control gets focus.
 		"""
 		self.SetSelection(-1, -1)
-		
-		
+
+
 	def getBlankValue(self):
 		return ""
-	
-	
+
+
 	def __onKeyChar(self, evt):
 		"""This handles KeyChar events when ForceCase is set to a non-empty value."""
 		if not self:
 			# The control is being destroyed
 			return
 		keyChar = evt.keyChar
-		if keyChar is not None and (keyChar.isalnum() 
+		if keyChar is not None and (keyChar.isalnum()
 				or keyChar in """,./<>?;':"[]\\{}|`~!@#$%%^&*()-_=+"""):
 			dabo.ui.callAfter(self._checkForceCase)
 			dabo.ui.callAfter(self._checkTextLength)
-			
-	
+
+
 	def _checkTextLength(self):
 		"""If the TextLength property is set, checks the current value of the control
 		and truncates it if too long"""
@@ -110,7 +110,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		length = self.TextLength
 		if not length:
 			return
-		
+
 		insPos = self.InsertionPosition
 		self._inTextLength = True
 		if len(self.Value) > length:
@@ -121,7 +121,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 				self.InsertionPosition = insPos
 			self.refresh()
 		self._inTextLength = False
-	
+
 
 	def _checkForceCase(self):
 		"""If the ForceCase property is set, casts the current value of the control
@@ -155,8 +155,8 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			self.SelectionLength = selLen
 			self.refresh()
 		self._inForceCase = False
-	
-	
+
+
 	# property get/set functions
 	def _getAlignment(self):
 		if self._hasWindowStyleFlag(wx.TE_RIGHT):
@@ -188,11 +188,11 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			self.SetEditable(rw)
 		else:
 			self._properties["Alignment"] = val
-			
-	
+
+
 	def _getForceCase(self):
 		return self._forceCase
-	
+
 	def _setForceCase(self, val):
 		if self._constructed():
 			if val is None:
@@ -207,15 +207,15 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 				self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
 		else:
 			self._properties["ForceCase"] = val
-	
-	
+
+
 	def _getInsertionPosition(self):
 		return self.GetInsertionPoint()
-	
+
 	def _setInsertionPosition(self, val):
 		self.SetInsertionPoint(val)
 
-	
+
 	def _getNoneDisplay(self):
 		ret = getattr(self, "_noneDisplay", None)
 		if ret is None:
@@ -224,62 +224,62 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 
 	def _setNoneDisplay(self, val):
 		self._noneDisplay = val
-	
+
 	def _getReadOnly(self):
 		return not self.IsEditable()
-		
+
 	def _setReadOnly(self, val):
 		if self._constructed():
 			self.SetEditable(not bool(val))
 		else:
 			self._properties["ReadOnly"] = val
-	
-	
+
+
 	def _getSelectedText(self):
 		return self.GetStringSelection()
-	
-	
+
+
 	def _getSelectionEnd(self):
 		return self.GetSelection()[1]
-	
+
 	def _setSelectionEnd(self, val):
 		start, end = self.GetSelection()
 		self.SetSelection(start, val)
 		self.refresh()
-	
-	
+
+
 	def _getSelectionLength(self):
 		start, end = self.GetSelection()
 		return end - start
-	
+
 	def _setSelectionLength(self, val):
 		start = self.GetSelection()[0]
 		self.SetSelection(start, start + val)
 		self.refresh()
-	
-	
+
+
 	def _getSelectionStart(self):
 		return self.GetSelection()[0]
-	
+
 	def _setSelectionStart(self, val):
 		start, end = self.GetSelection()
 		self.SetSelection(val, end)
 		self.refresh()
-	
-	
+
+
 	def _getSelectOnEntry(self):
 		try:
 			return self._SelectOnEntry
 		except AttributeError:
 			return False
-			
+
 	def _setSelectOnEntry(self, val):
 		self._SelectOnEntry = bool(val)
-	
-	
+
+
 	def _getTextLength(self):
 		return self._textLength
-	
+
 	def _setTextLength(self, val):
 		if self._constructed():
 			if val == None:
@@ -290,30 +290,30 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 					raise ValueError('TextLength must be a positve Integer')
 				self._textLength = val
 			self._checkTextLength()
-			
+
 			self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
 			if self._forceCase or self._textLength:
 				self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
 		else:
 			self._properties["TextLength"] = val
-	
-	
+
+
 	def _getValue(self):
 		try:
 			_value = self._value
 		except AttributeError:
 			_value = self._value = unicode("")
-		
-		# Get the string value as reported by wx, which is the up-to-date 
+
+		# Get the string value as reported by wx, which is the up-to-date
 		# string value of the control:
 		strVal = self.GetValue()
-		
+
 		if _value is None:
 			if strVal == self.NoneDisplay:
 				# Keep the value None
 				return None
 		return strVal
-	
+
 	def _setValue(self, val):
 		if self._constructed():
 			setter = self.SetValue
@@ -326,7 +326,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 				return
 			else:
 				dabo.ui.callAfter(self._checkForceCase)
-			
+
 			if self._inTextLength:
 				# Value is changing internally. Don't update the oldval
 				# setting or change the type; just set the value.
@@ -334,33 +334,33 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 				return
 			else:
 				dabo.ui.callAfter(self._checkTextLength)
-		
+
 			if val is None:
 				strVal = self.NoneDisplay
 			else:
 				strVal = val
 			_oldVal = self._oldVal = self.Value
-				
+
 			# save the actual value for return by _getValue:
 			self._value = val
 
 			# Update the display no matter what:
 			setter(strVal)
-		
+
 			if type(_oldVal) != type(val) or _oldVal != val:
-				self._afterValueChanged()		
+				self._afterValueChanged()
 		else:
 			self._properties["Value"] = val
 
-	
-	
+
+
 	#Property Definitions
 	Alignment = property(_getAlignment, _setAlignment, None,
 			_("""Specifies the alignment of the text. (str)
 			   Left (default)
 			   Center
 			   Right"""))
-	
+
 	ForceCase = property(_getForceCase, _setForceCase, None,
 			_("""Determines if we change the case of entered text. Possible values are:
 				None, "" (empty string): No changes made (default)
@@ -368,42 +368,42 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 				"Lower": force to lower case
 				"Title": Force To Title Case
 			These can be abbreviated to "u", "l" or "t"  (str)"""))
-	
+
 	InsertionPosition = property(_getInsertionPosition, _setInsertionPosition, None,
 			_("Position of the insertion point within the control  (int)"))
-	
-	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
+
+	ReadOnly = property(_getReadOnly, _setReadOnly, None,
 			_("Specifies whether or not the text can be edited. (bool)"))
-	
+
 	NoneDisplay = property(_getNoneDisplay, _setNoneDisplay, None,
 			_("""Specifies the string displayed if Value is None  (str or None)
 
 				If None, self.Application.NoneDisplay will be used."""))
-	
+
 	SelectedText = property(_getSelectedText, None, None,
-			_("Currently selected text. Returns the empty string if nothing is selected  (str)"))	
-	
+			_("Currently selected text. Returns the empty string if nothing is selected  (str)"))
+
 	SelectionEnd = property(_getSelectionEnd, _setSelectionEnd, None,
 			_("""Position of the end of the selected text. If no text is
 			selected, returns the Position of the insertion cursor.  (int)"""))
-	
+
 	SelectionLength = property(_getSelectionLength, _setSelectionLength, None,
 			_("Length of the selected text, or 0 if nothing is selected.  (int)"))
-	
+
 	SelectionStart = property(_getSelectionStart, _setSelectionStart, None,
 			_("""Position of the beginning of the selected text. If no text is
 			selected, returns the Position of the insertion cursor.  (int)"""))
-	
-	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
+
+	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None,
 			_("Specifies whether all text gets selected upon receiving focus. (bool)"))
-	
+
 	TextLength = property(_getTextLength, _setTextLength, None,
 			_("""The maximum length the entered text can be. (int)"""))
-	
+
 	Value = property(_getValue, _setValue, None,
 			_("Specifies the current state of the control (the value of the field). (string)"))
-	
-	
+
+
 	# Dynamic property declarations
 	DynamicAlignment = makeDynamicProperty(Alignment)
 	DynamicInsertionPosition = makeDynamicProperty(InsertionPosition)
@@ -420,14 +420,14 @@ class dTextBoxMixin(dTextBoxMixinBase):
 	def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._dregex = {}
 		self._lastDataType = unicode
-		
+
 		dTextBoxMixinBase.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
-		
+
 		# Keep passwords, etc., from being written to disk
 		if self.PasswordEntry:
 			self.IsSecret = True
-	
-	
+
+
 	def convertStringValueToDataType(self, strVal, dataType):
 		"""Given a string value and a type, return an appropriate value of that type.
 		If the value can't be converted, a ValueError will be raised.
@@ -447,7 +447,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				retVal = self._getDateTimeFromString(strVal)
 			elif dataType == datetime.time:
 				retVal = self._getTimeFromString(strVal)
-				
+
 			if retVal is None:
 				raise ValueError(_("String not in ISO 8601 format."))
 		elif ustr(dataType) in ("<type 'DateTime'>", "<type 'mx.DateTime.DateTime'>"):
@@ -477,7 +477,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				decimal.Decimal(strVal)
 			except decimal.InvalidOperation:
 				raise ValueError(_("Invalid decimal value."))
-			
+
 			try:
 				if type(_oldVal) == decimal.Decimal:
 					# Enforce the precision as previously set programatically
@@ -510,18 +510,18 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			try:
 				retVal = dataType(strVal)
 			except ValueError:
-				# The Python object couldn't convert it. Our validator, once 
-				# implemented, won't let the user get this far. Just keep the 
+				# The Python object couldn't convert it. Our validator, once
+				# implemented, won't let the user get this far. Just keep the
 				# old value.
 				raise ValueError(_("Can't convert."))
 		return retVal
-	
-	
+
+
 	def getStringValue(self, value):
 		"""Given a value of any data type, return a string rendition.
-		
+
 		Used internally by _setValue and flushValue, but also exposed to subclasses
-		in case they need specialized behavior. The value returned from this 
+		in case they need specialized behavior. The value returned from this
 		function will be what is displayed in the UI textbox.
 		"""
 		if isinstance(value, basestring):
@@ -541,10 +541,10 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			strVal = ustr(value)   # (floats look like 25.55)
 			#strVal = repr(value) # (floats look like 25.55000000000001)
 		return strVal
-	
-	
+
+
 	def _getDateFromString(self, strVal):
-		"""Given a string in an accepted date format, return a 
+		"""Given a string in an accepted date format, return a
 		datetime.date object, or None.
 		"""
 		formats = ["ISO8601"]
@@ -553,13 +553,13 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			formats.append("YYYYMMDD")
 			formats.append("YYMMDD")
 			formats.append("MMDD")
-			# (define more formats in dabo.lib.dates._getDateRegex, and enter 
+			# (define more formats in dabo.lib.dates._getDateRegex, and enter
 			# them above in more explicit -> less explicit order.)
 		return dabo.lib.dates.getDateFromString(strVal, formats)
-	
-	
+
+
 	def _getDateTimeFromString(self, strVal):
-		"""Given a string in ISO 8601 datetime format, return a 
+		"""Given a string in ISO 8601 datetime format, return a
 		datetime.datetime object.
 		"""
 		formats = ["ISO8601"]
@@ -569,40 +569,40 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			formats.append("YYMMDDHHMMSS")
 			formats.append("YYYYMMDD")
 			formats.append("YYMMDD")
-			# (define more formats in dabo.lib.dates._getDateTimeRegex, and enter 
+			# (define more formats in dabo.lib.dates._getDateTimeRegex, and enter
 			# them above in more explicit -> less explicit order.)
 		return dabo.lib.dates.getDateTimeFromString(strVal, formats)
-	
-	
+
+
 	def _getTimeFromString(self, strVal):
-		"""Given a string in ISO 8601 time format, return a 
+		"""Given a string in ISO 8601 time format, return a
 		datetime.time object.
 		"""
 		formats = ["ISO8601"]
 		return dabo.lib.dates.getTimeFromString(strVal, formats)
-	
-	
+
+
 	def _getPasswordEntry(self):
 		return self._hasWindowStyleFlag(wx.TE_PASSWORD)
-	
+
 	def _setPasswordEntry(self, val):
 		self._delWindowStyleFlag(wx.TE_PASSWORD)
 		if val:
 			self._addWindowStyleFlag(wx.TE_PASSWORD)
 			self.IsSecret = True
-	
-	
+
+
 	def _getStrictDateEntry(self):
 		try:
 			ret = self._strictDateEntry
 		except AttributeError:
 			ret = self._strictDateEntry = False
 		return ret
-	
+
 	def _setStrictDateEntry(self, val):
 		self._strictDateEntry = bool(val)
-	
-	
+
+
 	def _getStrictNumericEntry(self):
 		try:
 			ret = self._strictNumericEntry
@@ -627,8 +627,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
 		except AttributeError:
 			_value = self._value = unicode("")
 		dataType = type(_value)
-		
-		# Get the string value as reported by wx, which is the up-to-date 
+
+		# Get the string value as reported by wx, which is the up-to-date
 		# string value of the control:
 		if isinstance(self, masked.TextCtrl) and hasattr(self, "_template"):
 			if self.UsePlainValue:
@@ -637,8 +637,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				strVal = self.GetValue()
 		else:
 			strVal = self.GetValue()
-		
-		# Convert the current string value of the control, as entered by the 
+
+		# Convert the current string value of the control, as entered by the
 		# user, into the proper data type.
 		skipConversion = False
 		if _value is None:
@@ -650,7 +650,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				# User changed the None value to something else, convert to the last
 				# known real datatype.
 				dataType = self._lastDataType
-		
+
 		if not skipConversion:
 			try:
 				convertedVal = self.convertStringValueToDataType(strVal, dataType)
@@ -666,13 +666,13 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				# It couldn't convert; return the previous value.
 				convertedVal = self._value
 		return convertedVal
-	
+
 	def _setValue(self, val):
 		if self._constructed():
-			# Must convert all to string for sending to wx, but our internal 
+			# Must convert all to string for sending to wx, but our internal
 			# _value will always retain the correct type.
-			
-			# TextCtrls in wxPython since 2.7 have a ChangeValue() method that is to 
+
+			# TextCtrls in wxPython since 2.7 have a ChangeValue() method that is to
 			# be used instead of the old SetValue().
 			setter = self.SetValue
 			if hasattr(self, "ChangeValue"):
@@ -681,7 +681,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			# Todo: set up validators based on the type of data we are editing,
 			# so the user can't, for example, enter a letter "p" in a textbox
 			# that is currently showing numeric data.
-			
+
 			if self._inForceCase:
 				# Value is changing internally. Don't update the oldval
 				# setting or change the type; just set the value.
@@ -689,7 +689,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				return
 			else:
 				dabo.ui.callAfter(self._checkForceCase)
-			
+
 			if self._inTextLength:
 				# Value is changing internally. Don't update the oldval
 				# setting or change the type; just set the value.
@@ -697,13 +697,13 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				return
 			else:
 				dabo.ui.callAfter(self._checkTextLength)
-			
+
 			strVal = self.getStringValue(val)
 			_oldVal = self._oldVal = self.Value
-				
+
 			# save the actual value for return by _getValue:
 			self._value = val
-			
+
 			if val is not None:
 				# Save the type of the value, so that in the case of actual None
 				# assignments, we know the datatype to expect.
@@ -724,27 +724,27 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				self._afterValueChanged()
 		else:
 			self._properties["Value"] = val
-	
-	
+
+
 	# Property definitions:
 	PasswordEntry = property(_getPasswordEntry, _setPasswordEntry, None,
 			_("Specifies whether plain-text or asterisks are echoed. (bool)"))
-	
+
 	StrictDateEntry = property(_getStrictDateEntry, _setStrictDateEntry, None,
 			_("""Specifies whether date values must be entered in strict ISO8601 format. Default=False.
 
 			If not strict, dates can be accepted in YYYYMMDD, YYMMDD, and MMDD format,
 			which will be coerced into sensible date values automatically."""))
-	
+
 	StrictNumericEntry = property(_getStrictNumericEntry, _setStrictNumericEntry, None,
-			_("""When True, the DataType will be preserved across numeric types. When False, the 
-			DataType will respond to user input to convert to the 'obvious' numeric type.  
+			_("""When True, the DataType will be preserved across numeric types. When False, the
+			DataType will respond to user input to convert to the 'obvious' numeric type.
 			Default=True. (bool)"""))
-	
+
 	Value = property(_getValue, _setValue, None,
 			_("Specifies the current state of the control (the value of the field). (varies)"))
-	
-	
+
+
 	# Dynamic property declarations
 	DynamicPasswordEntry = makeDynamicProperty(PasswordEntry)
 	DynamicStrictDateEntry = makeDynamicProperty(StrictDateEntry)

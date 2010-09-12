@@ -15,7 +15,7 @@ class dReportProgress(dPanel):
 		ms = self.Sizer = dabo.ui.dBorderSizer(self, "v", DefaultBorder=5)
 		self.gauge = dGauge(self, Size=(75,12))
 		lblTitle = dLabel(self, Caption="Processing report...", FontBold=True)
-		butCancel = dButton(self, Name="butCancelReportProgress", CancelButton=False, 
+		butCancel = dButton(self, Name="butCancelReportProgress", CancelButton=False,
 				Caption="Cancel", Enabled=False, OnHit=self.onCancel)
 		ms.append(lblTitle)
 		ms.append(self.gauge, "expand")
@@ -46,7 +46,7 @@ class dReportProgress(dPanel):
 		self.gauge.Range = range
 		self.gauge.Value = val
 		self.gauge.refresh()
-		
+
 	def onCancel(self, evt):
 		evt.stop()  ## keep dialogs from automatically being closed.
 		if not self.Visible:

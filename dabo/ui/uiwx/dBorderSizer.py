@@ -10,7 +10,7 @@ dabo.ui.loadUI("wx")
 
 class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 	"""A BorderSizer is a regular box sizer, but with a visible box around
-	the perimiter. You must either create the box first and pass it to the 
+	the perimiter. You must either create the box first and pass it to the
 	dBorderSizer's constructor, or pass a parent object, and the box
 	will be created for you in the constructor as a child object of the parent
 	you passed.
@@ -45,12 +45,12 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
 		self.setProperties(properties)
-		
+
 		if kwargs:
 			# Some kwargs haven't been handled.
 			bad = ", ".join(kwargs.keys())
 			raise TypeError(("Invalid keyword arguments passed to dBorderSizer: %s") % kwargs)
-		
+
 		# Mark the box as part of the sizer
 		self.Box._belongsToBorderSizer = True
 
@@ -60,7 +60,7 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 	def getNonBorderedClass(self):
 		"""Return the class that is the non-border sizer version of this class."""
 		return dabo.ui.dSizer
-	
+
 
 	def _getBackColor(self):
 		return self.Box.BackColor
@@ -117,28 +117,28 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 
 	BackColor = property(_getBackColor, _setBackColor, None,
 			_("Color of the box background  (str or tuple)"))
-	
+
 	Box = property(_getBox, None, None,
 			_("Reference to the box used in the sizer  (dBox)"))
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("Caption for the box  (str)"))
-	
+
 	FontBold = property(_getFontBold, _setFontBold, None,
 			_("Controls the bold setting of the box caption  (bool)"))
-	
+
 	FontFace = property(_getFontFace, _setFontFace, None,
 			_("Controls the type face of the box caption  (str)"))
-	
+
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
 			_("Controls the italic setting of the box caption  (bool)"))
-	
+
 	FontSize = property(_getFontSize, _setFontSize, None,
 			_("Size of the box caption font  (int)"))
-	
+
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
 			_("Controls the underline setting of the box caption  (bool)"))
-	
+
 
 	# Dynamic property declarations
 	DynamicBackColor = makeDynamicProperty(BackColor)
@@ -149,8 +149,8 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 	DynamicFontSize = makeDynamicProperty(FontSize)
 	DynamicFontUnderline = makeDynamicProperty(FontUnderline)
 
-	
-	
+
+
 class TestForm(dabo.ui.dForm):
 	def afterInit(self):
 		self.Sizer = dabo.ui.dSizer("v", DefaultBorder=10)
@@ -162,7 +162,7 @@ class TestForm(dabo.ui.dForm):
 		sz.append1x(btn)
 		pnl = dabo.ui.dPanel(self, BackColor="seagreen")
 		self.Sizer.append1x(pnl, border=18)
-		
+
 class _dBorderSizer_test(dBorderSizer):
 	def __init__(self, bx=None, *args, **kwargs):
 		super(_dBorderSizer_test, self).__init__(box=bx, orientation="h", *args, **kwargs)

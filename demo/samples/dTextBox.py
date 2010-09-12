@@ -10,7 +10,7 @@ class TestPanel(dabo.ui.dPanel):
 		self.Sizer = dabo.ui.dSizer("v")
 		sz = dabo.ui.dGridSizer(MaxCols=2, HGap=7, VGap=12)
 		self.Sizer.append(sz, "x", border=30, valign="middle")
-		
+
 		# Plain textbox
 		lbl = dabo.ui.dLabel(self, Caption=_("Plain TextBox"))
 		txt = dabo.ui.dTextBox(self, Name=_("PlainTextBox"),
@@ -18,13 +18,13 @@ class TestPanel(dabo.ui.dPanel):
 		txt.SelectionStart = 0
 		sz.append(lbl, halign="right")
 		sz.append(txt, "x")
-		
+
 		txt.bindEvent(dEvents.GotFocus, self.onTextGotFocus)
 		txt.bindEvent(dEvents.LostFocus, self.onTextLostFocus)
 		txt.bindEvent(dEvents.Destroy, self.onTextDestroy)
 		txt.bindEvent(dEvents.KeyChar, self.onTextKeyChar)
 		txt.bindEvent(dEvents.Hit, self.onTextHit)
-		
+
 		# Password textbox
 		lbl = dabo.ui.dLabel(self, Caption=_("Password"))
 		txt = dabo.ui.dTextBox(self, Name=_("Password TextBox"),
@@ -67,11 +67,11 @@ class TestPanel(dabo.ui.dPanel):
 category = "Controls.dTextBox"
 
 overview = """
-<p>The <b>dTextBox</b> class allows text to be displayed and edited (if desired). 
-It may be single line or multi-line, support styles or not, be read-only 
+<p>The <b>dTextBox</b> class allows text to be displayed and edited (if desired).
+It may be single line or multi-line, support styles or not, be read-only
 or not, and even supports text masking for such things as passwords.</p>
 
-<p>It is best suited for small amounts of text; for larger text blocks, you 
-should consider <b>dEditBox</b>, which features automatic scrolling to fit a 
+<p>It is best suited for small amounts of text; for larger text blocks, you
+should consider <b>dEditBox</b>, which features automatic scrolling to fit a
 large amount of text in a small screen area.</p>
 """

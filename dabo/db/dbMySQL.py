@@ -42,13 +42,13 @@ class MySQL(dBackend):
 
 		conversions[decimal.Decimal] = dec2str
 		kwargs["conv"] = conversions
-		
+
 		# Determine default charset
 		charset = None
 		db = connectInfo.Database
 		if db:
 			try:
-				cn = dbapi.connect(host=connectInfo.Host, user=connectInfo.User, 
+				cn = dbapi.connect(host=connectInfo.Host, user=connectInfo.User,
 						passwd=connectInfo.revealPW(), port=port)
 				crs =  cn.cursor()
 				# Params don't work here; need direct string to execute
@@ -66,7 +66,7 @@ class MySQL(dBackend):
 			charset = charset.lower().replace("-", "")
 
 		try:
-			self._connection = dbapi.connect(host=connectInfo.Host, 
+			self._connection = dbapi.connect(host=connectInfo.Host,
 					user = connectInfo.User, passwd = connectInfo.revealPW(),
 					db=connectInfo.Database, port=port, charset=charset, **kwargs)
 		except Exception, e:
@@ -110,28 +110,28 @@ class MySQL(dBackend):
 	def escQuote(self, val):
 		# escape backslashes and single quotes, and
 		# wrap the result in single quotes
-		
+
 		sl = "\\"
 		qt = "\'"
 		return qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
-	
-	
+
+
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
 		val = ustr(val)
 		return "%s%s%s" % (sqt, val, sqt)
-	
-	
+
+
 	def _isExistingTable(self, tablename, cursor):
 		tbl = self.encloseNames(self.escQuote(tablename))
 		cursor.execute("SHOW TABLES LIKE %s" % tbl)
 		rs = cursor.getDataSet()
 		return bool(rs)
-			
-	
+
+
 	def getTables(self, cursor, includeSystemTables=False):
-		# MySQL doesn't have system tables, in the traditional sense, as 
+		# MySQL doesn't have system tables, in the traditional sense, as
 		# they exist in the mysql database.
 		cursor.execute("show tables")
 		# Non-select statements don't get read into the data set
@@ -140,8 +140,8 @@ class MySQL(dBackend):
 		for record in rs:
 			tables.append(record.values()[0])
 		return tuple(tables)
-		
-		
+
+
 	def getTableRecordCount(self, tableName, cursor):
 		cursor.execute("select count(*) as ncount from %s" % self.encloseNames(tableName))
 		return cursor.getDataSet()[0]["ncount"]
@@ -237,27 +237,27 @@ class MySQL(dBackend):
 		return """ match (`%(table)s`.`%(field)s`) against ("%(value)s") """
 
 
-	def createTableAndIndexes(self, tabledef, cursor, createTable=True, 
+	def createTableAndIndexes(self, tabledef, cursor, createTable=True,
 			createIndexes=True):
 		if not tabledef.Name:
 			raise
-		
+
 		toExc = []
-		
+
 		#Create the table
-		if createTable:			
-			
+		if createTable:
+
 			if not tabledef.IsTemp:
 				sql = "CREATE TABLE "
 			else:
 				sql = "CREATE TEMPORARY TABLE "
-				
+
 			sql = sql + tabledef.Name + " ("
-			
+
 			for fld in tabledef.Fields:
 				pks = []
 				sql = sql + fld.Name + " "
-				
+
 				if fld.DataType == "Numeric":
 					if fld.Size == 0:
 						sql = sql + "BIT "
@@ -271,7 +271,7 @@ class MySQL(dBackend):
 						sql = sql + "BIGINT "
 					else:
 						raise #what should happen?
-											
+
 				elif fld.DataType == "Float":
 					if fld.Size in (0,1,2,3,4):
 						sql = sql + "FLOAT(" + ustr(fld.TotalDP) + "," + ustr(fld.RightDP) + ") "
@@ -312,45 +312,45 @@ class MySQL(dBackend):
 						sql = sql + "LONGBLOB "
 					else:
 						raise #what should happen?
-				
+
 				if fld.IsPK:
 					sql = sql + "PRIMARY KEY "
 					pks.append(fld.Name)
 					if fld.IsAutoIncrement:
 						sql = sql + "AUTO_INCREMENT "
-				
+
 				if not fld.AllowNulls:
 					sql = sql + "NOT NULL "
 				if not fld.IsPK:
 					sql = "%sDEFAULT %s," % (sql, self.formatForQuery(fld.Default))
 				else:
 					sql = sql + ","
-				
+
 				if sql.count("PRIMARY KEY ") > 1:
 					sql = sql.replace("PRIMARY KEY ","") + "PRIMARY KEY(" + ",".join(pks) + "),"
-				
+
 			if sql[-1:] == ",":
 				sql = sql[:-1]
 			sql = sql + ")"
-			
+
 			try:
 				cursor.execute(sql)
 			except dException.DBNoAccessException:
 				toExc.append(sql)
-	
+
 		if createIndexes:
 			#Create the indexes
 			for idx in tabledef.Indexes:
 				if idx.Name.lower() != "primary":
 					sql = "CREATE INDEX " + idx.Name + " ON " + tabledef.Name + "("
-					
+
 					for fld in idx.Fields:
 						sql = sql + fld + ","
-				
+
 					if sql[-1:] == ",":
 						sql = sql[:-1]
 					sql = sql + ")"
-				
+
 				if toExc == []:
 					try:
 						cursor.execute(sql)

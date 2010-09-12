@@ -5,7 +5,7 @@
 # this file, add the following import statement to your script:
 #
 #	import dabo.lib.utils as utils
-# 
+#
 # Then, in your code, simply call:
 #
 #	utils.foo()
@@ -36,7 +36,7 @@ def caseInsensitiveSortKey(vv):
 
 def reverseText(tx):
 	"""Takes a string and returns it reversed. Example:
-	
+
 	utils.reverseText("Wow, this is so cool!")
 		=> returns "!looc os si siht ,woW"
 	"""
@@ -98,14 +98,14 @@ def getUserAppDataDirectory(appName="Dabo"):
 	# First, on Windows, try the Windows API function:
 	if shell and shellcon:
 		dd = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
-	
+
 	if dd is None and sys.platform == "win32":
 		# We are on Windows, but win32com wasn't installed. Look for the APPDATA
 		# environmental variable:
 		dd = os.environ.get("APPDATA")
 
 	if dd is None:
-		# We are either not on Windows, or we couldn't locate the directory for 
+		# We are either not on Windows, or we couldn't locate the directory for
 		# whatever reason. Try going off the home directory:
 		dd = getUserHomeDirectory()
 
@@ -119,11 +119,11 @@ def getUserAppDataDirectory(appName="Dabo"):
 				sys.stderr.write("Couldn't create the user setting directory (%s)." % dd)
 				dd = None
 	return dd
-	
-	
+
+
 def dictStringify(dct):
 	"""The ability to pass a properties dict to an object relies on
-	the practice of passing '**properties' to a function. Seems that 
+	the practice of passing '**properties' to a function. Seems that
 	Python requires that the keys in any dict being expanded like
 	this be strings, not unicode. This method returns a dict with all
 	unicode keys changed to strings.
@@ -153,7 +153,7 @@ def ustr(val):
 
 
 def relativePathList(toLoc, fromLoc=None):
-	"""Given two paths, returns a list that, when joined with 
+	"""Given two paths, returns a list that, when joined with
 	os.path.sep, gives the relative path from 'fromLoc' to
 	"toLoc'. If 'fromLoc' is not specified, the current directory
 	is assumed.
@@ -189,7 +189,7 @@ def relativePathList(toLoc, fromLoc=None):
 	while (len(fromList) > lev) and (len(toList) > lev) and \
 			(fromList[lev] == toList[lev]):
 		lev += 1
-	
+
 	# 'lev' now contains the first level where they differ
 	fromDiff = fromList[lev:]
 	toDiff = toList[lev:]
@@ -210,13 +210,13 @@ def getPathAttributePrefix():
 
 def resolveAttributePathing(atts, pth=None, abspath=False):
 	"""Dabo design files store their information in XML, which means
-	when they are 'read' the values come back in a dictionary of 
+	when they are 'read' the values come back in a dictionary of
 	attributes, which are then used to restore the designed object to its
 	intended state. Path values will be stored in a relative path format,
-	with the value preceeded by the string returned by 
+	with the value preceeded by the string returned by
 	getPathAttributePrefix(); i.e., 'path://'.
-	
-	This method finds all values that begin with the 'path://' label, 
+
+	This method finds all values that begin with the 'path://' label,
 	strips off that label, converts the paths back to values that
 	can be used by the object, and then updates the attribute dict with
 	those new values.
@@ -297,7 +297,7 @@ def resolvePathAndUpdate(srcFile):
 	opexists = os.path.exists
 	# Make sure that the file exists
 	if not opexists(srcFile):
-		# Try common paths. First use the whole string; then use 
+		# Try common paths. First use the whole string; then use
 		# each subdirectory in turn.
 		fname = srcFile
 		keepLooping = True
@@ -341,9 +341,9 @@ def resolvePathAndUpdate(srcFile):
 
 def cleanMenuCaption(cap, bad=None):
 	"""Menu captions can contain several special characters that make them
-	unsuitable for things such as preference settings. This method provides 
+	unsuitable for things such as preference settings. This method provides
 	a simple way of getting the 'clean' version of these captions. By default it
-	strips ampersands, spaces and periods; you can change that by passing 
+	strips ampersands, spaces and periods; you can change that by passing
 	the characters you want stripped in the 'bad' parameter.
 	"""
 	if bad is None:

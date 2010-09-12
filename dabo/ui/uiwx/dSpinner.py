@@ -7,8 +7,8 @@ import dabo
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-	
-	
+
+
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -23,7 +23,7 @@ class _dSpinButton(dcm.dDataControlMixin, wx.SpinButton):
 		self._baseClass = _dSpinButton
 		preClass = wx.PreSpinButton
 		kwargs["style"] = kwargs.get("style", 0) | wx.SP_ARROW_KEYS
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties,
 				*args, **kwargs)
 
 
@@ -40,13 +40,13 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 		nm = self._extractKey((properties, attProperties, kwargs), "NameBase", "")
 		if not nm:
 			nm = self._extractKey((properties, attProperties, kwargs), "Name", "dSpinner")
-		super(dSpinner, self).__init__(parent=parent, properties=properties, 
+		super(dSpinner, self).__init__(parent=parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 		self._baseClass = dSpinner
 		# Create the child controls
 		if TextBoxClass is None:
 			TextBoxClass = dabo.ui.dTextBox
-		self._proxy_textbox = TextBoxClass(self, Value=0, Width=32, 
+		self._proxy_textbox = TextBoxClass(self, Value=0, Width=32,
 				StrictNumericEntry=False, _EventTarget=self)
 		self._proxy_spinner = _dSpinButton(parent=self, _EventTarget=self)
 		self.__constructed = True
@@ -90,7 +90,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 	def _constructed(self):
 		"""Returns True if the ui object has been fully created yet, False otherwise."""
 		return self.__constructed
-	
+
 
 	def _toDec(self, val):
 		"""Convenience method for converting various types to decimal."""
@@ -123,8 +123,8 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 
 
 	def _applyIncrement(self, op):
-		"""Returns the value obtained by modifying the current value by the increment 
-		according to the passed operation. It expects to be passed either 
+		"""Returns the value obtained by modifying the current value by the increment
+		according to the passed operation. It expects to be passed either
 		operator.add or operator.sub.
 		"""
 		curr = self.Value
@@ -139,7 +139,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 			elif tCurr == float:
 				ret = op(curr, self._toFloat(inc))
 		return ret
-		
+
 
 	def _spin(self, direction, spinType=None):
 		assert direction in ("up", "down")
@@ -167,7 +167,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 			if ret:
 				self.raiseEvent(dEvents.SpinUp, spinType=spinType)
 				self.raiseEvent(dEvents.Spinner, spinType=spinType)
-				
+
 		else:
 			diff = newVal - minn
 			if diff > margin:
@@ -198,8 +198,8 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 	def __onWxSpinDown(self, evt):
 		"""Respond to the wx event by raising the Dabo event."""
 		self._spin("down", spinType="button")
-	
-	
+
+
 	def _checkBounds(self):
 		"""Make sure that the value is within the current Min/Max"""
 		if self._proxy_textbox.Value < self.Min:
@@ -220,7 +220,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 
 
 	def _onWxKeyDown(self, evt):
-		"""Handle the case where the user presses the up/down arrows to 
+		"""Handle the case where the user presses the up/down arrows to
 		activate the spinner.
 		"""
 		keys = dabo.ui.dKeys
@@ -293,8 +293,8 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 		# The native wx control will return the items that make up this composite
 		# control, which our user doesn't want.
 		return []
-	
-	
+
+
 	def _getIncrement(self):
 		return self._increment
 
@@ -361,17 +361,17 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 	ButtonWidth = property(_getButtonWidth, _setButtonWidth, None,
 			_("""Allows the developer to explicitly specify the width of the up/down buttons."""))
 
-	Children = property(_getChildren, None, None, 
-			_("""Returns a list of object references to the children of 
-			this object. Only applies to containers. Children will be None for 
+	Children = property(_getChildren, None, None,
+			_("""Returns a list of object references to the children of
+			this object. Only applies to containers. Children will be None for
 			non-containers.  (list or None)"""))
-	
+
 	Increment = property(_getIncrement, _setIncrement, None,
 			_("Amount the control's value changes when the spinner buttons are clicked  (int/float)"))
 
 	Max = property(_getMax, _setMax, None,
 			_("Maximum value for the control  (int/float)"))
-	
+
 	Min = property(_getMin, _setMin, None,
 			_("Minimum value for the control  (int/float)"))
 
@@ -380,7 +380,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 
 	Value = property(_getValue, _setValue, None,
 			_("Value of the control  (int/float)"))
-	
+
 
 	DynamicIncrement = makeDynamicProperty(Increment)
 	DynamicMax = makeDynamicProperty(Max)
@@ -407,7 +407,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 	SelectOnEntry = makeProxyProperty(_proxyDict, "SelectOnEntry", "_proxy_textbox")
 	ToolTipText = makeProxyProperty(_proxyDict, "ToolTipText", ("self", "_proxy_spinner", "_proxy_textbox"))
 	Visible = makeProxyProperty(_proxyDict, "Visible", ("self", "_proxy_spinner", "_proxy_textbox"))
-	
+
 
 
 class _dSpinner_test(dSpinner):
@@ -419,7 +419,7 @@ class _dSpinner_test(dSpinner):
 		self.SpinnerWrap = True
 		self.FontSize = 10
 		self.Width = 80
-	
+
 	def onHit(self, evt):
 		print "HIT!", self.Value, "Hit Type", evt.hitType
 
@@ -429,13 +429,13 @@ class _dSpinner_test(dSpinner):
 
 	def onInteractiveChange(self, evt):
 		print "Interactive Change", self.Value
-	
+
 	def onSpinUp(self, evt):
 		print "Spin up event."
-	
+
 	def onSpinDown(self, evt):
 		print "Spin down event."
-	
+
 	def onSpinner(self, evt):
 		print "Spinner event."
 

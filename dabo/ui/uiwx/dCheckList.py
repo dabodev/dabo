@@ -16,25 +16,25 @@ class dCheckList(dcm.dControlItemMixin, wx.CheckListBox):
 		self._baseClass = dCheckList
 		self._choices = []
 		preClass = wx.PreCheckListBox
-		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, 
+		dcm.dControlItemMixin.__init__(self, preClass, parent, properties,
 				attProperties, *args, **kwargs)
 
-			
+
 	def _initEvents(self):
 		super(dCheckList, self)._initEvents()
 		self.Bind(wx.EVT_CHECKLISTBOX, self._onWxHit)
-	
-	
+
+
 	def GetSelections(self):
-		# Need to override the native method, as this reports the 
+		# Need to override the native method, as this reports the
 		# line with focus, not the checked items.
 		ret = []
 		for cnt in xrange(self.Count):
 			if self.IsChecked(cnt):
 				ret.append(cnt)
 		return ret
-		
-		
+
+
 	def selectAll(self):
 		"""Set all items to checked."""
 		for cnt in xrange(self.Count):
@@ -53,7 +53,7 @@ class dCheckList(dcm.dControlItemMixin, wx.CheckListBox):
 		"""Switch all the items from False to True, and vice-versa."""
 		for cnt in xrange(self.Count):
 			self.Check(cnt, not self.IsChecked(cnt))
-	
+
 
 	def setSelection(self, index):
 		if self.Count > index:
@@ -63,24 +63,24 @@ class dCheckList(dcm.dControlItemMixin, wx.CheckListBox):
 			##      and it is getting set before the Choice property has been applied.
 			##      If this is the case, callAfter is the ticket.
 			dabo.ui.callAfter(self.Check, index, True)
-	
-	
+
+
 	def _getMultipleSelect(self):
 		return True
 
 
 	MultipleSelect = property(_getMultipleSelect, None, None,
 			_("MultipleSelect for dCheckList is always True."))
-	
-	
-	
+
+
+
 class _dCheckList_test(dCheckList):
 	def initProperties(self):
 		# Simulate a database:
 		actors = ({"lname": "Jason Leigh", "fname": "Jennifer", "iid": 42},
 			{"lname": "Cates", "fname": "Phoebe", "iid": 23},
 			{"lname": "Reinhold", "fname": "Judge", "iid": 13})
-			
+
 		choices = []
 		keys = {}
 
@@ -100,12 +100,12 @@ class _dCheckList_test(dCheckList):
 		print "\tStringValue: ", self.StringValue
 		print "\tValue: ", self.Value
 		print "\tCount: ", self.Count
-	
+
 	def onMouseLeftDoubleClick(self, evt):
 		print "double click"
 
 	def onMouseLeftDown(self, evt):
-		print "mousedown"	
+		print "mousedown"
 
 if __name__ == "__main__":
 	import test

@@ -11,25 +11,25 @@ class TestPanel(dabo.ui.dPanel):
 	def afterInit(self):
 		sz = self.Sizer = dabo.ui.dSizer("v")
 		sz.appendSpacer(40)
-		
+
 		lbl = dabo.ui.dLabel(self, Caption="Bubblet is a fun and somewhat addictive game.\n\nFor instructions, please see the Overview tab.")
 		sz.append(lbl, halign="center")
 		sz.appendSpacer(30)
 		btn = dabo.ui.dButton(self, Caption="Run the Bubblet Game",
 				OnHit=self.runGame)
 		sz.append(btn, halign="center")
-	
+
 
 	def runGame(self, evt):
 		frm = BubbletForm(self.Form, Size=(400,300), Centered=True)
 		frm.show()
-		
+
 
 
 category = "Games.Bubblet"
 
-overview = """ 
-<h3>About Bubblet</h3> 
+overview = """
+<h3>About Bubblet</h3>
 <p><b>Bubblet</b> is a fun and somewhat addictive game. There are columns
 of bubbles of 4 different colors. If there are at least two adjacent
 bubbles of the same color, clicking on one of them will select the
@@ -73,9 +73,9 @@ horizontally, and they are the only bubbles in their columns, you'll get
 two fresh columns of bubbles when you pop them. </p>
 
 
-<h3>End of Game</h3> 
+<h3>End of Game</h3>
 <p>When there are no longer any adjacent bubbles
 of the same color, the game is over. Your score will be added to the
 statistics, which keeps track of your high game, as well as the total
-number of games you've played and your average score for those games.</p> 
+number of games you've played and your average score for those games.</p>
 """

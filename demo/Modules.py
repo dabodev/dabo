@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """ These classes are taken from the wxPython demo, and
 modified to be consistent with Dabo style guidelines. Otherwise,
-they are essentially the work of Robin Dunn. Here is the 
+they are essentially the work of Robin Dunn. Here is the
 header from the Main.py file from which they were lifted:
 
 #----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ class ModuleDictWrapper:
 	"""Emulates a module with a dynamically compiled __dict__"""
 	def __init__(self, dict):
 		self.dict = dict
-		
+
 	def __getattr__(self, name):
 		if name in self.dict:
 			return self.dict[name]
@@ -54,7 +54,7 @@ class DemoModules:
 	except:
 		# Used to be named differently. Keep this for backward-compatibility for a while.
 		getUserAppDataDirectory = utils.getUserDaboDirectory
-	modDir = os.path.join(getUserAppDataDirectory(), 
+	modDir = os.path.join(getUserAppDataDirectory(),
 			"DaboDemo", "modified")
 	if not os.path.exists(modDir):
 		os.makedirs(modDir)
@@ -64,11 +64,11 @@ class DemoModules:
 		self.modActive = -1
 		# Index used in self.modules for orig and modified versions
 		self.name = name
-		#			   (dict , source ,	 filename , description	  , error information )		   
-		#			   (  0	 ,	 1	  ,		2	  ,		 3		  ,			 4		  )		   
+		#			   (dict , source ,	 filename , description	  , error information )
+		#			   (  0	 ,	 1	  ,		2	  ,		 3		  ,			 4		  )
 		self.modules = [[None,	""	  ,	   ""	  , "<original>"  ,		   None],
 				[None,	""	  ,	   ""	  , "<modified>"  ,		   None]]
-		
+
 		fname = "%s/%s.py" % (self.origDir, name)
 		# load original module
 		self.loadFromFile(fname, self.modOrig)
@@ -101,7 +101,7 @@ class DemoModules:
 			description = self.modules[modID][2]
 			try:
 				self.modules[modID][0] = {}
-				code = compile(source, description, "exec")		   
+				code = compile(source, description, "exec")
 				exec code in self.modules[modID][0]
 			except:
 				self.modules[modID][4] = DemoError(sys.exc_info())
@@ -125,7 +125,7 @@ class DemoModules:
 	def getActiveID(self):
 		return self.modActive
 
-	
+
 	def getSource(self, modID=None):
 		if modID is None:
 			modID = self.modActive
@@ -142,12 +142,12 @@ class DemoModules:
 		if modID is None:
 			modID = self.modActive
 		return self.modules[modID][4]
-		
+
 
 	def exists(self, modID):
 		return self.modules[modID][1] != ""
-		
-	
+
+
 	def hasModified(self):
 		return self.modules[self.modMod][1] != ""
 
@@ -162,18 +162,18 @@ class DemoModules:
 		self.modules[self.modMod][1] = code
 		self.updateFile(self.modMod)
 		self.loadDict(self.modMod)
-	
-	
+
+
 	def getOrigDir(cls):
 		return cls.origDir
 	getOrigDir = classmethod(getOrigDir)
-	
-		
+
+
 	def getModDir(cls):
 		return cls.modDir
 	getModDir = classmethod(getModDir)
-	
-	
+
+
 	def deleteModified(self):
 		fname = self.modules[self.modMod][2]
 		if not fname:
@@ -182,7 +182,7 @@ class DemoModules:
 		self.modules[self.modMod][1] = ""
 		os.remove(fname)
 
-		
+
 	def updateFile(self, modID=None):
 		"""Updates the file from which a module was loaded
 		with (possibly updated) source
@@ -191,7 +191,7 @@ class DemoModules:
 			modID = self.modActive
 		source = self.modules[modID][1]
 		filename = self.modules[modID][2]
-		try:		
+		try:
 			file = open(filename, "wt")
 			file.write(source)
 		finally:
@@ -211,7 +211,7 @@ class DemoError:
 	"""Wraps and stores information about the current exception"""
 	def __init__(self, exc_info):
 		import copy
-		
+
 		excType, excValue = exc_info[:2]
 		# traceback list entries: (filename, line number, function name, text)
 		self.traceback = traceback.extract_tb(exc_info[2])
@@ -242,7 +242,7 @@ class DemoError:
 			self.exception_details = "<unprintable %s object>" & type(excValue).__name__
 
 		del exc_info
-		
+
 	def __str__(self):
 		ret = "Type %s \n \
 		Traceback: %s \n \
@@ -272,7 +272,7 @@ class DemoErrorPanel(dabo.ui.dPanel):
 		sz.append(bs, halign="center", border=5)
 
 
-		lst = self.tbList = dabo.ui.dListControl(self, BorderStyle="sunken", 
+		lst = self.tbList = dabo.ui.dListControl(self, BorderStyle="sunken",
 				MultipleSelect=False)
 		lst.bindEvent(dEvents.MouseLeftDoubleClick, self.onListDoubleClick)
 		lst.addColumn(_("Filename"))
@@ -281,7 +281,7 @@ class DemoErrorPanel(dabo.ui.dPanel):
 		lst.addColumn(_("Code"))
 		self.insertTraceback(lst, demoError.traceback)
 		lst.autoSizeColumns((0,1,2))
-		
+
 		sz.appendSpacer(10)
 		sz.append(dabo.ui.dLabel(self, Caption=_("Traceback")))
 		sz.appendSpacer(5)
@@ -298,7 +298,7 @@ Double-click on them to go to the offending line."""))
 		for tbNum in range(len(traceback)):
 			data = traceback[tbNum]
 			lst.append( (os.path.basename(data[0]), ustr(data[1]), ustr(data[2]), ustr(data[3])))
-			
+
 			# Check whether this entry is from the demo module
 			pth = os.path.split(data[0])[0]
 			codeDirs = (DemoModules.getOrigDir(), DemoModules.getModDir())
@@ -314,5 +314,5 @@ Double-click on them to go to the offending line."""))
 		# If double-clicking on a demo's entry, jump to the line number
 		num = self.tbList.getItemData(self.tbList.PositionValue)
 		dabo.ui.callAfter(self.Form.showCode, num)
-		
+
 

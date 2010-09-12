@@ -2,15 +2,15 @@
 """ test.py
 
 A simple reusable unit testing framework, used by the base class files when run
-as scripts instead of imported as modules. 
+as scripts instead of imported as modules.
 
 If you execute, say:
 	python dTextBox.py
 
-The dTextBox.py's main section will instantiate class Test and do a simple unit 
+The dTextBox.py's main section will instantiate class Test and do a simple unit
 test of dTextBox.
 
-If you instead run this test.py as a script, a form will be instantiated with 
+If you instead run this test.py as a script, a form will be instantiated with
 all the dControls.
 """
 import sys
@@ -56,7 +56,7 @@ class Test(object):
 			# Some controls don't report sizing correctly, so set a minimum
 			w = max(w, 100)
 			h = max(h, 50)
-			
+
 			frame.Size = ( (w+10, h+30) )
 			if len(classRefs) > 1:
 				frame.Caption = "Test of multiple objects"
@@ -64,7 +64,7 @@ class Test(object):
 				frame.Caption = "Test of %s" % obj.BaseClass.__name__
 
 			obj.setFocus()
-		
+
 		if isDialog:
 			ret = frame.ShowModal()
 			print ret
@@ -73,10 +73,10 @@ class Test(object):
 			frame.Show()
 			frame.Layout()
 			self.app.start()
-		
+
 
 	def testAll(self):
-		""" Create a dForm and populate it with example dWidgets. 
+		""" Create a dForm and populate it with example dWidgets.
 		"""
 		frame = ui.dForm(Name="formTestAll")
 		frame.Caption = "Test of all the dControls"
@@ -94,7 +94,7 @@ class Test(object):
 			print "==> ", modname
 			# if the module has a test class, instantiate it:
 			if modname == "__init__":
-				# importing __init__ will pollute the dabo.ui namespace and cause 
+				# importing __init__ will pollute the dabo.ui namespace and cause
 				# isinstance() problems.
 				continue
 			try:
@@ -135,7 +135,7 @@ class Test(object):
 					vs.append(bs, "expand")
 				else:
 					vs.append(bs, "expand")
-	
+
 		panel.Sizer = vs
 
 		fs = frame.Sizer = ui.dSizer("vertical")
@@ -147,5 +147,5 @@ class Test(object):
 
 if __name__ == "__main__":
 	t = Test()
-	t.testAll() 
+	t.testAll()
 

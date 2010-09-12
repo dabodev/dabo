@@ -16,7 +16,7 @@ class dTimer(cm.dControlMixin, wx.Timer):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dTimer
 		preClass = wx.Timer
-		cm.dControlMixin.__init__(self, preClass, parent=None, 
+		cm.dControlMixin.__init__(self, preClass, parent=None,
 				properties=properties, *args, **kwargs)
 
 		if parent is not None:
@@ -24,11 +24,11 @@ class dTimer(cm.dControlMixin, wx.Timer):
 			parent.Bind(wx.EVT_TIMER, self._onWxHit)
 		else:
 			self.Bind(wx.EVT_TIMER, self._onWxHit)
-		
-		
+
+
 	def isRunning(self):
 		return self.IsRunning()
-		
+
 
 	def start(self, interval=-1):
 		if interval >= 0:
@@ -38,20 +38,20 @@ class dTimer(cm.dControlMixin, wx.Timer):
 		else:
 			self.Stop()
 		return self.IsRunning()
-	
-		
+
+
 	def stop(self):
 		self.Stop()
 		return not self.IsRunning()
-	
-	
+
+
 	def release(self):
 		"""Make sure that the timer is stopped first"""
 		self.Stop()
 		super(dTimer, self).release()
-	
-	
-	# The following methods are not needed except for 
+
+
+	# The following methods are not needed except for
 	# compatibility with the various properties.
 	def Show(self, val):
 		pass
@@ -61,12 +61,12 @@ class dTimer(cm.dControlMixin, wx.Timer):
 		pass
 	def GetParent(self):
 		return None
-		
-		
+
+
 	# property get/set functions
 	def _getEnabled(self):
 		return self.IsRunning()
-		
+
 	def _setEnabled(self, val):
 		if self._constructed():
 			if val:
@@ -75,19 +75,19 @@ class dTimer(cm.dControlMixin, wx.Timer):
 				self.stop()
 		else:
 			self._properties["Enabled"] = val
-			
-		
+
+
 	def _getInterval(self):
 		try:
 			v = self._interval
 		except AttributeError:
 			v = self._interval = 0
 		return v
-	
+
 	def _setInterval(self, val):
 		self._interval = val
-	
-	
+
+
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("Alternative means of starting/stopping the timer, or determining "
 			"its status. If Enabled is set to True and the timer has a positive value "
@@ -95,11 +95,11 @@ class dTimer(cm.dControlMixin, wx.Timer):
 
 	Interval = property(_getInterval, _setInterval, None,
 			_("Specifies the timer interval (milliseconds)."))
-	
+
 
 	DynamicEnabled = makeDynamicProperty(Enabled)
 	DynamicInterval = makeDynamicProperty(Interval)
-	
+
 
 class _dTimer_test(dPanel.dPanel):
 	def afterInit(self):
@@ -114,10 +114,10 @@ class _dTimer_test(dPanel.dPanel):
 
 	def onFastTimerHit(self, evt):
 		print "fast timer fired!"
-		
+
 	def onSlowTimerHit(self, evt):
 		print "slow timer fired!"
-		
+
 
 if __name__ == "__main__":
 	import test

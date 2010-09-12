@@ -20,21 +20,21 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 			*args, **kwargs):
 		self._baseClass = dHyperLink
 		preClass = hyperlink.HyperLinkCtrl
-		
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
+
+		dcm.dControlMixin.__init__(self, preClass, parent, properties,
 				attProperties, *args, **kwargs)
-		
+
 		# Make the rollover effect the default, unless it was specified as False.
 		self.ShowHover = self.ShowHover
 
 		self.Bind(hyperlink.EVT_HYPERLINK_LEFT, self._onWxHit)  ## only called if ShowInBrowser False
-		
+
 
 	def refresh(self):
 		super(dHyperLink, self).refresh()
 		self.UpdateLink(True)
-	
-	
+
+
 	def _setColors(self):
 		"""Updated the link with the specified colors."""
 		lc, vc, rc = self.LinkColor, self.VisitedColor, self.HoverColor
@@ -46,14 +46,14 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 			rc = dColors.colorTupleFromName(rc)
 		self.SetColours(lc, vc, rc)
 		self.UpdateLink(True)
-		
-	
+
+
 	def _setUnderlines(self, link, visited, hover):
 		"""Updated the link with the specified underline settings."""
 		self.SetUnderlines(link, visited, hover)
 		self.UpdateLink(True)
-		
-	
+
+
 	def _getShowInBrowser(self):
 		return getattr(self, "_showInBrowser", True)
 
@@ -161,28 +161,28 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 
 	HoverColor = property(_getHoverColor, _setHoverColor, None,
 			_("Color of the link when the mouse passes over it.  (str or tuple)"))
-	
+
 	HoverUnderline = property(_getHoverUnderline, _setHoverUnderline, None,
 			_("Is the link underlined when the mouse passes over it?  (bool)"))
-	
+
 	LinkColor = property(_getLinkColor, _setLinkColor, None,
 			_("Normal (unvisited) link text color.  (str or tuple)"))
-	
+
 	LinkUnderline = property(_getLinkUnderline, _setLinkUnderline, None,
 			_("Is the link underlined in the normal state?  (bool)"))
-	
+
 	ShowHover = property(_getShowHover, _setShowHover, None,
 			_("Does the link show the hover effect?  (bool)"))
-	
+
 	URL = property(_getURL, _setURL, None,
 			_("URL for this link  (str)"))
-	
+
 	Visited = property(_getVisited, _setVisited, None,
 			_("Has this link been visited?  (bool)"))
-	
+
 	VisitedColor = property(_getVisitedColor, _setVisitedColor, None,
 			_("Color of visited links  (str or tuple)"))
-	
+
 	VisitedUnderline = property(_getVisitedUnderline, _setVisitedUnderline, None,
 			_("Is the link underlined in the visited state?  (bool)"))
 

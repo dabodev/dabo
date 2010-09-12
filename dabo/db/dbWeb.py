@@ -24,7 +24,7 @@ class Web(SQLite):
 
 	def getTables(self, cursor, includeSystemTables=False):
 		return self._remoteConnector.getTables(includeSystemTables=includeSystemTables)
-		
+
 
 	def getTableRecordCount(self, tableName):
 		return self._remoteConnector.getTableRecordCount(tableName=tableName)

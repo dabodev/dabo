@@ -10,7 +10,7 @@ class dSizer(dSizerMixin.dSizerMixin, wx.BoxSizer):
 		self._baseClass = dSizer
 		self._border = 0
 		self._parent = None
-		
+
 		if args:
 			# The orientation was passed as a standalong argument
 			kwargs["Orientation"] = args[0]
@@ -35,19 +35,19 @@ class dSizer(dSizerMixin.dSizerMixin, wx.BoxSizer):
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
 		self.setProperties(properties)
-		
+
 		if kwargs:
 			# Some kwargs haven't been handled.
 			bad = ", ".join(kwargs.keys())
 			raise TypeError("Invalid keyword arguments passed to dSizer: %s" % bad)
 
 		dSizerMixin.dSizerMixin.__init__(self, *args, **kwargs)
-	
-	
+
+
 	def getBorderedClass(self):
 		"""Return the class that is the border sizer version of this class."""
 		return dabo.ui.dBorderSizer
-	
-		
+
+
 if __name__ == "__main__":
 	s = dSizer()

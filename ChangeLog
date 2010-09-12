@@ -1,5 +1,260 @@
 See the Subversion log for all the details.
 
+Dabo 0.9.3 (2010-09-12) Revision 6018):
+===============================================================================
+We dragged our feet in making this release, because both of us were very busy, and frankly, between Subversion and Web Update, most Dabo developers had the latest changes already. But there have been several big changes in the last 15 months, including, but not limited to:
+	- integration of the native Python logging module for all Dabo logging
+	- support for DES3 cryptography in Dabo encryption
+	- changed all pathing to be relative to the app's HomeDirectory
+	- full parameterization of SQL calls
+	- addition of the dRichTextBox control
+	- improvement of unicode support with the dabo.lib.ustr() method
+
+
+Here is a summary of all the changes since the 0.9.2 release:
+
++ Cleaned up the code base by removing all trailing whitespace.
+
++ Removed the ref to md5 and replaced with hashlib.  haslib is currently already being used in dDataSet.py and md5 has been deprecated (those users of python 2.4 or less need to install the hashlib.py)
+
++ Added dabo.lib.reportUtils.printPDF(), and added a print button to FrmReportBase in the AppWizard generated code.
+
++ On Windows, where the status text can go to the main frame, hidden forms were writing their current record text to the status bar on update. This fixes that awkwardness.
+
++ Eliminated (or at least greatly reduced) the grid header flickering on Windows.
+
++ Fixed a bug reported by Mark Rajcok in which the WordWrap property grid columns was only affecting those with str DataType, and was ignoring unicode DataType.
+
++ Switched all of Dabo's logging to use standard Python logging.
+
++ Switched from os.system() and os.popen2() to subprocess.call() in previewPDF() and printPDF(). Removes DeprecationWarnings in Python 2.6 and above.
+
++ Added some logic to prevent infinite loops when using field-level validation.
+
++ Added a fix so that previewing and printing should be modeless by default.
+
++ Updated the internal cache code to handle permissions better when running under mod_wsgi.
+
++ Added the 'SelectedText' and 'Text' read-only properties to dHtmlBox.
+
++ Added the reports folder to the resolvePathAndUpdate method in the utils module.  Added a conditional check in the reportWriter to call the resolvePathAndUpdate method if the path is a valid absolute path.  So, now you can specify the ReportFormFile property of the ReportWriter object is a relative path.
+
++ Reverts a behavioral change introduced accidentally in r5846. Now scan() will requery child bizobjs by default.
+
++ Created the 'ustr()' method in dabo.lib.utils. This is designed to replace all of our calls to str() in order to eliminate the unicode encoding errors that pop up frequently when non-American developers use Dabo.
+To use, include the line:
+   from dabo.lib.utils
+    import ustr
+in your import statements, and then replace all instances of str(val) with ustr(val).
+
++ Added some sizer outline code to dFormMixin that was inadvertantly left out of the last Web Update.
+
++ dRichTextBox: Changed the 'InsertionPoint' property to 'InsertionPosition' to be consistent with other editing controls.
+
++ dRichTextBox: Renamed the 'loadFromFile()' and 'saveToFile()' methods to 'load()' and 'save()', respectively, as they can use any file-like object.
+
++ Added the dRichTextBox class, which allows for basic rich text editing and display.
+
++ Fixed a bug in Web Update that prevented apps from recognizing that Web Update had not yet been run for that Dabo installation.
+
++ Changed the PreferenceDialog to use a basic dPageFrame instead of dPageList, due to wx warnings.
+
++ Fixed a potential problem in list controls where the control could try to access its value before the correct DataSource had been set.
+
++ Added code to reduce dGrid flickering under Windows.
+
++ Added the ImageRenderer class to display images in grid cells.
+
++ The code that handles dropped text/files now preserves the x,y location of the drop so that you can tell where on the control the user dropped.
+
++ Added a textbox-level NoneDisplay property so that individual text box controls can determine how they display None values instead of all controls using dApp.NoneDisplay.
+
++ Fixed an incompatibility with a recent wxPython change to the foldpanelbar class.
+
++ Several visual improvements to the dPageStyled class.
+
++ Fixed a bug in dSlider that prevented reversed display.
+
++ Fixed some inheritance issues with sizers.
+
++ Improved sizer outlining to be more flexible. This is mostly for app design uses.
+
++ Added support for the dPageStyled class to the Class Designer.
+
++ Added visual indication of sizers in the Class Designer when a sizer is the selected object.
+
++ Added the HomeDirectoryStatusBar to the visual tools to display your current app's HomeDirectory.
+
++ Updated the standard directory structure for Dabo apps to include 'cache' and 'lib' directories.
+
++ Fixed some import errors in reportWriter.py
+
++ Added an optimization to dDataSet that improves performance when doing multiple queries against the same data.
+
++ Added an optional optimization to dBizobj that avoids having to requery child bizobjs during a scan().
+
++ Fixed a bug in the JsonConverter imports.
+
++ Corrected the bizobj isChanged() function to reflect new records as well as modified records.
+
++ Added dApp.AutoImportConnections property. When False, dApp will skip the process of finding and loading dConnectInfo objects from found cnxml files. My app is being enhanced to use cnxml files, but I use my own logic on which cnxml file to use.
+
++ Augmented biz.getTempCursor() with some optional arguments, allowing the appdev to set sql, params, and have automatic requerying before returning the cursor reference.
+
++ dSlider: added the Reversed and TickPosition properties, as requested by Mike Mabey.
+
++ Finally fixed a dMenuItem bug that's been bothering me for (I think) years now. On Windows, sometimes there would be double captions, and the "Close Window" item in the File menu would be corrupted. Apparently, the timing of calling SetBitmap() is crucial: it must happen before SetText().
+
++ Fixed the language problems withthe code to find menus in AppWizard applications.
+
++ dDateTextBox: allows the user to clear the date (set to None) by adding a shortcut ('N')
+
++ dReportWriter: Fixed bug with spanning objects: if the group didn't print for whatever reason, the spanning never started. Therefore, we can't try to draw the object.
+
++ Fixed a bug in dGrid's incremental search on Windows.
+
++ Refactored the 'resolvePathAndUpdate()' method into dabo.lib.utils instead of dabo.ui.uiwx
+
++ Added window scrolling events to dGrid and dScrollPanel, so that your code can now handle them if needed.
+
++ Added optional argument to cur.execute() to convert any ?'s to the backend's paramPlaceholder.
+
++ Made the localization installation process a little more sane, as it seems that it is especially prone to errors. Now, instead of abending when the dabo localization file isn't found, it prints an error and continues. The app will continue to work fine, but no translations will be done.
+
++ Fixed a bug that prevented boolean values in grid columns from being properly restored. Trac issue #1247.
+
++ Added a flag to avoid an unnecessary pointer movement caused by setting the DataSource of the grid to a bizobj after the bizobj had already been created and had its record pointer set. Trac issue #1314.
+
++ The logic for constructing the filtering WHERE clause in child bizobjs has been corrected to by fully paramterized, instead of 'injecting' the value directly into the SQL.
+
++ Fixed a problem when re-opening designs for custom classes. Reported by Martinecz Miklós.
+
++ Added the 'GridCellEditEnd' event, which is raised when a grid cell editor is hidden, whether the value has been changed or not.
+
++ Fixed a potential issue in the Class Designer Property Sheet in which you could be editing the value of a property of one control, and then navigate to a different control and have your change accidentally be applied to the second control.
+
++ Fixed the Crypto property so that setting it to a crypto object will result in the encrypt() and decrypt() methods using that object.
+
++ Fixed a bug in the filterByExpression() method that only replace the first occurrence of a field name in the expression. Reported by Ricardo Aráoz.
+
++ Changed the Face setter to ignore attempts to set it to 'MS Shell Dlg*' font face names, which can happen when a cdxml file created on Windows is opened on Mac or Linux.
+
++ Changed the HomeDirectory setter to write an errorLog entry instead of throwing an exception when an invalid path is passed. Again, this is an issue with moving a cdxml from one system to another.
+
++ Changed the behavior when attempting to set the Face to a non-existent fontface. Instead of throwing an error, an entry is written to the Dabo error log describing the issue.
+
++ Updated dLed to make it data-aware. It can now be bound to a DataSource and DataField, and have its Color reflect the underlying boolean value.
+
++ Revamped the handling of pathing. If you have file path references in your cdxml or cnxml files, this could break your old files. Pathing is now relative to the HomeDirectory of your app, instead of the location of the tool that created the file.
+
++ Updated the internal encryption code to support the use of DES3 cryptography if you have the PyCrypto package installed. There is also a write-only property of dApp called 'CryptoKey': when you set that property, if you have PyCrypto installed, it will create a new SimpleCrypt instance that uses DES3 encryption, with that value as the encryption key. And to avoid having to pass a plain-text value to the app creation, you can set this property at any time, passing either a string or any callable. By passing a callable, you can more effectively hide the way your key is stored; the actual key never has to appear in your code at all. If you have cnxml files created with the old code, they may no longer work. Simple re-run the CxnEditor to re-save them with the new encryption.
+
++ Added the UIAppClass property to dApp. It can be set to a custom subclass of dabo.ui.uiApp, to enable developers to add ui toolkit-specific behaviors.
+
++ Fixed an issue with the cursor's _mementos attribute getting inadvertantly altered by record cloning. Trac #1316
+
++ Overrode the removeAll() method of this control to work properly with the underlying wx control. Trac #1308
+
++ Added some code to ensure a minimal wx version.
+
++ Fixed the problem where the cursor won't save a new unchanged record even if the bizobj is set to SaveNewUnchanged.
+
++ Fixed a problem in the seek() method when called from the bizobj when the table has a compound pk. Also improved the algorithm for matching and near-matching. Trac issue #1330.
+
++ Major fix to how resizing is handled for panels. Previously, there were cases where panels would get "stuck" at a large size and were not able to be resized smaller. This should fix that problem. Also added the 'Square' property. When set to True, the panel will confine itself to a square shape.
+
++ If a dBizobj.filter() call filters out all records, a NoRecordsException was being raised. This is generally not necessary, so this is now caught. Trac #1331
+
++ Added code to handle the case in dGrid where a case-insensitive search is being done on a string type column with null values.
+
++ Corrects a problem identified by Jacek Kałucki in which some columns that don't have defined data types only get their type corrected the first time a query is run.
+
++ Fixed a bug that only happened if you called the layout() method of the StatusBar. The attribute '_platformIsWindows' had been previously defined in dPanel, but dStatusBar no longer inherits from that.
+
++ Fixed getCaptureBitmap() to use a WindowDC for panels and dialogs instead of the parent's ClientDC.
+
++ Added the StatusBarClass property, which will allow a form to create any status bar subclass that is needed. Defaults to the standard dStatusBar.
+
++ Fixed a problem when using direct object references as the DataSource, discovered by Jacek Kałucki.
+
++ Added biz.hasPK() method. It answers the question "is this PK value present in the dataset?" It doesn't move the pointer or have any side-effects, and is optimized to return the answer to this question as fast as possible.
+
++ Fixed a bug in cdxml rendering: if it contained a boolean value False, it was stored as the word 'False'. But when the attProperties were being read back in, we were doing bool(val) to convert it back, and bool("False") is True.
+
++ Added a bit of verbosity to quickStart(). Also changed it so that it requires an app name.
+
++ Deprecated ShowColumnLabels; added ShowHeaders. Fixed ShowHeaders and HeaderHeight to not have side-effects on each other.
+
++ Fixed some display issues when the grid has at least one column with Expand=True.
+
++ Made history searches in the Command Window case-insensitive.
+
++ Fixed an issue when opening up the preferences dialog for the first time: since no update frequency preference had been set, an error was raised when the frequency radio list was bound to that pref.
+
++ Changed the order in which we import the app subdirectory modules. This is necessary when using a customized uiApp subclass, which would typically be added as a class in the ui module, and then used by overriding the app creation line: app = App(SourceURL=remotehost, UIAppClass=ui.MyCustomUIClass)
+
++ Fixed a typo that caused an exception when pressing when a report object was selected. Now it brings up the default property in the property sheet like was intended.
+
++ Corrected an error when saving/running a non-sizer-based form.
+
++ Enhanced copy/paste in the report designer: if objects from multiple bands are selected when copied, paste them into the same bands instead of the currently selected band. Allows for copy/pasting a header and a detail item, for example.
+
++ The recent change to make dImage a data-aware control had an unintended effect in the Class Designer: saving an image resulted in not only saving the path, but also the complete byte stream of that image in the Value property. This fixes that oversight.
+
++ Added build scripts for Linux to AppWizard. Now you can 'buildwin', 'buildmac' *and* 'buildlin'.
+
++ Added support for the pudb debugger if it is installed.
+
++ Improved the flow when controls have their value changed from an update() call. Now the flushValue() is no longer called, which avoids unnecessary data validation calls.
+
++ Fixed some issues with establishing HomeDirectory when running from the runtime engine.
+
++ Restored the call to flushValue() that was removed in the recent changes to dSpinner. It was breaking anything that used a data-bound spinner, especially the Class Designer.
+
++ Corrected the issues raised by Jacek Kałucki regarding the navigation problems of dComboBox under Windows.
+
++ Made some changes designed to better support images as data-bound controls. Also allowed for the image's Picture property to accept a wx.Bitmap as the image source, as that's what is returned from the clipboard methods.
+
++ Added the convenience methods dabo.ui.copyToClipboard() and dabo.ui.getFromClipboard(). They work with both text and bitmap types.
+
++ Added a menu option to the Dabo Editor for toggling whitespace visibility.
+
++ Fixed the download_url in setup.py to match the current download location. I guess easy_install has been broken for a while. Thanks Carl Karsten for finding and reporting the problem, along with a solution!
+
++ Fixed setup.py to work with pip, per Carl Karsten.
+
++ Fixed a problem in the SQL generation of AppWizard-generated apps when using full text searches.
+
++ Fixed the issues with custom classes in the Class Designer not being properly inherited when running inside other class designs. The problem came down to pathing, as have most similar issues, so I approached it by adding some smarter pathing code.
+
++ Consolidated the logic for app standard directories. Recent changes had not kept the different locations where they were referenced in sync, so now there is an attribute of dApp called '_standardDirs' that is a tuple of the subdirectory names. There is also now a method of dApp called 'getStandardDirectories()' that will return a tuple containing the HomeDirectory and the full paths to all these subdirectories.
+
++ Enhanced the Editor app by adding an option for setting the number of characters before AutoAutoComplete fires, and another option for toggling whether line numbers are visible.
+
++ Added some events to dReportWriter: ReportCancel, ReportBegin, ReportEnd, and ReportIteration. Your code can bind to them like any other Dabo event.
+
++ Fixed an issue when setting the DataSource to a dPref object.
+
++ Wrapped the creation of the status bar to hopefully not give artifacts when created too close to form creation/resize time.
+
++ Updated dSecurityManager and added dApp.LoginDialogClass.
+
++ Fixed color settings in dLed.
+
++ Added the EditorStyleNeeded event to support custom styling in dEditor.
+
++ Fixed an occasional problem with dObject.__repr__() calls.
+
++ Removed code that was slowing searches on virtual fields.
+
++ Implemented full parameter passing to backend SQL instead of using string substitution.
+
++ Added a lib directory into the standard Dabo structure.
+
++ Fixed datanav Form to not keep the edit page active after a delete or cancel if that action resulted in the RowCount going to 0.
+
+
+
 Dabo 0.9.2 (2009-05-27) Revision 5238):
 ===============================================================================
 There were two unfortunate bugs that made it into the 0.9.1 release that prevented new installs of that release from working. I'm embarrassed that it took us over 4 months to fix this, but since most active developers are using subversion, it didn't seem like much of a problem. But newcomers who downloaded the release version were turned off, so this finally addresses the problem.
@@ -86,7 +341,7 @@ Lots and lots of bug fixes as more people worked with the 0.9.0 changes. Here ar
 
 + dSpinner was firing ValueChanged and InteractiveChange with each keypress in the textbox (IOW, these events fired as often as Hit). For text controls, ValueChanged should fire if the value was changed from _oldVal, when the focus is lost.
 
-+ This should fix some of the problems noticed by Ricardo Ar�oz concerning the placement of the calendar when editing the dDateTextBox control.
++ This should fix some of the problems noticed by Ricardo Aráoz concerning the placement of the calendar when editing the dDateTextBox control.
 
 + Added the 'cloneRecord()' method to dBizobj. This will make a copy of the current record and append it as a new record in the dataset. The copy will contain all of the columns of the current record except for PK columns.
 
@@ -129,7 +384,7 @@ Lots and lots of bug fixes as more people worked with the 0.9.0 changes. Here ar
 
 + Fixed a problem in which a newline was added to code, which didn't affect execution, but dirtied the buffer when nothing had actually changed.
 
-+ Updated the QuickLayoutWizard to recognize web-based connections and notify the user that they cannot use that wizard with remote connections. 
++ Updated the QuickLayoutWizard to recognize web-based connections and notify the user that they cannot use that wizard with remote connections.
 
 
 
@@ -159,7 +414,7 @@ It uses the wx standard button sizer methods to create the buttons following pla
 
 + Changed the default for output to not print all the infoLog messages to stdout. Instead, infoLog messages are ignored unless the dabo.verboseLogging setting is set to False. The errorLog still prints to stderr, of course.
 
-+ Added the FloatingPanel property. This references a borderless dialog that can be used similarly to a context menu, but which can contain any controls you want. Additionally, it will guarantee that it is displayed completely within the available screen real estate. 
++ Added the FloatingPanel property. This references a borderless dialog that can be used similarly to a context menu, but which can contain any controls you want. Additionally, it will guarantee that it is displayed completely within the available screen real estate.
 It has two properties itself:
 	Above: by default the dialog is positioned below its owning control. This changes the behavior so that it is positioned above the control.
 	Owner: this is the control used to position the dialog.
@@ -174,7 +429,7 @@ Typical usage (written in a custom control):
 	fp.show()
 The controls in the FloatingPanel should hide or release it, depending on whether you expect to re-use it. See the update to dDateTextBox for an implementation of it.
 
-+ Re-write the way that the calendar is displayed. It now is contained by the FloatingPanel of the form, and thus is not bound by panels or other container. 
++ Re-write the way that the calendar is displayed. It now is contained by the FloatingPanel of the form, and thus is not bound by panels or other container.
 
 + Also added the ExtendedCalendar property. When True, the larger version of the calendar control is used. This version has additional controls for quickly moving to any date.
 
@@ -200,9 +455,9 @@ The controls in the FloatingPanel should hide or release it, depending on whethe
 
 + Added pageUp, pageDown, pageLeft and pageRight methods to dScrollPanel.
 
-+ Changed the 'LineNumber' property in dEditor to be one-based, to match the displayed line numbers in the editor. Added the '_ZeroBasedLineNumber' property that does the actual communication with the wx layer. 
++ Changed the 'LineNumber' property in dEditor to be one-based, to match the displayed line numbers in the editor. Added the '_ZeroBasedLineNumber' property that does the actual communication with the wx layer.
 
-+ Added the TransparencyDelay property. It is simply eye candy; it smooths out changes in transparency over the time specified in this property (default=0.25 sec.). 
++ Added the TransparencyDelay property. It is simply eye candy; it smooths out changes in transparency over the time specified in this property (default=0.25 sec.).
 
 + Changed strToBmp() to use app.HomeDirectory as the cwd, if there's an app defined, as app.HomeDirectory always refers to the app's root directory, even if the cwd is somewhere else, even if the app is frozen with py2exe.
 
@@ -364,7 +619,7 @@ new:
 
 + Fixed the bug that failed to discern that a new record with a manually-populated PK was in fact new. Thanks to Dr. Sibylle Koczian for reporting this and working with me to help track it down.
 
-+ Tracked down and fixed the problem that caused all those 'GTK-Critical' messages. 
++ Tracked down and fixed the problem that caused all those 'GTK-Critical' messages.
 
 + Added an 'OK' button to make it clear how to dismiss the dialog when running under a window manager that does not have a title bar present.
 
@@ -394,17 +649,17 @@ new:
 
 + Changed the order that the update() steps are carried out. I had noticed a bug in some of my Dynamic* properties that depended on the control's Value. The cause was that the dynamic props are evaluated *before* the Value gets updated.
 
-+ Moved the sizer default logic into the DesignerUtils script. 
++ Moved the sizer default logic into the DesignerUtils script.
 
 + Enhanced the getDefaultSizerProps() method to handle the mangled names that the Class Designer sometimes creates.
 
-+ Changed the way that the import statement block is handled in the .cdxml. This *should* be backwards-compatible, but may require re-creating your import statements in your design. 
++ Changed the way that the import statement block is handled in the .cdxml. This *should* be backwards-compatible, but may require re-creating your import statements in your design.
 
 + The change was required because the previous code sometimes resulted in import statements not being run before code that depended on those names was called.
 
 + Added the dabo.ui.spawnProcess() method. This allows to to run another application in a completely independent process.
 
-+ Added the method 'appendDataSet()'. 
++ Added the method 'appendDataSet()'.
 
 + This fixes the issue with the Font property and dMaskedTextBox. We were only checking for the existence of a '_font' attribute, and apparently the masked classes defined that att themselves.
 
@@ -422,7 +677,7 @@ new:
 
 + Added the improvement provided by 'cowo' for proper importing of project subdirectory modules. Added the method 'getStandardAppDirectory()'. This takes one of the following standard Dabo directory names and returns the path to that directory. It takes an optional path location to start looking from; it will also search the app's HomeDirectory. The standard directory names are:
 "biz", "cache", "db", "main.py", "reports", "resources", "test", "ui"
-If the user requests a non-standard directory, a message is printed to the errorLog and None is returned. 
+If the user requests a non-standard directory, a message is printed to the errorLog and None is returned.
 If the specified standard directory cannot be found, None is returned.
 
 + Removing the deprecated first datanav classes.
@@ -443,7 +698,7 @@ If the specified standard directory cannot be found, None is returned.
 
 + Changed the way that the Visible property works with columns. Now the column is not removed from the grid's Columns collection; instead, its Visible status is taken into account when drawing the grid.
 
-+ Added the 'addSizerDefaults()' method. This is to be used by external tools to set defaults for controls that are not part of dabo.ui. 
++ Added the 'addSizerDefaults()' method. This is to be used by external tools to set defaults for controls that are not part of dabo.ui.
 
 + Found a case where a Designer tool (the view palette) had controls that were bound to properties that not all the controls they were modifying had. This may be related to some of the abends encountered when using the View Palette on Windows and Linux.
 
@@ -473,7 +728,7 @@ Dabo:
 
 + Fixed WordWrap in dGrid.
 
-+ Fixed Windows dTextBox problem, which would change ReadOnly back to False when changing 
++ Fixed Windows dTextBox problem, which would change ReadOnly back to False when changing
   the Alignment.
 
 + Added StrictNumericEntry property to dTextBox and dSpinner.
@@ -491,7 +746,7 @@ Dabo:
 + Fixed the getLastInsertID() for dbPostgreSQL, to work with non-serial PK's as well. Thanks
   to John Fabiani, Adrian Klaver, and Lorenzo Alberton.
 
-+ Added dabo.settings.dateFormat, dateTimeFormat, and timeFormat. If None (the default) the 
++ Added dabo.settings.dateFormat, dateTimeFormat, and timeFormat. If None (the default) the
   formatting of these date types will be dependent on the user's settings in the operating
   system. This lets the appdev specify the format desired for display and editing in text
   controls and the grid. Prior to this, the only format was YYYY-MM-DD, which was satisfying
@@ -508,8 +763,8 @@ Dabo:
 
 + Nate Lowrie added some niceties to dEditor, including better code folding.
 
-+ Added code to allow biz.DefaultValues being set to None. If the field values are 
-  still null when saving, the insert statement won't include them, allowing 
++ Added code to allow biz.DefaultValues being set to None. If the field values are
+  still null when saving, the insert statement won't include them, allowing
   database defaults to be used.
 
 + dCursorMixin no longer raises NoRecordsException from sort().. it merely returns.
@@ -519,7 +774,7 @@ Dabo 0.8.3 (2007-12-11) Revision 3793):
 Field types in the data layer are now covered better (previously only non-
 joined fields were massaged).
 
-Transaction tokens are now per-connection, not per-bizobj. Thanks Uwe Grauer 
+Transaction tokens are now per-connection, not per-bizobj. Thanks Uwe Grauer
 for the nudge.
 
 dGrid performs better when changing rows.
@@ -530,12 +785,12 @@ Fixed display problems with word-wrapped labels in dDialog.
 
 Fixed some report writer xml conversion problems.
 
-Enabled setting report writer's OutputFile property to a file-like object, and 
+Enabled setting report writer's OutputFile property to a file-like object, and
 not strictly a file object.
 
 Fixed unicode-xml saving/loading in ReportDesigner.
 
-Added default size and position for forms (they tended to be much too small 
+Added default size and position for forms (they tended to be much too small
 before).
 
 Web update fit and finish.
@@ -596,20 +851,20 @@ Most Notable Things:
 + We no longer maintain separate stable branch; point releases are snapshots of
   the development branch instead of merely backported bugfixes.
 
-+ Web Update is available; after downloading and installing this version of 
++ Web Update is available; after downloading and installing this version of
   Dabo, you can turn Web Update on in the new Edit|Preferences window and
   be notified when updates are available. Dabo will then update itself if you wish.
 
 
 UI:
-+ Added masking ability to dTextBox and dEditBox, via the Mask and 
++ Added masking ability to dTextBox and dEditBox, via the Mask and
   MaskedValue properties.
 
 + Added dRadioMenuItem
 
 + dEditor now formats lots of languages, not just python. Thanks Nate!
 
-+ Improved the code completion logic of dEditor to not just blindly execute code, 
++ Improved the code completion logic of dEditor to not just blindly execute code,
   which is slow and dangerous.
 
 + Added dEvents.InteractiveChange,
@@ -625,7 +880,7 @@ UI:
 + Fixed problem in dGrid where a column sizing operation would sometimes start
   a sort operation. Thanks Larry!
 
-+ Put in Kevin Edward's solution for replacing deprecated calls in dGridSizer.py. 
++ Put in Kevin Edward's solution for replacing deprecated calls in dGridSizer.py.
   Thanks Kevin!
 
 + Grid selection wasn't updating correctly when navigating with the keyboard. Thanks
@@ -653,7 +908,7 @@ UI:
 
 + Fixed dHtmlBox to find inline images on Windows.
 
-+ Corrected a problem with text controls losing their selection information when they 
++ Corrected a problem with text controls losing their selection information when they
   lose focus. (#1104).
 
 
@@ -668,18 +923,18 @@ db:
 biz:
 + Found and fixed bugs related to parent/child relationships
 
-+ Major improvements to transaction handling. 
++ Major improvements to transaction handling.
 
 
 General Framework:
 + dLocalize now converts strings into the given language. Set your language
   using dApp.setLanguage(). The locales have been added to Launchpad, and we'll
-  regularly sync up with LP for our translations. 
+  regularly sync up with LP for our translations.
 
 + Fixed case mismatch in dLocalize (#1086).
 
 + Added dApp.makeDaboDirectories() and quickStart(), which set up a structure for
-  dabo-based applications. 
+  dabo-based applications.
 
 
 Reporting:
@@ -699,15 +954,15 @@ Dabo 0.8.1 (2007-07-13) (Revision 3251):
   attributes.
 
 + Refactored/fixed the case of an exception happening during scan: previously,
-  another exception would happen because we tried to restore the row number 
+  another exception would happen because we tried to restore the row number
   even if we saved the PK value instead. (Ticket #1064)
 
-+ The "Preferences" menu item in dBaseMenuBar's Edit menu used a hotkey of "P", 
++ The "Preferences" menu item in dBaseMenuBar's Edit menu used a hotkey of "P",
   which conflicted with Paste. Checked around and other apps use the "e" for
   the hotkey instead. Fixed in trunk and stable.
 
-+ Fixed a problem where textboxes would lose their selection when moving 
-  focus. 
++ Fixed a problem where textboxes would lose their selection when moving
+  focus.
 
 + Fixed a KeyError in dTreeView's makeDirTree() function, thanks to a fix
   by hraban in ticket #1076.
@@ -724,8 +979,8 @@ Dabo 0.8 (2007-05-09) (Revision 3111):
 Enhancements:
 
 	===== General Stuff =====
-+ Improved a lot of the handling of paths. It is now possible to correctly 
-  resolve a relative path when the source file and the contained file are in 
++ Improved a lot of the handling of paths. It is now possible to correctly
+  resolve a relative path when the source file and the contained file are in
   different directories, while the app is running from a third directory.
 
 + Added datanav2; deprecated datanav. datanav2 no longer supports fieldSpecs,
@@ -737,10 +992,10 @@ Enhancements:
 
 + Added/enhanced unit tests for dCursor, dBizobj, dTextBox, and dForm.
 
-+ Big fixes and enhancements, as always, to runtime cdxml instantiation, 
++ Big fixes and enhancements, as always, to runtime cdxml instantiation,
   including much better inheritance of properties.
 
-+ General move away from accepting specific keyword arguments to class 
++ General move away from accepting specific keyword arguments to class
   constructors, in favor of accepting property values instead.
 
 	===== UI Tier =====
@@ -749,22 +1004,22 @@ Enhancements:
   dynamic cell properties. Currently, it works, but the only property
   I've added yet is CellForeColor and DynamicCellForeColor.
 
-+ Removed the requirement that objects used as DataSources have to inherit 
++ Removed the requirement that objects used as DataSources have to inherit
   from dObject. Thanks Carl for pointing out the limitation.
 
-+ Added dDockForm to the main trunk, which is Dabo's wrapper for wxAUI. 
++ Added dDockForm to the main trunk, which is Dabo's wrapper for wxAUI.
 
-+ Added the option of passing complex filter expressions to setAll(). This 
-  function now accepts a tuple of filter expressions of the format 
-  'att comp val', which will be eval'd with the child objects inn order to 
-  determine if the filter applies. Each expression in the tuple is ANDed 
-  with the others; all the tuple elements must evaluate to True for the 
++ Added the option of passing complex filter expressions to setAll(). This
+  function now accepts a tuple of filter expressions of the format
+  'att comp val', which will be eval'd with the child objects inn order to
+  determine if the filter applies. Each expression in the tuple is ANDed
+  with the others; all the tuple elements must evaluate to True for the
   value to be set.
 
 + Added the dHtmlBox.HtmlLinkClicked event.
 
-+ Added the HatchStyle property to draw objects. This gives you the option 
-  of specifying that the fill for drawn objects can be one of the following 
++ Added the HatchStyle property to draw objects. This gives you the option
+  of specifying that the fill for drawn objects can be one of the following
   hatch patterns:
 
     Solid (default)
@@ -789,7 +1044,7 @@ Enhancements:
 + Coerce dMessageBox messages into strings, which is convenient.
 
 + dGrid's navigation now traps and responds to business rule violations, with
-  mediation by the form if possible. 
+  mediation by the form if possible.
 
 + dTreeView supported in ClassDesigner-designed files.
 
@@ -808,7 +1063,7 @@ Enhancements:
   platforms (Mac), so that you have cross-platform consistency. Thanks to
   Dj Gilcrease for help in working this out.
 
-+ Added Continuous property to dSlider, which determines whether Hit is 
++ Added Continuous property to dSlider, which determines whether Hit is
   raised while the slider is being changed, or only after the user has
   finished sliding.
 
@@ -816,7 +1071,7 @@ Enhancements:
 
 + Added AutoAutoCompletion option to dEditor.
 
-+ Added methods to dabo.ui: isMouseLeftDown(), isMouseRightDown(), 
++ Added methods to dabo.ui: isMouseLeftDown(), isMouseRightDown(),
   and isMouseMiddleDown().
 
 + Added tango icon theme and changed our toolbars/menus to reference the new
@@ -858,9 +1113,9 @@ Enhancements:
 + Added the concept of VirtualFields to dBizobj, which provides a simple,
   flexible interface to reference calculated fields on the fly.
 
-+ Added the 'SaveNewUnchanged' property to dBizobj. When this is True, new 
-  records that have not been modified from their defaults are saved; the 
-  default remains to not insert such records. 
++ Added the 'SaveNewUnchanged' property to dBizobj. When this is True, new
+  records that have not been modified from their defaults are saved; the
+  default remains to not insert such records.
 
 + Improved data binding to bizobjs on a parent form.
 
@@ -893,11 +1148,11 @@ Bug Fixes:
 + Controls were flushing their value, and raising ValueChanged events, too
   many times. Fixed.
 
-+ Dialogs and forms weren't able to set things like whether they have a 
++ Dialogs and forms weren't able to set things like whether they have a
   close box, from within initProperties. Fixed.
 
 + Message dialogs invoked like dabo.ui.areYouSure() weren't getting attached
-  to the appropriate parent form, so that the message displayed wouldn't 
+  to the appropriate parent form, so that the message displayed wouldn't
   activate the form that it applied to first. Fixed.
 
 + Fixed rapid flashing in a sorted dGrid when an editable column was selected.
@@ -914,14 +1169,14 @@ Bug Fixes:
 + Fixed the dBizobj.save() process to not scan all child bizobj's repeatedly.
   This fixes some problems, and speeds up save() considerably.
 
-+ Fixed a problem where canceling a bizobj that had no records caused an 
-  exception that was being displayed with notifyUser(). Normally, a bizobj 
-  with no records does not need canceling, so raising such an error is not 
-  appropriate. You can still have the old behavior by calling cancel() with 
++ Fixed a problem where canceling a bizobj that had no records caused an
+  exception that was being displayed with notifyUser(). Normally, a bizobj
+  with no records does not need canceling, so raising such an error is not
+  appropriate. You can still have the old behavior by calling cancel() with
   'ignoreNoRecords = False'.
 
 + Fixed a bug reported by Larry Long and John Fabiani that involved requerying
-  one bizobj resulted in checking for pending changes in other bizobjs that 
+  one bizobj resulted in checking for pending changes in other bizobjs that
   were not involved in the requery.
 
 + Descending sorts created infinite loop with duplicate values. Fixed.
@@ -930,27 +1185,27 @@ Bug Fixes:
 + Fixed status text to clear the old field validation failed message when the
   user fixes the value and the field now passes validation.
 
-+ Fixed the geometry persistence to only restore the size of the form from 
-  user settings if BorderResizable is set to True. 
++ Fixed the geometry persistence to only restore the size of the form from
+  user settings if BorderResizable is set to True.
 
 + Fixed dGrid's AlternateRowColoring to be settable from the constructor
   or initProperties (previously, it was only settable in afterInit() or
-  later). 
+  later).
 
 + Dynamic props on dColumn were not working: fixed.
 
-+ Fixed a bug that confused the string 'None' with the null value None when 
++ Fixed a bug that confused the string 'None' with the null value None when
   setting BorderStyle from a cdxml. Thanks to Miguel for catching this one.
 
-+ Fixed a couple of bugs related to the dSizer.BorderSides property. 
-  Previously it was not retrieving that property correctly from the internal 
++ Fixed a couple of bugs related to the dSizer.BorderSides property.
+  Previously it was not retrieving that property correctly from the internal
   wx flag.
 
 
 ===============================================================================
 Dabo 0.7.2 (2007-01-18) (Revision 2716):
 
-Additions, all minor, backported to stable only to keep compatibility with the 
+Additions, all minor, backported to stable only to keep compatibility with the
 stable versions of daboide and/or dabodemo:
 + Enhanced the getImagePath() function to work better with Windows pathing.
 + Refactored dPanel into a common mixin class.
@@ -959,7 +1214,7 @@ stable versions of daboide and/or dabodemo:
 Bug Fixes:
 + Fixed the stable branch to work with wxPython 2.7 and 2.8, which was a fairly
   large backport of relevant changes from the development trunk.
-+ Fixed a form activation problem that would happen in some cases on Windows, 
++ Fixed a form activation problem that would happen in some cases on Windows,
   particularly with the Class Designer.
 + Fixed incremental search in dGrid, which was broken by earlier unicode fixes.
 + dBizobj.onSaveNew() user hook never being called. Fixed.
@@ -1047,10 +1302,10 @@ Bug Fixes:
 + Fixed function in dbSQLite to find and set the pk field.
 + Fixed __version__.py to work outside the expected directory naming
   structure.
-+ Report writer wasn't initializing report variables before starting the 
++ Report writer wasn't initializing report variables before starting the
   iteration of the cursor, resulting in errors if you referred to the
   variables from inside the page header, for example. Fixed.
-+ Setting the Value of a data-bound control programatically wasn't propagating 
++ Setting the Value of a data-bound control programatically wasn't propagating
   to the underlying bizobj. Fixed.
 + New reportlab can only handle utf-8, causing errors otherwise. Added a
   friendly message in case this happens to you when running the Quick Report
@@ -1074,7 +1329,7 @@ Enhancements:
   text controls. These are InsertionPosition, SelectedText, SelectionEnd,
   SelectionLength, and SelectionStart.
 + Compound primary keys can now be used.
-+ Dabo icon now has an alpha channel and looks much better. Thanks to Kenneth 
++ Dabo icon now has an alpha channel and looks much better. Thanks to Kenneth
   Ismert for doing a great job of this.
 + Added Expanded property for treeview nodes.
 + Can now set PageClass property of dPageFrame to a cdxml file.
@@ -1091,7 +1346,7 @@ Enhancements:
 + Added getCurrentRecord() that returns the actual record data.
 + Added dPref for managing application preferences, and switched the default
   way to save/restore settings to use this class. Your application can define
-  whatever hierarchy you see fit. See also the new BasePrefKey and 
+  whatever hierarchy you see fit. See also the new BasePrefKey and
   PreferenceManager properties of dObject.
 + Added ForceCase property to dTextBox and dEditBox. Forces to upper, lower,
   or title case as the user types.
@@ -1116,10 +1371,10 @@ Enhancements:
 + Added dabo.ui.getFormMousePosition (position relative to active form)
 + Added DrawMode property, the logical function to use for draw operations.
 + Added ability for About dialog subclasses to add their own version info.
-+ Added helper functions to dabo.ui: isControlDown(), isShiftDown(), 
-  isAltDown(), and isCommandDown() which will return True/False depending 
++ Added helper functions to dabo.ui: isControlDown(), isShiftDown(),
+  isAltDown(), and isCommandDown() which will return True/False depending
   on whether the key is down while the call is made.
-+ Added containerCoordinates() and formCoordinates() method, to get the 
++ Added containerCoordinates() and formCoordinates() method, to get the
   current mouse position relative to the container or form.
 + Added objectCoordinates(), which is relative to the object.
 + Made dForm.ActiveForm settable as well as gettable.
@@ -1140,18 +1395,18 @@ Enhancements:
   people with questions like "where is wx.TextCtrl in Dabo? (dTextBox).
 + Added MultipleSelection property to dGrid.
 + Improved dPageList, allowing setting the spacing of the list items with
-  ListSpacing, and catching right-clicks smartly (the correct item gets 
+  ListSpacing, and catching right-clicks smartly (the correct item gets
   referenced).
 + Added function dabo.lib.getRandomUUID(). Thanks to Ka-Ping Yee.
-+ Added method afterInitAll(), which gets called after all child objects have 
++ Added method afterInitAll(), which gets called after all child objects have
   been initialized and are live.
 + Added helpful treeFromStructure() method to dTreeView, which takes a
   hierarchy (in list or tuple form) and constructs the tree nodes accordingly.
-+ Added ability to send sequences of 3-sequences to the ok/cancel dialog to 
++ Added ability to send sequences of 3-sequences to the ok/cancel dialog to
   automatically construct labels and controls on the dialog.
 + Couldn't use the same RegID for objects, even if the prior object was
   destroyed. Relaxed the requirements to allow for this.
-+ Added dHtmlBox, which wraps wx.html.HtmlWindow, for displaying formatted 
++ Added dHtmlBox, which wraps wx.html.HtmlWindow, for displaying formatted
   text simply. Thanks to Nate Lowrie.
 + Added showContainingPage() method to all ui controls, which will recursively
   show any pages in any pageframes that contain this control.
@@ -1160,13 +1415,13 @@ Enhancements:
   default size. Thanks to Bill Anderson for bringing up lots of such issues.
 + Added AddChildEditPages property to datanav apps. Set it to False and you
   stop getting the annoying edit pages for the child bizobjs.
-+ Previously, you could only set page sizes in reports to strings like 
++ Previously, you could only set page sizes in reports to strings like
   "letter", "a4", etc. Now, you can also set explicit sizes such as
   (100, 75) or ("1.75 in", "1 in").
-+ Added preliminary support for Microsoft SQL Server. This isn't usable yet 
-  for any but the most tenacious developers, and likely quite buggy. If you 
++ Added preliminary support for Microsoft SQL Server. This isn't usable yet
+  for any but the most tenacious developers, and likely quite buggy. If you
   want to try it out or help develop it, please post a message to the dabo
-  developer's list (dabo-dev@leafe.com). 
+  developer's list (dabo-dev@leafe.com).
 
 
 ===============================================================================
@@ -1192,7 +1447,7 @@ Dabo 0.6 (2006-03-27) (Revision 2043):
   path for the dialog.
 
 + Added the TreeItemContextMenu event. This differs from the normal
-  ContextMenuEvent in that it returns the itemID of the node that was 
+  ContextMenuEvent in that it returns the itemID of the node that was
   right-clicked.
 
 + Added code in the event data gathering code to store the tree item ID for
@@ -1264,12 +1519,12 @@ Dabo 0.6 (2006-03-27) (Revision 2043):
 + Bookmarks in dEditor now persist when you save the file. If you re-open a
   saved file with bookmarks, they are restored.
 
-+ Refactored dUserSettingProvider a little bit. Fixed a bug in 
++ Refactored dUserSettingProvider a little bit. Fixed a bug in
   getUserSettingKeys() that resulted in it always returning an empty list. Added
   deleteUserSetting() and deleteAllUserSettings(); these do just what you think
   they would.
 
-+ Changed a couple exec() calls to setattr() calls instead, which may be safer 
++ Changed a couple exec() calls to setattr() calls instead, which may be safer
   if not faster, but definitely more explicit and easier to understand.
 
 + Implemented the handling of RowSpan/ColSpan for grid sizers.  Added a
@@ -1292,7 +1547,7 @@ Dabo 0.6 (2006-03-27) (Revision 2043):
 + Moved SelectPageClass, BrowsePageClass, and EditPageClass from PageFrame
   to Form, since that is a better central location for these properties.
 
-+ Added a splash screen to the Dabo app startup. This is based on Andrea 
++ Added a splash screen to the Dabo app startup. This is based on Andrea
   Gavana's AdvancedSplash class, and allows for cool shaped windows, etc.
 
 + Added the ability to set the DataSource to an object, rather than just a
@@ -1329,7 +1584,7 @@ Dabo 0.6 (2006-03-27) (Revision 2043):
   (in milliseconds), and callable reference, and optional arguments to that
   callable. It then creates a timer that fires the callable every <interval>
   milliseconds, passing along any optionally included arguments. The timer
-  reference is then returned, where it can be controlled by calling stop(), 
+  reference is then returned, where it can be controlled by calling stop(),
   start() or release(). This is based on the dCallEvery class that Brandon
   Singer proposed. I made it a function in dabo.ui because I felt it was more
   consistent with the existing functions callAfter() and callAfterInterval().
@@ -1362,7 +1617,7 @@ Dabo 0.6 (2006-03-27) (Revision 2043):
   any menu item.
 
 + Added dabo.ui.getMousePosition(), which returns the position of the mouse
-  on the screen. This is in contrast to dPemMixin.getMousePosition(), which 
+  on the screen. This is in contrast to dPemMixin.getMousePosition(), which
   gets the position of the mouse inside the client window.
 
 + Update to allow execution of SQL statements without affecting the current data
@@ -1377,9 +1632,9 @@ Dabo 0.6 (2006-03-27) (Revision 2043):
   that these changes are truly sound and can handle whatever we can toss at them.
 
 + You can now set the DataSource to an actual object, instead of having to set
-  it to a string that could be resolved to an object. 
+  it to a string that could be resolved to an object.
 
-+ Added basic support for storing lists/tuples in the user settings. 
++ Added basic support for storing lists/tuples in the user settings.
 
 + Added a simple way of persisting MRU lists in applications. A new dApp
   property, '_persistentMRUs' is a dict that contains the name of the menu as
@@ -1392,7 +1647,7 @@ Dabo 0.6 (2006-03-27) (Revision 2043):
   menus, or for restoring menus at app startup.
 
 + Updated the requirement that a bizobj be found for all data sources. Since
-  that was written, Dabo's use of data binding has expanded to lots of 
+  that was written, Dabo's use of data binding has expanded to lots of
   non-bizobj uses.
 
 + Completed the majority of the work needed to implement saved classes that can
@@ -1400,7 +1655,7 @@ Dabo 0.6 (2006-03-27) (Revision 2043):
   you ran the form. These changes implement the whole inheritance structure so
   that if you change the underlying class, any changes not explicitly overridden
   in the design that uses that class are reflected. This works for both property
-  changes as well as code changes. 
+  changes as well as code changes.
 
 + Switched the default order of arguments in callAfterInterval(). It makes more
   sense to specify the interval first, followed by the function and its
@@ -1450,7 +1705,7 @@ Dabo 0.6 (2006-03-27) (Revision 2043):
   fire the MouseLeave code if it detects that the mouse position is outside of
   the control.
 
-+ Added a CustomSQL property to the datanav form. If set, the settings in the 
++ Added a CustomSQL property to the datanav form. If set, the settings in the
   select page will be ignored and the contents of CustomSQL used instead.
 
 + Added defaults to dGrid.getValue(). If no row or col is specified, it defaults
@@ -1465,7 +1720,7 @@ Dabo 0.6 (2006-03-27) (Revision 2043):
 
 + Added 'Alignment' to the pre-init properties of dCheckBox. Cleaned up the
   property methods and definitions to make them alphabetized, and to make the
-  strings localized. Also relaxed the values accepted for the Alignment 
+  strings localized. Also relaxed the values accepted for the Alignment
   property.
 
 + Added an option to dEditor.changeFontSize() to accept strings in the format
@@ -1493,7 +1748,7 @@ Dabo 0.6 (2006-03-27) (Revision 2043):
   ResizableRows. When any of these are set to False, the user cannot move/resize
   the column or row.
 
-+ Changed the keyboard datanav navigation from Ctrl+, and Ctrl+. to Ctrl+LEFT 
++ Changed the keyboard datanav navigation from Ctrl+, and Ctrl+. to Ctrl+LEFT
   and Ctrl+RIGHT on Mac, and Alt+LEFT and Alt+RIGHT on Linux and Windows. I've
   The original configuration, in addition to being nonintuitive, didn't work on
   Windows.
@@ -1513,7 +1768,7 @@ Dabo 0.6 (2006-03-27) (Revision 2043):
 ===============================================================================
 Dabo 0.5.1 (2006-01-25) (Revision 1860):
 
-+ Additional MDI/SDI improvements and fixes. By default, dForm on Windows will 
++ Additional MDI/SDI improvements and fixes. By default, dForm on Windows will
   be a MDI child, which is what most Windows users will expect.
 
 + Fixed PageFrame background color to take the background color from the form,
@@ -1552,7 +1807,7 @@ Dabo 0.5.1 (2006-01-25) (Revision 1860):
   the shell (and other non-Daboized controls that only have wx versions of these
   methods).
 
-+ Added a menu command to the shell to clear the output window using 
++ Added a menu command to the shell to clear the output window using
   Ctrl-Backspace.
 
 + Added the MenuOpen event to dEvents. This allows us to create dynamic menus by
@@ -1587,7 +1842,7 @@ Dabo 0.5.1 (2006-01-25) (Revision 1860):
   when you created a grid from scratch and then added columns using addColumn,
   the columns widths you'd specify weren't being respected. Fixed.
 
-+ Moved the code for the dEditor class from ide/dEditor.py into its own 
++ Moved the code for the dEditor class from ide/dEditor.py into its own
   uiwx-level class. This will allow other apps (I'm thinking Designer here!) to
   instantiate code editors where they need.
 
@@ -1712,7 +1967,7 @@ Dabo 0.5.1 (2006-01-25) (Revision 1860):
   a FROM clause using the cursor's Table.
 
 + Added properties SettingsFileName and SettingsDirectoryName to the app's
-  UserSettingProvider. The defaults for both come from 
+  UserSettingProvider. The defaults for both come from
   app.getAppInfo("appShortName"), and determine the name of the directory and
   file name of the user settings file. The directory name will be lower()'d and
   have a '.' prepended automatically.
@@ -1756,7 +2011,7 @@ Dabo 0.5.1 (2006-01-25) (Revision 1860):
   First is the 'Singleton' property, which controls a behavior in which one and
   only one panel is open at any time. Expanding a different panel collapses the
   currently open one, and attempting to collapse the expanded panel does
-  nothing. 
+  nothing.
 
   Second, there is a 'SingleClick' property that controls whether you need to
   double-click on a panel's caption bar (default behavior) to toggle it, or
@@ -1842,7 +2097,7 @@ Dabo 0.5.1 (2006-01-25) (Revision 1860):
   appropriate. Updated the sizers to properly get/set this prop from a list of
   values.
 
-+ Changed all hard-coded "\n" in dicttoxml to the more crossplatform idiom 
++ Changed all hard-coded "\n" in dicttoxml to the more crossplatform idiom
   "%s" % os.linesep.
 
 + Fixed a problem whereby nested sizers did not get their Parent property set.
@@ -1923,7 +2178,7 @@ Dabo 0.5.1 (2006-01-25) (Revision 1860):
   To use MRU in a menu, the menu should be created by passing 'MRU=True' in the
   constructor.
 
-+ Added Variables, Groups, and Objects as ReportObjectCollections. 
++ Added Variables, Groups, and Objects as ReportObjectCollections.
 
 + Changed dEvents.ContextMenu to derive from Event instead of MenuEvent, since
   the contextmenu event is a request for a context menu to be displayed, and not
@@ -1977,7 +2232,7 @@ Dabo 0.5.1 (2006-01-25) (Revision 1860):
   menu item. Dabo will then automatically use the correct wxID, so the menu
   items are automatically moved to the MacOS application menu.
 
-+ Modified colorTupleFromName() to also attempt to interpret strings as 
++ Modified colorTupleFromName() to also attempt to interpret strings as
   HTML-style hex values.
 
 
@@ -1987,7 +2242,7 @@ Dabo-0.5 (2005-11-30) (Revision 1610):
 Added a new class, DataSet, which lets you issue sql queries against local
 Dabo data, not just against the backend. You can query, sort, and update
 individual DataSets, and even join multiple DataSets - all without making a
-call to the backend database server. 
+call to the backend database server.
 
 Began the work of making an embedded, internal, database engine (SQLite).
 Starting with future releases, SQLite will be an integral part of Dabo.
@@ -2032,12 +2287,12 @@ Designer.
 Fixed a bug in colorTupleFromString() that failed to return the correct
 value.
 
-Fixed some encoding issues with dReportWriter. 
+Fixed some encoding issues with dReportWriter.
 
 Added some handling for broken database connections.
 
 Added some useful properties to dTreeView that improve its display and
-editability. 
+editability.
 
 Fixed some problems with the Hit event and dSpinner.
 
@@ -2047,14 +2302,14 @@ Further removed user code from direct wx access in a few places. User code
 can still get at the wx structures though, just not quite as easily.
 
 Fixed mixed indentation problems, made some code cleaner, and added/edited
-lots of docstrings. 
+lots of docstrings.
 
-Added some useful functions to dMenu to remove items and get references to 
-menu items. 
+Added some useful functions to dMenu to remove items and get references to
+menu items.
 
-Added a DynamicEnabled property to dMenuItem. Set this to a function which 
+Added a DynamicEnabled property to dMenuItem. Set this to a function which
 will get run when the parent menu is shown to determine whether the menu
-item is enabled or not. 
+item is enabled or not.
 
 Menu.Children will now contain object references to Dabo menus and menu
 items.
@@ -2089,7 +2344,7 @@ select options for given fields. This would allow you to put, for example,
 a radiogroup with a few choices instead of the default textbox.
 
 Added connection manager to dApp, which maintains a set of open database
-connections that your forms can reference by name. Added Connection property 
+connections that your forms can reference by name. Added Connection property
 to dForm.
 
 Fixed bugs in and improved dSplitter, dListControl, dControlItemMixin, and
@@ -2101,7 +2356,7 @@ Phwew! All that in 7 weeks.
 ===============================================================================
 Dabo-0.4.2 (2005-10-07) (Revision 1418):
 
-Added PrimaryBizobj property to dForm, which can replace calls to 
+Added PrimaryBizobj property to dForm, which can replace calls to
 getPrimaryBizobj().
 
 Added Accepted property to dOkCancelDialog, which gets set automatically if the
@@ -2109,7 +2364,7 @@ user pressed "OK".
 
 Added AutoSQL, UserSQL, CurrentSQL, LastSQL properties to dCursor and dBizobj.
 When time to requery, the SQL will come from UserSQL if set, or AutoSQL will
-be regenerated. 
+be regenerated.
 
 Fixed a bug that kept changes to a new record from getting committed.
 
@@ -2117,8 +2372,8 @@ Added DefaultValues property to bizobj.
 
 Added ListSelection and ListDeselection events to dListControl. Added properties
 MultipleSelect, HitIndex, LastSelectedIndex, HeaderVisible, HorizontalRules,
-and VerticalRules. Changed the behavior of both dListControl and dListBox so 
-that merely selecting an item doesn't raise the Hit event; instead, it raises a 
+and VerticalRules. Changed the behavior of both dListControl and dListBox so
+that merely selecting an item doesn't raise the Hit event; instead, it raises a
 ListSelection event, and if another item had been previously selected, it raises
  a ListDeselection event. Hit is only raised from double-clicking on an item, or
  by pressing Enter.
@@ -2151,15 +2406,15 @@ cmdOk's Hit will get bound to the form's callback, automatically.
 
 Improved dGrid and dColumn. Many properties added, and you are now in much
 finer control over the display of grid column headers, grid cell attributes,
-grid cell editors and renderers, and the grid itself. 
+grid cell editors and renderers, and the grid itself.
 
 Began work of allowing case-insensitive property values for properties that
 take string values, and for properties that take a limited number of values
 where the first letter is unique, you can set the property by just using the
-first letter. dTextBox.Alignment = "c" sets the property to "Center", for 
+first letter. dTextBox.Alignment = "c" sets the property to "Center", for
 example.
 
-Modified dBizobj, dCursorMixin, and dBackend so that the user can specify 
+Modified dBizobj, dCursorMixin, and dBackend so that the user can specify
 the Unicode Encoding to use. Changed the default encoding from latin-1 to
 utf-8.
 
@@ -2169,10 +2424,10 @@ menu bar is in use, or you can turn it on/off programatically.
 
 Grids now remember the column that is sorted, and resort when next instantiated.
 
-Added support in dReportWriter for report groups and report variables, and 
+Added support in dReportWriter for report groups and report variables, and
 dynamic band heights (based on the height of contained objects). Added showExpr,
 which is an expression that evaluates at runtime and if true, shows the object
-in the report, and not if false. 
+in the report, and not if false.
 
 Improved the automatic print preview report format in datanav. It now:
 
@@ -2181,7 +2436,7 @@ Improved the automatic print preview report format in datanav. It now:
 	+ mirrors the font size, column width, cell vertical and horizontal
 	  alignment, and column height of the grid
 
-	+ mirrors the font size, header height, vertical and horizontal 
+	+ mirrors the font size, header height, vertical and horizontal
 	  alignment of the grid headers
 
 	+ automatically reorients to landscape if the detail flows beyond the width
@@ -2199,44 +2454,44 @@ Improved docstrings and API documentation.
 Dabo-0.4.1 (2005-08-30) (Revision 1226):
 
 Improved test framework for uiwx. Now you can run ui/uiwx/test.py and get
-almost all of the dabo controls in one form, and they are the same tests 
+almost all of the dabo controls in one form, and they are the same tests
 that you get when you run an individual control directly.
 
-Factored out the saving/restoring of user settings out of dApp into 
+Factored out the saving/restoring of user settings out of dApp into
 the separate dUserSettingProvider class, which can be subclassed or
 overridded by the developers. Added properties UserSettingProvider
-and UserSettingProviderClass to dApp. 
+and UserSettingProviderClass to dApp.
 
 Dabo user settings are no longer saved to .userSettings.ini in the app
 directory, but are saved to the user's home directory (in ~.dabo/) or
 if on Windows, in <User Profile>/Application Data/Dabo/.
 
-Support for SQLite added. As of this moment, Dabo supports several major 
+Support for SQLite added. As of this moment, Dabo supports several major
 open-source database backends: MySQL, PostgreSQL, Firebird, and SQLite.
 Next on the list should be Oracle, Sybase, and MS-SQL.
 
-Started work implementing a Quick Report in the datanav library, which 
+Started work implementing a Quick Report in the datanav library, which
 replaces the old HTML Print Preview. This uses the fledgling Dabo Report
-Writer to create a PDF rendition of the dataset. 
+Writer to create a PDF rendition of the dataset.
 
-Added new property for all controls: StatusText. When set, and when the 
+Added new property for all controls: StatusText. When set, and when the
 form has a status bar, that text will show in the form's status bar when
-the mouse enters the control. 
+the mouse enters the control.
 
 Expanded the dabo.ui.strToBmp() function to accept an optional scale factor
-or width/height values. If they are passed, the returned bitmap image is 
+or width/height values. If they are passed, the returned bitmap image is
 sized to those values.
 
 Added an optional parameter to the bizobj and cursor's getDataSet() method.
-If you send a list of field names, only those fields are returned. 
+If you send a list of field names, only those fields are returned.
 
 Fixed some lingering bugs in the dabo.ui.uiwx package and the datanav
-lib. dWizard works better now. Improved dGauge, dLine, dBox, dRadioBox, 
+lib. dWizard works better now. Improved dGauge, dLine, dBox, dRadioBox,
 dListBox, dToolBar, and dSizers.
 
 Added simple decimal support to dTextBox.
 
-Work continues on dGrid, specifically dColumn is now better worked 
+Work continues on dGrid, specifically dColumn is now better worked
 into the "Dabo Way".
 
 Added dabo.trace() function, that will drop you into pdb.
@@ -2246,7 +2501,7 @@ dConnectInfo reworked to have better property names.
 Removed dependency on PIL and reportlab from Dabo. These are dependencies
 still, but only if you try to run a report.
 
-Added dabo.lib.StopWatch.StopWatch class, which is a light Python 
+Added dabo.lib.StopWatch.StopWatch class, which is a light Python
 stopwatch with start(), stop(), reset() methods and Value property.
 
 This is a partial list. Both Ed and Paul have been very busy with Dabo
@@ -2263,24 +2518,24 @@ constructor in the properties arg or as separate named arguments. The
 framework sorts out when the properties need to be set in the object
 construction cycle.
 
-Improved sizers by separating out the Halign and Valign properties, 
-eliminating the need to use the 'alignment' flags parameter. Added the 
-'Parent' property, making it easy to reference the control that 'owns' 
-the sizer. Also added the convenience method 'append1x(item)', which is 
-shorthand for writing 'append(item, 1, "expand")', since it is used so 
+Improved sizers by separating out the Halign and Valign properties,
+eliminating the need to use the 'alignment' flags parameter. Added the
+'Parent' property, making it easy to reference the control that 'owns'
+the sizer. Also added the convenience method 'append1x(item)', which is
+shorthand for writing 'append(item, 1, "expand")', since it is used so
 frequently. The grid sizers now have 'isRowGrowable()' and 'isColGrowable()'
 methods for checking the status of any row/column.
 
 New dGrid, with dColumn and Header objects available for reference.
 
-Lots of convenience functions written, such as those designed for simplified 
-access to common dialogs, are now built into the dabo.ui module. Examples: 
-getFile(), getColor(), getBitmap(), and the getString() functions, which all 
-create, show and destroy the required dialog window, and then return the 
-result. So, to present the user with a font selection dialog, just call 
-dabo.ui.getFont(), and the selected font will be returned (or None if they 
-canceled). Similarly, to show a common messagebox and get the response, 
-just use dabo.ui.info(), dabo.ui.stop(), or dabo.ui.areYouSure(). 
+Lots of convenience functions written, such as those designed for simplified
+access to common dialogs, are now built into the dabo.ui module. Examples:
+getFile(), getColor(), getBitmap(), and the getString() functions, which all
+create, show and destroy the required dialog window, and then return the
+result. So, to present the user with a font selection dialog, just call
+dabo.ui.getFont(), and the selected font will be returned (or None if they
+canceled). Similarly, to show a common messagebox and get the response,
+just use dabo.ui.info(), dabo.ui.stop(), or dabo.ui.areYouSure().
 
 doDefault() much faster now (thanks to Alex Martelli)
 
@@ -2298,7 +2553,7 @@ We finally have distutils support. To install Dabo, do the standard
 Dabo-0.3.2 (2005-03-21) (Revision 959):
 
 Work continued on the Dabo report writer and report designer. The
-writer will now read and write the rfxml file format, and will do some 
+writer will now read and write the rfxml file format, and will do some
 simple reports. The designer will edit the rfxml files, again, with simple
 formats. This isn't ready to use yet but the foundation is in place.
 
@@ -2313,12 +2568,12 @@ dTreeView introduced.
 dGrid is being refactored, and is almost done. For a short time, it can
 be found as dGridX.
 
-We worked hard trying to get window closing not to segfault on Windows, 
+We worked hard trying to get window closing not to segfault on Windows,
 to get icons to display correctly on Mac, and to optimize Dabo in some key
 bottleneck areas. We've greatly improved Dabo's performance on all platforms,
 and Dabo now behaves less differently on each platform.
 
-Improved data binding: controls don't need to bind to a bizobj, but to any 
+Improved data binding: controls don't need to bind to a bizobj, but to any
 object expression.
 
 Improved Firebird and PostgreSQL support.
@@ -2361,25 +2616,25 @@ Menus simplified, removing wx-specific calls.
 
 My favorite UI debugging tool: getMouseObject()
 
-Framework classes now consistently use the standard initialization 
+Framework classes now consistently use the standard initialization
 methods: initProperties, initEvents, etc.
 
 Child requeries and transaction support added to bizobj
 
-Bizobjs now support the relationSpecs.rsxml format for adding child 
+Bizobjs now support the relationSpecs.rsxml format for adding child
 relations.
 
 Support for fulltext-type searches by word added.
 
-Auxiliary (one-shot) cursors added to main cursors for better support 
+Auxiliary (one-shot) cursors added to main cursors for better support
 of different backends.
 
 Improved unicode support in cursors.
 
-Added support for PostgreSQL. Added template to ease creation of new 
+Added support for PostgreSQL. Added template to ease creation of new
 backend support scripts.
 
-appWizard: added support for parent/child/grandchild/... relationships; 
+appWizard: added support for parent/child/grandchild/... relationships;
 improved FieldSpecEditor.
 
 appWizard/dDataNav* classes:
@@ -2391,10 +2646,10 @@ appWizard/dDataNav* classes:
 
 Controls:
     + Now auto-name themselves. Unique name enforcement added.
-    + Added _IsContainer attribute to distinguish controls that can add other 
+    + Added _IsContainer attribute to distinguish controls that can add other
       controls to themselves.
     + Added support for setting colors by name instead of RGB tuple.
-    + Fixed resizing bug that would not allow a resized object to be made 
+    + Fixed resizing bug that would not allow a resized object to be made
       smaller.
 
 
@@ -2410,15 +2665,15 @@ Added logger objects to send program output to, instead of directly to stdout.
 
 Began abstraction of Tkinter at purely an experimental level.
 
-Added some new controls, such as a better date control and a combo box. 
+Added some new controls, such as a better date control and a combo box.
 
 Brought in some Foxpro string functions from the openfox project.
 
-New event model, greatly simplifying the binding of events, the raising of 
+New event model, greatly simplifying the binding of events, the raising of
 events, and the subclassing of events to define new events.
 
-Added preliminary unicode support to the cursor level. 
-	
+Added preliminary unicode support to the cursor level.
+
 
 ===============================================================================
 Dabo-0.1.1 (2004-06-13):

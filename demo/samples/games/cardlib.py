@@ -24,7 +24,7 @@ class Card(dabo.ui.dBitmap):
 				suit = self.Suit.lower()
 				pic = "%s/%s%s" % (self.Parent.DeckDirectory, suit, ustr(rank))
 		self.Picture = pic
-		
+
 
 	def _getDesc(self):
 		rank = self.Rank
@@ -45,7 +45,7 @@ class Card(dabo.ui.dBitmap):
 			suitNames = {"S" : "Spades", "D" : "Diamonds", "H" : "Hearts", "C" : "Clubs"}
 			ret += " of %s" % suitNames[suit]
 		return ret
-	
+
 
 	def _getAlternatePicture(self):
 		if hasattr(self, "_alternatePicture"):
@@ -53,54 +53,54 @@ class Card(dabo.ui.dBitmap):
 		else:
 			v = self._alternatePicture = None
 		return v
-		
+
 	def _setAlternatePicture(self, val):
 		self._alternatePicture = val
 		self.updPic()
 
-	
+
 	def _getFaceUp(self):
 		if hasattr(self, "_faceUp"):
 			v = self._faceUp
 		else:
 			v = self._faceUp = False
 		return v
-		
+
 	def _setFaceUp(self, val):
 		if self.FaceUp != val:
 			self._faceUp = bool(val)
 			self.updPic()
-			
-	
+
+
 	def _getRank(self):
 		if hasattr(self, "_rank"):
 			v = self._rank
 		else:
 			v = self._rank = None
 		return v
-		
+
 	def _setRank(self, val):
 		if self.Rank != val:
 			self._rank = val
 			self.updPic()
-			
-	
+
+
 	def _getSuit(self):
 		if hasattr(self, "_suit"):
 			v = self._suit
 		else:
 			v = self._suit = None
 		return v
-		
+
 	def _setSuit(self, val):
 		suit = val[0].upper()
 		if self.Suit != suit:
 			if suit in ("H", "D", "S", "C"):
 				self._suit = suit
 				self.updPic()
-				
 
-	AlternatePicture = property(_getAlternatePicture, _setAlternatePicture, None, 
+
+	AlternatePicture = property(_getAlternatePicture, _setAlternatePicture, None,
 			_("Alternate picture to show on face of card, overriding default behavior."))
 
 	Description = property(_getDesc, None, None,
@@ -148,7 +148,7 @@ class Deck(list):
 		"""Turn all cards face down."""
 		for card in self:
 			card.FaceUp = False
-	
+
 
 class PokerDeck(Deck):
 	def createDeck(self):

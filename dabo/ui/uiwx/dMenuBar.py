@@ -46,7 +46,7 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		if ret:
 			menu.Parent = self
 		return ret
-		
+
 
 	def insertMenu(self, pos, menu):
 		"""Inserts a dMenu in the dMenuBar at the specified position."""
@@ -104,15 +104,15 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		This is used by the append(), insert(), and prepend() functions.
 		"""
 		return dMenu.dMenu(self, Caption=caption, MenuID=MenuID)
-		
+
 
 	def remove(self, indexOrMenu, release=True):
 		"""Removes the menu at the specified index from the menu bar. You may
 		also pass a reference to the menu, or the menu's Caption, and it will
 		find the associated index.
 
-		If release is True (the default), the menu is deleted as well. If release 
-		is False, a reference to the menu object will be returned, and the caller 
+		If release is True (the default), the menu is deleted as well. If release
+		is False, a reference to the menu object will be returned, and the caller
 		is responsible for deleting it.
 		"""
 		if isinstance(indexOrMenu, dabo.ui.dMenu):
@@ -130,8 +130,8 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 
 	def getMenu(self, idOrCaption):
-		"""Returns a reference to the menu with the specified MenuID or Caption. 
-		The MenuID property is checked first; then the Caption. If no match is found, 
+		"""Returns a reference to the menu with the specified MenuID or Caption.
+		The MenuID property is checked first; then the Caption. If no match is found,
 		None is returned.
 		"""
 		id = caption = idOrCaption
@@ -191,6 +191,6 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 	Count = property(_getCount, None, None,
 			_("Returns the number of child menus. Read-only.  (int)"))
-	
+
 	Form = property(_getForm, _setForm, None,
 			_("Specifies the form that we are a member of.  (dabo.ui.dForm)"))

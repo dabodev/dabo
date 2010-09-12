@@ -29,12 +29,12 @@ class AlignmentMixin(object):
 		else:
 			raise ValueError("The only possible values are "
 							"'Left', 'Center', and 'Right'.")
-							
+
 	Alignment = property(_getAlignment, _setAlignment, None,
 			_("""Specifies the alignment of the text. (str)
 			Left (default)
 			Center
 			Right""") )
-			
+
 	DynamicAlignment = makeDynamicProperty(Alignment)
 

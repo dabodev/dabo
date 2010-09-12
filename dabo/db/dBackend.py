@@ -257,8 +257,8 @@ class dBackend(dObject):
 					if pt.lower() not in lowkeys])
 			return exp % subs
 		return exp
-	
-	
+
+
 	def addField(self, clause, exp, alias=None, autoQuote=True):
 		""" Add a field to the field clause."""
 		indent = len("select ") * " "
@@ -272,7 +272,7 @@ class dBackend(dObject):
 		exp = self.processFields(exp)
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
-	
+
 	def addFrom(self, clause, exp, alias=None, autoQuote=True):
 		""" Add a table to the sql statement."""
 		exp = self.encloseNames(exp, autoQuote=autoQuote, keywords=("as",))
@@ -280,8 +280,8 @@ class dBackend(dObject):
 			exp = "%(exp)s as %(alias)s" % locals()
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
-	
-	
+
+
 	def addJoin(self, tbl, joinCondition, exp, joinType=None, autoQuote=True):
 		""" Add a joined table to the sql statement."""
 		tbl = self.encloseNames(tbl, autoQuote=autoQuote, keywords=("as",))
@@ -336,8 +336,8 @@ class dBackend(dObject):
 		for specific backends.
 		"""
 		return clause
-	
-	
+
+
 	def formatJoinType(self, jt):
 		"""Default formatting for jointype keywords. Override in subclasses if needed."""
 		if jt is None:
@@ -438,7 +438,7 @@ class dBackend(dObject):
 			auxCrs._whereClause = holdWhere
 		descFlds = auxCrs.FieldDescription
 		# Get the raw version of the table
-		sql = "select * from %s where 1=0 " % self.encloseNames(cursor.Table, 
+		sql = "select * from %s where 1=0 " % self.encloseNames(cursor.Table,
 				autoQuote=autoQuote)
 		auxCrs.execute( sql )
 		# This is the clean version of the table.
@@ -496,7 +496,7 @@ class dBackend(dObject):
 		for field in field_names:
 			ret.append( (field, field_structure[field][0], field_structure[field][1]) )
 		return tuple(ret)
-		
+
 
 	##########		Created by Echo 	##############
 	def isExistingTable(self, table):

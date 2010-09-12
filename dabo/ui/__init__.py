@@ -4,13 +4,13 @@
 There are submodules for all supported UI libraries. As of this writing,
 the only supported UI library is wxPython (uiwx).
 
-To use a given submodule at runtime, you need to call loadUI() with the 
+To use a given submodule at runtime, you need to call loadUI() with the
 ui module you want as a parameter. For instance, to load wxPython, you
 would issue:
 
 	import dabo.ui
 	dabo.ui.loadUI("wx")
-	
+
 """
 import os
 import traceback
@@ -52,7 +52,7 @@ def loadUI(uiType):
 		typ = "tk"
 	else:
 		raise ValueError("Unknown UI type '%s' passed to loadUI()" % uiType)
-	
+
 	if currType is None:
 		try:
 			exec("from %s import *" % mods[typ], globals())
@@ -71,10 +71,10 @@ def loadUI(uiType):
 					% locals())
 	return retVal
 
-	
+
 # Automatically load a default UI if the environmental variable exists.
 # If the DABO_DEFAULT_UI exists, that ui will be loaded into the dabo.ui
-# global namespace. This is really only meant as a convenience for the 
+# global namespace. This is really only meant as a convenience for the
 # dabo developers when rolling single-file distributions - we don't want
 # everyone setting this environment variable. To specify the UI for your
 # app, you should instead set the UI property of the dApp object.
@@ -96,16 +96,16 @@ else:
 	pass
 	#dabo.log.info(_("No default UI set. (DABO_DEFAULT_UI)"))
 
-	
-	
+
+
 def getEventData(uiEvent):
 	""" Given a UI-specific event object, return a UI-agnostic name/value dictionary.
-	
+
 	This function must be overridden in each ui library's __init__.py to function
 	correctly.
 	"""
 	return {}
-	
+
 
 def makeDynamicProperty(prop, additionalDoc=None):
 	"""Make a Dynamic property for the passed property.
@@ -141,45 +141,45 @@ def makeDynamicProperty(prop, additionalDoc=None):
 
 Specify a function and optional arguments that will get called from the
 update() method. The return value of the function will get set to the
-%(propName)s property. If Dynamic%(propName)s is set to None (the default), %(propName)s 
+%(propName)s property. If Dynamic%(propName)s is set to None (the default), %(propName)s
 will not be dynamically evaluated.
 """) % locals()
 
 	if additionalDoc:
 		doc += "\n\n" + additionalDoc
 
-	return property(fget, fset, None, doc)	
+	return property(fget, fset, None, doc)
 
 
 def makeProxyProperty(dct, nm, proxyAtts):
 	"""When creating composite controls, it is necessary to be able to pass through
 	property get/set calls to an object or objects within the composite control. For
-	example, if a class based on dPanel contains a textbox and a label, I might want 
+	example, if a class based on dPanel contains a textbox and a label, I might want
 	to proxy the class's Caption to the label's Caption, the Value to the textbox, and
-	the FontSize to both. In order to do this, the object(s) to be proxied must be 
-	stored in the custom class as references in attributes of the custom class, and 
-	passed in the 'proxyAtts' parameter. In addition, passing 'self' as one of the 
-	proxyAtts will apply the property to the custom class itself; a good example 
-	would be a property like 'Height': the outer panel needs to grow as well as the 
-	inner controls. In this case, assuming you store a reference to the textbox and 
-	label in attributes named '_textbox' and '_label', respectively, the code in your 
+	the FontSize to both. In order to do this, the object(s) to be proxied must be
+	stored in the custom class as references in attributes of the custom class, and
+	passed in the 'proxyAtts' parameter. In addition, passing 'self' as one of the
+	proxyAtts will apply the property to the custom class itself; a good example
+	would be a property like 'Height': the outer panel needs to grow as well as the
+	inner controls. In this case, assuming you store a reference to the textbox and
+	label in attributes named '_textbox' and '_label', respectively, the code in your
 	custom composite class would look like:
-	
+
 		_proxyDict = {}
 		Caption = makeProxyProperty(_proxyDict, "Caption", "_label")
 		FontSize = makeProxyProperty(_proxyDict, "FontSize", ("_textbox", "_label"))
 		Height = makeProxyProperty(_proxyDict, "Value", ("self", "_textbox"))
 		Value = makeProxyProperty(_proxyDict, "Value", "_textbox")
-	
-	For setter operations, if the 'proxyAtts' is a sequence of more than one object, the 
-	setting will be applied to all. For the getter, only the first object in the sequence 
+
+	For setter operations, if the 'proxyAtts' is a sequence of more than one object, the
+	setting will be applied to all. For the getter, only the first object in the sequence
 	with that property will be used.
-	
+
 	You must declare an attribute named '_proxyDict' in the class definition before you
 	call this method; '_proxyDict' should be an empty dictionary. This dict needs to be
-	passed to this method, since there is no 'self' reference at the time that properties 
+	passed to this method, since there is no 'self' reference at the time that properties
 	are declared in a class definition.
-	
+
 	'nm' is the name of the property to be proxied. 'proxyAtts' is either a single string
 	with the name of the attribute that will hold the reference to the inner control, or
 	it should be a tuple of strings, each of which is the name of an attribute that contains
@@ -198,7 +198,7 @@ def makeProxyProperty(dct, nm, proxyAtts):
 				ret = getattr(obj, nm)
 			break
 		return ret
-	
+
 	def _resolveSet(self, nm, val):
 		if not self._constructed():
 			return

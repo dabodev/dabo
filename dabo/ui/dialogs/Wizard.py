@@ -10,10 +10,10 @@ from WizardPage import WizardPage
 class Wizard(dabo.ui.dDialog):
 	""" This is the main form for creating wizards. To use it, define
 	a series of wizard pages, based on WizardPage. Then add these
-	classes to your subclass of Wizard. The order that you add them 
+	classes to your subclass of Wizard. The order that you add them
 	will be the order that they appear in the wizard.
 	"""
-	
+
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		pgs = self._extractKey(kwargs, "Pages")
 		kwargs["BorderResizable"] = kwargs.get("BorderResizable", False)
@@ -25,35 +25,35 @@ class Wizard(dabo.ui.dDialog):
 		self._blankPage = None
 		self._defaultPicture = ""
 		self.wizardIcon = None
-		super(Wizard, self).__init__(parent=parent, 
+		super(Wizard, self).__init__(parent=parent,
 				properties=properties, *args, **kwargs)
-		
+
 		# Add the main panel
 		mp = self.mainPanel = dabo.ui.dPanel(self)
 		self.Sizer.append(mp, 1, "x")
 		mp.Sizer = dabo.ui.dSizer(self.Sizer.Orientation)
-		
+
 		# Experimental!
 		# Automatically sets the page to match the form's BackColor. Set
 		# this to False if you want the pages to have their own BackColor.
 		self.setPageColor = False
-		
+
 		# Changing this attribute determines if we confirm when
 		# the user clicks 'Cancel'
 		self.verifyCancel = True
-		# This is the message displayed to the user when a Cancel 
+		# This is the message displayed to the user when a Cancel
 		# confirmation is displayed.
 		self.confirmCancelMsg = _("Are you sure you want to exit?")
 		# We want to size the form explicitly
 		self.SaveRestorePosition = False
 		# We also want the wizard to respect explicit sizing
 		self.AutoSize = False
-		
+
 		self.setup()
 		if pgs:
 			self.append(pgs)
-		
-	
+
+
 	def setup(self):
 		""" This creates the controls used by the wizard. """
 		mp = self.mainPanel
@@ -65,7 +65,7 @@ class Wizard(dabo.ui.dDialog):
 		mpsz.DefaultBorderLeft = mpsz.DefaultBorderRight = True
 		# Add a top border
 		mpsz.appendSpacer(mpsz.DefaultBorder)
-		
+
 		self.wizardIcon = dabo.ui.dImage(mp, ScaleMode="Proportional")
 		if not self.Picture:
 			self.PictureHeight = self.PictureWidth = 96
@@ -73,25 +73,25 @@ class Wizard(dabo.ui.dDialog):
 		hsz = dabo.ui.dSizer("h")
 		hsz.DefaultSpacing = 20
 		hsz.append(self.wizardIcon, 0)
-		
+
 		# This is the panel that will contain the various pages
 		pp = self.pagePanel = dabo.ui.dPanel(mp)
 		if self.setPageColor:
 			pp.BackColor = pp.Parent.BackColor
-		ppsz = pp.Sizer = dabo.ui.dSizer("v") 
-		
+		ppsz = pp.Sizer = dabo.ui.dSizer("v")
+
 		hsz.append(pp, 1, "x")
 		mpsz.append(hsz, 1, "x")
-		
+
 		# Separator line
 		ln = dabo.ui.dLine(mp)
 		mpsz.append(ln, "x")
-		
+
 		# Buttons
 		hsz = dabo.ui.dSizer("h")
 		hsz.DefaultSpacing = 5
-		self.btnBack = dabo.ui.dButton(mp, Caption=_("< Back") )	
-		self.btnNext = dabo.ui.dButton(mp, Caption=_("Next >") )	
+		self.btnBack = dabo.ui.dButton(mp, Caption=_("< Back") )
+		self.btnNext = dabo.ui.dButton(mp, Caption=_("Next >") )
 		self.btnCancel = dabo.ui.dButton(mp, Caption=_("Cancel") )
 		hsz.append(self.btnBack)
 		hsz.append(self.btnNext)
@@ -99,40 +99,40 @@ class Wizard(dabo.ui.dDialog):
 		self.btnBack.bindEvent(dEvents.Hit, self.onBack)
 		self.btnNext.bindEvent(dEvents.Hit, self.onNext)
 		self.btnCancel.bindEvent(dEvents.Hit, self.onCancel)
-		
+
 		mpsz.append(hsz, 0, alignment=("right", "bottom") )
-		
+
 		# Add the top and bottom borders
 		mpsz.prependSpacer(mpsz.DefaultBorder)
 		mpsz.appendSpacer(mpsz.DefaultBorder)
-		
+
 
 	def onBack(self, evt):
 		pg = self._pages[self.CurrentPage]
 		self.CurrentPage += pg.prevPage()
-		
-		
+
+
 	def onNext(self, evt):
 		pg = self._pages[self.CurrentPage]
 		if self.CurrentPage == (self.PageCount-1):
-			# This is actually 'Finish', so call the 
+			# This is actually 'Finish', so call the
 			# finish() method, which will by default
-			# close the wizard, or if the wizard is not 
+			# close the wizard, or if the wizard is not
 			# complete, keep it open to the last page.
 			self._finish()
-		else:	
+		else:
 			self.CurrentPage += pg.nextPage()
-		
-		
+
+
 	def onCancel(self, evt):
 		# User clicked the Cancel button
 		if self.verifyCancel:
-			if not dabo.ui.areYouSure(self.confirmCancelMsg, 
+			if not dabo.ui.areYouSure(self.confirmCancelMsg,
 					"Cancel Received", cancelButton=False):
 				return
 		dabo.ui.callAfter(self.closeWizard)
-				
-	
+
+
 	def _finish(self):
 		pg = self._pages[self.CurrentPage]
 		ok = pg.onLeavePage("forward")
@@ -143,25 +143,25 @@ class Wizard(dabo.ui.dDialog):
 
 
 	def finish(self):
-		"""This is the place to do any of your cleanup actions. You 
+		"""This is the place to do any of your cleanup actions. You
 		can prevent the wizard from closing by returning False.
 		"""
 		return True
-		
-	
+
+
 	def start(self):
 		self.CurrentPage = 0
-		self.show()	
-	
-	
+		self.show()
+
+
 	def closeWizard(self):
 		self.close(True)
 		if self.Parent is None:
 			# Since this is a dialog, we need to explicitly remove
 			# it or the app will hang.
 			self.Destroy()
-			
-	
+
+
 	def append(self, pg):
 		if isinstance(pg, (list, tuple)):
 			ret = []
@@ -170,8 +170,8 @@ class Wizard(dabo.ui.dDialog):
 		else:
 			ret = self.insert(len(self._pages), pg)
 		return ret
-		
-	
+
+
 	def insert(self, pos, pg):
 		if isinstance(pg, (list, tuple)):
 			pg.reverse()
@@ -179,11 +179,11 @@ class Wizard(dabo.ui.dDialog):
 			for p in pg:
 				ret.append(self.insert(pos, p))
 		else:
-			# Give subclasses a chance to override 
+			# Give subclasses a chance to override
 			page = self._insertWizardPageOverride(pos, pg)
 			if page is None:
 				if isinstance(pg, WizardPage):
-					# Already instantiated. First make sure it is a child of 
+					# Already instantiated. First make sure it is a child of
 					# the page panel
 					if pg.Parent is not self.pagePanel:
 						pg.changeParent(self.pagePanel)
@@ -201,8 +201,8 @@ class Wizard(dabo.ui.dDialog):
 			ret = page
 		return ret
 	def _insertWizardPageOverride(self, pos, pg): pass
-	
-	
+
+
 	def getPageByClass(self, pgClass):
 		"""Returns the first page that is an instance of the passed class"""
 		try:
@@ -210,8 +210,8 @@ class Wizard(dabo.ui.dDialog):
 		except IndexError:
 			ret = None
 		return ret
-		
-	
+
+
 	def showPage(self):
 		if self.PageCount == 0:
 			return
@@ -219,7 +219,7 @@ class Wizard(dabo.ui.dDialog):
 			self.pagePanel.Sizer.remove(self._blankPage)
 			self._blankPage.release()
 		for idx in range(self.PageCount):
-			page = self._pages[idx] 
+			page = self._pages[idx]
 			self.pagePanel.Sizer.remove(page)
 			if idx == self._currentPage:
 				page.Visible = True
@@ -241,8 +241,8 @@ class Wizard(dabo.ui.dDialog):
 			else:
 				page.Visible = False
 		self.layout()
-	
-	
+
+
 	def showBlankPage(self):
 		if self._blankPage is None:
 			self._blankPage = WizardPage(self.pagePanel)
@@ -251,8 +251,8 @@ class Wizard(dabo.ui.dDialog):
 		self.pagePanel.Sizer.append(self._blankPage, 1, "x")
 		self.btnBack.Enabled = self.btnNext.Enabled = False
 		self.layout()
-	
-	
+
+
 	def getRelativePage(self, orig, incr):
 		""" Accepts a page reference and an offset, and returns
 		the page that is that many places away in the page order.
@@ -265,12 +265,12 @@ class Wizard(dabo.ui.dDialog):
 		except IndexError:
 			ret = None
 		return ret
-		
+
 
 	# Property methods
 	def _getCurrPage(self):
 		return self._currentPage
-		
+
 	def _setCurrPage(self, val):
 		if isinstance(val, WizardPage):
 			val = self._pages.index(val)
@@ -281,7 +281,7 @@ class Wizard(dabo.ui.dDialog):
 		if val == self._currentPage:
 			# No change
 			return
-		self.raiseEvent(dEvents.PageChanging, oldPageNum=self._currentPage, 
+		self.raiseEvent(dEvents.PageChanging, oldPageNum=self._currentPage,
 				newPageNum=val)
 		if self._currentPage < 0:
 			direction = "forward"
@@ -303,21 +303,21 @@ class Wizard(dabo.ui.dDialog):
 		self._currentPage = val
 		self._pages[self._currentPage].onEnterPage(direction)
 		self.showPage()
-		dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged, 
+		dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged,
 				oldPageNum=oldPg, newPageNum=newPg)
-		
+
 
 	def _getPageCount(self):
 		return len(self._pages)
-		
-	
+
+
 	def _getPicture(self):
 		try:
 			ret = self._defaultPicture
 		except AttributeError:
 			ret = ""
 		return ret
-		
+
 	def _setPicture(self, val):
 		if self._constructed():
 			try:
@@ -331,7 +331,7 @@ class Wizard(dabo.ui.dDialog):
 		else:
 			self._properties["Picture"] = val
 
-	
+
 	def _getPictureHeight(self):
 		return self.wizardIcon.Height
 
@@ -367,18 +367,18 @@ class Wizard(dabo.ui.dDialog):
 
 	PageCount = property(_getPageCount, None, None,
 			_("Number of pages in this wizard  (int)") )
-	
+
 	Picture = property(_getPicture, _setPicture, None,
 			_("Sets the visible icon for the wizard.  (str/path)") )
-	
+
 	PictureHeight = property(_getPictureHeight, _setPictureHeight, None,
 			_("Height of the wizard icon in pixels  (int)"))
-	
+
 	PictureWidth = property(_getPictureWidth, _setPictureWidth, None,
 			_("Width of the wizard icon in pixels  (int)"))
-	
-	
-	
+
+
+
 
 
 if __name__ == "__main__":
@@ -391,27 +391,27 @@ if __name__ == "__main__":
 
 I know that I am!!""") )
 			self.Sizer.append(lbl, alignment="center")
-			
-			
+
+
 	class WizPageTwo(WizardPage):
 		def createBody(self):
 			self.Caption = _("This is the second page")
 			lbl = dabo.ui.dLabel(self, Caption=_(
-"""This will demonstrate condtional skipping of 
-pages. If the checkbox below is checked, clicking 
+"""This will demonstrate condtional skipping of
+pages. If the checkbox below is checked, clicking
 'Next' will move to Page 4 instead of Page 3.""") )
 			self.chk = dabo.ui.dCheckBox(self, Caption="Skip?")
 			self.Sizer.append(lbl, alignment="center")
 			self.Sizer.appendSpacer(10)
 			self.Sizer.append(self.chk, alignment="center")
-		
+
 		def skipIt(self):
 			return self.chk.Value
-			
+
 		def nextPage(self):
 			ret = 1
 			if self.skipIt():
-				# They checked the 'skip' box. 
+				# They checked the 'skip' box.
 				ret = 2
 			return ret
 
@@ -420,7 +420,7 @@ pages. If the checkbox below is checked, clicking
 		def createBody(self):
 			self.Caption = _("This is the third page")
 			lbl = dabo.ui.dLabel(self, Caption=_(
-"""You should only see this if you did not check 
+"""You should only see this if you did not check
 the box on Page Two.
 """) )
 			self.Sizer.append(lbl, alignment="center")
@@ -443,12 +443,12 @@ the box on Page Two.
 					"Also note that this page has a different icon!") )
 			self.Sizer.appendSpacer(5)
 			self.Sizer.append(lbl, alignment="center")
-			
+
 
 		def prevPage(self):
 			""" If the checkbox on the second page is checked,
 			we want to skip over page three again. This demonstrates
-			calling to the parent form to get references to other 
+			calling to the parent form to get references to other
 			pages.
 			"""
 			ret = -1
@@ -456,7 +456,7 @@ the box on Page Two.
 			if pg.skipIt():
 				ret = -2
 			return ret
-		
+
 		def onLeavePage(self, dir):
 			ret = True
 			if dir == "forward":
@@ -470,13 +470,13 @@ the box on Page Two.
 		def createBody(self):
 			self.Caption = _("This is the fifth (and last) page")
 			lbl = dabo.ui.dLabel(self, Caption=_(
-"""This is the last page. Note that the 'Next' button 
+"""This is the last page. Note that the 'Next' button
 now reads 'Finish'. Click that to exit, or click 'Back'
 to play some more.
 """) )
 			self.Sizer.append(lbl, alignment="center")
 
-		
+
 	app = dabo.dApp()
 	app.MainFormClass = None
 	app.setup()
@@ -485,6 +485,6 @@ to play some more.
 	wiz = Wizard(Picture="daboIcon096", Height=450, Width=530,
 			Pages=(WizPageOne, WizPageTwo, WizPageThree, WizPageFour,
 			WizPageFive) )
-	
+
 	wiz.start()
 	app.start()

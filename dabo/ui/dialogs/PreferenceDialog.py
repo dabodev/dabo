@@ -37,11 +37,11 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		# on the user's action.
 		self.preferenceKeys = []
 		super(PreferenceDialog, self)._afterInit()
-	
+
 
 	def addControls(self):
-		"""Add the base PageList, and then delete this method from the 
-		namespace. Users will customize with addCategory() and then 
+		"""Add the base PageList, and then delete this method from the
+		namespace. Users will customize with addCategory() and then
 		adding controls to the category page.
 		"""
 		self._addPages()
@@ -49,8 +49,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		self.layout()
 		# Use this to 'delete' addControls() so that users don't try to use this method.
 		self.addControls = None
-	
-	
+
+
 	def _addPages(self):
 #		self.pgfMain = dabo.ui.dPageList(self, TabPosition="Left",
 # 				ListSpacing=20)
@@ -65,24 +65,24 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		self.Sizer.append1x(self.pgfMain)
 		self.update()
 		self.layout()
-	
-	
+
+
 	def addPages(self): pass
 
 
 	def appendPage(self, pgCls=None, *args, **kwargs):
 		"""Pass-through method to the internal paged control"""
 		return self.pgfMain.appendPage(pgCls, *args, **kwargs)
-	
-	
+
+
 	def insertPage(self, pos, pgCls=None, *args, **kwargs):
 		"""Pass-through method to the internal paged control"""
 		return self.pgfMain.insertPage(pos, pgCls, *args, **kwargs)
-	
-	
+
+
 	def _onAcceptPref(self):
 		"""This is called by the app when the user clicks the OK button. Every method in
-		the callOnAccept list is called, followed by a call to the user-configurable 
+		the callOnAccept list is called, followed by a call to the user-configurable
 		onAccept() method.
 		"""
 		self.activeControlValid()
@@ -90,29 +90,29 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 			fnc()
 		# Call the user-configurable method
 		self.onAcceptPref()
-	
-	
+
+
 	def onAcceptPref(self):
 		"""Override this for subclasses where you need separate OK processing."""
 		pass
-		
+
 
 	def _onCancelPref(self):
-		"""This is called by the app when the user clicks the Cancel button. Every method 
-		in the callOnCancel list is called, followed by a call to the user-configurable 
+		"""This is called by the app when the user clicks the Cancel button. Every method
+		in the callOnCancel list is called, followed by a call to the user-configurable
 		onCancel() method.
 		"""
 		for fnc in self.callOnCancel:
 			fnc()
 		# Call the user-configurable method
 		self.onCancelPref()
-	
-	
+
+
 	def onCancelPref(self):
 		"""Override this for subclasses where you need separate Cancel processing."""
 		pass
-	
-	
+
+
 	def addCategory(self, category, pos=None):
 		"""Adds a page to the main PageList control, sets the caption to the
 		passed string, and returns a reference to the page. If the optional 'pos'
@@ -122,8 +122,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		if pos is None:
 			pos = self.pgfMain.PageCount
 		return self.pgfMain.insertPage(pos, caption=category)
-	
-	
+
+
 	def _addDefaultPages(self):
 		"""Called when no other code exists to fill the dialog, or when
 		the class's IncludeDefaultPages property is True.
@@ -141,7 +141,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 			pm = af.PreferenceManager.menu
 			self.preferenceKeys.append(pm)
 			menuPage = self.pgMenuKeys = self.addCategory(_("Menu Keys"))
-			self._selectedItem = None	
+			self._selectedItem = None
 			self._hotKeyMap = {}
 			menuPage.Sizer.Orientation = "H"
 			tree = dabo.ui.dTreeView(menuPage, OnTreeSelection=self._onMenuTreeSelection,
@@ -159,7 +159,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 			menuPage.Sizer.append1x(tree, border=10)
 			root.expand()
 			self._originalHotKeyMap = self._hotKeyMap.copy()
-			
+
 			sz = dabo.ui.dGridSizer(MaxCols=2, HGap=5, VGap=10)
 			lbl = dabo.ui.dLabel(menuPage, Caption=_("Current Key:"))
 			txt = dabo.ui.dTextBox(menuPage, ReadOnly=True, Alignment="Center",
@@ -201,7 +201,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 					pass
 				kidnode.Object = itm
 
-	
+
 	def _onMenuTreeSelection(self, evt):
 		self._selectedItem = nd = evt.selectedNode
 		if nd.IsRootNode:
@@ -211,8 +211,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		else:
 			self.txtMenuCurrentHotKey.Value = nd.hotkey
 		self.update()
-	
-	
+
+
 	def _setHotKey(self, evt):
 		dlg = HotKeyEditor(self)
 		itm = self._selectedItem
@@ -226,10 +226,10 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 			if change:
 				dupeItem = self._hotKeyMap.get(hk)
 				if dupeItem and (dupeItem is not itm):
-					msg = _("This key combination is assigned to the menu command '%s'. " + 
-							"Do you wish to re-assign it to the command '%s'?") % (cleanMenuCaption(dupeItem.Caption, "&_"), 
+					msg = _("This key combination is assigned to the menu command '%s'. " +
+							"Do you wish to re-assign it to the command '%s'?") % (cleanMenuCaption(dupeItem.Caption, "&_"),
 							cleanMenuCaption(itm.Caption, "&_"))
-					change = dabo.ui.areYouSure(msg, title=_("Duplicate Keystroke"), defaultNo=True, 
+					change = dabo.ui.areYouSure(msg, title=_("Duplicate Keystroke"), defaultNo=True,
 							cancelButton=False)
 			if change:
 				if dupeItem:
@@ -253,8 +253,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 	def _canSetHotKey(self):
 		itm = self._selectedItem
 		return (itm is not None) and (itm.hotkey != "n/a")
-	
-	
+
+
 	def _clearHotKey(self, evt):
 		itm = self._selectedItem
 		self._hotKeyMap.pop(itm.hotkey)
@@ -289,9 +289,9 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		self.preferenceKeys.append(fp)
 		sz = wuPage.Sizer = dabo.ui.dSizer("v")
 		hsz = dabo.ui.dSizer("h")
-		chkUpdateCheck = dabo.ui.dCheckBox(wuPage, OnHit=self.onChkUpdate, 
+		chkUpdateCheck = dabo.ui.dCheckBox(wuPage, OnHit=self.onChkUpdate,
 				Caption=_("Check for framework updates"), RegID="chkForWebUpdates",
-				DataSource=fp, DataField="web_update", 
+				DataSource=fp, DataField="web_update",
 				ToolTipText="Does the framework check for updates?")
 		btnCheckNow = dabo.ui.dButton(wuPage, Caption=_("Check now..."),
 				OnHit=self.onCheckNow, ToolTipText="Check the Dabo server for updates")
@@ -299,25 +299,25 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		hsz.appendSpacer(8)
 		hsz.append(btnCheckNow, valign="middle")
 		sz.append(hsz, halign="center", border=20)
-		
-		radFrequency = dabo.ui.dRadioList(wuPage, Orientation="Vertical", 
-				Caption=_("Check every..."), RegID="radWebUpdateFrequency", 
+
+		radFrequency = dabo.ui.dRadioList(wuPage, Orientation="Vertical",
+				Caption=_("Check every..."), RegID="radWebUpdateFrequency",
 				Choices=update_choices, Keys=update_keys,
 				ValueMode="Keys", DataSource=fp, DataField="update_interval",
 				ToolTipText=_("How often does the framework check for updates?"),
 				DynamicEnabled = lambda: self.chkForWebUpdates.Value)
 		sz.append(radFrequency, halign="center")
-	
-	
+
+
 	def onChkUpdate(self, evt):
 		self.update()
-		
-		
+
+
 	def onCheckNow(self, evt):
 		ret = self.Application.checkForUpdates()
 		if ret:
 			dabo.ui.info(_("No updates are available now."), title=_("Web Updates"))
-	
+
 	def _getIncludeDefaultPages(self):
 		return self._includeDefaultPages
 
@@ -339,11 +339,11 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
 
 	IncludeDefaultPages = property(_getIncludeDefaultPages, _setIncludeDefaultPages, None,
-			_("""When True, the _addDefaultPages() method is called to add the common 
+			_("""When True, the _addDefaultPages() method is called to add the common
 			Dabo settings. Default=True  (bool)"""))
 
 	IncludeFrameworkPages = property(_getIncludeFrameworkPages, _setIncludeFrameworkPages, None,
-			_("""When True, the _addFrameworkPages() method is called to add the common 
+			_("""When True, the _addFrameworkPages() method is called to add the common
 			Dabo settings. Default=False  (bool)"""))
 
 
@@ -356,4 +356,4 @@ if __name__ == "__main__":
 
 	app = dabo.dApp(MainFormClass=TestForm)
 	app.start()
-	
+

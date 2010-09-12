@@ -6,7 +6,7 @@ import dIcons
 
 
 
-class ImageRenderer(wx.grid.PyGridCellRenderer): 
+class ImageRenderer(wx.grid.PyGridCellRenderer):
 	"""Used to display small images in a column."""
 
 	def __init__(self, *args, **kwargs):
@@ -14,25 +14,25 @@ class ImageRenderer(wx.grid.PyGridCellRenderer):
 		super(ImageRenderer, self).__init__(*args, **kwargs)
 
 
-	def Draw(self, grid, attr, dc, rect, row, col, isSelected): 
-		"""Customisation Point: Draw the data from grid in the rectangle with attributes using the dc""" 
-		self.clip(dc, rect) 
+	def Draw(self, grid, attr, dc, rect, row, col, isSelected):
+		"""Customisation Point: Draw the data from grid in the rectangle with attributes using the dc"""
+		self.clip(dc, rect)
 
 		# We use our custom attr, not the one wx passes:
 		attr = grid._Table.GetAttr(row, col)
-		try: 
-			bitmap = self.getValueBitmap(grid, row, col) 
-			return self.drawBitmap(bitmap, attr, dc, rect, isSelected) 
-		finally: 
-			self.unclip(dc) 
+		try:
+			bitmap = self.getValueBitmap(grid, row, col)
+			return self.drawBitmap(bitmap, attr, dc, rect, isSelected)
+		finally:
+			self.unclip(dc)
 
 
-	def GetBestSize(self, grid, attr, dc, row, col): 
-		"""Customisation Point: Determine the appropriate (best) size for the control, return as wxSize 
+	def GetBestSize(self, grid, attr, dc, row, col):
+		"""Customisation Point: Determine the appropriate (best) size for the control, return as wxSize
 
-		Note: You _must_ return a wxSize object.  Returning a two-value-tuple 
-		won't raise an error, but the value won't be respected by wxPython. 
-		""" 
+		Note: You _must_ return a wxSize object.  Returning a two-value-tuple
+		won't raise an error, but the value won't be respected by wxPython.
+		"""
 		try:
 			return wx.Size(self._lastBitmap.GetWidth(), self._lastBitmap.GetHeight())
 		except AttributeError:
@@ -66,14 +66,14 @@ class ImageRenderer(wx.grid.PyGridCellRenderer):
 			syscolor = wx.SYS_COLOUR_WINDOW
 
 		bkgrd = wx.SystemSettings_GetColour(syscolor)
-		dc.SetBrush( wx.Brush(bkgrd, wx.SOLID)) 
+		dc.SetBrush( wx.Brush(bkgrd, wx.SOLID))
 
-		try: 
-			dc.SetPen(wx.TRANSPARENT_PEN) 
-			dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height) 
-		finally: 
-			dc.SetPen(wx.NullPen) 
-			dc.SetBrush(wx.NullBrush) 
+		try:
+			dc.SetPen(wx.TRANSPARENT_PEN)
+			dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
+		finally:
+			dc.SetPen(wx.NullPen)
+			dc.SetBrush(wx.NullBrush)
 
 		a = attr.GetAlignment()
 		hbuffer = 0
@@ -93,21 +93,21 @@ class ImageRenderer(wx.grid.PyGridCellRenderer):
 		else:
 			t = hbuffer
 
-		dc.DrawBitmap(bitmap, rect.x+l, rect.y+t) 
+		dc.DrawBitmap(bitmap, rect.x+l, rect.y+t)
 
 
-	def clip( self, dc, rect ): 
-		"""Setup the clipping rectangle""" 
-		dc.SetClippingRegion( rect.x, rect.y, rect.width, rect.height ) 
+	def clip( self, dc, rect ):
+		"""Setup the clipping rectangle"""
+		dc.SetClippingRegion( rect.x, rect.y, rect.width, rect.height )
 
 
-	def unclip( self, dc ): 
-		"""Destroy the clipping rectangle""" 
-		dc.DestroyClippingRegion( ) 
+	def unclip( self, dc ):
+		"""Destroy the clipping rectangle"""
+		dc.DestroyClippingRegion( )
 
 
 
-class BoolRenderer(wx.grid.PyGridCellRenderer): 
+class BoolRenderer(wx.grid.PyGridCellRenderer):
 	"""The default wx Bool renderer is really ugly, so this is a replacement."""
 
 	def __init__(self, *args, **kwargs):
@@ -117,29 +117,29 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 
 
 
-	def Draw(self, grid, attr, dc, rect, row, col, isSelected): 
-		"""Customisation Point: Draw the data from grid in the rectangle with attributes using the dc""" 
-		self.clip(dc, rect) 
+	def Draw(self, grid, attr, dc, rect, row, col, isSelected):
+		"""Customisation Point: Draw the data from grid in the rectangle with attributes using the dc"""
+		self.clip(dc, rect)
 
 		# We use our custom attr, not the one wx passes:
 		attr = grid._Table.GetAttr(row, col)
-		try: 
-			bitmap = self.getValueBitmap(grid, row, col) 
-			return self.drawBitmap(bitmap, attr, dc, rect, isSelected) 
-		finally: 
-			self.unclip(dc) 
+		try:
+			bitmap = self.getValueBitmap(grid, row, col)
+			return self.drawBitmap(bitmap, attr, dc, rect, isSelected)
+		finally:
+			self.unclip(dc)
 
 
-	def GetBestSize(self, grid, attr, dc, row, col): 
-		"""Customisation Point: Determine the appropriate (best) size for the control, return as wxSize 
+	def GetBestSize(self, grid, attr, dc, row, col):
+		"""Customisation Point: Determine the appropriate (best) size for the control, return as wxSize
 
-		Note: You _must_ return a wxSize object.  Returning a two-value-tuple 
-		won't raise an error, but the value won't be respected by wxPython. 
-		""" 
+		Note: You _must_ return a wxSize object.  Returning a two-value-tuple
+		won't raise an error, but the value won't be respected by wxPython.
+		"""
 		return wx.Size(self.checkedBitmap.GetWidth(), self.checkedBitmap.GetHeight())
 
 
-	def getValueBitmap(self, grid, row, col): 
+	def getValueBitmap(self, grid, row, col):
 		value = grid._Table.GetValue(row, col, convertNoneToString=False)
 		if value:
 			return self.checkedBitmap
@@ -154,14 +154,14 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 			syscolor = wx.SYS_COLOUR_WINDOW
 
 		bkgrd = wx.SystemSettings_GetColour(syscolor)
-		dc.SetBrush( wx.Brush(bkgrd, wx.SOLID)) 
+		dc.SetBrush( wx.Brush(bkgrd, wx.SOLID))
 
-		try: 
-			dc.SetPen(wx.TRANSPARENT_PEN) 
-			dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height) 
-		finally: 
-			dc.SetPen(wx.NullPen) 
-			dc.SetBrush(wx.NullBrush) 
+		try:
+			dc.SetPen(wx.TRANSPARENT_PEN)
+			dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
+		finally:
+			dc.SetPen(wx.NullPen)
+			dc.SetBrush(wx.NullBrush)
 
 		a = attr.GetAlignment()
 		hbuffer = 0
@@ -181,40 +181,40 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 		else:
 			t = hbuffer
 
-		dc.DrawBitmap(bitmap, rect.x+l, rect.y+t) 
+		dc.DrawBitmap(bitmap, rect.x+l, rect.y+t)
 
 
-	def clip( self, dc, rect ): 
-		"""Setup the clipping rectangle""" 
-		dc.SetClippingRegion( rect.x, rect.y, rect.width, rect.height ) 
+	def clip( self, dc, rect ):
+		"""Setup the clipping rectangle"""
+		dc.SetClippingRegion( rect.x, rect.y, rect.width, rect.height )
 
 
-	def unclip( self, dc ): 
-		"""Destroy the clipping rectangle""" 
-		dc.DestroyClippingRegion( ) 
+	def unclip( self, dc ):
+		"""Destroy the clipping rectangle"""
+		dc.DestroyClippingRegion( )
 
 
 
-class AbstractTextRenderer(wx.grid.PyGridCellRenderer): 
+class AbstractTextRenderer(wx.grid.PyGridCellRenderer):
 	"""This is a starting point for all renderers that simply involve controlling
 	the text displayed in a cell.
 	"""
-	def Draw(self, grid, attr, dc, rect, row, col, isSelected): 
-		"""Customisation Point: Draw the data from grid in the rectangle with attributes using the dc""" 
-		self.clip(dc, rect) 
+	def Draw(self, grid, attr, dc, rect, row, col, isSelected):
+		"""Customisation Point: Draw the data from grid in the rectangle with attributes using the dc"""
+		self.clip(dc, rect)
 
 		# We use our custom attr, not the one wx passes:
 		attr = grid._Table.GetAttr(row, col)
-		try: 
-			txt = self.getValueText(grid, row, col) 
-			return self.drawText(txt, attr, dc, rect) 
-		finally: 
-			self.unclip(dc) 
+		try:
+			txt = self.getValueText(grid, row, col)
+			return self.drawText(txt, attr, dc, rect)
+		finally:
+			self.unclip(dc)
 
 
 	def getValueText(self, grid, row, col):
 		"""Return the text you want displayed in the cell. By default
-		the value in the cell is returned unchanged; override for 
+		the value in the cell is returned unchanged; override for
 		your class's needs.
 		"""
 		value = grid.getValue(row, col)
@@ -223,22 +223,22 @@ class AbstractTextRenderer(wx.grid.PyGridCellRenderer):
 
 	def drawText( self, txt, attr, dc, rect):
 		"""Customize this method to set different background colors, etc."""
-		dc.DrawText(txt, rect.x, rect.y) 
+		dc.DrawText(txt, rect.x, rect.y)
 
 
-	def clip( self, dc, rect ): 
-		"""Setup the clipping rectangle""" 
-		dc.SetClippingRegion( rect.x, rect.y, rect.width, rect.height ) 
+	def clip( self, dc, rect ):
+		"""Setup the clipping rectangle"""
+		dc.SetClippingRegion( rect.x, rect.y, rect.width, rect.height )
 
 
-	def unclip( self, dc ): 
-		"""Destroy the clipping rectangle""" 
-		dc.DestroyClippingRegion( ) 
+	def unclip( self, dc ):
+		"""Destroy the clipping rectangle"""
+		dc.DestroyClippingRegion( )
 
 
 
-class YesNoBoolRenderer(AbstractTextRenderer): 
-	def getValueText( self, grid, row, col ): 
+class YesNoBoolRenderer(AbstractTextRenderer):
+	def getValueText( self, grid, row, col ):
 		value = grid._Table.GetValue(row, col)
 		if value:
 			return "YES"
@@ -250,4 +250,4 @@ class YesNoBoolRenderer(AbstractTextRenderer):
 			dc.SetTextForeground((128, 0, 0))
 		else:
 			dc.SetTextForeground((0, 128, 0))
-		dc.DrawText(txt, rect.x, rect.y) 
+		dc.DrawText(txt, rect.x, rect.y)

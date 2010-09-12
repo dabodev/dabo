@@ -13,7 +13,7 @@ from dabo.lib.utils import ustr
 class dLine(cm.dControlMixin, wx.StaticLine):
 	"""Creates a horizontal or vertical line.
 
-	If Orientation is "Vertical", Height refers to the length of the line. 
+	If Orientation is "Vertical", Height refers to the length of the line.
 	If Orientation is "Horizontal", Width refers to the length of the line.
 	The other value refers to how wide the control is, which affects how much
 	buffer space will enclose the line, which will appear in the center of
@@ -22,14 +22,14 @@ class dLine(cm.dControlMixin, wx.StaticLine):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dLine
 		preClass = wx.PreStaticLine
-		
+
 		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
-	
-	
+
+
 	def _initEvents(self):
 		super(dLine, self)._initEvents()
-		
-		
+
+
 	# property get/set functions
 	def _getOrientation(self):
 		if self._hasWindowStyleFlag(wx.LI_VERTICAL):

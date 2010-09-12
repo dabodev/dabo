@@ -15,17 +15,17 @@ from dabo.ui import makeDynamicProperty
 class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
 	"""Creates an editbox, which allows editing of string data of unlimited size.
 
-	The editbox will create scrollbars as necessary, and can edit string or 
+	The editbox will create scrollbars as necessary, and can edit string or
 	unicode data.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dEditBox
-		
+
 		preClass = wx.PreTextCtrl
 		kwargs["style"] = wx.TE_MULTILINE
 		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
-	
-	
+
+
 	def _getInitPropertiesList(self):
 		additional = ["WordWrap",]
 		original = list(super(dEditBox, self)._getInitPropertiesList())
@@ -36,19 +36,19 @@ class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
 		self.SetInsertionPoint(0)
 		self.ShowPosition(0)
 		self.Refresh()
-		
-	
+
+
 	def scrollToEnd(self):
 		"""Moves the insertion point to the end of the text"""
 		self.SetInsertionPointEnd()
 		self.ShowPosition(self.GetLastPosition())
 		self.Refresh()
-	
-	
+
+
 	#Property getters and setters
 	def _getWordWrap(self):
 		return self._hasWindowStyleFlag(wx.TE_BESTWRAP)
-	
+
 	def _setWordWrap(self, val):
 		if self._constructed():
 			fontSize = self.GetFont().GetPointSize()
@@ -61,7 +61,7 @@ class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
 			self._addWindowStyleFlag(wx.TE_DONTWRAP)
 		if self._constructed():
 			self.FontSize = fontSize
-	
+
 	# property definitions follow:
 	WordWrap = property(_getWordWrap, _setWordWrap, None,
 			_("""Specifies whether words get wrapped (the default). (bool)
@@ -100,9 +100,9 @@ Its love...
 Its love...
 Its love...
 Its the Love Boat
-Its the Love Boat 
+Its the Love Boat
 """
-	
+
 
 if __name__ == "__main__":
 	import test

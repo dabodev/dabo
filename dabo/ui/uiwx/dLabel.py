@@ -19,10 +19,10 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 		self._wordWrap = False
 		self._inResizeEvent = False
 		preClass = wx.PreStaticText
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
 				*args, **kwargs)
-				
-	
+
+
 	def __onResize(self, evt):
 		"""Event binding is set when Wrap=True. Tell the label
 		to wrap to its current width.
@@ -33,7 +33,7 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 		dabo.ui.callAfter(self.__onResizeExecute)
 
 	def __onResizeExecute(self):
-		# We need to set the caption to the internally-saved caption, since 
+		# We need to set the caption to the internally-saved caption, since
 		# WordWrap can introduce additional linefeeds.
 		self.Form.lockDisplay()
 		plat = self.Application.Platform
@@ -60,10 +60,10 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 
 
 	# property get/set functions
-	
+
 	def _getAutoResize(self):
 		return not self._hasWindowStyleFlag(wx.ST_NO_AUTORESIZE)
-		
+
 	def _setAutoResize(self, value):
 		self._delWindowStyleFlag(wx.ST_NO_AUTORESIZE)
 		if not value:
@@ -72,43 +72,43 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 
 	def _getFontBold(self):
 		return super(dLabel, self)._getFontBold()
-		
+
 	def _setFontBold(self, val):
 		super(dLabel, self)._setFontBold(val)
 		if self._constructed():
 			# This will force an auto-resize
 			self.SetLabel(self.GetLabel())
-			
-		
+
+
 	def _getFontFace(self):
 		return super(dLabel, self)._getFontFace()
-		
+
 	def _setFontFace(self, val):
 		super(dLabel, self)._setFontFace(val)
 		if self._constructed():
 			# This will force an auto-resize
 			self.SetLabel(self.GetLabel())
-			
-		
+
+
 	def _getFontItalic(self):
 		return super(dLabel, self)._getFontItalic()
-		
+
 	def _setFontItalic(self, val):
 		super(dLabel, self)._setFontItalic(val)
 		if self._constructed():
 			# This will force an auto-resize
 			self.SetLabel(self.GetLabel())
-		
-		
+
+
 	def _getFontSize(self):
 		return super(dLabel, self)._getFontSize()
-		
+
 	def _setFontSize(self, val):
 		super(dLabel, self)._setFontSize(val)
 		if self._constructed():
 			# This will force an auto-resize
 			self.SetLabel(self.GetLabel())
-		
+
 
 	def _getWordWrap(self):
 		return self._wordWrap
@@ -122,7 +122,7 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 				if self.AutoResize:
 					#dabo.info.write(_("Setting AutoResize to False since WordWrap is True"))
 					self.AutoResize = False
-				self.bindEvent(dEvents.Resize, self.__onResize)				
+				self.bindEvent(dEvents.Resize, self.__onResize)
 		else:
 			self._properties["Wrap"] = val
 
@@ -132,24 +132,24 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 			_("""Specifies whether the length of the caption determines
 			the size of the label. This cannot be True if WordWrap is
 			also set to True. Default=True.  (bool)""") )
-	
+
 	FontBold = property(_getFontBold, _setFontBold, None,
 			_("Sets the Bold of the Font (int)") )
-			
+
 	FontFace = property(_getFontFace, _setFontFace, None,
 			_("Sets the face of the Font (int)") )
-			
+
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
 			_("Sets the Italic of the Font (int)") )
-			
+
 	FontSize = property(_getFontSize, _setFontSize, None,
 			_("Sets the size of the Font (int)") )
 
 	WordWrap = property(_getWordWrap, _setWordWrap, None,
-			_("""When True, the Caption is wrapped to the Width. 
+			_("""When True, the Caption is wrapped to the Width.
 			If this is set to True, AutoResize must be False.
 			Default=False  (bool)"""))
-	
+
 
 	DynamicFontBold = makeDynamicProperty(FontBold)
 	DynamicFontFace = makeDynamicProperty(FontFace)
@@ -168,7 +168,7 @@ class _dLabel_test(dLabel):
 		self.Caption = "My God, it's full of stars!"
 		self.Wrap = True
 
-		
+
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dLabel_test)

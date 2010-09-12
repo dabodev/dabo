@@ -126,7 +126,7 @@ class StyleTimer(dTimer.dTimer):
 		self.super()
 		self.bindEvent(dEvents.Hit, self.onHit)
 		self.mode = "container"
-		
+
 	def onHit(self, evt):
 		#self.Interval = 0
 		self.stop()
@@ -146,9 +146,9 @@ class STCPrintout(wx.Printout):
 		-----------------------------------------------------------------------------
 		 Name:		   STCPrinting.py
 		 Purpose:
-		
+
 		 Author:	   Riaan Booysen
-		
+
 		 Created:	   2003/05/21
 		 RCS-ID:	   $Id: STCPrinting.py,v 1.8 2006/10/12 12:19:17 riaan Exp $
 		 Copyright:   (c) 2003 - 2006
@@ -231,8 +231,8 @@ class STCPrintout(wx.Printout):
 
 
 class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
-	# The Editor is copied from the wxPython demo, StyledTextCtrl_2.py, 
-	# and modified. Thanks to Robin Dunn and everyone that contributed to 
+	# The Editor is copied from the wxPython demo, StyledTextCtrl_2.py,
+	# and modified. Thanks to Robin Dunn and everyone that contributed to
 	# that demo to get us going!
 	fold_symbols = 3
 
@@ -282,12 +282,12 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._classPat = re.compile(r"^\s*class ([^\(]+)\(([^\)]*?)\)")
 		self._defPat = re.compile(r"^\s*def ")
 
-		stc.StyledTextCtrl.__init__(self, parent, -1, 
+		stc.StyledTextCtrl.__init__(self, parent, -1,
 				style = wx.NO_BORDER)
-		dcm.dDataControlMixin.__init__(self, name, properties, attProperties, 
+		dcm.dDataControlMixin.__init__(self, name, properties, attProperties,
 				_explicitName=_explicitName, *args, **kwargs)
 		self._afterInit()
-		
+
 		self._printData = wx.PrintData()
 		self._printout = STCPrintout(self)
 		self._newFileName = _("< New File >")
@@ -305,7 +305,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self.Bind(stc.EVT_STC_MODIFIED, self.OnModified)
 		self.Bind(stc.EVT_STC_STYLENEEDED, self.OnStyleNeeded)
 		self.Bind(stc.EVT_STC_NEEDSHOWN, self.OnNeedShown)
-		
+
 		if delay:
 			self.bindEvent(dEvents.Idle, self.onIdle)
 		else:
@@ -320,14 +320,14 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self._fontFace = fontFace
 		if self._fontSize is None:
 			self._fontSize = fontSize
-		
+
 		dabo.ui.callAfter(self.changeFontFace, self._fontFace)
 		dabo.ui.callAfter(self.changeFontSize, self._fontSize)
 
 		self._syntaxColoring = True
 		self._styleTimer = StyleTimer(self)
 		self._styleTimer.stop()
-		
+
 		# Set the marker used for bookmarks
 		self._bmkPos = 5
 		self._setBookmarkMarker()
@@ -345,8 +345,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self._styleTimer.start()
 		self._clearDocument()
 		self.setTitle()
-	
-	
+
+
 	def setFormCallbacks(self, funcTuple):
 		self._registerFunc, self._unRegisterFunc = funcTuple
 
@@ -354,16 +354,16 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def __del__(self):
 		self._unRegisterFunc(self)
 		super(dEditor, self).__del__()
-	
-	
+
+
 	def onPrintSetup(self):
 		dlgData = wx.PageSetupDialogData(self._printData)
 		printDlg = wx.PageSetupDialog(self, dlgData)
 		printDlg.ShowModal()
 		self._printData = wx.PrintData(dlgData.GetPrintData())
 		printDlg.Destroy()
-		
-	
+
+
 	def onPrintPreview(self):
 		po1 = STCPrintout(self, stc.STC_PRINT_COLOURONWHITEDEFAULTBG,
 				self._fileName, False)
@@ -392,13 +392,13 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		else:
 			self.printData = wx.PrintData(printer.GetPrintDialogData().GetPrintData())
 		printout.Destroy()
-		
-	
+
+
 	def setBookmark(self, nm, line=None):
-		"""Creates a bookmark that can be referenced by the 
+		"""Creates a bookmark that can be referenced by the
 		identifying name that is passed. If a bookmark already
-		exists for that name, the old one is deleted. The 
-		bookmark is set on the current line unless a specific 
+		exists for that name, the old one is deleted. The
+		bookmark is set on the current line unless a specific
 		line number is passed.
 		"""
 		if line is None:
@@ -408,8 +408,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		hnd = self.MarkerAdd(line, self._bmkPos)
 		self._bookmarks[nm] = hnd
 		self._saveBookmarks()
-	
-	
+
+
 	def findBookmark(self, nm):
 		"""Moves to the line for the specified bookmark. If no such
 		bookmark exists, does nothing.
@@ -424,10 +424,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			# Add some breathing room above
 			self.LineNumber = foundLine-3
 			self._ZeroBasedLineNumber = foundLine
-	
-	
+
+
 	def clearBookmark(self, nm):
-		"""Clears the specified bookmark. If no such bookmark 
+		"""Clears the specified bookmark. If no such bookmark
 		exists, does nothing.
 		"""
 		try:
@@ -436,15 +436,15 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		except KeyError:
 			pass
 		self._saveBookmarks()
-	
-	
+
+
 	def clearAllBookmarks(self):
 		"""Removes all bookmarks."""
 		self.MarkerDeleteAll(self._bmkPos)
 		self._bookmarks.clear()
 		self._saveBookmarks()
-	
-	
+
+
 	def goNextBookMark(self, line=None):
 		"""Moves to the next bookmark in the document. If the
 		line to start searching from is not specified, searches from
@@ -457,12 +457,12 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if self.MarkerGet(line):
 			line += 1
 		nxtLine = self.MarkerNext(line, 1 << self._bmkPos)
-		
+
 		if nxtLine > -1:
 			self.moveToEnd()
 			self.LineNumber = nxtLine + 1
-	
-	
+
+
 	def goPrevBookMark(self, line=None):
 		"""Moves to the previous bookmark in the document. If the
 		line to start searching from is not specified, searches from
@@ -478,15 +478,15 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if nxtLine > -1:
 			self.moveToEnd()
 			self.LineNumber = nxtLine + 1
-	
-	
+
+
 	def getCurrentLineBookmark(self):
 		"""Returns the name of the bookmark for the current
 		line, or None if this line is not bookmarked.
 		"""
 		return self.getBookmarkFromLine(self.LineNumber)
-	
-	
+
+
 	def getBookmarkFromLine(self, line):
 		"""Returns the name of the bookmark for the passed
 		line, or None if the line is not bookmarked.
@@ -497,13 +497,13 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				ret = nm
 				break
 		return ret
-		
-		
+
+
 	def getBookmarkList(self):
 		"""Returns a list of all current bookmark names."""
 		return self._bookmarks.keys()
-		
-		
+
+
 	def getFunctionList(self):
 		"""Returns a list of all 'class' and 'def' statements, along
 		with their starting positions in the text.
@@ -517,7 +517,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			mtch = pat.search(txt)
 			if mtch:
 				key, nm = mtch.groups()
-				pos += mtch.start(0)				
+				pos += mtch.start(0)
 				ret.append((nm, pos, (key.strip() == "class")))
 				keyOffset = len(key)
 				txt = txt[mtch.start(0) + keyOffset:]
@@ -526,7 +526,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def getLineFromPosition(self, pos):
-		"""Given a position within the text, returns the corresponding line 
+		"""Given a position within the text, returns the corresponding line
 		number. If the position is invalid, returns -1.
 		"""
 		return self.LineFromPosition(pos)
@@ -545,21 +545,21 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if y is None and isinstance(x, (list, tuple)):
 			x, y = x
 		return self.PositionFromPointClose(x, y)
-		
-		
+
+
 	def getMarginWidth(self):
 		"""Returns the width of the non-editing area along the left side."""
 		ret = 0
 		for ii in range(5):
 			ret += self.GetMarginWidth(ii)
 		return ret
-		
+
 
 	def showCurrentLine(self):
 		"""Scrolls the editor so that the current position is visible."""
 		self.EnsureCaretVisible()
-		
-		
+
+
 	def OnNeedShown(self, evt):
 		""" Called when the user deletes a hidden header line."""
 		# We expand the previously folded text, but it may be better
@@ -588,14 +588,14 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self.ReplaceSelection("".join(map(invert, self.SelectedText)))
 		else:
 			try:
-				fnc = {"u": seltxt.upper, "l": seltxt.lower, "c": seltxt.title, 
+				fnc = {"u": seltxt.upper, "l": seltxt.lower, "c": seltxt.title,
 						"t": seltxt.title}[newcase]
 				self.ReplaceSelection(fnc())
 			except KeyError:
 				raise ValueError(_("Case must be either upper, lower, capitalize, or invert."))
 		self.SelectionPosition = pos
 
-	
+
 	def selectLine(self):
 		start =self.GetLineEndPosition(self.LineNumber-1)
 		if self.Value[start] == "\r":
@@ -604,8 +604,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			start+=1
 		end = self.GetLineEndPosition(self.LineNumber)
 		self.SelectionPosition = (start, end)
-	
-	
+
+
 	def selectWord(self):
 		whiteSpace = " \t\r\n"
 		syntaxDelimeters = """()[]{}"+-*/&%=\\;:"""
@@ -621,7 +621,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 					start -= 1
 				else:
 					break
-			
+
 			end = curPos
 			while end < len(val):
 				if val[end] in (whiteSpace + syntaxDelimeters):
@@ -630,16 +630,16 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self.SelectionPosition = (start, end)
 		self.SetCurrentPos(end)
 
-	
+
 	def OnSBScroll(self, evt):
 		# redirect the scroll events from the dyn_sash's scrollbars to the STC
 		self.GetEventHandler().ProcessEvent(evt)
-		
-	
+
+
 	def OnSBFocus(self, evt):
 		# when the scrollbar gets the focus move it back to the STC
 		self.SetFocus()
-	
+
 
 	def OnStyleNeeded(self, evt):
 		if not self._syntaxColoring:
@@ -647,18 +647,18 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._styleTimer.mode = self.Language.lower()
 		self._styleTimer.start()
 		self.raiseEvent(dEvents.EditorStyleNeeded, evt)
-		
-		
+
+
 	def onIdle(self, evt):
 		if not self._defaultsSet and self.Language:
 			self.setDefaults()
 			self._defaultsSet = True
-			
+
 
 	def setDocumentDefaults(self):
 		self.SetTabWidth(self.TabWidth)
 		self.SetIndent(self.TabWidth)
-		
+
 
 	def setDefaults(self):
 		self.UsePopUp(0)
@@ -681,7 +681,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		##	   * 1 = inconsistent
 		##	   * 2 = mixed spaces/tabs
 		##	   * 3 = spaces are bad
-		##	   * 4 = tabs are bad 
+		##	   * 4 = tabs are bad
 		self.SetProperty("tab.timmy.whinge.level", "1")
 		self.setSyntaxColoring(self.SyntaxColoring)
 		self.SetMargins(0,0)
@@ -717,7 +717,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self.CallTipSetBackground("yellow")
 		self.SelectionBackColor = "yellow"
 		self.SelectionForeColor = "black"
-		
+
 
 	def _setLineNumberMarginVisibility(self):
 		"""Sets the visibility of the line number margin."""
@@ -729,7 +729,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		else:
 			self.SetMarginSensitive(1, False)
 			self.SetMarginWidth(1, 0)
-	
+
 	def _setBookmarkMarginVisibility(self):
 		"""Sets the visibility of the bookmark margin."""
 		if self.UseBookmarks:
@@ -741,7 +741,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self.SetMarginSensitive(0, False)
 			self.SetMarginWidth(0, 0)
 
-	
+
 	def _setCodeFoldingMarginVisibility(self):
 		"""Sets the visibility of the code folding margin."""
 		if not self.ShowCodeFolding:
@@ -829,8 +829,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if not self:
 			return
 		self.FontFace = fontFace
-		
-	
+
+
 	def changeFontSize(self, fontSize):
 		if not self:
 			return
@@ -849,8 +849,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		else:
 			newSize = fontSize
 		self.FontSize = newSize
-		
-		
+
+
 	def setDefaultFont(self, fontFace, fontSize):
 		# Global default styles for all languages
 		self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (fontFace, fontSize))
@@ -917,7 +917,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 
-		
+
 	def onCommentLine(self, evt):
 		sel = self.GetSelection()
 		begLine = self.LineFromPosition(sel[0])
@@ -929,9 +929,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self.InsertText(pos, self.CommentString)
 		self.EndUndoAction()
 
-		self.SetSelection(self.PositionFromLine(begLine), 
+		self.SetSelection(self.PositionFromLine(begLine),
 			self.PositionFromLine(endLine+1))
-		
+
 
 	def onUncommentLine(self, evt):
 		sel = self.GetSelection()
@@ -947,10 +947,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				self.ReplaceTarget("")
 		self.EndUndoAction()
 
-		self.SetSelection(self.PositionFromLine(begLine), 
+		self.SetSelection(self.PositionFromLine(begLine),
 			self.PositionFromLine(endLine+1))
-	
-	
+
+
 	def onKeyDown(self, evt):
 		keyCode = evt.EventData["keyCode"]
 		if keyCode == wx.WXK_RETURN and self.AutoIndent and not self.AutoCompActive():
@@ -960,13 +960,13 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self.CmdKeyExecute(stc.STC_CMD_NEWLINE)
 			line = self._ZeroBasedLineNumber - 1
 			txt = self.GetLine(line).rstrip()
-			
+
 			currIndent = self.GetIndent()
 			if currIndent == 0:
 				indentLevel = 0
 			else:
 				indentLevel = self.GetLineIndentation(line) / self.GetIndent()
-			
+
 			# First, indent to the current level of indent:
 			if self.UseTabs:
 				padchar = "\t"
@@ -974,10 +974,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				padchar = " " * self.GetIndent()
 			padding = padchar * indentLevel
 			pos = self.GetCurrentPos()
-			
+
 			self.InsertText(pos, padding)
 			pos = pos + len(padding)
-			
+
 			# Next, indent another level if last line ended with ":"
 			if len(txt) > 0 and txt[-1] == ':':
 				padding = padchar
@@ -990,16 +990,16 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def onKeyChar(self, evt):
 		keyChar = evt.EventData["keyChar"]
 		self._insertChar = ""
-		
+
 		if keyChar == "(" and self.AutoCompActive():
 			self._insertChar = "("
 		elif keyChar == "(" and self.ShowCallTips and not self.AutoCompActive():
 			self.callTip()
 		elif keyChar == "." and self.CodeCompletion:
 			if self.AutoCompActive():
-				# don't process the autocomplete, as it is 
+				# don't process the autocomplete, as it is
 				# already being processed. However, set the flag
-				# so that onListSelection() knows to call 
+				# so that onListSelection() knows to call
 				# autocomplete on the new item:
 				self._insertChar = "."
 				dabo.ui.callAfter(self._onPeriodActive)
@@ -1038,22 +1038,22 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				self._posBeforeCompList = self.GetCurrentPos() + 1
 				self.codeComplete()
 			self._insertChar = ""
-			
-			
+
+
 	def setInactive(self):
 		"""Hides the auto-completion popup if one is open."""
 		if self.AutoCompActive():
 			self.AutoCompCancel()
-			
-	
+
+
 	def getAvailableLanguages(cls):
 		"""Returns an alphabetical list of all languages we have lexers for."""
 		ret = LexerDic.keys()
 		ret.sort()
 		return ret
 	getAvailableLanguages = classmethod(getAvailableLanguages)
-		
-		
+
+
 	def setSyntaxColoring(self, color=None):
 		"""Sets the appropriate lexer for syntax coloring."""
 		lex = self.Language.lower()
@@ -1071,9 +1071,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				dabo.ui.callAfter(self.Colourise, 0, 1)
 		else:
 			self.ClearDocumentStyle()
-			self.SetLexer(stc.STC_LEX_CONTAINER)		
+			self.SetLexer(stc.STC_LEX_CONTAINER)
 
-		
+
 	def OnModified(self, evt):
 		if not self._syntaxColoring:
 			return
@@ -1123,7 +1123,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			#self.Refresh(True, wxRect(pt.x, pt.y, 5,5))
 			#print pt
 			#self.Refresh(False)
-			
+
 
 	def OnMarginClick(self, evt):
 		mg = evt.GetMargin()
@@ -1161,7 +1161,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def hiliteLine(self, lineNum, extend=False):
-		"""Selects the specified line. If the line number does not exist, 
+		"""Selects the specified line. If the line number does not exist,
 		a ValueError is raised.
 		"""
 		start = self.PositionFromLine(lineNum)
@@ -1220,19 +1220,19 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				name = obj.__name__
 			except AttributeError:
 				name = ""
-				
+
 			shortDoc = "%s %s%s" % (funcType, name, args)
 			longDoc = "%s\n\n%s" % (shortDoc, doc)
-			
+
 			self.CallTipShow(pos, shortDoc)
 			# Highlight the object name:
-			self.CallTipSetHighlight(len(funcType) + 1, 
+			self.CallTipSetHighlight(len(funcType) + 1,
 				len(funcType) + len(name) + 1)
 
 			# Let someone else display the complete documentation:
-			self.raiseEvent(dEvents.DocumentationHint, 
+			self.raiseEvent(dEvents.DocumentationHint,
 				shortDoc=shortDoc, longDoc=longDoc, object=obj)
-				
+
 
 	def codeComplete(self):
 		"""Display the code completion list for the current object, if any."""
@@ -1245,7 +1245,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			pos = self.GetCurrentPos()
 			kw = [k for k in dir(obj)
 				if not k.startswith("_")]
-			
+
 			# Sort upper case:
 			kw.sort(key=lambda k: k.upper())
 			# Images are specified with a appended "?type"
@@ -1259,7 +1259,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 					try:
 						isEvent = issubclass(obj_, dEvents.Event)
 					except TypeError:
-						pass				
+						pass
 				if type(obj_) == type(property()):
 					kw[i] = kw[i] + "?2"
 				elif inspect.isfunction(obj_) or inspect.ismethod(obj_):
@@ -1271,7 +1271,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				else:
 					# Punt with the Dabo icon:
 					kw[i] = kw[i] + "?1"
-					
+
 			if self.AutoCompleteList:
 				wx.CallAfter(self.AutoCompShow,0, " ".join(kw))
 			else:
@@ -1305,10 +1305,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 					if lastChild > lineNum:
 						self.HideLines(lineNum+1, lastChild)
 			lineNum = lineNum + 1
-	
+
 	def FoldAllCode(self, expand):
 		lineCount = self.GetLineCount()
-		
+
 		lineNum = 0
 		while lineNum < lineCount:
 			level = self.GetFoldLevel(lineNum)
@@ -1319,11 +1319,11 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				else:
 					lastChild = self.GetLastChild(lineNum, -1)
 					self.SetFoldExpanded(lineNum, False)
-					
+
 					if lastChild > lineNum:
 						self.HideLines(lineNum+1, lastChild)
 			lineNum = lineNum + 1
-	
+
 	def Expand(self, line, doExpand, force=False, visLevels=0, level=-1):
 		lastChild = self.GetLastChild(line, level)
 		line = line + 1
@@ -1369,7 +1369,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			s = "Do you want to save your changes to file '%s'?" % self._fileName
 		return dabo.ui.areYouSure(s)
 
-		
+
 	def promptForFileName(self, prompt=None, saveAs=False, path=None):
 		"""Prompt the user for a file name."""
 		if prompt is None:
@@ -1381,18 +1381,18 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				drct = ""
 		else:
 			drct = path
-		
+
 		if saveAs:
 			func = dabo.ui.getSaveAs
 		else:
 			func = dabo.ui.getFile
 		fname = func("py", "txt", "cdxml", "cnxml", "mnxml", "rfxml", "*", message=prompt, defaultPath=drct)
 		return fname
-	
-		
+
+
 	def promptForSaveAs(self):
 		"""Prompt user for the filename to save the file as.
-		
+
 		If the file exists, confirm with the user that they really want to
 		overwrite.
 		"""
@@ -1441,7 +1441,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			except OSError:
 				fModTime = None
 			if fModTime > self._fileModTime:
-				if not dabo.ui.areYouSure(_("""The file has been modified on the disk since you opened it. 
+				if not dabo.ui.areYouSure(_("""The file has been modified on the disk since you opened it.
 Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButton=False):
 					return
 		try:
@@ -1457,14 +1457,14 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		app = self.Application
 		app.setUserSetting("editor.fontsize", self._fontSize)
 		app.setUserSetting("editor.fontface", self._fontFace)
-		
+
 		#if the file extension changed, automatically set the language if extension is known.
 		fext = os.path.splitext(fname)[1]
 		self.Language = fileFormatsDic.get(fext, self.Language)
-		
+
 		return True
-	
-	
+
+
 	def _saveBookmarks(self, evt=None):
 		app = self.Application
 		fname = self._fileName
@@ -1499,7 +1499,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 
 	def checkChangesAndContinue(self):
 		"""Check to see if changes need to be saved, and if so prompt the user.
-		
+
 		Return False if saves were needed but not made.
 		"""
 		ret = True
@@ -1515,8 +1515,8 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 				# user doesn't want changes saved.
 				pass
 		return ret
-		
-		
+
+
 	def _clearDocument(self, clearText=True):
 		"""Do everything needed to start the doc as if new."""
 		if clearText:
@@ -1526,7 +1526,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		self.setTitle()
 		self.setDocumentDefaults()
 
-		
+
 	def newFile(self):
 		"""Create a new file and edit it."""
 		if self.checkChangesAndContinue():
@@ -1536,8 +1536,8 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			return True
 		else:
 			return False
-	
-	
+
+
 	def openFile(self, fileSpec=None, checkChanges=True):
 		"""Open a new file and edit it."""
 		cc = True
@@ -1572,7 +1572,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			ret = True
 		else:
 			ret = False
-		
+
 		# Restore the bookmarks
 		app = self.Application
 		fname = os.path.split(fileSpec)[1]
@@ -1607,7 +1607,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			fileName = ""
 		if not fileName:
 			fileName = self._newFileName
-			
+
 		if self.isChanged():
 			modChar = "*"
 		else:
@@ -1616,30 +1616,30 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 
 		if self._title != _oldTitle:
 			self.raiseEvent(dEvents.TitleChanged)
-			
+
 
 	def increaseTextSize(self, pts=1):
 		self.ZoomLevel += pts
-		
-		
+
+
 	def decreaseTextSize(self, pts=1):
 		self.ZoomLevel -= pts
-		
-		
+
+
 	def restoreTextSize(self):
 		self.ZoomLevel = 0
-	
-	
+
+
 	def moveToBeginning(self):
 		self.SetSelection(0, 0)
 		self.EnsureCaretVisible()
-		
-		
+
+
 	def moveToEnd(self):
 		self.SetSelection(-1, -1)
 		self.EnsureCaretVisible()
-	
-	
+
+
 	def ensureLineVisible(self, line):
 		self.EnsureVisible(line)
 		self.LineNumber = line
@@ -1653,7 +1653,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		word	= self.getWord()
 		if isinstance(object, dEvents.KeyEvent):
 			object = 0
-		if not word: 
+		if not word:
 			if object:
 				self.AddText('.')
 			return
@@ -1680,10 +1680,10 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			words.sort(key=lambda word: word.upper())
 			# For some reason, the STC editor in Windows likes to add icons
 			# even if they aren't requested. This explicitly removes them.
-			wds = ["%s?0" % wd for wd in words]				
+			wds = ["%s?0" % wd for wd in words]
 			self.AutoCompShow(len(word), " ".join(wds))
 
-	
+
 	def getWord(self,whole=None):
 		for delta in (0,-1,1):
 			word	= self._getWord(whole=whole,delta=delta)
@@ -1715,12 +1715,12 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 				if x.find(',')==-1 and x[0]!= ' '])
 			ret = dict.fromkeys(retAll).keys()
 			return ret
-	
+
 	def _getTextSource(self):
 		"""Override to include other sources."""
 		return self.GetText()
-		
-		
+
+
 	def getWordObject(self,word=None,whole=None):
 		if not word: word=self.getWord(whole=whole)
 		return self.evaluate(word)
@@ -1755,12 +1755,12 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 
 	def _makeContainingClassIntoSelf(self):
 		"""Make self refer to the class.
-		
+
 		For instance, in the following snippet:
 			class MyClass(object):
 				pass
-				
-		self would get bound to MyClass. This is to simulate the 
+
+		self would get bound to MyClass. This is to simulate the
 		runtime environment, for the purpose of getting auto-completion.
 		"""
 		classdef = None
@@ -1796,7 +1796,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			except AttributeError:
 				#Catch errors like module objects not having an attribute
 				pass
-		
+
 	def _getRuntimeObject(self, runtimeObjectName):
 		"""Given a runtimeObjectName, get the object.
 
@@ -1813,10 +1813,10 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			return None
 
 		if outerObjectName == "self":
-			## This is a HACK, but I don't see another way. Basically, if the 
+			## This is a HACK, but I don't see another way. Basically, if the
 			## object name is "self", we are going to mangle it to be the class
 			## that at runtime self is an instance of. Then, the object will
-			## exist in the _namespaces and hence we'll get autocompletion for 
+			## exist in the _namespaces and hence we'll get autocompletion for
 			## it. --pkm 9/20/04
 			self._makeContainingClassIntoSelf()
 		# Different editor usages may require additional namespace
@@ -1831,16 +1831,16 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 				except (AttributeError, SyntaxError):
 					o = None
 		return o
-	
-	
+
+
 	def _namespaceHacks(self):
 		"""Hook method for any additional namespace hacks"""
 		pass
-		
-	
+
+
 	def _fillNamespaces(self):
-		"""Get as many of the names that will exist at runtime as possible 
-		into the _namespaces dict. We do this by finding all the 'import' 
+		"""Get as many of the names that will exist at runtime as possible
+		into the _namespaces dict. We do this by finding all the 'import'
 		statements and executing them into the _namespaces dict.
 		"""
 		def genRange(rng):
@@ -1848,7 +1848,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			while curr < rng:
 				yield curr
 				curr += 1
-				
+
 		self._namespaces = {}
 		code2exec = []
 		numGen = genRange(self.LineNumber + 1)
@@ -1856,11 +1856,11 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			line = self.GetLine(lineNum).rstrip()
 			if not line.strip() or line.strip().startswith("#"):
 				continue
-				
+
 			if self._importPat.search(line):
 				# It's an 'import' statement, or at least a line that contains the word 'import'.
 				code2exec.append(line)
-				
+
 			elif self._classPat.search(line):
 				# It's a class definition statement.
 				code2exec.append(line)
@@ -1890,7 +1890,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 
 	def _setBookmarkMarker(self):
 		try:
-			self.MarkerDefine(self._bmkPos, bmkIconDic[self.BookmarkIcon], 
+			self.MarkerDefine(self._bmkPos, bmkIconDic[self.BookmarkIcon],
 				self.BookmarkForeColor, self.BookmarkBackColor)
 		except AttributeError:
 			#_bmkPos not created yet. Happens if set in initProperties or sooner
@@ -1905,7 +1905,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		except AttributeError:
 			ret = self._autoAutoComplete = self.Application.getUserSetting("AutoAutoComplete", False)
 			return ret
-	
+
 	def _setAutoAutoComplete(self, val):
 		self._autoAutoComplete = val
 		self.Application.setUserSetting("AutoAutoComplete", val)
@@ -1917,7 +1917,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		except AttributeError:
 			ret = self._autoAutoCompleteMinLen = self.Application.getUserSetting("AutoAutoCompleteMinLen", 3)
 			return ret
-	
+
 	def _setAutoAutoCompleteMinLen(self, val):
 		self._autoAutoCompleteMinLen = val
 		self.Application.setUserSetting("AutoAutoCompleteMinLen", val)
@@ -2012,7 +2012,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		diff = val - currCol
 		newPos = currPos + diff
 		endOfLinePos = self.GetLineEndPosition(self.LineNumber)
-		newPos = min(endOfLinePos, newPos)		
+		newPos = min(endOfLinePos, newPos)
 		self.GotoPos(newPos)
 
 
@@ -2028,7 +2028,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 
 	def _getEdgeGuideColumn(self):
 		return self._edgeGuideColumn
-	
+
 	def _setEdgeGuideColumn(self, val):
 		if self._constructed():
 			self._edgeGuideColumn = val
@@ -2169,7 +2169,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 
 	def _getReadOnly(self):
 		return self.GetReadOnly()
-		
+
 	def _setReadOnly(self, val):
 		if self._constructed():
 			self.SetReadOnly(val)
@@ -2404,7 +2404,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 
 	def _getValue(self):
 		return self.Text
-		
+
 	def _setValue(self, val):
 		if self._constructed():
 			if isinstance(val, str):
@@ -2421,7 +2421,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		else:
 			self._properties["Value"] = val
 
-		
+
 	def _getWordWrap(self):
 		return self.GetWrapMode()
 
@@ -2454,24 +2454,24 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 
 	AutoAutoComplete = property(_getAutoAutoComplete, _setAutoAutoComplete, None,
 			_("Determines if auto-completion pops up without a special trigger key  (bool)"))
-			
+
 	AutoAutoCompleteMinLen = property(_getAutoAutoCompleteMinLen, _setAutoAutoCompleteMinLen, None,
 			_("""When AutoAutoComplete is True, sets the minimum # of chars required
 			before the autocomplete popup appears. Default=3  (int)"""))
-			
+
 	AutoCompleteList = property(_getAutoCompleteList, _setAutoCompleteList, None,
-			_("""Controls if the user has to press 'Enter/Tab' to accept 
+			_("""Controls if the user has to press 'Enter/Tab' to accept
 			the AutoComplete entry  (bool)"""))
-	
+
 	AutoIndent = property(_getAutoIndent, _setAutoIndent, None,
 			_("Controls if a newline adds the previous line's indentation  (bool)"))
-	
+
 	BookmarkBackColor = property(_getBookmarkBackColor, _setBookmarkBackColor, None,
 			_("The color of the icon background Default=(0,255,255) (Tuple or String)"))
-	
+
 	BookmarkForeColor = property(_getBookmarkForeColor, _setBookmarkForeColor, None,
 			_("The color of the icon foreground Default=(128,128,128) (Tuple or String)"))
-	
+
 	BookmarkIcon = property(_getBookmarkIcon, _setBookmarkIcon, None,
 			_("""The icon of bookmark that is show in the margin (default="circle") (string)
 			Available Values:
@@ -2480,157 +2480,157 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 				- "arrow"
 				- "arrows"
 				- "rectangle\""""))
-	
+
 	BufferedDrawing = property(_getBufferedDrawing, _setBufferedDrawing, None,
 			_("Setting to True (default) reduces display flicker  (bool)"))
-	
+
 	CodeCompletion = property(_getCodeCompletion, _setCodeCompletion, None,
 			_("Determines if code completion is active (default=True)  (bool)"))
-	
+
 	Column = property(_getColumn, _setColumn, None,
-			_("""Returns the current column position of the cursor in the 
+			_("""Returns the current column position of the cursor in the
 			file  (int)"""))
-	
+
 	CommentString = property(_getCommentString, _setCommentString, None,
 			_("String used to prefix lines that are commented out  (str)"))
-	
+
 	EdgeGuideColumn = property(_getEdgeGuideColumn, _setEdgeGuideColumn, None,
-			_("""If self.EdgeGuide is set to True, specifies the column 
+			_("""If self.EdgeGuide is set to True, specifies the column
 			position the guide is in(int)"""))
-	
+
 	Encoding = property(_getEncoding, _setEncoding, None,
 			_("Type of encoding to use. Defaults to the application's default encoding.  (str)"))
-	
+
 	EOLMode = property(_getEOLMode, _setEOLMode, None,
 			_("End of line characters. Allowed values are 'CRLF', 'LF' and 'CR'. (default=os dependent) (str)"))
-	
+
 	FileName = property(_getFileName, None, None,
 			_("Name of the file being edited (without path info)  (str)"))
-	
+
 	FilePath = property(_getFilePath, None, None,
 			_("Full path of the file being edited  (str)"))
-	
+
 	FontFace = property(_getFontFace, _setFontFace, None,
 			_("Name of the font face used in the editor  (str)"))
-	
+
 	FontSize = property(_getFontSize, _setFontSize, None,
 			_("Size of the font used in the editor  (int)"))
-	
+
 	HiliteCharsBeyondLimit = property(_getHiliteCharsBeyondLimit, _setHiliteCharsBeyondLimit, None,
-			_("""When True, characters beyond the column set it 
+			_("""When True, characters beyond the column set it
 			self.HiliteLimitColumn are visibly hilited  Note: When set to True,
 			self.ShowEdgeGuide will be set to False. (bool)"""))
-	
+
 	HiliteLimitColumn = property(_getHiliteLimitColumn, _setHiliteLimitColumn, None,
-			_("""If self.HiliteCharsBeyondLimit is True, specifies 
+			_("""If self.HiliteCharsBeyondLimit is True, specifies
 			the limiting column  (int)"""))
-	
+
 	Language = property(_getLanguage, _setLanguage, None,
 			_("Determines which language is used for the syntax coloring  (str)"))
-	
+
 	LineNumber = property(_getLineNumber, _setLineNumber, None,
 			_("Returns the current line number being edited  (int)"))
-	
+
 	LineCount = property(_getLineCount, None, None,
 			_("Total number of lines in the document  (int)"))
-	
+
 	Modified = property(_getModified, None, None,
 			_("Has the content of this editor been modified?  (bool)"))
-	
-	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
+
+	ReadOnly = property(_getReadOnly, _setReadOnly, None,
 			_("Specifies whether or not the text can be edited. (bool)"))
-	
+
 	SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
 			_("Background color of selected text. Default=yellow  (str or tuple)"))
-	
+
 	SelectionEnd = property(_getSelectionEnd, _setSelectionEnd, None,
 			_("Position of the end of the selected text  (int)"))
-	
+
 	SelectionForeColor = property(_getSelectionForeColor, _setSelectionForeColor, None,
 			_("Forecolor of the selected text. Default=black  (str or tuple)"))
-	
+
 	Selection = property(_getSelection, None, None,
 			_("Selected text. (read-only) (str)"))
-	
+
 	SelectionPosition = property(_getSelectionPosition, _setSelectionPosition, None,
 			_("Tuple containing the start/end positions of the selected text.  (2-tuple of int)"))
-	
+
 	SelectionStart = property(_getSelectionStart, _setSelectionStart, None,
 			_("Position of the start of the selected text  (int)"))
-	
+
 	ShowCallTips = property(_getShowCallTips, _setShowCallTips, None,
 			_("Determines if call tips are shown (default=True)  (bool)"))
-	
+
 	ShowCodeFolding = property(_getShowCodeFolding, _setShowCodeFolding, None,
-			_("""Determines if the code folding symbols are displayed 
+			_("""Determines if the code folding symbols are displayed
 			in the left margin (default=True)  (bool)"""))
-	
+
 	ShowEdgeGuide = property(_getShowEdgeGuide, _setShowEdgeGuide, None,
-			_("""When True, will display a line at the column set by 
-			self.EdgeGuideColumn.  Note: When set to True, 
+			_("""When True, will display a line at the column set by
+			self.EdgeGuideColumn.  Note: When set to True,
 			self.HiliteCharsBeyondLimit will be set to False. (bool)"""))
-	
+
 	ShowEOL = property(_getShowEOL, _setShowEOL, None,
-			_("""Determines if end-of-line markers are visible 
+			_("""Determines if end-of-line markers are visible
 			(default=False)  (bool)"""))
-	
+
 	ShowIndentationGuides = property(_getShowIndentationGuides, _setShowIndentationGuides, None,
 			_("""Deterimnes if indentation guides are displayed
 			(default=False)  (bool)"""))
-	
+
 	ShowLineNumbers = property(_getShowLineNumbers, _setShowLineNumbers, None,
-			_("""Determines if line numbers are shown in the left 
+			_("""Determines if line numbers are shown in the left
 			margin (default=True)  (bool)"""))
-	
+
 	ShowWhiteSpace = property(_getShowWhiteSpace, _setShowWhiteSpace, None,
-			_("""Determines if white space characters are displayed 
+			_("""Determines if white space characters are displayed
 			(default=True)  (bool)"""))
-	
+
 	SyntaxColoring = property(_getSyntaxColoring, _setSyntaxColoring, None,
 			_("Determines if syntax coloring is used (default=True)  (bool)"))
-	
+
 	TabWidth = property(_getTabWidth, _setTabWidth, None,
-			_("""Approximate number of spaces taken by each tab character 
+			_("""Approximate number of spaces taken by each tab character
 			(default=4)  (int)"""))
-	
+
 	Text = property(_getText, _setText, None,
 			_("Current contents of the editor  (str)"))
-	
+
 	UseAntiAliasing = property(_getUseAntiAliasing, _setUseAntiAliasing, None,
 			_("Controls whether fonts are anti-aliased (default=True)  (bool)"))
-	
+
 	UseBookmarks = property(_getUseBookmarks, _setUseBookmarks, None,
 			_("Are we tracking bookmarks in the editor? Default=False  (bool)"))
-	
+
 	UseStyleTimer = property(_getUseStyleTimer, _setUseStyleTimer, None,
-			_("""Syntax coloring can slow down sometimes. Set this to 
+			_("""Syntax coloring can slow down sometimes. Set this to
 			True to improve performance.  (bool)"""))
-	
+
 	UseTabs = property(_getUseTabs, _setUseTabs, None,
-			_("""Indentation will only use space characters if useTabs 
-			is False; if True, it will use a combination of tabs and 
+			_("""Indentation will only use space characters if useTabs
+			is False; if True, it will use a combination of tabs and
 			spaces (default=True)  (bool)"""))
-	
+
 	BackSpaceUnindents = property(_getBackSpaceUnindents, _setBackSpaceUnindents, None,
 			_("""If set True then backspace, when in indentation, will go back
 			TabWidth positions; if set False then backspace will go back only one
 			position. If UseTabs is True this should be set to False. (default=False)  (bool)"""))
-	
+
 	Value = property(_getValue, _setValue, None,
 		_("""Specifies the current contents of the editor.  (basestring)"""))
-				
+
 	WordWrap = property(_getWordWrap, _setWordWrap, None,
 			_("""Controls whether text lines that are wider than the window
 			are soft-wrapped or clipped. (bool)"""))
-	
+
 	_ZeroBasedLineNumber = property(_getZeroBasedLineNumber, _setZeroBasedLineNumber, None,
 			_("This is the underlying property that handles the wxPython zero-based line numbering. It's equal to LineNumber-1  (int)"))
 
 	ZoomLevel = property(_getZoomLevel, _setZoomLevel, None,
 			_("Point increase/decrease from normal viewing size  (int)"))
-	
 
-	
+
+
 class _dEditor_test(dEditor):
 	def afterInit(self):
 		self.Language = "Python"

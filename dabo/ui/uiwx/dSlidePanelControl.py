@@ -27,11 +27,11 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 			if collapsed is None:
 				# They might have passed it as 'Expanded'
 				collapsed = not self._extractKey((kwargs, properties), "Expanded", True)
-		
+
 		cbstyle = self._extractKey((kwargs, properties), "cbstyle", None)
 		if cbstyle is None:
 			kwargs["cbstyle"] = fpb.CaptionBarStyle()
-		
+
 		if isinstance(parent, fpb.FoldPanelBar):
 			# Items have to be added to the internal panel instead
 			self._cont = parent
@@ -41,9 +41,9 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 			self._cont = parent.GetParent()
 
 		self._captionForeColor = "black"
-		self._barStyles = ("Borderless", "BorderOnly", 
+		self._barStyles = ("Borderless", "BorderOnly",
 				"FilledBorder", "VerticalFill", "HorizontalFill")
-		self._barStylesLow = ("borderless", "borderonly", 
+		self._barStylesLow = ("borderless", "borderonly",
 				"filledborder", "verticalfill", "horizontalfill")
 		self._barStyleConstants = {"nostyle" : fpb.CAPTIONBAR_NOSTYLE,
 				"verticalfill" : fpb.CAPTIONBAR_GRADIENT_V,
@@ -111,15 +111,15 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 		self._cont.RefreshPanelsFrom(self)
 		self._cont.unlockDisplay()
 		dabo.ui.callAfterInterval(50, self._cont.sizePanelHeights)
-	
-	
+
+
 	def appendSeparator(self, color=None):
 		"""This draws a separator line on the panel"""
 		if color is None:
 			color = "black"
 		self.AddSeparator(self._getWxColour(color))
-		
-	
+
+
 	def layout(self):
 		""" Wrap the wx version of the call, if possible. """
 		self.Layout()
@@ -139,7 +139,7 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 			pt = evt.GetPosition()
 			rect = cb.GetRect()
 			drw = (rect.GetWidth() - cb._iconWidth - cb._rightIndent)
-			if ((vertical and (pt.x > drw)) or 
+			if ((vertical and (pt.x > drw)) or
 					(not vertical and (pt.y < (cb._iconHeight + cb._rightIndent)))):
 				# They clicked the expand/collapse icon
 				return True
@@ -152,7 +152,7 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 			# Already handled
 			return
 		self.raiseEvent(dEvents.SlidePanelCaptionClick, evt)
-				
+
 
 	def _getBarColor1(self):
 		try:
@@ -301,7 +301,7 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 		except (IndexError, AttributeError):
 			ret = None
 		return ret
-		
+
 	def _setSizer(self, val):
 		if self._constructed():
 			sz = self._baseSizer
@@ -323,14 +323,14 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 	BarColor1 = property(_getBarColor1, _setBarColor1, None,
 			_("Main color for the caption bar  (dColor)"))
-	
+
 	BarColor2 = property(_getBarColor2, _setBarColor2, None,
 			_("Secondary color for the caption bar. Only used in gradients  (dColor)"))
-	
+
 	BarStyle = property(_getBarStyle, _setBarStyle, None,
-			_(""""Determines how the bar containing the caption 
+			_(""""Determines how the bar containing the caption
 			for this panel is drawn. (str)
-			
+
 			Can be one of the following:
 				Borderless		(no border, just a plain fill color; default)
 				BorderOnly	(simple border, no fill color)
@@ -347,23 +347,23 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 	CaptionForeColor = property(_getCaptionForeColor, _setCaptionForeColor, None,
 			_("Text color of the caption bar  (str or tuple)"))
-	
+
 	CaptionHeight = property(_getCaptionHeight, None, None,
 			_("Height of the caption bar. Read-only  (int)"))
-	
+
 	Collapsed = property(_getCollapsed, _setCollapsed, None,
 			_("Is the panel main area hidden?  (bool)"))
-	
+
 	Expanded = property(_getExpanded, _setExpanded, None,
 			_("Is the panel main area visible?  (bool)"))
 
-	Parent = property(_getParent, None, None, 
+	Parent = property(_getParent, None, None,
 			_("Reference to the containing dSlidePanelControl."))
 
 	PanelPosition = property(_getPanelPosition, _setPanelPosition, None,
 			_("Position of this panel within the parent container  (int)"))
 
-	Sizer = property(_getSizer, _setSizer, None, 
+	Sizer = property(_getSizer, _setSizer, None,
 			_("The sizer for the object.") )
 
 
@@ -378,12 +378,12 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 
 class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
-	"""Creates a control consisting of several panels that can be 
+	"""Creates a control consisting of several panels that can be
 	hidden or revealed by clicking on their 'caption bar'.
-	
+
 	This allows you to collapse each panel down to its caption bar,
 	which either remains in place or drops to the bottom.
-	"""	
+	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dSlidePanelControl
 		preClass = fpb.FoldPanelBar
@@ -397,12 +397,12 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		self.__inSingletonProcess = False
 		# Flag to track the currently expanded panel in Singleton format.
 		self.__openPanel = None
-		
+
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 		self._setInitialOpenPanel()
 		self.bindEvent(dEvents.SlidePanelChange, self.__onSlidePanelChange)
-	
+
 
 	def append(self, pnl=None, **kwargs):
 		if pnl is None:
@@ -423,9 +423,9 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			pos = self._panels[-1].GetItemPos() + self._panels[-1].GetPanelLength()
 		pnl.Reposition(pos)
 		self._panels.append(pnl)
-		self.raiseEvent(dEvents.SlidePanelChange, 
+		self.raiseEvent(dEvents.SlidePanelChange,
 				self._createCapBarEvt(pnl))
-		pnl.bindEvent(dEvents.SlidePanelCaptionClick, 
+		pnl.bindEvent(dEvents.SlidePanelCaptionClick,
 				self.__onSlidePanelCaptionClick, pnl)
 # 		print "PANEL CAP CLICK BOUND"
 		return pnl
@@ -446,22 +446,22 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		evt.SetBar(cap)
 		return evt
 
-		
+
 	def Collapse(self, pnl):
 		if pnl.Collapsed:
 			# nothing to do here
 			return
 		super(dSlidePanelControl, self).Collapse(pnl)
-		self.raiseEvent(dEvents.SlidePanelChange, 
+		self.raiseEvent(dEvents.SlidePanelChange,
 				self._createCapBarEvt(pnl))
 
-	
+
 	def Expand(self, pnl):
 		if pnl.Expanded:
 			# nothing to do here
 			return
 		super(dSlidePanelControl, self).Expand(pnl)
-		self.raiseEvent(dEvents.SlidePanelChange, 
+		self.raiseEvent(dEvents.SlidePanelChange,
 				self._createCapBarEvt(pnl))
 
 
@@ -473,8 +473,8 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 	def collapseAll(self):
 		for pnl in self._panels:
 			pnl.Collapsed = True
-	
-	
+
+
 	def expandAll(self):
 		for pnl in self._panels:
 			pnl.Expanded = True
@@ -487,7 +487,7 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			vertical = self.IsVertical()
 			if vertical and rect.GetHeight() > 0 or not vertical and rect.GetWidth() > 0:
 				self.RefreshRect(rect)
-			
+
 
 	def layout(self):
 		""" Wrap the wx version of the call, if possible. """
@@ -496,7 +496,7 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			return
 		self.Layout()
 
-	
+
 	def onResize(self, evt):
 		self.sizePanelHeights()
 
@@ -513,7 +513,7 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		if not self.Singleton:
 			return
 		# Make sure that one panel is open. If not, open the first.
-		# If there is more than one panel open, close all but the 
+		# If there is more than one panel open, close all but the
 		# first open panel.
 		if len(self._panels) == 0:
 			return
@@ -527,11 +527,11 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 					self.__openPanel = pnl
 					found = True
 		if not found:
-			self._panels[0].Expanded = True	
+			self._panels[0].Expanded = True
 			self.__openPanel = self._panels[0]
 		self.__inSingletonProcess = False
-		
-		
+
+
 	def __onSlidePanelChange(self, evt):
 		"""This ensures that one and only one panel remains expanded
 		when the control is in Singleton mode.
@@ -561,7 +561,7 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 					dabo.ui.callAfter(self.collapse, curr)
 			self.__openPanel = evtPanel
 		else:
-			# The panel is closing. If it was the current panel, 
+			# The panel is closing. If it was the current panel,
 			# keep it open.
 			if curr is None:
 				# This is the first panel being added; keep it open
@@ -575,7 +575,7 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			self.refresh()
 		self.__inSingletonProcess = False
 
-	
+
 	def sizePanelHeights(self, force=False):
 		"""Control the heights of the panels. Originally I thought we only needed
 		this when running in Singleton mode, but now it seems better to run this
@@ -592,7 +592,7 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		if self.CollapseToBottom:
 			# Sort so that the first panel is the expanded one.
 			pnlList.sort(key=lambda x: x.Collapsed)
-		fp = pnlList[0]		
+		fp = pnlList[0]
 		fp.Reposition(0)
 		self.RefreshPanelsFrom(fp)
 		for pnl in pnlList:
@@ -620,8 +620,8 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 
 	def _getChildren(self):
 		return self._panels
-	
-	
+
+
 	def _getCollapseToBottom(self):
 		return bool(self._StyleAttribute & fpb.FPB_COLLAPSE_TO_BOTTOM)
 
@@ -673,7 +673,7 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 				raise ValueError(_("Cannot set PanelCount to less than zero."))
 			panelCount = len(self.Children)
 			panelClass = self.PanelClass
-		
+
 			if val > panelCount:
 				for i in range(panelCount, val):
 					pnl = panelClass(self)
@@ -723,16 +723,16 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 
 	Children = property(_getChildren, None, None,
 			_("List of all panels in the control  (list))"))
-			
+
 	CollapseToBottom = property(_getCollapseToBottom, _setCollapseToBottom, None,
 			_("When True, all collapsed panels are displayed at the bottom  (bool)"))
-	
+
 	ExpandContent = property(_getExpandContent, _setExpandContent, None,
-			_("""When True, the panels size themselves to the size of this object. 
+			_("""When True, the panels size themselves to the size of this object.
 			Otherwise, panels only take up as much space as they need. (default=True) (bool)"""))
 
 	PanelClass = property(_getPanelClass, _setPanelClass, None,
-			_("""Specifies the class of control to use for panels by default. (dSlidePanel) 
+			_("""Specifies the class of control to use for panels by default. (dSlidePanel)
 			This really only applies when using the PanelCount property to set the
 			number of panels."""))
 
@@ -743,15 +743,15 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			_("List of contained panels. Same as the 'Children' property.  (read-only) (list)"))
 
 	SingleClick = property(_getSingleClick, _setSingleClick, None,
-			_("""When True, a single click on the caption bar toggles the 
+			_("""When True, a single click on the caption bar toggles the
 			expanded/collapsed state  (bool)"""))
-	
+
 	Singleton = property(_getSingleton, _setSingleton, None,
 			_("When True, one and only one panel at a time will be expanded  (bool)"))
 
 	_StyleAttribute = property(_getStyleAttribute, _setStyleAttribute, None,
-			_("""FOR INTERNAL USE ONLY! Internally the code for foldpanelbar changed 
-			the name of a 'private' attribute that the Dabo wrapper needs to address. 
+			_("""FOR INTERNAL USE ONLY! Internally the code for foldpanelbar changed
+			the name of a 'private' attribute that the Dabo wrapper needs to address.
 			This property handles the interaction with that private attribute.  (str)"""))
 
 
@@ -766,19 +766,19 @@ if __name__ == "__main__":
 			dSlidePanelControl(self, RegID="slideControl", ExpandContent=False,
 					SingleClick=True)
 			self.Sizer.append1x(self.slideControl)
-			self.p1 = dabo.ui.dSlidePanel(self.slideControl, Caption="First", 
+			self.p1 = dabo.ui.dSlidePanel(self.slideControl, Caption="First",
 					BackColor="orange")
-			self.p2 = dabo.ui.dSlidePanel(self.slideControl, Caption="Second", 
-					BarStyle="HorizontalFill", BarColor1="lightgreen", BarColor2="ForestGreen", 
+			self.p2 = dabo.ui.dSlidePanel(self.slideControl, Caption="Second",
+					BarStyle="HorizontalFill", BarColor1="lightgreen", BarColor2="ForestGreen",
 					BackColor="wheat")
 			self.p3 = dabo.ui.dSlidePanel(self.slideControl, Caption="Third",
 					BarStyle="BorderOnly", BackColor="powderblue", Border=33)
-			
+
 			self.p1.Sizer = dabo.ui.dSizer("v")
 			btn = dabo.ui.dButton(self.p1, Caption="Change Bar 1 Style")
 			self.p1.Sizer.append(btn, border=25)
 			btn.bindEvent(dEvents.Hit, self.onBtn)
-			
+
 			self.p2.Sizer = dabo.ui.dSizer("v")
 			lbl = dabo.ui.dLabel(self.p2, Caption="Tea For Two", FontItalic=True,
 					FontSize=24)
@@ -802,7 +802,7 @@ if __name__ == "__main__":
 			self.p3.Sizer.append(dabo.ui.dLabel(self.p3, Caption="the"))
 			self.p3.Sizer.append(dabo.ui.dLabel(self.p3, Caption="Grid"))
 			self.p3.Sizer.append(dabo.ui.dLabel(self.p3, Caption="Sizer"))
-			
+
 			hsz = dabo.ui.dSizer("h")
 			btnCollapse = dabo.ui.dButton(self, Caption="Collapse All")
 			btnCollapse.bindEvent(dEvents.Hit, self.onCollapseAll)
@@ -812,13 +812,13 @@ if __name__ == "__main__":
 			hsz.appendSpacer(10)
 			hsz.append(btnExpand)
 			hsz.appendSpacer(10)
-			chkSingleton = dabo.ui.dCheckBox(self, Caption="Singleton Style", 
+			chkSingleton = dabo.ui.dCheckBox(self, Caption="Singleton Style",
 					DataSource="self.Form.slideControl", DataField="Singleton")
-			chkSingle = dabo.ui.dCheckBox(self, Caption="Single Click to Toggle", 
+			chkSingle = dabo.ui.dCheckBox(self, Caption="Single Click to Toggle",
 					DataSource="self.Form.slideControl", DataField="SingleClick")
-			chkBottom = dabo.ui.dCheckBox(self, Caption="Collapsed Panels To Bottom", 
+			chkBottom = dabo.ui.dCheckBox(self, Caption="Collapsed Panels To Bottom",
 					DataSource="self.Form.slideControl", DataField="CollapseToBottom")
-			chkExpand = dabo.ui.dCheckBox(self, Caption="Expand Content to Full Size", 
+			chkExpand = dabo.ui.dCheckBox(self, Caption="Expand Content to Full Size",
 					DataSource="self.Form.slideControl", DataField="ExpandContent")
 			self.Sizer.appendSpacer(10)
 			vsz = dabo.ui.dSizer("v")
@@ -846,7 +846,7 @@ if __name__ == "__main__":
 				p.Caption = "Style: %s" % style
 			else:
 				p.Caption = "Style: %s; Color: %s" % (style, color1)
-# 			lbl = dabo.ui.dLabel(p, Caption="Changed to %s" % p.BarStyle, 
+# 			lbl = dabo.ui.dLabel(p, Caption="Changed to %s" % p.BarStyle,
 # 					FontItalic=True, FontSize=12)
 # 			p.Sizer.append(lbl)
 # 			p.layout()
@@ -854,11 +854,11 @@ if __name__ == "__main__":
 
 		def onCollapseAll(self, evt):
 			self.slideControl.collapseAll()
-			
+
 		def onExpandAll(self, evt):
 			self.slideControl.expandAll()
-			
-	
+
+
 	app = dabo.dApp()
 	app.MainFormClass = TestForm
 	app.start()

@@ -14,8 +14,8 @@ class dTextBox(tbm.dTextBoxMixin, wx.TextCtrl):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dTextBox
 		preClass = wx.PreTextCtrl
-		
-		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties, attProperties, 
+
+		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties, attProperties,
 				*args, **kwargs)
 
 
@@ -24,13 +24,13 @@ if __name__ == "__main__":
 	import test
 	import datetime
 
-	# This test sets up several textboxes, each editing different data types.	
+	# This test sets up several textboxes, each editing different data types.
 	class TestBase(dTextBox):
 		def initProperties(self):
 			self.SelectOnEntry = True
 			self.super()
 			self.LogEvents = ["ValueChanged",]
-			
+
 		def onValueChanged(self, evt):
 			if self.IsSecret:
 				print "%s changed, but the new value is a secret! " % self.Name
@@ -40,19 +40,19 @@ if __name__ == "__main__":
 	class IntText(TestBase):
 		def afterInit(self):
 			self.Value = 23
-	
+
 	class LongText(TestBase):
 		def afterInit(self):
 			self.Value = long(23)
-		
+
 	class FloatText(TestBase):
 		def afterInit(self):
 			self.Value = 23.5
-	
+
 	class BoolText(TestBase):
 		def afterInit(self):
 			self.Value = False
-	
+
 	class StrText(TestBase):
 		def afterInit(self):
 			self.Value = "Lunchtime"
@@ -67,19 +67,19 @@ if __name__ == "__main__":
 	class DateText(TestBase):
 		def afterInit(self):
 			self.Value = datetime.date.today()
-	
+
 	class DateTimeText(TestBase):
 		def afterInit(self):
 			self.Value = datetime.datetime.now()
-	
+
 	testParms = [IntText, LongText, FloatText, StrText, PWText, BoolText, DateText, DateTimeText]
-	
+
 	try:
 		import mx.DateTime
 		class MxDateTimeText(TestBase):
 			def afterInit(self):
 				self.Value = mx.DateTime.now()
-				
+
 		testParms.append(MxDateTimeText)
 	except ImportError:
 		# skip it: mx may not be available
@@ -92,5 +92,5 @@ if __name__ == "__main__":
 
 	testParms.append(DecimalText)
 
-		
+
 	test.Test().runTest(testParms)

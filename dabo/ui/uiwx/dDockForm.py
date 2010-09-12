@@ -30,8 +30,8 @@ class _dDockManager(aui.AuiManager):
 	def aui_render(self, evt):
 		evt.Skip()
 		dabo.ui.callAfterInterval(100, self._managedWindow.update)
-	
-	
+
+
 	def addPane(self, win, name=None, typ=None, caption=None, toolbar=None):
 		pi = PaneInfo()
 		if toolbar:
@@ -59,7 +59,7 @@ class _dDockManager(aui.AuiManager):
 		if not win or win._finito:
 			return
 		self.Update()
-		
+
 
 
 class _dDockPanel(dabo.ui.dPanel):
@@ -77,7 +77,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			kwargs["Caption"] = pcap
 		self._paramType = ptype
 		self._toolbar = self._extractKey(kwargs, "Toolbar", False)
-		
+
 		# Initialize attributes that underly properties
 		self._bottomDockable = True
 		self._leftDockable = True
@@ -100,10 +100,10 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self.Floating:
 			self._floatingPosition = self.GetParent().GetPosition().Get()
 			self._floatingSize = self.GetParent().GetSize().Get()
-	
+
 
 	def _uniqueNameForParent(self, name, parent=None):
-		"""We need to check the AUI manager's PaneInfo name value, too, as that has to be unique 
+		"""We need to check the AUI manager's PaneInfo name value, too, as that has to be unique
 		there as well as the form.
 		"""
 		changed = True
@@ -134,8 +134,8 @@ class _dDockPanel(dabo.ui.dPanel):
 			return
 		self.__pi.Float()
 		self._updateAUI()
-		
-		
+
+
 	def dock(self, side=None):
 		"""Dock the panel. If side is specified, it is docked on that side of the
 		form. If no side is specified, it is docked in its default location.
@@ -148,32 +148,32 @@ class _dDockPanel(dabo.ui.dPanel):
 			func = {"l": inf.Left, "r": inf.Right, "t": inf.Top, "b": inf.Bottom}.get(s, None)
 			if func:
 				func()
-			else:	
+			else:
 				dabo.log.error(_("Invalid dock position: '%s'.") % side)
 		inf.Dock()
 		self._updateAUI()
-			
-		
+
+
 	def _beforeSetProperties(self, props):
-		"""Some properties of Floating panels cannot be set at the usual 
+		"""Some properties of Floating panels cannot be set at the usual
 		point in the process, since the panel will still be docked, and you
-		can't change dimensions/location of a docked panel. So extract 
+		can't change dimensions/location of a docked panel. So extract
 		them now, and then set them afterwards.
 		"""
 		self._propDelayDict = {}
-		props2Delay = ("Bottom", "BottomDockable", "Caption", "DestroyOnClose", "Dockable", "Docked", 
-				"DockSide", "Floatable", "Floating", "FloatingBottom", "FloatingHeight", "FloatingLeft", 
-				"FloatingPosition", "FloatingRight", "FloatingSize", "FloatingTop", "FloatingWidth", "Height", 
-				"Left", "LeftDockable", "Movable", "Resizable", "Right", "RightDockable", "ShowBorder", 
-				"ShowCaption", "ShowCloseButton", "ShowGripper", "ShowMaximizeButton", 
+		props2Delay = ("Bottom", "BottomDockable", "Caption", "DestroyOnClose", "Dockable", "Docked",
+				"DockSide", "Floatable", "Floating", "FloatingBottom", "FloatingHeight", "FloatingLeft",
+				"FloatingPosition", "FloatingRight", "FloatingSize", "FloatingTop", "FloatingWidth", "Height",
+				"Left", "LeftDockable", "Movable", "Resizable", "Right", "RightDockable", "ShowBorder",
+				"ShowCaption", "ShowCloseButton", "ShowGripper", "ShowMaximizeButton",
 				"ShowMinimizeButton", "ShowPinButton", "Top", "TopDockable", "Visible", "Width")
 		for delayed in props2Delay:
 			val = self._extractKey(props, delayed, None)
 			if val is not None:
 				self._propDelayDict[delayed] = val
 		return super(_dDockPanel, self)._beforeSetProperties(props)
-		
-		
+
+
 	def _afterSetProperties(self):
 		nm = self.Name
 		frm = self.Form
@@ -215,7 +215,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		else:
 			obj = self
 		return obj.GetPosition().Get()
-		
+
 
 	def __getSize(self):
 		if self.Floating:
@@ -223,7 +223,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		else:
 			obj = self
 		return obj.GetSize().Get()
-		
+
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
@@ -280,7 +280,7 @@ class _dDockPanel(dabo.ui.dPanel):
 
 	def _getDockable(self):
 		return self._bottomDockable or self._leftDockable or self._rightDockable or self._topDockable
-		
+
 	def _setDockable(self, val):
 		if self._constructed():
 			self._dockable = val
@@ -698,7 +698,7 @@ class _dDockPanel(dabo.ui.dPanel):
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("Text that appears in the title bar  (str)"))
-	
+
 	DestroyOnClose = property(_getDestroyOnClose, _setDestroyOnClose, None,
 			_("When the panel's Close button is clicked, does the panel get destroyed (True) or just hidden (False, default)  (bool)"))
 
@@ -707,18 +707,18 @@ class _dDockPanel(dabo.ui.dPanel):
 
 	Docked = property(_getDocked, _setDocked, None,
 			_("Determines whether the pane is floating (False) or docked (True)  (bool)"))
-	
+
 	DockSide = property(_getDockSide, _setDockSide, None,
-			_("""Side of the form that the panel is either currently docked to, 
-			or would be if dock() were to be called. Possible values are 
-			'Left', 'Right', 'Top' and 'Bottom'.  (str)"""))	
-			
+			_("""Side of the form that the panel is either currently docked to,
+			or would be if dock() were to be called. Possible values are
+			'Left', 'Right', 'Top' and 'Bottom'.  (str)"""))
+
 	Floatable = property(_getFloatable, _setFloatable, None,
 			_("Can the panel be undocked from the form and float independently? Default=True  (bool)"))
 
 	Floating = property(_getFloating, _setFloating, None,
 			_("Determines whether the pane is floating (True) or docked (False)  (bool)"))
-	
+
 	FloatingBottom = property(_getFloatingBottom, _setFloatingBottom, None,
 			_("Bottom coordinate of the panel when floating  (int)"))
 
@@ -805,8 +805,8 @@ class _dDockPanel(dabo.ui.dPanel):
 
 
 	DynamicCaption = makeDynamicProperty(Caption)
-	
-		
+
+
 
 class dDockForm(dabo.ui.dForm):
 	def _afterInit(self):
@@ -818,15 +818,15 @@ class dDockForm(dabo.ui.dForm):
 		self._panels = {}
 		super(dDockForm, self)._afterInit()
 		self.bindEvent(dEvents.Destroy, self.__onDestroy)
-	
-	
+
+
 	def __onDestroy(self, evt):
 		if self._finito:
 			# Need to save this here, since we can't respond to all layout changes.
 			self.saveSizeAndPosition()
 			self._mgr.UnInit()
 
-	
+
 	def getBasePanelClass(cls):
 		return _dDockPanel
 	getBasePanelClass = classmethod(getBasePanelClass)
@@ -837,15 +837,15 @@ class dDockForm(dabo.ui.dForm):
 		if not ok:
 			# This should never happen; if so, log the error
 			dabo.log.error(_("Unmanaged object added to a Dock Form: %s") %evt.child)
-		
-		
+
+
 	def addObject(self, classRef, Name=None, *args, **kwargs):
 		"""To support the old addObject() syntax, we need to re-direct the request
 		to the center panel.
 		"""
 		self._centerPanel.addObject(classRef, Name=Name, *args, **kwargs)
-		
-	
+
+
 	def addPanel(self, *args, **kwargs):
 		"""Adds a dockable panel to the form."""
 		pnl = _dDockPanel(self, *args, **kwargs)
@@ -867,8 +867,8 @@ class dDockForm(dabo.ui.dForm):
 			dabo.ui.callAfterInterval(interval, self._mgr.runUpdate)
 		if not self._inUpdate:
 			dabo.ui.callAfter(self.update)
-	
-	
+
+
 	def update(self):
 		if not self._inUpdate:
 			self._inUpdate = True
@@ -944,7 +944,7 @@ class dDockForm(dabo.ui.dForm):
 
 	ShowActivePanel = property(_getShowActivePanel, _setShowActivePanel, None,
 			_("When True, the title bar of the active pane is highlighted. Default=False  (bool)"))
-	
+
 	TransparentDrag = property(_getTransparentDrag, _setTransparentDrag, None,
 			_("When dragging panes, do they appear transparent? Default=True  (bool)"))
 
@@ -958,7 +958,7 @@ class _dDockForm_test(dDockForm):
 	def afterInit(self):
 		self.fp = self.addPanel(Floating=True, BackColor="orange",
 				Caption="Initially Floating", Top=70, Left=200)
-		self.dp = self.addPanel(Floating=False, Caption="Initially Docked", BackColor="slateblue", 
+		self.dp = self.addPanel(Floating=False, Caption="Initially Docked", BackColor="slateblue",
 				ShowCaption=False, ShowPinButton=True, ShowCloseButton=False,
 				ShowGripper=True)
 		btn = dabo.ui.dButton(self.CenterPanel, Caption="Test Orange", OnHit=self.onTestFP)
@@ -977,7 +977,7 @@ class _dDockForm_test(dDockForm):
 			state = "Docked"
 		print "STATE", state
 		return "I'm %s!" % state
-		
+
 	def onTestFP(self, evt):
 		self.printTest(self.fp)
 	def onTestDP(self, evt):

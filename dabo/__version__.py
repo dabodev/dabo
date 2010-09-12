@@ -3,13 +3,13 @@
 # Everything else is boilerplate copied also to other dabo repositories.
 package_name = "dabo"
 _version = "0.9.3"
-_approximateRevision = "~6010"
+_approximateRevision = "~6018"
 
 import os
 import lib
 
 _revision = None
-# First, try to get the revision from svninfo, which lets the developer go back 
+# First, try to get the revision from svninfo, which lets the developer go back
 # and forth through revisions and the version information will still reflect
 # reality.
 package_path = os.path.split(os.path.split(lib.__file__)[0])[0]

@@ -11,43 +11,43 @@ class dConnection(dObject):
 		self._baseClass = dConnection
 		self._forceCreate = forceCreate
 		super(dConnection, self).__init__()
-		# Store a reference to the parent object (bizobj maybe; app 
+		# Store a reference to the parent object (bizobj maybe; app
 		# object connection collection most likely)
 		self.Parent = parent
 
 		if connectInfo is None:
-			# Fill it in from any kwargs (will get converted to a dConnectInfo 
+			# Fill it in from any kwargs (will get converted to a dConnectInfo
 			# object in the block below).
 			connectInfo = kwargs
 
 		if isinstance(connectInfo, dConnectInfo):
 			self._connectInfo = connectInfo
 		elif connectInfo:
-			# If they passed a cnxml file, or a dict containing valid connection info, 
-			# this will work fine. Otherwise, an error will be raised in the 
+			# If they passed a cnxml file, or a dict containing valid connection info,
+			# this will work fine. Otherwise, an error will be raised in the
 			# dConnectInfo class.
 			self._connectInfo = dConnectInfo(connInfo=connectInfo)
 		else:
 			raise TypeError("dConnectInfo instance or kwargs not sent.")
 		self._connection = self._openConnection(**kwargs)
-		
-		
+
+
 	def getConnection(self):
 		return self._connection
-		
-	
+
+
 	def close(self):
 		self._connection.close()
-		
+
 
 	def getDictCursorClass(self):
 		return self._connectInfo.getDictCursorClass()
-		
-		
+
+
 	def getCursor(self, cursorClass):
 		return self.getBackendObject().getCursor(cursorClass)
-		
-	
+
+
 	def getDaboCursor(self, cursorClass=None):
 		""" Accepts a backend-specific cursor class, mixes in the Dabo
 		dCursorMixin class, and returns the result.
@@ -63,14 +63,14 @@ class dConnection(dObject):
 						apply(cls.__init__, (self, ) + args, kwargs)
 					except AttributeError:
 						pass
-		
+
 		bo = self.getBackendObject()
 		crs = bo.getCursor(DaboCursor)
 		crs.BackendObject = bo
 		# Return the AuxCursor, as it skips some of the unnecessary
 		# configuration and housekeeping
 		return crs.AuxCursor
-	
+
 	cursor = getDaboCursor
 
 
@@ -78,8 +78,8 @@ class dConnection(dObject):
 		""" Open a connection to the database and store it for future use. """
 		self.getBackendObject().KeepAliveInterval = self._connectInfo.KeepAliveInterval
 		return self._connectInfo.getConnection(forceCreate=self._forceCreate, **kwargs)
-		
-	
+
+
 	def getBackendObject(self):
 		""" Return a reference to the connectInfo's backend-specific
 		database object.
@@ -88,7 +88,7 @@ class dConnection(dObject):
 
 
 	def isRemote(self):
-		"""Returns True or False, depending on whether a RemoteHost is 
+		"""Returns True or False, depending on whether a RemoteHost is
 		specified in this connection.
 		"""
 		return bool(self._connectInfo.RemoteHost)
@@ -96,19 +96,19 @@ class dConnection(dObject):
 
 	def _getConnInfo(self):
 		return self._connectInfo
-		
+
 
 	def _getName(self):
 		try:
 			return self.ConnectInfo.Name
 		except AttributeError:
 			return "?"
-			
 
-	ConnectInfo = property(_getConnInfo, None, None, 
+
+	ConnectInfo = property(_getConnInfo, None, None,
 			_("The connectInfo for the connection.  (dConnectInfo)"))
-			
-	Name = property(_getName, None, None, 
+
+	Name = property(_getName, None, None,
 			_("The name of the connection.  (str)"))
 
 
@@ -123,7 +123,7 @@ if __name__ == "__main__":
 
 	conn = dConnection(ci).getConnection()
 	cursor = conn.cursor()
-	print cursor.execute("select * from recipes order by iid limit 10") 
+	print cursor.execute("select * from recipes order by iid limit 10")
 	for row in cursor.fetchall():
 		print row[0], row[1]
 

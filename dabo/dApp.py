@@ -180,7 +180,7 @@ class dApp(dObject):
 
 		# Subdirectories that make up a standard Dabo app
 		self._standardDirs = dabo._getAppDirectoryNames()
-		
+
 		# Some apps, such as the visual tools, are meant to be run from directories
 		# other than that where they are located. In those cases, use the current dir.
 		self._ignoreScriptDir = ignoreScriptDir
@@ -254,7 +254,7 @@ class dApp(dObject):
 			self.showMainFormOnStart = False
 			self.setup()
 
-		### egl: 2009.06.28 - commented this out. This was added when the 
+		### egl: 2009.06.28 - commented this out. This was added when the
 		###    remote proxy code was added, and I'm not sure why. I am removing
 		###    it for now to satisfy ticket #1241, but I need to do full testing with
 		###    remote apps to make sure that it is truly not needed.
@@ -565,7 +565,7 @@ try again when it is running.
 				if lastcheck is None:
 					lastcheck = datetime.datetime(1900, 1, 1)
 				runCheck = (now > (lastcheck + mins))
-		
+
 		if runCheck:
 			currVers = self._currentUpdateVersion()
 			# See if there is a later version
@@ -901,7 +901,7 @@ try again when it is running.
 		hd = self.HomeDirectory
 		if not self.AutoImportConnections:
 			return
- 
+
 		connDefs = {}
 		if pth is None:
 			pth = os.getcwd()
@@ -1051,7 +1051,7 @@ try again when it is running.
 
 	def addConnectFile(self, connFile):
 		"""Accepts a cnxml file path, and reads in the connections
-		defined in it, adding them to self.dbConnectionDefs. If the 
+		defined in it, adding them to self.dbConnectionDefs. If the
 		file cannot be found, an exception is raised.
 		"""
 		origFile = connFile
@@ -1358,7 +1358,7 @@ try again when it is running.
 
 # 	def _getDatabaseActivityLog(self):
 # 		return dabo.dbActivityLog
-# 
+#
 # 	def _setDatabaseActivityLog(self, val):
 # 		try:
 # 			dbLogger = dabo.dbActivityLog
@@ -1436,7 +1436,7 @@ try again when it is running.
 								d1 = os.path.split(d1)[0]
 								if d1 == d2:
 									return True
-	
+
 						if issubdir(scriptDir, appDir):
 							# The directory where the main script is executing is a subdirectory of the
 							# location of the application object in use. So we can safely make the app
@@ -1476,7 +1476,7 @@ try again when it is running.
 		import dabo.ui.dialogs.login as login
 		defaultDialogClass = login.Login
 		return getattr(self, "_loginDialogClass", defaultDialogClass)
-		
+
 	def _setLoginDialogClass(self, val):
 		self._loginDialogClass = val
 
@@ -1638,7 +1638,7 @@ try again when it is running.
 	def _setUIAppClass(self, val):
 		self._uiAppClass = val
 
-			
+
 	def _getUserSettingProvider(self):
 		try:
 			ret = self._userSettingProvider
@@ -1686,7 +1686,7 @@ try again when it is running.
 
 	CryptoKey = property(None, _setCryptoKey, None,
 			_("""When set, creates a DES crypto object if PyCrypto is installed. Note that
-			each time this property is set, a new PyCrypto instance is created, and 
+			each time this property is set, a new PyCrypto instance is created, and
 			any previous crypto objects are released. Write-only.  (varies)"""))
 
 # 	DatabaseActivityLog = property(_getDatabaseActivityLog, _setDatabaseActivityLog, None,
@@ -1814,11 +1814,11 @@ try again when it is running.
 
 	UIAppClass = property(_getUIAppClass, _setUIAppClass, None,
 			_("""The name of the ui-specific app subclass to instantiate.
-			
+
 			This will allow ui toolkit-specific behaviors to be added to a Dabo
 			application. It MUST be either defined in the application subclass, or
 			passed in the call to create the app object, since the UI App cannot
-			be changed once the app is running. Defaults to dabo.ui.uiApp 
+			be changed once the app is running. Defaults to dabo.ui.uiApp
 			if not specified.  (dabo.ui.uiApp)"""))
 
 	UserSettingProvider = property(_getUserSettingProvider,

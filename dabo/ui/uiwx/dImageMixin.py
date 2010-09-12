@@ -18,22 +18,22 @@ class dImageMixin(object):
 		# This is used by some controls to automatically set the size
 		self._autoSize = False
 
-	
+
 	def _sizeToBitmap(self):
 		if self.Picture:
 			bmp = self.Bitmap
 			self.Size = bmp.GetWidth(), bmp.GetHeight()
 
-		
+
 	def _getBmp(self):
 		if self._bmp is None:
 			self._bmp = wx.EmptyBitmap(1, 1, 1)
 		return self._bmp
-		
+
 	def _setBmp(self, val):
 		self._bmp = val
-		
-		
+
+
 	def _getBitmapHeight(self):
 		return self._bitmapHeight
 
@@ -53,11 +53,11 @@ class dImageMixin(object):
 		if self._autoSize:
 			self._sizeToBitmap()
 		self.refresh()
-	
-	
+
+
 	def _getImgScale(self):
 		return self._imgScale
-	
+
 	def _setImgScale(self, val):
 		self._imgScale = val
 		pic = self.Picture
@@ -66,11 +66,11 @@ class dImageMixin(object):
 		if self._autoSize:
 			self._sizeToBitmap()
 		self.refresh()
-	
-	
+
+
 	def _getImgWd(self):
 		return self._imgWd
-	
+
 	def _setImgWd(self, val):
 		self._imgWd = val
 		pic = self.Picture
@@ -79,11 +79,11 @@ class dImageMixin(object):
 		if self._autoSize:
 			self._sizeToBitmap()
 		self.refresh()
-		
-		
+
+
 	def _getPicture(self):
 		return self.GetBitmap()
-		
+
 	def _setPicture(self, val):
 		if self._constructed():
 			self._picture = val
@@ -96,19 +96,19 @@ class dImageMixin(object):
 			self.Thaw()
 		else:
 			self._properties["Picture"] = val
-	
-	
+
+
 	Bitmap = property(_getBmp, _setBmp, None,
 			_("The bitmap representation of the displayed image.  (wx.Bitmap)") )
 
 	BitmapHeight = property(_getBitmapHeight, None, None,
 			_("Height of the actual displayed bitmap  (int)"))
-	
+
 	BitmapWidth = property(_getBitmapWidth, None, None,
 			_("Width of the actual displayed bitmap  (int)"))
-	
+
 	ImageHeight = property(_getImgHt, _setImgHt, None,
-		_("""When set, sets the height of all images shown on this control. 
+		_("""When set, sets the height of all images shown on this control.
 		Default=None, which performs no resizing.  (int)""") )
 
 	ImageScale = property(_getImgScale, _setImgScale, None,
@@ -117,7 +117,7 @@ class dImageMixin(object):
 		Default=None, which performs no scaling  (float)""") )
 
 	ImageWidth = property(_getImgWd, _setImgWd, None,
-		_("""When set, sets the width of all images shown on this control. 
+		_("""When set, sets the width of all images shown on this control.
 		Default=None, which performs no resizing.  (int)""") )
 
 	Picture = property(_getPicture, _setPicture, None,

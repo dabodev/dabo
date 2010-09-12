@@ -25,4 +25,3 @@ class MethodSheet(dabo.ui.dPanel):
 
 	MethodList = property(_getMethodList, None, None,
 			_("Reference to the method list control  (dListControl)"))
-	

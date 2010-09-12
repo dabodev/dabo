@@ -227,7 +227,7 @@ class ScrollEvent(dEvent):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, (dabo.ui.dScrollPanel, dabo.ui.dGrid))
 	appliesToClass = classmethod(appliesToClass)
-	
+
 
 class Activate(dEvent):
 	"""Occurs when the form or application becomes active."""

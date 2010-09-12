@@ -13,7 +13,7 @@ from dabo.ui import makeDynamicProperty
 
 
 class _BasePanelMixin(object):
-	def __init__(self, superclass, preClass, parent, properties=None, attProperties=None, 
+	def __init__(self, superclass, preClass, parent, properties=None, attProperties=None,
 			*args, **kwargs):
 		self._minSizerWidth = 10
 		self._minSizerHeight = 10
@@ -31,7 +31,7 @@ class _BasePanelMixin(object):
 		kwargs["style"] = style
 		# For performance, store this at init
 		self._platformIsWindows = (self.Application.Platform == "Win")
-		superclass.__init__(self, preClass=preClass, parent=parent, 
+		superclass.__init__(self, preClass=preClass, parent=parent,
 				properties=properties, attProperties=attProperties, *args, **kwargs)
 
 		self._inResizeHandler = False
@@ -65,7 +65,7 @@ class _BasePanelMixin(object):
 			# Not in a sizer
 			return
 		if not expand:
-			return			
+			return
 		ewd, eht = evt.GetSize()
 		halign = cs.getItemProp(self, "halign")[0]
 		valign = cs.getItemProp(self, "valign")[0]
@@ -112,17 +112,17 @@ class _BasePanelMixin(object):
 		# We create it; as soon as 'dc' goes out of scope, the
 		# DC is destroyed, which copies its contents to the display
 		dc = wx.BufferedPaintDC(self, self._buffer)
-	
-	
+
+
 	def _onResizeBuffer(self, evt):
 		evt.Skip()
 		self._buffer = wx.EmptyBitmap(max(1, self.Width), max(1, self.Height))
 		self.__updateDrawing()
-	
-	
+
+
 	def __updateDrawing(self):
 		dc = wx.BufferedDC(wx.ClientDC(self), self._buffer)
-		dc.Clear() # make sure you clear the bitmap! 
+		dc.Clear() # make sure you clear the bitmap!
 		self._redraw(dc)
 
 
@@ -142,7 +142,7 @@ class _BasePanelMixin(object):
 				return
 			if dc is None:
 				dc = wx.BufferedDC(wx.ClientDC(self), self._buffer)
-				dc.Clear() # make sure you clear the bitmap! 
+				dc.Clear() # make sure you clear the bitmap!
 		super(_PanelMixin, self)._redraw(dc)
 
 
@@ -152,7 +152,7 @@ class _BasePanelMixin(object):
 
 	def _setActiveControl(self, obj):
 		obj.setFocus()
-	
+
 	def _getAlwaysResetSizer(self):
 		return self._alwaysResetSizer
 
@@ -178,7 +178,7 @@ class _BasePanelMixin(object):
 		else:
 			self.Unbind(wx.EVT_PAINT)
 			self.Unbind(wx.EVT_SIZE)
-		
+
 
 	def _getMinSizerHeight(self):
 		return self._minSizerHeight
@@ -221,33 +221,33 @@ class _BasePanelMixin(object):
 	AlwaysResetSizer = property(_getAlwaysResetSizer, _setAlwaysResetSizer, None,
 			_("""When True, the sizer settings are always cleared before a layout() is called.
 			This may be necessary when a panel needs to reduce its size. Default=False   (bool)"""))
-	
+
 	Buffered = property(_getBuffered, _setBuffered, None,
 			_("Does this panel use double-buffering to create smooth redrawing?  (bool)"))
 
 	MinSizerHeight = property(_getMinSizerHeight, _setMinSizerHeight, None,
 			_("Minimum height for the panel. Default=10px  (int)"))
-	
+
 	MinSizerWidth = property(_getMinSizerWidth, _setMinSizerWidth, None,
 			_("Minimum width for the panel. Default=10px  (int)"))
 
 	Square = property(_getSquare, _setSquare, None,
 			_("""When True, the panel will keep all of its sides the same length.
 			Default=False  (bool)"""))
-	
-	
+
+
 
 class _PanelMixin(cm.dControlMixin, _BasePanelMixin):
-	def __init__(self, preClass, parent, properties=None, attProperties=None, 
+	def __init__(self, preClass, parent, properties=None, attProperties=None,
 			*args, **kwargs):
-		_BasePanelMixin.__init__(self, cm.dControlMixin, preClass=preClass, parent=parent, 
+		_BasePanelMixin.__init__(self, cm.dControlMixin, preClass=preClass, parent=parent,
 				properties=properties, attProperties=attProperties, *args, **kwargs)
 
 
 class _DataPanelMixin(dcm.dDataControlMixin, _BasePanelMixin):
-	def __init__(self, preClass, parent, properties=None, attProperties=None, 
+	def __init__(self, preClass, parent, properties=None, attProperties=None,
 			*args, **kwargs):
-		_BasePanelMixin.__init__(self, dcm.dDataControlMixin, preClass=preClass, parent=parent, 
+		_BasePanelMixin.__init__(self, dcm.dDataControlMixin, preClass=preClass, parent=parent,
 				properties=properties, attProperties=attProperties, *args, **kwargs)
 
 
@@ -261,23 +261,23 @@ class dPanel(_PanelMixin, wx.Panel):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPanel
 		preClass = wx.PrePanel
-		_PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties, 
+		_PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
 
 class dDataPanel(_DataPanelMixin, wx.Panel):
 	"""Creates a panel, a basic container for controls. This panel, unlike the plain
-	dPanel class, inherits from the Data Control mixin class, which makes it useful 
+	dPanel class, inherits from the Data Control mixin class, which makes it useful
 	building composite controls that have a Value that can be bound like any simple
 	control.
-	
+
 	NOTE: you are responsible for implementing the Value property correctly in
 	your subclasses.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dDataPanel
 		preClass = wx.PrePanel
-		_DataPanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties, 
+		_DataPanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
 
@@ -294,7 +294,7 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 		self._baseClass = dScrollPanel
 		preClass = wx.PreScrolledWindow
 		kwargs["AlwaysResetSizer"] = self._extractKey((properties, kwargs, attProperties), "AlwaysResetSizer", True)
-		_PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties, 
+		_PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 		self.SetScrollRate(10, 10)
 		self.Bind(wx.EVT_SCROLLWIN, self.__onWxScrollWin)
@@ -380,22 +380,22 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 			self.SetScrollRate(rt[0], {True:rt[1], False:0}[val])
 		else:
 			dabo.ui.callAfter(self._setVerticalScroll, val, do=True)
-	
+
 
 	Children = property(_getChildren, _setChildren, None,
-			_("""Child controls of this panel. This excludes the wx-specific 
+			_("""Child controls of this panel. This excludes the wx-specific
 			scroll bars  (list of objects)"""))
-	
+
 	HorizontalScroll = property(_getHorizontalScroll, _setHorizontalScroll, None,
 			_("Controls whether this object will scroll horizontally (default=True)  (bool)"))
-	
+
 	VerticalScroll = property(_getVerticalScroll, _setVerticalScroll, None,
 			_("Controls whether this object will scroll vertically (default=True)  (bool)"))
 
 
 	DynamicHorizontalScroll = makeDynamicProperty(HorizontalScroll)
 	DynamicVerticalScroll = makeDynamicProperty(VerticalScroll)
-	
+
 
 class _dPanel_test(dPanel):
 	def initProperties(self):
@@ -408,7 +408,7 @@ class _dPanel_test(dPanel):
 	def onHover(self, evt):
 		self._normBack = self.BackColor
 		self.BackColor = dabo.dColors.randomColor()
-	
+
 	def endHover(self, evt):
 		self.BackColor = self._normBack
 
@@ -440,25 +440,25 @@ class _dScrollPanel_test(dScrollPanel):
 
 	def onKeyDown(self, evt):
 		print evt.EventData["keyCode"]
-	
+
 	def onScrollLineUp(self, evt):
 		if evt.orientation == "Horizontal":
 			print "Scroll Line Left"
 		else:
 			print "Scroll Line Up"
-	
+
 	def onScrollLineDown(self, evt):
 		if evt.orientation == "Horizontal":
 			print "Scroll Line Right"
 		else:
 			print "Scroll Line Down"
-	
+
 	def onScrollPageUp(self, evt):
 		if evt.orientation == "Horizontal":
 			print "Scroll Page Left"
 		else:
 			print "Scroll Page Up"
-	
+
 	def onScrollPageDown(self, evt):
 		if evt.orientation == "Horizontal":
 			print "Scroll Page Right"
@@ -472,12 +472,12 @@ if __name__ == "__main__":
 		def afterInit(self):
 			self.Square = True
 			self.BackColor = "green"
-	
+
 	class RegularPanel(dPanel):
 		def afterInit(self):
 			self.Square = False
 			self.BackColor = "blue"
-	
+
 	class SquareForm(dabo.ui.dForm):
 		def afterInit(self):
 			self.pnl = SquarePanel(self, Width=100)
@@ -489,11 +489,11 @@ if __name__ == "__main__":
 			sz.append1x(self.regPanel, halign="center", border=5)
 			sz.appendSpacer(20)
 			self.layout()
-			
+
 # 	app = dabo.dApp(MainFormClass = SquareForm)
 # 	app.start()
-	
-	
+
+
 	import test
 	test.Test().runTest(_dPanel_test)
 	test.Test().runTest(_dScrollPanel_test)

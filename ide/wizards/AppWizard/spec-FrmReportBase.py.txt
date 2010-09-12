@@ -25,15 +25,15 @@ class FrmReportBase(dabo.ui.dDialog):
 
 	def addControls(self):
 		hs = dabo.ui.dSizer("h")
-		hs.append(dabo.ui.dButton(self, Caption="Preview", RegID="butPreview"), 
+		hs.append(dabo.ui.dButton(self, Caption="Preview", RegID="butPreview"),
 				alignment="right", border=self.SizerBorder)
-		hs.append(dabo.ui.dButton(self, Caption="Print", RegID="butPrint"), 
+		hs.append(dabo.ui.dButton(self, Caption="Print", RegID="butPrint"),
 				alignment="right", border=self.SizerBorder)
 		self.Sizer.append(hs, alignment="bottom", border=self.SizerBorder)
 
 
 	def onHit_butPreview(self, evt):
-		self.runReport("preview")	
+		self.runReport("preview")
 
 
 	def onHit_butPrint(self, evt):

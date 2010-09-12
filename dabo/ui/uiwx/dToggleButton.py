@@ -37,13 +37,13 @@ class dToggleButton(dcm.dDataControlMixin, dim.dImageMixin,
 		dim.dImageMixin.__init__(self)
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		self.Bind(wx.EVT_BUTTON, self.__onButton)
-	
-	
+
+
 	def __onButton(self, evt):
 		self.flushValue()
 		self.raiseEvent(dEvents.Hit, evt)
 
-	
+
 	def getBlankValue(self):
 		return False
 
@@ -94,14 +94,14 @@ class dToggleButton(dcm.dDataControlMixin, dim.dImageMixin,
 
 	BezelWidth = property(_getBezelWidth, _setBezelWidth, None,
 			_("Width of the bezel on the sides of the button. Default=5  (int)"))
-	
+
 	DownPicture = property(_getDownPicture, _setDownPicture, None,
 			_("Picture displayed when the button is pressed  (str)"))
-	
+
 	Picture = property(_getPicture, _setPicture, None,
 			_("Picture used for the normal (unselected) state  (str)"))
-	
-		
+
+
 class _dToggleButton_test(dToggleButton):
 	def afterInit(self):
 		self.Caption = "Toggle me!"

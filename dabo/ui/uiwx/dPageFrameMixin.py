@@ -11,7 +11,7 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
-	
+
 
 class dPageFrameMixin(cm.dControlMixin):
 	"""Creates a container for an unlimited number of pages."""
@@ -19,15 +19,15 @@ class dPageFrameMixin(cm.dControlMixin):
 		self._imageList = {}
 		self._pageSizerClass = dabo.ui.dSizer
 		super(dPageFrameMixin, self)._beforeInit(pre)
-		
-		
+
+
 	def _initEvents(self):
 		super(dPageFrameMixin, self)._initEvents()
 		self.Bind(self._evtPageChanged, self.__onPageChanged)
 		self.Bind(self._evtPageChanging, self.__onPageChanging)
 		self.bindEvent(dEvents.Create, self.__onCreate)
 
-	
+
 	def __onPageChanging(self, evt):
 		"""The page has not yet been changed, so we can veto it if conditions call for it."""
 		oldPageNum = evt.GetOldSelection()
@@ -38,24 +38,24 @@ class dPageFrameMixin(cm.dControlMixin):
 			evt.Skip()
 		self.raiseEvent(dEvents.PageChanging, oldPageNum=oldPageNum,
 				newPageNum=newPageNum)
-				
-	
+
+
 	def _beforePageChange(self, old, new):
 		return self.beforePageChange(old, new)
-	
-	
+
+
 	def beforePageChange(self, fromPage, toPage):
 		"""Return False from this method to prevent the page from changing."""
 		pass
-		
-		
+
+
 	def __onCreate(self, evt):
 		# Make sure the PageEnter fires for the current page on
 		# pageframe instantiation, as this doesn't happen automatically.
 		# Putting this code in afterInit() results in a segfault on Linux, btw.
 		dabo.ui.callAfter(self.__pageChanged, 0, None)
 
-				
+
 	def __onPageChanged(self, evt):
 		evt.Skip()
 		evt.StopPropagation()
@@ -68,7 +68,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			oldPageNum = None
 		self.__pageChanged(newPageNum, oldPageNum)
 
-		
+
 	def __pageChanged(self, newPageNum, oldPageNum):
 		## Because of platform inconsistencies, it is safer to raise the dabo
 		## events in a callafter instead of directly.
@@ -89,8 +89,8 @@ class dPageFrameMixin(cm.dControlMixin):
 			dabo.ui.callAfter(self.Pages[newPageNum].raiseEvent, dEvents.PageEnter)
 			dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged,
 					oldPageNum=oldPageNum, newPageNum=newPageNum)
-			
-	
+
+
 	# Image-handling function
 	def addImage(self, img, key=None):
 		""" Adds the passed image to the control's ImageList, and maintains
@@ -106,8 +106,8 @@ class dPageFrameMixin(cm.dControlMixin):
 			self.AssignImageList(il)
 		idx = il.Add(img)
 		self._imageList[key] = idx
-	
-	
+
+
 	def setPageImage(self, pg, imgKey):
 		""" Sets the specified page's image to the image corresponding
 		to the specified key. May also optionally pass the index of the
@@ -127,7 +127,7 @@ class dPageFrameMixin(cm.dControlMixin):
 					imgIdx = self._imageList[imgKey]
 			self.SetPageImage(pgIdx, imgIdx)
 
-	
+
 	def getPageImage(self, pg):
 		""" Returns the index of the specified page's image in the
 		current image list, or -1 if no image is set for the page.
@@ -137,8 +137,8 @@ class dPageFrameMixin(cm.dControlMixin):
 		if pgIdx is not None:
 			ret = self.GetPageImage(pgIdx)
 		return ret
-		
-	
+
+
 	def appendPage(self, pgCls=None, caption="", imgKey=None, **kwargs):
 		""" Appends the page to the pageframe, and optionally sets
 		the page caption and image. The image should have already
@@ -148,8 +148,8 @@ class dPageFrameMixin(cm.dControlMixin):
 		page class.
 		"""
 		return self.insertPage(self.GetPageCount(), pgCls, caption, imgKey, **kwargs)
-		
-	
+
+
 	def insertPage(self, pos, pgCls=None, caption="", imgKey=None,
 			ignoreOverride=False, **kwargs):
 		""" Insert the page into the pageframe at the specified position,
@@ -214,8 +214,8 @@ class dPageFrameMixin(cm.dControlMixin):
 			self.RemovePage(pos)
 			ret = pg
 		return ret
-	
-	
+
+
 	def movePage(self, oldPgOrPos, newPos, selecting=True):
 		"""Moves the specified 'old' page to the new position and
 		optionally selects it. If an invalid page number is passed,
@@ -243,8 +243,8 @@ class dPageFrameMixin(cm.dControlMixin):
 			self.SelectedPage = pg
 		self.Parent.unlockDisplay()
 		return True
-		
-		
+
+
 	def cyclePages(self, num):
 		"""Moves through the pages by the specified amount, wrapping
 		around the ends. Negative values move to previous pages; positive
@@ -257,8 +257,8 @@ class dPageFrameMixin(cm.dControlMixin):
 			self.AdvanceSelection(fwd)
 			numToMove -= 1
 		self.unlockDisplay()
-		
-		
+
+
 	def layout(self):
 		""" Wrap the wx version of the call, if possible. """
 		self.Layout()
@@ -276,7 +276,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		if self.Application.Platform == "Win":
 			self.refresh()
 
-		
+
 	def _getPageIndex(self, pg):
 		""" Resolves page references to the page index, which is what
 		is needed by most methods that act on pages.
@@ -291,22 +291,22 @@ class dPageFrameMixin(cm.dControlMixin):
 					ret = i
 					break
 		return ret
-		
-	
+
+
 	# property get/set functions:
 	def _getPageClass(self):
 		try:
 			return self._pageClass
 		except AttributeError:
 			return dPage
-			
+
 	def _setPageClass(self, val):
 		self._pageClass = val
-			
-			
+
+
 	def _getPageCount(self):
 		return int(self.GetPageCount())
-		
+
 	def _setPageCount(self, val):
 		if self._constructed():
 			val = int(val)
@@ -314,7 +314,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			pageClass = self.PageClass
 			if val < 0:
 				raise ValueError(_("Cannot set PageCount to less than zero."))
-		
+
 			if val > pageCount:
 				for i in range(pageCount, val):
 					pg = self.appendPage(pageClass)
@@ -326,7 +326,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		else:
 			self._properties["PageCount"] = val
 
-	
+
 	def _getPgs(self):
 		## pkm: It is possible for pages to not be instances of dPage
 		##      (such as in the AppWizard), resulting in self.PageCount > len(self.Pages)
@@ -363,7 +363,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			self.SetSelection(idx)
 		else:
 			self._properties["SelectedPage"] = pg
-		
+
 
 	def _getSelectedPageNumber(self):
 		return self.GetSelection()
@@ -374,7 +374,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			self.SetSelection(val)
 		else:
 			self._properties["SelectedPageNumber"] = val
-		
+
 
 	def _getTabPosition(self):
 		if self._hasWindowStyleFlag(self._tabposBottom):
@@ -412,27 +412,27 @@ class dPageFrameMixin(cm.dControlMixin):
 			This really only applies when using the PageCount property to set the
 			number of pages. If you instead use AddPage() you still need to send
 			an instance as usual. Class must descend from a dabo base class.""") )
-						
+
 	PageCount = property(_getPageCount, _setPageCount, None,
 			_("""Specifies the number of pages in the pageframe. (int)
 			When using this to increase the number of pages, PageClass
 			will be queried as the object to use as the page object.""") )
-	
+
 	Pages = property(_getPgs, None, None,
 			_("Returns a list of the contained pages.  (list)") )
-	
+
 	PageSizerClass = property(_getPageSizerClass, _setPageSizerClass, None,
 			_("""Default sizer class for pages added automatically to this control. Set
 			this to None to prevent sizers from being automatically added to child
 			pages. (dSizer or None)"""))
-		
+
 	SelectedPage = property(_getSelectedPage, _setSelectedPage, None,
 			_("References the current frontmost page.  (dPage)") )
-						
+
 	SelectedPageNumber = property(_getSelectedPageNumber, _setSelectedPageNumber,
 			None,
 			_("Returns the index of the current frontmost page.  (int)") )
-						
+
 	TabPosition = property(_getTabPosition, _setTabPosition, None,
 			_("""Specifies where the page tabs are located. (int)
 				Top (default)

@@ -19,11 +19,11 @@ class dBitmap(cm.dControlMixin, dim.dImageMixin, wx.StaticBitmap):
 		self._baseClass = dBitmap
 		preClass = wx.StaticBitmap
 		picName = self._extractKey((kwargs, properties, attProperties), "Picture", "")
-		
+
 		dim.dImageMixin.__init__(self)
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
 				*args, **kwargs)
-		
+
 		if picName:
 			self.Picture = picName
 
@@ -33,7 +33,7 @@ class _dBitmap_test(dBitmap):
 	def initProperties(self):
 		self.Picture = "daboIcon016"
 #		self.Size = (40,30)
-	
+
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dBitmap_test)

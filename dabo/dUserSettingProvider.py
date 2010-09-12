@@ -10,20 +10,20 @@ class dUserSettingProvider(dObject):
 	"""
 	def getUserSettingKeys(self, spec):
 		"""Return a list of all keys underneath <spec>.
-		
+
 		For example, if spec is "appWizard.dbDefaults", and there are
 		userSettings entries for:
 			appWizard.dbDefaults.pkm.Host
 			appWizard.dbDefaults.pkm.User
 			appWizard.dbDefaults.egl.Host
-			
+
 		The return value would be ["pkm", "egl"]
 		"""
 		return self.PreferenceManager.getPrefKeys(spec.lower())
 
 
 	def getUserSetting(self, item, default=None):
-		""" Return the value of the user settings table that 
+		""" Return the value of the user settings table that
 		corresponds to the preference key passed.
 		"""
 		prf = self.PreferenceManager
@@ -36,7 +36,7 @@ class dUserSettingProvider(dObject):
 			# No such pref key. Return the default
 			ret = default
 		return ret
-		
+
 
 	def setUserSetting(self, item, val):
 		"""Persist a value to the user settings file."""
@@ -46,8 +46,8 @@ class dUserSettingProvider(dObject):
 			prf = prf.__getattr__(parsedItem.pop(0))
 		key = parsedItem[0]
 		prf.setValue(key, val)
-	
-	
+
+
 	def setUserSettings(self, dct):
 		"""Persist a set of setting name: value pairs."""
 		for nm, val in dct.items():

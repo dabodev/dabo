@@ -8,27 +8,27 @@ class TestPanel(dabo.ui.dPanel):
 	def afterInit(self):
 		sz = self.Sizer = dabo.ui.dSizer("v")
 		sz.appendSpacer(20)
-		
+
 		# Plain Label
 		lbl = dabo.ui.dLabel(self, Caption=_("This label has the default font."))
 		sz.append(lbl)
-		
+
 		lbl = dabo.ui.dLabel(self, Caption=_("FontSize 5 points bigger"))
 		lbl.FontSize += 5
 		sz.append(lbl)
-		
+
 		lbl = dabo.ui.dLabel(self, Caption=_("FontSize 10 points bigger"))
 		lbl.FontSize += 10
 		sz.append(lbl)
-		
+
 		lbl = dabo.ui.dLabel(self, Caption=_("FontSize = 64"))
 		lbl.FontSize = 64
 		sz.append(lbl)
-		
+
 		lbl = dabo.ui.dLabel(self, Caption=_("FontFace = Courier"))
 		lbl.FontFace = _("Courier")
 		sz.append(lbl)
-		
+
 		lbl = dabo.ui.dLabel(self, Caption=_("FontBold = True"))
 		lbl.FontBold = True
 		sz.append(lbl)
@@ -36,7 +36,7 @@ class TestPanel(dabo.ui.dPanel):
 		lbl = dabo.ui.dLabel(self, Caption=_("FontItalic = True"))
 		lbl.FontItalic = True
 		sz.append(lbl)
-		
+
 		lbl = dabo.ui.dLabel(self, Caption=_("FontBold and FontItalic = True"))
 		lbl.FontBold = True
 		lbl.FontItalic = True
@@ -45,17 +45,17 @@ class TestPanel(dabo.ui.dPanel):
 		lbl = dabo.ui.dLabel(self, Caption=_("ForeColor = 'red'"))
 		lbl.ForeColor = "red"
 		sz.append(lbl)
-		
+
 		lbl = dabo.ui.dLabel(self, Caption=_("BackColor = 'yellow'"))
 		lbl.BackColor = "yellow"
 		sz.append(lbl)
-		
+
 		lbl = self.dynamicLabel = dabo.ui.dLabel(self, Caption="")
 		lbl.DynamicFontSize = lambda: self.Width * .05
 		lbl.DynamicCaption = self.getDynamicCaption
 		sz.append(lbl)
 		dabo.ui.callAfter(self.update)
-		
+
 		sz.appendSpacer(20)
 		sz.append(dabo.ui.dLine(self, Width=500), halign="Center")
 		sz.appendSpacer(20)
@@ -63,40 +63,40 @@ class TestPanel(dabo.ui.dPanel):
 		btn = dabo.ui.dButton(self, Caption=_("Show WordWrap demo"))
 		btn.bindEvent(dEvents.Hit, self.onShowWWDemo)
 		sz.append(btn, halign="center")
-	
+
 	def getDynamicCaption(self):
 		return "DynamicFontSize: %s" % int(round(self.dynamicLabel.FontSize, 0))
-		
+
 	def onShowWWDemo(self, evt):
 		class WordWrapDialog(dabo.ui.dDialog):
 			def addControls(self):
 				sz = self.Sizer
 				sz.appendSpacer(25)
-				
+
 				lbl = dabo.ui.dLabel(self, FontBold=True, ForeColor="darkred", WordWrap=True,
 						Alignment="center", Caption=_("The label below has WordWrap=True. " + \
 						"Use the slider to resize the label to see it in action."))
 				lbl.FontSize += 1
 				sz.append(lbl, "x", border=40, borderSides=("Left", "Right"))
-		
+
 				sld = self.slider = dabo.ui.dSlider(self, Value=100, Continuous=True)
 				sld.bindEvent(dEvents.Hit, self.onSlider)
 				sld.bindEvent(dEvents.Resize, self.onSlider)
 				sz.append(sld, "x", border=10)
-				
+
 				txt = getGettyAddr()
 				lbl = self.gettyLabel = dabo.ui.dLabel(self, Caption=txt, WordWrap=True)
 				sz.append(lbl, 1, border=10)
-				
+
 				self.Caption = _("WordWrap Demo")
 				self.Width = 640
 				self.Height = 480
 				self.layout()
-			
+
 			def onSlider(self, evt):
 				wd = (self.slider.Value/100.0) * self.slider.Width
 				self.gettyLabel.Width = wd
-				
+
 		dlg = WordWrapDialog(self, BorderResizable=True, AutoSize=False, Centered=True)
 		dlg.show()
 

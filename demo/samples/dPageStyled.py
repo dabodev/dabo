@@ -27,7 +27,7 @@ class TestPanel(dabo.ui.dPanel):
 		page2 = pgf.appendPage(caption="Third", BackColor="darkblue")
 		page3 = pgf.appendPage(caption="Fourth", BackColor="green")
 		sz.append1x(pgf, border=20)
-		
+
 		hsz = dabo.ui.dSizer("h")
 		gsz = dabo.ui.dGridSizer(HGap=3, VGap=8)
 		lbl = dabo.ui.dLabel(self, Caption="Tab Style:")
@@ -35,16 +35,16 @@ class TestPanel(dabo.ui.dPanel):
 				DataSource=pgf, DataField="TabStyle", OnHit=self.onStyle)
 		gsz.append(lbl, row=0, col=0, halign="right")
 		gsz.append(ddStyle, row=0, col=1)
-		
+
 		lbl = dabo.ui.dLabel(self, Caption="Tab Position:")
 		ddPos = dabo.ui.dDropdownList(self, Choices=["Top", "Bottom"],
 				DataSource=pgf, DataField="TabPosition")
 		gsz.append(lbl, row=1, col=0, halign="right")
 		gsz.append(ddPos, row=1, col=1)
-		
-		lbl = dabo.ui.dLabel(self, Caption="Tab Side Incline:", 
+
+		lbl = dabo.ui.dLabel(self, Caption="Tab Side Incline:",
 				DynamicVisible=lambda:pgf.TabStyle=="Default")
-		ddPos = dabo.ui.dSpinner(self, Min=0, Max=15, 
+		ddPos = dabo.ui.dSpinner(self, Min=0, Max=15,
 				DynamicVisible=lambda:pgf.TabStyle=="Default",
 				DataSource=pgf, DataField="TabSideIncline")
 		gsz.append(lbl, row=2, col=0, halign="right")
@@ -52,7 +52,7 @@ class TestPanel(dabo.ui.dPanel):
 
 		hsz.append(gsz, valign="middle")
 		hsz.appendSpacer(30)
-		
+
 		vsz = dabo.ui.dBorderSizer(self, "v", Caption="Options")
 		chkDD = dabo.ui.dCheckBox(self, Caption="ShowDropdownTabList",
 				DataSource=pgf, DataField="ShowDropdownTabList")

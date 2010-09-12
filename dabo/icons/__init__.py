@@ -11,8 +11,8 @@ def addExtension(iconName):
 	if len(splitext[1]) == 0:
 		iconName = "%s.%s" % (iconName, defaultExtension)
 	return iconName
-	
-	
+
+
 def getIcon(iconName):
 	iconName = addExtension(iconName)
 	return open("%s/%s" % (__path__[-1:][0], iconName), 'rb').read()
@@ -25,14 +25,14 @@ def getIconFileName(iconName):
 	"""
 	iconName = addExtension(iconName)
 	ret = os.path.join(__path__[-1:][0], "%s" % iconName)
-	
+
 	if not os.path.exists(ret):
 		ret = None
 		for pth in sys.path:
 			icn = os.path.join(pth, "%s" % iconName)
 			if os.path.exists(icn):
 				ret = icn
-				break	
+				break
 	return ret
 
 

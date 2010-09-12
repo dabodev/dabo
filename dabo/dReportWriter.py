@@ -11,7 +11,7 @@ class dReportWriter(dObject, ReportWriter):
 	format file (.rfxml) to output a PDF.
 
 	For each row in the Cursor, a detail band is printed. For each page in the
-	report, the pageBackground, pageHeader, pageFooter, and pageForeground 
+	report, the pageBackground, pageHeader, pageFooter, and pageForeground
 	bands are printed. For each defined grouping, the groupHeader and groupFooter
 	bands are printed.
 
@@ -88,7 +88,7 @@ class dReportWriter(dObject, ReportWriter):
 	def _setHomeDirectory(self, val):
 		self._homeDirectory = val
 
-	
+
 	def _getProgressControl(self):
 		try:
 			v = self._progressControl
@@ -108,7 +108,7 @@ class dReportWriter(dObject, ReportWriter):
 
 		Resources on disk (image files, etc.) will be looked for relative to the
 		HomeDirectory if specified with relative pathing. The HomeDirectory should
-		be the directory that contains the report form file. If you set 
+		be the directory that contains the report form file. If you set
 		self.ReportFormFile, HomeDirectory will be set for you automatically.
 		Otherwise, it will get set to self.Application.HomeDirectory."""))
 

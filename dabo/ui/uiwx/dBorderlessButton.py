@@ -33,7 +33,7 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dBorderlessButton
 		preClass = platebtn.PlateButton
-		
+
 		self._backColorHover = (128, 128, 128)
 		# Initialize the self._*picture attributes
 		self._picture = self._hoverPicture = self._focusPicture = ""
@@ -45,8 +45,8 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 		# On some platforms, we need to add some 'breathing room'
 		# around the bitmap image in order for it to appear correctly
 		self._bmpBorder = 10
-		
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,  
+
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
 				*args, **kwargs)
 
 
@@ -61,7 +61,7 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 	# Property getters and setters
 	def _getBackColorHover(self):
 		return self._backColorHover
-	
+
 	def _setBackColorHover(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
@@ -78,9 +78,9 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 	def _getCancelButton(self):
 		# need to implement
 		return False
-		
+
 	def _setCancelButton(self, val):
-		warnings.warn(_("CancelButton isn't implemented yet."), Warning)	
+		warnings.warn(_("CancelButton isn't implemented yet."), Warning)
 
 
 	def _getDefaultButton(self):
@@ -88,7 +88,7 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 			return self.Parent.GetDefaultItem() == self
 		else:
 			return False
-			
+
 	def _setDefaultButton(self, val):
 		if self._constructed():
 			if val:
@@ -128,7 +128,7 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 		_("""Color of the button background when mouse is hovered over control (str or tuple)
 		Default=(128, 128, 128)
 		Changing this color with change the color of the control when pressed as well."""))
-	
+
 	Bitmap = property(_getNormalBitmap, None, None,
 		_("""The bitmap normally displayed on the button.  (wx.Bitmap)"""))
 

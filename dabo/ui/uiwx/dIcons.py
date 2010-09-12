@@ -9,7 +9,7 @@ _bmpCache = {}
 def getIconBitmap(iconName, setMask=True, noEmptyBmp=False):
 	""" Get a bitmap rendition of the icon.
 
-	Look up the icon name in the Dabo icon module. If found, convert and 
+	Look up the icon name in the Dabo icon module. If found, convert and
 	return a wx.Bitmap object. If not found, return a wx.NullBitmap object
 	if noEmptyBmp is False; otherwise, return None.
 	"""

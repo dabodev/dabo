@@ -60,7 +60,7 @@ class Oracle(dBackend):
 		val = ustr(val)
 		return "%s%s%s" % (sqt, val, sqt)
 
-		
+
 	def getTables(self, cursor, includeSystemTables=False):
 		#sqlstr = "select table_name from all_tables where tablespace_name NOT IN ('SYSTEM', 'SYSAUX')"
 		sqlstr = "select table_name from user_tables"
@@ -71,7 +71,7 @@ class Oracle(dBackend):
 			tables.append(record[0])
 		return tuple(tables)
 
-		
+
 	def getTableRecordCount(self, tableName, cursor):
 		cursor.execute("select count(*) as ncount from %s" % tableName)
 		return cursor.getDataSet()[0][0]
@@ -80,7 +80,7 @@ class Oracle(dBackend):
 	def getFields(self, tableName, cursor):
 		# get PK
 		print "dbOracle.getFields(): ", tableName
-		sqlstr = """SELECT cols.column_name FROM all_constraints cons, all_cons_columns cols 
+		sqlstr = """SELECT cols.column_name FROM all_constraints cons, all_cons_columns cols
 				WHERE cols.table_name = '%s' AND cons.constraint_type = 'P'
 				AND cons.constraint_name = cols.constraint_name AND cons.owner = cols.owner
 				ORDER BY cols.table_name, cols.position"""
@@ -122,7 +122,7 @@ class Oracle(dBackend):
 				pk = False
 			else:
 				pk = ( r["COLUMN_NAME"].lower() == pkField.lower() )
-			
+
 			fields.append((fname.lower(), ft, pk))
 		return tuple(fields)
 
@@ -140,7 +140,7 @@ class Oracle(dBackend):
 				whereClause = whereClause + " and %s" % limitClause
 		elif limitClause:
 			whereClause = "where %s" % limitClause
-		clauses =  (fieldClause, fromClause, joinClause, 
+		clauses =  (fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause)
 		# clause.upper() was used for testing only
 		sql = "SELECT " + "\n".join( [clause.upper() for clause in clauses if clause] )

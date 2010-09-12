@@ -7,10 +7,10 @@ from dabo.dLocalize import _
 
 class TestPanel(dabo.ui.dPanel):
 	def afterInit(self):
-		sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20, 
+		sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20,
 				DefaultBorderLeft=True)
 		sz.appendSpacer(25)
-		
+
 		lbl = dabo.ui.dLabel(self, Alignment="Center", Width=400, WordWrap=True)
 		lbl.Caption = "Below are three dBitmapButtons. They will normally " + \
 				"display the Ace of Spades, but when the mouse hovers over them, their " + \
@@ -18,7 +18,7 @@ class TestPanel(dabo.ui.dPanel):
 				"will change to the King of Spades for as long as you hold the mouse down."
 		sz.append(lbl, halign="center")
 		if self.Application.Platform == "Mac":
-			lbl = dabo.ui.dLabel(self, FontItalic=True, 
+			lbl = dabo.ui.dLabel(self, FontItalic=True,
 					Caption="These effects don't display on Mac OS X, unfortunately")
 			lbl.FontSize -= 2
 			sz.appendSpacer(5)
@@ -26,25 +26,25 @@ class TestPanel(dabo.ui.dPanel):
 		sz.appendSpacer(10)
 
 		hsz = dabo.ui.dSizer("h")
-		btn = dabo.ui.dBitmapButton(self, Picture="media/cards/small/s1.png", 
+		btn = dabo.ui.dBitmapButton(self, Picture="media/cards/small/s1.png",
 				FocusPicture="media/cards/small/h1.png", DownPicture="media/cards/small/s13.png",
 				Height=80, Width=80)
 		btn.bindEvent(dEvents.Hit, self.onButtonHit)
 		hsz.append(btn)
 		sz.appendSpacer(10)
 
-		btn = dabo.ui.dBitmapButton(self, Picture="media/cards/small/s1.png", 
+		btn = dabo.ui.dBitmapButton(self, Picture="media/cards/small/s1.png",
 				FocusPicture="media/cards/small/h1.png", DownPicture="media/cards/small/s13.png",
 				Height=80, Width=80)
 		btn.bindEvent(dEvents.Hit, self.onButtonHit)
 		hsz.append(btn)
-		
-		btn = dabo.ui.dBitmapButton(self, Picture="media/cards/small/s1.png", 
+
+		btn = dabo.ui.dBitmapButton(self, Picture="media/cards/small/s1.png",
 				FocusPicture="media/cards/small/h1.png", DownPicture="media/cards/small/s13.png",
 				Height=80, Width=80)
 		btn.bindEvent(dEvents.Hit, self.onButtonHit)
 		hsz.append(btn)
-		
+
 		sz.append(hsz, halign="center")
 
 

@@ -32,4 +32,3 @@ Cursor_Arrowwait = wx.CURSOR_ARROWWAIT
 
 def getStockCursor(id):
 	return wx.StockCursor(id)
-	

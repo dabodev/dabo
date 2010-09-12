@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """These are routines that are used to work with Class Designer code that has
-been separated from the design. 
+been separated from the design.
 """
 import re
 import copy
@@ -10,11 +10,11 @@ import dabo.ui as dui
 
 def getCodeObjectSeperator():
 	return "## *!* ## Dabo Code ID: "
-	
+
 
 def parseCodeFile(txt):
 	"""This method takes the content of a code file saved by the class
-	designer and parses it into a dict containing the code-ID values as 
+	designer and parses it into a dict containing the code-ID values as
 	keys, and a dict containing the methods as the values.
 	"""
 	codeObjectSep = getCodeObjectSeperator()
@@ -32,7 +32,7 @@ def parseCodeFile(txt):
 			if ln.strip()
 			and not ln.strip().startswith("#")]
 	ret["importStatements"] = "\n".join(imptLines)
-	
+
 	for codeObj in codeObjs:
 		cd = {}
 		# The first line in the code-ID, the rest is the code for
@@ -52,11 +52,11 @@ def parseCodeFile(txt):
 			mthdList = mthdList[3:]
 		ret[codeID] = cd
 	return ret
-		
-	
+
+
 def addCodeToClassDict(clsd, cd):
 	"""Takes the code that was stored in a separate file and re-integrates
-	it into the class dict. Since this is a recursive structure, with children 
+	it into the class dict. Since this is a recursive structure, with children
 	nested inside other children, it will be called recursively. No return
 	value, as it modifies the class dict directly.
 	"""
@@ -88,7 +88,7 @@ def getSizerDefaults():
 	szDefaults[dui.dBitmap] = dct
 	szDefaults["dBitmap"] = dct
 	dct = copy.deepcopy(defVals)
-	dct["G"].update({"Proportion" : 0, "Expand" : False, "HAlign" : "center", "VAlign" : "middle", 
+	dct["G"].update({"Proportion" : 0, "Expand" : False, "HAlign" : "center", "VAlign" : "middle",
 			"ColExpand": False})
 	dct["H"].update({"Proportion" : 0, "Expand" : False, "HAlign": "center"})
 	dct["V"].update({"Proportion" : 0, "Expand" : False, "VAlign": "middle"})
@@ -265,7 +265,7 @@ _extraSizerDefaults = {}
 
 
 def addSizerDefaults(defaults):
-	"""Takes a dict of defaults, with the class as the key and the various defaults as 
+	"""Takes a dict of defaults, with the class as the key and the various defaults as
 	the values. Used by external apps to customize behaviors for their own classes.
 	"""
 	global _extraSizerDefaults
