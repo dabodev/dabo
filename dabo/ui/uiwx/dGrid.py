@@ -4925,15 +4925,16 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 class _dGrid_test(dGrid):
 	def initProperties(self):
+		thisYear = datetime.datetime.now().year
 		ds = [
-				{"name" : "Ed Leafe", "age" : 49, "coder" :  True, "color": "cornsilk"},
-				{"name" : "Paul McNett", "age" : 37, "coder" :  True, "color": "wheat"},
-				{"name" : "Ted Roche", "age" : 48, "coder" :  True, "color": "goldenrod"},
-				{"name" : "Derek Jeter", "age": 32 , "coder" :  False, "color": "white"},
-				{"name" : "Halle Berry", "age" : 38, "coder" :  False, "color": "orange"},
-				{"name" : "Steve Wozniak", "age" : 56, "coder" :  True, "color": "yellow"},
-				{"name" : "LeBron James", "age" : 22, "coder" :  False, "color": "gold"},
-				{"name" : "Madeline Albright", "age" : 69, "coder" :  False, "color": "red"}]
+				{"name" : "Ed Leafe", "age" : thisYear - 1957, "coder" :  True, "color": "cornsilk"},
+				{"name" : "Paul McNett", "age" : thisYear - 1969, "coder" :  True, "color": "wheat"},
+				{"name" : "Ted Roche", "age" : thisYear - 1958, "coder" :  True, "color": "goldenrod"},
+				{"name" : "Derek Jeter", "age": thisYear - 1974, "coder" :  False, "color": "white"},
+				{"name" : "Halle Berry", "age" : thisYear - 1966, "coder" :  False, "color": "orange"},
+				{"name" : "Steve Wozniak", "age" : thisYear - 1950, "coder" :  True, "color": "yellow"},
+				{"name" : "LeBron James", "age" : thisYear - 1984, "coder" :  False, "color": "gold"},
+				{"name" : "Madeline Albright", "age" : thisYear - 1937, "coder" :  False, "color": "red"}]
 
 
 		for row in range(len(ds)):
@@ -4943,7 +4944,7 @@ class _dGrid_test(dGrid):
 
 		self.Width = 360
 		self.Height = 150
-		self.Editable = True
+		self.Editable = False
 		#self.Sortable = False
 		#self.Searchable = False
 
@@ -5021,30 +5022,30 @@ if __name__ == '__main__':
 			self.Sizer.appendSpacer(10)
 			gsz = dabo.ui.dGridSizer(HGap=50)
 
-			chk = dabo.ui.dCheckBox(self, Caption="Edit Table", RegID="geekEdit",
-					DataSource="sampleGrid", DataField="Editable")
+			chk = dabo.ui.dCheckBox(self, Caption="Allow Editing?", RegID="gridEdit",
+					DataSource=self.grid, DataField="Editable")
 			chk.update()
 			gsz.append(chk, row=0, col=0)
 
 			chk = dabo.ui.dCheckBox(self, Caption="Show Headers",
-					RegID="showHeaders", DataSource="sampleGrid",
+					RegID="showHeaders", DataSource=self.grid,
 					DataField="ShowHeaders")
 			gsz.append(chk, row=1, col=0)
 			chk.update()
 
 			chk = dabo.ui.dCheckBox(self, Caption="Allow Multiple Selection",
-					RegID="multiSelect", DataSource="sampleGrid",
+					RegID="multiSelect", DataSource=self.grid,
 					DataField="MultipleSelection")
 			chk.update()
 			gsz.append(chk, row=2, col=0)
 
 			radSelect = dabo.ui.dRadioList(self, Choices=["Row", "Col", "Cell"],
 					ValueMode="string", Caption="Sel Mode", BackColor=self.BackColor,
-					DataSource="sampleGrid", DataField="SelectionMode", RegID="radSelect")
+					DataSource=self.grid, DataField="SelectionMode", RegID="radSelect")
 			radSelect.refresh()
 			gsz.append(radSelect, row=0, col=1, rowSpan=3)
 
-			def visible(evt):
+			def setVisible(evt):
 				col = g.getColByDataField("name")
 				but = evt.EventObject
 				col.Visible = not col.Visible
@@ -5053,7 +5054,7 @@ if __name__ == '__main__':
 				else:
 					but.Caption = "Make Celebrity Visible"
 			butVisible = dabo.ui.dButton(self, Caption="Toggle Celebrity Visibility",
-				OnHit=visible)
+				OnHit=setVisible)
 			gsz.append(butVisible, row=3, col=0)
 
 			self.Sizer.append(gsz, halign="Center", border=10)
