@@ -557,7 +557,7 @@ class dListControl(dcm.dControlItemMixin,
 		return self._hitIndex
 
 
-	def _getHorizontalRules(self, val):
+	def _getHorizontalRules(self):
 		return self._hasWindowStyleFlag(wx.LC_HRULES)
 
 
@@ -673,7 +673,7 @@ class dListControl(dcm.dControlItemMixin,
 		self._valCol = val
 
 
-	def _getVerticalRules(self, val):
+	def _getVerticalRules(self):
 		return self._hasWindowStyleFlag(wx.LC_VRULES)
 
 	def _setVerticalRules(self, val):
