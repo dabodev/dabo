@@ -2666,9 +2666,10 @@ class ClassDesigner(dabo.dApp):
 					if not pg.Sizer or not isinstance(pg.Sizer, (LayoutSizer, LayoutBorderSizer, LayoutGridSizer)):
 						pg.Sizer = LayoutSizer("v")
 						pg0panel = LayoutPanel(pg)
+		return pg0panel
 
 
-	def _afterAddNewControlSlidePanel(self, obj, classFlagProp):
+	def _afterAddNewControlSlidePanel(self, obj, classFlagProp, pcount, useSizers):
 		pnlCls = obj.PanelClass
 		if isinstance(pnlCls, basestring):
 			# Saved class; let the control handle it
@@ -2678,19 +2679,20 @@ class ClassDesigner(dabo.dApp):
 			for pnl in obj.Panels:
 				pnl.Expanded = False
 				pnl.__setattr__(prop, pnlCls)
-			pnl0panel = obj.Panels[0]
+			pnl0 = obj.Panels[0]
 		else:
 			pnlCtlCls = self.getControlClass(pnlCls)
 			basePanelCls = self.getControlClass(dabo.ui.dPanel)
 			obj.PanelClass = pnlCtlCls
 			obj.PanelCount = pcount
-			pnl0panel = None
+			pnl0 = None
 			for pnl in obj.Panels[::-1]:
 				pnl.Expanded = False
 				if useSizers:
 					sz = pnl.Sizer = LayoutSizer("v")
 					sz.Parent = pnl
 					pnl0 = LayoutPanel(pnl)
+		return pnl0
 
 
 	def addNewControl(self, pnl, cls, props=None, attProperties=None,
@@ -2899,9 +2901,9 @@ class ClassDesigner(dabo.dApp):
 		elif issubclass(cls, dlgs.WizardPage):
 			self._afterAddNewControlWizardPage(obj)
 		elif isPageControl:
-			self._afterAddNewControlPaged(obj, pcount, classFlagProp, pgCls, useSizers)
+			pg0panel = self._afterAddNewControlPaged(obj, pcount, classFlagProp, pgCls, useSizers)
 		elif isSlidePanelControl:
-			self._afterAddNewControlSlidePanel(obj, classFlagProp, pnlCtlCls)
+			pnl0 = self._afterAddNewControlSlidePanel(obj, classFlagProp, pcount, useSizers)
 
 		if isinstance(obj, dui.dPage) and not isinstance(obj.Parent, self.pagedControls):
 			# This is a free standing page being designed. Add the sizer, if required.
