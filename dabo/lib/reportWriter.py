@@ -318,9 +318,10 @@ class ReportObject(CaselessDict):
 
 
 	def _getRecord(self):
-		if hasattr(self.Report, "_liveRecord"):
-			return self.Report._liveRecord
-		return {}
+		if self.Report.reportWriter is not None:
+			if hasattr(self.Report, "_liveRecord"):
+				return self.Report._liveRecord
+		return CaselessDict()
 
 
 	def _getReport(self):
@@ -331,6 +332,9 @@ class ReportObject(CaselessDict):
 
 
 	def _getVariables(self):
+		rw = self.Report.reportWriter
+		if rw is None:
+			return CaselessDict()
 		return self.Report.reportWriter.Variables
 
 
@@ -417,6 +421,10 @@ class Drawable(ReportObject):
 
 class Report(ReportObject):
 	"""Represents the report."""
+
+	def __init__(self, *args, **kwargs):
+		self.reportWriter = None
+		super(Report, self).__init__(*args, **kwargs)
 
 	def initAvailableProps(self):
 		super(Report, self).initAvailableProps()
