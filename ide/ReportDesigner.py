@@ -2087,15 +2087,15 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self._rw.UseTestCursor = True
 
 		self._rulers = {}
-		self._rulers["top"] = self.getRuler("h")
-		self._rulers["bottom"] = self.getRuler("h")
+		self._rulers["top"] = self.getRuler("t")
+		self._rulers["bottom"] = self.getRuler("b")
 
 		def addBand(bandObj):
 			caption = bandObj.__class__.__name__
 			if isinstance(bandObj, (GroupHeader, GroupFooter)):
 				caption = "%s: %s" % (caption, bandObj.parent.get("expr"))
-			self._rulers["%s-left" % caption] = self.getRuler("v")
-			self._rulers["%s-right" % caption] = self.getRuler("v")
+			self._rulers["%s-left" % caption] = self.getRuler("l")
+			self._rulers["%s-right" % caption] = self.getRuler("r")
 			b = DesignerBand(self, Caption=caption)
 			b.ReportObject = bandObj
 			bandObj.DesignerObject = b
@@ -2161,7 +2161,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		tr = self._rulers["top"]
 		tr.Length = pageWidth
 		tr.pointLength = pointPageWidth
-		tr.rulerPos = "t"
 
 		for index in range(len(self._bands)):
 			band = self._bands[index]
@@ -2187,12 +2186,10 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			lr = self._rulers["%s-left" % band.Caption]
 			lr.Length = bandCanvasHeight
 			lr.pointLength = pointLength
-			lr.rulerPos = "l"
 
 			rr = self._rulers["%s-right" % band.Caption]
 			rr.Length = bandCanvasHeight
 			rr.pointLength = pointLength
-			rr.rulerPos = "r"
 
 			band.Left = ml + lr.Thickness
 			lr.Position = (0, band.Top)
@@ -2205,7 +2202,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		br = self._rulers["bottom"]
 		br.Length = pageWidth
 		br.pointLength = pointPageWidth
-		br.rulerPos = "b"
 
 		tr.Position = (lr.Width,0)
 		br.Position = (lr.Width, totPageHeight)
@@ -2226,7 +2222,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self.showPosition()
 
 
-	def getRuler(self, orientation):
+	def getRuler(self, pos):
 		defaultThickness = 20
 		defaultLength = 1
 
@@ -2235,7 +2231,8 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		class Ruler(DesignerPanel):
 			def initProperties(self):
 				self.BackColor = (192,128,192)
-				self._orientation = orientation[0].lower()
+				self.rulerPos = pos
+				self._orientation = {"t":"h", "b":"h", "l":"v", "r":"v"}[pos]
 				self.pointLength = 0
 
 			def copy(self):
@@ -2285,13 +2282,13 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 							break
 					if ruleSize:
 						rescaledPos = (pos*z)
-						if self.rulerPos == "r":
+						if rulerPos == "r":
 							dc.DrawLine(0, rescaledPos, ruleSize, rescaledPos)
-						if self.rulerPos == "l":
+						if rulerPos == "l":
 							dc.DrawLine(self.Thickness, rescaledPos, self.Thickness - ruleSize, rescaledPos)
-						if self.rulerPos == "b":
+						if rulerPos == "b":
 							dc.DrawLine(rescaledPos, 0, rescaledPos, ruleSize)
-						if self.rulerPos == "t":
+						if rulerPos == "t":
 							dc.DrawLine(rescaledPos, self.Thickness, rescaledPos, self.Thickness - ruleSize)
 
 
