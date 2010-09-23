@@ -11,6 +11,40 @@ from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
 
 
+class _ListColumnAccessor(object):
+	""" These aren't the actual columns that appear in the list control; rather,
+	they provide a way to interact with the underlying list items in a more
+	straightforward manner.
+	"""
+	def __init__(self, listcontrol, *args, **kwargs):
+		self.listcontrol = listcontrol
+		super(_ListColumnAccessor, self).__init__(*args, **kwargs)
+
+
+	def __dabo_getitem__(self, val):
+		ret = self.listcontrol.GetColumn(val)
+		ret._dabo_listcontrol = self.listcontrol
+		ret._dabo_column_number = val
+		def _getCaption(self):
+			return self._dabo_listcontrol.getCaptionForColumn(self._dabo_column_number)
+		def _setCaption(self, val):
+			self._dabo_listcontrol.setCaptionForColumn(self._dabo_column_number, val)
+		Caption = property(_getCaption, _setCaption, None,
+				_("Caption for the column.  (str)"))
+		setattr(ret.__class__, "Caption", Caption)
+		return ret
+
+
+	def __getitem__(self, val):
+		return self.__dabo_getitem__(val)
+
+
+	def __getslice__(self, start, end):
+		return [self.__dabo_getitem__(col)
+				for col in xrange(start, end)]
+
+
+
 class dListControl(dcm.dControlItemMixin,
 		ListMixin.ListCtrlAutoWidthMixin, wx.ListCtrl):
 	"""Creates a list control, which is a flexible, virtual list box.
@@ -52,6 +86,7 @@ class dListControl(dcm.dControlItemMixin,
 		self.SortFunction = self._listControlSort
 		# Set the default sorting column to 0 after everything is instantiated
 		dabo.ui.setAfter(self, "SortColumn", 0)
+		self._columnAccessor = _ListColumnAccessor(self)
 
 
 	def _initEvents(self):
@@ -95,13 +130,47 @@ class dListControl(dcm.dControlItemMixin,
 		self.DeleteColumn(pos)
 
 
+	def _getCurrentData(self):
+		ds = []
+		for row in xrange(self.RowCount):
+			rr = []
+			for col in xrange(self.ColumnCount):
+				rr.append(self.GetItem(row, col).GetText())
+			ds.append(rr)
+		return ds
+
+
 	def setColumns(self, colList):
-		""" Accepts a list/tuple of column headings, removes any
-		existing columns, and creates new columns, one for each
-		element in the list"""
+		""" Accepts a list/tuple of column headings, removes any existing columns,
+		and creates new columns, one for each element in the list. The current
+		display settings and data is preserved as much as possible: setting more
+		columns will result in empty columns, and setting fewer columns will
+		truncate the data."""
+		self.lockDisplay()
+		ds = self._getCurrentData()
+		wds = [self.getColumnWidth(col) for col in xrange(self.ColumnCount)]
+		expandCol = self.ExpandColumn
+		self.clear()
 		self.DeleteAllColumns()
 		for col in colList:
 			self.addColumn(col)
+		self.appendRows(ds)
+		dummy = [self.setColumnWidth(col, wd) for col, wd in enumerate(wds)] 
+		self.ExpandColumn = expandCol
+		self.unlockDisplay()
+
+
+	def getCaptionForColumn(self, colnum):
+		"""Convenience method for getting the caption for a given column number."""
+		captions = [self.GetColumn(ii).GetText() for ii in xrange(self.ColumnCount)]
+		return captions[colnum]
+
+
+	def setCaptionForColumn(self, colnum, val):
+		"""Convenience method for setting the caption for a given column number."""
+		captions = [self.GetColumn(ii).GetText() for ii in xrange(self.ColumnCount)]
+		captions[colnum] = val
+		self.setColumns(captions)
 
 
 	def select(self, row):
@@ -511,6 +580,10 @@ class dListControl(dcm.dControlItemMixin,
 			self._properties["ColumnCount"] = val
 
 
+	def _getColumns(self):
+		return self._columnAccessor
+
+
 	def _getExpandColumn(self):
 		return self._expandColumn
 
@@ -694,6 +767,9 @@ class dListControl(dcm.dControlItemMixin,
 
 	ColumnCount = property(_getColumnCount, _setColumnCount, None,
 			_("Number of columns in the control  (int)"))
+
+	Columns = property(_getColumns, None, None,
+			_("""Reference to the columns in the control. (read-only) (list)"""))
 
 	Count = property(_getRowCount, None, None,
 			_("Number of rows in the control (read-only). Alias for RowCount  (int)"))
