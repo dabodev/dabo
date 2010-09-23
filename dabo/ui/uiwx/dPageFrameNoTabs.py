@@ -100,7 +100,7 @@ class dPageFrameNoTabs(dPanel):
 		newPage = (pg is not ap)
 		if pg in self.Pages:
 			if newPage:
-				if ap is not None:
+				if ap:
 					dabo.ui.callAfter(ap.raiseEvent, dEvents.PageLeave)
 					apNum = self.getPageNumber(ap)
 				else:
@@ -108,7 +108,7 @@ class dPageFrameNoTabs(dPanel):
 				dabo.ui.callAfter(pg.raiseEvent, dEvents.PageEnter)
 				dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged,
 						oldPageNum=apNum, newPageNum=self.getPageNumber(pg))
-				self._activePage = pg
+			self._activePage = pg
 			for ch in self.Pages:
 				self.Sizer.Show(ch, (ch is pg))
 			self.layout()
@@ -120,20 +120,22 @@ class dPageFrameNoTabs(dPanel):
 		"""Selects the next page. If the last page is selected,
 		it will select the first page.
 		"""
-		try:
-			self.SelectedPageNumber += 1
-		except IndexError:
-			self.SelectedPageNumber = 0
+		self.cyclePages(1)
 
 
 	def priorPage(self):
 		"""Selects the previous page. If the first page is selected,
 		it will select the last page.
 		"""
-		try:
-			self.SelectedPageNumber -= 1
-		except IndexError:
-			self.SelectedPage = self.Pages[-1]
+		self.cyclePages(-1)
+
+
+	def cyclePages(self, num):
+		"""Moves through the pages by the specified amount, wrapping
+		around the ends. Negative values move to previous pages; positive
+		move through the next pages.
+		"""
+		self.SelectedPageNumber = (self.SelectedPageNumber + num) % self.PageCount
 
 
 	def getPageNumber(self, pg):
@@ -167,10 +169,10 @@ class dPageFrameNoTabs(dPanel):
 
 
 	#------------------------------------
-	def _getPgCls(self):
+	def _getPageClass(self):
 		return self._pageClass
 
-	def _setPgCls(self, val):
+	def _setPageClass(self, val):
 		if isinstance(val, basestring):
 			from dabo.lib.DesignerClassConverter import DesignerClassConverter
 			conv = DesignerClassConverter()
@@ -179,10 +181,10 @@ class dPageFrameNoTabs(dPanel):
 			self._pageClass = val
 
 
-	def _getPgCnt(self):
+	def _getPageCount(self):
 		return len(self._pages)
 
-	def _setPgCnt(self, val):
+	def _setPageCount(self, val):
 		diff = (val - len(self._pages))
 		if diff > 0:
 			# Need to add pages
@@ -190,18 +192,16 @@ class dPageFrameNoTabs(dPanel):
 				self.appendPage()
 				diff -= 1
 		elif diff < 0:
-			# Need to remove pages. If the active page is one
-			# of those being removed, set the active page to the
-			# last page.
-			currPg = self.SelectedPage
-			while len(self._pages) > val:
-				delPg = self._pages[-1]
-				self._pages.remove(delPg)
-				if delPg:
-					# It may already have been released
-					delPg.release()
-			if len(self._pages) < currPg:
-				self.SelectedPage = self._pages[-1]
+			currPg = self.SelectedPageNumber
+			pagesToKill = self._pages[val:]
+			self._pages = self._pages[:val]
+			# Need to add the check if the page exists since it
+			# may have already been released.
+			[pg.release() for pg in pagesToKill if pg]
+			# Make sure the page we were on isn't one of the deleted pages.
+			# If so, switch to the last page.
+			newPg = min(currPg, val-1)
+			self.SelectedPage = newPg
 
 
 	def _getPages(self):
@@ -236,10 +236,10 @@ class dPageFrameNoTabs(dPanel):
 		self.showPage(pg)
 
 
-	PageClass = property(_getPgCls, _setPgCls, None,
+	PageClass = property(_getPageClass, _setPageClass, None,
 			_("The default class used when adding new pages.  (dPage)") )
 
-	PageCount = property(_getPgCnt, _setPgCnt, None,
+	PageCount = property(_getPageCount, _setPageCount, None,
 			_("Returns the number of pages in this pageframe  (int)") )
 
 	Pages = property(_getPages, None, None,
@@ -285,7 +285,7 @@ class TestForm(dabo.ui.dForm):
 		self.Caption = "Tabless Pageframe Example"
 		self.pgf = pgf = dPageFrameNoTabs(self)
 		pgf.PageClass = TestPage
-		pgf.PageCount = 5
+		pgf.PageCount = 12
 		idx = 0
 		for pg in pgf.Pages:
 			pg.setLabel("Page #%s" % idx)
@@ -299,16 +299,26 @@ class TestForm(dabo.ui.dForm):
 		bn.bindEvent(dEvents.Hit, self.onNextPage)
 		hsz = dabo.ui.dSizer("h")
 		hsz.append(bp, 1)
+		hsz.appendSpacer(4)
 		hsz.append(bn, 1)
-		self.Sizer.append(hsz, halign="center")
+		hsz.appendSpacer(24)
+		lbl = dabo.ui.dLabel(self, Caption="Select Page:")
+		hsz.append(lbl)
+		dd = dabo.ui.dDropdownList(self, DataSource=pgf,
+				DataField="SelectedPageNumber", ValueMode="Position",
+				Choices=["%s" % ii for ii in xrange(pgf.PageCount)])
+		hsz.append(dd)
+		self.Sizer.append(hsz, halign="center", border=8)
 		self.layout()
 
 
 	def onPriorPage(self, evt):
 		self.pgf.priorPage()
+		self.update()
 
 	def onNextPage(self, evt):
 		self.pgf.nextPage()
+		self.update()
 
 
 def main():
