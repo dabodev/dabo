@@ -775,6 +775,16 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"OnColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
 				"On": {"type": bool, "readonly": False}}
+		listControlProps = {"ColumnCount": {"type": int, "readonly": False},
+				"ExpandColumn": {"type": int, "readonly": False},
+				"ExpandToFit": {"type": bool, "readonly": False},
+				"HeaderVisible": {"type": bool, "readonly": False},
+				"HorizontalRules": {"type": bool, "readonly": False},
+				"RowCount": {"type": int, "readonly": True},
+				"SortColumn": {"type": int, "readonly": False},
+				"SortOnHeaderClick": {"type": bool, "readonly": False},
+				"ValueColumn": {"type": int, "readonly": False},
+				"VerticalRules": {"type": bool, "readonly": False}}
 		multiSelectProps = {"MultipleSelect": {"type": bool, "readonly": False}}
 		nodeProps = {"Image": {"type": "path", "readonly": False,
 					"customEditor": "editStdPicture"}}
@@ -965,6 +975,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(choiceProps)
 			ret.update(multiSelectProps)
 		elif isinstance(self, dui.dListControl):
+			ret.update(listControlProps)
 			ret.update(colorProps)
 			ret.update(fontProps)
 			ret.update(multiSelectProps)
