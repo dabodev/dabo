@@ -250,13 +250,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		around the ends. Negative values move to previous pages; positive
 		move through the next pages.
 		"""
-		fwd = num > 0
-		self.lockDisplay()
-		numToMove = abs(num)
-		while numToMove:
-			self.AdvanceSelection(fwd)
-			numToMove -= 1
-		self.unlockDisplay()
+		self.SelectedPageNumber = (self.SelectedPageNumber + num) % self.PageCount
 
 
 	def layout(self):
@@ -327,7 +321,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			self._properties["PageCount"] = val
 
 
-	def _getPgs(self):
+	def _getPages(self):
 		## pkm: It is possible for pages to not be instances of dPage
 		##      (such as in the AppWizard), resulting in self.PageCount > len(self.Pages)
 		##      if using the commented code below.
@@ -418,7 +412,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			When using this to increase the number of pages, PageClass
 			will be queried as the object to use as the page object.""") )
 
-	Pages = property(_getPgs, None, None,
+	Pages = property(_getPages, None, None,
 			_("Returns a list of the contained pages.  (list)") )
 
 	PageSizerClass = property(_getPageSizerClass, _setPageSizerClass, None,
