@@ -717,11 +717,21 @@ class dBizobj(dObject):
 
 	def bizIterator(self):
 		"""Returns an iterator that moves the bizobj's record pointer from
-		the first record to the last. You may call the iterator's reverse() method
-		before beginning iteration in order to iterate from the last record
-		back to the first.
+		the first record to the last, and returns the current record number.
+		You may call the iterator's reverse() method before beginning
+		iteration in order to iterate from the last record back to the first.
 		"""
 		return _bizIterator(self)
+
+
+	def bizDataIterator(self):
+		"""Returns an iterator that moves the bizobj's record pointer from
+		the first record to the last, and returns a dict of the columns/values
+		of the record for the current iteration. You may call the iterator's
+		reverse() method before beginning iteration in order to iterate from
+		the last record back to the first.
+		"""
+		return _bizIterator(self, returnRecords=True)
 
 
 	def scan(self, func, *args, **kwargs):
@@ -2561,8 +2571,9 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 
 
 class _bizIterator(object):
-	def __init__(self, obj):
+	def __init__(self, obj, returnRecords=False):
 		self.obj = obj
+		self.returnRecords = returnRecords
 		self.__firstpass = True
 		self.__nextfunc = self._next
 
@@ -2589,7 +2600,10 @@ class _bizIterator(object):
 				self.obj.prior()
 			except dException.BeginningOfFileException:
 				raise StopIteration
-		return self.obj.RowNumber
+		if self.returnRecords:
+			return self.obj.getDataSet(rowStart=self.obj.RowNumber, rows=1)[0]
+		else:
+			return self.obj.RowNumber
 
 
 	def _next(self):
@@ -2604,7 +2618,10 @@ class _bizIterator(object):
 				self.obj.next()
 			except dException.EndOfFileException:
 				raise StopIteration
-		return self.obj.RowNumber
+		if self.returnRecords:
+			return self.obj.getDataSet(rowStart=self.obj.RowNumber, rows=1)[0]
+		else:
+			return self.obj.RowNumber
 
 
 	def next(self):
