@@ -305,6 +305,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self.Bind(stc.EVT_STC_MODIFIED, self.OnModified)
 		self.Bind(stc.EVT_STC_STYLENEEDED, self.OnStyleNeeded)
 		self.Bind(stc.EVT_STC_NEEDSHOWN, self.OnNeedShown)
+		self.bindEvent(dEvents.KeyDown, self.__onKeyDown)
+		self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
 
 		if delay:
 			self.bindEvent(dEvents.Idle, self.onIdle)
@@ -339,6 +341,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self._bookmarks = {}
 		# This holds the last saved bookmark status
 		self._lastBookmarks = []
+		# This attribute lets external program define an additional
+		# local namespace for code completion, etc.
+		self.locals = {}
 
 		if self.UseStyleTimer:
 			self._styleTimer.mode = "container"
@@ -914,10 +919,6 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			"fore:#000000,face:%s,back:#E0C0E0,eol,size:%d" % (fontFace, fontSize))
 
 
-
-
-
-
 	def onCommentLine(self, evt):
 		sel = self.GetSelection()
 		begLine = self.LineFromPosition(sel[0])
@@ -951,7 +952,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self.PositionFromLine(endLine+1))
 
 
-	def onKeyDown(self, evt):
+	def __onKeyDown(self, evt):
 		keyCode = evt.EventData["keyCode"]
 		if keyCode == wx.WXK_RETURN and self.AutoIndent and not self.AutoCompActive():
 			## Insert auto indentation as necessary. This code was adapted from
@@ -987,7 +988,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self.SetSelection(pos, pos)
 
 
-	def onKeyChar(self, evt):
+	def __onKeyChar(self, evt):
 		keyChar = evt.EventData["keyChar"]
 		self._insertChar = ""
 
@@ -1239,7 +1240,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		# Get the name of object the user is pressing "." after.
 		# This could be 'self', 'dabo', or a reference to any object
 		# previously defined.
-		obj = self._getRuntimeObject(self._getRuntimeObjectName())
+		nm = self._getRuntimeObjectName()
+		obj = self._getRuntimeObject(nm)
+		if not obj:
+			obj = self.locals.get(nm)
 		if obj is not None:
 			kw = []
 			pos = self.GetCurrentPos()
@@ -1251,7 +1255,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			# Images are specified with a appended "?type"
 			for i in range(len(kw)):
 				try:
-					obj_ = eval("obj.%s" % kw[i])
+					obj_ = getattr(obj, kw[i])
 				except (AttributeError, TypeError):
 					continue
 				isEvent = False
@@ -1797,6 +1801,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 				#Catch errors like module objects not having an attribute
 				pass
 
+
 	def _getRuntimeObject(self, runtimeObjectName):
 		"""Given a runtimeObjectName, get the object.
 
@@ -1807,9 +1812,9 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		if len(runtimeObjectName.strip()) == 0:
 			return None
 		self._fillNamespaces()
-		s = runtimeObjectName.split(".")
-		outerObjectName = s[0].strip()
-		if len(outerObjectName) == 0:
+		dotSplitName = runtimeObjectName.split(".")
+		outerObjectName = dotSplitName[0].strip()
+		if not outerObjectName:
 			return None
 
 		if outerObjectName == "self":
@@ -1822,15 +1827,16 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		# Different editor usages may require additional namespace
 		# hacks, such as the above. This is a hook for adding such hacks.
 		self._namespaceHacks()
-		o = self._namespaces.get(outerObjectName)
-		if o is not None:
-			innerObjectNames = '.'.join(s[1:])
-			if len(innerObjectNames) > 0:
+		obj = self._namespaces.get(outerObjectName)
+		if obj is not None:
+			for nm in dotSplitName:
 				try:
-					o = eval("o.%s" % innerObjectNames)
-				except (AttributeError, SyntaxError):
-					o = None
-		return o
+					obj = getattr(obj, nm)
+				except:
+					# Not an object path
+					obj = None
+					break
+		return obj
 
 
 	def _namespaceHacks(self):

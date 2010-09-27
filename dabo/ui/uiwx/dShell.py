@@ -174,7 +174,14 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 		super(_Shell, self).processLine()
 		if edt:
 			# push the latest command into the stack
-			self.Form.addToHistory(self.history[0])
+			self.Form.addToHistory()
+
+
+	def getAutoCompleteList(self, cmd):
+		return self.interp.getAutoCompleteList(cmd,
+				includeMagic=self.autoCompleteIncludeMagic,
+				includeSingle=self.autoCompleteIncludeSingle,
+				includeDouble=self.autoCompleteIncludeDouble)
 
 
 	def setDefaultFont(self, fontFace, fontSize):
@@ -262,7 +269,6 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 		if cmdDown and (key == wx.WXK_LEFT):
 			# Equivalent to Home
 			home = self.promptPosEnd
-			print home
 			if currpos > home:
 				self.SetCurrentPos(home)
 				if not selecting and not shiftDown:
@@ -374,7 +380,15 @@ class dShell(dSplitForm):
 
 		cp.Sizer = dabo.ui.dSizer()
 		op.Sizer = dabo.ui.dSizer()
-		self.shell = _Shell(self.CmdPanel)
+		pgf = self.pgfCodeShell = dabo.ui.dPageFrame(cp, PageCount=2)
+		self.pgShell = pgf.Pages[0]
+		self.pgCode = pgf.Pages[1]
+		self.pgShell.Caption = _("Shell")
+		self.pgCode.Caption = _("Code")
+		cp.Sizer.append1x(pgf)
+
+		self.shell = _Shell(self.pgShell)
+		self.pgShell.Sizer.append1x(self.shell, border=4)
 		# Configure the shell's behavior
 		self.shell.AutoCompSetIgnoreCase(True)
 		self.shell.AutoCompSetAutoHide(False)	 ## don't hide when the typed string no longer matches
@@ -382,21 +396,47 @@ class dShell(dSplitForm):
 		self.shell.AutoCompSetFillUps(".(")
 		# This lets you go all the way back to the '.' without losing the AutoComplete
 		self.shell.AutoCompSetCancelAtStart(False)
+		self.shell.Bind(wx.EVT_RIGHT_UP, self.onShellRight)
+		self.shell.Bind(wx.wx.EVT_CONTEXT_MENU, self.onShellContext)
 
-		cp.Sizer.append1x(self.shell)
-		self.shell.Bind(wx.EVT_RIGHT_UP, self.shellRight)
-		# Bring up history search
-		self.bindKey("Ctrl+R", self.onHistoryPop)
+		# Create the Code control
+		codeControl = dabo.ui.dEditor(self.pgCode, RegID="edtCode",
+				Language="python", OnKeyDown=self.onCodeKeyDown,
+				OnMouseRightDown=self.onCodeRightDown,
+				DroppedTextHandler=self, DroppedFileHandler=self)
+		self.pgCode.Sizer.append1x(codeControl, border=4)
+		# This adds the interpreter's local namespace to the editor for code completion, etc.
+		codeControl.locals = self.shell.interp.locals
+		lbl = dabo.ui.dLabel(self.pgCode, ForeColor="blue", WordWrap=True,
+				Caption=_("""Ctrl-Enter to run the code (or click the button to the right).
+Ctrl-Up/Down to scroll through history."""))
+		lbl.FontSize -= 3
+		runButton = dabo.ui.dButton(self.pgCode, Caption=_("Run"),
+				OnHit=self.onRunCode)
+		hsz = dabo.ui.dSizer("h")
+		hsz.appendSpacer(20)
+		hsz.append(lbl)
+		hsz.append1x(dabo.ui.dPanel(self.pgCode))
+		hsz.append(runButton, valign="middle")
+		hsz.appendSpacer(20)
+		self.pgCode.Sizer.append(hsz, "x")
+		# Stack to hold code history
+		self._codeStack = []
+		self._codeStackPos = 0
 
 		# Restore the history
 		self.restoreHistory()
+		# Bring up history search
+		self.bindKey("Ctrl+R", self.onHistoryPop)
+		# Show/hide the code editing pane
+		self.bindKey("Ctrl+E", self.onToggleCodePane)
 
 		# create the output control
 		outControl = dabo.ui.dEditBox(op, RegID="edtOut",
 				ReadOnly=True)
 		op.Sizer.append1x(outControl)
 		outControl.bindEvent(dEvents.MouseRightDown,
-				self.outputRightDown)
+				self.onOutputRightDown)
 
 		self._stdOut = self.shell.interp.stdout
 		self._stdErr = self.shell.interp.stderr
@@ -428,7 +468,9 @@ class dShell(dSplitForm):
 		dabo.ui.callAfter(ed.SetSelection, endpos, endpos)
 
 
-	def addToHistory(self, cmd):
+	def addToHistory(self, cmd=None):
+		if cmd is None:
+			cmd = self.shell.history[0]
 		chk = self.cmdHistKey
 		if cmd == self._lastCmd:
 			# Don't add again
@@ -451,6 +493,27 @@ class dShell(dSplitForm):
 			return ds
 		else:
 			return dsu
+
+
+	def onToggleCodePane(self, evt):
+		"""Toggle between the Code Pane and the Output Pane"""
+		self.pgfCodeShell.cyclePages(1)
+
+
+	def processDroppedFiles(self, filelist):
+		"""This will fire if files are dropped on the code editor. If more than one
+		file is dropped, only open the first, and warn the user."""
+		if len(filelist) > 1:
+			dabo.ui.exclaim(_("Only one file can be dropped at a time"))
+		self.edtCode.Value = file(filelist[0]).read()
+
+
+	def processDroppedText(self, txt):
+		"""Add the text to the code editor."""
+		cc = self.edtCode
+		currText = cc.Value
+		selStart, selEnd = cc.SelectionPosition
+		cc.Value = "%s%s%s" % (currText[:selStart], txt, currText[selEnd:])
 
 
 	def onHistoryPop(self, evt):
@@ -496,7 +559,56 @@ class dShell(dSplitForm):
 			ck.deletePref(bs)
 
 
-	def outputRightDown(self, evt):
+	def onRunCode(self, evt, addReturn=True):
+		code = self.edtCode.Value.rstrip()
+		if not code:
+			return
+		# See if this is already in the stack
+		try:
+			self._codeStackPos = self._codeStack.index(code)
+		except ValueError:
+			self._codeStack.append(code)
+			self._codeStackPos = len(self._codeStack)
+		self.edtCode.Value = ""
+		self.shell.Execute(code)
+		# If the last line is indented, run a blank line to complete the block
+		if code.splitlines()[-1][0] in " \t":
+			self.shell.run("", prompt=False)
+		self.addToHistory()
+		self.pgfCodeShell.SelectedPage = self.pgShell
+
+
+	def onCodeKeyDown(self, evt):
+		if not evt.controlDown:
+			return
+		keyCode = evt.keyCode
+		if (keyCode == 13):
+			evt.stop()
+			self.onRunCode(None, addReturn=True)
+		elif keyCode in (dKeys.key_Up, dKeys.key_Down):
+			direction = {dKeys.key_Up: -1, dKeys.key_Down: 1}[keyCode]
+			self.moveCodeStack(direction)
+
+
+	def moveCodeStack(self, direction):
+		size = len(self._codeStack)
+		pos = self._codeStackPos
+		newpos = max(0, pos + direction)
+		if newpos == size:
+			# at the end; clear the code
+			self._codeStackPos = size - 1
+			self.edtCode.Value = ""
+		else:
+			code = self._codeStack[newpos]
+			self._codeStackPos = newpos
+			self.edtCode.Value = code
+
+
+	def onCodeRightDown(self, evt):
+		dabo.ui.info("Code!")
+
+
+	def onOutputRightDown(self, evt):
 		pop = dabo.ui.dMenu()
 		pop.append(_("Clear"), OnHit=self.onClearOutput)
 		if self.edtOut.SelectionLength:
@@ -509,7 +621,18 @@ class dShell(dSplitForm):
 		self.edtOut.Value = ""
 
 
-	def shellRight(self, evt):
+	def onShellContext(self, evt):
+		pop = dabo.ui.dMenu()
+		if self.SplitState:
+			pmpt = _("Unsplit")
+		else:
+			pmpt = _("Split")
+		pop.append(pmpt, OnHit=self.onSplitContext)
+		self.showContextMenu(pop)
+		evt.StopPropagation()
+
+
+	def onShellRight(self, evt):
 		pop = dabo.ui.dMenu()
 		if self.SplitState:
 			pmpt = _("Unsplit")
@@ -521,7 +644,7 @@ class dShell(dSplitForm):
 
 
 	def onSplitContext(self, evt):
-		self.SplitState = (evt.EventObject.Caption == _("Split"))
+		self.SplitState = not self.SplitState
 		evt.stop()
 
 
@@ -551,6 +674,9 @@ class dShell(dSplitForm):
 		viewMenu.append(_("Zoom &Out"), HotKey="Ctrl+-", OnHit=self.onViewZoomOut,
 				ItemID="view_zoomout",
 				bmp="zoomOut", help=_("Zoom Out"))
+		viewMenu.append(_("&Toggle Code Pane"), HotKey="Ctrl+E", OnHit=self.onToggleCodePane,
+				ItemID="view_togglecode",
+				bmp="", help=_("Show/hide Code Pane"))
 		editMenu = self.MenuBar.getMenu("base_edit")
 		if editMenu.Children:
 			editMenu.appendSeparator()
