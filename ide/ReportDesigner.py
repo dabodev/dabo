@@ -434,8 +434,10 @@ def DesignerController():
 					copyObjs = []
 					for obj in objs:
 						copyObj = obj.getMemento()
-						if obj.has_key("GroupHeader"):
+						if obj.__class__.__name__ == "Group":
 							parentBandInfo = ["Groups", None]
+						elif obj.__class__.__name__ == "Variable":
+							parentBandInfo = ["Variables", None]
 						else:
 							parentBand = rdc.getParentBand(obj)
 							parentBandInfo = [ustr(type(parentBand)).split(".")[-1][:-2], None]
@@ -465,6 +467,8 @@ def DesignerController():
 					if parentInfo:
 						if parentInfo[0] == "Groups":
 							parent = rdc.ReportForm["Groups"]
+						elif parentInfo[0] == "Variables":
+							parent = rdc.ReportForm["Variables"]
 						elif "Group" in parentInfo[0]:
 							parent = rdc.getGroupBandByExpr(parentInfo[1])[parentInfo[0]]
 						else:
