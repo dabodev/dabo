@@ -1828,6 +1828,21 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self.RowNumber = rownum
 
 
+	def locate(self, val, fld=None, caseSensitive=True, movePointer=True):
+		""" Find the first row where the field value matches the passed value.
+
+		Returns True or False, depending on whether a matching value was located.
+		If 'fld' is not specified, the current sortColumn is used. If 'caseSensitive' is
+		set to False, string comparisons are done in a case-insensitive fashion.
+
+		This is very similar to the seek() method, with two main differences: there
+		is no concept of a near-match; either the value is found or it isn't; the return
+		value is a boolean indicating if the match was found, not the matching RowNumber.
+		"""
+		recnum = self.seek(val, fld, caseSensitive=caseSensitive, near=False, movePointer=movePointer)
+		return (recnum > -1)
+
+
 	def seek(self, val, fld=None, caseSensitive=True, near=False, movePointer=True):
 		""" Find the first row where the field value matches the passed value.
 

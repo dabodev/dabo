@@ -1294,6 +1294,25 @@ class dBizobj(dObject):
 		return self._CurrentCursor.hasPK(pk)
 
 
+	def locate(self, val, fld=None, caseSensitive=False, movePointer=True, runRequery=True):
+		""" Search for a value in a field, and optionally move the record pointer to the first
+		matching record. Returns the True or False, depending on whether the value was found.
+
+		If runRequery is True, and the record pointer is moved, all child bizobjs
+		will be requeried, and the afterPointerMove() hook method will fire.
+
+		This is very similar to the seek() method, with two main differences: there
+		is no concept of a near-match; either the value is found or it isn't; the return
+		value is a boolean indicating if the match was found, not the matching RowNumber.
+		"""
+		ret = self._CurrentCursor.locate(val, fld, caseSensitive, movePointer)
+		if ret:
+			if movePointer and runRequery:
+				self.requeryAllChildren()
+				self.afterPointerMove()
+		return ret
+
+
 	def seek(self, val, fld=None, caseSensitive=False, near=False, runRequery=True):
 		""" Search for a value in a field, and move the record pointer to the match.
 
