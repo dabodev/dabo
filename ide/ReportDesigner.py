@@ -434,11 +434,14 @@ def DesignerController():
 					copyObjs = []
 					for obj in objs:
 						copyObj = obj.getMemento()
-						parentBand = rdc.getParentBand(obj)
-						parentBandInfo = [ustr(type(parentBand)).split(".")[-1][:-2], None]
-						if "Group" in parentBandInfo[0]:
-							group = parentBand.parent
-							parentBandInfo[1] = group.get("expr")
+						if obj.has_key("GroupHeader"):
+							parentBandInfo = ["Groups", None]
+						else:
+							parentBand = rdc.getParentBand(obj)
+							parentBandInfo = [ustr(type(parentBand)).split(".")[-1][:-2], None]
+							if "Group" in parentBandInfo[0]:
+								group = parentBand.parent
+								parentBandInfo[1] = group.get("expr")
 						copyObj["_parentBandInfo_"] = parentBandInfo
 						copyObjs.append(copyObj)
 					self.SetData(pickle.dumps(copyObjs))
@@ -460,7 +463,9 @@ def DesignerController():
 						parentInfo = None
 
 					if parentInfo:
-						if "Group" in parentInfo[0]:
+						if parentInfo[0] == "Groups":
+							parent = rdc.ReportForm["Groups"]
+						elif "Group" in parentInfo[0]:
 							parent = rdc.getGroupBandByExpr(parentInfo[1])[parentInfo[0]]
 						else:
 							parent = rdc.ReportForm[parentInfo[0]]
