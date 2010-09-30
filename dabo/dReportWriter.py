@@ -54,14 +54,14 @@ class dReportWriter(dObject, ReportWriter):
 		win = self.ProgressControl
 		if win:
 			win.updateProgress(self.RecordNumber+1, len(self.Cursor))
-			dabo.ui.yieldUI()
+			dabo.ui.yieldUI(_safe=True)
 
 	def _hideProgress(self):
 		win = self.ProgressControl
 		if win:
 			win.hide()
 			win.Form.fitToSizer()
-			dabo.ui.yieldUI()
+			dabo.ui.yieldUI(_safe=True)
 
 	def _getEncoding(self):
 		try:
