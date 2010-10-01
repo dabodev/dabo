@@ -127,6 +127,24 @@ dAppRef = None
 # we want to make them part of the dabo namespace.
 from settings import *
 
+# Install localization service for dabo. dApp will install localization service
+# for the user application separately.
+import dLocalize
+dLocalize.install("dabo")
+# On some platforms getfilesystemencoding() and even getdefaultlocale()
+# can return None, so we make sure we always set a reasonable encoding:
+# NOTE: 'defaultEncoding' is imported from 'from settings import *' line above.
+fileSystemEncoding = (sys.getfilesystemencoding()
+    or locale.getdefaultlocale()[1] or defaultEncoding)
+
+
+def getEncoding():
+	ret = locale.getlocale()[1]
+	if ret is None:
+		ret = defaultEncoding
+	return ret
+
+
 # These are the various standard log handlers.
 consoleLogHandler = fileLogHandler = None
 dbConsoleLogHandler = dbFileLogHandler = None
@@ -162,6 +180,7 @@ if os.path.exists(_logConfFile):
 			dbConsoleLogHandler = _handler
 else:
 	# Use dabo.settings values to configure the logs
+	enc = getEncoding()
 	consoleLogHandler = logging.StreamHandler()
 	consoleLogHandler.setLevel(mainLogConsoleLevel)
 	consoleFormatter = logging.Formatter(consoleFormat)
@@ -172,7 +191,7 @@ else:
 	log.addHandler(consoleLogHandler)
 	if mainLogFile is not None:
 		fileLogHandler = logging.handlers.RotatingFileHandler(filename=mainLogFile,
-				maxBytes=maxLogFileSize, encoding=defaultEncoding)
+				maxBytes=maxLogFileSize, encoding=enc)
 		fileLogHandler.setLevel(mainLogFileLevel)
 		fileFormatter = logging.Formatter(fileFormat)
 		fileFormatter.datefmt = mainLogDateFormat
@@ -189,7 +208,7 @@ else:
 	dbActivityLog.addHandler(dbConsoleLogHandler)
 	if dbLogFile is not None:
 		dbFileLogHandler = logging.handlers.RotatingFileHandler(filename=dbLogFile,
-				maxBytes=maxLogFileSize, encoding=defaultEncoding)
+				maxBytes=maxLogFileSize, encoding=enc)
 		dbFileLogHandler.setLevel(dbLogFileLevel)
 		dbFileFormatter = logging.Formatter(dbFileFormat)
 		dbFileFormatter.datefmt = dbLogDateFormat
@@ -215,7 +234,7 @@ def setMainLogFile(fname, level=None):
 			dabo.fileLogHandler.close()
 			dabo.fileLogHandler = None
 		dabo.fileLogHandler = logging.handlers.RotatingFileHandler(filename=fname,
-				maxBytes=dabo.maxLogFileSize, encoding=dabo.defaultEncoding)
+				maxBytes=dabo.maxLogFileSize, encoding=getEncoding())
 		if level:
 			dabo.fileLogHandler.setLevel(level)
 		else:
@@ -244,7 +263,7 @@ def setDbLogFile(fname, level=None):
 			dabo.dbFileLogHandler.close()
 			dabo.dbFileLogHandler = None
 		dabo.dbFileLogHandler = logging.handlers.RotatingFileHandler(filename=fname,
-				maxBytes=dabo.maxLogFileSize, encoding=dabo.defaultEncoding)
+				maxBytes=dabo.maxLogFileSize, encoding=getEncoding())
 		if level:
 			dabo.dbFileLogHandler.setLevel(level)
 		else:
@@ -254,16 +273,6 @@ def setDbLogFile(fname, level=None):
 		dabo.dbFileLogHandler.setFormatter(dabo.dbFileFormatter)
 		dabo.dbActivityLog.addHandler(dabo.dbFileLogHandler)
 
-
-# Install localization service for dabo. dApp will install localization service
-# for the user application separately.
-import dLocalize
-dLocalize.install("dabo")
-# On some platforms getfilesystemencoding() and even getdefaultlocale()
-# can return None, so we make sure we always set a reasonable encoding:
-# NOTE: 'defaultEncoding' is imported from 'from settings import *' line above.
-fileSystemEncoding = (sys.getfilesystemencoding()
-    or locale.getdefaultlocale()[1] or defaultEncoding)
 
 from __version__ import version
 import dColors

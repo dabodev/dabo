@@ -1397,10 +1397,7 @@ try again when it is running.
 
 
 	def _getEncoding(self):
-		ret = locale.getlocale()[1]
-		if ret is None:
-			ret = dabo.defaultEncoding
-		return ret
+		return dabo.getEncoding()
 
 
 	def _getHomeDirectory(self):

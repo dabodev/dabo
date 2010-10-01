@@ -73,7 +73,7 @@ class RemoteConnector(object):
 			try:
 				ret = pickle.loads(val)
 			except UnicodeEncodeError:
-				for enctype in (dabo.defaultEncoding, "utf-8", "iso8859-1"):
+				for enctype in (dabo.getEncoding(), "utf-8", "iso8859-1"):
 					try:
 						ret = pickle.loads(val.encode(enctype))
 					except KeyError:

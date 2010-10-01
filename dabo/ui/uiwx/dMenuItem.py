@@ -69,10 +69,7 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 		curr = self.GetText()
 		def toUni(s):
 			if isinstance(s, str):
-				try:
-					enc = self.Application.Encoding
-				except AttributeError:
-					enc = dabo.defaultEncoding
+				enc = dabo.getEncoding()
 				s = unicode(s, enc)
 			return s
 

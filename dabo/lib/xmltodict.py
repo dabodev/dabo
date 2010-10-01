@@ -18,14 +18,7 @@ from dabo.lib.utils import resolvePath
 from dabo.lib.utils import ustr
 
 app = dabo.dAppRef
-if app:
-	default_encoding = app.Encoding
-else:
-	default_encoding = locale.getlocale()[1]
-	if default_encoding is None:
-		default_encoding = locale.getdefaultlocale()[1]
-		if default_encoding is None:
-			default_encoding = dabo.defaultEncoding
+default_encoding = dabo.getEncoding()
 # Normalize the names, as xml.sax running on Gtk will complain for some variations
 deLow = default_encoding.lower()
 if deLow in ("utf8", "utf-8"):
@@ -56,7 +49,7 @@ class Xml2Obj(object):
 		self._currPropAtt = ""
 		self._currPropDict = None
 		if encoding is None:
-			self._encoding = dabo.defaultEncoding
+			self._encoding = dabo.getEncoding()
 		else:
 			self._encoding = encoding
 
@@ -167,7 +160,7 @@ class Xml2Obj(object):
 
 	def Parse(self, xml):
 		# Create a SAX parser
-		Parser = expat.ParserCreate(self._encoding)
+		Parser = expat.ParserCreate()
 		# SAX event handlers
 		Parser.StartElementHandler = self.StartElement
 		Parser.EndElementHandler = self.EndElement
@@ -183,8 +176,6 @@ class Xml2Obj(object):
 
 def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
 	"""Given an xml string or file, return a Python dictionary."""
-	if encoding is None:
-		encoding = dabo.defaultEncoding
 	parser = Xml2Obj(encoding=encoding)
 	parser.attsToSkip = attsToSkip
 	if eol in xml and "<?xml" in xml:

@@ -57,7 +57,6 @@ class dDataSet(tuple):
 		# When filtering datasets, we need a reference to the dataset
 		# this dataset was derived from.
 		self._sourceDataSet = None
-		self._encoding = "utf8"
 
 		# Register the converters
 		sqlite.register_converter("decimal", self._convert_decimal)
@@ -356,8 +355,6 @@ class dDataSet(tuple):
 			self._connection = sqlite.connect(":memory:",
 					detect_types=(sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES),
 					isolation_level="EXCLUSIVE")
-			# Set to default encoding
-			self.Encoding = self._encoding
 		if self._cursor is None:
 			self._cursor = self._connection.cursor(factory=DictCursor)
 
@@ -429,7 +426,11 @@ class dDataSet(tuple):
 
 
 	def _getEncoding(self):
-		return self._encoding
+		try:
+			return self._encoding
+		except AttributeError:
+			self._encoding = dabo.getEncoding()
+			return self._encoding
 
 	def _setEncoding(self, encoding):
 		self._encoding = encoding

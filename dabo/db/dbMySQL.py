@@ -58,11 +58,8 @@ class MySQL(dBackend):
 			except IndexError:
 				pass
 		if charset is None:
-			# Use the app encoding
-			try:
-				charset = self.Application.Encoding
-			except AttributeError:
-				charset = dabo.defaultEncoding
+			# Use the default Dabo encoding
+			charset = dabo.getEncoding()
 			charset = charset.lower().replace("-", "")
 
 		try:

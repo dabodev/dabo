@@ -254,7 +254,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._hiliteLimitColumn = 79
 		self._showEdgeGuide = False
 		self._edgeGuideColumn = 80
-		self._encoding = self.Application.Encoding
+		self._encoding = dabo.getEncoding()
 		self._eolMode = ""
 		self._useAntiAliasing = True
 		self._codeFolding = True
@@ -2505,7 +2505,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			position the guide is in(int)"""))
 
 	Encoding = property(_getEncoding, _setEncoding, None,
-			_("Type of encoding to use. Defaults to the application's default encoding.  (str)"))
+			_("Type of encoding to use. Defaults to Dabo's encoding.  (str)"))
 
 	EOLMode = property(_getEOLMode, _setEOLMode, None,
 			_("End of line characters. Allowed values are 'CRLF', 'LF' and 'CR'. (default=os dependent) (str)"))

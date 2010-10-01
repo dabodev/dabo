@@ -50,7 +50,7 @@ class dDataControlMixin(dDataControlMixinBase):
 				val = ustr(val)
 			else:
 				if not isinstance(val, unicode):
-					val = unicode(val, self.Application.Encoding)
+					val = unicode(val, dabo.getEncoding())
 		elif isinstance(oldval, int) and isinstance(val, basestring):
 			if val:
 				val = int(val)

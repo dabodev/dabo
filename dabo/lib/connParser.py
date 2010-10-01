@@ -160,7 +160,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/conn.xsd">
 %s
 
 </connectiondefs>
-""" % (dabo.defaultEncoding, "%s")
+""" % (dabo.getEncoding(), "%s")
 
 
 def getConnTemplate():

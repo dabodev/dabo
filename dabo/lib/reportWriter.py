@@ -2513,7 +2513,7 @@ class ReportWriter(object):
 		try:
 			v = self._encoding
 		except AttributeError:
-			v = self._encoding = "utf-8"
+			v = self._encoding = dabo.getEncoding()
 		return v
 
 	def _setEncoding(self, val):

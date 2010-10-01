@@ -2179,10 +2179,7 @@ afterDelete() which is only called after a delete().""")
 			if cursor is not None:
 				ret = cursor.Encoding
 			if ret is None:
-				if self.Application:
-					ret = self.Application.Encoding
-				else:
-					ret = dabo.defaultEncoding
+				ret = dabo.getEncoding()
 			self._encoding = ret
 		return ret
 

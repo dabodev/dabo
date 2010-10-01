@@ -63,11 +63,7 @@ class DesignerClassConverter(dObject):
 		# Location of the cdxml source file, if any
 		self._srcFile = None
 		# Encoding to be used
-		try:
-			self._encoding = self.Application.Encoding
-		except AttributeError:
-			# No app object
-			self._encoding = dabo.defaultEncoding
+		self._encoding = dabo.getEncoding()
 
 
 	def classFromText(self, src):
@@ -176,7 +172,7 @@ class DesignerClassConverter(dObject):
 			else:
 				parseCode = False
 				self._srcFile = os.getcwd()
-		return xtd.xmltodict(xml, encoding="utf-8")
+		return xtd.xmltodict(xml)
 
 
 	@classmethod
@@ -795,8 +791,6 @@ class DesignerClassConverter(dObject):
 
 	def indentCode(self, cd, level):
 		"""Takes code and indents it to the desired level"""
-# 		if isinstance(cd, str):
-# 			cd = cd.decode(self.Application.Encoding)
 		lns = cd.splitlines()
 		indent = "\t" * level
 		# Compiled code needs newlines, no matter what platform.

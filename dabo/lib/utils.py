@@ -134,7 +134,7 @@ def dictStringify(dct):
 			try:
 				ret[str(kk)] = vv
 			except UnicodeEncodeError:
-				kk = kk.encode(dabo.defaultEncoding)
+				kk = kk.encode(dabo.getEncoding())
 				ret[kk] = vv
 		else:
 			ret[kk] = vv

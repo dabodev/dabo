@@ -14,7 +14,7 @@ if _defaultLanguage is None:
 	_defaultLanguage = dabo.settings.defaultLanguage
 
 if _defaultEncoding is None:
-	_defaultEncoding = dabo.settings.defaultEncoding
+	_defaultEncoding = dabo.getEncoding()
 
 
 _domains = {}

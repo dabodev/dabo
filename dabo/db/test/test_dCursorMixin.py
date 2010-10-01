@@ -8,12 +8,11 @@ from dabo.lib import getRandomUUID
 # flags so that only the db's you want to test against are True. DB's set as
 # False by default are probably not working as-is.
 db_tests = {"sqlite": True,
-            "mysql": True,
-            "firebird": False,
-            "postgresql": False,
-            "mssql": False,
-	    "oracle": False,
-           }
+		"mysql": True,
+		"firebird": False,
+		"postgresql": False,
+		"mssql": False,
+		"oracle": False}
 
 # Convert the flags into class references. Setting to object will keep the tests
 # for that backend from running.
@@ -362,9 +361,9 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 
 class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
 	## NOTE: Firebird not set up completely yet. What is here is courtesy Uwe
-	##       Grauer. We need insert statements, and we need a firebird server.
-	##       I intend to set up a test server, but don't know when it will
-	##       actually occur.
+	##		 Grauer. We need insert statements, and we need a firebird server.
+	##		 I intend to set up a test server, but don't know when it will
+	##		 actually occur.
 	def setUp(self):
 		con = dabo.db.dConnection(DbType="Firebird", User="dabotester",
 				password="Y57W8EN6CB06KBCCDCX01D6B", Database="dabo_unittest",

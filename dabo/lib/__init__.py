@@ -38,7 +38,7 @@ except ImportError:
 				ret = jsonConverter.loads(val)
 			except UnicodeDecodeError:
 				# Try typical encodings, starting with the default.
-				for enctype in (dabo.defaultEncoding, "utf-8", "latin-1"):
+				for enctype in (dabo.getEncoding(), "utf-8", "latin-1"):
 					try:
 						ret = jsonConverter.loads(val, enctype)
 						break

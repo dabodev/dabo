@@ -67,10 +67,7 @@ class dReportWriter(dObject, ReportWriter):
 		try:
 			v = self._encoding
 		except AttributeError:
-			if self.Application:
-				v = self.Application.Encoding
-			else:
-				v = "utf-8"
+			v = dabo.getEncoding()
 			self._encoding = v
 		return v
 

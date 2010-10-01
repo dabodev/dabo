@@ -30,10 +30,6 @@ class dBackend(dObject):
 		super(dBackend, self).__init__()
 		self.dbModuleName = None
 		self._connection = None
-		if self.Application:
-			self._encoding = self.Application.Encoding
-		else:
-			self._encoding = dabo.defaultEncoding
 		# If the db module is set to hook into dCursor to correct the field
 		# types and convert the records to dict inline, then dCursorMixin doesn't
 		# have to reiterate the records to do those tasks. Set the following to
@@ -584,15 +580,19 @@ class dBackend(dObject):
 			wt = self._keepAliveThread = WorkerThread(self)
 			wt.start()
 
+	def _getEncoding(self):
+		""" Get backend encoding."""
+		try:
+			return self._encoding
+		except AttributeError:
+			self._encoding = dabo.getEncoding()
+			return self._encoding
+
 	def _setEncoding(self, enc):
 		""" Set backend encoding. Must be overridden in the subclass
 		to notify database about proper charset conversion.
 		"""
 		self._encoding = enc
-
-	def _getEncoding(self):
-		""" Get backend encoding."""
-		return self._encoding
 
 
 	def _getKeepAliveInterval(self):
