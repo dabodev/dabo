@@ -663,7 +663,7 @@ class AppWizard(Wizard):
 
 			## Create the manifest file (for xp theme support):
 			pth = os.path.join(self.wizDir, "spec-main.exe.manifest")
-			txt = open(pth).read() % dabo.defaultEncoding
+			txt = open(pth).read() % dabo.getEncoding()
 			open("./%s.exe.manifest" % appName, "w").write(txt)
 
 			## Create App.py:
@@ -1147,7 +1147,7 @@ class AppWizard(Wizard):
 
 
 	def getSampleReport(self):
-		enc = dabo.defaultEncoding
+		enc = dabo.getEncoding()
 		return open(os.path.join(self.wizDir,
 				"spec-sampleReport.rfxml")).read() % locals()
 
