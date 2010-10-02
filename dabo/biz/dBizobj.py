@@ -1399,7 +1399,8 @@ class dBizobj(dObject):
 		if self.AutoPopulatePK:
 			pk = self.getPK()
 			for child in self.__children:
-				child.setParentFK()
+				if child.FillLinkFromParent:
+					child.setParentFK()
 		# Call the custom hook method
 		self.onSaveNew()
 
