@@ -1043,17 +1043,17 @@ class dBizobj(dObject):
 		is the PK of the parent, but can be a non-PK field, if this bizobj's ParentLinkField is
 		not empty.
 		"""
-		ret = None
-		if self.Parent:
-			fld = self.ParentLinkField
-			try:
-				if not fld:
-					# Use the PK value
-					ret = self.getParentPK()
-				else:
-					ret = self.Parent.getFieldVal(fld)
-			except dException.NoRecordsException:
-				ret = NO_RECORDS_PK
+		if not self.Parent:
+			return None
+		fld = self.ParentLinkField
+		try:
+			if not fld:
+				# Use the PK value
+				ret = self.getParentPK()
+			else:
+				ret = self.Parent.getFieldVal(fld)
+		except dException.NoRecordsException:
+			ret = NO_RECORDS_PK
 		return ret
 
 
@@ -1399,7 +1399,7 @@ class dBizobj(dObject):
 		if self.AutoPopulatePK:
 			pk = self.getPK()
 			for child in self.__children:
-				child.setParentFK(pk)
+				child.setParentFK()
 		# Call the custom hook method
 		self.onSaveNew()
 
