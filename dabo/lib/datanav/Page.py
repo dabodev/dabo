@@ -145,7 +145,7 @@ class SelectPage(Page):
 		mn = dabo.ui.dMenu()
 		if self.sortFields:
 			mn.append(_("Show sort order"), OnHit=self.handleSortOrder)
-		if self.sortFields.has_key(self.sortDS):
+		if self.sortDS in self.sortFields:
 			mn.append(_("Remove sort on ") + self.sortCap,
 					OnHit=self.handleSortRemove)
 
@@ -183,7 +183,7 @@ class SelectPage(Page):
 				self.sortFields[key] = (newPos, self.sortFields[key][1], self.sortFields[key][2])
 				newPos += 1
 		elif action != "show":
-			if self.sortFields.has_key(self.sortDS):
+			if self.sortDS in self.sortFields:
 				self.sortFields[self.sortDS] = (self.sortFields[self.sortDS][0],
 						action, self.sortCap)
 			else:
@@ -244,7 +244,7 @@ class SelectPage(Page):
 		flds = self.selectFields.keys()
 		whr = ""
 		for fld in flds:
-			if biz.VirtualFields.has_key(fld):
+			if fld in biz.VirtualFields:
 				#virtual field, save for later use and ignore
 				self.__virtualFilters.append(fld)
 				continue
@@ -359,7 +359,7 @@ class SelectPage(Page):
 
 
 	def setLimit(self, biz):
-		if self.selectFields.has_key("limit"):
+		if "limit" in self.selectFields:
 			biz.setLimitClause(self.selectFields["limit"]["ctrl"].Value)
 
 

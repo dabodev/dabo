@@ -40,7 +40,7 @@ class connHandler(xml.sax.ContentHandler):
 
 	def characters(self, content):
 		if self.element:
-			if self.currDict.has_key(self.element):
+			if self.element in self.currDict:
 				self.currDict[self.element] += content
 
 
@@ -118,7 +118,7 @@ def genConnXML(d):
 	a 'connection' XML element.
 	"""
 	try:
-		if not d.has_key("name"):
+		if "name" not in d:
 			if not d["user"]:
 				d["user"] = "anybody"
 			if not d["host"]:

@@ -226,7 +226,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		for c in cls.__mro__:
 			for item in dir(c):
 				if item[0] in string.lowercase:
-					if c.__dict__.has_key(item):
+					if item in c.__dict__:
 						if type(c.__dict__[item]) in (types.MethodType, types.FunctionType):
 							if methodList.count(item) == 0:
 								methodList.append(item)

@@ -272,7 +272,7 @@ class PropertyHelperMixin(object):
 				break
 			for item in dir(c):
 				if item[0] in string.uppercase:
-					if c.__dict__.has_key(item):
+					if item in c.__dict__:
 						if type(c.__dict__[item]) == property:
 							if propList.count(item) == 0:
 								propList.append(item)
@@ -324,7 +324,7 @@ class PropertyHelperMixin(object):
 			d["type"] = type(propVal)
 			d["definedIn"] = None
 			for o in classRef.__mro__:
-				if o.__dict__.has_key(name):
+				if name in o.__dict__:
 					d["definedIn"] = o
 
 			return d

@@ -2122,7 +2122,7 @@ afterDelete() which is only called after a delete().""")
 		the current parent key. If not, creates one.
 		"""
 		self.__currentCursorKey = val
-		if not self.__cursors.has_key(val):
+		if val not in self.__cursors:
 			self.createCursor()
 
 

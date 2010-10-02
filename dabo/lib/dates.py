@@ -136,9 +136,9 @@ def getDateFromString(strVal, formats=None):
 		m = regex.match(strVal)
 		if m is not None:
 			groups = m.groupdict()
-			if not groups.has_key("year"):
+			if "year" not in groups.:
 				curYear = datetime.date.today().year
-				if groups.has_key("shortyear"):
+				if shortyear in groups:
 					groups["year"] = int("%s%s" % (ustr(curYear)[:2],
 							groups["shortyear"]))
 				else:
@@ -191,12 +191,12 @@ def getDateTimeFromString(strVal, formats=None):
 		if m is not None:
 			groups = m.groupdict()
 			for skip_group in ["ms", "second", "minute", "hour"]:
-				if not groups.has_key(skip_group) or len(groups[skip_group]) == 0:
+				if (skip_group not in groups) or not groups[skip_group]:
 					# group not in the expression: default to 0
 					groups[skip_group] = 0
-			if not groups.has_key("year"):
+			if "year" not in groups:
 				curYear = datetime.date.today().year
-				if groups.has_key("shortyear"):
+				if shortyear in groups:
 					groups["year"] = int("%s%s" % (ustr(curYear)[:2],
 							groups["shortyear"]))
 				else:

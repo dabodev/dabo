@@ -88,35 +88,36 @@ class dPref(object):
 
 	def __getattr__(self, att):
 		if att in regularAtts:
-			if self.__dict__.has_key(att):
-				return self.__dict__[att]
-			else:
-				return None
-		if self.__dict__.has_key(att):
-			ret = self.__dict__[att]
-		elif self._cache.has_key(att):
-			ret = self._cache[att]
-		else:
-			# See if it's in the database
-			key = self._getKey()
-			if key:
-				param = "%s.%s" % (key, att)
-			else:
-				param = att
-			crs = self._cursor
 			try:
-				crs.execute("select ctype, cvalue from daboprefs where ckey = ? ", (param, ))
-				rec = crs.getCurrentRecord()
-			except StandardError, e:
-				print "QUERY ERR", e
-				rec = {}
-			if rec:
-				ret = self._decodeType(rec)
-			else:
-				ret = dPref(crs=self._cursor, cxn = self._cxn)
-				ret._parent = self
-				ret._key = att
-			self._cache[att] = ret
+				return self.__dict__[att]
+			except KeyError:
+				return None
+		try:
+			ret = self.__dict__[att]
+		except KeyError:
+			try:
+				ret = self._cache[att]
+			except KeyError:
+				# See if it's in the database
+				key = self._getKey()
+				if key:
+					param = "%s.%s" % (key, att)
+				else:
+					param = att
+				crs = self._cursor
+				try:
+					crs.execute("select ctype, cvalue from daboprefs where ckey = ? ", (param, ))
+					rec = crs.getCurrentRecord()
+				except StandardError, e:
+					print "QUERY ERR", e
+					rec = {}
+				if rec:
+					ret = self._decodeType(rec)
+				else:
+					ret = dPref(crs=self._cursor, cxn = self._cxn)
+					ret._parent = self
+					ret._key = att
+				self._cache[att] = ret
 		return ret
 
 
@@ -270,12 +271,12 @@ class dPref(object):
 				crs.execute("delete from daboprefs where ckey like ? ", (key, ))
 			else:
 				crs.execute("delete from daboprefs where ckey = ? ", (key, ))
-			if self._cache.has_key(att):
-				del self._cache[att]
 		else:
 			self._deletionCache[key] = None
-			if self._cache.has_key(att):
-				del self._cache[att]
+		try:
+			del self._cache[att]
+		except KeyError:
+			pass
 		self._cursor.commitTransaction()
 
 
