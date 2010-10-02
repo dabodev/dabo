@@ -939,12 +939,14 @@ class dForm(BaseForm, wx.Frame):
 			dForm.__bases__ = (BaseForm, wx.Frame)
 	_hackToFrame = classmethod(_hackToFrame)
 
-	def Show(self, show=True, *args, **kwargs):
+	def Show(self, show=True):
 		self._gtk_show_fix(show)
 		if self.Modal:
 			dForm._hackToDialog()
-		dForm.__bases__[-1].Show(self, show, *args, **kwargs)
+		#dForm.__bases__[-1].Show(self, show)
+		ret = super(dForm, self).Show(show)
 		dForm._hackToFrame()
+		return ret
 
 	def _getModal(self):
 		return getattr(self, "_modal", False)
@@ -995,10 +997,11 @@ class dToolForm(BaseForm, wx.MiniFrame):
 		kwargs["ShowToolBar"] = False
 		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
-	def Show(self, show=True, *args, **kwargs):
+	def Show(self, show=True):
 		self._gtk_show_fix(show)
-		wx.MiniFrame.Show(self, show, *args, **kwargs)
-
+		ret = super(dToolForm, self).Show(show)
+		#wx.MiniFrame.Show(self, show)
+		return ret
 
 
 class dBorderlessForm(BaseForm, wx.Frame):
@@ -1012,9 +1015,11 @@ class dBorderlessForm(BaseForm, wx.Frame):
 		preClass = wx.PreFrame
 		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
-	def Show(self, show=True, *args, **kwargs):
+	def Show(self, show=True):
 		self._gtk_show_fix(show)
-		wx.Frame.Show(self, show, *args, **kwargs)
+		ret = super(dBorderlessForm, self).Show(show)
+		#wx.Frame.Show(self, show)
+		return ret
 
 
 class _dForm_test(dForm):

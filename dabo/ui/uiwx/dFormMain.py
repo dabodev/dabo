@@ -51,10 +51,10 @@ class dFormMain(dFormMainBase, wx.Frame):
 
 		dFormMainBase.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-	def Show(self, show=True, *args, **kwargs):
+	def Show(self, show=True):
 		self._gtk_show_fix(show)
-		dFormMain.__bases__[-1].Show(self, show, *args, **kwargs)
-
+		#dFormMain.__bases__[-1].Show(self, show)
+		return super(dFormMain, self).Show(show)
 
 
 

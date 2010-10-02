@@ -63,14 +63,17 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		super(dDialog, self)._afterInit()
 
 
-	def Show(self, show=True, *args, **kwargs):
+	def Show(self, show=True):
 		self._gtk_show_fix(show)
-		wx.Dialog.Show(self, show, *args, **kwargs)
+		return super(dDialog, self).Show(show)
 
 
-	def ShowModal(self, *args, **kwargs):
+	def ShowModal(self):
 		self._gtk_show_fix(True)
-		return wx.Dialog.ShowModal(self, *args, **kwargs)
+		# updates were potentially suppressed while the dialog
+		# wasn't visible, so update now.
+		self.update()
+		return super(dDialog, self).ShowModal()
 
 
 	def showModal(self):

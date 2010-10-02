@@ -793,6 +793,15 @@ class dPemMixin(dPemMixinBase):
 		callback(keyEvent)
 
 
+	def Show(self, show=True):
+		ret = super(dPemMixin, self).Show(show)
+		if show and ret:
+			# updates were potentially suppressed while the object
+			# wasn't visible, so update now.
+			self.update()
+		return ret
+
+
 	def unbindKey(self, keyCombo):
 		"""Unbind a previously bound key combination.
 
@@ -1270,7 +1279,8 @@ class dPemMixin(dPemMixinBase):
 
 	def __onUpdate(self, evt):
 		"""Update any dynamic properties, and then call the update() hook."""
-		if isinstance(self, dabo.ui.deadObject) or not self._constructed():
+		if isinstance(self, dabo.ui.deadObject) or not self._constructed() \
+				or not self.Visible:
 			return
 		self.update()
 
