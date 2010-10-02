@@ -136,7 +136,7 @@ def getDateFromString(strVal, formats=None):
 		m = regex.match(strVal)
 		if m is not None:
 			groups = m.groupdict()
-			if "year" not in groups.:
+			if "year" not in groups:
 				curYear = datetime.date.today().year
 				if shortyear in groups:
 					groups["year"] = int("%s%s" % (ustr(curYear)[:2],

@@ -73,7 +73,7 @@ class EventMixin(object):
 			eventData = kwargs["eventData"]
 			del kwargs["eventData"]
 		evtObject = self
-		if eventObject in kwargs:
+		if "eventObject" in kwargs:
 			evtObject = kwargs["eventObject"]
 			del kwargs["eventObject"]
 
