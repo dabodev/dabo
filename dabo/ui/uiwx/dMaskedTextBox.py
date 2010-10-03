@@ -110,9 +110,13 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 		if self._constructed():
 			try:
 				self.SetAutoformat(self._formatMap.get(val))
-				self._format = val
 			except AttributeError:
 				dabo.log.error(_("Invalid Format value: %s") % val)
+				return
+			self._format = val
+			if not val:
+				self.SetMask("")
+				self.ClearValue()
 		else:
 			self._properties["Format"] = val
 
@@ -144,7 +148,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 		if self._constructed():
 			if self.GetAutoformat() and val:
 				# Cannot have both a mask and a format
-				dabo.log.error(_("Cannot set a Mask when a Format has been set"))
+				raise RuntimeError(_("Cannot set a Mask when a Format has been set"))
 			else:
 				self._mask = val
 				self.SetMask(val)
@@ -157,32 +161,17 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 
 
 	def _getUnmaskedValue(self):
-		ret =self.GetPlainValue()
-		if ret is None or ret=='':
-			self.ClearValue()
-			ret = self.MaskedValue
-		return ret
+		return self.GetPlainValue()
 
 
 	def _getValue(self):
 		if self.ValueMode == "Masked":
 			ret = self.GetValue()
-
 		else:
 			ret = self.GetPlainValue()
-			#add this to cover blank or None for field values
-			if ret is None or ret=='':
-				self.ClearValue()
-				ret= self.MaskedValue  #I believe every val has a mask??
 		return ret
 
 	def _setValue(self, val):
-		# added below to cover blank or None for field values
-		if self.RegID == 'txtConFax':
-			pass
-		if val is None or val =='':
-			self.ClearValue()
-			val=self.MaskedValue
 		super(dMaskedTextBox, self)._setValue(val)
 
 
