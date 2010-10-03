@@ -1397,7 +1397,6 @@ class dBizobj(dObject):
 		# If this is a new parent record with a new auto-generated PK, pass it on
 		# to the children before they save themselves.
 		if self.AutoPopulatePK:
-			pk = self.getPK()
 			for child in self.__children:
 				if child.FillLinkFromParent:
 					child.setParentFK()
