@@ -63,9 +63,9 @@ def DesignerController():
 				return False
 
 			def isRecord(name):
-				if name and rdc.ReportForm.has_key("TestCursor") \
-						and len(rdc.ReportForm["TestCursor"]) > 0 \
-						and rdc.ReportForm["TestCursor"][0].has_key(name):
+				if (name and ("TestCursor" in rdc.ReportForm)
+						and rdc.ReportForm["TestCursor"]
+						and (typ in parent)):
 					return True
 				return False
 
@@ -530,7 +530,7 @@ def DesignerController():
 				removeNode = False
 				if isinstance(parent, dict):
 					for typ in ("Objects", "Variables", "Groups"):
-						if parent.has_key(typ):
+						if typ in parent:
 							if obj in parent[typ]:
 								parent[typ].remove(obj)
 								removeNode = True
@@ -819,7 +819,7 @@ class ReportObjectTree(dabo.ui.dTreeView):
 			for child in frm.get("Objects", []):
 				self.recurseLayout(frm=child, parentNode=node)
 			for band in ("GroupHeader", "GroupFooter"):
-				if frm.has_key(band):
+				if band in frm:
 					self.recurseLayout(frm=frm[band], parentNode=node)
 
 		elif frm.__class__.__name__ in ("Variables", "Groups", "TestCursor"):
@@ -1586,7 +1586,7 @@ class DesignerBand(DesignerPanel):
 		dc.SetBrush(wx.Brush((0,0,0), wx.TRANSPARENT))
 
 		# Draw a border around the object, if appropriate:
-		if obj.has_key("BorderWidth"):
+		if "BorderWidth" in obj:
 			borderWidth = self._rw.getPt(obj.getProp("BorderWidth")) * self.Parent.Zoom
 			if borderWidth > 0:
 				borderColor = self._rw.getColorTupleFromReportLab(obj.getProp("BorderColor"))
@@ -1748,7 +1748,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 				392: "+"}
 
 		keyCode = evt.EventData["keyCode"]
-		if not keys.has_key(keyCode):
+		if not keyCode in keys:
 			return
 
 		# Okay, we have valid item(s) selected, and it is a key we are interested in.
