@@ -69,7 +69,7 @@ class EventMixin(object):
 			self.__raisedEvents.append(eventSig)
 
 		eventData = None
-		if eventData in kwargs:
+		if "eventData" in kwargs:
 			eventData = kwargs["eventData"]
 			del kwargs["eventData"]
 		evtObject = self
