@@ -48,6 +48,7 @@ import reportlab.lib.units as units
 import reportlab.lib.styles as styles
 import reportlab.platypus as platypus
 #import reportlab.lib.colors as colors
+from dabo import getEncoding
 from dabo.lib.xmltodict import xmltodict
 from dabo.lib.xmltodict import dicttoxml
 from dabo.dLocalize import _
@@ -2372,7 +2373,7 @@ class ReportWriter(object):
 
 	def _getXmlHeader(self):
 		"""Returns the XML header for the rfxml document."""
-		header = """<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+		header = """<?xml version="1.0" encoding="%s" standalone="yes"?>
 
 <!--
 		This is a Dabo report form xml (rfxml) document, describing a
@@ -2381,7 +2382,7 @@ class ReportWriter(object):
 -->
 
 
-"""
+""" % getEncoding()
 		return os.linesep.join(header.splitlines())
 
 
