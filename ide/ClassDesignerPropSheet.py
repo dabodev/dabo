@@ -254,7 +254,13 @@ class PropSheet(dabo.ui.dPanel):
 						val = self.getObjPropVal(ob, prop)
 					rec["val"] = val
 					rec["type"] = propInfo["type"]
-					rec["readonly"] = propInfo["readonly"]
+					ro = propInfo["readonly"]
+					if callable(ro):
+						ro = ro(ob)
+						print "CALL", prop, ro
+					if prop == "Mask":
+						print "MASK RO", ro
+					rec["readonly"] = ro
 
 					if mult:
 						# Make sure that all the other objects share the values.
@@ -836,7 +842,10 @@ class PropertyGrid(dabo.ui.dGrid):
 		if col == 1:
 			# Only the second column is directly editable, and only
 			# if the property permits editing.
-			self.Editable = not pd["readonly"]
+			isRO = pd["readonly"]
+			if callable(isRO):
+				isRO = isRO(sel[0])
+			self.Editable = not isRO
 		else:
 			self.Editable = False
 

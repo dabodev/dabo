@@ -785,6 +785,17 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"SortOnHeaderClick": {"type": bool, "readonly": False},
 				"ValueColumn": {"type": int, "readonly": False},
 				"VerticalRules": {"type": bool, "readonly": False}}
+		
+		def haz_format(self):
+			# Cannot edit the Mask property when Format is set to something
+			return bool(self.Format)
+
+		maskedTextBoxProps = {"Format": {"type": list, "readonly": False,
+						"values": [""]+dui.dMaskedTextBox.getFormats()},
+				"InputCodes": {"type": unicode, "readonly": False},
+				"Mask": {"type": unicode, "readonly": haz_format},
+				"ValueMode": {"type": list, "readonly": False,
+					"values": ["Masked", "Unmasked"]}}
 		multiSelectProps = {"MultipleSelect": {"type": bool, "readonly": False}}
 		nodeProps = {"Image": {"type": "path", "readonly": False,
 					"customEditor": "editStdPicture"}}
@@ -1050,13 +1061,16 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(splitterProps)
 		elif isinstance(self, dui.dStatusBar):
 			ret.update(fontProps)
-		elif isinstance(self, (dui.dEditBox, dui.dTextBox)):
+		elif isinstance(self, (dui.dEditBox, dui.dTextBox, dui.dMaskedTextBox)):
 			ret.update(colorProps)
 			ret.update(fontProps)
 			ret.update(textProps)
 			if isinstance(self, dui.dTextBox):
 				ret.update({"PasswordEntry": {"type": bool, "readonly": False},
 						"TextLength": {"type": int, "readonly": False}})
+			elif isinstance(self, dui.dMaskedTextBox):
+				ret.update(maskedTextBoxProps)
+				del ret["ForceCase"]
 		elif isinstance(self, dui.dHtmlBox):
 			ret.update(htmlTextProps)
 			ret.update(scrollProps)

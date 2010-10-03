@@ -654,7 +654,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		if code:
 			# Add it to the code dict
 			codeIDbase = codeID = atts.get("code-ID", "%s-%s" % (nm, prntName))
-			while cd.has_key(codeID):
+			while codeID in cd:
 				codeID = "%s-%s" % (codeIDbase, random.randrange(999))
 			pd["attributes"].update({"code-ID": codeID})
 			cd[codeID] = code
