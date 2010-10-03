@@ -230,7 +230,7 @@ class ReportObject(CaselessDict):
 			else:
 				raise ValueError("Property name '%s' unrecognized." % prop)
 
-		if prop in self.AvailableProps:
+		if prop in self:
 			if not evaluate or prop == "type":
 				return self[prop]
 			try:
