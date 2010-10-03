@@ -2254,7 +2254,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				firstRec = {}
 				for field in structure:
 					firstRec[field[0]] = None
-					if not colTypes.has_key(field[0]):
+					if field[0] not in colTypes:
 						colTypes[field[0]] = field[1]
 		else:
 			# not a bizobj datasource
@@ -2301,11 +2301,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				dt = col.DataType = str
 
 			# See if any order was specified
-			if colOrder.has_key(colKey):
+			if colKey in colOrder:
 				col.Order = colOrder[colKey]
 
 			# See if any width was specified
-			if colWidths.has_key(colKey):
+			if colKey in colWidths:
 				col.Width = colWidths[colKey]
 			else:
 				# Use a default width

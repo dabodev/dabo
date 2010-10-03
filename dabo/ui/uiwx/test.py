@@ -103,7 +103,7 @@ class Test(object):
 				print "ImportError:", e
 				continue
 			objname = "_%s_test" % modname
-			if mod.__dict__.has_key(objname):
+			if objname in mod.__dict__:
 				print "Trying to instantiate %s..." % objname
 				try:
 					obj = mod.__dict__[objname](panel)

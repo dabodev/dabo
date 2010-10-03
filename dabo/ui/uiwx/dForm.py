@@ -660,7 +660,7 @@ Database error message: %s""") %	err
 		if not parentBizobj and not dataSource:
 			return self.PrimaryBizobj
 
-		if not parentBizobj and self.bizobjs.has_key(dataSource):
+		if not parentBizobj and dataSource in self.bizobjs:
 			return self.bizobjs[dataSource]
 
 		if isinstance(dataSource, dabo.biz.dBizobj):
@@ -838,7 +838,7 @@ Database error message: %s""") %	err
 		if isinstance(self._primaryBizobj, dabo.biz.dBizobj):
 			bo = self._primaryBizobj
 		else:
-			if self.bizobjs.has_key(self._primaryBizobj):
+			if self._primaryBizobj in self.bizobjs:
 				bo = self.bizobjs[self._primaryBizobj]
 				# Update to bizobj reference
 				self._primaryBizobj = bo

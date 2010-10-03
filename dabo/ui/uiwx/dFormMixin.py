@@ -580,13 +580,13 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		if hasattr(obj, "RegID"):
 			id = obj.RegID
-			if self._objectRegistry.has_key(id):
+			if id in self._objectRegistry:
 				if not isinstance(self._objectRegistry[id], dabo.ui.deadObject):
 					raise KeyError(_("Duplicate RegID '%s' found") % id)
 				else:
 					del self.__dict__[id]
 			self._objectRegistry[id] = obj
-			if hasattr(self, id) or self.__dict__.has_key(id):
+			if hasattr(self, id) or id in self.__dict__:
 				dabo.log.error(_("RegID '%s' conflicts with existing name") % id)
 			else:
 				self.__dict__[id] = obj
@@ -596,7 +596,7 @@ class dFormMixin(pm.dPemMixin):
 		"""Given a RegID value, this will return a reference to the
 		associated object, if any. If not, returns None.
 		"""
-		if self._objectRegistry.has_key(id):
+		if id in self._objectRegistry:
 			return self._objectRegistry[id]
 		else:
 			return None

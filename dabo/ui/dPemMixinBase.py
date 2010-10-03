@@ -75,7 +75,7 @@ class dPemMixinBase(dObject):
 		else:
 			name = defaultName
 
-		if kwargs.has_key("_explicitName"):
+		if "_explicitName" in kwargs:
 			del(kwargs["_explicitName"])
 		return name, _explicitName
 

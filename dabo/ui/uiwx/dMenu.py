@@ -272,8 +272,10 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			return
 		item = self._resolveItem(capIdxOrItem)
 		id_ = item.GetId()
-		if self._daboChildren.has_key(id_):
+		try:
 			del self._daboChildren[id_]
+		except KeyError:
+			pass
 
 		if wx.VERSION >= (2,7):
 			# Needed to keep dPemMixin mixed-in in wxPython 2.8

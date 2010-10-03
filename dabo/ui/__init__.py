@@ -132,7 +132,7 @@ def makeDynamicProperty(prop, additionalDoc=None):
 		if func is None:
 			# For safety and housekeeping, delete the dynamic prop completely,
 			# instead of just setting to None.
-			if self._dynamic.has_key(propName):
+			if propName in self._dynamic:
 				del self._dynamic[propName]
 		else:
 			self._dynamic[propName] = func

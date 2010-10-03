@@ -158,11 +158,11 @@ class ReportObject(CaselessDict):
 			pass
 
 		# 2) Try mapping to a variable (self.ord_amount -> self.Variables["ord_amount"])
-		if self.Variables.has_key(att):
+		if att in self.Variables:
 			return self.Variables.get(att)
 
 		# 3) Try mapping to a field in the dataset (self.ordid -> self.Record["ordid"])
-		if self.Record.has_key(att):
+		if att in self.Record:
 			return self.Record.get(att)
 
 		raise AttributeError("Can't get attribute '%s'." % att)
@@ -220,7 +220,7 @@ class ReportObject(CaselessDict):
 		set up to have the passed prop.
 		"""
 		def getDefault():
-			if self.AvailableProps.has_key(prop):
+			if prop in self.AvailableProps:
 				val = self.AvailableProps[prop]["default"]
 				if not evaluate:
 					# defaults are not stringified:
@@ -229,7 +229,7 @@ class ReportObject(CaselessDict):
 			else:
 				raise ValueError("Property name '%s' unrecognized." % prop)
 
-		if self.has_key(prop):
+		if prop in self.AvailableProps:
 			if not evaluate or prop == "type":
 				return self[prop]
 			try:
@@ -246,7 +246,7 @@ class ReportObject(CaselessDict):
 
 	def setProp(self, prop, val, logUndo=True):
 		"""Update the value of the property."""
-		if not self.AvailableProps.has_key(prop):
+		if prop not in self.AvailableProps:
 			raise ValueError("Property '%s' doesn't exist." % prop)
 		if logUndo:
 			self.Report.reportWriter.storeUndo(self, prop, self.getProp(prop, evaluate=False), val)
@@ -526,9 +526,9 @@ class Group(ReportObject):
 
 
 	def insertRequiredElements(self):
-		if not self.has_key("GroupHeader"):
+		if "GroupHeader" not in self:
 			self["GroupHeader"] = GroupHeader(self)
-		if not self.has_key("GroupFooter"):
+		if "GroupFooter" not in self:
 			self["GroupFooter"] = GroupFooter(parent=self)
 
 
@@ -1581,25 +1581,25 @@ class ReportWriter(object):
 				expr = unicode(expr)
 			s = copy.deepcopy(s)
 
-			if fobject.has_key("fontSize"):
+			if "fontSize" in fobject:
 				s.fontSize = fobject.getProp("fontSize")
 
-			if fobject.has_key("fontName"):
+			if "fontName" in fobject:
 				s.fontName = fobject.getProp("fontName")
 
-			if fobject.has_key("leading"):
+			if "leading" in fobject:
 				s.leading = fobject.getProp("leading")
 
-			if fobject.has_key("spaceAfter"):
+			if "spaceAfter" in fobject:
 				s.spaceAfter = fobject.getProp("spaceAfter")
 
-			if fobject.has_key("spaceBefore"):
+			if "spaceBefore" in fobject:
 				s.spaceBefore = fobject.getProp("spaceBefore")
 
-			if fobject.has_key("leftIndent"):
+			if "leftIndent" in fobject:
 				s.leftIndent = fobject.getProp("leftIndent")
 
-			if fobject.has_key("firstLineIndent"):
+			if "firstLineIndent" in fobject:
 				s.firstLineIndent = fobject.getProp("firstLineIndent")
 
 			if t.lower() == "paragraph":
@@ -2335,7 +2335,7 @@ class ReportWriter(object):
 					obj = {"name": formobj.__class__.__name__, "children": []}
 					props = formobj.keys()
 					props.sort(self._elementSort)
-					if formobj.has_key(element):
+					if element in formobj:
 						# Recurse
 						self._getXMLDictFromForm(formobj, obj)
 					else:
@@ -2401,7 +2401,7 @@ class ReportWriter(object):
 		if formdict is None:
 			formdict = Report(None)
 
-		if xmldict.has_key("children"):
+		if "children" in xmldict:
 			# children with name of "objects", "variables" or "groups" are band
 			# object lists, while other children are sub-dictionaries.
 			for child in xmldict["children"]:
@@ -2410,14 +2410,14 @@ class ReportWriter(object):
 					# to ignore those if present, and make report["TestCursor"] a list of
 					# records.
 					cursor = formdict.addElement(TestCursor)
-					if child.has_key("children"):
+					if "children" in child:
 						for childrecord in child["children"]:
 							cursor.addRecord(childrecord["attributes"])
-				elif child.has_key("cdata"):
+				elif "cdata" in child:
 					formdict[child["name"]] = child["cdata"]
-				elif child.has_key("attributes"):
+				elif "attributes" in child:
 					formdict[child["name"]] = child["attributes"]
-				elif child.has_key("children"):
+				elif "children" in child:
 					if child["name"].lower() in ("objects", "groups", "variables"):
 						coll = child["name"]
 						formdict[coll] = self._getReportObject(coll, formdict)
