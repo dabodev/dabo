@@ -314,7 +314,7 @@ class dCursorMixin(dObject):
 								', '.join("%s" % p for p in params)))
 					except StandardError:
 						# A problem with writing to the log, most likely due to encoding issues
-						dabo.dbActivityLog.info("FAILED SQL: %s")
+						dabo.dbActivityLog.info("FAILED SQL: %r" % sql)
 			else:
 				res = self.superCursor.execute(self, sql)
 				if not self.IsPrefCursor:
@@ -333,15 +333,15 @@ class dCursorMixin(dObject):
 							', '.join("%s" % p for p in params)))
 				except StandardError:
 					# A problem with writing to the log, most likely due to encoding issues
-					dabo.dbActivityLog.info("FAILED SQL: %s")
+					dabo.dbActivityLog.info("FAILED SQL: %r" % sql)
 			else:
 				dabo.dbActivityLog.info("FAILED SQL: %s" % (
 						sql.decode(self.Encoding).replace("\n", " "),))
 			# Database errors need to be decoded from database encoding.
 			try:
-				errMsg = ustr(e).decode(self.Encoding)
+				errMsg = unicode(str(e), self.Encoding)
 			except UnicodeError:
-				errMsg = unicode(e)
+				errMsg = ustr(e)
 			# If this is due to a broken connection, let the user know.
 			# Different backends have different messages, but they
 			# should all contain the string 'connect' in them.

@@ -400,9 +400,9 @@ class BaseForm(fm.dFormMixin):
 			return True
 
 		except (dException.BusinessRuleViolation, dException.DBQueryException), e:
-			self.setStatusText(_("Save failed."))
 			txt = _("Save Failed")
-			msg = "%(txt)s:\n\n%(e)s" % locals()
+			self.setStatusText(txt)
+			msg = "%s:\n\n%s" % (txt, ustr(e))
 			self.notifyUser(msg, severe=True, exception=e)
 			return False
 
@@ -564,8 +564,9 @@ class BaseForm(fm.dFormMixin):
 				self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
 				sys.exit()
 			except dException.dException, e:
-				dabo.log.error(_("Delete failed with response: %s") % e)
-				self.notifyUser(ustr(e), title=_("Deletion Not Allowed"), severe=True, exception=e)
+				msg = ustr(e)
+				dabo.log.error(_("Delete failed with response: %s") % msg)
+				self.notifyUser(msg, title=_("Deletion Not Allowed"), severe=True, exception=e)
 			self.afterDelete()
 		self.update()
 		self.refresh()

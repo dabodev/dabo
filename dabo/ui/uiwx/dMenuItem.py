@@ -7,6 +7,7 @@ import dabo
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
+from dabo.lib.utils import ustr
 
 
 class dMenuItem(pm.dPemMixin, wx.MenuItem):
@@ -67,16 +68,10 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 		if hk:
 			cap = "%s\t%s" % (cap, hk)
 		curr = self.GetText()
-		def toUni(s):
-			if isinstance(s, str):
-				enc = dabo.getEncoding()
-				s = unicode(s, enc)
-			return s
-
 		## pkm: On Windows at least, setting the Icon needs to happen before setting the caption.
 		self.SetBitmap(self.Icon)
 
-		if toUni(cap) != toUni(curr):
+		if ustr(cap) != ustr(curr):
 			## Win32 seems to need to clear the caption first, or funkiness
 			## can arise. And win32 in wx2.8 needs for the caption to never be
 			## an empty string, or you'll get an invalid stock id assertion.

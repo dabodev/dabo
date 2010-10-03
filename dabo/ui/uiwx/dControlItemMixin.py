@@ -355,7 +355,7 @@ class dControlItemMixin(dDataControlMixin):
 				if isinstance(string, basestring):
 					index = self.FindString(string)
 					if index < 0:
-						raise ValueError(_("String must be present in the choices."))
+						raise ValueError(_("String must be present in the choices: '%s'") % string)
 					else:
 						self.setSelection(index)
 				else:

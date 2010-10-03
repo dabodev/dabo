@@ -6,8 +6,8 @@ import locale
 import wx
 import wx.lib.masked as masked
 import dabo.lib.dates
+import dKeys
 from dabo.lib.utils import ustr
-
 import decimal
 numericTypes = (int, long, decimal.Decimal, float)
 valueErrors = (ValueError, decimal.InvalidOperation)
@@ -91,9 +91,8 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		if not self:
 			# The control is being destroyed
 			return
-		keyChar = evt.keyChar
-		if keyChar is not None and (keyChar.isalnum()
-				or keyChar in """,./<>?;':"[]\\{}|`~!@#$%%^&*()-_=+"""):
+		keyCode = evt.keyCode
+		if keyCode >= dKeys.key_Space:
 			dabo.ui.callAfter(self._checkForceCase)
 			dabo.ui.callAfter(self._checkTextLength)
 
@@ -631,7 +630,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 		# Get the string value as reported by wx, which is the up-to-date
 		# string value of the control:
 		if isinstance(self, masked.TextCtrl) and hasattr(self, "_template"):
-			if self.UsePlainValue:
+			if self.ValueMode == "Unmasked":	#No such property UsePlainValue?
 				strVal = self.GetPlainValue()
 			else:
 				strVal = self.GetValue()
@@ -715,10 +714,9 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			if strVal != _oldVal:
 				try:
 					setter(strVal)
-				except ValueError:
+				except ValueError, e:
 					#PVG: maskedtextedit sometimes fails, on value error..allow the code to continue
-					uStrVal = self.Application.str2Unicode(strVal)
-					dabo.log.error(_("Error setting value to '%(uStrVal)s: %(e)s") % locals())
+					dabo.log.error(_("Error setting value to '%s': %s") % (ustr(strVal), ustr(e)))
 
 			if type(_oldVal) != type(val) or _oldVal != val:
 				self._afterValueChanged()

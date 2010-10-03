@@ -284,7 +284,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self.__val = val
 			try:
 				isFile = os.path.exists(val)
-			except TypeError:
+			except (TypeError, UnicodeDecodeError):
 				isFile = False
 			if not isFile:
 				# Probably an image stream

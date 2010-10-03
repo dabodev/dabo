@@ -15,6 +15,7 @@ osp = os.path
 import sys
 import dabo
 from dabo.dLocalize import _
+from locale import getpreferredencoding
 try:
 	from win32com.shell import shell, shellcon
 except ImportError:
@@ -141,15 +142,44 @@ def dictStringify(dct):
 	return ret
 
 
-def ustr(val):
+def getEncodings():
+	encodings = (dabo.getEncoding(), getpreferredencoding(), "iso8859-1", "iso8859-15", "cp1252", "utf-8")
+	for enc in encodings:
+		yield enc
+
+
+def ustr(value):
 	"""When converting to a string, do not use the str() function, which
 	can create encoding errors with non-ASCII text.
 	"""
+	if isinstance(value, unicode):
+		return value
+	if isinstance(value, Exception):
+		return exceptionToUnicode(value)
 	try:
-		return "%s" % val
-	except TypeError:
-		# tuples
-		return val.__repr__()
+		return unicode(value)
+	except:
+		pass
+	for ln in getEncodings():
+		try:
+			return unicode(value, ln)
+		except:
+			pass
+	raise UnicodeError("Unable to convert '%r'." % value)
+
+
+def exceptionToUnicode(e):
+	# Handle DBQueryException first.
+	if hasattr(e, "err_desc"):
+		return ustr(e.err_desc)
+	if hasattr(e, "message"):
+		return ustr(e.message)
+	if hasattr(e, "args"):
+		return "\n".join((ustr(a) for a in e.args))
+	try:
+		return ustr(e)
+	except:
+		return u"Unknow message."
 
 
 def relativePathList(toLoc, fromLoc=None):
