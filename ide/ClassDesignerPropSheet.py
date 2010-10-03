@@ -257,9 +257,6 @@ class PropSheet(dabo.ui.dPanel):
 					ro = propInfo["readonly"]
 					if callable(ro):
 						ro = ro(ob)
-						print "CALL", prop, ro
-					if prop == "Mask":
-						print "MASK RO", ro
 					rec["readonly"] = ro
 
 					if mult:
@@ -921,7 +918,6 @@ class PropertyGrid(dabo.ui.dGrid):
 
 	Handler = property(_getHandler, _setHandler, None,
 			_("Target object to handle events for this grid  (PropSheet)"))
-
 
 
 
