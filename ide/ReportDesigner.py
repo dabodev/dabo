@@ -65,7 +65,7 @@ def DesignerController():
 			def isRecord(name):
 				if (name and ("TestCursor" in rdc.ReportForm)
 						and rdc.ReportForm["TestCursor"]
-						and (typ in parent)):
+						and (name in rdc.ReportForm["TestCursor"][0])):
 					return True
 				return False
 
