@@ -201,6 +201,9 @@ dbLogDateFormat = "%Y-%m-%d %H:%M:%S"
 dbConsoleFormat = dbFileFormat = "%(asctime)s - %(levelname)s - %(message)s"
 dbMaxLogFileSize = 5242880		# 5 MB
 
+# Report fonts configuration.
+reportTTFontFilePath = None
+reportTTFontFileMap = {}
 
 ### Settings - end
 

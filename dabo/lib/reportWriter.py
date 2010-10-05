@@ -56,6 +56,10 @@ from dabo.dLocalize import _
 from dabo.lib.caselessDict import CaselessDict
 from reportlab.lib.utils import ImageReader
 from dabo.lib.utils import ustr, resolvePathAndUpdate
+from reportlab.pdfbase.pdfmetrics import registerFont
+from reportlab.pdfbase.ttfonts import TTFont, TTFError
+from reportlab.pdfbase.pdfmetrics import getRegisteredFontNames
+from reportlab.rl_config import TTFSearchPath
 import Image as PILImage
 import reportUtils
 
@@ -71,6 +75,28 @@ if False:
 		ParaClass = platypus.Paragraph
 else:
 	ParaClass = platypus.Paragraph
+
+
+def addReportTTFontFilePath(paths):
+	if isinstance(paths, basestring):
+		paths = (paths,)
+	for path in paths:
+		TTFSearchPath.append(path)
+
+
+if dabo.reportTTFontFilePath:
+	addReportTTFontFilePath(dabo.reportTTFontFilePath)
+
+
+def addReportTTFontFilePath(paths):
+	if isinstance(paths, basestring):
+		paths = (paths,)
+	for path in paths:
+		TTFSearchPath.append(path)
+
+
+if dabo.reportTTFontFilePath:
+	addReportTTFontFilePath(dabo.reportTTFontFilePath)
 
 
 ## Can't use None for uninitialized group values, because None
@@ -108,7 +134,29 @@ class PageCountCanvas(canvas.Canvas):
 		# callback to the rw to draw the cached pagecount strings
 		self.__rw.drawPageCounts(page, len(self.__saved_page_states))
 
+	def setFont(self, psfontname, size, leading=None):
+		if psfontname not in getRegisteredFontNames():
+			if psfontname in dabo.reportTTFontFileMap:
+				psfontfile = dabo.reportTTFontFileMap[psfontname]
+			else:
+				psfontfile = "%s.ttf" % psfontname
+			try:
+				registerFont(TTFont(psfontname, psfontfile))
+			except TTFError:
+				dabo.log.info(_("Font file can not be found: %s") % psfontfile)
+		canvas.Canvas.setFont(self, psfontname, size, leading)
 
+	def setFont(self, psfontname, size, leading=None):
+		if psfontname not in getRegisteredFontNames():
+			if psfontname in dabo.reportTTFontFileMap:
+				psfontfile = dabo.reportTTFontFileMap[psfontname]
+			else:
+				psfontfile = "%s.ttf" % psfontname
+			try:
+				registerFont(TTFont(psfontname, psfontfile))
+			except TTFError:
+				dabo.log.info(_("Font file can not be found: %s") % psfontfile)
+		canvas.Canvas.setFont(self, psfontname, size, leading)
 
 class ReportObjectCollection(list):
 	"""Abstract ordered list of things like variables, groups, and band objects."""
@@ -1330,13 +1378,18 @@ class ReportWriter(object):
 				s = obj.getProp("expr", returnException=True)
 
 			if s is None:
-				s = self.NoneDisplay
-			if isinstance(s, basestring):
+				s = self.NoneDisplay 
+			if isinstance(s, unicode):
+				pass
+			elif isinstance(s, str):
 				try:
-					s = s.encode(self.Encoding)
+					s = unicode(s, "utf-8")
 				except UnicodeDecodeError:
-					# s must have already been encoded, and the default encoding is ascii.
-					pass
+					try:
+						s = unicode(s, self.Encoding)
+					except UnicodeDecodeError:
+						# s must have already been encoded, and the default encoding is ascii.
+						pass
 			else:
 				s = unicode(s)
 			func(posx, 0, s)
@@ -2543,7 +2596,7 @@ class ReportWriter(object):
 			except AttributeError:
 				ret = _("< None >")
 		return ret
- 
+
 	def _setNoneDisplay(self, val):
 		self._noneDisplay = val
 
