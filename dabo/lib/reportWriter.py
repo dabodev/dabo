@@ -48,6 +48,7 @@ import reportlab.lib.units as units
 import reportlab.lib.styles as styles
 import reportlab.platypus as platypus
 #import reportlab.lib.colors as colors
+import dabo
 from dabo import getEncoding
 from dabo.lib.xmltodict import xmltodict
 from dabo.lib.xmltodict import dicttoxml
@@ -1328,6 +1329,8 @@ class ReportWriter(object):
 			else:
 				s = obj.getProp("expr", returnException=True)
 
+			if s is None:
+				s = self.NoneDisplay
 			if isinstance(s, basestring):
 				try:
 					s = s.encode(self.Encoding)
@@ -2532,6 +2535,19 @@ class ReportWriter(object):
 		self._homeDirectory = val
 
 
+	def _getNoneDisplay(self):
+		ret = getattr(self, "_noneDisplay", None)
+		if ret is None:
+			try:
+				ret = dabo.dAppRef.NoneDisplay
+			except AttributeError:
+				ret = _("< None >")
+		return ret
+ 
+	def _setNoneDisplay(self, val):
+		self._noneDisplay = val
+
+
 	def _getPrintStatus(self):
 		try:
 			v = self._printStatus
@@ -2703,6 +2719,12 @@ class ReportWriter(object):
 		HomeDirectory if specified with relative pathing. The HomeDirectory should
 		be the directory that contains the report form file. If you set
 		self.ReportFormFile, HomeDirectory will be set for you automatically."""))
+
+	NoneDisplay = property(_getNoneDisplay, _setNoneDisplay, None,
+		_("""Specifies the string displayed if Value is None  (str or None)
+
+		If None, self.Application.NoneDisplay will be used. If there's no 
+		instantiated dApp, then "< None >" will be used."""))
 
 	PrintStatus = property(_getPrintStatus, _setPrintStatus, None,
 		_("""Specifies whether status info is printed to stdout."""))
