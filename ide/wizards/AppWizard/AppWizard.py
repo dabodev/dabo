@@ -662,8 +662,9 @@ class AppWizard(Wizard):
 			os.chmod('go.sh',stat.S_IRWXU )  ## rwx for user, nothing else.
 
 			## Create the manifest file (for xp theme support):
+			enc = dabo.getEncoding()
 			pth = os.path.join(self.wizDir, "spec-main.exe.manifest")
-			txt = open(pth).read() % dabo.getEncoding()
+			txt = open(pth).read() % locals()
 			open("./%s.exe.manifest" % appName, "w").write(txt)
 
 			## Create App.py:
