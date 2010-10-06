@@ -2420,7 +2420,7 @@ class ReportWriter(object):
 -->
 
 
-""" % getEncoding()
+""" % "utf-8"  ## getEncoding()
 		return os.linesep.join(header.splitlines())
 
 
