@@ -56,9 +56,8 @@ from dabo.dLocalize import _
 from dabo.lib.caselessDict import CaselessDict
 from reportlab.lib.utils import ImageReader
 from dabo.lib.utils import ustr, resolvePathAndUpdate
-from reportlab.pdfbase.pdfmetrics import registerFont
+from reportlab.pdfbase.pdfmetrics import registerFont, getRegisteredFontNames
 from reportlab.pdfbase.ttfonts import TTFont, TTFError
-from reportlab.pdfbase.pdfmetrics import getRegisteredFontNames
 from reportlab.rl_config import TTFSearchPath
 import Image as PILImage
 import reportUtils
@@ -75,17 +74,6 @@ if False:
 		ParaClass = platypus.Paragraph
 else:
 	ParaClass = platypus.Paragraph
-
-
-def addReportTTFontFilePath(paths):
-	if isinstance(paths, basestring):
-		paths = (paths,)
-	for path in paths:
-		TTFSearchPath.append(path)
-
-
-if dabo.reportTTFontFilePath:
-	addReportTTFontFilePath(dabo.reportTTFontFilePath)
 
 
 def addReportTTFontFilePath(paths):
@@ -119,9 +107,11 @@ class PageCountCanvas(canvas.Canvas):
 		self.__rw = rw
 		self.__saved_page_states = []
 
+
 	def showPage(self):
 		self.__saved_page_states.append(dict(self.__dict__))
 		self._startPage()
+
 
 	def showPages(self):
 		for idx, state in enumerate(self.__saved_page_states):
@@ -130,21 +120,11 @@ class PageCountCanvas(canvas.Canvas):
 			canvas.Canvas.showPage(self)
 		self.__saved_page_states = []
 
+
 	def drawPageCounts(self, page):
 		# callback to the rw to draw the cached pagecount strings
 		self.__rw.drawPageCounts(page, len(self.__saved_page_states))
 
-	def setFont(self, psfontname, size, leading=None):
-		if psfontname not in getRegisteredFontNames():
-			if psfontname in dabo.reportTTFontFileMap:
-				psfontfile = dabo.reportTTFontFileMap[psfontname]
-			else:
-				psfontfile = "%s.ttf" % psfontname
-			try:
-				registerFont(TTFont(psfontname, psfontfile))
-			except TTFError:
-				dabo.log.info(_("Font file can not be found: %s") % psfontfile)
-		canvas.Canvas.setFont(self, psfontname, size, leading)
 
 	def setFont(self, psfontname, size, leading=None):
 		if psfontname not in getRegisteredFontNames():
@@ -157,6 +137,8 @@ class PageCountCanvas(canvas.Canvas):
 			except TTFError:
 				dabo.log.info(_("Font file can not be found: %s") % psfontfile)
 		canvas.Canvas.setFont(self, psfontname, size, leading)
+
+
 
 class ReportObjectCollection(list):
 	"""Abstract ordered list of things like variables, groups, and band objects."""
