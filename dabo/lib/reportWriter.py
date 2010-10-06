@@ -1948,7 +1948,7 @@ class ReportWriter(object):
 						self.being_deferred = False
 						beginPage()
 						y = pageHeaderOrigin[1]
-						y = reprintGroupHeaders(bandDict, y)
+						y = reprintGroupHeaders(group, bandDict, y)
 						headers_reprinted = True
 					else:
 						# Move to next column
@@ -2112,14 +2112,15 @@ class ReportWriter(object):
 			self.Canvas.showPage()
 
 
-		def reprintGroupHeaders(bandDict, y):
+		def reprintGroupHeaders(currentGroup, bandDict, y):
 			self = bandDict  ## to allow "self" references from groupHeader object
 			for group in groups:
 				reprint = group.get("ReprintHeaderOnNewPage")
 				if reprint is not None:
 					reprint = eval(reprint)
 				if reprint:
-					y = printBand("groupHeader", y, group)
+					if currentGroup != group:  ## avoid printing twice
+						y = printBand("groupHeader", y, group)
 				else:
 					# Even though we aren't reprinting this header, we still need to restart
 					# any spanning objects which would have been closed at the end of the
