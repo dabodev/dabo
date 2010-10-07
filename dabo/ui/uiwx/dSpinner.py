@@ -56,6 +56,8 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 		self.Sizer.append(self._proxy_spinner, "expand", valign="middle")
 		self.layout()
 
+		self.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
+
 		# Because several properties could not be set until after the child
 		# objects were created, we need to manually call _setProperties() here.
 		self._properties["NameBase"] = nm
@@ -77,6 +79,9 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 		self._rerestoreValue()
 		dabo.ui.callAfter(self.layout)
 
+	def __onWxDestroy(self, evt):
+		# This doesn't otherwise happen
+		self.raiseEvent(dabo.dEvents.Destroy)
 
 	def _rerestoreValue(self):
 		# Hack because when restoreValue() was originally called in onCreate,
@@ -85,7 +90,6 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 			self.restoreValue()
 			# Additionally, if the user never changes the Value, _value will be None:
 			self._value = self.Value
-
 
 	def _constructed(self):
 		"""Returns True if the ui object has been fully created yet, False otherwise."""
