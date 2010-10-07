@@ -153,6 +153,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			else:
 				self.Value = srcatt
 			self._inDataUpdate = False
+		self._oldVal = self.Value
 
 
 	def select(self, position, length):
@@ -205,7 +206,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		##- #if oldVal is None and curVal is None:
 		##-	# Could be changed and we just don't know it...
 		##- #	isChanged = True
-		if isinstance(self, (dabo.ui.dToggleButton, dabo.ui.dDropdownList)):
+		if isinstance(self, (dabo.ui.dToggleButton, )):
 			# These classes change their value before the GotFocus event
 			# can store the oldval, so always flush 'em.
 			oldVal = None
