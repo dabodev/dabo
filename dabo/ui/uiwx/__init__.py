@@ -327,9 +327,7 @@ def callEvery(interval, func, *args, **kwargs):
 def yieldUI(_safe=False, *args, **kwargs):
 	"""Yield to other apps/messages."""
 	if _safe:
-		while wx.GetApp().Pending():
-			wx.GetApp().Dispatch()
-			wx.GetApp().Yield(True)
+		wx.YieldIfNeeded(*args, **kwargs)
 	else:
 		wx.Yield(*args, **kwargs)
 
