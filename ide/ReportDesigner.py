@@ -2032,7 +2032,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 					return False
 		self._fileName = fileSpec
 		xml = self._rw._getXMLFromForm(self._rw.ReportForm)
-		file(fileSpec, "wb").write(xml.encode(dabo.getEncoding()))
+		file(fileSpec, "wb").write(xml.encode("utf-8"))
 		self._rw._setMemento()
 		self.setCaption()
 
