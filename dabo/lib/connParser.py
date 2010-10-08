@@ -98,12 +98,12 @@ def importConnections(pth=None, useHomeDir=False):
 	return ret
 
 
-def createXML(cxns):
+def createXML(cxns, encoding=None):
 	""" Returns the XML for the passed connection info. The info
 	can either be a single dict of connection info, or a list/tuple of
 	such dicts.
 	"""
-	ret = getXMLWrapper()
+	ret = getXMLWrapper(encoding=encoding)
 	cxml = ""
 	if isinstance(cxns, (list, tuple)):
 		for cx in cxns:
@@ -150,7 +150,9 @@ def fileRef(ref=""):
 	return ret
 
 
-def getXMLWrapper():
+def getXMLWrapper(encoding=None):
+	if encoding is None:
+		encoding = dabo.getXMLEncoding()
 	return """<?xml version="1.0" encoding="%s" standalone="yes"?>
 <connectiondefs xmlns="http://www.dabodev.com"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -160,7 +162,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/conn.xsd">
 %s
 
 </connectiondefs>
-""" % (dabo.getEncoding(), "%s")
+""" % (encoding, "%s")
 
 
 def getConnTemplate():

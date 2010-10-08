@@ -662,7 +662,6 @@ class AppWizard(Wizard):
 			os.chmod('go.sh',stat.S_IRWXU )  ## rwx for user, nothing else.
 
 			## Create the manifest file (for xp theme support):
-			enc = dabo.getEncoding()
 			pth = os.path.join(self.wizDir, "spec-main.exe.manifest")
 			txt = open(pth).read() % locals()
 			open("./%s.exe.manifest" % appName, "w").write(txt)
@@ -1066,7 +1065,7 @@ class AppWizard(Wizard):
 				"database" : ci.Database, "user" : ci.User,
 				"password" : ci.Password, "port" : ci.Port,
 				"name" : ci.Name}
-		return createXML(cxnDict)
+		return createXML(cxnDict, encoding="utf-8")
 
 
 	def getBaseBizobj(self):
@@ -1148,7 +1147,6 @@ class AppWizard(Wizard):
 
 
 	def getSampleReport(self):
-		enc = dabo.getEncoding()
 		return open(os.path.join(self.wizDir,
 				"spec-sampleReport.rfxml")).read() % locals()
 

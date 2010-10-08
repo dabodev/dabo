@@ -113,10 +113,11 @@ data_files.extend(locales)
 if sys.platform.startswith("win"):
 	options = {"py2exe":
 			{"packages": ["encodings", "wx", "ui", "biz", "db"],
-				#"optimize": 1, #compressed: 1,
+				"optimize": 2, "compressed": 1,
 				"excludes": ["Tkconstants", "Tkinter", "tcl",
 						"_imagingtk", "PIL._imagingtk",
 						"ImageTk", "PIL.ImageTk", "FixTk"],
+				"dll_excludes": ["msvcp90.dll"],
 				"typelibs" : [('{EAB22AC0-30C1-11CF-A7EB-0000C05BAE0B}', 0, 1, 1)]
 			}}
 

@@ -144,6 +144,14 @@ def getEncoding():
 		ret = defaultEncoding
 	return ret
 
+def getXMLEncoding():
+	ret = getEncoding()
+	if ret.lower().strip().replace("-", "") == "utf8":
+		return "utf-8"
+	if "1252" in ret:
+		return "windows-1252"
+	return ret
+
 
 # These are the various standard log handlers.
 consoleLogHandler = fileLogHandler = None
