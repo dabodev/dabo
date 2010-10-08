@@ -22,6 +22,7 @@ class dReportProgress(dPanel):
 		ms.append(butCancel, alignment="right")
 		self.Visible = False
 
+
 	def show(self):
 		self.oldCancel = self.Form.FindWindowById(wx.ID_CANCEL)
 		if self.oldCancel:
@@ -34,6 +35,7 @@ class dReportProgress(dPanel):
 		self.setFocus()  ## Ensures a pressed 'esc' will register on our cancel button
 		self.Visible = True
 
+
 	def hide(self):
 		self.Visible = False
 		self.oldFocus.setFocus()  ## Let 'esc' register on the form instead of our cancel button
@@ -44,15 +46,21 @@ class dReportProgress(dPanel):
 				self.oldCancel.Enabled = True
 			self.oldCancel.CancelButton = True
 
+
 	def updateProgress(self, val, range_):
 		self.gauge.Range = range_
 		self.gauge.Value = val
 		self.gauge.refresh()
 
+
 	def onCancel(self, evt):
 		evt.stop()  ## keep dialogs from automatically being closed.
 		if not self.Visible:
 			return
+		self.cancel()
+
+
+	def cancel(self):
 		self.ProcessObject.cancel()
 
 
