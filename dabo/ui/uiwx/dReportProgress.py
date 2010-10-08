@@ -14,13 +14,12 @@ class dReportProgress(dPanel):
 	def afterInit(self):
 		ms = self.Sizer = dabo.ui.dBorderSizer(self, "v", DefaultBorder=5)
 		self.gauge = dGauge(self, Size=(75,12))
-		lblTitle = dLabel(self, Caption="Processing report...", FontBold=True)
+		lblTitle = dLabel(self, Name="lblTitle", Caption="", FontBold=True)
 		butCancel = dButton(self, Name="butCancelReportProgress", CancelButton=False,
 				Caption="Cancel", Enabled=False, OnHit=self.onCancel)
 		ms.append(lblTitle)
 		ms.append(self.gauge, "expand")
 		ms.append(butCancel, alignment="right")
-		self.fitToSizer()
 		self.Visible = False
 
 	def show(self):
@@ -42,8 +41,8 @@ class dReportProgress(dPanel):
 				self.oldCancel.Enabled = True
 			self.oldCancel.CancelButton = True
 
-	def updateProgress(self, val, range):
-		self.gauge.Range = range
+	def updateProgress(self, val, range_):
+		self.gauge.Range = range_
 		self.gauge.Value = val
 		self.gauge.refresh()
 
@@ -51,16 +50,30 @@ class dReportProgress(dPanel):
 		evt.stop()  ## keep dialogs from automatically being closed.
 		if not self.Visible:
 			return
-		self.ReportWriter.cancel()
+		self.ProcessObject.cancel()
 
 
-	def _getReportWriter(self):
-		self._reportWriter = getattr(self, "_reportWriter", None)
-		return self._reportWriter
+	def _getCaption(self):
+		return self.lblTitle.Caption
 
-	def _setReportWriter(self, val):
-		self._reportWriter = val
+	def _setCaption(self, val):
+		self.lblTitle.Caption = val
+		self.fitToSizer()
 
-	ReportWriter = property(_getReportWriter, _setReportWriter, None,
-			_("""Specifies the dReportWriter instance."""))
+
+	def _getProcessObject(self):
+		self._processObject = getattr(self, "_processObject", None)
+		return self._processObject
+
+	def _setProcessObject(self, val):
+		self._processObject = val
+
+
+
+	Caption = property(_getCaption, _setCaption, None,
+			_("""Specifies the caption of the progress bar."""))
+
+	ProcessObject = property(_getProcessObject, _setProcessObject, None,
+			_("""Specifies the object that is processing (a dReportWriter instance, for example)."""))
+
 

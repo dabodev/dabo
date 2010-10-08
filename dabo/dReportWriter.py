@@ -45,6 +45,7 @@ class dReportWriter(dObject, ReportWriter):
 	def _showProgress(self):
 		win = self.ProgressControl
 		if win:
+			win.Caption = "Processing Report..."
 			win.updateProgress(0, len(self.Cursor))
 			win.show()
 			win.Form.fitToSizer()
