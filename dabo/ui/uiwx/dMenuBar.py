@@ -40,6 +40,12 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		evt.Skip()
 
 
+	def update(self):
+		for menu in self.Children:
+			menu._setDynamicEnabled()
+		super(dMenuBar, self).update()
+
+
 	def appendMenu(self, menu):
 		"""Inserts a dMenu at the end of the dMenuBar."""
 		ret = self.Append(menu, menu.Caption)
