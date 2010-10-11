@@ -1422,6 +1422,7 @@ try again when it is running.
 						# Give up... just assume the current directory.
 						hd = os.getcwd()
 					if calledScript:
+						calledScript = os.path.realpath(calledScript)
 						if calledScript.startswith("./"):
 							calledScript = calledScript.lstrip("./")
 						scriptDir = os.path.realpath(os.path.split(os.path.join(os.getcwd(), calledScript))[0])
