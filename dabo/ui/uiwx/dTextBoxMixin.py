@@ -156,6 +156,49 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		self._inForceCase = False
 
 
+	def charsBeforeCursor(self, num=None, includeSelectedText=False):
+		"""Returns the characters immediately before the current InsertionPoint,
+		or, if there is selected text, before the beginning of the current
+		selection. By default, it will return one character, but you can specify
+		a greater number to be returned. If there is selected text, and
+		includeSelectedText is True, this will return the string consisting of
+		the characters before plus the selected text.
+		"""
+		if num is None:
+			num = 1
+		return self._substringByRange(before=num, includeSelectedText=includeSelectedText)
+
+
+	def charsAfterCursor(self, num=None, includeSelectedText=False):
+		"""Returns the characters immediately after the current InsertionPoint,
+		or, if there is selected text, before the end of the current selection.
+		By default, it will return one character, but you can specify a greater
+		number to be returned.
+		"""
+		if num is None:
+			num = 1
+		return self._substringByRange(after=num, includeSelectedText=includeSelectedText)
+
+
+	def _substringByRange(self, before=0, after=0, includeSelectedText=False):
+		"""Handles the substring calculation for the chars[Before|After]Cursor()
+		methods.
+		"""
+		start, end = self.GetSelection()
+		ret = ""
+		if before:
+			if includeSelectedText:
+				ret = self.GetRange(max(0, start - before), end)
+			else:
+				ret = self.GetRange(max(0, start - before), start)
+		else:
+			if includeSelectedText:
+				ret = self.GetRange(start, end + after)
+			else:
+				ret = self.GetRange(end, end + after)
+		return ret
+
+
 	# property get/set functions
 	def _getAlignment(self):
 		if self._hasWindowStyleFlag(wx.TE_RIGHT):
