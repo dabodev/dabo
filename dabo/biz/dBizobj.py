@@ -720,6 +720,9 @@ class dBizobj(dObject):
 		the first record to the last, and returns the current record number.
 		You may call the iterator's reverse() method before beginning
 		iteration in order to iterate from the last record back to the first.
+
+		Note that the bizobj will remain on the last (or first, if reverse() 
+		is True) record after the iteration is complete.
 		"""
 		return _bizIterator(self)
 
@@ -730,6 +733,9 @@ class dBizobj(dObject):
 		of the record for the current iteration. You may call the iterator's
 		reverse() method before beginning iteration in order to iterate from
 		the last record back to the first.
+
+		Note that the bizobj will remain on the last (or first, if reverse() 
+		is True) record after the iteration is complete.
 		"""
 		return _bizIterator(self, returnRecords=True)
 
