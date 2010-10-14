@@ -329,7 +329,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			# Add option to delete the page or the entire pageframe
 			pop.prependSeparator()
 			sepAdded =True
-			pop.prepend(_("Delete the entire Paged Control"), self.Parent.onDelete)
+			pop.prepend(_("Delete the entire Paged Control"), OnHit=self.Parent.onDelete)
 			pop.prepend(_("Delete this Page"), OnHit=self.onDelete)
 
 		if isinstance(self, dui.dTreeView):
@@ -785,15 +785,10 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"SortOnHeaderClick": {"type": bool, "readonly": False},
 				"ValueColumn": {"type": int, "readonly": False},
 				"VerticalRules": {"type": bool, "readonly": False}}
-		
-		def haz_format(self):
-			# Cannot edit the Mask property when Format is set to something
-			return bool(self.Format)
-
 		maskedTextBoxProps = {"Format": {"type": list, "readonly": False,
 						"values": [""]+dui.dMaskedTextBox.getFormats()},
-				"InputCodes": {"type": unicode, "readonly": False},
-				"Mask": {"type": unicode, "readonly": haz_format},
+				"InputCodes": {"type": unicode, "readonly": lambda self: bool(self.Format)},
+				"Mask": {"type": unicode, "readonly": lambda self: bool(self.Format)},
 				"ValueMode": {"type": list, "readonly": False,
 					"values": ["Masked", "Unmasked"]}}
 		multiSelectProps = {"MultipleSelect": {"type": bool, "readonly": False}}
