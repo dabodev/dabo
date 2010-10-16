@@ -11,19 +11,32 @@ class TestPanel(dabo.ui.dPanel):
 				DefaultBorderLeft=True)
 		sz.appendSpacer(25)
 
-		lbl = dabo.ui.dLabel(self, Alignment="Center", Width=400, WordWrap=True)
+		lbl = dabo.ui.dLabel(self, Alignment="Center", ForeColor="darkblue",
+				Width=500, WordWrap=True)
+		lbl.FontSize -= 3
 		lbl.Caption = "Below are three dBitmapButtons. They will normally " + \
 				"display the Ace of Spades, but when the mouse hovers over them, their " + \
 				"normal image will be the Ace of Hearts. If you click on them, the image " + \
 				"will change to the King of Spades for as long as you hold the mouse down."
-		sz.append(lbl, halign="center")
-		if self.Application.Platform == "Mac":
-			lbl = dabo.ui.dLabel(self, FontItalic=True,
-					Caption="These effects don't display on Mac OS X, unfortunately")
-			lbl.FontSize -= 2
-			sz.appendSpacer(5)
-			sz.append(lbl, halign="center")
-		sz.appendSpacer(10)
+		bsz = dabo.ui.dBorderSizer(self, "v")
+		bsz.append(lbl, 1, halign="center")
+		# This is the proportion used for the section with the cards.
+		bottomWeight = 4
+		plat = self.Application.Platform
+		if plat == "Mac":
+			cap = "These effects don't display on Mac OS X, unfortunately"
+		elif plat == "GTK":
+			cap = "Some of these effects don't display correctly on Gtk"
+		else:
+			cap = ""
+		if cap:
+			bottomWeight -= 3
+			lbl = dabo.ui.dLabel(self, FontItalic=True, Caption=cap)
+			lbl.FontSize -= 4
+			bsz.appendSpacer(5)
+			bsz.append(lbl, halign="center")
+		sz.append(bsz, 1, halign="center")
+		sz.appendSpacer(20)
 
 		hsz = dabo.ui.dSizer("h")
 		btn = dabo.ui.dBitmapButton(self, Picture="media/cards/small/s1.png",
@@ -45,7 +58,8 @@ class TestPanel(dabo.ui.dPanel):
 		btn.bindEvent(dEvents.Hit, self.onButtonHit)
 		hsz.append(btn)
 
-		sz.append(hsz, halign="center")
+		sz.append(hsz, 3, halign="center")
+		sz.layout()
 
 
 	def onButtonHit(self, evt):

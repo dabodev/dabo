@@ -24,6 +24,8 @@ class TestPanel(dabo.ui.dPanel):
 		self.Form.logit(_("Selected Text: %s") % self.edt.SelectedText)
 		self.Form.logit(_("Selection Start position: %s") % self.edt.SelectionStart)
 		self.Form.logit(_("Selection End position: %s") % self.edt.SelectionEnd)
+		self.Form.logit(_("Character before InsertionPoint: %s") % self.edt.charsBeforeCursor())
+		self.Form.logit(_("Character after InsertionPoint: %s") % self.edt.charsAfterCursor())
 
 
 
