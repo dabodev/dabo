@@ -2023,7 +2023,7 @@ class ReportWriter(object):
 				else:
 					y1 = y + y1
 
-				if obj.__class__.__name__ in ("String",) and "self.PageCount" in obj.get("expr", None):
+				if obj.__class__.__name__ in ("String",) and "self.PageCount" in obj.get("expr", ""):
 					# We'll stuff the pagecount in later (when we know the value), but we still
 					# must evaluate the rest of the expression now, because it could be dependent
 					# on whatever the current record or page number is.
