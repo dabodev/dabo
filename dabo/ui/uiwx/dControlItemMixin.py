@@ -5,7 +5,9 @@ import dabo.dEvents as dEvents
 from dDataControlMixin import dDataControlMixin
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
+from dabo.lib.propertyHelperMixin import _DynamicList
 from dabo.ui import makeDynamicProperty
+
 
 
 class dControlItemMixin(dDataControlMixin):
@@ -121,7 +123,7 @@ class dControlItemMixin(dDataControlMixin):
 			_choices = self._choices
 		except AttributeError:
 			_choices = self._choices = []
-		return _choices
+		return _DynamicList(_choices, self)
 
 
 	def _setChoices(self, choices):

@@ -333,3 +333,111 @@ class PropertyHelperMixin(object):
 	getPropertyInfo = classmethod(getPropertyInfo)
 
 
+
+class _DynamicList(list):
+	"""Helper class for list-based properties, such as the 'Choices' property of 
+	list-type controls. This wraps the regular Python list object, but in addition
+	also propagates changes to the control, so that code like this:
+	
+		control.Choices.append("Something")
+			- or -
+		control.Choices.sort()
+	
+	will modify the choices in the control, as most users would expect.
+	"""
+	def __init__(self, seq, obj, propname=None):
+		self._object = obj
+		if propname is None:
+			propname = "Choices"
+		self._setter = getattr(obj.__class__, propname).fset
+		super(_DynamicList, self).__init__(seq)
+
+
+	def _updateControl(self):
+		self._setter(self._object, self)
+
+
+	def __add__(self, val):
+		ret = super(_DynamicList, self).__add__(val)
+		self._updateControl()
+		return ret
+
+
+	def __delitem__(self, val):
+		ret = super(_DynamicList, self).__delitem__(val)
+		self._updateControl()
+		return ret
+
+
+	def __delslice__(self, i, j):
+		ret = super(_DynamicList, self).__delslice__(i, j)
+		self._updateControl()
+		return ret
+
+
+	def __iadd__(self, val):
+		ret = super(_DynamicList, self).__iadd__(val)
+		self._updateControl()
+		return ret
+
+
+	def __imul__(self, val):
+		ret = super(_DynamicList, self).__imul__(val)
+		self._updateControl()
+		return ret
+
+
+	def __setitem__(self, i, val):
+		ret = super(_DynamicList, self).__setitem__(i, val)
+		self._updateControl()
+		return ret
+
+
+	def __setslice__(self, i, j, val):
+		ret = super(_DynamicList, self).__setslice__(i, j, val)
+		self._updateControl()
+		return ret
+
+
+	def append(self, val):
+		ret = super(_DynamicList, self).append(val)
+		self._updateControl()
+		return ret
+
+
+	def extend(self, iterable):
+		ret = super(_DynamicList, self).extend(iterable)
+		self._updateControl()
+		return ret
+
+
+	def insert(self, i, val):
+		ret = super(_DynamicList, self).insert(i, val)
+		self._updateControl()
+		return ret
+
+
+	def pop(self, i=None):
+		if i is None:
+			i = len(self) - 1
+		ret = super(_DynamicList, self).pop(i)
+		self._updateControl()
+		return ret
+
+
+	def remove(self, val):
+		ret = super(_DynamicList, self).remove(val)
+		self._updateControl()
+		return ret
+
+
+	def reverse(self):
+		ret = super(_DynamicList, self).reverse()
+		self._updateControl()
+		return ret
+
+
+	def sort(self, cmp=None, key=None, reverse=False):
+		ret = super(_DynamicList, self).sort(cmp, key, reverse)
+		self._updateControl()
+		return ret
