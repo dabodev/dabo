@@ -19,9 +19,7 @@ class TestPanel(dabo.ui.dPanel):
 				"normal image will be the Ace of Hearts. If you click on them, the image " + \
 				"will change to the King of Spades for as long as you hold the mouse down."
 		bsz = dabo.ui.dBorderSizer(self, "v")
-		bsz.append(lbl, 1, halign="center")
-		# This is the proportion used for the section with the cards.
-		bottomWeight = 4
+		bsz.append(lbl, halign="center")
 		plat = self.Application.Platform
 		if plat == "Mac":
 			cap = "These effects don't display on Mac OS X, unfortunately"
@@ -30,12 +28,11 @@ class TestPanel(dabo.ui.dPanel):
 		else:
 			cap = ""
 		if cap:
-			bottomWeight -= 3
 			lbl = dabo.ui.dLabel(self, FontItalic=True, Caption=cap)
 			lbl.FontSize -= 4
 			bsz.appendSpacer(5)
 			bsz.append(lbl, halign="center")
-		sz.append(bsz, 1, halign="center")
+		sz.append(bsz, halign="center")
 		sz.appendSpacer(20)
 
 		hsz = dabo.ui.dSizer("h")
@@ -58,7 +55,7 @@ class TestPanel(dabo.ui.dPanel):
 		btn.bindEvent(dEvents.Hit, self.onButtonHit)
 		hsz.append(btn)
 
-		sz.append(hsz, 3, halign="center")
+		sz.append(hsz, halign="center")
 		sz.layout()
 
 
