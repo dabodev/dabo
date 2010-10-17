@@ -715,29 +715,31 @@ class dBizobj(dObject):
 		return self._CurrentCursor.getRecordStatus(rownum)
 
 
-	def bizIterator(self):
+	def bizIterator(self, reversed=False, restorePointer=False):
 		"""Returns an iterator that moves the bizobj's record pointer from
 		the first record to the last, and returns the current record number.
-		You may call the iterator's reverse() method before beginning
-		iteration in order to iterate from the last record back to the first.
+		If you pass 'reversed=True', the iterator will go in reverse order,
+		from the last record to the first.
 
-		Note that the bizobj will remain on the last (or first, if reverse() 
-		is True) record after the iteration is complete.
+		Note that the bizobj will remain on the last (or first, if reverse()
+		is True) record after the iteration is complete unless you call this
+		with restorePointer=True.
 		"""
-		return _bizIterator(self)
+		return _bizIterator(self, reversed=reversed, restorePointer=restorePointer)
 
 
-	def bizDataIterator(self):
+	def bizDataIterator(self, reversed=False, restorePointer=False):
 		"""Returns an iterator that moves the bizobj's record pointer from
 		the first record to the last, and returns a dict of the columns/values
-		of the record for the current iteration. You may call the iterator's
-		reverse() method before beginning iteration in order to iterate from
-		the last record back to the first.
+		of the record for the current iteration. If you pass 'reversed=True',
+		the iterator will go in reverse order, from the last record to the first.
 
-		Note that the bizobj will remain on the last (or first, if reverse() 
-		is True) record after the iteration is complete.
+
+		Note that the bizobj will remain on the last (or first, if reverse()
+		is True) record after the iteration is complete unless you call this
+		with restorePointer=True.
 		"""
-		return _bizIterator(self, returnRecords=True)
+		return _bizIterator(self, returnRecords=True, reversed=reversed, restorePointer=restorePointer)
 
 
 	def scan(self, func, *args, **kwargs):
@@ -2593,35 +2595,44 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 
 
 class _bizIterator(object):
-	def __init__(self, obj, returnRecords=False):
+	def __init__(self, obj, returnRecords=False, reversed=False, restorePointer=False):
+		"""Iterates through the records in the specified bizobj by moving the current
+		record pointer sequentially through the data set. By default, the current
+		RowNumber is returned, and the reference to that record's data is accessed
+		through bizobj.Record. If you create this iterator with 'returnRecords=True',
+		a copy of the record (dict) is returned instead of the RowNumber; bear in mind
+		that modifying this data does not affect the data in the bizobj.
+
+		Records are processed from first to last in the current sort order; you can
+		optionally process them in reverse order by passing 'reversed=True'. By default,
+		at the end of the iteration the RowNumber remains on the last record processed.
+		If you pass 'restorePointer=True', though, the record pointer will be reset to the
+		value of the RowNumber as it was at the time the first iteration is called.
+		"""
 		self.obj = obj
 		self.returnRecords = returnRecords
+		self.restorePointer = restorePointer
+		self.__originalRowNum = None
 		self.__firstpass = True
-		self.__nextfunc = self._next
-
-
-	def reverse(self):
-		"""Configures the iterator to process the records in reverse order.
-		Must be called before beginning the iteration.
-		"""
-		if not self.__firstpass:
-			raise RuntimeError(_("Cannot reverse in the middle of iteration."))
-		self.__nextfunc = self._prior
-		return self
+		if reversed:
+			self.__nextfunc = self._prior
+		else:
+			self.__nextfunc = self._next
 
 
 	def _prior(self):
 		if self.__firstpass:
+			self.__originalRowNum = self.obj.RowNumber
 			try:
 				self.obj.last()
 				self.__firstpass = False
 			except dException.NoRecordsException:
-				raise StopIteration
+				self._onStopIteration()
 		else:
 			try:
 				self.obj.prior()
 			except dException.BeginningOfFileException:
-				raise StopIteration
+				self._onStopIteration()
 		if self.returnRecords:
 			return self.obj.getDataSet(rowStart=self.obj.RowNumber, rows=1)[0]
 		else:
@@ -2630,21 +2641,27 @@ class _bizIterator(object):
 
 	def _next(self):
 		if self.__firstpass:
+			self.__originalRowNum = self.obj.RowNumber
 			try:
 				self.obj.first()
 				self.__firstpass = False
 			except dException.NoRecordsException:
-				raise StopIteration
+				self._onStopIteration()
 		else:
 			try:
 				self.obj.next()
 			except dException.EndOfFileException:
-				raise StopIteration
+				self._onStopIteration()
 		if self.returnRecords:
 			return self.obj.getDataSet(rowStart=self.obj.RowNumber, rows=1)[0]
 		else:
 			return self.obj.RowNumber
 
+
+	def _onStopIteration(self):
+		if self.restorePointer:
+			self.obj.RowNumber = self.__originalRowNum
+		raise StopIteration
 
 	def next(self):
 		"""Moves the record pointer to the next record."""
