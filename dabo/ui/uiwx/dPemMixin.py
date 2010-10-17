@@ -1915,7 +1915,7 @@ class dPemMixin(dPemMixinBase):
 	def _setCaption(self, val):
 		# Force the value to string
 		val = "%s" % val
-		if self._constructed():
+		def __captionSet(val):
 			# Windows textboxes change their value when SetLabel() is called; this
 			# avoids that problem.
 			if not isinstance(self, (dabo.ui.dTextBox, dabo.ui.dEditBox)):
@@ -1935,6 +1935,16 @@ class dPemMixin(dPemMixinBase):
 					# wxPython 2.7.x started not having this attribute for labels
 					# at least.
 					pass
+		if self._constructed():
+			try:
+				if self.WordWrap or self._properties["WordWrap"]:
+					# Word wrapping doesn't always work correctly when
+					# the Caption is set initially, so set it afterwards as well.
+					dabo.ui.callAfter(__captionSet, val)
+					return
+			except (AttributeError, KeyError):
+				pass
+			__captionSet(val)
 		else:
 			self._properties["Caption"] = val
 
