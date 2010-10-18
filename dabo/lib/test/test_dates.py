@@ -37,13 +37,13 @@ class Test_Dates(unittest.TestCase):
 	def test_getStringFromDate(self):
 		test_str = "2006-05-03"
 		test_date = dates.getDateFromString(test_str)
-		dabo.settings.dateFormat = "%Y-%m-%d"
+		dabo.dateFormat = "%Y-%m-%d"
 		self.assertEqual(dates.getStringFromDate(test_date), test_str)
 
 	def test_getStringFromDateTime(self):
 		test_str = "2006-05-03 12:15:00"
 		test_datetime = dates.getDateTimeFromString(test_str)
-		dabo.settings.dateTimeFormat = "%Y-%m-%d %H:%M:%S"
+		dabo.dateTimeFormat = "%Y-%m-%d %H:%M:%S"
 		self.assertEqual(dates.getStringFromDateTime(test_datetime), test_str)
 
 	def test_goDate(self):

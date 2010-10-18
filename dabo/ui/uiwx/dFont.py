@@ -14,7 +14,7 @@ class dFont(dObject):
 		if _nativeFont is not None:
 			self._nativeFont = _nativeFont
 		else:
-			self._nativeFont = wx.Font(dabo.settings.defaultFontSize,
+			self._nativeFont = wx.Font(dabo.defaultFontSize,
 					wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL,
 					wx.FONTWEIGHT_NORMAL)
 		self._macNonScaledSize = 0
@@ -135,7 +135,7 @@ class dFont(dObject):
 
 
 	def _useMacFontScaling(self):
-		return wx.Platform == "__WXMAC__" and dabo.settings.macFontScaling
+		return wx.Platform == "__WXMAC__" and dabo.macFontScaling
 
 
 	def _getUnderline(self):

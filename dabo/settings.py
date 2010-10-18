@@ -124,7 +124,7 @@ checkForWebUpdates = True
 
 # Date and Time formats. None will use the os user's settings, but
 # your code can easily override these. Example:
-#   dabo.settings.dateFormat = "%d.%m.%Y" -> "31.12.2008".
+#   dabo.dateFormat = "%d.%m.%Y" -> "31.12.2008".
 dateFormat = None
 dateTimeFormat = None
 timeFormat = None

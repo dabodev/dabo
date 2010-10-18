@@ -16,7 +16,7 @@ dayMins= 24*60
 class PreferenceDialog(dabo.ui.dOkCancelDialog):
 	def _afterInit(self):
 		self._includeDefaultPages = True
-		update = dabo.settings.checkForWebUpdates
+		update = dabo.checkForWebUpdates
 		if update:
 			# If they are running Subversion, don't update.
 			if os.path.isdir(os.path.join(os.path.split(dabo.__file__)[0], ".svn")):

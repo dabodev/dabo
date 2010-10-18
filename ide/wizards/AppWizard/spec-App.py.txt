@@ -32,7 +32,7 @@ class App(dabo.dApp):
 		self.setAppInfo("appRevision", version["revision"])
 
 	def setup(self):
-		if dabo.settings.MDI:
+		if dabo.MDI:
 			self.MainFormClass = self.ui.FrmMain
 		else:
 			# no need for main form in SDI mode:

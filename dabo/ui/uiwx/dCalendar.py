@@ -305,7 +305,7 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 	FirstDayOfWeek = property(_getFirstDayOfWeek, None, None,
 			_("""Can be one of either 'Sunday' or 'Monday'. Determines which day
 			of the week appears in the first column. Defaults to the value set
-			in dabo.settings.firstDayOfWeek. Read-only at runtime.  (str)"""))
+			in dabo.firstDayOfWeek. Read-only at runtime.  (str)"""))
 
 	FixedMonth = property(_getFixedMonth, _setFixedMonth, None,
 			_("""When True, the user cannot change the displayed month.

@@ -90,8 +90,8 @@ def _getTimeRegex(format):
 
 
 def getStringFromDate(d):
-	"""Given a datetime.date, convert to string in dabo.settings.dateFormat style."""
-	fmt = dabo.settings.dateFormat
+	"""Given a datetime.date, convert to string in dabo.dateFormat style."""
+	fmt = dabo.dateFormat
 	if fmt is None:
 		# Delegate formatting to the time module, which will take the
 		# user's locale into account.
@@ -110,7 +110,7 @@ def getDateFromString(strVal, formats=None):
 	if formats is None:
 		formats = ["ISO8601"]
 
-	sdf = dabo.settings.dateFormat
+	sdf = dabo.dateFormat
 	if sdf is not None:
 		if _usedDateFormats[0] == sdf:
 			# current date format is already first in the list; do nothing
@@ -157,8 +157,8 @@ def getDateFromString(strVal, formats=None):
 
 
 def getStringFromDateTime(dt):
-	"""Given a datetime.datetime, convert to string in dabo.settings.dateTimeFormat style."""
-	fmt = dabo.settings.dateTimeFormat
+	"""Given a datetime.datetime, convert to string in dabo.dateTimeFormat style."""
+	fmt = dabo.dateTimeFormat
 	if fmt is None:
 		# Delegate formatting to the time module, which will take the
 		# user's locale into account.
@@ -171,7 +171,7 @@ def getDateTimeFromString(strVal, formats=None):
 	"""Given a string in a defined format, return a datetime object or None."""
 	global _dtregex
 
-	dtFormat = dabo.settings.dateTimeFormat
+	dtFormat = dabo.dateTimeFormat
 	ret = None
 
 	if formats is None:

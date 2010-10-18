@@ -36,7 +36,7 @@ class dFormMain(dFormMainBase, wx.Frame):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dFormMain
 
-		if dabo.settings.MDI:
+		if dabo.MDI:
 			# Hack this into an MDI Parent:
 			dFormMain.__bases__ = (dFormMainBase, wx.MDIParentFrame)
 			preClass = wx.PreMDIParentFrame

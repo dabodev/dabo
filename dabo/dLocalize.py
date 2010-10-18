@@ -11,7 +11,7 @@ import dabo
 _defaultLanguage, _defaultEncoding = locale.getdefaultlocale()
 
 if _defaultLanguage is None:
-	_defaultLanguage = dabo.settings.defaultLanguage
+	_defaultLanguage = dabo.defaultLanguage
 
 if _defaultEncoding is None:
 	_defaultEncoding = dabo.getEncoding()
@@ -26,7 +26,7 @@ _languageAliases = {"english": "en", "English_United States":"en",
 		"german": "de", "deutsch": "de",
 		"italian": "it", "italiano": "it",
 		"portuguese": "pt", "portuguése": "pt",
-		"russian": "ru"}
+		"russian": "ru", "polish": "pl"}
 
 def _(s):
 	"""Return the localized translation of s, or s if translation not possible."""
@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
 	print
 	print "sys.getdefaultencoding():", sys.getdefaultencoding()
-	if dabo.settings.loadUserLocale:
+	if dabo.loadUserLocale:
 		locale.setlocale(locale.LC_ALL, '')
 		print "locale.getlocale():", locale.getlocale()
 	else:

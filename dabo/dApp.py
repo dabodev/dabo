@@ -175,7 +175,7 @@ class dApp(dObject):
 
 
 	def __init__(self, selfStart=False, ignoreScriptDir=False, properties=None, *args, **kwargs):
-		if dabo.settings.loadUserLocale:
+		if dabo.loadUserLocale:
 			locale.setlocale(locale.LC_ALL, '')
 
 		# Subdirectories that make up a standard Dabo app
@@ -529,7 +529,7 @@ try again when it is running.
 		"""
 		if not force:
 			# Check for cases where we absolutely will not Web Update.
-			update = dabo.settings.checkForWebUpdates
+			update = dabo.checkForWebUpdates
 			if update:
 				# If they are running Subversion, don't update.
 				if os.path.isdir(os.path.join(dabo.frameworkPath, ".svn")):

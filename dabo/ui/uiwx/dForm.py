@@ -92,7 +92,7 @@ class BaseForm(fm.dFormMixin):
 		""" Displays an alert messagebox for the user. You can customize
 		this in your own classes if you prefer a different display.
 		"""
-		if exception and not dabo.settings.eatBizExceptions:
+		if exception and not dabo.eatBizExceptions:
 			raise
 		if severe:
 			func = dabo.ui.stop
@@ -913,7 +913,7 @@ class dForm(BaseForm, wx.Frame):
 			self._modal = True
 		else:
 			# Normal dForm
-			if dabo.settings.MDI and isinstance(parent, wx.MDIParentFrame):
+			if dabo.MDI and isinstance(parent, wx.MDIParentFrame):
 				# Hack this into an MDI Child:
 				preClass = wx.PreMDIChildFrame
 				self._mdi = True
@@ -934,7 +934,7 @@ class dForm(BaseForm, wx.Frame):
 	_hackToDialog = classmethod(_hackToDialog)
 
 	def _hackToFrame(cls):
-		if dabo.settings.MDI:
+		if dabo.MDI:
 			dForm.__bases__ = (BaseForm, wx.MDIChildFrame)
 		else:
 			dForm.__bases__ = (BaseForm, wx.Frame)

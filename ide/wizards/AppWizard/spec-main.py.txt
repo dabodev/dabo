@@ -12,7 +12,7 @@ import dabo
 # db, biz, and ui packages:
 dabo.ui.loadUI("wx")
 if sys.platform[:3] == "win":
-	dabo.settings.MDI = True
+	dabo.MDI = True
 
 import db
 import biz
