@@ -40,19 +40,8 @@ app.dbConnection = app.getConnectionByName("%(dbConnectionDef)s")
 # generator, but you can change that here. Additionally, if form names were
 # passed on the command line, they will be opened instead of the default one
 # as long as they exist.
-ui = app.ui
-default_form = ui.Frm%(tableName)s
-formsToOpen = []
-form_names = [class_name[3:] for class_name in dir(ui) if class_name[:3] == "Frm"]
-for arg in sys.argv[1:]:
-  arg = arg.lower()
-  for form_name in form_names:
-    if arg == form_name.lower():
-      formsToOpen.append(getattr(ui, %(formOpenString)s))
-if not formsToOpen:
-  formsToOpen.append(default_form)
-for frm in formsToOpen:
-  frm(app.MainForm).show()
+app.default_form = ui.Frm%(tableName)s
+app.startupForms()
 
 # Start the application event loop:
 app.start()
