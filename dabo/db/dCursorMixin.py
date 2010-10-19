@@ -374,7 +374,7 @@ class dCursorMixin(dObject):
 			try:
 				errMsg = ustr(e).decode(self.Encoding)
 			except UnicodeError:
-				errMsg = unicode(e)
+				errMsg = ustr(e)
 			dabo.log.error("Error fetching records: %s" % errMsg)
 
 		if _records and not self.BackendObject._alreadyCorrectedFieldTypes:
