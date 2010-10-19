@@ -138,7 +138,7 @@ def getDateFromString(strVal, formats=None):
 			groups = m.groupdict()
 			if "year" not in groups:
 				curYear = datetime.date.today().year
-				if shortyear in groups:
+				if "shortyear" in groups:
 					groups["year"] = int("%s%s" % (ustr(curYear)[:2],
 							groups["shortyear"]))
 				else:
@@ -196,7 +196,7 @@ def getDateTimeFromString(strVal, formats=None):
 					groups[skip_group] = 0
 			if "year" not in groups:
 				curYear = datetime.date.today().year
-				if shortyear in groups:
+				if "shortyear" in groups:
 					groups["year"] = int("%s%s" % (ustr(curYear)[:2],
 							groups["shortyear"]))
 				else:
