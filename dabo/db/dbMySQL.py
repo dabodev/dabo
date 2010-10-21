@@ -70,7 +70,7 @@ class MySQL(dBackend):
 			try:
 				errMsg = ustr(e).decode(self.Encoding)
 			except UnicodeError:
-				errMsg = unicode(e)
+				errMsg = ustr(e)
 			if "access denied" in errMsg.lower():
 				raise dException.DBNoAccessException(errMsg)
 			else:

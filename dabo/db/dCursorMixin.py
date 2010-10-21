@@ -375,7 +375,7 @@ class dCursorMixin(dObject):
 				errMsg = ustr(e).decode(self.Encoding)
 			except UnicodeError:
 				errMsg = ustr(e)
-			dabo.log.error("Error fetching records: %s" % errMsg)
+			dabo.log.error("Error fetching records: (%s, %s)" % (type(e), errMsg))
 
 		if _records and not self.BackendObject._alreadyCorrectedFieldTypes:
 			if isinstance(_records[0], (tuple, list)):
@@ -1320,7 +1320,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				try:
 					errMsg = ustr(e).decode(self.Encoding)
 				except UnicodeError:
-					errMsg = unicode(e)
+					errMsg = ustr(e)
 				dabo.dbActivityLog.info(
 						_("DBQueryException encountered in save(): %s") % errMsg)
 				raise e

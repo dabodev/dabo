@@ -114,7 +114,7 @@ class SQLite(dBackend):
 			try:
 				errMsg = ustr(e).decode(self.Encoding)
 			except UnicodeError:
-				errMsg = unicode(e)
+				errMsg = ustr(e)
 			dabo.dbActivityLog.info("SQL: commit failed: %s" % errMsg)
 			raise dException.DBQueryException(errMsg)
 

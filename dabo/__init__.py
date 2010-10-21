@@ -285,6 +285,7 @@ def setDbLogFile(fname, level=None):
 from __version__ import version
 import dColors
 import dEvents
+from lib.utils import ustr
 
 from dBug import logPoint
 try:
@@ -297,7 +298,7 @@ from dApp import dApp
 from dPref import dPref
 
 def debugout(*args):
-	txtargs = [unicode(arg) for arg in args]
+	txtargs = [ustr(arg) for arg in args]
 	txt = " ".join(txtargs)
 	log = logging.getLogger("Debug")
 	log.debug(txt)

@@ -149,21 +149,31 @@ def getEncodings():
 
 
 def ustr(value):
-	"""When converting to a string, do not use the str() function, which
+	"""Convert the passed value to a python unicode object.
+
+	When converting to a string, do not use the str() function, which
 	can create encoding errors with non-ASCII text.
 	"""
 	if isinstance(value, unicode):
+		# Don't change the encoding of an object that is already unicode.
 		return value
 	if isinstance(value, Exception):
 		return exceptionToUnicode(value)
 	try:
+		## Faster for all-ascii strings and converting from non-basestring types::
 		return unicode(value)
-	except:
+	except UnicodeDecodeError:
+		# Most likely there were bytes whose integer ordinal were > 127 and so the 
+		# default ASCII codec used by unicode() couldn't decode them.
+		pass
+	except UnicodeEncodeError:
+		# Most likely there were bytes whose integer ordinal were > 127 and so the 
+		# default ASCII codec used by unicode() couldn't encode them.
 		pass
 	for ln in getEncodings():
 		try:
 			return unicode(value, ln)
-		except:
+		except UnicodeError:
 			pass
 	raise UnicodeError("Unable to convert '%r'." % value)
 
@@ -172,14 +182,15 @@ def exceptionToUnicode(e):
 	# Handle DBQueryException first.
 	if hasattr(e, "err_desc"):
 		return ustr(e.err_desc)
-	if hasattr(e, "message"):
-		return ustr(e.message)
 	if hasattr(e, "args"):
 		return "\n".join((ustr(a) for a in e.args))
+	if hasattr(e, "message"):
+		# message is deprecated in python 2.6
+		return ustr(e.message)
 	try:
 		return ustr(e)
 	except:
-		return u"Unknow message."
+		return u"Unknown message."
 
 
 def relativePathList(toLoc, fromLoc=None):

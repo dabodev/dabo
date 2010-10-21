@@ -344,7 +344,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		try:
 			_value = self._value
 		except AttributeError:
-			_value = self._value = unicode("")
+			_value = self._value = ustr("")
 
 		# Get the string value as reported by wx, which is the up-to-date
 		# string value of the control:
@@ -667,7 +667,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 		try:
 			_value = self._value
 		except AttributeError:
-			_value = self._value = unicode("")
+			_value = self._value = ustr("")
 		dataType = type(_value)
 
 		# Get the string value as reported by wx, which is the up-to-date

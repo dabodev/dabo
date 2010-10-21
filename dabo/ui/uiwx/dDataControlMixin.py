@@ -46,16 +46,9 @@ class dDataControlMixin(dDataControlMixinBase):
 		convTypes = (str, unicode, int, float, long, complex)
 		oldType = type(oldval)
 		if isinstance(val, convTypes) and isinstance(oldval, basestring):
-			if isinstance(oldType, str):
-				val = ustr(val)
-			else:
-				if not isinstance(val, unicode):
-					val = unicode(val, dabo.getEncoding())
+			val = ustr(val)
 		elif isinstance(oldval, int) and isinstance(val, basestring):
-			if val:
-				val = int(val)
-			else:
-				val = 0
+			val = int(val if val else "0")
 		elif isinstance(oldval, int) and isinstance(val, bool):
 			# convert bool to int (original field val was bool, but UI
 			# changed to int.

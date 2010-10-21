@@ -218,10 +218,7 @@ def escQuote(val, noEscape=False, noQuote=False):
 	"""Add surrounding quotes to the string, and escape
 	any illegal XML characters.
 	"""
-	if not isinstance(val, basestring):
-		val = ustr(val)
-	if not isinstance(val, unicode):
-		val = unicode(val, default_encoding)
+	val = ustr(val)
 	if noQuote:
 		qt = ''
 	else:

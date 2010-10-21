@@ -27,6 +27,7 @@ from dabo.lib.SimpleCrypt import SimpleCrypt
 from dabo.dObject import dObject
 from dabo import dUserSettingProvider
 from dabo.lib.RemoteConnector import RemoteConnector
+from dabo.lib.utils import ustr
 
 try:
 	import simplejson
@@ -831,24 +832,7 @@ try again when it is running.
 		unicode value. It will first try the default Encoding, and then try the
 		more common encoding types.
 		"""
-		if not isinstance(strVal, basestring):
-			strVal = strVal.__str__()
-		if isinstance(strVal, unicode):
-			return strVal
-		try:
-			ret = unicode(strVal, self.Encoding)
-		except UnicodeDecodeError:
-			# Try some common encodings:
-			for enc in ("utf-8", "iso8859-1", "cp1252"):
-				if enc != self.Encoding:
-					try:
-						ret = unicode(strVal, enc)
-					except UnicodeDecodeError:
-						continue
-					break
-			else: # All attempts failed
-				raise
-		return ret
+		return ustr(strVal)
 
 
 	# These two methods pass encryption/decryption requests
