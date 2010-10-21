@@ -182,7 +182,7 @@ def exceptionToUnicode(e):
 	# Handle DBQueryException first.
 	if hasattr(e, "err_desc"):
 		return ustr(e.err_desc)
-	if hasattr(e, "args"):
+	if hasattr(e, "args") and e.args:
 		return "\n".join((ustr(a) for a in e.args))
 	if hasattr(e, "message"):
 		# message is deprecated in python 2.6
