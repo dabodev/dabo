@@ -67,8 +67,14 @@ class SQLite(dBackend):
 				# Database file does not exist; raise an error
 				raise DBFileDoesNotExistException(_("Database file '%s' does not exist") % pth)
 		pth = pth.decode(dabo.fileSystemEncoding).encode("utf-8")
+
 		# Need to specify "isolation_level=None" to have transactions working correctly.
 		self._connection = self.dbapi.connect(pth, factory=DictConnection, isolation_level=None)
+
+		# Non-utf8-encoded bytestrings could be in the database, and Dabo will try various encodings 
+		# to deal with it. So tell sqlite not to decode with utf-8, but to just return the bytes:
+		self._connection.text_factory = str
+
 		self._connection.connectInfo = connectInfo
 		return self._connection
 

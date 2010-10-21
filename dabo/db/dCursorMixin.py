@@ -275,7 +275,14 @@ class dCursorMixin(dObject):
 							continue
 						if ok:
 							# change self.Encoding and log the message
-							self.Encoding = enc
+							## pkm 2010-10-21: I think that mismatched encoding should be treated as exceptional,
+							##                 and shouldn't trigger changing the cursor Encoding which should 
+							##                 have been set based on what the database reported (currently it is
+							##                 not set that way, but I hope it will be in the future). But it is
+							##                 nice to at least try some different common encodings if the default
+							##                 one doesn't work, especially since Dabo currently allows non-utf8-encoded
+							##                 bytes to get saved to the database.
+							#self.Encoding = enc 
 							dabo.log.error(_("Field %(fname)s: Incorrect unicode encoding set; using '%(enc)s' instead")
 								% {'fname':field_name, 'enc':enc} )
 							return ret
