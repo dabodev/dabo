@@ -958,10 +958,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if fldType != type(val):
 				convTypes = (str, unicode, int, float, long, complex)
 				if isinstance(val, convTypes) and isinstance(rec[fld], basestring):
-					if isinstance(fldType, str):
-						val = ustr(val)
-					else:
-						val = unicode(val)
+					val = ustr(val)
 				elif isinstance(rec[fld], int) and isinstance(val, bool):
 					# convert bool to int (original field val was bool, but UI
 					# changed to int.
