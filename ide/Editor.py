@@ -649,10 +649,11 @@ class EditorForm(dabo.ui.dForm):
 				OnHit=self.onWhiteSpace, bmp="", ItemID="edit_whiteSpace", help=_("Toggle WhiteSpace Visibility"),
 				menutype="check")
 
-		runMenu.append(_("&Run Script"), HotKey="F7", OnHit=self.onRunScript,
+		runMenu.append(_("&Run Script"), HotKey="Ctrl+Shift+R", OnHit=self.onRunScript,
 				bmp="", ItemID="run_script", help=_("Run Script"))
-		self._showOutItem = runMenu.append(_("Hide/Show Output"), HotKey="F8", OnHit=self.onOutput, bmp="",
-				ItemID="run_output", help=_("Toggle the visibility of the Output pane"), menutype="check")
+		self._showOutItem = runMenu.append(_("Hide/Show Output"), HotKey="Ctrl+Shift+O",
+				OnHit=self.onOutput, bmp="", ItemID="run_output",
+				help=_("Toggle the visibility of the Output pane"), menutype="check")
 		runMenu.append(_("Clear Output"), OnHit=self.onClearOutput, bmp="",
 				ItemID="run_clear", help=_("Clear the contents of the Output pane"))
 
