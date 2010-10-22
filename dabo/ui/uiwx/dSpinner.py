@@ -236,16 +236,18 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 		else:
 			evt.Skip()
 
+
 	def _onLostFocus(self, evt):
 		"""We need to handle the case where the user types an invalid value
 		into the textbox and then tabs/clicks away.
 		"""
-		val = self.Value
 		pt = self._proxy_textbox
+		val = pt.Value
 		if (val > self.Max) or (val < self.Min):
-			self.Value = pt._oldVal
-		pt._oldVal = self.Value
-		self.flushValue()
+			pt.Value = pt._oldVal
+		evt.Skip()
+		#pt._oldVal = self.Value
+		#self.flushValue()
 
 	def _numericStringVal(self, val):
 		"""If passed a string, attempts to convert it to the appropriate numeric
