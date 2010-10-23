@@ -565,7 +565,6 @@ class EditorForm(dabo.ui.dForm):
 		app = self.Application
 		mb = self.MenuBar
 		fileMenu = mb.getMenu("base_file")
-		app.onMenuOpenMRU(fileMenu)
 
 		editMenu = mb.getMenu("base_edit")
 		mb.remove(mb.getMenuIndex("base_view"))
@@ -588,6 +587,9 @@ class EditorForm(dabo.ui.dForm):
 			fileMenu.remove(clsItem)
 		fileMenu.prepend(_("&Close Editor"), HotKey="Ctrl+W", OnHit=self.onFileClose, bmp="close",
 				ItemID="file_close_editor", help=_("Close file"))
+		recentMenu = dabo.ui.dMenu(Caption=_("Open Recent"), MenuID="file_open_recent",
+				MRU=True)
+		fileMenu.prependMenu(recentMenu)
 		fileMenu.prepend(_("&Open"), HotKey="Ctrl+O", OnHit=self.onFileOpen, bmp="open",
 				ItemID="file_open", help=_("Open file"))
 		fileMenu.prepend(_("&New"), HotKey="Ctrl+N", OnHit=self.onFileNew, bmp="new",
@@ -763,14 +765,18 @@ class EditorForm(dabo.ui.dForm):
 
 
 	def onFileOpen(self, evt):
-		fileName = self.CurrentEditor.promptForFileName(prompt=_("Open"),
-				path=self._lastPath)
-		if fileName is not None:
+		fileNames = self.CurrentEditor.promptForFileName(prompt=_("Open"),
+				path=self._lastPath, multiple=True)
+		if fileNames is None:
+			# They bailed
+			return
+		for fileName in fileNames:
 			self._lastPath = os.path.split(fileName)[0]
 			self.Application.setUserSetting("lastPath", self._lastPath)
 			self.openFile(fileName)
 
 
+	@classmethod
 	def onMRUSelection(cls, evt):
 		"""This needs to be a classmethod, since the form
 		that originally opens a file path might get closed, and
@@ -778,7 +784,9 @@ class EditorForm(dabo.ui.dForm):
 		would barf. So we make this a classmethod, and pass
 		the call to the first EditorForm instance we can find.
 		"""
-		pth = " ".join(evt.prompt.split(" ")[1:])
+		# The prompt will have a number prepended to the actual path,
+		# separated by a space. 
+		pth = evt.prompt.split(" ", 1)[-1]
 		# Find the topmost form that is an EditorForm
 		app = dabo.dAppRef
 		try:
@@ -788,7 +796,6 @@ class EditorForm(dabo.ui.dForm):
 			edf = [frm for frm in app.uiForms
 					if isinstance(frm, EditorForm)][0]
 			edf.openFile(pth)
-	onMRUSelection = classmethod(onMRUSelection)
 
 
 	def openFile(self, pth, justReportErrors=False):
@@ -807,7 +814,7 @@ class EditorForm(dabo.ui.dForm):
 				raise
 		if target:
 			# Add to the MRU list
-			self.Application.addToMRU(_("File"), pth, self.onMRUSelection)
+			self.Application.addToMRU(_("Open Recent"), pth, self.onMRUSelection)
 		self.updateLex()
 		return target
 
@@ -1104,28 +1111,22 @@ BL\x0c\x16\x0c\x84\xf5\x01F\x1bh*\x88\x9f`.F~\x83b&\x08\xfe\x82\x82\xf1dF\
 \x00\x00\x00IEND\xaeB`\x82'
 
 
-def onFileMRU(evt):
-#- 	print "MRU EVT", evt
-#- 	print "APP", dabo.dAppRef
-	pass
-
 
 def main():
 	files = sys.argv[1:]
-	app = dabo.dApp()
-	app.BasePrefKey = "ide.Editor"
+	app = dabo.dApp(MainFormClass=EditorForm, BasePrefKey="ide.Editor")
 	app.setAppInfo("appName", _("Dabo Editor"))
 	app.setAppInfo("appShortName", _("DaboEditor"))
-	app._persistentMRUs = {_("File") : onFileMRU}
-	app.MainFormClass = None
 	app.setup()
 
-	frm = app.MainForm = EditorForm()
-	frm.onFileNew(None)
-	for file in files:
-		frm.openFile(file)
-	frm.show()
-
+	frm = app.MainForm
+	app._persistentMRUs = {_("Open Recent") : frm.onMRUSelection}
+	def _openForms():
+		frm.onFileNew(None)
+		for file in files:
+			frm.openFile(os.path.realpath(file))
+		frm.show()
+	dabo.ui.callAfter(_openForms)
 	app.start()
 
 if __name__ == "__main__":

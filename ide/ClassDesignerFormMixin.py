@@ -525,6 +525,8 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		# IOErrorrror that the calling method can catch.
 		codecs.open(fname, "wb", encoding="utf-8").write(textToSave)
 		cfName = "%s-code.py" % os.path.splitext(fname)[0]
+		if newFile:
+			self.Controller.addMRUPath(fname)
 		if singleFile:
 			# Delete the code file if present.
 			if os.path.exists(cfName):

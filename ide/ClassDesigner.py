@@ -163,7 +163,9 @@ class ClassDesigner(dabo.dApp):
 		self._recreateValsDict = {}
 		self._valsDictLIFO = []
 		# Add this to the persistent MRUs
-		self._persistentMRUs[self._customClassCaption] = self.addCustomClass
+		self.Application._persistentMRUs[self._customClassCaption] = self.addCustomClass
+		# Persist opened designs, too
+		self.Application._persistentMRUs["OpenRecent"] = self.onMRUSelection
 		# Save the default atts for sizers. This way we can distinguish
 		# from default sizers that can be replaced from customized
 		# sizers which should remain.
@@ -351,7 +353,7 @@ class ClassDesigner(dabo.dApp):
 		class DesForm(dfm, base):
 			_superBase = base
 			_superMixin = dfm
-			_classFile = filepath
+			_classFile = os.path.realpath(filepath)
 			def __init__(self, parent=None, *args, **kwargs):
 				self._isMain = formIsMain
 				if isDialog:
@@ -568,6 +570,28 @@ class ClassDesigner(dabo.dApp):
 		return ret
 
 
+	def addMRUPath(self, pth):
+		"""Convenience method for other classes that hides the details of 
+		MRUs from them. All we need is the path.
+		"""
+		self.Application.addToMRU(_("Open Recent"), os.path.realpath(pth), self.onMRUSelection)
+
+
+	def onMRUSelection(self, evt):
+		"""The user selected an MRU menu item. Translate that prompt to the
+		actual path, and open that design.
+		"""
+		# The prompt will have a number prepended to the actual path,
+		# separated by a space. 
+		pth = evt.prompt.split(" ", 1)[-1]
+		openDesigns = [frm for frm in self.getDesignerWindows()
+				if frm._classFile == pth]
+		if openDesigns:
+			openDesigns[0].bringToFront()
+		else:
+			self.openClass(pth)
+
+
 	def openClass(self, pth):
 		"""Called when the user selects the 'Open' menu and selects
 		a saved XML file. We need to open the file, and confirm that it is
@@ -578,6 +602,8 @@ class ClassDesigner(dabo.dApp):
 		self.openingClassXML = True
 		# Clear any existing superclass info
 		self._superClassInfo = {}
+		# Add to the MRU list
+		self.addMRUPath(pth)
 		# Translate the file path into a class dictionary.
 		clsd = self._importClassXML(pth)
 		importStatements = clsd.pop("importStatements", "")
@@ -672,7 +698,7 @@ class ClassDesigner(dabo.dApp):
 				frm.Caption = os.path.splitext(fname)[0]
 		frm.Controller = self
 		self.CurrentForm = frm
-		frm._classFile = pth
+		frm._classFile = os.path.realpath(pth)
 		frm._formMode = isFormClass
 		if isFormClass:
 			# See if there is any code associated with the form
@@ -2007,7 +2033,7 @@ class ClassDesigner(dabo.dApp):
 			obj = self.addNewControl(frm.initLayoutPanel, newClass)
 			frm.Caption = _("Dabo Class Designer: %s") % obj.Name
 		if pth:
-			frm._classFile = pth
+			frm._classFile = os.path.realpath(pth)
 		frm.Visible = True
 		dui.callAfter(frm.bringToFront)
 		dui.callAfter(frm.saveState)
@@ -2367,6 +2393,14 @@ class ClassDesigner(dabo.dApp):
 		return self.CurrentForm.getObjectHierarchy()
 
 
+	def getDesignerWindows(self, frm=None):
+		"""Returns a list of the currently open designer surface windows."""
+		# NOTE: 'dfm' is the ClassDesignerFormMixin class
+		return [win for win in self.uiForms
+				if isinstance(win, dfm)
+				and win is not frm]
+		
+
 	def designerFormClosing(self, frm):
 		"""Checks to see if there are no more available
 		ClassDesigner windows. If not, terminate the app.
@@ -2376,10 +2410,7 @@ class ClassDesigner(dabo.dApp):
 				# May need to explicitly release these.
 				frm.release()
 			except: pass
-		# NOTE: 'dfm' is the ClassDesignerFormMixin class
-		desWindows = [win for win in self.uiForms
-				if isinstance(win, dfm)
-				and win is not frm]
+		desWindows = self.getDesignerWindows(frm)
 		if not desWindows:
 			# No more designer windows left, so exit the app
 			dui.callAfter(self.onFileExit, None)
