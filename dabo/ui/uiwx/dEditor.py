@@ -1374,10 +1374,13 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		return dabo.ui.areYouSure(s)
 
 
-	def promptForFileName(self, prompt=None, saveAs=False, path=None):
+	def promptForFileName(self, prompt=None, saveAs=False, path=None, multiple=False):
 		"""Prompt the user for a file name."""
 		if prompt is None:
-			prompt = _("Select a file")
+			if multiple:
+				prompt = _("Select a file (or files)")
+			else:
+				prompt = _("Select a file")
 		if path is None:
 			try:
 				drct = self._curdir
@@ -1390,7 +1393,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			func = dabo.ui.getSaveAs
 		else:
 			func = dabo.ui.getFile
-		fname = func("py", "txt", "cdxml", "cnxml", "mnxml", "rfxml", "*", message=prompt, defaultPath=drct)
+		fname = func("py", "txt", "cdxml", "cnxml", "mnxml", "rfxml", "*", message=prompt,
+				defaultPath=drct, multiple=multiple)
 		return fname
 
 
