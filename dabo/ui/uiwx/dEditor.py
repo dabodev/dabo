@@ -1426,8 +1426,6 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if not force and (not self.isChanged() and self._fileName):
 			# Nothing changed
 			return
-		if self._curdir:
-			os.chdir(self._curdir)
 		if fname is None:
 			try:
 				fname = self._fileName
