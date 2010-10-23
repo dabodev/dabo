@@ -1374,7 +1374,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		return dabo.ui.areYouSure(s)
 
 
-	def promptForFileName(self, prompt=None, saveAs=False, path=None, multiple=False):
+	def promptForFileName(self, prompt=None, saveAs=False, path=None, **kwargs):
 		"""Prompt the user for a file name."""
 		if prompt is None:
 			if multiple:
@@ -1394,7 +1394,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		else:
 			func = dabo.ui.getFile
 		fname = func("py", "txt", "cdxml", "cnxml", "mnxml", "rfxml", "*", message=prompt,
-				defaultPath=drct, multiple=multiple)
+				defaultPath=drct, **kwargs)
 		return fname
 
 
