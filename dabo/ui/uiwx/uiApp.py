@@ -10,6 +10,7 @@ import dabo.dEvents as dEvents
 import dabo.lib.utils as utils
 from dabo.dObject import dObject
 from dabo.dLocalize import _, n_
+from dabo.lib.utils import cleanMenuCaption
 import dabo.dConstants as kons
 
 
@@ -1048,23 +1049,24 @@ these automatic updates.""").replace("\n", " ")
 				return ret
 
 
-	def addToMRU(self, menu, prompt, bindfunc=None):
+	def addToMRU(self, menuOrCaption, prompt, bindfunc=None):
 		"""Adds the specified menu to the top of the list of
 		MRU prompts for that menu.
 		"""
-		if isinstance(menu, basestring):
+		if isinstance(menuOrCaption, basestring):
 			# They passed the menu caption directly
-			cap = menu
+			cap = menuOrCaption
 		else:
-			cap = menu.Caption
-		mn = self._mruMenuPrompts.get(cap, [])
+			cap = menuOrCaption.Caption
+		cleanCap = cleanMenuCaption(cap)
+		mn = self._mruMenuPrompts.get(cleanCap, [])
 		if prompt in mn:
 			mn.remove(prompt)
 		mn.insert(0, prompt)
-		self._mruMenuPrompts[cap] = mn[:self._mruMaxItems]
-		mf = self._mruMenuFuncs.get(cap, {})
+		self._mruMenuPrompts[cleanCap] = mn[:self._mruMaxItems]
+		mf = self._mruMenuFuncs.get(cleanCap, {})
 		mf[prompt] = bindfunc
-		self._mruMenuFuncs[cap] = mf
+		self._mruMenuFuncs[cleanCap] = mf
 
 
 	def onMenuOpenMRU(self, menu):
@@ -1072,10 +1074,12 @@ these automatic updates.""").replace("\n", " ")
 		correct order.
 		"""
 		cap = menu.Caption
-		mnPrm = self._mruMenuPrompts.get(cap, [])
+		cleanCap = cleanMenuCaption(cap)
+		topLevel = isinstance(menu.Parent, dabo.ui.dMenuBar)
+		mnPrm = self._mruMenuPrompts.get(cleanCap, [])
 		if not mnPrm:
 			return
-		if menu._mruSeparator is None:
+		if topLevel and (menu._mruSeparator is None):
 			menu._mruSeparator = menu.appendSeparator()
 		tmplt = "&%s %s"
 		promptList = [tmplt % (pos+1, txt)
@@ -1102,13 +1106,12 @@ these automatic updates.""").replace("\n", " ")
 				if itm not in kids:
 					continue
 				try:
-					pos = kids.index(itm)
-					menu.remove(pos, True)
-				except (IndexError, ValueError):
+					menu.remove(itm)
+				except (IndexError, ValueError), e:
 					pass
 			# Add them all back
 			lnks = {}
-			fncs = self._mruMenuFuncs.get(cap, {})
+			fncs = self._mruMenuFuncs.get(cleanCap, {})
 			for pos, txt in enumerate(mnPrm):
 				itm = menu.append(tmplt % (pos+1, txt), OnHit=fncs.get(txt, None))
 				lnks[itm.GetId()] = itm

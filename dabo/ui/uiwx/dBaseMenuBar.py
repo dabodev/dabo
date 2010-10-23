@@ -22,7 +22,8 @@ iconPath = "themes/tango/16x16"
 class FileMenu(dMenu):
 
 	def __init__(self, *args, **kwargs):
-		kwargs["MRU"] = True
+		if "MRU" not in kwargs:
+			kwargs["MRU"] = True
 		self.super(*args, **kwargs)
 
 

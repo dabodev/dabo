@@ -28,6 +28,7 @@ from dabo.dObject import dObject
 from dabo import dUserSettingProvider
 from dabo.lib.RemoteConnector import RemoteConnector
 from dabo.lib.utils import ustr
+from dabo.lib.utils import cleanMenuCaption
 
 try:
 	import simplejson
@@ -466,8 +467,9 @@ try again when it is running.
 		base = "MRU.%s" % self.getAppInfo("appName")
 		self.deleteAllUserSettings(base)
 		for cap in self._persistentMRUs.keys():
-			mruList = self.uiApp.getMRUListForMenu(cap)
-			setName = ".".join((base, cap))
+			cleanCap = cleanMenuCaption(cap)
+			mruList = self.uiApp.getMRUListForMenu(cleanCap)
+			setName = ".".join((base, cleanCap))
 			self.setUserSetting(setName, mruList)
 
 
@@ -475,11 +477,12 @@ try again when it is running.
 		"""Retrieve any saved MRU lists."""
 		base = "MRU.%s" % self.getAppInfo("appName")
 		for cap, fcn in self._persistentMRUs.items():
-			itms = self.getUserSetting(".".join((base, cap)))
+			cleanCap = cleanMenuCaption(cap)
+			itms = self.getUserSetting(".".join((base, cleanCap)))
 			if itms:
 				# Should be a list of items. Add 'em in reverse order
 				for itm in itms:
-					self.uiApp.addToMRU(cap, itm, fcn)
+					self.uiApp.addToMRU(cleanCap, itm, fcn)
 
 
 	def getAppInfo(self, item):

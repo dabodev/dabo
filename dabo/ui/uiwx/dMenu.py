@@ -56,8 +56,28 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		self.bindEvent(dEvents.MenuOpen, self.__onMenuHighlight)
 		self.bindEvent(dEvents.MenuHighlight, self.__onMenuHighlight)
 		if self._useMRU:
-			self.bindEvent(dEvents.MenuOpen, self.__onMenuOpenMRU)
+			self._setMRUBindings()
 
+
+	def _setMRUBindings(self):
+		"""If the menu is not top-level (i.e., directly opened from the MenuBar),
+		the MenuOpen event will not be raised, so trigger on the MenuHighlight
+		event instead.
+		"""
+		if isinstance(self.Parent, dabo.ui.dMenuBar):
+			self.bindEvent(dEvents.MenuOpen, self.__onMenuOpenMRU)
+		else:
+			self.bindEvent(dEvents.MenuHighlight, self.__onMenuOpenMRU)
+
+
+	def _clearMRUBindings(self):
+		"""See the _setMRUBindings method for an explanation. This uses
+		the same logic to unbind MRU events.
+		"""
+		if isinstance(self.Parent, dabo.ui.dMenuBar):
+			self.unbindEvent(dEvents.MenuOpen, self.__onMenuOpenMRU)
+		else:
+			self.unbindEvent(dEvents.MenuHighlight, self.__onMenuOpenMRU)
 
 
 	def __onMenuHighlight(self, evt):
@@ -517,6 +537,20 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			self._properties["MenuID"] = val
 
 
+	def _getMRU(self):
+		return self._useMRU
+
+	def _setMRU(self, val):
+		if self._constructed():
+			self._useMRU = val
+			if val:
+				self._setMRUBindings()
+			else:
+				self._clearMRUBindings()
+		else:
+			self._properties["MRU"] = val
+
+
 	def _getParent(self):
 		try:
 			v = self._parent
@@ -529,24 +563,27 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	Caption = property(_getCaption, _setCaption, None,
-			_("Specifies the text of the menu."))
+			_("Specifies the text of the menu.  (str)"))
 
 	Enabled = property(_getEnabled, _setEnabled, None,
-			_("Specifies whether the menu can be interacted with."))
+			_("Specifies whether the menu can be interacted with. Default=True  (bool)"))
 
 	Form = property(_getForm, None, None,
-			_("Specifies the form that contains the menu."))
+			_("Specifies the form that contains the menu.  (dForm)"))
 
 	HelpText = property(_getHelpText, _setHelpText, None,
-			_("Specifies the help text associated with this menu. (str)"))
+			_("Specifies the help text associated with this menu.  (str)"))
 
 	MenuID = property(_getMenuID, _setMenuID, None,
 			_("""Identifying value for this menu. NOTE: there is no checking for
 			duplicate values; it is the responsibility to ensure that MenuID values
 			are unique.  (varies)"""))
 
+	MRU = property(_getMRU, _setMRU, None,
+			_("Determines if this menu uses Most Recently Used behavior. Default=False  (bool)"))
+
 	Parent = property(_getParent, _setParent, None,
-			_("Specifies the parent menu or menubar."))
+			_("Specifies the parent menu or menubar.  (varies)"))
 
 
 	DynamicCaption = makeDynamicProperty(Caption)
