@@ -87,10 +87,6 @@ class dPageFrameMixin(cm.dControlMixin):
 
 		if newPageNum >= 0 and self.PageCount > newPageNum:
 			newPage = self.Pages[newPageNum]
-			## On Mac and Win, wx.GetShown() returns False for inactive pages,
-			## so update() would have been ignored for this newly-coming-active
-			## page. Therefore, call it unconditionally now:
-			newPage.update()
 			dabo.ui.callAfter(newPage.raiseEvent, dEvents.PageEnter)
 			dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged,
 					oldPageNum=oldPageNum, newPageNum=newPageNum)

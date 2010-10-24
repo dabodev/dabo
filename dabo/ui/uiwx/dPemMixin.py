@@ -1281,8 +1281,11 @@ class dPemMixin(dPemMixinBase):
 
 	def __onUpdate(self, evt):
 		"""Update any dynamic properties, and then call the update() hook."""
-		if isinstance(self, dabo.ui.deadObject) or not self._constructed() \
-				or not self.Visible:
+		if isinstance(self, dabo.ui.deadObject) or not self._constructed():
+			return
+		if not self.Visible and not isinstance(self.Parent, dabo.ui.dPageFrameMixin):
+			## (on Windows and Mac, inactive pages will return Visible==False, but
+			##  we need those pages updated too).
 			return
 		self.update()
 

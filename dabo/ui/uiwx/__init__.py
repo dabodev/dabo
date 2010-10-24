@@ -173,6 +173,8 @@ from dLed import dLed
 import dUICursors as dUICursors
 import dShell
 import gridRenderers
+from dPageFrameMixin import dPageFrameMixin
+
 
 # Needs importing after at least dPanel:
 from dDockForm import dDockForm
