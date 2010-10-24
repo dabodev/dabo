@@ -48,7 +48,7 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 	def appendMenu(self, menu):
 		"""Inserts a dMenu at the end of the dMenuBar, and returns the
-		reference to the that menu."""
+		reference to that menu."""
 		ok = self.Append(menu, menu.Caption)
 		if ok:
 			menu.Parent = self
