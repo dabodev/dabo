@@ -47,32 +47,38 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 
 	def appendMenu(self, menu):
-		"""Inserts a dMenu at the end of the dMenuBar."""
-		ret = self.Append(menu, menu.Caption)
-		if ret:
+		"""Inserts a dMenu at the end of the dMenuBar, and returns the
+		reference to the that menu."""
+		ok = self.Append(menu, menu.Caption)
+		if ok:
 			menu.Parent = self
-		return ret
+		return menu
 
 
 	def insertMenu(self, pos, menu):
-		"""Inserts a dMenu in the dMenuBar at the specified position."""
+		"""Inserts a dMenu in the dMenuBar at the specified position, and
+		returns a reference to that menu.
+		"""
 		pos = min(pos, self.GetMenuCount())
-		ret = self.Insert(pos, menu, menu.Caption)
-		if ret:
+		ok = self.Insert(pos, menu, menu.Caption)
+		if ok:
 			menu.Parent = self
-		return ret
+		return menu
 
 
 	def prependMenu(self, menu):
-		"""Inserts a dMenu at the beginning of the dMenuBar."""
-		ret = self.PrependMenu(menu, menu.Caption)
-		if ret:
+		"""Inserts a dMenu at the beginning of the dMenuBar, and returns
+		a reference to that menu.
+		"""
+		ok = self.PrependMenu(menu, menu.Caption)
+		if ok:
 			menu.Parent = self
-		return ret
+		return menu
 
 
 	def append(self, caption, MenuID=None):
-		"""Appends a dMenu to the end of the dMenuBar.
+		"""Appends a dMenu to the end of the dMenuBar, and returns a reference
+		to that menu.
 
 		A generic dMenu will be created with the passed caption. Also see the
 		appendMenu() function, which takes a dMenu instance as an argument.
@@ -83,7 +89,8 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 
 	def insert(self, pos, caption, MenuID=None):
-		"""Inserts a dMenu at the specified position in the dMenuBar.
+		"""Inserts a dMenu at the specified position in the dMenuBar, and returns
+		a reference to that menu.
 
 		A generic dMenu will be created with the passed caption. Also see the
 		insertMenu() function, which takes a dMenu instance as an argument.
@@ -94,7 +101,8 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 
 	def prepend(self, caption, MenuID=None):
-		"""Prepends a dMenu to the beginning of the dMenuBar.
+		"""Prepends a dMenu to the beginning of the dMenuBar, and returns
+		a reference to that menu.
 
 		A generic dMenu will be created with the passed caption. Also see the
 		prependMenu() function, which takes a dMenu instance as an argument.
