@@ -58,7 +58,6 @@ class PageFrameMixin(object):
 			ds = ds.DataSource
 		self.Form.new(ds)
 		self.SelectedPage = self.dsEditPages[ds]
-		self.SelectedPage.update()
 
 
 	def deleteByDataSource(self, ds):

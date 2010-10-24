@@ -499,18 +499,10 @@ class BrowsePage(Page):
 
 
 	def __onPageEnter(self, evt):
-		self.updateGrid()
-		if self.Form.SetFocusToBrowseGrid:
-			self.BrowseGrid.setFocus()
-
-
-	def updateGrid(self):
-		bizobj = self.Form.getBizobj()
 		if not self.itemsCreated:
 			self.createItems()
-		if bizobj and bizobj.RowCount >= 0:
-			self.fillGrid(False)
-			self.BrowseGrid.update()
+		if self.Form.SetFocusToBrowseGrid:
+			self.BrowseGrid.setFocus()
 
 
 	def createItems(self):
@@ -519,12 +511,9 @@ class BrowsePage(Page):
 		if biz:
 			grid.DataSource = biz.DataSource
 		self.Sizer.append(grid, 2, "expand")
+		self.layout()
 		self.itemsCreated = True
 
-
-	def fillGrid(self, redraw=False):
-		self.BrowseGrid.populate()
-		self.layout()
 
 
 class EditPage(Page):
@@ -564,7 +553,6 @@ class EditPage(Page):
 	def __onPageEnter(self, evt):
 		self.Form.PrimaryBizobj = self.DataSource
 		focusToControl = self._focusToControl
-		self.update()
 		if focusToControl is not None:
 			focusToControl.setFocus()
 			self._focusToControl = None
