@@ -500,11 +500,11 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def onCmdWin(self, evt):
-		self.showCommandWindow()
+		self.showCommandWindow(self.ActiveForm)
 
 
 	def onDebugWin(self, evt):
-		self.toggleDebugWindow()
+		self.toggleDebugWindow(self.ActiveForm)
 
 
 	def showCommandWindow(self, context=None):
@@ -517,6 +517,8 @@ these automatic updates.""").replace("\n", " ")
 
 	def toggleDebugWindow(self, context=None):
 		"""Display a debug output window."""
+		if context is None:
+			context = self.ActiveForm
 		class DebugWindow(dabo.ui.dToolForm):
 			def afterInit(self):
 				self.Caption = _("Debug Output")
@@ -527,22 +529,25 @@ these automatic updates.""").replace("\n", " ")
 				self.out.Value = ""
 
 		if not self.debugWindow:
-			if context is None:
-				context = self.ActiveForm
 			self.debugWindow = DebugWindow(context)
 			# Set the handler action
 			self._debugHandler.target = self.debugWindow.out
 		if self.debugWindow.Visible:
+			checked = False
 			self.debugWindow.hide()
 		else:
+			checked = True
 			self._debugHandler.updateTarget()
 			self.debugWindow.show()
-# 		# Having issues with the check mark on the menu being out of sync.
-# 		try:
-# 			context.MenuBar.debugMenuItem.Checked = self.debugWindow.Visible
-# 		except AttributeError:
-# 			# No such item
-# 			pass
+		# Having issues with the check mark on the menu being out of sync.
+		try:
+			mb = context.MenuBar
+			mb.debugMenuItem.Checked = checked
+			mb.Refresh()
+		except AttributeError:
+			#Either no such item, or not a valid reference
+			pass
+		
 
 
 	def onWinClose(self, evt):
