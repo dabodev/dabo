@@ -11,6 +11,7 @@ except AttributeError:
 key_Back = wx.WXK_BACK
 key_Tab = wx.WXK_TAB
 key_Return = wx.WXK_RETURN
+key_Enter = wx.WXK_RETURN
 key_Escape = wx.WXK_ESCAPE
 key_Space = wx.WXK_SPACE
 key_Delete = wx.WXK_DELETE
