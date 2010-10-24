@@ -353,7 +353,10 @@ class ClassDesigner(dabo.dApp):
 		class DesForm(dfm, base):
 			_superBase = base
 			_superMixin = dfm
-			_classFile = os.path.realpath(filepath)
+			try:
+				_classFile = os.path.realpath(filepath)
+			except AttributeError:
+				_classFile = None
 			def __init__(self, parent=None, *args, **kwargs):
 				self._isMain = formIsMain
 				if isDialog:

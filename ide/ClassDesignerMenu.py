@@ -19,9 +19,9 @@ def mkDesignerMenu(parent, target=None):
 		mb = None
 	if mb:
 		app = target.Controller
-		fm = mb.getMenu("base_file")
-		em = mb.getMenu("base_edit")
-		vm = mb.getMenu("base_view")
+		fm = mb.fileMenu
+		em = mb.editMenu
+		vm = mb.viewMenu
 
 		app.barShowPropSheet = vm.append(_("Hide Object Info Form"),
 				OnHit=app.onTogglePropSheet,
