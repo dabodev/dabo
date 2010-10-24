@@ -259,7 +259,7 @@ these automatic updates.""").replace("\n", " ")
 				def addControls(self):
 					headline = dabo.ui.dLabel(self, Caption=msg, FontSize=12,
 							WordWrap=True, ForeColor="darkblue")
- 					self.Sizer.appendSpacer(12)
+					self.Sizer.appendSpacer(12)
 					self.Sizer.append(headline, proportion=prop, layout=xpand, halign="center", border=12)
 					self.Sizer.appendSpacer(12)
 					edtNotes = dabo.ui.dEditBox(self, Value=noteText)
