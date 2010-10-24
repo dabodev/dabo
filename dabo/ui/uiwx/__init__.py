@@ -292,7 +292,7 @@ def setAfter(obj, prop, val):
 	a function.
 	"""
 	try:
-		fnc = eval("obj.__class__.%s.fset" % prop)
+		fnc = getattr(obj.__class__, prop).fset
 		wx.CallAfter(fnc, obj, val)
 	except StandardError, e:
 		dabo.log.error(_("setAfter() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
@@ -304,7 +304,7 @@ def setAfterInterval(interval, obj, prop, val):
 	of calling a function.
 	"""
 	try:
-		fnc = eval("obj.__class__.%s.fset" % prop)
+		fnc = getattr(obj.__class__, prop).fset
 		callAfterInterval(interval, fnc, obj, val)
 	except StandardError, e:
 		dabo.log.error(_("setAfterInterval() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
@@ -407,7 +407,7 @@ def getEventData(wxEvt):
 					continue
 				try:
 					pemName = pem[0].lower() + pem[1:]
-					ed[pemName] = eval("wxEvt.%s()" % pem)
+					ed[pemName] = getattr(wxEvt, pem)
 				except (AttributeError, TypeError, wx._core.PyAssertionError):
 					pass
 
