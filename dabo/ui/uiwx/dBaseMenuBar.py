@@ -43,8 +43,6 @@ class FileMenu(dMenu):
 					OnHit=app.onDebugWin, ItemID="file_debugwin",
 					help=_("Open up a debug output window"))
 			self.Parent.debugMenuItem.Checked = True
-			dabo.ui.setAfterInterval(100, self.Parent.debugMenuItem, "Checked", True)
-			dabo.ui.setAfterInterval(500, self.Parent.debugMenuItem, "Checked", False)
 			
 		prmpt = _("Close Windo&w")
 		self.Parent.closeWindowMenuItem = self.append(prmpt, HotKey="Ctrl+W", OnHit=app.onWinClose,
@@ -72,7 +70,7 @@ class EditMenu(dMenu):
 				ItemID="edit_undo",
 				help=_("Undo last action"))
 
-		self.Parent.redoMenuItem = self.append(_("&Redo"), HotKey="Ctrl+R", OnHit=app.onEditRedo,
+		self.Parent.redoMenuItem = self.append(_("&Redo"), HotKey="Ctrl+Shift+Z", OnHit=app.onEditRedo,
 				bmp="%s/actions/edit-redo.png" % iconPath,
 				ItemID="edit_redo",
 				help=_("Undo last undo"))
