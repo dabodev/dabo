@@ -31,9 +31,9 @@ class dSizerMixin(dObject):
 		              vertical sizers. Specifies where the object appears within
 		              the available area in the sizer.
 
-		      hAlign: Only used if the alignment property not set.
+		      halign: Only used if the alignment property not set.
 
-		      vAlign: Only used if the alignment property not set.
+		      valign: Only used if the alignment property not set.
 
 		      border: Specifies the number of pixels to put around the object in
 		              the sizer, on the sides specified by the borderSides
