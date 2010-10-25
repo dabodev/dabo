@@ -242,3 +242,31 @@ keyStrings = {
 	"numpad_decimal": key_Numpad_decimal,
 	"numpad_divide": key_Numpad_divide,
 }
+
+
+def resolveKeyCombo(keyCombo, returnFlags=False):
+	"""When returnFlags is False (default), this takes a string representation
+	of keys and modifiers, and returns a 2-tuple, containing the modifier(s)
+	as the first element, and the key as the second.
+	
+	If returnFlags is True, a 3-tuple is returned, with the first two elements the
+	same as above, but with a thrid element that is a numeric value compatible with
+	what wxPython expects.
+	"""
+	if keyCombo.endswith("+"):
+		# Strip off the trailing two characters
+		keys = keyCombo[:-2].split("+")
+		keys.append("+")
+	else:
+		keys = keyCombo.split("+")
+	# The modifier keys, if any, comprise all but the last key in keys
+	mods = [k.lower() for k in keys[:-1]]
+	key = keys[-1]
+	if returnFlags:
+		# Convert the string mods and key into the correct parms for wx:
+		flags = mod_Normal
+		for mod in mods:
+			flags = flags | modifierStrings[mod.lower()]
+		return (mods, key, flags)
+	else:
+		return (mods, key)

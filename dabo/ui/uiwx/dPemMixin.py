@@ -735,20 +735,8 @@ class dPemMixin(dPemMixinBase):
 			# When user presses <ctrl><alt><w>, close the form:
 			form.bindKey("ctrl+alt+w", form.Close)
 		"""
-		if keyCombo == "+":
-			keys = [keyCombo]
-		else:
-			keys = keyCombo.split("+")
-		# The modifier keys, if any, comprise all but the last key in keys
-		mods = keys[:-1]
-		key = keys[-1]
+		mods, key, flags = dabo.ui.dKeys.resolveKeyCombo(keyCombo, True)
 		upMods = [mm.upper() for mm in mods]
-
-		# Convert the string mods and key into the correct parms for wx:
-		flags = dKeys.mod_Normal
-		for mod in mods:
-			flags = flags | dKeys.modifierStrings[mod.lower()]
-
 		try:
 			keyCode = dKeys.keyStrings[key.lower()]
 		except KeyError:
@@ -2678,7 +2666,7 @@ class dPemMixin(dPemMixinBase):
 			"""))
 
 	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
-			_("""Specifies the type of border for this window. (int).
+			_("""Specifies the type of border for this window. (str).
 
 				Possible choices are:
 					"None"
