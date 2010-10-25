@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+from dabo.dLocalize import _
 
 key_Alt = wx.WXK_ALT
 try:
@@ -253,15 +254,23 @@ def resolveKeyCombo(keyCombo, returnFlags=False):
 	same as above, but with a thrid element that is a numeric value compatible with
 	what wxPython expects.
 	"""
-	if keyCombo.endswith("+"):
-		# Strip off the trailing two characters
-		keys = keyCombo[:-2].split("+")
-		keys.append("+")
+	if not isinstance(keyCombo, basestring) or not keyCombo.strip():
+		raise ValueError(_("Invalid key combination: '%s'") % keyCombo)
+	parts = keyCombo.split("+")
+	if len(parts) == 1:
+		# A single character
+		key = parts[0]
+		parts = []
 	else:
-		keys = keyCombo.split("+")
+		# Special case: handle the '+' key, which will create two empty elements at the end
+		if parts[-2:] == ["", ""]:
+			key = "+"
+			parts = parts[:-2]
+		else:
+			key = parts[-1]
+			parts = parts[:-1]
 	# The modifier keys, if any, comprise all but the last key in keys
-	mods = [k.lower() for k in keys[:-1]]
-	key = keys[-1]
+	mods = [p.lower() for p in parts]
 	if returnFlags:
 		# Convert the string mods and key into the correct parms for wx:
 		flags = mod_Normal
