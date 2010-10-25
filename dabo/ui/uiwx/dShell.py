@@ -431,7 +431,9 @@ Ctrl-Up/Down to scroll through history."""))
 		# Show/hide the code editing pane
 		self.bindKey("Ctrl+E", self.onToggleCodePane)
 		# Force the focus to the editor when the code page is activated.
-		self.pgCode.bindEvent(dEvents.PageEnter, lambda evt: self.edtCode.setFocus())
+		def _delayedSetFocus(evt):
+			dabo.ui.callAfter(self.edtCode.setFocus)
+		self.pgCode.bindEvent(dEvents.PageEnter, _delayedSetFocus)
 
 		# create the output control
 		outControl = dabo.ui.dEditBox(op, RegID="edtOut",
