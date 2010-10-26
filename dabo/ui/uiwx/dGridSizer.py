@@ -10,7 +10,7 @@ from dabo.ui import makeDynamicProperty
 class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 	def __init__(self, *args, **kwargs):
 		"""dGridSizer is a sizer that can lay out items in a virtual grid arrangement.
-		Items can be placed is specific row/column positions if that position is
+		Items can be placed in specific row/column positions if that position is
 		unoccupied. You can specify either MaxCols or MaxRows, and then append
 		items to the grid sizer; it will place them in the first open row/col
 		position, until the Max* dimension is reached; after that, it starts over in
