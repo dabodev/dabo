@@ -238,7 +238,7 @@ class dStandardButtonDialog(dDialog):
 	you must specify them all; in other words, OK is only assumed if nothing is specified.
 	Then add your custom controls in the addControls() hook method, and respond to
 	the pressing of the standard buttons in the run*() handlers, where * is the name of the
-	associated property (e.g., runOK(), runOo(), etc.). You can query the Accepted property
+	associated property (e.g., runOK(), runNo(), etc.). You can query the Accepted property
 	to find out if the user pressed "OK" or "Yes"; if neither of these was pressed,
 	Accepted will be False.
 	"""
