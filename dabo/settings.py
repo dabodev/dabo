@@ -205,6 +205,9 @@ dbMaxLogFileSize = 5242880		# 5 MB
 reportTTFontFilePath = None
 reportTTFontFileMap = {}
 
+# Determines if we import the debugger into the dabo namespace
+importDebugger = True
+
 ### Settings - end
 
 

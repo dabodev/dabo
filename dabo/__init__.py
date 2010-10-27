@@ -288,11 +288,15 @@ import dEvents
 from lib.utils import ustr
 
 from dBug import logPoint
-try:
-	import pudb as pdb
-except ImportError:
-	import pdb
-trace = pdb.set_trace
+if importDebugger:
+	try:
+		import pudb as pdb
+	except ImportError:
+		import pdb
+	trace = pdb.set_trace
+else:
+	def trace():
+		raise NotImplementedError
 
 from dApp import dApp
 from dPref import dPref
