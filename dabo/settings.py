@@ -112,6 +112,12 @@ defaultEncoding = "utf-8"
 # Default log file for the dabo.dBug.loggit function
 loggitFile = "functionCall.log"
 
+# Events should be processed from the latest to earliest binding.
+# If you notice that events don't seem to be happening correctly,
+# change this to False to see if that improves things. If so, please
+# report it the Dabo developers.
+reverseEventsOrder = True
+
 # Does the UI layer (dForm) eat exceptions from the biz layer
 # such as 'invalid row specified' or bizrule violations and
 # automatically display an informational message to the user (True),

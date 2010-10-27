@@ -81,7 +81,11 @@ class EventMixin(object):
 				eventData=eventData, *args, **kwargs)
 
 		# Now iterate the bindings, and execute the callbacks:
-		for binding in self._EventBindings:
+		if dabo.reverseEventsOrder:
+			bindings = reversed(self._EventBindings)
+		else:
+			bindings = self._EventBindings
+		for binding in bindings:
 			bindingClass, bindingFunction = binding[0], binding[1]
 			if bindingClass == eventClass:
 				if uiCallAfterFunc:
