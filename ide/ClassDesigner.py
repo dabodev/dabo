@@ -1531,6 +1531,9 @@ class ClassDesigner(dabo.dApp):
 		def fillDlg(dlg):
 			"""Adds the appropriate controls to the dialog."""
 			hasBoth = szProps and selfProps
+			if hasBoth:
+				hsz = dabo.ui.dSizer("h")
+				dlg.Sizer.append(hsz, "x", border=5)
 			for propSource in (szProps, selfProps):
 				if not propSource:
 					continue
@@ -1541,15 +1544,15 @@ class ClassDesigner(dabo.dApp):
 					if isAddingSelfProps:
 						# Add a separator between sections if there are props
 						# in both lists.
-						dlg.Sizer.appendSpacer(6)
+						hsz.appendSpacer(6)
 
 					bx = dui.dBorderSizer(dlg)
 					if propSource == szProps:
 						bx.Caption = _("Controlling Sizer Properties")
 					else:
 						bx.Caption = _("Properties for This Sizer")
-					dlg.Sizer.append(bx, "x", border=5)
 					bx.append(sz, border=20)
+					hsz.append(bx, "x", border=5)
 				else:
 					# Just one section, so add the grid to the dialog's sizer
 					dlg.Sizer.append(sz, border=20)
