@@ -243,11 +243,18 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 		"""
 		pt = self._proxy_textbox
 		val = pt.Value
-		if (val > self.Max) or (val < self.Min):
+		def _wrapType(compval):
+			tv = type(val)
+			if tv != type(compval):
+				try:
+					ret = tv(compval)
+				except TypeError:
+					ret = tv(str(compval))
+			return ret
+		if (val > _wrapType(self.Max)) or (val < _wrapType(self.Min)):
 			pt.Value = pt._oldVal
 		evt.Skip()
-		#pt._oldVal = self.Value
-		#self.flushValue()
+
 
 	def _numericStringVal(self, val):
 		"""If passed a string, attempts to convert it to the appropriate numeric
