@@ -517,14 +517,11 @@ class DesignerClassConverter(dObject):
 						# Default to Horizontal
 						atts["Orientation"] = "H"
 					szType = atts["Orientation"]
+					for unneeded in ("SlotCount", "classID"):
+						atts.pop(unneeded, None)
+					propString = ", ".join(["%s='%s'" % (k,v) for k,v in atts.items()])
 					if isBorderSizer:
 						prnt = "currParent, "
-						propString = "'%s', Caption=\"%s\"" % (self._extractKey(atts, "Orientation", "H"),
-								self._extractKey(atts, "Caption", ""))
-					else:
-						for unneeded in ("SlotCount", "classID"):
-							atts.pop(unneeded, None)
-						propString = ", ".join(["%s='%s'" % (k,v) for k,v in atts.items()])
 				if self.CreateDesignerControls:
 					superName = clsname
 				else:
