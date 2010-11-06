@@ -1475,6 +1475,7 @@ class dBizobj(dObject):
 		""" Lets dependent child bizobjs update to the current parent
 		record.
 		"""
+		_oldKey = self.__currentCursorKey
 		if self.LinkField:
 			if val is None:
 				val = self.getParentLinkValue()
@@ -1482,9 +1483,10 @@ class dBizobj(dObject):
 			self.__currentCursorKey = val
 			# Make sure there is a cursor object for this key.
 			self._CurrentCursor = val
-			# Propagate the change to any children:
-			for child in self.__children:
-				child.setCurrentParent()
+			if _oldKey != val:
+				# Propagate the change to any children:
+				for child in self.__children:
+					child.setCurrentParent()
 
 
 	def addChild(self, child):
@@ -1512,13 +1514,16 @@ class dBizobj(dObject):
 		return ret
 
 
-	def requeryAllChildren(self):
+	def requeryAllChildren(self, force=False):
 		""" Requery each child bizobj's data set.
 
 		Called to assure that all child bizobjs have had their data sets
 		refreshed to match the current master row. This will normally happen
 		automatically when appropriate, but user code may call this as well
 		if needed.
+
+		If force is True, the child will be requeried even if ChildCacheInterval
+		hasn't expired yet.
 		"""
 		if not self.__children:
 			return True
@@ -1530,10 +1535,10 @@ class dBizobj(dObject):
 		for child in self.__children:
 			# Let the child know the current dependent PK
 			if child.RequeryWithParent:
-				child.setCurrentParent()
+				child.setCurrentParent()  ##pkm: shouldn't this happen unconditionally?
 				if not child.isAnyChanged(useCurrentParent=True):
 					# Check for caching
-					if child.cacheExpired():
+					if force or child.cacheExpired():
 						child.requery()
 		self.afterChildRequery()
 
