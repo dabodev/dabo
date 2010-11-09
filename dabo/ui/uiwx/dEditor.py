@@ -1458,7 +1458,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		# set self._fileName, in case it was changed with a Save As
 		self._fileName = fname
 		self._fileModTime = os.stat(fname).st_mtime
-		self._clearDocument(clearText=False)
+		self._clearDocument(clearText=False, clearUndoBuffer=False)
 		# Save the appearance settings
 		app = self.Application
 		app.setUserSetting("editor.fontsize", self._fontSize)
@@ -1523,12 +1523,13 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 		return ret
 
 
-	def _clearDocument(self, clearText=True):
+	def _clearDocument(self, clearText=True, clearUndoBuffer=True):
 		"""Do everything needed to start the doc as if new."""
 		if clearText:
 			self.SetText("")
 		self.SetSavePoint()
-		self.EmptyUndoBuffer()
+		if clearUndoBuffer:
+			self.EmptyUndoBuffer()
 		self.setTitle()
 		self.setDocumentDefaults()
 
