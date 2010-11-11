@@ -70,6 +70,22 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 
 
 class Page(dabo.ui.dPage):
+	def initEvents(self):
+		self.super()
+		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
+
+
+	def __onPageEnter(self, evt):
+		self._onPageEnter()
+		if self.UpdateOnPageEnter:
+			self.update()
+
+
+	def _onPageEnter(self):
+		"""Subclass hook."""
+		pass
+
+
 	def newRecord(self, ds=None):
 		""" Called by a browse grid when the user wants to add a new row.
 		"""
@@ -96,6 +112,17 @@ class Page(dabo.ui.dPage):
 			self.Parent.SetSelection(2)
 		else:
 			self.Parent.editByDataSource(ds)
+
+
+	def _getUpdateOnPageEnter(self):
+		return getattr(self, "_updateOnPageEnter", True)
+
+	def _setUpdateOnPageEnter(self, val):
+		self._updateOnPageEnter = bool(val)
+
+	UpdateOnPageEnter = property(_getUpdateOnPageEnter, _setUpdateOnPageEnter, None,
+			_("""Specifies whether an implicit self.update() happens upon page entry."""))
+
 
 
 class SelectOptionsPanel(dPanel):
@@ -133,6 +160,11 @@ class SelectPage(Page):
 		self.sortFields = {}
 		self.__virtualFilters = []
 		self.sortIndex = 0
+
+
+	def _initProperties(self):
+		self.UpdateOnPageEnter = False
+		self.super()
 
 
 	def onSortLabelRClick(self, evt):
@@ -493,12 +525,7 @@ class BrowsePage(Page):
 		super(BrowsePage, self).__init__(parent, Name=Name, *args, **kwargs)
 
 
-	def initEvents(self):
-		super(BrowsePage, self).initEvents()
-		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
-
-
-	def __onPageEnter(self, evt):
+	def _onPageEnter(self):
 		if not self.itemsCreated:
 			self.createItems()
 		if self.Form.SetFocusToBrowseGrid:
@@ -530,7 +557,6 @@ class EditPage(Page):
 
 	def initEvents(self):
 		super(EditPage, self).initEvents()
-		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
 		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 
@@ -550,7 +576,7 @@ class EditPage(Page):
 		self.Form.setPrimaryBizobjToDefault(self.DataSource)
 
 
-	def __onPageEnter(self, evt):
+	def _onPageEnter(self):
 		self.Form.PrimaryBizobj = self.DataSource
 		focusToControl = self._focusToControl
 		if focusToControl is not None:
