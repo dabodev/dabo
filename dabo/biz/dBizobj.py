@@ -1538,7 +1538,7 @@ class dBizobj(dObject):
 				child.setCurrentParent()  ##pkm: shouldn't this happen unconditionally?
 				if not child.isAnyChanged(useCurrentParent=True):
 					# Check for caching
-					if force or child.cacheExpired():
+					if force or not child._CurrentCursor.lastRequeryTime or child.cacheExpired():
 						child.requery()
 		self.afterChildRequery()
 
