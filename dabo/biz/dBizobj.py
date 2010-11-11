@@ -1552,6 +1552,27 @@ class dBizobj(dObject):
 		return ret
 
 
+	def expireCache(self, recurse=True, _allCursors=False):
+		"""Expire the requery cache so that a subsequent self.Parent.requeryAllChildren()
+		will fetch records from the backend instead of using the cached records.
+
+		If recurse is True, the cache in the child bizobjs will be expired, too.
+		"""
+		if _allCursors:
+			cursors = self.__cursors.values()
+		else:
+			cursors = [self._CurrentCursor]
+
+		for cursor in cursors:
+			cursor.clearLastRequeryTime()
+
+		if recurse:
+			for child in self.__children:
+				## unconditionally set _allCursors=True for recursed child bizobjs, to make sure
+				## all cursors will get requeried next time, not just the _CurrentCursor.
+				child.expireCache(_allCursors=True)
+
+
 	def getPK(self):
 		""" Return the value of the PK field."""
 		if self.KeyField is None:

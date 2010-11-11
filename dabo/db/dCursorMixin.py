@@ -66,7 +66,7 @@ class dCursorMixin(dObject):
 		# Holds the last SQL run in a requery() call.
 		self._lastSQL = ""
 		# Hold the time that this cursor was last requeried.
-		self.lastRequeryTime = 0
+		self.clearLastRequeryTime()
 		# These are used to determine if the field list of successive select statements
 		# are identical.
 		self.__lastExecute = ""
@@ -135,6 +135,11 @@ class dCursorMixin(dObject):
 		self._paramPlaceholder = None
 
 		self.initProperties()
+
+
+	def clearLastRequeryTime(self):
+		"""Clear the last requery time to force the cache to be expired."""
+		self.lastRequeryTime = 0
 
 
 	def setCursorFactory(self, func, cls):
