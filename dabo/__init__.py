@@ -381,8 +381,8 @@ app.start()
 # 'MyClasses.py' in this directory, and it defines two classes named 'FirstClass'
 # and 'SecondClass', add these lines:
 #
-# from MyClass import FirstClass
-# from MyClass import SecondClass
+# from MyClasses import FirstClass
+# from MyClasses import SecondClass
 #
 # Now you can refer to these classes as: self.Application.%(dd)s.FirstClass and
 # self.Application.%(dd)s.SecondClass
