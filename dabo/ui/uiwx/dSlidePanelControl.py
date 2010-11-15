@@ -397,6 +397,8 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		self.__inSingletonProcess = False
 		# Flag to track the currently expanded panel in Singleton format.
 		self.__openPanel = None
+		# Ensures that the control has a minimum size.
+		self._minSizerWidth = self._minSizerHeight = 100
 
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
@@ -494,6 +496,9 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		if not self:
 			# The object may have already been released.
 			return
+		self.SetMinSize((self.MinSizerWidth, self.MinSizerHeight))
+		for kid in self.Children:
+			kid.SetMinSize((self.MinSizerWidth, self.MinSizerHeight))
 		self.Layout()
 
 
@@ -650,6 +655,26 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			self._properties["ExpandContent"] = val
 
 
+	def _getMinSizerHeight(self):
+		return self._minSizerHeight
+
+	def _setMinSizerHeight(self, val):
+		if self._constructed():
+			self._minSizerHeight = val
+		else:
+			self._properties["MinSizerHeight"] = val
+
+
+	def _getMinSizerWidth(self):
+		return self._minSizerWidth
+
+	def _setMinSizerWidth(self, val):
+		if self._constructed():
+			self._minSizerWidth = val
+		else:
+			self._properties["MinSizerWidth"] = val
+
+
 	def _getPanelClass(self):
 		try:
 			return self._panelClass
@@ -730,6 +755,12 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 	ExpandContent = property(_getExpandContent, _setExpandContent, None,
 			_("""When True, the panels size themselves to the size of this object.
 			Otherwise, panels only take up as much space as they need. (default=True) (bool)"""))
+
+	MinSizerHeight = property(_getMinSizerHeight, _setMinSizerHeight, None,
+			_("Minimum height for the control. Default=100px  (int)"))
+
+	MinSizerWidth = property(_getMinSizerWidth, _setMinSizerWidth, None,
+			_("Minimum width for the control. Default=100px  (int)"))
 
 	PanelClass = property(_getPanelClass, _setPanelClass, None,
 			_("""Specifies the class of control to use for panels by default. (dSlidePanel)
