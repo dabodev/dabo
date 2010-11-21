@@ -631,6 +631,7 @@ class ClassDesigner(dabo.dApp):
 			atts = clsd["attributes"]
 			del atts["designerClass"]
 			nm = clsd["name"]
+			atts["UseSizers"] = self._findSizerInClassDict(clsd)
 		else:
 			atts = {"UseSizers": self._findSizerInClassDict(clsd)}
 			nm = "ClassDesignerForm"
