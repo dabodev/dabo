@@ -188,10 +188,10 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		return cnt
 
 
-	def _getPic(self):
+	def _getPicture(self):
 		return self._picture
 
-	def _setPic(self, val):
+	def _setPicture(self, val):
 		if isinstance(val, wx.Image):
 			# An image stored as a stream is being used
 			self.__image = self.__val = val
@@ -216,10 +216,14 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				val = dabo.ui.getImagePath(val)
 				if val is None or not os.path.exists(val):
 					# This will raise an IOError if it fails
-					val = utils.resolvePathAndUpdate(origVal)
+					try:
+						val = utils.resolvePathAndUpdate(origVal)
+					except IOError:
+						val = None
 				if val is None or not os.path.exists(val):
 					# Bad image reference
-					raise IOError("No file named '%s' exists." % origVal)
+					dabo.log.error(_("No file named '%s' exists.") % origVal)
+					return
 			self._picture = val
 			self._rotation = 0
 			idx = self.PictureIndex
@@ -293,9 +297,9 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				except TypeError:
 					# No dice, so just bail
 					img = wx.EmptyImage(1, 1)
-				self._setPic(img)
+				self._setPicture(img)
 			else:
-				self._setPic(val)
+				self._setPicture(val)
 			if ((type(self.__imageData) != type(val)) or (self.__imageData != val)):
 				tfname = self.Application.getTempFile(ext="")
 				try:
@@ -321,7 +325,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 	FrameCount = property(_getFrameCount, None, None,
 			_("Number of frames in the current image. Will be 1 for most images, but can be greater for animated GIFs, ICOs and some TIFF files. (read-only) (int)"))
 
-	Picture = property(_getPic, _setPic, None,
+	Picture = property(_getPicture, _setPicture, None,
 			_("The file used as the source for the displayed image.  (str)") )
 
 	PictureIndex = property(_getPictureIndex, _setPictureIndex, None,
