@@ -127,17 +127,6 @@ dAppRef = None
 # we want to make them part of the dabo namespace.
 from settings import *
 
-# Install localization service for dabo. dApp will install localization service
-# for the user application separately.
-import dLocalize
-dLocalize.install("dabo")
-# On some platforms getfilesystemencoding() and even getdefaultlocale()
-# can return None, so we make sure we always set a reasonable encoding:
-# NOTE: 'defaultEncoding' is imported from 'from settings import *' line above.
-fileSystemEncoding = (sys.getfilesystemencoding()
-    or locale.getdefaultlocale()[1] or defaultEncoding)
-
-
 def getEncoding():
 	ret = locale.getlocale()[1]
 	if ret is None:
@@ -151,6 +140,17 @@ def getXMLEncoding():
 	if "1252" in ret:
 		return "windows-1252"
 	return ret
+
+
+# Install localization service for dabo. dApp will install localization service
+# for the user application separately.
+import dLocalize
+dLocalize.install("dabo")
+# On some platforms getfilesystemencoding() and even getdefaultlocale()
+# can return None, so we make sure we always set a reasonable encoding:
+# NOTE: 'defaultEncoding' is imported from 'from settings import *' line above.
+fileSystemEncoding = (sys.getfilesystemencoding()
+    or locale.getdefaultlocale()[1] or defaultEncoding)
 
 
 # These are the various standard log handlers.
