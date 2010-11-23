@@ -422,7 +422,9 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 	def _itemByCaption(self, cap, returnPos=False):
 		"""Common method for locating a menu item by its caption, ignoring
-		all the 'special' characters for acceleration.
+		all the 'special' characters for acceleration. If 'returnPos' is
+		True, the position of the found item is returned instead of the
+		item itself.
 		"""
 		cap = cleanMenuCaption(cap, "&_")
 		for pos in xrange(self.GetMenuItemCount()):
@@ -436,11 +438,16 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		return None
 
 
-	def getItemIndex(self, caption):
-		"""Returns the index of the item with the specified caption. If the item
+	def getItemIndex(self, captionOrItem):
+		"""Returns the index of the item with the specified caption; you can
+		optionally pass in a reference to the menu item itself. If the item
 		isn't found, None is returned.
 		"""
-		return self._itemByCaption(caption, True)
+		try:
+			return self.Children.index(captionOrItem)
+		except ValueError:
+			# Not a menu item
+			return self._itemByCaption(captionOrItem, True)
 
 
 	def getItem(self, idOrCaption):
