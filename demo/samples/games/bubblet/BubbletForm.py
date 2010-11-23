@@ -64,11 +64,9 @@ class BubbletForm(dabo.ui.dForm):
 
 		# Add the menu items
 		mb = self.MenuBar
-		fm = mb.getMenu(_("File"))
-		quitPos = fm.getItemIndex(_("Quit"))
-		if quitPos is None:
-			# Win/Lin
-			quitPos = fm.getItemIndex(_("Exit"))
+		fm = mb.fileMenu
+		quitItem = mb.quitMenuItem
+		quitPos = fm.getItemIndex(quitItem)
 		if quitPos is None:
 			quitPos = len(fm.Children)
 		fm.insert(quitPos, _("&ScreenShot"), HotKey="Ctrl+S", OnHit=self.saveScreenShot)
