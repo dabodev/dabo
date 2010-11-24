@@ -133,11 +133,9 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 			af = self.Parent
 		try:
 			mb = af.MenuBar
-			menuOK = True
 		except AttributeError:
-			menuOK = False
 			mb = None
-		if menuOK:
+		if mb:
 			pm = af.PreferenceManager.menu
 			self.preferenceKeys.append(pm)
 			menuPage = self.pgMenuKeys = self.addCategory(_("Menu Keys"))
