@@ -104,7 +104,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 
 	def afterSetMenuBar(self):
 		mbar = self.MenuBar
-		fm = mbar.getMenu(_("File"))
+		fm = mbar.getMenu("base_file")
 		fm.append(_("Save"), HotKey="Ctrl+S", OnHit=self.onSave,
 				help=_("Save the menu"))
 

@@ -2146,7 +2146,7 @@ class ClassDesigner(dabo.dApp):
 
 	def menuUpdate(self, evt, mb):
 		mn = evt.menuObject
-		if mn is mb.getMenu(_("View")):
+		if mn is mb.getMenu("base_view"):
 			prmDict = {False: (_("Hide"), _("Show")), True: (_("Show"), _("Hide"))}
 			for item in mn.Children:
 				if not hasattr(item, "Caption"):
