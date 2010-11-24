@@ -308,6 +308,9 @@ class dPemMixin(dPemMixinBase):
 		self._droppedTextHandler = None
 		self._dropTarget = None
 
+		# Records the number of display lock calls on this object
+		self._displayLockCount = 0
+
 		# _beforeInit hook for Class Designer code
 		self._beforeInitDesignerHook()
 
@@ -869,11 +872,18 @@ class dPemMixin(dPemMixinBase):
 		updated at once.
 
 		IMPORTANT: you must call unlockDisplay() when you are done, or your
-		object will never draw.
+		object will never draw. unlockDisplay() must be called once for every
+		time lockDisplay() is called in order to resume repainting of the 
+		control. Alternatively, you can call lockDisplay() many times, and
+		then call unlockDisplayAll() once when you are done.
 
 		Note that lockDisplay currently doesn't do anything on GTK.
 		"""
-		self.Freeze()
+		if self._displayLockCount:
+			self._displayLockCount += 1
+		else:
+			self._displayLockCount = 1
+			self.Freeze()
 
 
 	def unlockDisplay(self):
@@ -881,13 +891,28 @@ class dPemMixin(dPemMixinBase):
 
 		Use in conjunction with lockDisplay(), when you are doing lots of things
 		that would result in lengthy screen updates.
+
+		Since lockDisplay() may be called several times on an object, calling
+		unlockDisplay() will "undo" one locking call. When all locks have been
+		removed, repainting of the display will resume.
 		"""
-		try:
-			self.Thaw()
-		except dabo.ui.assertionException:
-			# Too many 'unlockDisplay' calls to the same object were made. Log
-			# the mistake, but don't throw a Python error.
-			dabo.log.error(_("Extra call to unlockDisplay() for object %s") % self)
+		self._displayLockCount -= 1
+		if not self._displayLockCount:
+			try:
+				self.Thaw()
+			except dabo.ui.assertionException:
+				# Too many 'unlockDisplay' calls to the same object were made. Log
+				# the mistake, but don't throw a Python error.
+				dabo.log.error(_("Extra call to unlockDisplay() for object %s") % self)
+
+
+	def unlockDisplayAll(self):
+		"""Immediately unlocks the display, no matter how many previous
+		lockDisplay calls have been made. Useful in a callAfterInterval()
+		construction to avoid flicker.
+		"""
+		self._displayLockCount = 1
+		self.unlockDisplay()
 
 
 	def getDisplayLocker(self):
@@ -902,6 +927,8 @@ class dPemMixin(dPemMixinBase):
 				obj.Freeze()
 
 			def __del__(self):
+				if not self._obj:
+					return
 				try:
 					self._obj.Thaw()
 				except StandardError, e:
