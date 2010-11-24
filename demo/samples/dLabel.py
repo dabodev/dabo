@@ -79,7 +79,7 @@ class TestPanel(dabo.ui.dPanel):
 				lbl.FontSize += 1
 				sz.append(lbl, "x", border=40, borderSides=("Left", "Right"))
 
-				sld = self.slider = dabo.ui.dSlider(self, Value=100, Continuous=True)
+				sld = self.slider = dabo.ui.dSlider(self, Value=100, Continuous=False)
 				sld.bindEvent(dEvents.Hit, self.onSlider)
 				sld.bindEvent(dEvents.Resize, self.onSlider)
 				sz.append(sld, "x", border=10)

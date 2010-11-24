@@ -431,11 +431,11 @@ class MontanaForm(dabo.ui.dForm):
 		iconPath = "themes/tango/16x16"
 
 		mb = self.MenuBar
-		fileMenu = mb.getMenu(_("File"))
+		fileMenu = mb.getMenu("base_file")
 		fileMenu.prependSeparator()
 		fileMenu.prepend(_("&New Game"), HotKey="Ctrl+N", help=_("Start a new game"),
 				OnHit=self.onNewGame, bmp="%s/actions/document-new.png" % iconPath)
-		helpMenu = mb.getMenu(_("Help"))
+		helpMenu = mb.getMenu("base_help")
 		helpMenu.append(_("&How to Play"), HotKey="Ctrl+I", help=_("Rules of the game"),
 			OnHit=self.onRules, bmp="%s/apps/help-browser.png" % iconPath)
 
