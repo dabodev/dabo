@@ -21,10 +21,11 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 		preClass = wx.PreStaticText
 		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
 				*args, **kwargs)
+		self.bindEvent(dEvents.Resize, self.__onResize)
 
 
 	def __onResize(self, evt):
-		"""Event binding is set when Wrap=True. Tell the label
+		"""Event binding is set when WordWrap=True. Tell the label
 		to wrap to its current width.
 		"""
 		if self._inResizeEvent:
@@ -35,28 +36,34 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 	def __onResizeExecute(self):
 		# We need to set the caption to the internally-saved caption, since
 		# WordWrap can introduce additional linefeeds.
-		self.Form.lockDisplay()
+		try:
+			self.Parent.lockDisplay()
+			pass
+		except dabo.ui.deadObjectException:
+			# Form is being destroyed; bail
+			return
 		plat = self.Application.Platform
 		try:
 			first = self._firstResizeEvent
 		except AttributeError:
 			first = True
 			self._firstResizeEvent = False
-		if plat == "Win":
-			self.InvalidateBestSize()
-			self.Parent.layout()
-		self.Parent.layout()
+#		if plat == "Win":
+#			self.InvalidateBestSize()
+#			self.Parent.layout()
+#		self.Parent.layout()
 		self.SetLabel(self._caption)
-		self.Wrap(self.Width)
-		if plat == "Win":
-			self.Width, self.Height = self.GetBestSize().Get()
-			self.Parent.layout()
-		elif plat == "Mac":
-			self.Parent.layout()
-			self.SetLabel(self._caption)
-			self.Wrap(self.Width)
+		wd = {True: self.Parent.Width, False: -1}[self.WordWrap]
+		self.Wrap(wd)
+#		if plat == "Win":
+#			self.Width, self.Height = self.GetBestSize().Get()
+#			self.Parent.layout()
+#		elif plat == "Mac":
+#			self.Parent.layout()
+#			self.SetLabel(self._caption)
+#			self.Wrap(self.Width)
 		self._inResizeEvent = False
-		self.Form.unlockDisplay()
+		dabo.ui.callAfterInterval(50, self.Parent.unlockDisplayAll)
 
 
 	# property get/set functions
@@ -116,15 +123,13 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 	def _setWordWrap(self, val):
 		if self._constructed():
 			self._wordWrap = val
-			self.unbindEvent(dEvents.Resize)
 			if val:
 				# Make sure AutoResize is False.
 				if self.AutoResize:
 					#dabo.info.write(_("Setting AutoResize to False since WordWrap is True"))
 					self.AutoResize = False
-				self.bindEvent(dEvents.Resize, self.__onResize)
 		else:
-			self._properties["Wrap"] = val
+			self._properties["WordWrap"] = val
 
 
 	# property definitions follow:
@@ -158,17 +163,32 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 	DynamicWordWrap = makeDynamicProperty(WordWrap)
 
 
-
 class _dLabel_test(dLabel):
 	def initProperties(self):
 		self.FontBold = True
 		self.Alignment = "Center"
 		self.ForeColor = "Red"
 		self.Width = 300
-		self.Caption = "My God, it's full of stars!"
-		self.Wrap = True
+		self.Caption = "My God, it's full of stars! " * 22
+		self.WordWrap = False
 
 
 if __name__ == "__main__":
-	import test
-	test.Test().runTest(_dLabel_test)
+	class LabelTestForm(dabo.ui.uiwx.dForm):
+		def afterInit(self):
+			pnl = dabo.ui.dPanel(self)
+			self.Sizer.append1x(pnl)
+			sz = pnl.Sizer = dabo.ui.dSizer("v")
+			lbl = dabo.ui.dLabel(pnl, Caption="This label does not have WordWrap" * 20,
+					WordWrap=False)
+			sz.append1x(lbl)
+			lbl = dabo.ui.dLabel(pnl, Caption="This label has WordWrap! " * 20,
+					WordWrap=True)
+			sz.append1x(lbl)
+			dabo.ui.callAfter(self.layout)
+
+	app = dabo.dApp(MainFormClass=LabelTestForm)
+	app.start()
+
+#	import test
+#	test.Test().runTest(_dLabel_test)
