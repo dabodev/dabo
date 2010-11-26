@@ -18,6 +18,7 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 		self._baseClass = dLabel
 		self._wordWrap = False
 		self._inResizeEvent = False
+		self._resetAutoResize = True
 		preClass = wx.PreStaticText
 		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
 				*args, **kwargs)
@@ -31,49 +32,40 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 		if self._inResizeEvent:
 			return
 		self._inResizeEvent = True
-		dabo.ui.callAfter(self.__onResizeExecute)
+		dabo.ui.callAfter(self.__resizeExecute)
 
-	def __onResizeExecute(self):
+
+	def __resizeExecute(self):
 		# We need to set the caption to the internally-saved caption, since
 		# WordWrap can introduce additional linefeeds.
 		try:
 			self.Parent.lockDisplay()
-			pass
 		except dabo.ui.deadObjectException:
 			# Form is being destroyed; bail
 			return
 		plat = self.Application.Platform
-		try:
-			first = self._firstResizeEvent
-		except AttributeError:
-			first = True
-			self._firstResizeEvent = False
-#		if plat == "Win":
-#			self.InvalidateBestSize()
-#			self.Parent.layout()
-#		self.Parent.layout()
 		self.SetLabel(self._caption)
-		wd = {True: self.Parent.Width, False: -1}[self.WordWrap]
+		wd = {True: self.Width, False: -1}[self.WordWrap]
 		self.Wrap(wd)
-#		if plat == "Win":
-#			self.Width, self.Height = self.GetBestSize().Get()
-#			self.Parent.layout()
-#		elif plat == "Mac":
-#			self.Parent.layout()
-#			self.SetLabel(self._caption)
-#			self.Wrap(self.Width)
+		dabo.ui.callAfterInterval(50, self.__endResize)
+
+
+	def __endResize(self):
+		"""To prevent infinite loops while resizing, the _inResizeEvent
+		flag must be reset outside of the execution method.
+		"""
+		self.Parent.unlockDisplayAll()
 		self._inResizeEvent = False
-		dabo.ui.callAfterInterval(50, self.Parent.unlockDisplayAll)
+		self.update()
 
 
 	# property get/set functions
-
 	def _getAutoResize(self):
 		return not self._hasWindowStyleFlag(wx.ST_NO_AUTORESIZE)
 
-	def _setAutoResize(self, value):
+	def _setAutoResize(self, val):
 		self._delWindowStyleFlag(wx.ST_NO_AUTORESIZE)
-		if not value:
+		if not val:
 			self._addWindowStyleFlag(wx.ST_NO_AUTORESIZE)
 
 
@@ -122,12 +114,20 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 
 	def _setWordWrap(self, val):
 		if self._constructed():
+			changed = (self._wordWrap != val)
+			if not changed:
+				return
 			self._wordWrap = val
 			if val:
 				# Make sure AutoResize is False.
 				if self.AutoResize:
-					#dabo.info.write(_("Setting AutoResize to False since WordWrap is True"))
+					self._resetAutoResize = True
 					self.AutoResize = False
+				dabo.ui.callAfter(self.Parent.layout)
+			else:
+				# reset the value
+				self.AutoResize = self._resetAutoResize
+			self.__resizeExecute()
 		else:
 			self._properties["WordWrap"] = val
 
@@ -151,8 +151,9 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 			_("Sets the size of the Font (int)") )
 
 	WordWrap = property(_getWordWrap, _setWordWrap, None,
-			_("""When True, the Caption is wrapped to the Width.
-			If this is set to True, AutoResize must be False.
+			_("""When True, the Caption is wrapped to the Width. Note
+			that the control must have sufficient Height to display any
+			wrapped text.
 			Default=False  (bool)"""))
 
 
@@ -176,19 +177,19 @@ class _dLabel_test(dLabel):
 if __name__ == "__main__":
 	class LabelTestForm(dabo.ui.uiwx.dForm):
 		def afterInit(self):
+			self.Caption = "dLabel Test"
 			pnl = dabo.ui.dPanel(self)
 			self.Sizer.append1x(pnl)
 			sz = pnl.Sizer = dabo.ui.dSizer("v")
-			lbl = dabo.ui.dLabel(pnl, Caption="This label does not have WordWrap" * 20,
+			sz.appendSpacer(25)
+			self.sampleLabel = dabo.ui.dLabel(pnl, Caption="This label has a very long Caption. " * 20,
 					WordWrap=False)
-			sz.append1x(lbl)
-			lbl = dabo.ui.dLabel(pnl, Caption="This label has WordWrap! " * 20,
-					WordWrap=True)
-			sz.append1x(lbl)
-			dabo.ui.callAfter(self.layout)
+			self.wrapControl = dabo.ui.dCheckBox(pnl, Caption="WordWrap",
+					DataSource=self.sampleLabel, DataField="WordWrap")
+			sz.append(self.wrapControl, halign="center", border=20)
+			sz.append1x(self.sampleLabel, border=10)
+			self.update()
+			dabo.ui.callAfterInterval(200, self.layout)
 
 	app = dabo.dApp(MainFormClass=LabelTestForm)
 	app.start()
-
-#	import test
-#	test.Test().runTest(_dLabel_test)
