@@ -59,7 +59,12 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		# Store the defaults for the various props
 		self._propDefaults = {}
 		for prop in self.DesignerProps.keys():
-			self._propDefaults[prop] = eval("self.%s" % prop)
+			try:
+				self._propDefaults[prop] = getattr(self, prop)
+			except StandardError, e:
+				nm = self.Name
+				dabo.log.error(_("Could not set default prop value: object: %(nm)s; property: %(prop); error: %(e)s")
+						% locals())
 		# Update bindings; do control-specific things.
 		if isinstance(self, dui.dGrid):
 			coolEvents = (dEvents.GridHeaderPaint,
