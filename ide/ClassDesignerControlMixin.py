@@ -63,7 +63,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				self._propDefaults[prop] = getattr(self, prop)
 			except StandardError, e:
 				nm = self.Name
-				dabo.log.error(_("Could not set default prop value: object: %(nm)s; property: %(prop); error: %(e)s")
+				dabo.log.error(_("Could not set default prop value: object: %(nm)s; property: %(prop)s; error: %(e)s")
 						% locals())
 		# Update bindings; do control-specific things.
 		if isinstance(self, dui.dGrid):
