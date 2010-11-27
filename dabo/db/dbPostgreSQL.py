@@ -178,7 +178,8 @@ class Postgres(dBackend):
 			pk = r["isprimary"]
 			fieldType = fldTypeDict.get(fldType, '?')
 			fields.append((name, fieldType, pk))
-		cursor.execute('rollback')
+		#cursor.execute('rollback')
+		self.rollbackTransaction(cursor)
 		return tuple(fields)
 
 
