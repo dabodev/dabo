@@ -4,7 +4,6 @@ import time
 import types
 import math
 import wx
-from wx._core import PyAssertionError
 import dabo
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -911,6 +910,8 @@ class dPemMixin(dPemMixinBase):
 		lockDisplay calls have been made. Useful in a callAfterInterval()
 		construction to avoid flicker.
 		"""
+		if not self._displayLockCount:
+			return
 		self._displayLockCount = 1
 		self.unlockDisplay()
 
