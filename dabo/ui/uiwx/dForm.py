@@ -473,6 +473,9 @@ class BaseForm(fm.dFormMixin):
 			# A False from confirmChanges means "don't proceed"
 			return
 
+		## A user-initiated requery should expire the cache on child bizobjs too:
+		bizobj.expireCache()
+
 		try:
 			self.StatusText = _("Please wait... requerying dataset...")
 #			busy = dabo.ui.busyInfo(_("Please wait... requerying dataset..."))

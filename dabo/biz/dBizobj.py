@@ -1514,7 +1514,7 @@ class dBizobj(dObject):
 		return ret
 
 
-	def requeryAllChildren(self, force=False):
+	def requeryAllChildren(self):
 		""" Requery each child bizobj's data set.
 
 		Called to assure that all child bizobjs have had their data sets
@@ -1522,8 +1522,10 @@ class dBizobj(dObject):
 		automatically when appropriate, but user code may call this as well
 		if needed.
 
-		If force is True, the child will be requeried even if ChildCacheInterval
-		hasn't expired yet.
+		Note: children will only be requeried if their cache hasn't expired 
+		yet. If you want to force all children to requery at the next opportunity,
+		you should call self.expireCache() before calling self.requery() or 
+		self.requeryAllChildren().
 		"""
 		if not self.__children:
 			return True
@@ -1532,24 +1534,25 @@ class dBizobj(dObject):
 		if errMsg:
 			raise dException.BusinessRuleViolation(errMsg)
 
+
 		for child in self.__children:
 			# Let the child know the current dependent PK
+			child.setCurrentParent()  ##pkm: moved from the block below: should be unconditional
 			if child.RequeryWithParent:
-				child.setCurrentParent()  ##pkm: shouldn't this happen unconditionally?
 				if not child.isAnyChanged(useCurrentParent=True):
 					# Check for caching
-					if force or not child._CurrentCursor.lastRequeryTime or child.cacheExpired():
+					if child._CurrentCursor.lastRequeryTime or child.cacheExpired():
 						child.requery()
 		self.afterChildRequery()
 
 
 	def cacheExpired(self):
 		"""This controls if a child requery is needed when a parent is requeried."""
-		ret = True
 		if self._childCacheInterval:
 			last = self._CurrentCursor.lastRequeryTime
-			ret = ((time.time() - last) > self._childCacheInterval)
-		return ret
+			if last:
+				return ((time.time() - last) > self._childCacheInterval)
+		return True
 
 
 	def expireCache(self, recurse=True, _allCursors=False):
