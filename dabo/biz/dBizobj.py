@@ -597,9 +597,9 @@ class dBizobj(dObject):
 					child.deleteAll(startTransaction=False)
 				else:
 					child.cancelAll()
-				child.requery()
 			if startTransaction:
 				self.commitTransaction()
+			self.requeryAllChildren()
 
 			if not inLoop:
 				self.afterPointerMove()
