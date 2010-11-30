@@ -772,8 +772,20 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		"""Called from all of the Cell property setters."""
 		## dynamic prop uses cellDynamicRow; reg prop uses self.CurrentRow
 		row = getattr(self, "_cellDynamicRow", self.Parent.CurrentRow)
-		cellAttr = self._gridCellAttrs.get(row, self._gridColAttr.Clone())
-		getattr(cellAttr, wxPropName)(*args, **kwargs)
+		cellAttr = obj = self._gridCellAttrs.get(row, self._gridColAttr.Clone())
+		if "." in wxPropName:
+			# For instance, Font.SetWeight
+			subObject, wxPropName = wxPropName.split(".")
+			obj = getattr(cellAttr, subObject)
+		getattr(obj, wxPropName)(*args, **kwargs)
+
+		## pkm 2010-11-30 : Tried to add CellFontBold, but it doesn't show visually in the
+		##                  grid no matter what I try. Commented code below shows what I
+		##                  attempted:
+		#cellAttr.Font = wx.Font(cellAttr.Font.PointSize, cellAttr.Font.Family,
+		#		cellAttr.Font.Style, cellAttr.Font.Weight, cellAttr.Font.Underlined, 
+		#		cellAttr.Font.FaceName)
+		#cellAttr = cellAttr.Clone() 
 		self._gridCellAttrs[row] = cellAttr
 
 
@@ -819,6 +831,24 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._setCellProp("SetBackgroundColour", val)
 		else:
 			self._properties["CellBackColor"] = val
+
+
+	def _getCellFontBold(self):
+		row = self.Parent.CurrentRow
+		cellAttr = self._gridCellAttrs.get(row, False)
+		if cellAttr:
+			return cellAttr.GetFont().GetWeight() == wx.BOLD
+		return self.FontBold
+
+	def _setCellFontBold(self, val):
+		if self._constructed():
+			if val:
+				val = wx.FONTWEIGHT_BOLD
+			else:
+				val = wx.FONTWEIGHT_NORMAL
+			self._setCellProp("Font.SetWeight", val)
+		else:
+			self._properties["CellFontBold"] = val
 
 
 	def _getCellForeColor(self):
@@ -1455,6 +1485,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	CellBackColor = property(_getCellBackColor, _setCellBackColor, None,
 			_("Color for the background of the current cell in the column."))
 
+	CellFontBold = property(_getCellFontBold, _setCellFontBold, None,
+			_("Specifies whether the current cell's font is bold-faced."))
+
 	CellForeColor = property(_getCellForeColor, _setCellForeColor, None,
 			_("Color for the foreground (text) of the current cell in the column."))
 
@@ -1520,7 +1553,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			_("The font properties of the column's cells. (dFont)") )
 
 	FontBold = property(_getFontBold, _setFontBold, None,
-			_("Specifies if the cell font is bold-faced. (bool)") )
+			_("Specifies if the cell font (for all cells in the column) is bold-faced. (bool)") )
 
 	FontDescription = property(_getFontDescription, None, None,
 			_("Human-readable description of the column's cell font settings. (str)") )
@@ -1649,6 +1682,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	DynamicBackColor = makeDynamicProperty(BackColor)
 	DynamicCaption = makeDynamicProperty(Caption)
 	DynamicCellBackColor = makeDynamicProperty(CellBackColor)
+	DynamicCellFontBold = makeDynamicProperty(CellFontBold)
 	DynamicCellForeColor = makeDynamicProperty(CellForeColor)
 	DynamicCustomEditorClass = makeDynamicProperty(CustomEditorClass)
 	DynamicCustomEditors = makeDynamicProperty(CustomEditors)
