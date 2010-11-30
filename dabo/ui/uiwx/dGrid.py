@@ -295,7 +295,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 #		return False
 
 
-	def GetValue(self, row, col, useCache=True, convertNoneToString=True):
+	def GetValue(self, row, col, useCache=True, convertNoneToString=True,
+			dynamicUpdate=True):
 		col = self._convertWxColNumToDaboColNum(col)
 		if useCache:
 			cv = self.__cachedVals.get((row, col))
@@ -307,8 +308,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		bizobj = self.grid.getBizobj()
 		col_obj = self.grid.Columns[col]
 		field = col_obj.DataField
-		col_obj._updateDynamicProps()
-		col_obj._updateCellDynamicProps(row)
+		if dynamicUpdate:
+			col_obj._updateDynamicProps()
+			col_obj._updateCellDynamicProps(row)
 		if bizobj:
 			if field and (row < bizobj.RowCount):
 				ret = self.getStringValue(bizobj.getFieldVal(field, row))
@@ -720,17 +722,10 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _getColumnIndex(self):
 		"""Return our column index in the grid, or -1."""
-		gridCol = -1
 		try:
-			grid = self.Parent
+			return self.Parent.Columns.index(self)
 		except AttributeError:
-			grid = None
-		if grid is not None:
-			for idx, dCol in enumerate(grid.Columns):
-				if dCol == self:
-					gridCol = idx
-					break
-		return gridCol
+			return -1
 
 
 	def _updateEditor(self):
@@ -1964,9 +1959,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return ret
 
 
-	def GetValue(self, row, col):
+	def GetValue(self, row, col, dynamicUpdate=True):
 		try:
-			ret = self._Table.GetValue(row, col)
+			ret = self._Table.GetValue(row, col, dynamicUpdate=dynamicUpdate)
 		except AttributeError:
 			ret = super(dGrid, self).GetValue(row, col)
 		return ret
@@ -2007,7 +2002,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			row = self.CurrentRow
 		if col is None:
 			col = self.CurrentColumn
-		ret = self.GetValue(row, col)
+		ret = self.GetValue(row, col, dynamicUpdate=False)
 		if isinstance(ret, str):
 			ret = ret.decode(self.Encoding)
 		return ret
