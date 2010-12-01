@@ -4269,7 +4269,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		try:
 			ret = self.getBizobj().Encoding
 		except AttributeError:
-			ret = dabo.defaultEncoding
+			ret = dabo.getEncoding()
 		return ret
 
 
