@@ -724,7 +724,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		"""Return our column index in the grid, or -1."""
 		try:
 			return self.Parent.Columns.index(self)
-		except AttributeError:
+		except (ValueError, AttributeError):
 			return -1
 
 
@@ -4269,7 +4269,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		try:
 			ret = self.getBizobj().Encoding
 		except AttributeError:
-			ret = dabo.getEncoding()
+			ret = dabo.defaultEncoding
 		return ret
 
 
