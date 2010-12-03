@@ -1024,8 +1024,15 @@ class dBizobj(dObject):
 			raise uiException
 
 		if self.DataStructure != oldDataStructure:
-			## The Record object must be reinstantiated to reflect the new structure:
+			self._clearCursorRecord()
+
+
+	def _clearCursorRecord(self):
+		## The Record object must be reinstantiated to reflect the new structure:
+		try:
 			del(self._cursorRecord)
+		except AttributeError:
+			pass
 
 
 	def setChildLinkFilter(self):
@@ -1640,10 +1647,11 @@ class dBizobj(dObject):
 		if cursor is None:
 			return
 		try:
-			cursor.setFieldVal(fld, val, row)
+			changed = cursor.setFieldVal(fld, val, row)
 		except (dException.NoRecordsException, dException.RowNotFoundException):
 			return False
-		self.afterSetFieldVal(fld, row)
+		if changed:
+			self.afterSetFieldVal(fld, row)
 
 
 	def setFieldVals(self, valDict=None, row=None, **kwargs):
@@ -1654,13 +1662,8 @@ class dBizobj(dObject):
 			valDict = kwargs
 		else:
 			valDict.update(kwargs)
-		cursor = self._CurrentCursor
-		if cursor is not None:
-			try:
-				ret = cursor.setValuesByDict(valDict, row)
-			except dException.NoRecordsException:
-				ret = False
-		return ret
+		for fld, val in valDict.items():
+			self.setFieldVal(fld, val, row)
 
 	setValues = setFieldVals  ## deprecate setValues in future version
 
@@ -2067,7 +2070,7 @@ afterDelete() which is only called after a delete().""")
 
 
 	def afterSetFieldVal(self, fld, row):
-		"""Hook method called after a field's value has been changed.
+		"""Hook method called after a field's value has been set.
 
 		Your hook method needs to accept two arguments:
 				-> fld : The name of the changed field.
@@ -2075,6 +2078,9 @@ afterDelete() which is only called after a delete().""")
 
 		If row is None, this is the common case of the change happening
 		in the current row.
+
+		Note that this hook will only fire if the new field value is different
+		from the old.
 		"""
 
 
@@ -2206,6 +2212,7 @@ afterDelete() which is only called after a delete().""")
 		for key, cursor in self.__cursors.items():
 			cursor.DataStructure = val
 		self._dataStructure = val
+		self._clearCursorRecord()
 
 
 	def _getDefaultValues(self):
@@ -2226,6 +2233,7 @@ afterDelete() which is only called after a delete().""")
 	def _setVirtualFields(self, val):
 		self._virtualFields = val
 		self._syncWithCursors()
+		self._clearCursorRecord()
 
 
 	def _getEncoding(self):

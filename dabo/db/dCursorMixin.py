@@ -931,12 +931,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return True
 
 
-	def setValuesByDict(self, valDict, row=None):
+	def setFieldVals(self, valDict, row=None):
 		"""Set the value for multiple fields with one call by passing a dict containing
 		the field names as keys, and the new values as values.
 		"""
 		for fld, val in valDict.items():
 			self.setFieldVal(fld, val, row)
+	setValuesByDict = setFieldVals  ## deprecate setValuesByDict in future
 
 
 	def setFieldVal(self, fld, val, row=None):
@@ -1017,7 +1018,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		# If the new value is different from the current value, change it and also
 		# update the mementos if necessary.
 		old_val = rec[fld]
-		if old_val != val:
+		if old_val == val:
+			return False
+		else:
 			if valid_pk:
 				if fld == keyField:
 					# Changing the key field value, need to key the mementos on the new
@@ -1067,8 +1070,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				dabo.log.info("Field value changed, but the memento"
 						" can't be saved, because there is no valid KeyField.")
 
-			# Finally, save the new value to the field:
+			# Finally, save the new value to the field and signify that the field was changed:
 			rec[fld] = val
+			return True
 
 
 	def getRecordStatus(self, row=None, pk=None):
