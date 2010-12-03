@@ -2655,41 +2655,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		try:
 			ret = self._cursorRecord
 		except AttributeError:
-			class CursorRecord(object):
-				def __init__(self, _cursor):
-					self._cursor = _cursor
-					super(CursorRecord, self).__init__()
-
-				def __getattr__(self, att):
-					return self._cursor.getFieldVal(att)
-
-				def __setattr__(self, att, val):
-					if att in ("_cursor"):
-						super(CursorRecord, self).__setattr__(att, val)
-					else:
-						self._cursor.setFieldVal(att, val)
-
-				def __getitem__(self, key):
-					return self.__getattr__(key)
-
-				def __setitem__(self, key, val):
-					return self.__setattr__(key, val)
-
-			## The rest of this block add a property to the Record object
-			## for each field, the sole purpose being to have the field
-			## names appear in the command window intellisense dropdown.
-			def getFieldProp(field_name):
-				def fget(self):
-					return self._cursor.getFieldVal(field_name)
-				def fset(self, val):
-					self._cursor.setFieldVal(field_name, val)
-				return property(fget, fset)
-
-			field_aliases = [ds[0] for ds in self.DataStructure]
-			field_aliases.extend(self.VirtualFields.keys())
-			for field_alias in field_aliases:
-				setattr(CursorRecord, field_alias, getFieldProp(field_alias))
-			ret = self._cursorRecord = CursorRecord(self)
+			ret = self._cursorRecord = dabo.db._getRecord(self)
 		return ret
 
 

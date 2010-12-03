@@ -989,6 +989,8 @@ class dBizobj(dObject):
 		except dException.NoRecordsException:
 			currPK = None
 
+		oldDataStructure = self.DataStructure
+
 		# run the requery
 		uiException = None
 		cursor = self._CurrentCursor
@@ -1015,9 +1017,15 @@ class dBizobj(dObject):
 			self.requeryAllChildren()
 		except dException.NoRecordsException:
 			pass
+
 		self.afterRequery()
+
 		if uiException:
 			raise uiException
+
+		if self.DataStructure != oldDataStructure:
+			## The Record object must be reinstantiated to reflect the new structure:
+			del(self._cursorRecord)
 
 
 	def setChildLinkFilter(self):
@@ -1629,12 +1637,13 @@ class dBizobj(dObject):
 	def setFieldVal(self, fld, val, row=None):
 		"""Set the value of the specified field in the current or specified row."""
 		cursor = self._CurrentCursor
-		if cursor is not None:
-			try:
-				ret = cursor.setFieldVal(fld, val, row)
-			except (dException.NoRecordsException, dException.RowNotFoundException):
-				ret = False
-		return ret
+		if cursor is None:
+			return
+		try:
+			cursor.setFieldVal(fld, val, row)
+		except (dException.NoRecordsException, dException.RowNotFoundException):
+			return False
+		self.afterSetFieldVal(fld, row)
 
 
 	def setFieldVals(self, valDict=None, row=None, **kwargs):
@@ -1972,7 +1981,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 
-	def _makeHookMethod(name, action,  mainDoc=None, additionalDoc=None):
+	def _makeHookMethod(name, action, mainDoc=None, additionalDoc=None):
 		mode = name[:5]
 		if mode == "befor":
 			mode = "before"
@@ -2055,6 +2064,18 @@ afterDelete() which is only called after a delete().""")
 		"""This hook is called after the underlying cursor object is created.
 		The crs argument will contain the reference to the newly-created
 		cursor."""
+
+
+	def afterSetFieldVal(self, fld, row):
+		"""Hook method called after a field's value has been changed.
+
+		Your hook method needs to accept two arguments:
+				-> fld : The name of the changed field.
+				-> row : The RowNumber of the changed field.
+
+		If row is None, this is the common case of the change happening
+		in the current row.
+		"""
 
 
 	def _syncWithCursors(self):
@@ -2322,7 +2343,11 @@ afterDelete() which is only called after a delete().""")
 
 
 	def _getRecord(self):
-		return self._CurrentCursor.Record
+		try:
+			ret = self._cursorRecord
+		except AttributeError:
+			ret = self._cursorRecord = dabo.db._getRecord(self)
+		return ret
 
 
 	def _getRemoteProxy(self):
