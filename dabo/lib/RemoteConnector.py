@@ -37,16 +37,16 @@ class RemoteConnector(object):
 
 	def _join(self, pth):
 		"""Joins the path to the class's UrlBase to create a new URL."""
-		return pathjoin(self.UrlBase, pth)
+		return pathjoin(self.UrlBase, pth).replace(os.sep, "/")
 
 
 	def _getFullUrl(self, mthd, *args):
-		ret = pathjoin(self.UrlBase, "bizservers", "biz", "%s" % hash(self.obj), self.obj.DataSource, mthd, *args)
+		ret = pathjoin(self.UrlBase, "bizservers", "biz", "%s" % hash(self.obj), self.obj.DataSource, mthd, *args).replace(os.sep, "/")
 		return ret
 
 
 	def _getManifestUrl(self, *args):
-		ret = pathjoin(self.UrlBase, "manifest", *args)
+		ret = pathjoin(self.UrlBase, "manifest", *args).replace(os.sep, "/")
 		return ret
 
 
