@@ -36,9 +36,16 @@ class EditorForm(dui.dForm):
 				"MsSQL" : 1433,
 				"SQLite" : None }
 		connKeys = ["name", "host", "dbtype", "port", "database", "user", "password"]
+		# Make sure that they are defined as form attributes
+		for ck in connKeys:
+			setattr(self, ck, None)
 		self.connDict = dict.fromkeys(connKeys)
 		self._origConnDict = dict.fromkeys(connKeys)
 		self.currentConn = None
+		# If we're opening a cnxml file that was saved with a CryptoKey, this
+		# flag will indicate that the user should be prompted.
+		self._opening = False
+		# all set up; now add stuff!
 		self.createControls()
 
 		# temp hack to be polymorphic with dEditor (dIDE):
@@ -60,26 +67,25 @@ class EditorForm(dui.dForm):
 
 
 	def createControls(self):
-		self.Caption = "Connection Editor"
+		self.Caption = _("Connection Editor")
 		self.bg = dui.dPanel(self, BackColor="LightSteelBlue")
-
 		gbsz = dui.dGridSizer(VGap=12, HGap=5, MaxCols=2)
 
 		# Add the fields
 		# Connection Dropdown
-		cap = dui.dLabel(self.bg, Caption="Connection")
+		cap = dui.dLabel(self.bg, Caption=_("Connection"))
 		ctl = dui.dDropdownList(self.bg, Choices=[""],
 				RegID="connectionSelector",
 				OnHit=self.onConnectionSelector)
 		ctl.bindEvent(dEvents.Hit, self.onConnectionChange)
-		btn = dui.dButton(self.bg, Caption="Edit Name", RegID="cxnEdit",
+		btn = dui.dButton(self.bg, Caption=_("Edit Name"), RegID="cxnEdit",
 				OnHit=self.onCxnEdit)
 		hsz = dui.dSizer("h")
 		hsz.append(ctl)
 		hsz.appendSpacer(10)
 		hsz.append(btn)
 
-		btn = dui.dButton(self.bg, Caption="Delete This Connection", RegID="cxnDelete",
+		btn = dui.dButton(self.bg, Caption=_("Delete This Connection"), RegID="cxnDelete",
 				DynamicEnabled=self.hasMultipleConnections,
 				OnHit=self.onCxnDelete)
 		hsz.appendSpacer(10)
@@ -89,7 +95,7 @@ class EditorForm(dui.dForm):
 		gbsz.append(hsz, valign="middle")
 
 		# Backend Type
-		cap = dui.dLabel(self.bg, Caption="Database Type")
+		cap = dui.dLabel(self.bg, Caption=_("Database Type"))
 		ctl = dui.dDropdownList(self.bg, RegID="DbType",
 				Choices=["MySQL", "Firebird", "PostgreSQL", "MsSQL", "SQLite"],
 				DataSource="form", DataField="dbtype",
@@ -99,21 +105,21 @@ class EditorForm(dui.dForm):
 		self.dbTypeSelector = ctl
 
 		# Host
-		cap = dui.dLabel(self.bg, Caption="Host")
+		cap = dui.dLabel(self.bg, Caption=_("Host"))
 		ctl = dui.dTextBox(self.bg, DataSource="form", DataField="host")
 		gbsz.append(cap, halign="right")
 		gbsz.append(ctl, "expand")
 		self.hostText = ctl
 
 		# Port
-		cap = dui.dLabel(self.bg, Caption="Port")
+		cap = dui.dLabel(self.bg, Caption=_("Port"))
 		ctl = dui.dTextBox(self.bg, DataSource="form", DataField="port")
 		gbsz.append(cap, halign="right")
 		gbsz.append(ctl, "expand")
 		self.portText = ctl
 
 		# Database
-		cap = dui.dLabel(self.bg, Caption="Database")
+		cap = dui.dLabel(self.bg, Caption=_("Database"))
 		ctl = dui.dTextBox(self.bg, DataSource="form", DataField="database")
 		hsz = dui.dSizer("h")
 		self.btnDbSelect = dui.dButton(self.bg, Caption=" ... ", RegID="btnDbSelect",
@@ -126,14 +132,14 @@ class EditorForm(dui.dForm):
 		self.dbText = ctl
 
 		# Username
-		cap = dui.dLabel(self.bg, Caption="User Name")
+		cap = dui.dLabel(self.bg, Caption=_("User Name"))
 		ctl = dui.dTextBox(self.bg, DataSource="form", DataField="user")
 		gbsz.append(cap, halign="right")
 		gbsz.append(ctl, "expand")
 		self.userText = ctl
 
 		# Password
-		cap = dui.dLabel(self.bg, Caption="Password")
+		cap = dui.dLabel(self.bg, Caption=_("Password"))
 		ctl = dui.dTextBox(self.bg, PasswordEntry=True,
 				DataSource="form", DataField="password")
 		gbsz.append(cap, halign="right")
@@ -143,32 +149,42 @@ class EditorForm(dui.dForm):
 		# Open Button
 		btnSizer1 = dui.dSizer("h")
 		btnSizer2 = dui.dSizer("h")
-		btnTest = dui.dButton(self.bg, RegID="btnTest", Caption="Test...",
+		btnTest = dui.dButton(self.bg, RegID="btnTest", Caption=_("Test..."),
 				OnHit=self.onTest)
-		btnSave = dui.dButton(self.bg, RegID="btnSave", Caption="Save",
+		btnSave = dui.dButton(self.bg, RegID="btnSave", Caption=_("Save"),
 				OnHit=self.onSave)
 		btnNewConn = dui.dButton(self.bg, RegID="btnNewConn",
-				Caption="New Connection",
+				Caption=_("New Connection"),
 				OnHit=self.onNewConn)
 		btnNewFile = dui.dButton(self.bg, RegID="btnNewFile",
-				Caption="New File",
+				Caption=_("New File"),
 				OnHit=self.onNewFile)
 		btnOpen = dui.dButton(self.bg, RegID="btnOpen",
-				Caption="Open File...",
+				Caption=_("Open File..."),
 				OnHit=self.onOpen)
 		btnSizer1.append(btnTest, 0, border=3)
 		btnSizer1.append(btnSave, 0, border=3)
 		btnSizer2.append(btnNewConn, 0, border=3)
 		btnSizer2.append(btnNewFile, 0, border=3)
 		btnSizer2.append(btnOpen, 0, border=3)
-
 		gbsz.setColExpand(True, 1)
 		self.gridSizer = gbsz
 
-		self.bg.Sizer = dui.dSizer("v")
-		self.bg.Sizer.append(gbsz, 0, "expand", halign="center", border=20)
-		self.bg.Sizer.append(btnSizer1, 0, halign="center")
-		self.bg.Sizer.append(btnSizer2, 0, halign="center")
+		sz = self.bg.Sizer = dui.dSizer("v")
+		sz.append(gbsz, 0, "expand", halign="center", border=20)
+		sz.append(btnSizer1, 0, halign="center")
+		sz.append(btnSizer2, 0, halign="center")
+		# Only create the 'Set Crypto Key' button if PyCrypto is installed
+		try:
+			from Crypto.Cipher import DES3 as _TEST_DES3
+			self._showKeyButton = True
+			del _TEST_DES3
+		except ImportError:
+			self._showKeyButton = False
+		if self._showKeyButton:
+			self.cryptoKeyButton = dui.dButton(self.bg, Caption=_("Set Crypto Key"),
+					OnHit=self.onSetCrypto)
+			btnSizer1.append(self.cryptoKeyButton, 0, halign="center", border=3)
 		self.Sizer = dui.dSizer("h")
 		self.Sizer.append(self.bg, 1, "expand", halign="center")
 		self.Layout()
@@ -199,7 +215,7 @@ class EditorForm(dui.dForm):
 		idx = self.connectionSelector.PositionValue
 		orig = chc[idx]
 		new = dui.getString(_("Enter the name for the connection"),
-				caption="Connection Name", defaultValue=orig)
+				caption=_("Connection Name"), defaultValue=orig)
 		if new is not None:
 			if new != orig:
 				chc[idx] = new
@@ -212,6 +228,20 @@ class EditorForm(dui.dForm):
 				self.currentConn = new
 				self.name = new
 			self.connectionSelector.PositionValue = idx
+
+
+	def onSetCrypto(self, evt):
+		key = self._askForKey()
+		if key:
+			self.Application.CryptoKey = key
+			# Need to re-encrypt the password
+			self.updtFromForm()
+
+
+	def _askForKey(self):
+		ret = dabo.ui.getString(_("Enter the cryptographic key for your application"),
+				caption=_("Crypto Key"), Width=240)
+		return ret
 
 
 	def onTest(self, evt):
@@ -317,9 +347,13 @@ class EditorForm(dui.dForm):
 		if self.currentConn is not None:
 			dd = self.connDict[self.currentConn]
 			for fld in dd.keys():
-				val = eval("self.%s" % fld)
+				val = getattr(self, fld)
 				if fld == "password":
-					origVal = self.Crypto.decrypt(dd[fld])
+					try:
+						origVal = self.Crypto.decrypt(dd[fld])
+					except ValueError:
+						# Original crypto key not available
+						origVal = None
 				else:
 					origVal = dd[fld]
 				if val == origVal:
@@ -339,17 +373,35 @@ class EditorForm(dui.dForm):
 			for fld in dd.keys():
 				val = dd[fld]
 				if fld == "password":
-					val = self.Crypto.decrypt(dd[fld])
+					try:
+						val = self.Crypto.decrypt(dd[fld])
+					except ValueError:
+						# Original crypto key not available
+						if self._opening and self._showKeyButton:
+							dabo.ui.callAfter(self._getCryptoKey, dd[fld])
+							continue
+						else:
+							val = ""
 				else:
 					val = dd[fld]
  				setattr(self, fld, val)
+
+
+	def _getCryptoKey(self, crypted):
+		# Give them a chance to set the CryptoKey
+		val = ""
+		key = self._askForKey()
+		if key:
+			self.Application.CryptoKey = key
+			val = self.Crypto.decrypt(crypted)
+		setattr(self, "password", val)
 
 
 	def newFile(self):
 		self.connFile = self.newFileName
 		self.connDict = {}
 		# Set the form caption
-		self.Caption = "Dabo Connection Editor: %s" % os.path.basename(self.connFile)
+		self.Caption = _("Dabo Connection Editor: %s") % os.path.basename(self.connFile)
 		# Add a new blank connection
 		self.newConnection()
 		self._origConnDict = copy.deepcopy(self.connDict)
@@ -408,7 +460,7 @@ class EditorForm(dui.dForm):
 			else:
 				dd[fld] = val
 		except StandardError, e:
-			print "Can't update:", e
+			print _("Can't update:"), e
 
 
 	def populate(self):
@@ -428,11 +480,11 @@ class EditorForm(dui.dForm):
 		if self.connFile:
 			# Make sure that the passed file exists!
 			if not os.path.exists(self.connFile):
-				dabo.log.error("The connection file '%s' does not exist." % self.connFile)
+				dabo.log.error(_("The connection file '%s' does not exist.") % self.connFile)
 				self.connFile = None
 
 		if self.connFile is None:
-			f = dui.getFile(self.fileExtension, message="Select a file...",
+			f = dui.getFile(self.fileExtension, message=_("Select a file..."),
 			defaultPath=os.getcwd() )
 			if f is not None:
 				self.connFile = f
@@ -450,7 +502,9 @@ class EditorForm(dui.dForm):
 			# Set the form caption
 			self.Caption = _("Dabo Connection Editor: %s") % os.path.basename(self.connFile)
 			# Fill the controls
+			self._opening = True
 			self.populate()
+			self._opening = False
 			# Show/hide controls as needed
 			self.enableControls()
 			self.layout()
@@ -478,7 +532,7 @@ class EditorForm(dui.dForm):
 	def writeChanges(self):
 		if self.connFile == self.newFileName:
 			# Ask for a file name
-			pth = dui.getSaveAs(message="Save File As...",
+			pth = dui.getSaveAs(message=_("Save File As..."),
 					wildcard=self.fileExtension)
 			if pth is None:
 				return
