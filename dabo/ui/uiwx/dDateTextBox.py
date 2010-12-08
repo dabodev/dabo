@@ -30,7 +30,7 @@ class CalPanel(dPanel):
 		to the calendar's size.
 		"""
 		calClass = {True: dabo.ui.dExtendedCalendar, False: dabo.ui.dCalendar}[self.extended]
-		self.cal = calClass(self, Position=(5, 5))
+		self.cal = calClass(self, Position=(6, 5), FirstDayOfWeek=dabo.firstDayOfWeek)
 		self.cal.Date = self.date
 		self.cal.bindEvent(dEvents.Hit, self.onCalSelection)
 		self.cal.bindEvent(dEvents.KeyChar, self.onCalKey)
