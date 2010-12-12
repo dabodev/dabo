@@ -574,7 +574,7 @@ class ClassDesigner(dabo.dApp):
 
 
 	def addMRUPath(self, pth):
-		"""Convenience method for other classes that hides the details of 
+		"""Convenience method for other classes that hides the details of
 		MRUs from them. All we need is the path.
 		"""
 		self.Application.addToMRU(_("Open Recent"), os.path.realpath(pth), self.onMRUSelection)
@@ -585,7 +585,7 @@ class ClassDesigner(dabo.dApp):
 		actual path, and open that design.
 		"""
 		# The prompt will have a number prepended to the actual path,
-		# separated by a space. 
+		# separated by a space.
 		pth = evt.prompt.split(" ", 1)[-1]
 		openDesigns = [frm for frm in self.getDesignerWindows()
 				if frm._classFile == pth]
@@ -1940,7 +1940,19 @@ class ClassDesigner(dabo.dApp):
 		pcs = self.pagedControls
 		class NewClassPicker(dabo.ui.dOkCancelDialog):
 			def addControls(self):
+				pm = self.PreferenceManager
+				if "last_design" in pm:
+					# Need to check this way to avoid creating a new pref object
+					# if this pref hasn't been set yet.
+					last_design = pm.last_design
+					last_file = os.path.basename(last_design)
+				else:
+					last_design = last_file = None
+
 				self.fileToOpen = None
+				def onOpenLast(evt):
+					self.fileToOpen = last_design
+					self._onOK(None)
 				def onOpenSaved(evt):
 					f = dabo.ui.getFile("cdxml")
 					if f:
@@ -1950,7 +1962,14 @@ class ClassDesigner(dabo.dApp):
 				self.openButton = dabo.ui.dButton(self, Caption=_("Open Saved Class"),
 						OnHit=onOpenSaved)
 
-				self.Sizer.append(self.openButton, halign="center")
+				hs = dabo.ui.dSizer("h")
+				hs.append(self.openButton, halign="center")
+				if last_design:
+					self.lastButton = dabo.ui.dButton(self, Caption=_("Re-open Last Class"),
+							ToolTipText=last_file, OnHit=onOpenLast)
+					hs.appendSpacer(8)
+					hs.append(self.lastButton, halign="center")
+				self.Sizer.append(hs, halign="center")
 				self.Sizer.appendSpacer(20)
 				self.Sizer.append(dabo.ui.dLine(self), "x", border=5, halign="center")
 
@@ -2406,7 +2425,7 @@ class ClassDesigner(dabo.dApp):
 		return [win for win in self.uiForms
 				if isinstance(win, dfm)
 				and win is not frm]
-		
+
 
 	def designerFormClosing(self, frm):
 		"""Checks to see if there are no more available
@@ -4360,20 +4379,10 @@ if __name__ == '__main__':
 
 
 
-
-# if __name__ == "__main__":
-# 	fname = None
-# 	if len(sys.argv) > 1:
-# 		f = sys.argv[1]
-# 		pth, fname = os.path.split(f)
-# 		if pth:
-# 			os.chdir(pth)
-#
-# 	clsDes = ClassDesigner(fname)
-
 if __name__ == "__main__":
-	f = None
-	if len(sys.argv) > 1:
+	try:
 		f = sys.argv[1]
+	except IndexError:
+		f = None
 	clsDes = ClassDesigner(f)
 
