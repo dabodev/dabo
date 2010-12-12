@@ -378,6 +378,7 @@ class dPref(object):
 	def hasKey(self, key):
 		"""Provides a way to test for a key without automatically adding it."""
 		return key in self.getPrefKeys()
+	__contains__ = hasKey
 
 
 	def getSubPrefKeys(self, spec=None):
