@@ -1483,7 +1483,11 @@ class dBizobj(dObject):
 			self.scan(self._setParentFK, val)
 
 	def _setParentFK(self, val):
-		self.setFieldVal(self.LinkField, val)
+		if not isinstance(val, (list, tuple)):
+			val = (val,)
+		links = self.LinkField.replace(" ", "").split(",")
+		for idx, fld in enumerate(links):
+			self.setFieldVal(fld, val[idx])
 
 
 	def setCurrentParent(self, val=None):
