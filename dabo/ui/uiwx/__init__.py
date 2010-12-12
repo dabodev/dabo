@@ -334,6 +334,11 @@ def yieldUI(_safe=False, *args, **kwargs):
 		wx.Yield(*args, **kwargs)
 
 
+def sendIdle():
+	"""Used to force idle events, which can be needed for thread message processing."""
+	wx.WakeUpIdle()
+
+
 def beep():
 	wx.Bell()
 
