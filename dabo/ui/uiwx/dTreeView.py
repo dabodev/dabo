@@ -599,7 +599,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			"expanded": wx.TreeItemIcon_Expanded,
 			"selected": wx.TreeItemIcon_Selected,
 			"selectedexpanded": wx.TreeItemIcon_SelectedExpanded}
-		if which.lower() not in whichdict.keys():
+		if which.lower() not in whichdict:
 			raise ValueError(_("Invalid Node State: %s") % which)
 		if isinstance(imgKey, int):
 			imgIdx = imgKey
@@ -608,7 +608,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		self.SetItemImage(node.itemID, imgIdx, whichdict[which.lower()])
 
 
-	def getNodeImg(self, node, which='normal'):
+	def getNodeImg(self, node, which="normal"):
 		""" Returns the index of the specified node's image in the
 		current image list, or -1 if no image is set for the node.
 		Which is the state of the node.
@@ -622,7 +622,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			"expanded": wx.TreeItemIcon_Expanded,
 			"selected": wx.TreeItemIcon_Selected,
 			"selectedexpanded": wx.TreeItemIcon_SelectedExpanded}
-		if not which in whichdict.keys():
+		if which.lower() not in whichdict:
 			raise ValueError(_("Invalid Node State: %s") % which)
 		return self.GetItemImage(node.itemID, whichdict[which.lower()])
 
@@ -861,7 +861,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 				nd = self._pathNode[currDir] = self._pathNode[prnt].appendChild(nm)
 			except (KeyError, AttributeError):
 				# If this is the first entry, we need to set the root
-				if len(self._pathNode.keys()) == 0:
+				if not self._pathNode:
 					nd = self._pathNode[currDir] = self.setRootNode(nm)
 				else:
 					# parent wasn't added, because it was hidden
