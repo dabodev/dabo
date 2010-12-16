@@ -189,6 +189,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 			kidnode = nd.appendChild(cap)
 			subpref = pref.get(prefcap)
 			kidnode.pref = subpref
+			kidnode.hotkey = "n/a"
 			if itm.Children:
 				self._recurseMenu(itm, kidnode, subpref)
 			else:
@@ -202,12 +203,13 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
 	def _onMenuTreeSelection(self, evt):
 		self._selectedItem = nd = evt.selectedNode
-		if nd.IsRootNode:
-			return
-		if nd.hotkey == "n/a":
-			self.txtMenuCurrentHotKey.Value = ""
-		else:
-			self.txtMenuCurrentHotKey.Value = nd.hotkey
+		if nd:
+			if nd.IsRootNode:
+				return
+			if nd.hotkey == "n/a":
+				self.txtMenuCurrentHotKey.Value = ""
+			else:
+				self.txtMenuCurrentHotKey.Value = nd.hotkey
 		self.update()
 
 
