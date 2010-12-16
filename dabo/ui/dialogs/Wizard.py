@@ -128,7 +128,7 @@ class Wizard(dabo.ui.dDialog):
 		# User clicked the Cancel button
 		if self.verifyCancel:
 			if not dabo.ui.areYouSure(self.confirmCancelMsg,
-					"Cancel Received", cancelButton=False):
+					_("Cancel Received"), cancelButton=False):
 				return
 		dabo.ui.callAfter(self.closeWizard)
 

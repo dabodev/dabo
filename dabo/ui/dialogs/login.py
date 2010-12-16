@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
-import wx
 import dabo
-import dabo.ui
-import dabo.icons
 
-
-if dabo.ui.getUIType() is None:
+if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
+import dabo.ui
+import dabo.icons
 from dabo.dLocalize import _
-import dabo.dEvents as dEvents
-dKeys = dabo.ui.dKeys
+
 
 class lbl(dabo.ui.dLabel):
 	def initProperties(self):
@@ -46,9 +43,9 @@ class Login(dabo.ui.dOkCancelDialog):
 		else:
 			appName = ''
 		if len(appName) > 0:
-			self.Caption = "Login to %s" % appName
+			self.Caption = _("Login to %s") % appName
 		else:
-			self.Caption = "Please Login"
+			self.Caption = _("Please Login")
 		self.ShowCaption = False
 		self.ShowCloseButton = True
 
@@ -58,12 +55,12 @@ class Login(dabo.ui.dOkCancelDialog):
 
 		self.addObject(lbl, 'lblUserName')
 		self.addObject(txt, 'txtUserName')
-		self.lblUserName.Caption = "User:"
+		self.lblUserName.Caption = _("User:")
 		self.txtUserName.Value = ""
 
 		self.addObject(lbl, 'lblPassword')
 		self.addObject(txtPass, 'txtPassword')
-		self.lblPassword.Caption = "Password:"
+		self.lblPassword.Caption = _("Password:")
 		self.txtPassword.Value = ""
 
 		self.addObject(lblMessage, 'lblMessage')
