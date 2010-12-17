@@ -243,12 +243,11 @@ class dDataSet(tuple):
 			self._fldReplace("price > 50", "foo")
 				=> returns "foo['price'] > 50"
 		"""
-		keys = self[0].keys()
 		patTemplate = r"\b%s\b"
 		ret = expr
 		if dictName is None:
 			dictName = "rec"
-		for kk in keys:
+		for kk in self[0]:
 			pat = patTemplate % kk
 			replacement = "%s['%s']" % (dictName, kk)
 			ret = re.sub(pat, replacement, ret)
@@ -266,10 +265,9 @@ class dDataSet(tuple):
 			# Use the default
 			alias = "dataset"
 		rec = ds[0]
-		keys = rec.keys()
 		retList = []
 
-		for key in keys:
+		for key in rec:
 			if key.startswith("dabo-"):
 				# This is an internal field
 				safekey = key.replace("-", "_")
@@ -308,10 +306,8 @@ class dDataSet(tuple):
 			# Create the table
 			self._cursor.execute(self._makeCreateTable(ds, alias))
 
-		flds = ds[0].keys()[:]
 		# Fields may contain illegal names. This will correct them
-		flds = [fld.replace("dabo-", "dabo_") for fld in flds]
-		fldParams = [":%s" % fld for fld in flds]
+		fldParams = [":%s" % fld for fld in [fld.replace("dabo-", "dabo_") for fld in ds[0]]]
 		insStmnt = "insert into %s (%s) values (%s)" % (alias,
 				", ".join(flds), ", ".join(fldParams))
 
