@@ -84,7 +84,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		properties = self._extractKeywordProperties(kwargs, self._properties)
 		if kwargs:
 			# Some kwargs haven't been handled.
-			bad = ", ".join(["'%s'" % kk for kk in kwargs.keys()])
+			bad = ", ".join(["'%s'" % kk for kk in kwargs])
 			raise TypeError("Invalid keyword arguments passed to %s: %s" % (self.__repr__(), bad))
 
 		if self._call_afterInit:

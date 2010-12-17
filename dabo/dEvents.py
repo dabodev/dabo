@@ -61,7 +61,7 @@ class dEvent(object):
 		eventData["timestamp"] = time.localtime()
 
 		# Add any keyword args passed:
-		for key in kwargs.keys():
+		for key in kwargs:
 			eventData[key] = kwargs[key]
 
 		# Add native event data:
@@ -69,7 +69,7 @@ class dEvent(object):
 			# Each UI lib should implement getEventData()
 			uiEventData = dabo.ui.getEventData(nativeEvent)
 
-			for key in uiEventData.keys():
+			for key in uiEventData:
 				eventData[key] = uiEventData[key]
 
 		self._eventData = eventData

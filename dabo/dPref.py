@@ -247,7 +247,7 @@ class dPref(object):
 			else:
 				self._persist(key, val)
 		# Handle the cached deletions
-		for key in self._deletionCache.keys():
+		for key in self._deletionCache:
 			self._cursor.execute("delete from daboprefs where ckey like ? ", (key, ))
 		self._deletionCache = {}
 		self._cursor.commitTransaction()
@@ -367,11 +367,9 @@ class dPref(object):
 		tmpDict = {}
 		for rec in rs:
 			tmpDict[rec["ckey"][keylen:keylen+len(rec["ckey"].split(".")[keydots])]] = None
-		ret = tmpDict.keys()
 		# Now add any cached entries
-		addl = [kk for kk in self._cache.keys()
-			if kk not in ret and kk.startswith(key) and not isinstance(kk, dPref)]
-		ret += addl
+		ret = list(set(tmpDict) | set([kk for kk in self._cache
+			if kk.startswith(key) and not isinstance(kk, dPref)]))
 		return ret
 
 
