@@ -312,9 +312,8 @@ class ReportObject(CaselessDict):
 
 	def _getDesProps(self):
 		strType = {"type" : str, "readonly" : False, "alsoDirectEdit": True}
-		props = self.AvailableProps.keys()
 		desProps = {}
-		for prop in props:
+		for prop in self.AvailableProps:
 			desProps[prop] = strType.copy()
 			if "color" in prop.lower():
 				desProps[prop]["customEditor"] = "editColor"

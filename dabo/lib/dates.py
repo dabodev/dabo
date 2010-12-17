@@ -37,7 +37,7 @@ def _getDateRegex(format):
 		        "%y": "%(shortyear)s",
 		        "%Y": "%(year)s"}
 		if "%d" in format and "%m" in format and ("%y" in format or "%Y" in format):
-			for k in conv.keys():
+			for k in conv:
 				format = format.replace(k, conv[k])
 				format.replace(".", "\.")
 				exp = "^%s$" % format

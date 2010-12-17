@@ -56,15 +56,15 @@ class CaselessDict(dict):
 		return r
 
 	def has_key(self, key):
-		return dict.has_key(self, key.lower())
+		return self.__contains__(key)
 
 	def get(self, key, default=None):
-		if self.has_key(key):
+		if key in self:
 			return self.__getitem__(key)
 		return default
 
 	def setdefault(self, key, default=None):
-		if not self.has_key(key):
+		if not key in self:
 			self.__setitem__(key, default)
 		return self.__getitem__(key)
 
@@ -79,6 +79,6 @@ if __name__ == "__main__":
 	print d.keys()
 	print d.items()
 	print d["PAULMCNETT"]
-	print d.has_key("pAULmCNETT")
-	print d.has_key("pAULmCNETTy")
+	print "pAULmCNETT" in d
+	print "pAULmCNETTy" in d
 	print d

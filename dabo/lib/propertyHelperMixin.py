@@ -68,8 +68,7 @@ class PropertyHelperMixin(object):
 		"""
 		if evtdict is None:
 			evtdict = {}
-		onKWs = [(kw, kw[2:]) for kw in kwdict.keys()
-				if kw.startswith("On")]
+		onKWs = [(kw, kw[2:]) for kw in kwdict if kw.startswith("On")]
 		for kw, evtName in onKWs:
 			evtdict[evtName] = kwdict[kw]
 			del kwdict[kw]
@@ -179,7 +178,7 @@ class PropertyHelperMixin(object):
 		"""
 		def _setProps(_propDict):
 			delayedSettings = {}
-			for prop in _propDict.keys():
+			for prop in _propDict:
 				if prop in ("Name", "NameBase"):
 					try:
 						self._setName(_propDict[prop])
