@@ -142,16 +142,6 @@ def getXMLEncoding():
 	return ret
 
 
-# Install localization service for dabo. dApp will install localization service
-# for the user application separately.
-import dLocalize
-dLocalize.install("dabo")
-# On some platforms getfilesystemencoding() and even getdefaultlocale()
-# can return None, so we make sure we always set a reasonable encoding:
-# NOTE: 'defaultEncoding' is imported from 'from settings import *' line above.
-fileSystemEncoding = (sys.getfilesystemencoding()
-    or locale.getdefaultlocale()[1] or defaultEncoding)
-
 
 # These are the various standard log handlers.
 consoleLogHandler = fileLogHandler = None
@@ -280,6 +270,16 @@ def setDbLogFile(fname, level=None):
 		dabo.dbFileFormatter.datefmt = dabo.dbLogDateFormat
 		dabo.dbFileLogHandler.setFormatter(dabo.dbFileFormatter)
 		dabo.dbActivityLog.addHandler(dabo.dbFileLogHandler)
+
+# Install localization service for dabo. dApp will install localization service
+# for the user application separately.
+import dLocalize
+dLocalize.install("dabo")
+# On some platforms getfilesystemencoding() and even getdefaultlocale()
+# can return None, so we make sure we always set a reasonable encoding:
+# NOTE: 'defaultEncoding' is imported from 'from settings import *' line above.
+fileSystemEncoding = (sys.getfilesystemencoding()
+    or locale.getdefaultlocale()[1] or defaultEncoding)
 
 
 from __version__ import version
