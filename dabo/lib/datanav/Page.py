@@ -78,7 +78,7 @@ class Page(dabo.ui.dPage):
 	def __onPageEnter(self, evt):
 		self._onPageEnter()
 		if self.UpdateOnPageEnter:
-			self.update()
+			dabo.ui.callAfter(self.update)
 
 
 	def _onPageEnter(self):
