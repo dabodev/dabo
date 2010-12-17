@@ -204,7 +204,7 @@ class dListControl(dcm.dControlItemMixin,
 		warning if the control is not set to MultipleSelect.
 		"""
 		if self.MultipleSelect:
-			for row in range(self.RowCount):
+			for row in xrange(self.RowCount):
 				self.select(row)
 		else:
 			dabo.log.error("'selectAll()' may only be called on List Controls that designated as MultipleSelect")
@@ -212,7 +212,7 @@ class dListControl(dcm.dControlItemMixin,
 
 	def unselectAll(self):
 		"""De-selects all rows."""
-		for row in range(self.RowCount):
+		for row in xrange(self.RowCount):
 			self.unselect(row)
 	# Override the default selectNone to something appropriate for this control.
 	selectNone = unselectAll
@@ -246,7 +246,7 @@ class dListControl(dcm.dControlItemMixin,
 	def autoSizeColumns(self, colList=None):
 		"""Auto-sizes all the columns."""
 		if colList is None:
-			colList = range(self.ColumnCount)
+			colList = xrange(self.ColumnCount)
 		for col in colList:
 			self.autoSizeColumn(col)
 
@@ -503,7 +503,7 @@ class dListControl(dcm.dControlItemMixin,
 	def _getItemDataDict(self):
 		"""Return a dict with the items as keys, and the ItemData as values."""
 		ret = {}
-		for row in range(self.RowCount):
+		for row in xrange(self.RowCount):
 			ret[row] = self.GetItemData(row)
 		return ret
 
@@ -515,7 +515,7 @@ class dListControl(dcm.dControlItemMixin,
 		data = []
 		# Don't allow the default -1 for sort column.
 		col = max(0, self._sortColumn)
-		for row in range(self.RowCount):
+		for row in xrange(self.RowCount):
 			try:
 				itm = self.GetItem(row, col)
 				data.append((itm.GetText(), row))
