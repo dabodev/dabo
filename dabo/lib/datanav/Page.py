@@ -302,6 +302,11 @@ class SelectPage(Page):
 					# boolean fields won't have a control; opVal will
 					# be either 'Is True' or 'Is False'
 					matchVal = (opVal == _(CHOICE_TRUE))
+				elif callable(ctrl):
+					try:
+						matchVal = ctrl()
+					except AttributeError:
+						matchVal = None
 				else:
 					matchVal = ctrl.Value
 				try:
@@ -326,7 +331,9 @@ class SelectPage(Page):
 					else:
 						# "Begins With" or "Contains"
 						opStr = "LIKE"
-						if opVal[:1] == "B":
+						if matchVal is None:
+							matchStr = biz.escQuote("null")
+						elif opVal[:1] == "B":
 							matchStr = biz.escQuote(matchVal + "%")
 						else:
 							matchStr = biz.escQuote("%" + matchVal + "%")
