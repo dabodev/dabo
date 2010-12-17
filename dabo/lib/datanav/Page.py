@@ -203,9 +203,8 @@ class SelectPage(Page):
 		elif action== "show":
 			# Get the descrips and order
 			sf = self.sortFields
-			sfk = sf.keys()
 			dd = [(sf[kk][0], kk, "%s %s" % (sf[kk][2], sf[kk][1]))
-					for kk in sfk ]
+					for kk in sf]
 			sortDesc = [itm[2] for itm in sorted(dd)]
 			sortedList = dabo.ui.sortList(sortDesc)
 			newPos = 0
@@ -257,7 +256,7 @@ class SelectPage(Page):
 			parts = lambda (k): (k, sf[k][1].upper())
 
 		flds = sorted((self.sortFields[k][0], k, " ".join(parts(k)))
-			for k in self.sortFields.keys())
+			for k in self.sortFields)
 		if infoOnly:
 			return [e[1:] for e in flds]
 		else:
@@ -273,9 +272,8 @@ class SelectPage(Page):
 			baseWhere = ""
 		biz.setWhereClause(baseWhere)
 		tbl = biz.DataSource
-		flds = self.selectFields.keys()
 		whr = ""
-		for fld in flds:
+		for fld in self.selectFields:
 			if fld in biz.VirtualFields:
 				#virtual field, save for later use and ignore
 				self.__virtualFilters.append(fld)
