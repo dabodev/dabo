@@ -584,16 +584,6 @@ class dPemMixin(dPemMixinBase):
 
 
 	def __onWxKeyUp(self, evt):
-		if sys.platform.startswith("win"):
-			# Windows doesn't automatically catch Ctrl+A
-			ctrl = evt.ControlDown()
-			kc = evt.GetRawKeyCode()
-			try:
-				char = chr(kc).lower()
-			except ValueError:
-				char = None
-			if ctrl and char == "a":
-				self.selectAll()
 		self.raiseEvent(dEvents.KeyUp, evt)
 
 
