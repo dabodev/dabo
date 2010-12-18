@@ -834,7 +834,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException(
-					_("No records in the data set."))
+					_("No records in dataset '%s'.") % self.Table)
 		ret = None
 		if row is None:
 			row = self.RowNumber
@@ -855,7 +855,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def getFieldVal(self, fld, row=None, _rowChangeCallback=None):
 		"""Return the value of the specified field in the current or specified row."""
 		if self.RowCount <= 0:
-			raise dException.NoRecordsException(_("No records in the data set."))
+			raise dException.NoRecordsException(
+					_("No records in dataset '%s'.") % self.Table)
 		if row is None:
 			row = self.RowNumber
 		try:
@@ -943,7 +944,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def setFieldVal(self, fld, val, row=None):
 		"""Set the value of the specified field."""
 		if self.RowCount <= 0:
-			raise dException.NoRecordsException(_("No records in the data set"))
+			raise dException.NoRecordsException(
+					_("No records in dataset '%s'.") % self.Table)
 		if row is None:
 			row = self.RowNumber
 
@@ -1197,7 +1199,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def cloneRecord(self):
 		"""Creates a copy of the current record and adds it to the dataset."""
 		if not self.RowCount:
-			raise dException.NoRecordsException(_("No records in the data set."))
+			raise dException.NoRecordsException(
+					_("No records in dataset '%s'.") % self.Table)
 		rec = self._records[self.RowNumber].copy()
 		if self.AutoPopulatePK:
 			kf = self.KeyField
@@ -1283,7 +1286,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if self.RowCount > 0:
 			self.RowNumber = 0
 		else:
-			raise dException.NoRecordsException(_("No records in data set"))
+			raise dException.NoRecordsException(
+					_("No records in dataset '%s'.") % self.Table)
 
 
 	def prior(self):
@@ -1296,7 +1300,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						_("Already at the beginning of the data set."))
 		else:
 			raise dException.NoRecordsException(
-					_("No records in data set"))
+					_("No records in dataset '%s'.") % self.Table)
 
 
 	def next(self):
@@ -1308,7 +1312,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				raise dException.EndOfFileException(
 						_("Already at the end of the data set."))
 		else:
-			raise dException.NoRecordsException(_("No records in data set"))
+			raise dException.NoRecordsException(
+					_("No records in dataset '%s'.") % self.Table)
 
 
 	def last(self):
@@ -1316,7 +1321,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if self.RowCount > 0:
 			self.RowNumber = self.RowCount-1
 		else:
-			raise dException.NoRecordsException(_("No records in data set"))
+			raise dException.NoRecordsException(
+					_("No records in dataset '%s'.") % self.Table)
 
 
 	def save(self, allRows=False, includeNewUnchanged=False):
@@ -1836,8 +1842,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		and an exception is raised.
 		"""
 		if (rownum >= self.RowCount) or (rownum < 0):
-			rc = self.RowCount
-			raise dException.dException(_("Invalid row specified: %(rownum)s. RowCount=%(rc)s") % locals())
+			raise dException.dException(
+					_("Invalid row specified: %s. RowCount=%s Table='%s'") % (rownum, self.RowCount, self.Table))
 		self.RowNumber = rownum
 
 
