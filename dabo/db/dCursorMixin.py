@@ -636,7 +636,7 @@ class dCursorMixin(dObject):
 
 		# restore the RowNumber
 		if currRowKey:
-			for ii in range(0, self.RowCount):
+			for ii in xrange(0, self.RowCount):
 				row = self._records[ii]
 				if self._compoundKey:
 					key = tuple([row[k] for k in kf])
@@ -1549,7 +1549,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			return ret
 
 		if allRows:
-			for pk in self._mementos.keys():
+			for pk in self._mementos:
 				diff.append(rowDiff(pk))
 		else:
 			pk = self.getPK()
@@ -1606,9 +1606,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 			if self._newRecords:
 				recs = list(recs)
-				delrecs_ids = self._newRecords.keys()
 				delrecs_idx = []
-				for rec_id in delrecs_ids:
+				for rec_id in self._newRecords:
 					# Remove any memento associated with the canceled new record, and
 					# append to the list of indexes to delete.
 					row, rec = self._getRecordByPk(rec_id)
@@ -1731,12 +1730,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						_("Can't set default value for nonexistent field '%s'.") % field)
 
 		if self._nullDefaults:
-			for field in rec.keys():
+			for field in rec:
 				if field == keyField:
 					continue
 				self.setFieldVal(field, None)
 		else:
-			if keyField in vals.keys():
+			if keyField in vals:
 				# Must set the pk default value first, for mementos to be filled in
 				# correctly.
 				setDefault(keyField, vals[keyField])
@@ -1791,10 +1790,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def getChangedRows(self, includeNewUnchanged=False):
 		"""Returns a list of rows with changes."""
-		chKeys = self._mementos.keys()
+		chKeys = set(self._mementos)
 		if includeNewUnchanged:
 			# We need to also count all new records
-			chKeys = dict.fromkeys(chKeys + self._newRecords.keys()).keys()
+			chKeys |= set(self._newRecords)
 		return map(self._getRowByPk, chKeys)
 
 
