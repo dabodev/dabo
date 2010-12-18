@@ -969,20 +969,20 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		except KeyError:
 			fldType = self._fldTypeFromDB(fld)
 		nonUpdateFields = self.getNonUpdateFields()
-		if fldType is not None:
+		if fldType is not None and val is not None:
 			if fldType != type(val):
 				convTypes = (str, unicode, int, float, long, complex)
-				if isinstance(val, convTypes) and isinstance(rec[fld], basestring):
+				if issubclass(fldType, basestring) and isinstance(val, convTypes):
 					val = ustr(val)
-				elif isinstance(rec[fld], int) and isinstance(val, bool):
+				elif issubclass(fldType, int) and isinstance(val, bool):
 					# convert bool to int (original field val was bool, but UI
 					# changed to int.
 					val = int(val)
-				elif isinstance(rec[fld], int) and isinstance(val, long):
+				elif issubclass(fldType, int) and isinstance(val, long):
 					# convert long to int (original field val was int, but UI
 					# changed to long.
 					val = int(val)
-				elif isinstance(rec[fld], long) and isinstance(val, int):
+				elif issubclass(fldType, long) and isinstance(val, int):
 					# convert int to long (original field val was long, but UI
 					# changed to int.
 					val = long(val)
