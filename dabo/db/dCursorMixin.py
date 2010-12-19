@@ -916,8 +916,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			typ = None
 		if typ:
 			try:
-				ret = {"C": unicode, "D": datetime.date, "B": bool, "G": long,
-					"N": float, "M": unicode, "I": int, "T": datetime.datetime}[typ]
+				ret = dabo.db.getPythonType(typ)
 			except KeyError:
 				ret = None
 		return ret
