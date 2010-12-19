@@ -1208,6 +1208,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				kf = (kf, )
 			for fld in kf:
 				rec[fld] = blank[fld]
+		try:
+			del rec[kons.CURSOR_TMPKEY_FIELD]
+		except KeyError:
+			pass
 		self.appendDataSet((rec, ))
 
 
