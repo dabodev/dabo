@@ -76,8 +76,7 @@ class EditorForm(dui.dForm):
 		cap = dui.dLabel(self.bg, Caption=_("Connection"))
 		ctl = dui.dDropdownList(self.bg, Choices=[""],
 				RegID="connectionSelector",
-				OnHit=self.onConnectionSelector)
-		ctl.bindEvent(dEvents.Hit, self.onConnectionChange)
+				OnHit=self.onConnectionChange)
 		btn = dui.dButton(self.bg, Caption=_("Edit Name"), RegID="cxnEdit",
 				OnHit=self.onCxnEdit)
 		hsz = dui.dSizer("h")
@@ -307,13 +306,6 @@ class EditorForm(dui.dForm):
 		dbFile = dui.getFile()
 		if dbFile:
 			self.database = dbFile
-		self.update()
-
-
-	def onConnectionSelector(self, evt):
-		self.currentConn = self.connectionSelector.StringValue
-		self.updtToForm()
-		self.enableControls()
 		self.update()
 
 
