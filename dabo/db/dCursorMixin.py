@@ -1003,6 +1003,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				elif isinstance(val, dNoEscQuoteStr):
 					# Sometimes you want to set it to a sql function, equation, ect.
 					ignore = True
+				elif issubclass(fldType, basestring) and isinstance(val, buffer):
+					# Eliminate type error reported for blob fields.
+					ignore = True
 				elif fld in nonUpdateFields:
 					# don't worry so much if this is just a calculated field.
 					ignore = True
