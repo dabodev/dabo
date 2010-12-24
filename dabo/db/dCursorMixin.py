@@ -1026,32 +1026,31 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			return False
 		else:
 			if valid_pk:
-				if fld == keyField:
+				if (fld == keyField) or (self._compoundKey and fld in keyField):
 					# Changing the key field value, need to key the mementos on the new
 					# value, not the old. Additionally, need to copy the mementos from the
 					# old key value to the new one.
-					keyFieldValue = val
-					old_mem = self._mementos.get(old_val, None)
-					if old_mem is not None:
-						self._mementos[keyFieldValue] = old_mem
-						del self._mementos[old_val]
-				elif self._compoundKey and fld in keyField:
-					# Changing the value of one key field, need to key the mementos on
-					# the new compound key value not the old. Additionally, need
-					#to copy the mementos from the old key value to the new one.
-					oldKeyFieldValue = tuple([rec[k] for k in keyField])
-					old_mem = self._mementos.get(oldKeyFieldValue, None)
-					keyFieldValue = list(oldKeyFieldValue)
-					keyFieldValue[list(keyField).index(fld)] = val
-					keyFieldValue = tuple(keyFieldValue)
-					if old_mem is not None:
-						self._mementos[keyFieldValue] = old_mem
-						del self._mementos[oldKeyFieldValue]
-				else:
 					if self._compoundKey:
-						keyFieldValue = tuple([rec[k] for k in keyField])
+						old_key = tuple([rec[k] for k in keyField])
+						keyFieldValue = tuple([(val if k == fld else rec[k])
+							for k in keyField])
 					else:
-						keyFieldValue = rec[keyField]
+						old_key = old_val
+						keyFieldValue = val
+					old_mem = self._mementos.get(old_key, None)
+					if old_mem is not None:
+						self._mementos[keyFieldValue] = old_mem
+						del self._mementos[old_key]
+					if old_key in self._newRecords:
+						self._newRecords[keyFieldValue] = self._newRecords[old_key]
+						del self._newRecords[old_key]
+						# Should't ever happen, but just in case of desynchronization. 
+						if kons.CURSOR_TMPKEY_FIELD in rec:
+							rec[kons.CURSOR_TMPKEY_FIELD] = keyFieldValue
+				elif self._compoundKey:
+					keyFieldValue = tuple([rec[k] for k in keyField])
+				else:
+					keyFieldValue = rec[keyField]
 				mem = self._mementos.get(keyFieldValue, {})
 				if (fld in mem) or (fld in nonUpdateFields):
 					# Memento is already there, or it isn't updateable.
