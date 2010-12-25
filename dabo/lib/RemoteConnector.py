@@ -41,7 +41,9 @@ class RemoteConnector(object):
 
 
 	def _getFullUrl(self, mthd, *args):
-		ret = pathjoin(self.UrlBase, "bizservers", "biz", "%s" % hash(self.obj), self.obj.DataSource, mthd, *args).replace(os.sep, "/")
+		hashstr = "%s" % hash(self.obj)
+		ret = pathjoin(self.UrlBase, "bizservers", "biz", hashstr, self.obj.DataSource, mthd, *args)
+		ret = ret.replace(os.sep, "/")
 		return ret
 
 
