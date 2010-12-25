@@ -1042,29 +1042,22 @@ class dBizobj(dObject):
 		there is no parent record, there cannot be any child records saved yet,
 		so an empty query is built.
 		"""
+		# Return a tuple of the params. Default to an empty tuple.
 		ret = tuple()
 		if self.DataSource and self.LinkField and self.Parent:
-			links = self.LinkField.replace(" ", "").split(",")
-			# It's not necessary to requery if parent has no records
-			# or parent row is new and child is linked with parent PK.
-			# Use of setNonMatchChildFilterClause is no more necessary,
-			# and SQL query never changes, but parameters does.
-			if not self.Parent.RowCount or \
-					(self.Parent.IsAdding and not self.ParentLinkField):
-				ret = tuple((None,)) * len(links)
+			if self.Parent.RowCount == 0:
+				# Parent is new and not yet saved, so we cannot have child records yet.
+				self._CurrentCursor.setNonMatchChildFilterClause()
 			else:
-				ret = self.getParentLinkValue()
-			linkFields = tuple()
-			for linkField in links:
-				linkFieldParts = linkField.split(".")
+				val = self.getParentLinkValue()
+				linkFieldParts = self.LinkField.split(".")
 				if len(linkFieldParts) < 2:
-					linkFields += (linkFieldParts[0],)
+					linkField = self.LinkField
 				else:
 					# The source table was specified in the LinkField
-					linkFields += (linkFieldParts[1],)
-			self._CurrentCursor.setChildFilter(linkFields)
-			if not isinstance(ret, tuple):
-				ret = (ret,)
+					linkField = linkFieldParts[1]
+				self._CurrentCursor.setChildFilter(linkField)
+				ret = (val, )
 		return ret
 
 
@@ -1073,22 +1066,17 @@ class dBizobj(dObject):
 		is the PK of the parent, but can be a non-PK field, if this bizobj's ParentLinkField is
 		not empty.
 		"""
-		ret = None
-		if self.Parent:
-			fld = self.ParentLinkField
-			try:
-				if not fld:
-					# Use the PK value
-					ret = self.getParentPK()
-				else:
-					flds = fld.replace(" ", "").split(",")
-					ret = map(self.Parent.getFieldVal, tuple(flds)) 
-					if len(ret) == 1:
-						ret = ret[0]
-					else:
-						ret = tuple(ret)
-			except dException.NoRecordsException:
-				ret = NO_RECORDS_PK
+		if not self.Parent:
+			return None
+		fld = self.ParentLinkField
+		try:
+			if not fld:
+				# Use the PK value
+				ret = self.getParentPK()
+			else:
+				ret = self.Parent.getFieldVal(fld)
+		except dException.NoRecordsException:
+			ret = NO_RECORDS_PK
 		return ret
 
 
