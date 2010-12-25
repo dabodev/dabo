@@ -2273,11 +2273,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def setChildFilter(self, fld):
-		""" This method sets the appropriate filter for dependent child queries."""
+		""" This method sets the appropriate WHERE filter for dependent child queries."""
 
 		def getTableAlias(fromClause):
 			if not fromClause.strip():
 				return None
+
 			joinStrings = ["left join", "right join", "outer join", "inner join", "join"]
 			foundAlias = None
 			for joinString in joinStrings:
@@ -2294,10 +2295,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if not alias:
 			# Use the old way (pre 2180) of using the Table (DataSource) property.
 			alias = self.Table
-		if not isinstance(fld, (list, tuple)):
-			fld = (fld,)
-		filtExpr = "and".join([" %s.%s = %s " % (alias, fldExpr, self.ParamPlaceholder)
-				for fldExpr in fld])
+		filtExpr = " %s.%s = %s " % (alias, fld, self.ParamPlaceholder)
 		self.setChildFilterClause(filtExpr)
 
 
