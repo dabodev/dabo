@@ -975,7 +975,6 @@ class dBizobj(dObject):
 
 		# If this is a dependent (child) bizobj, this will enforce the relation
 		_childParamTuple = self.setChildLinkFilter()
-
 		# Hook method for creating the param tuple. Note that the child filter
 		# clause, if any, will always be the first clause in the WHERE expression.
 		params = _childParamTuple + self.getParams()
@@ -987,23 +986,18 @@ class dBizobj(dObject):
 			currPK = None
 
 		oldDataStructure = self.DataStructure
-
 		# run the requery
 		uiException = None
 		cursor = self._CurrentCursor
 		try:
 			cursor.requery(params)
-
 		except dException.ConnectionLostException:
 			raise
-
 		except dException.DBQueryException:
 			raise
-
 		except dException.NoRecordsException:
 			# Pass the exception to the UI
 			uiException = dException.NoRecordsException
-
 		except dException.dException:
 			raise
 
@@ -1014,12 +1008,10 @@ class dBizobj(dObject):
 			self.requeryAllChildren()
 		except dException.NoRecordsException:
 			pass
-
 		self.afterRequery()
 
 		if uiException:
 			raise uiException
-
 		if self.DataStructure != oldDataStructure:
 			self._clearCursorRecord()
 
@@ -1079,7 +1071,7 @@ class dBizobj(dObject):
 					ret = self.getParentPK()
 				else:
 					flds = fld.replace(" ", "").split(",")
-					ret = map(self.Parent.getFieldVal, tuple(flds)) 
+					ret = map(self.Parent.getFieldVal, tuple(flds))
 					if len(ret) == 1:
 						ret = ret[0]
 					else:
@@ -1550,9 +1542,9 @@ class dBizobj(dObject):
 		automatically when appropriate, but user code may call this as well
 		if needed.
 
-		Note: children will only be requeried if their cache hasn't expired 
+		Note: children will only be requeried if their cache hasn't expired
 		yet. If you want to force all children to requery at the next opportunity,
-		you should call self.expireCache() before calling self.requery() or 
+		you should call self.expireCache() before calling self.requery() or
 		self.requeryAllChildren().
 		"""
 		if not self.__children:
@@ -2080,6 +2072,7 @@ afterDelete() which is only called after a delete().""")
 		"""This hook is called after the underlying cursor object is created.
 		The crs argument will contain the reference to the newly-created
 		cursor."""
+		pass
 
 
 	def afterSetFieldVal(self, fld, row):
@@ -2095,6 +2088,7 @@ afterDelete() which is only called after a delete().""")
 		Note that this hook will only fire if the new field value is different
 		from the old.
 		"""
+		pass
 
 
 	def _syncWithCursors(self):
