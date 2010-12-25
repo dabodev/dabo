@@ -112,10 +112,8 @@ class dBizobj(dObject):
 
 	def _afterInit(self):
 		super(dBizobj, self)._afterInit()
-		params = self.setChildLinkFilter() + self.getParams()
-		for crs in self.__cursorsToRequery:
-			self._syncCursorProps(crs)
-			crs.requery(params)
+		if self.RequeryOnLoad:
+			self.requery()
 		self.__cursorsToRequery = None
 
 
@@ -218,11 +216,9 @@ class dBizobj(dObject):
 		if self.RequeryOnLoad:
 			if self.__cursorsToRequery is None:
 				# We've already passed the bizobj init process
-				crs.requery(self.setChildLinkFilter() + self.getParams())
-				self.first()
-			else:
-				# Still in the init, so add it to the list
-				self.__cursorsToRequery.append(crs)
+				if key == self.__currentCursorKey:
+					crs.requery(self.setChildLinkFilter() + self.getParams())
+					self.first()
 		self.afterCreateCursor(crs)
 		return crs
 
