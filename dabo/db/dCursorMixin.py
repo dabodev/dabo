@@ -1846,8 +1846,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		and an exception is raised.
 		"""
 		if (rownum >= self.RowCount) or (rownum < 0):
+			rc = self.RowCount
+			tbl = self.Table
 			raise dException.dException(
-					_("Invalid row specified: %s. RowCount=%s Table='%s'") % (rownum, self.RowCount, self.Table))
+					_("Invalid row specified: %(rownum)s. RowCount=%(rc)s Table='%(tbl)s") % locals())
 		self.RowNumber = rownum
 
 

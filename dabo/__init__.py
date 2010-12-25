@@ -142,7 +142,6 @@ def getXMLEncoding():
 	return ret
 
 
-
 # These are the various standard log handlers.
 consoleLogHandler = fileLogHandler = None
 dbConsoleLogHandler = dbFileLogHandler = None
