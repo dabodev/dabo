@@ -2278,7 +2278,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		def getTableAlias(fromClause):
 			if not fromClause.strip():
 				return None
-
 			joinStrings = ["left join", "right join", "outer join", "inner join", "join"]
 			foundAlias = None
 			for joinString in joinStrings:
@@ -2295,7 +2294,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if not alias:
 			# Use the old way (pre 2180) of using the Table (DataSource) property.
 			alias = self.Table
-		filtExpr = " %s.%s = %s " % (alias, fld, self.ParamPlaceholder)
+		if not isinstance(fld, (list, tuple)):
+			fld = (fld,)
+		filtExpr = "and".join([" %s.%s = %s " % (alias, fldExpr, self.ParamPlaceholder)
+				for fldExpr in fld])
 		self.setChildFilterClause(filtExpr)
 
 
