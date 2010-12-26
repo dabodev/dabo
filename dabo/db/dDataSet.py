@@ -307,7 +307,8 @@ class dDataSet(tuple):
 			self._cursor.execute(self._makeCreateTable(ds, alias))
 
 		# Fields may contain illegal names. This will correct them
-		fldParams = [":%s" % fld for fld in [fld.replace("dabo-", "dabo_") for fld in ds[0]]]
+		flds = [fld.replace("dabo-", "dabo_") for fld in ds[0]]
+		fldParams = [":%s" % fld for fld in flds]
 		insStmnt = "insert into %s (%s) values (%s)" % (alias,
 				", ".join(flds), ", ".join(fldParams))
 
