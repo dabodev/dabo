@@ -67,8 +67,8 @@ class dPemMixinBase(dObject):
 		# or Dabo is to provide it implicitly.
 		_explicitName = kwargs.get("_explicitName", False)
 
-		if "Name" in kwargs.keys():
-			if "_explicitName" not in kwargs.keys():
+		if "Name" in kwargs:
+			if "_explicitName" not in kwargs:
 				# Name was sent; _explicitName wasn't.
 				_explicitName = True
 			name = kwargs["Name"]
