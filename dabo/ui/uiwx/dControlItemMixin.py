@@ -28,9 +28,12 @@ class dControlItemMixin(dDataControlMixin):
 
 
 	def _onWxHit(self, evt):
+		self._userChanged = True
 		# Flush value on every hit:
 		self.flushValue()
 		super(dControlItemMixin, self)._onWxHit(evt)
+		# Since super method set this attribute again, we must reset it.
+		self._userChanged = False
 
 
 	def appendItem(self, txt, select=False):
@@ -160,7 +163,7 @@ class dControlItemMixin(dDataControlMixin):
 	def _setKeys(self, val):
 		if isinstance(val, dict):
 			self._keys = val
-			self._invertedKeys = dict([[v,k] for k,v in val.iteritems()])
+			self._invertedKeys = dict([[v,k] for k,v in val.items()])
 		elif isinstance(val, (list, tuple)):
 			self._keys = val
 			self._invertedKeys = None
@@ -242,7 +245,6 @@ class dControlItemMixin(dDataControlMixin):
 				snm = self.Name
 				raise ValueError(_("Trying to set %(snm)s.Value to these invalid selections: %(invalidSelections)s") % locals())
 
-			self._afterValueChanged()
 		else:
 			self._properties["KeyValue"] = value
 
