@@ -15,7 +15,7 @@ import dabo.dEvents as dEvents
 
 # Very VERY first thing: ensure a minimal wx is selected, but only if
 # wx hasn't already been imported, and if we aren't running frozen:
-if 'wx' not in sys.modules and not getattr(sys, "frozen", False):
+if "wx" not in sys.modules and not getattr(sys, "frozen", False):
 	minWx = "2.8"
 	try:
 		import wxversion
@@ -137,6 +137,7 @@ from dListBox import dListBox
 from dListControl import dListControl
 from dBaseMenuBar import dBaseMenuBar
 from dMaskedTextBox import dMaskedTextBox
+from dMediaControl import dMediaControl
 from dMenuBar import dMenuBar
 from dMenu import dMenu
 from dMenuItem import dMenuItem

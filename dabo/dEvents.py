@@ -230,6 +230,12 @@ class ScrollEvent(dEvent):
 	appliesToClass = classmethod(appliesToClass)
 
 
+class MediaEvent(dEvent):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dMediaControl)
+	appliesToClass = classmethod(appliesToClass)
+
+
 class Activate(dEvent):
 	"""Occurs when the form or application becomes active."""
 	def appliesToClass(eventClass, objectClass):
@@ -982,3 +988,31 @@ class ScrollThumbRelease(ScrollEvent):
 	pass
 
 
+class MediaFinished(MediaEvent):
+	"""Occurs when the media has finished playing."""
+	pass
+
+
+class MediaLoaded(MediaEvent):
+	"""Occurs when the media has been successfully loaded."""
+	pass
+
+
+class MediaPause(MediaEvent):
+	"""Occurs when playback has been paused."""
+	pass
+
+
+class MediaPlay(MediaEvent):
+	"""Occurs when playback has begun."""
+	pass
+
+
+class MediaStop(MediaEvent):
+	"""Occurs when playback has been stopped."""
+	pass
+
+
+class MediaStateChanged(MediaEvent):
+	"""Occurs when the playback status has changed from one state to another."""
+	pass
