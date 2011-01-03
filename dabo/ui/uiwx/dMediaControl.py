@@ -47,6 +47,8 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 		self._playbackRate = 100
 		self._showControls = self._extractKey((properties, kwargs), "ShowControls", True)
 		kwargs["ShowControls"] = self._showControls
+		dropHandler = self._extractKey((properties, kwargs), "DroppedFileHandler", self)
+		kwargs["DroppedFileHandler"] = dropHandler
 
 		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
 				*args, **kwargs)
@@ -67,7 +69,7 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 
 
 	def moveToPct(self, pct):
-		"""Moves the CurrentPosition to the specified percentage of the content's 
+		"""Moves the CurrentPosition to the specified percentage of the content's
 		Duration. E.g., passing 50 moves to the middle; 75 to 3/4 of the way through.
 		Negative values measure from the end; e.g., -10 will set the CurrentPosition
 		to 90% through the content.
@@ -89,6 +91,14 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 		self.CurrentPosition = max(0, min(newpos, fulltime))
 
 
+	def processDroppedFiles(self, filelist):
+		"""Load the dropped file into the control. Only one file can be
+		the source, so if by chance more than one file was dropped,
+		only use the first.
+		"""
+		self.Source = filelist[0]
+
+
 	def _initEvents(self):
 		self.Bind(wx.media.EVT_MEDIA_LOADED, self._onWxLoaded)
 		self.Bind(wx.media.EVT_MEDIA_FINISHED, self._onWxFinished)
@@ -102,6 +112,7 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 	# events are actually raised. I've noticed that clicking the player controls
 	# does not seem to cause these events to fire.
 	def _onWxLoaded(self, evt):
+		self.scale()
 		print "LOAD"
 		self.raiseEvent(dEvents.MediaLoaded, evt)
 	def _onWxFinished(self, evt):
@@ -296,7 +307,8 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 
 	Source = property(_getSource, _setSource, None,
 			_("""This can be either a file path or a URI for the content displayed in this
-			control. If the  (str)"""))
+			control. If the value begins with 'http', it is assumed to be a URI rather than
+			a local file path.  (str)"""))
 
 	Status = property(_getStatus, None, None,
 			_("""The current playback status. One of 'Playing', 'Paused', or 'Stopped'.
@@ -318,6 +330,7 @@ if __name__ == "__main__":
 		def afterInit(self):
 			# Here's a sample movie URI; you can change this to something local on
 			# your machine, or another URI.
+			#uri = "/Users/ed/Downloads/roc.mov"
 			uri = "http://c0097282.cdn.cloudfiles.rackspacecloud.com/how_to_fold_a_shirt.mpg"
 			self.player = dMediaControl(self, Source=uri, Loop=False)
 			# Change this to fill the form
