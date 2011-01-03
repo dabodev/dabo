@@ -158,6 +158,20 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 		self.play()
 
 
+	def handleLoadFailure(self, val):
+		"""This method contains the default behavior when an attempt to load
+		content into the control by setting the Source property fails. If you want
+		your app to handle things differently, override this method.
+		"""
+		if dabo.ui.areYouSure(_("Could not load '%s'. Try again?") % val,
+				title=_("Media Load Fail"), defaultNo=True,
+				cancelButton=False):
+			dabo.ui.setAfterInterval(500, self, "Source", val)
+			return
+		self._source = None
+		self.clear()
+
+
 	def _getContentDimensions(self):
 		sc = self.ShowControls
 		ret = self.GetBestSize().Get()
@@ -229,6 +243,10 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 
 	def _setSource(self, val):
 		if self._constructed():
+			if val is None:
+				self.Load("")
+				self.clear()
+				return
 			if val.startswith("http:"):
 				success = self.LoadURI(val)
 			else:
@@ -236,13 +254,7 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 			if success:
 				self._source = val
 			else:
-				if dabo.ui.areYouSure(_("Could not load '%s'. Try again?") % val,
-						title=_("Media Load Fail"), defaultNo=True,
-						cancelButton=False):
-					dabo.ui.setAfterInterval(500, self, "Source", val)
-					return
-				self._source = None
-				self.clear()
+				self.handleLoadFailure(val)
 		else:
 			self._properties["Source"] = val
 
@@ -308,7 +320,7 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 	Source = property(_getSource, _setSource, None,
 			_("""This can be either a file path or a URI for the content displayed in this
 			control. If the value begins with 'http', it is assumed to be a URI rather than
-			a local file path.  (str)"""))
+			a local file path. Setting the source to None will clear the control.  (str)"""))
 
 	Status = property(_getStatus, None, None,
 			_("""The current playback status. One of 'Playing', 'Paused', or 'Stopped'.
@@ -339,6 +351,7 @@ if __name__ == "__main__":
 				self.Sizer.append(self.player)
 			else:
 				self.Sizer.append1x(self.player)
+
 
 	app = dabo.dApp(MainFormClass=MediaForm)
 	app.start()
