@@ -211,6 +211,7 @@ class ClassDesigner(dabo.dApp):
 				{"name" : "ListBox", "class" : dui.dListBox, "order" : 140},
 				{"name" : "ListControl", "class" : dui.dListControl, "order" : 150},
 				{"name" : "MaskedTextBox", "class" : dui.dMaskedTextBox, "order" : 155},
+				{"name" : "MediaControl", "class" : dui.dMediaControl, "order" : 155},
 				{"name" : "RadioList", "class" : dui.dRadioList, "order" : 160},
 				{"name" : "Page", "class" : dui.dPage, "order" : 170},
 				{"name" : "Panel", "class" : dui.dPanel, "order" : 180},
@@ -302,14 +303,16 @@ class ClassDesigner(dabo.dApp):
 		baseEvents = ("DataEvent", "EditorEvent", "GridEvent", "KeyEvent",
 				"ListEvent", "MenuEvent", "MouseEvent", "SashEvent",
 				"CalendarEvent", "TreeEvent")
-		classes = (dui.dBox, dui.dBitmap, dui.dBitmapButton, dui.dButton, dui.dCheckBox, dui.dComboBox,
-				dui.dDateTextBox, dui.dDialog, dui.dDropdownList, dui.dEditBox, dui.dEditor,
-				dui.dSlidePanelControl, dui.dForm, dui.dFormMain, dui.dDockForm, dui.dGauge,
-				dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel, dui.dLed, dui.dLine, dui.dListBox,
-				dui.dListControl, dui.dMaskedTextBox, dui.dOkCancelDialog, dui.dPanel, dui.dPage,
-				dui.dScrollPanel, dui.dPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect, dui.dPageStyled,
-				dui.dPageFrameNoTabs, dui.dRadioList, dui.dSlider, dui.dSpinner, dui.dSplitter, dui.dTextBox,
-				dui.dToggleButton, dui.dTreeView, dlgs.Wizard, dlgs.WizardPage)
+		classes = (dui.dBox, dui.dBitmap, dui.dBitmapButton, dui.dButton, dui.dCheckBox,
+				dui.dComboBox, dui.dDateTextBox, dui.dDialog, dui.dDropdownList,
+				dui.dEditBox, dui.dEditor, dui.dSlidePanelControl, dui.dForm, dui.dFormMain,
+				dui.dDockForm, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel,
+				dui.dLed, dui.dLine, dui.dListBox, dui.dListControl, dui.dMaskedTextBox,
+				dui.dMediaControl, dui.dOkCancelDialog, dui.dPanel, dui.dPage,
+				dui.dScrollPanel, dui.dPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect,
+				dui.dPageStyled, dui.dPageFrameNoTabs, dui.dRadioList, dui.dSlider,
+				dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton, dui.dTreeView,
+				dlgs.Wizard, dlgs.WizardPage)
 
 		def evtsForClass(cls):
 			def safeApplies(itm, cls):
@@ -574,7 +577,7 @@ class ClassDesigner(dabo.dApp):
 
 
 	def addMRUPath(self, pth):
-		"""Convenience method for other classes that hides the details of
+		"""Convenience method for other classes that hides the details of 
 		MRUs from them. All we need is the path.
 		"""
 		self.Application.addToMRU(_("Open Recent"), os.path.realpath(pth), self.onMRUSelection)
@@ -585,7 +588,7 @@ class ClassDesigner(dabo.dApp):
 		actual path, and open that design.
 		"""
 		# The prompt will have a number prepended to the actual path,
-		# separated by a space.
+		# separated by a space. 
 		pth = evt.prompt.split(" ", 1)[-1]
 		openDesigns = [frm for frm in self.getDesignerWindows()
 				if frm._classFile == pth]
@@ -1940,19 +1943,7 @@ class ClassDesigner(dabo.dApp):
 		pcs = self.pagedControls
 		class NewClassPicker(dabo.ui.dOkCancelDialog):
 			def addControls(self):
-				pm = self.PreferenceManager
-				if "last_design" in pm:
-					# Need to check this way to avoid creating a new pref object
-					# if this pref hasn't been set yet.
-					last_design = pm.last_design
-					last_file = os.path.basename(last_design)
-				else:
-					last_design = last_file = None
-
 				self.fileToOpen = None
-				def onOpenLast(evt):
-					self.fileToOpen = last_design
-					self._onOK(None)
 				def onOpenSaved(evt):
 					f = dabo.ui.getFile("cdxml")
 					if f:
@@ -1962,33 +1953,30 @@ class ClassDesigner(dabo.dApp):
 				self.openButton = dabo.ui.dButton(self, Caption=_("Open Saved Class"),
 						OnHit=onOpenSaved)
 
-				hs = dabo.ui.dSizer("h")
-				hs.append(self.openButton, halign="center")
-				if last_design:
-					self.lastButton = dabo.ui.dButton(self, Caption=_("Re-open Last Class"),
-							ToolTipText=last_file, OnHit=onOpenLast)
-					hs.appendSpacer(8)
-					hs.append(self.lastButton, halign="center")
-				self.Sizer.append(hs, halign="center")
+				self.Sizer.append(self.openButton, halign="center")
 				self.Sizer.appendSpacer(20)
 				self.Sizer.append(dabo.ui.dLine(self), "x", border=5, halign="center")
 
 				# Create a dropdown list containing all the choices.
 				# NOTE: This would be an excellent candidate for usage ordering.
 				chc = ["Form", "MDI MainForm", "DockForm", "Panel", "ScrollPanel", "SlidePanel",
-						"Plain Dialog", "OK/Cancel Dialog", "Wizard", "WizardPage", "PageFrame", "PageList",
-						"PageSelect", "PageStyled", "PageNoTabs", "Box", "Bitmap", "BitmapButton", "Button",
-						"CheckBox", "ComboBox", "DateTextBox", "DropdownList", "EditBox", "Editor", "Gauge",
-						"Grid", "HtmlBox", "Image", "Label", "LED", "Line", "ListBox", "ListControl", "MaskedTextBox",
-						"Page", "RadioList", "Slider", "Spinner", "Splitter", "TextBox", "ToggleButton", "TreeView"]
+						"Plain Dialog", "OK/Cancel Dialog", "Wizard", "WizardPage", "PageFrame",
+						"PageList", "PageSelect", "PageStyled", "PageNoTabs", "Box", "Bitmap",
+						"BitmapButton", "Button", "CheckBox", "ComboBox", "DateTextBox",
+						"DropdownList", "EditBox", "Editor", "Gauge", "Grid", "HtmlBox", "Image",
+						"Label", "LED", "Line", "ListBox", "ListControl", "MaskedTextBox",
+						"MediaControl", "Page", "RadioList", "Slider", "Spinner", "Splitter", "TextBox",
+						"ToggleButton", "TreeView"]
 				keys = [dui.dForm, dui.dFormMain, dui.dDockForm, dui.dPanel, dui.dScrollPanel,
-						dui.dSlidePanelControl, dui.dDialog, dui.dOkCancelDialog, dlgs.Wizard, dlgs.WizardPage,
-						dui.dPageFrame, dui.dPageList, dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs,
-						dui.dBox, dui.dBitmap, dui.dBitmapButton, dui.dButton, dui.dCheckBox, dui.dComboBox,
-						dui.dDateTextBox, dui.dDropdownList, dui.dEditBox, dui.dEditor, dui.dGauge, dui.dGrid,
-						dui.dHtmlBox, dui.dImage, dui.dLabel, dui.dLine, dui.dLed, dui.dListBox, dui.dListControl,
-						dui.dMaskedTextBox, dui.dPage, dui.dRadioList, dui.dSlider, dui.dSpinner, dui.dSplitter,
-						dui.dTextBox, dui.dToggleButton, dui.dTreeView]
+						dui.dSlidePanelControl, dui.dDialog, dui.dOkCancelDialog, dlgs.Wizard,
+						dlgs.WizardPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect,
+						dui.dPageStyled, dui.dPageFrameNoTabs, dui.dBox, dui.dBitmap,
+						dui.dBitmapButton, dui.dButton, dui.dCheckBox, dui.dComboBox,
+						dui.dDateTextBox, dui.dDropdownList, dui.dEditBox, dui.dEditor,
+						dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel, dui.dLine,
+						dui.dLed, dui.dListBox, dui.dListControl, dui.dMaskedTextBox,
+						dui.dMediaControl, dui.dPage, dui.dRadioList, dui.dSlider, dui.dSpinner,
+						dui.dSplitter, dui.dTextBox, dui.dToggleButton, dui.dTreeView]
 				if not _USE_DOCKFORM:
 					# The dock form reference is position 1
 					chc.pop(1)
@@ -2425,7 +2413,7 @@ class ClassDesigner(dabo.dApp):
 		return [win for win in self.uiForms
 				if isinstance(win, dfm)
 				and win is not frm]
-
+		
 
 	def designerFormClosing(self, frm):
 		"""Checks to see if there are no more available
@@ -3222,6 +3210,7 @@ class ClassDesigner(dabo.dApp):
 			pop.append(_("Add Label"), OnHit=self.onNewLabel)
 			pop.append(_("Add LED"), OnHit=self.onNewLed)
 			pop.append(_("Add Line"), OnHit=self.onNewLine)
+			pop.append(_("Add MediaControl"), OnHit=self.onNewMediaControl)
 			pop.append(_("Add Panel"), OnHit=self.onNewPanel)
 			pop.append(_("Add ScrollPanel"), OnHit=self.onNewScrollPanel)
 			pop.append(_("Add SlidePanelControl"), OnHit=self.onNewSlidePanelControl)
@@ -3442,6 +3431,8 @@ class ClassDesigner(dabo.dApp):
 		dui.callAfter(self.addNewControl, None, dui.dListControl)
 	def onNewMaskedTextBox(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dMaskedTextBox)
+	def onNewMediaControl(self, evt):
+		dui.callAfter(self.addNewControl, None, dui.dMediaControl)
 	def onNewRadioList(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dRadioList)
 	def onNewPanel(self, evt):
@@ -3815,6 +3806,7 @@ class ClassDesigner(dabo.dApp):
 					_("ListBox") : self.onNewListBox,
 					_("ListControl") : self.onNewListControl,
 					_("MaskedTextBox") : self.onNewMaskedTextBox,
+					_("MediaControl") : self.onNewMediaControl,
 					_("RadioList") : self.onNewRadioList,
 					_("Panel") : self.onNewPanel,
 					_("ScrollPanel") : self.onNewScrollPanel,
@@ -4239,6 +4231,7 @@ if __name__ == '__main__':
 					(_("ListBox"), dui.dListBox),
 					(_("ListControl"), dui.dListControl),
 					(_("MaskedTextBox"), dui.dMaskedTextBox),
+					(_("MediaControl"), dui.dMediaControl),
 					(_("Panel"), dui.dPanel),
 					(_("ScrollPanel"), dui.dScrollPanel),
 					(_("PageFrame"), dui.dPageFrame),
@@ -4379,10 +4372,20 @@ if __name__ == '__main__':
 
 
 
+
+# if __name__ == "__main__":
+# 	fname = None
+# 	if len(sys.argv) > 1:
+# 		f = sys.argv[1]
+# 		pth, fname = os.path.split(f)
+# 		if pth:
+# 			os.chdir(pth)
+#
+# 	clsDes = ClassDesigner(fname)
+
 if __name__ == "__main__":
-	try:
+	f = None
+	if len(sys.argv) > 1:
 		f = sys.argv[1]
-	except IndexError:
-		f = None
 	clsDes = ClassDesigner(f)
 

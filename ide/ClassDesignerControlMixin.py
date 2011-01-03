@@ -796,6 +796,11 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"Mask": {"type": unicode, "readonly": lambda self: bool(self.Format)},
 				"ValueMode": {"type": list, "readonly": False,
 					"values": ["Masked", "Unmasked"]}}
+		mediaControlProps = {"Loop": {"type": bool, "readonly": False},
+				"ShowControls": {"type": bool, "readonly": False},
+				"Source": {"type": unicode, "readonly": False},
+				"TimeInSeconds": {"type": bool, "readonly": False},
+				"Volume": {"type": int, "readonly": False}}
 		multiSelectProps = {"MultipleSelect": {"type": bool, "readonly": False}}
 		nodeProps = {"Image": {"type": "path", "readonly": False,
 					"customEditor": "editStdPicture"}}
@@ -1061,6 +1066,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(splitterProps)
 		elif isinstance(self, dui.dStatusBar):
 			ret.update(fontProps)
+		elif isinstance(self, dui.dMediaControl):
+			ret.update(mediaControlProps)
 		elif isinstance(self, (dui.dEditBox, dui.dTextBox, dui.dMaskedTextBox)):
 			ret.update(colorProps)
 			ret.update(fontProps)
