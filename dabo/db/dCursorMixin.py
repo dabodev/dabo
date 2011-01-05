@@ -281,13 +281,13 @@ class dCursorMixin(dObject):
 						if ok:
 							# change self.Encoding and log the message
 							## pkm 2010-10-21: I think that mismatched encoding should be treated as exceptional,
-							##                 and shouldn't trigger changing the cursor Encoding which should 
+							##                 and shouldn't trigger changing the cursor Encoding which should
 							##                 have been set based on what the database reported (currently it is
 							##                 not set that way, but I hope it will be in the future). But it is
 							##                 nice to at least try some different common encodings if the default
 							##                 one doesn't work, especially since Dabo currently allows non-utf8-encoded
 							##                 bytes to get saved to the database.
-							#self.Encoding = enc 
+							#self.Encoding = enc
 							dabo.log.error(_("Field %(fname)s: Incorrect unicode encoding set; using '%(enc)s' instead")
 								% {'fname':field_name, 'enc':enc} )
 							return ret
@@ -1044,7 +1044,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					if old_key in self._newRecords:
 						self._newRecords[keyFieldValue] = self._newRecords[old_key]
 						del self._newRecords[old_key]
-						# Should't ever happen, but just in case of desynchronization. 
+						# Should't ever happen, but just in case of desynchronization.
 						if kons.CURSOR_TMPKEY_FIELD in rec:
 							rec[kons.CURSOR_TMPKEY_FIELD] = keyFieldValue
 				elif self._compoundKey:
@@ -2390,7 +2390,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 
 
-	def getSQL(self):
+	def getSQL(self, ignoreChildFilter=False):
 		""" Get the complete SQL statement from all the parts."""
 		fieldClause = self.sqlManager._fieldClause
 		fromClause = self.sqlManager._fromClause
@@ -2407,7 +2407,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if not fromClause:
 			fromClause = self.Table
 
-		if childFilterClause:
+		if childFilterClause and not ignoreChildFilter:
 			# Prepend it to the where clause
 			if whereClause:
 				childFilterClause += "\nand "
@@ -2443,7 +2443,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self.sqlManager.setWhereClause("")
 		holdLimit = self.sqlManager._limitClause
 		self.sqlManager.setLimitClause(1)
-		ret = self.sqlManager.getSQL()
+		ret = self.sqlManager.getSQL(ignoreChildFilter=True)
 		self.sqlManager.setWhereClause(holdWhere)
 		self.sqlManager.setLimitClause(holdLimit)
 		return ret
