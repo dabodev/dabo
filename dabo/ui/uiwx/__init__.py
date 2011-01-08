@@ -137,7 +137,12 @@ from dListBox import dListBox
 from dListControl import dListControl
 from dBaseMenuBar import dBaseMenuBar
 from dMaskedTextBox import dMaskedTextBox
-from dMediaControl import dMediaControl
+try:
+	from dMediaControl import dMediaControl
+except ImportError:
+	# Versions of wxPython < 2.8.11 on some platforms
+	# do not have the wx.media.MediaCtrl class
+	pass
 from dMenuBar import dMenuBar
 from dMenu import dMenu
 from dMenuItem import dMenuItem
