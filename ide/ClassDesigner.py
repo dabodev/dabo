@@ -211,7 +211,6 @@ class ClassDesigner(dabo.dApp):
 				{"name" : "ListBox", "class" : dui.dListBox, "order" : 140},
 				{"name" : "ListControl", "class" : dui.dListControl, "order" : 150},
 				{"name" : "MaskedTextBox", "class" : dui.dMaskedTextBox, "order" : 155},
-				{"name" : "MediaControl", "class" : dui.dMediaControl, "order" : 155},
 				{"name" : "RadioList", "class" : dui.dRadioList, "order" : 160},
 				{"name" : "Page", "class" : dui.dPage, "order" : 170},
 				{"name" : "Panel", "class" : dui.dPanel, "order" : 180},
@@ -228,6 +227,11 @@ class ClassDesigner(dabo.dApp):
 				{"name" : "ToggleButton", "class" : dui.dToggleButton, "order" : 280},
 				{"name" : "TreeView", "class" : dui.dTreeView, "order" : 290}
 				)
+		try:
+			self.designerControls += ({"name" : "MediaControl", "class" : dui.dMediaControl, "order" : 155}, )
+		except AttributeError:
+			# dMediaControl was not imported; some earlier wx versions don't include this
+			pass
 		self._initClassEvents()
 
 		self.setup()
@@ -308,11 +312,16 @@ class ClassDesigner(dabo.dApp):
 				dui.dEditBox, dui.dEditor, dui.dSlidePanelControl, dui.dForm, dui.dFormMain,
 				dui.dDockForm, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel,
 				dui.dLed, dui.dLine, dui.dListBox, dui.dListControl, dui.dMaskedTextBox,
-				dui.dMediaControl, dui.dOkCancelDialog, dui.dPanel, dui.dPage,
+				dui.dOkCancelDialog, dui.dPanel, dui.dPage,
 				dui.dScrollPanel, dui.dPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect,
 				dui.dPageStyled, dui.dPageFrameNoTabs, dui.dRadioList, dui.dSlider,
 				dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton, dui.dTreeView,
 				dlgs.Wizard, dlgs.WizardPage)
+		try:
+			classes += (dui.dMediaControl, )
+		except AttributeError:
+			# dMediaControl was not imported; some earlier wx versions don't include this
+			pass
 
 		def evtsForClass(cls):
 			def safeApplies(itm, cls):
@@ -1975,8 +1984,13 @@ class ClassDesigner(dabo.dApp):
 						dui.dDateTextBox, dui.dDropdownList, dui.dEditBox, dui.dEditor,
 						dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel, dui.dLine,
 						dui.dLed, dui.dListBox, dui.dListControl, dui.dMaskedTextBox,
-						dui.dMediaControl, dui.dPage, dui.dRadioList, dui.dSlider, dui.dSpinner,
+						dui.dPage, dui.dRadioList, dui.dSlider, dui.dSpinner,
 						dui.dSplitter, dui.dTextBox, dui.dToggleButton, dui.dTreeView]
+				try:
+					keys += (dui.dMediaControl, )
+				except AttributeError:
+					# dMediaControl was not imported; some earlier wx versions don't include this
+					chc.remove("MediaControl")
 				if not _USE_DOCKFORM:
 					# The dock form reference is position 1
 					chc.pop(1)
@@ -3210,7 +3224,12 @@ class ClassDesigner(dabo.dApp):
 			pop.append(_("Add Label"), OnHit=self.onNewLabel)
 			pop.append(_("Add LED"), OnHit=self.onNewLed)
 			pop.append(_("Add Line"), OnHit=self.onNewLine)
-			pop.append(_("Add MediaControl"), OnHit=self.onNewMediaControl)
+			try:
+				dui.dMediaControl
+				pop.append(_("Add MediaControl"), OnHit=self.onNewMediaControl)
+			except AttributeError:
+				# dMediaControl was not imported; some earlier wx versions don't include this
+				pass
 			pop.append(_("Add Panel"), OnHit=self.onNewPanel)
 			pop.append(_("Add ScrollPanel"), OnHit=self.onNewScrollPanel)
 			pop.append(_("Add SlidePanelControl"), OnHit=self.onNewSlidePanelControl)
@@ -3432,7 +3451,11 @@ class ClassDesigner(dabo.dApp):
 	def onNewMaskedTextBox(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dMaskedTextBox)
 	def onNewMediaControl(self, evt):
-		dui.callAfter(self.addNewControl, None, dui.dMediaControl)
+		try:
+			dui.callAfter(self.addNewControl, None, dui.dMediaControl)
+		except AttributeError:
+			# dMediaControl was not imported; some earlier wx versions don't include this
+			pass
 	def onNewRadioList(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dRadioList)
 	def onNewPanel(self, evt):
@@ -4231,7 +4254,6 @@ if __name__ == '__main__':
 					(_("ListBox"), dui.dListBox),
 					(_("ListControl"), dui.dListControl),
 					(_("MaskedTextBox"), dui.dMaskedTextBox),
-					(_("MediaControl"), dui.dMediaControl),
 					(_("Panel"), dui.dPanel),
 					(_("ScrollPanel"), dui.dScrollPanel),
 					(_("PageFrame"), dui.dPageFrame),
@@ -4246,6 +4268,11 @@ if __name__ == '__main__':
 					(_("TextBox"), dui.dTextBox),
 					(_("ToggleButton"), dui.dToggleButton),
 					(_("TreeView"), dui.dTreeView) )
+			try:
+				ctls += ((_("MediaControl"), dui.dMediaControl), )
+			except AttributeError:
+				# dMediaControl was not imported; some earlier wx versions don't include this
+				pass
 			for cap, cls in ctls:
 				btn = PaletteButton(mp, Caption=cap, ControlClass=cls)
 				btn.bindEvent(dEvents.Hit, self.onPaletteClick)
