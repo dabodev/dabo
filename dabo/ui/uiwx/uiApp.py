@@ -695,7 +695,12 @@ these automatic updates.""").replace("\n", " ")
 					success = cb.GetData(data)
 					cb.Close()
 					if success:
-						win.Replace(selection[0], selection[1], data.GetText())
+						try:
+							win.Replace(selection[0], selection[1], data.GetText())
+						except (AttributeError, IndexError, KeyError):
+							# Could have been a control with a GetSelection() method, such
+							# as a dPageFrame, and the selection doesn't refer to selected text.
+							pass
 
 
 	def onEditSelectAll(self, evt):
