@@ -43,7 +43,6 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 		except dabo.ui.deadObjectException:
 			# Form is being destroyed; bail
 			return
-		plat = self.Application.Platform
 		self.SetLabel(self._caption)
 		wd = {True: self.Width, False: -1}[self.WordWrap]
 		self.Wrap(wd)
@@ -55,8 +54,8 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 		flag must be reset outside of the execution method.
 		"""
 		self.Parent.unlockDisplayAll()
-		self._inResizeEvent = False
 		self.update()
+		self._inResizeEvent = False
 
 
 	# property get/set functions
