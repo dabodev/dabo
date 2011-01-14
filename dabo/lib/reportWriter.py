@@ -1083,6 +1083,10 @@ class ReportWriter(object):
 	def drawSpanningObjects(self, origin=(0,0), group=None):
 		"""Draw all spanning objects. Called when page is changing or group is ending."""
 		x,y = origin
+		if y is None:
+			# endPage();beginPage();endPage() cycle probably having to do with a group
+			# header or footer being too tall for the page. Punt.
+			y = 0
 		if group is None:
 			spanList = []
 			spanList_page = []
