@@ -45,7 +45,7 @@ class dPref(object):
 	will not be saved. Calling 'persist()' will write any values of that object and all of its
 	child objects to the database.
 	"""
-	def __init__(self, key=None, crs=None, cxn=None, appName="Dabo"):
+	def __init__(self, key=None, crs=None, cxn=None, appName="Dabo", prefDb=None):
 		if key is None:
 			self._key = ""
 		else:
@@ -64,15 +64,18 @@ class dPref(object):
 				bool: "bool", list: "list", tuple: "tuple", datetime.date: "date", dict: "dict",
 				datetime.datetime: "datetime", Decimal: "decimal", self._noneType: "none"}
 		if crs is None:
-			prefdir = utils.getUserAppDataDirectory(appName)
-			if prefdir is None:
-				# pkm: This happened to me on a webserver where the user is www-data who doesn't have
-				#      a home directory. I actually don't care about preferences in this case but I
-				#      wasn't able to set dApp.PreferenceManager to None unfortunately, so we'll just
-				#      punt and put the preference db in the working directory (up to your webapp to
-				#      chdir() accordingly)..
-				prefdir = os.getcwd()
-			db = os.path.join(prefdir, "DaboPreferences.db")
+			if prefDb:
+				db = prefDb
+			else:
+				prefdir = utils.getUserAppDataDirectory(appName)
+				if prefdir is None:
+					# pkm: This happened to me on a webserver where the user is www-data who doesn't have
+					#      a home directory. I actually don't care about preferences in this case but I
+					#      wasn't able to set dApp.PreferenceManager to None unfortunately, so we'll just
+					#      punt and put the preference db in the working directory (up to your webapp to
+					#      chdir() accordingly)..
+					prefdir = os.getcwd()
+				db = os.path.join(prefdir, "DaboPreferences.db")
 			self._cxn = dabo.db.dConnection(connectInfo={"DbType": "SQLite", "Database": db},
 					forceCreate=True)
 			self._cursor = self._cxn.getDaboCursor()
