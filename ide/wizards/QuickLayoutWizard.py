@@ -60,13 +60,20 @@ class PgConnectionSelect(WizardPage):
 
 	def onLeavePage(self, dir):
 		# This will return False if the connection cannot be made.
+		if not self.Wizard.ConnectionName:
+			dabo.ui.stop(_("You must select a connection before proceeding."))
+			return False
 		return self.Wizard.makeConnection()
 
 
 	def populateConnNames(self):
 		dd = self.ddNames
-		dd.Choices = self.Application.getConnectionNames()
-		dd.PositionValue = 0
+		dd.DataField = ""
+		connNames = self.Application.getConnectionNames()
+		dd.Choices = connNames
+		if connNames:
+			dabo.ui.setAfter(dd, "PositionValue", 0)
+		dabo.ui.setAfter(dd, "DataField", "ConnectionName")
 		dd.refresh()
 
 
