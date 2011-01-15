@@ -10,6 +10,10 @@ from dabo.lib.autosuper import autosuper
 from dabo.dPref import dPref
 from dabo.dLocalize import _
 
+NONE_TYPE = type(None)
+
+
+
 class Dummy(object):
 	# Much thanks to Robin Dunn for a workaround to a nasty problem that reared
 	# its head starting with wxPython 2.7, when we had to switch around the order
@@ -18,6 +22,8 @@ class Dummy(object):
 	# and suffice it to say making dObject first inherit from this Dummy class
 	# fixes the issue, which was ultimately caused by autosuper's __slots__.
 	pass
+
+
 
 class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		EventMixin):
@@ -32,6 +38,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 	# or, not calling super() at all, but remember to call _initProperties() and
 	# the call to setProperties() at the end!
 	_call_beforeInit, _call_afterInit, _call_initProperties = True, True, True
+
 
 	def __init__(self, properties=None, attProperties=None, *args, **kwargs):
 		if not hasattr(self, "_properties"):
@@ -62,6 +69,8 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 				if not issubclass(typ, basestring):
 					if issubclass(typ, bool):
 						val = (val == "True")
+					elif typ is NONE_TYPE:
+						val = None
 					else:
 						try:
 							val = typ(val)

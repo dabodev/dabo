@@ -446,6 +446,12 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._customRenderers = {}
 		self._customEditors = {}
 
+		#Declare Internal Header Attributes
+		self._headerVerticalAlignment = "Center"
+		self._headerHorizontalAlignment = "Center"
+		self._headerForeColor = None
+		self._headerBackColor = None
+
 		self._beforeInit()
 		kwargs["Parent"] = parent
 		# dColumn maintains one attr object that the grid table will use for
