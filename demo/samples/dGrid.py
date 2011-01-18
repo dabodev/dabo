@@ -103,29 +103,49 @@ class TestPanel(dabo.ui.dPanel):
 
 		chk = dabo.ui.dCheckBox(self, Caption="Show Cell Borders?",
 				DataSource=self.grid, DataField="ShowCellBorders")
-		gsz.append(chk, row=0, col=1)
+		gsz.append(chk, row=4, col=0)
 		chk.refresh()
 
 		chk = dabo.ui.dCheckBox(self, Caption="Allow Multiple Selection?",
 				DataSource=self.grid, DataField="MultipleSelection")
 		chk.refresh()
-		gsz.append(chk, row=1, col=1)
+		gsz.append(chk, row=0, col=1)
 
 		chk = dabo.ui.dCheckBox(self, Caption="Allow Row Resizing?",
 				DataSource=self.grid, DataField="ResizableRows")
 		chk.refresh()
-		gsz.append(chk, row=2, col=1)
+		gsz.append(chk, row=1, col=1)
 
 		chk = dabo.ui.dCheckBox(self, Caption="Allow Column Resizing?",
 				DataSource=self.grid, DataField="ResizableColumns")
 		chk.refresh()
+		gsz.append(chk, row=2, col=1)
+
+		chk = dabo.ui.dCheckBox(self, Caption="Vertical Headers?",
+				DataSource=self.grid, DataField="VerticalHeaders")
+		chk.refresh()
 		gsz.append(chk, row=3, col=1)
+
+		chk = dabo.ui.dCheckBox(self, Caption="Auto-adjust Header Height?",
+				DataSource=self.grid, DataField="AutoAdjustHeaderHeight")
+		chk.refresh()
+		gsz.append(chk, row=4, col=1)
 
 		radSelect = dabo.ui.dRadioList(self, Choices=["Row", "Col", "Cell"],
 				ValueMode="string", Caption="Sel Mode",
 				DataSource=self.grid, DataField="SelectionMode")
 		radSelect.refresh()
-		gsz.append(radSelect, row=0, col=2, rowSpan=4)
+		gsz.append(radSelect, row=0, col=2, rowSpan=5)
+
+		lbl = dabo.ui.dLabel(self, Caption="Sort Indicator Size")
+		spnSort = dabo.ui.dSpinner(self, Min=2, Max=20, DataSource=self.grid,
+				DataField="SortIndicatorSize", OnHit=self.onSortSizeChange)
+		gsz.append(lbl, row=0, col=3)
+		gsz.append(spnSort, row=1, col=3, halign="center")
+
+		btn = dabo.ui.dButton(self, Caption="Sort Indicator Color")
+		btn.bindEvent(dEvents.Hit, self.onSetSortIndicatorColor)
+		gsz.append(btn, row=3, col=3, halign="center")
 
 		sz.append(gsz, halign="Center", border=10)
 		gsz.setColExpand(True, 2)
@@ -189,9 +209,23 @@ class TestPanel(dabo.ui.dPanel):
 		self.grid.refresh()
 
 
+	def onSetSortIndicatorColor(self, evt):
+		clr = self.grid.SortIndicatorColor
+		new = dabo.ui.getColor(clr)
+		if new:
+			self.grid.SortIndicatorColor = new
+		self.grid.refresh()
+
+
+	def onSortSizeChange(self, evt):
+		self.grid.refresh()
+
+
+
 category = "Controls.dGrid"
 
 overview = """
 <p>The <b>dGrid</b> class is used to display (and optionally edit)
-tabular data.
+tabular data. It is highly customizable; this demo shows off many of the
+properties used to control its appearance and behavior.
 """
