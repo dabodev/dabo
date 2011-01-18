@@ -1649,20 +1649,20 @@ class dBizobj(dObject):
 		return ret
 
 
-	def setFieldVal(self, fld, val, row=None):
+	def setFieldVal(self, fld, val, row=None, pk=None):
 		"""Set the value of the specified field in the current or specified row."""
 		cursor = self._CurrentCursor
 		if cursor is None:
 			return
 		try:
-			changed = cursor.setFieldVal(fld, val, row)
+			changed = cursor.setFieldVal(fld, val, row, pk)
 		except (dException.NoRecordsException, dException.RowNotFoundException):
 			return False
 		if changed:
 			self.afterSetFieldVal(fld, row)
 
 
-	def setFieldVals(self, valDict=None, row=None, **kwargs):
+	def setFieldVals(self, valDict=None, row=None, pk=None, **kwargs):
 		"""Allows you to set the value for multiple fields with one call by passing a dict
 		containing the field names as keys, and the new values as values.
 		"""
@@ -1671,7 +1671,7 @@ class dBizobj(dObject):
 		else:
 			valDict.update(kwargs)
 		for fld, val in valDict.items():
-			self.setFieldVal(fld, val, row)
+			self.setFieldVal(fld, val, row, pk)
 
 	setValues = setFieldVals  ## deprecate setValues in future version
 

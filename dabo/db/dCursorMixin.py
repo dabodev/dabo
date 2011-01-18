@@ -931,29 +931,34 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return True
 
 
-	def setFieldVals(self, valDict, row=None):
+	def setFieldVals(self, valDict, row=None, pk=None):
 		"""Set the value for multiple fields with one call by passing a dict containing
 		the field names as keys, and the new values as values.
 		"""
 		for fld, val in valDict.items():
-			self.setFieldVal(fld, val, row)
+			self.setFieldVal(fld, val, row, pk)
 	setValuesByDict = setFieldVals  ## deprecate setValuesByDict in future
 
 
-	def setFieldVal(self, fld, val, row=None):
+	def setFieldVal(self, fld, val, row=None, pk=None):
 		"""Set the value of the specified field."""
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException(
 					_("No records in dataset '%s'.") % self.Table)
-		if row is None:
+
+		rec = None
+		if pk is not None:
+			row, rec = self._getRecordByPk(pk)
+		elif row is None:
 			row = self.RowNumber
 
-		try:
-			rec = self._records[row]
-		except IndexError:
-			cnt = len(self._records)
-			raise dException.RowNotFoundException(
-					_("Row #%(row)s requested, but the data set has only %(cnt)s row(s),") % locals())
+		if not rec:
+			try:
+				rec = self._records[row]
+			except IndexError:
+				cnt = len(self._records)
+				raise dException.RowNotFoundException(
+						_("Row #%(row)s requested, but the data set has only %(cnt)s row(s),") % locals())
 		valid_pk = self._hasValidKeyField()
 		keyField = self.KeyField
 		if fld not in rec:
