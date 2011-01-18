@@ -2576,7 +2576,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				# of the column. TODO: Perhaps replace with prettier icons
 				left = headerRect[0] + sortIconBuffer
 				top = headerRect[1] + sortIconBuffer
-				brushColor = dColors.colorTupleFromName(self.SortIndicatorColor)
+				brushColor = self.SortIndicatorColor
+				if isinstance(brushColor, basestring):
+					brushColor = dColors.colorTupleFromName(brushColor)
 				dc.SetBrush(wx.Brush(brushColor, wx.SOLID))
 				if self.sortOrder == "DESC":
 					# Down arrow
