@@ -1419,7 +1419,7 @@ try again when it is running.
 								if len(d1) < len(d2) or len(d1) <= 1:
 									return False
 								d1 = os.path.split(d1)[0]
-								if d1 == d2:
+								if d1.lower() == d2.lower():
 									return True
 
 						if issubdir(scriptDir, appDir):
