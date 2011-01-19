@@ -128,10 +128,7 @@ dAppRef = None
 from settings import *
 
 def getEncoding():
-	ret = locale.getlocale()[1]
-	if ret is None:
-		ret = defaultEncoding
-	return ret
+	return locale.getdefaultlocale()[1] or defaultEncoding
 
 def getXMLEncoding():
 	ret = getEncoding()
