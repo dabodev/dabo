@@ -789,9 +789,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		##                  grid no matter what I try. Commented code below shows what I
 		##                  attempted:
 		#cellAttr.Font = wx.Font(cellAttr.Font.PointSize, cellAttr.Font.Family,
-		#		cellAttr.Font.Style, cellAttr.Font.Weight, cellAttr.Font.Underlined, 
+		#		cellAttr.Font.Style, cellAttr.Font.Weight, cellAttr.Font.Underlined,
 		#		cellAttr.Font.FaceName)
-		#cellAttr = cellAttr.Clone() 
+		#cellAttr = cellAttr.Clone()
 		self._gridCellAttrs[row] = cellAttr
 
 
@@ -1806,6 +1806,18 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._headerHorizontalAlignment = "Center"
 		self._headerForeColor = None
 		self._headerBackColor = None
+		# What color/size should the little sort indicator arrow be?
+		self._sortIndicatorColor = "yellow"
+		self._sortIndicatorSize = 8
+
+		#Declare Internal Header Attributes
+		self._headerVerticalAlignment = "Center"
+		self._headerHorizontalAlignment = "Center"
+		self._headerForeColor = None
+		self._headerBackColor = None
+		self._verticalHeaders = False
+		self._autoAdjustHeaderHeight = False
+		self._headerMaxTextHeight = 0
 
 		#Set NoneDisplay attributes
 		if self.Application:
@@ -1864,11 +1876,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# if a grid with variable types in a single column is used.
 		self.useCustomGetValue = False
 		self.useCustomSetValue = False
-
-		# What color/size should the little sort indicator arrow be?
-		self.sortIndicatorColor = "DarkSlateGrey"
-		self.sortIndicatorSize = 6
-		self.sortIndicatorBuffer = 3
 
 		# flags used by mouse motion event handlers:
 		self._headerDragging = False
@@ -2478,10 +2485,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 		## This function will get used in both if/elif below:
 		def _setColSize(idx):
+			sortIconSize = self.SortIndicatorSize
+			sortIconBuffer = sortIconSize / 2
 			## breathing room around header caption:
 			capBuffer = 5
 			## add additional room to account for possible sort indicator:
-			capBuffer += ((2*self.sortIndicatorSize) + (2*self.sortIndicatorBuffer))
+			capBuffer += ((2 * sortIconSize) + (2 * sortIconBuffer))
 			colObj = self.Columns[idx]
 			autoWidth = self.GetColSize(idx)
 
@@ -2507,14 +2516,16 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self._updateColumnWidths()
 
 
-
 	def _paintHeader(self, updateBox=None):
+		"""This method handles all of the display for the header, including writing
+		the Captions along with any sort indicators.
+		"""
 		w = self._getWxHeader()
-
 		if updateBox is None:
 			updateBox = w.GetClientRect()
-
 		dc = wx.PaintDC(w)
+		textAngle = {True: 90, False: 0}[self.VerticalHeaders]
+		self._columnMetrics = []
 
 		for idx, col in enumerate(self._columns):
 			headerRect = col._getHeaderRect()
@@ -2534,21 +2545,16 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 			holdBrush = dc.GetBrush()
 			holdPen = dc.GetPen()
-
 			fcolor = colObj.HeaderForeColor
 			if fcolor is None:
 				fcolor = self.HeaderForeColor
 				if fcolor is None:
 					fcolor = (0,0,0)
-
 			bcolor = colObj.HeaderBackColor
 			if bcolor is None:
 				bcolor = self.HeaderBackColor
-
-
 			dc.SetTextForeground(fcolor)
-			font = colObj.HeaderFont._nativeFont
-
+			wxNativeFont = colObj.HeaderFont._nativeFont
 			# draw the col. header background:
 			if bcolor is not None:
 				dc.SetBrush(wx.Brush(bcolor, wx.SOLID))
@@ -2559,33 +2565,35 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			dc.SetBrush(wx.TRANSPARENT_BRUSH)
 			dc.SetPen(self.GetDefaultGridLinePen())
 			dc.DrawRectangle(*headerRect)
-
 			dc.SetPen(holdPen)
 			dc.SetBrush(holdBrush)
 
 			if colObj.DataField == self.sortedColumn:
 				sortIndicator = True
+				sortIconSize = self.SortIndicatorSize
+				sortIconBuffer = sortIconSize / 2
 				# draw a triangle, pointed up or down, at the top left
 				# of the column. TODO: Perhaps replace with prettier icons
-				left = headerRect[0] + self.sortIndicatorBuffer
-				top = headerRect[1] + self.sortIndicatorBuffer
-
-				brushColor = dColors.colorTupleFromName(self.sortIndicatorColor)
+				left = headerRect[0] + sortIconBuffer
+				top = headerRect[1] + sortIconBuffer
+				brushColor = self.SortIndicatorColor
+				if isinstance(brushColor, basestring):
+					brushColor = dColors.colorTupleFromName(brushColor)
 				dc.SetBrush(wx.Brush(brushColor, wx.SOLID))
 				if self.sortOrder == "DESC":
 					# Down arrow
-					dc.DrawPolygon([(left, top), (left+self.sortIndicatorSize, top),
-							(left+self.sortIndicatorBuffer, top+self.sortIndicatorSize)])
+					dc.DrawPolygon([(left, top), (left + sortIconSize, top),
+							(left + sortIconBuffer, top + sortIconSize)])
 				elif self.sortOrder == "ASC":
 					# Up arrow
-					dc.DrawPolygon([(left+self.sortIndicatorBuffer, top),
-							(left+self.sortIndicatorSize, top+self.sortIndicatorSize),
-							(left, top+self.sortIndicatorSize)])
+					dc.DrawPolygon([(left + sortIconBuffer, top),
+							(left + sortIconSize, top + sortIconSize),
+							(left, top + sortIconSize)])
 				else:
 					# Column is not sorted, so don't draw.
 					sortIndicator = False
 
-			dc.SetFont(font)
+			dc.SetFont(wxNativeFont)
 			ah = colObj.HeaderHorizontalAlignment
 			av = colObj.HeaderVerticalAlignment
 			if ah is None:
@@ -2595,12 +2603,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			if ah is None:
 				ah = "Center"
 			if av is None:
-				av = "Center"
-
+				av = "Bottom"
 			wxah = {"Center": wx.ALIGN_CENTRE_HORIZONTAL,
 					"Left": wx.ALIGN_LEFT,
 					"Right": wx.ALIGN_RIGHT}[ah]
-
 			wxav = {"Center": wx.ALIGN_CENTRE_VERTICAL,
 					"Top": wx.ALIGN_TOP,
 					"Bottom": wx.ALIGN_BOTTOM}[av]
@@ -2613,18 +2619,71 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			sortBuffer = horBuffer
 			if sortIndicator:
 				# If there's a sort indicator, we'll nudge the caption over
-				sortBuffer += (self.sortIndicatorBuffer + self.sortIndicatorSize)
+				sortBuffer += (sortIconSize + sortIconBuffer)
 			trect = list(headerRect)
 			trect[0] = trect[0] + sortBuffer
 			trect[1] = trect[1] + vertBuffer
 			if ah == "Center":
-				trect[2] = trect[2] - (2*sortBuffer)
+				trect[2] = trect[2] - (2 * sortBuffer)
 			else:
-				trect[2] = trect[2] - (horBuffer+sortBuffer)
-			trect[3] = trect[3] - (2*vertBuffer)
+				trect[2] = trect[2] - (horBuffer + sortBuffer)
+			trect[3] = trect[3] - (2 * vertBuffer)
 			trect = wx.Rect(*trect)
-			dc.DrawLabel("%s" % colObj.Caption, trect, wxav|wxah)
+
+			# Get the specs from the wx native font
+			fontFace = wxNativeFont.GetFaceName()
+			fontSize = wxNativeFont.GetPointSize()
+			fontBold = (wxNativeFont.GetWeight() == wx.BOLD)
+			fontItalic = (wxNativeFont.GetStyle() == wx.ITALIC)
+			fontUnderline = wxNativeFont.GetUnderlined()
+			foreColor = colObj.HeaderForeColor
+			backColor = colObj.HeaderBackColor
+			# First do it once off-screen to get the metrics
+			txt = self.drawText("%s" % colObj.Caption, -999, -999, angle=textAngle,
+					fontFace=fontFace, fontSize=fontSize, fontBold=fontBold,
+					fontItalic=fontItalic, fontUnderline=fontUnderline,
+					foreColor=colObj.HeaderForeColor, backColor=colObj.HeaderBackColor)
+			twd, tht = dabo.ui.fontMetricFromDrawObject(txt)
+			if self.VerticalHeaders:
+				# Note that when rotating 90 degrees, the width affect height,
+				# and vice-versa
+				twd, tht = tht, twd
+			self._columnMetrics.append((twd, tht))
+			# This will destroy the temp draw object
+			self.removeDrawnObject(txt)
+
+			# Figure out the x,y coordinates to start the text drawing.
+			left, top, wd, ht = trect
+			x = left
+			if ah == "Center":
+				x += (wd / 2) - (twd / 2)
+			elif ah == "Right":
+				x += wd - twd
+			# Note that we need to adjust for text height when angle is 0.
+			yadj = 0
+			if textAngle == 0:
+				yadj = tht
+			y = top + ht - yadj
+			if av == "Top":
+				y = top + tht + 2 - yadj
+			elif av == "Center":
+				y = top + (ht / 2)	+ (tht / 2) - yadj
+
+			txt = self.drawText("%s" % colObj.Caption, x, y, angle=textAngle,
+					fontFace=fontFace, fontSize=fontSize, fontBold=fontBold,
+					fontItalic=fontItalic, fontUnderline=fontUnderline,
+					foreColor=foreColor, backColor=backColor, persist=False)
 			dc.DestroyClippingRegion()
+		self._headerMaxTextHeight = max([cht for cwd, cht in self._columnMetrics])
+
+
+	def _autoSetHeaderHeight(self):
+		"""Method for callAfter() to update the header height when changing the
+		VerticalHeaders setting.
+		"""
+		self._headerMaxTextHeight = max([cwd for cwd, cht in self._columnMetrics])
+		self.HeaderHeight -= 1
+		self.HeaderHeight = self._headerMaxTextHeight + 20
 
 
 	def showColumn(self, col, visible):
@@ -4091,6 +4150,17 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self._properties["AlternateRowColoring"] = val
 
 
+	def _getAutoAdjustHeaderHeight(self):
+		return self._autoAdjustHeaderHeight
+
+	def _setAutoAdjustHeaderHeight(self, val):
+		if self._constructed():
+			self._autoAdjustHeaderHeight = val
+			self._getWxHeader().ClearBackground()
+		else:
+			self._properties["AutoAdjustHeaderHeight"] = val
+
+
 	def _getCellHighlightWidth(self):
 		return self.GetCellHighlightPenWidth()
 
@@ -4665,11 +4735,47 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._sortable = bool(val)
 
 
+	def _getSortIndicatorColor(self):
+		return self._sortIndicatorColor
+
+	def _setSortIndicatorColor(self, val):
+		if self._constructed():
+			self._sortIndicatorColor = val
+		else:
+			self._properties["SortIndicatorColor"] = val
+
+
+	def _getSortIndicatorSize(self):
+		return self._sortIndicatorSize
+
+	def _setSortIndicatorSize(self, val):
+		if self._constructed():
+			self._sortIndicatorSize = val
+		else:
+			self._properties["SortIndicatorSize"] = val
+
+
 	def _getTabNavigates(self):
 		return getattr(self, "_tabNavigates", True)
 
 	def _setTabNavigates(self, val):
 		self._tabNavigates = bool(val)
+
+
+	def _getVerticalHeaders(self):
+		return self._verticalHeaders
+
+	def _setVerticalHeaders(self, val):
+		if self._constructed():
+			if val != self._verticalHeaders:
+				self._verticalHeaders = val
+				if self.AutoAdjustHeaderHeight:
+					dabo.ui.callAfter(self._autoSetHeaderHeight)
+				else:
+					# Force the repaint
+					self._getWxHeader().ClearBackground()
+		else:
+			self._properties["VerticalHeaders"] = val
 
 
 	def _getVerticalScrolling(self):
@@ -4714,6 +4820,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	AlternateRowColoring = property(_getAlternateRowColoring, _setAlternateRowColoring, None,
 			_("""When True, alternate rows of the grid are colored according to
 			the RowColorOdd and RowColorEven properties  (bool)"""))
+
+	AutoAdjustHeaderHeight = property(_getAutoAdjustHeaderHeight,
+			_setAutoAdjustHeaderHeight, None,
+			_("""When True, changing the VerticalHeaders property will adjust the HeaderHeight
+			to accommodate the rotated labels. Default=False.  (bool)"""))
 
 	CellHighlightWidth = property(_getCellHighlightWidth, _setCellHighlightWidth, None,
 			_("Specifies the width of the cell highlight box."))
@@ -4904,9 +5015,21 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			and if the column's Sortable property is True, the column
 			will be sortable. Default: True  (bool)"""))
 
+	SortIndicatorColor = property(_getSortIndicatorColor, _setSortIndicatorColor,
+			None, _("""Color of the icon is that identifies a column as being sorted.
+			Default="yellow".  (str or color tuple)"""))
+
+	SortIndicatorSize = property(_getSortIndicatorSize, _setSortIndicatorSize,
+			None, _("""Determines how large the icon is that identifies a column as
+			being sorted. Default=8.  (int)"""))
+
 	TabNavigates = property(_getTabNavigates, _setTabNavigates, None,
 			_("""Specifies whether Tab navigates to the next control (True, the default),
 			or if Tab moves to the next column in the grid (False)."""))
+
+	VerticalHeaders = property(_getVerticalHeaders, _setVerticalHeaders, None,
+			_("""When True, the column headers' Captions are written vertically.
+			Default=False.  (bool)"""))
 
 	VerticalScrolling = property(_getVerticalScrolling, _setVerticalScrolling, None,
 			_("Is scrolling enabled in the vertical direction?  (bool)"))
@@ -4951,6 +5074,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	DynamicSortable = makeDynamicProperty(Sortable)
 	DynamicTabNavigates = makeDynamicProperty(TabNavigates)
 	DynamicVerticalScrolling = makeDynamicProperty(VerticalScrolling)
+	DynamicVerticalHeaders = makeDynamicProperty(VerticalHeaders)
 
 
 	##----------------------------------------------------------##
@@ -5074,6 +5198,18 @@ if __name__ == '__main__':
 			chk.update()
 			gsz.append(chk, row=2, col=0)
 
+			chk = dabo.ui.dCheckBox(self, Caption="Vertical Headers",
+					RegID="verticalHeaders", DataSource=self.grid,
+					DataField="VerticalHeaders")
+			chk.update()
+			gsz.append(chk, row=3, col=0)
+
+			chk = dabo.ui.dCheckBox(self, Caption="Auto-adjust Header Height",
+					RegID="autoAdjust", DataSource=self.grid,
+					DataField="AutoAdjustHeaderHeight")
+			chk.update()
+			gsz.append(chk, row=4, col=0)
+
 			radSelect = dabo.ui.dRadioList(self, Choices=["Row", "Col", "Cell"],
 					ValueMode="string", Caption="Sel Mode", BackColor=self.BackColor,
 					DataSource=self.grid, DataField="SelectionMode", RegID="radSelect")
@@ -5090,13 +5226,13 @@ if __name__ == '__main__':
 					but.Caption = "Make Celebrity Visible"
 			butVisible = dabo.ui.dButton(self, Caption="Toggle Celebrity Visibility",
 				OnHit=setVisible)
-			gsz.append(butVisible, row=3, col=0)
+			gsz.append(butVisible, row=5, col=0)
 
 			self.Sizer.append(gsz, halign="Center", border=10)
 			gsz.setColExpand(True, 1)
 			self.layout()
 
-			self.fitToSizer(20,20)
+			self.fitToSizer(20, 20)
 
 
 	app = dabo.dApp(MainFormClass=TestForm)
