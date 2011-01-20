@@ -862,7 +862,7 @@ class dPemMixin(dPemMixinBase):
 
 		IMPORTANT: you must call unlockDisplay() when you are done, or your
 		object will never draw. unlockDisplay() must be called once for every
-		time lockDisplay() is called in order to resume repainting of the 
+		time lockDisplay() is called in order to resume repainting of the
 		control. Alternatively, you can call lockDisplay() many times, and
 		then call unlockDisplayAll() once when you are done.
 
@@ -1411,7 +1411,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
 			fillColor=None, lineStyle=None, hatchStyle=None, mode=None,
-			persist=True, visible=True):
+			persist=True, visible=True, dc=None):
 		"""Draws a circle of the specified radius around the specified point.
 
 		You can set the color and thickness of the line, as well as the
@@ -1427,7 +1427,7 @@ class dPemMixin(dPemMixinBase):
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, Radius=rad, LineStyle=lineStyle,
 				HatchStyle=hatchStyle, Shape="circle", Xpos=xPos, Ypos=yPos,
-				DrawMode=mode, Visible=visible)
+				DrawMode=mode, Visible=visible, dc=dc)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1435,7 +1435,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawArc(self, xPos, yPos, rad, startAngle, endAngle, penColor="black",
 			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True, visible=True):
+			mode=None, persist=True, visible=True, dc=None):
 		"""Draws an arc (pie slice) of a circle centered around the specified point,
 		starting from 'startAngle' degrees, and sweeping counter-clockwise
 		until 'endAngle' is reached.
@@ -1445,7 +1445,8 @@ class dPemMixin(dPemMixinBase):
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, Radius=rad, StartAngle=startAngle,
 				EndAngle=endAngle, LineStyle=lineStyle, HatchStyle=hatchStyle,
-				Shape="arc", Xpos=xPos, Ypos=yPos, DrawMode=mode, Visible=visible)
+				Shape="arc", Xpos=xPos, Ypos=yPos, DrawMode=mode,
+				Visible=visible, dc=dc)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1453,7 +1454,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawEllipse(self, xPos, yPos, width, height, penColor="black",
 			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True, visible=True):
+			mode=None, persist=True, visible=True, dc=None):
 		"""Draws an ellipse contained within the rectangular space defined by
 		the position and size coordinates
 
@@ -1462,7 +1463,7 @@ class dPemMixin(dPemMixinBase):
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="ellipse", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
-				DrawMode=mode, Visible=visible)
+				DrawMode=mode, Visible=visible, dc=dc)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1470,7 +1471,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawEllipticArc(self, xPos, yPos, width, height, startAngle, endAngle,
 			penColor="black", penWidth=1, fillColor=None, lineStyle=None,
-			hatchStyle=None, mode=None, persist=True, visible=True):
+			hatchStyle=None, mode=None, persist=True, visible=True, dc=None):
 		"""Draws an arc (pie slice) of a ellipse contained by the specified
 		dimensions, starting from 'startAngle' degrees, and sweeping
 		counter-clockwise until 'endAngle' is reached.
@@ -1481,7 +1482,7 @@ class dPemMixin(dPemMixinBase):
 				PenWidth=penWidth, StartAngle=startAngle,
 				EndAngle=endAngle, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="ellipticarc", Xpos=xPos, Ypos=yPos, Width=width,
-				Height=height, DrawMode=mode, Visible=visible)
+				Height=height, DrawMode=mode, Visible=visible, dc=dc)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1489,7 +1490,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawRectangle(self, xPos, yPos, width, height, penColor="black",
 			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True, visible=True):
+			mode=None, persist=True, visible=True, dc=None):
 		"""Draws a rectangle of the specified size beginning at the specified
 		point.
 
@@ -1498,7 +1499,7 @@ class dPemMixin(dPemMixinBase):
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="rect", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
-				DrawMode=mode, Visible=visible)
+				DrawMode=mode, Visible=visible, dc=dc)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1506,7 +1507,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawPolygon(self, points, penColor="black", penWidth=1,
 			fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True, visible=True):
+			mode=None, persist=True, visible=True, dc=None):
 		"""Draws a polygon defined by the specified points.
 
 		The 'points' parameter should be a tuple of (x,y) pairs defining the
@@ -1516,14 +1517,15 @@ class dPemMixin(dPemMixinBase):
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
-				Shape="polygon", Points=points, DrawMode=mode, Visible=visible)
+				Shape="polygon", Points=points, DrawMode=mode,
+				Visible=visible, dc=dc)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawPolyLines(self, points, penColor="black", penWidth=1,
-			lineStyle=None, mode=None, persist=True, visible=True):
+			lineStyle=None, mode=None, persist=True, visible=True, dc=None):
 		"""Draws a series of connected line segments defined by the specified points.
 
 		The 'points' parameter should be a tuple of (x,y) pairs defining the shape. Lines
@@ -1535,34 +1537,35 @@ class dPemMixin(dPemMixinBase):
 		"""
 		obj = DrawObject(self, PenColor=penColor, PenWidth=penWidth,
 				LineStyle=lineStyle, Shape="polylines", Points=points,
-				DrawMode=mode, Visible=visible)
+				DrawMode=mode, Visible=visible, dc=dc)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawLine(self, x1, y1, x2, y2, penColor="black", penWidth=1,
-			fillColor=None, lineStyle=None, mode=None, persist=True, visible=True):
+			fillColor=None, lineStyle=None, mode=None, persist=True,
+			visible=True, dc=None):
 		"""Draws a line between (x1,y1) and (x2, y2).
 
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, DrawMode=mode,
-				Shape="line", Points=((x1,y1), (x2,y2)), Visible=visible)
+				Shape="line", Points=((x1,y1), (x2,y2)), Visible=visible, dc=dc)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawBitmap(self, bmp, x=0, y=0, mode=None, persist=True,
-			transparent=True, visible=True):
+			transparent=True, visible=True, dc=None):
 		"""Draws a bitmap on the object at the specified position."""
 		if isinstance(bmp, basestring):
 			bmp = dabo.ui.strToBmp(bmp)
 		obj = DrawObject(self, Bitmap=bmp, Shape="bmp",
 				Xpos=x, Ypos=y, Transparent=transparent, DrawMode=mode,
-				Visible=visible)
+				Visible=visible, dc=dc)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1571,7 +1574,7 @@ class dPemMixin(dPemMixinBase):
 	def drawText(self, text, x=0, y=0, angle=0, fontFace=None,
 			fontSize=None, fontBold=None, fontItalic=None,
 			fontUnderline=None, foreColor=None, backColor=None,
-			mode=None, persist=True, visible=True):
+			mode=None, persist=True, visible=True, dc=None):
 		"""Draws text on the object at the specified position
 		using the specified characteristics. Any characteristics
 		not specified will be set to the system default.
@@ -1580,14 +1583,16 @@ class dPemMixin(dPemMixinBase):
 				Angle=angle, FontFace=fontFace, FontSize=fontSize,
 				FontBold=fontBold, FontItalic=fontItalic,
 				FontUnderline=fontUnderline, ForeColor=foreColor,
-				BackColor=backColor, DrawMode=mode, Visible=visible)
+				BackColor=backColor, DrawMode=mode, Visible=visible,
+				dc=dc)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawGradient(self, orientation, x=0, y=0, width=None, height=None,
-			color1=None, color2=None, mode=None, persist=True, visible=True):
+			color1=None, color2=None, mode=None, persist=True, visible=True,
+			dc=None):
 		"""Draws a horizontal or vertical gradient on the control. Default
 		is to cover the entire control, although you can specify positions.
 		The gradient is drawn with 'color1' as the top/left color, and 'color2'
@@ -1596,7 +1601,7 @@ class dPemMixin(dPemMixinBase):
 		obj = DrawObject(self, Shape="gradient", Orientation=orientation,
 				Xpos=x, Ypos=y, Width=width, Height=height,
 				GradientColor1=color1, GradientColor2=color2, DrawMode=mode,
-				Visible=visible)
+				Visible=visible, dc=dc)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -2916,8 +2921,9 @@ class DrawObject(dObject):
 	It is not meant to be used directly; instead, it is returned after a drawing
 	instruction is called on the object.
 	"""
-	def __init__(self, parent, *args, **kwargs):
+	def __init__(self, parent, dc=None, *args, **kwargs):
 		self._inInit = True
+		self._dc = dc
 		self._dynamic = {}
 		# Initialize property atts
 		self._parent = parent
@@ -2977,7 +2983,7 @@ class DrawObject(dObject):
 		if not self.Visible or self._inInit:
 			return
 		if dc is None:
-			dc = wx.ClientDC(self.Parent)
+			dc = self._dc or wx.ClientDC(self.Parent)
 
 		if self.Shape == "bmp":
 			dc.DrawBitmap(self._bitmap, self.Xpos, self.Ypos, self._transparent)

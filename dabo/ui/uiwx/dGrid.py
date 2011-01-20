@@ -2642,7 +2642,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			txt = self.drawText("%s" % colObj.Caption, -999, -999, angle=textAngle,
 					fontFace=fontFace, fontSize=fontSize, fontBold=fontBold,
 					fontItalic=fontItalic, fontUnderline=fontUnderline,
-					foreColor=colObj.HeaderForeColor, backColor=colObj.HeaderBackColor)
+					foreColor=colObj.HeaderForeColor, backColor=colObj.HeaderBackColor,
+					dc=dc)
 			twd, tht = dabo.ui.fontMetricFromDrawObject(txt)
 			if self.VerticalHeaders:
 				# Note that when rotating 90 degrees, the width affect height,
@@ -2672,7 +2673,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			txt = self.drawText("%s" % colObj.Caption, x, y, angle=textAngle,
 					fontFace=fontFace, fontSize=fontSize, fontBold=fontBold,
 					fontItalic=fontItalic, fontUnderline=fontUnderline,
-					foreColor=foreColor, backColor=backColor, persist=False)
+					foreColor=foreColor, backColor=backColor, persist=False, dc=dc)
 			dc.DestroyClippingRegion()
 		self._headerMaxTextHeight = max([cht for cwd, cht in self._columnMetrics])
 
