@@ -4157,7 +4157,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _setAutoAdjustHeaderHeight(self, val):
 		if self._constructed():
 			self._autoAdjustHeaderHeight = val
-			self._getWxHeader().ClearBackground()
+#			self._getWxHeader().ClearBackground()
+			self.refresh()
 		else:
 			self._properties["AutoAdjustHeaderHeight"] = val
 
@@ -4774,7 +4775,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					dabo.ui.callAfter(self._autoSetHeaderHeight)
 				else:
 					# Force the repaint
-					self._getWxHeader().ClearBackground()
+#					self._getWxHeader().ClearBackground()
+					self.refresh()
 		else:
 			self._properties["VerticalHeaders"] = val
 
