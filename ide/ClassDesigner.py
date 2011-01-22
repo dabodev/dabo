@@ -586,7 +586,7 @@ class ClassDesigner(dabo.dApp):
 
 
 	def addMRUPath(self, pth):
-		"""Convenience method for other classes that hides the details of 
+		"""Convenience method for other classes that hides the details of
 		MRUs from them. All we need is the path.
 		"""
 		self.Application.addToMRU(_("Open Recent"), os.path.realpath(pth), self.onMRUSelection)
@@ -597,7 +597,7 @@ class ClassDesigner(dabo.dApp):
 		actual path, and open that design.
 		"""
 		# The prompt will have a number prepended to the actual path,
-		# separated by a space. 
+		# separated by a space.
 		pth = evt.prompt.split(" ", 1)[-1]
 		openDesigns = [frm for frm in self.getDesignerWindows()
 				if frm._classFile == pth]
@@ -1033,7 +1033,7 @@ class ClassDesigner(dabo.dApp):
 			kidatts = kid["attributes"]
 			col = colClass(obj)
 			for kprop, kval in kidatts.items():
-				if kprop in ("designerClass", ):
+				if kprop in ("designerClass", "classID"):
 					continue
 				typ = type(getattr(col, kprop))
 				if typ is noneTyp:
