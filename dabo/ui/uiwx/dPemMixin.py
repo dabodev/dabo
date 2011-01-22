@@ -1411,7 +1411,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
 			fillColor=None, lineStyle=None, hatchStyle=None, mode=None,
-			persist=True, visible=True, dc=None):
+			persist=True, visible=True, dc=None, useDefaults=False):
 		"""Draws a circle of the specified radius around the specified point.
 
 		You can set the color and thickness of the line, as well as the
@@ -1427,7 +1427,7 @@ class dPemMixin(dPemMixinBase):
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, Radius=rad, LineStyle=lineStyle,
 				HatchStyle=hatchStyle, Shape="circle", Xpos=xPos, Ypos=yPos,
-				DrawMode=mode, Visible=visible, dc=dc)
+				DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1435,7 +1435,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawArc(self, xPos, yPos, rad, startAngle, endAngle, penColor="black",
 			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True, visible=True, dc=None):
+			mode=None, persist=True, visible=True, dc=None, useDefaults=False):
 		"""Draws an arc (pie slice) of a circle centered around the specified point,
 		starting from 'startAngle' degrees, and sweeping counter-clockwise
 		until 'endAngle' is reached.
@@ -1446,7 +1446,7 @@ class dPemMixin(dPemMixinBase):
 				PenWidth=penWidth, Radius=rad, StartAngle=startAngle,
 				EndAngle=endAngle, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="arc", Xpos=xPos, Ypos=yPos, DrawMode=mode,
-				Visible=visible, dc=dc)
+				Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1454,7 +1454,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawEllipse(self, xPos, yPos, width, height, penColor="black",
 			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True, visible=True, dc=None):
+			mode=None, persist=True, visible=True, dc=None, useDefaults=False):
 		"""Draws an ellipse contained within the rectangular space defined by
 		the position and size coordinates
 
@@ -1463,7 +1463,7 @@ class dPemMixin(dPemMixinBase):
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="ellipse", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
-				DrawMode=mode, Visible=visible, dc=dc)
+				DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1471,7 +1471,8 @@ class dPemMixin(dPemMixinBase):
 
 	def drawEllipticArc(self, xPos, yPos, width, height, startAngle, endAngle,
 			penColor="black", penWidth=1, fillColor=None, lineStyle=None,
-			hatchStyle=None, mode=None, persist=True, visible=True, dc=None):
+			hatchStyle=None, mode=None, persist=True, visible=True,
+			dc=None, useDefaults=False):
 		"""Draws an arc (pie slice) of a ellipse contained by the specified
 		dimensions, starting from 'startAngle' degrees, and sweeping
 		counter-clockwise until 'endAngle' is reached.
@@ -1482,7 +1483,8 @@ class dPemMixin(dPemMixinBase):
 				PenWidth=penWidth, StartAngle=startAngle,
 				EndAngle=endAngle, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="ellipticarc", Xpos=xPos, Ypos=yPos, Width=width,
-				Height=height, DrawMode=mode, Visible=visible, dc=dc)
+				Height=height, DrawMode=mode, Visible=visible, dc=dc,
+				useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1490,7 +1492,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawRectangle(self, xPos, yPos, width, height, penColor="black",
 			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True, visible=True, dc=None):
+			mode=None, persist=True, visible=True, dc=None, useDefaults=False):
 		"""Draws a rectangle of the specified size beginning at the specified
 		point.
 
@@ -1499,15 +1501,15 @@ class dPemMixin(dPemMixinBase):
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="rect", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
-				DrawMode=mode, Visible=visible, dc=dc)
+				DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawPolygon(self, points, penColor="black", penWidth=1,
-			fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True, visible=True, dc=None):
+			fillColor=None, lineStyle=None, hatchStyle=None, mode=None,
+			persist=True, visible=True, dc=None, useDefaults=False):
 		"""Draws a polygon defined by the specified points.
 
 		The 'points' parameter should be a tuple of (x,y) pairs defining the
@@ -1518,14 +1520,15 @@ class dPemMixin(dPemMixinBase):
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="polygon", Points=points, DrawMode=mode,
-				Visible=visible, dc=dc)
+				Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawPolyLines(self, points, penColor="black", penWidth=1,
-			lineStyle=None, mode=None, persist=True, visible=True, dc=None):
+			lineStyle=None, mode=None, persist=True, visible=True,
+			dc=None, useDefaults=False):
 		"""Draws a series of connected line segments defined by the specified points.
 
 		The 'points' parameter should be a tuple of (x,y) pairs defining the shape. Lines
@@ -1537,7 +1540,7 @@ class dPemMixin(dPemMixinBase):
 		"""
 		obj = DrawObject(self, PenColor=penColor, PenWidth=penWidth,
 				LineStyle=lineStyle, Shape="polylines", Points=points,
-				DrawMode=mode, Visible=visible, dc=dc)
+				DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1545,27 +1548,28 @@ class dPemMixin(dPemMixinBase):
 
 	def drawLine(self, x1, y1, x2, y2, penColor="black", penWidth=1,
 			fillColor=None, lineStyle=None, mode=None, persist=True,
-			visible=True, dc=None):
+			visible=True, dc=None, useDefaults=False):
 		"""Draws a line between (x1,y1) and (x2, y2).
 
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, DrawMode=mode,
-				Shape="line", Points=((x1,y1), (x2,y2)), Visible=visible, dc=dc)
+				Shape="line", Points=((x1,y1), (x2,y2)), Visible=visible, dc=dc,
+				useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawBitmap(self, bmp, x=0, y=0, mode=None, persist=True,
-			transparent=True, visible=True, dc=None):
+			transparent=True, visible=True, dc=None, useDefaults=False):
 		"""Draws a bitmap on the object at the specified position."""
 		if isinstance(bmp, basestring):
 			bmp = dabo.ui.strToBmp(bmp)
 		obj = DrawObject(self, Bitmap=bmp, Shape="bmp",
 				Xpos=x, Ypos=y, Transparent=transparent, DrawMode=mode,
-				Visible=visible, dc=dc)
+				Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1574,7 +1578,7 @@ class dPemMixin(dPemMixinBase):
 	def drawText(self, text, x=0, y=0, angle=0, fontFace=None,
 			fontSize=None, fontBold=None, fontItalic=None,
 			fontUnderline=None, foreColor=None, backColor=None,
-			mode=None, persist=True, visible=True, dc=None):
+			mode=None, persist=True, visible=True, dc=None, useDefaults=False):
 		"""Draws text on the object at the specified position
 		using the specified characteristics. Any characteristics
 		not specified will be set to the system default.
@@ -1584,7 +1588,7 @@ class dPemMixin(dPemMixinBase):
 				FontBold=fontBold, FontItalic=fontItalic,
 				FontUnderline=fontUnderline, ForeColor=foreColor,
 				BackColor=backColor, DrawMode=mode, Visible=visible,
-				dc=dc)
+				dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1592,7 +1596,7 @@ class dPemMixin(dPemMixinBase):
 
 	def drawGradient(self, orientation, x=0, y=0, width=None, height=None,
 			color1=None, color2=None, mode=None, persist=True, visible=True,
-			dc=None):
+			dc=None, useDefaults=False):
 		"""Draws a horizontal or vertical gradient on the control. Default
 		is to cover the entire control, although you can specify positions.
 		The gradient is drawn with 'color1' as the top/left color, and 'color2'
@@ -1601,7 +1605,7 @@ class dPemMixin(dPemMixinBase):
 		obj = DrawObject(self, Shape="gradient", Orientation=orientation,
 				Xpos=x, Ypos=y, Width=width, Height=height,
 				GradientColor1=color1, GradientColor2=color2, DrawMode=mode,
-				Visible=visible, dc=dc)
+				Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -2921,9 +2925,10 @@ class DrawObject(dObject):
 	It is not meant to be used directly; instead, it is returned after a drawing
 	instruction is called on the object.
 	"""
-	def __init__(self, parent, dc=None, *args, **kwargs):
+	def __init__(self, parent, dc=None, useDefaults=False, *args, **kwargs):
 		self._inInit = True
 		self._dc = dc
+		self._useDefaults = useDefaults
 		self._dynamic = {}
 		# Initialize property atts
 		self._parent = parent
@@ -2991,78 +2996,11 @@ class DrawObject(dObject):
 			self._height = self._bitmap.GetHeight()
 			return
 
-		pw = self.PenWidth
-		if not pw:
-			# No pen
-			pen = wx.TRANSPARENT_PEN
-		else:
-			if self.PenColor is None:
-				pc = dColors.colorTupleFromName("black")
-			else:
-				if isinstance(self.PenColor, basestring):
-					pc = dColors.colorTupleFromName(self.PenColor)
-				else:
-					pc = self.PenColor
-			sty = self._lineStyle
-			lnStyle = wx.SOLID
-			if sty in ("dash", "dashed"):
-#				lnStyle = wx.LONG_DASH		#wx.SHORT_DASH
-				lnStyle = wx.SHORT_DASH
-			elif sty in ("dot", "dotted"):
-				lnStyle = wx.DOT
-			elif sty in ("dotdash", "dashdot"):
-				lnStyle = wx.DOT_DASH
-			pen = wx.Pen(pc, pw, lnStyle)
-		dc.SetPen(pen)
+		if not self._useDefaults:
+			self._penSettings(dc)
+			self._brushSettings(dc)
+			self._modeSettings(dc)
 
-		fill = self.FillColor
-		hatch = self.HatchStyle
-		if hatch is None:
-			sty = wx.SOLID
-		else:
-			sty = self._hatchStyleDict.get(hatch.lower(), wx.SOLID)
-		if fill is None:
-			brush = wx.TRANSPARENT_BRUSH
-		else:
-			if isinstance(fill, basestring):
-				fill = dColors.colorTupleFromName(fill)
-			brush = wx.Brush(fill, style=sty)
-		dc.SetBrush(brush)
-
-		mode = self.DrawMode
-		if mode is None:
-			logic = wx.COPY
-		elif mode == "invert":
-			logic = wx.INVERT
-		elif mode == "and":
-			logic = wx.AND
-		elif mode == "and_invert":
-			logic = wx.AND_INVERT
-		elif mode == "and_reverse":
-			logic = wx.AND_REVERSE
-		elif mode == "clear":
-			logic = wx.CLEAR
-		elif mode == "equiv":
-			logic = wx.EQUIV
-		elif mode == "nand":
-			logic = wx.NAND
-		elif mode == "nor":
-			logic = wx.NOR
-		elif mode == "no_op":
-			logic = wx.NO_OP
-		elif mode == "or":
-			logic = wx.OR
-		elif mode == "or_invert":
-			logic = wx.OR_INVERT
-		elif mode == "or_reverse":
-			logic = wx.OR_REVERSE
-		elif mode == "set":
-			logic = wx.SET
-		elif mode == "src_invert":
-			logic = wx.SRC_INVERT
-		elif mode == "xor":
-			logic = wx.XOR
-		dc.SetLogicalFunction(logic)
 		srcObj = self.Parent
 		if self.Application.Platform == "GTK" and not (isinstance(srcObj, (dabo.ui.dPanel, dabo.ui.dPage))):
 			if isinstance(srcObj, dabo.ui.dForm):
@@ -3120,38 +3058,9 @@ class DrawObject(dObject):
 			txt = self._text
 			if not txt:
 				return
-			fnt = dc.GetFont()
-			# If the following call fails, the font has not been initialized, and can look
-			# pretty ugly. In this case, initialize it to the system-default font.
-			if self.FontFace:
-				try:
-					fnt.GetFaceName()
-				except AttributeError:
-					fnt = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
-			else:
-				fnt = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
-			if self._fontFace is not None:
-				fnt.SetFaceName(self._fontFace)
-			if self._fontSize is not None:
-				fnt.SetPointSize(self._fontSize)
-			if self._fontBold is not None:
-				if self._fontBold:
-					fnt.SetWeight(wx.BOLD)
-				else:
-					fnt.SetWeight(wx.NORMAL)
-			if self._fontItalic is not None:
-				if self._fontItalic:
-					fnt.SetStyle(wx.ITALIC)
-				else:
-					fnt.SetStyle(wx.NORMAL)
-			if self._fontUnderline is not None:
-				fnt.SetUnderlined(self._fontUnderline)
-			if self._foreColor is not None:
-				dc.SetTextForeground(self._foreColor)
-			if self._backColor is not None:
-				dc.SetTextBackground(self._backColor)
 
-			dc.SetFont(fnt)
+			if not self._useDefaults:
+				self._fontSettings(dc)
 			if self._angle == 0:
 				dc.DrawText(txt, x, y)
 			else:
@@ -3242,6 +3151,118 @@ class DrawObject(dObject):
 
 	def moveDown(self, levels=1):
 		self.Parent._moveDrawObjectDown(self, levels)
+
+
+	def _penSettings(self, dc):
+		pw = self.PenWidth
+		if not pw:
+			# No pen
+			pen = wx.TRANSPARENT_PEN
+		else:
+			if self.PenColor is None:
+				pc = dColors.colorTupleFromName("black")
+			else:
+				if isinstance(self.PenColor, basestring):
+					pc = dColors.colorTupleFromName(self.PenColor)
+				else:
+					pc = self.PenColor
+			sty = self._lineStyle
+			lnStyle = wx.SOLID
+			if sty in ("dash", "dashed"):
+				lnStyle = wx.SHORT_DASH
+			elif sty in ("dot", "dotted"):
+				lnStyle = wx.DOT
+			elif sty in ("dotdash", "dashdot"):
+				lnStyle = wx.DOT_DASH
+			pen = wx.Pen(pc, pw, lnStyle)
+		dc.SetPen(pen)
+
+
+	def _brushSettings(self, dc):
+		fill = self.FillColor
+		hatch = self.HatchStyle
+		if hatch is None:
+			sty = wx.SOLID
+		else:
+			sty = self._hatchStyleDict.get(hatch.lower(), wx.SOLID)
+		if fill is None:
+			brush = wx.TRANSPARENT_BRUSH
+		else:
+			if isinstance(fill, basestring):
+				fill = dColors.colorTupleFromName(fill)
+			brush = wx.Brush(fill, style=sty)
+		dc.SetBrush(brush)
+
+
+	def _modeSettings(self, dc):
+		mode = self.DrawMode
+		if mode is None:
+			logic = wx.COPY
+		elif mode == "invert":
+			logic = wx.INVERT
+		elif mode == "and":
+			logic = wx.AND
+		elif mode == "and_invert":
+			logic = wx.AND_INVERT
+		elif mode == "and_reverse":
+			logic = wx.AND_REVERSE
+		elif mode == "clear":
+			logic = wx.CLEAR
+		elif mode == "equiv":
+			logic = wx.EQUIV
+		elif mode == "nand":
+			logic = wx.NAND
+		elif mode == "nor":
+			logic = wx.NOR
+		elif mode == "no_op":
+			logic = wx.NO_OP
+		elif mode == "or":
+			logic = wx.OR
+		elif mode == "or_invert":
+			logic = wx.OR_INVERT
+		elif mode == "or_reverse":
+			logic = wx.OR_REVERSE
+		elif mode == "set":
+			logic = wx.SET
+		elif mode == "src_invert":
+			logic = wx.SRC_INVERT
+		elif mode == "xor":
+			logic = wx.XOR
+		dc.SetLogicalFunction(logic)
+
+
+	def _fontSettings(self, dc):
+		fnt = dc.GetFont()
+		# If the following call fails, the font has not been initialized, and can look
+		# pretty ugly. In this case, initialize it to the system-default font.
+		if self.FontFace:
+			try:
+				fnt.GetFaceName()
+			except AttributeError:
+				fnt = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
+		else:
+			fnt = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
+		if self._fontFace is not None:
+			fnt.SetFaceName(self._fontFace)
+		if self._fontSize is not None:
+			fnt.SetPointSize(self._fontSize)
+		if self._fontBold is not None:
+			if self._fontBold:
+				fnt.SetWeight(wx.BOLD)
+			else:
+				fnt.SetWeight(wx.NORMAL)
+		if self._fontItalic is not None:
+			if self._fontItalic:
+				fnt.SetStyle(wx.ITALIC)
+			else:
+				fnt.SetStyle(wx.NORMAL)
+		if self._fontUnderline is not None:
+			fnt.SetUnderlined(self._fontUnderline)
+		if self._foreColor is not None:
+			dc.SetTextForeground(self._foreColor)
+		if self._backColor is not None:
+			dc.SetTextBackground(self._backColor)
+		dc.SetFont(fnt)
 
 
 	# Property get/set methods

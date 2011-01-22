@@ -1746,6 +1746,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 		# Internal flag indicates update invoked by grid itself.
 		self._inUpdate = False
+		# Internal flag indicates header repaint invoked by the header itself.
+		self._inHeaderPaint = False
 		# Internal flag to determine if the prior sort order needs to be restored.
 		self._sortRestored = False
 		# Internal flag to determine if the resorting is the result of the DataSet property.
@@ -1818,6 +1820,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._verticalHeaders = False
 		self._autoAdjustHeaderHeight = False
 		self._headerMaxTextHeight = 0
+		self._columnMetrics = [(0, 0)]
 
 		#Set NoneDisplay attributes
 		if self.Application:
@@ -2520,6 +2523,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		"""This method handles all of the display for the header, including writing
 		the Captions along with any sort indicators.
 		"""
+		if self._inHeaderPaint:
+			return
+		self._inHeaderPaint = True
 		w = self._getWxHeader()
 		if updateBox is None:
 			updateBox = w.GetClientRect()
@@ -2539,7 +2545,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			sortIndicator = False
 			colObj = self.getColByX(intersect[0])
 			if not colObj:
-				# Grid is probably being created or destroyed, so just return
+				# Grid is probably being created or destroyed, so just skip it
 				continue
 			dc.SetClippingRegion(*headerRect)
 
@@ -2630,28 +2636,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			trect[3] = trect[3] - (2 * vertBuffer)
 			trect = wx.Rect(*trect)
 
-			# Get the specs from the wx native font
-			fontFace = wxNativeFont.GetFaceName()
-			fontSize = wxNativeFont.GetPointSize()
-			fontBold = (wxNativeFont.GetWeight() == wx.BOLD)
-			fontItalic = (wxNativeFont.GetStyle() == wx.ITALIC)
-			fontUnderline = wxNativeFont.GetUnderlined()
-			foreColor = colObj.HeaderForeColor
-			backColor = colObj.HeaderBackColor
-			# First do it once off-screen to get the metrics
-			txt = self.drawText("%s" % colObj.Caption, -999, -999, angle=textAngle,
-					fontFace=fontFace, fontSize=fontSize, fontBold=fontBold,
-					fontItalic=fontItalic, fontUnderline=fontUnderline,
-					foreColor=colObj.HeaderForeColor, backColor=colObj.HeaderBackColor,
-					dc=dc)
-			twd, tht = dabo.ui.fontMetricFromDrawObject(txt)
+			twd, tht = dabo.ui.fontMetricFromDC(dc, colObj.Caption)
 			if self.VerticalHeaders:
 				# Note that when rotating 90 degrees, the width affect height,
 				# and vice-versa
 				twd, tht = tht, twd
 			self._columnMetrics.append((twd, tht))
-			# This will destroy the temp draw object
-			self.removeDrawnObject(txt)
 
 			# Figure out the x,y coordinates to start the text drawing.
 			left, top, wd, ht = trect
@@ -2671,20 +2661,24 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				y = top + (ht / 2)	+ (tht / 2) - yadj
 
 			txt = self.drawText("%s" % colObj.Caption, x, y, angle=textAngle,
-					fontFace=fontFace, fontSize=fontSize, fontBold=fontBold,
-					fontItalic=fontItalic, fontUnderline=fontUnderline,
-					foreColor=foreColor, backColor=backColor, persist=False, dc=dc)
+					persist=False, dc=dc, useDefaults=True)
 			dc.DestroyClippingRegion()
 		self._headerMaxTextHeight = max([cht for cwd, cht in self._columnMetrics])
+		if self.AutoAdjustHeaderHeight:
+			self.fitHeaderHeight()
+		self._inHeaderPaint = False
 
 
-	def _autoSetHeaderHeight(self):
-		"""Method for callAfter() to update the header height when changing the
-		VerticalHeaders setting.
+	def fitHeaderHeight(self):
+		"""Sizes the HeaderHeight to comfortably fit the captions. Primarily used for 
+		vertical captions or multi-line captions.
 		"""
-		self._headerMaxTextHeight = max([cwd for cwd, cht in self._columnMetrics])
-		self.HeaderHeight -= 1
-		self.HeaderHeight = self._headerMaxTextHeight + 20
+		self._paintHeader()
+		self._headerMaxTextHeight = max([cht for cwd, cht in self._columnMetrics])
+		diff = (self._headerMaxTextHeight + 20) - self.HeaderHeight
+		if diff:
+			self.HeaderHeight += diff
+			dabo.ui.callAfter(self.refresh)
 
 
 	def showColumn(self, col, visible):
@@ -4157,8 +4151,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _setAutoAdjustHeaderHeight(self, val):
 		if self._constructed():
 			self._autoAdjustHeaderHeight = val
-#			self._getWxHeader().ClearBackground()
 			self.refresh()
+			if val:
+				self.fitHeaderHeight()
 		else:
 			self._properties["AutoAdjustHeaderHeight"] = val
 
@@ -4771,12 +4766,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if self._constructed():
 			if val != self._verticalHeaders:
 				self._verticalHeaders = val
+				self.refresh()
 				if self.AutoAdjustHeaderHeight:
-					dabo.ui.callAfter(self._autoSetHeaderHeight)
-				else:
-					# Force the repaint
-#					self._getWxHeader().ClearBackground()
-					self.refresh()
+					dabo.ui.callAfter(self.fitHeaderHeight)
 		else:
 			self._properties["VerticalHeaders"] = val
 

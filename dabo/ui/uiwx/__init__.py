@@ -1520,6 +1520,13 @@ def fontMetricFromDrawObject(obj):
 			bold=obj.FontBold, italic=obj.FontItalic)
 
 
+def fontMetricFromDC(dc, text):
+	"""Given a DC and text, returns the width and height of the text as it
+	would be drawn in that DC.
+	"""
+	return dc.GetTextExtent(text)
+
+
 def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 		italic=None):
 	"""Calculate the width and height of the given text using the supplied
