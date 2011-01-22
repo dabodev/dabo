@@ -30,8 +30,8 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 		self._htmlHandler = wx.richtext.RichTextHTMLHandler()
 		self._handlers = (self._xmlHandler, self._htmlHandler)
 		preClass = wx.richtext.PreRichTextCtrl
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties,
-				attProperties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def load(self, fileOrObj=None):

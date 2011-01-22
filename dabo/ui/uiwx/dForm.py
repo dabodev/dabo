@@ -42,7 +42,8 @@ class BaseForm(fm.dFormMixin):
 		# or a requery is about to happen.
 		self._checkForChanges = True
 
-		fm.dFormMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		fm.dFormMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 # 		if self.mainPanel:
 # 			# Can't do this in the _afterInit, as properties haven't been
@@ -928,7 +929,8 @@ class dForm(BaseForm, wx.Frame):
 
 		## (Note that it is necessary to run the above blocks each time, because
 		##  we are modifying the dForm class definition globally.)
-		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		BaseForm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
+				*args, **kwargs)
 		dForm._hackToFrame()
 
 
@@ -999,7 +1001,8 @@ class dToolForm(BaseForm, wx.MiniFrame):
 		kwargs["TinyTitleBar"] = True
 		kwargs["ShowStatusBar"] = False
 		kwargs["ShowToolBar"] = False
-		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		BaseForm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
+				*args, **kwargs)
 
 	def Show(self, show=True):
 		self._gtk_show_fix(show)
@@ -1017,7 +1020,8 @@ class dBorderlessForm(BaseForm, wx.Frame):
 		kwargs["ShowSystemMenu"] = False
 		kwargs["MenuBarClass"] = None
 		preClass = wx.PreFrame
-		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		BaseForm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
+				*args, **kwargs)
 
 	def Show(self, show=True):
 		self._gtk_show_fix(show)

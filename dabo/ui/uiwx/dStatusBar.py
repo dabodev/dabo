@@ -20,8 +20,8 @@ class dStatusBar(dcm.dControlMixin, wx.StatusBar):
 		preClass = wx.PreStatusBar
 		self._platformIsWindows = (self.Application.Platform == "Win")
 		self._fieldCount = 1
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
-				*args, **kwargs)
+		dcm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def layout(self):

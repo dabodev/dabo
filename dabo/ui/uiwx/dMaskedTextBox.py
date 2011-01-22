@@ -85,8 +85,8 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 		kwargs["useFixedWidthFont"] = False
 
 		preClass = wx.lib.masked.TextCtrl
-		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties, attProperties,
-				*args, **kwargs)
+		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def getFormats(cls):

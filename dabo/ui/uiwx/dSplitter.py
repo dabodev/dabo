@@ -141,8 +141,8 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 		self._showPanelSplitMenu = False
 
 		preClass = wx.PreSplitterWindow
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
-				style=style, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, style=style, *args, **kwargs)
 
 
 	def _initEvents(self):

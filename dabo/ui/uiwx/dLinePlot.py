@@ -153,7 +153,8 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 		self._baseClass = dLinePlot
 		plot.PlotCanvas.__init__(self, parent)
 		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-		cm.dControlMixin.__init__(self, name, properties, attProperties, _explicitName=_explicitName, *args, **kwargs)
+		cm.dControlMixin.__init__(self, name, properties=properties,
+				attProperties=attProperties, _explicitName=_explicitName, *args, **kwargs)
 
 		self.SetPointLabelFunc(self.DrawPointLabel)
 

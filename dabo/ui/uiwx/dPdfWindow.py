@@ -38,8 +38,8 @@ class dPdfWindow(cm.dControlMixin, PDFWindow):
 
 		self._baseClass = dPdfWindow
 		preClass = pdfwin.PDFWindow
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
-				*args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 

@@ -273,7 +273,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._keyWordsLanguage = ""
 		self._defaultsSet = False
 		self._fontFace = None
-		self._fontSize = None
+		self._fontSize = 10
 		self._useBookmarks = False
 		self._selectionBackColor = None
 		self._selectionForeColor = None
@@ -284,8 +284,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 		stc.StyledTextCtrl.__init__(self, parent, -1,
 				style = wx.NO_BORDER)
-		dcm.dDataControlMixin.__init__(self, name, properties, attProperties,
-				_explicitName=_explicitName, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, name, properties=properties,
+				attProperties=attProperties, _explicitName=_explicitName, *args, **kwargs)
 		self._afterInit()
 
 		self._printData = wx.PrintData()

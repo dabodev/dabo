@@ -148,7 +148,8 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 		self._fontFace = ""
 		self._baseClass = _Shell
 		preClass = wx.py.shell.Shell
-		dPemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dPemMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def _afterInit(self):

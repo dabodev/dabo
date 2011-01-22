@@ -23,8 +23,8 @@ class _dSpinButton(dcm.dDataControlMixin, wx.SpinButton):
 		self._baseClass = _dSpinButton
 		preClass = wx.PreSpinButton
 		kwargs["style"] = kwargs.get("style", 0) | wx.SP_ARROW_KEYS
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties,
-				*args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 class dSpinner(dabo.ui.dDataPanel, wx.Control):

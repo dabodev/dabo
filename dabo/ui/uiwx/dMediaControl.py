@@ -50,8 +50,8 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 		dropHandler = self._extractKey((properties, kwargs), "DroppedFileHandler", self)
 		kwargs["DroppedFileHandler"] = dropHandler
 
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
-				*args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 		# Create lower-case method names to be consistent with Dabo
 # 		self.play = self.Play
 		self.pause = self.Pause

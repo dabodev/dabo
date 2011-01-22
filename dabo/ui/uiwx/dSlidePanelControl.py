@@ -52,7 +52,8 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 				"borderonly" : fpb.CAPTIONBAR_RECTANGLE,
 				"filledborder" : fpb.CAPTIONBAR_FILLED_RECTANGLE}
 
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dcm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 		self._cont.appendPanel(self)
 		self._cont.RedisplayFoldPanelItems()
@@ -400,7 +401,8 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		# Ensures that the control has a minimum size.
 		self._minSizerWidth = self._minSizerHeight = 100
 
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dcm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 		self._setInitialOpenPanel()
 		self.bindEvent(dEvents.SlidePanelChange, self.__onSlidePanelChange)

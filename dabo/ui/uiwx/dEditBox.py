@@ -23,7 +23,8 @@ class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
 
 		preClass = wx.PreTextCtrl
 		kwargs["style"] = wx.TE_MULTILINE
-		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def _getInitPropertiesList(self):

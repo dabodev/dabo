@@ -71,8 +71,8 @@ class dFormMixin(pm.dPemMixin):
 		# Flag to prevent infinite loops when doing field-level validation
 		self._fieldValidationControl = None
 
-		super(dFormMixin, self).__init__(preClass, parent, properties,
-				attProperties, *args, **kwargs)
+		super(dFormMixin, self).__init__(preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 		dabo.ui.callAfter(self._createStatusBar)
 		self._createToolBar()

@@ -19,8 +19,8 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 		self._searchVisible = True
 
 		preClass = wx.PreSearchCtrl
-		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties, attProperties,
-				*args, **kwargs)
+		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 	def _initEvents(self):
 		super(dSearchBox, self)._initEvents()

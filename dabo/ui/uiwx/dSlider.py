@@ -29,7 +29,8 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 		self._reversed = False
 
 		preClass = wx.PreSlider
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def _initProperties(self):

@@ -17,7 +17,8 @@ class dListBox(dcm.dControlItemMixin, wx.ListBox):
 		self._choices = []
 
 		preClass = wx.PreListBox
-		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dcm.dControlItemMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def _initEvents(self):

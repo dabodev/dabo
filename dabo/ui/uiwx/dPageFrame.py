@@ -50,7 +50,8 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 		self._baseClass = dPageFrame
 		preClass = wx.PreNotebook
 
-		dPageFrameMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 	def _afterInit(self):
 		if sys.platform[:3] == "win":
@@ -71,7 +72,8 @@ class dPageToolBar(dPageFrameMixin, wx.Toolbook):
 		self._baseClass = dPageToolBar
 		preClass = wx.PreToolbook
 
-		dPageFrameMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 	def _afterInit(self):
 		if sys.platform[:3] == "win":
@@ -96,7 +98,8 @@ class dPageList(dPageFrameMixin, wx.Listbook):
 		preClass = wx.PreListbook
 		# Dictionary for tracking images by key value
 		self._imageList = {}
-		dPageFrameMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 		self.Bind(wx.EVT_LIST_ITEM_MIDDLE_CLICK, self.__onWxMiddleClick)
 		self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.__onWxRightClick)
@@ -154,7 +157,8 @@ class dPageSelect(dPageFrameMixin, wx.Choicebook):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageSelect
 		preClass = wx.PreChoicebook
-		dPageFrameMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 		# Dictionary for tracking images by key value
 		self._imageList = {}
 
@@ -192,7 +196,8 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
 		if "style" in kwargs:
 			newStyle = kwargs["style"] | newStyle
 		kwargs["style"] = newStyle
-		dPageFrameMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def insertPage(self, pos, pgCls=None, caption="", imgKey=None,
@@ -254,7 +259,8 @@ if _USE_FLAT:
 			# explicitly set.
 			selpg = int(self._extractKey((properties, attProperties, kwargs), "SelectedPageNumber",
 					defaultVal=0))
-			dPageFrameMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+			dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
+					attProperties=attProperties, *args, **kwargs)
 			dabo.ui.setAfter(self, "SelectedPageNumber", selpg)
 
 

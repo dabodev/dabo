@@ -15,8 +15,8 @@ class dTextBox(tbm.dTextBoxMixin, wx.TextCtrl):
 		self._baseClass = dTextBox
 		preClass = wx.PreTextCtrl
 
-		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties, attProperties,
-				*args, **kwargs)
+		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 

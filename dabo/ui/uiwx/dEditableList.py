@@ -42,8 +42,8 @@ class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
 		self._upButton = None
 		self._panel = None
 
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
-				*args, **kwargs)
+		dcm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def GetValue(self):

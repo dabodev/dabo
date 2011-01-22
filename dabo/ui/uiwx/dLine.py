@@ -23,7 +23,8 @@ class dLine(cm.dControlMixin, wx.StaticLine):
 		self._baseClass = dLine
 		preClass = wx.PreStaticLine
 
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def _initEvents(self):

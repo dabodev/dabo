@@ -461,7 +461,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 		self._gridCellAttrs = {}
 
-		super(dColumn, self).__init__(properties, attProperties, *args, **kwargs)
+		super(dColumn, self).__init__(properties=properties, attProperties=attProperties,
+				*args, **kwargs)
 		self._baseClass = dColumn
 
 
@@ -1841,8 +1842,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._rowColorEven = "white"
 		self._rowColorOdd = (212, 255, 212)		# very light green
 
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
-				*args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 		# Reduces grid flickering on Windows platform.
 		self._enableDoubleBuffering()

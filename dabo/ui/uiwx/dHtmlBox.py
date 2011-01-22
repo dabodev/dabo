@@ -33,8 +33,8 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		self._source = self._page = ""
 		self._respondToLinks = True
 		self._openLinksInBrowser = False
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
-				*args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 		self.SetScrollRate(10, 10)
 		if wx.VERSION >= (2, 7):
 			self.Bind(wx.html.EVT_HTML_LINK_CLICKED, self.__onWxLinkClicked)

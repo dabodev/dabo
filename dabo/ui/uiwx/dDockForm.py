@@ -96,7 +96,8 @@ class _dDockPanel(dabo.ui.dPanel):
 		self._showMaximizeButton = False
 		self._showMinimizeButton = False
 		self._showPinButton = True
-		super(_dDockPanel, self).__init__(parent, properties, attProperties, *args, **kwargs)
+		super(_dDockPanel, self).__init__(parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 		if self.Floating:
 			self._floatingPosition = self.GetParent().GetPosition().Get()
 			self._floatingSize = self.GetParent().GetSize().Get()

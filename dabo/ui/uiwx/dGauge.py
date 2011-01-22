@@ -15,7 +15,8 @@ class dGauge(cm.dControlMixin, wx.Gauge):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dGauge
 		preClass = wx.PreGauge
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def _initEvents(self):

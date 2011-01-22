@@ -15,8 +15,8 @@ class dCheckBox(dcm.dDataControlMixin, wx.CheckBox):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dCheckBox
 		preClass = wx.PreCheckBox
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties,
-				attProperties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def _initEvents(self):

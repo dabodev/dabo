@@ -76,8 +76,8 @@ class dListControl(dcm.dControlItemMixin,
 		except TypeError:
 			style = wx.LC_REPORT
 		preClass = wx.PreListCtrl
-		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties,
-				style=style, *args, **kwargs)
+		dcm.dControlItemMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, style=style, *args, **kwargs)
 		ListMixin.ListCtrlAutoWidthMixin.__init__(self)
 		# Dictionary for tracking images by key value
 		self.__imageList = {}

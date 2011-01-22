@@ -411,8 +411,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			style = style | wx.TR_LINES_AT_ROOT
 
 		preClass = wx.PreTreeCtrl
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, style=style,
-				*args, **kwargs)
+		dcm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, style=style, *args, **kwargs)
 
 
 	def _initEvents(self):

@@ -39,8 +39,8 @@ class dGlWindow(cm.dControlMixin, glcanvas.GLCanvas):
 
 		self._baseClass = dGlWindow
 		preClass = glcanvas.GLCanvas
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
-				*args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 	def initGL(self):
 		"""Hook function.  Put your initial GL code in here."""

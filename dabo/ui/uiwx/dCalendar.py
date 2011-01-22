@@ -39,7 +39,8 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 		self._currentMonth = None
 		self._currentYear = None
 
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dcm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 		# Store some event types in case we need to raise them
 		self._setCalEventTypes()

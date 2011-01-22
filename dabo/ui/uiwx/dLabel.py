@@ -20,8 +20,8 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 		self._inResizeEvent = False
 		self._resetAutoResize = True
 		preClass = wx.PreStaticText
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,
-				*args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 		self.bindEvent(dEvents.Resize, self.__onResize)
 
 

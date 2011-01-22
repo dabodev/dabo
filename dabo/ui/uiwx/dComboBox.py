@@ -28,7 +28,8 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		self._textToAppend = ""
 
 		preClass = wx.PreComboBox
-		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dcm.dControlItemMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def _preInitUI(self, kwargs):

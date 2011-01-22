@@ -41,7 +41,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		# Need this to load/convert image files to bitmaps
 		self._image = wx.NullImage
 
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def _initProperties(self):

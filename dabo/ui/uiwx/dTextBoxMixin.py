@@ -35,7 +35,8 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		self._inTextLength = False
 		self._flushOnLostFocus = True  ## see dabo.ui.dDataControlMixinBase::flushValue()
 
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 
 	def _initEvents(self):
@@ -463,7 +464,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
 		self._dregex = {}
 		self._lastDataType = unicode
 
-		dTextBoxMixinBase.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dTextBoxMixinBase.__init__(self, preClass, parent, properties=properties,
+				attProperties=attProperties, *args, **kwargs)
 
 		# Keep passwords, etc., from being written to disk
 		if self.PasswordEntry:
