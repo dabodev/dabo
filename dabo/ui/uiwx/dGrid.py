@@ -2664,7 +2664,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			txt = self.drawText("%s" % colObj.Caption, x, y, angle=textAngle,
 					persist=False, dc=dc, useDefaults=True)
 			dc.DestroyClippingRegion()
-		self._headerMaxTextHeight = max([cht for cwd, cht in self._columnMetrics])
 		if self.AutoAdjustHeaderHeight:
 			self.fitHeaderHeight()
 		self._inHeaderPaint = False
@@ -2675,7 +2674,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		vertical captions or multi-line captions.
 		"""
 		self._paintHeader()
-		self._headerMaxTextHeight = max([cht for cwd, cht in self._columnMetrics])
+		if self._columnMetrics:
+			self._headerMaxTextHeight = max([cht for cwd, cht in self._columnMetrics])
+		else:
+			self._headerMaxTextHeight = 0
 		diff = (self._headerMaxTextHeight + 20) - self.HeaderHeight
 		if diff:
 			self.HeaderHeight += diff
