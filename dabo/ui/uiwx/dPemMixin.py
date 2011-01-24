@@ -3065,7 +3065,7 @@ class DrawObject(dObject):
 				dc.DrawText(txt, x, y)
 			else:
 				dc.DrawRotatedText(txt, x, y, self._angle)
-			w, h = dabo.ui.fontMetricFromDrawObject(self)
+			w, h = dabo.ui.fontMetricFromDC(dc, txt)
 			angle = self._angle % 360
 			if angle % 90 == 0:
 				if angle % 180 == 0:
