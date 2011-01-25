@@ -1924,14 +1924,9 @@ class ClassDesigner(dabo.dApp):
 		try:
 			self.CurrentForm.onRunDesign(evt)
 		except AttributeError, e:
-			dabo.ui.stop(_("Attribute Error: %s") % e.message, _("Attribute Error"))
+			dabo.ui.stop(_("Attribute Error: %s") % ustr(e), _("Attribute Error"))
 		except StandardError, e:
-			if hasattr(e, "message"):
-				msg = e.message
-			elif hasattr(e, "msg"):
-				msg = e.msg
-			else:
-				msg = _("<unspecified>")
+			msg = ustr(e)
 			if hasattr(e, "text"):
 				txt = e.text.strip()
 			else:
