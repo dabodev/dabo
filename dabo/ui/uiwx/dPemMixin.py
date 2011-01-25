@@ -3002,7 +3002,8 @@ class DrawObject(dObject):
 			self._modeSettings(dc)
 
 		srcObj = self.Parent
-		if self.Application.Platform == "GTK" and not (isinstance(srcObj, (dabo.ui.dPanel, dabo.ui.dPage))):
+		if self.Application.Platform == "GTK" and \
+				not (isinstance(srcObj, (dabo.ui.dPanel, dabo.ui.dPage, dabo.ui.dGrid))):
 			if isinstance(srcObj, dabo.ui.dForm):
 				x, y = srcObj.containerCoordinates(srcObj, (self.Xpos, self.Ypos))
 			else:
