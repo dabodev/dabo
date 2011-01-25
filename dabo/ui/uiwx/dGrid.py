@@ -2530,7 +2530,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		w = self._getWxHeader()
 		if updateBox is None:
 			updateBox = w.GetClientRect()
-		dc = wx.PaintDC(w)
+		try:
+			# When called from OnPaint event, there should be PaintDC context.
+			dc = wx.PaintDC(w)
+		except wx.PyAssertionError:
+			dc = wx.ClientDC(w)
 		textAngle = {True: 90, False: 0}[self.VerticalHeaders]
 		self._columnMetrics = []
 
