@@ -153,7 +153,6 @@ class PageDatabase(AppWizardPage):
 
 		gs = dabo.ui.dGridSizer()
 		gs.MaxCols = 2
-		gs.setColExpand(True, 1)
 		gs.append(lbl)
 		hs = dabo.ui.dSizer("h")
 		hs.append(self.ddProfile, 1)
@@ -161,6 +160,7 @@ class PageDatabase(AppWizardPage):
 		hs.append(cmd, 0)
 		gs.append(hs, "x")
 		gs.appendSpacer(20, colSpan=2)
+		gs.setColExpand(True, 1)
 
 		for field in self.fieldNames:
 			lbl = dLabel(self, Name=("lbl%s" % field), Width=75, Caption=("%s:" % field) )
