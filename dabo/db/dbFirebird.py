@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-import datetime
+
 import re
 import dabo
-from dabo.dLocalize import _
 from dBackend import dBackend
-from dCursorMixin import dCursorMixin
 from dabo.lib.utils import ustr
 
 
@@ -144,9 +142,11 @@ class Firebird(dBackend):
 			pkField = rs[0]["column_name"].strip()
 		except KeyError:
 			pkField = None
+		except IndexError:
+			pkField = None
 
 		# Now get the field info
-		sql = """  SELECT b.RDB$FIELD_NAME, d.RDB$TYPE_NAME,
+		sql = """  SELECT b.RDB$FIELD_NAME, d.RDB$TYPE_NAME, c.RDB$FIELD_SUB_TYPE,
  c.RDB$FIELD_LENGTH, c.RDB$FIELD_SCALE, b.RDB$FIELD_ID
  FROM RDB$RELATIONS a
  INNER JOIN RDB$RELATION_FIELDS b
@@ -190,7 +190,10 @@ class Firebird(dBackend):
 			elif ftype == "timestamp":
 				ft = "T"
 			elif ftype == "blob":
-				ft = "L"
+				if r["rdb$field_sub_type"] == 1:
+					ft = "M"
+				else:
+					ft = "L"
 			else:
 				ft = "?"
 
