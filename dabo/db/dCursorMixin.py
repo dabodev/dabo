@@ -1854,7 +1854,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			rc = self.RowCount
 			tbl = self.Table
 			raise dException.dException(
-					_("Invalid row specified: %(rownum)s. RowCount=%(rc)s Table='%(tbl)s") % locals())
+					_("Invalid row specified: %(rownum)s. RowCount=%(rc)s Table='%(tbl)s'") % locals())
 		self.RowNumber = rownum
 
 
