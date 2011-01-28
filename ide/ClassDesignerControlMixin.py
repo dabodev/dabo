@@ -1066,7 +1066,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(splitterProps)
 		elif isinstance(self, dui.dStatusBar):
 			ret.update(fontProps)
-		elif isinstance(self, dui.dMediaControl):
+		elif "dMediaControl" in dir(dui) and isinstance(self, dui.dMediaControl):
 			ret.update(mediaControlProps)
 		elif isinstance(self, (dui.dEditBox, dui.dTextBox, dui.dMaskedTextBox)):
 			ret.update(colorProps)
