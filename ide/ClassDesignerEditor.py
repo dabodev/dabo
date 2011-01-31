@@ -576,7 +576,7 @@ class EditorForm(dui.dForm):
 			# There is some text. First make sure that the name of the method wasn't changed
 			try:
 				codeMthd = self._methodNamePat.match(txt).groups()[0]
-			except IndexError:
+			except (IndexError, AttributeError):
 				codeMthd = None
 			if codeMthd and (codeMthd != mthd):
 				if objCode is not None:
