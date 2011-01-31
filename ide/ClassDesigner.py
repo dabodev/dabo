@@ -1047,7 +1047,10 @@ class ClassDesigner(dabo.dApp):
 						if typ is bool and isinstance(kval, basestring):
 							kval = (kval.lower() in ("true", "t", "yes", "y", "1"))
 						else:
-							kval = typ(kval)
+							if typ in (list, tuple) and isinstance(kval, basestring):
+								kval = eval(kval)
+							else:
+								kval = typ(kval)
 				setattr(col, kprop, kval)
 			notLast = (kid is not kids[-1])
 			obj.addColumn(col, inBatch=notLast)

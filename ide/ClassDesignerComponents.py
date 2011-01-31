@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+
 import dabo
 dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
@@ -248,7 +249,7 @@ class LayoutSaverMixin(dObject):
 				strval = val
 			else:
 				strval = unicode(val)
-			ra[prop] = val
+			ra[prop] = strval
 		# Add the controlling sizer item properties, if applicable
 		try:
 			itmProps = self.ControllingSizer.getItemProps(self.ControllingSizerItem)
