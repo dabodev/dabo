@@ -538,11 +538,9 @@ def DesignerController():
 					parent.remove(obj)
 					removeNode = True
 				if removeNode:
-					nd = self.ObjectTree.nodeForObject(obj)
-					if nd is None:
-						print "!!! nd is None for object: ", obj
-					else:
-						self.ObjectTree.removeNode(nd)
+					ot = self.ObjectTree
+					if ot:
+						nd = ot.removeNode(ot.nodeForObject(obj))
 					if isinstance(obj, Group):
 						reInit = True
 			self.ActiveEditor.propsChanged(reinit=reInit)
