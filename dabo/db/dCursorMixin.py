@@ -1686,11 +1686,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if not res:
 			# Nothing was deleted
 			self.BackendObject.noResultsOnDelete()
-		else:
-			# Delete the record from the current dataset
-			if pk in self._mementos:
-				del self._mementos[pk]
-			self._removeRow(delRowNum)
+		# The 'res' could be empty in multiuser environment and there is no concurrency
+		# control, so we delete the record from the current data set unconditionally.
+		if pk in self._mementos:
+			del self._mementos[pk]
+		self._removeRow(delRowNum)
 
 
 	def _removeRow(self, row):
