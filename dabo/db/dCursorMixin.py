@@ -1506,7 +1506,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Erase the memento for the passed row, or current row if none passed."""
 		if row is None:
 			row = self.RowNumber
-		rec = self._records[row]
 
 		try:
 			pk = self.getPK(row)
