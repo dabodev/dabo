@@ -96,7 +96,7 @@ class dEvent(object):
 					holdLevel = dabo.log.level
 					dabo.log.setLevel(logging.INFO)
 					dabo.log.info("dEvent Fired: %s %s" %
-							(self._eventObject.getAbsoluteName(),
+							(self._eventObject,
 							self.__class__.__name__,))
 					dabo.log.setLevel(holdLevel)
 					break
