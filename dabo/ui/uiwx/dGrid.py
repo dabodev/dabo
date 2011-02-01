@@ -3602,7 +3602,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		newCol = self._convertWxColNumToDaboColNum(evt.EventData["col"])
 		try:
 			col = self.Columns[newCol]
-		except IndexError:
+		except (IndexError, TypeError):
 			col = None
 
 		if col:
