@@ -128,7 +128,28 @@ dAppRef = None
 from settings import *
 
 def getEncoding():
-	return locale.getdefaultlocale()[1] or defaultEncoding
+	encoding = locale.getlocale()[1] or locale.getdefaultlocale()[1] or defaultEncoding
+
+	def _getEncodingName():
+		yield encoding
+		if encoding.isdigit():
+			# Fix for missing encoding aliases e.g. '874'.
+			yield  "cp%s" % encoding
+		prefEncoding = locale.getpreferredencoding()
+		if not encoding == prefEncoding:
+			yield prefEncoding
+		if not encoding == defaultEncoding:
+			yield defaultEncoding
+		raise ValueError, "Unknown encoding: %s" % encoding
+
+	for encoding in _getEncodingName():
+		try:
+			"".encode(encoding)
+		except LookupError:
+			pass
+		else:
+			break
+	return encoding
 
 def getXMLEncoding():
 	ret = getEncoding()
