@@ -713,15 +713,38 @@ def isAltDown():
 
 
 def isMouseLeftDown():
-	return wx.GetMouseState().leftDown
+	if wx.VERSION < (2, 9):
+		return wx.GetMouseState().leftDown
+	else:
+		return wx.GetMouseState().leftIsDown
 
 
 def isMouseRightDown():
-	return wx.GetMouseState().rightDown
+	if wx.VERSION < (2, 9):
+		return wx.GetMouseState().rightDown
+	else:
+		return wx.GetMouseState().rightIsDown
 
 
 def isMouseMiddleDown():
-	return wx.GetMouseState().middleDown
+	if wx.VERSION < (2, 9):
+		return wx.GetMouseState().middleDown
+	else:
+		return wx.GetMouseState().middleIsDown
+
+
+def isMouseAux1Down():
+	if wx.VERSION < (2, 9):
+		return False
+	else:
+		return wx.GetMouseState().aux1IsDown
+
+
+def isMouseAux2Down():
+	if wx.VERSION < (2, 9):
+		return False
+	else:
+		return wx.GetMouseState().aux2IsDown
 
 
 def getDisplaySize():
