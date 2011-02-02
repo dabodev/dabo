@@ -1621,9 +1621,7 @@ class dBizobj(dObject):
 
 	def getFieldVal(self, fld, row=None, _forceNoCallback=False):
 		"""Return the value of the specified field in the current or specified row."""
-		cursor = self._CurrentCursor
 		oldRow = self.RowNumber
-		ret = None
 
 		def changeRowNumCallback(row):
 			# dCursorMixin is requesting a rowchange, which we must do here so that
@@ -1638,7 +1636,7 @@ class dBizobj(dObject):
 		if _forceNoCallback:
 			changeRowNumCallback = None
 
-		ret = cursor.getFieldVal(fld, row, _rowChangeCallback=changeRowNumCallback)
+		ret = self._CurrentCursor.getFieldVal(fld, row, _rowChangeCallback=changeRowNumCallback)
 
 		if oldRow != self.RowNumber:
 			self._moveToRowNum(oldRow)
@@ -1647,8 +1645,7 @@ class dBizobj(dObject):
 
 	def setFieldVal(self, fld, val, row=None, pk=None):
 		"""Set the value of the specified field in the current or specified row."""
-		cursor = self._CurrentCursor
-		changed = cursor.setFieldVal(fld, val, row, pk)
+		changed = self._CurrentCursor.setFieldVal(fld, val, row, pk)
 		if changed:
 			self.afterSetFieldVal(fld, row)
 		return changed
