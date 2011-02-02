@@ -103,7 +103,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 
 	def test_Encoding(self):
 		biz = self.biz
-		self.assertEqual(biz.Encoding, "utf-8")
+		self.assertEqual(biz.Encoding, dabo.getEncoding())
 		biz.Encoding = "latin-1"
 		self.assertEqual(biz.Encoding, "latin-1")
 

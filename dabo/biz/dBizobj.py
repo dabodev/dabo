@@ -1639,10 +1639,7 @@ class dBizobj(dObject):
 			changeRowNumCallback = None
 
 		if cursor is not None:
-			try:
-				ret = cursor.getFieldVal(fld, row, _rowChangeCallback=changeRowNumCallback)
-			except dException.RowNotFoundException:
-				return None
+			ret = cursor.getFieldVal(fld, row, _rowChangeCallback=changeRowNumCallback)
 
 		if oldRow != self.RowNumber:
 			self._moveToRowNum(oldRow)
@@ -1652,14 +1649,10 @@ class dBizobj(dObject):
 	def setFieldVal(self, fld, val, row=None, pk=None):
 		"""Set the value of the specified field in the current or specified row."""
 		cursor = self._CurrentCursor
-		if cursor is None:
-			return
-		try:
-			changed = cursor.setFieldVal(fld, val, row, pk)
-		except (dException.NoRecordsException, dException.RowNotFoundException):
-			return False
+		changed = cursor.setFieldVal(fld, val, row, pk)
 		if changed:
 			self.afterSetFieldVal(fld, row)
+		return changed
 
 
 	def setFieldVals(self, valDict=None, row=None, pk=None, **kwargs):
