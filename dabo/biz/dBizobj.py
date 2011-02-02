@@ -2188,6 +2188,10 @@ afterDelete() which is only called after a delete().""")
 			self.createCursor()
 
 
+	def _getCurrentCursorKey(self):
+		return self.__currentCursorKey
+
+
 	def _getDataSource(self):
 		try:
 			return self._dataSource
@@ -2525,6 +2529,9 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 
 	_CurrentCursor = property(_getCurrentCursor, _setCurrentCursor, None,
 			_("The cursor object for the currently selected key value. (dCursorMixin child)"))
+
+	_CurrentCursorKey = property(_getCurrentCursorKey, None, None,
+			_("The currently selected cursor key value. (read only)"))
 
 	DataSource = property(_getDataSource, _setDataSource, None,
 			_("The title of the cursor. Used in resolving DataSource references. (str)"))
