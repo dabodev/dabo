@@ -147,7 +147,7 @@ class Firebird(dBackend):
 
 		# Now get the field info
 		sql = """  SELECT b.RDB$FIELD_NAME, d.RDB$TYPE_NAME, c.RDB$FIELD_SUB_TYPE,
- c.RDB$FIELD_LENGTH, c.RDB$FIELD_SCALE, b.RDB$FIELD_ID
+ c.RDB$CHARACTER_LENGTH, c.RDB$FIELD_SCALE, b.RDB$FIELD_ID
  FROM RDB$RELATIONS a
  INNER JOIN RDB$RELATION_FIELDS b
  ON a.RDB$RELATION_NAME = b.RDB$RELATION_NAME
@@ -169,7 +169,7 @@ class Firebird(dBackend):
 			if ftype == "text":
 				ft = "C"
 			elif ftype == "varying":
-				if r["rdb$field_length"] > 64:
+				if r["rdb$character_length"] > 64:
 					ft = "M"
 				else:
 					ft = "C"
