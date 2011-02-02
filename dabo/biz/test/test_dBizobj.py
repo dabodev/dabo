@@ -265,6 +265,46 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(bizChild.RowCount, 0)
 		self.assertEqual(bizMain.RowCount, 2)
 
+
+	def testSaveNewUnchanged(self):
+		"""See ticket #1101"""
+		bizMain = self.biz
+		bizChild = dabo.biz.dBizobj(self.con)
+		bizChild.KeyField = "pk"
+		bizChild.DataSource = self.temp_child_table_name
+		bizChild.LinkField = "parent_fk"
+		bizChild.FillLinkFromParent = True
+
+		bizMain.addChild(bizChild)
+		bizMain.requery()
+
+		# test case 1: True in both parent/child, record should save to backend:
+		bizMain.SaveNewUnchanged = True
+		bizChild.SaveNewUnchanged = True
+		bizChild.new()
+		self.assertEqual(bizChild.RowCount, 3)
+		self.assertEqual(bizMain.isAnyChanged(), True)
+		bizMain.save()
+		self.assertEqual(bizMain.isAnyChanged(), False)
+		self.assertEqual(bizChild.RowCount, 3)
+		test_sql = "select count(*) as count from %s where parent_fk = ?" % self.temp_child_table_name
+		temp = bizMain.getTempCursor(test_sql, (bizMain.Record.pk,))
+		self.assertEqual(bizChild.RowCount, temp.Record.count)
+
+		# test case 2: False in parent but True in child: won't save child changes but will keep prompting
+		bizMain.SaveNewUnchanged = False
+		bizChild.new()
+		self.assertEqual(bizChild.RowCount, 4)
+		self.assertEqual(bizMain.isAnyChanged(), False)  ## because False in bizMain
+		self.assertEqual(bizMain.getChangedRows(), [])
+		self.assertEqual(bizChild.isAnyChanged(), True)  ## because True in bizMain
+		bizMain.save()
+		self.assertEqual(bizChild.RowCount, 4)
+		temp = bizMain.getTempCursor(test_sql, (bizMain.Record.pk,))
+		self.assertEqual(bizChild.RowCount, temp.Record.count)  ## record should have been saved
+		self.assertEqual(bizMain.getChangedRows(), [])
+		
+
 	def testMementos(self):
 		biz = self.biz
 		cur = biz._CurrentCursor
