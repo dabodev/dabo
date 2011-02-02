@@ -1638,8 +1638,7 @@ class dBizobj(dObject):
 		if _forceNoCallback:
 			changeRowNumCallback = None
 
-		if cursor is not None:
-			ret = cursor.getFieldVal(fld, row, _rowChangeCallback=changeRowNumCallback)
+		ret = cursor.getFieldVal(fld, row, _rowChangeCallback=changeRowNumCallback)
 
 		if oldRow != self.RowNumber:
 			self._moveToRowNum(oldRow)
