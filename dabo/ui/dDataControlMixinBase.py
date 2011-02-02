@@ -234,6 +234,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 							method = getattr(self.Source, self.DataField, None)
 							if method is None:
 								raise
+						except (dException.NoRecordsException, dException.RowNotFoundException):
+							# UI called flushValue() when there wasn't a valid record active. 
+							# Treat as spurious and ignore.
+							pass
 					else:
 						# If the binding is to a method, do not try to assign to that method.
 						if self._srcIsInstanceMethod is None:
