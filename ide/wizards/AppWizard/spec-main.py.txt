@@ -40,7 +40,7 @@ app.dbConnection = app.getConnectionByName("%(dbConnectionDef)s")
 # generator, but you can change that here. Additionally, if form names were
 # passed on the command line, they will be opened instead of the default one
 # as long as they exist.
-app.default_form = ui.Frm%(tableName)s
+app.DefaultForm = ui.Frm%(tableName)s
 app.startupForms()
 
 # Start the application event loop:

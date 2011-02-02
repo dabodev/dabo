@@ -243,9 +243,9 @@ class dApp(dObject):
 				"dabodemo": "demo"}
 
 		# List of form classes to open on App Startup
-		self.formsToOpen = []
+		self._formsToOpen = []
 		# Form to open if no forms were passed as a parameter
-		self.default_form = None
+		self._defaultForm = None
 		# Dict of "Last-Modified" values for dynamic web resources
 		self._sourceLastModified = {}
 
@@ -360,7 +360,7 @@ try again when it is running.
 
 	def startupForms(self):
 		"""Open one or more of the defined forms. The default one is specified
-		in .default_form. If form names were passed on the command line,
+		in self.DefaultForm. If form names were passed on the command line,
 		they will be opened instead of the default one as long as they exist.
 		"""
 		form_names = [class_name[3:] for class_name in dir(self.ui) if class_name[:3] == "Frm"]
@@ -368,10 +368,10 @@ try again when it is running.
 			arg = arg.lower()
 			for form_name in form_names:
 				if arg == form_name.lower():
-					self.formsToOpen.append(getattr(self.ui, "Frm%s" % form_name))
-		if not self.formsToOpen and self.default_form:
-			self.formsToOpen.append(self.default_form)
-		for frm in self.formsToOpen:
+					self.FormsToOpen.append(getattr(self.ui, "Frm%s" % form_name))
+		if not self.FormsToOpen and self.DefaultForm:
+			self.FormsToOpen.append(self.DefaultForm)
+		for frm in self.FormsToOpen:
 			frm(self.MainForm).show()
 
 
@@ -1383,8 +1383,22 @@ try again when it is running.
 		self.uiApp.DrawSizerOutlines = val
 
 
+	def _getDefaultForm(self):
+		return getattr(self, "_defaultForm", None)
+
+	def _setDefaultForm(self, val):
+		self._defaultForm = val
+
+
 	def _getEncoding(self):
 		return dabo.getEncoding()
+
+
+	def _getFormsToOpen(self):
+		return getattr(self, "_formsToOpen", [])
+
+	def _setFormsToOpen(self, val):
+		self._formsToOpen = val
 
 
 	def _getHomeDirectory(self):
@@ -1678,6 +1692,10 @@ try again when it is running.
 # 			_("""Path to the file (or file-like object) to be used for logging all database
 # 			activity. Default=None, which means no log is kept.   (file or str)"""))
 
+	DefaultForm = property(_getDefaultForm, _setDefaultForm, None,
+			_("""The form class to open by default, automatically, after app instantiation.  (form class reference)"""))
+	default_form = DefaultForm  ## backwards-compatibility
+
 	DefaultMenuBarClass = property(_getDefaultMenuBarClass, _setDefaultMenuBarClass, None,
 			_("""The class used by all forms in the application when no specific MenuBarClass
 			is specified  (dabo.ui.dMenuBar)"""))
@@ -1688,6 +1706,10 @@ try again when it is running.
 	Encoding = property(_getEncoding, None, None,
 			_("Name of encoding to use for unicode  (str)") )
 
+	FormsToOpen = property(_getFormsToOpen, _setFormsToOpen, None,
+			_("""List of forms to open after App instantiation.  (list of form class references)"""))
+	formsToOpen = FormsToOpen  ## backwards-compatibility
+	
 	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
 			_("""Specifies the application's home directory. (string)
 
