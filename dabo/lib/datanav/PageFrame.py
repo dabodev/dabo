@@ -19,7 +19,7 @@ class PageFrameMixin(object):
 
 	def beforePageChange(self, fromPage, toPage):
 		"""If there are no records, don't let them go to Pages 1 or 2."""
-		if toPage != 0:
+		if fromPage == 0:
 			biz = self.Form.PrimaryBizobj
 			if biz and biz.RowCount == 0:
 				self.SelectedPageNumber = 0
