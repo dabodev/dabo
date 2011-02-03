@@ -1833,7 +1833,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# These hold the values that affect row/col hiliting
 		self._selectionForeColor = "black"
 		self._selectionBackColor = "yellow"
-		self._selectionMode = "cell"
+		self._selectionMode = "Cell"
 		self._modeSet = False
 		self._multipleSelection = True
 		# Track the last row and col selected
@@ -3300,6 +3300,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self.CurrentRow = self.getBizobj().RowNumber
 		except AttributeError:
 			pass
+		# On Win, when row is deleted, active row remains unselected.
+		if self.SelectionMode == "Row":
+			row = self.CurrentRow
+			if row not in self.Selection:
+				self.SelectRow(row)
 
 
 	def _syncColumnCount(self):
