@@ -1877,6 +1877,9 @@ class ReportWriter(object):
 				# Band name doesn't exist.
 				return y
 
+			self._currentBandName = band
+			self._currentBandObj = bandDict
+
 			if band.lower() == "pagefooter" and bandDict.getProp("Height") == None:
 				raise ValueError, "PageFooter height must be fixed (not None)."
 
@@ -2527,6 +2530,22 @@ class ReportWriter(object):
 		return v
 
 
+	def _getCurrentBandName(self):
+		try:
+			v = self._currentBandName
+		except AttributeError:
+			v = self._currentBandName = None
+		return v
+
+
+	def _getCurrentBandObj(self):
+		try:
+			v = self._currentBandObj
+		except AttributeError:
+			v = self._currentBandObj = None
+		return v
+
+
 	def _getCursor(self):
 		if self.UseTestCursor:
 			try:
@@ -2747,6 +2766,12 @@ class ReportWriter(object):
 
 	Cursor = property(_getCursor, _setCursor, None,
 		_("Specifies the data cursor that the report runs against."))
+
+	CurrentBandName = property(_getCurrentBandName, None, None,
+		_("During a report run, returns the name of the currently printing band."))
+
+	CurrentBandObj = property(_getCurrentBandObj, None, None,
+		_("During a report run, returns a reference to the current band object."))
 
 	Encoding = property(_getEncoding, _setEncoding, None,
 		_("Specifies the encoding for unicode strings.  (str)"))
