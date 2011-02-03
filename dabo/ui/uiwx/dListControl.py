@@ -844,6 +844,7 @@ class _dListControl_test(dListControl):
 		self.append( ("The Empire Strikes Back", "Episode 5", 1980) )
 		self.append( ("Return of the Jedi", "Episode 6", 1983) )
 
+		self.Keys = [0,1,2,3,4,5]
 
 	def initProperties(self):
 		self.MultipleSelect = True
