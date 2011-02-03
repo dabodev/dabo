@@ -162,7 +162,7 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		# The menu index was found by caption: return the menu:
 		try:
 			return self.GetMenu(idx)
-		except dabo.ui.assertionException:
+		except (dabo.ui.assertionException, ValueError):
 			return None
 
 
