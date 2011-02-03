@@ -209,38 +209,17 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 	DynamicHelpText = makeDynamicProperty(HelpText)
 
 
-
-class dCheckMenuItem(dMenuItem):
+class _AbstractExtendedMenuItem(dMenuItem):
 	"""Creates a checkbox-like item in a menu."""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		# Remove the 'Icon' property, as it interferes with the 'selected' display
-		self._extractKey((properties, kwargs), "Icon")
-		super(dCheckMenuItem, self).__init__(parent=parent, properties=properties,
-				*args, **kwargs)
-
-
-	def _getChecked(self):
-		return self.IsChecked()
-
-	def _setChecked(self, val):
-		if self._constructed():
-			self.Check(val)
-		else:
-			self._properties["Checked"] = val
-
-
-	Checked = property(_getChecked, _setChecked, None,
-			_("Is this menu item checked?  (bool)"))
-
-
-
-class dRadioMenuItem(dMenuItem):
-	"""Creates a radiobox-like item in a menu."""
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
+		if self.__class__ is _AbstractExtendedMenuItem:
+			raise dabo.dException.dException(
+				"dAbstractExtendedMenuItem class should not be instantiated directly.")
 		# Remove the 'Icon' property, as it interferes with the 'selected' display
 		self._extractKey((properties, kwargs), "Icon")
-		super(dRadioMenuItem, self).__init__(parent=parent, properties=properties,
-				*args, **kwargs)
+		super(_AbstractExtendedMenuItem, self).__init__(parent=parent,
+			properties=properties, *args, **kwargs)
 
 
 	def _getChecked(self):
@@ -256,4 +235,13 @@ class dRadioMenuItem(dMenuItem):
 	Checked = property(_getChecked, _setChecked, None,
 			_("Is this menu item checked?  (bool)"))
 
+
+class dCheckMenuItem(_AbstractExtendedMenuItem):
+	"""Creates a checkbox-like item in a menu."""
+	pass
+
+
+class dRadioMenuItem(_AbstractExtendedMenuItem):
+	"""Creates a radiobox-like item in a menu."""
+	pass
 
