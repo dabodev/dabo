@@ -321,17 +321,27 @@ class dCursorMixin(dObject):
 				res = self.superCursor.execute(self, sql, params)
 				if not self.IsPrefCursor:
 					try:
-						dabo.dbActivityLog.info("SQL: %s, PARAMS: %s" % (
+						dabo.dbActivityLog.info("execute() SQL: %s, PARAMS: %s" % (
 								sql.decode(self.Encoding).replace("\n", " "),
 								', '.join("%s" % p for p in params)))
 					except StandardError:
 						# A problem with writing to the log, most likely due to encoding issues
-						dabo.dbActivityLog.info("FAILED SQL: %r" % sql)
+						try:
+							dabo.dbActivityLog.info("execute() SQL (failed to log PARAMS): %r" % sql)
+						except StandardError:
+							dabo.dbActivityLog.info("execute() (failed to log SQL and PARAMS)") 
 			else:
 				res = self.superCursor.execute(self, sql)
 				if not self.IsPrefCursor:
-					dabo.dbActivityLog.info("SQL: %s" % (
-							sql.decode(self.Encoding).replace("\n", " "),))
+					try:
+						dabo.dbActivityLog.info("execute() SQL: %s" % (
+								sql.decode(self.Encoding).replace("\n", " "),))
+					except StandardError:
+						# A problem with writing to the log, most likely due to encoding issues
+						try:
+							dabo.dbActivityLog.info("execute() SQL: %r" % sql)
+						except StandardError:
+							dabo.dbActivityLog.info("execute() (failed to log SQL)")
 		except Exception, e:
 			# There can be cases where errors are expected. In those cases, the
 			# calling routine will pass the class of the expected error, and will
