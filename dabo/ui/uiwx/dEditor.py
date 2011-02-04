@@ -603,8 +603,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 	def select(self, position, length):
 		"""Select all text from <position> for <length> or end of string."""
-		self.SelectionStart = position
-		self.SelectionEnd = position + length
+		end = position + length
+		self.SelectionPosition = (position, end)
 
 
 	def selectLine(self):
