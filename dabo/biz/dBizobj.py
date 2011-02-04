@@ -1564,7 +1564,7 @@ class dBizobj(dObject):
 			if child.RequeryWithParent:
 				if not child.isAnyChanged(useCurrentParent=True):
 					# Check for caching
-					if child._CurrentCursor.lastRequeryTime or child.cacheExpired():
+					if child.cacheExpired():
 						child.requery()
 		self.afterChildRequery()
 
