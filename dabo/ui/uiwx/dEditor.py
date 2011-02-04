@@ -601,6 +601,12 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self.SelectionPosition = pos
 
 
+	def select(self, position, length):
+		"""Select all text from <position> for <length> or end of string."""
+		self.SelectionStart = position
+		self.SelectionEnd = position + length
+
+
 	def selectLine(self):
 		start =self.GetLineEndPosition(self.LineNumber-1)
 		if self.Value[start] == "\r":
