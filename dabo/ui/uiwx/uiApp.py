@@ -525,8 +525,19 @@ these automatic updates.""").replace("\n", " ")
 				self.out = dabo.ui.dEditBox(self, ReadOnly=True)
 				self.out.bindEvent(dEvents.ContextMenu, self.onContext)
 				self.Sizer.append1x(self.out)
+				self._txtlen = len(self.out.Value)
+				self.tmr = dabo.ui.dTimer(self, Interval=500, OnHit=self.onOutValue)
+				self.tmr.start()
 			def onContext(self, evt):
 				self.out.Value = ""
+			def onClose(self, evt):
+				self.tmr.stop()
+				self.tmr.release()
+			def onOutValue(self, evt):
+				curr = len(self.out.Value)
+				if curr != self._txtlen:
+					self._txtlen = curr
+					self.out.scrollToEnd()
 
 		if not self.debugWindow:
 			self.debugWindow = DebugWindow(context)
