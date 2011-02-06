@@ -25,6 +25,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dToolBar
+		self._toolbarItemClass = dToolBarItem
 		preClass = wx.PreToolBar
 
 		style = self._extractKey((kwargs, properties, attProperties), "style", 0)
@@ -172,7 +173,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 			# insert
 			tool = self.InsertTool(pos, id_, caption, picBmp, shortHelpString=tip, longHelpString=help,
 					isToggle=toggle)
-		butt = dToolBarItem(tool, *args, **kwargs)
+		tbiClass = self.ToolbarItemClass
+		butt = tbiClass(tool, *args, **kwargs)
 
 		try:
 			self.SetToggle(id_, toggle)
@@ -224,7 +226,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 	def appendSeparator(self):
 		"""Inserts a separator at the end of the toolbar."""
-		sep = dToolBarItem(self.AddSeparator())
+		tbiClass = self.ToolbarItemClass
+		sep = tbiClass(self.AddSeparator())
 		self._daboChildren.append(sep)
 		sep._parent = self
 		self._realize()
@@ -233,7 +236,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 	def insertSeparator(self, pos):
 		"""Inserts a separator before the specified position in the toolbar."""
-		sep = dToolBarItem(self.InsertSeparator(pos))
+		tbiClass = self.ToolbarItemClass
+		sep = tbiClass(self.InsertSeparator(pos))
 		self._daboChildren.insert(pos, sep)
 		sep._parent = self
 		self._realize()
@@ -410,6 +414,16 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 			self._properties["ShowIcons"] = val
 
 
+	def _getToolbarItemClass(self):
+		return self._toolbarItemClass
+
+	def _setToolbarItemClass(self, val):
+		if self._constructed():
+			self._toolbarItemClass = val
+		else:
+			self._properties["ToolbarItemClass"] = val
+
+
 	Dockable = property(_getDockable, _setDockable, None,
 		_("""Specifies whether the toolbar can be docked and undocked.  (bool)
 
@@ -436,6 +450,9 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 		Note that you can set both ShowCaptions and ShowIcons to False, but in
 		that case, the icons will still show. Default is True."""))
+
+	ToolbarItemClass = property(_getToolbarItemClass, _setToolbarItemClass, None,
+			_("""Class to instantiate for toolbar items. Default=dToolBarItem.  (varies)"""))
 
 
 	DynamicShowCaptions = makeDynamicProperty(ShowCaptions)
@@ -598,6 +615,7 @@ class _dToolBar_test(dToolBar):
 			app.onFileExit(None)
 		else:
 			dabo.ui.stop("Sorry, there isn't an app object - can't exit.")
+
 
 if __name__ == "__main__":
 	import test
