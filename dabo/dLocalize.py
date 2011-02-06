@@ -98,9 +98,6 @@ def setLanguage(lang=None, charset=None):
 	daboLocaleDir = _domains.get("dabo", None)
 	if daboLocaleDir:
 		try:
-			print "daboLocaleDir = ", daboLocaleDir
-			print "lang = ", lang
-			print "charset = ", charset
 			daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=lang, codeset=charset)
 		except IOError:
 			# No translation file found
