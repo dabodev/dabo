@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<dForm Name="dForm" Caption="Dabo Preference Editor" SaveRestorePosition="False" Top="130" Height="658" Width="707" designerClass="DesForm" Left="366">
+<dForm Name="dForm" Caption="Dabo Preference Editor" SaveRestorePosition="False" Height="660" Width="720" designerClass="DesForm">
 	<code>
 		<expandAll><![CDATA[
 def expandAll(self):
@@ -16,18 +16,15 @@ def savePref(self):
 		</savePref>
 		<syncTree><![CDATA[
 def syncTree(self, key):
+	self.StatusBarText = "sync, key= %s" % key
 	nodes = self.tree.nodes
 	ret = [n for n in nodes 
 			if n.FullCaption.endswith(key) ]
 	if ret:
 		self.tree.Selection = ret[0]
+	self.StatusBarText += " num matched: %s" % len(ret)
 ]]>
 		</syncTree>
-		<collapseAll><![CDATA[
-def collapseAll(self):
-	self.tree.collapseAll()
-]]>
-		</collapseAll>
 		<deletePref><![CDATA[
 def deletePref(self, key):
 	self.pref.deletePref(key, nested=True)
@@ -63,37 +60,6 @@ def afterInitAll(self):
 	self.tree.ShowRootNode = False
 ]]>
 		</afterInitAll>
-		<getNodeValue><![CDATA[
-def getNodeValue(self, nd):
-	pth = self.tree.getKeyPathForNode(nd)
-	ret = self.pref.getValue(pth)
-]]>
-		</getNodeValue>
-		<exit><![CDATA[
-def exit(self, saving):
-	if saving:
-		self.pref.persist()
-	self.release()
-]]>
-		</exit>
-		<filterPrefs><![CDATA[
-def filterPrefs(self):
-	filt = "%%" + self.txtFilter.Value.strip()
-	ds = []
-	ds0 = self.pref.getPrefs(returnNested=True, key=filt, asDataSet=True)
-	if ds0:
-		ds = ds0.execute("select *,lower(ckey) as lowkey from dataset order by lowkey")
-	grd = self.grdFilteredPrefs
-	grd.DataSet = ds
-	#grd.autoSizeCol("all")
-	numMatch = len(ds)
-	if numMatch == 1:
-		suffix = ""
-	else:
-		suffix = "es"
-	self.lblResults.Caption = "%(numMatch)s Match%(suffix)s" % locals()
-]]>
-		</filterPrefs>
 		<addPref><![CDATA[
 def addPref(self, base, key, typ):
 	if base:
@@ -110,12 +76,50 @@ def addPref(self, base, key, typ):
 		self.pref.addKey(newkey, typDict[typ], typDict[typ]())
 ]]>
 		</addPref>
+		<getNodeValue><![CDATA[
+def getNodeValue(self, nd):
+	pth = self.tree.getKeyPathForNode(nd)
+	ret = self.pref.getValue(pth)
+]]>
+		</getNodeValue>
+		<exit><![CDATA[
+def exit(self, saving):
+	if saving:
+		self.pref.persist()
+	self.release()
+]]>
+		</exit>
+		<filterPrefs><![CDATA[
+def filterPrefs(self):
+	filt = u"%%" + self.txtFilter.Value.strip()
+	ds = []
+	ds0 = self.pref.getPrefs(returnNested=True, key=filt, asDataSet=True)
+	if ds0:
+		ds = ds0.execute("select *, lower(ckey) as lowkey from dataset order by lowkey")
+	grd = self.grdFilteredPrefs
+	grd.DataSet = ds
+	#grd.autoSizeCol("all")
+	numMatch = len(ds)
+	if numMatch == 1:
+		suffix = ""
+	else:
+		suffix = "es"
+	self.lblResults.Caption = "%(numMatch)s Match%(suffix)s" % locals()
+]]>
+		</filterPrefs>
+		<collapseAll><![CDATA[
+def collapseAll(self):
+	self.tree.collapseAll()
+]]>
+		</collapseAll>
 		<updatePref><![CDATA[
 def updatePref(self):
+	print "UP", self, self.tree
 	if not self or not self.tree:
 		return
 	nd = self.tree.Selection
 	self.pth = self.tree.getKeyPathForNode(nd)
+	print "PTH", self.pth
 	val = self.pref.getValue(self.pth)
 	self.txtPrefName.Value = nd.Caption
 	if val is not None:
@@ -137,13 +141,13 @@ from dabo.dLocalize import _
 	<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
 		<dPanel sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix">
 			<dSizer SlotCount="3" designerClass="LayoutSizer" Orientation="Vertical">
-				<dTextBox sizerInfo="{}" ReadOnly="True" FontSize="10.5" DataField="pth" designerClass="controlMix" Alignment="Center" DataSource="None"></dTextBox>
+				<dTextBox sizerInfo="{}" ReadOnly="True" FontSize="10.5" DataField="pth" designerClass="controlMix" Alignment="Center" DataSource="form" RegID="txtPath"></dTextBox>
 				<dSizer SlotCount="1" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutSizer" Orientation="Horizontal">
 					<dPageFrame RegID="mainPageFrame" sizerInfo="{'HAlign': 'Center'}" designerClass="controlMix" PageCount="2">
 						<dPage Caption="Tree" designerClass="controlMix">
 							<dSizer SlotCount="2" designerClass="LayoutSizer" Orientation="Vertical">
 								<dSplitter sizerInfo="{'VAlign': 'Middle'}" SashPosition="260" Orientation="Vertical" MinimumPanelSize="80" ShowPanelSplitMenu="True" designerClass="controlMix" Split="True">
-									<dPanel Width="258" designerClass="MixedSplitterPanel" Name="dPanel2" Height="456">
+									<dPanel Width="258" designerClass="MixedSplitterPanel" Name="dPanel2">
 										<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
 											<dTreeView RegID="tree" sizerInfo="{'Proportion': 2, 'VAlign': 'Middle'}" designerClass="controlMix" Name="treePrefs" ShowRootNode="False">
 												<code>
@@ -206,11 +210,11 @@ def onContextMenu(self, evt):
 											</dTreeView>
 										</dSizer>
 									</dPanel>
-									<dPanel Width="432" designerClass="MixedSplitterPanel" Name="dPanel1" Height="456">
+									<dPanel Width="432" designerClass="MixedSplitterPanel" Name="dPanel1">
 										<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
 											<dGridSizer HGap="3" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 30, 'Expand': True}" Rows="3" designerClass="LayoutGridSizer" VGap="10" Columns="2">
 												<dTextBox RegID="txtPrefName" ReadOnly="True" designerClass="controlMix" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0}" rowColPos="(0, 1)"></dTextBox>
-												<dTextBox RegID="txtPrefValue" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0, 'Expand': True}" designerClass="controlMix" Name="dTextBox1" rowColPos="(1, 1)">
+												<dTextBox RegID="txtPrefValue" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0}" designerClass="controlMix" Name="dTextBox1" rowColPos="(1, 1)">
 													<code>
 														<onKeyUp><![CDATA[
 def onKeyUp(self, evt):
@@ -236,7 +240,7 @@ def afterInit(self):
 										</dSizer>
 									</dPanel>
 								</dSplitter>
-								<dSizer SlotCount="2" DefaultBorder="4" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Center', 'VAlign': 'Top', 'Border': 0, 'Expand': False}" designerClass="LayoutSizer" Orientation="Horizontal">
+								<dSizer DefaultBorder="4" SlotCount="2" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Center', 'VAlign': 'Top', 'Border': 0, 'Expand': False}" designerClass="LayoutSizer" Orientation="Horizontal">
 									<dButton Width="92" sizerInfo="{}" designerClass="controlMix" Caption="Expand All">
 										<code>
 											<onHit><![CDATA[
@@ -281,6 +285,11 @@ def onKeyChar(self, evt):
 								</dBorderSizer>
 								<dGrid ColumnCount="2" sizerInfo="{}" Name="grdFilteredPrefs" designerClass="controlMix" RegID="grdFilteredPrefs" SelectionMode="Row">
 									<code>
+										<onGridMouseLeftDoubleClick><![CDATA[
+def onGridMouseLeftDoubleClick(self, evt):
+	self.Form.mainPageFrame.SelectedPageNumber = 0
+]]>
+										</onGridMouseLeftDoubleClick>
 										<rowChanged><![CDATA[
 def rowChanged(self):
 	try:
@@ -291,11 +300,6 @@ def rowChanged(self):
 		pass
 ]]>
 										</rowChanged>
-										<onGridMouseLeftDoubleClick><![CDATA[
-def onGridMouseLeftDoubleClick(self, evt):
-	self.Form.mainPageFrame.SelectedPageNumber = 0
-]]>
-										</onGridMouseLeftDoubleClick>
 										<onGridCellSelected><![CDATA[
 def onGridCellSelected(self, evt):
 	if evt.row != self.CurrentRow:
@@ -323,7 +327,7 @@ def onHit(self, evt):
 							</onHit>
 						</code>
 					</dButton>
-					<dPanel Spacing="10" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': False}" designerClass="LayoutSpacerPanel"></dPanel>
+					<dPanel Spacing="10" sizerInfo="{'VAlign': 'Top', 'Border': 0}" designerClass="LayoutSpacerPanel"></dPanel>
 					<dButton Width="108" sizerInfo="{}" designerClass="controlMix" Name="dButton11" Caption="Save and Exit">
 						<code>
 							<onHit><![CDATA[
