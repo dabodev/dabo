@@ -352,7 +352,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	# definitions themselves.
 	def _getDataSource(self):
 		try:
-			return self._DataSource
+			return self._dataSource
 		except AttributeError:
 			return ""
 
@@ -367,7 +367,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			# Clear any old DataSource
 			self.__src = None
 			self._oldVal = None
-			self._DataSource = val
+			self._dataSource = val
 			self.update()
 		dabo.ui.callAfter(_delayedSetDataSource)
 
