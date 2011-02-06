@@ -11,7 +11,6 @@ from dabo.ui import makeDynamicProperty
 
 
 # The EditBox is just a TextBox with some additional styles.
-
 class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
 	"""Creates an editbox, which allows editing of string data of unlimited size.
 
@@ -23,14 +22,15 @@ class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
 
 		preClass = wx.PreTextCtrl
 		kwargs["style"] = wx.TE_MULTILINE
+		self._wordWrap = self._extractKey((properties, attProperties, kwargs),
+				"WordWrap", True)
+		if self._wordWrap:
+			kwargs["style"] = kwargs["style"] | wx.TE_BESTWRAP
+		else:
+			kwargs["style"] = kwargs["style"] | wx.TE_DONTWRAP
 		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
-
-	def _getInitPropertiesList(self):
-		additional = ["WordWrap",]
-		original = list(super(dEditBox, self)._getInitPropertiesList())
-		return tuple(original + additional)
 
 	def scrollToBeginning(self):
 		"""Moves the insertion point to the beginning of the text"""
@@ -48,11 +48,10 @@ class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
 
 	#Property getters and setters
 	def _getWordWrap(self):
-		return self._hasWindowStyleFlag(wx.TE_BESTWRAP)
+		return self._wordWrap
 
 	def _setWordWrap(self, val):
-		if self._constructed():
-			fontSize = self.GetFont().GetPointSize()
+		self._wordWrap = val
 		self._delWindowStyleFlag(wx.TE_DONTWRAP)
 		self._delWindowStyleFlag(wx.TE_WORDWRAP)
 		self._delWindowStyleFlag(wx.TE_BESTWRAP)
@@ -60,24 +59,25 @@ class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
 			self._addWindowStyleFlag(wx.TE_BESTWRAP)
 		else:
 			self._addWindowStyleFlag(wx.TE_DONTWRAP)
-		if self._constructed():
-			self.FontSize = fontSize
+
 
 	# property definitions follow:
 	WordWrap = property(_getWordWrap, _setWordWrap, None,
-			_("""Specifies whether words get wrapped (the default). (bool)
+			_("""Specifies whether lines longer than the width of the control
+			get wrapped. This is a soft wrapping; newlines are not inserted.
 
-			If False, a horizontal scrollbar will appear when a line is too long
-			to fit in the horizontal space."""))
+			If False, a horizontal scrollbar will appear when a line is
+			too long to fit in the horizontal space. Note that this must
+			be set when the object is created, and changing it after
+			instantiation will have no effect. Default=True  (bool)"""))
 
 
 
 class _dEditBox_test(dEditBox):
 	def initProperties(self):
-		self.Size = (444, 244)
 		self.Value = """Love, exciting and new
-Come aboard, were expecting you
-Love, lifes sweetest reward
+Come aboard, we're expecting you
+Love, life's sweetest reward
 Let it flow, it floats back to you
 
 Love Boat soon will be making another run
@@ -85,26 +85,33 @@ The Love Boat promises something for everyone
 Set a course for adventure
 Your mind on a new romance
 
-Love wont hurt anymore
-Its an open smile on a friendly shore
+Love won't hurt anymore
+It's an open smile on a friendly shore
 Yes love...
-Its love...
+It's love...
 
 Love Boat soon will be making another run
 The Love Boat promises something for everyone
 Set a course for adventure
 Your mind on a new romance
 
-Love wont hurt anymore
-Its an open smile on a friendly shore
-Its love...
-Its love...
-Its love...
-Its the Love Boat
-Its the Love Boat
+Love won't hurt anymore
+It's an open smile on a friendly shore
+It's love...
+It's love...
+It's love...
+It's the Love Boat
+It's the Love Boat
 """
+	def afterInit(self):
+		self.Form.Size = (444, 244)
+		dabo.ui.callAfter(self.adjustFormCaption)
+	def adjustFormCaption(self):
+		newcap = "%s - WordWrap: %s" % (self.Form.Caption, self.WordWrap)
+		self.Form.Caption = newcap
 
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(_dEditBox_test)
+	test.Test().runTest(_dEditBox_test, WordWrap=True)
+	test.Test().runTest(_dEditBox_test, WordWrap=False)

@@ -47,15 +47,14 @@ class Test(object):
 			frame.testObjects = []
 			for class_ in classRefs:
 				obj = class_(parent=panel, LogEvents=logEvents, *args, **kwargs)
-				obj.Width = 300
 				panel.Sizer.append(obj, 1, "expand")
 				frame.testObjects.append(obj)
 
 			# This will get a good approximation of the required size
 			w,h = panel.Sizer.GetMinSize()
 			# Some controls don't report sizing correctly, so set a minimum
-			w = max(w, 100)
-			h = max(h, 50)
+			w = max(w, 400)
+			h = max(h, 300)
 
 			frame.Size = ( (w+10, h+30) )
 			if len(classRefs) > 1:

@@ -262,11 +262,11 @@ class dPemMixin(dPemMixinBase):
 		self._name = "?"
 		self._pemObject = pre
 		self._needRedraw = True
-		self._borderColor = dColors.colorTupleFromName("black")
+		self._borderColor = (0, 0, 0)
 		self._borderWidth = 0
 		self._borderLineStyle = "Solid"
-		self._minimumHeight = 0
-		self._minimumWidth = 0
+		self._minimumHeight = 10
+		self._minimumWidth = 10
 		self._maximumHeight = -1
 		self._maximumWidth = -1
 
@@ -325,9 +325,7 @@ class dPemMixin(dPemMixinBase):
 			# The app hasn't set a help provider, and one is needed
 			# to be able to save/restore help text.
 			wx.HelpProvider.Set(wx.SimpleHelpProvider())
-
 		self.afterInit()
-
 		if self.Form and self.Form.SaveRestorePosition:
 			self._restoreFontZoom()
 
