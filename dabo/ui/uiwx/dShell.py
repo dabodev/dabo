@@ -175,8 +175,11 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 		super(_Shell, self).processLine()
 		if edt:
 			# push the latest command into the stack
-			self.Form.addToHistory()
-
+			try:
+				self.Form.addToHistory()
+			except AttributeError:
+				# Not running in dShell
+				pass
 
 	def getAutoCompleteList(self, cmd):
 		return self.interp.getAutoCompleteList(cmd,

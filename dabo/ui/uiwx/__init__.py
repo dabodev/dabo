@@ -448,7 +448,13 @@ def getEventData(wxEvt):
 	if isinstance(wxEvt, wx.ListEvent):
 		pos = wxEvt.GetPosition()
 		obj = wxEvt.GetEventObject()
-		idx, flg = obj.HitTest(pos)
+		ht = obj.HitTest(pos)
+		try:
+			idx, flg = ht
+		except TypeError:
+			# Recent wx versions raise list events for unknown reasons.
+			idx = ht
+			flg = None
 		ed["listIndex"] = idx
 		try:
 			ed["col"] = wxEvt.GetColumn()

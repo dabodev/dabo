@@ -24,6 +24,7 @@ class dLed(dabo.ui.dDataPanel):
 		self.led.DynamicRadius = lambda: min(self.Width, self.Height)/2
 		self.led.DynamicFillColor = lambda: self.Color
 		super(dLed, self)._afterInit()
+		self.layout(resetMin=True)
 		self.update()
 
 
