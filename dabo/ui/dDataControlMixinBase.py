@@ -127,10 +127,11 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			self._inDataUpdate = False
 		else:
 			if self._srcIsInstanceMethod is None and src is not None:
-				if isinstance(src, basestring):
-					self._srcIsInstanceMethod = False
-				else:
-					self._srcIsInstanceMethod = callable(getattr(src, self.DataField))
+				self._srcIsInstanceMethod = False
+				if not isinstance(src, basestring):
+					att = getattr(src, self.DataField, None)
+					if att is not None:
+						self._srcIsInstanceMethod = callable(att)
 
 			if src is None:
 				# Could be testing
