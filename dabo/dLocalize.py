@@ -1,10 +1,12 @@
-﻿# -*- coding: utf-8 -*-
+﻿#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-import sys
-import os
-import locale
 import gettext
+import locale
+import os
+import sys
 import warnings
+
 import dabo
 
 
@@ -16,17 +18,36 @@ if _defaultLanguage is None:
 if _defaultEncoding is None:
 	_defaultEncoding = dabo.getEncoding()
 
-
 _domains = {}
 _currentTrans = None
 
-_languageAliases = {"english": "en", "English_United States":"en",
-		"spanish": "es", "espanol": "es", "español": "es",
-		"french": "fr", "francais": "fr", "français": "fr",
+_languageAliases = {
+		"catalan": "ca", "català":"ca",
 		"german": "de", "deutsch": "de",
+		"greek": "el", "ελληνικά":"el",
+		"english": "en", "english_united states":"en",
+		"english (uk)": "en_gb", "english_uk":"en_gb", "english_great britain":"en_gb",
+		"finnish": "fi", "suomi":"fi",
+		"french": "fr", "francais": "fr", "français": "fr",
+		"hindi": "hi",
+		"hungarian": "hu", "magyar":"hu", "mɒɟɒr": "hu",
+		"indonesian": "id", "bahasa indonesia":"id",
 		"italian": "it", "italiano": "it",
-		"portuguese": "pt", "portuguése": "pt",
-		"russian": "ru", "polish": "pl"}
+		"japanese": "ja", "日本語": "ja", "nihoŋɡo": "ja",
+		"latvian": "lv", "lettish": "lv", "latviešu valoda": "lv",
+		"dutch": "nl", "nederlands":"nl",
+		"occitan": "oc", "provençal":"oc",
+		"polish": "pl", "polszczyzna":"pl", "język polski":"pl",
+		"portuguese": "pt", "portuguêse": "pt",
+		"portuguese (brazilian)": "pt_br", "português brasileiro": "pt_br",
+		"romanian": "ro", "română":"ro",
+		"russian": "ru", "русский язык": "ru", "russkiy yazyk": "ru",
+		"spanish": "es", "espanol":"es", "español":"es",
+		"swedish": "sv", "svenska":"sv",
+		"thai": "th", "ภาษาไทย":"th", "phasa thai": "th",
+		"chinese (simplified)": "zh_cn", "汉语":"zh_cn", "华语":"zh_cn",
+		}
+
 
 def _(s):
 	"""Return the localized translation of s, or s if translation not possible."""
@@ -47,7 +68,6 @@ def install(domain="dabo", localedir=None, unicode_mo=True):
 	different domain that the user's application set up.
 	"""
 	global _domains, _defaultLanguage, _defaultEncoding
-
 	if localedir is None:
 		if domain != "dabo":
 			raise ValueError("Must send your application's localedir explicitly.")
@@ -69,7 +89,7 @@ def setLanguage(lang=None, charset=None):
 	"""
 	from dabo.lib.utils import ustr
 	global _domains, _currentTrans
-	lang = _languageAliases.get(lang, lang)
+	lang = _languageAliases.get(lang.lower(), lang)
 
 	if lang is not None and isinstance(lang, basestring):
 		lang = [lang]
@@ -78,8 +98,10 @@ def setLanguage(lang=None, charset=None):
 	daboLocaleDir = _domains.get("dabo", None)
 	if daboLocaleDir:
 		try:
+			print "daboLocaleDir = ", daboLocaleDir
+			print "lang = ", lang
+			print "charset = ", charset
 			daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=lang, codeset=charset)
-			_currentTrans = daboTranslation.ugettext
 		except IOError:
 			# No translation file found
 			dabo.log.error("""
@@ -87,6 +109,9 @@ No translation file found for domain 'dabo'.
     Locale dir = %s
     Languages = %s
     Codeset = %s """ % (daboLocaleDir, ustr(lang), charset))
+			# Default to US English
+			daboTranslation = gettext.translation("dabo", daboLocaleDir, languages="en", codeset=charset)
+		_currentTrans = daboTranslation.ugettext
 
 	for domain, localedir in _domains.items():
 		if domain == "dabo":
@@ -136,9 +161,7 @@ def getDaboLocaleDir():
 
 
 if __name__ == "__main__":
-
 	install()
-
 	print
 	print "sys.getdefaultencoding():", sys.getdefaultencoding()
 	if dabo.loadUserLocale:
@@ -149,7 +172,7 @@ if __name__ == "__main__":
 	print "_defaultLanguage, _defaultEncoding:", _defaultLanguage, _defaultEncoding
 	print
 
-	stringsToTranslate = ("&File", "&Edit", "&Help", "Application finished.")
+	stringsToTranslate = ("OK", "&File", "&Edit", "&Help", "Application finished.")
 	max_len = {}
 	for s in stringsToTranslate:
 		max_len[s] = len(s)

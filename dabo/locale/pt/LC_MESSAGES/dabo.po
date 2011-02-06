@@ -1,4 +1,8 @@
-#, fuzzy
+# Potuguese translation for dabo
+# Copyright (c) 2007 Rosetta Contributors and Canonical Ltd 2007
+# This file is distributed under the same license as the dabo package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2007.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: Dabo 0.8\n"
@@ -7,8 +11,8 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
-"Content-Transfer-Encoding: ENCODING\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
 #: ./biz/dAutoBizobj.py:42
