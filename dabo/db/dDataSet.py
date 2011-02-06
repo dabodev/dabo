@@ -352,6 +352,7 @@ class dDataSet(tuple):
 			self._connection = sqlite.connect(":memory:",
 					detect_types=(sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES),
 					isolation_level="EXCLUSIVE")
+			self._connection.text_factory = str
 		if self._cursor is None:
 			self._cursor = self._connection.cursor(factory=DictCursor)
 
@@ -431,12 +432,6 @@ class dDataSet(tuple):
 
 	def _setEncoding(self, encoding):
 		self._encoding = encoding
-		try:
-			self._connection.text_factory = lambda s:unicode(s, self._encoding, "replace")
-		except AttributeError:
-			# The connection has not yet been set, but it will once
-			# queries is executed
-			pass
 
 
 	def _getUnfilteredDataSet(self):
