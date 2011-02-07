@@ -15,9 +15,11 @@ class HtmlAbout(dabo.ui.dDialog):
 		self.Centered = True
 		self.Caption = _("About")
 
+
 	def initEvents(self):
 		self.bindKey("space", self.onClear)
 		self.bindKey("enter", self.onClear)
+
 
 	def addControls(self):
 		pnlBack = dabo.ui.dPanel(self, BackColor="cornflowerblue")
@@ -39,10 +41,8 @@ class HtmlAbout(dabo.ui.dDialog):
 		hsz.appendSpacer(20)
 		hsz.append(btnClose)
 		sz.append(hsz, halign="right", border=30, borderSides=["right"])
-
 		sz.append((0,20))
 		self.Layout()
-
 		self.htmlBox.Source = self.writeHtmlPage()
 
 
@@ -51,48 +51,9 @@ class HtmlAbout(dabo.ui.dDialog):
 
 
 	def writeHtmlPage(self):
-		appinfo = self.getInfoString()
+		appinfo = dabo.ui.getSystemInfo("html")
 		docstring = self.getAppSpecificString()
 		return self.getPageData() % locals()
-
-
-	def getInfoDataSet(self):
-		"""Return Application Information in a sequence of dicts."""
-		# Get all the version info, etc.
-		app = self.Application
-
-		ds = []
-		if app:
-			plat = app.Platform
-		else:
-			plat = sys.platform
-		ds.append({"name": "Platform:", "value": plat})
-		ds.append({"name": "Python Version:", "value": "%s on %s"
-				% (sys.version.split()[0], sys.platform)})
-		if app:
-			appVersion = app.getAppInfo("appVersion")
-			appName = app.getAppInfo("appName")
-		else:
-			appVersion = "?"
-			appName = "Dabo"
-		ds.append({"name": "Dabo Version:", "value": "Version %s; Revision %s"
-				% (dabo.version["version"], dabo.version["revision"])})
-
-		ds.append({"name": "UI Version:", "value": "%s on %s" % (dabo.ui.uiType["version"],
-				dabo.ui.uiType["platform"])})
-		return ds
-
-
-	def getInfoString(self, useHTML=True):
-		"""Return app information as a string."""
-		ds = self.getInfoDataSet()
-		lines = []
-		for r in ds:
-			lines.append("%s %s" % (r["name"], r["value"]))
-
-		eol = {True: "<br>\n", False: "\n"}[useHTML]
-
-		return eol.join(lines)
 
 
 	def getAppSpecificString(self):
@@ -105,7 +66,7 @@ class HtmlAbout(dabo.ui.dDialog):
 
 	def onCopyInfo(self, evt):
 		"""Copy the system information to the Clipboard"""
-		info = self.getInfoString(useHTML=False)
+		info = dabo.ui.getSystemInfo("string")
 		appdoc = self.getAppSpecificString()
 		self.Application.copyToClipboard("\n\n".join((info, appdoc)))
 
@@ -113,8 +74,10 @@ class HtmlAbout(dabo.ui.dDialog):
 	def onClear(self, evt):
 		self.release()
 
+
 	def onClose(self, evt=None):
 		self.release()
+
 
 	def getPageData(self):
 		"""Basic Template structure of the About box."""

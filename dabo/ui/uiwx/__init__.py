@@ -245,7 +245,6 @@ artConstants["hd"] = artConstants.get("harddisk")
 artConstants["info"] = artConstants.get("information")
 artConstants["file"] = artConstants.get("normalfile")
 
-
 def getUiApp(app, uiAppClass=None, callback=None, forceNew=False):
 	"""This returns an instance of uiApp. If one is already running, that
 	instance is returned. Otherwise, a new instance is created.
@@ -1148,6 +1147,42 @@ def _getWild(*args):
 			arglist.append(tmplt % (fDesc, ftype, ftype))
 		ret = "|".join(arglist)
 	return ret
+
+
+def getSystemInfo(returnType=None):
+	"""Return app information in the requested format (can be one
+	of "dataset", "html", or "string" (default).
+	"""
+	if returnType is None:
+		returnType = "string"
+	rType = returnType.lower()[0]
+	app = dabo.dAppRef
+	ds = []
+	if app:
+		plat = app.Platform
+	else:
+		plat = sys.platform
+	ds.append({"name": "Platform:", "value": plat})
+	ds.append({"name": "Python Version:", "value": "%s on %s"
+			% (sys.version.split()[0], sys.platform)})
+	if app:
+		appVersion = app.getAppInfo("appVersion")
+		appName = app.getAppInfo("appName")
+	else:
+		appVersion = "?"
+		appName = "Dabo"
+	ds.append({"name": "Dabo Version:", "value": "Version %s; Revision %s"
+			% (dabo.version["version"], dabo.version["revision"])})
+	ds.append({"name": "UI Version:", "value": "%s on %s" % (dabo.ui.uiType["version"],
+			dabo.ui.uiType["platform"])})
+	if rType == "d":
+		# Return the dataset
+		return ds
+	lines = []
+	for r in ds:
+		lines.append("%s %s" % (r["name"], r["value"]))
+	eol = {"h": "<br>\n", "s": "\n"}[rType]
+	return eol.join(lines)
 
 
 def sortList(chc, Caption="", ListCaption=""):

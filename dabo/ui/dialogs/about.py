@@ -12,9 +12,11 @@ class About(dabo.ui.dDialog):
 		self.Centered = True
 		self.Caption = _("About")
 
+
 	def initEvents(self):
 		self.bindKey("space", self.onClear)
 		self.bindKey("enter", self.onClear)
+
 
 	def addControls(self):
 		pnlBack = dabo.ui.dPanel(self, BackColor="White")
@@ -35,7 +37,7 @@ class About(dabo.ui.dDialog):
 		sz.DefaultBorderTop = sz.DefaultBorderLeft = sz.DefaultBorderRight = True
 		sz.append(pnlHead, 0, "x")
 
-		eg = dabo.ui.dGrid(pnlBack, DataSet=self.getInfoDataSet(),
+		eg = dabo.ui.dGrid(pnlBack, DataSet=dabo.ui.getSystemInfo("dataset"),
 				ShowHeaders=False, ShowCellBorders=False,
 				CellHighlightWidth=0)
 		eg.addColumn(dabo.ui.dColumn(eg, Name="Name", DataField="name",
@@ -59,69 +61,19 @@ class About(dabo.ui.dDialog):
 		hsz.appendSpacer(20)
 		hsz.append(btnClose)
 		sz.append(hsz, halign="right")
-
 		sz.append((0,20))
-
 		self.Layout()
 		pnlBack.Fit()
 
 
-	def getInfoDataSet(self):
-		"""Return Application Information in a sequence of dicts."""
-		# Get all the version info, etc.
-		app = self.Application
-
-		ds = []
-		if app:
-			plat = app.Platform
-		else:
-			plat = sys.platform
-		ds.append({"name": "Platform:", "value": plat})
-		ds.append({"name": "Python Version:", "value": "%s on %s"
-				% (sys.version.split()[0], sys.platform)})
-		if app:
-			appVersion = app.getAppInfo("appVersion")
-			appName = app.getAppInfo("appName")
-		else:
-			appVersion = "?"
-			appName = "Dabo"
-		ds.append({"name": "Dabo Version:", "value": "Version %s; Revision %s"
-				% (dabo.version["version"], dabo.version["revision"])})
-
-#		uiName = dabo.ui.uiType["longName"]
-
-		ds.append({"name": "UI Version:", "value": "%s on %s" % (dabo.ui.uiType["version"],
-				dabo.ui.uiType["platform"])})
-
-		if app:
-			appSpecific = app.addToAbout()
-			if appSpecific:
-				ds.append(appSpecific)
-		return ds
-
-
-	def getInfoString(self):
-		"""Return app information as a string."""
-		ds = self.getInfoDataSet()
-		lines = []
-		for r in ds:
-			lines.append("%s %s" % (r["name"], r["value"]))
-
-		if self.Application.Platform == "Win":
-			eol = "\r\n"
-		else:
-			eol = "\n"
-
-		return eol.join(lines)
-
-
 	def onCopyInfo(self, evt):
 		"""Copy the system information to the Clipboard"""
-		self.Application.copyToClipboard(self.getInfoString())
+		self.Application.copyToClipboard(dabo.ui.getSystemInfo())
 
 
 	def onClear(self, evt):
 		self.Close()
+
 
 	def onClose(self, evt=None):
 		self.release()
