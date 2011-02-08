@@ -5,6 +5,8 @@ import dabo
 from dabo.dObject import dObject
 import dabo.ui as ui
 from dabo.dLocalize import _
+import dabo.dReportWriter
+
 
 class dEvent(object):
 	""" Base class for Dabo events.
