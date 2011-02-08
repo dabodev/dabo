@@ -413,3 +413,19 @@ app.start()
 	os.chmod("main.py", 0744)
 	os.chdir(currLoc)
 	print "Application '%s' has been created for you" % homedir
+
+
+# Automatically load a default UI if the environmental variable exists.
+# If the DABO_DEFAULT_UI exists, that ui will be loaded into the dabo.ui
+# global namespace. This is really only meant as a convenience for the
+# dabo developers when rolling single-file distributions - we don't want
+# everyone setting this environment variable. To specify the UI for your
+# app, you should instead set the UI property of the dApp object.
+# We can't do this from within the ui package because of the corss references.
+try:
+	__defaultUI = os.environ["DABO_DEFAULT_UI"]
+except KeyError:
+	__defaultUI = None
+else:
+	dabo.log.info("Automatically loading default ui '%s'..." % __defaultUI)
+	dabo.ui.loadUI(__defaultUI)

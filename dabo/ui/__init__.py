@@ -72,32 +72,6 @@ def loadUI(uiType):
 	return retVal
 
 
-# Automatically load a default UI if the environmental variable exists.
-# If the DABO_DEFAULT_UI exists, that ui will be loaded into the dabo.ui
-# global namespace. This is really only meant as a convenience for the
-# dabo developers when rolling single-file distributions - we don't want
-# everyone setting this environment variable. To specify the UI for your
-# app, you should instead set the UI property of the dApp object.
-try:
-	__defaultUI = os.environ["DABO_DEFAULT_UI"]
-except KeyError:
-	__defaultUI = None
-
-if __defaultUI:
-	dabo.log.info(_("Automatically loading default ui '%s'...") % __defaultUI)
-	# For now, don't do the tempting option:
-	#loadUI(defaultUI)
-	# ...unless it will work with single-file installers. I think that
-	# for single-file installers, it needs to see the import statement.
-	# Therefore, do it explicitly:
-	if __defaultUI in ("wx", "wxPython", "uiwx"):
-		from uiwx import *
-else:
-	pass
-	#dabo.log.info(_("No default UI set. (DABO_DEFAULT_UI)"))
-
-
-
 def getEventData(uiEvent):
 	""" Given a UI-specific event object, return a UI-agnostic name/value dictionary.
 
