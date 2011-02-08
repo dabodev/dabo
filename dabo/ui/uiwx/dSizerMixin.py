@@ -820,7 +820,16 @@ class dSizerMixin(dObject):
 		self._defaultSpacing = val
 
 
-	def _getHt(self):
+	def _getForm(self):
+		parent = self.Parent
+		if isinstance(parent, dabo.ui.dFormMixin):
+			return parent
+		elif isinstance(parent, dabo.ui.dPemMixin):
+			return parent.Form
+		return None
+
+
+	def _getHeight(self):
 		return self.GetSize()[1]
 
 
@@ -848,8 +857,8 @@ class dSizerMixin(dObject):
 			# sizers to find the parent object
 			cs = ob.ControllingSizer
 			if cs is None:
-				# Something's wrong!
-				raise RuntimeError(_("Nested sizer missing its ControllingSizer"))
+				# The sizer is not nested; it is "unattached"
+				return None
 			else:
 				ob = cs
 				ret = ob._parent
@@ -874,7 +883,7 @@ class dSizerMixin(dObject):
 		self.ShowItems(val)
 
 
-	def _getWd(self):
+	def _getWidth(self):
 		return self.GetSize()[0]
 
 
@@ -936,7 +945,10 @@ class dSizerMixin(dObject):
 	DefaultSpacing = property(_getDefaultSpacing, _setDefaultSpacing, None,
 			_("Amount of space automatically inserted between elements.  (int)"))
 
-	Height = property(_getHt, None, None,
+	Form = property(_getForm, None, None,
+			_("Form with which the sizer is associated.  (dForm or None)"))
+
+	Height = property(_getHeight, None, None,
 			_("Height of the sizer  (int)"))
 
 	Orientation = property(_getOrientation, _setOrientation, None,
@@ -949,7 +961,7 @@ class dSizerMixin(dObject):
 	Visible = property(_getVisible, _setVisible, None,
 			_("Specifies whether the sizer and contained items are shown  (bool)"))
 
-	Width = property(_getWd, None, None,
+	Width = property(_getWidth, None, None,
 			_("Width of this sizer  (int)"))
 
 
