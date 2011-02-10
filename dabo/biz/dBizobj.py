@@ -776,6 +776,11 @@ class dBizobj(dObject):
 		except KeyError:
 			reverse = self.ScanReverse
 		try:
+			requeryChildren = kwargs["scanRequeryChildren"]
+			del(kwargs["scanRequeryChildren"])
+		except KeyError:
+			requeryChildren = self.ScanRequeryChildren
+		try:
 			currPK = self.getPK()
 			currRow = None
 		except dException.dException:
