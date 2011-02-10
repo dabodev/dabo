@@ -5,8 +5,6 @@ import dabo
 from dabo.dObject import dObject
 import dabo.ui as ui
 from dabo.dLocalize import _
-import dabo.dReportWriter
-
 
 class dEvent(object):
 	""" Base class for Dabo events.
@@ -222,7 +220,11 @@ class SpinnerEvent(dEvent):
 
 class ReportEvent(dEvent):
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, dabo.dReportWriter.dReportWriter)
+		try:
+			return issubclass(objectClass, dabo.dReportWriter.dReportWriter)
+		except AttributeError:
+			# dReportWriter not loaded, so it doesn't apply
+			return False
 	appliesToClass = classmethod(appliesToClass)
 
 
