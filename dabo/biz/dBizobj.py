@@ -786,7 +786,7 @@ class dBizobj(dObject):
 		def restorePosition():
 			if self.ScanRestorePosition:
 				if currPK is not None:
-					self._positionUsingPK(currPK)
+					self._positionUsingPK(currPK, updateChildren=False)
 				else:
 					try:
 						self.RowNumber = currRow
@@ -844,19 +844,19 @@ class dBizobj(dObject):
 			self._CurrentCursor = key
 			changedRows = self.getChangedRows(includeNewUnchanged)
 			for row in sorted(changedRows, reverse=True):
-				self._moveToRowNum(row)
+				self._moveToRowNum(row, updateChildren=False)
 				try:
 					func(*args, **kwargs)
 				except StandardError, e:
 					# Reset things and bail
 					dabo.log.error(_("Error in scanChangedRows: %s") % ustr(e))
 					self._CurrentCursor = old_currentCursorKey
-					self._positionUsingPK(old_pk)
+					self._positionUsingPK(old_pk, updateChildren=False)
 					raise
 
 		self._CurrentCursor = old_currentCursorKey
 		if old_pk is not None:
-			self._positionUsingPK(old_pk)
+			self._positionUsingPK(old_pk, updateChildren=False)
 
 
 	def getFieldNames(self):
@@ -1288,10 +1288,7 @@ class dBizobj(dObject):
 		*without* firing additional code.
 		"""
 		self._CurrentCursor.moveToRowNum(rownum)
-		if updateChildren:
-			for child in self.__children:
-				# Let the child update to the current record.
-				child.setCurrentParent()
+		self._resetChildrenParent(updateChildren)
 
 
 	def _positionUsingPK(self, pk, updateChildren=True):
@@ -1301,10 +1298,23 @@ class dBizobj(dObject):
 		"""
 		if pk is not None:
 			self._CurrentCursor.moveToPK(pk)
-			if updateChildren:
-				for child in self.__children:
-					# Let the child update to the current record.
-					child.setCurrentParent()
+			self._resetChildrenParent(updateChildren)
+
+
+	def _resetChildrenParent(self, updateChildren):
+		""" For internal use only! Should never be called from a developer's code.
+		Its purpose is to keep child cursor in sync with parent cursor.
+		The updateChildren parameter meaning:
+			None	- the fastest one, doesn't update nor requery child cursor
+			False	- update child cursor with current parent
+			True	- do both, update child cursor and requery ONLY empty cursors.
+		"""
+		if updateChildren is not None:
+			for child in self.__children:
+				# Let the child update to the current record.
+				child.setCurrentParent()
+				if updateChildren and child.RowCount == 0 and child.cacheExpired():
+					child.requery()
 
 
 	def moveToPK(self, pk):
@@ -1628,10 +1638,7 @@ class dBizobj(dObject):
 			# child bizobjs get requeried. This is especially important (and only
 			# currently happens) for virtual fields, in case they rely on values
 			# gotten from children.
-			self._moveToRowNum(row)
-			for ch in self.__children:
-				if ch.RowCount == 0:
-					ch.requery()
+			self._moveToRowNum(row, updateChildren=True)
 
 		if _forceNoCallback:
 			changeRowNumCallback = None
@@ -1639,7 +1646,7 @@ class dBizobj(dObject):
 		ret = self._CurrentCursor.getFieldVal(fld, row, _rowChangeCallback=changeRowNumCallback)
 
 		if oldRow != self.RowNumber:
-			self._moveToRowNum(oldRow)
+			self._moveToRowNum(oldRow, updateChildren=False)
 		return ret
 
 
