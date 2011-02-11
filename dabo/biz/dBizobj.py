@@ -986,42 +986,43 @@ class dBizobj(dObject):
 		# Hook method for creating the param tuple. Note that the child filter
 		# clause, if any, will always be the first clause in the WHERE expression.
 		params = _childParamTuple + self.getParams()
-
-		# Record this in case we need to restore the record position
-		try:
-			currPK = self.getPK()
-		except dException.NoRecordsException:
-			currPK = None
-
-		oldDataStructure = hash(self.DataStructure)
-		# run the requery
 		uiException = None
-		cursor = self._CurrentCursor
-		try:
-			cursor.requery(params)
-		except dException.ConnectionLostException:
-			raise
-		except dException.DBQueryException:
-			raise
-		except dException.NoRecordsException:
-			# Pass the exception to the UI
-			uiException = dException.NoRecordsException
-		except dException.dException:
-			raise
 
-		if self.RestorePositionOnRequery:
-			self._positionUsingPK(currPK)
+		# Since the FK value can't be None, we don't need to run non matching
+		# parameters requery in such situation.  
+		if not (self.Parent and self.LinkField and _childParamTuple and \
+				max(_childParamTuple) is None):
+			# Record this in case we need to restore the record position
+			try:
+				currPK = self.getPK()
+			except dException.NoRecordsException:
+				currPK = None
+			oldDataStructure = hash(self.DataStructure)
+			# run the requery
+			cursor = self._CurrentCursor
+			try:
+				cursor.requery(params)
+			except dException.ConnectionLostException:
+				raise
+			except dException.DBQueryException:
+				raise
+			except dException.NoRecordsException:
+				# Pass the exception to the UI
+				uiException = dException.NoRecordsException
+			except dException.dException:
+				raise
+			if self.RestorePositionOnRequery:
+				self._positionUsingPK(currPK, updateChildren=False)
+			if hash(self.DataStructure) != oldDataStructure:
+				self._clearCursorRecord()
 
 		try:
 			self.requeryAllChildren()
 		except dException.NoRecordsException:
 			pass
 		self.afterRequery()
-
 		if uiException:
 			raise uiException
-		if hash(self.DataStructure) != oldDataStructure:
-			self._clearCursorRecord()
 
 
 	def _clearCursorRecord(self):
