@@ -993,7 +993,7 @@ class dBizobj(dObject):
 		except dException.NoRecordsException:
 			currPK = None
 
-		oldDataStructure = self.DataStructure
+		oldDataStructure = hash(self.DataStructure)
 		# run the requery
 		uiException = None
 		cursor = self._CurrentCursor
@@ -1020,7 +1020,7 @@ class dBizobj(dObject):
 
 		if uiException:
 			raise uiException
-		if self.DataStructure != oldDataStructure:
+		if hash(self.DataStructure) != oldDataStructure:
 			self._clearCursorRecord()
 
 
