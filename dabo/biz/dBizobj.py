@@ -1441,7 +1441,7 @@ class dBizobj(dObject):
 		if self.AutoPopulatePK:
 			for child in self.__children:
 				if child.FillLinkFromParent:
-					child.setParentFK()
+					child.setParentFK(allRows=True)
 		# Call the custom hook method
 		self.onSaveNew()
 
@@ -1469,7 +1469,7 @@ class dBizobj(dObject):
 		cursor.setNewFlag()
 		# Fill in the link to the parent record
 		if self.Parent and self.FillLinkFromParent and self.LinkField:
-			self.setParentFK()
+			self.setParentFK(allRows=False)
 
 		# Call the custom hook method
 		self.onNew()
@@ -1490,7 +1490,7 @@ class dBizobj(dObject):
 		pass
 
 
-	def setParentFK(self, val=None):
+	def setParentFK(self, val=None, allRows=True):
 		""" Accepts and sets the foreign key value linking to the
 		parent table for all records.
 		"""
@@ -1499,7 +1499,11 @@ class dBizobj(dObject):
 				val = self.getParentLinkValue()
 			# Update cursor key to avoid future redundant requery.
 			self._updateCursorKey(val)
-			self.scan(self._setParentFK, val)
+			if allRows:
+				self.scan(self._setParentFK, val, scanRequeryChildren=None)
+			else:
+				self._setParentFK(val)
+
 
 	def _setParentFK(self, val):
 		if not isinstance(val, (list, tuple)):
