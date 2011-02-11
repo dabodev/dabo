@@ -1463,9 +1463,7 @@ class dBizobj(dObject):
 			# identified until the record is saved and a permanent PK is obtained.
 			tmpKey = cursor.genTempAutoPK()
 			if currKey is None:
-				self.__currentCursorKey = tmpKey
-				del self.__cursors[currKey]
-				self.__cursors[tmpKey] = cursor
+				self._updateCursorKey(tmpKey)
 		if setDefaults:
 			cursor.setDefaults(self.DefaultValues)
 		cursor.setNewFlag()
@@ -1499,6 +1497,8 @@ class dBizobj(dObject):
 		if self.LinkField:
 			if val is None:
 				val = self.getParentLinkValue()
+			# Update cursor key to avoid future redundant requery.
+			self._updateCursorKey(val)
 			self.scan(self._setParentFK, val)
 
 	def _setParentFK(self, val):
@@ -2130,6 +2130,18 @@ afterDelete() which is only called after a delete().""")
 		lead to lost data if not handled correctly.
 		"""
 		return self.__cursors
+
+
+	def _updateCursorKey(self, newKey):
+		"""For internal use only! Should never be called from a developer's code.
+		Handles current cursor key value changes.
+		"""
+		oldKey = self.__currentCursorKey
+		if newKey <> oldKey:
+			cursor = self._CurrentCursor
+			self.__currentCursorKey = newKey
+			del self.__cursors[oldKey]
+			self.__cursors[newKey] = cursor
 
 
 	## Property getter/setter methods ##
