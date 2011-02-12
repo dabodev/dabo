@@ -507,6 +507,17 @@ class dSizerMixin(dObject):
 		return ret
 
 
+	@dabo.ui.deadCheck
+	def getContainingWindow(self):
+		"""Return the window that contains this sizer. In the case of nested
+		sizers, traverse the parent hierarchy until a window is reached.
+		"""
+		ret = self.Parent
+		while ret and isinstance(ret, dSizerMixin):
+			ret = ret.Parent
+		return ret
+
+
 	def _resolveOutlineSettings(self):
 		if self.outlineColor is None:
 			if self.Orientation == "Vertical":
