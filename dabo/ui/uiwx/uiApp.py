@@ -157,6 +157,8 @@ class uiApp(dObject, wx.App):
 		wx.InitAllImageHandlers()
 		# Set up the debug logging
 		self.debugWindow = None
+		# Set up the object inspector
+		self.inspectorWindow = None
 		log = logging.getLogger("Debug")
 		class DebugLogHandler(logging.Handler):
 			def emit(self, record):
@@ -507,6 +509,10 @@ these automatic updates.""").replace("\n", " ")
 		self.toggleDebugWindow(self.ActiveForm)
 
 
+	def onObjectInspectorWin(self, evt):
+		self.toggleInspectorWindow(self.ActiveForm)
+
+
 	def showCommandWindow(self, context=None):
 		"""Display a command window for debugging."""
 		if context is None:
@@ -558,7 +564,28 @@ these automatic updates.""").replace("\n", " ")
 		except AttributeError:
 			#Either no such item, or not a valid reference
 			pass
-		
+
+
+	def toggleInspectorWindow(self, context=None):
+		"""Display the object inspector window."""
+		if context is None:
+			context = self.ActiveForm
+		if not self.inspectorWindow:
+#			loc = os.path.dirname(dabo.ui.uiwx.__file__)
+#			pth = os.path.join(loc, "inspector.cdxml")
+#			self.inspectorWindow = dabo.ui.createForm(pth, parent=context, show=False)
+			from object_inspector import InspectorFormClass
+			self.inspectorWindow = InspectorFormClass(parent=context)
+		insp = self.inspectorWindow
+		insp.createObjectTree()
+		insp.Visible = not insp.Visible
+		try:
+			mb = context.MenuBar
+			mb.inspectorMenuItem.Checked = insp.Visible
+			mb.Refresh()
+		except AttributeError:
+			# Either no such item, or not a valid reference
+			pass
 
 
 	def onWinClose(self, evt):

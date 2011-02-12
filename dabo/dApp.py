@@ -1181,6 +1181,8 @@ try again when it is running.
 		self.uiApp.onCmdWin(evt)
 	def onDebugWin(self, evt):
 		self.uiApp.onDebugWin(evt)
+	def onObjectInspectorWin(self, evt):
+		self.uiApp.onObjectInspectorWin(evt)
 	def onWinClose(self, evt):
 		self.uiApp.onWinClose(evt)
 	def onFileExit(self, evt):
@@ -1709,7 +1711,7 @@ try again when it is running.
 	FormsToOpen = property(_getFormsToOpen, _setFormsToOpen, None,
 			_("""List of forms to open after App instantiation.  (list of form class references)"""))
 	formsToOpen = FormsToOpen  ## backwards-compatibility
-	
+
 	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
 			_("""Specifies the application's home directory. (string)
 

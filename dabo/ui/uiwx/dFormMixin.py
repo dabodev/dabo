@@ -231,9 +231,11 @@ class dFormMixin(pm.dPemMixin):
 
 	def __onIdle(self, evt):
 		if self.__needOutlineRedraw or self._alwaysDrawSizerOutlines:
+			self.refresh()
 			for sz in self.SizersToOutline:
+				win = sz.getContainingWindow()
 				try:
-					sz.drawOutline(self, recurse=self._recurseOutlinedSizers,
+					sz.drawOutline(win, recurse=self._recurseOutlinedSizers,
 							drawChildren=self._drawSizerChildren)
 				except AttributeError:
 					# Will happen if sz is None
@@ -263,6 +265,10 @@ class dFormMixin(pm.dPemMixin):
 
 		if app is not None:
 			app.uiForms.remove(self)
+
+
+	def forceSizerOutline(self):
+		self.__needOutlineRedraw = True
 
 
 	def activeControlValid(self):
