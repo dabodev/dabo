@@ -1026,34 +1026,9 @@ class dPemMixin(dPemMixinBase):
 		to the specified container. If no position is passed, returns the position
 		of this control relative to the container.
 		"""
-		if pos is None:
-			pos = self.Position
-			l, t = 0, 0
-		else:
-			l, t = pos
-		# If the container is a page, we need to use its containing
-		# pageframe/pagelist, etc.
-		if isinstance(cnt, dabo.ui.dPage):
-			cnt = cnt.Parent
-		p = self
-		found = False
-		while (p is not None):
-			if p is cnt:
-				found = True
-				break
-			l += p.Left
-			t += p.Top
-			p = p.Parent
-		# If we didn't find the container, that means that the object
-		# is not contained by the container. This can happen when
-		# dragging past the edge of the container.
-		if not found:
-			# Convert to form coordinates
-			cntX, cntY = cnt.formCoordinates()
-			posX, posY = self.formCoordinates(pos)
-			l = posX - cntX
-			t = posY - cntY
-		return (l, t)
+		selfX, selfY = self.absoluteCoordinates()
+		cntX, cntY = cnt.absoluteCoordinates()
+		return (selfX-cntX, selfY-cntY)
 
 
 	def objectCoordinates(self, pos=None):
@@ -1062,21 +1037,21 @@ class dPemMixin(dPemMixinBase):
 		of this control relative to the form.
 		"""
 		if pos is None:
-			pos = self.Position
+			pos = self.absoluteCoordinates()
+		if isinstance(self, dabo.ui.dFormMixin):
+			return pos
 		x, y = pos
-		prnt = self.Parent
-		while prnt is not None and prnt is not self.Form:
-			offX, offY = prnt.Position
-			x += offX
-			y += offY
-			prnt = prnt.Parent
-		return (x, y)
+		formX, formY = self.Form.absoluteCoordinates()
+		return (x-formX, y-formY)
 
 
 	def absoluteCoordinates(self, pos=None):
 		"""Translates a position value for a control to absolute screen position."""
 		if pos is None:
-			pos = self.Position
+			if isinstance(self, dabo.ui.dFormMixin):
+				pos = (0, 0)
+			else:
+				pos = self.Position
 		if self.Parent:
 			src = self.Parent
 		else:
