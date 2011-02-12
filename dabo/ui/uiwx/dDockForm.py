@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
-import wx.aui as aui
+try:
+	import wx.lib.agw.aui as aui
+except ImportError:
+	# wx versions prior to 2.8.9.2
+	import wx.aui as aui
 PaneInfo = aui.AuiPaneInfo
 import dabo
 if __name__ == "__main__":
@@ -23,7 +27,11 @@ class _dDockManager(aui.AuiManager):
 	def __init__(self, win):
 		self._managedWindow = win
 		flags = flag_allow_float | flag_transparent_drag | flag_rectangle_hint | flag_transparent_hint
-		super(_dDockManager, self).__init__(win, flags=flags)
+		try:
+			super(_dDockManager, self).__init__(win, flags=flags)
+		except TypeError:
+			# Later AGW version
+			super(_dDockManager, self).__init__(win, agwFlags=flags)
 		self.Bind(aui.EVT_AUI_RENDER, self.aui_render)
 
 
@@ -958,10 +966,10 @@ class _dDockForm_test(dDockForm):
 
 	def afterInit(self):
 		self.fp = self.addPanel(Floating=True, BackColor="orange",
-				Caption="Initially Floating", Top=70, Left=200)
+				Caption="Initially Floating", Top=70, Left=200, Size=(144, 100))
 		self.dp = self.addPanel(Floating=False, Caption="Initially Docked", BackColor="slateblue",
 				ShowCaption=False, ShowPinButton=True, ShowCloseButton=False,
-				ShowGripper=True)
+				ShowGripper=True, Size=(144, 100))
 		btn = dabo.ui.dButton(self.CenterPanel, Caption="Test Orange", OnHit=self.onTestFP)
 		self.CenterPanel.Sizer.append(btn)
 		btn = dabo.ui.dButton(self.CenterPanel, Caption="Test Blue", OnHit=self.onTestDP)
@@ -972,7 +980,7 @@ class _dDockForm_test(dDockForm):
 		self.fp.DynamicCaption = self.capForOrange
 
 	def capForOrange(self):
-		print "CAPFOR", self.fp.Docked
+		print "ORNG CAP", self.fp.Docked
 		state = "Floating"
 		if self.fp.Docked:
 			state = "Docked"
