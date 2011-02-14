@@ -220,3 +220,8 @@ def makeProxyProperty(dct, nm, proxyAtts):
 		doc = None
 	return property(fget, fset, None, doc)
 
+
+# Because some of IDEs uses lexical analysis (Wing) instead of the dynamic
+# analysis (PyDev), the following code should make them happy.
+if False:
+	from uiwx import *
