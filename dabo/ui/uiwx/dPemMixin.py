@@ -1027,7 +1027,14 @@ class dPemMixin(dPemMixinBase):
 		of this control relative to the container.
 		"""
 		selfX, selfY = self.absoluteCoordinates()
-		cntX, cntY = cnt.absoluteCoordinates()
+		if self.Application.Platform == "Win" and isinstance(cnt, dabo.ui.dFormMixin):
+			# On Windows, absoluteCoordinates() returns the position of the
+			# interior of the form, ignoring the menus, borders, etc. On Mac, it
+			# properly returns position of the entire window frame
+			# NOTE: Need to check this on Gtk
+			cntX, cntY = cnt.Position
+		else:
+			cntX, cntY = cnt.absoluteCoordinates()
 		return (selfX-cntX, selfY-cntY)
 
 
@@ -1944,7 +1951,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _getChildren(self):
 		if hasattr(self, "GetChildren"):
-			return self.GetChildren()
+			return list(self.GetChildren())
 		else:
 			return None
 
@@ -2960,11 +2967,17 @@ class DrawObject(dObject):
 		"""
 		if not self.Visible or self._inInit:
 			return
-		if dc is None:
-			dc = self._dc or wx.ClientDC(self.Parent)
+		srcObj = self.Parent
+		if isinstance(srcObj, dabo.ui.dFormMixin):
+			frm = srcObj
+		else:
+			frm = srcObj.Form
+		x, y = self.Xpos, self.Ypos
 
+		if dc is None:
+			dc = self._dc or wx.WindowDC(frm)
 		if self.Shape == "bmp":
-			dc.DrawBitmap(self._bitmap, self.Xpos, self.Ypos, self._transparent)
+			dc.DrawBitmap(self._bitmap, x, y, self._transparent)
 			self._width = self._bitmap.GetWidth()
 			self._height = self._bitmap.GetHeight()
 			return
@@ -2974,16 +2987,15 @@ class DrawObject(dObject):
 			self._brushSettings(dc)
 			self._modeSettings(dc)
 
-		srcObj = self.Parent
-		if self.Application.Platform == "GTK" and \
-				not (isinstance(srcObj, (dabo.ui.dPanel, dabo.ui.dPage, dabo.ui.dGrid))):
-			if isinstance(srcObj, dabo.ui.dForm):
-				x, y = srcObj.containerCoordinates(srcObj, (self.Xpos, self.Ypos))
-			else:
-				x, y = self.Parent.containerCoordinates(srcObj.Parent, (self.Xpos, self.Ypos))
-		else:
-			x, y = self.Xpos, self.Ypos
-
+# 		if self.Application.Platform == "GTK" and \
+# 				not (isinstance(srcObj, (dabo.ui.dPanel, dabo.ui.dPage, dabo.ui.dGrid))):
+# 			if isinstance(srcObj, dabo.ui.dForm):
+# 				x, y = srcObj.containerCoordinates(srcObj, (self.Xpos, self.Ypos))
+# 			else:
+# 				x, y = self.Parent.containerCoordinates(srcObj.Parent, (self.Xpos, self.Ypos))
+# 		else:
+# 			x, y = self.Xpos, self.Ypos
+# 
 		if self.Shape == "circle":
 			dc.DrawCircle(x, y, self.Radius)
 			self._width = self._height = self.Radius * 2

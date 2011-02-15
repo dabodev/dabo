@@ -570,6 +570,7 @@ these automatic updates.""").replace("\n", " ")
 		"""Display the object inspector window."""
 		if context is None:
 			context = self.ActiveForm
+		activeControl = context.ActiveControl
 		if not self.inspectorWindow:
 #			loc = os.path.dirname(dabo.ui.uiwx.__file__)
 #			pth = os.path.join(loc, "inspector.cdxml")
@@ -578,7 +579,9 @@ these automatic updates.""").replace("\n", " ")
 			self.inspectorWindow = InspectorFormClass(parent=context)
 		insp = self.inspectorWindow
 		insp.createObjectTree()
-		insp.Visible = not insp.Visible
+		dabo.ui.callAfter(insp.setSelectedObject, activeControl, silent=True)
+		insp.Visible = True
+		insp.bringToFront()
 		try:
 			mb = context.MenuBar
 			mb.inspectorMenuItem.Checked = insp.Visible

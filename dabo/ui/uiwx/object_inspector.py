@@ -7,7 +7,7 @@ dabo.ui.loadUI("wx")
 # 'InspectorFormClass' is defined at the bottom
 
 inspector_source = '''<?xml version="1.0" encoding="mac-roman" standalone="no"?>
-<dForm Name="dForm" Caption="Dabo Object Inspector" SaveRestorePosition="False" Height="750" Width="850" designerClass="DesForm">
+<dForm Name="dForm" Caption="Dabo Object Inspector" SaveRestorePosition="False" Top="168" Height="761" Width="846" designerClass="DesForm" Left="537">
 	<code>
 		<addkids><![CDATA[
 def addkids(self, obj, node):
@@ -27,6 +27,11 @@ def addkids(self, obj, node):
 	except AttributeError:
 		# Not a dabo obj
 		return
+	if isinstance(obj, dabo.ui.dFormMixin):
+		if obj.ToolBar:
+			kids.append(obj.ToolBar)
+		if obj.StatusBar:
+			kids.append(obj.StatusBar)
 	for kid in kids:
 		if self.exclude(kid):
 			continue
@@ -70,7 +75,7 @@ def clearHighlight(self):
 				frm.removeDrawnObject(toClear["drawingToClear"])
 			except ValueError:
 				pass
-			frm.forceSizerOutline()
+#			frm.forceSizerOutline()
 		else:
 			sz = toClear["outlinedSizer"]
 			frm.removeFromOutlinedSizers(sz)
@@ -78,6 +83,8 @@ def clearHighlight(self):
 			sz.outlineStyle = toClear["outlineStyle"]
 			sz.outlineWidth = toClear["outlineWidth"]
 		frm.clear()
+		frm.refresh()
+		self.refresh()
 ]]>
 		</clearHighlight>
 		<onCollapseTree><![CDATA[
@@ -202,36 +209,27 @@ def exclude(self, obj):
 	return isFloat or (obj is self)
 ]]>
 		</exclude>
-		<onHighlightItem><![CDATA[
-def onHighlightItem(self, evt):
-	obj = self.objectTree.Selection.Object
-	try:
-		frm = obj.Form
-	except AttributeError:
-		return
-	# Remove the highlight after 3 seconds
-	expires = time.time() + 3
-	entry = self._highlights[expires] = {}
-	entry["targetForm"] = frm
-	
-	if isinstance(obj, dabo.ui.dSizerMixin):
-		entry["type"] = "sizer"
-		frm.addToOutlinedSizers(obj)
-		frm.refresh()
-		entry["outlinedSizer"] = obj
-		entry["drawSetting"] = frm._alwaysDrawSizerOutlines
-		entry["outlineStyle"] = obj.outlineStyle
-		obj.outlineStyle = "dot"
-		entry["outlineWidth"] = obj.outlineWidth
-		obj.outlineWidth = 4
-		frm._alwaysDrawSizerOutlines = True
+		<_getHighlightInfo><![CDATA[
+def _getHighlightInfo(self, obj, frm):
+	pos = obj.ClientToScreen((0, 0))
+	if self.Application.Platform == "Mac":
+		pos = frm.ScreenToClient(pos)
+		dc = wx.WindowDC(frm)
 	else:
-		entry["type"] = "drawing"
-		x, y = obj.formCoordinates()
-		entry["drawingToClear"] = frm.drawRectangle(x-3, y-3, obj.Width+6, obj.Height+6,
-				penWidth=3, penColor="magenta")
+		dc = wx.ScreenDC()
+	return pos, dc
 ]]>
-		</onHighlightItem>
+		</_getHighlightInfo>
+		<setSelectedObject><![CDATA[
+def setSelectedObject(self, obj, silent=False):
+	try:
+		self.objectTree.showObject(obj, displayFail=False)
+		self.objectTree.expandCurrentNode()
+	except RuntimeError, e:
+		if not silent:
+			dabo.ui.stop(e, "Object Inspector")
+]]>
+		</setSelectedObject>
 		<onFindObject><![CDATA[
 def onFindObject(self, evt):
 	self.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
@@ -309,6 +307,46 @@ def OnLeftDown(self, evt):
 	self.OnCaptureLost(evt)
 ]]>
 		</OnLeftDown>
+		<onHighlightItem><![CDATA[
+def onHighlightItem(self, evt):
+	obj = self.objectTree.Selection.Object
+	try:
+		frm = obj.Form
+	except AttributeError:
+		return
+	# Remove the highlight after 3 seconds
+	expires = time.time() + 3
+	entry = self._highlights[expires] = {}
+	entry["targetForm"] = frm
+	
+	if isinstance(obj, dabo.ui.dSizerMixin):
+		entry["type"] = "sizer"
+		frm.addToOutlinedSizers(obj)
+		frm.refresh()
+		entry["outlinedSizer"] = obj
+		entry["drawSetting"] = frm._alwaysDrawSizerOutlines
+		entry["outlineStyle"] = obj.outlineStyle
+		obj.outlineStyle = "dot"
+		entry["outlineWidth"] = obj.outlineWidth
+		obj.outlineWidth = 4
+		frm._alwaysDrawSizerOutlines = True
+	else:
+		if isinstance(obj, dabo.ui.dFormMixin):
+			# Don't highlight the form; just bring it to the foreground
+			del self._highlights[expires]
+			obj.bringToFront()
+			return
+		x, y = obj.formCoordinates()
+		entry["type"] = "drawing"
+		# Make sure outline is visible
+		xDraw = max(0, x-3)
+		yDraw = max(0, y-3)
+		wDraw = min(frm.Width-xDraw, obj.Width+6) 
+		hDraw = min(frm.Height-yDraw, obj.Height+6) 
+		entry["drawingToClear"] = frm.drawRectangle(xDraw, yDraw, wDraw, hDraw,
+				penWidth=3, penColor="magenta")
+]]>
+		</onHighlightItem>
 		<object_selected><![CDATA[
 def object_selected(self, obj):
 	self.shell.interp.locals['obj'] = obj
@@ -357,26 +395,28 @@ def createObjectTree(self):
 
 	<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
 		<dSplitter SashPosition="380" sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix" Split="True" Orientation="Horizontal">
-			<dPanel designerClass="MixedSplitterPanel" Name="dPanel2">
+			<dPanel Width="842" AlwaysResetSizer="True" designerClass="MixedSplitterPanel" Name="dPanel2" Height="378">
 				<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
 					<dSplitter SashPosition="322" sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix" Split="True" Orientation="Vertical">
-						<dPanel designerClass="MixedSplitterPanel" Name="dPanel2">
+						<dPanel Width="320" AlwaysResetSizer="True" designerClass="MixedSplitterPanel" Name="dPanel2" Height="374">
 							<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
 								<dTreeView RegID="objectTree" sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix">
 									<code>
 										<showObject><![CDATA[
-def showObject(self, obj):
+def showObject(self, obj, displayFail=True):
 	nd = self.nodeForObject(obj)
 	if nd:
 		nd.Selected = True
 		self.showNode(nd)
+	elif displayFail:
+		dabo.ui.stop(_("Couldn't find object: %s") % obj)
 	else:
-		dabo.ui.stop("Couldn't find object: %s" % obj)
+		raise RuntimeError(_("Object '%s' not found") % obj)
 ]]>
 										</showObject>
 										<onTreeSelection><![CDATA[
 def onTreeSelection(self, evt):
-	self.Form.object_selected(self.Selection.Object)
+	dabo.ui.callAfter(self.Form.object_selected, self.Selection.Object)
 ]]>
 										</onTreeSelection>
 										<expandCurrentNode><![CDATA[
@@ -405,7 +445,7 @@ def collapseCurrentNode(self):
 								</dTreeView>
 							</dSizer>
 						</dPanel>
-						<dPanel designerClass="MixedSplitterPanel" Name="dPanel1">
+						<dPanel Width="511" AlwaysResetSizer="True" designerClass="MixedSplitterPanel" Name="dPanel1" Height="374">
 							<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
 								<dGrid ColumnCount="2" RegID="infoGrid" SelectionMode="Row" designerClass="controlMix" sizerInfo="{}">
 									<code>
@@ -434,7 +474,7 @@ def onGridMouseLeftClick(self, evt):
 					</dSplitter>
 				</dSizer>
 			</dPanel>
-			<dPanel designerClass="MixedSplitterPanel" Name="dPanel1">
+			<dPanel Width="842" AlwaysResetSizer="True" designerClass="MixedSplitterPanel" Name="dPanel1" Height="332">
 				<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
 					<dPanel RegID="shellPanel" sizerInfo="{'VAlign': 'Middle'}" AlwaysResetSizer="True" designerClass="controlMix"></dPanel>
 				</dSizer>
