@@ -2975,7 +2975,7 @@ class DrawObject(dObject):
 		x, y = self.Xpos, self.Ypos
 
 		if dc is None:
-			dc = self._dc or wx.WindowDC(frm)
+			dc = self._dc or wx.WindowDC(srcObj)
 		if self.Shape == "bmp":
 			dc.DrawBitmap(self._bitmap, x, y, self._transparent)
 			self._width = self._bitmap.GetWidth()
