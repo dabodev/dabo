@@ -2509,7 +2509,7 @@ class ReportWriter(object):
 		if xmldict["name"].lower() == "report":
 			form = self._getFormFromXMLDict(xmldict)
 		else:
-			print "This isn't a valid rfxml string."
+			raise ValueError, "This isn't a valid rfxml string."
 
 		return form
 
