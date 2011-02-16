@@ -32,7 +32,7 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 		if self._inResizeEvent:
 			return
 		self._inResizeEvent = True
-		dabo.ui.callAfter(self.__resizeExecute)
+		dabo.ui.callAfterInterval(100, self.__resizeExecute)
 
 
 	def __resizeExecute(self):
