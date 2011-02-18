@@ -946,7 +946,7 @@ class dFormMixin(pm.dPemMixin):
 		else:
 			ret = self._sizersToOutline or self.Sizer
 			if not isinstance(ret, list):
-				ret = [ret]
+				ret = [ret] if ret else []
 			return ret
 
 	def _setSizersToOutline(self, val):
