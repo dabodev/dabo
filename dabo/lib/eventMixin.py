@@ -8,21 +8,20 @@ from dabo.dLocalize import _
 
 
 class EventMixin(object):
-	"""Mix-in class making objects know how to bind and raise Dabo events.
+	"""
+	Mix-in class making objects know how to bind and raise Dabo events.
 
 	All Dabo objects inherit this functionality.
 	"""
 	def bindEvent(self, eventClass, function, _auto=False):
-		"""Bind a dEvent to a callback function.
-		"""
+		"""Bind a dEvent to a callback function."""
 		eb = self._EventBindings
 		if (eventClass, function) not in [(b[0], b[1]) for b in eb]:
 			eb.append((eventClass, function, _auto))
 
 
 	def bindEvents(self, bindings):
-		"""Bind a sequence of [dEvent, callback] lists.
-		"""
+		"""Bind a sequence of [dEvent, callback] lists."""
 		if isinstance(bindings, (list, tuple)):
 			for binding in bindings:
 				self.bindEvent(binding[0], binding[1])
@@ -32,7 +31,8 @@ class EventMixin(object):
 
 	def raiseEvent(self, eventClass, uiEvent=None, uiCallAfterFunc=None,
 			*args, **kwargs):
-		"""Send the event to all registered listeners.
+		"""
+		Send the event to all registered listeners.
 
 		If uiEvent is sent, dEvents.Event will be able to parse it for useful
 		information to send along to the callback. If uiCallAfterFunc is sent, the
@@ -129,7 +129,8 @@ class EventMixin(object):
 
 
 	def unbindEvent(self, eventClass=None, function=None):
-		""" Remove a previously registered event binding.
+		"""
+		Remove a previously registered event binding.
 
 		Removes all registrations that exist for the given binding for this
 		object. If event is None, all bindings for the passed function are
@@ -161,7 +162,8 @@ class EventMixin(object):
 
 
 	def autoBindEvents(self, force=True):
-		"""Automatically bind any on*() methods to the associated event.
+		"""
+		Automatically bind any on*() methods to the associated event.
 
 		User code only needs to define the callback, and Dabo will automatically
 		set up the event binding. This will satisfy lots of common cases where
@@ -171,7 +173,8 @@ class EventMixin(object):
 		want a parent container to respond to the event, make a method in the
 		parent on<EventName>_<object Name or RegID>().
 
-		For example:
+		For example::
+			
 			class MyButton(dabo.ui.dButton):
 				def onHit(self, evt):
 					print "Hit!"
@@ -187,7 +190,7 @@ class EventMixin(object):
 		auto event binding.
 
 		If you want to bind your events explicitly, you can turn off auto event
-		binding by calling:
+		binding by calling::
 
 			 dabo.autoBindEvents = False
 
@@ -215,7 +218,8 @@ class EventMixin(object):
 
 
 	def _autoBindEvents(self, context, force=False):
-		"""This tries to do the actual auto-binding. If returns a bool to indicate
+		"""
+		This tries to do the actual auto-binding. If returns a bool to indicate
 		whether the calling process should stop searching for objects auto-bind
 		opportunities.
 		"""
@@ -296,7 +300,8 @@ class EventMixin(object):
 
 
 	def getValidEvents(cls):
-		"""Returns a list of valid Dabo event classes for this object.
+		"""
+		Returns a list of valid Dabo event classes for this object.
 
 		The cls parameter can actually be either a class or self.
 		"""

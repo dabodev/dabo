@@ -143,14 +143,14 @@ class dBizobj(dObject):
 		will allow you to run those queries, get the results, and then dispose
 		of the cursor.
 
-		If you send no arguments, you'll get a cursor to use how you want, like:
+		If you send no arguments, you'll get a cursor to use how you want, like::
 
 			cur = self.getTempCursor()
 			cur.UserSQL = "select count(*) as count from invoices where cust_id = ?"
 			cur.requery((883929,))
 			invoiceCount = cur.Record.count
 
-		But you can also simplify by sending the sql and params in the call:
+		But you can also simplify by sending the sql and params in the call::
 
 			cur = self.getTempCursor("select count(*) as count...", (883929,))
 			invoiceCount = cur.Record.count
@@ -175,7 +175,8 @@ class dBizobj(dObject):
 
 
 	def createCursor(self, key=None):
-		""" Create the cursor that this bizobj will be using for data, and store it
+		"""
+		Create the cursor that this bizobj will be using for data, and store it
 		in the dictionary for cursors, with the passed value of 'key' as its dict key.
 		For independent bizobjs, that key will be None.
 
@@ -239,7 +240,8 @@ class dBizobj(dObject):
 
 
 	def first(self):
-		""" Move to the first record of the data set.
+		"""
+		Move to the first record of the data set.
 
 		Any child bizobjs will be requeried to reflect the new parent record. If
 		there are no records in the data set, an exception will be raised.
@@ -258,7 +260,8 @@ class dBizobj(dObject):
 
 
 	def prior(self):
-		""" Move to the prior record of the data set.
+		"""
+		Move to the prior record of the data set.
 
 		Any child bizobjs will be requeried to reflect the new parent record. If
 		there are no records in the data set, an exception will be raised.
@@ -277,7 +280,8 @@ class dBizobj(dObject):
 
 
 	def next(self):
-		""" Move to the next record of the data set.
+		"""
+		Move to the next record of the data set.
 
 		Any child bizobjs will be requeried to reflect the new parent record. If
 		there are no records in the data set, an exception will be raised.
@@ -296,7 +300,8 @@ class dBizobj(dObject):
 
 
 	def last(self):
-		""" Move to the last record of the data set.
+		"""
+		Move to the last record of the data set.
 
 		Any child bizobjs will be requeried to reflect the new parent record. If
 		there are no records in the data set, an exception will be raised.
@@ -315,7 +320,8 @@ class dBizobj(dObject):
 
 
 	def beginTransaction(self):
-		"""Attempts to begin a transaction at the database level, and returns
+		"""
+		Attempts to begin a transaction at the database level, and returns
 		True/False depending on its success.
 		"""
 		rp = self._RemoteProxy
@@ -328,7 +334,8 @@ class dBizobj(dObject):
 
 
 	def commitTransaction(self):
-		"""Attempts to commit a transaction at the database level, and returns
+		"""
+		Attempts to commit a transaction at the database level, and returns
 		True/False depending on its success.
 		"""
 		rp = self._RemoteProxy
@@ -341,7 +348,8 @@ class dBizobj(dObject):
 
 
 	def rollbackTransaction(self):
-		"""Attempts to rollback a transaction at the database level, and returns
+		"""
+		Attempts to rollback a transaction at the database level, and returns
 		True/False depending on its success.
 		"""
 		rp = self._RemoteProxy
@@ -354,7 +362,8 @@ class dBizobj(dObject):
 
 
 	def _getTransactionToken(self):
-		"""Ask the Application for the transaction token. If the token is granted,
+		"""
+		Ask the Application for the transaction token. If the token is granted,
 		then this bizobj has the ability to begin and end transactions.
 		"""
 		try:
@@ -367,7 +376,8 @@ class dBizobj(dObject):
 
 
 	def _hasTransactionToken(self):
-		"""Returns True/False, depending on whether this bizobj
+		"""
+		Returns True/False, depending on whether this bizobj
 		currently "holds" the transaction token.
 		"""
 		try:
@@ -378,7 +388,8 @@ class dBizobj(dObject):
 
 
 	def _releaseTransactionToken(self):
-		"""Ask the Application to give up the transaction token. Once this is done,
+		"""
+		Ask the Application to give up the transaction token. Once this is done,
 		other bizobjs can receive the token to begin and end transactions.
 		"""
 		try:
@@ -431,7 +442,8 @@ class dBizobj(dObject):
 
 
 	def save(self, startTransaction=True):
-		"""Save any changes that have been made in the current row.
+		"""
+		Save any changes that have been made in the current row.
 
 		If the save is successful, the saveAll() of all child bizobjs will be
 		called as well.
@@ -502,7 +514,8 @@ class dBizobj(dObject):
 
 
 	def cancelAll(self, ignoreNoRecords=None):
-		"""Cancel all changes made to the current dataset, including all children
+		"""
+		Cancel all changes made to the current dataset, including all children
 		and all new, unmodified records.
 		"""
 		self.scanChangedRows(self.cancel, allCursors=False, includeNewUnchanged=True,
@@ -510,7 +523,8 @@ class dBizobj(dObject):
 
 
 	def cancel(self, ignoreNoRecords=None):
-		"""Cancel all changes to the current record and all children.
+		"""
+		Cancel all changes to the current record and all children.
 
 		Two hook methods will be called: beforeCancel() and afterCancel(). The
 		former, if it returns an error message, will raise an exception and not
@@ -531,7 +545,8 @@ class dBizobj(dObject):
 
 
 	def deleteAllChildren(self, startTransaction=True):
-		"""Delete all children associated with the current record without
+		"""
+		Delete all children associated with the current record without
 		deleting the current record in this bizobj.
 		"""
 		cursorKey = self.__currentCursorKey
@@ -616,7 +631,7 @@ class dBizobj(dObject):
 
 
 	def deleteAll(self, startTransaction=True):
-		""" Delete all rows in the data set."""
+		"""Delete all rows in the data set."""
 		rp = self._RemoteProxy
 		if rp:
 			return rp.deleteAll()
@@ -652,7 +667,8 @@ class dBizobj(dObject):
 
 
 	def executeSafe(self, sql, params=None):
-		"""Execute the passed SQL using an auxiliary cursor.
+		"""
+		Execute the passed SQL using an auxiliary cursor.
 
 		This is considered 'safe', because it won't harm the contents of the
 		main cursor.
@@ -662,7 +678,8 @@ class dBizobj(dObject):
 
 
 	def getDataDiff(self, allRows=False):
-		"""Get a dict that is keyed on the hash value of this bizobj, with the value
+		"""
+		Get a dict that is keyed on the hash value of this bizobj, with the value
 		being  a list of record changes. Default behavior is to only consider the
 		current row; you can change that by passing allRows=True. Each changed
 		row will be present in the diff, with its PK and any columns whose values
@@ -679,7 +696,8 @@ class dBizobj(dObject):
 
 
 	def getChangedRows(self, includeNewUnchanged=False):
-		""" Returns a list of row numbers for which isChanged() returns True. The
+		"""
+		Returns a list of row numbers for which isChanged() returns True. The
 		changes may therefore not be in the record itself, but in a dependent child
 		record. If includeNewUnchanged is True, the presence of a new unsaved
 		record that has not been modified from its defaults will suffice to mark the
@@ -696,7 +714,8 @@ class dBizobj(dObject):
 
 
 	def _listChangedRows(self, includeNewUnchanged=False):
-		""" Called from a scan loop. If the current record is changed,
+		"""
+		Called from a scan loop. If the current record is changed,
 		append the RowNumber to the list.
 		"""
 		if self.isChanged(includeNewUnchanged):
@@ -704,7 +723,8 @@ class dBizobj(dObject):
 
 
 	def getRecordStatus(self, rownum=None):
-		""" Returns a dictionary containing an element for each changed
+		"""
+		Returns a dictionary containing an element for each changed
 		field in the specified record (or the current record if none is specified).
 		The field name is the key for each element; the value is a 2-element
 		tuple, with the first element being the original value, and the second
@@ -716,7 +736,8 @@ class dBizobj(dObject):
 
 
 	def bizIterator(self, reversed=False, restorePointer=False):
-		"""Returns an iterator that moves the bizobj's record pointer from
+		"""
+		Returns an iterator that moves the bizobj's record pointer from
 		the first record to the last, and returns the current record number.
 		If you pass 'reversed=True', the iterator will go in reverse order,
 		from the last record to the first.
@@ -729,7 +750,8 @@ class dBizobj(dObject):
 
 
 	def bizDataIterator(self, reversed=False, restorePointer=False):
-		"""Returns an iterator that moves the bizobj's record pointer from
+		"""
+		Returns an iterator that moves the bizobj's record pointer from
 		the first record to the last, and returns a dict of the columns/values
 		of the record for the current iteration. If you pass 'reversed=True',
 		the iterator will go in reverse order, from the last record to the first.
@@ -743,7 +765,8 @@ class dBizobj(dObject):
 
 
 	def scan(self, func, *args, **kwargs):
-		"""Iterate over all records and apply the passed function to each.
+		"""
+		Iterate over all records and apply the passed function to each.
 
 		Set self.exitScan to True to exit the scan on the next iteration.
 
@@ -763,7 +786,8 @@ class dBizobj(dObject):
 
 
 	def scanRows(self, func, rows, *args, **kwargs):
-		"""Iterate over the specified rows and apply the passed function to each.
+		"""
+		Iterate over the specified rows and apply the passed function to each.
 
 		Set self.exitScan to True to exit the scan on the next iteration.
 		"""
@@ -818,7 +842,8 @@ class dBizobj(dObject):
 
 	def scanChangedRows(self, func, allCursors=False, includeNewUnchanged=False,
 			*args, **kwargs):
-		"""Move the record pointer to each changed row, and call func.
+		"""
+		Move the record pointer to each changed row, and call func.
 
 		If allCursors is True, all other cursors for different parent records will
 		be iterated as well.
@@ -875,7 +900,8 @@ class dBizobj(dObject):
 
 
 	def _fldReplace(self, expr):
-		"""Takes a user-defined, SQL-like expression, and substitutes any
+		"""
+		Takes a user-defined, SQL-like expression, and substitutes any
 		field name with the reference for that value in the bizobj.
 		Example (assuming 'price' is a column in the data):
 			self._fldReplace("price > 50")
@@ -892,7 +918,8 @@ class dBizobj(dObject):
 
 
 	def replace(self, field, valOrExpr, scope=None):
-		"""Replaces the value of the specified field with the given value
+		"""
+		Replaces the value of the specified field with the given value
 		or expression. All records matching the scope are affected; if
 		no scope is specified, all records are affected.
 
@@ -904,7 +931,8 @@ class dBizobj(dObject):
 
 
 	def _replace(self, field, valOrExpr, scope):
-		"""Called once for each record in the bizobj when the replace() method
+		"""
+		Called once for each record in the bizobj when the replace() method
 		is invoked.
 		"""
 		if scope is not None:
@@ -925,7 +953,8 @@ class dBizobj(dObject):
 
 
 	def new(self):
-		""" Create a new record and populate it with default values. Default
+		"""
+		Create a new record and populate it with default values. Default
 		values are specified in the DefaultValues dictionary.
 		"""
 		errMsg = self.beforeNew()
@@ -951,7 +980,8 @@ class dBizobj(dObject):
 
 
 	def setSQL(self, sql=None):
-		""" Set the SQL query that will be executed upon requery().
+		"""
+		Set the SQL query that will be executed upon requery().
 
 		This allows you to manually override the sql executed by the cursor. If no
 		sql is passed, the SQL will get set to the value returned by getSQL().
@@ -966,7 +996,8 @@ class dBizobj(dObject):
 
 
 	def requery(self):
-		""" Requery the data set.
+		"""
+		Requery the data set.
 
 		Refreshes the data set with the current values in the database,
 		given the current state of the filtering parameters.
@@ -1034,7 +1065,8 @@ class dBizobj(dObject):
 
 
 	def setChildLinkFilter(self):
-		""" If this is a child bizobj, its record set is dependent on its parent's
+		"""
+		If this is a child bizobj, its record set is dependent on its parent's
 		current PK value. This will add the appropriate WHERE clause to
 		filter the child records. If the parent is a new, unsaved record, or if
 		there is no parent record, there cannot be any child records saved yet,
@@ -1067,7 +1099,8 @@ class dBizobj(dObject):
 
 
 	def getParentLinkValue(self):
-		"""Return the value of the parent record on which this bizobj is dependent. Usually this
+		"""
+		Return the value of the parent record on which this bizobj is dependent. Usually this
 		is the PK of the parent, but can be a non-PK field, if this bizobj's ParentLinkField is
 		not empty.
 		"""
@@ -1091,7 +1124,8 @@ class dBizobj(dObject):
 
 
 	def sort(self, col, ordr=None, caseSensitive=True):
-		""" Sort the rows based on values in a specified column.
+		"""
+		Sort the rows based on values in a specified column.
 
 		Called when the data is to be sorted on a particular column
 		in a particular order. All the checking on the parameters is done
@@ -1103,7 +1137,8 @@ class dBizobj(dObject):
 
 
 	def setParams(self, params):
-		""" Set the query parameters for the cursor.
+		"""
+		Set the query parameters for the cursor.
 
 		Accepts a tuple that will be merged with the sql statement using the
 		cursor's standard method for merging.
@@ -1123,15 +1158,16 @@ class dBizobj(dObject):
 		If the operator is specified, it will be used literally in the evaluation instead of the
 		equals sign, unless it is one of the following strings, which will be interpreted
 		as indicated:
-			eq, equals: =
-			ne, nequals: !=
-			gt: >
-			gte: >=
-			lt: <
-			lte: <=
-			startswith, beginswith: fld.startswith(expr)
-			endswith: fld.endswith(expr)
-			contains: expr in fld
+			
+			| eq, equals: =
+			| ne, nequals: !=
+			| gt: >
+			| gte: >=
+			| lt: <
+			| lte: <=
+			| startswith, beginswith: fld.startswith(expr)
+			| endswith: fld.endswith(expr)
+			| contains: expr in fld
 		"""
 		currPK = self.getPK()
 		if fld in self.VirtualFields:
@@ -1221,7 +1257,8 @@ class dBizobj(dObject):
 
 
 	def _validate(self):
-		""" Internal method. User code should override validateRecord().
+		"""
+		Internal method. User code should override validateRecord().
 
 		_validate() is called by the save() routine before saving any data.
 		If any data fails validation, an exception will be raised, and the
@@ -1238,7 +1275,8 @@ class dBizobj(dObject):
 
 
 	def validateRecord(self):
-		""" Hook for subclass business rule validation code.
+		"""
+		Hook for subclass business rule validation code.
 
 		This is the method that you should customize in your subclasses
 		to create checks on the data entered by the user to be sure that it
@@ -1246,7 +1284,8 @@ class dBizobj(dObject):
 		an error message that describes the reason why the data is not
 		valid; this message will be propagated back up to the UI where it can
 		be displayed to the user so that they can correct the problem.
-		Example:
+		
+		Example::
 
 			if not myNonEmptyField:
 				return "MyField must not be blank"
@@ -1258,7 +1297,8 @@ class dBizobj(dObject):
 
 
 	def fieldValidation(self, fld, val):
-		"""This is called by the form when a control that is marked for field-
+		"""
+		This is called by the form when a control that is marked for field-
 		level validation loses focus. It handles communication between the
 		bizobj methods and the form. When creating Dabo apps, if you want
 		to add field-level validation rules, you should override fieldValidation()
@@ -1278,7 +1318,8 @@ class dBizobj(dObject):
 
 
 	def validateField(self, fld, val):
-		"""This is the method to override if you need field-level validation
+		"""
+		This is the method to override if you need field-level validation
 		to your app. It will receive the field name and the new value; you can
 		then apply your business rules to determine if the new value is
 		valid. If not, return a string describing the problem. Any non-empty
@@ -1289,7 +1330,8 @@ class dBizobj(dObject):
 
 
 	def _moveToRowNum(self, rownum, updateChildren=True):
-		""" For internal use only! Should never be called from a developer's code.
+		"""
+		For internal use only! Should never be called from a developer's code.
 		It exists so that a bizobj can move through the records in its cursor
 		*without* firing additional code.
 		"""
@@ -1298,7 +1340,8 @@ class dBizobj(dObject):
 
 
 	def _positionUsingPK(self, pk, updateChildren=True):
-		""" For internal use only! Should never be called from a developer's code.
+		"""
+		For internal use only! Should never be called from a developer's code.
 		It exists so that a bizobj can move through the records in its cursor
 		*without* firing additional code.
 		"""
@@ -1308,12 +1351,14 @@ class dBizobj(dObject):
 
 
 	def _resetChildrenParent(self, updateChildren):
-		""" For internal use only! Should never be called from a developer's code.
+		"""
+		For internal use only! Should never be called from a developer's code.
 		Its purpose is to keep child cursor in sync with parent cursor.
 		The updateChildren parameter meaning:
-			None	- the fastest one, doesn't update nor requery child cursor
-			False	- update child cursor with current parent
-			True	- do both, update child cursor and requery ONLY empty cursors.
+		
+			| None	- the fastest one, doesn't update nor requery child cursor
+			| False	- update child cursor with current parent
+			| True	- do both, update child cursor and requery ONLY empty cursors.
 		"""
 		if updateChildren is not None:
 			for child in self.__children:
@@ -1338,7 +1383,8 @@ class dBizobj(dObject):
 
 
 	def locate(self, val, fld=None, caseSensitive=False, movePointer=True, runRequery=True):
-		""" Search for a value in a field, and optionally move the record pointer to the first
+		"""
+		Search for a value in a field, and optionally move the record pointer to the first
 		matching record. Returns the True or False, depending on whether the value was found.
 
 		If runRequery is True, and the record pointer is moved, all child bizobjs
@@ -1357,7 +1403,8 @@ class dBizobj(dObject):
 
 
 	def seek(self, val, fld=None, caseSensitive=False, near=False, runRequery=True):
-		""" Search for a value in a field, and move the record pointer to the match.
+		"""
+		Search for a value in a field, and move the record pointer to the match.
 
 		Used for searching of the bizobj's cursor for a particular value in a
 		particular field. Can be optionally case-sensitive.
@@ -1405,7 +1452,8 @@ class dBizobj(dObject):
 
 
 	def isChanged(self, includeNewUnchanged=None):
-		""" Return True if data has changed in this bizobj and any children.
+		"""
+		Return True if data has changed in this bizobj and any children.
 
 		By default, only the current record is checked. Call isAnyChanged() to
 		check all records.
@@ -1431,12 +1479,12 @@ class dBizobj(dObject):
 
 
 	def onDeleteLastRecord(self):
-		""" Hook called when the last record has been deleted from the data set."""
+		"""Hook called when the last record has been deleted from the data set."""
 		pass
 
 
 	def _onSaveNew(self):
-		""" Called after successfully saving a new record."""
+		"""Called after successfully saving a new record."""
 		# If this is a new parent record with a new auto-generated PK, pass it on
 		# to the children before they save themselves.
 		if self.AutoPopulatePK:
@@ -1448,12 +1496,13 @@ class dBizobj(dObject):
 
 
 	def onSaveNew(self):
-		""" Hook method called after successfully saving a new record."""
+		"""Hook method called after successfully saving a new record."""
 		pass
 
 
 	def _onNew(self, setDefaults=True):
-		""" Populate the record with any default values.
+		"""
+		Populate the record with any default values.
 
 		User subclasses should leave this alone and instead override onNew().
 		"""
@@ -1481,7 +1530,8 @@ class dBizobj(dObject):
 
 
 	def onNew(self):
-		"""Called when a new record is added.
+		"""
+		Called when a new record is added.
 
 		Use this hook to add additional default field values, or anything else
 		you need. If you change field values here, the memento system will not
@@ -1492,7 +1542,8 @@ class dBizobj(dObject):
 
 
 	def setParentFK(self, val=None, allRows=True):
-		""" Accepts and sets the foreign key value linking to the
+		"""
+		Accepts and sets the foreign key value linking to the
 		parent table for all records.
 		"""
 		if self.LinkField:
@@ -1515,7 +1566,8 @@ class dBizobj(dObject):
 
 
 	def setCurrentParent(self, val=None):
-		""" Lets dependent child bizobjs update to the current parent
+		"""
+		Lets dependent child bizobjs update to the current parent
 		record.
 		"""
 		_oldKey = self.__currentCursorKey
@@ -1533,7 +1585,8 @@ class dBizobj(dObject):
 
 
 	def addChild(self, child):
-		""" Add the passed child bizobj to this bizobj.
+		"""
+		Add the passed child bizobj to this bizobj.
 
 		During the creation of the form, child bizobjs are added by the parent.
 		This stores the child reference here, and sets the reference to the
@@ -1545,7 +1598,8 @@ class dBizobj(dObject):
 
 
 	def getAncestorByDataSource(self, ds):
-		"""Given a DataSource, finds the ancestor (parent, grandparent, etc.) of
+		"""
+		Given a DataSource, finds the ancestor (parent, grandparent, etc.) of
 		this bizobj that has that DataSource. If no such ancestor exists, returns None.
 		"""
 		ret = None
@@ -1558,7 +1612,8 @@ class dBizobj(dObject):
 
 
 	def requeryAllChildren(self):
-		""" Requery each child bizobj's data set.
+		"""
+		Requery each child bizobj's data set.
 
 		Called to assure that all child bizobjs have had their data sets
 		refreshed to match the current master row. This will normally happen
@@ -1599,7 +1654,8 @@ class dBizobj(dObject):
 
 
 	def expireCache(self, recurse=True, _allCursors=False):
-		"""Expire the requery cache so that a subsequent self.Parent.requeryAllChildren()
+		"""
+		Expire the requery cache so that a subsequent self.Parent.requeryAllChildren()
 		will fetch records from the backend instead of using the cached records.
 
 		If recurse is True, the cache in the child bizobjs will be expired, too.
@@ -1620,7 +1676,7 @@ class dBizobj(dObject):
 
 
 	def getPK(self):
-		""" Return the value of the PK field."""
+		"""Return the value of the PK field."""
 		if self.KeyField is None:
 			raise dException.dException(
 					_("No key field defined for table: ") + self.DataSource)
@@ -1629,7 +1685,8 @@ class dBizobj(dObject):
 
 
 	def getParentPK(self):
-		""" Return the value of the parent bizobjs' PK field. Alternatively,
+		"""
+		Return the value of the parent bizobjs' PK field. Alternatively,
 		user code can just call self.Parent.getPK().
 		"""
 		try:
@@ -1669,7 +1726,8 @@ class dBizobj(dObject):
 
 
 	def setFieldVals(self, valDict=None, row=None, pk=None, **kwargs):
-		"""Allows you to set the value for multiple fields with one call by passing a dict
+		"""
+		Allows you to set the value for multiple fields with one call by passing a dict
 		containing the field names as keys, and the new values as values.
 		"""
 		if valDict is None:
@@ -1705,7 +1763,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def dataToXML(self):
-		"""Returns XML representing the data set. If there are child bizobjs,
+		"""
+		Returns XML representing the data set. If there are child bizobjs,
 		the data for the related child records will be nested inside of the
 		parent record; this nesting can go as many levels deep as there are
 		child/grandchild/etc. bizobjs.
@@ -1734,7 +1793,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def _xmlForRow(self, level, callback):
-		"""Returns the xml for the given row to the specified
+		"""
+		Returns the xml for the given row to the specified
 		callback function.
 		"""
 		xml = self._CurrentCursor._xmlForRow()
@@ -1749,7 +1809,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def getDataSet(self, flds=(), rowStart=0, rows=None, returnInternals=False):
-		""" Get the entire data set encapsulated in a list.
+		"""
+		Get the entire data set encapsulated in a list.
 
 		If the optional	'flds' parameter is given, the result set will be filtered
 		to only include the specified fields. rowStart specifies the starting row
@@ -1763,7 +1824,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def appendDataSet(self, ds):
-		"""Appends the rows in the passed dataset to this bizobj's dataset. No checking
+		"""
+		Appends the rows in the passed dataset to this bizobj's dataset. No checking
 		is done on the dataset columns to make sure that they are correct for this bizobj;
 		it is the responsibility of the caller to make sure that they match. If invalid data is
 		passed, a dException.FieldNotFoundException will be raised.
@@ -1772,7 +1834,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def cloneRecord(self):
-		"""Creates a copy of the current record and adds it to the dataset. The KeyField
+		"""
+		Creates a copy of the current record and adds it to the dataset. The KeyField
 		is not copied.
 		"""
 		cc = self._CurrentCursor
@@ -1785,7 +1848,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def isRemote(self):
-		"""Returns True/False, depending on whether this bizobj's connection
+		"""
+		Returns True/False, depending on whether this bizobj's connection
 		is remote or not.
 		"""
 		return self._connection.isRemote()
@@ -1806,27 +1870,32 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def getDataStructure(self):
-		""" Gets the structure of the DataSource table. Returns a list
+		"""
+		Gets the structure of the DataSource table. Returns a list
 		of 3-tuples, where the 3-tuple's elements are:
-			0: the field name (string)
-			1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
-			2: boolean specifying whether this is a pk field.
+		
+			| 0: the field name (string)
+			| 1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
+			| 2: boolean specifying whether this is a pk field.
 		"""
 		return self._CurrentCursor.DataStructure
 
 
 	def getDataStructureFromDescription(self):
-		""" Gets the structure of the DataSource table. Returns a list
+		"""
+		Gets the structure of the DataSource table. Returns a list
 		of 3-tuples, where the 3-tuple's elements are:
-			0: the field name (string)
-			1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
-			2: boolean specifying whether this is a pk field.
+		
+			| 0: the field name (string)
+			| 1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
+			| 2: boolean specifying whether this is a pk field.
 		"""
 		return self._CurrentCursor.getFieldInfoFromDescription()
 
 
 	def getDataTypeForField(self, fld):
-		"""Given a field name, returns its Python type, or None if no
+		"""
+		Given a field name, returns its Python type, or None if no
 		DataStructure information is available.
 		"""
 		ds = self.getDataStructure()
@@ -1842,7 +1911,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def getParams(self):
-		""" Return the parameters to send to the cursor's execute method.
+		"""
+		Return the parameters to send to the cursor's execute method.
 
 		This is the place to define the parameters to be used to modify
 		the SQL statement used to produce the record set. Normally if you have
@@ -1854,7 +1924,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def getChildren(self):
-		""" Return a tuple of the child bizobjs."""
+		"""Return a tuple of the child bizobjs."""
 		ret = []
 		for child in self.__children:
 			ret.append(child)
@@ -1862,7 +1932,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def getChildByDataSource(self, dataSource):
-		""" Return a reference to the child bizobj with the passed dataSource."""
+		"""Return a reference to the child bizobj with the passed dataSource."""
 		ret = None
 		for child in self.getChildren():
 			if child.DataSource == dataSource:
@@ -1872,7 +1942,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def escQuote(self, val):
-		""" Escape special characters in SQL strings.
+		"""
+		Escape special characters in SQL strings.
 
 		Escapes any single quotes that could cause SQL syntax errors. Also
 		escapes backslashes, since they have special meaning in SQL parsing.
@@ -1882,33 +1953,37 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def formatForQuery(self, val):
-		""" Wrap up any value(int, long, string, date, date-time, decimal, none)
+		"""
+		Wrap up any value(int, long, string, date, date-time, decimal, none)
 		for use to be in a query.
 		"""
 		return self._CurrentCursor.formatForQuery(val)
 
 
 	def formatDateTime(self, val):
-		""" Wrap a date or date-time value in the format
+		"""
+		Wrap a date or date-time value in the format
 		required by the backend.
 		"""
 		return self._CurrentCursor.formatDateTime(val)
 
 
 	def moveToRowNumber(self, rowNumber):
-		""" Move to the specified row number."""
+		"""Move to the specified row number."""
 		self.RowNumber = rowNumber
 
 
 	def getWordMatchFormat(self):
-		"""Returns the backend's SQL format for creating queries that are based
+		"""
+		Returns the backend's SQL format for creating queries that are based
 		on matching words in a given column.
 		"""
 		return self._CurrentCursor.getWordMatchFormat()
 
 
 	def oldVal(self, fieldName, row=None):
-		"""Returns the value that was in the specified field when it was last fetched
+		"""
+		Returns the value that was in the specified field when it was last fetched
 		from the backend. Used to determine if the current value has been modified.
 		"""
 		return self._CurrentCursor.oldVal(fieldName, row)
@@ -1916,19 +1991,21 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	########## SQL Builder interface section ##############
 	def addField(self, exp, alias=None):
-		""" Add a field to the field clause."""
+		"""Add a field to the field clause."""
 		return self._CurrentCursor.addField(exp, alias)
 	def addFrom(self, exp, alias=None):
-		""" Add a table to the sql statement. For joins, use
+		"""
+		Add a table to the sql statement. For joins, use 
 		the addJoin() method.
 		"""
 		return self._CurrentCursor.addFrom(exp, alias)
 	def addJoin(self, tbl, exp, joinType=None):
-		"""Add SQL JOIN clause.
+		"""
+		Add SQL JOIN clause.
 
-		tbl: the name of the table to join with
-		exp: the join expression
-		joinType examples: "LEFT", "RIGHT", "INNER", "OUTER"
+		:param tbl: the name of the table to join with
+		:param exp: the join expression
+		:param joinType: examples: "LEFT", "RIGHT", "INNER", "OUTER"
 		"""
 		return self._CurrentCursor.addJoin(tbl, exp, joinType)
 	def addGroupBy(self, exp):
@@ -1970,7 +2047,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Explicitly set the where clause. Replaces any existing where settings."""
 		return self._CurrentCursor.setWhereClause(clause)
 	def prepareWhere(self, clause):
-		"""Calls the backend's pre-processing routine for improving efficiency
+		"""
+		Calls the backend's pre-processing routine for improving efficiency
 		of filter expressions. If the backend does not have this capability,
 		nothing is done.
 		"""
@@ -2078,18 +2156,22 @@ afterDelete() which is only called after a delete().""")
 
 
 	def afterCreateCursor(self, crs):
-		"""This hook is called after the underlying cursor object is created.
+		"""
+		This hook is called after the underlying cursor object is created.
 		The crs argument will contain the reference to the newly-created
-		cursor."""
+		cursor.
+		"""
 		pass
 
 
 	def afterSetFieldVal(self, fld, row):
-		"""Hook method called after a field's value has been set.
+		"""
+		Hook method called after a field's value has been set.
 
 		Your hook method needs to accept two arguments:
-				-> fld : The name of the changed field.
-				-> row : The RowNumber of the changed field.
+		
+			| -> fld : The name of the changed field.
+			| -> row : The RowNumber of the changed field.
 
 		If row is None, this is the common case of the change happening
 		in the current row.
@@ -2101,7 +2183,8 @@ afterDelete() which is only called after a delete().""")
 
 
 	def _syncWithCursors(self):
-		"""Many bizobj properties need to be passed through to the cursors
+		"""
+		Many bizobj properties need to be passed through to the cursors
 		that provide it with data connectivity. This method ensures that all
 		such cursors are in sync with the bizobj.
 		"""
@@ -2110,7 +2193,8 @@ afterDelete() which is only called after a delete().""")
 
 
 	def _syncCursorProps(self, crs):
-		"""This method ensures that the passed cursor's properties
+		"""
+		This method ensures that the passed cursor's properties
 		are in sync with this bizobj.
 		"""
 		crs.KeyField = self._keyField
@@ -2129,7 +2213,8 @@ afterDelete() which is only called after a delete().""")
 
 
 	def _cursorDictReference(self):
-		"""In rare situations, bizobj subclasses may need to reference the
+		"""
+		In rare situations, bizobj subclasses may need to reference the
 		internal __cursors attribute. This provides a way to do that, but
 		it should be stressed that this is potentially dangerous and could
 		lead to lost data if not handled correctly.
@@ -2138,7 +2223,8 @@ afterDelete() which is only called after a delete().""")
 
 
 	def _updateCursorKey(self, newKey):
-		"""For internal use only! Should never be called from a developer's code.
+		"""
+		For internal use only! Should never be called from a developer's code.
 		Handles current cursor key value changes.
 		"""
 		oldKey = self.__currentCursorKey
@@ -2541,7 +2627,8 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 
 	AutoQuoteNames = property(_getAutoQuoteNames, _setAutoQuoteNames, None,
 			_("""When True (default), table and column names are enclosed with
-			quotes during SQL creation in the cursor.  (bool)"""))
+			quotes during SQL creation in the cursor.  (bool)
+			"""))
 
 	AutoSQL = property(_getAutoSQL, None, None,
 			_("Returns the SQL statement automatically generated by the sql manager."))
@@ -2551,7 +2638,8 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 
 	ChildCacheInterval = property(_getChildCacheInterval, _setChildCacheInterval, None,
 			_("""If this is a child bizobj, this represents the length of time in seconds that a
-			subsequent requery request will be ignored.  (int)"""))
+			subsequent requery request will be ignored.  (int)
+			"""))
 
 	CurrentSQL = property(_getCurrentSQL, None, None,
 			_("Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."))
@@ -2568,23 +2656,26 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 	DataStructure = property(_getDataStructure, _setDataStructure, None,
 			_("""Returns the structure of the cursor in a tuple of 6-tuples.
 
-				0: field alias (str)
-				1: data type code (str)
-				2: pk field (bool)
-				3: table name (str)
-				4: field name (str)
-				5: field scale (int or None)
+				| 0: field alias (str)
+				| 1: data type code (str)
+				| 2: pk field (bool)
+				| 3: table name (str)
+				| 4: field name (str)
+				| 5: field scale (int or None)
 
 				This information will try to come from a few places, in order:
-				1) The explicitly-set DataStructure property
-				2) The backend table method"""))
+
+				1. The explicitly-set DataStructure property
+				2. The backend table method
+				"""))
 
 	DefaultValues = property(_getDefaultValues, _setDefaultValues, None,
 			_("""A dictionary specifying default values for fields when a new record is added.
 
 			The values of the dictionary can be literal (must match the field type), or
 			they can be a function object which will be called when the new record is added
-			to the bizobj."""))
+			to the bizobj.
+			"""))
 
 	Encoding = property(_getEncoding, _setEncoding, None,
 			_("Name of encoding to use for unicode  (str)") )
@@ -2592,14 +2683,16 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 	FillLinkFromParent = property(_getFillLinkFromParent, _setFillLinkFromParent, None,
 			_("""In the onNew() method, do we fill in the foreign key field specified by the
 			LinkField property with the value returned by calling the bizobj's 	getParentPK()
-			method? (bool)"""))
+			method? (bool)
+			"""))
 
 	IsAdding = property(_isAdding, None, None,
 			_("Returns True if the current record is new and unsaved."))
 
 	KeyField = property(_getKeyField, _setKeyField, None,
 			_("""Name of field that is the PK. If multiple fields make up the key,
-			separate the fields with commas. (str)"""))
+			separate the fields with commas. (str)
+			"""))
 
 	LastSQL = property(_getLastSQL, None, None,
 			_("Returns the last executed SQL statement."))
@@ -2621,55 +2714,63 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 
 	ParentLinkField = property(_getParentLinkField, _setParentLinkField, None,
 			_("""Name of the field in the parent table that is used to determine child
-			records. If empty, it is assumed that the parent's PK is used  (str)"""))
+			records. If empty, it is assumed that the parent's PK is used  (str)
+			"""))
 
 	Record = property(_getRecord, None, None,
 			_("""Represents a record in the data set. You can address individual
-			columns by referring to 'self.Record.fieldName' (read-only) (no type)"""))
+			columns by referring to 'self.Record.fieldName' (read-only) (no type)
+			"""))
 
 	_RemoteProxy = property(_getRemoteProxy, None, None,
 			_("""If this bizobj is being run remotely, returns a reference to the RemoteConnector
-			object that will handle communication with the server.  (read-only) (RemoteConnector)"""))
+			object that will handle communication with the server.  (read-only) (RemoteConnector)
+			"""))
 
 	RequeryChildOnSave = property(_getRequeryChildOnSave, _setRequeryChildOnSave, None,
 			_("Do we requery child bizobjs after a save()? (bool)"))
 
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
 			_("""When True, the cursor object runs its query immediately. This
-			is useful for lookup tables or fixed-size (small) tables. (bool)"""))
+			is useful for lookup tables or fixed-size (small) tables. (bool)
+			"""))
 
 	RequeryWithParent = property(_getRequeryWithParent, _setRequeryWithParent, None,
 			_("""Specifies whether a child bizobj gets requeried automatically.
 
-				When True (the default) moving the record pointer or requerying the
-				parent bizobj will result in the child bizobj's getting requeried
-				as well. When False, user code will have to manually call
-				child.requery() at the appropriate time.
-				"""))
+			When True (the default) moving the record pointer or requerying the
+			parent bizobj will result in the child bizobj's getting requeried
+			as well. When False, user code will have to manually call
+			child.requery() at the appropriate time.
+			"""))
 
 	RestorePositionOnRequery = property(_getRestorePositionOnRequery, _setRestorePositionOnRequery, None,
 			_("After a requery, do we try to restore the record position to the same PK?"))
 
 	RowCount = property(_getRowCount, None, None,
 			_("""The number of records in the cursor's data set. It will be -1 if the
-			cursor hasn't run any successful queries yet. (int)"""))
+			cursor hasn't run any successful queries yet. (int)
+			"""))
 
 	RowNumber = property(_getRowNumber, _setRowNumber, None,
 			_("The current position of the record pointer in the result set. (int)"))
 
 	SaveNewUnchanged = property(_getSaveNewUnchanged, _setSaveNewUnchanged, None,
 			_("""Normally new, unmodified records are not saved. If you need
-			this behavior, set this to True.  (bool)"""))
+			this behavior, set this to True.  (bool)
+			"""))
 
 	ScanRestorePosition = property(_getScanRestorePosition, _setScanRestorePosition, None,
 			_("""After running a scan, do we attempt to restore the record position to
 			where it was before the scan (True, default), or do we leave the pointer
-			at the end of the recordset (False). (bool)"""))
+			at the end of the recordset (False). (bool)
+			"""))
 
 	ScanRequeryChildren = property(_getScanRequeryChildren, _setScanRequeryChildren, None,
 			_("""When calling the scan() function, this property determines if we
 			requery any child bizobjs for each row in this bizobj. The default is False,
-			as this has the potential to cause performance issues.  (bool)"""))
+			as this has the potential to cause performance issues.  (bool)
+			"""))
 
 	ScanReverse = property(_getScanReverse, _setScanReverse, None,
 			_("""Do we scan the records in reverse order? (Default: False) (bool)"""))
@@ -2687,13 +2788,14 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 			_("""A dictionary mapping virtual_field_name to function to call.
 
 			The specified function will be called when getFieldVal() is called on
-			the specified virtual field name."""))
-
+			the specified virtual field name.
+			"""))
 
 
 class _bizIterator(object):
 	def __init__(self, obj, returnRecords=False, reversed=False, restorePointer=False):
-		"""Iterates through the records in the specified bizobj by moving the current
+		"""
+		Iterates through the records in the specified bizobj by moving the current
 		record pointer sequentially through the data set. By default, the current
 		RowNumber is returned, and the reference to that record's data is accessed
 		through bizobj.Record. If you create this iterator with 'returnRecords=True',

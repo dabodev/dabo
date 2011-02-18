@@ -21,13 +21,17 @@ bizs = g._AutoTables
 
 def setupAutoBiz(conn, autoBizes):
 	"""This function sets up a list of dAutoBizobj's for auto creation.
-	Instead of doing this:
+	Instead of doing this::
+
 		t = myBiz1(conn)
 		t = myBiz2(conn)
 		t = myBiz3(conn)
 		t = myBiz4(conn)
-	Use SetupAutoBiz like so:
+
+	Use SetupAutoBiz like so::
+		
 		dabo.biz.SetupAutoBiz(conn, (myBiz1, myBiz2, myBiz3, myBiz4))
+
 	"""
 	for obj in autoBizes:
 		t = obj(conn)
@@ -236,9 +240,11 @@ class dAutoBizobj(dBizobj):
 	def initTable(self):
 		"""Return the data to be inserted into the table after it has been created.
 		Return a tuple in the format of ((column list), (lists to insert)).
-		Example:
+		Example::
+			
 			def initTable(self):
 				return 	(("firstname","lastname"), (("bob","smith"),("granny","smith"))
+
 		"""
 		#Override in subclass
 

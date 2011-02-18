@@ -27,7 +27,7 @@ class Dummy(object):
 
 class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		EventMixin):
-	""" The basic ancestor of all dabo objects."""
+	"""The basic ancestor of all dabo objects."""
 	# Subclasses can set these to False, in which case they are responsible
 	# for maintaining the following call order:
 	#   self._beforeInit()
@@ -139,14 +139,16 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 
 
 	def _getID(self):
-		"""Defaults to the Python id() function. Objects in sub-modules, such as the various
+		"""
+		Defaults to the Python id() function. Objects in sub-modules, such as the various
 		UI toolkits, can override to substitute something more relevant to them.
 		"""
 		return id(self)
 
 
 	def beforeInit(self, *args, **kwargs):
-		""" Subclass hook. Called before the object is fully instantiated.
+		"""
+		Subclass hook. Called before the object is fully instantiated.
 		Usually, user code should override afterInit() instead, but there may be
 		cases where you need to set an attribute before the init stage is fully
 		underway.
@@ -155,7 +157,8 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 
 
 	def afterInit(self):
-		""" Subclass hook. Called after the object's __init__ has run fully.
+		"""
+		Subclass hook. Called after the object's __init__ has run fully.
 		Subclasses should place their __init__ code here in this hook, instead of
 		overriding __init__ directly, to avoid conflicting with base Dabo behavior.
 		"""
@@ -163,18 +166,24 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 
 
 	def initProperties(self):
-		""" Hook for subclasses. User subclasses should set properties
-		here, such as:
+		"""
+		Hook for subclasses. User subclasses should set properties
+		here, such as::
+			
 			self.Name = "MyTextBox"
 			self.BackColor = (192,192,192)
+			
 		"""
 		pass
 
 
 	def initEvents(self):
-		""" Hook for subclasses. User code should do custom event binding
-		here, such as:
+		"""
+		Hook for subclasses. User code should do custom event binding
+		here, such as::
+			
 			self.bindEvent(dEvents.GotFocus, self.customGotFocusHandler)
+			
 		"""
 		pass
 
@@ -246,7 +255,8 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 
 
 	def _addCodeAsMethod(self, cd):
-		"""This method takes a dictionary containing method names as
+		"""
+		This method takes a dictionary containing method names as
 		keys, and the method code as the corresponding values, compiles
 		it, and adds the methods to this object. If the method name begins
 		with 'on', and dabo.autoBindEvents is True, an event binding will be
@@ -399,13 +409,16 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 			_("The class the object is based on. Read-only.  (class)"))
 
 	LogEvents = property(_getLogEvents, _setLogEvents, None,
-			_("""Specifies which events to log.  (list of strings)
+			_("""
+			Specifies which events to log.  (list of strings)
 
 			If the first element is 'All', all events except the following listed events
 			will be logged.
 			Event logging is resource-intensive, so in addition to setting this LogEvents
 			property, you also need to make the following call:
-			>>> dabo.eventLogging = True
+			
+				>>> dabo.eventLogging = True
+			
 			"""))
 
 	Name = property(_getName, _setName, None,

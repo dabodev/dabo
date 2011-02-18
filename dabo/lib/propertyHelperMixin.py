@@ -4,10 +4,11 @@ from dabo.dLocalize import _
 
 
 class PropertyHelperMixin(object):
-	""" Helper functions for getting information on class properties."""
+	"""Helper functions for getting information on class properties."""
 
 	def _expandPropStringValue(self, value, propList):
-		""" Called from various property setters: expand value into one of the
+		"""
+		Called from various property setters: expand value into one of the
 		accepted property values in propList. We allow properties to be set
 		using case-insensitivity, and for properties with distinct first letters
 		for user code to just set the property using the first letter.
@@ -47,7 +48,8 @@ class PropertyHelperMixin(object):
 
 
 	def _extractKeywordProperties(self, kwdict, propdict):
-		""" Called from __init__: puts any property keyword arguments into
+		"""
+		Called from __init__: puts any property keyword arguments into
 		the property dictionary, so that __init__ can pass that dict to
 		setProperties() when appropriate (and so the property keywords are
 		removed before sending **kwargs to the wx constructor).
@@ -63,7 +65,8 @@ class PropertyHelperMixin(object):
 
 
 	def _extractKeyWordEventBindings(self, kwdict, evtdict):
-		""" Called from __init__: puts any On* event keyword arguments into
+		"""
+		Called from __init__: puts any On* event keyword arguments into
 		the event dictionary.
 		"""
 		if evtdict is None:
@@ -75,7 +78,8 @@ class PropertyHelperMixin(object):
 
 
 	def _extractKey(self, kwdict, key, defaultVal=None):
-		""" If the supplied key is present in the kwdict, the associated
+		"""
+		If the supplied key is present in the kwdict, the associated
 		value is returned, and that key's element is deleted from the
 		dict. If the key doesn't exist, the default value is returned. If
 		kwdict is a tuple/list, it will look in each element until a value
@@ -100,19 +104,20 @@ class PropertyHelperMixin(object):
 
 	def getProperties(self, propertySequence=(), propsToSkip=(),
 			ignoreErrors=False, *propertyArguments):
-		""" Returns a dictionary of property name/value pairs.
+		"""
+		Returns a dictionary of property name/value pairs.
 
 		If a sequence of properties is passed, just those property values
 		will be returned. Otherwise, all property values will be returned.
 		The sequence of properties can be a list, tuple, or plain string
 		positional arguments. For instance, all of the following are
-		equivilent:
+		equivilent::
 
 			print self.getProperties("Caption", "FontInfo", "Form")
 			print self.getProperties(["Caption", "FontInfo", "Form"])
 			t = ("Caption", "FontInfo", "Form")
 			print self.getProperties(t)
-			print self.getProperties(*t)
+			print self.getProperties(\*t)
 
 		An exception will be raised if any passed property names don't
 		exist, aren't actual properties, or are not readable (do not have
@@ -164,17 +169,21 @@ class PropertyHelperMixin(object):
 
 
 	def setProperties(self, propDict={}, ignoreErrors=False, **propKw):
-		""" Sets a group of properties on the object all at once.
+		"""
+		Sets a group of properties on the object all at once.
 
 		You have the following options for sending the properties:
+			
 			1) Property/Value pair dictionary
 			2) Keyword arguments
 			3) Both
 
-		The following examples all do the same thing:
-		self.setProperties(FontBold=True, ForeColor="Red")
-		self.setProperties({"FontBold": True, "ForeColor": "Red"})
-		self.setProperties({"FontBold": True}, ForeColor="Red")
+		The following examples all do the same thing::
+
+			self.setProperties(FontBold=True, ForeColor="Red")
+			self.setProperties({"FontBold": True, "ForeColor": "Red"})
+			self.setProperties({"FontBold": True}, ForeColor="Red")
+
 		"""
 		def _setProps(_propDict):
 			delayedSettings = {}
@@ -211,7 +220,8 @@ class PropertyHelperMixin(object):
 
 
 	def setPropertiesFromAtts(self, propDict={}, ignoreExtra=True, context=None):
-		""" Sets a group of properties on the object all at once. This
+		"""
+		Sets a group of properties on the object all at once. This
 		is different from the regular setProperties() method because
 		it only accepts a dict containing prop:value pairs, and it
 		assumes that the value is always a string. It will convert
@@ -235,7 +245,8 @@ class PropertyHelperMixin(object):
 
 
 	def _setKwEventBindings(self, kwEvtDict):
-		"""This method takes a dict of event names and method to which they are
+		"""
+		This method takes a dict of event names and method to which they are
 		to be bound, and binds the corresponding event to that method.
 		"""
 		for evtName, mthd in kwEvtDict.items():
@@ -249,11 +260,13 @@ class PropertyHelperMixin(object):
 
 
 	def getPropertyList(cls, refresh=False, onlyDabo=False):
-		""" Returns the list of properties for this object (class or instance).
+		"""
+		Returns the list of properties for this object (class or instance).
 
-		If refresh is passed, the cached property list (if any) will be rebuilt.
-		If onlyDabo is passed, we won't list the properties underneath the
+		:param refresh: the cached property list (if any) will be rebuilt.
+		:param onlyDabo: we won't list the properties underneath the
 		__mro__ of dObject.
+		:rtype: list of properties
 		"""
 		propLists = getattr(cls, "_propLists", {})
 		propList = propLists.get((cls, onlyDabo), [])
@@ -284,7 +297,7 @@ class PropertyHelperMixin(object):
 
 
 	def getPropertyInfo(cls, name):
-		""" Returns a dictionary of information about the passed property name."""
+		"""Returns a dictionary of information about the passed property name."""
 		# cls can be either a class or self
 		classRef = cls
 		try:
@@ -334,7 +347,8 @@ class PropertyHelperMixin(object):
 
 
 class _DynamicList(list):
-	"""Helper class for list-based properties, such as the 'Choices' property of 
+	"""
+	Helper class for list-based properties, such as the 'Choices' property of 
 	list-type controls. This wraps the regular Python list object, but in addition
 	also propagates changes to the control, so that code like this:
 	

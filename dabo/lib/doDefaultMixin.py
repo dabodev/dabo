@@ -2,25 +2,29 @@
 import inspect
 
 class DoDefaultMixin(object):
-	""" An alternative way to call superclass method code.
+	"""
+	An alternative way to call superclass method code.
 
 	Mix this class in to your classes, and you can now use the following
-	form to call superclass methods:
+	form to call superclass methods::
 
 		retval = cls.doDefault([args])
 
-	instead of the usual:
+	instead of the usual::
 
 		retval = super(cls, self).<methodName>([args])
+	
 	"""
 
 	def doDefault(cls, *args, **kwargs):
-		"""Call the superclass's method code, if any.
+		"""
+		Call the superclass's method code, if any.
 
 		Arguments are sent along to the super method, and the return value from
 		that super method is returned to the caller.
 
-		Example:
+		Example::
+			
 			class A(dabo.ui.dForm):
 				def afterInit(self):
 					print "hi"
