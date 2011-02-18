@@ -46,11 +46,11 @@ class Firebird(dBackend):
 
 
 	def getConnection(self, connectInfo, **kwargs):
-		port = connectInfo.Port
-		if not port:
-			port = 3050
 		# kinterbasdb will barf with unicode strings for user nad password:
 		host = ustr(connectInfo.Host)
+		port = connectInfo.Port
+		if port:
+			host = "%s/%s" % (host, port)
 		user = str(connectInfo.User)
 		password = str(connectInfo.revealPW())
 		database = ustr(connectInfo.Database)
