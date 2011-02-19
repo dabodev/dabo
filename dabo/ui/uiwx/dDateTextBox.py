@@ -77,7 +77,7 @@ class dDateTextBox(dTextBox):
 		self.continueAtBoundary = True
 		# Do we display a button on the right side for activating the calendar?
 		### TODO: still needs a lot of work to display properly.
-		self.showCalButton = False
+		self.showCalButton = True
 		# Do we display datetimes in 24-hour clock, or with AM/PM?
 		self.ampm = False
 		# Do we use the extended format for the calendar display?
@@ -92,10 +92,10 @@ class dDateTextBox(dTextBox):
 			self.Value = None  ## If it is still blank, default to None so the control works correctly
 		if self.showCalButton:
 			# Create a button that will display the calendar
-			self.calButton = dButton(self.Parent, Size=(self.Height, self.Height),
-					Right=self.Right, Caption="V")
+			self.calButton = dabo.ui.dBitmapButton(self.Parent, Picture="downArrow",
+					DownPicture="downTriangleBlack", Size=(self.Height, self.Height),
+					Left=self.Right, OnHit=self._onCalButton)
 			self.calButton.Visible = True
-			self.calButton.bindEvent(dEvents.Hit, __onBtnClick)
 
 		# Tooltip help
 		self._defaultToolTipText = _("""Available Keys:
@@ -129,11 +129,10 @@ C: Popup Calendar to Select
 		""" Display a calendar to allow users to select dates."""
 		self.showCalendar()
 
-	def __onBtnClick(self,evt):
+
+	def _onCalButton(self,evt):
 		""" Display a calendar to allow users to select dates."""
 		self.showCalendar()
-
-
 
 
 	def showCalendar(self):
@@ -145,9 +144,6 @@ C: Popup Calendar to Select
 		fp = self.Form.FloatingPanel
 		fp.Owner = self
 		fp.show()
-
-
-
 
 
 	def __onChar(self, evt):
@@ -461,5 +457,12 @@ C: Popup Calendar to Select
 
 
 if __name__ == "__main__":
-	import test
-	test.Test().runTest(dDateTextBox)
+	class TestForm(dabo.ui.dForm):
+		def afterInit(self):
+			self.datetext = dDateTextBox(self, Value=datetime.date.today())
+			self.Sizer.append(self.datetext, halign="center", border=25)
+	
+	app = dabo.dApp(MainFormClass=TestForm)
+	app.start()
+# 	import test
+# 	test.Test().runTest(dDateTextBox)

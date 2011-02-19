@@ -149,6 +149,7 @@ class dSizerMixin(dObject):
 		# If compressed to .pyo, __doc__ will be None.
 		pass
 
+
 	def layout(self):
 		"""Layout the items in the sizer.
 
@@ -177,6 +178,7 @@ class dSizerMixin(dObject):
 	except TypeError:
 		# If compressed to .pyo, __doc__ will be None.
 		pass
+
 
 	def remove(self, itm, destroy=None):
 		"""This will remove the item from the sizer. It will not cause
@@ -221,6 +223,7 @@ class dSizerMixin(dObject):
 		else:
 			itm = self.Insert(pos, spacer, proportion=proportion, userData=self)
 		itm.setSpacing = itm.SetSpacer
+		itm._controllingSizer = self
 		return itm
 
 

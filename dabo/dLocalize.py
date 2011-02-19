@@ -107,7 +107,7 @@ No translation file found for domain 'dabo'.
     Languages = %s
     Codeset = %s """ % (daboLocaleDir, ustr(lang), charset))
 			# Default to US English
-			daboTranslation = gettext.translation("dabo", daboLocaleDir, languages="en", codeset=charset)
+			daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=["en"], codeset=charset)
 		_currentTrans = daboTranslation.ugettext
 
 	for domain, localedir in _domains.items():

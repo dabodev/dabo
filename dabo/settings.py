@@ -104,7 +104,8 @@ firstDayOfWeek = "Sunday"
 defaultFontSize = 10
 
 # Default language to use when none is specified
-defaultLanguage = "en"
+#defaultLanguage = "en"
+defaultLanguage = "zz"
 
 # Default encoding to use when none is specified
 defaultEncoding = "utf-8"
