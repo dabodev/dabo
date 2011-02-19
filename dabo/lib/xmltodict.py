@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-""" xmltodict(): convert xml into tree of Python dicts.
+"""
+xmltodict(): convert xml into tree of Python dicts.
 
 This was copied and modified from John Bair's recipe at aspn.activestate.com:
 	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/149368
@@ -215,7 +216,8 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
 
 
 def escQuote(val, noEscape=False, noQuote=False):
-	"""Add surrounding quotes to the string, and escape
+	"""
+	Add surrounding quotes to the string, and escape
 	any illegal XML characters.
 	"""
 	val = ustr(val)
@@ -253,14 +255,17 @@ def escape(val, escapeAmp=True):
 
 
 def unescape(val):
-	"""Reverse the escape() process to re-create the original values. The parser
-	handles the XML conventions; we need to reverse the doubled-up ampersands."""
+	"""
+	Reverse the escape() process to re-create the original values. The parser
+	handles the XML conventions; we need to reverse the doubled-up ampersands.
+	"""
 	val = val.replace("&&", "&")
 	return val
 
 
 def dicttoxml(dct, level=0, header=None, linesep=None):
-	"""Given a Python dictionary, return an xml string.
+	"""
+	Given a Python dictionary, return an xml string.
 
 	The dictionary must be in the format returned by dicttoxml(), with keys
 	on "attributes", "code", "cdata", "name", and "children".
@@ -341,7 +346,8 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 
 
 def flattenClassDict(cd, retDict=None):
-	"""Given a dict containing a series of nested objects such as would
+	"""
+	Given a dict containing a series of nested objects such as would
 	be created by restoring from a cdxml file, returns a dict with all classIDs
 	as keys, and a dict as the corresponding value. The dict value will have
 	keys for the attributes and/or code, depending on what was in the original
@@ -390,7 +396,8 @@ def flattenClassDict(cd, retDict=None):
 
 
 def addInheritedInfo(src, super, updateCode=False):
-	"""Called recursively on the class container structure, modifying
+	"""
+	Called recursively on the class container structure, modifying
 	the attributes to incorporate superclass information. When the
 	'updateCode' parameter is True, superclass code is added to the
 	object's code

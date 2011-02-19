@@ -5,7 +5,8 @@ from dabo.dLocalize import _
 
 class Bizobj(dabo.biz.dBizobj):
 	def getBaseWhereClause(self):
-		"""Subclasses can return a where clause stub that will always exist,
+		"""
+		Subclasses can return a where clause stub that will always exist,
 		no matter what the user selects on the select page. For instance:
 
 			return "clients.ldeleted = 0 and invoices.ldeleted=0"
@@ -60,7 +61,7 @@ class Bizobj(dabo.biz.dBizobj):
 			do "WHERE invoice.invoicenumber = " or "WHERE invoice.name = "
 
 			The BackendTableFields property tells it explicitly which table and
-			field to use for a given fieldname:
+			field to use for a given fieldname::
 
 				self.BackendTableFields["invoicenumber"] = ("invoice", "number")
 				self.BackendTableFields["name"] = ("customer", "name")
@@ -68,10 +69,11 @@ class Bizobj(dabo.biz.dBizobj):
 			Note that you don't need to set this property if you call addField()
 			with the standard explicit sql field clause, because it will happen
 			automatically. In other words, the only thing your code really needs
-			to do is to call self.addField():
+			to do is to call self.addField()::
 
 				self.addField("invoice.number as invoicenumber")
 				self.addField("customer.name as name")
+				
 			"""))
 
 	BaseWhereClause = property(getBaseWhereClause, _setBaseWhereClause, None,

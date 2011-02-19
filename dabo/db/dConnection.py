@@ -6,7 +6,7 @@ from dCursorMixin import dCursorMixin
 
 
 class dConnection(dObject):
-	""" Hold a connection to a backend database. """
+	"""Hold a connection to a backend database."""
 	def __init__(self, connectInfo=None, parent=None, forceCreate=False, **kwargs):
 		self._baseClass = dConnection
 		self._forceCreate = forceCreate
@@ -49,7 +49,8 @@ class dConnection(dObject):
 
 
 	def getDaboCursor(self, cursorClass=None):
-		""" Accepts a backend-specific cursor class, mixes in the Dabo
+		"""
+		Accepts a backend-specific cursor class, mixes in the Dabo
 		dCursorMixin class, and returns the result.
 		"""
 		if cursorClass is None:
@@ -75,20 +76,22 @@ class dConnection(dObject):
 
 
 	def _openConnection(self, **kwargs):
-		""" Open a connection to the database and store it for future use. """
+		"""Open a connection to the database and store it for future use."""
 		self.getBackendObject().KeepAliveInterval = self._connectInfo.KeepAliveInterval
 		return self._connectInfo.getConnection(forceCreate=self._forceCreate, **kwargs)
 
 
 	def getBackendObject(self):
-		""" Return a reference to the connectInfo's backend-specific
+		"""
+		Return a reference to the connectInfo's backend-specific
 		database object.
 		"""
 		return self._connectInfo.getBackendObject()
 
 
 	def isRemote(self):
-		"""Returns True or False, depending on whether a RemoteHost is
+		"""
+		Returns True or False, depending on whether a RemoteHost is
 		specified in this connection.
 		"""
 		return bool(self._connectInfo.RemoteHost)

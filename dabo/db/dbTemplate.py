@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-""" This is a template for creating new backend-specific scripts. To create
+"""
+This is a template for creating new backend-specific scripts. To create
 a script to support a database not yet suppported by Dabo, make a copy
 of this file in the dabo/db directory, and name the copy 'dbProduct.py',
 where 'Product' is the actual name of the database (e.g., dbMySQL.py,
@@ -70,7 +71,7 @@ class NEWDATABASE(dBackend):
 
 
 	def formatDateTime(self, val):
-		""" We need to wrap the value in quotes. """
+		"""We need to wrap the value in quotes."""
 		#### TODO: Make sure that the format for DateTime
 		####    values is returned correctly
 		sqt = "'"		# single quote

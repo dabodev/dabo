@@ -98,7 +98,8 @@ class SQLite(dBackend):
 
 
 	def beginTransaction(self, cursor):
-		""" Begin a SQL transaction. Since pysqlite does an implicit
+		"""
+		Begin a SQL transaction. Since pysqlite does an implicit
 		'begin' all the time, simply do nothing.
 		"""
 		cursor.execute("BEGIN")
@@ -107,7 +108,7 @@ class SQLite(dBackend):
 
 
 	def commitTransaction(self, cursor):
-		""" Commit a SQL transaction."""
+		"""Commit a SQL transaction."""
 		opError = self.dbapi.OperationalError
 		try:
 			cursor.execute("COMMIT", errorClass=opError)
@@ -126,7 +127,7 @@ class SQLite(dBackend):
 
 
 	def rollbackTransaction(self, cursor):
-		""" Rollback a SQL transaction."""
+		"""Rollback a SQL transaction."""
 		cursor.execute("ROLLBACK")
 		dabo.dbActivityLog.info("SQL: rollback")
 		return True
@@ -138,7 +139,7 @@ class SQLite(dBackend):
 
 
 	def formatDateTime(self, val):
-		""" We need to wrap the value in quotes. """
+		"""We need to wrap the value in quotes."""
 		sqt = "'"		# single quote
 		val = ustr(val)
 		return "%s%s%s" % (sqt, val, sqt)
@@ -225,7 +226,7 @@ class SQLite(dBackend):
 
 
 	def noResultsOnSave(self):
-		""" SQLite does not return anything on a successful update"""
+		"""SQLite does not return anything on a successful update"""
 		pass
 
 

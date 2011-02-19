@@ -8,7 +8,8 @@ from dabo.lib.SimpleCrypt import SimpleCrypt
 
 
 class dConnectInfo(dObject):
-	""" Holder for the properties for connecting to the backend. Each
+	"""
+	Holder for the properties for connecting to the backend. Each
 	backend may have different names for properties, but this object
 	tries to abstract that. The value stored in the Password must be
 	encrypted in the format set in the app. This class has  'encrypt' and
@@ -17,14 +18,14 @@ class dConnectInfo(dObject):
 	property for you.
 
 	You can create it in several ways, like most Dabo objects. First, you
-	can pass all the settings as parameters to the constructor:
+	can pass all the settings as parameters to the constructor::
 
 		ci = dConnectInfo(DbType="MySQL", Host="domain.com",
 			User="daboUser", PlainTextPassword="secret", Port=3306,
 			Database="myData", Name="mainConnection")
 
 	Or you can create a dictionary of the various props, and pass that
-	in the 'connInfo' parameter:
+	in the 'connInfo' parameter::
 
 		connDict = {"DbType" : "MySQL", "Host" : "domain.com",
 			"User" : "daboUser", "PlainTextPassword" : "secret",
@@ -32,7 +33,7 @@ class dConnectInfo(dObject):
 		ci = dConnectInfo(connInfo=connDict)
 
 	Or you can create the object and then set the props
-	individually:
+	individually::
 
 		ci = dConnectInfo()
 		ci.DbType = "MySQL"
@@ -56,7 +57,8 @@ class dConnectInfo(dObject):
 
 
 	def lowerKeys(self, dct):
-		"""Takes a dict, and returns another dict identical except
+		"""
+		Takes a dict, and returns another dict identical except
 		for the fact that all the keys that were string types are now
 		lower case.
 		"""
@@ -158,7 +160,7 @@ class dConnectInfo(dObject):
 			return None
 
 	def _setDbType(self, dbType):
-		""" Set the backend type for the connection if valid. """
+		"""Set the backend type for the connection if valid."""
 		_oldObject = self._backendObject
 		# As other backends are coded into the framework, we will need
 		# to expand the if/elif list.

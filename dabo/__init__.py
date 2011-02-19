@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-"""Dabo: A Framework for developing data-driven business applications
+"""
+Dabo: A Framework for developing data-driven business applications
 
 Dabo is for developing multi-platform database business applications -
 you know, applications that need to connect to a database server (MySQL,
@@ -43,54 +44,50 @@ a different method for each target platform.
 
 To run Dabo, and apps based on Dabo, you need:
 	+ Python 2.4 or higher (2.5 or higher recommended)
-
 	+ wxPython 2.8 or higher (2.8.8 or higher highly recommended)
-		(only necessary for apps with a ui: because of the modular
-		nature of Dabo's design, it is possible to use just the
-		db layer, or the db layer in conjunction with the biz
-		layer, with no ui at all.)
-
-	+	pysqlite2: The Python dbapi module for SQLite. (Not needed in
-			Python 2.5 and higher)
-
+      (only necessary for apps with a ui: because of the modular
+	  nature of Dabo's design, it is possible to use just the
+	  db layer, or the db layer in conjunction with the biz
+	  layer, with no ui at all.)
+	+ pysqlite2: The Python dbapi module for SQLite. (Not needed in
+	  Python 2.5 and higher)
 	+ Windows 98SE or higher
 	+ Macintosh OSX 10.2 or higher (*much* nicer in Tiger - 10.4)
 	+ Linux 2.4 with X11 running and Gtk2
-
 	+ Access to some sort of database server, along with the
-	appropriate Python driver(s) installed. For example, for
-	MySQL you'll need to have the MySQL client libraries
-	installed, as well as the MySQLDb Python module. (Dabo
-	does not use ODBC: it connects directly using the Python
-	DB API coupled with the individual database drivers. This
-	is, at the same time, less flexible, tougher to get started
-	with, but more capable, more multi-platform, and better
-	performing, than ODBC is.) (we recommend starting with MySQL
-	installed, because all of the demo code has the best support
-	for MySQL).
+	  appropriate Python driver(s) installed. For example, for
+	  MySQL you'll need to have the MySQL client libraries
+	  installed, as well as the MySQLDb Python module. (Dabo
+	  does not use ODBC: it connects directly using the Python
+	  DB API coupled with the individual database drivers. This
+	  is, at the same time, less flexible, tougher to get started
+	  with, but more capable, more multi-platform, and better
+	  performing, than ODBC is.) (we recommend starting with MySQL
+	  installed, because all of the demo code has the best support
+	  for MySQL).
 
 How you get started is pretty much up to you. Run DaboDemo.py which
 is in demo/DaboDemo. Run AppWizard.py which is in ide/wizards.
 Run ClassDesigner.py or ReportDesigner.py in the ide directory.
 
 For some quick eye-candy, once you've installed Dabo using the standard
-'python setup.py install' method, do this from your Python interpreter:
+'python setup.py install' method, do this from your Python interpreter::
 
 	import dabo
 	dabo.dApp().start()
 
-press Ctrl+D and type the following into the command window that appears:
+press Ctrl+D and type the following into the command window that appears::
 
 	tb = dabo.ui.dTextBox(self)
 
-Notice the textbox in the upper left hand corner?
+Notice the textbox in the upper left hand corner? ::
 
 	tb.Value = "yippee!"
 	tb.FontBold = True
 	print tb.Value
 
 Now, use the ui to change the value in the textbox, and switch back to
-the command window.
+the command window. ::
 
 	print tb.Value
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" dConstants.py """
+"""dConstants.py"""
 
 # Return values for most operations
 # FILE_OK = 0

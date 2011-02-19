@@ -5,14 +5,17 @@ from dabo.dLocalize import _
 
 
 class dUserSettingProvider(dObject):
-	"""Class that manages saving and restoring user settings, such as form
+	"""
+	Class that manages saving and restoring user settings, such as form
 	size and position.
 	"""
 	def getUserSettingKeys(self, spec):
-		"""Return a list of all keys underneath <spec>.
+		"""
+		Return a list of all keys underneath <spec>.
 
 		For example, if spec is "appWizard.dbDefaults", and there are
 		userSettings entries for:
+
 			appWizard.dbDefaults.pkm.Host
 			appWizard.dbDefaults.pkm.User
 			appWizard.dbDefaults.egl.Host
@@ -23,7 +26,8 @@ class dUserSettingProvider(dObject):
 
 
 	def getUserSetting(self, item, default=None):
-		""" Return the value of the user settings table that
+		"""
+		Return the value of the user settings table that
 		corresponds to the preference key passed.
 		"""
 		prf = self.PreferenceManager
@@ -60,7 +64,8 @@ class dUserSettingProvider(dObject):
 
 
 	def deleteAllUserSettings(self, spec):
-		"""Given a spec, deletes all keys that match that spec.
+		"""
+		Given a spec, deletes all keys that match that spec.
 		See the docs for getUserSettingKeys() for an explanation
 		on key matching.
 		"""

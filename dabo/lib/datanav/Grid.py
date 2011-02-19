@@ -57,7 +57,8 @@ class Grid(dabo.ui.dGrid):
 
 
 	def onGridLeftDClick(self, evt):
-		""" Occurs when the user double-clicks a cell in the grid.
+		"""
+		Occurs when the user double-clicks a cell in the grid.
 		By default, this is interpreted as a request to edit the record.
 		"""
 		if evt.EventData["col"] is not None and evt.EventData["row"] is not None:
@@ -102,7 +103,7 @@ class Grid(dabo.ui.dGrid):
 		self.newRecord()
 
 	def newRecord(self):
-		""" Request that a new row be added."""
+		"""Request that a new row be added."""
 		self.Parent.newRecord(self.DataSource)
 
 
@@ -110,7 +111,7 @@ class Grid(dabo.ui.dGrid):
 		self.editRecord()
 
 	def editRecord(self):
-		""" Request that the current row be edited."""
+		"""Request that the current row be edited."""
 		self.Parent.editRecord(self.DataSource)
 
 
@@ -118,7 +119,7 @@ class Grid(dabo.ui.dGrid):
 		self.deleteRecord()
 
 	def deleteRecord(self):
-		""" Request that the current row be deleted."""
+		"""Request that the current row be deleted."""
 		self.Parent.deleteRecord(self.DataSource)
 		self.refresh()
 
@@ -127,12 +128,13 @@ class Grid(dabo.ui.dGrid):
 		self.pickRecord()
 
 	def pickRecord(self):
-		""" The form is a picklist, and the user picked a record."""
+		"""The form is a picklist, and the user picked a record."""
 		self.Form.pickRecord()
 
 
 	def fillContextMenu(self, menu):
-		""" Display a context menu of relevant choices.
+		"""
+		Display a context menu of relevant choices.
 
 		By default, the choices are 'New', 'Edit', and 'Delete'.
 		"""

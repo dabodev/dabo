@@ -65,7 +65,8 @@ class Firebird(dBackend):
 
 
 	def noResultsOnSave(self):
-		""" Firebird does not return the number of records updated, so
+		"""
+		Firebird does not return the number of records updated, so
 		we just have to ignore this, since we can't tell a failed save apart
 		from a successful one.
 		"""
@@ -73,7 +74,8 @@ class Firebird(dBackend):
 
 
 	def noResultsOnDelete(self):
-		""" Firebird does not return the number of records deleted, so
+		"""
+		Firebird does not return the number of records deleted, so
 		we just have to ignore this, since we can't tell a failed delete apart
 		from a successful one.
 		"""
@@ -81,7 +83,8 @@ class Firebird(dBackend):
 
 
 	def processFields(self, txt):
-		""" Firebird requires that all field names be surrounded
+		"""
+		Firebird requires that all field names be surrounded
 		by double quotes.
 		"""
 		return self.dblQuoteField(txt)
@@ -96,7 +99,7 @@ class Firebird(dBackend):
 
 
 	def formatDateTime(self, val):
-		""" We need to wrap the value in quotes. """
+		"""We need to wrap the value in quotes."""
 		sqt = "'"		# single quote
 		val = ustr(val)
 		return "%s%s%s" % (sqt, val, sqt)
@@ -208,7 +211,7 @@ class Firebird(dBackend):
 
 
 	def beginTransaction(self, cursor):
-		""" Begin a SQL transaction."""
+		"""Begin a SQL transaction."""
 		ret = False
 		if not self._connection._has_transaction():
 			self._connection.begin()
@@ -218,7 +221,8 @@ class Firebird(dBackend):
 
 
 	def flush(self, cursor):
-		""" Firebird requires an explicit commit in order to have changes
+		"""
+		Firebird requires an explicit commit in order to have changes
 		to the database written to disk.
 		"""
 		self._connection.commit()
@@ -226,13 +230,13 @@ class Firebird(dBackend):
 
 
 	def getLimitWord(self):
-		""" Override the default 'limit', since Firebird doesn't use that. """
+		"""Override the default 'limit', since Firebird doesn't use that."""
 		return "first"
 
 
 	def formSQL(self, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause, limitClause):
-		""" Firebird wants the limit clause before the field clause.	"""
+		"""Firebird wants the limit clause before the field clause."""
 		clauses =  (limitClause, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause)
 		sql = "SELECT " + "\n".join( [clause for clause in clauses if clause] )
@@ -249,7 +253,8 @@ class Firebird(dBackend):
 
 
 	def pregenPK(self, cursor):
-		"""Determines the generator for which a 'before-insert' trigger
+		"""
+		Determines the generator for which a 'before-insert' trigger
 		is associated with the cursor's table. If one is found, get its
 		next value and return it. If not, return None.
 		"""
@@ -302,7 +307,8 @@ class Firebird(dBackend):
 
 
 	def dblQuoteField(self, txt):
-		""" Takes a string and returns the same string with
+		"""
+		Takes a string and returns the same string with
 		all occurrences of xx.yy replaced with xx."YY".
 		In other words, wrap the field name in double-quotes,
 		and change it to upper case.

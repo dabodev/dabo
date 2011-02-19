@@ -59,7 +59,7 @@ class Postgres(dBackend):
 
 
 	def __init__(self):
-		""" JFCS 08/23/07 Currently supporting only psycopg2"""
+		"""JFCS 08/23/07 Currently supporting only psycopg2"""
 		dBackend.__init__(self)
 		self.dbModuleName = "psycopg"
 		self.conn_user = ""
@@ -113,7 +113,7 @@ class Postgres(dBackend):
 
 
 	def formatDateTime(self, val):
-		""" We need to wrap the value in quotes. """
+		"""We need to wrap the value in quotes."""
 		return "'%s'" % ustr(val)
 
 
@@ -184,24 +184,30 @@ class Postgres(dBackend):
 
 
 	def getUpdateTablePrefix(self, tbl, autoQuote=True):
-		""" By default, the update SQL statement will be in the form of
+		"""
+		By default, the update SQL statement will be in the form of
+		
 					tablename.fieldname
+		
 		but Postgres does not accept this syntax. If not, change
 		this method to return an empty string, or whatever should
 		preceed the field name in an update statement.
-		 Postgres needs to return an empty string."""
+		Postgres needs to return an empty string.
+		"""
 		return ""
 
 
 	def noResultsOnSave(self):
-		""" Most backends will return a non-zero number if there are updates.
+		"""
+		Most backends will return a non-zero number if there are updates.
 		Some do not, so this will have to be customized in those cases.
 		"""
 		return
 
 
 	def noResultsOnDelete(self):
-		""" Most backends will return a non-zero number if there are deletions.
+		"""
+		Most backends will return a non-zero number if there are deletions.
 		Some do not, so this will have to be customized in those cases.
 		"""
 		# raise dException.dException(_("No records deleted"))
@@ -209,7 +215,8 @@ class Postgres(dBackend):
 
 
 	def flush(self, cursor):
-		""" Postgres requires an explicit commit in order to have changes
+		"""
+		Postgres requires an explicit commit in order to have changes
 		to the database written to disk.
 		"""
 		self.commitTransaction(cursor)
@@ -217,13 +224,15 @@ class Postgres(dBackend):
 
 
 	def getLastInsertID(self, cursor):
-		""" Return the ID of the last inserted row, or None.
+		"""
+		Return the ID of the last inserted row, or None.
 
 		When inserting a new record in a table that auto-generates a PK (such
 		as a serial data type) value, different databases have their own way of retrieving that value.
 		With Postgres a sequence is created.  The SQL statement determines the sequence name
 		('table_pkid_seq') and needs three parameters the schema name, table name, and the primary
 		key field for the table.
+		
 		cursor.KeyField = primary field
 		cursor.Table = returns 'schema.table' for the cursor
 

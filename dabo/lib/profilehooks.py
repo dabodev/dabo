@@ -6,7 +6,7 @@ This module contains a couple of decorators (`profile` and `coverage`) that
 can be used to wrap functions and/or methods to produce profiles and line
 coverage reports.
 
-Usage example (Python 2.4 or newer):
+Usage example (Python 2.4 or newer)::
 
     from profilehooks import profile, coverage
 
@@ -17,7 +17,7 @@ Usage example (Python 2.4 or newer):
 
     print fn(42)
 
-Usage example (Python 2.3 or older):
+Usage example (Python 2.3 or older)::
 
     from profilehooks import profile, coverage
 
@@ -122,7 +122,8 @@ import time
 
 
 def profile(fn=None, skip=0, filename=None, immediate=False):
-    """Mark `fn` for profiling.
+    """
+    Mark `fn` for profiling.
 
     If `immediate` is False, profiling results will be printed to sys.stdout on
     program termination.  Otherwise results will be printed after each call.
@@ -169,7 +170,8 @@ def profile(fn=None, skip=0, filename=None, immediate=False):
 
 
 def coverage(fn):
-    """Mark `fn` for line coverage analysis.
+    """
+    Mark `fn` for line coverage analysis.
 
     Results will be printed to sys.stdout on program termination.
 
@@ -197,7 +199,8 @@ def coverage(fn):
 
 
 def coverage_with_hotshot(fn):
-    """Mark `fn` for line coverage analysis.
+    """
+    Mark `fn` for line coverage analysis.
 
     Uses the 'hotshot' module for fast coverage analysis.
 
@@ -221,7 +224,8 @@ class FuncProfile:
     in_profiler = False
 
     def __init__(self, fn, skip=0, filename=None, immediate=False):
-        """Creates a profiler for a function.
+        """
+        Creates a profiler for a function.
 
         Every profiler has its own log file (the name of which is derived from
         the function name).
@@ -292,7 +296,8 @@ class FuncProfile:
         self.skipped = 0
 
     def atexit(self):
-        """Stop profiling and print profile information to sys.stdout.
+        """
+        Stop profiling and print profile information to sys.stdout.
 
         This function is registered as an atexit hook.
         """
@@ -307,7 +312,8 @@ class HotShotFuncProfile:
     in_profiler = False
 
     def __init__(self, fn, skip=0, filename=None):
-        """Creates a profiler for a function.
+        """
+        Creates a profiler for a function.
 
         Every profiler has its own log file (the name of which is derived from
         the function name).
@@ -347,7 +353,8 @@ class HotShotFuncProfile:
             HotShotFuncProfile.in_profiler = False
 
     def atexit(self):
-        """Stop profiling and print profile information to sys.stderr.
+        """
+        Stop profiling and print profile information to sys.stderr.
 
         This function is registered as an atexit hook.
         """
@@ -376,7 +383,8 @@ class HotShotFuncProfile:
 
 
 class HotShotFuncCoverage:
-    """Coverage analysis for a function (uses _hotshot).
+    """
+    Coverage analysis for a function (uses _hotshot).
 
     HotShot coverage is reportedly faster than trace.py, but it appears to
     have problems with exceptions; also line counts in coverage reports
@@ -385,7 +393,8 @@ class HotShotFuncCoverage:
     """
 
     def __init__(self, fn):
-        """Creates a profiler for a function.
+        """
+        Creates a profiler for a function.
 
         Every profiler has its own log file (the name of which is derived from
         the function name).
@@ -408,7 +417,8 @@ class HotShotFuncCoverage:
         return self.profiler.runcall(self.fn, args, kw)
 
     def atexit(self):
-        """Stop profiling and print profile information to sys.stderr.
+        """
+        Stop profiling and print profile information to sys.stderr.
 
         This function is registered as an atexit hook.
         """
@@ -441,7 +451,8 @@ class HotShotFuncCoverage:
 
 
 class TraceFuncCoverage:
-    """Coverage analysis for a function (uses trace module).
+    """
+    Coverage analysis for a function (uses trace module).
 
     HotShot coverage analysis is reportedly faster, but it appears to have
     problems with exceptions.
@@ -455,7 +466,8 @@ class TraceFuncCoverage:
     tracing = False
 
     def __init__(self, fn):
-        """Creates a profiler for a function.
+        """
+        Creates a profiler for a function.
 
         Every profiler has its own log file (the name of which is derived from
         the function name).
@@ -483,7 +495,8 @@ class TraceFuncCoverage:
             TraceFuncCoverage.tracing = False
 
     def atexit(self):
-        """Stop profiling and print profile information to sys.stderr.
+        """
+        Stop profiling and print profile information to sys.stderr.
 
         This function is registered as an atexit hook.
         """
@@ -531,7 +544,8 @@ class FuncSource:
             self.firstcodelineno = self.firstlineno
 
     def mark(self, lineno, count=1):
-        """Mark a given source line as executed count times.
+        """
+        Mark a given source line as executed count times.
 
         Multiple calls to mark for the same lineno add up.
         """
@@ -569,7 +583,8 @@ class FuncSource:
 
 
 def timecall(fn):
-    """Wrap `fn` and print its execution time.
+    """
+    Wrap `fn` and print its execution time.
 
     Example:
 

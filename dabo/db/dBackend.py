@@ -41,7 +41,7 @@ class dBackend(dObject):
 
 
 	def isValidModule(self):
-		""" Test the dbapi to see if it is supported on this computer."""
+		"""Test the dbapi to see if it is supported on this computer."""
 		try:
 			dbapi = __import__(self.dbModuleName)
 			return True
@@ -50,17 +50,17 @@ class dBackend(dObject):
 
 
 	def getConnection(self, connectInfo, **kwargs):
-		""" override in subclasses """
+		"""override in subclasses"""
 		return None
 
 
 	def getDictCursorClass(self):
-		""" override in subclasses """
+		"""override in subclasses"""
 		return None
 
 
 	def getCursor(self, cursorClass):
-		""" override in subclasses if necessary """
+		"""override in subclasses if necessary"""
 		return cursorClass(self._connection)
 
 
@@ -83,7 +83,8 @@ class dBackend(dObject):
 
 
 	def formatDateTime(self, val):
-		""" Properly format a datetime value to be included in an Update
+		"""
+		Properly format a datetime value to be included in an Update
 		or Insert statement. Each backend can have different requirements
 		for formatting dates, so this is where you encapsulate these rules
 		in backend-specific subclasses. If nothing special needs to be done,
@@ -93,7 +94,8 @@ class dBackend(dObject):
 
 
 	def formatNone(self):
-		""" Properly format a None value to be included in an update statement.
+		"""
+		Properly format a None value to be included in an update statement.
 
 		Each backend should override as needed. The default is to return "NULL".
 		"""
@@ -101,33 +103,37 @@ class dBackend(dObject):
 
 
 	def noResultsOnSave(self):
-		""" Most backends will return a non-zero number if there are updates.
+		"""
+		Most backends will return a non-zero number if there are updates.
 		Some do not, so this will have to be customized in those cases.
 		"""
 		raise dException.dException(_("No records updated"))
 
 
 	def noResultsOnDelete(self):
-		""" Most backends will return a non-zero number if there are deletions.
+		"""
+		Most backends will return a non-zero number if there are deletions.
 		Some do not, so this will have to be customized in those cases.
 		"""
 		raise dException.dException(_("No records deleted"))
 
 
 	def flush(self, cursor):
-		""" Only used in some backends """
+		"""Only used in some backends"""
 		return
 
 
 	def processFields(self, txt):
-		""" Default is to return the string unchanged. Override
+		"""
+		Default is to return the string unchanged. Override
 		in cases where the str needs processing.
 		"""
 		return txt
 
 
 	def escQuote(self, val):
-		""" Escape special characters in SQL strings.
+		"""
+		Escape special characters in SQL strings.
 
 		Escapes any single quotes that could cause SQL syntax errors, as well
 		as any other characters which have special meanings with the backend
@@ -138,7 +144,8 @@ class dBackend(dObject):
 
 
 	def getLastInsertID(self, cursor):
-		""" Return the ID of the last inserted row, or None.
+		"""
+		Return the ID of the last inserted row, or None.
 
 		When inserting a new record in a table that auto-generates a PK
 		value, different databases have their own way of retrieving that value.
@@ -158,7 +165,8 @@ class dBackend(dObject):
 
 
 	def getTables(self, cursor, includeSystemTables=False):
-		""" Return a tuple of the tables in the current database.
+		"""
+		Return a tuple of the tables in the current database.
 
 		Different backends will do this differently, so override in subclasses.
 		"""
@@ -166,12 +174,13 @@ class dBackend(dObject):
 
 
 	def getTableRecordCount(self, tableName, cursor):
-		""" Return the number of records in the backend table."""
+		"""Return the number of records in the backend table."""
 		return -1
 
 
 	def getFields(self, tableName, cursor):
-		""" Return field information from the backend table.
+		"""
+		Return field information from the backend table.
 
 		See dCursorMixin.getFields() for a description of the return value.
 		"""
@@ -182,7 +191,8 @@ class dBackend(dObject):
 
 
 	def getDaboFieldType(self, backendFieldType):
-		""" Return the Dabo code (I, T, D, ...) for the passed backend Field Type.
+		"""
+		Return the Dabo code (I, T, D, ...) for the passed backend Field Type.
 
 		If it can't be determined, the field type will be '?'.
 		"""
@@ -190,34 +200,35 @@ class dBackend(dObject):
 
 
 	def getFieldInfoFromDescription(self, cursorDescription):
-		""" Return field information from the cursor description."""
+		"""Return field information from the cursor description."""
 		# Default: return all the field names and "?", None for type and pkid.
 		return tuple([(d[0], self.getDaboFieldType(d[1]), None) for d in cursorDescription])
 
 
 	def beginTransaction(self, cursor):
-		""" Begin a SQL transaction. Override in subclasses if needed."""
+		"""Begin a SQL transaction. Override in subclasses if needed."""
 		self._connection.begin()
 		dabo.dbActivityLog.info("SQL: begin")
 		return True
 
 
 	def commitTransaction(self, cursor):
-		""" Commit a SQL transaction."""
+		"""Commit a SQL transaction."""
 		self._connection.commit()
 		dabo.dbActivityLog.info("SQL: commit")
 		return True
 
 
 	def rollbackTransaction(self, cursor):
-		""" Roll back (revert) a SQL transaction."""
+		"""Roll back (revert) a SQL transaction."""
 		self._connection.rollback()
 		dabo.dbActivityLog.info("SQL: rollback")
 		return True
 
 
 	def addWithSep(self, base, new, sep=",\n\t"):
-		""" Convenient method of adding to an expression that
+		"""
+		Convenient method of adding to an expression that
 		may or may not have an existing value. If there is a value,
 		the separator is inserted between the two.
 		"""
@@ -229,7 +240,8 @@ class dBackend(dObject):
 
 
 	def encloseNames(self, exp, autoQuote=True, keywords=None):
-		"""When table/field names contain spaces, this will safely enclose them
+		"""
+		When table/field names contain spaces, this will safely enclose them
 		in quotes or whatever delimiter is appropriate for the backend, unless
 		autoQuote is False, in which case it leaves things untouched. If there are
 		keywords that are part of the expression that should not be enclosed
@@ -256,7 +268,7 @@ class dBackend(dObject):
 
 
 	def addField(self, clause, exp, alias=None, autoQuote=True):
-		""" Add a field to the field clause."""
+		"""Add a field to the field clause."""
 		indent = len("select ") * " "
 		# If exp is a function, don't do anything special about spaces.
 		if not self.functionPat.match(exp):
@@ -270,7 +282,7 @@ class dBackend(dObject):
 
 
 	def addFrom(self, clause, exp, alias=None, autoQuote=True):
-		""" Add a table to the sql statement."""
+		"""Add a table to the sql statement."""
 		exp = self.encloseNames(exp, autoQuote=autoQuote, keywords=("as",))
 		if alias:
 			exp = "%(exp)s as %(alias)s" % locals()
@@ -279,7 +291,7 @@ class dBackend(dObject):
 
 
 	def addJoin(self, tbl, joinCondition, exp, joinType=None, autoQuote=True):
-		""" Add a joined table to the sql statement."""
+		"""Add a joined table to the sql statement."""
 		tbl = self.encloseNames(tbl, autoQuote=autoQuote, keywords=("as",))
 		joinType = self.formatJoinType(joinType)
 		indent = len("select ") * " "
@@ -288,28 +300,29 @@ class dBackend(dObject):
 
 
 	def addWhere(self, clause, exp, comp="and", autoQuote=True):
-		""" Add an expression to the where clause."""
+		"""Add an expression to the where clause."""
 		indent = (len("select ") - len(comp)) * " "
 		exp = self.processFields(exp)
 		return self.addWithSep(clause, exp, sep="\n%s%s " % (indent, comp))
 
 
 	def addGroupBy(self, clause, exp, autoQuote=True):
-		""" Add an expression to the group-by clause."""
+		"""Add an expression to the group-by clause."""
 		exp = self.encloseNames(exp, autoQuote=autoQuote)
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
 
 	def addOrderBy(self, clause, exp, autoQuote=True):
-		""" Add an expression to the order-by clause."""
+		"""Add an expression to the order-by clause."""
 		exp = self.encloseNames(exp, autoQuote=autoQuote, keywords=("asc", "desc"))
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
 
 	def getLimitWord(self):
-		""" Return the word to use in the db-specific limit clause.
+		"""
+		Return the word to use in the db-specific limit clause.
 		Override for backends that don't use the word 'limit'
 		"""
 		return "limit"
@@ -317,7 +330,8 @@ class dBackend(dObject):
 
 	def formSQL(self, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause, limitClause):
-		""" Creates the appropriate SQL for the backend, given all
+		"""
+		Creates the appropriate SQL for the backend, given all
 		the required clauses. Some backends order these differently, so
 		they should override this method with their own ordering.
 		"""
@@ -328,7 +342,8 @@ class dBackend(dObject):
 
 
 	def prepareWhere(self, clause, autoQuote=True):
-		""" Normally, just return the original. Can be overridden as needed
+		"""
+		Normally, just return the original. Can be overridden as needed
 		for specific backends.
 		"""
 		return clause
@@ -345,7 +360,8 @@ class dBackend(dObject):
 
 
 	def getWordMatchFormat(self):
-		""" By default, will return the standard format for an
+		"""
+		By default, will return the standard format for an
 		equality test. If search by words is available, the format
 		must be implemented in each specific backend.
 
@@ -357,8 +373,11 @@ class dBackend(dObject):
 
 
 	def getUpdateTablePrefix(self, tbl, autoQuote=True):
-		""" By default, the update SQL statement will be in the form of
-					tablename.fieldname
+		"""
+		By default, the update SQL statement will be in the form of
+		
+			tablename.fieldname
+		
 		but some backends do no accept this syntax. If not, change
 		this method to return an empty string, or whatever should
 		preceed the field name in an update statement.
@@ -368,9 +387,12 @@ class dBackend(dObject):
 
 
 	def getWhereTablePrefix(self, tbl, autoQuote=True):
-		""" By default, the comparisons in the WHERE clauses of
+		"""
+		By default, the comparisons in the WHERE clauses of
 		SQL statements will be in the form of
-					tablename.fieldname
+		
+			tablename.fieldname
+		
 		but some backends do no accept this syntax. If not, change
 		this method to return an empty string, or whatever should
 		preceed the field name in a comparison in the WHERE clause
@@ -381,7 +403,8 @@ class dBackend(dObject):
 
 
 	def massageDescription(self, cursor):
-		"""Some dbapi programs do strange things to the description.
+		"""
+		Some dbapi programs do strange things to the description.
 		In particular, kinterbasdb forces the field names to upper case
 		if the field statement in the SQL that was executed contains an
 		'as' expression.
@@ -394,7 +417,8 @@ class dBackend(dObject):
 
 
 	def getDescription(self, cursor):
-		"""Normally, cursors should always be able to report their
+		"""
+		Normally, cursors should always be able to report their
 		description properly. However, some backends such as
 		SQLite will not report a description if there is no data in the
 		record set. This method provides a way for those backends
@@ -408,7 +432,8 @@ class dBackend(dObject):
 
 
 	def pregenPK(self, cursor):
-		"""In the case where the database requires that PKs be generated
+		"""
+		In the case where the database requires that PKs be generated
 		before an insert, this method provides a backend-specific
 		means of accomplishing this. By default, we return None.
 		"""
@@ -416,7 +441,8 @@ class dBackend(dObject):
 
 
 	def setNonUpdateFields(self, cursor, autoQuote=True):
-		"""Normally, this routine should work for all backends. But
+		"""
+		Normally, this routine should work for all backends. But
 		in the case of SQLite, the routine that grabs an empty cursor
 		doesn't fill in the description, so that backend has to use
 		an alternative approach.
@@ -581,7 +607,7 @@ class dBackend(dObject):
 			wt.start()
 
 	def _getEncoding(self):
-		""" Get backend encoding."""
+		"""Get backend encoding."""
 		try:
 			return self._encoding
 		except AttributeError:
@@ -589,7 +615,8 @@ class dBackend(dObject):
 			return self._encoding
 
 	def _setEncoding(self, enc):
-		""" Set backend encoding. Must be overridden in the subclass
+		"""
+		Set backend encoding. Must be overridden in the subclass
 		to notify database about proper charset conversion.
 		"""
 		self._encoding = enc

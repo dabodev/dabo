@@ -19,9 +19,13 @@ class MSSQL(dBackend):
 
 
 	def getConnection(self, connectInfo, forceCreate=False, **kwargs):
-		"""The pymssql module requires the connection be created for the FreeTDS libraries first.  Therefore, the
-		DSN is really the name of the connection for FreeTDS
-		  __init__(self, dsn, user, passwd, database = None, strip = 0)"""
+		"""
+		The pymssql module requires the connection be created for the FreeTDS libraries first.  Therefore, the
+		DSN is really the name of the connection for FreeTDS ::
+			
+		  __init__(self, dsn, user, passwd, database = None, strip = 0)
+		  
+		"""
 		import pymssql
 
 		port = ustr(connectInfo.Port)
@@ -65,7 +69,7 @@ class MSSQL(dBackend):
 
 
 	def formatDateTime(self, val):
-		""" We need to wrap the value in quotes. """
+		"""We need to wrap the value in quotes."""
 		sqt = "'"		# single quote
 		val = ustr(val)
 		return "%s%s%s" % (sqt, val, sqt)
@@ -100,7 +104,8 @@ select table_name
 
 
 	def _fieldTypeNativeToDabo(self, nativeType):
-		""" converts the results of
+		"""
+		converts the results of
 		select DATA_TYPE from INFORMATION_SCHEMA.COLUMNS
 		to a dabo datatype.
 		"""
@@ -162,7 +167,8 @@ select table_name
 
 
 	def getFields(self, tableName, cursor):
-		""" Returns the list of fields of the passed table
+		"""
+		Returns the list of fields of the passed table
 		field: ( fieldname, dabo data type, key )
 		"""
 		# fairly standard way of getting column settings
@@ -204,14 +210,16 @@ select COLUMN_NAME
 
 
 	def noResultsOnSave(self):
-		""" Most backends will return a non-zero number if there are updates.
+		"""
+		Most backends will return a non-zero number if there are updates.
 		Some do not, so this will have to be customized in those cases.
 		"""
 		return
 
 
 	def noResultsOnDelete(self):
-		""" Most backends will return a non-zero number if there are deletions.
+		"""
+		Most backends will return a non-zero number if there are deletions.
 		Some do not, so this will have to be customized in those cases.
 		"""
 		#raise dException.dException(_("No records deleted"))
@@ -228,7 +236,7 @@ select COLUMN_NAME
 
 	def formSQL(self, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause, limitClause):
-		""" MS SQL wants the limit clause before the field clause.	"""
+		"""MS SQL wants the limit clause before the field clause."""
 		clauses =  (limitClause, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause)
 		sql = "SELECT " + "\n".join( [clause for clause in clauses if clause] )
@@ -236,7 +244,8 @@ select COLUMN_NAME
 
 
 	def getLastInsertID(self, cursor):
-		"""Pymssql does not populate the 'lastrowid' attribute of the cursor, so we
+		"""
+		Pymssql does not populate the 'lastrowid' attribute of the cursor, so we
 		need to get the newly-inserted PK ourselves.
 		"""
 		# Use the AuxCursor so as not to disturb the contents of the primary data cursor.

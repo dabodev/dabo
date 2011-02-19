@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" EasyDialogBuilder.py
+"""
+EasyDialogBuilder.py
 
 Author:		Nathan Lowrie
 
@@ -8,6 +9,7 @@ This dabo class is a series of functions that refactors repetitive GUI code.  Th
 refactoring of the GUI code allows for the developer to be more productive.  The
 refactored code is also far easier to maintain and comprehend.  This mixin is mainly
 targeted and Forms, Dialogs, and Panels.
+
 """
 import dabo
 import types
@@ -19,14 +21,19 @@ from dabo.lib.utils import ustr
 
 class EasyDialogBuilder(object):
 	def makePageFrame(self, parent, pageData, properties=None):
-		"""makePageFrame(parent, pageData, properties=None) -> dabo.ui.dPageFrame
-
-		parent -> dabo object that is the parent of the controls, normally a panel of form
-		pageData -> Tuple of Dictionaries with the following relevant keys:
-			"page" -> dabo object that is the page.  Normally a dPage or Panel
-			"caption" -> optional if defined image, string that is the tab label
-			"image" -> optional, dabo image that is the tab label
-		properties -> optional dictionary of Properties for the control
+		"""
+		:param parent: dabo object that is the parent of the controls, normally a panel or form
+		:param tuple pageData: a tuple of dictionaries, see below
+		:param dict properties: optional dictionary of properties for the control
+		:rtype: dabo.ui.dPageFrame
+		
+		pageData tuple:
+			========== ================
+			pageData   object that is the page.  Normally a dPage or Panel
+			caption	   optional if defined image, string that is the tab label
+			image      optional, dabo image that is the tab label
+			========== ================
+			
 		"""
 		pageFrame = dabo.ui.dPageFrame(parent, properties=properties)
 
@@ -42,26 +49,29 @@ class EasyDialogBuilder(object):
 		return pageFrame
 
 	def makeControlBox(self, parent, caption, controlFields, border=5, spacing=5, grid=True, hasRegIDs=True, bindHitEvents=False):
-		"""makeControlBox(parent, controlFields, border=5, spacing=5, grid=True, hasRegIDs=True, bindHitEvents=False) -> dabo.ui.dBorderSizer
+		"""
+		:param parent: Dabo object that is the parent of the controls, normally a panel or a form
+		:param str caption: The caption for the control box
+		:param tuple controlFields: A tuple of tuples, see below
+		:param bool grid: When True objects are put into a grid sizer for even controlfield alignment.  When False all objects are put into boxSizers so the control fields line up with the end of their labels
+		:param bool hasRegIDs: When True all control objects will be assigned regIDs.
+		:param bool bindHitEvents: When True all the control objects hit events will be found to functions in the form of onHit_controlName
+		:rtype: dabo.ui.dSizer
+		
+		controlFields tuple:
+			=========== ====================
+			control		a Dabo control or the string "file" which produces a textbox with a button to get a file
+			name		a string to name this particular control
+			label		a string that appears on the label
+			properties	optional dictionary of properties for the control
+			=========== ====================
+			
+		.. note::
 
-		parent -> dabo object that is the parent of the controls, normally a panel or form
-		grid -> Boolean.  When true all objects are put into a grid sizer for even controlfield alignment.
-			When false, all objects are put into boxSizers so the control fields line up with the end
-			of their labels.
-		hasRegIDs -> Boolean.  When true, all objects will be assigned regIDs.  When false, all objects
-			will not be assigned regIDs.
-		bindHitEvents -> Boolean.  When true, all of the control objects hit events with be bound to
-			functions in the form of onHit_controlName.  When false, no binding occurs.
-		controlFields -> Tuple of tuples in form of:
-			((control, RegID, label Title, Properties),.....)
-			control -> dabo control or string "file" (produces a textbox with a button to get a file)
-			name -> string of the name for this particular control
-			label Title -> string that appears on the label
-			Properties -> optional dictionary of Properties for the control
-
-		Note, if you have "file" as a control, following properties as special:
-			"directory" = True will cause the control to browse for a directory
-			"format" = string will cause the control to only allow the user to select that file type
+		   If you have "file" as a control, following properties as special:
+		   "directory" = True will cause the control to browse for a directory
+		   "format" = string will cause the control to only allow the user to select that file type
+		
 		"""
 		box = dabo.ui.dBorderSizer(parent, "vertical")
 		box.Caption = caption
@@ -75,26 +85,29 @@ class EasyDialogBuilder(object):
 		return box
 
 	def makeControlSizer(self, parent, controlFields, border=5, spacing=5, grid=True, hasRegIDs=True, bindHitEvents=False):
-		"""makeControlSizer(parent, controlFields, border=5, spacing=5, grid=True, hasRegIDs=True, bindHitEvents=False) -> dabo.ui.dSizer
+		"""
+		:param parent: Dabo object that is the parent of the controls, normally a panel or a form
+		:param caption: The caption for the control box
+		:param tuple controlFields: A tuple of tuples, see below
+		:param bool grid: When True objects are put into a grid sizer for even controlfield alignment.  When False all objects are put into boxSizers so the control fields line up with the end of their labels
+		:param bool hasRegIDs: When True all control objects will be assigned regIDs.
+		:param bool bindHitEvents: When True all the control objects hit events will be found to functions in the form of onHit_controlName
+		:rtype: dabo.ui.dSizer
+		
+		controlFields tuple:
+			=========== ====================
+			control		a Dabo control or the string "file" which produces a textbox with a button to get a file
+			name		a string to name this particular control
+			label		a string that appears on the label
+			properties	optional dictionary of properties for the control
+			=========== ====================
+			
+		.. note::
 
-		parent -> dabo object that is the parent of the controls, normally a panel or form
-		grid -> Boolean.  When true all objects are put into a grid sizer for even controlfield alignment.
-			When false, all objects are put into boxSizers so the control fields line up with the end
-			of their labels.
-		hasRegIDs -> Boolean.  When true, all objects will be assigned regIDs.  When false, all objects
-			will not be assigned regIDs.
-		bindHitEvents -> Boolean.  When true, all of the control objects hit events with be bound to
-			functions in the form of onHit_controlName.  When false, no binding occurs.
-		controlFields -> Tuple of tuples in form of:
-			((control, RegID, label Title, Properties),.....)
-			control -> dabo control or string "file" (produces a textbox with a button to get a file)
-			name -> string of the name for this particular control
-			label Title -> string that appears on the label
-			Properties -> optional dictionary of Properties for the control
-
-		Note, if you have "file" as a control, following properties as special:
-			"directory" = True will cause the control to browse for a directory
-			"format" = string will cause the control to only allow the user to select that file type
+		   If you have "file" as a control, following properties as special:
+		   "directory" = True will cause the control to browse for a directory
+		   "format" = string will cause the control to only allow the user to select that file type
+					
 		"""
 		if grid:
 			Sizer = dabo.ui.dGridSizer(MaxCols=3)
@@ -141,16 +154,15 @@ class EasyDialogBuilder(object):
 		return Sizer
 
 	def makeControlField(self, parent, control, name, labelTitle, Properties, hasRegIDs=True, bindHitEvents=False):
-		"""makeControlField(parent, control, regId, labelTitle, Properties, hasRegIDs=True, bindHitEvents=False) -> List of Dabo Controls
+		"""
+		:param parent: Dabo object that is the parent of the controls, normally a panel or a form
+		:param control: Dabo class (not an instantiated object) of the control that you want in the form.
+		:param str name: Name of the control
+		:param str labelTitle: The label next to the control
+		:param bool hasRegIDs: When True all control objects will be assigned regIDs.
+		:param bool bindHitEvents: When True all the control objects hit events will be found to functions in the form of onHit_controlName
+		:rtype: list of controls
 
-		parent -> dabo object that is parent, normally a panel or form
-		control -> the dabo class of the control that you want in the form.  Note, class not instansiated object
-		name -> string that is the name of the control
-		labelTitle -> string that is the title of the label next to the control
-		Properties -> dictionary of any properties that are supposed to go with the control
-		hasRegID -> Boolean that detirmines whether or not the control has regIDs
-		bindHitEvents -> Boolean.  When true, all of the control objects hit events with be bound to
-			functions in the form of onHit_controlName.  When false, no binding occurs.
 		"""
 
 		controlList = []
@@ -197,10 +209,17 @@ class EasyDialogBuilder(object):
 		return controlList
 
 	def makeButtonBar(self, buttonData, orientation="horizontal"):
-		"""makeButtonBar(self, tuple buttonData) -> dabo.ui.dSizer
+		"""
+		:param tuple buttonData: A tuple of tuples, see below
+		:param str orientation: "horizontal" or "vertical"
+		:rtype: dabo.ui.dSizer
 
-		buttonData is a tuple of tuples in the form of:
-			(('button caption', 'regID'),...)
+		buttonData tuple:
+			=========== ==================
+			caption     The caption for the button
+			regID		The regID for the button
+			=========== ==================
+
 		"""
 		hs = dabo.ui.dSizer(orientation=orientation)
 
@@ -211,7 +230,8 @@ class EasyDialogBuilder(object):
 		return hs
 
 	def setupStandardSizer(self, orientation="vertical"):
-		"""setupStandardSizer(self, orientation="vertical") -> dabo.ui.dSizer
+		"""
+		:rtype: dabo.ui.dSizer
 
 		Convienence function that sets up a standard sizer with some spacing and borders
 		and returns it to the user

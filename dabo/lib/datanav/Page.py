@@ -87,8 +87,7 @@ class Page(dabo.ui.dPage):
 
 
 	def newRecord(self, ds=None):
-		""" Called by a browse grid when the user wants to add a new row.
-		"""
+		"""Called by a browse grid when the user wants to add a new row."""
 		if ds is None:
 			self.Form.new()
 			self.editRecord()
@@ -97,8 +96,7 @@ class Page(dabo.ui.dPage):
 
 
 	def deleteRecord(self, ds=None):
-		""" Called by a browse grid when the user wants to delete the current row.
-		"""
+		"""Called by a browse grid when the user wants to delete the current row."""
 		if ds is None:
 			self.Form.delete()
 		else:
@@ -106,8 +104,7 @@ class Page(dabo.ui.dPage):
 
 
 	def editRecord(self, ds=None):
-		""" Called by a browse grid when the user wants to edit the current row.
-		"""
+		"""Called by a browse grid when the user wants to edit the current row."""
 		if ds is None:
 			self.Parent.SetSelection(2)
 		else:
@@ -126,8 +123,7 @@ class Page(dabo.ui.dPage):
 
 
 class SelectOptionsPanel(dPanel):
-	""" Base class for the select options panel.
-	"""
+	"""Base class for the select options panel."""
 	def initProperties(self):
 		self.Name = "selectOptionsPanel"
 
@@ -512,8 +508,7 @@ class SelectPage(Page):
 
 
 	def getSearchCtrlClass(self, typ):
-		"""Returns the appropriate editing control class for the given data type.
-		"""
+		"""Returns the appropriate editing control class for the given data type."""
 		if typ in ("char", "memo", "float", "int", "decimal", "datetime"):
 			return SelectTextBox
 		elif typ == "bool":

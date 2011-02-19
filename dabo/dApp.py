@@ -126,10 +126,11 @@ class TempFileHolder(object):
 
 
 class dApp(dObject):
-	"""The containing object for the entire application.
+	"""
+	The containing object for the entire application.
 
 	All Dabo objects have an Application property which refers to the dApp
-	instance. Instantiate your dApp object from your main script, like so:
+	instance. Instantiate your dApp object from your main script, like so::
 
 	>>> import dabo
 	>>> app = dabo.dApp
@@ -286,7 +287,8 @@ try again when it is running.
 
 
 	def resyncFiles(self):
-		""" In the middle of an app's lifetime, files on the remote server may
+		"""
+		In the middle of an app's lifetime, files on the remote server may
 		have been updated. This will ensure that the local copy is in sync.
 		"""
 		rp = self._RemoteProxy
@@ -352,14 +354,16 @@ try again when it is running.
 
 
 	def afterSetup(self):
-		"""Hook method that is called after the app's setup code has run, and the
+		"""
+		Hook method that is called after the app's setup code has run, and the
 		database, UI and module references have all been established.
 		"""
 		pass
 
 
 	def startupForms(self):
-		"""Open one or more of the defined forms. The default one is specified
+		"""
+		Open one or more of the defined forms. The default one is specified
 		in self.DefaultForm. If form names were passed on the command line,
 		they will be opened instead of the default one as long as they exist.
 		"""
@@ -376,7 +380,8 @@ try again when it is running.
 
 
 	def initUIApp(self):
-		"""Callback from the initial app setup. Used to allow the
+		"""
+		Callback from the initial app setup. Used to allow the
 		splash screen, if any, to be shown quickly.
 		"""
 		self.uiApp.setup()
@@ -399,7 +404,8 @@ try again when it is running.
 
 
 	def finish(self):
-		"""Called when the application event loop has ended. You may also
+		"""
+		Called when the application event loop has ended. You may also
 		call this explicitly to exit the application event loop.
 		"""
 		self.uiApp.exit()
@@ -413,14 +419,16 @@ try again when it is running.
 
 
 	def afterFinish(self):
-		"""Stub method. When this is called, the app has already terminated, and you have
+		"""
+		Stub method. When this is called, the app has already terminated, and you have
 		one last chance to execute code by overriding this method.
 		"""
 		pass
 
 
 	def _setProjInfo(self):
-		"""Create a 2-tuple containing the project location and project name, if any.
+		"""
+		Create a 2-tuple containing the project location and project name, if any.
 		The location is always the directory containing the initial startup program; the
 		name is either None (default), or, if this is a Web Update-able app, the
 		descriptive name.
@@ -443,7 +451,13 @@ try again when it is running.
 
 
 	def getLoginInfo(self, message=None):
-		"""Return a tuple of (user, password) to dSecurityManager.login(). The default is to display the standard login dialog, and return the user/password as entered by the user, but subclasses can override to get the information from whereever is appropriate. You can customize the default dialog by adding your own code to the loginDialogHook() method, which will receive a reference to the login dialog.
+		"""
+		Return a tuple of (user, password) to dSecurityManager.login(). The default
+		is to display the standard login dialog, and return the user/password as
+		entered by the user, but subclasses can override to get the information from
+		where ever is appropriate. You can customize the default dialog by adding
+		your own code to the loginDialogHook() method, which will receive a
+		reference to the login dialog.
 
 		Return a tuple of (user, pass).
 		"""
@@ -511,7 +525,8 @@ try again when it is running.
 
 
 	def _resetWebUpdateCheck(self):
-		"""Sets the time that Web Update was last checked to the passed value. Used
+		"""
+		Sets the time that Web Update was last checked to the passed value. Used
 		in cases where errors prevent an update from succeeding.
 		"""
 		if self._lastCheckInfo is None:
@@ -521,14 +536,16 @@ try again when it is running.
 
 
 	def checkForUpdates(self, evt=None):
-		"""Public interface to the web updates mechanism. Returns a boolean
+		"""
+		Public interface to the web updates mechanism. Returns a boolean
 		indicating whether the update was successful.
 		"""
 		return self.uiApp.checkForUpdates(force=True)
 
 
 	def _checkForUpdates(self, force=False):
-		"""This is the actual code that checks if a) we are using Web Update; b) if we are
+		"""
+		This is the actual code that checks if a) we are using Web Update; b) if we are
 		due for a check; and then c) returns the status of the available updates, if any.
 		"""
 		if not force:
@@ -600,7 +617,8 @@ try again when it is running.
 
 
 	def _updateFramework(self):
-		"""Get any changed files from the dabodev.com server, and replace
+		"""
+		Get any changed files from the dabodev.com server, and replace
 		the local copies with them."""
 		currVers = self._currentUpdateVersion()
 		fileurl = "%s/files/%s" % (dabo.webupdate_urlbase, currVers)
@@ -670,7 +688,8 @@ try again when it is running.
 
 
 	def _setWebUpdate(self, auto, interval=None):
-		"""Sets the web update settings for the entire framework. If set to True, the
+		"""
+		Sets the web update settings for the entire framework. If set to True, the
 		interval is expected to be in minutes between checks.
 		"""
 		prf = self._frameworkPrefs
@@ -683,7 +702,8 @@ try again when it is running.
 
 
 	def getWebUpdateInfo(self):
-		"""Returns a 2-tuple that reflects the current settings for web updates.
+		"""
+		Returns a 2-tuple that reflects the current settings for web updates.
 		The first position is a boolean that reflects whether auto-checking is turned
 		on; the second is the update frequency in minutes.
 		"""
@@ -691,7 +711,8 @@ try again when it is running.
 
 
 	def urlFetch(self, pth, errorOnNotFound=False):
-		"""Fetches the specified resource from the internet using the SourceURL value
+		"""
+		Fetches the specified resource from the internet using the SourceURL value
 		as the base for the resource URL. If a newer version is found, the local copy
 		is updated with the retrieved resource. If the resource isn't found, nothing
 		happens by default. If you want the error to be raised, pass True for the
@@ -736,7 +757,8 @@ try again when it is running.
 
 
 	def updateFromSource(self, fileOrFiles):
-		"""This method takes either a single file path or a list of paths, and if there
+		"""
+		This method takes either a single file path or a list of paths, and if there
 		is a SourceURL set, checks the source to see if there are newer versions available,
 		and if so, downloads them.
 		"""
@@ -768,10 +790,12 @@ try again when it is running.
 
 
 	def getUserSettingKeys(self, spec):
-		"""Return a list of all keys underneath <spec> in the user settings table.
+		"""
+		Return a list of all keys underneath <spec> in the user settings table.
 
 		For example, if spec is "appWizard.dbDefaults", and there are
 		userSettings entries for:
+			
 			appWizard.dbDefaults.pkm.Host
 			appWizard.dbDefaults.pkm.User
 			appWizard.dbDefaults.egl.Host
@@ -800,7 +824,8 @@ try again when it is running.
 
 
 	def setUserSettings(self, setDict):
-		"""Convenience method for setting several settings with one
+		"""
+		Convenience method for setting several settings with one
 		call. Pass a dict containing {settingName: settingValue} pairs.
 		"""
 		usp = self.UserSettingProvider
@@ -823,7 +848,7 @@ try again when it is running.
 
 
 	def getUserCaption(self):
-		""" Return the full name of the currently logged-on user."""
+		"""Return the full name of the currently logged-on user."""
 		if self.SecurityManager:
 			return self.SecurityManager.UserCaption
 		else:
@@ -831,7 +856,8 @@ try again when it is running.
 
 
 	def str2Unicode(self, strVal):
-		"""Given a string, this method will try to return a properly decoded
+		"""
+		Given a string, this method will try to return a properly decoded
 		unicode value. It will first try the default Encoding, and then try the
 		more common encoding types.
 		"""
@@ -841,14 +867,16 @@ try again when it is running.
 	# These two methods pass encryption/decryption requests
 	# to the Crypto object
 	def encrypt(self, val):
-		"""Return the encrypted string value. The request is passed
+		"""
+		Return the encrypted string value. The request is passed
 		to the Crypto object for processing.
 		"""
 		return self.Crypto.encrypt(val)
 
 
 	def decrypt(self, val):
-		"""Return decrypted string value. The request is passed to
+		"""
+		Return decrypted string value. The request is passed to
 		the Crypto object for processing.
 		"""
 		return self.Crypto.decrypt(val)
@@ -860,7 +888,7 @@ try again when it is running.
 
 
 	def _initProperties(self):
-		""" Initialize the public properties of the app object."""
+		"""Initialize the public properties of the app object."""
 		self.uiType   = None    # ("wx", "qt", "curses", "http", etc.)
 		#self.uiModule = None
 
@@ -880,7 +908,8 @@ try again when it is running.
 
 
 	def _initDB(self, pth=None):
-		"""Set the available connection definitions for use by the app. First, read in
+		"""
+		Set the available connection definitions for use by the app. First, read in
 		all .cnxml files in the specified directory, or the current directory if none is
 		specified. If no such XML definition files exist, check for a python code
 		definition file named 'dbConnectionDefs.py'.
@@ -931,7 +960,8 @@ try again when it is running.
 
 
 	def _initModuleNames(self):
-		"""Import the common application-level module names into attributes
+		"""
+		Import the common application-level module names into attributes
 		of this application object, so that the app code can easily reference them.
 		Example: f there is a 'biz' directory that can be imported, other objects in
 		the system can reference bizobjs using the 'self.Application.biz' syntax
@@ -965,7 +995,8 @@ try again when it is running.
 
 
 	def _initUI(self):
-		""" Set the user-interface library for the application. Ignored
+		"""
+		Set the user-interface library for the application. Ignored
 		if the UI was already explicitly set by user code.
 		"""
 		if self.UI is None and not self._uiAlreadySet:
@@ -995,7 +1026,8 @@ try again when it is running.
 
 
 	def getConnectionByName(self, connName):
-		"""Given the name of a connection, returns the actual
+		"""
+		Given the name of a connection, returns the actual
 		connection. Stores the connection so that multiple requests
 		for the same named connection will not open multiple
 		connections. If the name doesn't exist in self.dbConnectionDefs,
@@ -1037,7 +1069,8 @@ try again when it is running.
 
 
 	def addConnectFile(self, connFile):
-		"""Accepts a cnxml file path, and reads in the connections
+		"""
+		Accepts a cnxml file path, and reads in the connections
 		defined in it, adding them to self.dbConnectionDefs. If the
 		file cannot be found, an exception is raised.
 		"""
@@ -1066,7 +1099,8 @@ try again when it is running.
 
 
 	def getStandardAppDirectory(self, dirname, start=None):
-		"""Return the path to one of the standard Dabo application directories.
+		"""
+		Return the path to one of the standard Dabo application directories.
 		If a starting file path is provided, use that first. If not, use the
 		HomeDirectory as the starting point.
 		"""
@@ -1094,7 +1128,8 @@ try again when it is running.
 
 
 	def getTransactionToken(self, biz):
-		"""Only one bizobj at a time can begin and end transactions per connection.
+		"""
+		Only one bizobj at a time can begin and end transactions per connection.
 		This allows the bizobj to query the app for the 'token', which is simply an
 		acknowledgement that there is no other transaction pending for that connection.
 		If the bizobj gets the token, further requests for the token from bizobjs using the
@@ -1110,7 +1145,8 @@ try again when it is running.
 
 
 	def hasTransactionToken(self, biz):
-		"""Returns True/False, depending on whether the specified
+		"""
+		Returns True/False, depending on whether the specified
 		bizobj currently "holds" the transaction token.
 		"""
 		cn = biz._connection
@@ -1118,7 +1154,8 @@ try again when it is running.
 
 
 	def releaseTransactionToken(self, biz):
-		"""When a process that would normally close a transaction happens, the
+		"""
+		When a process that would normally close a transaction happens, the
 		bizobj that is holding the transaction token for its connection calls this
 		method to return the token. A check is run to ensure that the releasing bizobj
 		is the one currently holding the token for its connection; if it is, the item is
@@ -1130,7 +1167,8 @@ try again when it is running.
 
 
 	def setLanguage(self, lang, charset=None):
-		"""Allows you to change the language used for localization. If the language
+		"""
+		Allows you to change the language used for localization. If the language
 		passed is not one for which there is a translation file, an IOError exception
 		will be raised. You may optionally pass a character set to use.
 		"""
@@ -1139,7 +1177,8 @@ try again when it is running.
 
 
 	def showCommandWindow(self, context=None):
-		"""Shows a command window with a full Python interpreter.
+		"""
+		Shows a command window with a full Python interpreter.
 
 		This is great for debugging during development, but you should turn off
 		app.ShowCommandWindowMenu in production, perhaps leaving backdoor
@@ -1152,7 +1191,8 @@ try again when it is running.
 
 
 	def toggleDebugWindow(self, context=None):
-		"""Shows/hodes a debug output window. It will
+		"""
+		Shows/hodes a debug output window. It will
 		display the output of the debugging commands
 		from your program.
 		"""
@@ -1258,8 +1298,10 @@ try again when it is running.
 
 
 	def addToAbout(self):
-		"""Adds additional app-specific information to the About form.
-		This is just a stub method; override in subclasses if needed."""
+		"""
+		Adds additional app-specific information to the About form.
+		This is just a stub method; override in subclasses if needed.
+		"""
 		pass
 
 
@@ -1737,13 +1779,15 @@ try again when it is running.
 
 			The MainForm gets instantiated automatically during application setup,
 			based on the value of MainFormClass. If you want to swap in your own
-			MainForm instance, do it after setup() but before start(), as in:
+			MainForm instance, do it after setup() but before start(), as in::
 
 			>>> import dabo
 			>>> app = dabo.dApp()
 			>>> app.setup()
 			>>> app.MainForm = myMainFormInstance
-			>>> app.start()"""))
+			>>> app.start()
+			
+			"""))
 
 	MainFormClass = property(_getMainFormClass, _setMainFormClass, None,
 			_("""Specifies the class to instantiate for the main form. Can be a
@@ -1751,13 +1795,14 @@ try again when it is running.
 
 			Defaults to the dFormMain base class. Set to None if you don't want a
 			main form, or set to your own main form class. Do this before calling
-			dApp.start(), as in:
+			dApp.start(), as in::
 
 			>>> import dabo
 			>>> app = dabo.dApp()
 			>>> app.MainFormClass = MyMainFormClass
 			>>> app.start()
-			(dForm) """))
+			
+			"""))
 
 	NoneDisplay = property(_getNoneDisp, _setNoneDisp, None,
 			_("Text to display for null (None) values.  (str)") )
@@ -1780,12 +1825,12 @@ try again when it is running.
 	SearchDelay = property(_getSearchDelay, _setSearchDelay, None,
 			_("""Specifies the delay before incrementeal searching begins.  (int)
 
-				As the user types, the search string is modified. If the time between
-				keystrokes exceeds SearchDelay (milliseconds), the search will run and
-				the search string	will be cleared.
+			As the user types, the search string is modified. If the time between
+			keystrokes exceeds SearchDelay (milliseconds), the search will run and
+			the search string	will be cleared.
 
-				The value set here in the Application object will become the default for
-				all objects that provide incremental searching application-wide.""") )
+			The value set here in the Application object will become the default for
+			all objects that provide incremental searching application-wide.""") )
 
 	SecurityManager = property(_getSecurityManager, _setSecurityManager, None,
 			_("""Specifies the Security Manager, if any.

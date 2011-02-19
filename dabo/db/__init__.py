@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-""" dabo.db is the lowest tier, db access.
+"""
+dabo.db is the lowest tier, db access.
 
 This is where the communication to and from the backend database happens, and
 cursors get generated to be manipulated by the bizobj's in dabo.biz.
 
 dabo.biz.dBiz is the entity that will interact with this dabo.db stuff, but you
 can also work with dabo.db directly if you want. Perhaps you just want to read
-some rows from a backend database in a script. Here's an example of that:
+some rows from a backend database in a script. Here's an example of that::
 
 	from connectInfo import ConnectInfo
 	from dConnection import dConnection
@@ -62,7 +63,8 @@ def getDaboType(pythonType):
 	return pythonTypes.get(pythonType, "?")
 
 def getDataType(pythonType):
-	"""Given a python data type, returns the appropriate type for database values.
+	"""
+	Given a python data type, returns the appropriate type for database values.
 	This is generally the same as the original, except when the value is float and
 	the Decimal type is available.
 	"""
@@ -72,7 +74,8 @@ def getDataType(pythonType):
 	return ret
 
 def connect(*args, **kwargs):
-	"""Convenience method: given connection info, return a dConnection instance.
+	"""
+	Convenience method: given connection info, return a dConnection instance.
 
 	Passed connection info can either be in the form of a dConnectInfo object,
 	or individual arguments to pass to dConnection's constructor.

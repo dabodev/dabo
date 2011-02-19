@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-r"""UUID objects (universally unique identifiers) according to RFC 4122.
+"""
+UUID objects (universally unique identifiers) according to RFC 4122.
 
 This module provides immutable UUID objects (class UUID) and the functions
 uuid1(), uuid3(), uuid4(), uuid5() for generating version 1, 3, 4, and 5
@@ -44,7 +45,8 @@ Typical usage:
     >>> uuid.UUID(bytes=x.bytes)
     UUID('00010203-0405-0607-0809-0a0b0c0d0e0f')
 
-This module works with Python 2.3 or higher."""
+This module works with Python 2.3 or higher.
+"""
 
 
 __author__ = 'Ka-Ping Yee <ping@zesty.ca>'
@@ -56,7 +58,8 @@ RESERVED_NCS, RFC_4122, RESERVED_MICROSOFT, RESERVED_FUTURE = [
     'reserved for Microsoft compatibility', 'reserved for future definition']
 
 class UUID(object):
-    """Instances of the UUID class represent UUIDs as specified in RFC 4122.
+    """
+    Instances of the UUID class represent UUIDs as specified in RFC 4122.
     UUID objects are immutable, hashable, and usable as dictionary keys.
     Converting a UUID to a string with str() yields something in the form
     '12345678-1234-1234-1234-123456789abc'.  The UUID constructor accepts
@@ -99,7 +102,8 @@ class UUID(object):
 
     def __init__(self, hex=None, bytes=None, fields=None, int=None,
                        version=None):
-        r"""Create a UUID from either a string of 32 hexadecimal digits,
+        """
+        Create a UUID from either a string of 32 hexadecimal digits,
         a string of 16 bytes as the 'bytes' argument, a tuple of six
         integers (32-bit time_low, 16-bit time_mid, 16-bit time_hi_version,
         8-bit clock_seq_hi_variant, 8-bit clock_seq_low, 48-bit node) as
@@ -310,7 +314,8 @@ def _ipconfig_getnode():
                 return int(value.replace('-', ''), 16)
 
 def _netbios_getnode():
-    """Get the hardware address on Windows using NetBIOS calls.
+    """
+    Get the hardware address on Windows using NetBIOS calls.
     See http://support.microsoft.com/kb/118623 for details."""
     import win32wnet, netbios
     ncb = netbios.NCB()
@@ -389,10 +394,12 @@ def _random_getnode():
 _node = None
 
 def getnode():
-    """Get the hardware address as a 48-bit integer.  The first time this
+    """
+    Get the hardware address as a 48-bit integer.  The first time this
     runs, it may launch a separate program, which could be quite slow.  If
     all attempts to obtain the hardware address fail, we choose a random
-    48-bit number with its eighth bit set to 1 as recommended in RFC 4122."""
+    48-bit number with its eighth bit set to 1 as recommended in RFC 4122.
+    """
 
     global _node
     if _node is not None:
@@ -413,10 +420,12 @@ def getnode():
             return _node
 
 def uuid1(node=None, clock_seq=None):
-    """Generate a UUID from a host ID, sequence number, and the current time.
+    """
+    Generate a UUID from a host ID, sequence number, and the current time.
     If 'node' is not given, getnode() is used to obtain the hardware
     address.  If 'clock_seq' is given, it is used as the sequence number;
-    otherwise a random 14-bit sequence number is chosen."""
+    otherwise a random 14-bit sequence number is chosen.
+    """
 
     # When the system provides a version-1 UUID generator, use it (but don't
     # use UuidCreate here because its UUIDs don't conform to RFC 4122).

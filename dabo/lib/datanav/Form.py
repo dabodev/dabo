@@ -22,13 +22,16 @@ dabo.ui.loadUI("wx")
 
 
 class Form(dabo.ui.dForm):
-	""" This is a dForm but with the following added controls:
+	"""
+	This is a dForm but with the following added controls:
+		
 		+ Navigation Menu
 		+ Navigation ToolBar
 		+ PageFrame with 3 pages by default:
 			+ Select : Enter sql-select criteria.
 			+ Browse : Browse the result set and pick an item to edit.
 			+ Edit	 : Edit the current record in the result set.
+	
 	"""
 	def initProperties(self):
 		self.AutoUpdateStatusText = True
@@ -349,7 +352,8 @@ class Form(dabo.ui.dForm):
 
 
 	def setupMenu(self):
-		""" Set up the action menu for this frame.
+		"""
+		Set up the action menu for this frame.
 
 		Called when the form is created.
 		"""
@@ -370,7 +374,8 @@ class Form(dabo.ui.dForm):
 
 
 	def setupPageFrame(self):
-		""" Set up the select/browse/edit/n pageframe.
+		"""
+		Set up the select/browse/edit/n pageframe.
 
 		Default behavior is to set up a 3-page pageframe with 'Select',
 		'Browse', and 'Edit' pages. User may override and/or extend in
@@ -440,17 +445,17 @@ class Form(dabo.ui.dForm):
 
 
 	def onSetSelectionCriteria(self, evt):
-		""" Occurs when the user chooses to set the selection criteria."""
+		"""Occurs when the user chooses to set the selection criteria."""
 		self.pageFrame.SelectedPage = 0
 
 
 	def onBrowseRecords(self, evt):
-		""" Occurs when the user chooses to browse the record set."""
+		"""Occurs when the user chooses to browse the record set."""
 		self.pageFrame.SelectedPage = 1
 
 
 	def onEditCurrentRecord(self, evt):
-		""" Occurs when the user chooses to edit the current record."""
+		"""Occurs when the user chooses to edit the current record."""
 		# We stored the datasource in the menu item's Tag property when
 		# the menu was created.
 		self.pageFrame.editByDataSource(evt.EventObject.Tag)
@@ -595,7 +600,8 @@ class Form(dabo.ui.dForm):
 
 
 	def setPrimaryBizobjToDefault(self, ds):
-		""" This method is called when we leave an editing page. The
+		"""
+		This method is called when we leave an editing page. The
 		intent is that if we move to another editing page, it will set the
 		form's primary bizobj to the appropriate one for that page,
 		so we don't need to do anything. But if they switch to the
@@ -621,7 +627,8 @@ class Form(dabo.ui.dForm):
 
 
 	def getBizobjsToCheck(self):
-		""" The primary bizobj may be for one of the child pages.
+		"""
+		The primary bizobj may be for one of the child pages.
 		Therefore, we should return the main bizobj here
 		"""
 		try:
@@ -631,7 +638,8 @@ class Form(dabo.ui.dForm):
 
 
 	def onRequery(self, evt):
-		""" Override the dForm behavior by running the requery through the select page.
+		"""
+		Override the dForm behavior by running the requery through the select page.
 		"""
 		self.requery()
 
@@ -650,14 +658,14 @@ class Form(dabo.ui.dForm):
 
 
 	def pickRecord(self):
-		""" This form is a picklist, and the user chose a record in the grid.
-		"""
+		"""This form is a picklist, and the user chose a record in the grid."""
 		# Raise Hit event so the originating form can act
 		self.raiseEvent(dEvents.Hit)
 
 
 	def getReportForm(self, mode):
-		"""Returns the rfxml to generate a report for the dataset.
+		"""
+		Returns the rfxml to generate a report for the dataset.
 
 		The mode is one of "list" or "expanded", and determines the format of the
 		report output. "list" basically mimics the browse grid, with one line per
@@ -665,20 +673,19 @@ class Form(dabo.ui.dForm):
 		the edit page, with any number of lines for each record.
 
 		The rfxml can come from a few places, in descending precedence:
+		
 			1) if self.ReportForm["list"] or self.ReportForm["expanded"] exists,
 			   that will be used.    *** NOT IMPLEMENTED YET ***
-
 			2) if self.ReportFormFile["list"] or self.ReportFormFile["expanded"] exists,
 			   that will be used.    *** NOT IMPLEMENTED YET ***
-
 			3) if self.Application.HomeDirectory/reports/datanav-<cursorname>-(list|expanded).rfxml
 			   exists, that will be used. IOW, drop in a properly named rfxml file into
 			   the reports directory underneath your application home, and it will be used
 			   automatically.
-
 			4) a generic report form will be generated. If mode=="list", the fields displayed
 			   will be as defined in the browse page. If mode=="expanded", the fields displayed
 			   will be as defined in the edit page.
+
 		"""
 		def getNamedReportForm(mode):
 			fileName = os.path.join(self.Application.HomeDirectory, "reports",
@@ -1149,14 +1156,15 @@ class Form(dabo.ui.dForm):
 				Edit:
 					Modal version of normal, with no Select/Browse pages. User code sends
 					the Primary Key of the record to edit.
-"""))
+			"""))
 
 	PageFrameStyle = property(_getPageFrameStyle, _setPageFrameStyle, None,
 			_("""Specifies the style of pageframe to set up. Valid values are:
 
 				Tabs (default)
 				List (down the side)
-				Select"""))
+				Select
+			"""))
 
 	PageTabPosition = property(_getPageTabPosition, _setPageTabPosition, None,
 			_("""Specifies the location of the pageframe tabs. Valid values are:
@@ -1166,7 +1174,8 @@ class Form(dabo.ui.dForm):
 				Right
 				Bottom
 
-				This only applies when PageFrameStyle is set to "Tabs"."""))
+				This only applies when PageFrameStyle is set to "Tabs".
+			"""))
 
 	SelectPageClass = property(_getSelectPageClass, _setSelectPageClass, None,
 			_("""Specifies the class to use for the select page."""))

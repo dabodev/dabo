@@ -5,23 +5,26 @@ from dabo.dObject import dObject
 
 
 class dTable(dObject):
-	"""This class is used to hold information about a table so it can
+	"""
+	This class is used to hold information about a table so it can
 	be created on any database.
 
 	For example:
 		To define a temporary table named 'mytemp' that has ? fields,
 		where the fields are:
+			
 			field 1: 'theid', it is an autoincrementing field that uses a 2 byte integer
 			field 2: 'first_name', it is a string field that has a max of 25
-				characters, part of an indexes 'idx_first' and 'idx_name'
+				     characters, part of an indexes 'idx_first' and 'idx_name'
 			field 3: 'last_name', it is a string field that has a max of 25
-				characters, NULL's are not allowed, part of an indexes
-				'idx_last' and 'idx_name'
+				     characters, NULL's are not allowed, part of an indexes
+				     'idx_last' and 'idx_name'
 			field 4: 'amount_owes', it is a float that has a total of 8 decimal places,
-				2 of the decimal places are to the right of the point, uses 8 bytes,
-				and the default is 0
+				     2 of the decimal places are to the right of the point, uses 8 bytes,
+				     and the default is 0
 
-		Code Example:
+		Code Example::
+			
 			from dabo.db import dTable
 			myTable = dTable(Name="mytemp", IsTemp=True)
 			myTable.addField(Name="theid", IsPK=True, DataType="int",
@@ -34,6 +37,7 @@ class dTable(dObject):
 					TotalDP=8, RightDP=2, Size=8, Default=0)
 			# When you want to have more than one field in an index, use addIndex().
 			myTable.addIndex(Name="idx_name", Fields=("last_name","first_name"))
+			
 	"""
 	def __init__(self, *args, **kwargs):
 		self._baseClass = dTable
@@ -318,7 +322,8 @@ class dField(dObject):
 
 
 class fType(dObject):
-	"""Dabo DB Field Type - Used to hold the information about types
+	"""
+	Dabo DB Field Type - Used to hold the information about types
 	of fields in any database.
 	"""
 	def __init__(self, *args, **kwargs):
@@ -331,7 +336,8 @@ class fType(dObject):
 
 
 	def _setDataType(self, datatype):
-		"""Allowed types: Numeric, Float, String, Date, Time,
+		"""
+		Allowed types: Numeric, Float, String, Date, Time,
 		DateTime, Stamp, Binary"""
 
 		check = {"numeric": "Numeric",

@@ -36,7 +36,8 @@ def caseInsensitiveSortKey(vv):
 
 
 def reverseText(tx):
-	"""Takes a string and returns it reversed. Example:
+	"""
+	Takes a string and returns it reversed. Example:
 
 	utils.reverseText("Wow, this is so cool!")
 		=> returns "!looc os si siht ,woW"
@@ -45,7 +46,8 @@ def reverseText(tx):
 
 
 def getUserHomeDirectory():
-	"""Return the user's home directory in a platform-portable way.
+	"""
+	Return the user's home directory in a platform-portable way.
 
 	If the home directory cannot be determined, return None.
 	"""
@@ -76,7 +78,8 @@ def getUserHomeDirectory():
 
 
 def getUserAppDataDirectory(appName="Dabo"):
-	"""Return the directory where Dabo can save user preference and setting information.
+	"""
+	Return the directory where Dabo can save user preference and setting information.
 
 	On *nix, this will be something like /home/pmcnett/.dabo
 	On Windows, it will be more like c:\Documents and Settings\pmcnett\Application Data\Dabo
@@ -123,7 +126,8 @@ def getUserAppDataDirectory(appName="Dabo"):
 
 
 def dictStringify(dct):
-	"""The ability to pass a properties dict to an object relies on
+	"""
+	The ability to pass a properties dict to an object relies on
 	the practice of passing '**properties' to a function. Seems that
 	Python requires that the keys in any dict being expanded like
 	this be strings, not unicode. This method returns a dict with all
@@ -149,7 +153,8 @@ def getEncodings():
 
 
 def ustr(value):
-	"""Convert the passed value to a python unicode object.
+	"""
+	Convert the passed value to a python unicode object.
 
 	When converting to a string, do not use the str() function, which
 	can create encoding errors with non-ASCII text.
@@ -194,7 +199,8 @@ def exceptionToUnicode(e):
 
 
 def relativePathList(toLoc, fromLoc=None):
-	"""Given two paths, returns a list that, when joined with
+	"""
+	Given two paths, returns a list that, when joined with
 	os.path.sep, gives the relative path from 'fromLoc' to
 	"toLoc'. If 'fromLoc' is not specified, the current directory
 	is assumed.
@@ -250,7 +256,8 @@ def getPathAttributePrefix():
 
 
 def resolveAttributePathing(atts, pth=None, abspath=False):
-	"""Dabo design files store their information in XML, which means
+	"""
+	Dabo design files store their information in XML, which means
 	when they are 'read' the values come back in a dictionary of
 	attributes, which are then used to restore the designed object to its
 	intended state. Path values will be stored in a relative path format,
@@ -281,7 +288,8 @@ def resolveAttributePathing(atts, pth=None, abspath=False):
 
 
 def resolvePath(val, pth=None, abspath=False):
-	"""Takes a single string value in the format Dabo uses to store pathing
+	"""
+	Takes a single string value in the format Dabo uses to store pathing
 	in XML, and returns the original path relative to the specified path (or the
 	current directory, if no pth is specified). If 'abspath' is True, returns an
 	absolute path instead of the default relative path.
@@ -297,7 +305,8 @@ def resolvePath(val, pth=None, abspath=False):
 
 
 def locateRelativeTo(containerPath, itemPath):
-	"""Paths to items, such as custom contained classes, should be relative to
+	"""
+	Paths to items, such as custom contained classes, should be relative to
 	the container they are in.
 	"""
 	# Start with the item's current location
@@ -381,7 +390,8 @@ def resolvePathAndUpdate(srcFile):
 
 
 def cleanMenuCaption(cap, bad=None):
-	"""Menu captions can contain several special characters that make them
+	"""
+	Menu captions can contain several special characters that make them
 	unsuitable for things such as preference settings. This method provides
 	a simple way of getting the 'clean' version of these captions. By default it
 	strips ampersands, spaces and periods; you can change that by passing
