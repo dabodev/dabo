@@ -11,9 +11,10 @@ refactored code is also far easier to maintain and comprehend.  This mixin is ma
 targeted and Forms, Dialogs, and Panels.
 
 """
-import dabo
 import types
-
+import dabo
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.lib.utils import ustr
 
