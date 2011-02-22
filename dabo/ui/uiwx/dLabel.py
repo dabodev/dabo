@@ -29,10 +29,11 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 		"""Event binding is set when WordWrap=True. Tell the label
 		to wrap to its current width.
 		"""
-		if self._inResizeEvent:
-			return
-		self._inResizeEvent = True
-		dabo.ui.callAfterInterval(100, self.__resizeExecute)
+		if self.WordWrap:
+			if self._inResizeEvent:
+				return
+			self._inResizeEvent = True
+			dabo.ui.callAfterInterval(100, self.__resizeExecute)
 
 
 	def __resizeExecute(self):
@@ -54,7 +55,6 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 		flag must be reset outside of the execution method.
 		"""
 		self.Parent.unlockDisplayAll()
-		self.update()
 		self._inResizeEvent = False
 
 
