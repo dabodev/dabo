@@ -686,7 +686,7 @@ Database error message: %s""") %	err
 		# the children, and return the first one that matches.
 		if not parentBizobj:
 			# start the recursive walk:
-			for key in self.bizobjs.keys():
+			for key in self.bizobjs:
 				bo = self.getBizobj(dataSource, self.bizobjs[key])
 				if bo:
 					return bo
