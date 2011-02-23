@@ -122,7 +122,11 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 				if self.AutoResize:
 					self._resetAutoResize = True
 					self.AutoResize = False
-				dabo.ui.callAfter(self.Parent.layout)
+				try:
+					dabo.ui.callAfter(self.Parent.layout)
+				except AttributeError:
+					# Parent has no layout() method.
+					pass
 			else:
 				# reset the value
 				self.AutoResize = self._resetAutoResize
