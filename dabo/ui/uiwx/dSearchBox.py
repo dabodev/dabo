@@ -13,22 +13,72 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 	"""Creates a text box for editing one line of string data."""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dSearchBox
-
 		self._list = []
 		self._cancelVisible = False
 		self._searchVisible = True
-
 		preClass = wx.PreSearchCtrl
 		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
 	def _initEvents(self):
 		super(dSearchBox, self)._initEvents()
+		#Following code fixes Windows platform control issue,
+		#crashing when destroying and control has focus on it.
+		if self.Application.Platform in ('Win', 'GTK'):
+			for child in self.GetChildren():
+				if isinstance(child, wx.TextCtrl):
+					self._txtCtrl = child
+					break
+			self.Unbind(wx.EVT_SET_FOCUS)
+			self.Unbind(wx.EVT_KILL_FOCUS)
+			self.Unbind(wx.EVT_CHAR)
+			self.Unbind(wx.EVT_KEY_DOWN)
+			self.Unbind(wx.EVT_KEY_UP)
+			self._txtCtrl.Bind(wx.EVT_KILL_FOCUS, self.__onWxGotFocus)
+			self._txtCtrl.Bind(wx.EVT_KILL_FOCUS, self.__onWxLostFocus)
+			self._txtCtrl.Bind(wx.EVT_CHAR, self.__onWxKeyChar)
+			self._txtCtrl.Bind(wx.EVT_KEY_DOWN, self.__onWxKeyDown)
+			self._txtCtrl.Bind(wx.EVT_KEY_UP, self.__onWxKeyUp)
 		self.Bind(wx.EVT_SEARCHCTRL_SEARCH_BTN, self.__onWxSearchBtnPressed)
 		self.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, self.__onWxCancelBtnPressed)
 
 
 	#handle events
+	def __onWxKeyChar(self, evt):
+		if not (isinstance(self, dabo.ui.dComboBox) and evt.KeyCode == 9):
+			self.raiseEvent(dEvents.KeyChar, evt)
+
+
+	def __onWxKeyUp(self, evt):
+		if self.Application.Platform == "Win":
+			# Windows doesn't automatically catch Ctrl+A
+			ctrl = evt.ControlDown()
+			kc = evt.GetRawKeyCode()
+			try:
+				char = chr(kc).lower()
+			except ValueError:
+				char = None
+			if ctrl and char == "a":
+				self.selectAll()
+		self.raiseEvent(dEvents.KeyUp, evt)
+
+
+	def __onWxKeyDown(self, evt):
+		self.raiseEvent(dEvents.KeyDown, evt)
+
+
+	def __onWxGotFocus(self, evt):
+		self._pushStatusText()
+		self.raiseEvent(dabo.dEvents.GotFocus, evt)
+
+
+	def __onWxLostFocus(self, evt):
+		if self._finito:
+			return
+		self._popStatusText()
+		self.raiseEvent(dabo.dEvents.LostFocus, evt)
+
+
 	def __onWxSearchBtnPressed(self, evt):
 		self.raiseEvent(dEvents.SearchButtonClicked, evt)
 
@@ -58,7 +108,6 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 				self._cancelVisible = True
 			else:
 				self._cancelVisible = False
-
 			self.ShowCancelButton(self._cancelVisible)
 		else:
 			self._properties["CancelButtonVisible"] = val
@@ -95,7 +144,6 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 				self._searchVisible = True
 			else:
 				self._searchVisible = False
-
 			self.ShowSearchButton(self._searchVisible)
 		else:
 			self._properties["SearchButtonVisible"] = val
@@ -178,10 +226,10 @@ if __name__ == "__main__":
 	testParms = [IntText, FloatText, StrText, PWText, BoolText, DateText, DateTimeText]
 
 	import decimal
+
 	class DecimalText(TestBase):
 		def afterInit(self):
 			self.Value = decimal.Decimal("23.42")
+
 	testParms.append(DecimalText)
-
-
 	test.Test().runTest(testParms)
