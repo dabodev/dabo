@@ -2327,6 +2327,11 @@ afterDelete() which is only called after a delete().""")
 		return self._CurrentCursor.DataStructure
 
 	def _setDataStructure(self, val):
+		# Although API clearly states there should be tuple type value,
+		# to achieve backward compatibility with older code,
+		# list are explicitly converted into tuples.
+		if isinstance(val, list):
+			val = tuple(val)
 		if not isinstance(val, (types.NoneType, tuple)):
 			raise TypeError(_("Invalid type '%s' for property DataStructure. " \
 					"An tuple value is required.") % type(val))
