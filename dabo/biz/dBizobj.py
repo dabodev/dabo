@@ -2327,6 +2327,9 @@ afterDelete() which is only called after a delete().""")
 		return self._CurrentCursor.DataStructure
 
 	def _setDataStructure(self, val):
+		if not isinstance(val, (types.NoneType, tuple)):
+			raise TypeError(_("Invalid type '%s' for property DataStructure. " \
+					"An tuple value is required.") % type(val))
 		for key, cursor in self.__cursors.items():
 			cursor.DataStructure = val
 		self._dataStructure = val
