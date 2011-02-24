@@ -503,6 +503,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		itemID = self.AddRoot(txt)
 		ret = self._rootNode = self.NodeClass(self, itemID, None)
 		self.nodes.append(ret)
+		ret.Font = self.Font
 		return ret
 
 
@@ -515,6 +516,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		itemID = self.AppendItem(ndid, txt)
 		ret = self.NodeClass(self, itemID, node)
 		self.nodes.append(ret)
+		ret.Font = self.Font
 		return ret
 
 
@@ -911,11 +913,15 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 	def _setAbsoluteFontZoom(self, newZoom):
 		self._currFontZoom = newZoom
+		firstOnly = (self.Application.Platform == "Win")
 		for node in self.nodes:
 			origFontSize = node._origFontSize = getattr(node, "_origFontSize", node.FontSize)
 			fontSize = origFontSize + newZoom
 			if fontSize > 1:
 				node.FontSize = fontSize
+			if firstOnly:
+				# On Windows platform all nodes has the same font size.
+				break
 
 		if self.Form is not None:
 			dabo.ui.callAfterInterval(200, self.Form.layout)
