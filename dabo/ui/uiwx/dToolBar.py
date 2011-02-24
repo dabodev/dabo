@@ -392,26 +392,22 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		return self._hasWindowStyleFlag(wx.TB_TEXT)
 
 	def _setShowCaptions(self, val):
+		self._delWindowStyleFlag(wx.TB_TEXT)
+		if val:
+			self._addWindowStyleFlag(wx.TB_TEXT)
 		if self._constructed():
-			self._delWindowStyleFlag(wx.TB_TEXT)
-			if val:
-				self._addWindowStyleFlag(wx.TB_TEXT)
 			self._realize()
-		else:
-			self._properties["ShowCaptions"] = val
 
 
 	def _getShowIcons(self):
 		return not self._hasWindowStyleFlag(wx.TB_NOICONS)
 
 	def _setShowIcons(self, val):
+		self._delWindowStyleFlag(wx.TB_NOICONS)
+		if not val:
+			self._addWindowStyleFlag(wx.TB_NOICONS)
 		if self._constructed():
-			self._delWindowStyleFlag(wx.TB_NOICONS)
-			if not val:
-				self._addWindowStyleFlag(wx.TB_NOICONS)
 			self._realize()
-		else:
-			self._properties["ShowIcons"] = val
 
 
 	def _getToolbarItemClass(self):
