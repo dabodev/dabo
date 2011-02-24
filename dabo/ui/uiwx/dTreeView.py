@@ -128,9 +128,12 @@ class dNode(dObject):
 	def _setFont(self, val):
 		assert isinstance(val, dabo.ui.dFont)
 		self._font = val
-		self.tree.SetItemFont(self.itemID, val._nativeFont)
-		val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onFontPropsChanged)
-		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
+		if not self.IsRootNode or self.tree.ShowRootNode:
+			# On some platforms exception is raised while operation
+			# on hidden root node.
+			self.tree.SetItemFont(self.itemID, val._nativeFont)
+			val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onFontPropsChanged)
+			dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
 
 	def _getFontBold(self):
@@ -1088,22 +1091,22 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		return self._hasWindowStyleFlag(wx.TR_MULTIPLE)
 
 	def _setMultipleSelect(self, val):
-		if self._constructed():
-			self._delWindowStyleFlag(wx.TR_MULTIPLE)
-			self._delWindowStyleFlag(wx.TR_EXTENDED)
-			self._delWindowStyleFlag(wx.TR_SINGLE)
-			if val:
-				self._addWindowStyleFlag(wx.TR_MULTIPLE)
-				self._addWindowStyleFlag(wx.TR_EXTENDED)
-			else:
+		self._delWindowStyleFlag(wx.TR_MULTIPLE)
+		self._delWindowStyleFlag(wx.TR_EXTENDED)
+		self._delWindowStyleFlag(wx.TR_SINGLE)
+		if val:
+			self._addWindowStyleFlag(wx.TR_MULTIPLE)
+			self._addWindowStyleFlag(wx.TR_EXTENDED)
+		else:
+			if self._constructed():
 				self.lockDisplay()
 				sel = self.Selection
 				self.UnselectAll()
 				self._addWindowStyleFlag(wx.TR_SINGLE)
 				self.Selection = sel
 				self.unlockDisplay()
-		else:
-			self._properties["MultipleSelect"] = val
+			else:
+				self._addWindowStyleFlag(wx.TR_SINGLE)
 
 
 	def _getNodeClass(self):
