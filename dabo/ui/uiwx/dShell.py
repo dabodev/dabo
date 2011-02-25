@@ -168,7 +168,8 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 
 
 	def processLine(self):
-		"""This is part of the underlying class. We need to add the command that
+		"""
+		This is part of the underlying class. We need to add the command that
 		gets processed into our internal stack.
 		"""
 		edt = self.CanEdit()
@@ -509,8 +510,10 @@ Ctrl-Up/Down to scroll through history."""))
 
 
 	def processDroppedFiles(self, filelist):
-		"""This will fire if files are dropped on the code editor. If more than one
-		file is dropped, only open the first, and warn the user."""
+		"""
+		This will fire if files are dropped on the code editor. If more than one
+		file is dropped, only open the first, and warn the user.
+		"""
 		if len(filelist) > 1:
 			dabo.ui.exclaim(_("Only one file can be dropped at a time"))
 		self.edtCode.Value = file(filelist[0]).read()
@@ -525,7 +528,8 @@ Ctrl-Up/Down to scroll through history."""))
 
 
 	def onHistoryPop(self, evt):
-		"""Let the user type in part of a command, and retrieve the matching commands
+		"""
+		Let the user type in part of a command, and retrieve the matching commands
 		from their history.
 		"""
 		ds = self._loadHistory()
@@ -544,7 +548,8 @@ Ctrl-Up/Down to scroll through history."""))
 
 
 	def restoreHistory(self):
-		"""Get the stored history from previous sessions, and set the shell's
+		"""
+		Get the stored history from previous sessions, and set the shell's
 		internal command history list to it.
 		"""
 		ds = self._loadHistory()

@@ -10,7 +10,8 @@ import dControlMixin as dcm
 
 
 class dStatusBar(dcm.dControlMixin, wx.StatusBar):
-	"""Creates a status bar, which displays information to the user.
+	"""
+	Creates a status bar, which displays information to the user.
 
 	The status bar is displayed at the bottom of the form. Add the status bar
 	to your form using form.StatusBar=dStatusBar().
@@ -25,7 +26,7 @@ class dStatusBar(dcm.dControlMixin, wx.StatusBar):
 
 
 	def layout(self):
-		""" Wrap the wx version of the call, if possible. """
+		"""Wrap the wx version of the call, if possible."""
 		self.Layout()
 		for child in self.Children:
 			try:

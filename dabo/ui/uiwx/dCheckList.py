@@ -9,7 +9,8 @@ from dabo.dLocalize import _
 
 
 class dCheckList(dcm.dControlItemMixin, wx.CheckListBox):
-	"""Creates a listbox, allowing the user to choose one or more items
+	"""
+	Creates a listbox, allowing the user to choose one or more items
 	by checking/unchecking each one.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):

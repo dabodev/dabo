@@ -55,7 +55,8 @@ class _BasePanelMixin(object):
 
 
 	def _positionSquareInSizer(self, evt, sz):
-		"""When resizing to a square, we have to manually handle alignment if
+		"""
+		When resizing to a square, we have to manually handle alignment if
 		this panel is in a sizer and set to expand.
 		"""
 		cs = self.ControllingSizer
@@ -84,7 +85,7 @@ class _BasePanelMixin(object):
 
 
 	def layout(self, resetMin=False):
-		""" Wrap the wx version of the call, if possible. """
+		"""Wrap the wx version of the call, if possible."""
 		if not self:
 			return
 		if resetMin or self._alwaysResetSizer or self._square:
@@ -252,7 +253,8 @@ class _DataPanelMixin(dcm.dDataControlMixin, _BasePanelMixin):
 
 
 class dPanel(_PanelMixin, wx.Panel):
-	"""Creates a panel, a basic container for controls.
+	"""
+	Creates a panel, a basic container for controls.
 
 	Panels can contain subpanels to unlimited depth, making them quite
 	flexible for many uses. Consider laying out your forms on panels
@@ -266,13 +268,16 @@ class dPanel(_PanelMixin, wx.Panel):
 
 
 class dDataPanel(_DataPanelMixin, wx.Panel):
-	"""Creates a panel, a basic container for controls. This panel, unlike the plain
+	"""
+	Creates a panel, a basic container for controls. This panel, unlike the plain
 	dPanel class, inherits from the Data Control mixin class, which makes it useful
 	building composite controls that have a Value that can be bound like any simple
 	control.
 
-	NOTE: you are responsible for implementing the Value property correctly in
-	your subclasses.
+	.. note::
+		You are responsible for implementing the Value property correctly in
+		your subclasses.
+	
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dDataPanel
@@ -283,7 +288,8 @@ class dDataPanel(_DataPanelMixin, wx.Panel):
 
 
 class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
-	""" This is a basic container for controls that allows scrolling.
+	"""
+	This is a basic container for controls that allows scrolling.
 
 	Panels can contain subpanels to unlimited depth, making them quite
 	flexible for many uses. Consider laying out your forms on panels

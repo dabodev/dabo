@@ -11,7 +11,8 @@ from dabo.ui import makeDynamicProperty
 
 
 class dSlider(dcm.dDataControlMixin, wx.Slider):
-	"""Creates a slider control, allowing editing integer values. Unlike dSpinner,
+	"""
+	Creates a slider control, allowing editing integer values. Unlike dSpinner,
 	dSlider does not allow entering a value with the keyboard.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):

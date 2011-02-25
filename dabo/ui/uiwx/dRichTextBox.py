@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
@@ -35,7 +35,8 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 
 
 	def load(self, fileOrObj=None):
-		"""Takes either a file-like object or a file path, and loads the content
+		"""
+		Takes either a file-like object or a file path, and loads the content
 		into the control.
 		"""
 		if fileOrObj is None:

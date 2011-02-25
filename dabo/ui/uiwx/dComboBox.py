@@ -10,7 +10,8 @@ import dKeys
 
 
 class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
-	"""Creates a combobox, which combines a dropdown list with a textbox.
+	"""
+	Creates a combobox, which combines a dropdown list with a textbox.
 
 	The user can choose an item in the dropdown, or enter freeform text.
 	"""
@@ -53,7 +54,8 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 
 
 	def __onWxKeyDown(self, evt):
-		"""We need to capture the Enter/Return key in order to implement
+		"""
+		We need to capture the Enter/Return key in order to implement
 		the AppendOnEnter behavior. However, under Windows this leads to
 		navigation issues, so we also need to capture when Tab is pressed,
 		and handle the navigation ourselves.
@@ -95,8 +97,10 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 
 
 	def _checkTextLength(self):
-		"""If the TextLength property is set, checks the current value of the control
-		and truncates it if too long"""
+		"""
+		If the TextLength property is set, checks the current value of the control
+		and truncates it if too long
+		"""
 		if not self:
 			# The control is being destroyed
 			return
@@ -115,7 +119,8 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 
 
 	def _checkForceCase(self):
-		"""If the ForceCase property is set, casts the current value of the control
+		"""
+		If the ForceCase property is set, casts the current value of the control
 		to the specified case.
 		"""
 		if not self:
@@ -138,7 +143,8 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 
 
 	def beforeAppendOnEnter(self):
-		"""Hook method that is called when user-defined text is entered
+		"""
+		Hook method that is called when user-defined text is entered
 		into the combo box and Enter is pressed (when self.AppendOnEnter
 		is True). This gives the programmer the ability to interact with such
 		events, and optionally prevent them from happening. Returning
@@ -155,7 +161,8 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 
 
 	def afterAppendOnEnter(self):
-		"""Hook method that provides a means to interact with the newly-
+		"""
+		Hook method that provides a means to interact with the newly-
 		changed list of items after a new item has been added by the user
 		pressing Enter, but before control returns to the program.
 		"""
@@ -236,10 +243,14 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 
 	ForceCase = property(_getForceCase, _setForceCase, None,
 			_("""Determines if we change the case of entered text. Possible values are:
-				None, "" (empty string): No changes made (default)
-				"Upper": FORCE TO UPPER CASE
-				"Lower": force to lower case
-				"Title": Force To Title Case
+				
+				============ =====================
+				None or ""   No changes made (default)
+				"Upper"      FORCE TO UPPER CASE
+				"Lower"      Force to lower case
+				"Title"      Force To Title Case
+				============ =====================
+				
 			These can be abbreviated to "u", "l" or "t"  (str)"""))
 
 	TextLength = property(_getTextLength, _setTextLength, None,

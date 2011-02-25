@@ -2,7 +2,8 @@
 # Improved version of Python Cookbook recipe
 # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/286195
 
-"""Automatically determine the correct super object and use it.
+"""
+Automatically determine the correct super object and use it.
 
 This module defines a mix-in class `autosuper` which has a single property -
 `super`.
@@ -63,7 +64,8 @@ method is assigned to another method).
 
 **Note:** For performance reasons, this implementation modifies the bytecode of
 functions. To disable bytecode modification, set `__super_modify_bytecode__` to
-`False`."""
+`False`.
+"""
 
 from __future__ import generators
 

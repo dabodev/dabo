@@ -13,7 +13,8 @@ import dTextBoxMixin as tbm
 
 
 class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
-	""" This is a specialized textbox class that supports a Mask property. The
+	"""
+	This is a specialized textbox class that supports a Mask property. The
 	mask determines what characters are allowed in the textbox, and can also
 	include formatting characters that are not part of the control's Value.
 	"""
@@ -96,7 +97,8 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 
 
 	def _uniqueCodes(self, codes):
-		"""Take a string and return the same string with any duplicate characters removed.
+		"""
+		Take a string and return the same string with any duplicate characters removed.
 		The order of the characters is not preserved.
 		"""
 		return "".join(dict.fromkeys(codes).keys())
@@ -220,83 +222,109 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 			_("""Characters that define the type of input that the control will accept.  (str)
 
 			These are the available input codes and their meaning:
-			===============================================
-			Character   Meaning
-			===============================================
-				#       Allow numeric only (0-9)
+			
+			+-----------+---------------------------------------------------------------+
+			|Character  |Meaning                                                        |
+			+===========+===============================================================+
+			|   #       |Allow numeric only (0-9)                                       |
+			+-----------+---------------------------------------------------------------+
+			|   _       |Allow spaces                                                   |
+			+-----------+---------------------------------------------------------------+
+			|   !       |Force upper                                                    |
+			+-----------+---------------------------------------------------------------+
+			|   ^       |Force lower                                                    |
+			+-----------+---------------------------------------------------------------+
+			|   R       |Right-align field(s)                                           |
+			+-----------+---------------------------------------------------------------+
+			|   r       |Right-insert in field(s) (implies R)                           |
+			+-----------+---------------------------------------------------------------+
+			|   <       |Stay in field until explicit navigation out of it              |
+			+-----------+---------------------------------------------------------------+
+			|   >       |Allow insert/delete within partially filled fields (as         |
+			|           |opposed to the default "overwrite" mode for fixed-width        |
+			|           |masked edit controls.)  This allows single-field controls      |
+			|           |or each field within a multi-field control to optionally       |
+			|           |behave more like standard text controls.                       |
+			|           |(See EMAIL or phone number autoformat examples.)               |
+			|           |                                                               |
+			|           |Note: This also governs whether backspace/delete operations    |
+			|           |shift contents of field to right of cursor, or just blank the  |
+			|           |erased section.                                                |
+			|           |                                                               |
+			|           |Also, when combined with 'r', this indicates that the field    |
+			|           |or control allows right insert anywhere within the current     |
+			|           |non-empty value in the field.(Otherwise right-insert behavior  |
+			|           |is only performed to when the entire right-insertable field    |
+			|           |is selected or the cursor is at the right edge of the field.   |
+			+-----------+---------------------------------------------------------------+
+			|   ,       |Allow grouping character in integer fields of numeric controls |
+			|           |and auto-group/regroup digits (if the result fits) when leaving|
+			|           |such a field.  (If specified, .SetValue() will attempt to      |
+			|           |auto-group as well.)                                           |
+			|           |',' is also the default grouping character.  To change the     |
+			|           |grouping character and/or decimal character, use the groupChar |
+			|           |and decimalChar parameters, respectively.                      |
+			|           |                                                               |
+			|           |Note: typing the "decimal point" character in such fields will |
+			|           |clip the value to that left of the cursor for integer          |
+			|           |fields of controls with "integer" or "floating point" masks.   |
+			|           |If the ',' format code is specified, this will also cause the  |
+			|           |resulting digits to be regrouped properly, using the current   |
+			|           |grouping character.                                            |
+			+-----------+---------------------------------------------------------------+
+			|   -       |Prepend and reserve leading space for sign to mask and allow   |
+			|           |signed values (negative #s shown in red by default.) Can be    |
+			|           |used with argument useParensForNegatives (see below.)          |
+			+-----------+---------------------------------------------------------------+
+			|   0       |integer fields get leading zeros                               |
+			+-----------+---------------------------------------------------------------+
+			|   D       |Date[/time] field                                              |
+			+-----------+---------------------------------------------------------------+
+			|   T       |Time field                                                     |
+			+-----------+---------------------------------------------------------------+
+			|   F       |Auto-Fit: the control calulates its size from                  |
+			|           |the length of the template mask                                |
+			+-----------+---------------------------------------------------------------+
+			|   V       |validate entered chars against validRegex before allowing them |
+			|           |to be entered vs. being allowed by basic mask and then having  |
+			|           |the resulting value just colored as invalid.                   |
+			|           |(See USSTATE autoformat demo for how this can be used.)        |
+			+-----------+---------------------------------------------------------------+
+			|   S       |select entire field when navigating to new field               |
+			+-----------+---------------------------------------------------------------+
 
-				_        Allow spaces
-				!        Force upper
-				^        Force lower
-				R        Right-align field(s)
-				r        Right-insert in field(s) (implies R)
-				<        Stay in field until explicit navigation out of it
-
-				>        Allow insert/delete within partially filled fields (as
-				         opposed to the default "overwrite" mode for fixed-width
-				         masked edit controls.)  This allows single-field controls
-				         or each field within a multi-field control to optionally
-				         behave more like standard text controls.
-				         (See EMAIL or phone number autoformat examples.)
-
-				         *Note: This also governs whether backspace/delete operations
-				         shift contents of field to right of cursor, or just blank the
-				         erased section.
-
-				         Also, when combined with 'r', this indicates that the field
-				         or control allows right insert anywhere within the current
-				         non-empty value in the field.  (Otherwise right-insert behavior
-				         is only performed to when the entire right-insertable field is
-				         selected or the cursor is at the right edge of the field.*
-
-				,        Allow grouping character in integer fields of numeric controls
-				         and auto-group/regroup digits (if the result fits) when leaving
-				         such a field.  (If specified, .SetValue() will attempt to
-				         auto-group as well.)
-				         ',' is also the default grouping character.  To change the
-				         grouping character and/or decimal character, use the groupChar
-				         and decimalChar parameters, respectively.
-				         Note: typing the "decimal point" character in such fields will
-				         clip the value to that left of the cursor for integer
-				         fields of controls with "integer" or "floating point" masks.
-				         If the ',' format code is specified, this will also cause the
-				         resulting digits to be regrouped properly, using the current
-				         grouping character.
-				-        Prepend and reserve leading space for sign to mask and allow
-				         signed values (negative #s shown in red by default.) Can be
-				         used with argument useParensForNegatives (see below.)
-				0        integer fields get leading zeros
-				D        Date[/time] field
-				T        Time field
-				F        Auto-Fit: the control calulates its size from
-				         the length of the template mask
-				V        validate entered chars against validRegex before allowing them
-				         to be entered vs. being allowed by basic mask and then having
-				         the resulting value just colored as invalid.
-				         (See USSTATE autoformat demo for how this can be used.)
-				S        select entire field when navigating to new field
+			
 			"""))
 
 	Mask = property(_getMask, _setMask, None,
 			_("""Display Mask for the control.  (str)
 
 			These are the allowed mask characters and their function:
-			===============================================
-			Character   Function
-			===============================================
-				#       Allow numeric only (0-9)
-				N       Allow letters and numbers (0-9)
-				A       Allow uppercase letters only
-				a       Allow lowercase letters only
-				C       Allow any letter, upper or lower
-				X       Allow string.letters, string.punctuation, string.digits
-				&       Allow string.punctuation only (doesn't include all unicode symbols)
-				*       Allow any visible character
-				|       explicit field boundary (takes no space in the control; allows mix
-						of adjacent mask characters to be treated as separate fields,
-						eg: '&|###' means "field 0 = '&', field 1 = '###'", but there's
-						no fixed characters in between.
-			===============================================
+			
+			+-----------+-------------------------------------------------------------------+
+			|Character  |Function                                                           +
+			+===========+===================================================================+
+			|   #       |Allow numeric only (0-9)                                           |
+			+-----------+-------------------------------------------------------------------+
+			|   N       |Allow letters and numbers (0-9)                                    |
+			+-----------+-------------------------------------------------------------------+
+			|   A       |Allow uppercase letters only                                       |
+			+-----------+-------------------------------------------------------------------+
+			|   a       |Allow lowercase letters only                                       |
+			+-----------+-------------------------------------------------------------------+
+			|   C       |Allow any letter, upper or lower                                   |
+			+-----------+-------------------------------------------------------------------+
+			|   X       |Allow string.letters, string.punctuation, string.digits            |
+			+-----------+-------------------------------------------------------------------+
+			|   &       |Allow string.punctuation only (doesn't include all unicode symbols)|
+			+-----------+-------------------------------------------------------------------+
+			|   \*      |Allow any visible character                                        |
+			+-----------+-------------------------------------------------------------------+
+			|   |       |explicit field boundary (takes no space in the control; allows mix |
+			|           |of adjacent mask characters to be treated as separate fields,      |
+			|           |eg: '&|###' means "field 0 = '&', field 1 = '###'", but there's    |
+			|           |no fixed characters in between.                                    |
+			+-----------+-------------------------------------------------------------------+
 
 			Repetitions of the same mask code can be represented by placing the number
 			of repetitions in curly braces after the code. E.g.: CCCCCCCC = C{6} """))
@@ -318,7 +346,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 			Value property will return the contents of the control, including any mask
 			characters. If this is set to anything other than a string that begins with 'm',
 			Value will return the control's contents without the mask characters.
-			NOTE: This only affects the results of *reading* the Value property. Setting
+			NOTE: This only affects the results of \*reading\* the Value property. Setting
 			Value is not affected in any way."""))
 
 

@@ -17,7 +17,7 @@ from dabo.ui import makeDynamicProperty
 
 
 class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
-	""" Create a simple bitmap to display images."""
+	"""Create a simple bitmap to display images."""
 	def __init__(self, parent, properties=None, attProperties=None,
 			*args, **kwargs):
 		self._baseClass = dImage
@@ -94,7 +94,8 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 
 
 	def getOriginalImgSize(self):
-		"""Since the image can be scaled, this returns the size of
+		"""
+		Since the image can be scaled, this returns the size of
 		the unscaled image.
 		"""
 		img = self._Image
@@ -265,7 +266,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		return self._scaleMode
 
 	def _setScaleMode(self, val):
-		"""Only the first letter is significant. """
+		"""Only the first letter is significant."""
 		initial = val[0].lower()
 		modes = {"c" : "Clip", "p" : "Proportional", "s" : "Stretch"}
 		try:
@@ -337,10 +338,13 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 	ScaleMode = property(_getScaleMode, _setScaleMode, None,
 			_("""Determines how the image responds to sizing. Can be one
 			of the following:
-				Clip: Only that part of the image that fits in the control's size is displayed
-				Proportional: the image resizes to fit the control without changing
-					its original proportions. (default)
-				Stretch: the image resizes to the Height/Width of the control.
+				
+				=============== ===================
+				Clip            Only that part of the image that fits in the control's size is displayed
+				Proportional    The image resizes to fit the control without changing its original proportions. (default)
+				Stretch         The image resizes to the Height/Width of the control.
+				=============== ===================
+				
 			""") )
 
 	Value = property(_getValue, _setValue, None,

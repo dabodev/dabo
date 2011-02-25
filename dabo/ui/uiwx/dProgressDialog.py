@@ -1,31 +1,31 @@
 # -*- coding: utf-8 -*-
-""" dProgressDialog
-
+"""
 (Barely started - don't use)
 
 Ed writes:
-> - The whole threading issue. Since killing threads is not
-> feasible, we should look at what we want to accomplish.
-> Ideally, we want to avoid locking the UI by a runaway query
-> process. Given that, we should rewrite all potentially
-> runaway calls in the UI to the bizobj so that we begin by
-> creating a separate thread for the bizobj call. The UI then
-> starts a timer, which will display a "Please Wait" message
-> with a Cancel button after a given time (say, 1 second). If
-> the user clicks Cancel, the UI continues on its way. Further
-> interaction with the bizobj will not be possible until the
-> bizobj process returns, since its state will be undefined. We
-> then need a UI-level flag to be set to indicate this state.
-> The bizobj returns from its process by emitting an event; the
-> UI will have to trap that event, and if it is received when
-> the flag is set, issue a call to the bizobj to reset itself
-> back to its last known state. When the bizobj completes that,
-> the UI clears the 'unstable' flag. This will require, of
-> course, that the bizobj save its state before each call, and
-> be able to restore that state when asked. None of this will
-> eliminate problems caused by runaway queries, but will at
-> least allow the UI to remain responsive, reducing the chance
-> that the user will three-finger it.
+
+The whole threading issue. Since killing threads is not
+feasible, we should look at what we want to accomplish.
+Ideally, we want to avoid locking the UI by a runaway query
+process. Given that, we should rewrite all potentially
+runaway calls in the UI to the bizobj so that we begin by
+creating a separate thread for the bizobj call. The UI then
+starts a timer, which will display a "Please Wait" message
+with a Cancel button after a given time (say, 1 second). If
+the user clicks Cancel, the UI continues on its way. Further
+interaction with the bizobj will not be possible until the
+bizobj process returns, since its state will be undefined. We
+then need a UI-level flag to be set to indicate this state.
+The bizobj returns from its process by emitting an event; the
+UI will have to trap that event, and if it is received when
+the flag is set, issue a call to the bizobj to reset itself
+back to its last known state. When the bizobj completes that,
+the UI clears the 'unstable' flag. This will require, of
+course, that the bizobj save its state before each call, and
+be able to restore that state when asked. None of this will
+eliminate problems caused by runaway queries, but will at
+least allow the UI to remain responsive, reducing the chance
+that the user will three-finger it.
 """
 import time
 from threading import *
@@ -44,8 +44,7 @@ def EVT_EXCEPTION(win, func):
 	win.Connect(-1, -1, EVT_EXCEPTION_ID, func)
 
 class ResultEvent(wx.PyEvent):
-	""" Simple event to carry arbitrary result data.
-	"""
+	"""Simple event to carry arbitrary result data."""
 
 	def __init__(self, response):
 		wx.PyEvent.__init__(self)
@@ -53,8 +52,7 @@ class ResultEvent(wx.PyEvent):
 		self.response = response
 
 class ExceptionEvent(wx.PyEvent):
-	""" Simple event to carry arbitrary result data.
-	"""
+	"""Simple event to carry arbitrary result data."""
 
 	def __init__(self, response):
 		wx.PyEvent.__init__(self)

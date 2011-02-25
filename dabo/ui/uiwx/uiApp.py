@@ -16,7 +16,8 @@ import dabo.dConstants as kons
 
 
 class SplashScreen(wx.Frame):
-	"""This is a specialized form that is meant to be used as a startup
+	"""
+	This is a specialized form that is meant to be used as a startup
 	splash screen. It takes an image file, bitmap, icon, etc., which is used
 	to size and shape the form. If you specify a mask color, that color
 	will be masked in the bitmap to appear transparent, and will affect the
@@ -478,7 +479,7 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def _onWxActivate(self, evt):
-		""" Raise the Dabo Activate or Deactivate appropriately."""
+		"""Raise the Dabo Activate or Deactivate appropriately."""
 		if bool(evt.GetActive()):
 			self.dApp.raiseEvent(dEvents.Activate, evt)
 		else:
@@ -598,7 +599,8 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def onFileExit(self, evt):
-		"""The MainForm contains the logic in its close methods to
+		"""
+		The MainForm contains the logic in its close methods to
 		cycle through all the forms and determine if they can all be
 		safely closed. If it closes them all, it will close itself.
 		"""
@@ -762,7 +764,8 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def _getContainingGrid(self, win):
-		"""Returns the grid that contains the specified window, or None
+		"""
+		Returns the grid that contains the specified window, or None
 		if the window is not contained in a grid.
 		"""
 		ret = None
@@ -778,7 +781,8 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def onEditPreferences(self, evt):
-		"""If a preference handler is defined for the form, use that. Otherwise,
+		"""
+		If a preference handler is defined for the form, use that. Otherwise,
 		use the generic preference dialog.
 		"""
 		from dabo.ui.dialogs import PreferenceDialog
@@ -852,7 +856,8 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def onEditFind(self, evt, replace=True):
-		""" Display a Find dialog.	By default, both 'Find' and 'Find/Replace'
+		"""
+		Display a Find dialog.	By default, both 'Find' and 'Find/Replace'
 		will be a single dialog. By calling this method with replace=False,
 		you will get a Find-only version of the dialog.
 		"""
@@ -894,7 +899,8 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def setFindDialogIDs(self):
-		"""Since the Find dialog is a wxPython control, we can't determine
+		"""
+		Since the Find dialog is a wxPython control, we can't determine
 		which text control holds the Find value, and which holds the Replace
 		value. One thing that is certain, though, on all platforms is that the
 		Find textbox is physically above the Replace textbox, so we can use
@@ -914,7 +920,8 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def onEnterInFindDialog(self, evt):
-		"""We need to simulate what happens in the Find dialog when
+		"""
+		We need to simulate what happens in the Find dialog when
 		the user clicks the Find button. This requires that we manually
 		update the find data with the dialog values, and then carry out the
 		find as before.
@@ -964,7 +971,7 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def OnFindClose(self, evt):
-		""" User clicked the close button, so hide the dialog."""
+		"""User clicked the close button, so hide the dialog."""
 		frd = self.findReplaceData
 		self._findString = frd.GetFindString()
 		self._replaceString = frd.GetReplaceString()
@@ -1005,7 +1012,8 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def OnFind(self, evt, action="Find"):
-		""" User clicked the 'find' button in the find dialog.
+		"""
+		User clicked the 'find' button in the find dialog.
 		Run the search on the current control, if it is a text-based control.
 		Select the found text in the control.
 		"""
@@ -1101,7 +1109,8 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def addToMRU(self, menuOrCaption, prompt, bindfunc=None):
-		"""Adds the specified menu to the top of the list of
+		"""
+		Adds the specified menu to the top of the list of
 		MRU prompts for that menu.
 		"""
 		if isinstance(menuOrCaption, basestring):
@@ -1121,7 +1130,8 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def onMenuOpenMRU(self, menu):
-		"""Make sure that the MRU items are there and are in the
+		"""
+		Make sure that the MRU items are there and are in the
 		correct order.
 		"""
 		cap = menu.Caption
@@ -1180,7 +1190,8 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def onShowSizerLines(self, evt):
-		"""Toggles whether sizer lines are drawn. This is simply a tool
+		"""
+		Toggles whether sizer lines are drawn. This is simply a tool
 		to help people visualize how sizers lay out objects.
 		"""
 		self._drawSizerOutlines = not self._drawSizerOutlines

@@ -32,11 +32,12 @@ if _USE_FLAT:
 
 
 def readonly(value):
-	""" Create a read-only property. """
+	"""Create a read-only property."""
 	return property(lambda self: value)
 
 class dPageFrame(dPageFrameMixin, wx.Notebook):
-	"""Creates a pageframe, which can contain an unlimited number of pages,
+	"""
+	Creates a pageframe, which can contain an unlimited number of pages,
 	each of which should be a subclass/instance of the dPage class.
 	"""
 	_evtPageChanged = readonly(wx.EVT_NOTEBOOK_PAGE_CHANGED)
@@ -164,7 +165,8 @@ class dPageSelect(dPageFrameMixin, wx.Choicebook):
 
 
 	def SetPageText(self, pg, tx):
-		"""Need to override this because this is not implemented yet
+		"""
+		Need to override this because this is not implemented yet
 		on the Mac, at least as of wxPython 2.5.5.1
 		"""
 		# Get a reference to the Choice control
@@ -202,7 +204,8 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
 
 	def insertPage(self, pos, pgCls=None, caption="", imgKey=None,
 			ignoreOverride=False):
-		""" Insert the page into the pageframe at the specified position,
+		"""
+		Insert the page into the pageframe at the specified position,
 		and optionally sets the page caption and image. The image
 		should have already been added to the pageframe if it is
 		going to be set here.
@@ -243,7 +246,8 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
 
 if _USE_FLAT:
 	class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
-		"""Creates a pageframe, which can contain an unlimited number of pages,
+		"""
+		Creates a pageframe, which can contain an unlimited number of pages,
 		each of which should be a subclass/instance of the dPage class. Note that there
 		is no visible border around the pages.
 		"""

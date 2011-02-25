@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-""" dMessageBox.py
-
+"""
 Common message box dialog classes, such as "Are you sure?"
-along with convenience functions to allow calling like:
+along with convenience functions to allow calling like::
+	
 	if dAreYouSure("Delete this record"):
+
 """
 import wx
 import dabo
@@ -34,7 +35,8 @@ class dMessageBox(wx.MessageDialog):
 
 def areYouSure(message="Are you sure?", title=None, defaultNo=False,
 		cancelButton=True, parent=None, requestUserAttention=True):
-	"""Display a dMessageBox asking the user to answer yes or no to a question.
+	"""
+	Display a dMessageBox asking the user to answer yes or no to a question.
 
 	Returns True, False, or None, for choices "Yes", "No", or "Cancel".
 
@@ -75,7 +77,8 @@ def areYouSure(message="Are you sure?", title=None, defaultNo=False,
 
 
 def stop(message="Stop", title=None, parent=None, requestUserAttention=True):
-	"""Display a dMessageBox informing the user that the operation cannot proceed.
+	"""
+	Display a dMessageBox informing the user that the operation cannot proceed.
 
 	Returns None.
 
@@ -96,7 +99,8 @@ def stop(message="Stop", title=None, parent=None, requestUserAttention=True):
 			requestUserAttention=requestUserAttention)
 
 def info(message="Information", title=None, parent=None, requestUserAttention=True):
-	"""Display a dMessageBox offering the user some useful information.
+	"""
+	Display a dMessageBox offering the user some useful information.
 
 	Returns None.
 
@@ -118,7 +122,8 @@ def info(message="Information", title=None, parent=None, requestUserAttention=Tr
 
 def exclaim(message="Important!", title=None, parent=None,
 			requestUserAttention=True):
-	"""Display a dMessageBox urgently informing the user that we cannot proceed.
+	"""
+	Display a dMessageBox urgently informing the user that we cannot proceed.
 
 	Returns None.
 
@@ -153,7 +158,8 @@ def showMessageBox(message, title, icon, parent=None,
 
 
 def getDefaultTitle():
-	"""Get a default title for the messageboxes.
+	"""
+	Get a default title for the messageboxes.
 
 	Comes from app.getAppInfo("appName"), or if the application
 	object isn't available the title will be "Dabo Application".

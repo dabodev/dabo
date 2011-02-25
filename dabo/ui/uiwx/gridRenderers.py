@@ -28,10 +28,13 @@ class ImageRenderer(wx.grid.PyGridCellRenderer):
 
 
 	def GetBestSize(self, grid, attr, dc, row, col):
-		"""Customisation Point: Determine the appropriate (best) size for the control, return as wxSize
+		"""
+		Customisation Point: Determine the appropriate (best) size for the control, return as wxSize
 
-		Note: You _must_ return a wxSize object.  Returning a two-value-tuple
-		won't raise an error, but the value won't be respected by wxPython.
+		.. note::
+			
+			You _must_ return a wxSize object.  Returning a two-value-tuple
+			won't raise an error, but the value won't be respected by wxPython.
 		"""
 		try:
 			return wx.Size(self._lastBitmap.GetWidth(), self._lastBitmap.GetHeight())
@@ -41,7 +44,8 @@ class ImageRenderer(wx.grid.PyGridCellRenderer):
 
 
 	def getValueBitmap(self, grid, row, col):
-		"""Take the local _imageDict and update it with the grid's dict, if any. Use
+		"""
+		Take the local _imageDict and update it with the grid's dict, if any. Use
 		that to look up the image to use for the given value. If not found, then
 		see if that image is a 'standard' dabo image. If none of these return a value,
 		return None, which won't draw anything.
@@ -131,10 +135,13 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 
 
 	def GetBestSize(self, grid, attr, dc, row, col):
-		"""Customisation Point: Determine the appropriate (best) size for the control, return as wxSize
+		"""
+		Customisation Point: Determine the appropriate (best) size for the control, return as wxSize
 
-		Note: You _must_ return a wxSize object.  Returning a two-value-tuple
-		won't raise an error, but the value won't be respected by wxPython.
+		.. note::
+			You _must_ return a wxSize object.  Returning a two-value-tuple
+			won't raise an error, but the value won't be respected by wxPython.
+
 		"""
 		return wx.Size(self.checkedBitmap.GetWidth(), self.checkedBitmap.GetHeight())
 
@@ -196,7 +203,8 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 
 
 class AbstractTextRenderer(wx.grid.PyGridCellRenderer):
-	"""This is a starting point for all renderers that simply involve controlling
+	"""
+	This is a starting point for all renderers that simply involve controlling
 	the text displayed in a cell.
 	"""
 	def Draw(self, grid, attr, dc, rect, row, col, isSelected):
@@ -213,7 +221,8 @@ class AbstractTextRenderer(wx.grid.PyGridCellRenderer):
 
 
 	def getValueText(self, grid, row, col):
-		"""Return the text you want displayed in the cell. By default
+		"""
+		Return the text you want displayed in the cell. By default
 		the value in the cell is returned unchanged; override for
 		your class's needs.
 		"""

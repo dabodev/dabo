@@ -141,9 +141,10 @@ class StyleTimer(dTimer.dTimer):
 
 
 class STCPrintout(wx.Printout):
-	"""Printout class for styled text controls. Taken from the following
+	"""
+	Printout class for styled text controls. Taken from the following
 	program by Riaan Booysen:
-		-----------------------------------------------------------------------------
+		
 		 Name:		   STCPrinting.py
 		 Purpose:
 
@@ -153,7 +154,7 @@ class STCPrintout(wx.Printout):
 		 RCS-ID:	   $Id: STCPrinting.py,v 1.8 2006/10/12 12:19:17 riaan Exp $
 		 Copyright:   (c) 2003 - 2006
 		 Licence:	   wxWidgets
-		-----------------------------------------------------------------------------
+		
 		Boa:Dialog:STCPrintDlg
 	"""
 	margin = 0.1
@@ -400,7 +401,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def setBookmark(self, nm, line=None):
-		"""Creates a bookmark that can be referenced by the
+		"""
+		Creates a bookmark that can be referenced by the
 		identifying name that is passed. If a bookmark already
 		exists for that name, the old one is deleted. The
 		bookmark is set on the current line unless a specific
@@ -416,7 +418,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def findBookmark(self, nm):
-		"""Moves to the line for the specified bookmark. If no such
+		"""
+		Moves to the line for the specified bookmark. If no such
 		bookmark exists, does nothing.
 		"""
 		try:
@@ -432,7 +435,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def clearBookmark(self, nm):
-		"""Clears the specified bookmark. If no such bookmark
+		"""
+		Clears the specified bookmark. If no such bookmark
 		exists, does nothing.
 		"""
 		try:
@@ -451,7 +455,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def goNextBookMark(self, line=None):
-		"""Moves to the next bookmark in the document. If the
+		"""
+		Moves to the next bookmark in the document. If the
 		line to start searching from is not specified, searches from
 		the current line. If there are no more bookmarks, nothing
 		happens.
@@ -469,7 +474,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def goPrevBookMark(self, line=None):
-		"""Moves to the previous bookmark in the document. If the
+		"""
+		Moves to the previous bookmark in the document. If the
 		line to start searching from is not specified, searches from
 		the current line. If there are no more bookmarks, nothing
 		happens.
@@ -486,14 +492,16 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def getCurrentLineBookmark(self):
-		"""Returns the name of the bookmark for the current
+		"""
+		Returns the name of the bookmark for the current
 		line, or None if this line is not bookmarked.
 		"""
 		return self.getBookmarkFromLine(self.LineNumber)
 
 
 	def getBookmarkFromLine(self, line):
-		"""Returns the name of the bookmark for the passed
+		"""
+		Returns the name of the bookmark for the passed
 		line, or None if the line is not bookmarked.
 		"""
 		ret = None
@@ -510,7 +518,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def getFunctionList(self):
-		"""Returns a list of all 'class' and 'def' statements, along
+		"""
+		Returns a list of all 'class' and 'def' statements, along
 		with their starting positions in the text.
 		"""
 		pat = re.compile(r"^([ \t]*(?:def )|(?:class ))([^\(]+)\(", re.M)
@@ -531,20 +540,23 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def getLineFromPosition(self, pos):
-		"""Given a position within the text, returns the corresponding line
+		"""
+		Given a position within the text, returns the corresponding line
 		number. If the position is invalid, returns -1.
 		"""
 		return self.LineFromPosition(pos)
 
 
 	def getPositionFromLine(self, linenum):
-		"""Given a line number, returns the position of the start of that line.
+		"""
+		Given a line number, returns the position of the start of that line.
 		If the line number is invalid, returns -1."""
 		return self.PositionFromLine(linenum)
 
 
 	def getPositionFromXY(self, x, y=None):
-		"""Given an x,y position, returns the position in the text if that point
+		"""
+		Given an x,y position, returns the position in the text if that point
 		is close to any text; if not, returns -1.
 		"""
 		if y is None and isinstance(x, (list, tuple)):
@@ -566,7 +578,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def OnNeedShown(self, evt):
-		""" Called when the user deletes a hidden header line."""
+		"""Called when the user deletes a hidden header line."""
 		# We expand the previously folded text, but it may be better
 		# to delete the text instead, since the user asked for it.
 		# There are two bits of information in the event: the position
@@ -1168,7 +1180,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def hiliteLine(self, lineNum, extend=False):
-		"""Selects the specified line. If the line number does not exist,
+		"""
+		Selects the specified line. If the line number does not exist,
 		a ValueError is raised.
 		"""
 		start = self.PositionFromLine(lineNum)
@@ -1405,7 +1418,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 
 	def promptForSaveAs(self):
-		"""Prompt user for the filename to save the file as.
+		"""
+		Prompt user for the filename to save the file as.
 
 		If the file exists, confirm with the user that they really want to
 		overwrite.
@@ -1498,7 +1512,8 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 
 
 	def checkForDiskUpdate(self):
-		"""Returns True or False depending on whether the file on disk has been modified
+		"""
+		Returns True or False depending on whether the file on disk has been modified
 		since it was opened. It is up to the calling code to decide what to do with this
 		information.
 		"""
@@ -1510,7 +1525,8 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 
 
 	def checkChangesAndContinue(self):
-		"""Check to see if changes need to be saved, and if so prompt the user.
+		"""
+		Check to see if changes need to be saved, and if so prompt the user.
 
 		Return False if saves were needed but not made.
 		"""
@@ -1741,7 +1757,8 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 	def _getRuntimeObjectName(self):
-		"""Go backwards from the current position and get the runtime object name
+		"""
+		Go backwards from the current position and get the runtime object name
 		that the user is currently editing. For example, if they entered a '.' after
 		'self', the runtime object name would be 'self'.
 		"""
@@ -1767,9 +1784,11 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 
 
 	def _makeContainingClassIntoSelf(self):
-		"""Make self refer to the class.
+		"""
+		Make self refer to the class.
 
-		For instance, in the following snippet:
+		For instance, in the following snippet::
+			
 			class MyClass(object):
 				pass
 
@@ -1812,7 +1831,8 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 
 
 	def _getRuntimeObject(self, runtimeObjectName):
-		"""Given a runtimeObjectName, get the object.
+		"""
+		Given a runtimeObjectName, get the object.
 
 		For example, "self" should return the class object that self would
 		be an instance of at runtime.
@@ -1854,7 +1874,8 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 
 
 	def _fillNamespaces(self):
-		"""Get as many of the names that will exist at runtime as possible
+		"""
+		Get as many of the names that will exist at runtime as possible
 		into the _namespaces dict. We do this by finding all the 'import'
 		statements and executing them into the _namespaces dict.
 		"""

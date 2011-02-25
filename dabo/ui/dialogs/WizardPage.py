@@ -46,14 +46,16 @@ class WizardPage(dabo.ui.dScrollPanel):
 
 
 	def createBody(self):
-		""" This is the method to override in subclasses to add any text
+		"""
+		This is the method to override in subclasses to add any text
 		or other controls for this page.
 		"""
 		pass
 
 
 	def makeSizer(self):
-		""" Create a simple sizer. This can be overridden in subclasses
+		"""
+		Create a simple sizer. This can be overridden in subclasses
 		if specific sizer configurations are needed.
 		"""
 		sz = self.Sizer = dabo.ui.dSizer("v")
@@ -63,7 +65,8 @@ class WizardPage(dabo.ui.dScrollPanel):
 
 
 	def onLeavePage(self, direction):
-		""" This method is called before the wizard changes pages.
+		"""
+		This method is called before the wizard changes pages.
 		Returning False will prevent the page from changing. Use
 		it to make sure that the user has completed all the required
 		actions before proceeding to the next step of the wizard.
@@ -74,7 +77,8 @@ class WizardPage(dabo.ui.dScrollPanel):
 
 
 	def onEnterPage(self, direction):
-		""" This method will be called just as the page is about to
+		"""
+		This method will be called just as the page is about to
 		be made visible. You cannot prevent this from happening,
 		as you can with onLeavePage(), but you can use this event
 		to do whatever preliminary work that page needs before it
@@ -85,7 +89,8 @@ class WizardPage(dabo.ui.dScrollPanel):
 
 
 	def nextPage(self):
-		""" This method can be overridden in subclasses to provide
+		"""
+		This method can be overridden in subclasses to provide
 		conditional navigation through the wizard. By default, it returns
 		the integer 1, meaning move one page forward in the wizards page
 		collection. If you wish to skip the next page in order, you can simply
@@ -96,7 +101,8 @@ class WizardPage(dabo.ui.dScrollPanel):
 
 
 	def prevPage(self):
-		""" Like nextPage, you can override this method to conditionally
+		"""
+		Like nextPage, you can override this method to conditionally
 		navigate through the wizard pages. Default = -1
 		"""
 		return -1

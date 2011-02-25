@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" dPemMixin.py: Provide common PEM functionality """
+"""dPemMixin.py: Provide common PEM functionality"""
 import dabo
 import types
 from dabo.dObject import dObject
@@ -8,7 +8,8 @@ from dabo.dLocalize import _
 
 
 class dPemMixinBase(dObject):
-	""" Provide Property/Event/Method interfaces for dForms and dControls.
+	"""
+	Provide Property/Event/Method interfaces for dForms and dControls.
 
 	Subclasses can extend the property sheet by defining their own get/set
 	functions along with their own property() statements.
@@ -18,18 +19,19 @@ class dPemMixinBase(dObject):
 		self.autoBindEvents()
 
 	def _initUI(self):
-		""" Abstract method: subclasses MUST override for UI-specifics."""
+		"""Abstract method: subclasses MUST override for UI-specifics."""
 		pass
 
 
 	def getPropertyInfo(cls, name):
-		""" Abstract method: subclasses MUST override for UI-specifics."""
+		"""Abstract method: subclasses MUST override for UI-specifics."""
 		return super(dPemMixinBase, cls).getPropertyInfo(name)
 	getPropertyInfo = classmethod(getPropertyInfo)
 
 
 	def addObject(self, classRef, name=None, *args, **kwargs):
-		""" Create an instance of classRef, and make it a child of self.
+		"""
+		Create an instance of classRef, and make it a child of self.
 
 		Abstract method: subclasses MUST override for UI-specifics.
 		"""
@@ -37,16 +39,16 @@ class dPemMixinBase(dObject):
 
 
 	def reCreate(self, child=None):
-		""" Abstract method: subclasses MUST override for UI-specifics."""
+		"""Abstract method: subclasses MUST override for UI-specifics."""
 		pass
 
 
 	def clone(self, obj, name=None):
-		""" Abstract method: subclasses MUST override for UI-specifics."""
+		"""Abstract method: subclasses MUST override for UI-specifics."""
 		pass
 
 	def refresh(self):
-		""" Abstract method."""
+		"""Abstract method."""
 		pass
 
 
@@ -81,7 +83,8 @@ class dPemMixinBase(dObject):
 
 
 	def iterateCall(self, funcName, *args, **kwargs):
-		"""Call the given function on this object and all of its Children. If
+		"""
+		Call the given function on this object and all of its Children. If
 		any object does not have the given function, no error is raised; it
 		is simply ignored.
 		"""

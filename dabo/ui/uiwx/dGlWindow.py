@@ -48,9 +48,13 @@ class dGlWindow(cm.dControlMixin, glcanvas.GLCanvas):
 
 
 	def onDraw(self):
-		"""Hook function.  Put the code here for what happens when you draw.
+		"""
+		Hook function.  Put the code here for what happens when you draw.
 
-		Note:  You don't need to swap buffers here....We do this for you automatically."""
+		.. note::
+			You don't need to swap buffers here....We do this for you automatically.
+			
+		"""
 		pass
 
 

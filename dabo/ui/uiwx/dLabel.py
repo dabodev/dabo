@@ -26,7 +26,8 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 
 
 	def __onResize(self, evt):
-		"""Event binding is set when WordWrap=True. Tell the label
+		"""
+		Event binding is set when WordWrap=True. Tell the label
 		to wrap to its current width.
 		"""
 		if self.WordWrap:
@@ -51,7 +52,8 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 
 
 	def __endResize(self):
-		"""To prevent infinite loops while resizing, the _inResizeEvent
+		"""
+		To prevent infinite loops while resizing, the _inResizeEvent
 		flag must be reset outside of the execution method.
 		"""
 		self.Parent.unlockDisplayAll()

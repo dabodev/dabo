@@ -48,11 +48,11 @@ Caveats
   support nested profiling (currently TraceFuncCoverage is the only one that
   supports this, while HotShotFuncProfile has support for recursive functions.)
 
-  Profiling with hotshot creates temporary files (*.prof and *.prof.pickle for
-  profiling, *.cprof for coverage) in the current directory.  These files are
-  not cleaned up.  (In fact, the *.pickle versions are intentionally written
+  Profiling with hotshot creates temporary files (\*.prof and \*.prof.pickle for
+  profiling, \*.cprof for coverage) in the current directory.  These files are
+  not cleaned up.  (In fact, the \*.pickle versions are intentionally written
   out in case you want to look at the profiler results without having to parse
-  the big *.prof file with hotshot.stats.load, which takes ages.  Just unpickle
+  the big \*.prof file with hotshot.stats.load, which takes ages.  Just unpickle
   the file and you'll get a pstats object.)
 
   Coverage analysis with hotshot seems to miss some executions resulting in
@@ -133,20 +133,20 @@ def profile(fn=None, skip=0, filename=None, immediate=False):
     If `filename` is specified, the profile stats will be pickled and stored in
     a file.
 
-    Usage:
+    Usage::
 
         def fn(...):
             ...
         fn = profile(fn, skip=1)
 
     If you are using Python 2.4, you should be able to use the decorator
-    syntax:
+    syntax::
 
         @profile(skip=3)
         def fn(...):
             ...
 
-    or just
+    or just::
 
         @profile
         def fn(...):
@@ -175,14 +175,14 @@ def coverage(fn):
 
     Results will be printed to sys.stdout on program termination.
 
-    Usage:
+    Usage::
 
         def fn(...):
             ...
         fn = coverage(fn)
 
     If you are using Python 2.4, you should be able to use the decorator
-    syntax:
+    syntax::
 
         @coverage
         def fn(...):
@@ -586,7 +586,7 @@ def timecall(fn):
     """
     Wrap `fn` and print its execution time.
 
-    Example:
+    Example::
 
         @timecall
         def somefunc(x, y):

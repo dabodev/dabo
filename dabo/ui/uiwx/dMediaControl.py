@@ -14,7 +14,8 @@ from dabo.ui import makeDynamicProperty
 
 
 def _timeConvertOut(fn):
-	"""Takes millisecond values returned by wx and converts them to
+	"""
+	Takes millisecond values returned by wx and converts them to
 	fractional seconds if the current setting of TimeInSeconds is True.
 	"""
 	def wrapper(instance):
@@ -25,7 +26,8 @@ def _timeConvertOut(fn):
 	return wrapper
 
 def _timeConvertIn(fn):
-	"""Takes values set by the program and converts them to milliseconds
+	"""
+	Takes values set by the program and converts them to milliseconds
 	if the current setting of TimeInSeconds is True.
 	"""
 	def wrapper(instance, val):
@@ -59,7 +61,8 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 
 
 	def play(self, rate=None):
-		"""Plays the content. By default, the content is played forward at normal
+		"""
+		Plays the content. By default, the content is played forward at normal
 		speed. You can optionally pass a playback rate which will be applied
 		to the content. To start the playback in reverse mode, pass in -100.
 		"""
@@ -69,7 +72,8 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 
 
 	def moveToPct(self, pct):
-		"""Moves the CurrentPosition to the specified percentage of the content's
+		"""
+		Moves the CurrentPosition to the specified percentage of the content's
 		Duration. E.g., passing 50 moves to the middle; 75 to 3/4 of the way through.
 		Negative values measure from the end; e.g., -10 will set the CurrentPosition
 		to 90% through the content.
@@ -82,7 +86,8 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 
 
 	def moveByPct(self, pct):
-		"""Moves the CurrentPosition by the specified percentage of the content.
+		"""
+		Moves the CurrentPosition by the specified percentage of the content.
 		Negative values move backward.
 		"""
 		fulltime = self.Duration
@@ -92,7 +97,8 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 
 
 	def processDroppedFiles(self, filelist):
-		"""Load the dropped file into the control. Only one file can be
+		"""
+		Load the dropped file into the control. Only one file can be
 		the source, so if by chance more than one file was dropped,
 		only use the first.
 		"""
@@ -134,7 +140,8 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 
 
 	def scale(self, prop=1.0):
-		"""Size the control to the video's native size. By default, the size is scaled
+		"""
+		Size the control to the video's native size. By default, the size is scaled
 		to the video's native size, but you can optionally pass a proportion to
 		enlarge or reduce the size.
 		"""
@@ -143,7 +150,8 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 
 
 	def reverse(self):
-		"""Reverses the direction of the playing content stream. Has no effect if the
+		"""
+		Reverses the direction of the playing content stream. Has no effect if the
 		content is not playing.
 		"""
 		if not self.Status == "Playing":
@@ -159,7 +167,8 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 
 
 	def handleLoadFailure(self, val):
-		"""This method contains the default behavior when an attempt to load
+		"""
+		This method contains the default behavior when an attempt to load
 		content into the control by setting the Source property fails. If you want
 		your app to handle things differently, override this method.
 		"""

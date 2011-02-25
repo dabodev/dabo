@@ -13,7 +13,8 @@ from dabo.ui import makeDynamicProperty
 
 
 class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
-	"""This is the base wrapper of the wx calendar control. Do not
+	"""
+	This is the base wrapper of the wx calendar control. Do not
 	use this directly; instead, use either the 'dCalendar' or the
 	'dExtendedCalendar' subclasses.
 	"""
@@ -57,9 +58,11 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 
 
 	def setHoliday(self, val):
-		"""Adds the specified date to the list of holidays. This should be
+		"""
+		Adds the specified date to the list of holidays. This should be
 		a tuple in the format (Y, M, D). If this is a holiday that is to apply
-		to every year, pass the year as None (e.g.: (None, 12, 25)"""
+		to every year, pass the year as None (e.g.: (None, 12, 25)
+		"""
 		if val not in self._holidays:
 			self._holidays.append(val)
 
@@ -164,7 +167,8 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 
 
 	def _setCalEventTypes(self):
-		"""When we raise events, we need to include a native wx
+		"""
+		When we raise events, we need to include a native wx
 		event type. Rather than compute them repeatedly, do it
 		once here.
 		"""
@@ -357,7 +361,8 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 
 
 class dCalendar(BaseCalendar):
-	"""This formats the calendar into a more compact layout, with
+	"""
+	This formats the calendar into a more compact layout, with
 	arrow buttons for moving back and forth a month at a time.
 	"""
 	def __init__(self, *args, **kwargs):
@@ -368,7 +373,8 @@ class dCalendar(BaseCalendar):
 
 
 class dExtendedCalendar(BaseCalendar):
-	"""This formats the calendar into an extended layout, with a
+	"""
+	This formats the calendar into an extended layout, with a
 	dropdown list for selecting any month, and a spinner for
 	moving from year to year. Use this when you need to be able
 	to navigate to any date quickly.

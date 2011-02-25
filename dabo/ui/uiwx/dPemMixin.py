@@ -19,7 +19,8 @@ from dabo.lib.utils import dictStringify
 
 
 class dPemMixin(dPemMixinBase):
-	""" Provides Property/Event/Method interfaces for dForms and dControls.
+	"""
+	Provides Property/Event/Method interfaces for dForms and dControls.
 
 	Subclasses can extend the property sheet by defining their own get/set
 	functions along with their own property() statements.
@@ -211,7 +212,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _setNameAndProperties(self, properties, **kwargs):
-		"""If a Name isn't given, a default name will be used, and it'll
+		"""
+		If a Name isn't given, a default name will be used, and it'll
 		autonegotiate by adding an integer until it is a unique name.
 		If a Name is given explicitly, a NameError will be raised if
 		the given Name isn't unique among siblings.
@@ -339,7 +341,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _preInitUI(self, kwargs):
-		"""Subclass hook, for internal Dabo use.
+		"""
+		Subclass hook, for internal Dabo use.
 		Some wx objects (RadioBox) need certain props forced if they hadn't been
 		set by the user either as a parm or in beforeInit().
 		"""
@@ -347,7 +350,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _getInitPropertiesList(self):
-		"""Subclass hook, for internal Dabo use.
+		"""
+		Subclass hook, for internal Dabo use.
 
 		Some properties of wx objects are only settable by sending to the
 		constructor. This tells Dabo which properties to specially handle.
@@ -504,7 +508,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _checkMouseOver(self):
-		"""Called as part of the Hover mechanism for determining if the mouse
+		"""
+		Called as part of the Hover mechanism for determining if the mouse
 		is no longer over the object.
 		"""
 		if not self:
@@ -530,7 +535,7 @@ class dPemMixin(dPemMixinBase):
 
 
 	def __onChildBorn(self, evt):
-		""" evt.Child will contain the reference to the new child. """
+		"""evt.Child will contain the reference to the new child."""
 		pass
 
 
@@ -618,7 +623,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def __onWxMouseWheel(self, evt):
-		"""Some platforms do not properly determine the object that receives
+		"""
+		Some platforms do not properly determine the object that receives
 		the scroll event. On Windows, for example, the event is raised by either
 		a) the control that has focus, or b) the form. The code in this method
 		ensures that the object below the mouse receives the event.
@@ -713,17 +719,20 @@ class dPemMixin(dPemMixinBase):
 
 
 	def bindKey(self, keyCombo, callback, **kwargs):
-		"""Bind a key combination such as "ctrl+c" to a callback function.
+		"""
+		Bind a key combination such as "ctrl+c" to a callback function.
 
 		See dKeys.keyStrings for the valid string key codes.
 		See dKeys.modifierStrings for the valid modifier codes.
 
-		Examples:
+		Examples::
+			
 			# When user presses <esc>, close the form:
 			form.bindKey("esc", form.Close)
 
 			# When user presses <ctrl><alt><w>, close the form:
 			form.bindKey("ctrl+alt+w", form.Close)
+		
 		"""
 		mods, key, flags = dabo.ui.dKeys.resolveKeyCombo(keyCombo, True)
 		upMods = [mm.upper() for mm in mods]
@@ -783,7 +792,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def unbindKey(self, keyCombo):
-		"""Unbind a previously bound key combination.
+		"""
+		Unbind a previously bound key combination.
 
 		Fail silently if the key combination didn't exist already.
 		"""
@@ -818,7 +828,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def getSizerProp(self, prop):
-		"""Gets the current setting for the given property from the object's
+		"""
+		Gets the current setting for the given property from the object's
 		ControllingSizer. Returns None if object is not in a sizer.
 		"""
 		ret = None
@@ -834,14 +845,16 @@ class dPemMixin(dPemMixinBase):
 
 
 	def processDroppedFiles(self, filelist, x, y):
-		"""Handler for files dropped on the control. Override in your
+		"""
+		Handler for files dropped on the control. Override in your
 		subclass/instance for your needs .
 		"""
 		pass
 
 
 	def processDroppedText(self, txt, x, y):
-		"""Handler for text dropped on the control. Override in your
+		"""
+		Handler for text dropped on the control. Override in your
 		subclass/instance for your needs .
 		"""
 		pass
@@ -853,7 +866,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def lockDisplay(self):
-		"""Locks the visual updates to the control.
+		"""
+		Locks the visual updates to the control.
 
 		This can significantly improve performance when many items are being
 		updated at once.
@@ -874,7 +888,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def unlockDisplay(self):
-		"""Unlocks the visual updates to the control.
+		"""
+		Unlocks the visual updates to the control.
 
 		Use in conjunction with lockDisplay(), when you are doing lots of things
 		that would result in lengthy screen updates.
@@ -894,7 +909,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def unlockDisplayAll(self):
-		"""Immediately unlocks the display, no matter how many previous
+		"""
+		Immediately unlocks the display, no matter how many previous
 		lockDisplay calls have been made. Useful in a callAfterInterval()
 		construction to avoid flicker.
 		"""
@@ -905,7 +921,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def getDisplayLocker(self):
-		"""Returns an object that locks the current display when created, and
+		"""
+		Returns an object that locks the current display when created, and
 		unlocks it when destroyed. This is generally safer than calling lockDisplay()
 		and unlockDisplay(), especially when used with callAfterInterval(), when
 		the unlockDisplay() calls may not all happen.
@@ -940,7 +957,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def showContainingPage(self):
-		"""If this object is inside of any paged control, it will force all containing
+		"""
+		If this object is inside of any paged control, it will force all containing
 		paged controls to switch to the page that contains this object.
 		"""
 		import dabo.ui.dialogs
@@ -961,7 +979,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def addObject(self, classRef, Name=None, *args, **kwargs):
-		""" Instantiate object as a child of self.
+		"""
+		Instantiate object as a child of self.
 
 		The classRef argument must be a Dabo UI class definition. (it must inherit
 		dPemMixin). Alternatively, it can be a saved class definition in XML format,
@@ -1008,7 +1027,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def formCoordinates(self, pos=None):
-		"""Given a position relative to this control, return a position relative
+		"""
+		Given a position relative to this control, return a position relative
 		to the containing form. If no position is passed, returns the position
 		of this control relative to the form.
 		"""
@@ -1022,7 +1042,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def containerCoordinates(self, cnt, pos=None):
-		"""Given a position relative to this control, return a position relative
+		"""
+		Given a position relative to this control, return a position relative
 		to the specified container. If no position is passed, returns the position
 		of this control relative to the container.
 		"""
@@ -1039,7 +1060,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def objectCoordinates(self, pos=None):
-		"""Given a position relative to the form, return a position relative
+		"""
+		Given a position relative to the form, return a position relative
 		to this object. If no position is passed, returns the position
 		of this control relative to the form.
 		"""
@@ -1074,7 +1096,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def isContainedBy(self, obj):
-		"""Returns True if the containership hierarchy for this control
+		"""
+		Returns True if the containership hierarchy for this control
 		includes the passed object reference.
 		"""
 		ret = False
@@ -1089,7 +1112,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def showContextMenu(self, menu, pos=None, release=True):
-		"""Display a context menu (popup) at the specified position.
+		"""
+		Display a context menu (popup) at the specified position.
 
 		If no position is specified, the menu will be displayed at the current
 		mouse position.
@@ -1106,7 +1130,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _getSizerInfo(self, prop):
-		"""Returns True or False based on whether the property passed is contained
+		"""
+		Returns True or False based on whether the property passed is contained
 		in the sizer item's flags.
 		"""
 		prop = prop.lower().strip()
@@ -1142,7 +1167,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def setAll(self, prop, val, recurse=True, filt=None, instancesOf=None):
-		"""Set all child object properties to the passed value.
+		"""
+		Set all child object properties to the passed value.
 
 		No bad effects will happen if the property doesn't apply to a child - only
 		children with the property will have their property updated.
@@ -1152,9 +1178,9 @@ class dPemMixin(dPemMixinBase):
 		If 'filt' is not empty, only children that match the expression in 'filt'
 		will be affected. The expression will be evaluated assuming the child
 		object is prefixed to the expression. For example, if you want to only
-		affect objects that are instances of dButton, you'd call:
+		affect objects that are instances of dButton, you'd call::
 
-		form.setAll("FontBold", True, filt="BaseClass == dabo.ui.dButton")
+			form.setAll("FontBold", True, filt="BaseClass == dabo.ui.dButton")
 
 		If the instancesOf sequence is passed, the property will only be set if
 		the child object is an instance of one of the passed classes.
@@ -1204,7 +1230,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def recreate(self, child=None):
-		"""Recreate the object.
+		"""
+		Recreate the object.
 
 		Warning: this is experimental and is known to cause hair loss.
 		"""
@@ -1258,7 +1285,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _setFocusAfter(self):
-		"""Makes sure that the object is still 'live' before calling
+		"""
+		Makes sure that the object is still 'live' before calling
 		its SetFocus() method.
 		"""
 		if self:
@@ -1350,7 +1378,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def getMousePosition(self):
-		"""Returns the current mouse position on the entire screen
+		"""
+		Returns the current mouse position on the entire screen
 		relative to this object.
 		"""
 		return self.ScreenToClient(wx.GetMousePosition()).Get()
@@ -1392,7 +1421,8 @@ class dPemMixin(dPemMixinBase):
 	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
 			fillColor=None, lineStyle=None, hatchStyle=None, mode=None,
 			persist=True, visible=True, dc=None, useDefaults=False):
-		"""Draws a circle of the specified radius around the specified point.
+		"""
+		Draws a circle of the specified radius around the specified point.
 
 		You can set the color and thickness of the line, as well as the
 		color and hatching style of the fill. Normally, when persist=True,
@@ -1416,7 +1446,8 @@ class dPemMixin(dPemMixinBase):
 	def drawArc(self, xPos, yPos, rad, startAngle, endAngle, penColor="black",
 			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
 			mode=None, persist=True, visible=True, dc=None, useDefaults=False):
-		"""Draws an arc (pie slice) of a circle centered around the specified point,
+		"""
+		Draws an arc (pie slice) of a circle centered around the specified point,
 		starting from 'startAngle' degrees, and sweeping counter-clockwise
 		until 'endAngle' is reached.
 
@@ -1435,7 +1466,8 @@ class dPemMixin(dPemMixinBase):
 	def drawEllipse(self, xPos, yPos, width, height, penColor="black",
 			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
 			mode=None, persist=True, visible=True, dc=None, useDefaults=False):
-		"""Draws an ellipse contained within the rectangular space defined by
+		"""
+		Draws an ellipse contained within the rectangular space defined by
 		the position and size coordinates
 
 		See the 'drawCircle()' method above for more details.
@@ -1453,7 +1485,8 @@ class dPemMixin(dPemMixinBase):
 			penColor="black", penWidth=1, fillColor=None, lineStyle=None,
 			hatchStyle=None, mode=None, persist=True, visible=True,
 			dc=None, useDefaults=False):
-		"""Draws an arc (pie slice) of a ellipse contained by the specified
+		"""
+		Draws an arc (pie slice) of a ellipse contained by the specified
 		dimensions, starting from 'startAngle' degrees, and sweeping
 		counter-clockwise until 'endAngle' is reached.
 
@@ -1473,7 +1506,8 @@ class dPemMixin(dPemMixinBase):
 	def drawRectangle(self, xPos, yPos, width, height, penColor="black",
 			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
 			mode=None, persist=True, visible=True, dc=None, useDefaults=False):
-		"""Draws a rectangle of the specified size beginning at the specified
+		"""
+		Draws a rectangle of the specified size beginning at the specified
 		point.
 
 		See the 'drawCircle()' method above for more details.
@@ -1490,7 +1524,8 @@ class dPemMixin(dPemMixinBase):
 	def drawPolygon(self, points, penColor="black", penWidth=1,
 			fillColor=None, lineStyle=None, hatchStyle=None, mode=None,
 			persist=True, visible=True, dc=None, useDefaults=False):
-		"""Draws a polygon defined by the specified points.
+		"""
+		Draws a polygon defined by the specified points.
 
 		The 'points' parameter should be a tuple of (x,y) pairs defining the
 		polygon.
@@ -1509,7 +1544,8 @@ class dPemMixin(dPemMixinBase):
 	def drawPolyLines(self, points, penColor="black", penWidth=1,
 			lineStyle=None, mode=None, persist=True, visible=True,
 			dc=None, useDefaults=False):
-		"""Draws a series of connected line segments defined by the specified points.
+		"""
+		Draws a series of connected line segments defined by the specified points.
 
 		The 'points' parameter should be a tuple of (x,y) pairs defining the shape. Lines
 		are drawn connecting the points sequentially, but a segment from the last
@@ -1529,7 +1565,8 @@ class dPemMixin(dPemMixinBase):
 	def drawLine(self, x1, y1, x2, y2, penColor="black", penWidth=1,
 			fillColor=None, lineStyle=None, mode=None, persist=True,
 			visible=True, dc=None, useDefaults=False):
-		"""Draws a line between (x1,y1) and (x2, y2).
+		"""
+		Draws a line between (x1,y1) and (x2, y2).
 
 		See the 'drawCircle()' method above for more details.
 		"""
@@ -1559,7 +1596,8 @@ class dPemMixin(dPemMixinBase):
 			fontSize=None, fontBold=None, fontItalic=None,
 			fontUnderline=None, foreColor=None, backColor=None,
 			mode=None, persist=True, visible=True, dc=None, useDefaults=False):
-		"""Draws text on the object at the specified position
+		"""
+		Draws text on the object at the specified position
 		using the specified characteristics. Any characteristics
 		not specified will be set to the system default.
 		"""
@@ -1577,7 +1615,8 @@ class dPemMixin(dPemMixinBase):
 	def drawGradient(self, orientation, x=0, y=0, width=None, height=None,
 			color1=None, color2=None, mode=None, persist=True, visible=True,
 			dc=None, useDefaults=False):
-		"""Draws a horizontal or vertical gradient on the control. Default
+		"""
+		Draws a horizontal or vertical gradient on the control. Default
 		is to cover the entire control, although you can specify positions.
 		The gradient is drawn with 'color1' as the top/left color, and 'color2'
 		as the bottom/right color.
@@ -1610,7 +1649,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _redraw(self, dc=None):
-		"""If the object has drawing routines that affect its appearance, this
+		"""
+		If the object has drawing routines that affect its appearance, this
 		method is where they go. Subclasses should place code in the
 		redraw() hook method.
 		"""
@@ -1629,7 +1669,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def redraw(self, dc):
-		"""Called when the object is (re)drawn.
+		"""
+		Called when the object is (re)drawn.
 
 		This is a user subclass hook, where you should put any drawing routines
 		to affect the object appearance.
@@ -1652,7 +1693,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _moveDrawObjectUp(self, obj, levels=1):
-		"""Move the drawing object higher in the stack of drawing objects.
+		"""
+		Move the drawing object higher in the stack of drawing objects.
 
 		The optional levels argument specifies how much higher to move the drawing
 		object.
@@ -1666,7 +1708,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _moveDrawObjectDown(self, obj, levels=1):
-		"""Move the drawing object lower in the stack of drawing objects.
+		"""
+		Move the drawing object lower in the stack of drawing objects.
 
 		The optional levels argument specifies how much lower to move the drawing
 		object.
@@ -1680,7 +1723,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _onResizeBorder(self, evt):
-		"""Called when the user has defined a border for the control, and	the
+		"""
+		Called when the user has defined a border for the control, and	the
 		control is resized.
 		"""
 		brd = self._border
@@ -1688,7 +1732,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def clone(self, obj, name=None):
-		"""Create another object just like the passed object. It assumes that the
+		"""
+		Create another object just like the passed object. It assumes that the
 		calling object will be the container of the newly created object.
 		"""
 		propValDict = obj.getProperties()
@@ -1701,7 +1746,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def copy(self):
-		"""Called by uiApp when the user requests a copy operation.
+		"""
+		Called by uiApp when the user requests a copy operation.
 
 		Return None (the default) and uiApp will try a default copy operation.
 		Return anything other than None and uiApp will assume that the copy
@@ -1711,7 +1757,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def cut(self):
-		"""Called by uiApp when the user requests a cut operation.
+		"""
+		Called by uiApp when the user requests a cut operation.
 
 		Return None (the default) and uiApp will try a default cut operation.
 		Return anything other than None and uiApp will assume that the cut
@@ -1721,7 +1768,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def paste(self):
-		"""Called by uiApp when the user requests a paste operation.
+		"""
+		Called by uiApp when the user requests a paste operation.
 
 		Return None (the default) and uiApp will try a default paste operation.
 		Return anything other than None and uiApp will assume that the paste
@@ -1750,7 +1798,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _uniqueNameForParent(self, name, parent=None):
-		"""Takes a given name and ensures that it is unique among the existing child
+		"""
+		Takes a given name and ensures that it is unique among the existing child
 		objects of the specified parent container. If no parent is specified, self.Parent
 		is assumed. Returns either the original name, if it is unique, or the name with
 		a numeric suffix that will make it unique.
@@ -2670,6 +2719,7 @@ class dPemMixin(dPemMixinBase):
 				"Dot"
 				"DotDash"
 				"DashDot"
+			
 			"""))
 
 	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
@@ -2680,12 +2730,15 @@ class dPemMixin(dPemMixinBase):
 					"Simple"
 					"Sunken"
 					"Raised"
+			
 			""") )
 
 	BorderWidth = property(_getBorderWidth, _setBorderWidth, None,
 			_("""Width of the border drawn around the control, if any. (int)
 
-				Default=0 (no border)"""))
+				Default=0 (no border)
+				
+			"""))
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("The caption of the object. (str)") )
@@ -2693,7 +2746,9 @@ class dPemMixin(dPemMixinBase):
 	Children = property(_getChildren, None, None,
 			_("""Returns a list of object references to the children of
 			this object. Only applies to containers. Children will be None for
-			non-containers.  (list or None)"""))
+			non-containers.  (list or None)
+			
+			"""))
 
 	ControllingSizer = property(_getCntrlSizer, None, None,
 			_("""Reference to the sizer that controls this control's layout.  (dSizer)""") )
@@ -2702,17 +2757,20 @@ class dPemMixin(dPemMixinBase):
 			_("""Reference to the sizer item that control's this control's layout.
 
 				This is useful for getting information about how the item is being
-				sized, and for changing those settings.  (SizerItem)"""))
+				sized, and for changing those settings.  (SizerItem)
+			"""))
 
 	DroppedFileHandler = property(_getDroppedFileHandler, _setDroppedFileHandler, None,
 			_("""Reference to the object that will handle files dropped on this control.
 			When files are dropped, a list of them will be passed to this object's
-			'processDroppedFiles()' method. Default=None  (object or None)"""))
+			'processDroppedFiles()' method. Default=None  (object or None)
+			"""))
 
 	DroppedTextHandler = property(_getDroppedTextHandler, _setDroppedTextHandler, None,
 			_("""Reference to the object that will handle text dropped on this control.
 			When text is dropped, that text will be passed to this object's
-			'processDroppedText()' method. Default=None  (object or None)"""))
+			'processDroppedText()' method. Default=None  (object or None)
+			"""))
 
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("""Specifies whether the object and children can get user input. (bool)""") )
@@ -2723,7 +2781,8 @@ class dPemMixin(dPemMixinBase):
 			before event binding occurs; it cannot be changed after the object is created.
 			DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING and can handle the
 			resulting behavior changes. Usually used to pass events to the container in a
-			composite control. Default=self  (object)"""))
+			composite control. Default=self  (object)
+			"""))
 
 	Font = property(_getDaboFont, _setDaboFont, None,
 			_("Specifies font object for this control. (dFont)") )
@@ -2757,11 +2816,13 @@ class dPemMixin(dPemMixinBase):
 
 	HelpContextText = property(_getHelpContextText, _setHelpContextText, None,
 			_("""Specifies the context-sensitive help text associated with this
-				window. (str)""") )
+				window. (str)
+			""") )
 
 	Hover = property(_getHover, _setHover, None,
 			_("""When True, Mouse Enter events fire the onHover method, and
-			MouseLeave events fire the endHover method  (bool)"""))
+			MouseLeave events fire the endHover method  (bool)
+			"""))
 
 	Left = property(_getLeft, _setLeft, None,
 			_("Specifies the left position of the object. (int)") )
@@ -2792,7 +2853,8 @@ class dPemMixin(dPemMixinBase):
 
 			If the specified name isn't unique, an exception will be raised. See also
 			NameBase, which let's you set a base name and Dabo will automatically append
-			integers to make it unique.""") )
+			integers to make it unique.
+			""") )
 
 	NameBase = property(None, _setNameBase, None,
 			_("""Specifies the base name of the object.
@@ -2806,7 +2868,8 @@ class dPemMixin(dPemMixinBase):
 			and there is already a sibling object with that name, your object will end up
 			with Name = "txtAddress1".
 
-			This property is write-only at runtime.""") )
+			This property is write-only at runtime.
+			""") )
 
 	Parent = property(_getParent, _setParent, None,
 			_("The containing object. (obj)") )
@@ -2830,7 +2893,8 @@ class dPemMixin(dPemMixinBase):
 			mouse hovers over the control, and will clear when the control loses
 			the focus, or when the mouse is no longer hovering.
 
-			For forms, set StatusText whenever you want to display a message."""))
+			For forms, set StatusText whenever you want to display a message.
+			"""))
 
 	Tag = property(_getTag, _setTag, None,
 			_("A property that user code can safely use for specific purposes.") )
@@ -2843,11 +2907,13 @@ class dPemMixin(dPemMixinBase):
 
 	Transparency = property(_getTransparency, _setTransparency, None,
 			_("""Transparency level of the control; ranges from 0 (transparent) to 255 (opaque).
-			Default=0. Does not currently work on Gtk/Linux.  (int)"""))
+			Default=0. Does not currently work on Gtk/Linux.  (int)
+			"""))
 
 	TransparencyDelay = property(_getTransparencyDelay, _setTransparencyDelay, None,
 			_("""Time in seconds to change transparency. Set it to zero to see instant changes.
-			Default=0.25 (float)"""))
+			Default=0.25 (float)
+			"""))
 
 	Visible = property(_getVisible, _setVisible, None,
 			_("Specifies whether the object is visible at runtime.  (bool)") )
@@ -2900,7 +2966,8 @@ class dPemMixin(dPemMixinBase):
 
 
 class DrawObject(dObject):
-	"""Class to handle drawing on an object.
+	"""
+	Class to handle drawing on an object.
 
 	It is not meant to be used directly; instead, it is returned after a drawing
 	instruction is called on the object.
@@ -2959,7 +3026,8 @@ class DrawObject(dObject):
 
 
 	def draw(self, dc=None):
-		"""Does the actual drawing.
+		"""
+		Does the actual drawing.
 
 		NOTE: it does not clear any old drawings of the shape, so this shouldn't be
 		called except as part of a method of the parent that first clears the
@@ -3595,6 +3663,7 @@ class DrawObject(dObject):
 
 	DrawMode = property(_getDrawMode, _setDrawMode, None,
 			_("""Logical operation for how the drawing is done. Can be one of:  (str)
+			
 				copy (or None) - default
 				invert
 				and
@@ -3611,6 +3680,7 @@ class DrawObject(dObject):
 				set
 				src_invert
 				xor
+			
 			"""))
 
 	EndAngle = property(_getEndAngle, _setEndAngle, None,
@@ -3646,6 +3716,7 @@ class DrawObject(dObject):
 	HatchStyle = property(_getHatchStyle, _setHatchStyle, None,
 			_("""Hatching style for the fill.  (str)
 					Options are:
+			
 						Solid (default)
 						Transparent
 						Cross
@@ -3654,7 +3725,8 @@ class DrawObject(dObject):
 						Diagonal
 						ReverseDiagonal
 						CrossDiagonal
-					"""))
+			
+			"""))
 
 	Height = property(_getHeight, _setHeight, None,
 			_("For rectangles, the height of the shape  (int)"))

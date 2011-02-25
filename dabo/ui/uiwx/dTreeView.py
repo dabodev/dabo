@@ -481,7 +481,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def refreshDisplay(self):
-		"""Changing some node appearance properties requires that the tree be
+		"""
+		Changing some node appearance properties requires that the tree be
 		collapsed and re-opened in order to update any sizing issues.
 		"""
 		self.lockDisplay()
@@ -569,7 +570,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 	# Image-handling function
 	def addImage(self, img, key=None):
-		""" Adds the passed image to the control's ImageList, and maintains
+		"""
+		Adds the passed image to the control's ImageList, and maintains
 		a reference to it that is retrievable via the key value.
 		"""
 		# Default image size
@@ -590,15 +592,18 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def setNodeImg(self, node, imgKey, which="normal"):
-		"""Sets the specified node's image to the image corresponding	to the
+		"""
+		Sets the specified node's image to the image corresponding to the
 		specified key. May also optionally pass the index of the image in the
 		image list rather than the key, which is the state of the node.
 
 		Valid states are:
+		
 			'normal'
 			'expanded'
 			'selected'
 			'selectedexpanded'
+		
 		"""
 		whichdict = {"normal": wx.TreeItemIcon_Normal,
 			"expanded": wx.TreeItemIcon_Expanded,
@@ -614,14 +619,18 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def getNodeImg(self, node, which="normal"):
-		""" Returns the index of the specified node's image in the
+		"""
+		Returns the index of the specified node's image in the
 		current image list, or -1 if no image is set for the node.
 		Which is the state of the node.
+		
 		Valid states are:
+		
 			'normal'
 			'expanded'
 			'selected'
 			'selectedexpanded'
+		
 		"""
 		whichdict = {"normal": wx.TreeItemIcon_Normal,
 			"expanded": wx.TreeItemIcon_Expanded,
@@ -641,7 +650,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def getParentNode(self, node):
-		"""Returns the node that is the parent of the given node, or
+		"""
+		Returns the node that is the parent of the given node, or
 		None if the node is the root.
 		"""
 		parentID = self.GetItemParent(node.itemID)
@@ -655,14 +665,14 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def getChildren(self, node):
-		""" Returns a list of all nodes that are child nodes of this node."""
+		"""Returns a list of all nodes that are child nodes of this node."""
 		ret = [n for n in self.nodes
 				if n.parent == node]
 		return ret
 
 
 	def getDescendents(self, node):
-		"""  Returns a list of all nodes that are direct descendents of this node. """
+		"""Returns a list of all nodes that are direct descendents of this node."""
 		ret = []
 		for n in self.nodes:
 			par = n.parent
@@ -676,7 +686,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def getSiblings(self, node):
-		""" Returns a list of all nodes at the same level as the specified
+		"""
+		Returns a list of all nodes at the same level as the specified
 		node. The specified node is included in the list.
 		"""
 		ret = [n for n in self.nodes
@@ -685,7 +696,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def find(self, srch, top=None):
-		""" Searches the nodes collection for all nodes that match
+		"""
+		Searches the nodes collection for all nodes that match
 		whose text matches the passed search value (if a text value
 		was passed). If a wxPython TreeItemID object is passed, returns
 		a list nodes matching that itemID value. If a specific node is passed
@@ -708,7 +720,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def findPattern(self, srchPat, top=None):
-		""" Allows for regexp pattern matching in order to find matching
+		"""
+		Allows for regexp pattern matching in order to find matching
 		nodes using less than exact matches. If a specific node is passed
 		in the top property, the search is limited to descendents of that
 		node.
@@ -738,7 +751,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def nextNode(self, nd=None):
-		"""If the current node has children, returns the first child node. If
+		"""
+		If the current node has children, returns the first child node. If
 		it has no children, returns the next sibling. If there are no next
 		siblings, returns the next sibling of the parent node. If the parent
 		node has no more siblings, returns the next sibling of the grand-
@@ -774,7 +788,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def priorNode(self, nd=None):
-		"""Returns last child of the prior sibling node. If there
+		"""
+		Returns last child of the prior sibling node. If there
 		are no prior siblings, returns the parent. Sometimes
 		referred to as 'flatup' navigation.
 		"""
@@ -806,7 +821,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def _getRelative(self, nd, func):
-		"""Used by nextNode(), nextSibling(), priorNode() and
+		"""
+		Used by nextNode(), nextSibling(), priorNode() and
 		priorSibling() methods for relative movement.
 		"""
 		if nd is None:
@@ -829,8 +845,9 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 	def makeDirTree(self, dirPath, wildcard=None, ignored=None,
 			showHidden=False, expand=False):
-		"""Make this dTreeView show a filesystem directory hierarchy. You
-		can specify a wildcard pattern: e.g., "*py" will only include files
+		"""
+		Make this dTreeView show a filesystem directory hierarchy. You
+		can specify a wildcard pattern: e.g., "\*py" will only include files
 		ending in 'py'. If no wildcard is specified, all files will be included.
 
 		You can also specify file patterns to ignore in the 'ignore' parameter.
@@ -928,7 +945,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def treeFromStructure(self, stru, topNode=None):
-		"""Given a sequence of items with a standard format,
+		"""
+		Given a sequence of items with a standard format,
 		this will construct a tree structure and append it to
 		the specified 'topNode'. If 'topNode' is None, the tree
 		will be cleared, and a new structure containing only the
@@ -964,7 +982,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def addDummyData(self):
-		""" For testing purposes! """
+		"""For testing purposes!"""
 		root = ["This is the root"]
 		kid1 = ["First Child"]
 		kid2 = ["Second Child"]
@@ -1000,7 +1018,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def getNodeUnderMouse(self, includeSpace=False, includeButton=True):
-		"""Returns the node directly under the mouse, or None if the mouse is not
+		"""
+		Returns the node directly under the mouse, or None if the mouse is not
 		over a node. If 'includeSpace' is True, the empty space to the right of the node
 		is counted as part of the node. Likewise, if 'includeButton' is True, the
 		area for the expanding/collapsing button is considered part of the node.

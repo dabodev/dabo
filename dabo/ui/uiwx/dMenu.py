@@ -19,7 +19,8 @@ RadioItemType = wx.ITEM_RADIO
 
 
 class dMenu(pm.dPemMixin, wx.Menu):
-	"""Creates a menu, which can contain submenus, menu items,
+	"""
+	Creates a menu, which can contain submenus, menu items,
 	and separators.
 	"""
 	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
@@ -51,7 +52,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def _initEvents(self):
-		"""See self._setId(), which is where the binding of wxEvents needs to take
+		"""
+		See self._setId(), which is where the binding of wxEvents needs to take
 		place.
 		"""
 		self.bindEvent(dEvents.MenuOpen, self.__onMenuHighlight)
@@ -61,7 +63,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def _setMRUBindings(self):
-		"""If the menu is not top-level (i.e., directly opened from the MenuBar),
+		"""
+		If the menu is not top-level (i.e., directly opened from the MenuBar),
 		the MenuOpen event will not be raised, so trigger on the MenuHighlight
 		event instead.
 		"""
@@ -72,7 +75,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def _clearMRUBindings(self):
-		"""See the _setMRUBindings method for an explanation. This uses
+		"""
+		See the _setMRUBindings method for an explanation. This uses
 		the same logic to unbind MRU events.
 		"""
 		if isinstance(self.Parent, dabo.ui.dMenuBar):
@@ -82,7 +86,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def __onMenuHighlight(self, evt):
-		"""Note that this code is here in a dabo binding instead of in the wx binding
+		"""
+		Note that this code is here in a dabo binding instead of in the wx binding
 		because of the way we've worked around wx limitations: dMenu as a top-level
 		menu in a menu bar doesn't send wx events.
 		"""
@@ -226,7 +231,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 	def append(self, caption, help="", bmp=None, picture=None,
 			menutype="", *args, **kwargs):
-		"""Append a dMenuItem with the specified properties.
+		"""
+		Append a dMenuItem with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
@@ -241,7 +247,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 	def insert(self, pos, caption, help="", bmp=None, picture=None,
 			menutype="", *args, **kwargs):
-		"""Insert a dMenuItem at the given position with the specified properties.
+		"""
+		Insert a dMenuItem at the given position with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
@@ -256,7 +263,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 	def prepend(self, caption, help="", bmp=None, picture=None,
 			menutype="", *args, **kwargs):
-		"""Prepend a dMenuItem with the specified properties.
+		"""
+		Prepend a dMenuItem with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
@@ -270,7 +278,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def _resolveItem(self, capIdxOrItem):
-		"""Returns the menu item specified by either its index or caption. In the
+		"""
+		Returns the menu item specified by either its index or caption. In the
 		case that an actual menu item is passed, simply returns that item.
 		"""
 		if isinstance(capIdxOrItem, basestring):
@@ -283,7 +292,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def remove(self, capIdxOrItem, release=True):
-		"""Removes the specified item from the menu. You may specify the item by
+		"""
+		Removes the specified item from the menu. You may specify the item by
 		passing its index, its Caption, or by passing the item itself. If release is
 		True (the default), the item is destroyed as well. If release is False, a reference
 		to the object will be returned, and the caller is responsible for destroying it.
@@ -319,14 +329,16 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def setItemCheck(self, itm, val):
-		"""Pass a menu item and a boolean value, and the checked
+		"""
+		Pass a menu item and a boolean value, and the checked
 		state of that menu item will be set accordingly.
 		"""
 		itm.Check(val)
 
 
 	def setCheck(self, capIdxOrItem, unCheckOthers=True):
-		"""When using checkmark-type menus, passing either the item
+		"""
+		When using checkmark-type menus, passing either the item
 		itself, or the index or caption of the item you want checked to
 		this method will check that item. If unCheckOthers is True, non-
 		matching items will be unchecked.
@@ -404,7 +416,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def _setId(self, id_):
-		"""wxMenus don't have ids of their own - they only get set when the
+		"""
+		wxMenus don't have ids of their own - they only get set when the
 		menu gets added as a submenu - and then it becomes a wxMenuItem with a
 		special submenu flag. This hook, called from append|insert|prependMenu(),
 		allows the menu event bindings to take place.
@@ -422,7 +435,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def _itemByCaption(self, cap, returnPos=False):
-		"""Common method for locating a menu item by its caption, ignoring
+		"""
+		Common method for locating a menu item by its caption, ignoring
 		all the 'special' characters for acceleration. If 'returnPos' is
 		True, the position of the found item is returned instead of the
 		item itself.
@@ -440,7 +454,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def getItemIndex(self, captionOrItem):
-		"""Returns the index of the item with the specified caption; you can
+		"""
+		Returns the index of the item with the specified caption; you can
 		optionally pass in a reference to the menu item itself. If the item
 		isn't found, None is returned.
 		"""
@@ -452,7 +467,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def getItem(self, idOrCaption):
-		"""Returns a reference to the menu item with the specified ItemID or Caption.
+		"""
+		Returns a reference to the menu item with the specified ItemID or Caption.
 		The ItemID property is checked first; then the Caption. If no match is found,
 		None is returned.
 		"""
@@ -469,7 +485,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def GetChildren(self):
-		"""wx doesn't provide GetChildren() for menubars or menus, but dPemMixin
+		"""
+		wx doesn't provide GetChildren() for menubars or menus, but dPemMixin
 		calls it in _getChildren(). The Dabo developer wants the submenus and
 		items in this menu, but is using the consistent Children property to
 		do it. The Children property will thus return both menu items and separators.

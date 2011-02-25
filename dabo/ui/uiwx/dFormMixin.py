@@ -155,7 +155,7 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def __onWxActivate(self, evt):
-		""" Raise the Dabo Activate or Deactivate appropriately."""
+		"""Raise the Dabo Activate or Deactivate appropriately."""
 		if bool(evt.GetActive()):
 			self.raiseEvent(dEvents.Activate, evt)
 			app = self.Application
@@ -272,7 +272,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def activeControlValid(self):
-		""" Force the control-with-focus to fire its KillFocus code.
+		"""
+		Force the control-with-focus to fire its KillFocus code.
 
 		The bizobj will only get its field updated during the control's
 		KillFocus code. This function effectively commands that update to
@@ -286,7 +287,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def refresh(self, interval=None):
-		"""Repaints the form and all contained objects.
+		"""
+		Repaints the form and all contained objects.
 
 		This method is called repeatedly from many different places during
 		a single change in the UI, so by default the actual execution is cached
@@ -311,7 +313,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def reload(self):
-		"""Tells the application to check for a newer version of the form, and if there is,
+		"""
+		Tells the application to check for a newer version of the form, and if there is,
 		to replace this instance with an instance of the newer class.
 		"""
 		# First, create a dummy event object
@@ -322,7 +325,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def createBizobjs(self):
-		"""Can be overridden in instances to create the bizobjs this form needs.
+		"""
+		Can be overridden in instances to create the bizobjs this form needs.
 		It is provided so that tools such as the Class Designer can create skeleton
 		code that the user can later enhance.
 		"""
@@ -385,24 +389,29 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def showModal(self):
-		"""Shows the form in a modal fashion. Other forms can still be
+		"""
+		Shows the form in a modal fashion. Other forms can still be
 		activated, but all controls are disabled.
-		NOTE: wxPython does not currently support this. DO NOT USE
-		this method.
+		
+		.. note::
+			wxPython does not currently support this. DO NOT USE this method.
+			
 		"""
 		raise dException.FeatureNotSupportedException(
 				_("The underlying UI toolkit does not support modal forms. Use a dDialog instead."))
 
 
 	def release(self):
-		""" Instead of just destroying the object, make sure that
+		"""
+		Instead of just destroying the object, make sure that
 		we close it properly and clean up any references to it.
 		"""
 		self.close(True)
 
 
 	def close(self, force=False):
-		""" This method will close the form. If force = False (default)
+		"""
+		This method will close the form. If force = False (default)
 		the beforeClose methods will be called, and these will have
 		an opportunity to conditionally block the form from closing.
 		If force=True, the form is closed without any chance of
@@ -420,7 +429,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def safeDestroy(self):
-		"""Since the callAfter to close() was added, I'm getting a lot
+		"""
+		Since the callAfter to close() was added, I'm getting a lot
 		of dead object warnings. This should fix that.
 		"""
 		if self:
@@ -428,7 +438,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def _beforeClose(self, evt=None):
-		""" See if there are any pending changes in the form, if the
+		"""
+		See if there are any pending changes in the form, if the
 		form is set for checking for this. If everything's OK, call the
 		hook method.
 		"""
@@ -439,7 +450,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def beforeClose(self, evt):
-		""" Hook method. Returning False will prevent the form from
+		"""
+		Hook method. Returning False will prevent the form from
 		closing. Gives you a chance to determine the status of the form
 		to see if changes need to be saved, etc.
 		"""
@@ -447,7 +459,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def closing(self):
-		""" Stub method to be customized in subclasses. At this point,
+		"""
+		Stub method to be customized in subclasses. At this point,
 		the form is going to close. If you need to do something that might
 		prevent the form from closing, code it in the beforeClose()
 		method instead.
@@ -456,12 +469,13 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def afterSetMenuBar(self):
-		""" Subclasses can extend the menu bar here."""
+		"""Subclasses can extend the menu bar here."""
 		pass
 
 
 	def getMenu(self):
-		""" Get the navigation menu for this form.
+		"""
+		Get the navigation menu for this form.
 
 		Every form maintains an internal menu of actions appropriate to itself.
 		For instance, a dForm with a primary bizobj will maintain a menu with
@@ -475,7 +489,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def onEditUndo(self, evt):
-		"""If you want your form to respond to the Undo menu item in
+		"""
+		If you want your form to respond to the Undo menu item in
 		the Edit menu that is installed in the Dabo base menu, override
 		this method, and either return nothing, or return something other
 		than False.
@@ -484,7 +499,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def onEditRedo(self, evt):
-		"""If you want your form to respond to the Redo menu item in
+		"""
+		If you want your form to respond to the Redo menu item in
 		the Edit menu that is installed in the Dabo base menu, override
 		this method, and either return nothing, or return something other
 		than False.
@@ -493,7 +509,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def restoreSizeAndPosition(self):
-		""" Restore the saved window geometry for this form.
+		"""
+		Restore the saved window geometry for this form.
 
 		Ask dApp for the last saved setting of height, width, left, and top,
 		and set those properties on this form.
@@ -540,7 +557,7 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def saveSizeAndPosition(self):
-		""" Save the current size and position of this form."""
+		"""Save the current size and position of this form."""
 		app = self.Application
 		if app:
 			if self.SaveRestorePosition and not self.TempForm:
@@ -567,7 +584,7 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def layout(self):
-		""" Wrap the wx sizer layout call. """
+		"""Wrap the wx sizer layout call."""
 		self.Layout()
 		try:
 			# Call the Dabo version, if present
@@ -579,7 +596,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def registerObject(self, obj):
-		"""Stores a reference to the passed object using the RegID key
+		"""
+		Stores a reference to the passed object using the RegID key
 		property of the object for later retrieval. You may reference the
 		object as if it were a child object of this form; i.e., by using simple
 		dot notation, with the RegID as the 'name' of the object.
@@ -599,7 +617,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def getObjectByRegID(self, id):
-		"""Given a RegID value, this will return a reference to the
+		"""
+		Given a RegID value, this will return a reference to the
 		associated object, if any. If not, returns None.
 		"""
 		if id in self._objectRegistry:
@@ -619,7 +638,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def fillPreferenceDialog(self, dlg):
-		"""This method is called with a reference to the pref dialog. It can be overridden
+		"""
+		This method is called with a reference to the pref dialog. It can be overridden
 		in subclasses to add application-specific content to the pref dialog. To add a
 		new page to the dialog, call the dialog's addCategory() method, passing the caption
 		for that page. It will return a reference to the newly-created page, to which you
@@ -629,7 +649,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def _setAbsoluteFontZoom(self, amt):
-		"""Let the default behavior run, but then save the font zoom level to
+		"""
+		Let the default behavior run, but then save the font zoom level to
 		the user preferences file. The loading of the saved pref happens in
 		the individual control (dPemMixinBase) so that the restoration of the
 		control's font zoom isn't dependent on the control being created at
@@ -656,7 +677,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def popStatusText(self):
-		"""Restores the StatusText to the last value pushed on the stack. If there
+		"""
+		Restores the StatusText to the last value pushed on the stack. If there
 		are no values in the stack, nothing is changed.
 		"""
 		txt = self._statusStack.pop()
@@ -997,7 +1019,8 @@ class dFormMixin(pm.dPemMixin):
 		return ret
 
 	def _setStatusText(self, val, _callAfter=True):
-		""" Set the text of the status bar. Dabo will decide whether to
+		"""
+		Set the text of the status bar. Dabo will decide whether to
 		send the text to the main frame or this frame. This matters with MDI
 		versus non-MDI forms.
 		"""

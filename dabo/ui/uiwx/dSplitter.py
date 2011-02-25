@@ -101,7 +101,8 @@ class SplitterPanelMixin:
 
 
 class dSplitter(cm.dControlMixin, wx.SplitterWindow):
-	""" Main class for handling split windows. It will contain two
+	"""
+	Main class for handling split windows. It will contain two
 	panels (subclass of SplitterPanelMixin), each of which can further
 	split itself in two.
 	"""
@@ -205,7 +206,8 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 
 
 	def _onSashDClick(self, evt):
-		""" Handle the double-clicking of the sash. This will call
+		"""
+		Handle the double-clicking of the sash. This will call
 		the user-customizable onSashDClick() method.
 		"""
 		## Vetoing the event now will give user code the opportunity to not do the

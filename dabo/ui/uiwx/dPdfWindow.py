@@ -28,7 +28,8 @@ except StandardError:
 
 
 class dPdfWindow(cm.dControlMixin, PDFWindow):
-	"""Displays a PDF file on Windows using Adobe Acrobat Reader in a panel.
+	"""
+	Displays a PDF file on Windows using Adobe Acrobat Reader in a panel.
 
 	See wx.lib.pdfwin.PDFWindow for the API.
 	"""

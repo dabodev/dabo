@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-""" dBaseMenuBar.py
-
+"""
 This module contains the class definitions and logic to build
 a basic menu for all platforms. There are special needs for
 complying with Apple's Human Interface Guidelines, for instance.
@@ -163,7 +162,8 @@ class HelpMenu(dMenu):
 
 
 class dBaseMenuBar(dMenuBar):
-	"""Creates a basic menu bar with File, Edit, and Help menus.
+	"""
+	Creates a basic menu bar with File, Edit, and Help menus.
 
 	The Edit menu has standard Copy, Cut, and Paste menu items, and the Help menu
 	has an About menu item. On Mac, the About menu item and Help menu are moved

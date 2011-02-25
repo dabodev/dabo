@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-""" dDataControlMixin.py: Provide behavior common to all
-	data-aware dControls.
-"""
+"""dDataControlMixin.py: Provide behavior common to all	data-aware dControls."""
 import dabo, dabo.ui
 import dabo.dEvents as dEvents
 import dabo.dException as dException
@@ -13,7 +11,7 @@ from dabo.lib.utils import ustr
 
 
 class dDataControlMixinBase(dabo.ui.dControlMixin):
-	""" Provide common functionality for the data-aware controls."""
+	"""Provide common functionality for the data-aware controls."""
 	def __init__(self, *args, **kwargs):
 		self._fldValidFailed = False
 		self.__src = self._srcIsBizobj = self._srcIsInstanceMethod = None
@@ -92,12 +90,12 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def getBlankValue(self):
-		""" Return the empty value of the control."""
+		"""Return the empty value of the control."""
 		return None
 
 
 	def update(self):
-		""" Update control's value to match the current value from the source."""
+		"""Update control's value to match the current value from the source."""
 		# We need to do the data handling stuff before calling super()
 		self.__dataUpdate()
 		super(dDataControlMixinBase, self).update()
@@ -158,7 +156,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def select(self, position, length):
-		""" Select all text from <position> for <length> or end of string.
+		"""
+		Select all text from <position> for <length> or end of string.
 
 		UI lib must override.
 		"""
@@ -166,7 +165,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def selectAll(self):
-		""" Select all text in the control.
+		"""
+		Select all text in the control.
 
 		UI lib must override.
 		"""
@@ -174,7 +174,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def selectNone(self):
-		""" Select no text in the control.
+		"""
+		Select no text in the control.
 
 		UI lib must override.
 		"""
@@ -182,7 +183,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def flushValue(self):
-		""" Save any changes to the underlying source field. First check to make sure
+		"""
+		Save any changes to the underlying source field. First check to make sure
 		that any changes are validated.
 		"""
 		# We need to test empty oldvals because of the way that textboxes work; they
@@ -274,7 +276,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def saveValue(self):
-		""" Save control's value to dApp's user settings table."""
+		"""Save control's value to dApp's user settings table."""
 		if self.IsSecret:
 			# Don't store sensitive info
 			return
@@ -291,7 +293,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def restoreValue(self):
-		""" Set the control's value to the value in dApp's user settings table."""
+		"""Set the control's value to the value in dApp's user settings table."""
 		if self.Application:
 			if self.RegID:
 				name = "%s.%s" % (self.Form.Name, self.RegID)
@@ -321,9 +323,11 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def _afterValueChanged(self):
-		"""Called after the control's value has changed.
+		"""
+		Called after the control's value has changed.
 
 		This is defined as one of:
+		
 			+ the user changed the value and then the control lost focus
 			+ the control's Value property was set and the value changed
 

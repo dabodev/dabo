@@ -10,33 +10,31 @@ class dTable(dObject):
 	be created on any database.
 
 	For example:
+		
 		To define a temporary table named 'mytemp' that has ? fields,
 		where the fields are:
-			
-			field 1: 'theid', it is an autoincrementing field that uses a 2 byte integer
-			field 2: 'first_name', it is a string field that has a max of 25
-				     characters, part of an indexes 'idx_first' and 'idx_name'
-			field 3: 'last_name', it is a string field that has a max of 25
-				     characters, NULL's are not allowed, part of an indexes
-				     'idx_last' and 'idx_name'
-			field 4: 'amount_owes', it is a float that has a total of 8 decimal places,
-				     2 of the decimal places are to the right of the point, uses 8 bytes,
-				     and the default is 0
 
-		Code Example::
-			
-			from dabo.db import dTable
-			myTable = dTable(Name="mytemp", IsTemp=True)
-			myTable.addField(Name="theid", IsPK=True, DataType="int",
-					Size=2, IsAutoIncrement=True)
-			myTable.addField(Name="first_name", DataType="string", Size=25,
-					Index="idx_first")
-			myTable.addField(Name="last_name", DataType="string", Size=25,
-					AllowNulls=False, Index="idx_last")
-			myTable.addField(Name="amount_owes", DataType="float",
-					TotalDP=8, RightDP=2, Size=8, Default=0)
-			# When you want to have more than one field in an index, use addIndex().
-			myTable.addIndex(Name="idx_name", Fields=("last_name","first_name"))
+			============= ======================
+			field 1:      'theid', it is an autoincrementing field that uses a 2 byte integer
+			field 2:      'first_name', it is a string field that has a max of 25 characters, part of an indexes 'idx_first' and 'idx_name'
+			field 3:      'last_name', it is a string field that has a max of 25 characters, NULL's are not allowed, part of an indexes 'idx_last' and 'idx_name'
+			field 4:      'amount_owes', it is a float that has a total of 8 decimal places, 2 of the decimal places are to the right of the point, uses 8 bytes, and the default is 0
+			============= ======================
+
+	Code Example::
+		
+		from dabo.db import dTable
+		myTable = dTable(Name="mytemp", IsTemp=True)
+		myTable.addField(Name="theid", IsPK=True, DataType="int",
+				Size=2, IsAutoIncrement=True)
+		myTable.addField(Name="first_name", DataType="string", Size=25,
+				Index="idx_first")
+		myTable.addField(Name="last_name", DataType="string", Size=25,
+				AllowNulls=False, Index="idx_last")
+		myTable.addField(Name="amount_owes", DataType="float",
+				TotalDP=8, RightDP=2, Size=8, Default=0)
+		# When you want to have more than one field in an index, use addIndex().
+		myTable.addIndex(Name="idx_name", Fields=("last_name","first_name"))
 			
 	"""
 	def __init__(self, *args, **kwargs):

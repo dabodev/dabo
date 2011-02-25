@@ -246,7 +246,8 @@ keyStrings = {
 
 
 def resolveKeyCombo(keyCombo, returnFlags=False):
-	"""When returnFlags is False (default), this takes a string representation
+	"""
+	When returnFlags is False (default), this takes a string representation
 	of keys and modifiers, and returns a 2-tuple, containing the modifier(s)
 	as the first element, and the key as the second.
 	

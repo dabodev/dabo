@@ -9,7 +9,8 @@ from dabo.ui import makeDynamicProperty
 
 class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 	def __init__(self, *args, **kwargs):
-		"""dGridSizer is a sizer that can lay out items in a virtual grid arrangement.
+		"""
+		dGridSizer is a sizer that can lay out items in a virtual grid arrangement.
 		Items can be placed in specific row/column positions if that position is
 		unoccupied. You can specify either MaxCols or MaxRows, and then append
 		items to the grid sizer; it will place them in the first open row/col
@@ -50,7 +51,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 	def append(self, item, layout="normal", row=-1, col=-1,
 			rowSpan=1, colSpan=1, alignment=None, halign="left",
 			valign="middle", border=0, borderSides=("all",), flag=None):
-		""" Inserts the passed item at the specified position in the grid. If no
+		"""
+		Inserts the passed item at the specified position in the grid. If no
 		position is specified, the item is inserted at the first available open
 		cell as specified by the Max* properties.
 		"""
@@ -78,7 +80,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def appendItems(self, items, *args, **kwargs):
-		""" Shortcut for appending multiple items at once. """
+		"""Shortcut for appending multiple items at once."""
 		ret = []
 		for item in items:
 			ret.append(self.append(item, *args, **kwargs))
@@ -91,12 +93,13 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def insert(self, *args, **kwargs):
-		""" This is not supported for this type of sizer """
+		"""This is not supported for this type of sizer"""
 		raise NotImplementedError(_("Grid Sizers do not support insert()"))
 
 
 	def removeRow(self, rowNum):
-		""" Deletes any items contained in the specified row, and
+		"""
+		Deletes any items contained in the specified row, and
 		then moves all items below it up to fill the space.
 		"""
 		for c in range(self.HighCol + 1):
@@ -124,7 +127,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def removeCol(self, colNum):
-		""" Deletes any items contained in the specified column, and
+		"""
+		Deletes any items contained in the specified column, and
 		then moves all items to the right of it up to fill the space.
 		"""
 		for r in range(self.HighRow+1):
@@ -152,7 +156,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def setColExpand(self, expand, colNum, proportion=0):
-		""" Sets the 'growable' status of one or more columns. """
+		"""Sets the 'growable' status of one or more columns."""
 		# If the colNum argument was passed first, switch it with the
 		# expand argument
 		if isinstance(expand, basestring):
@@ -178,7 +182,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def setRowExpand(self, expand, rowNum, proportion=0):
-		""" Sets the 'growable' status of one or more rows. """
+		"""Sets the 'growable' status of one or more rows."""
 		# If the rowNum argument was passed first, switch it with the
 		# expand argument
 		if isinstance(expand, basestring):
@@ -204,7 +208,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def setFullExpand(self):
-		"""Convenience method for setting all columns and rows of the
+		"""
+		Convenience method for setting all columns and rows of the
 		sizer to be growable. Must be called after all items are added,
 		as any rows or columns added after the call will be the default
 		of non-growable.
@@ -214,7 +219,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def setFullCollapse(self):
-		"""Convenience method for setting all columns and rows of the
+		"""
+		Convenience method for setting all columns and rows of the
 		sizer to not be growable.
 		"""
 		self.setColExpand(False, "all")
@@ -232,7 +238,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def moveCell(self, fromRow, fromCol, toRow, toCol, delay=False):
-		""" Move the contents of the specified cell to the target
+		"""
+		Move the contents of the specified cell to the target
 		location. By default, layout() is called; this can be changed when
 		moving a number of cells by specifying delay=True. In this
 		event, the calling code is responsible for calling layout() when all
@@ -265,7 +272,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def findFirstEmptyCell(self):
-		""" The idea is this: use the MaxDimension to determine how
+		"""
+		The idea is this: use the MaxDimension to determine how
 		we look through the grid. When we find an empty cell, return
 		its coordinates.
 		"""
@@ -294,7 +302,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def getGridPos(self, obj):
-		"""Given an object that is contained in this grid
+		"""
+		Given an object that is contained in this grid
 		sizer, returns a (row,col) tuple for that item's location.
 		"""
 		if isinstance(obj, self.SizerItem):
@@ -307,7 +316,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def getGridSpan(self, obj):
-		"""Given an object that is contained in this grid
+		"""
+		Given an object that is contained in this grid
 		sizer, returns a (row,col) tuple for that item's cell span.
 		"""
 		if isinstance(obj, self.SizerItem):
@@ -323,7 +333,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def setGridSpan(self, obj, row=None, col=None):
-		"""Given an object that is contained in this grid
+		"""
+		Given an object that is contained in this grid
 		sizer, sets its span to the given values. Returns
 		True if successful, or False if it fails, due to another
 		item in the way.
@@ -351,7 +362,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def _clearCells(self, obj, span, typ):
-		"""When enlarging the row/colspan of an item, this method makes sure
+		"""
+		When enlarging the row/colspan of an item, this method makes sure
 		that any potentially spanned cells are either empty, or contain placeholder
 		objects that can be safely removed.
 		"""
@@ -394,7 +406,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def getItemByRowCol(self, row, col, returnObject=True):
-		"""Returns either the managed item or the sizer item at the
+		"""
+		Returns either the managed item or the sizer item at the
 		given position if one exists. If not, returns None.
 		"""
 		ret = None
@@ -411,7 +424,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def getNeighbor(self, obj, dir):
-		"""Returns the object adjacent to the given object. Possible
+		"""
+		Returns the object adjacent to the given object. Possible
 		values for 'dir' are: left, right, up, down.
 		"""
 		dir = dir[0].lower()
@@ -423,7 +437,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def getItemAtOffset(self, obj, off):
-		"""Given an object and a (row, col) offset, returns
+		"""
+		Given an object and a (row, col) offset, returns
 		the object at the offset position, or None if no such
 		object exists.
 		"""
@@ -495,7 +510,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def copyGrid(self, oldGrid):
-		""" This method takes an existing GridSizer, and moves
+		"""
+		This method takes an existing GridSizer, and moves
 		the contents to the current grid. The properties of each
 		cell's item are preserved, but row/column Expand settings
 		must be handled separately.
@@ -512,7 +528,8 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 
 	def drawOutline(self, win, recurse=False, drawChildren=False):
-		""" Need to override this method to draw the outline
+		"""
+		Need to override this method to draw the outline
 		properly for the grid.
 		"""
 		self._resolveOutlineSettings()

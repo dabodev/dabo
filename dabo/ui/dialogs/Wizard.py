@@ -8,7 +8,8 @@ from WizardPage import WizardPage
 
 
 class Wizard(dabo.ui.dDialog):
-	""" This is the main form for creating wizards. To use it, define
+	"""
+	This is the main form for creating wizards. To use it, define
 	a series of wizard pages, based on WizardPage. Then add these
 	classes to your subclass of Wizard. The order that you add them
 	will be the order that they appear in the wizard.
@@ -55,7 +56,7 @@ class Wizard(dabo.ui.dDialog):
 
 
 	def setup(self):
-		""" This creates the controls used by the wizard. """
+		"""This creates the controls used by the wizard."""
 		mp = self.mainPanel
 		if self.setPageColor:
 			mp.BackColor = self.BackColor
@@ -143,7 +144,8 @@ class Wizard(dabo.ui.dDialog):
 
 
 	def finish(self):
-		"""This is the place to do any of your cleanup actions. You
+		"""
+		This is the place to do any of your cleanup actions. You
 		can prevent the wizard from closing by returning False.
 		"""
 		return True
@@ -254,7 +256,8 @@ class Wizard(dabo.ui.dDialog):
 
 
 	def getRelativePage(self, orig, incr):
-		""" Accepts a page reference and an offset, and returns
+		"""
+		Accepts a page reference and an offset, and returns
 		the page that is that many places away in the page order.
 		If the offset refers to a non-existent page (e.g., on the second
 		page and specifying an offset of -4), None will	be returned.
@@ -446,7 +449,8 @@ the box on Page Two.
 
 
 		def prevPage(self):
-			""" If the checkbox on the second page is checked,
+			"""
+			If the checkbox on the second page is checked,
 			we want to skip over page three again. This demonstrates
 			calling to the parent form to get references to other
 			pages.

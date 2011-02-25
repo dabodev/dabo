@@ -8,7 +8,8 @@ from dabo.dLocalize import _
 
 
 class dDropdownList(dcm.dControlItemMixin, wx.Choice):
-	"""Creates a dropdown list, which allows the user to select one item.
+	"""
+	Creates a dropdown list, which allows the user to select one item.
 
 	This is a very simple control, suitable for choosing from one of a handful
 	of items. Only one column can be displayed. A more powerful, flexible

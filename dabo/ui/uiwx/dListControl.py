@@ -12,7 +12,8 @@ from dabo.ui import makeDynamicProperty
 
 
 class _ListColumnAccessor(object):
-	""" These aren't the actual columns that appear in the list control; rather,
+	"""
+	These aren't the actual columns that appear in the list control; rather,
 	they provide a way to interact with the underlying list items in a more
 	straightforward manner.
 	"""
@@ -47,7 +48,8 @@ class _ListColumnAccessor(object):
 
 class dListControl(dcm.dControlItemMixin,
 		ListMixin.ListCtrlAutoWidthMixin, wx.ListCtrl):
-	"""Creates a list control, which is a flexible, virtual list box.
+	"""
+	Creates a list control, which is a flexible, virtual list box.
 
 	The List Control is ideal for visually dealing with data sets where each
 	'row' is a unit, where it doesn't make sense to deal with individual
@@ -111,18 +113,21 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def addColumn(self, caption):
-		""" Add a column with the selected caption. """
+		"""Add a column with the selected caption."""
 		self.InsertColumn(self.GetColumnCount(), caption)
 
 
 	def insertColumn(self, pos, caption):
-		""" Inserts a column at the specified position
-		with the selected caption. """
+		"""
+		Inserts a column at the specified position
+		with the selected caption.
+		"""
 		self.InsertColumn(pos, caption)
 
 
 	def removeColumn(self, pos=None):
-		"""Removes the specified column, or the last column if
+		"""
+		Removes the specified column, or the last column if
 		no column number is passed.
 		"""
 		if pos is None:
@@ -141,11 +146,13 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def setColumns(self, colList):
-		""" Accepts a list/tuple of column headings, removes any existing columns,
+		"""
+		Accepts a list/tuple of column headings, removes any existing columns,
 		and creates new columns, one for each element in the list. The current
 		display settings and data is preserved as much as possible: setting more
 		columns will result in empty columns, and setting fewer columns will
-		truncate the data."""
+		truncate the data.
+		"""
 		self.lockDisplay()
 		ds = self._getCurrentData()
 		wds = [self.getColumnWidth(col) for col in xrange(self.ColumnCount)]
@@ -174,7 +181,8 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def select(self, row):
-		"""Selects the specified row. In a MultipleSelect control, any
+		"""
+		Selects the specified row. In a MultipleSelect control, any
 		other selected rows remain selected.
 		"""
 		if row < self.RowCount:
@@ -184,7 +192,8 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def selectOnly(self, row):
-		"""Selects the specified row. In a MultipleSelect control, any
+		"""
+		Selects the specified row. In a MultipleSelect control, any
 		other selected rows are de-selected first.
 		"""
 		if self.MultipleSelect:
@@ -193,14 +202,16 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def unselect(self, row):
-		"""De-selects the specified row. In a MultipleSelect control, any
+		"""
+		De-selects the specified row. In a MultipleSelect control, any
 		other selected rows remain selected.
 		"""
 		self.SetItemState(row, 0, wx.LIST_STATE_SELECTED)
 
 
 	def selectAll(self):
-		"""Selects all rows in a MultipleSelect control, or generates a
+		"""
+		Selects all rows in a MultipleSelect control, or generates a
 		warning if the control is not set to MultipleSelect.
 		"""
 		if self.MultipleSelect:
@@ -252,7 +263,8 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def append(self, tx, col=0, row=None):
-		""" Appends a row with the associated text in the specified column.
+		"""
+		Appends a row with the associated text in the specified column.
 		If the value for tx is a list/tuple, the values will be set in the columns
 		starting with the passed value. If either case results in an attempt to
 		add to a non-existent column, it will be ignored.
@@ -286,7 +298,8 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def appendRows(self, seq, col=0):
-		""" Accepts a list/tuple of data. Each element in the sequence
+		"""
+		Accepts a list/tuple of data. Each element in the sequence
 		will be another row in the control. If the data is plain text, it
 		will be added in the specified column. If the data is also a
 		list/tuple, it will be appended into columns beginning with the
@@ -297,7 +310,8 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def insert(self, tx, row=0, col=0):
-		""" Inserts the item at the specified row, or at the beginning if no
+		"""
+		Inserts the item at the specified row, or at the beginning if no
 		row is specified. Item is inserted at the specified column, as in self.append()
 		"""
 		self.InsertStringItem(row, "")
@@ -305,7 +319,8 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def insertRows(self, seq, row=0, col=0):
-		""" Accepts a list/tuple of data. Each element in the sequence
+		"""
+		Accepts a list/tuple of data. Each element in the sequence
 		will be another row in the control. If the data is plain text, it
 		will be inserted in the specified column at the specified row.
 		If the data is also a list/tuple, it will be inserted into columns
@@ -316,7 +331,8 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def removeRow(self, row):
-		"""Deletes the specified row if it exists, or generates a warning
+		"""
+		Deletes the specified row if it exists, or generates a warning
 		if it does not.
 		"""
 		if row < self.RowCount:
@@ -327,7 +343,8 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def _restoreRowSelection(self, row):
-		"""Restores selection of last selected row, helpful in list item
+		"""
+		Restores selection of last selected row, helpful in list item
 		manipulation conditions, e.g. removing list items.
 		"""
 		if self._lastSelectedIndex:
@@ -342,7 +359,7 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def clear(self):
-		""" Remove all the rows in the control. """
+		"""Remove all the rows in the control."""
 		self.DeleteAllItems()
 		self._lastSelectedIndex = None
 	# Need to alias this to work like other list controls.
@@ -350,7 +367,8 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def _GetString(self, idx=None, col=None):
-		"""Since the wx List Control doesn't have a direct GetString() method,
+		"""
+		Since the wx List Control doesn't have a direct GetString() method,
 		which our code for dControlItemMixin expects, this 'fakes' it.
 		"""
 		if idx is None:
@@ -361,18 +379,19 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def setItemData(self, item, data):
-		""" Associate some data with the item. """
+		"""Associate some data with the item."""
 		return self.SetItemData(item, data)
 
 
 	def getItemData(self, item):
-		""" Retrieve the data associated with the item. """
+		"""Retrieve the data associated with the item."""
 		return self.GetItemData(item)
 
 
 	# Image-handling function
 	def addImage(self, img, key=None):
-		""" Adds the passed image to the control's ImageList, and maintains
+		"""
+		Adds the passed image to the control's ImageList, and maintains
 		a reference to it that is retrievable via the key value.
 		"""
 		if key is None:
@@ -388,7 +407,8 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def setItemImg(self, itm, imgKey):
-		""" Sets the specified item's image to the image corresponding
+		"""
+		Sets the specified item's image to the image corresponding
 		to the specified key. May also optionally pass the index of the
 		image in the ImageList rather than the key.
 		"""
@@ -401,7 +421,8 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def getItemImg(self, itm):
-		""" Returns the index of the specified item's image in the
+		"""
+		Returns the index of the specified item's image in the
 		current image list, or -1 if no image is set for the item.
 		"""
 		ret = self.GetItem(itm).GetImage()
@@ -509,7 +530,8 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def _fillItemData(self, col):
-		"""Sets the Item Data for each row to be the value corresponding to the order
+		"""
+		Sets the Item Data for each row to be the value corresponding to the order
 		for each column.
 		"""
 		data = []

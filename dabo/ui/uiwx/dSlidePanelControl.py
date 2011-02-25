@@ -90,7 +90,8 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 
 	def ResizePanel(self):
-		"""The native FoldPanelBar doesn't handle removing items form panels;
+		"""
+		The native FoldPanelBar doesn't handle removing items form panels;
 		this removes the item from the panel's internal item tracking.
 		"""
 		for itm in self._items:
@@ -122,7 +123,7 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 
 	def layout(self):
-		""" Wrap the wx version of the call, if possible. """
+		"""Wrap the wx version of the call, if possible."""
 		self.Layout()
 		try:
 			# Call the Dabo version, if present
@@ -379,7 +380,8 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 
 class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
-	"""Creates a control consisting of several panels that can be
+	"""
+	Creates a control consisting of several panels that can be
 	hidden or revealed by clicking on their 'caption bar'.
 
 	This allows you to collapse each panel down to its caption bar,
@@ -494,7 +496,7 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 
 
 	def layout(self):
-		""" Wrap the wx version of the call, if possible. """
+		"""Wrap the wx version of the call, if possible."""
 		if not self:
 			# The object may have already been released.
 			return
@@ -514,7 +516,8 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 
 
 	def _setInitialOpenPanel(self):
-		"""When self.Singleton is true, ensures that one panel is
+		"""
+		When self.Singleton is true, ensures that one panel is
 		open.
 		"""
 		if not self.Singleton:
@@ -540,7 +543,8 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 
 
 	def __onSlidePanelChange(self, evt):
-		"""This ensures that one and only one panel remains expanded
+		"""
+		This ensures that one and only one panel remains expanded
 		when the control is in Singleton mode.
 		"""
 		if not self.Singleton:
@@ -584,7 +588,8 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 
 
 	def sizePanelHeights(self, force=False):
-		"""Control the heights of the panels. Originally I thought we only needed
+		"""
+		Control the heights of the panels. Originally I thought we only needed
 		this when running in Singleton mode, but now it seems better to run this
 		in all modes.
 		"""

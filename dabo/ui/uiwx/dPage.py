@@ -29,7 +29,7 @@ class dPage(dabo.ui.dScrollPanel):
 
 
 	def initSizer(self):
-		""" Set up the default vertical box sizer for the page."""
+		"""Set up the default vertical box sizer for the page."""
 		try:
 			szCls = self.Parent.PageSizerClass
 		except AttributeError:
@@ -46,7 +46,8 @@ class dPage(dabo.ui.dScrollPanel):
 
 
 	def createItems(self):
-		""" Create the controls in the page.
+		"""
+		Create the controls in the page.
 
 		Called when the page is entered for the first time, allowing subclasses
 		to delay-populate the page.
@@ -66,7 +67,7 @@ class dPage(dabo.ui.dScrollPanel):
 
 
 	def _getPagePosition(self):
-		""" Returns the position of this page within its parent."""
+		"""Returns the position of this page within its parent."""
 		try:
 			ret = self.Parent.Pages.index(self)
 		except (ValueError, AttributeError):

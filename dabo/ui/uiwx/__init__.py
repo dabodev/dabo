@@ -202,16 +202,19 @@ if wx.VERSION >= (2, 8, 4):
 # Support the old names, but issue deprecation warnings.
 class dFoldPanelBar(dSlidePanelControl):
 	def __init__(self, *args, **kwargs):
+		"""**Deprecated:** use dSlidePanelControl instead"""
 		warnings.warn(_("'dFoldPanelBar' is a deprecated name. Use 'dSlidePanelControl' instead"), DeprecationWarning)
 		super(dFoldPanelBar, self).__init__(*args, **kwargs)
 
 class dFoldPanel(dSlidePanel):
 	def __init__(self, *args, **kwargs):
+		"""**Deprecated:** use dSlidePanel instead"""
 		warnings.warn(_("'dFoldPanel' is a deprecated name. Use 'dSlidePanel' instead"), DeprecationWarning)
 		super(dFoldPanel, self).__init__(*args, **kwargs)
 
 class dCheckListBox(dCheckList):
 	def __init__(self, *args, **kwargs):
+		"""**Deprecated:** use dCheckList instead"""
 		warnings.warn(_("'dCheckListBox' is a deprecated name. Use 'dCheckList' instead"), DeprecationWarning)
 		super(dCheckListBox, self).__init__(*args, **kwargs)
 
@@ -246,7 +249,8 @@ artConstants["info"] = artConstants.get("information")
 artConstants["file"] = artConstants.get("normalfile")
 
 def getUiApp(app, uiAppClass=None, callback=None, forceNew=False):
-	"""This returns an instance of uiApp. If one is already running, that
+	"""
+	This returns an instance of uiApp. If one is already running, that
 	instance is returned. Otherwise, a new instance is created.
 	"""
 	if uiAppClass is None:
@@ -265,7 +269,8 @@ def getUiApp(app, uiAppClass=None, callback=None, forceNew=False):
 
 
 def callAfter(fnc, *args, **kwargs):
-	"""There are times when this functionality is needed when creating UI
+	"""
+	There are times when this functionality is needed when creating UI
 	code. This function simply wraps the wx.CallAfter function so that
 	developers do not need to use wx code in their apps.
 	"""
@@ -274,7 +279,8 @@ def callAfter(fnc, *args, **kwargs):
 
 _callAfterIntervalReferences = {}
 def callAfterInterval(interval, func, *args, **kwargs):
-	"""Call the given function after <interval> milliseconds have elapsed.
+	"""
+	Call the given function after <interval> milliseconds have elapsed.
 
 	If the function is called again before the interval has elapsed, the original
 	timer is destroyed and a new one instantiated. IOW, you can call this in a
@@ -295,7 +301,8 @@ def callAfterInterval(interval, func, *args, **kwargs):
 
 
 def setAfter(obj, prop, val):
-	"""Like callAfter(), but allows you to set a property instead of calling
+	"""
+	Like callAfter(), but allows you to set a property instead of calling
 	a function.
 	"""
 	try:
@@ -307,7 +314,8 @@ def setAfter(obj, prop, val):
 
 
 def setAfterInterval(interval, obj, prop, val):
-	"""Like callAfterInterval(), but allows you to set a property instead
+	"""
+	Like callAfterInterval(), but allows you to set a property instead
 	of calling a function.
 	"""
 	try:
@@ -319,7 +327,8 @@ def setAfterInterval(interval, obj, prop, val):
 
 
 def callEvery(interval, func, *args, **kwargs):
-	"""Creates and returns a timer object that fires the specified function
+	"""
+	Creates and returns a timer object that fires the specified function
 	at the specified interval. Interval is given in milliseconds. It will pass along
 	any additional arguments to the function when it is called.
 	"""
@@ -349,15 +358,17 @@ def beep():
 
 
 def busyInfo(msg="Please wait...", *args, **kwargs):
-	"""Display a message that the system is busy.
+	"""
+	Display a message that the system is busy.
 
 	Assign the return value to a local object, and the message will stay until the
-	object is explicitly unbound. For example:
+	object is explicitly unbound. For example::
 
-	bi = dabo.ui.busyInfo("Please wait while I count to 10000...")
-	for i in range(10000):
-		pass
-	bi = None
+		bi = dabo.ui.busyInfo("Please wait while I count to 10000...")
+		for i in range(10000):
+			pass
+		bi = None
+
 	"""
 	bi = wx.BusyInfo(msg, *args, **kwargs)
 	try:
@@ -648,7 +659,8 @@ def getMousePosition():
 
 
 def getFormMousePosition():
-	"""Returns the position of the mouse relative to the top left
+	"""
+	Returns the position of the mouse relative to the top left
 	corner of the form.
 	"""
 	actwin = dabo.dAppRef.ActiveForm
@@ -659,7 +671,8 @@ def getFormMousePosition():
 
 
 def getMouseObject():
-	"""Returns a reference to the object below the mouse pointer
+	"""
+	Returns a reference to the object below the mouse pointer
 	at the moment the command is issued. Useful for interactive
 	development when testing changes to classes 'in the wild' of a
 	live application.
@@ -686,7 +699,8 @@ def getMouseObject():
 
 
 def getObjectAtPosition(x, y=None):
-	"""Given a screen position, returns the object immediately under that
+	"""
+	Given a screen position, returns the object immediately under that
 	position, or None if there is no such object. You can pass separate
 	x,y coordinates, or an x,y tuple.
 	"""
@@ -807,16 +821,18 @@ def _getActiveForm():
 
 def getString(message=_("Please enter a string:"), caption="Dabo",
 		defaultValue="", **kwargs):
-	"""Simple dialog for returning a small bit of text from the user.
+	"""
+	Simple dialog for returning a small bit of text from the user.
 
 	Any additional keyword arguments are passed along to the dTextBox when it
-	is instantiated. Some useful examples:
+	is instantiated. Some useful examples::
 
-	# Give the textbox a default value:
-	txt = dabo.ui.getString(defaultValue="initial string value")
+		# Give the textbox a default value:
+		txt = dabo.ui.getString(defaultValue="initial string value")
+	
+		# Password Entry (\*'s instead of the actual text)
+		txt = dabo.ui.getString(PasswordEntry=True)
 
-	# Password Entry (*'s instead of the actual text)
-	txt = dabo.ui.getString(PasswordEntry=True)
 	"""
 	class StringDialog(dabo.ui.dOkCancelDialog):
 		def addControls(self):
@@ -872,14 +888,16 @@ def getInt(message=_("Enter an integer value:"), caption="Dabo",
 # The next two methods prompt the user to select from a list. The first allows
 # a single selection, while the second allows for multiple selections.
 def getChoice(choices, message=None, caption=None, defaultPos=None):
-	"""Simple dialog for presenting the user with a list of choices from which
+	"""
+	Simple dialog for presenting the user with a list of choices from which
 	they can select one item.
 	"""
 	return _getChoiceDialog(choices, message, caption, defaultPos, False)
 
 
 def getChoices(choices, message=None, caption=None, defaultPos=None):
-	"""Simple dialog for presenting the user with a list of choices from which
+	"""
+	Simple dialog for presenting the user with a list of choices from which
 	they can select one or more items. Returns a tuple containing the selections.
 	"""
 	return _getChoiceDialog(choices, message, caption, defaultPos, True)
@@ -957,7 +975,8 @@ exclaim = dMessageBox.exclaim
 
 
 def getColor(color=None):
-	"""Displays the color selection dialog for the platform.
+	"""
+	Displays the color selection dialog for the platform.
 	Returns an RGB tuple of the selected color, or None if
 	no selection was made.
 	"""
@@ -970,7 +989,8 @@ def getColor(color=None):
 
 
 def getDate(dt=None):
-	"""Displays a calendar dialog for the user to select a date.
+	"""
+	Displays a calendar dialog for the user to select a date.
 	Defaults to the given date parameter, or today if no value
 	is passed.
 	"""
@@ -998,7 +1018,8 @@ def getDate(dt=None):
 
 
 def getFont(font=None):
-	"""Displays the font selection dialog for the platform.
+	"""
+	Displays the font selection dialog for the platform.
 	Returns a font object that can be assigned to a control's
 	Font property.
 	"""
@@ -1045,7 +1066,8 @@ def _getPath(cls, wildcard, **kwargs):
 
 
 def getFile(*args, **kwargs):
-	"""Display the file selection dialog for the platform, and return selection(s).
+	"""
+	Display the file selection dialog for the platform, and return selection(s).
 
 	Send an optional multiple=True for the user to pick more than one file. In
 	that case, the return value will be a sequence of unicode strings.
@@ -1054,16 +1076,19 @@ def getFile(*args, **kwargs):
 	made. Only file may be selected if multiple is False.
 
 	Optionally, you may send wildcard arguments to limit the displayed files by
-	file type. For example:
+	file type. For example::
+		
 		getFile("py", "txt")
 		getFile("py", "txt", multiple=True)
+	
 	"""
 	wc = _getWild(*args)
 	return _getPath(dFileDialog, wildcard=wc, **kwargs)[0]
 
 
 def getFileAndType(*args, **kwargs):
-	"""Displays the file selection dialog for the platform.
+	"""
+	Displays the file selection dialog for the platform.
 	Returns the path to the selected file, or None if no selection
 	was made, as well as the wildcard value selected by the user.
 	"""
@@ -1112,7 +1137,8 @@ def getSaveAsAndType(*args, **kwargs):
 
 
 def getFolder(message=_("Choose a folder"), defaultPath="", wildcard="*"):
-	"""Displays the folder selection dialog for the platform.
+	"""
+	Displays the folder selection dialog for the platform.
 	Returns the path to the selected folder, or None if no selection
 	was made.
 	"""
@@ -1150,7 +1176,8 @@ def _getWild(*args):
 
 
 def getSystemInfo(returnType=None):
-	"""Return app information in the requested format (can be one
+	"""
+	Return app information in the requested format (can be one
 	of "dataset", "html", or "string" (default).
 	"""
 	if returnType is None:
@@ -1186,7 +1213,8 @@ def getSystemInfo(returnType=None):
 
 
 def sortList(chc, Caption="", ListCaption=""):
-	"""Wrapper function for the list sorting dialog. Accepts a list,
+	"""
+	Wrapper function for the list sorting dialog. Accepts a list,
 	and returns the sorted list if the user clicks 'OK'. If they cancel
 	out, the original list is returned.
 	"""
@@ -1244,7 +1272,8 @@ def getFromClipboard():
 
 
 def getScrollWinEventClass(evt):
-	"""Window scroll events use different codes across different platforms.
+	"""
+	Window scroll events use different codes across different platforms.
 	This code identifies the appropriate event and returns the appropriate
 	Dabo event class.
 	"""
@@ -1274,7 +1303,8 @@ def _checkForRawXML(srcFile):
 
 
 def createClass(srcFile, *args, **kwargs):
-	"""Given a .cdxml class definition file path, will return the
+	"""
+	Given a .cdxml class definition file path, will return the
 	corresponding Python class."""
 	from dabo.lib.DesignerClassConverter import DesignerClassConverter
 	srcFile, isRaw = _checkForRawXML(srcFile)
@@ -1286,7 +1316,8 @@ def createClass(srcFile, *args, **kwargs):
 
 
 def createForm(srcFile, show=False, *args, **kwargs):
-	"""Instantiate and return a form instance, given a .cdxml file.
+	"""
+	Instantiate and return a form instance, given a .cdxml file.
 
 	srcFile may be a path to the file on disk, or the cdxml text. If
 	show is True, the form will be automatically displayed. Any
@@ -1294,9 +1325,10 @@ def createForm(srcFile, show=False, *args, **kwargs):
 	class.
 
 	A common question on the dabo-users mailing list is how to
-	instantiate a cdxml form as a child of another form. Easy!
+	instantiate a cdxml form as a child of another form. Easy! ::
 
 		frm = dabo.ui.createForm("my.cdxml", parent=self)
+		
 	"""
 	cls = createClass(srcFile)
 	frm = cls(*args, **kwargs)
@@ -1306,7 +1338,8 @@ def createForm(srcFile, show=False, *args, **kwargs):
 
 
 def createMenuBar(srcFile, form=None, previewFunc=None):
-	"""Pass in an .mnxml file saved from the Menu Designer,
+	"""
+	Pass in an .mnxml file saved from the Menu Designer,
 	and this will instantiate a MenuBar from that spec. Returns
 	a reference to the newly-created MenuBar. You can optionally
 	pass in a reference to the form to which this menu is
@@ -1382,8 +1415,11 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 		_minHeight = None
 
 		def Create(self, parent, id, evtHandler):
-			"""Called to create the control, which must derive from wx.Control.
+			"""
+			Called to create the control, which must derive from wx.Control.
+			
 			*Must Override*
+			
 			"""
 			if not self._controlClass:
 				raise TypeError(_("Cannot create custom editor without a control class specified."))
@@ -1393,7 +1429,8 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 				self._control.PushEventHandler(evtHandler)
 
 		def SetSize(self, rect):
-			"""Called to position/size the edit control within the cell rectangle.
+			"""
+			Called to position/size the edit control within the cell rectangle.
 			If you don't fill the cell (the rect) then be sure to override
 			PaintBackground and do something meaningful there.
 			"""
@@ -1406,7 +1443,8 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 			self._control.SetDimensions(rect.x, rect.y, wd, ht, wx.SIZE_ALLOW_MINUS_ONE)
 
 		def PaintBackground(self, rect, attr):
-			"""Draws the part of the cell not occupied by the edit control.  The
+			"""
+			Draws the part of the cell not occupied by the edit control.  The
 			base  class version just fills it with background colour from the
 			attribute.	In this class the edit control fills the whole cell so
 			don't do anything at all in order to reduce flicker.
@@ -1414,18 +1452,24 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 			pass
 
 		def BeginEdit(self, row, col, grid):
-			"""Fetch the value from the table and prepare the edit control
+			"""
+			Fetch the value from the table and prepare the edit control
 			to begin editing.  Set the focus to the edit control.
+			
 			*Must Override*
+			
 			"""
 			self.startValue = grid.GetTable().GetValue(row, col)
 			self._control.Value = self.startValue
 			self._control.setFocus()
 
 		def EndEdit(self, row, col, grid):
-			"""Complete the editing of the current cell. Returns True if the value
+			"""
+			Complete the editing of the current cell. Returns True if the value
 			has changed.  If necessary, the control may be destroyed.
+			
 			*Must Override*
+			
 			"""
 			changed = False
 			val = self._control.Value
@@ -1436,13 +1480,17 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 			return changed
 
 		def Reset(self):
-			"""Reset the value in the control back to its starting value.
+			"""
+			Reset the value in the control back to its starting value.
+			
 			*Must Override*
+			
 			"""
 			self._control.Value = self.startValue
 
 		def IsAcceptedKey(self, evt):
-			"""Return True to allow the given key to start editing: the base class
+			"""
+			Return True to allow the given key to start editing: the base class
 			version only checks that the event has no modifiers.  F2 is special
 			and will always start the editor.
 			"""
@@ -1450,13 +1498,15 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 					evt.GetKeyCode() != wx.WXK_SHIFT)
 
 		def StartingKey(self, evt):
-			"""If the editor is enabled by pressing keys on the grid, this will be
+			"""
+			If the editor is enabled by pressing keys on the grid, this will be
 			called to let the editor do something about that first key if desired.
 			"""
 			pass
 
 		def StartingClick(self):
-			"""If the editor is enabled by clicking on the cell, this method will be
+			"""
+			If the editor is enabled by clicking on the cell, this method will be
 			called to allow the editor to simulate the click on the control if
 			needed.
 			"""
@@ -1467,8 +1517,11 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 			self.base_Destroy()
 
 		def Clone(self):
-			"""Create a new object which is the copy of this one
+			"""
+			Create a new object which is the copy of this one
+			
 			*Must Override*
+			
 			"""
 			return self.__class__
 
@@ -1481,7 +1534,8 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 
 def browse(dataSource, parent=None, keyCaption=None, includeFields=None,
 		colOrder=None, colWidths=None, colTypes=None, autoSizeCols=True):
-	"""Given a data source, a form with a grid containing the data
+	"""
+	Given a data source, a form with a grid containing the data
 	is created and displayed. If the source is a Dabo cursor object,
 	its getDataSet() method will be called to extract the data.
 
@@ -1537,7 +1591,8 @@ def browse(dataSource, parent=None, keyCaption=None, includeFields=None,
 
 
 def getPositionInSizer(obj):
-	""" Returns the current position of this control in its containing
+	"""
+	Returns the current position of this control in its containing
 	sizer. This is useful for when a control needs to be re-created in place.
 	If the containing sizer is a box sizer, the integer position will be returned.
 	If it is a grid sizer, a row,col tuple will be returned. If the object is
@@ -1585,7 +1640,8 @@ def fontMetricFromDrawObject(obj):
 
 
 def fontMetricFromDC(dc, text):
-	"""Given a DC and text, returns the width and height of the text as it
+	"""
+	Given a DC and text, returns the width and height of the text as it
 	would be drawn in that DC.
 	"""
 	return dc.GetTextExtent(text)
@@ -1593,7 +1649,8 @@ def fontMetricFromDC(dc, text):
 
 def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 		italic=None):
-	"""Calculate the width and height of the given text using the supplied
+	"""
+	Calculate the width and height of the given text using the supplied
 	font information. If any font parameters are missing, they are taken
 	from the specified window, or, if no window is specified, the currently
 	active form. If no form is active, the app's MainForm is used.
@@ -1637,7 +1694,8 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 
 
 def saveScreenShot(obj=None, imgType=None, pth=None, delaySeconds=None):
-	"""Takes a screenshot of the specified object and writes it to a file, converting
+	"""
+	Takes a screenshot of the specified object and writes it to a file, converting
 	it to the requested image type. If no object is specified, the current
 	ActiveForm is used. You can add an optional delaySeconds setting that
 	will let you set things up as needed before the image is taken; if not specified,
@@ -1705,7 +1763,8 @@ def imageFromData(data):
 # this speeds up resolution of the requested image name.
 _bmpCache = {}
 def strToBmp(val, scale=None, width=None, height=None):
-	"""This can be either a path, or the name of a built-in graphic.
+	"""
+	This can be either a path, or the name of a built-in graphic.
 	If an adjusted size is desired, you can either pass a 'scale' value
 	(where 1.00 is full size, 0.5 scales it to 50% in both Height and
 	Width), or you can pass specific 'height' and 'width' values. The
@@ -1800,12 +1859,16 @@ def resizeBmp(bmp, wd, ht):
 
 
 def getCommonBitmap(name):
-	"""wxPython comes with several built-in bitmaps for common icons.
+	"""
+	wxPython comes with several built-in bitmaps for common icons.
 	This wraps the procedure for generating these bitmaps. If a name is
 	passed for which there is no icon, an image denoting a missing image
 	is returned.
 
-	NOTE: this returns a raw bitmap, not a dabo.ui.dBitmap object.
+	.. note::
+		
+		This returns a raw bitmap, not a dabo.ui.dBitmap object.
+	
 	"""
 	const = artConstants.get(name.lower(), artConstants.get("missingimage"))
 	if const:
@@ -1814,7 +1877,8 @@ def getCommonBitmap(name):
 
 
 def getImagePath(nm, url=False):
-	"""Given the name of an image in either the Dabo common directory, or the
+	"""
+	Given the name of an image in either the Dabo common directory, or the
 	current directory, returns the full path to the image. If 'url' is true, returns
 	the path in a 'file:///image.ext' format.
 	"""
@@ -1846,7 +1910,8 @@ def getImagePath(nm, url=False):
 
 
 def setdFormClass(typ):
-	"""Re-defines 'dForm' as either the SDI form class, or the child MDI
+	"""
+	Re-defines 'dForm' as either the SDI form class, or the child MDI
 	form class, depending on the parameter, which can be either 'SDI'
 	or 'MDI'.
 	"""
@@ -1858,7 +1923,8 @@ def setdFormClass(typ):
 
 
 def spawnProcess(cmd, wait=False, handler=None):
-	"""Launch a separate process. Control is immediately returned to the
+	"""
+	Launch a separate process. Control is immediately returned to the
 	calling program, unless you call this with 'wait=True'.
 	"""
 	class Proc(wx.Process):
@@ -1894,7 +1960,8 @@ def spawnProcess(cmd, wait=False, handler=None):
 
 
 class GridSizerSpanException(dabo.dException.dException):
-	"""Raised when an attempt is made to set the RowSpan or
+	"""
+	Raised when an attempt is made to set the RowSpan or
 	ColSpan of an item to an illegal value.
 	"""
 	pass

@@ -21,7 +21,8 @@ except ImportError:
 
 
 class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
-	"""Creates a scrolled panel that can load and display html pages. The Html Window
+	"""
+	Creates a scrolled panel that can load and display html pages. The Html Window
 	can load any html text, file, or url that is fed to it.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):

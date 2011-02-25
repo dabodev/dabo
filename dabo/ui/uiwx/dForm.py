@@ -15,7 +15,8 @@ from dDialog import dDialog
 
 
 class BaseForm(fm.dFormMixin):
-	"""Creates a bizobj-aware form.
+	"""
+	Creates a bizobj-aware form.
 
 	dForm knows how to handle one or more dBizobjs, providing proxy methods
 	like next(), last(), save(), and requery().
@@ -76,7 +77,8 @@ class BaseForm(fm.dFormMixin):
 
 
 	def _beforeClose(self, evt=None):
-		""" See if there are any pending changes in the form, if the
+		"""
+		See if there are any pending changes in the form, if the
 		form is set for checking for this. If everything's OK, call the
 		hook method.
 		"""
@@ -90,7 +92,8 @@ class BaseForm(fm.dFormMixin):
 
 
 	def notifyUser(self, msg, title=None, severe=False, exception=None):
-		""" Displays an alert messagebox for the user. You can customize
+		"""
+		Displays an alert messagebox for the user. You can customize
 		this in your own classes if you prefer a different display.
 		"""
 		if exception and not dabo.eatBizExceptions:
@@ -105,7 +108,8 @@ class BaseForm(fm.dFormMixin):
 
 
 	def update(self, interval=None):
-		"""Updates the contained controls with current values from the source.
+		"""
+		Updates the contained controls with current values from the source.
 
 		This method is called repeatedly from many different places during
 		a single change in the UI, so by default the actual execution is cached
@@ -128,7 +132,8 @@ class BaseForm(fm.dFormMixin):
 
 
 	def confirmChanges(self, bizobjs=None):
-		"""Ask the user if they want to save changes, discard changes, or cancel.
+		"""
+		Ask the user if they want to save changes, discard changes, or cancel.
 
 		The user will be queried if the form's CheckForChanges property is True, and
 		if there are any pending changes on the form's bizobjs as specified in either
@@ -175,7 +180,8 @@ class BaseForm(fm.dFormMixin):
 
 
 	def getConfirmChangesQueryMessage(self, changedBizList):
-		"""Return the "Save Changes?" message for use in the query dialog.
+		"""
+		Return the "Save Changes?" message for use in the query dialog.
 
 		The default is to return "Do you wish to save your changes?". Subclasses
 		can override with whatever message they want, possibly iterating the
@@ -186,7 +192,8 @@ class BaseForm(fm.dFormMixin):
 
 
 	def getBizobjsToCheck(self):
-		"""Return the list of bizobj's to check for changes during confirmChanges().
+		"""
+		Return the list of bizobj's to check for changes during confirmChanges().
 
 		The default behavior is to simply check the primary bizobj, however there
 		may be cases in subclasses where a different bizobj may be checked, or even
@@ -197,7 +204,8 @@ class BaseForm(fm.dFormMixin):
 
 
 	def addBizobj(self, bizobj):
-		""" Add a bizobj to this form.
+		"""
+		Add a bizobj to this form.
 
 		Make the bizobj the form's primary bizobj if it is the first bizobj to
 		be added. For convenience, return the bizobj to the caller
@@ -210,12 +218,12 @@ class BaseForm(fm.dFormMixin):
 
 
 	def afterSetPrimaryBizobj(self):
-		""" Subclass hook."""
+		"""Subclass hook."""
 		pass
 
 
 	def moveToRowNumber(self, rowNumber, dataSource=None):
-		""" Move the record pointer to the specified row."""
+		"""Move the record pointer to the specified row."""
 		self.dataSourceParameter = dataSource
 		if isinstance(dataSource, dabo.biz.dBizobj):
 			bizobj = dataSource
@@ -229,7 +237,7 @@ class BaseForm(fm.dFormMixin):
 
 
 	def _moveRecordPointer(self, func, dataSource=None, *args, **kwargs):
-		""" Move the record pointer using the specified function."""
+		"""Move the record pointer using the specified function."""
 		self.dataSourceParameter = dataSource
 		if isinstance(dataSource, dabo.biz.dBizobj):
 			biz = dataSource
@@ -271,7 +279,7 @@ class BaseForm(fm.dFormMixin):
 
 
 	def first(self, dataSource=None):
-		""" Ask the bizobj to move to the first record."""
+		"""Ask the bizobj to move to the first record."""
 		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
@@ -286,7 +294,7 @@ class BaseForm(fm.dFormMixin):
 
 
 	def last(self, dataSource=None):
-		""" Ask the bizobj to move to the last record."""
+		"""Ask the bizobj to move to the last record."""
 		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
@@ -301,7 +309,7 @@ class BaseForm(fm.dFormMixin):
 
 
 	def prior(self, dataSource=None):
-		""" Ask the bizobj to move to the previous record."""
+		"""Ask the bizobj to move to the previous record."""
 		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
@@ -316,7 +324,7 @@ class BaseForm(fm.dFormMixin):
 
 
 	def next(self, dataSource=None):
-		""" Ask the bizobj to move to the next record."""
+		"""Ask the bizobj to move to the next record."""
 		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
@@ -369,7 +377,7 @@ class BaseForm(fm.dFormMixin):
 
 
 	def save(self, dataSource=None):
-		""" Ask the bizobj to commit its changes to the backend."""
+		"""Ask the bizobj to commit its changes to the backend."""
 		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
@@ -413,7 +421,8 @@ class BaseForm(fm.dFormMixin):
 
 
 	def cancel(self, dataSource=None, ignoreNoRecords=None):
-		""" Ask the bizobj to cancel its changes.
+		"""
+		Ask the bizobj to cancel its changes.
 
 		This will revert back to the state of the records when they were last
 		requeried or saved.
@@ -449,14 +458,14 @@ class BaseForm(fm.dFormMixin):
 
 
 	def onRequery(self, evt):
-		""" Occurs when an EVT_MENU event is received by this form."""
+		"""Occurs when an EVT_MENU event is received by this form."""
 		self.requery()
 		self.Raise()
 		evt.Skip()
 
 
 	def requery(self, dataSource=None):
-		""" Ask the bizobj to requery."""
+		"""Ask the bizobj to requery."""
 		self.dataSourceParameter = dataSource
 		ret = False
 		bizobj = self.getBizobj(dataSource)
@@ -531,7 +540,7 @@ class BaseForm(fm.dFormMixin):
 
 
 	def delete(self, dataSource=None, message=None, prompt=True):
-		""" Ask the bizobj to delete the current record."""
+		"""Ask the bizobj to delete the current record."""
 		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
@@ -577,7 +586,7 @@ class BaseForm(fm.dFormMixin):
 
 
 	def deleteAll(self, dataSource=None, message=None):
-		""" Ask the primary bizobj to delete all records from the recordset."""
+		"""Ask the primary bizobj to delete all records from the recordset."""
 		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
@@ -611,7 +620,7 @@ class BaseForm(fm.dFormMixin):
 
 
 	def new(self, dataSource=None):
-		""" Ask the bizobj to add a new record to the recordset."""
+		"""Ask the bizobj to add a new record to the recordset."""
 		self.dataSourceParameter = dataSource
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
@@ -642,12 +651,12 @@ class BaseForm(fm.dFormMixin):
 
 
 	def getSQL(self, dataSource=None):
-		""" Get the current SQL from the bizobj."""
+		"""Get the current SQL from the bizobj."""
 		return self.getBizobj(dataSource).getSQL()
 
 
 	def setSQL(self, sql, dataSource=None):
-		""" Set the SQL for the bizobj."""
+		"""Set the SQL for the bizobj."""
 		self.getBizobj(dataSource).setSQL(sql)
 
 
@@ -659,7 +668,8 @@ Database error message: %s""") %	err
 
 
 	def getBizobj(self, dataSource=None, parentBizobj=None):
-		""" Return the bizobj with the passed dataSource. If no
+		"""
+		Return the bizobj with the passed dataSource. If no
 		dataSource is passed, getBizobj() will return the primary bizobj.
 		"""
 		if not parentBizobj and not dataSource:
@@ -742,7 +752,7 @@ Database error message: %s""") %	err
 
 
 	def getCurrentRecordText(self, dataSource=None, grid=None):
-		""" Get the text to describe which record is current."""
+		"""Get the text to describe which record is current."""
 		self.dataSourceParameter = dataSource
 		if dataSource is None and grid is not None:
 			# This is being called by a regular grid not tied to a bizobj
@@ -771,7 +781,8 @@ Database error message: %s""") %	err
 
 
 	def validateField(self, ctrl):
-		"""Call the bizobj for the control's DataSource. If the control's
+		"""
+		Call the bizobj for the control's DataSource. If the control's
 		value is rejected for field validation reasons, a
 		BusinessRuleViolation exception will be raised, and the form
 		can then respond to this.
@@ -808,7 +819,8 @@ Database error message: %s""") %	err
 
 
 	def onFieldValidationFailed(self, ctrl, ds, df, val, err):
-		"""Basic handling of field-level validation failure. You should
+		"""
+		Basic handling of field-level validation failure. You should
 		override it with your own code to handle this failure
 		appropriately for your application.
 		"""
@@ -818,7 +830,8 @@ Database error message: %s""") %	err
 
 
 	def onFieldValidationPassed(self, ctrl, ds, df, val):
-		"""Basic handling when field-level validation succeeds.
+		"""
+		Basic handling when field-level validation succeeds.
 		You should override it with your own code to handle this event
 		appropriately for your application.
 		"""
@@ -834,7 +847,8 @@ Database error message: %s""") %	err
 
 
 	def _getPrimaryBizobj(self):
-		"""The attribute '_primaryBizobj' should be a bizobj, but due
+		"""
+		The attribute '_primaryBizobj' should be a bizobj, but due
 		to old code design, might be a data source name. These methods
 		will handle the old style, but work primarily with the preferred
 		new style.
@@ -978,12 +992,18 @@ class dForm(BaseForm, wx.Frame):
 			A modal dForm runs its own event loop, blocking program flow until the
 			form is hidden or closed, exactly like a dDialog does it. This property
 			may only be sent to the constructor, and once instantiated you may not
-			change the modality of a form. For example,
+			change the modality of a form. For example::
+				
 					frm = dabo.ui.dForm(Modal=True)
+			
 			will create a modal form.
 
-			Note that a modal dForm is actually a dDialog, and as such does not
-			have the ability to contain MenuBars, StatusBars, or ToolBars."""))
+			.. note::
+				
+				That a modal dForm is actually a dDialog, and as such does not
+				have the ability to contain MenuBars, StatusBars, or ToolBars.
+				
+			"""))
 
 	Visible = property(_getVisible, _setVisible, None,
 			_("Specifies whether the form is shown or hidden.  (bool)") )

@@ -94,7 +94,8 @@ class dPageFrameMixin(cm.dControlMixin):
 
 	# Image-handling function
 	def addImage(self, img, key=None):
-		""" Adds the passed image to the control's ImageList, and maintains
+		"""
+		Adds the passed image to the control's ImageList, and maintains
 		a reference to it that is retrievable via the key value.
 		"""
 		if key is None:
@@ -110,7 +111,8 @@ class dPageFrameMixin(cm.dControlMixin):
 
 
 	def setPageImage(self, pg, imgKey):
-		""" Sets the specified page's image to the image corresponding
+		"""
+		Sets the specified page's image to the image corresponding
 		to the specified key. May also optionally pass the index of the
 		image in the ImageList rather than the key.
 		"""
@@ -130,7 +132,8 @@ class dPageFrameMixin(cm.dControlMixin):
 
 
 	def getPageImage(self, pg):
-		""" Returns the index of the specified page's image in the
+		"""
+		Returns the index of the specified page's image in the
 		current image list, or -1 if no image is set for the page.
 		"""
 		ret = -1
@@ -141,7 +144,8 @@ class dPageFrameMixin(cm.dControlMixin):
 
 
 	def appendPage(self, pgCls=None, caption="", imgKey=None, **kwargs):
-		""" Appends the page to the pageframe, and optionally sets
+		"""
+		Appends the page to the pageframe, and optionally sets
 		the page caption and image. The image should have already
 		been added to the pageframe if it is going to be set here.
 
@@ -153,7 +157,8 @@ class dPageFrameMixin(cm.dControlMixin):
 
 	def insertPage(self, pos, pgCls=None, caption="", imgKey=None,
 			ignoreOverride=False, **kwargs):
-		""" Insert the page into the pageframe at the specified position,
+		"""
+		Insert the page into the pageframe at the specified position,
 		and optionally sets the page caption and image. The image
 		should have already been added to the pageframe if it is
 		going to be set here.
@@ -197,7 +202,8 @@ class dPageFrameMixin(cm.dControlMixin):
 
 
 	def removePage(self, pgOrPos, delPage=True):
-		"""Removes the specified page. You can specify a page by either
+		"""
+		Removes the specified page. You can specify a page by either
 		passing the page itself, or a position. If delPage is True (default),
 		the page is released, and None is returned. If delPage is
 		False, the page is returned.
@@ -218,7 +224,8 @@ class dPageFrameMixin(cm.dControlMixin):
 
 
 	def movePage(self, oldPgOrPos, newPos, selecting=True):
-		"""Moves the specified 'old' page to the new position and
+		"""
+		Moves the specified 'old' page to the new position and
 		optionally selects it. If an invalid page number is passed,
 		it returns False without changing anything.
 		"""
@@ -247,7 +254,8 @@ class dPageFrameMixin(cm.dControlMixin):
 
 
 	def cyclePages(self, num):
-		"""Moves through the pages by the specified amount, wrapping
+		"""
+		Moves through the pages by the specified amount, wrapping
 		around the ends. Negative values move to previous pages; positive
 		move through the next pages.
 		"""
@@ -255,7 +263,7 @@ class dPageFrameMixin(cm.dControlMixin):
 
 
 	def layout(self):
-		""" Wrap the wx version of the call, if possible. """
+		"""Wrap the wx version of the call, if possible."""
 		self.Layout()
 		try:
 			# Call the Dabo version, if present
@@ -273,7 +281,8 @@ class dPageFrameMixin(cm.dControlMixin):
 
 
 	def _getPageIndex(self, pg):
-		""" Resolves page references to the page index, which is what
+		"""
+		Resolves page references to the page index, which is what
 		is needed by most methods that act on pages.
 		"""
 		ret = None

@@ -28,7 +28,8 @@ class _dSpinButton(dcm.dDataControlMixin, wx.SpinButton):
 
 
 class dSpinner(dabo.ui.dDataPanel, wx.Control):
-	"""Control for allowing a user to increment a value by discreet steps across a range
+	"""
+	Control for allowing a user to increment a value by discreet steps across a range
 	of valid values.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, TextBoxClass=None,  *args, **kwargs):
@@ -107,7 +108,8 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 
 
 	def _coerceTypes(self, newVal, minn, maxx, margin):
-		"""Handle the problems when min/max/increment values are
+		"""
+		Handle the problems when min/max/increment values are
 		of one type, and the edited value another.
 		"""
 		typN = type(newVal)
@@ -127,7 +129,8 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 
 
 	def _applyIncrement(self, op):
-		"""Returns the value obtained by modifying the current value by the increment
+		"""
+		Returns the value obtained by modifying the current value by the increment
 		according to the passed operation. It expects to be passed either
 		operator.add or operator.sub.
 		"""
@@ -224,7 +227,8 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 
 
 	def _onWxKeyDown(self, evt):
-		"""Handle the case where the user presses the up/down arrows to
+		"""
+		Handle the case where the user presses the up/down arrows to
 		activate the spinner.
 		"""
 		keys = dabo.ui.dKeys
@@ -238,7 +242,8 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 
 
 	def _onLostFocus(self, evt):
-		"""We need to handle the case where the user types an invalid value
+		"""
+		We need to handle the case where the user types an invalid value
 		into the textbox and then tabs/clicks away.
 		"""
 		pt = self._proxy_textbox
@@ -258,7 +263,8 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 
 
 	def _numericStringVal(self, val):
-		"""If passed a string, attempts to convert it to the appropriate numeric
+		"""
+		If passed a string, attempts to convert it to the appropriate numeric
 		type. If such a conversion is not possible, returns None.
 		"""
 		ret = val

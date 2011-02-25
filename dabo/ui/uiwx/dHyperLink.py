@@ -12,7 +12,8 @@ from dabo.ui import makeDynamicProperty
 from alignmentMixin import AlignmentMixin
 
 class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
-	"""Creates a hyperlink that, when clicked, launches the specified
+	"""
+	Creates a hyperlink that, when clicked, launches the specified
 	URL in the user's default browser, or raises a Hit event for your
 	code to catch and take the appropriate action.
 	"""

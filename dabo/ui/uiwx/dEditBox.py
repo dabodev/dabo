@@ -12,7 +12,8 @@ from dabo.ui import makeDynamicProperty
 
 # The EditBox is just a TextBox with some additional styles.
 class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
-	"""Creates an editbox, which allows editing of string data of unlimited size.
+	"""
+	Creates an editbox, which allows editing of string data of unlimited size.
 
 	The editbox will create scrollbars as necessary, and can edit string or
 	unicode data.

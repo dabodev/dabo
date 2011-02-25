@@ -11,7 +11,8 @@ from dabo.lib.utils import ustr
 
 
 class dLine(cm.dControlMixin, wx.StaticLine):
-	"""Creates a horizontal or vertical line.
+	"""
+	Creates a horizontal or vertical line.
 
 	If Orientation is "Vertical", Height refers to the length of the line.
 	If Orientation is "Horizontal", Width refers to the length of the line.

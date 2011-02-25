@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" dControlMixin.py: Provide behavior common to all dControls """
+"""Provide behavior common to all dControls"""
 
 import dabo
 import dabo.ui
@@ -7,8 +7,7 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
 class dControlMixinBase(dabo.ui.dPemMixin):
-	""" Provide common functionality for all controls.
-	"""
+	"""Provide common functionality for all controls."""
 	def _initEvents(self):
 		super(dControlMixinBase, self)._initEvents()
 

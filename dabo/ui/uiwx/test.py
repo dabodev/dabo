@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-""" test.py
-
+"""
 A simple reusable unit testing framework, used by the base class files when run
 as scripts instead of imported as modules.
 
@@ -75,8 +74,7 @@ class Test(object):
 
 
 	def testAll(self):
-		""" Create a dForm and populate it with example dWidgets.
-		"""
+		"""Create a dForm and populate it with example dWidgets."""
 		frame = ui.dForm(Name="formTestAll")
 		frame.Caption = "Test of all the dControls"
 		frame.LogEvents = logEvents

@@ -7,44 +7,49 @@ from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
 
 class dSizerMixin(dObject):
-	"""Provides the interface for interacting with Sizers in Dabo."""
+	"""
+	Provides the interface for interacting with Sizers in Dabo.
+	"""
 	# Additional documentation for several of the contained methods:
 	_doc_additions = """
 
-		Additional arguments:
-		      layout: Specifies how the object expands in the opposite dimension
-		              of the sizer. If "normal" (the default), no expansion takes
-		              place. If "expand" (a common setting), the item will expand
-		              to fill up otherwise unoccupied space in the sizer.
-
-		  proportion: Specifies the proportional amount of space that the object
-		              can grow to in the same dimension as this sizer. If 0 (the
-		              default), the object will maintain its size. If > 0, the
-		              object will get a spacing in the sizer proportional to
-		              other objects in the sizer with proportions > 0. So if this
-		              is a horizontal sizer, and the proportion for the object is
-		              set to 1, and no other objects in the sizer have proportion
-		              set, the object will fill up all extra horizontal space.
-
-		   alignment: Possible values are "top", "middle", and "bottom" for
-		              horizontal sizers, and "left", "center", and "right" for
-		              vertical sizers. Specifies where the object appears within
-		              the available area in the sizer.
-
-		      halign: Only used if the alignment property not set.
-
-		      valign: Only used if the alignment property not set.
-
-		      border: Specifies the number of pixels to put around the object in
-		              the sizer, on the sides specified by the borderSides
-		              argument, or by the value of the DefaultBorderLeft,
-		              DefaultBorderRight, DefaultBorderTop, and DefaultBorderBottom
-		              boolean properties.
-
-		 borderSides: Specifies the sides around the object to place the border
-		              specified in the border argument or the DefaultBorder
-		              property. This should be a tuple that contains at least
-		              some of the values ("left", "right", "top", "bottom")
+		+--------------------------------------------------------------------------+
+		|Additional arguments:                                                     |
+		+=============+============================================================+
+		|layout:      |Specifies how the object expands in the opposite dimension  |
+		|             |of the sizer. If "normal" (the default), no expansion takes |
+		|             |place. If "expand" (a common setting), the item will expand |
+		|             |to fill up otherwise unoccupied space in the sizer.         |
+		+-------------+------------------------------------------------------------+
+		|proportion   |Specifies the proportional amount of space that the object  |
+		|             |can grow to in the same dimension as this sizer. If 0 (the  |
+		|             |default), the object will maintain its size. If > 0, the    |
+		|             |object will get a spacing in the sizer proportional to      |
+		|             |other objects in the sizer with proportions > 0. So if this |
+		|             |is a horizontal sizer, and the proportion for the object is |
+		|             |set to 1, and no other objects in the sizer have proportion |
+		|             |set, the object will fill up all extra horizontal space.    |
+		+-------------+------------------------------------------------------------+
+		|alignment    |Possible values are "top", "middle", and "bottom" for       |
+		|             |horizontal sizers, and "left", "center", and "right" for    |
+		|             |vertical sizers. Specifies where the object appears within  |
+		|             |the available area in the sizer.                            |
+		+-------------+------------------------------------------------------------+
+		|halign       |Only used if the alignment property not set.                |
+		+-------------+------------------------------------------------------------+
+		|valign       |Only used if the alignment property not set.                |
+		+-------------+------------------------------------------------------------+
+		|border       |Specifies the number of pixels to put around the object in  |
+		|             |the sizer, on the sides specified by the borderSides        |
+		|             |argument, or by the value of the DefaultBorderLeft,         |
+		|             |DefaultBorderRight, DefaultBorderTop, and                   |
+		|             |DefaultBorderBottom boolean properties.                     |
+		+-------------+------------------------------------------------------------+
+		|borderSides  |Specifies the sides around the object to place the border   |
+		|             |specified in the border argument or the DefaultBorder       |
+		|             |property. This should be a tuple that contains at least     |
+		|             |some of the values ("left", "right", "top", "bottom")       |
+		+-------------+------------------------------------------------------------+
 """
 
 	# First, let's wrap some of the wx constants for those cases where
@@ -108,7 +113,7 @@ class dSizerMixin(dObject):
 		pass
 
 	def append1x(self, obj, **kwargs):
-		"""Shorthand for sizer.append(obj, 1, "expand"). """
+		"""Shorthand for sizer.append(obj, 1, "expand")."""
 		kwargs["layout"] = "expand"
 		kwargs["proportion"] = 1
 		return self.append(obj, **kwargs)
@@ -150,7 +155,8 @@ class dSizerMixin(dObject):
 		pass
 
 	def layout(self):
-		"""Layout the items in the sizer.
+		"""
+		Layout the items in the sizer.
 
 		This is handled automatically when the sizer is resized, but you'll have
 		to call it manually after you are done adding items to the sizer.
@@ -179,7 +185,8 @@ class dSizerMixin(dObject):
 		pass
 
 	def remove(self, itm, destroy=None):
-		"""This will remove the item from the sizer. It will not cause
+		"""
+		This will remove the item from the sizer. It will not cause
 		the item to be destroyed unless the 'destroy' parameter is True.
 		If the item is not one of this sizer's items, no error will be
 		raised - it will simply do nothing.
@@ -204,7 +211,8 @@ class dSizerMixin(dObject):
 
 
 	def clear(self, destroy=False):
-		"""This method is called to remove all items from the sizer. If the
+		"""
+		This method is called to remove all items from the sizer. If the
 		optional 'destroy' parameter is set to True, any contained items
 		will be destroyed. Otherwise, they will remain as is, but no longer
 		under control of the sizer.
@@ -230,14 +238,16 @@ class dSizerMixin(dObject):
 
 
 	def insertSpacer(self, pos, val, proportion=0):
-		"""Added to be consistent with the sizers' add/insert
+		"""
+		Added to be consistent with the sizers' add/insert
 		design. Inserts a spacer at the specified position.
 		"""
 		return self.addSpacer(val, pos, proportion)
 
 
 	def prependSpacer(self, val, proportion=0):
-		"""Added to be consistent with the sizers' add/insert
+		"""
+		Added to be consistent with the sizers' add/insert
 		design. Inserts a spacer in the first position.
 		"""
 		return self.addSpacer(val, 0, proportion=proportion)
@@ -251,7 +261,8 @@ class dSizerMixin(dObject):
 
 
 	def getItem(self, szItem):
-		"""Querying sizers for their contents returns sizer items, not
+		"""
+		Querying sizers for their contents returns sizer items, not
 		the actual items. So given a sizer item, this method will return
 		the actual item in the sizer.
 		"""
@@ -267,7 +278,8 @@ class dSizerMixin(dObject):
 
 
 	def release(self, releaseContents=False):
-		"""Normally just destroys the sizer, leaving any objects
+		"""
+		Normally just destroys the sizer, leaving any objects
 		controlled by the sizer intact. But if the 'releaseContents'
 		parameter is passed as True, all objects contained in the
 		sizer are destroyed first.
@@ -290,8 +302,10 @@ class dSizerMixin(dObject):
 
 
 	def getPositionInSizer(self):
-		"""Returns the current position of this sizer in its containing sizer, or None
-		if there isn't a containing sizer."""
+		"""
+		Returns the current position of this sizer in its containing sizer, or None
+		if there isn't a containing sizer.
+		"""
 		sz = getattr(self, "_controllingSizer", None)
 		if not sz:
 			return None
@@ -325,7 +339,8 @@ class dSizerMixin(dObject):
 
 
 	def getItemProp(self, itm, prop):
-		"""Get the current value of the specified property for the sizer item.
+		"""
+		Get the current value of the specified property for the sizer item.
 		Grid sizers must override with their specific props.
 		"""
 		lowprop = prop.lower()
@@ -372,7 +387,8 @@ class dSizerMixin(dObject):
 
 
 	def setItemProp(self, itm, prop, val):
-		"""Given a sizer item, a property and a value, sets things as you
+		"""
+		Given a sizer item, a property and a value, sets things as you
 		would expect.
 		"""
 		if not itm:
@@ -475,7 +491,8 @@ class dSizerMixin(dObject):
 
 
 	def setItemProps(self, itm, props):
-		"""This accepts a dict of properties and values, and
+		"""
+		This accepts a dict of properties and values, and
 		applies them to the specified sizer item.
 		"""
 		for prop, val in props.items():
@@ -493,7 +510,8 @@ class dSizerMixin(dObject):
 
 
 	def isContainedBy(self, obj):
-		"""Returns True if this the containership hierarchy for this control
+		"""
+		Returns True if this the containership hierarchy for this control
 		includes obj.
 		"""
 		ret = False
@@ -509,7 +527,8 @@ class dSizerMixin(dObject):
 
 	@dabo.ui.deadCheck
 	def getContainingWindow(self):
-		"""Return the window that contains this sizer. In the case of nested
+		"""
+		Return the window that contains this sizer. In the case of nested
 		sizers, traverse the parent hierarchy until a window is reached.
 		"""
 		ret = self.Parent
@@ -548,7 +567,8 @@ class dSizerMixin(dObject):
 
 
 	def drawOutline(self, win, recurse=False, drawChildren=False):
-		""" There are some cases where being able to see the sizer
+		"""
+		There are some cases where being able to see the sizer
 		is helpful, such as at design time. This method can be called
 		to see the outline; it needs to be called whenever the containing
 		window is resized or repainted.
@@ -585,7 +605,8 @@ class dSizerMixin(dObject):
 
 
 	def listMembers(self, recurse=False, lvl=0):
-		"""Debugging method. This will list all the members of this sizer,
+		"""
+		Debugging method. This will list all the members of this sizer,
 		and if recurse is True, drill down into all contained sizers.
 		"""
 		ret = ""

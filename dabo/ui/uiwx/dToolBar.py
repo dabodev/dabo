@@ -14,7 +14,8 @@ from dabo.ui import makeDynamicProperty
 
 
 class dToolBar(cm.dControlMixin, wx.ToolBar):
-	"""Creates a toolbar, which is a menu-like collection of icons.
+	"""
+	Creates a toolbar, which is a menu-like collection of icons.
 
 	You may also add items to a toolbar such as separators and real Dabo
 	controls, such as dropdown lists, radio boxes, and text boxes.
@@ -62,7 +63,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 
 	def _realize(self):
-		"""There seems to be a bug in wxPython Mac since 2.8. There is an error
+		"""
+		There seems to be a bug in wxPython Mac since 2.8. There is an error
 		thrown, but it doesn't seem to affect the behavior of the toolbar, so just
 		let it pass.
 		"""
@@ -99,7 +101,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 	def appendButton(self, caption, pic, toggle=False, tip="",
 			help="", *args, **kwargs):
-		"""Adds a tool (button) to the toolbar.
+		"""
+		Adds a tool (button) to the toolbar.
 
 		You must pass a caption and an image for the button. The picture can be a
 		wx.Bitmap, or a path to an image file of any supported type. If you pass
@@ -113,7 +116,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 	def insertButton(self, pos, caption, pic, toggle=False, tip="",
 			help="", *args, **kwargs):
-		"""Inserts a tool (button) to the toolbar at the specified position.
+		"""
+		Inserts a tool (button) to the toolbar at the specified position.
 
 		You must pass a caption and an image for the button. The picture can be a
 		wx.Bitmap, or a path to an image file of any supported type. If you pass
@@ -127,7 +131,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 	def prependButton(self, caption, pic, toggle=False, tip="", help="",
 			*args, **kwargs):
-		"""Inserts a tool (button) to the beginning of the toolbar.
+		"""
+		Inserts a tool (button) to the beginning of the toolbar.
 
 		You must pass a caption and an image for the button. The picture can be a
 		wx.Bitmap, or a path to an image file of any supported type. If you pass
@@ -220,7 +225,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 
 	def prependControl(self, control):
-		"""Inserts any Dabo Control to the beginning of the toolbar. """
+		"""Inserts any Dabo Control to the beginning of the toolbar."""
 		return self.insertControl(0, control)
 
 
@@ -250,7 +255,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 
 	def remove(self, idxOrItem, release=True):
-		"""Removes an item from the toolbar. You can either pass a reference to
+		"""
+		Removes an item from the toolbar. You can either pass a reference to
 		the item, or its position in the toolbar. If release is True (the default),
 		the item is deleted as well. If release is False, a reference to the  object
 		will be returned, and the caller is responsible for deleting it.
@@ -278,14 +284,16 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 
 	def hasItem(self, itm):
-		"""Given a toolbar item, returns True or False depending on whether
+		"""
+		Given a toolbar item, returns True or False depending on whether
 		that item is currently in this toolbar.
 		"""
 		return (itm in self._daboChildren)
 
 
 	def getItemIndex(self, caption):
-		"""Returns the index of the item with the specified caption.
+		"""
+		Returns the index of the item with the specified caption.
 
 		If the item isn't found, None is returned.
 		"""
@@ -296,7 +304,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 
 	def getItem(self, caption):
-		"""Returns a reference to the item with the specified caption.
+		"""
+		Returns a reference to the item with the specified caption.
 
 		If the item isn't found, None is returned.
 		"""
@@ -327,7 +336,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 
 	def _recreateItem(self, itm):
-		"""Recreate the passed dToolBarItem, and put it back in its original place.
+		"""
+		Recreate the passed dToolBarItem, and put it back in its original place.
 
 		This is necessary when changing some or all of the dToolBarItem properties,
 		and is called from within that object as a callafter.
@@ -339,7 +349,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 
 	def _getIndexByItem(self, itm):
-		"""Given a dToolBarItem object reference, return the index in the toolbar.
+		"""
+		Given a dToolBarItem object reference, return the index in the toolbar.
 
 		Return None if the item doesn't exist in the toolbar.
 		"""
@@ -421,10 +432,15 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 
 	Dockable = property(_getDockable, _setDockable, None,
-		_("""Specifies whether the toolbar can be docked and undocked.  (bool)
+		_("""
+		Specifies whether the toolbar can be docked and undocked.  (bool)
 
+		.. note::
+			
 			Currently, this only seems to work on Linux, and can't be changed after
-			instantiation. Default is True."""))
+			instantiation. Default is True.
+			
+		"""))
 
 	MaxHeight = property(_getMaxHt, _setMaxHt, None,
 		_("""Specifies the maximum height of added buttons.  (int)
@@ -546,7 +562,8 @@ class dToolBarItem(dObject):
 
 
 	CanToggle = property(_getCanToggle, _setCanToggle, None,
-			_("""Specifies whether the toolbar item can be toggled.  (bool)
+			_("""
+			Specifies whether the toolbar item can be toggled.  (bool)
 
 			For toggleable items, the Value property will tell you if the item is
 			currently toggled or not."""))

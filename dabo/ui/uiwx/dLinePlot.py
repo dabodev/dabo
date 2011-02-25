@@ -217,7 +217,9 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 			self.Draw(self._plotManager)
 
 	def DrawPointLabel(self, dc, mDataDict):
-		"""This is the fuction that defines how the pointLabels are plotted
+		"""
+		This is the fuction that defines how the pointLabels are plotted
+		
 			dc - DC that will be passed
 			mDataDict - Dictionary of data that you want to use for the pointLabel
 

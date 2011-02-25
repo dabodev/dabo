@@ -26,7 +26,8 @@ class CalPanel(dPanel):
 
 
 	def afterInit(self):
-		""" Create the calendar control, and resize this panel
+		"""
+		Create the calendar control, and resize this panel
 		to the calendar's size.
 		"""
 		calClass = {True: dabo.ui.dExtendedCalendar, False: dabo.ui.dCalendar}[self.extended]
@@ -57,7 +58,8 @@ class CalPanel(dPanel):
 
 
 class dDateTextBox(dTextBox):
-	""" This is a specialized textbox class designed to work with date values.
+	"""
+	This is a specialized textbox class designed to work with date values.
 	It provides handy shortcut keystrokes so that users can quickly navigate
 	to the date value they need. The keystrokes are the same as those used
 	by Quicken, the popular personal finance program.
@@ -83,6 +85,7 @@ class dDateTextBox(dTextBox):
 		# Do we use the extended format for the calendar display?
 		self._extendedCalendar = False
 		return super(dDateTextBox, self)._beforeInit(*args, **kwargs)
+
 
 	def _afterInit(self):
 		#self.Value = datetime.date.today()  ## no, don't set default, it could override val. in db.
@@ -126,14 +129,13 @@ C: Popup Calendar to Select
 
 
 	def __onDblClick(self, evt):
-		""" Display a calendar to allow users to select dates."""
+		"""Display a calendar to allow users to select dates."""
 		self.showCalendar()
+
 
 	def __onBtnClick(self,evt):
-		""" Display a calendar to allow users to select dates."""
+		"""Display a calendar to allow users to select dates."""
 		self.showCalendar()
-
-
 
 
 	def showCalendar(self):
@@ -147,11 +149,9 @@ C: Popup Calendar to Select
 		fp.show()
 
 
-
-
-
 	def __onChar(self, evt):
-		""" If a shortcut key was pressed, process that. Otherwise, eat
+		"""
+		If a shortcut key was pressed, process that. Otherwise, eat
 		inappropriate characters.
 		"""
 		try:
@@ -218,7 +218,8 @@ C: Popup Calendar to Select
 
 
 	def adjustDate(self, key, ctrl=False, shift=False):
-		""" Modifies the current date value if the key is one of the
+		"""
+		Modifies the current date value if the key is one of the
 		shortcut keys.
 		"""
 		# Save the original value for comparison
@@ -353,35 +354,40 @@ C: Popup Calendar to Select
 
 
 	def hourInterval(self, hours):
-		"""Adjusts the date by the given number of hours; negative
+		"""
+		Adjusts the date by the given number of hours; negative
 		values move backwards.
 		"""
 		self.Value += datetime.timedelta(hours=hours)
 
 
 	def minuteInterval(self, minutes):
-		"""Adjusts the date by the given number of minutes; negative
+		"""
+		Adjusts the date by the given number of minutes; negative
 		values move backwards.
 		"""
 		self.Value += datetime.timedelta(minutes=minutes)
 
 
 	def secondInterval(self, seconds):
-		"""Adjusts the date by the given number of seconds; negative
+		"""
+		Adjusts the date by the given number of seconds; negative
 		values move backwards.
 		"""
 		self.Value += datetime.timedelta(seconds=seconds)
 
 
 	def dayInterval(self, days):
-		"""Adjusts the date by the given number of days; negative
+		"""
+		Adjusts the date by the given number of days; negative
 		values move backwards.
 		"""
 		self.Value += datetime.timedelta(days)
 
 
 	def monthInterval(self, months):
-		"""Adjusts the date by the given number of months; negative
+		"""
+		Adjusts the date by the given number of months; negative
 		values move backwards.
 		"""
 		mn = self.Value.month + months
@@ -418,7 +424,8 @@ C: Popup Calendar to Select
 
 
 	def setDate(self, dt):
-		"""Sets the Value to the passed date if this is holding a date value, or
+		"""
+		Sets the Value to the passed date if this is holding a date value, or
 		sets the date portion of the Value if it is a datetime.
 		"""
 		val = self.Value
@@ -427,6 +434,7 @@ C: Popup Calendar to Select
 		else:
 			self.Value = dt
 		self.flushValue()
+
 
 	def _getCalendarPanel(self):
 		fp = self.Form.FloatingPanel
@@ -442,13 +450,12 @@ C: Popup Calendar to Select
 	def _getExtendedCalendar(self):
 		return self._extendedCalendar
 
+
 	def _setExtendedCalendar(self, val):
 		if self._constructed():
 			self._extendedCalendar = val
 		else:
 			self._properties["ExtendedCalendar"] = val
-
-
 
 
 	_CalendarPanel = property(_getCalendarPanel, None, None,

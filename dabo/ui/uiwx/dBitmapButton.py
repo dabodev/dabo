@@ -13,9 +13,11 @@ import dImageMixin as dim
 
 
 class dBitmapButton(cm.dControlMixin, dim.dImageMixin, wx.BitmapButton):
-	"""Creates a button with a picture.
+	"""
+	Creates a button with a picture.
 
 	The button can have up to three pictures associated with it:
+	
 		Picture: the normal picture shown on the button.
 		DownPicture: the picture displayed when the button is depressed.
 		FocusPicture: the picture displayed when the button has the focus.

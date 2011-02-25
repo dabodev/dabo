@@ -10,7 +10,8 @@ from dabo.ui import makeDynamicProperty
 
 
 class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
-	"""Creates an editable list box, complete with buttons to control
+	"""
+	Creates an editable list box, complete with buttons to control
 	editing, adding/deleting items, and re-ordering them.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
@@ -47,7 +48,8 @@ class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
 
 
 	def GetValue(self):
-		"""This control doesn't natively support values, as it is designed
+		"""
+		This control doesn't natively support values, as it is designed
 		to simply order and/or edit the list. We need to provide this so that
 		the dControlMixin code which calls GetValue() doesn't barf.
 		"""
@@ -55,7 +57,8 @@ class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
 
 
 	def layout(self):
-		"""Calling the native Layout() method isn't sufficient, as it doesn't seem
+		"""
+		Calling the native Layout() method isn't sufficient, as it doesn't seem
 		to call the top panel's Layout(). So we'll do it manually.
 		"""
 		self.Layout()

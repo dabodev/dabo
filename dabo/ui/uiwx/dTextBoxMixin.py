@@ -77,7 +77,8 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 
 
 	def selectAll(self):
-		"""Each subclass must define their own selectAll method. This will
+		"""
+		Each subclass must define their own selectAll method. This will
 		be called if SelectOnEntry is True when the control gets focus.
 		"""
 		self.SetSelection(-1, -1)
@@ -99,8 +100,10 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 
 
 	def _checkTextLength(self):
-		"""If the TextLength property is set, checks the current value of the control
-		and truncates it if too long"""
+		"""
+		If the TextLength property is set, checks the current value of the control
+		and truncates it if too long
+		"""
 		if not self:
 			# The control is being destroyed
 			return
@@ -124,7 +127,8 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 
 
 	def _checkForceCase(self):
-		"""If the ForceCase property is set, casts the current value of the control
+		"""
+		If the ForceCase property is set, casts the current value of the control
 		to the specified case.
 		"""
 		if not self:
@@ -158,7 +162,8 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 
 
 	def charsBeforeCursor(self, num=None, includeSelectedText=False):
-		"""Returns the characters immediately before the current InsertionPoint,
+		"""
+		Returns the characters immediately before the current InsertionPoint,
 		or, if there is selected text, before the beginning of the current
 		selection. By default, it will return one character, but you can specify
 		a greater number to be returned. If there is selected text, and
@@ -171,7 +176,8 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 
 
 	def charsAfterCursor(self, num=None, includeSelectedText=False):
-		"""Returns the characters immediately after the current InsertionPoint,
+		"""
+		Returns the characters immediately after the current InsertionPoint,
 		or, if there is selected text, before the end of the current selection.
 		By default, it will return one character, but you can specify a greater
 		number to be returned.
@@ -182,7 +188,8 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 
 
 	def _substringByRange(self, before=0, after=0, includeSelectedText=False):
-		"""Handles the substring calculation for the chars[Before|After]Cursor()
+		"""
+		Handles the substring calculation for the chars[Before|After]Cursor()
 		methods.
 		"""
 		start, end = self.GetSelection()
@@ -406,10 +413,14 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 
 	ForceCase = property(_getForceCase, _setForceCase, None,
 			_("""Determines if we change the case of entered text. Possible values are:
-				None, "" (empty string): No changes made (default)
-				"Upper": FORCE TO UPPER CASE
-				"Lower": force to lower case
-				"Title": Force To Title Case
+
+				===========  =====================
+				None or ""   No changes made (default)
+				"Upper"      FORCE TO UPPER CASE
+				"Lower"      Force to lower case
+				"Title"      Force To Title Case
+				===========  =====================
+
 			These can be abbreviated to "u", "l" or "t"  (str)"""))
 
 	InsertionPosition = property(_getInsertionPosition, _setInsertionPosition, None,
@@ -473,7 +484,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
 
 
 	def convertStringValueToDataType(self, strVal, dataType):
-		"""Given a string value and a type, return an appropriate value of that type.
+		"""
+		Given a string value and a type, return an appropriate value of that type.
 		If the value can't be converted, a ValueError will be raised.
 		"""
 		if dataType == bool:
@@ -562,7 +574,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
 
 
 	def getStringValue(self, value):
-		"""Given a value of any data type, return a string rendition.
+		"""
+		Given a value of any data type, return a string rendition.
 
 		Used internally by _setValue and flushValue, but also exposed to subclasses
 		in case they need specialized behavior. The value returned from this
@@ -588,7 +601,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
 
 
 	def _getDateFromString(self, strVal):
-		"""Given a string in an accepted date format, return a
+		"""
+		Given a string in an accepted date format, return a
 		datetime.date object, or None.
 		"""
 		formats = ["ISO8601"]
@@ -603,7 +617,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
 
 
 	def _getDateTimeFromString(self, strVal):
-		"""Given a string in ISO 8601 datetime format, return a
+		"""
+		Given a string in ISO 8601 datetime format, return a
 		datetime.datetime object.
 		"""
 		formats = ["ISO8601"]
@@ -619,7 +634,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
 
 
 	def _getTimeFromString(self, strVal):
-		"""Given a string in ISO 8601 time format, return a
+		"""
+		Given a string in ISO 8601 time format, return a
 		datetime.time object.
 		"""
 		formats = ["ISO8601"]

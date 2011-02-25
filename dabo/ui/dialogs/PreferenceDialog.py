@@ -40,7 +40,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
 
 	def addControls(self):
-		"""Add the base PageList, and then delete this method from the
+		"""
+		Add the base PageList, and then delete this method from the
 		namespace. Users will customize with addCategory() and then
 		adding controls to the category page.
 		"""
@@ -81,7 +82,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
 
 	def _onAcceptPref(self):
-		"""This is called by the app when the user clicks the OK button. Every method in
+		"""
+		This is called by the app when the user clicks the OK button. Every method in
 		the callOnAccept list is called, followed by a call to the user-configurable
 		onAccept() method.
 		"""
@@ -98,7 +100,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
 
 	def _onCancelPref(self):
-		"""This is called by the app when the user clicks the Cancel button. Every method
+		"""
+		This is called by the app when the user clicks the Cancel button. Every method
 		in the callOnCancel list is called, followed by a call to the user-configurable
 		onCancel() method.
 		"""
@@ -114,7 +117,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
 
 	def addCategory(self, category, pos=None):
-		"""Adds a page to the main PageList control, sets the caption to the
+		"""
+		Adds a page to the main PageList control, sets the caption to the
 		passed string, and returns a reference to the page. If the optional 'pos'
 		parameter is passed, the page is inserted in that position; otherwise, it
 		is appended after any existing pages.
@@ -125,7 +129,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
 
 	def _addDefaultPages(self):
-		"""Called when no other code exists to fill the dialog, or when
+		"""
+		Called when no other code exists to fill the dialog, or when
 		the class's IncludeDefaultPages property is True.
 		"""
 		af = self.Application.ActiveForm
@@ -177,7 +182,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
 
 	def _recurseMenu(self, mn, nd, pref):
-		""" mn is the menu; nd is the tree node for that menu; pref is the pref key for the menu."""
+		"""mn is the menu; nd is the tree node for that menu; pref is the pref key for the menu."""
 		for itm in mn.Children:
 			native = True
 			try:
@@ -274,7 +279,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
 
 	def _addFrameworkPages(self):
-		"""Called when no other code exists to fill the dialog, or when
+		"""
+		Called when no other code exists to fill the dialog, or when
 		the class's IncludeFrameworkPages property is True.
 		"""
 		wuPage = self.pgWebUpdate = self.addCategory(_("Web Update"))

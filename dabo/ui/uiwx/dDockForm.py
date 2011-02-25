@@ -112,7 +112,8 @@ class _dDockPanel(dabo.ui.dPanel):
 
 
 	def _uniqueNameForParent(self, name, parent=None):
-		"""We need to check the AUI manager's PaneInfo name value, too, as that has to be unique
+		"""
+		We need to check the AUI manager's PaneInfo name value, too, as that has to be unique
 		there as well as the form.
 		"""
 		changed = True
@@ -146,7 +147,8 @@ class _dDockPanel(dabo.ui.dPanel):
 
 
 	def dock(self, side=None):
-		"""Dock the panel. If side is specified, it is docked on that side of the
+		"""
+		Dock the panel. If side is specified, it is docked on that side of the
 		form. If no side is specified, it is docked in its default location.
 		"""
 		if self.Docked or not self.Dockable:
@@ -164,7 +166,8 @@ class _dDockPanel(dabo.ui.dPanel):
 
 
 	def _beforeSetProperties(self, props):
-		"""Some properties of Floating panels cannot be set at the usual
+		"""
+		Some properties of Floating panels cannot be set at the usual
 		point in the process, since the panel will still be docked, and you
 		can't change dimensions/location of a docked panel. So extract
 		them now, and then set them afterwards.
@@ -849,7 +852,8 @@ class dDockForm(dabo.ui.dForm):
 
 
 	def addObject(self, classRef, Name=None, *args, **kwargs):
-		"""To support the old addObject() syntax, we need to re-direct the request
+		"""
+		To support the old addObject() syntax, we need to re-direct the request
 		to the center panel.
 		"""
 		self._centerPanel.addObject(classRef, Name=Name, *args, **kwargs)
@@ -893,7 +897,7 @@ class dDockForm(dabo.ui.dForm):
 
 
 	def saveSizeAndPosition(self):
-		""" Save the panel layout info, then call the default behavior."""
+		"""Save the panel layout info, then call the default behavior."""
 		if self.Application:
 			if self.SaveRestorePosition and not self.TempForm:
 				self.Application.setUserSetting("perspective", self._mgr.SavePerspective())

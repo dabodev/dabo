@@ -8,7 +8,8 @@ import dabo.dEvents as dEvents
 
 
 class dMenuBar(pm.dPemMixin, wx.MenuBar):
-	"""Creates a menu bar, which can contain dMenus.
+	"""
+	Creates a menu bar, which can contain dMenus.
 
 	You probably don't want to use this directly. Instead, see dBaseMenuBar
 	which will give you a dMenuBar with the standard File, Edit, and Help
@@ -47,8 +48,10 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 
 	def appendMenu(self, menu):
-		"""Inserts a dMenu at the end of the dMenuBar, and returns the
-		reference to that menu."""
+		"""
+		Inserts a dMenu at the end of the dMenuBar, and returns the
+		reference to that menu.
+		"""
 		ok = self.Append(menu, menu.Caption)
 		if ok:
 			menu.Parent = self
@@ -56,7 +59,8 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 
 	def insertMenu(self, pos, menu):
-		"""Inserts a dMenu in the dMenuBar at the specified position, and
+		"""
+		Inserts a dMenu in the dMenuBar at the specified position, and
 		returns a reference to that menu.
 		"""
 		pos = min(pos, self.GetMenuCount())
@@ -67,7 +71,8 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 
 	def prependMenu(self, menu):
-		"""Inserts a dMenu at the beginning of the dMenuBar, and returns
+		"""
+		Inserts a dMenu at the beginning of the dMenuBar, and returns
 		a reference to that menu.
 		"""
 		ok = self.PrependMenu(menu, menu.Caption)
@@ -77,7 +82,8 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 
 	def append(self, caption, MenuID=None):
-		"""Appends a dMenu to the end of the dMenuBar, and returns a reference
+		"""
+		Appends a dMenu to the end of the dMenuBar, and returns a reference
 		to that menu.
 
 		A generic dMenu will be created with the passed caption. Also see the
@@ -89,7 +95,8 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 
 	def insert(self, pos, caption, MenuID=None):
-		"""Inserts a dMenu at the specified position in the dMenuBar, and returns
+		"""
+		Inserts a dMenu at the specified position in the dMenuBar, and returns
 		a reference to that menu.
 
 		A generic dMenu will be created with the passed caption. Also see the
@@ -101,7 +108,8 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 
 	def prepend(self, caption, MenuID=None):
-		"""Prepends a dMenu to the beginning of the dMenuBar, and returns
+		"""
+		Prepends a dMenu to the beginning of the dMenuBar, and returns
 		a reference to that menu.
 
 		A generic dMenu will be created with the passed caption. Also see the
@@ -113,7 +121,8 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 
 	def _getGenericMenu(self, caption, MenuID=None):
-		"""Returns a dMenu instance with the passed caption.
+		"""
+		Returns a dMenu instance with the passed caption.
 
 		This is used by the append(), insert(), and prepend() functions.
 		"""
@@ -121,7 +130,8 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 
 	def remove(self, indexOrMenu, release=True):
-		"""Removes the menu at the specified index from the menu bar. You may
+		"""
+		Removes the menu at the specified index from the menu bar. You may
 		also pass a reference to the menu, or the menu's Caption, and it will
 		find the associated index.
 
@@ -144,7 +154,8 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 
 	def getMenu(self, idOrCaption):
-		"""Returns a reference to the menu with the specified MenuID or Caption.
+		"""
+		Returns a reference to the menu with the specified MenuID or Caption.
 		The MenuID property is checked first; then the Caption. If no match is found,
 		None is returned.
 		"""
@@ -167,7 +178,8 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 
 	def getMenuIndex(self, idOrCaption):
-		"""Returns the index of the menu with the specified ID or caption.
+		"""
+		Returns the index of the menu with the specified ID or caption.
 		If the menu isn't found, None is returned.
 		"""
 		mn = self.getMenu(idOrCaption)

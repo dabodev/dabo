@@ -51,11 +51,13 @@ class Bizobj(dabo.biz.dBizobj):
 
 			If you have the following base sql:
 
-				select invoice.number as invoicenumber,
-				       customer.name as name
-				  from invoice
-				 inner join customer
-				    on customer.id = invoice.custid
+			.. code-block:: sql
+			
+			   select invoice.number as invoicenumber,
+					  customer.name as name
+					from invoice
+						inner join customer
+						on customer.id = invoice.custid
 
 			The where clause as generated using fieldSpecs will incorrectly
 			do "WHERE invoice.invoicenumber = " or "WHERE invoice.name = "
@@ -73,7 +75,7 @@ class Bizobj(dabo.biz.dBizobj):
 
 				self.addField("invoice.number as invoicenumber")
 				self.addField("customer.name as name")
-				
+
 			"""))
 
 	BaseWhereClause = property(getBaseWhereClause, _setBaseWhereClause, None,

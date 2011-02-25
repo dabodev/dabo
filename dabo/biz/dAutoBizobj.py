@@ -20,7 +20,8 @@ bizs = g._AutoTables
 
 
 def setupAutoBiz(conn, autoBizes):
-	"""This function sets up a list of dAutoBizobj's for auto creation.
+	"""
+	This function sets up a list of dAutoBizobj's for auto creation.
 	Instead of doing this::
 
 		t = myBiz1(conn)
@@ -38,7 +39,8 @@ def setupAutoBiz(conn, autoBizes):
 
 
 def autoCreateTables(noAccessDialog=None):
-	"""This function creates tables if they don't exist.
+	"""
+	This function creates tables if they don't exist.
 	Tables are added to the list of tables for auto creation when the Table
 	property is set for a dAutoBizobj.
 	"""

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-""" This is Dabo's user interface layer which is the topmost layer.
+"""
+This is Dabo's user interface layer which is the topmost layer.
 
 There are submodules for all supported UI libraries. As of this writing,
 the only supported UI library is wxPython (uiwx).
 
 To use a given submodule at runtime, you need to call loadUI() with the
 ui module you want as a parameter. For instance, to load wxPython, you
-would issue:
+would issue::
 
 	import dabo.ui
 	dabo.ui.loadUI("wx")
@@ -20,7 +21,7 @@ from dabo.dLocalize import _
 
 
 def getUIType():
-	""" Return the identifier of the currently loaded UI, or None."""
+	"""Return the identifier of the currently loaded UI, or None."""
 	try:
 		return uiType["shortName"]
 	except (AttributeError, NameError, KeyError):
@@ -28,7 +29,8 @@ def getUIType():
 
 
 def deadCheck(fn, *args, **kwargs):
-	"""This decorator is intended to detect dead objects (objects in the process of being
+	"""
+	This decorator is intended to detect dead objects (objects in the process of being
 	destroyed) from attempts to call their methods. Currently this only supports wxPython,
 	but if needed in other toolkits, different functionality will need to be coded.
 	"""
@@ -42,7 +44,7 @@ def deadCheck(fn, *args, **kwargs):
 
 
 def loadUI(uiType):
-	""" Load the given UI into the global namespace."""
+	"""Load the given UI into the global namespace."""
 	retVal = False
 	currType = getUIType()
 	mods = {"wx" : "dabo.ui.uiwx", "tk" : "dabo.ui.uitk"}
@@ -73,7 +75,8 @@ def loadUI(uiType):
 
 
 def getEventData(uiEvent):
-	""" Given a UI-specific event object, return a UI-agnostic name/value dictionary.
+	"""
+	Given a UI-specific event object, return a UI-agnostic name/value dictionary.
 
 	This function must be overridden in each ui library's __init__.py to function
 	correctly.
@@ -82,13 +85,15 @@ def getEventData(uiEvent):
 
 
 def makeDynamicProperty(prop, additionalDoc=None):
-	"""Make a Dynamic property for the passed property.
+	"""
+	Make a Dynamic property for the passed property.
 
 	Call this in your class definition, after you've defined the property
-	you'd like to make dynamic. For example:
+	you'd like to make dynamic. For example:"
 
 	Caption = property(_getCaption, _setCaption, None, None)
 	DynamicCaption = makeDynamicProperty(Caption)
+	
 	"""
 	propName = None
 	frame = inspect.currentframe(1)
@@ -126,7 +131,8 @@ will not be dynamically evaluated.
 
 
 def makeProxyProperty(dct, nm, proxyAtts):
-	"""When creating composite controls, it is necessary to be able to pass through
+	"""
+	When creating composite controls, it is necessary to be able to pass through
 	property get/set calls to an object or objects within the composite control. For
 	example, if a class based on dPanel contains a textbox and a label, I might want
 	to proxy the class's Caption to the label's Caption, the Value to the textbox, and
@@ -137,7 +143,7 @@ def makeProxyProperty(dct, nm, proxyAtts):
 	would be a property like 'Height': the outer panel needs to grow as well as the
 	inner controls. In this case, assuming you store a reference to the textbox and
 	label in attributes named '_textbox' and '_label', respectively, the code in your
-	custom composite class would look like:
+	custom composite class would look like::
 
 		_proxyDict = {}
 		Caption = makeProxyProperty(_proxyDict, "Caption", "_label")

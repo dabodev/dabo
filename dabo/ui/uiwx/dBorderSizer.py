@@ -9,7 +9,8 @@ dabo.ui.loadUI("wx")
 
 
 class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
-	"""A BorderSizer is a regular box sizer, but with a visible box around
+	"""
+	A BorderSizer is a regular box sizer, but with a visible box around
 	the perimiter. You must either create the box first and pass it to the
 	dBorderSizer's constructor, or pass a parent object, and the box
 	will be created for you in the constructor as a child object of the parent

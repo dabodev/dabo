@@ -7,8 +7,7 @@ import dFormMixin as fm
 
 
 class dFormMainBase(fm.dFormMixin):
-	""" This is the main top-level form for the application.
-	"""
+	"""This is the main top-level form for the application."""
 	def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
 		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 

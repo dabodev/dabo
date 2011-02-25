@@ -11,7 +11,8 @@ from dabo.ui import makeDynamicProperty
 
 
 class dControlItemMixin(dDataControlMixin):
-	""" This mixin class factors out the common code among all of the
+	"""
+	This mixin class factors out the common code among all of the
 	controls that contain lists of items.
 	"""
 	def __init__(self, *args, **kwargs):
@@ -37,7 +38,7 @@ class dControlItemMixin(dDataControlMixin):
 
 
 	def appendItem(self, txt, select=False):
-		""" Adds a new item to the end of the list """
+		"""Adds a new item to the end of the list"""
 		chc = self._choices
 		chc.append(txt)
 		self.Choices = chc
@@ -46,7 +47,7 @@ class dControlItemMixin(dDataControlMixin):
 
 
 	def insertItem(self, pos, txt, select=False):
-		""" Inserts a new item into the specified position. """
+		"""Inserts a new item into the specified position."""
 		chc = self._choices[:pos]
 		chc.append(txt)
 		chc += self._choices[pos:]
@@ -56,19 +57,20 @@ class dControlItemMixin(dDataControlMixin):
 
 
 	def removeItem(self, pos):
-		""" Removes the item at the specified position. """
+		"""Removes the item at the specified position."""
 		del self._choices[pos]
 		self.Delete(pos)
 
 
 	def removeAll(self):
-		""" Removes all entries from the control. """
+		"""Removes all entries from the control."""
 		self._choices = []
 		self.Clear()
 
 
 	def clearSelections(self):
-		""" Stub method. Only used in the list box, where there
+		"""
+		Stub method. Only used in the list box, where there
 		can be multiple selections.
 		"""
 		pass
@@ -100,7 +102,8 @@ class dControlItemMixin(dDataControlMixin):
 
 
 	def sort(self, sortFunction=None):
-		"""Sorts the list items. By default, the Python 'cmp' function is
+		"""
+		Sorts the list items. By default, the Python 'cmp' function is
 		used, but this can be overridden with a custom sortFunction.
 		"""
 		if sortFunction is None:
@@ -109,7 +112,8 @@ class dControlItemMixin(dDataControlMixin):
 
 
 	def _resetChoices(self):
-		"""Sequence required to update the choices for the list. Refactored out
+		"""
+		Sequence required to update the choices for the list. Refactored out
 		to avoid duplicate code.
 		"""
 		self.Clear()
@@ -458,6 +462,7 @@ class dControlItemMixin(dDataControlMixin):
 			_("""Specifies which item is currently selected in the list.
 			-> Type can vary. Read-write at runtime.
 			Value refers to one of the following, depending on the setting of ValueMode:
+
 				+ ValueMode="Position" : the index of the selected item(s) (integer)
 				+ ValueMode="String"   : the displayed string of the selected item(s) (string)
 				+ ValueMode="Key"      : the key of the selected item(s) (can vary)""") )
@@ -465,10 +470,14 @@ class dControlItemMixin(dDataControlMixin):
 	ValueMode = property(_getValueMode, _setValueMode, None,
 			_("""Specifies the information that the Value property refers to.
 			-> String. Read-write at runtime.
-			'Position' : Value refers to the position in the choices (integer).
-			'String'   : Value refers to the displayed string for the selection (default) (string).
-			'Key'      : Value refers to a separate key, set using the Keys property (can vary).""") )
+			
+			============= =========================
+			'Position'    Value refers to the position in the choices (integer).
+			'String'      Value refers to the displayed string for the selection (default) (string).
+			'Key'         Value refers to a separate key, set using the Keys property (can vary).
+			============= =========================
 
+			"""))
 
 	DynamicKeyValue = makeDynamicProperty(KeyValue)
 	DynamicPositionValue = makeDynamicProperty(PositionValue)

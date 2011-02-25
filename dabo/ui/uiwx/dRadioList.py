@@ -14,7 +14,8 @@ from dabo.ui import makeDynamicProperty
 
 
 class _dRadioButton(dcm.dDataControlMixin, wx.RadioButton):
-	"""Subclass of wx.RadioButton. Not meant to be used individually, but
+	"""
+	Subclass of wx.RadioButton. Not meant to be used individually, but
 	only in the context of a parent dRadioList control.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
@@ -123,7 +124,8 @@ class _dRadioButton(dcm.dDataControlMixin, wx.RadioButton):
 
 
 class dRadioList(cim.dControlItemMixin, wx.Panel):
-	"""Creates a group of radio buttons, allowing mutually-exclusive choices.
+	"""
+	Creates a group of radio buttons, allowing mutually-exclusive choices.
 
 	Like a dDropdownList, use this to present the user with multiple choices and
 	for them to choose from one of the choices. Where the dDropdownList is
@@ -209,7 +211,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 
 
 	def layout(self):
-		""" Wrap the wx version of the call, if possible. """
+		"""Wrap the wx version of the call, if possible."""
 		self.Layout()
 		try:
 			# Call the Dabo version, if present
@@ -221,7 +223,8 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 
 
 	def _setSelection(self, val):
-		"""Set the selected state of the buttons to match this
+		"""
+		Set the selected state of the buttons to match this
 		control's Value.
 		"""
 		for pos, itm in enumerate(self._items):
@@ -253,13 +256,18 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 
 
 	def enable(self, itm, val=True):
-		"""Enables or disables an individual button.
+		"""
+		Enables or disables an individual button.
 
 		The itm argument specifies which button to enable/disable, and its type
 		depends on the setting of self.ValueType:
-			"position" : The item is referenced by index position.
-			"string"   : The item is referenced by its string display value.
-			"key"      : The item is referenced by its key value.
+		
+			============ ====================
+			"position"   The item is referenced by index position.
+			"string"     The item is referenced by its string display value.
+			"key"        The item is referenced by its key value.
+			============ ====================
+			
 		"""
 		if self.ValueMode == "position":
 			self.enablePosition(itm, val)
@@ -291,13 +299,18 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 
 
 	def show(self, itm, val=True):
-		"""Shows or hides an individual button.
+		"""
+		Shows or hides an individual button.
 
 		The itm argument specifies which button to hide/show, and its type
 		depends on the setting of self.ValueType:
-			"position" : The item is referenced by index position.
-			"string"   : The item is referenced by its string display value.
-			"key"      : The item is referenced by its key value.
+			
+			============ ====================
+			"position"   The item is referenced by index position.
+			"string"     The item is referenced by its string display value.
+			"key"        The item is referenced by its key value.
+			============ ====================
+			
 		"""
 		if self.ValueMode == "position":
 			self.showPosition(itm, val)

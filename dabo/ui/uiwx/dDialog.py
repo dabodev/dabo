@@ -13,7 +13,8 @@ from dabo.ui import makeDynamicProperty
 
 
 class dDialog(fm.dFormMixin, wx.Dialog):
-	"""Creates a dialog, which is a lightweight form.
+	"""
+	Creates a dialog, which is a lightweight form.
 
 	Dialogs are like forms, but typically are modal and are requesting a very
 	specific piece of information from the user, and/or offering specific
@@ -112,7 +113,8 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 
 
 	def _addControls(self):
-		"""Any controls that need to be added to the dialog
+		"""
+		Any controls that need to be added to the dialog
 		can be added in this method in framework classes, or
 		in addControls() in instances.
 		"""
@@ -132,7 +134,8 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 
 
 	def addControls(self):
-		"""Add your custom controls to the dialog.
+		"""
+		Add your custom controls to the dialog.
 
 		This is a hook, called at the appropriate time by the framework.
 		"""
@@ -140,7 +143,8 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 
 
 	def release(self):
-		""" Need to augment this to make sure the dialog
+		"""
+		Need to augment this to make sure the dialog
 		is removed from the app's forms collection.
 		"""
 		if self.Application is not None:
@@ -224,7 +228,8 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 
 
 class dStandardButtonDialog(dDialog):
-	"""Creates a dialog with standard buttons and associated functionality. You can
+	"""
+	Creates a dialog with standard buttons and associated functionality. You can
 	choose the buttons that display by passing True for any of the following
 	properties:
 
@@ -366,7 +371,8 @@ class dStandardButtonDialog(dDialog):
 
 
 	def setEscapeButton(self, btn=None):
-		"""Set which button gets hit when Esc pressed.
+		"""
+		Set which button gets hit when Esc pressed.
 
 		CancelOnEscape must be True for this to work.
 		"""
@@ -440,14 +446,16 @@ class dStandardButtonDialog(dDialog):
 
 
 	def addControls(self):
-		"""Use this method to add controls to the dialog. The standard buttons will be added
+		"""
+		Use this method to add controls to the dialog. The standard buttons will be added
 		after this method runs, so that they appear at the bottom of the dialog.
 		"""
 		pass
 
 
 	def addControlSequence(self, seq):
-		"""This takes a sequence of 3-tuples or 3-lists, and adds controls
+		"""
+		This takes a sequence of 3-tuples or 3-lists, and adds controls
 		to the dialog as a grid of labels and data controls. The first element of
 		the list/tuple is the prompt, the second is the data type, and the third
 		is the RegID used to retrieve the entered value.

@@ -13,7 +13,8 @@ import dabo.dEvents as dEvents
 
 class dToggleButton(dcm.dDataControlMixin, dim.dImageMixin,
 		wxb.GenBitmapTextToggleButton):
-	"""Creates a button that toggles on and off, for editing boolean values.
+	"""
+	Creates a button that toggles on and off, for editing boolean values.
 
 	This is functionally equivilent to a dCheckbox, but visually much different.
 	Also, it implies that pushing it will cause some sort of immediate action to

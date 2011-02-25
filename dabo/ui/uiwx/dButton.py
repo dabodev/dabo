@@ -13,16 +13,17 @@ from dabo.ui import makeDynamicProperty
 
 
 class dButton(cm.dControlMixin, wx.Button):
-	"""Creates a button that can be pressed by the user to trigger an action.
+	"""
+	Creates a button that can be pressed by the user to trigger an action.
 
-	Example:
+	Example::
 
-	class MyButton(dabo.ui.dButton):
-		def initProperties(self):
-			self.Caption = "Press Me"
-
-		def onHit(self, evt):
-			self.Caption = "Press Me one more time"
+		class MyButton(dabo.ui.dButton):
+			def initProperties(self):
+				self.Caption = "Press Me"
+	
+			def onHit(self, evt):
+				self.Caption = "Press Me one more time"
 
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):

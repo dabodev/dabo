@@ -10,7 +10,8 @@ from dabo.ui import makeDynamicProperty
 
 
 class dPageFrameNoTabs(dPanel):
-	"""Creates a pageframe with no tabs or other way for the user to select a
+	"""
+	Creates a pageframe with no tabs or other way for the user to select a
 	page. Your code will have to programatically set the page.
 	"""
 	def __init__(self, *args, **kwargs):
@@ -29,7 +30,8 @@ class dPageFrameNoTabs(dPanel):
 
 
 	def appendPage(self, pgCls=None, makeActive=False):
-		"""Creates a new page, which should be a subclass of dPage. If makeActive
+		"""
+		Creates a new page, which should be a subclass of dPage. If makeActive
 		is True, the page is displayed; otherwise, it is added without changing
 		the SelectedPage.
 		"""
@@ -37,7 +39,8 @@ class dPageFrameNoTabs(dPanel):
 
 
 	def insertPage(self, pos, pgCls=None, makeActive=False, ignoreOverride=False):
-		""" Inserts the page into the pageframe at the specified position,
+		"""
+		Inserts the page into the pageframe at the specified position,
 		and makes it the active (displayed) page if makeActive is True.
 		"""
 		# Allow subclasses to potentially override this behavior. This will
@@ -74,7 +77,8 @@ class dPageFrameNoTabs(dPanel):
 
 
 	def removePage(self, pgOrPos, delPage=True):
-		"""Removes the specified page. You can specify a page by either
+		"""
+		Removes the specified page. You can specify a page by either
 		passing the page itself, or a position. If delPage is True (default),
 		the page is released, and None is returned. If delPage is
 		False, the page is returned.
@@ -117,21 +121,24 @@ class dPageFrameNoTabs(dPanel):
 
 
 	def nextPage(self):
-		"""Selects the next page. If the last page is selected,
+		"""
+		Selects the next page. If the last page is selected,
 		it will select the first page.
 		"""
 		self.cyclePages(1)
 
 
 	def priorPage(self):
-		"""Selects the previous page. If the first page is selected,
+		"""
+		Selects the previous page. If the first page is selected,
 		it will select the last page.
 		"""
 		self.cyclePages(-1)
 
 
 	def cyclePages(self, num):
-		"""Moves through the pages by the specified amount, wrapping
+		"""
+		Moves through the pages by the specified amount, wrapping
 		around the ends. Negative values move to previous pages; positive
 		move through the next pages.
 		"""
