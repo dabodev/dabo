@@ -122,7 +122,7 @@ class dNode(dObject):
 		if hasattr(self, "_font"):
 			v = self._font
 		else:
-			v = self.Font = dabo.ui.dFont()
+			v = self.Font = dabo.ui.dFont(_nativeFont=self.tree.GetItemFont(self.itemID))
 		return v
 
 	def _setFont(self, val):
@@ -503,8 +503,9 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 	def setRootNode(self, txt):
 		itemID = self.AddRoot(txt)
 		ret = self._rootNode = self.NodeClass(self, itemID, None)
+		if self.ShowRootNode:
+			self.SetItemFont(ret.itemID, self.GetFont())
 		self.nodes.append(ret)
-		ret.Font = self.Font
 		return ret
 
 
@@ -516,8 +517,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			ndid = node.itemID
 		itemID = self.AppendItem(ndid, txt)
 		ret = self.NodeClass(self, itemID, node)
+		self.SetItemFont(ret.itemID, self.GetFont())
 		self.nodes.append(ret)
-		ret.Font = self.Font
 		return ret
 
 
@@ -930,15 +931,11 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 	def _setAbsoluteFontZoom(self, newZoom):
 		self._currFontZoom = newZoom
-		firstOnly = (self.Application.Platform == "Win")
 		for node in self.nodes:
 			origFontSize = node._origFontSize = getattr(node, "_origFontSize", node.FontSize)
 			fontSize = origFontSize + newZoom
 			if fontSize > 1:
 				node.FontSize = fontSize
-			if firstOnly:
-				# On Windows platform all nodes has the same font size.
-				break
 
 		if self.Form is not None:
 			dabo.ui.callAfterInterval(200, self.Form.layout)
