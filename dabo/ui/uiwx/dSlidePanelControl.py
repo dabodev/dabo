@@ -194,16 +194,19 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 
 	def _setBarStyle(self, val):
-		if val.lower().strip() not in self._barStylesLow:
-			bs = ", ".join(self._barStyles)
-			dabo.log.error(_("Unknown BarStyle passed: %(val)s. BarStyle must be one of: %(bs)s")
-					% locals())
+		if self._constructed():
+			if val.lower().strip() not in self._barStylesLow:
+				bs = ", ".join(self._barStyles)
+				dabo.log.error(_("Unknown BarStyle passed: %(val)s. BarStyle must be one of: %(bs)s")
+						% locals())
+			else:
+				self._barStyle = val
+				# Apply it
+				style = self._captionBar.GetCaptionStyle()
+				style.SetCaptionStyle(self._barStyleConstants[val.lower().strip()])
+				self._captionBar.SetCaptionStyle(style)
 		else:
-			self._barStyle = val
-			# Apply it
-			style = self._captionBar.GetCaptionStyle()
-			style.SetCaptionStyle(self._barStyleConstants[val.lower().strip()])
-			self._captionBar.SetCaptionStyle(style)
+			self._properties["BarStyle"] = val
 
 
 	def _getBorder(self):
@@ -232,8 +235,11 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 		return self._captionBar._caption
 
 	def _setCaption(self, val):
-		self._captionBar._caption = val
-		self.refresh()
+		if self._constructed():
+			self._captionBar._caption = val
+			self.refresh()
+		else:
+			self._properties["Caption"] = val
 
 
 	def _getCaptionForeColor(self):
