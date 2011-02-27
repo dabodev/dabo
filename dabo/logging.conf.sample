@@ -3,53 +3,53 @@
 keys=root,daboLog,dbActivity
 
 [handlers]
-keys=consoleHandler,fileHandler,dbConsoleHandler,dbFileHandler
+keys=consoleLogHandler,fileLogHandler,dbConsoleLogHandler,dbFileLogHandler
 
 [formatters]
 keys=basicFormatter
 
 [logger_root]
-level=DEBUG
-handlers=consoleHandler
+level=WARNING
+handlers=consoleLogHandler
 
 [logger_daboLog]
-level=DEBUG
-handlers=consoleHandler,fileHandler
+level=WARNING
+handlers=consoleLogHandler,fileLogHandler
 qualname=dabo.mainLog
 propagate=0
 
 [logger_dbActivity]
-level=DEBUG
-handlers=dbConsoleHandler,dbFileHandler
+level=WARNING
+handlers=dbConsoleLogHandler,dbFileLogHandler
 qualname=dabo.dbActivityLog
 propagate=0
 
-[handler_consoleHandler]
+[handler_consoleLogHandler]
 class=StreamHandler
-level=INFO
+level=WARNING
 formatter=basicFormatter
 args=(sys.stdout, )
 
-[handler_fileHandler]
+[handler_fileLogHandler]
 class=handlers.RotatingFileHandler
-level=ERROR
+level=WARNING
 formatter=basicFormatter
 args=("dabo.log", "a", 5242880, 7, "utf8")
 
-[handler_dbConsoleHandler]
+[handler_dbConsoleLogHandler]
 class=StreamHandler
-level=ERROR
+level=WARNING
 formatter=basicFormatter
 args=(sys.stdout, )
 
-[handler_dbFileHandler]
+[handler_dbFileLogHandler]
 class=handlers.RotatingFileHandler
-level=DEBUG
+level=WARNING
 formatter=basicFormatter
 ### The default is to discard db log messages.
 ### Uncomment the second args line to add db logging.
 args=(os.devnull, "a", 5242880, 7, "utf8")
-# args=("db_activity.log", "a", 5242880, 7, "utf8")
+#args=("db_activity.log", "a", 5242880, 7, "utf8")
 
 [formatter_basicFormatter]
 format=%(asctime)s - %(levelname)s - %(message)s
