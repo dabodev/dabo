@@ -154,6 +154,7 @@ class dSizerMixin(dObject):
 		# If compressed to .pyo, __doc__ will be None.
 		pass
 
+
 	def layout(self):
 		"""
 		Layout the items in the sizer.
@@ -183,6 +184,7 @@ class dSizerMixin(dObject):
 	except TypeError:
 		# If compressed to .pyo, __doc__ will be None.
 		pass
+
 
 	def remove(self, itm, destroy=None):
 		"""
@@ -272,6 +274,8 @@ class dSizerMixin(dObject):
 				ret = szItem.GetWindow()
 			elif szItem.IsSpacer():
 				ret = szItem.GetSpacer()
+				ret._controllingSizerItem = szItem
+				ret._controllingSizer = self
 			elif szItem.IsSizer():
 				ret = szItem.GetSizer()
 		return ret
@@ -728,6 +732,12 @@ class dSizerMixin(dObject):
 		return ret
 
 
+	def _getChildObjects(self):
+		itms = self.GetChildren()
+		ret = [self.getItem(itm) for itm in itms]
+		return ret
+
+
 	def _getChildSizers(self):
 		itms = self.GetChildren()
 		ret = [itm.GetSizer()
@@ -921,6 +931,10 @@ class dSizerMixin(dObject):
 
 	Children = property(_getChildren, None, None,
 			_("List of all the sizer items managed by this sizer  (list of sizerItems"))
+
+	ChildObjects = property(_getChildObjects, None, None,
+			_("""List of all the objects (controls, sizers, spacers) that are directly managed
+			by this sizer  (list of objects"""))
 
 	ChildSizers = property(_getChildSizers, None, None,
 			_("List of all the sizers that are directly managed by this sizer  (list of sizers"))
