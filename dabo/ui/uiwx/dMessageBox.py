@@ -8,6 +8,7 @@ along with convenience functions to allow calling like::
 """
 import wx
 import dabo
+from dabo.dLocalize import _
 
 
 def getForm():
@@ -182,7 +183,18 @@ if __name__ == "__main__":
 
 	# Test requesting user attention:
 	frm = dabo.ui.dForm()
-	print info("After you click okay, switch to another running application within 5 seconds, to test the requestUserAttention setting.", parent=frm)
+	def onExit(evt):
+		app.onFileExit(evt)
+	cap = _("After you click okay, switch to another running application\nwithin 5 seconds, to test"
+			" the requestUserAttention setting.\n\n\nAfterwards, click the button below to exit.")
+	lbl = dabo.ui.dLabel(frm, Caption=cap)
+	ln = dabo.ui.dLine(frm, Orientation="H", Height=3)
+	btn = dabo.ui.dButton(frm, Caption=_("Exit"), OnHit=onExit)
+	frm.Sizer.append(lbl, halign="center", border=20)
+	frm.Sizer.append(ln, "x", halign="center", border=120, borderSides=["left", "right"])
+	frm.Sizer.appendSpacer(80)
+	frm.Sizer.append(btn, halign="center")
+	frm.layout()
 	dabo.ui.callAfterInterval(5000, exclaim, "Abort! Abort!", parent=frm)
 	frm.show()
 	app.start()
