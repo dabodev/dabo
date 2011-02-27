@@ -44,11 +44,10 @@ class dLine(cm.dControlMixin, wx.StaticLine):
 		self._delWindowStyleFlag(wx.LI_VERTICAL)
 		self._delWindowStyleFlag(wx.LI_HORIZONTAL)
 
-		value = ustr(value)
-
-		if value == "Vertical":
+		value = ustr(value)[0].lower()
+		if value == "v":
 			self._addWindowStyleFlag(wx.LI_VERTICAL)
-		elif value == "Horizontal":
+		elif value == "h":
 			self._addWindowStyleFlag(wx.LI_HORIZONTAL)
 		else:
 			raise ValueError("The only possible values are "
