@@ -38,7 +38,8 @@ class dReportProgress(dPanel):
 
 	def hide(self):
 		self.Visible = False
-		self.oldFocus.setFocus()  ## Let 'esc' register on the form instead of our cancel button
+		if self.oldFocus:
+			self.oldFocus.setFocus()  ## Let 'esc' register on the form instead of our cancel button
 		self.butCancelReportProgress.Enabled = False
 		self.butCancelReportProgress.CancelButton = False
 		if self.oldCancel:
