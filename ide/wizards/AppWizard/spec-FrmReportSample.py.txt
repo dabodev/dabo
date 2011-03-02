@@ -7,6 +7,7 @@
 
 import datetime
 import os
+from dabo.dLocalize import _
 import dabo.ui
 from FrmReportBase import FrmReportBase
 
@@ -15,7 +16,7 @@ class FrmReportSample(FrmReportBase):
 
 	def initProperties(self):
 		app = self.Application
-		self.ReportName = "Sample Report"
+		self.ReportName = _("Sample Report")
 		self.super()
 		self.ReportForm = os.path.join(app.HomeDirectory, "reports/sampleReport.rfxml")
 		self.DataSetFunction = app.db.getSampleDataSet

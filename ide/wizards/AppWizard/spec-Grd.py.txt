@@ -8,8 +8,10 @@ from GrdBase import GrdBase
 
 class Grd%(tableName)s(GrdBase):
 
-	def afterInit(self):
+	def afterInitAll(self):
 		self.super()
+		biz = self.Form.getBizobj("%(datasource)s")
+
 %(colDefs)s
 
 

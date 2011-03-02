@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from dabo.dLocalize import _
+
 import dabo.ui
 import dabo.lib.reportUtils as reportUtils
 
@@ -25,9 +27,9 @@ class FrmReportBase(dabo.ui.dDialog):
 
 	def addControls(self):
 		hs = dabo.ui.dSizer("h")
-		hs.append(dabo.ui.dButton(self, Caption="Preview", RegID="butPreview"),
+		hs.append(dabo.ui.dButton(self, Caption=_("Preview"), RegID="butPreview"),
 				alignment="right", border=self.SizerBorder)
-		hs.append(dabo.ui.dButton(self, Caption="Print", RegID="butPrint"),
+		hs.append(dabo.ui.dButton(self, Caption=_("Print"), RegID="butPrint"),
 				alignment="right", border=self.SizerBorder)
 		self.Sizer.append(hs, alignment="bottom", border=self.SizerBorder)
 

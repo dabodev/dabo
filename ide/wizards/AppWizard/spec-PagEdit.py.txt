@@ -10,6 +10,8 @@ class PagEdit%(tableName)s(PagEditBase):
 
 	def createItems(self):
 		"""Called by the datanav framework, when it is time to create the controls."""
+
+		biz = self.Form.getBizobj("%(datasource)s")
 %(createItems)s
 		self.super()
 

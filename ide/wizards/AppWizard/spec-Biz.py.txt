@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from dabo.dLocalize import _
 from Base import Base
 
 
@@ -10,6 +11,13 @@ class %(tableName)s(Base):
 		self.Caption = "%(tableName)s"
 		self.DataSource = "%(table)s"
 		self.KeyField = %(pkField)s
+
+		# dict in the form of
+		# {'colname': [_('caption for colname'),
+		#              _('tooltip for colname'),
+		#              _('helptext> for colname')]}
+
+		self.ColTextsDict = {}
 
 		# Setting the DataStructure explicitly here is optional, but recommended as
 		# it will keep Dabo from interpreting field types from the backend every
@@ -43,3 +51,27 @@ class %(tableName)s(Base):
 		self.addFrom("%(tableNameQt)s")
 		self.setLimitClause("500")
 		self.addFieldsFromDataStructure()
+
+	def getColCaption(self, column):
+		# if self.ColTextsDict is defined get the text from there, otherwise
+		# just return the column name
+		if self.ColTextsDict.has_key(column):
+			return self.ColTextsDict[column][0]
+		else:
+			return column
+
+	def getColToolTip(self, column):
+		# if self.ColTextsDict is defined get the text from there, otherwise
+		# just return the column name
+		if self.ColTextsDict.has_key(column):
+			return self.ColTextsDict[column][1]
+		else:
+			return column
+
+	def getColHelpText(self, column):
+		# if self.ColTextsDict is defined get the text from there, otherwise
+		# just return the column name
+		if self.ColTextsDict.has_key(column):
+			return self.ColTextsDict[column][2]
+		else:
+			return column

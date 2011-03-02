@@ -582,6 +582,7 @@ class AppWizard(Wizard):
 			self.wizDir = self.Application.HomeDirectory
 		else:
 			self.wizDir = defaultDirectory
+		
 		self.tableDict = {}
 		self.selectedTables = []
 		self.outputDirectory = ""
@@ -810,20 +811,22 @@ class AppWizard(Wizard):
 
 	def getGrd(self, table):
 		tableName = getSafeTableName(table)
+		datasource = table
 		colDefs = ""
 		fieldDict = self.tableDict[table]["fields"]
 
 		colDefs += """
 		# Delete or comment out any columns you don't want..."""
 		colSpec = """
-		self.addColumn(dabo.ui.dColumn(self, DataField="%s", Caption="%s",
+		self.addColumn(dabo.ui.dColumn(self, DataField="%s", 
+				Caption=biz.getColCaption("%s"),
 				Sortable=True, Searchable=True, Editable=False))
 """
 		sortedFieldNames = self.getSortedFieldNames(fieldDict)
 
 		for tup in sortedFieldNames:
 			field = tup[1]
-			colDefs += colSpec % (field, field.title())
+			colDefs += colSpec % (field, field)
 
 		return open(os.path.join(self.wizDir,
 				"spec-Grd.py.txt")).read() % locals()
@@ -831,6 +834,7 @@ class AppWizard(Wizard):
 
 	def getPagEdit(self, table):
 		tableName = getSafeTableName(table)
+		datasource = table
 		createItems = ""
 		fieldDict = self.tableDict[table]["fields"]
 
@@ -845,9 +849,13 @@ class AppWizard(Wizard):
 
 		itemSpec = """
 		## Field %(table)s.%(fieldName)s
-		label = dabo.ui.dLabel(self, NameBase="lbl%(fieldName)s", Caption="%(labelCaption)s")
+		label = dabo.ui.dLabel(self, NameBase="lbl%(fieldName)s", 
+					Caption=biz.getColCaption("%(labelCaption)s"))
 		objectRef = %(classRef)s(self, NameBase="%(fieldName)s",
-				DataSource="%(table)s", DataField="%(fieldName)s"%(ctrlCap)s)
+				DataSource="%(table)s", DataField="%(fieldName)s"%(ctrlCap)s,
+				ToolTipText=biz.getColToolTip("%(fieldName)s"),
+				HelpText=biz.getColHelpText("%(fieldName)s")
+)
 
 		gs.append(label, alignment=("top", "right") )%(memo_sizer)s
 		gs.append(objectRef, "expand")
@@ -865,7 +873,7 @@ class AppWizard(Wizard):
 			elif fieldType in ["bool",]:
 				classRef = "dabo.ui.dCheckBox"
 				labelCaption = ""
-				ctrlCap = ', Caption="%s"' % fieldName
+				ctrlCap = ', Caption=biz.getColCaption("%s")' % fieldName
 			elif fieldType in ["date",]:
 				#pkm: temporary: dDateTextBox is misbehaving still. So, until we get
 				#     it figured out, change the type of control used for date editing
@@ -909,6 +917,7 @@ class AppWizard(Wizard):
 	def getSelectOptionsPanel(self):
 		"""Return the panel to contain all the select options."""
 
+		biz = self.Form.getBizobj()
 		panel = dabo.ui.dPanel(self)
 		gsz = dabo.ui.dGridSizer(VGap=5, HGap=10)
 		gsz.MaxCols = 3
@@ -928,7 +937,7 @@ class AppWizard(Wizard):
 		## Field %(table)s.%(fieldName)s
 		##
 		lbl = SortLabel(panel)
-		lbl.Caption = "%(fieldName)s:"
+		lbl.Caption = biz.getColCaption("%(fieldName)s")
 		lbl.relatedDataField = "%(fieldName)s"
 
 		# Automatically get the selector options based on the field type:
@@ -983,7 +992,7 @@ class AppWizard(Wizard):
 		gsz.append(limTxt)
 
 		# Custom SQL checkbox:
-		chkCustomSQL = dabo.ui.dCheckBox(panel, Caption="Use Custom SQL")
+		chkCustomSQL = dabo.ui.dCheckBox(panel, Caption=_("Use Custom SQL"))
 		chkCustomSQL.bindEvent(dEvents.Hit, self.onCustomSQL)
 		gsz.append(chkCustomSQL)
 

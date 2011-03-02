@@ -12,7 +12,7 @@ from PagSelectBase import PagSelectBase, IGNORE_STRING, SelectTextBox, \
 
 class PagSelect%(tableName)s(PagSelectBase):
 
-%(selectOptionsPanel)s
+	%(selectOptionsPanel)s
 
 
 if __name__ == "__main__":

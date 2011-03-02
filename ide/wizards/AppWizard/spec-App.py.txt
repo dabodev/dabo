@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import dabo
+from dabo.dLocalize import _
 from __version__ import version
 
 
@@ -20,7 +21,7 @@ class App(dabo.dApp):
 		self.setAppInfo("companyEmail", "Your company email")
 		self.setAppInfo("companyUrl", "Your company url")
 
-		self.setAppInfo("appDescription", "Describe your app.")
+		self.setAppInfo("appDescription", _("Describe your app."))
 
 		## Information about the developer of the software:
 		self.setAppInfo("authorName", "Your name")
