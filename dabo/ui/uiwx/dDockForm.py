@@ -70,12 +70,12 @@ class _dDockManager(aui.AuiManager):
 
 
 
-class _dDockPanel(dabo.ui.dPanel):
+class dDockPanel(dabo.ui.dPanel):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		nmU = self._extractKey((properties, kwargs), "Name", "")
 		nb = self._extractKey((properties, kwargs), "NameBase", "")
 		nmL = self._extractKey((properties, kwargs), "name", "")
-		kwargs["NameBase"] = [txt for txt in (nmU, nb, nmL, "_dDockPanel") if txt][0]
+		kwargs["NameBase"] = [txt for txt in (nmU, nb, nmL, "dDockPanel") if txt][0]
 		pcapUp = self._extractKey(kwargs, "Caption", "")
 		pcap = self._extractKey(kwargs, "caption", "")
 		ptype = self._extractKey(kwargs, "typ", "")
@@ -104,7 +104,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		self._showMaximizeButton = False
 		self._showMinimizeButton = False
 		self._showPinButton = True
-		super(_dDockPanel, self).__init__(parent, properties=properties,
+		super(dDockPanel, self).__init__(parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 		if self.Floating:
 			self._floatingPosition = self.GetParent().GetPosition().Get()
@@ -133,7 +133,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			changed = changed and (candidate != name)
 			name = candidate
 
-			candidate = super(_dDockPanel, self)._uniqueNameForParent(name, parent)
+			candidate = super(dDockPanel, self)._uniqueNameForParent(name, parent)
 			changed = changed and (candidate != name)
 			name = candidate
 
@@ -183,14 +183,14 @@ class _dDockPanel(dabo.ui.dPanel):
 			val = self._extractKey(props, delayed, None)
 			if val is not None:
 				self._propDelayDict[delayed] = val
-		return super(_dDockPanel, self)._beforeSetProperties(props)
+		return super(dDockPanel, self)._beforeSetProperties(props)
 
 
 	def _afterSetProperties(self):
 		nm = self.Name
 		frm = self.Form
 		self.__pi = self._Manager.addPane(self, name=nm,
-				typ=self._paramType, caption=self._propDelayDict.get("Caption", "_dDockPanel"))
+				typ=self._paramType, caption=self._propDelayDict.get("Caption", "dDockPanel"))
 		del self._paramType
 		self.__pi.MinSize((50,50))
 		if self._propDelayDict:
@@ -840,12 +840,12 @@ class dDockForm(dabo.ui.dForm):
 
 
 	def getBasePanelClass(cls):
-		return _dDockPanel
+		return dDockPanel
 	getBasePanelClass = classmethod(getBasePanelClass)
 
 
 	def onChildBorn(self, evt):
-		ok = isinstance(evt.child, (_dDockPanel, dabo.ui.dStatusBar, dabo.ui.dShell.dShell))
+		ok = isinstance(evt.child, (dDockPanel, dabo.ui.dStatusBar, dabo.ui.dShell.dShell))
 		if not ok:
 			# This should never happen; if so, log the error
 			dabo.log.error(_("Unmanaged object added to a Dock Form: %s") %evt.child)
@@ -861,7 +861,7 @@ class dDockForm(dabo.ui.dForm):
 
 	def addPanel(self, *args, **kwargs):
 		"""Adds a dockable panel to the form."""
-		pnl = _dDockPanel(self, *args, **kwargs)
+		pnl = dDockPanel(self, *args, **kwargs)
 		self._refreshState()
 		# Store the pane info
 		nm = pnl.getState()[0]
