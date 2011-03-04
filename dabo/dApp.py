@@ -480,7 +480,7 @@ try again when it is running.
 		"""Persist any MRU lists to disk."""
 		base = "MRU.%s" % self.getAppInfo("appName")
 		self.deleteAllUserSettings(base)
-		for cap in self._persistentMRUs.keys():
+		for cap in self._persistentMRUs:
 			cleanCap = cleanMenuCaption(cap)
 			mruList = self.uiApp.getMRUListForMenu(cleanCap)
 			setName = ".".join((base, cleanCap))
@@ -944,7 +944,7 @@ try again when it is running.
 			import dbConnectionDefs
 			defs = dbConnectionDefs.getDefs()
 			connDefs.update(defs)
-			for kk in defs.keys():
+			for kk in defs:
 				self.dbConnectionNameToFiles[kk] = os.path.abspath("dbConnectionDefs.py")
 		except ImportError:
 			pass
@@ -1289,7 +1289,7 @@ try again when it is running.
 		frm = self.ActiveForm
 		if frm is None:
 			frm = self.MainForm
-		if frm.MDI:
+		if frm.MDI or isinstance(frm, dabo.ui.dDockForm):
 			# Strange big sizing of the about form happens on Windows
 			# when the parent form is MDI.
 			frm = None
