@@ -118,6 +118,10 @@ class dDockPanel(dabo.ui.dPanel):
 		there as well as the form.
 		"""
 		changed = True
+		try:
+			mgr = parent._mgr
+		except AttributeError:
+			mgr = self._Manager
 		while changed:
 			i = 0
 			auiOK = False
@@ -126,7 +130,7 @@ class dDockPanel(dabo.ui.dPanel):
 				candidate = name
 				if i:
 					candidate = "%s%s" % (name, i)
-				mtch = [pi.name for pi in self._Manager.GetAllPanes()
+				mtch = [pi.name for pi in mgr.GetAllPanes()
 						if pi.name == candidate]
 				if mtch:
 					auiOK = False
@@ -137,6 +141,7 @@ class dDockPanel(dabo.ui.dPanel):
 			candidate = super(dDockPanel, self)._uniqueNameForParent(name, parent)
 			changed = changed and (candidate != name)
 			name = candidate
+		return name
 
 
 	def float(self):
