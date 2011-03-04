@@ -417,7 +417,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		self._SaveRestoreValue = bool(value)
 
 
-	def _getSrc(self):
+	def _getSource(self):
 		if self.__src is None:
 			ds = self.DataSource
 			self._srcIsBizobj = False
@@ -463,6 +463,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 									form = form.Form
 							if self.__src:
 								self._srcIsBizobj = True
+				elif callable(ds):
+					# Instead of a fixed source, call the function to determine the source.
+					# We *don't* want to store the result in self.__src!
+					return ds()
 				else:
 					# It's an object reference
 					self.__src = ds
@@ -496,7 +500,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			bound to a dataSource and you want to persist the value, as in
 			an options dialog. Default=False.  (bool)""") )
 
-	Source = property(_getSrc, None, None,
+	Source = property(_getSource, None, None,
 			_("Reference to the object to which this control's Value is bound  (object)") )
 
 	Value = property(None, None, None,
