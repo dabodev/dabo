@@ -12,6 +12,17 @@ class PagEdit%(tableName)s(PagEditBase):
 		"""Called by the datanav framework, when it is time to create the controls."""
 
 		biz = self.Form.getBizobj("%(datasource)s")
+		if not biz:
+			# needed for tsting
+			class Biz(object):
+				def getColCaption(self, caption):
+					return caption
+				def getColToolTip(self, tip):
+					return tip
+				def getColHelpText(self, txt):
+					return txt
+			biz = Biz()
+
 %(createItems)s
 		self.super()
 

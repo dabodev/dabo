@@ -918,6 +918,17 @@ class AppWizard(Wizard):
 		"""Return the panel to contain all the select options."""
 
 		biz = self.Form.getBizobj()
+		if not biz:
+			# needed for tsting
+			class Biz(object):
+				def getColCaption(self, caption):
+					return caption
+				def getColToolTip(self, tip):
+					return tip
+				def getColHelpText(self, txt):
+					return txt
+			biz = Biz()
+		
 		panel = dabo.ui.dPanel(self)
 		gsz = dabo.ui.dGridSizer(VGap=5, HGap=10)
 		gsz.MaxCols = 3

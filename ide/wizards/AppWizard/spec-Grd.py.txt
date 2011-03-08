@@ -12,6 +12,14 @@ class Grd%(tableName)s(GrdBase):
 		self.super()
 		biz = self.Form.getBizobj("%(datasource)s")
 
+		if not biz:
+			# needed for testing
+			class Biz(object):
+				def getColCaption(self, caption):
+					return caption
+			biz = Biz()
+
+
 %(colDefs)s
 
 
