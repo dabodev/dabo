@@ -73,8 +73,9 @@ class SQLite(dBackend):
 
 		# Non-utf8-encoded bytestrings could be in the database, and Dabo will try various encodings 
 		# to deal with it. So tell sqlite not to decode with utf-8, but to just return the bytes:
-		self._connection.text_factory = str
-
+		# The statement above is true only conditionally, so we must pay attention to this.
+		if not self._alreadyCorrectedFieldTypes:
+			self._connection.text_factory = str
 		self._connection.connectInfo = connectInfo
 		return self._connection
 

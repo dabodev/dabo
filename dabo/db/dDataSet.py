@@ -352,7 +352,8 @@ class dDataSet(tuple):
 			self._connection = sqlite.connect(":memory:",
 					detect_types=(sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES),
 					isolation_level="EXCLUSIVE")
-			self._connection.text_factory = str
+			if not self._alreadyCorrectedFieldTypes:
+				self._connection.text_factory = str
 		if self._cursor is None:
 			self._cursor = self._connection.cursor(factory=DictCursor)
 
