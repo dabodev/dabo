@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import sys
 import os
 import re
@@ -66,7 +66,9 @@ class SQLite(dBackend):
 			if not os.path.exists(pth):
 				# Database file does not exist; raise an error
 				raise DBFileDoesNotExistException(_("Database file '%s' does not exist") % pth)
-		pth = pth.decode(dabo.fileSystemEncoding).encode("utf-8")
+		if sys.platform not in ("win32",):
+			# On Windows, path is alredy unicode.
+			pth = pth.decode(dabo.fileSystemEncoding).encode("utf-8")
 
 		# Need to specify "isolation_level=None" to have transactions working correctly.
 		self._connection = self.dbapi.connect(pth, factory=DictConnection, isolation_level=None)
