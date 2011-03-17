@@ -844,6 +844,16 @@ class dPemMixin(dPemMixinBase):
 			self.ControllingSizer.setItemProp(self, prop, val)
 
 
+	def moveTabOrderBefore(self, obj):
+		"""Moves this object's tab order before the passed obj."""
+		self.MoveBeforeInTabOrder(obj)
+
+
+	def moveTabOrderAfter(self, obj):
+		"""Moves this object's tab order after the passed obj."""
+		self.MoveAfterInTabOrder(obj)
+
+
 	def processDroppedFiles(self, filelist, x, y):
 		"""
 		Handler for files dropped on the control. Override in your
