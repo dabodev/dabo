@@ -81,16 +81,18 @@ class dDataSet(tuple):
 		return dDataSet(super(dDataSet, self).__mul__(*args, **kwargs))
 
 
-	def _adapt_decimal(self, decVal):
+	@staticmethod
+	def _adapt_decimal(decVal):
 		"""Converts the decimal value to a string for storage"""
 		return ustr(decVal)
 
 
-	def _convert_decimal(self, strval):
+	@staticmethod
+	def _convert_decimal(strVal):
 		"""This is a converter routine. Takes the string representation of a
 		Decimal value and return an actual decimal.
 		"""
-		return Decimal(strval)
+		return Decimal(strVal)
 
 
 	def _index(self, rec):
