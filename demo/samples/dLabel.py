@@ -54,7 +54,7 @@ class TestPanel(dabo.ui.dPanel):
 		lbl.DynamicFontSize = lambda: self.Width * .05
 		lbl.DynamicCaption = self.getDynamicCaption
 		sz.append(lbl)
-		dabo.ui.callAfter(self.update)
+		dabo.ui.callAfterInterval(200, self.update)
 
 		sz.appendSpacer(20)
 		sz.append(dabo.ui.dLine(self, Width=500), halign="Center")
