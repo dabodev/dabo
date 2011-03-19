@@ -624,7 +624,7 @@ class ClassDesigner(dabo.dApp):
 		importStatements = clsd.pop("importStatements", "")
 		if not importStatements:
 			# If stored in a single file, 'importStatements' will be in the outermost 'code' dict.
-			importStatements = clsd.get("code", {}).get("importStatements", "")
+			importStatements = clsd.get("code", {}).pop("importStatements", "")
 		# See if the class name requires a separate import
 		nm = clsd["name"]
 		try:
