@@ -37,9 +37,17 @@ class TestPanel(dabo.ui.dPanel):
 
 		hsz = dabo.ui.dSizer("H")
 		hsz.DefaultSpacing = 10
-		btn = dabo.ui.dBitmapButton(self, Picture="rotateCW", OnHit=self.rotateCW)
+		btn = dabo.ui.dBitmapButton(self, Picture="rotateCW",
+				OnHit=self.onRotateCW, Size=(36, 36))
 		hsz.append(btn)
-		btn = dabo.ui.dBitmapButton(self, Picture="rotateCCW", OnHit=self.rotateCCW)
+		btn = dabo.ui.dBitmapButton(self, Picture="rotateCCW",
+				OnHit=self.onRotateCCW, Size=(36, 36))
+		hsz.append(btn)
+		btn = dabo.ui.dBitmapButton(self, Picture="flip_horiz",
+				OnHit=self.onFlipHoriz, Size=(36, 36))
+		hsz.append(btn)
+		btn = dabo.ui.dBitmapButton(self, Picture="flip_vert",
+				OnHit=self.onFlipVert, Size=(36, 36))
 		hsz.append(btn)
 
 		self.ddScale = dabo.ui.dDropdownList(self,
@@ -64,11 +72,17 @@ class TestPanel(dabo.ui.dPanel):
 	def processDroppedFiles(self, filelist):
 		self.img.Picture = filelist[0]
 
-	def rotateCW(self, evt):
+	def onRotateCW(self, evt):
 		self.img.rotateClockwise()
 
-	def rotateCCW(self, evt):
+	def onRotateCCW(self, evt):
 		self.img.rotateCounterClockwise()
+
+	def onFlipHoriz(self, evt):
+		self.img.flipHorizontally()
+
+	def onFlipVert(self, evt):
+		self.img.flipVertically()
 
 	def onSlider(self, evt):
 		slider = evt.EventObject
