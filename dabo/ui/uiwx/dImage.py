@@ -25,7 +25,11 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 
 		self._scaleMode = "Proportional"
 		self._imgProp = 1.0
-		self._rotation = 0
+		# Images can be dsiplayed in one of 8 combinations of rotation and mirror
+		self._displayState = 1
+		# These describe how to go from one state to the other when flipping
+		self._vFlipTrans = {1: 7, 2: 6, 3: 5, 4: 8, 5: 3, 6: 2, 7: 1, 8: 4}
+		self._hFlipTrans = {1: 5, 2: 8, 3: 7, 4: 6, 5: 1, 6: 4, 7: 3, 8: 2}
 		self.__image = None
 		self._inShowPic = False
 		self._inReload = False
@@ -58,17 +62,37 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		dabo.ui.callAfterInterval(100, super(dImage, self).update)
 
 
-	def rotateCounterClockwise(self):
-		self._rotation -= 1
-		if self._rotation == -4:
-			self._rotation = 0
+	def _calcNewRotation(self, amt):
+		ds = self._displayState
+		mirrored = ds > 4
+		if mirrored:
+			ds -= 4
+		rot = ds + amt
+		if rot > 4:
+			rot -= 4
+		elif rot < 1:
+			rot += 4
+		if mirrored:
+			rot += 4
+		self._displayState = rot
 		self._showPic()
 
 
+	def rotateCounterClockwise(self):
+		self._calcNewRotation(-1)
+
+
 	def rotateClockwise(self):
-		self._rotation += 1
-		if self._rotation == 4:
-			self._rotation = 0
+		self._calcNewRotation(+1)
+
+
+	def flipVertically(self):
+		self._displayState = self._vFlipTrans[self._displayState]
+		self._showPic()
+
+
+	def flipHorizontally(self):
+		self._displayState = self._hFlipTrans[self._displayState]
 		self._showPic()
 
 
@@ -103,7 +127,9 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 
 
 	def _showPic(self):
-		"""Displays the picture according to the ScaleMode and image size."""
+		"""Displays the picture according to the ScaleMode and image size, as 
+		well as any applied rotation and/or mirroring.
+		"""
 		if self._inShowPic:
 			return
 		if not self._Image.Ok():
@@ -116,13 +142,15 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 
 		self._inShowPic = True
 		img = self._Image.Copy()
-		switchProportions = False
-		if self._rotation:
-			cw = (self._rotation > 0)
-			absRotate = abs(self._rotation)
-			switchProportions = (absRotate % 2 == 1)
-			for xx in range(absRotate):
-				img = img.Rotate90(cw)
+
+		ds = self._displayState
+		switchProportions = ((ds % 2) == 0)
+		mirrored = ds > 4
+		rotCount = (ds - 1) % 4
+		if mirrored:
+			img = img.Mirror()
+		for rot in xrange(rotCount):
+			img = img.Rotate90(True)
 
 		w, h = origW, origH = self.Width, self.Height
 		if w == h == 1:
@@ -207,7 +235,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			if not val:
 				# Empty string passed; clear any current image
 				self._picture = ""
-				self._rotation = 0
+				self._displayState = 1
 				self._bmp = wx.EmptyBitmap(1, 1, 1)
 				self.__image = self.__val = wx.EmptyImage(1, 1)		# self._bmp.ConvertToImage()
 				self._showPic()
@@ -226,7 +254,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 					dabo.log.error(_("No file named '%s' exists.") % origVal)
 					return
 			self._picture = val
-			self._rotation = 0
+			self._displayState = 1
 			idx = self.PictureIndex
 			if idx != -1:
 				# The image count is 1-based.
@@ -391,12 +419,19 @@ if __name__ == "__main__":
 
 			hsz = dabo.ui.dSizer("H")
 			hsz.DefaultSpacing = 10
-			dabo.ui.dBitmapButton(mp, RegID="btnRotateCW",
-					Picture="rotateCW", OnHit=self.rotateCW)
-			dabo.ui.dBitmapButton(mp, RegID="btnRotateCCW",
-					Picture="rotateCCW", OnHit=self.rotateCCW)
+			dabo.ui.dBitmapButton(mp, RegID="btnRotateCW", Picture="rotateCW",
+					OnHit=self.onRotateCW, Size=(36, 36))
+			dabo.ui.dBitmapButton(mp, RegID="btnRotateCCW", Picture="rotateCCW",
+					OnHit=self.onRotateCCW, Size=(36, 36))
+			dabo.ui.dBitmapButton(mp, RegID="btnFlipHorizontal", Picture="flip_horiz",
+					OnHit=self.onFlipHoriz, Size=(36, 36))
+			dabo.ui.dBitmapButton(mp, RegID="btnFlipVertical", Picture="flip_vert",
+					OnHit=self.onFlipVert, Size=(36, 36))
 			hsz.append(self.btnRotateCW)
 			hsz.append(self.btnRotateCCW)
+			hsz.append(self.btnFlipHorizontal)
+			hsz.append(self.btnFlipVertical)
+
 			self.ddScale = dabo.ui.dDropdownList(mp,
 					Choices=["Proportional", "Stretch", "Clip"],
 					DataSource = "self.Form.img",
@@ -415,12 +450,19 @@ if __name__ == "__main__":
 			self.needUpdate = False
 
 
-		def rotateCW(self, evt):
+		def onRotateCW(self, evt):
 			self.img.rotateClockwise()
 
 
-		def rotateCCW(self, evt):
+		def onRotateCCW(self, evt):
 			self.img.rotateCounterClockwise()
+
+
+		def onFlipVert(self, evt):
+			self.img.flipVertically()
+
+		def onFlipHoriz(self, evt):
+			self.img.flipHorizontally()
 
 
 		def onSlider(self, evt):
