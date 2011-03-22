@@ -1815,20 +1815,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._headerVerticalAlignment = "Center"
 		self._headerHorizontalAlignment = "Center"
 		self._headerForeColor = None
-		self._headerBackColor = None
-		# What color/size should the little sort indicator arrow be?
-		self._sortIndicatorColor = "yellow"
-		self._sortIndicatorSize = 8
-
-		#Declare Internal Header Attributes
-		self._headerVerticalAlignment = "Center"
-		self._headerHorizontalAlignment = "Center"
-		self._headerForeColor = None
-		self._headerBackColor = None
+		self._headerBackColor = (232, 232, 232)
 		self._verticalHeaders = False
 		self._autoAdjustHeaderHeight = False
 		self._headerMaxTextHeight = 0
 		self._columnMetrics = [(0, 0)]
+		# What color/size should the little sort indicator arrow be?
+		self._sortIndicatorColor = "yellow"
+		self._sortIndicatorSize = 8
 
 		#Set NoneDisplay attributes
 		if self.Application:
@@ -2547,6 +2541,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			return
 		self._inHeaderPaint = True
 		w = self._getWxHeader()
+		w.SetBackgroundColour((255, 255, 255))
 		if updateBox is None:
 			updateBox = w.GetClientRect()
 		try:
