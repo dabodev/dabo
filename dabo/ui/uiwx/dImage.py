@@ -1,7 +1,10 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+import imghdr
 import os
 import tempfile
-import imghdr
+
 import wx
 import dabo
 if __name__ == "__main__":
@@ -15,6 +18,29 @@ from dDataControlMixin import dDataControlMixin as dcm
 import dImageMixin as dim
 from dabo.ui import makeDynamicProperty
 
+# See if PIL is installed
+_USE_PIL = True
+_ORIENTATION_TAG = None
+try:
+	from PIL import Image
+	_ORIENTATION_TAG = 274
+	## The tag number is a constant, so no need to calculate it each time.
+	#from PIL.ExifTags import TAGS
+	#_ORIENTATION_TAG = [tagnum for tagnum, tagname in TAGS.items()
+	#		if tagname == "Orientation"][0]
+except ImportError:
+	_USE_PIL = False
+
+# The EXIF rotation values do not lend themselves easily to rotation
+# calculation, so I've defined my own for this class. These next two
+# functions convert between the two.
+def _imgToExif(imgState):
+	return {1: 1, 2: 6, 3: 3, 4: 8, 5: 2, 6: 5, 7: 4, 8: 7}[imgState]
+
+def _exifToImg(orientation):
+	return {1: 1, 6: 2, 3: 3, 8: 4, 2: 5, 5: 6, 4: 7, 7: 8}[orientation]
+
+
 
 class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 	"""Create a simple bitmap to display images."""
@@ -26,6 +52,15 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		self._scaleMode = "Proportional"
 		self._imgProp = 1.0
 		# Images can be dsiplayed in one of 8 combinations of rotation and mirror
+		# State   Rotation   Mirrored?
+		#   1           0      False
+		#   2          90      False
+		#   3         180      False
+		#   4         270      False
+		#   5           0      True
+		#   6          90      True
+		#   7         180      True
+		#   8         270      True
 		self._displayState = 1
 		# These describe how to go from one state to the other when flipping
 		self._vFlipTrans = {1: 7, 2: 6, 3: 5, 4: 8, 5: 3, 6: 2, 7: 1, 8: 4}
@@ -260,7 +295,8 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				# The image count is 1-based.
 				maxIdx = self.FrameCount - 1
 				if idx > maxIdx:
-					dabo.log.error(_("Attempt to set PictureIndex (%(idx)s)to a value greater than the maximum index available (%(maxIdx)s).") % locals())
+					dabo.log.error(_("Attempt to set PictureIndex (%(idx)s)to a value "
+							"greater than the maximum index available (%(maxIdx)s).") % locals())
 					idx = self.PictureIndex = maxIdx
 			try:
 				self._Image.LoadFile(val, index=idx)
@@ -268,6 +304,15 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				# Note: when I try to load an invalid index, I get a segfault, so I don't know
 				# how useful this is.
 				self._Image.LoadFile(val, index=-1)
+			if _USE_PIL:
+				try:
+					pil_img = Image.open(val)
+					exif = pil_img._getexif()
+					orientation = exif.get(_ORIENTATION_TAG, 1)
+					self._displayState = _exifToImg(orientation)
+				except IOError:
+					# Bad image, or no exif data available
+					pass
 		if self._Image.Ok():
 			self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
 		else:
