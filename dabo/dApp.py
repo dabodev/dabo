@@ -1305,6 +1305,27 @@ try again when it is running.
 		pass
 
 
+	def displayInfoMessage(self, msgId, msg, defaultShowInFuture=True):
+		"""
+		Displays a messagebox dialog along with a checkbox for the user
+		to specify whether or not to show this particular message again
+		in the future.
+
+		If user unchecks "show in future", saves that to the user's
+		preference file and future calls to this function with that
+		msgId will result in no message being shown.
+		"""
+		prefKey = "display_info_messages.%s" % msgId
+		if not self.getUserSetting(prefKey, True):
+			return
+		from dabo.ui.dialogs.infoMessage import DlgInfoMessage
+		dlg = DlgInfoMessage(Message=msg, DefaultShowInFuture=defaultShowInFuture)
+		dlg.show()
+		if not dlg.chkShowInFuture.Value:
+			self.setUserSetting(prefKey, False)
+		dlg.release()
+ 
+
 	def clearActiveForm(self, frm):
 		"""Called by the form when it is deactivated."""
 		if frm is self.ActiveForm:
