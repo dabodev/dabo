@@ -20,16 +20,15 @@ from dabo.ui import makeDynamicProperty
 
 # See if PIL is installed
 _USE_PIL = True
-_ORIENTATION_TAG = None
 try:
 	from PIL import Image
-	_ORIENTATION_TAG = 274
-	## The tag number is a constant, so no need to calculate it each time.
-	#from PIL.ExifTags import TAGS
-	#_ORIENTATION_TAG = [tagnum for tagnum, tagname in TAGS.items()
-	#		if tagname == "Orientation"][0]
 except ImportError:
 	_USE_PIL = False
+## The tag number is a constant, so no need to calculate it each time.
+#from PIL.ExifTags import TAGS
+#_ORIENTATION_TAG = [tagnum for tagnum, tagname in TAGS.items()
+#		if tagname == "Orientation"][0]
+_ORIENTATION_TAG = 274
 
 # The EXIF rotation values do not lend themselves easily to rotation
 # calculation, so I've defined my own for this class. These next two
@@ -307,9 +306,13 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			if _USE_PIL:
 				try:
 					pil_img = Image.open(val)
+					# Only jpeg images support this
 					exif = pil_img._getexif()
 					orientation = exif.get(_ORIENTATION_TAG, 1)
 					self._displayState = _exifToImg(orientation)
+				except AttributeError:
+					# Not a jpeg, or not a version with the _getexif() method
+					pass
 				except IOError:
 					# Bad image, or no exif data available
 					pass
