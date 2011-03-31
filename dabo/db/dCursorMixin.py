@@ -2677,6 +2677,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			except IndexError:
 				field_scale = None
 			val[idx] = (field_alias, field_type, field_pk, table_name, field_name, field_scale)
+			self._types[field_name] = dabo.db.getPythonType(field_type)
 		self._dataStructure = self.AuxCursor._dataStructure = tuple(val)
 
 
