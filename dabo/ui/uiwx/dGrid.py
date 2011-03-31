@@ -4654,20 +4654,26 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return self._selectionBackColor
 
 	def _setSelectionBackColor(self, val):
-		self._selectionBackColor = val
-		if isinstance(val, basestring):
-			val = dColors.colorTupleFromName(val)
-		self.SetSelectionBackground(val)
+		if self._constructed():
+			self._selectionBackColor = val
+			if isinstance(val, basestring):
+				val = dColors.colorTupleFromName(val)
+			self.SetSelectionBackground(val)
+		else:
+			self._properties["SelectionBackColor"] = val
 
 
 	def _getSelectionForeColor(self):
 		return self._selectionForeColor
 
 	def _setSelectionForeColor(self, val):
-		self._selectionForeColor = val
-		if isinstance(val, basestring):
-			val = dColors.colorTupleFromName(val)
-		self.SetSelectionForeground(val)
+		if self._constructed():
+			self._selectionForeColor = val
+			if isinstance(val, basestring):
+				val = dColors.colorTupleFromName(val)
+			self.SetSelectionForeground(val)
+		else:
+			self._properties["SelectionForeColor"] = val
 
 
 	def _getSelectionMode(self):
