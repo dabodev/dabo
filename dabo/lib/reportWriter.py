@@ -958,19 +958,19 @@ class Paragraph(Drawable):
 				"""Specifies the font name.""")
 
 		self.AvailableProps["Leading"] = toPropDict(float, 0,
-				"""Specifies the font size.""")
+				"""Specifies the font leading.""")
 
 		self.AvailableProps["SpaceAfter"] = toPropDict(float, 0,
-				"""Specifies the font size.""")
+				"""Specifies the amount of space to leave after the paragraph.""")
 
 		self.AvailableProps["SpaceBefore"] = toPropDict(float, 0,
-				"""Specifies the font size.""")
+				"""Specifies the amount of space to leave before the paragraph.""")
 
 		self.AvailableProps["LeftIndent"] = toPropDict(float, 0,
-				"""Specifies the font size.""")
+				"""Specifies the amount to indent from the left.""")
 
 		self.AvailableProps["FirstLineIndent"] = toPropDict(float, 0,
-				"""Specifies the font size.""")
+				"""Specifies the extra amount to indent for the first line in the paragraph.""")
 
 		self.AvailableProps["expr"] = toPropDict(str, "",
 				"""Specifies the text to print.""")
