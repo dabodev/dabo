@@ -191,9 +191,9 @@ class dDataSet(tuple):
 			filtered = [rec for rec in self if fnc(rec[fld], expr)]
 		elif op in ("startswith", "beginswith"):
 			filtered = [rec for rec in self if rec[fld].startswith(expr)]
-		elif op =="endswith":
+		elif op == "endswith":
 			filtered = [rec for rec in self if rec[fld].endswith(expr)]
-		elif op =="contains":
+		elif op == "contains":
 			filtered = [rec for rec in self if expr in rec[fld]]
 		ret = self.__class__(filtered)
 		ret._sourceDataSet = self
@@ -352,9 +352,11 @@ class dDataSet(tuple):
 
 		if self._connection is None:
 			self._connection = sqlite.connect(":memory:",
-					detect_types=(sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES),
+					detect_types=(sqlite.PARSE_DECLTYPES | sqlite.PARSE_COLNAMES),
 					isolation_level="EXCLUSIVE")
-			self._connection.text_factory = str
+			if not hasattr(self, "_encoding"):
+				self._encoding = self._connection.execute("PRAGMA encoding"). \
+						fetchone()[0].lower()
 		if self._cursor is None:
 			self._cursor = self._connection.cursor(factory=DictCursor)
 
@@ -377,7 +379,7 @@ class dDataSet(tuple):
 
 		# We have a table now with the necessary data. Run the query!
 		if params and not isinstance(params, tuple):
-			params = (params, )
+			params = (params,)
 		self._cursor.execute(sqlExpr, params)
 
 # 		et = time.clock()

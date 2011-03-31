@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import sys
 import os
 import re
@@ -72,13 +72,10 @@ class SQLite(dBackend):
 
 		# Need to specify "isolation_level=None" to have transactions working correctly.
 		self._connection = self.dbapi.connect(pth, factory=DictConnection, isolation_level=None)
-
-		# Non-utf8-encoded bytestrings could be in the database, and Dabo will try various encodings 
-		# to deal with it. So tell sqlite not to decode with utf-8, but to just return the bytes:
-		# The statement above is true only conditionally, so we must pay attention to this.
-		if not self._alreadyCorrectedFieldTypes:
-			self._connection.text_factory = str
 		self._connection.connectInfo = connectInfo
+		if not hasattr(self, "_encoding"):
+			self._encoding = self._connection.execute("PRAGMA encoding"). \
+					fetchone()["encoding"].lower()
 		return self._connection
 
 
@@ -97,7 +94,7 @@ class SQLite(dBackend):
 		sl = "\\"
 		qt = "\'"
 		val = ustr(val)
-		return qt + val.replace(sl, sl+sl).replace(qt, qt+qt) + qt
+		return qt + val.replace(sl, sl + sl).replace(qt, qt + qt) + qt
 
 
 	def beginTransaction(self, cursor):
@@ -194,7 +191,7 @@ class SQLite(dBackend):
 			# Adi J. Sieker pointed out that the 'pk' column of the pragma command
 			# returns a value indicating whether the field is the PK or not. This simplifies
 			# the routine over having to parse the CREATE TABLE code.
-			fields.append( (rec["name"], fldType, bool(rec['pk'])) )
+			fields.append((rec["name"], fldType, bool(rec['pk'])))
 		return tuple(fields)
 
 
