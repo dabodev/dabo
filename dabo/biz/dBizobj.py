@@ -1197,7 +1197,12 @@ class dBizobj(dObject):
 
 
 	def filterByExpression(self, expr):
-		"""Allows you to filter by any valid Python expression."""
+		"""Allows you to filter by any valid Python expression.
+
+		Use the field alias names, for example:
+			biz.filterByExpression('cust_name[0].lower() = 'a')
+		where cust_name is a field alias name in this record.
+		"""
 		self._CurrentCursor.filterByExpression(expr)
 
 
