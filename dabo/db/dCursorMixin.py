@@ -1052,7 +1052,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 				if not ignore:
 					sft, stv = ustr(fldType), ustr(type(val))
-					msg = _("!!! Data Type Mismatch: field=%(fld)s. Expecting: %(sft)s; got: %(stv)s") % locals()
+					tbl = self.Table
+					msg = _("!!! Data Type Mismatch: table=%(tbl)s; field=%(fld)s. Expecting: %(sft)s; got: %(stv)s") % locals()
 					dabo.log.error(msg)
 
 		# If the new value is different from the current value, change it and also
