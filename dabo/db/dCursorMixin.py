@@ -831,8 +831,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		except (IndexError, KeyError):
 			# No records; default to string
 			pkVal = ""
-
-		tmpPK = self._genTempPKVal(pkVal)
+		# To prevent situation where grandchildren from different branch
+		# are assigned to the same child, we need to use sqlManager
+		# for temporary key creation.
+		tmpPK = self.sqlManager._genTempPKVal(pkVal)
 		if isinstance(kf, tuple):
 			for key in kf:
 				rec[key] = tmpPK
