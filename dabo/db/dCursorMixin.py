@@ -1198,26 +1198,29 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""
 		ds = []
 		internals = (kons.CURSOR_TMPKEY_FIELD,)
+		rowCount = self.RowCount
 
 		if rows is None:
-			rows = self.RowCount
-		for row, rec in enumerate(self._records):
-			if row >= rowStart and row < (rowStart + rows):
-				tmprec = rec.copy()
-				for k, v in self.VirtualFields.items():
-					# only calc requested virtualFields
-					if (flds and k in flds) or not flds:
-						tmprec.update({k: self.getFieldVal(k, row)})
-				if flds:
-					# user specified specific fields - get rid of all others
-					for k in tmprec.keys():
-						if k not in flds:
-							del tmprec[k]
-				if not flds and not returnInternals:
-					# user didn't specify explicit fields and doesn't want internals
-					for internal in internals:
-						tmprec.pop(internal, None)
-				ds.append(tmprec)
+			rows = rowCount
+		else:
+			rows = min(rowStart + rows, rowCount)
+		for row in xrange(rowStart, rows):
+			tmprec = self._records[row].copy()
+			for k, v in self.VirtualFields.items():
+				# only calc requested virtualFields
+				if (flds and k in flds) or not flds:
+					tmprec.update({k: self.getFieldVal(k, row)})
+			if flds:
+				# user specified specific fields - get rid of all others
+				for k in tmprec.keys():
+					if k not in flds:
+						del tmprec[k]
+			if not flds and not returnInternals:
+				# user didn't specify explicit fields and doesn't want internals
+				for internal in internals:
+					tmprec.pop(internal, None)
+			ds.append(tmprec)
+
 		return dDataSet(ds)
 
 
