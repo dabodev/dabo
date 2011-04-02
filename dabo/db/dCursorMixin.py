@@ -229,7 +229,7 @@ class dCursorMixin(dObject):
 			if pythonType in (unicode,):
 				# Unicode conversion happens below.
 				pass
-			elif pythonType in (datetime.datetime, ) and isinstance(field_val, basestring):
+			elif pythonType in (datetime.datetime,) and isinstance(field_val, basestring):
 				ret = dates.getDateTimeFromString(field_val)
 				if ret is None:
 					ret = field_val
@@ -291,7 +291,7 @@ class dCursorMixin(dObject):
 							##                 bytes to get saved to the database.
 							#self.Encoding = enc
 							dabo.log.error(_("Field %(fname)s: Incorrect unicode encoding set; using '%(enc)s' instead")
-								% {'fname':field_name, 'enc':enc} )
+								% {'fname':field_name, 'enc':enc})
 							return ret
 				else:
 					raise e
@@ -331,7 +331,7 @@ class dCursorMixin(dObject):
 						try:
 							dabo.dbActivityLog.info("execute() SQL (failed to log PARAMS): %r" % sql)
 						except StandardError:
-							dabo.dbActivityLog.info("execute() (failed to log SQL and PARAMS)") 
+							dabo.dbActivityLog.info("execute() (failed to log SQL and PARAMS)")
 			else:
 				res = self.superCursor.execute(self, sql)
 				if not self.IsPrefCursor:
@@ -694,7 +694,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rowXML = ""
 		for rec in self._records:
 			recInfo = [ colTemplate % (k, self.getType(v), self.escape(v))
-					for k,v in rec.items() ]
+					for k, v in rec.items() ]
 			rowXML += rowTemplate % "\n".join(recInfo)
 		return base % (self.Encoding, self.AutoPopulatePK, self.KeyField,
 				self.Table, rowXML)
@@ -709,7 +709,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if row is None:
 			row = self.RowNumber
 		recInfo = [colTemplate % (k, self.getType(v), self.escape(v))
-				for k,v in self._records[row].items()]
+				for k, v in self._records[row].items()]
 		return "\n".join(recInfo)
 
 
@@ -1202,7 +1202,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if rows is None:
 			rows = self.RowCount
 		for row, rec in enumerate(self._records):
-			if row >= rowStart and row < (rowStart+rows):
+			if row >= rowStart and row < (rowStart + rows):
 				tmprec = rec.copy()
 				for k, v in self.VirtualFields.items():
 					# only calc requested virtualFields
@@ -1230,7 +1230,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""
 		kf = self.KeyField
 		if not isinstance(kf, tuple):
-			kf = (kf, )
+			kf = (kf,)
 		for rec in ds:
 			self.new()
 			for col, val in rec.items():
@@ -1249,14 +1249,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			kf = self.KeyField
 			blank = self._getBlankRecord()
 			if not isinstance(kf, tuple):
-				kf = (kf, )
+				kf = (kf,)
 			for fld in kf:
 				rec[fld] = blank[fld]
 		try:
 			del rec[kons.CURSOR_TMPKEY_FIELD]
 		except KeyError:
 			pass
-		self.appendDataSet((rec, ))
+		self.appendDataSet((rec,))
 
 
 	def getDataTypes(self):
@@ -1358,7 +1358,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def next(self):
 		"""Move the record pointer forward one position in the recordset."""
 		if self.RowCount > 0:
-			if self.RowNumber < (self.RowCount-1):
+			if self.RowNumber < (self.RowCount - 1):
 				self.RowNumber += 1
 			else:
 				raise dException.EndOfFileException(
@@ -1371,7 +1371,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def last(self):
 		"""Move the record pointer to the last record in the recordset."""
 		if self.RowCount > 0:
-			self.RowNumber = self.RowCount-1
+			self.RowNumber = self.RowCount - 1
 		else:
 			raise dException.NoRecordsException(
 					_("No records in dataset '%s'.") % self.Table)
@@ -1744,7 +1744,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		lRec = list(self._records)
 		del lRec[row]
 		self._records = dDataSet(lRec)
-		self.RowNumber = min(self.RowNumber, self.RowCount-1)
+		self.RowNumber = min(self.RowNumber, self.RowCount - 1)
 
 
 	def flush(self):
@@ -1822,7 +1822,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				scale = field_scale
 				if scale is None:
 					scale = 2
-				ex = "0.%s" % ("0"*scale)
+				ex = "0.%s" % ("0" * scale)
 				newval = newval.quantize(Decimal(ex))
 			elif typ is datetime.datetime:
 				newval = datetime.datetime.min
@@ -2756,7 +2756,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _getRowNumber(self):
 		try:
-			ret = min(self.__rownumber, self._getRowCount()-1)
+			ret = min(self.__rownumber, self._getRowCount() - 1)
 		except AttributeError:
 			ret = -1
 		return ret
@@ -2764,7 +2764,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _setRowNumber(self, num):
 		rn = max(0, num)
-		maxrow = max(0, (self.RowCount-1) )
+		maxrow = max(0, (self.RowCount - 1))
 		self.__rownumber = min(rn, maxrow)
 
 
@@ -2840,10 +2840,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				"""))
 
 	Encoding = property(_getEncoding, _setEncoding, None,
-			_("Encoding type used by the Backend  (string)") )
+			_("Encoding type used by the Backend  (string)"))
 
 	FieldDescription = property(_getDescrip, None, None,
-			_("Tuple of field names and types, as returned by the backend  (tuple)") )
+			_("Tuple of field names and types, as returned by the backend  (tuple)"))
 
 	IsAdding = property(_getIsAdding, None, None,
 			_("Returns True if the current record is new and unsaved"))
