@@ -517,8 +517,9 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 			self.BackColor = "azure"
 		self._selected = False
 		self.Selected = False
-		self.BorderLineStyle = "Dot"
-		self.BorderWidth = 1
+#		self.BorderLineStyle = "Dot"
+#		self.BorderWidth = 1
+		self._borderBox = LayoutBorderBox(self)
 		# Make sure the panel allows full resizing
 		self.AlwaysResetSizer = True
 		# Windows has a problem with auto-clearing
@@ -993,6 +994,46 @@ class LayoutSpacerPanel(LayoutPanel):
 
 	SpacingSize = property(_getSpacingSize, None, None,
 			_("Size of this spacer panel, based on the spacing  (tuple)"))
+
+
+
+class LayoutBorderBox(dabo.ui.dBox):
+	"""Class used to visually separate LayoutPanels."""
+	def afterInit(self):
+		parent = self.Parent
+		self.buffer = 5
+		self.Left = parent.Left + self.buffer
+		self.Top = parent.Top + self.buffer
+		self.sizeToParent()
+		parent.bindEvent(dEvents.Resize, self.onParentResize)
+
+
+	def onParentResize(self, evt):
+		self.sizeToParent()
+
+
+	def sizeToParent(self):
+		parent = self.Parent
+		self.Width = parent.Width - (self.buffer * 2)
+		self.Height = parent.Height - (self.buffer * 2)
+
+
+	# The following methods pass through mouse interaction
+	# to the parent LayoutPanel.
+	def onMouseLeftUp(self, evt):
+		self.Parent.onMouseLeftUp(evt)
+
+
+	def onMouseLeftDown(self, evt):
+		self.Parent.onMouseLeftDown(evt)
+
+
+	def onSelect(self, evt):
+		self.Parent.onSelect(evt)
+
+
+	def onContextMenu(self, evt):
+		self.Parent.onContextMenu(evt)
 
 
 
