@@ -349,10 +349,10 @@ class ClassDesigner(dabo.dApp):
 		"""If the selected class is a form/dialog, return a mixed-in
 		subclass of it. Otherwise, return the base ClassDesignerForm.
 		"""
-		formIsMain = issubclass(self._selectedClass, (dui.dForm, dui.dFormMain, dui.dDialog))
 		isDialog = issubclass(self._selectedClass, (dui.dDialog, ))
 		isWizard = issubclass(self._selectedClass, (dlgs.Wizard, ))
 		isDockForm = _USE_DOCKFORM and issubclass(self._selectedClass, (dui.dDockForm, ))
+		formIsMain = issubclass(self._selectedClass, (dui.dForm, dui.dFormMain, dui.dDialog))
 		if formIsMain:
 			if isDockForm:
 				base = self._selectedClass		##dui.dForm
@@ -1439,10 +1439,10 @@ class ClassDesigner(dabo.dApp):
 				sz = obj.ControllingSizer
 				# See if it's a spacer
 				if isinstance(obj, LayoutSpacerPanel):
-					if not sz.setItemProp(obj.ControllingSizerItem, prop, val):
-						self.setProp(obj, prop, val, typ)
 					if prop.lower() == "spacing":
 						obj.Spacing = val
+					elif not sz.setItemProp(obj.ControllingSizerItem, prop, val):
+						self.setProp(obj, prop, val, typ)
 				else:
 					sz.setItemProp(obj.ControllingSizerItem, prop, val)
 

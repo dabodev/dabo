@@ -295,7 +295,7 @@ class TreeSheet(dui.dPanel):
 				elif isinstance(win, LayoutPanel):
 					cap = self._getDisplayName(win)
 					sz = win.Sizer
-					if sz is None:
+					if sz is None or not isinstance(sz, LayoutSizer):
 						# Empty slot; display it in the tree.
 						childNode = node.appendChild(cap)
 						childNode.Object = win
@@ -337,10 +337,6 @@ class TreeSheet(dui.dPanel):
 				# A native wx control; skip it
 				return
 			elif isinstance(itm, LayoutPanel) and not isinstance(itm.Parent, dui.dialogs.WizardPage):
-				if itm.Sizer:
-					if itm.Sizer.Children:
-						self.recurseLayout(itm.Sizer, node, noDisplay=noDisplay)
-						hasSizer = True
 				return
 			elif isinstance(itm, NoSizerBasePanel):
 				self._recurseChildren(itm.Children, node, noDisplay=False)

@@ -137,6 +137,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			self.defaultHt = 60
 		else:
 			self.defaultWd = self.defaultHt = 100
+# 		self.MinimumSize = (self.defaultWd, self.defaultHt)
 
 		# This seems to happen after the main autobinding, so
 		# it is necessary to call this manually.
@@ -1078,6 +1079,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			elif isinstance(self, dui.dMaskedTextBox):
 				ret.update(maskedTextBoxProps)
 				del ret["ForceCase"]
+			elif isinstance(self, dui.dEditBox):
+				ret["WordWrap"] = {"type": bool, "readonly": False}
 		elif isinstance(self, dui.dHtmlBox):
 			ret.update(htmlTextProps)
 			ret.update(scrollProps)

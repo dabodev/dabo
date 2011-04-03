@@ -512,23 +512,24 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 		self.depth = self.crawlUp(self)
 		plat = self.Application.Platform
 		if plat == "Win":
-			self.BackColor = "cornsilk"
+			self.normalColor = "cornsilk"
 		else:
-			self.BackColor = "azure"
+			self.normalColor = "azure"
+		self.normalBorder = self.BorderColor = "darkgrey"
+		self.hiliteColor = "white"
+		self.hiliteBorder = "gold"
+		self.BackColor = self.normalBorder
 		self._selected = False
 		self.Selected = False
-#		self.BorderLineStyle = "Dot"
-#		self.BorderWidth = 1
-		self._borderBox = LayoutBorderBox(self)
+		self._innerPanel = dabo.ui.dPanel(self, BackColor=self.normalColor,
+				_EventTarget=self)
+		self.Sizer = dabo.ui.dSizer("v")
+		self.Sizer.append1x(self._innerPanel, border=1)
 		# Make sure the panel allows full resizing
 		self.AlwaysResetSizer = True
 		# Windows has a problem with auto-clearing
 		### NOTE: seems to not flicker as much with this commented out (at least on Mac).
 		#self.autoClearDrawings = (plat != "Win")
-		self.normalColor = self.BackColor ##= self.colors[self.depth]
-		self.normalBorderColor = self.BorderColor = "black"
-		self.hiliteColor = "white"
-		self.hiliteBorder = "gold"
 		if self._autoSizer:
 			if isinstance(self.Parent.Sizer, dabo.ui.dSizer):
 				self.Parent.Sizer.append1x(self)
@@ -542,6 +543,11 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 					ornt = "v"
 		# Store the initial defaults
 		dabo.ui.callAfter(self._setDefaultSizerProps)
+
+
+	def getChildrenPropDict(self, clsChildren=None):
+		"""LayoutPanels cannot have children."""
+		return []
 
 
 	def _setDefaultSizerProps(self):
@@ -732,11 +738,11 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 	def _setSel(self, val):
 		if self._selected != val:
 			if val:
-				self.BackColor = self.hiliteColor
-				self.BorderColor = self.hiliteBorder
+				self._innerPanel.BackColor = self.hiliteColor
+				self.BackColor = self.hiliteBorder
 			else:
-				self.BackColor = self.normalColor
-				self.BorderColor = self.normalBorderColor
+				self._innerPanel.BackColor = self.normalColor
+				self.BackColor = self.normalBorder
 		self._selected = val
 
 
@@ -888,31 +894,27 @@ class LayoutSpacerPanel(LayoutPanel):
 	def __init__(self, parent, properties=None, orient=None, inGrid=False,
 			*args, **kwargs):
 		kwargs["AutoSizer"] = False
-		self._spacing = None
+		self._spacing = 10
 		self._orient = orient
 		self._inGrid = inGrid
-
-		# TEMPORARY workaround until Paul fixes the bug in
-		# propertyHelperMixin
-		spc = self._extractKey((properties, kwargs), "Spacing", 20)
-
 		super(LayoutSpacerPanel, self).__init__(parent,
 				properties=properties, *args, **kwargs)
 
-		self.Spacing = spc
 
-		# These need to be set after the super call, since the
-		# LayoutPanel will set them during it.
+	def afterInit(self):
+		super(LayoutSpacerPanel, self).afterInit()
+		self.AlwaysResetSizer = False
 		self.Size = self.SpacingSize
-		self.BackColor = "antiquewhite"
-		self.normalColor = self.BackColor
-		self.normalBorderColor = self.BorderColor = "black"
+		# Change these to make them different than LayoutPanels
+		self.normalColor = "antiquewhite"
+		self._innerPanel.BackColor = self.normalColor
+		self.normalBorder = "black"
 		self.hiliteColor = "white"
-		self.hiliteBorder = "blue"
-		self.BorderLineStyle = "dot"
+		self.BackColor = self.normalBorder
 		# Set up sizer defaults
 		addSizerDefaults({self.__class__: {
-				"G": {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Center", "VAlign": "Middle", "Border": 70, "Expand": False, "RowExpand": False, "ColExpand": False},
+				"G": {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Center", "VAlign": "Middle", "Border": 70,
+					"Expand": False, "RowExpand": False, "ColExpand": False},
 				"H": {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Left", "VAlign": "Middle", "Border": 80, "Expand": False},
 				"V": {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Center", "VAlign": "Top", "Border": 90, "Expand": False}
 				}})
@@ -970,16 +972,15 @@ class LayoutSpacerPanel(LayoutPanel):
 
 	def _getSpacingSize(self):
 		spc = self._spacing
-		if self._inGrid:
-			self.Size = (spc, spc)
+		if self._inGrid or self._orient is None:
+			ret = (spc, spc)
 		else:
-			fillerDim = min(5, spc)
-			if self._orient is None:
-				self.Size = (spc, spc)
-			elif self._orient.lower()[0] == "v":
-				self.Size = (fillerDim, spc)
+			fillerDim = min(25, spc)
+			if self._orient.lower()[0] == "v":
+				ret = (fillerDim, spc)
 			else:
-				self.Size = (spc, fillerDim)
+				ret = (spc, fillerDim)
+		return ret
 
 
 	DesignerProps = property(_getDesProps, None, None,
@@ -994,46 +995,6 @@ class LayoutSpacerPanel(LayoutPanel):
 
 	SpacingSize = property(_getSpacingSize, None, None,
 			_("Size of this spacer panel, based on the spacing  (tuple)"))
-
-
-
-class LayoutBorderBox(dabo.ui.dBox):
-	"""Class used to visually separate LayoutPanels."""
-	def afterInit(self):
-		parent = self.Parent
-		self.buffer = 5
-		self.Left = parent.Left + self.buffer
-		self.Top = parent.Top + self.buffer
-		self.sizeToParent()
-		parent.bindEvent(dEvents.Resize, self.onParentResize)
-
-
-	def onParentResize(self, evt):
-		self.sizeToParent()
-
-
-	def sizeToParent(self):
-		parent = self.Parent
-		self.Width = parent.Width - (self.buffer * 2)
-		self.Height = parent.Height - (self.buffer * 2)
-
-
-	# The following methods pass through mouse interaction
-	# to the parent LayoutPanel.
-	def onMouseLeftUp(self, evt):
-		self.Parent.onMouseLeftUp(evt)
-
-
-	def onMouseLeftDown(self, evt):
-		self.Parent.onMouseLeftDown(evt)
-
-
-	def onSelect(self, evt):
-		self.Parent.onSelect(evt)
-
-
-	def onContextMenu(self, evt):
-		self.Parent.onContextMenu(evt)
 
 
 
