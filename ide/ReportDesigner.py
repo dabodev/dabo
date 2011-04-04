@@ -1173,9 +1173,6 @@ class DesignerBand(DesignerPanel):
 			if not self._dragging:
 				self._dragging = True
 				self._dragStart = evt.EventData["mousePosition"]
-		else:
-			self._setMouseMoveMode(evt.EventData["mousePosition"])
-
 		evt.stop()
 
 
@@ -1228,63 +1225,27 @@ class DesignerBand(DesignerPanel):
 		self.Parent.Scroll(*vs)
 
 		self._mouseDown = True
-		mouseObj = self.getMouseObject()
-		if not isinstance(mouseObj, Band):
-			self._dragObject = mouseObj
 		self._mousePosition = evt.EventData["mousePosition"]
-
-
-	def _setMouseMoveMode(self, pos):
-		import wx
-		mouseObj = self.getMouseObject()
-
-		if not isinstance(mouseObj, Band) and mouseObj in rdc.SelectedObjects \
-				and not mouseObj.getProp("designerLock"):
-			self._anchor = self._mouseOnAnchor(pos)
-			if self._anchor is not None:
-				self._mouseDragMode = "sizing"
-				self.SetCursor(wx.StockCursor(wx.CURSOR_SIZING))
-			else:
-				self._mouseDragMode = "moving"
-				self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENWSE))
-		else:
-			self._anchor = None
-			self._mouseDragMode = None
-			self.SetCursor(wx.StockCursor(wx.CURSOR_DEFAULT))
-
-
-	def _mouseOnAnchor(self, pos):
-		"""Return the anchor that the mouse is on, or None."""
-		mouseObj = self.getMouseObject()
-		if mouseObj is None or isinstance(mouseObj, Band):
-			return None
-
-		for k,v in mouseObj._anchors.items():
-			minx, miny = v[2] - self._anchorThickness, v[3] - self._anchorThickness
-			maxx, maxy = v[2] + self._anchorThickness, v[3] + self._anchorThickness
-			if (minx < pos[0] and maxx > pos[0]) and (miny < pos[1] and maxy > pos[1]):
-				return k
-		return None
 
 
 	def getMouseObject(self):
 		"""Returns the topmost object underneath the mouse."""
 		rw = self.Parent._rw
 		objs = copy.copy(self.ReportObject.get("Objects", []))
-		objs.reverse()  ## top of z order to bottom
 		mouseObj = self.ReportObject  ## the band
 		mousePos = self.getMousePosition()
 
-		for obj in objs:
+		for obj in reversed(objs):
 			size, position = self.getObjSizeAndPosition(obj)
-			if isinstance(obj, SpanningLine):
+			if isinstance(obj, (SpanningLine, SpanningRectangle, Line, Rectangle)):
 				# Allow the object to be selected when clicked on by adding some sensitivity
+				fudge = 3
 				size = list(size)
 				position = list(position)
-				size[0] += 2
-				size[1] += 2
-				position[0] -= 1
-				position[1] -= 1
+				size[0] += fudge
+				size[1] += fudge
+				position[0] -= .5 * fudge
+				position[1] -= .5 * fudge
 			if mousePos[0] >= position[0] and mousePos[0] <= position[0] + size[0] \
 					and mousePos[1] >= position[1] and mousePos[1] <= position[1] + size[1]:
 				mouseObj = obj
@@ -1294,12 +1255,14 @@ class DesignerBand(DesignerPanel):
 
 	def updateSelected(self, evt=None):
 		mouseObj = self.getMouseObject()
+		if not isinstance(mouseObj, Band):
+			self._dragObject = mouseObj
 
 		selectedObjs = rdc.SelectedObjects
 
 		if evt and (evt.EventData["controlDown"] or evt.EventData["shiftDown"]):
 			# toggle selection of the selObj
-			if mouseObj in selectedObjs:
+			if id(mouseObj) in [id(s) for s in selectedObjs]:
 				selectedObjs.remove(mouseObj)
 			else:
 				selectedObjs.append(mouseObj)
@@ -2227,6 +2190,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self.Scroll(viewStart[0], viewStart[1])
 
 		self.showPosition()
+		self.refresh()
 
 
 	def getRuler(self, pos):
@@ -2451,6 +2415,17 @@ class ReportDesignerForm(dabo.ui.dForm):
 		self._xmlEditorUpToDate = False
 		self.editor = self.pgf.Pages[0]
 
+
+	def restoreSizeAndPosition(self):
+		app = self.Application
+		self.editor.Zoom = app.getUserSetting("ReportDesigner_zoom", 1.0) 
+		self.super()
+
+	
+	def saveSizeAndPosition(self):
+		app = self.Application
+		app.setUserSetting("ReportDesigner_zoom", self.editor.Zoom)
+		self.super()
 
 
 	def onActivate(self, evt):
