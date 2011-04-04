@@ -23,7 +23,7 @@ class Bizobj(dabo.biz.dBizobj):
 	def addField(self, fld):
 		try:
 			cursorInfo, alias = fld.split(" as ")
-			table, field = cursorInfo.split(".")
+			table, field = cursorInfo.rsplit(".", 1)  ## rsplit to account for schema.table.field setups
 		except ValueError:
 			# if fld wasn't sent as the conventional "table.field as alias",
 			# then there's nothing to automatically do.
