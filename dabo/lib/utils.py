@@ -125,6 +125,54 @@ def getUserAppDataDirectory(appName="Dabo"):
 	return dd
 
 
+def getSharedAppDataDirectory(appName="Dabo"):
+	"""
+	Return the directory where Dabo can store shared mutable data.
+
+	On \*nix, this will be something like /var/lib/dabo
+	On Windows, it will be more like c:\Documents and Settings\All Users\Application Data\Dabo
+
+	This function relies on platform conventions to determine this information. If it
+	cannot be determined (because platform conventions were circumvented), the return
+	value will be None.
+
+	if appName is passed, the directory will be named accordingly.
+
+	This function will try to create the directory if it doesn't already exist, but if the
+	creation of the directory fails, the return value will revert to None.
+	"""
+	dd = None
+
+	if sys.platform not in ("win32",):
+		# On Unix, change appname to lower, don't allow spaces.
+		appName = "%s" % appName.lower().replace(" ", "_")
+
+	if sys.platform in ("win32",):
+		# On Windows platform, get information using shell32 library function.
+		if shell and shellcon:
+			dd = shell.SHGetFolderPath(0, shellcon.CSIDL_COMMON_APPDATA, 0, 0)
+		if dd is None:
+			dd = os.environ.get("ALLUSERSPROFILE")
+	elif sys.platform in ("darwin", "mac"):
+		# We are on OS X.
+		# Maybe "/Library/Application Support" is more adequate here.
+		dd = osp.join(os.sep, "Users", "Shared")
+	else:
+		# It's probably *nix machine.
+		dd = osp.join(os.sep, "var", "lib")
+
+	if dd is not None:
+		dd = osp.join(dd, appName)
+		if not osp.exists(dd):
+			# Try to create the dabo directory.
+			try:
+				os.makedirs(dd)
+			except OSError:
+				sys.stderr.write("Couldn't create the user setting directory (%s)." % dd)
+				dd = None
+	return dd
+
+
 def dictStringify(dct):
 	"""
 	The ability to pass a properties dict to an object relies on
