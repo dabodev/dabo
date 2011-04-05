@@ -105,11 +105,12 @@ def DesignerController():
 			return expr
 
 
-		def objectDoubleClicked(self, obj):
+		def objectDoubleClicked(self, obj, evt=None):
 			"""A report object was double-clicked: edit its major property in the propsheet."""
-			prop = getattr(obj, "MajorProperty", None)
-			if prop is not None:
-				self.editProperty(obj.MajorProperty)
+			editProp = obj.MajorProperty
+			if evt.EventData["shiftDown"]:
+				editProp = None
+			rdc.editProperty(editProp)
 
 
 		def editProperty(self, prop=None):
@@ -333,23 +334,24 @@ def DesignerController():
 			if refresh:
 				ps.refreshSelection()
 
+			pg = ps.propGrid
+			ds = pg.DataSet
+
+			if enableEditor:
+				# Select the value column and enable the editor for the prop. Note:
+				# This needs to be done before changing rows, for some reason, or the
+				# editor column isn't activated.
+				pg.CurrentColumn = 1
+
+			pg._focusBack = focusBack
 			if prop:
-				pg = ps.propGrid
-				ds = pg.DataSet
-
-				if enableEditor:
-					# Select the value column and enable the editor for the prop. Note:
-					# This needs to be done before changing rows, for some reason, or the
-					# editor column isn't activated.
-					pg.CurrentColumn = 1
-
 				# Put the propsheet on the row for the passed prop.
 				for idx, record in enumerate(ds):
 					if record["prop"].lower() == prop.lower():
 						pg.CurrentRow = idx
-						pg._focusBack = focusBack
 						break
-
+			else:
+				pg.CurrentRow = pg.CurrentRow
 			if bringToTop:
 				ps.Form.Raise()
 
@@ -774,7 +776,7 @@ class ReportObjectTree(dabo.ui.dTreeView):
 
 	def onMouseLeftDoubleClick(self, evt):
 		node = evt.EventData["selectedNode"][0]
-		rdc.objectDoubleClicked(node.Object)
+		rdc.objectDoubleClicked(node.Object, evt)
 
 	def onContextMenu(self, evt):
 		evt.stop()
@@ -1073,7 +1075,7 @@ class BandLabel(DesignerPanel):
 
 
 	def onMouseLeftDoubleClick(self, evt):
-		rdc.objectDoubleClicked(self.Parent.ReportObject)
+		rdc.objectDoubleClicked(self.Parent.ReportObject, evt)
 
 
 	def onPaint(self, evt):
@@ -1164,7 +1166,7 @@ class DesignerBand(DesignerPanel):
 
 
 	def onMouseLeftDoubleClick(self, evt):
-		rdc.objectDoubleClicked(self.getMouseObject())
+		rdc.objectDoubleClicked(self.getMouseObject(), evt)
 
 
 	def onMouseMove(self, evt):
@@ -1778,14 +1780,11 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 		if key == "enter":
 			# Bring the prop sheet to top and activate the editor for the
-			# most appropriate property for the selected object(s).
+			# most appropriate property for the selected object(s), or if 
+			# shift is down, activate the editor for the current row in the
+			# prop sheet.
 			evt.stop()
-			propName = None
-			for prop in ("expr",):
-				if prop in selectedDrawables[0].AvailableProps:
-					propName = prop
-					break
-			rdc.editProperty(propName)
+			rdc.objectDoubleClicked(selectedDrawables[0], evt)
 
 		else:
 			## arrow key
