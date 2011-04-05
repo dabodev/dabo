@@ -253,14 +253,16 @@ class ReportObject(CaselessDict):
 		If there isn't a default, an exception will be raised as the object isn't
 		set up to have the passed prop.
 		"""
-		def getDefault():
+		def getDefault(prop):
 			if prop[-4:] != "_def":
 				# First try the default (<prop>_def) value:
 				try:
 					return eval(self["%s_def" % prop])
 				except StandardError:
 					pass
-
+			else:
+				prop = prop[:-4]
+			
 			# Fall back to defaults for base prop:
 			if prop in self.AvailableProps:
 				val = self.AvailableProps[prop]["default"]
@@ -280,10 +282,10 @@ class ReportObject(CaselessDict):
 				# eval() failed. Return the default or the exception string.
 				if returnException:
 					return e
-				return getDefault()
+				return getDefault(prop)
 		else:
 			# The prop isn't defined, use the default.
-			return getDefault()
+			return getDefault(prop)
 
 
 	def setProp(self, prop, val, logUndo=True):
