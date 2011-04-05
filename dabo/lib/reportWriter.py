@@ -206,7 +206,9 @@ class ReportObject(CaselessDict):
 
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the object."""
-		pass
+		for k, v in self.AvailableProps.items():
+			defProp = self.AvailableProps["%s_def" % k] = v.copy()
+			defProp["doc"] = "This is the DEFAULT value of the property, for design-time evaluation."
 
 	def addElement(self, cls):
 		"""Add a new element, replacing existing one of same name."""
@@ -252,6 +254,14 @@ class ReportObject(CaselessDict):
 		set up to have the passed prop.
 		"""
 		def getDefault():
+			if prop[-4:] != "_def":
+				# First try the default (<prop>_def) value:
+				try:
+					return eval(self["%s_def" % prop])
+				except StandardError:
+					pass
+
+			# Fall back to defaults for base prop:
 			if prop in self.AvailableProps:
 				val = self.AvailableProps[prop]["default"]
 				if not evaluate:
@@ -280,6 +290,13 @@ class ReportObject(CaselessDict):
 		"""Update the value of the property."""
 		if prop not in self.AvailableProps:
 			raise ValueError("Property '%s' doesn't exist." % prop)
+		defProp = "%s_def" % prop
+		if defProp[-8:] == "_def_def":
+			defProp = None
+		if defProp and self.getProp(prop, evaluate=False) == self.getProp(defProp, evaluate=False):
+				# Okay to change the _def prop since it looks like the appdev
+				# hasn't explicitly set it.
+				self[defProp] = val
 		if logUndo:
 			self.Report.reportWriter.storeUndo(self, prop, self.getProp(prop, evaluate=False), val)
 		self[prop] = val
@@ -1360,7 +1377,7 @@ class ReportWriter(object):
 			if "expr_pagecount" in obj:
 				s = obj.getProp("expr_pagecount", returnException=True)
 			else:
-				s = obj.getProp("expr", returnException=True)
+				s = obj.getProp("expr")
 
 			if s is None:
 				s = self.NoneDisplay 
@@ -1615,7 +1632,7 @@ class ReportWriter(object):
 
 			t = fobject.__class__.__name__
 			s = styles_[fobject.getProp("style")]
-			expr = fobject.getProp("expr", returnException=True)
+			expr = fobject.getProp("expr")
 
 			if isinstance(s, basestring):
 				expr = expr.encode(self.Encoding)
@@ -1896,7 +1913,7 @@ class ReportWriter(object):
 				endPage()
 				beginPage()
 
-			if bandDict.getProp("show", returnException=True) == False:
+			if bandDict.getProp("show") == False:
 				return y
 
 			self.ReportForm.Bands[band] = CaselessDict()
@@ -2017,8 +2034,7 @@ class ReportWriter(object):
 				else:
 					obj_deferred = None
 					neededHeight = 0
-				show = obj.getProp("show", returnException=True)
-				if show == False:
+				if not obj.getProp("show"):
 					continue
 
 				x1 = self.getPt(obj.getProp("x"))
