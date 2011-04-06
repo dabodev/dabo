@@ -1248,6 +1248,9 @@ class DesignerBand(DesignerPanel):
 				size[1] += fudge
 				position[0] -= .5 * fudge
 				position[1] -= .5 * fudge
+			if isinstance(obj, (Frameset,)):
+				# Select the paragraph instead
+				obj = obj["Objects"][0]
 			if mousePos[0] >= position[0] and mousePos[0] <= position[0] + size[0] \
 					and mousePos[1] >= position[1] and mousePos[1] <= position[1] + size[1]:
 				mouseObj = obj
@@ -1344,6 +1347,9 @@ class DesignerBand(DesignerPanel):
 
 		for obj in self.ReportObject.get("Objects", []):
 			self._paintObj(obj, dc)
+			if isinstance(obj, Frameset):
+				for fs_obj in obj["Objects"]:
+					self._paintObj(fs_obj, dc)
 
 		dc.DestroyClippingRegion()
 
@@ -1360,7 +1366,6 @@ class DesignerBand(DesignerPanel):
 	def _paintObj(self, obj, dc=None):
 		import wx
 
-		obj._anchors = {}
 		objType = obj.__class__.__name__
 		selectColor = (128,192,0)
 
@@ -1373,15 +1378,19 @@ class DesignerBand(DesignerPanel):
 		dc.SetPen(wx.Pen(selectColor, 0.1, wx.DOT))
 		dc.DrawRectangle(position[0], position[1], size[0], size[1])
 
+		obj._anchors = {}
 
-		if objType == "String":
+		if objType in ("Paragraph", "String"):
 			dc.SetBackgroundMode(wx.TRANSPARENT)
 			expr = rdc.getShortExpr(obj.getProp("expr", evaluate=False))
 			alignments = {"left": wx.ALIGN_LEFT,
 					"center": wx.ALIGN_CENTER,
 					"right": wx.ALIGN_RIGHT,}
 
-			alignment = obj.getProp("align")
+			if objType == "String":
+				alignment = obj.getProp("align")
+			else:
+				alignment = "left"
 			fontName = obj.getProp("fontName")
 			fontSize = obj.getProp("fontSize")
 			rotation = obj.getProp("rotation")
@@ -1428,7 +1437,8 @@ class DesignerBand(DesignerPanel):
 			font.Size = fontSize * z
 
 			dc.SetFont(font._nativeFont)
-			dc.SetTextForeground(self._rw.getColorTupleFromReportLab(obj.getProp("fontColor")))
+			if objType == "String":
+				dc.SetTextForeground(self._rw.getColorTupleFromReportLab(obj.getProp("fontColor")))
 
 			top_fudge = .5   ## wx draws a tad too high
 			left_fudge = .25  ## and a tad too far to the left
