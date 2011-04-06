@@ -152,8 +152,6 @@ class PropSheet(dabo.ui.dPanel):
 		if ds != pg.DataSet:
 			# The dataset has changed, so update the grid:
 			pg.DataSet = ds
-			pg.Enable
-			d = (len(ds) > 0)
 
 
 	def dataSetFromPropDict(self, propDict):
