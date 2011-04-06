@@ -513,6 +513,7 @@ class Report(ReportObject):
 		self.setdefault("ReportEnd", ReportEnd(self))
 		self.setdefault("Groups", Groups(self))
 		self.setdefault("Variables", Variables(self))
+		super(Report, self).insertRequiredElements()
 
 
 class Page(ReportObject):
@@ -580,7 +581,7 @@ class Group(ReportObject):
 			self["GroupHeader"] = GroupHeader(self)
 		if "GroupFooter" not in self:
 			self["GroupFooter"] = GroupFooter(parent=self)
-
+		super(Group, self).insertRequiredElements()
 
 
 class Variable(ReportObject):
@@ -605,7 +606,6 @@ class Variable(ReportObject):
 				Typically, this will match a particular group expression.""")
 
 		self.MajorProperty = "Name"
-
 
 
 class Band(ReportObject):
@@ -647,6 +647,8 @@ class Band(ReportObject):
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the band."""
 		self.setdefault("Objects", Objects(self))
+		super(Band, self).insertRequiredElements()
+
 
 	def _getBandName(self):
 		name = self.__class__.__name__
@@ -961,6 +963,7 @@ class Frameset(Drawable):
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the frameset."""
 		self.setdefault("Objects", Objects(self))
+		super(Frameset, self).insertRequiredElements()
 
 
 class Paragraph(Drawable):
