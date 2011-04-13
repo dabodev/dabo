@@ -295,7 +295,9 @@ class ReportObject(CaselessDict):
 		defProp = "%s_def" % prop
 		if defProp[-8:] == "_def_def":
 			defProp = None
-		if defProp and self.getProp(prop, evaluate=False) == self.getProp(defProp, evaluate=False):
+		if False:
+			## (after using it for a week, I think default props shouldn't be changed automatically)
+			if defProp and self.getProp(prop, evaluate=False) == self.getProp(defProp, evaluate=False):
 				# Okay to change the _def prop since it looks like the appdev
 				# hasn't explicitly set it.
 				self[defProp] = val
@@ -704,7 +706,7 @@ class String(Drawable):
 	"""Represents a text string."""
 	def initAvailableProps(self):
 		super(String, self).initAvailableProps()
-		self.AvailableProps["expr"] = toPropDict(str, None,
+		self.AvailableProps["expr"] = toPropDict(str, "String",
 				"""Specifies the string to print.""")
 
 		self.AvailableProps["BorderWidth"] = toPropDict(float, 0,
@@ -758,6 +760,45 @@ class String(Drawable):
 				"""Specifies the scaling of the string. Set to (150,100) to make it wide.""")
 
 		self.MajorProperty = "expr"
+
+
+
+class Memo(String):
+	"""Represents a string object that can span multiple lines."""
+	def initAvailableProps(self):
+		super(Memo, self).initAvailableProps()
+
+		del self.AvailableProps["ScalePercent"]
+		del self.AvailableProps["Align"]
+
+		self.AvailableProps["expr"]["default"] = "Memo"
+
+		self.AvailableProps["PadLeft"] = toPropDict(float, 0,
+				"""Specifies the padding on the left side of the frame.""")
+
+		self.AvailableProps["PadRight"] = toPropDict(float, 0,
+				"""Specifies the padding on the right side of the frame.""")
+
+		self.AvailableProps["PadTop"] = toPropDict(float, 0,
+				"""Specifies the padding on the top side of the frame.""")
+
+		self.AvailableProps["PadBottom"] = toPropDict(float, 0,
+				"""Specifies the padding on the bottom side of the frame.""")
+		
+		self.AvailableProps["ColumnCount"] = toPropDict(int, 1,
+				"""Specifies the number of columns in the memo.
+
+				Each column will be equal in width.
+				""")
+
+		self.AvailableProps["Leading"] = toPropDict(float, None,
+				"""Specifies the font leading (how much space to leave between baselines).
+
+				For no leading (descenders of the upper line overlapping ascenders from 
+				the lower line), set Leading the same as FontSize. To have reportlab choose
+				a default leading, set Leading to None.
+				""")
+
 
 
 class Image(Drawable):
@@ -931,7 +972,7 @@ class SpanningRectangle(Rectangle):
 
 
 class Frameset(Drawable):
-	"""Represents a frameset."""
+	"""Represents a frameset.  DEPRECATED; Use Memo instead."""
 	def initAvailableProps(self):
 		super(Frameset, self).initAvailableProps()
 
@@ -967,7 +1008,7 @@ class Frameset(Drawable):
 
 
 class Paragraph(Drawable):
-	"""Represents a paragraph."""
+	"""Represents a paragraph.  DEPRECATED; Use Memo instead."""
 	def initAvailableProps(self):
 		super(Paragraph, self).initAvailableProps()
 		self.AvailableProps["Style"] = toPropDict(str, "Normal",
@@ -979,7 +1020,7 @@ class Paragraph(Drawable):
 		self.AvailableProps["FontName"] = toPropDict(str, "Helvetica",
 				"""Specifies the font name.""")
 
-		self.AvailableProps["Leading"] = toPropDict(float, 0,
+		self.AvailableProps["Leading"] = toPropDict(float, None,
 				"""Specifies the font leading.""")
 
 		self.AvailableProps["SpaceAfter"] = toPropDict(float, 0,
@@ -1185,7 +1226,7 @@ class ReportWriter(object):
 			height = obj.getProp("Height")
 			if height is not None:
 				height = self.getPt(height)
-				if objType == "Frameset":
+				if objType in ("Frameset", "Memo"):
 					if vAnchor == "bottom":
 						y = y + height
 					elif vAnchor == "middle":
@@ -1401,9 +1442,9 @@ class ReportWriter(object):
 				s = unicode(s)
 			func(posx, 0, s)
 
-		elif objType == "Frameset":
-			# A frame is directly related to reportlab's platypus Frame.
-
+		elif objType in ("Frameset", "Memo"):
+			# Frameset is deprecated; Memo is what to use now. Memo abstracts away the
+			# Frame/Paragraph hierarchy into one single report object.
 			borderWidth = self.getPt(obj.getProp("borderWidth"))
 			borderColor = obj.getProp("borderColor")
 			columnCount = obj.getProp("columnCount")
@@ -1412,7 +1453,7 @@ class ReportWriter(object):
 			padRight = self.getPt(obj.getProp("padRight"))
 			padTop = self.getPt(obj.getProp("padTop"))
 			padBottom = self.getPt(obj.getProp("padBottom"))
-			frameId = obj.getProp("frameId")
+			frameId = None if objType == "Memo" else obj.getProp("frameId")
 
 			if deferred:
 				story = deferred
@@ -1628,15 +1669,19 @@ class ReportWriter(object):
 		columnCount = obj.getProp("columnCount")
 		columnWidth = width/columnCount
 
-		styles_ = styles.getSampleStyleSheet()
-
-		objects = obj["Objects"]
+		if isinstance(obj, Memo):
+			# Memo doesn't have any subobjects
+			objects = [obj]
+			style = "Normal"
+		else:
+			# Frameset/Paragraph is deprecated
+			objects = obj["Objects"]
+			style = fobject.getProp("style")
+		s = styles.getSampleStyleSheet()[style]
 		story = []
+
 		for fobject in objects:
 			objNeededHeight = 0
-
-			t = fobject.__class__.__name__
-			s = styles_[fobject.getProp("style")]
 			expr = fobject.getProp("expr")
 
 			if isinstance(s, basestring):
@@ -1666,7 +1711,7 @@ class ReportWriter(object):
 			if "firstLineIndent" in fobject:
 				s.firstLineIndent = fobject.getProp("firstLineIndent")
 
-			if t.lower() == "paragraph":
+			if isinstance(fobject, (Memo, Paragraph)):
 				paras = expr.splitlines()
 				for idx, para in enumerate(paras):
 					if len(para) == 0:
@@ -2509,7 +2554,7 @@ class ReportWriter(object):
 				"PageForeground": PageForeground, "Rect": Rectangle,
 				"Rectangle": Rectangle,
 				"String": String, "Image": Image, "BarGraph": BarGraph, "Line": Line,
-				"Frameset": Frameset, "Paragraph": Paragraph,
+				"Frameset": Frameset, "Paragraph": Paragraph, "Memo": Memo,
 				"Variables": Variables, "Groups": Groups, "Objects": Objects,
 				"TestCursor": TestCursor, "TestRecord": TestRecord,
 				"SpanningLine": SpanningLine, "SpanningRectangle": SpanningRectangle,

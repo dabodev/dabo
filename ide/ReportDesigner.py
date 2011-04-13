@@ -231,7 +231,7 @@ def DesignerController():
 				if not newObjectMenuCreated and isinstance(robj, Band):
 					newObjectMenuCreated = True
 					objectChoices = dabo.ui.dMenu(Caption="New object")
-					for choice in (Image, Line, Rectangle, String, Paragraph):
+					for choice in (Image, Line, Rectangle, String, Memo):
 						objectChoices.append(choice.__name__,
 								OnHit=onNewObject, Tag=choice)
 					objectChoices.appendSeparator()
@@ -1248,9 +1248,6 @@ class DesignerBand(DesignerPanel):
 				size[1] += fudge
 				position[0] -= .5 * fudge
 				position[1] -= .5 * fudge
-			if isinstance(obj, (Frameset,)):
-				# Select the paragraph instead
-				obj = obj["Objects"][0]
 			if mousePos[0] >= position[0] and mousePos[0] <= position[0] + size[0] \
 					and mousePos[1] >= position[1] and mousePos[1] <= position[1] + size[1]:
 				mouseObj = obj
@@ -1282,6 +1279,8 @@ class DesignerBand(DesignerPanel):
 		"""Return the size and position needed to draw the object at the current zoom factor."""
 		rw = self._rw
 		z = self.Parent.ZoomFactor
+		if isinstance(obj, Paragraph):
+			obj = obj.parent.parent  ## (the FrameSet)
 		try:
 			x = rw.getPt(obj.getProp("x"))
 		except ValueError:
@@ -1380,7 +1379,7 @@ class DesignerBand(DesignerPanel):
 
 		obj._anchors = {}
 
-		if objType in ("Paragraph", "String"):
+		if objType in ("Memo", "Paragraph", "String"):
 			dc.SetBackgroundMode(wx.TRANSPARENT)
 			expr = rdc.getShortExpr(obj.getProp("expr", evaluate=False))
 			alignments = {"left": wx.ALIGN_LEFT,
@@ -1437,7 +1436,7 @@ class DesignerBand(DesignerPanel):
 			font.Size = fontSize * z
 
 			dc.SetFont(font._nativeFont)
-			if objType == "String":
+			if objType in ("Memo", "String"):
 				dc.SetTextForeground(self._rw.getColorTupleFromReportLab(obj.getProp("fontColor")))
 
 			top_fudge = .5   ## wx draws a tad too high
