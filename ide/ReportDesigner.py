@@ -1388,8 +1388,10 @@ class DesignerBand(DesignerPanel):
 
 			if objType == "String":
 				alignment = obj.getProp("align")
+				vAlign = wx.ALIGN_BOTTOM
 			else:
 				alignment = "left"
+				vAlign = wx.ALIGN_TOP
 			fontName = obj.getProp("fontName")
 			fontSize = obj.getProp("fontSize")
 			rotation = obj.getProp("rotation")
@@ -1456,7 +1458,11 @@ class DesignerBand(DesignerPanel):
 				dc.DrawRotatedText(expr, rect[0]+(rect[2]/4), rect[3] - (rect[3]/2), rotation)
 			else:
 				dc.DrawLabel(expr, (rect[0], rect[1], rect[2], rect[3]),
-						alignments[alignment]|wx.ALIGN_BOTTOM)
+						alignments[alignment]|vAlign)
+
+				if objType in ("Memo", "Paragraph"):
+					dc.DrawLabel("↴", (rect[0], rect[1], rect[2], rect[3]),
+						wx.ALIGN_RIGHT|wx.ALIGN_TOP)
 
 
 		if objType in ("Rectangle", "SpanningRectangle"):
