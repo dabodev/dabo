@@ -1303,8 +1303,8 @@ class DesignerBand(DesignerPanel):
 			vAnchor = obj.getProp("vAnchor").lower()
 
 			if height is None:
-				# dynamic height. Fake it here for now:
-				height = 23
+				# Dynamic height: use Height_def for the designer surface.
+				height = obj.getProp("Height_def")
 
 			height = rw.getPt(height)
 
