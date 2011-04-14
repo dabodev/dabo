@@ -772,6 +772,8 @@ class Memo(String):
 		del self.AvailableProps["Align"]
 
 		self.AvailableProps["expr"]["default"] = "Memo"
+		self.AvailableProps["vAnchor"]["default"] = "top"
+		self.AvailableProps["y"]["default"] = self.AvailableProps["Height"]["default"]
 
 		self.AvailableProps["PadLeft"] = toPropDict(float, 0,
 				"""Specifies the padding on the left side of the frame.""")
