@@ -96,6 +96,33 @@ def toPropDict(dataType, default, doc):
 	return {"dataType": dataType, "default": default, "doc": doc}
 
 
+def getFloatLeading(obj):
+	leading = obj.getProp("leading")
+	size = float(obj.getProp("fontsize"))
+	adj_factor = .1  ## (amount to adjust for each "+" or "-")
+
+	def getadj():
+		if not isinstance(leading, basestring):
+			return 0.0
+		adj = leading[6:].strip()
+		adj_float = 0.0
+		adj_amt = size * adj_factor
+		for adj in adj:
+			if adj == "+":
+				adj_float += adj_amt
+			elif adj == "-":
+				adj_float -= adj_amt
+		return adj_float
+
+	if leading is None or (isinstance(leading, basestring) and leading[:6].lower() == "single"):
+		return size + getadj()
+	elif isinstance(leading, basestring) and leading[:6].lower() == "double":
+		return (2 * size) + getadj()
+	try:
+		return float(leading)
+	except ValueError:
+		return size
+	
 
 class PageCountCanvas(canvas.Canvas):
 	"""Solves the 'page x of y' problem without needing to run the report twice.
@@ -127,6 +154,8 @@ class PageCountCanvas(canvas.Canvas):
 
 
 	def setFont(self, psfontname, size, leading=None):
+		if leading is None:
+			leading = size
 		if psfontname not in getRegisteredFontNames():
 			if psfontname in dabo.reportTTFontFileMap:
 				psfontfile = dabo.reportTTFontFileMap[psfontname]
@@ -793,12 +822,19 @@ class Memo(String):
 				Each column will be equal in width.
 				""")
 
-		self.AvailableProps["Leading"] = toPropDict(float, None,
+		self.AvailableProps["Leading"] = toPropDict(float, "single",
 				"""Specifies the font leading (how much space to leave between baselines).
 
-				For no leading (descenders of the upper line overlapping ascenders from 
-				the lower line), set Leading the same as FontSize. To have reportlab choose
-				a default leading, set Leading to None.
+				Leading <= 0 : nothing prints.
+				Leading in (FontSize, "single", None) : single-space output.
+				Leading in (FontSize * 2, "double") : double-space output.
+
+				Add any number of "+" or "-" characters after "single" or "double" to increase 
+				or decrease the leading by 10% of the fontsize for each.
+
+				If you choose to specify your own explicit numeric value for Leading, note
+				that you'll have to remember to change it if you ever change the FontSize,
+				to get the same relative spacing. 
 				""")
 
 
@@ -1692,28 +1728,17 @@ class ReportWriter(object):
 				expr = unicode(expr)
 			s = copy.deepcopy(s)
 
-			if "fontSize" in fobject:
-				s.fontSize = fobject.getProp("fontSize")
-
-			if "fontName" in fobject:
-				s.fontName = fobject.getProp("fontName")
-
-			if "leading" in fobject:
-				s.leading = fobject.getProp("leading")
-
-			if "spaceAfter" in fobject:
-				s.spaceAfter = fobject.getProp("spaceAfter")
-
-			if "spaceBefore" in fobject:
-				s.spaceBefore = fobject.getProp("spaceBefore")
-
-			if "leftIndent" in fobject:
-				s.leftIndent = fobject.getProp("leftIndent")
-
-			if "firstLineIndent" in fobject:
-				s.firstLineIndent = fobject.getProp("firstLineIndent")
+			s.fontSize = fobject.getProp("fontSize")
+			s.fontName = fobject.getProp("fontName")
 
 			if isinstance(fobject, (Memo, Paragraph)):
+				s.leading = getFloatLeading(fobject)
+				if isinstance(fobject, Paragraph):
+					# I ditched these props in Memo:
+					s.spaceAfter = fobject.getProp("spaceAfter")
+					s.spaceBefore = fobject.getProp("spaceBefore")
+					s.leftIndent = fobject.getProp("leftIndent")
+					s.firstLineIndent = fobject.getProp("firstLineIndent")
 				paras = expr.splitlines()
 				for idx, para in enumerate(paras):
 					if len(para) == 0:
