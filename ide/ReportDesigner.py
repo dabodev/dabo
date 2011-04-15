@@ -1045,7 +1045,10 @@ class BandLabel(DesignerPanel):
 				else:
 					# Height is None, meaning it is to stretch dynamically at runtime.
 					# However, the user just overrode that by setting it explicitly.
-					oldHeight = 75
+					if "height_def" in self.Parent:
+						oldHeight = self.Parent._rw.getPt(self.Parent.getProp("Height_def"))
+					else:
+						oldHeight = 75
 				newHeight = round(oldHeight + (yoffset/z), 1)
 				if newHeight < 0: newHeight = 0
 				self.Parent.setProp("Height", newHeight)
@@ -2148,8 +2151,10 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 			bandHeight = band.ReportObject.getProp("Height")
 			if bandHeight is None:
-				# dynamic band height: size of band determined at runtime. For now, fake it.
-				bandHeight = 75
+				if "height_def" in band.ReportObject:
+					bandHeight = band.ReportObject.getProp("Height_def")
+				else:
+					bandHeight = 75
 			pointLength = (band._rw.getPt(bandHeight))
 			bandCanvasHeight = z * pointLength
 			band.Height = bandCanvasHeight + b.Height
