@@ -1710,12 +1710,10 @@ class ReportWriter(object):
 		if isinstance(obj, Memo):
 			# Memo doesn't have any subobjects
 			objects = [obj]
-			style = "Normal"
 		else:
 			# Frameset/Paragraph is deprecated
 			objects = obj["Objects"]
-			style = fobject.getProp("style")
-		s = styles.getSampleStyleSheet()[style]
+		s = styles.getSampleStyleSheet()["Normal"]
 		story = []
 
 		for fobject in objects:
@@ -1725,7 +1723,7 @@ class ReportWriter(object):
 			if isinstance(s, basestring):
 				expr = expr.encode(self.Encoding)
 			else:
-				expr = unicode(expr)
+				expr = ustr(expr)
 			s = copy.deepcopy(s)
 
 			s.fontSize = fobject.getProp("fontSize")
