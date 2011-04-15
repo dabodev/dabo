@@ -91,6 +91,8 @@ if dabo.reportTTFontFilePath:
 ## could be a meaningful value in the dataset.
 UNINITIALIZED_VALUE = 'UNINITIALIZED_f49dc68b-1e4c-43ad-81c1-227c1e4f59e6'
 
+CLASSES_TO_SKIP_DEF = ("Report", "Defaults")
+PROPS_TO_SKIP_DEF = ("designerlock", "totalheight", "comment")
 
 def toPropDict(dataType, default, doc):
 	return {"dataType": dataType, "default": default, "doc": doc}
@@ -199,7 +201,6 @@ class Variables(ReportObjectCollection): pass
 class Groups(ReportObjectCollection): pass
 class Objects(ReportObjectCollection): pass
 
-
 class ReportObject(CaselessDict):
 	"""Abstract report object, such as a drawable object, a variable, or a group."""
 	def __init__(self, parent=None, *args, **kwargs):
@@ -235,9 +236,11 @@ class ReportObject(CaselessDict):
 
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the object."""
-		for k, v in self.AvailableProps.items():
-			defProp = self.AvailableProps["%s_def" % k] = v.copy()
-			defProp["doc"] = "This is the DEFAULT value of the property, for design-time evaluation."
+		if self.__class__.__name__ not in CLASSES_TO_SKIP_DEF:
+			for k, v in self.AvailableProps.items():
+				if k.lower() not in PROPS_TO_SKIP_DEF:
+					defProp = self.AvailableProps["%s_def" % k] = v.copy()
+					defProp["doc"] = "This is the DEFAULT value of the property, for design-time evaluation."
 
 	def addElement(self, cls):
 		"""Add a new element, replacing existing one of same name."""
@@ -286,12 +289,33 @@ class ReportObject(CaselessDict):
 			if prop[-4:] != "_def":
 				# First try the default (<prop>_def) value:
 				try:
-					return eval(self["%s_def" % prop])
+					ret = self["%s_def" % prop]
+					if evaluate:
+						ret = eval(ret)
+					return ret
 				except StandardError:
 					pass
-			else:
+		
+			# If the prop is in <Report><Defaults>:
+			if self is not self.ReportForm and (prop in self.ReportForm["Defaults"].AvailableProps
+				or (prop[-4:] == "_def" and prop[:-4] in self.ReportForm["Defaults"].AvailableProps)):
+				try:
+					ret = self.ReportForm["Defaults"][prop]
+					if evaluate:
+						ret = eval(ret)
+					return ret
+				except StandardError:
+					try:
+						ret = self.ReportForm["Defaults"][prop[:-4]]
+						if evaluate:
+							ret = eval(ret)
+						return ret
+					except StandardError:
+						pass
+
+			if prop[-4:] == "_def":
 				prop = prop[:-4]
-			
+
 			# Fall back to defaults for base prop:
 			if prop in self.AvailableProps:
 				val = self.AvailableProps[prop]["default"]
@@ -435,6 +459,14 @@ class ReportObject(CaselessDict):
 	Variables = property(_getVariables)
 
 
+class Defaults(ReportObject):
+	"""Place to put default property values for objects on the report."""
+	def initAvailableProps(self):
+		super(Defaults, self).initAvailableProps()
+		self.AvailableProps["FontName"] = toPropDict(str, "Helvetica", 
+			"""Specifies the default font name to use for all string-like objects.""")
+
+
 class Drawable(ReportObject):
 	"""Abstract drawable report object, such as a rectangle or string."""
 	def initAvailableProps(self):
@@ -534,6 +566,7 @@ class Report(ReportObject):
 		self.setdefault("Subject", '"http://dabodev.com"')
 		self.setdefault("Author", '"Dabo Report Writer"')
 		self.setdefault("Keywords", '("dabo", "report", "writer", "banded", "free")')
+		self.setdefault("Defaults", Defaults(self))
 		self.setdefault("Page", Page(self))
 		self.setdefault("PageHeader", PageHeader(self))
 		self.setdefault("Detail", Detail(self))
@@ -2426,7 +2459,7 @@ class ReportWriter(object):
 
 	def _elementSort(self, x, y):
 		positions = CaselessDict({"author": 0, "title": 2,
-				"subject": 3, "keywords": 4,
+				"subject": 3, "keywords": 4, "defaults": 6,
 				"columnCount": 5, "page": 10,
 				"groups": 50, "variables": 40, "pageBackground": 55,
 				"pageHeader": 60, "groupHeader": 65, "detail": 70,
@@ -2572,7 +2605,7 @@ class ReportWriter(object):
 
 	def _getReportObject(self, objectType, parent):
 		typeMapping = CaselessDict({"Report": Report, "Page": Page,
-				"Group": Group, "Variable": Variable,
+				"Group": Group, "Variable": Variable, "Defaults": Defaults,
 				"PageBackground": PageBackground, "PageHeader": PageHeader,
 				"Detail": Detail, "PageFooter": PageFooter,
 				"GroupHeader": GroupHeader,	"GroupFooter": GroupFooter,
