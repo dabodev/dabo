@@ -1579,8 +1579,15 @@ class DesignerBand(DesignerPanel):
 			width, height = (rect[2], rect[3])
 			thickness = self._anchorThickness
 
-			hAnchor = obj.getProp("hAnchor").lower()
-			vAnchor = obj.getProp("vAnchor").lower()
+			try:
+				hAnchor = obj.getProp("hAnchor").lower()
+			except StandardError:
+				hAnchor = None
+
+			try:
+				vAnchor = obj.getProp("vAnchor").lower()
+			except StandardError:
+				vAnchor = None
 
 			anchors = {"lt": ["left", "top", x-1, y-1],
 					"lb": ["left", "bottom", x-1, y+height-thickness+1],
