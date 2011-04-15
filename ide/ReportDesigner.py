@@ -1401,20 +1401,16 @@ class DesignerBand(DesignerPanel):
 
 			z = self.Parent.Zoom
 
+			fontBold = "Bold" in fontName
+			fontItalic = "Oblique" in fontName or "Italic" in fontName
 			if "helvetica" in fontName.lower():
 				fontFamily = wx.MODERN
-				fontBold = "bold" in fontName.lower()
-				fontItalic = "oblique" in fontName.lower()
 				fontName = "Helvetica"
 			elif "times" in fontName.lower():
 				fontFamily = wx.ROMAN
-				fontBold = "bold" in fontName.lower()
-				fontItalic = "italic" in fontName.lower()
 				fontName = "Times"
 			elif "courier" in fontName.lower():
 				fontFamily = wx.TELETYPE
-				fontBold = "bold" in fontName.lower()
-				fontItalic = "oblique" in fontName.lower()
 				fontName = "Courier"
 			elif "symbol" in fontName.lower():
 				fontFamily = wx.DEFAULT
@@ -1429,8 +1425,6 @@ class DesignerBand(DesignerPanel):
 			else:
 				fontName = "Helvetica"
 				fontFamily = wx.MODERN
-				fontBold = False
-				fontItalic = False
 
 			# Can't seem to get different faces represented
 			font = dabo.ui.dFont()
