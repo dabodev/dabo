@@ -94,9 +94,30 @@ UNINITIALIZED_VALUE = 'UNINITIALIZED_f49dc68b-1e4c-43ad-81c1-227c1e4f59e6'
 CLASSES_TO_SKIP_DEF = ("Report", "Defaults")
 PROPS_TO_SKIP_DEF = ("designerlock", "totalheight", "comment")
 
+substitutedFontNames = []   ## keep track of which fonts we've already substituted, to limit logging
+
+
 def toPropDict(dataType, default, doc):
 	return {"dataType": dataType, "default": default, "doc": doc}
 
+
+def getSubFont(fontName, subFontName="Helvetica"):
+	bold = oblique = False
+	if fontName and "Bold" in fontName:
+		bold = True
+	if fontName and ("Oblique" in fontName or "Italic" in fontName):
+		oblique = True
+	if bold or oblique:
+		subFontName += "-"
+	if bold:
+		subFontName += "Bold"
+	if oblique:
+		subFontName += "Oblique"
+	if subFontName not in substitutedFontNames:
+		dabo.log.error(_("Font '%s' not found. Substituting '%s'") % (fontName, subFontName))
+		substitutedFontNames.append(subFontName)
+	return subFontName
+	
 
 def getFloatLeading(obj):
 	leading = obj.getProp("leading")
@@ -167,8 +188,10 @@ class PageCountCanvas(canvas.Canvas):
 				registerFont(TTFont(psfontname, psfontfile))
 			except TTFError:
 				dabo.log.info(_("Font file can not be found: %s") % psfontfile)
-		canvas.Canvas.setFont(self, psfontname, size, leading)
-
+		try:
+			canvas.Canvas.setFont(self, psfontname, size, leading)
+		except StandardError:
+			canvas.Canvas.setFont(self, getSubFont(psfontname), size, leading)
 
 
 class ReportObjectCollection(list):
@@ -1459,9 +1482,7 @@ class ReportWriter(object):
 			try:
 				c.setFont(fontName, fontSize)
 			except StandardError:
-				# An unavailable fontName was likely specified. The rw docs promise to
-				# default to Helvetica in this case.
-				c.setFont("Helvetica", fontSize)
+				c.setFont(getSubFont(fontName, "Helvetica"), fontSize)
 
 			if borderWidth > 0:
 				stroke = 1
@@ -1761,6 +1782,13 @@ class ReportWriter(object):
 
 			s.fontSize = fobject.getProp("fontSize")
 			s.fontName = fobject.getProp("fontName")
+
+			# If the specified font name isn't available, we need to substitute
+			# the built-in type 1 Helvetica:
+			try:
+				test = ParaClass("", s)
+			except StandardError:
+				s.fontName = getSubFont(s.fontName)
 
 			if isinstance(fobject, (Memo, Paragraph)):
 				s.leading = getFloatLeading(fobject)
