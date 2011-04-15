@@ -2681,7 +2681,9 @@ class ReportDesignerForm(dabo.ui.dForm):
 EditorForm = ReportDesignerForm
 
 
-class XmlEditor(dabo.ui.dEditBox): pass
+class XmlEditor(dabo.ui.dEditor):
+	def initProperties(self):
+		self.Language = "xml"
 
 class PreviewWindow(dabo.ui.dImage):
 	def onPageEnter(self, evt):
