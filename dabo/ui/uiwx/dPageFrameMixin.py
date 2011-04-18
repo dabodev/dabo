@@ -417,7 +417,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		self._updateInactivePages = val
 
 
-		# Property definitions:
+	# Property definitions:
 	PageClass = property(_getPageClass, _setPageClass, None,
 			_("""Specifies the class of control to use for pages by default. (classRef)
 			This really only applies when using the PageCount property to set the
