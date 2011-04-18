@@ -1247,7 +1247,9 @@ class ReportWriter(object):
 			band = self.ReportForm[b]
 			bandObjs.append(band)
 		for b in bandObjs:
-			framesets += [(idx,f,b) for (idx,f) in enumerate(b["Objects"]) if type(f) == Frameset]
+			framesets += [(idx,f,b) for (idx,f) in enumerate(b["Objects"]) 
+					if type(f) == Frameset and len(f["Objects"]) == 1
+					and isinstance(f["Objects"][0], Paragraph)]
 		return framesets
 
 

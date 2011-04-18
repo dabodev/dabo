@@ -2053,10 +2053,13 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			rdc.SelectedObjects = [self._rw.ReportForm]
 			frameset_count = rdc.ReportForm.getFramesetCount()
 			if frameset_count == 1:
-				fs_text = "Frameset"
+				fs_text = "Frameset/Paragraph"
 			else:
-				fs_text = "%s Framesets" % frameset_count
-			if frameset_count > 0 and dabo.ui.areYouSure("Would you like to convert the %s"
+				fs_text = "%s Frameset/Paragraphs" % frameset_count
+			if frameset_count > 0 and dabo.ui.areYouSure("Frameset/Paragraph has been consolidated into a "
+					"new Memo object, which is easier to use and the recommended object for multi-line text. "
+					"You should convert to Memo, and it is easy to do: just click 'yes' below. \n\n"
+					"Would you like to convert the %s"
 					" on this report to the new Memo object?" % fs_text,
 					cancelButton=False):
 				rdc.ReportForm.convertParagraphsToMemos()
