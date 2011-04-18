@@ -1307,7 +1307,12 @@ class dPemMixin(dPemMixinBase):
 		"""Update any dynamic properties, and then call the update() hook."""
 		if isinstance(self, dabo.ui.deadObject) or not self._constructed():
 			return
-		if not self.Visible and not isinstance(self.Parent, dabo.ui.dPageFrameMixin):
+		# Check paged controls event propagation to inactive pages.
+		try:
+			updateInactive = self.Parent.UpdateInactivePages
+		except AttributeError:
+			updateInactive = False
+		if not self.Visible and not updateInactive:
 			## (on Windows and Mac, inactive pages will return Visible==False, but
 			##  we need those pages updated too).
 			return

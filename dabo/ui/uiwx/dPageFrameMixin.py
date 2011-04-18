@@ -410,7 +410,14 @@ class dPageFrameMixin(cm.dControlMixin):
 			raise ValueError(_("The only possible values are 'Top', 'Left', 'Right', and 'Bottom'"))
 
 
-	# Property definitions:
+	def _getUpdateInactivePages(self):
+		return getattr(self, "_updateInactivePages", True)
+
+	def _setUpdateInactivePages(self, val):
+		self._updateInactivePages = val
+
+
+		# Property definitions:
 	PageClass = property(_getPageClass, _setPageClass, None,
 			_("""Specifies the class of control to use for pages by default. (classRef)
 			This really only applies when using the PageCount property to set the
@@ -444,9 +451,15 @@ class dPageFrameMixin(cm.dControlMixin):
 				Right
 				Bottom""") )
 
+	UpdateInactivePages = property(_getUpdateInactivePages, _setUpdateInactivePages, None,
+			_("""Determines if the inactive pages are updated too. (bool)
+			Setting it to False can significantly improve update performance
+			of multipage forms. Default=True."""))
+
 
 	DynamicPageClass = makeDynamicProperty(PageClass)
 	DynamicPageCount = makeDynamicProperty(PageCount)
 	DynamicSelectedPage = makeDynamicProperty(SelectedPage)
 	DynamicSelectedPageNumber = makeDynamicProperty(SelectedPageNumber)
 	DynamicTabPosition = makeDynamicProperty(TabPosition)
+	DynamicUpdateInactivePages = makeDynamicProperty(UpdateInactivePages)
