@@ -2051,6 +2051,15 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 				self._fileName = fileSpec
 			rdc.ActiveEditor = self
 			rdc.SelectedObjects = [self._rw.ReportForm]
+			frameset_count = rdc.ReportForm.getFramesetCount()
+			if frameset_count == 1:
+				fs_text = "Frameset"
+			else:
+				fs_text = "%s Framesets" % frameset_count
+			if frameset_count > 0 and dabo.ui.areYouSure("Would you like to convert the %s"
+					" on this report to the new Memo object?" % fs_text,
+					cancelButton=False):
+				rdc.ReportForm.convertParagraphsToMemos()
 		else:
 			raise ValueError("File %s does not exist." % fileSpec)
 		return True

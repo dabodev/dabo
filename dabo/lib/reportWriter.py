@@ -1224,6 +1224,49 @@ class ReportWriter(object):
 		if self.PrintStatus:
 			print "Report End."
 
+
+	def getFramesetCount(self):
+		"""Returns the number of framesets in the report."""
+		print self.getFramesets()
+		return len(self.getFramesets())
+
+
+	def getFramesets(self):
+		"""Returns a list of (idx, frameset, band) for every frameset in the report.
+
+		idx is the position in the Objects list for whatever band the
+		frameset is part of.
+		"""
+		bands = [b for b in self.Bands if "group" not in b.lower()]
+		bandObjs = []
+		framesets = []
+		for g in self.ReportForm["Groups"]:
+			for b in (g["groupheader"], g["groupfooter"]):
+				bandObjs.append(b)
+		for b in bands:
+			band = self.ReportForm[b]
+			bandObjs.append(band)
+		for b in bandObjs:
+			framesets += [(idx,f,b) for (idx,f) in enumerate(b["Objects"]) if type(f) == Frameset]
+		return framesets
+
+
+	def convertParagraphsToMemos(self):
+		"""Converts all Paragraph objects to Memo objects."""
+		framesets = self.getFramesets()
+		for idx_f_b in framesets:
+			idx, f, b = idx_f_b
+			m = Memo(b)
+			p = f["Objects"][0]
+			for k, v in p.items():
+				m[k] = v
+			for k, v in f.items():
+				if k.lower() not in ("objects",):
+					m[k] = v
+			f.parent[idx] = m
+				
+				
+ 
 	def storeSpanningObject(self, obj, origin=(0,0), group=None):
 		"""Store the passed spanning object for printing when the group or
 		page ends. Pass the group expr to identify group headers, or None to refer
