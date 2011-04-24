@@ -389,7 +389,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 				strVal = self.NoneDisplay
 			else:
 				strVal = val
-			_oldVal = self._oldVal = self.Value
+			_oldVal = self.Value
 
 			# save the actual value for return by _getValue:
 			self._value = val
@@ -513,7 +513,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				retVal = mx.DateTime.DateTimeFrom(ustr(strVal))
 			except ImportError:
 				raise ValueError(_("Can't import mx.DateTime"))
-		elif ustr(dataType) == "<type 'DateTimeDelta'>":
+		elif ustr(dataType) in ("<type 'datetime.timedelta'>", "<type 'DateTimeDelta'>",
+				"<type 'mx.DateTime.DateTimeDelta'>"):
 			# mx TimeDelta type. MySQLdb will use this for Time columns if mx is installed.
 			try:
 				import mx.DateTime
@@ -759,7 +760,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				dabo.ui.callAfter(self._checkTextLength)
 
 			strVal = self.getStringValue(val)
-			_oldVal = self._oldVal = self.Value
+			_oldVal = self.Value
 
 			# save the actual value for return by _getValue:
 			self._value = val
