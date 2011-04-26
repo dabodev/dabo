@@ -18,7 +18,7 @@ for lib in ("reportlab", "Image"):
 		_failedLibs.append(lib)
 
 if len(_failedLibs) > 0:
-	msg = """
+	msg = _("""
 The Dabo Report Writer has dependencies on libraries you
 don't appear to have installed. You still need:
 
@@ -34,7 +34,7 @@ If you are on a Debian Linux system, just issue:
 sudo apt-get install python-reportlab
 sudo apt-get install python-imaging
 
-	""" % "\n\t".join(_failedLibs)
+	""") % "\n\t".join(_failedLibs)
 
 	raise ImportError(msg)
 del(_failedLibs)
@@ -1227,7 +1227,6 @@ class ReportWriter(object):
 
 	def getFramesetCount(self):
 		"""Returns the number of framesets in the report."""
-		print self.getFramesets()
 		return len(self.getFramesets())
 
 
