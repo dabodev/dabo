@@ -83,6 +83,19 @@ def addReportTTFontFilePath(paths):
 		TTFSearchPath.append(path)
 
 
+# Add the truetype font paths for the running system:
+if sys.platform[:3] == "lin":
+	fontPaths = [os.path.join("/usr/share/fonts/truetype", d) for d in os.listdir("/usr/share/fonts/truetype")]
+elif sys.platform[:3] == "dar":
+	fontPaths = ["/Network/Library/Fonts", "/Library/Fonts",	"System/Library/Fonts",	"~/Library/Fonts"]
+elif sys.platform[:3] == "win":
+	fontPaths = []
+
+for fontPath in fontPaths:
+	if os.path.exists(fontPath) and os.path.isdir(fontPath):
+		addReportTTFontFilePath(fontPath)
+
+# Add the truetype font path in dabo.settings:
 if dabo.reportTTFontFilePath:
 	addReportTTFontFilePath(dabo.reportTTFontFilePath)
 
