@@ -87,7 +87,7 @@ def addReportTTFontFilePath(paths):
 if sys.platform[:3] == "lin":
 	fontPaths = [os.path.join("/usr/share/fonts/truetype", d) for d in os.listdir("/usr/share/fonts/truetype")]
 elif sys.platform[:3] == "dar":
-	fontPaths = ["/Network/Library/Fonts", "/Library/Fonts",	"System/Library/Fonts",	"~/Library/Fonts"]
+	fontPaths = ["/Network/Library/Fonts", "/Library/Fonts", "System/Library/Fonts", "%s/Library/Fonts" % os.path.expanduser("~")]
 elif sys.platform[:3] == "win":
 	fontPaths = []
 
