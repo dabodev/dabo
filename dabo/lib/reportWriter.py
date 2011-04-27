@@ -89,8 +89,7 @@ if sys.platform[:3] == "lin":
 elif sys.platform[:3] == "dar":
 	fontPaths = ["/Network/Library/Fonts", "/Library/Fonts", "System/Library/Fonts", "%s/Library/Fonts" % os.path.expanduser("~")]
 elif sys.platform[:3] == "win":
-	windir = os.environ.get("windir", "c:/windows")
-	fontPaths = [os.path.join(windir, "fonts")]
+	fontPaths = [os.path.join(os.path.expandvars("%windir%"), "fonts")]
 
 for fontPath in fontPaths:
 	if os.path.exists(fontPath) and os.path.isdir(fontPath):
