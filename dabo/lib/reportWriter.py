@@ -8,6 +8,7 @@ Decimal = decimal.Decimal
 import locale
 import sys
 import os
+from dabo.dLocalize import _
 ######################################################
 # Very first thing: check for required libraries:
 _failedLibs = []
