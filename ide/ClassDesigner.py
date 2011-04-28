@@ -2534,8 +2534,7 @@ class ClassDesigner(dabo.dApp):
 			if self.UseSizers:
 				# Grab the first LayoutPanel
 				lps = [ch for ch in obj.Children
-						if isinstance(ch, LayoutPanel)
-						and len(ch.Children)==0]
+						if isinstance(ch, LayoutPanel)]
 				try:
 					ret = lps[0]
 				except:
@@ -2555,6 +2554,11 @@ class ClassDesigner(dabo.dApp):
 		# controls programmatically.
 		if self.UseSizers and isinstance(pnl, (dui.dPage, dui.dForm, dui.dFormMain)):
 			pnl = self.getMainLayoutPanel(pnl)
+			try:
+				pnl.Sizer.release(releaseContents=True)
+			except AttributeError:
+				# No sizer, so ignore
+				pass
 		elif pnl is None and not self.UseSizers:
 			pnl = self.CurrentForm.ActiveContainer
 		return pnl
