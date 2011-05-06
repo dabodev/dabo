@@ -546,7 +546,7 @@ class EditorForm(dui.dForm):
 			# Previous values from the form might still be in the dict.
 			# Blank them out, as they are not valid for file-based backends.
 			v0["host"] = v0["user"] = v0["password"] = v0["port"] = ""
-		xml = createXML(vals)
+		xml = createXML(vals, encoding="utf-8")
 		file(self.connFile, "w").write(xml)
 		dabo.ui.callAfter(self.bringToFront)
 
