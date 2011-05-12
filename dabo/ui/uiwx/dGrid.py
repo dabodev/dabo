@@ -3244,7 +3244,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				## it's been set as the property but because it wasn't part of the grid
 				## yet it hasn't yet taken effect: force it.
 				col.Width = col.Width
-		except wx.PyAssertionError:
+		except (wx.PyAssertionError, wx.core.PyAssertionError, wx._core.PyAssertionError):
 			# If the underlying wx grid doesn't yet know about the column, such
 			# as when adding columns with inBatch=True, this can throw an error
 			if not inBatch:
