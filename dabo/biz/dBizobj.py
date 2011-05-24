@@ -441,12 +441,12 @@ class dBizobj(dObject):
 				dabo.log.error(_("Failed to set RowNumber. Error: %s") % ustr(e))
 
 
-	def save(self, startTransaction=True):
+	def save(self, startTransaction=True, saveTheChildren=True):
 		"""
 		Save any changes that have been made in the current row.
 
 		If the save is successful, the saveAll() of all child bizobjs will be
-		called as well.
+		called as well if saveTheChildren is True (the default).
 		"""
 		rp = self._RemoteProxy
 		if rp:
@@ -474,12 +474,13 @@ class dBizobj(dObject):
 				# Call the hook method for saving new records.
 				self._onSaveNew()
 
-			# Iterate through the child bizobjs, telling them to save themselves.
-			for child in self.__children:
-				# No need to start another transaction. And since this is a child bizobj,
-				# we need to save all rows that have changed.
-				if child.RowCount > 0:
-					child.saveAll(startTransaction=False)
+			if saveTheChildren:
+				# Iterate through the child bizobjs, telling them to save themselves.
+				for child in self.__children:
+					# No need to start another transaction. And since this is a child bizobj,
+					# we need to save all rows that have changed.
+					if child.RowCount > 0:
+						child.saveAll(startTransaction=False)
 
 			# Finish the transaction, and requery the children if needed.
 			if startTransaction:
