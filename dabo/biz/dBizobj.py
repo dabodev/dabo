@@ -186,8 +186,9 @@ class dBizobj(dObject):
 		executing.
 		"""
 		if self.__cursors:
-			_dataStructure = getattr(self.__cursors[self.__cursors.keys()[0]], "_dataStructure", None)
-			self._virtualFields = getattr(self.__cursors[self.__cursors.keys()[0]], "_virtualFields", {})
+			cursorKey = self.__cursors.keys()[0]
+			_dataStructure = getattr(self.__cursors[cursorKey], "_dataStructure", None)
+			self._virtualFields = getattr(self.__cursors[cursorKey], "_virtualFields", {})
 		else:
 			# The first cursor is being created, before DataStructure is assigned.
 			_dataStructure = None
@@ -1382,7 +1383,8 @@ class dBizobj(dObject):
 				runRequery=True)
 		if row == -1:
 			# Need to use ustr(pk) because pk might be a tuple.
-			raise dabo.dException.RowNotFoundException, _("PK Value '%s' not found in the dataset") % ustr(pk)
+			raise dabo.dException.RowNotFoundException(
+					_("PK Value '%s' not found in the dataset of '%s'") % (ustr(pk), self.Name))
 
 
 	def hasPK(self, pk):
@@ -1582,8 +1584,6 @@ class dBizobj(dObject):
 		if self.LinkField:
 			if val is None:
 				val = self.getParentLinkValue()
-			# Update the key value for the cursor
-			self.__currentCursorKey = val
 			# Make sure there is a cursor object for this key.
 			self._CurrentCursor = val
 			if _oldKey != val:
@@ -2656,6 +2656,9 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 			_("""If this is a child bizobj, this represents the length of time in seconds that a
 			subsequent requery request will be ignored.  (int)
 			"""))
+
+	Connection = property(_getConnection, None, None,
+			_("The dConnection object used to connect with the backend database."))
 
 	CurrentSQL = property(_getCurrentSQL, None, None,
 			_("Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."))
