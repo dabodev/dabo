@@ -441,7 +441,7 @@ class dBizobj(dObject):
 		if rp:
 			return rp.save(startTransaction=startTransaction)
 		rowCount = self.RowCount
-		if not self.isChanged(includeNewUnchanged=self.SaveNewUnchanged) and rowCount:
+		if not self.isChanged() and rowCount:
 			return
 		# Check if current data set is changed.
 		cursor = self._CurrentCursor
@@ -1493,8 +1493,6 @@ class dBizobj(dObject):
 			self._CurrentCursor = crsKey
 		if not self.RowCount:
 			return False
-		if includeNewUnchanged is None:
-			includeNewUnchanged = self.SaveNewUnchanged
 
 		def _isThisChanged():
 			self.exitScan = self.isChanged(includeNewUnchanged)
@@ -1538,7 +1536,7 @@ class dBizobj(dObject):
 
 		if not ret:
 			for child in self.getChildren():
-				ret = child.isAnyChanged(includeNewUnchanged=includeNewUnchanged)
+				ret = child.isAnyChanged()
 				if ret:
 					break
 		return ret
