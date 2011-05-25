@@ -409,12 +409,13 @@ class dBizobj(dObject):
 		"""
 		# JKA: I can't see any sense in using 'scanChangedRows()' here, since
 		# we must check for changes in 'save()' method too.
-		if not self.RowCount:
-			# If there are no records, there can be no changes
-			return
 		rp = self._RemoteProxy
 		if rp:
 			return rp.saveAll(startTransaction=startTransaction)
+		if not self.RowCount:
+			# If there are no records, there can be no changes
+			return
+
 		startTransaction = startTransaction and self.beginTransaction()
 		try:
 			self.scan(self.save, startTransaction=False, scanRequeryChildren=False)
@@ -436,15 +437,12 @@ class dBizobj(dObject):
 		If the save is successful, the saveAll() of all child bizobjs will be
 		called as well if saveTheChildren is True (the default).
 		"""
-		if not self.RowCount:
-			# If there are no records, there can be no changes
-			return
-		if not self.isChanged(includeNewUnchanged=self.SaveNewUnchanged):
-			return
 		rp = self._RemoteProxy
 		if rp:
 			return rp.save(startTransaction=startTransaction)
-
+		rowCount = self.RowCount
+		if not self.isChanged(includeNewUnchanged=self.SaveNewUnchanged) and rowCount:
+			return
 		# Check if current data set is changed.
 		cursor = self._CurrentCursor
 		errMsg = self.beforeSave()
@@ -469,7 +467,8 @@ class dBizobj(dObject):
 
 		try:
 			# Maybe this record isn't changed but some children are.
-			if isRowChanged or isAdding:
+			# We must call cursor.save() for empty dataset to get NoRecordsException.
+			if isRowChanged or isAdding or not rowCount:
 				# Save cursor data.
 				cursor.save(includeNewUnchanged=True)
 				if isAdding:
