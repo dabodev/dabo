@@ -48,6 +48,7 @@ class dDataSet(tuple):
 		self._cursor = None
 		self._bizobj = None
 		self._populated = False
+		self._typeStructure = {}
 		# We may need to encode fields that are not legal names.
 		self.fieldAliases = {}
 		# Keep a hash value to tell if we need to re-populate
@@ -64,6 +65,7 @@ class dDataSet(tuple):
 		self._typeDict = {int: "integer", long: "integer", str: "text",
 				unicode: "text", float: "real", datetime.date: "date",
 				datetime.datetime: "timestamp", Decimal: "decimal"}
+
 
 
 	def __del__(self):
@@ -276,7 +278,10 @@ class dDataSet(tuple):
 				self.fieldAliases[safekey] = key
 			else:
 				safekey = key
-			typ = type(rec[key])
+			try:
+				typ = dabo.db.getPythonType(self._typeStructure[key][0])
+			except KeyError:
+				typ = type(rec[key])
 			try:
 				retList.append("%s %s" % (safekey, ds._typeDict[typ]))
 			except KeyError:
@@ -444,6 +449,12 @@ class dDataSet(tuple):
 			ret = ret._sourceDataSet
 		return ret
 
+	def _getTypeStructure(self):
+		return self._typeStructure
+
+	def _setTypeStructure(self, val):
+		self._typeStructure = val
+
 
 	Bizobj = property(_getBizobj, _setBizobj, None,
 			_("Reference to the bizobj that 'owns' this data set. Default=None  (bizobj)"))
@@ -452,11 +463,13 @@ class dDataSet(tuple):
 			_("Reference to the bizobj that 'owns' this data set. Default=None  (dCursorMixin)"))
 
 	Encoding = property(_getEncoding, _setEncoding, None,
-			_(" The encoding used for data in the dataset.  (str)"))
+			_("The encoding used for data in the dataset.  (str)"))
 
 	UnfilteredDataSet = property(_getUnfilteredDataSet, None, None,
 			_("""If filters have been applied, returns the unfiltered dataset that would be returned if removeFilters() had been called. If no filters have been applied, returns self  (dDataSet)"""))
 
+	TypeStructure = property(_getTypeStructure, _setTypeStructure, None,
+			_("""An optional helper dictionary matching field names to dabo data types."""))
 
 
 
