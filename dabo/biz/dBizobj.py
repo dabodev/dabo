@@ -81,7 +81,7 @@ class dBizobj(dObject):
 		self._scanRequeryChildren = True
 		self._scanReverse = False
 		self._userSQL = None
-		self._parent  = None
+		self._parent = None
 		self._autoPopulatePK = True
 		self._autoQuoteNames = True
 		self._keyField = ""
@@ -234,9 +234,9 @@ class dBizobj(dObject):
 			superCursor = secondary
 			def __init__(self, *args, **kwargs):
 				if hasattr(main, "__init__"):
-					apply(main.__init__,(self,) + args, kwargs)
+					apply(main.__init__, (self,) + args, kwargs)
 				if hasattr(secondary, "__init__"):
-					apply(secondary.__init__,(self,) + args, kwargs)
+					apply(secondary.__init__, (self,) + args, kwargs)
 		return  cursorMix
 
 
@@ -824,7 +824,7 @@ class dBizobj(dObject):
 					except StandardError, e:
 						# Perhaps the row was deleted; at any rate, leave the pointer
 						# at the end of the data set
-						row = self.RowCount  - 1
+						row = self.RowCount - 1
 						if row >= 0:
 							self.RowNumber = row
 		requeryChildren = self.ScanRequeryChildren
@@ -1146,7 +1146,7 @@ class dBizobj(dObject):
 		cursor's standard method for merging.
 		"""
 		if not isinstance(params, tuple):
-			params = (params, )
+			params = (params,)
 		self.__params = params
 
 
@@ -1175,7 +1175,7 @@ class dBizobj(dObject):
 		if fld in self.VirtualFields:
 			self.scan(self.scanVirtualFields, fld=fld, expr=expr, op=op, reverse=True)
 			self._CurrentCursor.filterByExpression("%s IN (%s)" % (
-					self.KeyField, ", ".join( "%i" % key for key in self.__filterPKVirtual)))
+					self.KeyField, ", ".join("%i" % key for key in self.__filterPKVirtual)))
 			# clear filter ids
 			self.__filterPKVirtual = []
 		else:
@@ -1788,14 +1788,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			level = 0
 		def addToBody(txt, lvl=None):
 			if lvl:
-				txt = "\n".join(["%s%s" % ("\t"*lvl, ln) for ln in txt.splitlines()])
+				txt = "\n".join(["%s%s" % ("\t" * lvl, ln) for ln in txt.splitlines()])
 				if txt and not txt.endswith("\n"):
 					txt += "\n"
 			self._xmlBody += txt
 		if rows is None:
-			self.scan(self._xmlForRow, level=level+1, callback=addToBody)
+			self.scan(self._xmlForRow, level=level + 1, callback=addToBody)
 		else:
-			self.scanRows(self._xmlForRow, self.RowNumber, level=level+1,
+			self.scanRows(self._xmlForRow, self.RowNumber, level=level + 1,
 					callback=addToBody)
 		return self._xmlBody
 
@@ -1808,7 +1808,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		xml = self._CurrentCursor._xmlForRow()
 		kidXML = ""
 		for kid in self.__children:
-			kidstuff = kid._dataToXML(level=level+1)
+			kidstuff = kid._dataToXML(level=level + 1)
 			if kidstuff:
 				kidXML += self._childTemplate % (kid.DataSource, kidstuff)
 			else:
@@ -2092,7 +2092,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			mainDoc = "Hook method called %s %s." % (mode, action)
 		if additionalDoc is None:
 			if mode == "before":
-				additionalDoc =  """Subclasses can put in additional code to run, and/or return a non-empty
+				additionalDoc = """Subclasses can put in additional code to run, and/or return a non-empty
 string to signify that the action should not happen. The contents
 of the string will be displayed to the user."""
 			else:
@@ -2100,7 +2100,7 @@ of the string will be displayed to the user."""
 
 		def method(self):
 			return ""
-		method.__doc__ =  "%s\n\n%s" % (mainDoc, additionalDoc)
+		method.__doc__ = "%s\n\n%s" % (mainDoc, additionalDoc)
 		method.func_name = name
 		return method
 
@@ -2697,7 +2697,7 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 			"""))
 
 	Encoding = property(_getEncoding, _setEncoding, None,
-			_("Name of encoding to use for unicode  (str)") )
+			_("Name of encoding to use for unicode  (str)"))
 
 	FillLinkFromParent = property(_getFillLinkFromParent, _setFillLinkFromParent, None,
 			_("""In the onNew() method, do we fill in the foreign key field specified by the
@@ -2798,7 +2798,7 @@ of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1
 			_("DEPRECATED. Equivalent to UserSQL. (str)"))
 
 	SqlManager = property(_getSqlMgr, None, None,
-			_("Reference to the cursor that handles SQL Builder information (cursor)") )
+			_("Reference to the cursor that handles SQL Builder information (cursor)"))
 
 	UserSQL = property(_getUserSQL, _setUserSQL, None,
 			_("SQL statement to run. If set, the automatic SQL builder will not be used."))
