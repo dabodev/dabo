@@ -440,8 +440,9 @@ class dBizobj(dObject):
 		rp = self._RemoteProxy
 		if rp:
 			return rp.save(startTransaction=startTransaction)
-		rowCount = self.RowCount
-		if not self.isChanged() and rowCount:
+		if not self.RowCount:
+			dabo.log.error(_("Abort attempt to save an empty cursor of %s.") % self.Name)
+		if not self.isChanged():
 			return
 		# Check if current data set is changed.
 		cursor = self._CurrentCursor
@@ -467,8 +468,7 @@ class dBizobj(dObject):
 
 		try:
 			# Maybe this record isn't changed but some children are.
-			# We must call cursor.save() for empty dataset to get NoRecordsException.
-			if isRowChanged or isAdding or not rowCount:
+			if isRowChanged or isAdding:
 				# Save cursor data.
 				cursor.save(includeNewUnchanged=True)
 				if isAdding:
