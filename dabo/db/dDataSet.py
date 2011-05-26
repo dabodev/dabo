@@ -66,6 +66,7 @@ class dDataSet(tuple):
 				unicode: "text", float: "real", datetime.date: "date",
 				datetime.datetime: "timestamp", Decimal: "decimal"}
 
+		self._typeStructure = None
 
 
 	def __del__(self):
@@ -261,7 +262,11 @@ class dDataSet(tuple):
 	def _makeCreateTable(self, ds, alias=None):
 		"""Makes the CREATE TABLE string needed to represent
 		this data set. There must be at least one record in the
-		data set, or we can't get the necessary column info.
+		data set, or we can't get the necessary column info. Optional, can use
+		TypeStructure property to give data type hint to CREATE TABLE process.
+		TypeStructure is a dictionary of form:
+		{"fld_name":"field_type"} where field_type is the same as that in
+		DataStructure. Ex: field_type "I" equals integer, "B" boolean,etc.
 		"""
 		if len(ds) == 0:
 			return None
