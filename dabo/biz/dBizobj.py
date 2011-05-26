@@ -442,6 +442,7 @@ class dBizobj(dObject):
 			return rp.save(startTransaction=startTransaction)
 		if not self.RowCount:
 			dabo.log.error(_("Abort attempt to save an empty cursor of %s.") % self.Name)
+			return
 		if not self.isChanged():
 			return
 		# Check if current data set is changed.
