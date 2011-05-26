@@ -66,7 +66,6 @@ class dDataSet(tuple):
 				unicode: "text", float: "real", datetime.date: "date",
 				datetime.datetime: "timestamp", Decimal: "decimal"}
 
-		self._typeStructure = None
 
 
 	def __del__(self):
