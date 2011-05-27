@@ -1809,8 +1809,11 @@ class ReportWriter(object):
 		return deferred, neededHeight
 
 
-	def getStory(self, obj):
+	def getStory(self, obj, overrideExpr=None, overrideFontSize=None):
 		width = self.getPt(obj.getProp("width"))
+		height = obj.getProp("height")
+		if height is not None:
+			height = self.getPt(height)
 		padLeft = self.getPt(obj.getProp("padLeft"))
 		padRight = self.getPt(obj.getProp("padRight"))
 		padTop = self.getPt(obj.getProp("padTop"))
@@ -1829,7 +1832,10 @@ class ReportWriter(object):
 
 		for fobject in objects:
 			objNeededHeight = 0
-			expr = fobject.getProp("expr")
+			if overrideExpr:
+				expr = overrideExpr
+			else:
+				expr = fobject.getProp("expr")
 
 			if isinstance(s, basestring):
 				expr = expr.encode(self.Encoding)
@@ -1837,7 +1843,10 @@ class ReportWriter(object):
 				expr = ustr(expr)
 			s = copy.deepcopy(s)
 
-			s.fontSize = fobject.getProp("fontSize")
+			if overrideFontSize:
+				s.fontSize = overrideFontSize
+			else:
+				s.fontSize = fobject.getProp("fontSize")
 			s.fontName = fobject.getProp("fontName")
 
 			# If the specified font name isn't available, we need to substitute
@@ -1885,6 +1894,8 @@ class ReportWriter(object):
 					hackDeferredPara()
 
 		neededHeight = objNeededHeight + padTop + padBottom
+		if height is not None and neededHeight > height and not overrideExpr:
+			return self.getStory(obj, overrideExpr="<<< string too long >>>", overrideFontSize=7)
 		return story, neededHeight
 
 
