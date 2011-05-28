@@ -24,6 +24,8 @@ class dNode(dObject):
 		self.parent = parent
 		# Nodes can have objects associated with them
 		self._object = None
+		# Nodes can also be associated with a file path
+		self._filePath = None
 		# Custom text to display as a tooltip
 		self._toolTipText = None
 		# Add minimal Dabo functionality
@@ -891,7 +893,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 					return
 			self.setNodeImg(nd, "folder", "normal")
 			self.setNodeImg(nd, "folderopen", "expanded")
-			nd.ToolTipText = currDir
+			nd.ToolTipText = nd._filePath = currDir
 			acceptedNames = ignoredNames = None
 			if wildcard is not None:
 				acceptedNames = glob.glob(os.path.join(currDir, wildcard))
@@ -913,6 +915,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 					if fullName in ignoredNames:
 						continue
 				kid = nd.appendChild(f)
+				kid._filePath = fullName
 				self.setNodeImg(kid, "file", "normal")
 				kid.ToolTipText = fullName
 
