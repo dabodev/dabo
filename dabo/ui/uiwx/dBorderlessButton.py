@@ -46,6 +46,10 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 		# On some platforms, we need to add some 'breathing room'
 		# around the bitmap image in order for it to appear correctly
 		self._bmpBorder = 10
+		self._buttonShape = self._extractKey((kwargs, properties, attProperties),
+			"ButtonShape", "Normal")
+		kwargs["style"] = kwargs.get("style", 0) | \
+			{"n": platebtn.PB_STYLE_DEFAULT, "s": platebtn.PB_STYLE_SQUARE}[self._buttonShape[0].lower()]
 
 		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
@@ -74,6 +78,10 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 				raise ValueError("BackColorHover must be a valid color string or tuple")
 		else:
 			self._properties["BackColorHover"] = val
+
+
+	def _getButtonShape(self):
+		return {"n": "Normal", "s": "Square"}[self._buttonShape[0]]
 
 
 	def _getCancelButton(self):
@@ -132,6 +140,12 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 
 	Bitmap = property(_getNormalBitmap, None, None,
 		_("""The bitmap normally displayed on the button.  (wx.Bitmap)"""))
+
+	ButtonShape = property(_getButtonShape, None,
+		_("""Shape of the button. (str)
+		
+		Normal	:	button with rounded corners. (default)
+		Square	:	button with square corners."""))
 
 	Picture = property(_getNormalPicture, _setNormalPicture, None,
 		_("""Specifies the image normally displayed on the button. (str)"""))
