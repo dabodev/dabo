@@ -2031,7 +2031,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				try:
 					ret = sortList[numSmaller][1]
 				except IndexError:
-					ret = 0
+					ret = len(sortList) - 1
 		if movePointer and ret > -1:
 			# Move the record pointer
 			self.RowNumber = ret
