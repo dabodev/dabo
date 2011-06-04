@@ -285,7 +285,7 @@ class SizerPaletteForm(dui.dToolForm):
 		self.Sizer = dui.dSizer("V")
 		self.mainPanel = mp = dui.dPanel(self)
 		self.Sizer.append1x(mp)
-		mp.Sizer = sz = dui.dSizer("V")
+		mp.Sizer = sz = dui.dSizer("H")
 		scpnl = SizerContentPanel(mp)
 		self.contentFrame = scpnl.pgf
 		sspnl = SizerSelfPanel(mp)
@@ -307,6 +307,7 @@ class SizerPaletteForm(dui.dToolForm):
 		self.contentFrame.setFromObject(obj)
 		self.sizerFrame.setFromObject(obj)
 		self.layout()
+		dabo.ui.callAfter(self.fitToSizer, extraHeight=10)
 		self.update()
 
 	def layout(self):
