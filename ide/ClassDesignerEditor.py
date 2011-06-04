@@ -61,19 +61,6 @@ class EditorControl(dui.dEditor):
 			else:
 				end = len(curr) - mstart
 				start = end - len(findString)
-#
-# 		try:
-# 			idx = curr.index(adjFindString)
-# 		except ValueError:
-# 			# Not found
-# 			idx = None
-# 		if idx is not None:
-# 			if downwardSearch:
-# 				start = selEnd + idx
-# 				end = start + len(findString)
-# 			else:
-# 				end = len(curr) - idx
-# 				start = end - len(findString)
 
 			if action == "Replace":
 				txt = self.Value
