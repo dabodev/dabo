@@ -29,6 +29,65 @@ class EditorControl(dui.dEditor):
 		return self.Form.getAllText()
 
 
+	def onFindOverride(self, action, findString, replaceString, downwardSearch,
+			wholeWord, matchCase):
+		# First, check the current code.
+		# Only consider code past the current selection position
+		# (or before, if searching upwards).
+		selStart, selEnd = self.SelectionPosition
+		if downwardSearch:
+			curr = self.Value[selEnd:]
+		else:
+			curr = self.Value[:selStart][::-1]
+		adjFindString = findString
+		if not matchCase:
+			adjFindString = findString.lower()
+			curr = curr.lower()
+		if not downwardSearch:
+			adjFindString = adjFindString[::-1]
+
+		if matchCase:
+			flg = 0
+		else:
+			flg = re.I
+		if wholeWord:
+			adjFindString = r"\b%s\b" % adjFindString
+		mtch = re.search(adjFindString, curr, flg)
+		if mtch:
+			mstart, mend = mtch.span()
+			if downwardSearch:
+				start = selEnd + mstart
+				end = start + len(findString)
+			else:
+				end = len(curr) - mstart
+				start = end - len(findString)
+#
+# 		try:
+# 			idx = curr.index(adjFindString)
+# 		except ValueError:
+# 			# Not found
+# 			idx = None
+# 		if idx is not None:
+# 			if downwardSearch:
+# 				start = selEnd + idx
+# 				end = start + len(findString)
+# 			else:
+# 				end = len(curr) - idx
+# 				start = end - len(findString)
+
+			if action == "Replace":
+				txt = self.Value
+				self.Value = "%s%s%s" % (txt[:start], replaceString, txt[end:])
+				end = start + len(replaceString)
+			self.SelectionPosition = (start, end)
+			return True
+		# No matches in the current code. Pass this up to the form to check other
+		# methods for the string.
+		return self.Form.extendedEditorSearch(action=action, findString=findString,
+				replaceString=replaceString, downwardSearch=downwardSearch,
+				wholeWord=wholeWord, matchCase=matchCase)
+
+
 	def _getRuntimeObject(self, runtimeObjectName):
 		obj = self.Form.getEditedObject()
 		if runtimeObjectName == "self.Form":
@@ -139,12 +198,15 @@ class EditorForm(dui.dForm):
 		self._defaultHeight = 260
 		self._methodNamePat = re.compile(r"^def ([^\(]+)\(")
 		self._syntaxLinePat = re.compile(r"([^\(]+) \(.*, line (\d+)\)")
+		self._lastSearch = ""
 
 		self._objHierarchy = []
 		pnl = dabo.ui.dPanel(self)
 		self.Sizer.append1x(pnl)
 		sz = pnl.Sizer = dabo.ui.dSizer("v")
 
+		dui.dBitmapButton(pnl, Picture="downTriangleBlack", RegID="btnNavigate",
+				OnHit=self.onCodeNavigate, ToolTipText="Jump to Method...")
 		dui.dLabel(pnl, Caption=_("Object:"), RegID="lblObj")
 		dui.dDropdownList(pnl, RegID="ddObject", OnHit=self.onHitDDObject)
 		dui.dLabel(pnl, Caption=_("Method:"), RegID="lblMethod")
@@ -152,6 +214,8 @@ class EditorForm(dui.dForm):
 		hs = dui.dSizer("h", DefaultBorder=8, DefaultBorderTop=True,
 				DefaultBorderBottom=True)
 		hs.appendSpacer(8)
+		hs.append(self.btnNavigate, 0, valign="bottom")
+		hs.appendSpacer(6)
 		hs.append(self.lblObj, 0, valign="middle")
 		hs.appendSpacer(2)
 		hs.append(self.ddObject, 0)
@@ -196,6 +260,7 @@ class EditorForm(dui.dForm):
 
 	def afterSetMenuBar(self):
 		ClassDesignerMenu.mkDesignerMenu(self)
+
 		fmn = self.MenuBar.append(_("Font"))
 		fmn.append(_("Increase Font Size"), HotKey="Ctrl++", OnHit=self.fontIncrease)
 		fmn.append(_("Decrease Font Size"), HotKey="Ctrl+-", OnHit=self.fontDecrease)
@@ -215,6 +280,9 @@ class EditorForm(dui.dForm):
 		self._whiteSpaceItem = emn.append(_("White Space Characters"),
 				OnHit=self.onWhiteSpace, bmp="", help=_("Toggle White Space Characters"),
 				menutype="check")
+		self._showMethodsItem = emn.append(_("Jump To Method..."),
+				OnHit=self.onCodeNavigate, bmp="", help=_("Show the method navigation menu"),
+				HotKey="Ctrl+J")
 
 		emn.appendSeparator()
 
@@ -274,6 +342,7 @@ class EditorForm(dui.dForm):
 
 	def getAllText(self):
 		cr = self.CodeRepository
+		# Keys are the objects that containing code
 		codeDict = cr.values()
 		cd = [self.editor.Value]
 		for dct in codeDict:
@@ -298,11 +367,14 @@ class EditorForm(dui.dForm):
 
 	def edit(self, obj, mthd=None, nonEvent=None, discardChanges=False):
 		"""Opens an editor for the specified object and method."""
-		if mthd is None:
-			self.ddObject.KeyValue = obj
-			self.populateMethodList()
-			self.ddMethod.PositionValue = 0
+		if (mthd is None) and (self.ddObject.KeyValue is obj):
+			# On the correct object; use the current method
 			mthd = self.ddMethod.StringValue
+		if mthd is None:
+				self.ddObject.KeyValue = obj
+				self.populateMethodList()
+				self.ddMethod.PositionValue = 0
+				mthd = self.ddMethod.StringValue
 		mthd = mthd.replace("*", "")
 		rep = self.CodeRepository
 		ed = self.editor
@@ -324,6 +396,7 @@ class EditorForm(dui.dForm):
 			txt = self._getMethodBase(mthd, not (nonEvent is True))
 		if isinstance(txt, str):
 			txt = txt.decode(ed.Encoding)
+		txt = txt.strip()
 		if ed.Value != txt:
 			ed.Value = txt
 			ed._clearDocument(clearText=False)
@@ -341,7 +414,7 @@ class EditorForm(dui.dForm):
 			# See if the method name is prepended with '*'
 			try:
 				self.ddMethod.StringValue = "*%s" % mthd
-			except:
+			except ValueError:
 				# Add it!
 				chc = self.ddMethod.Choices
 				chc.append(mthd)
@@ -402,6 +475,38 @@ class EditorForm(dui.dForm):
 		self.updateText()
 		dui.callAfter(self.setEditorCaption)
 		self.edit(self.ddObject.KeyValue, self.ddMethod.StringValue.replace("*", ""))
+
+
+	def onCodeNavigate(self, evt):
+		"""Show all available objects and methods in order to quickly jump to
+		the method you need.
+		"""
+		cd = self.CodeRepository
+		hier = [obj[1] for obj in self.Controller.getObjectHierarchy()]
+		ordered_code = [(hier.index(obj), obj) for obj in cd]
+		ordered_code.sort()
+		code_keys = [obj[1] for obj in ordered_code]
+
+		def goToCode(evt):
+			mn = evt.EventObject
+			self.edit(mn.obj, mn.mthd)
+
+		# Get the longest object name
+		maxname = max([len(obj.Name) for obj in code_keys])
+		pop = dui.dMenu(Caption=_("Jump to Method..."))
+		for obj in code_keys:
+			nm = obj.Name.rjust(maxname)
+			itm = pop.append(obj.Name)
+			mthds = cd[obj].keys()
+			mthds.sort()
+			for mthd in mthds:
+				itm = pop.append("   -  %s" % mthd, OnHit=goToCode)
+				itm.obj = obj
+				itm.mthd = mthd
+			pop.appendSeparator()
+		xpos, ypos = self.btnNavigate.formCoordinates()
+		pos = (xpos, ypos + self.btnNavigate.Height)
+		self.showContextMenu(pop, pos=pos)
 
 
 	def onSuperCode(self, evt):
@@ -555,7 +660,7 @@ class EditorForm(dui.dForm):
 
 	def updateText(self):
 		"""Called when an edited method is 'left'. Update the Controller info."""
-		ed=self.editor
+		ed = self.editor
 		rep = self.CodeRepository
 		txt = ed.Value
 		mthd = ed.Method
@@ -600,6 +705,8 @@ class EditorForm(dui.dForm):
 # 					txt = ""
 			if objCode:
 				txt = self._extractImports(txt)
+				# Make sure the text ends in a newline
+				txt = "%s\n" % txt.strip()
 				objCode[mthd] = txt
 			else:
 				rep[obj] = {}
@@ -630,6 +737,98 @@ class EditorForm(dui.dForm):
 		else:
 			ret = "\n".join(codeLines)
 		return ret
+
+
+	def extendedEditorSearch(self, action, findString, replaceString, downwardSearch,
+			wholeWord, matchCase):
+		"""A find/replace request was made, but the current editor did not locate
+		the desired text. Search the rest of the code for this design.
+		"""
+		# Look through the rest of the code. Since keys are returned in
+		# a non-deterministic order, hash them to provide a basis for
+		# consistent sorting.
+		cr = self.CodeRepository
+		currObj = self.ddObject.KeyValue
+		currMthd = self.ddMethod.StringValue.lstrip("*")
+		objs = cr.keys()
+		backwards = not downwardSearch
+		adjFindString = findString
+		if backwards:
+			adjFindString = findString[::-1]
+
+		objs.sort(lambda x,y: cmp(hash(x), hash(y)), reverse=backwards)
+		# Make the current object the first member of the list
+		try:
+			pos = objs.index(currObj)
+		except ValueError:
+			# Not on an object with code in the repo
+			pos = 0
+		objs = objs[pos:] + objs[:pos]
+
+		def searchCode(obj, txt, mthds=None):
+			if matchCase:
+				flg = 0
+			else:
+				flg = re.I
+			if wholeWord:
+				txt = r"\b%s\b" % txt
+			codeDict = self.CodeRepository[obj]
+			if mthds is None:
+				mthds = codeDict.keys()
+				mthds.sort(reverse=backwards)
+				# Skip the current method (already checked) and any earlier ones
+				if obj is currObj:
+					if self._lastSearch == txt:
+						# Only use remaining methods of the object
+						try:
+							pos = mthds.index(currMthd)
+							self._extraMethods, mthds = mthds[:pos], mthds[pos+1:]
+						except ValueError:
+							pass
+					else:
+						# New search; use all object methods.
+						self._lastSearch = txt
+						try:
+							mthdPos = mthds.index(currMthd)
+						except ValueError:
+							mthdPos = 0
+						mthds = mthds[mthdPos:] + mthds[:mthdPos]
+			for mthd in mthds:
+				cod = codeDict[mthd]
+				if backwards:
+					cod = cod[::-1]
+				mtch = re.search(txt, cod, flg)
+				if mtch:
+					start, end = mtch.span()
+					if backwards:
+						end = len(cod) - start
+						start = end - len(findString)
+					self.ddObject.KeyValue = obj
+					self.refreshStatus()
+					self.ddMethod.StringValue = "*%s" % mthd
+					self.checkObjMethod()
+					if action == "Replace":
+						txt = self.editor.Value
+						self.editor.Value = "%s%s%s" % (txt[:start], replaceString, txt[end:])
+						end = start + len(replaceString)
+					self.editor.SelectionPosition = (start, end)
+					return True
+			return False
+
+		# Hold the methods of the current object that are skipped so that
+		# we can "wrap around" our search.
+		self._extraMethods = None
+		for obj in objs:
+			ret = searchCode(obj, adjFindString)
+			if ret:
+				break
+
+		if not ret and self._extraMethods:
+			ret = searchCode(currObj, adjFindString, self._extraMethods)
+		if ret:
+			self.StatusText = ""
+		else:
+			self.StatusText = _("String '%s' not found") % findString
 
 
 	def _getCodeRepository(self):
