@@ -28,6 +28,7 @@ from dabo.ui import makeDynamicProperty
 import dabo.lib.dates
 from dabo.lib.utils import noneSortKey, caseInsensitiveSortKey
 
+from dabo.dBug import loggit
 
 class dGridDataTable(wx.grid.PyGridTableBase):
 	def __init__(self, parent):
@@ -551,6 +552,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	@dabo.ui.deadCheck
 	def _updateCellDynamicProps(self, row):
+		dabo.ui.callAfterInterval(200, self._updateCellDynamicProps_delayed, row)
+	
+	def _updateCellDynamicProps_delayed(self, row):
 		kwargs = {"row": row}
 		self._cellDynamicRow = row
 		for prop, func in self._dynamic.items():
@@ -566,7 +570,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _restoreFontZoom(self):
 		if self.Form and self.Form.SaveRestorePosition:
-			self.super()
+			super(dColumn, self)._restoreFontZoom()
 
 
 	def _getDefaultFont(self):
@@ -5150,7 +5154,7 @@ class _dGrid_test(dGrid):
 
 
 	def afterInit(self):
-		self.super()
+		super(_dGrid_test, self).afterInit()
 
 		self.addColumn(Name="Geek", DataField="coder", Caption="Geek?",
 				Order=10, DataType="bool", Width=60, Sortable=False,
