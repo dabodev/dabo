@@ -47,6 +47,13 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		self.setFocus()
 
 
+	def getBizobj(self, *args, **kwargs):
+		## self.Form resolves to the containing dialog, making calls to 'self.Form.getBizobj()'
+		## fail since the dialog knows nothing about bizobjs. Let's be helpful and pass the
+		## request up to the form:
+		return self.Form.getBizobj(*args, **kwargs)
+
+
 	def EndModal(self, *args, **kwargs):
 		self.saveSizeAndPosition()
 		self.hide()
