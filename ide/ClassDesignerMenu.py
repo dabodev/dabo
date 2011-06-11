@@ -108,6 +108,11 @@ def mkDesignerMenu(parent, target=None):
 				OnHit=app.onSaveDesign,
 				ItemID="file_save",
 				help=_("Save the ClassDesigner contents as a form"))
+		fm.prepend(_("&Edit Text File..."),
+				HotKey="Ctrl+E",
+				OnHit=app.onEditTextFile,
+				ItemID="file_edit_textfile",
+				help=_("Open a text file for editing"))
 		recent = dabo.ui.dMenu(Caption=_("Open Recent"), MenuID="file_open_recent", MRU=True)
 		fm.prependMenu(recent)
 		fm.prepend(_("&Open"),

@@ -35,6 +35,7 @@ import ClassDesignerMenu
 import dabo.ui.dialogs as dlgs
 from dabo.lib.utils import dictStringify
 from ClassDesignerExceptions import PropertyUpdateException
+from Editor import EditorForm as TextEditorForm
 # Temporary fix for wxPython 2.6 users
 try:
 	dabo.ui.dDockForm
@@ -112,6 +113,7 @@ class ClassDesigner(dabo.dApp):
 		self._selectedClass = dui.dForm
 		self._currentForm = None
 		self._editorForm = None
+		self._textEditorForm = None
 		self._pemForm = None
 		self._tree = None
 		self._palette = None
@@ -288,6 +290,11 @@ class ClassDesigner(dabo.dApp):
 		ed = self.EditorForm
 		ed.Controller = self
 		ed.Visible = True
+
+		# Create the Text File Editor
+		txed = self.TextEditorForm
+		txed.Controller = self
+		txed.Visible = False
 
 		# Set the initial selection to the form
 		self.select(self.CurrentForm)
@@ -1905,6 +1912,13 @@ class ClassDesigner(dabo.dApp):
 	def onToggleSaveType(self, evt):
 		newSetting = not self.getUserSetting("saveCodeInXML", False)
 		self.setUserSetting("saveCodeInXML", newSetting)
+
+
+	def onEditTextFile(self, evt):
+		fpath = dabo.ui.getFile("py", "txt", "*")
+		if fpath:
+			self.TextEditorForm.openFile(fpath)
+			self.TextEditorForm.show()
 
 
 	def onSaveDesign(self, evt):
@@ -4354,6 +4368,20 @@ if __name__ == '__main__':
 		return self._sizerPalette
 
 
+	def _getTextEditorForm(self):
+		noEdt = self._textEditorForm is None
+		if not noEdt:
+			# Make sure it's still a live object
+			try:
+				junk = self._textEditorForm.Visible
+			except dui.deadObjectException:
+				noEdt = True
+		if noEdt:
+			self._textEditorForm = TextEditorForm(None)
+			self._textEditorForm.Controller = self
+		return self._textEditorForm
+
+
 	def _getTree(self):
 		return self.PemForm.Tree
 
@@ -4392,6 +4420,9 @@ if __name__ == '__main__':
 
 	SizerPalette = property(_getSizerPalette, None, None,
 			_("Reference to the sizer setting palette (read-only) (dToolForm)"))
+
+	TextEditorForm = property(_getTextEditorForm, None, None,
+			_("Reference to the text file editing form  (TextEditorForm)"))
 
 	Tree = property(_getTree, None, None,
 			_("Reference to the Layout Tree form (TreeSheet)") )
