@@ -850,10 +850,12 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			showHidden=False, expand=False):
 		"""
 		Make this dTreeView show a filesystem directory hierarchy. You
-		can specify a wildcard pattern: e.g., "\*py" will only include files
-		ending in 'py'. If no wildcard is specified, all files will be included.
+		can specify a wildcard pattern: e.g., "*py" will only include files
+		ending in 'py'. You can also pass a list of wildcards, and files 
+		matching any of these will be included in the tree. If no wildcard
+		is specified, all files will be included.
 
-		You can also specify file patterns to ignore in the 'ignore' parameter.
+		You can also specify file patterns to ignore in the 'ignored' parameter.
 		This can be a single string of a file pattern, or a list of such patterns.
 		Any file matching any of these patterns will not be included in the tree.
 
@@ -878,7 +880,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		# Add any trailing slash character
 		self._pathNode = {}
 		# Define the function to be passed to os.path.walk
-		def addNode(showHid, currDir, fNames):
+		def addNode(arg, currDir, fNames):
+			wildcards, ignored, showHid = arg
 			prnt, nm = os.path.split(currDir)
 			if not showHid and nm.startswith("."):
 				return
@@ -895,12 +898,16 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			self.setNodeImg(nd, "folderopen", "expanded")
 			nd.ToolTipText = nd._filePath = currDir
 			acceptedNames = ignoredNames = None
-			if wildcard is not None:
-				acceptedNames = glob.glob(os.path.join(currDir, wildcard))
+			if wildcards is not None:
+				acceptedNames = []
+				for wc in wildcards:
+					acceptedNames += glob.glob(os.path.join(currDir, wc.lower()))
+					acceptedNames += glob.glob(os.path.join(currDir, wc.upper()))
 			if ignored is not None:
 				ignoredNames = []
 				for ig in ignored:
-					ignoredNames += glob.glob(os.path.join(currDir, ig))
+					ignoredNames += glob.glob(os.path.join(currDir, ig.lower()))
+					ignoredNames += glob.glob(os.path.join(currDir, ig.upper()))
 			for f in fNames:
 				fullName = os.path.join(currDir, f)
 				if os.path.isdir(fullName):
@@ -923,10 +930,14 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			if currDir in self._pathNode:
 				self.SortChildren(self._pathNode[currDir].itemID)
 
+		if wildcard and not isinstance(wildcard, (list, tuple)):
+			# single string passed
+			wildcard = [wildcard]
 		if ignored and not isinstance(ignored, (list, tuple)):
 			# single string passed
 			ignored = [ignored]
-		os.path.walk(dirPath, addNode, showHidden)
+		arg = (wildcard, ignored, showHidden)
+		os.path.walk(dirPath, addNode, arg)
 		os.path.walk(dirPath, sortNode, None)
 		if expand:
 			self.expandAll()
