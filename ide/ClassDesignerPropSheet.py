@@ -703,6 +703,8 @@ class PropertyGrid(dabo.ui.dGrid):
 
 
 	def getPropDictForRow(self, row):
+		if not self.RowCount:
+			return None
 		prop = self.getValue(row, 0)
 		if not prop:
 			return None
@@ -720,7 +722,7 @@ class PropertyGrid(dabo.ui.dGrid):
 		if not self.Application.Selection:
 			return
 		valColumn = self.Columns[1]
-		for row in range(self.RowCount):
+		for row in xrange(self.RowCount):
 			pd = self.getPropDictForRow(row)
 			if pd is None:
 				if row == 0 and self.getValue(row, 0) == "":
