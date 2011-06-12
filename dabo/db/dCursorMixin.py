@@ -1236,10 +1236,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		kf = self.KeyField
 		if not isinstance(kf, tuple):
 			kf = (kf,)
+		autoPopulatePK = self.AutoPopulatePK
 		for rec in ds:
 			self.new()
 			for col, val in rec.items():
-				if self.AutoPopulatePK and (col in kf):
+				if autoPopulatePK and (col in kf):
 					continue
 				self.setFieldVal(col, val)
 
