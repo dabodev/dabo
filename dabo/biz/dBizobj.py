@@ -1803,28 +1803,6 @@ class dBizobj(dObject):
 	setValues = setFieldVals  ## deprecate setValues in future version
 
 
-	_baseXML = """<?xml version="1.0" encoding="%s"?>
-<dabocursor xmlns="http://www.dabodev.com"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://www.dabodev.com dabocursor.xsd"
-xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
-	<cursor autopopulate="%s" keyfield="%s" table="%s">
-%s
-	</cursor>
-</dabocursor>
-"""
-	_rowTemplate = """<row>
-%s
-</row>
-"""
-	_childTemplate = """
-	<child table="%s">
-%s
-	</child>"""
-	_childEmptyTemplate = """
-	<child table="%s" />"""
-
-
 	def dataToXML(self):
 		"""
 		Returns XML representing the data set. If there are child bizobjs,
@@ -1833,8 +1811,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		child/grandchild/etc. bizobjs.
 		"""
 		xml = self._dataToXML()
-		return self._baseXML % (self.Encoding, self.AutoPopulatePK, self.KeyField,
-				self.DataSource, xml)
+		encoding = self.Encoding
+		autopop = self.AutoPopulatePK
+		keyfield = self.KeyField
+		ds = self.DataSource
+		return _getBaseXML() % locals()
 
 
 	def _dataToXML(self, level=None, rows=None):
@@ -1861,14 +1842,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		callback function.
 		"""
 		xml = self._CurrentCursor._xmlForRow()
+		rowTemplate = "<row>\n%s\n</row>\n"
+		childTemplate = """\n\t<child table="%s">\n%s\n\t</child>"""
+		childEmptyTemplate = """\n\t<child table="%s" />"""
 		kidXML = ""
 		for kid in self.__children:
 			kidstuff = kid._dataToXML(level=level + 1)
 			if kidstuff:
-				kidXML += self._childTemplate % (kid.DataSource, kidstuff)
+				kidXML += childTemplate % (kid.DataSource, kidstuff)
 			else:
-				kidXML += self._childEmptyTemplate % kid.DataSource
-		callback(self._rowTemplate % ("%s%s" % (xml, kidXML)), level)
+				kidXML += childEmptyTemplate % kid.DataSource
+		callback(rowTemplate % ("%s%s" % (xml, kidXML)), level)
 
 
 	def getDataSet(self, flds=(), rowStart=0, rows=None, returnInternals=False):
@@ -2944,3 +2928,18 @@ class _bizIterator(object):
 	def __iter__(self):
 		self.__firstpass = True
 		return self
+
+
+
+def _getBaseXML():
+	"""Template for exporting data to XML"""
+	return """<?xml version="1.0" encoding="%(encoding)s"?>
+<dabocursor xmlns="http://www.dabodev.com"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.dabodev.com dabocursor.xsd"
+xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
+	<cursor autopopulate="%(autopop)s" keyfield="%(keyfield)s" table="%(ds)s">
+%(xml)s
+	</cursor>
+</dabocursor>
+"""
