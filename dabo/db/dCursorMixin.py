@@ -29,6 +29,13 @@ class dCursorMixin(dObject):
 		self._initProperties()
 		if sql and isinstance(sql, basestring) and len(sql) > 0:
 			self.UserSQL = sql
+		# Attributes used for M-M relationships
+		# Temporary! until the refactoring
+		self._mmOtherTable = None
+		self._mmOtherPKCol = None
+		self._assocTable = None
+		self._assocPKColThis = None
+		self._assocPKColOther = None
 
 		#self.super()
 		#super(dCursorMixin, self).__init__()
@@ -475,6 +482,12 @@ class dCursorMixin(dObject):
 		ac.IsPrefCursor = self.IsPrefCursor
 		ac.KeyField = self.KeyField
 		ac.Table = self.Table
+		# Temporary! until the refactoring
+		ac._mmOtherTable = self._mmOtherTable
+		ac._mmOtherPKCol = self._mmOtherPKCol
+		ac._assocTable = self._assocTable
+		ac._assocPKColThis = self._assocPKColThis
+		ac._assocPKColOther = self._assocPKColOther
 
 
 	def requery(self, params=None):
@@ -1115,6 +1128,93 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			# Finally, save the new value to the field and signify that the field was changed:
 			rec[fld] = val
 			return True
+
+
+	def lookupPKWithAdd(self, field, val, tbl=None):
+		"""Runs a lookup in the specified field for the desired value. If
+		found, returns the PK for that record. If not found, a record is
+		inserted into the table, with its 'field' column populated with 'val',
+		and the new PK is returned. None of this affects the current dataset.
+		"""
+		aux = self.AuxCursor
+		if tbl is None:
+			tbl = self.Table
+		sql = "select %s from %s where %s = ?" % (self.KeyField, tbl, field)
+		aux.execute(sql, (val,))
+		if aux.RowCount:
+			return aux.getPK()
+		else:
+			# Add the record
+			sql = "insert into %s (%s) values (?)" % (tbl, field)
+			aux.execute(sql, (val,))
+			return aux.getLastInsertID()
+
+
+	def mmAssociateValue(self, otherField, otherVal):
+		"""
+		Associates the value in the 'other' table of a M-M relationship with the
+		current record. If that value doesn't exist in the other table, it is added.
+		"""
+		return self.mmAddToBoth(self.KeyField, self.getPK(), otherField, otherVal)
+
+
+	def mmDisssociateValue(self, otherField, otherVal):
+		"""
+		Removes the association between the current record and the specified value
+		in the 'other' table of a M-M relationship. If no such association exists,
+		nothing happens.
+		"""
+		thisTable = self.Table
+		otherTable = self._mmOtherTable
+		thisPK = self.lookupPKWithAdd(thisField, thisVal, thisTable)
+		otherPK = self.lookupPKWithAdd(otherField, otherVal, otherTable)
+		aux = self.AuxCursor
+		sql = "delete from %s where %s = ? and %s = ?" % (self._assocTable,
+				self._assocPKColThis, self._assocPKColOther)
+		aux.execute(sql, (thisPK, otherPK))
+
+
+	def mmDisssociateAll(self):
+		"""
+		Removes all associations between the current record and the associated
+		M-M table.
+		"""
+		aux = self.AuxCursor
+		sql = "delete from %s where %s = ?" % (self._assocTable, self._assocPKColThis)
+		aux.execute(sql, (self.getPK(),))
+
+
+	def mmSetFullAssociation(self, otherField, listOfValues):
+		"""
+		Adds and/or removes association records so that the current record
+		is associated with every item in listOfValues, and none other.
+		"""
+		self.mmDisssociateAll()
+		keyField = self.KeyField
+		pk = self.getPK()
+		for val in listOfValues:
+			self.mmAddToBoth(keyField, pk, otherField, val)
+
+
+	def mmAddToBoth(self, thisField, thisVal, otherField, otherVal):
+		"""
+		Creates an association in a M-M relationship. If the relationship
+		already exists, nothing changes. Otherwise, this will ensure that
+		both values exist in their respective tables, and will create the 
+		entry in the association table.
+		"""
+		thisTable = self.Table
+		otherTable = self._mmOtherTable
+		thisPK = self.lookupPKWithAdd(thisField, thisVal, thisTable)
+		otherPK = self.lookupPKWithAdd(otherField, otherVal, otherTable)
+		aux = self.AuxCursor
+		sql = "select * from %s where %s = ? and %s = ?" % (self._assocTable,
+				self._assocPKColThis, self._assocPKColOther)
+		aux.execute(sql, (thisPK, otherPK))
+		if not aux.RowCount:
+			sql = "insert into %s (%s, %s) values (?, ?)" % (self._assocTable,
+					self._assocPKColThis, self._assocPKColOther)
+			aux.execute(sql, (thisPK, otherPK))
 
 
 	def getRecordStatus(self, row=None, pk=None):
@@ -2317,6 +2417,27 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					autoQuote=self.AutoQuoteNames)
 		return self.sqlManager._joinClause
 
+
+	def createAssociation(self, mmOtherTable, mmOtherPKCol, assocTable, assocPKColThis, assocPKColOther):
+		"""Create a many-to-many association."""
+		# Save locally
+		# Temporary! until the refactoring
+		self._mmOtherTable = mmOtherTable
+		self._mmOtherPKCol = mmOtherPKCol
+		self._assocTable = assocTable
+		self._assocPKColThis = assocPKColThis
+		self._assocPKColOther = assocPKColOther
+
+		if self.sqlManager.BackendObject:
+			thisJoin = "%s.%s = %s.%s" % (self.Table, self.KeyField, assocTable, assocPKColThis)
+			otherJoin = "%s.%s = %s.%s" % (mmOtherTable, mmOtherPKCol, assocTable, assocPKColOther)
+			self.sqlManager._joinClause = self.sqlManager.BackendObject.addJoin(assocTable,
+					thisJoin, self.sqlManager._joinClause, "LEFT",
+					autoQuote=self.AutoQuoteNames)
+			self.sqlManager._joinClause = self.sqlManager.BackendObject.addJoin(mmOtherTable,
+					otherJoin, self.sqlManager._joinClause, "LEFT",
+					autoQuote=self.AutoQuoteNames)
+		return self.sqlManager._joinClause
 
 
 	def getWhereClause(self):

@@ -1803,6 +1803,15 @@ class dBizobj(dObject):
 	setValues = setFieldVals  ## deprecate setValues in future version
 
 
+	def lookupPKWithAdd(self, field, val):
+		"""Runs a lookup in the specified field for the desired value. If
+		found, returns the PK for that record. If not found, a new record is
+		created with the 'field' column populated with 'val', and the new
+		record's PK is returned. None of this affects the current dataset.
+		"""
+		return self._CurrentCursor.lookupPKWithAdd(field, val)
+
+
 	def dataToXML(self):
 		"""
 		Returns XML representing the data set. If there are child bizobjs,
@@ -2036,16 +2045,63 @@ class dBizobj(dObject):
 		return self._CurrentCursor.oldVal(fieldName, row)
 
 
+	def mmAssociateValue(self, otherField, otherVal):
+		"""
+		Associates the value in the 'other' table of a M-M relationship with the
+		current record in the bizobj. If that value doesn't exist in the other
+		table, it is added.
+		"""
+		self._CurrentCursor.mmAssociateValue(otherField, otherVal)
+
+
+	def mmDisssociateValue(self, otherField, otherVal):
+		"""
+		Removes the association between the current record and the specified value
+		in the 'other' table of a M-M relationship. If no such association exists,
+		nothing happens.
+		"""
+		self._CurrentCursor.mmDisssociateValue(otherField, otherVal)
+
+
+	def mmDisssociateAll(self):
+		"""
+		Removes all associations between the current record and the associated
+		M-M table.
+		"""
+		self._CurrentCursor.mmDisssociateAll()
+
+
+	def mmSetFullAssociation(self, otherField, listOfValues):
+		"""
+		Adds and/or removes association records so that the current record in this
+		bizobj is associated with every item in listOfValues, and none other.
+		"""
+		self._CurrentCursor.mmSetFullAssociation(otherField, listOfValues)
+
+
+	def mmAddToBoth(self, thisField, thisVal, otherField, otherVal):
+		"""
+		Creates an association in a M-M relationship. If the relationship
+		already exists, nothing changes. Otherwise, this will ensure that
+		both values exist in their respective tables, and will create the 
+		entry in the association table.
+		"""
+		return self._CurrentCursor.mmAddToBoth(thisField, thisVal, otherField, otherVal)
+
+
 	########## SQL Builder interface section ##############
 	def addField(self, exp, alias=None):
 		"""Add a field to the field clause."""
 		return self._CurrentCursor.addField(exp, alias)
+
 	def addFrom(self, exp, alias=None):
 		"""
-		Add a table to the sql statement. For joins, use 
-		the addJoin() method.
+		Add a table to the sql statement. For 1-M joins, use 
+		the addJoin() method. For M-M joins, use the
+		createAssociation() method.
 		"""
 		return self._CurrentCursor.addFrom(exp, alias)
+
 	def addJoin(self, tbl, exp, joinType=None):
 		"""
 		Add SQL JOIN clause.
@@ -2055,44 +2111,71 @@ class dBizobj(dObject):
 		:param joinType: examples: "LEFT", "RIGHT", "INNER", "OUTER"
 		"""
 		return self._CurrentCursor.addJoin(tbl, exp, joinType)
+
+	def createAssociation(self, mmOtherTable, mmOtherPKCol, assocTable, assocPKColThis,
+			assocPKColOther):
+		"""
+		Create a many-to-many association.
+
+		:param mmOtherTable: the name of the table for the other half of the MM relation
+		:param mmOtherPKCol: the name of the PK column in the mmOtherTable
+		:param assocTable: the name of the table holding the association between the two
+		:param assocPKColThis: the name of the column in the association table for this PK
+		:param assocPKColOther: the name of the column in the association table for the other PK 
+		"""
+		return self._CurrentCursor.createAssociation(mmOtherTable, mmOtherPKCol, assocTable,
+				assocPKColThis, assocPKColOther)
+
 	def addGroupBy(self, exp):
 		"""Add an expression to the group-by clause."""
 		return self._CurrentCursor.addGroupBy(exp)
+
 	def addOrderBy(self, exp):
 		"""Add an expression to the order-by clause."""
 		return self._CurrentCursor.addOrderBy(exp)
+
 	def addWhere(self, exp, comp="and"):
 		"""Add a filter expression to the where clause."""
 		return self._CurrentCursor.addWhere(exp, comp=comp)
+
 	def getSQL(self):
 		"""Returns the SQL statement currently set in the backend."""
 		return self._CurrentCursor.getSQL()
+
 	def setFieldClause(self, clause):
 		"""Explicitly set the field clause. Replaces any existing field settings."""
 		return self._CurrentCursor.setFieldClause(clause)
+
 	def setFromClause(self, clause):
 		"""Explicitly set the from clause. Replaces any existing from settings."""
 		return self._CurrentCursor.setFromClause(clause)
+
 	def setJoinClause(self, clause):
 		"""Explicitly set the join clauses. Replaces any existing join settings."""
 		return self._CurrentCursor.setJoinClause(clause)
+
 	def setGroupByClause(self, clause):
 		"""Explicitly set the group-by clause. Replaces any existing group-by settings."""
 		return self._CurrentCursor.setGroupByClause(clause)
+
 	def getLimitClause(self):
 		"""Returns the current limit clause set in the backend."""
 		return self._CurrentCursor.getLimitClause()
+
 	def setLimitClause(self, clause):
 		"""Explicitly set the limit clause. Replaces any existing limit settings."""
 		return self._CurrentCursor.setLimitClause(clause)
 	# For simplicity's sake, create aliases
 	setLimit, getLimit = setLimitClause, getLimitClause
+
 	def setOrderByClause(self, clause):
 		"""Explicitly set the order-by clause. Replaces any existing order-by settings."""
 		return self._CurrentCursor.setOrderByClause(clause)
+
 	def setWhereClause(self, clause):
 		"""Explicitly set the where clause. Replaces any existing where settings."""
 		return self._CurrentCursor.setWhereClause(clause)
+
 	def prepareWhere(self, clause):
 		"""
 		Calls the backend's pre-processing routine for improving efficiency
@@ -2100,27 +2183,31 @@ class dBizobj(dObject):
 		nothing is done.
 		"""
 		return self._CurrentCursor.prepareWhere(clause)
+
 	def getFieldClause(self):
 		"""Returns the current field clause set in the backend."""
 		return self._CurrentCursor.getFieldClause()
+
 	def getFromClause(self):
 		"""Returns the current from clause set in the backend."""
 		return self._CurrentCursor.getFromClause()
+
 	def getJoinClause(self):
 		"""Returns the current join clause set in the backend."""
 		return self._CurrentCursor.getJoinClause()
+
 	def getWhereClause(self):
 		"""Returns the current where clause set in the backend."""
 		return self._CurrentCursor.getWhereClause()
+
 	def getGroupByClause(self):
 		"""Returns the current group-by clause set in the backend."""
 		return self._CurrentCursor.getGroupByClause()
+
 	def getOrderByClause(self):
 		"""Returns the current order-by clause set in the backend."""
 		return self._CurrentCursor.getOrderByClause()
 	########## END - SQL Builder interface section ##############
-
-
 
 
 	def _makeHookMethod(name, action, mainDoc=None, additionalDoc=None):
