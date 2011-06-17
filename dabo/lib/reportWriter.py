@@ -2341,17 +2341,22 @@ class ReportWriter(object):
 		def reprintGroupHeaders(currentGroup, bandDict, y):
 			self = bandDict  ## to allow "self" references from groupHeader object
 			for group in groups:
+				reprinted = False
 				reprint = group.get("ReprintHeaderOnNewPage")
 				if reprint is not None:
 					reprint = eval(reprint)
 				if reprint:
 					if currentGroup != group:  ## avoid printing twice
 						y = printBand("groupHeader", y, group)
-				else:
+						reprinted = True
+				if not reprinted:
 					# Even though we aren't reprinting this header, we still need to restart
 					# any spanning objects which would have been closed at the end of the
 					# last page.
 					y = storeSpanningObjects("groupHeader", y, group)
+				if currentGroup == group:
+					## don't reprint headers further down the line
+					break
 			return y
 
 
