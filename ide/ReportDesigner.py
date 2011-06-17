@@ -1345,6 +1345,7 @@ class DesignerBand(DesignerPanel):
 		import wx		## (need to abstract DC drawing)
 
 		dc = wx.PaintDC(self)
+		dc.SetBackground(wx.Brush((248,248,248)))
 		dc.Clear()
 
 		for obj in self.ReportObject.get("Objects", []):
