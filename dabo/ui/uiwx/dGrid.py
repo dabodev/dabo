@@ -2938,7 +2938,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				self._settingDataSetFromSort = False
 
 		if biz:
-			self.CurrentRow = biz.RowNumber
+			dabo.ui.setAfter(self, "CurrentRow", biz.RowNumber)
 
 		if self._refreshAfterSort:
 			self.refresh()
