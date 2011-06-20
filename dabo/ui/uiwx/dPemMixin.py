@@ -2195,18 +2195,7 @@ class dPemMixin(dPemMixinBase):
 			else:
 				width = -1
 			newSize = (width, int(val))
-			self._heightAlreadySet = True
-			if isinstance(self, (wx.Frame, wx.Dialog) ):
-				self.SetSize(newSize)
-			else:
-				if isinstance(self, wx.Panel):
-					self.SetMinSize((-1, 10))
-				if hasattr(self, "SetInitialSize"):
-					# wxPython 2.7.x:
-					self.SetInitialSize(newSize)
-				else:
-					# prior to wxPython 2.7.s:
-					self.SetBestFittingSize(newSize)
+			self._setSize(newSize)
 			if isinstance(self, dabo.ui.dFormMixin):
 				self._defaultHeight = val
 		else:
@@ -2526,7 +2515,8 @@ class dPemMixin(dPemMixinBase):
 
 	def _setSize(self, val):
 		if self._constructed():
-			self._widthAlreadySet = self._heightAlreadySet = True
+			self._widthAlreadySet = (val[0] >= 0)
+			self._heightAlreadySet = (val[1] >= 0)	
 			if isinstance(self, (wx.Frame, wx.Dialog) ):
 				self.SetSize(val)
 			else:
@@ -2694,18 +2684,7 @@ class dPemMixin(dPemMixinBase):
 			else:
 				height = -1
 			newSize = (int(val), height)
-			self._widthAlreadySet = True
-			if isinstance(self, (wx.Frame, wx.Dialog) ):
-				self.SetSize(newSize)
-			else:
-				if isinstance(self, wx.Panel):
-					self.SetMinSize((10, -1))
-				if hasattr(self, "SetInitialSize"):
-					# wxPython 2.7.x:
-					self.SetInitialSize(newSize)
-				else:
-					# prior to wxPython 2.7.s:
-					self.SetBestFittingSize(newSize)
+			self._setSize(newSize)
 			if isinstance(self, dabo.ui.dFormMixin):
 				self._defaultWidth = val
 		else:
