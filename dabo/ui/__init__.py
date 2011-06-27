@@ -19,6 +19,7 @@ import inspect
 import dabo
 from dabo.dLocalize import _
 
+lastCallAfterIntervalStack = ""  ## see uiwx/__init__.py in callAfter and callAfterInterval
 
 def getUIType():
 	"""Return the identifier of the currently loaded UI, or None."""

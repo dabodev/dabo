@@ -8,6 +8,8 @@ import datetime
 import time
 import cStringIO
 import warnings
+import traceback
+import dabo
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.lib import utils
@@ -270,10 +272,10 @@ def getUiApp(app, uiAppClass=None, callback=None, forceNew=False):
 
 def callAfter(fnc, *args, **kwargs):
 	"""
-	There are times when this functionality is needed when creating UI
-	code. This function simply wraps the wx.CallAfter function so that
-	developers do not need to use wx code in their apps.
+	Call the passed function with the passed arguments in the next
+	event loop.
 	"""
+	dabo.ui.lastCallAfterStack = "".join(traceback.format_stack())
 	wx.CallAfter(fnc, *args, **kwargs)
 
 
@@ -288,6 +290,7 @@ def callAfterInterval(interval, func, *args, **kwargs):
 	refresh something because you changed it, but the frequency of changes can be
 	high.
 	"""
+	dabo.ui.lastCallAfterStack = "".join(traceback.format_stack())
 	if isinstance(func, int):
 		# Arguments are in the old order
 		interval, func = func, interval
