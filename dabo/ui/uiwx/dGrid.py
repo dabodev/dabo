@@ -554,6 +554,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _updateCellDynamicProps(self, row):
 		dabo.ui.callAfterInterval(200, self._updateCellDynamicProps_delayed, row)
 	
+	@dabo.ui.deadCheck
 	def _updateCellDynamicProps_delayed(self, row):
 		kwargs = {"row": row}
 		self._cellDynamicRow = row
