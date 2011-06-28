@@ -275,7 +275,8 @@ def callAfter(fnc, *args, **kwargs):
 	Call the passed function with the passed arguments in the next
 	event loop.
 	"""
-	dabo.ui.lastCallAfterStack = "".join(traceback.format_stack())
+	if dabo.saveCallAfterStack:
+		dabo.ui.lastCallAfterStack = "".join(traceback.format_stack())
 	wx.CallAfter(fnc, *args, **kwargs)
 
 
@@ -290,7 +291,8 @@ def callAfterInterval(interval, func, *args, **kwargs):
 	refresh something because you changed it, but the frequency of changes can be
 	high.
 	"""
-	dabo.ui.lastCallAfterStack = "".join(traceback.format_stack())
+	if dabo.saveCallAfterStack:
+		dabo.ui.lastCallAfterStack = "".join(traceback.format_stack())
 	if isinstance(func, int):
 		# Arguments are in the old order
 		interval, func = func, interval

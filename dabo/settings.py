@@ -220,6 +220,10 @@ reportTTFontFileMap = {}
 # Determines if we import the debugger into the dabo namespace
 importDebugger = True
 
+# Do we save the current call stack to dabo.ui.lastCallAfterStack in every
+# callAfter() call?
+saveCallAfterStack = False
+
 ### Settings - end
 
 
