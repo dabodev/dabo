@@ -24,6 +24,7 @@ class BaseForm(fm.dFormMixin):
 	def __init__(self, preClass, parent, properties, attProperties, *args, **kwargs):
 		self.bizobjs = {}
 		self._primaryBizobj = None
+		self._dataUpdateDelay = 100
 
 		# If this is True, a panel will be automatically added to the
 		# form and sized to fill the form.
@@ -107,7 +108,7 @@ class BaseForm(fm.dFormMixin):
 		func(message=msg, title=title)
 
 
-	def update(self, interval=None):
+	def update(self, interval=100):
 		"""
 		Updates the contained controls with current values from the source.
 
@@ -121,14 +122,14 @@ class BaseForm(fm.dFormMixin):
 		update. In these cases, pass an interval of 0 to this method, which
 		means don't wait; execute now.
 		"""
-		if interval is None:
-			interval = 100
-		if interval == 0:
-			self.__update()
-		else:
+		if interval:
 			dabo.ui.callAfterInterval(interval, self.__update)
+		else:
+			self.__update()
 	def __update(self):
+		self.lockDisplay()
 		super(BaseForm, self).update()
+		dabo.ui.callAfter(self.unlockDisplay)
 
 
 	def confirmChanges(self, bizobjs=None):
@@ -154,7 +155,7 @@ class BaseForm(fm.dFormMixin):
 		if bizobjs is None:
 			bizobjs = self.getBizobjsToCheck()
 		if not isinstance(bizobjs, (list, tuple)):
-			bizList = (bizobjs, )
+			bizList = (bizobjs,)
 		else:
 			bizList = bizobjs
 		changedBizList = []
@@ -200,7 +201,7 @@ class BaseForm(fm.dFormMixin):
 		several. In those cases, override	this method and return a list of the
 		required bizobjs.
 		"""
-		return (self.PrimaryBizobj, )
+		return (self.PrimaryBizobj,)
 
 
 	def addBizobj(self, bizobj):
@@ -272,7 +273,7 @@ class BaseForm(fm.dFormMixin):
 				dabo.ui.callAfter(self.raiseEvent, dEvents.RowNumChanged,
 						newRowNumber=biz.RowNumber, oldRowNumber=oldRowNum,
 						bizobj=biz)
-			self.update()
+			self.update(self.DataUpdateDelay)
 		self.afterPointerMove()
 		self.refresh()
 		return True
@@ -445,9 +446,9 @@ class BaseForm(fm.dFormMixin):
 				bizobj.cancelAll(ignoreNoRecords=ignoreNoRecords)
 			else:
 				bizobj.cancel(ignoreNoRecords=ignoreNoRecords)
+			self.update(self.DataUpdateDelay)
 			self.setStatusText(_("Changes to %s canceled.") % (
 					self.SaveAllRows and "all records" or "current record",))
-			self.update()
 		except dException.NoRecordsException, e:
 			dabo.log.error(_("Cancel failed; no records to cancel."))
 		except dException.dException, e:
@@ -493,10 +494,9 @@ class BaseForm(fm.dFormMixin):
 #			response = dProgressDialog.displayAfterWait(self, 2, bizobj.requery)
 			response = bizobj.requery()
 			self.stopWatch.Pause()
-			elapsed = round(self.stopWatch.Time()/1000.0, 3)
-
-			self.update()
+			elapsed = round(self.stopWatch.Time() / 1000.0, 3)
 #			del busy
+			self.update(self.DataUpdateDelay)
 
 			newRowNumber = bizobj.RowNumber
 			if newRowNumber != oldRowNumber:
@@ -534,7 +534,6 @@ class BaseForm(fm.dFormMixin):
 			self.StatusText = ""
 
 		self.afterRequery()
-		self.update()
 		self.refresh()
 		return ret
 
@@ -580,9 +579,9 @@ class BaseForm(fm.dFormMixin):
 				msg = ustr(e)
 				dabo.log.error(_("Delete failed with response: %s") % msg)
 				self.notifyUser(msg, title=_("Deletion Not Allowed"), severe=True, exception=e)
+			self.update(self.DataUpdateDelay)
 			self.afterDelete()
-		self.update()
-		self.refresh()
+			self.refresh()
 
 
 	def deleteAll(self, dataSource=None, message=None):
@@ -614,8 +613,8 @@ class BaseForm(fm.dFormMixin):
 			except dException.dException, e:
 				dabo.log.error(_("Delete All failed with response: %s") % e)
 				self.notifyUser(ustr(e), title=_("Deletion Not Allowed"), severe=True, exception=e)
+		self.update(self.DataUpdateDelay)
 		self.afterDeleteAll()
-		self.update()
 		self.refresh()
 
 
@@ -643,10 +642,9 @@ class BaseForm(fm.dFormMixin):
 		self.setStatusText(statusText)
 
 		# Notify listeners that the row number changed:
+		self.update(self.DataUpdateDelay)
 		self.raiseEvent(dEvents.RowNumChanged)
-
 		self.afterNew()
-		self.update()
 		self.refresh()
 
 
@@ -664,7 +662,7 @@ class BaseForm(fm.dFormMixin):
 		return _("""The connection to the database has closed for unknown reasons.
 Any unsaved changes to the data will be lost.
 
-Database error message: %s""") %	err
+Database error message: %s""") % 	err
 
 
 	def getBizobj(self, dataSource=None, parentBizobj=None):
@@ -772,7 +770,7 @@ Database error message: %s""") %	err
 			else:
 				rowCount = bizobj.RowCount
 				if rowCount > 0:
-					rowNumber = bizobj.RowNumber+1
+					rowNumber = bizobj.RowNumber + 1
 				else:
 					rowNumber = 1
 		if rowCount < 1:
@@ -846,6 +844,13 @@ Database error message: %s""") %	err
 		self._checkForChanges = bool(value)
 
 
+	def _getDataUpdateDelay(self):
+		return self._dataUpdateDelay
+
+	def _setDataUpdateDelay(self, val):
+		self._dataUpdateDelay = val
+
+
 	def _getPrimaryBizobj(self):
 		"""
 		The attribute '_primaryBizobj' should be a bizobj, but due
@@ -905,17 +910,24 @@ Database error message: %s""") %	err
 			If True (the default), when operations such as requery() or the closing
 			of the form are about to occur, the user will be presented with a dialog
 			box asking whether to save changes, discard changes, or cancel the
-			operation that led to the dialog being presented.""") )
+			operation that led to the dialog being presented."""))
+
+	DataUpdateDelay = property(_getDataUpdateDelay, _setDataUpdateDelay, None,
+			_("""Specifies synchronization delay in data updates from business 
+			to UI layer. (int)
+			
+			Set to 'none' to ensure controls reflect immediately to the data changes.
+			The default delay is 100 [ms]."""))
 
 	PrimaryBizobj = property(_getPrimaryBizobj, _setPrimaryBizobj, None,
-			_("Reference to the primary bizobj for this form  (dBizobj)") )
+			_("Reference to the primary bizobj for this form  (dBizobj)"))
 
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
 			_("""Specifies whether an automatic requery happens when the
 			form is loaded.  (bool)"""))
 
 	SaveAllRows = property(_getSaveAllRows, _setSaveAllRows, None,
-			_("Specifies whether dataset is row- or table-buffered. (bool)") )
+			_("Specifies whether dataset is row- or table-buffered. (bool)"))
 
 
 
@@ -1006,7 +1018,7 @@ class dForm(BaseForm, wx.Frame):
 			"""))
 
 	Visible = property(_getVisible, _setVisible, None,
-			_("Specifies whether the form is shown or hidden.  (bool)") )
+			_("Specifies whether the form is shown or hidden.  (bool)"))
 
 
 
@@ -1067,7 +1079,7 @@ class _dBorderlessForm_test(dBorderlessForm):
 		dabo.ui.callAfter(self.setSize)
 
 	def setSize(self):
-		self.Width, self.Height = self.btn.Width+60, self.btn.Height+60
+		self.Width, self.Height = self.btn.Width + 60, self.btn.Height + 60
 		self.layout()
 		self.Centered = True
 
