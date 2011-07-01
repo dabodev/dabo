@@ -127,9 +127,7 @@ class BaseForm(fm.dFormMixin):
 		else:
 			self.__update()
 	def __update(self):
-		self.lockDisplay()
 		super(BaseForm, self).update()
-		dabo.ui.callAfter(self.unlockDisplay)
 
 
 	def confirmChanges(self, bizobjs=None):
