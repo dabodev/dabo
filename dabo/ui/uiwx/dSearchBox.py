@@ -34,7 +34,7 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 			self.Unbind(wx.EVT_CHAR)
 			self.Unbind(wx.EVT_KEY_DOWN)
 			self.Unbind(wx.EVT_KEY_UP)
-			self._txtCtrl.Bind(wx.EVT_KILL_FOCUS, self.__onWxGotFocus)
+			self._txtCtrl.Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)
 			self._txtCtrl.Bind(wx.EVT_KILL_FOCUS, self.__onWxLostFocus)
 			self._txtCtrl.Bind(wx.EVT_CHAR, self.__onWxKeyChar)
 			self._txtCtrl.Bind(wx.EVT_KEY_DOWN, self.__onWxKeyDown)
@@ -45,8 +45,7 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 
 	#handle events
 	def __onWxKeyChar(self, evt):
-		if not (isinstance(self, dabo.ui.dComboBox) and evt.KeyCode == 9):
-			self.raiseEvent(dEvents.KeyChar, evt)
+		self.raiseEvent(dEvents.KeyChar, evt)
 
 
 	def __onWxKeyUp(self, evt):
