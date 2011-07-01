@@ -197,7 +197,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 
 		@dabo.ui.deadCheck
 		def checkForFocus(timeCalled):
-			if self._lastGotFocusEvent != timeCalled:
+			if timeCalled - self._lastGotFocusEvent > .01:
 				# No other button has gotten focus in the intervening time
 				# Don't raise event if parent form loses focus!
 				# Doing it on Windows platform raises global Python exception.
@@ -228,7 +228,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		control's Value.
 		"""
 		for pos, itm in enumerate(self._items):
-			itm.SetValue(pos==val)
+			itm.SetValue(pos == val)
 
 
 	def enableKey(self, itm, val=True):
@@ -561,7 +561,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 			_("""Specifies the string choices to display in the list.
 			-> List of strings. Read-write at runtime.
 			The list index becomes the PositionValue, and the string
-			becomes the StringValue.""") )
+			becomes the StringValue."""))
 
 	Orientation = property(_getOrientation, _setOrientation, None,
 			_("""Specifies whether this is a vertical or horizontal RadioList.
