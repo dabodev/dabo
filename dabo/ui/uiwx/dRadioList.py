@@ -186,7 +186,8 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		now = time.time()
 		if now - self._lastLostFocusEvent > .01:
 			# Newly focused; raise the event.
-			self.raiseEvent(dEvents.GotFocus, wxEvt)
+			# Missing uiEvent parameter in call? See note below.
+			self.raiseEvent(dEvents.GotFocus)
 		self._lastGotFocusEvent = now
 
 
@@ -203,7 +204,11 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 				# Doing it on Windows platform raises global Python exception.
 				app = self.Application
 				if app is None or app.ActiveForm == self.Form:
-					self.raiseEvent(dEvents.LostFocus, wxEvt)
+					# Passing wxEvt as uiEvent parameter under some conditions
+					# causes Python interpreter crash or unspecified problems
+					# with GC. I decided to remove this reference for both,
+					# GotFocus and LostFocus event of control to retain symmetry. 
+					self.raiseEvent(dEvents.LostFocus)
 
 		# Normal changing selection of buttons will cause buttons to lose focus;
 		# we need to see if this control has truly lost focus.
