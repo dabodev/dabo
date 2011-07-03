@@ -165,6 +165,8 @@ from dPage import dPage
 from dPdfWindow import dPdfWindow
 from dSearchBox import dSearchBox
 from dSizer import dSizer
+from dSizer import dSizerV
+from dSizer import dSizerH
 from dBorderSizer import dBorderSizer
 from dSlider import dSlider
 from dSpinner import dSpinner

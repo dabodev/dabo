@@ -11,13 +11,17 @@ class dSizer(dSizerMixin.dSizerMixin, wx.BoxSizer):
 		self._border = 0
 		self._parent = None
 
-		if args:
-			# The orientation was passed as a standalong argument
-			kwargs["Orientation"] = args[0]
-			args = tuple(args[1:])
-
 		properties = self._extractKey(kwargs, "properties", {})
-		orient = self._extractKey((kwargs, properties), "Orientation", "h")
+		fixedOrient = self._extractKey(kwargs, "FixedOrientation")
+		if fixedOrient:
+			orient = fixedOrient
+		else:
+			if args:
+				# The orientation was passed as a standalone argument
+				kwargs["Orientation"] = args[0]
+				args = tuple(args[1:])
+
+			orient = self._extractKey((kwargs, properties), "Orientation", "h")
 		if orient[0].lower() == "v":
 			orientation = wx.VERTICAL
 		else:
@@ -49,5 +53,18 @@ class dSizer(dSizerMixin.dSizerMixin, wx.BoxSizer):
 		return dabo.ui.dBorderSizer
 
 
+
+class dSizerV(dSizer):
+	def __init__(self, *args, **kwargs ):
+		kwargs["FixedOrientation"] = "V"
+		super(dSizerV, self).__init__(*args, **kwargs)
+
+
+
+class dSizerH(dSizer):
+	def __init__(self, *args, **kwargs ):
+		kwargs["FixedOrientation"] = "H"
+		super(dSizerH, self).__init__(*args, **kwargs)
+	
 if __name__ == "__main__":
 	s = dSizer()
