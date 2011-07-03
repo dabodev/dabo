@@ -23,10 +23,14 @@ def addkids(self, obj, node):
 			self.addkids(kid, snode)
 			return
 	try:
-		kids = obj.Children
+		kids = obj.ChildObjects
 	except AttributeError:
-		# Not a dabo obj
-		return
+		# Not a sizer
+		try:
+			kids = obj.Children
+		except AttributeError:
+			# Not a dabo obj
+			return
 	if isinstance(obj, dabo.ui.dFormMixin):
 		if obj.ToolBar:
 			kids.append(obj.ToolBar)
@@ -38,8 +42,8 @@ def addkids(self, obj, node):
 		nodeColor = None
 		if isinstance(kid, wx._controls.ScrollBar):
 			continue
-		if isinstance(obj, dabo.ui.dSizerMixin):
-			kid = obj.getItem(kid)
+# 		if isinstance(obj, dabo.ui.dSizerMixin):
+# 			kid = obj.getItem(kid)
 		if isinstance(kid, dabo.ui.dSizerMixin):
 			txt = self.sizer_repr(kid)
 			nodeColor = "blue"
@@ -157,6 +161,9 @@ def showPropVals(self, obj):
 						if type(c.__dict__[item]) == property:
 							if props.count(item) == 0:
 								props.append(item)
+	if isinstance(obj, wx._core.Size):
+		props = ["_controllingSizer", "_controllingSizerItem", "Spacing"]
+		
 	for prop in props:
 		if prop == "ShowColumnLabels":
 			# Avoid the deprecation warning
