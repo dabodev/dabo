@@ -1016,6 +1016,7 @@ class dFormMixin(pm.dPemMixin):
 			ret = sb.GetStatusText()
 		return ret
 
+	@dabo.ui.deadCheck
 	def _setStatusText(self, val, _callAfter=True):
 		"""
 		Set the text of the status bar. Dabo will decide whether to
