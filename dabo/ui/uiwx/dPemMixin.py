@@ -545,7 +545,7 @@ class dPemMixin(dPemMixinBase):
 			# we bind twice, once to parent and once to self, because some wxPython
 			# objects are still accessible this way while others are not.
 			return
-		self._finito = (self is evt.GetEventObject() )
+		self._finito = (self is evt.GetEventObject())
 		self._destroyAlreadyFired = True
 		try:
 			self.raiseEvent(dEvents.Destroy, evt)
@@ -733,13 +733,13 @@ class dPemMixin(dPemMixinBase):
 		See dKeys.modifierStrings for the valid modifier codes.
 
 		Examples::
-			
+
 			# When user presses <esc>, close the form:
 			form.bindKey("esc", form.Close)
 
 			# When user presses <ctrl><alt><w>, close the form:
 			form.bindKey("ctrl+alt+w", form.Close)
-		
+
 		"""
 		mods, key, flags = dabo.ui.dKeys.resolveKeyCombo(keyCombo, True)
 		upMods = [mm.upper() for mm in mods]
@@ -1768,7 +1768,7 @@ class dPemMixin(dPemMixinBase):
 		if name is None:
 			name = obj.Name + "1"
 		newObj = self.addObject(obj.__class__,
-				name, style=obj.GetWindowStyle() )
+				name, style=obj.GetWindowStyle())
 		newObj.setProperties(propValDict)
 		return newObj
 
@@ -2531,8 +2531,8 @@ class dPemMixin(dPemMixinBase):
 	def _setSize(self, val):
 		if self._constructed():
 			self._widthAlreadySet = (val[0] >= 0)
-			self._heightAlreadySet = (val[1] >= 0)	
-			if isinstance(self, (wx.Frame, wx.Dialog) ):
+			self._heightAlreadySet = (val[1] >= 0)
+			if isinstance(self, (wx.Frame, wx.Dialog)):
 				self.SetSize(val)
 			else:
 				if isinstance(self, wx.Panel):
@@ -2728,7 +2728,6 @@ class dPemMixin(dPemMixinBase):
 				"Dot"
 				"DotDash"
 				"DashDot"
-			
 			"""))
 
 	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
@@ -2739,28 +2738,25 @@ class dPemMixin(dPemMixinBase):
 					"Simple"
 					"Sunken"
 					"Raised"
-			
-			""") )
+			"""))
 
 	BorderWidth = property(_getBorderWidth, _setBorderWidth, None,
 			_("""Width of the border drawn around the control, if any. (int)
 
 				Default=0 (no border)
-				
 			"""))
 
 	Caption = property(_getCaption, _setCaption, None,
-			_("The caption of the object. (str)") )
+			_("The caption of the object. (str)"))
 
 	Children = property(_getChildren, None, None,
 			_("""Returns a list of object references to the children of
 			this object. Only applies to containers. Children will be None for
 			non-containers.  (list or None)
-			
 			"""))
 
 	ControllingSizer = property(_getCntrlSizer, None, None,
-			_("""Reference to the sizer that controls this control's layout.  (dSizer)""") )
+			_("""Reference to the sizer that controls this control's layout.  (dSizer)"""))
 
 	ControllingSizerItem = property(_getCntrlSzItem, None, None,
 			_("""Reference to the sizer item that control's this control's layout.
@@ -2782,7 +2778,7 @@ class dPemMixin(dPemMixinBase):
 			"""))
 
 	Enabled = property(_getEnabled, _setEnabled, None,
-			_("""Specifies whether the object and children can get user input. (bool)""") )
+			_("""Specifies whether the object and children can get user input. (bool)"""))
 
 	_EventTarget = property(_getEventTarget, None, None,
 			_("""The object that receives events. In all but a few particular cases, it will be
@@ -2794,39 +2790,39 @@ class dPemMixin(dPemMixinBase):
 			"""))
 
 	Font = property(_getDaboFont, _setDaboFont, None,
-			_("Specifies font object for this control. (dFont)") )
+			_("Specifies font object for this control. (dFont)"))
 
 	FontBold = property(_getFontBold, _setFontBold, None,
-			_("Specifies if the font is bold-faced. (bool)") )
+			_("Specifies if the font is bold-faced. (bool)"))
 
 	FontDescription = property(_getFontDescription, None, None,
-			_("Human-readable description of the current font settings. (str)") )
+			_("Human-readable description of the current font settings. (str)"))
 
 	FontFace = property(_getFontFace, _setFontFace, None,
-			_("Specifies the font face. (str)") )
+			_("Specifies the font face. (str)"))
 
 	FontInfo = property(_getFontInfo, None, None,
-			_("Specifies the platform-native font info string. Read-only. (str)") )
+			_("Specifies the platform-native font info string. Read-only. (str)"))
 
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
-			_("Specifies whether font is italicized. (bool)") )
+			_("Specifies whether font is italicized. (bool)"))
 
 	FontSize = property(_getFontSize, _setFontSize, None,
-			_("Specifies the point size of the font. (int)") )
+			_("Specifies the point size of the font. (int)"))
 
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
-			_("Specifies whether text is underlined. (bool)") )
+			_("Specifies whether text is underlined. (bool)"))
 
 	ForeColor = property(_getForeColor, _setForeColor, None,
-			_("Specifies the foreground color of the object. (str, 3-tuple, or wx.Colour)") )
+			_("Specifies the foreground color of the object. (str, 3-tuple, or wx.Colour)"))
 
 	Height = property(_getHeight, _setHeight, None,
-			_("Specifies the height of the object. (int)") )
+			_("Specifies the height of the object. (int)"))
 
 	HelpContextText = property(_getHelpContextText, _setHelpContextText, None,
 			_("""Specifies the context-sensitive help text associated with this
 				window. (str)
-			""") )
+			"""))
 
 	Hover = property(_getHover, _setHover, None,
 			_("""When True, Mouse Enter events fire the onHover method, and
@@ -2834,7 +2830,7 @@ class dPemMixin(dPemMixinBase):
 			"""))
 
 	Left = property(_getLeft, _setLeft, None,
-			_("Specifies the left position of the object. (int)") )
+			_("Specifies the left position of the object. (int)"))
 
 	MaximumHeight = property(_getMaximumHeight, _setMaximumHeight, None,
 			_("Maximum allowable height for the control in pixels.  (int)"))
@@ -2855,7 +2851,7 @@ class dPemMixin(dPemMixinBase):
 			_("Minimum allowable width for the control in pixels.  (int)"))
 
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
-			_("Specifies the shape of the mouse pointer when it enters this window. (obj)") )
+			_("Specifies the shape of the mouse pointer when it enters this window. (obj)"))
 
 	Name = property(_getName, _setName, None,
 			_("""Specifies the name of the object, which must be unique among siblings.
@@ -2863,7 +2859,7 @@ class dPemMixin(dPemMixinBase):
 			If the specified name isn't unique, an exception will be raised. See also
 			NameBase, which let's you set a base name and Dabo will automatically append
 			integers to make it unique.
-			""") )
+			"""))
 
 	NameBase = property(None, _setNameBase, None,
 			_("""Specifies the base name of the object.
@@ -2878,22 +2874,22 @@ class dPemMixin(dPemMixinBase):
 			with Name = "txtAddress1".
 
 			This property is write-only at runtime.
-			""") )
+			"""))
 
 	Parent = property(_getParent, _setParent, None,
-			_("The containing object. (obj)") )
+			_("The containing object. (obj)"))
 
 	Position = property(_getPosition, _setPosition, None,
-			_("The (x,y) position of the object. (tuple)") )
+			_("The (x,y) position of the object. (tuple)"))
 
 	RegID = property(_getRegID, _setRegID, None,
-			_("A unique identifier used for referencing by other objects. (str)") )
+			_("A unique identifier used for referencing by other objects. (str)"))
 
 	Size = property(_getSize, _setSize, None,
-			_("The size of the object. (tuple)") )
+			_("The size of the object. (tuple)"))
 
 	Sizer = property(_getSizer, _setSizer, None,
-			_("The sizer for the object.") )
+			_("The sizer for the object."))
 
 	StatusText = property(_getStatusText, _setStatusText, None,
 			_("""Specifies the text that displays in the form's status bar, if any.
@@ -2906,13 +2902,13 @@ class dPemMixin(dPemMixinBase):
 			"""))
 
 	Tag = property(_getTag, _setTag, None,
-			_("A property that user code can safely use for specific purposes.") )
+			_("A property that user code can safely use for specific purposes."))
 
 	ToolTipText = property(_getToolTipText, _setToolTipText, None,
-			_("Specifies the tooltip text associated with this window. (str)") )
+			_("Specifies the tooltip text associated with this window. (str)"))
 
 	Top = property(_getTop, _setTop, None,
-			_("The top position of the object. (int)") )
+			_("The top position of the object. (int)"))
 
 	Transparency = property(_getTransparency, _setTransparency, None,
 			_("""Transparency level of the control; ranges from 0 (transparent) to 255 (opaque).
@@ -2925,7 +2921,7 @@ class dPemMixin(dPemMixinBase):
 			"""))
 
 	Visible = property(_getVisible, _setVisible, None,
-			_("Specifies whether the object is visible at runtime.  (bool)") )
+			_("Specifies whether the object is visible at runtime.  (bool)"))
 
 	VisibleOnScreen = property(_getVisibleOnScreen, None, None,
 			_("""Specifies whether the object is physically visible at runtime.  (bool)
@@ -2938,10 +2934,10 @@ class dPemMixin(dPemMixinBase):
 			"""))
 
 	Width = property(_getWidth, _setWidth, None,
-			_("The width of the object. (int)") )
+			_("The width of the object. (int)"))
 
 	WindowHandle = property(_getWindowHandle, None, None,
-			_("The platform-specific handle for the window. Read-only. (long)") )
+			_("The platform-specific handle for the window. Read-only. (long)"))
 
 
 	# Dynamic property declarations
@@ -3072,7 +3068,7 @@ class DrawObject(dObject):
 # 				x, y = self.Parent.containerCoordinates(srcObj.Parent, (self.Xpos, self.Ypos))
 # 		else:
 # 			x, y = self.Xpos, self.Ypos
-# 
+#
 		if self.Shape == "circle":
 			dc.DrawCircle(x, y, self.Radius)
 			self._width = self._height = self.Radius * 2
@@ -3672,7 +3668,7 @@ class DrawObject(dObject):
 
 	DrawMode = property(_getDrawMode, _setDrawMode, None,
 			_("""Logical operation for how the drawing is done. Can be one of:  (str)
-			
+
 				copy (or None) - default
 				invert
 				and
@@ -3689,7 +3685,7 @@ class DrawObject(dObject):
 				set
 				src_invert
 				xor
-			
+
 			"""))
 
 	EndAngle = property(_getEndAngle, _setEndAngle, None,
@@ -3725,7 +3721,7 @@ class DrawObject(dObject):
 	HatchStyle = property(_getHatchStyle, _setHatchStyle, None,
 			_("""Hatching style for the fill.  (str)
 					Options are:
-			
+
 						Solid (default)
 						Transparent
 						Cross
@@ -3734,7 +3730,7 @@ class DrawObject(dObject):
 						Diagonal
 						ReverseDiagonal
 						CrossDiagonal
-			
+
 			"""))
 
 	Height = property(_getHeight, _setHeight, None,
