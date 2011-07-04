@@ -553,7 +553,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	@dabo.ui.deadCheck
 	def _updateCellDynamicProps(self, row):
 		dabo.ui.callAfterInterval(200, self._updateCellDynamicProps_delayed, row)
-	
+
 	@dabo.ui.deadCheck
 	def _updateCellDynamicProps_delayed(self, row):
 		kwargs = {"row": row}
@@ -1769,6 +1769,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._refreshAfterSort = True
 		# Local count of rows in the data table
 		self._tableRows = 0
+		# List of visible columns
+		self._daboVisibleColumns = []
 
 		# When user selects new row, does the form have responsibility for making the change?
 		self._mediateRowNumberThroughForm = True
@@ -2168,16 +2170,16 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		dabo.ui.callAfterInterval(200, self.refresh)
 
 
-	def _getDaboVisibleCols(self):
+	def _updateDaboVisibleColumns(self):
 		try:
-			return [e[0] for e in enumerate(self._columns) if e[1].Visible]
+			self._daboVisibleColumns = [e[0] for e in enumerate(self._columns) if e[1].Visible]
 		except wx._core.PyAssertionError, e:
 			# Can happen when an editor is active and columns resize
-			ret = []
+			vis = []
 			for pos, col in enumerate(self._columns):
 				if col.Visible:
-					ret.append(pos)
-			return ret
+					vis.append(pos)
+			self._daboVisibleColumns = vis
 
 
 	def _convertWxColNumToDaboColNum(self, wxCol):
@@ -2188,7 +2190,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		Returns None if there is no corresponding dabo column.
 		"""
 		try:
-			return self._getDaboVisibleCols()[wxCol]
+			return self._daboVisibleColumns[wxCol]
 		except IndexError:
 			return None
 
@@ -2200,10 +2202,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 		Returns None if there is no corresponding wx column.
 		"""
-
-		daboVis = self._getDaboVisibleCols()
 		try:
-			return daboVis.index(daboCol)
+			return self._daboVisibleColumns.index(daboCol)
 		except ValueError:
 			return None
 
@@ -2720,7 +2720,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				dabo.log.error(_("Invalid column number passed to 'showColumn()'."))
 				return
 		col._visible = visible
-
 		self._syncColumnCount()
 		self.refresh()
 
@@ -3357,6 +3356,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self.ProcessTableMessage(msg)
 		self.EndBatch()
 
+		# Update the visible columns attribute
+		self._updateDaboVisibleColumns()
+
 		# We need to adjust the Width of visible columns here, in case any
 		# columns have Visible = False.
 		for daboCol, colObj in enumerate(self._columns):
@@ -3556,10 +3558,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		def _autosizeAllColumns(evt):
 			self.autoSizeCol("All")
 
-		menu.append(_("&Autosize Column"), OnHit=_autosizeColumn,
-				help=_("Autosize the column based on the data in the column."))
-		menu.append(_("&Autosize All Columns"), OnHit=_autosizeAllColumns,
-				help=_("Autosize all columns in the grid."))
+		if self.ResizableColumns:
+			menu.append(_("&Autosize Column"), OnHit=_autosizeColumn,
+					help=_("Autosize the column based on the data in the column."))
+			menu.append(_("&Autosize All Columns"), OnHit=_autosizeAllColumns,
+					help=_("Autosize all columns in the grid."))
 
 		menu = self.fillHeaderContextMenu(menu)
 
@@ -5169,7 +5172,7 @@ class _dGrid_test(dGrid):
 		self.addColumn(col)
 
 		col.HeaderFontItalic = True
-		col.HeaderBackColor = "orange"
+		col.HeaderBackColor = "peachpuff"
 		col.HeaderVerticalAlignment = "Top"
 		col.HeaderHorizontalAlignment = "Left"
 
