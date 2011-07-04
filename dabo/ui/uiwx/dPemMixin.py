@@ -1197,8 +1197,7 @@ class dPemMixin(dPemMixinBase):
 		"""
 		if isinstance(self, dabo.ui.dGrid):
 			kids = self.Columns
-		elif isinstance(self, (dabo.ui.dPageFrame, dabo.ui.dPageList,
-				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs)):
+		elif isinstance(self, (dabo.ui.dPageFrameMixin, dabo.ui.dPageFrameNoTabs)):
 			kids = self.Pages
 		else:
 			kids = self.Children
