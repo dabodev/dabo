@@ -264,6 +264,7 @@ class dPemMixin(dPemMixinBase):
 		self._name = "?"
 		self._pemObject = pre
 		self._needRedraw = True
+		self._inRedraw = False
 		self._borderColor = (0, 0, 0)
 		self._borderWidth = 0
 		self._borderLineStyle = "Solid"
@@ -699,7 +700,13 @@ class dPemMixin(dPemMixinBase):
 	def __onWxPaint(self, evt):
 		if self._finito:
 			return
-		self._needRedraw = bool(self._drawnObjects)
+# 		def __setNeedRedraw():
+# 			try:
+# 				self._needRedraw = bool(self._drawnObjects)
+# 			except dabo.ui.deadObjectException:
+# 				pass
+# 		dabo.ui.callAfterInterval(50, __setNeedRedraw)
+		self._needRedraw = (not self._inRedraw) and bool(self._drawnObjects)
 		self.raiseEvent(dEvents.Paint, evt)
 
 
@@ -1668,6 +1675,9 @@ class dPemMixin(dPemMixinBase):
 		method is where they go. Subclasses should place code in the
 		redraw() hook method.
 		"""
+		if self._inRedraw:
+			return
+		self._inRedraw = True
 		# Clear the idle flag.
 		self._needRedraw = False
 		if dc is None:
@@ -1680,6 +1690,10 @@ class dPemMixin(dPemMixinBase):
 			obj.draw(dc)
 		# Call the hook
 		self.redraw(dc)
+		# Make sure this is really cleared.
+		self._needRedraw = False
+		# Clear the process flag
+		self._inRedraw = False
 
 
 	def redraw(self, dc):
@@ -1871,6 +1885,8 @@ class dPemMixin(dPemMixinBase):
 					self.SetBackgroundColour(val)
 					# Background color changes don't result in an automatic refresh.
 					self.refresh()
+			elif val is None:
+				self.SetBackgroundColour(wx.NullColour)
 		else:
 			self._properties["BackColor"] = val
 
