@@ -164,6 +164,7 @@ colorDict = {"aliceblue" : (240, 248, 255),
 		}
 
 colors = colorDict.keys()
+colors.sort()
 
 
 def hexToDec(hx):
