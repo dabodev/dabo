@@ -2257,7 +2257,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		Add columns with properties set based on the passed dataset.
 
 		A dataset is defined as one of:
-		
+
 			+ a sequence of dicts, containing fieldname/fieldvalue pairs.
 			+ a string, which maps to a bizobj on the form.
 
@@ -2694,7 +2694,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def fitHeaderHeight(self):
 		"""
-		Sizes the HeaderHeight to comfortably fit the captions. Primarily used for 
+		Sizes the HeaderHeight to comfortably fit the captions. Primarily used for
 		vertical captions or multi-line captions.
 		"""
 		self._paintHeader()
