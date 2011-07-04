@@ -36,7 +36,7 @@ class DemoGrid(dabo.ui.dGrid):
 		self.addColumn(col)
 
 		col.HeaderFontItalic = True
-		col.HeaderBackColor = "orange"
+		col.HeaderBackColor = "peachpuff"
 		col.HeaderVerticalAlignment = "Top"
 		col.HeaderHorizontalAlignment = "Left"
 
