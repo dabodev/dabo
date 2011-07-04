@@ -12,7 +12,13 @@ from dabo.lib.utils import ustr
 from dPageFrameMixin import dPageFrameMixin
 import dabo.dColors as dColors
 
-import wx.aui as aui
+_USE_AGW = True
+try:
+	import wx.lib.agw.aui as aui
+except ImportError:
+	# wx versions prior to 2.8.9.2
+	import wx.aui as aui
+	_USE_AGW = False
 
 #The flatnotebook version we need is not avialable with wxPython < 2.8.4
 _USE_FLAT = (wx.VERSION >= (2, 8, 4))
@@ -193,11 +199,17 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
 		self._baseClass = dDockTabs
 		preClass = aui.AuiNotebook
 
-		newStyle = (aui.AUI_NB_TOP | aui.AUI_NB_TAB_SPLIT | aui.AUI_NB_TAB_MOVE
-				| aui.AUI_NB_SCROLL_BUTTONS | aui.AUI_NB_CLOSE_ON_ALL_TABS)
-		if "style" in kwargs:
-			newStyle = kwargs["style"] | newStyle
-		kwargs["style"] = newStyle
+		newStyle = (aui.AUI_NB_TOP | aui.AUI_NB_SCROLL_BUTTONS)
+		self._movableTabs = self._extractKey((properties, attProperties, kwargs), "MovableTabs", True)
+		if self._movableTabs:
+			newStyle = newStyle | aui.AUI_NB_TAB_MOVE | aui.AUI_NB_TAB_SPLIT
+		if not _USE_AGW:
+			newStyle = newStyle | aui.AUI_NB_CLOSE_ON_ALL_TABS
+		newStyle = newStyle | kwargs.pop("style", 0) | kwargs.pop("agwStyle", 0)
+		if _USE_AGW:
+			kwargs["agwStyle"] = newStyle
+		else:
+			kwargs["style"] = newStyle
 		dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
@@ -242,6 +254,17 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
 		self.layout()
 		return self.Pages[pos]
 	def _insertPageOverride(self, pos, pgCls, caption, imgKey): pass
+
+
+	def _getMovableTabs(self):
+		return self._movableTabs
+
+
+	MovableTabs = property(_getMovableTabs, None, None,
+			_("""When True (default), tabs can be re-arranged by dragging, and docked at
+			different sides of the control. This can only be set when the control is created.
+			Default = True.  (bool)"""))
+
 
 
 if _USE_FLAT:
@@ -590,7 +613,8 @@ if _USE_FLAT:
 		TabPosition = property(_getTabPosition, _setTabPosition, None,
 				_("""Specifies where the page tabs are located. (string)
 					Top (default)
-					Bottom""") )
+					Bottom
+					""") )
 
 		TabSideIncline = property(_getTabSideIncline, _setTabSideIncline, None,
 				_("""Specifies the incline of the sides of the tab in degrees (int) (Default=0)
@@ -604,15 +628,16 @@ if _USE_FLAT:
 					"VC8"
 					"VC71"
 					"Fancy"
-					"Firefox\""""))
+					"Firefox"
+					"""))
 
 
 import random
 
 class TestMixin(object):
 	def initProperties(self):
-		self.Width = 400
-		self.Height = 175
+		self.Width = 600
+		self.Height = 375
 		self.TabPosition = random.choice(("Top", "Bottom", "Left", "Right"))
 
 	def afterInit(self):
