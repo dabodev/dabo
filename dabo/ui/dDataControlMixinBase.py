@@ -118,10 +118,12 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			except (TypeError, dException.NoRecordsException):
 				self.Value = self.getBlankValue()
 			except dException.FieldNotFoundException:
-				# See if DataField refers to a method of the bizobj:
-				method = getattr(src, self.DataField, None)
-				if callable(method):
+				# See if DataField refers to an attribute of the bizobj:
+				att = getattr(src, self.DataField, None)
+				if callable(att):
 					self.Value = method()
+				else:
+					self.Value = att
 			self._inDataUpdate = False
 		else:
 			if self._srcIsInstanceMethod is None and src is not None:
@@ -232,11 +234,15 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 						try:
 							ret = src.setFieldVal(self.DataField, curVal)
 						except dException.FieldNotFoundException:
-							# First see if DataField refers to a method of the bizobj, in which
-							# case it is read-only; do not try to assign to it:
-							method = getattr(self.Source, self.DataField, None)
-							if method is None:
+							# First see if DataField refers to an attribute of the bizobj. If so, if it is
+							# a method, it is read-only, so do not try to assign to it. Otherwise, set
+							# the attribute to the value.
+							att = getattr(self.Source, self.DataField, None)
+							if att is None:
 								raise
+							if callable(att):
+								return
+							setattr(self.Source, self.DataField, curVal)
 						except (dException.NoRecordsException, dException.RowNotFoundException):
 							# UI called flushValue() when there wasn't a valid record active. 
 							# Treat as spurious and ignore.
