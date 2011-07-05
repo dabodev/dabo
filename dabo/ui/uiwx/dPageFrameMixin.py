@@ -15,6 +15,13 @@ from dabo.ui import makeDynamicProperty
 
 class dPageFrameMixin(cm.dControlMixin):
 	"""Creates a container for an unlimited number of pages."""
+
+	def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
+		kwargs["style"] = self._extractKey((properties, kwargs), "style", 0) | wx.CLIP_CHILDREN
+		super(dPageFrameMixin, self).__init__(preClass, parent, properties=properties,
+			attProperties=attProperties, *args, **kwargs)
+
+
 	def _beforeInit(self, pre):
 		self._imageList = {}
 		self._pageSizerClass = dabo.ui.dSizer
@@ -36,6 +43,8 @@ class dPageFrameMixin(cm.dControlMixin):
 			evt.Veto()
 		else:
 			evt.Skip()
+		if oldPageNum >= 0 and self.PageCount > oldPageNum:
+			self.Pages[oldPageNum]._saveLastActiveControl()
 		self.raiseEvent(dEvents.PageChanging, oldPageNum=oldPageNum,
 				newPageNum=newPageNum)
 
@@ -77,7 +86,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			return
 		self._lastPage = newPageNum
 		if oldPageNum is not None:
-			if oldPageNum >=0:
+			if oldPageNum >= 0:
 				try:
 					oldPage = self.Pages[oldPageNum]
 					dabo.ui.callAfter(oldPage.raiseEvent, dEvents.PageLeave)
@@ -90,6 +99,8 @@ class dPageFrameMixin(cm.dControlMixin):
 			dabo.ui.callAfter(newPage.raiseEvent, dEvents.PageEnter)
 			dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged,
 					oldPageNum=oldPageNum, newPageNum=newPageNum)
+			if self.UseSmartFocus:
+				newPage._restoreLastActiveControl()
 
 
 	# Image-handling function
@@ -232,7 +243,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		self.Parent.lockDisplay()
 		pos = oldPgOrPos
 		if isinstance(oldPgOrPos, int):
-			if oldPgOrPos > self.PageCount-1:
+			if oldPgOrPos > self.PageCount - 1:
 				return False
 			pg = self.Pages[oldPgOrPos]
 		else:
@@ -240,7 +251,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			pos = self.Pages.index(pg)
 		# Make sure that the new position is valid
 		newPos = max(0, newPos)
-		newPos = min(self.PageCount-1, newPos)
+		newPos = min(self.PageCount - 1, newPos)
 		if newPos == pos:
 			# No change
 			return
@@ -323,10 +334,10 @@ class dPageFrameMixin(cm.dControlMixin):
 				for i in range(pageCount, val):
 					pg = self.appendPage(pageClass)
 					if not pg.Caption:
-						pg.Caption = _("Page %s") % (i+1,)
+						pg.Caption = _("Page %s") % (i + 1,)
 			elif val < pageCount:
 				for i in range(pageCount, val, -1):
-					self.DeletePage(i-1)
+					self.DeletePage(i - 1)
 		else:
 			self._properties["PageCount"] = val
 
@@ -417,20 +428,27 @@ class dPageFrameMixin(cm.dControlMixin):
 		self._updateInactivePages = val
 
 
+	def _getUseSmartFocus(self):
+		return getattr(self, "_useSmartFocus", False)
+
+	def _setUseSmartFocus(self, val):
+		self._useSmartFocus = val
+
+
 	# Property definitions:
 	PageClass = property(_getPageClass, _setPageClass, None,
 			_("""Specifies the class of control to use for pages by default. (classRef)
 			This really only applies when using the PageCount property to set the
 			number of pages. If you instead use AddPage() you still need to send
-			an instance as usual. Class must descend from a dabo base class.""") )
+			an instance as usual. Class must descend from a dabo base class."""))
 
 	PageCount = property(_getPageCount, _setPageCount, None,
 			_("""Specifies the number of pages in the pageframe. (int)
 			When using this to increase the number of pages, PageClass
-			will be queried as the object to use as the page object.""") )
+			will be queried as the object to use as the page object."""))
 
 	Pages = property(_getPages, None, None,
-			_("Returns a list of the contained pages.  (list)") )
+			_("Returns a list of the contained pages.  (list)"))
 
 	PageSizerClass = property(_getPageSizerClass, _setPageSizerClass, None,
 			_("""Default sizer class for pages added automatically to this control. Set
@@ -438,23 +456,28 @@ class dPageFrameMixin(cm.dControlMixin):
 			pages. (dSizer or None)"""))
 
 	SelectedPage = property(_getSelectedPage, _setSelectedPage, None,
-			_("References the current frontmost page.  (dPage)") )
+			_("References the current frontmost page.  (dPage)"))
 
 	SelectedPageNumber = property(_getSelectedPageNumber, _setSelectedPageNumber,
 			None,
-			_("Returns the index of the current frontmost page.  (int)") )
+			_("Returns the index of the current frontmost page.  (int)"))
 
 	TabPosition = property(_getTabPosition, _setTabPosition, None,
 			_("""Specifies where the page tabs are located. (int)
 				Top (default)
 				Left
 				Right
-				Bottom""") )
+				Bottom"""))
 
 	UpdateInactivePages = property(_getUpdateInactivePages, _setUpdateInactivePages, None,
 			_("""Determines if the inactive pages are updated too. (bool)
 			Setting it to False can significantly improve update performance
 			of multipage forms. Default=True."""))
+
+	UseSmartFocus = property(_getUseSmartFocus, _setUseSmartFocus, None,
+			_("""Determines if focus has to be restored to the last active
+			control on page when it become selected. (bool) Default=False.
+			"""))
 
 
 	DynamicPageClass = makeDynamicProperty(PageClass)

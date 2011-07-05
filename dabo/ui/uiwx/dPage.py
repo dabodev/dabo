@@ -46,7 +46,7 @@ class dPage(dabo.ui.dScrollPanel):
 		self.createItems()
 		self.itemsCreated = True
 		self.layout()
-		self.unlockDisplay()
+		dabo.ui.callAfter(self.unlockDisplay)
 
 
 	def createItems(self):
@@ -81,8 +81,18 @@ class dPage(dabo.ui.dScrollPanel):
 
 	def __onPageLeave(self, evt):
 		if hasattr(self, "Form"):
-			if hasattr(self.Form, "activeControlValid"):
-				self.Form.activeControlValid()
+			form = self.Form
+			if hasattr(form, "activeControlValid"):
+				form.activeControlValid()
+
+
+	def _saveLastActiveControl(self):
+		self._lastFocusedControl = self.Form.ActiveControl
+
+
+	def _restoreLastActiveControl(self):
+		if getattr(self, "_lastFocusedControl", None):
+			self.Form.ActiveControl = self._lastFocusedControl
 
 
 	def _getPagePosition(self):
