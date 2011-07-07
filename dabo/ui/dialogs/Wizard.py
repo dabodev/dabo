@@ -91,9 +91,9 @@ class Wizard(dabo.ui.dDialog):
 		# Buttons
 		hsz = dabo.ui.dSizer("h")
 		hsz.DefaultSpacing = 5
-		self.btnBack = dabo.ui.dButton(mp, Caption=_("< Back") )
-		self.btnNext = dabo.ui.dButton(mp, Caption=_("Next >") )
-		self.btnCancel = dabo.ui.dButton(mp, Caption=_("Cancel") )
+		self.btnBack = dabo.ui.dButton(mp, Caption=_("< Back"))
+		self.btnNext = dabo.ui.dButton(mp, Caption=_("Next >"))
+		self.btnCancel = dabo.ui.dButton(mp, Caption=_("Cancel"))
 		hsz.append(self.btnBack)
 		hsz.append(self.btnNext)
 		hsz.append(self.btnCancel)
@@ -101,7 +101,7 @@ class Wizard(dabo.ui.dDialog):
 		self.btnNext.bindEvent(dEvents.Hit, self.onNext)
 		self.btnCancel.bindEvent(dEvents.Hit, self.onCancel)
 
-		mpsz.append(hsz, 0, alignment=("right", "bottom") )
+		mpsz.append(hsz, 0, alignment=("right", "bottom"))
 
 		# Add the top and bottom borders
 		mpsz.prependSpacer(mpsz.DefaultBorder)
@@ -115,7 +115,7 @@ class Wizard(dabo.ui.dDialog):
 
 	def onNext(self, evt):
 		pg = self._pages[self.CurrentPage]
-		if self.CurrentPage == (self.PageCount-1):
+		if self.CurrentPage == (self.PageCount - 1):
 			# This is actually 'Finish', so call the
 			# finish() method, which will by default
 			# close the wizard, or if the wizard is not
@@ -131,7 +131,7 @@ class Wizard(dabo.ui.dDialog):
 			if not dabo.ui.areYouSure(self.confirmCancelMsg,
 					_("Cancel Received"), cancelButton=False):
 				return
-		dabo.ui.callAfter(self.closeWizard)
+		dabo.ui.callAfter(self.closeWizard, k.DLG_CANCEL)
 
 
 	def _finish(self):
@@ -140,7 +140,7 @@ class Wizard(dabo.ui.dDialog):
 		if ok is not False:
 			finOK = self.finish()
 			if finOK is not False:
-				dabo.ui.callAfter(self.closeWizard)
+				dabo.ui.callAfter(self.closeWizard, k.DLG_OK)
 
 
 	def finish(self):
@@ -156,12 +156,13 @@ class Wizard(dabo.ui.dDialog):
 		self.show()
 
 
-	def closeWizard(self):
-		self.close(True)
-		if self.Parent is None:
-			# Since this is a dialog, we need to explicitly remove
-			# it or the app will hang.
-			self.Destroy()
+	def closeWizard(self, action=None):
+		# Warning! The close method shouldn't be called before EndModal
+		# because it causes '' on GTK platform.
+		if self.Modal:
+			self.EndModal(action)
+		else:
+			self.close(True)
 
 
 	def append(self, pg):
@@ -233,7 +234,7 @@ class Wizard(dabo.ui.dDialog):
 				self.pagePanel.Sizer.append(page, 1, "x")
 				self.btnBack.Enabled = (idx > 0)
 				cap = _("Next >")
-				if idx == (self.PageCount-1):
+				if idx == (self.PageCount - 1):
 					cap = _("Finish")
 				self.btnNext.Caption = cap
 				if page.Picture is not None:
@@ -265,7 +266,7 @@ class Wizard(dabo.ui.dDialog):
 		try:
 			idx = self._pages.index(orig)
 			ret = self._pages[idx + incr]
-		except IndexError:
+		except ValueError:
 			ret = None
 		return ret
 
@@ -280,7 +281,7 @@ class Wizard(dabo.ui.dDialog):
 		if self.PageCount == 0:
 			self.showBlankPage()
 			return
-		val = min(val, self.PageCount-1)
+		val = min(val, self.PageCount - 1)
 		if val == self._currentPage:
 			# No change
 			return
@@ -297,7 +298,7 @@ class Wizard(dabo.ui.dDialog):
 		# Now make sure that the current page is valid
 		if val < 0:
 			val = 0
-		elif val > len(self._pages) -1:
+		elif val > len(self._pages) - 1:
 			# We're done
 			self.release()
 			return
@@ -366,13 +367,13 @@ class Wizard(dabo.ui.dDialog):
 
 
 	CurrentPage = property(_getCurrPage, _setCurrPage, None,
-			_("Index of the current page in the wizard  (WizardPage)") )
+			_("Index of the current page in the wizard  (WizardPage)"))
 
 	PageCount = property(_getPageCount, None, None,
-			_("Number of pages in this wizard  (int)") )
+			_("Number of pages in this wizard  (int)"))
 
 	Picture = property(_getPicture, _setPicture, None,
-			_("Sets the visible icon for the wizard.  (str/path)") )
+			_("Sets the visible icon for the wizard.  (str/path)"))
 
 	PictureHeight = property(_getPictureHeight, _setPictureHeight, None,
 			_("Height of the wizard icon in pixels  (int)"))
@@ -392,7 +393,7 @@ if __name__ == "__main__":
 			lbl = dabo.ui.dLabel(self, Caption=_(
 """Are you getting excited yet???
 
-I know that I am!!""") )
+I know that I am!!"""))
 			self.Sizer.append(lbl, alignment="center")
 
 
@@ -402,7 +403,7 @@ I know that I am!!""") )
 			lbl = dabo.ui.dLabel(self, Caption=_(
 """This will demonstrate condtional skipping of
 pages. If the checkbox below is checked, clicking
-'Next' will move to Page 4 instead of Page 3.""") )
+'Next' will move to Page 4 instead of Page 3."""))
 			self.chk = dabo.ui.dCheckBox(self, Caption="Skip?")
 			self.Sizer.append(lbl, alignment="center")
 			self.Sizer.appendSpacer(10)
@@ -425,7 +426,7 @@ pages. If the checkbox below is checked, clicking
 			lbl = dabo.ui.dLabel(self, Caption=_(
 """You should only see this if you did not check
 the box on Page Two.
-""") )
+"""))
 			self.Sizer.append(lbl, alignment="center")
 
 	class WizPageFour(WizardPage):
@@ -434,16 +435,16 @@ the box on Page Two.
 			self.Picture = "cards/small/s1.png"
 			lbl = dabo.ui.dLabel(self, Caption=_(
 """Did the skipping work OK?
-""") )
+"""))
 			self.Sizer.append(lbl, alignment="center")
 			self.txt = dabo.ui.dTextBox(self)
 			lbl = dabo.ui.dLabel(self, Caption=_(
-					"You cannot move forward if this textbox is empty") )
+					"You cannot move forward if this textbox is empty"))
 			self.Sizer.appendSpacer(16)
 			self.Sizer.append(self.txt, alignment="center")
 			self.Sizer.append(lbl, alignment="center")
 			lbl = dabo.ui.dLabel(self, Caption=_(
-					"Also note that this page has a different icon!") )
+					"Also note that this page has a different icon!"))
 			self.Sizer.appendSpacer(5)
 			self.Sizer.append(lbl, alignment="center")
 
@@ -465,7 +466,7 @@ the box on Page Two.
 			ret = True
 			if dir == "forward":
 				if not self.txt.Value:
-					dabo.ui.stop( _("Fill in the text box!!") )
+					dabo.ui.stop(_("Fill in the text box!!"))
 					ret = False
 			return ret
 
@@ -477,7 +478,7 @@ the box on Page Two.
 """This is the last page. Note that the 'Next' button
 now reads 'Finish'. Click that to exit, or click 'Back'
 to play some more.
-""") )
+"""))
 			self.Sizer.append(lbl, alignment="center")
 
 
@@ -488,7 +489,7 @@ to play some more.
 	# the wizard itself.
 	wiz = Wizard(Picture="daboIcon096", Height=450, Width=530,
 			Pages=(WizPageOne, WizPageTwo, WizPageThree, WizPageFour,
-			WizPageFive) )
+			WizPageFive))
 
 	wiz.start()
 	app.start()
