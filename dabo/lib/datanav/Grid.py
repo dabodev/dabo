@@ -13,7 +13,7 @@ class Grid(dabo.ui.dGrid):
 
 
 	def _initEvents(self):
-		self.super()
+		super(Grid, self)._initEvents()
 		self.bindEvent(dEvents.GridMouseLeftDoubleClick, self.onGridLeftDClick)
 		self.bindEvent(dEvents.KeyDown, self._onGridKeyDown)
 
