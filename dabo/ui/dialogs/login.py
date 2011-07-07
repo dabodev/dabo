@@ -51,7 +51,7 @@ class Login(dabo.ui.dOkCancelDialog):
 
 
 	def addControls(self):
-		self.super()
+		super(Login, self).addControls()
 
 		self.addObject(lbl, 'lblUserName')
 		self.addObject(txt, 'txtUserName')
@@ -109,14 +109,14 @@ class Login(dabo.ui.dOkCancelDialog):
 
 	def runCancel(self):
 		self.user, self.password = None, None
-		self.super()
+		super(Login, self).runCancel()
 
 	def onEnterKey(self, evt):
 		self.runOK()
 
 	def runOK(self):
 		self.user, self.password = self.txtUserName.Value, self.txtPassword.Value
-		self.super()
+		super(Login, self).runOK()
 
 
 if __name__ == '__main__':
