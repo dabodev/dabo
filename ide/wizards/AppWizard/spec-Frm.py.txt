@@ -13,7 +13,7 @@ from PagEdit%(tableName)s import PagEdit%(tableName)s
 class Frm%(tableName)s(FrmBase):
 
 	def initProperties(self):
-		self.super()
+		super(Frm%(tableName)s, self).initProperties()
 		self.NameBase = "frm%(tableName)s"
 		self.Caption = "%(tableName)s"
 		self.SelectPageClass = PagSelect%(tableName)s
@@ -28,7 +28,7 @@ class Frm%(tableName)s(FrmBase):
 			app = self.Application
 			biz%(tableName)s = app.biz.%(tableName)s(app.dbConnection)
 			self.addBizobj(biz%(tableName)s)
-		self.super()
+		super(Frm%(tableName)s, self).afterInit()
 
 
 if __name__ == "__main__":

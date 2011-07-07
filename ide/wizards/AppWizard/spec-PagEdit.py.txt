@@ -24,7 +24,7 @@ class PagEdit%(tableName)s(PagEditBase):
 			biz = Biz()
 
 %(createItems)s
-		self.super()
+		super(PagEdit%(tableName)s, self).createItems()
 
 
 if __name__ == "__main__":

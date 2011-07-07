@@ -428,7 +428,7 @@ your application.""")
 
 class PageOutput(AppWizardPage):
 	def __init__(self, parent, Caption=_("Output Options")):
-		self.super(parent=parent, Caption=Caption)
+		super(PageOutput, self).__init__(parent=parent, Caption=Caption)
 
 
 	def createBody(self):

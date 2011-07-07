@@ -38,4 +38,4 @@ class App(dabo.dApp):
 		else:
 			# no need for main form in SDI mode:
 			self.MainFormClass = None
-		self.super()
+		super(App, self).setup()

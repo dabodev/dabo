@@ -9,7 +9,7 @@ from GrdBase import GrdBase
 class Grd%(tableName)s(GrdBase):
 
 	def afterInitAll(self):
-		self.super()
+		super(Grd%(tableName)s, self).afterInitAll()
 		biz = self.Form.getBizobj("%(datasource)s")
 
 		if not biz:

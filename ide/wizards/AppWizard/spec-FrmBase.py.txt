@@ -9,7 +9,7 @@ from MenReports import MenReports
 class FrmBase(datanav.Form):
 
 	def initProperties(self):
-		self.super()
+		super(FrmBase, self).initProperties()
 		# Setting RequeryOnLoad to True will result in an automatic requery upon
 		# form load, which may be appropriate for your app (if it is reasonably
 		# certain that the dataset will be small no matter what).
@@ -18,7 +18,7 @@ class FrmBase(datanav.Form):
 
 
 	def setupMenu(self):
-		self.super()
+		super(FrmBase, self).setupMenu()
 		self.fillFileOpenMenu()
 		self.fillReportsMenu()
 

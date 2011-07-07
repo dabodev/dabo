@@ -11,7 +11,7 @@ IGNORE_STRING = datanav.IGNORE_STRING
 # Controls for the select page:
 class SelectControlMixin(dObject):
 	def initProperties(self):
-		self.super()
+		super(SelectControlMixin, self).initProperties()
 		self.SaveRestoreValue = True
 
 class SelectTextBox(SelectControlMixin, dabo.ui.dTextBox): pass
@@ -26,11 +26,11 @@ class SelectSpinner(SelectControlMixin, dabo.ui.dSpinner): pass
 
 class SelectionOpDropdown(dabo.ui.dDropdownList):
 	def initProperties(self):
-		self.super()
+		super(SelectionOpDropdown, self).initProperties()
 		self.SaveRestoreValue = True
 
 	def initEvents(self):
-		self.super()
+		super(SelectionOpDropdown, self).initEvents()
 		self.bindEvent(dEvents.Hit, self.onChoiceMade)
 		self.bindEvent(dEvents.ValueChanged, self.onValueChanged)
 
@@ -62,7 +62,7 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 
 class SortLabel(dabo.ui.dLabel):
 	def initEvents(self):
-		self.super()
+		super(SortLabel, self).initEvents()
 		self.bindEvent(dEvents.MouseRightClick, self.Parent.Parent.onSortLabelRClick)
 		# Add a property for the related field
 		self.relatedDataField = ""

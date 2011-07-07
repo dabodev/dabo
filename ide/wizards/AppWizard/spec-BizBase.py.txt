@@ -5,7 +5,7 @@ import dabo.lib.datanav as datanav
 class Base(datanav.Bizobj):
 
 	def afterInit(self):
-		self.super()
+		super(Base, self).afterInit()
 		self.setBaseSQL()
 
 

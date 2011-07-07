@@ -7,12 +7,12 @@ from MenFileOpen import MenFileOpen
 class FrmMain(dabo.ui.dFormMain):
 
 	def afterInit(self):
-		self.super()
+		super(FrmMain, self).afterInit()
 		self.fillFileOpenMenu()
 
 
 	def initProperties(self):
-		self.super()
+		super(FrmMain, self).initProperties()
 		self.Icon = "daboIcon.ico"
 
 

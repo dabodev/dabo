@@ -9,7 +9,7 @@ import dabo.lib.reportUtils as reportUtils
 class FrmReportBase(dabo.ui.dDialog):
 
 	def initProperties(self):
-		self.super()
+		super(FrmReportBase, self).initProperties()
 		## Do this import here: in case prerequisites aren't installed, the app
 		## will still start.
 		from dabo.dReportWriter import dReportWriter

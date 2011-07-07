@@ -7,7 +7,7 @@ from Base import Base
 class %(tableName)s(Base):
 
 	def initProperties(self):
-		self.super()
+		super(%(tableName)s, self).initProperties()
 		self.Caption = "%(tableName)s"
 		self.DataSource = "%(table)s"
 		self.KeyField = %(pkField)s
@@ -40,7 +40,7 @@ class %(tableName)s(Base):
 
 
 	def afterInit(self):
-		self.super()
+		super(%(tableName)s, self).afterInit()
 
 
 	def setBaseSQL(self):
