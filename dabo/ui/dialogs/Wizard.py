@@ -161,7 +161,9 @@ class Wizard(dabo.ui.dDialog):
 		# because it causes '' on GTK platform.
 		if self.Modal:
 			self.EndModal(action)
-		else:
+		if self.Parent is None:
+			# Since this is a dialog, we need to explicitly remove
+			# it or the app will hang.
 			self.close(True)
 
 
