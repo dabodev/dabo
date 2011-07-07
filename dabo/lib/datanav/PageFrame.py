@@ -23,7 +23,7 @@ class PageFrameMixin(object):
 			biz = self.Form.PrimaryBizobj
 			if biz and biz.RowCount == 0:
 				self.SelectedPageNumber = 0
-				self.Form.StatusText = "No records available"
+				self.Form.StatusText = _("No records available")
 				return False
 
 
