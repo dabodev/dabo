@@ -23,22 +23,22 @@ class dReportWriter(dObject, ReportWriter):
 	"""
 
 	def _onReportCancel(self):
-		self.super()
+		super(dReportWriter, self)._onReportCancel()
 		self.raiseEvent(dabo.dEvents.ReportCancel)
 		self._hideProgress()
 
 	def _onReportBegin(self):
-		self.super()
+		super(dReportWriter, self)._onReportBegin()
 		self.raiseEvent(dabo.dEvents.ReportBegin)
 		self._showProgress()
 
 	def _onReportEnd(self):
-		self.super()
+		super(dReportWriter, self)._onReportEnd()
 		self.raiseEvent(dabo.dEvents.ReportEnd)
 		self._hideProgress()
 
 	def _onReportIteration(self):
-		self.super()
+		super(dReportWriter, self)._onReportIteration()
 		self.raiseEvent(dabo.dEvents.ReportIteration)
 		self._updateProgress()
 
