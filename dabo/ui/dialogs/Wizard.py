@@ -158,7 +158,7 @@ class Wizard(dabo.ui.dDialog):
 
 	def closeWizard(self, action=None):
 		# Warning! The close method shouldn't be called before EndModal
-		# because it causes '' on GTK platform.
+		# because it causes 'IA__gtk_window_set_modal' error on GTK platform.
 		if self.Modal:
 			self.EndModal(action)
 		if self.Parent is None:
