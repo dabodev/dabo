@@ -46,7 +46,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			evt.Veto()
 		else:
 			evt.Skip()
-		if oldPageNum >= 0 and self.PageCount > oldPageNum:
+		if oldPageNum >= 0 and self.PageCount > oldPageNum and self.UseSmartFocus:
 			try:
 				self.Pages[oldPageNum]._saveLastActiveControl()
 			except AttributeError:
