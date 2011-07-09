@@ -13,6 +13,9 @@ from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
 
 
+MSG_SMART_FOCUS_ABUSE = _("The '%s' control must inherit from dPage to use the UseSmartFocus feature.")
+
+
 class dPageFrameMixin(cm.dControlMixin):
 	"""Creates a container for an unlimited number of pages."""
 
@@ -44,7 +47,10 @@ class dPageFrameMixin(cm.dControlMixin):
 		else:
 			evt.Skip()
 		if oldPageNum >= 0 and self.PageCount > oldPageNum:
-			self.Pages[oldPageNum]._saveLastActiveControl()
+			try:
+				self.Pages[oldPageNum]._saveLastActiveControl()
+			except AttributeError:
+				dabo.log.error(MSG_SMART_FOCUS_ABUSE % self.Name)
 		self.raiseEvent(dEvents.PageChanging, oldPageNum=oldPageNum,
 				newPageNum=newPageNum)
 
@@ -100,7 +106,10 @@ class dPageFrameMixin(cm.dControlMixin):
 			dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged,
 					oldPageNum=oldPageNum, newPageNum=newPageNum)
 			if self.UseSmartFocus:
-				newPage._restoreLastActiveControl()
+				try:
+					newPage._restoreLastActiveControl()
+				except AttributeError:
+					dabo.log.error(MSG_SMART_FOCUS_ABUSE % self.Name)
 
 
 	# Image-handling function
