@@ -128,10 +128,10 @@ def getEncoding():
 	encoding = locale.getlocale()[1] or locale.getdefaultlocale()[1] or defaultEncoding
 
 	def _getEncodingName():
-		yield encoding
 		if encoding.isdigit():
 			# Fix for missing encoding aliases e.g. '874'.
 			yield  "cp%s" % encoding
+		yield encoding
 		prefEncoding = locale.getpreferredencoding()
 		if not encoding == prefEncoding:
 			yield prefEncoding
@@ -335,7 +335,7 @@ import dabo.biz
 import dabo.ui
 
 # Store the base path to the framework
-frameworkPath = os.path.dirname(dabo.__file__)
+frameworkPath = os.path.dirname(__file__)
 
 
 # Define the standard Dabo subdirectory stucture for apps.
