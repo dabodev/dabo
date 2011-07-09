@@ -935,10 +935,15 @@ try again when it is running.
 			if os.path.exists(dbDir) and os.path.isdir(dbDir):
 				files = glob.glob(os.path.join(dbDir, "*.cnxml"))
 				for f in files:
-					cn = self.getConnectionsFromFile(f)
-					connDefs.update(cn)
-					for kk in cn.keys():
-						self.dbConnectionNameToFiles[kk] = f
+					try:
+						cn = self.getConnectionsFromFile(f)
+					except Exception, ex:
+						dabo.log.error(
+							_("Error loading database connection info from file %s:\n%s") % (f, ustr(ex)))
+					else:
+						connDefs.update(cn)
+						for kk in cn:
+							self.dbConnectionNameToFiles[kk] = f
 		# Import any python code connection definitions (the "old" way).
 		try:
 			import dbConnectionDefs
