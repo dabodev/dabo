@@ -56,7 +56,7 @@ def autoCreateTables(noAccessDialog=None):
 			class DbAdminLogin(dabo.ui.dDialog):
 				def __init__(self, parent, conn):
 					self._conn = conn
-					self.super(parent)
+					super(DbAdminLogin, self).__init__(parent)
 
 				def addControls(self):
 					self.Caption = self.Application.getAppInfo("appName")
@@ -123,7 +123,7 @@ def autoCreateTables(noAccessDialog=None):
 
 				Answer = property(_getAnswer)
 
-			for k in g._toExc.keys():
+			for k in g._toExc:
 				if noAccessDialog is None:
 					login = DbAdminLogin(None, k)
 				else:
@@ -167,7 +167,7 @@ def autoCreateTables(noAccessDialog=None):
 
 def _writeQueriesToFile(queries):
 	f = open("queries.sql", "w")
-	for k in queries.keys():
+	for k in queries:
 		db, hst = k.ConnectInfo.Database, k.ConnectInfo.Host
 		f.write(_("#Queries for DB '%(db)s' on host '%(hst)s':\n") % locals())
 		for query in queries[k]:
@@ -184,7 +184,7 @@ class dAutoBizobj(dBizobj):
 	is set to true.
 	If there is a field that is a stamp field, it is set to not update that field."""
 	def _beforeInit(self):
-		self.super()
+		super(dAutoBizobj, self)._beforeInit()
 		self._table = None
 		self._table_checked = False
 
@@ -263,7 +263,7 @@ class dAutoBizobj(dBizobj):
 		#Create table
 		toExc = self._CurrentCursor.BackendObject.createTableAndIndexes(self._table, self._CurrentCursor)
 		if toExc:
-			if g._toExc.has_key(self._conn):
+			if self._conn in g._toExc:
 				g._toExc[self._conn] = g._toExc[self._conn] + toExc
 			else:
 				g._toExc[self._conn] = toExc
@@ -275,13 +275,13 @@ class dAutoBizobj(dBizobj):
 				#in a dict where key is the column and value is a list of data for that column
 				for i in range(0, len(to_insert[to_insert.keys()[0]])):
 					self.new()
-					for k in to_insert.keys():
+					for k in to_insert:
 						self.setFieldVal(k, to_insert[k][i])
 
 					try:
 						self.save()
 					except dException.DBQueryException, e:
-						if g._toExc.has_key(self._conn):
+						if self._conn in g._toExc:
 							g._toExc[self._conn] = g._toExc[self._conn].append(e.sql)
 						else:
 							g._toExc[self._conn] = [e.sql]
@@ -296,7 +296,7 @@ class dAutoBizobj(dBizobj):
 						self.save()
 					except dException.DBQueryException, e:
 						print 'failed'
-						if g._toExc.has_key(self._conn):
+						if self._conn in g._toExc:
 							g._toExc[self._conn] = g._toExc[self._conn].append(e.sql)
 						else:
 							g._toExc[self._conn] = [e.sql]
