@@ -29,7 +29,7 @@ class dPemMixinBase(dObject):
 	getPropertyInfo = classmethod(getPropertyInfo)
 
 
-	def addObject(self, classRef, name=None, *args, **kwargs):
+	def addObject(self, classRef, Name=None, *args, **kwargs):
 		"""
 		Create an instance of classRef, and make it a child of self.
 
