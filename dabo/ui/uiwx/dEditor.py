@@ -123,7 +123,7 @@ class StyleTimer(dTimer.dTimer):
 	def afterInit(self):
 		# Default timer interval
 		self.styleTimerInterval = 50
-		self.super()
+		super(StyleTimer, self).afterInit()
 		self.bindEvent(dEvents.Hit, self.onHit)
 		self.mode = "container"
 
