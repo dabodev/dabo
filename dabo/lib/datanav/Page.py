@@ -13,14 +13,14 @@ import Grid
 
 IGNORE_STRING, CHOICE_TRUE, CHOICE_FALSE = (n_("-ignore-"),
 		n_("Is True"),
-		n_("Is False") )
+		n_("Is False"))
 
 ASC, DESC = (n_("asc"), n_("desc"))
 
 # Controls for the select page:
 class SelectControlMixin(dObject):
 	def initProperties(self):
-		self.super()
+		super(SelectControlMixin, self).initProperties()
 		self.SaveRestoreValue = True
 
 class SelectTextBox(SelectControlMixin, dabo.ui.dTextBox): pass
@@ -35,11 +35,11 @@ class SelectSpinner(SelectControlMixin, dabo.ui.dSpinner): pass
 
 class SelectionOpDropdown(dabo.ui.dDropdownList):
 	def initProperties(self):
-		self.super()
+		super(SelectionOpDropdown, self).initProperties()
 		self.SaveRestoreValue = True
 
 	def initEvents(self):
-		self.super()
+		super(SelectionOpDropdown, self).initEvents()
 		self.bindEvent(dEvents.Hit, self.onChoiceMade)
 		self.bindEvent(dEvents.ValueChanged, self.onValueChanged)
 
@@ -71,7 +71,7 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 
 class Page(dabo.ui.dPage):
 	def initEvents(self):
-		self.super()
+		super(Page, self).initEvents()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 
 
@@ -138,7 +138,7 @@ class SortLabel(dabo.ui.dLabel):
 
 class SelectPage(Page):
 	def _createItems(self):
-		self.super()
+		super(SelectPage, self)._createItems()
 
 		## The following line is needed to get the Select page scrollbars to lay
 		## out without the user having to resize manually. I tried putting it in
@@ -160,7 +160,7 @@ class SelectPage(Page):
 
 	def _initProperties(self):
 		self.UpdateOnPageEnter = False
-		self.super()
+		super(SelectPage, self)._initProperties()
 
 
 	def onSortLabelRClick(self, evt):
@@ -179,7 +179,7 @@ class SelectPage(Page):
 
 		mn.append(_("Sort Ascending"), OnHit=self.handleSortAsc)
 		mn.append(_("Sort Descending"), OnHit=self.handleSortDesc)
-		self.PopupMenu(mn, obj.formCoordinates(evt.EventData["mousePosition"]) )
+		self.PopupMenu(mn, obj.formCoordinates(evt.EventData["mousePosition"]))
 		mn.release()
 
 	def handleSortOrder(self, evt):
@@ -196,7 +196,7 @@ class SelectPage(Page):
 				del self.sortFields[self.sortDS]
 			except KeyError:
 				pass
-		elif action== "show":
+		elif action == "show":
 			# Get the descrips and order
 			sf = self.sortFields
 			dd = [(sf[kk][0], kk, "%s %s" % (sf[kk][2], sf[kk][1]))
@@ -319,7 +319,7 @@ class SelectPage(Page):
 						whrMatches = []
 						for word in matchVal.split():
 							mtch = {"table": table.strip(), "field": field.strip(), "value": word.strip()}
-							whrMatches.append( biz.getWordMatchFormat() % mtch )
+							whrMatches.append(biz.getWordMatchFormat() % mtch)
 						if len(whrMatches) > 0:
 							whr = " and ".join(whrMatches)
 					else:
@@ -336,7 +336,7 @@ class SelectPage(Page):
 					if isinstance(ctrl, dabo.ui.dDateTextBox):
 						dtTuple = ctrl.getDateTuple()
 						dt = "%s-%s-%s" % (dtTuple[0], ustr(dtTuple[1]).zfill(2),
-								ustr(dtTuple[2]).zfill(2) )
+								ustr(dtTuple[2]).zfill(2))
 					else:
 						dt = matchVal
 					matchStr = biz.formatDateTime(dt)
@@ -358,7 +358,7 @@ class SelectPage(Page):
 						whrMatches = []
 						for word in matchVal:
 							mtch = {"table": table, "field": field, "value": word}
-							whrMatches.append( biz.getWordMatchFormat() % mtch )
+							whrMatches.append(biz.getWordMatchFormat() % mtch)
 						if len(whrMatches) > 0:
 							whr = "(" + " or ".join(whrMatches) + ")"
 					if opVal.lower() in (_("equals"), _("is")):
@@ -453,7 +453,7 @@ class SelectPage(Page):
 					_("On or Before"),
 					_("On or After"),
 					_("Before"),
-					_("After") )
+					_("After"))
 		elif typ in ("int", "float", "decimal"):
 			chc = (_("Equals"),
 					_("Greater than"),
@@ -534,7 +534,7 @@ class BrowsePage(Page):
 
 	def createItems(self):
 		biz = self.Form.getBizobj()
-		grid = self.Form.BrowseGridClass(self, NameBase="BrowseGrid", Size=(10,10))
+		grid = self.Form.BrowseGridClass(self, NameBase="BrowseGrid", Size=(10, 10))
 		if biz:
 			grid.DataSource = biz.DataSource
 		self.Sizer.append(grid, 2, "expand")
@@ -588,7 +588,7 @@ class EditPage(Page):
 
 
 	def createItems(self):
-		"""Subclass hook. Create your items and then call self.super()"""
+		"""Subclass hook. Create your items and then call super()"""
 		self.Sizer.layout()
 		self.itemsCreated = True
 
@@ -600,5 +600,5 @@ class EditPage(Page):
 			self.buildPage()
 
 	DataSource = property(_getDS, _setDS, None,
-			_("Table that is the primary source for the fields displayed on the page  (str)") )
+			_("Table that is the primary source for the fields displayed on the page  (str)"))
 
