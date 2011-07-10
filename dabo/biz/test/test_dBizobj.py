@@ -295,7 +295,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		bizMain.SaveNewUnchanged = False
 		bizChild.new()
 		self.assertEqual(bizChild.RowCount, 4)
-		self.assertEqual(bizMain.isAnyChanged(), False)  ## because False in bizMain
+		self.assertEqual(bizMain.isAnyChanged(), True)  ## because True in bizChild
 		self.assertEqual(bizMain.getChangedRows(), [])
 		self.assertEqual(bizChild.isAnyChanged(), True)  ## because True in bizMain
 		bizMain.save()
