@@ -27,7 +27,7 @@ class _BasePanelMixin(object):
 			buff = self._extractKey((properties, kwargs), "Buffered", False)
 		kwargs["Buffered"] = buff
 		style = self._extractKey((properties, kwargs), "style", 0)
-		style = style | wx.TAB_TRAVERSAL
+		style = style | wx.TAB_TRAVERSAL | wx.CLIP_CHILDREN
 		kwargs["style"] = style
 		# For performance, store this at init
 		self._platformIsWindows = (self.Application.Platform == "Win")
@@ -503,7 +503,4 @@ if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dPanel_test)
 	test.Test().runTest(_dScrollPanel_test)
-
-
-
 
