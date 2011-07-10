@@ -32,7 +32,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 	Control for allowing a user to increment a value by discreet steps across a range
 	of valid values.
 	"""
-	def __init__(self, parent, properties=None, attProperties=None, TextBoxClass=None,  *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, TextBoxClass=None, *args, **kwargs):
 		self.__constructed = False
 		self._spinWrap = False
 		self._min = 0
@@ -66,7 +66,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 		ps = self._proxy_spinner
 		pt = self._proxy_textbox
 		# Set an essentially infinite range. We'll handle the range ourselves.
-		ps.SetRange(-2**30, 2**30)
+		ps.SetRange(-2 ** 30, 2 ** 30)
 		# We'll also control wrapping ourselves
 		self._proxy_spinner._addWindowStyleFlag(wx.SP_WRAP)
 		ps.Bind(wx.EVT_SPIN_UP, self.__onWxSpinUp)
@@ -365,6 +365,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 
 	def _setValue(self, val):
 		if self._constructed():
+			self._proxy_textbox._inDataUpdate = self._inDataUpdate
 			if isinstance(val, (int, long, float, decimal)):
 				self._proxy_textbox.Value = val
 			else:
@@ -373,6 +374,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 					dabo.log.error(_("Spinner values must be numeric. Invalid:'%s'") % val)
 				else:
 					self._proxy_textbox.Value = val
+			self._proxy_textbox._inDataUpdate = False
 		else:
 			self._properties["Value"] = val
 
@@ -411,7 +413,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 	# Pass-through props. These are simply ways of exposing the text control's props
 	# through this control
 	_proxyDict = {}
-	Alignment = makeProxyProperty(_proxyDict, "Alignment", "_proxy_textbox", )
+	Alignment = makeProxyProperty(_proxyDict, "Alignment", "_proxy_textbox",)
 	BackColor = makeProxyProperty(_proxyDict, "BackColor", ("_proxy_textbox", "self"))
 	Enabled = makeProxyProperty(_proxyDict, "Enabled", ("self", "_proxy_spinner", "_proxy_textbox"))
 	Font = makeProxyProperty(_proxyDict, "Font", "_proxy_textbox")
