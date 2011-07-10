@@ -123,7 +123,6 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 				self.InsertionPosition = length
 			else:
 				self.InsertionPosition = insPos
-			self.refresh()
 		self._inTextLength = False
 
 
@@ -294,7 +293,6 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 	def _setSelectionEnd(self, val):
 		start, end = self.GetSelection()
 		self.SetSelection(start, val)
-		self.refresh()
 
 
 	def _getSelectionLength(self):
@@ -304,7 +302,6 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 	def _setSelectionLength(self, val):
 		start = self.GetSelection()[0]
 		self.SetSelection(start, start + val)
-		self.refresh()
 
 
 	def _getSelectionStart(self):
@@ -313,7 +310,6 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 	def _setSelectionStart(self, val):
 		start, end = self.GetSelection()
 		self.SetSelection(val, end)
-		self.refresh()
 
 
 	def _getSelectOnEntry(self):
