@@ -7,6 +7,7 @@ import wx
 import wx.lib.masked as masked
 import dabo.lib.dates
 import dKeys
+from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import decimal
 numericTypes = (int, long, decimal.Decimal, float)
@@ -134,7 +135,8 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		if not self:
 			# The control is being destroyed
 			return
-		if not isinstance(self.Value, basestring):
+		currVal = self.Value
+		if not isinstance(currVal, basestring):
 			# Don't bother if it isn't a string type
 			return
 		case = self.ForceCase
@@ -142,22 +144,19 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			return
 		insPos = self.InsertionPosition
 		selLen = self.SelectionLength
-		changed = False
 		self._inForceCase = True
 		if case == "upper":
-			self.Value = self.Value.upper()
-			changed = True
+			newValue = currVal.upper()
 		elif case == "lower":
-			self.Value = self.Value.lower()
-			changed = True
+			newValue = currVal.lower()
 		elif case == "title":
-			self.Value = self.Value.title()
-			changed = True
-		if changed:
-			#self.SelectionStart = selStart
+			newValue = currVal.title()
+		else:
+			newValue = currVal
+		if currVal <> newValue:
+			self.Value = newValue
 			self.InsertionPosition = insPos
 			self.SelectionLength = selLen
-			self.refresh()
 		self._inForceCase = False
 
 
@@ -337,7 +336,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			else:
 				val = int(val)
 				if val < 1:
-					raise ValueError('TextLength must be a positve Integer')
+					raise ValueError(_("TextLength must be a positve Integer"))
 				self._textLength = val
 			self._checkTextLength()
 
