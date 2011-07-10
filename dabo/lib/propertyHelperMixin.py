@@ -6,7 +6,8 @@ from dabo.dLocalize import _
 class PropertyHelperMixin(object):
 	"""Helper functions for getting information on class properties."""
 
-	def _expandPropStringValue(self, value, propList):
+	@staticmethod
+	def _expandPropStringValue(value, propList):
 		"""
 		Called from various property setters: expand value into one of the
 		accepted property values in propList. We allow properties to be set
@@ -64,7 +65,8 @@ class PropertyHelperMixin(object):
 		return propdict
 
 
-	def _extractKeyWordEventBindings(self, kwdict, evtdict):
+	@staticmethod
+	def _extractKeyWordEventBindings(kwdict, evtdict):
 		"""
 		Called from __init__: puts any On* event keyword arguments into
 		the event dictionary.
@@ -77,7 +79,8 @@ class PropertyHelperMixin(object):
 			del kwdict[kw]
 
 
-	def _extractKey(self, kwdict, key, defaultVal=None):
+	@staticmethod
+	def _extractKey(kwdict, key, defaultVal=None):
 		"""
 		If the supplied key is present in the kwdict, the associated
 		value is returned, and that key's element is deleted from the
