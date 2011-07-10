@@ -650,7 +650,7 @@ class Form(dabo.ui.dForm):
 			self.pageFrame.GetPage(0).requery()
 		else:
 			# After the select page does its thing, it calls frm.requery():
-			return self.super(dataSource)
+			return super(Form, self).requery(dataSource)
 
 
 	def onNew(self, evt):
