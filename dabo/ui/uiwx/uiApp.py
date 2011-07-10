@@ -571,6 +571,8 @@ these automatic updates.""").replace("\n", " ")
 		"""Display the object inspector window."""
 		if context is None:
 			context = self.ActiveForm
+			if not context:
+				context = self.dApp.MainForm
 		activeControl = context.ActiveControl
 		if not self.inspectorWindow:
 #			loc = os.path.dirname(dabo.ui.uiwx.__file__)
