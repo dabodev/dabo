@@ -23,7 +23,7 @@ class FileMenu(dMenu):
 	def __init__(self, *args, **kwargs):
 		if "MRU" not in kwargs:
 			kwargs["MRU"] = True
-		self.super(*args, **kwargs)
+		super(FileMenu, self).__init__(*args, **kwargs)
 
 
 	def _afterInit(self):
