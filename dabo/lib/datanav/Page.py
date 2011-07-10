@@ -224,8 +224,9 @@ class SelectPage(Page):
 		if not self.Sizer:
 			self.Sizer = dabo.ui.dSizer("v")
 		self.selectOptionsPanel = self.getSelectOptionsPanel()
-		self.Sizer.append(self.selectOptionsPanel, "expand", 1, border=20)
-		self.selectOptionsPanel.setFocus()
+		if self.selectOptionsPanel:
+			self.Sizer.append(self.selectOptionsPanel, "expand", 1, border=20)
+			self.selectOptionsPanel.setFocus()
 		super(SelectPage, self).createItems()
 
 
