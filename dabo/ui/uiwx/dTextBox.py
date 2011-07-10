@@ -28,7 +28,7 @@ if __name__ == "__main__":
 	class TestBase(dTextBox):
 		def initProperties(self):
 			self.SelectOnEntry = True
-			self.super()
+			super(TestBase, self).initProperties()
 			self.LogEvents = ["ValueChanged",]
 
 		def onValueChanged(self, evt):
