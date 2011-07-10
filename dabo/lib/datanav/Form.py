@@ -68,7 +68,6 @@ class Form(dabo.ui.dForm):
 		## make sure it is reflected on screen by calling update() afterwards.
 		ret = super(Form, self).save(dataSource)
 		self.update()
-		self.refresh()
 		if self.FormType == "Edit" and self.Modal:
 			dabo.ui.callAfter(self.hide)
 		return ret
@@ -76,7 +75,6 @@ class Form(dabo.ui.dForm):
 	def cancel(self, dataSource=None):
 		ret = super(Form, self).cancel(dataSource)
 		self.update()
-		self.refresh()
 		if self.FormType == "Edit" and self.Modal:
 			dabo.ui.callAfter(self.hide)
 		return ret
