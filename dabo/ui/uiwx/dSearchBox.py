@@ -170,7 +170,7 @@ if __name__ == "__main__":
 	# This test sets up several textboxes, each editing different data types.
 	class TestBase(dSearchBox):
 		def initProperties(self):
-			self.super()
+			super(TestBase, self).initProperties()
 			self.LogEvents = ["ValueChanged","searchButtonClicked","SearchCancelButtonClicked"]
 			self.CancelButtonVisible = True
 			self.SearchButtonVisible = True
