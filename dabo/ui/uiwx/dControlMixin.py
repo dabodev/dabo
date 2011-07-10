@@ -9,7 +9,7 @@ import dabo.dEvents as dEvents
 
 class dControlMixin(dControlMixinBase):
 	def _initEvents(self):
-		self.super()
+		super(dControlMixin, self)._initEvents()
 		self.Bind(wx.EVT_NAVIGATION_KEY, self.__onWxNavKey)
 
 	def _onWxHit(self, evt, *args, **kwargs):
