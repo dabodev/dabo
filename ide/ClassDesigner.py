@@ -2666,6 +2666,9 @@ class ClassDesigner(dabo.dApp):
 
 	def onTreeDelete(self, evt):
 		obj = self._contextObj
+		isSizer = isinstance(obj, dui.dSizerMixin)
+		if isSizer:
+			obj.Form.removeFromOutlinedSizers(obj)
 		if hasattr(obj, "onDelete"):
 			obj.onDelete(evt)
 			return
@@ -2675,7 +2678,7 @@ class ClassDesigner(dabo.dApp):
 			# leaving this here in case it comes back up.
 			refill = not isinstance(obj, LayoutPanel)
 			csz.delete(obj, refill=refill)
-		elif isinstance(obj, dui.dSizerMixin):
+		elif isSizer:
 			try:
 				if obj.Parent.Sizer is obj:
 					obj.Parent.Sizer = None
