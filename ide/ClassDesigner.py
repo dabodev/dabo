@@ -545,13 +545,13 @@ class ClassDesigner(dabo.dApp):
 				raise IOError(_("The class file '%s' was not found.") % pth)
 
 		# Traverse the dct, looking for superclass information
-		super = converter.flattenClassDict(dct)
-		if super:
+		sc = converter.flattenClassDict(dct)
+		if sc:
 			# We need to modify the info to incorporate the superclass info
-			converter.addInheritedInfo(dct, super, updateCode=True)
+			converter.addInheritedInfo(dct, sc, updateCode=True)
 			# Store the base code so that we can determine if instances have
 			# modified it.
-			self._updateClassCodeRepository(super)
+			self._updateClassCodeRepository(sc)
 		return dct
 
 
@@ -785,10 +785,10 @@ class ClassDesigner(dabo.dApp):
 
 
 	def inherit(self, dct):
-		super = self._superClassInfo
-		if super:
+		sc = self._superClassInfo
+		if sc:
 			# We need to modify the info to incorporate the superclass info
-			DesignerClassConverter.addInheritedInfo(dct, super)
+			DesignerClassConverter.addInheritedInfo(dct, sc)
 		return dct
 
 
