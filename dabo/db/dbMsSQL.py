@@ -29,10 +29,9 @@ class MSSQL(dBackend):
 		import pymssql
 
 		port = ustr(connectInfo.Port)
-		#if not port or port == "None":
-			#port = 1433
-		#host = "%s:%s" % (connectInfo.Host, port)
-		host = connectInfo.Host
+		if not port or port == "None":
+			port = 1433
+		host = "%s:%s" % (connectInfo.Host, port)
 		user = connectInfo.User
 		password = connectInfo.revealPW()
 		database = connectInfo.Database
@@ -48,15 +47,25 @@ class MSSQL(dBackend):
 	def getDictCursorClass(self):
 		"""Currently this is not working completely"""
 		import pymssql
-		class ConCursor(pymssql.pymssqlCursor):
-			def __init__(self, *args, **kwargs):
-				# pymssql requires an additional param to its __init__() method
-				kwargs["as_dict"] = True
-				super(ConCursor, self).__init__(*args, **kwargs)
-			def _getconn(self):
-				return self.__source
-			# pymssql doesn't supply this optional dbapi attribute, so create it here.
-			connection = property(_getconn, None, None)
+
+		if pymssql.__version__ >= "2.0.0":
+			class ConCursor(pymssql.Cursor):
+				def __init__(self, *args, **kwargs):
+					# pymssql requires an additional param to its __init__() method
+					kwargs["as_dict"] = True
+					super(ConCursor, self).__init__(*args, **kwargs)
+		else:
+			class ConCursor(pymssql.pymssqlCursor):
+				def __init__(self, *args, **kwargs):
+					# pymssql requires an additional param to its __init__() method
+					kwargs["as_dict"] = True
+					super(ConCursor, self).__init__(*args, **kwargs)
+				if not hasattr(pymssql.pymssqlCursor, "connection"):
+					def _getconn(self):
+						return self._source
+					# pymssql doesn't supply this optional dbapi attribute, so create it here.
+					connection = property(_getconn, None, None)
+
 		return ConCursor
 
 
@@ -249,9 +258,18 @@ select COLUMN_NAME
 		need to get the newly-inserted PK ourselves.
 		"""
 		# Use the AuxCursor so as not to disturb the contents of the primary data cursor.
-		crs = cursor.AuxCursor
-		crs.execute("select @@IDENTITY as newid")
-		return crs.getFieldVal("newid")
+		try:
+			idVal = self.lastrowid
+		except AttributeError:
+			crs = cursor.AuxCursor
+			crs.execute("select @@IDENTITY as newid")
+			idVal = crs.getFieldVal("newid")
+		# Some interface versions return PK constraint values as Decimal type
+		# what isn't well tolerated by Dabo.
+		if "Decimal" in str(type(idVal)):
+			idVal = int(idVal)
+		return idVal
+
 
 	def beginTransaction(self, cursor):
 		pass
