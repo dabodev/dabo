@@ -5,7 +5,7 @@ from dabo.dObject import dObject
 import dabo.dEvents as dEvents
 import dabo.lib.datanav as datanav
 
-IGNORE_STRING = datanav.IGNORE_STRING
+IGNORE_STRING = datanav.QRY_OPERATOR.IGNORE
 
 
 # Controls for the select page:

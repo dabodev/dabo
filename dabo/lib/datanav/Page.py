@@ -7,13 +7,9 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _, n_
 from dabo.dObject import dObject
 from dabo.lib.utils import ustr
-
 from dabo.ui import dPanel
+from . import QRY_OPERATOR
 import Grid
-
-IGNORE_STRING, CHOICE_TRUE, CHOICE_FALSE = (n_("-ignore-"),
-		n_("Is True"),
-		n_("Is False"))
 
 ASC, DESC = (n_("asc"), n_("desc"))
 
@@ -45,12 +41,12 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 
 	def onValueChanged(self, evt):
 		# italicize if we are ignoring the field:
-		self.FontItalic = (_(IGNORE_STRING) in self.Value)
+		self.FontItalic = (QRY_OPERATOR.IGNORE in self.Value)
 		if self.Target:
 			self.Target.FontItalic = self.FontItalic
 
 	def onChoiceMade(self, evt):
-		if _(IGNORE_STRING) not in self.StringValue:
+		if QRY_OPERATOR.IGNORE not in self.StringValue:
 			# A comparison op was selected; let 'em enter a value
 			self.Target.setFocus()
 
@@ -290,13 +286,13 @@ class SelectPage(Page):
 
 			opVal = self.selectFields[fld]["op"].Value
 			opStr = opVal
-			if not _(IGNORE_STRING) in opVal:
+			if not QRY_OPERATOR.IGNORE in opVal:
 				fldType = self.selectFields[fld]["type"]
 				ctrl = self.selectFields[fld]["ctrl"]
 				if fldType == "bool":
 					# boolean fields won't have a control; opVal will
 					# be either 'Is True' or 'Is False'
-					matchVal = (opVal == _(CHOICE_TRUE))
+					matchVal = (opVal == QRY_OPERATOR.TRUE)
 				elif callable(ctrl):
 					try:
 						matchVal = ctrl()
@@ -312,10 +308,10 @@ class SelectPage(Page):
 				useStdFormat = True
 
 				if fldType in ("char", "memo"):
-					if opVal.lower() in (_("equals"), _("is")):
+					if opVal in (QRY_OPERATOR.EQUAL, QRY_OPERATOR.IS):
 						opStr = "="
 						matchStr = biz.escQuote(matchVal)
-					elif opVal.lower() == _("matches words"):
+					elif opVal == QRY_OPERATOR.MATCH:
 						useStdFormat = False
 						whrMatches = []
 						for word in matchVal.split():
@@ -328,7 +324,7 @@ class SelectPage(Page):
 						opStr = "LIKE"
 						if matchVal is None:
 							matchStr = biz.escQuote("null")
-						elif opVal[:1] == "B":
+						elif opVal == QRY_OPERATOR.BEGINS:
 							matchStr = biz.escQuote(matchVal + "%")
 						else:
 							matchStr = biz.escQuote("%" + matchVal + "%")
@@ -341,15 +337,15 @@ class SelectPage(Page):
 					else:
 						dt = matchVal
 					matchStr = biz.formatDateTime(dt)
-					if opVal.lower() in (_("equals"), _("is")):
+					if opVal in (QRY_OPERATOR.EQUAL, QRY_OPERATOR.IS):
 						opStr = "="
-					elif opVal.lower() == _("on or before"):
+					elif opVal == QRY_OPERATOR.ONBEFORE:
 						opStr = "<="
-					elif opVal.lower() == _("on or after"):
+					elif opVal == QRY_OPERATOR.ONAFTER:
 						opStr = ">="
-					elif opVal.lower() == _("before"):
+					elif opVal == QRY_OPERATOR.BEFORE:
 						opStr = "<"
-					elif opVal.lower() == _("after"):
+					elif opVal == QRY_OPERATOR.AFTER:
 						opStr = ">"
 
 				elif fldType in ("int", "float"):
@@ -362,20 +358,20 @@ class SelectPage(Page):
 							whrMatches.append(biz.getWordMatchFormat() % mtch)
 						if len(whrMatches) > 0:
 							whr = "(" + " or ".join(whrMatches) + ")"
-					if opVal.lower() in (_("equals"), _("is")):
+					if opVal in (QRY_OPERATOR.EQUAL, QRY_OPERATOR.IS):
 						opStr = "="
-					elif opVal.lower() == _("less than/equal to"):
+					elif opVal == QRY_OPERATOR.LESSEQUAL:
 						opStr = "<="
-					elif opVal.lower() == _("greater than/equal to"):
+					elif opVal == QRY_OPERATOR.GREATEREQUAL:
 						opStr = ">="
-					elif opVal.lower() == _("less than"):
+					elif opVal == QRY_OPERATOR.LESS:
 						opStr = "<"
-					elif opVal.lower() == _("greater than"):
+					elif opVal == QRY_OPERATOR.GREATER:
 						opStr = ">"
 
 				elif fldType == "bool":
 					opStr = "="
-					if opVal == _(CHOICE_TRUE):
+					if opVal == QRY_OPERATOR.TRUE:
 						matchStr = "True"
 					else:
 						matchStr = "False"
@@ -425,7 +421,7 @@ class SelectPage(Page):
 					opVal = self.selectFields[vField]["op"].Value
 					ctrl = self.selectFields[vField]["ctrl"]
 
-					if not _(IGNORE_STRING) in opVal:
+					if not QRY_OPERATOR.IGNORE in opVal:
 						bizobj.filter(vField, ctrl.Value, opVal.lower())
 
 		if ret:
@@ -440,29 +436,29 @@ class SelectPage(Page):
 		wordSearch = bool(int(wordSearch))
 		if typ in ("char", "memo"):
 			if typ == "char":
-				chcList = [_("Equals"),
-						_("Begins With"),
-						_("Contains")]
+				chcList = (QRY_OPERATOR.EQUAL,
+						QRY_OPERATOR.BEGINS,
+						QRY_OPERATOR.CONTAINS)
 			elif typ == "memo":
-				chcList = [_("Begins With"),
-						_("Contains")]
+				chcList = (QRY_OPERATOR.BEGINS,
+						QRY_OPERATOR.CONTAINS)
 			if wordSearch:
-				chcList.append(_("Matches Words"))
+				chcList.append(QRY_OPERATOR.MATCH)
 			chc = tuple(chcList)
 		elif typ in ("date", "datetime"):
-			chc = (_("Equals"),
-					_("On or Before"),
-					_("On or After"),
-					_("Before"),
-					_("After"))
+			chc = (QRY_OPERATOR.EQUAL,
+					QRY_OPERATOR.ONBEFORE,
+					QRY_OPERATOR.ONAFTER,
+					QRY_OPERATOR.BEFORE,
+					QRY_OPERATOR.AFTER)
 		elif typ in ("int", "float", "decimal"):
-			chc = (_("Equals"),
-					_("Greater than"),
-					_("Greater than/Equal to"),
-					_("Less than"),
-					_("Less than/Equal to"))
+			chc = (QRY_OPERATOR.EQUAL,
+					QRY_OPERATOR.GREATER,
+					QRY_OPERATOR.GREATEREQUAL,
+					QRY_OPERATOR.LESS,
+					QRY_OPERATOR.LESSEQUAL)
 		elif typ == "bool":
-			chc = (_(CHOICE_TRUE), _(CHOICE_FALSE))
+			chc = (QRY_OPERATOR.TRUE, QRY_OPERATOR.FALSE)
 		else:
 			dabo.log.error(_("Type '%s' not recognized.") % typ)
 			chc = ()
@@ -595,6 +591,7 @@ class EditPage(Page):
 
 	def _getDS(self):
 		return self._dataSource
+
 	def _setDS(self, val):
 		self._dataSource = val
 		if not self.itemsCreated:
