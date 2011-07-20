@@ -14,7 +14,9 @@ numericTypes = (int, long, decimal.Decimal, float)
 valueErrors = (ValueError, decimal.InvalidOperation)
 
 # Make this locale-independent
-decimalPoint = locale.localeconv()["decimal_point"]
+# JK: We can't set this up on module load because locale
+# is set not until dApp is completely setup.
+decimalPoint = None
 
 import dabo
 if __name__ == "__main__":
@@ -28,6 +30,9 @@ from dabo.ui import makeDynamicProperty
 
 class dTextBoxMixinBase(dcm.dDataControlMixin):
 	def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
+		global decimalPoint
+		if decimalPoint is None:
+			decimalPoint = locale.localeconv()["decimal_point"]
 		self._oldVal = u""
 		self._forceCase = None
 		self._inForceCase = False
