@@ -789,7 +789,11 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setCellProp(self, wxPropName, *args, **kwargs):
 		"""Called from all of the Cell property setters."""
 		## dynamic prop uses cellDynamicRow; reg prop uses self.CurrentRow
-		row = getattr(self, "_cellDynamicRow", self.Parent.CurrentRow)
+		try:
+			row = getattr(self, "_cellDynamicRow", self.Parent.CurrentRow)
+		except dabo.ui.deadObjectException:
+			# @dabo.ui.deadCheck didn't seem to work...
+			return 
 		cellAttr = obj = self._gridCellAttrs.get(row, self._gridColAttr.Clone())
 		if "." in wxPropName:
 			# For instance, Font.SetWeight
