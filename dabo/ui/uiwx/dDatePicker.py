@@ -10,17 +10,17 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dDataControlMixin as dcm
-from time import mktime
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
 
 
 def dateTimePy2Wx(date):
-	if isinstance(date, (datetime.datetime, datetime.date)):
-		retVal = wx.DateTimeFromTimeT(mktime(date.timetuple()))
-		if isinstance(date, datetime.datetime):
-			retVal.SetMillisecond(date.microsecond)
+	if isinstance(date, datetime.date):
+		retVal = wx.DateTimeFromDMY(date.day, date.month, date.year)
+	elif isinstance(date, datetime.datetime):
+		retVal = wx.DateTimeFromDMY(date.day, date.month, date.year, date.hour,
+			date.minute, date.second, date.microsecond)
 	else:
 		retVal = date
 	return retVal
@@ -359,6 +359,7 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 
 
 if __name__ == "__main__":
+	import datetime
 	import test
 
 	class TestBase(dDatePicker):
@@ -366,5 +367,5 @@ if __name__ == "__main__":
 		def onValueChanged(self, evt):
 			print "onValueChanged"
 
-	test.Test().runTest(TestBase, AllowNullDate=True)
+	test.Test().runTest(TestBase, AllowNullDate=True, Value=datetime.date(1940,01,01))
 	test.Test().runTest(TestBase, BackColor="orange", PickerMode="Spin", AllowNullDate=True)
