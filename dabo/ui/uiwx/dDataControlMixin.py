@@ -69,9 +69,10 @@ class dDataControlMixin(dDataControlMixinBase):
 
 	def _setValue(self, val):
 		if self._constructed():
-			if type(self.Value) != type(val):
-				val = self._coerceValue(val, self.Value)
-			if (type(self.Value) != type(val) or self.Value != val):
+			currVal = self.Value
+			if type(currVal) != type(val):
+				val = self._coerceValue(val, currVal)
+			if (type(currVal) != type(val) or currVal != val):
 				setter = self.SetValue
 				if hasattr(self, "ChangeValue"):
 					setter = self.ChangeValue
@@ -81,7 +82,7 @@ class dDataControlMixin(dDataControlMixinBase):
 					nm = self._name
 					dabo.log.error(_("Could not set value of %(nm)s to %(val)s. Error message: %(e)s")
 							% locals())
-			self.flushValue()
+			self._afterValueChanged()
 		else:
 			self._properties["Value"] = val
 
