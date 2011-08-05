@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
+ï»¿# -*- coding: utf-8 -*-
 """
-@author: Jacek Ka³ucki <laborm@rz.onet.pl>
 @note: Color setting doesn't work for this control. It's a wx issue.
 """
 import datetime
