@@ -16,9 +16,9 @@ from dabo.ui import makeDynamicProperty
 
 def dateTimePy2Wx(date):
 	if isinstance(date, datetime.date):
-		retVal = wx.DateTimeFromDMY(date.day, date.month, date.year)
+		retVal = wx.DateTimeFromDMY(date.day, date.month - 1, date.year)
 	elif isinstance(date, datetime.datetime):
-		retVal = wx.DateTimeFromDMY(date.day, date.month, date.year, date.hour,
+		retVal = wx.DateTimeFromDMY(date.day, date.month - 1, date.year, date.hour,
 			date.minute, date.second, date.microsecond)
 	else:
 		retVal = date
@@ -366,5 +366,5 @@ if __name__ == "__main__":
 		def onValueChanged(self, evt):
 			print "onValueChanged"
 
-	test.Test().runTest(TestBase, AllowNullDate=True, Value=datetime.date(1940,01,01))
+	test.Test().runTest(TestBase, AllowNullDate=True, Value=datetime.date(1970,12,03))
 	test.Test().runTest(TestBase, BackColor="orange", PickerMode="Spin", AllowNullDate=True)
