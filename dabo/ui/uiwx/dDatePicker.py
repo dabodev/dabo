@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 @note: Color setting doesn't work for this control. It's a wx issue.
 """
