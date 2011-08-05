@@ -102,6 +102,7 @@ from dCheckBox import dCheckBox
 from dCheckList import dCheckList
 from dColorDialog import dColorDialog
 from dComboBox import dComboBox
+from dDatePicker import dDatePicker
 from dDateTextBox import dDateTextBox
 from dDropdownList import dDropdownList
 from dDialog import dDialog
