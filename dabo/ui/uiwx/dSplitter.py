@@ -11,7 +11,7 @@ import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
 
 
-class SplitterPanelMixin:
+class SplitterPanelMixin(object):
 	def __init__(self, parent, *args, **kwargs):
 		if self.ShowSplitMenu:
 			self.bindEvent(dEvents.ContextMenu, self._onMixinContextMenu)
@@ -201,6 +201,8 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 
 
 	def layout(self):
+		if not self:
+			return
 		self.Panel1.layout()
 		self.Panel2.layout()
 
