@@ -98,14 +98,15 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def _verifyEnabledStatus(self, enable):
-		if enable:
-			if self._dsDisabled:
-				self._dsDisabled = False
-				self.Enabled = True
-		else:
-			if not self._dsDisabled:
-				self._dsDisabled = True
-				self.Enabled = False
+		if self.DisableOnEmptyDataSource:
+			if enable:
+				if self._dsDisabled:
+					self._dsDisabled = False
+					self.Enabled = True
+			else:
+				if not self._dsDisabled:
+					self._dsDisabled = True
+					self.Enabled = False
 
 
 	def update(self):
@@ -232,7 +233,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		##- #if oldVal is None and curVal is None:
 		##-	# Could be changed and we just don't know it...
 		##- #	isChanged = True
-		if isinstance(self, (dabo.ui.dToggleButton, )):
+		if isinstance(self, (dabo.ui.dToggleButton,)):
 			# These classes change their value before the GotFocus event
 			# can store the oldval, so always flush 'em.
 			oldVal = None
@@ -277,7 +278,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 							try:
 								exec ("src.%s = curVal" % self.DataField)
 							except StandardError, e:
-								dabo.log.error("Could not bind to '%s.%s'\nReason: %s" % (self.DataSource, self.DataField, e) )
+								dabo.log.error("Could not bind to '%s.%s'\nReason: %s" % (self.DataSource, self.DataField, e))
 						else:
 							# The source is a direct object reference
 							try:
@@ -287,16 +288,15 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 									nm = self.DataSource._name
 								else:
 									nm = ustr(self.DataSource)
-								dabo.log.error("Could not bind to '%s.%s'\nReason: %s" % (nm, self.DataField, e) )
+								dabo.log.error("Could not bind to '%s.%s'\nReason: %s" % (nm, self.DataField, e))
 			self._oldVal = curVal
 			self._from_flushValue = True
 			self._afterValueChanged()
 			self._from_flushValue = False
-
 			# Raise an event so that user code can react if needed:
 			if self._userChanged:
-				self.raiseEvent(dabo.dEvents.InteractiveChange, oldVal=oldVal)
 				self._userChanged = False
+				self.raiseEvent(dabo.dEvents.InteractiveChange, oldVal=oldVal)
 			dabo.ui.callAfterInterval(200, self.raiseEvent, dabo.dEvents.ValueChanged)
 		return ret
 
@@ -422,6 +422,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		return self._designerMode
 
 
+	def _getDisableOnEmptyDataSource(self):
+		return getattr(self, "_disableOnEmptyDataSource", False)
+
+	def _setDisableOnEmptyDataSource(self, val):
+		self._disableOnEmptyDataSource = val
+
+
 	def _getSecret(self):
 		try:
 			return self._isSecret
@@ -511,28 +518,32 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 	# Property definitions:
 	DataSource = property(_getDataSource, _setDataSource, None,
-			_("Specifies the dataset to use as the source of data.  (str)") )
+			_("Specifies the dataset to use as the source of data.  (str)"))
 
 	DataField = property(_getDataField, _setDataField, None,
 			_("""Specifies the data field of the dataset to use as the source
-			of data. (str)""") )
+			of data. (str)"""))
 
 	_DesignerMode = property(_getDesignerMode, None, None,
 			_("""When True, the control is not running live, but being used
 			in design mode. Default=False.  (bool)"""))
 
+	DisableOnEmptyDataSource = property(_getDisableOnEmptyDataSource, _setDisableOnEmptyDataSource, None,
+			_("""When True and the DataSource is an empty dataset (it must be a dBizobj instance),
+			control is disabled for interactive editing. Default=False.  (bool)"""))
+
 	IsSecret = property(_getSecret, _setSecret, None,
 			_("""Flag for indicating sensitive data, such as Password field, that is not
-			to be persisted. Default=False.  (bool)""") )
+			to be persisted. Default=False.  (bool)"""))
 
 	SaveRestoreValue = property(_getSaveRestoreValue, _setSaveRestoreValue, None,
 			_("""Specifies whether the Value of the control gets saved when
 			destroyed and restored when created. Use when the control isn't
 			bound to a dataSource and you want to persist the value, as in
-			an options dialog. Default=False.  (bool)""") )
+			an options dialog. Default=False.  (bool)"""))
 
 	Source = property(_getSource, None, None,
-			_("Reference to the object to which this control's Value is bound  (object)") )
+			_("Reference to the object to which this control's Value is bound  (object)"))
 
 	Value = property(None, None, None,
-			_("Specifies the current state of the control (the value of the field). (varies)") )
+			_("Specifies the current state of the control (the value of the field). (varies)"))
