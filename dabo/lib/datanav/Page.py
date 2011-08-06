@@ -443,7 +443,7 @@ class SelectPage(Page):
 				chcList = (QRY_OPERATOR.BEGINS,
 						QRY_OPERATOR.CONTAINS)
 			if wordSearch:
-				chcList.append(QRY_OPERATOR.MATCH)
+				chcList += (QRY_OPERATOR.MATCH,)
 			chc = tuple(chcList)
 		elif typ in ("date", "datetime"):
 			chc = (QRY_OPERATOR.EQUAL,
