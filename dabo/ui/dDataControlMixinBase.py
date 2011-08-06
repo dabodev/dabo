@@ -14,6 +14,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	"""Provide common functionality for the data-aware controls."""
 	def __init__(self, *args, **kwargs):
 		self._fldValidFailed = False
+		# Control enabling/disabling on empty data source helper attribute.
+		self._dsDisabled = False
 		self.__src = self._srcIsBizobj = self._srcIsInstanceMethod = None
 		self._designerMode = None
 		self._oldVal = None
@@ -95,6 +97,17 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		return None
 
 
+	def _verifyEnabledStatus(self, enable):
+		if enable:
+			if self._dsDisabled:
+				self._dsDisabled = False
+				self.Enabled = True
+		else:
+			if not self._dsDisabled:
+				self._dsDisabled = True
+				self.Enabled = False
+
+
 	def update(self):
 		"""Update control's value to match the current value from the source."""
 		# We need to do the data handling stuff before calling super()
@@ -117,8 +130,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			self._inDataUpdate = True
 			try:
 				self.Value = src.getFieldVal(self.DataField)
-			except (TypeError, dException.NoRecordsException):
+				self._verifyEnabledStatus(True)
+			except dException.NoRecordsException:
 				self.Value = self.getBlankValue()
+				self._verifyEnabledStatus(False)
+			except (TypeError):
+				self.Value = self.getBlankValue()
+				self._verifyEnabledStatus(True)
 			except dException.FieldNotFoundException:
 				# See if DataField refers to an attribute of the bizobj:
 				att = getattr(src, self.DataField, None)
@@ -126,6 +144,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 					self.Value = method()
 				else:
 					self.Value = att
+				self._verifyEnabledStatus(True)
 			self._inDataUpdate = False
 		else:
 			if self._srcIsInstanceMethod is None and src is not None:

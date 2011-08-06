@@ -43,6 +43,8 @@ class dPemMixin(dPemMixinBase):
 		self._transparency = 255
 		# Time to change transparency
 		self._transparencyDelay = 0.25
+		# DataControl enabling/disabling helper attribute.
+		self._uiDisabled = False
 
 		# There are a few controls that don't yet support 3-way inits (grid, for
 		# one). These controls will send the wx classref as the preClass argument,
@@ -2094,6 +2096,22 @@ class dPemMixin(dPemMixinBase):
 
 	def _setEnabled(self, val):
 		if self._constructed():
+			# Handle DataControl disabling on empty data source.
+			try:
+				inDataUpdate = self._inDataUpdate
+			except AttributeError:
+				inDataUpdate = False
+			if inDataUpdate:
+				if self._uiDisabled:
+					val = False
+			else:
+				self._uiDisabled = not val
+				try:
+					dsDisabled = self._dsDisabled
+				except AttributeError:
+					dsDisabled = False
+				if dsDisabled:
+					val = False
 			self.Enable(val)
 		else:
 			self._properties["Enabled"] = False
