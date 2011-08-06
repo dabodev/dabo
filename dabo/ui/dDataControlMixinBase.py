@@ -225,10 +225,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			else:
 				isChanged = (curVal != oldVal)
 		if isChanged:
-			if self._userChanged:
-				self.raiseEvent(dabo.dEvents.InteractiveChange, oldVal=oldVal)
-				self._userChanged = False
-
 			if not self._DesignerMode:
 				if (self.DataSource or isinstance(self.DataSource, dabo.dPref)) and self.DataField:
 					src = self.Source
@@ -279,6 +275,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			self._from_flushValue = False
 
 			# Raise an event so that user code can react if needed:
+			if self._userChanged:
+				self.raiseEvent(dabo.dEvents.InteractiveChange, oldVal=oldVal)
+				self._userChanged = False
 			dabo.ui.callAfterInterval(200, self.raiseEvent, dabo.dEvents.ValueChanged)
 		return ret
 
