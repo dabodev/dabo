@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from dabo.dLocalize import _
 
-class QRY_OPERATOR:
+class QryOperatorEnum:
 	__slots__ = ()
 	AFTER = _("After")
 	BEFORE = _("Before")
@@ -20,6 +20,8 @@ class QRY_OPERATOR:
 	ONBEFORE = _("On or Before")
 	ONAFTER = _("On or After")
 	TRUE = _("Is True")
+
+QRY_OPERATOR = QryOperatorEnum()
 
 # To achieve compatibility with existing code.
 IGNORE_STRING = QRY_OPERATOR.IGNORE
