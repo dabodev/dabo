@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """dDataControlMixin.py: Provide behavior common to all	data-aware dControls."""
-import dabo, dabo.ui
+import dabo
+import dabo.ui
 import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.dObject import dObject
@@ -13,6 +14,7 @@ from dabo.lib.utils import ustr
 class dDataControlMixinBase(dabo.ui.dControlMixin):
 	"""Provide common functionality for the data-aware controls."""
 	def __init__(self, *args, **kwargs):
+		self._disableOnEmptyDataSource = dabo.autoDisableDataControls
 		self._fldValidFailed = False
 		# Control enabling/disabling on empty data source helper attribute.
 		self._dsDisabled = False

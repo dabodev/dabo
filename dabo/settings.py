@@ -224,6 +224,10 @@ importDebugger = True
 # callAfter() call?
 saveCallAfterStack = False
 
+# When set to True, data control bound to the dBizobj source is automatically disabled
+# if related dataset is empty (RowCount = 0), to prevent user interactions.
+autoDisableDataControls = False
+
 ### Settings - end
 
 
