@@ -482,6 +482,11 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 						dabo.log.info(_("DataSource '%s' does not inherit from a proper Dabo class. This may result in unsupported problems.") % ds.__repr__())
 					else:
 						self._srcIsBizobj = isinstance(ds, dabo.biz.dBizobj)
+				# This allow to use bizobj attribute as data field, instead of table field.
+				# Also fix r6665 issue when NoRecordsException is raised before FieldNotFoundException exception.
+				# It's tricky, because object attribute/property takes precedence before data field of the same name.
+				if self._srcIsBizobj:
+					self._srcIsBizobj = not hasattr(self.__src, self.DataField)
 		return self.__src
 
 
