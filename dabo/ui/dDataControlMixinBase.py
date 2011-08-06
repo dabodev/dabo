@@ -63,9 +63,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 	def _gotFocus(self):
 		# self._oldVal will be compared to self.Value in flushValue()
-		if not self._fldValidFailed:
-			self._oldVal = self.Value
-		self._fldValidFailed = False
+		if not getattr(self, "_inFlush", False):
+			if not self._fldValidFailed:
+				self._oldVal = self.Value
+			self._fldValidFailed = False
 		try:
 			if self.SelectOnEntry:
 				self.selectAll()
@@ -98,13 +99,14 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		"""Update control's value to match the current value from the source."""
 		# We need to do the data handling stuff before calling super()
 		self.__dataUpdate()
+		# Update selection after Value property update.
+		if getattr(self, "SelectOnEntry", False) and self.Form.ActiveControl == self:
+			self.selectAll()
 		super(dDataControlMixinBase, self).update()
 
 
 	def __dataUpdate(self):
 		"""This handles all the value updating from the data source."""
-		if getattr(self, "SelectOnEntry", False) and self.Form.ActiveControl == self:
-			self.selectAll()
 		if not self.DataField or not (self.DataSource or isinstance(self.DataSource, dabo.dPref)):
 			return
 		if self._DesignerMode:
