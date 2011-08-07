@@ -106,7 +106,7 @@ class ClassDesigner(dabo.dApp):
 
 	def __init__(self, clsFile=""):
 		super(ClassDesigner, self).__init__(showSplashScreen=False,
-				splashTimeout=10)
+				splashTimeout=10, ignoreScriptDir=True)
 
 		self._basePrefKey = "dabo.ide.ClassDesigner"
 		self._desFormClass = None

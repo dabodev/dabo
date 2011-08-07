@@ -185,19 +185,77 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		base panel, if any, and use its context menu.
 		"""
 		if self.mainPanel:
-			return self.mainPanel.createContextMenu()
+			menu = self.mainPanel.createContextMenu()
+		if not menu:
+			menu = dui.dMenu()
+		if self.ToolBar is None:
+			menu.append(_("Add Toolbar"), OnHit=self.onAddToolbar)
+		else:
+			menu.append(_("Add Toolbar Button"), OnHit=self.onAddToolbarButton)
+		return menu
+
+
+	def onAddToolbar(self, evt):
+		self.Controller.addNewToolbar(self)
+
+
+	def onAddToolbarButton(self, evt):
+		class TbButtonDialog(dui.dOkCancelDialog):
+			def addControls(self):
+				self.Caption = _("ToolBar Buttons")
+				gsz = dui.dGridSizer(MaxCols=2, HGap=3, VGap=10)
+				lbl = dui.dLabel(self, Caption=_("Button Name"))
+				txt = dui.dTextBox(self, RegID="button_name")
+				gsz.append(lbl)
+				gsz.append(txt)
+				lbl = dui.dLabel(self, Caption=_("Button Picture"))
+				btn = dui.dButton(self, Caption=_("Select..."), OnHit=self.onSelectPic)
+				txt = dui.dTextBox(self, RegID="button_picture", ReadOnly=True)
+				hsz = dui.dSizer("H")
+				hsz.append(btn)
+				hsz.append(txt)
+				gsz.append(lbl)
+				gsz.append(hsz)
+				chk = dui.dCheckBox(self, Caption=_("Toggle?"), RegID="toggle")
+				gsz.appendSpacer(10)
+				gsz.append(chk)
+				lbl = dui.dLabel(self, Caption=_("ToolTip Text"))
+				txt = dui.dTextBox(self, RegID="tooltip_text")
+				gsz.append(lbl)
+				gsz.append(txt)
+				lbl = dui.dLabel(self, Caption=_("Help Text"))
+				txt = dui.dTextBox(self, RegID="help_text")
+				gsz.append(lbl)
+				gsz.append(txt)
+				self.Sizer.append1x(gsz)
+			def onSelectPic(self, evt):
+				pic = dui.getFile("png", "icn", "bmp", "jpg", "gif")
+				self.button_picture.Value = pic
+		dlg = TbButtonDialog(self)
+		dlg.show()
+		if not dlg.Accepted:
+			return
+		nm = dlg.button_name.Value
+		pic = dlg.button_picture.Value
+		tog = dlg.toggle.Value
+		ttt = dlg.tooltip_text.Value
+		hlp = dlg.help_text.Value
+		dlg.release()
+		self.Controller.addNewToolbarButton(self, name=nm, pic=pic, toggle=tog,
+				tip=ttt, help=hlp)
 
 
 	def beforeClose(self, evt):
 		ret = True
 		curr = self._getSavedState()
+		self.Controller.flushCodeEditor()
 		if curr != self._savedState:
 			cf = self._classFile
 			if cf:
 				fname = os.path.split(cf)[1]
 			else:
 				fname = _("Untitled")
-			saveIt = dabo.ui.areYouSure(_("Do you want to save the changes to '%s'?") % fname, _("Unsaved Changes"))
+			saveIt = dui.areYouSure(_("Do you want to save the changes to '%s'?") % fname, _("Unsaved Changes"))
 			if saveIt is None:
 				# They canceled
 				ret = False
