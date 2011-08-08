@@ -29,15 +29,12 @@ class EventMixin(object):
 			raise TypeError("Sequence expected.")
 
 
-	def raiseEvent(self, eventClass, uiEvent=None, uiCallAfterFunc=None,
-			*args, **kwargs):
+	def raiseEvent(self, eventClass, uiEvent=None, *args, **kwargs):
 		"""
 		Send the event to all registered listeners.
 
 		If uiEvent is sent, dEvents.Event will be able to parse it for useful
-		information to send along to the callback. If uiCallAfterFunc is sent, the
-		callbacks will be wrapped in that function so that the UI-lib can process
-		our Dabo events at next idle instead of immediately in this event cycle.
+		information to send along to the callback. 
 
 		Additional arguments, if any, are sent along to the constructor	of the
 		event. While this feature exists so that UI-lib event handlers can pass
@@ -45,8 +42,7 @@ class EventMixin(object):
 		code may pass along additional arguments as well, which	will exist in the
 		event.EventData dictionary property.
 
-		User code need not worry too much about all these extra arguments, as in
-		most cases they'll be completely unnecessary. Just call raiseEvent() with
+		In most cases, user code should call raiseEvent() with
 		the event class (dEvents.Hit, for example) as the only parameter.
 		"""
 
@@ -73,24 +69,7 @@ class EventMixin(object):
 		for binding in bindings:
 			bindingClass, bindingFunction = binding[0], binding[1]
 			if bindingClass == eventClass:
-				if uiCallAfterFunc:
-					# Use the native-UI's way to have the callback processed during
-					# the next event idle cycle.
-					uiCallAfterFunc(bindingFunction, event)
-				else:
-					bindingFunction(event)
-					# Previously, we were printing any raised exception and then
-					# letting it go, which just seems wrong. Commented out:
-
-					# Wrap the call so that if an exception is raised in one
-					# handler, the rest of the handlers still get a whack at
-					# the event. This matches the behavior as if we were using
-					# the real event loop in the ui lib. This is only necessary
-					# because we aren't using a uiCallAfterFunc().
-					#try:
-					#	bindingFunction(event)
-					#except:
-					#	traceback.print_exc()
+				bindingFunction(event)
 			if not event.Continue:
 				# The event handler set the Continue flag to False, specifying that
 				# no more event handlers should process the event.
