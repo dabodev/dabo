@@ -107,7 +107,7 @@ def getEventData(uiEvent):
 	return ed
 
 
-def getUiApp(app, callback=None):
+def getUiApp(app, uiAppClass=None, callback=None, forceNew=None):
 	"""This returns an instance of uiApp. If one is already running, that
 	instance is returned. Otherwise, a new instance is created.
 	"""

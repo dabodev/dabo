@@ -24,7 +24,7 @@ class uiApp(dObject):
 		if self.dApp.MainFormClass is not None:
 			self.dApp.MainForm = self.dApp.MainFormClass()
 
-	def start(self, dApp):
+	def start(self):
 		self.raiseEvent(dEvents.Activate)
 		Tkinter.mainloop()
 

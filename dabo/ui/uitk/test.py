@@ -35,6 +35,7 @@ class Test(object):
 		"""
 		self.app.setup()
 		frame = self.app.MainForm
+		frame.Size = (340, 120)
 		frame.Caption = "Test of all the dControls"
 		frame.debug = True
 		frame.LogEvents = ["All"]
