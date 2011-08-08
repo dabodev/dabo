@@ -75,6 +75,8 @@ def discontinueEvent(evt):
 
 def getEventData(uiEvent):
 	ed = {}
+	if isinstance(uiEvent, dabo.dEvents.dEvent):
+		return ed
 	ed["mousePosition"] = (uiEvent.x, uiEvent.y)
 
 	if "shift_" in uiEvent.keysym.lower():

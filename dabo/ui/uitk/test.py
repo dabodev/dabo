@@ -50,14 +50,17 @@ class Test(object):
 			label = ui.dLabel(panel)
 			label.Width = labelWidth
 
-			object = objClass(panel)
-			label.Caption = "%s:" % object.Name
+			obj = objClass(panel)
+			obj.bindEvent(dabo.dEvents.Hit, self.objHit)
+			label.Caption = "%s:" % objClass.__name__
 
-			object.debug = True
-			object.LogEvents = ["All"]
+			obj.debug = True
+			obj.LogEvents = ["All"]
 
 		self.app.start()
 
+	def objHit(self, evt):
+		print "hit!", evt
 
 if __name__ == "__main__":
 	t = Test()

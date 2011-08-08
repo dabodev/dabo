@@ -28,6 +28,9 @@ class uiApp(dObject):
 		self.raiseEvent(dEvents.Activate)
 		Tkinter.mainloop()
 
+	def exit(self):
+		return
+
 	def finish(self):
 		self.raiseEvent(dEvents.Deactivate)
 
