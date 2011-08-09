@@ -38,7 +38,7 @@ class dCheckBox(dcm.dDataControlMixin, wx.CheckBox):
 	def _onWxHit(self, evt):
 		self._userChanged = True
 		self.flushValue()
-		self.super(evt)
+		super(dCheckBox, self)._onWxHit(evt)
 
 
 	def getBlankValue(self):
