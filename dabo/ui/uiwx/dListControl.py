@@ -131,7 +131,7 @@ class dListControl(dcm.dControlItemMixin,
 		no column number is passed.
 		"""
 		if pos is None:
-			pos = self.GetColumnCount() -1
+			pos = self.GetColumnCount() - 1
 		self.DeleteColumn(pos)
 
 
@@ -162,7 +162,7 @@ class dListControl(dcm.dControlItemMixin,
 		for col in colList:
 			self.addColumn(col)
 		self.appendRows(ds)
-		dummy = [self.setColumnWidth(col, wd) for col, wd in enumerate(wds)] 
+		dummy = [self.setColumnWidth(col, wd) for col, wd in enumerate(wds)]
 		self.ExpandColumn = expandCol
 		self.unlockDisplay()
 
@@ -820,10 +820,10 @@ class dListControl(dcm.dControlItemMixin,
 			_("Specifies whether multiple rows can be selected in the list."))
 
 	RowCount = property(_getRowCount, None, None,
-			_("Number of rows in the control (read-only).  (int)") )
+			_("Number of rows in the control (read-only).  (int)"))
 
 	SelectedIndices = property(_getSelectedIndices, _setSelectedIndices, None,
-			_("Returns a list of selected row indices.  (list of int)") )
+			_("Returns a list of selected row indices.  (list of int)"))
 
 	SortColumn = property(_getSortColumn, _setSortColumn, None,
 			_("Column to be sorted when sort() is called. Default=0  (int)"))
@@ -832,13 +832,13 @@ class dListControl(dcm.dControlItemMixin,
 			_("When True (default), clicking a column header cycles the sorting on that column.  (bool)"))
 
 	Value = property(_getValue, _setValue, None,
-			_("Returns current value (str)" ) )
+			_("Returns current value (str)"))
 
 	Values = property(_getValues, None, None,
-			_("Returns a list containing the Value of all selected rows  (list of str)" ) )
+			_("Returns a list containing the Value of all selected rows  (list of str)"))
 
 	ValueColumn = property(_getValCol, _setValCol, None,
-			_("The column whose text is reflected in Value (default=0).  (int)") )
+			_("The column whose text is reflected in Value (default=0).  (int)"))
 
 	VerticalRules = property(_getVerticalRules, _setVerticalRules, None,
 			_("Specifies whether light rules are drawn between rows."))
@@ -855,18 +855,18 @@ class dListControl(dcm.dControlItemMixin,
 
 class _dListControl_test(dListControl):
 	def afterInit(self):
-		self.setColumns( ("Title", "Subtitle", "Release Year") )
+		self.setColumns(("Title", "Subtitle", "Release Year"))
 		self.setColumnWidth(0, 150)
 		self.setColumnWidth(1, 100)
 		self.setColumnWidth(2, 200)
-		self.append( ("The Phantom Menace", "Episode 1", 1999) )
-		self.append( ("Attack of the Clones", "Episode 2", 2002) )
-		self.append( ("Revenge of the Sith", "Episode 3", 2005) )
-		self.append( ("A New Hope", "Episode 4", 1977) )
-		self.append( ("The Empire Strikes Back", "Episode 5", 1980) )
-		self.append( ("Return of the Jedi", "Episode 6", 1983) )
+		self.append(("The Phantom Menace", "Episode 1", 1999))
+		self.append(("Attack of the Clones", "Episode 2", 2002))
+		self.append(("Revenge of the Sith", "Episode 3", 2005))
+		self.append(("A New Hope", "Episode 4", 1977))
+		self.append(("The Empire Strikes Back", "Episode 5", 1980))
+		self.append(("Return of the Jedi", "Episode 6", 1983))
 
-		self.Keys = [0,1,2,3,4,5]
+		self.Keys = [0, 1, 2, 3, 4, 5]
 
 	def initProperties(self):
 		self.MultipleSelect = True
