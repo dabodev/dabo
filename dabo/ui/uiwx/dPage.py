@@ -76,7 +76,7 @@ class dPage(dabo.ui.dScrollPanel):
 		if not self.itemsCreated:
 			self._createItems()
 		if self._pendingUpdates:
-			self.update()
+			dabo.ui.callAfter(self.update)
 
 
 	def __onPageLeave(self, evt):
