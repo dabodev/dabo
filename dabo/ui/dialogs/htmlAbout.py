@@ -27,7 +27,7 @@ class HtmlAbout(dabo.ui.dDialog):
 		pnlBack.Sizer = sz = dabo.ui.dSizer("v")
 
 		self.htmlBox = dabo.ui.dHtmlBox(self)
-		self.htmlBox.Size = (400,300)
+		self.htmlBox.Size = (400, 300)
 		sz.append1x(self.htmlBox, halign="center", valign="center",
 				border=30)
 
@@ -41,13 +41,18 @@ class HtmlAbout(dabo.ui.dDialog):
 		hsz.appendSpacer(20)
 		hsz.append(btnClose)
 		sz.append(hsz, halign="right", border=30, borderSides=["right"])
-		sz.append((0,20))
+		sz.append((0, 20))
 		self.Layout()
 		self.htmlBox.Source = self.writeHtmlPage()
 
 
 	def onClose(self, evt):
-		self.close()
+		if self.Modal:
+			self.EndModal(0)
+		if self.Parent is None:
+			# Since this is a dialog, we need to explicitly remove
+			# it or the app will hang.
+			self.close(True)
 
 
 	def writeHtmlPage(self):
@@ -72,10 +77,6 @@ class HtmlAbout(dabo.ui.dDialog):
 
 
 	def onClear(self, evt):
-		self.release()
-
-
-	def onClose(self, evt=None):
 		self.release()
 
 
