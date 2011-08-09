@@ -611,19 +611,24 @@ class dListControl(dcm.dControlItemMixin,
 
 	def _setExpandColumn(self, val):
 		if self._constructed():
+			columnCount = self.ColumnCount
 			if isinstance(val, basestring):
 				val = val.upper().strip()
 			else:
-				if val >= self.ColumnCount:
+				if val >= columnCount and columnCount > 0:
 					raise IndexError(_("Invalid column %s specified for dListControl.ExpandColumn") % val)
 			if self._expandColumn != val:
-				self._resetSize(self._expandColumn)
-				self._expandColumn = val
-				if isinstance(val, (int, long)):
-					# Need to decrease by one, since the mixin uses a 1-based column numbering
-					self.setResizeColumn(val+1)
+				if columnCount == 0:
+					self._expandColumn = val
 				else:
-					self.setResizeColumn(val)
+					if self._expandColumn:
+						self._resetSize(self._expandColumn)
+					self._expandColumn = val
+					if isinstance(val, (int, long)):
+						# Need to decrease by one, since the mixin uses a 1-based column numbering
+						self.setResizeColumn(val + 1)
+					else:
+						self.setResizeColumn(val)
 		else:
 			self._properties["ExpandColumn"] = val
 
