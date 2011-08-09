@@ -1482,8 +1482,23 @@ try again when it is running.
 				hd = sys._daboRunHomeDir
 			except AttributeError:
 				calledScript = None
+				appDir = os.path.realpath(os.path.split(inspect.getabsfile(self.__class__))[0])
+				def issubdir(d1, d2):
+					while True:
+						if (len(d1) < len(d2)) or (len(d1) <= 1):
+							return False
+						d1 = os.path.split(d1)[0]
+						if d1.lower() == d2.lower():
+							return True
+
 				if self._ignoreScriptDir:
-					hd = os.getcwd()
+					if issubdir(hd, appDir):
+						hd = appDir
+					else:
+						# See if it's a child directory of a standard Dabo app structure
+						dname = os.path.basename(hd)
+						if dname in self._standardDirs:
+							hd = os.path.dirname(hd)
 				else:
 					try:
 						# Get the script name that launched the app. In case it was run
@@ -1497,15 +1512,6 @@ try again when it is running.
 						if calledScript.startswith("./"):
 							calledScript = calledScript.lstrip("./")
 						scriptDir = os.path.realpath(os.path.split(os.path.join(os.getcwd(), calledScript))[0])
-						appDir = os.path.realpath(os.path.split(inspect.getabsfile(self.__class__))[0])
-						def issubdir(d1, d2):
-							while True:
-								if len(d1) < len(d2) or len(d1) <= 1:
-									return False
-								d1 = os.path.split(d1)[0]
-								if d1.lower() == d2.lower():
-									return True
-
 						if issubdir(scriptDir, appDir):
 							# The directory where the main script is executing is a subdirectory of the
 							# location of the application object in use. So we can safely make the app
