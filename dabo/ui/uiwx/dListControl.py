@@ -581,7 +581,7 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def _getChoices(self):
-		dabo.errorLog(_("'Choices' is not a valid property for a dListControl."))
+		dabo.log.warn(_("'Choices' is not a valid property for a dListControl."))
 		return []
 
 
