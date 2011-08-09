@@ -249,7 +249,7 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 		try:
 			super(dDatePicker, self).SetValue(val)
 		except ValueError, e:
-			dabo.errorLog.write(_(u"Object '%s' has the following error: %s") % (self.Name, ustr(e)))
+			dabo.log.error(_(u"Object '%s' has the following error: %s") % (self.Name, ustr(e)))
 
 	def _getAllowNullDate(self):
 		return self._hasWindowStyleFlag(wx.DP_ALLOWNONE)
