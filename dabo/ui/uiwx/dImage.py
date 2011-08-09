@@ -364,8 +364,8 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				return
 			self.__val = val
 			try:
-				isFile = os.path.exists(val)
-			except (TypeError, UnicodeDecodeError):
+				isFile = os.path.isfile(val)
+			except (TypeError, ValueError):
 				isFile = False
 			if not isFile:
 				# Probably an image stream
@@ -384,8 +384,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 					self.__imageData = open(tfname, "rb").read()
 				except StandardError,e:
 					self.__imageData = u""
-				self._afterValueChanged()
-			self.flushValue()
+			self._afterValueChanged()
 		else:
 			self._properties["Value"] = val
 
