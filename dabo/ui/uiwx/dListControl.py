@@ -567,6 +567,10 @@ class dListControl(dcm.dControlItemMixin,
 		if col < cc:
 			self.autoSizeColumn(col)
 
+	def SetSelection(self, index):
+		"""Wrapper for backend Select method."""
+		if self.Count > index:
+			self.Select(index)
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
