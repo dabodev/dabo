@@ -1537,7 +1537,7 @@ class dBizobj(dObject):
 
 		if not ret:
 			for child in self.getChildren():
-				ret = child.isAnyChanged()
+				ret = child.isAnyChanged(includeNewUnchanged=includeNewUnchanged)
 				if ret:
 					break
 		return ret
