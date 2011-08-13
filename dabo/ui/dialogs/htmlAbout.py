@@ -35,7 +35,7 @@ class HtmlAbout(dabo.ui.dDialog):
 		btnCopy = dabo.ui.dButton(pnlBack, Caption=_("Copy Info"),
 				OnHit=self.onCopyInfo)
 		btnClose = dabo.ui.dButton(pnlBack, Caption=_("OK"),
-				OnHit=self.onClose)
+				OnHit=self.onClear)
 		hsz = dabo.ui.dSizer("H")
 		hsz.append(btnCopy)
 		hsz.appendSpacer(20)
@@ -44,15 +44,6 @@ class HtmlAbout(dabo.ui.dDialog):
 		sz.append((0, 20))
 		self.Layout()
 		self.htmlBox.Source = self.writeHtmlPage()
-
-
-	def onClose(self, evt):
-		if self.Modal:
-			self.EndModal(0)
-		if self.Parent is None:
-			# Since this is a dialog, we need to explicitly remove
-			# it or the app will hang.
-			self.close(True)
 
 
 	def writeHtmlPage(self):
