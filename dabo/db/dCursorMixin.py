@@ -2883,16 +2883,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _getRowNumber(self):
 		try:
-			ret = min(self.__rownumber, self._getRowCount() - 1)
+			ret = min(self.__rownumber, self.RowCount - 1)
 		except AttributeError:
 			ret = -1
 		return ret
 
 
 	def _setRowNumber(self, num):
-		rn = max(0, num)
-		maxrow = max(0, (self.RowCount - 1))
-		self.__rownumber = min(rn, maxrow)
+		self.__rownumber = min(max(0, num), self.RowCount - 1)
 
 
 	def _getTable(self):
