@@ -1180,7 +1180,7 @@ class dBizobj(dObject):
 		"""
 		cc = self._CurrentCursor
 		if cc is not None:
-			self._CurrentCursor.sort(col, ordr, caseSensitive)
+			cc.sort(col, ordr, caseSensitive)
 
 
 	def setParams(self, params):
