@@ -2877,7 +2877,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		try:
 			ret = len(self._records)
 		except AttributeError:
-			ret = -1
+			ret = 0
 		return ret
 
 
