@@ -46,10 +46,6 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 		# On some platforms, we need to add some 'breathing room'
 		# around the bitmap image in order for it to appear correctly
 		self._bmpBorder = 10
-		self._buttonShape = self._extractKey((kwargs, properties, attProperties),
-			"ButtonShape", "Normal")
-		kwargs["style"] = kwargs.get("style", 0) | \
-			{"n": platebtn.PB_STYLE_DEFAULT, "s": platebtn.PB_STYLE_SQUARE}[self._buttonShape[0].lower()]
 
 		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
@@ -61,6 +57,11 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 		#to the parent of the control rather than the control.
 		#Binding to EVT_LEFT_UP fixes the problem. -nwl
 		self.Bind(wx.EVT_LEFT_UP, self._onWxHit)
+
+
+	def _getInitPropertiesList(self):
+		return super(dBorderlessButton, self)._getInitPropertiesList() + \
+			("ButtonShape",)
 
 
 	# Property getters and setters
@@ -81,7 +82,20 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 
 
 	def _getButtonShape(self):
-		return {"n": "Normal", "s": "Square"}[self._buttonShape[0]]
+		if self._hasWindowStyleFlag(platebtn.PB_STYLE_SQUARE):
+			return "Square"
+		else:
+			return "Normal"
+
+	def _setButtonShape(self, val):
+		sst = val[:1].lower()
+		if sst == "s":
+			self._addWindowStyleFlag(platebtn.PB_STYLE_SQUARE)
+		elif sst in ("n", "r"):
+			self._delWindowStyleFlag(platebtn.PB_STYLE_SQUARE)
+		else:
+			raise ValueError(_("Invalid value of %s.ButtonShape property: %s") % \
+				(self.Name, val))
 
 
 	def _getCancelButton(self):
@@ -141,11 +155,11 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 	Bitmap = property(_getNormalBitmap, None, None,
 		_("""The bitmap normally displayed on the button.  (wx.Bitmap)"""))
 
-	ButtonShape = property(_getButtonShape, None,
+	ButtonShape = property(_getButtonShape, _setButtonShape,
 		_("""Shape of the button. (str)
 		
-		Normal	:	button with rounded corners. (default)
-		Square	:	button with square corners."""))
+		Normal/Rounded	:	button with rounded corners. (default)
+		Square			:	button with square corners."""))
 
 	Picture = property(_getNormalPicture, _setNormalPicture, None,
 		_("""Specifies the image normally displayed on the button. (str)"""))
