@@ -1045,7 +1045,7 @@ class BandLabel(DesignerPanel):
 				else:
 					# Height is None, meaning it is to stretch dynamically at runtime.
 					# However, the user just overrode that by setting it explicitly.
-					if "height_def" in self.Parent:
+					if "height_def" in self.Parent.ReportObject:
 						oldHeight = self.Parent._rw.getPt(self.Parent.getProp("Height_def"))
 					else:
 						oldHeight = 75
