@@ -150,6 +150,16 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 			self._properties["InsertionPosition"] = val
 
 
+	def _getReadOnly(self):
+		return not self.IsEditable()
+
+	def _setReadOnly(self, val):
+		if self._constructed():
+			self.SetEditable(not bool(val))
+		else:
+			self._properties["ReadOnly"] = val
+
+
 	def _getSelectionBackColor(self):
 		if not self.HasSelection():
 			return None
@@ -384,6 +394,9 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 
 	InsertionPosition = property(_getInsertionPosition, _setInsertionPosition, None,
 			_("Current position of the insertion point in the control.  (int)"))
+
+	ReadOnly = property(_getReadOnly, _setReadOnly, None,
+			_("Specifies whether or not the text can be edited. (bool)"))
 
 	SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
 			_("Color of the current selection's background.  (RGB 3-tuple)"))
