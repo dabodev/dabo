@@ -1882,13 +1882,12 @@ class dPemMixin(dPemMixinBase):
 		if self._constructed():
 			if isinstance(val, basestring):
 				val = dColors.colorTupleFromName(val)
-			if isinstance(val, tuple):
-				if val != self.GetBackgroundColour().Get():
-					self.SetBackgroundColour(val)
-					# Background color changes don't result in an automatic refresh.
-					self.refresh()
-			elif val is None:
+			if val is None:
 				self.SetBackgroundColour(wx.NullColour)
+			elif val != self.GetBackgroundColour().Get():
+				self.SetBackgroundColour(val)
+				# Background color changes don't result in an automatic refresh.
+				self.refresh()
 		else:
 			self._properties["BackColor"] = val
 
