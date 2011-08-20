@@ -88,7 +88,7 @@ def connect(*args, **kwargs):
 	return dConnection(*args, **kwargs)
 
 
-def _getRecord(self):
+def _getRecord(self_):
 	### Used by dCursorMixin *and* dBizobj.
 	class CursorRecord(object):
 		def __init__(self, _cursor):
@@ -114,16 +114,16 @@ def _getRecord(self):
 	## for each field, the sole purpose being to have the field
 	## names appear in the command window intellisense dropdown.
 	def getFieldProp(field_name):
-		def fget(self):
-			return self._cursor.getFieldVal(field_name)
-		def fset(self, val):
-			self._cursor.setFieldVal(field_name, val)
+		def fget(self_):
+			return self_._cursor.getFieldVal(field_name)
+		def fset(self_, val):
+			self_._cursor.setFieldVal(field_name, val)
 		return property(fget, fset)
 
-	field_aliases = [ds[0] for ds in self.DataStructure]
-	field_aliases.extend(self.VirtualFields.keys())
+	field_aliases = [ds[0] for ds in self_.DataStructure]
+	field_aliases.extend(self_.VirtualFields.keys())
 	for field_alias in field_aliases:
 		setattr(CursorRecord, field_alias, getFieldProp(field_alias))
-	return CursorRecord(self)
+	return CursorRecord(self_)
 
 
