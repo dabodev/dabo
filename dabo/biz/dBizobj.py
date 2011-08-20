@@ -64,7 +64,7 @@ class dBizobj(dObject):
 		self._sqlMgrCursor = None
 		self._cursorFactory = None
 		self.__params = ()		# tuple of params to be merged with the sql in the cursor
-		self.__children = []		# Collection of child bizobjs
+		self._children = []		# Collection of child bizobjs
 		self._baseClass = dBizobj
 		self.__areThereAnyChanges = False	# Used by the isChanged() method.
 		# Used by the LinkField property
@@ -478,7 +478,7 @@ class dBizobj(dObject):
 
 			if saveTheChildren:
 				# Iterate through the child bizobjs, telling them to save themselves.
-				for child in self.__children:
+				for child in self._children:
 					# No need to start another transaction. And since this is a child bizobj,
 					# we need to save all rows that have changed.
 					child.saveAll(startTransaction=False)
@@ -529,7 +529,7 @@ class dBizobj(dObject):
 			ignoreNoRecords = True
 		# Tell the cursor and all children to cancel themselves:
 		self._CurrentCursor.cancel(ignoreNoRecords=ignoreNoRecords)
-		for child in self.__children:
+		for child in self._children:
 			child.cancelAll(ignoreNoRecords=ignoreNoRecords)
 		self.afterCancel()
 
@@ -546,7 +546,7 @@ class dBizobj(dObject):
 
 		startTransaction = startTransaction and self.beginTransaction()
 		try:
-			for child in self.__children:
+			for child in self._children:
 				child.deleteAll(startTransaction=False)
 			if startTransaction:
 				self.commitTransaction()
@@ -583,7 +583,7 @@ class dBizobj(dObject):
 
 		if self.deleteChildLogic == kons.REFINTEG_RESTRICT:
 			# See if there are any child records
-			for child in self.__children:
+			for child in self._children:
 				if child.RowCount > 0:
 					raise dException.dException(
 							_("Deletion prohibited - there are related child records."))
@@ -597,7 +597,7 @@ class dBizobj(dObject):
 			# Now cycle through any child bizobjs and fire their cancel() methods. This will
 			# ensure that any changed data they may have is reverted. They are then requeried to
 			# populate them with data for the current record in this bizobj.
-			for child in self.__children:
+			for child in self._children:
 				if self.deleteChildLogic == kons.REFINTEG_CASCADE:
 					child.deleteAll(startTransaction=False)
 				else:
@@ -679,7 +679,7 @@ class dBizobj(dObject):
 		"""
 		myData = self._CurrentCursor.getDataDiff(allRows=allRows)
 		kids = {}
-		for child in self.__children:
+		for child in self._children:
 			kids.update(child.getDataDiff(allRows=True))
 		diff = {hash(self): (self.DataSource, self.KeyField, myData, kids)}
 		return diff
@@ -696,7 +696,7 @@ class dBizobj(dObject):
 		if not self.RowCount:
 			# If there are no records, there can be no changes
 			return []
-		if self.__children:
+		if self._children:
 			rows = []
 
 			def _isRowChanged():
@@ -1018,7 +1018,7 @@ class dBizobj(dObject):
 
 		if self.NewChildOnNew:
 			# Add records to all children set to have records created on a new parent record.
-			for child in self.__children:
+			for child in self._children:
 				if child.NewRecordOnNewParent:
 					child.new()
 
@@ -1413,7 +1413,7 @@ class dBizobj(dObject):
 			| True	- do both, update child cursor and requery ONLY empty cursors.
 		"""
 		if updateChildren is not None:
-			for child in self.__children:
+			for child in self._children:
 				# Let the child update to the current record.
 				child.setCurrentParent()
 				if updateChildren and child.RowCount == 0 and child.cacheExpired():
@@ -1553,7 +1553,7 @@ class dBizobj(dObject):
 		# If this is a new parent record with a new auto-generated PK, pass it on
 		# to the children before they save themselves.
 		if self.AutoPopulatePK:
-			for child in self.__children:
+			for child in self._children:
 				if child.FillLinkFromParent:
 					child.setParentFK(allRows=True)
 		# Call the custom hook method
@@ -1643,7 +1643,7 @@ class dBizobj(dObject):
 			self._CurrentCursor = val
 			if _oldKey != val:
 				# Propagate the change to any children:
-				for child in self.__children:
+				for child in self._children:
 					child.setCurrentParent()
 
 
@@ -1655,8 +1655,8 @@ class dBizobj(dObject):
 		This stores the child reference here, and sets the reference to the
 		parent in the child.
 		"""
-		if child not in self.__children:
-			self.__children.append(child)
+		if child not in self._children:
+			self._children.append(child)
 			child.Parent = self
 
 
@@ -1688,7 +1688,7 @@ class dBizobj(dObject):
 		you should call self.expireCache() before calling self.requery() or
 		self.requeryAllChildren().
 		"""
-		if not self.__children:
+		if not self._children:
 			return True
 
 		errMsg = self.beforeChildRequery()
@@ -1696,7 +1696,7 @@ class dBizobj(dObject):
 			raise dException.BusinessRuleViolation(errMsg)
 
 
-		for child in self.__children:
+		for child in self._children:
 			# Let the child know the current dependent PK
 			child.setCurrentParent()  ##pkm: moved from the block below: should be unconditional
 			if child.RequeryWithParent:
@@ -1732,7 +1732,7 @@ class dBizobj(dObject):
 			cursor.clearLastRequeryTime()
 
 		if recurse:
-			for child in self.__children:
+			for child in self._children:
 				## unconditionally set _allCursors=True for recursed child bizobjs, to make sure
 				## all cursors will get requeried next time, not just the _CurrentCursor.
 				child.expireCache(_allCursors=True)
@@ -1855,7 +1855,7 @@ class dBizobj(dObject):
 		childTemplate = """\n\t<child table="%s">\n%s\n\t</child>"""
 		childEmptyTemplate = """\n\t<child table="%s" />"""
 		kidXML = ""
-		for kid in self.__children:
+		for kid in self._children:
 			kidstuff = kid._dataToXML(level=level + 1)
 			if kidstuff:
 				kidXML += childTemplate % (kid.DataSource, kidstuff)
@@ -1981,20 +1981,18 @@ class dBizobj(dObject):
 
 	def getChildren(self):
 		"""Return a tuple of the child bizobjs."""
-		ret = []
-		for child in self.__children:
-			ret.append(child)
-		return tuple(ret)
+		return tuple(self._children)
 
 
 	def getChildByDataSource(self, dataSource):
 		"""Return a reference to the child bizobj with the passed dataSource."""
-		ret = None
-		for child in self.getChildren():
-			if child.DataSource == dataSource:
-				ret = child
-				break
-		return ret
+		ret = [child for child in self.getChildren()
+				if child.DataSource == dataSource]
+		try:
+			return ret[0]
+		except IndexError:
+			# Didn't find a match; return None
+			return None
 
 
 	def escQuote(self, val):
