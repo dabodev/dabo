@@ -1158,8 +1158,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 	def _getSelection(self):
 		if self.MultipleSelect:
 			ids = self.GetSelections()
-			ret = [ n for n in self.nodes
-					if n.itemID in ids]
+			ret = [node for node in self.nodes
+					if node.itemID in ids]
 		else:
 			itemID = self.GetSelection()
 			if itemID:
@@ -1175,11 +1175,16 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 	def _setSelection(self, node):
 		if self._constructed():
 			self.UnselectAll()
-			if node is None:
+			if not node:
 				return
 			if isinstance(node, (list, tuple)):
-				for itm in node:
-					self.SelectItem(itm.itemID, True)
+				if self.MultipleSelect:
+					for itm in node:
+						self.SelectItem(itm.itemID, True)
+				else:
+					if len(node) > 1:
+						dabo.log.error(_("Attempting to select multiple nodes when MultipleSelect is False"))
+					self.SelectItem(node[0].itemID)
 			else:
 				self.SelectItem(node.itemID)
 		else:
@@ -1284,9 +1289,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 	Selection = property(_getSelection, _setSelection, None,
 		_("""Specifies which node or nodes are selected.
 
-		If MultipleSelect is False, an integer referring to the currently selected
-		node is specified. If MultipleSelect is True, a list of selected nodes is
-		specified."""))
+		If MultipleSelect is False, the currently selected node is specified. If MultipleSelect
+		is True, a list of selected nodes is specified."""))
 
 	ShowButtons = property(_getShowButtons, _setShowButtons, None,
 		_("""Specifies whether +/- indicators are show at the left of parent nodes."""))
