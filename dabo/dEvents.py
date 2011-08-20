@@ -1020,3 +1020,8 @@ class MediaStop(MediaEvent):
 class MediaStateChanged(MediaEvent):
 	"""Occurs when the playback status has changed from one state to another."""
 	pass
+
+
+class ShellCommandRun(dEvent):
+	"""Occurs when the dShell interpreter executes a command."""
+	pass

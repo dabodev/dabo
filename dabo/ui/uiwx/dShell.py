@@ -182,6 +182,14 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 				# Not running in dShell
 				pass
 
+
+	def push(self, command, silent=False):
+		"""Need to raise an event when the interpreter executes a command."""
+		super(_Shell, self).push(command, silent=silent)
+		if not self.more:
+			self.raiseEvent(dEvents.ShellCommandRun)
+
+
 	def getAutoCompleteList(self, cmd):
 		return self.interp.getAutoCompleteList(cmd,
 				includeMagic=self.autoCompleteIncludeMagic,
