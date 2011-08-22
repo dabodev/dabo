@@ -97,6 +97,17 @@ class dPageFrameNoTabs(dPanel):
 		return ret
 
 
+	def layout(self):
+		"""Wrap the wx version of the call, if possible."""
+		for pg in self.Pages:
+			try:
+				pg.layout()
+			except AttributeError:
+				# could be that the page is a single control, not a container
+				pass
+		super(dPageFrameNoTabs, self).layout()
+
+
 	def showPage(self, pg):
 		ap = self._activePage
 		if isinstance(pg, int):
