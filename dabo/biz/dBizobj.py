@@ -2361,10 +2361,8 @@ afterDelete() which is only called after a delete().""")
 		"""
 		oldKey = self.__currentCursorKey
 		if newKey <> oldKey:
-			cursor = self._CurrentCursor
+			self.__cursors[newKey] = self.__cursors.pop(oldKey)
 			self.__currentCursorKey = newKey
-			del self.__cursors[oldKey]
-			self.__cursors[newKey] = cursor
 
 
 	## Property getter/setter methods ##
