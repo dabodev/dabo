@@ -1089,13 +1089,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					else:
 						old_key = old_val
 						keyFieldValue = val
-					old_mem = self._mementos.get(old_key, None)
-					if old_mem is not None:
-						self._mementos[keyFieldValue] = old_mem
-						del self._mementos[old_key]
+					if old_key in self._mementos:
+						self._mementos[keyFieldValue] = self._mementos.pop(old_key)
 					if old_key in self._newRecords:
-						self._newRecords[keyFieldValue] = self._newRecords[old_key]
-						del self._newRecords[old_key]
+						self._newRecords[keyFieldValue] = self._newRecords.pop(old_key)
 						# Should't ever happen, but just in case of desynchronization.
 						if kons.CURSOR_TMPKEY_FIELD in rec:
 							rec[kons.CURSOR_TMPKEY_FIELD] = keyFieldValue
