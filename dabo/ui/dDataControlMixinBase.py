@@ -305,31 +305,39 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 	def saveValue(self):
 		"""Save control's value to dApp's user settings table."""
-		if self.IsSecret:
-			# Don't store sensitive info
-			return
 		if self._DesignerMode:
 			# Don't bother in design mode.
 			return
-		value = self._value  ## on Win, the C++ object is already gone
-		if self.Application:
+		app = self.Application
+		if app:
+			if self.IsSecret:
+				# Don't store sensitive info until...
+				if self.PersistSecretData:
+					value = app.encrypt(self._value)
+				else:
+					return
+			else:
+				value = self._value  ## on Win, the C++ object is already gone
 			if self.RegID:
 				name = "%s.%s" % (self.Form.Name, self.RegID)
 			else:
 				name = self.getAbsoluteName()
-			self.Application.setUserSetting("%s.Value" % name, value)
+			app.setUserSetting("%s.Value" % name, value)
 
 
 	def restoreValue(self):
 		"""Set the control's value to the value in dApp's user settings table."""
-		if self.Application:
+		app = self.Application
+		if app:
 			if self.RegID:
 				name = "%s.%s" % (self.Form.Name, self.RegID)
 			else:
 				name = self.getAbsoluteName()
-			value = self.Application.getUserSetting("%s.Value" % name)
+			value = app.getUserSetting("%s.Value" % name)
 
 			if value is not None:
+				if self.IsSecret and self.PersistSecretData:
+					value = app.decrypt(value)
 				try:
 					self.Value = value
 				except (ValueError, TypeError):
@@ -429,6 +437,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 	def _setDisableOnEmptyDataSource(self, val):
 		self._disableOnEmptyDataSource = val
+
+
+	def _getPersistSecretData(self):
+		return getattr(self, "_persistSecretData", False)
+
+	def _setPersistSecretData(self, val):
+		self._persistSecretData = bool(val)
 
 
 	def _getSecret(self):
@@ -537,6 +552,11 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	IsSecret = property(_getSecret, _setSecret, None,
 			_("""Flag for indicating sensitive data, such as Password field, that is not
 			to be persisted. Default=False.  (bool)"""))
+
+	PersistSecretData = property(_getPersistSecretData, _setPersistSecretData, None,
+			_("""If True, allow persisting the secret data in encrypted form.
+			Warning! Security of your data strongly depends on used encryption algorithms!
+			Default=False.  (bool)"""))
 
 	SaveRestoreValue = property(_getSaveRestoreValue, _setSaveRestoreValue, None,
 			_("""Specifies whether the Value of the control gets saved when
