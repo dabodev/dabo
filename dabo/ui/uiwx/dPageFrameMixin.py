@@ -40,6 +40,9 @@ class dPageFrameMixin(cm.dControlMixin):
 
 	def __onPageChanging(self, evt):
 		"""The page has not yet been changed, so we can veto it if conditions call for it."""
+		if self != evt.EventObject:
+			# Avoid events propagated from child frames.
+			return
 		oldPageNum = evt.GetOldSelection()
 		newPageNum = evt.GetSelection()
 		if self._beforePageChange(oldPageNum, newPageNum) is False:
