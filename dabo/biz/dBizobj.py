@@ -1468,6 +1468,21 @@ class dBizobj(dObject):
 		return ret
 
 
+	def _isAnyChanged(self):
+		"""Contender to replace isAnyChanged(): better performance."""
+		beg = time.time()
+		for v in self.__cursors.values():
+			if v.isChanged():
+				return True
+		for child in self.getChildren():
+			if child._isAnyChanged():
+				return True
+		end = time.time()
+		## The time it takes to get to False is the longest potential time
+		print "time for False:", end-beg, self
+		return False
+
+	
 	def isAnyChanged(self, useCurrentParent=None, includeNewUnchanged=None):
 		"""
 		Returns True if any record in the current record set has been changed.
