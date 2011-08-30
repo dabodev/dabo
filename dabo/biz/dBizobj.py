@@ -797,16 +797,8 @@ class dBizobj(dObject):
 		# Flag that the function can set to prematurely exit the scan
 		self.exitScan = False
 		rows = list(rows)
-		try:
-			reverse = kwargs["reverse"]
-			del(kwargs["reverse"])
-		except KeyError:
-			reverse = self.ScanReverse
-		try:
-			requeryChildren = kwargs["scanRequeryChildren"]
-			del(kwargs["scanRequeryChildren"])
-		except KeyError:
-			requeryChildren = self.ScanRequeryChildren
+		reverse = kwargs.pop("reverse", self.ScanReverse)
+		requeryChildren = kwargs.pop("scanRequeryChildren", self.ScanRequeryChildren)
 		currentStatus = self.__getCurrentStatus()
 		ret = None
 
@@ -854,11 +846,7 @@ class dBizobj(dObject):
 		else:
 			cursors = {currentStatus[0]: self._CurrentCursor}
 
-		try:
-			reverse = kwargs["reverse"]
-			del(kwargs["reverse"])
-		except KeyError:
-			reverse = self.ScanReverse
+		reverse = kwargs.pop("reverse", self.ScanReverse)
 
 		def _callFunc():
 			if self.isChanged(includeNewUnchanged):
