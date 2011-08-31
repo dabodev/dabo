@@ -1468,18 +1468,27 @@ class dBizobj(dObject):
 		return ret
 
 
-	def _isAnyChanged(self):
+	def _isAnyChanged(self, useCurrentParent=False, includeNewUnchanged=None):
 		"""Contender to replace isAnyChanged(): better performance."""
 		beg = time.time()
-		for v in self.__cursors.values():
-			if v.isChanged():
+		if includeNewUnchanged is None:
+			includeNewUnchanged = self.SaveNewUnchanged
+		if useCurrentParent:
+			cursor = self.__cursors.get(self.getParentLinkValue(), None)
+			if cursor is None or cursor.RowCount == 0:
+				return False
+			cursors = [cursor]
+		else:
+			cursors = self.__cursors.values()
+		for v in cursors:
+			if v.isChanged(includeNewUnchanged=includeNewUnchanged):
 				return True
 		for child in self.getChildren():
-			if child._isAnyChanged():
+			if child._isAnyChanged(includeNewUnchanged=includeNewUnchanged):
 				return True
 		end = time.time()
 		## The time it takes to get to False is the longest potential time
-		print "time for False:", end-beg, self
+		#print "time for False:", end-beg, self
 		return False
 
 	
@@ -1506,6 +1515,9 @@ class dBizobj(dObject):
 		if useCurrentParent:
 			self._CurrentCursor = oldKey
 		return ret
+
+
+	#isAnyChanged =_isAnyChanged  ## for testing replacement function
 
 
 	def isRowChanged(self, includeNewUnchanged=None):
