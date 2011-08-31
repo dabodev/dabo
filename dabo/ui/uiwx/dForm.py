@@ -172,9 +172,11 @@ class BaseForm(fm.dFormMixin):
 				for biz in changedBizList:
 					self.save(dataSource=biz.DataSource)
 			elif response == False:  ## no
-				for biz in changedBizList:
-					if biz.RowCount:
-						self.cancel(dataSource=biz.DataSource)
+				pass
+				# why bother cancelling when the bizobj will just go away?
+				#for biz in changedBizList:
+					#if biz.RowCount:
+						#self.cancel(dataSource=biz.DataSource)
 		return True
 
 
