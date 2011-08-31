@@ -793,21 +793,16 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			row = getattr(self, "_cellDynamicRow", self.Parent.CurrentRow)
 		except dabo.ui.deadObjectException:
 			# @dabo.ui.deadCheck didn't seem to work...
-			return 
+			return
 		cellAttr = obj = self._gridCellAttrs.get(row, self._gridColAttr.Clone())
 		if "." in wxPropName:
 			# For instance, Font.SetWeight
-			subObject, wxPropName = wxPropName.split(".")
-			obj = getattr(cellAttr, subObject)
-		getattr(obj, wxPropName)(*args, **kwargs)
-
-		## pkm 2010-11-30 : Tried to add CellFontBold, but it doesn't show visually in the
-		##                  grid no matter what I try. Commented code below shows what I
-		##                  attempted:
-		#cellAttr.Font = wx.Font(cellAttr.Font.PointSize, cellAttr.Font.Family,
-		#		cellAttr.Font.Style, cellAttr.Font.Weight, cellAttr.Font.Underlined,
-		#		cellAttr.Font.FaceName)
-		#cellAttr = cellAttr.Clone()
+			wxPropName, subObject = wxPropName.split(".")
+			obj = getattr(cellAttr, wxPropName)
+			getattr(obj, subObject)(*args, **kwargs)
+			setattr(cellAttr, wxPropName, obj)
+		else:
+			getattr(cellAttr, wxPropName)(*args, **kwargs)
 		self._gridCellAttrs[row] = cellAttr
 
 
