@@ -29,11 +29,18 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 		self.ShowHover = self.ShowHover
 
 		self.Bind(hyperlink.EVT_HYPERLINK_LEFT, self._onWxHit)  ## only called if ShowInBrowser False
+		self.bindEvent(dabo.dEvents.MouseRightClick, self._onMouseRightClick)
 
 
 	def refresh(self):
 		super(dHyperLink, self).refresh()
 		self.UpdateLink(True)
+
+
+	def _onMouseRightClick(self, evt):
+		if not self.ShowInBrowser:
+			## hide the popup menu with "copy hyperlink" action
+			evt.stop()
 
 
 	def _setColors(self):
@@ -187,6 +194,7 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 	VisitedUnderline = property(_getVisitedUnderline, _setVisitedUnderline, None,
 			_("Is the link underlined in the visited state?  (bool)"))
 
+	ForeColor = LinkColor
 
 
 class _dHyperLink_test(dHyperLink):
