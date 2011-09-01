@@ -1296,6 +1296,8 @@ class dPemMixin(dPemMixinBase):
 
 	def setFocus(self):
 		"""Sets focus to the object."""
+		## Up until r6816, the following was wrapped in a callAfter(), which made for 
+		## lousy performance, especially on Windows. 
 		self.SetFocus()
 
 
