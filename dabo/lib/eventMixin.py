@@ -49,6 +49,21 @@ class EventMixin(object):
 		# Instantiate the event, no matter if there aren't any bindings: the event
 		# did happen, after all, and perhaps we want to log that fact.
 
+		# self.__raisedEvents keeps track of a possible problem identified by
+		# Vladimir. It is debug code that isn't intended to stick around.
+		try:
+			self.__raisedEvents
+		except AttributeError:
+			self.__raisedEvents = []
+
+		eventSig = (eventClass, args, kwargs)
+		if eventSig in self.__raisedEvents:
+			# The event has already been called, for reasons we don't understand.
+			# Just return and do nothing.
+			return None
+		else:
+			self.__raisedEvents.append(eventSig)
+
 		eventData = None
 		if "eventData" in kwargs:
 			eventData = kwargs["eventData"]
@@ -74,6 +89,11 @@ class EventMixin(object):
 				# The event handler set the Continue flag to False, specifying that
 				# no more event handlers should process the event.
 				break
+		try:
+			self.__raisedEvents.pop()
+		except (AttributeError, IndexError):
+			# This is a deleted object; no need (or ability!) to do anything else.
+			return
 
 		if uiEvent is not None:
 			# Let the UI lib know whether to do the default event behavior
