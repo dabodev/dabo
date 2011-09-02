@@ -49,8 +49,9 @@ class EventMixin(object):
 		# Instantiate the event, no matter if there aren't any bindings: the event
 		# did happen, after all, and perhaps we want to log that fact.
 
-		# self.__raisedEvents keeps track of a possible problem identified by
-		# Vladimir. It is debug code that isn't intended to stick around.
+		# self.__raisedEvents keeps track of the event being raised, to check against
+		# handling the same event twice, resulting from one of the event handlers causing
+		# the event to happen again recursively.
 		try:
 			self.__raisedEvents
 		except AttributeError:
@@ -58,11 +59,10 @@ class EventMixin(object):
 
 		eventSig = (eventClass, args, kwargs)
 		if eventSig in self.__raisedEvents:
-			# The event has already been called, for reasons we don't understand.
-			# Just return and do nothing.
+			# The event is already being handled, but one of the handlers caused it to be
+			# raised again.
 			return None
-		else:
-			self.__raisedEvents.append(eventSig)
+		self.__raisedEvents.append(eventSig)
 
 		eventData = None
 		if "eventData" in kwargs:
