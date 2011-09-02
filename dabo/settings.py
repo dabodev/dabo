@@ -228,6 +228,8 @@ saveCallAfterStack = False
 # if related dataset is empty (RowCount = 0), to prevent user interactions.
 autoDisableDataControls = False
 
+dTextBox_NumericBlankToZero = False
+
 ### Settings - end
 
 

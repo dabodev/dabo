@@ -492,9 +492,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			# Bools can't convert from string representations, because a zero-
 			# length denotes False, and anything else denotes True.
 			if strVal == "True":
-				retVal = True
-			else:
-				retVal = False
+				return True
+			return False
 		elif dataType in (datetime.date, datetime.datetime, datetime.time):
 			# We expect the string to be in ISO 8601 format.
 			if dataType == datetime.date:
@@ -503,14 +502,14 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				retVal = self._getDateTimeFromString(strVal)
 			elif dataType == datetime.time:
 				retVal = self._getTimeFromString(strVal)
-
 			if retVal is None:
 				raise ValueError(_("String not in ISO 8601 format."))
+			return retVal
 		elif ustr(dataType) in ("<type 'DateTime'>", "<type 'mx.DateTime.DateTime'>"):
 			# mx DateTime type. MySQLdb will use this if mx is installed.
 			try:
 				import mx.DateTime
-				retVal = mx.DateTime.DateTimeFrom(ustr(strVal))
+				return mx.DateTime.DateTimeFrom(ustr(strVal))
 			except ImportError:
 				raise ValueError(_("Can't import mx.DateTime"))
 		elif ustr(dataType) in ("<type 'datetime.timedelta'>", "<type 'DateTimeDelta'>",
@@ -518,7 +517,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			# mx TimeDelta type. MySQLdb will use this for Time columns if mx is installed.
 			try:
 				import mx.DateTime
-				retVal = mx.DateTime.TimeFrom(ustr(strVal))
+				return mx.DateTime.TimeFrom(ustr(strVal))
 			except ImportError:
 				raise ValueError(_("Can't import mx.DateTime"))
 		elif (dataType == decimal.Decimal) and self.StrictNumericEntry:
@@ -526,52 +525,57 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				_oldVal = self._oldVal
 			except AttributeError:
 				_oldVal = None
-
-			# Preprocess trying to do a decimal conversion, to filter out
-			# invalid input before doing a number of things below:
 			strVal = strVal.strip()
-			try:
-				decimal.Decimal(strVal)
-			except decimal.InvalidOperation:
-				raise ValueError(_("Invalid decimal value."))
-
+			if not strVal and self.NumericBlankToZero:
+				if type(_oldVal) == decimal.Decimal:
+					return decimal.DefaultContext.quantize(decimal.Decimal("0"), _oldVal)
+				return decimal.Decimal("0")
+					
 			try:
 				if type(_oldVal) == decimal.Decimal:
 					# Enforce the precision as previously set programatically
-					retVal = decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
-				else:
-					retVal = decimal.Decimal(strVal)
+					return decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
+				return decimal.Decimal(strVal)
 			except (ValueError, decimal.InvalidOperation):
-				raise ValueError(_("Can't convert to decimal."))
+				raise ValueError(_("Invalid decimal value."))
 		elif dataType in (tuple, list):
-			retVal = eval(strVal)
+			return eval(strVal)
 		elif not self.StrictNumericEntry and (dataType in numericTypes):
 			isint = (strVal.count(decimalPoint) == 0) and (strVal.lower().count("e") == 0)
+			strVal = strVal.strip()
+			if not strVal and self.NumericBlankToZero:
+				return 0
 			try:
 				if isint:
-					if strVal.strip().endswith("L"):
-						retVal = long(strVal)
-					else:
-						retVal = int(strVal)
+					if strVal.endswith("L"):
+						return long(strVal)
+					return int(strVal)
 				else:
 					try:
-						retVal = decimal.Decimal(strVal.strip())
+						return decimal.Decimal(strVal.strip())
 					except decimal.InvalidOperation:
 						raise ValueError(_("Invalid decimal value."))
 			except valueErrors:
 				raise ValueError(_("Invalid Numeric Value: %s") % strVal)
+		elif dataType in numericTypes and self.NumericBlankToZero and not strVal.strip():
+			# strict:
+			if dataType == decimal.Decimal:
+				oldVal = getattr(self, "_oldVal", None)
+				if type(oldVal) == decimal.Decimal:
+					return decimal.DefaultContext.quantize("0", oldVal)
+				return decimal.Decimal("0")
+			return dataType(0)
 		else:
 			# Other types can convert directly.
 			if dataType == str:
 				dataType = unicode
 			try:
-				retVal = dataType(strVal)
+				return dataType(strVal)
 			except ValueError:
 				# The Python object couldn't convert it. Our validator, once
 				# implemented, won't let the user get this far. Just keep the
 				# old value.
 				raise ValueError(_("Can't convert."))
-		return retVal
 
 
 	def getStringValue(self, value):
@@ -641,6 +645,13 @@ class dTextBoxMixin(dTextBoxMixinBase):
 		"""
 		formats = ["ISO8601"]
 		return dabo.lib.dates.getTimeFromString(strVal, formats)
+
+
+	def _getNumericBlankToZero(self):
+		return getattr(self, "_numericBlankToZero", dabo.dTextBox_NumericBlankToZero)
+
+	def _setNumericBlankToZero(self, val):
+		self._numericBlankToZero = bool(val)
 
 
 	def _getPasswordEntry(self):
@@ -787,6 +798,19 @@ class dTextBoxMixin(dTextBoxMixinBase):
 
 
 	# Property definitions:
+	NumericBlankToZero = property(_getNumericBlankToZero, _setNumericBlankToZero, None,
+			_("""Specifies whether a blank textbox gets interpreted as 0.
+
+			When True, if the user clears the textbox value, such as by selecting all
+			and pressing the space bar or delete, the value will become 0 when the
+			control loses focus. 
+
+			When False, the value will revert back to the last numeric value when the 
+			control loses focus.
+
+			The default comes from dabo.dTextBox_NumericBlankToZero, which defaults to 
+			False."""))
+
 	PasswordEntry = property(_getPasswordEntry, _setPasswordEntry, None,
 			_("Specifies whether plain-text or asterisks are echoed. (bool)"))
 
