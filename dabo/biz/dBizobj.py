@@ -65,6 +65,7 @@ class dBizobj(dObject):
 		self._cursorFactory = None
 		self.__params = ()		# tuple of params to be merged with the sql in the cursor
 		self._children = []		# Collection of child bizobjs
+		self._associations = {}		# Dict of many-to-many associations, keyed by DataSource
 		self._baseClass = dBizobj
 		self.__areThereAnyChanges = False	# Used by the isChanged() method.
 		# Used by the LinkField property
@@ -176,11 +177,13 @@ class dBizobj(dObject):
 		return cur
 
 
-	def createCursor(self, key=None):
+	def createCursor(self, key=None, addToCursorCollection=True):
 		"""
-		Create the cursor that this bizobj will be using for data, and store it
+		Create the cursor that this bizobj will be using for data, and optionally store it
 		in the dictionary for cursors, with the passed value of 'key' as its dict key.
-		For independent bizobjs, that key will be None.
+		For independent bizobjs, that key will be None. If creating a cursor that will not
+		be used as a data source for this bizobj, as when creating many-to-many
+		cursors, pass False for the 'addToCursorCollection' parameter.
 
 		Subclasses should override beforeCreateCursor() and/or afterCreateCursor()
 		instead of overriding this method, if possible. Returning any non-empty value
@@ -208,17 +211,17 @@ class dBizobj(dObject):
 			key = self.__currentCursorKey
 
 		cf = self._cursorFactory
-		self.__cursors[key] = cf.getCursor(cursorClass)
-		self.__cursors[key].setCursorFactory(cf.getCursor, cursorClass)
-
-		crs = self.__cursors[key]
+		crs = cf.getCursor(cursorClass)
+		crs.setCursorFactory(cf.getCursor, cursorClass)
+		if addToCursorCollection:
+			self.__cursors[key] = crs
 		if _dataStructure is not None:
 			crs._dataStructure = _dataStructure
 		crs.BackendObject = cf.getBackendObject()
 		crs.sqlManager = self.SqlManager
 		crs._bizobj = self
 		self._syncCursorProps(crs)
-		if self.RequeryOnLoad:
+		if addToCursorCollection and self.RequeryOnLoad:
 			if self.__cursorsToRequery is None:
 				# We've already passed the bizobj init process
 				crs.requery()
@@ -1675,6 +1678,27 @@ class dBizobj(dObject):
 			child.Parent = self
 
 
+	def addMMBizobj(self, mmBizobj, assocTable, assocPKColThis, assocPKColOther,
+			mmPkCol=None):
+		"""
+		Add the passed bizobj to this bizobj in a Many-to-Many relationship.
+
+		The reference will be stored, and the Parent reference of that bizobj
+		will be set to this. If mmPkCol is not specified, the KeyField for the mmBizobj
+		will be used for the relationship.
+		"""
+		if mmBizobj.DataSource not in self._associations:
+			if mmPkCol is None:
+				mmPkCol = mmBizobj.KeyField
+			crs = self.createCursor(key=None, addToCursorCollection=False)
+			crs._isMM = True
+			crs.createAssociation(mmBizobj.DataSource, mmPkCol, assocTable,
+				assocPKColThis, assocPKColOther)
+			self._associations[mmBizobj.DataSource] = {
+					"bizobj": mmBizobj,
+					"cursor": crs}
+
+
 	def getAncestorByDataSource(self, ds):
 		"""
 		Given a DataSource, finds the ancestor (parent, grandparent, etc.) of
@@ -2058,48 +2082,105 @@ class dBizobj(dObject):
 		return self._CurrentCursor.oldVal(fieldName, row)
 
 
-	def mmAssociateValue(self, otherField, otherVal):
+	def _getAssociation(self, bizOrDS):
+		"""
+		Returns the relevant association disctionary, given either the DataSource
+		or the 'other' bizobj. Returns None if no association has been defined.
+		"""
+		try:
+			# Assume this is a DataSource string
+			return self._associations[bizOrDS]
+		except KeyError:
+			# Try the bizobj
+			keys = [k for k in self._associations
+					if self._associations[k]["bizobj"] == bizOrDS]
+			try:
+				ds = keys[0]
+				return self._associations[ds]
+			except IndexError:
+				raise dException.DataSourceNotFoundException(
+						_("No many-to-many association found for DataSource: '%s'." % bizOrDS))
+		return None
+
+		
+	def mmAssociateValue(self, bizOrDS, otherField, otherVal):
 		"""
 		Associates the value in the 'other' table of a M-M relationship with the
 		current record in the bizobj. If that value doesn't exist in the other
 		table, it is added.
 		"""
-		self._CurrentCursor.mmAssociateValue(otherField, otherVal)
+		assoc = self._getAssociation(bizOrDS)
+		assoc["cursor"].mmAssociateValue(otherField, otherVal)
 
 
-	def mmDisssociateValue(self, otherField, otherVal):
+	def mmAssociateValues(self, bizOrDS, otherField, listOfValues):
+		"""
+		Adds association records so that the current record in this bizobj is associated
+		with every item in listOfValues. Other existing relationships are unaffected.
+		"""
+		assoc = self._getAssociation(bizOrDS)
+		assoc["cursor"].mmAssociateValues(otherField, listOfValues)
+
+
+	def mmDisssociateValue(self, bizOrDS, otherField, otherVal):
 		"""
 		Removes the association between the current record and the specified value
 		in the 'other' table of a M-M relationship. If no such association exists,
 		nothing happens.
 		"""
-		self._CurrentCursor.mmDisssociateValue(otherField, otherVal)
+		assoc = self._getAssociation(bizOrDS)
+		assoc["cursor"].mmDisssociateValue(otherField, otherVal)
 
 
-	def mmDisssociateAll(self):
+	def mmDisssociateValues(self, bizOrDS, otherField, listOfValues):
+		"""
+		Removes the association between the current record and every item in 'listOfValues'
+		in the 'other' table of a M-M relationship. If no such association exists,
+		nothing happens.
+		"""
+		assoc = self._getAssociation(bizOrDS)
+		assoc["cursor"].mmDisssociateValues(otherField, listOfValues)
+
+
+	def mmDisssociateAll(self, bizOrDS):
 		"""
 		Removes all associations between the current record and the associated
 		M-M table.
 		"""
-		self._CurrentCursor.mmDisssociateAll()
+		assoc = self._getAssociation(bizOrDS)
+		assoc["cursor"].mmDisssociateAll()
 
 
-	def mmSetFullAssociation(self, otherField, listOfValues):
+	def mmSetFullAssociation(self, bizOrDS, otherField, listOfValues):
 		"""
 		Adds and/or removes association records so that the current record in this
 		bizobj is associated with every item in listOfValues, and none other.
 		"""
-		self._CurrentCursor.mmSetFullAssociation(otherField, listOfValues)
+		assoc = self._getAssociation(bizOrDS)
+		assoc["cursor"].mmSetFullAssociation(otherField, listOfValues)
 
 
-	def mmAddToBoth(self, thisField, thisVal, otherField, otherVal):
+	def mmAddToBoth(self, bizOrDS, thisField, thisVal, otherField, otherVal):
 		"""
 		Creates an association in a M-M relationship. If the relationship
 		already exists, nothing changes. Otherwise, this will ensure that
 		both values exist in their respective tables, and will create the 
 		entry in the association table.
 		"""
-		return self._CurrentCursor.mmAddToBoth(thisField, thisVal, otherField, otherVal)
+		assoc = self._getAssociation(bizOrDS)
+		return assoc["cursor"].mmAddToBoth(thisField, thisVal, otherField, otherVal)
+
+
+	def mmGetAssociatedValues(self, bizOrDS, listOfFields):
+		"""
+		Given a relationship, returns the values associated with the current
+		record. 'listOfFields' can be either a single field name, or a list
+		of fields in the associated table.
+		"""
+		if not isinstance(listOfFields, (list, tuple)):
+			listOfFields = [listOfFields]
+		assoc = self._getAssociation(bizOrDS)
+		return assoc["cursor"].mmGetAssociatedValues(listOfFields)
 
 
 	########## SQL Builder interface section ##############
@@ -2128,7 +2209,8 @@ class dBizobj(dObject):
 	def createAssociation(self, mmOtherTable, mmOtherPKCol, assocTable, assocPKColThis,
 			assocPKColOther):
 		"""
-		Create a many-to-many association.
+		Create a many-to-many association. Generally it is better to use the 'addMMBizobj()'
+		method, but if you want to set this manually, use this instead of defining the JOINs.
 
 		:param mmOtherTable: the name of the table for the other half of the MM relation
 		:param mmOtherPKCol: the name of the PK column in the mmOtherTable
@@ -2271,7 +2353,7 @@ of the string will be displayed to the user."""
 	########## Post-hook interface section ##############
 
 	afterNew = _makeHookMethod("afterNew", "a new record is added",
-			additionalDoc=\
+			additionalDoc=
 """Use this hook to change field values of newly added records. If
 you change field values here, the memento system will catch it and
 prompt you to save if needed later on. If you want to change field
@@ -2296,7 +2378,7 @@ values and not trigger the memento system, override onNew() instead.
 	afterChildRequery = _makeHookMethod("afterChildRequery",
 			"the child bizobjs are requeried")
 	afterChange = _makeHookMethod("afterChange", "a record is changed",
-			additionalDoc=\
+			additionalDoc=
 """This hook will be called after a successful save() or delete(). Contrast
 with the afterSave() hook which only gets called after a save(), and the
 afterDelete() which is only called after a delete().""")
@@ -2741,13 +2823,13 @@ afterDelete() which is only called after a delete().""")
 
 
 	def _getSQL(self):
-		warnings.warn(_("""This property is deprecated, and will be removed in the next version
-of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1)
+		warnings.warn(_("This property is deprecated, and will be removed in the next version "
+				"of the framework. Use the 'UserSQL' property instead."), DeprecationWarning, 1)
 		return self.UserSQL
 
 	def _setSQL(self, val):
-		warnings.warn(_("""This property is deprecated, and will be removed in the next version
-of the framework. Use the 'UserSQL' property instead."""), DeprecationWarning, 1)
+		warnings.warn(_("This property is deprecated, and will be removed in the next version "
+				"of the framework. Use the 'UserSQL' property instead."), DeprecationWarning, 1)
 		self.UserSQL = val
 
 

@@ -30,7 +30,7 @@ class dCursorMixin(dObject):
 		if sql and isinstance(sql, basestring) and len(sql) > 0:
 			self.UserSQL = sql
 		# Attributes used for M-M relationships
-		# Temporary! until the refactoring
+		self._isMM = False
 		self._mmOtherTable = None
 		self._mmOtherPKCol = None
 		self._assocTable = None
@@ -482,7 +482,6 @@ class dCursorMixin(dObject):
 		ac.IsPrefCursor = self.IsPrefCursor
 		ac.KeyField = self.KeyField
 		ac.Table = self.Table
-		# Temporary! until the refactoring
 		ac._mmOtherTable = self._mmOtherTable
 		ac._mmOtherPKCol = self._mmOtherPKCol
 		ac._assocTable = self._assocTable
@@ -876,10 +875,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		If that record is a new unsaved record, return the temp PK value. If this is a
 		compound PK, return a tuple containing each field's values.
 		"""
+		if self._isMM:
+			# This is a cursor for handling many-many relations. Get the PK from the bizobj
+			return self._bizobj.getPK()
+		ret = None
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException(
 					_("No records in dataset '%s'.") % self.Table)
-		ret = None
 		if row is None:
 			row = self.RowNumber
 		rec = self._records[row]
@@ -1155,20 +1157,40 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self.mmAddToBoth(self.KeyField, self.getPK(), otherField, otherVal)
 
 
+	def mmAssociateValues(self, otherField, listOfValues):
+		keyField = self.KeyField
+		pk = self.getPK()
+		for val in listOfValues:
+			self.mmAddToBoth(keyField, pk, otherField, val)
+
+
 	def mmDisssociateValue(self, otherField, otherVal):
 		"""
 		Removes the association between the current record and the specified value
 		in the 'other' table of a M-M relationship. If no such association exists,
 		nothing happens.
 		"""
+		self.mmDisssociateValues(otherField, [otherVal])
+
+
+	def mmDisssociateValues(self, otherField, listOfValues):
+		"""
+		Removes the association between the current record and every item in 'listOfValues'
+		in the 'other' table of a M-M relationship. If no such association exists,
+		nothing happens.
+		"""
 		thisTable = self.Table
 		otherTable = self._mmOtherTable
-		thisPK = self.lookupPKWithAdd(thisField, thisVal, thisTable)
-		otherPK = self.lookupPKWithAdd(otherField, otherVal, otherTable)
-		aux = self.AuxCursor
-		sql = "delete from %s where %s = ? and %s = ?" % (self._assocTable,
-				self._assocPKColThis, self._assocPKColOther)
-		aux.execute(sql, (thisPK, otherPK))
+		thisPK = self.getPK()
+		for otherVal in listOfValues:
+			otherPK = self.lookupPKWithAdd(otherField, otherVal, otherTable)
+			aux = self.AuxCursor
+			sql = "delete from %s where %s = ? and %s = ?" % (self._assocTable,
+					self._assocPKColThis, self._assocPKColOther)
+			try:
+				aux.execute(sql, (thisPK, otherPK))
+			except dException.NoRecordsException:
+				pass
 
 
 	def mmDisssociateAll(self):
@@ -1178,7 +1200,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""
 		aux = self.AuxCursor
 		sql = "delete from %s where %s = ?" % (self._assocTable, self._assocPKColThis)
-		aux.execute(sql, (self.getPK(),))
+		try:
+			aux.execute(sql, (self.getPK(),))
+		except dException.NoRecordsException:
+			pass
 
 
 	def mmSetFullAssociation(self, otherField, listOfValues):
@@ -1187,10 +1212,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		is associated with every item in listOfValues, and none other.
 		"""
 		self.mmDisssociateAll()
-		keyField = self.KeyField
-		pk = self.getPK()
-		for val in listOfValues:
-			self.mmAddToBoth(keyField, pk, otherField, val)
+		self.mmAssociateValues(otherField, listOfValues)
 
 
 	def mmAddToBoth(self, thisField, thisVal, otherField, otherVal):
@@ -1212,6 +1234,28 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			sql = "insert into %s (%s, %s) values (?, ?)" % (self._assocTable,
 					self._assocPKColThis, self._assocPKColOther)
 			aux.execute(sql, (thisPK, otherPK))
+
+
+	def mmGetAssociatedValues(self, listOfFields):
+		"""
+		Returns a dataset containing the values for the specified fields
+		in the records associated with the current record.
+		"""
+		aux = self.AuxCursor
+		# Add the related table alias
+		aliased_names = ["%s.%s" % (self._mmOtherTable, fld)
+				for fld in listOfFields]
+		fldNames = ", ".join(aliased_names)
+		otherPKcol = self._mmOtherPKCol
+		aux.setFromClause(self._assocTable)
+		join = "join %s on %s.%s = %s.%s" % (self._mmOtherTable, self._assocTable,
+				self._assocPKColOther, self._mmOtherTable, self._mmOtherPKCol)
+		aux.setJoinClause(join)
+		aux.setFieldClause(fldNames)
+		aux.setWhereClause("%s.%s = ?" % (self._assocTable, self._assocPKColThis))
+		params = (self.getPK(),)
+		aux.requery(params)
+		return aux.getDataSet()
 
 
 	def getRecordStatus(self, row=None, pk=None):
@@ -2418,7 +2462,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def createAssociation(self, mmOtherTable, mmOtherPKCol, assocTable, assocPKColThis, assocPKColOther):
 		"""Create a many-to-many association."""
 		# Save locally
-		# Temporary! until the refactoring
 		self._mmOtherTable = mmOtherTable
 		self._mmOtherPKCol = mmOtherPKCol
 		self._assocTable = assocTable
