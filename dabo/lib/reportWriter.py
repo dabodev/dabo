@@ -2413,11 +2413,6 @@ class ReportWriter(object):
 						y = printBand("groupFooter", y, group)
 						self.Record = record
 
-			if cursor_idx > 0:
-				# Any report variables need their values evaluated again:
-				processVariables()
-
-
 			# print group headers for this group if necessary:
 
 			# First, start a new page if necessary. But only one new page:
@@ -2436,9 +2431,14 @@ class ReportWriter(object):
 				self.Record = _lastRecord
 				endPage()
 				self.Record = record
+				processVariables()
 				self.Canvas.showPages()
 				beginPage()
 				y = None
+
+			if not startNewPage and cursor_idx > 0:
+				# needed variable processing hasn't yet occured for this record:
+				processVariables()
 
 			# Now, iterate the groups and print them as necessary:
 			for idx, group in enumerate(groups):
