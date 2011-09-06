@@ -1681,7 +1681,9 @@ class ReportWriter(object):
 			c.clipPath(p, stroke=stroke)
 
 			img = obj.getProp("expr")
-			if isinstance(img, basestring) and "\0" not in img:
+			if img is None:
+				pass
+			elif isinstance(img, basestring) and "\0" not in img:
 				# this is a path to image file, not the image itself
 				if not os.path.exists(img):
 					img = os.path.join(self.HomeDirectory, img)
