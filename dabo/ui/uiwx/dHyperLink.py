@@ -29,19 +29,15 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 		self.ShowHover = self.ShowHover
 
 		self.Bind(hyperlink.EVT_HYPERLINK_LEFT, self._onWxHit)  ## only called if ShowInBrowser False
-		self.bindEvent(dabo.dEvents.MouseRightClick, self._onMouseRightClick)
+		self.DoPopup(False)
+
 
 
 	def refresh(self):
 		super(dHyperLink, self).refresh()
 		self.UpdateLink(True)
 
-
-	def _onMouseRightClick(self, evt):
-		if not self.ShowInBrowser:
-			## hide the popup menu with "copy hyperlink" action
-			evt.stop()
-
+	
 
 	def _setColors(self):
 		"""Updated the link with the specified colors."""
@@ -201,6 +197,7 @@ class _dHyperLink_test(dHyperLink):
 	def _onHit(self, evt):
 		print "hit"
 
+	
 	def afterInit(self):
 		self.Caption = "The Dabo Wiki"
 		self.FontSize = 24
