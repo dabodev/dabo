@@ -221,9 +221,9 @@ class dPageFrameMixin(cm.dControlMixin):
 				caption = caption.replace("&", "")
 		if imgKey:
 			idx = self._imageList[imgKey]
-			self.InsertPage(pos, pg, text=caption, imageId=idx)
+			self.InsertPage(pos, pg, text=caption, select=False, imageId=idx)
 		else:
-			self.InsertPage(pos, pg, text=caption)
+			self.InsertPage(pos, pg, text=caption, select=False)
 		self.layout()
 		insertedPage = self.Pages[pos]
 		insertedPage.Caption = caption
