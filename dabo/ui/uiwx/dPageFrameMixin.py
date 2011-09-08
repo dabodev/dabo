@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import sys
-import time
 import wx
 import dabo
 import dabo.ui
@@ -41,9 +40,8 @@ class dPageFrameMixin(cm.dControlMixin):
 
 	def __onPageChanging(self, evt):
 		"""The page has not yet been changed, so we can veto it if conditions call for it."""
-		if self != evt.EventObject:
-			# Avoid events propagated from child frames.
-			return
+		# Avoid event propagated from child frames.
+		evt.StopPropagation()
 		oldPageNum = evt.GetOldSelection()
 		newPageNum = evt.GetSelection()
 		if self._beforePageChange(oldPageNum, newPageNum) is False:
@@ -113,7 +111,7 @@ class dPageFrameMixin(cm.dControlMixin):
 				try:
 					newPage._restoreLastActiveControl()
 				except AttributeError:
-					dabo.log.error(MSG_SMART_FOCUS_ABUSE % self.Name)
+					dabo.log.warn(MSG_SMART_FOCUS_ABUSE % self.Name)
 
 
 	# Image-handling function
