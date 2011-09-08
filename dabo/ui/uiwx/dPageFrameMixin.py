@@ -126,7 +126,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			img = dabo.ui.strToBmp(img)
 		il = self.GetImageList()
 		if not il:
-			il = wx.ImageList(16, 16, initialCount=0)
+			il = wx.ImageList(img.GetWidth(), img.GetHeight(), initialCount=0)
 			self.AssignImageList(il)
 		idx = il.Add(img)
 		self._imageList[key] = idx
