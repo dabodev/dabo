@@ -60,8 +60,7 @@ class PropertyHelperMixin(object):
 		props = self.getPropertyList()
 		for arg in kwdict.keys():
 			if arg in props:
-				propdict[arg] = kwdict[arg]
-				del kwdict[arg]
+				propdict[arg] = kwdict.pop(arg)
 		return propdict
 
 
@@ -75,8 +74,7 @@ class PropertyHelperMixin(object):
 			evtdict = {}
 		onKWs = [(kw, kw[2:]) for kw in kwdict if kw.startswith("On")]
 		for kw, evtName in onKWs:
-			evtdict[evtName] = kwdict[kw]
-			del kwdict[kw]
+			evtdict[evtName] = kwdict.pop(kw)
 
 
 	@staticmethod
@@ -89,7 +87,7 @@ class PropertyHelperMixin(object):
 		is found.
 		"""
 		if not isinstance(kwdict, (tuple, list)):
-			kwdict = (kwdict, )
+			kwdict = (kwdict,)
 		ret = defaultVal
 		found = False
 		for dd in kwdict:
