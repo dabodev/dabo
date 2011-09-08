@@ -64,14 +64,8 @@ class EventMixin(object):
 			return None
 		self.__raisedEvents.append(eventSig)
 
-		eventData = None
-		if "eventData" in kwargs:
-			eventData = kwargs["eventData"]
-			del kwargs["eventData"]
-		evtObject = self
-		if "eventObject" in kwargs:
-			evtObject = kwargs["eventObject"]
-			del kwargs["eventObject"]
+		eventData = kwargs.pop("eventData", None)
+		evtObject = kwargs.pop("eventObject", self)
 
 		event = eventClass(evtObject, uiEvent=uiEvent,
 				eventData=eventData, *args, **kwargs)
