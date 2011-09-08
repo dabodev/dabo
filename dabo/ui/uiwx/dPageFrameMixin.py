@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import time
 import wx
 import dabo
@@ -212,11 +213,14 @@ class dPageFrameMixin(cm.dControlMixin):
 		if not caption:
 			# Page could have its own default caption
 			caption = pg._caption
-		if caption.count("&") == 1:
+		if caption.count("&") == 1 and caption[-1] != "&":
 			hotkey = "alt+%s" % (caption[caption.index("&")+1],)
 			self.Form.bindKey(hotkey, self._onHK)
 			pg._rawCaption = caption
-			caption = caption.replace("&", "")
+			if sys.platform.startswith("darwin"):
+				# Other platforms underline the character after the &; Mac just
+				# shows the &.
+				caption = caption.replace("&", "")
 		if imgKey:
 			idx = self._imageList[imgKey]
 			self.InsertPage(pos, pg, text=caption, imageId=idx)
