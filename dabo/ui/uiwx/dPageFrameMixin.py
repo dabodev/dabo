@@ -212,6 +212,11 @@ class dPageFrameMixin(cm.dControlMixin):
 		if not caption:
 			# Page could have its own default caption
 			caption = pg._caption
+		if caption.count("&") == 1:
+			hotkey = "alt+%s" % (caption[caption.index("&")+1],)
+			self.Form.bindKey(hotkey, self._onHK)
+			pg._rawCaption = caption
+			caption = caption.replace("&", "")
 		if imgKey:
 			idx = self._imageList[imgKey]
 			self.InsertPage(pos, pg, text=caption, imageId=idx)
@@ -318,6 +323,17 @@ class dPageFrameMixin(cm.dControlMixin):
 					ret = i
 					break
 		return ret
+
+
+	def _onHK(self, evt):
+		char = chr(evt.EventData["keyCode"]).lower()
+		for page in self.Pages:
+			if "&%s" % char in getattr(page, "_rawCaption", "").lower():
+				self.SelectedPage = page
+				page.setFocus()
+				return
+		# raise ValueError, "Caption for hotkey not found."  ## unsure if wise
+
 
 
 	# property get/set functions:
