@@ -248,7 +248,10 @@ class dControlItemMixin(dDataControlMixin):
 
 			if invalidSelections:
 				snm = self.Name
-				raise ValueError(_("Trying to set %(snm)s.Value to these invalid selections: %(invalidSelections)s") % locals())
+				dataSource = self.DataSource
+				dataField = self.DataField
+				raise ValueError(_("Trying to set %(snm)s.Value (DataSource: '%(dataSource)s', "
+						"DataField: '%(dataField)s') to these invalid selections: %(invalidSelections)s") % locals())
 
 		else:
 			self._properties["KeyValue"] = value
