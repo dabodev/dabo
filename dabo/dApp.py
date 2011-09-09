@@ -977,6 +977,10 @@ try again when it is running.
 			sys.path.insert(0, currdir)
 		for dd in self._standardDirs:
 			currmod = getattr(self, dd, None)
+			if currmod:
+				# Module has already been imported; reload to get current state.
+				reload(currmod)
+				continue
 			if sys.version.split()[0].split(".") >= ["2", "5"]:
 				try:
 					self.__setattr__(dd, __import__(dd, globals(), locals(), [], 0))
