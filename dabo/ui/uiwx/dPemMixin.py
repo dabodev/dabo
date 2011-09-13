@@ -1534,6 +1534,24 @@ class dPemMixin(dPemMixinBase):
 		return obj
 
 
+	def drawRoundedRectangle(self, xPos, yPos, width, height, radius, penColor="black",
+			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
+			mode=None, persist=True, visible=True, dc=None, useDefaults=False):
+		"""
+		Draws a rounded rectangle of the specified size beginning at the specified
+		point, with the specified corner radius.
+
+		See the 'drawCircle()' method above for more details.
+		"""
+		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
+				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
+				Shape="roundrect", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
+				Radius=radius, DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
+		# Add it to the list of drawing objects
+		obj = self._addToDrawnObjects(obj, persist)
+		return obj
+
+
 	def drawPolygon(self, points, penColor="black", penWidth=1,
 			fillColor=None, lineStyle=None, hatchStyle=None, mode=None,
 			persist=True, visible=True, dc=None, useDefaults=False):
@@ -3088,7 +3106,7 @@ class DrawObject(dObject):
 			dc.DrawArc(x1, y1, x2, y2, xc, yc)
 		elif self.Shape == "ellipticarc":
 			dc.DrawEllipticArc(self.Xpos, self.Ypos, self.Width, self.Height, self.StartAngle, self.EndAngle)
-		elif self.Shape in ("rect", "ellipse"):
+		elif self.Shape in ("rect", "roundrect", "ellipse"):
 			w, h = self.Width, self.Height
 			# If any of these values is -1, use the parent object's size
 			if w < 0:
@@ -3097,6 +3115,8 @@ class DrawObject(dObject):
 				h = self.Parent.Height
 			if self.Shape == "rect":
 				dc.DrawRectangle(x, y, w, h)
+			elif self.Shape == "roundrect":
+				dc.DrawRoundedRectangle(x, y, w, h, self.Radius)
 			else:
 				dc.DrawEllipse(x, y, w, h)
 		elif self.Shape in ("polygon", "polylines"):
@@ -3765,7 +3785,8 @@ class DrawObject(dObject):
 			_("Shorthand for (Xpos, Ypos).  (2-tuple)"))
 
 	Radius = property(_getRadius, _setRadius, None,
-			_("For circles, the radius of the shape  (int)"))
+			_("""For circles, the radius of the shape. For Rounded Rectangles,
+			the radius of the rounded corner. (int)"""))
 
 	Rect = property(_getRect, None, None,
 			_("Reference to a wx.Rect that encompasses the drawn object (read-only) (wx.Rect)"))
