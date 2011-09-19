@@ -144,7 +144,7 @@ class Form(dabo.ui.dForm):
 
 			tb.appendSeparator()
 			self.appendToolBarButton(_("Close"), "%s/actions/system-log-out.png" % iconPath,
-						OnHit=self.close, tip=_("Close"),
+						OnHit=self.Application.onWinClose, tip=_("Close"),
 						help=_("Close Form"))
 
 
