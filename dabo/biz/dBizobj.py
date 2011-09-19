@@ -1493,24 +1493,7 @@ class dBizobj(dObject):
 		return False
 
 
-	def isRowChanged(self, includeNewUnchanged=None):
-		"""
-		Return True if data has changed in the current and only current row
-		of this bizobj, without any children.
-		"""
-		if not self.RowCount:
-			# If there are no records, there can be no changes
-			return False
-		cc = self._CurrentCursor
-		if cc is None:
-			# No cursor, no changes.
-			return False
-		if includeNewUnchanged is None:
-			includeNewUnchanged = self.SaveNewUnchanged
-		return cc.isChanged(allRows=False, includeNewUnchanged=includeNewUnchanged)
-
-
-	def isChanged(self, includeNewUnchanged=None):
+	def isChanged(self, includeNewUnchanged=None, withChildren=True):
 		"""
 		Return True if data has changed in this bizobj and any children.
 
@@ -1520,15 +1503,31 @@ class dBizobj(dObject):
 		if not self.RowCount:
 			# If there are no records, there can be no changes.
 			return False
+		cursor = self._CurrentCursor
+		if cursor is None:
+			# No cursor, no changes.
+			return False
+		if includeNewUnchanged is None:
+			includeNewUnchanged = self.SaveNewUnchanged
 
-		self.__areThereAnyChanges = ret = self.isRowChanged(includeNewUnchanged=includeNewUnchanged)
+		self.__areThereAnyChanges = ret = cursor.isRowChanged(allRows=False,
+				includeNewUnchanged=includeNewUnchanged)
 
-		if not ret:
+		if not ret and withChildren:
 			for child in self.getChildren():
 				ret = child.isAnyChanged(includeNewUnchanged=includeNewUnchanged)
 				if ret:
 					break
 		return ret
+
+
+	def isRowChanged(self, includeNewUnchanged=None):
+		"""
+		Return True if data has changed in the current and only current row
+		of this bizobj, without any children.
+		"""
+		return self.isChanged(includeNewUnchanged=includeNewUnchanged,
+				withChildren=False)
 
 
 	def onDeleteLastRecord(self):
