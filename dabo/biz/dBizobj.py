@@ -1510,7 +1510,7 @@ class dBizobj(dObject):
 		if includeNewUnchanged is None:
 			includeNewUnchanged = self.SaveNewUnchanged
 
-		self.__areThereAnyChanges = ret = cursor.isRowChanged(allRows=False,
+		self.__areThereAnyChanges = ret = cursor.isChanged(allRows=False,
 				includeNewUnchanged=includeNewUnchanged)
 
 		if not ret and withChildren:
