@@ -1471,9 +1471,10 @@ class dBizobj(dObject):
 		return ret
 
 
-	def _isAnyChanged(self, useCurrentParent=False, includeNewUnchanged=None):
-		"""Contender to replace isAnyChanged(): better performance."""
-		beg = time.time()
+	def isAnyChanged(self, useCurrentParent=False, includeNewUnchanged=None):
+		"""
+		Returns True if any record in the current record set has been changed.
+		"""
 		if includeNewUnchanged is None:
 			includeNewUnchanged = self.SaveNewUnchanged
 		if useCurrentParent:
@@ -1487,40 +1488,9 @@ class dBizobj(dObject):
 			if v.isChanged(includeNewUnchanged=includeNewUnchanged):
 				return True
 		for child in self.getChildren():
-			if child._isAnyChanged(includeNewUnchanged=includeNewUnchanged):
+			if child.isAnyChanged(includeNewUnchanged=includeNewUnchanged):
 				return True
-		end = time.time()
-		## The time it takes to get to False is the longest potential time
-		#print "time for False:", end-beg, self
 		return False
-
-	
-	def isAnyChanged(self, useCurrentParent=None, includeNewUnchanged=None):
-		"""
-		Returns True if any record in the current record set has been changed.
-		"""
-		if useCurrentParent:
-			oldKey = self._CurrentCursorKey
-			crsKey = self.getParentLinkValue()
-			crs = self._cursorDictReference().get(crsKey, None)
-			if crs is None or not crs.RowCount:
-				# No cursor or records, no changes.
-				return False
-			self._CurrentCursor = crsKey
-		if not self.RowCount:
-			return False
-
-		def _isThisChanged():
-			self.exitScan = self.isChanged(includeNewUnchanged)
-			return self.exitScan
-
-		ret = self.scan(_isThisChanged, scanRequeryChildren=False)
-		if useCurrentParent:
-			self._CurrentCursor = oldKey
-		return ret
-
-
-	#isAnyChanged =_isAnyChanged  ## for testing replacement function
 
 
 	def isRowChanged(self, includeNewUnchanged=None):
@@ -2102,7 +2072,7 @@ class dBizobj(dObject):
 						_("No many-to-many association found for DataSource: '%s'." % bizOrDS))
 		return None
 
-		
+
 	def mmAssociateValue(self, bizOrDS, otherField, otherVal):
 		"""
 		Associates the value in the 'other' table of a M-M relationship with the
