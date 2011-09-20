@@ -1493,10 +1493,24 @@ class dBizobj(dObject):
 		return False
 
 
+	def _isAnyRowChanged(self, includeNewUnchanged):
+		"""
+		For internal use only.
+		"""
+		def _isThisChanged():
+			self.exitScan = self.isChanged(includeNewUnchanged)
+			return self.exitScan
+
+		ret = self.scan(_isThisChanged, scanRequeryChildren=False)
+		return bool(ret)
+
+
 	def isChanged(self, includeNewUnchanged=None, withChildren=True):
 		"""
 		Return True if data has changed in this bizobj and any children.
 
+		It's more precise than isAnyChanged() method bacuse it checks every node
+		in branch, but it generates more overhead.
 		By default, only the current record is checked. Call isAnyChanged() to
 		check all records.
 		"""
@@ -1515,7 +1529,9 @@ class dBizobj(dObject):
 
 		if not ret and withChildren:
 			for child in self.getChildren():
-				ret = child.isAnyChanged(includeNewUnchanged=includeNewUnchanged)
+				# Since isChanged is more precise than isAnyChanged, to avoid false
+				# positives from all cursors, we can't use it internally.
+				ret = child._isAnyRowChanged(includeNewUnchanged)
 				if ret:
 					break
 		return ret
@@ -1887,14 +1903,14 @@ class dBizobj(dObject):
 		return ret
 
 
-	def appendDataSet(self, ds):
+	def appendDataSet(self, ds, updateInternals=False):
 		"""
 		Appends the rows in the passed dataset to this bizobj's dataset. No checking
 		is done on the dataset columns to make sure that they are correct for this bizobj;
 		it is the responsibility of the caller to make sure that they match. If invalid data is
 		passed, a dException.FieldNotFoundException will be raised.
 		"""
-		self._CurrentCursor.appendDataSet(ds)
+		self._CurrentCursor.appendDataSet(ds, updateInternals=updateInternals)
 
 
 	def cloneRecord(self):

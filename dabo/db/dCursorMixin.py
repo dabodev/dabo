@@ -1367,7 +1367,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return dDataSet(ds)
 
 
-	def appendDataSet(self, ds):
+	def appendDataSet(self, ds, updateInternals=False):
 		"""
 		Appends the rows in the passed dataset to this cursor's dataset. No checking
 		is done on the dataset columns to make sure that they are correct for this cursor;
@@ -1380,6 +1380,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		autoPopulatePK = self.AutoPopulatePK
 		for rec in ds:
 			self.new()
+			if updateInternals:
+				self.genTempAutoPK()
+				self.setNewFlag()
 			for col, val in rec.items():
 				if autoPopulatePK and (col in kf):
 					continue
