@@ -493,9 +493,6 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 
 
 	def refresh(self):
-
-		return
-
 		super(dSlidePanelControl, self).refresh()
 		if self.CollapseToBottom:
 			rect = self.RepositionCollapsedToBottom()

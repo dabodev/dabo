@@ -1028,13 +1028,6 @@ these automatic updates.""").replace("\n", " ")
 		ret = None
 		win = self.findWindow
 		if win:
-			try:
-				return win.onFindOverride(action=action, findString=findString,
-						replaceString=replaceString, downwardSearch=downwardSearch,
-						wholeWord=wholeWord, matchCase=matchCase)
-			except AttributeError:
-				# No override; process normally
-				pass
 			if isinstance(win, wx.stc.StyledTextCtrl):
 				# STC
 				if action == "Replace":

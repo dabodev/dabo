@@ -95,11 +95,10 @@ class dDateTextBox(dTextBox):
 			self.Value = None  ## If it is still blank, default to None so the control works correctly
 		if self.showCalButton:
 			# Create a button that will display the calendar
-			self.calButton = dabo.ui.dBitmapButton(self.Parent, Picture="downArrow",
-					DownPicture="downTriangleBlack", Size=(self.Height, self.Height),
-					Left=self.Right, OnHit=self._onCalButton)
+			self.calButton = dButton(self.Parent, Size=(self.Height, self.Height),
+					Right=self.Right, Caption="V")
 			self.calButton.Visible = True
-			self.calButton.bindEvent(dEvents.Hit, _onCalButton)
+			self.calButton.bindEvent(dEvents.Hit, __onBtnClick)
 
 		# Tooltip help
 		self._defaultToolTipText = _("""Available Keys:
@@ -134,7 +133,7 @@ C: Popup Calendar to Select
 		self.showCalendar()
 
 
-	def _onCalButton(self,evt):
+	def __onBtnClick(self,evt):
 		"""Display a calendar to allow users to select dates."""
 		self.showCalendar()
 
@@ -469,12 +468,5 @@ C: Popup Calendar to Select
 
 
 if __name__ == "__main__":
-	class TestForm(dabo.ui.dForm):
-		def afterInit(self):
-			self.datetext = dDateTextBox(self, Value=datetime.date.today())
-			self.Sizer.append(self.datetext, halign="center", border=25)
-	
-	app = dabo.dApp(MainFormClass=TestForm)
-	app.start()
-# 	import test
-# 	test.Test().runTest(dDateTextBox)
+	import test
+	test.Test().runTest(dDateTextBox)

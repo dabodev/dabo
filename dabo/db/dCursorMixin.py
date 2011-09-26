@@ -1194,8 +1194,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		for otherVal in listOfValues:
 			otherPK = self.lookupPKWithAdd(otherField, otherVal, otherTable)
 			aux = self.AuxCursor
-			sql = self._qMarkToParamPlaceholder("delete from %s where %s = ? and %s = ?"
-					% (self._assocTable, self._assocPKColThis, self._assocPKColOther))
+			sql = "delete from %s where %s = ? and %s = ?" % (self._assocTable,
+					self._assocPKColThis, self._assocPKColOther)
 			try:
 				dabo.dbActivityLog.info("mmDisssociateValues() SQL: %s, PARAMS: %s" % (
 						sql.decode(self.Encoding).replace("\n", " "), str((self._assocTable,
@@ -1218,8 +1218,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		M-M table.
 		"""
 		aux = self.AuxCursor
-		sql = self._qMarkToParamPlaceholder("delete from %s where %s = ?"
-				% (self._assocTable, self._assocPKColThis))
+		sql = "delete from %s where %s = ?" % (self._assocTable, self._assocPKColThis)
 		try:
 			dabo.dbActivityLog.info("mmDisssociateAll() SQL: %s" % (
 					sql.decode(self.Encoding).replace("\n", " ")))
@@ -1252,8 +1251,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		thisPK = self.lookupPKWithAdd(thisField, thisVal, thisTable)
 		otherPK = self.lookupPKWithAdd(otherField, otherVal, otherTable)
 		aux = self.AuxCursor
-		sql = self._qMarkToParamPlaceholder("select * from %s where %s = ? and %s = ?"
-				% (self._assocTable, self._assocPKColThis, self._assocPKColOther))
+		sql = "select * from %s where %s = ? and %s = ?" % (self._assocTable,
+				self._assocPKColThis, self._assocPKColOther)
 		try:
 			dabo.dbActivityLog.info("mmAddToBoth() SQL: %s, PARAMS: %s" % (
 					sql.decode(self.Encoding).replace("\n", " "), str((thisPK, otherPK))))
@@ -1265,8 +1264,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				dabo.dbActivityLog.info("mmAddToBoth() (failed to log SQL and PARAMS)")
 		aux.execute(sql, (thisPK, otherPK))
 		if not aux.RowCount:
-			sql = self._qMarkToParamPlaceholder("insert into %s (%s, %s) values (?, ?)"
-					% (self._assocTable, self._assocPKColThis, self._assocPKColOther))
+			sql = "insert into %s (%s, %s) values (?, ?)" % (self._assocTable,
+					self._assocPKColThis, self._assocPKColOther)
 			aux.execute(sql, (thisPK, otherPK))
 
 
@@ -1286,8 +1285,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				self._assocPKColOther, self._mmOtherTable, self._mmOtherPKCol)
 		aux.setJoinClause(join)
 		aux.setFieldClause(fldNames)
-		aux.setWhereClause(self._qMarkToParamPlaceholder("%s.%s = ?"
-				% (self._assocTable, self._assocPKColThis)))
+		aux.setWhereClause("%s.%s = ?" % (self._assocTable, self._assocPKColThis))
 		params = (self.getPK(),)
 		aux.requery(params)
 		return aux.getDataSet()
