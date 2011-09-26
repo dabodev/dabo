@@ -28,11 +28,18 @@ class QueryException(dException):
 class BusinessRuleViolation(dException):
 	pass
 
+
 class BusinessRulePassed(dException):
 	pass
 
+
 class RowNotFoundException(dException):
 	pass
+
+
+class DataSourceNotFoundException(dException):
+	pass
+
 
 class FeatureNotImplementedException(dException):
 	pass

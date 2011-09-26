@@ -5,6 +5,7 @@ import dPemMixin as pm
 import dIcons
 import dabo
 from dabo.dLocalize import _
+import dabo.dColors as dColors
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 from dabo.lib.utils import ustr
@@ -107,6 +108,19 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 			self._properties["Enabled"] = val
 
 
+	def _getForeColor(self):
+		return self.GetTextColour().Get()
+
+	def _setForeColor(self, val):
+		if self._constructed():
+			if isinstance(val, basestring):
+				val = dColors.colorTupleFromName(val)
+			if val != self.GetTextColour().Get():
+				self.SetTextColour(val)
+		else:
+			self._properties["ForeColor"] = val
+
+
 	def _getForm(self):
 		return self.Parent.Form
 
@@ -181,6 +195,10 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("Specifies whether the menu item can be interacted with."))
+
+	ForeColor = property(_getForeColor, _setForeColor, None,
+			_("""Specifies the foreground color of the object. 
+			Only available on Windows and Gtk. (str, 3-tuple, or wx.Colour)"""))
 
 	Form = property(_getForm, None, None,
 			_("Specifies the containing form."))

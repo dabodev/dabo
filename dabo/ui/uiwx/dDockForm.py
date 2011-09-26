@@ -87,10 +87,7 @@ class dDockPanel(dabo.ui.dPanel):
 		self._toolbar = self._extractKey(kwargs, "Toolbar", False)
 
 		# Initialize attributes that underly properties
-		self._bottomDockable = True
-		self._leftDockable = True
-		self._rightDockable = True
-		self._topDockable = True
+		self._dockable = self._bottomDockable = self._leftDockable = self._rightDockable = self._topDockable = True
 		self._floatable = True
 		self._floatingPosition = (0, 0)
 		self._floatingSize = (100, 100)
@@ -148,7 +145,9 @@ class dDockPanel(dabo.ui.dPanel):
 		"""Float the panel if it isn't already floating."""
 		if self.Floating or not self.Floatable:
 			return
+		pos = self.FloatingPosition
 		self._PaneInfo.Float()
+# 		self.Position = pos
 		self._updateAUI()
 
 
@@ -216,10 +215,33 @@ class dDockPanel(dabo.ui.dPanel):
 		return (nm, inf.replace("name=%s;" % nm, ""))
 
 
+	def _forceUpdate(self, mthd, val):
+		"""Seems that some of the properties, when change, do not manifest themselves
+		until the panel is docked; once docked, they retain the changes even when re-floated.
+		This method forces a docking and restores floating state to force visual update
+		of such properties.
+		"""
+		self.Form.lockDisplay()
+		isFloating = self.Floating
+		self.dock()
+		pi = self._PaneInfo
+		mthd = getattr(pi, mthd)
+		mthd(val)
+		self._updateAUI()
+		if isFloating:
+			def refloat():
+				self.float()
+				self.Form.unlockDisplay()
+			dabo.ui.callAfterInterval(100, refloat)
+		else:
+			dabo.ui.callAfterInterval(100, self.Form.unlockDisplay)
+
+
 	def _updateAUI(self):
 		frm = self.Form
 		if frm is not None:
 			frm._refreshState()
+			print self.Caption, dabo.dBug.logPoint()
 		else:
 			try:
 				self._Manager.runUpdate()
@@ -263,6 +285,9 @@ class dDockPanel(dabo.ui.dPanel):
 
 	def _setBottomDockable(self, val):
 		if self._constructed():
+			if self._bottomDockable == val:
+				return
+			self._bottomDockable = val
 			self._PaneInfo.BottomDockable(val)
 			self._updateAUI()
 		else:
@@ -297,15 +322,22 @@ class dDockPanel(dabo.ui.dPanel):
 
 
 	def _getDockable(self):
-		return self._bottomDockable or self._leftDockable or self._rightDockable or self._topDockable
+		return self._dockable
 
 	def _setDockable(self, val):
 		if self._constructed():
-			self._dockable = self._bottomDockable = self._leftDockable = self._rightDockable = self._topDockable = val
+			if self._dockable == val:
+				return
+			td, bd, ld, rd = self._topDockable, self._bottomDockable, self._leftDockable, self._rightDockable
+			self._dockable = val
 			self._PaneInfo.Dockable(val)
 			if self.Docked:
 				self.Docked = val
+			if not self._dockable and not self._floatable:
+				# One has to be true
+				self.Floatable = True
 			self._updateAUI()
+			self.TopDockable, self.BottomDockable, self.LeftDockable, self.RightDockable = td, bd, ld, rd
 		else:
 			self._properties["Dockable"] = val
 
@@ -346,8 +378,15 @@ class dDockPanel(dabo.ui.dPanel):
 
 	def _setFloatable(self, val):
 		if self._constructed():
+			if self._floatable == val:
+				return
 			self._floatable = val
 			self._PaneInfo.Floatable(val)
+			if self.Floating:
+				self.Floating = val
+			if not self._floatable and not self._dockable:
+				# One has to be true
+				self.Dockable = True
 			self._updateAUI()
 		else:
 			self._properties["Floatable"] = val
@@ -520,6 +559,9 @@ class dDockPanel(dabo.ui.dPanel):
 
 	def _setLeftDockable(self, val):
 		if self._constructed():
+			if self._leftDockable == val:
+				return
+			self._leftDockable = val
 			self._PaneInfo.LeftDockable(val)
 			self._updateAUI()
 		else:
@@ -584,6 +626,9 @@ class dDockPanel(dabo.ui.dPanel):
 
 	def _setRightDockable(self, val):
 		if self._constructed():
+			if self._rightDockable == val:
+				return
+			self._rightDockable = val
 			self._PaneInfo.RightDockable(val)
 			self._updateAUI()
 		else:
@@ -638,8 +683,9 @@ class dDockPanel(dabo.ui.dPanel):
 			if val == self._showGripper:
 				return
 			self._showGripper = val
-			self._PaneInfo.Gripper(val)
-			self._updateAUI()
+			self._forceUpdate("Gripper", val)
+# 			self._PaneInfo.Gripper(val)
+# 			self._updateAUI()
 		else:
 			self._properties["ShowGripper"] = val
 
@@ -703,6 +749,9 @@ class dDockPanel(dabo.ui.dPanel):
 
 	def _setTopDockable(self, val):
 		if self._constructed():
+			if self._topDockable == val:
+				return
+			self._topDockable = val
 			self._PaneInfo.TopDockable(val)
 			self._updateAUI()
 		else:
@@ -1007,62 +1056,121 @@ class _dDockForm_test(dDockForm):
 
 	def afterInit(self):
 		self.fp = self.addPanel(Floating=True, BackColor="orange",
-				Caption="Initially Floating", Top=70, Left=200, Size=(144, 100))
+				Top=70, Left=200, Size=(144, 100), DynamicCaption=self.capForOrange)
 		self.dp = self.addPanel(Floating=False, Caption="Initially Docked", BackColor="slateblue",
 				ShowCaption=False, ShowPinButton=True, ShowCloseButton=False,
 				ShowGripper=True, Size=(144, 100))
-		btn = dabo.ui.dButton(self.CenterPanel, Caption="Test Orange", OnHit=self.onTestFP)
-		self.CenterPanel.Sizer.append(btn)
-		btn = dabo.ui.dButton(self.CenterPanel, Caption="Test Blue", OnHit=self.onTestDP)
-		self.CenterPanel.Sizer.append(btn)
-		chk = dabo.ui.dCheckBox(self.CenterPanel, Caption="Orange Dockable", DataSource=self.fp,
+		cp = self.CenterPanel
+		self.ddPanel = dabo.ui.dDropdownList(cp, Choices=["Orange", "Blue"], Keys=[self.fp, self.dp],
+				PositionValue=0)
+		sz = cp.Sizer
+		print "SZ", sz
+		sz.append(self.ddPanel, halign="center", border=33)
+		bsz = dabo.ui.dBorderSizer(cp, Caption="Properties")
+		sz.append(bsz, border=10, halign="center")
+		gsz = dabo.ui.dGridSizer(MaxRows=10)
+		bsz.append1x(gsz, border=4)
+		chk = dabo.ui.dCheckBox(cp, Caption="Dockable", DataSource=self.getCurrentObject,
 				DataField="Dockable")
-		self.CenterPanel.Sizer.append(chk)
-		self.fp.DynamicCaption = self.capForOrange
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="TopDockable", DataSource=self.getCurrentObject,
+				DataField="TopDockable")
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="BottomDockable", DataSource=self.getCurrentObject,
+				DataField="BottomDockable")
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="RightDockable", DataSource=self.getCurrentObject,
+				DataField="RightDockable")
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="LeftDockable", DataSource=self.getCurrentObject,
+				DataField="LeftDockable")
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="Docked", DataSource=self.getCurrentObject,
+				DataField="Docked")
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="Floatable", DataSource=self.getCurrentObject,
+				DataField="Floatable")
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="Floating", DataSource=self.getCurrentObject,
+				DataField="Floating")
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="Movable", DataSource=self.getCurrentObject,
+				DataField="Movable")
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="Resizable", DataSource=self.getCurrentObject,
+				DataField="Resizable")
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="ShowBorder", DataSource=self.getCurrentObject,
+				DataField="ShowBorder")
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="ShowCaption", DataSource=self.getCurrentObject,
+				DataField="ShowCaption")
+		gsz.append(chk)
+# 		chk = dabo.ui.dCheckBox(cp, Caption="ShowCloseButton", DataSource=self.getCurrentObject,
+# 				DataField="ShowCloseButton")
+# 		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="ShowGripper", DataSource=self.getCurrentObject,
+				DataField="ShowGripper")
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="ShowMaximizeButton", DataSource=self.getCurrentObject,
+				DataField="ShowMaximizeButton")
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="ShowMinimizeButton", DataSource=self.getCurrentObject,
+				DataField="ShowMinimizeButton")
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="ShowPinButton", DataSource=self.getCurrentObject,
+				DataField="ShowPinButton")
+		gsz.append(chk)
+		chk = dabo.ui.dCheckBox(cp, Caption="Visible", DataSource=self.getCurrentObject,
+				DataField="Visible")
+		gsz.append(chk)
+		
+		self.layout()
 
+	def getCurrentObject(self):
+		return self.ddPanel.KeyValue
+		
 	def capForOrange(self):
-		print "ORNG CAP", self.fp.Docked
 		state = "Floating"
 		if self.fp.Docked:
 			state = "Docked"
-		print "STATE", state
 		return "I'm %s!" % state
 
-	def onTestFP(self, evt):
-		self.printTest(self.fp)
-	def onTestDP(self, evt):
-		self.printTest(self.dp)
-	def printTest(self, obj):
-		nm = {self.fp: "OrangePanel", self.dp: "BluePanel"}[obj]
-		print nm + ".BottomDockable:", obj.BottomDockable
-		print nm + ".Caption:", obj.Caption
-		print nm + ".DestroyOnClose:", obj.DestroyOnClose
-		print nm + ".Dockable:", obj.Dockable
-		print nm + ".Docked:", obj.Docked
-		print nm + ".Floatable:", obj.Floatable
-		print nm + ".Floating:", obj.Floating
-		print nm + ".FloatingBottom:", obj.FloatingBottom
-		print nm + ".FloatingHeight:", obj.FloatingHeight
-		print nm + ".FloatingLeft:", obj.FloatingLeft
-		print nm + ".FloatingPosition:", obj.FloatingPosition
-		print nm + ".FloatingRight:", obj.FloatingRight
-		print nm + ".FloatingSize:", obj.FloatingSize
-		print nm + ".FloatingTop:", obj.FloatingTop
-		print nm + ".FloatingWidth:", obj.FloatingWidth
-		print nm + ".GripperPosition:", obj.GripperPosition
-		print nm + ".LeftDockable:", obj.LeftDockable
-		print nm + ".Movable:", obj.Movable
-		print nm + ".Resizable:", obj.Resizable
-		print nm + ".RightDockable:", obj.RightDockable
-		print nm + ".ShowBorder:", obj.ShowBorder
-		print nm + ".ShowCaption:", obj.ShowCaption
-		print nm + ".ShowCloseButton:", obj.ShowCloseButton
-		print nm + ".ShowGripper:", obj.ShowGripper
-		print nm + ".ShowMaximizeButton:", obj.ShowMaximizeButton
-		print nm + ".ShowMinimizeButton:", obj.ShowMinimizeButton
-		print nm + ".ShowPinButton:", obj.ShowPinButton
-		print nm + ".TopDockable:", obj.TopDockable
-		print nm + ".Visible:", obj.Visible
+# 	def onTestFP(self, evt):
+# 		self.printTest(self.fp)
+# 	def onTestDP(self, evt):
+# 		self.printTest(self.dp)
+# 	def printTest(self, obj):
+# 		nm = {self.fp: "OrangePanel", self.dp: "BluePanel"}[obj]
+# 		print nm + ".BottomDockable:", obj.BottomDockable
+# 		print nm + ".Caption:", obj.Caption
+# 		print nm + ".DestroyOnClose:", obj.DestroyOnClose
+# 		print nm + ".Dockable:", obj.Dockable
+# 		print nm + ".Docked:", obj.Docked
+# 		print nm + ".Floatable:", obj.Floatable
+# 		print nm + ".Floating:", obj.Floating
+# 		print nm + ".FloatingBottom:", obj.FloatingBottom
+# 		print nm + ".FloatingHeight:", obj.FloatingHeight
+# 		print nm + ".FloatingLeft:", obj.FloatingLeft
+# 		print nm + ".FloatingPosition:", obj.FloatingPosition
+# 		print nm + ".FloatingRight:", obj.FloatingRight
+# 		print nm + ".FloatingSize:", obj.FloatingSize
+# 		print nm + ".FloatingTop:", obj.FloatingTop
+# 		print nm + ".FloatingWidth:", obj.FloatingWidth
+# 		print nm + ".GripperPosition:", obj.GripperPosition
+# 		print nm + ".LeftDockable:", obj.LeftDockable
+# 		print nm + ".Movable:", obj.Movable
+# 		print nm + ".Resizable:", obj.Resizable
+# 		print nm + ".RightDockable:", obj.RightDockable
+# 		print nm + ".ShowBorder:", obj.ShowBorder
+# 		print nm + ".ShowCaption:", obj.ShowCaption
+# 		print nm + ".ShowCloseButton:", obj.ShowCloseButton
+# 		print nm + ".ShowGripper:", obj.ShowGripper
+# 		print nm + ".ShowMaximizeButton:", obj.ShowMaximizeButton
+# 		print nm + ".ShowMinimizeButton:", obj.ShowMinimizeButton
+# 		print nm + ".ShowPinButton:", obj.ShowPinButton
+# 		print nm + ".TopDockable:", obj.TopDockable
+# 		print nm + ".Visible:", obj.Visible
 
 
 

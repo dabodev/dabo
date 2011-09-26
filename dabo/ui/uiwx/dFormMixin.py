@@ -300,6 +300,9 @@ class dFormMixin(pm.dPemMixin):
 		refresh. In these cases, pass an interval of 0 to this method, which
 		means don't wait; execute now.
 		"""
+		
+		return
+
 		if interval is None:
 			interval = 100
 		if interval == 0:

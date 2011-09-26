@@ -38,14 +38,31 @@ class SimpleCrypt(object):
 		self._cryptoProvider = None
 		# If the Crypto package is available, use it.
 		self._useDES3 = (self.__key is not None)
+		self._useAES = (self.__key is not None)
 		if self._useDES3:
 			try:
 				from Crypto.Cipher import DES3
 			except ImportError:
 				self._useDES3 = False
-		if self._useDES3:
+
+		if self.__key:
 			self.__key = self.__key[:16].rjust(16, "@")
+			
+		if self._useDES3:
 			self._cryptoProvider = DES3.new(self.__key, DES3.MODE_CBC)
+
+		if self._useAES:
+			try:
+				from Crypto.Cipher import AES
+			except ImportError:
+				self._useAES = False
+
+		# TEMP!!!
+		self._useAES = False
+
+		if self._useAES:
+			print "KEY", self.__key, divmod(len(self.__key), 16)
+			self._cryptoProviderAES = AES.new(self.__key, AES.MODE_CBC)
 
 
 	def showWarning(self):
@@ -65,7 +82,21 @@ class SimpleCrypt(object):
 			paddedText = "%s%s%s" % (initialPad, pad, aString)
 			enc = self._cryptoProvider.encrypt(paddedText)
 			retText = "%s%s" % (diffToEight, enc)
+			
 			return base64.b64encode(retText)
+
+			if self._useAES:
+				# AES requires multiples of 16, not 8
+				initialPad = "".join(random.sample(string.printable, 16))
+				strLen = len(aString)
+				diffTo16 = 16 - (strLen % 16)
+				pad = "@" * diffTo16
+				print "PADLEN", len(pad)
+				paddedText = "%s%s%s" % (initialPad, pad, aString)
+				encAES = self._cryptoProviderAES.encrypt(paddedText)
+				retTextAES = "%s%s" % (diffToEight, encAES)
+
+			return base64.b64encode(retTextAES)
 		else:
 			self.showWarning()
 			tmpKey = self.generateKey(aString)
@@ -81,6 +112,8 @@ class SimpleCrypt(object):
 			return ""
 		if self._useDES3:
 			decString = base64.b64decode(aString)
+# 			print "FIRST", int(decString[0])
+# 			print "SEC", int(decString[1])
 			# We need to chop off any padding, along with the first 8 garbage bytes
 			padlen = int(decString[0]) + 8
 			decString = decString[1:]
@@ -116,4 +149,12 @@ class SimpleCrypt(object):
 		except IndexError:
 			raise ValueError(_("Incorrectly-encrypted password"))
 		return "".join(chunks)
+
+
+if __name__ == "__main__":
+	s = SimpleCrypt(key="What a long $trange trip it's been")
+	orig = "biteme"
+	enc = s.encrypt(orig)
+	dec = s.decrypt(enc)
+	print "Success=%s" % (dec == orig)
 

@@ -144,6 +144,7 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 
 	def _processKey(self, evt):
 		key = evt.EventData["keyCode"]
+		print "KEY", key
 		if key == 43:		# +
 			self.dayInterval(1)
 		elif key == 45:		# -

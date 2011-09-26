@@ -34,6 +34,9 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 
 
 	def refresh(self):
+
+		return
+
 		super(dHyperLink, self).refresh()
 		self.UpdateLink(True)
 
@@ -191,6 +194,15 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 			_("Is the link underlined in the visited state?  (bool)"))
 
 	ForeColor = LinkColor
+
+	DynamicHoverColor = makeDynamicProperty(HoverColor)
+	DynamicHoverUnderline = makeDynamicProperty(HoverUnderline)
+	DynamicLinkColor = makeDynamicProperty(LinkColor)
+	DynamicLinkUnderline = makeDynamicProperty(LinkUnderline)
+	DynamicURL = makeDynamicProperty(URL)
+	DynamicVisitedColor = makeDynamicProperty(VisitedColor)
+	DynamicVisitedUnderline = makeDynamicProperty(VisitedUnderline)
+
 
 
 class _dHyperLink_test(dHyperLink):
