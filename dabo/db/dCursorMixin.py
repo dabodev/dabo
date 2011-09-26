@@ -1139,6 +1139,15 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if tbl is None:
 			tbl = self.Table
 		sql = "select %s from %s where %s = ?" % (self.KeyField, tbl, field)
+		try:
+			dabo.dbActivityLog.info("lookupPKWithAdd() SQL: %s, PARAMS: %s" % (
+					sql.decode(self.Encoding).replace("\n", " "), "(%s, )" % val))
+		except StandardError:
+			# A problem with writing to the log, most likely due to encoding issues
+			try:
+				dabo.dbActivityLog.info("lookupPKWithAdd() SQL (failed to log PARAMS): %r" % sql)
+			except StandardError:
+				dabo.dbActivityLog.info("lookupPKWithAdd() (failed to log SQL and PARAMS)")
 		aux.execute(sql, (val,))
 		if aux.RowCount:
 			return aux.getPK()
@@ -1188,6 +1197,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			sql = "delete from %s where %s = ? and %s = ?" % (self._assocTable,
 					self._assocPKColThis, self._assocPKColOther)
 			try:
+				dabo.dbActivityLog.info("mmDisssociateValues() SQL: %s, PARAMS: %s" % (
+						sql.decode(self.Encoding).replace("\n", " "), str((self._assocTable,
+					self._assocPKColThis, self._assocPKColOther))))
+			except StandardError:
+				# A problem with writing to the log, most likely due to encoding issues
+				try:
+					dabo.dbActivityLog.info("mmDisssociateValues() SQL (failed to log PARAMS): %r" % sql)
+				except StandardError:
+					dabo.dbActivityLog.info("mmDisssociateValues() (failed to log SQL and PARAMS)")
+			try:
 				aux.execute(sql, (thisPK, otherPK))
 			except dException.NoRecordsException:
 				pass
@@ -1200,6 +1219,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""
 		aux = self.AuxCursor
 		sql = "delete from %s where %s = ?" % (self._assocTable, self._assocPKColThis)
+		try:
+			dabo.dbActivityLog.info("mmDisssociateAll() SQL: %s" % (
+					sql.decode(self.Encoding).replace("\n", " ")))
+		except StandardError:
+			dabo.dbActivityLog.info("mmDisssociateAll() (failed to log SQL")
 		try:
 			aux.execute(sql, (self.getPK(),))
 		except dException.NoRecordsException:
@@ -1229,6 +1253,15 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		aux = self.AuxCursor
 		sql = "select * from %s where %s = ? and %s = ?" % (self._assocTable,
 				self._assocPKColThis, self._assocPKColOther)
+		try:
+			dabo.dbActivityLog.info("mmAddToBoth() SQL: %s, PARAMS: %s" % (
+					sql.decode(self.Encoding).replace("\n", " "), str((thisPK, otherPK))))
+		except StandardError:
+			# A problem with writing to the log, most likely due to encoding issues
+			try:
+				dabo.dbActivityLog.info("mmAddToBoth() SQL (failed to log PARAMS): %r" % sql)
+			except StandardError:
+				dabo.dbActivityLog.info("mmAddToBoth() (failed to log SQL and PARAMS)")
 		aux.execute(sql, (thisPK, otherPK))
 		if not aux.RowCount:
 			sql = "insert into %s (%s, %s) values (?, ?)" % (self._assocTable,
