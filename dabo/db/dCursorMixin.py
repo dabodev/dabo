@@ -1138,7 +1138,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		aux = self.AuxCursor
 		if tbl is None:
 			tbl = self.Table
-		sql = "select %s from %s where %s = ?" % (self.KeyField, tbl, field)
+		sql = self._qMarkToParamPlaceholder("select %s from %s where %s = ?"
+				% (self.KeyField, tbl, field))
 		try:
 			dabo.dbActivityLog.info("lookupPKWithAdd() SQL: %s, PARAMS: %s" % (
 					sql.decode(self.Encoding).replace("\n", " "), "(%s, )" % val))
@@ -1153,7 +1154,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			return aux.getPK()
 		else:
 			# Add the record
-			sql = "insert into %s (%s) values (?)" % (tbl, field)
+			sql = self._qMarkToParamPlaceholder("insert into %s (%s) values (?)"
+					% (tbl, field))
 			aux.execute(sql, (val,))
 			return aux.getLastInsertID()
 
