@@ -2109,7 +2109,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return (recnum > -1)
 
 
-	def seek(self, val, fld=None, caseSensitive=True, near=False, movePointer=True):
+	def seek(self, val, fld=None, caseSensitive=True, near=False, movePointer=True, 
+			sort=True, incremental=False):
 		"""
 		Find the first row where the field value matches the passed value.
 
@@ -2118,6 +2119,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		True, a match will happen on the row whose value is the greatest value
 		that is less than the passed value. If 'caseSensitive' is set to False,
 		string comparisons are done in a case-insensitive fashion.
+
+		If sort is True (the default), then we seek to the first matching value
+		without sorting first. 
+
+		If incremental is True (default is False), then we only compare the first
+		characters up until the length of val.
 		"""
 		ret = -1
 		if fld is None:
@@ -2179,10 +2186,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				except ValueError:
 					val = float(0)
 
-		if compString and not caseSensitive:
-			sortList.sort(key=caseInsensitiveSortKey)
-		else:
-			sortList.sort()
+		if sort:
+			if compString and not caseSensitive:
+				sortList.sort(key=caseInsensitiveSortKey)
+			else:
+				sortList.sort()
 
 		if compString and not caseSensitive:
 			# Change all of the first elements to lower case
@@ -2207,13 +2215,29 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			ret = sortList[idx][1]
 		except ValueError:
 			if near:
-				# Find the first row greater than the match value
-				numSmaller = len([testVal for testVal in searchList
-						if testVal < matchVal])
-				try:
-					ret = sortList[numSmaller][1]
-				except IndexError:
+				if incremental:
+					# Match the next string only taking into account the first characters
+					# up to the length of matchStr (so that seeking for 'AB' will bring up 
+					# 'AB-PC' instead of 'FW-PC'.
+
 					ret = len(sortList) - 1
+					for idx, testVal in enumerate(searchList):
+						if isinstance(testVal, basestring) and isinstance(matchVal, basestring):
+							if len(testVal) >= len(matchVal) and testVal[:len(matchVal)] == matchVal:
+								ret = sortList[idx][1]
+								break
+						elif not isinstance(matchVal, basestring) and testVal > matchVal:
+							ret = idx
+							break
+				else:
+					# Find the first row greater than the match value
+					numSmaller = len([testVal for testVal in searchList
+							if testVal < matchVal])
+					try:
+						ret = sortList[numSmaller][1]
+					except IndexError:
+						ret = len(sortList) - 1
+
 		if movePointer and ret > -1:
 			# Move the record pointer
 			self.RowNumber = ret

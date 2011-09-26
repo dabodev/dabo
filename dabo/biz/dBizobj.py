@@ -1446,7 +1446,8 @@ class dBizobj(dObject):
 		return ret
 
 
-	def seek(self, val, fld=None, caseSensitive=False, near=False, runRequery=True):
+	def seek(self, val, fld=None, caseSensitive=False, near=False, runRequery=True, 
+			sort=True, incremental=False):
 		"""
 		Search for a value in a field, and move the record pointer to the match.
 
@@ -1461,9 +1462,16 @@ class dBizobj(dObject):
 		If runRequery is True, and the record pointer is moved, all child bizobjs
 		will be requeried, and the afterPointerMove() hook method will fire.
 
+		If sort is True (the default), then we seek to the first matching value
+		without sorting first. 
+
+		If incremental is True (default is False), then we only compare the first
+		characters up until the length of val.
+		
 		Returns the RowNumber of the found record, or -1 if no match found.
 		"""
-		ret = self._CurrentCursor.seek(val, fld, caseSensitive, near)
+		ret = self._CurrentCursor.seek(val, fld, caseSensitive, near, 
+				sort=sort, incremental=incremental)
 		if ret != -1:
 			if runRequery:
 				self.requeryAllChildren()
