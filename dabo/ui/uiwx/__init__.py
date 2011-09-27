@@ -423,7 +423,7 @@ def getEventData(wxEvt):
 
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent, wx.TreeEvent,
 			wx.CommandEvent, wx.CloseEvent, wx.grid.GridEvent,
-			wx.grid.GridSizeEvent, wx.SplitterEvent) ):
+			wx.grid.GridSizeEvent, wx.SplitterEvent)):
 
 		if dabo.allNativeEventInfo:
 			# Cycle through all the attributes of the wx events, and evaluate them
@@ -442,13 +442,13 @@ def getEventData(wxEvt):
 				except (AttributeError, TypeError, wx._core.PyAssertionError):
 					pass
 
-	if isinstance(wxEvt, (wx.SplitterEvent,) ):
+	if isinstance(wxEvt, (wx.SplitterEvent,)):
 		try:
 			ed["mousePosition"] = (wxEvt.GetX(), wxEvt.GetY())
 		except wx.PyAssertionError:
 			ed["mousePosition"] = wx.GetMousePosition()
 
-	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent) ):
+	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent)):
 		ed["mousePosition"] = wxEvt.GetPositionTuple()
 		ed["altDown"] = wxEvt.AltDown()
 		ed["commandDown"] = wxEvt.CmdDown()
@@ -465,7 +465,6 @@ def getEventData(wxEvt):
 
 	if isinstance(wxEvt, wx.ListEvent):
 		pos = wxEvt.GetPosition()
-		obj = wxEvt.GetEventObject()
 		ht = obj.HitTest(pos)
 		try:
 			idx, flg = ht
@@ -496,7 +495,6 @@ def getEventData(wxEvt):
 		except AttributeError:
 			pass
 		# See if it's a menu selection
-		obj = wxEvt.GetEventObject()
 		if isinstance(obj, dMenu):
 			itmID = wxEvt.GetId()
 			itm = obj._daboChildren.get(itmID, None)
@@ -555,9 +553,10 @@ def getEventData(wxEvt):
 	if isinstance(wxEvt, wx.SplitterEvent):
 		try:
 			ed["sashPosition"] = wxEvt.GetSashPosition()
-		except AttributeError:
-			ed["sashPosition"] = wxEvt.GetEventObject().SashPosition
-		if wxEvt.GetEventType() == wx.EVT_SPLITTER_UNSPLIT.evtType[0]:
+		except (AttributeError, wx.PyAssertionError):
+			# On wx 2.8.12 the PyAssertionError exception is raised.
+			ed["sashPosition"] = obj.SashPosition
+		if eventType == wx.EVT_SPLITTER_UNSPLIT.evtType[0]:
 			try:
 				ed["windowRemoved"] = wxEvt.GetWindowBeingRemoved()
 			except AttributeError:
@@ -613,7 +612,7 @@ def getEventData(wxEvt):
 	if isinstance(wxEvt, wx.lib.foldpanelbar.CaptionBarEvent):
 		ed["expanded"] = wxEvt.GetFoldStatus()
 		ed["collapsed"] = not ed["expanded"]
-		ed["panel"] = wxEvt.GetEventObject().GetParent()
+		ed["panel"] = obj.GetParent()
 
 	try:
 		if isinstance(wxEvt, wx.html.HtmlLinkEvent):
