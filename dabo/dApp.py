@@ -1327,12 +1327,8 @@ try again when it is running.
 		prefKey = "display_info_messages.%s" % msgId
 		if not self.getUserSetting(prefKey, True):
 			return
-		from dabo.ui.dialogs.infoMessage import DlgInfoMessage
-		dlg = DlgInfoMessage(Message=msg, DefaultShowInFuture=defaultShowInFuture)
-		dlg.show()
-		if not dlg.chkShowInFuture.Value:
-			self.setUserSetting(prefKey, False)
-		dlg.release()
+		future = self.uiApp.displayInfoMessage(msg, defaultShowInFuture=defaultShowInFuture)
+		self.setUserSetting(prefKey, future)
  
 
 	def clearActiveForm(self, frm):

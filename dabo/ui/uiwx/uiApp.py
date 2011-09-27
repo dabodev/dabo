@@ -365,6 +365,16 @@ these automatic updates.""").replace("\n", " ")
 		dlg.release()
 
 
+	def displayInfoMessage(self, msg, defaultShowInFuture=True):
+		"""Display a dialog to the user that includes an option to not show the message again."""
+		from dabo.ui.dialogs.infoMessage import DlgInfoMessage
+		dlg = DlgInfoMessage(Message=msg, DefaultShowInFuture=defaultShowInFuture)
+		dlg.show()
+		ret = dlg.chkShowInFuture.Value
+		dlg.release()
+		return ret
+
+
 	def _onKeyPress(self, evt):
 		## Zoom In / Out / Normal:
 		alt = evt.AltDown()
