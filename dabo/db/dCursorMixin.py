@@ -1129,7 +1129,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			return True
 
 
-	def lookupPKWithAdd(self, field, val, tbl=None):
+	def lookupPKWithAdd(self, field, val, tbl=None, pkCol=None):
 		"""Runs a lookup in the specified field for the desired value. If
 		found, returns the PK for that record. If not found, a record is
 		inserted into the table, with its 'field' column populated with 'val',
@@ -1138,8 +1138,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		aux = self.AuxCursor
 		if tbl is None:
 			tbl = self.Table
+		if pkCol is None:
+			pkCol = self.KeyField
 		sql = self._qMarkToParamPlaceholder("select %s from %s where %s = ?"
-				% (self.KeyField, tbl, field))
+				% (pkCol, tbl, field))
 		try:
 			dabo.dbActivityLog.info("lookupPKWithAdd() SQL: %s, PARAMS: %s" % (
 					sql.decode(self.Encoding).replace("\n", " "), "(%s, )" % val))
@@ -1194,7 +1196,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		otherTable = self._mmOtherTable
 		thisPK = self.getPK()
 		for otherVal in listOfValues:
-			otherPK = self.lookupPKWithAdd(otherField, otherVal, otherTable)
+			otherPK = self.lookupPKWithAdd(otherField, otherVal, otherTable, self._mmOtherPKCol)
 			aux = self.AuxCursor
 			sql = self._qMarkToParamPlaceholder("delete from %s where %s = ? and %s = ?"
 					% (self._assocTable, self._assocPKColThis, self._assocPKColOther))
@@ -1252,7 +1254,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		thisTable = self.Table
 		otherTable = self._mmOtherTable
 		thisPK = self.lookupPKWithAdd(thisField, thisVal, thisTable)
-		otherPK = self.lookupPKWithAdd(otherField, otherVal, otherTable)
+		otherPK = self.lookupPKWithAdd(otherField, otherVal, otherTable, self._mmOtherPKCol)
 		aux = self.AuxCursor
 		sql = self._qMarkToParamPlaceholder("select * from %s where %s = ? and %s = ?"
 				% (self._assocTable, self._assocPKColThis, self._assocPKColOther))
