@@ -400,6 +400,7 @@ class dStandardButtonDialog(dDialog):
 	# old handler.
 	def _onOK(self, evt):
 		self.Accepted = True
+		self.activeControlValid()
 		try:
 			self.onOK()
 		except TypeError:
@@ -414,6 +415,7 @@ class dStandardButtonDialog(dDialog):
 
 	def _onCancel(self, evt):
 		self.Accepted = False
+		self.activeControlValid()
 		try:
 			self.onCancel()
 		except TypeError:
