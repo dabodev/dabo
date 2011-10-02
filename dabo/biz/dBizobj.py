@@ -34,6 +34,7 @@ class dBizobj(dObject):
 		self.__cursors = {}
 		# PK of the currently-selected cursor
 		self.__currentCursorKey = None
+		# Description of the data represented by this bizobj
 		self._dataStructure = None
 
 		# Dictionary holding any default values to apply when a new record is created. This is
@@ -325,7 +326,7 @@ class dBizobj(dObject):
 		self.afterLast()
 
 
-	def beginTransaction(self):
+	def beginTransaction(self, crs=None):
 		"""
 		Attempts to begin a transaction at the database level, and returns
 		True/False depending on its success.
@@ -333,13 +334,15 @@ class dBizobj(dObject):
 		rp = self._RemoteProxy
 		if rp:
 			return rp.beginTransaction()
+		if crs is None:
+			crs = self._CurrentCursor
 		ret = self._getTransactionToken()
 		if ret:
-			self._CurrentCursor.beginTransaction()
+			crs.beginTransaction()
 		return ret
 
 
-	def commitTransaction(self):
+	def commitTransaction(self, crs=None):
 		"""
 		Attempts to commit a transaction at the database level, and returns
 		True/False depending on its success.
@@ -347,13 +350,15 @@ class dBizobj(dObject):
 		rp = self._RemoteProxy
 		if rp:
 			return rp.commitTransaction()
-		ret = self._hasTransactionToken() and self._CurrentCursor.commitTransaction()
+		if crs is None:
+			crs = self._CurrentCursor
+		ret = self._hasTransactionToken() and crs.commitTransaction()
 		if ret:
 			self._releaseTransactionToken()
 		return ret
 
 
-	def rollbackTransaction(self):
+	def rollbackTransaction(self, crs=None):
 		"""
 		Attempts to rollback a transaction at the database level, and returns
 		True/False depending on its success.
@@ -361,7 +366,9 @@ class dBizobj(dObject):
 		rp = self._RemoteProxy
 		if rp:
 			return rp.rollbackTransaction()
-		ret = self._hasTransactionToken() and self._CurrentCursor.rollbackTransaction()
+		if crs is None:
+			crs = self._CurrentCursor
+		ret = self._hasTransactionToken() and crs.rollbackTransaction()
 		if ret:
 			self._releaseTransactionToken()
 		return ret
@@ -1692,6 +1699,14 @@ class dBizobj(dObject):
 					"cursor": crs}
 
 
+	def removeMMBizobj(self, mmBizobj):
+		"""
+		Removes the specified bizobj from a Many-to-Many relationship. If no such
+		relationship exists, nothing happens.
+		"""
+		assoc = self._associations.pop(mmBizobj.DataSource, None)
+
+			
 	def getAncestorByDataSource(self, ds):
 		"""
 		Given a DataSource, finds the ancestor (parent, grandparent, etc.) of
@@ -2096,14 +2111,32 @@ class dBizobj(dObject):
 		return None
 
 
+	def _mmAssociatedDbCall(self, bizOrDS, method_name, *args, **kwargs):
+		"""
+		Wraps the call to an associated cursor so that wraps in a transaction,
+		if at all possible.
+		"""
+		assoc = self._getAssociation(bizOrDS)
+		crs = assoc["cursor"]
+		method = getattr(crs, method_name)
+		startTransaction = self.beginTransaction(crs)
+		try:
+			ret = method(*args, **kwargs)
+		except dException.DBQueryException:
+			if startTransaction:
+				self.rollbackTransaction(crs)
+			raise 
+		self.commitTransaction(crs)
+		return ret
+
+
 	def mmAssociateValue(self, bizOrDS, otherField, otherVal):
 		"""
 		Associates the value in the 'other' table of a M-M relationship with the
 		current record in the bizobj. If that value doesn't exist in the other
 		table, it is added.
 		"""
-		assoc = self._getAssociation(bizOrDS)
-		assoc["cursor"].mmAssociateValue(otherField, otherVal)
+		return self._mmAssociatedDbCall(bizOrDS, "mmAssociateValue", otherField, otherVal)
 
 
 	def mmAssociateValues(self, bizOrDS, otherField, listOfValues):
@@ -2111,8 +2144,7 @@ class dBizobj(dObject):
 		Adds association records so that the current record in this bizobj is associated
 		with every item in listOfValues. Other existing relationships are unaffected.
 		"""
-		assoc = self._getAssociation(bizOrDS)
-		assoc["cursor"].mmAssociateValues(otherField, listOfValues)
+		return self._mmAssociatedDbCall(bizOrDS, "mmAssociateValues", otherField, listOfValues)
 
 
 	def mmDisssociateValue(self, bizOrDS, otherField, otherVal):
@@ -2121,8 +2153,7 @@ class dBizobj(dObject):
 		in the 'other' table of a M-M relationship. If no such association exists,
 		nothing happens.
 		"""
-		assoc = self._getAssociation(bizOrDS)
-		assoc["cursor"].mmDisssociateValue(otherField, otherVal)
+		return self._mmAssociatedDbCall(bizOrDS, "mmDisssociateValue", otherField, otherVal)
 
 
 	def mmDisssociateValues(self, bizOrDS, otherField, listOfValues):
@@ -2131,8 +2162,7 @@ class dBizobj(dObject):
 		in the 'other' table of a M-M relationship. If no such association exists,
 		nothing happens.
 		"""
-		assoc = self._getAssociation(bizOrDS)
-		assoc["cursor"].mmDisssociateValues(otherField, listOfValues)
+		return self._mmAssociatedDbCall(bizOrDS, "mmDisssociateValues", otherField, listOfValues)
 
 
 	def mmDisssociateAll(self, bizOrDS):
@@ -2140,8 +2170,7 @@ class dBizobj(dObject):
 		Removes all associations between the current record and the associated
 		M-M table.
 		"""
-		assoc = self._getAssociation(bizOrDS)
-		assoc["cursor"].mmDisssociateAll()
+		return self._mmAssociatedDbCall(bizOrDS, "mmDisssociateAll")
 
 
 	def mmSetFullAssociation(self, bizOrDS, otherField, listOfValues):
@@ -2149,8 +2178,7 @@ class dBizobj(dObject):
 		Adds and/or removes association records so that the current record in this
 		bizobj is associated with every item in listOfValues, and none other.
 		"""
-		assoc = self._getAssociation(bizOrDS)
-		assoc["cursor"].mmSetFullAssociation(otherField, listOfValues)
+		return self._mmAssociatedDbCall(bizOrDS, "mmSetFullAssociation", otherField, listOfValues)
 
 
 	def mmAddToBoth(self, bizOrDS, thisField, thisVal, otherField, otherVal):
@@ -2160,8 +2188,7 @@ class dBizobj(dObject):
 		both values exist in their respective tables, and will create the 
 		entry in the association table.
 		"""
-		assoc = self._getAssociation(bizOrDS)
-		return assoc["cursor"].mmAddToBoth(thisField, thisVal, otherField, otherVal)
+		return self._mmAssociatedDbCall(bizOrDS, "mmAddToBoth", thisField, thisVal, otherField, otherVal)
 
 
 	def mmGetAssociatedValues(self, bizOrDS, listOfFields):
@@ -2172,8 +2199,7 @@ class dBizobj(dObject):
 		"""
 		if not isinstance(listOfFields, (list, tuple)):
 			listOfFields = [listOfFields]
-		assoc = self._getAssociation(bizOrDS)
-		return assoc["cursor"].mmGetAssociatedValues(listOfFields)
+		return self._mmAssociatedDbCall(bizOrDS, "mmGetAssociatedValues", listOfFields)
 
 
 	########## SQL Builder interface section ##############

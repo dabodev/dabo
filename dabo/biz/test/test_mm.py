@@ -21,6 +21,10 @@ class Test_Many_To_Many(unittest.TestCase):
 		fan_club.KeyField = "pkid"
 		fan_club.DataSource = "fan_club"
 		fan_club.requery()
+		self.restricted_biz = dabo.biz.dBizobj(self.conn)
+		self.restricted_biz.KeyField = "pkid"
+		self.restricted_biz.DataSource = "restricted"
+		self.restricted_biz.requery()
 		# Set the MM relations
 		pbiz.addMMBizobj(self.company_biz, "employees", "person_id", "company_id")
 		pbiz.addMMBizobj(self.fan_club_biz, "membership", "person_id", "fan_club_id")
@@ -44,6 +48,11 @@ class Test_Many_To_Many(unittest.TestCase):
 		self.crs.execute("insert into fan_club (performer) values ('The Clash')")
 		self.crs.execute("insert into fan_club (performer) values ('Ramones')")
 		self.crs.execute("insert into fan_club (performer) values ('Pat Boone')")
+
+		# Table with NOT NULL restriction.
+		self.crs.execute("create table restricted (pkid INTEGER PRIMARY KEY AUTOINCREMENT, regular TEXT, nonull TEXT NOT NULL);")
+		self.crs.execute("create table rest_alloc (pkid INTEGER PRIMARY KEY AUTOINCREMENT, person_id INT, restricted_id INT);")
+		self.crs.execute("insert into restricted (regular, nonull) values ('some_value', 'another_value')")
 
 
 	def reccount(self, tbl, filt=None):
@@ -302,6 +311,27 @@ class Test_Many_To_Many(unittest.TestCase):
 		fbiz.seek("Pat Boone", "performer")
 		recs = fbiz.mmGetAssociatedValues(pbiz, "first_name")
 		self.assertEqual(len(recs), 0)
+
+
+	def test_add_remove_mm_relationship(self):
+		"""Ensures that addMMBizobj() and removeMMBizobj() work correctly."""
+		pbiz = self.person_biz
+		rbiz = self.restricted_biz
+		num_orig_assoc = len(pbiz._associations)
+		pbiz.addMMBizobj(rbiz, "rest_alloc", "person_id", "restricted_id")
+		self.assertEqual(len(pbiz._associations), num_orig_assoc + 1)
+		pbiz.removeMMBizobj(rbiz)
+		self.assertEqual(len(pbiz._associations), num_orig_assoc)
+
+
+	def test_db_insert_fails(self):
+		"""If adding a value is not successful, ensure that the proper error is raised."""
+		pbiz = self.person_biz
+		rbiz = self.restricted_biz
+		pbiz.addMMBizobj(rbiz, "rest_alloc", "person_id", "restricted_id")
+		self.assertRaises(dException.DBQueryException, pbiz.mmAssociateValue,
+				rbiz, "regular", "test")
+		pbiz.removeMMBizobj(rbiz)
 
 
 
