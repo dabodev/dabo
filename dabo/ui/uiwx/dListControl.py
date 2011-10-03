@@ -107,6 +107,11 @@ class dListControl(dcm.dControlItemMixin,
 		self.bindEvent(dEvents.ListColumnResize, self.__onColumnResize)
 
 
+	def _getInitPropertiesList(self):
+		return super(dListControl, self)._getInitPropertiesList() + \
+			("ColumnsAlignment",)
+
+
 	def _doResize(self):
 		if self and self.ExpandToFit:
 			ListMixin.ListCtrlAutoWidthMixin._doResize(self)
