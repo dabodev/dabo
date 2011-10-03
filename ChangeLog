@@ -1,5 +1,108 @@
 See the Subversion log for all the details.
 
+Dabo 0.9.4 (2011-10-05) Revision 6875):
+===============================================================================
+Recommended Python: 2.6.5 (still some reported problems with 2.7)
+Recommended wxPython: 2.8.12.1
+
+We let it go over a year again. 
+
+General Framework Changes:
+- Lots of docstring changes to improve Sphinx documentation
+- You can now override the setting of the language defined by locale.
+- Changed default Encoding for datasets to the one declared for the backend.
+- Added dApp.displayInfoMessage() which presents a dialog with a checkbox for the user to choose if they will see this particular message in the future.
+- Added getSharedAppDataDirectory() fuction, which returns application shared data directory.
+- Improved debugging by including the current call stack in every callAfter/setAfter call, so that errors can show the path that led to the *after method being called.
+- Fixed an issue where calling the _initModuleNames() method would not update with any changes since the app first launched. With this change, bizobjs created or changed in the Class Designer will now be available when test running the class.
+
+Bizobj/DB Layer Changes:
+- Augmented the Data Type Mismatch error to show the table name and not just the field name.
+- Fixed an issue where newly-added records in cursors that had never been requeried didn't know their data structure, even though DataStructure had been set explicitly.
+- Improved the getDataSet() method to eliminate the need for looping through all rows.
+- Fixed issue with dBizobj wrong cursor assignment for newly created grandchild cursors.
+- Added argument to biz.save() to optionally prevent child bizobjs from getting saved.
+- Added the Connection property to dBizobj.
+- Multiple improvements in the handling of child bizobjs and changed rows in dBizobj.
+- Added an optional TypeStructure property to dDataSet to provide 'hints' to the class in determining data types.
+- Fixed the case where seek(..., near=True) worked correctly except in the case where we were seeking a value greater than that of the last row, in which case it would stick the record pointer on the first row instead of the last row.
+- Added helper getBizobj() function to dDialog so that controls in the dialog can still find their bizobjs with 'self.Form.getBizobj()'.
+- Added basic methods to dBizobj and dCursorMixin for handling many-to-many (M-M) relationships.
+- Changed the logic for data binding with bizobjs. Now you can bind to any attribute of the bizobj, not just columns in the bizobj's data set.
+- Made some improvements to support for MS SQL connections.
+- Changed the value returned by dCursorMixin's RowCount to 0 from -1 for the case where the cursor has not yet been requeried. Logically it makes more sense, and we don't rely on a value of -1 for this anywhere.
+- Improved the way that dBizobj's isAnyChanged() method determines changes.
+
+UI Changes:
+- Added the 'ChildObjects' property to sizers. This will return a list of the objects managed by the sizer, whether they be controls, sizers, or spacers. The 'Children' property still returns a list of sizer items.
+- Fixed the dDockForm and dDockPanel classes so that the properties work again.
+- The DataSource property for controls can now be set to a callable, which will be evaluated each time the property is accessed. This makes it possible to have a dynamic DataSource.
+- Added the 'moveTabOrderBefore()' and 'moveTabOrderAfter()' methods to improve control over tab order.
+- Added the ability to flip displayed images in the dImage control horizontally or vertically.
+- Added the ability for dImage to recognize rotation information in image files that store it, and adjust its display accordingly.
+- The grid's header area now defaults to white, while the default grid column header background color is grey.
+- dGrid's SelectionForeColor and SelectionBackColor weren't settable from initProperties() or from the constructor. Fixed.
+- Added the 'UpdateInactivePages' property to the paged controls; this limits propagation of update event to the active page only when set to False
+- Pages now have the DeferredUpdates property to handle delayed updates, until page become selected.
+- Fixed some flushValue() problems in dTextBoxMixin, and improved its internal data type support.
+- Added the ButtonShape property to dBorderlessButton.
+- Added ability to associate a node in dTreeView with a file path.
+- Fixed the issues with the segfault/bus error with dGrid that was being seen when running the Class Designer under Python 2.7.
+- Changed the header context menu in dGrid so that if ResizableColumns is False, the options to autosize the column is not available.
+- Changed the background color of column 1 in the demo code for dGrid to something a little less ugly.
+- Enhanced the 'makeDirTree()' method to accept a list of file patterns for both including and excluding. Also added checks for upper/lower case versions of those patterns.
+- Added the DataUpdateDelay property to dForm to control delay between when business data changes and UI controls get updated; setting to None means that controls are immediately updated with changes.
+- Fixed some flickering issues with dForm when refreshing.
+- Added the convenience classes dSizerH and dSizerV for making horizontal and vertical sizers, respectively. Yes, I am lazy.
+- Fixed problem with some paged controls not properly working with setAll() method.
+- The dDockForm classes use the agw version of the AUI libraries if available.
+- Added the 'MovableTabs' property to the dDockTabs class; when False, the tabs cannot be rearranged or docked. This must be specified when the control is instantiated.
+- Added helper getBizobj() function to dDialog so that controls in the dialog can still find their bizobjs with 'self.Form.getBizobj()'.
+- Added the UseSmartFocus property to dPageFrame, which will 'remember' the control that had focus on a page, and reset focus to that control when the page becomes active.
+- Fixed dSpinner control flush on update issue.
+- Added dDatePicker control based on native wx.DatePickerCtrl.
+- Changes the InteractiveChange event so that it is raised after the data source update to better synchronize between biz and UI layers.
+- Added global setting autoDisableDataControls to handle new data controls behavior on empty dataset.
+- Added ReadOnly property to dRichTextBox.
+- Added the ShellCommandRun event, which is raised whenever dShell executes a command in its interpreter.
+- Added the PersistSecretData property that overrides IsSecret property allowing to store sensitive data in encrypted form.
+- Added the NumericBlankToZero property to dTextBoxMixin. When true, blanking a numeric field will be interpreted as setting it to zero.
+- Fixed an issue with dPageStyled where 'select' parameter was by default set to True and fired the PageChanging event on every newly added page.
+- Added a Rounded Rectangle to the available DrawObjects.
+
+ReportWriter Changes:
+- Deprecated Frameset/Paragraph; Added Memo which accomplishes the same thing in the same way without the developer needing to know about the hierarchy.
+- Removed the auto-updating of the _def default properties when the main property changes, as it was causing unneeded cruft in the rfxml.
+- Changed default expr of String and Memo to "String" and "Memo", respectively.
+- Improved Memo's Leading property to easily be able to specify single- or double-space, and to modify that with any number of + or - chars, like "single+++" to have single-space plus a little bit.
+- Added a new report object, "Defaults", with one initial default to set: FontName. If String or Memo don't have FontName explicitly set, the report default will be queried. If that isn't explicitly set, the base default will be queried. The base default is Helvetica, but I suggest installing DejaVuSans or some other true-type font that has extended symbols that will likely be encountered in user data, expecially in non-US locales.
+- Bad font names will no longer crash the reportWriter, they'll simply be substituted with Helvetica, Helvetica-Bold, Helvetica-Oblique, or Helvetica-BoldOblique.
+- Added code to defend against converting anything other than the most common Frameset/Paragraph. It is possible but unlikely that rfxml's exist in the wild with multiple subobjects of Frameset, and this will keep those from getting converted.
+- Add the system truetype font paths to reportWriter, which will result in auto-registration of specific fonts upon first use.
+- Fixed an issue with Memos in which data that was too long resulted in nothing being printed. Instead, the message '<<< string too long >>>' will be printed so the developer knows what needs to be fixed.
+- Fixed the reprinting of group headers from the printing of a detail band so that they only reprint group headers higher in the list than the current group
+- Allow for the image expression to evaluate to None, and just don't print anything in that case.
+
+Report Designer Changes:
+- Enhanced the ReportDesigner by making Shift+Enter on an object activate the propsheet editor for the currently selected property in the propsheet.
+- Enhanced ReportDesigner to show the paragraph object expression on the design surface. In addition, made it so when you click on the Frameset, the Paragraph is what gets selected. You can still select the Frameset object by clicking on it in the object tree.
+- Deprecated Frameset/Paragraph; Added Memo which accomplishes the same thing in the same way but the appdev doesn't need to know about the hierarchy.
+- Changed default expr of String and Memo to "String" and "Memo", respectively.
+- Changed dynamically-sized bands (height = None) to use height_def for display in the designer, instead of the hard-coded 75pt used previously. If no height_def has been explicitly set, the 75 is still used to avoid the default of 0, which would be confusing.
+- ReportDesigner looked horrible on Mac because of dark default background. Fixed.
+- Fixed a bug in the designer when changing the height of a band where the height was None (dynamic) previously.
+
+Class Designer Changes:
+- Replaced the painted of dSizerPanel with a nested panel. I prefer the look of the painted border, but it flickers way too much due to the excessive number of repaints.
+- Added needed self.refresh() after a Zoom operation to avoid artifacts.
+- Added code to save/restore the zoom level.
+- Changes the layout when editing sizers so that the two panels are horizontally arranged. Previously, the vertical arrangement was too tall for some screen resolutions. Thought I had committed this a while ago.
+- The search dialog of the Class Designer Editor will search *all* of your code for the class, and not just the currently displayed method.
+- There is now a popup that allows you to quickly navigate to any existing method of any object. To access that popup, click the down triangle in the top left corner of the editor window, or press Ctrl+J to activate the method list.
+- Incorporated the ability to edit text files while remaining in the Class Designer.
+- Changed the Class Designer to use the directory in which it was started, not the 'ide' directory, as its HomeDirectory.
+
+
 Dabo 0.9.3 (2010-09-12) Revision 6018):
 ===============================================================================
 We dragged our feet in making this release, because both of us were very busy, and frankly, between Subversion and Web Update, most Dabo developers had the latest changes already. But there have been several big changes in the last 15 months, including, but not limited to:
