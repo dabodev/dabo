@@ -1427,8 +1427,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setVisible(self, val):
 		if self._constructed():
 			self._visible = val
-			if self.Parent:
-				self.Parent.showColumn(self, val)
+			self.Parent.showColumn(self, val)
 		else:
 			self._properties["Visible"] = val
 
@@ -2002,8 +2001,16 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def refresh(self):
 		"""Repaint the grid."""
+		if getattr(self, "__inRefresh", False):
+			return
+		self.__inRefresh = True
 		self._Table._clearCache()  ## Make sure the proper values are filled into the cells
+		
+		# Force invisible column dynamic properties to update (possible to make Visible again):
+		invisible_cols = [c._updateDynamicProps() for c in self.Columns if not c.Visible]
+
 		super(dGrid, self).refresh()
+		self.__inRefresh = False
 
 
 	def _refreshHeader(self):
@@ -2720,7 +2727,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				return
 		col._visible = visible
 		self._syncColumnCount()
-		self.refresh()
+		if getattr(self.Parent, "__inRefresh", False):
+			self.refresh()
 
 
 	def moveColumn(self, colNum, toNum):
