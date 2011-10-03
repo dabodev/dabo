@@ -1,11 +1,13 @@
 See the Subversion log for all the details.
 
-Dabo 0.9.4 (2011-10-05) Revision 6875):
+Dabo 0.9.4 (2011-10-05) Revision 6879):
 ===============================================================================
 Recommended Python: 2.6.5 (still some reported problems with 2.7)
 Recommended wxPython: 2.8.12.1
 
-We let it go over a year again. 
+We let it go over a year again. The following changes are copied from the Web Update release notes. The
+first set is organized under headings for framework chagnes, bizobj, and ui changes. The following 
+sections are not. 
 
 General Framework Changes:
 - Lots of docstring changes to improve Sphinx documentation
@@ -101,6 +103,158 @@ Class Designer Changes:
 - There is now a popup that allows you to quickly navigate to any existing method of any object. To access that popup, click the down triangle in the top left corner of the editor window, or press Ctrl+J to activate the method list.
 - Incorporated the ability to edit text files while remaining in the Class Designer.
 - Changed the Class Designer to use the directory in which it was started, not the 'ide' directory, as its HomeDirectory.
+
+- dCursorMixin: Refactored CursorRecord out of dabo.db.dCursorMixin into dabo.db. Now both dCursorMixin and dBizobj can use the class to instantiate their own Record instances. This effectively means that assigning to biz.Record.field no longer calls cur.setFieldVal() directly but instead calls biz.setFieldVal(), allowing easy interference to be run by appdev code.
+- dBizobj, dCursorMixin: improved handling of compound primary keys.
+- New: Wrapped the wx.media.MediaCtrl to create the Dabo dMediaControl, which allows you to add video and audio to your app.
+- dPref: Added 'prefDb' parameter that allows to specify an explicit preferences database.
+- dBizobj, dCursorMixin: Added the ability to specify which record to setFieldVal() on, by sending the pk of the row to set.
+- dGrid: Added the VerticalHeaders property. When True, the header captions are written vertically; i.e., at a 90 degree angle, which is useful if you have narrow columns and need to display a label for the column. Thanks to Bronwyn Woods for the idea.
+- dGrid: Added the AutoAdjustHeaderHeight property. When True, the HeaderHeight of the grid will change to fit the Captions, whether they are written vertically or not.
+- dGrid: Added dColumn.CellFontBold and DynamicCellFontBold. However, it isn't displaying on Linux. Left comments in place to tackle later.
+- dPemMixin: Changed the draw object routines to accept an optional dc for drawing.
+- dGrid: Changed the grid header drawing to use the same dc as the rest of the header.
+- Added the Object Inspector, which allows you to "inspect" objects in a running Dabo application. It can be activated by pressing Ctrl-Shift-I.
+- dPemMixin: Added code to account for platform differences in the way that forms report their absolute position on the screen. Under Windows, instead of the position of the entire form, the position of the interior (minus title bar, menus, borders) is returned.
+- dDockForm: Added import of agw version of the AUI classes, if available. Noted that several properties no longer seem to have any effect when changed; will need to look at this in more depth.
+- dPemMixin: Improved the calculation for absoluteCoordinates(). It was failing to take into account that for forms, we should always use (0, 0) as the Position from which we calculate.
+- dBizobj: Improved the DataStructure changes detection.
+- dSizerMixin: Added the 'Form' property to sizers. It will return the form with which the sizer is associated, or None.
+- dSizerMixin: Added the getContainingWindow() method that will return the window that contains the sizer, even if the sizer is nested within other sizers.
+- Added the ability to embed the _Shell class of dShell in non-dShell forms.
+- dToolBar: Added the ToolbarItemClass property, allowing you to define your own subclasses for a toolbar's items. The default remains dToolBarItem.
+- dbPostgreSQL: Made a change to the way the rollback was being called, based on a suggestion from Jacek Kałucki who experienced issues with losing a transaction.
+- dDateTextBox: Fixed problem with the calendar ignoring the setting for FirstDayOfWeek
+- Added some saner minimum sizes in dPemMixin.
+- Change in getEncoding() behaviour to use getdefaultlocale() instead of getlocale() function, which returns values usable in the rest of the framework.
+- Changed how the UI module is imported into the main dabo namespace.
+- Changed the default for self._fontSize from None to 10, as some routines were expecting it to be an int and throwing errors on receiving a NoneType value.
+- dabo module: Now initialize localization services *after* the logging system is in place, or dLocalize will cause a traceback when trying to log problems.
+- dApp: Refactored dApp.default_form and dApp.formsToOpen into properly-named properties.
+- dbFirebird: changed rdb$field_length to rdb$character_lenth on request of Werner F. Bruhin.
+- dbFirebird: Improved handling of non-ASCII values in connection parameters.
+- dBizobj: Added suppoort for the scanRequeryChildren parameter in the scanRows method to override ScanRequeryChildren property.
+- dBizobj: Added the _CurrentCursorKey property.
+- dBizobj: Clear the bizobj's cursorRecord when DataStructure and VirtualFields are set, as well as in requery().
+- dBizobj: Fix for ticket #1351, where the scan method doesn't update grandchildren bizobjs.
+- dBizobj: Limited child bizobj FK updates to the new rows only.
+- dBizobj: Moved the setCurrentParent() call outside the check for RequeryWithParent, as the setting of the parent should happen unconditionally. However, this will result in the side-effect of an implicit requery() if the cursor for that key doesn't exist yet, *and* RequeryOnLoad is True.
+- dBizobj: Refactored cacheExpired() a bit, with a check for lastRequeryTime being None.
+- dBizobj: Removed the recently-added force argument from requeryAllChildren, in favor of adding a note to the docstring that developers should explicitly call self.expireCache() before requerying, which ensures all cursors (not just the current one) in a bizobj will get requeried next time the record becomes active.
+- dBizobj: setFieldVals() now calls setFieldVal() for each field, so that the afterSetFieldVal() hook will be fired when the field changes.
+- dCursorMixin: Added some verbosity to the class exceptions.
+- dCursorMixin: Fixed issue with updating field that is part of compound PK. Now _newRecords reflects such changes.
+- dEditBox: Improved the handling of the WordWrap property. Fixed some punctuation in the Love Boat lyrics in the test code that had been annoying me for some time. NOTE: the horizontal scrollbar doesn't seem to be drawn in OS X.
+- dEditor: Implemented the select() method for dEditor.
+- dEvents: Event logging was displaying '?' when getAboluteName() couldn't find a name for the object. Better to use the default __str__().
+- dGrid: Added DrawObject.draw() positioning condition to fix header captions display out of the visible area issue.
+- dGrid: Added the SortIndicatorSize and SortIndicatorColor properties, which allow you some control over the appearance of the little sort triangle displayed in the header when that column is sorted.
+- dGrid: Fixed _paintHeader() issue if it's called from outside of the OnPaint event.
+- dGrid: When using dynamic properties, if you need to call grid.getValue() to determine what dynamic value to return, you would hit an infinite loop. I added a parameter to the overridden GetValue() method to control this.
+- dLabel: Fixed an issue where resizing could cause an infinite loop.
+- dLabel: Made some changes to how WordWrap works; it was behaving incorrectly on some platforms.
+- dLabel: Reduced the flickering in the dLabel demo.
+- dLed: control wasn't always resizing properly because of the underlying panel's minimum sizer settings. Fixed.
+- dMediaControl: Added the ability to clear the control by setting Source = None.
+- dMediaControl: Added the ability to drop Source files on the control and have them loaded.
+- dPemMixin: Removed manual Ctrl+A support code for Windows platform, since it works properly since wxPython 2.8.10 version at last.
+- dPref: Added the __contains__() method so that pref objects support the "x in y" syntax for determining if a key exists in a given preference object.
+- Fixed a problem that was due to the way we were calling the super() of __init__(): we were taking the keyword params 'properties' and 'attProperties' and passing them as non-keyword params. This was causing some subtle errors that mostly manifested in the Class Designer.
+- Fixed test.py to set the width of the frame, and not the object themselves. Previously, the MinSize for the object was being set via an explicit Width setting, making resizing problematic. Now the form is sized, allowing the sizer to handle the sizing of the object.
+- Grabbed the latest translations from launchpad and added them to the locale directory.
+- Modified the getItemIndex() of dMenu method to take either a caption (existing behavior), or an actual menu item.
+- Moved the methods that gather system information out of the About dialogs and into the uiwx module.
+- On Windows, scriptDir was 'C:\\ss\\ui' while appDir was 'c:\\ss', causing isSubDir() to fail. Fixed but will cause problems if someone has meaningful case-sensitive directory names, but that would seem to be stupid so I'm not worrying about it.
+- reportWriter: Added CurrentBandName and CurrentBandObj reportWriter properties, inspired by Nate's ticket #1380.
+- reportWriter: Raise an exception if invalid rfxml passed, instead of printing the message and then having an exception thrown because form isn't defined.
+- ui module: Added the sendIdle() method to help with thread message processing.
+- ui module: the latest wxPython changed the return value of HitTest() to sometimes return a single value instead of a 2-tuple, so code was added to handle this properly.
+- Updated dLocalize to not prevent the program from running if the translation for the language is not found. Added support for additional aliases for languages.
+- ClassDesigner: Added an option to the dialog that appears when you first run the Class Designer to re-open the last class that you worked on.
+- ClassDesigner: added the dMediaControl to the Class Designer
+- ClassDesigner: Fixed an issue reported by Sibylle Koczian in which running the wizard for adding controls from the data environment would throw a "String must be present in the choices" error.
+- ClassDesigner: Fixed an issue with the restoration of lists and tuples as values in cdxml files. Trac issue #1406.
+- CxnEditor: Added provisions for handling application CryptoKey values. Note that when the file is saved, the encrypted password is saved, but not the encryption key, for obvious reasons. In order to re-edit the file, you will have to enter the CryptoKey when opening up a saved file. If the PyCrypto package is not installed, none of the CryptoKey changes will be visible.
+- PrefEditor: Removed the custom PrefDialog class, as it is no longer needed.
+
+- Fixed a potential problem when starting Dabo if a default encoding was not set.
+
+- Fixed some WordWrap issues with labels.
+- Updated the bizIterator classes. They now have two more optional parameters: 'reversed' (default=False): when True, the rows are returned in reverse order; and 'restorePointer' (default=False): when True, the RowNumber is reset when the iteration is complete. The reverse() method has been removed, as it is no longer needed.
+- Removed inconsistencies in the code with respect to the use of 'dabo.settings.something' vs. 'dabo.something' to only use the latter form.
+- Fixed some display issues with dSpinner.
+- Corrected a problem noted by Fraser Burns in which pathing in file names was effectively doubled, causing "File not found" errors.
+- Fixed the menu handling issues that prevented the Most Recently Used ("MRU") functionality from working. Also added support for using MRU with submenus.
+- Added optional 'multiple' parameter to promptForFileName().
+- Modified the appendMenu(), prependMenu(), and insertMenu() methods to return the menu reference instead of a boolean indicating success. While these methods require the reference to be passed in, I felt that it was confusing since every other append, prepend and insert method returned the reference to the item being added.
+- Added references for all the included menus and menuitems to the menu bar. This will allow you to reference them in your code instead of having to constantly locate them.
+- Changed the hotkey for Redo to 'Ctrl+Shift+Z' to remove the conflict with the Command Window history shortcut, and to keep it in line with 'Ctrl+Z' for Undo.
+- Activating the Code Editing page of dShell now sets focus to the editor automatically.
+- Added the 'importDebugger' setting. Default=True, which preserves current behavior. If you are using an environment with its own debugger, override this setting to False.
+- Changed the internal order that we process bound events.
+- Added type conversion in dSpinner if Max/Min and Value were not both Decimal or Float.
+- Fixed incorrect handling of properties when running a design using dBorderSizer.
+- Added a 'force' parameter (default=False) to dBizobj.requeryAllChildren() to override any cache settings in those child bizobjs.
+- Saving a document in dEditor no longer clears the Undo buffer.
+- Added the dBizobj.expireCache() method, which will ensure child records will requery during the next cycle.
+- Added the MinSizerWidth and MinSizerHeight properties to dSlidePanelControl, and set them both to default to 100px initially. This will ensure that the control is never sized to zero pixels when given a proportion of 0, as was happening previously.
+- Removed duplicate MySQL transaction logging.
+- Modified the behavior when setting the Picture property of dImage. Instead of raising an error when set to a non-existent file, it will write to the error log and return.
+- Updated the buildwin.bat file in AppWizard-generated apps to better explain the steps needed to build exe files under WinXP.
+- Changed the hotkeys in the Class Designer for 'Run Script' and 'Hide/Show Output' to 'Ctrl+Shift+R' and 'Ctrl+Shift+O', respectively, to be more consistent with other tools. Thanks to Fraser Burns for catching this.
+- Aded a menu item for "Open Recent" to both the Class Designer and the Editor.
+- Fixed a bug that caused a crash when running the Class Designer without an initial file path
+- Improved the layout of the "Edit Sizer Properties" dialog of the Class Designer
+- Fixed an error when opening a saved non-sizer cdxml form.
+
+- Abstracted out the columns in dListControl. You can now change column captions without losing your data and other column settings.
+- General improvement of the dPageFrameNoTabs class
+- At the suggestion of Jacek Kałucki, I've added a variation of the bizIterator named 'bizDataIterator', which returns a dict containing the columns/values of the current record in the iteration.
+- Added a code editor to the dShell class, allowing you to easily edit blocks of code, and then execute it in the shell.
+- Added the locate() method, which returns True/False based on whether the value passed was found in the data. By default the pointer is moved to the matching record, but passing 'movePointer=False' will not change the current RowNumber.
+- Added the method 'getEncoding()' to the main dabo module. Updated all code to reference this method when looking for encoding settings. This will make using Dabo with non-ASCII strings much more consistent.
+- Added several patches to localization problems courtesy of Jacek Kałucki.
+- Fixed an issue in which child bizobjs that did not link to the parent's PK column threw exceptions.
+- Converted all the deprecated usages of dict.has_key() to use either the 'in' syntax, or a try/except block.
+- Several bug fixes to dMaskedTextBox.
+- Added the NoneDisplay property and several unicode patches to reportWriter.py
+- Added ability to register TrueType Font files and directories to ReportWriter.
+- Fixed a long-standing problem in the reportWriter where the group header would sometimes get
+printed twice on a new page.
+- Modified dMenuBar so that the DynamicEnabled property is evaluated on each update() call.
+- Added the 'charsBeforeCursor()' and 'charsAfterCursor()' methods to text controls, as requested by Brendan Barnwell. By default, they return the character immediately before/after the insertion point, or if there is selected text, before/after the selection. You can optionally pass the number of characters to return if you want more than one. You can also specify that any selected text be included in the return value; by default it is not.
+- Made the Choices property of list controls dynamic, in that changes to the value returned by that property will modify the list options of the control. Formerly, you would have to get the Choices, modify them, and then re-apply them to the property. Now you can modify them directly, and have the change reflected in the control.
+- Refactored the Ruler class in the ReportDesigner so the instance knows its position, not merely its orientation. This should fix the error Jacek's been getting on Windows XP that I wasn't able to reproduce but could have happened if the Paint event occurred at an unexpected time.
+- Added support for dListControl properties to the Class Designer.
+- Added support for dMaskedTextBox to the Class Designer.
+- Added the newer manifest for setup.py.
+- Fixed a bug reported by Jim Byrnes in which dPage instances in the Class Designer did not display a context menu.
+
++ Cleaned up the code base by removing all trailing whitespace.
+
++ Removed the ref to md5 and replaced with hashlib. haslib is currently already being used in dDataSet.py and md5 has been deprecated (those users of python 2.4 or less need to install the hashlib.py)
+
++ Added dabo.lib.reportUtils.printPDF(), and added a print button to FrmReportBase in the AppWizard generated code.
+
++ On Windows, where the status text can go to the main frame, hidden forms were writing their current record text to the status bar on update. This fixes that awkwardness.
+
++ Eliminated (or at least greatly reduced) the grid header flickering on Windows.
+
++ Fixed a bug reported by Mark Rajcok in which the WordWrap property grid columns was only affecting those with str DataType, and was ignoring unicode DataType.
+
++ Switched all of Dabo's logging to use standard Python logging.
+
++ Switched from os.system() and os.popen2() to subprocess.call() in previewPDF() and printPDF(). Removes DeprecationWarnings in Python 2.6 and above.
+
++ Added some logic to prevent infinite loops when using field-level validation.
+
++ Added a fix so that previewing and printing should be modeless by default.
+
++ Updated the internal cache code to handle permissions better when running under mod_wsgi.
+
++ Added the 'SelectedText' and 'Text' read-only properties to dHtmlBox.
+
++ Added the reports folder to the resolvePathAndUpdate method in the utils module. Added a conditional check in the reportWriter to call the resolvePathAndUpdate method if the path is a valid absolute path. So, now you can specify the ReportFormFile property of the ReportWriter object is a relative path.
 
 
 Dabo 0.9.3 (2010-09-12) Revision 6018):
