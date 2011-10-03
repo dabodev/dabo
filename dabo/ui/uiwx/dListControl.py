@@ -112,17 +112,21 @@ class dListControl(dcm.dControlItemMixin,
 			ListMixin.ListCtrlAutoWidthMixin._doResize(self)
 
 
-	def addColumn(self, caption):
+	def addColumn(self, caption, align="Left", width=-1):
 		"""Add a column with the selected caption."""
-		self.InsertColumn(self.GetColumnCount(), caption)
+		self.insertColumn(self.GetColumnCount(), caption, align, width)
 
 
-	def insertColumn(self, pos, caption):
+	def insertColumn(self, pos, caption, align="Left", width=-1):
 		"""
 		Inserts a column at the specified position
 		with the selected caption.
 		"""
-		self.InsertColumn(pos, caption)
+		try:
+			align = self.ColumnsAlignment[pos]
+		except IndexError:
+			pass
+		self.InsertColumn(pos, caption, self._getWxAlign(align), width)
 
 
 	def removeColumn(self, pos=None):
@@ -143,6 +147,18 @@ class dListControl(dcm.dControlItemMixin,
 				rr.append(self.GetItem(row, col).GetText())
 			ds.append(rr)
 		return ds
+
+
+	def _getWxAlign(self, align):
+		try:
+			wxAlign = {
+				"l": wx.LIST_FORMAT_LEFT,
+				"c": wx.LIST_FORMAT_CENTRE,
+				"r": wx.LIST_FORMAT_RIGHT
+			}[align[:1].lower()]
+		except:
+			wxAlign = wx.LIST_FORMAT_LEFT
+		return wxAlign
 
 
 	def setColumns(self, colList):
@@ -280,17 +296,16 @@ class dListControl(dcm.dControlItemMixin,
 				new_item = self.InsertStringItem(row, "")
 			currCol = col
 			for itm in tx:
-				if not isinstance(itm, basestring) and self.AutoConvertToString:
-					tx = u"%s" % itm
 				new_item = self.append(itm, currCol, row)
 				currCol += 1
 		else:
 			if col < self.ColumnCount:
-				if insert:
-					new_item = self.InsertStringItem(row, "")
 				if not isinstance(tx, basestring) and self.AutoConvertToString:
 					tx = u"%s" % tx
-				self.SetStringItem(row, col, tx)
+				if insert:
+					new_item = self.InsertStringItem(row, tx)
+				else:
+					new_item = self.SetStringItem(row, col, tx)
 			else:
 				# should we raise an error? Add the column automatically?
 				pass
@@ -610,6 +625,13 @@ class dListControl(dcm.dControlItemMixin,
 		return self._columnAccessor
 
 
+	def _getColumnsAlignment(self):
+		return getattr(self, "_columnsAlignment", ())
+
+	def _setColumnsAlignment(self, align):
+		self._columnsAlignment = align
+
+
 	def _getExpandColumn(self):
 		return self._expandColumn
 
@@ -801,6 +823,10 @@ class dListControl(dcm.dControlItemMixin,
 
 	Columns = property(_getColumns, None, None,
 			_("""Reference to the columns in the control. (read-only) (list)"""))
+
+	ColumnsAlignment = property(_getColumnsAlignment, _setColumnsAlignment, None,
+			_("""Columns data alignment, the 'Left', 'Center' or 'Right' literals can be used
+			or their abbreviations, e.g. ('c', 'l', 'r').  (tuple of str)"""))
 
 	Count = property(_getRowCount, None, None,
 			_("Number of rows in the control (read-only). Alias for RowCount  (int)"))
