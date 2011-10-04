@@ -400,7 +400,7 @@ class dShell(dSplitForm):
 		self.pgCode.Caption = _("Code")
 		cp.Sizer.append1x(pgf)
 
-		self.shell = _Shell(self.pgShell)
+		self.shell = _Shell(self.pgShell, DroppedTextHandler=self, DroppedFileHandler=self)
 		self.pgShell.Sizer.append1x(self.shell, border=4)
 		# Configure the shell's behavior
 		self.shell.AutoCompSetIgnoreCase(True)
@@ -524,7 +524,10 @@ Ctrl-Up/Down to scroll through history."""))
 		"""
 		if len(filelist) > 1:
 			dabo.ui.exclaim(_("Only one file can be dropped at a time"))
-		self.edtCode.Value = file(filelist[0]).read()
+		if self.pgfCodeShell.SelectedPage == self.pgShell:
+			self.shell.AddText(filelist[0])
+		else:
+			self.edtCode.Value = file(filelist[0]).read()
 
 
 	def processDroppedText(self, txt):
