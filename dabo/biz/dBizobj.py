@@ -1827,6 +1827,16 @@ class dBizobj(dObject):
 		return ret
 
 
+	def getFieldVals(self, row=None):
+		"""Return a dict of the field/value pairs in the current or specified row."""
+		if row is None:
+			row = self.RowNumber
+		ret = self.getDataSet(rowStart=row, rows=1)
+		if not ret:
+			return {}
+		return ret[0]
+
+
 	def setFieldVal(self, fld, val, row=None, pk=None):
 		"""Set the value of the specified field in the current or specified row."""
 		changed = self._CurrentCursor.setFieldVal(fld, val, row, pk)
