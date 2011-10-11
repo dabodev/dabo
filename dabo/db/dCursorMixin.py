@@ -2328,7 +2328,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			fieldType = [ds[1] for ds in self.DataStructure if ds[0] == fld][0]
 			nms = bo.encloseNames(fld, aq)
 			retSql.append("%s%s = %s" % (tblPrefix, nms, self.ParamPlaceholder))
-			#thisVal =self.formatForQuery(new_val, fieldType)
 			retParams.append(new_val)
 		return (", ".join(retSql), tuple(retParams))
 
@@ -2397,14 +2396,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		ret = None
 		if self.BackendObject:
 			ret = self.BackendObject.getLastInsertID(self)
-		return ret
-
-
-	def formatForQuery(self, val, fieldType=None):
-		"""Format any value for the backend"""
-		ret = val
-		if self.BackendObject:
-			ret = self.BackendObject.formatForQuery(val, fieldType)
 		return ret
 
 
