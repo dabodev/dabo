@@ -33,7 +33,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		# Note: need to set the TB_TEXT flag, in order for that to be toggleable
 		#       after instantiation. Because most toolbars will want to have icons
 		#       only, there is code in _initProperties to turn it off by default.
-		kwargs["style"] = style | wx.TB_TEXT
+		kwargs["style"] = style | wx.TB_TEXT | wx.CLIP_CHILDREN
 
 		# wx doesn't return anything for GetChildren(), but we are giving Dabo
 		# that feature, for easy polymorphic referencing of the buttons and
@@ -57,7 +57,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 
 	def _getInitPropertiesList(self):
-		additional = ["Dockable",]
+		additional = ["Dockable", ]
 		original = list(super(dToolBar, self)._getInitPropertiesList())
 		return tuple(original + additional)
 
@@ -110,7 +110,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		function you want to be called when this button is clicked in an
 		'OnHit' param.
 		"""
-		return self._appendInsertButton(None, caption, pic, toggle,	tip,
+		return self._appendInsertButton(None, caption, pic, toggle, tip,
 				help, *args, **kwargs)
 
 
@@ -125,7 +125,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		function you want to be called when this button is clicked in an
 		'OnHit' param.
 		"""
-		return self._appendInsertButton(pos, caption, pic, toggle,	tip,
+		return self._appendInsertButton(pos, caption, pic, toggle, tip,
 				help, *args, **kwargs)
 
 
@@ -140,7 +140,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		function you want to be called when this button is clicked in an
 		'OnHit' param.
 		"""
-		return self.insertButton(0, caption, pic, toggle,	tip, help, *args, **kwargs)
+		return self.insertButton(0, caption, pic, toggle, 	tip, help, *args, **kwargs)
 
 
 	def _appendInsertButton(self, pos, caption, pic, toggle, tip, help,
@@ -176,8 +176,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 					kind=kind)
 		else:
 			# insert
-			tool = self.InsertTool(pos, id_, caption, picBmp, shortHelpString=tip, longHelpString=help,
-					isToggle=toggle)
+			tool = self.InsertTool(pos, id_, caption, picBmp, shortHelpString=tip,
+					longHelpString=help, isToggle=toggle)
 		tbiClass = self.ToolbarItemClass
 		butt = tbiClass(tool, *args, **kwargs)
 
@@ -445,12 +445,12 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 	MaxHeight = property(_getMaxHt, _setMaxHt, None,
 		_("""Specifies the maximum height of added buttons.  (int)
 
-		When set to zero, there will be no height limit.""" ) )
+		When set to zero, there will be no height limit."""))
 
 	MaxWidth = property(_getMaxWd, _setMaxWd, None,
 		_("""Specifies the maximum width of added buttons.  (int)
 
-		When set to zero, there will be no width limit.""" ) )
+		When set to zero, there will be no width limit."""))
 
 	ShowCaptions = property(_getShowCaptions, _setShowCaptions, None,
 		_("""Specifies whether the text captions are shown in the toolbar.  (bool)
@@ -485,11 +485,15 @@ class dToolBarItem(dObject):
 		self._wxToolBarItem = wxItem
 		self._id = wxItem.GetId()
 		self._parent = None
-		if self.Application:
-			self.Application.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, wxItem)
+		self._dynamic = {}
+		app = self.Application
+		if app:
+			app.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, wxItem)
 		super(dToolBarItem, self).__init__(*args, **kwargs)
 		if OnHit is not None:
 			self.bindEvent(dEvents.Hit, OnHit)
+		if wxItem.ToolBar:
+			wxItem.ToolBar.bindEvent(dEvents.Update, self.__onUpdate)
 
 
 	def __getattr__(self, attr):
@@ -511,8 +515,32 @@ class dToolBarItem(dObject):
 		return wxItem
 
 
+	def __onUpdate(self, evt):
+		dabo.ui.callAfter(self.__updateDynamicProps)
+
+
+	def __updateDynamicProps(self):
+		for prop, func in self._dynamic.items():
+			if isinstance(func, tuple):
+				args = func[1:]
+				func = func[0]
+			else:
+				args = ()
+			setattr(self, prop, func(*args))
+
+
 	def __onWxHit(self, evt):
 		self.raiseEvent(dEvents.Hit)
+
+
+	def GetChildren(self):
+		# Placeholder to satisfy some wx layer code.
+		return []
+
+
+	def IsTopLevel(self):
+		# Placeholder to satisfy some wx layer code.
+		return True
 
 
 	def _getCanToggle(self):
@@ -605,14 +633,15 @@ class _dToolBar_test(dToolBar):
 				tip="Copy", help="Much Longer Copy Help Text")
 
 		self.appendButton("Toggle", pic="%s/actions/system-shutdown.png" % iconPath,
-				toggle=True, OnHit=self.onToggle,	tip="Toggle me", help="Toggle me")
+				toggle=True, OnHit=self.onToggle, tip="Toggle me", help="Toggle me")
 
 		self.appendButton("Dabo", pic="daboIcon128", toggle=True, tip="Dabo! Dabo! Dabo!",
 				help="Large icon resized to fit in the max dimensions")
 
 		self.appendSeparator()
 
-		self.appendButton("Exit", pic="%s/actions/system-log-out.png" % iconPath, toggle=True, OnHit=self.onExit,
+		self.appendButton("Exit", pic="%s/actions/system-log-out.png" % iconPath,
+				toggle=True, OnHit=self.onExit,
 				tip="Exit", help="Quit the application")
 
 	def onCopy(self, evt):
