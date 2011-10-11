@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import locale
 from decimal import Decimal as decimal
 import operator
@@ -25,7 +26,9 @@ class _dSpinButton(dcm.dDataControlMixin, wx.SpinButton):
 		kwargs["style"] = kwargs.get("style", 0) | wx.SP_ARROW_KEYS
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
-
+		if sys.platform.startswith("win"):
+			# otherwise, the arrows are way too wide (34)
+			self.Width = 17
 
 class dSpinner(dabo.ui.dDataPanel, wx.Control):
 	"""
@@ -52,9 +55,8 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 		self._proxy_spinner = _dSpinButton(parent=self, _EventTarget=self)
 		self.__constructed = True
 		self.Sizer = dabo.ui.dSizer("h")
-		self.Sizer.append1x(self._proxy_textbox, valign="middle")
-		#self.Sizer.appendSpacer((2,0))  ## pkm: I think it looks better without...
-		self.Sizer.append(self._proxy_spinner, "expand", valign="middle")
+		self.Sizer.append1x(self._proxy_textbox)
+		self.Sizer.append(self._proxy_spinner, "expand")
 		self.layout()
 
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
