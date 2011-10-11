@@ -320,7 +320,6 @@ class dCursorMixin(dObject):
 		# detect that, and convert the results to a dictionary.
 		if isinstance(sql, unicode):
 			sql = sql.encode(self.Encoding)
-		sql = self.processFields(sql)
 		if convertQMarks:
 			sql = self._qMarkToParamPlaceholder(sql)
 		# Some backends, notably Firebird, require that fields be specially marked.
