@@ -1613,6 +1613,14 @@ try again when it is running.
 		self._preferenceDialogClass = val
 
 
+	def _getReleasePreferenceDialog(self):
+		ret = self._releasePreferenceDialog = getattr(self, "_releasePreferenceDialog", True)
+		return ret
+
+	def _setReleasePreferenceDialog(self, val):
+		self._releasePreferenceDialog = bool(val)
+
+
 	def _getRemoteProxy(self):
 		if self.SourceURL:
 			try:
@@ -1849,6 +1857,13 @@ try again when it is running.
 			If None, the application will try to run the active form's onEditPreferences()
 			method, if any. Otherwise, the preference dialog will be instantiated and
 			shown when the user chooses to see the preferences."""))
+
+	ReleasePreferenceDialog = property(_getReleasePreferenceDialog, _setReleasePreferenceDialog, None,
+			_("""If False, the preference dialog will remain hidden in memory after closed,
+			resulting in better performance when bringing up the dialog more than once.
+
+			Note that you'll still have to handle intercepting your dialog's Close event and
+			hiding it instead of releasing, or you'll be battling dead object errors."""))
 
 	_RemoteProxy = property(_getRemoteProxy, None, None,
 			_("""If this bizobj is being run remotely, returns a reference to the RemoteConnector

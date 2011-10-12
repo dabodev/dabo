@@ -804,7 +804,9 @@ these automatic updates.""").replace("\n", " ")
 			af.onEditPreferences(evt)
 		except AttributeError:
 			if self.PreferenceDialogClass:
-				dlgPref = self.PreferenceDialogClass(af)
+				dlgPref = getattr(af, "_prefDialog", None)
+				if dlgPref is None:
+					dlgPref = af._prefDialog = self.PreferenceDialogClass(af)
 				if isinstance(dlgPref, PreferenceDialog):
 					if af:
 						af.fillPreferenceDialog(dlgPref)
@@ -833,8 +835,9 @@ these automatic updates.""").replace("\n", " ")
 							if k in keysToRevert:
 								k.AutoPersist = True
 				try:
-					if dlgPref.Modal:
+					if self.dApp.ReleasePreferenceDialog and dlgPref.Modal:
 						dlgPref.release()
+						del (af._prefDialog)
 				except dabo.ui.deadObjectException:
 					pass
 			else:

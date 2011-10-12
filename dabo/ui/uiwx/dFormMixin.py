@@ -420,6 +420,9 @@ class dFormMixin(pm.dPemMixin):
 				return False
 		# Run any cleanup code
 		self.closing()
+		pd = getattr(self, "_prefDialog", None)
+		if pd:
+			pd.release()
 		# Kill the form
 		self.Close(force=True)
 		# pkm: I've found that modal dialogs need Destroy():
