@@ -82,10 +82,18 @@ class dBackend(dObject):
 			return self.escQuote(val)
 
 
+	def formatBLOB(self, val):
+		"""
+		Properly format a BLOB value to be included in an UPDATE
+		or INSERT statement for a specific backend.
+		"""
+		return val
+
+
 	def formatDateTime(self, val):
 		"""
-		Properly format a datetime value to be included in an Update
-		or Insert statement. Each backend can have different requirements
+		Properly format a datetime value to be included in an UPDATE
+		or INSERT statement. Each backend can have different requirements
 		for formatting dates, so this is where you encapsulate these rules
 		in backend-specific subclasses. If nothing special needs to be done,
 		the default is to return the original value.

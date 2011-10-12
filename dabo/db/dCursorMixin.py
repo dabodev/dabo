@@ -302,9 +302,6 @@ class dCursorMixin(dObject):
 							return ret
 				else:
 					raise e
-# 		elif isinstance(field_val, array.array):
-# 			# Usually blob data
-# 			ret = field_val.tostring()
 
 			rfv = repr(field_val)
 			dabo.log.error(_("%(rfv)s couldn't be converted to %(pythonType)s (field %(field_name)s)")
@@ -1660,7 +1657,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					flds += ", " + self.BackendObject.encloseNames(kk, aq)
 					# add value to expression
 					fieldType = [ds[1] for ds in self.DataStructure if ds[0] == kk][0]
-					vals.append(vv[1])
+					val = vv[1]
+					if fieldType == "L" or (isinstance(val, basestring) and "\0" in val):
+						val = self.formatBLOB(val)
+					#elif fieldType in ("D", "T"):
+					#	val = self.formatDateTime(val)
+					vals.append(val)
 
 				# Trim leading comma-space from the 'flds' string
 				flds = flds[2:]
@@ -1694,11 +1696,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# We need to retrieve any new default values
 				aux = self.AuxCursor
 				if not isinstance(self.KeyField, tuple):
-					keyFIelds = [self.KeyField]
+					keyFields = [self.KeyField]
 				else:
-					keyFIelds = self.KeyField
+					keyFields = self.KeyField
 				wheres = []
-				for kf in keyFIelds:
+				for kf in keyFields:
 					fld = self.BackendObject.encloseNames(kf, self.AutoQuoteNames)
 					val = self.getFieldVal(kf)
 					if isinstance(val, basestring):
@@ -2326,9 +2328,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if fld in nonup:
 				continue
 			fieldType = [ds[1] for ds in self.DataStructure if ds[0] == fld][0]
+			val = new_val
+			if fieldType == "L" or (isinstance(val, basestring) and "\0" in val):
+				val = self.formatBLOB(val)
+			# elif fieldType in ("D", "T"):
+			#		val = self.formatDateTime(val)
 			nms = bo.encloseNames(fld, aq)
 			retSql.append("%s%s = %s" % (tblPrefix, nms, self.ParamPlaceholder))
-			retParams.append(new_val)
+			retParams.append(val)
 		return (", ".join(retSql), tuple(retParams))
 
 
@@ -2399,12 +2406,20 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 
 
+	def formatBLOB(self, val):
+		"""Format BLOB values for the backend"""
+		if val is None:
+			return None
+		if self.BackendObject:
+			return self.BackendObject.formatBLOB(val)
+		return val
+
+
 	def formatDateTime(self, val):
 		"""Format DateTime values for the backend"""
-		ret = val
 		if self.BackendObject:
-			ret = self.BackendObject.formatDateTime(val)
-		return ret
+			return self.BackendObject.formatDateTime(val)
+		return val
 
 
 	def formatNone(self):

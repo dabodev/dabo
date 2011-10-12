@@ -143,6 +143,10 @@ class SQLite(dBackend):
 		self._connection.commit()
 
 
+	def formatBLOB(self, val):
+		return self.dbapi.Binary(val)
+
+
 	def formatDateTime(self, val):
 		"""We need to wrap the value in quotes."""
 		sqt = "'"		# single quote

@@ -46,7 +46,7 @@ daboTypes = {
 		"D": datetime.date,       ## date
 		"T": datetime.datetime,   ## datetime
 		"N": Decimal,             ## decimal (numeric)
-		"L": str,                 ## BLOB
+		"L": buffer,              ## BLOB
 		}
 
 pythonTypes = dict([[v,k] for k,v in daboTypes.iteritems()])
