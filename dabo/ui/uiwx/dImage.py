@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import cStringIO
 import imghdr
 import os
-import tempfile
 
 import wx
 import dabo
@@ -264,6 +264,12 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self._bmp = val
 			self.__image = self.__val = val.ConvertToImage()
 			self._picture = "(stream)"
+		elif isinstance(val, buffer):
+			val = cStringIO.StringIO(val)
+			img = wx.EmptyImage()
+			img.LoadStream(val)
+			self._setPicture(img)
+			return
 		else:
 			pathExists = os.path.exists(val)
 			if not val:
