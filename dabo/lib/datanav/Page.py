@@ -264,7 +264,7 @@ class SelectPage(Page):
 			# and dBizobj doesn't define getBaseWhereClause.
 			baseWhere = ""
 		biz.setWhereClause(baseWhere)
-		tbl = biz.DataSource
+		tbl = getattr(biz, "DataSourceName", biz.DataSource)
 		whr = ""
 		for fld in self.selectFields:
 			if fld in biz.VirtualFields:
@@ -284,8 +284,13 @@ class SelectPage(Page):
 			except (AttributeError, KeyError):
 				table, field = tbl, fld
 
-			opVal = self.selectFields[fld]["op"].Value
+			try:
+				opVal = self.selectFields[fld]["op"].Value
+			except AttributeError:
+				# Operator could be Enum type.
+				opVal = self.selectFields[fld]["op"]
 			opStr = opVal
+			expJoint = self.selectFields[fld].get("joint", "and")
 			if not QRY_OPERATOR.IGNORE in opVal:
 				fldType = self.selectFields[fld]["type"]
 				ctrl = self.selectFields[fld]["ctrl"]
@@ -380,7 +385,7 @@ class SelectPage(Page):
 				if useStdFormat:
 					whr = "%s.%s %s %s" % (table, field, opStr, matchStr)
 				if len(whr) > 0:
-					biz.addWhere(whr)
+					biz.addWhere(whr, expJoint)
 		return
 
 
@@ -542,12 +547,12 @@ class BrowsePage(Page):
 
 class EditPage(Page):
 	def __init__(self, parent, ds=None, *args, **kwargs):
-		super(EditPage, self).__init__(parent, *args, **kwargs)
 		self._focusToControl = None
 		self.itemsCreated = False
 		self._dataSource = ds
 		self.childGrids = []
 		self.childrenAdded = False
+		super(EditPage, self).__init__(parent, *args, **kwargs)
 		if self.DataSource:
 			self.buildPage()
 

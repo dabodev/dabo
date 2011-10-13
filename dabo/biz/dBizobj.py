@@ -36,6 +36,7 @@ class dBizobj(dObject):
 		self.__currentCursorKey = None
 		# Description of the data represented by this bizobj
 		self._dataStructure = None
+		self._dataSource = self._dataSourceName = ""
 
 		# Dictionary holding any default values to apply when a new record is created. This is
 		# now the DefaultValues property (used to be self.defaultValues attribute)
@@ -79,7 +80,6 @@ class dBizobj(dObject):
 
 		# Various attributes used for Properties
 		self._caption = ""
-		self._dataSource = ""
 		self._nonUpdateFields = []
 		self._scanRestorePosition = True
 		self._scanRequeryChildren = True
@@ -1692,7 +1692,7 @@ class dBizobj(dObject):
 				mmPkCol = mmBizobj.KeyField
 			crs = self.createCursor(key=None, addToCursorCollection=False)
 			crs._isMM = True
-			crs.createAssociation(mmBizobj.DataSource, mmPkCol, assocTable,
+			crs.createAssociation(mmBizobj.DataSourceName, mmPkCol, assocTable,
 				assocPKColThis, assocPKColOther)
 			self._associations[mmBizobj.DataSource] = {
 					"bizobj": mmBizobj,
@@ -2461,9 +2461,9 @@ afterDelete() which is only called after a delete().""")
 		if self._dataStructure is not None:
 			crs.DataStructure = self._dataStructure
 		if not self._RemoteProxy:
-			crs.Table = self._dataSource
+			crs.Table = self.DataSourceName
 		else:
-			crs._setTableForRemote(self._dataSource)
+			crs._setTableForRemote(self.DataSourceName)
 		crs.UserSQL = self._userSQL
 		crs.VirtualFields = self._virtualFields
 		crs.Encoding = self.Encoding
@@ -2565,12 +2565,23 @@ afterDelete() which is only called after a delete().""")
 
 	def _getDataSource(self):
 		try:
-			return self._dataSource
+			return self._dataSource or self._dataSourceName
 		except AttributeError:
 			return ""
 
 	def _setDataSource(self, val):
 		self._dataSource = u"%s" % val
+		self._syncWithCursors()
+
+
+	def _getDataSourceName(self):
+		try:
+			return self._dataSourceName or self._dataSource
+		except AttributeError:
+			return ""
+
+	def _setDataSourceName(self, val):
+		self._dataSourceName = u"%s" % val
 		self._syncWithCursors()
 
 
@@ -2870,7 +2881,7 @@ afterDelete() which is only called after a delete().""")
 			crs = self._sqlMgrCursor = cf.getCursor(cursorClass)
 			crs.setCursorFactory(cf.getCursor, cursorClass)
 			crs.KeyField = self.KeyField
-			crs.Table = self.DataSource
+			crs.Table = self.DataSourceName
 			crs.AutoPopulatePK = self.AutoPopulatePK
 			crs.AutoQuoteNames = self.AutoQuoteNames
 			crs.BackendObject = cf.getBackendObject()
@@ -2919,6 +2930,25 @@ afterDelete() which is only called after a delete().""")
 
 	DataSource = property(_getDataSource, _setDataSource, None,
 			_("The title of the cursor. Used in resolving DataSource references. (str)"))
+
+	DataSourceName = property(_getDataSourceName, _setDataSourceName, None,
+			_("""If set, treated as cursor real table name where DataSource
+			is an alias	for it. This allows coexistence of many business objects
+			with same data source on single form. (str)
+			
+			Example:
+				class StockBase(dBizobj):
+					def initProperties(self):
+						self.DataSourceName = "stock"
+
+				class StockHigh(StockBase):
+					def initProperties(self):
+						self.DataSource = "stock_high"
+
+				class StockLow(StockBase):
+					def initProperties(self):
+						self.DataSource = "stock_low"
+			"""))
 
 	DataStructure = property(_getDataStructure, _setDataStructure, None,
 			_("""Returns the structure of the cursor in a tuple of 6-tuples.
