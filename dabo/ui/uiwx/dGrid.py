@@ -482,13 +482,13 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.floatRendererClass = wx.grid.GridCellFloatRenderer
 		self.listRendererClass = wx.grid.GridCellStringRenderer
 		self.imageRendererClass = gridRenderers.ImageRenderer
-		self.stringEditorClass = wx.grid.GridCellTextEditor
+		self.stringEditorClass = dabo.ui.makeGridEditor(dabo.ui.dTextBox) ##wx.grid.GridCellTextEditor
 		self.wrapStringEditorClass = wx.grid.GridCellAutoWrapStringEditor
 		self.boolEditorClass = wx.grid.GridCellBoolEditor
-		self.intEditorClass = wx.grid.GridCellNumberEditor
-		self.longEditorClass = wx.grid.GridCellNumberEditor
-		self.decimalEditorClass = wx.grid.GridCellFloatEditor
-		self.floatEditorClass = wx.grid.GridCellFloatEditor
+		self.intEditorClass = dabo.ui.makeGridEditor(dabo.ui.dTextBox, Alignment="Right") ##wx.grid.GridCellNumberEditor
+		self.longEditorClass = dabo.ui.makeGridEditor(dabo.ui.dTextBox, Alignment="Right") ##wx.grid.GridCellNumberEditor
+		self.decimalEditorClass = dabo.ui.makeGridEditor(dabo.ui.dTextBox, Alignment="Right") ##wx.grid.GridCellFloatEditor
+		self.floatEditorClass = dabo.ui.makeGridEditor(dabo.ui.dTextBox, Alignment="Right") ##wx.grid.GridCellFloatEditor
 		self.listEditorClass = wx.grid.GridCellChoiceEditor
 #		self.listEditorClass = GridListEditor
 
@@ -514,6 +514,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			"string" : self.stringEditorClass,
 			"bool" : self.boolEditorClass,
 			"int" : self.intEditorClass,
+			"integer" : self.intEditorClass,
 			"long" : self.longEditorClass,
 			"decimal" : self.decimalEditorClass,
 			"float" : self.floatEditorClass,
@@ -3731,7 +3732,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			evt.stop()
 			self.Navigate(not evt.EventData["shiftDown"])
 
-
 	def _onKeyChar(self, evt):
 		"""Occurs when the user presses a key inside the grid."""
 		if (self.Editable and self.Columns[self.CurrentColumn].Editable
@@ -5156,7 +5156,8 @@ class _dGrid_test(dGrid):
 			for i in range(20):
 				ds[row]["i_%s" % i] = "sss%s" % i
 		self.DataSet = ds
-
+	
+		self.TabNavigates = False
 		self.Width = 360
 		self.Height = 150
 		self.Editable = False

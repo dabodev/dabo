@@ -14,6 +14,7 @@ from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.lib import utils
 import dabo.dEvents as dEvents
+import dKeys
 
 # Very VERY first thing: ensure a minimal wx is selected, but only if
 # wx hasn't already been imported, and if we aren't running frozen:
@@ -1415,7 +1416,7 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 	return mb
 
 
-def makeGridEditor(controlClass, minWidth=None, minHeight=None):
+def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
 	class _BaseCellEditor(wx.grid.PyGridCellEditor):
 		_controlClass = None
 		_minWidth = None
@@ -1430,10 +1431,35 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 			"""
 			if not self._controlClass:
 				raise TypeError(_("Cannot create custom editor without a control class specified."))
-			self._control = self._controlClass(parent)
+			self._control = self._controlClass(parent, **controlProps)
+			self._grid = parent.GetParent()
+			self._control.bindEvent(dabo.dEvents.KeyDown, self._onKeyDown)
 			self.SetControl(self._control)
 			if evtHandler:
 				self._control.PushEventHandler(evtHandler)
+
+		def _onKeyDown(self, evt):
+			ed = evt.EventData
+			key, mod, shift = (ed["keyCode"], ed["hasModifiers"], 
+					ed["shiftDown"] or getattr(self, "_shiftDown", False))
+			ctrl = self._control
+			grid = self._grid
+
+			if key == dKeys.key_Up and not mod and not shift:
+				grid.HideCellEditControl()
+				row = grid.CurrentRow - 1
+				if row < 0:
+					row = 0
+				grid.CurrentRow = row
+				evt.stop()
+
+			elif key == dKeys.key_Down and not mod and not shift:
+				grid.HideCellEditControl()
+				row = grid.CurrentRow + 1
+				if row > grid.RowCount - 1:
+					row = grid.RowCount + 1
+				grid.CurrentRow = row
+				evt.stop()
 
 		def SetSize(self, rect):
 			"""
@@ -1526,11 +1552,12 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None):
 		def Clone(self):
 			"""
 			Create a new object which is the copy of this one
-			
-			*Must Override*
-			
 			"""
+			# pkm: I'm not seeing this method ever called. If it is ever called,
+			#      the following line will make that clear. :)
+			1/0
 			return self.__class__
+
 
 	class _CustomEditor(_BaseCellEditor):
 		_controlClass = controlClass
