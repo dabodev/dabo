@@ -64,18 +64,14 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		# These describe how to go from one state to the other when flipping
 		self._vFlipTrans = {1: 7, 2: 6, 3: 5, 4: 8, 5: 3, 6: 2, 7: 1, 8: 4}
 		self._hFlipTrans = {1: 5, 2: 8, 3: 7, 4: 6, 5: 1, 6: 4, 7: 3, 8: 2}
-		self.__image = None
-		self._inShowPic = False
-		self._inReload = False
-		self.__val = None
-		self.__imageData = None
-		bmp = wx.EmptyBitmap(1, 1)
+		self._imageData = self.__image = None
+		self._inReload = self._inShowPic = False
 		picName = self._extractKey((kwargs, properties, attProperties), "Picture", "")
 		self._pictureIndex = self._extractKey((kwargs, properties, attProperties), "PictureIndex", -1)
 
 		dim.dImageMixin.__init__(self)
 		dcm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
-				bitmap=bmp, *args, **kwargs)
+				bitmap=wx.EmptyBitmap(1, 1), *args, **kwargs)
 
 		# Display the picture, if any. This will also initialize the
 		# self._picture attribute
@@ -131,12 +127,12 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 
 
 	def getImgType(self):
-		data = self.__imageData
+		data = self._imageData
 		ret = (None, None)
 		if data:
 			ret = None
 			fname = self.Application.getTempFile(ext="")
-			open(fname, "wb").write(self.__imageData)
+			open(fname, "wb").write(data)
 			aux = wx.NullImage
 			hnds = aux.GetHandlers()
 			for hnd in hnds:
@@ -196,16 +192,16 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		if h == 0:
 			szProp = 1
 		else:
-			szProp = w/h
+			szProp = w / h
 		imgProp = self._imgProp
 
 		if switchProportions:
 			# The image has been rotated.
-			imgProp = 1/imgProp
+			imgProp = 1 / imgProp
 
 		sm = self.ScaleMode[0].lower()
 
-		if self._Image.GetWidth() ==  self._Image.GetHeight() == 1:
+		if self._Image.GetWidth() == self._Image.GetHeight() == 1:
 			# Empty bitmap; no need to scale.
 			img = img
 		elif sm == "c":
@@ -243,7 +239,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 	# Property definitions
 	def _getFrameCount(self):
 		typ = imghdr.what(file(self.Picture))
-		if typ in ("gif", ):
+		if typ in ("gif",):
 			anim = wx.animate.Animation(self.Picture)
 			cnt = anim.GetFrameCount()
 		else:
@@ -255,14 +251,22 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		return self._picture
 
 	def _setPicture(self, val):
-		if isinstance(val, wx.Image):
+		if not val:
+			# Empty string passed; clear any current image
+			self._picture = ""
+			self._displayState = 1
+			self._bmp = wx.EmptyBitmap(1, 1, 1)
+			self.__image = wx.EmptyImage(1, 1)		# self._bmp.ConvertToImage()
+			self._showPic()
+			return
+		elif isinstance(val, wx.Image):
 			# An image stored as a stream is being used
-			self.__image = self.__val = val
+			self.__image = val
 			self._picture = "(stream)"
 		elif isinstance(val, wx.Bitmap):
 			# a raw bitmap is being supplied
 			self._bmp = val
-			self.__image = self.__val = val.ConvertToImage()
+			self.__image = val.ConvertToImage()
 			self._picture = "(stream)"
 		elif isinstance(val, buffer):
 			val = cStringIO.StringIO(val)
@@ -271,25 +275,16 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self._setPicture(img)
 			return
 		else:
-			pathExists = os.path.exists(val)
-			if not val:
-				# Empty string passed; clear any current image
-				self._picture = ""
-				self._displayState = 1
-				self._bmp = wx.EmptyBitmap(1, 1, 1)
-				self.__image = self.__val = wx.EmptyImage(1, 1)		# self._bmp.ConvertToImage()
-				self._showPic()
-				return
-			elif not pathExists:
+			if not os.path.isfile(val):
 				origVal = val
 				val = dabo.ui.getImagePath(val)
-				if val is None or not os.path.exists(val):
+				if val is None or not os.path.isfile(val):
 					# This will raise an IOError if it fails
 					try:
 						val = utils.resolvePathAndUpdate(origVal)
 					except IOError:
 						val = None
-				if val is None or not os.path.exists(val):
+				if val is None or not os.path.isfile(val):
 					# Bad image reference
 					dabo.log.error(_("No file named '%s' exists.") % origVal)
 					return
@@ -308,7 +303,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			except IndexError:
 				# Note: when I try to load an invalid index, I get a segfault, so I don't know
 				# how useful this is.
-				self._Image.LoadFile(val, index=-1)
+				self._Image.LoadFile(val, index= -1)
 			if _USE_PIL:
 				try:
 					pil_img = Image.open(val)
@@ -355,41 +350,35 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self._scaleMode = modes[initial]
 			self._showPic()
 		except KeyError:
-			dabo.log.error(_("ScaleMode must be either 'Clip', 'Proportional' or 'Stretch'.") )
+			dabo.log.error(_("ScaleMode must be either 'Clip', 'Proportional' or 'Stretch'."))
 
 
 	def _getValue(self):
-		if self._Image.IsOk():
-			return self._Image.GetData()
-		else:
-			return None
+		return self._imageData
 
 	def _setValue(self, val):
 		if self._constructed():
-			if self.__val == val:
+			if self._imageData == val:
 				return
-			self.__val = val
-			try:
-				isFile = os.path.isfile(val)
-			except (TypeError, ValueError):
-				isFile = False
-			if not isFile:
-				# Probably an image stream
+			img = self._imageData = None
+			if val:
 				try:
-					img = dabo.ui.imageFromData(val)
+					isFile = os.path.isfile(val)
+				except (TypeError, ValueError):
+					isFile = False
+				if isFile:
+					try:
+						self._imageData = open(val, "rb").read()
+					except StandardError:
+						pass
+				else:
+					# Probably an image stream
+					self._imageData = val
+				try:
+					img = dabo.ui.imageFromData(self._imageData)
 				except TypeError:
-					# No dice, so just bail
-					img = wx.EmptyImage(1, 1)
-				self._setPicture(img)
-			else:
-				self._setPicture(val)
-			if ((type(self.__imageData) != type(val)) or (self.__imageData != val)):
-				tfname = self.Application.getTempFile(ext="")
-				try:
-					self.__image.SaveFile(tfname, wx.BITMAP_TYPE_BMP)
-					self.__imageData = open(tfname, "rb").read()
-				except StandardError,e:
-					self.__imageData = u""
+					pass
+			self._setPicture(img)
 			self._afterValueChanged()
 		else:
 			self._properties["Value"] = val
@@ -408,7 +397,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			_("Number of frames in the current image. Will be 1 for most images, but can be greater for animated GIFs, ICOs and some TIFF files. (read-only) (int)"))
 
 	Picture = property(_getPicture, _setPicture, None,
-			_("The file used as the source for the displayed image.  (str)") )
+			_("The file used as the source for the displayed image.  (str)"))
 
 	PictureIndex = property(_getPictureIndex, _setPictureIndex, None,
 			_("""When displaying images from files that can contain multiple
@@ -426,13 +415,13 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				Stretch         The image resizes to the Height/Width of the control.
 				=============== ===================
 				
-			""") )
+			"""))
 
 	Value = property(_getValue, _setValue, None,
 			_("Image content for this control  (binary img data)"))
 
 	_Image = property(_getImg, None, None,
-			_("Underlying image handler object  (wx.Image)") )
+			_("Underlying image handler object  (wx.Image)"))
 
 
 	DynamicPicture = makeDynamicProperty(Picture)
@@ -487,8 +476,8 @@ if __name__ == "__main__":
 
 			self.ddScale = dabo.ui.dDropdownList(mp,
 					Choices=["Proportional", "Stretch", "Clip"],
-					DataSource = "self.Form.img",
-					DataField = "ScaleMode")
+					DataSource="self.Form.img",
+					DataField="ScaleMode")
 			self.ddScale.PositionValue = 0
 			btn = dabo.ui.dButton(mp, Caption="Load Image",
 					OnHit=self.onLoadImage)
