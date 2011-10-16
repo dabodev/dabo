@@ -1149,7 +1149,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				dabo.dbActivityLog.info("lookupPKWithAdd() (failed to log SQL and PARAMS)")
 		aux.execute(sql, (val,))
 		if aux.RowCount:
-			return aux.getPK()
+			return aux.getFieldVal(pkCol)
 		else:
 			# Add the record
 			sql = self._qMarkToParamPlaceholder("insert into %s (%s) values (?)"
