@@ -273,7 +273,7 @@ class ChildBorn(dEvent):
 		super(ChildBorn, self).__init__(*args, **kwargs)
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, (dabo.ui.dForm, dabo.ui.dDialog,
-				dabo.ui.dPanel, dabo.ui.dPage, dabo.ui.dPageFrame,
+				dabo.ui.dPanel, dabo.ui.dPage, dabo.ui.dPageFrame, dabo.ui.dPageStyled,
 				dabo.ui.dPageList, dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs))
 	appliesToClass = classmethod(appliesToClass)
 
