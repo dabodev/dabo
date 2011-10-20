@@ -426,6 +426,10 @@ class dBizobj(dObject):
 			# If there are no records, there can be no changes
 			return
 
+		errMsg = self.beforeSaveAll()
+		if errMsg:
+			raise dException.BusinessRuleViolation(errMsg)
+
 		startTransaction = startTransaction and self.beginTransaction()
 		try:
 			self.scan(self.save, startTransaction=False, scanRequeryChildren=False)
@@ -438,6 +442,8 @@ class dBizobj(dObject):
 			if startTransaction:
 				self.rollbackTransaction()
 			raise
+
+		self.afterSaveAll()
 
 
 	def save(self, startTransaction=True, saveTheChildren=True):
@@ -2369,7 +2375,8 @@ of the string will be displayed to the user."""
 			"all child records are deleted")
 	beforeSetRowNumber = _makeHookMethod("beforeSetRowNumber",
 			"the RowNumber property is set")
-	beforeSave = _makeHookMethod("beforeSave", "the changed records are saved.")
+	beforeSave = _makeHookMethod("beforeSave", "the current record is saved.")
+	beforeSaveAll = _makeHookMethod("beforeSaveAll", "all the changed records are saved.")
 	beforeCancel = _makeHookMethod("beforeCancel",
 			"the changed records are canceled.")
 	beforeRequery = _makeHookMethod("beforeRequery", "the cursor is requeried")
@@ -2400,7 +2407,8 @@ values and not trigger the memento system, override onNew() instead.
 			"all child records are deleted")
 	afterSetRowNumber = _makeHookMethod("afterSetRowNumber",
 			"the RowNumber property is set")
-	afterSave = _makeHookMethod("afterSave", "the changed records are saved.")
+	afterSave = _makeHookMethod("afterSave", "the current record is saved.")
+	afterSaveAll = _makeHookMethod("afterSaveAll", "all the the changed records are saved.")
 	afterCancel = _makeHookMethod("afterCancel",
 			"the changed records are canceled.")
 	afterRequery = _makeHookMethod("afterRequery", "the cursor is requeried")
