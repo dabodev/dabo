@@ -353,13 +353,21 @@ if __name__ == "__main__":
 			# your machine, or another URI.
 			#uri = "/Users/ed/Downloads/roc.mov"
 			uri = "http://c0097282.cdn.cloudfiles.rackspacecloud.com/how_to_fold_a_shirt.mpg"
-			self.player = dMediaControl(self, Source=uri, Loop=False)
+			if self.Application.Platform == "Win":
+				backend = wx.media.MEDIABACKEND_WMP10
+			else:
+				backend = ""
+			self.player = dMediaControl(self, Source=uri, Loop=False, OnMediaLoaded=self.onMediaLoaded,
+					szBackend=backend)
 			# Change this to fill the form
 			show_native_size = True
 			if show_native_size:
 				self.Sizer.append(self.player)
 			else:
 				self.Sizer.append1x(self.player)
+
+		def onMediaLoaded(self, evt):
+			print "MediaLoaded"
 
 
 	app = dabo.dApp(MainFormClass=MediaForm)
