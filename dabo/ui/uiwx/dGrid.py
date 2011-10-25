@@ -3438,9 +3438,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	##----------------------------------------------------------##
 	##        begin: dEvent callbacks for internal use          ##
 	##----------------------------------------------------------##
-	def __onRowNumChanged(self, evt): pass
-
-
 	def _onGridCellEdited(self, evt):
 		bizobj = self.getBizobj()
 		row, col = evt.EventData["row"], evt.EventData["col"]
@@ -4350,8 +4347,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				# Force the grid to maintain its current sort order
 				self._restoreSort()
 				dabo.ui.callAfter(self.refresh)
-			if self.getBizobj():
-				self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		else:
 			self._properties["DataSet"] = val
 
@@ -4367,9 +4362,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if self._constructed():
 			# We must make sure the grid's table is initialized first:
 			self._Table
-			oldBizobj = self.getBizobj()
-			if oldBizobj:
-				oldBizobj.unbindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 			self._dataSet = None
 			self._dataSource = val
 			self.fillGrid(True)
@@ -4378,7 +4370,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				self._dataSourceBeingSet = True
 			if biz:
 				dabo.ui.setAfter(self, "CurrentRow", biz.RowNumber)
-				self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		else:
 			self._properties["DataSource"] = val
 
