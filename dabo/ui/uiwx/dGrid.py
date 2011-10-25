@@ -485,10 +485,10 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.stringEditorClass = dabo.ui.makeGridEditor(dabo.ui.dTextBox) ##wx.grid.GridCellTextEditor
 		self.wrapStringEditorClass = wx.grid.GridCellAutoWrapStringEditor
 		self.boolEditorClass = wx.grid.GridCellBoolEditor
-		self.intEditorClass = dabo.ui.makeGridEditor(dabo.ui.dTextBox, Alignment="Right") ##wx.grid.GridCellNumberEditor
-		self.longEditorClass = dabo.ui.makeGridEditor(dabo.ui.dTextBox, Alignment="Right") ##wx.grid.GridCellNumberEditor
-		self.decimalEditorClass = dabo.ui.makeGridEditor(dabo.ui.dTextBox, Alignment="Right") ##wx.grid.GridCellFloatEditor
-		self.floatEditorClass = dabo.ui.makeGridEditor(dabo.ui.dTextBox, Alignment="Right") ##wx.grid.GridCellFloatEditor
+		self.intEditorClass = wx.grid.GridCellNumberEditor
+		self.longEditorClass = wx.grid.GridCellNumberEditor
+		self.decimalEditorClass = wx.grid.GridCellFloatEditor
+		self.floatEditorClass = wx.grid.GridCellFloatEditor
 		self.listEditorClass = wx.grid.GridCellChoiceEditor
 #		self.listEditorClass = GridListEditor
 
