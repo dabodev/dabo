@@ -272,7 +272,7 @@ class BaseForm(fm.dFormMixin):
 			biz.RequeryChildrenOnNavigate = False
 
 		def bail(msg, meth=None, *args, **kwargs):
-			if func is None:
+			if meth is None:
 				meth = self.setStatusText
 			meth(msg, *args, **kwargs)
 			biz.RequeryChildrenOnNavigate = self.__oldChildRequery
