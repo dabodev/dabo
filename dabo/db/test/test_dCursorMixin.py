@@ -5,10 +5,9 @@ from dabo.lib import getRandomUUID
 
 
 # Testing anything other than sqlite requires network access. So set these
-# flags so that only the db's you want to test against are True. DB's set as
-# False by default are probably not working as-is.
+# flags so that only the db's you want to test against are True.
 db_tests = {"sqlite": True,
-		"mysql": True,
+		"mysql": False,
 		"firebird": False,
 		"postgresql": False,
 		"mssql": False,

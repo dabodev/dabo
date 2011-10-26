@@ -793,10 +793,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# self.RowNumber doesn't exist (init phase?) Nothing's changed:
 				return False
 			recKey = self.pkExpression(rec)
-			modrec = self._mementos.get(recKey, None)
-			if not modrec and includeNewUnchanged:
-				modrec = recKey in self._newRecords
-			return bool(modrec)
+			return recKey in self._mementos or (includeNewUnchanged and recKey in self._newRecords)
 
 
 	def setNewFlag(self):
