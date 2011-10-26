@@ -1424,11 +1424,10 @@ class dBizobj(dObject):
 				#                     2) _resetChildrenParent instead checked for child.RowCount == 0
 				# I think both are wrong. In #1, you'd never get a requery of that child if there was 
 				# one changed record in the hierarchy, plus there are performance issues in running
-				# that check. In #2, you'd never get a child requery unless RowCount was 0. I'm leaving
-				# both of those conditions out completely for now, although that is most certainly 
-				# wrong as well, but at least we are now consistent in behavior between e.g. self.first()
-				# and self.RowNumber = 0.
-				if updateChildren and child.cacheExpired():
+				# that check. In #2, you'd never get a child requery unless RowCount was 0.
+				# I'm choosing #1, since we do want a requery but if there are changes we don't want
+				# to erase them. We should revisit this. 
+				if updateChildren and not child.isAnyChanged(useCurrentParent=True) and child.cacheExpired():
 					child.requery()
 
 
