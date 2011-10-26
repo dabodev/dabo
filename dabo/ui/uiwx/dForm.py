@@ -237,6 +237,19 @@ class BaseForm(fm.dFormMixin):
 				rowNumber=rowNumber)
 
 
+	def _afterPointerMoveUpdate(self, biz):
+		biz.RequeryChildrenOnNavigate = self.__oldChildRequery
+		self.__oldChildRequery = None 
+		biz.requeryAllChildren()
+		# Notify listeners that the row number changed:
+		self.raiseEvent(dEvents.RowNumChanged,
+				newRowNumber=biz.RowNumber, oldRowNumber=self.__oldRowNum,
+				bizobj=biz)
+		self.update()
+		self.refresh()
+		self.__inPointerMoveUpdate = False
+
+
 	def _moveRecordPointer(self, func, dataSource=None, *args, **kwargs):
 		"""Move the record pointer using the specified function."""
 		self.dataSourceParameter = dataSource
@@ -244,7 +257,7 @@ class BaseForm(fm.dFormMixin):
 			biz = dataSource
 		else:
 			biz = self.getBizobj(dataSource)
-		oldRowNum = biz.RowNumber
+		oldRowNum = self.__oldRowNum = biz.RowNumber
 
 		if self.activeControlValid() is False:
 			# Field validation failed
@@ -253,29 +266,39 @@ class BaseForm(fm.dFormMixin):
 		if err:
 			self.notifyUser(err)
 			return False
+
+		if getattr(self, "__oldChildRequery", None) is None:
+			self.__oldChildRequery = biz.RequeryChildrenOnNavigate
+			biz.RequeryChildrenOnNavigate = False
+
+		def bail(msg, meth=None, *args, **kwargs):
+			if func is None:
+				meth = self.setStatusText
+			meth(msg, *args, **kwargs)
+			biz.RequeryChildrenOnNavigate = self.__oldChildRequery
+			self.__oldChildRequery = None
+
 		try:
 			response = func(*args, **kwargs)
 		except dException.NoRecordsException:
-			self.setStatusText(_("No records in dataset."))
+			bail(_("No records in dataset."))
 			return False
 		except dException.BeginningOfFileException:
-			self.setStatusText(self.getCurrentRecordText(dataSource) + " (BOF)")
+			bail(self.getCurrentRecordText(dataSource) + " (BOF)")
 			return False
 		except dException.EndOfFileException:
-			self.setStatusText(self.getCurrentRecordText(dataSource) + " (EOF)")
+			bail(self.getCurrentRecordText(dataSource) + " (EOF)")
 			return False
 		except dException.dException, e:
-			self.notifyUser(ustr(e), exception=e)
+			bail(ustr(e), meth=self.notifyUser, exception=e)
 			return False
 		else:
 			if biz.RowNumber != oldRowNum:
-				# Notify listeners that the row number changed:
-				dabo.ui.callAfter(self.raiseEvent, dEvents.RowNumChanged,
-						newRowNumber=biz.RowNumber, oldRowNumber=oldRowNum,
-						bizobj=biz)
-			self.update(self.DataUpdateDelay)
-		self.afterPointerMove()
-		self.refresh()
+				dabo.ui.callAfterInterval(self._afterPointerMoveUpdate, self.DataUpdateDelay, biz)
+				self.afterPointerMove()  ## purposely putting it here before the update
+			else:
+				biz.RequeryChildrenOnNavigate = self.__oldChildRequery
+				self.__oldChildRequery = None
 		return True
 
 

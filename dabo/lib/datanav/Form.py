@@ -1040,6 +1040,28 @@ class Form(dabo.ui.dForm):
 		self._editPageClass = val
 
 
+	def _getEnableChildRequeriesWhenBrowsing(self):
+		try:
+			val = self._enableChildRequeriesWhenBrowsing
+		except AttributeError:
+			val = self._enableChildRequeriesWhenBrowsing = True
+		return val
+
+	def _setEnableChildRequeriesWhenBrowsing(self, val):
+		self._enableChildRequeriesWhenBrowsing = bool(val)
+
+
+	def _getEnableChildRequeriesWhenEditing(self):
+		try:
+			val = self._enableChildRequeriesWhenEditing
+		except AttributeError:
+			val = self._enableChildRequeriesWhenEditing = True
+		return val
+
+	def _setEnableChildRequeriesWhenEditing(self, val):
+		self._enableChildRequeriesWhenEditing = bool(val)
+
+
 	def _getFormType(self):
 		try:
 			return self._formType
@@ -1139,6 +1161,20 @@ class Form(dabo.ui.dForm):
 
 	EditPageClass = property(_getEditPageClass, _setEditPageClass, None,
 			_("""Specifies the class to use for the edit page."""))
+
+	EnableChildRequeriesWhenBrowsing = property(_getEnableChildRequeriesWhenBrowsing,
+			_setEnableChildRequeriesWhenBrowsing, None,
+			_("""Specifies whether child bizobjs are requeried automatically when the parent
+			RowNumber changes, while in the browse page. Default: True
+
+			Turning this to False will result in better performance of the browse grid when
+			there are lots of child bizobjs, but it may result in unintended consequences
+			which is why it is True by default."""))
+
+	EnableChildRequeriesWhenEditing = property(_getEnableChildRequeriesWhenEditing,
+			_setEnableChildRequeriesWhenEditing, None,
+			_("""Specifies whether child bizobjs are requeried automatically when the parent
+			RowNumber changes, while not in the browse page. Default: True"""))
 
 	FormType = property(_getFormType, _setFormType, None,
 			_("""Specifies the type of form this is.

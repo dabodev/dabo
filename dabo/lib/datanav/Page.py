@@ -69,6 +69,7 @@ class Page(dabo.ui.dPage):
 	def initEvents(self):
 		super(Page, self).initEvents()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
+		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
 
 
 	def __onPageEnter(self, evt):
@@ -80,6 +81,16 @@ class Page(dabo.ui.dPage):
 	def _onPageEnter(self):
 		"""Subclass hook."""
 		pass
+
+
+	def __onPageLeave(self, evt):
+		self._onPageLeave()
+
+
+	def _onPageLeave(self):
+		"""Subclass hook."""
+		pass
+
 
 
 	def newRecord(self, ds=None):
@@ -532,6 +543,15 @@ class BrowsePage(Page):
 			self.createItems()
 		if self.Form.SetFocusToBrowseGrid:
 			self.BrowseGrid.setFocus()
+		if not self.Form.EnableChildRequeriesWhenBrowsing:
+			biz = self.Form.getBizobj()
+			biz.RequeryChildrenOnNavigate = False
+
+	def _onPageLeave(self):
+		if self.Form.EnableChildRequeriesWhenEditing:
+			biz = self.Form.getBizobj()
+			biz.RequeryChildrenOnNavigate = True
+			biz.requeryAllChildren()
 
 
 	def createItems(self):
@@ -559,7 +579,6 @@ class EditPage(Page):
 
 	def initEvents(self):
 		super(EditPage, self).initEvents()
-		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
 		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 
 
@@ -574,7 +593,7 @@ class EditPage(Page):
 			cg.populate()
 
 
-	def __onPageLeave(self, evt):
+	def _onPageLeave(self):
 		self.Form.setPrimaryBizobjToDefault(self.DataSource)
 
 
