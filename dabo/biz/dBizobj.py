@@ -1418,9 +1418,17 @@ class dBizobj(dObject):
 		"""
 		if updateChildren is not None:
 			for child in self._children:
-				# Let the child update to the current record.
+				# Let the child update to the current record:
 				child.setCurrentParent()
-				if updateChildren and child.RowCount == 0 and child.cacheExpired():
+				# consolidation note: 1) requeryAllChildren() checked for child.isAnyChanged(useCurrentParent=True);
+				#                     2) _resetChildrenParent instead checked for child.RowCount == 0
+				# I think both are wrong. In #1, you'd never get a requery of that child if there was 
+				# one changed record in the hierarchy, plus there are performance issues in running
+				# that check. In #2, you'd never get a child requery unless RowCount was 0. I'm leaving
+				# both of those conditions out completely for now, although that is most certainly 
+				# wrong as well, but at least we are now consistent in behavior between e.g. self.first()
+				# and self.RowNumber = 0.
+				if updateChildren and child.cacheExpired():
 					child.requery()
 
 
@@ -1727,7 +1735,7 @@ class dBizobj(dObject):
 		return ret
 
 
-	def requeryAllChildren(self):
+	def requeryAllChildren(self, _doRequery=True):
 		"""
 		Requery each child bizobj's data set.
 
@@ -1748,16 +1756,9 @@ class dBizobj(dObject):
 		if errMsg:
 			raise dException.BusinessRuleViolation(errMsg)
 
-
-		for child in self._children:
-			# Let the child know the current dependent PK
-			child.setCurrentParent()  ##pkm: moved from the block below: should be unconditional
-			if child.RequeryWithParent:
-				if not child.isAnyChanged(useCurrentParent=True):
-					# Check for caching
-					if child.cacheExpired():
-						child.requery()
-		self.afterChildRequery()
+		self._resetChildrenParent(_doRequery)
+		if _doRequery:
+			self.afterChildRequery()
 
 
 	def cacheExpired(self):
