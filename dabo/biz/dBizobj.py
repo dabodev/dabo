@@ -69,7 +69,6 @@ class dBizobj(dObject):
 		self._children = []		# Collection of child bizobjs
 		self._associations = {}		# Dict of many-to-many associations, keyed by DataSource
 		self._baseClass = dBizobj
-		self.__areThereAnyChanges = False	# Used by the isChanged() method.
 		# Used by the LinkField property
 		self._linkField = ""
 		self._parentLinkField = ""
@@ -472,7 +471,7 @@ class dBizobj(dObject):
 					_("No key field defined for table: %s") % self.DataSource)
 
 		# Check if only this row is changed.
-		isRowChanged = self.__areThereAnyChanges
+		isRowChanged = self.isChanged(withChildren=False)
 		# Save to the Database, but first save the IsAdding flag as the save() call
 		# will reset it to False:
 		isAdding = self.IsAdding
@@ -1420,14 +1419,15 @@ class dBizobj(dObject):
 			for child in self._children:
 				# Let the child update to the current record:
 				child.setCurrentParent()
-				# consolidation note: 1) requeryAllChildren() checked for child.isAnyChanged(useCurrentParent=True);
+				# consolidation note: 1) requeryAllChildren() checked for child.isAnyChanged();
 				#                     2) _resetChildrenParent instead checked for child.RowCount == 0
 				# I think both are wrong. In #1, you'd never get a requery of that child if there was 
 				# one changed record in the hierarchy, plus there are performance issues in running
-				# that check. In #2, you'd never get a child requery unless RowCount was 0.
-				# I'm choosing #1, since we do want a requery but if there are changes we don't want
-				# to erase them. We should revisit this. 
-				if updateChildren and not child.isAnyChanged(useCurrentParent=True) and child.cacheExpired():
+				# that check. In #2, you'd never get a child requery unless RowCount was 0. I'm leaving
+				# both of those conditions out completely for now, although that is most certainly 
+				# wrong as well, but at least we are now consistent in behavior between e.g. self.first()
+				# and self.RowNumber = 0.
+				if updateChildren and not child.isAnyChanged() and child.cacheExpired():
 					child.requery()
 
 
@@ -1498,76 +1498,42 @@ class dBizobj(dObject):
 				self.afterPointerMove()
 		return ret
 
-
-	def isAnyChanged(self, useCurrentParent=False, includeNewUnchanged=None):
-		"""
-		Returns True if any record in the current record set has been changed.
-		"""
+	def _isChanged(self, allRows, includeNewUnchanged, withChildren):
+		cursor = self._CurrentCursor
+		if cursor is None or cursor.RowCount == 0:
+			return False
 		if includeNewUnchanged is None:
 			includeNewUnchanged = self.SaveNewUnchanged
-		if useCurrentParent:
-			cursor = self.__cursors.get(self.getParentLinkValue(), None)
-			if cursor is None or cursor.RowCount == 0:
-				return False
-			cursors = [cursor]
-		else:
-			cursors = self.__cursors.values()
-		for v in cursors:
-			if v.isChanged(includeNewUnchanged=includeNewUnchanged):
-				return True
-		for child in self.getChildren():
-			if child.isAnyChanged(includeNewUnchanged=includeNewUnchanged):
-				return True
+		if cursor.isChanged(allRows=allRows, includeNewUnchanged=includeNewUnchanged):
+			return True
+		if withChildren:
+			for child in self.getChildren():
+				if child.isAnyChanged(includeNewUnchanged=includeNewUnchanged):
+					return True
 		return False
 
-
-	def _isAnyRowChanged(self, includeNewUnchanged):
+		
+	def isAnyChanged(self, includeNewUnchanged=None, withChildren=True):
 		"""
-		For internal use only.
+		Return True if at least one record in the current record set 
+		has been changed.
 		"""
-		def _isThisChanged():
-			self.exitScan = self.isChanged(includeNewUnchanged)
-			return self.exitScan
-
-		ret = self.scan(_isThisChanged, scanRequeryChildren=False)
-		return bool(ret)
+		return self._isChanged(True, includeNewUnchanged, withChildren)
 
 
 	def isChanged(self, includeNewUnchanged=None, withChildren=True):
 		"""
 		Return True if data has changed in this bizobj and any children.
 
-		It's more precise than isAnyChanged() method bacuse it checks every node
-		in branch, but it generates more overhead.
-		By default, only the current record is checked. Call isAnyChanged() to
+		Only the current record is checked. Call isAnyChanged() to
 		check all records.
 		"""
-		if not self.RowCount:
-			# If there are no records, there can be no changes.
-			return False
-		cursor = self._CurrentCursor
-		if cursor is None:
-			# No cursor, no changes.
-			return False
-		if includeNewUnchanged is None:
-			includeNewUnchanged = self.SaveNewUnchanged
-
-		self.__areThereAnyChanges = ret = cursor.isChanged(allRows=False,
-				includeNewUnchanged=includeNewUnchanged)
-
-		if not ret and withChildren:
-			for child in self.getChildren():
-				# Since isChanged is more precise than isAnyChanged, to avoid false
-				# positives from all cursors, we can't use it internally.
-				ret = child._isAnyRowChanged(includeNewUnchanged)
-				if ret:
-					break
-		return ret
+		return self._isChanged(False, includeNewUnchanged, withChildren)
 
 
 	def isRowChanged(self, includeNewUnchanged=None):
 		"""
-		Return True if data has changed in the current and only current row
+		Return True if data has changed in the current row
 		of this bizobj, without any children.
 		"""
 		return self.isChanged(includeNewUnchanged=includeNewUnchanged,
