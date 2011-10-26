@@ -310,7 +310,10 @@ def callAfterInterval(interval, func, *args, **kwargs):
 	def ca_func(_func_ref, _func, *args, **kwargs):
 		"""Wrapper to call the user func and pop it off the references dict."""
 		defunct = _callAfterIntervalReferences.pop((_func_ref, args), None)
-		_func(*args, **kwargs)
+		try:
+			_func(*args, **kwargs)
+		except wx._core.PyDeadObjectError:
+			pass
 
 	_callAfterIntervalReferences[(func_ref, args)] = wx.FutureCall(interval, ca_func, func_ref, func, *args, **kwargs)
 
