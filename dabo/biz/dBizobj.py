@@ -2833,7 +2833,6 @@ afterDelete() which is only called after a delete().""")
 		if errMsg:
 			raise dException.BusinessRuleViolation(errMsg)
 		self._moveToRowNum(rownum)
-		self.requeryAllChildren()
 		self.afterPointerMove()
 		self.afterSetRowNumber()
 
