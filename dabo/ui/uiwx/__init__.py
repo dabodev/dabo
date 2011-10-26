@@ -284,7 +284,7 @@ def callAfter(fnc, *args, **kwargs):
 	wx.CallAfter(fnc, *args, **kwargs)
 
 
-_callAfterIntervalReferences = {}
+_callAfterIntervalReferences = dabo.ui._callAfterIntervalReferences = {}
 def callAfterInterval(interval, func, *args, **kwargs):
 	"""
 	Call the given function after <interval> milliseconds have elapsed.
@@ -303,10 +303,16 @@ def callAfterInterval(interval, func, *args, **kwargs):
 	func_ref = func
 	if func.func_closure:
 		func_ref = func.func_code
-	futureCall = _callAfterIntervalReferences.get((func_ref, args))
+	futureCall = _callAfterIntervalReferences.pop((func_ref, args), None)
 	if futureCall:
 		futureCall.Stop()
-	_callAfterIntervalReferences[(func_ref, args)] = wx.FutureCall(interval, func, *args, **kwargs)
+
+	def ca_func(_func_ref, _func, *args, **kwargs):
+		"""Wrapper to call the user func and pop it off the references dict."""
+		defunct = _callAfterIntervalReferences.pop((_func_ref, args), None)
+		_func(*args, **kwargs)
+
+	_callAfterIntervalReferences[(func_ref, args)] = wx.FutureCall(interval, ca_func, func_ref, func, *args, **kwargs)
 
 
 def setAfter(obj, prop, val):

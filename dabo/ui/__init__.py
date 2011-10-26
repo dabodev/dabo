@@ -35,13 +35,13 @@ def deadCheck(fn, *args, **kwargs):
 	destroyed) from attempts to call their methods. Currently this only supports wxPython,
 	but if needed in other toolkits, different functionality will need to be coded.
 	"""
-	def retfn(self, *args, **kwargs):
+	def deadCheckFunc(self, *args, **kwargs):
 		if not self:
 			# For testing, uncomment the print line below:
 # 			print "FOUND DEAD OBJECT"
 			return
 		return fn(self, *args, **kwargs)
-	return retfn
+	return deadCheckFunc
 
 
 def loadUI(uiType):
