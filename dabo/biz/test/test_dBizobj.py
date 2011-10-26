@@ -228,14 +228,12 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		biz.deleteAll()
 		self.assertEqual(biz.RowCount, 0)
 
-		self.assertRaises(dabo.dException.NoRecordsException, biz.save)
 		self.assertRaises(dabo.dException.NoRecordsException, biz.delete)
 
 		biz.new()
 		self.assertEqual(biz.RowCount, 1)
 		biz.delete()
 		self.assertEqual(biz.RowCount, 0)
-		self.assertRaises(dabo.dException.NoRecordsException, biz.save)
 
 		biz.new()
 		biz.save()
@@ -295,14 +293,16 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		bizMain.SaveNewUnchanged = False
 		bizChild.new()
 		self.assertEqual(bizChild.RowCount, 4)
-		self.assertEqual(bizMain.isAnyChanged(), True)  ## because True in bizChild
+		self.assertEqual(bizMain.isAnyChanged(), False)  ## the new child record isn't changed
 		self.assertEqual(bizMain.getChangedRows(), [])
-		self.assertEqual(bizChild.isAnyChanged(), True)  ## because True in bizMain
+		self.assertEqual(bizChild.isAnyChanged(), True)  ## bizChild.SaveNewUnchanged == True
+		self.assertEqual(bizChild.isAnyChanged(includeNewUnchanged=False), False)
 		bizMain.save()
 		self.assertEqual(bizChild.RowCount, 4)
 		temp = bizMain.getTempCursor(test_sql, (bizMain.Record.pk,))
-		self.assertEqual(bizChild.RowCount, temp.Record.count)  ## record should have been saved
+		self.assertEqual(temp.Record.count, 3)  ## bizMain.SaveNewUnchanged == False so not saved.
 		self.assertEqual(bizMain.getChangedRows(), [])
+
 		
 
 	def testMementos(self):
