@@ -260,7 +260,7 @@ class dBizobj(dObject):
 			raise dException.BusinessRuleViolation(errMsg)
 
 		self._CurrentCursor.first()
-		self.requeryAllChildren()
+		self.requeryAllChildren(_doRequery=self.RequeryChildrenOnNavigate)
 
 		self.afterPointerMove()
 		self.afterFirst()
@@ -280,7 +280,7 @@ class dBizobj(dObject):
 			raise dException.BusinessRuleViolation(errMsg)
 
 		self._CurrentCursor.prior()
-		self.requeryAllChildren()
+		self.requeryAllChildren(_doRequery=self.RequeryChildrenOnNavigate)
 
 		self.afterPointerMove()
 		self.afterPrior()
@@ -300,7 +300,7 @@ class dBizobj(dObject):
 			raise dException.BusinessRuleViolation(errMsg)
 
 		self._CurrentCursor.next()
-		self.requeryAllChildren()
+		self.requeryAllChildren(_doRequery=self.RequeryChildrenOnNavigate)
 
 		self.afterPointerMove()
 		self.afterNext()
@@ -320,7 +320,7 @@ class dBizobj(dObject):
 			raise dException.BusinessRuleViolation(errMsg)
 
 		self._CurrentCursor.last()
-		self.requeryAllChildren()
+		self.requeryAllChildren(_doRequery=self.RequeryChildrenOnNavigate)
 
 		self.afterPointerMove()
 		self.afterLast()
@@ -2781,6 +2781,17 @@ afterDelete() which is only called after a delete().""")
 		self._requeryChildOnSave = bool(val)
 
 
+	def _getRequeryChildrenOnNavigate(self):
+		try:
+			return self._requeryChildrenOnNavigate
+		except AttributeError:
+			ret = self._requeryChildrenOnNavigate = True
+			return ret
+	
+	def _setRequeryChildrenOnNavigate(self, val):
+		self._requeryChildrenOnNavigate = bool(val)
+
+
 	def _getRequeryOnLoad(self):
 		try:
 			ret = self._requeryOnLoad
@@ -2833,7 +2844,7 @@ afterDelete() which is only called after a delete().""")
 			errMsg = self.beforePointerMove()
 		if errMsg:
 			raise dException.BusinessRuleViolation(errMsg)
-		self._moveToRowNum(rownum)
+		self._moveToRowNum(rownum, self.RequeryChildrenOnNavigate)
 		self.afterPointerMove()
 		self.afterSetRowNumber()
 
@@ -3034,6 +3045,18 @@ afterDelete() which is only called after a delete().""")
 
 	RequeryChildOnSave = property(_getRequeryChildOnSave, _setRequeryChildOnSave, None,
 			_("Do we requery child bizobjs after a save()? (bool)"))
+
+	RequeryChildrenOnNavigate = property(_getRequeryChildrenOnNavigate, 
+			_setRequeryChildrenOnNavigate, None,
+			_("""Do we requery child bizobjs when navigating records? (bool)
+
+			Usually, you want to automatically requery children when the parent
+			RowNumber changes. However, there may be cases when you want to do 
+			that requery manually at the proper time instead for performance
+			reasons.
+
+			Setting this property to False will keep requeryAllChildren() from
+			automatically running after RowNumber changes."""))
 
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
 			_("""When True, the cursor object runs its query immediately. This
