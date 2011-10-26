@@ -306,6 +306,8 @@ class dFormMixin(pm.dPemMixin):
 			self.__refresh()
 		else:
 			dabo.ui.callAfterInterval(interval, self.__refresh)
+
+	@dabo.ui.deadCheck
 	def __refresh(self):
 		super(dFormMixin, self).refresh()
 
