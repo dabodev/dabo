@@ -1514,7 +1514,28 @@ class dBizobj(dObject):
 		return False
 
 
-	def isAnyChanged(self, includeNewUnchanged=None, withChildren=True):
+	def _isAnyChanged_fast(self, includeNewUnchanged=None):
+		"""
+		INTERNAL USE ONLY: This checks all the cursors including the ones
+		out of context, and needs to be combined with the precise function
+		like: 
+				if self._isAnyChanged() and self.isAnyChanged()...
+
+		Which will at least be much faster (and still correct) in the case of 
+		_isAnyChanged() returning False.
+		"""
+		if includeNewUnchanged is None:
+			includeNewUnchanged = self.SaveNewUnchanged
+		for cursor in self.__cursors.values():
+			if cursor.isChanged(allRows=True, includeNewUnchanged=includeNewUnchanged):
+				return True
+		for child in self._children:
+			if child._isAnyChanged_fast(includeNewUnchanged=includeNewUnchanged):
+				return True
+		return False
+
+
+	def _isAnyChanged_precise(self, includeNewUnchanged=None, withChildren=True):
 		"""
 		Return True if at least one record in the current record set 
 		has been changed.
@@ -1525,6 +1546,18 @@ class dBizobj(dObject):
 		ret = self.exitScan
 		self.exitScan = False
 		return ret
+
+
+	def isAnyChanged(self, includeNewUnchanged=None, withChildren=True):
+		"""
+		Return True if at least one record in the current record set 
+		has been changed.
+		"""
+		if not self._isAnyChanged_fast(includeNewUnchanged):
+			## the fast function never gives false negatives
+			return False
+		## must use precise function because fast function can return false positives:
+		return self._isAnyChanged_precise(includeNewUnchanged, withChildren)
 
 
 	def isChanged(self, includeNewUnchanged=None, withChildren=True):
