@@ -581,9 +581,9 @@ class dFormMixin(pm.dPemMixin):
 					app.setUserSetting("%s.height" % name, height)
 
 
-	def setStatusText(self, *args):
-		"""Moved functionality to the StatusText property setter."""
-		self._setStatusText(*args)
+	def setStatusText(self, val, immediate=False):
+		"""Set the status text to val."""
+		self._setStatusText(val, not immediate)
 
 
 	def layout(self):

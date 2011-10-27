@@ -585,9 +585,21 @@ class SlidePanelCaptionClick(dEvent):
 
 
 class RowNumChanged(DataEvent):
-	"""Occurs when the cursor's row number has changed."""
+	"""Occurs when the RowNumber of the PrimaryBizobj of the dForm has changed."""
 	pass
 
+class RowNavigation(DataEvent):
+	"""Occurs when the PrimaryBizobj of the dForm is being navigated.
+
+	As the user is rapidly calling dForm.next(), .prior(), etc., RowNavigation
+	events get raised. Your code should do some quick display updates to indicate
+	to the user that the record is changing, but the child bizobj's won't be 
+	requeried until after the navigation has ended.
+
+	See also RowNumChanged, which only occurs after the user has settled on a
+	record and has stopped navigating.
+	"""
+	pass
 
 class SashDoubleClick(SashEvent):
 	"""Occurs when a user double-clicks on the sash of a splitter window."""

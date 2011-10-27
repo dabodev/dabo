@@ -297,11 +297,17 @@ class BaseForm(fm.dFormMixin):
 		else:
 			if biz.RowNumber != oldRowNum:
 				dabo.ui.callAfterInterval(self._afterPointerMoveUpdate, self.DataUpdateDelay, biz)
-				self.afterPointerMove()  ## purposely putting it here before the update
+				self._afterPointerMove()  ## purposely putting it here before the update
+				self.raiseEvent(dEvents.RowNavigation, biz=biz)
 			else:
 				biz.RequeryChildrenOnNavigate = self.__oldChildRequery
 				self.__oldChildRequery = None
 		return True
+
+
+	def _afterPointerMove(self):
+		self.setStatusText(self.getCurrentRecordText(), immediate=True)
+		self.afterPointerMove()
 
 
 	def first(self, dataSource=None):
