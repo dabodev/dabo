@@ -126,8 +126,10 @@ class BaseForm(fm.dFormMixin):
 			dabo.ui.callAfterInterval(interval, self.__update)
 		else:
 			self.__update()
+
 	def __update(self):
-		super(BaseForm, self).update()
+		if self:
+			super(BaseForm, self).update()
 
 
 	def confirmChanges(self, bizobjs=None):
