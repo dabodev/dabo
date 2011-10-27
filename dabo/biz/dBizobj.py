@@ -1427,7 +1427,7 @@ class dBizobj(dObject):
 				# both of those conditions out completely for now, although that is most certainly 
 				# wrong as well, but at least we are now consistent in behavior between e.g. self.first()
 				# and self.RowNumber = 0.
-				if updateChildren and not child.isAnyChanged() and child.cacheExpired():
+				if updateChildren and child.cacheExpired() and not child.isAnyChanged():
 					child.requery()
 
 
@@ -1498,6 +1498,7 @@ class dBizobj(dObject):
 				self.afterPointerMove()
 		return ret
 
+
 	def _isChanged(self, allRows, includeNewUnchanged, withChildren):
 		cursor = self._CurrentCursor
 		if cursor is None or cursor.RowCount == 0:
@@ -1512,13 +1513,17 @@ class dBizobj(dObject):
 					return True
 		return False
 
-		
+
 	def isAnyChanged(self, includeNewUnchanged=None, withChildren=True):
 		"""
 		Return True if at least one record in the current record set 
 		has been changed.
 		"""
-		return self._isChanged(True, includeNewUnchanged, withChildren)
+		def _isThisChanged():
+			self.exitScan = self._isChanged(True, includeNewUnchanged, withChildren)
+			return self.exitScan
+
+		return self.scan(_isThisChanged, scanRequeryChildren=False)
 
 
 	def isChanged(self, includeNewUnchanged=None, withChildren=True):
