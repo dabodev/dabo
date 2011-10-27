@@ -1519,10 +1519,10 @@ class dBizobj(dObject):
 		INTERNAL USE ONLY: This checks all the cursors including the ones
 		out of context, and needs to be combined with the precise function
 		like: 
-				if self._isAnyChanged() and self.isAnyChanged()...
+				if self._isAnyChanged_fast() or self._isAnyChanged_precise()...
 
 		Which will at least be much faster (and still correct) in the case of 
-		_isAnyChanged() returning False.
+		_isAnyChanged_fast() returning False, and not much slower otherwise.
 		"""
 		if includeNewUnchanged is None:
 			includeNewUnchanged = self.SaveNewUnchanged
