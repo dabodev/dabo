@@ -1503,9 +1503,10 @@ class dBizobj(dObject):
 		cursor = self._CurrentCursor
 		if cursor is None or cursor.RowCount == 0:
 			return False
-		if includeNewUnchanged is None:
-			includeNewUnchanged = self.SaveNewUnchanged
-		if cursor.isChanged(allRows=allRows, includeNewUnchanged=includeNewUnchanged):
+		withNewUnchanged = includeNewUnchanged
+		if withNewUnchanged is None:
+			withNewUnchanged = self.SaveNewUnchanged
+		if cursor.isChanged(allRows=allRows, includeNewUnchanged=withNewUnchanged):
 			return True
 		if withChildren:
 			for child in self.getChildren():
@@ -1524,10 +1525,11 @@ class dBizobj(dObject):
 		Which will at least be much faster (and still correct) in the case of 
 		_isAnyChanged_fast() returning False, and not much slower otherwise.
 		"""
-		if includeNewUnchanged is None:
-			includeNewUnchanged = self.SaveNewUnchanged
+		withNewUnchanged = includeNewUnchanged
+		if withNewUnchanged is None:
+			withNewUnchanged = self.SaveNewUnchanged
 		for cursor in self.__cursors.values():
-			if cursor.isChanged(allRows=True, includeNewUnchanged=includeNewUnchanged):
+			if cursor.isChanged(allRows=True, includeNewUnchanged=withNewUnchanged):
 				return True
 		for child in self._children:
 			if child._isAnyChanged_fast(includeNewUnchanged=includeNewUnchanged):
@@ -3088,9 +3090,7 @@ afterDelete() which is only called after a delete().""")
 			_("The current position of the record pointer in the result set. (int)"))
 
 	SaveNewUnchanged = property(_getSaveNewUnchanged, _setSaveNewUnchanged, None,
-			_("""Normally new, unmodified records are not saved. If you need
-			this behavior, set this to True.  (bool)
-			"""))
+			_("Specifies whether new unchanged records are saved.  (bool; default:False)"))
 
 	ScanRestorePosition = property(_getScanRestorePosition, _setScanRestorePosition, None,
 			_("""After running a scan, do we attempt to restore the record position to

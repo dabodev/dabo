@@ -293,14 +293,16 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		bizMain.SaveNewUnchanged = False
 		bizChild.new()
 		self.assertEqual(bizChild.RowCount, 4)
-		self.assertEqual(bizMain.isAnyChanged(), False)  ## the new child record isn't changed
+		self.assertEqual(bizMain.SaveNewUnchanged, False)
+		self.assertEqual(bizChild.SaveNewUnchanged, True)
+		self.assertEqual(bizMain.isAnyChanged(), True)  ## the new child record isn't changed
 		self.assertEqual(bizMain.getChangedRows(), [])
 		self.assertEqual(bizChild.isAnyChanged(), True)  ## bizChild.SaveNewUnchanged == True
 		self.assertEqual(bizChild.isAnyChanged(includeNewUnchanged=False), False)
 		bizMain.save()
 		self.assertEqual(bizChild.RowCount, 4)
 		temp = bizMain.getTempCursor(test_sql, (bizMain.Record.pk,))
-		self.assertEqual(temp.Record.count, 3)  ## bizMain.SaveNewUnchanged == False so not saved.
+		self.assertEqual(temp.Record.count, 4)  ## bizChild.SaveNewUnchanged == True so should be saved.
 		self.assertEqual(bizMain.getChangedRows(), [])
 
 		
