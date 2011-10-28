@@ -249,7 +249,6 @@ class BaseForm(fm.dFormMixin):
 				bizobj=biz)
 		self.update(0)
 		self.refresh()
-		self.__inPointerMoveUpdate = False
 
 
 	def _moveRecordPointer(self, func, dataSource=None, *args, **kwargs):
@@ -296,7 +295,12 @@ class BaseForm(fm.dFormMixin):
 			return False
 		else:
 			if biz.RowNumber != oldRowNum:
-				delay = self.RowNavigationDelay
+				curTime = time.time()
+				if curTime - getattr(self, "_lastNavigationTime", 0) > .5:
+					delay = 0
+				else:
+					delay = self.RowNavigationDelay
+				self._lastNavigationTime = curTime
 				self._afterPointerMove()  ## purposely putting it here before the update
 				self.raiseEvent(dEvents.RowNavigation, biz=biz)
 				if delay:
