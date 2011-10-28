@@ -1544,10 +1544,9 @@ class dBizobj(dObject):
 		"""
 		def _isThisChanged():
 			self.exitScan = self._isChanged(True, includeNewUnchanged, withChildren)
-		self.scan(_isThisChanged, scanRequeryChildren=False)
-		ret = self.exitScan
-		self.exitScan = False
-		return ret
+			return self.exitScan
+
+		return self.scan(_isThisChanged, scanRequeryChildren=False) or False
 
 
 	def isAnyChanged(self, includeNewUnchanged=None, withChildren=True):
