@@ -25,6 +25,7 @@ class BaseForm(fm.dFormMixin):
 		self.bizobjs = {}
 		self._primaryBizobj = None
 		self._dataUpdateDelay = 100
+		self._rowNavigationDelay = 0
 
 		# If this is True, a panel will be automatically added to the
 		# form and sized to fill the form.
@@ -108,13 +109,14 @@ class BaseForm(fm.dFormMixin):
 		func(message=msg, title=title)
 
 
-	def update(self, interval=100):
+	def update(self, interval=None):
 		"""
 		Updates the contained controls with current values from the source.
 
 		This method is called repeatedly from many different places during
 		a single change in the UI, so by default the actual execution is cached
-		using callAfterInterval(). The default interval is 100 milliseconds. You
+		using callAfterInterval(). The default interval is the value of the 
+		DataUpdateDelay property, which in turn defaults to 100 milliseconds. You
 		can change that to suit your app needs by passing a different interval
 		in milliseconds.
 
@@ -122,13 +124,11 @@ class BaseForm(fm.dFormMixin):
 		update. In these cases, pass an interval of 0 to this method, which
 		means don't wait; execute now.
 		"""
+		if interval is None:
+			interval = self.DataUpdateDelay or 0
 		if interval:
-			dabo.ui.callAfterInterval(interval, self.__update)
+			dabo.ui.callAfterInterval(interval, self.update, 0)
 		else:
-			self.__update()
-
-	def __update(self):
-		if self:
 			super(BaseForm, self).update()
 
 
@@ -247,7 +247,7 @@ class BaseForm(fm.dFormMixin):
 		self.raiseEvent(dEvents.RowNumChanged,
 				newRowNumber=biz.RowNumber, oldRowNumber=self.__oldRowNum,
 				bizobj=biz)
-		self.update()
+		self.update(0)
 		self.refresh()
 		self.__inPointerMoveUpdate = False
 
@@ -296,9 +296,13 @@ class BaseForm(fm.dFormMixin):
 			return False
 		else:
 			if biz.RowNumber != oldRowNum:
-				dabo.ui.callAfterInterval(self._afterPointerMoveUpdate, self.DataUpdateDelay, biz)
+				delay = self.RowNavigationDelay
 				self._afterPointerMove()  ## purposely putting it here before the update
 				self.raiseEvent(dEvents.RowNavigation, biz=biz)
+				if delay:
+					dabo.ui.callAfterInterval(self._afterPointerMoveUpdate, delay, biz)
+				else:
+					self._afterPointerMoveUpdate(biz)
 			else:
 				biz.RequeryChildrenOnNavigate = self.__oldChildRequery
 				self.__oldChildRequery = None
@@ -477,7 +481,7 @@ class BaseForm(fm.dFormMixin):
 				bizobj.cancelAll(ignoreNoRecords=ignoreNoRecords)
 			else:
 				bizobj.cancel(ignoreNoRecords=ignoreNoRecords)
-			self.update(self.DataUpdateDelay)
+			self.update()
 			self.setStatusText(_("Changes to %s canceled.") % (
 					self.SaveAllRows and "all records" or "current record",))
 		except dException.NoRecordsException, e:
@@ -527,7 +531,7 @@ class BaseForm(fm.dFormMixin):
 			self.stopWatch.Pause()
 			elapsed = round(self.stopWatch.Time() / 1000.0, 3)
 #			del busy
-			self.update(self.DataUpdateDelay)
+			self.update()
 
 			newRowNumber = bizobj.RowNumber
 			if newRowNumber != oldRowNumber:
@@ -610,7 +614,7 @@ class BaseForm(fm.dFormMixin):
 				msg = ustr(e)
 				dabo.log.error(_("Delete failed with response: %s") % msg)
 				self.notifyUser(msg, title=_("Deletion Not Allowed"), severe=True, exception=e)
-			self.update(self.DataUpdateDelay)
+			self.update()
 			self.afterDelete()
 			self.refresh()
 
@@ -644,7 +648,7 @@ class BaseForm(fm.dFormMixin):
 			except dException.dException, e:
 				dabo.log.error(_("Delete All failed with response: %s") % e)
 				self.notifyUser(ustr(e), title=_("Deletion Not Allowed"), severe=True, exception=e)
-		self.update(self.DataUpdateDelay)
+		self.update()
 		self.afterDeleteAll()
 		self.refresh()
 
@@ -673,7 +677,7 @@ class BaseForm(fm.dFormMixin):
 		self.setStatusText(statusText)
 
 		# Notify listeners that the row number changed:
-		self.update(self.DataUpdateDelay)
+		self.update()
 		self.raiseEvent(dEvents.RowNumChanged)
 		self.afterNew()
 		self.refresh()
@@ -924,6 +928,13 @@ Database error message: %s""") % 	err
 		self._requeryOnLoad = bool(value)
 
 
+	def _getRowNavigationDelay(self):
+		return self._rowNavigationDelay
+
+	def _setRowNavigationDelay(self, val):
+		self._rowNavigationDelay = val
+
+
 	def _getSaveAllRows(self):
 		try:
 			return self._SaveAllRows
@@ -945,10 +956,9 @@ Database error message: %s""") % 	err
 
 	DataUpdateDelay = property(_getDataUpdateDelay, _setDataUpdateDelay, None,
 			_("""Specifies synchronization delay in data updates from business 
-			to UI layer. (int)
+			to UI layer. (int; default:100 [ms])
 			
-			Set to 'none' to ensure controls reflect immediately to the data changes.
-			The default delay is 100 [ms]."""))
+			Set to 0 or None to ensure controls reflect immediately to the data changes.."""))
 
 	PrimaryBizobj = property(_getPrimaryBizobj, _setPrimaryBizobj, None,
 			_("Reference to the primary bizobj for this form  (dBizobj)"))
@@ -956,6 +966,25 @@ Database error message: %s""") % 	err
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
 			_("""Specifies whether an automatic requery happens when the
 			form is loaded.  (bool)"""))
+
+	RowNavigationDelay = property(_getRowNavigationDelay, _setRowNavigationDelay, None,
+			_("""Specifies optional delay to wait for updating the entire form when the user
+			is navigating the records. (int; default=0 [ms])
+			
+			Set to 0 or None to ensure that all controls reflect quickly to the data changes.
+			Setting to a positive non-zero value will result in the following behavior:
+
+			dEvents.RowNavigation events will happen as the row number changes, allowing your
+			form code to update a specific set of controls so the user knows the records are
+			being navigated. The hook afterPointerMove() method will also fire at this time..
+
+			After a navigation and the RowNavigationDelay has passed, the bizobj's children
+			will be requeried and the form will be completely updated and refreshed. Additionally,
+			dEvents.RowNumChanged will be fired.
+
+			Recommended setting if non-zero: 250 [ms]. Values under that result in the timer
+			firing before the user can navigate again.
+			"""))
 
 	SaveAllRows = property(_getSaveAllRows, _setSaveAllRows, None,
 			_("Specifies whether dataset is row- or table-buffered. (bool)"))
