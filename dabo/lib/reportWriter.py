@@ -1681,6 +1681,9 @@ class ReportWriter(object):
 			c.clipPath(p, stroke=stroke)
 
 			img = obj.getProp("expr")
+			if isinstance(img, Exception):
+				img = None
+
 			if img is None:
 				pass
 			elif isinstance(img, basestring) and "\0" not in img:
@@ -1715,6 +1718,8 @@ class ReportWriter(object):
 					c.drawImage(img, 0, 0, width, height, mask, preserveAspectRatio=preserveRatio)
 				except StandardError:
 					c.drawCentredString(0, 0, "<< Image expr error >>")
+			else:
+				c.drawCentredString(0, 0, obj["expr"])
 
 		elif objType == "BarGraph":
 			# Do these imports here so as not to require the huge matplotlib unless
