@@ -2203,6 +2203,14 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 	def _getModified(self):
 		return self.GetModify()
 
+	def _setModified(self, val):
+		if val:
+			selpos = self.SelectionPosition
+			self.SetText(self.GetText())
+			self.SelectionPosition = selpos
+		else:
+			self.SetSavePoint()
+
 
 	def _getReadOnly(self):
 		return self.GetReadOnly()
@@ -2571,7 +2579,7 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 	LineCount = property(_getLineCount, None, None,
 			_("Total number of lines in the document  (int)"))
 
-	Modified = property(_getModified, None, None,
+	Modified = property(_getModified, _setModified, None,
 			_("Has the content of this editor been modified?  (bool)"))
 
 	ReadOnly = property(_getReadOnly, _setReadOnly, None,
