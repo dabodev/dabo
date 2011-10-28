@@ -1427,7 +1427,7 @@ class dBizobj(dObject):
 				# both of those conditions out completely for now, although that is most certainly 
 				# wrong as well, but at least we are now consistent in behavior between e.g. self.first()
 				# and self.RowNumber = 0.
-				if updateChildren and child.cacheExpired() and not child.isAnyChanged():
+				if child.RequeryWithParent and updateChildren and child.cacheExpired() and not child.isAnyChanged():
 					child.requery()
 
 
