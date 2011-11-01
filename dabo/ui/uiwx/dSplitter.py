@@ -108,7 +108,11 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dSplitter
-		baseStyle = wx.SP_3D | wx.SP_LIVE_UPDATE | wx.SP_PERMIT_UNSPLIT
+		unsplitAtt = self._extractKey((kwargs, properties, attProperties), "CanUnsplit", "True")
+		self._canUnsplit = unsplitAtt.upper()[0] == "T"
+		baseStyle = wx.SP_3D | wx.SP_LIVE_UPDATE
+		if self._canUnsplit:
+			baseStyle = baseStyle | wx.SP_PERMIT_UNSPLIT
 		style = self._extractKey((kwargs, properties, attProperties), "style", baseStyle)
 		self._createPanes = self._extractKey(attProperties, "createPanes", None)
 		if self._createPanes is not None:
@@ -293,6 +297,10 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 			self.split()
 
 
+	def _getCanUnsplit(self):
+		return self._canUnsplit
+
+
 	def _getMinPanelSize(self):
 		return self.GetMinimumPaneSize()
 
@@ -436,6 +444,11 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 		else:
 			self.unsplit()
 
+
+	CanUnsplit = property(_getCanUnsplit, None, None,
+			_("""Can the control be unsplit (i.e., only the first pane visible),
+			even with a non-zero MinimumPanelSize? Can only be set when the control
+			is created; read-only afterwards. Default=True  (bool)"""))
 
 	MinimumPanelSize = property(_getMinPanelSize, _setMinPanelSize, None,
 			_("Controls the minimum width/height of the panels.  (int)"))
