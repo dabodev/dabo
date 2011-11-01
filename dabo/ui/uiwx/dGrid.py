@@ -482,7 +482,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.floatRendererClass = wx.grid.GridCellFloatRenderer
 		self.listRendererClass = wx.grid.GridCellStringRenderer
 		self.imageRendererClass = gridRenderers.ImageRenderer
-		self.stringEditorClass = dabo.ui.makeGridEditor(dabo.ui.dTextBox) ##wx.grid.GridCellTextEditor
+		self.stringEditorClass = wx.grid.GridCellTextEditor
 		self.wrapStringEditorClass = wx.grid.GridCellAutoWrapStringEditor
 		self.boolEditorClass = wx.grid.GridCellBoolEditor
 		self.intEditorClass = wx.grid.GridCellNumberEditor
