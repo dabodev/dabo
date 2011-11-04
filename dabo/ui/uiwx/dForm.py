@@ -261,6 +261,7 @@ class BaseForm(fm.dFormMixin):
 		if self.activeControlValid() is False:
 			# Field validation failed
 			return False
+		self.setStatusText("%s..." % (self.getCurrentRecordText(),), immediate=True)
 		err = self.beforePointerMove()
 		if err:
 			self.notifyUser(err)
