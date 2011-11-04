@@ -240,10 +240,6 @@ class BaseForm(fm.dFormMixin):
 
 
 	def _afterPointerMoveUpdate(self, biz):
-		if self._oldChildRequery:
-			biz.requeryAllChildren()
-		biz.RequeryChildrenOnNavigate = self._oldChildRequery
-		self._oldChildRequery = None
 		self.update(0)
 		self.refresh()
 		# Notify listeners that the row number changed:
@@ -270,16 +266,10 @@ class BaseForm(fm.dFormMixin):
 			self.notifyUser(err)
 			return False
 
-		if getattr(self, "_oldChildRequery", None) is None:
-			self._oldChildRequery = biz.RequeryChildrenOnNavigate
-			biz.RequeryChildrenOnNavigate = False
-
 		def bail(msg, meth=None, *args, **kwargs):
 			if meth is None:
 				meth = self.setStatusText
 			meth(msg, *args, **kwargs)
-			biz.RequeryChildrenOnNavigate = self._oldChildRequery
-			self._oldChildRequery = None
 
 		try:
 			response = func(*args, **kwargs)
@@ -309,9 +299,6 @@ class BaseForm(fm.dFormMixin):
 					dabo.ui.callAfterInterval(self._afterPointerMoveUpdate, delay, biz)
 				else:
 					self._afterPointerMoveUpdate(biz)
-			else:
-				biz.RequeryChildrenOnNavigate = self._oldChildRequery
-				self._oldChildRequery = None
 		return True
 
 
@@ -790,13 +777,13 @@ Database error message: %s""") % 	err
 	def afterPointerMove(self):
 		"""
 		Called after the PrimaryBizobj's RowNumber has changed,
-		all children have been requeried, and the form has been updated.
+		and the form has been updated.
 		"""
 		pass
 	def afterRowNavigation(self):
 		"""
 		Called after the PrimaryBizobj's RowNumber has changed, 
-		but before the child requeries and form updates.
+		but before the form updates.
 		"""
 		pass
 
@@ -997,8 +984,7 @@ Database error message: %s""") % 	err
 			default behavior will reflect the current row number in the form's status bar as
 			row navigation is occurring.
 
-			After a navigation and the RowNavigationDelay has passed, the bizobj's children
-			will be requeried (if biz.RequeryChildrenOnNavigate is True) and the form will be 
+			After a navigation and the RowNavigationDelay has passed, the form will be 
 			completely updated and refreshed. dEvents.RowNumChanged will be fired, and the
 			hook afterPointerMove() will be called.
 
