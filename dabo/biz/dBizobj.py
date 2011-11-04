@@ -1411,9 +1411,9 @@ class dBizobj(dObject):
 		Its purpose is to keep child cursor in sync with parent cursor.
 		The updateChildren parameter meaning:
 		
-			| None	- the fastest one, doesn't update nor requery child cursor
+			| None	- the fastest one, doesn't update parent nor requery child cursor
 			| False	- update child cursor with current parent
-			| True	- do both, update child cursor and requery ONLY empty cursors.
+			| True	- do both, update child cursor's parent and requery child cursor.
 		"""
 		if updateChildren is not None:
 			for child in self._children:
@@ -1427,7 +1427,8 @@ class dBizobj(dObject):
 				# both of those conditions out completely for now, although that is most certainly 
 				# wrong as well, but at least we are now consistent in behavior between e.g. self.first()
 				# and self.RowNumber = 0.
-				if child.RequeryWithParent and updateChildren and child.cacheExpired() and not child.isAnyChanged():
+				if updateChildren and child.RequeryWithParent and child.cacheExpired() \
+						and not child.isAnyChanged():
 					child.requery()
 
 
@@ -2937,7 +2938,7 @@ afterDelete() which is only called after a delete().""")
 
 	ChildCacheInterval = property(_getChildCacheInterval, _setChildCacheInterval, None,
 			_("""If this is a child bizobj, this represents the length of time in seconds that a
-			subsequent requery request will be ignored.  (int)
+			requery from parent.requeryAllChildren() will be ignored.  (int)
 			"""))
 
 	Connection = property(_getConnection, None, None,
