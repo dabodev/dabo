@@ -240,15 +240,17 @@ class BaseForm(fm.dFormMixin):
 
 
 	def _afterPointerMoveUpdate(self, biz):
-		biz.RequeryChildrenOnNavigate = self.__oldChildRequery
-		self.__oldChildRequery = None 
-		biz.requeryAllChildren()
+		if self._oldChildRequery:
+			biz.requeryAllChildren()
+		biz.RequeryChildrenOnNavigate = self._oldChildRequery
+		self._oldChildRequery = None
+		self.update(0)
+		self.refresh()
 		# Notify listeners that the row number changed:
 		self.raiseEvent(dEvents.RowNumChanged,
 				newRowNumber=biz.RowNumber, oldRowNumber=self.__oldRowNum,
 				bizobj=biz)
-		self.update(0)
-		self.refresh()
+		self.afterPointerMove()
 
 
 	def _moveRecordPointer(self, func, dataSource=None, *args, **kwargs):
@@ -268,16 +270,16 @@ class BaseForm(fm.dFormMixin):
 			self.notifyUser(err)
 			return False
 
-		if getattr(self, "__oldChildRequery", None) is None:
-			self.__oldChildRequery = biz.RequeryChildrenOnNavigate
+		if getattr(self, "_oldChildRequery", None) is None:
+			self._oldChildRequery = biz.RequeryChildrenOnNavigate
 			biz.RequeryChildrenOnNavigate = False
 
 		def bail(msg, meth=None, *args, **kwargs):
 			if meth is None:
 				meth = self.setStatusText
 			meth(msg, *args, **kwargs)
-			biz.RequeryChildrenOnNavigate = self.__oldChildRequery
-			self.__oldChildRequery = None
+			biz.RequeryChildrenOnNavigate = self._oldChildRequery
+			self._oldChildRequery = None
 
 		try:
 			response = func(*args, **kwargs)
@@ -301,21 +303,21 @@ class BaseForm(fm.dFormMixin):
 				else:
 					delay = self.RowNavigationDelay
 				self._lastNavigationTime = curTime
-				self._afterPointerMove()  ## purposely putting it here before the update
+				self._afterRowNavigation()
 				self.raiseEvent(dEvents.RowNavigation, biz=biz)
 				if delay:
 					dabo.ui.callAfterInterval(self._afterPointerMoveUpdate, delay, biz)
 				else:
 					self._afterPointerMoveUpdate(biz)
 			else:
-				biz.RequeryChildrenOnNavigate = self.__oldChildRequery
-				self.__oldChildRequery = None
+				biz.RequeryChildrenOnNavigate = self._oldChildRequery
+				self._oldChildRequery = None
 		return True
 
 
-	def _afterPointerMove(self):
+	def _afterRowNavigation(self):
 		self.setStatusText(self.getCurrentRecordText(), immediate=True)
-		self.afterPointerMove()
+		self.afterRowNavigation()
 
 
 	def first(self, dataSource=None):
@@ -785,7 +787,18 @@ Database error message: %s""") % 	err
 	def afterDelete(self): pass
 	def afterDeleteAll(self): pass
 	def afterNew(self): pass
-	def afterPointerMove(self): pass
+	def afterPointerMove(self):
+		"""
+		Called after the PrimaryBizobj's RowNumber has changed,
+		all children have been requeried, and the form has been updated.
+		"""
+		pass
+	def afterRowNavigation(self):
+		"""
+		Called after the PrimaryBizobj's RowNumber has changed, 
+		but before the child requeries and form updates.
+		"""
+		pass
 
 
 	def getCurrentRecordText(self, dataSource=None, grid=None):
@@ -975,19 +988,23 @@ Database error message: %s""") % 	err
 			_("""Specifies optional delay to wait for updating the entire form when the user
 			is navigating the records. (int; default=0 [ms])
 			
-			Set to 0 or None to ensure that all controls reflect quickly to the data changes.
+			Set to 0 or None to ensure that all controls reflect immediately to the data changes.
 			Setting to a positive non-zero value will result in the following behavior:
 
-			dEvents.RowNavigation events will happen as the row number changes, allowing your
-			form code to update a specific set of controls so the user knows the records are
-			being navigated. The hook afterPointerMove() method will also fire at this time..
+			As the row number changes, dEvents.RowNavigation events will fire and the 
+			afterRowNavigation() hook method will be called, allowing your form code to update a 
+			specific set of controls so the user knows the records are being navigated. The
+			default behavior will reflect the current row number in the form's status bar as
+			row navigation is occurring.
 
 			After a navigation and the RowNavigationDelay has passed, the bizobj's children
-			will be requeried and the form will be completely updated and refreshed. Additionally,
-			dEvents.RowNumChanged will be fired.
+			will be requeried (if biz.RequeryChildrenOnNavigate is True) and the form will be 
+			completely updated and refreshed. dEvents.RowNumChanged will be fired, and the
+			hook afterPointerMove() will be called.
 
 			Recommended setting if non-zero: 250 [ms]. Values under that result in the timer
-			firing before the user can navigate again.
+			firing before the user can navigate again, although this will be dependent on your
+			specific situation.
 			"""))
 
 	SaveAllRows = property(_getSaveAllRows, _setSaveAllRows, None,
