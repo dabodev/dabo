@@ -141,6 +141,7 @@ from dListBox import dListBox
 from dListControl import dListControl
 from dBaseMenuBar import dBaseMenuBar
 from dMaskedTextBox import dMaskedTextBox
+from dNumericBox import dNumericBox
 try:
 	from dMediaControl import dMediaControl
 except ImportError:
