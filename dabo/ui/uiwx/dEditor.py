@@ -638,9 +638,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def selectLine(self):
 		start =self.GetLineEndPosition(self.LineNumber-1)
 		if self.Value[start] == "\r":
-			start+=2
+			start += 2
 		else:
-			start+=1
+			start += 1
 		end = self.GetLineEndPosition(self.LineNumber)
 		self.SelectionPosition = (start, end)
 
@@ -648,22 +648,23 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def selectWord(self):
 		whiteSpace = " \t\r\n"
 		syntaxDelimeters = """()[]{}"+-*/&%=\\;:"""
+		boundaries = whiteSpace + syntaxDelimeters
 		curPos = self.GetCurrentPos()
 		val = self.Value
 		if val[curPos] in syntaxDelimeters:
-			start=curPos
-			end=start+1
+			start = curPos
+			end = start + 1
 		else:
-			start=curPos
-			while start-1 > 0:
-				if val[start-1] not in (whiteSpace + syntaxDelimeters):
+			start = curPos
+			while start - 1 > 0:
+				if val[start - 1] not in boundaries:
 					start -= 1
 				else:
 					break
 
 			end = curPos
 			while end < len(val):
-				if val[end] in (whiteSpace + syntaxDelimeters):
+				if val[end] in boundaries:
 					break
 				end += 1
 		self.SelectionPosition = (start, end)
@@ -707,8 +708,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 		## Autocomplete settings:
 		self.AutoCompSetIgnoreCase(True)
-		self.AutoCompSetAutoHide(True)	 ## hide when the typed string no longer matches
-		self.AutoCompStops(" ")  ## characters that will stop the autocomplete
+	 	# hide when the typed string no longer matches
+	 	self.AutoCompSetAutoHide(True)
+		# characters that will stop the autocomplete
+		self.AutoCompStops(" ")
 		self.AutoCompSetFillUps(".(")
 		# This lets you go all the way back to the '.' without losing the AutoComplete
 		self.AutoCompSetCancelAtStart(False)
@@ -956,25 +959,25 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def onCommentLine(self, evt):
 		sel = self.GetSelection()
 		begLine = self.LineFromPosition(sel[0])
-		endLine = self.LineFromPosition(sel[1]-1)
+		endLine = self.LineFromPosition(sel[1] - 1)
 
 		self.BeginUndoAction()
-		for line in range(begLine, endLine+1):
+		for line in range(begLine, endLine + 1):
 			pos = self.PositionFromLine(line)
 			self.InsertText(pos, self.CommentString)
 		self.EndUndoAction()
 
 		self.SetSelection(self.PositionFromLine(begLine),
-			self.PositionFromLine(endLine+1))
+			self.PositionFromLine(endLine + 1))
 
 
 	def onUncommentLine(self, evt):
 		sel = self.GetSelection()
 		begLine = self.LineFromPosition(sel[0])
-		endLine = self.LineFromPosition(sel[1]-1)
+		endLine = self.LineFromPosition(sel[1] - 1)
 
 		self.BeginUndoAction()
-		for line in range(begLine, endLine+1):
+		for line in range(begLine, endLine + 1):
 			pos = self.PositionFromLine(line)
 			self.SetTargetStart(pos)
 			self.SetTargetEnd(pos + len(self.CommentString))
@@ -983,7 +986,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self.EndUndoAction()
 
 		self.SetSelection(self.PositionFromLine(begLine),
-			self.PositionFromLine(endLine+1))
+			self.PositionFromLine(endLine + 1))
 
 
 	def __onKeyDown(self, evt):
@@ -1331,8 +1334,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		lineNum = 0
 		while lineNum < lineCount:
 			level = self.GetFoldLevel(lineNum)
-			if level & stc.STC_FOLDLEVELHEADERFLAG and \
-			(level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE:
+			if level & stc.STC_FOLDLEVELHEADERFLAG and (
+					level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE:
 				if expanding:
 					self.SetFoldExpanded(lineNum, True)
 					lineNum = self.Expand(lineNum, True)
@@ -1345,9 +1348,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 						self.HideLines(lineNum+1, lastChild)
 			lineNum = lineNum + 1
 
+
 	def FoldAllCode(self, expand):
 		lineCount = self.GetLineCount()
-
 		lineNum = 0
 		while lineNum < lineCount:
 			level = self.GetFoldLevel(lineNum)
@@ -1446,7 +1449,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			if fname is None:
 				break
 			if os.path.exists(fname):
-				r = dabo.ui.areYouSure(_("File '%s' already exists. Do you want to overwrite it?") % fname, defaultNo=True)
+				r = dabo.ui.areYouSure(_("File '%s' already exists. Do you "
+						"want to overwrite it?") % fname, defaultNo=True)
 				if r is None:
 					# user canceled.
 					fname = None
@@ -1694,26 +1698,26 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	# Auto-completion code, used mostly unchanged from SPE
 	# Copyright www.stani.be
-	def autoComplete(self, object=0, minWordLen=0):
-		word	= self.getWord()
-		if isinstance(object, dEvents.KeyEvent):
-			object = 0
+	def autoComplete(self, obj=0, minWordLen=0):
+		word = self.getWord()
+		if isinstance(obj, dEvents.KeyEvent):
+			obj = 0
 		if not word:
-			if object:
+			if obj:
 				self.AddText('.')
 			return
-		if object:
+		if obj:
 			self.AddText('.')
-			word+='.'
+			word += '.'
 		if word and len(word) < minWordLen:
 			return
-		words	= self.getWords(word=word)
+		words = self.getWords(word=word)
 		if word[-1] == '.':
 			try:
 				obj = self.getWordObject(word[:-1])
 				if obj:
 					for attr in dir(obj):
-						attr = '%s%s'%(word,attr)
+						attr = '%s%s'%(word, attr)
 						if attr not in words:
 								words.append(attr)
 			except IndexError:
@@ -1729,26 +1733,30 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			self.AutoCompShow(len(word), " ".join(wds))
 
 
-	def getWord(self,whole=None):
-		for delta in (0,-1,1):
-			word	= self._getWord(whole=whole,delta=delta)
-			if word: return word
+	def getWord(self, whole=None):
+		for delta in (0, -1, 1):
+			word = self._getWord(whole=whole, delta=delta)
+			if word:
+				return word
 		return ''
 
-	def _getWord(self,whole=None,delta=0):
-		pos = self.GetCurrentPos()+delta
+
+	def _getWord(self, whole=None, delta=0):
+		pos = self.GetCurrentPos() + delta
 		line = self.GetCurrentLine()
 		linePos = self.PositionFromLine(line)
 		txt = self.GetLine(line)
-		start = self.WordStartPosition(pos,1)
+		start = self.WordStartPosition(pos, 1)
 		if whole:
-			end = self.WordEndPosition(pos,1)
+			end = self.WordEndPosition(pos, 1)
 		else:
 			end = pos
-		return txt[start-linePos:end-linePos]
+		return txt[start - linePos:end - linePos]
 
-	def getWords(self,word=None,whole=None):
-		if not word: word = self.getWord(whole=whole)
+
+	def getWords(self, word=None, whole=None):
+		if not word:
+			word = self.getWord(whole=whole)
 		if not word:
 			return []
 		else:
@@ -1761,16 +1769,19 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			ret = dict.fromkeys(retAll).keys()
 			return ret
 
+
 	def _getTextSource(self):
 		"""Override to include other sources."""
 		return self.GetText()
 
 
-	def getWordObject(self,word=None,whole=None):
-		if not word: word=self.getWord(whole=whole)
+	def getWordObject(self, word=None, whole=None):
+		if not word:
+			word=self.getWord(whole=whole)
 		return self.evaluate(word)
 	# End of auto-completion code
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 
 	def _getRuntimeObjectName(self):
 		"""
