@@ -540,6 +540,21 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		return ret
 
 
+	def getLineText(self, pos=None):
+		"""
+		Returns the full text of the line containing specified position, or if
+		no position is passed, for the current insertion point.
+		"""
+		if pos is None:
+			pos = self.GetCurrentPos()
+		lnum = self.LineFromPosition(pos)
+		startpos = self.PositionFromLine(lnum)
+		endpos = self.PositionFromLine(lnum + 1)
+		ret = self.Value[startpos:endpos]
+		# Strip any trailing newline chars.
+		return ret.rstrip(chr(13) + chr(10))
+
+
 	def getLineFromPosition(self, pos):
 		"""
 		Given a position within the text, returns the corresponding line
