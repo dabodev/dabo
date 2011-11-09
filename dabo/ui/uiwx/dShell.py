@@ -554,7 +554,11 @@ Ctrl-Up/Down to scroll through history."""))
 		if hp.ok:
 			cmd = hp.getCmd()
 			if cmd:
-				pos = self.shell.history.index(cmd)
+				try:
+					pos = self.shell.history.index(cmd)
+				except ValueError:
+					# Not in the list
+					return
 				self.shell.replaceFromHistory(pos - self.shell.historyIndex)
 
 
