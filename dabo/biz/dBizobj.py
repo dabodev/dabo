@@ -1430,6 +1430,7 @@ class dBizobj(dObject):
 				if updateChildren and child.RequeryWithParent and child.cacheExpired() \
 						and not child.isAnyChanged():
 					child.requery()
+				child.afterSetCurrentParent()
 
 
 	def moveToPK(self, pk):
@@ -1467,7 +1468,7 @@ class dBizobj(dObject):
 		return ret
 
 
-	def seek(self, val, fld=None, caseSensitive=False, near=False, runRequery=True, 
+	def seek(self, val, fld=None, caseSensitive=False, near=False, runRequery=True,
 			sort=True, incremental=False):
 		"""
 		Search for a value in a field, and move the record pointer to the match.
@@ -1491,7 +1492,7 @@ class dBizobj(dObject):
 		
 		Returns the RowNumber of the found record, or -1 if no match found.
 		"""
-		ret = self._CurrentCursor.seek(val, fld, caseSensitive, near, 
+		ret = self._CurrentCursor.seek(val, fld, caseSensitive, near,
 				sort=sort, incremental=incremental)
 		if ret != -1:
 			if runRequery:
@@ -1726,7 +1727,7 @@ class dBizobj(dObject):
 		"""
 		assoc = self._associations.pop(mmBizobj.DataSource, None)
 
-			
+
 	def getAncestorByDataSource(self, ds):
 		"""
 		Given a DataSource, finds the ancestor (parent, grandparent, etc.) of
@@ -2148,7 +2149,7 @@ class dBizobj(dObject):
 		except dException.DBQueryException:
 			if startTransaction:
 				self.rollbackTransaction(crs)
-			raise 
+			raise
 		self.commitTransaction(crs)
 		return ret
 
@@ -2408,6 +2409,8 @@ values and not trigger the memento system, override onNew() instead.
 	afterNext = _makeHookMethod("afterNext", "navigating to the next record")
 	afterFirst = _makeHookMethod("afterFirst", "navigating to the next record")
 	afterLast = _makeHookMethod("afterLast", "navigating to the last record")
+	afterSetCurrentParent = _makeHookMethod("afterSetCurrentParent",
+			"the parent cursor changes")
 	afterPointerMove = _makeHookMethod("afterPointerMove",
 			"the record pointer moves")
 	afterDeleteAllChildren = _makeHookMethod("afterDeleteAllChildren",
@@ -2793,7 +2796,7 @@ afterDelete() which is only called after a delete().""")
 		except AttributeError:
 			ret = self._requeryChildrenOnNavigate = True
 			return ret
-	
+
 	def _setRequeryChildrenOnNavigate(self, val):
 		self._requeryChildrenOnNavigate = bool(val)
 
@@ -3052,7 +3055,7 @@ afterDelete() which is only called after a delete().""")
 	RequeryChildOnSave = property(_getRequeryChildOnSave, _setRequeryChildOnSave, None,
 			_("Do we requery child bizobjs after a save()? (bool)"))
 
-	RequeryChildrenOnNavigate = property(_getRequeryChildrenOnNavigate, 
+	RequeryChildrenOnNavigate = property(_getRequeryChildrenOnNavigate,
 			_setRequeryChildrenOnNavigate, None,
 			_("""Do we requery child bizobjs when navigating records? (bool)
 
