@@ -10,7 +10,7 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dSplitForm import dSplitForm
 from dabo.ui import makeDynamicProperty
-from dPemMixin import dPemMixin
+from dControlMixin import dControlMixin
 
 dabo.ui.loadUI("wx")
 from dabo.ui import dKeys
@@ -140,20 +140,20 @@ class _LookupPanel(dabo.ui.dPanel):
 
 
 
-class _Shell(dPemMixin, wx.py.shell.Shell):
+class dShell(dControlMixin, wx.py.shell.Shell):
 	def __init__(self, parent, properties=None, attProperties=None,
 				*args, **kwargs):
 		self._isConstructed = False
 		self._fontSize = 10
 		self._fontFace = ""
-		self._baseClass = _Shell
+		self._baseClass = dShell
 		preClass = wx.py.shell.Shell
-		dPemMixin.__init__(self, preClass, parent, properties=properties,
+		dControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
 
 	def _afterInit(self):
-		super(_Shell, self)._afterInit()
+		super(dShell, self)._afterInit()
 		# Set some font defaults
 		self.plat = self.Application.Platform
 		if self.plat == "GTK":
@@ -173,19 +173,19 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 		gets processed into our internal stack.
 		"""
 		edt = self.CanEdit()
-		super(_Shell, self).processLine()
+		super(dShell, self).processLine()
 		if edt:
 			# push the latest command into the stack
 			try:
 				self.Form.addToHistory()
 			except AttributeError:
-				# Not running in dShell
+				# Not running in dShellForm
 				pass
 
 
 	def push(self, command, silent=False):
 		"""Need to raise an event when the interpreter executes a command."""
-		super(_Shell, self).push(command, silent=silent)
+		super(dShell, self).push(command, silent=silent)
 		if not self.more:
 			self.raiseEvent(dEvents.ShellCommandRun)
 
@@ -263,7 +263,7 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 	def OnKeyDown(self, evt):
 		"""Override on the Mac, as the navigation defaults are different than on Win/Lin"""
 		if self.plat != "Mac":
-			return super(_Shell, self).OnKeyDown(evt)
+			return super(dShell, self).OnKeyDown(evt)
 		key = evt.GetKeyCode()
 		# If the auto-complete window is up let it do its thing.
 		if self.AutoCompActive():
@@ -313,7 +313,7 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 				start = endpos
 			self.SetSelection(start, endpos)
 			return
-		return super(_Shell, self).OnKeyDown(evt)
+		return super(dShell, self).OnKeyDown(evt)
 
 
 	def _getFontSize(self):
@@ -350,7 +350,7 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 
 
 
-class dShell(dSplitForm):
+class dShellForm(dSplitForm):
 	def _onDestroy(self, evt):
 		self._clearOldHistory()
 		__builtin__.raw_input = self._oldRawInput
@@ -360,12 +360,12 @@ class dShell(dSplitForm):
 		# Set the sash
 		self._sashPct = 0.6
 		# Class to use for creating the interactive shell
-		self._shellClass = _Shell
-		super(dShell, self)._beforeInit(pre)
+		self._shellClass = dShell
+		super(dShellForm, self)._beforeInit(pre)
 
 
 	def _afterInit(self):
-		super(dShell, self)._afterInit()
+		super(dShellForm, self)._afterInit()
 		self.cmdHistKey = self.PreferenceManager.command_history
 		self._historyPanel = None
 		self._lastCmd = None
@@ -470,7 +470,7 @@ Ctrl-Up/Down to scroll through history."""))
 			ns = self.Parent
 		self.shell.interp.locals['self'] = ns
 
-		self.Caption = _("dShell: self is %s") % ns.Name
+		self.Caption = _("dShellForm: self is %s") % ns.Name
 		self.setStatusText(_("Use this shell to interact with the runtime environment"))
 		self.fillMenu()
 		self.shell.SetFocus()
@@ -729,7 +729,7 @@ Ctrl-Up/Down to scroll through history."""))
 
 	@classmethod
 	def getBaseShellClass(cls):
-		return _Shell
+		return dShell
 
 
 	def _getFontSize(self):
@@ -815,8 +815,8 @@ Ctrl-Up/Down to scroll through history."""))
 
 
 def main():
-	app = dabo.dApp(BasePrefKey="dabo.ui.dShell")
-	app.MainFormClass = dShell
+	app = dabo.dApp(BasePrefKey="dabo.ui.dShellForm")
+	app.MainFormClass = dShellForm
 	app.setup()
 	app.start()
 

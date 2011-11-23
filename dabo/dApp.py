@@ -1193,7 +1193,7 @@ try again when it is running.
 		app.ShowCommandWindowMenu in production, perhaps leaving backdoor
 		access to this function.
 
-		The context argument tells dShell what object becomes 'self'. If not
+		The context argument tells dShellForm what object becomes 'self'. If not
 		passed, context will be app.ActiveForm.
 		"""
 		self.uiApp.showCommandWindow(context)

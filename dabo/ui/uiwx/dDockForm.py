@@ -882,7 +882,7 @@ class dDockForm(dabo.ui.dForm):
 
 
 	def onChildBorn(self, evt):
-		ok = isinstance(evt.child, (dDockPanel, dabo.ui.dStatusBar, dabo.ui.dShell.dShell))
+		ok = isinstance(evt.child, (dDockPanel, dabo.ui.dStatusBar, dabo.ui.dShellForm))
 		if not ok:
 			# This should never happen; if so, log the error
 			dabo.log.error(_("Unmanaged object added to a Dock Form: %s") %evt.child)

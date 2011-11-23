@@ -256,8 +256,7 @@ def OnCaptureLost(self, evt):
 def afterInitAll(self):
 	objnote = "NOTE: The 'obj' variable refers to the object selected in the tree."
 	intro = "%s\\n%s" % (dabo.ui.getSystemInfo(), objnote)
-	shellClass = dabo.ui.dShell.getBaseShellClass()
-	self.shell = shellClass(self.shellPanel, showInterpIntro=False,
+	self.shell = dabo.ui.dShell(self.shellPanel, showInterpIntro=False,
 			introText=intro)
 	self.shell.interp.locals['self'] = self
 	sz = self.shellPanel.Sizer = dabo.ui.dBorderSizer(self.shellPanel, Caption="Interactive Interpreter")

@@ -528,7 +528,7 @@ these automatic updates.""").replace("\n", " ")
 		"""Display a command window for debugging."""
 		if context is None:
 			context = self.ActiveForm
-		dlg = dabo.ui.dShell.dShell(context)
+		dlg = dabo.ui.dShellForm(context)
 		dlg.show()
 
 

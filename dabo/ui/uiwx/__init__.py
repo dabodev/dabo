@@ -168,6 +168,7 @@ from dPage import dPage
 from dPdfWindow import dPdfWindow
 from dSearchBox import dSearchBox
 from dShell import dShell
+from dShell import dShellForm
 from dSizer import dSizer
 from dSizer import dSizerV
 from dSizer import dSizerH
