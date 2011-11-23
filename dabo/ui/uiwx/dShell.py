@@ -359,6 +359,8 @@ class dShell(dSplitForm):
 	def _beforeInit(self, pre):
 		# Set the sash
 		self._sashPct = 0.6
+		# Class to use for creating the interactive shell
+		self._shellClass = _Shell
 		super(dShell, self)._beforeInit(pre)
 
 
@@ -400,7 +402,7 @@ class dShell(dSplitForm):
 		self.pgCode.Caption = _("Code")
 		cp.Sizer.append1x(pgf)
 
-		self.shell = _Shell(self.pgShell, DroppedTextHandler=self, DroppedFileHandler=self)
+		self.shell = self.ShellClass(self.pgShell, DroppedTextHandler=self, DroppedFileHandler=self)
 		self.pgShell.Sizer.append1x(self.shell, border=4)
 		# Configure the shell's behavior
 		self.shell.AutoCompSetIgnoreCase(True)
@@ -725,6 +727,11 @@ Ctrl-Up/Down to scroll through history."""))
 		self.shell.SetZoom(self.shell.GetZoom()-1)
 
 
+	@classmethod
+	def getBaseShellClass(cls):
+		return _Shell
+
+
 	def _getFontSize(self):
 		return self.shell.FontSize
 
@@ -760,6 +767,16 @@ Ctrl-Up/Down to scroll through history."""))
 		return self._historyPanel
 
 
+	def _getShellClass(self):
+		return self._shellClass
+
+	def _setShellClass(self, val):
+		if self._constructed():
+			self._shellClass = val
+		else:
+			self._properties["ShellClass"] = val
+
+
 	def _getSplitState(self):
 		return self._splitState
 
@@ -784,6 +801,9 @@ Ctrl-Up/Down to scroll through history."""))
 
 	_HistoryPanel = property(_getHistoryPanel, None, None,
 			_("Popup to display the command history  (read-only) (dDialog)"))
+
+	ShellClass = property(_getShellClass, _setShellClass, None,
+			_("Class to use for the interactive shell  (dShell)"))
 
 	SplitState = property(_getSplitState, _setSplitState, None,
 			_("""Controls whether the output is in a separate pane (default)

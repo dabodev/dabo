@@ -167,6 +167,7 @@ from dPageFrameNoTabs import dPageFrameNoTabs
 from dPage import dPage
 from dPdfWindow import dPdfWindow
 from dSearchBox import dSearchBox
+from dShell import dShell
 from dSizer import dSizer
 from dSizer import dSizerV
 from dSizer import dSizerH
@@ -184,7 +185,6 @@ from dToggleButton import dToggleButton
 from dTreeView import dTreeView
 from dLed import dLed
 import dUICursors as dUICursors
-import dShell
 import gridRenderers
 from dPageFrameMixin import dPageFrameMixin
 
