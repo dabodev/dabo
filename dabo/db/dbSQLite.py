@@ -194,6 +194,8 @@ class SQLite(dBackend):
 				fldType = "M"
 			elif "bool" in typ:
 				fldType = "B"
+			elif typ == "date":
+				fldType = "D"
 			else:
 				# SQLite treats everything else as text
 				fldType = "C"
