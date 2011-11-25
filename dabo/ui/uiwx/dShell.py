@@ -144,8 +144,17 @@ class dShell(dControlMixin, wx.py.shell.Shell):
 	def __init__(self, parent, properties=None, attProperties=None,
 				*args, **kwargs):
 		self._isConstructed = False
-		self._fontSize = 10
-		self._fontFace = ""
+		# Set some reasonable font defaults.
+		self.plat = self.Application.Platform
+		if self.plat == "GTK":
+			self._fontFace = "Monospace"
+			self._fontSize = 10
+		elif self.plat == "Mac":
+			self._fontFace = "Monaco"
+			self._fontSize = 12
+		elif self.plat == "Win":
+			self._fontFace = "Courier New"
+			self._fontSize = 10
 		self._baseClass = dShell
 		preClass = wx.py.shell.Shell
 		dControlMixin.__init__(self, preClass, parent, properties=properties,
@@ -154,17 +163,10 @@ class dShell(dControlMixin, wx.py.shell.Shell):
 
 	def _afterInit(self):
 		super(dShell, self)._afterInit()
-		# Set some font defaults
-		self.plat = self.Application.Platform
-		if self.plat == "GTK":
-			self.FontFace = "Monospace"
-			self.FontSize = 10
-		elif self.plat == "Mac":
-			self.FontFace = "Monaco"
-			self.FontSize = 12
-		elif self.plat == "Win":
-			self.FontFace = "Courier New"
-			self.FontSize = 10
+		# Need to set the properties to ensure that the changes are propagated to the
+		# underlying STC control.
+#		self.FontFace = self._fontFace
+#		self.FontSize = self._fontSize
 
 
 	@dabo.ui.deadCheck
