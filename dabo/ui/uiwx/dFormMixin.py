@@ -24,6 +24,7 @@ class dFormMixin(pm.dPemMixin):
 		self._sizersToOutline = []
 		self._recurseOutlinedSizers = True
 		self._alwaysDrawSizerOutlines = False
+		self._idleRefreshInterval = 1000
 		self._drawSizerChildren = False
 		self._statusBarClass = dabo.ui.dStatusBar
 
@@ -231,15 +232,19 @@ class dFormMixin(pm.dPemMixin):
 
 	def __onIdle(self, evt):
 		if self.__needOutlineRedraw or self._alwaysDrawSizerOutlines:
-			self.refresh()
-			for sz in self.SizersToOutline:
-				win = sz.getContainingWindow()
-				try:
-					sz.drawOutline(win, recurse=self._recurseOutlinedSizers,
-							drawChildren=self._drawSizerChildren)
-				except AttributeError:
-					# Will happen if sz is None
-					self.removeFromOutlinedSizers(sz)
+			dabo.ui.callAfterInterval(self.IdleRefreshInterval, self._idleRedraw)
+
+
+	def _idleRedraw(self):
+		self.refresh()
+		for sz in self.SizersToOutline:
+			win = sz.getContainingWindow()
+			try:
+				sz.drawOutline(win, recurse=self._recurseOutlinedSizers,
+						drawChildren=self._drawSizerChildren)
+			except AttributeError:
+				# Will happen if sz is None
+				self.removeFromOutlinedSizers(sz)
 
 
 	def __onClose(self, evt):
@@ -306,6 +311,7 @@ class dFormMixin(pm.dPemMixin):
 			self.__refresh()
 		else:
 			dabo.ui.callAfterInterval(interval, self.__refresh)
+
 
 	@dabo.ui.deadCheck
 	def __refresh(self):
@@ -818,6 +824,13 @@ class dFormMixin(pm.dPemMixin):
 			self._properties["Icon"] = val
 
 
+	def _getIdleRefreshInterval(self):
+		return self._idleRefreshInterval
+
+	def _setIdleRefreshInterval(self, val):
+		self._setIdleRefreshInterval = val
+
+
 	def _getMDI(self):
 		## self._mdi defined in dForm.py/dFormMain.py:
 		try:
@@ -1162,6 +1175,14 @@ class dFormMixin(pm.dPemMixin):
 			icons at expected dimensions like 16, 22, and 32 px means that the
 			system will not have to scale the icon, resulting in a much better
 			appearance."""))
+
+	IdleRefreshInterval = property(_getIdleRefreshInterval, _setIdleRefreshInterval, None,
+			_("""Controls how often the form is refreshed when idle.
+			
+			If you notice a lot of flicker when a form is 'doing nothing', increase
+			this value. Likewise, if you notice that changes are not reflected as
+			readily as you wish, decrease it. The value is in milliseconds; the
+			default is 1000.  (int)"""))
 
 	MDI = property(_getMDI, None, None,
 			_("""Returns True if this is a MDI (Multiple Document Interface) form.  (bool)
