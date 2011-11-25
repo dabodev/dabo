@@ -21,6 +21,7 @@ from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
 
+
 class _TraceMixin(object):
 		#Property Getters and Setters
 	def _getCaption(self):
@@ -35,7 +36,7 @@ class _TraceMixin(object):
 
 	def _setPoints(self, val):
 		for point in val:
-			if not (point is tuple and len(point)==2):
+			if not ((point is tuple) and (len(point) == 2)):
 				raise ValueError('Points must be tuples of length 2')
 
 
@@ -67,10 +68,12 @@ class _TraceMixin(object):
 			_("The width of the plotted trace (default=1) (int)"))
 
 
-class plotLine(_TraceMixin, plot.PolyLine):
+
+class PlotLine(_TraceMixin, plot.PolyLine):
 	def __init__(self, *args, **kwargs):
 		self._lineStyle = "solid"
 		plot.PolyLine.__init__(self, *args, **kwargs)
+
 
 	#Property Getters and Setters
 	def _getLineStyle(self):
@@ -89,10 +92,12 @@ class plotLine(_TraceMixin, plot.PolyLine):
 			_("The drawn style of the plotted line (default='solid') ('solid', 'dot', or 'dash')"))
 
 
-class plotMarkers(_TraceMixin, plot.PolyMarker):
+
+class PlotMarkers(_TraceMixin, plot.PolyMarker):
 	def __init__(self, *args, **kwargs):
 		self._fillStyle = "solid"
 		plot.PolyMarker.__init__(self, *args, **kwargs)
+
 
 	#Property getters and setters
 	def _getFillStyle(self):
@@ -143,6 +148,7 @@ class plotMarkers(_TraceMixin, plot.PolyMarker):
 			_("The size of the marker (default=2) (int)"))
 
 
+
 class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 	"""Creates a panel that can load and display a line graph."""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
@@ -157,45 +163,41 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 				attProperties=attProperties, _explicitName=_explicitName, *args, **kwargs)
 
 		self.SetPointLabelFunc(self.DrawPointLabel)
-
 		self.setDefaults()
-		if len(self.Traces) != 0:
+		if self.Traces:
 			self.Draw(self._plotManager)
 
+
 	def appendLineFromEquation(self, equation, Start, End, points=1000.0, LineColor='black', LineStyle='solid',
-				               LineWidth=1, Caption=""):
+				LineWidth=1, Caption=""):
 		spacing = (float(End) - float(Start))/float(points)
-		pointList = Start+_Numeric.arange(points)*spacing
+		pointList = Start + (_Numeric.arange(points) * spacing)
 		coordinates = []
-
 		s = "value = %s" % equation
-
 		for index in range(len(pointList)):
 			exec(s % pointList[index])
 			coordinates.append((pointList[index], value))
-
 		self.appendLineFromPoints(coordinates, LineColor, LineStyle, LineWidth, Caption)
+
 
 	def appendLineFromPoints(self, points, LineColor='black', LineStyle='solid', LineWidth=1, Caption=""):
 		if Caption == "":
 			Caption = "Line %s" % len(self.Traces)
-
-		line = plotLine(points, legend=Caption, colour=LineColor, width=LineWidth)
+		line = PlotLine(points, legend=Caption, colour=LineColor, width=LineWidth)
 		line.LineStyle = LineStyle
-
 		self.Traces.append(line)
 		self.Redraw()
 
+
 	def appendMarkerFromPoints(self, points, Color='black', MarkerShape='circle', Width=1,
-			                   FillStyle='solid', MarkerSize=2, Caption=""):
+				FillStyle='solid', MarkerSize=2, Caption=""):
 		if Caption == "":
 			Caption = "Set %s" % len(self.Traces)
-
-		marker = plotMarkers(points, legend=Caption, colour=Color, width=Width, marker=MarkerShape, size=MarkerSize)
+		marker = PlotMarkers(points, legend=Caption, colour=Color, width=Width, marker=MarkerShape, size=MarkerSize)
 		marker.FillStyle = FillStyle
-
 		self.Traces.append(marker)
 		self.Redraw()
+
 
 	def OnSize(self,event):
 		# The Buffer init is done here, to make sure the buffer is always
@@ -209,13 +211,14 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 		# a file, or whatever.
 		self._Buffer = wx.EmptyBitmap(Size.width, Size.height)
 		plot.PlotCanvas._setSize(self)
-
-		self.last_PointLabel = None        #reset pointLabel
+		# Reset PointLable
+		self.last_PointLabel = None
 
 		if self.last_draw is None:
 			self.Clear()
 		else:
 			self.Draw(self._plotManager)
+
 
 	def DrawPointLabel(self, dc, mDataDict):
 		"""
@@ -232,16 +235,19 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 		dc.SetPen(wx.Pen(wx.BLACK))
 		dc.SetBrush(wx.Brush( wx.BLACK, wx.SOLID ) )
 
-		sx, sy = mDataDict["scaledXY"] #scaled x,y of closest point
-		dc.DrawRectangle( sx-5,sy-5, 10, 10)  #10by10 square centered on point
+		# scaled x,y of closest point
+		sx, sy = mDataDict["scaledXY"] 
+		# 10by10 square centered on point
+		dc.DrawRectangle(sx-5, sy-5, 10, 10)
 		px,py = mDataDict["pointXY"]
 		cNum = mDataDict["curveNum"]
 		pntIn = mDataDict["pIndex"]
 		legend = mDataDict["legend"]
-		#make a string to display
+		# make a string to display
 		s = "Crv# %i, '%s', Pt. (%.2f,%.2f), PtInd %i" %(cNum, legend, px, py, pntIn)
 		dc.DrawText(s, sx , sy+1)
 		# -----------
+
 
 	def setDefaults(self):
 		self.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL,wx.NORMAL))
@@ -250,6 +256,7 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 		self.setLogScale((False,False))
 		self.SetXSpec('auto')
 		self.SetYSpec('auto')
+
 
 	#Property getters and setters
 	def _getAxisFontSize(self):
@@ -503,15 +510,17 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 		'auto' - rounds axis range to sensible values"""))
 
 
+
 class _dLinePlot_test(dLinePlot):
 	def initProperties(self):
 		self.XAxisLabel = "X Axis"
 		self.YAxisLabel = "Y Axis"
 		self.Caption = "Title of Graph"
 
+
 	def afterInit(self):
 		# 1000 points cos function, plotted as blue line
-		self.appendLineFromEquation("2*_Numeric.cos(%s)", 5, 10, Caption="Blue Line", LineWidth=2, LineColor='blue')
+		self.appendLineFromEquation("2*_Numeric.cos(%s)", 5, 10, Caption="Blue Line", LineWidth=2, LineColor="blue")
 
 		line = []
 		for i in range(10):
@@ -526,7 +535,6 @@ class _dLinePlot_test(dLinePlot):
 		# A few more points...
 		points = [(0., 0.), (_Numeric.pi/4., 1.), (_Numeric.pi/2, 0.), (3.*_Numeric.pi/4., -1)]
 		self.appendMarkerFromPoints(points, Caption='Cross Legend', Color='blue', MarkerShape='cross')
-
 
 
 
