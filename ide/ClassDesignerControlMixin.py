@@ -724,7 +724,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		dataProps = {"DataSource": {"type": unicode, "readonly": False},
 				"DataField": {"type": unicode, "readonly": False},
 				"Value": {"type": "multi", "readonly": False}}
-		editorProps = {"ShowCallTips": {"type": bool, "readonly": False},
+		editorProps = {"CommentString": {"type": unicode, "readonly": False},
+				"ShowCallTips": {"type": bool, "readonly": False},
 				"ShowCodeFolding": {"type": bool, "readonly": False},
 				"ShowEOL": {"type": bool, "readonly": False},
 				"ShowLineNumbers": {"type": bool, "readonly": False},
@@ -849,7 +850,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"CaptionForeColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
 				"PanelPosition": {"type": int, "readonly": False}}
-		splitterProps = {"MinimumPanelSize": {"type": int, "readonly": False},
+		splitterProps = {"CanUnsplit": {"type": bool, "readonly": False},
+				"MinimumPanelSize": {"type": int, "readonly": False},
 				"Orientation": {"type": list, "readonly": False,
 					"values": ["Horizontal", "Vertical"]},
 				"PanelClass": {"type": unicode, "readonly": False},
@@ -1047,6 +1049,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(panelProps)
 			ret.update(scrollProps)
 			ret.update(colorProps)
+		elif isinstance(self, dui.dShell):
+			ret.update(fontProps)
 		elif isinstance(self, dui.dPanel):
 			ret.update(panelProps)
 			ret.update(colorProps)

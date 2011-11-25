@@ -217,6 +217,7 @@ class ClassDesigner(dabo.dApp):
 				{"name" : "Page", "class" : dui.dPage, "order" : 170},
 				{"name" : "Panel", "class" : dui.dPanel, "order" : 180},
 				{"name" : "ScrollPanel", "class" : dui.dScrollPanel, "order" : 190},
+				{"name" : "Shell", "class" : dabo.ui.dShell, "order" : 195},
 				{"name" : "PageFrame", "class" : dui.dPageFrame, "order" : 200},
 				{"name" : "PageList", "class" : dui.dPageList, "order" : 210},
 				{"name" : "PageSelect", "class" : dui.dPageSelect, "order" : 220},
@@ -321,7 +322,7 @@ class ClassDesigner(dabo.dApp):
 				dui.dLed, dui.dLine, dui.dListBox, dui.dListControl, dui.dMaskedTextBox,
 				dui.dOkCancelDialog, dui.dPanel, dui.dPage,
 				dui.dScrollPanel, dui.dPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect,
-				dui.dPageStyled, dui.dPageFrameNoTabs, dui.dRadioList, dui.dSlider,
+				dui.dPageStyled, dui.dPageFrameNoTabs, dui.dRadioList, dabo.ui.dShell, dui.dSlider,
 				dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton, dui.dTreeView,
 				dlgs.Wizard, dlgs.WizardPage)
 		try:
@@ -1996,7 +1997,7 @@ class ClassDesigner(dabo.dApp):
 						dui.dDateTextBox, dui.dDropdownList, dui.dEditBox, dui.dEditor,
 						dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel, dui.dLine,
 						dui.dLed, dui.dListBox, dui.dListControl, dui.dMaskedTextBox,
-						dui.dPage, dui.dRadioList, dui.dSlider, dui.dSpinner,
+						dui.dPage, dui.dRadioList, dabo.ui.dShell, dui.dSlider, dui.dSpinner,
 						dui.dSplitter, dui.dTextBox, dui.dToggleButton, dui.dTreeView]
 				try:
 					keys += (dui.dMediaControl, )
@@ -3258,6 +3259,7 @@ class ClassDesigner(dabo.dApp):
 			pop.append(_("Add BitmapButton"), OnHit=self.onNewBitmapButton)
 			pop.append(_("Add Button"), OnHit=self.onNewButton)
 			pop.append(_("Add Gauge"), OnHit=self.onNewGauge)
+			pop.append(_("Add Interactive Shell"), OnHit=self.onNewShell)
 			pop.append(_("Add Slider"), OnHit=self.onNewSlider)
 			pop.append(_("Add TreeView"), OnHit=self.onNewTreeView)
 			mainpop.appendMenu(pop)
@@ -3479,8 +3481,6 @@ class ClassDesigner(dabo.dApp):
 		dui.callAfter(self.addNewControl, None, dui.dRadioList)
 	def onNewPanel(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dPanel)
-	def onNewScrollPanel(self, evt):
-		dui.callAfter(self.addNewControl, None, dui.dScrollPanel)
 	def onNewPageFrame(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dPageFrame)
 	def onNewPageList(self, evt):
@@ -3491,6 +3491,10 @@ class ClassDesigner(dabo.dApp):
 		dui.callAfter(self.addNewControl, None, dui.dPageStyled)
 	def onNewPageNoTabs(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dPageFrameNoTabs)
+	def onNewScrollPanel(self, evt):
+		dui.callAfter(self.addNewControl, None, dui.dScrollPanel)
+	def onNewShell(self, evt):
+		dui.callAfter(self.addNewControl, None, dabo.ui.dShell)
 	def onNewSlider(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dSlider)
 	def onNewSpinner(self, evt):
@@ -4281,6 +4285,7 @@ if __name__ == '__main__':
 					(_("PageStyled"), dui.dPageStyled),
 					(_("PageNoTabs"), dui.dPageFrameNoTabs),
 					(_("RadioList"), dui.dRadioList),
+					(_("Shell"), dabo.ui.dShell),
 					(_("Slider"), dui.dSlider),
 					(_("Spinner"), dui.dSpinner),
 					(_("Splitter"), dui.dSplitter),
