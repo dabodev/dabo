@@ -167,6 +167,14 @@ class dShell(dControlMixin, wx.py.shell.Shell):
 			self.FontSize = 10
 
 
+	@dabo.ui.deadCheck
+	def ScrollToLine(self, lnum):
+		"""Need to check for the case where the control is released, as the wx-level
+		shell makes a CallAfter for ScrollToLine().
+		"""
+		super(dShell, self).ScrollToLine(lnum)
+
+
 	def processLine(self):
 		"""
 		This is part of the underlying class. We need to add the command that
