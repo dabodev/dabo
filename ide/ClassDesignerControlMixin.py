@@ -1050,7 +1050,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(scrollProps)
 			ret.update(colorProps)
 		elif isinstance(self, dui.dShell):
-			ret.update(fontProps)
+			ret.update({"FontFace": {"type": list, "readonly": False,
+						"values": dui.getAvailableFonts()},
+						"FontSize": {"type": int, "readonly": False}})
 		elif isinstance(self, dui.dPanel):
 			ret.update(panelProps)
 			ret.update(colorProps)
