@@ -327,9 +327,9 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		pg.autoClearDrawings = acd
 
 
-	def refresh(self):
+	def refresh(self, interval=None):
 		self.clear()
-		super(ClassDesignerFormMixin, self).refresh()
+		super(ClassDesignerFormMixin, self).refresh(interval=interval)
 
 
 	def onResize(self, evt):
