@@ -159,7 +159,8 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 		self.SetPointLabelFunc(self.DrawPointLabel)
 
 		self.setDefaults()
-		self.Draw(self._plotManager)
+		if len(self.Traces) != 0:
+			self.Draw(self._plotManager)
 
 	def appendLineFromEquation(self, equation, Start, End, points=1000.0, LineColor='black', LineStyle='solid',
 				               LineWidth=1, Caption=""):
@@ -183,7 +184,7 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 		line.LineStyle = LineStyle
 
 		self.Traces.append(line)
-		self.Redraw
+		self.Redraw()
 
 	def appendMarkerFromPoints(self, points, Color='black', MarkerShape='circle', Width=1,
 			                   FillStyle='solid', MarkerSize=2, Caption=""):
@@ -194,7 +195,7 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 		marker.FillStyle = FillStyle
 
 		self.Traces.append(marker)
-		self.Redraw
+		self.Redraw()
 
 	def OnSize(self,event):
 		# The Buffer init is done here, to make sure the buffer is always
@@ -219,7 +220,7 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 	def DrawPointLabel(self, dc, mDataDict):
 		"""
 		This is the fuction that defines how the pointLabels are plotted
-		
+
 			dc - DC that will be passed
 			mDataDict - Dictionary of data that you want to use for the pointLabel
 
