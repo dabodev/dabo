@@ -748,6 +748,27 @@ class dBizobj(dObject):
 		return self._CurrentCursor.getRecordStatus(rownum)
 
 
+	def getChangedStatus(self, ret=None):
+		"""
+		Returns a dictionary of bizobj references and the results of 
+		getRecordStatus() on each changed row. Use to easily inspect 
+		the current	dirty records in the hierarchy.
+		"""
+		if not ret:
+			ret = {}
+		ret[self] = []
+		changed_rows = self.getChangedRows()
+		for changed_row in changed_rows:
+			stat = self.getRecordStatus(rownum=changed_row)
+			if stat:
+				ret[self].append((changed_row, stat))
+			for child in self._children:
+				ret = child.getChangedStatus(ret)
+		if not ret[self]:
+			del(ret[self])
+		return ret
+
+
 	def bizIterator(self, reversed=False, restorePointer=False):
 		"""
 		Returns an iterator that moves the bizobj's record pointer from
