@@ -1872,6 +1872,7 @@ class ReportWriter(object):
 					s.leftIndent = fobject.getProp("leftIndent")
 					s.firstLineIndent = fobject.getProp("firstLineIndent")
 				paras = expr.splitlines()
+				prior_para = ""
 				for idx, para in enumerate(paras):
 					if len(para) == 0:
 						# Blank line
@@ -1886,11 +1887,46 @@ class ReportWriter(object):
 									word = word.replace("<", "&lt;")
 								words[idx] = word
 							return " ".join(words)
-						para = escapePara(para)
+						para = prior_para = escapePara(para)
 						p = ParaClass(para, s)
 					p_height = p.wrap(columnWidth-padLeft-padRight, None)[1]
+					if height is not None and objNeededHeight + p_height > height and not overrideExpr:
+						# We are going to need to truncate the output; find the amount of data we can print
+						# and print that, followed by "..."
+						availableHeight = height - objNeededHeight
+						p = ParaClass("...", s)
+						p_height = p.wrap(columnWidth-padLeft-padRight, None)[1]
+						if p_height > availableHeight:
+							# don't even have space for the "..."
+							# go to prior paragraph and append it:
+							prior_p, prior_height = story.pop()
+							objNeededHeight -= prior_height
+							availableHeight = height - objNeededHeight
+							trial_p = ParaClass("%s..." % prior_para, s)
+							trial_height = trial_p.wrap(columnWidth-padLeft-padRight, None)[1]
+							if trial_height > availableHeight:
+								# It worked before, so just remove the final 3 chars and be done with it:
+								p = ParaClass("%s..." % prior_para[:-3], s)
+								p_height = p.wrap(columnWidth-padLeft-padRight, None)[1]
+								objNeededHeight += p_height
+								story.append((p, p_height))
+								break
+						else:
+							# Get the max. chars to print in the alloted space that we can:
+							for trial_len in range(len(para)):
+								p = ParaClass("%s..." % para[:trial_len+1], s)
+								p_height = p.wrap(columnWidth-padLeft-padRight, None)[1]
+								if p_height > availableHeight:
+									p = ParaClass("%s..." % para[:trial_len], s)
+									p_height = p.wrap(columnWidth-padLeft-padRight, None)[1]
+									break
+							objNeededHeight += p_height
+							story.append((p, p_height))
+							break
+
 					objNeededHeight += p_height
 					story.append((p, p_height))
+
 
 				def hackDeferredPara():
 					"""When a paragraph wraps to the next page, the last line won't print if this isn't done."""
@@ -1902,7 +1938,11 @@ class ReportWriter(object):
 
 		neededHeight = objNeededHeight + padTop + padBottom
 		if height is not None and neededHeight > height and not overrideExpr:
-			return self.getStory(obj, overrideExpr="<<< string too long >>>", overrideFontSize=7)
+			if not story:
+				return self.getStory(obj, overrideExpr="<<< string too long >>>", overrideFontSize=7)
+			else:
+				# return the story as-is, but will be truncated:
+				return story, height
 		return story, neededHeight
 
 
