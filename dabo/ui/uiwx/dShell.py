@@ -474,10 +474,14 @@ Ctrl-Up/Down to scroll through history."""))
 		self.SplitState = True
 
 		# Make 'self' refer to the calling form, or this form if no calling form.
+		# Make 'bo' refer to the primary bizobj of the calling form, if any.
 		if self.Parent is None:
 			ns = self
 		else:
 			ns = self.Parent
+			bo = getattr(ns, "PrimaryBizobj", None)
+			if bo:
+				self.shell.interp.locals['bo'] = bo
 		self.shell.interp.locals['self'] = ns
 
 		self.Caption = _("dShellForm: self is %s") % ns.Name
