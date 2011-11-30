@@ -1887,7 +1887,7 @@ class ReportWriter(object):
 									word = word.replace("<", "&lt;")
 								words[idx] = word
 							return " ".join(words)
-						para = prior_para = escapePara(para)
+						para = escapePara(para)
 						p = ParaClass(para, s)
 					p_height = p.wrap(columnWidth-padLeft-padRight, None)[1]
 					if height is not None and objNeededHeight + p_height > height and not overrideExpr:
@@ -1911,6 +1911,11 @@ class ReportWriter(object):
 								objNeededHeight += p_height
 								story.append((p, p_height))
 								break
+							else:
+								# the trial is good:
+								objNeededHeight += trial_height
+								story.append((trial_p, trial_height))
+								break
 						else:
 							# Get the max. chars to print in the alloted space that we can:
 							for trial_len in range(len(para)):
@@ -1923,7 +1928,7 @@ class ReportWriter(object):
 							objNeededHeight += p_height
 							story.append((p, p_height))
 							break
-
+					prior_para = para
 					objNeededHeight += p_height
 					story.append((p, p_height))
 
