@@ -308,6 +308,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				if diff < 10:  ## if it's been less than this # of seconds.
 					return cv[0]
 
+		if col is None:
+			# No corresponding Dabo column for this column; must be not visible.
+			return ""
+
 		bizobj = self.grid.getBizobj()
 		col_obj = self.grid.Columns[col]
 		field = col_obj.DataField
