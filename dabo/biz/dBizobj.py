@@ -2192,30 +2192,30 @@ class dBizobj(dObject):
 		return self._mmAssociatedDbCall(bizOrDS, "mmAssociateValues", otherField, listOfValues)
 
 
-	def mmDisssociateValue(self, bizOrDS, otherField, otherVal):
+	def mmDissociateValue(self, bizOrDS, otherField, otherVal):
 		"""
 		Removes the association between the current record and the specified value
 		in the 'other' table of a M-M relationship. If no such association exists,
 		nothing happens.
 		"""
-		return self._mmAssociatedDbCall(bizOrDS, "mmDisssociateValue", otherField, otherVal)
+		return self._mmAssociatedDbCall(bizOrDS, "mmDissociateValue", otherField, otherVal)
 
 
-	def mmDisssociateValues(self, bizOrDS, otherField, listOfValues):
+	def mmDissociateValues(self, bizOrDS, otherField, listOfValues):
 		"""
 		Removes the association between the current record and every item in 'listOfValues'
 		in the 'other' table of a M-M relationship. If no such association exists,
 		nothing happens.
 		"""
-		return self._mmAssociatedDbCall(bizOrDS, "mmDisssociateValues", otherField, listOfValues)
+		return self._mmAssociatedDbCall(bizOrDS, "mmDissociateValues", otherField, listOfValues)
 
 
-	def mmDisssociateAll(self, bizOrDS):
+	def mmDissociateAll(self, bizOrDS):
 		"""
 		Removes all associations between the current record and the associated
 		M-M table.
 		"""
-		return self._mmAssociatedDbCall(bizOrDS, "mmDisssociateAll")
+		return self._mmAssociatedDbCall(bizOrDS, "mmDissociateAll")
 
 
 	def mmSetFullAssociation(self, bizOrDS, otherField, listOfValues):

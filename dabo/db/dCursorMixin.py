@@ -1170,16 +1170,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			self.mmAddToBoth(keyField, pk, otherField, val)
 
 
-	def mmDisssociateValue(self, otherField, otherVal):
+	def mmDissociateValue(self, otherField, otherVal):
 		"""
 		Removes the association between the current record and the specified value
 		in the 'other' table of a M-M relationship. If no such association exists,
 		nothing happens.
 		"""
-		self.mmDisssociateValues(otherField, [otherVal])
+		self.mmDissociateValues(otherField, [otherVal])
 
 
-	def mmDisssociateValues(self, otherField, listOfValues):
+	def mmDissociateValues(self, otherField, listOfValues):
 		"""
 		Removes the association between the current record and every item in 'listOfValues'
 		in the 'other' table of a M-M relationship. If no such association exists,
@@ -1194,22 +1194,22 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			sql = self._qMarkToParamPlaceholder("delete from %s where %s = ? and %s = ?"
 					% (self._assocTable, self._assocPKColThis, self._assocPKColOther))
 			try:
-				dabo.dbActivityLog.info("mmDisssociateValues() SQL: %s, PARAMS: %s" % (
+				dabo.dbActivityLog.info("mmDissociateValues() SQL: %s, PARAMS: %s" % (
 						sql.decode(self.Encoding).replace("\n", " "), str((self._assocTable,
 					self._assocPKColThis, self._assocPKColOther))))
 			except StandardError:
 				# A problem with writing to the log, most likely due to encoding issues
 				try:
-					dabo.dbActivityLog.info("mmDisssociateValues() SQL (failed to log PARAMS): %r" % sql)
+					dabo.dbActivityLog.info("mmDissociateValues() SQL (failed to log PARAMS): %r" % sql)
 				except StandardError:
-					dabo.dbActivityLog.info("mmDisssociateValues() (failed to log SQL and PARAMS)")
+					dabo.dbActivityLog.info("mmDissociateValues() (failed to log SQL and PARAMS)")
 			try:
 				aux.execute(sql, (thisPK, otherPK))
 			except dException.NoRecordsException:
 				pass
 
 
-	def mmDisssociateAll(self):
+	def mmDissociateAll(self):
 		"""
 		Removes all associations between the current record and the associated
 		M-M table.
@@ -1218,10 +1218,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		sql = self._qMarkToParamPlaceholder("delete from %s where %s = ?"
 				% (self._assocTable, self._assocPKColThis))
 		try:
-			dabo.dbActivityLog.info("mmDisssociateAll() SQL: %s" % (
+			dabo.dbActivityLog.info("mmDissociateAll() SQL: %s" % (
 					sql.decode(self.Encoding).replace("\n", " ")))
 		except StandardError:
-			dabo.dbActivityLog.info("mmDisssociateAll() (failed to log SQL")
+			dabo.dbActivityLog.info("mmDissociateAll() (failed to log SQL")
 		try:
 			aux.execute(sql, (self.getPK(),))
 		except dException.NoRecordsException:
@@ -1233,7 +1233,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		Adds and/or removes association records so that the current record
 		is associated with every item in listOfValues, and none other.
 		"""
-		self.mmDisssociateAll()
+		self.mmDissociateAll()
 		self.mmAssociateValues(otherField, listOfValues)
 
 
