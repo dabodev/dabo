@@ -218,7 +218,6 @@ class dBizobj(dObject):
 		if _dataStructure is not None:
 			crs._dataStructure = _dataStructure
 		crs.BackendObject = cf.getBackendObject()
-		crs.sqlManager = self.SqlManager
 		crs._bizobj = self
 		self._syncCursorProps(crs)
 		if addToCursorCollection and self.RequeryOnLoad:
