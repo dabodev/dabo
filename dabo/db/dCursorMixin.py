@@ -2704,6 +2704,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		if not fieldClause:
 			fieldClause = "*"
+		if self._isMM:
+			fieldClause = "DISTINCT %s" % fieldClause
 
 		if not fromClause:
 			fromClause = self.Table
