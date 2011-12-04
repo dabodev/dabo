@@ -215,6 +215,7 @@ class dBizobj(dObject):
 		crs.setCursorFactory(cf.getCursor, cursorClass)
 		if addToCursorCollection:
 			self.__cursors[key] = crs
+			crs.sqlManager = self.SqlManager
 		if _dataStructure is not None:
 			crs._dataStructure = _dataStructure
 		crs.BackendObject = cf.getBackendObject()
