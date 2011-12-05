@@ -548,10 +548,8 @@ class dCursorMixin(dObject):
 		"""
 		currCol = self.sortColumn
 		currOrd = self.sortOrder
-		if ordr is None:
+		if not ordr:
 			ordr = "ASC"
-		elif ordr == "":
-			ordr = None
 		if ordr[:3].upper() == "CYC":
 			ordr = {"ASC": "DESC", "DES": None, None: "ASC"}[currOrd]
 			col = currCol
