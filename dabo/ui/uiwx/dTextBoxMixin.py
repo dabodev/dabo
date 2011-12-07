@@ -321,7 +321,9 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		try:
 			return self._SelectOnEntry
 		except AttributeError:
-			return False
+			ret = not isinstance(self, dabo.ui.dEditBox)
+			self._SelectOnEntry = ret
+			return ret
 
 	def _setSelectOnEntry(self, val):
 		self._SelectOnEntry = bool(val)
