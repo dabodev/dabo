@@ -129,7 +129,13 @@ class BaseForm(fm.dFormMixin):
 		if interval:
 			dabo.ui.callAfterInterval(interval, self.update, 0)
 		else:
-			super(BaseForm, self).update()
+			try:
+				super(BaseForm, self).update()
+			except TypeError:
+				# I think I'm dealing with a deadobject error. Sometimes getting:
+				#   <type 'exceptions.TypeError'>: super(type, obj): obj must be an instance
+				#   or subtype of type
+				pass
 
 
 	def confirmChanges(self, bizobjs=None):
