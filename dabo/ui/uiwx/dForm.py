@@ -303,7 +303,7 @@ class BaseForm(fm.dFormMixin):
 				self._afterRowNavigation()
 				self.raiseEvent(dEvents.RowNavigation, biz=biz)
 				if delay:
-					dabo.ui.callAfterInterval(self._afterPointerMoveUpdate, delay, biz)
+					dabo.ui.callAfterInterval(delay, self._afterPointerMoveUpdate, biz)
 				else:
 					self._afterPointerMoveUpdate(biz)
 		return True
