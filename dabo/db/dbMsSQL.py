@@ -183,16 +183,23 @@ select table_schema + '.' + table_name AS table_name
 		# fairly standard way of getting column settings
 		# this may be standard enough to put in the super class
 		dbName = self.database
+		tableNamespace = tableName.split(".")
+		if len(tableNamespace) > 1:
+			tableSchema = tableNamespace[-2]
+			tableName = tableNamespace[-1]
+		else:
+			tableSchema = "dbo"
 
 		sql = """
 select COLUMN_NAME,
        DATA_TYPE
   from INFORMATION_SCHEMA.COLUMNS
- where table_catalog = '%(db)s'
-   and table_name = '%(table)s'
+ where table_catalog = '%(db)s' and
+     table_name = '%(table)s' and
+     table_schema = '%(schema)s'
  order by ORDINAL_POSITION """
 
-		cursor.execute(sql % {'table': tableName, 'db': dbName})
+		cursor.execute(sql % {'table': tableName, 'db': dbName, 'schema': tableSchema})
 		fieldDefs = cursor.getDataSet()
 
 		sql = """
@@ -200,11 +207,12 @@ select COLUMN_NAME
   from information_schema.Constraint_Column_Usage CCU
   join information_schema.TABLE_CONSTRAINTS TC
     on CCU.CONSTRAINT_NAME = TC.CONSTRAINT_NAME
- where CONSTRAINT_TYPE = 'PRIMARY KEY'
-   and TC.CONSTRAINT_CATALOG = '%(db)s'
-   and TC.Table_Name = '%(table)s' """
+ where CONSTRAINT_TYPE = 'PRIMARY KEY' and
+   TC.CONSTRAINT_CATALOG = '%(db)s' and
+   TC.TABLE_NAME = '%(table)s' and
+   TC.CONSTRAINT_SCHEMA = '%(schema)s' """
 
-		cursor.execute(sql % {'table': tableName, 'db': dbName})
+		cursor.execute(sql % {'table': tableName, 'db': dbName, 'schema': tableSchema})
 		pkFields = cursor.getDataSet()
 
 		fields = []
