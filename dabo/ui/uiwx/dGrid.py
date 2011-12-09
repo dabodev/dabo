@@ -2,6 +2,7 @@
 import copy
 import sys
 import datetime
+import locale
 import time
 import operator
 import re
@@ -27,10 +28,17 @@ from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
 import dabo.lib.dates
 from dabo.lib.utils import noneSortKey, caseInsensitiveSortKey
-
 from dabo.dBug import loggit
 
+
+# Make this locale-independent
+# JK: We can't set this up on module load because locale
+# is set not until dApp is completely setup.
+decimalPoint = None
+
+
 class dGridDataTable(wx.grid.PyGridTableBase):
+
 	def __init__(self, parent):
 		super(dGridDataTable, self).__init__()
 		self._clearCache()
@@ -1755,6 +1763,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	USE_DATASOURCE_BEING_SET_HACK = False
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
+		# Update global decimalPoint attribute.
+		global decimalPoint
+		if decimalPoint is None:
+			decimalPoint = locale.localeconv()["decimal_point"]
 		# Get scrollbar size from system metrics.
 		self._scrollBarSize = wx.SystemSettings_GetMetric(wx.SYS_VSCROLL_X)
 		self._baseClass = dGrid
@@ -3306,6 +3318,18 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				self.parent.SetValue(self.row, self.col, val)
 			Value = property(_getVal, _setVal)
 		return GridCell(self, row, col)
+
+
+	def copy(self):
+		if self.RowCount > 0:
+			coln = self.CurrentColumn
+			dtyp = self.Columns[coln].DataType
+			val = ustr(self.getValue(col=coln))
+			if dtyp in (Decimal, float, "decimal", "float", "f"):
+				# We need to convert decimal point accordingly to the locale.
+				val = val.replace(".", decimalPoint)
+			self.Application.copyToClipboard(val)
+			return True
 
 
 	def getBizobj(self):
