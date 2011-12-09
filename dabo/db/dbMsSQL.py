@@ -92,11 +92,11 @@ class MSSQL(dBackend):
 		dbName = self.database
 
 		sql = """
-select table_name
+select table_schema + '.' + table_name AS table_name
   from INFORMATION_SCHEMA.TABLES
  where table_catalog = '%(db)s'
-   and table_type = 'BASE TABLE'
- order by table_name """
+   and table_type IN ('BASE TABLE', 'VIEW')
+ order by 1 """
 
 		cursor.execute(sql % {'db':dbName})
 
