@@ -3821,11 +3821,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				if not found:
 					endPoints.append(pt)
 
-		if rowOrCol.lower()[0] == "r":
+		typ = rowOrCol.lower()[:3]
+		if typ == "row":
 			cols = self.ColumnCount
 			rangeStart = [(r, 0) for r in startPoints]
 			rangeEnd = [(r, cols) for r in endPoints]
-		else:
+		elif typ == "col":
 			rows = self.RowCount
 			rangeStart = [(0, c) for c in startPoints]
 			rangeEnd = [(rows, c) for c in endPoints]
@@ -4676,6 +4677,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# Add any selected columns
 			if cols:
 				ret += self._calcRanges(cols, "Cols")
+			# Add any selected cells
+			if cells:
+				ret += [(val, val) for val in cells]
 
 			if not ret:
 				cell = (self.GetGridCursorRow(), self.GetGridCursorCol())
