@@ -3321,15 +3321,58 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def copy(self):
-		if self.RowCount > 0:
-			coln = self.CurrentColumn
-			dtyp = self.Columns[coln].DataType
-			val = ustr(self.getValue(col=coln))
-			if dtyp in (Decimal, float, "decimal", "float", "f"):
-				# We need to convert decimal point accordingly to the locale.
-				val = val.replace(".", decimalPoint)
-			self.Application.copyToClipboard(val)
-			return True
+		valSep = dabo.copyValueSeparator
+		strSep = dabo.copyStringSeparator
+		lnSep = dabo.copyLineSeparator
+
+		def valEscape(val):
+			if isinstance(val, basestring):
+				# Need to escape tabs and newlines
+				escval = val.replace("\t", "\\t").replace("\n", "\\n")
+				if strSep:
+					# Also escape the string separator
+					escval = escval.replace(strSep, "\\%s" % strSep)
+				return "%s%s%s" % (strSep, escval, strSep)
+			else:
+				ret = val.__repr__()
+				if isinstance(val, (Decimal, float)):
+					# We need to convert decimal point accordingly to the locale.
+					ret = ret.replace(".", decimalPoint)
+				return ret
+
+		def valuesForRange(rowrange, colrange):
+			allvals = []
+			for row in rowrange:
+				rowvals = []
+				for col in colrange:
+					val = self.getValue(row, col)
+					rowvals.append(valEscape(val))
+				allvals.append(valSep.join(rowvals))
+			return lnSep.join(allvals)
+
+		sel = self.Selection
+		if not sel:
+			return None
+		selmode = self.SelectionMode
+		copied = []
+		txtToCopy = ""
+		if selmode == "Cell":
+			copySections = []
+			for rangeTuple in sel:
+				zrow, zcol = zip(*rangeTuple)
+				rowrange = range(zrow[0], zrow[1] + 1)
+				colrange = range(zcol[0], zcol[1] + 1)
+				copySections.append(valuesForRange(rowrange, colrange))
+			txtToCopy = lnSep.join(copySections)
+		else:
+			if selmode == "Row":
+				rowrange = sel
+				colrange = range(0, self.ColumnCount)
+			else:
+				rowrange = range(0, self.RowCount)
+				colrange = sel
+			txtToCopy = valuesForRange(rowrange, colrange)
+		self.Application.copyToClipboard(txtToCopy)
 
 
 	def getBizobj(self):

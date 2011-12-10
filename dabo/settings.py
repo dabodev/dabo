@@ -230,6 +230,11 @@ autoDisableDataControls = False
 
 dTextBox_NumericBlankToZero = False
 
+# When we copy values from a grid, we need to define the following values for the copied text:
+copyValueSeparator = "\t"
+copyStringSeparator= '"'
+copyLineSeparator = "\n"
+
 ### Settings - end
 
 
