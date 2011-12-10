@@ -700,7 +700,7 @@ def getMouseObject():
 # 	win = wx.FindWindowAtPoint(getMousePosition())
 	actwin = dabo.dAppRef.ActiveForm
 # 	print "ACTWIN", actwin
-	if isinstance(actwin, dabo.ui.dShell.dShell):
+	if isinstance(actwin, dabo.ui.dShell):
 		actwin.lockDisplay()
 		actwin.sendToBack()
 	else:
