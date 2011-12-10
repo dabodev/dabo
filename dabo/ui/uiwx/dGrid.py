@@ -3393,6 +3393,20 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return None
 
 
+	def setRowHeight(self, row, ht):
+		"""Explicitly set the height of a specific row in the grid. If
+		SameSizeRows is True, all rows will be affected.
+		"""
+		if self.SameSizeRows:
+			self.RowHeight = ht
+		else:
+			if row >= self.RowCount:
+				dabo.log.error(_("Specified row is out of range for setRowHeight(). "
+						"Attempted: %s; max row: %s") % (row, self.RowCount - 1))
+				return
+			self.SetRowSize(row, ht)
+
+
 	def _getWxHeader(self):
 		"""Return the wx grid header window."""
 		return self.GetGridColLabelWindow()
