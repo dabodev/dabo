@@ -55,6 +55,7 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		ok = self.Append(menu, menu.Caption)
 		if ok:
 			menu.Parent = self
+			menu._setId(menu._getID())
 		return menu
 
 
@@ -67,6 +68,7 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		ok = self.Insert(pos, menu, menu.Caption)
 		if ok:
 			menu.Parent = self
+			menu._setId(menu._getID())
 		return menu
 
 
@@ -78,6 +80,7 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		ok = self.PrependMenu(menu, menu.Caption)
 		if ok:
 			menu.Parent = self
+			menu._setId(menu._getID())
 		return menu
 
 

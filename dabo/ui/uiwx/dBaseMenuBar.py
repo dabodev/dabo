@@ -175,11 +175,11 @@ class dBaseMenuBar(dMenuBar):
 	dMenuItem(s) that your application needs.
 	"""
 	def _afterInit(self):
-		super(dBaseMenuBar, self)._afterInit()
 		self.fileMenu = self.appendMenu(FileMenu(self, MenuID="base_file"))
 		self.editMenu = self.appendMenu(EditMenu(self, MenuID="base_edit"))
 		self.viewMenu = self.appendMenu(ViewMenu(self, MenuID="base_view"))
 		self.helpMenu = self.appendMenu(HelpMenu(self, MenuID="base_help"))
+		super(dBaseMenuBar, self)._afterInit()
 
 
 
