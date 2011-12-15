@@ -21,7 +21,7 @@ import dabo.db
 import dabo.dLocalize as dLocalize
 import dabo.dException as dException
 from dabo.dLocalize import _
-from dabo.lib.connParser import importConnections
+from dabo.lib import connParser
 from dSecurityManager import dSecurityManager
 from dabo.lib.SimpleCrypt import SimpleCrypt
 from dabo.dObject import dObject
@@ -1013,7 +1013,7 @@ try again when it is running.
 	def getConnectionsFromFile(self, filePath):
 		"""Given an absolute path to a .cnxml file, return the connection defs."""
 		try:
-			connDefs = importConnections(filePath, useHomeDir=True)
+			connDefs = connParser.importConnections(filePath, useHomeDir=True)
 		except SAXParseException, e:
 			dabo.log.error(_("Error parsing '%(filePath)s': %(e)s") % locals())
 			return {}
