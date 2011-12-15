@@ -855,15 +855,6 @@ try again when it is running.
 			return None
 
 
-	def str2Unicode(self, strVal):
-		"""
-		Given a string, this method will try to return a properly decoded
-		unicode value. It will first try the default Encoding, and then try the
-		more common encoding types.
-		"""
-		return ustr(strVal)
-
-
 	# These two methods pass encryption/decryption requests
 	# to the Crypto object
 	def encrypt(self, val):

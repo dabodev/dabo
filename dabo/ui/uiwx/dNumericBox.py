@@ -153,6 +153,15 @@ class dNumericBox(dtbm.dTextBoxMixin, masked.NumCtrl):
 			if val is None:
 				self.SetGroupDigits(False)
 			else:
+				if ord(val[0]) > 127:
+					# Only ASCII chars allowed
+					dabo.log.error(_("GroupChar must be a valid ASCII character; "
+							"'%s' is not allowed.") % val)
+					return
+				if len(val) > 1:
+					dabo.log.error(_("GroupChar must be a single character; "
+							"attempted to set it to a string of length %s.") % len(val))
+					return
 				self.SetGroupChar(val)
 				self.SetGroupDigits(True)
 		else:
