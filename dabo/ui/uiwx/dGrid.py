@@ -3334,7 +3334,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					escval = escval.replace(strSep, "\\%s" % strSep)
 				return "%s%s%s" % (strSep, escval, strSep)
 			else:
-				ret = val.__repr__()
+				ret = str(val)
 				if isinstance(val, (Decimal, float)):
 					# We need to convert decimal point accordingly to the locale.
 					ret = ret.replace(".", decimalPoint)
