@@ -719,7 +719,7 @@ class PropertyGrid(dabo.ui.dGrid):
 		super(PropertyGrid, self).fillGrid(force)
 		self.refresh()
 		# Set the renderers and editors manually by cell
-		if not self.Application.Selection:
+		if not self.Controller.Selection:
 			return
 		valColumn = self.Columns[1]
 		for row in xrange(self.RowCount):
@@ -730,7 +730,7 @@ class PropertyGrid(dabo.ui.dGrid):
 					pass
 				else:
 					dabo.log.error(_("Property Grid out of sync for property '%s' of object '%'") %
-							(self.getValue(row, 0), self.Application.Selection[0]))
+							(self.getValue(row, 0), self.Controller.Selection[0]))
 				continue
 			if not isinstance(pd, dict):
 				print _("BAD PROP DICT:"), pd, type(pd), _("ROW"), row
@@ -762,7 +762,7 @@ class PropertyGrid(dabo.ui.dGrid):
 		if col == 0:
 			ret = typ in ("str", "string", "unicode", "u")
 		else:
-			if not self.Application.Selection:
+			if not self.Controller.Selection:
 				return type(None)
 			pd = self.getPropDictForRow(row)
 
@@ -826,7 +826,7 @@ class PropertyGrid(dabo.ui.dGrid):
 		if col is None:
 			col = self.CurrentColumn
 		try:
-			sel = self.Application.Selection
+			sel = self.Controller.Selection
 		except AttributeError:
 			# App doesn't support this property yet
 			sel = None
@@ -879,7 +879,7 @@ class PropertyGrid(dabo.ui.dGrid):
 		try:
 			return self._controller
 		except AttributeError:
-			self._controller = self.Application
+			self._controller = self.Form.Controller
 			return self._controller
 
 	def _setController(self, val):
