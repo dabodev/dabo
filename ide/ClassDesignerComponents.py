@@ -1584,7 +1584,7 @@ class LayoutBorderSizer(LayoutSizerMixin, dabo.ui.dBorderSizer):
 
 
 	def _getDesProps(self):
-		ret = LayoutBorderSizer.doDefault()
+		ret = super(LayoutBorderSizer, self)._getDesProps()
 		ret.update({"Caption" : {"type" : unicode, "readonly" : False},
 				"BackColor" : {"type" : "color", "readonly" : False,
 						"customEditor": "editColor"},

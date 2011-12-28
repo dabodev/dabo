@@ -877,7 +877,7 @@ class ReportObjectTree(dabo.ui.dTreeView):
 
 class ObjectTreeForm(DesignerControllerForm):
 	def initProperties(self):
-		ObjectTreeForm.doDefault()
+		super(ObjectTreeForm, self).initProperties()
 		self.Caption = "Report Object Tree"
 		self.EditorClass = ReportObjectTree
 
@@ -891,7 +891,7 @@ class ReportPropSheet(ClassDesignerPropSheet.PropSheet):
 		self.app = rdc
 
 	def afterInit(self):
-		ReportPropSheet.doDefault()
+		super(ReportPropSheet, self).afterInit()
 		self.addObject(dabo.ui.dLabel, Name="lblType", FontBold=True)
 		self.Sizer.insert(0, self.lblType, "expand", halign="left", border=10)
 		self.Sizer.insertSpacer(0, 10)
@@ -948,12 +948,12 @@ class ReportPropSheet(ClassDesignerPropSheet.PropSheet):
 		if rgbTuple is None:
 			rgbTuple = (0, 0, 0)
 		rgbTuple = rdc.ActiveEditor._rw.getColorTupleFromReportLab(rgbTuple)
-		ReportPropSheet.doDefault(objs, prop, rgbTuple)
+		super(ReportPropSheet, self).editColor(objs, prop, val)
 
 
 class PropSheetForm(DesignerControllerForm):
 	def initProperties(self):
-		PropSheetForm.doDefault()
+		super(PropSheetForm, self).initProperties()
 		self.Caption = "Report Properties"
 		self.EditorClass = ReportPropSheet
 		self.Controller = self.Application  ## r7033 changed to allow for non-application controllers.
@@ -1874,7 +1874,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 
 	def refresh(self):
-		ReportDesigner.doDefault()
+		super(ReportDesigner, self).refresh()
 		self.showPosition()
 		self.setCaption()
 

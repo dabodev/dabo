@@ -496,7 +496,7 @@ class CaptionBitmapPanel(CaptionPanel):
 
 
 	def _getDesignerProps(self):
-		ret = self.doDefault()
+		ret = super(CaptionBitmapPanel, self)._getDesignerProps()
 		ret.update({"Picture": {"type" : "path", "readonly" : False,
 				"customEditor": "editStdPicture"}})
 		return ret

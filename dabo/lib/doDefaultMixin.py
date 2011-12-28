@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 import inspect
+import warnings
+
+deprecation_warnings_issued = []
+
 
 class DoDefaultMixin(object):
 	"""
@@ -39,6 +43,12 @@ class DoDefaultMixin(object):
 		frame = inspect.currentframe(1)
 		self = frame.f_locals["self"]
 		methodName = frame.f_code.co_name
+
+		if (cls, methodName) not in deprecation_warnings_issued:
+			warnings.warn("""
+  doDefault() deprecated since r7335. Please replace your doDefault() call with:
+    super(%s, self).%s(<args>)""" % (cls.__name__, methodName), DeprecationWarning, 2)
+			deprecation_warnings_issued.append((cls, methodName))
 
 		# If the super() class doesn't have the method attribute, we'll pass silently
 		# because that is what the user will expect: they probably defined the method
