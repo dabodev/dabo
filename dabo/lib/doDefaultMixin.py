@@ -22,6 +22,8 @@ class DoDefaultMixin(object):
 
 	def doDefault(cls, *args, **kwargs):
 		"""
+		DEPRECATED in r7335: use python's explicit super(cls, self).method(<args>)
+
 		Call the superclass's method code, if any.
 
 		Arguments are sent along to the super method, and the return value from
