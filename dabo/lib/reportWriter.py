@@ -769,6 +769,9 @@ class ReportBegin(Band):
 		self.AvailableProps["PageBreakAfter"] = toPropDict(bool, False,
 				"""Specifies whether a page break is inserted after the band prints.""")
 
+		self.AvailableProps["ColumnBreakAfter"] = toPropDict(bool, False,
+				"""Specifies whether a column break is inserted after the band prints.""")
+
 class ReportEnd(Band):
 	def initAvailableProps(self):
 		super(ReportEnd, self).initAvailableProps()
@@ -2355,9 +2358,11 @@ class ReportWriter(object):
 			for idx in del_deferred_idxs:
 				del(deferred[idx])
 
-			if band.lower() == "reportbegin" and bandDict.getProp("PageBreakAfter"):
-				endPage()
-				beginPage()
+			if band.lower() == "reportbegin":
+				if bandDict.getProp("ColumnBreakAfter"):
+					colBreak()
+				if bandDict.getProp("PageBreakAfter"):
+					pageBreak()
 
 			if was_deferred and not deferred:
 				# just printed the last page of deferreds
@@ -2373,13 +2378,21 @@ class ReportWriter(object):
 					y -= (maxBandHeight-bandHeight)
 				return y
 
+		def pageBreak():
+			self.endPage()
+			self.beginPage()
 
+		def colBreak():
+			if self._currentColumn >= columnCount-1:
+				pageBreak()
+				return
+			self._currentColumn += 1
+			
 		def beginPage():
 			# Print the static bands that appear below detail in z-order:
 			self._pageNumber += 1
 			for band in ("pageBackground", "pageHeader"):
 				printBand(band)
-
 
 		def endPage():
 			self._currentColumn = 0
