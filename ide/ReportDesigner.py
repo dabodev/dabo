@@ -956,6 +956,7 @@ class PropSheetForm(DesignerControllerForm):
 		PropSheetForm.doDefault()
 		self.Caption = "Report Properties"
 		self.EditorClass = ReportPropSheet
+		self.Controller = self.Application  ## r7033 changed to allow for non-application controllers.
 
 
 
