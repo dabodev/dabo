@@ -22,7 +22,7 @@ class DoDefaultMixin(object):
 
 	def doDefault(cls, *args, **kwargs):
 		"""
-		DEPRECATED in r7335: use python's explicit super(cls, self).method(<args>)
+		DEPRECATED in r7036: use python's explicit super(cls, self).method(<args>)
 
 		Call the superclass's method code, if any.
 
@@ -48,7 +48,7 @@ class DoDefaultMixin(object):
 
 		if (cls, methodName) not in deprecation_warnings_issued:
 			warnings.warn("""
-  doDefault() deprecated since r7335. Please replace your doDefault() call with:
+  doDefault() deprecated since r7036. Please replace your doDefault() call with:
     super(%s, self).%s(<args>)""" % (cls.__name__, methodName), DeprecationWarning, 2)
 			deprecation_warnings_issued.append((cls, methodName))
 
