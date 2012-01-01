@@ -847,10 +847,33 @@ class dPemMixin(dPemMixinBase):
 		return ret
 
 
+	def getSizerProps(self):
+		"""
+		Returns a dict containing the object's sizer property info. The
+		keys are the property names, and the values are the current
+		values for those props.
+		"""
+		ret = None
+		if self.ControllingSizer:
+			ret = self.ControllingSizer.getItemProps(self)
+		return ret
+
+
 	def setSizerProp(self, prop, val):
 		"""Tells the object's ControllingSizer to adjust the requested property."""
 		if self.ControllingSizer:
 			self.ControllingSizer.setItemProp(self, prop, val)
+
+
+	def setSizerProps(self, propDict):
+		"""
+		Convenience method for setting multiple sizer item properties at once. The
+		dict should have the property name as the key and the desired new value
+		as the associated value.
+		"""
+		if self.ControllingSizer:
+			for prop, val in propDict.iteritems():
+				self.ControllingSizer.setItemProp(self, prop, val)
 
 
 	def moveTabOrderBefore(self, obj):
@@ -1183,6 +1206,11 @@ class dPemMixin(dPemMixinBase):
 	def getPositionInSizer(self):
 		"""Convenience method to let you call this directly on the object."""
 		return dabo.ui.getPositionInSizer(self)
+
+
+	def setPositionInSizer(self, pos):
+		"""Convenience method to let you call this directly on the object."""
+		return dabo.ui.setPositionInSizer(self, pos)
 
 
 	def setAll(self, prop, val, recurse=True, filt=None, instancesOf=None):

@@ -1666,6 +1666,27 @@ def getPositionInSizer(obj):
 		return None
 
 
+def setPositionInSizer(obj, pos):
+	sz = obj.GetContainingSizer()
+	if not sz:
+		return None
+	orig_pos = getPositionInSizer(obj)
+	# Copy the current sizer props
+	props = obj.getSizerProps()
+	if isinstance(sz, wx.BoxSizer):
+		sz.remove(obj)
+		sz.insert(pos, obj)
+		sz.setItemProps(obj, props)
+	elif isinstance(sz, wx.GridBagSizer):
+		row, col = pos
+		print sz.getItemByRowCol(row, col)
+		if sz.getItemByRowCol(row, col):
+			raise ValueError(_("An object already exists at %s, %s") % (row, col))
+		sz.remove(obj)
+		sz.append(obj)
+		sz.setItemProps(obj, props)
+	sz.layout()	
+
 
 def fontMetricFromFont(txt, font):
 	if isinstance(font, dabo.ui.dFont):
