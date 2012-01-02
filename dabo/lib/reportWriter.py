@@ -756,7 +756,16 @@ class Band(ReportObject):
 
 
 class PageBackground(Band): pass
-class PageHeader(Band): pass
+
+class PageHeader(Band):
+	def initAvailableProps(self):
+		super(PageHeader, self).initAvailableProps()
+		self.AvailableProps["ColumnBreakAfter"] = toPropDict(bool, False,
+			"""Specifies whether a column break is inserted after the band prints.
+
+			If True, the page header will reside in the first column instead of
+			on top of the column set.""")
+
 class Detail(Band): pass
 class PageFooter(Band): pass
 class GroupHeader(Band): pass
@@ -2134,8 +2143,11 @@ class ReportWriter(object):
 			mb = self.getPt(page.getProp("MarginBottom"))
 
 			# Page header/footer origins are needed in various places:
-			pageHeaderOrigin = (ml, pageHeight - mt
-					- self.getPt(_form["PageHeader"].getProp("Height")))
+			if band.lower() != "pageheader" and _form["PageHeader"].getProp("ColumnBreakAfter"):
+				pageHeaderOrigin = (ml, pageHeight - mt)
+			else:
+				pageHeaderOrigin = (ml, pageHeight - mt
+						- self.getPt(_form["PageHeader"].getProp("Height")))
 			pageFooterOrigin = (ml, mb)
 
 			workingPageWidth = pageWidth - ml - mr
@@ -2363,6 +2375,10 @@ class ReportWriter(object):
 					colBreak()
 				if bandDict.getProp("PageBreakAfter"):
 					pageBreak()
+
+			if band.lower() == "pageheader":
+				if bandDict.getProp("ColumnBreakAfter"):
+					colBreak()
 
 			if was_deferred and not deferred:
 				# just printed the last page of deferreds
