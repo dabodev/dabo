@@ -130,7 +130,7 @@ def getSubFont(fontName, subFontName="Helvetica"):
 		dabo.log.error(_("Font '%s' not found. Substituting '%s'") % (fontName, subFontName))
 		substitutedFontNames.append(subFontName)
 	return subFontName
-	
+
 
 def getFloatLeading(obj):
 	leading = obj.getProp("leading")
@@ -158,7 +158,7 @@ def getFloatLeading(obj):
 		return float(leading)
 	except ValueError:
 		return size
-	
+
 
 class PageCountCanvas(canvas.Canvas):
 	"""Solves the 'page x of y' problem without needing to run the report twice.
@@ -331,7 +331,7 @@ class ReportObject(CaselessDict):
 					return ret
 				except StandardError:
 					pass
-		
+
 			# If the prop is in <Report><Defaults>:
 			if self is not self.ReportForm and (prop in self.ReportForm["Defaults"].AvailableProps
 				or (prop[-4:] == "_def" and prop[:-4] in self.ReportForm["Defaults"].AvailableProps)):
@@ -499,7 +499,7 @@ class Defaults(ReportObject):
 	"""Place to put default property values for objects on the report."""
 	def initAvailableProps(self):
 		super(Defaults, self).initAvailableProps()
-		self.AvailableProps["FontName"] = toPropDict(str, "Helvetica", 
+		self.AvailableProps["FontName"] = toPropDict(str, "Helvetica",
 			"""Specifies the default font name to use for all string-like objects.""")
 
 
@@ -887,7 +887,7 @@ class Memo(String):
 
 		self.AvailableProps["PadBottom"] = toPropDict(float, 0,
 				"""Specifies the padding on the bottom side of the frame.""")
-		
+
 		self.AvailableProps["ColumnCount"] = toPropDict(int, 1,
 				"""Specifies the number of columns in the memo.
 
@@ -901,12 +901,12 @@ class Memo(String):
 				Leading in (FontSize, "single", None) : single-space output.
 				Leading in (FontSize * 2, "double") : double-space output.
 
-				Add any number of "+" or "-" characters after "single" or "double" to increase 
+				Add any number of "+" or "-" characters after "single" or "double" to increase
 				or decrease the leading by 10% of the fontsize for each.
 
 				If you choose to specify your own explicit numeric value for Leading, note
 				that you'll have to remember to change it if you ever change the FontSize,
-				to get the same relative spacing. 
+				to get the same relative spacing.
 				""")
 
 
@@ -1262,7 +1262,7 @@ class ReportWriter(object):
 			band = self.ReportForm[b]
 			bandObjs.append(band)
 		for b in bandObjs:
-			framesets += [(idx,f,b) for (idx,f) in enumerate(b["Objects"]) 
+			framesets += [(idx,f,b) for (idx,f) in enumerate(b["Objects"])
 					if type(f) == Frameset and len(f["Objects"]) == 1
 					and isinstance(f["Objects"][0], Paragraph)]
 		return framesets
@@ -1281,9 +1281,9 @@ class ReportWriter(object):
 				if k.lower() not in ("objects",):
 					m[k] = v
 			f.parent[idx] = m
-				
-				
- 
+
+
+
 	def storeSpanningObject(self, obj, origin=(0,0), group=None):
 		"""Store the passed spanning object for printing when the group or
 		page ends. Pass the group expr to identify group headers, or None to refer
@@ -1578,7 +1578,7 @@ class ReportWriter(object):
 				s = obj.getProp("expr")
 
 			if s is None:
-				s = self.NoneDisplay 
+				s = self.NoneDisplay
 			if isinstance(s, unicode):
 				pass
 			elif isinstance(s, str):
@@ -2379,15 +2379,15 @@ class ReportWriter(object):
 				return y
 
 		def pageBreak():
-			self.endPage()
-			self.beginPage()
+			endPage()
+			beginPage()
 
 		def colBreak():
 			if self._currentColumn >= columnCount-1:
 				pageBreak()
 				return
 			self._currentColumn += 1
-			
+
 		def beginPage():
 			# Print the static bands that appear below detail in z-order:
 			self._pageNumber += 1
@@ -2441,6 +2441,7 @@ class ReportWriter(object):
 		processVariables()
 		beginPage()
 		self._onReportBegin()
+		y = None
 		y = printBand("ReportBegin")
 
 		# Print the dynamic bands (Detail, GroupHeader, GroupFooter):
@@ -3077,7 +3078,7 @@ class ReportWriter(object):
 	NoneDisplay = property(_getNoneDisplay, _setNoneDisplay, None,
 		_("""Specifies the string displayed if Value is None  (str or None)
 
-		If None, self.Application.NoneDisplay will be used. If there's no 
+		If None, self.Application.NoneDisplay will be used. If there's no
 		instantiated dApp, then "< None >" will be used."""))
 
 	PrintStatus = property(_getPrintStatus, _setPrintStatus, None,
