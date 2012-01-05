@@ -806,7 +806,9 @@ these automatic updates.""").replace("\n", " ")
 			if self.PreferenceDialogClass:
 				dlgPref = getattr(af, "_prefDialog", None)
 				if dlgPref is None:
-					dlgPref = af._prefDialog = self.PreferenceDialogClass(af)
+					dlgPref = self.PreferenceDialogClass(af)
+					if af:
+						af._prefDialog = dlgPref
 				if isinstance(dlgPref, PreferenceDialog):
 					if af:
 						af.fillPreferenceDialog(dlgPref)
@@ -1244,7 +1246,9 @@ these automatic updates.""").replace("\n", " ")
 		if af is None:
 			af = wx.GetActiveWindow()
 		if isinstance(af, wx.MDIParentFrame):
-			af = af.GetActiveChild()
+			afc = af.GetActiveChild()
+			if afc:
+				return afc
 		return af
 
 	def _setActiveForm(self, frm):
