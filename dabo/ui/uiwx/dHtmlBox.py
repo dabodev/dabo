@@ -59,12 +59,42 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 
 	def __onLinkClicked(self, evt):
 		if self.RespondToLinks:
-			if wb and self.OpenLinksInBrowser:
+			if evt.href.startswith("app://") or evt.href.startswith("form://"):
+				# query string contains method to call and optional arguments.
+				self._processInternalLink(evt.href)
+				evt.stop()
+			elif wb and self.OpenLinksInBrowser:
 				wb.open(evt.href, new=True)
 			else:
 				# Open in the control itself
 				self.Page = evt.href
 
+
+	def _processInternalLink(self, queryString):
+		# Note that all arguments are string
+		if queryString.startswith("app://"):
+			obj = self.Application
+		elif queryString.startswith("form://"):
+			obj = self.Form
+		else:
+			raise ValueError, _("Internal link must resolve to Form or Application.")
+		queryString = queryString[queryString.index("//") + 2:]
+		try:
+			meth, args = queryString.split("?")
+			qsargs = args.split("&")
+		except ValueError:
+			meth = queryString
+			qsargs = []
+		args = []
+		kwargs = {}
+		for qsarg in qsargs:
+			try:
+				name, value = qsarg.split("=", 1)
+				kwargs[name] = value
+			except ValueError:
+				args.append(qsarg)
+		getattr(obj, meth)(*args, **kwargs) 
+		
 
 	def copy(self):
 		"""Implement the plain text version of copying"""
