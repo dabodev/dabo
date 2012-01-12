@@ -3,12 +3,19 @@ import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-import numpy.oldnumeric as _Numeric
+try:
+	import numpy.oldnumeric as _Numeric
+except ImportError:
+	_Numeric = None
+
 
 class TestPanel(dabo.ui.dPanel):
 	def afterInit(self):
+		if not _Numeric:
+			txt = _("The numpy oldnumeric module is not installed")
+			dabo.ui.dLabel(self, Caption=txt, FontSize=12, ForeColor="red")
+			return
 		self.linePlot = self.createLinePlot()
-
 		sz = self.Sizer = dabo.ui.dSizer("h")
 		sz.append(self.createControlPanel(self.linePlot), "expand")
 		sz.appendSpacer(10)
