@@ -468,6 +468,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._headerForeColor = None
 		self._headerBackColor = None
 
+		dataFieldSent = "DataField" in kwargs
+		dataTypeSent = "DataType" in kwargs
+
 		self._beforeInit()
 		kwargs["Parent"] = parent
 		# dColumn maintains one attr object that the grid table will use for
@@ -480,6 +483,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		super(dColumn, self).__init__(properties=properties, attProperties=attProperties,
 				*args, **kwargs)
 		self._baseClass = dColumn
+
+		if dataFieldSent and not dataTypeSent:
+			self._setDataTypeFromDataField()
 
 
 	def _beforeInit(self):
@@ -710,18 +716,16 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._setUserSetting(prop, getattr(self, prop))
 
 
-	def _setDataTypeFromDataField(self, fld):
+	def _setDataTypeFromDataField(self):
 		"""
 		When a column has its DataField changed, we need to set the
 		correct DataType based on the new value.
 		"""
 		if self.Parent:
 			currDT = self.DataType
-			dt = self.Parent.typeFromDataField(fld)
+			dt = self.Parent.typeFromDataField(self.DataField)
 			if dt is not None and (dt != currDT):
 				self.DataType = dt
-				self._updateRenderer()
-				self._updateEditor()
 
 
 	def _getUserSetting(self, prop):
@@ -1021,7 +1025,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		if self._constructed():
 			if self._dataField:
 				# Use a callAfter, since the parent may not be finished instantiating yet.
-				dabo.ui.callAfter(self._setDataTypeFromDataField, val)
+				dabo.ui.callAfter(self._setDataTypeFromDataField)
 			self._dataField = val
 			if not self.Name or self.Name == "?":
 				self._name = _("col_%s") % val
