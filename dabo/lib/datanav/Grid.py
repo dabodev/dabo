@@ -5,6 +5,8 @@ import dabo.dException as dException
 dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
+from dabo.ui import dKeys
+
 
 class Grid(dabo.ui.dGrid):
 	def _beforeInit(self, pre):
@@ -78,10 +80,10 @@ class Grid(dabo.ui.dGrid):
 	def _onGridKeyDown(self, evt):
 		keyCode = evt.EventData["keyCode"]
 		hasModifiers = evt.EventData["hasModifiers"]
-		if keyCode == 13 and not hasModifiers:
+		if keyCode in (dKeys.key_Enter, dKeys.key_Numpad_enter) and not hasModifiers:
 			self.processEditRecord()
 			evt.stop()
-		elif keyCode == 27 and not hasModifiers:
+		elif keyCode == dKeys.key_Escape and not hasModifiers:
 			self.processEsc()
 
 	def processEsc(self):
