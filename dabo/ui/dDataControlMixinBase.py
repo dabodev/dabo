@@ -213,8 +213,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		Save any changes to the underlying source field. First check to make sure
 		that any changes are validated.
 		"""
-		if getattr(self, "_from_flushValue", False):
-			return True
 		# We need to test empty oldvals because of the way that textboxes work; they
 		# can set _oldVal to "" before the actual Value is set.
 		if (not self._oldVal) or (self._oldVal != self.Value):
@@ -248,10 +246,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				isChanged = (abs(curVal - oldVal) > 0.0000001)
 			else:
 				isChanged = (curVal != oldVal)
-		# In some situations, e.g. if control is bound to widget property, changes of property
-		# value can cause recursive call to the flushValue() method.
-		# To prevent such situation we have to check the _from_flushValue attribute at the beginning.
-		self._from_flushValue = True
 		if isChanged:
 			if not self._DesignerMode:
 				if (self.DataSource or isinstance(self.DataSource, dabo.dPref)) and self.DataField:
@@ -298,6 +292,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 									nm = ustr(self.DataSource)
 								dabo.log.error("Could not bind to '%s.%s'\nReason: %s" % (nm, self.DataField, e))
 			self._oldVal = curVal
+			self._from_flushValue = True
 			self._afterValueChanged()
 			self._from_flushValue = False
 			# Raise an event so that user code can react if needed:
