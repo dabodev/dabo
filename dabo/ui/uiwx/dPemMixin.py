@@ -1889,26 +1889,38 @@ class dPemMixin(dPemMixinBase):
 
 	# The following 3 flag functions are used in some of the property
 	# get/set functions.
-	def _hasWindowStyleFlag(self, flag):
+	def _getWindowStyleMechanics(self, advanced):
+		"""Returns tuple of window style parameter and style manipulation
+		method references for ordinary or AGW windows.
+		"""
+		if advanced:
+			return ("agwStyle", self.GetAGWWindowStyleFlag, self.SetAGWWindowStyleFlag)
+		else:
+			return ("style", self.GetWindowStyleFlag, self.SetWindowStyleFlag)
+
+	def _hasWindowStyleFlag(self, flag, advanced=False):
 		"""Return whether or not the flag is set. (bool)"""
+		mechanics = self._getWindowStyleMechanics(advanced)
 		if self._constructed():
-			return (self.GetWindowStyleFlag() & flag) == flag
+			return (mechanics[1]() & flag) == flag
 		else:
-			return (self._preInitProperties["style"] & flag) == flag
+			return (self._preInitProperties[mechanics[0]] & flag) == flag
 
-	def _addWindowStyleFlag(self, flag):
+	def _addWindowStyleFlag(self, flag, advanced=False):
 		"""Add the flag to the window style."""
+		mechanics = self._getWindowStyleMechanics(advanced)
 		if self._constructed():
-			self.SetWindowStyleFlag(self.GetWindowStyleFlag() | flag)
+			mechanics[2](mechanics[1]() | flag)
 		else:
-			self._preInitProperties["style"] = self._preInitProperties["style"] | flag
+			self._preInitProperties[mechanics[0]] = self._preInitProperties[mechanics[0]] | flag
 
-	def _delWindowStyleFlag(self, flag):
+	def _delWindowStyleFlag(self, flag, advanced=False):
 		"""Remove the flag from the window style."""
+		mechanics = self._getWindowStyleMechanics(advanced)
 		if self._constructed():
-			self.SetWindowStyleFlag(self.GetWindowStyleFlag() & (~flag))
+			mechanics[2](mechanics[1]() & (~flag))
 		else:
-			self._preInitProperties["style"] = self._preInitProperties["style"] & (~flag)
+			self._preInitProperties[mechanics[0]] = self._preInitProperties[mechanics[0]] & (~flag)
 
 
 	def _getBackColor(self):
