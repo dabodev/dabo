@@ -35,7 +35,7 @@ class dReportWriter(dObject, ReportWriter):
 	def _onReportEnd(self):
 		super(dReportWriter, self)._onReportEnd()
 		self.raiseEvent(dabo.dEvents.ReportEnd)
-		self._hideProgress()
+		#self._hideProgress()  ## Let the form controlling the progress gauge do this (less blinky)
 
 	def _onReportIteration(self):
 		super(dReportWriter, self)._onReportIteration()
@@ -45,11 +45,10 @@ class dReportWriter(dObject, ReportWriter):
 	def _showProgress(self):
 		win = self.ProgressControl
 		if win:
-			win.Caption = "Processing Report..."
+			win.Caption = "Processing %s..." % self.ReportForm.getProp("Title")
 			win.updateProgress(0, len(self.Cursor))
 			win.show()
 			win.Form.fitToSizer()
-			#dabo.ui.yieldUI()  ## getting wxYield called recursively, sometimes. Doesn't appear to be needed, here
 
 	def _updateProgress(self):
 		win = self.ProgressControl
