@@ -52,6 +52,12 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 		self.UpdateLink(True)
 
 
+	def _getUnderlines(self, which):
+		"""Returns the status for the various underline settings."""
+		types = ("link", "hover", "visited")
+		return self.GetUnderlines()[types.index(which)]
+
+
 	def _setUnderlines(self, link, visited, hover):
 		"""Updated the link with the specified underline settings."""
 		self.SetUnderlines(link, visited, hover)
@@ -74,18 +80,20 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 
 	def _setHoverColor(self, val):
 		if self._constructed():
-			self._hoverColor = val
-			self._setColors()
+			if val != self.HoverColor:
+				self._hoverColor = val
+				self._setColors()
 		else:
 			self._properties["HoverColor"] = val
 
 
 	def _getHoverUnderline(self):
-		return self.GetUnderlines()[2]
+		return self._getUnderlines("hover")
 
 	def _setHoverUnderline(self, val):
 		if self._constructed():
-			self._setUnderlines(self.LinkUnderline, self.VisitedUnderline, bool(val))
+			if val != self.HoverUnderline:
+				self._setUnderlines(self.LinkUnderline, self.VisitedUnderline, bool(val))
 		else:
 			self._properties["HoverUnderline"] = val
 
@@ -95,18 +103,20 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 
 	def _setLinkColor(self, val):
 		if self._constructed():
-			self._linkColor = val
-			self._setColors()
+			if val != self.LinkColor:
+				self._linkColor = val
+				self._setColors()
 		else:
 			self._properties["LinkColor"] = val
 
 
 	def _getLinkUnderline(self):
-		return self.GetUnderlines()[0]
+		return self._getUnderlines("link")
 
 	def _setLinkUnderline(self, val):
 		if self._constructed():
-			self._setUnderlines(bool(val), self.VisitedUnderline, self.HoverUnderline)
+			if val != self.LinkUnderline:
+				self._setUnderlines(bool(val), self.VisitedUnderline, self.HoverUnderline)
 		else:
 			self._properties["LinkUnderline"] = val
 
@@ -142,18 +152,20 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 
 	def _setVisitedColor(self, val):
 		if self._constructed():
-			self._visitedColor = val
-			self._setColors()
+			if val != self.VisitedColor:
+				self._visitedColor = val
+				self._setColors()
 		else:
 			self._properties["VisitedColor"] = val
 
 
 	def _getVisitedUnderline(self):
-		return self.GetUnderlines()[1]
+		return self._getUnderlines("visited")
 
 	def _setVisitedUnderline(self, val):
 		if self._constructed():
-			self._setUnderlines(self.LinkUnderline, bool(val), self.HoverUnderline)
+			if val != self.VisitedUnderline:
+				self._setUnderlines(self.LinkUnderline, bool(val), self.HoverUnderline)
 		else:
 			self._properties["VisitedUnderline"] = val
 
