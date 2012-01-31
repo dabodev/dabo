@@ -335,6 +335,24 @@ class dSizerMixin(dObject):
 			return None
 
 
+	def setPositionInSizer(self, obj, pos):
+		orig_pos = obj.getPositionInSizer()
+		# Copy the current sizer props
+		props = self.getItemProps(obj)
+		if isinstance(self, wx.BoxSizer):
+			self.remove(obj)
+			self.insert(pos, obj)
+			self.setItemProps(obj, props)
+		elif isinstance(self, wx.GridBagSizer):
+			row, col = pos
+			if self.getItemByRowCol(row, col):
+				raise ValueError(_("An object already exists at %s, %s") % (row, col))
+			self.remove(obj)
+			self.append(obj, row=row, col=col)
+			self.setItemProps(obj, props)
+		self.layout()	
+
+
 	def showItem(self, itm):
 		"""Makes sure that the passed item is visible"""
 		self.Show(itm, show=True, recursive=True)
@@ -345,6 +363,16 @@ class dSizerMixin(dObject):
 		"""Hides the passed item"""
 		self.Show(itm, show=False, recursive=True)
 		self.layout()
+
+
+	def getItemProps(self, itm):
+		"""
+		Returns a dict containing all the sizer properties as keys along with
+		their associated values.
+		"""
+		propNames = ("Border", "BorderSides", "ColSpan", "Expand", "HAlign",
+				"Proportion", "RowSpan", "VAlign")
+		return dict([(prop, self.getItemProp(itm, prop)) for prop in propNames])
 
 
 	def getItemProp(self, itm, prop):

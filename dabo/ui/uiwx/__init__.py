@@ -153,6 +153,7 @@ from dMenu import dMenu
 from dMenuItem import dMenuItem
 from dMenuItem import dCheckMenuItem
 from dMenuItem import dRadioMenuItem
+from dMenuItem import dSeparatorMenuItem
 import dMessageBox
 from dRadioList import dRadioList
 from dPanel import dDataPanel
@@ -1356,18 +1357,15 @@ def createForm(srcFile, show=False, *args, **kwargs):
 	return frm
 
 
-def createMenuBar(srcFile, form=None, previewFunc=None):
+def createMenuBar(src, form=None, previewFunc=None):
 	"""
-	Pass in an .mnxml file saved from the Menu Designer,
-	and this will instantiate a MenuBar from that spec. Returns
-	a reference to the newly-created MenuBar. You can optionally
-	pass in a reference to the form to which this menu is
-	associated, so that you can enter strings that represent
-	form functions in the Designer, such as 'form.close', which
-	will call the associated form's close() method. If 'previewFunc'
-	is passed, the menu command that would have been eval'd
-	and executed on a live menu will instead be passed back as
-	a parameter to that function.
+	Pass in either an .mnxml file path saved from the Menu Designer, or a dict representing
+	the menu, which will be used to instantiate a MenuBar. Returns a reference to the
+	newly-created MenuBar. You can optionally pass in a reference to the form to which this menu
+	is associated, so that you can enter strings that represent form functions in the Designer,
+	such as 'form.close', which will call the associated form's close() method. If 'previewFunc'
+	is passed, the menu command that would have been eval'd and executed on a live menu will
+	instead be passed back as a parameter to that function.
 	"""
 	def addMenu(mb, menuDict, form, previewFunc):
 		if form is None:
@@ -1398,7 +1396,7 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 				itmatts = itm["attributes"]
 				cap = menu._extractKey(itmatts, "Caption")
 				hk = menu._extractKey(itmatts, "HotKey")
-				pic = menu._extractKey(itmatts, "Picture")
+				pic = menu._extractKey(itmatts, "Icon")
 				special = menu._extractKey(itmatts, "special", None)
 				binding = previewFunc
 				fnc = menu._extractKey(itmatts, "Action", "")
@@ -1409,18 +1407,23 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 						binding = fnc
 				mtype = menu._extractKey(itmatts, "MenuType", "")
 				help = menu._extractKey(itmatts, "HelpText")
-				menuItem = menu.append(cap, OnHit=binding, help=help,
-						picture=pic, special=special, HotKey=hk, menutype=mtype)
+				menuItem = menu.append(cap, help=help, picture=pic, special=special,
+						HotKey=hk, menutype=mtype)
+				menuItem._bindingText = "%s" % fnc
 				if itmatts:
 					menuItem.setPropertiesFromAtts(itmatts,
 							context={"form": form, "app": dabo.dAppRef})
+				menuItem.bindEvent(dEvents.Hit, binding)
 
-	try:
-		srcFile = utils.resolvePathAndUpdate(srcFile)
-	except IOError, e:
-		stop(e, _("File Not Found"))
-		return
-	mnd = dabo.lib.xmltodict.xmltodict(srcFile)
+	if isinstance(src, dict):
+		mnd = src
+	else:
+		try:
+			src = utils.resolvePathAndUpdate(src)
+		except IOError, e:
+			stop(e, _("File Not Found"))
+			return
+		mnd = dabo.lib.xmltodict.xmltodict(src)
 	mb = dabo.ui.dMenuBar()
 	for mn in mnd["children"]:
 		addMenu(mb, mn, form, previewFunc)
@@ -1670,22 +1673,7 @@ def setPositionInSizer(obj, pos):
 	sz = obj.GetContainingSizer()
 	if not sz:
 		return None
-	orig_pos = getPositionInSizer(obj)
-	# Copy the current sizer props
-	props = obj.getSizerProps()
-	if isinstance(sz, wx.BoxSizer):
-		sz.remove(obj)
-		sz.insert(pos, obj)
-		sz.setItemProps(obj, props)
-	elif isinstance(sz, wx.GridBagSizer):
-		row, col = pos
-		print sz.getItemByRowCol(row, col)
-		if sz.getItemByRowCol(row, col):
-			raise ValueError(_("An object already exists at %s, %s") % (row, col))
-		sz.remove(obj)
-		sz.append(obj)
-		sz.setItemProps(obj, props)
-	sz.layout()	
+	sz.setPositionInSizer(obj, pos)
 
 
 def fontMetricFromFont(txt, font):
