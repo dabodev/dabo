@@ -786,7 +786,8 @@ class DesignerClassConverter(dObject):
 
 
 
-	def indentCode(self, cd, level):
+	@staticmethod
+	def indentCode(cd, level):
 		"""Takes code and indents it to the desired level"""
 		lns = cd.splitlines()
 		indent = "\t" * level
