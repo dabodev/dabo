@@ -16,6 +16,7 @@ from dabo.lib.utils import cleanMenuCaption
 NormalItemType = wx.ITEM_NORMAL
 CheckItemType =  wx.ITEM_CHECK
 RadioItemType = wx.ITEM_RADIO
+SeparatorItemType = wx.ITEM_SEPARATOR
 
 
 class dMenu(pm.dPemMixin, wx.Menu):
@@ -197,7 +198,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 	def appendSeparator(self):
 		"""Insert a separator at the bottom of the menu."""
-		return self.AppendSeparator()
+		return self._createMenuItem(None, caption=None, help=None, bmp=None, picture=None,
+				menutype="separator")
 
 
 	def insertSeparator(self, pos):
@@ -383,7 +385,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			itmSpecial = None
 		cls = {NormalItemType: dabo.ui.dMenuItem,
 				CheckItemType: dabo.ui.dCheckMenuItem,
-				RadioItemType: dabo.ui.dRadioMenuItem}[itmtyp]
+				RadioItemType: dabo.ui.dRadioMenuItem,
+				SeparatorItemType: dabo.ui.dSeparatorMenuItem}[itmtyp]
 		itm = cls(self, HelpText=help, Icon=icon, kind=itmtyp, *args, **kwargs)
 		if itmSpecial:
 			itm._special = itmSpecial
@@ -412,6 +415,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			# use #if wxHAS_RADIO_MENU_ITEMS to test for
 			# availability of this feature.
 			ret = RadioItemType
+		elif typ == "sep":
+			ret = SeparatorItemType
 		return ret
 
 

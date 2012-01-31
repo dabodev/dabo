@@ -209,6 +209,57 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 	DynamicHelpText = makeDynamicProperty(HelpText)
 
 
+
+class dSeparatorMenuItem(pm.dPemMixin, wx.MenuItem):
+	"""Creates a menu separator."""
+	def __init__(self, parent=None, properties=None, *args, **kwargs):
+		self._baseClass = dSeparatorMenuItem
+		preClass = wx.MenuItem
+		self.Parent = parent
+		# Holds the unique ID, if any
+		self._itemID = None
+		pm.dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+
+
+	# The following are methods designed to make separators work like other menu items.
+	def GetParent(self):
+		return self.Parent
+	def _dummy(self, *args, **kwargs):
+		pass
+	Bind = SetLabel = _dummy
+
+
+	def _getItemID(self):
+		return self._itemID
+
+	def _setItemID(self, val):
+		if self._constructed():
+			self._itemID = val
+		else:
+			self._properties["ItemID"] = val
+
+
+	def _getParent(self):
+		try:
+			ret = self._parent
+		except AttributeError:
+			ret = self._parent = None
+		return ret
+
+	def _setParent(self, val):
+		self._parent = val
+
+
+	ItemID = property(_getItemID, _setItemID, None,
+			_("""Identifying value for this menuitem. NOTE: there is no checking for
+			duplicate values; it is the responsibility to ensure that ItemID values
+			are unique within a menu.  (varies)"""))
+
+	Parent = property(_getParent, _setParent, None,
+			_("Specifies the parent menu."))
+
+
+
 class _AbstractExtendedMenuItem(dMenuItem):
 	"""Creates a checkbox-like item in a menu."""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):

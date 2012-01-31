@@ -120,7 +120,7 @@ class dPemMixin(dPemMixinBase):
 					continue
 				# Note: we may need to add more string props here.
 				if (val in builtinNames) and (prop in ("Caption", "DataSource",
-						"DataField", "FontFace", "Picture", "RegID", "ToolTipText")):
+						"DataField", "FontFace", "Icon", "Picture", "RegID", "ToolTipText")):
 					# It's a string that happens to be the same as a built-in name
 					attVal = val
 				else:
@@ -135,12 +135,16 @@ class dPemMixin(dPemMixinBase):
 		import dMenuBar, dMenuItem, dMenu, dSlidePanelControl, dToggleButton
 		if wx.VERSION >= (2, 8, 8):
 			import dBorderlessButton
-		if isinstance(self, dMenuItem.dMenuItem):
+		if isinstance(self, (dMenuItem.dMenuItem, dMenuItem.dSeparatorMenuItem)):
 			# Hack: wx.MenuItem doesn't take a style arg,
 			# and the parent arg is parentMenu.
 			del self._preInitProperties["style"]
 			self._preInitProperties["parentMenu"] = parent
 			del self._preInitProperties["parent"]
+			if isinstance(self, dMenuItem.dSeparatorMenuItem):
+				del(self._preInitProperties["id"])
+				for remove in ("HelpText", "Icon", "kind"):
+					self._extractKey((properties, self._properties, kwargs), remove)
 		elif isinstance(self, (dMenu.dMenu, dMenuBar.dMenuBar)):
 			# Hack: wx.Menu has no style, parent, or id arg.
 			del(self._preInitProperties["style"])
@@ -1324,8 +1328,8 @@ class dPemMixin(dPemMixinBase):
 
 	def setFocus(self):
 		"""Sets focus to the object."""
-		## Up until r6816, the following was wrapped in a callAfter(), which made for 
-		## lousy performance, especially on Windows. 
+		## Up until r6816, the following was wrapped in a callAfter(), which made for
+		## lousy performance, especially on Windows.
 		self.SetFocus()
 
 
