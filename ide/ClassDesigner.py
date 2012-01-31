@@ -13,7 +13,7 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 # This is because I'm a lazy typist
 dui = dabo.ui
-from ClassDesignerFormMixin import ClassDesignerFormMixin as dfm
+from ClassDesignerFormMixin import ClassDesignerFormMixin
 from ClassDesignerPemForm import PemForm
 from ClassDesignerEditor import EditorForm
 from ClassDesignerComponents import LayoutPanel
@@ -370,9 +370,9 @@ class ClassDesigner(dabo.dApp):
 				base = self._selectedClass
 		else:
 			base = dui.dForm
-		class DesForm(dfm, base):
+		class DesForm(ClassDesignerFormMixin, base):
 			_superBase = base
-			_superMixin = dfm
+			_superMixin = ClassDesignerFormMixin
 			try:
 				_classFile = os.path.realpath(filepath)
 			except AttributeError:
@@ -385,7 +385,7 @@ class ClassDesigner(dabo.dApp):
 				if isWizard:
 					kwargs["Caption"] = "Dabo Wizard Designer"
 				base.__init__(self, parent=parent, *args, **kwargs)
-				dfm.__init__(self, parent=parent, *args, **kwargs)
+				ClassDesignerFormMixin.__init__(self, parent=parent, *args, **kwargs)
 				self._basePrefKey = "dabo.ide.ClassDesigner.ClassDesignerForm"
 
 			def _afterInit(self):
@@ -2436,9 +2436,8 @@ class ClassDesigner(dabo.dApp):
 
 	def getDesignerWindows(self, frm=None):
 		"""Returns a list of the currently open designer surface windows."""
-		# NOTE: 'dfm' is the ClassDesignerFormMixin class
 		return [win for win in self.uiForms
-				if isinstance(win, dfm)
+				if isinstance(win, ClassDesignerFormMixin)
 				and win is not frm]
 		
 
