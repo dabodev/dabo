@@ -295,6 +295,7 @@ class PgSample(WizardPage):
 		self._layoutControls = []
 		self._controlSizer = None
 		self._useColons = False
+		self._useTitleCase = False
 		lbl = dabo.ui.dLabel(self, Caption=_("Double-click a caption to edit"),
 				FontSize=8, FontItalic=True)
 		self.Sizer.append(lbl, halign="center")
@@ -308,13 +309,16 @@ class PgSample(WizardPage):
 		# Define an editable label class
 		class EditLabel(dabo.ui.dLabel):
 			def afterInit(self):
+				self.origCap = self.Caption
 				# The label will be on the sample panel, which is on the page
 				# that contains the actual event code.
 				self.bindEvent(dEvents.MouseLeftDoubleClick, self.Parent.Parent.onLblEdit)
 				# Store the original caption for later reference
 				dabo.ui.callAfter(self._storeCaption)
 
-			def _storeCaption(self):
+			def _storeCaption(self, cap=None):
+				if cap is None:
+					cap = self.Caption
 				# Save the Caption as an editing reference
 				self.origCap = self.Caption
 		#Save the classdef for future use
@@ -375,10 +379,7 @@ class PgSample(WizardPage):
 		# Go through the list, and add the items to the sizer in order. Any
 		# field which was previously created will be restored
 		for fld in flds:
-			if self._useColons:
-				cap = "%s:" % fld
-			else:
-				cap = fld
+			cap = self._formatCaption(fld)
 			lbl = self.editLabelClass(sp, Caption=cap)
 			self._labels.append(lbl)
 			cls = dabo.ui.dTextBox
@@ -404,6 +405,7 @@ class PgSample(WizardPage):
 
 		# Now create the spacer controls
 		self.UseColons = False
+		self.UseTitleCase = False
 		self.OutsideBorder = 10
 		self.BetweenSpacing = 5
 		self.ColumnSpacing = 5
@@ -462,9 +464,28 @@ class PgSample(WizardPage):
 		self._layoutControls.append(lbl)
 		self._layoutControls.append(chk)
 
+		lbl = dabo.ui.dLabel(self, Caption=_("Title-case Labels:"))
+		gs.append(lbl, halign="right")
+		chk = dabo.ui.dCheckBox(self, DataSource="self.Parent",
+				DataField="UseTitleCase")
+		chk.Value = self.UseTitleCase
+		gs.append(chk)
+		self._layoutControls.append(lbl)
+		self._layoutControls.append(chk)
+
 		self.refresh()
 		self.samplePanel.Width = self.sampleWidth
 		self.layout()
+
+
+	def _formatCaption(self, cap):
+		if self.UseTitleCase:
+			cap = cap.title()
+		if self.UseColons:
+			cap = "%s:" % cap.rstrip(":")
+		else:
+			cap = cap.rstrip(":")
+		return cap
 
 
 	def onCtlRightClick(self, evt):
@@ -556,8 +577,8 @@ class PgSample(WizardPage):
 
 	def onEndLblEdit(self, evt):
 		tx = self.editText.Value
-		if self.UseColons:
-			tx = "%s:" % tx.rstrip(":")
+		self.editLabel._storeCaption(tx)
+		tx = self._formatCaption(tx)
 		if tx:
 			#### ALSO: need to update the wizard's fields
 			self.editLabel.Caption = tx
@@ -699,11 +720,18 @@ class PgSample(WizardPage):
 	def _setUseColons(self, val):
 		self._useColons = val
 		for lbl in self._labels:
-			cap = lbl.Caption
-			if val:
-				cap = "%s:" % cap.rstrip(":")
-			else:
-				cap = cap.rstrip(":")
+			cap = self._formatCaption(lbl.origCap)
+			lbl.Caption = cap
+		self.samplePanel.layout()
+
+
+	def _getUseTitleCase(self):
+		return self._useTitleCase
+
+	def _setUseTitleCase(self, val):
+		self._useTitleCase = val
+		for lbl in self._labels:
+			cap = self._formatCaption(lbl.origCap)
 			lbl.Caption = cap
 		self.samplePanel.layout()
 
@@ -722,6 +750,9 @@ class PgSample(WizardPage):
 
 	UseColons = property(_getUseColons, _setUseColons, None,
 			_("Do we append colons to the field labels?  (bool)"))
+
+	UseTitleCase = property(_getUseTitleCase, _setUseTitleCase, None,
+			_("Do we title-case the field labels?  (bool)"))
 
 
 
@@ -825,6 +856,7 @@ class QuickLayoutWizard(Wizard):
 			ret["colspacing"] = pgSample.ColumnSpacing
 			ret["labelAlignment"] = pgSample.LabelAlignment
 			ret["useColons"] = pgSample.UseColons
+			ret["useTitleCase"] = pgSample.UseTitleCase
 			info = {}
 			for fld in self.flds:
 				info[fld] = {}
