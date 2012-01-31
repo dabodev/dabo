@@ -56,24 +56,23 @@ class dConnectInfo(dObject):
 			self.setConnInfo(connInfo)
 
 
-	def lowerKeys(self, dct):
-		"""
-		Takes a dict, and returns another dict identical except
-		for the fact that all the keys that were string types are now
-		lower case.
-		"""
-		ret = {}
-		for kk, vv in dct.items():
-			if isinstance(kk, basestring):
-				kk = kk.lower()
-			ret[kk] = vv
-		return ret
-
-
 	def setConnInfo(self, connInfo, nm=""):
+		def lowerKeys(dct):
+			"""
+			Takes a dict, and returns another dict identical except
+			for the fact that all the keys that were string types are now
+			lower case.
+			"""
+			ret = {}
+			for kk, vv in dct.items():
+				if isinstance(kk, basestring):
+					kk = kk.lower()
+				ret[kk] = vv
+			return ret
+
 		if isinstance(connInfo, dict):
 			# The info is already in dict format
-			connDict = self.lowerKeys(connInfo)
+			connDict = lowerKeys(connInfo)
 		else:
 			# They've passed the info in XML format. Either this is the actual
 			# XML, or it is a path to the XML file. Either way, the parser

@@ -675,6 +675,15 @@ class dCursorMixin(dObject):
 			self.RowNumber = 0
 
 
+	@staticmethod
+	def getType(val):
+		try:
+			ret = re.search("type '([^']+)'", ustr(type(val))).groups()[0]
+		except (IndexError, AttributeError):
+			ret = "-unknown-"
+		return ret
+
+
 	def cursorToXML(self):
 		"""
 		Returns an XML string containing the information necessary to
@@ -717,14 +726,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		recInfo = [colTemplate % (k, self.getType(v), self.escape(v))
 				for k, v in self._records[row].items()]
 		return "\n".join(recInfo)
-
-
-	def getType(self, val):
-		try:
-			ret = re.search("type '([^']+)'", ustr(type(val))).groups()[0]
-		except (IndexError, AttributeError):
-			ret = "-unknown-"
-		return ret
 
 
 	def escape(self, val):

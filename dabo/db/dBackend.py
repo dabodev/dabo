@@ -234,14 +234,15 @@ class dBackend(dObject):
 		return True
 
 
-	def addWithSep(self, base, new, sep=",\n\t"):
+	@staticmethod
+	def addWithSep(base, new, sep=",\n\t"):
 		"""
 		Convenient method of adding to an expression that
 		may or may not have an existing value. If there is a value,
 		the separator is inserted between the two.
 		"""
 		if base:
-			ret = sep.join( (base, new) )
+			ret = sep.join((base, new))
 		else:
 			ret = new
 		return ret
