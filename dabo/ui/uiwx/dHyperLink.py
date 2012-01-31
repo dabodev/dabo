@@ -11,6 +11,8 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 from alignmentMixin import AlignmentMixin
 
+
+
 class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 	"""
 	Creates a hyperlink that, when clicked, launches the specified
@@ -27,17 +29,14 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 
 		# Make the rollover effect the default, unless it was specified as False.
 		self.ShowHover = self.ShowHover
-
 		self.Bind(hyperlink.EVT_HYPERLINK_LEFT, self._onWxHit)  ## only called if ShowInBrowser False
 		self.DoPopup(False)
-
 
 
 	def refresh(self):
 		super(dHyperLink, self).refresh()
 		self.UpdateLink(True)
 
-	
 
 	def _setColors(self):
 		"""Updated the link with the specified colors."""
@@ -222,6 +221,7 @@ class _dHyperLink_test(dHyperLink):
 		self.VisitedUnderline = True
 		self.bindEvent(dabo.dEvents.Hit, self._onHit)
 		#self.ShowInBrowser = False
+
 
 if __name__ == "__main__":
 	import test
