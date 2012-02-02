@@ -15,7 +15,7 @@ class MenuSaverMixin(object):
 	"""
 	def getDesignerDict(self):
 		ret = {}
-		ret["name"] = self._className
+		ret["name"] = self.__class__.__name__
 		ret["attributes"] = ra = {}
 		propsToExclude = ("HotKeyChar", "HotKeyControl",
 				"HotKeyAlt", "HotKeyShift")

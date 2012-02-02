@@ -9,9 +9,22 @@ import dabo.lib.xmltodict as xtd
 dabo.ui.loadUI("wx")
 from MenuDesignerForm import MenuDesignerForm
 
+
+
+class MenuDesigner(dabo.dApp):
+	# Behaviors which are normal in the framework may need to
+	# be modified when run as the ClassDesigner. This flag will
+	# distinguish between the two states.
+	isDesigner = True
+
+	def __init__(self, clsFile=""):
+		super(MenuDesigner, self).__init__(showSplashScreen=False,
+				splashTimeout=10, ignoreScriptDir=True)
+
+
 def main():
 	files = sys.argv[1:]
-	app = dabo.dApp()
+	app = MenuDesigner()
 	app.BasePrefKey = "ide.MenuDesigner"
 	app.setAppInfo("appName", _("Dabo Menu Designer"))
 	app.setAppInfo("appShortName", _("MenuDesigner"))
@@ -20,8 +33,9 @@ def main():
 	app.setup()
 
 	frm = app.MainForm = MenuDesignerForm()
-	for file in files:
-		frm.openFile(file)
+	if files:
+		for filename in files:
+			frm.openFile(filename)
 	frm.show()
 	app.start()
 

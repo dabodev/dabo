@@ -117,7 +117,7 @@ class MenuPropForm(dabo.ui.dForm):
 		if obj is None:
 			lbl = ""
 		else:
-			lbl = obj.DisplayText
+			lbl = obj.Caption
 		self.txtObj.Value = lbl
 		self.PropSheet.select(obj)
 		self.Tree.select(obj)
@@ -129,7 +129,7 @@ class MenuPropForm(dabo.ui.dForm):
 		try:
 			return self._controller
 		except AttributeError:
-			self._controller = self.Application
+			self._controller = self
 			return self._controller
 
 	def _setController(self, val):
