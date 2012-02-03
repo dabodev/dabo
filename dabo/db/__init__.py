@@ -35,6 +35,7 @@ from dCursorMixin import dCursorMixin
 from dConnectInfo import dConnectInfo
 from dTable import dTable
 from dDataSet import dDataSet
+from dabo.dException import FieldNotFoundException
 
 daboTypes = {
 		"C": unicode,             ## text
@@ -105,10 +106,20 @@ def _getRecord(self_):
 				self._cursor.setFieldVal(att, val)
 
 		def __getitem__(self, key):
-			return self.__getattr__(key)
+			try:
+				val = self.__getattr__(key)
+			except FieldNotFoundException:
+				# __getitem__ added for a dict key-like interface, so convert
+				# the FieldNotFoundException to KeyError.
+				raise KeyError, key
+			return val
 
 		def __setitem__(self, key, val):
-			return self.__setattr__(key, val)
+			try:
+				return self.__setattr__(key, val)
+			except FieldNotFoundException:
+				# see comment in __getitem__
+				raise KeyError, key
 
 	## The rest of this block adds a property to the Record object
 	## for each field, the sole purpose being to have the field
