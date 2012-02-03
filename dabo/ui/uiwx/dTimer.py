@@ -6,48 +6,37 @@ if __name__ == "__main__":
 
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-import dControlMixin as cm
+from dabo.ui.dControlMixinBase import dControlMixinBase as DCMB
 from dabo.ui import makeDynamicProperty
 import dPanel
 
 
-class dTimer(cm.dControlMixin, wx.Timer):
+class dTimer(DCMB):
 	"""Creates a timer, for causing something to happen at regular intervals."""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dTimer
-		preClass = wx.Timer
-		cm.dControlMixin.__init__(self, preClass, parent=None,
+		DCMB.__init__(self, parent=None,
 				properties=properties, *args, **kwargs)
-
-		if parent is not None:
-			self.SetOwner(parent)
-			parent.Bind(wx.EVT_TIMER, self._onWxHit)
-		else:
-			self.Bind(wx.EVT_TIMER, self._onWxHit)
 
 
 	def isRunning(self):
-		return self.IsRunning()
+		return self.Enabled
 
 
 	def start(self, interval=-1):
 		if interval >= 0:
 			self.Interval = interval
-		if self.Interval > 0:
-			self.Start(self.Interval)
-		else:
-			self.Stop()
-		return self.IsRunning()
+		self.Enabled = self.Interval > 0
+		return self.Enabled
 
 
 	def stop(self):
-		self.Stop()
-		return not self.IsRunning()
+		self.Enabled = False
 
 
 	def release(self):
 		"""Make sure that the timer is stopped first"""
-		self.Stop()
+		self.stop()
 		super(dTimer, self).release()
 
 
@@ -61,18 +50,23 @@ class dTimer(cm.dControlMixin, wx.Timer):
 		pass
 	def GetParent(self):
 		return None
+	def Bind(self, *args, **kwargs):
+		pass
+
+	def _onTimerHit(self):
+		if self.Enabled and self.Interval > 0:
+			self.raiseEvent(dabo.dEvents.Hit)
+			dabo.ui.callAfterInterval(self.Interval, self._onTimerHit)
 
 
 	# property get/set functions
 	def _getEnabled(self):
-		return self.IsRunning()
+		return getattr(self, "_enabled", False)
 
 	def _setEnabled(self, val):
-		if self._constructed():
-			if val:
-				self.start()
-			else:
-				self.stop()
+		self._enabled = val
+		if val:
+			dabo.ui.callAfterInterval(self.Interval, self._onTimerHit)
 		else:
 			self._properties["Enabled"] = val
 
