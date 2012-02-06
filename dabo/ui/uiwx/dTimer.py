@@ -6,17 +6,16 @@ if __name__ == "__main__":
 
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-from dabo.ui.dControlMixinBase import dControlMixinBase as DCMB
+from dPemMixin import dPemMixin as PM
 from dabo.ui import makeDynamicProperty
 import dPanel
 
 
-class dTimer(DCMB):
+class dTimer(PM, wx.Control):
 	"""Creates a timer, for causing something to happen at regular intervals."""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dTimer
-		DCMB.__init__(self, parent=None,
-				properties=properties, *args, **kwargs)
+		PM.__init__(self, preClass=wx.Control, parent=parent, properties=properties, *args, **kwargs)
 
 
 	def isRunning(self):
