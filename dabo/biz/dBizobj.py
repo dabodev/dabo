@@ -1711,13 +1711,21 @@ class dBizobj(dObject):
 		"""
 		Add the passed child bizobj to this bizobj.
 
-		During the creation of the form, child bizobjs are added by the parent.
-		This stores the child reference here, and sets the reference to the
-		parent in the child.
+		Child bizobjs stay in sync with their parent, getting requeried at the 
+		appropriate times. 
 		"""
 		if child not in self._children:
 			self._children.append(child)
 			child.Parent = self
+
+
+	def removeAllChildren(self):
+		"""
+		Remove all child bizobjs.
+		"""
+		while self._children:
+			child = self._children.pop()
+			child.Parent = None
 
 
 	def addMMBizobj(self, mmBizobj, assocTable, assocPKColThis, assocPKColOther,
@@ -2766,7 +2774,7 @@ afterDelete() which is only called after a delete().""")
 			return None
 
 	def _setParent(self, val):
-		if isinstance(val, dBizobj):
+		if val is None or isinstance(val, dBizobj):
 			self._parent = val
 		else:
 			raise TypeError(_("Parent must descend from dBizobj"))
