@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import wx
 import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -11,12 +10,11 @@ from dabo.ui import makeDynamicProperty
 import dPanel
 
 
-class dTimer(PM, wx.Control):
+class dTimer(PM):
 	"""Creates a timer, for causing something to happen at regular intervals."""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dTimer
-		PM.__init__(self, preClass=wx.Control, parent=parent, properties=properties, *args, **kwargs)
-
+		PM.__init__(self, preClass=None, parent=parent, properties=properties, *args, **kwargs)
 
 	def isRunning(self):
 		return self.Enabled

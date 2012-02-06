@@ -182,6 +182,8 @@ class dPemMixin(dPemMixinBase):
 		# Do the init:
 		if threeWayInit:
 			pre.Create(*args, **kwargs)
+		elif preClass is None:
+			pass
 		else:
 			preClass.__init__(self, *args, **kwargs)
 
