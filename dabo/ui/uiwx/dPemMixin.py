@@ -1343,10 +1343,11 @@ class dPemMixin(dPemMixinBase):
 		try:
 			updateInactive = self.Parent.UpdateInactivePages
 		except AttributeError:
-			updateInactive = False
-		if not self.Visible and not updateInactive:
-			## (on Windows and Mac, inactive pages will return Visible==False, but
-			##  we need those pages updated too).
+			updateInactive = None
+		if updateInactive == False and self.Parent.SelectedPage != self:
+			return
+		if not updateInactive and not self.Visible:
+			# (some platforms have inactive pages not visible)
 			return
 		self.update()
 
