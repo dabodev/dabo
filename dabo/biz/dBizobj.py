@@ -412,9 +412,9 @@ class dBizobj(dObject):
 				del(dabo._bizTransactionToken)
 
 
-	def saveAll(self, startTransaction=True):
+	def saveAll(self, startTransaction=True, saveTheChildren=True):
 		"""
-		Saves all changes to the bizobj and children.
+		Save changes to all rows in the bizobj, and (by default) the children.
 		"""
 		# JKA: I can't see any sense in using 'scanChangedRows()' here, since
 		# we must check for changes in 'save()' method too.
@@ -431,7 +431,8 @@ class dBizobj(dObject):
 
 		startTransaction = startTransaction and self.beginTransaction()
 		try:
-			self.scan(self.save, startTransaction=False, scanRequeryChildren=False)
+			self.scan(self.save, startTransaction=False,
+					saveTheChildren=saveTheChildren, scanRequeryChildren=False)
 			if startTransaction:
 				self.commitTransaction()
 		except dException.ConnectionLostException:
@@ -518,18 +519,18 @@ class dBizobj(dObject):
 		self.afterSave()
 
 
-	def cancelAll(self, ignoreNoRecords=None):
+	def cancelAll(self, ignoreNoRecords=None, cancelTheChildren=True):
 		"""
-		Cancel all changes made to the current dataset, including all children
+		Cancel all changes made in all rows, including by default all children
 		and all new, unmodified records.
 		"""
 		self.scanChangedRows(self.cancel, allCursors=False, includeNewUnchanged=True,
-				ignoreNoRecords=ignoreNoRecords, reverse=True)
+				cancelTheChildren=cancelTheChildren, ignoreNoRecords=ignoreNoRecords, reverse=True)
 
 
-	def cancel(self, ignoreNoRecords=None):
+	def cancel(self, ignoreNoRecords=None, cancelTheChildren=True):
 		"""
-		Cancel all changes to the current record and all children.
+		Cancel all changes to the current record and by default all children.
 
 		Two hook methods will be called: beforeCancel() and afterCancel(). The
 		former, if it returns an error message, will raise an exception and not
@@ -544,8 +545,9 @@ class dBizobj(dObject):
 			ignoreNoRecords = True
 		# Tell the cursor and all children to cancel themselves:
 		self._CurrentCursor.cancel(ignoreNoRecords=ignoreNoRecords)
-		for child in self._children:
-			child.cancelAll(ignoreNoRecords=ignoreNoRecords)
+		if cancelTheChildren:
+			for child in self._children:
+				child.cancelAll(ignoreNoRecords=ignoreNoRecords)
 		self.afterCancel()
 
 

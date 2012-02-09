@@ -167,7 +167,7 @@ class BaseForm(fm.dFormMixin):
 		changedBizList = []
 
 		for biz in bizList:
-			if biz and biz.isAnyChanged():
+			if biz and biz.isAnyChanged(withChildren=self.SaveChildren):
 				changedBizList.append(biz)
 
 		if changedBizList:
@@ -425,11 +425,12 @@ class BaseForm(fm.dFormMixin):
 		if err:
 			self.notifyUser(err)
 			return False
+
 		try:
 			if self.SaveAllRows:
-				bizobj.saveAll()
+				bizobj.saveAll(saveTheChildren=self.SaveChildren)
 			else:
-				bizobj.save()
+				bizobj.save(saveTheChildren=self.SaveChildren)
 
 			self.setStatusText(_("Changes to %s saved.") % (
 					self.SaveAllRows and "all records" or "current record",))
@@ -478,9 +479,11 @@ class BaseForm(fm.dFormMixin):
 			return
 		try:
 			if self.SaveAllRows:
-				bizobj.cancelAll(ignoreNoRecords=ignoreNoRecords)
+				bizobj.cancelAll(ignoreNoRecords=ignoreNoRecords,
+						cancelTheChildren=self.CancelChildren)
 			else:
-				bizobj.cancel(ignoreNoRecords=ignoreNoRecords)
+				bizobj.cancel(ignoreNoRecords=ignoreNoRecords,
+						cancelTheChildren=self.CancelChildren)
 			self.update()
 			self.setStatusText(_("Changes to %s canceled.") % (
 					self.SaveAllRows and "all records" or "current record",))
@@ -883,6 +886,16 @@ Database error message: %s""") % 	err
 
 
 	# Property get/set/del functions follow.
+	def _getCancelChildren(self):
+		try:
+			return self._CancelChildren
+		except AttributeError:
+			return True
+
+	def _setCancelChildren(self, value):
+		self._CancelChildren = bool(value)
+
+
 	def _getCheckForChanges(self):
 		return self._checkForChanges
 
@@ -956,7 +969,20 @@ Database error message: %s""") % 	err
 		self._SaveAllRows = bool(value)
 
 
+	def _getSaveChildren(self):
+		try:
+			return self._SaveChildren
+		except AttributeError:
+			return True
+
+	def _setSaveChildren(self, value):
+		self._SaveChildren = bool(value)
+
+
 	# Property definitions:
+	CancelChildren = property(_getCancelChildren, _setCancelChildren, None,
+			_("Specifies whether changes are canceled from child bizobjs. (bool; default:True)"))
+
 	CheckForChanges = property(_getCheckForChanges, _setCheckForChanges, None,
 			_("""Specifies whether the user is prompted to save or discard changes. (bool)
 
@@ -1001,7 +1027,10 @@ Database error message: %s""") % 	err
 			"""))
 
 	SaveAllRows = property(_getSaveAllRows, _setSaveAllRows, None,
-			_("Specifies whether dataset is row- or table-buffered. (bool)"))
+			_("Specifies whether changes are saved to all rows, or just the current row. (bool)"))
+
+	SaveChildren = property(_getSaveChildren, _setSaveChildren, None,
+			_("Specifies whether changes are saved to child bizobjs. (bool; default:True)"))
 
 
 
