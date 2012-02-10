@@ -1362,6 +1362,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 
 
+	def setDataSet(self, ds):
+		"""
+		Set the records of the cursor to the passed dDataSet instance. 
+
+		Obviously, use with care. You can't get the original records back 
+		and this is really intended for one-off read-only cursors.
+		"""
+		self._records = ds
+
+
 	def getDataSet(self, flds=(), rowStart=0, rows=None, returnInternals=False):
 		"""
 		Get the entire data set encapsulated in a dDataSet object.
