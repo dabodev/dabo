@@ -33,6 +33,11 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 		self.DoPopup(False)
 
 
+	def onResize(self, evt):
+		if self.Application.Platform == "Win":
+			self.refresh()
+
+
 	def refresh(self):
 		super(dHyperLink, self).refresh()
 		self.UpdateLink(True)
