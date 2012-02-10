@@ -1369,6 +1369,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		Obviously, use with care. You can't get the original records back 
 		and this is really intended for one-off read-only cursors.
 		"""
+		if not ds:
+			ds = dDataSet()
 		self._records = ds
 
 
