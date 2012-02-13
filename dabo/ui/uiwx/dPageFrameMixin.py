@@ -151,6 +151,7 @@ class dPageFrameMixin(cm.dControlMixin):
 					self.addImage(imgKey)
 					imgIdx = self._imageList[imgKey]
 			self.SetPageImage(pgIdx, imgIdx)
+			self.Pages[pgIdx].imgKey = imgKey
 
 
 	def getPageImage(self, pg):
@@ -224,6 +225,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			self.InsertPage(pos, pg, text=caption, select=False, imageId=idx)
 		else:
 			self.InsertPage(pos, pg, text=caption, select=False)
+		self.Pages[pos].imgKey = imgKey
 		self.layout()
 		insertedPage = self.Pages[pos]
 		insertedPage.Caption = caption
@@ -276,7 +278,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			return
 		cap = pg.Caption
 		self.RemovePage(pos)
-		self.InsertPage(newPos, pg, cap)
+		self.insertPage(newPos, pg, caption=cap, imgKey=pg.imgKey)
 		if selecting:
 			self.SelectedPage = pg
 		self.Parent.unlockDisplay()
