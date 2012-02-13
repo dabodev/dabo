@@ -72,6 +72,7 @@ class HotKeyEditor(dabo.ui.dOkCancelDialog):
 			self._keyChar = None
 		self.hkLabel.Caption = self._keyText
 		self.layout()
+		self.fitToSizer()
 
 
 	# Property definitions start here
