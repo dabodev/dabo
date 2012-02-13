@@ -3396,6 +3396,7 @@ class DrawObject(dObject):
 		if self._backColor is not None:
 			dc.SetTextBackground(self._backColor)
 		dc.SetFont(fnt)
+		self.update()
 
 
 	# Property get/set methods
