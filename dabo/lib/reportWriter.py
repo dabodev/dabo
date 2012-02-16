@@ -1494,7 +1494,7 @@ class ReportWriter(object):
 				x = obj["xFrom"]
 				y = obj["yFrom"]
 				xFooter, yFooter = origin
-				c.setLineCap(props["lineCap"])
+				c.setLineCap(props["strokeLineCap"])
 				c.setStrokeColorRGB(*props["strokeColor"])
 				c.setLineWidth(props["strokeWidth"])
 				c.line(x, y, xFooter, yFooter)
