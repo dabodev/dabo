@@ -1023,6 +1023,12 @@ class Line(Drawable):
 	"""Represents a line."""
 	def initAvailableProps(self):
 		super(Line, self).initAvailableProps()
+		self.AvailableProps["LineCap"] = toPropDict(str, "square",
+				"""Specifies the cap to use on the ends of the line.
+
+				Available settings are "square" or "round".
+				""")
+
 		self.AvailableProps["LineSlant"] = toPropDict(str, "-",
 				"""Specifies the slant of the line.
 
@@ -1481,12 +1487,14 @@ class ReportWriter(object):
 			for prop in ("strokeWidth", "strokeColor", "strokeDashArray", ):
 				props[prop] = obj.getProp(prop)
 			props["strokeWidth"] = self.getPt(props["strokeWidth"])
-
+			lineCaps = {"square": 0, "round": 1}
+			props["strokeLineCap"] = lineCaps.get(obj.getProp("lineCap"), 0)
 			if objType == "SpanningLine":
 				# Line gets drawn from fixed (x,y) to fixed (xFooter, yFooter) points.
 				x = obj["xFrom"]
 				y = obj["yFrom"]
 				xFooter, yFooter = origin
+				c.setLineCap(props["lineCap"])
 				c.setStrokeColorRGB(*props["strokeColor"])
 				c.setLineWidth(props["strokeWidth"])
 				c.line(x, y, xFooter, yFooter)
