@@ -1329,7 +1329,7 @@ class ReportWriter(object):
 					else:
 						spanList.append(l)
 		else:
-			spanList = self._spanningObjects.setdefault(group["expr"], [])
+			spanList = self._spanningObjects.setdefault(group.get("expr", None), [])
 			spanList_page = []
 		for obj in spanList:
 			y1 = self.getPt(obj.getProp("yFooter")) + y
@@ -1342,11 +1342,12 @@ class ReportWriter(object):
 
 	def clearSpanningObjects(self, group=None):
 		if group is not None:
-			group = group["expr"]
+			group = group.get("expr", None)
 		try:
 			del self._spanningObjects[group]
 		except KeyError:
 			pass
+
 
 	def draw(self, obj, origin=(0,0),	availableHeight=None, deferred=None):
 		"""Draw the given object on the Canvas.
