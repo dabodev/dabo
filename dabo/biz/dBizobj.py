@@ -1476,6 +1476,8 @@ class dBizobj(dObject):
 		Search for a value in a field, and optionally move the record pointer to the first
 		matching record. Returns the True or False, depending on whether the value was found.
 
+		Multiple fields can be searched by sending tuples as the val and fld arguments.
+
 		If runRequery is True, and the record pointer is moved, all child bizobjs
 		will be requeried, and the afterPointerMove() hook method will fire.
 
@@ -1495,6 +1497,8 @@ class dBizobj(dObject):
 			sort=True, incremental=False):
 		"""
 		Search for a value in a field, and move the record pointer to the match.
+		Multiple fields can be searched by sending tuples for the val and fld 
+		arguments.
 
 		Used for searching of the bizobj's cursor for a particular value in a
 		particular field. Can be optionally case-sensitive.

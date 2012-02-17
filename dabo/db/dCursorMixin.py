@@ -2108,6 +2108,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""
 		Find the first row where the field value matches the passed value.
 
+		Multiple fields can be searched by sending tuples as the val and fld arguments.
+
 		Returns True or False, depending on whether a matching value was located.
 		If 'fld' is not specified, the current sortColumn is used. If 'caseSensitive' is
 		set to False, string comparisons are done in a case-insensitive fashion.
@@ -2123,7 +2125,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def seek(self, val, fld=None, caseSensitive=True, near=False, movePointer=True, 
 			sort=True, incremental=False):
 		"""
-		Find the first row where the field value matches the passed value.
+		Find the first row where the field value  matches the passed value.
 
 		Returns the row number of the first record that matches the passed
 		value in the designated field, or -1 if there is no match. If 'near' is
@@ -2136,6 +2138,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		If incremental is True (default is False), then we only compare the first
 		characters up until the length of val.
+
+		Multiple fields can be searched by sending tuples for the val and fld 
+		arguments.
 		"""
 		ret = -1
 		if fld is None:
@@ -2148,11 +2153,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if not fld:
 			raise dException.FieldNotFoundException(_("No field specified for seek()"))
 
-		simpleKey = ("," not in fld)
-		if simpleKey:
-			flds = [fld]
+		if isinstance(fld, list) or isinstance(fld, tuple):
+			simpleKey = (len(fld) == 1)
+			flds = fld
+			fld = flds[0]
 		else:
-			flds = [f.strip() for f in fld.split(",")]
+			simpleKey = ("," not in fld)
+			if simpleKey:
+				flds = [fld]
+			else:
+				flds = [f.strip() for f in fld.split(",")]
+
 		badflds = []
 		for fldname in flds:
 			if (fldname not in self._records[0]) and (fldname not in self.VirtualFields):
