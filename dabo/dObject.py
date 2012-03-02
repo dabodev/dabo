@@ -27,7 +27,7 @@ class Dummy(object):
 
 class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		EventMixin):
-	"""The basic ancestor of all dabo objects."""
+	"""The basic ancestor of all Dabo objects."""
 	# Subclasses can set these to False, in which case they are responsible
 	# for maintaining the following call order:
 	#   self._beforeInit()
