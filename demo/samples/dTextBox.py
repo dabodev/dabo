@@ -3,6 +3,7 @@ import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.lib.utils import ustr
 
 
 class TestPanel(dabo.ui.dPanel):
@@ -53,7 +54,7 @@ class TestPanel(dabo.ui.dPanel):
 		self.Form.logit(_("%s Destroy") % evt.EventObject.Name)
 
 	def onTextKeyChar(self, evt):
-		cd, ch = evt.keyCode, evt.keyChar
+		cd, ch = evt.keyCode, ustr(evt.keyChar)
 		self.Form.logit(_("KeyChar event; code=%(cd)s, char=%(ch)s") % locals())
 
 	def onTextHit(self, evt):
