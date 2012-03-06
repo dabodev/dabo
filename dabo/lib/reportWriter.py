@@ -9,6 +9,7 @@ import locale
 import sys
 import os
 from dabo.dLocalize import _
+
 ######################################################
 # Very first thing: check for required libraries:
 _failedLibs = []
@@ -246,6 +247,8 @@ class ReportObject(CaselessDict):
 		self.insertRequiredElements()
 
 	def __getattr__(self, att):
+		if att == "_resolvedReport":
+			raise AttributeError
 		rw = self.Report.reportWriter
 
 		# 1) Try mapping the requested attribute to the reportWriter. This will handle
@@ -466,10 +469,19 @@ class ReportObject(CaselessDict):
 
 
 	def _getReport(self):
+		ret = getattr(self, "_resolvedReport", None)
+		if ret:
+			return ret
 		parent = self
 		while not isinstance(parent, Report):
 			parent = parent.parent
+		self._resolvedReport = parent
 		return parent
+
+
+	def _getReportForm(self):
+		return self.Report.reportWriter.ReportForm
+	ReportForm = property(_getReportForm)
 
 
 	def _getVariables(self):
@@ -2040,7 +2052,6 @@ class ReportWriter(object):
 			self.draw(obj, (x,y))
 			del obj["expr_pagecount"]
 
-
 	def write(self, save=True):
 		"""Write the PDF file based on the ReportForm spec.
 
@@ -2141,7 +2152,6 @@ class ReportWriter(object):
 
 		def printBand(band, y=None, group=None, deferred=None):
 			"""Generic function for printing any band."""
-
 			_form = self.ReportForm
 			page = _form["Page"]
 
@@ -2480,6 +2490,7 @@ class ReportWriter(object):
 
 			self._onReportIteration()
 
+			startNewPage = False
 		# print group footers for previous group if necessary:
 			if cursor_idx > 0:
 				# First pass, iterate through the groups outer->inner, and if any group
@@ -2490,29 +2501,22 @@ class ReportWriter(object):
 					if resetCurVals or vv["curVal"] != group.getProp("expr"):
 						resetCurVals = True
 						vv["curVal"] = UNINITIALIZED_VALUE
+						if group.getProp("StartOnNewPage"):
+							startNewPage = True
 
-				# Second pass, iterate through the groups inner->outer, and print the
-				# group footers for groups that have changed.
-				for idx, group in enumerate(groupsDesc):
-					vv = self._groupValues[group["expr"]]
-					if vv["curVal"] != group.getProp("expr"):
-						# We need to temporarily move back to the last record so that the
-						# group footer reflects what the user expects.
-						self.Record = _lastRecord
-						y = printBand("groupFooter", y, group)
-						self.Record = record
+				if resetCurVals:
+					# Second pass, iterate through the groups inner->outer, and print the
+					# group footers for groups that have changed.
+					for idx, group in enumerate(groupsDesc):
+						vv = self._groupValues[group["expr"]]
+						if vv["curVal"] != group.getProp("expr"):
+							# We need to temporarily move back to the last record so that the
+							# group footer reflects what the user expects.
+							self.Record = _lastRecord
+							y = printBand("groupFooter", y, group)
+							self.Record = record
 
 			# print group headers for this group if necessary:
-
-			# First, start a new page if necessary. But only one new page:
-			startNewPage = False
-			if self.RecordNumber > 0:
-				# Find out if any group is going to start on a new page.
-				for group in groups:
-					curVal = self._groupValues[group["expr"]]["curVal"]
-					if group.getProp("StartOnNewPage") and curVal != group.getProp("expr"):
-						startNewPage = True
-						break
 
 			if startNewPage:
 				# We are starting a new page because a group expr changed; temporarily put
@@ -2524,8 +2528,7 @@ class ReportWriter(object):
 				self.Canvas.showPages()
 				beginPage()
 				y = None
-
-			if not startNewPage and cursor_idx > 0:
+			elif cursor_idx > 0:
 				# needed variable processing hasn't yet occured for this record:
 				processVariables()
 

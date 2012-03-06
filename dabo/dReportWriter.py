@@ -35,6 +35,7 @@ class dReportWriter(dObject, ReportWriter):
 	def _onReportEnd(self):
 		super(dReportWriter, self)._onReportEnd()
 		self.raiseEvent(dabo.dEvents.ReportEnd)
+		self._updateProgress(force=True)
 		#self._hideProgress()  ## Let the form controlling the progress gauge do this (less blinky)
 
 	def _onReportIteration(self):
@@ -50,11 +51,12 @@ class dReportWriter(dObject, ReportWriter):
 			win.show()
 			win.Form.fitToSizer()
 
-	def _updateProgress(self):
-		win = self.ProgressControl
-		if win:
-			win.updateProgress(self.RecordNumber+1, len(self.Cursor))
-			dabo.ui.yieldUI(_safe=True)
+	def _updateProgress(self, force=False):
+		if force or self.RecordNumber % 10 == 0:
+			win = self.ProgressControl
+			if win:
+				win.updateProgress(self.RecordNumber, len(self.Cursor))
+				dabo.ui.yieldUI(_safe=True)
 
 	def _hideProgress(self):
 		win = self.ProgressControl
