@@ -5,6 +5,7 @@ import datetime
 import time
 import re
 from decimal import Decimal
+import functools
 import dabo
 import dabo.dConstants as kons
 from dabo.dLocalize import _
@@ -16,13 +17,15 @@ from dabo.lib import dates
 from dabo.lib.utils import noneSortKey, caseInsensitiveSortKey
 from dabo.lib.utils import ustr
 
+cursor_flags = (kons.CURSOR_MEMENTO, kons.CURSOR_NEWFLAG,
+		kons.CURSOR_TMPKEY_FIELD, kons.CURSOR_FIELD_TYPES_CORRECTED)
+
 
 class dCursorMixin(dObject):
 	"""Dabo's cursor class, representing the lowest tier."""
 	_call_initProperties = False
 	# Make these class attributes, so that they are shared among all instances
 	_fieldStructure = {}
-	_fieldsToAlwaysCorrectType = []
 
 	def __init__(self, sql="", *args, **kwargs):
 		self._convertStrToUnicode = True
@@ -185,6 +188,7 @@ class dCursorMixin(dObject):
 				rec = self._records[self.RowNumber]
 			except IndexError:
 				rec = {}
+		self._correctFieldTypesIfNeeded(rec)
 		if isinstance(self.KeyField, tuple):
 			if rec:
 				pk = tuple([rec[kk] for kk in self.KeyField])
@@ -207,7 +211,15 @@ class dCursorMixin(dObject):
 		return pkField
 
 
-	def _correctFieldType(self, field_val, field_name, _newQuery=False):
+	def _correctFieldTypesIfNeeded(self, rec):
+		if not rec.get(kons.CURSOR_FIELD_TYPES_CORRECTED, False):
+			_correctFieldType = self._correctFieldType
+			for fld_name in (i for i in rec if i not in cursor_flags):
+				rec[fld_name] = _correctFieldType(rec[fld_name], fld_name)
+			rec[kons.CURSOR_FIELD_TYPES_CORRECTED] = True
+
+
+	def _correctFieldType(self, field_val, field_name):
 		"""
 		Correct the type of the passed field_val, based on self.DataStructure.
 
@@ -218,65 +230,48 @@ class dCursorMixin(dObject):
 		"""
 		if field_val is None:
 			return field_val
-		ret = field_val
-		if _newQuery or (field_name in self._fieldsToAlwaysCorrectType):
-			pythonType = self._types.get(field_name, None)
-			if pythonType is None or pythonType == type(None):
-				pythonType = self._types[field_name] = dabo.db.getDataType(type(field_val))
+		pythonType = self._types.get(field_name, None)
+		if pythonType is None or pythonType == type(None):
+			pythonType = self._types[field_name] = dabo.db.getDataType(type(field_val))
 
-			if isinstance(field_val, str) and self._convertStrToUnicode:
-				# convert to unicode
-				pass
-			elif pythonType is None or isinstance(field_val, pythonType):
-				# No conversion needed.
-				return ret
-			else:
-				self._fieldsToAlwaysCorrectType.append(field_name)
+		if isinstance(field_val, pythonType):
+			# No conversion needed.
+			return field_val
 
-			if pythonType in (unicode,):
-				# Unicode conversion happens below.
-				pass
-			elif pythonType in (datetime.datetime,) and isinstance(field_val, basestring):
-				ret = dates.getDateTimeFromString(field_val)
-				if ret is None:
-					ret = field_val
-				else:
-					return ret
-			elif pythonType in (datetime.date,) and isinstance(field_val, basestring):
-				ret = dates.getDateFromString(field_val)
-				if ret is None:
-					ret = field_val
-				else:
-					return ret
-			elif pythonType in (Decimal,):
-				ds = self.DataStructure
-				ret = None
-				_field_val = field_val
-				if type(field_val) in (float,):
-					# Can't convert to decimal directly from float
-					_field_val = ustr(_field_val)
-				# Need to convert to the correct scale:
-				scale = None
-				for s in ds:
-					if s[0] == field_name:
-						if len(s) > 5:
-							scale = s[5]
-				if scale is None:
-					scale = 2
-				return Decimal(_field_val).quantize(Decimal("0.%s" % (scale * "0",)))
-			else:
-				try:
-					return pythonType(field_val)
-				except Exception, e:
-					tfv = type(field_val)
-					dabo.log.info(_("_correctFieldType() failed for field: '%(field_name)s'; value: '%(field_val)s'; type: '%(tfv)s'")
-							% locals())
+		if pythonType in (unicode,):
+			# Unicode conversion happens below.
+			pass
+		elif pythonType in (datetime.datetime,) and isinstance(field_val, basestring):
+			return dates.getDateTimeFromString(field_val)
+		elif pythonType in (datetime.date,) and isinstance(field_val, basestring):
+			return dates.getDateFromString(field_val)
+		elif pythonType in (Decimal,):
+			ds = self.DataStructure
+			_field_val = field_val
+			if type(field_val) in (float,):
+				# Can't convert to decimal directly from float
+				_field_val = ustr(_field_val)
+			# Need to convert to the correct scale:
+			scale = None
+			for s in ds:
+				if s[0] == field_name:
+					if len(s) > 5:
+						scale = s[5]
+			if scale is None:
+				scale = 2
+			return Decimal(_field_val).quantize(Decimal("0.%s" % (scale * "0",)))
+		else:
+			try:
+				return pythonType(field_val)
+			except Exception, e:
+				tfv = type(field_val)
+				dabo.log.info(_("_correctFieldType() failed for field: '%(field_name)s'; value: '%(field_val)s'; type: '%(tfv)s'")
+						% locals())
 
 		# Do the unicode conversion last:
 		if isinstance(field_val, str) and self._convertStrToUnicode:
 			try:
-				decoded = field_val.decode(self.Encoding)
-				return decoded
+				return field_val.decode(self.Encoding)
 			except UnicodeDecodeError, e:
 				# Try some common encodings:
 				ok = False
@@ -301,15 +296,15 @@ class dCursorMixin(dObject):
 								% {'fname':field_name, 'enc':enc})
 							return ret
 				else:
-					raise e
+					raise 
 
 			rfv = repr(field_val)
 			dabo.log.error(_("%(rfv)s couldn't be converted to %(pythonType)s (field %(field_name)s)")
 					% locals())
-		return ret
+		return field_val
 
 
-	def execute(self, sql, params=None, _newQuery=False, errorClass=None, convertQMarks=False):
+	def execute(self, sql, params=None, errorClass=None, convertQMarks=False):
 		"""Execute the sql, and populate the DataSet if it is a select statement."""
 		# The idea here is to let the super class do the actual work in
 		# retrieving the data. However, many cursor classes can only return
@@ -404,24 +399,16 @@ class dCursorMixin(dObject):
 				errMsg = ustr(e)
 			dabo.log.error("Error fetching records: (%s, %s)" % (type(e), errMsg))
 
-		if _records and not self.BackendObject._alreadyCorrectedFieldTypes:
-			if isinstance(_records[0], (tuple, list)):
-				# Need to convert each row to a Dict, since the backend didn't do it.
-				tmpRows = []
-				fldNames = [f[0] for f in self.FieldDescription]
-				for row in _records:
-					dic = {}
-					for idx, fldName in enumerate(fldNames):
-						dic[fldName] = self._correctFieldType(field_val=row[idx],
-								field_name=fldName, _newQuery=_newQuery)
-					tmpRows.append(dic)
-				_records = tmpRows
-			else:
-				# Already a DictCursor, but we still need to correct the field types.
-				for row in _records:
-					for fld, val in row.items():
-						row[fld] = self._correctFieldType(field_val=val,
-								field_name=fld, _newQuery=_newQuery)
+		if _records and isinstance(_records[0], (tuple, list)):
+			# Need to convert each row to a Dict, since the backend didn't do it.
+			tmpRows = []
+			fldNames = [f[0] for f in self.FieldDescription]
+			for row in _records:
+				dic = {}
+				for idx, fldName in enumerate(fldNames):
+					dic[fldName] = row[idx]
+				tmpRows.append(dic)
+			_records = tmpRows
 
 		self._records = dDataSet(_records)
 		# This will handle bounds issues
@@ -492,7 +479,7 @@ class dCursorMixin(dObject):
 		self.lastParams = params
 		self._savedStructureDescription = []
 
-		self.execute(currSQL, params, _newQuery=newQuery)
+		self.execute(currSQL, params)
 
 		# clear mementos and new record flags:
 		self._mementos = {}
@@ -892,52 +879,49 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def getFieldVal(self, fld, row=None, _rowChangeCallback=None):
 		"""Return the value of the specified field in the current or specified row."""
-		if self.RowCount <= 0:
+		_records = self._records
+		if not _records:
 			raise dException.NoRecordsException(
 					_("No records in dataset '%s'.") % self.Table)
 		if row is None:
-			row = self.RowNumber
+			row = self._getRowNumber()
 		try:
-			rec = self._records[row]
+			rec = _records[row]
 		except IndexError:
-			cnt = len(self._records)
+			cnt = len(_records)
 			raise dException.RowNotFoundException(
 					_("Row #%(row)s requested, but the data set has only %(cnt)s row(s),") % locals())
+		self._correctFieldTypesIfNeeded(rec)
 		if isinstance(fld, (tuple, list)):
-			ret = []
-			for xFld in fld:
-				ret.append(self.getFieldVal(xFld, row=row))
-			return tuple(ret)
+			return map(functools.partial(self.getFieldVal, row=row), fld)
+		if fld in rec:
+			return rec[fld]
+		elif fld in self.VirtualFields:
+			vf = self.VirtualFields[fld]
+			if not isinstance(vf, dict):
+				vf = {"func": vf}
+
+			requery_children = (vf.get("requery_children", False) and bool(_rowChangeCallback))
+
+			# Move to specified row if necessary, and then call the VirtualFields
+			# function, which expects to be on the correct row.
+			if not requery_children:
+				# The VirtualFields 'requery_children' key is False, or
+				# we aren't being called by a bizobj, so there aren't child bizobjs.
+				_oldrow = self.RowNumber
+				self.RowNumber = row
+				ret = vf["func"]()
+				self.RowNumber = _oldrow
+				return ret
+			else:
+				# The VirtualFields definition's 'requery_children' key is True, so
+				# we need to request a row change and requery of any child bizobjs
+				# as necessary, before executing the virtual field function.
+				_rowChangeCallback(row)
+				return vf["func"]()
 		else:
-			try:
-				return rec[fld]
-			except KeyError:
-				try:
-					vf = self.VirtualFields[fld]
-					if not isinstance(vf, dict):
-						vf = {"func": vf}
-
-					requery_children = (vf.get("requery_children", False) and bool(_rowChangeCallback))
-
-					# Move to specified row if necessary, and then call the VirtualFields
-					# function, which expects to be on the correct row.
-					if not requery_children:
-						# The VirtualFields 'requery_children' key is False, or
-						# we aren't being called by a bizobj, so there aren't child bizobjs.
-						_oldrow = self.RowNumber
-						self.RowNumber = row
-						ret = vf["func"]()
-						self.RowNumber = _oldrow
-						return ret
-					else:
-						# The VirtualFields definition's 'requery_children' key is True, so
-						# we need to request a row change and requery of any child bizobjs
-						# as necessary, before executing the virtual field function.
-						_rowChangeCallback(row)
-						return vf["func"]()
-				except KeyError:
-					raise dException.FieldNotFoundException("%s '%s' %s" % (
-							_("Field"), fld, _("does not exist in the data set")))
+			raise dException.FieldNotFoundException("%s '%s' %s" % (
+					_("Field"), fld, _("does not exist in the data set")))
 
 
 	def _fldTypeFromDB(self, fld):
@@ -1345,7 +1329,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			pk = self.pkExpression(rec)
 
 		for k, v in rec.items():
-			if k not in (kons.CURSOR_TMPKEY_FIELD,):
+			if k not in cursor_flags:
 				ret[k] = (None, v)
 		return ret
 
@@ -1382,31 +1366,35 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		to only include the specified fields. rowStart specifies the starting row
 		to include, and rows is the number of rows to return.
 		"""
-		ds = []
-		internals = (kons.CURSOR_TMPKEY_FIELD,)
 		rowCount = self.RowCount
 
 		if rows is None:
 			rows = rowCount
 		else:
 			rows = min(rowStart + rows, rowCount)
-		for row in xrange(rowStart, rows):
-			tmprec = self._records[row].copy()
-			for k, v in self.VirtualFields.items():
-				# only calc requested virtualFields
-				if (flds and k in flds) or not flds:
-					tmprec.update({k: self.getFieldVal(k, row)})
-			if flds:
-				# user specified specific fields - get rid of all others
-				for k in tmprec.keys():
-					if k not in flds:
-						del tmprec[k]
-			if not flds and not returnInternals:
-				# user didn't specify explicit fields and doesn't want internals
-				for internal in internals:
-					tmprec.pop(internal, None)
-			ds.append(tmprec)
+		if rows < 1 or rowStart > self.RowCount:
+			return dDataSet()
 
+		getFieldVal = self.getFieldVal
+		_records = self._records
+		vFieldKeys = self.VirtualFields.keys()
+		_correctFieldTypesIfNeeded = self._correctFieldTypesIfNeeded
+
+		if not flds:
+			vflds = vFieldKeys
+			flds = [f for f in _records[rowStart] if returnInternals or f not in cursor_flags]
+		else:
+			vflds = [f for f in _records if f in vFieldKeys]
+			flds = [f for f in flds if f not in vFieldKeys]
+
+		ds = []
+		for row in xrange(rowStart, rows):
+			rec = _records[row]
+			_correctFieldTypesIfNeeded(rec)
+			tmprec = dict([(k, rec[k]) for k in flds])
+			for v in vflds:
+				tmprec.update({v: self.getFieldVal(v, row)})
+			ds.append(tmprec)
 		return dDataSet(ds)
 
 

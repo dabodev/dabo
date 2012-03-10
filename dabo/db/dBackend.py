@@ -30,12 +30,6 @@ class dBackend(dObject):
 		super(dBackend, self).__init__()
 		self.dbModuleName = None
 		self._connection = None
-		# If the db module is set to hook into dCursor to correct the field
-		# types and convert the records to dict inline, then dCursorMixin doesn't
-		# have to reiterate the records to do those tasks. Set the following to
-		# True in the given db module to tell dCursorMixin not to bother. As of this
-		# writing, only dbSQLite is set up for this.
-		self._alreadyCorrectedFieldTypes = False
 		# Reference to the cursor that is using this object
 		self._cursor = None
 

@@ -22,7 +22,6 @@ class SQLite(dBackend):
 		except ImportError:
 			import sqlite3 as dbapi
 		self.dbapi = dbapi
-		self._alreadyCorrectedFieldTypes = True
 
 
 	def getConnection(self, connectInfo, forceCreate=False, **kwargs):
@@ -35,10 +34,7 @@ class SQLite(dBackend):
 			ret = {}
 			fieldNames = (fld[0] for fld in cursor.description)
 			for idx, field_name in enumerate(fieldNames):
-				if _types:
-					ret[field_name] = cursor._correctFieldType(row[idx], field_name, _newQuery=True)
-				else:
-					ret[field_name] = row[idx]
+				ret[field_name] = row[idx]
 			return ret
 
 		class DictCursor(self.dbapi.Cursor):
@@ -180,10 +176,10 @@ class SQLite(dBackend):
 
 	def getFields(self, tableName, cursor):
 		cursor.execute("pragma table_info('%s')" % tableName)
-		rs = cursor.getDataSet()
 		fields = []
-		for rec in rs:
-			typ = rec["type"].lower()
+		getFieldVal = cursor.getFieldVal
+		for rec_idx in range(cursor.RowCount):
+			typ = getFieldVal("type", rec_idx).lower()
 			if typ[:3] == "int":
 				fldType = "I"
 			elif typ[:3] == "dec" or typ[:4] == "real":
@@ -202,7 +198,7 @@ class SQLite(dBackend):
 			# Adi J. Sieker pointed out that the 'pk' column of the pragma command
 			# returns a value indicating whether the field is the PK or not. This simplifies
 			# the routine over having to parse the CREATE TABLE code.
-			fields.append((rec["name"], fldType, bool(rec['pk'])))
+			fields.append((getFieldVal("name", rec_idx), fldType, bool(getFieldVal('pk', rec_idx))))
 		return tuple(fields)
 
 
