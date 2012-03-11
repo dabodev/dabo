@@ -238,13 +238,21 @@ class dCursorMixin(dObject):
 			# No conversion needed.
 			return field_val
 
+		def tryToCorrect(func, *args, **kwargs):
+			try:
+				return func(*args, **kwargs)
+			except Exception, e:
+				tfv = type(field_val)
+				dabo.log.info(_("_correctFieldType() failed for field: "
+						"'%(field_name)s'; value: '%(field_val)s'; type: '%(tfv)s'") % locals())
+
 		if pythonType in (unicode,):
 			# Unicode conversion happens below.
 			pass
 		elif pythonType in (datetime.datetime,) and isinstance(field_val, basestring):
-			return dates.getDateTimeFromString(field_val)
+			return tryToCorrect(dates.getDateTimeFromString, field_val)
 		elif pythonType in (datetime.date,) and isinstance(field_val, basestring):
-			return dates.getDateFromString(field_val)
+			return tryToCorrect(dates.getDateFromString,field_val)
 		elif pythonType in (Decimal,):
 			ds = self.DataStructure
 			_field_val = field_val
@@ -259,14 +267,10 @@ class dCursorMixin(dObject):
 						scale = s[5]
 			if scale is None:
 				scale = 2
-			return Decimal(_field_val).quantize(Decimal("0.%s" % (scale * "0",)))
+			dec = tryToCorrect(Decimal, _field_val)
+			return dec.quantize(Decimal("0.%s" % (scale * "0",)))
 		else:
-			try:
-				return pythonType(field_val)
-			except Exception, e:
-				tfv = type(field_val)
-				dabo.log.info(_("_correctFieldType() failed for field: '%(field_name)s'; value: '%(field_val)s'; type: '%(tfv)s'")
-						% locals())
+			return tryToCorrect(pythonType, field_val)
 
 		# Do the unicode conversion last:
 		if isinstance(field_val, str) and self._convertStrToUnicode:
