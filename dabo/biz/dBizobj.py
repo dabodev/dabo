@@ -31,6 +31,7 @@ class dBizobj(dObject):
 		""" User code should override beforeInit() and/or afterInit() instead."""
 		self.__att_try_setFieldVal = False
 		self._visitedKeys = set()
+		self._cascadeDeleteFromParent = True
 		# Collection of cursor objects. MUST be defined first.
 		self.__cursors = {}
 		# PK of the currently-selected cursor
@@ -628,7 +629,7 @@ class dBizobj(dObject):
 		if self.deleteChildLogic == kons.REFINTEG_RESTRICT:
 			# See if there are any child records
 			for child in self._children:
-				if child.RowCount > 0:
+				if child.CascadeDeleteFromParent and child.RowCount > 0:
 					raise dException.dException(
 							_("Deletion prohibited - there are related child records."))
 
@@ -642,10 +643,8 @@ class dBizobj(dObject):
 			# ensure that any changed data they may have is reverted. They are then requeried to
 			# populate them with data for the current record in this bizobj.
 			for child in self._children:
-				if self.deleteChildLogic == kons.REFINTEG_CASCADE:
+				if self.deleteChildLogic == kons.REFINTEG_CASCADE and child.CascadeDeleteFromParent:
 					child.deleteAll(startTransaction=False)
-				else:
-					child.cancelAll()
 			if startTransaction:
 				self.commitTransaction()
 			self.requeryAllChildren()
@@ -2659,6 +2658,13 @@ afterDelete() which is only called after a delete().""")
 		self._caption = u"%s" % val
 
 
+	def _getCascadeDeleteFromParent(self):
+		return self._cascadeDeleteFromParent
+
+	def _setCascadeDeleteFromParent(self, val):
+		self._cascadeDeleteFromParent = bool(val)
+
+
 	def _getChildCacheInterval(self):
 		return self._childCacheInterval
 
@@ -3051,6 +3057,10 @@ afterDelete() which is only called after a delete().""")
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("The friendly title of the cursor, used in messages to the end user. (str)"))
+
+	CascadeDeleteFromParent = property(_getCascadeDeleteFromParent, _setCascadeDeleteFromParent, None,
+			_("""Specifies whether deletion of the parent bizobj will cascade to delete all
+			linked child records."""))
 
 	ChildCacheInterval = property(_getChildCacheInterval, _setChildCacheInterval, None,
 			_("""If this is a child bizobj, this represents the length of time in seconds that a
