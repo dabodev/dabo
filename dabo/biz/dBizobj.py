@@ -30,6 +30,7 @@ class dBizobj(dObject):
 	def __init__(self, conn=None, properties=None, *args, **kwargs):
 		""" User code should override beforeInit() and/or afterInit() instead."""
 		self.__att_try_setFieldVal = False
+		self._visitedKeys = set()
 		# Collection of cursor objects. MUST be defined first.
 		self.__cursors = {}
 		# PK of the currently-selected cursor
@@ -37,7 +38,6 @@ class dBizobj(dObject):
 		# Description of the data represented by this bizobj
 		self._dataStructure = None
 		self._dataSource = self._dataSourceName = ""
-
 		# Dictionary holding any default values to apply when a new record is created. This is
 		# now the DefaultValues property (used to be self.defaultValues attribute)
 		self._defaultValues = {}
@@ -261,7 +261,7 @@ class dBizobj(dObject):
 		self._CurrentCursor.first()
 		self.requeryAllChildren(_doRequery=self.RequeryChildrenOnNavigate)
 
-		self.afterPointerMove()
+		self._afterPointerMove()
 		self.afterFirst()
 
 
@@ -281,7 +281,7 @@ class dBizobj(dObject):
 		self._CurrentCursor.prior()
 		self.requeryAllChildren(_doRequery=self.RequeryChildrenOnNavigate)
 
-		self.afterPointerMove()
+		self._afterPointerMove()
 		self.afterPrior()
 
 
@@ -301,7 +301,7 @@ class dBizobj(dObject):
 		self._CurrentCursor.next()
 		self.requeryAllChildren(_doRequery=self.RequeryChildrenOnNavigate)
 
-		self.afterPointerMove()
+		self._afterPointerMove()
 		self.afterNext()
 
 
@@ -321,7 +321,7 @@ class dBizobj(dObject):
 		self._CurrentCursor.last()
 		self.requeryAllChildren(_doRequery=self.RequeryChildrenOnNavigate)
 
-		self.afterPointerMove()
+		self._afterPointerMove()
 		self.afterLast()
 
 
@@ -430,19 +430,33 @@ class dBizobj(dObject):
 			raise dException.BusinessRuleViolation(errMsg)
 
 		startTransaction = startTransaction and self.beginTransaction()
+
+		# First save the rows we know we've visited:
 		try:
-			self.scan(self.save, startTransaction=False,
+			self.scanKeys(self.save, self._visitedKeys, startTransaction=False,
 					saveTheChildren=saveTheChildren, scanRequeryChildren=False)
-			if startTransaction:
-				self.commitTransaction()
-		except dException.ConnectionLostException:
-			pass
 		except (dException.DBQueryException, dException.dException):
-			# Something failed; reset things.
 			if startTransaction:
 				self.rollbackTransaction()
 			raise
 
+		# Finally, scan all rows only if there are still potentially unsaved rows.
+		# The isAnyChanged() call will be expensive if there are changes buried
+		# in some out-of-context child cursor, but that should be rare. In the
+		# common case, all the changes would have already been made in the above
+		# block, and isAnyChanged() will return False very quickly in that case.
+		if self.isAnyChanged():	
+			try:
+				self.scan(self.save, startTransaction=False,
+						saveTheChildren=saveTheChildren, scanRequeryChildren=False)
+			except (dException.DBQueryException, dException.dException):
+				if startTransaction:
+					self.rollbackTransaction()
+				raise
+
+		self.commitTransaction()
+		self._visitedKeys.clear()
+		self._addVisitedKey()
 		self.afterSaveAll()
 
 
@@ -524,8 +538,21 @@ class dBizobj(dObject):
 		Cancel all changes made in all rows, including by default all children
 		and all new, unmodified records.
 		"""
-		self.scanChangedRows(self.cancel, allCursors=False, includeNewUnchanged=True,
-				cancelTheChildren=cancelTheChildren, ignoreNoRecords=ignoreNoRecords, reverse=True)
+		# First cancel the rows we know we've visited:
+		self.scanKeys(self.cancel, self._visitedKeys,
+				cancelTheChildren=cancelTheChildren,
+				ignoreNoRecords=ignoreNoRecords, scanRequeryChildren=False)
+		# Finally, scan all rows only if there are still potentially changed rows.
+		# The isAnyChanged() call will be expensive if there are changes buried
+		# in some out-of-context child cursor, but that should be rare. In the
+		# common case, all the cancellations would have already happened in the 
+		# above block, and isAnyChanged() will return False very quickly.
+		if self.isAnyChanged():	
+			self.scanChangedRows(self.cancel, allCursors=False,
+					includeNewUnchanged=True, cancelTheChildren=cancelTheChildren, 
+					ignoreNoRecords=ignoreNoRecords, reverse=True)
+		self._visitedKeys.clear()
+		self._addVisitedKey()
 
 
 	def cancel(self, ignoreNoRecords=None, cancelTheChildren=True):
@@ -624,7 +651,7 @@ class dBizobj(dObject):
 			self.requeryAllChildren()
 
 			if not inLoop:
-				self.afterPointerMove()
+				self._afterPointerMove()
 				self.afterChange()
 				self.afterDelete()
 		except dException.DBQueryException:
@@ -651,7 +678,7 @@ class dBizobj(dObject):
 			if startTransaction:
 				self.commitTransaction()
 
-			self.afterPointerMove()
+			self._afterPointerMove()
 			self.afterChange()
 			self.afterDelete()
 		except dException.DBQueryException:
@@ -860,6 +887,40 @@ class dBizobj(dObject):
 		return ret
 
 
+	def scanKeys(self, func, keys, *args, **kwargs):
+		"""
+		Iterate over the specified keys (defined in KeyField) and apply 
+		the passed function to each.
+
+		If a passed key doesn't exist, it is ignored.
+
+		Set self.exitScan to True to exit the scan on the next iteration.
+		"""
+		# Flag that the function can set to prematurely exit the scan
+		self.exitScan = False
+		keys = set(keys)
+		requeryChildren = kwargs.pop("scanRequeryChildren", self.ScanRequeryChildren)
+		currentStatus = self.__getCurrentStatus()
+		ret = None
+
+		try:
+			for key in keys:
+				if self.locate(key, self.KeyField):
+					ret = func(*args, **kwargs)
+				if self.exitScan:
+					break
+		except Exception, e:
+			if self._logScanException(e):
+				dabo.log.error(_("Error in scanKeys of %s: %s") % (self.Name, ustr(e)))
+			if self.ScanRestorePosition:
+				self.__setCurrentStatus(currentStatus)
+			raise
+
+		if self.ScanRestorePosition:
+			self.__setCurrentStatus(currentStatus)
+		return ret
+
+
 	def scanChangedRows(self, func, allCursors=False, includeNewUnchanged=False,
 			*args, **kwargs):
 		"""
@@ -1048,7 +1109,7 @@ class dBizobj(dObject):
 				if child.NewRecordOnNewParent:
 					child.new()
 
-		self.afterPointerMove()
+		self._afterPointerMove()
 		self.afterNew()
 
 
@@ -1115,6 +1176,7 @@ class dBizobj(dObject):
 				uiException = dException.NoRecordsException
 			except dException.dException:
 				raise
+			self._visitedKeys.clear()
 			if self.RestorePositionOnRequery:
 				self._positionUsingPK(currPK, updateChildren=False)
 			if hash(self.DataStructure) != oldDataStructure:
@@ -1125,6 +1187,7 @@ class dBizobj(dObject):
 		except dException.NoRecordsException:
 			pass
 		self.afterRequery()
+		self._addVisitedKey()
 		if uiException:
 			raise uiException
 
@@ -1489,7 +1552,7 @@ class dBizobj(dObject):
 		if ret:
 			if movePointer and runRequery:
 				self.requeryAllChildren()
-				self.afterPointerMove()
+				self._afterPointerMove()
 		return ret
 
 
@@ -1524,7 +1587,7 @@ class dBizobj(dObject):
 		if ret != -1:
 			if runRequery:
 				self.requeryAllChildren()
-				self.afterPointerMove()
+				self._afterPointerMove()
 		return ret
 
 
@@ -2383,6 +2446,21 @@ class dBizobj(dObject):
 	########## END - SQL Builder interface section ##############
 
 
+	def _afterPointerMove(self):
+		self._addVisitedKey()
+		self.afterPointerMove()
+
+
+	def _addVisitedKey(self):
+		"""
+		The _visitedKeys set is used for optimization of cancelAll() 
+		and saveAll(), and only applies to bizobjs with no parent.
+		"""
+		if not self.Parent:
+			self._visitedKeys.add(self.getPK())
+			#print self, len(self._visitedKeys)
+
+
 	def _makeHookMethod(name, action, mainDoc=None, additionalDoc=None):
 		mode = name[:5]
 		if mode == "befor":
@@ -2889,7 +2967,7 @@ afterDelete() which is only called after a delete().""")
 		if errMsg:
 			raise dException.BusinessRuleViolation(errMsg)
 		self._moveToRowNum(rownum, self.RequeryChildrenOnNavigate)
-		self.afterPointerMove()
+		self._afterPointerMove()
 		self.afterSetRowNumber()
 
 
