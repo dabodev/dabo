@@ -5,6 +5,15 @@ import subprocess
 import tempfile
 import datetime
 from decimal import Decimal
+import cStringIO
+
+# If gsprint is available, use it for printing:
+gsprint = True
+try:
+	p = subprocess.Popen(("gsprint",), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	stdout, stderr = p.communicate()
+except OSError:
+	gsprint = False
 
 
 class TempFileHolder(object):
@@ -67,14 +76,28 @@ def previewPDF(path, modal=False):
 					subprocess.Popen((viewer, path))
 
 
-def printPDF(path):
-	"""Print the passed PDF file to the default printer."""
-	try:
-		os.startfile(path, "print")
-	except AttributeError:
-		# startfile() only available on Windows
-		subprocess.Popen(("lpr", path))
+def printPDF(path, printerName=None):
+	"""Print the passed PDF file to the default printer.
 
+	If gsprint is installed and on the path, the printerName parameter
+	can be used to specify which printer to output to. NOTE: gsprint
+	is part of gsview, and gsview depends on ghostscript. These packages
+	are GPL - to avoid legal issues make sure your end user installs them
+	separately from your application.
+	"""
+	if gsprint:
+		args = ["gsprint", path]
+		if printerName:
+			args.insert(-1, '-printer')
+			args.insert(-1, "%s" % printerName)
+		p = subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+		p.communicate()
+	else:
+		try:
+			os.startfile(path, "print")
+		except AttributeError:
+			# startfile() only available on Windows
+			subprocess.Popen(("lpr", path))
 
 
 def getTestCursorXmlFromDataSet(dataset):
