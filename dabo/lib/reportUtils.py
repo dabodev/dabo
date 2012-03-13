@@ -5,7 +5,6 @@ import subprocess
 import tempfile
 import datetime
 from decimal import Decimal
-import cStringIO
 
 # If gsprint is available, use it for printing:
 gsprint = True
