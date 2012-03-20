@@ -230,9 +230,10 @@ class dCursorMixin(dObject):
 		"""
 		if field_val is None:
 			return field_val
-		pythonType = self._types.get(field_name, None)
-		if pythonType is None or pythonType == type(None):
-			pythonType = self._types[field_name] = dabo.db.getDataType(type(field_val))
+		try:
+			pythonType = self._types[field_name]
+		except KeyError:
+			pythonType = dabo.db.getDataType(type(field_val))
 
 		if isinstance(field_val, pythonType):
 			# No conversion needed.
@@ -243,8 +244,8 @@ class dCursorMixin(dObject):
 				return func(field_val)
 			except Exception, e:
 				tfv = type(field_val)
-				dabo.log.info(_("_correctFieldType() failed for field: "
-						"'%(field_name)s'; value: '%(field_val)s'; type: '%(tfv)s'") % locals())
+				dabo.log.error(_("_correctFieldType() failed for field: "
+						"'%(field_name)s' (%(func)s); value: %(field_val)s (%(tfv)s)") % locals())
 
 		if pythonType in (unicode,):
 			# Unicode conversion happens below.
