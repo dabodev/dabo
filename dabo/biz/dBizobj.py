@@ -140,6 +140,19 @@ class dBizobj(dObject):
 		return self._connection
 
 
+	def _flushUnchangedCursors(self):
+		"""Remove all cursors from this and all children, except current 
+		and changed cursors."""
+		cursors = {}
+		for key, cursor in self.__cursors.items():
+			if cursor is self._CurrentCursor or cursor.isChanged():
+				cursors[key] = cursor
+		self.__cursors = cursors
+
+		for child in self._children:
+			child._flushUnchangedCursors()
+
+
 	def getTempCursor(self, sql=None, params=None, requery=True):
 		"""Occasionally it is useful to be able to run ad-hoc queries against
 		the database. For these queries, where the results are not meant to
@@ -797,7 +810,8 @@ class dBizobj(dObject):
 		return ret
 
 
-	def bizIterator(self, reversed=False, restorePointer=False):
+	def bizIterator(self, reversed=False, restorePointer=False, 
+			flushUnchangedCursors=False):
 		"""
 		Returns an iterator that moves the bizobj's record pointer from
 		the first record to the last, and returns the current record number.
@@ -808,10 +822,12 @@ class dBizobj(dObject):
 		is True) record after the iteration is complete unless you call this
 		with restorePointer=True.
 		"""
-		return _bizIterator(self, reversed=reversed, restorePointer=restorePointer)
+		return _bizIterator(self, reversed=reversed, restorePointer=restorePointer,
+				flushUnchangedCursors=flushUnchangedCursors)
 
 
-	def bizDataIterator(self, reversed=False, restorePointer=False):
+	def bizDataIterator(self, reversed=False, restorePointer=False, 
+			flushUnchangedCursors=False):
 		"""
 		Returns an iterator that moves the bizobj's record pointer from
 		the first record to the last, and returns a dict of the columns/values
@@ -823,7 +839,8 @@ class dBizobj(dObject):
 		is True) record after the iteration is complete unless you call this
 		with restorePointer=True.
 		"""
-		return _bizIterator(self, returnRecords=True, reversed=reversed, restorePointer=restorePointer)
+		return _bizIterator(self, returnRecords=True, reversed=reversed, 
+				restorePointer=restorePointer, flushUnchangedCursors=flushUnchangedCursors)
 
 
 	def scan(self, func, *args, **kwargs):
@@ -3251,7 +3268,8 @@ afterDelete() which is only called after a delete().""")
 
 
 class _bizIterator(object):
-	def __init__(self, obj, returnRecords=False, reversed=False, restorePointer=False):
+	def __init__(self, obj, returnRecords=False, reversed=False, restorePointer=False,
+			flushUnchangedCursors=False):
 		"""
 		Iterates through the records in the specified bizobj by moving the current
 		record pointer sequentially through the data set. By default, the current
@@ -3275,9 +3293,12 @@ class _bizIterator(object):
 			self.__nextfunc = self._prior
 		else:
 			self.__nextfunc = self._next
+		self.flushUnchangedCursors = flushUnchangedCursors
 
 
 	def _prior(self):
+		if self.flushUnchangedCursors:
+			self.obj._flushUnchangedCursors()
 		if self.__firstpass:
 			self.__originalRowNum = self.obj.RowNumber
 			try:
@@ -3297,6 +3318,8 @@ class _bizIterator(object):
 
 
 	def _next(self):
+		if self.flushUnchangedCursors:
+			self.obj._flushUnchangedCursors()
 		if self.__firstpass:
 			self.__originalRowNum = self.obj.RowNumber
 			try:
