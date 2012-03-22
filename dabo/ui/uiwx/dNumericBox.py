@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import locale
-import decimal
 import wx
 import wx.lib.masked as masked
 import dabo
@@ -10,6 +9,7 @@ import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 import dTextBoxMixin as dtbm
 import dDataControlMixin as ddcm
+from decimal import Decimal
 from types import NoneType
 from dabo.ui import makeDynamicProperty
 from dabo.dLocalize import _
@@ -81,7 +81,7 @@ class dNumericBox(dtbm.dTextBoxMixin, masked.NumCtrl):
 	def getBlankValue(self):
 		dec = self.DecimalWidth
 		if dec > 0:
-			return decimal.Decimal("0.%s" % ("0" * dec))
+			return Decimal("0.%s" % ("0" * dec))
 		else:
 			return 0
 
@@ -194,13 +194,13 @@ class dNumericBox(dtbm.dTextBoxMixin, masked.NumCtrl):
 
 	def _getMinValue(self):
 		val = self.GetMin()
-		if val is not None and self._lastDataType is decimal.Decimal:
-			val = decimal.Decimal(str(val))
+		if val is not None and self._lastDataType is Decimal:
+			val = Decimal(str(val))
 		return val
 
 	def _setMinValue(self, val):
 		if self._constructed():
-			if isinstance(val, decimal.Decimal):
+			if isinstance(val, Decimal):
 				val = float(val)
 			self.SetMin(val)
 		else:
@@ -208,13 +208,13 @@ class dNumericBox(dtbm.dTextBoxMixin, masked.NumCtrl):
 
 	def _getMaxValue(self):
 		val = self.GetMax()
-		if val is not None and self._lastDataType is decimal.Decimal:
-			val = decimal.Decimal(str(val))
+		if val is not None and self._lastDataType is Decimal:
+			val = Decimal(str(val))
 		return val
 
 	def _setMaxValue(self, val):
 		if self._constructed():
-			if isinstance(val, decimal.Decimal):
+			if isinstance(val, Decimal):
 				val = float(val)
 			self.SetMax(val)
 		else:
@@ -276,12 +276,12 @@ class dNumericBox(dtbm.dTextBoxMixin, masked.NumCtrl):
 
 	def _getValue(self):
 		val = ddcm.dDataControlMixin._getValue(self)
-		if self._lastDataType is decimal.Decimal:
-			val = decimal.Decimal(str(val))
+		if self._lastDataType is Decimal:
+			val = Decimal(str(val))
 		elif self._lastDataType is NoneType:
 			chkVal = int(val)
-			if chkVal <> val:
-				val = decimal.Decimal(str(val))
+			if chkVal != val:
+				val = Decimal(str(val))
 			elif chkVal <> 0:
 				val = chkVal
 			else:
@@ -290,7 +290,7 @@ class dNumericBox(dtbm.dTextBoxMixin, masked.NumCtrl):
 
 	def _setValue(self, val):
 		self._lastDataType = type(val)
-		if self._lastDataType is decimal.Decimal:
+		if self._lastDataType is Decimal:
 			val = float(val)
 		elif val is None:
 			val = float(0)
@@ -385,6 +385,13 @@ class dNumericBox(dtbm.dTextBoxMixin, masked.NumCtrl):
 if __name__ == "__main__":
 	import test
 
-	class _dNumericBoxTest(dNumericBox): pass
+	class _testDecimal2(dNumericBox):
+		def initProperties(self):
+			self.Value = Decimal("1.23")
+			self.DecimalWidth = 3
 
-	test.Test().runTest(_dNumericBoxTest)
+	class _testDecimal0(dNumericBox):
+		def initProperties(self):
+			self.Value = Decimal("23")
+			self.DecimalWidth = 0
+	test.Test().runTest((_testDecimal2, _testDecimal0))
