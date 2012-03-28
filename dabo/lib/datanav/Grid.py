@@ -86,10 +86,11 @@ class Grid(dabo.ui.dGrid):
 		elif keyCode == dKeys.key_Escape and not hasModifiers:
 			self.processEsc()
 
+
 	def processEsc(self):
-		ft = getattr(self.Form, "FormType", None)
-		if ft == "PickList":
+		if getattr(self.Form, "FormType", None) in ("PickList", "Edit"):
 			self.Form.hide()
+
 
 	def _onDeleteKey(self, evt):
 		ft = getattr(self.Form, "FormType", None)
