@@ -142,6 +142,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			return
 		if special == "pref":
 			# Put the prefs item in the App Menu on Mac
+			self.Parent._mac_pref_menu_item_id = id_
 			wx.App_SetMacPreferencesMenuItemId(id_)
 
 
