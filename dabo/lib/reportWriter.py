@@ -1609,20 +1609,8 @@ class ReportWriter(object):
 
 			if s is None:
 				s = self.NoneDisplay
-			if isinstance(s, unicode):
-				pass
-			elif isinstance(s, str):
-				try:
-					s = unicode(s, "utf-8")
-				except UnicodeDecodeError:
-					try:
-						s = unicode(s, self.Encoding)
-					except UnicodeDecodeError:
-						# s must have already been encoded, and the default encoding is ascii.
-						pass
-			else:
-				s = unicode(s)
-			func(posx, 0, s)
+
+			func(posx, 0, ustr(s))
 
 		elif objType in ("Frameset", "Memo"):
 			# Frameset is deprecated; Memo is what to use now. Memo abstracts away the
