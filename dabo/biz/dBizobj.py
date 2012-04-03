@@ -2472,7 +2472,7 @@ class dBizobj(dObject):
 		The _visitedKeys set is used for optimization of cancelAll() 
 		and saveAll(), and only applies to bizobjs with no parent.
 		"""
-		if not self.Parent and self.RowCount and self.RowNumber:
+		if not self.Parent and self.RowCount:
 			self._visitedKeys.add(self.getPK())
 
 
