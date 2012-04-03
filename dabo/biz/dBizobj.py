@@ -2472,9 +2472,8 @@ class dBizobj(dObject):
 		The _visitedKeys set is used for optimization of cancelAll() 
 		and saveAll(), and only applies to bizobjs with no parent.
 		"""
-		if not self.Parent:
+		if not self.Parent and self.RowCount and self.RowNumber:
 			self._visitedKeys.add(self.getPK())
-			#print self, len(self._visitedKeys)
 
 
 	def _makeHookMethod(name, action, mainDoc=None, additionalDoc=None):
