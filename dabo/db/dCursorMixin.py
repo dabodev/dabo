@@ -188,7 +188,9 @@ class dCursorMixin(dObject):
 				rec = self._records[self.RowNumber]
 			except IndexError:
 				rec = {}
-		self._correctFieldTypesIfNeeded(rec)
+		# Prevent correction of empty rows.
+		if rec:
+			self._correctFieldTypesIfNeeded(rec)
 		if isinstance(self.KeyField, tuple):
 			if rec:
 				pk = tuple([rec[kk] for kk in self.KeyField])
