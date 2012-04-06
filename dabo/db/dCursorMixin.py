@@ -233,7 +233,7 @@ class dCursorMixin(dObject):
 		if field_val is None:
 			return field_val
 		try:
-			pythonType = self._types[field_name]
+			pythonType = self._types[field_name,None]
 		except KeyError:
 			pythonType = dabo.db.getDataType(type(field_val))
 
@@ -303,7 +303,7 @@ class dCursorMixin(dObject):
 								% {'fname':field_name, 'enc':enc})
 							return ret
 				else:
-					raise 
+					raise
 
 			rfv = repr(field_val)
 			dabo.log.error(_("%(rfv)s couldn't be converted to %(pythonType)s (field %(field_name)s)")
@@ -531,13 +531,13 @@ class dCursorMixin(dObject):
 		direction is not specified, default to ascending order. If 'cycle' is specified as the
 		direction, use the next ordering in the list [None, 'ASC', 'DESC']. The possible
 		values for 'ordr' are:
-		
+
 			None
 			"" (i.e., an empty string)
 			ASC
 			DESC
 			CYCLE
-		
+
 		Only the first three characters are significant; case is ignored.
 		"""
 		currCol = self.sortColumn
@@ -796,13 +796,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		dBizobj will automatically call this method as appropriate, but if you are
 		using dCursor without a proxy dBizobj, you'll need to manually call this
 		method after cursor.new(), and (if applicable) after cursor.genTempAutoPK().
-		
+
 		For example::
-			
+
 			cursor.new()
 			cursor.genTempAutoPK()
 			cursor.setNewFlag()
-		
+
 		"""
 		pk = None
 		if self.KeyField:
@@ -1231,7 +1231,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""
 		Creates an association in a M-M relationship. If the relationship
 		already exists, nothing changes. Otherwise, this will ensure that
-		both values exist in their respective tables, and will create the 
+		both values exist in their respective tables, and will create the
 		entry in the association table.
 		"""
 		thisTable = self.Table
@@ -1355,9 +1355,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def setDataSet(self, ds):
 		"""
-		Set the records of the cursor to the passed dDataSet instance. 
+		Set the records of the cursor to the passed dDataSet instance.
 
-		Obviously, use with care. You can't get the original records back 
+		Obviously, use with care. You can't get the original records back
 		and this is really intended for one-off read-only cursors.
 		"""
 		if not ds:
@@ -1508,12 +1508,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		beginning with '='. Literals can be of any type.
 
 		.. note::
-			
+
 		   This does NOT work with the memento framework for
 		   determining modified records. It is strongly recommended that
 		   instead of calling this directly that the bizobj.replace() method
 		   be used in any programming.
-		   
+
 		"""
 		# Make sure that the data set object has any necessary references
 		self._records.Cursor = self
@@ -2117,7 +2117,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return (recnum > -1)
 
 
-	def seek(self, val, fld=None, caseSensitive=True, near=False, movePointer=True, 
+	def seek(self, val, fld=None, caseSensitive=True, near=False, movePointer=True,
 			sort=True, incremental=False):
 		"""
 		Find the first row where the field value  matches the passed value.
@@ -2129,12 +2129,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		string comparisons are done in a case-insensitive fashion.
 
 		If sort is True (the default), then we seek to the first matching value
-		without sorting first. 
+		without sorting first.
 
 		If incremental is True (default is False), then we only compare the first
 		characters up until the length of val.
 
-		Multiple fields can be searched by sending tuples for the val and fld 
+		Multiple fields can be searched by sending tuples for the val and fld
 		arguments.
 		"""
 		ret = -1
@@ -2234,7 +2234,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if near:
 				if incremental:
 					# Match the next string only taking into account the first characters
-					# up to the length of matchStr (so that seeking for 'AB' will bring up 
+					# up to the length of matchStr (so that seeking for 'AB' will bring up
 					# 'AB-PC' instead of 'FW-PC'.
 
 					ret = len(sortList) - 1
@@ -2380,11 +2380,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		Get field information about the backend table.
 
 		Returns a list of 3-tuples, where the 3-tuple's elements are:
-		
+
 			| 0: the field name (string)
 			| 1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
 			| 2: boolean specifying whether this is a pk field.
-		
+
 		"""
 		if tableName is None:
 			# Use the default
@@ -2403,11 +2403,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		Get field information from the cursor description.
 
 		Returns a tuple of 3-tuples, where the 3-tuple's elements are:
-		
+
 			| 0: the field name (string)
 			| 1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T'), or None.
 			| 2: boolean specifying whether this is a pk field, or None.
-		
+
 		"""
 		return self.BackendObject.getFieldInfoFromDescription(self.descriptionClean)
 
@@ -3085,10 +3085,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				| 5: field scale (int or None)
 
 				This information will try to come from a few places, in order:
-				
+
 				1) The explicitly-set DataStructure property
 				2) The backend table method
-				
+
 				"""))
 
 	Encoding = property(_getEncoding, _setEncoding, None,
