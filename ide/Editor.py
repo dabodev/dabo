@@ -210,7 +210,8 @@ class EditorPageFrame(dabo.ui.dPageFrame):
 				if fileTarget:
 					self.SelectedPage = pg
 					ret = pg
-			except:
+			except StandardError as e:
+				dabo.log.error(_("Error opening file '%s': %s") % (pth, e))
 				dabo.ui.callAfter(self.removePage, pg)
 				ret = None
 		return ret
@@ -899,9 +900,7 @@ class EditorForm(dabo.ui.dForm):
 			os.chdir(fileDir)
 		txt = ed.Text
 		fname = getTempFile(ext="py")
-		f = open(fname, "w")
-		f.write(txt)
-		f.close()
+		ed.saveFile(fname, force=True, isTmp=True)
 
 		# Find out if we will use pythonw or just python:
 		if "linux" in sys.platform:
