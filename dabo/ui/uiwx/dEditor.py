@@ -93,6 +93,8 @@ bmkIconDic = {
 		"arrows": stc.STC_MARK_ARROWS,
 		"rectangle": stc.STC_MARK_SMALLRECT}
 
+# Encoding declaration pattern
+encoding_pat = re.compile(r"coding[=:]\s*([-\w.]+)")
 
 ## testing load performance:
 delay = False
@@ -1466,8 +1468,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		return fname
 
 
-	def saveFile(self, fname=None, force=False):
-		if not force and (not self.isChanged() and self._fileName):
+	def saveFile(self, fname=None, force=False, isTmp=False):
+		if not force and not isTmp and (not self.isChanged() and self._fileName):
 			# Nothing changed
 			return
 		if fname is None:
@@ -1482,32 +1484,39 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				# user canceled in the prompt: don't continue
 				return False
 		else:
-			try:
-				fModTime = os.stat(fname).st_mtime
-			except OSError:
-				fModTime = None
-			if fModTime > self._fileModTime:
-				if not dabo.ui.areYouSure(_("""The file has been modified on the disk since you opened it.
-Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButton=False):
-					return
+			if not isTmp:
+				try:
+					fModTime = os.stat(fname).st_mtime
+				except OSError:
+					fModTime = None
+				if fModTime > self._fileModTime:
+					prompt = _("""The file has been modified on the disk since you opened it.
+Do you want to overwrite it?""")
+					if not dabo.ui.areYouSure(prompt, _("File Conflict"),
+							defaultNo=True, cancelButton=False):
+						return
+		txt = self.GetText()
+		enc = self._getEncodingDeclaration(txt)
+		if enc:
+			txt = txt.encode(enc)
 		try:
-			open(fname, "wb").write(self.GetText().encode(self.Encoding))
+			open(fname, "wb").write(txt)
 		except OSError:
 			dabo.ui.stop(_("Could not save file '%s'. Please check your write permissions.") % fname)
 			return False
-		# set self._fileName, in case it was changed with a Save As
-		self._fileName = fname
-		self._fileModTime = os.stat(fname).st_mtime
-		self._clearDocument(clearText=False, clearUndoBuffer=False)
-		# Save the appearance settings
-		app = self.Application
-		app.setUserSetting("editor.fontsize", self._fontSize)
-		app.setUserSetting("editor.fontface", self._fontFace)
+		if not isTmp:
+			# set self._fileName, in case it was changed with a Save As
+			self._fileName = fname
+			self._fileModTime = os.stat(fname).st_mtime
+			self._clearDocument(clearText=False, clearUndoBuffer=False)
+			# Save the appearance settings
+			app = self.Application
+			app.setUserSetting("editor.fontsize", self._fontSize)
+			app.setUserSetting("editor.fontface", self._fontFace)
 
-		#if the file extension changed, automatically set the language if extension is known.
-		fext = os.path.splitext(fname)[1]
-		self.Language = fileFormatsDic.get(fext, self.Language)
-
+			#if the file extension changed, automatically set the language if extension is known.
+			fext = os.path.splitext(fname)[1]
+			self.Language = fileFormatsDic.get(fext, self.Language)
 		return True
 
 
@@ -1587,6 +1596,14 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 			return False
 
 
+	def _getEncodingDeclaration(self, txt):
+		"""Extract the encoding declaration, if any, and return it, or return None."""
+		try:
+			return encoding_pat.search(txt).groups()[0]
+		except (AttributeError, IndexError) as e:
+			return None
+
+
 	def openFile(self, fileSpec=None, checkChanges=True):
 		"""Open a new file and edit it."""
 		cc = True
@@ -1599,8 +1616,15 @@ Do you want to overwrite it?"""), _("File Conflict"), defaultNo=True, cancelButt
 					return False
 			try:
 				f = open(fileSpec, "rb")
-				text = f.read().decode(self.Encoding)
+				raw_text = f.read()		#.decode(self.Encoding)
 				f.close()
+				# Check for encoding
+				encoding = self._getEncodingDeclaration(raw_text)
+				if encoding:
+					text = raw_text.decode(encoding)
+				else:
+					text = raw_text
+					
 			except IOError:
 				if os.path.exists(fileSpec):
 					dabo.ui.stop(_("Could not open %s.  Please check that you have read permissions.") % fileSpec)
