@@ -1757,8 +1757,6 @@ class ClassDesigner(dabo.dApp):
 					obj = cls(frm)
 			for prop in obj.DesignerProps:
 				ret[prop] = getattr(obj, prop)
-			if issubclass(cls, dui.dColumn):
-				print "PREC", ret["Caption"], ret["Precision"]
 			self._classDefaultVals[cls] = ret
 			if cleanup:
 				exec cleanup in locals()
