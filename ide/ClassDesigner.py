@@ -625,6 +625,8 @@ class ClassDesigner(dabo.dApp):
 		self.openingClassXML = True
 		# Clear any existing superclass info
 		self._superClassInfo = {}
+		# Make sure that we have the actual path to the file
+		pth = dabo.lib.utils.resolvePathAndUpdate(pth)
 		# Add to the MRU list
 		self.addMRUPath(pth)
 		# Translate the file path into a class dictionary.
@@ -1755,7 +1757,8 @@ class ClassDesigner(dabo.dApp):
 					obj = cls(frm)
 			for prop in obj.DesignerProps:
 				ret[prop] = getattr(obj, prop)
-# 				ret[prop] = eval("obj.%s" % prop)
+			if issubclass(cls, dui.dColumn):
+				print "PREC", ret["Caption"], ret["Precision"]
 			self._classDefaultVals[cls] = ret
 			if cleanup:
 				exec cleanup in locals()

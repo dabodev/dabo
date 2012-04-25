@@ -957,6 +957,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret = columnProps
 			ret.update(captionProps)
 			ret.update(fontProps)
+			ret["Precision"] = {"type": int, "readonly": False}
 			ret["Visible"] = {"type": bool, "readonly": False}
 		elif isinstance(self, dui.dComboBox):
 			ret.update(colorProps)
