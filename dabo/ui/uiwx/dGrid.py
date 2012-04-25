@@ -96,7 +96,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if r is not None:
 			rnd = r()
 			attr.SetRenderer(rnd)
-			if r is dcol.floatRendererClass:
+			if r in (dcol.floatRendererClass, dcol.decimalRendererClass):
 				rnd.SetPrecision(dcol.Precision)
 		# Now check for alternate row coloration
 		if self.alternateRowColoring:
@@ -326,16 +326,18 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if dynamicUpdate:
 			col_obj._updateDynamicProps()
 			col_obj._updateCellDynamicProps(row)
+		ret = ""
 		if bizobj:
 			if field and (row < bizobj.RowCount):
-				ret = self.getStringValue(bizobj.getFieldVal(field, row))
-			else:
-				ret = ""
+				try:
+					ret = self.getStringValue(bizobj.getFieldVal(field, row))
+				except dException.FieldNotFoundException:
+					pass
 		else:
 			try:
 				ret = self.grid.DataSet[row][field]
 			except (TypeError, IndexError, KeyError):
-				ret = ""
+				pass
 		if ret is None and convertNoneToString:
 			ret = self.grid.NoneDisplay
 		self.__cachedVals[(row, col)] = (ret, time.time())
@@ -513,6 +515,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.defaultRenderers = {
 			"str" : self.stringRendererClass,
 			"string" : self.stringRendererClass,
+			"date" : self.stringRendererClass,
+			"datetime" : self.stringRendererClass,
 			"bool" : self.boolRendererClass,
 			"int" : self.intRendererClass,
 			"long" : self.longRendererClass,
@@ -521,6 +525,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			"list" : self.listRendererClass,
 			str : self.stringRendererClass,
 			unicode : self.stringRendererClass,
+			datetime.date : self.stringRendererClass,
+			datetime.datetime : self.stringRendererClass,
 			bool : self.boolRendererClass,
 			int : self.intRendererClass,
 			long : self.longRendererClass,
@@ -530,6 +536,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.defaultEditors = {
 			"str" : self.stringEditorClass,
 			"string" : self.stringEditorClass,
+			"date" : self.stringEditorClass,
+			"datetime" : self.stringEditorClass,
 			"bool" : self.boolEditorClass,
 			"int" : self.intEditorClass,
 			"integer" : self.intEditorClass,
@@ -539,6 +547,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			"list" : self.listEditorClass,
 			str : self.stringEditorClass,
 			unicode : self.stringEditorClass,
+			datetime.date : self.stringEditorClass,
+			datetime.datetime : self.stringEditorClass,
 			bool : self.boolEditorClass,
 			int : self.intEditorClass,
 			long : self.longEditorClass,
@@ -555,6 +565,14 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._isConstructed = True
 		super(dColumn, self)._afterInit()
 		dabo.ui.callAfter(self._restoreFontZoom)
+
+
+	def _setRenderer(self):
+		try:
+			typ = type(self.Value)
+		except dException.FieldNotFoundException:
+			typ = None
+		self._rendererClass = self.defaultRenderers.get(typ, self.stringRendererClass)
 
 
 	@dabo.ui.deadCheck
@@ -781,13 +799,11 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _updateRenderer(self):
 		"""The Field, DataType, or CustomRenderer has changed: set in the attr"""
-		rendClass = self.CustomRendererClass
-		if rendClass is None:
-			rendClass = self.defaultRenderers.get(self.DataType)
+		self._setRenderer()
+		rendClass = self.CustomRendererClass or	self.RendererClass
 		if rendClass is None:
 			renderer = None
 		else:
-			self._rendererClass = rendClass
 			renderer = rendClass()
 		self._gridColAttr.SetRenderer(renderer)
 
@@ -1357,6 +1373,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setPrecision(self, val):
 		if self._constructed():
 			self._precision = val
+			dabo.ui.callAfterInterval(50, self.Parent.refresh)
 		else:
 			self._properties["Precision"] = val
 
@@ -1402,6 +1419,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _getValue(self):
 		grid = self.Parent
+		if grid is None:
+			return None
 		biz = grid.getBizobj()
 		if self.DataField:
 			if biz and (grid.CurrentRow < biz.RowCount):
@@ -1669,7 +1688,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			to their relative Order. (int)""") )
 
 	Precision = property(_getPrecision, _setPrecision, None,
-			_("Number of decimal places to display for float values  (int)"))
+			_("Number of decimal places to display for float and decimal values  (int)"))
 
 	RendererClass = property(_getRendererClass, None, None,
 			_("""Returns the renderer class used for cells in the column. This will be
@@ -1927,6 +1946,13 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.initHeader()
 		# Make sure that the columns are sized properly
 		dabo.ui.callAfter(self._updateColumnWidths)
+
+
+	@dabo.ui.deadCheck
+	def _afterInitAll(self):
+		super(dGrid, self)._afterInitAll()
+		for col in self.Columns:
+			col._setRenderer()
 
 
 	def _initEvents(self):
