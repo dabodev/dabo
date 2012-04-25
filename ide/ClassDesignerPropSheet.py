@@ -608,14 +608,13 @@ class PropSheet(dabo.ui.dPanel):
 		dlg.Centered = True
 		dlg.show()
 		if dlg.Accepted and dlg.Changed:
-			obj.HotKey = dlg.KeyText
-			# Set the sub-props
-			obj.HotKeyChar = dlg.KeyChar.upper()
-			obj.HotKeyControl = dlg.Ctrl
-			obj.HotKeyShift = dlg.Shift
-			obj.HotKeyAlt = dlg.Alt
-			self.updateVal(prop, dlg.KeyText, unicode)
-			self.propGrid.CurrentValue = dlg.KeyText
+			keyText = dlg.KeyText
+			if keyText is None:
+				keyText = ""
+			# Setting the HotKey prop should update the related sub-props.
+			obj.HotKey = keyText
+			self.updateVal(prop, keyText, unicode)
+			self.propGrid.CurrentValue = keyText
 			self.propGrid.refresh()
 		dlg.release()
 
