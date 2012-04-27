@@ -1397,6 +1397,9 @@ def createMenuBar(src, form=None, previewFunc=None):
 				cap = menu._extractKey(itmatts, "Caption")
 				hk = menu._extractKey(itmatts, "HotKey")
 				pic = menu._extractKey(itmatts, "Icon")
+				if pic == "None":
+					# Can be the string 'None' if changed in the Menu Designer
+					pic = None
 				special = menu._extractKey(itmatts, "special", None)
 				binding = previewFunc
 				fnc = menu._extractKey(itmatts, "Action", "")
@@ -1419,10 +1422,15 @@ def createMenuBar(src, form=None, previewFunc=None):
 		mnd = src
 	else:
 		try:
-			src = utils.resolvePathAndUpdate(src)
-		except IOError, e:
-			stop(e, _("File Not Found"))
-			return
+			# See if the src is a JSON-ified dict
+			src = dabo.lib.jsonDecode(src)
+		except ValueError:
+			# Not JSON
+			try:
+				src = utils.resolvePathAndUpdate(src)
+			except IOError, e:
+				stop(e, _("File Not Found"))
+				return
 		mnd = dabo.lib.xmltodict.xmltodict(src)
 	mb = dabo.ui.dMenuBar()
 	for mn in mnd["children"]:
