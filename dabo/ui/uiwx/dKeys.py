@@ -143,7 +143,18 @@ arrowKeys = {
 		"up" : key_Up,
 		"down" : key_Down,
 		"left" : key_Left,
-		"right" : key_Right }
+		"right" : key_Right
+		}
+
+numpadArrowKeys = {
+		"numpad_up": key_Numpad_up,
+		"numpad_down": key_Numpad_down,
+		"numpad_left": key_Numpad_left,
+		"numpad_right": key_Numpad_right,
+		}
+
+allArrowKeys = arrowKeys.copy()
+allArrowKeys.update(numpadArrowKeys)
 
 modifierStrings = {
 	"alt": mod_Alt,
