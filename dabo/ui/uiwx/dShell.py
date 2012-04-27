@@ -25,7 +25,8 @@ class _LookupPanel(dabo.ui.dPanel):
 		self.needRefilter = False
 		self.lblSearch = dabo.ui.dLabel(self)
 		self.lstMatch = dabo.ui.dListBox(self, ValueMode="string", Choices=[],
-				OnMouseLeftDoubleClick=self.selectCmd, OnKeyChar=self.onListKey)
+				MultipleSelect=True, OnMouseLeftDoubleClick=self.selectCmd,
+				OnKeyChar=self.onListKey)
 		self.Sizer = dabo.ui.dSizer("v", DefaultBorder=4)
 		self.Sizer.append(self.lblSearch, halign="center")
 		self.Sizer.append(self.lstMatch, "x", 1)
@@ -86,21 +87,30 @@ class _LookupPanel(dabo.ui.dPanel):
 	def refilter(self):
 		"""Display only those commands that contain the search string"""
 		self.DisplayedHistory = self.History.filterByExpression(" '%s' in cmd.lower() " % self.currentSearch.lower())
-		sel = self.lstMatch.Value
-		self.lstMatch.Choices = [rec["cmd"] for rec in self.DisplayedHistory]
+		lst = self.lstMatch
+		sel = lst.Value
+		lst.Choices = [rec["cmd"] for rec in self.DisplayedHistory]
 		if sel:
 			try:
-				self.lstMatch.Value = sel
+				lst.Value = sel
 			except ValueError:
-				self._selectFirst()
+				self._selectLast()
 		else:
-			self._selectFirst()
+			self._selectLast()
+		self._selectLast()
 
 
 	def _selectFirst(self):
 		"""Select the first item in the list, if available."""
 		if len(self.lstMatch.Choices):
 			self.lstMatch.PositionValue = 0
+
+
+	def _selectLast(self):
+		"""Select the first item in the list, if available."""
+		num = len(self.lstMatch.Choices)
+		if num:
+			self.lstMatch.PositionValue = num - 1
 
 
 	def _getHistory(self):
@@ -113,7 +123,7 @@ class _LookupPanel(dabo.ui.dPanel):
 			self._history = self._displayedHistory = val
 			try:
 				self.lstMatch.Choices = [rec["cmd"] for rec in self.DisplayedHistory]
-				self._selectFirst()
+				self._selectLast()
 			except AttributeError:
 				pass
 		else:
@@ -159,14 +169,6 @@ class dShell(dControlMixin, wx.py.shell.Shell):
 		preClass = wx.py.shell.Shell
 		dControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
-
-
-	def _afterInit(self):
-		super(dShell, self)._afterInit()
-		# Need to set the properties to ensure that the changes are propagated to the
-		# underlying STC control.
-#		self.FontFace = self._fontFace
-#		self.FontSize = self._fontSize
 
 
 	@dabo.ui.deadCheck
@@ -522,7 +524,7 @@ Ctrl-Up/Down to scroll through history."""))
 			cmds.append({"stamp": k, "cmd": ck.get(k)})
 		dsu = dabo.db.dDataSet(cmds)
 		if dsu:
-			ds = dsu.sort("stamp", "desc")
+			ds = dsu.sort("stamp", "asc")
 			return ds
 		else:
 			return dsu
@@ -568,8 +570,11 @@ Ctrl-Up/Down to scroll through history."""))
 		hp.clear()
 		fp.show()
 		if hp.ok:
-			cmd = hp.getCmd()
-			if cmd:
+			cmds = hp.getCmd()
+			for num, cmd in enumerate(cmds):
+				# For all but the first, we need to process the previous command.
+				if num:
+					self.shell.processLine()
 				try:
 					pos = self.shell.history.index(cmd)
 				except ValueError:
@@ -724,7 +729,7 @@ Ctrl-Up/Down to scroll through history."""))
 		editMenu = self.MenuBar.getMenu("base_edit")
 		if editMenu.Children:
 			editMenu.appendSeparator()
-		editMenu.append(_("Clear O&utput"), HotKey="Ctrl+Back",
+		editMenu.append(_("nClear O&utput"), HotKey="Ctrl+Back",
 				ItemID="edit_clearoutput",
 				OnHit=self.onClearOutput, help=_("Clear Output Window"))
 
