@@ -27,6 +27,7 @@ class dFormMixin(pm.dPemMixin):
 		self._idleRefreshInterval = 1000
 		self._drawSizerChildren = False
 		self._statusBarClass = dabo.ui.dStatusBar
+		self._windowStateSet = False
 
 		# Extract the menu definition file, if any
 		self._menuBarFile = self._extractKey((properties, attProperties, kwargs),
@@ -180,11 +181,12 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def Maximize(self, maximize=True, *args, **kwargs):
-		# On Mac MDI Child Frames, Maximize(False) erroneously maximizes. Not sure
-		# how to restore a maximized frame in this case, but at least we can catch
-		# the case where the window isn't maximized already.
-		if self.MDI and sys.platform.startswith("darwin") and not maximize \
-				and not self.IsMaximized():
+		"""On Mac MDI Child Frames, Maximize(False) erroneously maximizes. Not sure
+		how to restore a maximized frame in this case, but at least we can catch
+		the case where the window isn't maximized already.
+		"""
+		if i(self.MDI and sys.platform.startswith("darwin") and not maximize
+				and not self.IsMaximized()):
 			return
 		super(dFormMixin, self).Maximize(maximize, *args, **kwargs)
 
@@ -196,9 +198,7 @@ class dFormMixin(pm.dPemMixin):
 		tb = None
 		if self.Form:
 			tb = self.Form.ToolBar
-		if sys.platform.startswith("win") \
-				and self.MDI \
-				and tb:
+		if sys.platform.startswith("win") and self.MDI and tb:
 			top -= tb.Height
 		super(dFormMixin, self).SetPosition((left, top))
 
@@ -258,7 +258,7 @@ class dFormMixin(pm.dPemMixin):
 		if not self._designerMode:
 			self.saveSizeAndPosition()
 
-		force = evt.EventData["force"]
+		force = evt.EventData.get("force", False)
 		if not force:
 			if self._beforeClose(evt) == False:
 				evt.stop()
@@ -567,7 +567,8 @@ class dFormMixin(pm.dPemMixin):
 			self.Left = max(0, self.Left)
 			self.Top = max(minTop, self.Top)
 
-		self.WindowState = state
+		if not self._windowStateSet:
+			self.WindowState = state
 
 
 	def saveSizeAndPosition(self):
@@ -1120,6 +1121,9 @@ class dFormMixin(pm.dPemMixin):
 	def _setWindowState(self, value):
 		if self._constructed():
 			lowvalue = ustr(value).lower().strip()
+			vis = self.Visible
+			self.lockDisplay()
+			self.Visible = True
 			if lowvalue == "normal":
 				if self.IsFullScreen():
 					self.ShowFullScreen(False)
@@ -1137,8 +1141,12 @@ class dFormMixin(pm.dPemMixin):
 			elif lowvalue == "fullscreen":
 				self.ShowFullScreen(True)
 			else:
+				self.unlockDisplay()
 				raise ValueError("The only possible values are "
 								"'Normal', 'Minimized', 'Maximized', and 'FullScreen'")
+			self._windowStateSet = True
+			self.Visible = vis
+			self.unlockDisplay()
 		else:
 			self._properties["WindowState"] = value
 
