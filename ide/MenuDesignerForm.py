@@ -4,6 +4,7 @@
 import codecs
 import os
 
+
 import dabo
 dabo.ui.loadUI("wx")
 
@@ -12,9 +13,8 @@ from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 import dabo.lib.xmltodict as xtd
 from ClassDesignerExceptions import PropertyUpdateException
-from MenuHyperLink import MenuBarHyperLink
+import MenuPanel
 from MenuDesignerPropForm import MenuPropForm
-
 
 
 class MenuDesignerForm(dabo.ui.dForm):
@@ -25,20 +25,26 @@ class MenuDesignerForm(dabo.ui.dForm):
 		self._propForm = None
 		self._propSheet = None
 		self._inPropertyEditing = False
-		kwargs["MenuBarFile"] = "MenuDesignerMenu.mnxml"
+		appDir = self.Application.HomeDirectory
+		kwargs["MenuBarFile"] = os.path.join(appDir, "MenuDesignerMenu.mnxml")
 		self.Controller = self
 		super(MenuDesignerForm, self).__init__(*args, **kwargs)
 		self.Caption = "Dabo Menu Designer"
 		self.mainPanel = dabo.ui.dPanel(self)
 		self.Sizer.append1x(self.mainPanel)
-		self.mainMenubarLink = None
+		self.topLevelMenuBar = None
 		sz = self.mainPanel.Sizer = dabo.ui.dSizerV()
+		self.initMenuBar()
+		self._dragObject = None
+		self._dragImage = None
+		self._dragOrigPos = (0, 0)
+		self._dragObjOffset = (0, 0)
+		self._dragDrawPos = (0, 0)
+		self.bindEvent(dEvents.MouseMove, self.handleMouseMove)
 		self.previewButton = btn = dabo.ui.dButton(self.mainPanel,
 				Caption="Preview", OnHit=self.onPreview)
 		sz.append(btn, border=10, halign="center")
-		sz.append(dabo.ui.dLine(self.mainPanel), "x", border=10)
-		mb_link = self.initMenuBar()
-		self.layout()
+		dabo.ui.callAfter(self.layout)
 
 
 	def afterInitAll(self):
@@ -47,53 +53,113 @@ class MenuDesignerForm(dabo.ui.dForm):
 		if not self._menuFile:
 			# No menu file was opened; create a base menu
 			self.createBaseMenu()
-		self.Selection = self.mainMenubarLink
+		try:
+			self.topLevelMenuBar.childItems[0].select()
+		except IndexError:
+			self.topLevelMenuBar.select()
+		dabo.ui.callAfter(self.layout)
 		dabo.ui.callAfter(self.bringToFront)
 
 
 	def initMenuBar(self, addBaseMenu=False):
 		"""Start from scratch with a basic menu bar."""
 		try:
-			self.mainMenubarLink.release()
+			self.topLevelMenuBar.release()
 		except AttributeError:
 			pass
-		try:
-			self.menubarPanel.release()
-		except AttributeError:
-			pass
-		mbp = self.menubarPanel = dabo.ui.dPanel(self.mainPanel, BackColor="lightgrey")
-		mbp.Controller = self
-		mbp.menus = []
-		self.mainPanel.Sizer.append1x(mbp, border=30)
-		mbar = self.mainMenubarLink = MenuBarHyperLink(mbp, Caption="MenuBar",
+		self.mainPanel.BackColor = "darkgrey"
+		mbar = self.topLevelMenuBar = MenuPanel.MenuBarPanel(self.mainPanel, Caption="- MenuBar -",
 				Controller=self)
-		mbsz = mbp.Sizer = dabo.ui.dSizerV()
-		mbsz.append(mbar)
-		mbp.menuSizer = dabo.ui.dSizerH()
-		mbsz.append1x(mbp.menuSizer)
+
+		self.mainPanel.Sizer.append1x(mbar)
 		if addBaseMenu:
 			self.createBaseMenu()
 		return mbar
 
 
+	def handleMouseMove(self, evt):
+		# Not implemented yet, so just return
+		return
+		if evt.dragging:
+			self.handleMouseDrag(evt)
+
+
+	def processLeftUp(self, obj, evt):
+		# Not implemented yet
+		return
+		# When I have time to finish implementing drag n drop...
+		if self.DragObject:
+			drobj = self.DragObject
+			cont = drobj.Parent
+			print "ORIG", self._dragOrigPos
+			print "CONT TL:", cont.Position
+			print "CONT BR:", (cont.Right, cont.Bottom)
+			mp = dabo.ui.getMousePosition()
+			print "NOW", mp
+			print "NOW FMP", dabo.ui.getFormMousePosition()
+			print "FORM MP", drobj.formCoordinates(mp)
+			print "FORM CONT TL", cont.formCoordinates(cont.Position)
+			print "FORM CONT BR", cont.formCoordinates((cont.Right, cont.Bottom))
+
+			objat = dabo.ui.getObjectAtPosition(mp)
+			print "OBJ AT", objat
+			print "VIS", self._dragImage.Visible
+			print "PARENT", objat.Parent is self.DragObject.Parent
+			print "GPAR", objat.Parent.Parent is self.DragObject.Parent
+			try: print objat.Caption
+			except: print "no cap"
+
+			self.DragObject = None
+			if self._dragImage:
+				self.removeDrawnObject(self._dragImage)
+				self._dragImage = None
+			self.clear()
+			self.refresh()
+
+
+	def handleMouseDrag(self, evt):
+		# The EventObject is the object being dragged over.
+		obj = evt.EventObject
+		if evt.dragging:
+			if not self.DragObject:
+				self.DragObject = obj
+			if self._dragImage:
+				self._dragImage.Visible = (obj.Parent is self.DragObject.Parent)
+				auto = self.autoClearDrawings
+				self.autoClearDrawings = True
+				currX, currY = self.getMousePosition()
+				drawX = currX - self._dragObjOffset[0]
+				drawY = currY - self._dragObjOffset[1]
+				self._dragImage.Xpos = drawX
+				self._dragImage.Ypos = drawY
+				self._redraw()
+				self.autoClearDrawings = auto
+		else:
+			self.DragObject = None
+
+
+	def treeSelect(self):
+		dabo.ui.stop("Not implemented yet - sorry!")
+
+
 	def createBaseMenu(self):
-		"""This creates a base menu."""
+		"""Creates a base menu with common menuitems."""
 		menu_dict = self._createBaseMenuDict()
 		self.makeMenuBar(menu_dict)
-		self._savedState = self._getState()
+		dabo.ui.callAfter(self.saveState)
 
 
 	def makeMenuBar(self, dct=None):
-		lnk = self.mainMenubarLink
+		mb = self.topLevelMenuBar
 		if dct is None:
-			lnk.showTopLevel()
+			mb.showTopLevel()
 		else:
-			lnk.createMenuFromDict(dct)
+			mb.createMenuFromDict(dct)
 		self.layout()
 
 
 	def clearMenus(self):
-		self.menubarPanel.menus = []
+		self.topLevelMenuBar.menus = []
 
 
 	def getPropDictForObject(self, obj):
@@ -128,23 +194,29 @@ class MenuDesignerForm(dabo.ui.dForm):
 				self.Sizer.append1x(mp)
 				sz = mp.Sizer = dabo.ui.dSizer("v")
 				sz.appendSpacer(30)
-				self.lblResult = dabo.ui.dLabel(mp, Caption="Menu Selection: \n ", FontBold=True,
+				self.lblResult = dabo.ui.dLabel(mp, Caption="Menu Selection: \n\n ", FontBold=True,
 						ForeColor="darkred", AutoResize=True, Alignment="Center")
-				self.lblResult.FontSize += 4
+				self.lblResult.FontSize += 2
 				sz.append(self.lblResult, "x", halign="center", border=10)
 				btn = dabo.ui.dButton(mp, Caption="Close Menu Preview",
-						OnHit=self.onDeactivate)
+						OnHit=self.onClose)
 				sz.append(btn, halign="center", border=30)
 				mp.fitToSizer()
-			def onDeactivate(self, evt):
+				dabo.ui.callAfter(self.refresh)
+			def onClose(self, evt):
 				self.release()
 			def notify(self, evt):
 				itm = evt.EventObject
-				cap = "Menu Selection: %s\n" % itm.Caption
-				fncText = itm._bindingText
-				if fncText:
-					cap = "%sFunction: %s" % (cap, fncText)
-				self.lblResult.Caption = cap
+				pth = [itm.Caption]
+				mp = itm.Parent
+				while mp and not isinstance(mp, dabo.ui.dMenuBar):
+					pth.append(mp.Caption)
+					mp = mp.Parent
+				pth.reverse()
+				cap = " - ".join(pth)
+				fncText = "Function: %s" % itm._bindingText
+				seltxt = "Menu Selection: %s\n\n%s" % (cap, fncText)
+				self.lblResult.Caption = seltxt
 				self.layout()
 
 		propDict = self._getState()
@@ -159,7 +231,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 		iconPath = "themes/tango/16x16"
 		sep = {"attributes": {},
 				"children": [],
-				"name": "SeparatorHyperLink"}
+				"name": "SeparatorPanel"}
 
 		m_new = {"attributes": {
 				"Caption": _("&New"),
@@ -169,7 +241,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "file_new",
 				"Icon": "new"},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_open = {"attributes": {
 				"Caption": _("&Open"),
 				"Action": "form.onOpen",
@@ -178,7 +250,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "file_open",
 				"Icon": "open"},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_close = {"attributes": {
 				"Caption": _("&Close"),
 				"Action": "form.onClose",
@@ -187,7 +259,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "file_close",
 				"Icon": "close"},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_save = {"attributes": {
 				"Caption": _("&Save"),
 				"Action": "form.onSave",
@@ -196,7 +268,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "file_save",
 				"Icon": "save"},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_saveas = {"attributes": {
 				"Caption": _("Save &As"),
 				"Action": "form.onSaveAs",
@@ -205,7 +277,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "file_saveas",
 				"Icon": "saveas"},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_cmd = {"attributes": {
 				"Caption": _("Command Win&dow"),
 				"Action": "app.onCmdWin",
@@ -214,7 +286,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "file_commandwin",
 				"Icon": "%s/apps/utilities-terminal.png" % iconPath},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_quit = {"attributes": {
 				"Caption": _("&Quit"),
 				"Action": "app.onFileExit",
@@ -223,13 +295,13 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "file_quit",
 				"Icon": "quit"},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		file_menu = {"attributes": {
 				"Caption": u"File",
 				"HelpText": "",
 				"MRU": True},
 				"children": [m_new, m_open, m_close, m_save, m_saveas, sep, m_cmd, sep, m_quit],
-				"name": "MenuHyperLink"}
+				"name": "MenuPanel"}
 
 		m_undo = {"attributes": {
 				"Caption": _("&Undo"),
@@ -239,7 +311,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "edit_",
 				"Icon": "undo"},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_redo = {"attributes": {
 				"Caption": _("&Redo"),
 				"Action": "app.onEditRedo",
@@ -248,7 +320,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "edit_undo",
 				"Icon": "redo"},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_copy = {"attributes": {
 				"Caption": _("&Copy"),
 				"Action": "app.onEditCopy",
@@ -257,7 +329,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "edit_copy",
 				"Icon": "copy"},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_cut = {"attributes": {
 				"Caption": _("Cu&t"),
 				"Action": "app.onEditCut",
@@ -266,7 +338,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "edit_cut",
 				"Icon": "cut"},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_paste = {"attributes": {
 				"Caption": _("&Paste"),
 				"Action": "app.onEditPaste",
@@ -275,7 +347,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "edit_paste",
 				"Icon": "paste"},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_selectall = {"attributes": {
 				"Caption": _("Select &All"),
 				"Action": "app.onEditSelectAll",
@@ -284,7 +356,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "edit_selectall",
 				"Icon": None},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_find = {"attributes": {
 				"Caption": _("&Find / Replace"),
 				"Action": "app.onEditFind",
@@ -293,7 +365,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "edit_find",
 				"Icon": "find"},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_findagain = {"attributes": {
 				"Caption": _("Find A&gain"),
 				"Action": "app.onEditFindAgain",
@@ -302,14 +374,14 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "edit_findagain",
 				"Icon": None},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		edit_menu = {"attributes": {
 				"Caption": u"Edit",
 				"HelpText": "",
 				"MRU": False},
 				"children": [m_undo, m_redo, sep, m_cut, m_copy, m_paste, sep, m_selectall,
 					sep, m_find, m_findagain],
-				"name": "MenuHyperLink"}
+				"name": "MenuPanel"}
 
 		m_zoomin = {"attributes": {
 				"Caption": _("&Increase Font Size"),
@@ -319,16 +391,16 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "view_zoomin",
 				"Icon": None},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_zoomout = {"attributes": {
 				"Caption": _("&Decrease Font Size"),
 				"Action": "app.fontZoomOut",
 				"HelpText": "",
-				"HotKey": "Ctrl+r-+",
+				"HotKey": "Ctrl+-",
 				"ItemID": "view_zoomout",
 				"Icon": None},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		m_zoomnormal = {"attributes": {
 				"Caption": _("&Normal Font Size"),
 				"Action": "app.fontZoomNormal",
@@ -337,53 +409,113 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"ItemID": "view_zoomnormal",
 				"Icon": None},
 				"children": [],
-				"name": "MenuItemHyperLink"}
+				"name": "MenuItemPanel"}
 		view_menu = {"attributes": {
 				"Caption": u"View",
 				"HelpText": "",
 				"MRU": False},
 				"children": [m_zoomin, m_zoomout, m_zoomnormal],
-				"name": "MenuHyperLink"}
+				"name": "MenuPanel"}
 
 		help_menu = {"attributes": {
 				"Caption": u"Help",
 				"HelpText": "",
 				"MRU": False},
 				"children": [],
-				"name": "MenuHyperLink"}
+				"name": "MenuPanel"}
 
 		return {"attributes": {},
-				"name": "MenuBarHyperLink",
+				"name": "MenuBarPanel",
 				"children": [file_menu, edit_menu, view_menu, help_menu],
 				}
 
 
-	def appendMenu(self, caption, useMRU=False):
-		mn = menubarPanel(self, Caption=caption, MRU=useMRU, Visible=True)
-		self.Sizer.append(mn)
-		self.fit()
-		self.Controller.updateLayout()
-		return mn
+	def onAppendMenu(self, evt):
+		"""Handler for the menu item selection."""
+		cap = dabo.ui.getString(_("Caption?"))
+		if cap:
+			return self.topLevelMenuBar.appendMenu(cap)
 
 
-	def insertMenu(self, pos, caption, useMRU=False):
-		mn = menubarPanel(self, Caption=caption, MRU=useMRU)
-		self.Sizer.insert(pos, mn)
-		self.fit()
-		self.Controller.updateLayout()
-		return mn
+	def onAppendMenuItem(self, evt):
+		"""Handler for the menu item selection."""
+		menu = None
+		sel = self.Selection
+		while sel:
+			if isinstance(sel, MenuPanel.MenuPanel):
+				menu = sel
+				break
+			sel = sel.MenuParent
+		if not menu:
+			dabo.ui.stop(_("Please select a menu first."))
+			return
+		cap = dabo.ui.getString(_("Caption?"))
+		if cap:
+			return menu.appendMenuItem(cap)
+
+
+	def onAppendSeparator(self, evt):
+		"""Handler for the menu item selection."""
+		menu = None
+		sel = self.Selection
+		while sel:
+			if isinstance(sel, MenuPanel.MenuPanel):
+				menu = sel
+				break
+			sel = sel.MenuParent
+		if not menu:
+			dabo.ui.stop(_("Please select a menu first."))
+			return
+		return menu.appendSeparator()
+
+
+	def onMoveItemUp(self, evt):
+		self.Controller.Selection.onMoveUp(evt)
+
+
+	def onMoveItemDown(self, evt):
+		self.Controller.Selection.onMoveDown(evt)
+
+
+	def onDeleteSelection(self, evt):
+		sel = self.Controller.Selection
+		itemType = {MenuPanel.MenuPanel: "menu",
+				MenuPanel.MenuItemPanel: "menu item",
+				MenuPanel.SeparatorPanel: "separator"}.get(sel.__class__)
+		if itemType is None:
+			# Not a valid selection to delete
+			dabo.log.info(_("The current selection cannot be deleted"))
+			return
+		cap = sel.Caption
+		if itemType == "separator":
+			msg = "Are you sure you want to delete this separator?"
+		else:
+			msg = "Are you sure you want to delete the %(itemType)s '%(cap)s'?" % locals()
+		if dabo.ui.areYouSure(msg, "Delete", defaultNo=True, cancelButton=False):
+			sel.onDelete(evt)
+
+
+	def copyAsJSON(self, evt):
+		"""
+		Places a JSON-ified copy of the dict representing the current
+		state of the menu design onto the clipboard.
+		"""
+		dct = self._getState()
+		jsonDct = dabo.lib.jsonEncode(dct)
+		self.Application.copyToClipboard(jsonDct)
 
 
 	def getObjectHierarchy(self, parent=None, level=0):
-		"""Returns a list of 2-tuples representing the structure of
+		"""
+		Returns a list of 2-tuples representing the structure of
 		the objects on this form. The first element is the nesting level,
 		and the second is the object. The objects are in the order
 		created, irrespective of sizer position.
 		"""
 		if parent is None:
-			parent = self.menubar
+			parent = self.topLevelMenuBar
 		ret = [(level, parent)]
-		for kid in parent.Children:
+		for kid in parent.childItems:
 			ret += self.getObjectHierarchy(kid, level+1)
 		return ret
 
@@ -401,7 +533,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 
 
 	def _getState(self):
-		return self.mainMenubarLink.getDesignerDict()
+		return self.topLevelMenuBar.getDesignerDict()
 
 
 	def beforeClose(self, evt):
@@ -452,7 +584,38 @@ class MenuDesignerForm(dabo.ui.dForm):
 
 
 	def onSaveAs(self, evt):
-		print "SaveAs"
+		dabo.ui.stop("SaveAs Not Implemented Yet")
+
+
+	def onKeyChar(self, evt):
+		"""Trap the arrow keys and use them for navigation, if possible."""
+		kc = evt.keyCode
+		dk = dabo.ui.dKeys
+		if ((kc not in dk.allArrowKeys.values()) or
+				any((evt.shiftDown, evt.altDown, evt.controlDown, evt.metaDown))):
+			# Only handle unmodified arrow keys.
+			return	
+		# Necessary to prevent duplicate key events.
+		evt.stop()
+		curr = self.Controller.Selection
+		sz = curr.ControllingSizer
+		pos = curr.getPositionInSizer()
+		plusKeys = {"Horizontal": (dk.key_Right, dk.key_Numpad_right),
+				"Vertical": (dk.key_Down, dk.key_Numpad_down)}[sz.Orientation]
+		minusKeys = {"Horizontal": (dk.key_Left, dk.key_Numpad_left),
+				"Vertical": (dk.key_Up, dk.key_Numpad_up)}[sz.Orientation]
+		if kc in plusKeys:
+			change = 1
+		elif kc in minusKeys:
+			change = -1
+		else:
+			# Not an appropriate arrow key for the orientation
+			return
+		try:
+			self.Controller.select(sz.ChildObjects[pos + change])
+		except IndexError:
+			# Will happen when the last item is selected; wrap to first.
+			self.Controller.select(sz.ChildObjects[0])
 
 
 	def openFile(self, pth):
@@ -500,13 +663,12 @@ class MenuDesignerForm(dabo.ui.dForm):
 
 	def onShowPanel(self, menu):
 		"""Called when code makes a menu panel visible."""
-		self.menubar.hideAllBut(menu)
+		self.topLevelMenuBar.hideAllBut(menu)
 
 
 	def select(self, obj):
 		if obj is self._selection:
 			return
-		self.lockDisplay()
 		if self._selection is not None:
 			self._selection.Selected = False
 		self._selection = obj
@@ -517,7 +679,6 @@ class MenuDesignerForm(dabo.ui.dForm):
 	def _selectAfter(self):
 		self.update()
 		self.refresh()
-		self.unlockDisplay()
 
 
 	def startPropEdit(self):
@@ -540,6 +701,30 @@ class MenuDesignerForm(dabo.ui.dForm):
 		return s.replace(sl, sl+sl).replace(qt, sl+qt)
 
 
+	def _getDragObject(self):
+		return self._dragObject
+
+	def _setDragObject(self, val):
+		if val is self._dragObject:
+			# redundant
+			return
+		# If there is an existing object, make it visible again
+		if self._dragObject:
+			self._dragObject.Visible = True
+			if self._dragImage:
+				self.removeDrawnObject(self._dragImage)
+				self._dragImage = None
+			self._dragOrigPos = (0, 0)
+		if val is not None:
+			# Save the original position of the mouse down
+			(formX, formY) = self._dragOrigPos = self.getMousePosition()
+			(objX, objY) = self._dragObjOffset = val.getMousePosition()
+			# Create an image of the control
+			self._dragImage = self.drawBitmap(val.getCaptureBitmap(),
+					x=formX-objX, y=formY-objY)
+		self._dragObject = val
+
+
 	def _getPropForm(self):
 		noProp = self._propForm is None
 		if not noProp:
@@ -550,7 +735,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				noProp = True
 		if noProp:
 			pf = self._propForm = MenuPropForm(self, Visible=False,
-					Controller=self, MenuBarFile=self.MenuBarFile)
+					MenuBarFile=self.MenuBarFile, Controller=self)
 			pf.restoreSizeAndPosition()
 			self.updateLayout()
 			pf.Visible = True
@@ -570,6 +755,9 @@ class MenuDesignerForm(dabo.ui.dForm):
 		self.select(val)
 
 
+	DragObject = property(_getDragObject, _setDragObject, None,
+			_("Reference to the object being dragged on the form  (MenuPanel/MenuItemPanel)"))
+
 	PropForm = property(_getPropForm, None, None,
 			_("""Reference to the form that contains the PropSheet
 			object (MenuPropForm)"""))
@@ -579,4 +767,3 @@ class MenuDesignerForm(dabo.ui.dForm):
 
 	Selection = property(_getSelection, _setSelection, None,
 			_("Currently selected item  (CaptionPanel)"))
-

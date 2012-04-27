@@ -1,36 +1,44 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<MenuBarHyperLink ItemID="main_menubarlink" Caption="MenuBar" HelpText="" MRU="False">
-	<MenuHyperLink ItemID="None" Caption="File" HelpText="" MRU="True">
-		<MenuItemHyperLink ItemID="file_new" HotKey="Ctrl+N" Caption="&amp;&amp;New" HelpText="" Action="form.Controller.onNew" Icon="new"></MenuItemHyperLink>
-		<MenuItemHyperLink ItemID="file_open" HotKey="Ctrl+O" Caption="&amp;&amp;Open" HelpText="" Action="form.Controller.onOpen" Icon="open"></MenuItemHyperLink>
-		<MenuItemHyperLink ItemID="file_close" HotKey="Ctrl+W" Caption="&amp;&amp;Close" HelpText="" Action="form.Controller.onClose" Icon="close"></MenuItemHyperLink>
-		<MenuItemHyperLink ItemID="file_save" HotKey="Ctrl+S" Caption="&amp;&amp;Save" HelpText="" Action="form.Controller.onSave" Icon="save"></MenuItemHyperLink>
-		<MenuItemHyperLink ItemID="file_saveas" HotKey="" Caption="Save &amp;&amp;As" HelpText="" Action="form.Controller.onSaveAs" Icon="saveas"></MenuItemHyperLink>
-		<SeparatorHyperLink ItemID="None" Caption="----------------------------------------" HelpText="" MRU="False"></SeparatorHyperLink>
-		<MenuItemHyperLink ItemID="file_commandwin" HotKey="Ctrl+D" Caption="Command Win&amp;&amp;dow" HelpText="" Action="app.onCmdWin" Icon="themes/tango/16x16/apps/utilities-terminal.png"></MenuItemHyperLink>
-		<MenuItemHyperLink ItemID="file_objectinspector" HotKey="Ctrl+Shift+I" Caption="Object &amp;&amp;Inspector" HelpText="Open the Object Inspector tool" Action="app.onObjectInspectorWin" Icon=""></MenuItemHyperLink>
-		<SeparatorHyperLink ItemID="None" Caption="----------------------------------------" HelpText="" MRU="False"></SeparatorHyperLink>
-		<MenuItemHyperLink ItemID="file_quit" HotKey="Ctrl+Q" Caption="&amp;&amp;Quit" HelpText="" Action="app.onFileExit" Icon="quit"></MenuItemHyperLink>
-	</MenuHyperLink>
-	<MenuHyperLink ItemID="None" Caption="Edit" HelpText="" MRU="False">
-		<MenuItemHyperLink ItemID="edit_" HotKey="Ctrl+Z" Caption="&amp;&amp;Undo" HelpText="" Action="app.onEditUndo" Icon="undo"></MenuItemHyperLink>
-		<MenuItemHyperLink ItemID="edit_undo" HotKey="Ctrl+Shift+Z" Caption="&amp;&amp;Redo" HelpText="" Action="app.onEditRedo" Icon="redo"></MenuItemHyperLink>
-		<SeparatorHyperLink ItemID="None" Caption="----------------------------------------" HelpText="" MRU="False"></SeparatorHyperLink>
-		<MenuItemHyperLink ItemID="edit_cut" HotKey="Ctrl+X" Caption="Cu&amp;&amp;t" HelpText="" Action="app.onEditCut" Icon="cut"></MenuItemHyperLink>
-		<MenuItemHyperLink ItemID="edit_copy" HotKey="Ctrl+C" Caption="&amp;&amp;Copy" HelpText="" Action="app.onEditCopy" Icon="copy"></MenuItemHyperLink>
-		<MenuItemHyperLink ItemID="edit_paste" HotKey="Ctrl+V" Caption="&amp;&amp;Paste" HelpText="" Action="app.onEditPaste" Icon="paste"></MenuItemHyperLink>
-		<SeparatorHyperLink ItemID="None" Caption="----------------------------------------" HelpText="" MRU="False"></SeparatorHyperLink>
-		<MenuItemHyperLink ItemID="edit_selectall" HotKey="Ctrl+A" Caption="Select &amp;&amp;All" HelpText="" Action="app.onEditSelectAll" Icon="None"></MenuItemHyperLink>
-		<SeparatorHyperLink ItemID="None" Caption="----------------------------------------" HelpText="" MRU="False"></SeparatorHyperLink>
-		<MenuItemHyperLink ItemID="edit_find" HotKey="Ctrl+F" Caption="&amp;&amp;Find / Replace" HelpText="" Action="app.onEditFind" Icon="find"></MenuItemHyperLink>
-		<MenuItemHyperLink ItemID="edit_findagain" HotKey="Ctrl+G" Caption="Find A&amp;&amp;gain" HelpText="" Action="app.onEditFindAgain" Icon="None"></MenuItemHyperLink>
-	</MenuHyperLink>
-	<MenuHyperLink ItemID="None" Caption="View" HelpText="" MRU="False">
-		<MenuItemHyperLink ItemID="view_zoomin" HotKey="Ctrl+=" Caption="&amp;&amp;Increase Font Size" HelpText="" Action="app.fontZoomIn" Icon="zoomIn"></MenuItemHyperLink>
-		<MenuItemHyperLink ItemID="view_zoomout" HotKey="Ctrl+-" Caption="&amp;&amp;Decrease Font Size" HelpText="" Action="app.fontZoomOut" Icon="zoomOut"></MenuItemHyperLink>
-		<MenuItemHyperLink ItemID="view_zoomnormal" HotKey="Ctrl+/" Caption="&amp;&amp;Normal Font Size" HelpText="" Action="app.fontZoomNormal" Icon="zoomNormal"></MenuItemHyperLink>
-		<SeparatorHyperLink ItemID="None" Caption="----------------------------------------" HelpText="" MRU="False"></SeparatorHyperLink>
-		<MenuItemHyperLink ItemID="view_preview" HotKey="Ctrl+Shift+P" Caption="&amp;&amp;Preview Menu" HelpText="Temporarily display this menu as the active menu" Action="form.Controller.onPreview" Icon="event_watcher"></MenuItemHyperLink>
-	</MenuHyperLink>
-	<MenuHyperLink ItemID="None" Caption="Help" HelpText="" MRU="False"></MenuHyperLink>
-</MenuBarHyperLink>
+<MenuBarPanel ItemID="None" Caption="- MenuBar -" HelpText="" MRU="False">
+	<MenuPanel ItemID="None" Caption="File" HelpText="" MRU="True">
+		<MenuItemPanel ItemID="file_new" HotKey="Ctrl+N" Caption="&amp;&amp;New" HelpText="" Action="form.Controller.onNew" Icon="new"></MenuItemPanel>
+		<MenuItemPanel ItemID="file_open" HotKey="Ctrl+O" Caption="&amp;&amp;Open" HelpText="" Action="form.Controller.onOpen" Icon="open"></MenuItemPanel>
+		<MenuItemPanel ItemID="file_close" HotKey="Ctrl+W" Caption="&amp;&amp;Close" HelpText="" Action="form.Controller.onClose" Icon="close"></MenuItemPanel>
+		<MenuItemPanel ItemID="file_save" HotKey="Ctrl+S" Caption="&amp;&amp;Save" HelpText="" Action="form.Controller.onSave" Icon="save"></MenuItemPanel>
+		<MenuItemPanel ItemID="file_saveas" HotKey="" Caption="Save &amp;&amp;As" HelpText="" Action="form.Controller.onSaveAs" Icon="saveas"></MenuItemPanel>
+		<SeparatorPanel ItemID="None" Caption="-separator-" HelpText="" MRU="False"></SeparatorPanel>
+		<MenuItemPanel ItemID="file_commandwin" HotKey="Ctrl+D" Caption="Command Win&amp;&amp;dow" HelpText="" Action="app.onCmdWin" Icon="themes/tango/16x16/apps/utilities-terminal.png"></MenuItemPanel>
+		<MenuItemPanel ItemID="file_objectinspector" HotKey="Ctrl+Shift+I" Caption="Object &amp;&amp;Inspector" HelpText="Open the Object Inspector tool" Action="app.onObjectInspectorWin" Icon=""></MenuItemPanel>
+		<SeparatorPanel ItemID="None" Caption="-separator-" HelpText="" MRU="False"></SeparatorPanel>
+		<MenuItemPanel ItemID="file_quit" HotKey="Ctrl+Q" Caption="&amp;&amp;Quit" HelpText="" Action="app.onFileExit" Icon="quit"></MenuItemPanel>
+		<MenuItemPanel ItemID="file_copyasdict" HotKey="Ctrl+Shift+T" Caption="Copy as Dict" HelpText="Copies the current menu structure to the clipboard as a dictionary" Action="form.Controller.copyAsJSON" Icon=""></MenuItemPanel>
+	</MenuPanel>
+	<MenuPanel ItemID="None" Caption="Edit" HelpText="" MRU="False">
+		<MenuItemPanel ItemID="edit_" HotKey="Ctrl+Z" Caption="&amp;&amp;Undo" HelpText="" Action="app.onEditUndo" Icon="undo"></MenuItemPanel>
+		<MenuItemPanel ItemID="edit_undo" HotKey="Ctrl+Shift+Z" Caption="&amp;&amp;Redo" HelpText="" Action="app.onEditRedo" Icon="redo"></MenuItemPanel>
+		<SeparatorPanel ItemID="None" Caption="-separator-" HelpText="" MRU="False"></SeparatorPanel>
+		<MenuItemPanel ItemID="edit_cut" HotKey="Ctrl+X" Caption="Cu&amp;&amp;t" HelpText="" Action="app.onEditCut" Icon="cut"></MenuItemPanel>
+		<MenuItemPanel ItemID="edit_copy" HotKey="Ctrl+C" Caption="&amp;&amp;Copy" HelpText="" Action="app.onEditCopy" Icon="copy"></MenuItemPanel>
+		<MenuItemPanel ItemID="edit_paste" HotKey="Ctrl+V" Caption="&amp;&amp;Paste" HelpText="" Action="app.onEditPaste" Icon="paste"></MenuItemPanel>
+		<SeparatorPanel ItemID="None" Caption="-separator-" HelpText="" MRU="False"></SeparatorPanel>
+		<MenuItemPanel ItemID="edit_selectall" HotKey="Ctrl+A" Caption="Select &amp;&amp;All" HelpText="" Action="app.onEditSelectAll" Icon="None"></MenuItemPanel>
+		<SeparatorPanel ItemID="None" Caption="-separator-" HelpText="" MRU="False"></SeparatorPanel>
+		<MenuItemPanel ItemID="edit_find" HotKey="Ctrl+F" Caption="&amp;&amp;Find / Replace" HelpText="" Action="app.onEditFind" Icon="find"></MenuItemPanel>
+		<MenuItemPanel ItemID="edit_findagain" HotKey="Ctrl+G" Caption="Find A&amp;&amp;gain" HelpText="" Action="app.onEditFindAgain" Icon="None"></MenuItemPanel>
+	</MenuPanel>
+	<MenuPanel ItemID="None" Caption="View" HelpText="" MRU="False">
+		<MenuItemPanel ItemID="view_zoomin" HotKey="Ctrl++" Caption="&amp;&amp;Increase Font Size" HelpText="" Action="app.fontZoomIn" Icon="zoomIn"></MenuItemPanel>
+		<MenuItemPanel ItemID="view_zoomout" HotKey="Ctrl+-" Caption="&amp;&amp;Decrease Font Size" HelpText="" Action="app.fontZoomOut" Icon="zoomOut"></MenuItemPanel>
+		<MenuItemPanel ItemID="view_zoomnormal" HotKey="Ctrl+/" Caption="&amp;&amp;Normal Font Size" HelpText="" Action="app.fontZoomNormal" Icon="zoomNormal"></MenuItemPanel>
+		<SeparatorPanel ItemID="None" Caption="-separator-" HelpText="" MRU="False"></SeparatorPanel>
+		<MenuItemPanel ItemID="view_preview" HotKey="Ctrl+Shift+P" Caption="&amp;&amp;Preview Menu" HelpText="Temporarily display this menu as the active menu" Action="form.Controller.onPreview" Icon="event_watcher"></MenuItemPanel>
+	</MenuPanel>
+	<MenuPanel ItemID="menu_menus" Caption="Menus" HelpText="" MRU="False">
+		<MenuItemPanel ItemID="menus_addmenu" HotKey="Ctrl+M" Caption="Add Menu" HelpText="Append a new menu to the menu bar" Action="form.Controller.onAppendMenu" Icon=""></MenuItemPanel>
+		<MenuItemPanel ItemID="menus_appendmenuitem" HotKey="Ctrl+I" Caption="Append MenuItem" HelpText="Append a new menu item to the current menu." Action="form.Controller.onAppendMenuItem" Icon=""></MenuItemPanel>
+		<MenuItemPanel ItemID="menus_appendseparator" HotKey="Ctrl+P" Caption="Append Separator" HelpText="Append a new separator to the current menu." Action="form.Controller.onAppendSeparator" Icon=""></MenuItemPanel>
+		<SeparatorPanel ItemID="None" Caption="-separator-" HelpText="" MRU="False"></SeparatorPanel>
+		<MenuItemPanel ItemID="menus_delete" HotKey="Ctrl+Del" Caption="Delete..." HelpText="Delete the currently selected item" Action="form.Controller.onDeleteSelection" Icon=""></MenuItemPanel>
+	</MenuPanel>
+	<MenuPanel ItemID="None" Caption="Help" HelpText="" MRU="False"></MenuPanel>
+</MenuBarPanel>
