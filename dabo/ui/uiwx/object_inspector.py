@@ -348,8 +348,8 @@ def onHighlightItem(self, evt):
 		# Make sure outline is visible
 		xDraw = max(0, x-3)
 		yDraw = max(0, y-3)
-		wDraw = min(frm.Width-xDraw, obj.Width+6) 
-		hDraw = min(frm.Height-yDraw, obj.Height+6) 
+		wDraw = min(frm.Width-xDraw, obj.Width+6)
+		hDraw = min(frm.Height-yDraw, obj.Height+6)
 		entry["drawingToClear"] = frm.drawRectangle(xDraw, yDraw, wDraw, hDraw,
 				penWidth=3, penColor="magenta")
 ]]>

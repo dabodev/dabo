@@ -593,7 +593,7 @@ class RowNavigation(DataEvent):
 
 	As the user is rapidly calling dForm.next(), .prior(), etc., RowNavigation
 	events get raised. Your code should do some quick display updates to indicate
-	to the user that the record is changing, but the child bizobj's won't be 
+	to the user that the record is changing, but the child bizobj's won't be
 	requeried until after the navigation has ended.
 
 	See also RowNumChanged, which only occurs after the user has settled on a

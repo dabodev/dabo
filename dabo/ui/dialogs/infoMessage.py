@@ -24,7 +24,7 @@ class DlgInfoMessage(dabo.ui.dStandardButtonDialog):
 	def addControls(self):
 		vs = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=10)
 		vs.append1x(LblMessage(self, RegID="lblMessage", Caption=self.Message))
-		vs.append(dabo.ui.dCheckBox(self, Caption=_("Show this message in the future?"), 
+		vs.append(dabo.ui.dCheckBox(self, Caption=_("Show this message in the future?"),
 				Value=self.DefaultShowInFuture, RegID="chkShowInFuture",
 				FontSize=9))
 
@@ -43,7 +43,7 @@ class DlgInfoMessage(dabo.ui.dStandardButtonDialog):
 		self._message = val
 
 
-	DefaultShowInFuture = property(_getDefaultShowInFuture, _setDefaultShowInFuture, None, 
+	DefaultShowInFuture = property(_getDefaultShowInFuture, _setDefaultShowInFuture, None,
 			_("Specifies whether the 'show in future' checkbox is checked by default."))
 
 	Message = property(_getMessage, _setMessage, None,

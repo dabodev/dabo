@@ -122,7 +122,7 @@ class dNumericBox(dtbm.dTextBoxMixin, masked.NumCtrl):
 			#	self.setFocus()
 
 	def _onWxHit(self, evt, *args, **kwargs):
-		# This fix wx masked controls issue firing multiple EVT_TEXT events. 
+		# This fix wx masked controls issue firing multiple EVT_TEXT events.
 		if self._value != self.Value:
 			super(dNumericBox, self)._onWxHit(evt, *args, **kwargs)
 

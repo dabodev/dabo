@@ -93,7 +93,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 				kwargs[name] = value
 			except ValueError:
 				args.append(qsarg)
-		getattr(obj, meth)(*args, **kwargs) 
+		getattr(obj, meth)(*args, **kwargs)
 		
 
 	def copy(self):

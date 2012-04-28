@@ -419,7 +419,7 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def setup(self):
-		wx.SystemOptions.SetOptionInt("mac.textcontrol-use-spell-checker", 1) 
+		wx.SystemOptions.SetOptionInt("mac.textcontrol-use-spell-checker", 1)
 		frm = self.dApp.MainForm
 		if frm is None:
 			if self.dApp.MainFormClass is not None:

@@ -216,11 +216,11 @@ def ustr(value):
 		## Faster for all-ascii strings and converting from non-basestring types::
 		return unicode(value)
 	except UnicodeDecodeError:
-		# Most likely there were bytes whose integer ordinal were > 127 and so the 
+		# Most likely there were bytes whose integer ordinal were > 127 and so the
 		# default ASCII codec used by unicode() couldn't decode them.
 		pass
 	except UnicodeEncodeError:
-		# Most likely there were bytes whose integer ordinal were > 127 and so the 
+		# Most likely there were bytes whose integer ordinal were > 127 and so the
 		# default ASCII codec used by unicode() couldn't encode them.
 		pass
 	for ln in getEncodings():

@@ -236,7 +236,7 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 		dc.SetBrush(wx.Brush( wx.BLACK, wx.SOLID ) )
 
 		# scaled x,y of closest point
-		sx, sy = mDataDict["scaledXY"] 
+		sx, sy = mDataDict["scaledXY"]
 		# 10by10 square centered on point
 		dc.DrawRectangle(sx-5, sy-5, 10, 10)
 		px,py = mDataDict["pointXY"]

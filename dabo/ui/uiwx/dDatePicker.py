@@ -87,7 +87,7 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 		self.Value += datetime.timedelta(days)
 
 	def monthInterval(self, months):
-		"""Adjusts the date by the given number of months; negative 
+		"""Adjusts the date by the given number of months; negative
 		values move backwards.
 		"""
 		val = self.Value

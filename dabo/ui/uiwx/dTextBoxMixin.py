@@ -805,12 +805,12 @@ class dTextBoxMixin(dTextBoxMixinBase):
 
 			When True, if the user clears the textbox value, such as by selecting all
 			and pressing the space bar or delete, the value will become 0 when the
-			control loses focus. 
-
-			When False, the value will revert back to the last numeric value when the 
 			control loses focus.
 
-			The default comes from dabo.dTextBox_NumericBlankToZero, which defaults to 
+			When False, the value will revert back to the last numeric value when the
+			control loses focus.
+
+			The default comes from dabo.dTextBox_NumericBlankToZero, which defaults to
 			False."""))
 
 	PasswordEntry = property(_getPasswordEntry, _setPasswordEntry, None,

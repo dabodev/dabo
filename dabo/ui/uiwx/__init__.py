@@ -1462,7 +1462,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
 
 		def _onKeyDown(self, evt):
 			ed = evt.EventData
-			key, mod, shift = (ed["keyCode"], ed["hasModifiers"], 
+			key, mod, shift = (ed["keyCode"], ed["hasModifiers"],
 					ed["shiftDown"] or getattr(self, "_shiftDown", False))
 			ctrl = self._control
 			grid = self._grid

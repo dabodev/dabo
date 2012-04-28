@@ -115,7 +115,7 @@ class BaseForm(fm.dFormMixin):
 
 		This method is called repeatedly from many different places during
 		a single change in the UI, so by default the actual execution is cached
-		using callAfterInterval(). The default interval is the value of the 
+		using callAfterInterval(). The default interval is the value of the
 		DataUpdateDelay property, which in turn defaults to 100 milliseconds. You
 		can change that to suit your app needs by passing a different interval
 		in milliseconds.
@@ -792,7 +792,7 @@ Database error message: %s""") % 	err
 		pass
 	def afterRowNavigation(self):
 		"""
-		Called after the PrimaryBizobj's RowNumber has changed, 
+		Called after the PrimaryBizobj's RowNumber has changed,
 		but before the form updates.
 		"""
 		pass
@@ -992,7 +992,7 @@ Database error message: %s""") % 	err
 			operation that led to the dialog being presented."""))
 
 	DataUpdateDelay = property(_getDataUpdateDelay, _setDataUpdateDelay, None,
-			_("""Specifies synchronization delay in data updates from business 
+			_("""Specifies synchronization delay in data updates from business
 			to UI layer. (int; default:100 [ms])
 			
 			Set to 0 or None to ensure controls reflect immediately to the data changes.."""))
@@ -1011,13 +1011,13 @@ Database error message: %s""") % 	err
 			Set to 0 or None to ensure that all controls reflect immediately to the data changes.
 			Setting to a positive non-zero value will result in the following behavior:
 
-			As the row number changes, dEvents.RowNavigation events will fire and the 
-			afterRowNavigation() hook method will be called, allowing your form code to update a 
+			As the row number changes, dEvents.RowNavigation events will fire and the
+			afterRowNavigation() hook method will be called, allowing your form code to update a
 			specific set of controls so the user knows the records are being navigated. The
 			default behavior will reflect the current row number in the form's status bar as
 			row navigation is occurring.
 
-			After a navigation and the RowNavigationDelay has passed, the form will be 
+			After a navigation and the RowNavigationDelay has passed, the form will be
 			completely updated and refreshed. dEvents.RowNumChanged will be fired, and the
 			hook afterPointerMove() will be called.
 

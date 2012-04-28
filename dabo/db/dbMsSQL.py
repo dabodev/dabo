@@ -24,7 +24,7 @@ class MSSQL(dBackend):
 		DSN is really the name of the connection for FreeTDS ::
 			
 		  __init__(self, dsn, user, passwd, database = None, strip = 0)
-		  
+		
 		"""
 		import pymssql
 

@@ -157,7 +157,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 
 
 	def _showPic(self):
-		"""Displays the picture according to the ScaleMode and image size, as 
+		"""Displays the picture according to the ScaleMode and image size, as
 		well as any applied rotation and/or mirroring.
 		"""
 		if self._inShowPic:

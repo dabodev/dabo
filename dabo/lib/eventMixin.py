@@ -34,7 +34,7 @@ class EventMixin(object):
 		Send the event to all registered listeners.
 
 		If uiEvent is sent, dEvents.Event will be able to parse it for useful
-		information to send along to the callback. 
+		information to send along to the callback.
 
 		Additional arguments, if any, are sent along to the constructor	of the
 		event. While this feature exists so that UI-lib event handlers can pass

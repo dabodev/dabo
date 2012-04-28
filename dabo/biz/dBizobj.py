@@ -141,7 +141,7 @@ class dBizobj(dObject):
 
 
 	def _flushUnchangedCursors(self):
-		"""Remove all cursors from this and all children, except current 
+		"""Remove all cursors from this and all children, except current
 		and changed cursors."""
 		cursors = {}
 		for key, cursor in self.__cursors.items():
@@ -559,11 +559,11 @@ class dBizobj(dObject):
 		# Finally, scan all rows only if there are still potentially changed rows.
 		# The isAnyChanged() call will be expensive if there are changes buried
 		# in some out-of-context child cursor, but that should be rare. In the
-		# common case, all the cancellations would have already happened in the 
+		# common case, all the cancellations would have already happened in the
 		# above block, and isAnyChanged() will return False very quickly.
 		if self.isAnyChanged():	
 			self.scanChangedRows(self.cancel, allCursors=False,
-					includeNewUnchanged=True, cancelTheChildren=cancelTheChildren, 
+					includeNewUnchanged=True, cancelTheChildren=cancelTheChildren,
 					ignoreNoRecords=ignoreNoRecords, reverse=True)
 		self._visitedKeys.clear()
 		self._addVisitedKey()
@@ -791,8 +791,8 @@ class dBizobj(dObject):
 
 	def getChangedStatus(self, ret=None):
 		"""
-		Returns a dictionary of bizobj references and the results of 
-		getRecordStatus() on each changed row. Use to easily inspect 
+		Returns a dictionary of bizobj references and the results of
+		getRecordStatus() on each changed row. Use to easily inspect
 		the current	dirty records in the hierarchy.
 		"""
 		if not ret:
@@ -810,7 +810,7 @@ class dBizobj(dObject):
 		return ret
 
 
-	def bizIterator(self, reversed=False, restorePointer=False, 
+	def bizIterator(self, reversed=False, restorePointer=False,
 			flushUnchangedCursors=False):
 		"""
 		Returns an iterator that moves the bizobj's record pointer from
@@ -826,7 +826,7 @@ class dBizobj(dObject):
 				flushUnchangedCursors=flushUnchangedCursors)
 
 
-	def bizDataIterator(self, reversed=False, restorePointer=False, 
+	def bizDataIterator(self, reversed=False, restorePointer=False,
 			flushUnchangedCursors=False):
 		"""
 		Returns an iterator that moves the bizobj's record pointer from
@@ -839,7 +839,7 @@ class dBizobj(dObject):
 		is True) record after the iteration is complete unless you call this
 		with restorePointer=True.
 		"""
-		return _bizIterator(self, returnRecords=True, reversed=reversed, 
+		return _bizIterator(self, returnRecords=True, reversed=reversed,
 				restorePointer=restorePointer, flushUnchangedCursors=flushUnchangedCursors)
 
 
@@ -905,7 +905,7 @@ class dBizobj(dObject):
 
 	def scanKeys(self, func, keys, *args, **kwargs):
 		"""
-		Iterate over the specified keys (defined in KeyField) and apply 
+		Iterate over the specified keys (defined in KeyField) and apply
 		the passed function to each.
 
 		If a passed key doesn't exist, it is ignored.
@@ -1170,7 +1170,7 @@ class dBizobj(dObject):
 		uiException = None
 
 		# Since the FK value can't be None, we don't need to run non matching
-		# parameters requery in such situation.  
+		# parameters requery in such situation.
 		if not (self.Parent and self.LinkField and _childParamTuple and \
 				max(_childParamTuple) is None):
 			# Record this in case we need to restore the record position
@@ -1352,7 +1352,7 @@ class dBizobj(dObject):
 		"""Allows you to filter by any valid Python expression.
 
 		Use the field alias names, for example::
-		    
+		
 			biz.filterByExpression('cust_name[0].lower() = 'a')
 		
 		where cust_name is a field alias name in this record.
@@ -1523,10 +1523,10 @@ class dBizobj(dObject):
 				child.setCurrentParent()
 				# consolidation note: 1) requeryAllChildren() checked for child.isAnyChanged();
 				#                     2) _resetChildrenParent instead checked for child.RowCount == 0
-				# I think both are wrong. In #1, you'd never get a requery of that child if there was 
+				# I think both are wrong. In #1, you'd never get a requery of that child if there was
 				# one changed record in the hierarchy, plus there are performance issues in running
 				# that check. In #2, you'd never get a child requery unless RowCount was 0. I'm leaving
-				# both of those conditions out completely for now, although that is most certainly 
+				# both of those conditions out completely for now, although that is most certainly
 				# wrong as well, but at least we are now consistent in behavior between e.g. self.first()
 				# and self.RowNumber = 0.
 				if updateChildren and child.RequeryWithParent and child.cacheExpired() \
@@ -1576,7 +1576,7 @@ class dBizobj(dObject):
 			sort=True, incremental=False):
 		"""
 		Search for a value in a field, and move the record pointer to the match.
-		Multiple fields can be searched by sending tuples for the val and fld 
+		Multiple fields can be searched by sending tuples for the val and fld
 		arguments.
 
 		Used for searching of the bizobj's cursor for a particular value in a
@@ -1591,7 +1591,7 @@ class dBizobj(dObject):
 		will be requeried, and the afterPointerMove() hook method will fire.
 
 		If sort is True (the default), then we seek to the first matching value
-		without sorting first. 
+		without sorting first.
 
 		If incremental is True (default is False), then we only compare the first
 		characters up until the length of val.
@@ -1627,10 +1627,10 @@ class dBizobj(dObject):
 		"""
 		INTERNAL USE ONLY: This checks all the cursors including the ones
 		out of context, and needs to be combined with the precise function
-		like: 
+		like:
 				if self._isAnyChanged_fast() or self._isAnyChanged_precise()...
 
-		Which will at least be much faster (and still correct) in the case of 
+		Which will at least be much faster (and still correct) in the case of
 		_isAnyChanged_fast() returning False, and not much slower otherwise.
 		"""
 		withNewUnchanged = includeNewUnchanged
@@ -1647,7 +1647,7 @@ class dBizobj(dObject):
 
 	def _isAnyChanged_precise(self, includeNewUnchanged=None, withChildren=True):
 		"""
-		Return True if at least one record in the current record set 
+		Return True if at least one record in the current record set
 		has been changed.
 		"""
 		def _isThisChanged():
@@ -1659,7 +1659,7 @@ class dBizobj(dObject):
 
 	def isAnyChanged(self, includeNewUnchanged=None, withChildren=True):
 		"""
-		Return True if at least one record in the current record set 
+		Return True if at least one record in the current record set
 		has been changed.
 		"""
 		if not self._isAnyChanged_fast(includeNewUnchanged):
@@ -1796,8 +1796,8 @@ class dBizobj(dObject):
 		"""
 		Add the passed child bizobj to this bizobj.
 
-		Child bizobjs stay in sync with their parent, getting requeried at the 
-		appropriate times. 
+		Child bizobjs stay in sync with their parent, getting requeried at the
+		appropriate times.
 		"""
 		if child not in self._children:
 			self._children.append(child)
@@ -2323,7 +2323,7 @@ class dBizobj(dObject):
 		"""
 		Creates an association in a M-M relationship. If the relationship
 		already exists, nothing changes. Otherwise, this will ensure that
-		both values exist in their respective tables, and will create the 
+		both values exist in their respective tables, and will create the
 		entry in the association table.
 		"""
 		return self._mmAssociatedDbCall(bizOrDS, "mmAddToBoth", thisField, thisVal, otherField, otherVal)
@@ -2347,7 +2347,7 @@ class dBizobj(dObject):
 
 	def addFrom(self, exp, alias=None):
 		"""
-		Add a table to the sql statement. For 1-M joins, use 
+		Add a table to the sql statement. For 1-M joins, use
 		the addJoin() method. For M-M joins, use the
 		createAssociation() method.
 		"""
@@ -2373,7 +2373,7 @@ class dBizobj(dObject):
 		:param mmOtherPKCol: the name of the PK column in the mmOtherTable
 		:param assocTable: the name of the table holding the association between the two
 		:param assocPKColThis: the name of the column in the association table for this PK
-		:param assocPKColOther: the name of the column in the association table for the other PK 
+		:param assocPKColOther: the name of the column in the association table for the other PK
 		"""
 		return self._CurrentCursor.createAssociation(mmOtherTable, mmOtherPKCol, assocTable,
 				assocPKColThis, assocPKColOther)
@@ -2469,7 +2469,7 @@ class dBizobj(dObject):
 
 	def _addVisitedKey(self):
 		"""
-		The _visitedKeys set is used for optimization of cancelAll() 
+		The _visitedKeys set is used for optimization of cancelAll()
 		and saveAll(), and only applies to bizobjs with no parent.
 		"""
 		if not self.Parent and self.RowCount:
@@ -3199,7 +3199,7 @@ afterDelete() which is only called after a delete().""")
 			_("""Do we requery child bizobjs when navigating records? (bool)
 
 			Usually, you want to automatically requery children when the parent
-			RowNumber changes. However, there may be cases when you want to do 
+			RowNumber changes. However, there may be cases when you want to do
 			that requery manually at the proper time instead for performance
 			reasons.
 

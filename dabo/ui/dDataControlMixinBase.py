@@ -272,7 +272,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 								return
 							setattr(self.Source, self.DataField, curVal)
 						except (dException.NoRecordsException, dException.RowNotFoundException):
-							# UI called flushValue() when there wasn't a valid record active. 
+							# UI called flushValue() when there wasn't a valid record active.
 							# Treat as spurious and ignore.
 							pass
 					else:

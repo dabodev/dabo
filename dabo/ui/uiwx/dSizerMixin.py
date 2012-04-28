@@ -230,7 +230,7 @@ class dSizerMixin(dObject):
 			if self.Orientation == "Vertical":
 				spacer = (0, val)
 			else:
-				spacer = (val, 0) 
+				spacer = (val, 0)
 		if pos is None:
 			itm = self.Add(spacer, proportion=proportion, userData=self)
 		else:

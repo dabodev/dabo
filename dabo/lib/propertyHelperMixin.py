@@ -349,7 +349,7 @@ class PropertyHelperMixin(object):
 
 class _DynamicList(list):
 	"""
-	Helper class for list-based properties, such as the 'Choices' property of 
+	Helper class for list-based properties, such as the 'Choices' property of
 	list-type controls. This wraps the regular Python list object, but in addition
 	also propagates changes to the control, so that code like this:
 	

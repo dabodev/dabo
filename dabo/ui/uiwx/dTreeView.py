@@ -851,7 +851,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		"""
 		Make this dTreeView show a filesystem directory hierarchy. You
 		can specify a wildcard pattern: e.g., "\*py" will only include files
-		ending in 'py'. You can also pass a list of wildcards, and files 
+		ending in 'py'. You can also pass a list of wildcards, and files
 		matching any of these will be included in the tree. If no wildcard
 		is specified, all files will be included.
 

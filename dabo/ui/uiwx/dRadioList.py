@@ -207,7 +207,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 					# Passing wxEvt as uiEvent parameter under some conditions
 					# causes Python interpreter crash or unspecified problems
 					# with GC. I decided to remove this reference for both,
-					# GotFocus and LostFocus event of control to retain symmetry. 
+					# GotFocus and LostFocus event of control to retain symmetry.
 					self.raiseEvent(dEvents.LostFocus)
 
 		# Normal changing selection of buttons will cause buttons to lose focus;

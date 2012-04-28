@@ -105,7 +105,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 
 
 	def _onWxHit(self, evt, *args, **kwargs):
-		# This fixes wx masked control issue firing multiple EVT_TEXT events. 
+		# This fixes wx masked control issue firing multiple EVT_TEXT events.
 		if self._value != self.Value:
 			super(dMaskedTextBox, self)._onWxHit(evt, *args, **kwargs)
 

@@ -1320,7 +1320,7 @@ try again when it is running.
 			return
 		future = self.uiApp.displayInfoMessage(msg, defaultShowInFuture=defaultShowInFuture)
 		self.setUserSetting(prefKey, future)
- 
+
 
 	def clearActiveForm(self, frm):
 		"""Called by the form when it is deactivated."""
