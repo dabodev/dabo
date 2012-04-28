@@ -71,9 +71,9 @@ class PgConnectionSelect(WizardPage):
 		dd.DataField = ""
 		connNames = self.Application.getConnectionNames()
 		dd.Choices = connNames
+		dabo.ui.setAfter(dd, "DataField", "ConnectionName")
 		if connNames:
 			dabo.ui.setAfter(dd, "PositionValue", 0)
-		dabo.ui.setAfter(dd, "DataField", "ConnectionName")
 		dd.refresh()
 
 
@@ -823,16 +823,11 @@ class QuickLayoutWizard(Wizard):
 				dabo.ui.stop(_("Could not make connection to '%s'") %
 						self.ConnectionName)
 			return False
-		tbls = crs.getTables()
-		for tb in tbls:
-			fldDict = {}
-			flds = crs.getFields(tb)
-			for fld in flds:
-				fldname = fld[0]
-				fldInfo = fldDict[fldname] = {}
-				fldInfo["type"] = fld[1]
-				fldInfo["pk"] = fld[2]
-			self._dataEnv[tb] = fldDict
+		self._dataEnv = dict(((tb, dict(((fld[0], {"type": fld[1], "pk": fld[2]})
+					for fld in crs.getFields(tb))))
+					for tb in crs.getTables()))
+		print self._dataEnv
+		
 		return True
 
 
