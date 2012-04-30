@@ -185,7 +185,7 @@ class dFormMixin(pm.dPemMixin):
 		how to restore a maximized frame in this case, but at least we can catch
 		the case where the window isn't maximized already.
 		"""
-		if i(self.MDI and sys.platform.startswith("darwin") and not maximize
+		if (self.MDI and sys.platform.startswith("darwin") and not maximize
 				and not self.IsMaximized()):
 			return
 		super(dFormMixin, self).Maximize(maximize, *args, **kwargs)
