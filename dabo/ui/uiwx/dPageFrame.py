@@ -92,40 +92,6 @@ class dPageToolBar(dPageFrameMixin, wx.Toolbook):
 		super(dPageToolBar, self)._afterInit()
 
 
-	def removePage(self, pgOrPos, delPage=True):
-		"""
-		Removes the specified page. You can specify a page by either
-		passing the page itself, or a position. If delPage is True (default),
-		the page is released, and None is returned. If delPage is
-		False, the page is returned. There is a bug in the wx.Toolbook class
-		that breaks the link between the toolbar buttons and their pages
-		when a page is removed, so this attempts to work around this.
-		"""
-		pos = pgOrPos
-		if isinstance(pgOrPos, int):
-			pg = self.Pages[pgOrPos]
-		else:
-			pg = pgOrPos
-			pos = self.Pages.index(pg)
-		# Get all the pages after the one to be deleted
-		laterPages = self.Pages[pos + 1:]
-		for lpg in laterPages:
-			self.RemovePage(pos + 1)
-		if delPage:
-			self.DeletePage(pos)
-			ret = None
-		else:
-			self.RemovePage(pos)
-			ret = pg
-		for lpg in laterPages:
-			self.appendPage(lpg, caption=lpg.Caption, imgKey=lpg.imgKey)
-		return ret
-
-	def RemovePage(self, pos):
-		print "REMOVING PAGE", self.Pages[pos].imgKey
-		super(dPageToolBar, self).RemovePage(pos)
-
-
 class dPageList(dPageFrameMixin, wx.Listbook):
 	_evtPageChanged = readonly(wx.EVT_LISTBOOK_PAGE_CHANGED)
 	_evtPageChanging = readonly(wx.EVT_LISTBOOK_PAGE_CHANGING)
