@@ -51,7 +51,7 @@ class TestPanel(dabo.ui.dPanel):
 	def updtBox(self, evt=None):
 		try:
 			self.demoBox
-		except:
+		except StandardError:
 			# Not yet constructed
 			return
 		sld = self.slider

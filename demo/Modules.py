@@ -51,7 +51,7 @@ class DemoModules:
 	origDir = os.path.join(dabo.dAppRef.HomeDirectory, "samples")
 	try:
 		getUserAppDataDirectory = utils.getUserAppDataDirectory
-	except:
+	except AttributeError:
 		# Used to be named differently. Keep this for backward-compatibility for a while.
 		getUserAppDataDirectory = utils.getUserDaboDirectory
 	modDir = os.path.join(getUserAppDataDirectory(),
@@ -103,7 +103,7 @@ class DemoModules:
 				self.modules[modID][0] = {}
 				code = compile(source, description, "exec")
 				exec code in self.modules[modID][0]
-			except:
+			except StandardError:
 				self.modules[modID][4] = DemoError(sys.exc_info())
 				self.modules[modID][0] = None
 			else:
@@ -227,7 +227,7 @@ class DemoError:
 		if excType is SyntaxError:
 			try:
 				msg, (filename, lineno, self.offset, line) = excValue
-			except:
+			except StandardError:
 				pass
 			else:
 				if not filename:
@@ -238,7 +238,7 @@ class DemoError:
 				excValue = msg
 		try:
 			self.exception_details = ustr(excValue)
-		except:
+		except StandardError:
 			self.exception_details = "<unprintable %s object>" & type(excValue).__name__
 
 		del exc_info

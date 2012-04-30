@@ -368,7 +368,7 @@ class Board(dabo.ui.dPanel):
 			try:
 				ret = [cd for cd in self.deck
 						if (cd.Rank == rank) and (cd.Suit == suit)][0]
-			except:
+			except StandardError:
 				ret = None
 		return ret
 
