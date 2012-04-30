@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: dabo\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-01-25 15:10-0600\n"
-"PO-Revision-Date: 2009-03-09 08:49+0000\n"
-"Last-Translator: Vassilis Aggelakos <Unknown>\n"
+"PO-Revision-Date: 2012-03-14 12:21+0000\n"
+"Last-Translator: tzem <athmakrigiannis@gmail.com>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-06 15:28+0000\n"
-"X-Generator: Launchpad (build 12309)\n"
+"X-Launchpad-Export-Date: 2012-04-30 14:32+0000\n"
+"X-Generator: Launchpad (build 15171)\n"
 
 #: dApp.py:248
 msgid ""
@@ -109,11 +109,11 @@ msgstr ""
 
 #: ui/uiwx/dBaseMenuBar.py:151
 msgid "&About"
-msgstr ""
+msgstr "&Σχετικά"
 
 #: lib/datanav/Form.py:139
 msgid "&Actions"
-msgstr ""
+msgstr "&Ενέργειες"
 
 #: ui/uiwx/dGrid.py:3276
 msgid "&Autosize All Columns"
@@ -133,7 +133,7 @@ msgstr ""
 
 #: ui/uiwx/dBaseMenuBar.py:83
 msgid "&Copy"
-msgstr ""
+msgstr "&Αντιγραφή"
 
 #: lib/datanav/Form.py:209
 msgid "&Delete Current Record"
@@ -141,11 +141,11 @@ msgstr ""
 
 #: ui/uiwx/dBaseMenuBar.py:64
 msgid "&Edit"
-msgstr ""
+msgstr "&Επεξεργασία"
 
 #: ui/uiwx/dBaseMenuBar.py:32
 msgid "&File"
-msgstr ""
+msgstr "&Αρχείο"
 
 #: ui/uiwx/dBaseMenuBar.py:102
 msgid "&Find / Replace"
@@ -153,11 +153,11 @@ msgstr ""
 
 #: ui/uiwx/dBaseMenuBar.py:148
 msgid "&Help"
-msgstr ""
+msgstr "&Βοήθεια"
 
 #: lib/datanav/Grid.py:144
 msgid "&New"
-msgstr ""
+msgstr "&Νέο"
 
 #: lib/datanav/Form.py:206
 msgid "&New Record"
@@ -169,7 +169,7 @@ msgstr ""
 
 #: ui/uiwx/dBaseMenuBar.py:88
 msgid "&Paste"
-msgstr ""
+msgstr "&Επικόλληση"
 
 #: lib/datanav/Grid.py:141
 msgid "&Pick"
@@ -177,11 +177,11 @@ msgstr ""
 
 #: ui/uiwx/dBaseMenuBar.py:52
 msgid "&Quit"
-msgstr ""
+msgstr "&Έξοδος"
 
 #: ui/uiwx/dBaseMenuBar.py:71
 msgid "&Redo"
-msgstr ""
+msgstr "&Επαναφορά"
 
 #: lib/datanav/Form.py:171
 msgid "&Requery"
@@ -193,11 +193,11 @@ msgstr ""
 
 #: ui/uiwx/dBaseMenuBar.py:66
 msgid "&Undo"
-msgstr ""
+msgstr "&Αναίρεση"
 
 #: ui/uiwx/dBaseMenuBar.py:127
 msgid "&View"
-msgstr ""
+msgstr "&Εμφάνιση"
 
 #: ui/uiwx/dPageFrame.py:306 ui/uiwx/dPageFrame.py:323
 #: ui/uiwx/dPageFrame.py:340
@@ -224,7 +224,7 @@ msgstr ""
 
 #: ui/uiwx/uiApp.py:821
 msgid "1 replacement was made"
-msgstr ""
+msgstr "1 αντικατάσταση έγινε"
 
 #: ui/dialogs/Wizard.py:93
 msgid "< Back"
@@ -280,7 +280,7 @@ msgstr ""
 
 #: ui/dialogs/about.py:13 ui/dialogs/htmlAbout.py:16
 msgid "About"
-msgstr ""
+msgstr "Σχετικά"
 
 #: ui/uiwx/dBaseMenuBar.py:158
 msgid "About this application"
@@ -292,7 +292,7 @@ msgstr ""
 
 #: ui/uiwx/dForm.py:954
 msgid "Activate"
-msgstr ""
+msgstr "Ενεργοποίηση"
 
 #: ui/uiwx/uiApp.py:885
 msgid "Active control isn't text-based."

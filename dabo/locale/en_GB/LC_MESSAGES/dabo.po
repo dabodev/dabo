@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: dabo\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-01-25 15:10-0600\n"
-"PO-Revision-Date: 2010-02-25 14:19+0000\n"
-"Last-Translator: Ed Leafe <ed@leafe.com>\n"
+"PO-Revision-Date: 2012-02-04 11:44+0000\n"
+"Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-06 15:28+0000\n"
-"X-Generator: Launchpad (build 12309)\n"
+"X-Launchpad-Export-Date: 2012-04-30 14:32+0000\n"
+"X-Generator: Launchpad (build 15171)\n"
 
 #: dApp.py:248
 msgid ""
@@ -27,6 +27,13 @@ msgid ""
 "try again when it is running.\n"
 "\n"
 msgstr ""
+"\n"
+"\n"
+"\n"
+"The connection was refused by the server. Most likely this means that\n"
+"the server is not running. Please have that problem corrected, and\n"
+"try again when it is running.\n"
+"\n"
 
 #: dObject.py:467
 msgid ""
@@ -34,21 +41,26 @@ msgid ""
 "\n"
 "Testing super():"
 msgstr ""
+"\n"
+"\n"
+"Testing super():"
 
 #: dObject.py:437 dObject.py:488
 msgid ""
 "\n"
 "Test 2: diamond inheritence test:"
 msgstr ""
+"\n"
+"Test 2: diamond inheritence test:"
 
 #: db/dDataSet.py:418
 msgid " The encoding used for data in the dataset.  (str)"
-msgstr ""
+msgstr " The encoding used for data in the dataset.  (str)"
 
 #: db/dCursorMixin.py:973
 #, python-format
 msgid "!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s"
-msgstr ""
+msgstr "!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s"
 
 #: ui/uiwx/dSlidePanelControl.py:313
 msgid ""
@@ -65,6 +77,18 @@ msgid ""
 "colors)\n"
 "\t\t\t"
 msgstr ""
+"\"Determines how the bar containing the caption \n"
+"\t\t\tfor this panel is drawn. (str)\n"
+"\t\t\t\n"
+"\t\t\tCan be one of the following:\n"
+"\t\t\t\tBorderless\t\t(no border, just a plain fill color; default)\n"
+"\t\t\t\tBorderOnly\t(simple border, no fill color)\n"
+"\t\t\t\tFilledBorder\t(combination of the two above)\n"
+"\t\t\t\tVerticalFill\t\t(vertical gradient fill, using the two caption "
+"colors)\n"
+"\t\t\t\tHorizontalFill\t(horizontal gradient fill, using the two caption "
+"colors)\n"
+"\t\t\t"
 
 #: biz/dAutoBizobj.py:164
 #, python-format
@@ -74,7 +98,7 @@ msgstr "#Queries for DB '%s' on host '%s':\n"
 #: db/dCursorMixin.py:285
 #, python-format
 msgid "%s couldn't be converted to %s (field %s)"
-msgstr ""
+msgstr "%s couldn't be converted to %s (field %s)"
 
 #: dApp.py:921
 #, python-format
@@ -84,37 +108,37 @@ msgstr "%s database connection definition(s) loaded."
 #: ui/uiwx/dForm.py:450
 #, python-format
 msgid "%s record%sselected in %s second%s"
-msgstr ""
+msgstr "%s record%sselected in %s second%s"
 
 #: ui/uiwx/uiApp.py:823
 #, python-format
 msgid "%s replacements were made"
-msgstr ""
+msgstr "%s replacements were made"
 
 #: dApp.py:1385
 #, python-format
 msgid "%s: Path does not exist."
-msgstr ""
+msgstr "%s: Path does not exist."
 
 #: ui/uiwx/dBaseMenuBar.py:151
 msgid "&About"
-msgstr ""
+msgstr "&About"
 
 #: lib/datanav/Form.py:139
 msgid "&Actions"
-msgstr ""
+msgstr "&Actions"
 
 #: ui/uiwx/dGrid.py:3276
 msgid "&Autosize All Columns"
-msgstr ""
+msgstr "&Autosize All Columns"
 
 #: ui/uiwx/dGrid.py:3274
 msgid "&Autosize Column"
-msgstr ""
+msgstr "&Autosize Column"
 
 #: lib/datanav/Form.py:145
 msgid "&Browse Records"
-msgstr ""
+msgstr "&Browse Records"
 
 #: lib/datanav/Form.py:179
 msgid "&Cancel Changes"
@@ -146,86 +170,87 @@ msgstr "&Help"
 
 #: lib/datanav/Grid.py:144
 msgid "&New"
-msgstr ""
+msgstr "&New"
 
 #: lib/datanav/Form.py:206
 msgid "&New Record"
-msgstr ""
+msgstr "&New Record"
 
 #: ui/uiwx/dShell.py:546
 msgid "&Normal Zoom"
-msgstr ""
+msgstr "&Normal Zoom"
 
 #: ui/uiwx/dBaseMenuBar.py:88
 msgid "&Paste"
-msgstr ""
+msgstr "&Paste"
 
 #: lib/datanav/Grid.py:141
 msgid "&Pick"
-msgstr ""
+msgstr "&Pick"
 
 #: ui/uiwx/dBaseMenuBar.py:52
 msgid "&Quit"
-msgstr ""
+msgstr "&Quit"
 
 #: ui/uiwx/dBaseMenuBar.py:71
 msgid "&Redo"
-msgstr ""
+msgstr "&Redo"
 
 #: lib/datanav/Form.py:171
 msgid "&Requery"
-msgstr ""
+msgstr "&Requery"
 
 #: lib/datanav/Form.py:176
 msgid "&Save Changes"
-msgstr ""
+msgstr "&Save Changes"
 
 #: ui/uiwx/dBaseMenuBar.py:66
 msgid "&Undo"
-msgstr ""
+msgstr "&Undo"
 
 #: ui/uiwx/dBaseMenuBar.py:127
 msgid "&View"
-msgstr ""
+msgstr "&View"
 
 #: ui/uiwx/dPageFrame.py:306 ui/uiwx/dPageFrame.py:323
 #: ui/uiwx/dPageFrame.py:340
 #, python-format
 msgid "'%s' can not be translated into a color"
-msgstr ""
+msgstr "'%s' can not be translated into a color"
 
 #: ui/uiwx/dListControl.py:472
 msgid "'Choices' is not a valid property for a dListControl."
-msgstr ""
+msgstr "'Choices' is not a valid property for a dListControl."
 
 #: ui/uiwx/__init__.py:178
 msgid "'dCheckListBox' is a deprecated name. Use 'dCheckList' instead"
-msgstr ""
+msgstr "'dCheckListBox' is a deprecated name. Use 'dCheckList' instead"
 
 #: ui/uiwx/__init__.py:173
 msgid "'dFoldPanel' is a deprecated name. Use 'dSlidePanel' instead"
-msgstr ""
+msgstr "'dFoldPanel' is a deprecated name. Use 'dSlidePanel' instead"
 
 #: ui/uiwx/__init__.py:168
 msgid ""
 "'dFoldPanelBar' is a deprecated name. Use 'dSlidePanelControl' instead"
 msgstr ""
+"'dFoldPanelBar' is a deprecated name. Use 'dSlidePanelControl' instead"
 
 #: ui/uiwx/uiApp.py:821
 msgid "1 replacement was made"
-msgstr ""
+msgstr "1 replacement was made"
 
 #: ui/dialogs/Wizard.py:93
 msgid "< Back"
-msgstr ""
+msgstr "< Back"
 
 #: ui/uiwx/dEditor.py:291
 msgid "< New File >"
-msgstr ""
+msgstr "< New File >"
 
 #: dApp.py:1421 ui/uiwx/dGrid.py:1748
 msgid "< None >"
-msgstr ""
+msgstr "< None >"
 
 #: db/dCursorMixin.py:2605
 msgid ""
@@ -234,6 +259,10 @@ msgid ""
 "\t\t\tThe specified function will be called when getFieldVal() is called on\n"
 "\t\t\tthe specified field name."
 msgstr ""
+"A dictionary mapping virtual_field_name to a function to call.\n"
+"\n"
+"\t\t\tThe specified function will be called when getFieldVal() is called on\n"
+"\t\t\tthe specified field name."
 
 #: biz/dBizobj.py:2365
 msgid ""
@@ -269,43 +298,43 @@ msgstr ""
 
 #: ui/uiwx/dSearchBox.py:109
 msgid "A dropdown list that appears right below the search button (list)"
-msgstr ""
+msgstr "A dropdown list that appears right below the search button (list)"
 
 #: ui/uiwx/dPemMixin.py:2756
 msgid "A property that user code can safely use for specific purposes."
-msgstr ""
+msgstr "A property that user code can safely use for specific purposes."
 
 #: ui/uiwx/dPemMixin.py:2738
 msgid "A unique identifier used for referencing by other objects. (str)"
-msgstr ""
+msgstr "A unique identifier used for referencing by other objects. (str)"
 
 #: ui/dialogs/about.py:13 ui/dialogs/htmlAbout.py:16
 msgid "About"
-msgstr ""
+msgstr "About"
 
 #: ui/uiwx/dBaseMenuBar.py:158
 msgid "About this application"
-msgstr ""
+msgstr "About this application"
 
 #: lib/datanav/Form.py:255
 msgid "Actions"
-msgstr ""
+msgstr "Actions"
 
 #: ui/uiwx/dForm.py:954
 msgid "Activate"
-msgstr ""
+msgstr "Activate"
 
 #: ui/uiwx/uiApp.py:885
 msgid "Active control isn't text-based."
-msgstr ""
+msgstr "Active control isn't text-based."
 
 #: lib/datanav/Form.py:118 lib/datanav/Grid.py:145
 msgid "Add a new record"
-msgstr ""
+msgstr "Add a new record"
 
 #: lib/datanav/Form.py:208
 msgid "Add a new record to the dataset."
-msgstr ""
+msgstr "Add a new record to the dataset."
 
 #: ui/uiwx/dForm.py:574
 #, python-format
@@ -314,6 +343,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Add new record failed with response:\n"
+"\n"
+"%s"
 
 #: biz/dBizobj.py:2334
 msgid ""
@@ -335,11 +367,11 @@ msgstr ""
 
 #: db/dCursorMixin.py:1213
 msgid "Already at the beginning of the data set."
-msgstr ""
+msgstr "Already at the beginning of the data set."
 
 #: db/dCursorMixin.py:1226
 msgid "Already at the end of the data set."
-msgstr ""
+msgstr "Already at the end of the data set."
 
 #: ui/dialogs/Wizard.py:443
 msgid "Also note that this page has a different icon!"
@@ -386,12 +418,13 @@ msgstr ""
 
 #: ui/uiwx/dPemMixin.py:3481
 msgid "Angle (in degrees) to draw text  (int)"
-msgstr ""
+msgstr "Angle (in degrees) to draw text  (int)"
 
 #: ui/uiwx/dPemMixin.py:3510
 msgid ""
 "Angle (in degrees) used to end drawing a circular or elliptic arc  (int)"
 msgstr ""
+"Angle (in degrees) used to end drawing a circular or elliptic arc  (int)"
 
 #: ui/uiwx/dPemMixin.py:3589
 msgid ""
@@ -442,7 +475,7 @@ msgstr ""
 
 #: ui/dialogs/Wizard.py:46
 msgid "Are you sure you want to exit?"
-msgstr ""
+msgstr "Are you sure you want to exit?"
 
 #: ui/uiwx/dPemMixin.py:2372
 #, python-format

@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: dabo\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-01-25 15:10-0600\n"
-"PO-Revision-Date: 2009-12-19 01:04+0000\n"
-"Last-Translator: Vincenzo Tilotta <tailot@gmail.com>\n"
+"PO-Revision-Date: 2011-02-16 12:24+0000\n"
+"Last-Translator: Guybrush88 <Unknown>\n"
 "Language-Team: Italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-06 15:28+0000\n"
-"X-Generator: Launchpad (build 12309)\n"
+"X-Launchpad-Export-Date: 2012-04-30 14:32+0000\n"
+"X-Generator: Launchpad (build 15171)\n"
 
 #: dApp.py:248
 msgid ""
@@ -51,6 +51,8 @@ msgid ""
 "\n"
 "Test 2: diamond inheritence test:"
 msgstr ""
+"\n"
+"Test 2: Test dell'ereditarietà a diamante:"
 
 #: db/dDataSet.py:418
 msgid " The encoding used for data in the dataset.  (str)"
@@ -122,11 +124,11 @@ msgstr "%s: il percorso non esiste."
 
 #: ui/uiwx/dBaseMenuBar.py:151
 msgid "&About"
-msgstr ""
+msgstr "&Informazioni su"
 
 #: lib/datanav/Form.py:139
 msgid "&Actions"
-msgstr ""
+msgstr "&Azioni"
 
 #: ui/uiwx/dGrid.py:3276
 msgid "&Autosize All Columns"
@@ -146,7 +148,7 @@ msgstr "&Cancella Modifiche"
 
 #: ui/uiwx/dBaseMenuBar.py:83
 msgid "&Copy"
-msgstr ""
+msgstr "&Copia"
 
 #: lib/datanav/Form.py:209
 msgid "&Delete Current Record"
@@ -154,11 +156,11 @@ msgstr "&Elimina Record Corrente"
 
 #: ui/uiwx/dBaseMenuBar.py:64
 msgid "&Edit"
-msgstr ""
+msgstr "&Modifica"
 
 #: ui/uiwx/dBaseMenuBar.py:32
 msgid "&File"
-msgstr ""
+msgstr "&File"
 
 #: ui/uiwx/dBaseMenuBar.py:102
 msgid "&Find / Replace"
@@ -166,11 +168,11 @@ msgstr "&Cerca / Sostituisci"
 
 #: ui/uiwx/dBaseMenuBar.py:148
 msgid "&Help"
-msgstr ""
+msgstr "&Aiuto"
 
 #: lib/datanav/Grid.py:144
 msgid "&New"
-msgstr ""
+msgstr "&Nuovo"
 
 #: lib/datanav/Form.py:206
 msgid "&New Record"
@@ -182,15 +184,15 @@ msgstr "&Zoom Normale"
 
 #: ui/uiwx/dBaseMenuBar.py:88
 msgid "&Paste"
-msgstr ""
+msgstr "&Incolla"
 
 #: lib/datanav/Grid.py:141
 msgid "&Pick"
-msgstr ""
+msgstr "&Raccogli"
 
 #: ui/uiwx/dBaseMenuBar.py:52
 msgid "&Quit"
-msgstr ""
+msgstr "&Esci"
 
 #: ui/uiwx/dBaseMenuBar.py:71
 msgid "&Redo"
@@ -206,11 +208,11 @@ msgstr "&Salva Cambiamenti"
 
 #: ui/uiwx/dBaseMenuBar.py:66
 msgid "&Undo"
-msgstr ""
+msgstr "&Ripristina"
 
 #: ui/uiwx/dBaseMenuBar.py:127
 msgid "&View"
-msgstr ""
+msgstr "&Visualizza"
 
 #: ui/uiwx/dPageFrame.py:306 ui/uiwx/dPageFrame.py:323
 #: ui/uiwx/dPageFrame.py:340
@@ -242,7 +244,7 @@ msgstr "1 sostituzione è stata fatta"
 
 #: ui/dialogs/Wizard.py:93
 msgid "< Back"
-msgstr ""
+msgstr "< Indietro"
 
 #: ui/uiwx/dEditor.py:291
 msgid "< New File >"
@@ -314,27 +316,27 @@ msgstr ""
 
 #: ui/dialogs/about.py:13 ui/dialogs/htmlAbout.py:16
 msgid "About"
-msgstr ""
+msgstr "Riguardo a"
 
 #: ui/uiwx/dBaseMenuBar.py:158
 msgid "About this application"
-msgstr ""
+msgstr "Riguardo a questa applicazione"
 
 #: lib/datanav/Form.py:255
 msgid "Actions"
-msgstr ""
+msgstr "Azioni"
 
 #: ui/uiwx/dForm.py:954
 msgid "Activate"
-msgstr ""
+msgstr "Attiva"
 
 #: ui/uiwx/uiApp.py:885
 msgid "Active control isn't text-based."
-msgstr ""
+msgstr "Il controllo attivo non è basato sul testo."
 
 #: lib/datanav/Form.py:118 lib/datanav/Grid.py:145
 msgid "Add a new record"
-msgstr ""
+msgstr "Aggiungi una nuova voce"
 
 #: lib/datanav/Form.py:208
 msgid "Add a new record to the dataset."
@@ -378,7 +380,7 @@ msgstr ""
 
 #: ui/dialogs/Wizard.py:443
 msgid "Also note that this page has a different icon!"
-msgstr ""
+msgstr "Nota anche che questa pagina ha un'icona diversa!"
 
 #: ui/uiwx/dGauge.py:74
 msgid ""
