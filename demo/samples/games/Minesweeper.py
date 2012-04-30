@@ -239,7 +239,7 @@ class Board(dabo.ui.dPanel):
 	def calcFontSize(self, sz):
 		try:
 			img = self.square_0_0.image
-		except:
+		except AttributeError:
 			# Squares haven't been created yet
 			return self._squareFontSize
 		fs = img.FontSize
@@ -503,6 +503,9 @@ class Board(dabo.ui.dPanel):
 		try:
 			bs = self._boardSize
 		except AttributeError:
+			bs = (0, 0)
+		if 0 in bs:
+			# Can't allow zero-dimension boards.
 			pfm = self.Application.PreferenceManager
 			if pfm.preset.id:
 				bs = pfm.preset.width, pfm.preset.height
@@ -510,7 +513,7 @@ class Board(dabo.ui.dPanel):
 				bs = pfm.boardwidth, pfm.boardheight
 			try:
 				bs = int(bs[0]), int(bs[1])
-			except:
+			except (IndexError, ValueError):
 				# Could be set to None or "None" somehow
 				bs = _defaultBoardSize
 			self.BoardSize = tuple(bs)
@@ -520,6 +523,9 @@ class Board(dabo.ui.dPanel):
 		assert type(size) in (list, tuple)
 		assert len(size) == 2
 		assert (type(size[0]), type(size[1])) == (int, int)
+		if not (size[0] and size[1]):
+			dabo.log.error(_("Cannot set dimensions to zero."))
+			size = _defaultBoardSize
 		self._boardSize = size
 		self.Form.updateGameInfo()
 		self.Application.PreferenceManager.boardwidth = size[0]
@@ -533,13 +539,18 @@ class Board(dabo.ui.dPanel):
 			bc = self.Application.PreferenceManager.minecount
 			try:
 				self.MineCount = int(bc)
-			except:
+			except ValueError:
 				# could be None or "None" somehow
 				self.MineCount = _defaultMineCount
 		return bc
 
 	def _setMineCount(self, count):
 		assert type(count) == int
+		# Guarantee at least one mine
+		if count < 1:
+			dabo.log.error(_("Mine count must be at least 1."))
+			count = 1
+		count = max(1, count)
 		self._mineCount = count
 		self.Form.updateGameInfo()
 		self.Application.PreferenceManager.minecount = count
@@ -1018,7 +1029,8 @@ Note that this will require an internet connection.
 		for name in ("Width", "Height", "Mines"):
 			hs = dabo.ui.dSizer("horizontal")
 			l = p1.addObject(lbl, Name="lbl%s" % name, Caption="%s:" % name)
-			s = p1.addObject(dabo.ui.dSpinner, "o%s" % name, Value=preset[name], Enabled=False)
+			s = p1.addObject(dabo.ui.dSpinner, "o%s" % name, Value=preset[name], Enabled=False,
+					Min=4, Max=50)
 			hs.append(l, "fixed", alignment="right", border=b)
 			hs.append(s, border=b)
 			vs.append(hs)
@@ -1031,7 +1043,8 @@ Note that this will require an internet connection.
 		for name in ("Width", "Height", "Mines"):
 			hs = dabo.ui.dSizer("horizontal")
 			l = p2.addObject(lbl, Name="lbl%s" % name, Caption="%s:" % name)
-			s = p2.addObject(dabo.ui.dSpinner, "o%s" % name, Value=eval("self.board%s" % name))
+			s = p2.addObject(dabo.ui.dSpinner, "o%s" % name, Value=eval("self.board%s" % name),
+					Min=4, Max=50)
 			hs.append(l, "fixed", alignment="right", border=b)
 			hs.append(s, border=b)
 			vs.append(hs)
