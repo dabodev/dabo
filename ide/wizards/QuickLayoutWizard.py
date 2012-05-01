@@ -826,8 +826,6 @@ class QuickLayoutWizard(Wizard):
 		self._dataEnv = dict(((tb, dict(((fld[0], {"type": fld[1], "pk": fld[2]})
 					for fld in crs.getFields(tb))))
 					for tb in crs.getTables()))
-		print self._dataEnv
-		
 		return True
 
 
