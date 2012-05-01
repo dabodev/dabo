@@ -13,7 +13,6 @@ from ClassDesignerComponents import LayoutGridSizer
 from ClassDesignerComponents import NoSizerBasePanel
 from DragHandle import DragHandle
 import ClassDesignerMenu
-from MenuBarPanel import MenuBarPanel
 from MenuPanel import MenuPanel
 from MenuDesignerComponents import SeparatorPanel
 dui = dabo.ui
@@ -359,7 +358,7 @@ class TreeSheet(dui.dPanel):
 					childNode = node.appendChild(cap)
 				childNode.Object = itm
 
-			if not isinstance(itm, (SeparatorPanel, MenuPanel, MenuBarPanel)):
+			if not isinstance(itm, (SeparatorPanel, MenuPanel)):
 				if hasattr(itm, "Sizer") and itm.Sizer:
 					if isinstance(itm, dui.dialogs.WizardPage):
 						self._recurseChildren(itm.Children, childNode, noDisplay)
