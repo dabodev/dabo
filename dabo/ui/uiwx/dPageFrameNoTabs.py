@@ -127,6 +127,7 @@ class dPageFrameNoTabs(dPanel):
 			for ch in self.Pages:
 				self.Sizer.Show(ch, (ch is pg))
 			self.layout()
+			pg.setFocus()
 		else:
 			raise AttributeError(_("Attempt to show non-member page"))
 
@@ -236,20 +237,20 @@ class dPageFrameNoTabs(dPanel):
 			self._properties["PageSizerClass"] = val
 
 
-	def _getSel(self):
+	def _getSelectedPage(self):
 		try:
 			return self._activePage
 		except AttributeError:
 			return None
 
-	def _setSel(self, pg):
+	def _setSelectedPage(self, pg):
 		self.showPage(pg)
 
 
-	def _getSelNum(self):
+	def _getSelectedPageNumber(self):
 		return self.getPageNumber(self._activePage)
 
-	def _setSelNum(self, val):
+	def _setSelectedPageNumber(self, val):
 		pg = self.Pages[val]
 		self.showPage(pg)
 
@@ -268,10 +269,10 @@ class dPageFrameNoTabs(dPanel):
 			this to None to prevent sizers from being automatically added to child
 			pages. (dSizer or None)"""))
 
-	SelectedPage = property(_getSel, _setSel, None,
+	SelectedPage = property(_getSelectedPage, _setSelectedPage, None,
 			_("Returns a reference to the currently displayed page  (dPage | dPanel)") )
 
-	SelectedPageNumber = property(_getSelNum, _setSelNum, None,
+	SelectedPageNumber = property(_getSelectedPageNumber, _setSelectedPageNumber, None,
 			_("Returns a reference to the index of the currently displayed page  (int)") )
 
 
