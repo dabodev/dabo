@@ -485,7 +485,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		super(dColumn, self).__init__(properties=properties, attProperties=attProperties,
 				*args, **kwargs)
 		self._baseClass = dColumn
-
 		if dataFieldSent and not dataTypeSent:
 			self._setDataTypeFromDataField()
 
@@ -567,11 +566,17 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		dabo.ui.callAfter(self._restoreFontZoom)
 
 
-	def _setRenderer(self):
+	def getDataTypeForColumn(self):
 		try:
-			typ = type(self.Value)
+			typ = self.DataType
 		except (dException.FieldNotFoundException, dException.NoRecordsException):
 			typ = None
+		return typ
+
+
+	def _setRenderer(self):
+		self._setDataTypeFromDataField()
+		typ = self.getDataTypeForColumn()
 		self._rendererClass = self.defaultRenderers.get(typ, self.stringRendererClass)
 
 
@@ -741,8 +746,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		"""
 		if self.Parent:
 			currDT = self.DataType
-			dt = self.Parent.typeFromDataField(self.DataField)
-			if dt is not None and (dt != currDT):
+			dt = self.Parent.typeFromDataField(self.DataField, self)
+			if dt not in (None, type(None)) and (dt != currDT):
 				self.DataType = dt
 
 
@@ -992,6 +997,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			if isinstance(val, basestring):
 				if val.lower().strip() in ("str", "string", "char", "varchar", ""):
 					val = "str"
+			if self._dataType == val:
+				return
 			self._dataType = val
 			if "Automatic" in self.HorizontalAlignment:
 				self._setAutoHorizontalAlignment()
@@ -2147,7 +2154,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		#self.SetCellRenderer(row, col, rnd)
 
 
-	def typeFromDataField(self, df):
+	def typeFromDataField(self, df, col=None):
 		"""
 		When the DataField is set for a column, it needs to set the corresponding
 		value of its DataType property. Will return the Python data type, or None if
@@ -2155,7 +2162,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		"""
 		biz = self.getBizobj()
 		if biz is None:
-			return None
+			if col is not None:
+				return col.getDataTypeForColumn()
+			else:
+				return None
 		try:
 			pyType = biz.getDataTypeForField(df)
 		except ValueError, e:
