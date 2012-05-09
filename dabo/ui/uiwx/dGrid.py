@@ -570,7 +570,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setRenderer(self):
 		try:
 			typ = type(self.Value)
-		except dException.FieldNotFoundException:
+		except (dException.FieldNotFoundException, dException.NoRecordsException):
 			typ = None
 		self._rendererClass = self.defaultRenderers.get(typ, self.stringRendererClass)
 
