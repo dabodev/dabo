@@ -449,8 +449,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				*args, **kwargs):
 		self._isConstructed = False
 		self._dynamic = {}
-		# Initialize the data field attribute
+		# Initialize the attributes for DataField and DataType
 		self._dataField = ""
+		self._dataType = ""
 		self._expand = False
 		# Default to 2 decimal places
 		self._precision = 2
