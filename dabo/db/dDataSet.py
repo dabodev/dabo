@@ -192,11 +192,11 @@ class dDataSet(tuple):
 		if fnc:
 			filtered = [rec for rec in self if fnc(rec[fld], expr)]
 		elif op in ("startswith", "beginswith"):
-			filtered = [rec for rec in self if rec[fld].startswith(expr)]
+			filtered = [rec for rec in self if (rec[fld] or "").startswith(expr)]
 		elif op == "endswith":
-			filtered = [rec for rec in self if rec[fld].endswith(expr)]
+			filtered = [rec for rec in self if (rec[fld] or "").endswith(expr)]
 		elif op == "contains":
-			filtered = [rec for rec in self if expr in rec[fld]]
+			filtered = [rec for rec in self if expr in (rec[fld] or "")]
 		ret = self.__class__(filtered)
 		ret._sourceDataSet = self
 		ret._filtered_fld = fld
