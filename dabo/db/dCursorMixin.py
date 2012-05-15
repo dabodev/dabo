@@ -260,13 +260,16 @@ class dCursorMixin(dObject):
 				# Can't convert to decimal directly from float
 				_field_val = ustr(_field_val)
 			# Need to convert to the correct scale:
-			scale = None
-			for s in ds:
-				if s[0] == field_name:
-					if len(s) > 5:
-						scale = s[5]
+			try:
+				scale = [s[5] for s in ds
+						if s[0] == field_name][0]
+			except IndexError:
+				scale = None
 			if scale is None:
-				scale = 2
+				try:
+					scale = len(_field_val.split(".")[1])
+				except IndexError:
+					scale = 2
 			dec = tryToCorrect(Decimal, _field_val, field_name)
 			return dec.quantize(Decimal("0.%s" % (scale * "0",)))
 		else:
@@ -1371,7 +1374,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		to include, and rows is the number of rows to return.
 		"""
 		rowCount = self.RowCount
-
 		if rows is None:
 			rows = rowCount
 		else:
