@@ -1381,7 +1381,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setPrecision(self, val):
 		if self._constructed():
 			self._precision = val
-			dabo.ui.callAfterInterval(50, self.Parent.refresh)
+			if self.Parent:
+				dabo.ui.callAfterInterval(50, self.Parent.refresh)
 		else:
 			self._properties["Precision"] = val
 
