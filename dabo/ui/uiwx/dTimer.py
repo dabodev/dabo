@@ -14,7 +14,8 @@ class dTimer(PM):
 	"""Creates a timer, for causing something to happen at regular intervals."""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dTimer
-		PM.__init__(self, preClass=None, parent=parent, properties=properties, *args, **kwargs)
+		super(dTimer, self).__init__(preClass=None, parent=parent, properties=properties, *args, **kwargs)
+
 
 	def isRunning(self):
 		return self.Enabled
@@ -49,6 +50,9 @@ class dTimer(PM):
 		return None
 	def Bind(self, *args, **kwargs):
 		pass
+	def Destroy(self):
+		pass
+
 
 	def _onTimerHit(self):
 		if self.Enabled and self.Interval > 0:
@@ -80,9 +84,9 @@ class dTimer(PM):
 
 
 	Enabled = property(_getEnabled, _setEnabled, None,
-			_("Alternative means of starting/stopping the timer, or determining "
-			"its status. If Enabled is set to True and the timer has a positive value "
-			"for its Interval, the timer will be started."))
+			_("""Alternative means of starting/stopping the timer, or determining
+			its status. If Enabled is set to True and the timer has a positive value
+			for its Interval, the timer will be started.  (bool)"""))
 
 	Interval = property(_getInterval, _setInterval, None,
 			_("Specifies the timer interval (milliseconds)."))
