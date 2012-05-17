@@ -78,6 +78,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 
 	def ShowModal(self):
 		self._gtk_show_fix(True)
+		self.restoreSizeAndPositionIfNeeded()
 		# updates were potentially suppressed while the dialog
 		# wasn't visible, so update now.
 		self.update()

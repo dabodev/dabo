@@ -27,7 +27,6 @@ class dFormMixin(pm.dPemMixin):
 		self._idleRefreshInterval = 1000
 		self._drawSizerChildren = False
 		self._statusBarClass = dabo.ui.dStatusBar
-		self._windowStateSet = False
 
 		# Extract the menu definition file, if any
 		self._menuBarFile = self._extractKey((properties, attProperties, kwargs),
@@ -78,8 +77,6 @@ class dFormMixin(pm.dPemMixin):
 
 		dabo.ui.callAfter(self._createStatusBar)
 		self._createToolBar()
-		if not self._designerMode:
-			self.restoreSizeAndPosition()
 
 
 	def _getInitPropertiesList(self):
@@ -399,6 +396,17 @@ class dFormMixin(pm.dPemMixin):
 				self.Position = (x, y)
 
 
+	def restoreSizeAndPositionIfNeeded(self):
+		if not getattr(self, "_firstShown", False):
+			self.restoreSizeAndPosition()
+			self._firstShown = True
+
+
+	def Show(self, *args, **kwargs):
+		self.restoreSizeAndPositionIfNeeded()
+		super(dFormMixin, self).Show(*args, **kwargs)
+
+
 	def showModal(self):
 		"""
 		Shows the form in a modal fashion. Other forms can still be
@@ -567,8 +575,7 @@ class dFormMixin(pm.dPemMixin):
 			self.Left = max(0, self.Left)
 			self.Top = max(minTop, self.Top)
 
-		if not self._windowStateSet:
-			self.WindowState = state
+		self.WindowState = state
 
 
 	def saveSizeAndPosition(self):
@@ -1122,8 +1129,6 @@ class dFormMixin(pm.dPemMixin):
 		if self._constructed():
 			lowvalue = ustr(value).lower().strip()
 			vis = self.Visible
-			self.lockDisplay()
-			self.Visible = True
 			if lowvalue == "normal":
 				if self.IsFullScreen():
 					self.ShowFullScreen(False)
@@ -1144,9 +1149,6 @@ class dFormMixin(pm.dPemMixin):
 				self.unlockDisplay()
 				raise ValueError("The only possible values are "
 								"'Normal', 'Minimized', 'Maximized', and 'FullScreen'")
-			self._windowStateSet = True
-			self.Visible = vis
-			self.unlockDisplay()
 		else:
 			self._properties["WindowState"] = value
 
