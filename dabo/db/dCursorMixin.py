@@ -268,7 +268,7 @@ class dCursorMixin(dObject):
 			if scale is None:
 				try:
 					scale = len(_field_val.split(".")[1])
-				except IndexError:
+				except (IndexError, AttributeError):
 					scale = 2
 			dec = tryToCorrect(Decimal, _field_val, field_name)
 			return dec.quantize(Decimal("0.%s" % (scale * "0",)))
