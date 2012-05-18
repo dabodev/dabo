@@ -232,7 +232,11 @@ class dCursorMixin(dObject):
 		"""
 		if field_val is None:
 			return field_val
+
 		pythonType = self._types.get(field_name, dabo.db.getDataType(type(field_val)))
+		if not pythonType:
+			pythonType = dabo.db.getDataType(type(field_val))
+
 
 		if isinstance(field_val, pythonType):
 			# No conversion needed.
