@@ -320,11 +320,10 @@ class ClassDesigner(dabo.dApp):
 				dui.dEditBox, dui.dEditor, dui.dSlidePanelControl, dui.dForm, dui.dFormMain,
 				dui.dDockForm, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel,
 				dui.dLed, dui.dLine, dui.dListBox, dui.dListControl, dui.dMaskedTextBox,
-				dui.dOkCancelDialog, dui.dPanel, dui.dPage,
-				dui.dScrollPanel, dui.dPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect,
-				dui.dPageStyled, dui.dPageFrameNoTabs, dui.dRadioList, dabo.ui.dShell, dui.dSlider,
-				dui.dSpinner, dui.dSplitter, dui.dTextBox, dui.dToggleButton, dui.dTreeView,
-				dlgs.Wizard, dlgs.WizardPage)
+				dui.dOkCancelDialog, dui.dPanel, dui.dPage, dui.dScrollPanel, dui.dPageFrame,
+				dui.dPageList, dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs,
+				dui.dRadioList, dabo.ui.dShell, dui.dSlider, dui.dSpinner, dui.dSplitter,
+				dui.dTextBox, dui.dToggleButton, dui.dTreeView, dlgs.Wizard, dlgs.WizardPage)
 		try:
 			classes += (dui.dMediaControl, )
 		except AttributeError:
@@ -345,6 +344,8 @@ class ClassDesigner(dabo.dApp):
 		def mthdsForClass(cls):
 			ret = []
 			mthds = inspect.getmembers(cls, inspect.ismethod)
+			# We only want Dabo public methods, which will all begin with
+			# a lower-case letter.
 			ret = [mthd[0] for mthd in mthds
 					if mthd[0][0] in "abcdefghijklmnopqrstuvwxyz"]
 			return ret
@@ -1982,34 +1983,39 @@ class ClassDesigner(dabo.dApp):
 
 				# Create a dropdown list containing all the choices.
 				# NOTE: This would be an excellent candidate for usage ordering.
-				chc = ["Form", "MDI MainForm", "DockForm", "Panel", "ScrollPanel", "SlidePanel",
-						"Plain Dialog", "OK/Cancel Dialog", "Wizard", "WizardPage", "PageFrame",
-						"PageList", "PageSelect", "PageStyled", "PageNoTabs", "Box", "Bitmap",
-						"BitmapButton", "Button", "CheckBox", "ComboBox", "DateTextBox",
-						"DropdownList", "EditBox", "Editor", "Gauge", "Grid", "HtmlBox", "Image",
-						"Label", "LED", "Line", "ListBox", "ListControl", "MaskedTextBox",
-						"MediaControl", "Page", "RadioList", "Slider", "Spinner", "Splitter", "TextBox",
-						"ToggleButton", "TreeView"]
-				keys = [dui.dForm, dui.dFormMain, dui.dDockForm, dui.dPanel, dui.dScrollPanel,
-						dui.dSlidePanelControl, dui.dDialog, dui.dOkCancelDialog, dlgs.Wizard,
-						dlgs.WizardPage, dui.dPageFrame, dui.dPageList, dui.dPageSelect,
-						dui.dPageStyled, dui.dPageFrameNoTabs, dui.dBox, dui.dBitmap,
-						dui.dBitmapButton, dui.dButton, dui.dCheckBox, dui.dComboBox,
-						dui.dDateTextBox, dui.dDropdownList, dui.dEditBox, dui.dEditor,
-						dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel, dui.dLine,
-						dui.dLed, dui.dListBox, dui.dListControl, dui.dMaskedTextBox,
-						dui.dPage, dui.dRadioList, dabo.ui.dShell, dui.dSlider, dui.dSpinner,
-						dui.dSplitter, dui.dTextBox, dui.dToggleButton, dui.dTreeView]
+				nameClassPairs = (("Form", dui.dForm), ("MDI MainForm", dui.dFormMain),
+						("DockForm", dui.dDockForm), ("Panel", dui.dPanel), ("ScrollPanel", dui.dScrollPanel),
+						("SlidePanel", dui.dSlidePanelControl), ("Plain Dialog", dui.dDialog),
+						("OK/Cancel Dialog", dui.dOkCancelDialog), ("Wizard", dlgs.Wizard),
+						("WizardPage", dlgs.WizardPage), ("PageFrame", dui.dPageFrame),
+						("PageList", dui.dPageList), ("PageSelect", dui.dPageSelect),
+						("PageStyled", dui.dPageStyled), ("PageNoTabs", dui.dPageFrameNoTabs),
+						("Box", dui.dBox), ("Bitmap", dui.dBitmap), ("BitmapButton", dui.dBitmapButton),
+						("Button", dui.dButton), ("CheckBox", dui.dCheckBox), ("ComboBox", dui.dComboBox),
+						("DateTextBox", dui.dDateTextBox), ("DropdownList", dui.dDropdownList),
+						("EditBox", dui.dEditBox), ("Editor", dui.dEditor), ("Gauge", dui.dGauge),
+						("Grid", dui.dGrid), ("HtmlBox", dui.dHtmlBox), ("Image", dui.dImage),
+						("Label", dui.dLabel), ("LED", dui.dLed), ("Line", dui.dLine),
+						("ListBox", dui.dListBox), ("ListControl", dui.dListControl),
+						("MaskedTextBox", dui.dMaskedTextBox), ("Page", dui.dPage),
+						("RadioList", dui.dRadioList), ("Shell", dui.dShell), ("Slider", dui.dSlider),
+						("Spinner", dui.dSpinner), ("Splitter", dui.dSplitter), ("TextBox", dui.dTextBox),
+						("ToggleButton", dui.dToggleButton), ("TreeView", dui.dTreeView))
+				names = [pair[0] for pair in nameClassPairs]
+				classes = [pair[1] for pair in nameClassPairs]
 				try:
-					keys += (dui.dMediaControl, )
+					maskedPos = classes.index(dui.dMaskedTextBox) + 1
+					classes.insert(maskedPos, dui.dMediaControl)
+					names.insert(maskedPos, "Media Control")
 				except AttributeError:
 					# dMediaControl was not imported; some earlier wx versions don't include this
-					chc.remove("MediaControl")
+					pass
 				if not _USE_DOCKFORM:
-					# The dock form reference is position 1
-					chc.pop(1)
-					keys.pop(1)
-				self.dd = dabo.ui.dDropdownList(self, Choices=chc, Keys=keys,
+					# Remove that choice
+					pos = names.index("DockForm")
+					names.pop(pos)
+					classes.pop(pos)
+				self.dd = dabo.ui.dDropdownList(self, Choices=names, Keys=classes,
 						ValueMode="key")
 				self.dd.StringValue="Form"
 				self.dd.bindEvent(dEvents.Hit, self.onClassSel)
