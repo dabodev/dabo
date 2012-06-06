@@ -2522,7 +2522,7 @@ class ReportWriter(object):
 
 			# Now, iterate the groups and print them as necessary:
 			for idx, group in enumerate(groups):
-				resetPageNum = eval(group.get("resetPageNumber", "False"))
+				resetPageNum = group.getProp("resetPageNumber")
 				curVal = self._groupValues[group["expr"]]["curVal"]
 
 				if curVal != group.getProp("expr") \
