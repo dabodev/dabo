@@ -75,28 +75,34 @@ def previewPDF(path, modal=False):
 					subprocess.Popen((viewer, path))
 
 
-def printPDF(path, printerName=None):
+def printPDF(path, printerName=None, printerPort=None, copies=1):
 	"""Print the passed PDF file to the default printer.
 
-	If gsprint is installed and on the path, the printerName parameter
-	can be used to specify which printer to output to. NOTE: gsprint
-	is part of gsview, and gsview depends on ghostscript. These packages
-	are GPL - to avoid legal issues make sure your end user installs them
-	separately from your application.
+	If gsprint is installed and on the path:
+		1) printerName specifies which printer to output to. 
+		2) printerPort specifies which port to output to.
+		3) multiple copies are handled more efficiently.
+
+	NOTE: gsprint	is part of gsview, and gsview depends on ghostscript.
+	These packages are GPL - to avoid legal issues make sure your end 
+	user installs themseparately from your application.
 	"""
 	if gsprint:
 		args = ["gsprint", path]
 		if printerName:
 			args.insert(-1, '-printer')
 			args.insert(-1, "%s" % printerName)
+		if copies > 1:
+			args.insert(-1, '-copies')
+			args.insert(-1, str(copies))
 		p = subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 		p.communicate()
 	else:
-		try:
-			os.startfile(path, "print")
-		except AttributeError:
-			# startfile() only available on Windows
-			subprocess.Popen(("lpr", path))
+		for i in range(copies):
+			if sys.platform.startswith("win"):
+				os.startfile(path, "print")
+			else:
+				subprocess.Popen(("lpr", path))
 
 
 def getTestCursorXmlFromDataSet(dataset):
