@@ -57,47 +57,20 @@ class dConnectInfo(dObject):
 
 
 	def setConnInfo(self, connInfo, nm=""):
-		def lowerKeys(dct):
-			"""
-			Takes a dict, and returns another dict identical except
-			for the fact that all the keys that were string types are now
-			lower case.
-			"""
-			ret = {}
-			for kk, vv in dct.items():
-				if isinstance(kk, basestring):
-					kk = kk.lower()
-				ret[kk] = vv
-			return ret
-
-		if isinstance(connInfo, dict):
-			# The info is already in dict format
-			connDict = lowerKeys(connInfo)
-		else:
-			# They've passed the info in XML format. Either this is the actual
-			# XML, or it is a path to the XML file. Either way, the parser
-			# will handle it.
-			cd = importConnections(connInfo)
-			# There may be multiple connections in this file. If they passed a
-			# name, use that connection; otherwise, use the first.
-			try:
-				connDict = cd[nm]
-			except KeyError:
-				nm = cd.keys()[0]
-				connDict = cd[nm]
-
 		# Run through the connDict, and set the appropriate properties. If it isn't
 		# a valid property name, raise TypeError.
 		props = ["Name", "DbType", "Host", "User", "Password", "Database",
 				"PlainTextPassword", "Port", "RemoteHost", "KeepAliveInterval"]
 		lprops = [p.lower() for p in props]
-		for k, v in connDict.items():
+		for k, v in connInfo.items():
 			try:
 				propidx = lprops.index(k.lower())
 			except ValueError:
 				propidx = None
 			if propidx is not None:
 				setattr(self, props[propidx], v)
+				# Delete parameter to avoid passing to referred backend object. 
+				del connInfo[k]
 			else:
 				raise TypeError("Property '%s' invalid." % k)
 
