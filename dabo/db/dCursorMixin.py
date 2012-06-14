@@ -387,6 +387,9 @@ class dCursorMixin(dObject):
 						_("DBQueryException encountered in execute(): %s\n%s") % (errMsg, sql))
 				raise dException.DBQueryException(errMsg)
 
+		# Set the last execute time in case there is a Keep Alive Interval
+		self.BackendObject.lastExecuteTime = time.time()
+
 		# Some backend programs do odd things to the description
 		# This allows each backend to handle these quirks individually.
 		self.BackendObject.massageDescription(self)
@@ -436,6 +439,7 @@ class dCursorMixin(dObject):
 		ac = self.AuxCursor
 		self._syncAuxProperties()
 		ac.execute(sql, params)
+		self.BackendObject.lastExecuteTime = time.time()
 		return ac
 
 

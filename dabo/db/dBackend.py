@@ -32,6 +32,7 @@ class dBackend(dObject):
 		self._connection = None
 		# Reference to the cursor that is using this object
 		self._cursor = None
+		self.lastExecuteTime = time.time() # For keep alive interval
 
 
 	def isValidModule(self):
@@ -378,9 +379,9 @@ class dBackend(dObject):
 	def getUpdateTablePrefix(self, tbl, autoQuote=True):
 		"""
 		By default, the update SQL statement will be in the form of
-		
+
 			tablename.fieldname
-		
+
 		but some backends do no accept this syntax. If not, change
 		this method to return an empty string, or whatever should
 		preceed the field name in an update statement.
@@ -393,9 +394,9 @@ class dBackend(dObject):
 		"""
 		By default, the comparisons in the WHERE clauses of
 		SQL statements will be in the form of
-		
+
 			tablename.fieldname
-		
+
 		but some backends do no accept this syntax. If not, change
 		this method to return an empty string, or whatever should
 		preceed the field name in a comparison in the WHERE clause
@@ -587,20 +588,22 @@ class dBackend(dObject):
 				self.backendObj = backendObj
 
 			def run(self):
-				last_hit = time.time()
+				kal = self.backendObj.KeepAliveInterval
+				app = self.backendObj.Application
+				con = self.backendObj._connection
+				cur = con.cursor()
+
 				while True:
-					kal = self.backendObj.KeepAliveInterval
-					app = self.backendObj.Application
+					time.sleep(5)
+
 					if kal is None or not app or getattr(app, "_finished", False):
 						self._toStop = True
 					if self._toStop:
 						return
-					if time.time() - last_hit > kal:
-						con = self.backendObj._connection
-						cur = con.cursor()
+
+					if time.time() - self.backendObj.lastExecuteTime > kal:
 						cur.execute("select 1")
-						last_hit = time.time()
-						time.sleep(0.1)
+						self.backendObj.lastExecuteTime = time.time()
 
 		existingThread = getattr(self, "_keepAliveThread", None)
 		if existingThread:
