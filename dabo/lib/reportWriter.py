@@ -2553,10 +2553,12 @@ class ReportWriter(object):
 		endPage()
 		self.Canvas.showPages()
 		if save:
-			if self.OutputFile is not None:
-				c.save()
-			self._canvas = None
+			self.save()
 
+	def save(self):
+		if self.OutputFile is not None and self._canvas is not None:
+			self._canvas.save()
+		self._canvas = None
 
 	def getBandHeight(self, bandDict):
 		"""Return the height of the band.
