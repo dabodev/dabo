@@ -192,43 +192,44 @@ class ClassDesigner(dabo.dApp):
 		# 'order' value will determine their order in the menu. One plan
 		# is to keep track of the user's choices, and weight the orders
 		# so that their most frequent choices are at the top.
-		self.designerControls = ({"name" : "Box", "class" : dui.dBox, "order" : 0},
-				{"name" : "Bitmap", "class" : dui.dBitmap, "order" : 10},
-				{"name" : "BitmapButton", "class" : dui.dBitmapButton, "order" : 20},
-				{"name" : "Button", "class" : dui.dButton, "order" : 30},
-				{"name" : "CheckBox", "class" : dui.dCheckBox, "order" : 40},
-				{"name" : "CodeEditor", "class" : dui.dEditor, "order" : 45},
-				{"name" : "ComboBox", "class" : dui.dComboBox, "order" : 50},
-				{"name" : "DateTextBox", "class" : dui.dDateTextBox, "order" : 60},
-				{"name" : "DropdownList", "class" : dui.dDropdownList, "order" : 70},
-				{"name" : "EditBox", "class" : dui.dEditBox, "order" : 80},
-				{"name" : "SlidePanelControl", "class" : dui.dSlidePanelControl, "order" : 82},
-				{"name" : "HtmlBox", "class" : dui.dHtmlBox, "order" : 85},
-				{"name" : "Gauge", "class" : dui.dGauge, "order" : 90},
-				{"name" : "Grid", "class" : dui.dGrid, "order" : 100},
-				{"name" : "Image", "class" : dui.dImage, "order" : 110},
-				{"name" : "Label", "class" : dui.dLabel, "order" : 120},
-				{"name" : "LED", "class" : dui.dLed, "order" : 40},
-				{"name" : "Line", "class" : dui.dLine, "order" : 130},
-				{"name" : "ListBox", "class" : dui.dListBox, "order" : 140},
-				{"name" : "ListControl", "class" : dui.dListControl, "order" : 150},
-				{"name" : "MaskedTextBox", "class" : dui.dMaskedTextBox, "order" : 155},
-				{"name" : "RadioList", "class" : dui.dRadioList, "order" : 160},
-				{"name" : "Page", "class" : dui.dPage, "order" : 170},
-				{"name" : "Panel", "class" : dui.dPanel, "order" : 180},
-				{"name" : "ScrollPanel", "class" : dui.dScrollPanel, "order" : 190},
-				{"name" : "Shell", "class" : dabo.ui.dShell, "order" : 195},
-				{"name" : "PageFrame", "class" : dui.dPageFrame, "order" : 200},
-				{"name" : "PageList", "class" : dui.dPageList, "order" : 210},
-				{"name" : "PageSelect", "class" : dui.dPageSelect, "order" : 220},
-				{"name" : "PageStyled", "class" : dui.dPageStyled, "order" : 225},
-				{"name" : "PageFrameNoTabs", "class" : dui.dPageFrameNoTabs, "order" : 230},
-				{"name" : "Slider", "class" : dui.dSlider, "order" : 240},
-				{"name" : "Spinner", "class" : dui.dSpinner, "order" : 250},
-				{"name" : "Splitter", "class" : dui.dSplitter, "order" : 260},
-				{"name" : "TextBox", "class" : dui.dTextBox, "order" : 270},
-				{"name" : "ToggleButton", "class" : dui.dToggleButton, "order" : 280},
-				{"name" : "TreeView", "class" : dui.dTreeView, "order" : 290}
+		self.designerControls = ({"name" : "Box", "class" : dui.dBox, "order" : 10},
+				{"name" : "Bitmap", "class" : dui.dBitmap, "order" : 20},
+				{"name" : "BitmapButton", "class" : dui.dBitmapButton, "order" : 30},
+				{"name" : "Button", "class" : dui.dButton, "order" : 40},
+				{"name" : "CheckBox", "class" : dui.dCheckBox, "order" : 50},
+				{"name" : "CodeEditor", "class" : dui.dEditor, "order" : 60},
+				{"name" : "ComboBox", "class" : dui.dComboBox, "order" : 70},
+				{"name" : "DateTextBox", "class" : dui.dDateTextBox, "order" : 80},
+				{"name" : "DropdownList", "class" : dui.dDropdownList, "order" : 90},
+				{"name" : "EditBox", "class" : dui.dEditBox, "order" : 100},
+				{"name" : "SlidePanelControl", "class" : dui.dSlidePanelControl, "order" : 110},
+				{"name" : "HtmlBox", "class" : dui.dHtmlBox, "order" : 120},
+				{"name" : "Gauge", "class" : dui.dGauge, "order" : 130},
+				{"name" : "Grid", "class" : dui.dGrid, "order" : 140},
+				{"name" : "Image", "class" : dui.dImage, "order" : 150},
+				{"name" : "Label", "class" : dui.dLabel, "order" : 160},
+				{"name" : "LED", "class" : dui.dLed, "order" : 170},
+				{"name" : "Line", "class" : dui.dLine, "order" : 180},
+				{"name" : "ListBox", "class" : dui.dListBox, "order" : 190},
+				{"name" : "ListControl", "class" : dui.dListControl, "order" : 200},
+				{"name" : "CheckList", "class" : dui.dCheckList, "order" : 210},
+				{"name" : "MaskedTextBox", "class" : dui.dMaskedTextBox, "order" : 220},
+				{"name" : "RadioList", "class" : dui.dRadioList, "order" : 230},
+				{"name" : "Page", "class" : dui.dPage, "order" : 240},
+				{"name" : "Panel", "class" : dui.dPanel, "order" : 250},
+				{"name" : "ScrollPanel", "class" : dui.dScrollPanel, "order" : 260},
+				{"name" : "Shell", "class" : dabo.ui.dShell, "order" : 270},
+				{"name" : "PageFrame", "class" : dui.dPageFrame, "order" : 280},
+				{"name" : "PageList", "class" : dui.dPageList, "order" : 290},
+				{"name" : "PageSelect", "class" : dui.dPageSelect, "order" : 300},
+				{"name" : "PageStyled", "class" : dui.dPageStyled, "order" : 310},
+				{"name" : "PageFrameNoTabs", "class" : dui.dPageFrameNoTabs, "order" : 320},
+				{"name" : "Slider", "class" : dui.dSlider, "order" : 330},
+				{"name" : "Spinner", "class" : dui.dSpinner, "order" : 340},
+				{"name" : "Splitter", "class" : dui.dSplitter, "order" : 350},
+				{"name" : "TextBox", "class" : dui.dTextBox, "order" : 360},
+				{"name" : "ToggleButton", "class" : dui.dToggleButton, "order" : 370},
+				{"name" : "TreeView", "class" : dui.dTreeView, "order" : 380}
 				)
 		try:
 			self.designerControls += ({"name" : "MediaControl", "class" : dui.dMediaControl, "order" : 155}, )
@@ -1996,7 +1997,7 @@ class ClassDesigner(dabo.dApp):
 						("EditBox", dui.dEditBox), ("Editor", dui.dEditor), ("Gauge", dui.dGauge),
 						("Grid", dui.dGrid), ("HtmlBox", dui.dHtmlBox), ("Image", dui.dImage),
 						("Label", dui.dLabel), ("LED", dui.dLed), ("Line", dui.dLine),
-						("ListBox", dui.dListBox), ("ListControl", dui.dListControl),
+						("ListBox", dui.dListBox), ("ListControl", dui.dListControl), ("CheckList", dui.dCheckList),
 						("MaskedTextBox", dui.dMaskedTextBox), ("Page", dui.dPage),
 						("RadioList", dui.dRadioList), ("Shell", dui.dShell), ("Slider", dui.dSlider),
 						("Spinner", dui.dSpinner), ("Splitter", dui.dSplitter), ("TextBox", dui.dTextBox),
@@ -3238,6 +3239,7 @@ class ClassDesigner(dabo.dApp):
 			pop.append(_("Add ListBox"), OnHit=self.onNewListBox)
 			pop.append(_("Add ListControl"), OnHit=self.onNewListControl)
 			pop.append(_("Add MaskedTextBox"), OnHit=self.onNewMaskedTextBox)
+			pop.append(_("Add CheckList"), OnHit=self.onNewCheckList)
 			pop.append(_("Add RadioList"), OnHit=self.onNewRadioList)
 			pop.append(_("Add Spinner"), OnHit=self.onNewSpinner)
 			pop.append(_("Add TextBox"), OnHit=self.onNewTextBox)
@@ -3477,6 +3479,8 @@ class ClassDesigner(dabo.dApp):
 		dui.callAfter(self.addNewControl, None, dui.dListControl)
 	def onNewMaskedTextBox(self, evt):
 		dui.callAfter(self.addNewControl, None, dui.dMaskedTextBox)
+	def onNewCheckList(self, evt):
+		dui.callAfter(self.addNewControl, None, dui.dCheckList)
 	def onNewMediaControl(self, evt):
 		try:
 			dui.callAfter(self.addNewControl, None, dui.dMediaControl)
@@ -3858,6 +3862,7 @@ class ClassDesigner(dabo.dApp):
 					_("ListBox") : self.onNewListBox,
 					_("ListControl") : self.onNewListControl,
 					_("MaskedTextBox") : self.onNewMaskedTextBox,
+					_("CheckList") : self.onNewCheckList,
 					_("MediaControl") : self.onNewMediaControl,
 					_("RadioList") : self.onNewRadioList,
 					_("Panel") : self.onNewPanel,
@@ -4283,6 +4288,7 @@ if __name__ == '__main__':
 					(_("ListBox"), dui.dListBox),
 					(_("ListControl"), dui.dListControl),
 					(_("MaskedTextBox"), dui.dMaskedTextBox),
+					(_("CheckList"), dui.dCheckList),
 					(_("Panel"), dui.dPanel),
 					(_("ScrollPanel"), dui.dScrollPanel),
 					(_("PageFrame"), dui.dPageFrame),

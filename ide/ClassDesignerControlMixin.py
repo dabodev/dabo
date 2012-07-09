@@ -994,6 +994,10 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(fontProps)
 			ret.update(choiceProps)
 			ret.update(multiSelectProps)
+		elif isinstance(self, dui.dCheckList):
+			ret.update(colorProps)
+			ret.update(fontProps)
+			ret.update(choiceProps)
 		elif isinstance(self, dui.dListControl):
 			ret.update(listControlProps)
 			ret.update(colorProps)
