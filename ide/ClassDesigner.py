@@ -320,7 +320,7 @@ class ClassDesigner(dabo.dApp):
 				dui.dComboBox, dui.dDateTextBox, dui.dDialog, dui.dDropdownList,
 				dui.dEditBox, dui.dEditor, dui.dSlidePanelControl, dui.dForm, dui.dFormMain,
 				dui.dDockForm, dui.dGauge, dui.dGrid, dui.dHtmlBox, dui.dImage, dui.dLabel,
-				dui.dLed, dui.dLine, dui.dListBox, dui.dListControl, dui.dMaskedTextBox,
+				dui.dLed, dui.dLine, dui.dListBox, dui.dListControl, dui.dCheckList, dui.dMaskedTextBox,
 				dui.dOkCancelDialog, dui.dPanel, dui.dPage, dui.dScrollPanel, dui.dPageFrame,
 				dui.dPageList, dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs,
 				dui.dRadioList, dabo.ui.dShell, dui.dSlider, dui.dSpinner, dui.dSplitter,
