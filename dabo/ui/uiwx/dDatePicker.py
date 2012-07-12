@@ -197,14 +197,6 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 		self.bindKey("backspace", self._processKey)
 		self.bindKey("delete", self._processKey)
 
-	# def __onWxKeyChar(self, evt):
-	# 	self.raiseEvent(dEvents.KeyChar, evt)
-	# 	dabo.ui.dCallAfterInterval(100, self.__checkNoneValue())
-	#
-	# def __checkNoneValue(self):
-	# 	if super(dDatePicker, self).GetValue() == 'INVALID DateTime':
-	# 		self.SetValue(None)
-
 	def _getPyValue(self, val):
 		if self._lastWasNone:
 			val = None
@@ -219,7 +211,6 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 						self._timePart[3]
 					)
 				)
-		print "Value after py val is '%s'" % val
 
 		return val
 
