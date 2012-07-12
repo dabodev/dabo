@@ -70,6 +70,9 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 			properties, attProperties, *args, **kwargs)
 		self._bindKeys()
 
+		if self.AllowNullDate:
+			self.SetValue(None) # Need this for the datetime not to display the current date when Null.
+
 	def _initEvents(self):
 		super(dDatePicker, self)._initEvents()
 		self.Bind(wx.EVT_DATE_CHANGED, self._onWxHit)
@@ -164,6 +167,8 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 			self.setToYearDay("Last")
 		elif key == 100:	# d
 			self._setCustomDate()
+		elif key in (dabo.ui.dKeys.key_Delete, dabo.ui.dKeys.key_Back):
+			self.Value = None
 		else:
 			print key
 
@@ -189,6 +194,16 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 		self.bindKey("y", self._processKey)
 		self.bindKey("r", self._processKey)
 		self.bindKey("=", self._processKey)
+		self.bindKey("backspace", self._processKey)
+		self.bindKey("delete", self._processKey)
+
+	# def __onWxKeyChar(self, evt):
+	# 	self.raiseEvent(dEvents.KeyChar, evt)
+	# 	dabo.ui.dCallAfterInterval(100, self.__checkNoneValue())
+	#
+	# def __checkNoneValue(self):
+	# 	if super(dDatePicker, self).GetValue() == 'INVALID DateTime':
+	# 		self.SetValue(None)
 
 	def _getPyValue(self, val):
 		if self._lastWasNone:
@@ -204,6 +219,8 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 						self._timePart[3]
 					)
 				)
+		print "Value after py val is '%s'" % val
+
 		return val
 
 	def _getWxValue(self, val):
@@ -323,7 +340,6 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 			raise ValueError(_("The only allowed values are: 'Date', 'Timestamp'."))
 
 	# Property definitions:
-
 	AllowNullDate = property(_getAllowNullDate, _setAllowNullDate, None,
 		_("""If True enable Null vale in date. (bool)(Default=False)"""))
 
