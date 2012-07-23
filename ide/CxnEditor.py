@@ -17,6 +17,14 @@ from HomeDirectoryStatusBar import HomeDirectoryStatusBar
 
 
 
+def flushValues(fnc):
+	def _wrapped(self, *args, **kwargs):
+		self.updtFromForm()
+		return fnc(self, *args, **kwargs)
+	return _wrapped
+
+
+
 class EditorForm(dui.dForm):
 	def afterSetMenuBar(self):
 		self.createMenu()
@@ -35,13 +43,13 @@ class EditorForm(dui.dForm):
 				"PostgreSQL" : 5432,
 				"MsSQL" : 1433,
 				"SQLite" : None }
-		connKeys = ["name", "host", "dbtype", "port", "database", "user", "password"]
+		self.connDict = {}
+		self._origConnDict = {}
+		self.connKeys = ["name", "host", "dbtype", "port", "database", "user", "password"]
+		self.currentConn = self._defaultConnName()
 		# Make sure that they are defined as form attributes
-		for ck in connKeys:
+		for ck in self.connKeys:
 			setattr(self, ck, None)
-		self.connDict = dict.fromkeys(connKeys)
-		self._origConnDict = dict.fromkeys(connKeys)
-		self.currentConn = None
 		# If we're opening a cnxml file that was saved with a CryptoKey, this
 		# flag will indicate that the user should be prompted.
 		self._opening = False
@@ -74,7 +82,7 @@ class EditorForm(dui.dForm):
 		# Add the fields
 		# Connection Dropdown
 		cap = dui.dLabel(self.bg, Caption=_("Connection"))
-		ctl = dui.dDropdownList(self.bg, Choices=[""],
+		ctl = dui.dDropdownList(self.bg, Choices=self.connDict.keys(),
 				RegID="connectionSelector",
 				OnHit=self.onConnectionChange)
 		btn = dui.dButton(self.bg, Caption=_("Edit Name"), RegID="cxnEdit",
@@ -190,7 +198,7 @@ class EditorForm(dui.dForm):
 
 
 	def hasMultipleConnections(self):
-		return len(self.connDict.keys()) > 1
+		return len(self.connDict) > 1
 
 
 	def onCxnDelete(self, evt):
@@ -202,7 +210,7 @@ class EditorForm(dui.dForm):
 		pos = cs.PositionValue
 		del self.connDict[delkey]
 		cs.Choices = self.connDict.keys()
-		cs.PositionValue = min(pos, len(self.connDict.keys())-1)
+		cs.PositionValue = min(pos, len(self.connDict) - 1)
 		self.currentConn = cs.StringValue
 		self.enableControls()
 		self.updtToForm()
@@ -233,7 +241,6 @@ class EditorForm(dui.dForm):
 		key = self._askForKey()
 		if key:
 			self.Application.CryptoKey = key
-			# Need to re-encrypt the password
 			self.updtFromForm()
 
 
@@ -247,25 +254,22 @@ class EditorForm(dui.dForm):
 		self.testConnection()
 
 
+	@flushValues
 	def onOpen(self, evt):
-		# Update the values
-		self.updtFromForm()
 		# Now open the file
 		self.openFile()
 
 
+	@flushValues
 	def onNewFile(self, evt):
-		# Update the values
-		self.updtFromForm()
 		# See if the user wants to save changes (if any)
 		if not self.confirmChanges():
 			return
 		self.newFile()
 
 
+	@flushValues
 	def onNewConn(self, evt):
-		# Update the values
-		self.updtFromForm()
 		# Create the new connection
 		self.newConnection()
 
@@ -274,9 +278,8 @@ class EditorForm(dui.dForm):
 		self.saveFile()
 
 
+	@flushValues
 	def onDbTypeChanged(self, evt):
-		# Update the values
-		self.updtFromForm()
 		self.enableControls()
 		if self.defDbPorts[self.dbtype] is None:
 			self.port = ""
@@ -309,9 +312,8 @@ class EditorForm(dui.dForm):
 		self.update()
 
 
+	@flushValues
 	def testConnection(self):
-		# Update the values
-		self.updtFromForm()
 		# Create a connection object.
 		ci = dabo.db.dConnectInfo(connInfo=self.connDict[self.currentConn])
 		mb = dui.stop
@@ -337,7 +339,7 @@ class EditorForm(dui.dForm):
 		# Make sure that changes to the current control are used.
 		self.activeControlValid()
 		if self.currentConn is not None:
-			dd = self.connDict[self.currentConn]
+			dd = self.connDict.get(self.currentConn, {})
 			for fld in dd.keys():
 				val = getattr(self, fld)
 				if fld == "password":
@@ -374,8 +376,6 @@ class EditorForm(dui.dForm):
 							continue
 						else:
 							val = ""
-				else:
-					val = dd[fld]
  				setattr(self, fld, val)
 
 
@@ -389,27 +389,34 @@ class EditorForm(dui.dForm):
 		setattr(self, "password", val)
 
 
+	def _blankConnection(self):
+		return dict.fromkeys(self.connKeys)
+
+
+	def _defaultConnName(self):
+		return u"Connection_" + ustr(len(self.connDict.keys()) + 1)
+
+
 	def newFile(self):
 		self.connFile = self.newFileName
-		self.connDict = {}
-		# Set the form caption
-		self.Caption = _("Dabo Connection Editor: %s") % os.path.basename(self.connFile)
-		# Add a new blank connection
+		self.currentConn = self._defaultConnName()
 		self.newConnection()
 		self._origConnDict = copy.deepcopy(self.connDict)
+		# Set the form caption
+		self.Caption = _("Dabo Connection Editor: %s") % os.path.basename(self.connFile)
 		# Fill the controls
 		self.populate()
 
 
+	@flushValues
 	def newConnection(self):
-		# Update the values
-		self.updtFromForm()
 		# Get the current dbtype
-		if self.currentConn is not None:
+		currDbType = None
+		if (self.currentConn is not None) and (self.currentConn in self.connDict):
 			currDbType = self.connDict[self.currentConn]["dbtype"]
-		else:
+		if not currDbType:
 			currDbType = u"MySQL"
-		newName = u"Connection_" + ustr(len(self.connDict.keys()) + 1)
+		newName = self._defaultConnName()
 		self.connDict[newName] = {
 				"dbtype" : currDbType,
 				"name" : newName,
@@ -424,8 +431,8 @@ class EditorForm(dui.dForm):
 		self.populate()
 
 
+	@flushValues
 	def saveFile(self):
-		self.updtFromForm()
 		if self._origConnDict != self.connDict:
 			self.writeChanges()
 			self._origConnDict = copy.deepcopy(self.connDict)
@@ -459,11 +466,14 @@ class EditorForm(dui.dForm):
 		self.updtToForm()
 		self.update()
 		conn = self.currentConn
+		cs = self.connectionSelector
+		if conn not in cs.Choices:
+			cs.Choices.append(conn)
 		self.connectionSelector.Value = conn
 
 
+	@flushValues
 	def openFile(self, connFile=None):
-		self.activeControlValid()
 		# See if the user wants to save changes (if any)
 		if not self.confirmChanges():
 			return
@@ -505,9 +515,8 @@ class EditorForm(dui.dForm):
 			return False
 
 
+	@flushValues
 	def confirmChanges(self):
-		self.activeControlValid()
-		self.updtFromForm()
 		if self._origConnDict != self.connDict:
 			# Could be relative path differences
 			self.relPaths(self.connDict.values())
@@ -578,7 +587,7 @@ def main():
 	app.MainFormClass = None
 	app.setup()
 
-	if len(files) == 0:
+	if not files:
 		# The form can either edit a new file, or the user can open the file
 		# from the form
 		o = EditorForm()
