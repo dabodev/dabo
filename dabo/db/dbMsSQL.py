@@ -16,18 +16,15 @@ class MSSQL(dBackend):
 		self.dbModuleName = "pymssql"
 		self.useTransactions = True  # this does not appear to be required
 		import pymssql
+		self.dbapi = pymssql
 
 
 	def getConnection(self, connectInfo, forceCreate=False, **kwargs):
 		"""
-		The pymssql module requires the connection be created for the FreeTDS libraries first.  Therefore, the
-		DSN is really the name of the connection for FreeTDS ::
-			
+		The pymssql module requires the connection be created for the FreeTDS libraries first.
+		Therefore, the DSN is really the name of the connection for FreeTDS :
 		  __init__(self, dsn, user, passwd, database = None, strip = 0)
-		
 		"""
-		import pymssql
-
 		port = ustr(connectInfo.Port)
 		if not port or port == "None":
 			port = 1433
@@ -38,29 +35,39 @@ class MSSQL(dBackend):
 
 		# hack to make this work.  I am sure there is a better way.
 		self.database = database
+		# Hack to make new driver working with non us-ascii encoding.
+		if "charset" not in kwargs and self.dbapi.__version__ >= "2.0.0":
+			kwargs["charset"] = self.Encoding
 
-		self._connection = pymssql.connect(host=host, user=user, password=password,
+		self._connection = self.dbapi.connect(host=host, user=user, password=password,
 				database=database, **kwargs)
 		return self._connection
 
 
 	def getDictCursorClass(self):
-		"""Currently this is not working completely"""
-		import pymssql
-
-		if pymssql.__version__ >= "2.0.0":
-			class ConCursor(pymssql.Cursor):
+		"""Since there are two versions of driver package we support both,
+		deprecated and new one.
+		"""
+		if self.dbapi.__version__ >= "2.0.0":
+			class ConCursor(self.dbapi.Cursor):
 				def __init__(self, *args, **kwargs):
-					# pymssql requires an additional param to its __init__() method
+					# pymssql requires an additional param to be passed
+					# to its __init__() method
 					kwargs["as_dict"] = True
 					super(ConCursor, self).__init__(*args, **kwargs)
+				def fetchall(self):
+					# In dictionary mode both column numbers and names are used
+					# as keys. We need to filter them and leave name based keys only.
+					return tuple([{col: row[col] for col in row if type(col) != int}
+							for row in super(ConCursor, self).fetchall()])
 		else:
-			class ConCursor(pymssql.pymssqlCursor):
+			class ConCursor(self.dbapi.pymssqlCursor):
 				def __init__(self, *args, **kwargs):
-					# pymssql requires an additional param to its __init__() method
+					# pymssql requires an additional param to be passed
+					# to its __init__() method
 					kwargs["as_dict"] = True
 					super(ConCursor, self).__init__(*args, **kwargs)
-				if not hasattr(pymssql.pymssqlCursor, "connection"):
+				if not hasattr(self.dbapi.pymssqlCursor, "connection"):
 					def _getconn(self):
 						return self._source
 					# pymssql doesn't supply this optional dbapi attribute, so create it here.
@@ -74,7 +81,7 @@ class MSSQL(dBackend):
 		# wrap the result in single quotes
 		sl = "\\"
 		qt = "\'"
-		return qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
+		return qt + val.replace(sl, sl + sl).replace(qt, sl + qt) + qt
 
 
 	def formatDateTime(self, val):
@@ -132,8 +139,9 @@ select table_schema + '.' + table_name AS table_name
 			"CHAR": "C",
 			"DATE": "D",
 			"DATETIME": "T",
+			"DATETIME2": "T",
 			"DECIMAL": "N",
-			"DOUBLE": "G",  ## G maps to Long (INT), but this could be wrong if it is supposed to be a double float.
+			"DOUBLE": "G", ## G maps to Long (INT), but this could be wrong if it is supposed to be a double float.
 			"ENUM": "C",
 			"FLOAT": "F",
 			"GEOMETRY": "?",
@@ -194,34 +202,32 @@ select table_schema + '.' + table_name AS table_name
 select COLUMN_NAME,
        DATA_TYPE
   from INFORMATION_SCHEMA.COLUMNS
- where table_catalog = '%(db)s' and
-     table_name = '%(table)s' and
-     table_schema = '%(schema)s'
+ where table_catalog = %s and
+ 	table_schema = %s and
+     table_name = %s
  order by ORDINAL_POSITION """
 
-		cursor.execute(sql % {'table': tableName, 'db': dbName, 'schema': tableSchema})
+		cursor.execute(sql, (dbName, tableSchema, tableName))
 		fieldDefs = cursor.getDataSet()
 
 		sql = """
-select COLUMN_NAME
-  from information_schema.Constraint_Column_Usage CCU
-  join information_schema.TABLE_CONSTRAINTS TC
-    on CCU.CONSTRAINT_NAME = TC.CONSTRAINT_NAME
- where CONSTRAINT_TYPE = 'PRIMARY KEY' and
-   TC.CONSTRAINT_CATALOG = '%(db)s' and
-   TC.TABLE_NAME = '%(table)s' and
-   TC.CONSTRAINT_SCHEMA = '%(schema)s' """
+select kc.COLUMN_NAME from INFORMATION_SCHEMA.KEY_COLUMN_USAGE as kc
+	inner join INFORMATION_SCHEMA.TABLE_CONSTRAINTS as tc
+		on tc.CONSTRAINT_NAME = kc.CONSTRAINT_NAME
+	where kc.TABLE_CATALOG = %s and
+		kc.TABLE_SCHEMA = %s and
+		kc.TABLE_NAME = %s and
+		tc.CONSTRAINT_TYPE = 'PRIMARY KEY' """
 
-		cursor.execute(sql % {'table': tableName, 'db': dbName, 'schema': tableSchema})
+		cursor.execute(sql, (dbName, tableSchema, tableName))
 		pkFields = cursor.getDataSet()
 
 		fields = []
 		for r in fieldDefs:
 			name = r["COLUMN_NAME"]
 			ft = self._fieldTypeNativeToDabo(r["DATA_TYPE"])
-			pk = (name,) in [(p["COLUMN_NAME"], ) for p in pkFields]
+			pk = (name,) in [(p["COLUMN_NAME"],) for p in pkFields]
 			fields.append((name, ft, pk))
-
 
 		return tuple(fields)
 
@@ -254,9 +260,9 @@ select COLUMN_NAME
 	def formSQL(self, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause, limitClause):
 		"""MS SQL wants the limit clause before the field clause."""
-		clauses =  (limitClause, fieldClause, fromClause, joinClause,
+		clauses = (limitClause, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause)
-		sql = "SELECT " + "\n".join( [clause for clause in clauses if clause] )
+		sql = "SELECT " + "\n".join([clause for clause in clauses if clause])
 		return sql
 
 
@@ -267,7 +273,7 @@ select COLUMN_NAME
 		"""
 		# Use the AuxCursor so as not to disturb the contents of the primary data cursor.
 		try:
-			idVal = self.lastrowid
+			idVal = cursor.lastrowid
 		except AttributeError:
 			crs = cursor.AuxCursor
 			crs.execute("select @@IDENTITY as newid")
