@@ -69,8 +69,6 @@ class dConnectInfo(dObject):
 				propidx = None
 			if propidx is not None:
 				setattr(self, props[propidx], v)
-				# Delete parameter to avoid passing to referred backend object. 
-				del connInfo[k]
 			else:
 				raise TypeError("Property '%s' invalid." % k)
 
