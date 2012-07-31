@@ -676,8 +676,14 @@ class Group(ReportObject):
 				When the value of the group expression changes, a new group will
 				be started.""")
 
+		self.AvailableProps["StartOnNewColumn"] = toPropDict(bool, False,
+				_("""Specifies whether groups should begin on a new column."""))
+
+		self.AvailableProps["ReprintHeaderOnNewColumn"] = toPropDict(bool, False,
+				_("""Specifies whether the group header gets reprinted on new columns."""))
+
 		self.AvailableProps["StartOnNewPage"] = toPropDict(bool, False,
-				_("""Specifies whether new groups should begin on a new page."""))
+				_("""Specifies whether groups should begin on a new page."""))
 
 		self.AvailableProps["ReprintHeaderOnNewPage"] = toPropDict(bool, False,
 				_("""Specifies whether the group header gets reprinted on new pages."""))
@@ -781,7 +787,13 @@ class PageHeader(Band):
 class Detail(Band): pass
 class PageFooter(Band): pass
 class GroupHeader(Band): pass
-class GroupFooter(Band): pass
+class GroupFooter(Band):
+	def initAvailableProps(self):
+		super(GroupFooter, self).initAvailableProps()
+		self.AvailableProps["PrintAtBottom"] = toPropDict(bool, False,
+			"""Specifies whether the group footer prints directly after the group
+			detail (False, the default), or at the bottom of the column on the page.""")
+
 class PageForeground(Band): pass
 
 class ReportBegin(Band):
@@ -2175,9 +2187,6 @@ class ReportWriter(object):
 			self._currentBandName = band
 			self._currentBandObj = bandDict
 
-			if band.lower() == "pagefooter" and bandDict.getProp("Height") == None:
-				raise ValueError, "PageFooter height must be fixed (not None)."
-
 			pf = _form.get("pageFooter")
 			if pf is None or pf is bandDict:
 				pfHeight = 0
@@ -2186,6 +2195,15 @@ class ReportWriter(object):
 				if pfHeight is None:
 					pfHeight = self.getBandHeight(pf)
 				pfHeight = self.getPt(pfHeight)
+
+			if band.lower() in ("pagefooter", "groupfooter") and bandDict.getProp("Height") is None:
+				raise ValueError, "PageFooter height must be fixed (not None)."
+
+			if band.lower() == "groupfooter" and bandDict.getProp("PrintAtBottom"):
+				groupFooterHeight = bandDict.getProp("Height")
+				if groupFooterHeight is None:
+					raise ValueError, "GroupFooter height must be fixed (not None) when PrintAtBottom is True."
+				y = pageFooterOrigin[1] + pfHeight + groupFooterHeight + 1
 
 			if band.lower() == "reportend" and bandDict.getProp("PageBreakBefore"):
 				endPage()
@@ -2206,6 +2224,11 @@ class ReportWriter(object):
 			# could depend on it.
 			self.ReportForm.Bands[band]["Height"] = bandHeight
 
+			groupsAtBottomHeight = 0.0
+			for testGroup in groupsDesc:
+				if testGroup["GroupFooter"].getProp("PrintAtBottom"):
+					groupsAtBottomHeight += testGroup["GroupFooter"].getProp("Height")
+			
 			def getTotalBandHeight():
 				maxBandHeight = bandHeight
 				if deferred:
@@ -2219,7 +2242,10 @@ class ReportWriter(object):
 							storyheight = story[1]
 							needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))  ## y could be dep. on band height.
 							maxBandHeight = max(maxBandHeight, needed)
-				availableHeight = y - (pageFooterOrigin[1] + pfHeight)
+				y_origin = (pageFooterOrigin[1] + pfHeight)
+				if band.lower() != "groupfooter":
+					y_origin += groupsAtBottomHeight 
+				availableHeight = y - y_origin
 				if (maxBandHeight - bandHeight) > availableHeight:
 					# Signal that we need a page change as there isn't room:
 					return None
@@ -2478,7 +2504,7 @@ class ReportWriter(object):
 
 			self._onReportIteration()
 
-			startNewPage = False
+			startNewPage = startNewColumn = False
 		# print group footers for previous group if necessary:
 			if cursor_idx > 0:
 				# First pass, iterate through the groups outer->inner, and if any group
@@ -2489,7 +2515,12 @@ class ReportWriter(object):
 					if resetCurVals or vv["curVal"] != group.getProp("expr"):
 						resetCurVals = True
 						vv["curVal"] = UNINITIALIZED_VALUE
-						if group.getProp("StartOnNewPage"):
+						if group.getProp("StartOnNewColumn"):
+							if self._currentColumn < columnCount-1:
+								startNewColumn = True
+							else:
+								startNewPage = True
+						elif group.getProp("StartOnNewPage"):
 							startNewPage = True
 
 				if resetCurVals:
@@ -2516,6 +2547,9 @@ class ReportWriter(object):
 				self.Canvas.showPages()
 				beginPage()
 				y = None
+			elif startNewColumn:
+				self._currentColumn += 1
+				y = None
 			elif cursor_idx > 0:
 				# needed variable processing hasn't yet occured for this record:
 				processVariables()
@@ -2527,7 +2561,9 @@ class ReportWriter(object):
 
 				if curVal != group.getProp("expr") \
 				or (startNewPage and (group.getProp("StartOnNewPage") \
-				    or group.getProp("ReprintHeaderOnNewPage"))):
+				    or group.getProp("ReprintHeaderOnNewPage"))) \
+				or (startNewColumn and (group.getProp("StartOnNewPage") \
+				    or group.getProp("ReprintHeaderOnNewColumn"))):
 					# first reset curVal:
 					self._groupValues[group["expr"]]["curVal"] = group.getProp("expr")
 
