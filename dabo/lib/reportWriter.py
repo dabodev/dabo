@@ -2504,7 +2504,7 @@ class ReportWriter(object):
 
 			self._onReportIteration()
 
-			startNewPage = startNewColumn = False
+			startNewPage = startNewColumn = resetPageNumber = False
 		# print group footers for previous group if necessary:
 			if cursor_idx > 0:
 				# First pass, iterate through the groups outer->inner, and if any group
@@ -2515,6 +2515,8 @@ class ReportWriter(object):
 					if resetCurVals or vv["curVal"] != group.getProp("expr"):
 						resetCurVals = True
 						vv["curVal"] = UNINITIALIZED_VALUE
+						if group.getProp("ResetPageNumber"):
+							resetPageNumber = True
 						if group.getProp("StartOnNewColumn"):
 							if self._currentColumn < columnCount-1:
 								startNewColumn = True
@@ -2544,7 +2546,8 @@ class ReportWriter(object):
 				endPage()
 				self.Record = record
 				processVariables()
-				self.Canvas.showPages()
+				if resetPageNumber:
+					self.Canvas.showPages()
 				beginPage()
 				y = None
 			elif startNewColumn:
