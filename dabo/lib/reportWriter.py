@@ -2551,6 +2551,7 @@ class ReportWriter(object):
 				beginPage()
 				y = None
 			elif startNewColumn:
+				processVariables()
 				self._currentColumn += 1
 				y = None
 			elif cursor_idx > 0:
