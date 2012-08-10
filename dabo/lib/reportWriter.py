@@ -2196,7 +2196,7 @@ class ReportWriter(object):
 					pfHeight = self.getBandHeight(pf)
 				pfHeight = self.getPt(pfHeight)
 
-			if band.lower() in ("pagefooter", "groupfooter") and bandDict.getProp("Height") is None:
+			if band.lower() in ("pagefooter", "groupfooter") and pf.getProp("Height") is None:
 				raise ValueError, "PageFooter height must be fixed (not None)."
 
 			if band.lower() == "groupfooter" and bandDict.getProp("PrintAtBottom"):
