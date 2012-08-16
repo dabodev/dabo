@@ -13,6 +13,7 @@ import ClassDesignerPropSheet
 
 
 NEW_FILE_CAPTION = "< New >"
+SHORTEN_EXPRESSIONS_FOR_DISPLAY = False
 
 rdc = None
 
@@ -51,6 +52,11 @@ def DesignerController():
 
 		def getShortExpr(self, expr):
 			"""Given an expression, return a shortened version for display in designer."""
+			if not SHORTEN_EXPRESSIONS_FOR_DISPLAY:
+				expr = expr.strip()
+				if len(expr) > 1 and expr[0] == expr[-1] and expr[0] in ("'", '"'):
+					expr = expr[1:-1]
+				return expr
 			if expr is None:
 				return "None"
 			if len(expr) < 3:
