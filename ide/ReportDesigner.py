@@ -2498,9 +2498,10 @@ class ReportDesignerForm(dabo.ui.dForm):
 			editor._rw._clearMemento = True
 			editor.initReportForm()
 			editor.setCaption()
+			## Force a rebuild of the object tree:
+			rdc.refreshTree()
 			## Force a refresh of the propsheet:
 			rdc.ActiveEditor = self.editor
-
 
 	def beforeClose(self, evt):
 		result = self.editor.closeFile()
