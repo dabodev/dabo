@@ -2446,7 +2446,11 @@ class ReportWriter(object):
 		def endPage():
 			self._currentColumn = 0
 			x = self.getPt(self.ReportForm["Page"].getProp("MarginLeft"))
-			self.drawSpanningObjects((x,y))
+			y1 = y
+			if self.being_deferred:
+				y1 = self.getPt(self.ReportForm["PageFooter"].getProp("Height")) \
+						+ self.getPt(self.ReportForm["Page"].getProp("MarginBottom"))
+			self.drawSpanningObjects((x,y1))
 			for band in ("pageFooter", "pageForeground"):
 				printBand(band)
 			self.Canvas.showPage()
