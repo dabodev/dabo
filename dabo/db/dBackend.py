@@ -590,6 +590,10 @@ class dBackend(dObject):
 			def run(self):
 				kal = self.backendObj.KeepAliveInterval
 				app = self.backendObj.Application
+
+				while self.backendObj._connection is None:
+				    time.sleep(5)
+
 				con = self.backendObj._connection
 				cur = con.cursor()
 
