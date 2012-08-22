@@ -1951,13 +1951,27 @@ class ReportWriter(object):
 								break
 						else:
 							# Get the max. chars to print in the alloted space that we can:
-							for trial_len in range(len(para)):
-								p = ParaClass("%s..." % para[:trial_len+1], s)
+							trial_len = 0
+							open_tag = 0
+							this_balanced_para = ""
+							while trial_len < len(para):
+								last_balanced_para = this_balanced_para
+								trial_len += 1
+								para1 = para[:trial_len]
+								if para1[-1] == "<":
+									open_tag += 1
+								elif para1[-1] == ">":
+									open_tag -= 1
+								if open_tag > 0:
+									continue
+								this_balanced_para = para1
+								p = ParaClass("%s..." % this_balanced_para, s)
 								p_height = p.wrap(columnWidth-padLeft-padRight, None)[1]
 								if p_height > availableHeight:
-									p = ParaClass("%s..." % para[:trial_len], s)
+									p = ParaClass("%s..." % last_balanced_para, s)
 									p_height = p.wrap(columnWidth-padLeft-padRight, None)[1]
 									break
+
 							objNeededHeight += p_height
 							story.append((p, p_height))
 							break
