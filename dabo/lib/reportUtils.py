@@ -85,7 +85,7 @@ def printPDF(path, printerName=None, printerPort=None, copies=1):
 
 	NOTE: gsprint	is part of gsview, and gsview depends on ghostscript.
 	These packages are GPL - to avoid legal issues make sure your end 
-	user installs themseparately from your application.
+	user installs them separately from your application.
 	"""
 	if gsprint:
 		args = ["gsprint", path]
