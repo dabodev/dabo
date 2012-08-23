@@ -2462,8 +2462,7 @@ class ReportWriter(object):
 			x = self.getPt(self.ReportForm["Page"].getProp("MarginLeft"))
 			y1 = y
 			if self.being_deferred:
-				y1 = self.getPt(self.ReportForm["PageFooter"].getProp("Height")) \
-						+ self.getPt(self.ReportForm["Page"].getProp("MarginBottom"))
+				y1 = self.getPt(self.ReportForm["PageFooter"].getProp("Height")) 
 			self.drawSpanningObjects((x,y1))
 			for band in ("pageFooter", "pageForeground"):
 				printBand(band)
