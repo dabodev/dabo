@@ -6,9 +6,10 @@ import os.path
 from xmltodict import escQuote
 import dabo
 import dabo.lib.utils as utils
+from dabo.dLocalize import _
 
 # Tuple containing all file-based database types.
-FILE_DATABASES = ("sqlite", )
+FILE_DATABASES = ("sqlite",)
 
 
 
@@ -35,14 +36,28 @@ class connHandler(xml.sax.ContentHandler):
 		if name == "connection":
 			for att in attrs.keys():
 				if att == "dbtype":
-					self.currDict["dbtype"] = attrs.getValue("dbtype")
+					dbType = attrs.getValue("dbtype").split(":")
+					self.currDict["dbtype"] = dbType[0]
+					if len(dbType) > 1:
+						self.currDict["driver"] = dbType[1]
+		self.attributes = attrs
 
 
 	def characters(self, content):
-		if self.element:
+		if self.element and self.element not in ("connectiondefs", "connection"):
 			if self.element in self.currDict:
 				self.currDict[self.element] += content
-
+			else:
+				# We can now define custom connection parameters, example:
+				# <dialect type="int">1</dialect>
+				# It's an extended connection information, we log it.
+				dabo.log.info(_(u"Extended database connection parameter loaded: %s = %s") % \
+						(self.element, content))
+				atype = self.attributes.get("type", None)
+				if not atype:
+					# Set default type to 'str'.
+					atype = "str"
+				self.currDict[self.element] = globals()["__builtins__"][atype](content)
 
 	def endElement(self, name):
 		if name == "connection":
@@ -56,6 +71,7 @@ class connHandler(xml.sax.ContentHandler):
 				self.connDict[nm] = self.currDict.copy()
 				self.currDict = self.blankConn.copy()
 		self.element = None
+		self.attributes = None
 
 
 	def getConnectionDict(self):
@@ -88,7 +104,7 @@ def importConnections(pth=None, useHomeDir=False):
 		dbtype = data.get("dbtype", "")
 		if dbtype.lower() in FILE_DATABASES:
 			for key, val in data.items():
-				if key=="database":
+				if key == "database":
 					osp = os.path
 					relpath = utils.resolvePath(val, basePath, abspath=False)
 					pth = pth.decode(dabo.fileSystemEncoding)

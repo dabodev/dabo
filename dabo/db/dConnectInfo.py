@@ -59,6 +59,7 @@ class dConnectInfo(dObject):
 	def setConnInfo(self, connInfo, nm=""):
 		# Run through the connDict, and set the appropriate properties. If it isn't
 		# a valid property name, raise TypeError.
+		self._customParameters = {}
 		props = ["Name", "DbType", "Host", "User", "Password", "Database",
 				"PlainTextPassword", "Port", "RemoteHost", "KeepAliveInterval"]
 		lprops = [p.lower() for p in props]
@@ -70,10 +71,11 @@ class dConnectInfo(dObject):
 			if propidx is not None:
 				setattr(self, props[propidx], v)
 			else:
-				raise TypeError("Property '%s' invalid." % k)
+				self._customParameters[k] = v
 
 
 	def getConnection(self, **kwargs):
+		kwargs.update(self.CustomParameters)
 		return self._backendObject.getConnection(self, **kwargs)
 
 
@@ -123,6 +125,13 @@ class dConnectInfo(dObject):
 		self._cryptoProvider = val
 
 
+	def _getCustomParameters(self):
+		try:
+			return self._customParameters.copy()
+		except AttributeError:
+			return {}
+
+
 	def _getDbType(self):
 		try:
 			return self._dbType
@@ -159,6 +168,9 @@ class dConnectInfo(dObject):
 				elif nm == "web":
 					import dbWeb
 					self._backendObject = dbWeb.Web()
+				elif nm == "odbc":
+					import dbODBC
+					self._backendObject = dbODBC.ODBC()
 				else:
 					raise ValueError("Invalid database type: %s." % nm)
 			except ImportError:
@@ -214,6 +226,7 @@ class dConnectInfo(dObject):
 	def _setPlainPassword(self, val):
 		self._password = self.encrypt(val)
 
+
 	def _getPort(self):
 		return self._port
 
@@ -242,6 +255,9 @@ class dConnectInfo(dObject):
 	Crypto = property(_getCrypto, _setCrypto, None,
 			_("""Reference to the object that provides cryptographic services if run
 			outside of an application.  (varies)"""))
+
+	CustomParameters = property(_getCustomParameters, None, None,
+			_("""Additional parameters passed to backend object connect method. (dict)"""))
 
 	DbType = property(_getDbType, _setDbType, None,
 			_("Name of the backend database type.  (str)"))
