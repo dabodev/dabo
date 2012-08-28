@@ -45,21 +45,27 @@ tempFileHolder = TempFileHolder()
 getTempFile = tempFileHolder.getTempFile
 
 
-def previewPDF(path, modal=False):
-	"""Preview the passed PDF file in the default PDF viewer."""
+def previewReport(path, modal=False):
+	"""Preview the passed report (txt or pdf) file in the default viewer."""
 	try:
-		# On Windows, use the default PDF viewer (probably Adobe Acrobat)
+		# On Windows, use the default viewer (probably Notepad or Adobe Acrobat)
 		os.startfile(path)
 	except AttributeError:
-		# On Mac, use the default PDF viewer (probably Preview.app)
+		# On Mac, use the default viewer (probably TextEdit.app or Preview.app)
 		if sys.platform == "darwin":
 			os.system("open %s" % path)
 		else:
 			# On Linux, try to find an installed viewer and just use the first one
 			# found. I just don't know how to reliably get the default viewer from
 			# the many distros.
-			viewers = ("gpdf", "kpdf", "okular", "evince", "acroread", "xpdf", "firefox",
+			reportType = path.split(".")[-1]
+			if reportType == "txt":
+				viewers = ("gedit", "kate", "firefox", "mozilla-firefox", "chromium")
+			elif reportType == "pdf":
+				viewers = ("gpdf", "kpdf", "okular", "evince", "acroread", "xpdf", "firefox",
 					"mozilla-firefox")
+			else:
+				raise ValueError("Unknown report type '%s'." % reportType)
 
 			viewer = None
 			for v in viewers:
@@ -75,12 +81,17 @@ def previewPDF(path, modal=False):
 					subprocess.Popen((viewer, path))
 
 
-def printPDF(path, printerName=None, printerPort=None, copies=1):
-	"""Print the passed PDF file to the default printer.
+def previewPDF(*args, **kwargs):
+	"""Deprecated; use previewReport() instead."""
+	previewReport(*args, **kwargs)
+
+
+def printReport(path, printerName=None, printerPort=None, copies=1):
+	"""Print the passed report (txt or pdf) to the default printer.
 
 	If gsprint is installed and on the path:
-		1) printerName specifies which printer to output to. 
-		2) printerPort specifies which port to output to.
+		1) printerName specifies which printer to output to. (None: use default printer)
+		2) printerPort specifies which port to output to. (None: use default port)
 		3) multiple copies are handled more efficiently.
 
 	NOTE: gsprint	is part of gsview, and gsview depends on ghostscript.
@@ -103,6 +114,11 @@ def printPDF(path, printerName=None, printerPort=None, copies=1):
 				os.startfile(path, "print")
 			else:
 				subprocess.Popen(("lpr", path))
+
+
+def printPDF(*args, **kwargs):
+	"""Deprecated; use printReport() instead."""
+	printReport(*args, **kwargs)
 
 
 def getTestCursorXmlFromDataSet(dataset):
