@@ -605,6 +605,9 @@ class Report(ReportObject):
 		self.AvailableProps["ColumnCount"] = toPropDict(int, 1,
 				"""Specifies the number of columns to divide the report into.""")
 
+		self.AvailableProps["ColumnPadding"] = toPropDict(float, 0,
+				"""Specifies how much space to leave in between columns.""")
+
 		self.MajorProperty = "Title"
 
 
@@ -2102,7 +2105,7 @@ class ReportWriter(object):
 
 		# Get the number of columns:
 		columnCount = _form.getProp("columnCount")
-
+		columnPadding = self.getPt(_form.getProp("columnPadding")) * (columnCount - 1)
 
 		# Initialize the groups list:
 		groups = _form.get("groups", ())
@@ -2184,7 +2187,7 @@ class ReportWriter(object):
 			pageFooterOrigin = (ml, mb)
 
 			workingPageWidth = pageWidth - ml - mr
-			columnWidth = workingPageWidth / columnCount
+			columnWidth = (workingPageWidth / columnCount) - (.5 * columnPadding)
 
 			if y is None:
 				y = pageHeaderOrigin[1]
@@ -2293,6 +2296,7 @@ class ReportWriter(object):
 						headers_reprinted = True
 					else:
 						# Move to next column
+						self.drawSpanningObjects((pageFooterOrigin[0],y))
 						self._currentColumn += 1
 						y = pageHeaderOrigin[1]
 
@@ -2328,7 +2332,7 @@ class ReportWriter(object):
 				x,y = 0,1
 				width, height = pageWidth-1, pageHeight-1
 
-			x = ml + (self._currentColumn * columnWidth)
+			x = ml + (self._currentColumn * (columnWidth + columnPadding))
 
 			self.ReportForm.Bands[band]["x"] = x
 			self.ReportForm.Bands[band]["y"] = y

@@ -1364,12 +1364,15 @@ class DesignerBand(DesignerPanel):
 		dc.DestroyClippingRegion()
 
 		columnCount = rdc.ReportForm.getProp("ColumnCount")
+		columnPadding = self._rw.getPt(rdc.ReportForm.getProp("ColumnPadding"))
 		if isinstance(self.ReportObject, (Detail, GroupHeader, GroupFooter)) \
 				and columnCount > 1:
 			# Cover up all but the first column:
 			dc.SetBrush(wx.Brush((192,192,192), wx.SOLID))
 			dc.SetPen(wx.Pen((192,192,192), 0, wx.SOLID))
 			colWidth = self.Width / columnCount
+			if columnCount > 1:
+				colWidth -= columnPadding
 			dc.DrawRectangle(colWidth, 0, colWidth*(columnCount-1) + 10, self.Height)
 
 
