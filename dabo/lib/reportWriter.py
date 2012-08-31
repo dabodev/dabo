@@ -2286,13 +2286,14 @@ class ReportWriter(object):
 					# Move to the next page or column
 					headers_reprinted = False
 					if self._currentColumn >= columnCount-1:
-						# Move to next page
-						self.being_deferred = True
-						endPage()
-						self.being_deferred = False
-						beginPage()
-						y = pageHeaderOrigin[1]
-						y = reprintGroupHeaders(group, bandDict, y)
+						if self.RecordNumber < len(self.Cursor)-1:
+							# Move to next page
+							self.being_deferred = True
+							endPage()
+							self.being_deferred = False
+							beginPage()
+							y = pageHeaderOrigin[1]
+							y = reprintGroupHeaders(group, bandDict, y)
 						headers_reprinted = True
 					else:
 						# Move to next column
