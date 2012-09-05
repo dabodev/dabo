@@ -2286,7 +2286,7 @@ class ReportWriter(object):
 					# Move to the next page or column
 					headers_reprinted = False
 					if self._currentColumn >= columnCount-1:
-						if self.RecordNumber < len(self.Cursor)-1:
+						if self.RecordNumber <= len(self.Cursor):
 							# Move to next page
 							self.being_deferred = True
 							endPage()
