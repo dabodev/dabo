@@ -251,7 +251,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 		pt = self._proxy_textbox
 		val = pt.Value
 		def _wrapType(compval):
-			ret = val
+			ret = compval
 			tv = type(val)
 			if tv != type(compval):
 				try:
