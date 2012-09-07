@@ -9,13 +9,13 @@ import dabo.icons
 from dabo.dLocalize import _
 
 
-class lbl(dabo.ui.dLabel):
+class Lbl(dabo.ui.dLabel):
 	def initProperties(self):
 		self.Alignment = "Right"
 		self.AutoResize = False
-		self.Width = 100
+		self.Width = 125
 
-class lblMessage(dabo.ui.dLabel):
+class LblMessage(dabo.ui.dLabel):
 	def initProperties(self):
 		self.Alignment = "Center"
 		self.AutoResize = False
@@ -26,10 +26,12 @@ class lblMessage(dabo.ui.dLabel):
 		self.FontSize = 10
 
 
-class txt(dabo.ui.dTextBox):
-	pass
+class Txt(dabo.ui.dTextBox):
+	def initProperties(self):
+		self.Width = 175
 
-class txtPass(txt):
+
+class TxtPass(Txt):
 	def initProperties(self):
 		self.PasswordEntry = True
 
@@ -53,50 +55,46 @@ class Login(dabo.ui.dOkCancelDialog):
 	def addControls(self):
 		super(Login, self).addControls()
 
-		self.addObject(lbl, 'lblUserName')
-		self.addObject(txt, 'txtUserName')
-		self.lblUserName.Caption = _("User:")
-		self.txtUserName.Value = ""
+		self.lblUserName = Lbl(self, Caption=_("User:"))
+		self.txtUserName = Txt(self, SaveRestoreValue=True, RegID="txtUserName")
 
-		self.addObject(lbl, 'lblPassword')
-		self.addObject(txtPass, 'txtPassword')
-		self.lblPassword.Caption = _("Password:")
-		self.txtPassword.Value = ""
+		self.lblPassword = Lbl(self, Caption=_("Password:"))
+		self.txtPassword = TxtPass(self, Value="")
 
-		self.addObject(lblMessage, 'lblMessage')
+		self.lblMessage = LblMessage(self)
 
 		self.user, self.password = None, None
 
-		self.bm = dabo.ui.dImage(self, Picture=dabo.icons.getIconFileName("daboIcon048.png"))
+		self.bm = dabo.ui.dImage(self, Picture=self.IconFile)
 
 		mainSizer = self.Sizer
-		mainSizer.append((0,5))
+		mainSizer.appendSpacer(15)
 
-		bs1 = dabo.ui.dSizer("horizontal")
+		bs1 = dabo.ui.dSizer("h")
 		bs1.append(self.bm)
 
-		bs1.append((23,0))
+		bs1.appendSpacer(23)
 
-		vs = dabo.ui.dSizer("vertical")
-		bs = dabo.ui.dSizer("horizontal")
+		vs = dabo.ui.dSizer("v")
+		bs = dabo.ui.dSizer("h")
 
 		bs.append(self.lblUserName)
-		bs.append((5,0))
-		bs.append(self.txtUserName, proportion=1)
-		vs.append(bs, "expand", 1)
+		bs.appendSpacer(5)
+		bs.append(self.txtUserName, 1)
+		vs.append1x(bs)
 
-		bs = dabo.ui.dSizer("horizontal")
+		bs = dabo.ui.dSizer("h")
 		bs.append(self.lblPassword)
-		bs.append((5,0))
-		bs.append(self.txtPassword, proportion=1)
-		vs.append(bs, "expand", 1)
+		bs.appendSpacer(5)
+		bs.append(self.txtPassword, 1)
+		vs.append1x(bs)
 
-		bs1.append(vs, proportion=1)
-		mainSizer.append(bs1, "expand", 1)
+		bs1.append(vs, 1)
+		mainSizer.append1x(bs1)
 
-		mainSizer.append((0,15))
-
-		mainSizer.append(self.lblMessage, "expand", 1)
+		mainSizer.appendSpacer(10)
+		mainSizer.append1x(self.lblMessage)
+		mainSizer.appendSpacer(10)
 
 		mainSizer.layout()
 
@@ -117,6 +115,19 @@ class Login(dabo.ui.dOkCancelDialog):
 	def runOK(self):
 		self.user, self.password = self.txtUserName.Value, self.txtPassword.Value
 		super(Login, self).runOK()
+
+
+	def _getIconFile(self):
+		ret = getattr(self, "_iconFile", None)
+		if not ret:
+			ret = self._iconFile = dabo.icons.getIconFileName("daboIcon048.png")
+		return ret
+
+	def _setIconFile(self, val):
+		self._iconFile = val
+		self.bm.Picture = val
+
+	IconFile = property(_getIconFile, _setIconFile, None, _("Specifies the icon to use."))
 
 
 if __name__ == '__main__':
