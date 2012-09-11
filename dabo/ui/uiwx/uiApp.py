@@ -202,7 +202,6 @@ class uiApp(dObject, wx.App):
 		if self.callback is not None:
 			wx.CallAfter(self.callback)
 		del self.callback
-		self.Bind(wx.EVT_KEY_DOWN, self._onKeyPress)
 		return True
 
 
@@ -375,7 +374,7 @@ these automatic updates.""").replace("\n", " ")
 		return ret
 
 
-	def _onKeyPress(self, evt):
+	def _handleZoomKeyPress(self, evt):
 		## Zoom In / Out / Normal:
 		alt = evt.AltDown()
 		ctl = evt.ControlDown()
@@ -400,7 +399,8 @@ these automatic updates.""").replace("\n", " ")
 		elif slash:
 			self.fontZoomNormal()
 		else:
-			evt.Skip()
+			return False
+		return True
 
 
 	# The following three functions handle font zooming
@@ -500,17 +500,16 @@ these automatic updates.""").replace("\n", " ")
 
 	def _onWxKeyChar(self, evt):
 		self.dApp.raiseEvent(dEvents.KeyChar, evt)
-		evt.Skip()
 
 
 	def _onWxKeyDown(self, evt):
+		if self._handleZoomKeyPress(evt):
+			return 
 		self.dApp.raiseEvent(dEvents.KeyDown, evt)
-		evt.Skip()
 
 
 	def _onWxKeyUp(self, evt):
 		self.dApp.raiseEvent(dEvents.KeyUp, evt)
-		evt.Skip()
 
 
 	def onCmdWin(self, evt):
