@@ -1988,7 +1988,9 @@ class ReportWriter(object):
 					append_p = ParaClass("Hack: see hackDeferredPara() in reportWriter.py", s)
 					p_height = p.wrap(99999, None)[1]
 					story.append((append_p, p_height))
-				if obj.getProp("Height") is None and paras:
+				if False and obj.getProp("Height") is None and paras:
+					## pkm 2012-09-12: I'm finding I don't need the hackDeferredPara() as I'm seeing the 
+					##                 append_p string at the end of my memo.
 					hackDeferredPara()
 
 		neededHeight = objNeededHeight + padTop + padBottom
@@ -2248,6 +2250,10 @@ class ReportWriter(object):
 			
 			def getTotalBandHeight():
 				maxBandHeight = bandHeight
+				y_origin = (pageFooterOrigin[1] + pfHeight)
+				if band.lower() != "groupfooter":
+					y_origin += groupsAtBottomHeight 
+				availableHeight = y - y_origin
 				if deferred:
 					for obj, obj_deferred, neededHeight in deferred:
 						needed = neededHeight
@@ -2258,11 +2264,14 @@ class ReportWriter(object):
 							story = self.getStory(obj)
 							storyheight = story[1]
 							needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))  ## y could be dep. on band height.
+							if needed - availableHeight > 30:
+								# This memo alone will make a new page get generated before printing anything
+								# and there's significant overflow; let the memo start and then the normal 
+								# mechanism to flow just the memo can happen. Don't want to do this in all 
+								# cases, though, only when the contents would flow to a new page.
+								storyheight = obj.getProp("Height_def")
+								needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))
 							maxBandHeight = max(maxBandHeight, needed)
-				y_origin = (pageFooterOrigin[1] + pfHeight)
-				if band.lower() != "groupfooter":
-					y_origin += groupsAtBottomHeight 
-				availableHeight = y - y_origin
 				if (maxBandHeight - bandHeight) > availableHeight:
 					# Signal that we need a page change as there isn't room:
 					return None
@@ -2281,7 +2290,6 @@ class ReportWriter(object):
 					extraHeight = self.getBandHeight(b)
 
 				check = pageFooterOrigin[1] + pfHeight + extraHeight
-
 				if y < check or maxBandHeight is None:
 					# Move to the next page or column
 					headers_reprinted = False
