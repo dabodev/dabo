@@ -176,14 +176,14 @@ class Firebird(dBackend):
 					ft = "M"
 				else:
 					ft = "C"
-			elif ftype in ("long", "short", "int64", "double"):
+			elif ftype in ("long", "short", "int64"):
 				# Can be either integers or float types, depending on column 3
 				if r["rdb$field_scale"] == 0:
 					# integer
 					ft = "I"
 				else:
 					ft = "N"
-			elif ftype == "float":
+			elif ftype in ("float", "double"):
 				ft = "N"
 			elif ftype == "date":
 				ft = "D"
