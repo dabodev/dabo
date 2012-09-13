@@ -9,6 +9,7 @@ import locale
 import sys
 import os
 from dabo.dLocalize import _
+from dabo.lib.dates import getStringFromDate
 
 ######################################################
 # Very first thing: check for required libraries:
@@ -607,6 +608,11 @@ class Report(ReportObject):
 
 		self.AvailableProps["ColumnPadding"] = toPropDict(float, 0,
 				"""Specifies how much space to leave in between columns.""")
+
+		self.AvailableProps["StringifyDates"] = toPropDict(bool, True,
+				"""If True, expressions in String objects that evaluate to a datetime.date will get displayed 
+				in the report as a string as returned by dabo.lib.getStringFromDate(), which will
+				result in the date getting displayed as set by dabo.dateFormat or the user's locale.""")
 
 		self.MajorProperty = "Title"
 
@@ -1624,6 +1630,8 @@ class ReportWriter(object):
 
 			if s is None:
 				s = self.NoneDisplay
+			elif obj.Report.getProp("StringifyDates") and isinstance(s, datetime.date):
+				s = getStringFromDate(s)
 
 			func(posx, 0, ustr(s))
 
