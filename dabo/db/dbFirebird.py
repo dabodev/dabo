@@ -184,7 +184,10 @@ class Firebird(dBackend):
 				else:
 					ft = "N"
 			elif ftype in ("float", "double"):
-				ft = "N"
+				if r["rdb$field_scale"] == 0:
+					ft = "F"
+				else:
+					ft = "N"
 			elif ftype == "date":
 				ft = "D"
 			elif ftype == "time":
