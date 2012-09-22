@@ -37,6 +37,7 @@ from dabo.dBug import loggit
 decimalPoint = None
 
 
+
 class dGridDataTable(wx.grid.PyGridTableBase):
 
 	def __init__(self, parent):
@@ -577,8 +578,12 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _setRenderer(self):
 		self._setDataTypeFromDataField()
-		typ = self.getDataTypeForColumn()
-		self._rendererClass = self.defaultRenderers.get(typ, self.stringRendererClass)
+		custom = self.CustomRendererClass
+		if custom:
+			self._rendererClass = custom
+		else:
+			typ = self.getDataTypeForColumn()
+			self._rendererClass = self.defaultRenderers.get(typ, self.stringRendererClass)
 
 
 	@dabo.ui.deadCheck
@@ -688,12 +693,20 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def getEditorClassForRow(self, row):
 		"""Return the cell editor class for the passed row."""
-		d = self.CustomEditors
-		return d.get(row, self.EditorClass)
+		return self.CustomEditors.get(row, self.EditorClass)
+
+
+	def _getValueForRow(self, row):
+		if self.Parent:
+			return self.Parent.getColumnValueByRow(self, row)
 
 
 	def getRendererClassForRow(self, row):
 		"""Return the cell renderer class for the passed row."""
+		if self._getValueForRow(row) == self.Parent.NoneDisplay:
+			# Null values in the data should be rendered as strings,
+			# no matter what type the column is.
+			return self.stringRendererClass
 		return self._customRenderers.get(row, self._rendererClass)
 
 
@@ -2501,6 +2514,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if [col for col in self.Columns if col.Expand]:
 			dabo.ui.callAfterInterval(10, self._delayedUpdateColumnWidths)
 
+
 	def _delayedUpdateColumnWidths(self, redo=False):
 		def _setFlag():
 			self._inColWidthUpdate = True
@@ -2802,6 +2816,15 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			col.Order = self.Columns.index(col) * 10
 			col._persist("Order")
 		self.fillGrid(True)
+
+
+	def getColumnValueByRow(self, col, row):
+		"""Returns the value in the given column and row."""
+		if isinstance(col, dColumn):
+			colnum = self.Columns.index(col)
+		else:
+			colnum = col
+		return self.GetValue(row, colnum)
 
 
 	def sizeToColumns(self, scrollBarFudge=True):
