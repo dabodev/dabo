@@ -70,7 +70,7 @@ class ImageRenderer(wx.grid.PyGridCellRenderer):
 			syscolor = wx.SYS_COLOUR_WINDOW
 
 		bkgrd = wx.SystemSettings_GetColour(syscolor)
-		dc.SetBrush( wx.Brush(bkgrd, wx.SOLID))
+		dc.SetBrush(wx.Brush(bkgrd, wx.SOLID))
 
 		try:
 			dc.SetPen(wx.TRANSPARENT_PEN)
@@ -100,14 +100,14 @@ class ImageRenderer(wx.grid.PyGridCellRenderer):
 		dc.DrawBitmap(bitmap, rect.x+l, rect.y+t)
 
 
-	def clip( self, dc, rect ):
+	def clip(self, dc, rect):
 		"""Setup the clipping rectangle"""
-		dc.SetClippingRegion( rect.x, rect.y, rect.width, rect.height )
+		dc.SetClippingRegion(rect.x, rect.y, rect.width, rect.height)
 
 
-	def unclip( self, dc ):
+	def unclip(self, dc):
 		"""Destroy the clipping rectangle"""
-		dc.DestroyClippingRegion( )
+		dc.DestroyClippingRegion()
 
 
 
@@ -161,7 +161,7 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 			syscolor = wx.SYS_COLOUR_WINDOW
 
 		bkgrd = wx.SystemSettings_GetColour(syscolor)
-		dc.SetBrush( wx.Brush(bkgrd, wx.SOLID))
+		dc.SetBrush(wx.Brush(bkgrd, wx.SOLID))
 
 		try:
 			dc.SetPen(wx.TRANSPARENT_PEN)
@@ -191,14 +191,14 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 		dc.DrawBitmap(bitmap, rect.x+l, rect.y+t)
 
 
-	def clip( self, dc, rect ):
+	def clip(self, dc, rect):
 		"""Setup the clipping rectangle"""
-		dc.SetClippingRegion( rect.x, rect.y, rect.width, rect.height )
+		dc.SetClippingRegion(rect.x, rect.y, rect.width, rect.height)
 
 
-	def unclip( self, dc ):
+	def unclip(self, dc):
 		"""Destroy the clipping rectangle"""
-		dc.DestroyClippingRegion( )
+		dc.DestroyClippingRegion()
 
 
 
@@ -230,31 +230,31 @@ class AbstractTextRenderer(wx.grid.PyGridCellRenderer):
 		return value
 
 
-	def drawText( self, txt, attr, dc, rect):
+	def drawText(self, txt, attr, dc, rect):
 		"""Customize this method to set different background colors, etc."""
 		dc.DrawText(txt, rect.x, rect.y)
 
 
-	def clip( self, dc, rect ):
+	def clip(self, dc, rect):
 		"""Setup the clipping rectangle"""
-		dc.SetClippingRegion( rect.x, rect.y, rect.width, rect.height )
+		dc.SetClippingRegion(rect.x, rect.y, rect.width, rect.height)
 
 
-	def unclip( self, dc ):
+	def unclip(self, dc):
 		"""Destroy the clipping rectangle"""
-		dc.DestroyClippingRegion( )
+		dc.DestroyClippingRegion()
 
 
 
 class YesNoBoolRenderer(AbstractTextRenderer):
-	def getValueText( self, grid, row, col ):
+	def getValueText(self, grid, row, col):
 		value = grid._Table.GetValue(row, col)
 		if value:
 			return "YES"
 		return "NO"
 
 
-	def drawText( self, txt, attr, dc, rect):
+	def drawText(self, txt, attr, dc, rect):
 		if txt == "NO":
 			dc.SetTextForeground((128, 0, 0))
 		else:
