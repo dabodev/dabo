@@ -2099,9 +2099,16 @@ class ReportWriter(object):
 
 		pageSize = self.getPageSize()
 		pageWidth, pageHeight = pageSize
+		self._pageWidth = pageWidth
 		self._pageNumber = 0
 		self._pageCount = 0
 		self.page_count_objects = {}
+
+		_page = _form["Page"]
+		self._ml = self.getPt(_page.getProp("MarginLeft"))
+		self._mt = self.getPt(_page.getProp("MarginTop"))
+		self._mr = self.getPt(_page.getProp("MarginRight"))
+		self._mb = self.getPt(_page.getProp("MarginBottom"))
 
 		c = self.Canvas
 		if not c:
@@ -2114,8 +2121,10 @@ class ReportWriter(object):
 		c.setTitle(_form.getProp("Title"))
 
 		# Get the number of columns:
-		columnCount = _form.getProp("columnCount")
-		columnPadding = self.getPt(_form.getProp("columnPadding")) * (columnCount - 1)
+		columnCount = self._columnCount = _form.getProp("columnCount")
+		columnPadding = self._columnPadding = self.getPt(_form.getProp("columnPadding")) * (columnCount - 1)
+		columnWidth = self._columnWidth = \
+				((self._pageWidth - self._ml - self._mr) / self._columnCount) - (.5 * self._columnPadding)
 
 		# Initialize the groups list:
 		groups = _form.get("groups", ())
@@ -2182,11 +2191,10 @@ class ReportWriter(object):
 			_form = self.ReportForm
 			page = _form["Page"]
 
-			# Get the page margins into variables:
-			ml = self.getPt(page.getProp("MarginLeft"))
-			mt = self.getPt(page.getProp("MarginTop"))
-			mr = self.getPt(page.getProp("MarginRight"))
-			mb = self.getPt(page.getProp("MarginBottom"))
+			ml = self._ml
+			mt = self._mt
+			mr = self._mr
+			mb = self._mb
 
 			# Page header/footer origins are needed in various places:
 			if band.lower() != "pageheader" and _form["PageHeader"].getProp("ColumnBreakAfter"):
@@ -2195,9 +2203,6 @@ class ReportWriter(object):
 				pageHeaderOrigin = (ml, pageHeight - mt
 						- self.getPt(_form["PageHeader"].getProp("Height")))
 			pageFooterOrigin = (ml, mb)
-
-			workingPageWidth = pageWidth - ml - mr
-			columnWidth = (workingPageWidth / columnCount) - (.5 * columnPadding)
 
 			if y is None:
 				y = pageHeaderOrigin[1]
@@ -2301,8 +2306,9 @@ class ReportWriter(object):
 				if y < check or maxBandHeight is None:
 					# Move to the next page or column
 					headers_reprinted = False
-					if self._currentColumn >= columnCount-1:
-						if self.RecordNumber <= len(self.Cursor):
+					if self.RecordNumber <= len(self.Cursor):
+						headers_reprinted = False
+						if self._currentColumn >= columnCount-1:
 							# Move to next page
 							self.being_deferred = True
 							endPage()
@@ -2310,12 +2316,13 @@ class ReportWriter(object):
 							beginPage()
 							y = pageHeaderOrigin[1]
 							y = reprintGroupHeaders(group, bandDict, y)
-						headers_reprinted = True
-					else:
-						# Move to next column
-						self.drawSpanningObjects((pageFooterOrigin[0],y))
-						self._currentColumn += 1
-						y = pageHeaderOrigin[1]
+						else:
+							# Move to next column
+							self.drawSpanningObjects((pageFooterOrigin[0],y))
+							self.clearSpanningObjects(group)
+							self._currentColumn += 1
+							y = pageHeaderOrigin[1]
+							y = reprintGroupHeaders(group, bandDict, y)
 
 					# We must call again, because it recomputes available height:
 					maxBandHeight = getTotalBandHeight()
@@ -2349,7 +2356,7 @@ class ReportWriter(object):
 				x,y = 0,1
 				width, height = pageWidth-1, pageHeight-1
 
-			x = ml + (self._currentColumn * (columnWidth + columnPadding))
+			x = ml + (self._currentColumn * (self._columnWidth + self._columnPadding))
 
 			self.ReportForm.Bands[band]["x"] = x
 			self.ReportForm.Bands[band]["y"] = y
@@ -2516,10 +2523,10 @@ class ReportWriter(object):
 			bandDict = group[band]
 			x = bandDict.getPt(bandDict.ReportForm["Page"].getProp("MarginLeft"))
 			objects = bandDict.get("Objects", [])
-			for object in objects:
-				if object.__class__.__name__ in ("SpanningLine", "SpanningRectangle"):
-					x1 = object.getPt(object.getProp("x")) + x
-					self.storeSpanningObject(object, (x1, y), group)
+			for obj in objects:
+				if obj.__class__.__name__ in ("SpanningLine", "SpanningRectangle"):
+					x1 = obj.getPt(obj.getProp("x")) + x
+					self.storeSpanningObject(obj, (x1, y), group)
 			return y
 
 
