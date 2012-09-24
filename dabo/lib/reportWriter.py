@@ -2306,7 +2306,7 @@ class ReportWriter(object):
 				if y < check or maxBandHeight is None:
 					# Move to the next page or column
 					headers_reprinted = False
-					if self.RecordNumber <= len(self.Cursor):
+					if self.RecordNumber < len(self.Cursor):
 						headers_reprinted = False
 						if self._currentColumn >= columnCount-1:
 							# Move to next page
