@@ -1734,24 +1734,15 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				except IndexError:
 					# For some reason we could not retrieve the matching PK record
 					pass
-			if self._bizobj:
-				# Let the bizobj do cleanup for us.
-				self._bizobj._updateSavedCursorsHistory(row)
-			else:
-				# Let's cleanup myself.
-				self._postSaveUpdateInternals([row])
-			if not newrec and not res:
-				# Different backends may cause res to be None
-				# even if the save is successful.
-				self.BackendObject.noResultsOnSave()
 
-
-	def _postSaveUpdateInternals(self, rows):
-		"""Update internal cusrsor data after successful transaction commitment."""
-		for row in rows:
 			self._clearMemento(row)
-			self._clearNewRecord(row)
-		del rows[:]
+			if newrec:
+				self._clearNewRecord(row=row, pkVal=recKey)
+			else:
+				if not res:
+					# Different backends may cause res to be None
+					# even if the save is successful.
+					self.BackendObject.noResultsOnSave()
 
 
 	def _clearMemento(self, row=None):

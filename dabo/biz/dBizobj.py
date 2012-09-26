@@ -42,8 +42,7 @@ class dBizobj(dObject):
 		# Dictionary holding any default values to apply when a new record is created. This is
 		# now the DefaultValues property (used to be self.defaultValues attribute)
 		self._defaultValues = {}
-		# Holder for cursor changed rows history.
-		self._savedRowsHistory = {}
+
 		# PKs of rows to be filtered out when filtering Virtual fields
 		self.__filterPKVirtual = []
 
@@ -369,8 +368,6 @@ class dBizobj(dObject):
 		ret = self._hasTransactionToken() and crs.commitTransaction()
 		if ret:
 			self._releaseTransactionToken()
-		# Flush cursor status history.
-		self._flushSavedCursorsHistory()
 		return ret
 
 
@@ -387,8 +384,6 @@ class dBizobj(dObject):
 		ret = self._hasTransactionToken() and crs.rollbackTransaction()
 		if ret:
 			self._releaseTransactionToken()
-		# Clear history of cursor row changes.
-		self._discardSavedCursorsHistory()
 		return ret
 
 
@@ -454,7 +449,7 @@ class dBizobj(dObject):
 		try:
 			self.scanKeys(self.save, self._visitedKeys, startTransaction=False,
 					saveTheChildren=saveTheChildren, scanRequeryChildren=False)
-		except dException.dException:
+		except (dException.DBQueryException, dException.dException):
 			if startTransaction:
 				self.rollbackTransaction()
 			raise
@@ -468,7 +463,7 @@ class dBizobj(dObject):
 			try:
 				self.scan(self.save, startTransaction=False,
 						saveTheChildren=saveTheChildren, scanRequeryChildren=False)
-			except dException.dException:
+			except (dException.DBQueryException, dException.dException):
 				if startTransaction:
 					self.rollbackTransaction()
 				raise
@@ -539,7 +534,7 @@ class dBizobj(dObject):
 				self.requeryAllChildren()
 		except (dException.ConnectionLostException, dException.NoRecordsException):
 			raise
-		except dException.dException:
+		except (dException.DBQueryException, dException.dException):
 			# Something failed; reset things.
 			if startTransaction:
 				self.rollbackTransaction()
@@ -2640,30 +2635,6 @@ afterDelete() which is only called after a delete().""")
 		if newKey <> oldKey:
 			self.__cursors[newKey] = self.__cursors.pop(oldKey)
 			self.__currentCursorKey = newKey
-
-
-	def _discardSavedCursorsHistory(self):
-		for child in self._children:
-			child._discardSavedCursorsHistory()
-		self._savedRowsHistory.clear()
-
-
-	def _flushSavedCursorsHistory(self):
-		for child in self._children:
-			child._flushSavedCursorsHistory()
-		for key in self._savedRowsHistory:
-			try:
-				self.__cursors[key]._postSaveUpdateInternals(self._savedRowsHistory[key])
-			except KeyError:
-				self._savedRowsHistory[key] = []
-
-
-	def _updateSavedCursorsHistory(self, row):
-		key = self._CurrentCursorKey
-		if key in self._savedRowsHistory:
-			self._savedRowsHistory[key].append(row)
-		else:
-			self._savedRowsHistory[key] = [row]
 
 
 	## Property getter/setter methods ##
