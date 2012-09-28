@@ -3,6 +3,8 @@
 
 For example, getting a date from a string in various formats.
 """
+import operator
+import calendar
 import datetime
 import re
 import time
@@ -257,17 +259,27 @@ def getTimeFromString(strVal, formats=None):
 	return ret
 
 
-def goDate(date_datetime_exp, days):
+def goDate(date, days):
 	"""Given a date or datetime, return the date or datetime that is <days> away."""
-	tt = date_datetime_exp.timetuple()
-	seconds = time.mktime(tt)
-	one_day = 60*60*24
-	offset = (one_day * days)
-	new_time = list(time.localtime(seconds + offset))
-	new_time = tuple(new_time[:-3])
-	if isinstance(date_datetime_exp, datetime.datetime):
-		return datetime.datetime(*new_time)
-	return datetime.date(new_time[0], new_time[1], new_time[2])
+	op = operator.add
+	if days < 0:
+		op = operator.sub
+	return op(date, datetime.timedelta(days=abs(days)))
+	
+
+def goMonth(date, months):
+	"""Given a date or datetime, return the date or datetime that is <months> away.
+
+	In case of the new month being shorter than the old day number, the last day of 
+	the new month will be used.
+	"""
+	# This solution is based on
+	# http://stackoverflow.com/4130922/how-to-increment-datetime-month-in-python
+	month = date.month -1 + months
+	year = date.year + (month / 12)
+	month = (month % 12) + 1
+	day = min(date.day, calendar.monthrange(year, month)[1])
+	return date.replace(year, month, day)
 
 
 def webHeaderFormat(dtm):
