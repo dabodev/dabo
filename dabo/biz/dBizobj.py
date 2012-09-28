@@ -1145,12 +1145,15 @@ class dBizobj(dObject):
 			self.UserSQL = sql
 
 
-	def requery(self):
+	def requery(self, convertQMarks=False):
 		"""
 		Requery the data set.
 
 		Refreshes the data set with the current values in the database,
 		given the current state of the filtering parameters.
+
+		If convertQMarks is True (default is False), any ?'s in the sql will
+		get converted to whatever the marker is for the database backend.
 		"""
 		rp = self._RemoteProxy
 		if rp:
@@ -1182,7 +1185,7 @@ class dBizobj(dObject):
 			# run the requery
 			cursor = self._CurrentCursor
 			try:
-				cursor.requery(params)
+				cursor.requery(params, convertQMarks=convertQMarks)
 			except dException.ConnectionLostException:
 				raise
 			except dException.DBQueryException:

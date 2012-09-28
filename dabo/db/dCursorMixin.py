@@ -487,14 +487,14 @@ class dCursorMixin(dObject):
 		ac._assocPKColOther = self._assocPKColOther
 
 
-	def requery(self, params=None):
+	def requery(self, params=None, convertQMarks=False):
 		currSQL = self.CurrentSQL
 		newQuery = (self._lastSQL != currSQL)
 		self._lastSQL = currSQL
 		self.lastParams = params
 		self._savedStructureDescription = []
 
-		self.execute(currSQL, params)
+		self.execute(currSQL, params, convertQMarks=convertQMarks)
 
 		# clear mementos and new record flags:
 		self._mementos = {}
