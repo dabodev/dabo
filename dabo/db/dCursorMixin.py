@@ -2955,9 +2955,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if self.RowCount <= 0:
 			return False
 		try:
-			getattr(self.Record, kons.CURSOR_TMPKEY_FIELD)
-			return True
-		except dException.FieldNotFoundException:
+			return (kons.CURSOR_TMPKEY_FIELD in self._records[self.RowNumber])
+		except IndexError:
 			return False
 
 
