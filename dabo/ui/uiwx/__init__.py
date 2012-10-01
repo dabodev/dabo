@@ -101,6 +101,7 @@ from dCalendar import dCalendar
 from dCalendar import dExtendedCalendar
 from dCheckBox import dCheckBox
 from dCheckList import dCheckList
+from dCollapsiblePanel import dCollapsiblePanel
 from dColorDialog import dColorDialog
 from dComboBox import dComboBox
 from dDatePicker import dDatePicker
