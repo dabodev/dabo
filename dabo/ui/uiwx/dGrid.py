@@ -2013,6 +2013,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.bindEvent(dEvents.GridColSize, self._onGridColSize)
 		self.bindEvent(dEvents.GridCellEdited, self._onGridCellEdited)
 		self.bindEvent(dEvents.GridMouseLeftClick, self._onGridMouseLeftClick)
+		self.bindEvent(dEvents.MouseWheel, self._onGridMouseWheel)
 
 		## wx.EVT_CONTEXT_MENU doesn't appear to be working for dGrid yet:
 #		self.bindEvent(dEvents.GridContextMenu, self._onContextMenu)
@@ -3724,6 +3725,49 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if menu is not None and len(menu.Children) > 0:
 			self.showContextMenu(menu)
 
+
+	def _onGridMouseWheel(self, evt):
+		## Override the default implementation which scrolls too slowly.
+		evt.stop()
+		lastWheelTime = getattr(self, "_lastWheelTime", 0)
+		thisWheelTime = self._lastWheelTime = time.time()
+		ui = evt._uiEvent
+		mult = 1
+		if ui.GetWheelRotation() > 0:
+			mult = -1
+		linesPerAction = ui.GetLinesPerAction()
+		scrollAmt = mult * linesPerAction
+		if thisWheelTime - lastWheelTime > 100:
+			## Run the first wheel scroll to occur immediately:
+			self._scrollLines(scrollAmt)
+			return
+		## Throttle subsequent rapid-fire wheel scrolls through callAfterInterval,
+		## otherwise the events pile up resulting in poor performance.
+		_accumulatedWheelScroll = getattr(self, "_accumulatedWheelScroll", None)
+		if _accumulatedWheelScroll is None:
+			dabo.ui.callAfterInterval(50, self._scrollAccumulatedLines)
+			_accumulatedWheelScroll = 0
+		self._accumulatedWheelScroll = _accumulatedWheelScroll + scrollAmt
+		self._wheelScrollLines = linesPerAction
+
+
+	def _scrollAccumulatedLines(self):
+		scrollAmt = self._accumulatedWheelScroll
+		if sys.platform.startswith("win") and scrollAmt > self._wheelScrollLines:
+			# I guess Windows doesn't receive as many wheel events per timeslice
+			# as Gtk does. This attempts to compensate.
+			scrollAmt *= (scrollAmt * .5)
+		self._scrollLines(scrollAmt)
+		self._accumulatedWheelScroll = None
+
+
+	def _scrollLines(self, scrollAmt):
+		## Without the Freeze/Thaw, performance sucks on Windows as it tries to do
+		## it smoothly.
+		self.Freeze()
+		self.ScrollLines(scrollAmt)
+		self.Thaw()
+		
 
 	def _onGridHeaderMouseRightUp(self, evt):
 		"""Occurs when the right mouse button goes up in the grid header."""
