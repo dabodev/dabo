@@ -3737,7 +3737,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			mult = -1
 		linesPerAction = ui.GetLinesPerAction()
 		scrollAmt = mult * linesPerAction
-		if thisWheelTime - lastWheelTime > 100:
+		if thisWheelTime - lastWheelTime > .5:
 			## Run the first wheel scroll to occur immediately:
 			self._scrollLines(scrollAmt)
 			return
