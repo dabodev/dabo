@@ -78,13 +78,15 @@ class Login(dabo.ui.dOkCancelDialog):
 		vs = dabo.ui.dSizer("v")
 		bs = dabo.ui.dSizer("h")
 
-		bs.append(self.lblUserName)
+		bs.append(self.lblUserName, alignment="middle")
 		bs.appendSpacer(5)
 		bs.append(self.txtUserName, 1)
 		vs.append1x(bs)
 
+		vs.appendSpacer(5)
+
 		bs = dabo.ui.dSizer("h")
-		bs.append(self.lblPassword)
+		bs.append(self.lblPassword, alignment="middle")
 		bs.appendSpacer(5)
 		bs.append(self.txtPassword, 1)
 		vs.append1x(bs)
