@@ -2055,12 +2055,13 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		the proper number of rows with current data.
 		"""
 		# Note that we never call self.super(), because we don't need/want that behavior.
+		last = getattr(self, "_lastCellSelectedTime", 0)
+		cur = time.time()
+		if cur - last < .5:
+			return
 		self._syncRowCount()
 		self._syncCurrentRow()
-		if self._inUpdate:
-			self._inUpdate = False
-		else:
-			self.refresh()  ## to clear the cache and repaint the cells
+		self.refresh()  ## to clear the cache and repaint the cells
 
 
 	def _syncAll(self):
@@ -3832,13 +3833,35 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def _onGridCellSelected(self, evt):
 		"""Occurs when the grid's cell focus has changed."""
+		threshold = .2
+		last = getattr(self, "_lastCellSelectedTime", 0)
+		cur = self._lastCellSelectedTime = time.time()
+		#self._gridCellSelectedNewRowCol = (evt.EventData["row"], evt.EventData["col"])
+		if cur - last > threshold:
+			# Update immediately:
+			self._gridCellSelectedOldRow = self.CurrentRow 
+			self._updateCellSelection((evt.EventData["row"], evt.EventData["col"]))
+			return
+		# Let the grid scroll as fast as possible while rapid-fire keyboard navigation is
+		# occurring, but <threshold> seconds later, sync up the bizobj and update the selection:
+		if getattr(self, "_gridCellSelectedOldRow", None) is None:
+			self._gridCellSelectedOldRow = self.CurrentRow
+		dabo.ui.callAfterInterval(threshold*1000, self._updateCellSelection)
+
+
+	def _updateCellSelection(self, newRowCol=None):
+		if self._inUpdateSelection:
+			return
 		## pkm 2005-09-28: This works around a nasty segfault:
 		self.HideCellEditControl()
 		## but periodically test it. My current version: 2.6.1.1pre
 
-		oldRow = self.CurrentRow
-		newRow = evt.EventData["row"]
-		newCol = self._convertWxColNumToDaboColNum(evt.EventData["col"])
+		oldRow = self._gridCellSelectedOldRow
+		self._gridCellSelectedOldRow = None
+		if newRowCol is None:
+			newRowCol = (self.CurrentRow, self.CurrentColumn)
+		newRow = newRowCol[0]
+		newCol = self._convertWxColNumToDaboColNum(newRowCol[1])
 		try:
 			col = self.Columns[newCol]
 		except (IndexError, TypeError):
@@ -3860,7 +3883,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			if bizobj and not self._dataSourceBeingSet:
 				# Don't run any of this code if this is the initial setting of the DataSource
 				if bizobj.RowCount > newRow and bizobj.RowNumber != newRow:
-					self._inUpdate = True
 					if self._mediateRowNumberThroughForm and isinstance(self.Form, dabo.ui.dForm):
 						# run it through the form:
 						if not self.Form.moveToRowNumber(newRow, bizobj):
@@ -3881,17 +3903,19 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					#self.SetGridCursor(0,0)
 					pass
 		self._dataSourceBeingSet = False
-		dabo.ui.callAfter(self._updateSelection)
+		dabo.ui.callAfterInterval(50, self._updateSelection)
 
 
 	def _updateSelection(self):
 		if self._inUpdateSelection or self.SelectionMode =="Cell":
 			return
 		self._inUpdateSelection = True
+		self.Freeze()
 		self.ClearSelection()
 		fnc = {"Row": self.SelectRow, "Col": self.SelectCol}[self.SelectionMode]
 		for num in self.Selection:
 			fnc(num, True)
+		self.Thaw()
 		self._inUpdateSelection = False
 
 
