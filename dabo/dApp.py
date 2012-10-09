@@ -1404,24 +1404,6 @@ try again when it is running.
 		self._cryptoProvider = SimpleCrypt(key=val)
 
 
-# 	def _getDatabaseActivityLog(self):
-# 		return dabo.dbActivityLog
-#
-# 	def _setDatabaseActivityLog(self, val):
-# 		try:
-# 			dbLogger = dabo.dbActivityLog
-# 			for hnd in dbLogger.handlers:
-# 				dbLogger.removeHandler(hnd)
-# 			dabo.dbLogHandler = logging.handlers.RotatingFileHandler(filename=val,
-# 					maxBytes=dabo.maxLogFileSize, encoding=self.Encoding)
-# 			dbLogger.addHandler(dabo.dbLogHandler)
-# 			dbLogger.setLevel(logging.INFO)
-# 			dabo.dbLogHandler.setLevel(logging.INFO)
-# 		except IOError, e:
-# 			dabo.log.error(_("Could not open file: '%(val)s': %(e)s") % locals())
-# 			return
-
-
 	def _getDefaultMenuBarClass(self):
 		try:
 			cls = self._defaultMenuBarClass
@@ -1762,10 +1744,6 @@ try again when it is running.
 			_("""When set, creates a DES crypto object if PyCrypto is installed. Note that
 			each time this property is set, a new PyCrypto instance is created, and
 			any previous crypto objects are released. Write-only.  (varies)"""))
-
-# 	DatabaseActivityLog = property(_getDatabaseActivityLog, _setDatabaseActivityLog, None,
-# 			_("""Path to the file (or file-like object) to be used for logging all database
-# 			activity. Default=None, which means no log is kept.   (file or str)"""))
 
 	DefaultForm = property(_getDefaultForm, _setDefaultForm, None,
 			_("""The form class to open by default, automatically, after app instantiation.  (form class reference)"""))
