@@ -951,6 +951,8 @@ class Memo(String):
 				to get the same relative spacing.
 				""")
 
+		self.AvailableProps["FirstLineIndent"] = toPropDict(float, 0,
+				"""Specifies the extra amount to indent for the first line in each paragraph.""")
 
 
 class Image(Drawable):
@@ -1909,12 +1911,12 @@ class ReportWriter(object):
 
 			if isinstance(fobject, (Memo, Paragraph)):
 				s.leading = getFloatLeading(fobject)
+				s.firstLineIndent = fobject.getProp("firstLineIndent")
 				if isinstance(fobject, Paragraph):
 					# I ditched these props in Memo:
 					s.spaceAfter = fobject.getProp("spaceAfter")
 					s.spaceBefore = fobject.getProp("spaceBefore")
 					s.leftIndent = fobject.getProp("leftIndent")
-					s.firstLineIndent = fobject.getProp("firstLineIndent")
 				paras = expr.splitlines()
 				prior_para = ""
 				for idx, para in enumerate(paras):
