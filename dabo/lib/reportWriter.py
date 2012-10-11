@@ -1634,8 +1634,23 @@ class ReportWriter(object):
 				s = self.NoneDisplay
 			elif obj.Report.getProp("StringifyDates") and isinstance(s, datetime.date):
 				s = getStringFromDate(s)
-
-			func(posx, 0, ustr(s))
+			if isinstance(s, unicode):
+				pass
+			elif isinstance(s, str):
+				try:
+					s = unicode(s, "utf-8")
+				except UnicodeDecodeError:
+					try:
+						s = unicode(s, self.Encoding)
+					except UnicodeDecodeError:
+						# s must have already been encoded, and the default encoding is ascii.
+						pass
+			else:
+				s = unicode(s)
+			try:
+				func(posx, 0, s)
+			except UnicodeDecodeError:
+				func(posx, 0, ustr(s))
 
 		elif objType in ("Frameset", "Memo"):
 			# Frameset is deprecated; Memo is what to use now. Memo abstracts away the
