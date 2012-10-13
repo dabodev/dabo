@@ -12,7 +12,7 @@ from dabo.dObject import dObject
 from dabo.db import dTable
 from dNoEscQuoteStr import dNoEscQuoteStr
 from dabo.lib.utils import ustr
-
+from dCursorMixin import dCursorMixin
 
 
 class dBackend(dObject):
@@ -52,6 +52,10 @@ class dBackend(dObject):
 	def getDictCursorClass(self):
 		"""override in subclasses"""
 		return None
+
+	def getMainCursorClass(self):
+		"""override in subclasses if they need something other than dCursorMixin"""
+		return dCursorMixin
 
 
 	def getCursor(self, cursorClass):

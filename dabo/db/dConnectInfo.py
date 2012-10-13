@@ -86,6 +86,13 @@ class dConnectInfo(dObject):
 			return None
 
 
+	def getMainCursorClass(self):
+		try:
+			return self._backendObject.getMainCursorClass()
+		except TypeError:
+			return None
+
+
 	def encrypt(self, val):
 		if self.Application:
 			return self.Application.encrypt(val)

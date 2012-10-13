@@ -44,6 +44,10 @@ class dConnection(dObject):
 		return self._connectInfo.getDictCursorClass()
 
 
+	def getMainCursorClass(self):
+		return self._connectInfo.getMainCursorClass()
+
+
 	def getCursor(self, cursorClass):
 		return self.getBackendObject().getCursor(cursorClass)
 

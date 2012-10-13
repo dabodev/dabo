@@ -21,8 +21,6 @@ _scanExceptionId = None
 
 class dBizobj(dObject):
 	""" The middle tier, where the business logic resides."""
-	# Class to instantiate for the cursor object
-	dCursorMixinClass = dCursorMixin
 	# Tell dObject that we'll call before and afterInit manually:
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, False
 
@@ -131,6 +129,7 @@ class dBizobj(dObject):
 		if conn:
 			# Base cursor class : the cursor class from the db api
 			self.dbapiCursorClass = self._cursorFactory.getDictCursorClass()
+			self.dCursorMixinClass = self._cursorFactory.getMainCursorClass()
 			# If there are any problems in the createCursor process, an
 			# exception will be raised in that method.
 			self.createCursor()
@@ -459,7 +458,7 @@ class dBizobj(dObject):
 		# in some out-of-context child cursor, but that should be rare. In the
 		# common case, all the changes would have already been made in the above
 		# block, and isAnyChanged() will return False very quickly in that case.
-		if self.isAnyChanged():	
+		if self.isAnyChanged():
 			try:
 				self.scan(self.save, startTransaction=False,
 						saveTheChildren=saveTheChildren, scanRequeryChildren=False)
@@ -561,7 +560,7 @@ class dBizobj(dObject):
 		# in some out-of-context child cursor, but that should be rare. In the
 		# common case, all the cancellations would have already happened in the
 		# above block, and isAnyChanged() will return False very quickly.
-		if self.isAnyChanged():	
+		if self.isAnyChanged():
 			self.scanChangedRows(self.cancel, allCursors=False,
 					includeNewUnchanged=True, cancelTheChildren=cancelTheChildren,
 					ignoreNoRecords=ignoreNoRecords, reverse=True)
@@ -1313,7 +1312,7 @@ class dBizobj(dObject):
 		If the operator is specified, it will be used literally in the evaluation instead of the
 		equals sign, unless it is one of the following strings, which will be interpreted
 		as indicated:
-			
+
 			| eq, equals: =
 			| ne, nequals: !=
 			| gt: >
@@ -1355,9 +1354,9 @@ class dBizobj(dObject):
 		"""Allows you to filter by any valid Python expression.
 
 		Use the field alias names, for example::
-		
+
 			biz.filterByExpression('cust_name[0].lower() = 'a')
-		
+
 		where cust_name is a field alias name in this record.
 		"""
 		self._CurrentCursor.filterByExpression(expr)
@@ -1444,7 +1443,7 @@ class dBizobj(dObject):
 		an error message that describes the reason why the data is not
 		valid; this message will be propagated back up to the UI where it can
 		be displayed to the user so that they can correct the problem.
-		
+
 		Example::
 
 			if not myNonEmptyField:
@@ -1515,7 +1514,7 @@ class dBizobj(dObject):
 		For internal use only! Should never be called from a developer's code.
 		Its purpose is to keep child cursor in sync with parent cursor.
 		The updateChildren parameter meaning:
-		
+
 			| None	- the fastest one, doesn't update parent nor requery child cursor
 			| False	- update child cursor with current parent
 			| True	- do both, update child cursor's parent and requery child cursor.
@@ -1598,7 +1597,7 @@ class dBizobj(dObject):
 
 		If incremental is True (default is False), then we only compare the first
 		characters up until the length of val.
-		
+
 		Returns the RowNumber of the found record, or -1 if no match found.
 		"""
 		ret = self._CurrentCursor.seek(val, fld, caseSensitive, near,
@@ -2117,7 +2116,7 @@ class dBizobj(dObject):
 		"""
 		Gets the structure of the DataSource table. Returns a list
 		of 3-tuples, where the 3-tuple's elements are:
-		
+
 			| 0: the field name (string)
 			| 1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
 			| 2: boolean specifying whether this is a pk field.
@@ -2129,7 +2128,7 @@ class dBizobj(dObject):
 		"""
 		Gets the structure of the DataSource table. Returns a list
 		of 3-tuples, where the 3-tuple's elements are:
-		
+
 			| 0: the field name (string)
 			| 1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
 			| 2: boolean specifying whether this is a pk field.
@@ -2576,7 +2575,7 @@ afterDelete() which is only called after a delete().""")
 		Hook method called after a field's value has been set.
 
 		Your hook method needs to accept two arguments:
-		
+
 			| -> fld : The name of the changed field.
 			| -> row : The RowNumber of the changed field.
 
@@ -3105,7 +3104,7 @@ afterDelete() which is only called after a delete().""")
 			_("""If set, treated as cursor real table name where DataSource
 			is an alias	for it. This allows coexistence of many business objects
 			with same data source on single form. (str)
-			
+
 			Example:
 				class StockBase(dBizobj):
 					def initProperties(self):

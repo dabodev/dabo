@@ -7,7 +7,17 @@ from dBackend import dBackend
 import dabo.dException as dException
 from dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 from dabo.lib.utils import ustr
+from dCursorMixin import dCursorMixin
 
+
+class MySQLAutoReconnectCursor(dCursorMixin):
+	def execute(self, sql, params=None, errorClass=None, convertQMarks=False):
+		from MySQLdb import OperationalError
+		try:
+			super(MySQLAutoReconnectCursor, self).execute(sql, params=params, errorClass=OperationalError, convertQMarks=convertQMarks)
+		except OperationalError:
+			self.connection.ping(True)
+			super(MySQLAutoReconnectCursor, self).execute(sql, params=params, errorClass=None, convertQMarks=convertQMarks)
 
 
 class MySQL(dBackend):
@@ -79,9 +89,18 @@ class MySQL(dBackend):
 
 
 	def getDictCursorClass(self):
-		import MySQLdb.cursors as cursors
-		return cursors.DictCursor
+		return MySQLdb.cursors.DictCursor
 
+	def getMainCursorClass(self):
+		return MySQLAutoReconnectCursor
+
+	#def getCursor(self, CursorClass):
+	#	raise
+	#	print "CursorClass is: %s" % CursorClass
+	#	if CursorClass == dCrusorMixin:
+	#		return MySQLAutoReconnectCursor(self._connection)
+	#	else:
+	#		return CursorClass(self._connection)
 
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""
