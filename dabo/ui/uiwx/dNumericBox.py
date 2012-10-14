@@ -66,6 +66,8 @@ class dNumericBox(dtbm.dTextBoxMixin, masked.NumCtrl):
 		fontFace = self._extractKey((properties, attProperties, kwargs), "FontFace", "")
 		if not fontFace and self.Application.Platform in ("Win",):
 			fontFace = "Tahoma"
+		elif not fontFace and self.Application.Platform in ("Mac",):
+			fontFace = "Lucida Grande"
 		if fontFace:
 			 kwargs["FontFace"] = fontFace
 		dtbm.dTextBoxMixin.__init__(self, masked.NumCtrl, parent, properties,
