@@ -21,6 +21,8 @@ _scanExceptionId = None
 
 class dBizobj(dObject):
 	""" The middle tier, where the business logic resides."""
+	# Class to instantiate for the cursor object
+	dCursorMixinClass = dCursorMixin
 	# Tell dObject that we'll call before and afterInit manually:
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, False
 

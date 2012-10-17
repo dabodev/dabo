@@ -13,10 +13,10 @@ class MySQLAutoReconnectCursor(dCursorMixin):
 	def execute(self, sql, params=None, errorClass=None, convertQMarks=False):
 		from MySQLdb import OperationalError
 		try:
-			super(MySQLAutoReconnectCursor, self).execute(sql, params=params, errorClass=OperationalError, convertQMarks=convertQMarks)
+			return super(MySQLAutoReconnectCursor, self).execute(sql, params=params, errorClass=OperationalError, convertQMarks=convertQMarks)
 		except OperationalError:
 			self.connection.ping(True)
-			super(MySQLAutoReconnectCursor, self).execute(sql, params=params, errorClass=None, convertQMarks=convertQMarks)
+			return super(MySQLAutoReconnectCursor, self).execute(sql, params=params, errorClass=None, convertQMarks=convertQMarks)
 
 
 class MySQL(dBackend):
