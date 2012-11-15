@@ -3089,7 +3089,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				| 2: pk field (bool)
 				| 3: table name (str)
 				| 4: field name (str)
-				| 5: field scale (int or None)
+				| 5: field scale for numeric, display size for character
+					type fields (int or None)
 
 				This information will try to come from a few places, in order:
 

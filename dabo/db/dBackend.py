@@ -203,7 +203,7 @@ class dBackend(dObject):
 
 		If it can't be determined, the field type will be '?'.
 		"""
-		return "?"
+		return {int: "I", str: "C", float: "F"}.get(backendFieldType, "?")
 
 
 	def getFieldInfoFromDescription(self, cursorDescription):
@@ -345,7 +345,7 @@ class dBackend(dObject):
 		"""
 		clauses =  (fieldClause, fromClause, joinClause, whereClause, groupByClause,
 				orderByClause, limitClause)
-		sql = "select " + "\n".join( [clause for clause in clauses if clause] )
+		sql = "select " + "\n".join([clause for clause in clauses if clause])
 		return sql
 
 
@@ -470,7 +470,7 @@ class dBackend(dObject):
 		# Get the raw version of the table
 		sql = "select * from %s where 1=0 " % self.encloseNames(cursor.Table,
 				autoQuote=autoQuote)
-		auxCrs.execute( sql )
+		auxCrs.execute(sql)
 		# This is the clean version of the table.
 		stdFlds = auxCrs.FieldDescription
 
@@ -502,10 +502,11 @@ class dBackend(dObject):
 			aux.execute(structure_only_sql)
 			field_description = aux.FieldDescription
 		for field_info in field_description:
-			field_name = field_info[0]
+			field_name = ustr(field_info[0])
 			field_type = self.getDaboFieldType(field_info[1])
 			field_names.append(field_name)
-			field_structure[field_name] = (field_type, False)
+			field_structure[field_name] = (field_type, False,
+					max(field_info[2], field_info[3]) or None, field_info[5] or None)
 
 		standard_fields = cursor.getFields()
 		for field_name, field_type, pk in standard_fields:
@@ -515,16 +516,20 @@ class dBackend(dObject):
 				#      the case if we haven't set the SQL or requeried yet.
 				#   2) The field exists in the FieldDescription, and FieldDescription
 				#      didn't provide good type information.
-				if field_structure[field_name][0] == "?":
+				if field_structure[field_name][0] != field_type:
 					# Only override what was in FieldStructure if getFields() gave better info.
-					field_structure[field_name] = (field_type, pk)
-				if pk is True:
+					field_structure[field_name] = (field_type, pk,
+							field_structure[field_name][2], field_structure[field_name][3])
+				elif pk:
 					# FieldStructure doesn't provide pk information:
-					field_structure[field_name] = (field_structure[field_name][0], pk)
+					field_structure[field_name] = (field_structure[field_name][0], pk,
+							field_structure[field_name][2], field_structure[field_name][3])
 
-		ret = []
-		for field in field_names:
-			ret.append( (field, field_structure[field][0], field_structure[field][1]) )
+		ret = [(field, field_structure[field][0], field_structure[field][1],
+				None, None,
+				field_structure[field][2] if field_structure[field][0] == "C"
+					else field_structure[field][3])
+				for field in field_names]
 		return tuple(ret)
 
 

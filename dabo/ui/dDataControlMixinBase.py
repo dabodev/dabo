@@ -14,6 +14,7 @@ from dabo.lib.utils import ustr
 class dDataControlMixinBase(dabo.ui.dControlMixin):
 	"""Provide common functionality for the data-aware controls."""
 	def __init__(self, *args, **kwargs):
+		self._deriveTextLengthFromSource = dabo.dTextBox_DeriveTextLengthFromSource
 		self._disableOnEmptyDataSource = dabo.autoDisableDataControls
 		self._fldValidFailed = False
 		# Control enabling/disabling on empty data source helper attribute.
@@ -537,6 +538,14 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				# It's tricky, because object attribute/property takes precedence before data field of the same name.
 				if self._srcIsBizobj:
 					self._srcIsBizobj = not hasattr(self.__src, self.DataField)
+			if self._srcIsBizobj and self._deriveTextLengthFromSource and \
+					hasattr(self, "TextLength"):
+				field = self.DataField
+				for descr in self.__src.DataStructure:
+					if descr[0] == field:
+						if descr[1] == "C":
+							self.TextLength = descr[5]
+						break
 		return self.__src
 
 

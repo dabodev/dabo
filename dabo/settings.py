@@ -230,6 +230,10 @@ autoDisableDataControls = False
 
 dTextBox_NumericBlankToZero = False
 
+# When set to True, dTextBox control bound to the dBizobj source takes its TextLength
+# property settings from it.
+dTextBox_DeriveTextLengthFromSource = False
+
 # When we copy values from a grid, we need to define the following values for the copied text:
 copyValueSeparator = "\t"
 copyStringSeparator= '"'
