@@ -58,8 +58,11 @@ class MSSQL(dBackend):
 				def fetchall(self):
 					# In dictionary mode both column numbers and names are used
 					# as keys. We need to filter them and leave name based keys only.
-					return tuple([{col: row[col]} for col in row if type(col) != int
-							for row in super(ConCursor, self).fetchall()])
+					rows = super(ConCursor, self).fetchall()
+					for row in rows:
+						for key in range(len(row) / 2):
+							row.pop(key, None)
+					return rows
 		else:
 			class ConCursor(self.dbapi.pymssqlCursor):
 				def __init__(self, *args, **kwargs):
@@ -197,7 +200,8 @@ select table_schema + '.' + table_name AS table_name
 			tableName = tableNamespace[-1]
 		else:
 			tableSchema = "dbo"
-
+		if not tableName:
+			return ()
 		sql = """
 select COLUMN_NAME,
        DATA_TYPE
