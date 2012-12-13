@@ -582,7 +582,7 @@ class Drawable(ReportObject):
 		if vAnchor == "bottom":
 			ret += height
 		if vAnchor == "middle":
-			ret += (height / Decimal("2"))
+			ret += (height / 2.)
 		return ret
 
 
