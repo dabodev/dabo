@@ -13,18 +13,12 @@ You either program using Python, importing the dabo library, or you
 use the Dabo Class Designer to create xml files to define your classes.
 These xml files can contain embedded python code for the best of all worlds.
 
-So, the basic idea is that you have a functional, working, albeit basic
-application up and running very quickly, and you can then spend time
-getting all the fancy bells and whistles implemented. Keep things as
-simple as possible though, while still fulfilling your customer's
-specifications. Simplicity is the better part of elegance.
-
 Beyond the wizards and xml definition files, Dabo exposes a nice
 API in Python for manually creating your own class definitions. IOW,
 we let you have as much control as you need. You aren't required to
 take advantage of our xml definition formats at all.
 
-Dabo has three main submodules, representing the three tiers common
+Dabo has three main subpackages, representing the three tiers common
 in modern database application design:
 
 	dabo.db  : database
@@ -33,38 +27,25 @@ in modern database application design:
 
 dabo.db and dabo.biz are completely ui-free, while dabo.ui (currently)
 requires wxPython. We have allowed for possible future support for other
-ui libraries, such as PyQt, tk, and curses.
+ui libraries, such as PyQt or PySide, tk, and curses.
 
 The Dabo framework will have to be distributed to your client's machine(s),
 along with your project-specific data definitions and (if applicable), your
 subclasses of the Dabo classes and additional Python scripts, if any. There
 are ways to do runtime deployment via installers that take the complexity
-out of this, but that is outside the scope of Dabo itself, and you'll use
-a different method for each target platform.
+out of this, but that is outside the scope of Dabo itself. PyInstaller
+and cxFreeze are our current recommendations.
 
 To run Dabo, and apps based on Dabo, you need:
-	+ Python 2.4 or higher (2.5 or higher recommended)
-	+ wxPython 2.8 or higher (2.8.8 or higher highly recommended)
-      (only necessary for apps with a ui: because of the modular
-	  nature of Dabo's design, it is possible to use just the
-	  db layer, or the db layer in conjunction with the biz
-	  layer, with no ui at all.)
-	+ pysqlite2: The Python dbapi module for SQLite. (Not needed in
-	  Python 2.5 and higher)
-	+ Windows 98SE or higher
-	+ Macintosh OSX 10.2 or higher (*much* nicer in Tiger - 10.4)
-	+ Linux 2.4 with X11 running and Gtk2
-	+ Access to some sort of database server, along with the
-	  appropriate Python driver(s) installed. For example, for
-	  MySQL you'll need to have the MySQL client libraries
-	  installed, as well as the MySQLDb Python module. (Dabo
-	  does not use ODBC: it connects directly using the Python
-	  DB API coupled with the individual database drivers. This
-	  is, at the same time, less flexible, tougher to get started
-	  with, but more capable, more multi-platform, and better
-	  performing, than ODBC is.) (we recommend starting with MySQL
-	  installed, because all of the demo code has the best support
-	  for MySQL).
+	+ Python 2.5 or higher (2.6.5 - 2.7.x recommended)
+	+ Avoid Python 3.x for now until wxPython supports it.
+	+ wxPython 2.8 or higher (2.8.12 recommended)
+      (only necessary for apps with a ui)
+	+ Reportlab and Python Imaging Library if running reports.
+	+ One or more of the following operating systems:
+		+ Windows XP or higher
+		+ Macintosh OSX 10.5 or higher
+		+ Linux 2.6 or higher with X11 running and Gtk2
 
 How you get started is pretty much up to you. Run DaboDemo.py which
 is in demo/DaboDemo. Run AppWizard.py which is in ide/wizards.
@@ -73,8 +54,8 @@ Run ClassDesigner.py or ReportDesigner.py in the ide directory.
 For some quick eye-candy, once you've installed Dabo using the standard
 'python setup.py install' method, do this from your Python interpreter::
 
-	import dabo
-	dabo.dApp().start()
+	from dabo.dApp import dApp
+	dApp().start()
 
 press Ctrl+D and type the following into the command window that appears::
 
