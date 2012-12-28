@@ -21,7 +21,7 @@ def getForm():
 
 class dMessageBox(wx.MessageDialog):
 	def __init__(self, message, title, style, parent=None, requestUserAttention=True,
-				userAttentionMode=wx.USER_ATTENTION_INFO):
+				userAttentionMode=wx.USER_ATTENTION_INFO, pos=None):
 		if not parent:
 			parent = getForm()
 		if not wx.GetApp().IsActive() and isinstance(parent, (wx.Frame, wx.MDIParentFrame)) and requestUserAttention:
@@ -31,11 +31,12 @@ class dMessageBox(wx.MessageDialog):
 		# Force the message and title to strings
 		message = "%s" % message
 		title = "%s" % title
-		wx.MessageDialog.__init__(self, parent, message, title, style)
+		wx.MessageDialog.__init__(self, parent, message, title, style, pos=pos)
 
 
 def areYouSure(message="Are you sure?", title=None, defaultNo=False,
-		cancelButton=True, parent=None, requestUserAttention=True):
+		cancelButton=True, parent=None, requestUserAttention=True, 
+		pos=None):
 	"""
 	Display a dMessageBox asking the user to answer yes or no to a question.
 
@@ -65,7 +66,7 @@ def areYouSure(message="Are you sure?", title=None, defaultNo=False,
 	if defaultNo:
 		style = style|wx.NO_DEFAULT
 
-	dlg = dMessageBox(message, title, style, parent=parent)
+	dlg = dMessageBox(message, title, style, parent=parent, pos=pos)
 	retval = dlg.ShowModal()
 	dlg.Destroy()
 
@@ -77,7 +78,8 @@ def areYouSure(message="Are you sure?", title=None, defaultNo=False,
 		return None
 
 
-def stop(message="Stop", title=None, parent=None, requestUserAttention=True):
+def stop(message="Stop", title=None, parent=None, requestUserAttention=True,
+		pos=None):
 	"""
 	Display a dMessageBox informing the user that the operation cannot proceed.
 
@@ -97,9 +99,10 @@ def stop(message="Stop", title=None, parent=None, requestUserAttention=True):
 		title = getDefaultTitle()
 	icon = wx.ICON_HAND
 	showMessageBox(message=message, title=title, icon=icon, parent=parent,
-			requestUserAttention=requestUserAttention)
+			requestUserAttention=requestUserAttention, pos=pos)
 
-def info(message="Information", title=None, parent=None, requestUserAttention=True):
+def info(message="Information", title=None, parent=None, requestUserAttention=True,
+		pos=None):
 	"""
 	Display a dMessageBox offering the user some useful information.
 
@@ -119,10 +122,10 @@ def info(message="Information", title=None, parent=None, requestUserAttention=Tr
 		title = getDefaultTitle()
 	icon = wx.ICON_INFORMATION
 	showMessageBox(message=message, title=title, icon=icon, parent=parent,
-			requestUserAttention=requestUserAttention)
+			requestUserAttention=requestUserAttention, pos=pos)
 
 def exclaim(message="Important!", title=None, parent=None,
-			requestUserAttention=True):
+			requestUserAttention=True, pos=None):
 	"""
 	Display a dMessageBox urgently informing the user that we cannot proceed.
 
@@ -143,16 +146,18 @@ def exclaim(message="Important!", title=None, parent=None,
 	icon = wx.ICON_EXCLAMATION
 	showMessageBox(message=message, title=title, icon=icon, parent=parent,
 			requestUserAttention=requestUserAttention,
-			userAttentionMode=wx.USER_ATTENTION_ERROR)
+			userAttentionMode=wx.USER_ATTENTION_ERROR, pos=pos)
 
 
 def showMessageBox(message, title, icon, parent=None,
-			requestUserAttention=True, userAttentionMode=wx.USER_ATTENTION_INFO):
+			requestUserAttention=True,
+			userAttentionMode=wx.USER_ATTENTION_INFO, pos=None):
 	style = wx.OK | icon
 	dlg = dMessageBox(message, title, style, parent=parent,
 			requestUserAttention=requestUserAttention,
-			userAttentionMode=userAttentionMode)
-	dlg.CenterOnParent()
+			userAttentionMode=userAttentionMode, pos=pos)
+	if pos is None:
+		dlg.CenterOnParent()
 	retval = dlg.ShowModal()
 	dlg.Destroy()
 	return None
@@ -179,8 +184,7 @@ if __name__ == "__main__":
 	app.setup()
 	print areYouSure("Are you happy?")
 	print areYouSure("Are you sure?", cancelButton=False)
-	print areYouSure("So you aren\'t sad?", defaultNo=True)
-
+	print areYouSure("So you aren\'t sad?", defaultNo=True, pos=(23,34))
 	# Test requesting user attention:
 	frm = dabo.ui.dForm()
 	def onExit(evt):
