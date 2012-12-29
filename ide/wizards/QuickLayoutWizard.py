@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import sys
+if __name__ == "__main__":
+	sys.exit("This isn't meant to be run stand-alone. Please run ide/ClassDesigner.py instead.")
 import os
 import time
 import dabo
