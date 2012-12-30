@@ -2,14 +2,15 @@
 import wx
 import dabo
 from dabo.dLocalize import _
+import dabo.dColors as dColors
 import dabo.dEvents as dEvents
 
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dControlMixin as cm
 import dDataControlMixin as dcm
-from dabo.ui import makeDynamicProperty
 
 
 class _BasePanelMixin(object):
@@ -413,7 +414,7 @@ class _dPanel_test(dPanel):
 
 	def onHover(self, evt):
 		self._normBack = self.BackColor
-		self.BackColor = dabo.dColors.randomColor()
+		self.BackColor = dColors.randomColor()
 
 	def endHover(self, evt):
 		self.BackColor = self._normBack
@@ -434,7 +435,7 @@ class _dScrollPanel_test(dScrollPanel):
 
 	def afterInit(self):
 		subpan = self.addObject(dPanel, BackColor = "green")
-		subpan.bindEvent(dabo.dEvents.KeyDown, self.onKeyDown)
+		subpan.bindEvent(dEvents.KeyDown, self.onKeyDown)
 		self.SetScrollbars(10,10,100,100)
 
 	def onMouseLeftDown(self, evt):
@@ -496,7 +497,7 @@ if __name__ == "__main__":
 			sz.appendSpacer(20)
 			self.layout()
 
-# 	app = dabo.dApp(MainFormClass = SquareForm)
+# 	app = dApp(MainFormClass = SquareForm)
 # 	app.start()
 
 

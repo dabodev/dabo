@@ -3,15 +3,14 @@ import locale
 import wx
 import wx.lib.masked as masked
 import dabo
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
-import dabo.dColors as dColors
 import dTextBoxMixin as dtbm
 import dDataControlMixin as ddcm
 from decimal import Decimal
 from types import NoneType
-from dabo.ui import makeDynamicProperty
 from dabo.dLocalize import _
 
 

@@ -2,8 +2,6 @@
 import logging
 import time
 import dabo
-from dabo.dObject import dObject
-import dabo.ui as ui
 from dabo.dLocalize import _
 
 class dEvent(object):
@@ -165,7 +163,8 @@ class GridEvent(dEvent):
 
 class KeyEvent(dEvent):
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, (dabo.ui.dPemMixin, dabo.dApp))
+		from dabo.dApp import dApp
+		return issubclass(objectClass, (dabo.ui.dPemMixin, dApp))
 	appliesToClass = classmethod(appliesToClass)
 
 
@@ -243,7 +242,8 @@ class MediaEvent(dEvent):
 class Activate(dEvent):
 	"""Occurs when the form or application becomes active."""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, (dabo.dApp, dabo.ui.dForm,
+		from dabo.dApp import dApp
+		return issubclass(objectClass, (dApp, dabo.ui.dForm,
 				dabo.ui.dFormMain, dabo.ui.dDialog))
 	appliesToClass = classmethod(appliesToClass)
 
@@ -288,7 +288,8 @@ class ContextMenu(dEvent):
 class Deactivate(dEvent):
 	"""Occurs when another form becomes active."""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, (dabo.dApp, dabo.ui.dForm,
+		from dabo.dApp import dApp
+		return issubclass(objectClass, (dApp, dabo.ui.dForm,
 				dabo.ui.dFormMain, dabo.ui.dDialog))
 	appliesToClass = classmethod(appliesToClass)
 

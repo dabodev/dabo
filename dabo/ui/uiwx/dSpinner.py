@@ -6,6 +6,8 @@ import operator
 import wx
 import dabo
 
+from dabo.ui import makeDynamicProperty
+from dabo.ui import makeProxyProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
@@ -14,8 +16,6 @@ import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from dabo.ui import makeDynamicProperty
-from dabo.ui import makeProxyProperty
 
 
 class _dSpinButton(dcm.dDataControlMixin, wx.SpinButton):
@@ -84,7 +84,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 
 	def __onWxDestroy(self, evt):
 		# This doesn't otherwise happen
-		self.raiseEvent(dabo.dEvents.Destroy)
+		self.raiseEvent(dEvents.Destroy)
 
 	def _rerestoreValue(self):
 		# Hack because when restoreValue() was originally called in onCreate,
@@ -465,9 +465,10 @@ class _dSpinner_test(dSpinner):
 
 
 if __name__ == "__main__":
+	from dabo.dApp import dApp
 	class Test(dabo.ui.dForm):
 		def OH(self, evt): print "HIT"
 		def afterInitAll(self):
 			self.spn = _dSpinner_test(self, Value=3, OnHit=self.OH)
-	app = dabo.dApp(MainFormClass=Test)
+	app = dApp(MainFormClass=Test)
 	app.start()

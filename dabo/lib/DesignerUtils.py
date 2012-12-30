@@ -4,7 +4,6 @@ been separated from the design.
 """
 import re
 import copy
-import dabo.ui as dui
 
 
 
@@ -72,6 +71,7 @@ def getSizerDefaults():
 	"""Return a dict that contains the defaults for the various controls based upon
 	what sort of sizer they are contained within.
 	"""
+	import dabo.ui as dui  ## kept here on purpose
 	szDefaults = {}
 	defVals = {
 			"G": {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Center", "VAlign": "Middle", "Border": 0, "Expand": True, "RowExpand": False, "ColExpand": True},

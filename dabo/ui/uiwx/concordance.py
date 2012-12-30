@@ -2,6 +2,7 @@
 import wx
 import dabo
 from dabo.lib.utils import ustr
+import dabo.ui
 
 dabo.ui.loadUI("wx")
 

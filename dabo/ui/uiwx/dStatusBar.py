@@ -2,8 +2,8 @@
 import wx
 import dabo
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
-import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.dLocalize import _, n_
 import dControlMixin as dcm

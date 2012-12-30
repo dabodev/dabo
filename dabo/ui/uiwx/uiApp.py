@@ -6,6 +6,7 @@ import logging
 import wx
 import dabo
 import dabo.ui as ui
+import dabo.dColors as dColors
 import dabo.dEvents as dEvents
 import dabo.lib.utils as utils
 from dabo.dObject import dObject
@@ -45,7 +46,7 @@ class SplashScreen(wx.Frame):
 
 		if maskColor is not None:
 			if isinstance(maskColor, basestring):
-				maskColor = dabo.dColors.colorTupleFromName(maskColor)
+				maskColor = dColors.colorTupleFromName(maskColor)
 			self._bmp.SetMask(wx.Mask(self._bmp, maskColor))
 
 		if wx.Platform == "__WXGTK__":

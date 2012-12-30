@@ -2,6 +2,7 @@
 import wx
 import dabo
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 from dPanel import dPanel

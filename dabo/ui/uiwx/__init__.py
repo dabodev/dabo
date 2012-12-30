@@ -1456,7 +1456,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
 				raise TypeError(_("Cannot create custom editor without a control class specified."))
 			self._control = self._controlClass(parent, **controlProps)
 			self._grid = parent.GetParent()
-			self._control.bindEvent(dabo.dEvents.KeyDown, self._onKeyDown)
+			self._control.bindEvent(dEvents.KeyDown, self._onKeyDown)
 			self.SetControl(self._control)
 			if evtHandler:
 				self._control.PushEventHandler(evtHandler)

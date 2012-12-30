@@ -126,7 +126,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 	def __dataUpdate(self):
 		"""This handles all the value updating from the data source."""
-		if not self.DataField or not (self.DataSource or isinstance(self.DataSource, dabo.dPref)):
+		if not self.DataField or not (self.DataSource or isinstance(self.DataSource, dPref)):
 			return
 		if self._DesignerMode:
 			return
@@ -257,7 +257,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			# To prevent such situation we have to check the _from_flushValue attribute at the beginning.
 			self._from_flushValue = True
 			if not self._DesignerMode:
-				if (self.DataSource or isinstance(self.DataSource, dabo.dPref)) and self.DataField:
+				if (self.DataSource or isinstance(self.DataSource, dPref)) and self.DataField:
 					src = self.Source
 					if self._srcIsBizobj:
 						try:
@@ -306,8 +306,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			# Raise an event so that user code can react if needed:
 			if self._userChanged:
 				self._userChanged = False
-				self.raiseEvent(dabo.dEvents.InteractiveChange, oldVal=oldVal)
-			dabo.ui.callAfterInterval(200, self.raiseEvent, dabo.dEvents.ValueChanged)
+				self.raiseEvent(dEvents.InteractiveChange, oldVal=oldVal)
+			dabo.ui.callAfterInterval(200, self.raiseEvent, dEvents.ValueChanged)
 		return ret
 
 
@@ -479,7 +479,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		if self.__src is None:
 			ds = self.DataSource
 			self._srcIsBizobj = False
-			if (ds or isinstance(ds, dabo.dPref)):
+			if (ds or isinstance(ds, dPref)):
 				# First, see if it's a string
 				if isinstance(ds, basestring):
 					# Source can be a bizobj, which we get from the form, or

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import dabo
+import dabo.ui
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -51,6 +51,7 @@ class SortingForm(dabo.ui.dOkCancelDialog):
 
 
 if __name__ == "__main__":
+	from dabo.dApp import dApp
 	class DummyForm(dabo.ui.dForm):
 		def onActivate(self, evt):
 			self.Visible = False
@@ -66,7 +67,7 @@ if __name__ == "__main__":
 			dlg.release()
 			dabo.ui.callAfter(self.release)
 
-	app = dabo.dApp()
+	app = dApp()
 	app.MainFormClass = DummyForm
 	app.start()
 

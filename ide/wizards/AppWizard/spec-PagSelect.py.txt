@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import dabo
+import dabo.ui
+from dabo.dApp import dApp
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
@@ -17,7 +18,7 @@ class PagSelect%(tableName)s(PagSelectBase):
 
 if __name__ == "__main__":
 	from Frm%(tableName)s import Frm%(tableName)s
-	app = dabo.dApp(MainFormClass=None)
+	app = dApp(MainFormClass=None)
 	app.setup()
 	class TestForm(Frm%(tableName)s):
 		def afterInit(self): pass

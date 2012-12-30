@@ -133,7 +133,8 @@ class Login(dabo.ui.dOkCancelDialog):
 
 
 if __name__ == '__main__':
-	app = dabo.dApp(MainFormClass=None)
+	from dabo.dApp import dApp
+	app = dApp(MainFormClass=None)
 	app.setup()
 	form = Login(None)
 	form.show()

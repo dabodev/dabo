@@ -7,7 +7,6 @@ from dabo.lib.propertyHelperMixin import PropertyHelperMixin
 from dabo.lib.doDefaultMixin import DoDefaultMixin
 from dabo.lib.eventMixin import EventMixin
 from dabo.lib.autosuper import autosuper
-from dabo.dPref import dPref
 from dabo.dLocalize import _
 
 NONE_TYPE = type(None)
@@ -387,10 +386,12 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 					ret = self._preferenceManager = self.Application.PreferenceManager
 				except AttributeError: pass
 			if ret is None:
+				from dabo.dPref import dPref  ## here to avoid circular import
 				ret = self._preferenceManager = dPref(key=self.BasePrefKey)
 		return ret
 
 	def _setPreferenceManager(self, val):
+		from dabo.dPref import dPref  ## here to avoid circular import
 		if not isinstance(val, dPref):
 			raise TypeError('PreferenceManager must be a dPref object')
 		self._preferenceManager = val
@@ -432,9 +433,10 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 
 
 if __name__ == "__main__":
+	from dabo.dApp import dApp
 	d = dObject()
 	print d.Application
-	app = dabo.dApp()
+	app = dApp()
 	print d.Application
 
 	print _("Testing doDefault():")

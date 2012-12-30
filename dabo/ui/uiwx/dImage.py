@@ -8,6 +8,7 @@ import os
 import wx
 import dabo
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -429,6 +430,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 
 
 if __name__ == "__main__":
+	from dabo.dApp import dApp
 	class ImgForm(dabo.ui.dForm):
 		def afterInit(self):
 			self.Caption = "dImage Demonstration"
@@ -537,7 +539,7 @@ if __name__ == "__main__":
 				self.img.Size = (wd, ht)
 
 
-	app = dabo.dApp()
+	app = dApp()
 	app.MainFormClass = ImgForm
 	app.start()
 

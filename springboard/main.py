@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import dabo
+from dabo.dApp import dApp
 dabo.ui.loadUI("wx")
 import wx
 
@@ -87,7 +88,7 @@ def dummyImport():
 
 if __name__ == "__main__":
 #	dummyImport()
-	app = dabo.dApp()
+	app = dApp()
 	app.BasePrefKey = "dabo.springboard"
 	app.MainFormClass = "springboard.cdxml"
 	app.PreferenceManager.local_storage_dir = dabo.lib.utils.getUserAppDataDirectory()

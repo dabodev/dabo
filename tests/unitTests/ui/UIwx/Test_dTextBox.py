@@ -9,14 +9,15 @@ If this file is run standalone, it will automatically run all of the test cases 
 """
 
 import unittest
-import dabo
+import dabo.ui
+from dabo.dApp import dApp
 from mock import Mock
 dabo.ui.loadUI('wx')
 
 #We want the dApp and mainForm to persist through the settings for speed sake
 #NOTE:  It would be really good if we could extract all of this out so we don't have
 #		to do it for every single widget test
-App = dabo.dApp()
+App = dApp()
 App.setup()
 
 testForm = dabo.ui.dForm()

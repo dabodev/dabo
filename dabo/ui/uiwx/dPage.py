@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import dabo
+from dabo.ui import makeDynamicProperty
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-from dabo.ui import makeDynamicProperty
 
 
 class dPage(dabo.ui.dScrollPanel):

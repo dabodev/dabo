@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+import dabo.ui
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dControlMixin as cm
 import dImageMixin as dim
-import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import dIcons
 from dabo.ui import makeDynamicProperty

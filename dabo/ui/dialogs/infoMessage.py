@@ -52,7 +52,8 @@ class DlgInfoMessage(dabo.ui.dStandardButtonDialog):
 
 
 if __name__ == '__main__':
-	app = dabo.dApp(MainFormClass=None)
+	from dabo.dApp import dApp
+	app = dApp(MainFormClass=None)
 	app.setup()
 	dlg = DlgInfoMessage(None, Message="This is a test of the emergency broadcast system. If this were an actual " \
 			"emergency, you would have been given specific instructions. This is only a test.")

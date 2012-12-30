@@ -80,7 +80,8 @@ class About(dabo.ui.dDialog):
 
 
 def main():
-	app = dabo.dApp()
+	from dabo.dApp import dApp
+	app = dApp()
 	app.MainFormClass = None
 	app.setup()
 	app.MainForm = About(None)

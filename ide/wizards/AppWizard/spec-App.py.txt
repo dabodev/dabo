@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import dabo
+from dabo.dApp import dApp
 from dabo.dLocalize import _
 from __version__ import version
 
 
-class App(dabo.dApp):
+class App(dApp):
 	def initProperties(self):
 		# Manages how preferences are saved
 		self.BasePrefKey = "%(appKey)s"

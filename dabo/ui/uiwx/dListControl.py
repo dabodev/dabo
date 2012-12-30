@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import wx.lib.mixins.listctrl	as ListMixin
 import dControlItemMixin as dcm
+import dabo.dColors as dColors
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from dabo.ui import makeDynamicProperty
 
 
 class _ListColumnAccessor(object):
@@ -455,7 +456,7 @@ class dListControl(dcm.dControlItemMixin,
 
 	def setItemBackColor(self, itm, val):
 		if isinstance(val, basestring):
-			color = dabo.dColors.colorTupleFromName(val)
+			color = dColors.colorTupleFromName(val)
 		else:
 			color = val
 		self.SetItemBackgroundColour(itm, color)
@@ -467,7 +468,7 @@ class dListControl(dcm.dControlItemMixin,
 
 	def setItemForeColor(self, itm, val):
 		if isinstance(val, basestring):
-			color = dabo.dColors.colorTupleFromName(val)
+			color = dColors.colorTupleFromName(val)
 		else:
 			color = val
 		self.SetItemTextColour(itm, color)

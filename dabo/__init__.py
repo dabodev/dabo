@@ -80,30 +80,10 @@ import os
 import locale
 import logging
 import logging.handlers
-try:
-	import pysqlite2
-except ImportError:
-	try:
-		import sqlite3
-	except ImportError:
-		msg = """
-
-Dabo requires SQLite 3 and the pysqlite2 module. You will have to install these
-free products before running Dabo. You can get them from the following locations:
-
-SQLite: http://www.sqlite.org/download.html
-pysqlite2: http://initd.org/tracker/pysqlite
-
-"""
-		sys.exit(msg)
+from settings import *
 
 # dApp will change the following values upon its __init__:
 dAppRef = None
-
-# Import global settings (do this first, as other imports may rely on it):
-# NOTE: Yeah, it's namespace pollution, but in this case it is deliberate:
-# we want to make them part of the dabo namespace.
-from settings import *
 
 def getEncoding():
 	encoding = locale.getlocale()[1] or locale.getdefaultlocale()[1] or defaultEncoding
@@ -183,7 +163,8 @@ else:
 	log.setLevel(logging.DEBUG)
 	log.addHandler(consoleLogHandler)
 	if mainLogFile is not None:
-		fileLogHandler = logging.handlers.RotatingFileHandler(filename=mainLogFile,
+		fileLogHandler = logging.handlers.RotatingFileHandler(
+				filename=mainLogFile,
 				maxBytes=maxLogFileSize, encoding=enc)
 		fileLogHandler.setLevel(mainLogFileLevel)
 		fileFormatter = logging.Formatter(fileFormat)
@@ -200,7 +181,8 @@ else:
 	dbActivityLog.setLevel(dbLogLevel)
 	dbActivityLog.addHandler(dbConsoleLogHandler)
 	if dbLogFile is not None:
-		dbFileLogHandler = logging.handlers.RotatingFileHandler(filename=dbLogFile,
+		dbFileLogHandler = logging.handlers.RotatingFileHandler(
+				filename=dbLogFile,
 				maxBytes=maxLogFileSize, encoding=enc)
 		dbFileLogHandler.setLevel(dbLogFileLevel)
 		dbFileFormatter = logging.Formatter(dbFileFormat)
@@ -214,6 +196,7 @@ def setMainLogFile(fname, level=None):
 	set the log level. If the passed 'fname' is None, any existing file-based
 	logger will be closed.
 	"""
+	import dabo
 	if fname is None:
 		if dabo.fileLogHandler:
 			# Remove the existing handler
@@ -227,13 +210,13 @@ def setMainLogFile(fname, level=None):
 			dabo.fileLogHandler.close()
 			dabo.fileLogHandler = None
 		dabo.fileLogHandler = logging.handlers.RotatingFileHandler(filename=fname,
-				maxBytes=dabo.maxLogFileSize, encoding=getEncoding())
+				maxBytes=maxLogFileSize, encoding=getEncoding())
 		if level:
 			dabo.fileLogHandler.setLevel(level)
 		else:
-			dabo.fileLogHandler.setLevel(dabo.mainLogFileLevel)
-		dabo.fileFormatter = logging.Formatter(dabo.fileFormat)
-		dabo.fileFormatter.datefmt = dabo.mainLogDateFormat
+			dabo.fileLogHandler.setLevel(mainLogFileLevel)
+		dabo.fileFormatter = logging.Formatter(fileFormat)
+		dabo.fileFormatter.datefmt = mainLogDateFormat
 		dabo.fileLogHandler.setFormatter(dabo.fileFormatter)
 		dabo.log.addHandler(dabo.fileLogHandler)
 
@@ -256,73 +239,65 @@ def setDbLogFile(fname, level=None):
 			dabo.dbFileLogHandler.close()
 			dabo.dbFileLogHandler = None
 		dabo.dbFileLogHandler = logging.handlers.RotatingFileHandler(filename=fname,
-				maxBytes=dabo.maxLogFileSize, encoding=getEncoding())
+				maxBytes=maxLogFileSize, encoding=getEncoding())
 		if level:
 			dabo.dbFileLogHandler.setLevel(level)
 		else:
-			dabo.dbFileLogHandler.setLevel(dabo.mainLogFileLevel)
-		dabo.dbFileFormatter = logging.Formatter(dabo.dbFileFormat)
-		dabo.dbFileFormatter.datefmt = dabo.dbLogDateFormat
+			dabo.dbFileLogHandler.setLevel(mainLogFileLevel)
+		dabo.dbFileFormatter = logging.Formatter(dbFileFormat)
+		dabo.dbFileFormatter.datefmt = dbLogDateFormat
 		dabo.dbFileLogHandler.setFormatter(dabo.dbFileFormatter)
 		dabo.dbActivityLog.addHandler(dabo.dbFileLogHandler)
 
-# Install localization service for dabo. dApp will install localization service
-# for the user application separately.
-import dLocalize
-dLocalize.install("dabo")
+if localizeDabo:
+	# Install localization service for dabo. dApp will install localization service
+	# for the user application separately.
+	import dLocalize
+	dLocalize.install("dabo")
+
 # On some platforms getfilesystemencoding() and even getdefaultlocale()
 # can return None, so we make sure we always set a reasonable encoding:
-# NOTE: 'defaultEncoding' is imported from 'from settings import *' line above.
 fileSystemEncoding = (sys.getfilesystemencoding()
     or locale.getdefaultlocale()[1] or defaultEncoding)
 
-
-from __version__ import version
-import dColors
-import dEvents
-from lib.utils import ustr
-
-from dBug import logPoint
 if importDebugger:
+	from dBug import logPoint
 	try:
 		import pudb as pdb
 	except ImportError:
 		import pdb
 	trace = pdb.set_trace
-else:
-	def trace():
-		raise NotImplementedError
 
-from dApp import dApp
-from dPref import dPref
+	def debugout(*args):
+		from lib.utils import ustr
+		txtargs = [ustr(arg) for arg in args]
+		txt = " ".join(txtargs)
+		log = logging.getLogger("Debug")
+		log.debug(txt)
+	# Mangle the namespace so that developers can add lines like:
+	# 		debugo("Some Message")
+	# or
+	# 		debugout("Another Message", self.Caption)
+	# to their code for debugging.
+	# (I added 'debugo' as an homage to Whil Hentzen!)
+	import __builtin__
+	__builtin__.debugo = __builtin__.debugout = debugout
 
-def debugout(*args):
-	txtargs = [ustr(arg) for arg in args]
-	txt = " ".join(txtargs)
-	log = logging.getLogger("Debug")
-	log.debug(txt)
-# Mangle the namespace so that developers can add lines like:
-# 		debugo("Some Message")
-# or
-# 		debugout("Another Message", self.Caption)
-# to their code for debugging.
-# (I added 'debugo' as an homage to Whil Hentzen!)
-import __builtin__
-__builtin__.debugo = __builtin__.debugout = debugout
-
-# Make sure dabo.db, dabo.biz, and dabo.ui are imported:
-import dabo.db
-import dabo.biz
-import dabo.ui
+from __version__ import version
+if implicitImports:
+	import dColors
+	import dEvents
+	import dabo.db
+	import dabo.biz
+	import dabo.ui
+	from dApp import dApp
+	from dPref import dPref
 
 # Store the base path to the framework
 frameworkPath = os.path.dirname(__file__)
 
-
-# Define the standard Dabo subdirectory stucture for apps.
-def _getAppDirectoryNames():
-	return ("biz", "cache", "db", "lib", "reports", "resources", "test", "ui")
-
+# Subdirectories that make up a standard Dabo app
+_standardDirs = ("biz", "cache", "db", "lib", "reports", "resources", "test", "ui")
 
 # Method to create a standard Dabo directory structure layout
 def makeDaboDirectories(homedir=None):
@@ -333,11 +308,10 @@ def makeDaboDirectories(homedir=None):
 	currLoc = os.getcwd()
 	if homedir is not None:
 		os.chdir(homedir)
-	for d in _getAppDirectoryNames():
+	for d in _standardDirs:
 		if not os.path.exists(d):
 			os.mkdir(d)
 	os.chdir(currLoc)
-
 
 def quickStart(homedir=None):
 	"""This creates a bare-bones application in either the specified
@@ -355,10 +329,11 @@ def quickStart(homedir=None):
 	makeDaboDirectories()
 	open("main.py", "w").write("""#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import dabo
+import dabo.ui
 dabo.ui.loadUI("wx")
+from dabo.dApp import dApp
 
-app = dabo.dApp()
+app = dApp()
 
 # IMPORTANT! Change app.MainFormClass value to the name
 # of the form class that you want to run when your
@@ -384,7 +359,7 @@ app.start()
 ######
 
 """
-	for dd in dabo._getAppDirectoryNames():
+	for dd in _standardDirs:
 		fname = "%s/__init__.py" % dd
 		txt = template % locals()
 		open(fname, "w").write(txt)
@@ -392,18 +367,3 @@ app.start()
 	os.chdir(currLoc)
 	print "Application '%s' has been created for you" % homedir
 
-
-# Automatically load a default UI if the environmental variable exists.
-# If the DABO_DEFAULT_UI exists, that ui will be loaded into the dabo.ui
-# global namespace. This is really only meant as a convenience for the
-# dabo developers when rolling single-file distributions - we don't want
-# everyone setting this environment variable. To specify the UI for your
-# app, you should instead set the UI property of the dApp object.
-# We can't do this from within the ui package because of the corss references.
-try:
-	__defaultUI = os.environ["DABO_DEFAULT_UI"]
-except KeyError:
-	__defaultUI = None
-else:
-	dabo.log.info("Automatically loading default ui '%s'..." % __defaultUI)
-	dabo.ui.loadUI(__defaultUI)

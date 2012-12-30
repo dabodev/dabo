@@ -3,13 +3,12 @@ import wx
 import wx.calendar as wxcal
 import datetime
 import dabo
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dControlMixin as dcm
 import dabo.dEvents as dEvents
-import dabo.dColors as dColors
 from dabo.dLocalize import _
-from dabo.ui import makeDynamicProperty
 
 
 class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
@@ -387,6 +386,7 @@ class dExtendedCalendar(BaseCalendar):
 
 
 if __name__ == "__main__":
+	from dabo.dApp import dApp
 	class TestForm(dabo.ui.dForm):
 		def afterInit(self):
 			dCalendar(self, FirstDayOfWeek="monday",
@@ -409,7 +409,7 @@ if __name__ == "__main__":
 			self.release()
 
 
-	app = dabo.dApp()
+	app = dApp()
 	app.MainFormClass = TestForm
 	app.start()
 

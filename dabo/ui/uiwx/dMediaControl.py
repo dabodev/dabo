@@ -3,6 +3,7 @@ import wx
 import wx.media
 import dabo
 
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
@@ -10,7 +11,6 @@ import dControlMixin as cm
 # import dImageMixin as dim
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-from dabo.ui import makeDynamicProperty
 
 
 def _timeConvertOut(fn):
@@ -347,6 +347,7 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 
 
 if __name__ == "__main__":
+	from dabo.dApp import dApp
 	class MediaForm(dabo.ui.dForm):
 		def afterInit(self):
 			# Here's a sample movie URI; you can change this to something local on
@@ -370,5 +371,5 @@ if __name__ == "__main__":
 			print "MediaLoaded"
 
 
-	app = dabo.dApp(MainFormClass=MediaForm)
+	app = dApp(MainFormClass=MediaForm)
 	app.start()

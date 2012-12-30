@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys, os, copy
-import dabo, dabo.ui
+import sys
+import os
+import copy
+import dabo.ui
 dabo.ui.loadUI("wx")
+from dabo.dApp import dApp
 import dabo.dEvents as dEvents
 from dabo.dReportWriter import dReportWriter
 from dabo.lib.reportWriter import *
@@ -20,7 +23,7 @@ rdc = None
 
 def DesignerController():
 	# Wrapper function to enforce singleton class instance
-	class DesignerController(dabo.dApp):
+	class DesignerController(dApp):
 		def initProperties(self):
 			self.BasePrefKey = "dabo.ide.reportdesigner"
 			self.setAppInfo("appName", "Dabo Report Designer")

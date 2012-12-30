@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dControlItemMixin as dcm
-import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 

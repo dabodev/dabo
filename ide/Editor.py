@@ -9,6 +9,8 @@ import code
 import inspect
 import operator
 import dabo
+import dabo.ui
+from dabo.dApp import dApp
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 _Use_Subprocess = True
@@ -1113,7 +1115,7 @@ BL\x0c\x16\x0c\x84\xf5\x01F\x1bh*\x88\x9f`.F~\x83b&\x08\xfe\x82\x82\xf1dF\
 
 def main():
 	files = sys.argv[1:]
-	app = dabo.dApp(MainFormClass=EditorForm, BasePrefKey="ide.Editor")
+	app = dApp(MainFormClass=EditorForm, BasePrefKey="ide.Editor")
 	app.setAppInfo("appName", _("Dabo Editor"))
 	app.setAppInfo("appShortName", _("DaboEditor"))
 	app.setup()

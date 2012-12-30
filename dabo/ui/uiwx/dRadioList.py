@@ -3,6 +3,7 @@ import sys
 import time
 import wx
 import dabo
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
@@ -10,7 +11,6 @@ import dDataControlMixin as dcm
 import dControlItemMixin as cim
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-from dabo.ui import makeDynamicProperty
 
 
 class _dRadioButton(dcm.dDataControlMixin, wx.RadioButton):

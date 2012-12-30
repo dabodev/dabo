@@ -7,14 +7,8 @@ import dabo
 from dabo.dLocalize import _
 import dabo.lib.utils as utils
 from dabo.lib.utils import ustr
+import dabo.db
 
-try:
-	from pysqlite2 import dbapi2 as sqlite
-except ImportError:
-	try:
-		import sqlite3 as sqlite
-	except ImportError:
-		dabo.log.error("Class dPref requires package 'pysqlite2'.")
 
 # We don't want to deal with these as preferences.
 regularAtts = ("AutoPersist", "__base__", "__bases__", "__basicsize__", "__call__",
@@ -22,7 +16,6 @@ regularAtts = ("AutoPersist", "__base__", "__bases__", "__basicsize__", "__call_
 		"__members__", "__methods__", "__mro__", "__name__", "__subclasses__",
 		"__weakrefoffset__", "_autoPersist", "_cache", "_cursor", "_cxn", "get",
 		"_getAttributeNames", "_key", "_noneType", "_parent", "_persistAll", "_typeDict", "mro")
-
 
 
 class dPref(object):

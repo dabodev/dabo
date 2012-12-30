@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import dabo
+import dabo.ui
+from dabo.dApp import dApp
 from dabo.dLocalize import _
 dabo.ui.loadUI("wx")
 
@@ -53,5 +54,5 @@ if __name__ == "__main__":
 			self.StatusBarClass = HomeDirectoryStatusBar
 
 
-	app = dabo.dApp(MainFormClass=HDForm)
+	app = dApp(MainFormClass=HDForm)
 	app.start()

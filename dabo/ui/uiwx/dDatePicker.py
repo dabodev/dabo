@@ -6,8 +6,8 @@ import datetime
 import wx
 import dabo
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
-import dabo.dEvents as dEvents
 import dDataControlMixin as dcm
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr

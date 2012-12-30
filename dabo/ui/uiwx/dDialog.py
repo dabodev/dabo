@@ -3,6 +3,7 @@ import warnings
 import wx
 import dabo
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dabo.dConstants as kons

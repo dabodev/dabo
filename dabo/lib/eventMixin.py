@@ -4,7 +4,7 @@ import types
 import traceback
 import dabo
 from dabo.dLocalize import _
-
+import dabo.dEvents as dEvents
 
 
 class EventMixin(object):
@@ -163,7 +163,7 @@ class EventMixin(object):
 		auto event binding.
 
 		If you want to bind your events explicitly, you can turn off auto event
-		binding by calling::
+		binding by issuing::
 
 			 dabo.autoBindEvents = False
 
@@ -215,8 +215,6 @@ class EventMixin(object):
 			if regid is None or regid == "":
 				return False
 
-		# Do the import here; putting it at the top throws errors while Dabo is starting up.
-		import dabo.dEvents as dEvents
 		funcNames = [i for i in dir(context) if i[:2] == "on"]
 		for funcName in funcNames:
 			# if funcName is onActivate, then parsedEvtName == "Activate" and parsedRegID=""
@@ -285,11 +283,10 @@ class EventMixin(object):
 			# we are an instance, cls is self.
 			classRef = cls.__class__
 
-		import dabo.dEvents as e  # imported here to avoid circular import
 		validEvents = []
-		events = [e.__dict__[evt] for evt in dir(e)]
+		events = [dEvents.__dict__[evt] for evt in dir(dEvents)]
 		for evt in events:
-			if type(evt) == type and issubclass(evt, e.dEvent):
+			if type(evt) == type and issubclass(evt, dEvents.dEvent):
 				if evt.appliesToClass(classRef):
 					validEvents.append(evt)
 		return validEvents

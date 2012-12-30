@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import unittest
 import dabo
+import dabo.db
+import dabo.biz
 from dabo.lib import getRandomUUID
 
 ## Only tests against sqlite, as we already test dCursorMixin against the

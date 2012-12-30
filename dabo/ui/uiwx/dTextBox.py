@@ -4,6 +4,7 @@ import datetime
 import wx
 import dabo
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
 import dTextBoxMixin as tbm
 

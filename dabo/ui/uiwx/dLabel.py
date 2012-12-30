@@ -4,11 +4,11 @@ import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dControlMixin as cm
-from dabo.ui import makeDynamicProperty
 from alignmentMixin import AlignmentMixin
 
 
@@ -180,6 +180,7 @@ class _dLabel_test(dLabel):
 
 
 if __name__ == "__main__":
+	from dabo.dApp import dApp
 	class LabelTestForm(dabo.ui.uiwx.dForm):
 		def afterInit(self):
 			self.Caption = "dLabel Test"
@@ -196,5 +197,5 @@ if __name__ == "__main__":
 			self.update()
 			dabo.ui.callAfterInterval(200, self.layout)
 
-	app = dabo.dApp(MainFormClass=LabelTestForm)
+	app = dApp(MainFormClass=LabelTestForm)
 	app.start()

@@ -172,6 +172,7 @@ class _dBorderSizer_test(dBorderSizer):
 
 
 if __name__ == "__main__":
-	app = dabo.dApp()
+	from dabo.dApp import dApp
+	app = dApp()
 	app.MainFormClass = TestForm
 	app.start()

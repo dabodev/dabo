@@ -12,6 +12,7 @@ If this file is run standalone, it will automatically run all of the test cases 
 """
 
 import unittest
+from dabo.dApp import dApp
 from dabo.dObject import *
 
 class BaseTestdObject(unittest.TestCase):
@@ -36,7 +37,7 @@ class TestApplicationProperty(BaseTestdObject):
 	
 	def testGetApplication(self):
 		"""Getting dObject.Application should return a known application"""
-		test = dabo.dApp()
+		test = dApp()
 		result = self.dObject.Application
 		self.assertEqual(test, result)
 

@@ -15,12 +15,14 @@ all the dControls.
 """
 import dabo
 import dabo.ui as ui
+from dabo.dApp import dApp
+import dabo.dEvents as dEvents
 
 ui.loadUI("tk")
 
 class Test(object):
 	def __init__(self):
-		self.app = dabo.dApp()
+		self.app = dApp()
 		self.app.LogEvents = ["All"]
 
 	def runTest(self, classRef):
@@ -51,7 +53,7 @@ class Test(object):
 			label.Width = labelWidth
 
 			obj = objClass(panel)
-			obj.bindEvent(dabo.dEvents.Hit, self.objHit)
+			obj.bindEvent(dEvents.Hit, self.objHit)
 			label.Caption = "%s:" % objClass.__name__
 
 			obj.debug = True

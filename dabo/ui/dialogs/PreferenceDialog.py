@@ -2,7 +2,7 @@
 import sys
 import os
 import inspect
-import dabo
+import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
@@ -354,12 +354,13 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
 
 if __name__ == "__main__":
+	from dabo.dApp import dApp
 	class TestForm(dabo.ui.dForm):
 		def afterInit(self):
 			lbl = dabo.ui.dLabel(self, Caption="Preference Manager Demo\n" +
 				"Select 'Preferences' from the menu.", WordWrap=True)
 			self.Sizer.append(lbl, halign="center", border=20)
 
-	app = dabo.dApp(MainFormClass=TestForm)
+	app = dApp(MainFormClass=TestForm)
 	app.start()
 

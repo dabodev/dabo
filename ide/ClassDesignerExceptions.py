@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
-import dabo
+from dabo.dException import dException
 
-class PropertyUpdateException(dabo.dException.dException): pass
+class PropertyUpdateException(dException): pass

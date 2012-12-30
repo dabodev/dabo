@@ -2,7 +2,6 @@
 import time
 import wx
 import dabo
-import dabo.dEvents as dEvents
 import dFormMixin as fm
 
 

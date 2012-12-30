@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
-import  wx.lib.buttons as wxb
+import wx.lib.buttons as wxb
 import dabo
 
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
 
 import dDataControlMixin as dcm

@@ -2,7 +2,8 @@
 import wx
 
 import dabo, dabo.ui
-dabo.ui.loadUI("wx")
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 
 import dTextBoxMixin as tbm
 from dabo.dLocalize import _
@@ -68,14 +69,14 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 
 	def __onWxGotFocus(self, evt):
 		self._pushStatusText()
-		self.raiseEvent(dabo.dEvents.GotFocus, evt)
+		self.raiseEvent(dEvents.GotFocus, evt)
 
 
 	def __onWxLostFocus(self, evt):
 		if self._finito:
 			return
 		self._popStatusText()
-		self.raiseEvent(dabo.dEvents.LostFocus, evt)
+		self.raiseEvent(dEvents.LostFocus, evt)
 
 
 	def __onWxSearchBtnPressed(self, evt):

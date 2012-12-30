@@ -5,14 +5,14 @@ import os
 import wx
 import wx.richtext
 import dabo
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dDataControlMixin as dcm
-import dabo.dEvents as dEvents
+import dabo.dColors as dColors
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from dabo.ui import makeDynamicProperty
 
 
 
@@ -173,7 +173,7 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 			try:
 				wxc = wx.Colour(*val)
 			except TypeError:
-				ct = dabo.dColors.colorTupleFromName(val)
+				ct = dColors.colorTupleFromName(val)
 				wxc = wx.Colour(*ct)
 			rng = self.GetSelectionRange()
 			ta = wx.richtext.TextAttrEx()
@@ -313,7 +313,7 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 			try:
 				wxc = wx.Colour(*val)
 			except TypeError:
-				ct = dabo.dColors.colorTupleFromName(val)
+				ct = dColors.colorTupleFromName(val)
 				wxc = wx.Colour(*ct)
 			rng = self.GetSelectionRange()
 			ta = wx.richtext.TextAttrEx()
@@ -612,6 +612,7 @@ Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit ame
 
 
 if __name__ == "__main__":
-	app = dabo.dApp(MainFormClass=RichTextTestForm)
+	from dabo.dApp import dApp
+	app = dApp(MainFormClass=RichTextTestForm)
 	app.start()
 

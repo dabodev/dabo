@@ -4,7 +4,8 @@ if __name__ == "__main__":
 	sys.exit("This isn't meant to be run stand-alone. Please run ide/ClassDesigner.py instead.")
 import os
 import time
-import dabo
+import dabo.ui
+from dabo.dApp import dApp
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dabo.dConstants as kons
@@ -904,7 +905,7 @@ class QuickLayoutWizard(Wizard):
 
 
 if __name__ == "__main__":
-	app = dabo.dApp()
+	app = dApp()
 	app.MainFormClass = None
 	app.setup()
 	wiz = QuickLayoutWizard()

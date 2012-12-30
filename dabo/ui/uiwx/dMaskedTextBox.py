@@ -3,11 +3,10 @@ import datetime
 import wx
 import wx.lib.masked as masked
 import dabo
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-from dabo.ui import makeDynamicProperty
 import dTextBoxMixin as tbm
 
 

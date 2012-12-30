@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-import dabo
+import dabo.db
 
 
 class Test_dConnectInfo(unittest.TestCase):

@@ -2,6 +2,7 @@
 import sys
 import wx
 import dabo
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dPemMixin as pm
@@ -9,7 +10,6 @@ import dIcons
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
-from dabo.ui import makeDynamicProperty
 from dabo.lib.utils import cleanMenuCaption
 
 # wx constants for styles

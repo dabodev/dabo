@@ -13,6 +13,7 @@ from cStringIO import StringIO
 
 import dabo
 import dabo.dException as dException
+from dabo.dApp import dApp
 from dabo.dObject import dObject
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -229,7 +230,7 @@ class RemoteConnector(object):
 
 	def syncFiles(self, path=None):
 		app = self.obj
-		if isinstance(app, dabo.dApp):
+		if isinstance(app, dApp):
 			homedir = app.HomeDirectory
 			try:
 				appname = file(pathjoin(homedir, ".appname")).read()

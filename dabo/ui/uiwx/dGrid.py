@@ -13,6 +13,7 @@ import wx
 import wx.grid
 from wx._core import PyAssertionError
 import dabo
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
@@ -25,7 +26,6 @@ import dUICursors
 import dabo.biz
 import dabo.dColors as dColors
 from dabo.dObject import dObject
-from dabo.ui import makeDynamicProperty
 import dabo.lib.dates
 from dabo.lib.utils import noneSortKey, caseInsensitiveSortKey
 from dabo.dBug import loggit
@@ -1084,7 +1084,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		if self._constructed():
 			self._font = val
 			self._gridColAttr.SetFont(val._nativeFont)
-			val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onFontPropsChanged)
+			val.bindEvent(dEvents.FontPropertiesChanged, self._onFontPropsChanged)
 			self._refreshGrid()
 		else:
 			self._properties["Font"] = val
@@ -1179,7 +1179,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		assert isinstance(val, dabo.ui.dFont)
 		if self._constructed():
 			self._headerFont = val
-			val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onHeaderFontPropsChanged)
+			val.bindEvent(dEvents.FontPropertiesChanged, self._onHeaderFontPropsChanged)
 		else:
 			self._properties["HeaderFont"] = val
 
@@ -4174,7 +4174,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# Force the flushing of the value immediately, instead of waiting for the
 		# editor to lose focus (where the flush will happen a second time).
 		self._Table.SetValue(self.CurrentRow, self.CurrentColumn, obj.GetValue())
-		self.raiseEvent(dabo.dEvents.GridCellEditorHit)
+		self.raiseEvent(dEvents.GridCellEditorHit)
 
 
 	def __onGridCellLeftClick_toggleCB(self, evt):
@@ -5404,7 +5404,7 @@ class _dGrid_test(dGrid):
 				self.FontItalic = True
 				self.FontSize = 24
 			def onKeyChar(self, evt):
-				self.ForeColor = dabo.dColors.randomColor()
+				self.ForeColor = dColors.randomColor()
 				self.FontItalic = not self.FontItalic
 		# Since we're using a big font, set a minimum height for the editor
 		col.CustomEditorClass = dabo.ui.makeGridEditor(ColoredText, minHeight=40)
@@ -5418,7 +5418,7 @@ class _dGrid_test(dGrid):
 				Sortable=True, Searchable=True, Editable=True, Expand=False)
 		self.addColumn(col)
 
-		col.ListEditorChoices = dabo.dColors.colors
+		col.ListEditorChoices = dColors.colors
 		col.CustomEditorClass = col.listEditorClass
 
 		col.HeaderVerticalAlignment = "Bottom"
@@ -5443,6 +5443,7 @@ class _dGrid_test(dGrid):
 		print "THUMB RELEASE orientation =", evt.orientation, " scrollpos =", evt.scrollpos
 
 if __name__ == '__main__':
+	from dabo.dApp import dApp
 	class TestForm(dabo.ui.dForm):
 		def afterInit(self):
 			self.BackColor = "khaki"
@@ -5505,7 +5506,7 @@ if __name__ == '__main__':
 			self.fitToSizer(20, 20)
 
 
-	app = dabo.dApp(MainFormClass=TestForm)
+	app = dApp(MainFormClass=TestForm)
 	app.setup()
 	app.MainForm.radSelect.setFocus()
 	app.start()

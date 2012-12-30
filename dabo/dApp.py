@@ -16,8 +16,6 @@ from cStringIO import StringIO
 from zipfile import ZipFile
 from xml.sax._exceptions import SAXParseException
 import dabo
-import dabo.ui
-import dabo.db
 import dabo.dLocalize as dLocalize
 import dabo.dException as dException
 from dabo.dLocalize import _
@@ -25,8 +23,8 @@ from dabo.lib import connParser
 from dSecurityManager import dSecurityManager
 from dabo.lib.SimpleCrypt import SimpleCrypt
 from dabo.dObject import dObject
+from dabo.dPref import dPref
 from dabo import dUserSettingProvider
-from dabo.lib.RemoteConnector import RemoteConnector
 from dabo.lib.utils import ustr
 from dabo.lib.utils import cleanMenuCaption
 
@@ -132,8 +130,8 @@ class dApp(dObject):
 	All Dabo objects have an Application property which refers to the dApp
 	instance. Instantiate your dApp object from your main script, like so::
 
-	>>> import dabo
-	>>> app = dabo.dApp
+	>>> from dabo.dApp import dApp
+	>>> app = dApp()
 	>>> app.start()
 
 	Normally, dApp gets instantiated from the client app's main Python script,
@@ -181,9 +179,6 @@ class dApp(dObject):
 		if dabo.loadUserLocale:
 			locale.setlocale(locale.LC_ALL, '')
 
-		# Subdirectories that make up a standard Dabo app
-		self._standardDirs = dabo._getAppDirectoryNames()
-
 		# Some apps, such as the visual tools, are meant to be run from directories
 		# other than that where they are located. In those cases, use the current dir.
 		self._ignoreScriptDir = ignoreScriptDir
@@ -214,7 +209,7 @@ class dApp(dObject):
 		self._tempFileHolder = TempFileHolder()
 		self.getTempFile = self._tempFileHolder.getTempFile
 		# Create the framework-level preference manager
-		self._frameworkPrefs = dabo.dPref(key="dabo_framework")
+		self._frameworkPrefs = dPref(key="dabo_framework")
 		# Hold a reference to the bizobj and connection, if any, controlling
 		# the current database transaction
 		self._transactionTokens = {}
@@ -307,6 +302,8 @@ try again when it is running.
 
 	def setup(self, initUI=True):
 		"""Set up the application object."""
+		if initUI:
+			import dabo.ui
 		# dabo is going to want to import various things from the Home Directory
 		if self.HomeDirectory not in sys.path:
 			sys.path.append(self.HomeDirectory)
@@ -966,7 +963,7 @@ try again when it is running.
 		currsyspath = sys.path
 		if not currdir in sys.path:
 			sys.path.insert(0, currdir)
-		for dd in self._standardDirs:
+		for dd in dabo._standardDirs:
 			currmod = getattr(self, dd, None)
 			if currmod:
 				# Module has already been imported; reload to get current state.
@@ -989,7 +986,7 @@ try again when it is running.
 	def getStandardDirectories(self):
 		"""Return a tuple of the fullpath to each standard directory"""
 		hd = self.HomeDirectory
-		subdirs = [os.path.join(hd, dd) for dd in self._standardDirs]
+		subdirs = [os.path.join(hd, dd) for dd in dabo._standardDirs]
 		subdirs.insert(0, hd)
 		return tuple(subdirs)
 
@@ -1104,7 +1101,7 @@ try again when it is running.
 		If a starting file path is provided, use that first. If not, use the
 		HomeDirectory as the starting point.
 		"""
-		stdDirs = self._standardDirs + ("main.py", )
+		stdDirs = dabo._standardDirs + ("main.py", )
 		if dirname not in stdDirs:
 			dabo.log.error(_("Non-standard directory '%s' requested") % dirname)
 			return None
@@ -1470,7 +1467,7 @@ try again when it is running.
 					else:
 						# See if it's a child directory of a standard Dabo app structure
 						dname = os.path.basename(hd)
-						if dname in self._standardDirs:
+						if dname in dabo._standardDirs:
 							hd = os.path.dirname(hd)
 				else:
 					try:
@@ -1595,6 +1592,7 @@ try again when it is running.
 
 
 	def _getRemoteProxy(self):
+		from dabo.lib.RemoteConnector import RemoteConnector
 		if self.SourceURL:
 			try:
 				return self._remoteProxy
@@ -1790,8 +1788,8 @@ try again when it is running.
 			based on the value of MainFormClass. If you want to swap in your own
 			MainForm instance, do it after setup() but before start(), as in::
 
-			>>> import dabo
-			>>> app = dabo.dApp()
+			>>> from dabo.dApp import dApp
+			>>> app = dApp()
 			>>> app.setup()
 			>>> app.MainForm = myMainFormInstance
 			>>> app.start()
@@ -1806,8 +1804,8 @@ try again when it is running.
 			main form, or set to your own main form class. Do this before calling
 			dApp.start(), as in::
 
-			>>> import dabo
-			>>> app = dabo.dApp()
+			>>> from dabo.dApp import dApp
+			>>> app = dApp()
 			>>> app.MainFormClass = MyMainFormClass
 			>>> app.start()
 			

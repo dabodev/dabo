@@ -45,9 +45,9 @@ def afterInitAll(self):
 	if db:
 		con = dabo.db.dConnection(dbType="sqlite", database=db)
 		cur = con.getDaboCursor()
-		self.pref = dabo.dPref(crs=cur, cxn=con)
+		self.pref = dPref(crs=cur, cxn=con)
 	else:
-		self.pref = dabo.dPref("")
+		self.pref = dPref("")
 	self.pref.AutoPersist = False
 	self.pref._persistAll = True
 	stru = self.pref.getPrefTree()
@@ -133,6 +133,7 @@ def updatePref(self):
 		</updatePref>
 		<importStatements><![CDATA[
 import datetime
+from dabo.dPref import dPref
 from dabo.dLocalize import _
 ]]>
 		</importStatements>

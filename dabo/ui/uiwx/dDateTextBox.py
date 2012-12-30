@@ -3,6 +3,7 @@ import datetime
 import wx
 import dabo
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents

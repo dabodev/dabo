@@ -6,6 +6,8 @@ import copy
 import codecs
 import inspect
 import dabo
+import dabo.ui
+from dabo.dApp import dApp
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
@@ -98,7 +100,7 @@ class PageInfoDialog(dui.dOkCancelDialog):
 
 
 
-class ClassDesigner(dabo.dApp):
+class ClassDesigner(dApp):
 	# Behaviors which are normal in the framework may need to
 	# be modified when run as the ClassDesigner. This flag will
 	# distinguish between the two states.
@@ -135,7 +137,7 @@ class ClassDesigner(dabo.dApp):
 				dui.dPageFrameNoTabs, dui.dPageStyled)
 		self.MainFormClass = None
 		# Only applies when running as an app
-		if isinstance(self, dabo.dApp):
+		if isinstance(self, dApp):
 			self.setAppInfo("appName", "Class Designer")
 		# Some processes need to behave differently when we are
 		# importing a class from a cdxml file; this flag lets them
@@ -4097,9 +4099,10 @@ class ClassDesigner(dabo.dApp):
 		return """import os
 import inspect
 import dabo
+from dabo.dApp import dApp
 
 def main():
-	app = dabo.dApp()
+	app = dApp()
 	curdir = os.getcwd()
 	# Get the current location's path
 	fname = inspect.getfile(main)
@@ -4123,9 +4126,10 @@ if __name__ == '__main__':
 		return """import os
 import inspect
 import dabo
+from dabo.dApp import dApp
 
 def main():
-	app = dabo.dApp()
+	app = dApp()
 	curdir = os.getcwd()
 	# Get the current location's path
 	fname = inspect.getfile(main)

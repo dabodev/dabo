@@ -787,7 +787,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _keyCallback(self, evt):
 		bnd = self._keyBindings[evt.GetId()]
-		keyEvent = dabo.dEvents.KeyEvent(None)
+		keyEvent = dEvents.KeyEvent(None)
 		keyEvent.EventData = bnd["eventData"]
 		try:
 			callback = bnd["callback"]
@@ -2194,7 +2194,7 @@ class dPemMixin(dPemMixinBase):
 				self.SetFont(val._nativeFont)
 			except AttributeError:
 				dabo.log.error(_("Error setting font for %s") % self.Name)
-			val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onFontPropsChanged)
+			val.bindEvent(dEvents.FontPropertiesChanged, self._onFontPropsChanged)
 		else:
 			self._properties["Font"] = val
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import dabo
+import dabo.ui
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ import dabo
 import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
+import dabo.dColors as dColors
 from dabo.dLocalize import _
 
 
@@ -102,6 +103,7 @@ class dLed(dabo.ui.dDataPanel):
 
 
 if __name__ == '__main__':
+	from dabo.dApp import dApp
 	class TestForm(dabo.ui.dForm):
 		def afterInit(self):
 			mp = dabo.ui.dPanel(self)
@@ -117,12 +119,12 @@ if __name__ == '__main__':
 			vs.append(btn)
 			vs.appendSpacer(12)
 			vs.append(dabo.ui.dLabel(mp, Caption="On Color:"))
-			dd = dabo.ui.dDropdownList(mp, Choices=dabo.dColors.colors,
+			dd = dabo.ui.dDropdownList(mp, Choices=dColors.colors,
 					DataSource=self.LED, DataField="OnColor", Value="mediumseagreen")
 			vs.append(dd)
 			vs.appendSpacer(12)
 			vs.append(dabo.ui.dLabel(mp, Caption="Off Color:"))
-			dd = dabo.ui.dDropdownList(mp, Choices=dabo.dColors.colors,
+			dd = dabo.ui.dDropdownList(mp, Choices=dColors.colors,
 					DataSource=self.LED, DataField="OffColor", Value="orangered")
 			vs.append(dd)
 			mp.Sizer.append(vs)
@@ -131,6 +133,6 @@ if __name__ == '__main__':
 			self.update()
 
 
-	app = dabo.dApp()
+	app = dApp()
 	app.MainFormClass = TestForm
 	app.start()

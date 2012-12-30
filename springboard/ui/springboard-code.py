@@ -8,7 +8,8 @@ import os
 import time
 import urlparse
 import re
-import dabo
+import dabo.ui
+import dabo.dEvents
 from dabo.lib.RemoteConnector import RemoteConnector
 from dabo.dLocalize import _
 

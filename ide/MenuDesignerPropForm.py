@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-import dabo
+import dabo.ui
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from ClassDesignerPropSheet import PropSheet
 from ClassDesignerTreeSheet import TreeSheet
-
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 
 
 class MenuPropForm(dabo.ui.dForm):

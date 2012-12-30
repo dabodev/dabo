@@ -3,13 +3,12 @@ import os
 import wx
 import dabo
 
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dControlMixin as cm
 from dabo.dLocalize import _
-import dabo.dEvents as dEvents
-from dabo.ui import makeDynamicProperty
 
 # Need to define this exception class for x-platform
 try:

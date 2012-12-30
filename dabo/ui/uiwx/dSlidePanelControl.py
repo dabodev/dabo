@@ -2,13 +2,13 @@
 import wx
 import wx.lib.foldpanelbar as fpb
 import dabo
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dControlMixin as dcm
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 from dabo.dLocalize import _
-from dabo.ui import makeDynamicProperty
 
 
 class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
@@ -805,6 +805,7 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 
 
 if __name__ == "__main__":
+	from dabo.dApp import dApp
 	class TestForm(dabo.ui.dForm):
 		def afterInit(self):
 			dSlidePanelControl(self, RegID="slideControl", ExpandContent=False,
@@ -880,8 +881,8 @@ if __name__ == "__main__":
 			p = self.p1
 			style = random.choice(p._barStyles)
 			p.BarStyle = style
-			color1 = dabo.dColors.randomColorName()
-			color2 = dabo.dColors.randomColorName()
+			color1 = dColors.randomColorName()
+			color2 = dColors.randomColorName()
 			p.BarColor1 = color1
 			p.BarColor2 = color2
 			if style in ("VerticalFill", "HorizontalFill"):
@@ -903,6 +904,6 @@ if __name__ == "__main__":
 			self.slideControl.expandAll()
 
 
-	app = dabo.dApp()
+	app = dApp()
 	app.MainFormClass = TestForm
 	app.start()

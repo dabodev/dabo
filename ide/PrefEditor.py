@@ -3,13 +3,13 @@
 import os
 import inspect
 import dabo
+import dabo.ui
 dabo.ui.loadUI("wx")
-from dabo.dLocalize import _
-from dabo.ui.dialogs.PreferenceDialog import PreferenceDialog
+from dabo.dApp import dApp
 
 
 def main():
-	app = dabo.dApp(BasePrefKey="PrefEditor", MainFormClass="PrefEditor.cdxml")
+	app = dApp(BasePrefKey="PrefEditor", MainFormClass="PrefEditor.cdxml")
 	curdir = os.getcwd()
 	# Get the current location's path
 	fname = os.path.abspath(inspect.getfile(main))

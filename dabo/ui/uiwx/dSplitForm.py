@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-dabo.ui.loadUI("wx")
+from dabo.ui import makeDynamicProperty
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 from dSplitter import dSplitter
+import dabo.dColors as dColors
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-from dabo.ui import makeDynamicProperty
 
 
 class dSplitForm(dabo.ui.dForm):
@@ -118,8 +120,8 @@ class _dSplitForm_test(dSplitForm):
 		self.Caption = "Splitter Demo"
 
 	def afterInit(self):
-		self.Splitter.Panel1.BackColor = dabo.dColors.randomColor()
-		self.Splitter.Panel2.BackColor = dabo.dColors.randomColor()
+		self.Splitter.Panel1.BackColor = dColors.randomColor()
+		self.Splitter.Panel2.BackColor = dColors.randomColor()
 
 
 if __name__ == "__main__":

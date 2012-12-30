@@ -2,12 +2,13 @@
 import wx
 import dabo
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dControlMixin as cm
-from dabo.ui import makeDynamicProperty
+import dabo.dEvents as dEvents
 
 
 class dGauge(cm.dControlMixin, wx.Gauge):
@@ -94,7 +95,7 @@ class dGauge(cm.dControlMixin, wx.Gauge):
 class _dGauge_test(dGauge):
 	def afterInit(self):
 		self._timer = dabo.ui.dTimer()
-		self._timer.bindEvent(dabo.dEvents.Hit, self.onTimer)
+		self._timer.bindEvent(dEvents.Hit, self.onTimer)
 		self._timer.Interval = 23
 		self._timer.start()
 

@@ -10,10 +10,11 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dSplitForm import dSplitForm
 from dabo.ui import makeDynamicProperty
+from dabo.ui import dKeys
 from dControlMixin import dControlMixin
 
-dabo.ui.loadUI("wx")
-from dabo.ui import dKeys
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 
 
 class _LookupPanel(dabo.ui.dPanel):
@@ -387,7 +388,7 @@ class dShellForm(dSplitForm):
 		# on if something other than PyShell asks for raw_input (pdb, for
 		# example).
 		self._oldRawInput = __builtin__.raw_input
-		self.bindEvent(dabo.dEvents.Destroy, self._onDestroy)
+		self.bindEvent(dEvents.Destroy, self._onDestroy)
 
 		splt = self.Splitter
 		splt.MinimumPanelSize = 80
@@ -834,7 +835,8 @@ Ctrl-Up/Down to scroll through history."""))
 
 
 def main():
-	app = dabo.dApp(BasePrefKey="dabo.ui.dShellForm")
+	from dabo.dApp import dApp
+	app = dApp(BasePrefKey="dabo.ui.dShellForm")
 	app.MainFormClass = dShellForm
 	app.setup()
 	app.start()

@@ -20,7 +20,7 @@ import os
 import sys
 import traceback
 import types
-import dabo
+import dabo.ui
 dabo.ui.loadUI("wx")
 import dabo.lib.utils as utils
 import dabo.dEvents as dEvents

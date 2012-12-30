@@ -5,7 +5,7 @@ from dabo.dObject import dObject
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
-
+import dabo.dEvents as dEvents
 
 
 class dFont(dObject):
@@ -23,7 +23,7 @@ class dFont(dObject):
 
 
 	def _propsChanged(self):
-		self.raiseEvent(dabo.dEvents.FontPropertiesChanged)
+		self.raiseEvent(dEvents.FontPropertiesChanged)
 
 
 	def _getBold(self):

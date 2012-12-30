@@ -21,7 +21,7 @@ if coverage:
 
 	coverage.exclude('if __name__ == "__main__":')
 
-import dabo
+import dabo.ui
 dabo.ui.loadUI('wx')
 
 import db

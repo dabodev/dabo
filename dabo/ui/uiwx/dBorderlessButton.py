@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
 import dControlMixin as cm
 from dabo.dLocalize import _
-import dabo.dEvents as dEvents
+import dabo.dColors as dColors
 from dabo.ui import makeDynamicProperty
 
 
@@ -71,7 +71,7 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 	def _setBackColorHover(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
-				val = dabo.dColors.colorTupleFromName(val)
+				val = dColors.colorTupleFromName(val)
 			if isinstance(val, tuple):
 				self._backColoHover = val
 				self.SetPressColor(wx.Color(*val))

@@ -76,7 +76,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 						if self._textToAppend:
 							self.appendItem(self._textToAppend, select=True)
 							self.afterAppendOnEnter()
-			self.raiseEvent(dabo.dEvents.Hit, evt)
+			self.raiseEvent(dEvents.Hit, evt)
 		elif keyCode == dk.key_Tab:
 			forward = not evt.ShiftDown()
 			self.Navigate(forward)

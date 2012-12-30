@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 import unittest
 import dabo
+import dabo.db
+import dabo.biz
+import dabo.ui
 from dabo.lib import getRandomUUID
+from dabo.dApp import dApp
 
 
 class Test_dForm(unittest.TestCase):
@@ -21,7 +25,7 @@ class Test_dForm(unittest.TestCase):
 		biz.requery()
 
 		## set up the ui elements:
-		app = self.app = dabo.dApp(MainFormClass=None)
+		app = self.app = dApp(MainFormClass=None)
 		app.setup()
 		frm = self.frm = dabo.ui.dForm(Caption="test_dForm")
 		frm.addObject(dabo.ui.dTextBox, DataSource=biz.DataSource, DataField="cField", RegID="cField")

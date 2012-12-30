@@ -11,8 +11,8 @@ import compiler
 import wx
 import wx.stc as stc
 import dabo
-
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
 
 import dabo.dEvents as dEvents
@@ -2035,7 +2035,7 @@ Do you want to overwrite it?""")
 
 	def _setBookmarkBackColor(self, val):
 		if isinstance(val, basestring):
-			val = dabo.dColors.colorTupleFromName(val)
+			val = dColors.colorTupleFromName(val)
 		if isinstance(val, tuple):
 			self._bookmarkBackColor = val
 			self._setBookmarkMarker()
@@ -2048,7 +2048,7 @@ Do you want to overwrite it?""")
 
 	def _setBookmarkForeColor(self, val):
 		if isinstance(val, basestring):
-			val = dabo.dColors.colorTupleFromName(val)
+			val = dColors.colorTupleFromName(val)
 		if isinstance(val, tuple):
 			self._bookmarkForeColor = val
 			self._setBookmarkMarker()

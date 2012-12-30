@@ -2,8 +2,8 @@
 import os.path
 import wx
 import dabo, dabo.ui
-
-dabo.ui.loadUI("wx")
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 
 import dControlMixin as cm
 import dMenu

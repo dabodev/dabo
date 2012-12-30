@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import dabo
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dPemMixin import dPemMixin as PM
-from dabo.ui import makeDynamicProperty
 import dPanel
 
 
@@ -56,7 +56,7 @@ class dTimer(PM):
 
 	def _onTimerHit(self):
 		if self.Enabled and self.Interval > 0:
-			self.raiseEvent(dabo.dEvents.Hit)
+			self.raiseEvent(dEvents.Hit)
 			dabo.ui.callAfterInterval(self.Interval, self._onTimerHit)
 
 

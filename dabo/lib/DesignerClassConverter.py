@@ -13,7 +13,6 @@ import codecs
 import tempfile
 import dabo
 dabo.ui.loadUI("wx")
-import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dabo.lib import utils

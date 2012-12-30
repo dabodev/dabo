@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
-import dabo
+import dabo.ui
 dabo.ui.loadUI("wx")
 dui = dabo.ui
 import dabo.dEvents as dEvents

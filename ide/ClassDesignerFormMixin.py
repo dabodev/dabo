@@ -5,7 +5,9 @@ import time
 import random
 import new
 import codecs
-import dabo
+import dabo.ui
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents

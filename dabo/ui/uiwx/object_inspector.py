@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import dabo
-dabo.ui.loadUI("wx")
+from dabo.dPref import dPref
+if __name__ == "__main__":
+	import dabo.ui
+	dabo.ui.loadUI("wx")
 
 
 # 'InspectorFormClass' is defined at the bottom
@@ -99,7 +102,7 @@ def onCollapseTree(self, evt):
 		<afterInit><![CDATA[
 def afterInit(self):
 	self.BasePrefKey = "object_inspector"
-	self.PreferenceManager = dabo.dPref(key=self.BasePrefKey)
+	self.PreferenceManager = dPref(key=self.BasePrefKey)
 	self._highlights = {}
 ]]>
 		</afterInit>

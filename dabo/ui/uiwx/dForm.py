@@ -3,6 +3,7 @@ import sys
 import time
 import wx
 import dabo
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
@@ -10,7 +11,6 @@ import dFormMixin as fm
 import dabo.dException as dException
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from dabo.ui import makeDynamicProperty
 from dDialog import dDialog
 
 

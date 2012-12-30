@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import dabo
-dabo.ui.loadUI("wx")
+
+from dabo.ui import makeDynamicProperty
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 from dPage import dPage
 from dPanel import dPanel
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 from dabo.dLocalize import _
-from dabo.ui import makeDynamicProperty
 
 
 class dPageFrameNoTabs(dPanel):
@@ -341,7 +343,8 @@ class TestForm(dabo.ui.dForm):
 
 
 def main():
-	app = dabo.dApp()
+	from dabo.dApp import dApp
+	app = dApp()
 	app.MainFormClass = TestForm
 	app.setup()
 	app.start()

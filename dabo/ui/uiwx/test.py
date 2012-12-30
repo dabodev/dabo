@@ -16,8 +16,11 @@ import sys
 import os
 import traceback
 import wx
+from dabo.dApp import dApp
 import dabo
-dabo.ui.loadUI("wx")
+if __name__ == "__main__":
+	import dabo.ui
+	dabo.ui.loadUI("wx")
 # Shorthand
 ui = dabo.ui
 
@@ -25,7 +28,7 @@ ui = dabo.ui
 logEvents = ["All", "Idle", "MouseMove"]
 class Test(object):
 	def __init__(self):
-		self.app = dabo.dApp()
+		self.app = dApp()
 		self.app.MainFormClass = None
 		self.app.setup()
 

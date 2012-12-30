@@ -4,7 +4,8 @@ import sys
 import os
 import time
 import traceback
-import dabo
+import dabo.ui
+from dabo.dApp import dApp
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
@@ -146,10 +147,10 @@ class PageDatabase(AppWizardPage):
 			self.ddProfile.Value = defaultUserProfileName
 		else:
 			self.ddProfile.Value = defaultProfileName
-		self.ddProfile.bindEvent(dabo.dEvents.ValueChanged, self.onProfileChoice)
+		self.ddProfile.bindEvent(dEvents.ValueChanged, self.onProfileChoice)
 
 		cmd = dabo.ui.dButton(self, Caption=_("New Profile..."), Name="cmdNewProfile")
-		cmd.bindEvent(dabo.dEvents.Hit, self.onNewProfile)
+		cmd.bindEvent(dEvents.Hit, self.onNewProfile)
 
 		gs = dabo.ui.dGridSizer()
 		gs.MaxCols = 2
@@ -171,7 +172,7 @@ class PageDatabase(AppWizardPage):
 				pw = (field.lower() == "password")
 				obj = dabo.ui.dTextBox(self, PasswordEntry=pw,
 						Name=("ctl%s" % field), SelectOnEntry=True )
-			obj.bindEvent(dabo.dEvents.ValueChanged, self.onParmValueChanged)
+			obj.bindEvent(dEvents.ValueChanged, self.onParmValueChanged)
 
 			gs.append(lbl)
 			# Add a file search button. It will be hidden for all
@@ -179,7 +180,7 @@ class PageDatabase(AppWizardPage):
 			if field == "Database":
 				self.btnSrch = dabo.ui.dButton(self, Caption="...")
 				self.btnSrch.Width = (self.btnSrch.Height * 2)
-				self.btnSrch.bindEvent(dabo.dEvents.Hit, self.onDbSearch)
+				self.btnSrch.bindEvent(dEvents.Hit, self.onDbSearch)
 				hs = self.szDB = dabo.ui.dSizer("H")
 				hs.append1x(obj)
 				hs.append(self.btnSrch, border=10, borderSides="left")
@@ -1211,7 +1212,7 @@ class AppWizard(Wizard):
 
 
 if __name__ == "__main__":
-	app = dabo.dApp(BasePrefKey="dabo.ide.wizards.AppWizard")
+	app = dApp(BasePrefKey="dabo.ide.wizards.AppWizard")
 	app.setAppInfo("appName", "Dabo Application Wizard")
 	app.setAppInfo("appShortName", "AppWizard")
 

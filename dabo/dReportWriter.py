@@ -3,7 +3,7 @@ import dabo
 from dabo.dLocalize import _
 from dabo.lib.reportWriter import ReportWriter
 from dabo.dObject import dObject
-
+import dabo.dEvents as dEvents
 
 # dReportWriter is simply a raw ReportWriter/dObject mixin:
 class dReportWriter(dObject, ReportWriter):
@@ -24,23 +24,23 @@ class dReportWriter(dObject, ReportWriter):
 
 	def _onReportCancel(self):
 		super(dReportWriter, self)._onReportCancel()
-		self.raiseEvent(dabo.dEvents.ReportCancel)
+		self.raiseEvent(dEvents.ReportCancel)
 		self._hideProgress()
 
 	def _onReportBegin(self):
 		super(dReportWriter, self)._onReportBegin()
-		self.raiseEvent(dabo.dEvents.ReportBegin)
+		self.raiseEvent(dEvents.ReportBegin)
 		self._showProgress()
 
 	def _onReportEnd(self):
 		super(dReportWriter, self)._onReportEnd()
-		self.raiseEvent(dabo.dEvents.ReportEnd)
+		self.raiseEvent(dEvents.ReportEnd)
 		self._updateProgress(force=True)
 		#self._hideProgress()  ## Let the form controlling the progress gauge do this (less blinky)
 
 	def _onReportIteration(self):
 		super(dReportWriter, self)._onReportIteration()
-		self.raiseEvent(dabo.dEvents.ReportIteration)
+		self.raiseEvent(dEvents.ReportIteration)
 		self._updateProgress()
 
 	def _showProgress(self):

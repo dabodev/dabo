@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
-import dabo
-import re, os, glob
+import re
+import os
+import glob
 import wx
+import dabo
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dControlMixin as dcm
@@ -10,7 +13,6 @@ from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dColors as dColors
 from dabo.dObject import dObject
-from dabo.ui import makeDynamicProperty
 
 
 class dNode(dObject):
@@ -134,7 +136,7 @@ class dNode(dObject):
 			# On some platforms exception is raised while operation
 			# on hidden root node.
 			self.tree.SetItemFont(self.itemID, val._nativeFont)
-			val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onFontPropsChanged)
+			val.bindEvent(dEvents.FontPropertiesChanged, self._onFontPropsChanged)
 			dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
 
@@ -1372,6 +1374,7 @@ class _dTreeView_test(dTreeView):
 
 
 if __name__ == "__main__":
+	from dabo.dApp import dApp
 	import test
 
 	class TreeViewTestForm(dabo.ui.dForm):
@@ -1432,7 +1435,7 @@ if __name__ == "__main__":
 			self.tree.collapseAll()
 
 
-	app = dabo.dApp()
+	app = dApp()
 	app.MainFormClass = TreeViewTestForm
 	app.setup()
 	app.start()

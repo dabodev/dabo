@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 HANDLE_SIZE = 8
-import dabo
+import dabo.ui
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 

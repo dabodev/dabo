@@ -10,10 +10,10 @@ import datetime
 import dabo
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dControlMixin as cm
-from dabo.ui import makeDynamicProperty
 try:
 	import webbrowser as wb
 except ImportError:
@@ -323,7 +323,8 @@ def resetHTML(evt):
 
 
 if __name__ == "__main__":
-	app = dabo.dApp(MainFormClass=None)
+	from dabo.dApp import dApp
+	app = dApp(MainFormClass=None)
 	app.setup()
 	frm = dabo.ui.dForm()
 	pnl = dabo.ui.dPanel(frm)

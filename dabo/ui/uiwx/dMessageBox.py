@@ -174,7 +174,8 @@ def getDefaultTitle():
 
 
 if __name__ == "__main__":
-	app = dabo.dApp()
+	from dabo.dApp import dApp
+	app = dApp()
 	app.showMainFormOnStart = False
 	app.setup()
 	print areYouSure("Are you happy?")

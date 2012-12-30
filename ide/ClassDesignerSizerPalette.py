@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import dabo
+import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 dui = dabo.ui

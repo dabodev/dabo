@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import random
-import dabo
+import dabo.ui
+from dabo.dApp import dApp
 from dabo.dLocalize import _
 dabo.ui.loadUI("wx")
 import cardlib
@@ -588,7 +589,7 @@ class MontanaForm(dabo.ui.dForm):
 
 
 if __name__ == "__main__":
-	app = dabo.dApp(MainFormClass=MontanaForm)
+	app = dApp(MainFormClass=MontanaForm)
 	app.BasePrefKey = "demo.games.montana"
 	app.setAppInfo("appName", "Montana")
 	app.start()

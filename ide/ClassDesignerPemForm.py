@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-import dabo
+import dabo.ui
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
@@ -12,9 +14,6 @@ from ClassDesignerComponents import LayoutSpacerPanel
 from ClassDesignerComponents import LayoutSizer
 from ClassDesignerComponents import LayoutGridSizer
 import ClassDesignerMenu
-
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 
 
 class PemForm(dabo.ui.dForm):

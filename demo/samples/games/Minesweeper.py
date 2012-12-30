@@ -23,6 +23,7 @@ import dabo.biz
 import dabo.ui
 import dabo.lib.StopWatch as StopWatch
 dabo.ui.loadUI("wx")
+from dabo.dApp import dApp
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
@@ -449,6 +450,7 @@ class Board(dabo.ui.dPanel):
 		[sq.release() for sq in self.squares]
 		self.squares = []
 
+		old_fastNameSet = dabo.fastNameSet
 		dabo.fastNameSet = True
 		for row in range(rows):
 			for col in range(cols):
@@ -460,7 +462,7 @@ class Board(dabo.ui.dPanel):
 				o.bindEvent(StateChanged, self.onStateChanged)
 				sizer.append(o, row=row, col=col, border=_squareBorder)
 				self.squares.append(o)
-		dabo.fastNameSet = False
+		dabo.fastNameSet = old_fastNameSet
 		self._filledSize = self.BoardSize
 		self.Sizer = sizer
 		self.needResize = True
@@ -1214,6 +1216,6 @@ class MinesweeperBO_scores(dabo.biz.dBizobj):
 	Limit = property(_getLimit, _setLimit)
 
 if __name__ == "__main__":
-	app = dabo.dApp(MainFormClass=MinesweeperForm)
+	app = dApp(MainFormClass=MinesweeperForm)
 	app.start()
 

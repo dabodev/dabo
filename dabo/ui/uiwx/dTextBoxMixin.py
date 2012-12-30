@@ -18,7 +18,7 @@ valueErrors = (ValueError, decimal.InvalidOperation)
 # is set not until dApp is completely setup.
 decimalPoint = None
 
-import dabo
+import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 

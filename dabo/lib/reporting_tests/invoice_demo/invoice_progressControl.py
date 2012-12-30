@@ -4,8 +4,9 @@
 """
 This demo is like invoice.py, but shows how to use the progress dialog.
 """
-import dabo
+import dabo.ui
 dabo.ui.loadUI("wx")
+from dabo.dApp import dApp
 from dabo.dReportWriter import dReportWriter
 from dabo.lib import reportUtils
 
@@ -42,6 +43,5 @@ class ReportingForm(dabo.ui.dForm):
 		reportUtils.previewPDF("invoice.pdf")
 
 
-app = dabo.dApp(MainFormClass=ReportingForm)
-app.start()
+dApp(MainFormClass=ReportingForm).start()
 

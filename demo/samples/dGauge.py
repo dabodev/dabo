@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import random
-import dabo
+import dabo.ui
 dabo.ui.loadUI("wx")
+from dabo.dApp import dApp
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
@@ -75,7 +76,7 @@ property, and the appropriate Value for that Percentage will be set.</p>
 """
 
 if __name__ == "__main__":
-	app = dabo.dApp(MainFormClass=None)
+	app = dApp(MainFormClass=None)
 	app.setup()
 	frm = dabo.ui.dForm()
 	pan = TestPanel(frm)

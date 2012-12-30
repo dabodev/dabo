@@ -15,6 +15,7 @@ import types
 import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
+from dabo.dApp import dApp
 import dabo.dEvents as dEvents
 from dabo.lib.utils import ustr
 
@@ -319,6 +320,6 @@ if __name__ == "__main__":
 
 			self.Sizer.append1x(vs)
 
-	app = dabo.dApp()
+	app = dApp()
 	app.MainFormClass = TestForm
 	app.start()

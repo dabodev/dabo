@@ -3,7 +3,9 @@
 import os
 import sys
 import dabo
+import dabo.ui
 from dabo.dLocalize import _
+from dabo.dApp import dApp
 import dabo.dEvents as dEvents
 import dabo.lib.xmltodict as xtd
 dabo.ui.loadUI("wx")
@@ -11,7 +13,7 @@ from MenuDesignerForm import MenuDesignerForm
 
 
 
-class MenuDesigner(dabo.dApp):
+class MenuDesigner(dApp):
 	# Behaviors which are normal in the framework may need to
 	# be modified when run as the ClassDesigner. This flag will
 	# distinguish between the two states.

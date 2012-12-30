@@ -7,6 +7,7 @@ import dabo
 import dabo.ui as dui
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
+from dabo.dApp import dApp
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.lib.connParser import createXML
@@ -582,7 +583,7 @@ class EditorForm(dui.dForm):
 
 def main():
 	files = sys.argv[1:]
-	app = dabo.dApp(ignoreScriptDir=True)
+	app = dApp(ignoreScriptDir=True)
 	app.BasePrefKey = "CxnEditor"
 	app.MainFormClass = None
 	app.setup()

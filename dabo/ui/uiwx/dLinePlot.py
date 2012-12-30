@@ -12,11 +12,10 @@ except StandardError, e:
 	_Numeric = False
 
 import dabo
-import dabo.dEvents as dEvents
+from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dControlMixin as cm
-from dabo.ui import makeDynamicProperty
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 

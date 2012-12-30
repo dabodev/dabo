@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import time
-import dabo
+import dabo.ui
 dabo.ui.loadUI("wx")
 dui = dabo.ui
 import dabo.dEvents as dEvents
+from dabo.dApp import dApp
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from BubblePanel import BubblePanel
@@ -182,4 +183,4 @@ class BubbletForm(dabo.ui.dForm):
 			_("Current score of the game.  (int)"))
 
 if __name__ == "__main__":
-	dabo.dApp(MainFormClass=BubbletForm).start()
+	dApp(MainFormClass=BubbletForm).start()

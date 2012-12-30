@@ -59,6 +59,7 @@ def autoCreateTables(noAccessDialog=None):
 					super(DbAdminLogin, self).__init__(parent)
 
 				def addControls(self):
+					import dabo.dEvents as dEvents
 					self.Caption = self.Application.getAppInfo("appName")
 
 					self.Sizer = dabo.ui.dSizer("v")
@@ -85,11 +86,11 @@ def autoCreateTables(noAccessDialog=None):
 
 					s = dabo.ui.dSizer()
 					b = self.addObject(dabo.ui.dButton, DefaultButton=True, Caption=_("OK"))
-					b.bindEvent(dabo.dEvents.Hit, self.onHitOK)
+					b.bindEvent(dEvents.Hit, self.onHitOK)
 					s.append(b, border=3)
 
 					b = self.addObject(dabo.ui.dButton, CancelButton=True, Caption=_("Cancel"))
-					b.bindEvent(dabo.dEvents.Hit, self.onHitCancel)
+					b.bindEvent(dEvents.Hit, self.onHitCancel)
 					s.append(b, border=3)
 
 					self.Sizer.append(lblmain, border=3, halign="center")

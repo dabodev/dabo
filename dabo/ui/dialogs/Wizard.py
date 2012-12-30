@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-import dabo
+import dabo.ui
 dabo.ui.loadUI("wx")
+from dabo.dApp import dApp
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
@@ -484,7 +485,7 @@ to play some more.
 			self.Sizer.append(lbl, alignment="center")
 
 
-	app = dabo.dApp()
+	app = dApp()
 	app.MainFormClass = None
 	app.setup()
 	# OK, we've defined all of our pages. Now let's define
