@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import pydoc
-import dabo
+import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
@@ -766,11 +766,7 @@ class PropertyGrid(dabo.ui.dGrid):
 			pd = self.getPropDictForRow(row)
 
 			if not isinstance(pd, dict):
-				if pd is None:
-					if dabo.verboseLogging:
-						# Not technically logging, but this is such a non-event...
-						print _("None PROP DICT:, ROW="), row, col, typ
-				else:
+				if pd is not None:
 					print _("BAD PROP DICT:"), pd, type(pd), _("ROW="), row
 			else:
 				if pd["type"] == "multi":

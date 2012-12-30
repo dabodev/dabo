@@ -30,9 +30,6 @@ import logging
 
 ### Settings - begin
 
-# Do we write info-level messages to stdout?
-verboseLogging = False
-
 # Event logging is turned off globally by default for performance reasons.
 # Set to True (and also set LogEvents on the object(s)) to get logging.
 eventLogging = False
@@ -42,7 +39,7 @@ eventLogging = False
 # because it is very expensive from a performance standpoint.
 allNativeEventInfo = False
 
-# Set dabo.fastNameSet to True to bypass Dabo's checking to make sure siblings
+# Set fastNameSet to True to bypass Dabo's checking to make sure siblings
 # have unique names, greatly speeding up instantiation of many objects. If you
 # do this, your code takes responsibility for ensuring that sibling names are
 # in fact unique. We recommend you leave fastNameSet to False here, and wrap
@@ -54,8 +51,7 @@ allNativeEventInfo = False
 #   dabo.fastNameSet = False
 fastNameSet = False
 
-
-# dabo.autoBindEvents is a global flag which determines if events are bound
+# autoBindEvents specifies whether events are bound
 # automatically to callback functions when the object is instantiated. E.g.,
 # where you used to have to have code like:
 #
@@ -72,7 +68,6 @@ fastNameSet = False
 #       """This gets called when the mouse enters the okay command button."""
 #
 autoBindEvents = True
-
 
 # If you set MDI to True, then dFormMain and dForm will default to being MDI
 # parent and MDI child, respectively. IOW, you don't have to change your dForm
@@ -193,7 +188,6 @@ createDbFiles = False
 webupdate_urlbase = "http://daboserver.com/webupdate"
 
 # Logging settings
-mainLogLevel = logging.DEBUG
 mainLogQualName = "dabo.mainLog"
 # Set the main log file to None initially
 mainLogFile = None
@@ -238,6 +232,16 @@ dTextBox_DeriveTextLengthFromSource = False
 copyValueSeparator = "\t"
 copyStringSeparator= '"'
 copyLineSeparator = "\n"
+
+# 2012-12-14: Reworked dabo's packaging to no longer import a bunch of subpackages and modules
+#             if implicitImports is False. Eventually, implicitImports will default to False,
+#             but for now it is True to allow appdevs time to test it with their setup before
+#             being forced to make changes.
+implicitImports = True
+
+# 2012-12-14: Setting to determine if we call dLocalize.install("dabo") when dabo is imported.
+#             This will remain defaulted to True but appdevs can turn if off if desired.
+localizeDabo = True
 
 ### Settings - end
 
