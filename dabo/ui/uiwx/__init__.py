@@ -1219,8 +1219,7 @@ def getSystemInfo(returnType=None):
 	else:
 		appVersion = "?"
 		appName = "Dabo"
-	ds.append({"name": "Dabo Version:", "value": "Version %s; Revision %s"
-			% (dabo.version["version"], dabo.version["revision"])})
+	ds.append({"name": "Dabo Version:", "value": dabo.__version__})
 	ds.append({"name": "UI Version:", "value": "%s on %s" % (dabo.ui.uiType["version"],
 			dabo.ui.uiType["platform"])})
 	if rType == "d":

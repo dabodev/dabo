@@ -313,7 +313,7 @@ these automatic updates.""").replace("\n", " ")
 							title=_("No Update Needed"))
 					answer = False
 				else:
-					dabo.ui.info(_("Dabo has been updated to the current revision. The app "
+					dabo.ui.info(_("Dabo has been updated to the current master version. The app "
 							"will now exit. Please re-run the application."), title=_("Success!"))
 		return not answer
 

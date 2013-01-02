@@ -81,6 +81,11 @@ import locale
 import logging
 import logging.handlers
 from settings import *
+from version import __version__
+
+## Temporary: until we are on Git and WebUpdate no longer relies on
+## dabo.version["file_revision"]:
+version = dict(file_revision="7300")
 
 # dApp will change the following values upon its __init__:
 dAppRef = None
@@ -283,7 +288,6 @@ if importDebugger:
 	import __builtin__
 	__builtin__.debugo = __builtin__.debugout = debugout
 
-from __version__ import version
 if implicitImports:
 	import dColors
 	import dEvents
