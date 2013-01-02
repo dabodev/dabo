@@ -2755,6 +2755,8 @@ class dPemMixin(dPemMixinBase):
 				self.Show(bool(val))
 			except AttributeError:
 				dabo.log.error(_("The object %s does not support the Visible property.") % self)
+			if self.Parent:
+				self.Parent.layout()
 		else:
 			self._properties["Visible"] = val
 
