@@ -2756,7 +2756,7 @@ class dPemMixin(dPemMixinBase):
 			except AttributeError:
 				dabo.log.error(_("The object %s does not support the Visible property.") % self)
 			if self.Parent:
-				self.Parent.layout()
+				dabo.ui.callAfterInterval(100, self.Parent.layout)
 		else:
 			self._properties["Visible"] = val
 
