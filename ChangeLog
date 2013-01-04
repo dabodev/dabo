@@ -17,7 +17,7 @@ Some things have changed in the past 15 months, but it's been mostly
 incremental improvements, including:
 
 DOCUMENTATION:
- + Thanks to Werner Bruin for converting the API docs to Sphinx. You can find
+ + Thanks to Werner Bruhin for converting the API docs to Sphinx. You can find
    them at http://docs.dabodev.com and the old 'dabodoc' api docs will stop 
    working in the near future.
 
