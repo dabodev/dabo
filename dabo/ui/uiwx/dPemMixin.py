@@ -1341,14 +1341,19 @@ class dPemMixin(dPemMixinBase):
 			return
 		# Check paged controls event propagation to inactive pages.
 		try:
-			updateInactive = self.Parent.UpdateInactivePages
+			isPage = isinstance(self.Parent, dabo.ui.dPageFrameMixin)
 		except AttributeError:
-			updateInactive = None
-		if updateInactive == False and self.Parent.SelectedPage != self:
-			return
-		if not updateInactive and not self.Visible:
-			# (some platforms have inactive pages not visible)
-			return
+			isPage = False
+		if isPage:
+			try:
+				updateInactive = self.Parent.UpdateInactivePages
+			except AttributeError:
+				updateInactive = None
+			if updateInactive == False and self.Parent.SelectedPage != self:
+				return
+			if not updateInactive and not self.Visible:
+				# (some platforms have inactive pages not visible)
+				return
 		self.update()
 
 
