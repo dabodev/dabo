@@ -1,14 +1,14 @@
 See the Subversion log for all the details.
 
-(Pending) Dabo 0.9.5 (2012-01-03) Revision 7306):
+(Pending) Dabo 0.9.5 (2012-01-04) Revision 7307):
 ===============================================================================
 This is the final entry to this ChangeLog. After this, we will be migrating to
 GitHub and starting a new RELEASENOTES.md to note the changes. Once on GitHub,
 we'll be making the point releases much more frequently, with only a handful of
 changes in each usually.
 
-Recommended Python: 2.6.5 or 2.7.3 (only use 2.7 with recommended wxPython)
-Recommended wxPython: 2.8.12.1
+Recommended Python: 2.7.3 (3.x not supported in wxPython)
+Recommended wxPython: 2.8.12.1 (if using 2.8.11 or older, stick with Python 2.6)
 
 We are looking forward to the next stable wxPython which looks like it'll be a
 3.0 release and should support Python 3. 
@@ -17,12 +17,25 @@ Some things have changed in the past 15 months, but it's been mostly
 incremental improvements, including:
 
 DOCUMENTATION:
- + Thanks to Werner Bruin for converting the API docs to Sphinx
+ + Thanks to Werner Bruin for converting the API docs to Sphinx. You can find
+   them at http://docs.dabodev.com and the old 'dabodoc' api docs will stop 
+   working in the near future.
 
 DEPRECATIONS:
  + doDefault()
  + in dabo.lib.reportUtils, printPDF() and previewPDF() are renamed
    to printReport() and previewReport()
+ + In the future, Dabo won't implicitly import subpackages anymore. Instead of:
+     import dabo
+     app = dabo.dApp()
+   Please start doing:
+     from dabo.dApp import dApp
+     app = dApp()
+
+   For now, the classic behavior is still there but you can get the new 
+   behavior by making a settings_override.py in the dabo package directory
+   with a line that reads:
+    implicitImports = False
 
 DB:
  + BLOB fields in SQLite now work 2-way.
