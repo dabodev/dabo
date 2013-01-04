@@ -115,6 +115,7 @@ def _setShowSizers(self, val):
 import time
 import wx
 from dabo.dLocalize import _
+from dabo.dPref import dPref
 ]]>
 		</importStatements>
 		<formatName><![CDATA[
