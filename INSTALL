@@ -1,12 +1,11 @@
 Dabo - Some brief installation notes.
 
 PREREQUISITES:
-+ Python (we recommend the latest, currently 2.5)
-+ sqlite3 (comes with Python 2.5) or pysqlite2 (install separately)
-+ wxPython UNICODE BUILD (we recommend the latest, currently 2.8)
-+ MySQLdb (to run the demos)
-+ reportlab
-+ PIL (also known as Imaging or the Python Imaging Library)
++ Python (we recommend the latest, currently 2.7.3)
++ wxPython UNICODE BUILD (we recommend the latest, currently 2.8.12.1)
++ MySQLdb (only to run the demos)
++ reportlab (only to run reports)
++ PIL (only to run reports) (also known as Imaging or the Python Imaging Library)
 
 
 INSTALLATION:
