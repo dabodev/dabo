@@ -1,5 +1,135 @@
 See the Subversion log for all the details.
 
+(Pending) Dabo 0.9.5 (2012-01-03) Revision 7306):
+===============================================================================
+This is the final entry to this ChangeLog. After this, we will be migrating to
+GitHub and starting a new RELEASENOTES.md to note the changes. Once on GitHub,
+we'll be making the point releases much more frequently, with only a handful of
+changes in each usually.
+
+Recommended Python: 2.6.5 or 2.7.3 (only use 2.7 with recommended wxPython)
+Recommended wxPython: 2.8.12.1
+
+We are looking forward to the next stable wxPython which looks like it'll be a
+3.0 release and should support Python 3. 
+
+Some things have changed in the past 15 months, but it's been mostly
+incremental improvements, including:
+
+DOCUMENTATION:
+ + Thanks to Werner Bruin for converting the API docs to Sphinx
+
+DEPRECATIONS:
+ + doDefault()
+ + in dabo.lib.reportUtils, printPDF() and previewPDF() are renamed
+   to printReport() and previewReport()
+
+DB:
+ + BLOB fields in SQLite now work 2-way.
+ + Improved Many:Many functionality.
+ + Allow selecting from views in MsSQL. (JacekK)
+ + Improved the MsSQL wrapper. (JacekK)
+ + Requery cycle optimized to not correct field types until the field
+   values are queried.
+ + Save/cancel cycle received love and now performs very well in the
+   most commin cases. 
+ + Improved KeepAliveInterval. (nate)
+ + Added support for custom properties in cnxml files. (JacekK)
+ + Fixed exception handling inside transactions. (JacekK)
+
+BIZ:
+ + Added getFieldVals() function.
+ + Added DataSourceName property. Allows for multiple bizobjs with the
+   same table name on a single form. (JacekK)
+ + Added before/afterSaveAll() hook methods.
+ + Improved performance due to removing redundant calls, consolidating,
+   focusing on common use cases specifically with checking for changes.
+ + Added RequeryChildrenOnNavigate property to be used for increased
+   navigation performance in some situations.
+ + Added afterSetCurrentParent() method. (JacekK)
+ + Added getChangedStatus(), which returns the information in 
+   getRecordStatus(), but for all the changed rows in the bizobj, 
+   including changed child bizobjs.
+ + Added removeAllChildren() method.
+ + You can now seek() or locate() on multiple fields.
+ + Added CascadeDeleteFromParent property.
+
+UI:
+ + Added a dropped file handler for dShell.
+ + dShell is now dShellForm, and dShell is the shell itself.
+ + Added 'bo' name to dShell, which refers to self.getBizobj()
+ + dToolBar's dynamic properties work better now. (JacekK)
+ + Fixed dSpinner's buttons on Windows, which were too wide.
+ + Can now set dImage.Picture to a buffer, such as what you'd get from 
+   a sqlite BLOB field.
+ + New property ReleasePreferenceDialog to optionally keep it in memory
+   memory, only hiding it in between showings, for better performance.
+ + Improved the dGrid text editor to respond to the arrow keys to move
+   the record pointer up and down, which matches the behavior when not
+   editing.
+ + dSizer now checks for an invalid situation that could result in a
+   hard-to-debug segfault.  
+ + Corrected dMediaControl sample code so it works on Windows. (JacekK)
+ + Memory leak in dabo.ui.callAfterInterval() fixed.
+ + Improved feedback during user row navigation, which could feel slow 
+   due to potentially a large hierarchy of child requeries taking place.
+ + Added RowNavigationDelay to dForm to make only the rows the user 
+   lands on result in a child requery cycle. This is set to 0 to mimic
+   historic behavior: set to the suggested 250 to see it in action.
+ + Added CanUnsplit property to dSplitter.
+ + Added dNumericBox for better handling of numeric types. (JacekK)
+ + dLinePlot would crash with no traces: fixed. (nate)
+ + Added dLinePlot sample. (nate)
+ + Added IdleRefreshInterval property to forms to allow less flicker.
+ + dTextBox's SelectOnEntry defaults to True now instead of False.
+ + Added copy handler for dGrid's cells.
+ + Added ability to set dGrid's RowHeight with setRowHeight().
+ + dBaseMenuBar now allows appdev's to add their custom items after
+   the default ones are added, allowing control over position.
+ + You can now make html drill-down reports with dHtmlBox by using
+   the new link format like <a href="app://showOrder?11234">Order 11234</a>.
+   'app' refers to self.Application; showOrder would get defined in
+   your dApp subclass to respond to the arguments sent in the link. 
+ + It is no longer necessary to tell dColumn the DataType if the 
+   grid's DataSource is a bizobj.
+ + dSizer.appendSpacer() now only needs one argument instead of 2.
+ + Added support for AGW controls. (JacekK)
+ + Mapped the numpad enter key to edit the record in datanav.Grid instead
+   of moving to the next row.
+ + Fixed interaction of the link appearance in dHyperLink.
+ + Added dSeparatorMenuItem.
+ + Fixed Mac Preferences menu item, which had been dimming unexpectedly.
+ + Removing pages in dPageToolBar did not properly remove the associated tool
+   button. Fixed.
+ + dDatePicker handles NULL values now. (nate)
+ + Added dCollapsiblePanel control. (JacekK)
+ + Improved scrolling with the mouse wheel and arrow keys in dGrid.
+
+IDE:
+ + Reports couldn't be edited if the image didn't evaluate at design-
+   time. Fixed.
+ + Fixed-height memos with data too long to fit would print 
+   "<string too long>". Fixed to print all data possible followed by ...
+ + Added ColumnBreakAfter property to ReportBegin and PageHeader bands. (nate)
+ + dEditor.Modified is now read/write so it can be manually marked dirty.
+ + Added dEditor.getLineText() method.
+ + MenuDesigner works very nicely now.
+ + Added LineCap property to report writer Line objects.
+ + Fixed error when moving a group up or down in the report designer.
+ + Fixed ResetPageNumber group property in report writer.
+ + dCheckList is supported in ClassDesigner now.
+ + Added new properties to report writer: Group.StartOnNewColumn,
+   Group.ReprintHeaderOnNewColumn, and GroupFooter.PrintAtBottom, which
+   will make the group footer print near the bottom of the page instead
+   of immediately after the the detail for that group.
+ + When editing the XML in the report designer and adding or removing
+   objects like groups and variables, the object tree wasn't refreshing
+   with the changes. Fixed.
+ + Added ColumnPadding property to multi-column reports.
+ + Added report property StringifyDates, which will automatically format
+   dates for you per the locale settings.
+
+
 Dabo 0.9.4 (2011-10-05) Revision 6879):
 ===============================================================================
 Recommended Python: 2.6.5 (still some reported problems with 2.7)
