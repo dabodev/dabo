@@ -185,6 +185,7 @@ from dTimer import dTimer
 from dToolBar import dToolBar
 from dToolBar import dToolBarItem
 from dToggleButton import dToggleButton
+from dTreeView import dNode
 from dTreeView import dTreeView
 from dLed import dLed
 import dUICursors as dUICursors
