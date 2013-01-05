@@ -474,6 +474,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 		dataFieldSent = "DataField" in kwargs
 		dataTypeSent = "DataType" in kwargs
+		precisionSent = "Precision" in kwargs
 
 		self._beforeInit()
 		kwargs["Parent"] = parent
@@ -488,7 +489,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				*args, **kwargs)
 		self._baseClass = dColumn
 		if dataFieldSent and not dataTypeSent:
-			self._setDataTypeFromDataField()
+			implicitPrecision = not precisionSent
+			self._setDataTypeFromDataField(implicitPrecision)
 
 
 	def _beforeInit(self):
@@ -753,7 +755,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._setUserSetting(prop, getattr(self, prop))
 
 
-	def _setDataTypeFromDataField(self):
+	def _setDataTypeFromDataField(self, implicitPrecision=True):
 		"""
 		When a column has its DataField changed, we need to set the
 		correct DataType based on the new value.
@@ -763,7 +765,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			dt = self.Parent.typeFromDataField(self.DataField, self)
 			if dt not in (None, type(None)) and (dt != currDT):
 				self.DataType = dt
-
+				if dt is Decimal and implicitPrecision:
+					self.Precision = self.Parent.precisionFromDataField(self.DataField)
+					 
 
 	def _getUserSetting(self, prop):
 		"""Get the property value from the user settings table."""
@@ -2190,6 +2194,21 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			return None
 		return pyType
 
+
+	def precisionFromDataField(self, df):
+		"""
+		Return the decimal precision for the passed data field, or the default
+		precision if this isn't a decimal field or it isn't specified in the
+		bizobj.
+		"""
+		default = 2
+		biz = self.getBizobj()
+		if biz is not None:
+			ret = biz.getPrecisionForField(df)
+			if ret is not None:
+				return ret
+		return default
+		
 
 	def getTableClass(cls):
 		"""

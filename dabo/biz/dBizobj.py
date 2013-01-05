@@ -2155,6 +2155,20 @@ class dBizobj(dObject):
 		return dabo.db.getPythonType(fldInfo)
 
 
+	def getPrecisionForField(self, fld):
+		"""
+		Given a field name, return the decimal precision, or None.
+		"""
+		ds = self.getDataStructure()
+		if not ds:
+			return None
+		try:
+			fld_info = [rec for rec in ds if rec[0] == fld][0]
+			return fld_info[5]
+		except IndexError:
+			pass
+
+
 	def getParams(self):
 		"""
 		Return the parameters to send to the cursor's execute method.
