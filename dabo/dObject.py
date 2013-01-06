@@ -4,28 +4,13 @@ import types
 import new
 import dabo
 from dabo.lib.propertyHelperMixin import PropertyHelperMixin
-from dabo.lib.doDefaultMixin import DoDefaultMixin
 from dabo.lib.eventMixin import EventMixin
-from dabo.lib.autosuper import autosuper
 from dabo.dLocalize import _
 
 NONE_TYPE = type(None)
 
 
-
-class Dummy(object):
-	# Much thanks to Robin Dunn for a workaround to a nasty problem that reared
-	# its head starting with wxPython 2.7, when we had to switch around the order
-	# of base classes so that wxPython's properties didn't trump Dabo's. Neither
-	# of us really understand what is happening, but it is at the Python level,
-	# and suffice it to say making dObject first inherit from this Dummy class
-	# fixes the issue, which was ultimately caused by autosuper's __slots__.
-	pass
-
-
-
-class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
-		EventMixin):
+class dObject(PropertyHelperMixin, EventMixin):
 	"""The basic ancestor of all Dabo objects."""
 	# Subclasses can set these to False, in which case they are responsible
 	# for maintaining the following call order:
@@ -99,7 +84,6 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 			self._afterInit()
 		self.setProperties(properties)
 
-		DoDefaultMixin.__init__(self)
 		PropertyHelperMixin.__init__(self)
 		EventMixin.__init__(self)
 
@@ -252,6 +236,10 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		return methodList
 	getMethodList = classmethod(getMethodList)
 
+	def super(self, *args, **kwargs):
+		"""This method used to call superclass code, but it's been removed."""
+		raise NotImplementedError(_(
+				"Please change your self.super() call to super(cls, self)."))
 
 	def _addCodeAsMethod(self, cd):
 		"""
@@ -438,105 +426,3 @@ if __name__ == "__main__":
 	print d.Application
 	app = dApp()
 	print d.Application
-
-	print _("Testing doDefault():")
-	class TestBase(list, dObject):
-		# No myMethod here
-		pass
-
-	class MyTest1(TestBase):
-		def myMethod(self):
-			print _("MyTest1.myMethod called.")
-			MyTest1.doDefault()
-
-	class MyTest2(MyTest1): pass
-
-	class MyTest(MyTest2):
-		def myMethod(self):
-			print _("MyTest.myMethod called.")
-			MyTest.doDefault()
-
-	print _("Test 1: simple test:")
-	t = MyTest()
-	t.myMethod()
-
-	print _("\nTest 2: diamond inheritence test:")
-
-	class A(dObject):
-		def meth(self, arg):
-			print self.__class__
-			arg.append("A")
-
-	class B(A):
-		def meth(self, arg):
-			print self.__class__
-			arg.append("B")
-			B.doDefault(arg)
-
-	class C(A):
-		def meth(self, arg):
-			print self.__class__
-			arg.append("C")
-			C.doDefault(arg)
-
-	class D(B,C):
-		def meth(self, arg):
-			print self.__class__
-			arg.append("D")
-			D.doDefault(arg)
-
-	t = D()
-	testList = []
-	t.meth(testList)
-	print testList
-
-	print _("\n\nTesting super():")
-	class TestBase(list, dObject):
-		# No myMethod here
-		pass
-
-	class MyTest1(TestBase):
-		def myMethod(self):
-			print _("MyTest1.myMethod called.")
-			self.super()
-
-	class MyTest2(MyTest1): pass
-
-	class MyTest(MyTest2):
-		def myMethod(self):
-			print _("MyTest.myMethod called.")
-			self.super()
-
-	print _("Test 1: simple test:")
-	t = MyTest()
-	t.myMethod()
-
-	print _("\nTest 2: diamond inheritence test:")
-
-	class A(dObject):
-		def meth(self, arg):
-			print self.__class__
-			arg.append("A")
-
-	class B(A):
-		def meth(self, arg):
-			print self.__class__
-			arg.append("B")
-			self.super(arg)
-
-	class C(A):
-		def meth(self, arg):
-			print self.__class__
-			arg.append("C")
-			self.super(arg)
-
-	class D(B,C):
-		def meth(self, arg):
-			print self.__class__
-			arg.append("D")
-			self.super(arg)
-
-	t = D()
-	testList = []
-	t.meth(testList)
-	print testList
