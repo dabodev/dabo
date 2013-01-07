@@ -829,7 +829,7 @@ class dPemMixin(dPemMixinBase):
 			# Object doesn't support GetID(), which includes trying
 			# to get the id of a not-yet-fully-instantiated wxPython
 			# object.
-			ret = super(dPemMixin, self)._getID()
+			ret = wx.NewId()
 		return ret
 
 
