@@ -184,7 +184,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			img = img.Rotate90(True)
 
 		w, h = origW, origH = self.Width, self.Height
-		if w == h == 1:
+		if w == h <= 1:
 			# Initial empty bitmap, let the image determine the size
 			w = origW = img.GetWidth()
 			h = origH = img.GetHeight()
