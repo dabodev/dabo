@@ -427,30 +427,19 @@ class Form(dabo.ui.dForm):
 
 	def addEditPages(self, ds):
 		"""Called when it is time to add the edit page(s)."""
-		biz = self.getBizobj()
-		if biz:
-			caption = _("Edit") + " " + biz.Caption
-		else:
-			caption = _("Edit")
-		self.addEditPage(ds, caption)
-
+		self.addEditPage(ds, _("Edit"))
 
 	def addEditPage(self, ds, title):
 		"""Called when it is time to add the edit page for the passed datasource."""
 		self.pageFrame.addEditPage(ds, title)
 
-
-
-
 	def onSetSelectionCriteria(self, evt):
 		"""Occurs when the user chooses to set the selection criteria."""
 		self.pageFrame.SelectedPage = 0
 
-
 	def onBrowseRecords(self, evt):
 		"""Occurs when the user chooses to browse the record set."""
 		self.pageFrame.SelectedPage = 1
-
 
 	def onEditCurrentRecord(self, evt):
 		"""Occurs when the user chooses to edit the current record."""
