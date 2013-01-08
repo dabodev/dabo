@@ -742,11 +742,6 @@ class GridHeaderMouseMove(GridEvent, MouseEvent):
 	pass
 
 
-class GridHeaderPaint(GridEvent):
-	"""Occurs when it's time to paint the grid header."""
-	pass
-
-
 class GridMouseLeftClick(GridEvent, MouseEvent):
 	"""Occurs when the left mouse button is clicked in the grid region."""
 	pass

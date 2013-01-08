@@ -4340,7 +4340,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxHeaderPaint(self, evt):
-		self.raiseEvent(dEvents.GridHeaderPaint, evt)
 		updateBox = self._getWxHeader().GetUpdateRegion().GetBox()
 		self._paintHeader(updateBox)
 
