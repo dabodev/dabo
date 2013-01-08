@@ -169,6 +169,7 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 			pass
 
 		# Finding the id failed; try the Caption
+		caption = caption.replace("&", "")
 		idx = self.FindMenu(caption)
 		if idx is None or idx < 0:
 			return None
