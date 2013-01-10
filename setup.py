@@ -4,9 +4,8 @@ import ez_setup # From http://peak.telecommunity.com/DevCenter/setuptools
 ez_setup.use_setuptools()
 
 from setuptools import setup, find_packages
-from dabo.__version__ import version
+from dabo.version import __version__
 
-daboVersion = version["version"]
 setupDir = os.path.dirname(__file__)
 
 # List the paths under dabo/icon/themes:
@@ -54,9 +53,9 @@ data_files.extend(localeDirs)
 
 setup(
 		name = "Dabo",
-		version = daboVersion,
+		version = __version__,
 		url = 'http://dabodev.com/',
-		download_url = 'http://cdn.cloudfiles.mosso.com/c118811/dabo/dabo-%s-win.zip' % daboVersion,
+		download_url = 'http://cdn.cloudfiles.mosso.com/c118811/dabo/dabo-%s-win.zip' % __version__,
 		author = 'Ed Leafe and Paul McNett',
 		author_email = 'dev@dabodev.com',
 		description = 'Dabo 3-tier Application Framework',
