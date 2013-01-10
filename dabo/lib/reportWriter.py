@@ -2307,7 +2307,7 @@ class ReportWriter(object):
 								storyheight = obj.getProp("Height_def")
 								needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))
 							maxBandHeight = max(maxBandHeight, needed)
-				if (maxBandHeight - bandHeight) > availableHeight:
+				if (maxBandHeight - bandHeight) > 0 > availableHeight:
 					# Signal that we need a page change as there isn't room:
 					return None
 				return maxBandHeight
@@ -2337,14 +2337,14 @@ class ReportWriter(object):
 							self.being_deferred = False
 							beginPage()
 							y = pageHeaderOrigin[1]
-							y = reprintGroupHeaders(group, bandDict, y)
+							y = reprintGroupHeaders(group, bandDict, y, "page")
 						else:
 							# Move to next column
 							self.drawSpanningObjects((pageFooterOrigin[0],y))
 							self.clearSpanningObjects(group)
 							self._currentColumn += 1
 							y = pageHeaderOrigin[1]
-							y = reprintGroupHeaders(group, bandDict, y)
+							y = reprintGroupHeaders(group, bandDict, y, "column")
 
 					# We must call again, because it recomputes available height:
 					maxBandHeight = getTotalBandHeight()
@@ -2519,11 +2519,11 @@ class ReportWriter(object):
 			self.Canvas.showPage()
 
 
-		def reprintGroupHeaders(currentGroup, bandDict, y):
+		def reprintGroupHeaders(currentGroup, bandDict, y, mode):
 			self = bandDict  ## to allow "self" references from groupHeader object
 			for group in groups:
 				reprinted = False
-				reprint = group.get("ReprintHeaderOnNewPage")
+				reprint = group.get("ReprintHeaderOnNew%s" % mode.title())
 				if reprint is not None:
 					reprint = eval(reprint)
 				if reprint:
