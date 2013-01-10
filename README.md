@@ -3,9 +3,7 @@ Dabo: A Framework for developing data-driven business applications
 
 Dabo is for developing multi-platform database business applications - you know, applications that need to connect to a database like MySQL, Oracle, MS-SQL, PostgreSQL, or SQLite, get recordsets of data based on criteria set by the user, provide easy ways to edit and commit changes to the data, and to report on the data.
 
-You program using Python, importing the dabo library, or use the Dabo Class Designer to create xml files to define your classes, or a combination of both.
-
-Beyond the wizards and xml definition files, Dabo exposes a nice API in Python for manually creating your own class definitions. IOW, we let you have as much control as you need. You aren't required to take advantage of our xml definition formats at all.
+You program in Python, subclassing Dabo's base classes. In addition, there are several graphical tools for laying out your GUI, editing your menus, and creating professional business reports. 
 
 Dabo has three main subpackages, representing the three tiers common in modern database application design:
 ```
@@ -15,7 +13,9 @@ Dabo has three main subpackages, representing the three tiers common in modern d
 ```
 ```dabo.db``` and ```dabo.biz``` are completely ui-free, while ```dabo.ui``` (currently) requires wxPython. We have allowed for possible future support for other ui libraries, such as PyQt or PySide, tk, and curses.
 
-The Dabo framework will have to be distributed to your client's machine(s), along with your project-specific data definitions and/or your subclasses of the Dabo classes. There are ways to do runtime deployment via installers that take the complexity out of this, but that is outside the scope of Dabo itself. PyInstaller and cxFreeze are our current recommendations.
+To distribute your application to end users
+-------------------------------------------
+Use PyInstaller or cxFreeze to make an executable package to deploy to Mac, Windows, and Linux clients. Or, make sure your end users have Python, wxPython, etc. installed and distribute your source code.
 
 To run Dabo, and apps based on Dabo, you need:
 ----------------------------------------------
