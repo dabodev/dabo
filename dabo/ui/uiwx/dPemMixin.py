@@ -1354,6 +1354,8 @@ class dPemMixin(dPemMixinBase):
 			if not updateInactive and not self.Visible:
 				# (some platforms have inactive pages not visible)
 				return
+		if isinstance(self, dabo.ui.dFormMixin) and not self.Visible:
+			return
 		self.update()
 
 

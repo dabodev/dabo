@@ -20,3 +20,5 @@ v0.9.6
     
  * Since the the decimal precision is already known in the bizobj, use that for dColumn.Precision if the caller didn't explicitly set it, for convenience.
 
+ * Fixed issue introduced in v0.9.5 that tried to update invisible forms and dialogs.
+
