@@ -1,38 +1,32 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
-import locale
-import warnings
-import glob
-import tempfile
-import imp
 import ConfigParser
-import inspect
-import datetime
-import urllib2
-import shutil
-import logging
 from cStringIO import StringIO
-from zipfile import ZipFile
+import datetime
+import glob
+import imp
+import inspect
+import json
+import locale
+import logging
+import os
+import shutil
+import sys
+import tempfile
+import urllib2
+import warnings
 from xml.sax._exceptions import SAXParseException
+from zipfile import ZipFile
+
 import dabo
-import dabo.dLocalize as dLocalize
 import dabo.dException as dException
+import dabo.dLocalize as dLocalize
 from dabo.dLocalize import _
 from dabo.lib import connParser
-from dSecurityManager import dSecurityManager
 from dabo.lib.SimpleCrypt import SimpleCrypt
 from dabo.dObject import dObject
 from dabo.dPref import dPref
 from dabo import dUserSettingProvider
-from dabo.lib.utils import ustr
-from dabo.lib.utils import cleanMenuCaption
-
-try:
-	import simplejson
-except ImportError:
-	# Not installed on the user's Python
-	simplejson = None
+from dSecurityManager import dSecurityManager
 
 
 
@@ -510,17 +504,6 @@ try again when it is running.
 		self._appInfo[item] = value
 
 
-	def _currentUpdateVersion(self):
-		localVers = dabo.version["file_revision"]
-		try:
-			localVers = localVers.split(":")[1]
-		except IndexError:
-			# Not a mixed version
-			pass
-		ret = int("".join([ch for ch in localVers if ch.isdigit()]))
-		return ret
-
-
 	def _resetWebUpdateCheck(self):
 		"""
 		Sets the time that Web Update was last checked to the passed value. Used
@@ -585,13 +568,8 @@ try again when it is running.
 				runCheck = (now > (lastcheck + mins))
 
 		if runCheck:
-			currVers = self._currentUpdateVersion()
 			# See if there is a later version
-			if simplejson:
-				# It's installed
-				url = "%s/check/%s" % (dabo.webupdate_urlbase, currVers)
-			else:
-				url = "%s/checkNoJson/%s" % (dabo.webupdate_urlbase, currVers)
+			url = "%s/check/%s" % (dabo.webupdate_urlbase, dabo.__version__)
 			try:
 				resp = urllib2.urlopen(url).read()
 			except urllib2.URLError, e:
@@ -603,12 +581,7 @@ try again when it is running.
 			except StandardError, e:
 				dabo.log.error(_("Failed to open URL '%(url)s'. Error: %(e)s") % locals())
 				return e
-			if simplejson:
-				resp = simplejson.loads(resp)
-			else:
-				# Sucks using eval(), but that's really the only choice without simplejson
-				# (or rewriting yet again).
-				resp = eval(resp)
+			resp = json.loads(resp)
 		prf.setValue("last_check", now)
 		return (firstTime, resp)
 
@@ -616,9 +589,9 @@ try again when it is running.
 	def _updateFramework(self):
 		"""
 		Get any changed files from the dabodev.com server, and replace
-		the local copies with them."""
-		currVers = self._currentUpdateVersion()
-		fileurl = "%s/files/%s" % (dabo.webupdate_urlbase, currVers)
+		the local copies with them.
+		"""
+		fileurl = "%s/files/%s" % (dabo.webupdate_urlbase, dabo.__version__)
 		try:
 			resp = urllib2.urlopen(fileurl)
 		except StandardError, e:

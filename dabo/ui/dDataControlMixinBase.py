@@ -307,7 +307,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			if self._userChanged:
 				self._userChanged = False
 				self.raiseEvent(dEvents.InteractiveChange, oldVal=oldVal)
-			dabo.ui.callAfterInterval(200, self.raiseEvent, dEvents.ValueChanged)
+			self.raiseEvent(dEvents.ValueChanged)
 		return ret
 
 

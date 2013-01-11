@@ -268,6 +268,8 @@ class SelectPage(Page):
 
 
 	def setWhere(self, biz):
+		if not self.itemsCreated:
+			self.createItems()
 		try:
 			baseWhere = biz.getBaseWhereClause()
 		except AttributeError:

@@ -81,11 +81,17 @@ autoBindEvents = True
 #
 # All the MDI setting does is make dFormMain == (dFormMainSDI or dFormMainParentMDI)
 # and dForm == (dFormSDI or dFormChildMDI)
+#
+# Setting MDI to True on Mac is essential to get a native-feeling Mac app 
+# where closing the last form doesn't exit the app. Whatever form has the 
+# focus will determine the menu used - the ParentMDI form is never shown on
+# Mac but it's menu will be displayed on the Mac system menu bar.
+#
+# Setting MDI to True on Windows is still what users expect for most apps.
+#
+# Setting MDI to True on Linux results in a pageframe setup with each child
+# form being a page in the parent pageframe.
 MDI = False
-# (note: MDI doesn't work at all on Mac as of this writing, and is implemented
-#        as a pageframe on Linux. I'm almost thinking we should default to True
-#        on Windows though, because it seems to be the arrangement most users
-#        expect.)
 
 # macFontScaling: If you set a font to 10 pt it'll look medium-small on most
 # Windows and Linux screens. However, it will look very small on Mac because

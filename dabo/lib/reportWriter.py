@@ -1755,7 +1755,14 @@ class ReportWriter(object):
 			elif isinstance(img, basestring) and "\0" not in img:
 				# this is a path to image file, not the image itself
 				if not os.path.exists(img):
-					img = os.path.join(self.HomeDirectory, img)
+					try:
+						hd = self.Application.HomeDirectory
+					except AttributeError:
+						hd = self.HomeDirectory
+					img = os.path.join(hd, img)
+					if "\\" in img and "/" in img:
+						## source image had one style; homedirectory another.
+						img = img.replace("\\", os.sep).replace("/", os.sep)
 			else:
 				# convert stream to PIL image:
 				#buffer = cStringIO.StringIO()
@@ -2307,7 +2314,7 @@ class ReportWriter(object):
 								storyheight = obj.getProp("Height_def")
 								needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))
 							maxBandHeight = max(maxBandHeight, needed)
-				if (maxBandHeight - bandHeight) > availableHeight:
+				if (maxBandHeight - bandHeight) > 0 > availableHeight:
 					# Signal that we need a page change as there isn't room:
 					return None
 				return maxBandHeight
@@ -2337,14 +2344,14 @@ class ReportWriter(object):
 							self.being_deferred = False
 							beginPage()
 							y = pageHeaderOrigin[1]
-							y = reprintGroupHeaders(group, bandDict, y)
+							y = reprintGroupHeaders(group, bandDict, y, "page")
 						else:
 							# Move to next column
 							self.drawSpanningObjects((pageFooterOrigin[0],y))
 							self.clearSpanningObjects(group)
 							self._currentColumn += 1
 							y = pageHeaderOrigin[1]
-							y = reprintGroupHeaders(group, bandDict, y)
+							y = reprintGroupHeaders(group, bandDict, y, "column")
 
 					# We must call again, because it recomputes available height:
 					maxBandHeight = getTotalBandHeight()
@@ -2519,11 +2526,11 @@ class ReportWriter(object):
 			self.Canvas.showPage()
 
 
-		def reprintGroupHeaders(currentGroup, bandDict, y):
+		def reprintGroupHeaders(currentGroup, bandDict, y, mode):
 			self = bandDict  ## to allow "self" references from groupHeader object
 			for group in groups:
 				reprinted = False
-				reprint = group.get("ReprintHeaderOnNewPage")
+				reprint = group.get("ReprintHeaderOnNew%s" % mode.title())
 				if reprint is not None:
 					reprint = eval(reprint)
 				if reprint:

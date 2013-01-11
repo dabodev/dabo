@@ -156,7 +156,8 @@ class uiApp(dObject, wx.App):
 		self._mruMenuFuncs = {}
 		self._mruMenuLinks = {}
 		self._mruMaxItems = 12
-		wx.InitAllImageHandlers()
+		if wx.VERSION < (2, 9):  ## Done automatically now 
+			wx.InitAllImageHandlers()
 		# Set up the debug logging
 		self.debugWindow = None
 		# Set up the object inspector

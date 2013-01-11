@@ -829,7 +829,7 @@ class dPemMixin(dPemMixinBase):
 			# Object doesn't support GetID(), which includes trying
 			# to get the id of a not-yet-fully-instantiated wxPython
 			# object.
-			ret = super(dPemMixin, self)._getID()
+			ret = wx.NewId()
 		return ret
 
 
@@ -1354,6 +1354,8 @@ class dPemMixin(dPemMixinBase):
 			if not updateInactive and not self.Visible:
 				# (some platforms have inactive pages not visible)
 				return
+		if isinstance(self, dabo.ui.dFormMixin) and not self.Visible:
+			return
 		self.update()
 
 
