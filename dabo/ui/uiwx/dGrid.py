@@ -308,9 +308,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def GetValue(self, row, col, useCache=True, convertNoneToString=True,
-			dynamicUpdate=True):
+			dynamicUpdate=True, _fromGridEditor=False):
 		col = self._convertWxColNumToDaboColNum(col)
-		if useCache:
+		if useCache and not _fromGridEditor:
 			cv = self.__cachedVals.get((row, col))
 			if cv:
 				diff = time.time() - cv[1]
@@ -331,9 +331,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if bizobj:
 			if field and (row < bizobj.RowCount):
 				try:
-					ret = self.getStringValue(bizobj.getFieldVal(field, row))
+					ret = bizobj.getFieldVal(field, row)
 				except dException.FieldNotFoundException:
 					pass
+				if not _fromGridEditor:
+					ret = self.getStringValue(ret)
 		else:
 			try:
 				ret = self.grid.DataSet[row][field]
@@ -341,7 +343,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				pass
 		if ret is None and convertNoneToString:
 			ret = self.grid.NoneDisplay
-		self.__cachedVals[(row, col)] = (ret, time.time())
+		if not _fromGridEditor:
+			self.__cachedVals[(row, col)] = (ret, time.time())
 		return ret
 
 
