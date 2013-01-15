@@ -357,11 +357,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		return val
 
 
-	def SetValue(self, row, col, value):
+	def SetValue(self, row, col, value, _fromGridEditor=False):
 		col = self._convertWxColNumToDaboColNum(col)
 		self.grid._setCellValue(row, col, value)
-		# Update the cache
-		self.__cachedVals[(row, col)] = (value, time.time())
+		if not _fromGridEditor:
+			# Update the cache
+			self.__cachedVals[(row, col)] = (value, time.time())
 		self.grid.afterCellEdit(row, col)
 
 
@@ -3613,22 +3614,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	##        begin: dEvent callbacks for internal use          ##
 	##----------------------------------------------------------##
 	def _onGridCellEdited(self, evt):
-		bizobj = self.getBizobj()
+		## force cache to update after an edit:
 		row, col = evt.EventData["row"], evt.EventData["col"]
-		fld = self.Columns[col].DataField
-		newVal = self.GetCellValue(row, col, useCache=False)
-		if bizobj:
-			oldVal = bizobj.getFieldVal(fld, row)
-		else:
-			oldVal = self.DataSet[row][fld]
-		if newVal != oldVal:
-			# Update the local copy of the data
-			if bizobj:
-				# Put on correct RowNumber if not already (this should already be the case)
-				bizobj.RowNumber = row
-				bizobj.setFieldVal(fld, newVal)
-			else:
-				self.DataSet[row][fld] = newVal
+		self.GetCellValue(row, col, useCache=False)
 
 
 	def _onGridColSize(self, evt):
