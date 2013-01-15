@@ -673,8 +673,8 @@ class AppWizard(Wizard):
 			f.write(self.getApp(appName))
 			f.close()
 
-			## __version__.py:
-			open("./__version__.py", "w").write(self.getVersion())
+			## version.py:
+			open("./version.py", "w").write(self.getVersion())
 
 			## setup.py:
 			open("./setup.py", "w").write(self.getSetup(appName))
@@ -1160,7 +1160,7 @@ class AppWizard(Wizard):
 
 	def getVersion(self):
 		return open(os.path.join(self.wizDir,
-				"spec-__version__.py.txt")).read() % locals()
+				"spec-version.py.txt")).read() % locals()
 
 	def getSampleDataSet(self):
 		return open(os.path.join(self.wizDir,
