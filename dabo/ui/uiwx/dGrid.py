@@ -3466,6 +3466,16 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def getBizobj(self):
+		"""
+		Get the bizobj that is controlling this grid.
+
+		Either there was an explicitly-set bizobj reference	in 
+		self.DataSource, in which case that is returned, or self.DataSource
+		is a string, in which case the form hierarchy is walked finding the
+		first bizobj with the correct DataSource.
+
+		Return None if no bizobj can be located.
+		"""
 		ds = self.DataSource
 		if isinstance(ds, dabo.biz.dBizobj):
 			return ds
@@ -3473,12 +3483,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			form = self.Form
 			while form is not None:
 				if hasattr(form, "getBizobj"):
-					newDS = form.getBizobj(ds)
-					if isinstance(newDS, dabo.biz.dBizobj):
-						if not newDS.isRemote():
-							# Store the reference if local
-							self._dataSource = newDS
-					return newDS
+					biz = form.getBizobj(ds)
+					if isinstance(biz, dabo.biz.dBizobj):
+						return biz
 				form = form.Form
 		return None
 
