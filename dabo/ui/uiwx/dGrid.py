@@ -48,6 +48,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 	def _clearCache(self):
 		self.__cachedVals = {}
+		self.__cachedAttrs = {}
 
 	def _initTable(self):
 		self.colDefs = []
@@ -61,28 +62,13 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			# Empty grid so far, no biggie:
 			return self.grid._defaultGridColAttr.Clone()
 
-		## dColumn maintains one attribute object that applies to every row
-		## in the column. This can be extended later with optional cell-specific
-		## attributes to override the column-specific ones, but I'll wait for
-		## the need to present itself... perhaps we can implement a VFP-inspired
-		## DynamicBackColor, DynamicFont..., etc.
-
-		# I have no idea what the kind arg is for. It is sent by wxGrid to this
-		# function, it always seems to be either 0 or 4, and it isn't documented in the
-		# wxWidgets docs (but it does appear in the wxPython method signature
-		# but still isn't documented there.)
-#		if kind not in (0, 4):
-#			# I'd like to know when kind isn't 0, to make sure I've covered all the
-#			# bases. Well okay, it's really because I'm just curious.
-#			dabo.log.info("dGrid.Table.GetAttr:: kind is not 0, it is %s." % kind)
-
-		## The column attr object is maintained in dColumn:
+		cv = self.__cachedAttrs.get((row, col))
+		if cv:
+			diff = time.time() - cv[1]
+			if diff < 10:  ## if it's been less than this # of seconds.
+				return cv[0].Clone()
 
 		dcol = self.grid.Columns[col]
-
-		# If a cell attr is set up, use it. Else, use the one set up for the column.
-
-		# PVG: we need to update dynamic properties before checkin for cellAttrs
 		dcol._updateCellDynamicProps(row)
 
 		if dcol._gridCellAttrs:
@@ -99,12 +85,14 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			attr.SetRenderer(rnd)
 			if r in (dcol.floatRendererClass, dcol.decimalRendererClass):
 				rnd.SetPrecision(dcol.Precision)
+
 		# Now check for alternate row coloration
 		if self.alternateRowColoring:
 			attr.SetBackgroundColour((self.rowColorEven, self.rowColorOdd)[row % 2])
 
 		# Prevents overwriting when a long cell has None in the one next to it.
 		attr.SetOverflow(False)
+		self.__cachedAttrs[(row, col)] = (attr.Clone(), time.time())
 		return attr
 
 
@@ -604,12 +592,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				setattr(self, prop, func(*args))
 
 
-	@dabo.ui.deadCheck
 	def _updateCellDynamicProps(self, row):
-		dabo.ui.callAfterInterval(200, self._updateCellDynamicProps_delayed, row)
-
-	@dabo.ui.deadCheck
-	def _updateCellDynamicProps_delayed(self, row):
 		kwargs = {"row": row}
 		self._cellDynamicRow = row
 		for prop, func in self._dynamic.items():
