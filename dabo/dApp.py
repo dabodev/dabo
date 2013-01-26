@@ -1272,9 +1272,12 @@ try again when it is running.
 	def addToAbout(self):
 		"""
 		Adds additional app-specific information to the About form.
-		This is just a stub method; override in subclasses if needed.
+		By default, add the contents of the app's docstring.
 		"""
-		pass
+		doc = self.__class__.__doc__
+		if doc != dApp.__doc__:
+			return doc
+		return ""
 
 
 	def displayInfoMessage(self, msgId, msg, defaultShowInFuture=True):
