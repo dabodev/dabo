@@ -3949,7 +3949,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def _onKeyChar(self, evt):
 		"""Occurs when the user presses a key inside the grid."""
-		if (self.Editable and self.Columns[self.CurrentColumn].Editable
+		columns = self.Columns
+		current_col = self.CurrentColumn
+		if not columns or (self.Editable and columns[current_col].Editable
 				and not self._vetoAllEditing):
 			# Can't search and edit at the same time
 			return
@@ -3968,7 +3970,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# Enter, Tab, and Arrow Keys shouldn't be searched on.
 			return
 
-		if (self.Searchable and self.Columns[self.CurrentColumn].Searchable):
+		if (self.Searchable and columns[current_col].Searchable):
 			self.addToSearchStr(char)
 			# For some reason, without this the key happens twice
 			evt.stop()
