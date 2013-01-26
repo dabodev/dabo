@@ -1602,7 +1602,7 @@ try again when it is running.
 
 	def _setSecurityManager(self, value):
 		if self.SecurityManager:
-			warnings.warn(Warning, _("SecurityManager previously set"))
+			warnings.warn(_("SecurityManager previously set"), Warning)
 		self._securityManager = value
 
 
