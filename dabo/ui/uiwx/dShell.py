@@ -8,13 +8,14 @@ from wx.py import pseudo
 import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
+
 from dSplitForm import dSplitForm
 from dabo.ui import makeDynamicProperty
 from dabo.ui import dKeys
 from dControlMixin import dControlMixin
-
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 
 
 class _LookupPanel(dabo.ui.dPanel):
