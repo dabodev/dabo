@@ -27,6 +27,8 @@ from dabo.dObject import dObject
 from dabo.dPref import dPref
 from dabo import dUserSettingProvider
 from dSecurityManager import dSecurityManager
+from dabo.lib.utils import ustr
+from dabo.lib.utils import cleanMenuCaption
 
 
 
@@ -388,6 +390,7 @@ try again when it is running.
 		self._finished = False
 		if (not self.SecurityManager or not self.SecurityManager.RequireAppLogin
 				or getattr(self, "_loggedIn", False) or self.SecurityManager.login()):
+			dabo.ui.callAfterInterval(5000, self._destroySplash)
 			self._retrieveMRUs()
 			self.uiApp.start()
 		if not self._finished:
@@ -415,6 +418,13 @@ try again when it is running.
 		one last chance to execute code by overriding this method.
 		"""
 		pass
+
+
+	def _destroySplash(self):
+		splash = getattr(self, "_splashScreen", None)
+		if splash:
+			del(self._splashScreen)
+			splash.Destroy()
 
 
 	def _setProjInfo(self):
@@ -452,7 +462,7 @@ try again when it is running.
 
 		Return a tuple of (user, pass).
 		"""
-		loginDialog = self.LoginDialogClass(None)
+		loginDialog = self.LoginDialogClass(self.MainForm)
 		loginDialog.setMessage(message)
 		# Allow the developer to customize the login dialog:
 		self.loginDialogHook(loginDialog)
@@ -1270,9 +1280,12 @@ try again when it is running.
 	def addToAbout(self):
 		"""
 		Adds additional app-specific information to the About form.
-		This is just a stub method; override in subclasses if needed.
+		By default, add the contents of the app's docstring.
 		"""
-		pass
+		doc = self.__class__.__doc__
+		if doc != dApp.__doc__:
+			return doc
+		return ""
 
 
 	def displayInfoMessage(self, msgId, msg, defaultShowInFuture=True):
@@ -1597,7 +1610,7 @@ try again when it is running.
 
 	def _setSecurityManager(self, value):
 		if self.SecurityManager:
-			warnings.warn(Warning, _("SecurityManager previously set"))
+			warnings.warn(_("SecurityManager previously set"), Warning)
 		self._securityManager = value
 
 

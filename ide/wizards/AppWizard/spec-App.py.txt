@@ -3,7 +3,7 @@
 import dabo
 from dabo.dApp import dApp
 from dabo.dLocalize import _
-from __version__ import version
+from version import __version__
 
 
 class App(dApp):
@@ -29,9 +29,8 @@ class App(dApp):
 		self.setAppInfo("authorEmail", "Your email")
 		self.setAppInfo("authorURL", "Your URL")
 
-		## Set appVersion and appRevision from __version__.py:
-		self.setAppInfo("appVersion", version["version"])
-		self.setAppInfo("appRevision", version["revision"])
+		## Set app version information:
+		self.setAppInfo("appVersion", __version__)
 
 	def setup(self):
 		if dabo.MDI:

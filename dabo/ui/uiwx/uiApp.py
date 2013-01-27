@@ -87,7 +87,6 @@ class SplashScreen(wx.Frame):
 			self.fc.Destroy()
 		except AttributeError:
 			pass
-		self.Destroy()
 
 
 	def _onPaint(self, evt):
@@ -192,7 +191,7 @@ class uiApp(dObject, wx.App):
 		if not self.checkForUpdates():
 			return False
 		if app.showSplashScreen:
-			splash = SplashScreen(app.splashImage, app.splashMaskColor,
+			splash = app._splashScreen = SplashScreen(app.splashImage, app.splashMaskColor,
 					app.splashTimeout)
 			splash.CenterOnScreen()
 			splash.Show()

@@ -48,6 +48,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 	def _clearCache(self):
 		self.__cachedVals = {}
+		self.__cachedAttrs = {}
 
 	def _initTable(self):
 		self.colDefs = []
@@ -61,28 +62,13 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			# Empty grid so far, no biggie:
 			return self.grid._defaultGridColAttr.Clone()
 
-		## dColumn maintains one attribute object that applies to every row
-		## in the column. This can be extended later with optional cell-specific
-		## attributes to override the column-specific ones, but I'll wait for
-		## the need to present itself... perhaps we can implement a VFP-inspired
-		## DynamicBackColor, DynamicFont..., etc.
-
-		# I have no idea what the kind arg is for. It is sent by wxGrid to this
-		# function, it always seems to be either 0 or 4, and it isn't documented in the
-		# wxWidgets docs (but it does appear in the wxPython method signature
-		# but still isn't documented there.)
-#		if kind not in (0, 4):
-#			# I'd like to know when kind isn't 0, to make sure I've covered all the
-#			# bases. Well okay, it's really because I'm just curious.
-#			dabo.log.info("dGrid.Table.GetAttr:: kind is not 0, it is %s." % kind)
-
-		## The column attr object is maintained in dColumn:
+		cv = self.__cachedAttrs.get((row, col))
+		if cv:
+			diff = time.time() - cv[1]
+			if diff < 10:  ## if it's been less than this # of seconds.
+				return cv[0].Clone()
 
 		dcol = self.grid.Columns[col]
-
-		# If a cell attr is set up, use it. Else, use the one set up for the column.
-
-		# PVG: we need to update dynamic properties before checkin for cellAttrs
 		dcol._updateCellDynamicProps(row)
 
 		if dcol._gridCellAttrs:
@@ -99,12 +85,14 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			attr.SetRenderer(rnd)
 			if r in (dcol.floatRendererClass, dcol.decimalRendererClass):
 				rnd.SetPrecision(dcol.Precision)
+
 		# Now check for alternate row coloration
 		if self.alternateRowColoring:
 			attr.SetBackgroundColour((self.rowColorEven, self.rowColorOdd)[row % 2])
 
 		# Prevents overwriting when a long cell has None in the one next to it.
 		attr.SetOverflow(False)
+		self.__cachedAttrs[(row, col)] = (attr.Clone(), time.time())
 		return attr
 
 
@@ -308,9 +296,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def GetValue(self, row, col, useCache=True, convertNoneToString=True,
-			dynamicUpdate=True):
+			dynamicUpdate=True, _fromGridEditor=False):
 		col = self._convertWxColNumToDaboColNum(col)
-		if useCache:
+		if useCache and not _fromGridEditor:
 			cv = self.__cachedVals.get((row, col))
 			if cv:
 				diff = time.time() - cv[1]
@@ -331,9 +319,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if bizobj:
 			if field and (row < bizobj.RowCount):
 				try:
-					ret = self.getStringValue(bizobj.getFieldVal(field, row))
+					ret = bizobj.getFieldVal(field, row)
 				except dException.FieldNotFoundException:
 					pass
+				if not _fromGridEditor:
+					ret = self.getStringValue(ret)
 		else:
 			try:
 				ret = self.grid.DataSet[row][field]
@@ -341,7 +331,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				pass
 		if ret is None and convertNoneToString:
 			ret = self.grid.NoneDisplay
-		self.__cachedVals[(row, col)] = (ret, time.time())
+		if not _fromGridEditor:
+			self.__cachedVals[(row, col)] = (ret, time.time())
 		return ret
 
 
@@ -354,11 +345,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		return val
 
 
-	def SetValue(self, row, col, value):
+	def SetValue(self, row, col, value, _fromGridEditor=False):
 		col = self._convertWxColNumToDaboColNum(col)
 		self.grid._setCellValue(row, col, value)
-		# Update the cache
-		self.__cachedVals[(row, col)] = (value, time.time())
+		if not _fromGridEditor:
+			# Update the cache
+			self.__cachedVals[(row, col)] = (value, time.time())
 		self.grid.afterCellEdit(row, col)
 
 
@@ -600,12 +592,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				setattr(self, prop, func(*args))
 
 
-	@dabo.ui.deadCheck
 	def _updateCellDynamicProps(self, row):
-		dabo.ui.callAfterInterval(200, self._updateCellDynamicProps_delayed, row)
-
-	@dabo.ui.deadCheck
-	def _updateCellDynamicProps_delayed(self, row):
 		kwargs = {"row": row}
 		self._cellDynamicRow = row
 		for prop, func in self._dynamic.items():
@@ -3462,6 +3449,16 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def getBizobj(self):
+		"""
+		Get the bizobj that is controlling this grid.
+
+		Either there was an explicitly-set bizobj reference	in 
+		self.DataSource, in which case that is returned, or self.DataSource
+		is a string, in which case the form hierarchy is walked finding the
+		first bizobj with the correct DataSource.
+
+		Return None if no bizobj can be located.
+		"""
 		ds = self.DataSource
 		if isinstance(ds, dabo.biz.dBizobj):
 			return ds
@@ -3469,12 +3466,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			form = self.Form
 			while form is not None:
 				if hasattr(form, "getBizobj"):
-					newDS = form.getBizobj(ds)
-					if isinstance(newDS, dabo.biz.dBizobj):
-						if not newDS.isRemote():
-							# Store the reference if local
-							self._dataSource = newDS
-					return newDS
+					biz = form.getBizobj(ds)
+					if isinstance(biz, dabo.biz.dBizobj):
+						return biz
 				form = form.Form
 		return None
 
@@ -3610,22 +3604,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	##        begin: dEvent callbacks for internal use          ##
 	##----------------------------------------------------------##
 	def _onGridCellEdited(self, evt):
-		bizobj = self.getBizobj()
+		## force cache to update after an edit:
 		row, col = evt.EventData["row"], evt.EventData["col"]
-		fld = self.Columns[col].DataField
-		newVal = self.GetCellValue(row, col, useCache=False)
-		if bizobj:
-			oldVal = bizobj.getFieldVal(fld, row)
-		else:
-			oldVal = self.DataSet[row][fld]
-		if newVal != oldVal:
-			# Update the local copy of the data
-			if bizobj:
-				# Put on correct RowNumber if not already (this should already be the case)
-				bizobj.RowNumber = row
-				bizobj.setFieldVal(fld, newVal)
-			else:
-				self.DataSet[row][fld] = newVal
+		self.GetCellValue(row, col, useCache=False)
 
 
 	def _onGridColSize(self, evt):
@@ -3968,7 +3949,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def _onKeyChar(self, evt):
 		"""Occurs when the user presses a key inside the grid."""
-		if (self.Editable and self.Columns[self.CurrentColumn].Editable
+		columns = self.Columns
+		current_col = self.CurrentColumn
+		if not columns or (self.Editable and columns[current_col].Editable
 				and not self._vetoAllEditing):
 			# Can't search and edit at the same time
 			return
@@ -3987,7 +3970,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# Enter, Tab, and Arrow Keys shouldn't be searched on.
 			return
 
-		if (self.Searchable and self.Columns[self.CurrentColumn].Searchable):
+		if (self.Searchable and columns[current_col].Searchable):
 			self.addToSearchStr(char)
 			# For some reason, without this the key happens twice
 			evt.stop()

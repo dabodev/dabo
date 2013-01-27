@@ -135,7 +135,7 @@ if sys.platform.startswith("win"):
 
 elif sys.platform.startswith("darwin"):
 	options = {"py2app":
-			{"includes": ["App", "__version__", "ui", "biz", "encodings",
+			{"includes": ["App", "version", "ui", "biz", "encodings",
 				"wx", "wx.lib.calendar", "wx.gizmos"],
 			"optimize": 2,
 			"excludes": ["matplotlib", "Tkconstants","Tkinter","tcl",

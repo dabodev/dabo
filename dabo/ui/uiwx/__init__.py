@@ -1515,7 +1515,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
 			*Must Override*
 			
 			"""
-			self.startValue = grid.GetTable().GetValue(row, col)
+			self.startValue = grid.GetTable().GetValue(row, col, _fromGridEditor=True)
 			self._control.Value = self.startValue
 			self._control.setFocus()
 
@@ -1531,7 +1531,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
 			val = self._control.Value
 			if val != self.startValue:
 				changed = True
-				grid.GetTable().SetValue(row, col, val) # update the table
+				grid.GetTable().SetValue(row, col, val, _fromGridEditor=True)
 			self.startValue = None
 			return changed
 

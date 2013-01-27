@@ -47,14 +47,20 @@ class HtmlAbout(dabo.ui.dDialog):
 
 
 	def writeHtmlPage(self):
+		app = self.Application
+		caption = "Dabo"
+		if app:
+			caption = "%s %s" % (app.getAppInfo("appName"),
+					app.getAppInfo("appVersion"))
 		appinfo = dabo.ui.getSystemInfo("html")
 		docstring = self.getAppSpecificString()
 		return self.getPageData() % locals()
 
 
 	def getAppSpecificString(self):
-		if self.Application:
-			text = self.Application.addToAbout()
+		app = self.Application
+		if app:
+			text = app.addToAbout()
 			if text:
 				return text
 		return ""
@@ -76,9 +82,10 @@ class HtmlAbout(dabo.ui.dDialog):
 		return """
 <html>
 	<body bgcolor="#DDDDFF">
-		<h1 align="center"><b>Dabo</b></h1>
+		<h1 align="center"><b>%(caption)s</b></h1>
 		<p>%(appinfo)s</p>
-		<p>%(docstring)s</p>
+		<hr />
+		<p><font size="-1">%(docstring)s</font></p>
 	</body>
 </html>
 """

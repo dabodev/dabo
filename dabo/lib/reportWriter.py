@@ -1753,16 +1753,16 @@ class ReportWriter(object):
 			if img is None:
 				pass
 			elif isinstance(img, basestring) and "\0" not in img:
-				# this is a path to image file, not the image itself
-				if not os.path.exists(img):
-					try:
-						hd = self.Application.HomeDirectory
-					except AttributeError:
-						hd = self.HomeDirectory
-					img = os.path.join(hd, img)
+				trial_paths = [".", self.HomeDirectory]
+				if self.Application:
+					trial_paths.append(self.Application.HomeDirectory)
+				for trial_path in trial_paths:
+					img = os.path.join(trial_path, img)
 					if "\\" in img and "/" in img:
-						## source image had one style; homedirectory another.
+						## source image had one style; homedirector
 						img = img.replace("\\", os.sep).replace("/", os.sep)
+						if os.path.exists(img):
+							break
 			else:
 				# convert stream to PIL image:
 				#buffer = cStringIO.StringIO()

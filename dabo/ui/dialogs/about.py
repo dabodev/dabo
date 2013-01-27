@@ -19,6 +19,12 @@ class About(dabo.ui.dDialog):
 
 
 	def addControls(self):
+		app = self.Application
+		caption = "Dabo"
+		if app:
+			caption = "%s %s" % (app.getAppInfo("appName"),
+					app.getAppInfo("appVersion"))
+
 		pnlBack = dabo.ui.dPanel(self, BackColor="White")
 		self.Sizer.append(pnlBack, 1, "x")
 		pnlBack.Sizer = sz = dabo.ui.dSizer("v")
@@ -27,7 +33,7 @@ class About(dabo.ui.dDialog):
 		pnlHead.Sizer = ps = dabo.ui.dSizer("h")
 
 		ps.DefaultBorder = 0
-		lblHead = dabo.ui.dLabel(pnlHead, Caption="Dabo", FontSize=24,
+		lblHead = dabo.ui.dLabel(pnlHead, Caption=caption, FontSize=24,
 								FontBold=True)
 
 		ps.append(lblHead, 3, "x", halign="left", valign="middle")
