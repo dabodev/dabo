@@ -213,6 +213,9 @@ class EventMixin(object):
 				## classes derive directly from dObject. dColumn, for example.
 				regid = None
 			if not regid:
+				if context == self.Form and context != self.Parent:
+					# RegID's must be used in this case; don't bind.
+					return
 				regid = self.Name
 
 		funcNames = [i for i in dir(context) if i[:2] == "on"]
