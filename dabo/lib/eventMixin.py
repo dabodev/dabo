@@ -212,8 +212,8 @@ class EventMixin(object):
 				## As of this writing, RegID is defined in dPemMixin, but some of our
 				## classes derive directly from dObject. dColumn, for example.
 				regid = None
-			if regid is None or regid == "":
-				return False
+			if not regid:
+				regid = self.Name
 
 		funcNames = [i for i in dir(context) if i[:2] == "on"]
 		for funcName in funcNames:
@@ -238,8 +238,6 @@ class EventMixin(object):
 			# If we got this far, we have a match.
 			# Get the object reference to the function:
 			funcObj = None
-			### Paul: this is the major change I propose: looking
-			### in the 'context' object first, instead of its __class__
 			try:
 				funcObj = context.__dict__[funcName]
 			except KeyError:
