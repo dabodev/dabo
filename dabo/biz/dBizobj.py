@@ -2363,6 +2363,10 @@ class dBizobj(dObject):
 		"""Add a field to the field clause."""
 		return self._CurrentCursor.addField(exp, alias)
 
+	def removeField(self, exp, alias=None):
+		"""Remove a previously added field from the field clause."""
+		return self._CurrentCursor.removeField(exp, alias)
+
 	def addFrom(self, exp, alias=None):
 		"""
 		Add a table to the sql statement. For 1-M joins, use

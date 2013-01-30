@@ -2509,6 +2509,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					autoQuote=self.AutoQuoteNames)
 		return sm._fieldClause
 
+	def removeField(self, exp, alias=None):
+		"""Remove a previously added field from the field clause."""
+		sm = self.sqlManager
+		beo = sm.BackendObject
+		if beo:
+			sm._fieldClause = beo.removeField(sm._fieldClause, exp, alias,
+					autoQuote=self.AutoQuoteNames)
+		return sm._fieldClause
 
 	def getFromClause(self):
 		"""Get the from clause of the sql statement."""
