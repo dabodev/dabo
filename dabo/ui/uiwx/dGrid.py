@@ -2251,9 +2251,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self._modeSet = True
 			self.SelectionMode = self.SelectionMode
 
-		# And just to make sure (sometimes on Windows, the grid isn't refreshed
-		# otherwise, and perhaps this is true elsewhere, too.):
+		# I've found that both refresh calls are needed sometimes, especially
+		# on Linux when manually moving a column header with the mouse.
 		dabo.ui.callAfterInterval(200, self.refresh)
+		self.refresh()
 
 
 	def _updateDaboVisibleColumns(self):
