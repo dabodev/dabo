@@ -2801,12 +2801,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		If the column is not shown and visible=True, show it. Likewise
 		but opposite if visible=False.
 		"""
-		if isinstance(col, (int, long)):
-			if col < self.ColumnCount:
-				col = self.Columns[col]
-			else:
-				dabo.log.error(_("Invalid column number passed to 'showColumn()'."))
-				return
+		col = self._resolveColumn(col, logOnly=True)
+		if col is None:
+			# Invalid 'col' passed
+			return
 		col._visible = visible
 		self._syncColumnCount()
 		if getattr(self.Parent, "__inRefresh", False):
@@ -2917,18 +2915,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if gridCol is None:
 			gridCol = self.CurrentColumn
 
-		if isinstance(gridCol, dColumn):
-			colObj = gridCol
-			canSort = (self.Sortable and gridCol.Sortable)
-			columnToSort = gridCol
-			sortCol = self.Columns.index(gridCol)
-			dataType = self.Columns[gridCol].DataType
-		else:
-			colObj = self.Columns[gridCol]
-			sortCol = gridCol
-			columnToSort = self.Columns[gridCol].DataField
-			canSort = (self.Sortable and self.Columns[gridCol].Sortable)
-			dataType = None  ## will hunt for the dataType below
+		colObj = self._resolveColumn(gridCol)
+		canSort = (self.Sortable and gridCol.Sortable)
+		columnToSort = gridCol
+		sortCol = self.Columns.index(gridCol)
+		dataType = self.Columns[gridCol].DataType
 
 		if not canSort:
 			# Some columns, especially those with mixed values,
@@ -3307,7 +3298,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return ret
 
 
-	def addColumns(self, columns):
+	def addColumns(self, *columns):
 		"""
 		Adds a set of columns to the grid.
 
@@ -3367,18 +3358,41 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return col
 
 
-	def removeColumns(self, columns):
+	def _resolveColumn(self, colOrIdx, returnColumn=True, logOnly=False):
+		"""
+		Accepts either a column object or a column index, and returns a column
+		object. If you need the column's index instead, pass False to the
+		'returnColumn' parameter.
+
+		Used for cases where a method can accept either type of reference, but
+		needs to work with the actual column.
+
+		If anything other than a column reference or an integer is passed, a
+		ValueError will be raised. If you prefer to simply log the error without
+		raising an exception, pass True to the logOnly parameter (default=False).
+		"""
+		if isinstance(colOrIdx, (int, long)):
+			return self.Columns[colOrIdx] if returnColumn else colOrIdx
+		elif isinstance(colOrIdx, dColumn):
+			return colOrIdx if returnColumn else self.Columns.index(colOrIdx)
+		else:
+			msg = _("Values must be a dColumn or an int; received '%s' (%s)") % (
+					colOrIdx, type(colOrIdx))
+			if logOnly:
+				dabo.log.error(msg)
+				return None
+			else:
+				raise ValueError(msg)
+
+
+	def removeColumns(self, *columns):
 		"""
 		Removes a set of columns from the grid.
 
 		The passed columns can be indexes or dColumn instances, or both.
 		"""
-		del_indexes = [c for c in columns if isinstance(c, int)]
-		del_dColumns = [c for c in columns if isinstance(c, dColumn)]
-		del_indexes.sort(reverse=True)
-		for idx in del_indexes:
-			self.removeColumn(idx, inBatch=True)
-		for col in del_dColumns:
+		columns = [self._resolveColumn(col) for col in columns]
+		for col in columns:
 			self.removeColumn(col, inBatch=True)
 		self._syncColumnCount()
 		self.fillGrid(True)
@@ -3391,18 +3405,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		If no column is passed, the last column is removed. The col argument can
 		be either a column index or a dColumn instance.
 		"""
-		colNum = None
 		if col is None:
 			colNum = self.ColumnCount - 1
-		elif isinstance(col, int):
-			colNum = col
 		else:
-			# They probably passed a specific column instance
-			try:
-				colNum = self.Columns.index(col)
-			except ValueError:
-				# Column is not in the grid
-				return
+			colNum = self._resolveColumn(col, returnColumn=False, logOnly=True)
 		del self.Columns[colNum]
 		if not inBatch:
 			self._syncColumnCount()
