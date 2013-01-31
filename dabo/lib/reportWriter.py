@@ -615,7 +615,7 @@ class Report(ReportObject):
 				"""Specifies how much space to leave in between columns.""")
 
 		self.AvailableProps["StringifyDates"] = toPropDict(bool, True,
-				"""If True, expressions in String objects that evaluate to a datetime.date will get displayed 
+				"""If True, expressions in String objects that evaluate to a datetime.date will get displayed
 				in the report as a string as returned by dabo.lib.getStringFromDate(), which will
 				result in the date getting displayed as set by dabo.dateFormat or the user's locale.""")
 
@@ -2026,7 +2026,7 @@ class ReportWriter(object):
 					p_height = p.wrap(99999, None)[1]
 					story.append((append_p, p_height))
 				if False and obj.getProp("Height") is None and paras:
-					## pkm 2012-09-12: I'm finding I don't need the hackDeferredPara() as I'm seeing the 
+					## pkm 2012-09-12: I'm finding I don't need the hackDeferredPara() as I'm seeing the
 					##                 append_p string at the end of my memo.
 					hackDeferredPara()
 
@@ -2289,12 +2289,12 @@ class ReportWriter(object):
 			for testGroup in groupsDesc:
 				if testGroup["GroupFooter"].getProp("PrintAtBottom"):
 					groupsAtBottomHeight += testGroup["GroupFooter"].getProp("Height")
-			
+
 			def getTotalBandHeight():
 				maxBandHeight = bandHeight
 				y_origin = (pageFooterOrigin[1] + pfHeight)
 				if band.lower() != "groupfooter":
-					y_origin += groupsAtBottomHeight 
+					y_origin += groupsAtBottomHeight
 				availableHeight = y - y_origin
 				if deferred:
 					for obj, obj_deferred, neededHeight in deferred:
@@ -2308,8 +2308,8 @@ class ReportWriter(object):
 							needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))  ## y could be dep. on band height.
 							if needed - availableHeight > 30:
 								# This memo alone will make a new page get generated before printing anything
-								# and there's significant overflow; let the memo start and then the normal 
-								# mechanism to flow just the memo can happen. Don't want to do this in all 
+								# and there's significant overflow; let the memo start and then the normal
+								# mechanism to flow just the memo can happen. Don't want to do this in all
 								# cases, though, only when the contents would flow to a new page.
 								storyheight = obj.getProp("Height_def")
 								needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))
@@ -2519,7 +2519,7 @@ class ReportWriter(object):
 			x = self.getPt(self.ReportForm["Page"].getProp("MarginLeft"))
 			y1 = y
 			if self.being_deferred:
-				y1 = self.getPt(self.ReportForm["PageFooter"].getProp("Height")) 
+				y1 = self.getPt(self.ReportForm["PageFooter"].getProp("Height"))
 			self.drawSpanningObjects((x,y1))
 			for band in ("pageFooter", "pageForeground"):
 				printBand(band)

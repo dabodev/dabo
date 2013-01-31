@@ -147,7 +147,7 @@ class EventMixin(object):
 		parent on<EventName>_<object Name or RegID>().
 
 		For example::
-			
+
 			class MyButton(dabo.ui.dButton):
 				def onHit(self, evt):
 					print "Hit!"

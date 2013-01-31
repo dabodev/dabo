@@ -186,9 +186,9 @@ class Postgres(dBackend):
 	def getUpdateTablePrefix(self, tbl, autoQuote=True):
 		"""
 		By default, the update SQL statement will be in the form of
-		
+
 					tablename.fieldname
-		
+
 		but Postgres does not accept this syntax. If not, change
 		this method to return an empty string, or whatever should
 		preceed the field name in an update statement.
@@ -232,7 +232,7 @@ class Postgres(dBackend):
 		With Postgres a sequence is created.  The SQL statement determines the sequence name
 		('table_pkid_seq') and needs three parameters the schema name, table name, and the primary
 		key field for the table.
-		
+
 		cursor.KeyField = primary field
 		cursor.Table = returns 'schema.table' for the cursor
 

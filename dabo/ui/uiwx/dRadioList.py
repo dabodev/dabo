@@ -266,13 +266,13 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 
 		The itm argument specifies which button to enable/disable, and its type
 		depends on the setting of self.ValueType:
-		
+
 			============ ====================
 			"position"   The item is referenced by index position.
 			"string"     The item is referenced by its string display value.
 			"key"        The item is referenced by its key value.
 			============ ====================
-			
+
 		"""
 		if self.ValueMode == "position":
 			self.enablePosition(itm, val)
@@ -309,13 +309,13 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 
 		The itm argument specifies which button to hide/show, and its type
 		depends on the setting of self.ValueType:
-			
+
 			============ ====================
 			"position"   The item is referenced by index position.
 			"string"     The item is referenced by its string display value.
 			"key"        The item is referenced by its key value.
 			============ ====================
-			
+
 		"""
 		if self.ValueMode == "position":
 			self.showPosition(itm, val)

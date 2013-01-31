@@ -603,12 +603,12 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		image list rather than the key, which is the state of the node.
 
 		Valid states are:
-		
+
 			'normal'
 			'expanded'
 			'selected'
 			'selectedexpanded'
-		
+
 		"""
 		whichdict = {"normal": wx.TreeItemIcon_Normal,
 			"expanded": wx.TreeItemIcon_Expanded,
@@ -628,14 +628,14 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		Returns the index of the specified node's image in the
 		current image list, or -1 if no image is set for the node.
 		Which is the state of the node.
-		
+
 		Valid states are:
-		
+
 			'normal'
 			'expanded'
 			'selected'
 			'selectedexpanded'
-		
+
 		"""
 		whichdict = {"normal": wx.TreeItemIcon_Normal,
 			"expanded": wx.TreeItemIcon_Expanded,

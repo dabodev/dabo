@@ -472,7 +472,7 @@ class dControlItemMixin(dDataControlMixin):
 	ValueMode = property(_getValueMode, _setValueMode, None,
 			_("""Specifies the information that the Value property refers to.
 			-> String. Read-write at runtime.
-			
+
 			============= =========================
 			'Position'    Value refers to the position in the choices (integer).
 			'String'      Value refers to the displayed string for the selection (default) (string).

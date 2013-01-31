@@ -265,12 +265,12 @@ def goDate(date, days):
 	if days < 0:
 		op = operator.sub
 	return op(date, datetime.timedelta(days=abs(days)))
-	
+
 
 def goMonth(date, months):
 	"""Given a date or datetime, return the date or datetime that is <months> away.
 
-	In case of the new month being shorter than the old day number, the last day of 
+	In case of the new month being shorter than the old day number, the last day of
 	the new month will be used.
 	"""
 	# This solution is based on

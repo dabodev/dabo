@@ -782,7 +782,7 @@ try again when it is running.
 
 		For example, if spec is "appWizard.dbDefaults", and there are
 		userSettings entries for:
-			
+
 			appWizard.dbDefaults.pkm.Host
 			appWizard.dbDefaults.pkm.User
 			appWizard.dbDefaults.egl.Host
@@ -1786,7 +1786,7 @@ try again when it is running.
 			>>> app.setup()
 			>>> app.MainForm = myMainFormInstance
 			>>> app.start()
-			
+
 			"""))
 
 	MainFormClass = property(_getMainFormClass, _setMainFormClass, None,
@@ -1801,7 +1801,7 @@ try again when it is running.
 			>>> app = dApp()
 			>>> app.MainFormClass = MyMainFormClass
 			>>> app.start()
-			
+
 			"""))
 
 	NoneDisplay = property(_getNoneDisp, _setNoneDisp, None,

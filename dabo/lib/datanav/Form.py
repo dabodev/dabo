@@ -24,14 +24,14 @@ dabo.ui.loadUI("wx")
 class Form(dabo.ui.dForm):
 	"""
 	This is a dForm but with the following added controls:
-		
+
 		+ Navigation Menu
 		+ Navigation ToolBar
 		+ PageFrame with 3 pages by default:
 			+ Select : Enter sql-select criteria.
 			+ Browse : Browse the result set and pick an item to edit.
 			+ Edit	 : Edit the current record in the result set.
-	
+
 	"""
 	def initProperties(self):
 		self.AutoUpdateStatusText = True
@@ -660,7 +660,7 @@ class Form(dabo.ui.dForm):
 		the edit page, with any number of lines for each record.
 
 		The rfxml can come from a few places, in descending precedence:
-		
+
 			1) if self.ReportForm["list"] or self.ReportForm["expanded"] exists,
 			   that will be used.    *** NOT IMPLEMENTED YET ***
 			2) if self.ReportFormFile["list"] or self.ReportFormFile["expanded"] exists,

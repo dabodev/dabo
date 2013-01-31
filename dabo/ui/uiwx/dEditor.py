@@ -146,7 +146,7 @@ class STCPrintout(wx.Printout):
 	"""
 	Printout class for styled text controls. Taken from the following
 	program by Riaan Booysen:
-		
+
 		 Name:		   STCPrinting.py
 		 Purpose:
 
@@ -156,7 +156,7 @@ class STCPrintout(wx.Printout):
 		 RCS-ID:	   $Id: STCPrinting.py,v 1.8 2006/10/12 12:19:17 riaan Exp $
 		 Copyright:   (c) 2003 - 2006
 		 Licence:	   wxWidgets
-		
+
 		Boa:Dialog:STCPrintDlg
 	"""
 	margin = 0.1
@@ -1624,7 +1624,7 @@ Do you want to overwrite it?""")
 					text = raw_text.decode(encoding)
 				else:
 					text = raw_text
-					
+
 			except IOError:
 				if os.path.exists(fileSpec):
 					dabo.ui.stop(_("Could not open %s.  Please check that you have read permissions.") % fileSpec)
@@ -1839,7 +1839,7 @@ Do you want to overwrite it?""")
 		Make self refer to the class.
 
 		For instance, in the following snippet::
-			
+
 			class MyClass(object):
 				pass
 

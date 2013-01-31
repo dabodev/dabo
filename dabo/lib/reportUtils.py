@@ -95,7 +95,7 @@ def printReport(path, printerName=None, printerPort=None, copies=1):
 		3) multiple copies are handled more efficiently.
 
 	NOTE: gsprint	is part of gsview, and gsview depends on ghostscript.
-	These packages are GPL - to avoid legal issues make sure your end 
+	These packages are GPL - to avoid legal issues make sure your end
 	user installs them separately from your application.
 	"""
 	if gsprint:

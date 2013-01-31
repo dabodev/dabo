@@ -532,7 +532,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				if type(_oldVal) == decimal.Decimal:
 					return decimal.DefaultContext.quantize(decimal.Decimal("0"), _oldVal)
 				return decimal.Decimal("0")
-					
+
 			try:
 				if type(_oldVal) == decimal.Decimal:
 					# Enforce the precision as previously set programatically

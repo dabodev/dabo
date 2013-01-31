@@ -994,7 +994,7 @@ Database error message: %s""") % 	err
 	DataUpdateDelay = property(_getDataUpdateDelay, _setDataUpdateDelay, None,
 			_("""Specifies synchronization delay in data updates from business
 			to UI layer. (int; default:100 [ms])
-			
+
 			Set to 0 or None to ensure controls reflect immediately to the data changes.."""))
 
 	PrimaryBizobj = property(_getPrimaryBizobj, _setPrimaryBizobj, None,
@@ -1007,7 +1007,7 @@ Database error message: %s""") % 	err
 	RowNavigationDelay = property(_getRowNavigationDelay, _setRowNavigationDelay, None,
 			_("""Specifies optional delay to wait for updating the entire form when the user
 			is navigating the records. (int; default=0 [ms])
-			
+
 			Set to 0 or None to ensure that all controls reflect immediately to the data changes.
 			Setting to a positive non-zero value will result in the following behavior:
 
@@ -1108,16 +1108,16 @@ class dForm(BaseForm, wx.Frame):
 			form is hidden or closed, exactly like a dDialog does it. This property
 			may only be sent to the constructor, and once instantiated you may not
 			change the modality of a form. For example::
-				
+
 					frm = dabo.ui.dForm(Modal=True)
-			
+
 			will create a modal form.
 
 			.. note::
-				
+
 				That a modal dForm is actually a dDialog, and as such does not
 				have the ability to contain MenuBars, StatusBars, or ToolBars.
-				
+
 			"""))
 
 	Visible = property(_getVisible, _setVisible, None,

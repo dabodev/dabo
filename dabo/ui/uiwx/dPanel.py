@@ -278,7 +278,7 @@ class dDataPanel(_DataPanelMixin, wx.Panel):
 	.. note::
 		You are responsible for implementing the Value property correctly in
 		your subclasses.
-	
+
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dDataPanel

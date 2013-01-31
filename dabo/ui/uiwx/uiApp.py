@@ -155,7 +155,7 @@ class uiApp(dObject, wx.App):
 		self._mruMenuFuncs = {}
 		self._mruMenuLinks = {}
 		self._mruMaxItems = 12
-		if wx.VERSION < (2, 9):  ## Done automatically now 
+		if wx.VERSION < (2, 9):  ## Done automatically now
 			wx.InitAllImageHandlers()
 		# Set up the debug logging
 		self.debugWindow = None
@@ -505,7 +505,7 @@ these automatic updates.""").replace("\n", " ")
 
 	def _onWxKeyDown(self, evt):
 		if self._handleZoomKeyPress(evt):
-			return 
+			return
 		self.dApp.raiseEvent(dEvents.KeyDown, evt)
 
 

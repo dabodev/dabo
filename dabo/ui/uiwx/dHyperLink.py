@@ -213,7 +213,7 @@ class _dHyperLink_test(dHyperLink):
 	def _onHit(self, evt):
 		print "hit"
 
-	
+
 	def afterInit(self):
 		self.Caption = "The Dabo Wiki"
 		self.FontSize = 24

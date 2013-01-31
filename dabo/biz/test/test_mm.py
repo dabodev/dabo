@@ -75,7 +75,7 @@ class Test_Many_To_Many(unittest.TestCase):
 		pbiz.seek("Leafe", "last_name")
 		self.assertRaises(dException.DataSourceNotFoundException,
 				pbiz.mmAssociateValue, "dummy", "company", "Acme Manufacturing")
-		
+
 
 	def test_associate(self):
 		"""Verify that bizobj.mmAssociateValue() works correctly."""
@@ -263,7 +263,7 @@ class Test_Many_To_Many(unittest.TestCase):
 
 
 	def test_multiple_mm_relationships(self):
-		"""Make sure that more than one MM relationship works as expected."""	
+		"""Make sure that more than one MM relationship works as expected."""
 		pbiz = self.person_biz
 		cbiz = self.company_biz
 		fbiz = self.fan_club_biz

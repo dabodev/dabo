@@ -30,7 +30,7 @@ def setupAutoBiz(conn, autoBizes):
 		t = myBiz4(conn)
 
 	Use SetupAutoBiz like so::
-		
+
 		dabo.biz.SetupAutoBiz(conn, (myBiz1, myBiz2, myBiz3, myBiz4))
 
 	"""
@@ -244,7 +244,7 @@ class dAutoBizobj(dBizobj):
 		"""Return the data to be inserted into the table after it has been created.
 		Return a tuple in the format of ((column list), (lists to insert)).
 		Example::
-			
+
 			def initTable(self):
 				return 	(("firstname","lastname"), (("bob","smith"),("granny","smith"))
 

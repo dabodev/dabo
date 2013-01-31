@@ -371,7 +371,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		Called after the control's value has changed.
 
 		This is defined as one of:
-		
+
 			+ the user changed the value and then the control lost focus
 			+ the control's Value property was set and the value changed
 

@@ -174,7 +174,7 @@ class PropertyHelperMixin(object):
 		Sets a group of properties on the object all at once.
 
 		You have the following options for sending the properties:
-			
+
 			1) Property/Value pair dictionary
 			2) Keyword arguments
 			3) Both
@@ -352,11 +352,11 @@ class _DynamicList(list):
 	Helper class for list-based properties, such as the 'Choices' property of
 	list-type controls. This wraps the regular Python list object, but in addition
 	also propagates changes to the control, so that code like this:
-	
+
 		control.Choices.append("Something")
 			- or -
 		control.Choices.sort()
-	
+
 	will modify the choices in the control, as most users would expect.
 	"""
 	def __init__(self, seq, obj, propname=None):

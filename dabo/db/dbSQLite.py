@@ -164,7 +164,7 @@ class SQLite(dBackend):
 					if rec["type"] == "table"]
 		else:
 			tables = [rec["name"] for rec in rs
-					if rec["type"] in ("table", "view")	
+					if rec["type"] in ("table", "view")
 					and not rec["name"].startswith("sqlite_")]
 		return tuple(tables)
 

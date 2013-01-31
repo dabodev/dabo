@@ -94,7 +94,7 @@ def makeDynamicProperty(prop, additionalDoc=None):
 
 	Caption = property(_getCaption, _setCaption, None, None)
 	DynamicCaption = makeDynamicProperty(Caption)
-	
+
 	"""
 	propName = None
 	frame = inspect.currentframe(1)

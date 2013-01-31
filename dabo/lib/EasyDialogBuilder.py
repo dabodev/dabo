@@ -28,14 +28,14 @@ class EasyDialogBuilder(object):
 		:param tuple pageData: a tuple of dictionaries, see below
 		:param dict properties: optional dictionary of properties for the control
 		:rtype: dabo.ui.dPageFrame
-		
+
 		pageData tuple:
 			========== ================
 			pageData   object that is the page.  Normally a dPage or Panel
 			caption	   optional if defined image, string that is the tab label
 			image      optional, dabo image that is the tab label
 			========== ================
-			
+
 		"""
 		pageFrame = dabo.ui.dPageFrame(parent, properties=properties)
 
@@ -59,7 +59,7 @@ class EasyDialogBuilder(object):
 		:param bool hasRegIDs: When True all control objects will be assigned regIDs.
 		:param bool bindHitEvents: When True all the control objects hit events will be found to functions in the form of onHit_controlName
 		:rtype: dabo.ui.dSizer
-		
+
 		controlFields tuple:
 			=========== ====================
 			control		a Dabo control or the string "file" which produces a textbox with a button to get a file
@@ -67,13 +67,13 @@ class EasyDialogBuilder(object):
 			label		a string that appears on the label
 			properties	optional dictionary of properties for the control
 			=========== ====================
-			
+
 		.. note::
 
 		   If you have "file" as a control, following properties as special:
 		   "directory" = True will cause the control to browse for a directory
 		   "format" = string will cause the control to only allow the user to select that file type
-		
+
 		"""
 		box = dabo.ui.dBorderSizer(parent, "vertical")
 		box.Caption = caption
@@ -95,7 +95,7 @@ class EasyDialogBuilder(object):
 		:param bool hasRegIDs: When True all control objects will be assigned regIDs.
 		:param bool bindHitEvents: When True all the control objects hit events will be found to functions in the form of onHit_controlName
 		:rtype: dabo.ui.dSizer
-		
+
 		controlFields tuple:
 			=========== ====================
 			control		a Dabo control or the string "file" which produces a textbox with a button to get a file
@@ -103,13 +103,13 @@ class EasyDialogBuilder(object):
 			label		a string that appears on the label
 			properties	optional dictionary of properties for the control
 			=========== ====================
-			
+
 		.. note::
 
 		   If you have "file" as a control, following properties as special:
 		   "directory" = True will cause the control to browse for a directory
 		   "format" = string will cause the control to only allow the user to select that file type
-					
+
 		"""
 		if grid:
 			Sizer = dabo.ui.dGridSizer(MaxCols=3)

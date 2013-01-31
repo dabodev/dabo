@@ -307,7 +307,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(temp.Record.count, 4)  ## bizChild.SaveNewUnchanged == True so should be saved.
 		self.assertEqual(bizMain.getChangedRows(), [])
 
-		
+
 
 	def testMementos(self):
 		biz = self.biz
