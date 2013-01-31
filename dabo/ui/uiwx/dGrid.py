@@ -754,7 +754,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				self.DataType = dt
 				if dt is Decimal and implicitPrecision:
 					self.Precision = self.Parent.precisionFromDataField(self.DataField)
-					 
+
 
 	def _getUserSetting(self, prop):
 		"""Get the property value from the user settings table."""
@@ -2067,7 +2067,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			return
 		self.__inRefresh = True
 		self._Table._clearCache()  ## Make sure the proper values are filled into the cells
-		
+
 		# Force invisible column dynamic properties to update (possible to make Visible again):
 		invisible_cols = [c._updateDynamicProps() for c in self.Columns if not c.Visible]
 
@@ -2195,7 +2195,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			if ret is not None:
 				return ret
 		return default
-		
+
 
 	def getTableClass(cls):
 		"""
@@ -3489,7 +3489,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		"""
 		Get the bizobj that is controlling this grid.
 
-		Either there was an explicitly-set bizobj reference	in 
+		Either there was an explicitly-set bizobj reference in
 		self.DataSource, in which case that is returned, or self.DataSource
 		is a string, in which case the form hierarchy is walked finding the
 		first bizobj with the correct DataSource.
@@ -3805,7 +3805,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.Freeze()
 		self.ScrollLines(scrollAmt)
 		self.Thaw()
-		
+
 
 	def _onGridHeaderMouseRightUp(self, evt):
 		"""Occurs when the right mouse button goes up in the grid header."""
@@ -3876,7 +3876,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		#self._gridCellSelectedNewRowCol = (evt.EventData["row"], evt.EventData["col"])
 		if cur - last > threshold:
 			# Update immediately:
-			self._gridCellSelectedOldRow = self.CurrentRow 
+			self._gridCellSelectedOldRow = self.CurrentRow
 			self._updateCellSelection((evt.EventData["row"], evt.EventData["col"]))
 			return
 		# Let the grid scroll as fast as possible while rapid-fire keyboard navigation is
@@ -5408,7 +5408,7 @@ class _dGrid_test(dGrid):
 			for i in range(20):
 				ds[row]["i_%s" % i] = "sss%s" % i
 		self.DataSet = ds
-	
+
 		self.TabNavigates = False
 		self.Width = 360
 		self.Height = 150
