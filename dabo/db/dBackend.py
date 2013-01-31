@@ -241,10 +241,11 @@ class dBackend(dObject):
 		the separator is inserted between the two.
 		"""
 		if base:
-			ret = sep.join((base, new))
+			if new not in base.split(sep):
+				return sep.join((base, new))
 		else:
-			ret = new
-		return ret
+			return new
+		return base
 
 	@staticmethod
 	def removeWithSep(base, remove, sep=",\n\t"):
