@@ -3307,11 +3307,23 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return ret
 
 
+	def addColumns(self, columns):
+		"""
+		Adds a set of columns to the grid.
+
+		Each column in the set should be a dColumn instance.
+		"""
+		for column in columns:
+			self.addColumn(column, inBatch=True)
+		self._syncColumnCount()
+		self.fillGrid(True)
+
+
 	def addColumn(self, col=None, inBatch=False, *args, **kwargs):
 		"""Adds a column to the grid.
 
 		If no col (class or instance) is passed, a blank dColumn is added, which
-		can be customized	later. Any extra keyword arguments are passed to the
+		can be customized later. Any extra keyword arguments are passed to the
 		constructor of the new dColumn.
 		"""
 		if col is None:
@@ -3355,7 +3367,24 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return col
 
 
-	def removeColumn(self, col=None):
+	def removeColumns(self, columns):
+		"""
+		Removes a set of columns from the grid.
+
+		The passed columns can be indexes or dColumn instances, or both.
+		"""
+		del_indexes = [c for c in columns if isinstance(c, int)]
+		del_dColumns = [c for c in columns if isinstance(c, dColumn)]
+		del_indexes.sort(reverse=True)
+		for idx in del_indexes:
+			self.removeColumn(idx, inBatch=True)
+		for col in del_dColumns:
+			self.removeColumn(col, inBatch=True)
+		self._syncColumnCount()
+		self.fillGrid(True)
+
+
+	def removeColumn(self, col=None, inBatch=False):
 		"""
 		Removes a column from the grid.
 
@@ -3375,8 +3404,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				# Column is not in the grid
 				return
 		del self.Columns[colNum]
-		self._syncColumnCount()
-		self.fillGrid(True)
+		if not inBatch:
+			self._syncColumnCount()
+			self.fillGrid(True)
 
 
 	def cell(self, row, col):
