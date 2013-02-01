@@ -1075,7 +1075,6 @@ class dForm(BaseForm, wx.Frame):
 	_hackToFrame = classmethod(_hackToFrame)
 
 	def Show(self, show=True):
-		self._gtk_show_fix(show)
 		if self.Modal:
 			dForm._hackToDialog()
 		#dForm.__bases__[-1].Show(self, show)
@@ -1139,11 +1138,6 @@ class dToolForm(BaseForm, wx.MiniFrame):
 		BaseForm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
 				*args, **kwargs)
 
-	def Show(self, show=True):
-		self._gtk_show_fix(show)
-		ret = super(dToolForm, self).Show(show)
-		#wx.MiniFrame.Show(self, show)
-		return ret
 
 
 class dBorderlessForm(BaseForm, wx.Frame):
@@ -1158,11 +1152,6 @@ class dBorderlessForm(BaseForm, wx.Frame):
 		BaseForm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
 				*args, **kwargs)
 
-	def Show(self, show=True):
-		self._gtk_show_fix(show)
-		ret = super(dBorderlessForm, self).Show(show)
-		#wx.Frame.Show(self, show)
-		return ret
 
 
 class _dForm_test(dForm):

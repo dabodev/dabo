@@ -40,6 +40,7 @@ class CalPanel(dPanel):
 		self.Size = (wd+10, ht+10)
 		self.BackColor = (192, 192, 0)
 		self.cal.Visible = True
+		self.cal.setFocus()
 
 
 	def onCalSelection(self, evt):

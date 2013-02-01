@@ -72,13 +72,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		super(dDialog, self)._afterInit()
 
 
-	def Show(self, show=True):
-		self._gtk_show_fix(show)
-		return super(dDialog, self).Show(show)
-
-
 	def ShowModal(self):
-		self._gtk_show_fix(True)
 		self.restoreSizeAndPositionIfNeeded()
 		# updates were potentially suppressed while the dialog
 		# wasn't visible, so update now.
@@ -626,9 +620,16 @@ class _FloatDialog(dDialog):
 		self.Top = max(5, self.Top)
 		self.Right = min(self.Right, maxW-5)
 		self.Bottom = min(self.Bottom, maxH-5)
+		dabo.ui.callAfterInterval(10, self._resetPosition, self.Position)
 		super(_FloatDialog, self).show()
 
-
+	def _resetPosition(self, pos):
+		"""
+		On gtk at least, something in wxPython sets Position to centered
+		otherwise.
+		"""
+		self.Position = pos
+		
 	def _getAbove(self):
 		return self._above
 
