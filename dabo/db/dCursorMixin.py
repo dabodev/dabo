@@ -662,19 +662,7 @@ class dCursorMixin(dObject):
 		self._records = dDataSet(newRows)
 
 		# restore the RowNumber
-		if currRowKey:
-			for ii in xrange(0, self.RowCount):
-				row = self._records[ii]
-				if self._compoundKey:
-					key = tuple([row[k] for k in kf])
-					found = (key == currRowKey)
-				else:
-					found = row[kf] == currRowKey
-				if found:
-					self.RowNumber = ii
-					break
-		else:
-			self.RowNumber = 0
+		self.moveToPK(currRowKey)
 
 
 	@staticmethod

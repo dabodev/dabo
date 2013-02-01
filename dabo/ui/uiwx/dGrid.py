@@ -3036,6 +3036,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._setUserSetting("sortOrder", sortOrder)
 		self.raiseEvent(dEvents.GridAfterSort, eventObject=self,
 				eventData=eventData)
+		dabo.ui.callAfterInterval(200, self.Form.update)  ## rownum in status bar
 
 
 	def runIncSearch(self):
@@ -3733,10 +3734,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# we weren't dragging, and the mouse was just released.
 			# Find out the column we are in based on the x-coord, and
 			# do a processSort() on that column.
-			if self.DataSet:
-				# No need to sort if there is no data.
-				col = self.getColNumByX(x)
-				self.processSort(col)
+			col = self.getColNumByX(x)
+			self.processSort(col)
 		self._headerDragging = False
 		self._headerSizing = False
 		## pkm: commented out the evt.Continue=False because it doesn't appear
