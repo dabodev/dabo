@@ -470,4 +470,4 @@ C: Popup Calendar to Select
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dDateTextBox)
+	test.Test().runTest((dDateTextBox, dDateTextBox))

@@ -3304,6 +3304,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 		Each column in the set should be a dColumn instance.
 		"""
+		columns = self._resolveColumns(columns)
 		for column in columns:
 			self.addColumn(column, inBatch=True)
 		self._syncColumnCount()
@@ -3358,6 +3359,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return col
 
 
+	def _resolveColumns(self, columns):
+		if len(columns) == 1 and isinstance(columns[0], (list, tuple, set)):
+			columns = columns[0]
+		return [self._resolveColumn(col) for col in columns]
+
+		
 	def _resolveColumn(self, colOrIdx, returnColumn=True, logOnly=False):
 		"""
 		Accepts either a column object or a column index, and returns a column
@@ -3391,7 +3398,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 		The passed columns can be indexes or dColumn instances, or both.
 		"""
-		columns = [self._resolveColumn(col) for col in columns]
+		columns = self._resolveColumns(columns)
 		for col in columns:
 			self.removeColumn(col, inBatch=True)
 		self._syncColumnCount()
