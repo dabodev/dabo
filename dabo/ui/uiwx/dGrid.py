@@ -2916,10 +2916,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			gridCol = self.CurrentColumn
 
 		colObj = self._resolveColumn(gridCol)
-		canSort = (self.Sortable and gridCol.Sortable)
-		columnToSort = gridCol
-		sortCol = self.Columns.index(gridCol)
-		dataType = self.Columns[gridCol].DataType
+		canSort = (self.Sortable and colObj.Sortable)
+		columnToSort = colObj.DataField
+		sortCol = self.Columns.index(colObj)
+		dataType = self.Columns[sortCol].DataType
 
 		if not canSort:
 			# Some columns, especially those with mixed values,
