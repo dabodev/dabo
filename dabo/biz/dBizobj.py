@@ -1994,7 +1994,11 @@ class dBizobj(dObject):
 		for fld, val in valDict.items():
 			self.setFieldVal(fld, val, row, pk)
 
-	setValues = setFieldVals  ## deprecate setValues in future version
+
+	def setValues(self, valDict=None, row=None, pk=None, **kwargs):
+		warnings.warn(_("setValues() is deprecated, and will be removed in an "
+				"upcoming version. Use setFieldVals() instead."), DeprecationWarning, 1)
+		self.setFieldVals(valDict, row, pk, **kwargs)
 
 
 	def lookupPKWithAdd(self, field, val):
@@ -3052,17 +3056,6 @@ afterDelete() which is only called after a delete().""")
 		self._scanReverse = val
 
 
-	def _getSQL(self):
-		warnings.warn(_("This property is deprecated, and will be removed in the next version "
-				"of the framework. Use the 'UserSQL' property instead."), DeprecationWarning, 1)
-		return self.UserSQL
-
-	def _setSQL(self, val):
-		warnings.warn(_("This property is deprecated, and will be removed in the next version "
-				"of the framework. Use the 'UserSQL' property instead."), DeprecationWarning, 1)
-		self.UserSQL = val
-
-
 	def _getSqlMgr(self):
 		if self._sqlMgrCursor is None:
 			cursorClass = self._getCursorClass(self.dCursorMixinClass,
@@ -3276,9 +3269,6 @@ afterDelete() which is only called after a delete().""")
 
 	ScanReverse = property(_getScanReverse, _setScanReverse, None,
 			_("""Do we scan the records in reverse order? (Default: False) (bool)"""))
-
-	SQL = property(_getSQL, _setSQL, None,
-			_("DEPRECATED. Equivalent to UserSQL. (str)"))
 
 	SqlManager = property(_getSqlMgr, None, None,
 			_("Reference to the cursor that handles SQL Builder information (cursor)"))
