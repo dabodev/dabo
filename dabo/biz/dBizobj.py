@@ -1103,10 +1103,13 @@ class dBizobj(dObject):
 		self.setFieldVal(field, valOrExpr)
 
 
-	def new(self):
+	def new(self, fieldVals=None, **kwargs):
 		"""
 		Create a new record and populate it with default values. Default
 		values are specified in the DefaultValues dictionary.
+
+		You may also pass a fieldVals dict or named arguments to set
+		field values after the new() call is complete.
 		"""
 		errMsg = self.beforeNew()
 		if not errMsg:
@@ -1127,6 +1130,8 @@ class dBizobj(dObject):
 					child.new()
 
 		self._afterPointerMove()
+		if fieldVals or kwargs:
+			self.setFieldVals(fieldVals, **kwargs)
 		self.afterNew()
 
 
