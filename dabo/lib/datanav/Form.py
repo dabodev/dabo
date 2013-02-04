@@ -323,6 +323,8 @@ class Form(dabo.ui.dForm):
 	def _afterDeleteOrCancel(self):
 		# If the delete or cancel resulted in 0 records, activate the Select page
 		# so that the user can't interact with any controls on the edit page.
+		if self.FormType in ("Edit",):
+			return
 		biz = self.getBizobj()
 		if biz.RowCount < 1:
 			self.PageFrame.SelectedPageNumber = 0
