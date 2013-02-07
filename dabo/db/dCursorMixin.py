@@ -1332,7 +1332,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			pk = self.pkExpression(rec)
 
 		for k, v in rec.items():
-			if k not in cursor_flags:
+			if k not in cursor_flags and \
+					self.Table in [f[3] for f in self.DataStructure if f[0]==k]:
 				ret[k] = (None, v)
 		return ret
 
