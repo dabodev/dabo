@@ -754,7 +754,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				self.DataType = dt
 				if dt is Decimal and implicitPrecision:
 					self.Precision = self.Parent.precisionFromDataField(self.DataField)
-					 
+
 
 	def _getUserSetting(self, prop):
 		"""Get the property value from the user settings table."""
@@ -2067,7 +2067,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			return
 		self.__inRefresh = True
 		self._Table._clearCache()  ## Make sure the proper values are filled into the cells
-		
+
 		# Force invisible column dynamic properties to update (possible to make Visible again):
 		invisible_cols = [c._updateDynamicProps() for c in self.Columns if not c.Visible]
 
@@ -2195,7 +2195,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			if ret is not None:
 				return ret
 		return default
-		
+
 
 	def getTableClass(cls):
 		"""
@@ -2251,9 +2251,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self._modeSet = True
 			self.SelectionMode = self.SelectionMode
 
-		# And just to make sure (sometimes on Windows, the grid isn't refreshed
-		# otherwise, and perhaps this is true elsewhere, too.):
+		# I've found that both refresh calls are needed sometimes, especially
+		# on Linux when manually moving a column header with the mouse.
 		dabo.ui.callAfterInterval(200, self.refresh)
+		self.refresh()
 
 
 	def _updateDaboVisibleColumns(self):
@@ -2800,12 +2801,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		If the column is not shown and visible=True, show it. Likewise
 		but opposite if visible=False.
 		"""
-		if isinstance(col, (int, long)):
-			if col < self.ColumnCount:
-				col = self.Columns[col]
-			else:
-				dabo.log.error(_("Invalid column number passed to 'showColumn()'."))
-				return
+		col = self._resolveColumn(col, logOnly=True)
+		if col is None:
+			# Invalid 'col' passed
+			return
 		col._visible = visible
 		self._syncColumnCount()
 		if getattr(self.Parent, "__inRefresh", False):
@@ -2916,18 +2915,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if gridCol is None:
 			gridCol = self.CurrentColumn
 
-		if isinstance(gridCol, dColumn):
-			colObj = gridCol
-			canSort = (self.Sortable and gridCol.Sortable)
-			columnToSort = gridCol
-			sortCol = self.Columns.index(gridCol)
-			dataType = self.Columns[gridCol].DataType
-		else:
-			colObj = self.Columns[gridCol]
-			sortCol = gridCol
-			columnToSort = self.Columns[gridCol].DataField
-			canSort = (self.Sortable and self.Columns[gridCol].Sortable)
-			dataType = None  ## will hunt for the dataType below
+		colObj = self._resolveColumn(gridCol)
+		canSort = (self.Sortable and colObj.Sortable)
+		columnToSort = colObj.DataField
+		sortCol = self.Columns.index(colObj)
+		dataType = self.Columns[sortCol].DataType
 
 		if not canSort:
 			# Some columns, especially those with mixed values,
@@ -3044,6 +3036,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._setUserSetting("sortOrder", sortOrder)
 		self.raiseEvent(dEvents.GridAfterSort, eventObject=self,
 				eventData=eventData)
+		dabo.ui.callAfterInterval(200, self.Form.update)  ## rownum in status bar
 
 
 	def runIncSearch(self):
@@ -3306,11 +3299,24 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return ret
 
 
+	def addColumns(self, *columns):
+		"""
+		Adds a set of columns to the grid.
+
+		Each column in the set should be a dColumn instance.
+		"""
+		columns = self._resolveColumns(columns)
+		for column in columns:
+			self.addColumn(column, inBatch=True)
+		self._syncColumnCount()
+		self.fillGrid(True)
+
+
 	def addColumn(self, col=None, inBatch=False, *args, **kwargs):
 		"""Adds a column to the grid.
 
 		If no col (class or instance) is passed, a blank dColumn is added, which
-		can be customized	later. Any extra keyword arguments are passed to the
+		can be customized later. Any extra keyword arguments are passed to the
 		constructor of the new dColumn.
 		"""
 		if col is None:
@@ -3354,28 +3360,67 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return col
 
 
-	def removeColumn(self, col=None):
+	def _resolveColumns(self, columns):
+		if len(columns) == 1 and isinstance(columns[0], (list, tuple, set)):
+			columns = columns[0]
+		return [self._resolveColumn(col) for col in columns]
+
+		
+	def _resolveColumn(self, colOrIdx, returnColumn=True, logOnly=False):
+		"""
+		Accepts either a column object or a column index, and returns a column
+		object. If you need the column's index instead, pass False to the
+		'returnColumn' parameter.
+
+		Used for cases where a method can accept either type of reference, but
+		needs to work with the actual column.
+
+		If anything other than a column reference or an integer is passed, a
+		ValueError will be raised. If you prefer to simply log the error without
+		raising an exception, pass True to the logOnly parameter (default=False).
+		"""
+		if isinstance(colOrIdx, (int, long)):
+			return self.Columns[colOrIdx] if returnColumn else colOrIdx
+		elif isinstance(colOrIdx, dColumn):
+			return colOrIdx if returnColumn else self.Columns.index(colOrIdx)
+		else:
+			msg = _("Values must be a dColumn or an int; received '%s' (%s)") % (
+					colOrIdx, type(colOrIdx))
+			if logOnly:
+				dabo.log.error(msg)
+				return None
+			else:
+				raise ValueError(msg)
+
+
+	def removeColumns(self, *columns):
+		"""
+		Removes a set of columns from the grid.
+
+		The passed columns can be indexes or dColumn instances, or both.
+		"""
+		columns = self._resolveColumns(columns)
+		for col in columns:
+			self.removeColumn(col, inBatch=True)
+		self._syncColumnCount()
+		self.fillGrid(True)
+
+
+	def removeColumn(self, col=None, inBatch=False):
 		"""
 		Removes a column from the grid.
 
 		If no column is passed, the last column is removed. The col argument can
 		be either a column index or a dColumn instance.
 		"""
-		colNum = None
 		if col is None:
 			colNum = self.ColumnCount - 1
-		elif isinstance(col, int):
-			colNum = col
 		else:
-			# They probably passed a specific column instance
-			try:
-				colNum = self.Columns.index(col)
-			except ValueError:
-				# Column is not in the grid
-				return
+			colNum = self._resolveColumn(col, returnColumn=False, logOnly=True)
 		del self.Columns[colNum]
-		self._syncColumnCount()
-		self.fillGrid(True)
+		if not inBatch:
+			self._syncColumnCount()
+			self.fillGrid(True)
 
 
 	def cell(self, row, col):
@@ -3452,7 +3497,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		"""
 		Get the bizobj that is controlling this grid.
 
-		Either there was an explicitly-set bizobj reference	in 
+		Either there was an explicitly-set bizobj reference in
 		self.DataSource, in which case that is returned, or self.DataSource
 		is a string, in which case the form hierarchy is walked finding the
 		first bizobj with the correct DataSource.
@@ -3689,10 +3734,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# we weren't dragging, and the mouse was just released.
 			# Find out the column we are in based on the x-coord, and
 			# do a processSort() on that column.
-			if self.DataSet:
-				# No need to sort if there is no data.
-				col = self.getColNumByX(x)
-				self.processSort(col)
+			col = self.getColNumByX(x)
+			self.processSort(col)
 		self._headerDragging = False
 		self._headerSizing = False
 		## pkm: commented out the evt.Continue=False because it doesn't appear
@@ -3768,7 +3811,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.Freeze()
 		self.ScrollLines(scrollAmt)
 		self.Thaw()
-		
+
 
 	def _onGridHeaderMouseRightUp(self, evt):
 		"""Occurs when the right mouse button goes up in the grid header."""
@@ -3839,7 +3882,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		#self._gridCellSelectedNewRowCol = (evt.EventData["row"], evt.EventData["col"])
 		if cur - last > threshold:
 			# Update immediately:
-			self._gridCellSelectedOldRow = self.CurrentRow 
+			self._gridCellSelectedOldRow = self.CurrentRow
 			self._updateCellSelection((evt.EventData["row"], evt.EventData["col"]))
 			return
 		# Let the grid scroll as fast as possible while rapid-fire keyboard navigation is
@@ -5371,7 +5414,7 @@ class _dGrid_test(dGrid):
 			for i in range(20):
 				ds[row]["i_%s" % i] = "sss%s" % i
 		self.DataSet = ds
-	
+
 		self.TabNavigates = False
 		self.Width = 360
 		self.Height = 150

@@ -10,7 +10,7 @@ class dTable(dObject):
 	be created on any database.
 
 	For example:
-		
+
 		To define a temporary table named 'mytemp' that has ? fields,
 		where the fields are:
 
@@ -22,7 +22,7 @@ class dTable(dObject):
 			============= ======================
 
 	Code Example::
-		
+
 		from dabo.db import dTable
 		myTable = dTable(Name="mytemp", IsTemp=True)
 		myTable.addField(Name="theid", IsPK=True, DataType="int",
@@ -35,7 +35,7 @@ class dTable(dObject):
 				TotalDP=8, RightDP=2, Size=8, Default=0)
 		# When you want to have more than one field in an index, use addIndex().
 		myTable.addIndex(Name="idx_name", Fields=("last_name","first_name"))
-			
+
 	"""
 	def __init__(self, *args, **kwargs):
 		self._baseClass = dTable

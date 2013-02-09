@@ -2,7 +2,7 @@
 """
 Common message box dialog classes, such as "Are you sure?"
 along with convenience functions to allow calling like::
-	
+
 	if dAreYouSure("Delete this record"):
 
 """

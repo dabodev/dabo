@@ -241,11 +241,25 @@ class dBackend(dObject):
 		the separator is inserted between the two.
 		"""
 		if base:
-			ret = sep.join((base, new))
+			if new not in base.split(sep):
+				return sep.join((base, new))
 		else:
-			ret = new
-		return ret
+			return new
+		return base
 
+	@staticmethod
+	def removeWithSep(base, remove, sep=",\n\t"):
+		"""
+		Convenient method of removing an expression that
+		may or may not have an existing value.
+		"""
+		splitbase = base.split(sep)
+		try:
+			idx = splitbase.index(remove)
+		except ValueError:
+			return base
+		del(splitbase[idx])
+		return sep.join(splitbase)
 
 	def encloseNames(self, exp, autoQuote=True, keywords=None):
 		"""
@@ -277,6 +291,15 @@ class dBackend(dObject):
 
 	def addField(self, clause, exp, alias=None, autoQuote=True):
 		"""Add a field to the field clause."""
+		indent, exp = self._getFieldAddRemoveExp(exp, alias, autoQuote)
+		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
+
+	def removeField(self, clause, exp, alias=None, autoQuote=True):
+		"""Remove a previously added field from the field clause."""
+		indent, exp = self._getFieldAddRemoveExp(exp, alias, autoQuote)
+		return self.removeWithSep(clause, exp, sep=",\n%s" % indent)
+
+	def _getFieldAddRemoveExp(self, exp, alias, autoQuote):
 		indent = len("select ") * " "
 		# If exp is a function, don't do anything special about spaces.
 		if not self.functionPat.match(exp):
@@ -286,8 +309,7 @@ class dBackend(dObject):
 			exp = "%(exp)s as %(alias)s" % locals()
 		# Give the backend-specific code a chance to update the format
 		exp = self.processFields(exp)
-		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
-
+		return indent, exp
 
 	def addFrom(self, clause, exp, alias=None, autoQuote=True):
 		"""Add a table to the sql statement."""

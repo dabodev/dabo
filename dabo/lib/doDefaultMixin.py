@@ -17,7 +17,7 @@ class DoDefaultMixin(object):
 	instead of the usual::
 
 		retval = super(cls, self).<methodName>([args])
-	
+
 	"""
 
 	def doDefault(cls, *args, **kwargs):
@@ -30,7 +30,7 @@ class DoDefaultMixin(object):
 		that super method is returned to the caller.
 
 		Example::
-			
+
 			class A(dabo.ui.dForm):
 				def afterInit(self):
 					print "hi"

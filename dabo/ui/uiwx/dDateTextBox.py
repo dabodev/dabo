@@ -40,6 +40,7 @@ class CalPanel(dPanel):
 		self.Size = (wd+10, ht+10)
 		self.BackColor = (192, 192, 0)
 		self.cal.Visible = True
+		self.cal.setFocus()
 
 
 	def onCalSelection(self, evt):
@@ -470,4 +471,4 @@ C: Popup Calendar to Select
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dDateTextBox)
+	test.Test().runTest((dDateTextBox, dDateTextBox))

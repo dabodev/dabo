@@ -32,7 +32,7 @@ class ImageRenderer(wx.grid.PyGridCellRenderer):
 		Customisation Point: Determine the appropriate (best) size for the control, return as wxSize
 
 		.. note::
-			
+
 			You _must_ return a wxSize object.  Returning a two-value-tuple
 			won't raise an error, but the value won't be respected by wxPython.
 		"""

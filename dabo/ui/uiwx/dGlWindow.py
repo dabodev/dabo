@@ -52,7 +52,7 @@ class dGlWindow(cm.dControlMixin, glcanvas.GLCanvas):
 
 		.. note::
 			You don't need to swap buffers here....We do this for you automatically.
-			
+
 		"""
 		pass
 

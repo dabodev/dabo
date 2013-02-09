@@ -409,13 +409,13 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 	ScaleMode = property(_getScaleMode, _setScaleMode, None,
 			_("""Determines how the image responds to sizing. Can be one
 			of the following:
-				
+
 				=============== ===================
 				Clip            Only that part of the image that fits in the control's size is displayed
 				Proportional    The image resizes to fit the control without changing its original proportions. (default)
 				Stretch         The image resizes to the Height/Width of the control.
 				=============== ===================
-				
+
 			"""))
 
 	Value = property(_getValue, _setValue, None,

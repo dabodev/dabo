@@ -117,17 +117,17 @@ class RemoteBizobj(dBizobj):
 
 	def applyDiffAndSave(self, diff, primary=False):
 		"""Diffs are dicts in the format:
-			
+
 			{hashval: (DataSource, KeyField, [changes])}
-			
+
 		where 'changes' is a list of dicts; one for each changed row in
 		the bizobj. Each row dict has the following key/value pairs:
-			
+
 			KeyField: pk value
 			ColumnName: (origVal, newVal)
 			Column2Name: (origVal, newVal)
 			...
-		
+
 		The 'diff' dict we receive can have 1 or two keys. One that will always
 		be present is the hashval for this bizobj. If this bizobj has related child
 		bizobjs, and they have changes, there will be a 'children' key that will

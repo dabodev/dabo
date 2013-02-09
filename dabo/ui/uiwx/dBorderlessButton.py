@@ -26,7 +26,7 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 		class MyButton(dabo.ui.dBorderlessButton):
 			def initProperties(self):
 				self.Caption = "Press Me"
-	
+
 			def onHit(self, evt):
 				self.Caption = "Press Me one more time"
 
@@ -157,7 +157,7 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 
 	ButtonShape = property(_getButtonShape, _setButtonShape,
 		_("""Shape of the button. (str)
-		
+
 		Normal/Rounded	:	button with rounded corners. (default)
 		Square			:	button with square corners."""))
 

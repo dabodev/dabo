@@ -392,6 +392,12 @@ try again when it is running.
 				or getattr(self, "_loggedIn", False) or self.SecurityManager.login()):
 			dabo.ui.callAfterInterval(5000, self._destroySplash)
 			self._retrieveMRUs()
+			try:
+				self._loginDialog.Parent = None
+				self._loginDialog.release()
+				del(self._loginDialog)
+			except AttributeError:
+				pass
 			self.uiApp.start()
 		if not self._finished:
 			self.finish()
@@ -462,13 +468,14 @@ try again when it is running.
 
 		Return a tuple of (user, pass).
 		"""
-		loginDialog = self.LoginDialogClass(self.MainForm)
+		loginDialog = getattr(self, "_loginDialog",
+				self.LoginDialogClass(self.MainForm))
+		self._loginDialog = loginDialog
 		loginDialog.setMessage(message)
 		# Allow the developer to customize the login dialog:
 		self.loginDialogHook(loginDialog)
 		loginDialog.show()
 		user, password = loginDialog.user, loginDialog.password
-		loginDialog.release()
 		return user, password
 
 
@@ -775,7 +782,7 @@ try again when it is running.
 
 		For example, if spec is "appWizard.dbDefaults", and there are
 		userSettings entries for:
-			
+
 			appWizard.dbDefaults.pkm.Host
 			appWizard.dbDefaults.pkm.User
 			appWizard.dbDefaults.egl.Host
@@ -1779,7 +1786,7 @@ try again when it is running.
 			>>> app.setup()
 			>>> app.MainForm = myMainFormInstance
 			>>> app.start()
-			
+
 			"""))
 
 	MainFormClass = property(_getMainFormClass, _setMainFormClass, None,
@@ -1794,7 +1801,7 @@ try again when it is running.
 			>>> app = dApp()
 			>>> app.MainFormClass = MyMainFormClass
 			>>> app.start()
-			
+
 			"""))
 
 	NoneDisplay = property(_getNoneDisp, _setNoneDisp, None,

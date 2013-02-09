@@ -65,6 +65,6 @@ class dSizerH(dSizer):
 	def __init__(self, *args, **kwargs ):
 		kwargs["FixedOrientation"] = "H"
 		super(dSizerH, self).__init__(*args, **kwargs)
-	
+
 if __name__ == "__main__":
 	s = dSizer()

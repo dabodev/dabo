@@ -1301,11 +1301,13 @@ class dPemMixin(dPemMixinBase):
 			return self.Parent.recreate(self)
 
 
-	## pkm: _changeParent/_adopt seem to be dupes of setting the Parent property.
-	##      Let's see if we can reduce all this code into _setParent.
 	def _changeParent(self, newParent):
 		"""The native wx method doesn't work on Macs."""
-		return newParent._adopt(self)
+		try:
+			return newParent._adopt(self)
+		except AttributeError:
+			# None parent, perhaps
+			self.Reparent(None)
 
 
 	def _adopt(self, obj):

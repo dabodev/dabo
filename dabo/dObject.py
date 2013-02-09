@@ -168,10 +168,10 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		"""
 		Hook for subclasses. User subclasses should set properties
 		here, such as::
-			
+
 			self.Name = "MyTextBox"
 			self.BackColor = (192,192,192)
-			
+
 		"""
 		pass
 
@@ -180,9 +180,9 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		"""
 		Hook for subclasses. User code should do custom event binding
 		here, such as::
-			
+
 			self.bindEvent(dEvents.GotFocus, self.customGotFocusHandler)
-			
+
 		"""
 		pass
 
@@ -417,9 +417,9 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 			will be logged.
 			Event logging is resource-intensive, so in addition to setting this LogEvents
 			property, you also need to make the following call:
-			
+
 				>>> dabo.eventLogging = True
-			
+
 			"""))
 
 	Name = property(_getName, _setName, None,

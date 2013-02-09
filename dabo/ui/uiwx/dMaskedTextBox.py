@@ -221,7 +221,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 			_("""Characters that define the type of input that the control will accept.  (str)
 
 			These are the available input codes and their meaning:
-			
+
 			+-----------+---------------------------------------------------------------+
 			|Character  |Meaning                                                        |
 			+===========+===============================================================+
@@ -292,14 +292,14 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 			|   S       |select entire field when navigating to new field               |
 			+-----------+---------------------------------------------------------------+
 
-			
+
 			"""))
 
 	Mask = property(_getMask, _setMask, None,
 			_("""Display Mask for the control.  (str)
 
 			These are the allowed mask characters and their function:
-			
+
 			+-----------+-------------------------------------------------------------------+
 			|Character  |Function                                                           +
 			+===========+===================================================================+

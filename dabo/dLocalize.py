@@ -14,7 +14,7 @@ _defaultLanguage, _defaultEncoding = locale.getdefaultlocale()
 
 if _defaultLanguage is None:
 	_defaultLanguage = dabo.defaultLanguage
-	
+
 if dabo.overrideLocaleLanguage:
 	_defaultLanguage = dabo.defaultLanguage
 

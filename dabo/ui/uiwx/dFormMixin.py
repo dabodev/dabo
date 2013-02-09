@@ -382,20 +382,6 @@ class dFormMixin(pm.dPemMixin):
 					menuItem.HotKey = hk
 
 
-	def _gtk_show_fix(self, show=True):
-		# On Gtk, in wxPython 2.8.1.1 at least, the form will get re-shown at its
-		# initial position, instead of the position the user last put it at.
-		if not show and "linux" in sys.platform:
-			self._gtk_bug_position = self.Position
-		else:
-			pos = getattr(self, "_gtk_bug_position", None)
-			if pos is not None:
-				# position needs to be jiggled, not merely set:
-				x,y = pos
-				self.Position = (x, y+1)
-				self.Position = (x, y)
-
-
 	def restoreSizeAndPositionIfNeeded(self):
 		if not getattr(self, "_firstShown", False):
 			self.restoreSizeAndPosition()
@@ -411,10 +397,10 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		Shows the form in a modal fashion. Other forms can still be
 		activated, but all controls are disabled.
-		
+
 		.. note::
 			wxPython does not currently support this. DO NOT USE this method.
-			
+
 		"""
 		raise dException.FeatureNotSupportedException(
 				_("The underlying UI toolkit does not support modal forms. Use a dDialog instead."))
@@ -1193,7 +1179,7 @@ class dFormMixin(pm.dPemMixin):
 
 	IdleRefreshInterval = property(_getIdleRefreshInterval, _setIdleRefreshInterval, None,
 			_("""Controls how often the form is refreshed when idle.
-			
+
 			If you notice a lot of flicker when a form is 'doing nothing', increase
 			this value. Likewise, if you notice that changes are not reflected as
 			readily as you wish, decrease it. The value is in milliseconds; the

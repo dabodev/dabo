@@ -21,7 +21,7 @@ class dButton(cm.dControlMixin, wx.Button):
 		class MyButton(dabo.ui.dButton):
 			def initProperties(self):
 				self.Caption = "Press Me"
-	
+
 			def onHit(self, evt):
 				self.Caption = "Press Me one more time"
 

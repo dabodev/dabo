@@ -94,7 +94,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 			except ValueError:
 				args.append(qsarg)
 		getattr(obj, meth)(*args, **kwargs)
-		
+
 
 	def copy(self):
 		"""Implement the plain text version of copying"""

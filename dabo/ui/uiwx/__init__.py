@@ -851,7 +851,7 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
 
 		# Give the textbox a default value:
 		txt = dabo.ui.getString(defaultValue="initial string value")
-	
+
 		# Password Entry (\*'s instead of the actual text)
 		txt = dabo.ui.getString(PasswordEntry=True)
 
@@ -1099,10 +1099,10 @@ def getFile(*args, **kwargs):
 
 	Optionally, you may send wildcard arguments to limit the displayed files by
 	file type. For example::
-		
+
 		getFile("py", "txt")
 		getFile("py", "txt", multiple=True)
-	
+
 	"""
 	wc = _getWild(*args)
 	return _getPath(dFileDialog, wildcard=wc, **kwargs)[0]
@@ -1349,7 +1349,7 @@ def createForm(srcFile, show=False, *args, **kwargs):
 	instantiate a cdxml form as a child of another form. Easy! ::
 
 		frm = dabo.ui.createForm("my.cdxml", parent=self)
-		
+
 	"""
 	cls = createClass(srcFile)
 	frm = cls(*args, **kwargs)
@@ -1448,9 +1448,9 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
 		def Create(self, parent, id, evtHandler):
 			"""
 			Called to create the control, which must derive from wx.Control.
-			
+
 			*Must Override*
-			
+
 			"""
 			if not self._controlClass:
 				raise TypeError(_("Cannot create custom editor without a control class specified."))
@@ -1511,9 +1511,9 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
 			"""
 			Fetch the value from the table and prepare the edit control
 			to begin editing.  Set the focus to the edit control.
-			
+
 			*Must Override*
-			
+
 			"""
 			self.startValue = grid.GetTable().GetValue(row, col, _fromGridEditor=True)
 			self._control.Value = self.startValue
@@ -1523,9 +1523,9 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
 			"""
 			Complete the editing of the current cell. Returns True if the value
 			has changed.  If necessary, the control may be destroyed.
-			
+
 			*Must Override*
-			
+
 			"""
 			changed = False
 			val = self._control.Value
@@ -1538,9 +1538,9 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
 		def Reset(self):
 			"""
 			Reset the value in the control back to its starting value.
-			
+
 			*Must Override*
-			
+
 			"""
 			self._control.Value = self.startValue
 
@@ -1929,9 +1929,9 @@ def getCommonBitmap(name):
 	is returned.
 
 	.. note::
-		
+
 		This returns a raw bitmap, not a dabo.ui.dBitmap object.
-	
+
 	"""
 	const = artConstants.get(name.lower(), artConstants.get("missingimage"))
 	if const:

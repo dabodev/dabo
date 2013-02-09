@@ -17,7 +17,7 @@ namespace at runtime, eg::
 	dabo.eventLogging = False
 
 .. note::
-	
+
 	settings_override.py is not the appropriate place to put
 	application-specific settings, although it may seem at first like an easy
 	place to do so.
@@ -82,8 +82,8 @@ autoBindEvents = True
 # All the MDI setting does is make dFormMain == (dFormMainSDI or dFormMainParentMDI)
 # and dForm == (dFormSDI or dFormChildMDI)
 #
-# Setting MDI to True on Mac is essential to get a native-feeling Mac app 
-# where closing the last form doesn't exit the app. Whatever form has the 
+# Setting MDI to True on Mac is essential to get a native-feeling Mac app
+# where closing the last form doesn't exit the app. Whatever form has the
 # focus will determine the menu used - the ParentMDI form is never shown on
 # Mac but it's menu will be displayed on the Mac system menu bar.
 #

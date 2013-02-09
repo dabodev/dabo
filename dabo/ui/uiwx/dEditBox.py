@@ -61,8 +61,20 @@ class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
 		else:
 			self._addWindowStyleFlag(wx.TE_DONTWRAP)
 
+	def _getProcessTabs(self):
+		return self._hasWindowStyleFlag(wx.TE_PROCESS_TAB)
+
+	def _setProcessTabs(self, val):
+		if val:
+			self._addWindowStyleFlag(wx.TE_PROCESS_TAB)
+		else:
+			self._delWindowStyleFlag(wx.TE_PROCESS_TAB)
+
 
 	# property definitions follow:
+	ProcessTabs = property(_getProcessTabs, _setProcessTabs, None,
+			_("""Specifies whether the user can enter tabs in the control."""))
+
 	WordWrap = property(_getWordWrap, _setWordWrap, None,
 			_("""Specifies whether lines longer than the width of the control
 			get wrapped. This is a soft wrapping; newlines are not inserted.

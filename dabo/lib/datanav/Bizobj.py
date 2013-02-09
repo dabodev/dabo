@@ -52,7 +52,7 @@ class Bizobj(dabo.biz.dBizobj):
 			If you have the following base sql:
 
 			.. code-block:: sql
-			
+
 			   select invoice.number as invoicenumber,
 					  customer.name as name
 					from invoice

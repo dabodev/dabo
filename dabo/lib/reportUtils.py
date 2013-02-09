@@ -9,7 +9,8 @@ from decimal import Decimal
 # If gsprint is available, use it for printing:
 gsprint = True
 try:
-	p = subprocess.Popen(("gsprint",), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	p = subprocess.Popen(("gsprint",), shell=True, stdout=subprocess.PIPE,
+			stderr=subprocess.PIPE)
 	stdout, stderr = p.communicate()
 except OSError:
 	gsprint = False
@@ -95,7 +96,7 @@ def printReport(path, printerName=None, printerPort=None, copies=1):
 		3) multiple copies are handled more efficiently.
 
 	NOTE: gsprint	is part of gsview, and gsview depends on ghostscript.
-	These packages are GPL - to avoid legal issues make sure your end 
+	These packages are GPL - to avoid legal issues make sure your end
 	user installs them separately from your application.
 	"""
 	if gsprint:
@@ -106,7 +107,8 @@ def printReport(path, printerName=None, printerPort=None, copies=1):
 		if copies > 1:
 			args.insert(-1, '-copies')
 			args.insert(-1, str(copies))
-		p = subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+		p = subprocess.Popen(args, shell=True, stderr=subprocess.PIPE,
+				stdout=subprocess.PIPE)
 		p.communicate()
 	else:
 		for i in range(copies):

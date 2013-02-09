@@ -662,19 +662,7 @@ class dCursorMixin(dObject):
 		self._records = dDataSet(newRows)
 
 		# restore the RowNumber
-		if currRowKey:
-			for ii in xrange(0, self.RowCount):
-				row = self._records[ii]
-				if self._compoundKey:
-					key = tuple([row[k] for k in kf])
-					found = (key == currRowKey)
-				else:
-					found = row[kf] == currRowKey
-				if found:
-					self.RowNumber = ii
-					break
-		else:
-			self.RowNumber = 0
+		self.moveToPK(currRowKey)
 
 
 	@staticmethod
@@ -1344,7 +1332,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			pk = self.pkExpression(rec)
 
 		for k, v in rec.items():
-			if k not in cursor_flags:
+			if k not in cursor_flags and \
+					self.Table in [f[3] for f in self.DataStructure if f[0]==k]:
 				ret[k] = (None, v)
 		return ret
 
@@ -2509,6 +2498,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					autoQuote=self.AutoQuoteNames)
 		return sm._fieldClause
 
+	def removeField(self, exp, alias=None):
+		"""Remove a previously added field from the field clause."""
+		sm = self.sqlManager
+		beo = sm.BackendObject
+		if beo:
+			sm._fieldClause = beo.removeField(sm._fieldClause, exp, alias,
+					autoQuote=self.AutoQuoteNames)
+		return sm._fieldClause
 
 	def getFromClause(self):
 		"""Get the from clause of the sql statement."""
@@ -2912,7 +2909,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 							table_name = "_foreign_table_"
 						val.append((field_name, field_type, pk, table_name, field_name, field_scale))
 				self._savedStructureDescription = val
-			self._dataStructure = val
 		return tuple(val)
 
 	def _setDataStructure(self, val):

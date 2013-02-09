@@ -350,7 +350,7 @@ class dSizerMixin(dObject):
 			self.remove(obj)
 			self.append(obj, row=row, col=col)
 			self.setItemProps(obj, props)
-		self.layout()	
+		self.layout()
 
 
 	def showItem(self, itm):

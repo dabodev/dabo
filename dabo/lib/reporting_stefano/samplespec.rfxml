@@ -53,7 +53,7 @@
 			</frameset>
 			-->
     	</background>
-    
+
     	<header>
     		<height>"0.5 in"</height>
 
@@ -73,7 +73,7 @@
 				<y>0.0</y>
 			</string>
     	</header>
-    
+
     	<footer>
     		<height>"0.75 in"</height>
 

@@ -436,10 +436,10 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		Specifies whether the toolbar can be docked and undocked.  (bool)
 
 		.. note::
-			
+
 			Currently, this only seems to work on Linux, and can't be changed after
 			instantiation. Default is True.
-			
+
 		"""))
 
 	MaxHeight = property(_getMaxHt, _setMaxHt, None,

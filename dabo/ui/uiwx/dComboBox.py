@@ -243,14 +243,14 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 
 	ForceCase = property(_getForceCase, _setForceCase, None,
 			_("""Determines if we change the case of entered text. Possible values are:
-				
+
 				============ =====================
 				None or ""   No changes made (default)
 				"Upper"      FORCE TO UPPER CASE
 				"Lower"      Force to lower case
 				"Title"      Force To Title Case
 				============ =====================
-				
+
 			These can be abbreviated to "u", "l" or "t"  (str)"""))
 
 	TextLength = property(_getTextLength, _setTextLength, None,

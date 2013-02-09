@@ -167,7 +167,7 @@ def showPropVals(self, obj):
 								props.append(item)
 	if isinstance(obj, wx._core.Size):
 		props = ["_controllingSizer", "_controllingSizerItem", "Spacing"]
-		
+
 	for prop in props:
 		if prop == "ShowColumnLabels":
 			# Avoid the deprecation warning
@@ -329,7 +329,7 @@ def onHighlightItem(self, evt):
 	expires = time.time() + 3
 	entry = self._highlights[expires] = {}
 	entry["targetForm"] = frm
-	
+
 	if isinstance(obj, dabo.ui.dSizerMixin):
 		entry["type"] = "sizer"
 		frm.addToOutlinedSizers(obj)
@@ -470,7 +470,7 @@ def onGridMouseLeftClick(self, evt):
 		lds = list(ds)
 		lds.remove(row)
 		self.DataSet = dabo.db.dDataSet(lds)
-	
+
 	if evt.altDown:
 		dabo.ui.callAfterInterval(250, later)
 ]]>

@@ -27,15 +27,6 @@ class BaseForm(fm.dFormMixin):
 		self._dataUpdateDelay = 100
 		self._rowNavigationDelay = 0
 
-		# If this is True, a panel will be automatically added to the
-		# form and sized to fill the form.
-# 		self.mainPanel = None
-# 		self.mkPanel = self._extractKey(attProperties, "panel", False)
-# 		if self.mkPanel is not False:
-# 			self.mkPanel = (self.mkPanel == "True")
-# 		else:
-# 			self.mkPanel = self._extractKey((kwargs, properties), "panel", False)
-
 		# Use this for timing queries and other long-
 		# running events
 		self.stopWatch = wx.StopWatch()
@@ -47,11 +38,6 @@ class BaseForm(fm.dFormMixin):
 
 		fm.dFormMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
-
-# 		if self.mainPanel:
-# 			# Can't do this in the _afterInit, as properties haven't been
-# 			# applied at that point.
-# 			self.mainPanel.BackColor = self.BackColor
 
 		# Used to override some cases where the status
 		# text should be displayed despite other processes
@@ -69,10 +55,6 @@ class BaseForm(fm.dFormMixin):
 	def _afterInit(self):
 		self.Sizer = dabo.ui.dSizer("vertical")
 		self.Sizer.layout()
-# 		if self.mkPanel:
-# 			mp = self.mainPanel = dabo.ui.dPanel(self)
-# 			self.Sizer.append(mp, 1, "x")
-# 			mp.Sizer = dabo.ui.dSizer(self.Sizer.Orientation)
 		super(BaseForm, self)._afterInit()
 		if self.RequeryOnLoad:
 			dabo.ui.callAfter(self.requery)
@@ -994,7 +976,7 @@ Database error message: %s""") % 	err
 	DataUpdateDelay = property(_getDataUpdateDelay, _setDataUpdateDelay, None,
 			_("""Specifies synchronization delay in data updates from business
 			to UI layer. (int; default:100 [ms])
-			
+
 			Set to 0 or None to ensure controls reflect immediately to the data changes.."""))
 
 	PrimaryBizobj = property(_getPrimaryBizobj, _setPrimaryBizobj, None,
@@ -1007,7 +989,7 @@ Database error message: %s""") % 	err
 	RowNavigationDelay = property(_getRowNavigationDelay, _setRowNavigationDelay, None,
 			_("""Specifies optional delay to wait for updating the entire form when the user
 			is navigating the records. (int; default=0 [ms])
-			
+
 			Set to 0 or None to ensure that all controls reflect immediately to the data changes.
 			Setting to a positive non-zero value will result in the following behavior:
 
@@ -1075,7 +1057,6 @@ class dForm(BaseForm, wx.Frame):
 	_hackToFrame = classmethod(_hackToFrame)
 
 	def Show(self, show=True):
-		self._gtk_show_fix(show)
 		if self.Modal:
 			dForm._hackToDialog()
 		#dForm.__bases__[-1].Show(self, show)
@@ -1108,16 +1089,16 @@ class dForm(BaseForm, wx.Frame):
 			form is hidden or closed, exactly like a dDialog does it. This property
 			may only be sent to the constructor, and once instantiated you may not
 			change the modality of a form. For example::
-				
+
 					frm = dabo.ui.dForm(Modal=True)
-			
+
 			will create a modal form.
 
 			.. note::
-				
+
 				That a modal dForm is actually a dDialog, and as such does not
 				have the ability to contain MenuBars, StatusBars, or ToolBars.
-				
+
 			"""))
 
 	Visible = property(_getVisible, _setVisible, None,
@@ -1139,11 +1120,6 @@ class dToolForm(BaseForm, wx.MiniFrame):
 		BaseForm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
 				*args, **kwargs)
 
-	def Show(self, show=True):
-		self._gtk_show_fix(show)
-		ret = super(dToolForm, self).Show(show)
-		#wx.MiniFrame.Show(self, show)
-		return ret
 
 
 class dBorderlessForm(BaseForm, wx.Frame):
@@ -1158,11 +1134,6 @@ class dBorderlessForm(BaseForm, wx.Frame):
 		BaseForm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
 				*args, **kwargs)
 
-	def Show(self, show=True):
-		self._gtk_show_fix(show)
-		ret = super(dBorderlessForm, self).Show(show)
-		#wx.Frame.Show(self, show)
-		return ret
 
 
 class _dForm_test(dForm):
