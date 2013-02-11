@@ -635,7 +635,11 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		Usually don't need this, but it helps to keep this in
 		line with other Dabo objects.
 		"""
-		self.Parent.removeColumn(self)
+		try:
+			self.Parent.removeColumn(self)
+		except ValueError:
+			# Will happen when the column has already been removed
+			pass
 
 
 	def _setAbsoluteFontZoom(self, newZoom):
