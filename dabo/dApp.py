@@ -549,9 +549,6 @@ try again when it is running.
 			# Check for cases where we absolutely will not Web Update.
 			update = dabo.checkForWebUpdates
 			if update:
-				# If they are running Subversion, don't update.
-				if os.path.isdir(os.path.join(dabo.frameworkPath, ".svn")):
-					update = False
 				# Frozen App:
 				if hasattr(sys, "frozen") and inspect.stack()[-1][1] != "daborun.py":
 					update = False
