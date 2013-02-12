@@ -2300,6 +2300,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _restoreSort(self):
+		if not self.Sortable:
+			return
 		self.sortedColumn = self._getUserSetting("sortedColumn")
 		self.sortOrder = self._getUserSetting("sortOrder")
 
@@ -2309,7 +2311,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				if col.DataField == self.sortedColumn:
 					sortCol = idx
 					break
-			if sortCol is not None:
+			if sortCol is not None and col.Sortable:
 				if self.RowCount > 0:
 					self.processSort(sortCol, toggleSort=False)
 
