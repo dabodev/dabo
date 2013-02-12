@@ -2014,6 +2014,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 #		self.bindEvent(dEvents.GridContextMenu, self._onContextMenu)
 		self.bindEvent(dEvents.GridMouseRightClick, self._onGridMouseRightClick)
 		self.bindEvent(dEvents.Resize, self._onGridResize)
+
+		self.bindEvent(dEvents.Create, self._onCreate)
+		self.bindEvent(dEvents.Destroy, self._onDestroy)
+
 		super(dGrid, self)._initEvents()
 
 
@@ -2471,6 +2475,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self.autoSizeCol("all", True)
 		return True
 
+	def _onCreate(self, evt):
+		self.restoreDataSet()
+
+	def _onDestroy(self, evt):
+		self.saveDataSet()
 
 	def _onGridResize(self, evt):
 		# Prevent unnecessary event processing.
@@ -3045,6 +3054,20 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		dabo.ui.callAfterInterval(200, self.Form.update)  ## rownum in status bar
 
 
+	def restoreDataSet(self):
+		if self.SaveRestoreDataSet:
+			ds = self.Application.getUserSetting("%s.DataSet"
+					% self.getAbsoluteName())
+			if ds is not None:
+				self.DataSet = ds
+
+
+	def saveDataSet(self):
+		if self.SaveRestoreDataSet:
+			self.Application.setUserSetting("%s.DataSet"
+					% self.getAbsoluteName(), self.DataSet)
+
+
 	def runIncSearch(self):
 		"""Run the incremental search."""
 		gridCol = self.CurrentColumn
@@ -3371,7 +3394,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			columns = columns[0]
 		return [self._resolveColumn(col) for col in columns]
 
-		
+
 	def _resolveColumn(self, colOrIdx, returnColumn=True, logOnly=False):
 		"""
 		Accepts either a column object or a column index, and returns a column
@@ -4860,6 +4883,13 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._sameSizeRows = bool(val)
 
 
+	def _getSaveRestoreDataSet(self):
+		return getattr(self, "_saveRestoreDataSet", False)
+
+	def _setSaveRestoreDataSet(self, val):
+		self._saveRestoreDataSet = bool(val)
+
+
 	def _getSearchable(self):
 		return self._searchable
 
@@ -5269,6 +5299,17 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	SameSizeRows = property(_getSameSizeRows, _setSameSizeRows, None,
 			_("""Is every row the same height?  (bool)"""))
+
+	SaveRestoreDataSet = property(_getSaveRestoreDataSet, _setSaveRestoreDataSet, None,
+			_("""Specifies whether the DataSet is persisted to preferences (bool).
+
+				This allows you to build a grid to capture user input of some form, and
+				instead of saving the row and field values to a database, to save the
+				entire dataset to a single key in the prefs table.
+
+				Use this sparingly for grids that won't grow too large.
+
+				The default is False."""))
 
 	Searchable = property(_getSearchable, _setSearchable, None,
 			_("""Specifies whether the columns can be searched.   (bool)
