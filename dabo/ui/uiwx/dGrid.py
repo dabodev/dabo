@@ -4310,15 +4310,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxGridRowSize(self, evt):
-		if not self.ResizableRows:
-			evt.Veto()
-			ht = self._rowHeight
-			# This will force a refresh
-			self._rowHeight = -1
-			self.RowHeight = ht
-		else:
-			self.raiseEvent(dEvents.GridRowSize, evt)
-			evt.Skip()
+		self.raiseEvent(dEvents.GridRowSize, evt)
+		evt.Skip()
 
 
 	def __onWxHeaderContextMenu(self, evt):
@@ -4802,7 +4795,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return self._resizableRows
 
 	def _setResizableRows(self, val):
-		self._resizableRows = val
+		if self._constructed():
+			self._resizableRows = val
+			if val:
+				self.EnableDragRowSize()
+			else:
+				self.DisableDragRowSize()
+		else:
+			self._properties["ResizableRows"] = val
 
 
 	def _getRowColorEven(self):
@@ -5467,7 +5467,6 @@ class _dGrid_test(dGrid):
 		self.Editable = False
 		#self.Sortable = False
 		#self.Searchable = False
-
 
 	def afterInit(self):
 		super(_dGrid_test, self).afterInit()
