@@ -336,6 +336,13 @@ class dBackend(dObject):
 		return self.addWithSep(clause, exp, sep="\n%s%s " % (indent, comp))
 
 
+	def removeWhere(self, clause, exp, comp="and", autoQuote=True):
+		"""Remove a previously-added expression from the where clause."""
+		indent = (len("select ") - len(comp)) * " "
+		exp = self.processFields(exp)
+		return self.removeWithSep(clause, exp, sep="\n%s%s " % (indent, comp))
+
+
 	def addGroupBy(self, clause, exp, autoQuote=True):
 		"""Add an expression to the group-by clause."""
 		exp = self.encloseNames(exp, autoQuote=autoQuote)

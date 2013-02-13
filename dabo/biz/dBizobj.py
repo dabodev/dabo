@@ -2421,6 +2421,10 @@ class dBizobj(dObject):
 		"""Add a filter expression to the where clause."""
 		return self._CurrentCursor.addWhere(exp, comp=comp)
 
+	def removeWhere(self, exp, comp="and"):
+		"""Remove a previously-added filter expression from the where clause."""
+		return self._CurrentCursor.removeWhere(exp, comp=comp)
+
 	def getSQL(self):
 		"""Returns the SQL statement currently set in the backend."""
 		return self._CurrentCursor.getSQL()

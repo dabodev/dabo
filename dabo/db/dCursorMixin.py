@@ -2591,6 +2591,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self.sqlManager._whereClause
 
 
+	def removeWhere(self, exp, comp="and"):
+		"""Remove an expression from the where clause."""
+		if self.sqlManager.BackendObject:
+			self.sqlManager._whereClause = self.sqlManager.BackendObject.removeWhere(
+					self.sqlManager._whereClause, exp, comp, autoQuote=self.AutoQuoteNames)
+		return self.sqlManager._whereClause
+
+
 	def prepareWhere(self, clause):
 		"""Modifies WHERE clauses as needed for each backend."""
 		return self.sqlManager.BackendObject.prepareWhere(clause,
