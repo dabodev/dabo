@@ -664,7 +664,7 @@ class dFormMixin(pm.dPemMixin):
 		control's font zoom isn't dependent on the control being created at
 		form load time.
 		"""
-		self.super(amt)
+		super(dFormMixin, self)._setAbsoluteFontZoom(amt)
 		if self.Application and self.SaveRestorePosition:
 			self.Application.setUserSetting("%s.fontzoom"
 					% self.getAbsoluteName(), self._currFontZoom)

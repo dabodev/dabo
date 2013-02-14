@@ -40,7 +40,6 @@ class dCursorMixin(dObject):
 		self._assocPKColThis = None
 		self._assocPKColOther = None
 
-		#self.super()
 		#super(dCursorMixin, self).__init__()
 		## pkm: Neither of the above are correct. We need to explicitly
 		##      call dObject's __init__, otherwise the cursor object with

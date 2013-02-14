@@ -2053,7 +2053,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		Call this when your datasource or dataset has changed to get the grid showing
 		the proper number of rows with current data.
 		"""
-		# Note that we never call self.super(), because we don't need/want that behavior.
+		# We never call the superclass update, because we don't need/want that behavior.
 		last = getattr(self, "_lastCellSelectedTime", 0)
 		cur = time.time()
 		if cur - last < .5:

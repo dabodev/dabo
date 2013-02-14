@@ -182,14 +182,12 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def raiseEvent(self, eventClass, nativeEvent=None, *args, **kwargs):
 		# Call the Dabo-native raiseEvent(), passing along the Tkinter after_idle
 		# function, so that the Dabo events can be processed at next idle.
-#		return self.super(eventClass, nativeEvent, callAfterFunc=self.after_idle,
-#			*args, **kwargs)
 		super(dPemMixin, self).raiseEvent(eventClass, nativeEvent, callAfterFunc=self.after_idle,
 				*args, **kwargs)
 
 
 	def getPropertyInfo(self, name):
-		d = self.super(name)   # the property helper does most of the work
+		d = super(dPemMixin, self).getPropertyInfo(name)   # the property helper does most of the work
 
 		# Hide some wx-specific props in the designer:
 		d['showInDesigner'] = not name in ('Size', 'Position', 'WindowHandle', 'TypeID')

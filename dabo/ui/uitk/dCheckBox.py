@@ -23,7 +23,7 @@ class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
 
 
 	def initEvents(self):
-		self.super()
+		super(dCheckBox, self).initEvents()
 
 		self.bindEvent(dEvents.MouseLeftClick, self._onTkHit)
 		self.bindEvent(dEvents.KeyDown, self._onKeyDown)
@@ -83,7 +83,7 @@ class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
 if __name__ == "__main__":
 	class C(dCheckBox):
 		def initEvents(self):
-			self.super()
+			super(C, self).initEvents()
 			self.bindEvent(dEvents.Hit, self.onHit)
 
 		def onHit(self, evt):

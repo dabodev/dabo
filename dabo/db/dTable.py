@@ -44,7 +44,7 @@ class dTable(dObject):
 		self._fields = []
 		self._indexes = []
 		self._pk = None
-		self.super(*args, **kwargs)
+		super(dTable, self).__init__(*args, **kwargs)
 
 
 	def __str__(self):
@@ -142,7 +142,7 @@ class dIndex(dObject):
 		self._baseClass = dIndex
 		self._name = ""
 		self._fields = None
-		self.super(*args, **kwargs)
+		super(dIndex, self).__init__(*args, **kwargs)
 
 
 	def __str__(self):
@@ -191,7 +191,7 @@ class dField(dObject):
 		self._default = None
 		self._autoincrement = False
 		self._isPK = False
-		self.super(*args, **kwargs)
+		super(dField, self).__init__(*args, **kwargs)
 
 
 	def __str__(self):
@@ -330,7 +330,7 @@ class fType(dObject):
 		self._size = 1
 		self._total_dp = 0
 		self._right_dp = 0
-		self.super(*args, **kwargs)
+		super(fType, self).__init__(*args, **kwargs)
 
 
 	def _setDataType(self, datatype):

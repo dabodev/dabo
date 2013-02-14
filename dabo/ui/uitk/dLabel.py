@@ -25,7 +25,7 @@ class dLabel(Tkinter.Label, cm.dControlMixin):
 
 
 	def initEvents(self):
-		self.super()
+		super(dLabel, self).initEvents()
 
 
 # 	# property get/set functions
