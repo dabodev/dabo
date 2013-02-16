@@ -1813,6 +1813,18 @@ class dBizobj(dObject):
 			child.Parent = self
 
 
+	def removeChild(self, child):
+		"""
+		Remove the passed child bizobj from this bizobj.
+
+		If the specified child bizobj isn't a child of this bizobj, raise
+		ValueError.
+		"""
+		children = self._children
+		child = children.pop(children.index(child))
+		child.Parent = None
+
+
 	def removeAllChildren(self):
 		"""
 		Remove all child bizobjs.
