@@ -141,17 +141,58 @@ class dBizobj(dObject):
 		return self._connection
 
 
-	def _flushUnchangedCursors(self):
-		"""Remove all cursors from this and all children, except current
-		and changed cursors."""
+	def clear(self, confirm=False):
+		"""
+		Clear all cursors and records from self and children.
+
+		Use this when adding many records in batch, to keep memory use
+		from growing as records are added. For example:
+
+		for i in range(1000):
+			self.new(...)
+			for j in range(1000):
+				self.child.new(...)
+			self.save()
+			self.clear()
+
+		If you didn't issue clear() after each save(), you'd end up
+		with 1000 parent records, and 1000 cursors in the child pointing to
+		each of those 1000 parents, and each of those cursors would have
+		1000 rows in them.
+
+		Due to the destructive nature of this method, you must pass
+		confirm=True. There will be no other warning.
+		"""
+		if not confirmed:
+			raise ValueError("Must pass call clearRecords(True) to "
+					"confirm that you are aware that data will be lost.")
+		self._flushCursors(flush_changed=True, flush_current=True)
+
+
+	def _flushCursors(self, flush_changed=False, flush_current=False):
+		"""
+		Remove cursors from this and all children.
+
+		By default, only unchanged non-current cursors are flushed.
+		"""
 		cursors = {}
 		for key, cursor in self.__cursors.items():
-			if cursor is self._CurrentCursor or cursor.isChanged():
+			if (not flush_current and cursor is self._CurrentCursor) \
+					or (not flush_changed and cursor.isChanged()):
 				cursors[key] = cursor
 		self.__cursors = cursors
-
+		if flush_current:
+			self.__currentCursorKey = None
 		for child in self._children:
-			child._flushUnchangedCursors()
+			child._flushCursors(flush_changed, flush_current)
+
+
+	def _flushUnchangedCursors(self):
+		"""
+		Remove all cursors from this and all children, except current
+		and changed cursors.
+		"""
+		self._flushCursors()
 
 
 	def getTempCursor(self, sql=None, params=None, requery=True):
