@@ -141,7 +141,7 @@ class dBizobj(dObject):
 		return self._connection
 
 
-	def clear(self, confirm=False):
+	def clear(self, confirmed=False):
 		"""
 		Clear all cursors and records from self and children.
 
@@ -161,7 +161,7 @@ class dBizobj(dObject):
 		1000 rows in them.
 
 		Due to the destructive nature of this method, you must pass
-		confirm=True. There will be no other warning.
+		confirmed=True. There will be no other warning.
 		"""
 		if not confirmed:
 			raise ValueError("Must pass call clearRecords(True) to "
