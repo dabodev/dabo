@@ -239,14 +239,10 @@ copyValueSeparator = "\t"
 copyStringSeparator= '"'
 copyLineSeparator = "\n"
 
-# 2012-12-14: Reworked dabo's packaging to no longer import a bunch of subpackages and modules
-#             if implicitImports is False. Eventually, implicitImports will default to False,
-#             but for now it is True to allow appdevs time to test it with their setup before
-#             being forced to make changes.
+# Turn to False for better 'import dabo' performance from inside web apps, for example.
 implicitImports = True
 
-# 2012-12-14: Setting to determine if we call dLocalize.install("dabo") when dabo is imported.
-#             This will remain defaulted to True but appdevs can turn if off if desired.
+# Setting to determine if we call dLocalize.install("dabo") when dabo is imported.
 localizeDabo = True
 
 ### Settings - end

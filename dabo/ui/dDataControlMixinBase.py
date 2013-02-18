@@ -348,8 +348,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 					value = app.decrypt(value)
 				try:
 					self.Value = value
-				except (ValueError, TypeError):
-					self.Value = self.getBlankValue()
+				except (ValueError, TypeError), e:
+					dabo.log.error(e)
 
 
 	def getShortDataType(self, value):

@@ -1095,7 +1095,7 @@ def getFile(*args, **kwargs):
 	that case, the return value will be a sequence of unicode strings.
 
 	Returns the path to the selected file or files, or None if no selection	was
-	made. Only file may be selected if multiple is False.
+	made. Only one file may be selected if multiple is False.
 
 	Optionally, you may send wildcard arguments to limit the displayed files by
 	file type. For example::

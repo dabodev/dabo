@@ -1,6 +1,21 @@
 Dabo Release Notes
 ==================
 
+v0.9.9 - 18 Feb 2013
+--------------------
+ * dBizobj/dCursor: You can now specify fields that don't exist in the flds argument of getDataSet(). The returned dataset will simply not contain the missing fields.
+ * dForm: Status bar was showing 'Record 1/1' with no bizobj present. Fixed.
+ * dForm: In some cases, sub-forms weren't saving their window geometry correctly. Fixed.
+ * List-type UI controls like dListBox and dCheckList now restore their values properly even in the presence of some bad values in the preferences file.
+ * dBizobj: Added clear(), which completely clears the bizobj and its children of all data, regardless of whether there are unsaved changes.
+ * dBizobj: Added removeWhere(), removeChild(), which complement addWhere() and addChild().
+ * dGrid: Added property SaveRestoreDataSet. Use this to save and restore the contents of an editable grid.
+ * dGrid: Fixed sorting to not sort if the grid or column is set to not be Sortable.
+ * Removed self.super() and self.doDefault().
+ * Removed GridHeaderPaint event.
+ * Removed dabo.lib.datanav2, which has been an alias of dabo.lib.datanav for years now.
+
+
 v0.9.8 - 9 Feb 2013
 -------------------
  * Fixed dControlItemMixin.appendItem() to work with multiple-selections. Prior to this, calling appendItem() on a dCheckList for example would result in all the previously checked items being cleared.

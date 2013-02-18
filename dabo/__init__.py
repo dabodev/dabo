@@ -12,10 +12,6 @@ import logging.handlers
 from settings import *
 from version import __version__
 
-## Temporary: until we are on Git and WebUpdate no longer relies on
-## dabo.version["file_revision"]:
-version = dict(file_revision="7300")
-
 # dApp will change the following values upon its __init__:
 dAppRef = None
 

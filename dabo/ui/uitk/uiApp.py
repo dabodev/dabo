@@ -17,7 +17,7 @@ class uiApp(dObject):
 		self.Name = "uiApp"
 		self.dApp = app
 		self.callback = callback
-		self.super()
+		super(uiApp, self).__init__()
 
 	def setup(self):
 

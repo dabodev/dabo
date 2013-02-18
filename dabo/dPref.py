@@ -55,7 +55,8 @@ class dPref(object):
 		self._noneType = type(None)
 		self._typeDict = {int: "int", float: "float", long: "long", str: "str", unicode: "unicode",
 				bool: "bool", list: "list", tuple: "tuple", datetime.date: "date", dict: "dict",
-				datetime.datetime: "datetime", Decimal: "decimal", self._noneType: "none"}
+				datetime.datetime: "datetime", Decimal: "decimal", self._noneType: "none",
+				dabo.db.dDataSet: "tuple"}
 		if crs is None:
 			if prefDb:
 				db = prefDb

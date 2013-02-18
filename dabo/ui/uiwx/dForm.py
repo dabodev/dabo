@@ -796,8 +796,7 @@ Database error message: %s""") % 	err
 					rowCount = self.rowCount
 					rowNumber = self.rowNumber + 1
 				except AttributeError:
-					rowCount = 1
-					rowNumber = 1
+					return ""
 			else:
 				rowCount = bizobj.RowCount
 				if rowCount > 0:

@@ -313,10 +313,11 @@ class Hit(dEvent):
 	listbox pick, checkbox, etc.)
 	"""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, (ui.dBitmapButton, ui.dButton,
-				ui.dCheckBox, ui.dComboBox, ui.dDropdownList, ui.dEditBox,
-				ui.dListBox, ui.dRadioList, ui.dSlider, ui.dSpinner, ui.dTextBox,
-				ui.dTimer, ui.dToggleButton, ui.dMenuItem, ui.dToolBarItem))
+		return issubclass(objectClass, (dabo.ui.dBitmapButton, dabo.ui.dButton,
+				dabo.ui.dCheckBox, dabo.ui.dComboBox, dabo.ui.dDropdownList,
+				dabo.ui.dEditBox, dabo.ui.dListBox, dabo.ui.dRadioList,
+				dabo.ui.dSlider, dabo.ui.dSpinner, dabo.ui.dTextBox, dabo.ui.dTimer,
+				dabo.ui.dToggleButton, dabo.ui.dMenuItem, dabo.ui.dToolBarItem))
 	appliesToClass = classmethod(appliesToClass)
 
 
@@ -739,11 +740,6 @@ class GridHeaderMouseRightUp(GridEvent, MouseEvent):
 
 class GridHeaderMouseMove(GridEvent, MouseEvent):
 	"""Occurs when the mouse moves in the grid header region."""
-	pass
-
-
-class GridHeaderPaint(GridEvent):
-	"""Occurs when it's time to paint the grid header."""
 	pass
 
 

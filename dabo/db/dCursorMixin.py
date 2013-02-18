@@ -40,7 +40,6 @@ class dCursorMixin(dObject):
 		self._assocPKColThis = None
 		self._assocPKColOther = None
 
-		#self.super()
 		#super(dCursorMixin, self).__init__()
 		## pkm: Neither of the above are correct. We need to explicitly
 		##      call dObject's __init__, otherwise the cursor object with
@@ -275,7 +274,9 @@ class dCursorMixin(dObject):
 				except (IndexError, AttributeError):
 					scale = 2
 			dec = tryToCorrect(Decimal, _field_val, field_name)
-			return dec.quantize(Decimal("0.%s" % (scale * "0",)))
+			if dec is not None:
+				return dec.quantize(Decimal("0.%s" % (scale * "0",)))
+			return dec
 		else:
 			return tryToCorrect(pythonType, field_val, field_name)
 
@@ -1394,7 +1395,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		for row in xrange(rowStart, rows):
 			rec = _records[row]
 			_correctFieldTypesIfNeeded(rec)
-			tmprec = dict([(k, rec[k]) for k in flds])
+			tmprec = dict([(k, rec[k]) for k in flds if k in rec])
 			for v in vflds:
 				tmprec.update({v: self.getFieldVal(v, row)})
 			ds.append(tmprec)
@@ -2585,6 +2586,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Add an expression to the where clause."""
 		if self.sqlManager.BackendObject:
 			self.sqlManager._whereClause = self.sqlManager.BackendObject.addWhere(
+					self.sqlManager._whereClause, exp, comp, autoQuote=self.AutoQuoteNames)
+		return self.sqlManager._whereClause
+
+
+	def removeWhere(self, exp, comp="and"):
+		"""Remove an expression from the where clause."""
+		if self.sqlManager.BackendObject:
+			self.sqlManager._whereClause = self.sqlManager.BackendObject.removeWhere(
 					self.sqlManager._whereClause, exp, comp, autoQuote=self.AutoQuoteNames)
 		return self.sqlManager._whereClause
 

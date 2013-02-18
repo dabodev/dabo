@@ -451,6 +451,12 @@ class dFormMixin(pm.dPemMixin):
 		form is set for checking for this. If everything's OK, call the
 		hook method.
 		"""
+		## By the time subforms get closed, the app object can be gone,
+		## resulting in not saving the window geometry. Do it here
+		## to be safe.
+		for child in self.Children:
+			if isinstance(child, dFormMixin):
+				child.saveSizeAndPosition()
 		if self._floatingPanel:
 			self._floatingPanel.release()
 		ret = self.beforeClose(evt)
@@ -664,7 +670,7 @@ class dFormMixin(pm.dPemMixin):
 		control's font zoom isn't dependent on the control being created at
 		form load time.
 		"""
-		self.super(amt)
+		super(dFormMixin, self)._setAbsoluteFontZoom(amt)
 		if self.Application and self.SaveRestorePosition:
 			self.Application.setUserSetting("%s.fontzoom"
 					% self.getAbsoluteName(), self._currFontZoom)
