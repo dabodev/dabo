@@ -218,7 +218,7 @@ reportTTFontFilePath = None
 reportTTFontFileMap = {}
 
 # Determines if we import the debugger into the dabo namespace
-importDebugger = False
+importDebugger = True
 
 # Do we save the current call stack to dabo.ui.lastCallAfterStack in every
 # callAfter() call?
@@ -239,11 +239,11 @@ copyValueSeparator = "\t"
 copyStringSeparator= '"'
 copyLineSeparator = "\n"
 
-# Turn to True for legacy behavior of importing dApp, dPref and others into the dabo namespace.
-implicitImports = False
+# Turn to False for better 'import dabo' performance from inside web apps, for example.
+implicitImports = True
 
 # Setting to determine if we call dLocalize.install("dabo") when dabo is imported.
-localizeDabo = False
+localizeDabo = True
 
 ### Settings - end
 
