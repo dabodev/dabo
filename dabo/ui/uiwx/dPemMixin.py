@@ -1010,6 +1010,18 @@ class dPemMixin(dPemMixinBase):
 		paged controls to switch to the page that contains this object.
 		"""
 		import dabo.ui.dialogs
+		cntnr = self.getContainingPage()
+		if isinstance(cntnr, dabo.ui.dialogs.WizardPage):
+			self.Form.CurrentPage = cntnr
+		else:
+			cntnr.Parent.SelectedPage = cntnr
+
+
+	def getContainingPage(self):
+		"""
+		Return the dPage or WizardPage that contains self.
+		"""
+		import dabo.ui.dialogs
 		try:
 			frm = self.Form
 		except AttributeError:
@@ -1019,10 +1031,7 @@ class dPemMixin(dPemMixinBase):
 		mtch = {True: dabo.ui.dialogs.WizardPage, False: dabo.ui.dPage}[iswiz]
 		while cntnr and not isinstance(cntnr, dabo.ui.dForm):
 			if isinstance(cntnr, mtch):
-				if iswiz:
-					frm.CurrentPage = cntnr
-				else:
-					cntnr.Parent.SelectedPage = cntnr
+				return cntnr
 			cntnr = cntnr.Parent
 
 
