@@ -14,6 +14,8 @@ from alignmentMixin import AlignmentMixin
 
 class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 	"""Creates a static label, to make a caption for another control, for example."""
+	_layout_on_set_caption = True
+
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dLabel
 		self._wordWrap = False
