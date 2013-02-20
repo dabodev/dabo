@@ -2457,14 +2457,15 @@ class ReportDesignerForm(dabo.ui.dForm):
 
 	def restoreSizeAndPosition(self):
 		app = self.Application
-		self.editor.Zoom = app.getUserSetting("ReportDesigner_zoom", 1.0) 
-		self.super()
+		self.editor.Zoom = app.getUserSetting("ReportDesigner_zoom", 1.0)
+		super(ReportDesignerForm, self).restoreSizeAndPosition()
+
 
 	
 	def saveSizeAndPosition(self):
 		app = self.Application
 		app.setUserSetting("ReportDesigner_zoom", self.editor.Zoom)
-		self.super()
+		super(ReportDesignerForm, self).saveSizeAndPosition()
 
 
 	def onActivate(self, evt):
