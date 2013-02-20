@@ -3924,9 +3924,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _updateCellSelection(self, newRowCol=None):
 		if self._inUpdateSelection:
 			return
-		## pkm 2005-09-28: This works around a nasty segfault:
-		self.HideCellEditControl()
-		## but periodically test it. My current version: 2.6.1.1pre
 
 		oldRow = self._gridCellSelectedOldRow
 		self._gridCellSelectedOldRow = None
@@ -3938,6 +3935,13 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			col = self.Columns[newCol]
 		except (IndexError, TypeError):
 			col = None
+
+		if col and col.Editable and self.Editable:
+			return  ## segfault avoidance
+
+		## pkm 2005-09-28: This works around a nasty segfault:
+		self.HideCellEditControl()
+		## but periodically test it. My current version: 2.6.1.1pre
 
 		if col:
 			## pkm 2005-09-28: Part of the editor segfault workaround. This sets the
