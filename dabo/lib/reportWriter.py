@@ -666,7 +666,7 @@ class Page(ReportObject):
 		self.AvailableProps["Size"] = toPropDict(str, "letter",
 				"""Specifies the page size.
 
-				This is a tuple of (width, heigth) such as:
+				This is a tuple of (width, height) such as:
 				  ('8 in', '5.5 in')
 
 				You may also use, in place of the tuple,  some common
