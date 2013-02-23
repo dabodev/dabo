@@ -35,6 +35,7 @@ from dCursorMixin import dCursorMixin
 from dConnectInfo import dConnectInfo
 from dTable import dTable
 from dDataSet import dDataSet
+import dabo
 from dabo.dException import FieldNotFoundException
 
 daboTypes = {
@@ -70,7 +71,7 @@ def getDataType(pythonType):
 	the Decimal type is available.
 	"""
 	ret = pythonType
-	if pythonType is float:
+	if pythonType is float and dabo.convertFloatToDecimal:
 		ret = daboTypes["N"]
 	return ret
 
