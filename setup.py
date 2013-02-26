@@ -12,7 +12,7 @@ setupDir = os.path.dirname(__file__)
 iconDir = os.path.join(setupDir, "dabo", "icons", "themes")
 iconDirs = {}
 def getIconSubDir(arg, dirname, fnames):
-	if ".svn" not in dirname and "cards" not in dirname.lower() and dirname[-1] != "\\":
+	if "cards" not in dirname.lower() and dirname[-1] != "\\":
 		icons = glob.glob(os.path.join(dirname, "*.png"))
 		if icons:
 			subdir = os.path.join(iconDir, dirname[len(arg)+1:])
@@ -24,7 +24,7 @@ os.path.walk(iconDir, getIconSubDir, iconDir)
 localeDir = os.path.join(setupDir, "dabo", "locale")
 localeDirs = []
 def getLocaleDirs(arg, dirname, fnames):
-	if ".svn" not in dirname and dirname[-1] != "\\":
+	if dirname[-1] != "\\":
 		po_files = tuple(glob.glob(os.path.join(dirname, "*.po")))
 		mo_files = tuple(glob.glob(os.path.join(dirname, "*.mo")))
 		if po_files or mo_files:
