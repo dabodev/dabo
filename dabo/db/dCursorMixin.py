@@ -1020,6 +1020,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					# convert int to long (original field val was long, but UI
 					# changed to int.
 					val = long(val)
+				elif fldType is buffer and isinstance(val, basestring):
+					# BLOB backend field wants buffer, but it is in a python string.
+					val = buffer(val)
 
 			if fldType != type(val):
 				ignore = False
@@ -2023,6 +2026,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				newval = datetime.date.min
 			elif typ is None:
 				newval = None
+			elif typ is buffer:
+				newval = buffer("")
 			else:
 				try:
 					newval = typ()
