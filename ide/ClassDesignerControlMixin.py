@@ -69,8 +69,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 						% locals())
 		# Update bindings; do control-specific things.
 		if isinstance(self, dui.dGrid):
-			coolEvents = (dEvents.GridHeaderPaint,
-					dEvents.GridRowSize,
+			coolEvents = (dEvents.GridRowSize,
 					dEvents.GridColSize,
 					dEvents.GridHeaderMouseLeftDown,
 					dEvents.GridHeaderMouseMove,
