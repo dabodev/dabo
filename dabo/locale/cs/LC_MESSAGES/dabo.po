@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: dabo\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-01-25 15:10-0600\n"
-"PO-Revision-Date: 2011-03-09 11:56+0000\n"
-"Last-Translator: Tovim <Unknown>\n"
+"PO-Revision-Date: 2013-03-05 20:51+0000\n"
+"Last-Translator: Zbyněk Schwarz <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-04-30 14:32+0000\n"
-"X-Generator: Launchpad (build 15171)\n"
+"X-Launchpad-Export-Date: 2013-03-07 12:04+0000\n"
+"X-Generator: Launchpad (build 16514)\n"
 
 #: dApp.py:248
 msgid ""
@@ -30,9 +30,9 @@ msgstr ""
 "\n"
 "\n"
 "\n"
-"Připojení k serveru bylo odmítnuto. Nejspíš to bude tím,\n"
-"že není spuštěn. Zkontrolujte připojení\n"
-"a zkuste se připojit znova.\n"
+"Připojení k serveru bylo zamítnuto. Pravděpodobně není\n"
+"spuštěn. Problém prosím opravte a\n"
+"zkuste se znovu připojit.\n"
 "\n"
 
 #: dObject.py:467
@@ -43,22 +43,24 @@ msgid ""
 msgstr ""
 "\n"
 "\n"
-"lo_Testing super():"
+"Zkouška super():"
 
 #: dObject.py:437 dObject.py:488
 msgid ""
 "\n"
 "Test 2: diamond inheritence test:"
 msgstr ""
+"\n"
+"Zkouška 2: zkouška diamantového dědění:"
 
 #: db/dDataSet.py:418
 msgid " The encoding used for data in the dataset.  (str)"
-msgstr " Použité kódování dat v datové sadě. (str)"
+msgstr " Použité kódování pro data v datové sadě. (str)"
 
 #: db/dCursorMixin.py:973
 #, python-format
 msgid "!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s"
-msgstr ""
+msgstr "!!! Neshoda datových typů: pole=%s. Očekáváno: %s; obdrženo: %s"
 
 #: ui/uiwx/dSlidePanelControl.py:313
 msgid ""
@@ -75,31 +77,42 @@ msgid ""
 "colors)\n"
 "\t\t\t"
 msgstr ""
+"\"Zjišťuje jak lišta obsahující titulek pro \n"
+"\t\t\ttento panel je vykreslena. (str)\n"
+"\t\t\t\n"
+"\t\t\tMůže být jedno z následujících:\n"
+"\t\t\t\tBorderless\t\t(bez rámečku, pouze vyplnění barvou; výchozí)\n"
+"\t\t\t\tBorderOnly\t(jednoduchý rámeček, žádné vyplnění barvou)\n"
+"\t\t\t\tFilledBorder\t(kombinace dvou výše uvedených)\n"
+"\t\t\t\tVerticalFill\t\t(příčná přechodová výplň pomocí dvou barev titulku)\n"
+"\t\t\t\tHorizontalFill\t(vodorovná přechodová výplň pomocí dvou barev "
+"titulku)\n"
+"\t\t\t"
 
 #: biz/dAutoBizobj.py:164
 #, python-format
 msgid "#Queries for DB '%s' on host '%s':\n"
-msgstr ""
+msgstr "#Dotazy pro DB '%s' na hostiteli '%s':\n"
 
 #: db/dCursorMixin.py:285
 #, python-format
 msgid "%s couldn't be converted to %s (field %s)"
-msgstr "%s nešlo převést na %s (pole %s)"
+msgstr "%s nelze převést na %s (pole %s)"
 
 #: dApp.py:921
 #, python-format
 msgid "%s database connection definition(s) loaded."
-msgstr "%s načtena definice připojení databáze"
+msgstr "načteno %s zadání připojení k databázi."
 
 #: ui/uiwx/dForm.py:450
 #, python-format
 msgid "%s record%sselected in %s second%s"
-msgstr "%s záznam %s vybrán v %s vteřinách %s"
+msgstr "%s záznam%s vybráno za %s vteřin%s"
 
 #: ui/uiwx/uiApp.py:823
 #, python-format
 msgid "%s replacements were made"
-msgstr "bylo provedeno %s přemístění"
+msgstr "bylo provedeno %s nahrazení"
 
 #: dApp.py:1385
 #, python-format
@@ -108,23 +121,23 @@ msgstr "%s: Cesta neexistuje."
 
 #: ui/uiwx/dBaseMenuBar.py:151
 msgid "&About"
-msgstr "lo_&About"
+msgstr "&O programu"
 
 #: lib/datanav/Form.py:139
 msgid "&Actions"
-msgstr "&Akce"
+msgstr "Č&innosti"
 
 #: ui/uiwx/dGrid.py:3276
 msgid "&Autosize All Columns"
-msgstr "&Automaticky nastavit velikost všech sloupců"
+msgstr "&Automatická velikost všech sloupců"
 
 #: ui/uiwx/dGrid.py:3274
 msgid "&Autosize Column"
-msgstr "&Automaticky nastavit velikost sloupce"
+msgstr "&Automatická velikost sloupce"
 
 #: lib/datanav/Form.py:145
 msgid "&Browse Records"
-msgstr ""
+msgstr "&Procházet záznamy"
 
 #: lib/datanav/Form.py:179
 msgid "&Cancel Changes"
@@ -136,11 +149,11 @@ msgstr "&Kopírovat"
 
 #: lib/datanav/Form.py:209
 msgid "&Delete Current Record"
-msgstr "&Smazat stávající záznam"
+msgstr "&Smazat soúřasný záznam"
 
 #: ui/uiwx/dBaseMenuBar.py:64
 msgid "&Edit"
-msgstr "&Editovat"
+msgstr "&Upravit"
 
 #: ui/uiwx/dBaseMenuBar.py:32
 msgid "&File"
@@ -148,7 +161,7 @@ msgstr "&Soubor"
 
 #: ui/uiwx/dBaseMenuBar.py:102
 msgid "&Find / Replace"
-msgstr "&Nalézt/Nahradit"
+msgstr "N&ajít/Nahradit"
 
 #: ui/uiwx/dBaseMenuBar.py:148
 msgid "&Help"
@@ -156,7 +169,7 @@ msgstr "&Nápověda"
 
 #: lib/datanav/Grid.py:144
 msgid "&New"
-msgstr "&Nový"
+msgstr "N&ový"
 
 #: lib/datanav/Form.py:206
 msgid "&New Record"
@@ -164,11 +177,11 @@ msgstr "&Nový záznam"
 
 #: ui/uiwx/dShell.py:546
 msgid "&Normal Zoom"
-msgstr "&Normální zoom"
+msgstr "&Normální zvětšení"
 
 #: ui/uiwx/dBaseMenuBar.py:88
 msgid "&Paste"
-msgstr "&Vlepit"
+msgstr "&Vložit"
 
 #: lib/datanav/Grid.py:141
 msgid "&Pick"
@@ -180,11 +193,11 @@ msgstr "&Ukončit"
 
 #: ui/uiwx/dBaseMenuBar.py:71
 msgid "&Redo"
-msgstr ""
+msgstr "&Znovu"
 
 #: lib/datanav/Form.py:171
 msgid "&Requery"
-msgstr ""
+msgstr "&Dotaz znovu"
 
 #: lib/datanav/Form.py:176
 msgid "&Save Changes"
@@ -192,51 +205,51 @@ msgstr "&Uložit změny"
 
 #: ui/uiwx/dBaseMenuBar.py:66
 msgid "&Undo"
-msgstr ""
+msgstr "Z&pět"
 
 #: ui/uiwx/dBaseMenuBar.py:127
 msgid "&View"
-msgstr ""
+msgstr "Z&obrazit"
 
 #: ui/uiwx/dPageFrame.py:306 ui/uiwx/dPageFrame.py:323
 #: ui/uiwx/dPageFrame.py:340
 #, python-format
 msgid "'%s' can not be translated into a color"
-msgstr "'%s' nejde převést na barvu"
+msgstr "'%s' nelze převést na barvu"
 
 #: ui/uiwx/dListControl.py:472
 msgid "'Choices' is not a valid property for a dListControl."
-msgstr "'Choices' není platná vlastnost pro dListControl"
+msgstr "'Choices' není platná vlastnost dListControl"
 
 #: ui/uiwx/__init__.py:178
 msgid "'dCheckListBox' is a deprecated name. Use 'dCheckList' instead"
-msgstr "'dCheckListBox' je zavrhovaný název. Místo něj použijte 'dCheckList'"
+msgstr "'dCheckListBox' je zastaralý název. Místo něj použijte 'dCheckList'"
 
 #: ui/uiwx/__init__.py:173
 msgid "'dFoldPanel' is a deprecated name. Use 'dSlidePanel' instead"
-msgstr "'dFoldPanel' je zavrhovaný název. Místo něj použijte 'dSlidePanel'."
+msgstr "'dFoldPanel' je zastaralý název. Místo něj použijte 'dSlidePanel'."
 
 #: ui/uiwx/__init__.py:168
 msgid ""
 "'dFoldPanelBar' is a deprecated name. Use 'dSlidePanelControl' instead"
 msgstr ""
-"'dFoldPanelBar' je zavrhovaný název. Místo něj použijte 'dSlidePanelControl'"
+"'dFoldPanelBar' je zastaralý název. Místo něj použijte 'dSlidePanelControl'"
 
 #: ui/uiwx/uiApp.py:821
 msgid "1 replacement was made"
-msgstr "bylo provedeno jedno přemístění"
+msgstr "bylo provedeno 1 nahrazení"
 
 #: ui/dialogs/Wizard.py:93
 msgid "< Back"
-msgstr "<Zpět"
+msgstr "< Zpět"
 
 #: ui/uiwx/dEditor.py:291
 msgid "< New File >"
-msgstr "<Nový soubor>"
+msgstr "< Nový soubor >"
 
 #: dApp.py:1421 ui/uiwx/dGrid.py:1748
 msgid "< None >"
-msgstr "<None>"
+msgstr "< Žádné >"
 
 #: db/dCursorMixin.py:2605
 msgid ""
@@ -245,6 +258,10 @@ msgid ""
 "\t\t\tThe specified function will be called when getFieldVal() is called on\n"
 "\t\t\tthe specified field name."
 msgstr ""
+"Slovník mapování virtual_field_name k funkci na zavolání\n"
+"\n"
+"\t\t\tZadaná funkce bude zavolána když je getFieldVal() voláno\n"
+"\t\t\tv zadaném názvu pole."
 
 #: biz/dBizobj.py:2365
 msgid ""
@@ -253,6 +270,10 @@ msgid ""
 "\t\t\tThe specified function will be called when getFieldVal() is called on\n"
 "\t\t\tthe specified virtual field name."
 msgstr ""
+"Slovník mapování virtual_field_name k funkci na zavolání.\n"
+"\n"
+"\t\t\tZadaná funkce bude zavolána když je getFieldVal() voláno\n"
+"\t\t\tv zadaném názvu virtuálního pole."
 
 #: biz/dBizobj.py:2266
 msgid ""
@@ -265,31 +286,39 @@ msgid ""
 "is added\n"
 "\t\t\tto the bizobj."
 msgstr ""
+"Slovník určující výchozí hodnoty pro pole když je přidán nový záznam\n"
+"\n"
+"\t\t\tHodnoty slovníku mohou být přesné (musí se shodovat s typem pole), "
+"nebo\n"
+"\t\t\tmohou být objektem funkce, která je volána při přidání nového záznamu\n"
+"\t\t\tdo bizobj."
 
 #: ui/uiwx/dSearchBox.py:109
 msgid "A dropdown list that appears right below the search button (list)"
 msgstr ""
+"Rozbalovací seznam který je zobrazen hned pod tlačítkem hledání (seznam)"
 
 #: ui/uiwx/dPemMixin.py:2756
 msgid "A property that user code can safely use for specific purposes."
 msgstr ""
-"Vlastnost, kterou lze v kódu uživatele bezpečně použít ke specifickým účelům."
+"Vlastnost, kterou kód uživatele může bez problémů použít ke konkrétním "
+"účelům."
 
 #: ui/uiwx/dPemMixin.py:2738
 msgid "A unique identifier used for referencing by other objects. (str)"
-msgstr ""
+msgstr "Jedinečný identifikátor použitá k odkazování jinými objekty. (str)"
 
 #: ui/dialogs/about.py:13 ui/dialogs/htmlAbout.py:16
 msgid "About"
-msgstr ""
+msgstr "O programu"
 
 #: ui/uiwx/dBaseMenuBar.py:158
 msgid "About this application"
-msgstr "O aplikaci"
+msgstr "O této aplikaci"
 
 #: lib/datanav/Form.py:255
 msgid "Actions"
-msgstr "Akce"
+msgstr "Činnosti"
 
 #: ui/uiwx/dForm.py:954
 msgid "Activate"
@@ -297,7 +326,7 @@ msgstr "Aktivovat"
 
 #: ui/uiwx/uiApp.py:885
 msgid "Active control isn't text-based."
-msgstr ""
+msgstr "Aktivní kontrola není založená na textu."
 
 #: lib/datanav/Form.py:118 lib/datanav/Grid.py:145
 msgid "Add a new record"
@@ -322,6 +351,7 @@ msgstr ""
 msgid ""
 "After a requery, do we try to restore the record position to the same PK?"
 msgstr ""
+"Po znovu provedení dotazu je pokušeno o obnovu pozice záznamu na stejné PK?"
 
 #: biz/dBizobj.py:2348
 msgid ""
@@ -330,28 +360,33 @@ msgid ""
 "pointer\n"
 "\t\t\tat the end of the recordset (False). (bool)"
 msgstr ""
+"Po vrácení skenování je pokušeno o obnovu pozice záznamu na\n"
+"\t\t\tkde byl před skenováním (True, výchozí), nebo necháme pointer\n"
+"\t\t\tna konci sady záznamu (False). (bool)"
 
 #: ui/uiwx/dGridSizer.py:638
 msgid "Alias for the MaxDimensions property. (char: 'r' or 'c'(default) )"
-msgstr ""
+msgstr "Zkratka pro vlastnost MaxDimensions. (znak: 'r' nebo 'c'(výchozí) )"
 
 #: db/dCursorMixin.py:1213
 msgid "Already at the beginning of the data set."
-msgstr ""
+msgstr "Již na začátku datové sady."
 
 #: db/dCursorMixin.py:1226
 msgid "Already at the end of the data set."
-msgstr ""
+msgstr "Již na konci datové sady."
 
 #: ui/dialogs/Wizard.py:443
 msgid "Also note that this page has a different icon!"
-msgstr ""
+msgstr "Také nezapomeňte, že tato stránka má jinou ikonu!"
 
 #: ui/uiwx/dGauge.py:74
 msgid ""
 "Alternate way of setting/getting the Value, using percentage \n"
 "\t\t\tof the Range.  (float)"
 msgstr ""
+"Jiný způsob nastavení/získání hodnoty, použitím procenta \n"
+"\t\t\trozsahu. (float)"
 
 #: ui/uiwx/dTimer.py:92
 msgid ""
@@ -359,6 +394,9 @@ msgid ""
 "If Enabled is set to True and the timer has a positive value for its "
 "Interval, the timer will be started."
 msgstr ""
+"Jiné způsoby spuštění/zastavení časovače, nebo zjištění jeho stavu. Pokud je "
+"Enabled nastaveno na True a časovač má kladnou hodnotu jako svůj interval, "
+"bude časovač spuštěn."
 
 #: ui/uiwx/dSizerMixin.py:889
 msgid "Amount of space automatically inserted between elements.  (int)"
@@ -369,10 +407,12 @@ msgid ""
 "Amount the control's value changes when the spinner buttons are clicked  "
 "(int/float)"
 msgstr ""
+"Množství o které se kontrolní hodnota změní, když jsou tlačítka číselníku "
+"kliknuta (int/float)"
 
 #: ui/uiwx/dEditor.py:372
 msgid "An error occured while preparing preview."
-msgstr ""
+msgstr "Při přípravě náhledu došlo k chybě."
 
 #: ui/uiwx/dEditor.py:389
 msgid "An error occured while printing."
@@ -384,47 +424,49 @@ msgstr "Byl zjištěn neplatný řetězec XML"
 
 #: ui/uiwx/dGridSizer.py:340
 msgid "An item already exists in that location"
-msgstr ""
+msgstr "Položka v tomto umístění již existuje"
 
 #: ui/uiwx/dPemMixin.py:3481
 msgid "Angle (in degrees) to draw text  (int)"
-msgstr "Sklon textu ve stupních (int)"
+msgstr "Úhel (ve stupních) v kterém bude vykreslován text (int)"
 
 #: ui/uiwx/dPemMixin.py:3510
 msgid ""
 "Angle (in degrees) used to end drawing a circular or elliptic arc  (int)"
 msgstr ""
-"Úhel (ve stupních) koncového bodu kruhového nebo eliptického oblouku (int)"
+"Úhel (ve stupních) použitý pro ukončení kreslení kruhového nebo eliptického "
+"oblouku (int)"
 
 #: ui/uiwx/dPemMixin.py:3589
 msgid ""
 "Angle (in degrees) used to start drawing a circular or elliptic arc  (int)"
 msgstr ""
-"Úhel (ve stupních) počátečního bodu kruhového nebo eliptického oblouku (int)"
+"Úhel (ve stupních) použitý pro začátek kreslení kruhového nebo eliptického "
+"oblouku (int)"
 
 #: dApp.py:387
 msgid "Application finished."
-msgstr ""
+msgstr "Aplikace dokončena."
 
 #: ui/uiwx/dEditor.py:2577
 msgid ""
 "Approximate number of spaces taken by each tab character \n"
 "\t\t\t(default=4)  (int)"
 msgstr ""
-"Přibližný počet volných míst použitý každým znakem tabulátoru \n"
-"\t\t\t(implicitně 4) (int)"
+"Přibližný počet mezer, které zabírá každý znak tabulátoru \n"
+"\t\t\t(standardně 4) (int)"
 
 #: ui/uiwx/dGrid.py:4612
 msgid "Are borders around cells shown?  (bool)"
-msgstr "Jsou zobrazena ohraničení buněk? (bool)"
+msgstr "Jsou okraje okolo buněk zobrazeny? (bool)"
 
 #: ui/uiwx/dGrid.py:4615
 msgid "Are column labels shown?  (bool)"
-msgstr ""
+msgstr "Jsou jmenovky sloupce zobrazeny? (bool)"
 
 #: ui/uiwx/dGrid.py:4618
 msgid "Are row labels shown?  (bool)"
-msgstr ""
+msgstr "Jsou jmenovky řádku zobrazeny? (bool)"
 
 #: ui/uiwx/dControlItemMixin.py:434
 msgid ""
@@ -434,10 +476,15 @@ msgid ""
 "to \n"
 "\t\t\tNone, giving a default sort order.  (bool)"
 msgstr ""
+"Jsou položky v kontrole automaticky ukládány? Výchozí=False.\n"
+"\t\t\tPokud True, kdykoliv je vlastnost Choices změněna, výsledný seznam\n"
+"\t\t\tbude nejdříve seřazen pomocí vlastnosti SortFunction, která je "
+"standardně \n"
+"\t\t\tNone, což dává výchozí způsob seřazení.  (bool)"
 
 #: ui/uiwx/dEditor.py:2587
 msgid "Are we tracking bookmarks in the editor? Default=False  (bool)"
-msgstr ""
+msgstr "Jsou záložky sledovány v editoru? Výchozí=False (bool)"
 
 #: ui/dialogs/Wizard.py:390
 msgid ""
@@ -445,15 +492,18 @@ msgid ""
 "\n"
 "I know that I am!!"
 msgstr ""
+"Už jste natěšení???\n"
+"\n"
+"Já už tedy ano!!"
 
 #: ui/dialogs/Wizard.py:46
 msgid "Are you sure you want to exit?"
-msgstr ""
+msgstr "Opravdu chcete odejít?"
 
 #: ui/uiwx/dPemMixin.py:2372
 #, python-format
 msgid "Attempt in object '%s' to set duplicate RegID: '%s'"
-msgstr ""
+msgstr "Pokus v objektu '%s' o nastavení dublicitní RegID: '%s'"
 
 #: ui/uiwx/dImage.py:223
 #, python-format
@@ -461,33 +511,37 @@ msgid ""
 "Attempt to set PictureIndex (%(idx)s)to a value greater than the maximum "
 "index available (%(maxIdx)s)."
 msgstr ""
+"Pokus o nastavení PictureIndex (%(idx)s) na hodnotu větší než maximální "
+"dostupné indexy  (%(maxIdx)s)."
 
 #: ui/uiwx/dPageFrameNoTabs.py:118
 msgid "Attempt to show non-member page"
-msgstr ""
+msgstr "Pokus o zobrazení nečlenské stránky"
 
 #: ui/uiwx/dComboBox.py:264
 msgid "Attempted to add Dabo to the list!!!"
-msgstr ""
+msgstr "Pokus o přidání Dabo do seznamu!!!"
 
 #: ui/__init__.py:87
 #, python-format
 msgid "Automatically loading default ui '%s'..."
-msgstr ""
+msgstr "Automatické načítání výchozího rozhraní ui '%s'..."
 
 #: ui/uiwx/dGrid.py:3277
 msgid "Autosize all columns in the grid."
-msgstr ""
+msgstr "Automatická velikost všech sloupců v mřížce."
 
 #: ui/uiwx/dGrid.py:3275
 msgid "Autosize the column based on the data in the column."
-msgstr ""
+msgstr "Automatická velikost sloupců na základě dat ve sloupci."
 
 #: db/dCursorMixin.py:2545
 msgid ""
 "Auxiliary cursor object that handles queries that would otherwise\n"
 "\t\t\taffect the main cursor's data set.  (dCursorMixin subclass)"
 msgstr ""
+"Pomocný objekt kurzoru který obsluhuje dotazy, které by jinak\n"
+"\t\t\tměly vliv na sadu dat hlavního kurzoru. (podtřída dCursorMixin)"
 
 #: ui/uiwx/dDateTextBox.py:97
 msgid ""
@@ -504,51 +558,64 @@ msgid ""
 "R : Last Day of yeaR\n"
 "C: Popup Calendar to Select\n"
 msgstr ""
+"Dostupné klíče:\n"
+"=============\n"
+"T : Dnes\n"
+"+ : O jeden den více\n"
+"- : O jeden den méně\n"
+"[ : O jeden měsíc více\n"
+"] : O jeden měsíc méně\n"
+"M : První den v měsíci\n"
+"H : Poslední den v měsíci\n"
+"Y : První den v roce\n"
+"R : Poslední den v roce\n"
+"C: Zobrazit kalendář ke zvolení\n"
 
 #: dPref.py:228
 #, python-format
 msgid "BAD TYPE: %s"
-msgstr ""
+msgstr "ŠPATNÝ TYP: %s"
 
 #: ui/uiwx/dGrid.py:4595
 msgid "BackColor of selected cells  (str or RGB tuple)"
-msgstr ""
+msgstr "Barva pozadí zvolených buněk (řetězec nebo tuple RGB)"
 
 #: db/dBackend.py:613
 msgid "Backend encoding  (str)"
-msgstr ""
+msgstr "Kódování podpůrné vrstvy (str)"
 
 #: ui/uiwx/dPemMixin.py:3513
 msgid "Background color for the shape  (color)"
-msgstr ""
+msgstr "Barva pozadí tvaru (barva)"
 
 #: ui/uiwx/dEditor.py:2528
 msgid "Background color of selected text. Default=yellow  (str or tuple)"
-msgstr ""
+msgstr "Barva pozadí zvoleného textu. Výchozí=žlutá (řetězec nebo tuple)"
 
 #: ui/uiwx/dPemMixin.py:3484
 msgid "Background color of text when using text objects  (str or tuple)"
 msgstr ""
+"Barva pozadí textu při použití textových objektů (řetězec nebo tuple)"
 
 #: ui/uiwx/dCalendar.py:319
 msgid "Background color of the calendar header  (str or tuple)"
-msgstr ""
+msgstr "Barva pozadí hlavičky kalendáře (řetězec nebo tuple)"
 
 #: ui/uiwx/dCalendar.py:325
 msgid "Background color of the calendar highlight  (str or tuple)"
-msgstr ""
+msgstr "Barva pozadí zvýraznění kalendáře (řetězec nebo tuple)"
 
 #: ui/uiwx/dCalendar.py:331
 msgid "Background color of the calendar holiday  (str or tuple)"
-msgstr ""
+msgstr "Barva pozadí svátků v kalendáři (řetězec nebo tuple)"
 
 #: ui/uiwx/dTreeView.py:273
 msgid "Background color of this node  (str, 3-tuple, or wx.Colour)"
-msgstr ""
+msgstr "Barva pozadí tohoto uzle (řetězec, 3-tice, nebo wx.Colour)"
 
 #: dObject.py:385
 msgid "Base key used when saving/restoring preferences  (str)"
-msgstr ""
+msgstr "Základní klíč použitý při ukládání/obnovování nastavení (řetězec)"
 
 #: dApp.py:1580
 msgid ""
@@ -559,63 +626,68 @@ msgid ""
 "BasePrefKey\n"
 "\t\t\tin that order. (str)"
 msgstr ""
+"Základní klíč použitý při ukládání/obnovování nastavení. Liší se od\n"
+"\t\t\tstandardní definice této vlastnosti v tom, že pokud je prázdná, vrací "
+"\n"
+"\t\t\tBasePrefKey z ActiveForm nebo z MainForm\n"
+"\t\t\tv tomto pořadí. (řetězec)"
 
 #: ui/uiwx/dPemMixin.py:3487
 msgid "Bitmap to be drawn on the object  (dBitmap)"
-msgstr ""
+msgstr "Bitmapa která bude vykreslena na objekt (dBitmap)"
 
 #: ui/uiwx/dPemMixin.py:3516
 msgid "Bold setting for text objects  (bool)"
-msgstr ""
+msgstr "Nastavení tučnosti pro textové objekty (bool)"
 
 #: ui/uiwx/dFont.py:147
 msgid "Bold setting for this font  (bool)"
-msgstr ""
+msgstr "Nastavení tučnosti pro toto písmo (bool)"
 
 #: ui/uiwx/dSlidePanelControl.py:325
 msgid "Border between the contents and edges of the panel. Default=5  (int)"
-msgstr ""
+msgstr "Okraj mezi obsahem a okraji panelu. Výchozí=5 (int)"
 
 #: ui/uiwx/dDockForm.py:723
 msgid "Bottom coordinate of the panel when floating  (int)"
-msgstr ""
+msgstr "Spodní souřadnice panelu když je plovoucí (int)"
 
 #: ui/uiwx/dPemMixin.py:3537
 msgid "Bottom/Right color for the gradient  (color: str or tuple)"
-msgstr ""
+msgstr "Spodní/Pravá barva přechodu (barva: řetězec nebo tuple)"
 
 #: lib/datanav/PageFrame.py:41
 msgid "Browse"
-msgstr ""
+msgstr "Procházet"
 
 #: lib/datanav/Form.py:147
 msgid "Browse the records in the current recordset."
-msgstr ""
+msgstr "Procházet záznamy v současné sadě."
 
 #: biz/RemoteBizobj.py:189
 #, python-format
 msgid "Business Rule Violation: %s."
-msgstr ""
+msgstr "Porušení obchodních pravidel: %s"
 
 #: ui/uiwx/dSizerMixin.py:870
 msgid "By default, do we add the border to all sides?  (bool)"
-msgstr ""
+msgstr "Přidáváme standardně okraje ke všem stranám? (bool)"
 
 #: ui/uiwx/dSizerMixin.py:874
 msgid "By default, do we add the border to the bottom side?  (bool)"
-msgstr ""
+msgstr "Přidáváme standardně okraj na spodní stranu? (bool)"
 
 #: ui/uiwx/dSizerMixin.py:878
 msgid "By default, do we add the border to the left side?  (bool)"
-msgstr ""
+msgstr "Přidáváme standardně okraj na levou stranu? (bool)"
 
 #: ui/uiwx/dSizerMixin.py:882
 msgid "By default, do we add the border to the right side?  (bool)"
-msgstr ""
+msgstr "Přidáváme standardně okraj na pravou stranu? (bool)"
 
 #: ui/uiwx/dSizerMixin.py:886
 msgid "By default, do we add the border to the top side?  (bool)"
-msgstr ""
+msgstr "Přidáváme standardně okraj na horní stranu? (bool)"
 
 #: ui/uiwx/dCalendar.py:306
 msgid ""
@@ -623,200 +695,210 @@ msgid ""
 "\t\t\tof the week appears in the first column. Defaults to the value set\n"
 "\t\t\tin dabo.settings.firstDayOfWeek. Read-only at runtime.  (str)"
 msgstr ""
+"Může být buď 'Sunday' nebo 'Monday'. Určuje který den\n"
+"\t\t\tv týdnu bude zobrazen v prvním sloupci. Výchozí hodnota je\n"
+"\t\t\tnastavena v dabo.settings.firstDayOfWeek. Při spuštění pouze pro "
+"čtení. (str)"
 
 #: ui/uiwx/dListBox.py:63
 msgid "Can multiple items be selected at once?  (bool)"
-msgstr ""
+msgstr "Může být zvoleno váce položek najednou? (bool)"
 
 #: ui/uiwx/dDockForm.py:697
 msgid ""
 "Can the panel be docked to the bottom edge of the form? Default=True  (bool)"
 msgstr ""
+"Může být panel ukotven na spodní okraj formuláře? Výchozí=True (bool)"
 
 #: ui/uiwx/dDockForm.py:706
 msgid "Can the panel be docked to the form? Default=True  (bool)"
-msgstr ""
+msgstr "Může být panel ukotven k formuláři? Výchozí=True (bool)"
 
 #: ui/uiwx/dDockForm.py:753
 msgid ""
 "Can the panel be docked to the left edge of the form? Default=True  (bool)"
-msgstr ""
+msgstr "Může být panel ukotven na levý okraj formuláře? Výchozí=True (bool)"
 
 #: ui/uiwx/dDockForm.py:768
 msgid ""
 "Can the panel be docked to the right edge of the form? Default=True  (bool)"
-msgstr ""
+msgstr "Může být panel ukotven na pravý okraj formuláře? Výchozí=True (bool)"
 
 #: ui/uiwx/dDockForm.py:798
 msgid ""
 "Can the panel be docked to the top edge of the form? Default=True  (bool)"
-msgstr ""
+msgstr "Může být panel ukotven na horní okraj formuláře? Výchozí=True (bool)"
 
 #: ui/uiwx/dDockForm.py:759
 msgid ""
 "Can the panel be moved (True, default), or is it in a fixed position "
 "(False).  (bool)"
 msgstr ""
+"Může být panel posunut (True, výchozí), nebo má pevné umístění (False)? "
+"(bool)"
 
 #: ui/uiwx/dDockForm.py:762
 msgid "Can the panel be resized? Default=True  (bool)"
-msgstr ""
+msgstr "Může být velikost panelu změněna? Výchozí=True (bool)"
 
 #: ui/uiwx/dDockForm.py:717
 msgid ""
 "Can the panel be undocked from the form and float independently? "
 "Default=True  (bool)"
 msgstr ""
+"Může být upevnění panelu ve formuláři zrušeno a tím může nezávisle "
+"posunován? Výchozí=True (bool)"
 
 #: lib/datanav/Form.py:1082
 msgid "Can the user choose the 'expanded' quick report?"
-msgstr ""
+msgstr "Může uživatel zvolit 'rozšířený' rychlé hlášení?"
 
 #: lib/datanav/Form.py:1085
 msgid "Can the user sort fields in the select page?"
-msgstr ""
+msgstr "Může uživatel řadit pole ve zvolené stránce?"
 
 #: ui/uiwx/dTextBoxMixin.py:472
 msgid "Can't convert to decimal."
-msgstr ""
+msgstr "Nelze převést na desítková čísla."
 
 #: ui/uiwx/dTextBoxMixin.py:500
 msgid "Can't convert."
-msgstr ""
+msgstr "Nelze převést."
 
 #: ui/uiwx/dTextBoxMixin.py:443 ui/uiwx/dTextBoxMixin.py:450
 msgid "Can't import mx.DateTime"
-msgstr ""
+msgstr "Nelze importovat mx.DateTime"
 
 #: dApp.py:1254
 msgid "Can't set ActiveForm: no uiApp."
-msgstr ""
+msgstr "Nelze nastavit ActiveForm: žádný uiApp."
 
 #: db/dCursorMixin.py:1634
 #, python-format
 msgid "Can't set default value for nonexistent field '%s'."
-msgstr ""
+msgstr "Nelze nastavit výchozí hodnotu pro neexistující pole '%s'."
 
 #: biz/dAutoBizobj.py:84 lib/datanav/Form.py:127 ui/dialogs/Wizard.py:95
 msgid "Cancel"
-msgstr ""
+msgstr "Zrušit"
 
 #: ui/uiwx/dForm.py:396
 msgid "Cancel Not Allowed"
-msgstr ""
+msgstr "Zrušení není povoleno"
 
 #: lib/datanav/Form.py:181
 msgid "Cancel any changes made to the records."
-msgstr ""
+msgstr "Zrušit všechny změny provedené v záznamech."
 
 #: lib/datanav/Form.py:127
 msgid "Cancel changes"
-msgstr ""
+msgstr "Zrušit změny"
 
 #: ui/uiwx/dForm.py:395
 #, python-format
 msgid "Cancel failed with response: %s"
-msgstr ""
+msgstr "Zrušení selhalo a dalo odpověď: %s"
 
 #: ui/uiwx/dForm.py:393
 msgid "Cancel failed; no records to cancel."
-msgstr ""
+msgstr "Zrušení selhalo, žádné záznamy ke zrušení."
 
 #: ui/uiwx/dBitmapButton.py:79 ui/uiwx/dBorderlessButton.py:83
 msgid "CancelButton isn't implemented yet."
-msgstr ""
+msgstr "CancelButton zatím není zaveden."
 
 #: dApp.py:608 dApp.py:641
 #, python-format
 msgid "Cannot access the Dabo site. Error: %s"
-msgstr ""
+msgstr "Nelze vosutpit na stránku Dabo. Chyba: %s"
 
 #: ui/__init__.py:70
 #, python-format
 msgid "Cannot change the uiType to '%s', because UI '%s' is already loaded."
-msgstr ""
+msgstr "Nelze změnit uiType na '%s', protože rozhraní '%s' již je načteno."
 
 #: ui/uiwx/__init__.py:1228
 msgid "Cannot create custom editor without a control class specified."
-msgstr ""
+msgstr "Nelze vytvořit vlastní editor, aniž by byla zadána kontrolní třída."
 
 #: db/dDataSet.py:270
 #, python-format
 msgid "Cannot populate without data for alias '%s'"
-msgstr ""
+msgstr "Nelze vyplnit bez dat pro zkratku '%s'"
 
 #: biz/dBizobj.py:2383
 msgid "Cannot reverse in the middle of iteration."
-msgstr ""
+msgstr "Nelze vzít zpět uprostřed opakování."
 
 #: ui/uiwx/dMaskedTextBox.py:127
 msgid "Cannot set InputCodes when a Format has been set"
-msgstr ""
+msgstr "Nelze nastavit vstupní kódy, aniž by byl nastaven formát"
 
 #: ui/uiwx/dPageFrameMixin.py:307
 msgid "Cannot set PageCount to less than zero."
-msgstr ""
+msgstr "Nelze nastavit PageCount na méně než nulu."
 
 #: ui/uiwx/dSlidePanelControl.py:643
 msgid "Cannot set PanelCount to less than zero."
-msgstr ""
+msgstr "Nelze nastavit PanelCount na méně než nulu."
 
 #: ui/uiwx/dMaskedTextBox.py:147
 msgid "Cannot set a Mask when a Format has been set"
-msgstr ""
+msgstr "Nelze nastavit masku, aniž by byl nastaven formát"
 
 #: ui/uiwx/dDialog.py:151
 msgid "Cannot set the Borderless property once the dialog is created."
 msgstr ""
+"Nelze nastavit vlastnost Borderless, jakmile je dialogové okno vytvořeno."
 
 #: ui/uiwx/dDockForm.py:467 ui/uiwx/dDockForm.py:688
 msgid "Cannot set the Size of a docked panel"
-msgstr ""
+msgstr "Nelze nastavit velikost upevněného panelu"
 
 #: ui/uiwx/dDockForm.py:238 ui/uiwx/dDockForm.py:480 ui/uiwx/dDockForm.py:536
 #: ui/uiwx/dDockForm.py:653
 msgid "Cannot set the position of a docked panel"
-msgstr ""
+msgstr "Nelze nastavit umístění upevněného panelu"
 
 #: ui/uiwx/dGrid.py:2985
 #, python-format
 msgid "Cannot set width of column %s"
-msgstr ""
+msgstr "Nelze nastavit šířku sloupce %s"
 
 #: ui/uiwx/uiApp.py:229
 #, python-format
 msgid "Cannot update files; Error: %s"
-msgstr ""
+msgstr "Nelze aktualitovat soubory; Chyba: %s"
 
 #: ui/uiwx/dSlidePanelControl.py:328
 msgid "Caption displayed on the panel bar  (str)"
-msgstr ""
+msgstr "Název zobrazeny na líště panelu (str)"
 
 #: ui/uiwx/dBorderSizer.py:128
 msgid "Caption for the box  (str)"
-msgstr ""
+msgstr "Název pro rámeček (str)"
 
 #: ui/dialogs/SortingForm.py:47
 msgid "Caption for the sorting list  (str)"
-msgstr ""
+msgstr "Titulek pro seznam třídení (str)"
 
 #: ui/uiwx/dEditor.py:593
 msgid "Case must be either upper, lower, capitalize, or invert."
-msgstr ""
+msgstr "Velikost písma musí být buď upper, lower, capitalize, nebo invert."
 
 #: ui/uiwx/dFormMixin.py:1069
 msgid "Centers the form on the screen when set to True.  (bool)"
-msgstr ""
+msgstr "Když nastaveno na true, vystředí formulář na obrazovku. (bool)"
 
 #: ui/uiwx/dForm.py:389
 #, python-format
 msgid "Changes to %s canceled."
-msgstr ""
+msgstr "Změny %s zrušeny."
 
 #: ui/uiwx/dForm.py:336
 #, python-format
 msgid "Changes to %s saved."
-msgstr ""
+msgstr "Změny %s uloženy."
 
 #: ui/uiwx/dMaskedTextBox.py:210
 msgid ""
@@ -900,60 +982,69 @@ msgstr ""
 
 #: ui/dialogs/PreferenceDialog.py:287
 msgid "Check every..."
-msgstr ""
+msgstr "Zkontrolovat každých..."
 
 #: ui/dialogs/PreferenceDialog.py:276
 msgid "Check for framework updates"
-msgstr ""
+msgstr "Zkotnrolovat aktualizace frameworku"
 
 #: ui/dialogs/PreferenceDialog.py:279
 msgid "Check now..."
-msgstr ""
+msgstr "Zkontrolovat nyní..."
 
 #: ui/uiwx/dPanel.py:289
 msgid ""
 "Child controls of this panel. This excludes the wx-specific \n"
 "\t\t\tscroll bars  (list of objects)"
 msgstr ""
+"Podřazené kontroly tohoto panelu. Toto se netýká \n"
+"\t\t\tposuvníků z wx (seznam objektů)"
 
 #: ui/uiwx/dFileDialog.py:96
 msgid "Choose a file"
-msgstr ""
+msgstr "Zvolte soubor"
 
 #: ui/uiwx/__init__.py:992 ui/uiwx/dFileDialog.py:122
 msgid "Choose a folder"
-msgstr ""
+msgstr "Zvolte složku"
 
 #: ui/uiwx/__init__.py:1118
 #, python-format
 msgid "Class file '%s' not found"
-msgstr ""
+msgstr "Soubor třídy '%s' nenalezen"
 
 #: ui/uiwx/uiApp.py:1068
 msgid ""
 "Class to instantiate for the application's preference editing  "
 "(dForm/dDialog)"
 msgstr ""
+"Instanci jaké třídy vytvořit pro úpravu nastavení aplikace (dForm/dDialog)"
 
 #: ui/uiwx/dGrid.py:4451
 msgid ""
 "Class to instantiate when a change to ColumnCount requires\n"
 "\t\t\tadditional columns to be created. Default=dColumn.  (dColumn subclass)"
 msgstr ""
+"Instanci jaké třídy vytvořit, když změna ColumnCount vyžaduje\n"
+"\t\t\tvytvoření dalších sloupců. Výchozí=dColumn. (podtřída dColumn)"
 
 #: ui/uiwx/dRadioList.py:529
 msgid ""
 "Class to use for the border sizer. Default=dabo.ui.dBorderSizer  (dSizer)"
 msgstr ""
+"Kterou třídu použít pro změnu velikosti rámečku. "
+"Výchozí=dabo.ui.dBorderSizer (dSizer)"
 
 #: ui/uiwx/dRadioList.py:500
 msgid ""
 "Class to use for the radio buttons. Default=_dRadioButton  (dRadioButton)"
 msgstr ""
+"Kterou třídu použít pro tlačítka přepínače. Výchozí=_dRadioButton "
+"(dRadioButton)"
 
 #: ui/uiwx/dTreeView.py:1256
 msgid "Class to use when creating nodes  (dNode)"
-msgstr ""
+msgstr "Kterou třídu použít při ytváření uzlů (dNode)"
 
 #: ui/uiwx/dSplitter.py:449
 msgid ""
@@ -965,58 +1056,63 @@ msgid ""
 "\t\t\tno effect unless you destroy the panels and re-create them.  \n"
 "\t\t\tDefault=dPanel  (dPanel)"
 msgstr ""
+"Třída použitá pro vytváření panelů. Pokud třída není potomkem \n"
+"\t\t\tSplitterPanelMixin, je tato třída smíchána se třídou zde uvedenou. \n"
+"\t\t\tToto musí být nastaveno před vytvořením panelů; pozdější nastavení \n"
+"\t\t\tnemá žádný účinek, pokud panely neodstraníte a znovu nevytvoříte.  \n"
+"\t\t\tVýchozí=dPanel (dPanel)"
 
 #: ui/uiwx/dShell.py:499
 msgid "Clear"
-msgstr ""
+msgstr "Vyčistit"
 
 #: ui/dialogs/PreferenceDialog.py:162
 msgid "Clear Key"
-msgstr ""
+msgstr "Vyčistit klíč"
 
 #: ui/uiwx/dShell.py:555
 msgid "Clear O&utput"
-msgstr ""
+msgstr "Vyčistit &výstup"
 
 #: ui/uiwx/dShell.py:557
 msgid "Clear Output Window"
-msgstr ""
+msgstr "Vyčistit okno výstupu"
 
 #: ui/uiwx/dForm.py:960
 msgid "Close Borderless Form"
-msgstr ""
+msgstr "Zavřít formulář bez rámečku"
 
 #: ui/uiwx/dBaseMenuBar.py:45
 msgid "Close Windo&w"
-msgstr ""
+msgstr "&Zavřít okno"
 
 #: ui/uiwx/dBaseMenuBar.py:48
 msgid "Close the current window"
-msgstr ""
+msgstr "Zavřít současné okno"
 
 #: ui/uiwx/dGrid.py:1443
 msgid "Color for the background of each cell in the column."
-msgstr ""
+msgstr "Barva pozadí každé buňky ve sloupci."
 
 #: ui/uiwx/dGrid.py:1452
 msgid "Color for the background of the current cell in the column."
-msgstr ""
+msgstr "Barva pozadí současné buňky ve sloupci"
 
 #: ui/uiwx/dGrid.py:1540
 msgid "Color for the foreground (text) of each cell in the column."
-msgstr ""
+msgstr "Barva popředí (textu) každé buňky ve sloupci."
 
 #: ui/uiwx/dGrid.py:1455
 msgid "Color for the foreground (text) of the current cell in the column."
-msgstr ""
+msgstr "Barva popředí (textu) současné buňky ve sloupci."
 
 #: ui/uiwx/dPemMixin.py:3531
 msgid "Color of text when using text objects  (str or tuple)"
-msgstr ""
+msgstr "Barva textu při použití textových objektů (řetězec nebo tuple)"
 
 #: ui/uiwx/dBorderSizer.py:122
 msgid "Color of the box background  (str or tuple)"
-msgstr ""
+msgstr "Barva pozadí rámečku (řetězec nebo tuple)"
 
 #: ui/uiwx/dBorderlessButton.py:128
 msgid ""
@@ -1026,239 +1122,256 @@ msgid ""
 "\t\tChanging this color with change the color of the control when pressed as "
 "well."
 msgstr ""
+"Barva pozadí tlačítka pokud myš najede nad ovládání (řetězec nebo tuple)\n"
+"\t\tVýchozí=(128, 128, 128)\n"
+"\t\tZměna této barvy změní také barvu kontroly při stisknutí."
 
 #: ui/uiwx/dHyperLink.py:143
 msgid "Color of the link when the mouse passes over it.  (str or tuple)"
-msgstr ""
+msgstr "Barva odkazu při najetí myší. (řetězec nebo tuple)"
 
 #: ui/uiwx/dHyperLink.py:164
 msgid "Color of visited links  (str or tuple)"
-msgstr ""
+msgstr "Barva našštívených odkazů (řetězec nebo tuple)"
 
 #: ui/uiwx/dListControl.py:488
 #, python-format
 msgid "Column %s"
-msgstr ""
+msgstr "Sloupec %s"
 
 #: ui/uiwx/dListControl.py:709
 msgid "Column to be sorted when sort() is called. Default=0  (int)"
-msgstr ""
+msgstr "Sloupec k seřazení když je zavoláno sort(). Výchozí=0 (celé číslo)"
 
 #: ui/uiwx/dBaseMenuBar.py:35
 msgid "Command Win&dow"
-msgstr ""
+msgstr "&Okno příkazů"
 
 #: db/dCursorMixin.py:1264
 #, python-format
 msgid "Connection Lost exception encountered in saverow(): %s"
-msgstr ""
+msgstr "V saverow() zjištěna výjimka ztracení připojení: %s"
 
 #: biz/RemoteBizobj.py:177
 msgid "Connection to database was lost."
-msgstr ""
+msgstr "Připojení k databázi bylo ztraceno."
 
 #: ui/uiwx/__init__.py:1398 ui/uiwx/dSizerMixin.py:295
 #, python-format
 msgid "Containing sizer did not match item %s"
-msgstr ""
+msgstr "Obsahující měnič velikosti neodpovídá položce %s"
 
 #: ui/uiwx/dFormMixin.py:1058
 msgid "Contains a reference to the active control on the form, or None."
-msgstr ""
+msgstr "Obsahuje odkaz na aktivní kontrolu ve formuláři, nebo None."
 
 #: ui/uiwx/dToolBar.py:551
 msgid "Contains an object reference to the containing toolbar."
-msgstr ""
+msgstr "Obsahuje odkaz na objekt obsahující panel nástrojů."
 
 #: ui/uiwx/dDialog.py:620
 msgid "Control which is currently managing this window.  (varies)"
-msgstr ""
+msgstr "KOntrola která nyní spravuje toto okno. (mění se)"
 
 #: ui/uiwx/dEditor.py:2451
 msgid "Controls if a newline adds the previous line's indentation  (bool)"
 msgstr ""
+"Kontroluje, zda nový řádek přidává odsazení předchozího řádku (boolean)"
 
 #: ui/uiwx/dEditor.py:2447
 msgid ""
 "Controls if the user has to press 'Enter/Tab' to accept \n"
 "\t\t\tthe AutoComplete entry  (bool)"
 msgstr ""
+"Kontroluje zda uživatel musí stisknout 'Enter/Tab' pro přijetí\n"
+"\t\t\tzáznamu AutoComplete (boolean)"
 
 #: ui/uiwx/dBorderSizer.py:131
 msgid "Controls the bold setting of the box caption  (bool)"
-msgstr ""
+msgstr "Kontroluje nastavení tučnosti názvu rámečku (boolean)"
 
 #: ui/uiwx/dBorderSizer.py:137
 msgid "Controls the italic setting of the box caption  (bool)"
-msgstr ""
+msgstr "Kontroluje nastavení kurzívy názvu rámečku (boolean)"
 
 #: ui/uiwx/dSplitForm.py:92 ui/uiwx/dSplitter.py:437
 msgid "Controls the minimum width/height of the panels.  (int)"
-msgstr ""
+msgstr "Kontorluje minimální šířku/výšku panelů. (celé číslo)"
 
 #: ui/uiwx/dPageFrame.py:131
 msgid "Controls the spacing of the items in the controlling list  (int)"
-msgstr ""
+msgstr "Kontroluje řádkování položek v kontrolním seznamu (celé číslo)"
 
 #: ui/uiwx/dBorderSizer.py:134
 msgid "Controls the type face of the box caption  (str)"
-msgstr ""
+msgstr "Kontroluje typ písma v názvu rámečku (řetězec)"
 
 #: ui/uiwx/dBorderSizer.py:143
 msgid "Controls the underline setting of the box caption  (bool)"
-msgstr ""
+msgstr "Kontroluje nastavení podtržení v názvu rámečku (boolean)"
 
 #: ui/uiwx/dEditor.py:2584
 msgid "Controls whether fonts are anti-aliased (default=True)  (bool)"
-msgstr ""
+msgstr "Kontroluje zda písmo má vyhlazené hrany (výchozí=True) (boolean)"
 
 #: ui/uiwx/dEditor.py:2602
 msgid ""
 "Controls whether text lines that are wider than the window\n"
 "\t\t\tare soft-wrapped or clipped. (bool)"
 msgstr ""
+"Kontroluje zda řádky textu, které jsou širší než okno\n"
+"\t\t\tjsou zalomeny nebo ustřiženy. (boolean)"
 
 #: ui/uiwx/dBitmapButton.py:169
 msgid "Controls whether the button resizes when the Picture changes. (bool)"
-msgstr ""
+msgstr "Kontroluje zda tlačítko mění velikost při změně obrázku. (boolean)"
 
 #: ui/uiwx/dGrid.py:1623
 msgid "Controls whether the column is shown or not  (bool)"
-msgstr ""
+msgstr "Kontroluje zda sloupec je zobrazen či nikoliv (boolean)"
 
 #: ui/uiwx/dShell.py:633
 msgid ""
 "Controls whether the output is in a separate pane (default) \n"
 "\t\t\tor intermixed with the commands.  (bool)"
 msgstr ""
+"Kontroluje zda výstup je v odděleném panelu (výchozí) \n"
+"\t\t\tnebo smíšen s příkazy. (boolean)"
 
 #: ui/uiwx/dPemMixin.py:3598
 msgid "Controls whether the shape is drawn.  (bool)"
-msgstr ""
+msgstr "Kontroluje vykreslení tvaru. (boolean)"
 
 #: ui/dialogs/WizardPage.py:200
 msgid "Controls whether the title text is bold.  (bool)"
-msgstr ""
+msgstr "Kontroluje zdali nadpis textu je tučný. (boolean)"
 
 #: ui/dialogs/WizardPage.py:206
 msgid "Controls whether the title text is italic.  (bool)"
-msgstr ""
+msgstr "Kontroluje zdali nadpis textu je v kurzívě. (boolean)"
 
 #: ui/uiwx/dHtmlBox.py:187 ui/uiwx/dPanel.py:293
 msgid ""
 "Controls whether this object will scroll horizontally (default=True)  (bool)"
 msgstr ""
+"Kontroluje zdali tento objekt bude posunován vodorovně (výchozí=True) "
+"(boolean)"
 
 #: ui/uiwx/dHtmlBox.py:208 ui/uiwx/dPanel.py:296
 msgid ""
 "Controls whether this object will scroll vertically (default=True)  (bool)"
 msgstr ""
+"Kontroluje zdali tento objekt bude posunován přičně (výchozí=True) (boolean)"
 
 #: ui/uiwx/dPemMixin.py:3583
 msgid "Convenience property, equivalent to (Width, Height)  (2-tuple)"
-msgstr ""
+msgstr "Vlastnost pro usnadnění, stejné jako (Výška, Šířka) (2-tuple)"
 
 #: ui/uiwx/dBaseMenuBar.py:141
 msgid "Cool sizer visualizing feature; check it out!"
-msgstr ""
+msgstr "Skvělá funkce pro vizualizaci měniče velikosti; vyzkoušejte ji!"
 
 #: ui/uiwx/dShell.py:501
 msgid "Copy"
-msgstr ""
+msgstr "Kopírovat"
 
 #: ui/dialogs/about.py:53 ui/dialogs/htmlAbout.py:33
 msgid "Copy Info"
-msgstr ""
+msgstr "Informace o kopírování"
 
 #: ui/uiwx/dBaseMenuBar.py:86
 msgid "Copy selected text"
-msgstr ""
+msgstr "Kopírovat vybraný text"
 
 #: biz/dAutoBizobj.py:136
 msgid "Could not access the database with the given username and password."
 msgstr ""
+"Nelze vstoupit do databáze pomocí zadaného uživatelského jména a hesla"
 
 #: dApp.py:574
 msgid "Could not connect to the Dabo servers"
-msgstr ""
+msgstr "Nelze se připojit k serverům Dabo"
 
 #: ui/uiwx/dFormMixin.py:130
 #, python-format
 msgid "Could not establish connection '%s'"
-msgstr ""
+msgstr "Nelze navázat spojení '%s'"
 
 #: ui/uiwx/dPemMixin.py:449
 #, python-format
 msgid "Could not evaluate method '%s': %s"
-msgstr ""
+msgstr "Nelze vyhodnotit metodu '%s': %s"
 
 #: ui/uiwx/dRadioList.py:220
 #, python-format
 msgid "Could not find a button with Caption of '%s'"
-msgstr ""
+msgstr "Nelze najít tlačítko s popiskem '%s'"
 
 #: ui/uiwx/dEditor.py:1553
 #, python-format
 msgid "Could not open %s.  Please check that you have read permissions."
-msgstr ""
+msgstr "Nelze otevřít '%s'. Prosím zkontrolujte zda máte oprávnění ke čtení."
 
 #: dApp.py:1309
 #, python-format
 msgid "Could not open file: '%(val)s': %(e)s"
-msgstr ""
+msgstr "Nelze otevřít soubor: '%(val)s': %(e)s"
 
 #: ui/uiwx/dEditor.py:1446
 #, python-format
 msgid "Could not save file '%s'. Please check your write permissions."
 msgstr ""
+"Nelze uložit soubor '%s'. Prosím zkontrolujte svá oprávnění k zápisu."
 
 #: ui/uiwx/dDataControlMixin.py:86 ui/uiwx/dEditor.py:2401
 #, python-format
 msgid "Could not set value of %s to %s. Error message: %s"
-msgstr ""
+msgstr "Nelze nastavit hodnotu %s na %s. Chybová zpráva: %s"
 
 #: biz/dAutoBizobj.py:147
 msgid "Could not setup the database. Access was denied."
-msgstr ""
+msgstr "Nelze nastavit databázi. Přístup byl zamítnut."
 
 #: ui/uiwx/dBaseMenuBar.py:78
 msgid "Cu&t"
-msgstr ""
+msgstr "&Vyjmout"
 
 #: ui/dialogs/PreferenceDialog.py:152
 msgid "Current Key:"
-msgstr ""
+msgstr "Současná klávesa:"
 
 #: ui/uiwx/dEditor.py:2581
 msgid "Current contents of the editor  (str)"
-msgstr ""
+msgstr "Současný obsah editoru (řetězec)"
 
 #: db/dCursorMixin.py:2596
 msgid "Current number of rows in the recordset. Read-only."
-msgstr ""
+msgstr "Současný počet řádků v sadě záznamů. Pouze ke čtení"
 
 #: db/dCursorMixin.py:2593
 msgid "Current row in the recordset."
-msgstr ""
+msgstr "Současná řada v sadě záznamů"
 
 #: ui/uiwx/dEditor.py:2141
 #, python-format
 msgid "Currently only %s are supported"
-msgstr ""
+msgstr "V současnosti jsou podporovány pouze %s"
 
 #: ui/uiwx/dGrid.py:4461
 msgid "Currently selected column index. (int)"
-msgstr ""
+msgstr "Nyní vybraný index sloupce. (celé číslo)"
 
 #: ui/uiwx/dGrid.py:4467
 msgid "Currently selected row  (int)"
-msgstr ""
+msgstr "Nyní vybraný řádek (celé číslo)"
 
 #: ui/uiwx/dTextBoxMixin.py:368
 msgid ""
 "Currently selected text. Returns the empty string if nothing is selected  "
 "(str)"
 msgstr ""
+"Současně vybraný text. Pokud není nic vybráno, je vrácen prázdný řetězec "
+"(řetězec)"
 
 #: ui/uiwx/dGrid.py:1459
 msgid ""
@@ -1318,46 +1431,46 @@ msgstr ""
 
 #: ui/uiwx/dForm.py:468
 msgid "Database Action Failed"
-msgstr ""
+msgstr "Činnost databáze selhala"
 
 #: ui/uiwx/dForm.py:467
 #, python-format
 msgid "Database Execution failed with response: %s"
-msgstr ""
+msgstr "Spuštění databáze selhalo s odpovědí: %s"
 
 #: biz/RemoteBizobj.py:195
 #, python-format
 msgid "Database Query Exception: %s."
-msgstr ""
+msgstr "Výjimka dotazu databáze: %s"
 
 #: db/dbSQLite.py:59
 #, python-format
 msgid "Database file '%s' does not exist"
-msgstr ""
+msgstr "Soubor databáze '%s' neexistuje"
 
 #: ui/uiwx/dShell.py:139
 msgid "Dataset containing the command history  (dDataSet)"
-msgstr ""
+msgstr "Datová sada obsahující historii příkazů (dDataSet)"
 
 #: ui/uiwx/dBaseMenuBar.py:40
 msgid "De&bug Output Window"
-msgstr ""
+msgstr "&Ladit výstupní okno"
 
 #: ui/uiwx/dForm.py:956
 msgid "Deactivate"
-msgstr ""
+msgstr "Deaktivovat"
 
 #: ui/uiwx/uiApp.py:409
 msgid "Debug Output"
-msgstr ""
+msgstr "Ladící výstup"
 
 #: ui/uiwx/dBaseMenuBar.py:131
 msgid "Decrease Font Size"
-msgstr ""
+msgstr "Zmenšit velikost písma"
 
 #: ui/uiwx/dTreeView.py:1310
 msgid "Default ToolTip for the Tree"
-msgstr ""
+msgstr "Výchozí popisek pro strom"
 
 #: ui/uiwx/dPageFrameMixin.py:413 ui/uiwx/dPageFrameNoTabs.py:250
 msgid ""
@@ -1378,37 +1491,37 @@ msgstr ""
 
 #: lib/datanav/Form.py:120
 msgid "Delete"
-msgstr ""
+msgstr "Smazat"
 
 #: ui/uiwx/dForm.py:551
 #, python-format
 msgid "Delete All failed with response: %s"
-msgstr ""
+msgstr "Smazat všechny selhávající s odpovědí: %s"
 
 #: ui/uiwx/dForm.py:518
 #, python-format
 msgid "Delete failed with response: %s"
-msgstr ""
+msgstr "Smazat selhávající s odpovědí: %s"
 
 #: lib/datanav/Form.py:211
 msgid "Delete the current record from the dataset."
-msgstr ""
+msgstr "Smazat současný záznam z datové sady"
 
 #: lib/datanav/Form.py:120 lib/datanav/Grid.py:149
 msgid "Delete this record"
-msgstr ""
+msgstr "Smazat tento záznam"
 
 #: ui/uiwx/dForm.py:519 ui/uiwx/dForm.py:552
 msgid "Deletion Not Allowed"
-msgstr ""
+msgstr "Smazání není povoleno"
 
 #: biz/dBizobj.py:534
 msgid "Deletion prohibited - there are related child records."
-msgstr ""
+msgstr "Smazání zakázáno - existují související podřazené záznamy."
 
 #: ui/uiwx/dGrid.py:1494
 msgid "Description of the data type for this column  (str)"
-msgstr ""
+msgstr "Popis typu dat pro tento sloupec (řetězec)"
 
 #: ui/uiwx/dListControl.py:680
 msgid ""
