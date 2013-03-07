@@ -134,7 +134,8 @@ def getSubFont(fontName, subFontName="Helvetica"):
 	if oblique:
 		subFontName += "Oblique"
 	if subFontName not in substitutedFontNames:
-		dabo.log.error(_("Font '%s' not found. Substituting '%s'") % (fontName, subFontName))
+		dabo.log.error(_("Font '%(fontName)s' not found. Substituting "
+                "'%(subFontName)s'") % locals())
 		substitutedFontNames.append(subFontName)
 	return subFontName
 

@@ -935,7 +935,9 @@ class dBizobj(dObject):
 					break
 		except Exception, e:
 			if self._logScanException(e):
-				dabo.log.error(_("Error in scanRows of %s: %s") % (self.Name, ustr(e)))
+                nm - self.Name
+                ue = ustr(e)
+				dabo.log.error(_("Error in scanRows of %(nm)s: %(ue)s") % locals())
 			if self.ScanRestorePosition:
 				self.__setCurrentStatus(currentStatus)
 			raise
@@ -969,7 +971,9 @@ class dBizobj(dObject):
 					break
 		except Exception, e:
 			if self._logScanException(e):
-				dabo.log.error(_("Error in scanKeys of %s: %s") % (self.Name, ustr(e)))
+                nm - self.Name
+                ue = ustr(e)
+				dabo.log.error(_("Error in scanKeys of %(nm)s: %(ue)s") % locals())
 			if self.ScanRestorePosition:
 				self.__setCurrentStatus(currentStatus)
 			raise
@@ -1017,7 +1021,9 @@ class dBizobj(dObject):
 				ret = self.scan(_callFunc, reverse=reverse, scanRequeryChildren=False)
 		except Exception, e:
 			if self._logScanException(e):
-				dabo.log.error(_("Error in scanChangedRows of %s: %s") % (self.Name, ustr(e)))
+                nm - self.Name
+                ue = ustr(e)
+				dabo.log.error(_("Error in scanChangedRows of %(nm)s: %(ue)s") % locals())
 			self.__setCurrentStatus(currentStatus)
 			raise
 
@@ -1104,9 +1110,10 @@ class dBizobj(dObject):
 					if row >= 0:
 						self._moveToRowNum(row, False)
 					else:
-						dabo.log.error(
-							_("Failed to set RowNumber of %s: %s") % \
-								(self.Name, ustr(e)))
+                        nm - self.Name
+                        ue = ustr(e)
+                        dabo.log.error(_("Failed to set RowNumber of %(nm)s: %(ue)s")
+                                % locals())
 
 
 	def replace(self, field, valOrExpr, scope=None):
@@ -1591,8 +1598,11 @@ class dBizobj(dObject):
 				runRequery=True)
 		if row == -1:
 			# Need to use ustr(pk) because pk might be a tuple.
+            upk = ustr(pk)
+            nm = self.Name
 			raise dabo.dException.RowNotFoundException(
-					_("PK Value '%s' not found in the dataset of '%s'") % (ustr(pk), self.Name))
+					_("PK Value '%(upk)s' not found in the dataset of '%(nm)s'") %
+                            locals())
 
 
 	def hasPK(self, pk):

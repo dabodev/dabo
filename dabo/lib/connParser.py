@@ -51,8 +51,9 @@ class connHandler(xml.sax.ContentHandler):
 				# We can now define custom connection parameters, example:
 				# <dialect type="int">1</dialect>
 				# It's an extended connection information, we log it.
-				dabo.log.info(_(u"Extended database connection parameter loaded: %s = %s") % \
-						(self.element, content))
+                elem = self.element
+				dabo.log.info(_(u"Extended database connection parameter loaded: "
+                        "%(elem)s = %(content)s") % locals())
 				atype = self.attributes.get("type", None)
 				if not atype:
 					# Set default type to 'str'.

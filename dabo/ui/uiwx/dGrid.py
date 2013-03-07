@@ -3413,8 +3413,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		elif isinstance(colOrIdx, dColumn):
 			return colOrIdx if returnColumn else self.Columns.index(colOrIdx)
 		else:
-			msg = _("Values must be a dColumn or an int; received '%s' (%s)") % (
-					colOrIdx, type(colOrIdx))
+            typcoi = type(colOrIdx)
+			msg = _("Values must be a dColumn or an int; received '%(colOrIdx)s' "
+                    "(%(typcoi)s)") % locals())
 			if logOnly:
 				dabo.log.error(msg)
 				return None
@@ -3555,8 +3556,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self.RowHeight = ht
 		else:
 			if row >= self.RowCount:
+                rcm = self.RowCount - 1
 				dabo.log.error(_("Specified row is out of range for setRowHeight(). "
-						"Attempted: %s; max row: %s") % (row, self.RowCount - 1))
+						"Attempted: %(row)s; max row: %(rcm)s") % locals())
 				return
 			self.SetRowSize(row, ht)
 

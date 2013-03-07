@@ -213,7 +213,7 @@ class EditorPageFrame(dabo.ui.dPageFrame):
 					self.SelectedPage = pg
 					ret = pg
 			except StandardError as e:
-				dabo.log.error(_("Error opening file '%s': %s") % (pth, e))
+				dabo.log.error(_("Error opening file '%(pth)s': %(e)s") % locals())
 				dabo.ui.callAfter(self.removePage, pg)
 				ret = None
 		return ret
