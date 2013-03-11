@@ -13,9 +13,9 @@ from dPanel import dPanel
 
 class dCollapsiblePanel(dcm.dControlMixin, pcp.PyCollapsiblePane):
 	"""
-    A collapsible pane is a container with an embedded button-like control which can
-    be used by the user to collapse or expand the pane's contents.
-    """
+	A collapsible pane is a container with an embedded button-like control which can
+	be used by the user to collapse or expand the pane's contents.
+	"""
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		val = self._extractKey((kwargs, properties, attProperties), "PanelStyle", "Label")

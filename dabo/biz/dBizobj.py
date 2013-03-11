@@ -13,7 +13,7 @@ from dabo.dObject import dObject
 from dabo.lib.RemoteConnector import RemoteConnector
 
 
-NO_RECORDS_PK = "75426755-2f32-4d3d-86b6-9e2a1ec47f2c"  ## Can't use None
+NO_RECORDS_PK = "75426755-2f32-4d3d-86b6-9e2a1ec47f2c"	## Can't use None
 # To filter logging noise in scan methods, identify the redundant exceptions.
 _scanExceptionId = None
 
@@ -106,9 +106,9 @@ class dBizobj(dObject):
 		### CASCADE - changes to the parent are cascaded to the children
 		self.deleteChildLogic = kons.REFINTEG_CASCADE  # child records will be deleted
 		self.updateChildLogic = kons.REFINTEG_IGNORE   # parent keys can be changed w/o
-		                                            # affecting children
+													# affecting children
 		self.insertChildLogic = kons.REFINTEG_IGNORE   # child records can be inserted
-		                                            # even if no parent record exists.
+													# even if no parent record exists.
 		##########################################
 
 		self.beforeInit()
@@ -298,7 +298,7 @@ class dBizobj(dObject):
 					apply(main.__init__, (self,) + args, kwargs)
 				if hasattr(secondary, "__init__"):
 					apply(secondary.__init__, (self,) + args, kwargs)
-		return  cursorMix
+		return	cursorMix
 
 
 	def first(self):
@@ -835,7 +835,7 @@ class dBizobj(dObject):
 		"""
 		Returns a dictionary of bizobj references and the results of
 		getRecordStatus() on each changed row. Use to easily inspect
-		the current	dirty records in the hierarchy.
+		the current dirty records in the hierarchy.
 		"""
 		if not ret:
 			ret = {}
@@ -935,8 +935,8 @@ class dBizobj(dObject):
 					break
 		except Exception, e:
 			if self._logScanException(e):
-                nm - self.Name
-                ue = ustr(e)
+				nm - self.Name
+				ue = ustr(e)
 				dabo.log.error(_("Error in scanRows of %(nm)s: %(ue)s") % locals())
 			if self.ScanRestorePosition:
 				self.__setCurrentStatus(currentStatus)
@@ -971,8 +971,8 @@ class dBizobj(dObject):
 					break
 		except Exception, e:
 			if self._logScanException(e):
-                nm - self.Name
-                ue = ustr(e)
+				nm - self.Name
+				ue = ustr(e)
 				dabo.log.error(_("Error in scanKeys of %(nm)s: %(ue)s") % locals())
 			if self.ScanRestorePosition:
 				self.__setCurrentStatus(currentStatus)
@@ -1021,8 +1021,8 @@ class dBizobj(dObject):
 				ret = self.scan(_callFunc, reverse=reverse, scanRequeryChildren=False)
 		except Exception, e:
 			if self._logScanException(e):
-                nm - self.Name
-                ue = ustr(e)
+				nm - self.Name
+				ue = ustr(e)
 				dabo.log.error(_("Error in scanChangedRows of %(nm)s: %(ue)s") % locals())
 			self.__setCurrentStatus(currentStatus)
 			raise
@@ -1110,10 +1110,10 @@ class dBizobj(dObject):
 					if row >= 0:
 						self._moveToRowNum(row, False)
 					else:
-                        nm - self.Name
-                        ue = ustr(e)
-                        dabo.log.error(_("Failed to set RowNumber of %(nm)s: %(ue)s")
-                                % locals())
+						nm - self.Name
+						ue = ustr(e)
+						dabo.log.error(_("Failed to set RowNumber of %(nm)s: %(ue)s")
+								% locals())
 
 
 	def replace(self, field, valOrExpr, scope=None):
@@ -1571,7 +1571,7 @@ class dBizobj(dObject):
 		The updateChildren parameter meaning:
 
 			| None	- the fastest one, doesn't update parent nor requery child cursor
-			| False	- update child cursor with current parent
+			| False - update child cursor with current parent
 			| True	- do both, update child cursor's parent and requery child cursor.
 		"""
 		if updateChildren is not None:
@@ -1579,7 +1579,7 @@ class dBizobj(dObject):
 				# Let the child update to the current record:
 				child.setCurrentParent()
 				# consolidation note: 1) requeryAllChildren() checked for child.isAnyChanged();
-				#                     2) _resetChildrenParent instead checked for child.RowCount == 0
+				#					  2) _resetChildrenParent instead checked for child.RowCount == 0
 				# I think both are wrong. In #1, you'd never get a requery of that child if there was
 				# one changed record in the hierarchy, plus there are performance issues in running
 				# that check. In #2, you'd never get a child requery unless RowCount was 0. I'm leaving
@@ -1598,11 +1598,11 @@ class dBizobj(dObject):
 				runRequery=True)
 		if row == -1:
 			# Need to use ustr(pk) because pk might be a tuple.
-            upk = ustr(pk)
-            nm = self.Name
+			upk = ustr(pk)
+			nm = self.Name
 			raise dabo.dException.RowNotFoundException(
 					_("PK Value '%(upk)s' not found in the dataset of '%(nm)s'") %
-                            locals())
+							locals())
 
 
 	def hasPK(self, pk):
@@ -2129,7 +2129,7 @@ class dBizobj(dObject):
 		"""
 		Get the entire data set encapsulated in a list.
 
-		If the optional	'flds' parameter is given, the result set will be filtered
+		If the optional 'flds' parameter is given, the result set will be filtered
 		to only include the specified fields. rowStart specifies the starting row
 		to include, and rows is the number of rows to return.
 		"""
@@ -3146,7 +3146,7 @@ afterDelete() which is only called after a delete().""")
 
 
 
-	### -------------- Property Definitions ------------------  ##
+	### -------------- Property Definitions ------------------	##
 	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None,
 			_("Determines if we are using a table that auto-generates its PKs. (bool)"))
 
@@ -3187,7 +3187,7 @@ afterDelete() which is only called after a delete().""")
 
 	DataSourceName = property(_getDataSourceName, _setDataSourceName, None,
 			_("""If set, treated as cursor real table name where DataSource
-			is an alias	for it. This allows coexistence of many business objects
+			is an alias for it. This allows coexistence of many business objects
 			with same data source on single form. (str)
 
 			Example:
@@ -3230,11 +3230,11 @@ afterDelete() which is only called after a delete().""")
 			"""))
 
 	Encoding = property(_getEncoding, _setEncoding, None,
-			_("Name of encoding to use for unicode  (str)"))
+			_("Name of encoding to use for unicode	(str)"))
 
 	FillLinkFromParent = property(_getFillLinkFromParent, _setFillLinkFromParent, None,
 			_("""In the onNew() method, do we fill in the foreign key field specified by the
-			LinkField property with the value returned by calling the bizobj's 	getParentPK()
+			LinkField property with the value returned by calling the bizobj's	getParentPK()
 			method? (bool)
 			"""))
 
@@ -3276,7 +3276,7 @@ afterDelete() which is only called after a delete().""")
 
 	_RemoteProxy = property(_getRemoteProxy, None, None,
 			_("""If this bizobj is being run remotely, returns a reference to the RemoteConnector
-			object that will handle communication with the server.  (read-only) (RemoteConnector)
+			object that will handle communication with the server.	(read-only) (RemoteConnector)
 			"""))
 
 	RequeryChildOnSave = property(_getRequeryChildOnSave, _setRequeryChildOnSave, None,
@@ -3331,7 +3331,7 @@ afterDelete() which is only called after a delete().""")
 	ScanRequeryChildren = property(_getScanRequeryChildren, _setScanRequeryChildren, None,
 			_("""When calling the scan() function, this property determines if we
 			requery any child bizobjs for each row in this bizobj. The default is False,
-			as this has the potential to cause performance issues.  (bool)
+			as this has the potential to cause performance issues.	(bool)
 			"""))
 
 	ScanReverse = property(_getScanReverse, _setScanReverse, None,

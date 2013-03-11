@@ -94,9 +94,9 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 		elif sst in ("n", "r"):
 			self._delWindowStyleFlag(platebtn.PB_STYLE_SQUARE)
 		else:
-            nm = self.Name
+			nm = self.Name
 			raise ValueError(_("Invalid value of %(nm)s.ButtonShape "
-                    "property: %(val)s") % locals())
+					"property: %(val)s") % locals())
 
 
 	def _getCancelButton(self):

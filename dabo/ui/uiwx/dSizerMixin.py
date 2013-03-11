@@ -347,7 +347,7 @@ class dSizerMixin(dObject):
 			row, col = pos
 			if self.getItemByRowCol(row, col):
 				raise ValueError(_("An object already exists at %(row)s, "
-                        "%(col)s") % locals())
+						"%(col)s") % locals())
 			self.remove(obj)
 			self.append(obj, row=row, col=col)
 			self.setItemProps(obj, props)

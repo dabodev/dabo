@@ -53,7 +53,7 @@ class connHandler(xml.sax.ContentHandler):
 				# It's an extended connection information, we log it.
                 elem = self.element
 				dabo.log.info(_(u"Extended database connection parameter loaded: "
-                        "%(elem)s = %(content)s") % locals())
+						"%(elem)s = %(content)s") % locals())
 				atype = self.attributes.get("type", None)
 				if not atype:
 					# Set default type to 'str'.

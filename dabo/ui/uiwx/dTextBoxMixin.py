@@ -791,10 +791,10 @@ class dTextBoxMixin(dTextBoxMixinBase):
 					setter(strVal)
 				except ValueError as e:
 					#PVG: maskedtextedit sometimes fails, on value error..allow the code to continue
-                    uv = ustr(strVal)
-                    ue = ustr(e)
+					uv = ustr(strVal)
+					ue = ustr(e)
 					dabo.log.error(_("Error setting value to '%(uv)s': "
-                            "%(ue)s") % locals())
+							"%(ue)s") % locals())
 
 			if type(_oldVal) != type(val) or _oldVal != val:
 				self._afterValueChanged()
