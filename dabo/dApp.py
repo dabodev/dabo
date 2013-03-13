@@ -507,13 +507,9 @@ try again when it is running.
 					self.uiApp.addToMRU(cleanCap, itm, fcn)
 
 
-	def getAppInfo(self, item):
+	def getAppInfo(self, item, default=None):
 		"""Look up the item, and return the value."""
-		try:
-			retVal = self._appInfo[item]
-		except KeyError:
-			retVal = None
-		return retVal
+		return self._appInfo.get(item, default)
 
 
 	def setAppInfo(self, item, value):
