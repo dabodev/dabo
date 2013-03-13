@@ -3415,7 +3415,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		else:
 			typcoi = type(colOrIdx)
 			msg = _("Values must be a dColumn or an int; received '%(colOrIdx)s' "
-					"(%(typcoi)s)") % locals())
+					"(%(typcoi)s)") % locals()
 			if logOnly:
 				dabo.log.error(msg)
 				return None
