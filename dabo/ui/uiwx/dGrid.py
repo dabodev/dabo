@@ -2098,7 +2098,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def GetValue(self, row, col, dynamicUpdate=True):
 		try:
 			ret = self._Table.GetValue(row, col, dynamicUpdate=dynamicUpdate)
-		except AttributeError:
+		except (AttributeError, TypeError):
 			ret = super(dGrid, self).GetValue(row, col)
 		return ret
 
