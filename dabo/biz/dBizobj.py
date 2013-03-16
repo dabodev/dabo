@@ -935,7 +935,7 @@ class dBizobj(dObject):
 					break
 		except Exception, e:
 			if self._logScanException(e):
-				nm - self.Name
+				nm = self.Name
 				ue = ustr(e)
 				dabo.log.error(_("Error in scanRows of %(nm)s: %(ue)s") % locals())
 			if self.ScanRestorePosition:
@@ -971,7 +971,7 @@ class dBizobj(dObject):
 					break
 		except Exception, e:
 			if self._logScanException(e):
-				nm - self.Name
+				nm = self.Name
 				ue = ustr(e)
 				dabo.log.error(_("Error in scanKeys of %(nm)s: %(ue)s") % locals())
 			if self.ScanRestorePosition:
@@ -1021,7 +1021,7 @@ class dBizobj(dObject):
 				ret = self.scan(_callFunc, reverse=reverse, scanRequeryChildren=False)
 		except Exception, e:
 			if self._logScanException(e):
-				nm - self.Name
+				nm = self.Name
 				ue = ustr(e)
 				dabo.log.error(_("Error in scanChangedRows of %(nm)s: %(ue)s") % locals())
 			self.__setCurrentStatus(currentStatus)
@@ -1110,7 +1110,7 @@ class dBizobj(dObject):
 					if row >= 0:
 						self._moveToRowNum(row, False)
 					else:
-						nm - self.Name
+						nm = self.Name
 						ue = ustr(e)
 						dabo.log.error(_("Failed to set RowNumber of %(nm)s: %(ue)s")
 								% locals())
