@@ -5317,6 +5317,17 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 				The default is False."""))
 
+	SaveRestoreDataSet = property(_getSaveRestoreDataSet, _setSaveRestoreDataSet, None,
+			_("""Specifies whether the DataSet is persisted to preferences (bool).
+
+				This allows you to build a grid to capture user input of some form, and
+				instead of saving the row and field values to a database, to save the
+				entire dataset to a single key in the prefs table.
+
+				Use this sparingly for grids that won't grow too large.
+
+				The default is False."""))
+
 	Searchable = property(_getSearchable, _setSearchable, None,
 			_("""Specifies whether the columns can be searched.	  (bool)
 
