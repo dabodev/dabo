@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
+import datetime
+from decimal import Decimal
 import dabo.db
 from dabo.lib import getRandomUUID
 
@@ -37,8 +39,28 @@ class Test_dCursorMixin(object):
 		self.cur = None
 
 	def createSchema(self):
-		"""Create the test schema. Override in subclasses."""
 		cur = self.cur
+		tableName = self.temp_table_name
+		cur.executescript("""
+create table %s (
+    pk INTEGER PRIMARY KEY AUTOINCREMENT,
+    cfield CHAR,
+    ifield INT,
+    nfield DECIMAL (8,2),
+    ffield FLOAT
+);
+insert into %s (cfield, ifield, nfield, ffield)
+    values ("Paul Keith McNett", 23, 23.23, 3.14159);
+insert into %s (cfield, ifield, nfield, ffield)
+    values ("Edward Leafe", 42, 42.42, 0.999999);
+insert into %s (cfield, ifield, nfield, ffield)
+    values ("Carl Karsten", 10223, 23032.76, 11);
+""" % (tableName, tableName, tableName, tableName, ))
+
+	def createNullRecord(self):
+		self.cur.AuxCursor.execute("""
+insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
+""" % self.temp_table_name)
 
 	def getAdditionalWhere(self):
 		return ""
@@ -266,6 +288,40 @@ class Test_dCursorMixin(object):
 		self.assertEqual(cur.Record.ifield, 0)
 		self.assertEqual(cur.Record.nfield, 0)
 
+	def test_datatypes(self):
+		"""
+		Make sure the datatypes in the dCursor are correct.
+		"""
+		cur = self.cur
+		rec = cur.Record
+		self.assertIsInstance(rec.cfield, basestring)
+		self.assertIsInstance(rec.ifield, int)
+		self.assertIsInstance(rec.nfield, Decimal)
+		self.assertEqual(dabo.convertFloatToDecimal, True)
+		self.assertIsInstance(rec.ffield, Decimal)
+		dabo.convertFloatToDecimal = False
+		cur.requery()
+		self.assertEqual(dabo.convertFloatToDecimal, False)
+		self.assertIsInstance(rec.ffield, float)
+
+	def test_convert_float_to_decimal(self):
+		"""
+		Make sure precision is kept.
+		"""
+		cur = self.cur
+		rec = cur.Record
+#    values ("Paul Keith McNett", 23, 23.23, 3.14159);
+#    values ("Edward Leafe", 42, 42.42, 0.999999);
+#    values ("Carl Karsten", 10223, 23032.76, 11);
+		self.assertEqual(rec.ffield, Decimal("3.14159"))
+		self.assertEqual(str(rec.ffield), "3.14159")
+		cur.next()
+		self.assertEqual(rec.ffield, Decimal("0.999999"))
+		self.assertEqual(str(rec.ffield), "0.999999")
+		cur.next()
+		self.assertEqual(rec.ffield, Decimal("11"))
+		self.assertEqual(str(rec.ffield), "11.0")
+
 
 class Test_dCursorMixin_sqlite(Test_dCursorMixin, unittest.TestCase):
 	def setUp(self):
@@ -273,21 +329,6 @@ class Test_dCursorMixin_sqlite(Test_dCursorMixin, unittest.TestCase):
 		self.cur = con.getDaboCursor()
 		self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
 		super(Test_dCursorMixin_sqlite, self).setUp()
-
-	def createSchema(self):
-		cur = self.cur
-		tableName = self.temp_table_name
-		cur.executescript("""
-create table %s (pk INTEGER PRIMARY KEY AUTOINCREMENT, cfield CHAR, ifield INT, nfield DECIMAL (8,2));
-insert into %s (cfield, ifield, nfield) values ("Paul Keith McNett", 23, 23.23);
-insert into %s (cfield, ifield, nfield) values ("Edward Leafe", 42, 42.42);
-insert into %s (cfield, ifield, nfield) values ("Carl Karsten", 10223, 23032.76);
-""" % (tableName, tableName, tableName, tableName, ))
-
-	def createNullRecord(self):
-		self.cur.AuxCursor.execute("""
-insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
-""" % self.temp_table_name)
 
 
 class Test_dCursorMixin_mysql(Test_dCursorMixin, unittest.TestCase):
@@ -303,26 +344,6 @@ class Test_dCursorMixin_mysql(Test_dCursorMixin, unittest.TestCase):
 		self.cur.execute("drop table %s" % self.temp_table_name)
 		super(Test_dCursorMixin_mysql, self).tearDown()
 
-	def createSchema(self):
-		cur = self.cur
-		cur.execute("""
-create table %s (pk INTEGER PRIMARY KEY AUTO_INCREMENT, cfield CHAR (32), ifield INT, nfield DECIMAL (8,2))
-""" % self.temp_table_name)
-		cur.execute("""
-insert into %s (cfield, ifield, nfield) values ("Paul Keith McNett", 23, 23.23)
-""" % self.temp_table_name)
-		cur.execute("""
-insert into %s (cfield, ifield, nfield) values ("Edward Leafe", 42, 42.42)
-""" % self.temp_table_name)
-		cur.execute("""
-insert into %s (cfield, ifield, nfield) values ("Carl Karsten", 10223, 23032.76)
-""" % self.temp_table_name)
-
-	def createNullRecord(self):
-		self.cur.AuxCursor.execute("""
-insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
-""" % self.temp_table_name)
-
 
 class Test_dCursorMixin_oracle(Test_dCursorMixin, unittest.TestCase):
 	def setUp(self):
@@ -336,26 +357,6 @@ class Test_dCursorMixin_oracle(Test_dCursorMixin, unittest.TestCase):
 	def tearDown(self):
 		self.cur.execute("drop table %s" % self.temp_table_name)
 		super(Test_dCursorMixin_mysql, self).tearDown()
-
-	def createSchema(self):
-		cur = self.cur
-		cur.execute("""
-create table %s (pk INTEGER PRIMARY KEY, cfield CHAR (32), ifield INT, nfield DECIMAL (8,2))
-""" % self.temp_table_name)
-		cur.execute("""
-insert into %s (cfield, ifield, nfield) values ("Paul Keith McNett", 23, 23.23)
-""" % self.temp_table_name)
-		cur.execute("""
-insert into %s (cfield, ifield, nfield) values ("Edward Leafe", 42, 42.42)
-""" % self.temp_table_name)
-		cur.execute("""
-insert into %s (cfield, ifield, nfield) values ("Carl Karsten", 10223, 23032.76)
-""" % self.temp_table_name)
-
-	def createNullRecord(self):
-		self.cur.AuxCursor.execute("""
-insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
-""" % self.temp_table_name)
 
 
 class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
