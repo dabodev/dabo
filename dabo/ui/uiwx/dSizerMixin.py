@@ -346,7 +346,8 @@ class dSizerMixin(dObject):
 		elif isinstance(self, wx.GridBagSizer):
 			row, col = pos
 			if self.getItemByRowCol(row, col):
-				raise ValueError(_("An object already exists at %s, %s") % (row, col))
+				raise ValueError(_("An object already exists at %(row)s, "
+						"%(col)s") % locals())
 			self.remove(obj)
 			self.append(obj, row=row, col=col)
 			self.setItemProps(obj, props)

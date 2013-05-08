@@ -26,6 +26,7 @@ class dPemMixin(dPemMixinBase):
 	functions along with their own property() statements.
 	"""
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, False
+	_layout_on_set_caption = False
 
 	def __init__(self, preClass=None, parent=None, properties=None,
 			attProperties=None, srcCode=None, *args, **kwargs):
@@ -1010,6 +1011,18 @@ class dPemMixin(dPemMixinBase):
 		paged controls to switch to the page that contains this object.
 		"""
 		import dabo.ui.dialogs
+		cntnr = self.getContainingPage()
+		if isinstance(cntnr, dabo.ui.dialogs.WizardPage):
+			self.Form.CurrentPage = cntnr
+		else:
+			cntnr.Parent.SelectedPage = cntnr
+
+
+	def getContainingPage(self):
+		"""
+		Return the dPage or WizardPage that contains self.
+		"""
+		import dabo.ui.dialogs
 		try:
 			frm = self.Form
 		except AttributeError:
@@ -1019,10 +1032,7 @@ class dPemMixin(dPemMixinBase):
 		mtch = {True: dabo.ui.dialogs.WizardPage, False: dabo.ui.dPage}[iswiz]
 		while cntnr and not isinstance(cntnr, dabo.ui.dForm):
 			if isinstance(cntnr, mtch):
-				if iswiz:
-					frm.CurrentPage = cntnr
-				else:
-					cntnr.Parent.SelectedPage = cntnr
+				return cntnr
 			cntnr = cntnr.Parent
 
 
@@ -2081,6 +2091,14 @@ class dPemMixin(dPemMixinBase):
 					# wxPython 2.7.x started not having this attribute for labels
 					# at least.
 					pass
+
+				if getattr(self, "_layout_on_set_caption", False):
+					try:
+						self.Parent.layout()
+					except AttributeError:
+						# no parent?
+						pass
+
 		if self._constructed():
 			try:
 				if self.WordWrap or self._properties["WordWrap"]:

@@ -646,69 +646,81 @@ class AppWizard(Wizard):
 
 			## Create the main script:
 			fname = "./%s.py" % appName
-			f = open(fname, "w")
-			f.write(self.getMain(ci.Name, selTb[0], appName))
-			f.close()
+			with file(fname, "w") as f:
+				txt = ustr(self.getMain(ci.Name, selTb[0], appName))
+				f.write(txt)
 			os.chmod(fname, 0744)
 
 			## Create a shell script to run the main script:
-			filecont = "# go.sh\n"
-			filecont += "# launches the %s app.\n" % appName
-			filecont += "cd %s\n" % self.outputDirectory
-			filecont += "python %s.py %s\n" % (appName, tableName)
-			filecont += "# python %s.py --OpenAll\n" % (appName)
-			f = open("./go.sh", "w").write(filecont)
-			f = open("./go.bat", "w").write(filecont)
+			outdir = self.outputDirectory
+			filecont = """
+# go.sh
+# launches the %(appName)s app.
+cd %(outdir)s
+python %(appName)s.py %(tableName)s
+# python %(appName)s.py --OpenAll""".strip() % locals()
+			with file("./go.sh", "w") as f:
+				f.write(ustr(filecont))
 
 			import stat
 			os.chmod('go.sh',stat.S_IRWXU )  ## rwx for user, nothing else.
 
 			## Create the manifest file (for xp theme support):
 			pth = os.path.join(self.wizDir, "spec-main.exe.manifest")
-			txt = open(pth).read() % locals()
-			open("./%s.exe.manifest" % appName, "w").write(txt)
+			txt = ustr(file(pth).read() % locals())
+			with file("./%s.exe.manifest" % appName, "w") as f:
+				f.write(ustr(txt))
 
 			## Create App.py:
-			f = open("./App.py", "w")
-			f.write(self.getApp(appName))
-			f.close()
+			with file("./App.py", "w") as f:
+				f.write(ustr(self.getApp(appName)))
 
 			## version.py:
-			open("./version.py", "w").write(self.getVersion())
+			with file("./version.py", "w") as f:
+				f.write(ustr(self.getVersion()))
 
 			## setup.py:
-			open("./setup.py", "w").write(self.getSetup(appName))
-			open("./buildwin.bat", "w").write(self.getBuildwin(appName))
-			open("./buildmac", "w").write(self.getBuildMac(appName))
-			open("./buildlin", "w").write(self.getBuildLin(appName))
+			with file("./setup.py", "w") as f:
+				f.write(ustr(self.getSetup(appName)))
+			with file("./buildwin.bat", "w") as f:
+				f.write(ustr(self.getBuildwin(appName)))
+			with file("./buildmac", "w") as f:
+				f.write(ustr(self.getBuildMac(appName)))
+			with file("./buildlin", "w") as f:
+				f.write(ustr(self.getBuildLin(appName)))
 			if not sys.platform.startswith("win"):
 				os.system("chmod 755 ./buildmac")
 				os.system("chmod 755 ./buildlin")
 
 			# Db module:
 			os.chdir("./db")
-			open("./__init__.py", "w").write(self.getModuleInit_db())
-			open("./default.cnxml", "w").write(self.getDbConnXML(ci))
+			with file("./__init__.py", "w") as f:
+				f.write(ustr(self.getModuleInit_db()))
+			with file("./default.cnxml", "w") as f:
+				f.write(ustr(self.getDbConnXML(ci)))
 
 			# Write the sample getDataSet:
-			open("./getSampleDataSet.py", "w").write(self.getSampleDataSet())
+			with file("./getSampleDataSet.py", "w") as f:
+				f.write(ustr(self.getSampleDataSet()))
 
 			# Biz module:
 			os.chdir("../biz")
 
 			bizImports = []
 			# Write the base bizobj:
-			open("./Base.py", "w").write(self.getBaseBizobj())
+			with file("./Base.py", "w") as f:
+				f.write(ustr(self.getBaseBizobj()))
 
 			# Write each bizobj:
 			for table in selTb:
 				tableName = getSafeTableName(table)
 				bizImports.append(tableName)
-				f = open("./%s.py" % tableName, "w")
-				f.write(self.getBizobj(td, table))
-				f.close()
+				with file("./%s.py" % tableName, "w") as bizfile:
+					txt = ustr(self.getBizobj(td, table))
+					bizfile.write(txt)
 
-			open("./__init__.py", "w").write(self.getModuleInit_biz(bizImports))
+			with file("./__init__.py", "w") as f:
+				f.write(ustr(self.getModuleInit_biz(bizImports)))
 
 			# UI module:
 			os.chdir("../ui")
@@ -717,33 +729,38 @@ class AppWizard(Wizard):
 			uiImports = []
 
 			## File|Open menu:
-			f = open("./MenFileOpen.py", "w")
-			f.write(self.getFileOpenMenu(selTb))
-			f.close()
+			with file("./MenFileOpen.py", "w") as f:
+				f.write(ustr(self.getFileOpenMenu(selTb)))
 
 			## Reports menu:
-			f = open("./MenReports.py", "w")
-			f.write(self.getReportsMenu())
+			with file("./MenReports.py", "w") as f:
+				f.write(ustr(self.getReportsMenu()))
 			f.close()
 
 			## FrmReportBase and FrmReportSample:
 			uiImports.append("FrmReportSample")
-			open("./FrmReportBase.py", "w").write(self.getFrmReportBase())
-			open("./FrmReportSample.py", "w").write(self.getFrmReportSample())
+			with file("./FrmReportBase.py", "w") as f:
+				f.write(ustr(self.getFrmReportBase()))
+			with file("./FrmReportSample.py", "w") as f:
+				f.write(ustr(self.getFrmReportSample()))
 
 			## base pages:
 			for page in ("PagBase", "PagSelectBase", "PagEditBase"):
-				open("./%s.py" % page, "w").write(self.getPagBase(page))
+				with file("./%s.py" % page, "w") as f:
+					f.write(ustr(self.getPagBase(page)))
 
 			## base form:
-			open("./FrmBase.py", "w").write(self.getFrmBase())
+			with file("./FrmBase.py", "w") as f:
+				f.write(ustr(self.getFrmBase()))
 
 			## base grid:
-			open("./GrdBase.py", "w").write(self.getGrdBase())
+			with file("./GrdBase.py", "w") as f:
+				f.write(ustr(self.getGrdBase()))
 
 			## FrmMain:
 			uiImports.append("FrmMain")
-			open("./FrmMain.py", "w").write(self.getFrmMain())
+			with file("./FrmMain.py", "w") as f:
+				f.write(ustr(self.getFrmMain()))
 
 			# Write each form/grid/pageset:
 			for table in selTb:
@@ -752,16 +769,17 @@ class AppWizard(Wizard):
 					className = "%s%s" % (classType[0], getSafeTableName(table))
 					if classType[0] == "Frm":
 						uiImports.append(className)
-					f = open("./%s.py" % className, "w")
-					f.write(classType[1](table))
-					f.close()
+					with file("./%s.py" % className, "w") as f:
+						f.write(ustr(classType[1](table)))
 
 			uiImports.sort()
-			open("./__init__.py", "w").write(self.getModuleInit_ui(uiImports))
+			with file("./__init__.py", "w") as f:
+				f.write(ustr(self.getModuleInit_ui(uiImports)))
 
 			# reports dir:
 			os.chdir("../reports")
-			open("./sampleReport.rfxml", "w").write(self.getSampleReport())
+			with file("./sampleReport.rfxml", "w") as f:
+				f.write(ustr(self.getSampleReport()))
 
 			# back to top directory:
 			os.chdir("..")
@@ -795,18 +813,18 @@ class AppWizard(Wizard):
 			forms = "".join((forms, """("%s", app.ui.Frm%s),\n\t\t\t\t""" %
 				(table.title(), getSafeTableName(table))))
 		forms = "".join((forms, """("-", None),\n\t\t\t\t"""))
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-MenFileOpen.py.txt")).read() % locals()
 
 
 	def getReportsMenu(self):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-MenReports.py.txt")).read() % locals()
 
 
 	def getForm(self, table):
 		tableName = getSafeTableName(table)
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-Frm.py.txt")).read() % locals()
 
 
@@ -829,7 +847,7 @@ class AppWizard(Wizard):
 			field = tup[1]
 			colDefs += colSpec % (field, field)
 
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-Grd.py.txt")).read() % locals()
 
 
@@ -904,7 +922,7 @@ class AppWizard(Wizard):
 		self.itemsCreated = True
 """
 
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-PagEdit.py.txt")).read() % locals()
 
 
@@ -1027,57 +1045,57 @@ class AppWizard(Wizard):
 
 
 """
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-PagSelect.py.txt")).read() % locals()
 
 
 	def getMain(self, dbConnectionDef, table, appName):
 		tableName = getSafeTableName(table)
 		formOpenString = "\"Frm%s\" % form_name"
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-main.py.txt")).read() % locals()
 
 
 	def getSetup(self, appName):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-setup.py.txt")).read() % locals()
 
 
 	def getBuildwin(self, appName):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-buildwin.bat")).read() % locals()
 
 	def getBuildMac(self, appName):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-buildmac")).read() % locals()
 
 	def getBuildLin(self, appName):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-buildlin")).read() % locals()
 
 	def getModuleInit_db(self):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-db__init__.py.txt")).read() % locals()
 
 
 	def getModuleInit_biz(self, bizImports):
 		lines = ["from %s import %s" % (class_, class_) for class_ in bizImports]
 		bizInit = os.linesep.join(lines)
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-biz__init__.py.txt")).read() % locals()
 
 
 	def getModuleInit_ui(self, uiImports):
 		lines = ["from %s import %s" % (class_, class_) for class_ in uiImports]
 		uiInit = os.linesep.join(lines)
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-ui__init__.py.txt")).read() % locals()
 
 
 	def getApp(self, appName):
 		appName = appName.title()
 		appKey = self.appKey
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-App.py.txt")).read() % locals()
 
 
@@ -1090,7 +1108,7 @@ class AppWizard(Wizard):
 
 
 	def getBaseBizobj(self):
-		return open(os.path.join(self.wizDir, "spec-BizBase.py.txt")).read()
+		return file(os.path.join(self.wizDir, "spec-BizBase.py.txt")).read()
 
 
 	def getBizobj(self, tableDict, table):
@@ -1124,51 +1142,51 @@ class AppWizard(Wizard):
 					field_name, field_type, field_pk, tableNameQt, field_name)
 		dataStructure += "\n\t\t)"
 
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-Biz.py.txt")).read() % locals()
 
 
 	def getGrdBase(self):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-GrdBase.py.txt")).read() % locals()
 
 
 	def getFrmBase(self):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-FrmBase.py.txt")).read() % locals()
 
 
 	def getFrmMain(self):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-FrmMain.py.txt")).read() % locals()
 
 
 	def getFrmReportBase(self):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-FrmReportBase.py.txt")).read() % locals()
 
 
 	def getFrmReportSample(self):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-FrmReportSample.py.txt")).read() % locals()
 
 
 	def getPagBase(self, pageName):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-%s.py.txt" % pageName)).read() % locals()
 
 
 	def getVersion(self):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-version.py.txt")).read() % locals()
 
 	def getSampleDataSet(self):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-getSampleDataSet.py.txt")).read() % locals()
 
 
 	def getSampleReport(self):
-		return open(os.path.join(self.wizDir,
+		return file(os.path.join(self.wizDir,
 				"spec-sampleReport.rfxml")).read() % locals()
 
 	def _onConvertTabs(evt):

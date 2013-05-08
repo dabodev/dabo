@@ -12,6 +12,8 @@ try:
 	p = subprocess.Popen(("gsprint",), shell=True, stdout=subprocess.PIPE,
 			stderr=subprocess.PIPE)
 	stdout, stderr = p.communicate()
+	if stderr.strip():
+		gsprint = False
 except OSError:
 	gsprint = False
 

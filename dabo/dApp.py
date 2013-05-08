@@ -507,13 +507,9 @@ try again when it is running.
 					self.uiApp.addToMRU(cleanCap, itm, fcn)
 
 
-	def getAppInfo(self, item):
+	def getAppInfo(self, item, default=None):
 		"""Look up the item, and return the value."""
-		try:
-			retVal = self._appInfo[item]
-		except KeyError:
-			retVal = None
-		return retVal
+		return self._appInfo.get(item, default)
 
 
 	def setAppInfo(self, item, value):
@@ -912,9 +908,10 @@ try again when it is running.
 				for f in files:
 					try:
 						cn = self.getConnectionsFromFile(f)
-					except Exception, ex:
-						dabo.log.error(
-							_("Error loading database connection info from file %s:\n%s") % (f, ustr(ex)))
+					except Exception as ex:
+						uex = ustr(ex)
+						dabo.log.error(_("Error loading database connection "
+								"info from file %(f)s:\n%(uex)s") % locals())
 					else:
 						connDefs.update(cn)
 						for kk in cn:

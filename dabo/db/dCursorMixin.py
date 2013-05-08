@@ -384,8 +384,8 @@ class dCursorMixin(dObject):
 			elif "access" in errMsg.lower():
 				raise dException.DBNoAccessException(errMsg)
 			else:
-				dabo.dbActivityLog.info(
-						_("DBQueryException encountered in execute(): %s\n%s") % (errMsg, sql))
+				dabo.dbActivityLog.info(_("DBQueryException encountered in "
+						"execute(): %(errMsg)s\n%(sql)s") % locals())
 				raise dException.DBQueryException(errMsg)
 
 		# Set the last execute time in case there is a Keep Alive Interval
@@ -904,6 +904,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			vf = self.VirtualFields[fld]
 			if not isinstance(vf, dict):
 				vf = {"func": vf}
+			vf.setdefault("args", ())
+			vf.setdefault("kwargs", {})
 
 			requery_children = (vf.get("requery_children", False) and bool(_rowChangeCallback))
 
@@ -914,7 +916,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# we aren't being called by a bizobj, so there aren't child bizobjs.
 				_oldrow = self.RowNumber
 				self.RowNumber = row
-				ret = vf["func"]()
+				ret = vf["func"](*vf["args"], **vf["kwargs"])
 				self.RowNumber = _oldrow
 				return ret
 			else:
@@ -922,7 +924,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# we need to request a row change and requery of any child bizobjs
 				# as necessary, before executing the virtual field function.
 				_rowChangeCallback(row)
-				return vf["func"]()
+				return vf["func"](*vf["args"], **vf["kwargs"])
 		else:
 			raise dException.FieldNotFoundException("%s '%s' %s" % (
 					_("Field"), fld, _("does not exist in the data set")))
@@ -1018,6 +1020,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					# convert int to long (original field val was long, but UI
 					# changed to int.
 					val = long(val)
+				elif fldType is buffer and isinstance(val, basestring):
+					# BLOB backend field wants buffer, but it is in a python string.
+					val = buffer(val)
 
 			if fldType != type(val):
 				ignore = False
@@ -2021,6 +2026,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				newval = datetime.date.min
 			elif typ is None:
 				newval = None
+			elif typ is buffer:
+				newval = buffer("")
 			else:
 				try:
 					newval = typ()
@@ -3148,4 +3155,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			_("""A dictionary mapping virtual_field_name to a function to call.
 
 			The specified function will be called when getFieldVal() is called on
-			the specified field name."""))
+			the specified field name.
+
+			The common use is to assign a bare function to a virtual field, but you can
+			also specify args and kwargs by assigning a dict with 'func', 'args' and
+			'kwargs' keys."""))

@@ -188,7 +188,7 @@ if localizeDabo:
 # On some platforms getfilesystemencoding() and even getdefaultlocale()
 # can return None, so we make sure we always set a reasonable encoding:
 fileSystemEncoding = (sys.getfilesystemencoding()
-    or locale.getdefaultlocale()[1] or defaultEncoding)
+		or locale.getdefaultlocale()[1] or defaultEncoding)
 
 if importDebugger:
 	from dBug import logPoint

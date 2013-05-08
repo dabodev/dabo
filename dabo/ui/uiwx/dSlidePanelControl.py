@@ -1,4 +1,4 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import wx
 import wx.lib.foldpanelbar as fpb
 import dabo

@@ -1806,7 +1806,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 		if key == "enter":
 			# Bring the prop sheet to top and activate the editor for the
-			# most appropriate property for the selected object(s), or if 
+			# most appropriate property for the selected object(s), or if
 			# shift is down, activate the editor for the current row in the
 			# prop sheet.
 			evt.stop()
@@ -2457,14 +2457,14 @@ class ReportDesignerForm(dabo.ui.dForm):
 
 	def restoreSizeAndPosition(self):
 		app = self.Application
-		self.editor.Zoom = app.getUserSetting("ReportDesigner_zoom", 1.0) 
-		self.super()
+		self.editor.Zoom = app.getUserSetting("ReportDesigner_zoom", 1.0)
+		super(ReportDesignerForm, self).restoreSizeAndPosition()
 
-	
+
 	def saveSizeAndPosition(self):
 		app = self.Application
 		app.setUserSetting("ReportDesigner_zoom", self.editor.Zoom)
-		self.super()
+		super(ReportDesignerForm, self).saveSizeAndPosition()
 
 
 	def onActivate(self, evt):

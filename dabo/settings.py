@@ -245,6 +245,10 @@ implicitImports = True
 # Setting to determine if we call dLocalize.install("dabo") when dabo is imported.
 localizeDabo = True
 
+# When field values are float, and DataStructure isn't explicit, do we convert float
+# values to Decimal automatically?
+convertFloatToDecimal = True
+
 ### Settings - end
 
 

@@ -17,12 +17,10 @@ def processLoc(proj, drct, xtra=None):
 		fullname = os.path.join(pth, fname)
 		newXtra = os.path.join(xtra, fname)
 		if os.path.isdir(fullname):
-			upd, ins = processLoc(proj, drct, newXtra)
-			updated += upd
-			inserted += ins
+			processLoc(proj, drct, newXtra)
 		else:
 			if fname.endswith(".py"):
-				os.system("pygettext.py -a -X %s" % fullname)
+				os.system("xgettext -d dabo -L Python %s" % fullname)
 
 
 def main():
