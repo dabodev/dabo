@@ -603,7 +603,7 @@ class dBizobj(dObject):
 		# in some out-of-context child cursor, but that should be rare. In the
 		# common case, all the cancellations would have already happened in the
 		# above block, and isAnyChanged() will return False very quickly.
-		if self.isAnyChanged():
+		if self.isAnyChanged(includeNewUnchanged=True):
 			self.scanChangedRows(self.cancel, allCursors=False,
 					includeNewUnchanged=True, cancelTheChildren=cancelTheChildren,
 					ignoreNoRecords=ignoreNoRecords, reverse=True)
