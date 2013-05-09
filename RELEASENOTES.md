@@ -1,6 +1,19 @@
 Dabo Release Notes
 ==================
 
+v0.9.10 - 8 May 2013
+ * Bugfix: Canceling Parent bizobj wasn't necessarily removing new child records.
+ * Added better unicode handling in the operations that write out files.
+ * Added ability to set default value in dApp.getAppInfo().
+ * Pulled the most recent translation files from Launchpad. Thanks to everyone helping out with localizing our strings!
+ * Added better buffer (blob) support.
+ * Added args and kwargs to VirtualFields.
+ * Added dabo.settings.convertFloatToDecimal, for when you don't want this default behavior.
+ * Fixed segfaults in editable grid columns.
+ * Fixed dLabel to implicitly update() when the caption changes.
+ * Added getContainingPage() to get a reference to the page, if any, that contains self.
+
+
 v0.9.9 - 18 Feb 2013
 --------------------
  * dBizobj/dCursor: You can now specify fields that don't exist in the flds argument of getDataSet(). The returned dataset will simply not contain the missing fields.
