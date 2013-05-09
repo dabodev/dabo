@@ -2,6 +2,7 @@ Dabo Release Notes
 ==================
 
 v0.9.10 - 8 May 2013
+--------------------
  * Bugfix: Canceling Parent bizobj wasn't necessarily removing new child records.
  * Added better unicode handling in the operations that write out files.
  * Added ability to set default value in dApp.getAppInfo().
