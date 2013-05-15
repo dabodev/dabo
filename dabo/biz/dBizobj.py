@@ -1862,6 +1862,7 @@ class dBizobj(dObject):
 		if child not in self._children:
 			self._children.append(child)
 			child.Parent = self
+		return child
 
 
 	def removeChild(self, child):
