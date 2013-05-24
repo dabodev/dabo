@@ -13,6 +13,7 @@ from dabo.lib import reportUtils
 class ReportingForm(dabo.ui.dForm):
 	def initProperties(self):
 		self.Caption = "Invoice Report"
+		self.BorderResizable = False
 
 	def afterInit(self):
 		ms = self.Sizer = dabo.ui.dSizer("v")
@@ -20,10 +21,9 @@ class ReportingForm(dabo.ui.dForm):
 		self.progress = dabo.ui.dReportProgress(self)
 		ms.append(self.progress)
 		ms.append(dabo.ui.dButton(self, Caption="Preview", OnHit=self.onPreview))
-		self.fitToSizer()
+		self.Size = (400, 300)
 
 	def onPreview(self, evt):
-		self.SaveRestorePosition = False
 		self.preview()
 
 	def preview(self):
@@ -33,7 +33,7 @@ class ReportingForm(dabo.ui.dForm):
 		rw.UseTestCursor = True
 		rw.bindEvent(dabo.dEvents.ReportEnd, self.onReportEnd)
 		rw.ProgressControl = self.progress
-		self.progress.ReportWriter = rw
+		self.progress.ProcessObject = rw
 		rw.write()
 
 	def onReportEnd(self, evt):

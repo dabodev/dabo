@@ -1862,6 +1862,7 @@ class dBizobj(dObject):
 		if child not in self._children:
 			self._children.append(child)
 			child.Parent = self
+		return child
 
 
 	def removeChild(self, child):
@@ -2006,21 +2007,23 @@ class dBizobj(dObject):
 			return None
 
 
+	def _changeRowNumCallback(self, row):
+		# dCursorMixin is requesting a rowchange, which we must do here so that
+		# child bizobjs get requeried. This is especially important (and only
+		# currently happens) for virtual fields, in case they rely on values
+		# gotten from children.
+		self._moveToRowNum(row, updateChildren=True)
+
+
 	def getFieldVal(self, fld, row=None, _forceNoCallback=False):
 		"""Return the value of the specified field in the current or specified row."""
 		oldRow = self.RowNumber
 
-		def changeRowNumCallback(row):
-			# dCursorMixin is requesting a rowchange, which we must do here so that
-			# child bizobjs get requeried. This is especially important (and only
-			# currently happens) for virtual fields, in case they rely on values
-			# gotten from children.
-			self._moveToRowNum(row, updateChildren=True)
-
 		if _forceNoCallback:
 			changeRowNumCallback = None
 
-		ret = self._CurrentCursor.getFieldVal(fld, row, _rowChangeCallback=changeRowNumCallback)
+		ret = self._CurrentCursor.getFieldVal(
+			fld, row, _rowChangeCallback=self._changeRowNumCallback)
 
 		if oldRow != self.RowNumber:
 			self._moveToRowNum(oldRow, updateChildren=False)
@@ -2136,7 +2139,9 @@ class dBizobj(dObject):
 		ret = None
 		cc = self._CurrentCursor
 		if cc is not None:
-			ret = self._CurrentCursor.getDataSet(flds, rowStart, rows, returnInternals=returnInternals)
+			ret = self._CurrentCursor.getDataSet(
+				flds, rowStart, rows, returnInternals=returnInternals,
+				_rowChangeCallback=self._changeRowNumCallback)
 		return ret
 
 

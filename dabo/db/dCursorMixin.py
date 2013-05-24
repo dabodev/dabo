@@ -1368,7 +1368,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self._records = ds
 
 
-	def getDataSet(self, flds=(), rowStart=0, rows=None, returnInternals=False):
+	def getDataSet(self, flds=(), rowStart=0, rows=None, returnInternals=False,
+			_rowChangeCallback=None):
 		"""
 		Get the entire data set encapsulated in a dDataSet object.
 
@@ -1393,16 +1394,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			vflds = vFieldKeys
 			flds = [f for f in _records[rowStart] if returnInternals or f not in cursor_flags]
 		else:
-			vflds = [f for f in _records if f in vFieldKeys]
+			vflds = [f for f in flds if f in vFieldKeys]
 			flds = [f for f in flds if f not in vFieldKeys]
-
 		ds = []
 		for row in xrange(rowStart, rows):
 			rec = _records[row]
 			_correctFieldTypesIfNeeded(rec)
 			tmprec = dict([(k, rec[k]) for k in flds if k in rec])
 			for v in vflds:
-				tmprec.update({v: self.getFieldVal(v, row)})
+				tmprec.update({v: self.getFieldVal(v, row,
+						_rowChangeCallback=_rowChangeCallback)})
 			ds.append(tmprec)
 		return dDataSet(ds)
 
