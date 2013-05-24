@@ -1,6 +1,13 @@
 Dabo Release Notes
 ==================
 
+v0.9.11 - 23 May 2013
+---------------------
+ * Fixed getDataSet() for virtual fields that need to requery children.
+ * Convenience: return the child reference in biz.addChild().
+ * Fixed some problems with the invoice report demo.
+
+
 v0.9.10 - 8 May 2013
 --------------------
  * Bugfix: Canceling Parent bizobj wasn't necessarily removing new child records.
