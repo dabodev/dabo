@@ -1402,7 +1402,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			_correctFieldTypesIfNeeded(rec)
 			tmprec = dict([(k, rec[k]) for k in flds if k in rec])
 			for v in vflds:
-				tmprec.update({v: self.getFieldVal(v, row,
+				tmprec.update({v: getFieldVal(v, row,
 						_rowChangeCallback=_rowChangeCallback)})
 			ds.append(tmprec)
 		return dDataSet(ds)
