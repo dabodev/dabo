@@ -1377,6 +1377,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		to only include the specified fields. rowStart specifies the starting row
 		to include, and rows is the number of rows to return.
 		"""
+		_currentRow = self.RowNumber
 		rowCount = self.RowCount
 		if rows is None:
 			rows = rowCount
@@ -1405,6 +1406,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				tmprec.update({v: getFieldVal(v, row,
 						_rowChangeCallback=_rowChangeCallback)})
 			ds.append(tmprec)
+		self.RowNumber = _currentRow
 		return dDataSet(ds)
 
 
