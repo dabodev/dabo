@@ -22,76 +22,76 @@ import dDataControlMixin as dcm
 import dTimer
 
 LexerDic = {
-		"ada": stc.STC_LEX_ADA,
-		"ave": stc.STC_LEX_AVE,
-		"baan": stc.STC_LEX_BAAN,
-		"batch": stc.STC_LEX_BATCH,
-		"bullant": stc.STC_LEX_BULLANT,
-		"config": stc.STC_LEX_CONF,
-		"container": stc.STC_LEX_CONTAINER,
-		"c++": stc.STC_LEX_CPP,
-		"diff": stc.STC_LEX_DIFF,
-		"eiffel": stc.STC_LEX_EIFFEL,
-		"eiffelKw": stc.STC_LEX_EIFFELKW,
-		"errorlist": stc.STC_LEX_ERRORLIST,
-		"html": stc.STC_LEX_HTML,
-		"latex": stc.STC_LEX_LATEX,
-		"lisp": stc.STC_LEX_LISP,
-		"lua": stc.STC_LEX_LUA,
-		"makefile": stc.STC_LEX_MAKEFILE,
-		"matlab": stc.STC_LEX_MATLAB,
-		"nncrontab": stc.STC_LEX_NNCRONTAB,
-		"plain text": stc.STC_LEX_NULL,
-		"pascal": stc.STC_LEX_PASCAL,
-		"perl": stc.STC_LEX_PERL,
-		"php": stc.STC_LEX_PHPSCRIPT,
-		"props": stc.STC_LEX_PROPERTIES,
-		"python": stc.STC_LEX_PYTHON,
-		"ruby": stc.STC_LEX_RUBY,
-		"sql": stc.STC_LEX_SQL,
-		"tcl": stc.STC_LEX_TCL,
-		"vb": stc.STC_LEX_VB,
-		"vbscript": stc.STC_LEX_VBSCRIPT,
-		"xcode": stc.STC_LEX_XCODE,
-		"xml": stc.STC_LEX_XML}
+    "ada": stc.STC_LEX_ADA,
+    "ave": stc.STC_LEX_AVE,
+    "baan": stc.STC_LEX_BAAN,
+    "batch": stc.STC_LEX_BATCH,
+    "bullant": stc.STC_LEX_BULLANT,
+    "config": stc.STC_LEX_CONF,
+    "container": stc.STC_LEX_CONTAINER,
+    "c++": stc.STC_LEX_CPP,
+    "diff": stc.STC_LEX_DIFF,
+    "eiffel": stc.STC_LEX_EIFFEL,
+    "eiffelKw": stc.STC_LEX_EIFFELKW,
+    "errorlist": stc.STC_LEX_ERRORLIST,
+    "html": stc.STC_LEX_HTML,
+    "latex": stc.STC_LEX_LATEX,
+    "lisp": stc.STC_LEX_LISP,
+    "lua": stc.STC_LEX_LUA,
+    "makefile": stc.STC_LEX_MAKEFILE,
+    "matlab": stc.STC_LEX_MATLAB,
+    "nncrontab": stc.STC_LEX_NNCRONTAB,
+    "plain text": stc.STC_LEX_NULL,
+    "pascal": stc.STC_LEX_PASCAL,
+    "perl": stc.STC_LEX_PERL,
+    "php": stc.STC_LEX_PHPSCRIPT,
+    "props": stc.STC_LEX_PROPERTIES,
+    "python": stc.STC_LEX_PYTHON,
+    "ruby": stc.STC_LEX_RUBY,
+    "sql": stc.STC_LEX_SQL,
+    "tcl": stc.STC_LEX_TCL,
+    "vb": stc.STC_LEX_VB,
+    "vbscript": stc.STC_LEX_VBSCRIPT,
+    "xcode": stc.STC_LEX_XCODE,
+    "xml": stc.STC_LEX_XML}
 
 fileFormatsDic = {
-		".ada": "ada",
-		".bat": "batch",
-		".cfg": "config",
-		".config": "config",
-		".c": "c++",
-		".h": "c++",
-		".cpp": "c++",
-		".diff": "diff",
-		".html": "html",
-		".htm": "html",
-		".css": "html",
-		".tex": "latex",
-		".cls": "latex",
-		".lsp": "lisp",
-		".pas": "pascal",
-		".py": "python",
-		".pyw": "python",
-		".php": "php",
-		".pl": "perl",
-		".rb": "ruby",
-		".ruby": "ruby",
-		".sql": "sql",
-		".txt": "plain text",
-		".vbs": "vbscript",
-		".cdxml": "xml",
-		".cnxml": "xml",
-		".mnxml": "xml",
-		".rfxml": "xml",
-		".xml": "xml"}
+    ".ada": "ada",
+    ".bat": "batch",
+    ".cfg": "config",
+    ".config": "config",
+    ".c": "c++",
+    ".h": "c++",
+    ".cpp": "c++",
+    ".diff": "diff",
+    ".html": "html",
+    ".htm": "html",
+    ".css": "html",
+    ".tex": "latex",
+    ".cls": "latex",
+    ".lsp": "lisp",
+    ".pas": "pascal",
+    ".py": "python",
+    ".pyw": "python",
+    ".php": "php",
+    ".pl": "perl",
+    ".rb": "ruby",
+    ".ruby": "ruby",
+    ".sql": "sql",
+    ".txt": "plain text",
+    ".vbs": "vbscript",
+    ".cdxml": "xml",
+    ".cnxml": "xml",
+    ".mnxml": "xml",
+    ".rfxml": "xml",
+    ".xml": "xml"}
 
 bmkIconDic = {
-		"circle": stc.STC_MARK_CIRCLE,
-		"down arrow": stc.STC_MARK_ARROWDOWN,
-		"arrow": stc.STC_MARK_SHORTARROW,
-		"arrows": stc.STC_MARK_ARROWS,
-		"rectangle": stc.STC_MARK_SMALLRECT}
+    "circle": stc.STC_MARK_CIRCLE,
+    "down arrow": stc.STC_MARK_ARROWDOWN,
+    "arrow": stc.STC_MARK_SHORTARROW,
+    "arrows": stc.STC_MARK_ARROWS,
+    "rectangle": stc.STC_MARK_SMALLRECT}
 
 # Encoding declaration pattern
 encoding_pat = re.compile(r"coding[=:]\s*([-\w.]+)")
@@ -205,13 +205,13 @@ class STCPrintout(wx.Printout):
 		if self.filename:
 			tlw, tlh = dc.GetTextExtent(self.filename)
 			dc.DrawText(self.filename,
-				  int(dw/scale/2-tlw/2), int(mh/scale-tlh*3))
+						int(dw/scale/2-tlw/2), int(mh/scale-tlh*3))
 
 		if self.doPageNums:
 			pageLabel = _('Page: %d') % page
 			plw, plh = dc.GetTextExtent(pageLabel)
 			dc.DrawText(pageLabel,
-				  int(dw/scale/2-plw/2), int((textAreaHeight+mh)/scale+plh*2))
+						int(dw/scale/2-plw/2), int((textAreaHeight+mh)/scale+plh*2))
 
 		# render stc into dc
 		stcStartPos = stc.PositionFromLine((page-1)*self.linesPerPage)
@@ -220,10 +220,10 @@ class STCPrintout(wx.Printout):
 		maxWidth = 32000
 		stc.SetPrintColourMode(self.colourMode)
 		ep = stc.FormatRange(1, stcStartPos, stcEndPos, dc, dc,
-						wx.Rect(int(mw/scale), int(mh/scale),
-							   maxWidth, int(textAreaHeight/scale)),
-						wx.Rect(0, (page-1)*self.linesPerPage*self.stcLineHeight,
-							maxWidth, self.stcLineHeight*self.linesPerPage))
+				             wx.Rect(int(mw/scale), int(mh/scale),
+				                     maxWidth, int(textAreaHeight/scale)),
+				             wx.Rect(0, (page-1)*self.linesPerPage*self.stcLineHeight,
+				                     maxWidth, self.stcLineHeight*self.linesPerPage))
 		# warn when fewer characters than expected are rendered by the stc when
 		# printing
 		if not self.IsPreview():
@@ -286,9 +286,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._defPat = re.compile(r"^\s*def ")
 
 		stc.StyledTextCtrl.__init__(self, parent, -1,
-				style = wx.NO_BORDER)
+				                    style = wx.NO_BORDER)
 		dcm.dDataControlMixin.__init__(self, name, properties=properties,
-				attProperties=attProperties, _explicitName=_explicitName, *args, **kwargs)
+				                       attProperties=attProperties, _explicitName=_explicitName, *args, **kwargs)
 		self._afterInit()
 
 		self._printData = wx.PrintData()
@@ -301,7 +301,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._pat = re.compile("^[ \t]*((?:(?:class)|(?:def)) [^\(]+)\(", re.M)
 
 		self.modifiedEventMask = (stc.STC_MOD_INSERTTEXT | stc.STC_MOD_DELETETEXT |
-				stc.STC_PERFORMED_USER | stc.STC_PERFORMED_UNDO | stc.STC_PERFORMED_REDO)
+				                  stc.STC_PERFORMED_USER | stc.STC_PERFORMED_UNDO | stc.STC_PERFORMED_REDO)
 		self.SetModEventMask(self.modifiedEventMask)
 		self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
 		self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
@@ -375,9 +375,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 	def onPrintPreview(self):
 		po1 = STCPrintout(self, stc.STC_PRINT_COLOURONWHITEDEFAULTBG,
-				self._fileName, False)
+				          self._fileName, False)
 		po2 = STCPrintout(self, stc.STC_PRINT_COLOURONWHITEDEFAULTBG,
-				self._fileName, False)
+				          self._fileName, False)
 		self._printPreview = wx.PrintPreview(po1, po2, self._printData)
 		if not self._printPreview.Ok():
 			dabo.log.error(_("An error occured while preparing preview."))
@@ -394,7 +394,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		pdd.SetPrintData(self._printData)
 		printer = wx.Printer(pdd)
 		printout = STCPrintout(self, stc.STC_PRINT_COLOURONWHITEDEFAULTBG,
-				self._fileName, False)
+				               self._fileName, False)
 
 		if not printer.Print(self.Form, printout):
 			dabo.log.error(_("An error occured while printing."))
@@ -624,7 +624,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		else:
 			try:
 				fnc = {"u": seltxt.upper, "l": seltxt.lower, "c": seltxt.title,
-						"t": seltxt.title}[newcase]
+					   "t": seltxt.title}[newcase]
 				self.ReplaceSelection(fnc())
 			except KeyError:
 				raise ValueError(_("Case must be either upper, lower, capitalize, or invert."))
@@ -710,8 +710,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 		## Autocomplete settings:
 		self.AutoCompSetIgnoreCase(True)
-	 	# hide when the typed string no longer matches
-	 	self.AutoCompSetAutoHide(True)
+		# hide when the typed string no longer matches
+		self.AutoCompSetAutoHide(True)
 		# characters that will stop the autocomplete
 		self.AutoCompStops(" ")
 		self.AutoCompSetFillUps(".(")
@@ -803,70 +803,70 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				# Arrow pointing right for contracted folders,
 				# arrow pointing down for expanded
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN,
-					stc.STC_MARK_ARROWDOWN, "black", "black");
+								  stc.STC_MARK_ARROWDOWN, "black", "black");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDER,
-					stc.STC_MARK_ARROW, "black", "black");
+								  stc.STC_MARK_ARROW, "black", "black");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB,
-					stc.STC_MARK_EMPTY, "black", "black");
+								  stc.STC_MARK_EMPTY, "black", "black");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL,
-					stc.STC_MARK_EMPTY, "black", "black");
+								  stc.STC_MARK_EMPTY, "black", "black");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND,
-					stc.STC_MARK_EMPTY, "white", "black");
+								  stc.STC_MARK_EMPTY, "white", "black");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID,
-					stc.STC_MARK_EMPTY, "white", "black");
+								  stc.STC_MARK_EMPTY, "white", "black");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL,
-					stc.STC_MARK_EMPTY, "white", "black");
+								  stc.STC_MARK_EMPTY, "white", "black");
 
 			elif self.fold_symbols == 1:
 				# Plus for contracted folders, minus for expanded
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN,
-					stc.STC_MARK_MINUS, "white", "black");
+								  stc.STC_MARK_MINUS, "white", "black");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDER,
-					stc.STC_MARK_PLUS,	"white", "black");
+								  stc.STC_MARK_PLUS,	"white", "black");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB,
-					stc.STC_MARK_EMPTY, "white", "black");
+								  stc.STC_MARK_EMPTY, "white", "black");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL,
-					stc.STC_MARK_EMPTY, "white", "black");
+								  stc.STC_MARK_EMPTY, "white", "black");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND,
-					stc.STC_MARK_EMPTY, "white", "black");
+								  stc.STC_MARK_EMPTY, "white", "black");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID,
-					stc.STC_MARK_EMPTY, "white", "black");
+								  stc.STC_MARK_EMPTY, "white", "black");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL,
-					stc.STC_MARK_EMPTY, "white", "black");
+								  stc.STC_MARK_EMPTY, "white", "black");
 
 			elif self.fold_symbols == 2:
 				# Like a flattened tree control using circular headers and curved joins
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN,
-					stc.STC_MARK_CIRCLEMINUS, "white", "#404040");
+								  stc.STC_MARK_CIRCLEMINUS, "white", "#404040");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDER,
-					stc.STC_MARK_CIRCLEPLUS, "white", "#404040");
+								  stc.STC_MARK_CIRCLEPLUS, "white", "#404040");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB,
-					stc.STC_MARK_VLINE, "white", "#404040");
+								  stc.STC_MARK_VLINE, "white", "#404040");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL,
-					stc.STC_MARK_LCORNERCURVE, "white", "#404040");
+								  stc.STC_MARK_LCORNERCURVE, "white", "#404040");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND,
-					stc.STC_MARK_CIRCLEPLUSCONNECTED, "white", "#404040");
+								  stc.STC_MARK_CIRCLEPLUSCONNECTED, "white", "#404040");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID,
-					stc.STC_MARK_CIRCLEMINUSCONNECTED, "white", "#404040");
+								  stc.STC_MARK_CIRCLEMINUSCONNECTED, "white", "#404040");
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL,
-					stc.STC_MARK_TCORNERCURVE, "white", "#404040");
+								  stc.STC_MARK_TCORNERCURVE, "white", "#404040");
 
 			elif self.fold_symbols == 3:
 				# Like a flattened tree control using square headers
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN,
-					stc.STC_MARK_BOXMINUS, "white", "#808080")
+								  stc.STC_MARK_BOXMINUS, "white", "#808080")
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDER,
-					stc.STC_MARK_BOXPLUS, "white", "#808080")
+								  stc.STC_MARK_BOXPLUS, "white", "#808080")
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB,
-					stc.STC_MARK_VLINE, "white", "#808080")
+								  stc.STC_MARK_VLINE, "white", "#808080")
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL,
-					stc.STC_MARK_LCORNER, "white", "#808080")
+								  stc.STC_MARK_LCORNER, "white", "#808080")
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND,
-					stc.STC_MARK_BOXPLUSCONNECTED, "white", "#808080")
+								  stc.STC_MARK_BOXPLUSCONNECTED, "white", "#808080")
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID,
-					stc.STC_MARK_BOXMINUSCONNECTED, "white", "#808080")
+								  stc.STC_MARK_BOXMINUSCONNECTED, "white", "#808080")
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL,
-					stc.STC_MARK_TCORNER, "white", "#808080")
+								  stc.STC_MARK_TCORNER, "white", "#808080")
 
 
 	def changeFontFace(self, fontFace):
@@ -902,60 +902,60 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 		# Global default styles for all languages
 		self.StyleSetSpec(stc.STC_STYLE_DEFAULT,
-			"face:%s,size:%d" % (propFont, fontSize))
+				          "face:%s,size:%d" % (propFont, fontSize))
 		self.StyleSetSpec(stc.STC_STYLE_LINENUMBER,
-			"back:#C0C0C0,face:%s,size:%d" % (propFont, 8))
+				          "back:#C0C0C0,face:%s,size:%d" % (propFont, 8))
 		self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR,
-			"face:%s" % fontFace)
+				          "face:%s" % fontFace)
 		self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT,
-			"fore:#000000,back:#00FF00,bold")
+				          "fore:#000000,back:#00FF00,bold")
 		self.StyleSetSpec(stc.STC_STYLE_BRACEBAD,
-			"fore:#000000,back:#FF0000,bold")
+				          "fore:#000000,back:#FF0000,bold")
 
 
 	def setPyFont(self, fontFace, fontSize):
 		# Python-specific styles
 		self.StyleSetSpec(stc.STC_P_DEFAULT,
-			"fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
+				          "fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
 		# Comments
 		self.StyleSetSpec(stc.STC_P_COMMENTLINE,
-			"fore:#007F00,face:%s,size:%d,italic" % (fontFace, fontSize))
+				          "fore:#007F00,face:%s,size:%d,italic" % (fontFace, fontSize))
 		# Number
 		self.StyleSetSpec(stc.STC_P_NUMBER,
-			"fore:#007F7F,size:%d" % fontSize)
+				          "fore:#007F7F,size:%d" % fontSize)
 		# String
 		self.StyleSetSpec(stc.STC_P_STRING,
-			"fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
+				          "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
 		# Single quoted string
 		self.StyleSetSpec(stc.STC_P_CHARACTER,
-			"fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
+				          "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
 		# Keyword
 		self.StyleSetSpec(stc.STC_P_WORD,
-			"fore:#00007F,bold,size:%d" % fontSize)
+				          "fore:#00007F,bold,size:%d" % fontSize)
 		# Triple quotes
 		self.StyleSetSpec(stc.STC_P_TRIPLE,
-			"fore:#7F0000,size:%d,italic" % fontSize)
+				          "fore:#7F0000,size:%d,italic" % fontSize)
 		# Triple double quotes
 		self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE,
-			"fore:#7F0000,size:%d,italic" % fontSize)
+				          "fore:#7F0000,size:%d,italic" % fontSize)
 		# Class name definition
 		self.StyleSetSpec(stc.STC_P_CLASSNAME,
-			"fore:#0000FF,bold,underline,size:%d" % fontSize)
+				          "fore:#0000FF,bold,underline,size:%d" % fontSize)
 		# Function or method name definition
 		self.StyleSetSpec(stc.STC_P_DEFNAME,
-			"fore:#007F7F,bold,size:%d" % fontSize)
+				          "fore:#007F7F,bold,size:%d" % fontSize)
 		# Operators
 		self.StyleSetSpec(stc.STC_P_OPERATOR,
-			"bold,size:%d" % fontSize)
+				          "bold,size:%d" % fontSize)
 		# Identifiers
 		self.StyleSetSpec(stc.STC_P_IDENTIFIER,
-			"fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
+				          "fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
 		# Comment-blocks
 		self.StyleSetSpec(stc.STC_P_COMMENTBLOCK,
-			"fore:#7F7F7F,size:%d,italic" % fontSize)
+				          "fore:#7F7F7F,size:%d,italic" % fontSize)
 		# End of line where string is not closed
 		self.StyleSetSpec(stc.STC_P_STRINGEOL,
-			"fore:#000000,face:%s,back:#E0C0E0,eol,size:%d" % (fontFace, fontSize))
+				          "fore:#000000,face:%s,back:#E0C0E0,eol,size:%d" % (fontFace, fontSize))
 
 
 	def onCommentLine(self, evt):
@@ -970,7 +970,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self.EndUndoAction()
 
 		self.SetSelection(self.PositionFromLine(begLine),
-			self.PositionFromLine(endLine + 1))
+				          self.PositionFromLine(endLine + 1))
 
 
 	def onUncommentLine(self, evt):
@@ -988,7 +988,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self.EndUndoAction()
 
 		self.SetSelection(self.PositionFromLine(begLine),
-			self.PositionFromLine(endLine + 1))
+				          self.PositionFromLine(endLine + 1))
 
 
 	def __onKeyDown(self, evt):
@@ -1268,11 +1268,11 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self.CallTipShow(pos, shortDoc)
 			# Highlight the object name:
 			self.CallTipSetHighlight(len(funcType) + 1,
-				len(funcType) + len(name) + 1)
+						             len(funcType) + len(name) + 1)
 
 			# Let someone else display the complete documentation:
 			self.raiseEvent(dEvents.DocumentationHint,
-				shortDoc=shortDoc, longDoc=longDoc, object=obj)
+						    shortDoc=shortDoc, longDoc=longDoc, object=obj)
 
 
 	def codeComplete(self):
@@ -1288,7 +1288,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			kw = []
 			pos = self.GetCurrentPos()
 			kw = [k for k in dir(obj)
-				if not k.startswith("_")]
+				  if not k.startswith("_")]
 
 			# Sort upper case:
 			kw.sort(key=lambda k: k.upper())
@@ -1337,7 +1337,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		while lineNum < lineCount:
 			level = self.GetFoldLevel(lineNum)
 			if level & stc.STC_FOLDLEVELHEADERFLAG and (
-					level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE:
+				level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE:
 				if expanding:
 					self.SetFoldExpanded(lineNum, True)
 					lineNum = self.Expand(lineNum, True)
@@ -1434,7 +1434,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		else:
 			func = dabo.ui.getFile
 		fname = func("py", "txt", "cdxml", "cnxml", "mnxml", "rfxml", "*", message=prompt,
-				defaultPath=drct, **kwargs)
+				     defaultPath=drct, **kwargs)
 		return fname
 
 
@@ -1452,7 +1452,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				break
 			if os.path.exists(fname):
 				r = dabo.ui.areYouSure(_("File '%s' already exists. Do you "
-						"want to overwrite it?") % fname, defaultNo=True)
+								         "want to overwrite it?") % fname, defaultNo=True)
 				if r is None:
 					# user canceled.
 					fname = None
@@ -1493,7 +1493,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 					prompt = _("""The file has been modified on the disk since you opened it.
 Do you want to overwrite it?""")
 					if not dabo.ui.areYouSure(prompt, _("File Conflict"),
-							defaultNo=True, cancelButton=False):
+										      defaultNo=True, cancelButton=False):
 						return
 		txt = self.GetText()
 		enc = self._getEncodingDeclaration(txt)
@@ -1527,7 +1527,7 @@ Do you want to overwrite it?""")
 			return
 		# Get the current status of bookmarks
 		currBmks = [(nm, self.MarkerLineFromHandle(hnd))
-				for nm, hnd in self._bookmarks.items()]
+				    for nm, hnd in self._bookmarks.items()]
 		if currBmks != self._lastBookmarks:
 			# Save them
 			self._lastBookmarks = currBmks
@@ -1743,7 +1743,7 @@ Do you want to overwrite it?""")
 					for attr in dir(obj):
 						attr = '%s%s'%(word, attr)
 						if attr not in words:
-								words.append(attr)
+							words.append(attr)
 			except IndexError:
 				pass
 		elif word[-1] in " ()[]{}":
@@ -1789,7 +1789,7 @@ Do you want to overwrite it?""")
 			else:
 				flag = 0
 			retAll = ([x for x in re.findall(r"\b" + word + r"\w+\b", self._getTextSource(), flag)
-				if x.find(',')==-1 and x[0]!= ' '])
+					   if x.find(',')==-1 and x[0]!= ' '])
 			ret = dict.fromkeys(retAll).keys()
 			return ret
 
@@ -1978,7 +1978,7 @@ Do you want to overwrite it?""")
 	def _setBookmarkMarker(self):
 		try:
 			self.MarkerDefine(self._bmkPos, bmkIconDic[self.BookmarkIcon],
-				self.BookmarkForeColor, self.BookmarkBackColor)
+						      self.BookmarkForeColor, self.BookmarkBackColor)
 		except AttributeError:
 			#_bmkPos not created yet. Happens if set in initProperties or sooner
 			#solution is to store the value and it gets set further down in init
@@ -2510,7 +2510,7 @@ Do you want to overwrite it?""")
 				except TypeError, e:
 					nm = self._name
 					dabo.log.error(_("Could not set value of %(nm)s to %(val)s. Error message: %(e)s")
-							% locals())
+								   % locals())
 				self._afterValueChanged()
 			self.flushValue()
 		else:
@@ -2548,27 +2548,27 @@ Do you want to overwrite it?""")
 
 
 	AutoAutoComplete = property(_getAutoAutoComplete, _setAutoAutoComplete, None,
-			_("Determines if auto-completion pops up without a special trigger key  (bool)"))
+		                        _("Determines if auto-completion pops up without a special trigger key  (bool)"))
 
 	AutoAutoCompleteMinLen = property(_getAutoAutoCompleteMinLen, _setAutoAutoCompleteMinLen, None,
-			_("""When AutoAutoComplete is True, sets the minimum # of chars required
+		                              _("""When AutoAutoComplete is True, sets the minimum # of chars required
 			before the autocomplete popup appears. Default=3  (int)"""))
 
 	AutoCompleteList = property(_getAutoCompleteList, _setAutoCompleteList, None,
-			_("""Controls if the user has to press 'Enter/Tab' to accept
+		                        _("""Controls if the user has to press 'Enter/Tab' to accept
 			the AutoComplete entry  (bool)"""))
 
 	AutoIndent = property(_getAutoIndent, _setAutoIndent, None,
-			_("Controls if a newline adds the previous line's indentation  (bool)"))
+		                  _("Controls if a newline adds the previous line's indentation  (bool)"))
 
 	BookmarkBackColor = property(_getBookmarkBackColor, _setBookmarkBackColor, None,
-			_("The color of the icon background Default=(0,255,255) (Tuple or String)"))
+		                         _("The color of the icon background Default=(0,255,255) (Tuple or String)"))
 
 	BookmarkForeColor = property(_getBookmarkForeColor, _setBookmarkForeColor, None,
-			_("The color of the icon foreground Default=(128,128,128) (Tuple or String)"))
+		                         _("The color of the icon foreground Default=(128,128,128) (Tuple or String)"))
 
 	BookmarkIcon = property(_getBookmarkIcon, _setBookmarkIcon, None,
-			_("""The icon of bookmark that is show in the margin (default="circle") (string)
+		                    _("""The icon of bookmark that is show in the margin (default="circle") (string)
 			Available Values:
 				- "circle"
 				- "down arrow"
@@ -2577,152 +2577,152 @@ Do you want to overwrite it?""")
 				- "rectangle\""""))
 
 	BufferedDrawing = property(_getBufferedDrawing, _setBufferedDrawing, None,
-			_("Setting to True (default) reduces display flicker  (bool)"))
+		                       _("Setting to True (default) reduces display flicker  (bool)"))
 
 	CodeCompletion = property(_getCodeCompletion, _setCodeCompletion, None,
-			_("Determines if code completion is active (default=True)  (bool)"))
+		                      _("Determines if code completion is active (default=True)  (bool)"))
 
 	Column = property(_getColumn, _setColumn, None,
-			_("""Returns the current column position of the cursor in the
+		              _("""Returns the current column position of the cursor in the
 			file  (int)"""))
 
 	CommentString = property(_getCommentString, _setCommentString, None,
-			_("String used to prefix lines that are commented out  (str)"))
+		                     _("String used to prefix lines that are commented out  (str)"))
 
 	EdgeGuideColumn = property(_getEdgeGuideColumn, _setEdgeGuideColumn, None,
-			_("""If self.EdgeGuide is set to True, specifies the column
+		                       _("""If self.EdgeGuide is set to True, specifies the column
 			position the guide is in(int)"""))
 
 	Encoding = property(_getEncoding, _setEncoding, None,
-			_("Type of encoding to use. Defaults to Dabo's encoding.  (str)"))
+		                _("Type of encoding to use. Defaults to Dabo's encoding.  (str)"))
 
 	EOLMode = property(_getEOLMode, _setEOLMode, None,
-			_("End of line characters. Allowed values are 'CRLF', 'LF' and 'CR'. (default=os dependent) (str)"))
+		               _("End of line characters. Allowed values are 'CRLF', 'LF' and 'CR'. (default=os dependent) (str)"))
 
 	FileName = property(_getFileName, None, None,
-			_("Name of the file being edited (without path info)  (str)"))
+		                _("Name of the file being edited (without path info)  (str)"))
 
 	FilePath = property(_getFilePath, None, None,
-			_("Full path of the file being edited  (str)"))
+		                _("Full path of the file being edited  (str)"))
 
 	FontFace = property(_getFontFace, _setFontFace, None,
-			_("Name of the font face used in the editor  (str)"))
+		                _("Name of the font face used in the editor  (str)"))
 
 	FontSize = property(_getFontSize, _setFontSize, None,
-			_("Size of the font used in the editor  (int)"))
+		                _("Size of the font used in the editor  (int)"))
 
 	HiliteCharsBeyondLimit = property(_getHiliteCharsBeyondLimit, _setHiliteCharsBeyondLimit, None,
-			_("""When True, characters beyond the column set it
+		                              _("""When True, characters beyond the column set it
 			self.HiliteLimitColumn are visibly hilited  Note: When set to True,
 			self.ShowEdgeGuide will be set to False. (bool)"""))
 
 	HiliteLimitColumn = property(_getHiliteLimitColumn, _setHiliteLimitColumn, None,
-			_("""If self.HiliteCharsBeyondLimit is True, specifies
+		                         _("""If self.HiliteCharsBeyondLimit is True, specifies
 			the limiting column  (int)"""))
 
 	Language = property(_getLanguage, _setLanguage, None,
-			_("Determines which language is used for the syntax coloring  (str)"))
+		                _("Determines which language is used for the syntax coloring  (str)"))
 
 	LineNumber = property(_getLineNumber, _setLineNumber, None,
-			_("Returns the current line number being edited  (int)"))
+		                  _("Returns the current line number being edited  (int)"))
 
 	LineCount = property(_getLineCount, None, None,
-			_("Total number of lines in the document  (int)"))
+		                 _("Total number of lines in the document  (int)"))
 
 	Modified = property(_getModified, _setModified, None,
-			_("Has the content of this editor been modified?  (bool)"))
+		                _("Has the content of this editor been modified?  (bool)"))
 
 	ReadOnly = property(_getReadOnly, _setReadOnly, None,
-			_("Specifies whether or not the text can be edited. (bool)"))
+		                _("Specifies whether or not the text can be edited. (bool)"))
 
 	SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
-			_("Background color of selected text. Default=yellow  (str or tuple)"))
+		                          _("Background color of selected text. Default=yellow  (str or tuple)"))
 
 	SelectionEnd = property(_getSelectionEnd, _setSelectionEnd, None,
-			_("Position of the end of the selected text  (int)"))
+		                    _("Position of the end of the selected text  (int)"))
 
 	SelectionForeColor = property(_getSelectionForeColor, _setSelectionForeColor, None,
-			_("Forecolor of the selected text. Default=black  (str or tuple)"))
+		                          _("Forecolor of the selected text. Default=black  (str or tuple)"))
 
 	Selection = property(_getSelection, None, None,
-			_("Selected text. (read-only) (str)"))
+		                 _("Selected text. (read-only) (str)"))
 
 	SelectionPosition = property(_getSelectionPosition, _setSelectionPosition, None,
-			_("Tuple containing the start/end positions of the selected text.  (2-tuple of int)"))
+		                         _("Tuple containing the start/end positions of the selected text.  (2-tuple of int)"))
 
 	SelectionStart = property(_getSelectionStart, _setSelectionStart, None,
-			_("Position of the start of the selected text  (int)"))
+		                      _("Position of the start of the selected text  (int)"))
 
 	ShowCallTips = property(_getShowCallTips, _setShowCallTips, None,
-			_("Determines if call tips are shown (default=True)  (bool)"))
+		                    _("Determines if call tips are shown (default=True)  (bool)"))
 
 	ShowCodeFolding = property(_getShowCodeFolding, _setShowCodeFolding, None,
-			_("""Determines if the code folding symbols are displayed
+		                       _("""Determines if the code folding symbols are displayed
 			in the left margin (default=True)  (bool)"""))
 
 	ShowEdgeGuide = property(_getShowEdgeGuide, _setShowEdgeGuide, None,
-			_("""When True, will display a line at the column set by
+		                     _("""When True, will display a line at the column set by
 			self.EdgeGuideColumn.  Note: When set to True,
 			self.HiliteCharsBeyondLimit will be set to False. (bool)"""))
 
 	ShowEOL = property(_getShowEOL, _setShowEOL, None,
-			_("""Determines if end-of-line markers are visible
+		               _("""Determines if end-of-line markers are visible
 			(default=False)  (bool)"""))
 
 	ShowIndentationGuides = property(_getShowIndentationGuides, _setShowIndentationGuides, None,
-			_("""Deterimnes if indentation guides are displayed
+		                             _("""Deterimnes if indentation guides are displayed
 			(default=False)  (bool)"""))
 
 	ShowLineNumbers = property(_getShowLineNumbers, _setShowLineNumbers, None,
-			_("""Determines if line numbers are shown in the left
+		                       _("""Determines if line numbers are shown in the left
 			margin (default=True)  (bool)"""))
 
 	ShowWhiteSpace = property(_getShowWhiteSpace, _setShowWhiteSpace, None,
-			_("""Determines if white space characters are displayed
+		                      _("""Determines if white space characters are displayed
 			(default=True)  (bool)"""))
 
 	SyntaxColoring = property(_getSyntaxColoring, _setSyntaxColoring, None,
-			_("Determines if syntax coloring is used (default=True)  (bool)"))
+		                      _("Determines if syntax coloring is used (default=True)  (bool)"))
 
 	TabWidth = property(_getTabWidth, _setTabWidth, None,
-			_("""Approximate number of spaces taken by each tab character
+		                _("""Approximate number of spaces taken by each tab character
 			(default=4)  (int)"""))
 
 	Text = property(_getText, _setText, None,
-			_("Current contents of the editor  (str)"))
+		            _("Current contents of the editor  (str)"))
 
 	UseAntiAliasing = property(_getUseAntiAliasing, _setUseAntiAliasing, None,
-			_("Controls whether fonts are anti-aliased (default=True)  (bool)"))
+		                       _("Controls whether fonts are anti-aliased (default=True)  (bool)"))
 
 	UseBookmarks = property(_getUseBookmarks, _setUseBookmarks, None,
-			_("Are we tracking bookmarks in the editor? Default=False  (bool)"))
+		                    _("Are we tracking bookmarks in the editor? Default=False  (bool)"))
 
 	UseStyleTimer = property(_getUseStyleTimer, _setUseStyleTimer, None,
-			_("""Syntax coloring can slow down sometimes. Set this to
+		                     _("""Syntax coloring can slow down sometimes. Set this to
 			True to improve performance.  (bool)"""))
 
 	UseTabs = property(_getUseTabs, _setUseTabs, None,
-			_("""Indentation will only use space characters if useTabs
+		               _("""Indentation will only use space characters if useTabs
 			is False; if True, it will use a combination of tabs and
 			spaces (default=True)  (bool)"""))
 
 	BackSpaceUnindents = property(_getBackSpaceUnindents, _setBackSpaceUnindents, None,
-			_("""If set True then backspace, when in indentation, will go back
+		                          _("""If set True then backspace, when in indentation, will go back
 			TabWidth positions; if set False then backspace will go back only one
 			position. If UseTabs is True this should be set to False. (default=False)  (bool)"""))
 
 	Value = property(_getValue, _setValue, None,
-		_("""Specifies the current contents of the editor.  (basestring)"""))
+		             _("""Specifies the current contents of the editor.  (basestring)"""))
 
 	WordWrap = property(_getWordWrap, _setWordWrap, None,
-			_("""Controls whether text lines that are wider than the window
+		                _("""Controls whether text lines that are wider than the window
 			are soft-wrapped or clipped. (bool)"""))
 
 	_ZeroBasedLineNumber = property(_getZeroBasedLineNumber, _setZeroBasedLineNumber, None,
-			_("This is the underlying property that handles the wxPython zero-based line numbering. It's equal to LineNumber-1  (int)"))
+		                            _("This is the underlying property that handles the wxPython zero-based line numbering. It's equal to LineNumber-1  (int)"))
 
 	ZoomLevel = property(_getZoomLevel, _setZoomLevel, None,
-			_("Point increase/decrease from normal viewing size  (int)"))
+		                 _("Point increase/decrease from normal viewing size  (int)"))
 
 
 
