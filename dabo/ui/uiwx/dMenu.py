@@ -220,6 +220,13 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		if picture is None:
 			picture = bmp
 		def _actualCreation(caption, help, picture, menutype, *args, **kwargs):
+			if caption:
+				hk = kwargs.get("HotKey", "")
+				if hk:
+					cap = caption + "\t" + hk
+				else:
+					cap = caption
+				kwargs["text"] = cap
 			_item = self._getItem(help, picture, menutype, *args, **kwargs)
 			self.insertItem(pos, _item)
 			_item.Caption = caption
