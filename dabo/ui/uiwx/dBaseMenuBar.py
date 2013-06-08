@@ -129,12 +129,18 @@ class ViewMenu(dMenu):
 		app = self.Application
 		self.Caption = _("&View")
 
-		self.Parent.increaseFontSizeMenuItem = self.append(_("Increase Font Size"), HotKey="Ctrl++",
-				ItemID="view_zoomin", OnHit=app.fontZoomIn)
-		self.Parent.decreaseFontSizeMenuItem = self.append(_("Decrease Font Size"), HotKey="Ctrl+-",
-				ItemID="view_zoomout", OnHit=app.fontZoomOut)
-		self.Parent.normalFontSizeMenuItem = self.append(_("Normal Font Size"), HotKey="Ctrl+/",
-				ItemID="view_zoomnormal", OnHit=app.fontZoomNormal)
+		self.Parent.increaseFontSizeMenuItem = self.append(_("Increase Font Size"),
+		                    HotKey="Ctrl++",
+		                    ItemID="view_zoomin", OnHit=app.fontZoomIn,
+		                    help=_("Increase the font size"))
+		self.Parent.decreaseFontSizeMenuItem = self.append(_("Decrease Font Size"),
+		                    HotKey="Ctrl+-",
+		                    ItemID="view_zoomout", OnHit=app.fontZoomOut,
+		                    help=_("Decrease the font size"))
+		self.Parent.normalFontSizeMenuItem = self.append(_("Normal Font Size"),
+		                    HotKey="Ctrl+/",
+		                    ItemID="view_zoomnormal", OnHit=app.fontZoomNormal,
+		                    help=_("Set font size to normal"))
 
 		if app.ShowSizerLinesMenu:
 			self.appendSeparator()
