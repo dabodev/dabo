@@ -1,6 +1,22 @@
 Dabo Release Notes
 ==================
 
+v0.9.12 - 12 Jun 2013
+---------------------
+
+ * Fixed dReportWriter recursion exception in cases where the long memo text doesn't have any line breaks over the span of more than a page. Thanks to Werner F Bruhin and Carl Karsten for assisting in finding this bug.
+
+ * Fixed dSpinner to check bounds (Value must be between Max and Min) before flushing Value to the database.
+
+ * Code cleanup, including fixing tab/space inconsistencies (thanks Werner). 
+
+ * Dabo v0.9.10 introduced bad locale translation files. Reverted to the translations we had prior, until we can find the long-term fix.
+
+ * Fixed dBizobj.getDataSet() to not move the RowNumber, which it was doing if VirtualFields were involved. Fixed getDataSet() for virtual fields that need to requery children.
+
+ * Fixed invoice progressControl demo bug in cancel. (Thanks John Fabiani).
+
+
 v0.9.11 - 23 May 2013
 ---------------------
  * Fixed getDataSet() for virtual fields that need to requery children.
