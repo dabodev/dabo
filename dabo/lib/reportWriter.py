@@ -1946,7 +1946,7 @@ class ReportWriter(object):
 					s.leftIndent = fobject.getProp("leftIndent")
 				paras = expr.splitlines()
 				prior_para = ""
-				for idx, para in enumerate(paras):
+				for para in paras:
 					if len(para) == 0:
 						# Blank line
 						p = platypus.Spacer(0, s.leading)
