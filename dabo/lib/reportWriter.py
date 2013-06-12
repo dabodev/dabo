@@ -1390,7 +1390,7 @@ class ReportWriter(object):
 			pass
 
 
-	def draw(self, obj, origin=(0,0),	availableHeight=None, deferred=None):
+	def draw(self, obj, origin=(0,0), availableHeight=None, deferred=None):
 		"""Draw the given object on the Canvas.
 
 		The object is a dictionary containing properties, and	origin is the (x,y)
@@ -1695,7 +1695,6 @@ class ReportWriter(object):
 						printStory.append((p, p_height))
 						printStoryHeight += p_height
 				neededHeight = printStoryHeight + padTop + padBottom
-
 			if not dynamicHeight:
 				frameHeight = self.getPt(obj.getProp("Height"))
 			else:
