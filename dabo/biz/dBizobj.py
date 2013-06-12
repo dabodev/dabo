@@ -2136,13 +2136,12 @@ class dBizobj(dObject):
 		to only include the specified fields. rowStart specifies the starting row
 		to include, and rows is the number of rows to return.
 		"""
-		ret = None
 		cc = self._CurrentCursor
 		if cc is not None:
-			ret = self._CurrentCursor.getDataSet(
+			return cc.getDataSet(
 				flds, rowStart, rows, returnInternals=returnInternals,
 				_rowChangeCallback=self._changeRowNumCallback)
-		return ret
+		return None
 
 
 	def appendDataSet(self, ds, updateInternals=False):

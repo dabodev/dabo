@@ -77,7 +77,6 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 		pt.Bind(wx.EVT_TEXT, self._onWxHit)
 		pt.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
 		ps.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
-		pt.Bind(wx.EVT_KILL_FOCUS, self._onLostFocus)
 		#self.bindEvent(dEvents.KeyChar, self._onChar)
 		self._rerestoreValue()
 		dabo.ui.callAfter(self.layout)
@@ -243,25 +242,9 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 			evt.Skip()
 
 
-	def _onLostFocus(self, evt):
-		"""
-		We need to handle the case where the user types an invalid value
-		into the textbox and then tabs/clicks away.
-		"""
-		pt = self._proxy_textbox
-		val = pt.Value
-		def _wrapType(compval):
-			ret = compval
-			tv = type(val)
-			if tv != type(compval):
-				try:
-					ret = tv(compval)
-				except TypeError:
-					ret = tv(str(compval))
-			return ret
-		if (val > _wrapType(self.Max)) or (val < _wrapType(self.Min)):
-			pt.Value = pt._oldVal
-		evt.Skip()
+	def flushValue(self):
+		self._checkBounds()
+		super(dSpinner, self).flushValue()
 
 
 	def _numericStringVal(self, val):
@@ -470,5 +453,6 @@ if __name__ == "__main__":
 		def OH(self, evt): print "HIT"
 		def afterInitAll(self):
 			self.spn = _dSpinner_test(self, Value=3, OnHit=self.OH)
+			self.spn2 = dSpinner(self, Value=3, Max=10, Min=1, Top=75, Width=60)
 	app = dApp(MainFormClass=Test)
 	app.start()
