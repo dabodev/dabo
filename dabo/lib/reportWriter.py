@@ -1675,7 +1675,7 @@ class ReportWriter(object):
 				story = deferred
 				neededHeight = sum([s[1] for s in story])
 			else:
-				story, neededHeight = self.getStory(obj)
+				story, neededHeight = self.getStory(obj, availableHeight=availableHeight)
 
 			dynamicHeight = obj.getProp("Height") is None
 
@@ -1889,7 +1889,7 @@ class ReportWriter(object):
 		return deferred, neededHeight
 
 
-	def getStory(self, obj, overrideExpr=None, overrideFontSize=None):
+	def getStory(self, obj, overrideExpr=None, overrideFontSize=None, availableHeight=None):
 		width = self.getPt(obj.getProp("width"))
 		height = obj.getProp("height")
 		if height is not None:
@@ -1945,11 +1945,12 @@ class ReportWriter(object):
 					s.spaceBefore = fobject.getProp("spaceBefore")
 					s.leftIndent = fobject.getProp("leftIndent")
 				paras = expr.splitlines()
+				rl_paras = []
 				prior_para = ""
 				for para in paras:
 					if len(para) == 0:
 						# Blank line
-						p = platypus.Spacer(0, s.leading)
+						rl_paras.append(platypus.Spacer(0, s.leading))
 					else:
 						def escapePara(para):
 							words = para.split(" ")
@@ -1961,8 +1962,12 @@ class ReportWriter(object):
 								words[idx] = word
 							return " ".join(words)
 						para = escapePara(para)
-						p = ParaClass(para, s)
-					p_height = p.wrap(columnWidth-padLeft-padRight, None)[1]
+						splits = ParaClass(para, s).split(columnWidth-padLeft-padRight, availableHeight)
+						for split in splits:
+							rl_paras.append(split)
+
+				for p in rl_paras:
+					p_height = p.wrap(columnWidth-padLeft-padRight, height)[1]
 					if height is not None and objNeededHeight + p_height > height and not overrideExpr:
 						# We are going to need to truncate the output; find the amount of data we can print
 						# and print that, followed by "..."
@@ -2303,7 +2308,7 @@ class ReportWriter(object):
 				else:
 					for obj in bandDict.get("Objects", []):
 						if "height" in obj and obj.getProp("Height") is None:
-							story = self.getStory(obj)
+							story = self.getStory(obj, availableHeight=availableHeight)
 							storyheight = story[1]
 							needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))  ## y could be dep. on band height.
 							if needed - availableHeight > 30:
