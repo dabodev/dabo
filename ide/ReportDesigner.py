@@ -2471,13 +2471,11 @@ class ReportDesignerForm(dabo.ui.dForm):
 		rdc.ActiveEditor = self.editor
 
 		if rdc.ReportForm:
-			if not hasattr(self, "_loaded"):
-				self._loaded = True
-				if self.Application.getUserSetting("ReportDesigner_ShowPropSheet"):
-					rdc.showPropSheet()
+			if self.Application.getUserSetting("ReportDesigner_ShowPropSheet"):
+				rdc.showPropSheet(bringToTop=True)
 
-				if self.Application.getUserSetting("ReportDesigner_ShowObjectTree"):
-					rdc.showObjectTree()
+			if self.Application.getUserSetting("ReportDesigner_ShowObjectTree"):
+				rdc.showObjectTree(bringToTop=True)
 
 
 	def setModified(self, page):
