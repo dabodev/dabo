@@ -31,7 +31,7 @@ if "wx" not in sys.modules and not getattr(sys, "frozen", False):
 _failedLibs = []
 # note: may need wx.animate as well
 for lib in ("wx", "wx.stc", "wx.lib.foldpanelbar", "wx.gizmos",
-		"wx.lib.calendar", "wx.lib.masked", "wx.lib.buttons"):
+            "wx.lib.calendar", "wx.lib.masked", "wx.lib.buttons"):
 
 	if getattr(sys, "frozen", False):
 		# Just import it without catching the ImportError. This will let the
@@ -333,7 +333,7 @@ def setAfter(obj, prop, val):
 		wx.CallAfter(fnc, obj, val)
 	except StandardError, e:
 		dabo.log.error(_("setAfter() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
-				% locals())
+				       % locals())
 
 
 def setAfterInterval(interval, obj, prop, val):
@@ -346,7 +346,7 @@ def setAfterInterval(interval, obj, prop, val):
 		callAfterInterval(interval, fnc, obj, val)
 	except StandardError, e:
 		dabo.log.error(_("setAfterInterval() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
-				% locals())
+				       % locals())
 
 
 def callEvery(interval, func, *args, **kwargs):
@@ -412,7 +412,7 @@ def continueEvent(evt):
 			pass
 		else:
 			dabo.log.error("Incorrect event class (%s) passed to continueEvent. Error: %s"
-					% (ustr(evt), ustr(e)))
+						   % (ustr(evt), ustr(e)))
 
 
 def discontinueEvent(evt):
@@ -424,7 +424,7 @@ def discontinueEvent(evt):
 			pass
 		else:
 			dabo.log.error("Incorrect event class (%s) passed to continueEvent. Error: %s"
-					% (ustr(evt), ustr(e)))
+						   % (ustr(evt), ustr(e)))
 
 
 def getEventData(wxEvt):
@@ -437,8 +437,8 @@ def getEventData(wxEvt):
 		obj = wxEvt.GetEventObject()
 
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent, wx.TreeEvent,
-			wx.CommandEvent, wx.CloseEvent, wx.grid.GridEvent,
-			wx.grid.GridSizeEvent, wx.SplitterEvent)):
+		                  wx.CommandEvent, wx.CloseEvent, wx.grid.GridEvent,
+		                  wx.grid.GridSizeEvent, wx.SplitterEvent)):
 
 		if dabo.allNativeEventInfo:
 			# Cycle through all the attributes of the wx events, and evaluate them
@@ -447,9 +447,9 @@ def getEventData(wxEvt):
 			upPems = [p for p in d if p[0].isupper()]
 			for pem in upPems:
 				if pem in ("Skip", "Clone", "Destroy", "Button", "ButtonIsDown",
-						"GetLogicalPosition", "ResumePropagation", "SetEventObject",
-						"SetEventType", "SetId", "SetExtraLong", "SetInt", "SetString",
-						"SetTimestamp", "StopPropagation"):
+						   "GetLogicalPosition", "ResumePropagation", "SetEventObject",
+						   "SetEventType", "SetId", "SetExtraLong", "SetInt", "SetString",
+						   "SetTimestamp", "StopPropagation"):
 					continue
 				try:
 					pemName = pem[0].lower() + pem[1:]
@@ -534,13 +534,13 @@ def getEventData(wxEvt):
 		if not ed["keyChar"]:
 			# See if it is one of the keypad keys
 			numpadKeys = { wx.WXK_NUMPAD0: "0", wx.WXK_NUMPAD1: "1",
-					wx.WXK_NUMPAD2: "2", wx.WXK_NUMPAD3: "3", wx.WXK_NUMPAD4: "4",
-					wx.WXK_NUMPAD5: "5", wx.WXK_NUMPAD6: "6", wx.WXK_NUMPAD7: "7",
-					wx.WXK_NUMPAD8: "8", wx.WXK_NUMPAD9: "9", wx.WXK_NUMPAD_SPACE: " ",
-					wx.WXK_NUMPAD_TAB: "\t", wx.WXK_NUMPAD_ENTER: "\r",
-					wx.WXK_NUMPAD_EQUAL: "=", wx.WXK_NUMPAD_MULTIPLY: "*",
-					wx.WXK_NUMPAD_ADD: "+", wx.WXK_NUMPAD_SUBTRACT: "-",
-					wx.WXK_NUMPAD_DECIMAL: ".", wx.WXK_NUMPAD_DIVIDE: "/"}
+						   wx.WXK_NUMPAD2: "2", wx.WXK_NUMPAD3: "3", wx.WXK_NUMPAD4: "4",
+						   wx.WXK_NUMPAD5: "5", wx.WXK_NUMPAD6: "6", wx.WXK_NUMPAD7: "7",
+						   wx.WXK_NUMPAD8: "8", wx.WXK_NUMPAD9: "9", wx.WXK_NUMPAD_SPACE: " ",
+						   wx.WXK_NUMPAD_TAB: "\t", wx.WXK_NUMPAD_ENTER: "\r",
+						   wx.WXK_NUMPAD_EQUAL: "=", wx.WXK_NUMPAD_MULTIPLY: "*",
+						   wx.WXK_NUMPAD_ADD: "+", wx.WXK_NUMPAD_SUBTRACT: "-",
+						   wx.WXK_NUMPAD_DECIMAL: ".", wx.WXK_NUMPAD_DIVIDE: "/"}
 			ed["keyChar"] = numpadKeys.get(ed["keyCode"], None)
 
 	if isinstance(wxEvt, wx.ContextMenuEvent):
@@ -550,7 +550,7 @@ def getEventData(wxEvt):
 		ed["force"] = not wxEvt.CanVeto()
 
 	if (isinstance(wxEvt, wx.TreeEvent) or isinstance(obj, dabo.ui.dTreeView)) \
-			and not isinstance(wxEvt, wx.WindowDestroyEvent):
+	   and not isinstance(wxEvt, wx.WindowDestroyEvent):
 		sel = obj.Selection
 		ed["selectedNode"] = sel
 		if isinstance(sel, list):
@@ -842,7 +842,7 @@ def _getActiveForm():
 
 
 def getString(message=_("Please enter a string:"), caption="Dabo",
-		defaultValue="", **kwargs):
+              defaultValue="", **kwargs):
 	"""
 	Simple dialog for returning a small bit of text from the user.
 
@@ -881,7 +881,7 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
 
 
 def getInt(message=_("Enter an integer value:"), caption="Dabo",
-		defaultValue=0, **kwargs):
+           defaultValue=0, **kwargs):
 	"""Simple dialog for returning an integer value from the user."""
 	class IntDialog(dabo.ui.dOkCancelDialog):
 		def addControls(self):
@@ -939,8 +939,8 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
 			self.Caption = caption
 			lbl = dabo.ui.dLabel(self, Caption=message)
 			self.lst = dabo.ui.dListBox(self, Choices=choices,
-					PositionValue=defaultPos, MultipleSelect=mult,
-					OnMouseLeftDoubleClick=self.onMouseLeftDoubleClick)
+						                PositionValue=defaultPos, MultipleSelect=mult,
+						                OnMouseLeftDoubleClick=self.onMouseLeftDoubleClick)
 			sz = self.Sizer
 			sz.appendSpacer(25)
 			sz.append(lbl, halign="center")
@@ -949,11 +949,11 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
 			if mult:
 				hsz = dabo.ui.dSizer("h")
 				btnAll = dabo.ui.dButton(self, Caption=_("Select All"),
-						OnHit=self.selectAll)
+								         OnHit=self.selectAll)
 				btnNone = dabo.ui.dButton(self, Caption=_("Unselect All"),
-						OnHit=self.unselectAll)
+								          OnHit=self.unselectAll)
 				btnInvert = dabo.ui.dButton(self, Caption=_("Invert Selection"),
-						OnHit=self.invertSelection)
+								            OnHit=self.invertSelection)
 				hsz.append(btnAll)
 				hsz.appendSpacer(8)
 				hsz.append(btnNone)
@@ -963,7 +963,7 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
 				sz.append(hsz, halign="center", border=20)
 				sz.appendSpacer(8)
 				sz.append(dabo.ui.dLine(self), "x", border=44,
-						borderSides=("left", "right"))
+						  borderSides=("left", "right"))
 			sz.appendSpacer(24)
 
 		def onMouseLeftDoubleClick(self, evt):
@@ -1031,7 +1031,7 @@ def getDate(dt=None):
 		month = result[2]
 		year = int(result[3])
 		monthNames = ["January", "February", "March", "April", "May", "June",
-				"July", "August", "September", "October", "November", "December"]
+				      "July", "August", "September", "October", "November", "December"]
 		ret = datetime.date(year, monthNames.index(month)+1, day)
 	else:
 		ret = None
@@ -1165,7 +1165,7 @@ def getFolder(message=_("Choose a folder"), defaultPath="", wildcard="*"):
 	was made.
 	"""
 	return _getPath(dFolderDialog, message=message, defaultPath=defaultPath,
-			wildcard=wildcard)[0]
+		            wildcard=wildcard)[0]
 # Create an alias that uses 'directory' instead of 'folder'
 getDirectory = getFolder
 
@@ -1213,7 +1213,7 @@ def getSystemInfo(returnType=None):
 		plat = sys.platform
 	ds.append({"name": "Platform:", "value": plat})
 	ds.append({"name": "Python Version:", "value": "%s on %s"
-			% (sys.version.split()[0], sys.platform)})
+		       % (sys.version.split()[0], sys.platform)})
 	if app:
 		appVersion = app.getAppInfo("appVersion")
 		appName = app.getAppInfo("appName")
@@ -1222,7 +1222,7 @@ def getSystemInfo(returnType=None):
 		appName = "Dabo"
 	ds.append({"name": "Dabo Version:", "value": dabo.__version__})
 	ds.append({"name": "UI Version:", "value": "%s on %s" % (dabo.ui.uiType["version"],
-			dabo.ui.uiType["platform"])})
+		                                                     dabo.ui.uiType["platform"])})
 	if rType == "d":
 		# Return the dataset
 		return ds
@@ -1257,7 +1257,7 @@ def sortList(chc, Caption="", ListCaption=""):
 			strChc.append(itm)
 		chcDict[key] = itm
 	sf = SortingForm(None, Choices=strChc, Caption=Caption,
-			ListCaption=ListCaption)
+		             ListCaption=ListCaption)
 	sf.show()
 	if sf.Accepted:
 		if needConvert:
@@ -1307,8 +1307,8 @@ def getScrollWinEventClass(evt):
 	evtOffset = evtType - baseEvtNum
 	# Get the corresponding Dabo event class for the wx event.
 	daboEvents = (dEvents.ScrollTop, dEvents.ScrollBottom, dEvents.ScrollLineUp,
-			dEvents.ScrollLineDown, dEvents.ScrollPageUp, dEvents.ScrollPageDown,
-			dEvents.ScrollThumbDrag, dEvents.ScrollThumbRelease)
+		          dEvents.ScrollLineDown, dEvents.ScrollPageUp, dEvents.ScrollPageDown,
+		          dEvents.ScrollThumbDrag, dEvents.ScrollThumbRelease)
 	return daboEvents[evtOffset]
 
 
@@ -1412,11 +1412,11 @@ def createMenuBar(src, form=None, previewFunc=None):
 				mtype = menu._extractKey(itmatts, "MenuType", "")
 				help = menu._extractKey(itmatts, "HelpText")
 				menuItem = menu.append(cap, help=help, picture=pic, special=special,
-						HotKey=hk, menutype=mtype)
+								       HotKey=hk, menutype=mtype)
 				menuItem._bindingText = "%s" % fnc
 				if itmatts:
 					menuItem.setPropertiesFromAtts(itmatts,
-							context={"form": form, "app": dabo.dAppRef})
+										           context={"form": form, "app": dabo.dAppRef})
 				menuItem.bindEvent(dEvents.Hit, binding)
 
 	if isinstance(src, dict):
@@ -1464,7 +1464,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
 		def _onKeyDown(self, evt):
 			ed = evt.EventData
 			key, mod, shift = (ed["keyCode"], ed["hasModifiers"],
-					ed["shiftDown"] or getattr(self, "_shiftDown", False))
+						       ed["shiftDown"] or getattr(self, "_shiftDown", False))
 			ctrl = self._control
 			grid = self._grid
 
@@ -1590,7 +1590,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
 
 
 def browse(dataSource, parent=None, keyCaption=None, includeFields=None,
-		colOrder=None, colWidths=None, colTypes=None, autoSizeCols=True):
+           colOrder=None, colWidths=None, colTypes=None, autoSizeCols=True):
 	"""
 	Given a data source, a form with a grid containing the data
 	is created and displayed. If the source is a Dabo cursor object,
@@ -1634,8 +1634,8 @@ def browse(dataSource, parent=None, keyCaption=None, includeFields=None,
 
 	grd = dGrid(parent, AlternateRowColoring=True)
 	grd.buildFromDataSet(dataSet, keyCaption=keyCaption,
-			includeFields=includeFields, colOrder=colOrder, colWidths=colWidths,
-			colTypes=colTypes, autoSizeCols=autoSizeCols)
+		                 includeFields=includeFields, colOrder=colOrder, colWidths=colWidths,
+		                 colTypes=colTypes, autoSizeCols=autoSizeCols)
 
 	parent.Sizer.append(grd, 1, "x")
 	parent.layout()
@@ -1699,7 +1699,7 @@ def fontMetricFromFont(txt, font):
 def fontMetricFromDrawObject(obj):
 	"""Given a drawn text object, returns the width and height of the text."""
 	return fontMetric(txt=obj.Text, face=obj.FontFace, size=obj.FontSize,
-			bold=obj.FontBold, italic=obj.FontItalic)
+		              bold=obj.FontBold, italic=obj.FontItalic)
 
 
 def fontMetricFromDC(dc, text):
@@ -1711,7 +1711,7 @@ def fontMetricFromDC(dc, text):
 
 
 def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
-		italic=None):
+               italic=None):
 	"""
 	Calculate the width and height of the given text using the supplied
 	font information. If any font parameters are missing, they are taken
@@ -1787,9 +1787,9 @@ def _saveScreenShot(obj, imgType, pth):
 		else:
 			imgType = (imgType, )
 	wxTypeDict = {"png":  wx.BITMAP_TYPE_PNG,
-			"jpg":  wx.BITMAP_TYPE_JPEG,
-			"bmp":  wx.BITMAP_TYPE_BMP,
-			"pcx":  wx.BITMAP_TYPE_PCX}
+		          "jpg":  wx.BITMAP_TYPE_JPEG,
+		          "bmp":  wx.BITMAP_TYPE_BMP,
+		          "pcx":  wx.BITMAP_TYPE_PCX}
 	if pth is None:
 		pth, typ = getSaveAsAndType(*imgType)
 	else:
@@ -1847,11 +1847,11 @@ def strToBmp(val, scale=None, width=None, height=None):
 		else:
 			# Include all the pathing possibilities
 			iconpaths = [os.path.join(pth, val)
-					for pth in dabo.icons.__path__]
+						 for pth in dabo.icons.__path__]
 			dabopaths = [os.path.join(pth, val)
-					for pth in dabo.__path__]
+						 for pth in dabo.__path__]
 			localpaths = [os.path.join(cwd, pth, val)
-					for pth in ("icons", "resources")]
+						  for pth in ("icons", "resources")]
 			# Create a list of the places to search for the image, with
 			# the most likely choices first.
 			paths = [val] + iconpaths + dabopaths + localpaths
@@ -1862,7 +1862,7 @@ def strToBmp(val, scale=None, width=None, height=None):
 				# Running as a py2app application
 				resPth = "%s%s" % (dpth.split(macAppIndicator)[0], macAppIndicator)
 				macPaths = [os.path.join(resPth, pth, val)
-					for pth in ("icons", "resources")]
+							for pth in ("icons", "resources")]
 				paths += macPaths
 
 			# See if it's a standard icon
@@ -2006,7 +2006,7 @@ def spawnProcess(cmd, wait=False, handler=None):
 			out = ""
 			stream = self.GetInputStream()
 			if stream.CanRead():
-				 out = stream.read()
+				out = stream.read()
 			stream = self.GetErrorStream()
 			err = ""
 			if stream.CanRead():
