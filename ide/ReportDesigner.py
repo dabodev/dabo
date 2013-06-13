@@ -2471,11 +2471,18 @@ class ReportDesignerForm(dabo.ui.dForm):
 		rdc.ActiveEditor = self.editor
 
 		if rdc.ReportForm:
-			if self.Application.getUserSetting("ReportDesigner_ShowPropSheet"):
-				rdc.showPropSheet(bringToTop=True)
+			if not hasattr(self, "_loaded"):
+				self._loaded = True
+				if self.Application.getUserSetting("ReportDesigner_ShowPropSheet"):
+					rdc.showPropSheet()
 
-			if self.Application.getUserSetting("ReportDesigner_ShowObjectTree"):
-				rdc.showObjectTree(bringToTop=True)
+				if self.Application.getUserSetting("ReportDesigner_ShowObjectTree"):
+					rdc.showObjectTree()
+			else:
+				# raise the other two windows
+				# need to use callAfter otherwise can not select in the designer
+				dabo.ui.callAfter(rdc.PropSheet.Form.Raise)
+				dabo.ui.callAfter(rdc.ObjectTree.Form.Raise)
 
 
 	def setModified(self, page):
