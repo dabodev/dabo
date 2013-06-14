@@ -2616,6 +2616,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			## add additional room to account for possible sort indicator:
 			capBuffer += ((2 * sortIconSize) + (2 * sortIconBuffer))
 			colObj = self.Columns[idx]
+			if not colObj.Visible:
+				## wx knows nothing about Dabo's invisible columns
+				return
+			idx = self._convertDaboColNumToWxColNum(idx)
 			autoWidth = self.GetColSize(idx)
 
 			# Account for the width of the header caption:
