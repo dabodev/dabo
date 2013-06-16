@@ -161,6 +161,9 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(biz.RowNumber, 2)
 		biz.first()
 		self.assertEqual(biz.RowNumber, 0)
+		biz.deleteAll()
+		self.assertEqual(biz.RowNumber, -1)
+
 
 	def test_UserSQL(self):
 		biz = self.biz
