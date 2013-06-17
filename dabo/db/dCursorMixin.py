@@ -316,6 +316,23 @@ class dCursorMixin(dObject):
 		return field_val
 
 
+	def _dblogExecute(self, msg, sql="", params=None, log=dabo.dbActivityLog.info):
+		if params is None:
+			params = tuple()
+		if sql:
+			try:
+				sql = sql.decode(self.Encoding).replace("\n", " ")
+			except UnicodeDecodeError, e:
+				sql = "(couldn't decode sql)"
+		params = ", ".join("%s" % p for p in params)
+		logmsg = "%s SQL: %s, PARAMS: %s" % (msg, sql, params)
+
+		try:
+			log(logmsg)
+		except StandardError:
+			log("%s (couldn't log SQL or PARAMS)" % msg)
+
+
 	def execute(self, sql, params=None, errorClass=None, convertQMarks=False):
 		"""Execute the sql, and populate the DataSet if it is a select statement."""
 		# The idea here is to let the super class do the actual work in
@@ -332,45 +349,19 @@ class dCursorMixin(dObject):
 			if params:
 				res = self.superCursor.execute(self, sql, params)
 				if not self.IsPrefCursor:
-					try:
-						dabo.dbActivityLog.info("execute() SQL: %s, PARAMS: %s" % (
-								sql.decode(self.Encoding).replace("\n", " "),
-								', '.join("%s" % p for p in params)))
-					except StandardError:
-						# A problem with writing to the log, most likely due to encoding issues
-						try:
-							dabo.dbActivityLog.info("execute() SQL (failed to log PARAMS): %r" % sql)
-						except StandardError:
-							dabo.dbActivityLog.info("execute() (failed to log SQL and PARAMS)")
+					self._dblogExecute("execute()", sql, params)
 			else:
 				res = self.superCursor.execute(self, sql)
 				if not self.IsPrefCursor:
-					try:
-						dabo.dbActivityLog.info("execute() SQL: %s" % (
-								sql.decode(self.Encoding).replace("\n", " "),))
-					except StandardError:
-						# A problem with writing to the log, most likely due to encoding issues
-						try:
-							dabo.dbActivityLog.info("execute() SQL: %r" % sql)
-						except StandardError:
-							dabo.dbActivityLog.info("execute() (failed to log SQL)")
+					self._dblogExecute("execute()", sql)
 		except Exception, e:
 			# There can be cases where errors are expected. In those cases, the
 			# calling routine will pass the class of the expected error, and will
 			# handle it appropriately.
 			if errorClass is not None and isinstance(e, errorClass):
 				raise e
-			if params:
-				try:
-					dabo.dbActivityLog.info("FAILED SQL: %s, PARAMS: %s" % (
-							sql.decode(self.Encoding).replace("\n", " "),
-							', '.join("%s" % p for p in params)))
-				except StandardError:
-					# A problem with writing to the log, most likely due to encoding issues
-					dabo.dbActivityLog.info("FAILED SQL: %r" % sql)
-			else:
-				dabo.dbActivityLog.info("FAILED SQL: %s" % (
-						sql.decode(self.Encoding).replace("\n", " "),))
+			self._dblogExecute("execute() FAILED", sql, params) 
+
 			# Database errors need to be decoded from database encoding.
 			try:
 				errMsg = unicode(str(e), self.Encoding)
