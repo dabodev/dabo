@@ -109,7 +109,7 @@ class BaseForm(fm.dFormMixin):
 		if interval is None:
 			interval = self.DataUpdateDelay or 0
 		if interval:
-			dabo.ui.callAfterInterval(interval, self.update, 0)
+			dabo.ui.callAfterInterval(interval, self.update)
 		else:
 			try:
 				super(BaseForm, self).update()
