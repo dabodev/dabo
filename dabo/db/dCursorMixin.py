@@ -316,7 +316,9 @@ class dCursorMixin(dObject):
 		return field_val
 
 
-	def _dblogExecute(self, msg, sql="", params=(), log=dabo.dbActivityLog.info):
+	def _dblogExecute(self, msg, sql="", params=None, log=dabo.dbActivityLog.info):
+		if params is None:
+			params = tuple()
 		if sql:
 			try:
 				sql = sql.decode(self.Encoding).replace("\n", " ")
