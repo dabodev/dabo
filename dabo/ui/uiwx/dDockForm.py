@@ -920,10 +920,10 @@ class dDockForm(dabo.ui.dForm):
 			dabo.ui.callAfter(self.update)
 
 
-	def update(self):
+	def update(self, interval=None):
 		if not self._inUpdate:
 			self._inUpdate = True
-			super(dDockForm, self).update()
+			super(dDockForm, self).update(interval=interval)
 			# Update the panels
 			for pnl in self._panels.keys():
 				pnl.update()
