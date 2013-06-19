@@ -375,8 +375,8 @@ class dCursorMixin(dObject):
 			elif "access" in errMsg.lower():
 				raise dException.DBNoAccessException(errMsg)
 			else:
-				dabo.dbActivityLog.info(_("DBQueryException encountered in "
-						"execute(): %(errMsg)s\n%(sql)s") % locals())
+				errMsg = _("DBQueryException encountered in execute(): %s") % errMsg
+				self._dblogExecute(errMsg, sql)
 				raise dException.DBQueryException(errMsg)
 
 		# Set the last execute time in case there is a Keep Alive Interval
