@@ -314,7 +314,7 @@ def DesignerController():
 			if refresh:
 				ot.refreshSelection()
 			if bringToTop:
-				ot.Raise()
+				dabo.ui.callAfter(ot.Raise)
 
 		def hideObjectTree(self):
 			ot = self.ObjectTree
@@ -362,7 +362,7 @@ def DesignerController():
 			else:
 				pg.CurrentRow = pg.CurrentRow
 			if bringToTop:
-				ps.Form.Raise()
+				dabo.ui.callAfter(ps.Form.Raise)
 
 
 		def hidePropSheet(self):
@@ -2471,13 +2471,13 @@ class ReportDesignerForm(dabo.ui.dForm):
 		rdc.ActiveEditor = self.editor
 
 		if rdc.ReportForm:
-			if not hasattr(self, "_loaded"):
-				self._loaded = True
-				if self.Application.getUserSetting("ReportDesigner_ShowPropSheet"):
-					rdc.showPropSheet()
+			if self.Application.getUserSetting("ReportDesigner_ShowPropSheet"):
+				rdc.showPropSheet(bringToTop=True)
 
-				if self.Application.getUserSetting("ReportDesigner_ShowObjectTree"):
-					rdc.showObjectTree()
+			if self.Application.getUserSetting("ReportDesigner_ShowObjectTree"):
+				rdc.showObjectTree(bringToTop=True)
+				
+			evt.Skip()
 
 
 	def setModified(self, page):
