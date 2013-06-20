@@ -3860,8 +3860,19 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# menu. If we get a menu back from the user hook, we display it.
 
 		# First though, make the cell the user right-clicked on the current cell:
-		self.CurrentRow = evt.row
-		self.CurrentColumn = evt.col
+		if self.MultipleSelection:
+			# Don't erase the multiple selection if the user clicks on a valid
+			# row or column:
+			if "row" in self.SelectionMode.lower() and evt.row not in self.Selection:
+				self.CurrentRow = evt.row
+			elif "col" in self.SelectionMode.lower() and evt.col not in self.Selection:
+				self.CurrentCol = evt.col
+			elif "cel" in self.SelectionMode.lower():
+				self.CurrentRow = evt.row
+				self.CurrentCol = evt.col
+		else:
+			self.CurrentRow = evt.row
+			self.CurrentColumn = evt.col
 
 		menu = dabo.ui.dMenu()
 		menu = self.fillContextMenu(menu)
