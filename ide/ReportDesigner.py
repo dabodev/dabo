@@ -785,7 +785,7 @@ class ReportObjectTree(dabo.ui.dTreeView):
 		"""Constructs the tree of report objects."""
 		self.clear()
 		self.recurseLayout()
-		self.expandAll()
+		dabo.ui.callAfterInterval(100, self.expandAll)
 
 
 	def recurseLayout(self, frm=None, parentNode=None):
