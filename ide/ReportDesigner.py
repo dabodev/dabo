@@ -766,7 +766,7 @@ class ReportObjectTree(dabo.ui.dTreeView):
 			rdc.SelectedObjects = [obj.Object for obj in self.Selection]
 
 
-	def onHit(self, evt):
+	def onTreeSelection(self, evt):
 		self.syncSelected()
 
 
