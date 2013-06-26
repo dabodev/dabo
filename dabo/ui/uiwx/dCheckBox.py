@@ -23,9 +23,10 @@ class dCheckBox(dcm.dDataControlMixin, wx.CheckBox):
 		self.Bind(wx.EVT_CHECKBOX, self._onWxHit)
 
 
-	def initProperties(self):
+	def _initProperties(self):
 		self._3StateToValue = { wx.CHK_UNCHECKED : False, wx.CHK_CHECKED : True, wx.CHK_UNDETERMINED : None}
 		self._ValueTo3State = dict([[v,k] for k,v in self._3StateToValue.iteritems()])
+		super(dCheckBox, self)._initProperties()
 
 
 	def _getInitPropertiesList(self):
@@ -86,14 +87,17 @@ class dCheckBox(dcm.dDataControlMixin, wx.CheckBox):
 			return self._3StateToValue[self.Get3StateValue()]
 
 	def _setValue(self, val):
-		if not self._hasWindowStyleFlag(wx.CHK_3STATE):
-			dcm.dDataControlMixin._setValue(self, val)
+		if self._constructed():
+			if not self._hasWindowStyleFlag(wx.CHK_3STATE):
+				dcm.dDataControlMixin._setValue(self, val)
+			else:
+				try:
+					state = self._ValueTo3State[val]
+				except KeyError:
+					state = False
+				self.Set3StateValue(state)
 		else:
-			try:
-				state = self._ValueTo3State[val]
-			except KeyError:
-				state = False
-			self.Set3StateValue(state)
+			self._properties["Value"] = val
 
 
 	# property definitions follow:
@@ -130,6 +134,21 @@ class _dCheckBox_test(dCheckBox):
 	def initProperties(self):
 		self.Caption = _("Do you wish to pass?")
 
+class _dCheckBox_test3_a(dCheckBox):
+	def initProperties(self):
+		self.Caption = _("3-state / None; user 3-state:False")
+		self.ThreeState = True
+		self.Value = None
+
+class _dCheckBox_test3_b(dCheckBox):
+	def initProperties(self):
+		self.Caption = _("3-state / None; user 3-state:True")
+		self.ThreeState = True
+		self.UserThreeState = True
+		self.Value = None
+
+
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(_dCheckBox_test)
+	test.Test().runTest(
+		(_dCheckBox_test, _dCheckBox_test3_a, _dCheckBox_test3_b))
