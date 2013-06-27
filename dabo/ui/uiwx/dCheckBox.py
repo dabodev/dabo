@@ -84,7 +84,7 @@ class dCheckBox(dcm.dDataControlMixin, wx.CheckBox):
 		if not self._hasWindowStyleFlag(wx.CHK_3STATE):
 			return dcm.dDataControlMixin._getValue(self)
 		else:
-			return self._3StateToValue[self.Get3StateValue()]
+			return self._3StateToValue.get(self.Get3StateValue(), None)
 
 	def _setValue(self, val):
 		if self._constructed():
