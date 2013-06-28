@@ -1,6 +1,19 @@
 Dabo Release Notes
 ==================
 
+v0.9.13 - 28 Jun 2013
+---------------------
+
+ * dCheckBox:
+  * Fixed 3-state problems and added samples to the test.
+ * dGrid: 
+  * Fixed to not erase the multi-selection when right-clicking.
+  * Fixed wrong column sized during user resize with invisible columns.
+ * dMenu:
+  * Made wxPython 2.9 compatibility fixes (Thanks to Werner F Bruhin)
+  * Added help strings for some menu items (Thanks to Werner F Bruhin)
+
+
 v0.9.12 - 12 Jun 2013
 ---------------------
 
