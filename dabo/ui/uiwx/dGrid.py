@@ -2616,6 +2616,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			## add additional room to account for possible sort indicator:
 			capBuffer += ((2 * sortIconSize) + (2 * sortIconBuffer))
 			colObj = self.Columns[idx]
+			if not colObj.Visible:
+				## wx knows nothing about Dabo's invisible columns
+				return
+			idx = self._convertDaboColNumToWxColNum(idx)
 			autoWidth = self.GetColSize(idx)
 
 			# Account for the width of the header caption:
@@ -3692,7 +3696,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		colName = "Column_%s" % col.DataField
 		# Sync our column object up with what the grid is reporting, and because
 		# the user made this change, save to the userSettings:
-		col.Width = self.GetColSize(colNum)
+		col.Width = self.GetColSize(self._convertDaboColNumToWxColNum(colNum))
 		col._persist("Width")
 		self._disableDoubleBuffering()
 		self._enableDoubleBuffering()
@@ -3856,8 +3860,19 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# menu. If we get a menu back from the user hook, we display it.
 
 		# First though, make the cell the user right-clicked on the current cell:
-		self.CurrentRow = evt.row
-		self.CurrentColumn = evt.col
+		if self.MultipleSelection:
+			# Don't erase the multiple selection if the user clicks on a valid
+			# row or column:
+			if "row" in self.SelectionMode.lower() and evt.row not in self.Selection:
+				self.CurrentRow = evt.row
+			elif "col" in self.SelectionMode.lower() and evt.col not in self.Selection:
+				self.CurrentCol = evt.col
+			elif "cel" in self.SelectionMode.lower():
+				self.CurrentRow = evt.row
+				self.CurrentCol = evt.col
+		else:
+			self.CurrentRow = evt.row
+			self.CurrentColumn = evt.col
 
 		menu = dabo.ui.dMenu()
 		menu = self.fillContextMenu(menu)
@@ -4115,19 +4130,13 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxGridColSize(self, evt):
-		col = evt.GetRowOrCol()
-		try:
-			daboCol = self.Columns[col]
-		except IndexError:
-			# PKM: I've received an IndexError from one of my customers. Not sure what the
-			#	   sequence is, but perhaps they managed to resize the column *before* the
-			#	   grid was instantiated.
-			return
-		if self.ResizableColumns and daboCol.Resizable:
-			self.raiseEvent(dEvents.GridColSize, evt)
+		daboCol = self._convertWxColNumToDaboColNum(evt.GetRowOrCol())
+		colObj = self.Columns[daboCol]
+		if self.ResizableColumns and colObj.Resizable:
+			self.raiseEvent(dEvents.GridColSize, col=daboCol)
 		else:
 			# need to reference the Width property for some reason:
-			daboCol.Width
+			colObj.Width
 			evt.Veto()
 			self._refreshHeader()
 
