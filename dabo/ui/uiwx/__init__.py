@@ -191,6 +191,7 @@ from dLed import dLed
 import dUICursors as dUICursors
 import gridRenderers
 from dPageFrameMixin import dPageFrameMixin
+from dAutoComplete import dAutoComplete
 
 
 # Needs importing after at least dPanel:
