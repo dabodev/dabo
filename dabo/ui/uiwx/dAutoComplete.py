@@ -464,6 +464,16 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 	
 	if biz:
 	    ds = biz.getDataSet()
+	    if biz.RowCount == 0:
+		# Manually update for empty data source
+		flds = self.DataFields
+		if flds and len(flds) > 1:
+		    self._setDynamicChoices(["" for rec in flds])
+		elif not flds and biz.DataStructure:
+		    self._setDynamicChoices(["" for rec in biz.DataStructure])
+		else:
+		    self._setDynamicChoices([""])
+		    
 	else:
 	    ds = self.DataSet
 	
@@ -547,7 +557,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 	"""
 	Call this when your datasource or dataset has changed to get the list showing
 	the proper number of rows with current data.
-	"""	
+	"""
 	
 	self.listFromDS()
 	    
