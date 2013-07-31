@@ -258,7 +258,7 @@ def DesignerController():
 				if not newObjectMenuCreated and isinstance(robj, Band):
 					newObjectMenuCreated = True
 					objectChoices = dabo.ui.dMenu(Caption="New object")
-					for choice in (Image, Line, Rectangle, String, Memo):
+					for choice in (Image, Line, Rectangle, String, Memo, Barcode):
 						objectChoices.append(choice.__name__,
 											 OnHit=onNewObject, Tag=choice)
 					objectChoices.appendSeparator()
@@ -1578,6 +1578,11 @@ class DesignerBand(DesignerPanel):
 				dc.DrawBitmap(bmp, rect[0], rect[1])
 			else:
 				dc.DrawLabel(expr, (rect[0]+2, rect[1], rect[2]-4, rect[3]), wx.ALIGN_LEFT)
+
+		if objType == "Barcode":
+			dc.SetBackgroundMode(wx.TRANSPARENT)
+			expr = rdc.getShortExpr(obj.getProp("expr", evaluate=False))
+			dc.DrawLabel(expr, (rect[0]+2, rect[1], rect[2]-4, rect[3]), wx.ALIGN_LEFT)
 
 		dc.SetBrush(wx.Brush((0,0,0), wx.TRANSPARENT))
 

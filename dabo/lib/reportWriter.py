@@ -50,6 +50,9 @@ import reportlab.lib.pagesizes as pagesizes
 import reportlab.lib.units as units
 import reportlab.lib.styles as styles
 import reportlab.platypus as platypus
+from reportlab.graphics.barcode import code39, code93, code128
+from reportlab.graphics.barcode import eanbc, qr, usps
+
 #import reportlab.lib.colors as colors
 import dabo
 from dabo import getEncoding
@@ -1208,6 +1211,69 @@ class Paragraph(Drawable):
 
 
 
+class Barcode(Drawable):
+	"""Represents a barcode."""
+	def initAvailableProps(self):
+		super(Barcode, self).initAvailableProps()
+		self.AvailableProps["BarcodeFormat"] = toPropDict(str, "Standard39",
+				                                          """Specifies the barcode format to use.
+
+				Currently supported formats:
+					Standard39
+		            Extended39
+		            Standard93
+
+		            Code128
+
+		            """
+		            #Ean8
+		            #Ean13
+
+		            #QR
+
+		            #"""
+				                                          )
+
+		self.AvailableProps["expr"] = toPropDict(str, "",
+				                                 """Specifies the value for the barcode.""")
+
+		self.AvailableProps["BarWidth"] = toPropDict(float, 0.0075,
+				                                     """X-Dimension, or width of the smallest element
+		                                             Minumum is .0075 inch (7.5 mils).""")
+
+		self.AvailableProps["BarHeight"] = toPropDict(float, None,
+				                                      """Height of the symbol.  Default is the height of the two
+		                                                bearer bars (if they exist) plus the greater of .25 inch
+		                                                or .15 times the symbol's length.""")
+
+
+		self.AvailableProps["BarRatio"] = toPropDict(float, 2.2,
+				                                     """The ratio of wide elements to narrow elements.
+		                                              Must be between 2.0 and 3.0 (or 2.2 and 3.0 if the
+		                                              barWidth is greater than 20 mils (.02 inch))""")
+
+		self.AvailableProps["BarGap"] = toPropDict(float, None,
+				                                   """width of intercharacter gap. None means "use barWidth".""")
+
+		self.AvailableProps["BarChecksum"] = toPropDict(bool, True,
+				                                        """Wether to compute and include the check digit.""")
+
+		self.AvailableProps["BarBearers"] = toPropDict(float, 3.0,
+				                                       """Height of bearer bars (horizontal bars along the top and
+		                                             bottom of the barcode). Default is 3 x-dimensions.
+		                                             Set to zero for no bearer bars. (Bearer bars help detect
+		                                             misscans, so it is suggested to leave them on).""")
+
+		self.AvailableProps["BarQuiet"] = toPropDict(bool, True,
+				                                     """Wether to include quiet zones in the symbol""")
+
+		self.AvailableProps["BarStop"] = toPropDict(bool, True,
+				                                    """Wether to include start/stop symbols.""")
+
+		self.MajorProperty = "expr"
+
+
+
 class TestCursor(ReportObjectCollection):
 	def addRecord(self, record):
 		tRecord = TestRecord(self)
@@ -1882,9 +1948,75 @@ class ReportWriter(object):
 
 			c.drawImage(imageData, 0, 0, width, height, mask)
 
+		elif objType == "Barcode":
+			data = obj.getProp("expr")			
+			bcFormat = obj.getProp("BarcodeFormat")
+			bcWidth = obj.getProp("BarWidth")
+			bcHeight = obj.getProp("BarHeight")
+			bcChecksum = obj.getProp("BarChecksum")
+			bcRatio = obj.getProp("BarRatio")
+			bcGap = obj.getProp("BarGap")
+			bcBearers = obj.getProp("BarBearers")
+			bcQuiet = obj.getProp("BarQuiet")
+			bcStop = obj.getProp("BarStop")
+
+			bc = None
+			if bcFormat == "Standard39":
+				bc = code39.Standard39(data, 
+								       barHeight=bcHeight,
+								       barwidth=bcWidth,
+								       checksum=bcChecksum,
+								       ratio=bcRatio,
+								       gap=bcGap,
+								       bearers=bcBearers,
+								       quiet=bcQuiet,
+								       stop=bcStop)
+			elif bcFormat == "Extended39":
+				bc = code39.Extended39(data, 
+								       barHeight=bcHeight,
+								       barwidth=bcWidth,
+								       checksum=bcChecksum,
+								       ratio=bcRatio,
+								       gap=bcGap,
+								       bearers=bcBearers,
+								       quiet=bcQuiet,
+								       stop=bcStop)
+			elif bcFormat == "Standard93":
+				bc = code93.Standard93(data, 
+								       barHeight=bcHeight,
+								       barwidth=bcWidth,
+								       checksum=bcChecksum,
+								       ratio=bcRatio,
+								       gap=bcGap,
+								       bearers=bcBearers,
+								       quiet=bcQuiet,
+								       stop=bcStop)
+			elif bcFormat == "Code128":
+				bc = code128.Code128(data, 
+								     barHeight=bcHeight,
+								     barwidth=bcWidth,
+								     checksum=bcChecksum,
+								     ratio=bcRatio,
+								     gap=bcGap,
+								     bearers=bcBearers,
+								     quiet=bcQuiet,
+								     stop=bcStop)
+
+			# these don't have .drawOn, need to research how they work
+			#elif bcFormat == "Ean8":
+				#bc = eanbc.Ean8BarcodeWidget(data)
+			#elif bcFormat == "Ean13":
+				#bc = eanbc.Ean13BarcodeWidget(data)
+			#elif bcFormat == "QR":
+				#bc = qr.QrCodeWidget(data)
+
+			if bc:
+				bc.drawOn(c, x, y)
+
 		## All done, restore the canvas state to how we found it (important because
 		## rotating, scaling, etc. are cumulative, not absolute and we don't want
 		## to start with a canvas in an unknown state.)
+
 		c.restoreState()
 		return deferred, neededHeight
 
@@ -2916,6 +3048,7 @@ class ReportWriter(object):
 				                    "PageForeground": PageForeground, "Rect": Rectangle,
 				                    "Rectangle": Rectangle,
 				                    "String": String, "Image": Image, "BarGraph": BarGraph, "Line": Line,
+				                    "Barcode": Barcode,
 				                    "Frameset": Frameset, "Paragraph": Paragraph, "Memo": Memo,
 				                    "Variables": Variables, "Groups": Groups, "Objects": Objects,
 				                    "TestCursor": TestCursor, "TestRecord": TestRecord,
