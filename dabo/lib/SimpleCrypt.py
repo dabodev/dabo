@@ -41,11 +41,13 @@ class SimpleCrypt(object):
 		if self._useDES3:
 			try:
 				from Crypto.Cipher import DES3
+				from Crypto import Random
 			except ImportError:
 				self._useDES3 = False
 		if self._useDES3:
 			self.__key = self.__key[:16].rjust(16, "@")
-			self._cryptoProvider = DES3.new(self.__key, DES3.MODE_CBC)
+			self._cryptoProvider = DES3.new(
+					self.__key, DES3.MODE_CBC, Random.new().read(DES3.block_size))
 
 
 	def showWarning(self):
@@ -80,7 +82,10 @@ class SimpleCrypt(object):
 		if not aString:
 			return ""
 		if self._useDES3:
-			decString = base64.b64decode(aString)
+			try:
+				decString = base64.b64decode(aString)
+			except TypeError:
+				return ""
 			# We need to chop off any padding, along with the first 8 garbage bytes
 			padlen = int(decString[0]) + 8
 			decString = decString[1:]
