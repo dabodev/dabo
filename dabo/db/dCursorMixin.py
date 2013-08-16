@@ -324,7 +324,10 @@ class dCursorMixin(dObject):
 				sql = sql.decode(self.Encoding).replace("\n", " ")
 			except UnicodeDecodeError, e:
 				sql = "(couldn't decode sql)"
-		params = ", ".join("%s" % p for p in params)
+		try:
+			params = ", ".join("%s" % p for p in params)
+		except UnicodeDecodeError, e:
+			params = "(couldn't decode params)"
 
 		try:
 			log("%s SQL: %s, PARAMS: %s" % (msg, sql, params))
