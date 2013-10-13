@@ -27,8 +27,11 @@ key_Control = wx.WXK_CONTROL
 key_Menu = wx.WXK_MENU
 key_Pause = wx.WXK_PAUSE
 key_Capital = wx.WXK_CAPITAL
-key_Prior = wx.WXK_PRIOR
-key_Next = wx.WXK_NEXT
+if not 'phoenix' in wx.PlatformInfo: 
+	# wxPython 2.6 compatibility, removed in Phoenix
+	key_Prior = wx.WXK_PRIOR
+	key_Next = wx.WXK_NEXT
+	
 key_End = wx.WXK_END
 key_Home = wx.WXK_HOME
 # if wx.Platform == "__WXMAC__":
@@ -110,9 +113,11 @@ key_Numpad_left = wx.WXK_NUMPAD_LEFT
 key_Numpad_up = wx.WXK_NUMPAD_UP
 key_Numpad_right = wx.WXK_NUMPAD_RIGHT
 key_Numpad_down = wx.WXK_NUMPAD_DOWN
-key_Numpad_prior = wx.WXK_NUMPAD_PRIOR
+if not 'phoenix' in wx.PlatformInfo: 
+	# wxPython 2.6 compatibility, removed in Phoenix
+	key_Numpad_prior = wx.WXK_NUMPAD_PRIOR
+	key_Numpad_next = wx.WXK_NUMPAD_NEXT
 key_Numpad_pageup = wx.WXK_NUMPAD_PAGEUP
-key_Numpad_next = wx.WXK_NUMPAD_NEXT
 key_Numpad_pagedown = wx.WXK_NUMPAD_PAGEDOWN
 key_Numpad_end = wx.WXK_NUMPAD_END
 key_Numpad_begin = wx.WXK_NUMPAD_BEGIN
@@ -238,9 +243,7 @@ keyStrings = {
 	"numpad_up": key_Numpad_up,
 	"numpad_right": key_Numpad_right,
 	"numpad_down": key_Numpad_down,
-	"numpad_prior": key_Numpad_prior,
 	"numpad_pageup": key_Numpad_pageup,
-	"numpad_next": key_Numpad_next,
 	"numpad_pagedown": key_Numpad_pagedown,
 	"numpad_end": key_Numpad_end,
 	"numpad_begin": key_Numpad_begin,
@@ -254,6 +257,11 @@ keyStrings = {
 	"numpad_decimal": key_Numpad_decimal,
 	"numpad_divide": key_Numpad_divide,
 }
+
+if not 'phoenix' in wx.PlatformInfo: 
+	# wxPython 2.6 compatibility, removed in Phoenix
+	keyStrings["numpad_prior"] = key_Numpad_prior
+	keyStrings["numpad_next"] = key_Numpad_next
 
 
 def resolveKeyCombo(keyCombo, returnFlags=False):
