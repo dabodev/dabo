@@ -97,7 +97,7 @@ if sys.platform[:3] == "lin":
 			fontPaths += [os.path.join(pathToCheck, d) for d in os.listdir(pathToCheck)]
 elif sys.platform[:3] == "dar":
 	fontPaths += ["/Network/Library/Fonts", "/Library/Fonts", "System/Library/Fonts",
-		          "%s/Library/Fonts" % os.path.expanduser("~")]
+	        "%s/Library/Fonts" % os.path.expanduser("~")]
 elif sys.platform[:3] == "win":
 	fontPaths = [os.path.join(os.path.expandvars("%windir%"), "fonts")]
 
@@ -138,7 +138,7 @@ def getSubFont(fontName, subFontName="Helvetica"):
 		subFontName += "Oblique"
 	if subFontName not in substitutedFontNames:
 		dabo.log.error(_("Font '%(fontName)s' not found. Substituting "
-				         "'%(subFontName)s'") % locals())
+		        "'%(subFontName)s'") % locals())
 		substitutedFontNames.append(subFontName)
 	return subFontName
 
@@ -281,7 +281,7 @@ class ReportObject(CaselessDict):
 
 	def initAvailableProps(self):
 		self.AvailableProps["Comment"] = toPropDict(str, "",
-				                                    """You can add a comment here, the report will ignore it.""")
+		        """You can add a comment here, the report will ignore it.""")
 
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the object."""
@@ -346,7 +346,7 @@ class ReportObject(CaselessDict):
 
 			# If the prop is in <Report><Defaults>:
 			if self is not self.ReportForm and (prop in self.ReportForm["Defaults"].AvailableProps
-						                        or (prop[-4:] == "_def" and prop[:-4] in self.ReportForm["Defaults"].AvailableProps)):
+			        or (prop[-4:] == "_def" and prop[:-4] in self.ReportForm["Defaults"].AvailableProps)):
 				try:
 					ret = self.ReportForm["Defaults"][prop]
 					if evaluate:
