@@ -2074,6 +2074,8 @@ class ReportWriter(object):
 							return " ".join(words)
 						para = escapePara(para)
 						splits = ParaClass(para, s).split(columnWidth-padLeft-padRight, availableHeight)
+						if not splits:
+							splits = [ParaClass(para, s)]
 						for split in splits:
 							rl_paras.append(split)
 
