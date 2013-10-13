@@ -29,36 +29,29 @@ def DesignerController():
 			self.setAppInfo("appName", "Dabo Report Designer")
 			self.MainFormClass = None
 
-
 		def beforeInit(self):
 			self._inSelection = False
-
 
 		def afterInit(self):
 			if sys.platform == "darwin":
 				self.bindEvent(dEvents.KeyDown, self._onKeyDown)
 
-
 		def startPropEdit(self):
 			## Class Designer uses this; don't think it's necessary here.
 			pass
-
 
 		def endPropEdit(self):
 			## Class Designer uses this; don't think it's necessary here.
 			pass
 
-
 		def _onKeyDown(self, evt):
 			# Mac-specific behavior
 			self.ActiveEditor.onKeyDown(evt)
-
 
 		def onFileExit(self, evt):
 			ret = self.ActiveEditor.closeFile()
 			if ret is not None:
 				self.finish()
-
 
 		def getShortExpr(self, expr):
 			"""Given an expression, return a shortened version for display in designer."""
@@ -72,13 +65,11 @@ def DesignerController():
 			if len(expr) < 3:
 				return expr
 
-
 			def isVariable(name):
 				for v in rdc.ReportForm["Variables"]:
 					if v.get("Name", None) == name:
 						return True
 				return False
-
 
 			def isRecord(name):
 				if (name and ("TestCursor" in rdc.ReportForm)
@@ -122,14 +113,12 @@ def DesignerController():
 				expr = name
 			return expr
 
-
 		def objectDoubleClicked(self, obj, evt=None):
 			"""A report object was double-clicked: edit its major property in the propsheet."""
 			editProp = obj.MajorProperty
 			if evt.EventData["shiftDown"]:
 				editProp = None
 			rdc.editProperty(editProp)
-
 
 		def editProperty(self, prop=None):
 			"""Display the property dialog, and bring it to top.
@@ -140,7 +129,6 @@ def DesignerController():
 			"""
 			activeForm = self.ActiveForm
 			self.showPropSheet(prop=prop, enableEditor=True, focusBack=activeForm)
-
 
 		def newObject(self, typ, mousePosition):
 			"""Add a new object of the passed type to the selected band."""
@@ -187,13 +175,11 @@ def DesignerController():
 
 			#dabo.ui.callAfter(self.ActiveEditor.Form.Raise)
 
-
 		def getGroupBandByExpr(self, expr):
 			for g in self.ReportForm["Groups"]:
 				if g["expr"] == expr:
 					return g
 			return None
-
 
 		def getContextMenu(self, mousePosition):
 			def onNewObject(evt):
@@ -201,42 +187,32 @@ def DesignerController():
 				tag = evt.EventObject.Tag
 				self.newObject(tag, mousePosition)
 
-
 			def onSelectAll(evt):
 				self.selectAllObjects()
-
 
 			def onCopy(evt):
 				self.copy()
 
-
 			def onPaste(evt):
 				self.paste()
-
 
 			def onCut(evt):
 				self.cut()
 
-
 			def onDelete(evt):
 				self.delete()
-
 
 			def onMoveToTop(evt):
 				self.ActiveEditor.sendToBack()
 
-
 			def onMoveUp(evt):
 				self.ActiveEditor.sendBackwards()
-
 
 			def onMoveDown(evt):
 				self.ActiveEditor.sendUpwards()
 
-
 			def onMoveToBottom(evt):
 				self.ActiveEditor.bringToFront()
-
 
 			menu = dabo.ui.dMenu()
 			newObjectMenuCreated = False
@@ -311,7 +287,6 @@ def DesignerController():
 
 			return menu
 
-
 		def selectAllObjects(self):
 			"""Select all objects in the selected band(s)."""
 			selection = []
@@ -320,13 +295,11 @@ def DesignerController():
 					selection.append(obj)
 			self.SelectedObjects = selection
 
-
 		def showObjectTree(self, refresh=False):
 			ot = self.ObjectTree
 
 			if refresh:
 				ot.refreshSelection()
-
 
 		def showPropSheet(self, refresh=False, prop=None,
 				          enableEditor=False, focusBack=None):
@@ -354,19 +327,16 @@ def DesignerController():
 			else:
 				pg.CurrentRow = pg.CurrentRow
 
-
 		def refreshTree(self):
 			if self.ObjectTree:
 				self.ObjectTree.refreshTree()
 				self.ObjectTree.refreshSelection()
-
 
 		def refreshProps(self, refreshEditor=True):
 			if refreshEditor and self.ActiveEditor:
 				self.ActiveEditor.refresh()
 			if self.PropSheet and self.PropSheet.Form.Visible:
 				self.PropSheet.refreshSelection()
-
 
 		def refreshSelection(self, refreshEditor=False):
 			self._inSelection = True
@@ -377,14 +347,12 @@ def DesignerController():
 				self.ActiveEditor.refresh()
 			self._inSelection = False
 
-
 		def isSelected(self, obj):
 			"""Return True if the object is selected."""
 			for selObj in self.SelectedObjects:
 				if id(selObj) == id(obj):
 					return True
 			return False
-
 
 		def getNextDrawable(self, obj):
 			"""Return the next drawable after the passed obj."""
@@ -394,7 +362,6 @@ def DesignerController():
 				idx = 0
 			return collection[idx]
 
-
 		def getPriorDrawable(self, obj):
 			"""Return the prior drawable before the passed obj."""
 			collection = self.getParentBand(obj)["Objects"]
@@ -403,18 +370,15 @@ def DesignerController():
 				idx = len(collection) - 1
 			return collection[idx]
 
-
 		def ReportObjectSelection(self):
 			import pickle
 			import wx
 			rw = self.ActiveEditor._rw
 
-
 			class ReportObjectSelection(wx.CustomDataObject):
 				def __init__(self):
 					wx.CustomDataObject.__init__(self, wx.CustomDataFormat("ReportObjectSelection"))
 					self.setObject([])
-
 
 				def setObject(self, objs):
 					# We are receiving a sequence of selected objects. Convert to a list of
@@ -436,7 +400,6 @@ def DesignerController():
 						copyObjs.append(copyObj)
 					self.SetData(pickle.dumps(copyObjs))
 
-
 				def getObject(self):
 					# We need to convert the representative object dicts back into report
 					# objects
@@ -446,7 +409,6 @@ def DesignerController():
 						obj = self.getReportObjectFromMemento(copyObj)
 						objs.append(obj)
 					return objs
-
 
 				def getReportObjectFromMemento(self, memento, parent=None):
 					try:
@@ -478,7 +440,6 @@ def DesignerController():
 
 			return ReportObjectSelection()
 
-
 		def getSelectedBands(self):
 			"""Return the list of bands that are currently selected."""
 			selBands = []
@@ -490,7 +451,6 @@ def DesignerController():
 					if selObj not in selBands:
 						selBands.append(selObj)
 			return selBands
-
 
 		def copy(self, cut=False):
 			import wx
@@ -506,7 +466,6 @@ def DesignerController():
 				wx.TheClipboard.Close()
 			if cut:
 				self.delete()
-
 
 		def delete(self):
 			objs = [obj for obj in self.SelectedObjects \
@@ -535,10 +494,8 @@ def DesignerController():
 						reInit = True
 			self.ActiveEditor.propsChanged(reinit=reInit)
 
-
 		def cut(self):
 			self.copy(cut=True)
-
 
 		def paste(self):
 			import wx
@@ -607,7 +564,6 @@ def DesignerController():
 			self.ActiveEditor.propsChanged(reinit=reInit)
 			self.SelectedObjects = selectedObjects
 
-
 		def getParentBand(self, obj):
 			"""Return the band that the obj is a member of."""
 			parent = obj
@@ -617,18 +573,14 @@ def DesignerController():
 				parent = parent.parent
 			return None
 
-
 		def _onObjectTreeFormClose(self, evt):
 			self.ObjectTree = None
-
 
 		def _onPropSheetFormClose(self, evt):
 			self.PropSheet = None
 
-
 		def _getActiveEditor(self):
 			return getattr(self, "_activeEditor", None)
-
 
 		def _setActiveEditor(self, val):
 			changed = (val != self.ActiveEditor)
@@ -637,7 +589,6 @@ def DesignerController():
 				self.refreshTree()
 				self.refreshProps()
 
-
 		def _getObjectTree(self):
 			try:
 				val = self._objectTree
@@ -645,10 +596,8 @@ def DesignerController():
 				val = self._objectTree = None
 			return val
 
-
 		def _setObjectTree(self, val):
 			self._objectTree = val
-
 
 		def _getPropSheet(self):
 			try:
@@ -657,23 +606,18 @@ def DesignerController():
 				val = self._propSheet = None
 			return val
 
-
 		def _setPropSheet(self, val):
 			self._propSheet = val
-
 
 		def _getReportForm(self):
 			return self.ActiveEditor.ReportForm
 
-
 		def _getSelectedObjects(self):
 			return getattr(self.ActiveEditor, "_selectedObjects", [])
-
 
 		def _setSelectedObjects(self, val):
 			self.ActiveEditor._selectedObjects = val
 			self.refreshSelection(refreshEditor=True)
-
 
 		ActiveEditor = property(_getActiveEditor, _setActiveEditor)
 		ObjectTree = property(_getObjectTree, _setObjectTree)
@@ -681,7 +625,6 @@ def DesignerController():
 		ReportForm = property(_getReportForm)
 		SelectedObjects = property(_getSelectedObjects, _setSelectedObjects)
 		Selection = SelectedObjects  ## compatability with ClassDesignerPropSheet
-
 
 	global rdc
 	if rdc is None:
@@ -697,7 +640,6 @@ class DesignerControllerPanel(dabo.ui.dPanel):
 	def initProperties(self):
 		self.Caption = "DesignerController Panel"
 
-
 	def afterInit(self):
 		sz = dabo.ui.dSizer('h')
 		self.SetSizer(sz)
@@ -706,7 +648,6 @@ class DesignerControllerPanel(dabo.ui.dPanel):
 		sz.append(self.Editor, 2, "x")
 		self.layout()
 
-
 	def _getEditor(self):
 		if hasattr(self, "_editor"):
 			val = self._editor
@@ -714,10 +655,8 @@ class DesignerControllerPanel(dabo.ui.dPanel):
 			val = self._editor = None
 		return val
 
-
 	def _setEditor(self, val):
 		self._editor = val
-
 
 	def _getEditorClass(self):
 		if hasattr(self, "_editorClass"):
@@ -725,7 +664,6 @@ class DesignerControllerPanel(dabo.ui.dPanel):
 		else:
 			val = self._editorClass = None
 		return val
-
 
 	def _setEditorClass(self, val):
 		self._editorClass = val
@@ -741,52 +679,42 @@ class ReportObjectTree(dabo.ui.dTreeView):
 		self.MultipleSelect = True
 		self.ShowButtons = True
 
-
 	def initEvents(self):
 		self.bindKey("ctrl+c", self.onCopy)
 		self.bindKey("ctrl+x", self.onCut)
 		self.bindKey("ctrl+v", self.onPaste)
 
-
 	def onCopy(self, evt):
 		rdc.copy()
-
 
 	def onCut(self, evt):
 		rdc.cut()
 
-
 	def onPaste(self, evt):
 		rdc.paste()
-
 
 	def syncSelected(self):
 		"""Sync the treeview's selection to the rdc."""
 		if not rdc._inSelection:
 			rdc.SelectedObjects = [obj.Object for obj in self.Selection]
 
-
 	def onTreeSelection(self, evt):
 		self.syncSelected()
-
 
 	def onMouseLeftDoubleClick(self, evt):
 		node = evt.EventData["selectedNode"][0]
 		rdc.objectDoubleClicked(node.Object, evt)
-
 
 	def onContextMenu(self, evt):
 		evt.stop()
 		self.syncSelected()
 		self.showContextMenu(rdc.getContextMenu(mousePosition=evt.EventData["mousePosition"]))
 
-
 	def refreshTree(self):
 		"""Constructs the tree of report objects."""
 		self.clear()
 		self.recurseLayout()
 		dabo.ui.callAfterInterval(100, self.expandAll)
-
 
 	def recurseLayout(self, frm=None, parentNode=None):
 		rd = rdc.ActiveEditor
@@ -827,7 +755,6 @@ class ReportObjectTree(dabo.ui.dTreeView):
 			for child in frm:
 				self.recurseLayout(frm=child, parentNode=node)
 
-
 	def getNodeCaption(self, frm):
 		caption = frm.__class__.__name__
 		if not frm.__class__.__name__ in ("Variables", "Groups", "TestCursor"):
@@ -841,7 +768,6 @@ class ReportObjectTree(dabo.ui.dTreeView):
 					expr = ": %s" % expr
 					caption = "%s%s" % (frm.__class__.__name__, expr)
 		return caption
-
 
 	def refreshSelection(self):
 		"""Iterate through the nodes, and set their Selected status
@@ -869,7 +795,6 @@ class ReportObjectTree(dabo.ui.dTreeView):
 
 		self.Selection = selNodes
 
-
 	def refreshCaption(self):
 		"""Iterate the Selection, and refresh the Caption."""
 		for node in self.Selection:
@@ -883,7 +808,6 @@ class ObjectTreePanel(DesignerControllerPanel):
 		self.Caption = "Report Object Tree"
 		self.EditorClass = ReportObjectTree
 
-
 	def selectAll(self):
 		rdc.selectAllObjects()
 
@@ -894,22 +818,18 @@ class ReportPropSheet(ClassDesignerPropSheet.PropSheet):
 		# The ClassDesignerPropSheet appears to need a self.app reference:
 		self.app = rdc
 
-
 	def afterInit(self):
 		super(ReportPropSheet, self).afterInit()
 		self.addObject(dabo.ui.dLabel, Name="lblType", FontBold=True)
 		self.Sizer.insert(0, self.lblType, "expand", halign="left", border=10)
 		self.Sizer.insertSpacer(0, 10)
 
-
 	def getObjPropVal(self, obj, prop):
 		return obj.getPropVal(prop)
-
 
 	def getObjPropDoc(self, obj, prop):
 		doc = obj.getPropDoc(prop)
 		return self.formatDocString(doc)
-
 
 	def updateVal(self, prop, val, typ):
 		"""Called from the grid to notify that the current cell's
@@ -934,7 +854,6 @@ class ReportPropSheet(ClassDesignerPropSheet.PropSheet):
 			focusBack.bringToFront()
 			self.propGrid._focusBack = None
 
-
 	def refreshSelection(self):
 		objs = rdc.SelectedObjects
 		self.select(objs)
@@ -946,7 +865,6 @@ class ReportPropSheet(ClassDesignerPropSheet.PropSheet):
 		else:
 			typ = objs[0].__class__.__name__
 		self.lblType.Caption = typ
-
 
 	def editColor(self, objs, prop, val):
 		# Override base editColor: need to convert stringified rl tuple to
@@ -994,18 +912,14 @@ class BandLabel(DesignerPanel):
 		self._dragStart = (0,0)
 		self._dragImage = None
 
-
 	def copy(self):
 		self.Parent.copy()
-
 
 	def cut(self):
 		self.Parent.cut()
 
-
 	def paste(self):
 		self.Parent.paste()
-
 
 	def onMouseMove(self, evt):
 		import wx  ## need to abstract DC and mouse cursors!!
@@ -1017,7 +931,6 @@ class BandLabel(DesignerPanel):
 				ypos = (self.Parent.Top + self.Top + pos[1]
 						- self._dragStart[1]    ## (correct for ypos in the band)
 						+ 2)                    ## fudge factor
-
 
 				if ypos < self.Parent.Top:
 					# Don't show the band dragging above the topmost valid position:
@@ -1036,7 +949,6 @@ class BandLabel(DesignerPanel):
 					self._dragImage.Show()
 
 				self._dragImage.Move((self.Parent.Left,ypos))
-
 
 	def onMouseLeftUp(self, evt):
 		dragging = self._dragging
@@ -1068,7 +980,6 @@ class BandLabel(DesignerPanel):
 				self.Parent.setProp("Height", newHeight)
 			rdc.SelectedObjects = [self.Parent.ReportObject]
 
-
 	def onMouseLeftDown(self, evt):
 		if self.Application.Platform == "Mac":
 			# Mac needs the following line, or LeftUp will never fire. TODO:
@@ -1081,7 +992,6 @@ class BandLabel(DesignerPanel):
 			self._dragStart = evt.EventData["mousePosition"]
 			self._captureBitmap = self.getCaptureBitmap()
 
-
 	def onMouseEnter(self, evt):
 		import wx		## need to abstract mouse cursor
 
@@ -1090,10 +1000,8 @@ class BandLabel(DesignerPanel):
 		else:
 			self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENS))
 
-
 	def onMouseLeftDoubleClick(self, evt):
 		rdc.objectDoubleClicked(self.Parent.ReportObject, evt)
-
 
 	def onPaint(self, evt):
 		import wx		## (need to abstract DC drawing)
@@ -1109,10 +1017,8 @@ class BandLabel(DesignerPanel):
 		rect[1] = rect[1]+1
 		dc.DrawLabel(self.Caption, rect, wx.ALIGN_LEFT)
 
-
 	def _getCaption(self):
 		return self.Parent.Caption
-
 
 	def _setCaption(self, val):
 		self.Parent.Caption = val
@@ -1138,11 +1044,9 @@ class DesignerBand(DesignerPanel):
 	def beforeInit(self):
 		self._idleRefreshProps = False
 
-
 	def initProperties(self):
 		self.BackColor = (255,255,255)
 		self.Top = 100
-
 
 	def afterInit(self):
 		self._cachedBitmaps = {}
@@ -1167,28 +1071,22 @@ class DesignerBand(DesignerPanel):
 
 		self._captureBitmap = None
 
-
 	def copy(self):
 		self.Parent.copy()
-
 
 	def cut(self):
 		self.Parent.cut()
 
-
 	def paste(self):
 		self.Parent.paste()
-
 
 	def onContextMenu(self, evt):
 		evt.stop()
 		self.updateSelected()
 		self.showContextMenu(rdc.getContextMenu(evt.EventData["mousePosition"]))
 
-
 	def onMouseLeftDoubleClick(self, evt):
 		rdc.objectDoubleClicked(self.getMouseObject(), evt)
-
 
 	def onMouseMove(self, evt):
 		import wx  ## need to abstract DC and mouse cursors!!
@@ -1197,7 +1095,6 @@ class DesignerBand(DesignerPanel):
 				self._dragging = True
 				self._dragStart = evt.EventData["mousePosition"]
 		evt.stop()
-
 
 	def onMouseLeftUp(self, evt):
 		self._mouseDown = False
@@ -1233,7 +1130,6 @@ class DesignerBand(DesignerPanel):
 			self.refresh()
 			rdc.refreshProps(refreshEditor=False)
 
-
 	def onMouseLeftDown(self, evt):
 		self.updateSelected(evt)
 		# If we let the default event handler run, self.SetFocus() will happen,
@@ -1248,7 +1144,6 @@ class DesignerBand(DesignerPanel):
 
 		self._mouseDown = True
 		self._mousePosition = evt.EventData["mousePosition"]
-
 
 	def getMouseObject(self):
 		"""Returns the topmost object underneath the mouse."""
@@ -1274,7 +1169,6 @@ class DesignerBand(DesignerPanel):
 				break
 		return mouseObj
 
-
 	def updateSelected(self, evt=None):
 		mouseObj = self.getMouseObject()
 		if not isinstance(mouseObj, Band):
@@ -1293,7 +1187,6 @@ class DesignerBand(DesignerPanel):
 			selectedObjs = [mouseObj]
 
 		rdc.SelectedObjects = selectedObjs
-
 
 	def getObjSizeAndPosition(self, obj):
 		"""Return the size and position needed to draw the object at the current zoom factor."""
@@ -1347,7 +1240,6 @@ class DesignerBand(DesignerPanel):
 
 		return (size, position)
 
-
 	def getPositionText(self):
 		if self.getProp("designerLock"):
 			locktext = "(locked)"
@@ -1356,7 +1248,6 @@ class DesignerBand(DesignerPanel):
 		cap = "(%s) height:%s %s" % (self.ReportObject.__class__.__name__,
 				                     self.getProp("Height"), locktext)
 		return cap
-
 
 	def onPaint(self, evt):
 		import wx		## (need to abstract DC drawing)
@@ -1384,7 +1275,6 @@ class DesignerBand(DesignerPanel):
 			if columnCount > 1:
 				colWidth -= columnPadding
 			dc.DrawRectangle(colWidth, 0, colWidth*(columnCount-1) + 10, self.Height)
-
 
 	def _paintObj(self, obj, dc=None):
 		import wx
@@ -1541,7 +1431,6 @@ class DesignerBand(DesignerPanel):
 			elif lineSlant:
 				dc.DrawLine(beg[0], beg[1], end[0], end[1])
 
-
 		if objType == "Image":
 			bmp = None
 			expr = obj.getProp("expr", evaluate=False)
@@ -1634,7 +1523,6 @@ class DesignerBand(DesignerPanel):
 					dc.SetPen(wx.Pen(selectColor, 1, wx.SOLID))
 				dc.DrawRectangle(v[2], v[3], thickness, thickness)
 
-
 	def getProp(self, prop, evaluate=True, fillDefault=True):
 		if evaluate and fillDefault:
 			# The report object can do it all:
@@ -1655,7 +1543,6 @@ class DesignerBand(DesignerPanel):
 			vale = val
 		return vale
 
-
 	def setProp(self, prop, val, sendPropsChanged=True):
 		"""Set the specified object property to the specified value.
 
@@ -1665,13 +1552,11 @@ class DesignerBand(DesignerPanel):
 		if sendPropsChanged:
 			self.Parent.propsChanged()
 
-
 	def setProps(self, propvaldict):
 		"""Set the specified object properties to the specified values."""
 		for p,v in propvaldict.items():
 			self.setProp(p, v, False)
 		self.Parent.propsChanged()
-
 
 	def _getCaption(self):
 		try:
@@ -1710,7 +1595,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		kwargs["style"] = wx.WANTS_CHARS
 		super(ReportDesigner, self).__init__(*args, **kwargs)
 
-
 	def afterInit(self):
 		self._bands = []
 		self._rulers = {}
@@ -1722,10 +1606,8 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 		self.Form.bindEvent(dEvents.Resize, self._onFormResize)
 
-
 	def onMouseLeftClick(self, evt):
 		rdc.SelectedObjects = [rdc.ReportForm]
-
 
 	def onKeyDown(self, evt):
 		# We are going to steal the arrow keys, so make sure we really have the
@@ -1800,7 +1682,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			# delay the refreshing of the property grid/position:
 			rdc.refreshSelection()
 			return
-
 
 		if ctrlDown and not altDown and not shiftDown and not metaDown:
 			## On Windows, the accelerators set up for the zooming aren't working.
@@ -1898,12 +1779,10 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			# delay the refreshing of the property grid/position:
 			rdc.refreshProps(refreshEditor=False)
 
-
 	def refresh(self):
 		super(ReportDesigner, self).refresh()
 		self.showPosition()
 		self.setCaption()
-
 
 	def showPosition(self):
 		"""If one object is selected, show its position and size."""
@@ -1933,7 +1812,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		st += " Zoom: %s" % self.ZoomPercent
 		self.Form.setStatusText(st)
 
-
 	def clearReportForm(self):
 		"""Called from afterInit and closeFile to clear the report form."""
 		for o in self._rulers.values():
@@ -1945,7 +1823,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		if not hasattr(self, "_rw"):
 			self._rw = dReportWriter()
 
-
 	def objectTree(self, obj=None):
 		"""Display the object Tree for the passed object."""
 		if obj is None:
@@ -1953,7 +1830,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		rw = self._rw
 
 		rdc.showObjectTree(refresh=True)
-
 
 	def promptToSave(self):
 		"""Decides whether user should be prompted to save, and whether to save."""
@@ -1964,7 +1840,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			if result:
 				self.saveFile()
 		return result
-
 
 	def promptForFileName(self, prompt="Select a file", saveDialog=False):
 		"""Prompt the user for a file name."""
@@ -1991,7 +1866,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			fname = None
 		dlg.Destroy()
 		return fname
-
 
 	def promptForSaveAs(self):
 		"""Prompt user for the filename to save the file as.
@@ -2022,7 +1896,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 		return fname
 
-
 	def saveFile(self, fileSpec=None):
 		if fileSpec is None:
 			fileSpec = self._fileName
@@ -2036,7 +1909,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self._rw._setMemento()
 		self.setCaption()
 
-
 	def closeFile(self):
 		result = self.promptToSave()
 
@@ -2045,7 +1917,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			self.clearReportForm()
 			self._fileName = ""
 		return result
-
 
 	def setCaption(self):
 		"""Sets the form's caption based on file name, whether modified, etc."""
@@ -2061,7 +1932,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 				                          self.Form._captionBase,
 				                          self._fileName)
 
-
 	def newFile(self):
 		if self.closeFile():
 			self._rw.ReportForm = self._rw._getEmptyForm()
@@ -2069,7 +1939,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			self._fileName = NEW_FILE_CAPTION
 		rdc.ActiveEditor = self
 		rdc.SelectedObjects = [self._rw.ReportForm]
-
 
 	def openFile(self, fileSpec):
 		if os.path.exists(fileSpec):
@@ -2095,14 +1964,12 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			raise ValueError("File %s does not exist." % fileSpec)
 		return True
 
-
 	def reInitReportForm(self):
 		"""Clear the report form and redraw from scratch."""
 		rf = self._rw.ReportForm
 		self.clearReportForm()
 		self._rw.ReportForm = rf
 		self.initReportForm()
-
 
 	def initReportForm(self):
 		"""Called from openFile and newFile when time to set up the Report Form."""
@@ -2147,7 +2014,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self._rw.write()   ## 02/25/2009: Some cases it is needed, and could be Rodgy's problem with TestCursor.
 		self.drawReportForm()
 
-
 	def propsChanged(self, redraw=True, reinit=False):
 		"""Called by subobjects to notify the report designer that a prop has changed."""
 		if reinit:
@@ -2159,10 +2025,8 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self.Form.setModified(self)
 		rdc.refreshProps()
 
-
 	def _onFormResize(self, evt):
 		self.drawReportForm()
-
 
 	def drawReportForm(self):
 		"""Resize and position the bands accordingly, and draw the objects."""
@@ -2249,7 +2113,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self.showPosition()
 		self.refresh()
 
-
 	def getRuler(self, pos):
 		defaultThickness = 20
 		defaultLength = 1
@@ -2271,7 +2134,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 			def cut(self):
 				return self.Parent.cut()
-
 
 			def onPaint(self, evt):
 				import wx		## (need to abstract DC drawing)
@@ -2319,7 +2181,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 						if rulerPos == "t":
 							dc.DrawLine(rescaledPos, self.Thickness, rescaledPos, self.Thickness - ruleSize)
 
-
 			def _getThickness(self):
 				if self._orientation == "v":
 					val = self.Width
@@ -2327,13 +2188,11 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 					val = self.Height
 				return val
 
-
 			def _setThickness(self, val):
 				if self._orientation == "v":
 					self.Width = val
 				else:
 					self.Height = val
-
 
 			def _getLength(self):
 				if self._orientation == "v":
@@ -2342,46 +2201,38 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 					val = self.Width
 				return val
 
-
 			def _setLength(self, val):
 				if self._orientation == "v":
 					self.Height = val
 				else:
 					self.Width = val
 
+
 			Length = property(_getLength, _setLength)
 			Thickness = property(_getThickness, _setThickness)
 
 		return Ruler(self, Length=defaultLength, Thickness=defaultThickness)
 
-
 	def copy(self):
 		rdc.copy()
-
 
 	def cut(self):
 		rdc.cut()
 
-
 	def paste(self):
 		rdc.paste()
-
 
 	def sendToBack(self):
 		self._arrange("sendToBack")
 
-
 	def bringToFront(self):
 		self._arrange("bringToFront")
-
 
 	def sendBackwards(self):
 		self._arrange("sendBackwards")
 
-
 	def sendUpwards(self):
 		self._arrange("sendUpwards")
-
 
 	def _arrange(self, mode):
 		toRedraw = []
@@ -2428,26 +2279,20 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		if toRedraw:
 			rdc.refreshTree()
 
-
 	def _getReportForm(self):
 		return self._rw.ReportForm
-
 
 	def _setReportForm(self, val):
 		self._rw.ReportForm = val
 
-
 	def _getZoomFactor(self):
 		return self._zoom * 1.515
-
 
 	def _getZoomPercent(self):
 		return "%s%%" % (int(self._zoom * 100),)
 
-
 	def _getZoom(self):
 		return self._zoom
-
 
 	def _setZoom(self, val):
 		self._zoom = val
@@ -2474,7 +2319,6 @@ class ReportDesignerForm(dabo.ui.dDockForm):
 		self.Size = (700, 500)
 		self._captionBase = self.Caption = "Dabo Report Designer"
 		self.Controller = self.Application
-
 
 	def afterInit(self):
 		self.pgf = dabo.ui.dPageFrame(self.CenterPanel, Name="pgf")
@@ -2519,23 +2363,19 @@ class ReportDesignerForm(dabo.ui.dDockForm):
 		ps.SetSizer(szPs)
 		ps.Sizer.append1x(psP)
 
-
 	def restoreSizeAndPosition(self):
 		app = self.Application
 		self.editor.Zoom = app.getUserSetting("ReportDesigner_zoom", 1.0)
 		super(ReportDesignerForm, self).restoreSizeAndPosition()
-
 
 	def saveSizeAndPosition(self):
 		app = self.Application
 		app.setUserSetting("ReportDesigner_zoom", self.editor.Zoom)
 		super(ReportDesignerForm, self).saveSizeAndPosition()
 
-
 	def setModified(self, page):
 		if isinstance(page, ReportDesigner):
 			self._xmlEditorUpToDate = False
-
 
 	def onEnterXmlEditorPage(self, evt):
 		editBox = self.pgf.Pages[1]
@@ -2544,7 +2384,6 @@ class ReportDesignerForm(dabo.ui.dDockForm):
 			editBox.Value = editor._rw._getXMLFromForm(rdc.ReportForm)
 			self._xmlEditorUpToDate = True
 		self._xmlEditorOldValue = editBox.Value
-
 
 	def onLeaveXmlEditorPage(self, evt):
 		editBox = self.pgf.Pages[1]
@@ -2563,15 +2402,12 @@ class ReportDesignerForm(dabo.ui.dDockForm):
 			## Force a refresh of the propsheet:
 			rdc.ActiveEditor = self.editor
 
-
 	def beforeClose(self, evt):
 		result = self.editor.closeFile()
-
 
 	def onEditUndo(self, evt):
 		self.editor._rw.undo()
 		self.editor.propsChanged()
-
 
 	def onFileNew(self, evt):
 		o = self.editor
@@ -2585,7 +2421,6 @@ class ReportDesignerForm(dabo.ui.dDockForm):
 			o.Position = (self.Left + 20, self.Top + 20)
 		o.editor.newFile()
 		o.Show()
-
 
 	def onFileOpen(self, evt):
 		o = self.editor
@@ -2606,18 +2441,15 @@ class ReportDesignerForm(dabo.ui.dDockForm):
 	def onFileSave(self, evt):
 		self.editor.saveFile()
 
-
 	def onFileClose(self, evt):
 		result = self.editor.closeFile()
 		if result is not None:
 			self.Close()
 
-
 	def onFileSaveAs(self, evt):
 		fname = self.editor.promptForSaveAs()
 		if fname:
 			self.editor.saveFile(fname)
-
 
 	def onFilePreviewReport(self, evt):
 		import dabo.lib.reportUtils as reportUtils
@@ -2625,22 +2457,17 @@ class ReportDesignerForm(dabo.ui.dDockForm):
 		self.editor._rw.write()
 		reportUtils.previewPDF(fname)
 
-
 	def onEditDelete(self, evt):
 		rdc.delete()
-
 
 	def onEditBringToFront(self, evt):
 		self.editor.bringToFront()
 
-
 	def onEditSendToBack(self, evt):
 		self.editor.sendToBack()
 
-
 	def selectAll(self):
 		rdc.selectAllObjects()
-
 
 	def onViewZoomIn(self, evt):
 		ed = self.editor
@@ -2648,19 +2475,16 @@ class ReportDesignerForm(dabo.ui.dDockForm):
 			ed.Zoom *= 1.25
 			ed.drawReportForm()
 
-
 	def onViewZoomNormal(self, evt):
 		ed = self.editor
 		ed.Zoom = ed._normalZoom
 		ed.drawReportForm()
-
 
 	def onViewZoomOut(self, evt):
 		ed = self.editor
 		if ed.Zoom > .2:
 			ed.Zoom /= 1.25
 			ed.drawReportForm()
-
 
 	def fillMenu(self):
 		mb = self.MenuBar
@@ -2736,7 +2560,6 @@ class XmlEditor(dabo.ui.dEditor):
 class PreviewWindow(dabo.ui.dImage):
 	def onPageEnter(self, evt):
 		self.render()
-
 
 	def render(self):
 		# Eventually, a platform-independent pdf viewer window will hopefully be
