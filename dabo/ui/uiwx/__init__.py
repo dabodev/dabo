@@ -30,8 +30,14 @@ if "wx" not in sys.modules and not getattr(sys, "frozen", False):
 # Very first thing: check for proper wxPython build:
 _failedLibs = []
 # note: may need wx.animate as well
-for lib in ("wx", "wx.stc", "wx.lib.foldpanelbar", "wx.gizmos",
-            "wx.lib.calendar", "wx.lib.masked", "wx.lib.buttons"):
+import wx # needed for below
+if 'phoenix' in wx.PlatformInfo:
+	tLibs = ("wx", "wx.stc", "wx.lib.agw.foldpanelbar", "wx.adv",
+            "wx.lib.calendar", "wx.lib.masked", "wx.lib.buttons")
+else:
+	tLibs = ("wx", "wx.stc", "wx.lib.foldpanelbar", "wx.gizmos",
+	         "wx.lib.calendar", "wx.lib.masked", "wx.lib.buttons")	
+for lib in tLibs:
 
 	if getattr(sys, "frozen", False):
 		# Just import it without catching the ImportError. This will let the
@@ -70,8 +76,12 @@ if wx.PlatformInfo[0] == "__WXGTK__":
 uiType["platform"] = _platform
 
 # Add these to the dabo.ui namespace
-deadObjectException = wx._core.PyDeadObjectError
-deadObject = wx._core._wxPyDeadObject
+if 'phoenix' in wx.PlatformInfo:
+	deadObjectException = RuntimeError
+	deadObject = None
+else:
+	deadObjectException = wx._core.PyDeadObjectError
+	deadObject = wx._core._wxPyDeadObject
 assertionException = wx._core.PyAssertionError
 nativeScrollBar = wx.ScrollBar
 
@@ -97,21 +107,21 @@ from dBitmapButton import dBitmapButton
 if wx.VERSION >= (2, 8, 8):
 	from dBorderlessButton import dBorderlessButton
 from dButton import dButton
-from dCalendar import dCalendar
-from dCalendar import dExtendedCalendar
+#from dCalendar import dCalendar
+#from dCalendar import dExtendedCalendar
 from dCheckBox import dCheckBox
 from dCheckList import dCheckList
 from dCollapsiblePanel import dCollapsiblePanel
 from dColorDialog import dColorDialog
 from dComboBox import dComboBox
-from dDatePicker import dDatePicker
+#from dDatePicker import dDatePicker
 from dDateTextBox import dDateTextBox
 from dDropdownList import dDropdownList
 from dDialog import dDialog
 from dDialog import dStandardButtonDialog
 from dDialog import dOkCancelDialog
 from dDialog import dYesNoDialog
-from dEditableList import dEditableList
+#from dEditableList import dEditableList
 from dEditBox import dEditBox
 from dEditor import dEditor
 from dFileDialog import dFileDialog
@@ -132,7 +142,7 @@ from dGrid import dGrid
 from dGrid import dColumn
 from dGridSizer import dGridSizer
 from dHtmlBox import dHtmlBox
-from dHyperLink import dHyperLink
+#from dHyperLink import dHyperLink
 import dIcons
 from dImage import dImage
 import dKeys
@@ -465,7 +475,10 @@ def getEventData(wxEvt):
 			ed["mousePosition"] = wx.GetMousePosition()
 
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent)):
-		ed["mousePosition"] = wxEvt.GetPositionTuple()
+		if 'phoenix' in wx.PlatformInfo:
+			ed["mousePosition"] = wxEvt.GetPosition()
+		else:
+			ed["mousePosition"] = wxEvt.GetPositionTuple()
 		ed["altDown"] = wxEvt.AltDown()
 		ed["commandDown"] = wxEvt.CmdDown()
 		ed["controlDown"] = wxEvt.ControlDown()
@@ -522,7 +535,8 @@ def getEventData(wxEvt):
 		ed["keyCode"] = wxEvt.GetKeyCode()
 		ed["rawKeyCode"] = wxEvt.GetRawKeyCode()
 		ed["rawKeyFlags"] = wxEvt.GetRawKeyFlags()
-		ed["unicodeChar"] = wxEvt.GetUniChar()
+		if not 'phoenix' in wx.PlatformInfo:
+			ed["unicodeChar"] = wxEvt.GetUniChar()
 		ed["unicodeKey"] = wxEvt.GetUnicodeKey()
 		ed["hasModifiers"] = wxEvt.HasModifiers()
 		try:
@@ -619,13 +633,21 @@ def getEventData(wxEvt):
 		except AttributeError:
 			pass
 
-	if isinstance(wxEvt, wx.calendar.CalendarEvent):
+	if 'phoenix' in wx.PlatformInfo:
+		wInst = wx.adv.CalendarEvent
+	else:
+		wInst = wx.calendar.CalendarEvent
+	if isinstance(wxEvt, wInst):
 		ed["date"] = wxEvt.PyGetDate()
 		# This will be undefined for all but the
 		# EVT_CALENDAR_WEEKDAY_CLICKED event.
 		ed["weekday"] = wxEvt.GetWeekDay()
 
-	if isinstance(wxEvt, wx.lib.foldpanelbar.CaptionBarEvent):
+	if 'phoenix' in wx.PlatformInfo:
+		wInst = wx.lib.agw.foldpanelbar.CaptionBarEvent
+	else:
+		wInst = wx.lib.foldpanelbar.CaptionBarEvent
+	if isinstance(wxEvt, wInst):
 		ed["expanded"] = wxEvt.GetFoldStatus()
 		ed["collapsed"] = not ed["expanded"]
 		ed["panel"] = obj.GetParent()

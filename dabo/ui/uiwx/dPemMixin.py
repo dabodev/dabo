@@ -29,7 +29,7 @@ class dPemMixin(dPemMixinBase):
 	_layout_on_set_caption = False
 
 	def __init__(self, preClass=None, parent=None, properties=None,
-			attProperties=None, srcCode=None, *args, **kwargs):
+	             attProperties=None, srcCode=None, *args, **kwargs):
 		# This is the major, common constructor code for all the dabo/ui/uiwx
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
@@ -69,7 +69,7 @@ class dPemMixin(dPemMixinBase):
 		# If the _EventTarget property is passed, extract it before any of the other
 		# property-processing code runs.
 		self._eventTarget = self._extractKey((properties, attProperties, kwargs), "_EventTarget",
-				defaultVal=self)
+		                                     defaultVal=self)
 		# Lots of useful wx props are actually only settable before the
 		# object is fully constructed. The self._preInitProperties dict keeps
 		# track of those during the pre-init phase, to finally send the
@@ -121,7 +121,7 @@ class dPemMixin(dPemMixinBase):
 					continue
 				# Note: we may need to add more string props here.
 				if (val in builtinNames) and (prop in ("Caption", "DataSource",
-						"DataField", "FontFace", "Icon", "Picture", "RegID", "ToolTipText")):
+				                                       "DataField", "FontFace", "Icon", "Picture", "RegID", "ToolTipText")):
 					# It's a string that happens to be the same as a built-in name
 					attVal = val
 				else:
@@ -156,7 +156,7 @@ class dPemMixin(dPemMixinBase):
 			del(self._preInitProperties["id"])
 			del(self._preInitProperties["parent"])
 		elif isinstance(self, (dabo.ui.dSlidePanel, dabo.ui.dSlidePanelControl,
-				dSlidePanelControl.dSlidePanel, dSlidePanelControl.dSlidePanelControl)):
+		                       dSlidePanelControl.dSlidePanel, dSlidePanelControl.dSlidePanelControl)):
 			# Hack: the Slide Panel classes have no style arg.
 			del self._preInitProperties["style"]
 			# This is needed because these classes require a 'parent' param.
@@ -367,8 +367,8 @@ class dPemMixin(dPemMixinBase):
 		constructor. This tells Dabo which properties to specially handle.
 		"""
 		return ("Alignment", "BorderStyle", "ButtonClass", "MultipleSelect",
-				"Orientation", "PasswordEntry", "ShowLabels", "SizerClass", "TabPosition",
-				"CancelButton")
+		        "Orientation", "PasswordEntry", "ShowLabels", "SizerClass", "TabPosition",
+		        "CancelButton")
 
 
 	def _setInitProperties(self, **_properties):
@@ -701,7 +701,7 @@ class dPemMixin(dPemMixinBase):
 		# be raised twice.
 		now = time.time()
 		if (not hasattr(self, "_lastContextMenuTime") or
-				(now - self._lastContextMenuTime) > .001):
+		    (now - self._lastContextMenuTime) > .001):
 			self._lastContextMenuTime = time.time()
 			self.raiseEvent(dEvents.ContextMenu, evt)
 
@@ -1195,20 +1195,20 @@ class dPemMixin(dPemMixinBase):
 		prop = prop.lower().strip()
 		flag = self.ControllingSizerItem.GetFlag()
 		propDict = {"left" : wx.ALIGN_LEFT,
-			"right" : wx.ALIGN_RIGHT,
-			"center" : wx.ALIGN_CENTER,
-			"centre" : wx.ALIGN_CENTER,
-			"top" : wx.ALIGN_TOP,
-			"bottom" : wx.ALIGN_BOTTOM,
-			"middle" : wx.ALIGN_CENTER_VERTICAL,
-			"borderbottom" : wx.BOTTOM,
-			"borderleft" : wx.LEFT,
-			"borderright" : wx.RIGHT,
-			"bordertop" : wx.TOP,
-			"borderall" : wx.ALL,
-			"expand" : wx.EXPAND,
-			"grow" : wx.EXPAND,
-			"fixed" : wx.FIXED_MINSIZE }
+		            "right" : wx.ALIGN_RIGHT,
+		            "center" : wx.ALIGN_CENTER,
+		            "centre" : wx.ALIGN_CENTER,
+		            "top" : wx.ALIGN_TOP,
+		            "bottom" : wx.ALIGN_BOTTOM,
+		            "middle" : wx.ALIGN_CENTER_VERTICAL,
+		            "borderbottom" : wx.BOTTOM,
+		            "borderleft" : wx.LEFT,
+		            "borderright" : wx.RIGHT,
+		            "bordertop" : wx.TOP,
+		            "borderall" : wx.ALL,
+		            "expand" : wx.EXPAND,
+		            "grow" : wx.EXPAND,
+		            "fixed" : wx.FIXED_MINSIZE }
 		ret = None
 		if prop in propDict:
 			val = propDict[prop]
@@ -1299,7 +1299,7 @@ class dPemMixin(dPemMixinBase):
 		"""
 		if child is not None:
 			propValDict = child.getProperties(ignoreErrors=True,
-					propsToSkip=("Parent", "NameBase", "SuperClass"))
+			                                  propsToSkip=("Parent", "NameBase", "SuperClass"))
 			style = child.GetWindowStyle()
 			classRef = child.__class__
 			name = child.Name
@@ -1380,12 +1380,16 @@ class dPemMixin(dPemMixinBase):
 
 	def update(self):
 		"""Update the properties of this object and all contained objects."""
-		if isinstance(self, dabo.ui.deadObject):
-			# This can happen if an object is released when there is a
-			# pending callAfter() refresh.
-			return
+		if 'phoenix' in wx.PlatformInfo:
+			if not self:
+				return
+		else:
+			if isinstance(self, dabo.ui.deadObject):
+				# This can happen if an object is released when there is a
+				# pending callAfter() refresh.
+				return
 		if isinstance(self, dabo.ui.dForm) and self.AutoUpdateStatusText \
-				and self.Visible:
+		   and self.Visible:
 			self.setStatusText(self.getCurrentRecordText(), immediate=True)
 		if self.Children:
 			self.raiseEvent(dEvents.Update)
@@ -1486,8 +1490,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
-			fillColor=None, lineStyle=None, hatchStyle=None, mode=None,
-			persist=True, visible=True, dc=None, useDefaults=False):
+	               fillColor=None, lineStyle=None, hatchStyle=None, mode=None,
+	               persist=True, visible=True, dc=None, useDefaults=False):
 		"""
 		Draws a circle of the specified radius around the specified point.
 
@@ -1502,17 +1506,17 @@ class dPemMixin(dPemMixinBase):
 		color, and fill by changing the various properties of the object.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, Radius=rad, LineStyle=lineStyle,
-				HatchStyle=hatchStyle, Shape="circle", Xpos=xPos, Ypos=yPos,
-				DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
+		                 PenWidth=penWidth, Radius=rad, LineStyle=lineStyle,
+		                 HatchStyle=hatchStyle, Shape="circle", Xpos=xPos, Ypos=yPos,
+		                 DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawArc(self, xPos, yPos, rad, startAngle, endAngle, penColor="black",
-			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True, visible=True, dc=None, useDefaults=False):
+	            penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
+	            mode=None, persist=True, visible=True, dc=None, useDefaults=False):
 		"""
 		Draws an arc (pie slice) of a circle centered around the specified point,
 		starting from 'startAngle' degrees, and sweeping counter-clockwise
@@ -1521,18 +1525,18 @@ class dPemMixin(dPemMixinBase):
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, Radius=rad, StartAngle=startAngle,
-				EndAngle=endAngle, LineStyle=lineStyle, HatchStyle=hatchStyle,
-				Shape="arc", Xpos=xPos, Ypos=yPos, DrawMode=mode,
-				Visible=visible, dc=dc, useDefaults=useDefaults)
+		                 PenWidth=penWidth, Radius=rad, StartAngle=startAngle,
+		                 EndAngle=endAngle, LineStyle=lineStyle, HatchStyle=hatchStyle,
+		                 Shape="arc", Xpos=xPos, Ypos=yPos, DrawMode=mode,
+		                 Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawEllipse(self, xPos, yPos, width, height, penColor="black",
-			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True, visible=True, dc=None, useDefaults=False):
+	                penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
+	                mode=None, persist=True, visible=True, dc=None, useDefaults=False):
 		"""
 		Draws an ellipse contained within the rectangular space defined by
 		the position and size coordinates
@@ -1540,18 +1544,18 @@ class dPemMixin(dPemMixinBase):
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
-				Shape="ellipse", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
-				DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
+		                 PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
+		                 Shape="ellipse", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
+		                 DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawEllipticArc(self, xPos, yPos, width, height, startAngle, endAngle,
-			penColor="black", penWidth=1, fillColor=None, lineStyle=None,
-			hatchStyle=None, mode=None, persist=True, visible=True,
-			dc=None, useDefaults=False):
+	                    penColor="black", penWidth=1, fillColor=None, lineStyle=None,
+	                    hatchStyle=None, mode=None, persist=True, visible=True,
+	                    dc=None, useDefaults=False):
 		"""
 		Draws an arc (pie slice) of a ellipse contained by the specified
 		dimensions, starting from 'startAngle' degrees, and sweeping
@@ -1560,19 +1564,19 @@ class dPemMixin(dPemMixinBase):
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, StartAngle=startAngle,
-				EndAngle=endAngle, LineStyle=lineStyle, HatchStyle=hatchStyle,
-				Shape="ellipticarc", Xpos=xPos, Ypos=yPos, Width=width,
-				Height=height, DrawMode=mode, Visible=visible, dc=dc,
-				useDefaults=useDefaults)
+		                 PenWidth=penWidth, StartAngle=startAngle,
+		                 EndAngle=endAngle, LineStyle=lineStyle, HatchStyle=hatchStyle,
+		                 Shape="ellipticarc", Xpos=xPos, Ypos=yPos, Width=width,
+		                 Height=height, DrawMode=mode, Visible=visible, dc=dc,
+		                 useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawRectangle(self, xPos, yPos, width, height, penColor="black",
-			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True, visible=True, dc=None, useDefaults=False):
+	                  penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
+	                  mode=None, persist=True, visible=True, dc=None, useDefaults=False):
 		"""
 		Draws a rectangle of the specified size beginning at the specified
 		point.
@@ -1580,17 +1584,17 @@ class dPemMixin(dPemMixinBase):
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
-				Shape="rect", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
-				DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
+		                 PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
+		                 Shape="rect", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
+		                 DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawRoundedRectangle(self, xPos, yPos, width, height, radius, penColor="black",
-			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
-			mode=None, persist=True, visible=True, dc=None, useDefaults=False):
+	                         penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
+	                         mode=None, persist=True, visible=True, dc=None, useDefaults=False):
 		"""
 		Draws a rounded rectangle of the specified size beginning at the specified
 		point, with the specified corner radius.
@@ -1598,17 +1602,17 @@ class dPemMixin(dPemMixinBase):
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
-				Shape="roundrect", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
-				Radius=radius, DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
+		                 PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
+		                 Shape="roundrect", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
+		                 Radius=radius, DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawPolygon(self, points, penColor="black", penWidth=1,
-			fillColor=None, lineStyle=None, hatchStyle=None, mode=None,
-			persist=True, visible=True, dc=None, useDefaults=False):
+	                fillColor=None, lineStyle=None, hatchStyle=None, mode=None,
+	                persist=True, visible=True, dc=None, useDefaults=False):
 		"""
 		Draws a polygon defined by the specified points.
 
@@ -1618,17 +1622,17 @@ class dPemMixin(dPemMixinBase):
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
-				Shape="polygon", Points=points, DrawMode=mode,
-				Visible=visible, dc=dc, useDefaults=useDefaults)
+		                 PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
+		                 Shape="polygon", Points=points, DrawMode=mode,
+		                 Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawPolyLines(self, points, penColor="black", penWidth=1,
-			lineStyle=None, mode=None, persist=True, visible=True,
-			dc=None, useDefaults=False):
+	                  lineStyle=None, mode=None, persist=True, visible=True,
+	                  dc=None, useDefaults=False):
 		"""
 		Draws a series of connected line segments defined by the specified points.
 
@@ -1640,66 +1644,66 @@ class dPemMixin(dPemMixinBase):
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, PenColor=penColor, PenWidth=penWidth,
-				LineStyle=lineStyle, Shape="polylines", Points=points,
-				DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
+		                 LineStyle=lineStyle, Shape="polylines", Points=points,
+		                 DrawMode=mode, Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawLine(self, x1, y1, x2, y2, penColor="black", penWidth=1,
-			fillColor=None, lineStyle=None, mode=None, persist=True,
-			visible=True, dc=None, useDefaults=False):
+	             fillColor=None, lineStyle=None, mode=None, persist=True,
+	             visible=True, dc=None, useDefaults=False):
 		"""
 		Draws a line between (x1,y1) and (x2, y2).
 
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, LineStyle=lineStyle, DrawMode=mode,
-				Shape="line", Points=((x1,y1), (x2,y2)), Visible=visible, dc=dc,
-				useDefaults=useDefaults)
+		                 PenWidth=penWidth, LineStyle=lineStyle, DrawMode=mode,
+		                 Shape="line", Points=((x1,y1), (x2,y2)), Visible=visible, dc=dc,
+		                 useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawBitmap(self, bmp, x=0, y=0, mode=None, persist=True,
-			transparent=True, visible=True, dc=None, useDefaults=False):
+	               transparent=True, visible=True, dc=None, useDefaults=False):
 		"""Draws a bitmap on the object at the specified position."""
 		if isinstance(bmp, basestring):
 			bmp = dabo.ui.strToBmp(bmp)
 		obj = DrawObject(self, Bitmap=bmp, Shape="bmp",
-				Xpos=x, Ypos=y, Transparent=transparent, DrawMode=mode,
-				Visible=visible, dc=dc, useDefaults=useDefaults)
+		                 Xpos=x, Ypos=y, Transparent=transparent, DrawMode=mode,
+		                 Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawText(self, text, x=0, y=0, angle=0, fontFace=None,
-			fontSize=None, fontBold=None, fontItalic=None,
-			fontUnderline=None, foreColor=None, backColor=None,
-			mode=None, persist=True, visible=True, dc=None, useDefaults=False):
+	             fontSize=None, fontBold=None, fontItalic=None,
+	             fontUnderline=None, foreColor=None, backColor=None,
+	             mode=None, persist=True, visible=True, dc=None, useDefaults=False):
 		"""
 		Draws text on the object at the specified position
 		using the specified characteristics. Any characteristics
 		not specified will be set to the system default.
 		"""
 		obj = DrawObject(self, Shape="text", Text=text, Xpos=x, Ypos=y,
-				Angle=angle, FontFace=fontFace, FontSize=fontSize,
-				FontBold=fontBold, FontItalic=fontItalic,
-				FontUnderline=fontUnderline, ForeColor=foreColor,
-				BackColor=backColor, DrawMode=mode, Visible=visible,
-				dc=dc, useDefaults=useDefaults)
+		                 Angle=angle, FontFace=fontFace, FontSize=fontSize,
+		                 FontBold=fontBold, FontItalic=fontItalic,
+		                 FontUnderline=fontUnderline, ForeColor=foreColor,
+		                 BackColor=backColor, DrawMode=mode, Visible=visible,
+		                 dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawGradient(self, orientation, x=0, y=0, width=None, height=None,
-			color1=None, color2=None, mode=None, persist=True, visible=True,
-			dc=None, useDefaults=False):
+	                 color1=None, color2=None, mode=None, persist=True, visible=True,
+	                 dc=None, useDefaults=False):
 		"""
 		Draws a horizontal or vertical gradient on the control. Default
 		is to cover the entire control, although you can specify positions.
@@ -1707,9 +1711,9 @@ class dPemMixin(dPemMixinBase):
 		as the bottom/right color.
 		"""
 		obj = DrawObject(self, Shape="gradient", Orientation=orientation,
-				Xpos=x, Ypos=y, Width=width, Height=height,
-				GradientColor1=color1, GradientColor2=color2, DrawMode=mode,
-				Visible=visible, dc=dc, useDefaults=useDefaults)
+		                 Xpos=x, Ypos=y, Width=width, Height=height,
+		                 GradientColor1=color1, GradientColor2=color2, DrawMode=mode,
+		                 Visible=visible, dc=dc, useDefaults=useDefaults)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1832,7 +1836,7 @@ class dPemMixin(dPemMixinBase):
 		if name is None:
 			name = obj.Name + "1"
 		newObj = self.addObject(obj.__class__,
-				name, style=obj.GetWindowStyle())
+		                        name, style=obj.GetWindowStyle())
 		newObj.setProperties(propValDict)
 		return newObj
 
@@ -1905,10 +1909,10 @@ class dPemMixin(dPemMixinBase):
 			if i:
 				candidate = "%s%s" % (name, i)
 			nameError = hasattr(parent, candidate) \
-					and type(getattr(parent, candidate)) != wx._core._wxPyDeadObject \
-					and getattr(parent, candidate) != self \
-					and [win for win in parent.GetChildren()
-						if win != self and win.GetName() == candidate]
+			    and type(getattr(parent, candidate)) != wx._core._wxPyDeadObject \
+			    and getattr(parent, candidate) != self \
+			    and [win for win in parent.GetChildren()
+			         if win != self and win.GetName() == candidate]
 			i += 1
 		return candidate
 
@@ -1986,7 +1990,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setBorderLineStyle(self, val):
 		val = self._expandPropStringValue(val, ("Solid", "Dash", "Dashed", "Dot",
-				"Dotted", "DotDash", "DashDot"))
+		                                        "Dotted", "DotDash", "DashDot"))
 		self._borderLineStyle = val
 		if self._border:
 			self._border.LineStyle = val
@@ -2007,7 +2011,7 @@ class dPemMixin(dPemMixinBase):
 			else:
 				if val > 0:
 					self._border = self.drawRectangle(0, 0, self.Width,
-							self.Height, penColor=self.BorderColor, penWidth=val)
+					                                  self.Height, penColor=self.BorderColor, penWidth=val)
 			if self._border:
 				# Tie it to resizing
 				self.bindEvent(dEvents.Resize, self._onResizeBorder)
@@ -2039,7 +2043,7 @@ class dPemMixin(dPemMixinBase):
 			# XML stores the string and null 'None' identically
 			val = "None"
 		style = self._expandPropStringValue(val, ("None", "Simple", "Sunken",
-				"Raised", "Double", "Static", "Default"))
+		                                          "Raised", "Double", "Static", "Default"))
 		self._delWindowStyleFlag(wx.NO_BORDER)
 		self._delWindowStyleFlag(wx.SIMPLE_BORDER)
 		self._delWindowStyleFlag(wx.SUNKEN_BORDER)
@@ -2213,7 +2217,12 @@ class dPemMixin(dPemMixinBase):
 
 	def _setDaboFont(self, val):
 		#PVG: also accep wxFont parameter
-		if isinstance(val, (wx.Font, wx._gdi.Font)):
+		if 'phoenix' in wx.PlatformInfo:
+			wInst = wx.Font
+		else:
+			wInst = (wx.Font, wx._gdi.Font)
+
+		if isinstance(val, wInst):
 			val = dabo.ui.dFont(_nativeFont=val)
 		if self._constructed():
 			self._font = val
@@ -2499,8 +2508,8 @@ class dPemMixin(dPemMixinBase):
 				# Make sure that the name isn't already used
 				if self.Parent:
 					if hasattr(self.Parent, name) \
-							and type(getattr(self.Parent, name)) != wx._core._wxPyDeadObject \
-							and getattr(self.Parent, name) != self:
+					   and type(getattr(self.Parent, name)) != wx._core._wxPyDeadObject \
+					   and getattr(self.Parent, name) != self:
 						raise NameError("Name '%s' is already in use." % name)
 				try:
 					self.Parent.__dict__[name] = self
@@ -2519,8 +2528,8 @@ class dPemMixin(dPemMixinBase):
 					# the user is explicitly setting the Name. If another object already
 					# has the name, we must raise an exception immediately.
 					if hasattr(parent, name) \
-							and type(getattr(parent, name)) != wx._core._wxPyDeadObject \
-							and getattr(parent, name) != self:
+					   and type(getattr(parent, name)) != wx._core._wxPyDeadObject \
+					   and getattr(parent, name) != self:
 						raise NameError("Name '%s' is already in use." % name)
 					else:
 						for window in parent.GetChildren():
@@ -2817,15 +2826,15 @@ class dPemMixin(dPemMixinBase):
 
 	# Property definitions follow
 	BackColor = property(_getBackColor, _setBackColor, None,
-			_("Specifies the background color of the object. (str, 3-tuple, or wx.Colour)"))
+	                     _("Specifies the background color of the object. (str, 3-tuple, or wx.Colour)"))
 
 	BorderColor = property(_getBorderColor, _setBorderColor, None,
-			_("""Specifies the color of the border drawn around the control, if any.
+	                       _("""Specifies the color of the border drawn around the control, if any.
 
 			Default='black'  (str, 3-tuple, or wx.Colour)"""))
 
 	BorderLineStyle = property(_getBorderLineStyle, _setBorderLineStyle, None,
-			_("""Style of line for the border drawn around the control.
+	                           _("""Style of line for the border drawn around the control.
 
 			Possible choices are:
 				"Solid"  (default)
@@ -2836,7 +2845,7 @@ class dPemMixin(dPemMixinBase):
 			"""))
 
 	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
-			_("""Specifies the type of border for this window. (str).
+	                       _("""Specifies the type of border for this window. (str).
 
 				Possible choices are:
 					"None"
@@ -2846,47 +2855,47 @@ class dPemMixin(dPemMixinBase):
 			"""))
 
 	BorderWidth = property(_getBorderWidth, _setBorderWidth, None,
-			_("""Width of the border drawn around the control, if any. (int)
+	                       _("""Width of the border drawn around the control, if any. (int)
 
 				Default=0 (no border)
 			"""))
 
 	Caption = property(_getCaption, _setCaption, None,
-			_("The caption of the object. (str)"))
+	                   _("The caption of the object. (str)"))
 
 	Children = property(_getChildren, None, None,
-			_("""Returns a list of object references to the children of
+	                    _("""Returns a list of object references to the children of
 			this object. Only applies to containers. Children will be None for
 			non-containers.  (list or None)
 			"""))
 
 	ControllingSizer = property(_getCntrlSizer, None, None,
-			_("""Reference to the sizer that controls this control's layout.  (dSizer)"""))
+	                            _("""Reference to the sizer that controls this control's layout.  (dSizer)"""))
 
 	ControllingSizerItem = property(_getCntrlSzItem, None, None,
-			_("""Reference to the sizer item that control's this control's layout.
+	                                _("""Reference to the sizer item that control's this control's layout.
 
 				This is useful for getting information about how the item is being
 				sized, and for changing those settings.  (SizerItem)
 			"""))
 
 	DroppedFileHandler = property(_getDroppedFileHandler, _setDroppedFileHandler, None,
-			_("""Reference to the object that will handle files dropped on this control.
+	                              _("""Reference to the object that will handle files dropped on this control.
 			When files are dropped, a list of them will be passed to this object's
 			'processDroppedFiles()' method. Default=None  (object or None)
 			"""))
 
 	DroppedTextHandler = property(_getDroppedTextHandler, _setDroppedTextHandler, None,
-			_("""Reference to the object that will handle text dropped on this control.
+	                              _("""Reference to the object that will handle text dropped on this control.
 			When text is dropped, that text will be passed to this object's
 			'processDroppedText()' method. Default=None  (object or None)
 			"""))
 
 	Enabled = property(_getEnabled, _setEnabled, None,
-			_("""Specifies whether the object and children can get user input. (bool)"""))
+	                   _("""Specifies whether the object and children can get user input. (bool)"""))
 
 	_EventTarget = property(_getEventTarget, None, None,
-			_("""The object that receives events. In all but a few particular cases, it will be
+	                        _("""The object that receives events. In all but a few particular cases, it will be
 			the object itself. This must be passed to the constructor so that it can be set
 			before event binding occurs; it cannot be changed after the object is created.
 			DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING and can handle the
@@ -2895,71 +2904,71 @@ class dPemMixin(dPemMixinBase):
 			"""))
 
 	Font = property(_getDaboFont, _setDaboFont, None,
-			_("Specifies font object for this control. (dFont)"))
+	                _("Specifies font object for this control. (dFont)"))
 
 	FontBold = property(_getFontBold, _setFontBold, None,
-			_("Specifies if the font is bold-faced. (bool)"))
+	                    _("Specifies if the font is bold-faced. (bool)"))
 
 	FontDescription = property(_getFontDescription, None, None,
-			_("Human-readable description of the current font settings. (str)"))
+	                           _("Human-readable description of the current font settings. (str)"))
 
 	FontFace = property(_getFontFace, _setFontFace, None,
-			_("Specifies the font face. (str)"))
+	                    _("Specifies the font face. (str)"))
 
 	FontInfo = property(_getFontInfo, None, None,
-			_("Specifies the platform-native font info string. Read-only. (str)"))
+	                    _("Specifies the platform-native font info string. Read-only. (str)"))
 
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
-			_("Specifies whether font is italicized. (bool)"))
+	                      _("Specifies whether font is italicized. (bool)"))
 
 	FontSize = property(_getFontSize, _setFontSize, None,
-			_("Specifies the point size of the font. (int)"))
+	                    _("Specifies the point size of the font. (int)"))
 
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
-			_("Specifies whether text is underlined. (bool)"))
+	                         _("Specifies whether text is underlined. (bool)"))
 
 	ForeColor = property(_getForeColor, _setForeColor, None,
-			_("Specifies the foreground color of the object. (str, 3-tuple, or wx.Colour)"))
+	                     _("Specifies the foreground color of the object. (str, 3-tuple, or wx.Colour)"))
 
 	Height = property(_getHeight, _setHeight, None,
-			_("Specifies the height of the object. (int)"))
+	                  _("Specifies the height of the object. (int)"))
 
 	HelpContextText = property(_getHelpContextText, _setHelpContextText, None,
-			_("""Specifies the context-sensitive help text associated with this
+	                           _("""Specifies the context-sensitive help text associated with this
 				window. (str)
 			"""))
 
 	Hover = property(_getHover, _setHover, None,
-			_("""When True, Mouse Enter events fire the onHover method, and
+	                 _("""When True, Mouse Enter events fire the onHover method, and
 			MouseLeave events fire the endHover method  (bool)
 			"""))
 
 	Left = property(_getLeft, _setLeft, None,
-			_("Specifies the left position of the object. (int)"))
+	                _("Specifies the left position of the object. (int)"))
 
 	MaximumHeight = property(_getMaximumHeight, _setMaximumHeight, None,
-			_("Maximum allowable height for the control in pixels.  (int)"))
+	                         _("Maximum allowable height for the control in pixels.  (int)"))
 
 	MaximumSize = property(_getMaximumSize, _setMaximumSize, None,
-			_("Maximum allowable size for the control in pixels.  (2-tuple of int)"))
+	                       _("Maximum allowable size for the control in pixels.  (2-tuple of int)"))
 
 	MaximumWidth = property(_getMaximumWidth, _setMaximumWidth, None,
-			_("Maximum allowable width for the control in pixels.  (int)"))
+	                        _("Maximum allowable width for the control in pixels.  (int)"))
 
 	MinimumHeight = property(_getMinimumHeight, _setMinimumHeight, None,
-			_("Minimum allowable height for the control in pixels.  (int)"))
+	                         _("Minimum allowable height for the control in pixels.  (int)"))
 
 	MinimumSize = property(_getMinimumSize, _setMinimumSize, None,
-			_("Minimum allowable size for the control in pixels.  (2-tuple of int)"))
+	                       _("Minimum allowable size for the control in pixels.  (2-tuple of int)"))
 
 	MinimumWidth = property(_getMinimumWidth, _setMinimumWidth, None,
-			_("Minimum allowable width for the control in pixels.  (int)"))
+	                        _("Minimum allowable width for the control in pixels.  (int)"))
 
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
-			_("Specifies the shape of the mouse pointer when it enters this window. (obj)"))
+	                        _("Specifies the shape of the mouse pointer when it enters this window. (obj)"))
 
 	Name = property(_getName, _setName, None,
-			_("""Specifies the name of the object, which must be unique among siblings.
+	                _("""Specifies the name of the object, which must be unique among siblings.
 
 			If the specified name isn't unique, an exception will be raised. See also
 			NameBase, which let's you set a base name and Dabo will automatically append
@@ -2967,7 +2976,7 @@ class dPemMixin(dPemMixinBase):
 			"""))
 
 	NameBase = property(None, _setNameBase, None,
-			_("""Specifies the base name of the object.
+	                    _("""Specifies the base name of the object.
 
 			The base name specified will become the object's Name, unless another sibling
 			already has that name, in which case Dabo will find the next unique name by
@@ -2982,22 +2991,22 @@ class dPemMixin(dPemMixinBase):
 			"""))
 
 	Parent = property(_getParent, _setParent, None,
-			_("The containing object. (obj)"))
+	                  _("The containing object. (obj)"))
 
 	Position = property(_getPosition, _setPosition, None,
-			_("The (x,y) position of the object. (tuple)"))
+	                    _("The (x,y) position of the object. (tuple)"))
 
 	RegID = property(_getRegID, _setRegID, None,
-			_("A unique identifier used for referencing by other objects. (str)"))
+	                 _("A unique identifier used for referencing by other objects. (str)"))
 
 	Size = property(_getSize, _setSize, None,
-			_("The size of the object. (tuple)"))
+	                _("The size of the object. (tuple)"))
 
 	Sizer = property(_getSizer, _setSizer, None,
-			_("The sizer for the object."))
+	                 _("The sizer for the object."))
 
 	StatusText = property(_getStatusText, _setStatusText, None,
-			_("""Specifies the text that displays in the form's status bar, if any.
+	                      _("""Specifies the text that displays in the form's status bar, if any.
 
 			The text will appear when the control gets the focus, or when the
 			mouse hovers over the control, and will clear when the control loses
@@ -3007,29 +3016,29 @@ class dPemMixin(dPemMixinBase):
 			"""))
 
 	Tag = property(_getTag, _setTag, None,
-			_("A property that user code can safely use for specific purposes."))
+	               _("A property that user code can safely use for specific purposes."))
 
 	ToolTipText = property(_getToolTipText, _setToolTipText, None,
-			_("Specifies the tooltip text associated with this window. (str)"))
+	                       _("Specifies the tooltip text associated with this window. (str)"))
 
 	Top = property(_getTop, _setTop, None,
-			_("The top position of the object. (int)"))
+	               _("The top position of the object. (int)"))
 
 	Transparency = property(_getTransparency, _setTransparency, None,
-			_("""Transparency level of the control; ranges from 0 (transparent) to 255 (opaque).
+	                        _("""Transparency level of the control; ranges from 0 (transparent) to 255 (opaque).
 			Default=0. Does not currently work on Gtk/Linux.  (int)
 			"""))
 
 	TransparencyDelay = property(_getTransparencyDelay, _setTransparencyDelay, None,
-			_("""Time in seconds to change transparency. Set it to zero to see instant changes.
+	                             _("""Time in seconds to change transparency. Set it to zero to see instant changes.
 			Default=0.25 (float)
 			"""))
 
 	Visible = property(_getVisible, _setVisible, None,
-			_("Specifies whether the object is visible at runtime.  (bool)"))
+	                   _("Specifies whether the object is visible at runtime.  (bool)"))
 
 	VisibleOnScreen = property(_getVisibleOnScreen, None, None,
-			_("""Specifies whether the object is physically visible at runtime.  (bool)
+	                           _("""Specifies whether the object is physically visible at runtime.  (bool)
 
 			The Visible property could return True even if the object isn't actually
 			shown on screen, due to a parent object or sizer being invisible.
@@ -3039,10 +3048,10 @@ class dPemMixin(dPemMixinBase):
 			"""))
 
 	Width = property(_getWidth, _setWidth, None,
-			_("The width of the object. (int)"))
+	                 _("The width of the object. (int)"))
 
 	WindowHandle = property(_getWindowHandle, None, None,
-			_("The platform-specific handle for the window. Read-only. (long)"))
+	                        _("The platform-specific handle for the window. Read-only. (long)"))
 
 
 	# Dynamic property declarations
@@ -3120,9 +3129,9 @@ class DrawObject(dObject):
 		self._transparent = True
 		self._drawMode = None
 		self._hatchStyleDict = {"transparent": wx.TRANSPARENT, "solid": wx.SOLID,
-				"cross": wx.CROSS_HATCH, "reversediagonal": wx.BDIAGONAL_HATCH,
-				"crossdiagonal": wx.CROSSDIAG_HATCH, "diagonal": wx.FDIAGONAL_HATCH,
-				"horizontal": wx.HORIZONTAL_HATCH, "vertical": wx.VERTICAL_HATCH}
+		                        "cross": wx.CROSS_HATCH, "reversediagonal": wx.BDIAGONAL_HATCH,
+		                        "crossdiagonal": wx.CROSSDIAG_HATCH, "diagonal": wx.FDIAGONAL_HATCH,
+		                        "horizontal": wx.HORIZONTAL_HATCH, "vertical": wx.VERTICAL_HATCH}
 		super(DrawObject, self).__init__(*args, **kwargs)
 		self._inInit = False
 
@@ -3766,16 +3775,16 @@ class DrawObject(dObject):
 
 
 	Angle = property(_getAngle, _setAngle, None,
-			_("Angle (in degrees) to draw text  (int)"))
+	                 _("Angle (in degrees) to draw text  (int)"))
 
 	BackColor = property(_getBackColor, _setBackColor, None,
-			_("Background color of text when using text objects  (str or tuple)"))
+	                     _("Background color of text when using text objects  (str or tuple)"))
 
 	Bitmap = property(_getBitmap, _setBitmap, None,
-			_("Bitmap to be drawn on the object  (dBitmap)"))
+	                  _("Bitmap to be drawn on the object  (dBitmap)"))
 
 	DrawMode = property(_getDrawMode, _setDrawMode, None,
-			_("""Logical operation for how the drawing is done. Can be one of:  (str)
+	                    _("""Logical operation for how the drawing is done. Can be one of:  (str)
 
 				copy (or None) - default
 				invert
@@ -3797,37 +3806,37 @@ class DrawObject(dObject):
 			"""))
 
 	EndAngle = property(_getEndAngle, _setEndAngle, None,
-			_("Angle (in degrees) used to end drawing a circular or elliptic arc  (int)"))
+	                    _("Angle (in degrees) used to end drawing a circular or elliptic arc  (int)"))
 
 	FillColor = property(_getFillColor, _setFillColor, None,
-			_("Background color for the shape  (color)"))
+	                     _("Background color for the shape  (color)"))
 
 	FontBold = property(_getFontBold, _setFontBold, None,
-			_("Bold setting for text objects  (bool)"))
+	                    _("Bold setting for text objects  (bool)"))
 
 	FontFace = property(_getFontFace, _setFontFace, None,
-			_("Face of the font used for text objects  (str)"))
+	                    _("Face of the font used for text objects  (str)"))
 
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
-			_("Italic setting for text objects  (bool)"))
+	                      _("Italic setting for text objects  (bool)"))
 
 	FontSize = property(_getFontSize, _setFontSize, None,
-			_("Size of the font used for text objects  (int)"))
+	                    _("Size of the font used for text objects  (int)"))
 
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
-			_("Underline setting for text objects  (bool)"))
+	                         _("Underline setting for text objects  (bool)"))
 
 	ForeColor = property(_getForeColor, _setForeColor, None,
-			_("Color of text when using text objects  (str or tuple)"))
+	                     _("Color of text when using text objects  (str or tuple)"))
 
 	GradientColor1 = property(_getGradientColor1, _setGradientColor1, None,
-			_("Top/Left color for the gradient  (color: str or tuple)"))
+	                          _("Top/Left color for the gradient  (color: str or tuple)"))
 
 	GradientColor2 = property(_getGradientColor2, _setGradientColor2, None,
-			_("Bottom/Right color for the gradient  (color: str or tuple)"))
+	                          _("Bottom/Right color for the gradient  (color: str or tuple)"))
 
 	HatchStyle = property(_getHatchStyle, _setHatchStyle, None,
-			_("""Hatching style for the fill.  (str)
+	                      _("""Hatching style for the fill.  (str)
 					Options are:
 
 						Solid (default)
@@ -3842,63 +3851,63 @@ class DrawObject(dObject):
 			"""))
 
 	Height = property(_getHeight, _setHeight, None,
-			_("For rectangles, the height of the shape  (int)"))
+	                  _("For rectangles, the height of the shape  (int)"))
 
 	LineStyle = property(_getLineStyle, _setLineStyle, None,
-			_("Line style (solid, dash, dot) drawn  (str)"))
+	                     _("Line style (solid, dash, dot) drawn  (str)"))
 
 	Orientation = property(_getOrientation, _setOrientation, None,
-			_("Direction of the drawn gradient ('v' or 'h')  (str)"))
+	                       _("Direction of the drawn gradient ('v' or 'h')  (str)"))
 
 	Parent = property(_getParent, _setParent, None,
-			_("Reference to the object being drawn upon.  (object)"))
+	                  _("Reference to the object being drawn upon.  (object)"))
 
 	PenColor = property(_getPenColor, _setPenColor, None,
-			_("ForeColor of the shape's lines  (color)"))
+	                    _("ForeColor of the shape's lines  (color)"))
 
 	PenWidth = property(_getPenWidth, _setPenWidth, None,
-			_("Width of the shape's lines  (int)"))
+	                    _("Width of the shape's lines  (int)"))
 
 	Points = property(_getPoints, _setPoints, None,
-			_("Tuple of (x,y) pairs defining a polygon.  (tuple)"))
+	                  _("Tuple of (x,y) pairs defining a polygon.  (tuple)"))
 
 	Position = property(_getPosition, _setPosition, None,
-			_("Shorthand for (Xpos, Ypos).  (2-tuple)"))
+	                    _("Shorthand for (Xpos, Ypos).  (2-tuple)"))
 
 	Radius = property(_getRadius, _setRadius, None,
-			_("""For circles, the radius of the shape. For Rounded Rectangles,
+	                  _("""For circles, the radius of the shape. For Rounded Rectangles,
 			the radius of the rounded corner. (int)"""))
 
 	Rect = property(_getRect, None, None,
-			_("Reference to a wx.Rect that encompasses the drawn object (read-only) (wx.Rect)"))
+	                _("Reference to a wx.Rect that encompasses the drawn object (read-only) (wx.Rect)"))
 
 	Size = property(_getSize, _setSize, None,
-			_("Convenience property, equivalent to (Width, Height)  (2-tuple)"))
+	                _("Convenience property, equivalent to (Width, Height)  (2-tuple)"))
 
 	Shape = property(_getShape, _setShape, None,
-			_("Type of shape to draw  (str)"))
+	                 _("Type of shape to draw  (str)"))
 
 	StartAngle = property(_getStartAngle, _setStartAngle, None,
-			_("Angle (in degrees) used to start drawing a circular or elliptic arc  (int)"))
+	                      _("Angle (in degrees) used to start drawing a circular or elliptic arc  (int)"))
 
 	Text = property(_getText, _setText, None,
-			_("Text to be drawn  (str)"))
+	                _("Text to be drawn  (str)"))
 
 	Transparent = property(_getTransparent, _setTransparent, None,
-			_("Should the bitmap be drawn transparently?  (bool)"))
+	                       _("Should the bitmap be drawn transparently?  (bool)"))
 
 	Visible = property(_getVisible, _setVisible, None,
-			_("Controls whether the shape is drawn.  (bool)"))
+	                   _("Controls whether the shape is drawn.  (bool)"))
 
 	Width = property(_getWidth, _setWidth, None,
-			_("For rectangles, the width of the shape  (int)"))
+	                 _("For rectangles, the width of the shape  (int)"))
 
 	Xpos = property(_getXpos, _setXpos, None,
-			_("""For circles, the x position of the center. For rectangles,
+	                _("""For circles, the x position of the center. For rectangles,
 			the x position of the top left corner. (int)"""))
 
 	Ypos = property(_getYpos, _setYpos, None,
-			_("""For circles, the y position of the center. For rectangles,
+	                _("""For circles, the y position of the center. For rectangles,
 			the y position of the top left corner. (int)"""))
 
 
@@ -3989,12 +3998,12 @@ class _DropTarget(wx.DropTarget):
 
 	#PropertyDefinitions
 	FileHandler = property(_getFileHandler, _setFileHandler, None,
-			_("""Reference to the object that will handle files dropped on this control.
+	                       _("""Reference to the object that will handle files dropped on this control.
 			When files are dropped, a list of them will be passed to this object's
 			'processDroppedFiles()' method. Default=None  (object or None)"""))
 
 	TextHandler = property(_getTextHandler, _setTextHandler, None,
-			_("""Reference to the object that will handle text dropped on this control.
+	                       _("""Reference to the object that will handle text dropped on this control.
 			When text is dropped, that text will be passed to this object's
 			'processDroppedText()' method. Default=None  (object or None)"""))
 

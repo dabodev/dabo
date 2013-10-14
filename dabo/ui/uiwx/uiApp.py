@@ -420,7 +420,10 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def setup(self):
-		wx.SystemOptions.SetOptionInt("mac.textcontrol-use-spell-checker", 1)
+		if 'phoenix' in wx.PlatformInfo:
+			wx.SystemOptions.SetOption("mac.textcontrol-use-spell-checker", 1)
+		else:
+			wx.SystemOptions.SetOptionInt("mac.textcontrol-use-spell-checker", 1)
 		frm = self.dApp.MainForm
 		if frm is None:
 			if self.dApp.MainFormClass is not None:
@@ -462,7 +465,10 @@ these automatic updates.""").replace("\n", " ")
 
 	def exit(self):
 		"""Exit the application event loop."""
-		self.Exit()
+		if 'phoenix' in wx.PlatformInfo:
+			self.ExitMainLoop()
+		else:
+			self.Exit()
 
 
 	def finish(self):

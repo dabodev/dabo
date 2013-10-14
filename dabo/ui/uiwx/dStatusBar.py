@@ -18,7 +18,10 @@ class dStatusBar(dcm.dControlMixin, wx.StatusBar):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dStatusBar
-		preClass = wx.PreStatusBar
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.StatusBar
+		else:
+			preClass = wx.PreStatusBar
 		self._platformIsWindows = (self.Application.Platform == "Win")
 		self._fieldCount = 1
 		dcm.dControlMixin.__init__(self, preClass, parent, properties=properties,

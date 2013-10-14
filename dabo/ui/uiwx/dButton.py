@@ -28,7 +28,10 @@ class dButton(cm.dControlMixin, wx.Button):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dButton
-		preClass = wx.PreButton
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.Button
+		else:
+			preClass = wx.PreButton
 		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 

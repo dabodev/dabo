@@ -165,7 +165,10 @@ class dFormMixin(pm.dPemMixin):
 			if mb:
 				pref_id = getattr(mb, "_mac_pref_menu_item_id", None)
 				if pref_id:
-					wx.App_SetMacPreferencesMenuItemId(pref_id)
+					if 'phoenix' in wx.PlatformInfo:
+						wx.App.SetMacPreferencesMenuItemId(pref_id)
+					else:
+						wx.App_SetMacPreferencesMenuItemId(pref_id)
 		else:
 			self.raiseEvent(dEvents.Deactivate, evt)
 		evt.Skip()

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
-import wx.lib.foldpanelbar as fpb
+if 'phoenix' in wx.PlatformInfo:
+	import wx.lib.agw.foldpanelbar as fpb
+else:
+	import wx.lib.foldpanelbar as fpb
 import dabo
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
@@ -385,7 +388,7 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 
 
-class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
+class dSlidePanelControl(dcm.dControlMixin, fpb.FoldPanelBar):
 	"""
 	Creates a control consisting of several panels that can be
 	hidden or revealed by clicking on their 'caption bar'.

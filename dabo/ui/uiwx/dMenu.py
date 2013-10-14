@@ -131,9 +131,14 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		id_ = itm.GetId()
 		if id_ == wx.ID_ABOUT:
 			# Put the about menu in the App Menu on Mac
-			wx.App_SetMacAboutMenuItemId(id_)
-			cap = daboItem.Parent.Caption
-			wx.App_SetMacHelpMenuTitleName(cap)
+			if 'phoenix' in wx.PlatformInfo:
+				wx.App.SetMacAboutMenuItemId(id_)
+				cap = daboItem.Parent.Caption
+				wx.App.SetMacHelpMenuTitleName(cap)
+			else:	
+				wx.App_SetMacAboutMenuItemId(id_)
+				cap = daboItem.Parent.Caption
+				wx.App_SetMacHelpMenuTitleName(cap)
 
 		# Process any 'special' menus
 		try:
@@ -143,7 +148,10 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		if special == "pref":
 			# Put the prefs item in the App Menu on Mac
 			self.Parent._mac_pref_menu_item_id = id_
-			wx.App_SetMacPreferencesMenuItemId(id_)
+			if 'phoenix' in wx.PlatformInfo:
+				wx.App.SetMacPreferencesMenuItemId(id_)
+			else:
+				wx.App_SetMacPreferencesMenuItemId(id_)
 
 
 	def appendItem(self, item):
@@ -318,13 +326,13 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		except KeyError:
 			pass
 
-		if wx.VERSION >= (2,7):
-			# Needed to keep dPemMixin mixed-in in wxPython 2.8
+		# Needed to keep dPemMixin mixed-in in wxPython 2.8
+		if 'phoenix' in wx.PlatformInfo:
+			val = wx.Menu.Remove(self, item)
+		else:
 			val = wx.Menu.RemoveItem(self, item)
 			item.this.own(val.this.own())
 			val.this.disown()
-		else:
-			self.RemoveItem(item)
 
 		if release:
 			item.Destroy()
@@ -508,6 +516,11 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		daboChildren = [self._daboChildren.get(c.GetId(), c) for c in children]
 		return daboChildren
 
+	def _preInitUI(self, kwargs):
+		# TODO: waiting to hear from Robin on overload issue 
+		style = kwargs.get("style", 0)
+		kwargs['style'] = style
+		return kwargs
 
 	def _getCaption(self):
 		try:

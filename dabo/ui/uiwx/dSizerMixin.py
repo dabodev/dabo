@@ -235,7 +235,8 @@ class dSizerMixin(dObject):
 			itm = self.Add(spacer, proportion=proportion, userData=self)
 		else:
 			itm = self.Insert(pos, spacer, proportion=proportion, userData=self)
-		itm.setSpacing = itm.SetSpacer
+		# TODO: wait for Robin
+		#itm.setSpacing = itm.SetSpacer
 		return itm
 
 
