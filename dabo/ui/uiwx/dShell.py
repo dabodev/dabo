@@ -426,7 +426,7 @@ class dShellForm(dSplitForm):
 		# This lets you go all the way back to the '.' without losing the AutoComplete
 		self.shell.AutoCompSetCancelAtStart(False)
 		self.shell.Bind(wx.EVT_RIGHT_UP, self.onShellRight)
-		self.shell.Bind(wx.wx.EVT_CONTEXT_MENU, self.onShellContext)
+		self.shell.Bind(wx.EVT_CONTEXT_MENU, self.onShellContext)
 
 		# Create the Code control
 		codeControl = dabo.ui.dEditor(self.pgCode, RegID="edtCode",
