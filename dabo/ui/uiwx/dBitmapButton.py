@@ -138,7 +138,10 @@ class dBitmapButton(cm.dControlMixin, dim.dImageMixin, wx.BitmapButton):
 				bmp = val
 			else:
 				bmp = dabo.ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
-			self.SetBitmapSelected(bmp)
+			if 'phoenix' in wx.PlatformInfo:
+				self.SetBitmapPressed(bmp)
+			else:
+				self.SetBitmapSelected(bmp)
 		else:
 			self._properties["DownPicture"] = val
 
@@ -179,7 +182,10 @@ class dBitmapButton(cm.dControlMixin, dim.dImageMixin, wx.BitmapButton):
 			self.SetBitmapLabel(bmp)
 			# If the others haven't been specified, default them to the same
 			if not self._downPicture:
-				self.SetBitmapSelected(bmp)
+				if 'phoenix' in wx.PlatformInfo:
+					self.SetBitmapPressed(bmp)
+				else:
+					self.SetBitmapSelected(bmp)
 			if not self._focusPicture:
 				self.SetBitmapFocus(bmp)
 			if self._autoSize:
