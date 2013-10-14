@@ -29,12 +29,18 @@ def getSmallUpArrowData():
 
 
 def getSmallUpArrowBitmap():
-	return BitmapFromImage(getSmallUpArrowImage())
+	if 'phoenix' in wx.PlatformInfo:
+		return wx.Bitmap(getSmallUpArrowImage())
+	else:
+		return BitmapFromImage(getSmallUpArrowImage())
 
 
 def getSmallUpArrowImage():
 	stream = cStringIO.StringIO(getSmallUpArrowData())
-	return ImageFromStream(stream)
+	if 'phoenix' in wx.PlatformInfo:
+		return wx.Image(stream)
+	else:
+		return ImageFromStream(stream)
 
 
 def getSmallDnArrowData():
@@ -48,12 +54,18 @@ def getSmallDnArrowData():
 
 
 def getSmallDnArrowBitmap():
-	return BitmapFromImage(getSmallDnArrowImage())
+	if 'phoenix' in wx.PlatformInfo:
+		return wx.Bitmap(getSmallDnArrowImage())
+	else:
+		return BitmapFromImage(getSmallDnArrowImage())
 
 
 def getSmallDnArrowImage():
 	stream = cStringIO.StringIO(getSmallDnArrowData())
-	return ImageFromStream(stream)
+	if 'phoenix' in wx.PlatformInfo:
+		return wx.Image(stream)
+	else:
+		return ImageFromStream(stream)
 
 
 
@@ -300,9 +312,16 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 		for numRow, valRow in enumerate(choices):
 			for numCol, colVal in enumerate(valRow):
 				if numCol == 0:
-					index = self.dropdownlistbox.InsertImageStringItem(
-							sys.maxint, colVal, -1)
-				self.dropdownlistbox.SetStringItem(index, numCol, colVal)
+					if 'phoenix' in wx.PlatformInfo:
+						index = self.dropdownlistbox.InsertItem(
+						    sys.maxint, colVal, -1)
+					else:
+						index = self.dropdownlistbox.InsertImageStringItem(
+						    sys.maxint, colVal, -1)						
+				if 'phoenix' in wx.PlatformInfo:
+					self.dropdownlistbox.SetItem(index, numCol, colVal)
+				else:
+					self.dropdownlistbox.SetStringItem(index, numCol, colVal)
 				self.dropdownlistbox.SetItemData(index, numRow)
 		self._setListSize()
 		self._colSearch = colSearch
@@ -328,8 +347,12 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 		self._updateDataList(self._choices)
 		self.dropdownlistbox.InsertColumn(0, "")
 		for num, colVal in enumerate(self._choices):
-			index = self.dropdownlistbox.InsertImageStringItem(sys.maxint, colVal, -1)
-			self.dropdownlistbox.SetStringItem(index, 0, colVal)
+			if 'phoenix' in wx.PlatformInfo:
+				index = self.dropdownlistbox.InsertItem(sys.maxint, colVal, -1)
+				self.dropdownlistbox.SetItem(index, 0, colVal)
+			else:
+				index = self.dropdownlistbox.InsertImageStringItem(sys.maxint, colVal, -1)
+				self.dropdownlistbox.SetStringItem(index, 0, colVal)
 			self.dropdownlistbox.SetItemData(index, num)
 		self._setListSize()
 		# there is only one choice for both search and fetch if setting a single column:
@@ -381,8 +404,14 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 		"""
 		if show :
 			size = self.dropdown.GetSize()
-			width, height = self . GetSizeTuple()
-			x, y = self . ClientToScreenXY ( 0, height )
+			if 'phoenix' in wx.PlatformInfo:
+				width, height = self . GetSize()
+			else:
+				width, height = self . GetSizeTuple()
+			if 'phoenix' in wx.PlatformInfo:
+				x, y = self . ClientToScreen(wx.Point(0, height))
+			else:
+				x, y = self . ClientToScreenXY(0, height)
 			#if size.GetHeight() < 100:
 				#size.SetHeight(100)
 			if size.GetWidth() != width :
@@ -410,8 +439,11 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 	def _updateDataList(self, choices):
 		#delete, if need, all the previous data
 		if self.dropdownlistbox.GetColumnCount() != 0:
-			self.dropdownlistbox.DeleteAllColumns()
-			self.dropdownlistbox.DeleteAllItems()
+			if 'phoenix' in wx.PlatformInfo:
+				self.dropdownlistbox.ClearAll()
+			else:
+				self.dropdownlistbox.DeleteAllColumns()
+				self.dropdownlistbox.DeleteAllItems()
 		#and update the dict
 		if choices:
 			for numVal, data in enumerate(choices):
