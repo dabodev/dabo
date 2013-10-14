@@ -16,7 +16,10 @@ class dListBox(dcm.dControlItemMixin, wx.ListBox):
 		self._baseClass = dListBox
 		self._choices = []
 
-		preClass = wx.PreListBox
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.ListBox
+		else:
+			preClass = wx.PreListBox
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 

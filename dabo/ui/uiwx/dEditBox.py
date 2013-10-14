@@ -21,7 +21,10 @@ class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dEditBox
 
-		preClass = wx.PreTextCtrl
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.TextCtrl
+		else:
+			preClass = wx.PreTextCtrl
 		kwargs["style"] = wx.TE_MULTILINE
 		self._wordWrap = self._extractKey((properties, attProperties, kwargs),
 				"WordWrap", True)

@@ -417,7 +417,10 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		if val:
 			style = style | wx.TR_LINES_AT_ROOT
 
-		preClass = wx.PreTreeCtrl
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.TreeCtrl
+		else:
+			preClass = wx.PreTreeCtrl
 		dcm.dControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, style=style, *args, **kwargs)
 

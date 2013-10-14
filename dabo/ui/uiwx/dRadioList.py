@@ -20,7 +20,10 @@ class _dRadioButton(dcm.dDataControlMixin, wx.RadioButton):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = _dRadioButton
-		preClass = wx.PreRadioButton
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.RadioButton
+		else:
+			preClass = wx.PreRadioButton
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
@@ -138,7 +141,10 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		self._buttonClass = _dRadioButton
 		self._showBox = True
 		self._caption = ""
-		preClass = wx.PrePanel
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.Panel
+		else:
+			preClass = wx.PrePanel
 		style = self._extractKey((properties, attProperties, kwargs), "style", 0)
 		style = style | wx.TAB_TRAVERSAL
 		kwargs["style"] = style

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
-import wx.calendar as wxcal
+if 'phoenix' in wx.PlatformInfo:
+	import wx.adv as wxcal
+else:
+	import wx.calendar as wxcal
 import datetime
 import dabo
 from dabo.ui import makeDynamicProperty
@@ -19,7 +22,10 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dCalendar
-		preClass = wxcal.PreCalendarCtrl
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wxcal.CalendarCtrl
+		else:
+			preClass = wxcal.PreCalendarCtrl
 
 		style = kwargs.get("style", 0)
 		dow = self._firstDayOfWeek = self._extractKey((kwargs, properties, attProperties),
@@ -47,9 +53,14 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 		# Bind the native events
 		self.Bind(wxcal.EVT_CALENDAR, self.__onWxCalendar)
 		self.Bind(wxcal.EVT_CALENDAR_SEL_CHANGED, self.__onWxDateChanged)
-		self.Bind(wxcal.EVT_CALENDAR_DAY, self.__onWxDayChanged)
-		self.Bind(wxcal.EVT_CALENDAR_MONTH, self.__onWxMonthChanged)
-		self.Bind(wxcal.EVT_CALENDAR_YEAR, self.__onWxYearChanged)
+		# Todo: fake and wait for Robin
+		#self.Bind(wxcal.EVT_CALENDAR_DAY, self.__onWxDayChanged)
+		#self.Bind(wxcal.EVT_CALENDAR_MONTH, self.__onWxMonthChanged)
+		#self.Bind(wxcal.EVT_CALENDAR_YEAR, self.__onWxYearChanged)
+		self.Bind(wxcal.EVT_CALENDAR_SEL_CHANGED, self.__onWxDayChanged)
+		self.Bind(wxcal.EVT_CALENDAR_SEL_CHANGED, self.__onWxMonthChanged)
+		self.Bind(wxcal.EVT_CALENDAR_SEL_CHANGED, self.__onWxYearChanged)
+
 		self.Bind(wxcal.EVT_CALENDAR_WEEKDAY_CLICKED, self.__onWxDayHeaderClicked)
 		self.bindEvent(dEvents.CalendarDateChanged, self.__onDateChanged)
 		# Get the events flowing!
@@ -173,20 +184,33 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 		"""
 		self._evtCalType = wxcal.EVT_CALENDAR.evtType[0]
 		self._evtCalSelType = wxcal.EVT_CALENDAR_SEL_CHANGED.evtType[0]
-		self._evtCalDayType = wxcal.EVT_CALENDAR_DAY.evtType[0]
-		self._evtCalMonthType = wxcal.EVT_CALENDAR_MONTH.evtType[0]
-		self._evtCalYearType = wxcal.EVT_CALENDAR_YEAR.evtType[0]
+		# TODO: fake them and wait for Robin
+		#self._evtCalDayType = wxcal.EVT_CALENDAR_DAY.evtType[0]
+		#self._evtCalMonthType = wxcal.EVT_CALENDAR_MONTH.evtType[0]
+		#self._evtCalYearType = wxcal.EVT_CALENDAR_YEAR.evtType[0]
+		self._evtCalDayType = wxcal.EVT_CALENDAR_SEL_CHANGED.evtType[0]
+		self._evtCalMonthType = wxcal.EVT_CALENDAR_SEL_CHANGED.evtType[0]
+		self._evtCalYearType = wxcal.EVT_CALENDAR_SEL_CHANGED.evtType[0]
 
 
 	### Begin property defs  ###
 	def _getDate(self):
-		return self.PyGetDate()
+		if 'phoenix' in wx.PlatformInfo:
+			return self.GetDate()
+		else:
+			return self.PyGetDate()
 
 	def _setDate(self, val):
-		curr = self.PyGetDate()
+		if 'phoenix' in wx.PlatformInfo:
+			curr = self.GetDate()
+		else:
+			curr = self.PyGetDate()
 		if isinstance(val, tuple):
 			val = datetime.date(*val)
-		self.PySetDate(val)
+		if 'phoenix' in wx.PlatformInfo:
+			self.SetDate(val)
+		else:
+			self.PySetDate(val)
 		# Raise the events, since the control doesn't raise native
 		# events when changing the date programatically.
 		evtClass = wxcal.CalendarEvent
@@ -393,6 +417,13 @@ if __name__ == "__main__":
 					Position=(0,0), RegID="cal")
 			self.cal.HighlightHolidays = True
 			self.cal.setHolidays(((None,12,25), (2006, 1, 4)))
+
+			dExtendedCalendar(self, FirstDayOfWeek="monday",
+					Position=(0,0), RegID="extCal")
+
+			self.Sizer.append(self.cal, halign="Center", valign="middle")
+			self.Sizer.append(self.extCal, halign="Center", valign="middle")
+			self.layout()
 
 		def onCalendarDayHeaderClicked_cal(self, evt):
 			print "Day of week:", evt.weekday

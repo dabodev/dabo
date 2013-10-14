@@ -28,7 +28,10 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		# Holds the text to be appended
 		self._textToAppend = ""
 
-		preClass = wx.PreComboBox
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.ComboBox
+		else:
+			preClass = wx.PreComboBox
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 

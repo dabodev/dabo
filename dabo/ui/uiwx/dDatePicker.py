@@ -4,6 +4,12 @@
 """
 import datetime
 import wx
+if 'phoenix' in wx.PlatformInfo:
+	import wx.adv
+	dpc = wx.adv
+else:
+	dpc = wx
+	
 import dabo
 if __name__ == "__main__":
 	import dabo.ui
@@ -41,7 +47,7 @@ def dateTimeWx2Py(date):
 	return retVal
 
 
-class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
+class dDatePicker(dcm.dDataControlMixin, dpc.DatePickerCtrl):
 	"""
 	Creates a DatePicker control.
 	Control purpose is to maintain Date field types, but it can
@@ -55,17 +61,20 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 		self._timePart = [0, 0, 0, 0]
 		self._lastWasNone = True
 		self._baseClass = dDatePicker
-		preClass = wx.PreDatePickerCtrl
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.adv.DatePickerCtrl
+		else:
+			preClass = wx.PreDatePickerCtrl
 		pickerMode = self._extractKey((properties, attProperties, kwargs),
 				"PickerMode", "Dropdown")[:1].lower()
 		if pickerMode not in "ds":
 			pickerMode = "d"
 		kwargs["style"] = kwargs.get("style", 0) | \
-			 {"d": wx.DP_DROPDOWN, "s": wx.DP_SPIN}[pickerMode]
+			 {"d": dpc.DP_DROPDOWN, "s": dpc.DP_SPIN}[pickerMode]
 		if self._extractKey((properties, attProperties, kwargs), "AllowNullDate", False):
-			kwargs["style"] |= wx.DP_ALLOWNONE
+			kwargs["style"] |= dpc.DP_ALLOWNONE
 		if self._extractKey((properties, attProperties, kwargs), "ForceShowCentury", False):
-			kwargs["style"] |= wx.DP_SHOWCENTURY
+			kwargs["style"] |= dpc.DP_SHOWCENTURY
 		dcm.dDataControlMixin.__init__(self, preClass, parent,
 			properties, attProperties, *args, **kwargs)
 		self._bindKeys()

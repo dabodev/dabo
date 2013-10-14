@@ -78,7 +78,10 @@ class dListControl(dcm.dControlItemMixin,
 			style = style | wx.LC_REPORT
 		except TypeError:
 			style = wx.LC_REPORT
-		preClass = wx.PreListCtrl
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.ListCtrl
+		else:
+			preClass = wx.PreListCtrl
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, style=style, *args, **kwargs)
 		ListMixin.ListCtrlAutoWidthMixin.__init__(self)

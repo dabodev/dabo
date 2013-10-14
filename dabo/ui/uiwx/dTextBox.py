@@ -14,7 +14,10 @@ class dTextBox(tbm.dTextBoxMixin, wx.TextCtrl):
 	"""Creates a text box for editing one line of string data."""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dTextBox
-		preClass = wx.PreTextCtrl
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.TextCtrl
+		else:
+			preClass = wx.PreTextCtrl
 
 		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)

@@ -1380,14 +1380,10 @@ class dPemMixin(dPemMixinBase):
 
 	def update(self):
 		"""Update the properties of this object and all contained objects."""
-		if 'phoenix' in wx.PlatformInfo:
-			if not self:
-				return
-		else:
-			if isinstance(self, dabo.ui.deadObject):
-				# This can happen if an object is released when there is a
-				# pending callAfter() refresh.
-				return
+		if isinstance(self, dabo.ui.deadObject):
+			# This can happen if an object is released when there is a
+			# pending callAfter() refresh.
+			return
 		if isinstance(self, dabo.ui.dForm) and self.AutoUpdateStatusText \
 		   and self.Visible:
 			self.setStatusText(self.getCurrentRecordText(), immediate=True)

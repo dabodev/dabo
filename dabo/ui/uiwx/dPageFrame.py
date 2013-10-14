@@ -55,7 +55,10 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageFrame
-		preClass = wx.PreNotebook
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.Notebook
+		else:
+			preClass = wx.PreNotebook
 
 		dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
@@ -77,7 +80,10 @@ class dPageToolBar(dPageFrameMixin, wx.Toolbook):
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageToolBar
-		preClass = wx.PreToolbook
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.Toolbook
+		else:
+			preClass = wx.PreToolbook
 
 		dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
@@ -133,7 +139,10 @@ class dPageList(dPageFrameMixin, wx.Listbook):
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageList
-		preClass = wx.PreListbook
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.Listbook
+		else:
+			preClass = wx.PreListbook
 		# Dictionary for tracking images by key value
 		self._imageList = {}
 		dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
@@ -194,7 +203,10 @@ class dPageSelect(dPageFrameMixin, wx.Choicebook):
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageSelect
-		preClass = wx.PreChoicebook
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.Choicebook
+		else:
+			preClass = wx.PreChoicebook
 		dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 		# Dictionary for tracking images by key value

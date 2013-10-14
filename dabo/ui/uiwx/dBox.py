@@ -12,7 +12,10 @@ class dBox(cm.dControlMixin, wx.StaticBox):
 	##      borders around panels and direct draw on any object. Opinions?
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dBox
-		preClass = wx.PreStaticBox
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.StaticBox
+		else:
+			preClass = wx.PreStaticBox
 		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 

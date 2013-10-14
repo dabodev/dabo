@@ -17,7 +17,10 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 		self._list = []
 		self._cancelVisible = False
 		self._searchVisible = True
-		preClass = wx.PreSearchCtrl
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.SearchCtrl
+		else:
+			preClass = wx.PreSearchCtrl
 		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 

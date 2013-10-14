@@ -156,19 +156,28 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 	def appendItem(self, item):
 		"""Insert a dMenuItem at the bottom of the menu."""
-		wxItem = self._getWxItem(self.AppendItem, item)
+		if 'phoenix' in wx.PlatformInfo:
+			wxItem = self._getWxItem(self.Append, item)
+		else:
+			wxItem = self._getWxItem(self.AppendItem, item)
 		return item
 
 
 	def insertItem(self, pos, item):
 		"""Insert a dMenuItem before the specified position in the menu."""
-		wxItem = self._getWxItem(self.InsertItem, item, pos)
+		if 'phoenix' in wx.PlatformInfo:
+			wxItem = self._getWxItem(self.Insert, item, pos)
+		else:
+			wxItem = self._getWxItem(self.InsertItem, item, pos)
 		return item
 
 
 	def prependItem(self, item):
 		"""Insert a dMenuItem at the top of the menu."""
-		wxItem = self._getWxItem(self.PrependItem, item)
+		if 'phoenix' in wx.PlatformInfo:
+			wxItem = self._getWxItem(self.Prepend, item)
+		else:
+			wxItem = self._getWxItem(self.PrependItem, item)
 		return item
 
 
@@ -328,6 +337,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 		# Needed to keep dPemMixin mixed-in in wxPython 2.8
 		if 'phoenix' in wx.PlatformInfo:
+			# TODO: is this enough to replace org code? 'this' is not there
 			val = wx.Menu.Remove(self, item)
 		else:
 			val = wx.Menu.RemoveItem(self, item)

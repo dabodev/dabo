@@ -285,7 +285,10 @@ class dDataPanel(_DataPanelMixin, wx.Panel):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dDataPanel
-		preClass = wx.PrePanel
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.Panel
+		else:
+			preClass = wx.PrePanel
 		_DataPanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 

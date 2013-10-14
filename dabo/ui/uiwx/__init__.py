@@ -78,7 +78,7 @@ uiType["platform"] = _platform
 # Add these to the dabo.ui namespace
 if 'phoenix' in wx.PlatformInfo:
 	deadObjectException = RuntimeError
-	deadObject = None
+	deadObject = type(None)
 else:
 	deadObjectException = wx._core.PyDeadObjectError
 	deadObject = wx._core._wxPyDeadObject
@@ -107,14 +107,14 @@ from dBitmapButton import dBitmapButton
 if wx.VERSION >= (2, 8, 8):
 	from dBorderlessButton import dBorderlessButton
 from dButton import dButton
-#from dCalendar import dCalendar
-#from dCalendar import dExtendedCalendar
+from dCalendar import dCalendar
+from dCalendar import dExtendedCalendar
 from dCheckBox import dCheckBox
 from dCheckList import dCheckList
 from dCollapsiblePanel import dCollapsiblePanel
 from dColorDialog import dColorDialog
 from dComboBox import dComboBox
-#from dDatePicker import dDatePicker
+from dDatePicker import dDatePicker
 from dDateTextBox import dDateTextBox
 from dDropdownList import dDropdownList
 from dDialog import dDialog
@@ -331,7 +331,10 @@ def callAfterInterval(interval, func, *args, **kwargs):
 		except wx._core.PyDeadObjectError:
 			pass
 
-	_callAfterIntervalReferences[(func_ref, args)] = wx.FutureCall(interval, ca_func, func_ref, func, *args, **kwargs)
+	if 'phoenix' in wx.PlatformInfo:
+		_callAfterIntervalReferences[(func_ref, args)] = wx.CallLater(interval, ca_func, func_ref, func, *args, **kwargs)
+	else:
+		_callAfterIntervalReferences[(func_ref, args)] = wx.FutureCall(interval, ca_func, func_ref, func, *args, **kwargs)
 
 
 def setAfter(obj, prop, val):
@@ -536,6 +539,7 @@ def getEventData(wxEvt):
 		ed["rawKeyCode"] = wxEvt.GetRawKeyCode()
 		ed["rawKeyFlags"] = wxEvt.GetRawKeyFlags()
 		if not 'phoenix' in wx.PlatformInfo:
+			# TODO: no equivalent in Phoenix?
 			ed["unicodeChar"] = wxEvt.GetUniChar()
 		ed["unicodeKey"] = wxEvt.GetUnicodeKey()
 		ed["hasModifiers"] = wxEvt.HasModifiers()

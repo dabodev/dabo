@@ -1024,13 +1024,19 @@ class dForm(BaseForm, wx.Frame):
 		if kwargs.pop("Modal", False):
 			# Hack this into a wx.Dialog, for true modality
 			dForm._hackToDialog()
-			preClass = wx.PreDialog
+			if 'phoenix' in wx.PlatformInfo:
+				preClass = wx.Dialog
+			else:
+				preClass = wx.PreDialog
 			self._modal = True
 		else:
 			# Normal dForm
 			if dabo.MDI and isinstance(parent, wx.MDIParentFrame):
 				# Hack this into an MDI Child:
-				preClass = wx.PreMDIChildFrame
+				if 'phoenix' in wx.PlatformInfo:
+					preClass = wx.MDIChildFrame
+				else:
+					preClass = wx.PreMDIChildFrame
 				self._mdi = True
 			else:
 				# This is a normal SDI form:
@@ -1112,7 +1118,10 @@ class dForm(BaseForm, wx.Frame):
 class dToolForm(BaseForm, wx.MiniFrame):
 	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dToolForm
-		preClass = wx.PreMiniFrame
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.MiniFrame
+		else:
+			preClass = wx.PreMiniFrame
 		self._mdi = False
 		style = kwargs.get("style", 0)
 		kwargs["style"] = style | wx.RESIZE_BORDER | wx.CAPTION | wx.MINIMIZE_BOX | \

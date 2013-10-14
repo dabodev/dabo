@@ -28,7 +28,10 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 		self._tickPosition = None
 		self._reversed = False
 
-		preClass = wx.PreSlider
+		if 'phoenix' in wx.PlatformInfo:
+			preClass = wx.Slider
+		else:
+			preClass = wx.PreSlider
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
