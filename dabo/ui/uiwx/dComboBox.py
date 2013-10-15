@@ -38,7 +38,10 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 
 	def _preInitUI(self, kwargs):
 		style = kwargs.get("style", 0)
-		style |= wx.PROCESS_ENTER
+		if "phoenix" in wx.PlatformInfo:
+			style |= wx.TE_PROCESS_ENTER
+		else:
+			style |= wx.PROCESS_ENTER
 		kwargs["style"] = style
 		return kwargs
 
