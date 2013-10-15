@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
-if "phoenix" in wx.PlatformInfo:
+import dabo
+if dabo.ui.phoenix:
 	import wx.lib.agw.foldpanelbar as fpb
 else:
 	import wx.lib.foldpanelbar as fpb
-import dabo
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")

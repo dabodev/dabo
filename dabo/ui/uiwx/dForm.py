@@ -3,6 +3,7 @@ import sys
 import time
 import wx
 import dabo
+import dabo.ui
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -1024,7 +1025,7 @@ class dForm(BaseForm, wx.Frame):
 		if kwargs.pop("Modal", False):
 			# Hack this into a wx.Dialog, for true modality
 			dForm._hackToDialog()
-			if "phoenix" in wx.PlatformInfo:
+			if dabo.ui.phoenix:
 				preClass = wx.Dialog
 			else:
 				preClass = wx.PreDialog
@@ -1033,14 +1034,14 @@ class dForm(BaseForm, wx.Frame):
 			# Normal dForm
 			if dabo.MDI and isinstance(parent, wx.MDIParentFrame):
 				# Hack this into an MDI Child:
-				if "phoenix" in wx.PlatformInfo:
+				if dabo.ui.phoenix:
 					preClass = wx.MDIChildFrame
 				else:
 					preClass = wx.PreMDIChildFrame
 				self._mdi = True
 			else:
 				# This is a normal SDI form:
-				if "phoenix" in wx.PlatformInfo:
+				if dabo.ui.phoenix:
 					preClass = wx.Frame
 				else:	
 					preClass = wx.PreFrame
@@ -1118,7 +1119,7 @@ class dForm(BaseForm, wx.Frame):
 class dToolForm(BaseForm, wx.MiniFrame):
 	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dToolForm
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.MiniFrame
 		else:
 			preClass = wx.PreMiniFrame
@@ -1142,7 +1143,7 @@ class dBorderlessForm(BaseForm, wx.Frame):
 		kwargs["ShowStatusBar"] = False
 		kwargs["ShowSystemMenu"] = False
 		kwargs["MenuBarClass"] = None
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.Frame
 		else:
 			preClass = wx.PreFrame

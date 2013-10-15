@@ -2214,7 +2214,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setDaboFont(self, val):
 		#PVG: also accep wxFont parameter
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			wInst = wx.Font
 		else:
 			wInst = (wx.Font, wx._gdi.Font)

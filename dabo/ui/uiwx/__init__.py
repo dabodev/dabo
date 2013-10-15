@@ -31,7 +31,9 @@ if "wx" not in sys.modules and not getattr(sys, "frozen", False):
 _failedLibs = []
 # note: may need wx.animate as well
 import wx # needed for below
-if "phoenix" in wx.PlatformInfo:
+phoenix = "phoenix" in wx.PlatformInfo
+
+if phoenix:
 	tLibs = ("wx", "wx.stc", "wx.lib.agw.foldpanelbar", "wx.adv",
             "wx.lib.calendar", "wx.lib.masked", "wx.lib.buttons")
 else:
@@ -76,7 +78,8 @@ if wx.PlatformInfo[0] == "__WXGTK__":
 uiType["platform"] = _platform
 
 # Add these to the dabo.ui namespace
-if "phoenix" in wx.PlatformInfo:
+dabo.ui.phoenix = phoenix # otherwise AttributeError: 'module' object has no attribute 'phoenix'
+if phoenix:
 	deadObjectException = RuntimeError
 	deadObject = type(None)
 else:
@@ -331,7 +334,7 @@ def callAfterInterval(interval, func, *args, **kwargs):
 		except wx._core.PyDeadObjectError:
 			pass
 
-	if "phoenix" in wx.PlatformInfo:
+	if phoenix:
 		_callAfterIntervalReferences[(func_ref, args)] = wx.CallLater(interval, ca_func, func_ref, func, *args, **kwargs)
 	else:
 		_callAfterIntervalReferences[(func_ref, args)] = wx.FutureCall(interval, ca_func, func_ref, func, *args, **kwargs)
@@ -478,7 +481,7 @@ def getEventData(wxEvt):
 			ed["mousePosition"] = wx.GetMousePosition()
 
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent)):
-		if "phoenix" in wx.PlatformInfo:
+		if phoenix:
 			ed["mousePosition"] = wxEvt.GetPosition()
 		else:
 			ed["mousePosition"] = wxEvt.GetPositionTuple()
@@ -637,12 +640,12 @@ def getEventData(wxEvt):
 		except AttributeError:
 			pass
 
-	if "phoenix" in wx.PlatformInfo:
+	if phoenix:
 		wInst = wx.adv.CalendarEvent
 	else:
 		wInst = wx.calendar.CalendarEvent
 	if isinstance(wxEvt, wInst):
-		if "phoenix" in wx.PlatformInfo:
+		if phoenix:
 			ed["date"] = wxEvt.GetDate()
 		else:
 			ed["date"] = wxEvt.PyGetDate()
@@ -650,7 +653,7 @@ def getEventData(wxEvt):
 		# EVT_CALENDAR_WEEKDAY_CLICKED event.
 		ed["weekday"] = wxEvt.GetWeekDay()
 
-	if "phoenix" in wx.PlatformInfo:
+	if phoenix:
 		wInst = wx.lib.agw.foldpanelbar.CaptionBarEvent
 	else:
 		wInst = wx.lib.foldpanelbar.CaptionBarEvent
@@ -676,7 +679,7 @@ def getEventData(wxEvt):
 		# to do anything.
 		ed["alt"] = wxEvt.GetAlt()
 		ed["control"] = wxEvt.GetControl()
-		if not "phoenix" in wx.PlatformInfo:
+		if not phoenix:
 			ed["dragAllowMove"] = wxEvt.GetDragAllowMove()
 		ed["dragResult"] = wxEvt.GetDragResult()
 		ed["dragText"] = wxEvt.GetDragText()

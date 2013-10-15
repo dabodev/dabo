@@ -21,7 +21,7 @@ class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dEditBox
 
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.TextCtrl
 		else:
 			preClass = wx.PreTextCtrl

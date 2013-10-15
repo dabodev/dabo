@@ -5,13 +5,14 @@
 # TODO: get SystemError on this one wait for Robin
 import datetime
 import wx
-if "phoenix" in wx.PlatformInfo:
+	
+import dabo
+if dabo.ui.phoenix:
 	import wx.adv
 	dpc = wx.adv
 else:
 	dpc = wx
-	
-import dabo
+
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
@@ -62,7 +63,7 @@ class dDatePicker(dcm.dDataControlMixin, dpc.DatePickerCtrl):
 		self._timePart = [0, 0, 0, 0]
 		self._lastWasNone = True
 		self._baseClass = dDatePicker
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.adv.DatePickerCtrl
 		else:
 			preClass = wx.PreDatePickerCtrl

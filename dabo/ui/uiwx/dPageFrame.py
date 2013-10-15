@@ -55,7 +55,7 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageFrame
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.Notebook
 		else:
 			preClass = wx.PreNotebook
@@ -80,7 +80,7 @@ class dPageToolBar(dPageFrameMixin, wx.Toolbook):
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageToolBar
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.Toolbook
 		else:
 			preClass = wx.PreToolbook
@@ -139,7 +139,7 @@ class dPageList(dPageFrameMixin, wx.Listbook):
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageList
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.Listbook
 		else:
 			preClass = wx.PreListbook
@@ -203,7 +203,7 @@ class dPageSelect(dPageFrameMixin, wx.Choicebook):
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageSelect
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.Choicebook
 		else:
 			preClass = wx.PreChoicebook

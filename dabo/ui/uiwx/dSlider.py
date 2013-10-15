@@ -28,7 +28,7 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 		self._tickPosition = None
 		self._reversed = False
 
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.Slider
 		else:
 			preClass = wx.PreSlider

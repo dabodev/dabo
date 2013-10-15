@@ -28,7 +28,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		# Holds the text to be appended
 		self._textToAppend = ""
 
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.ComboBox
 		else:
 			preClass = wx.PreComboBox
@@ -38,7 +38,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 
 	def _preInitUI(self, kwargs):
 		style = kwargs.get("style", 0)
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			style |= wx.TE_PROCESS_ENTER
 		else:
 			style |= wx.PROCESS_ENTER

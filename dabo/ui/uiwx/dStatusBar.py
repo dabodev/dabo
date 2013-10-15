@@ -18,7 +18,7 @@ class dStatusBar(dcm.dControlMixin, wx.StatusBar):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dStatusBar
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.StatusBar
 		else:
 			preClass = wx.PreStatusBar

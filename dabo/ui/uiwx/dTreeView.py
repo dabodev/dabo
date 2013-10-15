@@ -417,7 +417,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		if val:
 			style = style | wx.TR_LINES_AT_ROOT
 
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.TreeCtrl
 		else:
 			preClass = wx.PreTreeCtrl

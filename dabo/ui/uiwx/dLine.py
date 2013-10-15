@@ -22,7 +22,7 @@ class dLine(cm.dControlMixin, wx.StaticLine):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dLine
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.StaticLine
 		else:
 			preClass = wx.PreStaticLine

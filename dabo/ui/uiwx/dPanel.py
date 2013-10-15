@@ -263,7 +263,7 @@ class dPanel(_PanelMixin, wx.Panel):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPanel
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.Panel
 		else:
 			preClass = wx.PrePanel
@@ -285,7 +285,7 @@ class dDataPanel(_DataPanelMixin, wx.Panel):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dDataPanel
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.Panel
 		else:
 			preClass = wx.PrePanel
@@ -305,7 +305,7 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._horizontalScroll = self._verticalScroll = True
 		self._baseClass = dScrollPanel
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.ScrolledWindow
 		else:
 			preClass = wx.PreScrolledWindow

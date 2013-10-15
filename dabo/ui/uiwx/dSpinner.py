@@ -22,7 +22,7 @@ class _dSpinButton(dcm.dDataControlMixin, wx.SpinButton):
 	"""Simple wrapper around the base wx.SpinButton."""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = _dSpinButton
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wx.SpinButton
 		else:
 			preClass = wx.PreSpinButton

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import wx
-if "phoenix" in wx.PlatformInfo:
+if dabo.ui.phoenix:
 	import wx.adv
 	giz = wx.adv
 else:

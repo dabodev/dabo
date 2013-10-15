@@ -420,7 +420,7 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def setup(self):
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			wx.SystemOptions.SetOption("mac.textcontrol-use-spell-checker", 1)
 		else:
 			wx.SystemOptions.SetOptionInt("mac.textcontrol-use-spell-checker", 1)
@@ -465,7 +465,7 @@ these automatic updates.""").replace("\n", " ")
 
 	def exit(self):
 		"""Exit the application event loop."""
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			self.ExitMainLoop()
 		else:
 			self.Exit()

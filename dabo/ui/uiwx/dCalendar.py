@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
-if "phoenix" in wx.PlatformInfo:
+import datetime
+import dabo
+if dabo.ui.phoenix:
 	import wx.adv as wxcal
 else:
 	import wx.calendar as wxcal
-import datetime
-import dabo
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -22,7 +22,7 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dCalendar
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			preClass = wxcal.CalendarCtrl
 		else:
 			preClass = wxcal.PreCalendarCtrl
@@ -195,19 +195,19 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 
 	### Begin property defs  ###
 	def _getDate(self):
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			return self.GetDate()
 		else:
 			return self.PyGetDate()
 
 	def _setDate(self, val):
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			curr = self.GetDate()
 		else:
 			curr = self.PyGetDate()
 		if isinstance(val, tuple):
 			val = datetime.date(*val)
-		if "phoenix" in wx.PlatformInfo:
+		if dabo.ui.phoenix:
 			self.SetDate(val)
 		else:
 			self.PySetDate(val)
