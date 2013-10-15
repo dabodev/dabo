@@ -8,7 +8,7 @@ from dabo.ui import makeDynamicProperty
 import dabo.dEvents as dEvents
 
 
-class dFont(dObject):
+class dFont(dObject, wx.Font):
 	"""This class wraps the various font properties into a single object."""
 	def __init__(self, properties=None, _nativeFont=None, *args, **kwargs):
 		if _nativeFont is not None:
@@ -20,6 +20,7 @@ class dFont(dObject):
 		self._macNonScaledSize = 0
 
 		super(dFont, self).__init__(properties=properties, *args, **kwargs)
+		wx.Font.__init__(self, self._nativeFont)
 
 
 	def _propsChanged(self):
