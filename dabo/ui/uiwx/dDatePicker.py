@@ -2,6 +2,7 @@
 """
 @note: Color setting doesn't work for this control. It's a wx issue.
 """
+# TODO: get SystemError on this one wait for Robin
 import datetime
 import wx
 if 'phoenix' in wx.PlatformInfo:
