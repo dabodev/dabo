@@ -146,7 +146,7 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 		# Default to not showing the context menus on the panels
 		self._showPanelSplitMenu = False
 
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			preClass = wx.SplitterWindow
 		else:
 			preClass = wx.PreSplitterWindow

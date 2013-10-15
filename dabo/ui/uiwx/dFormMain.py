@@ -37,7 +37,7 @@ class dFormMain(dFormMainBase, wx.Frame):
 		if dabo.MDI:
 			# Hack this into an MDI Parent:
 			dFormMain.__bases__ = (dFormMainBase, wx.MDIParentFrame)
-			if 'phoenix' in wx.PlatformInfo:
+			if "phoenix" in wx.PlatformInfo:
 				preClass = wx.MDIParentFrame
 			else:
 				preClass = wx.PreMDIParentFrame
@@ -45,7 +45,7 @@ class dFormMain(dFormMainBase, wx.Frame):
 		else:
 			# This is a normal SDI form:
 			dFormMain.__bases__ = (dFormMainBase, wx.Frame)
-			if 'phoenix' in wx.PlatformInfo:
+			if "phoenix" in wx.PlatformInfo:
 				preClass = wx.Frame
 			else:
 				preClass = wx.PreFrame

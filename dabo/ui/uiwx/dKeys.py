@@ -27,7 +27,7 @@ key_Control = wx.WXK_CONTROL
 key_Menu = wx.WXK_MENU
 key_Pause = wx.WXK_PAUSE
 key_Capital = wx.WXK_CAPITAL
-if not 'phoenix' in wx.PlatformInfo: 
+if not "phoenix" in wx.PlatformInfo: 
 	# wxPython 2.6 compatibility, removed in Phoenix
 	key_Prior = wx.WXK_PRIOR
 	key_Next = wx.WXK_NEXT
@@ -113,7 +113,7 @@ key_Numpad_left = wx.WXK_NUMPAD_LEFT
 key_Numpad_up = wx.WXK_NUMPAD_UP
 key_Numpad_right = wx.WXK_NUMPAD_RIGHT
 key_Numpad_down = wx.WXK_NUMPAD_DOWN
-if not 'phoenix' in wx.PlatformInfo: 
+if not "phoenix" in wx.PlatformInfo: 
 	# wxPython 2.6 compatibility, removed in Phoenix
 	key_Numpad_prior = wx.WXK_NUMPAD_PRIOR
 	key_Numpad_next = wx.WXK_NUMPAD_NEXT
@@ -258,7 +258,7 @@ keyStrings = {
 	"numpad_divide": key_Numpad_divide,
 }
 
-if not 'phoenix' in wx.PlatformInfo: 
+if not "phoenix" in wx.PlatformInfo: 
 	# wxPython 2.6 compatibility, removed in Phoenix
 	keyStrings["numpad_prior"] = key_Numpad_prior
 	keyStrings["numpad_next"] = key_Numpad_next

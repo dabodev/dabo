@@ -27,7 +27,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dToolBar
 		self._toolbarItemClass = dToolBarItem
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			preClass = wx.ToolBar
 		else:
 			preClass = wx.PreToolBar

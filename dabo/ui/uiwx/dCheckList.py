@@ -16,7 +16,7 @@ class dCheckList(dcm.dControlItemMixin, wx.CheckListBox):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dCheckList
 		self._choices = []
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			preClass = wx.CheckListBox
 		else:
 			preClass = wx.PreCheckListBox

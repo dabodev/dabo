@@ -78,7 +78,7 @@ class dListControl(dcm.dControlItemMixin,
 			style = style | wx.LC_REPORT
 		except TypeError:
 			style = wx.LC_REPORT
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			preClass = wx.ListCtrl
 		else:
 			preClass = wx.PreListCtrl

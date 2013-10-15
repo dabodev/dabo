@@ -18,7 +18,7 @@ class dDropdownList(dcm.dControlItemMixin, wx.Choice):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dDropdownList
 		self._choices = []
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			preClass = wx.Choice
 		else:
 			preClass = wx.PreChoice

@@ -733,7 +733,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self.SetViewWhiteSpace(self.ShowWhiteSpace)
 		self.SetBufferedDraw(self.BufferedDrawing)
 		self.SetViewEOL(self.ShowEOL)
-		self.SetUseAntiAliasing(self.UseAntiAliasing)
+		# TODO: wait for Robin
+		#self.SetUseAntiAliasing(self.UseAntiAliasing)
 
 		## Seems that eolmode is CRLF on Mac by default... explicitly set it if not set by user!
 		if not self.EOLMode:

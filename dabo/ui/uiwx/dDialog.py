@@ -37,7 +37,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		except KeyError:
 			kwargs["style"] = defaultStyle
 
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			preClass = wx.Dialog
 		else:
 			preClass = wx.PreDialog

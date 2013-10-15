@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import wx
-if 'phoenix' in wx.PlatformInfo:
+if "phoenix" in wx.PlatformInfo:
 	import wx.adv as wxcal
 else:
 	import wx.calendar as wxcal
@@ -22,7 +22,7 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dCalendar
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			preClass = wxcal.CalendarCtrl
 		else:
 			preClass = wxcal.PreCalendarCtrl
@@ -195,19 +195,19 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 
 	### Begin property defs  ###
 	def _getDate(self):
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			return self.GetDate()
 		else:
 			return self.PyGetDate()
 
 	def _setDate(self, val):
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			curr = self.GetDate()
 		else:
 			curr = self.PyGetDate()
 		if isinstance(val, tuple):
 			val = datetime.date(*val)
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			self.SetDate(val)
 		else:
 			self.PySetDate(val)

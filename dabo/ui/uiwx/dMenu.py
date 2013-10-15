@@ -131,7 +131,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		id_ = itm.GetId()
 		if id_ == wx.ID_ABOUT:
 			# Put the about menu in the App Menu on Mac
-			if 'phoenix' in wx.PlatformInfo:
+			if "phoenix" in wx.PlatformInfo:
 				wx.App.SetMacAboutMenuItemId(id_)
 				cap = daboItem.Parent.Caption
 				wx.App.SetMacHelpMenuTitleName(cap)
@@ -148,7 +148,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		if special == "pref":
 			# Put the prefs item in the App Menu on Mac
 			self.Parent._mac_pref_menu_item_id = id_
-			if 'phoenix' in wx.PlatformInfo:
+			if "phoenix" in wx.PlatformInfo:
 				wx.App.SetMacPreferencesMenuItemId(id_)
 			else:
 				wx.App_SetMacPreferencesMenuItemId(id_)
@@ -156,7 +156,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 	def appendItem(self, item):
 		"""Insert a dMenuItem at the bottom of the menu."""
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			wxItem = self._getWxItem(self.Append, item)
 		else:
 			wxItem = self._getWxItem(self.AppendItem, item)
@@ -165,7 +165,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 	def insertItem(self, pos, item):
 		"""Insert a dMenuItem before the specified position in the menu."""
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			wxItem = self._getWxItem(self.Insert, item, pos)
 		else:
 			wxItem = self._getWxItem(self.InsertItem, item, pos)
@@ -174,7 +174,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 	def prependItem(self, item):
 		"""Insert a dMenuItem at the top of the menu."""
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			wxItem = self._getWxItem(self.Prepend, item)
 		else:
 			wxItem = self._getWxItem(self.PrependItem, item)
@@ -336,7 +336,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			pass
 
 		# Needed to keep dPemMixin mixed-in in wxPython 2.8
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			# TODO: is this enough to replace org code? 'this' is not there
 			val = wx.Menu.Remove(self, item)
 		else:

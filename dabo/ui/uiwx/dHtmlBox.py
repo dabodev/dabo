@@ -28,7 +28,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._horizontalScroll = self._verticalScroll = True
 		self._baseClass = dHtmlBox
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			preClass = wx.html.HtmlWindow
 		else:
 			preClass = wx.html.PreHtmlWindow

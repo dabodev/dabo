@@ -162,7 +162,7 @@ class dPemMixin(dPemMixinBase):
 			# This is needed because these classes require a 'parent' param.
 			kwargs["parent"] = parent
 		elif wx.VERSION >= (2, 8, 8) and isinstance(self, (wx.lib.platebtn.PlateButton)):
-			if not 'phoenix' in wx.PlatformInfo:
+			if not "phoenix" in wx.PlatformInfo:
 				self._preInitProperties["id_"] = self._preInitProperties["id"]
 				del self._preInitProperties["id"]
 		# This is needed when running from a saved design file
@@ -2214,7 +2214,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setDaboFont(self, val):
 		#PVG: also accep wxFont parameter
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			wInst = wx.Font
 		else:
 			wInst = (wx.Font, wx._gdi.Font)

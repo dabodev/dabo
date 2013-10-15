@@ -21,7 +21,7 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 		self._wordWrap = False
 		self._inResizeEvent = False
 		self._resetAutoResize = True
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			preClass = wx.StaticText
 		else:
 			preClass = wx.PreStaticText

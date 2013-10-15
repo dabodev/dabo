@@ -31,7 +31,7 @@ if "wx" not in sys.modules and not getattr(sys, "frozen", False):
 _failedLibs = []
 # note: may need wx.animate as well
 import wx # needed for below
-if 'phoenix' in wx.PlatformInfo:
+if "phoenix" in wx.PlatformInfo:
 	tLibs = ("wx", "wx.stc", "wx.lib.agw.foldpanelbar", "wx.adv",
             "wx.lib.calendar", "wx.lib.masked", "wx.lib.buttons")
 else:
@@ -76,7 +76,7 @@ if wx.PlatformInfo[0] == "__WXGTK__":
 uiType["platform"] = _platform
 
 # Add these to the dabo.ui namespace
-if 'phoenix' in wx.PlatformInfo:
+if "phoenix" in wx.PlatformInfo:
 	deadObjectException = RuntimeError
 	deadObject = type(None)
 else:
@@ -331,7 +331,7 @@ def callAfterInterval(interval, func, *args, **kwargs):
 		except wx._core.PyDeadObjectError:
 			pass
 
-	if 'phoenix' in wx.PlatformInfo:
+	if "phoenix" in wx.PlatformInfo:
 		_callAfterIntervalReferences[(func_ref, args)] = wx.CallLater(interval, ca_func, func_ref, func, *args, **kwargs)
 	else:
 		_callAfterIntervalReferences[(func_ref, args)] = wx.FutureCall(interval, ca_func, func_ref, func, *args, **kwargs)
@@ -478,7 +478,7 @@ def getEventData(wxEvt):
 			ed["mousePosition"] = wx.GetMousePosition()
 
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent)):
-		if 'phoenix' in wx.PlatformInfo:
+		if "phoenix" in wx.PlatformInfo:
 			ed["mousePosition"] = wxEvt.GetPosition()
 		else:
 			ed["mousePosition"] = wxEvt.GetPositionTuple()
@@ -538,7 +538,7 @@ def getEventData(wxEvt):
 		ed["keyCode"] = wxEvt.GetKeyCode()
 		ed["rawKeyCode"] = wxEvt.GetRawKeyCode()
 		ed["rawKeyFlags"] = wxEvt.GetRawKeyFlags()
-		if not 'phoenix' in wx.PlatformInfo:
+		if not "phoenix" in wx.PlatformInfo:
 			# TODO: no equivalent in Phoenix?
 			ed["unicodeChar"] = wxEvt.GetUniChar()
 		ed["unicodeKey"] = wxEvt.GetUnicodeKey()
@@ -637,7 +637,7 @@ def getEventData(wxEvt):
 		except AttributeError:
 			pass
 
-	if 'phoenix' in wx.PlatformInfo:
+	if "phoenix" in wx.PlatformInfo:
 		wInst = wx.adv.CalendarEvent
 	else:
 		wInst = wx.calendar.CalendarEvent
@@ -650,7 +650,7 @@ def getEventData(wxEvt):
 		# EVT_CALENDAR_WEEKDAY_CLICKED event.
 		ed["weekday"] = wxEvt.GetWeekDay()
 
-	if 'phoenix' in wx.PlatformInfo:
+	if "phoenix" in wx.PlatformInfo:
 		wInst = wx.lib.agw.foldpanelbar.CaptionBarEvent
 	else:
 		wInst = wx.lib.foldpanelbar.CaptionBarEvent

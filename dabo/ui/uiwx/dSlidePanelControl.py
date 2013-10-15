@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import wx
-if 'phoenix' in wx.PlatformInfo:
+if "phoenix" in wx.PlatformInfo:
 	import wx.lib.agw.foldpanelbar as fpb
 else:
 	import wx.lib.foldpanelbar as fpb
