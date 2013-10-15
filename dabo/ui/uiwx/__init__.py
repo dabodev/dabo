@@ -642,7 +642,10 @@ def getEventData(wxEvt):
 	else:
 		wInst = wx.calendar.CalendarEvent
 	if isinstance(wxEvt, wInst):
-		ed["date"] = wxEvt.PyGetDate()
+		if "phoenix" in wx.PlatformInfo:
+			ed["date"] = wxEvt.GetDate()
+		else:
+			ed["date"] = wxEvt.PyGetDate()
 		# This will be undefined for all but the
 		# EVT_CALENDAR_WEEKDAY_CLICKED event.
 		ed["weekday"] = wxEvt.GetWeekDay()
