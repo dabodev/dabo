@@ -162,8 +162,9 @@ class dPemMixin(dPemMixinBase):
 			# This is needed because these classes require a 'parent' param.
 			kwargs["parent"] = parent
 		elif wx.VERSION >= (2, 8, 8) and isinstance(self, (wx.lib.platebtn.PlateButton)):
-			self._preInitProperties["id_"] = self._preInitProperties["id"]
-			del self._preInitProperties["id"]
+			if not 'phoenix' in wx.PlatformInfo:
+				self._preInitProperties["id_"] = self._preInitProperties["id"]
+				del self._preInitProperties["id"]
 		# This is needed when running from a saved design file
 		self._extractKey((properties, self._properties), "designerClass")
 		# This attribute is used when saving code with a design file
