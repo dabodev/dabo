@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
+if "phoenix" in wx.PlatformInfo:
+	import wx.adv
+	giz = wx.adv
+else:
+	giz = wx.gizmos
 import dabo
 if __name__ == "__main__":
 	import dabo.ui
@@ -10,14 +15,14 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
+class dEditableList(dcm.dControlMixin, giz.EditableListBox):
 	"""
 	Creates an editable list box, complete with buttons to control
 	editing, adding/deleting items, and re-ordering them.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dEditableList
-		preClass = wx.gizmos.EditableListBox
+		preClass = giz.EditableListBox
 		self._canAdd = self._extractKey((kwargs, properties, attProperties), "CanAdd", True)
 		if isinstance(self._canAdd, basestring):
 			self._canAdd = (self._canAdd == "True")
@@ -30,11 +35,11 @@ class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
 		self._editable = self._extractKey((kwargs, properties, attProperties), "Editable", True)
 		style = self._extractKey((kwargs, properties, attProperties), "style", 0)
 		if self._canAdd:
-			style = style  | wx.gizmos.EL_ALLOW_NEW
+			style = style  | giz.EL_ALLOW_NEW
 		if self._editable:
-			style = style  | wx.gizmos.EL_ALLOW_EDIT
+			style = style  | giz.EL_ALLOW_EDIT
 		if self._canDelete:
-			style = style  | wx.gizmos.EL_ALLOW_DELETE
+			style = style  | giz.EL_ALLOW_DELETE
 		kwargs["style"] = style
 		# References to the components of this control
 		self._addButton = None
