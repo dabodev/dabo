@@ -1906,7 +1906,7 @@ class dPemMixin(dPemMixinBase):
 			if i:
 				candidate = "%s%s" % (name, i)
 			nameError = hasattr(parent, candidate) \
-			    and type(getattr(parent, candidate)) != wx._core._wxPyDeadObject \
+			    and type(getattr(parent, candidate)) != dabo.ui.deadObject \
 			    and getattr(parent, candidate) != self \
 			    and [win for win in parent.GetChildren()
 			         if win != self and win.GetName() == candidate]
@@ -2505,7 +2505,7 @@ class dPemMixin(dPemMixinBase):
 				# Make sure that the name isn't already used
 				if self.Parent:
 					if hasattr(self.Parent, name) \
-					   and type(getattr(self.Parent, name)) != wx._core._wxPyDeadObject \
+					   and type(getattr(self.Parent, name)) != dabo.ui.deadObject \
 					   and getattr(self.Parent, name) != self:
 						raise NameError("Name '%s' is already in use." % name)
 				try:
@@ -2525,7 +2525,7 @@ class dPemMixin(dPemMixinBase):
 					# the user is explicitly setting the Name. If another object already
 					# has the name, we must raise an exception immediately.
 					if hasattr(parent, name) \
-					   and type(getattr(parent, name)) != wx._core._wxPyDeadObject \
+					   and type(getattr(parent, name)) != dabo.ui.deadObject \
 					   and getattr(parent, name) != self:
 						raise NameError("Name '%s' is already in use." % name)
 					else:
