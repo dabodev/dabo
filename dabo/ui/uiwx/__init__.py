@@ -676,7 +676,8 @@ def getEventData(wxEvt):
 		# to do anything.
 		ed["alt"] = wxEvt.GetAlt()
 		ed["control"] = wxEvt.GetControl()
-		ed["dragAllowMove"] = wxEvt.GetDragAllowMove()
+		if not "phoenix" in wx.PlatformInfo:
+			ed["dragAllowMove"] = wxEvt.GetDragAllowMove()
 		ed["dragResult"] = wxEvt.GetDragResult()
 		ed["dragText"] = wxEvt.GetDragText()
 		ed["extraLong"] = wxEvt.GetExtraLong()
