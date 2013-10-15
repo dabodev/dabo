@@ -847,7 +847,7 @@ class dFormMixin(pm.dPemMixin):
 			# dDialog, for instance
 			return False
 
-
+	@dabo.ui.deadCheck
 	def _getMenuBar(self):
 		try:
 			return self.GetMenuBar()

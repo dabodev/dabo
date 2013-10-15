@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# TODO: closing the floating pane is still causing an assert
 import wx
 try:
 	import wx.lib.agw.aui as aui
@@ -867,14 +868,13 @@ class dDockForm(dabo.ui.dForm):
 		self._centerPanel.Sizer = dabo.ui.dSizer("v")
 		self._panels = {}
 		super(dDockForm, self)._afterInit()
-		self.bindEvent(dEvents.Destroy, self.__onDestroy)
+		self.bindEvent(dEvents.Close, self.__onClose)
 
-
-	def __onDestroy(self, evt):
+	def __onClose(self, evt):
+		self._mgr.UnInit()
 		if self._finito:
 			# Need to save this here, since we can't respond to all layout changes.
 			self.saveSizeAndPosition()
-			self._mgr.UnInit()
 
 
 	def getBasePanelClass(cls):
@@ -909,7 +909,7 @@ class dDockForm(dabo.ui.dForm):
 
 	def _refreshState(self, interval=None):
 		if self._finito:
-				return
+			return
 		if interval is None:
 			interval = 100
 		if interval == 0:
