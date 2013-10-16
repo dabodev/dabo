@@ -71,8 +71,15 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		self._pictureIndex = self._extractKey((kwargs, properties, attProperties), "PictureIndex", -1)
 
 		dim.dImageMixin.__init__(self)
-		dcm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
-				bitmap=wx.EmptyBitmap(1, 1), *args, **kwargs)
+		if dabo.ui.phoenix:
+			bmp = wx.Bitmap(1, 1)
+			# TODO: wait for Robin, label as param name for bitmap?
+			dcm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
+			        label=bmp, *args, **kwargs)
+		else:
+			bmp = wx.EmptyBitmap(1, 1)
+			dcm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
+			        bitmap=bmp, *args, **kwargs)
 
 		# Display the picture, if any. This will also initialize the
 		# self._picture attribute
@@ -163,9 +170,16 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		"""
 		if self._inShowPic:
 			return
-		if not self._Image.Ok():
+		if dabo.ui.phoenix:
+			isOK = self._Image.IsOk()
+			bmp = wx.Bitmap(1, 1)
+		else:
+			isOK = self._Image.Ok()
+			bmp = wx.EmptyBitmap(1, 1)
+			
+		if isOK:
 			# No image to display
-			self.Bitmap = wx.EmptyBitmap(1, 1)
+			self.Bitmap = bmp
 			self.Freeze()
 			self.SetBitmap(self.Bitmap)
 			self.Thaw()
@@ -256,8 +270,13 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			# Empty string passed; clear any current image
 			self._picture = ""
 			self._displayState = 1
-			self._bmp = wx.EmptyBitmap(1, 1, 1)
-			self.__image = wx.EmptyImage(1, 1)		# self._bmp.ConvertToImage()
+			if dabo.ui.phoenix:
+				self._bmp = wx.Bitmap(1, 1, 1)
+				self.__image = wx.Image(1, 1)
+			else:
+				self._bmp = wx.EmptyBitmap(1, 1, 1)
+				self.__image = wx.EmptyImage(1, 1)		# self._bmp.ConvertToImage()
+				
 			self._showPic()
 			return
 		elif isinstance(val, wx.Image):
@@ -318,7 +337,11 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				except IOError:
 					# Bad image, or no exif data available
 					pass
-		if self._Image.Ok():
+		if dabo.ui.phoenix:
+			isOK = self._Image.IsOk()
+		else:
+			isOK = self._Image.Ok()
+		if isOK:
 			self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
 		else:
 			self._imgProp = 1.0
