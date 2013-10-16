@@ -56,16 +56,27 @@ class dGlWindow(cm.dControlMixin, glcanvas.GLCanvas):
 		"""
 		pass
 
+	def afterInit(self):
+		if dabo.ui.phoenix:
+			self._context = glcanvas.GLContext(self)
+			self._context.SetCurrent(self)
+			self.SwapBuffers()
+		
 
 	def onResize(self, event):
-		if self.GetContext():
-			self.SetCurrent()
-			glViewport(0, 0, self.Width, self.Height)
+		if not dabo.ui.phoenix:
+			if self.GetContext():
+				self.SetCurrent()
+			
+		glViewport(0, 0, self.Width, self.Height)
 
 
 	def onPaint(self, event):
 		dc = wx.PaintDC(self)
-		self.SetCurrent()
+		if dabo.ui.phoenix:
+			self.SetCurrent(self._context)
+		else:
+			self.SetCurrent()
 		if not self.init:
 			self.initGL()
 			self.init = True
