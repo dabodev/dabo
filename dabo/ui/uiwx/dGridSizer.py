@@ -61,7 +61,17 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 			# spacer
 			if isinstance(item, int):
 				item = (item, item)
-			szItem = self.Add(item, (targetRow, targetCol), span=(rowSpan, colSpan))
+				isSpacer = True
+			else:
+				isSpacer = False
+				
+			if dabo.ui.phoenix:
+				if isSpacer:
+					szItem = self.Add(item[0], item[1], (targetRow, targetCol), span=(rowSpan, colSpan))
+				else:
+					szItem = self.Add(item, (targetRow, targetCol), span=(rowSpan, colSpan))
+			else:
+				szItem = self.Add(item, (targetRow, targetCol), span=(rowSpan, colSpan))
 			spc = szItem.GetSpacer()
 			spc._controllingSizer = self
 			spc._controllingSizerItem = szItem
