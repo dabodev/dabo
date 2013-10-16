@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 import wx
-import wx.lib.hyperlink as hyperlink
 import dabo
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
+if dabo.ui.phoenix:
+	import wx.lib.agw.hyperlink as hyperlink
+else:
+	import wx.lib.hyperlink as hyperlink
+	
 import dControlMixin as dcm
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
