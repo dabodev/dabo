@@ -5034,7 +5034,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			val2 = val.lower().strip()[:2]
 			if val2 == "ro":
 				try:
-					self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
+					if dabo.ui.phoenix:
+						self.SetSelectionMode(wx.grid.Grid.GridSelectRows)
+					else:
+						self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
 					self._selectionMode = "Row"
 				except wx.PyAssertionError:
 					dabo.ui.callAfter(self._setSelectionMode, val)
