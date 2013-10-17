@@ -1474,7 +1474,11 @@ def createMenuBar(src, form=None, previewFunc=None):
 
 
 def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
-	class _BaseCellEditor(wx.grid.PyGridCellEditor):
+	if dabo.ui.phoenix:
+		gEd = wx.grid.GridCellEditor
+	else:
+		gEd = wx.grid.PyGridCellEditor
+	class _BaseCellEditor(gEd):
 		_controlClass = None
 		_minWidth = None
 		_minHeight = None
