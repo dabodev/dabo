@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+# TODO: wait for Robin's feed back
 import os
 import wx
 import wx.richtext
@@ -20,7 +20,10 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dRichTextBox
 		# Used to test if selection has any of the styles applied to any part of it.
-		self._styleObj = wx.richtext.TextAttrEx()
+		if dabo.ui.phoenix:
+			self._styleObj = wx.TextAttr()
+		else:
+			self._styleObj = wx.richtext.TextAttrEx()
 		self._styleObj.SetFlags(wx.TEXT_ATTR_BACKGROUND_COLOUR |
 				wx.TEXT_ATTR_FONT_FACE | wx.TEXT_ATTR_FONT_ITALIC |
 				wx.TEXT_ATTR_FONT_SIZE | wx.TEXT_ATTR_FONT_UNDERLINE |
@@ -29,7 +32,10 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 		self._xmlHandler = wx.richtext.RichTextXMLHandler()
 		self._htmlHandler = wx.richtext.RichTextHTMLHandler()
 		self._handlers = (self._xmlHandler, self._htmlHandler)
-		preClass = wx.richtext.PreRichTextCtrl
+		if dabo.ui.phoenix:
+			preClass = wx.richtext.RichTextCtrl
+		else:
+			preClass = wx.richtext.PreRichTextCtrl
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 

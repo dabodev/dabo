@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# TODO: dToolbarItem issue
 import os.path
 import wx
 import dabo, dabo.ui
@@ -175,8 +176,13 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		id_ = wx.NewId()
 		if pos is None:
 			# append
-			tool = self.DoAddTool(id_, caption, picBmp, shortHelp=tip, longHelp=help,
-					kind=kind)
+			if dabo.ui.phoenix:
+				tool = self.AddTool(id_, caption, picBmp, bmpDisabled=wx.NullBitmap,
+				                    kind=kind,
+				                    shortHelpString=tip, longHelpString=help)
+			else:
+				tool = self.DoAddTool(id_, caption, picBmp, shortHelp=tip, longHelp=help,
+				        kind=kind)
 		else:
 			# insert
 			tool = self.InsertTool(pos, id_, caption, picBmp, shortHelpString=tip,

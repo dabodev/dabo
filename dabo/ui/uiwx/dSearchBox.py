@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# TODO: getting a Runtimeerror dMenuItem has been deleted
 import wx
 
 import dabo, dabo.ui

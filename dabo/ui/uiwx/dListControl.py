@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# TODO: need to resolve ListEvent issue
 import wx
 import dabo
 from dabo.ui import makeDynamicProperty
@@ -183,7 +184,10 @@ class dListControl(dcm.dControlItemMixin,
 		wds = [self.getColumnWidth(col) for col in xrange(self.ColumnCount)]
 		expandCol = self.ExpandColumn
 		self.clear()
-		self.DeleteAllColumns()
+		if dabo.ui.phoenix:
+			self.ClearAll()			
+		else:
+			self.DeleteAllColumns()
 		for col in colList:
 			self.addColumn(col)
 		self.appendRows(ds)
@@ -302,7 +306,10 @@ class dListControl(dcm.dControlItemMixin,
 			insert = True
 		if isinstance(tx, (list, tuple)):
 			if insert:
-				new_item = self.InsertStringItem(row, "")
+				if dabo.ui.phoenix:
+					new_item = self.InsertItem(row, "")
+				else:
+					new_item = self.InsertStringItem(row, "")
 			currCol = col
 			for itm in tx:
 				new_item = self.append(itm, currCol, row)
@@ -311,10 +318,17 @@ class dListControl(dcm.dControlItemMixin,
 			if col < self.ColumnCount:
 				if not isinstance(tx, basestring) and self.AutoConvertToString:
 					tx = u"%s" % tx
-				if insert:
-					new_item = self.InsertStringItem(row, tx)
+				if dabo.ui.phoenix:
+					if insert:
+						new_item = self.InsertItem(row, tx)
+					else:
+						new_item = self.SetItem(row, col, tx)
 				else:
-					new_item = self.SetStringItem(row, col, tx)
+					if insert:
+						new_item = self.InsertStringItem(row, tx)
+					else:
+						new_item = self.SetStringItem(row, col, tx)
+					
 			else:
 				# should we raise an error? Add the column automatically?
 				pass
