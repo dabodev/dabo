@@ -1133,11 +1133,13 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 	def _setMultipleSelect(self, val):
 		self._delWindowStyleFlag(wx.TR_MULTIPLE)
-		self._delWindowStyleFlag(wx.TR_EXTENDED)
+		if not dabo.ui.phoenix:
+			self._delWindowStyleFlag(wx.TR_EXTENDED)
 		self._delWindowStyleFlag(wx.TR_SINGLE)
 		if val:
 			self._addWindowStyleFlag(wx.TR_MULTIPLE)
-			self._addWindowStyleFlag(wx.TR_EXTENDED)
+			if not dabo.ui.phoenix:
+				self._addWindowStyleFlag(wx.TR_EXTENDED)
 		else:
 			if self._constructed():
 				self.lockDisplay()
