@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+from dabo.ui import makeDynamicProperty
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 if dabo.ui.phoenix:
 	import wx.lib.agw.foldpanelbar as fpb
 else:
 	import wx.lib.foldpanelbar as fpb
-from dabo.ui import makeDynamicProperty
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 import dControlMixin as dcm
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
