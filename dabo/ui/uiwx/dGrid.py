@@ -806,13 +806,22 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			editor = None
 		else:
 			kwargs = {}
+			args = ()
 			if editorClass in (wx.grid.GridCellChoiceEditor,):
-				kwargs["choices"] = self.ListEditorChoices
+				if dabo.ui.phoenix:
+					editor = editorClass(self.ListEditorChoices)
+				else:
+					editor = editorClass(choices=self.ListEditorChoices)
 			# Fix for editor precision issue.
 			elif editorClass in (wx.grid.GridCellFloatEditor,):
 				kwargs["precision"] = self.Precision
-			editor = editorClass(**kwargs)
-		self._gridColAttr.SetEditor(editor)
+			else:
+				if dabo.ui.phoenix:
+					editor = editorClass()
+				else:
+					editor = editorClass(**kwargs)
+		# TODO: throws assertionerror, Robin?
+		#self._gridColAttr.SetEditor(editor)
 
 
 	def _updateRenderer(self):
@@ -1819,6 +1828,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._baseClass = dGrid
 		preClass = wx.grid.Grid
 
+		# ????
+		self._gridTableIsSet = False
 		# Internal flag indicates update invoked by grid itself.
 		self._inUpdate = False
 		# Internal flag indicates header repaint invoked by the header itself.
@@ -1991,7 +2002,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.Bind(wx.grid.EVT_GRID_EDITOR_CREATED, self.__onWxGridEditorCreated)
 		self.Bind(wx.grid.EVT_GRID_EDITOR_SHOWN, self.__onWxGridEditorShown)
 		self.Bind(wx.grid.EVT_GRID_EDITOR_HIDDEN, self.__onWxGridEditorHidden)
-		self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxGridCellChange)
+		if dabo.ui.phoenix:
+			self.Bind(wx.grid.EVT_GRID_CELL_CHANGED, self.__onWxGridCellChange)
+		else:
+			self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxGridCellChange)
 		self.Bind(wx.grid.EVT_GRID_RANGE_SELECT, self.__onWxGridRangeSelect)
 		self.Bind(wx.EVT_SCROLLWIN, self.__onWxScrollWin)
 
@@ -2081,7 +2095,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if getattr(self, "__inRefresh", False):
 			return
 		self.__inRefresh = True
-		self._Table._clearCache()  ## Make sure the proper values are filled into the cells
+		if self._Table:
+			self._Table._clearCache()  ## Make sure the proper values are filled into the cells
 
 		# Force invisible column dynamic properties to update (possible to make Visible again):
 		invisible_cols = [c._updateDynamicProps() for c in self.Columns if not c.Visible]
@@ -2250,26 +2265,27 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if rowSize:
 			self.SetDefaultRowSize(rowSize)
 		tbl = self._Table
-
-		if self.emptyRowsToAdd and self.Columns:
-			# Used for display purposes when no data is present.
-			self._addEmptyRows()
-		tbl.setColumns(self.Columns)
-		self._tableRows = tbl.fillTable(force)
-		if not self._sortRestored:
-			dabo.ui.callAfter(self._restoreSort)
-			self._sortRestored = True
-
-		# This will make sure that the current selection mode is activated.
-		# We can't do it until after the first time the grid is filled.
-		if not self._modeSet:
-			self._modeSet = True
-			self.SelectionMode = self.SelectionMode
-
-		# I've found that both refresh calls are needed sometimes, especially
-		# on Linux when manually moving a column header with the mouse.
-		dabo.ui.callAfterInterval(200, self.refresh)
-		self.refresh()
+		if tbl:
+	
+			if self.emptyRowsToAdd and self.Columns:
+				# Used for display purposes when no data is present.
+				self._addEmptyRows()
+			tbl.setColumns(self.Columns)
+			self._tableRows = tbl.fillTable(force)
+			if not self._sortRestored:
+				dabo.ui.callAfter(self._restoreSort)
+				self._sortRestored = True
+	
+			# This will make sure that the current selection mode is activated.
+			# We can't do it until after the first time the grid is filled.
+			if not self._modeSet:
+				self._modeSet = True
+				self.SelectionMode = self.SelectionMode
+	
+			# I've found that both refresh calls are needed sometimes, especially
+			# on Linux when manually moving a column header with the mouse.
+			dabo.ui.callAfterInterval(200, self.refresh)
+			self.refresh()
 
 
 	def _updateDaboVisibleColumns(self):
@@ -2656,6 +2672,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		This method handles all of the display for the header, including writing
 		the Captions along with any sort indicators.
 		"""
+		# TODO: Phoenix has no wx.IntersectRect
+		# TODO: Phoenix has wx.GridColumnHeaderRenderer, maybe of us?
+		return
 		if self._inHeaderPaint:
 			return
 		self._inHeaderPaint = True
@@ -5164,22 +5183,16 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getTable(self):
-		## pkm: we can't call this until after the grid is fully constructed. Need to fix.
-		try:
+		if self._gridTableIsSet:
 			tbl = self.GetTable()
-		except TypeError:
-			tbl = None
-		if not tbl:
-			try:
-				tbl = dGridDataTable(self)
-				self.SetTable(tbl, False)
-			except TypeError:
-				tbl = None
-		return tbl
+			return tbl
+		else:
+			return None
 
 	def _setTable(self, tbl):
 		if self._constructed():
 			self.SetTable(tbl, True)
+			self._gridTableIsSet = True
 		else:
 			self._properties["Table"] = value
 
@@ -5502,7 +5515,7 @@ class _dGrid_test(dGrid):
 		#self.Searchable = False
 
 	def afterInit(self):
-		#super(_dGrid_test, self).afterInit()
+		super(_dGrid_test, self).afterInit()
 
 		self.addColumn(Name="Geek", DataField="coder", Caption="Geek?",
 				       Order=10, DataType="bool", Width=60, Sortable=False,
