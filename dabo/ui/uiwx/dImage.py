@@ -73,7 +73,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		dim.dImageMixin.__init__(self)
 		if dabo.ui.phoenix:
 			bmp = wx.Bitmap(1, 1)
-			# TODO: wait for Robin, label as param name for bitmap?
+			# bitmap= - > label= as per wxWidgets and Robin
 			dcm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
 			        label=bmp, *args, **kwargs)
 		else:
