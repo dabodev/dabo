@@ -500,14 +500,17 @@ def getEventData(wxEvt):
 				pass
 
 	if isinstance(wxEvt, wx.ListEvent):
-		pos = wxEvt.GetPosition()
-		ht = obj.HitTest(pos)
-		try:
-			idx, flg = ht
-		except TypeError:
-			# Recent wx versions raise list events for unknown reasons.
-			idx = ht
-			flg = None
+		if dabo.ui.phoenix:
+			idx = wxEvt.GetIndex()
+		else:
+			pos = wxEvt.GetPosition()
+			ht = obj.HitTest(pos)
+			try:
+				idx, flg = ht
+			except TypeError:
+				# Recent wx versions raise list events for unknown reasons.
+				idx = ht
+				flg = None
 		ed["listIndex"] = idx
 		try:
 			ed["col"] = wxEvt.GetColumn()
