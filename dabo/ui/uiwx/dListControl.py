@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# TODO: need to resolve ListEvent issue
 import wx
 import dabo
 from dabo.ui import makeDynamicProperty
