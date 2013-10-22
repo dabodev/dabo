@@ -74,7 +74,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		"""
 		try:
 			self.Realize()
-		except wx._core.PyAssertionError:
+		except dabo.ui.assertionException:
 			# Only happens on the Mac
 			pass
 
@@ -192,7 +192,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 		try:
 			self.SetToggle(id_, toggle)
-		except wx._core.PyAssertionError:
+		except dabo.ui.assertionException:
 			## The AssertionError: not implemented occurs on wxMac, even though
 			## SetToggle() obviously is implemented, because it does work.
 			pass

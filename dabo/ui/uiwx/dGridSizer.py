@@ -336,7 +336,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 			szit = obj.ControllingSizerItem
 		try:
 			row, col = szit.GetSpan()
-		except wx.PyAssertionError, e:
+		except dabo.ui.assertionException, e:
 			# Window isn't controlled by this sizer
 			row, col = None, None
 		return (row, col)
@@ -367,7 +367,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		if itm is not None:
 			try:
 				itm.SetSpan(spn)
-			except wx.PyAssertionError:
+			except dabo.ui.assertionException:
 				raise dabo.ui.GridSizerSpanException(_("An item already exists in that location"))
 
 

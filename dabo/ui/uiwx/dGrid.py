@@ -11,7 +11,6 @@ from decimal import Decimal
 from decimal import InvalidOperation
 import wx
 import wx.grid
-from wx._core import PyAssertionError
 import dabo
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
@@ -1159,7 +1158,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _getForeColor(self):
 		try:
 			return self._gridColAttr.GetTextColour()
-		except wx.PyAssertionError:
+		except dabo.ui.assertionException:
 			# Getting the color failed on Mac and win: "no default attr"
 			default = dColors.colorTupleFromName("black")
 			self._gridColAttr.SetTextColour(default)
@@ -1509,7 +1508,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				# Make sure the grid is in sync:
 				try:
 					self.Parent.SetColSize(idx, v)
-				except wx.PyAssertionError:
+				except dabo.ui.assertionException:
 					# The grid may still be in the process of being created, so pass.
 					pass
 		return v
@@ -2291,7 +2290,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _updateDaboVisibleColumns(self):
 		try:
 			self._daboVisibleColumns = [e[0] for e in enumerate(self._columns) if e[1].Visible]
-		except wx._core.PyAssertionError, e:
+		except dabo.ui.assertionException, e:
 			# Can happen when an editor is active and columns resize
 			vis = []
 			for pos, col in enumerate(self._columns):
@@ -2656,7 +2655,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 		try:
 			self.AutoSizeColumn(self._convertDaboColNumToWxColNum(colNum), setAsMin=False)
-		except (TypeError, wx.PyAssertionError):
+		except (TypeError, dabo.ui.assertionException):
 			pass
 		if colNum > -1:
 			_setColSize(colNum)
@@ -2685,7 +2684,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		try:
 			# When called from OnPaint event, there should be PaintDC context.
 			dc = wx.PaintDC(w)
-		except wx.PyAssertionError:
+		except dabo.ui.assertionException:
 			dc = wx.ClientDC(w)
 		textAngle = {True: 90, False: 0}[self.VerticalHeaders]
 		self._columnMetrics = []
@@ -3410,7 +3409,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				## it's been set as the property but because it wasn't part of the grid
 				## yet it hasn't yet taken effect: force it.
 				col.Width = col.Width
-		except (wx.PyAssertionError, wx.core.PyAssertionError, wx._core.PyAssertionError):
+		except dabo.ui.assertionException:
 			# If the underlying wx grid doesn't yet know about the column, such
 			# as when adding columns with inBatch=True, this can throw an error
 			if not inBatch:
@@ -3940,7 +3939,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if self.SameSizeRows:
 			try:
 				self.RowHeight = self.GetRowSize(row)
-			except wx._core.PyAssertionError:
+			except dabo.ui.assertionException:
 				# pkm: I don't understand how it could have gotten this far, but
 				#	   I got an error report that the c++ assertion row>=0 && row<m_numrows failed.
 				pass
@@ -5039,19 +5038,19 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					else:
 						self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
 					self._selectionMode = "Row"
-				except wx.PyAssertionError:
+				except dabo.ui.assertionException:
 					dabo.ui.callAfter(self._setSelectionMode, val)
 			elif val2 == "co":
 				try:
 					self.SetSelectionMode(wx.grid.Grid.wxGridSelectColumns)
 					self._selectionMode = "Col"
-				except wx.PyAssertionError:
+				except dabo.ui.assertionException:
 					dabo.ui.callAfter(self._setSelectionMode, val)
 			else:
 				try:
 					self.SetSelectionMode(wx.grid.Grid.wxGridSelectCells)
 					self._selectionMode = "Cell"
-				except wx.PyAssertionError:
+				except dabo.ui.assertionException:
 					dabo.ui.callAfter(self._setSelectionMode, val)
 			if self._selectionMode != orig:
 				self._checkSelectionType()

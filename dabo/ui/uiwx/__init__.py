@@ -82,10 +82,11 @@ dabo.ui.phoenix = phoenix # otherwise AttributeError: 'module' object has no att
 if phoenix:
 	deadObjectException = RuntimeError
 	deadObject = type(None)
+	assertionException = wx.wxAssertionError
 else:
 	deadObjectException = wx._core.PyDeadObjectError
 	deadObject = wx._core._wxPyDeadObject
-assertionException = wx._core.PyAssertionError
+	assertionException = wx._core.PyAssertionError
 nativeScrollBar = wx.ScrollBar
 
 # Import dPemMixin first, and then manually put into dabo.ui module. This is
@@ -413,7 +414,7 @@ def busyInfo(msg="Please wait...", *args, **kwargs):
 	bi = wx.BusyInfo(msg, *args, **kwargs)
 	try:
 		wx.Yield()
-	except wx._core.PyAssertionError:
+	except assertionException:
 		# pkm: I got a message 'wxYield called recursively' which
 		#      I'm unable to reproduce.
 		pass
@@ -471,7 +472,7 @@ def getEventData(wxEvt):
 				try:
 					pemName = pem[0].lower() + pem[1:]
 					ed[pemName] = getattr(wxEvt, pem)
-				except (AttributeError, TypeError, wx._core.PyAssertionError):
+				except (AttributeError, TypeError, assertionException):
 					pass
 
 	if isinstance(wxEvt, (wx.SplitterEvent,)):
@@ -590,7 +591,7 @@ def getEventData(wxEvt):
 	if isinstance(wxEvt, wx.SplitterEvent):
 		try:
 			ed["sashPosition"] = wxEvt.GetSashPosition()
-		except (AttributeError, wx.PyAssertionError):
+		except (AttributeError, assertionException):
 			# On wx 2.8.12 the PyAssertionError exception is raised.
 			ed["sashPosition"] = obj.SashPosition
 		if eventType == wx.EVT_SPLITTER_UNSPLIT.evtType[0]:

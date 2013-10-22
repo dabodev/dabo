@@ -7,15 +7,15 @@ import datetime
 import wx
 	
 import dabo
+
+if __name__ == "__main__":
+	import dabo.ui
+	dabo.ui.loadUI("wx")
 if dabo.ui.phoenix:
 	import wx.adv
 	dpc = wx.adv
 else:
 	dpc = wx
-
-if __name__ == "__main__":
-	import dabo.ui
-	dabo.ui.loadUI("wx")
 import dDataControlMixin as dcm
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -259,7 +259,7 @@ class dDatePicker(dcm.dDataControlMixin, dpc.DatePickerCtrl):
 	def GetValue(self):
 		try:
 			val = dateTimeWx2Py(super(dDatePicker, self).GetValue())
-		except wx.PyAssertionError:
+		except dabo.ui.assertionException:
 			val = None
 		return self._getPyValue(val)
 

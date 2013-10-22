@@ -64,7 +64,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		if self.Modal:
 			try:
 				super(dDialog, self).EndModal(*args, **kwargs)
-			except wx._core.PyAssertionError:
+			except dabo.ui.assertionException:
 				# The modal hack is causing problems in some edge cases.
 				pass
 
