@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-import configparser
+# requires six v 1.4.1 or higher
+import six.moves.urllib as urllib
+from six.moves import configparser
 from io import StringIO
 import datetime
 import glob
@@ -12,7 +14,6 @@ import os
 import shutil
 import sys
 import tempfile
-import urllib.request, urllib.error, urllib.parse
 import warnings
 from xml.sax._exceptions import SAXParseException
 from zipfile import ZipFile

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
-import urllib.parse
+# requires six v 1.4.1 or higher
+import six.moves.urllib as urllib
 import sys
 import os
 import re
