@@ -28,6 +28,7 @@ some rows from a backend database in a script. Here's an example of that::
 
 # TODO: Currently, the logic for building a dictcursor mixin is inside
 #       dabo.biz.dBiz. I think this logic should be here in dabo.db.
+import six
 import datetime
 from decimal import Decimal
 from .dConnection import dConnection
@@ -48,13 +49,17 @@ daboTypes = {
 		"D": datetime.date,       ## date
 		"T": datetime.datetime,   ## datetime
 		"N": Decimal,             ## decimal (numeric)
-		"L": buffer,              ## BLOB
+        # TODO23: is this o.k.?
+		"L": memoryview,          ## BLOB
 		}
 
 pythonTypes = dict([[v,k] for k,v in daboTypes.items()])
 pythonTypes[str] = "C"
 pythonTypes[str] = "C"
-del k, v, Decimal
+if six.PY2:
+	del k, v, Decimal
+else:
+	del Decimal
 
 def getPythonType(daboType):
 	"""Given a char type code like "I" or "C", return the associated Python type."""
