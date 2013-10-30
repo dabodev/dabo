@@ -1,6 +1,7 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import six
 import gettext
 from . import locale
 import os
@@ -111,7 +112,10 @@ No translation file found for domain 'dabo'.
     Codeset = %s """ % (daboLocaleDir, ustr(lang), charset))
 			# Default to US English
 			daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=["en"], codeset=charset)
-		_currentTrans = daboTranslation.ugettext
+		if six.PY3:
+			_currentTrans = daboTranslation.gettext
+		else:
+			_currentTrans = daboTranslation.ugettext
 
 	for domain, localedir in list(_domains.items()):
 		if domain == "dabo":
