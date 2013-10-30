@@ -6,7 +6,7 @@ http://dabodev.com
 """
 import sys
 import os
-from . import locale
+import locale
 import logging
 import logging.handlers
 from .settings import *
@@ -210,8 +210,9 @@ if importDebugger:
 	# 		debugout("Another Message", self.Caption)
 	# to their code for debugging.
 	# (I added 'debugo' as an homage to Whil Hentzen!)
-	import builtins
-	builtins.debugo = builtins.debugout = debugout
+	# TODO23: following doesn't work after 2to3?
+	#import builtins
+	#builtins.debugo = builtins.debugout = debugout
 
 if implicitImports:
 	from . import dColors
