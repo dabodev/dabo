@@ -9,12 +9,12 @@ from dabo.lib import utils
 
 
 def fmtPath(testpath):
-    """Format a file path in os.specific format"""
-    return testpath.replace("/",os.sep)
+	"""Format a file path in os.specific format"""
+	return testpath.replace("/",os.sep)
 
 def createTempFile(filename):
-    f = open(filename,"w")
-    f.close()
+	f = open(filename,"w")
+	f.close()
 
 
 class Test_Utils(unittest.TestCase):
@@ -45,8 +45,8 @@ class Test_Utils(unittest.TestCase):
 
 
 	def test_StringFuncs(self):
-		teststring = "This is a very long string with Unicode chars: š”¯ and 1234567890"
-		revstring = "0987654321 dna ¯”š :srahc edocinU htiw gnirts gnol yrev a si sihT"
+		teststring = "This is a very long string with Unicode chars: Å½Å¡â€Â¯ and 1234567890"
+		revstring = "0987654321 dna Â¯â€Å¡Å½ :srahc edocinU htiw gnirts gnol yrev a si sihT"
 		self.assertEqual(utils.reverseText(teststring), revstring)
 		cap = "&File"
 		self.assertEqual(utils.cleanMenuCaption(cap), "File")
@@ -54,7 +54,7 @@ class Test_Utils(unittest.TestCase):
 
 
 	def test_DictFuncs(self):
-		testdict = {u"First": 1, u"Second": 2, "Th”rd": 3}
+		testdict = {u"First": 1, u"Second": 2, "Third": 3}
 		ds = utils.dictStringify(testdict)
 		for kk in ds.keys():
 			self.assertEqual(type(kk), str)
