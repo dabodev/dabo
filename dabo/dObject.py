@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import string
 import types
-import new
 import dabo
 from dabo.lib.propertyHelperMixin import PropertyHelperMixin
 from dabo.lib.eventMixin import EventMixin
@@ -266,7 +265,10 @@ class dObject(PropertyHelperMixin, EventMixin):
 			exec(compCode, nmSpace)
 			mthd = nmSpace[nm]
 			exec("self.%s = %s.__get__(self)" % (nm, nm))
-			newMethod = new.instancemethod(mthd, self)
+			# TODO23: see http://stackoverflow.com/questions/4364565/replacing-the-new-module
+			# TODO23: is this o.k.
+			#newMethod = new.instancemethod(mthd, self)
+			newMethod = types.MethodType(mthd, self)
 			setattr(self, nm, newMethod)
 
 
