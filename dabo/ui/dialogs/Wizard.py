@@ -5,7 +5,7 @@ from dabo.dApp import dApp
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
-from WizardPage import WizardPage
+from .WizardPage import WizardPage
 
 
 class Wizard(dabo.ui.dDialog):
@@ -195,7 +195,7 @@ class Wizard(dabo.ui.dDialog):
 						pg.changeParent(self.pagePanel)
 					page = pg
 				else:
-					if isinstance(pg, basestring):
+					if isinstance(pg, str):
 						xml = pg
 						from dabo.lib.DesignerClassConverter import DesignerClassConverter
 						conv = DesignerClassConverter()

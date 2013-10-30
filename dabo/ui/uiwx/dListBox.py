@@ -4,7 +4,7 @@ import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dControlItemMixin as dcm
+from . import dControlItemMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
@@ -36,7 +36,7 @@ class dListBox(dcm.dControlItemMixin, wx.ListBox):
 
 	def selectAll(self):
 		if self.MultipleSelect:
-			for ii in xrange(self.Count):
+			for ii in range(self.Count):
 				self.SetSelection(ii)
 
 
@@ -46,7 +46,7 @@ class dListBox(dcm.dControlItemMixin, wx.ListBox):
 
 	def invertSelections(self):
 		"""Switch all the items from False to True, and vice-versa."""
-		for ii in xrange(self.Count):
+		for ii in range(self.Count):
 			if self.IsSelected(ii):
 				self.Deselect(ii)
 			else:
@@ -91,20 +91,20 @@ class _dListBox_test(dListBox):
 		self.Value = 23
 
 	def onHit(self, evt):
-		print "HIT:"
-		print "\tKeyValue: ", self.KeyValue
-		print "\tPositionValue: ", self.PositionValue
-		print "\tStringValue: ", self.StringValue
-		print "\tValue: ", self.Value
-		print "\tCount: ", self.Count
+		print("HIT:")
+		print("\tKeyValue: ", self.KeyValue)
+		print("\tPositionValue: ", self.PositionValue)
+		print("\tStringValue: ", self.StringValue)
+		print("\tValue: ", self.Value)
+		print("\tCount: ", self.Count)
 
 	def onMouseLeftDoubleClick(self, evt):
-		print "double click at position %s" % self.PositionValue
+		print("double click at position %s" % self.PositionValue)
 
 	def onMouseLeftDown(self, evt):
-		print "mousedown"
+		print("mousedown")
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dListBox_test)
 

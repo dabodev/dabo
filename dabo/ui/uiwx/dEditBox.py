@@ -4,7 +4,7 @@ import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dTextBoxMixin as tbm
+from . import dTextBoxMixin as tbm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
@@ -128,6 +128,6 @@ It's the Love Boat
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dEditBox_test, WordWrap=True)
 	test.Test().runTest(_dEditBox_test, WordWrap=False)

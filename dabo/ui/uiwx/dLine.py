@@ -4,7 +4,7 @@ import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dControlMixin as cm
+from . import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
 from dabo.lib.utils import ustr
 
@@ -74,5 +74,5 @@ class _dLine_test(dLine):
 		self.Height = 10
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dLine_test)

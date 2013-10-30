@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-import Tkinter, dabo, dabo.ui
+import tkinter, dabo, dabo.ui
 from dabo.lib.utils import ustr
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("tk")
 
-import dControlMixin as cm
+from . import dControlMixin as cm
 
-class dLabel(Tkinter.Label, cm.dControlMixin):
+class dLabel(tkinter.Label, cm.dControlMixin):
 	""" Create a static (not data-aware) label.
 	"""
 	def __init__(self, master, cnf={}, name='dLabel', *args, **kwargs):
@@ -16,7 +16,7 @@ class dLabel(Tkinter.Label, cm.dControlMixin):
 
 		self._beforeInit()
 
-		Tkinter.Label.__init__(self, master, cnf, name=name, *args, **kwargs)
+		tkinter.Label.__init__(self, master, cnf, name=name, *args, **kwargs)
 
 		cm.dControlMixin.__init__(self, name)
 		self._afterInit()
@@ -75,5 +75,5 @@ class dLabel(Tkinter.Label, cm.dControlMixin):
 # 						'   Right')
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(dLabel)

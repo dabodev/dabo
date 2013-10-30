@@ -16,7 +16,7 @@ if dabo.ui.phoenix:
 	dpc = wx.adv
 else:
 	dpc = wx
-import dDataControlMixin as dcm
+from . import dDataControlMixin as dcm
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
@@ -133,7 +133,7 @@ class dDatePicker(dcm.dDataControlMixin, dpc.DatePickerCtrl):
 
 	def setToMonthDay(self, day):
 		val = self.Value
-		if isinstance(day, basestring):
+		if isinstance(day, str):
 			if day[:1].lower() == "f":
 				val = val.replace(day=1)
 			elif day[:1].lower() == "l":
@@ -149,7 +149,7 @@ class dDatePicker(dcm.dDataControlMixin, dpc.DatePickerCtrl):
 
 	def setToYearDay(self, day):
 		val = self.Value
-		if isinstance(day, basestring):
+		if isinstance(day, str):
 			if day[:1].lower() == "f":
 				val = val.replace(month=1, day=1)
 			elif day[:1].lower() == "l":
@@ -181,7 +181,7 @@ class dDatePicker(dcm.dDataControlMixin, dpc.DatePickerCtrl):
 		elif key in (dabo.ui.dKeys.key_Delete, dabo.ui.dKeys.key_Back):
 			self.Value = None
 		else:
-			print key
+			print(key)
 
 	def _setCustomDate(self):
 		days = dabo.ui.getInt(
@@ -226,7 +226,7 @@ class dDatePicker(dcm.dDataControlMixin, dpc.DatePickerCtrl):
 		return val
 
 	def _getWxValue(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = datetime.datetime.strptime(val, "%Y-%m-%d")
 		elif isinstance(val, tuple):
 			val = datetime.datetime(*val)
@@ -270,7 +270,7 @@ class dDatePicker(dcm.dDataControlMixin, dpc.DatePickerCtrl):
 		except ValueError as e:
 			nm = self.Name
 			ue = ustr(e)
-			dabo.log.error(_(u"Object '%(nm)s' has the following error: %(ue)s")
+			dabo.log.error(_("Object '%(nm)s' has the following error: %(ue)s")
 					% locals())
 
 	def _getAllowNullDate(self):
@@ -380,12 +380,12 @@ class dDatePicker(dcm.dDataControlMixin, dpc.DatePickerCtrl):
 
 if __name__ == "__main__":
 	import datetime
-	import test
+	from . import test
 
 	class TestBase(dDatePicker):
 
 		def onValueChanged(self, evt):
-			print "onValueChanged"
+			print("onValueChanged")
 
-	test.Test().runTest(TestBase, AllowNullDate=True, Value=datetime.date(1970,12,03))
+	test.Test().runTest(TestBase, AllowNullDate=True, Value=datetime.date(1970,12,0o3))
 	test.Test().runTest(TestBase, BackColor="orange", PickerMode="Spin", AllowNullDate=True)

@@ -8,6 +8,7 @@ from dabo.dObject import dObject
 from dabo.dPref import dPref
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
+import collections
 
 
 
@@ -146,7 +147,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			except dException.FieldNotFoundException:
 				# See if DataField refers to an attribute of the bizobj:
 				att = getattr(src, self.DataField, None)
-				if callable(att):
+				if isinstance(att, collections.Callable):
 					self.Value = method()
 				else:
 					self.Value = att
@@ -155,10 +156,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		else:
 			if self._srcIsInstanceMethod is None and src is not None:
 				self._srcIsInstanceMethod = False
-				if not isinstance(src, basestring):
+				if not isinstance(src, str):
 					att = getattr(src, self.DataField, None)
 					if att is not None:
-						self._srcIsInstanceMethod = callable(att)
+						self._srcIsInstanceMethod = isinstance(att, collections.Callable)
 
 			if src is None:
 				# Could be testing
@@ -240,7 +241,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		##- #if oldVal is None and curVal is None:
 		##-	# Could be changed and we just don't know it...
 		##- #	isChanged = True
-		if isinstance(self, (dabo.ui.dToggleButton,)):
+		if isinstance(self, dabo.ui.dToggleButton):
 			# These classes change their value before the GotFocus event
 			# can store the oldval, so always flush 'em.
 			oldVal = None
@@ -269,7 +270,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 							att = getattr(self.Source, self.DataField, None)
 							if att is None:
 								raise
-							if callable(att):
+							if isinstance(att, collections.Callable):
 								return
 							setattr(self.Source, self.DataField, curVal)
 						except (dException.NoRecordsException, dException.RowNotFoundException):
@@ -279,22 +280,22 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 					else:
 						# If the binding is to a method, do not try to assign to that method.
 						if self._srcIsInstanceMethod is None:
-							if isinstance(self.DataSource, basestring):
+							if isinstance(self.DataSource, str):
 								self._srcIsInstanceMethod = False
 							else:
-								self._srcIsInstanceMethod = callable(getattr(src, self.DataField))
+								self._srcIsInstanceMethod = isinstance(getattr(src, self.DataField), collections.Callable)
 						if self._srcIsInstanceMethod:
 							return
-						if isinstance(src, basestring):
+						if isinstance(src, str):
 							try:
 								exec ("src.%s = curVal" % self.DataField)
-							except StandardError, e:
+							except Exception as e:
 								dabo.log.error("Could not bind to '%s.%s'\nReason: %s" % (self.DataSource, self.DataField, e))
 						else:
 							# The source is a direct object reference
 							try:
 								src.__setattr__(self.DataField, curVal)
-							except StandardError, e:
+							except Exception as e:
 								if hasattr(self.DataSource, "_name"):
 									nm = self.DataSource._name
 								else:
@@ -348,14 +349,14 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 					value = app.decrypt(value)
 				try:
 					self.Value = value
-				except (ValueError, TypeError), e:
+				except (ValueError, TypeError) as e:
 					dabo.log.error(e)
 
 
 	def getShortDataType(self, value):
-		if isinstance(value, (int, long)):
+		if isinstance(value, int):
 			return "I"
-		elif isinstance(value, basestring):
+		elif isinstance(value, str):
 			return "C"
 		elif isinstance(value, float):
 			return "N"
@@ -481,7 +482,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			self._srcIsBizobj = False
 			if (ds or isinstance(ds, dPref)):
 				# First, see if it's a string
-				if isinstance(ds, basestring):
+				if isinstance(ds, str):
 					# Source can be a bizobj, which we get from the form, or
 					# another object.
 					if ds.lower() == "form":
@@ -521,7 +522,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 									form = form.Form
 							if self.__src:
 								self._srcIsBizobj = True
-				elif callable(ds):
+				elif isinstance(ds, collections.Callable):
 					# Instead of a fixed source, call the function to determine the source.
 					# We *don't* want to store the result in self.__src!
 					return ds()

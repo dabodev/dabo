@@ -2,7 +2,7 @@
 import dabo
 import wx
 import wx.grid
-import dIcons
+from . import dIcons
 
 if dabo.ui.phoenix:
 	gRend = wx.grid.GridCellRenderer

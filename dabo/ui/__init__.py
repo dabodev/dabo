@@ -60,10 +60,10 @@ def loadUI(uiType):
 		try:
 			exec("from %s import *" % mods[typ], globals())
 			retVal = True
-		except Exception, e:
+		except Exception as e:
 			retVal = False
 			# Record the actual problem
-			print _("ui.loadUI failed: %s") % e
+			print(_("ui.loadUI failed: %s") % e)
 			traceback.print_exc()
 	else:
 		if currType == typ:
@@ -98,7 +98,7 @@ def makeDynamicProperty(prop, additionalDoc=None):
 	"""
 	propName = None
 	frame = inspect.currentframe(1)
-	for k, v in frame.f_locals.items():
+	for k, v in list(frame.f_locals.items()):
 		if v is prop:
 			propName = k
 			break
@@ -231,4 +231,4 @@ def makeProxyProperty(dct, nm, proxyAtts):
 # Because some of IDEs uses lexical analysis (Wing) instead of the dynamic
 # analysis (PyDev), the following code should make them happy.
 if False:
-	from uiwx import *
+	from .uiwx import *

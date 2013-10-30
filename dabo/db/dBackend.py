@@ -10,9 +10,9 @@ from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.db import dTable
-from dNoEscQuoteStr import dNoEscQuoteStr
+from .dNoEscQuoteStr import dNoEscQuoteStr
 from dabo.lib.utils import ustr
-from dCursorMixin import dCursorMixin
+from .dCursorMixin import dCursorMixin
 
 
 class dBackend(dObject):
@@ -67,7 +67,7 @@ class dBackend(dObject):
 		if isinstance(val, (datetime.date, datetime.datetime)):
 			# Some databases have specific rules for formatting date values.
 			return self.formatDateTime(val)
-		elif isinstance(val, (int, long, float)):
+		elif isinstance(val, (int, float)):
 			return ustr(val)
 		elif isinstance(val, decimal.Decimal):
 			return ustr(val)

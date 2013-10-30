@@ -4,7 +4,7 @@ import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dControlMixin as cm
+from . import dControlMixin as cm
 
 class dBox(cm.dControlMixin, wx.StaticBox):
 	"""Creates a box for visually grouping objects on your form."""
@@ -30,5 +30,5 @@ class _dBox_test(dBox):
 		self.Height = 20
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dBox_test)

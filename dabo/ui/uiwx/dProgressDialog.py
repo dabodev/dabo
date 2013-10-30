@@ -79,7 +79,7 @@ class WorkerThread(Thread):
 			response = self._func()
 			# Done, send notify:
 			wx.PostEvent(self._notify_window,ResultEvent(response))
-		except Exception, e:
+		except Exception as e:
 			wx.PostEvent(self._notify_window,ExceptionEvent(e))
 
 

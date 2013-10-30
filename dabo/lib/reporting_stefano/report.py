@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from reportlab.pdfgen import canvas
-from serialization import *
-from util import *
+from .serialization import *
+from .util import *
 
 
 class Report(Serializable):

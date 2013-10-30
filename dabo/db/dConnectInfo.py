@@ -63,7 +63,7 @@ class dConnectInfo(dObject):
 		props = ["Name", "DbType", "Host", "User", "Password", "Database",
 				"PlainTextPassword", "Port", "RemoteHost", "KeepAliveInterval"]
 		lprops = [p.lower() for p in props]
-		for k, v in connInfo.items():
+		for k, v in list(connInfo.items()):
 			try:
 				propidx = lprops.index(k.lower())
 			except ValueError:
@@ -155,25 +155,25 @@ class dConnectInfo(dObject):
 			nm = dbType.lower()
 			try:
 				if nm == "mysql":
-					import dbMySQL
+					from . import dbMySQL
 					self._backendObject = dbMySQL.MySQL()
 				elif nm == "sqlite":
-					import dbSQLite
+					from . import dbSQLite
 					self._backendObject = dbSQLite.SQLite()
 				elif nm == "firebird":
-					import dbFirebird
+					from . import dbFirebird
 					self._backendObject = dbFirebird.Firebird()
 				elif nm == "postgresql":
-					import dbPostgreSQL
+					from . import dbPostgreSQL
 					self._backendObject = dbPostgreSQL.Postgres()
 				elif nm == "mssql":
-					import dbMsSQL
+					from . import dbMsSQL
 					self._backendObject = dbMsSQL.MSSQL()
 				elif nm == "oracle":
-					import dbOracle
+					from . import dbOracle
 					self._backendObject = dbOracle.Oracle()
 				elif nm == "web":
-					import dbWeb
+					from . import dbWeb
 					self._backendObject = dbWeb.Web()
 				elif nm == "odbc":
 					import dbODBC
@@ -304,9 +304,9 @@ class dConnectInfo(dObject):
 
 if __name__ == "__main__":
 	test = dConnectInfo()
-	print test.DbType
+	print(test.DbType)
 	test.DbType = "MySQL"
-	print test.DbType
+	print(test.DbType)
 	test.DbType = "SQLite"
-	print test.DbType
+	print(test.DbType)
 

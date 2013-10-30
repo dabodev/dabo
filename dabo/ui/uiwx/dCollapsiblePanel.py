@@ -5,10 +5,10 @@ if __name__ == "__main__":
 
 import wx
 import dabo
-import dControlMixin as dcm
+from . import dControlMixin as dcm
 import wx.lib.agw.pycollapsiblepane as pcp
 from dabo.dLocalize import _
-from dPanel import dPanel
+from .dPanel import dPanel
 
 
 class dCollapsiblePanel(dcm.dControlMixin, pcp.PyCollapsiblePane):
@@ -124,11 +124,11 @@ class _CollapsiblePanelTest(dCollapsiblePanel):
 		panel = self.Panel
 		gs = dabo.ui.dGridSizer(MaxCols=2)
 		gs.append(dabo.ui.dTextBox(panel), "expand")
-		gs.append(dabo.ui.dButton(panel, Caption=u"Test"), "expand")
+		gs.append(dabo.ui.dButton(panel, Caption="Test"), "expand")
 		gs.setColExpand(True, (0, 1))
 		panel.Sizer = gs
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_CollapsiblePanelTest)

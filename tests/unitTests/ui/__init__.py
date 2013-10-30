@@ -8,7 +8,7 @@ import unittest
 suiteList = []
 
 #import test module suites and add to list here
-import UIwx
+from . import UIwx
 suiteList.append(UIwx.suite())
 
 #import TestCase suites and add to list here

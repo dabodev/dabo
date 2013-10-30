@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import cStringIO
+import io
 import imghdr
 import os
 
@@ -15,8 +15,8 @@ from dabo.dLocalize import _
 from dabo.lib import utils
 
 #import dControlMixin as dcm
-from dDataControlMixin import dDataControlMixin as dcm
-import dImageMixin as dim
+from .dDataControlMixin import dDataControlMixin as dcm
+from . import dImageMixin as dim
 from dabo.ui import makeDynamicProperty
 
 # See if PIL is installed
@@ -150,8 +150,8 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 					if hnd.LoadFile(fname):
 						ret = (hnd.GetName(), hnd.GetExtension())
 						break
-				except StandardError, e:
-					print "ERROR", e
+				except Exception as e:
+					print("ERROR", e)
 		return ret
 
 
@@ -194,7 +194,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		rotCount = (ds - 1) % 4
 		if mirrored:
 			img = img.Mirror()
-		for rot in xrange(rotCount):
+		for rot in range(rotCount):
 			img = img.Rotate90(True)
 
 		w, h = origW, origH = self.Width, self.Height
@@ -245,7 +245,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		self.Freeze()
 		try:
 			self.SetBitmap(self.Bitmap)
-		except TypeError, e: pass
+		except TypeError as e: pass
 		self.Thaw()
 		self.SetSize((origW, origH))
 		self._inShowPic = False
@@ -289,7 +289,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self.__image = val.ConvertToImage()
 			self._picture = "(stream)"
 		elif isinstance(val, buffer):
-			val = cStringIO.StringIO(val)
+			val = io.StringIO(val)
 			img = wx.EmptyImage()
 			img.LoadStream(val)
 			self._setPicture(img)
@@ -393,7 +393,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				if isFile:
 					try:
 						self._imageData = open(val, "rb").read()
-					except StandardError:
+					except Exception:
 						pass
 				else:
 					# Probably an image stream

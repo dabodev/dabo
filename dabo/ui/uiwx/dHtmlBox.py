@@ -4,8 +4,8 @@ import os
 import re
 import string
 import types
-import urllib2
-import urlparse
+import urllib.request, urllib.error, urllib.parse
+import urllib.parse
 import datetime
 import dabo
 from dabo.dLocalize import _
@@ -13,7 +13,7 @@ import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-import dControlMixin as cm
+from . import dControlMixin as cm
 try:
 	import webbrowser as wb
 except ImportError:
@@ -80,7 +80,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		elif queryString.startswith("form://"):
 			obj = self.Form
 		else:
-			raise ValueError, _("Internal link must resolve to Form or Application.")
+			raise ValueError(_("Internal link must resolve to Form or Application."))
 		queryString = queryString[queryString.index("//") + 2:]
 		try:
 			meth, args = queryString.split("?")
@@ -156,7 +156,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		if not self._constructed():
 			self._properties["Page"] = val
 			return
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			try:
 				if os.path.exists(val):
 					file = open(val, "r")
@@ -168,15 +168,15 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 					# See if the current page starts with it
 					if self._page.startswith("http://"):
 						# Join it to the current URL
-						val = urlparse.urljoin(self._page, val)
+						val = urllib.parse.urljoin(self._page, val)
 					else:
 						# Assume that it's an HTTP request
 						val = "http://" + val
-				url = urllib2.urlopen(val)
+				url = urllib.request.urlopen(val)
 				self._source = url.read()
 				self.LoadPage(val)
 				self._page = val
-			except urllib2.URLError:
+			except urllib.error.URLError:
 				self._source = "<html><body>Cannot Open URL %s</body><html>" % (val,)
 				self._page = ""
 				self.SetPage(self._source)
@@ -200,7 +200,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		if not self._constructed():
 			self._properties["Source"] = val
 			return
-		if isinstance(val, types.StringTypes):
+		if isinstance(val, str):
 			self._source = val
 			self._page = ""
 			val = self.setImageURLs(val)
@@ -308,11 +308,11 @@ class _dHtmlBox_test(dHtmlBox):
 		""" % datetime.date.today().year
 
 	def onMouseLeftDown(self, evt):
-		print "mousedown"
+		print("mousedown")
 		self.SetFocusIgnoringChildren()
 
 	def onKeyDown(self, evt):
-		print "Key Code:", evt.EventData["keyCode"]
+		print("Key Code:", evt.EventData["keyCode"])
 
 
 def textChangeHandler(evt):

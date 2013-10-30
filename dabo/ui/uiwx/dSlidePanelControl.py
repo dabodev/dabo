@@ -8,7 +8,7 @@ if dabo.ui.phoenix:
 	import wx.lib.agw.foldpanelbar as fpb
 else:
 	import wx.lib.foldpanelbar as fpb
-import dControlMixin as dcm
+from . import dControlMixin as dcm
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 from dabo.dLocalize import _
@@ -191,7 +191,7 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 	def _getBarStyle(self):
 		wxbs = self._captionBar.GetCaptionStyle()._captionStyle
-		lowerStyle = [k for k,v in self._barStyleConstants.items()
+		lowerStyle = [k for k,v in list(self._barStyleConstants.items())
 				if v == wxbs][0]
 		return self._barStyles[list(self._barStylesLow).index(lowerStyle)]
 
@@ -425,7 +425,7 @@ class dSlidePanelControl(dcm.dControlMixin, fpb.FoldPanelBar):
 			if not "Caption" in kwargs:
 				raise ValueError(_("You must specify a Caption when adding a panel"))
 			pnl = dabo.ui.dSlidePanel(self, **kwargs)
-		elif isinstance(pnl, basestring):
+		elif isinstance(pnl, str):
 			# Just the caption; create the panel and use that
 			pnl = dabo.ui.dSlidePanel(self, Caption=pnl, **kwargs)
 		return pnl

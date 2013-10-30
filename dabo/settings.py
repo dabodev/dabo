@@ -257,6 +257,6 @@ sys.path.append(os.getcwd())
 
 # Do not copy/paste anything below this line into settings_override.py.
 try:
-	from settings_override import *
+	from .settings_override import *
 except ImportError:
 	pass

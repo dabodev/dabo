@@ -7,9 +7,9 @@ import dabo.dEvents as dEvents
 from dabo.dApp import dApp
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from BubblePanel import BubblePanel
-from BubbleBizobj import BubbleBizobj
-from StatsForm import StatsForm
+from .BubblePanel import BubblePanel
+from .BubbleBizobj import BubbleBizobj
+from .StatsForm import StatsForm
 
 
 class BubbletForm(dabo.ui.dForm):

@@ -2,7 +2,7 @@
 import time
 import wx
 import dabo
-import dFormMixin as fm
+from . import dFormMixin as fm
 
 
 class dFormMainBase(fm.dFormMixin):
@@ -58,5 +58,5 @@ class dFormMain(dFormMainBase, wx.Frame):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(dFormMain)

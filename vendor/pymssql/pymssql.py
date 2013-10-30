@@ -64,10 +64,10 @@ DECIMAL = DBAPITypeObject(_mssql.DECIMAL)
 
 ### exception hierarchy
 
-class Warning(StandardError):
+class Warning(Exception):
 	pass
 
-class Error(StandardError):
+class Error(Exception):
 	pass
 
 class InterfaceError(Error):
@@ -118,8 +118,8 @@ class pymssqlCursor:
 		# "The parameters may also be specified as list of
 		# tuples to e.g. insert multiple rows in a single
 		# operation, but this kind of usage is depreciated:
-		if params and type(params) == types.ListType and \
-					type(params[0]) == types.TupleType:
+		if params and type(params) == list and \
+					type(params[0]) == tuple:
 			self.executemany(operation, params)
 		else:
 			# not a list of tuples
@@ -147,13 +147,13 @@ class pymssqlCursor:
 					totrows = totrows + self._result[self.__resultpos][1]
 				else:
 				    self._result = None
-				    raise DatabaseError, "error: %s" % self.__source.errmsg()
+				    raise DatabaseError("error: %s" % self.__source.errmsg())
 		except:
-			raise DatabaseError, "internal error: %s" % self.__source.errmsg()
+			raise DatabaseError("internal error: %s" % self.__source.errmsg())
 
 		# then initialize result raw count and description
 		if len(self._result[self.__resultpos][0]) > 0:
-			self.description = map(lambda (colname,coltype): (colname, coltype, None, None, None, None, None),self._result[self.__resultpos][0])
+			self.description = [(colname_coltype[0], colname_coltype[1], None, None, None, None, None) for colname_coltype in self._result[self.__resultpos][0]]
 			self.rowcount = totrows
 		else:
 			self.description = None
@@ -200,10 +200,10 @@ class pymssqlCursor:
 		pass
 
 def _quote(x):
-	if isinstance(x,basestring):
+	if isinstance(x,str):
 		x = "'" + string.replace(str(x), "'", "''") + "'"
 	#elif type(x) in (types.IntType, types.LongType, types.FloatType):
-	elif isinstance(x, (int, long, float)):
+	elif isinstance(x, (int, float)):
 		pass
 	elif x is None:
 		x = 'NULL'
@@ -223,14 +223,14 @@ def _quote(x):
 	#	x = time.strftime('\'%Y%m%d %H:%M:%S\'', x.timetuple())
 	else:
 		#print "didn't like " + x + " " + str(type(x))
-		raise InterfaceError, 'do not know how to handle type %s' % type(x)
+		raise InterfaceError('do not know how to handle type %s' % type(x))
 
 	return x
 
 def _quoteparams(s, params):
 	if hasattr(params, 'has_key'):
 		x = {}
-		for k, v in params.items():
+		for k, v in list(params.items()):
 			x[k] = _quote(v)
 		params = x
 	else:
@@ -249,43 +249,43 @@ class pymssqlCnx:
 			self.__cnx.query("begin tran")
 			self.__cnx.fetch_array()
 		except:
-			raise OperationalError, "invalid connection."
+			raise OperationalError("invalid connection.")
 
 	def close(self):
 		if self.__cnx == None:
-			raise OperationalError, "invalid connection."
+			raise OperationalError("invalid connection.")
 		self.__cnx.close()
 		self.__cnx = None
 
 	def commit(self):
 		if self.__cnx == None:
-			raise OperationalError, "invalid connection."
+			raise OperationalError("invalid connection.")
 		try:
 			self.__cnx.query("commit tran")
 			self.__cnx.fetch_array()
 			self.__cnx.query("begin tran")
 			self.__cnx.fetch_array()
 		except:
-			raise OperationalError, "can't commit."
+			raise OperationalError("can't commit.")
 
 	def rollback(self):
 		if self.__cnx == None:
-			raise OperationalError, "invalid connection."
+			raise OperationalError("invalid connection.")
 		try:
 			self.__cnx.query("rollback tran")
 			self.__cnx.fetch_array()
 			self.__cnx.query("begin tran")
 			self.__cnx.fetch_array()
 		except:
-			raise OperationalError, "can't rollback."
+			raise OperationalError("can't rollback.")
 
 	def cursor(self):
 		if self.__cnx == None:
-			raise OperationalError, "invalid connection."
+			raise OperationalError("invalid connection.")
 		try:
 			return pymssqlCursor(self.__cnx)
 		except:
-			raise OperationalError, "invalid connection."
+			raise OperationalError("invalid connection.")
 	
 	
 	##### Added by EGL for Dabo, 2006.12.28

@@ -11,7 +11,7 @@ suiteList = []
 
 
 #import TestCase suites and add to list here
-import Test_dTextBox
+from . import Test_dTextBox
 suiteList.append(unittest.TestLoader().loadTestsFromModule(Test_dTextBox))
 
 #setup a suite and return it

@@ -62,8 +62,8 @@ class dDataSet(tuple):
 		# Register the converters
 		sqlite.register_converter("decimal", self._convert_decimal)
 
-		self._typeDict = {int: "integer", long: "integer", str: "text",
-				unicode: "text", float: "real", datetime.date: "date",
+		self._typeDict = {int: "integer", int: "integer", str: "text",
+				str: "text", float: "real", datetime.date: "date",
 				datetime.datetime: "timestamp", Decimal: "decimal"}
 
 
@@ -117,7 +117,7 @@ class dDataSet(tuple):
 			scope = self._fldReplace(scope, "rec")
 
 		literal = True
-		if isinstance(valOrExpr, basestring):
+		if isinstance(valOrExpr, str):
 			if valOrExpr.strip()[0] == "=":
 				literal = False
 				valOrExpr = valOrExpr.replace("=", "", 1)
@@ -384,7 +384,7 @@ class dDataSet(tuple):
 # 		print "POPULATED", pt-st
 		# Now create any of the tables for the join dDataSets
 		if cursorDict is not None:
-			for alias, ds in cursorDict.items():
+			for alias, ds in list(cursorDict.items()):
 				self._populate(ds, alias)
 
 		# We have a table now with the necessary data. Run the query!
@@ -736,22 +736,22 @@ if __name__ == "__main__":
 	ds = dDataSet(data)
 
 	newDS = ds.execute("select name, age from dataset where age > 30")
-	print "Over 30:"
+	print("Over 30:")
 	for rec in newDS:
-		print "\tName: %(name)s, Age: %(age)s" % rec
+		print("\tName: %(name)s, Age: %(age)s" % rec)
 
 	emptyDS = ds.filter("age", 99, "gt")
 	if not emptyDS:
-		print "No one is over 99 years old"
+		print("No one is over 99 years old")
 	else:
-		print "There are %s people over 99 years old" % len(emptyDS)
+		print("There are %s people over 99 years old" % len(emptyDS))
 	filt = emptyDS.filter("foo", "bar")
 
 	leafeDS = ds.filter("name", "Leafe", "endswith")
 	if not leafeDS:
-		print "No one is is named 'Leafe'"
+		print("No one is is named 'Leafe'")
 	else:
-		print "There are %s people named 'Leafe'" % len(leafeDS)
+		print("There are %s people named 'Leafe'" % len(leafeDS))
 	orig = leafeDS.removeFilters()
-	print "The original dataset has %s records." % len(orig)
+	print("The original dataset has %s records." % len(orig))
 

@@ -9,7 +9,7 @@ from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dDataControlMixin as dcm
+from . import dDataControlMixin as dcm
 import dabo.dColors as dColors
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -47,7 +47,7 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 		"""
 		if fileOrObj is None:
 			fileOrObj = dabo.ui.getFile("xml", "html")
-		if isinstance(fileOrObj, basestring):
+		if isinstance(fileOrObj, str):
 			mthdName = "LoadFile"
 		else:
 			mthdName = "LoadStream"
@@ -57,8 +57,8 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 			try:
 				if mthd(buff, fileOrObj):
 					break
-			except StandardError, e:
-				print e, type(e)
+			except Exception as e:
+				print(e, type(e))
 		dabo.ui.callAfter(self.Form.refresh)
 
 
@@ -498,7 +498,7 @@ class RichTextTestForm(dabo.ui.dForm):
 		tb.appendControl(self.tbFontFace)
 		self.tbFontSize = dabo.ui.dDropdownList(tb, Caption="FontSize",
 				ValueMode="String", OnHit=self.onSetFontSize)
-		self.tbFontSize.Choices = [ustr(i) for i in xrange(6, 129)]
+		self.tbFontSize.Choices = [ustr(i) for i in range(6, 129)]
 
 		# Tried a spinner, but this doesn't work in toolbars.
 # 		self.tbFontSize = dabo.ui.dSpinner(tb,

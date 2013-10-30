@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-import dPemMixin as pm
-import dMenu
+from . import dPemMixin as pm
+from . import dMenu
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
@@ -144,7 +144,7 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		"""
 		if isinstance(indexOrMenu, dabo.ui.dMenu):
 			index = self.getMenuIndex(indexOrMenu.Caption)
-		elif isinstance(indexOrMenu, basestring):
+		elif isinstance(indexOrMenu, str):
 			# They passed a caption
 			index = self.getMenuIndex(indexOrMenu)
 		else:

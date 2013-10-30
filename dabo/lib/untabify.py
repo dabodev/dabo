@@ -13,9 +13,9 @@ def main():
 		opts, args = getopt.getopt(sys.argv[1:], "t:")
 		if not args:
 			raise getopt.error("At least one file argument required")
-	except getopt.error, msg:
-		print msg
-		print "usage:", sys.argv[0], "[-t tabwidth] file ..."
+	except getopt.error as msg:
+		print(msg)
+		print("usage:", sys.argv[0], "[-t tabwidth] file ...")
 		return
 	for optname, optvalue in opts:
 		if optname == '-t':
@@ -29,8 +29,8 @@ def process(filename, tabsize, saveBackup=True):
 		f = open(filename)
 		text = f.read()
 		f.close()
-	except IOError, msg:
-		print "%r: I/O error: %s" % (filename, msg)
+	except IOError as msg:
+		print("%r: I/O error: %s" % (filename, msg))
 		return
 	newtext = text.expandtabs(tabsize)
 	if newtext == text:

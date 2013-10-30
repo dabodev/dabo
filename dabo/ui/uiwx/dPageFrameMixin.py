@@ -5,8 +5,8 @@ import dabo
 import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-import dControlMixin as cm
-from dPage import dPage
+from . import dControlMixin as cm
+from .dPage import dPage
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -122,7 +122,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		"""
 		if key is None:
 			key = ustr(img)
-		if isinstance(img, basestring):
+		if isinstance(img, str):
 			img = dabo.ui.strToBmp(img)
 		il = self.GetImageList()
 		if not il:
@@ -203,7 +203,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			pg = pgCls
 		else:
 			# See if the 'pgCls' is either some XML or the path of an XML file
-			if isinstance(pgCls, basestring):
+			if isinstance(pgCls, str):
 				xml = pgCls
 				from dabo.lib.DesignerClassConverter import DesignerClassConverter
 				conv = DesignerClassConverter()

@@ -24,21 +24,21 @@ for daboName in daboNames:
 					dabo_to_wx[daboName] = ustr(mro)[8:-2]
 				break
 
-daboNames = dabo_to_wx.items()
+daboNames = list(dabo_to_wx.items())
 daboNames.sort()
 
-for k,v in dabo_to_wx.iteritems():
+for k,v in dabo_to_wx.items():
 	wxClasses = wx_to_dabo.setdefault(v, [])
 	wxClasses.append(k)
 
 #wxNames = dict([[v,k] for k,v in dabo_to_wx.iteritems()]).items()
-wxNames = wx_to_dabo.items()
+wxNames = list(wx_to_dabo.items())
 wxNames.sort()
 
 for eachItem in daboNames:
-	print "%s = %s" % (eachItem[0], eachItem[1])
+	print("%s = %s" % (eachItem[0], eachItem[1]))
 
-print "\n\n"
+print("\n\n")
 
 for eachItem in wxNames:
-	print "%s = %s" % (eachItem[0], ", ".join(eachItem[1]))
+	print("%s = %s" % (eachItem[0], ", ".join(eachItem[1])))

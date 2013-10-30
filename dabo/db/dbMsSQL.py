@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 from dabo.dLocalize import _
-from dBackend import dBackend
+from .dBackend import dBackend
 from dabo.lib.utils import ustr
 
 
@@ -181,7 +181,7 @@ select table_schema + '.' + table_name AS table_name
 			"VAR_STRING": "C",
 			"YEAR": "?"}[nativeType.upper()]
 		except KeyError:
-			print 'KeyError:', nativeType
+			print('KeyError:', nativeType)
 			ret = '?'
 		return ret
 

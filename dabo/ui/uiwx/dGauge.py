@@ -7,7 +7,7 @@ from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dControlMixin as cm
+from . import dControlMixin as cm
 import dabo.dEvents as dEvents
 
 
@@ -119,5 +119,5 @@ class _dGauge_test(dGauge):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dGauge_test)

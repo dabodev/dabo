@@ -182,8 +182,8 @@ def dictStringify(dct):
 	unicode keys changed to strings.
 	"""
 	ret = {}
-	for kk, vv in dct.items():
-		if isinstance(kk, unicode):
+	for kk, vv in list(dct.items()):
+		if isinstance(kk, str):
 			try:
 				ret[str(kk)] = vv
 			except UnicodeEncodeError:
@@ -207,14 +207,14 @@ def ustr(value):
 	When converting to a string, do not use the str() function, which
 	can create encoding errors with non-ASCII text.
 	"""
-	if isinstance(value, unicode):
+	if isinstance(value, str):
 		# Don't change the encoding of an object that is already unicode.
 		return value
 	if isinstance(value, Exception):
 		return exceptionToUnicode(value)
 	try:
 		## Faster for all-ascii strings and converting from non-basestring types::
-		return unicode(value)
+		return str(value)
 	except UnicodeDecodeError:
 		# Most likely there were bytes whose integer ordinal were > 127 and so the
 		# default ASCII codec used by unicode() couldn't decode them.
@@ -225,7 +225,7 @@ def ustr(value):
 		pass
 	for ln in getEncodings():
 		try:
-			return unicode(value, ln)
+			return str(value, ln)
 		except UnicodeError:
 			pass
 	raise UnicodeError("Unable to convert '%r'." % value)
@@ -243,7 +243,7 @@ def exceptionToUnicode(e):
 	try:
 		return ustr(e)
 	except:
-		return u"Unknown message."
+		return "Unknown message."
 
 
 def relativePathList(toLoc, fromLoc=None):
@@ -318,8 +318,8 @@ def resolveAttributePathing(atts, pth=None, abspath=False):
 	those new values.
 	"""
 	prfx = getPathAttributePrefix()
-	pathsToConvert = ((kk, vv) for kk, vv in atts.items()
-			if isinstance(vv, basestring) and vv.startswith(prfx))
+	pathsToConvert = ((kk, vv) for kk, vv in list(atts.items())
+			if isinstance(vv, str) and vv.startswith(prfx))
 	for convKey, convVal in pathsToConvert:
 		# Strip the path designator
 		convVal = convVal.replace(prfx, "")

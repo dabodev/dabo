@@ -9,8 +9,8 @@ from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dControlMixin as cm
-import dDataControlMixin as dcm
+from . import dControlMixin as cm
+from . import dDataControlMixin as dcm
 
 
 class _BasePanelMixin(object):
@@ -429,13 +429,13 @@ class _dPanel_test(dPanel):
 		self.BackColor = self._normBack
 
 	def onMouseLeftDown(self, evt):
-		print "mousedown"
+		print("mousedown")
 
 	def onPaint(self, evt):
-		print "paint"
+		print("paint")
 
 	def onKeyDown(self, evt):
-		print evt.EventData["keyCode"]
+		print(evt.EventData["keyCode"])
 
 
 class _dScrollPanel_test(dScrollPanel):
@@ -448,38 +448,38 @@ class _dScrollPanel_test(dScrollPanel):
 		self.SetScrollbars(10,10,100,100)
 
 	def onMouseLeftDown(self, evt):
-		print "mousedown"
+		print("mousedown")
 		self.SetFocusIgnoringChildren()
 
 	def onPaint(self, evt):
-		print "paint"
+		print("paint")
 
 	def onKeyDown(self, evt):
-		print evt.EventData["keyCode"]
+		print(evt.EventData["keyCode"])
 
 	def onScrollLineUp(self, evt):
 		if evt.orientation == "Horizontal":
-			print "Scroll Line Left"
+			print("Scroll Line Left")
 		else:
-			print "Scroll Line Up"
+			print("Scroll Line Up")
 
 	def onScrollLineDown(self, evt):
 		if evt.orientation == "Horizontal":
-			print "Scroll Line Right"
+			print("Scroll Line Right")
 		else:
-			print "Scroll Line Down"
+			print("Scroll Line Down")
 
 	def onScrollPageUp(self, evt):
 		if evt.orientation == "Horizontal":
-			print "Scroll Page Left"
+			print("Scroll Page Left")
 		else:
-			print "Scroll Page Up"
+			print("Scroll Page Up")
 
 	def onScrollPageDown(self, evt):
 		if evt.orientation == "Horizontal":
-			print "Scroll Page Right"
+			print("Scroll Page Right")
 		else:
-			print "Scroll Page Down"
+			print("Scroll Page Down")
 
 
 
@@ -510,7 +510,7 @@ if __name__ == "__main__":
 # 	app.start()
 
 
-	import test
+	from . import test
 	test.Test().runTest(_dPanel_test)
 	test.Test().runTest(_dScrollPanel_test)
 

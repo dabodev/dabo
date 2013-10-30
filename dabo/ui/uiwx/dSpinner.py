@@ -12,7 +12,7 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 
-import dDataControlMixin as dcm
+from . import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -256,7 +256,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 		type. If such a conversion is not possible, returns None.
 		"""
 		ret = val
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			if val.count(locale.localeconv()["decimal_point"]) > 0:
 				func = decimal
 			else:
@@ -354,7 +354,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 	def _setValue(self, val):
 		if self._constructed():
 			self._proxy_textbox._inDataUpdate = self._inDataUpdate
-			if isinstance(val, (int, long, float, decimal)):
+			if isinstance(val, (int, float, decimal)):
 				self._proxy_textbox.Value = val
 			else:
 				numVal = self._numericStringVal(val)
@@ -431,29 +431,29 @@ class _dSpinner_test(dSpinner):
 		self.Width = 80
 
 	def onHit(self, evt):
-		print "HIT!", self.Value, "Hit Type", evt.hitType
+		print("HIT!", self.Value, "Hit Type", evt.hitType)
 
 	def onValueChanged(self, evt):
-		print "Value Changed", self.Value
-		print "___"
+		print("Value Changed", self.Value)
+		print("___")
 
 	def onInteractiveChange(self, evt):
-		print "Interactive Change", self.Value
+		print("Interactive Change", self.Value)
 
 	def onSpinUp(self, evt):
-		print "Spin up event."
+		print("Spin up event.")
 
 	def onSpinDown(self, evt):
-		print "Spin down event."
+		print("Spin down event.")
 
 	def onSpinner(self, evt):
-		print "Spinner event."
+		print("Spinner event.")
 
 
 if __name__ == "__main__":
 	from dabo.dApp import dApp
 	class Test(dabo.ui.dForm):
-		def OH(self, evt): print "HIT"
+		def OH(self, evt): print("HIT")
 		def afterInitAll(self):
 			self.spn = _dSpinner_test(self, Value=3, OnHit=self.OH)
 			self.spn2 = dSpinner(self, Value=3, Max=10, Min=1, Top=75, Width=60)

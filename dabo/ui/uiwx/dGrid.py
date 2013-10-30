@@ -13,15 +13,16 @@ import wx
 import wx.grid
 import dabo
 from dabo.ui import makeDynamicProperty
+from functools import reduce
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.dLocalize import _, n_
 from dabo.lib.utils import ustr
-import dControlMixin as cm
-import dKeys
-import dUICursors
+from . import dControlMixin as cm
+from . import dKeys
+from . import dUICursors
 import dabo.biz
 import dabo.dColors as dColors
 from dabo.dObject import dObject
@@ -133,11 +134,11 @@ class dGridDataTable(wxGTclass):
 			if isinstance(col.DataType, type):
 				typeDict = {
 					str : "string",
-					unicode : "unicode",
+					str : "unicode",
 					bool : "bool",
 					int : "integer",
 					float : "float",
-					long : "long",
+					int : "long",
 					datetime.date : "date",
 					datetime.datetime : "datetime",
 					datetime.time : "time",
@@ -182,9 +183,9 @@ class dGridDataTable(wxGTclass):
 				lowtyp = "decimal"
 		if lowtyp in (bool, "bool", "boolean", "logical", "l"):
 			ret = wx.grid.GRID_VALUE_BOOL
-		if lowtyp in (int, long, "int", "integer", "bigint", "i", "long"):
+		if lowtyp in (int, int, "int", "integer", "bigint", "i", "long"):
 			ret = wx.grid.GRID_VALUE_NUMBER
-		elif lowtyp in (str, unicode, "char", "varchar", "text", "c", "s"):
+		elif lowtyp in (str, str, "char", "varchar", "text", "c", "s"):
 			ret = wx.grid.GRID_VALUE_STRING
 		elif lowtyp in (float, "float", "f", "decimal"):
 			ret = wx.grid.GRID_VALUE_FLOAT
@@ -490,7 +491,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _beforeInit(self):
 		# Define the cell renderer and editor classes
-		import gridRenderers
+		from . import gridRenderers
 		self.stringRendererClass = wx.grid.GridCellStringRenderer
 		self.wrapStringRendererClass = wx.grid.GridCellAutoWrapStringRenderer
 		self.boolRendererClass = gridRenderers.BoolRenderer
@@ -522,12 +523,12 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			"float" : self.floatRendererClass,
 			"list" : self.listRendererClass,
 			str : self.stringRendererClass,
-			unicode : self.stringRendererClass,
+			str : self.stringRendererClass,
 			datetime.date : self.stringRendererClass,
 			datetime.datetime : self.stringRendererClass,
 			bool : self.boolRendererClass,
 			int : self.intRendererClass,
-			long : self.longRendererClass,
+			int : self.longRendererClass,
 			float : self.floatRendererClass,
 			Decimal: self.decimalRendererClass,
 			list : self.listRendererClass}
@@ -544,12 +545,12 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			"float" : self.floatEditorClass,
 			"list" : self.listEditorClass,
 			str : self.stringEditorClass,
-			unicode : self.stringEditorClass,
+			str : self.stringEditorClass,
 			datetime.date : self.stringEditorClass,
 			datetime.datetime : self.stringEditorClass,
 			bool : self.boolEditorClass,
 			int : self.intEditorClass,
-			long : self.longEditorClass,
+			int : self.longEditorClass,
 			float : self.floatEditorClass,
 			Decimal: self.decimalEditorClass,
 			list : self.listEditorClass}
@@ -585,7 +586,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	@dabo.ui.deadCheck
 	def _updateDynamicProps(self):
-		for prop, func in self._dynamic.items():
+		for prop, func in list(self._dynamic.items()):
 			if prop[:4] != "Cell":
 				if isinstance(func, tuple):
 					args = func[1:]
@@ -598,7 +599,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _updateCellDynamicProps(self, row):
 		kwargs = {"row": row}
 		self._cellDynamicRow = row
-		for prop, func in self._dynamic.items():
+		for prop, func in list(self._dynamic.items()):
 			if prop[:4] == "Cell":
 				if isinstance(func, tuple):
 					args = func[1:]
@@ -870,7 +871,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _setBackColor(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			self._gridColAttr.SetBackgroundColour(val)
 			self._refreshGrid()
@@ -902,7 +903,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _setCellBackColor(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			self._setCellProp("SetBackgroundColour", val)
 		else:
@@ -936,7 +937,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _setCellForeColor(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			self._setCellProp("SetTextColour", val)
 		else:
@@ -1015,7 +1016,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _setDataType(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				if val.lower().strip() in ("str", "string", "char", "varchar", ""):
 					val = "str"
 			if self._dataType == val:
@@ -1166,7 +1167,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _setForeColor(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			self._gridColAttr.SetTextColour(val)
 			self._refreshGrid()
@@ -1258,7 +1259,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _setHeaderBackColor(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			self._headerBackColor = val
 			self._refreshHeader()
@@ -1275,7 +1276,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _setHeaderForeColor(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			self._headerForeColor = val
 			self._refreshHeader()
@@ -1333,7 +1334,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _setAutoHorizontalAlignment(self):
 		dt = self.DataType
-		if isinstance(dt, basestring):
+		if isinstance(dt, str):
 			if dt in ("decimal", "float", "long", "integer"):
 				self._setHorizontalAlignment("Right", _autoAlign=True)
 
@@ -1540,11 +1541,11 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			if val != self._wordWrap:
 				self._wordWrap = val
 				if val:
-					for typ in (unicode, "str", "string"):
+					for typ in (str, "str", "string"):
 						self.defaultRenderers[typ] = self.wrapStringRendererClass
 						self.defaultEditors[typ] = self.wrapStringEditorClass
 				else:
-					for typ in (unicode, "str", "string"):
+					for typ in (str, "str", "string"):
 						self.defaultRenderers[typ] = self.stringRendererClass
 						self.defaultEditors[typ] = self.stringEditorClass
 				self._updateEditor()
@@ -2127,7 +2128,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def SetValue(self, row, col, val):
 		try:
 			self._Table.SetValue(row, col, val)
-		except StandardError, e:
+		except Exception as e:
 			super(dGrid, self).SetCellValue(row, col, val)
 			# Update the main data source
 			self._setCellValue(row, col, val)
@@ -2145,7 +2146,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				biz.setFieldVal(fld, val)
 			else:
 				self.DataSet[row][fld] = val
-		except StandardError, e:
+		except Exception as e:
 			dabo.log.error("Cannot update data set: %s" % e)
 
 
@@ -2205,7 +2206,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				return None
 		try:
 			pyType = biz.getDataTypeForField(df)
-		except ValueError, e:
+		except ValueError as e:
 			dabo.log.error(e)
 			return None
 		return pyType
@@ -2290,7 +2291,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _updateDaboVisibleColumns(self):
 		try:
 			self._daboVisibleColumns = [e[0] for e in enumerate(self._columns) if e[1].Visible]
-		except dabo.ui.assertionException, e:
+		except dabo.ui.assertionException as e:
 			# Can happen when an editor is active and columns resize
 			vis = []
 			for pos, col in enumerate(self._columns):
@@ -2362,7 +2363,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			colDict[col.DataField] = val
 		# Now add as many rows as specified
 		ds = []
-		for cnt in xrange(self.emptyRowsToAdd):
+		for cnt in range(self.emptyRowsToAdd):
 			ds.append(colDict)
 
 		self.emptyRowsToAdd = 0
@@ -2406,7 +2407,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if colTypes is None:
 			colTypes = {}
 
-		if isinstance(ds, basestring) or isinstance(ds, dabo.biz.dBizobj):
+		if isinstance(ds, str) or isinstance(ds, dabo.biz.dBizobj):
 			# Assume it is a bizobj datasource.
 			if self.DataSource != ds:
 				self.DataSource = ds
@@ -2440,7 +2441,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# not a bizobj datasource
 			firstRec = ds[0]
 
-		colKeys = [key for key in firstRec.keys()
+		colKeys = [key for key in list(firstRec.keys())
 				   if (includeFields is None or key in includeFields)]
 
 		# Add the columns
@@ -2527,7 +2528,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if self.SameSizeRows:
 			ret = self.RowHeight * self.RowCount
 		else:
-			ret = sum([self.GetRowSize(r) for r in xrange(self.RowCount)])
+			ret = sum([self.GetRowSize(r) for r in range(self.RowCount)])
 		if self.ShowHeaders:
 			ret += self.HeaderHeight
 		if addScrollBar and self.isScrollBarVisible("h"):
@@ -2615,7 +2616,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		Set colNum='all' to auto-size all columns. Set persist=True to persist the
 		new width to the user settings table.
 		"""
-		if isinstance(colNum, basestring) and colNum.lower() == "all":
+		if isinstance(colNum, str) and colNum.lower() == "all":
 			self.BeginBatch()
 			self._inAutoSizeLoop = True
 			for ii in range(len(self.Columns)):
@@ -2739,7 +2740,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				left = headerRect[0] + sortIconBuffer
 				top = headerRect[1] + sortIconBuffer
 				brushColor = self.SortIndicatorColor
-				if isinstance(brushColor, basestring):
+				if isinstance(brushColor, str):
 					brushColor = dColors.colorTupleFromName(brushColor)
 				dc.SetBrush(wx.Brush(brushColor, wx.SOLID))
 				if self.sortOrder == "DESC":
@@ -3032,11 +3033,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 						dataType = "date"
 					elif isinstance(f, datetime.datetime):
 						dataType = "datetime"
-					elif isinstance(f, unicode):
+					elif isinstance(f, str):
 						dataType = "unicode"
 					elif isinstance(f, str):
 						dataType = "string"
-					elif isinstance(f, long):
+					elif isinstance(f, int):
 						dataType = "long"
 					elif isinstance(f, int):
 						dataType = "int"
@@ -3044,7 +3045,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 						dataType = "decimal"
 					else:
 						dataType = None
-					sortingStrings = isinstance(sortList[0][0], basestring)
+					sortingStrings = isinstance(sortList[0][0], str)
 				else:
 					sortingStrings = dataType in ("unicode", "string")
 
@@ -3130,7 +3131,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		compString = False
 		for row in sortList:
 			if row[0] is not None:
-				compString = isinstance(row[0], basestring)
+				compString = isinstance(row[0], str)
 				break
 
 		if not compString:
@@ -3141,11 +3142,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					srchVal = int(srchVal)
 				except ValueError:
 					srchVal = int(0)
-			elif isinstance(listval, long):
+			elif isinstance(listval, int):
 				try:
-					srchVal = long(srchVal)
+					srchVal = int(srchVal)
 				except ValueError:
-					srchVal = long(0)
+					srchVal = int(0)
 			elif isinstance(listval, float):
 				try:
 					srchVal = float(srchVal)
@@ -3162,11 +3163,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if compString:
 			if caseSensitive:
 				mtchs = [vv for vv in sortList
-						 if isinstance(vv[0], basestring) and vv[0].startswith(srchVal)]
+						 if isinstance(vv[0], str) and vv[0].startswith(srchVal)]
 			else:
 				srchVal = srchVal.lower()
 				mtchs = [vv for vv in sortList
-						 if isinstance(vv[0], basestring) and vv[0].lower().startswith(srchVal)]
+						 if isinstance(vv[0], str) and vv[0].lower().startswith(srchVal)]
 		else:
 			mtchs = [vv for vv in sortList
 					 if vv[0] == srchVal]
@@ -3180,7 +3181,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					match = (fldval == srchVal)
 				else:
 					# Case-insensitive string search.
-					match = (isinstance(fldval, basestring) and fldval.lower() == srchVal)
+					match = (isinstance(fldval, str) and fldval.lower() == srchVal)
 				if match:
 					newRow = row
 					break
@@ -3191,7 +3192,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					# requested matching value. If so, update the value of 'ret'. If not,
 					# we have passed the matching value, so there's no point in
 					# continuing the search, but we mu
-					if compString and not caseSensitive and isinstance(fldval, basestring):
+					if compString and not caseSensitive and isinstance(fldval, str):
 						toofar = fldval.lower() > srchVal
 					else:
 						toofar = fldval > srchVal
@@ -3246,30 +3247,30 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if wholeWord:
 			if matchCase:
 				srch = r"\b%s\b" % findString
-				findGen = ((r,c) for r in xrange(self.RowCount) for c in xrange(self.ColumnCount)
+				findGen = ((r,c) for r in range(self.RowCount) for c in range(self.ColumnCount)
 						   if op((r,c), rowcol)
 						   and re.search(srch, ustr(self.GetValue(r, c))))
 			else:
 				srch = r"\b%s\b" % findString.lower()
-				findGen = ((r,c) for r in xrange(self.RowCount) for c in xrange(self.ColumnCount)
+				findGen = ((r,c) for r in range(self.RowCount) for c in range(self.ColumnCount)
 						   if op((r,c), rowcol)
 						   and re.search(srch, ustr(self.GetValue(r, c)).lower()))
 		else:
 			if matchCase:
-				findGen = ((r,c) for r in xrange(self.RowCount) for c in xrange(self.ColumnCount)
+				findGen = ((r,c) for r in range(self.RowCount) for c in range(self.ColumnCount)
 						   if op((r,c), rowcol)
 						   and findString in ustr(self.GetValue(r, c)))
 			else:
-				findGen = ((r,c) for r in xrange(self.RowCount) for c in xrange(self.ColumnCount)
+				findGen = ((r,c) for r in range(self.RowCount) for c in range(self.ColumnCount)
 						   if op((r,c), rowcol)
 						   and findString.lower() in ustr(self.GetValue(r, c)).lower())
 		if action == "Find":
 			try:
 				while True:
-					newR, newC = findGen.next()
+					newR, newC = next(findGen)
 					targetVal = self.GetValue(newR, newC)
 					targetString = ustr(targetVal)
-					if isinstance(targetVal, (basestring, datetime.datetime, datetime.date)):
+					if isinstance(targetVal, (str, datetime.datetime, datetime.date)):
 						# Values can be inexact matches
 						break
 					else:
@@ -3283,7 +3284,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				ret = False
 		elif action == "Replace":
 			val = self.GetValue(currRow, currCol)
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				self.SetValue(currRow, currCol, val.replace(findString, replaceString))
 				ret = True
 			elif isinstance(val, bool):
@@ -3437,7 +3438,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		ValueError will be raised. If you prefer to simply log the error without
 		raising an exception, pass True to the logOnly parameter (default=False).
 		"""
-		if isinstance(colOrIdx, (int, long)):
+		if isinstance(colOrIdx, int):
 			return self.Columns[colOrIdx] if returnColumn else colOrIdx
 		elif isinstance(colOrIdx, dColumn):
 			return colOrIdx if returnColumn else self.Columns.index(colOrIdx)
@@ -3503,7 +3504,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		lnSep = dabo.copyLineSeparator
 
 		def valEscape(val):
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				# Need to escape tabs and newlines
 				escval = val.replace("\t", "\\t").replace("\n", "\\n")
 				if strSep:
@@ -3536,17 +3537,17 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if selmode == "Cell":
 			copySections = []
 			for rangeTuple in sel:
-				zrow, zcol = zip(*rangeTuple)
-				rowrange = range(zrow[0], zrow[1] + 1)
-				colrange = range(zcol[0], zcol[1] + 1)
+				zrow, zcol = list(zip(*rangeTuple))
+				rowrange = list(range(zrow[0], zrow[1] + 1))
+				colrange = list(range(zcol[0], zcol[1] + 1))
 				copySections.append(valuesForRange(rowrange, colrange))
 			txtToCopy = lnSep.join(copySections)
 		else:
 			if selmode == "Row":
 				rowrange = sel
-				colrange = range(0, self.ColumnCount)
+				colrange = list(range(0, self.ColumnCount))
 			else:
-				rowrange = range(0, self.RowCount)
+				rowrange = list(range(0, self.RowCount))
 				colrange = sel
 			txtToCopy = valuesForRange(rowrange, colrange)
 		self.Application.copyToClipboard(txtToCopy)
@@ -3566,7 +3567,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		ds = self.DataSource
 		if isinstance(ds, dabo.biz.dBizobj):
 			return ds
-		if isinstance(ds, basestring) and self.Form is not None:
+		if isinstance(ds, str) and self.Form is not None:
 			form = self.Form
 			while form is not None:
 				if hasattr(form, "getBizobj"):
@@ -4010,7 +4011,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 						try:
 							bizobj.RowNumber = newRow
 							self.Form.update()
-						except dException.BusinessRuleViolation, e:
+						except dException.BusinessRuleViolation as e:
 							dabo.ui.stop(e)
 							dabo.ui.callAfter(self.refresh)
 				else:
@@ -4076,7 +4077,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 		keyCode = evt.EventData["unicodeKey"]
 		try:
-			char = unichr(keyCode)
+			char = chr(keyCode)
 		except ValueError:
 			# keycode not in ascii range
 			return
@@ -4140,7 +4141,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			rows = self.RowCount
 			rangeStart = [(0, c) for c in startPoints]
 			rangeEnd = [(rows, c) for c in endPoints]
-		return zip(rangeStart, rangeEnd)
+		return list(zip(rangeStart, rangeEnd))
 
 
 	##----------------------------------------------------------##
@@ -4646,7 +4647,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				# See if the DataSource is a reference
 				try:
 					ret = eval(self.DataSource)
-				except StandardError:
+				except Exception:
 					# If it fails for any reason, bail.
 					pass
 			self._dataSet = ret
@@ -4722,7 +4723,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def _setHeaderBackColor(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			self._headerBackColor = val
 			self.refresh()
@@ -4736,7 +4737,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def _setHeaderForeColor(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			self._headerForeColor = val
 			self.refresh()
@@ -4820,7 +4821,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if val is None:
 			self._noneDisplay = self.__noneDisplayDefault
 		else:
-			assert isinstance(val, basestring)
+			assert isinstance(val, str)
 			self._noneDisplay = val
 
 
@@ -4960,7 +4961,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				for tlz, brz in zip(tl, br):
 					r1 = tlz[0]
 					r2 = brz[0]
-					ret += range(r1, r2+1)
+					ret += list(range(r1, r2+1))
 			if not ret:
 				# Only a single cell selected
 				ret = [self.GetGridCursorRow()]
@@ -4972,7 +4973,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				for tlz, brz in zip(tl, br):
 					c1 = tlz[1]
 					c2 = brz[1]
-					ret += range(c1, c2+1)
+					ret += list(range(c1, c2+1))
 			if not ret:
 				# Only a single cell selected
 				ret = [self.GetGridCursorCol()]
@@ -4980,7 +4981,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		else:
 			# Cell selection mode
 			if tl and br:
-				ret = zip(tl, br)
+				ret = list(zip(tl, br))
 			# Add any selected rows
 			if rows:
 				ret += self._calcRanges(rows, "Rows")
@@ -5004,7 +5005,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _setSelectionBackColor(self, val):
 		if self._constructed():
 			self._selectionBackColor = val
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			self.SetSelectionBackground(val)
 		else:
@@ -5017,7 +5018,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _setSelectionForeColor(self, val):
 		if self._constructed():
 			self._selectionForeColor = val
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			self.SetSelectionForeground(val)
 		else:
@@ -5568,17 +5569,17 @@ class _dGrid_test(dGrid):
 			self.addColumn(DataField="i_%s" % i, Caption="i_%s" % i)
 
 	def onScrollLineUp(self, evt):
-		print "LINE UP orientation =", evt.orientation, " scrollpos =", evt.scrollpos
+		print("LINE UP orientation =", evt.orientation, " scrollpos =", evt.scrollpos)
 	def onScrollLineDown(self, evt):
-		print "LINE DOWN orientation =", evt.orientation, " scrollpos =", evt.scrollpos
+		print("LINE DOWN orientation =", evt.orientation, " scrollpos =", evt.scrollpos)
 	def onScrollPageUp(self, evt):
-		print "PAGE UP orientation =", evt.orientation, " scrollpos =", evt.scrollpos
+		print("PAGE UP orientation =", evt.orientation, " scrollpos =", evt.scrollpos)
 	def onScrollPageDown(self, evt):
-		print "PAGE DOWN orientation =", evt.orientation, " scrollpos =", evt.scrollpos
+		print("PAGE DOWN orientation =", evt.orientation, " scrollpos =", evt.scrollpos)
 	def onScrollThumbDrag(self, evt):
-		print "DRAG orientation =", evt.orientation, " scrollpos =", evt.scrollpos
+		print("DRAG orientation =", evt.orientation, " scrollpos =", evt.scrollpos)
 	def onScrollThumbRelease(self, evt):
-		print "THUMB RELEASE orientation =", evt.orientation, " scrollpos =", evt.scrollpos
+		print("THUMB RELEASE orientation =", evt.orientation, " scrollpos =", evt.scrollpos)
 
 if __name__ == '__main__':
 	from dabo.dApp import dApp

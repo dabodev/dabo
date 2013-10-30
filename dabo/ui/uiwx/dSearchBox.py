@@ -6,7 +6,7 @@ import dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dTextBoxMixin as tbm
+from . import dTextBoxMixin as tbm
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
@@ -94,7 +94,7 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 	def _setupMenuFromList(self, valueList):
 		menu = dabo.ui.dMenu()
 		for value in valueList:
-			if not type(value) in (str, unicode):
+			if not type(value) in (str, str):
 				raise ValueError("All elements in the List must be strings")
 			else:
 				menu.append(value)
@@ -169,7 +169,7 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	import datetime
 
 	# This test sets up several textboxes, each editing different data types.
@@ -183,15 +183,15 @@ if __name__ == "__main__":
 
 		def onValueChanged(self, evt):
 			if self.IsSecret:
-				print "%s changed, but the new value is a secret!" % self.Name
+				print("%s changed, but the new value is a secret!" % self.Name)
 			else:
-				print "%s.onValueChanged:" % self.Name, self.Value, type(self.Value)
+				print("%s.onValueChanged:" % self.Name, self.Value, type(self.Value))
 
 		def onSearchButtonClicked(self, evt):
-			print "you pressed the search button"
+			print("you pressed the search button")
 
 		def onSearchCancelButtonClicked(self, evt):
-			print "you pressed the cancel button"
+			print("you pressed the cancel button")
 
 
 	class IntText(TestBase):

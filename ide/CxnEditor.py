@@ -83,7 +83,7 @@ class EditorForm(dui.dForm):
 		# Add the fields
 		# Connection Dropdown
 		cap = dui.dLabel(self.bg, Caption=_("Connection"))
-		ctl = dui.dDropdownList(self.bg, Choices=self.connDict.keys(),
+		ctl = dui.dDropdownList(self.bg, Choices=list(self.connDict.keys()),
 				RegID="connectionSelector",
 				OnHit=self.onConnectionChange)
 		btn = dui.dButton(self.bg, Caption=_("Edit Name"), RegID="cxnEdit",
@@ -210,7 +210,7 @@ class EditorForm(dui.dForm):
 		delkey = cs.StringValue
 		pos = cs.PositionValue
 		del self.connDict[delkey]
-		cs.Choices = self.connDict.keys()
+		cs.Choices = list(self.connDict.keys())
 		cs.PositionValue = min(pos, len(self.connDict) - 1)
 		self.currentConn = cs.StringValue
 		self.enableControls()
@@ -324,10 +324,10 @@ class EditorForm(dui.dForm):
 			conn.close()
 			msg = _("The connection was successful!")
 			mb = dui.info
-		except ImportError, e:
+		except ImportError as e:
 			msg = _("Python Import Error: %s") % e
 			mbTitle += _(": FAILED!")
-		except StandardError, e:
+		except Exception as e:
 			msg = _("Could not connect to the database: %s") % e
 			mbTitle += _(": FAILED!")
 		mb(message=msg, title=mbTitle)
@@ -341,7 +341,7 @@ class EditorForm(dui.dForm):
 		self.activeControlValid()
 		if self.currentConn is not None:
 			dd = self.connDict.get(self.currentConn, {})
-			for fld in dd.keys():
+			for fld in list(dd.keys()):
 				val = getattr(self, fld)
 				if fld == "password":
 					try:
@@ -365,7 +365,7 @@ class EditorForm(dui.dForm):
 		"""
 		if self.currentConn is not None:
 			dd = self.connDict[self.currentConn]
-			for fld in dd.keys():
+			for fld in list(dd.keys()):
 				val = dd[fld]
 				if fld == "password":
 					try:
@@ -395,7 +395,7 @@ class EditorForm(dui.dForm):
 
 
 	def _defaultConnName(self):
-		return u"Connection_" + ustr(len(self.connDict.keys()) + 1)
+		return "Connection_" + ustr(len(list(self.connDict.keys())) + 1)
 
 
 	def newFile(self):
@@ -416,7 +416,7 @@ class EditorForm(dui.dForm):
 		if (self.currentConn is not None) and (self.currentConn in self.connDict):
 			currDbType = self.connDict[self.currentConn]["dbtype"]
 		if not currDbType:
-			currDbType = u"MySQL"
+			currDbType = "MySQL"
 		newName = self._defaultConnName()
 		self.connDict[newName] = {
 				"dbtype" : currDbType,
@@ -428,7 +428,7 @@ class EditorForm(dui.dForm):
 				"port" : self.defDbPorts[currDbType]
 				}
 		self.currentConn = newName
-		self.connectionSelector.Choices = self.connDict.keys()
+		self.connectionSelector.Choices = list(self.connDict.keys())
 		self.populate()
 
 
@@ -459,8 +459,8 @@ class EditorForm(dui.dForm):
 					dd[fld] = self.Crypto.encrypt(val)
 			else:
 				dd[fld] = val
-		except StandardError, e:
-			print _("Can't update:"), e
+		except Exception as e:
+			print(_("Can't update:"), e)
 
 
 	def populate(self):
@@ -499,9 +499,9 @@ class EditorForm(dui.dForm):
 			# Save a copy for comparison
 			self._origConnDict = copy.deepcopy(self.connDict)
 			# Populate the connection names
-			self.connectionSelector.Choices = self.connDict.keys()
+			self.connectionSelector.Choices = list(self.connDict.keys())
 			# Set the current connection
-			self.currentConn = self.connDict.keys()[0]
+			self.currentConn = list(self.connDict.keys())[0]
 			# Set the form caption
 			self.Caption = _("Dabo Connection Editor: %s") % os.path.basename(self.connFile)
 			# Fill the controls
@@ -520,7 +520,7 @@ class EditorForm(dui.dForm):
 	def confirmChanges(self):
 		if self._origConnDict != self.connDict:
 			# Could be relative path differences
-			self.relPaths(self.connDict.values())
+			self.relPaths(list(self.connDict.values()))
 		if self._origConnDict != self.connDict:
 			response = dui.areYouSure(_("Do you wish to save your changes?"),
 					cancelButton=True)
@@ -550,7 +550,7 @@ class EditorForm(dui.dForm):
 		file(self.connFile, "w")
 		# Get the values from the connDict, and adjust any pathing
 		# to be relative
-		vals = self.relPaths(self.connDict.values())
+		vals = self.relPaths(list(self.connDict.values()))
 		v0 = vals[0]
 		if self.isFileBasedBackend(v0["dbtype"]):
 			# Previous values from the form might still be in the dict.

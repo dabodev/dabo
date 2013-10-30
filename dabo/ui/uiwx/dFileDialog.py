@@ -141,7 +141,7 @@ class dSaveDialog(dFileDialog):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(dFileDialog)
 	test.Test().runTest(dFolderDialog)
 	test.Test().runTest(dSaveDialog)
