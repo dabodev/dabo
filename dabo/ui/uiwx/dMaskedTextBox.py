@@ -179,6 +179,9 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 		return ret
 
 	def _setValue(self, val):
+		if val is None:
+			val = ''
+			
 		super(dMaskedTextBox, self)._setValue(val)
 
 
