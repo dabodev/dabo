@@ -448,6 +448,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 		self._baseClass = dAutoComplete
 		preClass = TextCtrlAutoComplete
 		kwargs["entryCallback"] = self.fillDynamicChoices
+		kwargs["selectCallback"] = self._onListItemSelected
 		kwargs["choices"] = [""]
 		self._userColNames = False
 		self._dynamicChoices = None
@@ -468,7 +469,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 	def onKeyUp(self,evt):
 		if isinstance(evt, wx.KeyEvent):
 			if evt.GetKeyCode() == wx.WXK_BACK:
-				#Make sure fillDynamicChoices() gets called on backspace as well
+				# Make sure fillDynamicChoices() gets called on backspace as well
 				self.fillDynamicChoices()	   	
 
 
@@ -521,18 +522,18 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 			colKeys = [key for key in ds[0].keys()]	
 
 		if len(colKeys) == 1:
-			#Single column
+			# Single column
 			for rec in ds:
 				choices.append(str(rec[colKeys[0]]))
 		else:
-			#Multi column
+			# Multi column
 			try:
 				for rec in ds:
 					choices.append([str(rec[key]) for key in colKeys])
 			except KeyError:
 				raise ValueError("DataField '%s' is not a valid column name" % key)	
 
-			#Find search index
+			# Find search index
 			try:
 				if self.SearchField is not None:
 					if isinstance(self.SearchField, basestring):
@@ -544,7 +545,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 				raise ValueError("SearchField '%s' is not a valid column name"
 						% self.SearchField)
 
-			#Find fetch index
+			# Find fetch index
 			try:
 				if self.FetchField is not None:
 					if isinstance(self.FetchField, basestring):
@@ -564,7 +565,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 		"""
 		The default entry callback function: takes the user-entered text from
 		the text box and updates the dropdown list to include only entries in
-		which the value of the search field starts with the given string.i
+		which the value of the search field starts with the given string.
 		"""
 		text = self.GetValue().lower()
 		current_choices = self.Choices
@@ -594,10 +595,27 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 		the proper number of rows with current data.
 		"""
 		self.listFromDS()
+		
+	def _onListItemSelected(self, event):
+		""" 
+		Raises a dEvents.ListSelection event when a list item is selected. 
+		   eventData will contain a dictionary of ColName:Value pairs, where ColName is derived from
+		   the ColNames property.  If ColNames is not set, column indexes will be used instead.
+		"""
+		eventData = {}
+		if self._colNames:
+			eventData = {self._colNames[i] : name 
+			                     for i, name in enumerate(event) }
+		else:
+			eventData = {i : name 
+			                     for i, name in enumerate(event) }
+				
+		self.raiseEvent(dEvents.ListSelection, eventObject=self,
+		                eventData=eventData)
 
 
 	def _setDynamicChoices(self, choices, colSearch=None, colFetch=None):
-		"""Updates the choices and sets self._dynamicChoices (needed for callback)"""
+		""" Updates the choices and sets self._dynamicChoices (needed for callback)"""
 		self._insertChoices(choices, colSearch, colFetch)
 		self._dynamicChoices = self.Choices
 
@@ -803,7 +821,8 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 
 			If this list is of a different length than the number of columns,
 			blank column names will be added or extra column names ignored as
-			appropriate.""")
+			appropriate.  If a DataSource or DataSet is used, this property will default
+	                to the field names of the data provided.""")
 
 
 
