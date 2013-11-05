@@ -5,8 +5,8 @@ import dabo
 import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-from . import dControlMixin as cm
-from .dPage import dPage
+from . import controlmixin as cm
+from .page import dPage
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr

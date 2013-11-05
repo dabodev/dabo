@@ -15,8 +15,8 @@ from dabo.dLocalize import _
 from dabo.lib import utils
 
 #import dControlMixin as dcm
-from .dDataControlMixin import dDataControlMixin as dcm
-from . import dImageMixin as dim
+from .datacontrolmixin import dDataControlMixin as dcm
+from . import imagemixin as dim
 from dabo.ui import makeDynamicProperty
 
 # See if PIL is installed

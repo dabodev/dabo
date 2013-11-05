@@ -3,8 +3,8 @@ import os
 import sys
 import wx
 import dabo
-from . import dPemMixin as pm
-from . import dMenu
+from . import pemmixin as pm
+from . import menu
 import dabo.icons
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -290,7 +290,7 @@ class dFormMixin(pm.dPemMixin):
 		happen before it would have otherwise occurred.
 		"""
 		ac = self.ActiveControl
-		if ac is not None and isinstance(ac, dabo.ui.dDataControlMixinBase.dDataControlMixinBase):
+		if ac is not None and isinstance(ac, dabo.ui.datacontrolmixinbase.dDataControlMixinBase):
 			if not hasattr(ac, "_oldVal") or (not ac._oldVal) or (ac._oldVal != ac.Value):
 				return ac.flushValue()
 		return True
@@ -501,7 +501,7 @@ class dFormMixin(pm.dPemMixin):
 		This function sets up the internal menu, which can optionally be
 		inserted into the mainForm's menu bar during SetFocus.
 		"""
-		menu = dMenu.dMenu()
+		menu = menu.dMenu()
 		return menu
 
 

@@ -9,7 +9,7 @@ import dabo
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
-from . import dControlMixin as dcm
+from . import controlmixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty

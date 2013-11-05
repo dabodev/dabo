@@ -18,8 +18,8 @@ if __name__ == "__main__":
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 from dabo.dLocalize import _
-from . import dDataControlMixin as dcm
-from . import dTimer
+from . import datacontrolmixin as dcm
+from . import timer
 
 LexerDic = {
     "ada": stc.STC_LEX_ADA,
@@ -121,7 +121,7 @@ else:
 	fontFace = propFont
 
 
-class StyleTimer(dTimer.dTimer):
+class StyleTimer(timer.dTimer):
 	def afterInit(self):
 		# Default timer interval
 		self.styleTimerInterval = 50

@@ -9,8 +9,8 @@ from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-from . import dControlMixin as cm
-from . import dDataControlMixin as dcm
+from . import controlmixin as cm
+from . import datacontrolmixin as dcm
 
 
 class _BasePanelMixin(object):

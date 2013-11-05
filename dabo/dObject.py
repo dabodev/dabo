@@ -345,7 +345,7 @@ class dObject(PropertyHelperMixin, EventMixin):
 			return "?"
 
 	def _setName(self, val):
-		if not isinstance(val, str):
+		if not isinstance(val, basestring):
 			raise TypeError('Name must be a string.')
 		if not len(val.split()) == 1:
 			raise KeyError('Name must not contain any spaces')

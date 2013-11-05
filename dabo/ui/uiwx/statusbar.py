@@ -6,7 +6,7 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dException as dException
 from dabo.dLocalize import _, n_
-from . import dControlMixin as dcm
+from . import controlmixin as dcm
 
 
 class dStatusBar(dcm.dControlMixin, wx.StatusBar):

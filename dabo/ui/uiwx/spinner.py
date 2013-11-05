@@ -12,7 +12,7 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 
-from . import dDataControlMixin as dcm
+from . import datacontrolmixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr

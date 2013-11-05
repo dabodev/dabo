@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import dabo
-from dabo.ui.dDataControlMixinBase import dDataControlMixinBase
+from dabo.ui.datacontrolmixinbase import dDataControlMixinBase
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty

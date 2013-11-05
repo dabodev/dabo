@@ -9,7 +9,7 @@ if __name__ == "__main__":
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from .dPageFrameMixin import dPageFrameMixin
+from .pageframemixin import dPageFrameMixin
 import dabo.dColors as dColors
 
 _USE_AGW = True

@@ -4,8 +4,8 @@ import dabo
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-from .dPage import dPage
-from .dPanel import dPanel
+from .page import dPage
+from .panel import dPanel
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 from dabo.dLocalize import _

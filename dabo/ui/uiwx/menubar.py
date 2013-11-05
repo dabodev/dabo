@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-from . import dPemMixin as pm
-from . import dMenu
+from . import pemmixin as pm
+from . import menu
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
@@ -36,7 +36,7 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		##      to be identical to EVT_MENU_HIGHLIGHT. Therefore, as of this writing
 		##      we are exposing two menu events: dEvents.Hit and dEvents.Highlight.
 		menu = evt.GetMenu()
-		if menu and isinstance(menu, dMenu.dMenu):
+		if menu and isinstance(menu, menu.dMenu):
 			menu.raiseEvent(dEvents.MenuHighlight, evt)
 		evt.Skip()
 
@@ -129,7 +129,7 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 
 		This is used by the append(), insert(), and prepend() functions.
 		"""
-		return dMenu.dMenu(self, Caption=caption, MenuID=MenuID)
+		return menu.dMenu(self, Caption=caption, MenuID=MenuID)
 
 
 	def remove(self, indexOrMenu, release=True):

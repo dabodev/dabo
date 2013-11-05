@@ -6,8 +6,8 @@ from dabo.ui import makeDynamicProperty
 import collections
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-from . import dPemMixin as pm
-from . import dIcons
+from . import pemmixin as pm
+from . import icons
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents

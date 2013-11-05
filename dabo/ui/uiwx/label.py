@@ -8,8 +8,8 @@ from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-from . import dControlMixin as cm
-from .alignmentMixin import AlignmentMixin
+from . import controlmixin as cm
+from .alignmentmixin import AlignmentMixin
 
 
 class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):

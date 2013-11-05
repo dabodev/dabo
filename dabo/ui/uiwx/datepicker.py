@@ -16,7 +16,7 @@ if dabo.ui.phoenix:
 	dpc = wx.adv
 else:
 	dpc = wx
-from . import dDataControlMixin as dcm
+from . import datacontrolmixin as dcm
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty

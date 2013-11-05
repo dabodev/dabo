@@ -6,7 +6,7 @@ import dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-from . import dTextBoxMixin as tbm
+from . import textboxmixin as tbm
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty

@@ -9,7 +9,7 @@ from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-from . import dDataControlMixin as dcm
+from . import datacontrolmixin as dcm
 import dabo.dColors as dColors
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr

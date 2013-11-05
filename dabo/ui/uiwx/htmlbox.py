@@ -4,8 +4,8 @@ import os
 import re
 import string
 import types
-import urllib.request, urllib.error, urllib.parse
-import urllib.parse
+# requires six v 1.4.1 or higher
+import six.moves.urllib as urllib
 import datetime
 import dabo
 from dabo.dLocalize import _
@@ -13,7 +13,7 @@ import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-from . import dControlMixin as cm
+from . import controlmixin as cm
 try:
 	import webbrowser as wb
 except ImportError:

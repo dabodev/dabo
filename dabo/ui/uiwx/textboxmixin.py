@@ -6,7 +6,7 @@ import locale
 import wx
 import wx.lib.masked as masked
 import dabo.lib.dates
-from . import dKeys
+from . import keys
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import decimal
@@ -22,7 +22,7 @@ import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-from . import dDataControlMixin as dcm
+from . import datacontrolmixin as dcm
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty

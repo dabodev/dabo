@@ -7,8 +7,8 @@ if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
 
-from . import dDataControlMixin as dcm
-from . import dImageMixin as dim
+from . import datacontrolmixin as dcm
+from . import imagemixin as dim
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 

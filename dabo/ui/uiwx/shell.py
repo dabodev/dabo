@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import builtins
 import time
 import wx
 import wx.stc as stc
@@ -12,10 +11,10 @@ from dabo.dLocalize import _
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-from .dSplitForm import dSplitForm
+from .splitform import dSplitForm
 from dabo.ui import makeDynamicProperty
-from dabo.ui import dKeys
-from .dControlMixin import dControlMixin
+from dabo.ui import keys
+from .controlmixin import dControlMixin
 
 
 class _LookupPanel(dabo.ui.dPanel):
@@ -47,15 +46,15 @@ class _LookupPanel(dabo.ui.dPanel):
 		"""Process keypresses in the command list control"""
 		kc = evt.keyCode
 		char = evt.keyChar
-		if kc in (dKeys.key_Return, dKeys.key_Numpad_enter):
+		if kc in (keyskey_Return, keyskey_Numpad_enter):
 			self.closeDialog(True)
 			return
-		elif kc == dKeys.key_Escape:
+		elif kc == keyskey_Escape:
 			self.closeDialog(False)
-		if kc in list(dKeys.arrowKeys.values()) or char is None:
+		if kc in list(keysarrowKeys.values()) or char is None:
 			#ignore
 			return
-		if kc == dKeys.key_Back:
+		if kc == keyskey_Back:
 			self.currentSearch = self.currentSearch[:-1]
 		else:
 			self.currentSearch += char
@@ -367,7 +366,7 @@ class dShell(dControlMixin, wx.py.shell.Shell):
 class dShellForm(dSplitForm):
 	def _onDestroy(self, evt):
 		self._clearOldHistory()
-		builtins.raw_input = self._oldRawInput
+		raw_input = self._oldRawInput
 
 
 	def _beforeInit(self, pre):
@@ -388,7 +387,7 @@ class dShellForm(dSplitForm):
 		# but doesn't set it back on destroy, resulting in errors later
 		# on if something other than PyShell asks for raw_input (pdb, for
 		# example).
-		self._oldRawInput = builtins.raw_input
+		self._oldRawInput = raw_input
 		self.bindEvent(dEvents.Destroy, self._onDestroy)
 
 		splt = self.Splitter
@@ -636,8 +635,8 @@ Ctrl-Up/Down to scroll through history."""))
 		if (keyCode == 13):
 			evt.stop()
 			self.onRunCode(None, addReturn=True)
-		elif keyCode in (dKeys.key_Up, dKeys.key_Down):
-			direction = {dKeys.key_Up: -1, dKeys.key_Down: 1}[keyCode]
+		elif keyCode in (keyskey_Up, keyskey_Down):
+			direction = {keyskey_Up: -1, keyskey_Down: 1}[keyCode]
 			self.moveCodeStack(direction)
 
 

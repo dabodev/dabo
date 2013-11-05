@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-from . import dPemMixin
-from . import dSizerMixin
+from . import pemmixin
+from . import sizermixin
 
-class dSizer(dSizerMixin.dSizerMixin, wx.BoxSizer):
+class dSizer(sizermixin.dSizerMixin, wx.BoxSizer):
 	def __init__(self, *args, **kwargs ):
 		# Convert Dabo orientation to wx orientation
 		self._baseClass = dSizer
@@ -45,7 +45,7 @@ class dSizer(dSizerMixin.dSizerMixin, wx.BoxSizer):
 			bad = ", ".join(list(kwargs.keys()))
 			raise TypeError("Invalid keyword arguments passed to dSizer: %s" % bad)
 
-		dSizerMixin.dSizerMixin.__init__(self, *args, **kwargs)
+		sizermixin.dSizerMixin.__init__(self, *args, **kwargs)
 
 
 	def getBorderedClass(self):

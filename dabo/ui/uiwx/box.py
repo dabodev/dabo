@@ -4,7 +4,7 @@ import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-from . import dControlMixin as cm
+from . import controlmixin as cm
 
 class dBox(cm.dControlMixin, wx.StaticBox):
 	"""Creates a box for visually grouping objects on your form."""

@@ -2,7 +2,7 @@
 import time
 import wx
 import dabo.ui
-from dabo.ui.dControlMixinBase import dControlMixinBase
+from dabo.ui.controlmixinbase import dControlMixinBase
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 

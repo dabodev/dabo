@@ -2,7 +2,7 @@
 import time
 import wx
 import dabo
-from . import dFormMixin as fm
+from . import formmixin as fm
 
 
 class dFormMainBase(fm.dFormMixin):

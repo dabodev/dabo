@@ -6,10 +6,10 @@ import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-from . import dControlMixin as cm
-from . import dImageMixin as dim
+from . import controlmixin as cm
+from . import imagemixin as dim
 from dabo.dLocalize import _
-from . import dIcons
+from . import icons
 from dabo.ui import makeDynamicProperty
 
 

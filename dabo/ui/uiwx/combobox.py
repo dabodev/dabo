@@ -2,11 +2,11 @@
 import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-from . import dControlItemMixin as dcm
+from . import controlitemmixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
-from . import dKeys
+from . import keys
 
 
 class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
@@ -97,7 +97,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 			# The control is being destroyed
 			return
 		keyCode = evt.keyCode
-		if keyCode >= dKeys.key_Space:
+		if keyCode >= keys.key_Space:
 			dabo.ui.callAfter(self._checkForceCase)
 			dabo.ui.callAfter(self._checkTextLength)
 

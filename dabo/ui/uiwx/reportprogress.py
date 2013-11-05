@@ -5,10 +5,10 @@ if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
-from .dPanel import dPanel
-from .dGauge import dGauge
-from .dLabel import dLabel
-from .dButton import dButton
+from .panel import dPanel
+from .gauge import dGauge
+from .label import dLabel
+from .button import dButton
 
 
 class dReportProgress(dPanel):

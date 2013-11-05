@@ -5,12 +5,12 @@ import dabo
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
-from . import dDataControlMixin as dcm
+from . import datacontrolmixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-from .dTextBox import dTextBox
-from .dPanel import dPanel
-from .dButton import dButton
+from .textbox import dTextBox
+from .panel import dPanel
+from .button import dButton
 from dabo.ui import makeDynamicProperty
 
 

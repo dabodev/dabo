@@ -3,7 +3,7 @@ import wx
 import dabo.dEvents as dEvents
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-from . import dControlMixin as dcm
+from . import controlmixin as dcm
 import locale, wx, sys, io
 import wx.lib.mixins.listctrl as listmix
 from wx import ImageFromStream, BitmapFromImage

@@ -7,7 +7,7 @@ from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-from . import dControlMixin as cm
+from . import controlmixin as cm
 import dabo.dEvents as dEvents
 
 

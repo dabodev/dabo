@@ -2,7 +2,7 @@
 import dabo
 import wx
 import wx.grid
-from . import dIcons
+from . import icons
 
 if dabo.ui.phoenix:
 	gRend = wx.grid.GridCellRenderer
@@ -125,8 +125,8 @@ class BoolRenderer(gRend):
 			super(BoolRenderer, self).__init__()
 		else:
 			super(BoolRenderer, self).__init__(*args, **kwargs)
-		self.checkedBitmap = dIcons.getIconBitmap("boolRendererChecked")
-		self.uncheckedBitmap = dIcons.getIconBitmap("boolRendererUnchecked")
+		self.checkedBitmap = icons.getIconBitmap("boolRendererChecked")
+		self.uncheckedBitmap = icons.getIconBitmap("boolRendererUnchecked")
 
 
 

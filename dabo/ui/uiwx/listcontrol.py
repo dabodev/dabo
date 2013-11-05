@@ -5,7 +5,7 @@ from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import wx.lib.mixins.listctrl	as ListMixin
-from . import dControlItemMixin as dcm
+from . import controlitemmixin as dcm
 import dabo.dColors as dColors
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _

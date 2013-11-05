@@ -8,11 +8,11 @@ from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
-from . import dFormMixin as fm
+from . import formmixin as fm
 import dabo.dException as dException
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from .dDialog import dDialog
+from .dialog import dDialog
 
 
 class BaseForm(fm.dFormMixin):

@@ -4,12 +4,12 @@ import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-from . import dControlMixin as cm
-from . import dPemMixin as pm
+from . import controlmixin as cm
+from . import pemmixin as pm
 from dabo.dLocalize import _
-from .dIcons import getIconBitmap
+from .icons import getIconBitmap
 from dabo.ui import makeDynamicProperty
-from . import dImageMixin as dim
+from . import imagemixin as dim
 
 
 class dBitmapButton(cm.dControlMixin, dim.dImageMixin, wx.BitmapButton):

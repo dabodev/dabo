@@ -20,9 +20,9 @@ import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.dLocalize import _, n_
 from dabo.lib.utils import ustr
-from . import dControlMixin as cm
-from . import dKeys
-from . import dUICursors
+from . import controlmixin as cm
+from . import keys
+from . import uicursors
 import dabo.biz
 import dabo.dColors as dColors
 from dabo.dObject import dObject
@@ -434,7 +434,7 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
 
 
 
-class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
+class dColumn(dabo.ui.pemmixinbase.dPemMixinBase):
 	"""
 	These aren't the actual columns that appear in the grid; rather,
 	they provide a way to interact with the underlying grid table in a more
@@ -4082,9 +4082,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# keycode not in ascii range
 			return
 
-		if keyCode in (dKeys.key_Left, dKeys.key_Right,
-				       dKeys.key_Up, dKeys.key_Down, dKeys.key_Pageup, dKeys.key_Pagedown,
-				       dKeys.key_Home, dKeys.key_End, dKeys.key_Prior, dKeys.key_Next) \
+		if keyCode in (keys.key_Left, keys.key_Right,
+				       keys.key_Up, keys.key_Down, keys.key_Pageup, keys.key_Pagedown,
+				       keys.key_Home, keys.key_End, keys.key_Prior, keys.key_Next) \
 		   or evt.EventData["hasModifiers"]:
 			# Enter, Tab, and Arrow Keys shouldn't be searched on.
 			return

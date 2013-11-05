@@ -6,8 +6,8 @@ if __name__ == "__main__":
 
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-from .dPemMixin import dPemMixin as PM
-from . import dPanel
+from .pemmixin import dPemMixin as PM
+from . import panel
 
 
 class dTimer(PM):
@@ -96,7 +96,7 @@ class dTimer(PM):
 	DynamicInterval = makeDynamicProperty(Interval)
 
 
-class _dTimer_test(dPanel.dPanel):
+class _dTimer_test(panel.dPanel):
 	def afterInit(self):
 		# Only setting this so that the test Caption is correct
 		self._baseClass = dTimer

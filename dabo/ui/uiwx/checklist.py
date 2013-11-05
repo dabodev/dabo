@@ -4,7 +4,7 @@ import dabo
 import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-from . import dControlItemMixin as dcm
+from . import controlitemmixin as dcm
 from dabo.dLocalize import _
 
 

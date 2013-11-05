@@ -5,11 +5,14 @@ import dabo
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 import dabo.dEvents as dEvents
 import dabo.dConstants as kons
 from dabo.dLocalize import _
-from . import dFormMixin as fm
-from . import dPemMixin as pm
+from . import formmixin as fm
+from . import pemmixin as pm
 from dabo.ui import makeDynamicProperty
 
 

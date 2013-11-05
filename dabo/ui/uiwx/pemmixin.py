@@ -7,11 +7,11 @@ import wx
 import dabo
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from dabo.ui.dPemMixinBase import dPemMixinBase
+from dabo.ui.pemmixinbase import dPemMixinBase
 import dabo.dEvents as dEvents
 import dabo.dException as dException
 import dabo.dColors as dColors
-from . import dKeys
+from . import keys
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
 from dabo.lib.utils import dictStringify
@@ -133,20 +133,20 @@ class dPemMixin(dPemMixinBase):
 		properties = dictStringify(properties)
 
 		# Hacks to fix up various things:
-		from . import dMenuBar, dMenuItem, dMenu, dSlidePanelControl, dToggleButton
+		from . import menubar, menuitem, menu, slidepanelcontrol, togglebutton
 		if wx.VERSION >= (2, 8, 8):
 			from . import dBorderlessButton
-		if isinstance(self, (dMenuItem.dMenuItem, dMenuItem.dSeparatorMenuItem)):
+		if isinstance(self, (menuitem.dMenuItem, menuitem.dSeparatorMenuItem)):
 			# Hack: wx.MenuItem doesn't take a style arg,
 			# and the parent arg is parentMenu.
 			del self._preInitProperties["style"]
 			self._preInitProperties["parentMenu"] = parent
 			del self._preInitProperties["parent"]
-			if isinstance(self, dMenuItem.dSeparatorMenuItem):
+			if isinstance(self, menuitem.dSeparatorMenuItem):
 				del(self._preInitProperties["id"])
 				for remove in ("HelpText", "Icon", "kind"):
 					self._extractKey((properties, self._properties, kwargs), remove)
-		elif isinstance(self, (dMenu.dMenu, dMenuBar.dMenuBar)):
+		elif isinstance(self, (menu.dMenu, menubar.dMenuBar)):
 			# Hack: wx.Menu has no style, parent, or id arg.
 			del(self._preInitProperties["style"])
 			del(self._preInitProperties["id"])
@@ -156,7 +156,7 @@ class dPemMixin(dPemMixinBase):
 			del(self._preInitProperties["id"])
 			del(self._preInitProperties["parent"])
 		elif isinstance(self, (dabo.ui.dSlidePanel, dabo.ui.dSlidePanelControl,
-		                       dSlidePanelControl.dSlidePanel, dSlidePanelControl.dSlidePanelControl)):
+		                       slidepanelcontrol.dSlidePanel, slidepanelcontrol.dSlidePanelControl)):
 			# Hack: the Slide Panel classes have no style arg.
 			del self._preInitProperties["style"]
 			# This is needed because these classes require a 'parent' param.
@@ -739,8 +739,8 @@ class dPemMixin(dPemMixinBase):
 		"""
 		Bind a key combination such as "ctrl+c" to a callback function.
 
-		See dKeys.keyStrings for the valid string key codes.
-		See dKeys.modifierStrings for the valid modifier codes.
+		See keys.keyStrings for the valid string key codes.
+		See keys.modifierStrings for the valid modifier codes.
 
 		Examples::
 
@@ -751,10 +751,10 @@ class dPemMixin(dPemMixinBase):
 			form.bindKey("ctrl+alt+w", form.Close)
 
 		"""
-		mods, key, flags = dabo.ui.dKeys.resolveKeyCombo(keyCombo, True)
+		mods, key, flags = dabo.ui.keys.resolveKeyCombo(keyCombo, True)
 		upMods = [mm.upper() for mm in mods]
 		try:
-			keyCode = dKeys.keyStrings[key.lower()]
+			keyCode = keys.keyStrings[key.lower()]
 		except KeyError:
 			# It isn't a special key. Get the code from the ascii table:
 			keyCode = ord(key)

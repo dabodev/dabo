@@ -10,10 +10,10 @@ if dabo.ui.phoenix:
 else:
 	import wx.lib.hyperlink as hyperlink
 	
-from . import dControlMixin as dcm
+from . import controlmixin as dcm
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
-from .alignmentMixin import AlignmentMixin
+from .alignmentmixin import AlignmentMixin
 
 
 

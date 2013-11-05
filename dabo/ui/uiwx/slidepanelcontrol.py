@@ -8,7 +8,7 @@ if dabo.ui.phoenix:
 	import wx.lib.agw.foldpanelbar as fpb
 else:
 	import wx.lib.foldpanelbar as fpb
-from . import dControlMixin as dcm
+from . import controlmixin as dcm
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 from dabo.dLocalize import _
