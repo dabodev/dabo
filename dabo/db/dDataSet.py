@@ -23,6 +23,8 @@ pysqlite2: http://initd.org/tracker/pysqlite
 """
 		sys.exit(msg)
 
+import six
+
 import dabo
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -117,7 +119,7 @@ class dDataSet(tuple):
 			scope = self._fldReplace(scope, "rec")
 
 		literal = True
-		if isinstance(valOrExpr, str):
+		if isinstance(valOrExpr, six.types.StringTypes):
 			if valOrExpr.strip()[0] == "=":
 				literal = False
 				valOrExpr = valOrExpr.replace("=", "", 1)

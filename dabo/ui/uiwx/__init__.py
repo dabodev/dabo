@@ -4,6 +4,7 @@ import os
 import re
 import glob
 # requires six v 1.4.1 or higher
+import six
 import six.moves.urllib as urllib
 import datetime
 import time
@@ -1280,7 +1281,7 @@ def sortList(chc, Caption="", ListCaption=""):
 	needConvert = False
 	for itm in chc:
 		key = itm
-		if not isinstance(itm, str):
+		if not isinstance(itm, six.types.StringTypes):
 			needConvert = True
 			key = ustr(itm)
 			strChc.append(key)

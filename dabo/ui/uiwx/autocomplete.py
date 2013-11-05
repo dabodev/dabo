@@ -1,5 +1,8 @@
 import dabo
 import wx
+
+import six
+
 import dabo.dEvents as dEvents
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -508,7 +511,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 		ds = self.DataSource
 		if isinstance(ds, dabo.biz.dBizobj):
 			return ds
-		if isinstance(ds, str) and self.Form is not None:
+		if isinstance(ds, six.types.StringTypes) and self.Form is not None:
 			form = self.Form
 			while form is not None:
 				if hasattr(form, "getBizobj"):
@@ -567,7 +570,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 			#Find search index
 			try:
 				if self.SearchField is not None:
-					if isinstance(self.SearchField, str):
+					if isinstance(self.SearchField, six.types.StringTypes):
 						colSearch = colKeys.index(self.SearchField)
 					else:
 						colSearch = self.SearchField

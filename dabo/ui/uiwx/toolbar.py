@@ -2,6 +2,9 @@
 # TODO: dToolbarItem issue
 import os.path
 import wx
+
+import six
+
 import dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -150,7 +153,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 	def _appendInsertButton(self, pos, caption, pic, toggle, tip, help,
 			*args, **kwargs):
 		"""Common code for the append|insert|prependButton() functions."""
-		if isinstance(pic, str):
+		if isinstance(pic, six.types.StringTypes):
 			# path was passed
 			picBmp = dabo.ui.strToBmp(pic)
 		else:

@@ -3,6 +3,8 @@ import xml.sax
 from io import StringIO
 import os.path
 
+import six
+
 class specHandler(xml.sax.ContentHandler):
 	_IsContainer = False
 
@@ -91,7 +93,7 @@ def fileRef(ref=""):
 	XML to the parser. Returns a file-like object, or None.
 	"""
 	ret = None
-	if isinstance(ref, str):
+	if isinstance(ref, six.types.StringTypes):
 		if os.path.exists(ref):
 			ret = file(ref)
 		else:

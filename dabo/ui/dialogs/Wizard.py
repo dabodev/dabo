@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import six
+
 import dabo.ui
 dabo.ui.loadUI("wx")
 from dabo.dApp import dApp
@@ -195,7 +197,7 @@ class Wizard(dabo.ui.dDialog):
 						pg.changeParent(self.pagePanel)
 					page = pg
 				else:
-					if isinstance(pg, str):
+					if isinstance(pg, six.types.StringTypes):
 						xml = pg
 						from dabo.lib.DesignerClassConverter import DesignerClassConverter
 						conv = DesignerClassConverter()

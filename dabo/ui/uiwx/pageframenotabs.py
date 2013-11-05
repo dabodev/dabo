@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import six
+
 import dabo
 
 from dabo.ui import makeDynamicProperty
@@ -61,7 +63,7 @@ class dPageFrameNoTabs(dPanel):
 			pg = pgCls
 		else:
 			# See if the 'pgCls' is either some XML or the path of an XML file
-			if isinstance(pgCls, str):
+			if isinstance(pgCls, six.types.StringTypes):
 				xml = pgCls
 				from dabo.lib.DesignerClassConverter import DesignerClassConverter
 				conv = DesignerClassConverter()
@@ -194,7 +196,7 @@ class dPageFrameNoTabs(dPanel):
 		return self._pageClass
 
 	def _setPageClass(self, val):
-		if isinstance(val, str):
+		if isinstance(val, six.types.StringTypes):
 			from dabo.lib.DesignerClassConverter import DesignerClassConverter
 			conv = DesignerClassConverter()
 			self._pageClass = conv.classFromText(val)

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import types
 import wx
+
+import six
+
 from . import pemmixin as pm
 from . import icons
 import dabo
@@ -139,7 +142,7 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 		if self._constructed():
 			if val in (None, ""):
 				return
-			if isinstance(val, str):
+			if isinstance(val, six.types.StringTypes):
 				# Icon name was passed; get the actual bitmap
 				val = dabo.ui.strToBmp(val)
 			self.SetBitmap(val)

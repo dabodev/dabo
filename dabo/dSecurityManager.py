@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import time
+import six
 import dabo
 from dabo.dObject import dObject
 from .dLocalize import _
@@ -154,7 +155,7 @@ class dSecurityManager(dObject):
 			return ''
 
 	def _setUserCaption(self, value):
-		if isinstance(value, str):
+		if isinstance(value, six.types.StringTypes):
 			self._userCaption = value
 		else:
 			raise TypeError('User caption must be string or unicode.')

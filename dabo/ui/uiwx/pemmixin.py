@@ -4,6 +4,9 @@ import time
 import types
 import math
 import wx
+
+import six
+
 import dabo
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -1054,7 +1057,7 @@ class dPemMixin(dPemMixinBase):
 		object's constructor.
 		"""
 		# See if the 'classRef' is either some XML or the path of an XML file
-		if isinstance(classRef, str):
+		if isinstance(classRef, six.types.StringTypes):
 			xml = classRef
 			from dabo.lib.DesignerClassConverter import DesignerClassConverter
 			conv = DesignerClassConverter()
@@ -1257,10 +1260,10 @@ class dPemMixin(dPemMixinBase):
 			kids = self.Children
 		if not kids:
 			return
-		if isinstance(filt, str):
+		if isinstance(filt, six.types.StringTypes):
 			filt = (filt, )
 
-		if isinstance(instancesOf, str):
+		if isinstance(instancesOf, six.types.StringTypes):
 			instancesOf = (instancesOf,)
 		if instancesOf is None:
 			instancesOf = tuple()
@@ -1955,7 +1958,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setBackColor(self, val):
 		if self._constructed():
-			if isinstance(val, str):
+			if isinstance(val, six.types.StringTypes):
 				val = dColors.colorTupleFromName(val)
 			if val is None:
 				self.SetBackgroundColour(wx.NullColour)
@@ -1972,7 +1975,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setBorderColor(self, val):
 		if self._constructed():
-			if isinstance(val, str):
+			if isinstance(val, six.types.StringTypes):
 				val = dColors.colorTupleFromName(val)
 			self._borderColor = val
 			if self._border:
@@ -2296,7 +2299,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setForeColor(self, val):
 		if self._constructed():
-			if isinstance(val, str):
+			if isinstance(val, six.types.StringTypes):
 				val = dColors.colorTupleFromName(val)
 			if val != self.GetForegroundColour().Get():
 				self.SetForegroundColour(val)
@@ -2434,7 +2437,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setMousePointer(self, val):
 		if self._constructed():
-			if isinstance(val, str):
+			if isinstance(val, six.types.StringTypes):
 				# Name of a cursor. This can be either the full names, such
 				# as 'Cursor_Bullseye', or just 'Bullseye'. It could also be a sizing
 				# direction, such as 'NWSE'.
@@ -3334,7 +3337,7 @@ class DrawObject(dObject):
 			if self.PenColor is None:
 				pc = dColors.colorTupleFromName("black")
 			else:
-				if isinstance(self.PenColor, str):
+				if isinstance(self.PenColor, six.types.StringTypes):
 					pc = dColors.colorTupleFromName(self.PenColor)
 				else:
 					pc = self.PenColor
@@ -3360,7 +3363,7 @@ class DrawObject(dObject):
 		if fill is None:
 			brush = wx.TRANSPARENT_BRUSH
 		else:
-			if isinstance(fill, str):
+			if isinstance(fill, six.types.StringTypes):
 				fill = dColors.colorTupleFromName(fill)
 			brush = wx.Brush(fill, style=sty)
 		dc.SetBrush(brush)
@@ -3555,7 +3558,7 @@ class DrawObject(dObject):
 		return self._gradientColor1
 
 	def _setGradientColor1(self, val):
-		if isinstance(val, str):
+		if isinstance(val, six.types.StringTypes):
 			val = dColors.colorTupleFromName(val)
 		if self._gradientColor1 != val:
 			self._gradientColor1 = val
@@ -3566,7 +3569,7 @@ class DrawObject(dObject):
 		return self._gradientColor2
 
 	def _setGradientColor2(self, val):
-		if isinstance(val, str):
+		if isinstance(val, six.types.StringTypes):
 			val = dColors.colorTupleFromName(val)
 		if self._gradientColor2 != val:
 			self._gradientColor2 = val
@@ -3577,7 +3580,7 @@ class DrawObject(dObject):
 		return self._hatchStyle
 
 	def _setHatchStyle(self, val):
-		if isinstance(val, str):
+		if isinstance(val, six.types.StringTypes):
 			val = val.lower()
 		if self._hatchStyle != val:
 			self._hatchStyle = val
@@ -3597,7 +3600,7 @@ class DrawObject(dObject):
 		return self._lineStyle
 
 	def _setLineStyle(self, val):
-		if isinstance(val, str):
+		if isinstance(val, six.types.StringTypes):
 			val = val.lower()
 		if self._lineStyle != val:
 			self._lineStyle = val

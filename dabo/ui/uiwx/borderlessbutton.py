@@ -5,6 +5,9 @@ try:
 	import wx.lib.platebtn as platebtn
 except ImportError:
 	raise ImportError("Your version of wxPython is too old for dBorderlessButton")
+
+import six
+
 import dabo
 import dabo.ui
 
@@ -70,7 +73,7 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 
 	def _setBackColorHover(self, val):
 		if self._constructed():
-			if isinstance(val, str):
+			if isinstance(val, six.types.StringTypes):
 				val = dColors.colorTupleFromName(val)
 			if isinstance(val, tuple):
 				self._backColoHover = val

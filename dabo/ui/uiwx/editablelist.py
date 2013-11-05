@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
+
+import six
+
 if dabo.ui.phoenix:
 	import wx.adv
 	giz = wx.adv
@@ -24,13 +27,13 @@ class dEditableList(dcm.dControlMixin, giz.EditableListBox):
 		self._baseClass = dEditableList
 		preClass = giz.EditableListBox
 		self._canAdd = self._extractKey((kwargs, properties, attProperties), "CanAdd", True)
-		if isinstance(self._canAdd, str):
+		if isinstance(self._canAdd, six.types.StringTypes):
 			self._canAdd = (self._canAdd == "True")
 		self._canDelete = self._extractKey((kwargs, properties, attProperties), "CanDelete", True)
-		if isinstance(self._canDelete, str):
+		if isinstance(self._canDelete, six.types.StringTypes):
 			self._canDelete = (self._canDelete == "True")
 		self._canOrder = self._extractKey((kwargs, properties, attProperties), "CanOrder", True)
-		if isinstance(self._canOrder, str):
+		if isinstance(self._canOrder, six.types.StringTypes):
 			self._canOrder = (self._canOrder == "True")
 		self._editable = self._extractKey((kwargs, properties, attProperties), "Editable", True)
 		style = self._extractKey((kwargs, properties, attProperties), "style", 0)

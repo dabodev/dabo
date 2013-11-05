@@ -3,6 +3,9 @@ import types
 import re
 import warnings
 import time
+
+import six
+
 import dabo
 import dabo.dConstants as kons
 from dabo.db.dCursorMixin import dCursorMixin
@@ -1445,7 +1448,7 @@ class dBizobj(dObject):
 				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
 
 		else:
-			if isinstance(virtValue, str) and isinstance(expr, str):
+			if isinstance(virtValue, six.types.StringTypes) and isinstance(expr, six.types.StringTypes):
 				virtLower = virtValue.lower()
 				exprLower = expr.lower()
 

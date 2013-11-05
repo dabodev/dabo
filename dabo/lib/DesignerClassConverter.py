@@ -11,6 +11,9 @@ import re
 import random
 import codecs
 import tempfile
+
+import six
+
 import dabo
 dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
@@ -539,7 +542,7 @@ class DesignerClassConverter(dObject):
 				self.classText += LINESEP + self._spcText % locals()
 
 			elif clsname == "LayoutPanel":
-				if isinstance(szInfo, str):
+				if isinstance(szInfo, six.types.StringTypes):
 					szInfo = eval(szInfo)
 				defSizerInfo = {"Expand": True,  "Proportion": 1}
 				defSizerInfo.update(szInfo)
@@ -560,7 +563,7 @@ class DesignerClassConverter(dObject):
 				except IndexError:
 					typ = "H"
 				szDefaults = desUtil.getDefaultSizerProps(nm, typ)
-				if isinstance(szInfo, str):
+				if isinstance(szInfo, six.types.StringTypes):
 					szInfo = eval(szInfo)
 				szDefaults.update(szInfo)
 				szInfo = szDefaults

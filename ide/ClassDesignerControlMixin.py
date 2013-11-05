@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
+
+import six
+
 import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -66,14 +69,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			except Exception as e:
 				nm = self.Name
 				dabo.log.error(_("Could not set default prop value: object: %(nm)s; property: %(prop)s; error: %(e)s")
-						% locals())
+							   % locals())
 		# Update bindings; do control-specific things.
 		if isinstance(self, dui.dGrid):
 			coolEvents = (dEvents.GridRowSize,
-					dEvents.GridColSize,
-					dEvents.GridHeaderMouseLeftDown,
-					dEvents.GridHeaderMouseMove,
-					dEvents.GridHeaderMouseLeftUp)
+						  dEvents.GridColSize,
+						  dEvents.GridHeaderMouseLeftDown,
+						  dEvents.GridHeaderMouseMove,
+						  dEvents.GridHeaderMouseLeftUp)
 			badEvents = []
 			for bnd in self._eventBindings:
 				if bnd[0] not in coolEvents:
@@ -86,16 +89,16 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			# Kill cell editing
 			self._vetoAllEditing = True
 			self.bindEvent(dEvents.GridCellSelected,
-					self.Controller.onGridCellSelected)
+						   self.Controller.onGridCellSelected)
 			self.bindEvent(dEvents.GridHeaderMouseLeftUp,
-					self.Controller.onGridHeaderSelected)
+						   self.Controller.onGridHeaderSelected)
 		elif isinstance(self, dui.dSplitter):
 			pass
 		elif isinstance(self, dui.dImage):
 			self.bindEvent(dEvents.Resize, self._onResize)
 		elif isinstance(self, (dui.dSlidePanelControl, dui.dSlidePanel)):
 			coolEvents = (dEvents.SlidePanelCaptionClick,
-						dEvents.SlidePanelChange)
+						  dEvents.SlidePanelChange)
 			badEvents = []
 			for bnd in self._eventBindings:
 				if bnd[0] not in coolEvents:
@@ -125,7 +128,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			# Bind the selected node to the current selection
 			self.bindEvent(dEvents.TreeSelection, self.desSelectNode)
 		elif isinstance(self, (dui.dPageFrame, dui.dPageList,
-				dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs)):
+				               dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs)):
 			self.defaultWd = 400
 			self.defaultHt = 300
 			# Bind the active page to the current selection
@@ -133,7 +136,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		elif isinstance(self, dui.dSlidePanel):
 			self.bindEvent(dEvents.SlidePanelChange, self.desSlidePanelChg)
 		elif isinstance(self, (dui.dPanel, dui.dImage, dui.dBitmap,
-				dui.dBitmapButton, dui.dToggleButton)):
+				               dui.dBitmapButton, dui.dToggleButton)):
 			self.defaultWd = 60
 			self.defaultHt = 60
 		else:
@@ -156,12 +159,12 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 
 	def _insertPageOverride(self, pos, pgCls=None, caption="", imgKey=None,
-			makeActive=False, ignoreOverride=False):
+		                    makeActive=False, ignoreOverride=False):
 		if not isinstance(self, self.Controller.pagedControls):
 			return
 
 		cnt = self.Controller
-		if cnt.openingClassXML or not isinstance(pgCls, str):
+		if cnt.openingClassXML or not isinstance(pgCls, six.types.StringTypes):
 			tmpPgCls = self.Controller.getControlClass(dui.dPage)
 			pg = self.insertPage(pos, tmpPgCls, ignoreOverride=True)
 			pg.Sizer = LayoutSizer("v")
@@ -201,7 +204,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 	def makeSizer(self):
 		if isinstance(self, dlgs.WizardPage):
 			self.Sizer = LayoutSizer("v", DefaultSpacing=5, DefaultBorder=12,
-					DefaultBorderLeft=True, DefaultBorderRight=True)
+						             DefaultBorderLeft=True, DefaultBorderRight=True)
 		else:
 			return super(ClassDesignerControlMixin, self).makeSizer()
 
@@ -319,7 +322,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		if len(pop.Children):
 			pop.prependSeparator()
 		if not self.UsingSizers and self.IsContainer \
-				and not self is self.Form.ActiveContainer:
+		   and not self is self.Form.ActiveContainer:
 			pop.prepend(_("Edit Contents"), OnHit=self.onEditContainer)
 		if len(pop.Children):
 			pop.prependSeparator()
@@ -348,14 +351,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				pop.append(_("Add Sibling Node"), OnHit=self.onAddSibling)
 			if not self.Editable:
 				pop.append(_("Change Node Caption"),
-						OnHit=self.onChangeCaption)
+						   OnHit=self.onChangeCaption)
 			if not self.activeNode.IsRootNode:
 				pop.append(_("Delete this node"), OnHit=self.onDelNode)
 		elif isinstance(self, (dui.dLabel, dui.dButton, dui.dCheckBox,
-				dui.dBitmapButton, dui.dToggleButton, dui.dPage,
-				dui.dColumn, dlgs.WizardPage)):
+				               dui.dBitmapButton, dui.dToggleButton, dui.dPage,
+				               dui.dColumn, dlgs.WizardPage)):
 			pop.append(_("Change Caption"),
-					OnHit=self.onChangeCaption)
+					   OnHit=self.onChangeCaption)
 		if self.UsingSizers:
 			if self.Controller.addSlotOptions(self, pop, sepBefore=True):
 				# Add the Sizer editing option
@@ -376,33 +379,33 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		return ret
 
 
- 	def onAddChild(self, evt):
- 		nd = self.activeNode
- 		self.activeNode = None
- 		txt = dui.getString(_("New Node Caption?"), _("Adding Child Node"))
- 		if txt is not None:
- 			nd.appendChild(txt)
- 		self.Controller.updateLayout()
+	def onAddChild(self, evt):
+		nd = self.activeNode
+		self.activeNode = None
+		txt = dui.getString(_("New Node Caption?"), _("Adding Child Node"))
+		if txt is not None:
+			nd.appendChild(txt)
+		self.Controller.updateLayout()
 
 
- 	def onAddSibling(self, evt):
- 		nd = self.activeNode
- 		self.activeNode = None
- 		txt = dui.getString(_("New Node Caption?"), _("Adding Sibling Node"))
- 		if txt is not None:
- 			nd.parent.appendChild(txt)
- 		self.Controller.updateLayout()
+	def onAddSibling(self, evt):
+		nd = self.activeNode
+		self.activeNode = None
+		txt = dui.getString(_("New Node Caption?"), _("Adding Sibling Node"))
+		if txt is not None:
+			nd.parent.appendChild(txt)
+		self.Controller.updateLayout()
 
 
- 	def onDelNode(self, evt):
- 		nd = self.activeNode
- 		self.activeNode = None
- 		self.removeNode(nd)
- 		self.Controller.updateLayout()
+	def onDelNode(self, evt):
+		nd = self.activeNode
+		self.activeNode = None
+		self.removeNode(nd)
+		self.Controller.updateLayout()
 
 
- 	def onChangeCaption(self, evt):
- 		if isinstance(self, dui.dTreeView):
+	def onChangeCaption(self, evt):
+		if isinstance(self, dui.dTreeView):
 			nd = self.activeNode
 			self.activeNode = None
 			target = nd
@@ -413,10 +416,10 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			title = _("Changing Caption")
 			defVal = self.Caption
 		txt = dui.getString(_("New Caption"), caption=title,
-				defaultValue=defVal, Width=500, SelectOnEntry=True)
+				            defaultValue=defVal, Width=500, SelectOnEntry=True)
 		if txt is not None:
 			target.Caption = txt
- 		self.Controller.updateLayout()
+		self.Controller.updateLayout()
 
 
 	def onPaste(self, evt):
@@ -674,253 +677,253 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 	def _getDesProps(self):
 		useSizers = self.Controller.UseSizers
 		ret = {"Enabled": {"type": bool, "readonly": False},
-				"Name": {"type": str, "readonly": False},
-				"RegID": {"type": str, "readonly": False},
-				"TabStop": {"type": bool, "readonly": False},
-				"Tag": {"type": "multi", "readonly": False},
-				"ToolTipText": {"type": str, "readonly": False},
-				"Transparency": {"type": int, "readonly": False},
-				"Visible": {"type": bool, "readonly": False}}
+			   "Name": {"type": str, "readonly": False},
+			   "RegID": {"type": str, "readonly": False},
+			   "TabStop": {"type": bool, "readonly": False},
+			   "Tag": {"type": "multi", "readonly": False},
+			   "ToolTipText": {"type": str, "readonly": False},
+			   "Transparency": {"type": int, "readonly": False},
+			   "Visible": {"type": bool, "readonly": False}}
 		captionProps = {"Caption": {"type": str, "readonly": False}}
 		choiceProps = {"Choices": {"type": "choice", "readonly": False,
-				"customEditor": "editChoice"},
-				"Keys": {"type": "choice", "readonly": False,
-					"customEditor": "editKeys"},
-				"ValueMode": {"type": list, "readonly": False,
-					"values": ["String", "Position", "Key"]}}
+				                   "customEditor": "editChoice"},
+				       "Keys": {"type": "choice", "readonly": False,
+				                "customEditor": "editKeys"},
+				       "ValueMode": {"type": list, "readonly": False,
+				                     "values": ["String", "Position", "Key"]}}
 		colorProps = {"BackColor": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"ForeColor": {"type": "color", "readonly": False,
-					"customEditor": "editColor"}}
+				                    "customEditor": "editColor"},
+				      "ForeColor": {"type": "color", "readonly": False,
+				                    "customEditor": "editColor"}}
 		columnProps = {"Order": {"type": int, "readonly": False},
-				 "Width": {"type": int, "readonly": False},
-				"DataField": {"type": str, "readonly": False},
-				"HeaderBackColor": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"HeaderFont": {"type": "font", "readonly": False,
-						"customEditor": "editHeaderFont"},
-				"HeaderFontBold": {"type": bool, "readonly": False},
-				"HeaderFontFace": {"type": list, "readonly": False,
-						"values": dui.getAvailableFonts()},
-				"HeaderFontItalic": {"type": bool, "readonly": False},
-				"HeaderFontSize": {"type": int, "readonly": False},
-				"HeaderFontUnderline": {"type": bool, "readonly": False},
-				"HeaderForeColor": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"HeaderHorizontalAlignment": {"type": list, "readonly": False,
-						"values": ["Automatic", "Left", "Center", "Right"]},
-				"HeaderVerticalAlignment": {"type": list, "readonly": False,
-						"values": ["Automatic", "Top", "Middle", "Bottom"]},
-				"ListEditorChoices": {"type": "choice", "readonly": False,
-						"customEditor": "editChoice"},
-				"HorizontalAlignment": {"type": list, "readonly": False,
-					"values": ["Automatic", "Left", "Center", "Right"]},
-				"VerticalAlignment": {"type": list, "readonly": False,
-						"values": ["Top", "Center", "Bottom"]},
-				"Editable": {"type": bool, "readonly": False},
-				"Expand": {"type": bool, "readonly": False},
-				"Searchable": {"type": bool, "readonly": False},
-				"Sortable": {"type": bool, "readonly": False}}
+				       "Width": {"type": int, "readonly": False},
+				       "DataField": {"type": str, "readonly": False},
+				       "HeaderBackColor": {"type": "color", "readonly": False,
+				                           "customEditor": "editColor"},
+				       "HeaderFont": {"type": "font", "readonly": False,
+				                      "customEditor": "editHeaderFont"},
+				       "HeaderFontBold": {"type": bool, "readonly": False},
+				       "HeaderFontFace": {"type": list, "readonly": False,
+				                          "values": dui.getAvailableFonts()},
+				       "HeaderFontItalic": {"type": bool, "readonly": False},
+				       "HeaderFontSize": {"type": int, "readonly": False},
+				       "HeaderFontUnderline": {"type": bool, "readonly": False},
+				       "HeaderForeColor": {"type": "color", "readonly": False,
+				                           "customEditor": "editColor"},
+				       "HeaderHorizontalAlignment": {"type": list, "readonly": False,
+				                                     "values": ["Automatic", "Left", "Center", "Right"]},
+				       "HeaderVerticalAlignment": {"type": list, "readonly": False,
+				                                   "values": ["Automatic", "Top", "Middle", "Bottom"]},
+				       "ListEditorChoices": {"type": "choice", "readonly": False,
+				                             "customEditor": "editChoice"},
+				       "HorizontalAlignment": {"type": list, "readonly": False,
+				                               "values": ["Automatic", "Left", "Center", "Right"]},
+				       "VerticalAlignment": {"type": list, "readonly": False,
+				                             "values": ["Top", "Center", "Bottom"]},
+				       "Editable": {"type": bool, "readonly": False},
+				       "Expand": {"type": bool, "readonly": False},
+				       "Searchable": {"type": bool, "readonly": False},
+				       "Sortable": {"type": bool, "readonly": False}}
 		comboProps = {"AppendOnEnter": {"type": bool, "readonly": False}}
 		dataProps = {"DataSource": {"type": str, "readonly": False},
-				"DataField": {"type": str, "readonly": False},
-				"Value": {"type": "multi", "readonly": False}}
+				     "DataField": {"type": str, "readonly": False},
+				     "Value": {"type": "multi", "readonly": False}}
 		editorProps = {"CommentString": {"type": str, "readonly": False},
-				"ShowCallTips": {"type": bool, "readonly": False},
-				"ShowCodeFolding": {"type": bool, "readonly": False},
-				"ShowEOL": {"type": bool, "readonly": False},
-				"ShowLineNumbers": {"type": bool, "readonly": False},
-				"ShowWhiteSpace": {"type": bool, "readonly": False},
-				"SyntaxColoring": {"type": bool, "readonly": False},
-				"TabWidth": {"type": int, "readonly": False},
-				"WordWrap": {"type": bool, "readonly": False}}
+				       "ShowCallTips": {"type": bool, "readonly": False},
+				       "ShowCodeFolding": {"type": bool, "readonly": False},
+				       "ShowEOL": {"type": bool, "readonly": False},
+				       "ShowLineNumbers": {"type": bool, "readonly": False},
+				       "ShowWhiteSpace": {"type": bool, "readonly": False},
+				       "SyntaxColoring": {"type": bool, "readonly": False},
+				       "TabWidth": {"type": int, "readonly": False},
+				       "WordWrap": {"type": bool, "readonly": False}}
 		fontProps = {"Font": {"type": "font", "readonly": False,
-					"customEditor": "editFont"},
-				"FontBold": {"type": bool, "readonly": False},
-				"FontFace": {"type": list, "readonly": False,
-						"values": dui.getAvailableFonts()},
-				"FontItalic": {"type": bool, "readonly": False},
-				"FontSize": {"type": int, "readonly": False},
-				"FontUnderline": {"type": bool, "readonly": False}}
+				              "customEditor": "editFont"},
+				     "FontBold": {"type": bool, "readonly": False},
+				     "FontFace": {"type": list, "readonly": False,
+				                  "values": dui.getAvailableFonts()},
+				     "FontItalic": {"type": bool, "readonly": False},
+				     "FontSize": {"type": int, "readonly": False},
+				     "FontUnderline": {"type": bool, "readonly": False}}
 		gridProps = {"ActivateEditorOnSelect": {"type": bool, "readonly": False},
-				"AlternateRowColoring": {"type": bool, "readonly": False},
-				"CellHighlightWidth": {"type": int, "readonly": False},
-				"ColumnCount": {"type": int, "readonly": False},
-				"DataSource": {"type": str, "readonly": False},
-				"Editable": {"type": bool, "readonly": False},
-				"HeaderBackColor": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"HeaderForeColor": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"HeaderHeight": {"type": int, "readonly": False},
-				"HeaderHorizontalAlignment": {"type": list, "readonly": False,
-					"values": ["Left", "Center", "Right"]},
-				"HeaderVerticalAlignment": {"type": list, "readonly": False,
-					"values": ["Top", "Middle", "Bottom"]},
-				"RowColorEven": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"RowColorOdd": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"RowHeight": {"type": int, "readonly": False},
-				"Searchable": {"type": bool, "readonly": False},
-				"SelectionBackColor": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"SelectionForeColor": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"SelectionMode": {"type": list, "readonly": False,
-					"values": ["Cell", "Row", "Column"]},
-				"Sortable": {"type": bool, "readonly": False},
-				"ShowCellBorders":{"type": bool, "readonly": False},
-				"ShowHeaders":{"type": bool, "readonly": False},
-				"ShowRowLabels": {"type": bool, "readonly": False}}
+				     "AlternateRowColoring": {"type": bool, "readonly": False},
+				     "CellHighlightWidth": {"type": int, "readonly": False},
+				     "ColumnCount": {"type": int, "readonly": False},
+				     "DataSource": {"type": str, "readonly": False},
+				     "Editable": {"type": bool, "readonly": False},
+				     "HeaderBackColor": {"type": "color", "readonly": False,
+				                         "customEditor": "editColor"},
+				     "HeaderForeColor": {"type": "color", "readonly": False,
+				                         "customEditor": "editColor"},
+				     "HeaderHeight": {"type": int, "readonly": False},
+				     "HeaderHorizontalAlignment": {"type": list, "readonly": False,
+				                                   "values": ["Left", "Center", "Right"]},
+				     "HeaderVerticalAlignment": {"type": list, "readonly": False,
+				                                 "values": ["Top", "Middle", "Bottom"]},
+				     "RowColorEven": {"type": "color", "readonly": False,
+				                      "customEditor": "editColor"},
+				     "RowColorOdd": {"type": "color", "readonly": False,
+				                     "customEditor": "editColor"},
+				     "RowHeight": {"type": int, "readonly": False},
+				     "Searchable": {"type": bool, "readonly": False},
+				     "SelectionBackColor": {"type": "color", "readonly": False,
+				                            "customEditor": "editColor"},
+				     "SelectionForeColor": {"type": "color", "readonly": False,
+				                            "customEditor": "editColor"},
+				     "SelectionMode": {"type": list, "readonly": False,
+				                       "values": ["Cell", "Row", "Column"]},
+				     "Sortable": {"type": bool, "readonly": False},
+				     "ShowCellBorders":{"type": bool, "readonly": False},
+				     "ShowHeaders":{"type": bool, "readonly": False},
+				     "ShowRowLabels": {"type": bool, "readonly": False}}
 		imageProps = {"ScaleMode": {"type": list, "readonly": False,
-					"values": ["Clip", "Proportional", "Stretch"]}}
+				                    "values": ["Clip", "Proportional", "Stretch"]}}
 		labelProps = {"Alignment": {"type": list, "readonly": False,
-				"values": ["Left", "Center", "Right"]},
-				"AutoResize": {"type": bool, "readonly": False}}
+				                    "values": ["Left", "Center", "Right"]},
+				      "AutoResize": {"type": bool, "readonly": False}}
 		ledProps = {"OffColor": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"OnColor": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"On": {"type": bool, "readonly": False}}
+				                 "customEditor": "editColor"},
+				    "OnColor": {"type": "color", "readonly": False,
+				                "customEditor": "editColor"},
+				    "On": {"type": bool, "readonly": False}}
 		listControlProps = {"ColumnCount": {"type": int, "readonly": False},
-				"ExpandColumn": {"type": int, "readonly": False},
-				"ExpandToFit": {"type": bool, "readonly": False},
-				"HeaderVisible": {"type": bool, "readonly": False},
-				"HorizontalRules": {"type": bool, "readonly": False},
-				"RowCount": {"type": int, "readonly": True},
-				"SortColumn": {"type": int, "readonly": False},
-				"SortOnHeaderClick": {"type": bool, "readonly": False},
-				"ValueColumn": {"type": int, "readonly": False},
-				"VerticalRules": {"type": bool, "readonly": False}}
+				            "ExpandColumn": {"type": int, "readonly": False},
+				            "ExpandToFit": {"type": bool, "readonly": False},
+				            "HeaderVisible": {"type": bool, "readonly": False},
+				            "HorizontalRules": {"type": bool, "readonly": False},
+				            "RowCount": {"type": int, "readonly": True},
+				            "SortColumn": {"type": int, "readonly": False},
+				            "SortOnHeaderClick": {"type": bool, "readonly": False},
+				            "ValueColumn": {"type": int, "readonly": False},
+				            "VerticalRules": {"type": bool, "readonly": False}}
 		maskedTextBoxProps = {"Format": {"type": list, "readonly": False,
-						"values": [""]+dui.dMaskedTextBox.getFormats()},
-				"InputCodes": {"type": str, "readonly": lambda self: bool(self.Format)},
-				"Mask": {"type": str, "readonly": lambda self: bool(self.Format)},
-				"ValueMode": {"type": list, "readonly": False,
-					"values": ["Masked", "Unmasked"]}}
+				                         "values": [""]+dui.dMaskedTextBox.getFormats()},
+				              "InputCodes": {"type": str, "readonly": lambda self: bool(self.Format)},
+				              "Mask": {"type": str, "readonly": lambda self: bool(self.Format)},
+				              "ValueMode": {"type": list, "readonly": False,
+				                            "values": ["Masked", "Unmasked"]}}
 		mediaControlProps = {"Loop": {"type": bool, "readonly": False},
-				"ShowControls": {"type": bool, "readonly": False},
-				"Source": {"type": str, "readonly": False},
-				"TimeInSeconds": {"type": bool, "readonly": False},
-				"Volume": {"type": int, "readonly": False}}
+				             "ShowControls": {"type": bool, "readonly": False},
+				             "Source": {"type": str, "readonly": False},
+				             "TimeInSeconds": {"type": bool, "readonly": False},
+				             "Volume": {"type": int, "readonly": False}}
 		multiSelectProps = {"MultipleSelect": {"type": bool, "readonly": False}}
 		nodeProps = {"Image": {"type": "path", "readonly": False,
-					"customEditor": "editStdPicture"}}
+				               "customEditor": "editStdPicture"}}
 		panelProps = {"AlwaysResetSizer": {"type": bool, "readonly": False},
-				"Buffered": {"type": bool, "readonly": False},
-				"MinSizerHeight": {"type": int, "readonly": False},
-				"MinSizerWidth": {"type": int, "readonly": False}}
+				      "Buffered": {"type": bool, "readonly": False},
+				      "MinSizerHeight": {"type": int, "readonly": False},
+				      "MinSizerWidth": {"type": int, "readonly": False}}
 		pictureProps = {"Picture": {"type": "path", "readonly": False,
-					"customEditor": "editStdPicture"}}
+				                    "customEditor": "editStdPicture"}}
 		posProps = {"Left": {"type": int, "readonly": useSizers},
-				"Right": {"type": int, "readonly": useSizers},
-				"Top": {"type": int, "readonly": useSizers},
-				"Bottom": {"type": int, "readonly": useSizers},
-				"Height": {"type": int, "readonly": False},
-				"Width": {"type": int, "readonly": False}}
+				    "Right": {"type": int, "readonly": useSizers},
+				    "Top": {"type": int, "readonly": useSizers},
+				    "Bottom": {"type": int, "readonly": useSizers},
+				    "Height": {"type": int, "readonly": False},
+				    "Width": {"type": int, "readonly": False}}
 		radioProps = {"Orientation": {"type": list, "readonly": False,
-					"values": ["Horizontal", "Vertical"]},
-				"ShowBox": {"type": bool, "readonly": False}}
+				                      "values": ["Horizontal", "Vertical"]},
+				      "ShowBox": {"type": bool, "readonly": False}}
 		sizerProps = {"Sizer_Border": {"type": int, "readonly": False},
-				"Sizer_BorderSides": {"type": list, "readonly": False,
-					"values": ["All", "Top", "Bottom", "Left", "Right", "None"],
-					"customEditor": "editBorderSides"},
-				"Sizer_Expand": {"type": bool, "readonly": False},
-				"Sizer_Proportion": {"type": int, "readonly": False},
-				"Sizer_HAlign": {"type": list, "readonly": False,
-					"values": ["Left", "Right", "Center"]},
-				"Sizer_VAlign": {"type": list, "readonly": False,
-					"values": ["Top", "Bottom", "Middle"]}}
+				      "Sizer_BorderSides": {"type": list, "readonly": False,
+				                            "values": ["All", "Top", "Bottom", "Left", "Right", "None"],
+				                            "customEditor": "editBorderSides"},
+				      "Sizer_Expand": {"type": bool, "readonly": False},
+				      "Sizer_Proportion": {"type": int, "readonly": False},
+				      "Sizer_HAlign": {"type": list, "readonly": False,
+				                       "values": ["Left", "Right", "Center"]},
+				      "Sizer_VAlign": {"type": list, "readonly": False,
+				                       "values": ["Top", "Bottom", "Middle"]}}
 		sliderProps = {"Max": {"type": int, "readonly": False},
-				"Min": {"type": int, "readonly": False},
-				"ShowLabels": {"type": bool, "readonly": False}}
+				       "Min": {"type": int, "readonly": False},
+				       "ShowLabels": {"type": bool, "readonly": False}}
 		slidePanelControlProps = {"CollapseToBottom": {"type": bool, "readonly": False},
-				"ExpandContent": {"type": bool, "readonly": False},
-				"PanelCount": {"type": int, "readonly": True},
-				"SingleClick": {"type": bool, "readonly": False},
-				"Singleton": {"type": bool, "readonly": False}}
+				                  "ExpandContent": {"type": bool, "readonly": False},
+				                  "PanelCount": {"type": int, "readonly": True},
+				                  "SingleClick": {"type": bool, "readonly": False},
+				                  "Singleton": {"type": bool, "readonly": False}}
 		slidePanelProps = {
-				"BarColor1": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"BarColor2": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"BarStyle": {"type": list, "readonly": False,
-					"values": ["Borderless", "BorderOnly", "FilledBorder", "HorizontalFill", "VerticalFill"]},
-				"Border": {"type": int, "readonly": False},
-				"CaptionForeColor": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"PanelPosition": {"type": int, "readonly": False}}
+			"BarColor1": {"type": "color", "readonly": False,
+				          "customEditor": "editColor"},
+			"BarColor2": {"type": "color", "readonly": False,
+				          "customEditor": "editColor"},
+			"BarStyle": {"type": list, "readonly": False,
+				         "values": ["Borderless", "BorderOnly", "FilledBorder", "HorizontalFill", "VerticalFill"]},
+			"Border": {"type": int, "readonly": False},
+			"CaptionForeColor": {"type": "color", "readonly": False,
+				                 "customEditor": "editColor"},
+			"PanelPosition": {"type": int, "readonly": False}}
 		splitterProps = {"CanUnsplit": {"type": bool, "readonly": False},
-				"MinimumPanelSize": {"type": int, "readonly": False},
-				"Orientation": {"type": list, "readonly": False,
-					"values": ["Horizontal", "Vertical"]},
-				"PanelClass": {"type": str, "readonly": False},
-				"SashPosition": {"type": int, "readonly": False},
-				"ShowPanelSplitMenu": {"type": bool, "readonly": False},
-				"Split": {"type": bool, "readonly": False}}
+				         "MinimumPanelSize": {"type": int, "readonly": False},
+				         "Orientation": {"type": list, "readonly": False,
+				                         "values": ["Horizontal", "Vertical"]},
+				         "PanelClass": {"type": str, "readonly": False},
+				         "SashPosition": {"type": int, "readonly": False},
+				         "ShowPanelSplitMenu": {"type": bool, "readonly": False},
+				         "Split": {"type": bool, "readonly": False}}
 		spinnerProps = {
-				"Increment": {"type": "multi", "readonly": False},
-				"Max": {"type": int, "readonly": False},
-				"Min": {"type": int, "readonly": False},
-				"SpinnerWrap": {"type": bool, "readonly": False}}
+			"Increment": {"type": "multi", "readonly": False},
+			"Max": {"type": int, "readonly": False},
+			"Min": {"type": int, "readonly": False},
+			"SpinnerWrap": {"type": bool, "readonly": False}}
 		textProps = {"Alignment": {"type": list, "readonly": False,
-					"values": ["Left", "Center", "Right"]},
-				"ForceCase": {"type": list, "readonly": False,
-					"values": ["Upper", "Lower", "Title", "None"]},
-				"ReadOnly": {"type": bool, "readonly": False}}
+				                   "values": ["Left", "Center", "Right"]},
+				     "ForceCase": {"type": list, "readonly": False,
+				                   "values": ["Upper", "Lower", "Title", "None"]},
+				     "ReadOnly": {"type": bool, "readonly": False}}
 		htmlTextProps = {"Page": {"type": str, "readonly": False},
-				"RespondToLinks": {"type": bool, "readonly": False},
-				"ShowScrollBars": {"type": bool, "readonly": False},
-				"Source": {"type": str, "readonly": False}}
+				         "RespondToLinks": {"type": bool, "readonly": False},
+				         "ShowScrollBars": {"type": bool, "readonly": False},
+				         "Source": {"type": str, "readonly": False}}
 		scrollProps = {"HorizontalScroll": {"type": bool, "readonly": False},
-				"VerticalScroll": {"type": bool, "readonly": False}}
+				       "VerticalScroll": {"type": bool, "readonly": False}}
 		treeProps = {"Editable": {"type": bool, "readonly": False},
-				"MultipleSelect": {"type": bool, "readonly": False},
-				"ShowButtons": {"type": bool, "readonly": False},
-				"ShowLines": {"type": bool, "readonly": False},
-				"ShowRootNode": {"type": bool, "readonly": False},
-				"ShowRootNodeLines": {"type": bool, "readonly": False}}
+				     "MultipleSelect": {"type": bool, "readonly": False},
+				     "ShowButtons": {"type": bool, "readonly": False},
+				     "ShowLines": {"type": bool, "readonly": False},
+				     "ShowRootNode": {"type": bool, "readonly": False},
+				     "ShowRootNodeLines": {"type": bool, "readonly": False}}
 		gridSizerProps = {"Sizer_RowExpand": {"type": bool, "readonly": False},
-				"Sizer_ColExpand": {"type": bool, "readonly": False},
-				"Sizer_RowSpan": {"type": int, "readonly": False},
-				"Sizer_ColSpan": {"type": int, "readonly": False}}
+				          "Sizer_ColExpand": {"type": bool, "readonly": False},
+				          "Sizer_RowSpan": {"type": int, "readonly": False},
+				          "Sizer_ColSpan": {"type": int, "readonly": False}}
 		pageFrameProps = {"PageCount": {"type": int, "readonly": False},
-				"TabPosition": {"type": list, "readonly": False,
-					"values": ["Top", "Bottom", "Left", "Right"] }}
+				          "TabPosition": {"type": list, "readonly": False,
+				                          "values": ["Top", "Bottom", "Left", "Right"] }}
 		pageListProps = {"ListSpacing": {"type": int, "readonly": False}}
 		pageStyleProps = {"ActiveTabColor":  {"type": "color", "readonly": False,
-						"customEditor": "editColor"},
-					"ActiveTabTextColor":  {"type": "color", "readonly": False,
-						"customEditor": "editColor"},
-					"InactiveTabTextColor":  {"type": "color", "readonly": False,
-						"customEditor": "editColor"},
-					"ShowDropdownTabList":  {"type": "bool", "readonly": False},
-					"ShowMenuCloseButton":  {"type": "bool", "readonly": False},
-					"ShowMenuOnSingleTab":  {"type": "bool", "readonly": False},
-					"ShowPageCloseButtons":  {"type": "bool", "readonly": False},
-					"ShowNavButtons":  {"type": "bool", "readonly": False},
-					"TabAreaColor":  {"type": "color", "readonly": False,
-						"customEditor": "editColor"},
-					"TabPosition": {"type": list, "readonly": False,
-						"values": ["Top", "Bottom"]},
-					"TabSideIncline": {"type": int, "readonly": False},
-					"TabStyle": {"type": list, "readonly": False,
-						"values": ["Default", "VC8", "VC71", "Fancy", "Firefox"]}
-					}
+				                              "customEditor": "editColor"},
+				          "ActiveTabTextColor":  {"type": "color", "readonly": False,
+				                                  "customEditor": "editColor"},
+				          "InactiveTabTextColor":  {"type": "color", "readonly": False,
+				                                    "customEditor": "editColor"},
+				          "ShowDropdownTabList":  {"type": "bool", "readonly": False},
+				          "ShowMenuCloseButton":  {"type": "bool", "readonly": False},
+				          "ShowMenuOnSingleTab":  {"type": "bool", "readonly": False},
+				          "ShowPageCloseButtons":  {"type": "bool", "readonly": False},
+				          "ShowNavButtons":  {"type": "bool", "readonly": False},
+				          "TabAreaColor":  {"type": "color", "readonly": False,
+				                            "customEditor": "editColor"},
+				          "TabPosition": {"type": list, "readonly": False,
+				                          "values": ["Top", "Bottom"]},
+				          "TabSideIncline": {"type": int, "readonly": False},
+				          "TabStyle": {"type": list, "readonly": False,
+				                       "values": ["Default", "VC8", "VC71", "Fancy", "Firefox"]}
+				          }
 		borderProps = {"BorderColor": {"type": "color", "readonly": False,
-					"customEditor": "editColor"},
-				"BorderLineStyle": {"type": list, "readonly": False,
-						"values": ["Solid", "Dot", "Dash", "DotDash"]},
-				"BorderStyle": {"type": list, "readonly": False,
-						"values": ["None", "Simple", "Sunken", "Raised",
-						"Double", "Static", "Default"]},
-				"BorderWidth": {"type": int, "readonly": False}}
+				                       "customEditor": "editColor"},
+				       "BorderLineStyle": {"type": list, "readonly": False,
+				                           "values": ["Solid", "Dot", "Dash", "DotDash"]},
+				       "BorderStyle": {"type": list, "readonly": False,
+				                       "values": ["None", "Simple", "Sunken", "Raised",
+				                                  "Double", "Static", "Default"]},
+				       "BorderWidth": {"type": int, "readonly": False}}
 		wizardPageProps = {"TitleBold": {"type": bool, "readonly": False},
-				"TitleFace": {"type": list, "readonly": False,
-						"values": dui.getAvailableFonts()},
-				"TitleItalic": {"type": bool, "readonly": False},
-				"TitleSize": {"type": int, "readonly": False}}
+				           "TitleFace": {"type": list, "readonly": False,
+				                         "values": dui.getAvailableFonts()},
+				           "TitleItalic": {"type": bool, "readonly": False},
+				           "TitleSize": {"type": int, "readonly": False}}
 
 		# Add the controlling sizer props
 		if hasattr(self, "ControllingSizer"):
@@ -1027,7 +1030,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(pageFrameProps)
 			ret.update(pageListProps)
 		elif isinstance(self, (dui.dPageFrame, dui.dPageList,
-				dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs)):
+				               dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs)):
 			ret.update(colorProps)
 			ret.update(fontProps)
 			ret.update(pageFrameProps)
@@ -1057,7 +1060,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(colorProps)
 		elif isinstance(self, dui.dShell):
 			ret.update({"FontFace": {"type": list, "readonly": False,
-						"values": dui.getAvailableFonts()},
+						             "values": dui.getAvailableFonts()},
 						"FontSize": {"type": int, "readonly": False}})
 		elif isinstance(self, dui.dPanel):
 			ret.update(panelProps)
@@ -1087,7 +1090,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(textProps)
 			if isinstance(self, dui.dTextBox):
 				ret.update({"PasswordEntry": {"type": bool, "readonly": False},
-						"TextLength": {"type": int, "readonly": False}})
+							"TextLength": {"type": int, "readonly": False}})
 			elif isinstance(self, dui.dMaskedTextBox):
 				ret.update(maskedTextBoxProps)
 				del ret["ForceCase"]
@@ -1127,7 +1130,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 	def _setHiliteBorderColor(self, val):
 		if self._constructed():
-			if isinstance(val, str):
+			if isinstance(val, six.types.StringTypes):
 				try:
 					val = dColors.colorTupleFromName(val)
 				except: pass
@@ -1145,7 +1148,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 	def _setHiliteBorderLineStyle(self, val):
 		if self._constructed():
 			val = self._expandPropStringValue(val, ("Solid", "Dash", "Dashed", "Dot",
-					"Dotted", "DotDash", "DashDot"))
+						                            "Dotted", "DotDash", "DashDot"))
 			self._hiliteBorderLineStyle = val
 			if self._hiliteBorder:
 				self._hiliteBorder.LineStyle = val
@@ -1169,7 +1172,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				if val > 0:
 					if hasattr(self, "drawRectangle"):
 						self._hiliteBorder = self.drawRectangle(0, 0, self.Width,
-								self.Height, penColor=self.HiliteBorderColor, penWidth=val)
+												                self.Height, penColor=self.HiliteBorderColor, penWidth=val)
 			if self._hiliteBorder:
 				# Tie it to resizing
 				self.bindEvent(dEvents.Resize, self._onResizeHiliteBorder)
@@ -1188,7 +1191,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 	def _getContainerState(self):
 		return isinstance(self, (dui.dPanel, dui.dScrollPanel, dui.dPage,
-				dui.dForm, dui.dFormMain, dui.dDialog) )
+				                 dui.dForm, dui.dFormMain, dui.dDialog) )
 
 
 	def _getRegID(self):
@@ -1236,29 +1239,29 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 	def _getSzBorder(self):
 		return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
-				"Border")
+				                                 "Border")
 
 	def _setSzBorder(self, val):
 		self.ControllingSizer.setItemProp(self.ControllingSizerItem,
-				"Border", val)
+				                          "Border", val)
 
 
 	def _getSzBorderSides(self):
 		return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
-				"BorderSides")
+				                                 "BorderSides")
 
 	def _setSzBorderSides(self, val):
 		self.ControllingSizer.setItemProp(self.ControllingSizerItem,
-				"BorderSides", val)
+				                          "BorderSides", val)
 
 
 	def _getSzExpand(self):
 		return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
-				"Expand")
+				                                 "Expand")
 
 	def _setSzExpand(self, val):
 		self.ControllingSizer.setItemProp(self.ControllingSizerItem,
-				"Expand", val)
+				                          "Expand", val)
 
 
 	def _getSzColExpand(self):
@@ -1301,36 +1304,36 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 	def _getSzProp(self):
 		return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
-				"Proportion")
+				                                 "Proportion")
 
 	def _setSzProp(self, val):
 		self.ControllingSizer.setItemProp(self.ControllingSizerItem,
-				"Proportion", val)
+				                          "Proportion", val)
 
 
 	def _getSzHalign(self):
 		return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
-				"Halign")
+				                                 "Halign")
 
 	def _setSzHalign(self, val):
 		self.ControllingSizer.setItemProp(self.ControllingSizerItem,
-				"Halign", val)
+				                          "Halign", val)
 
 
 	def _getSzValign(self):
 		return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
-				"Valign")
+				                                 "Valign")
 
 	def _setSzValign(self, val):
 		self.ControllingSizer.setItemProp(self.ControllingSizerItem,
-				"Valign", val)
+				                          "Valign", val)
 
 
 	def _getSzInfo(self):
 		sz = self.ControllingSizer
 		szit = self.ControllingSizerItem
 		props = (("X","Expand"), ("Prop","Proportion"), ("Hor","Halign"),
-				("Vert","Valign"))
+				 ("Vert","Valign"))
 		ret = ""
 		# Expand
 		if sz.getItemProp(szit, "Expand"):
@@ -1373,81 +1376,81 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 
 	Children = property(_getChildren, None, None,
-			_("Returns a list of the designer-relevant child controls (read-only) (list)"))
+		                _("Returns a list of the designer-relevant child controls (read-only) (list)"))
 
 	Controller = property(_getController, _setController, None,
-			_("Object to which this one reports events  (object (varies))"))
+		                  _("Object to which this one reports events  (object (varies))"))
 
 	DesignerEvents = property(_getDesEvents, None, None,
-			_("""Returns a list of the most common events for the control.
+		                      _("""Returns a list of the most common events for the control.
 			This will determine which events are displayed in the PropSheet
 			for the developer to attach code to.  (list)""") )
 
 	DesignerProps = property(_getDesProps, None, None,
-			_("""Returns a dict of editable properties for the control, with the
+		                     _("""Returns a dict of editable properties for the control, with the
 			prop names as the keys, and the value for each another dict,
 			containing the following keys: 'type', which controls how to display
 			and edit the property, and 'readonly', which will prevent editing
 			when True. (dict)""") )
 
 	HiliteBorderColor = property(_getHiliteBorderColor, _setHiliteBorderColor, None,
-			_("Color of the border when the control is selected  (str or color tuple"))
+		                         _("Color of the border when the control is selected  (str or color tuple"))
 
 	HiliteBorderLineStyle = property(_getHiliteBorderLineStyle, _setHiliteBorderLineStyle, None,
-			_("Line style of the displayed border when the control is selected  (str"))
+		                             _("Line style of the displayed border when the control is selected  (str"))
 
 	HiliteBorderWidth = property(_getHiliteBorderWidth, _setHiliteBorderWidth, None,
-			_("Width of the border around the control when selected  (int"))
+		                         _("Width of the border around the control when selected  (int"))
 
 	IsContainer = property(_getContainerState, None, None,
-			_("Can we add controls to this control?  (bool)") )
+		                   _("Can we add controls to this control?  (bool)") )
 
 	IsMainControl = property(_getIsMain, _setIsMain, None,
-			_("""Is this the main control of the designer, or contained within the
+		                     _("""Is this the main control of the designer, or contained within the
 			main control?  (bool)"""))
 
 	# Placeholder for the actual RegID property
 	RegID = property(_getRegID, _setRegID, None,
-			_("A unique identifier used for referencing by other objects. (str)"))
+		             _("A unique identifier used for referencing by other objects. (str)"))
 
 	Selected = property(_getSelected, _setSelected, None,
-			_("Is this control selected for editing?  (bool)"))
+		                _("Is this control selected for editing?  (bool)"))
 
 	Sizer_Border = property(_getSzBorder, _setSzBorder, None,
-			_("Border setting of controlling sizer item  (int)"))
+		                    _("Border setting of controlling sizer item  (int)"))
 
 	Sizer_BorderSides = property(_getSzBorderSides, _setSzBorderSides, None,
-			_("To which sides is the border applied? (default=All  (str)"))
+		                         _("To which sides is the border applied? (default=All  (str)"))
 
 	Sizer_Expand = property(_getSzExpand, _setSzExpand, None,
-			_("Expand setting of controlling sizer item  (bool)"))
+		                    _("Expand setting of controlling sizer item  (bool)"))
 
 	Sizer_ColExpand = property(_getSzColExpand, _setSzColExpand, None,
-			_("Column Expand setting of controlling grid sizer item  (bool)"))
+		                       _("Column Expand setting of controlling grid sizer item  (bool)"))
 
 	Sizer_ColSpan = property(_getSzColSpan, _setSzColSpan, None,
-			_("Column Span setting of controlling grid sizer item  (int)"))
+		                     _("Column Span setting of controlling grid sizer item  (int)"))
 
 	Sizer_RowExpand = property(_getSzRowExpand, _setSzRowExpand, None,
-			_("Row Expand setting of controlling grid sizer item  (bool)"))
+		                       _("Row Expand setting of controlling grid sizer item  (bool)"))
 
 	Sizer_RowSpan = property(_getSzRowSpan, _setSzRowSpan, None,
-			_("Row Span setting of controlling grid sizer item  (int)"))
+		                     _("Row Span setting of controlling grid sizer item  (int)"))
 
 	Sizer_Proportion = property(_getSzProp, _setSzProp, None,
-			_("Proportion setting of controlling sizer item  (int)"))
+		                        _("Proportion setting of controlling sizer item  (int)"))
 
 	Sizer_HAlign = property(_getSzHalign, _setSzHalign, None,
-			_("Horiz. Alignment setting of controlling sizer item  (choice)"))
+		                    _("Horiz. Alignment setting of controlling sizer item  (choice)"))
 
 	Sizer_VAlign = property(_getSzValign, _setSzValign, None,
-			_("Vert. Alignment setting of controlling sizer item  (choice)"))
+		                    _("Vert. Alignment setting of controlling sizer item  (choice)"))
 
 	TreeDisplayCaption = property(_getTreeDisp, None, None,
-			_("Displayed text in the Designer Tree.  (tuple)") )
+		                          _("Displayed text in the Designer Tree.  (tuple)") )
 
 	UsingSizers = property(_getUsingSizers, None, None,
-			_("Convenience property. Reflects the form's UseSizers value  (bool)"))
+		                   _("Convenience property. Reflects the form's UseSizers value  (bool)"))
 
 
 

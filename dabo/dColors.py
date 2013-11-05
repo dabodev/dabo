@@ -2,6 +2,8 @@
 import re
 import random
 
+import six
+
 class HexError(Exception): pass
 class InvalidCharError(HexError): pass
 class TypeError(HexError): pass
@@ -168,7 +170,7 @@ colors.sort()
 
 
 def hexToDec(hx):
-	if not isinstance(hx, str):
+	if not isinstance(hx, six.types.StringTypes):
 		raise TypeError("Input must be a string")
 	# Define a dict of char-value pairs
 	hex = {"0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8,

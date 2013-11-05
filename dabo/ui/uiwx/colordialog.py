@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
+
+import six
+
 import dabo
 import dabo.dConstants as kons
 import dabo.dColors as dColors
@@ -14,7 +17,7 @@ class dColorDialog(wx.ColourDialog):
 		dat.SetChooseFull(True)
 
 		if color is not None:
-			if isinstance(color, str):
+			if isinstance(color, six.types.StringTypes):
 				try:
 					color = dColors.colorTupleFromName(color)
 					dat.SetColour(color)

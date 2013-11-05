@@ -13,6 +13,9 @@
 import os
 osp = os.path
 import sys
+
+import six
+
 import dabo
 from dabo.dLocalize import _
 from locale import getpreferredencoding
@@ -319,7 +322,7 @@ def resolveAttributePathing(atts, pth=None, abspath=False):
 	"""
 	prfx = getPathAttributePrefix()
 	pathsToConvert = ((kk, vv) for kk, vv in list(atts.items())
-			if isinstance(vv, str) and vv.startswith(prfx))
+			if isinstance(vv, six.types.StringTypes) and vv.startswith(prfx))
 	for convKey, convVal in pathsToConvert:
 		# Strip the path designator
 		convVal = convVal.replace(prfx, "")

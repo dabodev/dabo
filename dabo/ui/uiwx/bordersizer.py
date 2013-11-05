@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
+
+import six
+
 import dabo
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
@@ -21,7 +24,7 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 		self._border = 0
 		self._parent = None
 		# Make sure that they got the params in the right order
-		if isinstance(box, str):
+		if isinstance(box, six.types.StringTypes):
 			box, orientation = orientation, box
 		if not isinstance(box, dabo.ui.dBox):
 			prnt = box

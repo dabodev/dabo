@@ -18,6 +18,9 @@ You win when all squares are either flagged as mines or cleared.
 
 import datetime
 import random
+
+import six
+
 import dabo.db
 import dabo.biz
 import dabo.ui
@@ -833,7 +836,7 @@ this to work."""
 				vs.append1x(hs)
 
 				playername = self.Application.PreferenceManager.playername
-				if isinstance(playername, str):
+				if isinstance(playername, six.types.StringTypes):
 					self.txtName.Value = playername
 				else:
 					self.txtName.Value = ""

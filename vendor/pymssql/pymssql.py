@@ -33,6 +33,8 @@ import string
 import time
 import datetime
 
+import six
+
 ### module constants
 
 # compliant with DB SIG 2.0
@@ -119,7 +121,7 @@ class pymssqlCursor:
 		# tuples to e.g. insert multiple rows in a single
 		# operation, but this kind of usage is depreciated:
 		if params and type(params) == list and \
-					type(params[0]) == tuple:
+		   type(params[0]) == tuple:
 			self.executemany(operation, params)
 		else:
 			# not a list of tuples
@@ -146,8 +148,8 @@ class pymssqlCursor:
 					self._result = self.__source.fetch_array()
 					totrows = totrows + self._result[self.__resultpos][1]
 				else:
-				    self._result = None
-				    raise DatabaseError("error: %s" % self.__source.errmsg())
+					self._result = None
+					raise DatabaseError("error: %s" % self.__source.errmsg())
 		except:
 			raise DatabaseError("internal error: %s" % self.__source.errmsg())
 
@@ -185,10 +187,10 @@ class pymssqlCursor:
 			self.arraysize = size
 		res = self._result
 		if res[self.__resultpos][1]==self.__fetchpos:
-		    return []
+			return []
 		reslen = len(res[self.__resultpos][2][self.__fetchpos:])
 		if reslen < size:
-		    size = res[self.__resultpos][1]
+			size = res[self.__resultpos][1]
 		ret = res[self.__resultpos][2][self.__fetchpos:self.__fetchpos+size]
 		self.__fetchpos = self.__fetchpos + size
 		return ret
@@ -200,7 +202,7 @@ class pymssqlCursor:
 		pass
 
 def _quote(x):
-	if isinstance(x,str):
+	if isinstance(x, six.types.StringTypes):
 		x = "'" + string.replace(str(x), "'", "''") + "'"
 	#elif type(x) in (types.IntType, types.LongType, types.FloatType):
 	elif isinstance(x, (int, float)):
@@ -215,7 +217,7 @@ def _quote(x):
 	elif isinstance(x, datetime.datetime):
 		x = "{ts '%04d-%02d-%02d %02d:%02d:%02d.%s'}" % \
 			(x.year,x.month, x.day,
-			x.hour, x.minute, x.second, x.microsecond / 1000)
+			 x.hour, x.minute, x.second, x.microsecond / 1000)
 	elif isinstance(x, datetime.date):
 		x = "{d '%04d-%02d-%02d'}" % (x.year, x.month, x.day)
 	# alternative quoting by Luciano Pacheco <lucmult@gmail.com>
@@ -286,8 +288,8 @@ class pymssqlCnx:
 			return pymssqlCursor(self.__cnx)
 		except:
 			raise OperationalError("invalid connection.")
-	
-	
+
+
 	##### Added by EGL for Dabo, 2006.12.28
 	# These methods simply pass the request through to
 	# the actual connection.
@@ -351,4 +353,3 @@ def connect(dsn = None, user = "sa", password = "", host = ".", database = "mast
 	con = _mssql.connect(dbhost, dbuser, dbpasswd)
 	con.select_db(dbbase)
 	return pymssqlCnx(con)
-

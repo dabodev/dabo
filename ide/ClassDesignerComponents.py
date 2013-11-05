@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 
+import six
+
 import dabo.ui
 dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
@@ -205,7 +207,7 @@ class LayoutSaverMixin(dObject):
 					"FontFace", "HAlign", "Name", "RegID", "SelectionMode",
 					"ToolTipText", "VAlign", "Value") and (not prop.startswith("Border")
 					and not prop.startswith("Header") and not prop.startswith("Sizer_")):
-				if isinstance(val, str) and os.path.exists(val):
+				if isinstance(val, six.types.StringTypes) and os.path.exists(val):
 					# It's a path; convert it to a relative path
 					if isinstance(self, (dabo.ui.dForm, dabo.ui.dFormMain, dabo.ui.dDialog)):
 						ref = self._classFile
@@ -226,7 +228,7 @@ class LayoutSaverMixin(dObject):
 					continue
 				if prop not in propsToInclude:
 					dv = defVals[prop]
-					if not isinstance(val, str) and isinstance(dv, str):
+					if not isinstance(val, six.types.StringTypes) and isinstance(dv, six.types.StringTypes):
 						# Try to convert
 						if isinstance(val, bool):
 							dv = (dv.lower() == "true")
@@ -245,7 +247,7 @@ class LayoutSaverMixin(dObject):
 					if dv == val:
 						continue
 
-			if isinstance(val, str):
+			if isinstance(val, six.types.StringTypes):
 				strval = val
 			else:
 				strval = str(val)

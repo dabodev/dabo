@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
+
+import six
+
 import dabo
 from . import pemmixin as pm
 from . import menu
@@ -144,7 +147,7 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		"""
 		if isinstance(indexOrMenu, dabo.ui.dMenu):
 			index = self.getMenuIndex(indexOrMenu.Caption)
-		elif isinstance(indexOrMenu, str):
+		elif isinstance(indexOrMenu, six.types.StringTypes):
 			# They passed a caption
 			index = self.getMenuIndex(indexOrMenu)
 		else:

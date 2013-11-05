@@ -4,6 +4,9 @@ import xml.sax
 from io import StringIO
 import os.path
 from .xmltodict import escQuote
+
+import six
+
 import dabo
 import dabo.lib.utils as utils
 from dabo.dLocalize import _
@@ -159,7 +162,7 @@ def fileRef(ref=""):
 	XML to the parser. Returns a file-like object, or None.
 	"""
 	ret = None
-	if isinstance(ref, str):
+	if isinstance(ref, six.types.StringTypes):
 		if os.path.exists(ref):
 			ret = file(ref)
 		else:

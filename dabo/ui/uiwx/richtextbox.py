@@ -4,6 +4,9 @@
 import os
 import wx
 import wx.richtext
+
+import six
+
 import dabo
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
@@ -47,7 +50,7 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 		"""
 		if fileOrObj is None:
 			fileOrObj = dabo.ui.getFile("xml", "html")
-		if isinstance(fileOrObj, str):
+		if isinstance(fileOrObj, six.types.StringTypes):
 			mthdName = "LoadFile"
 		else:
 			mthdName = "LoadStream"

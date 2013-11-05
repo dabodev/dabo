@@ -6,6 +6,8 @@
 import datetime
 import wx
 	
+import six
+
 import dabo
 
 if __name__ == "__main__":
@@ -133,7 +135,7 @@ class dDatePicker(dcm.dDataControlMixin, dpc.DatePickerCtrl):
 
 	def setToMonthDay(self, day):
 		val = self.Value
-		if isinstance(day, str):
+		if isinstance(day, six.types.StringTypes):
 			if day[:1].lower() == "f":
 				val = val.replace(day=1)
 			elif day[:1].lower() == "l":
@@ -149,7 +151,7 @@ class dDatePicker(dcm.dDataControlMixin, dpc.DatePickerCtrl):
 
 	def setToYearDay(self, day):
 		val = self.Value
-		if isinstance(day, str):
+		if isinstance(day, six.types.StringTypes):
 			if day[:1].lower() == "f":
 				val = val.replace(month=1, day=1)
 			elif day[:1].lower() == "l":
@@ -226,7 +228,7 @@ class dDatePicker(dcm.dDataControlMixin, dpc.DatePickerCtrl):
 		return val
 
 	def _getWxValue(self, val):
-		if isinstance(val, str):
+		if isinstance(val, six.types.StringTypes):
 			val = datetime.datetime.strptime(val, "%Y-%m-%d")
 		elif isinstance(val, tuple):
 			val = datetime.datetime(*val)

@@ -3,6 +3,9 @@ import sys
 import os
 import traceback
 import wx
+
+import six
+
 import dabo.dEvents as dEvents
 import dabo.ui
 from dabo.dLocalize import _
@@ -994,7 +997,7 @@ class Form(dabo.ui.dForm):
 		return getattr(self, "_customSQL", None)
 
 	def _setCustomSQL(self, val):
-		assert val is None or isinstance(val, str)
+		assert val is None or isinstance(val, six.types.StringTypes)
 		self._customSQL = val
 
 

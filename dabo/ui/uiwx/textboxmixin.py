@@ -5,6 +5,9 @@ import time
 import locale
 import wx
 import wx.lib.masked as masked
+
+import six
+
 import dabo.lib.dates
 from . import keys
 from dabo.dLocalize import _
@@ -113,7 +116,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		if not self:
 			# The control is being destroyed
 			return
-		if not isinstance(self.Value, str):
+		if not isinstance(self.Value, six.types.StringTypes):
 			#Don't bother if it isn't a string type
 			return
 		length = self.TextLength
@@ -140,7 +143,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			# The control is being destroyed
 			return
 		currVal = self.Value
-		if not isinstance(currVal, str):
+		if not isinstance(currVal, six.types.StringTypes):
 			# Don't bother if it isn't a string type
 			return
 		case = self.ForceCase
@@ -588,7 +591,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 		in case they need specialized behavior. The value returned from this
 		function will be what is displayed in the UI textbox.
 		"""
-		if isinstance(value, str):
+		if isinstance(value, six.types.StringTypes):
 			# keep it unicode instead of converting to str
 			strVal = value
 		elif isinstance(value, datetime.datetime):

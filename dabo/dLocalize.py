@@ -8,6 +8,8 @@ import os
 import sys
 import warnings
 
+import six
+
 import dabo
 
 
@@ -95,7 +97,7 @@ def setLanguage(lang=None, charset=None):
 	global _domains, _currentTrans
 	lang = _languageAliases.get(lang.lower(), lang)
 
-	if lang is not None and isinstance(lang, str):
+	if lang is not None and isinstance(lang, six.types.StringTypes):
 		lang = [lang]
 
 	daboTranslation = None

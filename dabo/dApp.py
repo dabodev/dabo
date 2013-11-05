@@ -18,6 +18,8 @@ import warnings
 from xml.sax._exceptions import SAXParseException
 from zipfile import ZipFile
 
+import six
+
 import dabo
 import dabo.dException as dException
 import dabo.dLocalize as dLocalize
@@ -1544,7 +1546,7 @@ try again when it is running.
 		return v
 
 	def _setNoneDisp(self, val):
-		assert isinstance(val, str)
+		assert isinstance(val, six.types.StringTypes)
 		self._noneDisplay = val
 
 

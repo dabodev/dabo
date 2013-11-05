@@ -8,6 +8,9 @@ Decimal = decimal.Decimal
 import locale
 import sys
 import os
+
+import six
+
 from dabo.dLocalize import _
 from dabo.lib.dates import getStringFromDate
 
@@ -82,7 +85,7 @@ else:
 
 
 def addReportTTFontFilePath(paths):
-	if isinstance(paths, str):
+	if isinstance(paths, six.types.StringTypes):
 		paths = (paths,)
 	for path in paths:
 		TTFSearchPath.append(path)
@@ -149,7 +152,7 @@ def getFloatLeading(obj):
 	adj_factor = .1  ## (amount to adjust for each "+" or "-")
 
 	def getadj():
-		if not isinstance(leading, str):
+		if not isinstance(leading, six.types.StringTypes):
 			return 0.0
 		adj = leading[6:].strip()
 		adj_float = 0.0
@@ -161,9 +164,9 @@ def getFloatLeading(obj):
 				adj_float -= adj_amt
 		return adj_float
 
-	if leading is None or (isinstance(leading, str) and leading[:6].lower() == "single"):
+	if leading is None or (isinstance(leading, six.types.StringTypes) and leading[:6].lower() == "single"):
 		return size + getadj()
-	elif isinstance(leading, str) and leading[:6].lower() == "double":
+	elif isinstance(leading, six.types.StringTypes) and leading[:6].lower() == "double":
 		return (2 * size) + getadj()
 	try:
 		return float(leading)
@@ -1797,7 +1800,7 @@ class ReportWriter(object):
 
 			if img is None:
 				pass
-			elif isinstance(img, str) and "\0" not in img:
+			elif isinstance(img, six.types.StringTypes) and "\0" not in img:
 				trial_paths = [".", self.HomeDirectory]
 				if self.Application:
 					trial_paths.append(self.Application.HomeDirectory)
@@ -2028,7 +2031,7 @@ class ReportWriter(object):
 			else:
 				expr = fobject.getProp("expr")
 
-			if isinstance(s, str):
+			if isinstance(s, six.types.StringTypes):
 				expr = expr.encode(self.Encoding)
 			else:
 				expr = ustr(expr)
@@ -2823,7 +2826,7 @@ class ReportWriter(object):
 		page = _form["page"]
 		pageSize = page.getProp("size")
 
-		if isinstance(pageSize, str):
+		if isinstance(pageSize, six.types.StringTypes):
 			# reportlab expects the pageSize to be upper case:
 			pageSize = pageSize.upper()
 			# convert to the reportlab pageSize value (tuple(width,height)):
@@ -2889,7 +2892,7 @@ class ReportWriter(object):
 			if element == "type":
 				continue
 			child = {"name": element, "children": []}
-			if isinstance(form[element], str):
+			if isinstance(form[element], six.types.StringTypes):
 				child["cdata"] = form[element]
 			elif element.lower() == "testcursor":
 				cursor = []
@@ -3135,7 +3138,7 @@ class ReportWriter(object):
 		return v
 
 	def _setOutputFile(self, val):
-		if not isinstance(val, str):
+		if not isinstance(val, six.types.StringTypes):
 			# We assume it is either a file or file-like object
 			self._outputFile = val
 		else:

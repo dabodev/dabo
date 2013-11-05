@@ -4,6 +4,8 @@
 import codecs
 import os
 
+import six
+
 import dabo.ui
 dabo.ui.loadUI("wx")
 
@@ -638,11 +640,11 @@ class MenuDesignerForm(dabo.ui.dForm):
 			return
 		if typ is bool:
 			val = bool(val)
-		if isinstance(val, str):
+		if isinstance(val, six.types.StringTypes):
 			strVal = val
 		else:
 			strVal = str(val)
-		if typ in (str, str) or ((typ is list) and isinstance(val, str)):
+		if typ in (str, str) or ((typ is list) and isinstance(val, six.types.StringTypes)):
 			# Escape any single quotes, and then enclose
 			# the value in single quotes
 			strVal = "u'" + self.escapeQt(strVal) + "'"

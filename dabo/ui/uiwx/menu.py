@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import sys
 import wx
+
+import six
+
 import dabo
 from dabo.ui import makeDynamicProperty
 import collections
@@ -310,7 +313,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		Returns the menu item specified by either its index or caption. In the
 		case that an actual menu item is passed, simply returns that item.
 		"""
-		if isinstance(capIdxOrItem, str):
+		if isinstance(capIdxOrItem, six.types.StringTypes):
 			ret = self.getItem(capIdxOrItem)
 		elif isinstance(capIdxOrItem, int):
 			ret = self.Children[capIdxOrItem]

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """dDataControlMixin.py: Provide behavior common to all	data-aware dControls."""
+import six
+
 import dabo
 import dabo.ui
 import dabo.dEvents as dEvents
@@ -156,7 +158,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		else:
 			if self._srcIsInstanceMethod is None and src is not None:
 				self._srcIsInstanceMethod = False
-				if not isinstance(src, str):
+				if not isinstance(src, six.types.StringTypes):
 					att = getattr(src, self.DataField, None)
 					if att is not None:
 						self._srcIsInstanceMethod = isinstance(att, collections.Callable)
@@ -280,13 +282,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 					else:
 						# If the binding is to a method, do not try to assign to that method.
 						if self._srcIsInstanceMethod is None:
-							if isinstance(self.DataSource, str):
+							if isinstance(self.DataSource, six.types.StringTypes):
 								self._srcIsInstanceMethod = False
 							else:
 								self._srcIsInstanceMethod = isinstance(getattr(src, self.DataField), collections.Callable)
 						if self._srcIsInstanceMethod:
 							return
-						if isinstance(src, str):
+						if isinstance(src, six.types.StringTypes):
 							try:
 								exec ("src.%s = curVal" % self.DataField)
 							except Exception as e:
@@ -356,7 +358,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def getShortDataType(self, value):
 		if isinstance(value, int):
 			return "I"
-		elif isinstance(value, str):
+		elif isinstance(value, six.types.StringTypes):
 			return "C"
 		elif isinstance(value, float):
 			return "N"
@@ -482,7 +484,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			self._srcIsBizobj = False
 			if (ds or isinstance(ds, dPref)):
 				# First, see if it's a string
-				if isinstance(ds, str):
+				if isinstance(ds, six.types.StringTypes):
 					# Source can be a bizobj, which we get from the form, or
 					# another object.
 					if ds.lower() == "form":

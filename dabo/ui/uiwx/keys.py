@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
+
+import six
+
 import dabo
 from dabo.dLocalize import _
 
@@ -274,7 +277,7 @@ def resolveKeyCombo(keyCombo, returnFlags=False):
 	same as above, but with a thrid element that is a numeric value compatible with
 	what wxPython expects.
 	"""
-	if not isinstance(keyCombo, str) or not keyCombo.strip():
+	if not isinstance(keyCombo, six.types.StringTypes) or not keyCombo.strip():
 		raise ValueError(_("Invalid key combination: '%s'") % keyCombo)
 	parts = keyCombo.split("+")
 	if len(parts) == 1:

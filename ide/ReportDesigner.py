@@ -3,6 +3,9 @@
 import sys
 import os
 import copy
+
+import six
+
 import dabo.ui
 dabo.ui.loadUI("wx")
 from dabo.dApp import dApp
@@ -144,7 +147,7 @@ def DesignerController():
 				parents.append(rf["Groups"])
 			else:
 				# Normal report object. Place it in all selected bands.
-				if isinstance(typ, str):
+				if isinstance(typ, six.types.StringTypes):
 					if typ[:7] == "Field: ":
 						# Testcursor field. Create string object with expr of this field.
 						defaultProps["expr"] = "self.%s" % typ[7:].strip()
@@ -1115,7 +1118,7 @@ class DesignerBand(DesignerPanel):
 					old = dragObject.getProp(propName)
 
 					unit = "pt"
-					if isinstance(old, str) and len(old) > 3:
+					if isinstance(old, six.types.StringTypes) and len(old) > 3:
 						if old[-4] == "pica":
 							unit = "pica"
 						elif old[-2].isalpha():
@@ -1753,7 +1756,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 					if parentBand not in parentBands:
 						parentBands.append(parentBand)
 
-					if isinstance(val, str) and len(val) > 3:
+					if isinstance(val, six.types.StringTypes) and len(val) > 3:
 						if val[-4] == "pica":
 							unit = "pica"
 						elif val[-2].isalpha():

@@ -10,6 +10,9 @@ import inspect
 import compiler
 import wx
 import wx.stc as stc
+
+import six
+
 import dabo
 if __name__ == "__main__":
 	import dabo.ui
@@ -880,7 +883,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def changeFontSize(self, fontSize):
 		if not self:
 			return
-		if isinstance(fontSize, str):
+		if isinstance(fontSize, six.types.StringTypes):
 			if fontSize.startswith("+"):
 				newSize = self._fontSize + int(fontSize[1:])
 			elif fontSize.startswith("-"):
@@ -2036,7 +2039,7 @@ Do you want to overwrite it?""")
 		return self._bookmarkBackColor
 
 	def _setBookmarkBackColor(self, val):
-		if isinstance(val, str):
+		if isinstance(val, six.types.StringTypes):
 			val = dColors.colorTupleFromName(val)
 		if isinstance(val, tuple):
 			self._bookmarkBackColor = val
@@ -2049,7 +2052,7 @@ Do you want to overwrite it?""")
 		return self._bookmarkForeColor
 
 	def _setBookmarkForeColor(self, val):
-		if isinstance(val, str):
+		if isinstance(val, six.types.StringTypes):
 			val = dColors.colorTupleFromName(val)
 		if isinstance(val, tuple):
 			self._bookmarkForeColor = val
@@ -2303,7 +2306,7 @@ Do you want to overwrite it?""")
 	def _setSelectionForeColor(self, val):
 		if self._constructed():
 			self._selectionForeColor = val
-			if isinstance(val, str):
+			if isinstance(val, six.types.StringTypes):
 				val = dColors.colorTupleFromName(val)
 			self.SetSelForeground(1, val)
 		else:

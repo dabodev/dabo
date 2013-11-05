@@ -2,6 +2,9 @@
 import datetime
 import decimal
 import unittest
+
+imporr six
+
 import dabo
 from dabo.dApp import dApp
 from dabo.lib import getRandomUUID
@@ -27,10 +30,10 @@ class Test_dEditBox(unittest.TestCase):
 	def testValue(self):
 		edt = self.edt
 		edt.Value = "This is a string"
-		self.assertTrue(isinstance(edt.Value, str))
+		self.assertTrue(isinstance(edt.Value, six.types.StringTypes))
 		self.assertEqual(edt.Value, "This is a string")
 		self.mockUserInput("23")
-		self.assertTrue(isinstance(edt.Value, str))
+		self.assertTrue(isinstance(edt.Value, six.types.StringTypes))
 		self.assertEqual(edt.Value, "23")
 		edt.Value = None
 		self.assertEqual(edt.Value, None)

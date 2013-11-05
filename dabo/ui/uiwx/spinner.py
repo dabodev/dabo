@@ -4,6 +4,9 @@ import locale
 from decimal import Decimal as decimal
 import operator
 import wx
+
+import six
+
 import dabo
 
 from dabo.ui import makeDynamicProperty
@@ -256,7 +259,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 		type. If such a conversion is not possible, returns None.
 		"""
 		ret = val
-		if isinstance(val, str):
+		if isinstance(val, six.types.StringTypes):
 			if val.count(locale.localeconv()["decimal_point"]) > 0:
 				func = decimal
 			else:

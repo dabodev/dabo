@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
+
+import six
+
 import dabo
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
@@ -263,7 +266,7 @@ class dListControl(dcm.dControlItemMixin,
 
 	def setColumnWidth(self, col, wd):
 		"""Sets the width of the specified column."""
-		if isinstance(wd, str):
+		if isinstance(wd, six.types.StringTypes):
 			self.autoSizeColumn(col)
 		else:
 			self.SetColumnWidth(col, wd)
@@ -315,7 +318,7 @@ class dListControl(dcm.dControlItemMixin,
 				currCol += 1
 		else:
 			if col < self.ColumnCount:
-				if not isinstance(tx, str) and self.AutoConvertToString:
+				if not isinstance(tx, six.types.StringTypes) and self.AutoConvertToString:
 					tx = "%s" % tx
 				if dabo.ui.phoenix:
 					if insert:
@@ -433,7 +436,7 @@ class dListControl(dcm.dControlItemMixin,
 		"""
 		if key is None:
 			key = ustr(img)
-		if isinstance(img, str):
+		if isinstance(img, six.types.StringTypes):
 			img = dabo.ui.strToBmp(img)
 		il = self.GetImageList(wx.IMAGE_LIST_NORMAL)
 		if not il:
@@ -471,7 +474,7 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def setItemBackColor(self, itm, val):
-		if isinstance(val, str):
+		if isinstance(val, six.types.StringTypes):
 			color = dColors.colorTupleFromName(val)
 		else:
 			color = val
@@ -483,7 +486,7 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def setItemForeColor(self, itm, val):
-		if isinstance(val, str):
+		if isinstance(val, six.types.StringTypes):
 			color = dColors.colorTupleFromName(val)
 		else:
 			color = val
@@ -598,7 +601,7 @@ class dListControl(dcm.dControlItemMixin,
 		# Called when a column was marked to expand, and then
 		# changed to a normal column.
 		cc = self.ColumnCount
-		if isinstance(col, str):
+		if isinstance(col, six.types.StringTypes):
 			# Last column
 			col = cc - 1
 		if col < cc:
@@ -660,7 +663,7 @@ class dListControl(dcm.dControlItemMixin,
 	def _setExpandColumn(self, val):
 		if self._constructed():
 			columnCount = self.ColumnCount
-			if isinstance(val, str):
+			if isinstance(val, six.types.StringTypes):
 				val = val.upper().strip()
 			else:
 				if val >= columnCount and columnCount > 0:

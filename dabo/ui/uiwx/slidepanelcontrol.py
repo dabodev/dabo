@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
+
+import six
+
 import dabo
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
@@ -425,7 +428,7 @@ class dSlidePanelControl(dcm.dControlMixin, fpb.FoldPanelBar):
 			if not "Caption" in kwargs:
 				raise ValueError(_("You must specify a Caption when adding a panel"))
 			pnl = dabo.ui.dSlidePanel(self, **kwargs)
-		elif isinstance(pnl, str):
+		elif isinstance(pnl, six.types.StringTypes):
 			# Just the caption; create the panel and use that
 			pnl = dabo.ui.dSlidePanel(self, Caption=pnl, **kwargs)
 		return pnl

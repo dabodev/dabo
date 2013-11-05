@@ -158,7 +158,7 @@ class dIndex(dObject):
 		return self._fields
 
 	def _setFields(self, fields):
-		if isinstance(fields, str):
+		if isinstance(fields, six.types.StringTypes):
 			flds = fields.split()
 			self._fields = tuple(flds)
 		elif isinstance(fields, list):

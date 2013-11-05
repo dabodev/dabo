@@ -5,6 +5,7 @@ import re
 import string
 import types
 # requires six v 1.4.1 or higher
+import six
 import six.moves.urllib as urllib
 import datetime
 import dabo
@@ -156,7 +157,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		if not self._constructed():
 			self._properties["Page"] = val
 			return
-		if isinstance(val, str):
+		if isinstance(val, six.types.StringTypes):
 			try:
 				if os.path.exists(val):
 					file = open(val, "r")

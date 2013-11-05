@@ -2,6 +2,9 @@
 import unittest
 import datetime
 from decimal import Decimal
+
+import six
+
 import dabo.db
 from dabo.lib import getRandomUUID
 
@@ -294,7 +297,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 		"""
 		cur = self.cur
 		rec = cur.Record
-		self.assertIsInstance(rec.cfield, str)
+		self.assertIsInstance(rec.cfield, six.types.StringTypes)
 		self.assertIsInstance(rec.ifield, int)
 		self.assertIsInstance(rec.nfield, Decimal)
 		self.assertEqual(dabo.convertFloatToDecimal, True)

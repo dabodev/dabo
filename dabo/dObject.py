@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import string
 import types
+
+import six
+
 import dabo
 from dabo.lib.propertyHelperMixin import PropertyHelperMixin
 from dabo.lib.eventMixin import EventMixin
@@ -49,7 +52,7 @@ class dObject(PropertyHelperMixin, EventMixin):
 					# The properties value has precedence, so ignore.
 					continue
 				typ = type(getattr(self, prop))
-				if not issubclass(typ, str):
+				if not issubclass(typ, six.types.StringTypes):
 					if issubclass(typ, bool):
 						val = (val == "True")
 					elif typ is NONE_TYPE:

@@ -6,6 +6,8 @@ import tempfile
 import datetime
 from decimal import Decimal
 
+import six
+
 # If gsprint is available, use it for printing:
 gsprint = True
 try:
@@ -136,7 +138,7 @@ def getTestCursorXmlFromDataSet(dataset):
 	for r in dataset:
 		xml += """\t\t<Record\n"""
 		for k, v in sorted(r.items()):
-			if isinstance(v, str):
+			if isinstance(v, six.types.StringTypes):
 				v = v.replace("'", "")
 			v = repr(v)
 			v = escape(v, escapeAmp=False)

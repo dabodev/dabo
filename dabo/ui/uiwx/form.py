@@ -2,6 +2,9 @@
 import sys
 import time
 import wx
+
+import six
+
 import dabo
 import dabo.ui
 from dabo.ui import makeDynamicProperty
@@ -701,7 +704,7 @@ Database error message: %s""") % 	err
 		if isinstance(dataSource, dabo.biz.dBizobj):
 			return dataSource
 
-		if isinstance(dataSource, str) and \
+		if isinstance(dataSource, six.types.StringTypes) and \
 				dataSource.lower() == "form":
 			# The form isn't using bizobjs, but locally-bound data
 			# controls
