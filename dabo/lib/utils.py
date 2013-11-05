@@ -210,7 +210,7 @@ def ustr(value):
 	When converting to a string, do not use the str() function, which
 	can create encoding errors with non-ASCII text.
 	"""
-	if isinstance(value, str):
+	if isinstance(value,  six.types.StringTypes):
 		# Don't change the encoding of an object that is already unicode.
 		return value
 	if isinstance(value, Exception):
