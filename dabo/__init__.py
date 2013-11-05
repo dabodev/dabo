@@ -10,6 +10,9 @@ import os
 import locale
 import logging
 import logging.handlers
+
+import six
+
 from .settings import *
 from .version import __version__
 
@@ -250,7 +253,7 @@ def quickStart(homedir=None):
 	"""
 	currLoc = os.getcwd()
 	if homedir is None:
-		homedir = input("Enter the name for your application: ")
+		homedir = six.input("Enter the name for your application: ")
 	if not homedir:
 		return
 

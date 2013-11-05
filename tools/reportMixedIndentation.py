@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import os
 
+import six
+
 culprits = {}
 culpritLineCount = 0
 
@@ -28,7 +30,7 @@ shouldn't add or remove lines in the files, just fix the problem.
 """ % (len(culprits), culpritLineCount))
 
 print("\nContinue? (y/[N])", end=' ')
-ret = input()
+ret = six.input()
 if ret.lower() == "y":
 	for fileName, lines in list(culprits.items()):
 		for line in lines:

@@ -4,12 +4,18 @@ import wx
 import wx.stc as stc
 import wx.py
 from wx.py import pseudo
+
+import six
+
 import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
 from .splitform import dSplitForm
 from dabo.ui import makeDynamicProperty
@@ -366,7 +372,8 @@ class dShell(dControlMixin, wx.py.shell.Shell):
 class dShellForm(dSplitForm):
 	def _onDestroy(self, evt):
 		self._clearOldHistory()
-		raw_input = self._oldRawInput
+		# TODO: is this reseting still needed, how with six.input?
+		#raw_input = self._oldRawInput
 
 
 	def _beforeInit(self, pre):
@@ -383,11 +390,12 @@ class dShellForm(dSplitForm):
 		self._historyPanel = None
 		self._lastCmd = None
 
+		# TODO: is this reseting still needed, how with six.input?		
 		# PyShell sets the raw_input function to a function of PyShell,
 		# but doesn't set it back on destroy, resulting in errors later
 		# on if something other than PyShell asks for raw_input (pdb, for
 		# example).
-		self._oldRawInput = raw_input
+		#self._oldRawInput = raw_input
 		self.bindEvent(dEvents.Destroy, self._onDestroy)
 
 		splt = self.Splitter
