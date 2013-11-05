@@ -1903,7 +1903,7 @@ def strToBmp(val, scale=None, width=None, height=None):
 
 			# See if it's a standard icon
 			for pth in paths:
-				ret = dIcons.getIconBitmap(pth, noEmptyBmp=True)
+				ret = icons.getIconBitmap(pth, noEmptyBmp=True)
 				if ret:
 					break
 			if not ret and len(val) > 0:
