@@ -13,7 +13,7 @@ from . import keys
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import decimal
-numericTypes = (int, int, decimal.Decimal, float)
+numericTypes = (int, six.types.LongType, decimal.Decimal, float)
 valueErrors = (ValueError, decimal.InvalidOperation)
 
 # Make this locale-independent
@@ -553,7 +553,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			try:
 				if isint:
 					if strVal.endswith("L"):
-						return int(strVal)
+						return six.types.LongType(strVal)
 					return int(strVal)
 				else:
 					try:

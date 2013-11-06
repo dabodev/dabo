@@ -3,6 +3,9 @@ import os
 import warnings
 import datetime
 from decimal import Decimal
+
+import six
+
 import dabo
 from dabo.dLocalize import _
 import dabo.lib.utils as utils
@@ -53,7 +56,7 @@ class dPref(object):
 		super(dPref, self).__init__()
 		self._parent = None
 		self._noneType = type(None)
-		self._typeDict = {int: "int", float: "float", int: "long", str: "str", str: "unicode",
+		self._typeDict = {int: "int", float: "float", six.types.LongType: "long", str: "str", str: "unicode",
 				bool: "bool", list: "list", tuple: "tuple", datetime.date: "date", dict: "dict",
 				datetime.datetime: "datetime", Decimal: "decimal", self._noneType: "none",
 				dabo.db.dDataSet: "tuple"}
@@ -187,7 +190,7 @@ class dPref(object):
 		elif typ == "float":
 			ret = float(val)
 		elif typ == "long":
-			ret = int(val)
+			ret = six.types.LongType(val)
 		elif typ == "bool":
 			ret = (val == "True")
 		elif typ in ("list", "tuple", "dict"):

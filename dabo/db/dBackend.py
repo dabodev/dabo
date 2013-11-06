@@ -5,6 +5,9 @@ import re
 import datetime
 import threading
 import decimal
+
+import six
+
 import dabo
 from dabo.dLocalize import _
 import dabo.dException as dException
@@ -67,7 +70,7 @@ class dBackend(dObject):
 		if isinstance(val, (datetime.date, datetime.datetime)):
 			# Some databases have specific rules for formatting date values.
 			return self.formatDateTime(val)
-		elif isinstance(val, (int, float)):
+		elif isinstance(val, (int, six.types.LongType, float)):
 			return ustr(val)
 		elif isinstance(val, decimal.Decimal):
 			return ustr(val)
@@ -284,7 +287,7 @@ class dBackend(dObject):
 				qtd = [delim + pt.strip() + delim for pt in part.split(".") if pt]
 				return ".".join(qtd)
 			exp = " %s ".join([encPart(pt) for pt in parts
-					if pt.lower() not in lowkeys])
+						       if pt.lower() not in lowkeys])
 			return exp % subs
 		return exp
 
@@ -366,14 +369,14 @@ class dBackend(dObject):
 
 
 	def formSQL(self, fieldClause, fromClause, joinClause,
-				whereClause, groupByClause, orderByClause, limitClause):
+		        whereClause, groupByClause, orderByClause, limitClause):
 		"""
 		Creates the appropriate SQL for the backend, given all
 		the required clauses. Some backends order these differently, so
 		they should override this method with their own ordering.
 		"""
 		clauses =  (fieldClause, fromClause, joinClause, whereClause, groupByClause,
-				orderByClause, limitClause)
+				    orderByClause, limitClause)
 		sql = "select " + "\n".join([clause for clause in clauses if clause])
 		return sql
 
@@ -498,7 +501,7 @@ class dBackend(dObject):
 		descFlds = auxCrs.FieldDescription
 		# Get the raw version of the table
 		sql = "select * from %s where 1=0 " % self.encloseNames(cursor.Table,
-				autoQuote=autoQuote)
+				                                                autoQuote=autoQuote)
 		auxCrs.execute(sql)
 		# This is the clean version of the table.
 		stdFlds = auxCrs.FieldDescription
@@ -512,9 +515,9 @@ class dBackend(dObject):
 		# Now add any for which the members (except the display value,
 		# which is in position 2) do not match
 		ret0 += [ b[0] for b in remFlds
-				for s in [z for z in stdFlds if z[0] == b[0] ]
-				if (b[1] != s[1]) or (b[3] != s[3]) or (b[4] != s[4])
-				or (b[5] != s[5]) or (b[6] != s[6]) ]
+				  for s in [z for z in stdFlds if z[0] == b[0] ]
+				  if (b[1] != s[1]) or (b[3] != s[3]) or (b[4] != s[4])
+				  or (b[5] != s[5]) or (b[6] != s[6]) ]
 		return ret0
 
 
@@ -535,7 +538,7 @@ class dBackend(dObject):
 			field_type = self.getDaboFieldType(field_info[1])
 			field_names.append(field_name)
 			field_structure[field_name] = (field_type, False,
-					max(field_info[2], field_info[3]) or None, field_info[5] or None)
+						                   max(field_info[2], field_info[3]) or None, field_info[5] or None)
 
 		standard_fields = cursor.getFields()
 		for field_name, field_type, pk in standard_fields:
@@ -548,17 +551,17 @@ class dBackend(dObject):
 				if field_structure[field_name][0] != field_type:
 					# Only override what was in FieldStructure if getFields() gave better info.
 					field_structure[field_name] = (field_type, pk,
-							field_structure[field_name][2], field_structure[field_name][3])
+										           field_structure[field_name][2], field_structure[field_name][3])
 				elif pk:
 					# FieldStructure doesn't provide pk information:
 					field_structure[field_name] = (field_structure[field_name][0], pk,
-							field_structure[field_name][2], field_structure[field_name][3])
+										           field_structure[field_name][2], field_structure[field_name][3])
 
 		ret = [(field, field_structure[field][0], field_structure[field][1],
 				None, None,
 				field_structure[field][2] if field_structure[field][0] == "C"
-					else field_structure[field][3])
-				for field in field_names]
+				else field_structure[field][3])
+			   for field in field_names]
 		return tuple(ret)
 
 
@@ -586,7 +589,7 @@ class dBackend(dObject):
 
 
 	def createTableAndIndexes(self, tabledef, cursor, createTable=True,
-			createIndex=True):
+		                      createIndex=True):
 		"""Creates a table and/or indexes based on the dTable passed to it."""
 		# OVERRIDE IN SUBCLASSES!
 		pass
@@ -630,7 +633,7 @@ class dBackend(dObject):
 				app = self.backendObj.Application
 
 				while self.backendObj._connection is None:
-				    time.sleep(5)
+					time.sleep(5)
 
 				con = self.backendObj._connection
 				cur = con.cursor()
@@ -683,10 +686,10 @@ class dBackend(dObject):
 
 
 	Encoding = property(_getEncoding, _setEncoding, None,
-			_("Backend encoding  (str)"))
+		                _("Backend encoding  (str)"))
 
 	KeepAliveInterval = property(_getKeepAliveInterval, _setKeepAliveInterval, None,
-			_("""Specifies how often a KeepAlive query should be sent to the server.
+		                         _("""Specifies how often a KeepAlive query should be sent to the server.
 
 			Defaults to None, meaning we never send a KeepAlive query. The interval
 			is expressed in seconds.

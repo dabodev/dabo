@@ -475,7 +475,7 @@ class dStandardButtonDialog(dDialog):
 		for prmpt, typ, rid in seq:
 			chc = None
 			gs.append(dabo.ui.dLabel(self, Caption=prmpt), halign="right")
-			if typ in (int, int):
+			if typ in (int, six.types.LongType):
 				cls = dabo.ui.dSpinner
 			elif typ is bool:
 				cls = dabo.ui.dCheckBox

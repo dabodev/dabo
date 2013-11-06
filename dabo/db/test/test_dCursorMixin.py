@@ -148,7 +148,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 		self.assertEqual(cur._mementos[cur.Record.pk]["cfield"].rstrip(), "Paul Keith McNett")
 		cur.setFieldVal("ifield", 80)
 		self.assertEqual(cur.Record.ifield, 80)
-		self.assertTrue(isinstance(cur.Record.ifield, int))
+		self.assertTrue(isinstance(cur.Record.ifield, (int, six.types.LongType)))
 		self.assertEqual(cur._mementos[self.cur.Record.pk]["ifield"], 23)
 
 		# Querying or setting a field that doesn't exist should raise
@@ -173,7 +173,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 	def test_RowNumber(self):
 		cur = self.cur
 		self.assertEqual(cur.RowNumber, 0)
-		next(cur)
+		cur.next()
 		self.assertEqual(cur.RowNumber, 1)
 		cur.moveToRowNum(2)
 		self.assertEqual(cur.RowNumber, 2)
@@ -318,10 +318,10 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 #    values ("Carl Karsten", 10223, 23032.76, 11);
 		self.assertEqual(rec.ffield, Decimal("3.14159"))
 		self.assertEqual(str(rec.ffield), "3.14159")
-		next(cur)
+		cur.next()
 		self.assertEqual(rec.ffield, Decimal("0.999999"))
 		self.assertEqual(str(rec.ffield), "0.999999")
-		next(cur)
+		cur.next()
 		self.assertEqual(rec.ffield, Decimal("11"))
 		self.assertEqual(str(rec.ffield), "11.0")
 

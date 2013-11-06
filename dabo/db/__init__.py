@@ -40,10 +40,10 @@ import dabo
 from dabo.dException import FieldNotFoundException
 
 daboTypes = {
-		"C": str,             ## text
-		"M": str,             ## memo (longtext)
+        "C": str,                 ## text
+		"M": str,                 ## memo (longtext)
 		"I": int,                 ## integer
-		"G": int,                ## long integer
+		"G": six.types.LongType,  ## long integer
 		"F": float,               ## float
 		"B": bool,                ## boolean (logical)
 		"D": datetime.date,       ## date

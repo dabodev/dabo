@@ -356,7 +356,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def getShortDataType(self, value):
-		if isinstance(value, int):
+		if isinstance(value, (int, six.types.LongType)):
 			return "I"
 		elif isinstance(value, six.types.StringTypes):
 			return "C"

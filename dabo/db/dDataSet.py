@@ -64,7 +64,7 @@ class dDataSet(tuple):
 		# Register the converters
 		sqlite.register_converter("decimal", self._convert_decimal)
 
-		self._typeDict = {int: "integer", int: "integer", str: "text",
+		self._typeDict = {int: "integer", six.types.LongType: "integer", str: "text",
 				str: "text", float: "real", datetime.date: "date",
 				datetime.datetime: "timestamp", Decimal: "decimal"}
 

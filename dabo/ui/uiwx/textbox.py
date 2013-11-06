@@ -2,6 +2,9 @@
 import re
 import datetime
 import wx
+
+import six
+
 import dabo
 if __name__ == "__main__":
 	import dabo.ui
@@ -47,7 +50,7 @@ if __name__ == "__main__":
 
 	class LongText(TestBase):
 		def afterInit(self):
-			self.Value = int(23)
+			self.Value = six.types.LongType(23)
 
 	class FloatText(TestBase):
 		def afterInit(self):

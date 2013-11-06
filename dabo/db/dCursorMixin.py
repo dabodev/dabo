@@ -1002,18 +1002,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		nonUpdateFields = self.getNonUpdateFields()
 		if fldType is not None and val is not None:
 			if fldType != type(val):
-				convTypes = (str, str, int, float, int, complex)
+				convTypes = (str, str, int, float, six.types.LongType, complex)
 				if issubclass(fldType, str) and isinstance(val, convTypes):
 					val = ustr(val)
 				elif issubclass(fldType, int) and isinstance(val, bool):
 					# convert bool to int (original field val was bool, but UI
 					# changed to int.
 					val = int(val)
-				elif issubclass(fldType, int) and isinstance(val, int):
+				elif issubclass(fldType, int) and isinstance(val, six.types.LongType):
 					# convert long to int (original field val was int, but UI
 					# changed to long.
 					val = int(val)
-				elif issubclass(fldType, int) and isinstance(val, int):
+				elif issubclass(fldType, six.types.LongType) and isinstance(val, int):
 					# convert int to long (original field val was long, but UI
 					# changed to int.
 					val = int(val)
@@ -2190,11 +2190,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		if simpleKey and not compString:
 			# coerce val to be the same type as the field type
-			if issubclass(field_type, int):
+			if issubclass(field_type, six.types.LongType):
 				try:
-					val = int(val)
+					val = six.types.LongType(val)
 				except ValueError:
-					val = int(0)
+					val = six.types.LongType(0)
 
 			elif issubclass(field_type, int):
 				try:

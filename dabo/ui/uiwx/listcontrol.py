@@ -675,7 +675,7 @@ class dListControl(dcm.dControlItemMixin,
 					if self._expandColumn:
 						self._resetSize(self._expandColumn)
 					self._expandColumn = val
-					if isinstance(val, int):
+					if isinstance(val, (int, six.types.LongType)):
 						# Need to decrease by one, since the mixin uses a 1-based column numbering
 						self.setResizeColumn(val + 1)
 					else:

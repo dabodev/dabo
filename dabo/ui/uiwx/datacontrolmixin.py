@@ -45,7 +45,7 @@ class dDataControlMixin(dDataControlMixinBase):
 
 
 	def _coerceValue(self, val, oldval):
-		convTypes = (str, str, int, float, int, complex)
+		convTypes = (str, str, int, float, six.types.LongType, complex)
 		oldType = type(oldval)
 		if isinstance(val, convTypes) and isinstance(oldval, six.types.StringTypes):
 			val = ustr(val)
@@ -55,14 +55,14 @@ class dDataControlMixin(dDataControlMixinBase):
 			# convert bool to int (original field val was bool, but UI
 			# changed to int.
 			val = int(val)
-		elif isinstance(oldval, int) and isinstance(val, int):
+		elif isinstance(oldval, int) and isinstance(val, six.types.LongType):
 			# convert long to int (original field val was int, but UI
 			# changed to long.
 			val = int(val)
-		elif isinstance(oldval, int) and isinstance(val, int):
+		elif isinstance(oldval, six.types.LongType) and isinstance(val, int):
 			# convert int to long (original field val was long, but UI
 			# changed to int.
-			val = int(val)
+			val = six.types.LongType(val)
 		return val
 
 

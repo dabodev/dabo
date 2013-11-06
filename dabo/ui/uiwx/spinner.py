@@ -357,7 +357,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
 	def _setValue(self, val):
 		if self._constructed():
 			self._proxy_textbox._inDataUpdate = self._inDataUpdate
-			if isinstance(val, (int, float, decimal)):
+			if isinstance(val, (int, six.types.LongType, float, decimal)):
 				self._proxy_textbox.Value = val
 			else:
 				numVal = self._numericStringVal(val)

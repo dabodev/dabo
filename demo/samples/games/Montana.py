@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import random
+
+import six
+
 import dabo.ui
 from dabo.dApp import dApp
 from dabo.dLocalize import _
@@ -412,7 +415,7 @@ class MontanaForm(dabo.ui.dForm):
 		self.Centered = True
 		self.Caption = "Montana"
 		pfm = self.PreferenceManager
-		if not isinstance(pfm.redeals, int):
+		if not isinstance(pfm.redeals, (int, six.types.LongType)):
 			pfm.redeals = 2
 		if not isinstance(pfm.flashOnlyAces, bool):
 			pfm.flashOnlyAces = False

@@ -205,7 +205,7 @@ def _quote(x):
 	if isinstance(x, six.types.StringTypes):
 		x = "'" + string.replace(str(x), "'", "''") + "'"
 	#elif type(x) in (types.IntType, types.LongType, types.FloatType):
-	elif isinstance(x, (int, float)):
+	elif isinstance(x, (int, six.types.LongType, float)):
 		pass
 	elif x is None:
 		x = 'NULL'

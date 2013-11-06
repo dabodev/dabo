@@ -234,8 +234,8 @@ class LayoutSaverMixin(dObject):
 							dv = (dv.lower() == "true")
 						elif isinstance(val, int):
 							dv = int(dv)
-						elif isinstance(val, int):
-							dv = int(dv)
+						elif isinstance(val, six.types.LongType):
+							dv = six.types.LongType(dv)
 						elif isinstance(val, float):
 							dv = float(dv)
 						elif dv in dabo.dColors.colors:

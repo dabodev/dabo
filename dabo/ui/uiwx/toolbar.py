@@ -273,7 +273,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		the item is deleted as well. If release is False, a reference to the  object
 		will be returned, and the caller is responsible for deleting it.
 		"""
-		if isinstance(idxOrItem, int):
+		if isinstance(idxOrItem, (int, six.types.LongType)):
 			idx = idxOrItem
 			itm = self.Children[idx]
 		else:

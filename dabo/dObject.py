@@ -62,7 +62,7 @@ class dObject(PropertyHelperMixin, EventMixin):
 							val = typ(val)
 						except ValueError as e:
 							# Sometimes int values can be stored as floats
-							if typ in (int, int):
+							if typ in (int, six.types.LongType):
 								val = float(val)
 							else:
 								raise e

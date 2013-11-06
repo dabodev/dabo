@@ -639,7 +639,7 @@ class MinesweeperForm(dabo.ui.dForm):
 		their default value.
 		"""
 		pfm = self.Application.PreferenceManager
-		if not isinstance(pfm.preset.mines, int):
+		if not isinstance(pfm.preset.mines, (int, six.types.LongType)):
 			# First time through; initialize the default values.
 			pfm.deleteAllPrefs()
 			pfm.preset.mines = 0

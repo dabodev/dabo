@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import reportlab.lib.units as units
 
+import six
+
 def dictunion(lhs, rhs):
 	""" Dictionary union
 
@@ -24,7 +26,7 @@ def getPt(val):
 	> print self.getPt(1)
 	1
 	"""
-	if isinstance(val, (int, float)):
+	if isinstance(val, (int, six.types.LongType, float)):
 		# return as-is as the pt value.
 		return val
 	else:

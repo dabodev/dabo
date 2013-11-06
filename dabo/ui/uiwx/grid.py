@@ -141,7 +141,7 @@ class dGridDataTable(wxGTclass):
 					bool : "bool",
 					int : "integer",
 					float : "float",
-					int : "long",
+					six.types.LongType : "long",
 					datetime.date : "date",
 					datetime.datetime : "datetime",
 					datetime.time : "time",
@@ -186,7 +186,7 @@ class dGridDataTable(wxGTclass):
 				lowtyp = "decimal"
 		if lowtyp in (bool, "bool", "boolean", "logical", "l"):
 			ret = wx.grid.GRID_VALUE_BOOL
-		if lowtyp in (int, int, "int", "integer", "bigint", "i", "long"):
+		if lowtyp in (int, six.types.LongType, "int", "integer", "bigint", "i", "long"):
 			ret = wx.grid.GRID_VALUE_NUMBER
 		elif lowtyp in (str, str, "char", "varchar", "text", "c", "s"):
 			ret = wx.grid.GRID_VALUE_STRING
@@ -531,7 +531,7 @@ class dColumn(dabo.ui.pemmixinbase.dPemMixinBase):
 			datetime.datetime : self.stringRendererClass,
 			bool : self.boolRendererClass,
 			int : self.intRendererClass,
-			int : self.longRendererClass,
+			six.types.LongType : self.longRendererClass,
 			float : self.floatRendererClass,
 			Decimal: self.decimalRendererClass,
 			list : self.listRendererClass}
@@ -553,7 +553,7 @@ class dColumn(dabo.ui.pemmixinbase.dPemMixinBase):
 			datetime.datetime : self.stringEditorClass,
 			bool : self.boolEditorClass,
 			int : self.intEditorClass,
-			int : self.longEditorClass,
+			six.types.LongType : self.longEditorClass,
 			float : self.floatEditorClass,
 			Decimal: self.decimalEditorClass,
 			list : self.listEditorClass}
@@ -3040,7 +3040,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 						dataType = "unicode"
 					elif isinstance(f, str):
 						dataType = "string"
-					elif isinstance(f, int):
+					elif isinstance(f, six.types.LongType):
 						dataType = "long"
 					elif isinstance(f, int):
 						dataType = "int"
@@ -3145,11 +3145,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					srchVal = int(srchVal)
 				except ValueError:
 					srchVal = int(0)
-			elif isinstance(listval, int):
+			elif isinstance(listval, six.types.LongType):
 				try:
-					srchVal = int(srchVal)
+					srchVal = six.types.LongType(srchVal)
 				except ValueError:
-					srchVal = int(0)
+					srchVal = six.types.LongType(0)
 			elif isinstance(listval, float):
 				try:
 					srchVal = float(srchVal)
@@ -3441,7 +3441,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		ValueError will be raised. If you prefer to simply log the error without
 		raising an exception, pass True to the logOnly parameter (default=False).
 		"""
-		if isinstance(colOrIdx, int):
+		if isinstance(colOrIdx, (int, six.types.LongType)):
 			return self.Columns[colOrIdx] if returnColumn else colOrIdx
 		elif isinstance(colOrIdx, dColumn):
 			return colOrIdx if returnColumn else self.Columns.index(colOrIdx)
