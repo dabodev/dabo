@@ -42,7 +42,7 @@ class dControlItemMixin(dDataControlMixin):
 		chc.append(txt)
 		self.Choices = chc
 		if select:
-			if self.MultipleSelect:
+			if self._isMultiSelect():
 				self.StringValue += (txt,)
 			else:
 				self.StringValue = txt

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import dabo
 import wx
 import dabo.dEvents as dEvents
@@ -389,7 +390,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 				size.SetWidth(width)
 
 			self.dropdown.SetSize(size)
-			self.dropdownlistbox.SetSize(self.dropdown.GetClientSize())	
+			self.dropdownlistbox.SetSize(self.dropdown.GetClientSize())
 
 			if y + size.GetHeight() < self._screenheight :
 				self.dropdown . SetPosition ( wx.Point(x, y) )
@@ -469,7 +470,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 		if isinstance(evt, wx.KeyEvent):
 			if evt.GetKeyCode() == wx.WXK_BACK:
 				#Make sure fillDynamicChoices() gets called on backspace as well
-				self.fillDynamicChoices()	   	
+				self.fillDynamicChoices()
 
 
 	def getBizobj(self):
@@ -485,7 +486,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 						if not biz.isRemote():
 							self._dataSource = biz
 					return biz
-				form = form.Form	
+				form = form.Form
 		return None
 
 
@@ -518,7 +519,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 		choices = []
 		colKeys = self.DataFields
 		if not colKeys:
-			colKeys = [key for key in ds[0].keys()]	
+			colKeys = [key for key in ds[0].keys()]
 
 		if len(colKeys) == 1:
 			#Single column
@@ -530,7 +531,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 				for rec in ds:
 					choices.append([str(rec[key]) for key in colKeys])
 			except KeyError:
-				raise ValueError("DataField '%s' is not a valid column name" % key)	
+				raise ValueError("DataField '%s' is not a valid column name" % key)
 
 			#Find search index
 			try:
@@ -550,7 +551,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 					if isinstance(self.FetchField, basestring):
 						colFetch = colKeys.index(self.FetchField)
 					else:
-						colFetch = self.FetchField		
+						colFetch = self.FetchField
 				else: colFetch = -1
 			except ValueError:
 				raise ValueError("FetchField '%s' is not a valid column name"
@@ -576,7 +577,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 			choices = [choice for choice in self._dynamicChoices
 					if choice[self._colSearch].lower().startswith(text)]
 			while len(choices) < 2:
-				choices.append(["" for col in self._dynamicChoices[0]])	
+				choices.append(["" for col in self._dynamicChoices[0]])
 		else:
 			choices = [choice for choice in self._dynamicChoices
 					if choice.lower().startswith(text)]
@@ -613,8 +614,8 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 			if not colFetch:
 				colFetch = self._colFetch
 			while len(choices) < 2:
-				choices.append(["" for col in choices[0]])		
-			if self._colNames:		
+				choices.append(["" for col in choices[0]])
+			if self._colNames:
 				while len(self._colNames) < len(choices[0]):
 					self._colNames.append("")
 			self.SetMultipleChoices(choices, colSearch=colSearch, colFetch=colFetch)
@@ -694,7 +695,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 		if self._constructed():
 			self._searchField = fld
 			if isinstance(fld, int):
-				self._colSearch = fld	
+				self._colSearch = fld
 		else:
 			self._properties["SearchField"] = fld
 
@@ -836,3 +837,4 @@ if __name__ == "__main__":
 
 
 	test.Test().runTest(TestPanel)
+
