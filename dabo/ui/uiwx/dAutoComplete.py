@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import dabo
 import wx
 import dabo.dEvents as dEvents
