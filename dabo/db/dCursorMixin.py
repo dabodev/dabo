@@ -324,11 +324,13 @@ class dCursorMixin(dObject):
 				sql = sql.decode(self.Encoding).replace("\n", " ")
 			except UnicodeDecodeError, e:
 				sql = "(couldn't decode sql)"
-		params = ", ".join("%s" % p for p in params)
-		logmsg = "%s SQL: %s, PARAMS: %s" % (msg, sql, params)
+		try:
+			params = ", ".join("%s" % p for p in params)
+		except UnicodeDecodeError, e:
+			params = "(couldn't decode params)"
 
 		try:
-			log(logmsg)
+			log("%s SQL: %s, PARAMS: %s" % (msg, sql, params))
 		except StandardError:
 			log("%s (couldn't log SQL or PARAMS)" % msg)
 
@@ -360,7 +362,7 @@ class dCursorMixin(dObject):
 			# handle it appropriately.
 			if errorClass is not None and isinstance(e, errorClass):
 				raise e
-			self._dblogExecute("execute() FAILED", sql, params) 
+			self._dblogExecute("execute() FAILED", sql, params)
 
 			# Database errors need to be decoded from database encoding.
 			try:
