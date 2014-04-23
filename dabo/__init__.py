@@ -90,7 +90,7 @@ else:
 	consoleFormatter.datefmt = mainLogDateFormat
 	consoleLogHandler.setFormatter(consoleFormatter)
 	log = logging.getLogger(mainLogQualName)
-	log.setLevel(logging.DEBUG)
+	log.setLevel(logging.ERROR)
 	log.addHandler(consoleLogHandler)
 	if mainLogFile is not None:
 		fileLogHandler = logging.handlers.RotatingFileHandler(
