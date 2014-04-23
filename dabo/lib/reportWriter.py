@@ -50,6 +50,9 @@ import reportlab.lib.pagesizes as pagesizes
 import reportlab.lib.units as units
 import reportlab.lib.styles as styles
 import reportlab.platypus as platypus
+from reportlab.graphics.barcode import code39, code93, code128
+from reportlab.graphics.barcode import eanbc, qr, usps
+
 #import reportlab.lib.colors as colors
 import dabo
 from dabo import getEncoding
@@ -94,7 +97,7 @@ if sys.platform[:3] == "lin":
 			fontPaths += [os.path.join(pathToCheck, d) for d in os.listdir(pathToCheck)]
 elif sys.platform[:3] == "dar":
 	fontPaths += ["/Network/Library/Fonts", "/Library/Fonts", "System/Library/Fonts",
-			"%s/Library/Fonts" % os.path.expanduser("~")]
+	        "%s/Library/Fonts" % os.path.expanduser("~")]
 elif sys.platform[:3] == "win":
 	fontPaths = [os.path.join(os.path.expandvars("%windir%"), "fonts")]
 
@@ -135,7 +138,7 @@ def getSubFont(fontName, subFontName="Helvetica"):
 		subFontName += "Oblique"
 	if subFontName not in substitutedFontNames:
 		dabo.log.error(_("Font '%(fontName)s' not found. Substituting "
-                "'%(subFontName)s'") % locals())
+		        "'%(subFontName)s'") % locals())
 		substitutedFontNames.append(subFontName)
 	return subFontName
 
@@ -234,11 +237,11 @@ class ReportObjectCollection(list):
 		return {}
 
 	DesignerProps = property(_getDesProps, None, None,
-		_("""Returns a dict of editable properties for the control, with the
-		prop names as the keys, and the value for each another dict,
-		containing the following keys: 'type', which controls how to display
-		and edit the property, and 'readonly', which will prevent editing
-		when True. (dict)""") )
+	        _("""Returns a dict of editable properties for the control, with the
+	        prop names as the keys, and the value for each another dict,
+	        containing the following keys: 'type', which controls how to display
+	        and edit the property, and 'readonly', which will prevent editing
+	        when True. (dict)""") )
 
 
 class Variables(ReportObjectCollection): pass
@@ -278,7 +281,7 @@ class ReportObject(CaselessDict):
 
 	def initAvailableProps(self):
 		self.AvailableProps["Comment"] = toPropDict(str, "",
-				"""You can add a comment here, the report will ignore it.""")
+		        """You can add a comment here, the report will ignore it.""")
 
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the object."""
@@ -323,7 +326,6 @@ class ReportObject(CaselessDict):
 				m[k] = v
 		return m
 
-
 	def getProp(self, prop, evaluate=True, returnException=False):
 		"""Return the value of the property.
 
@@ -344,7 +346,7 @@ class ReportObject(CaselessDict):
 
 			# If the prop is in <Report><Defaults>:
 			if self is not self.ReportForm and (prop in self.ReportForm["Defaults"].AvailableProps
-				or (prop[-4:] == "_def" and prop[:-4] in self.ReportForm["Defaults"].AvailableProps)):
+			        or (prop[-4:] == "_def" and prop[:-4] in self.ReportForm["Defaults"].AvailableProps)):
 				try:
 					ret = self.ReportForm["Defaults"][prop]
 					if evaluate:
@@ -386,7 +388,6 @@ class ReportObject(CaselessDict):
 			# The prop isn't defined, use the default.
 			return getDefault(prop)
 
-
 	def setProp(self, prop, val, logUndo=True):
 		"""Update the value of the property."""
 		if prop not in self.AvailableProps:
@@ -404,7 +405,6 @@ class ReportObject(CaselessDict):
 			self.Report.reportWriter.storeUndo(self, prop, self.getProp(prop, evaluate=False), val)
 		self[prop] = val
 
-
 	def getPropVal(self, propName):
 		return self.getProp(propName, evaluate=False)
 
@@ -413,7 +413,6 @@ class ReportObject(CaselessDict):
 
 	def updatePropVal(self, propName, propVal):
 		self.setProp(ustr(propName), ustr(propVal))
-
 
 	def _getAvailableProps(self):
 		if hasattr(self, "_AvailableProps"):
@@ -425,10 +424,8 @@ class ReportObject(CaselessDict):
 	def _setAvailableProps(self, val):
 		self._AvailableProps = val
 
-
 	def _getBands(self):
 		return self.Report.reportWriter.Bands
-
 
 	def _getDesProps(self):
 		strType = {"type" : str, "readonly" : False, "alsoDirectEdit": True}
@@ -460,20 +457,17 @@ class ReportObject(CaselessDict):
 #				desProps[prop]["values"] = ['"Portrait"', '"Landscape"']
 		return desProps
 
-
 	def _getMajorProperty(self):
 		return getattr(self, "_majorProperty", None)
 
 	def _setMajorProperty(self, val):
 		self._majorProperty = val
 
-
 	def _getRecord(self):
 		if self.Report.reportWriter is not None:
 			if hasattr(self.Report, "_liveRecord"):
 				return self.Report._liveRecord
 		return CaselessDict()
-
 
 	def _getReport(self):
 		ret = getattr(self, "_resolvedReport", None)
@@ -485,11 +479,9 @@ class ReportObject(CaselessDict):
 		self._resolvedReport = parent
 		return parent
 
-
 	def _getReportForm(self):
 		return self.Report.reportWriter.ReportForm
 	ReportForm = property(_getReportForm)
-
 
 	def _getVariables(self):
 		rw = self.Report.reportWriter
@@ -502,11 +494,11 @@ class ReportObject(CaselessDict):
 	Bands = property(_getBands)
 
 	DesignerProps = property(_getDesProps, None, None,
-		_("""Returns a dict of editable properties for the control, with the
-		prop names as the keys, and the value for each another dict,
-		containing the following keys: 'type', which controls how to display
-		and edit the property, and 'readonly', which will prevent editing
-		when True. (dict)""") )
+	        _("""Returns a dict of editable properties for the control, with the
+	        prop names as the keys, and the value for each another dict,
+	        containing the following keys: 'type', which controls how to display
+	        and edit the property, and 'readonly', which will prevent editing
+	        when True. (dict)""") )
 
 	MajorProperty = property(_getMajorProperty, _setMajorProperty)
 	Record = property(_getRecord)
@@ -519,7 +511,7 @@ class Defaults(ReportObject):
 	def initAvailableProps(self):
 		super(Defaults, self).initAvailableProps()
 		self.AvailableProps["FontName"] = toPropDict(str, "Helvetica",
-			"""Specifies the default font name to use for all string-like objects.""")
+		        """Specifies the default font name to use for all string-like objects.""")
 
 
 class Drawable(ReportObject):
@@ -569,7 +561,6 @@ class Drawable(ReportObject):
 
 		self.MajorProperty = "x"
 
-
 	def getTopPt(self):
 		"""Return the top pt of the object. Convenient as y can designate the
 		top, bottom, or middle of the object, depending on the vAnchor setting."""
@@ -598,7 +589,7 @@ class Report(ReportObject):
 		super(Report, self).initAvailableProps()
 
 		self.AvailableProps["Author"] = toPropDict(str, "",
-				"""Specifies the author of the report. Appears in PDF properties.""")
+		        """Specifies the author of the report. Appears in PDF properties.""")
 
 		self.AvailableProps["Subject"] = toPropDict(str, "",
 				"""Specifies the subject of the report. Appears in PDF properties.""")
@@ -607,7 +598,7 @@ class Report(ReportObject):
 				"""Specifies keywords for the report. Appears in PDF properties.""")
 
 		self.AvailableProps["Title"] = toPropDict(str, "",
-		"""Specifies the title of the report. Appears in PDF properties.""")
+				"""Specifies the title of the report. Appears in PDF properties.""")
 
 		self.AvailableProps["ColumnCount"] = toPropDict(int, 1,
 				"""Specifies the number of columns to divide the report into.""")
@@ -621,7 +612,6 @@ class Report(ReportObject):
 				result in the date getting displayed as set by dabo.dateFormat or the user's locale.""")
 
 		self.MajorProperty = "Title"
-
 
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the report form."""
@@ -648,7 +638,7 @@ class Page(ReportObject):
 	def initAvailableProps(self):
 		super(Page, self).initAvailableProps()
 		self.AvailableProps["MarginBottom"] = toPropDict(float, ".5 in",
-				"""Specifies the page's bottom margin.""")
+		        """Specifies the page's bottom margin.""")
 
 		self.AvailableProps["MarginLeft"] = toPropDict(float, ".5 in",
 				"""Specifies the page's left margin.""")
@@ -707,7 +697,6 @@ class Group(ReportObject):
 				_("""Specifies whether the page number gets reset with a new group."""))
 
 		self.MajorProperty = "expr"
-
 
 	def insertRequiredElements(self):
 		if "GroupHeader" not in self:
@@ -776,12 +765,10 @@ class Band(ReportObject):
 
 		self.MajorProperty = "Height"
 
-
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the band."""
 		self.setdefault("Objects", Objects(self))
 		super(Band, self).insertRequiredElements()
-
 
 	def _getBandName(self):
 		name = self.__class__.__name__
@@ -790,14 +777,16 @@ class Band(ReportObject):
 
 class PageBackground(Band): pass
 
+
 class PageHeader(Band):
 	def initAvailableProps(self):
 		super(PageHeader, self).initAvailableProps()
 		self.AvailableProps["ColumnBreakAfter"] = toPropDict(bool, False,
-			"""Specifies whether a column break is inserted after the band prints.
+		        """Specifies whether a column break is inserted after the band prints.
+		
+		        If True, the page header will reside in the first column instead of
+		        on top of the column set.""")
 
-			If True, the page header will reside in the first column instead of
-			on top of the column set.""")
 
 class Detail(Band): pass
 class PageFooter(Band): pass
@@ -806,25 +795,28 @@ class GroupFooter(Band):
 	def initAvailableProps(self):
 		super(GroupFooter, self).initAvailableProps()
 		self.AvailableProps["PrintAtBottom"] = toPropDict(bool, False,
-			"""Specifies whether the group footer prints directly after the group
-			detail (False, the default), or at the bottom of the column on the page.""")
+		        """Specifies whether the group footer prints directly after the group
+		        detail (False, the default), or at the bottom of the column on the page.""")
+
 
 class PageForeground(Band): pass
+
 
 class ReportBegin(Band):
 	def initAvailableProps(self):
 		super(ReportBegin, self).initAvailableProps()
 		self.AvailableProps["PageBreakAfter"] = toPropDict(bool, False,
-				"""Specifies whether a page break is inserted after the band prints.""")
+		        """Specifies whether a page break is inserted after the band prints.""")
 
 		self.AvailableProps["ColumnBreakAfter"] = toPropDict(bool, False,
-				"""Specifies whether a column break is inserted after the band prints.""")
+		        """Specifies whether a column break is inserted after the band prints.""")
+
 
 class ReportEnd(Band):
 	def initAvailableProps(self):
 		super(ReportEnd, self).initAvailableProps()
 		self.AvailableProps["PageBreakBefore"] = toPropDict(bool, False,
-				"""Specifies whether a page break is inserted before the band prints.""")
+		        """Specifies whether a page break is inserted before the band prints.""")
 
 
 class Rectangle(Drawable):
@@ -832,21 +824,21 @@ class Rectangle(Drawable):
 	def initAvailableProps(self):
 		super(Rect, self).initAvailableProps()
 		self.AvailableProps["FillColor"] = toPropDict(tuple, None,
-				"""Specifies the fill color.
+		        """Specifies the fill color.
 
-				If None, the fill color will be transparent.""")
+		        If None, the fill color will be transparent.""")
 
 		self.AvailableProps["StrokeWidth"] = toPropDict(float, 1,
-				"""Specifies the width of the stroke, in points.""")
+		        """Specifies the width of the stroke, in points.""")
 
 		self.AvailableProps["StrokeColor"] = toPropDict(tuple, (0, 0, 0),
-				"""Specifies the stroke color.""")
+		        """Specifies the stroke color.""")
 
 		self.AvailableProps["StrokeDashArray"] = toPropDict(tuple, None,
-				"""Specifies the stroke dash.
-
-				For instance, (1,1) will give you a dotted look, (1,1,5,1) will
-				give you a dash-dot look.""")
+		        """Specifies the stroke dash.
+		        
+		        For instance, (1,1) will give you a dotted look, (1,1,5,1) will
+		        give you a dash-dot look.""")
 
 ## backwards compatibility:
 Rect = Rectangle
@@ -856,60 +848,59 @@ class String(Drawable):
 	def initAvailableProps(self):
 		super(String, self).initAvailableProps()
 		self.AvailableProps["expr"] = toPropDict(str, "String",
-				"""Specifies the string to print.""")
+		        """Specifies the string to print.""")
 
 		self.AvailableProps["BorderWidth"] = toPropDict(float, 0,
-				"""Specifies the width of the border around the string.""")
+		        """Specifies the width of the border around the string.""")
 
 		self.AvailableProps["BorderColor"] = toPropDict(tuple, (0, 0, 0),
-				"""Specifies the border color.""")
+		        """Specifies the border color.""")
 
 		self.AvailableProps["Align"] = toPropDict(str, "left",
-				"""Specifies the string alignment.
+		        """Specifies the string alignment.
 
-				This must evaluate to one of 'left', 'center', or 'right'.""")
+		        This must evaluate to one of 'left', 'center', or 'right'.""")
 
 		self.AvailableProps["FontName"] = toPropDict(str, "Helvetica",
-				"""Specifies the font name, boldface, and italics all in one.
+		        """Specifies the font name, boldface, and italics all in one.
 
-				There are only a handful of reliable selections:
-					Courier
-					Courier-Bold
-					Courier-Oblique
-					Courier-BoldOblique
+		        There are only a handful of reliable selections:
+		           Courier
+		           Courier-Bold
+		           Courier-Oblique
+		           Courier-BoldOblique
 
-					Helvetica
-					Helvetica-Bold
-					Helvetica-Oblique
-					Helvetica-BoldOblique
+		           Helvetica
+		           Helvetica-Bold
+		           Helvetica-Oblique
+		           Helvetica-BoldOblique
 
-					Times-Roman
-					Times-Bold
-					Times-Italic
-					Times-BoldItalic
+		           Times-Roman
+		           Times-Bold
+		           Times-Italic
+		           Times-BoldItalic
 
-					Symbol
+		           Symbol
 
-					ZapfDingbats
+		           ZapfDingbats
 
-				Please note that for predictable cross-platform results, you need to
-				stick to the fonts above. Otherwise, you'll need to ensure any TTF
-				fonts you specify are distributed to all systems that create the
-				reports. If you specify a font name that doesn't exist, the Dabo report
-				writer will default to 'Helvetica'.
-				""")
+		        Please note that for predictable cross-platform results, you need to
+		        stick to the fonts above. Otherwise, you'll need to ensure any TTF
+		        fonts you specify are distributed to all systems that create the
+		        reports. If you specify a font name that doesn't exist, the Dabo report
+		        writer will default to 'Helvetica'.
+		        """)
 
 		self.AvailableProps["FontSize"] = toPropDict(float, 10,
-				"""Specifies the size of the font, in points.""")
+				 """Specifies the size of the font, in points.""")
 
 		self.AvailableProps["FontColor"] = toPropDict(tuple, (0, 0, 0),
-				"""Specifies the color of the text.""")
+		        """Specifies the color of the text.""")
 
 		self.AvailableProps["ScalePercent"] = toPropDict(tuple, (100.0, 100.0),
-				"""Specifies the scaling of the string. Set to (150,100) to make it wide.""")
+		        """Specifies the scaling of the string. Set to (150,100) to make it wide.""")
 
 		self.MajorProperty = "expr"
-
 
 
 class Memo(String):
@@ -939,23 +930,23 @@ class Memo(String):
 		self.AvailableProps["ColumnCount"] = toPropDict(int, 1,
 				"""Specifies the number of columns in the memo.
 
-				Each column will be equal in width.
-				""")
-
+		        Each column will be equal in width.
+		        """)
+		
 		self.AvailableProps["Leading"] = toPropDict(float, "single",
 				"""Specifies the font leading (how much space to leave between baselines).
 
-				Leading <= 0 : nothing prints.
-				Leading in (FontSize, "single", None) : single-space output.
-				Leading in (FontSize * 2, "double") : double-space output.
-
-				Add any number of "+" or "-" characters after "single" or "double" to increase
-				or decrease the leading by 10% of the fontsize for each.
-
-				If you choose to specify your own explicit numeric value for Leading, note
-				that you'll have to remember to change it if you ever change the FontSize,
-				to get the same relative spacing.
-				""")
+		        Leading <= 0 : nothing prints.
+		        Leading in (FontSize, "single", None) : single-space output.
+		        Leading in (FontSize * 2, "double") : double-space output.
+		         
+		        Add any number of "+" or "-" characters after "single" or "double" to increase
+		        or decrease the leading by 10% of the fontsize for each.
+		        
+		        If you choose to specify your own explicit numeric value for Leading, note
+		        that you'll have to remember to change it if you ever change the FontSize,
+		        to get the same relative spacing.
+		        """)
 
 		self.AvailableProps["FirstLineIndent"] = toPropDict(float, 0,
 				"""Specifies the extra amount to indent for the first line in each paragraph.""")
@@ -980,16 +971,15 @@ class Image(Drawable):
 		self.AvailableProps["ScaleMode"] = toPropDict(str, "scale",
 				"""Specifies how to handle frame and image of differing size.
 
-				"scale" or "stretch" will change the image size to fit the frame.
-				"clip" will display the image in the frame as-is.
-				"proportional" resizes the image to fit in the frame without changing its proportions.""")
+		        "scale" or "stretch" will change the image size to fit the frame.
+		        "clip" will display the image in the frame as-is.
+		        "proportional" resizes the image to fit in the frame without changing its proportions.""")
 
 		self.MajorProperty = "expr"
 
 
-
 class BarGraph(Drawable):
-        """Represents a bar graph"""
+	"""Represents a bar graph"""
 	def initAvailableProps(self):
 		super(BarGraph, self).initAvailableProps()
 
@@ -1051,10 +1041,10 @@ class BarGraph(Drawable):
 				"""Specifies the colour of the border of the bar.""")
 
 		self.AvailableProps["ScaleMode"] = toPropDict(str, "scale",
-				"""Specifies how to handle frame and image of differing size.
-
-				"scale" will change the image size to fit the frame. "clip" will
-				display the image in the frame as-is.""")
+		        """Specifies how to handle frame and image of differing size.
+		        
+		        "scale" will change the image size to fit the frame. "clip" will
+		        display the image in the frame as-is.""")
 
 		self.MajorProperty = "expr"
 
@@ -1101,7 +1091,7 @@ class SpanningLine(Line):
 	def initAvailableProps(self):
 		super(SpanningLine, self).initAvailableProps()
 		for prop in ("x", "y", "Width", "Height", "LineSlant", "Rotation",
-				"vAnchor", "hAnchor"):
+				     "vAnchor", "hAnchor"):
 			del self.AvailableProps[prop]
 		self.AvailableProps["x"] = toPropDict(float, 0.0,
 				"""Specifies the x of the starting point of the line, in the group or page header.""")
@@ -1121,7 +1111,7 @@ class SpanningRectangle(Rectangle):
 	def initAvailableProps(self):
 		super(SpanningRectangle, self).initAvailableProps()
 		for prop in ("x", "y", "Width", "Height", "Rotation",
-				"vAnchor", "hAnchor"):
+				     "vAnchor", "hAnchor"):
 			del self.AvailableProps[prop]
 		self.AvailableProps["x"] = toPropDict(float, 0.0,
 				"""Specifies the x of the starting point of the rectangle, in the group or page header.""")
@@ -1207,6 +1197,67 @@ class Paragraph(Drawable):
 		self.MajorProperty = "expr"
 
 
+class Barcode(Drawable):
+	"""Represents a barcode."""
+	def initAvailableProps(self):
+		super(Barcode, self).initAvailableProps()
+		self.AvailableProps["BarcodeFormat"] = toPropDict(str, "Standard39",
+				 """Specifies the barcode format to use.
+
+		         Currently supported formats:
+					Standard39
+		            Extended39
+		            Standard93
+
+		            Code128
+
+		            """
+		            #Ean8
+		            #Ean13
+
+		            #QR
+
+		            #"""
+				                                          )
+
+		self.AvailableProps["expr"] = toPropDict(str, "",
+				 """Specifies the value for the barcode.""")
+
+		self.AvailableProps["BarWidth"] = toPropDict(float, 0.0075,
+				 """X-Dimension, or width of the smallest element
+		         Minumum is .0075 inch (7.5 mils).""")
+
+		self.AvailableProps["BarHeight"] = toPropDict(float, None,
+				 """Height of the symbol.  Default is the height of the two
+		         bearer bars (if they exist) plus the greater of .25 inch
+		         or .15 times the symbol's length.""")
+
+
+		self.AvailableProps["BarRatio"] = toPropDict(float, 2.2,
+		        """The ratio of wide elements to narrow elements.
+		        Must be between 2.0 and 3.0 (or 2.2 and 3.0 if the
+		        barWidth is greater than 20 mils (.02 inch))""")
+
+		self.AvailableProps["BarGap"] = toPropDict(float, None,
+		         """width of intercharacter gap. None means "use barWidth".""")
+
+		self.AvailableProps["BarChecksum"] = toPropDict(bool, True,
+				 """Wether to compute and include the check digit.""")
+
+		self.AvailableProps["BarBearers"] = toPropDict(float, 3.0,
+				 """Height of bearer bars (horizontal bars along the top and
+		         bottom of the barcode). Default is 3 x-dimensions.
+		         Set to zero for no bearer bars. (Bearer bars help detect
+		         misscans, so it is suggested to leave them on).""")
+
+		self.AvailableProps["BarQuiet"] = toPropDict(bool, True,
+				 """Wether to include quiet zones in the symbol""")
+
+		self.AvailableProps["BarStop"] = toPropDict(bool, True,
+				 """Wether to include start/stop symbols.""")
+
+		self.MajorProperty = "expr"
+
 
 class TestCursor(ReportObjectCollection):
 	def addRecord(self, record):
@@ -1215,6 +1266,7 @@ class TestCursor(ReportObjectCollection):
 			tRecord[k] = v
 		tRecord.initAvailableProps()
 		self.append(tRecord)
+
 
 class TestRecord(ReportObject):
 	def initAvailableProps(self):
@@ -1296,11 +1348,9 @@ class ReportWriter(object):
 		if self.PrintStatus:
 			print "Report End."
 
-
 	def getFramesetCount(self):
 		"""Returns the number of framesets in the report."""
 		return len(self.getFramesets())
-
 
 	def getFramesets(self):
 		"""Returns a list of (idx, frameset, band) for every frameset in the report.
@@ -1319,10 +1369,9 @@ class ReportWriter(object):
 			bandObjs.append(band)
 		for b in bandObjs:
 			framesets += [(idx,f,b) for (idx,f) in enumerate(b["Objects"])
-					if type(f) == Frameset and len(f["Objects"]) == 1
-					and isinstance(f["Objects"][0], Paragraph)]
+						  if type(f) == Frameset and len(f["Objects"]) == 1
+						  and isinstance(f["Objects"][0], Paragraph)]
 		return framesets
-
 
 	def convertParagraphsToMemos(self):
 		"""Converts all Paragraph objects to Memo objects."""
@@ -1337,8 +1386,6 @@ class ReportWriter(object):
 				if k.lower() not in ("objects",):
 					m[k] = v
 			f.parent[idx] = m
-
-
 
 	def storeSpanningObject(self, obj, origin=(0,0), group=None):
 		"""Store the passed spanning object for printing when the group or
@@ -1389,8 +1436,7 @@ class ReportWriter(object):
 		except KeyError:
 			pass
 
-
-	def draw(self, obj, origin=(0,0),	availableHeight=None, deferred=None):
+	def draw(self, obj, origin=(0,0), availableHeight=None, deferred=None):
 		"""Draw the given object on the Canvas.
 
 		The object is a dictionary containing properties, and	origin is the (x,y)
@@ -1448,7 +1494,6 @@ class ReportWriter(object):
 					elif vAnchor == "middle":
 						y = y - (height / 2)
 
-
 		## Do specific things based on object type:
 		if objType == "SpanningRectangle":
 			# Rectangle gets drawn from fixed (x,y) to fixed (xFooter, yFooter) points.
@@ -1468,7 +1513,7 @@ class ReportWriter(object):
 			##
 
 			for prop in ("strokeWidth", "fillColor", "strokeColor",
-					"strokeDashArray", ):
+						 "strokeDashArray", ):
 				props[prop] = obj.getProp(prop)
 			props["strokeWidth"] = self.getPt(props["strokeWidth"])
 			x = obj["xFrom"]
@@ -1501,7 +1546,7 @@ class ReportWriter(object):
 			##
 
 			for prop in ("strokeWidth", "fillColor", "strokeColor",
-					"strokeDashArray", ):
+						 "strokeDashArray", ):
 				props[prop] = obj.getProp(prop)
 			props["strokeWidth"] = self.getPt(props["strokeWidth"])
 
@@ -1549,11 +1594,11 @@ class ReportWriter(object):
 
 				lineSlant = obj.getProp("lineSlant")
 				anchors = {"left": 0,
-						"center": width/2,
-						"right": width,
-						"top": height,
-						"middle": height/2,
-						"bottom": 0}
+						   "center": width/2,
+						   "right": width,
+						   "top": height,
+						   "middle": height/2,
+						   "bottom": 0}
 
 				if lineSlant == "-":
 					# draw line from (left,middle) to (right,middle) anchors
@@ -1619,8 +1664,8 @@ class ReportWriter(object):
 			c.clipPath(p, stroke=stroke)
 
 			funcs = {"center": c.drawCentredString,
-					"right": c.drawRightString,
-					"left": c.drawString}
+					 "right": c.drawRightString,
+					 "left": c.drawString}
 			func = funcs[align]
 
 			if align == "center":
@@ -1675,7 +1720,7 @@ class ReportWriter(object):
 				story = deferred
 				neededHeight = sum([s[1] for s in story])
 			else:
-				story, neededHeight = self.getStory(obj)
+				story, neededHeight = self.getStory(obj, availableHeight=availableHeight)
 
 			dynamicHeight = obj.getProp("Height") is None
 
@@ -1695,7 +1740,6 @@ class ReportWriter(object):
 						printStory.append((p, p_height))
 						printStoryHeight += p_height
 				neededHeight = printStoryHeight + padTop + padBottom
-
 			if not dynamicHeight:
 				frameHeight = self.getPt(obj.getProp("Height"))
 			else:
@@ -1716,9 +1760,9 @@ class ReportWriter(object):
 
 			for columnIndex in range(columnCount):
 				f = platypus.Frame(columnIndex*columnWidth, 0, columnWidth, frameHeight, leftPadding=padLeft,
-						rightPadding=padRight, topPadding=padTop,
-						bottomPadding=padBottom, id=frameId,
-						showBoundary=boundary)
+								   rightPadding=padRight, topPadding=padTop,
+								   bottomPadding=padBottom, id=frameId,
+								   showBoundary=boundary)
 				f.addFromList([s[0] for s in printStory], c)
 
 			deferred = deferredStory
@@ -1852,8 +1896,8 @@ class ReportWriter(object):
 			xlocations = [0.25+x for x in range(len(data))]
 			barwidth = 0.5
 			ax.bar(xlocations, data, yerr=error, linewidth=barborder,
-			       log=log, color=barcolor, ecolor=ecolor,
-			       capsize=capsize, edgecolor=barbordercolor)
+				   log=log, color=barcolor, ecolor=ecolor,
+				   capsize=capsize, edgecolor=barbordercolor)
 			ax.set_xlabel(xlabel, size=textsize)
 			ax.set_ylabel(ylabel, size=textsize)
 			ax.set_title(title)
@@ -1883,14 +1927,80 @@ class ReportWriter(object):
 
 			c.drawImage(imageData, 0, 0, width, height, mask)
 
+		elif objType == "Barcode":
+			data = obj.getProp("expr")			
+			bcFormat = obj.getProp("BarcodeFormat")
+			bcWidth = obj.getProp("BarWidth")
+			bcHeight = obj.getProp("BarHeight")
+			bcChecksum = obj.getProp("BarChecksum")
+			bcRatio = obj.getProp("BarRatio")
+			bcGap = obj.getProp("BarGap")
+			bcBearers = obj.getProp("BarBearers")
+			bcQuiet = obj.getProp("BarQuiet")
+			bcStop = obj.getProp("BarStop")
+
+			bc = None
+			if bcFormat == "Standard39":
+				bc = code39.Standard39(data, 
+								       barHeight=bcHeight,
+								       barwidth=bcWidth,
+								       checksum=bcChecksum,
+								       ratio=bcRatio,
+								       gap=bcGap,
+								       bearers=bcBearers,
+								       quiet=bcQuiet,
+								       stop=bcStop)
+			elif bcFormat == "Extended39":
+				bc = code39.Extended39(data, 
+								       barHeight=bcHeight,
+								       barwidth=bcWidth,
+								       checksum=bcChecksum,
+								       ratio=bcRatio,
+								       gap=bcGap,
+								       bearers=bcBearers,
+								       quiet=bcQuiet,
+								       stop=bcStop)
+			elif bcFormat == "Standard93":
+				bc = code93.Standard93(data, 
+								       barHeight=bcHeight,
+								       barwidth=bcWidth,
+								       checksum=bcChecksum,
+								       ratio=bcRatio,
+								       gap=bcGap,
+								       bearers=bcBearers,
+								       quiet=bcQuiet,
+								       stop=bcStop)
+			elif bcFormat == "Code128":
+				bc = code128.Code128(data, 
+								     barHeight=bcHeight,
+								     barwidth=bcWidth,
+								     checksum=bcChecksum,
+								     ratio=bcRatio,
+								     gap=bcGap,
+								     bearers=bcBearers,
+								     quiet=bcQuiet,
+								     stop=bcStop)
+
+			# these don't have .drawOn, need to research how they work
+			#elif bcFormat == "Ean8":
+				#bc = eanbc.Ean8BarcodeWidget(data)
+			#elif bcFormat == "Ean13":
+				#bc = eanbc.Ean13BarcodeWidget(data)
+			#elif bcFormat == "QR":
+				#bc = qr.QrCodeWidget(data)
+
+			if bc:
+				bc.drawOn(c, x, y)
+
 		## All done, restore the canvas state to how we found it (important because
 		## rotating, scaling, etc. are cumulative, not absolute and we don't want
 		## to start with a canvas in an unknown state.)
+
 		c.restoreState()
 		return deferred, neededHeight
 
 
-	def getStory(self, obj, overrideExpr=None, overrideFontSize=None):
+	def getStory(self, obj, overrideExpr=None, overrideFontSize=None, availableHeight=None):
 		width = self.getPt(obj.getProp("width"))
 		height = obj.getProp("height")
 		if height is not None:
@@ -1946,11 +2056,12 @@ class ReportWriter(object):
 					s.spaceBefore = fobject.getProp("spaceBefore")
 					s.leftIndent = fobject.getProp("leftIndent")
 				paras = expr.splitlines()
+				rl_paras = []
 				prior_para = ""
-				for idx, para in enumerate(paras):
+				for para in paras:
 					if len(para) == 0:
 						# Blank line
-						p = platypus.Spacer(0, s.leading)
+						rl_paras.append(platypus.Spacer(0, s.leading))
 					else:
 						def escapePara(para):
 							words = para.split(" ")
@@ -1962,8 +2073,14 @@ class ReportWriter(object):
 								words[idx] = word
 							return " ".join(words)
 						para = escapePara(para)
-						p = ParaClass(para, s)
-					p_height = p.wrap(columnWidth-padLeft-padRight, None)[1]
+						splits = ParaClass(para, s).split(columnWidth-padLeft-padRight, availableHeight)
+						if not splits:
+							splits = [ParaClass(para, s)]
+						for split in splits:
+							rl_paras.append(split)
+
+				for p in rl_paras:
+					p_height = p.wrap(columnWidth-padLeft-padRight, height)[1]
 					if height is not None and objNeededHeight + p_height > height and not overrideExpr:
 						# We are going to need to truncate the output; find the amount of data we can print
 						# and print that, followed by "..."
@@ -2040,18 +2157,15 @@ class ReportWriter(object):
 				return story, height
 		return story, neededHeight
 
-
 	def getColorTupleFromReportLab(self, val):
 		"""Given a color tuple in reportlab format (values between 0 and 1), return
 		a color tuple in 0-255 format."""
 		return tuple([int(rgb*255) for rgb in val])
 
-
 	def getReportLabColorTuple(self, val):
 		"""Given a color tuple in rgb format (values between 0 and 255), return
 		a color tuple in reportlab 0-1 format."""
 		return tuple([rgb/255.0 for rgb in val])
-
 
 	def ptToUnit(self, pt, unit):
 		"""Given a numeric pt like 36, return a string like '0.5 in'.
@@ -2064,7 +2178,6 @@ class ReportWriter(object):
 			return "%s pt" % (pt,)
 		# hail mary that rl has the requested unit:
 		return "%.3f %s" % (pt / getattr(units, unit, 1), unit)
-
 
 	def getPt(self, val):
 		"""Given a string or a number, convert the value into a numeric pt value.
@@ -2085,21 +2198,19 @@ class ReportWriter(object):
 			# try to run it through reportlab's units.toLength() function:
 			return units.toLength(val)
 
-
 	def printBandOutline(self, band, x, y, width, height):
-			## draw a dotted rectangle around the entire band, and type a small faded
-			## caption at the origin of the band.
-			c = self.Canvas
-			c.saveState()
-			c.setLineWidth(0.75)
-			c.setStrokeColorRGB(0.8, 0.5, 0.7)
-			c.setDash(1, 2)
-			c.rect(x, y, width, height)
-			c.setFont("Helvetica", 8)
-			c.setFillColor((0.6, 0.8, 0.7))
-			c.drawString(x, y, band)
-			c.restoreState()
-
+		## draw a dotted rectangle around the entire band, and type a small faded
+		## caption at the origin of the band.
+		c = self.Canvas
+		c.saveState()
+		c.setLineWidth(0.75)
+		c.setStrokeColorRGB(0.8, 0.5, 0.7)
+		c.setDash(1, 2)
+		c.rect(x, y, width, height)
+		c.setFont("Helvetica", 8)
+		c.setFillColor((0.6, 0.8, 0.7))
+		c.drawString(x, y, band)
+		c.restoreState()
 
 	def drawPageCounts(self, pageNum, pageCount):
 		self._pageCount = pageCount
@@ -2152,9 +2263,10 @@ class ReportWriter(object):
 
 		# Get the number of columns:
 		columnCount = self._columnCount = _form.getProp("columnCount")
-		columnPadding = self._columnPadding = self.getPt(_form.getProp("columnPadding")) * (columnCount - 1)
+		#columnPadding = self._columnPadding = self.getPt(_form.getProp("columnPadding")) * (columnCount - 1)
+		columnPadding = self._columnPadding = self.getPt(_form.getProp("columnPadding"))
 		columnWidth = self._columnWidth = \
-				((self._pageWidth - self._ml - self._mr) / self._columnCount) - (.5 * self._columnPadding)
+			((self._pageWidth - self._ml - self._mr) / self._columnCount) - (.5 * self._columnPadding)
 
 		# Initialize the groups list:
 		groups = _form.get("groups", ())
@@ -2215,7 +2327,6 @@ class ReportWriter(object):
 				# update the value of the public variable:
 				self.Variables[varName] = vv["value"]
 
-
 		def printBand(band, y=None, group=None, deferred=None):
 			"""Generic function for printing any band."""
 			_form = self.ReportForm
@@ -2231,7 +2342,7 @@ class ReportWriter(object):
 				pageHeaderOrigin = (ml, pageHeight - mt)
 			else:
 				pageHeaderOrigin = (ml, pageHeight - mt
-						- self.getPt(_form["PageHeader"].getProp("Height")))
+								    - self.getPt(_form["PageHeader"].getProp("Height")))
 			pageFooterOrigin = (ml, mb)
 
 			if y is None:
@@ -2304,7 +2415,7 @@ class ReportWriter(object):
 				else:
 					for obj in bandDict.get("Objects", []):
 						if "height" in obj and obj.getProp("Height") is None:
-							story = self.getStory(obj)
+							story = self.getStory(obj, availableHeight=availableHeight)
 							storyheight = story[1]
 							needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))  ## y could be dep. on band height.
 							if needed - availableHeight > 30:
@@ -2395,7 +2506,7 @@ class ReportWriter(object):
 
 			if self.ShowBandOutlines:
 				self.printBandOutline("%s (record %s)" % (band, self.RecordNumber),
-						x, y, width, bandHeight)
+								      x, y, width, bandHeight)
 
 			del_deferred_idxs = []
 			objects = bandDict.get("Objects", [])
@@ -2446,7 +2557,7 @@ class ReportWriter(object):
 						availableHeight = obj_y
 				#availableHeight = min(availableHeight, bandHeight+y)
 				new_obj_deferred, neededHeight = self.draw(obj, (x1, y1),	availableHeight=availableHeight,
-						deferred=obj_deferred)
+								                           deferred=obj_deferred)
 
 				if bandDict.getProp("height") is not None:
 					# Band height is fixed; cancel any deferrals.
@@ -2526,7 +2637,6 @@ class ReportWriter(object):
 				printBand(band)
 			self.Canvas.showPage()
 
-
 		def reprintGroupHeaders(currentGroup, bandDict, y, mode):
 			self = bandDict  ## to allow "self" references from groupHeader object
 			for group in groups:
@@ -2547,7 +2657,6 @@ class ReportWriter(object):
 					## don't reprint headers further down the line
 					break
 			return y
-
 
 		def storeSpanningObjects(band, y, group):
 			bandDict = group[band]
@@ -2639,10 +2748,10 @@ class ReportWriter(object):
 				curVal = self._groupValues[group["expr"]]["curVal"]
 
 				if curVal != group.getProp("expr") \
-				or (startNewPage and (group.getProp("StartOnNewPage") \
-				    or group.getProp("ReprintHeaderOnNewPage"))) \
-				or (startNewColumn and (group.getProp("StartOnNewPage") \
-				    or group.getProp("ReprintHeaderOnNewColumn"))):
+				   or (startNewPage and (group.getProp("StartOnNewPage") \
+								         or group.getProp("ReprintHeaderOnNewPage"))) \
+				   or (startNewColumn and (group.getProp("StartOnNewPage") \
+								           or group.getProp("ReprintHeaderOnNewColumn"))):
 					# first reset curVal:
 					self._groupValues[group["expr"]]["curVal"] = group.getProp("expr")
 
@@ -2708,7 +2817,6 @@ class ReportWriter(object):
 			bandHeight = max(thisHeight, bandHeight)
 		return bandHeight
 
-
 	def getPageSize(self):
 		## Set the Page Size:
 		# get the string pageSize value from the spec file:
@@ -2728,7 +2836,6 @@ class ReportWriter(object):
 		func = eval("pagesizes.%s" % orientation)
 		return func(pageSize)
 
-
 	def _getUniqueName(self):
 		"""Returns a name that should be unique, but it doesn't check to make sure."""
 		import time, hashlib, random
@@ -2738,7 +2845,6 @@ class ReportWriter(object):
 		name = "_" + base.hexdigest()
 		return name
 
-
 	def _getEmptyForm(self):
 		"""Returns a report form with the minimal number of elements.
 
@@ -2747,24 +2853,22 @@ class ReportWriter(object):
 		report = Report(self)
 		return report
 
-
 	def _isModified(self):
 		"""Returns True if the report form definition has been modified.
 
 		Used by the report designer.
 		"""
 		return not (self.ReportForm is None
-				or self.ReportForm.getMemento() == self._reportFormMemento)
-
+				    or self.ReportForm.getMemento() == self._reportFormMemento)
 
 	def _elementSort(self, x, y):
 		positions = CaselessDict({"author": 0, "title": 2,
-				"subject": 3, "keywords": 4, "defaults": 6,
-				"columnCount": 5, "page": 10,
-				"groups": 50, "variables": 40, "pageBackground": 55,
-				"pageHeader": 60, "groupHeader": 65, "detail": 70,
-				"groupFooter": 75, "pageFooter": 80, "pageForeground": 90,
-				"objects": 99999, "testcursor": 999999})
+				                  "subject": 3, "keywords": 4, "defaults": 6,
+				                  "columnCount": 5, "page": 10,
+				                  "groups": 50, "variables": 40, "pageBackground": 55,
+				                  "pageHeader": 60, "groupHeader": 65, "detail": 70,
+				                  "groupFooter": 75, "pageFooter": 80, "pageForeground": 90,
+				                  "objects": 99999, "testcursor": 999999})
 
 		posX = positions.get(x, -1)
 		posY = positions.get(y, -1)
@@ -2773,7 +2877,6 @@ class ReportWriter(object):
 		elif posY < posX:
 			return 1
 		return cmp(x.lower(), y.lower())
-
 
 	def _getXMLDictFromForm(self, form, d=None):
 		"""Recursively generate the dict format required for the dicttoxml() function."""
@@ -2828,7 +2931,6 @@ class ReportWriter(object):
 			d["children"].append(child)
 		return d
 
-
 	def _getXMLFromForm(self, form):
 		"""Returns a valid rfxml string from a report form dict."""
 		# We need to first convert the report form dict into the dict format
@@ -2837,8 +2939,7 @@ class ReportWriter(object):
 		d = self._getXMLDictFromForm(form)
 		# Now that the dict is in the correct format, get the xml:
 		return dicttoxml(d, header=self._getXmlHeader(),
-				linesep={1: os.linesep*1})
-
+				         linesep={1: os.linesep*1})
 
 	def _getXmlHeader(self):
 		"""Returns the XML header for the rfxml document."""
@@ -2854,7 +2955,6 @@ class ReportWriter(object):
 """ % "utf-8"  ## getEncoding()
 		return os.linesep.join(header.splitlines())
 
-
 	def _setMemento(self):
 		"""Set the memento of the report form, which is the pristine version."""
 		if self._clearMemento:
@@ -2863,7 +2963,6 @@ class ReportWriter(object):
 			else:
 				m = {}
 			self._reportFormMemento = m
-
 
 	def _getFormFromXMLDict(self, xmldict, formdict=None, level=0):
 		"""Recursively generate the form dict from the given xmldict."""
@@ -2898,31 +2997,29 @@ class ReportWriter(object):
 					else:
 						reportObject = self._getReportObject(child["name"], formdict)
 						formdict[child["name"]] = self._getFormFromXMLDict(child,
-								reportObject, level+1)
+												                           reportObject, level+1)
 
 		return formdict
 
-
 	def _getReportObject(self, objectType, parent):
 		typeMapping = CaselessDict({"Report": Report, "Page": Page,
-				"Group": Group, "Variable": Variable, "Defaults": Defaults,
-				"PageBackground": PageBackground, "PageHeader": PageHeader,
-				"Detail": Detail, "PageFooter": PageFooter,
-				"GroupHeader": GroupHeader,	"GroupFooter": GroupFooter,
-				"PageForeground": PageForeground, "Rect": Rectangle,
-				"Rectangle": Rectangle,
-				"String": String, "Image": Image, "BarGraph": BarGraph, "Line": Line,
-				"Frameset": Frameset, "Paragraph": Paragraph, "Memo": Memo,
-				"Variables": Variables, "Groups": Groups, "Objects": Objects,
-				"TestCursor": TestCursor, "TestRecord": TestRecord,
-				"SpanningLine": SpanningLine, "SpanningRectangle": SpanningRectangle,
-				"ReportBegin": ReportBegin,	"ReportEnd": ReportEnd})
+				                    "Group": Group, "Variable": Variable, "Defaults": Defaults,
+				                    "PageBackground": PageBackground, "PageHeader": PageHeader,
+				                    "Detail": Detail, "PageFooter": PageFooter,
+				                    "GroupHeader": GroupHeader,	"GroupFooter": GroupFooter,
+				                    "PageForeground": PageForeground, "Rect": Rectangle,
+				                    "Rectangle": Rectangle,
+				                    "String": String, "Image": Image, "BarGraph": BarGraph, "Line": Line,
+				                    "Barcode": Barcode,
+				                    "Frameset": Frameset, "Paragraph": Paragraph, "Memo": Memo,
+				                    "Variables": Variables, "Groups": Groups, "Objects": Objects,
+				                    "TestCursor": TestCursor, "TestRecord": TestRecord,
+				                    "SpanningLine": SpanningLine, "SpanningRectangle": SpanningRectangle,
+				                    "ReportBegin": ReportBegin,	"ReportEnd": ReportEnd})
 
 		cls = typeMapping.get(objectType)
 		ref = cls(parent)
 		return ref
-
-
 
 	def _getFormFromXML(self, xml):
 		"""Returns the report form dict given xml in rfxml format."""
@@ -2937,14 +3034,12 @@ class ReportWriter(object):
 
 		return form
 
-
 	def _getBands(self):
 		try:
 			v = self._bands
 		except AttributeError:
 			v = self._bands = CaselessDict()
 		return v
-
 
 	def _getCanvas(self):
 		try:
@@ -2953,7 +3048,6 @@ class ReportWriter(object):
 			v = self._canvas = None
 		return v
 
-
 	def _getCurrentBandName(self):
 		try:
 			v = self._currentBandName
@@ -2961,14 +3055,12 @@ class ReportWriter(object):
 			v = self._currentBandName = None
 		return v
 
-
 	def _getCurrentBandObj(self):
 		try:
 			v = self._currentBandObj
 		except AttributeError:
 			v = self._currentBandObj = None
 		return v
-
 
 	def _getCursor(self):
 		if self.UseTestCursor:
@@ -2994,7 +3086,6 @@ class ReportWriter(object):
 		self._cursor = val
 		self.UseTestCursor = False
 
-
 	def _getEncoding(self):
 		try:
 			v = self._encoding
@@ -3005,7 +3096,6 @@ class ReportWriter(object):
 	def _setEncoding(self, val):
 		self._encoding = val
 
-
 	def _getHomeDirectory(self):
 		try:
 			v = self._homeDirectory
@@ -3015,7 +3105,6 @@ class ReportWriter(object):
 
 	def _setHomeDirectory(self, val):
 		self._homeDirectory = val
-
 
 	def _getNoneDisplay(self):
 		ret = getattr(self, "_noneDisplay", None)
@@ -3029,7 +3118,6 @@ class ReportWriter(object):
 	def _setNoneDisplay(self, val):
 		self._noneDisplay = val
 
-
 	def _getPrintStatus(self):
 		try:
 			v = self._printStatus
@@ -3039,7 +3127,6 @@ class ReportWriter(object):
 
 	def _setPrintStatus(self, val):
 		self._printStatus = bool(val)
-
 
 	def _getOutputFile(self):
 		try:
@@ -3078,14 +3165,12 @@ class ReportWriter(object):
 			# allow access from the live report object:
 			self.ReportForm._liveRecord = val
 
-
 	def _getRecordNumber(self):
 		try:
 			v = self._recordNumber
 		except AttributeError:
 			v = self._recordNumber = None
 		return v
-
 
 	def _getReportForm(self):
 		try:
@@ -3099,7 +3184,6 @@ class ReportWriter(object):
 		self._setMemento()
 		self._reportFormXML = None
 		self._reportFormFile = None
-
 
 	def _getReportFormFile(self):
 		try:
@@ -3144,7 +3228,6 @@ class ReportWriter(object):
 		else:
 			raise ValueError("Specified file does not exist.")
 
-
 	def _getReportFormXML(self):
 		try:
 			v = self._reportFormXML
@@ -3158,7 +3241,6 @@ class ReportWriter(object):
 		self._reportForm = self._getFormFromXML(self._reportFormXML)
 		self._setMemento()
 
-
 	def _getShowBandOutlines(self):
 		try:
 			v = self._showBandOutlines
@@ -3168,7 +3250,6 @@ class ReportWriter(object):
 
 	def _setShowBandOutlines(self, val):
 		self._showBandOutlines = bool(val)
-
 
 	def _getUseTestCursor(self):
 		try:
@@ -3183,77 +3264,77 @@ class ReportWriter(object):
 			self._cursor = None
 
 	Bands = property(_getBands, None, None,
-		_("Provides runtime access to bands of the currently running report."))
+	        _("Provides runtime access to bands of the currently running report."))
 
 	Canvas = property(_getCanvas, None, None,
-		_("Returns a reference to the reportlab canvas object."))
+	        _("Returns a reference to the reportlab canvas object."))
 
 	Cursor = property(_getCursor, _setCursor, None,
-		_("Specifies the data cursor that the report runs against."))
+	        _("Specifies the data cursor that the report runs against."))
 
 	CurrentBandName = property(_getCurrentBandName, None, None,
-		_("During a report run, returns the name of the currently printing band."))
+	        _("During a report run, returns the name of the currently printing band."))
 
 	CurrentBandObj = property(_getCurrentBandObj, None, None,
-		_("During a report run, returns a reference to the current band object."))
+	        _("During a report run, returns a reference to the current band object."))
 
 	Encoding = property(_getEncoding, _setEncoding, None,
-		_("Specifies the encoding for unicode strings.  (str)"))
+	        _("Specifies the encoding for unicode strings.  (str)"))
 
 	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
-		_("""Specifies the home directory for the report.
+	        _("""Specifies the home directory for the report.
 
-		Resources on disk (image files, etc.) will be looked for relative to the
-		HomeDirectory if specified with relative pathing. The HomeDirectory should
-		be the directory that contains the report form file. If you set
-		self.ReportFormFile, HomeDirectory will be set for you automatically."""))
+	        Resources on disk (image files, etc.) will be looked for relative to the
+	        HomeDirectory if specified with relative pathing. The HomeDirectory should
+	        be the directory that contains the report form file. If you set
+	        self.ReportFormFile, HomeDirectory will be set for you automatically."""))
 
 	NoneDisplay = property(_getNoneDisplay, _setNoneDisplay, None,
-		_("""Specifies the string displayed if Value is None  (str or None)
+	        _("""Specifies the string displayed if Value is None  (str or None)
 
-		If None, self.Application.NoneDisplay will be used. If there's no
-		instantiated dApp, then "< None >" will be used."""))
+	        If None, self.Application.NoneDisplay will be used. If there's no
+	        instantiated dApp, then "< None >" will be used."""))
 
 	PrintStatus = property(_getPrintStatus, _setPrintStatus, None,
-		_("""Specifies whether status info is printed to stdout."""))
+	        _("""Specifies whether status info is printed to stdout."""))
 
 	OutputFile = property(_getOutputFile, _setOutputFile, None,
-		_("Specifies the output PDF file (name or file object)."))
+	        _("Specifies the output PDF file (name or file object)."))
 
 	PageCount = property(_getPageCount, None, None,
-			_("""Returns the page count at runtime."""))
+	        _("""Returns the page count at runtime."""))
 
 	PageNumber = property(_getPageNumber, None, None,
-			_("""Returns the current page number at runtime."""))
+	        _("""Returns the current page number at runtime."""))
 
 	Record = property(_getRecord, _setRecord, None,
-		_("""Specifies the dictionary that represents the current record.
+	        _("""Specifies the dictionary that represents the current record.
 
-		The report writer will automatically fill this in during the running
-		of the report. Allows expressions in the report form like:
+	        The report writer will automatically fill this in during the running
+	        of the report. Allows expressions in the report form like:
 
 			self.Record["cFirst"]
-		"""))
+	        """))
 
 	RecordNumber = property(_getRecordNumber, None, None,
-		_("Returns the current record number of Cursor."))
+	        _("Returns the current record number of Cursor."))
 
 	ReportForm = property(_getReportForm, _setReportForm, None,
-		_("Specifies the python report form data dictionary."))
+	        _("Specifies the python report form data dictionary."))
 
 	ReportFormFile = property(_getReportFormFile, _setReportFormFile, None,
-		_("Specifies the path and filename of the report form spec file."))
+	        _("Specifies the path and filename of the report form spec file."))
 
 	ReportFormXML = property(_getReportFormXML, _setReportFormXML, None,
-		_("Specifies the report format xml."))
+	        _("Specifies the report format xml."))
 
 	ShowBandOutlines = property(_getShowBandOutlines, _setShowBandOutlines, None,
-		_("""Specifies whether the report bands are printed with outlines for
-		debugging and informational purposes. In addition to the band, there is also
-		a caption with the band name at the x,y origin point for the band."""))
+	        _("""Specifies whether the report bands are printed with outlines for
+	        debugging and informational purposes. In addition to the band, there is also
+	        a caption with the band name at the x,y origin point for the band."""))
 
 	UseTestCursor = property(_getUseTestCursor, _setUseTestCursor, None,
-		_("Specifies whether the TestCursor in the spec file is used."))
+	        _("Specifies whether the TestCursor in the spec file is used."))
 
 
 if __name__ == "__main__":
@@ -3281,4 +3362,3 @@ if __name__ == "__main__":
 				rw.write()
 	else:
 		print "Usage: reportWriter <specFile> [<specFile>...]"
-
