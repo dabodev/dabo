@@ -2256,7 +2256,6 @@ class ReportWriter(object):
 
 		# Get the number of columns:
 		columnCount = self._columnCount = _form.getProp("columnCount")
-		#columnPadding = self._columnPadding = self.getPt(_form.getProp("columnPadding")) * (columnCount - 1)
 		columnPadding = self._columnPadding = self.getPt(_form.getProp("columnPadding"))
 		columnWidth = self._columnWidth = \
 				((self._pageWidth - self._ml - self._mr) / self._columnCount) - (.5 * self._columnPadding)
