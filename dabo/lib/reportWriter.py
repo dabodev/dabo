@@ -138,7 +138,7 @@ def getSubFont(fontName, subFontName="Helvetica"):
 		subFontName += "Oblique"
 	if subFontName not in substitutedFontNames:
 		dabo.log.error(_("Font '%(fontName)s' not found. Substituting "
-                "'%(subFontName)s'") % locals())
+				"'%(subFontName)s'") % locals())
 		substitutedFontNames.append(subFontName)
 	return subFontName
 
@@ -783,7 +783,7 @@ class PageHeader(Band):
 		super(PageHeader, self).initAvailableProps()
 		self.AvailableProps["ColumnBreakAfter"] = toPropDict(bool, False,
 			"""Specifies whether a column break is inserted after the band prints.
-		
+			
 			If True, the page header will reside in the first column instead of
 			on top of the column set.""")
 
@@ -836,7 +836,7 @@ class Rectangle(Drawable):
 
 		self.AvailableProps["StrokeDashArray"] = toPropDict(tuple, None,
 				"""Specifies the stroke dash.
-		        
+				
 				For instance, (1,1) will give you a dotted look, (1,1,5,1) will
 				give you a dash-dot look.""")
 
@@ -939,10 +939,10 @@ class Memo(String):
 				Leading <= 0 : nothing prints.
 				Leading in (FontSize, "single", None) : single-space output.
 				Leading in (FontSize * 2, "double") : double-space output.
-		         
+				
 				Add any number of "+" or "-" characters after "single" or "double" to increase
 				or decrease the leading by 10% of the fontsize for each.
-		        
+				
 				If you choose to specify your own explicit numeric value for Leading, note
 				that you'll have to remember to change it if you ever change the FontSize,
 				to get the same relative spacing.
@@ -1042,7 +1042,7 @@ class BarGraph(Drawable):
 
 		self.AvailableProps["ScaleMode"] = toPropDict(str, "scale",
 				"""Specifies how to handle frame and image of differing size.
-		        
+				
 				"scale" will change the image size to fit the frame. "clip" will
 				display the image in the frame as-is.""")
 
@@ -1202,59 +1202,52 @@ class Barcode(Drawable):
 	def initAvailableProps(self):
 		super(Barcode, self).initAvailableProps()
 		self.AvailableProps["BarcodeFormat"] = toPropDict(str, "Standard39",
-				 """Specifies the barcode format to use.
+				"""Specifies the barcode format to use.
 
-		         Currently supported formats:
+				Currently supported formats:
 					Standard39
-		            Extended39
-		            Standard93
+					Extended39
+					Standard93
 
-		            Code128
+					Code128
 
-		            """
-		            #Ean8
-		            #Ean13
-
-		            #QR
-
-		            #"""
-				                                          )
+					""")
 
 		self.AvailableProps["expr"] = toPropDict(str, "",
 				 """Specifies the value for the barcode.""")
 
 		self.AvailableProps["BarWidth"] = toPropDict(float, 0.0075,
-				 """X-Dimension, or width of the smallest element
-		         Minumum is .0075 inch (7.5 mils).""")
+				"""X-Dimension, or width of the smallest element
+				Minumum is .0075 inch (7.5 mils).""")
 
 		self.AvailableProps["BarHeight"] = toPropDict(float, None,
-				 """Height of the symbol.  Default is the height of the two
-		         bearer bars (if they exist) plus the greater of .25 inch
-		         or .15 times the symbol's length.""")
+				"""Height of the symbol.  Default is the height of the two
+				bearer bars (if they exist) plus the greater of .25 inch
+				or .15 times the symbol's length.""")
 
 
 		self.AvailableProps["BarRatio"] = toPropDict(float, 2.2,
-		        """The ratio of wide elements to narrow elements.
-		        Must be between 2.0 and 3.0 (or 2.2 and 3.0 if the
-		        barWidth is greater than 20 mils (.02 inch))""")
+				"""The ratio of wide elements to narrow elements.
+				Must be between 2.0 and 3.0 (or 2.2 and 3.0 if the
+				barWidth is greater than 20 mils (.02 inch))""")
 
 		self.AvailableProps["BarGap"] = toPropDict(float, None,
-		         """width of intercharacter gap. None means "use barWidth".""")
+				"""width of intercharacter gap. None means "use barWidth".""")
 
 		self.AvailableProps["BarChecksum"] = toPropDict(bool, True,
-				 """Wether to compute and include the check digit.""")
+				"""Wether to compute and include the check digit.""")
 
 		self.AvailableProps["BarBearers"] = toPropDict(float, 3.0,
-				 """Height of bearer bars (horizontal bars along the top and
-		         bottom of the barcode). Default is 3 x-dimensions.
-		         Set to zero for no bearer bars. (Bearer bars help detect
-		         misscans, so it is suggested to leave them on).""")
+				"""Height of bearer bars (horizontal bars along the top and
+				bottom of the barcode). Default is 3 x-dimensions.
+				Set to zero for no bearer bars. (Bearer bars help detect
+				misscans, so it is suggested to leave them on).""")
 
 		self.AvailableProps["BarQuiet"] = toPropDict(bool, True,
-				 """Wether to include quiet zones in the symbol""")
+				"""Wether to include quiet zones in the symbol""")
 
 		self.AvailableProps["BarStop"] = toPropDict(bool, True,
-				 """Wether to include start/stop symbols.""")
+				"""Wether to include start/stop symbols.""")
 
 		self.MajorProperty = "expr"
 
@@ -1896,8 +1889,8 @@ class ReportWriter(object):
 			xlocations = [0.25+x for x in range(len(data))]
 			barwidth = 0.5
 			ax.bar(xlocations, data, yerr=error, linewidth=barborder,
-			       log=log, color=barcolor, ecolor=ecolor,
-			       capsize=capsize, edgecolor=barbordercolor)
+					log=log, color=barcolor, ecolor=ecolor,
+					capsize=capsize, edgecolor=barbordercolor)
 			ax.set_xlabel(xlabel, size=textsize)
 			ax.set_ylabel(ylabel, size=textsize)
 			ax.set_title(title)
@@ -1942,44 +1935,44 @@ class ReportWriter(object):
 			bc = None
 			if bcFormat == "Standard39":
 				bc = code39.Standard39(data, 
-								       barHeight=bcHeight,
-								       barwidth=bcWidth,
-								       checksum=bcChecksum,
-								       ratio=bcRatio,
-								       gap=bcGap,
-								       bearers=bcBearers,
-								       quiet=bcQuiet,
-								       stop=bcStop)
+						barHeight=bcHeight,
+						barwidth=bcWidth,
+						checksum=bcChecksum,
+						ratio=bcRatio,
+						gap=bcGap,
+						bearers=bcBearers,
+						quiet=bcQuiet,
+						stop=bcStop)
 			elif bcFormat == "Extended39":
 				bc = code39.Extended39(data, 
-								       barHeight=bcHeight,
-								       barwidth=bcWidth,
-								       checksum=bcChecksum,
-								       ratio=bcRatio,
-								       gap=bcGap,
-								       bearers=bcBearers,
-								       quiet=bcQuiet,
-								       stop=bcStop)
+						barHeight=bcHeight,
+						barwidth=bcWidth,
+						checksum=bcChecksum,
+						ratio=bcRatio,
+						gap=bcGap,
+						bearers=bcBearers,
+						quiet=bcQuiet,
+						stop=bcStop)
 			elif bcFormat == "Standard93":
 				bc = code93.Standard93(data, 
-								       barHeight=bcHeight,
-								       barwidth=bcWidth,
-								       checksum=bcChecksum,
-								       ratio=bcRatio,
-								       gap=bcGap,
-								       bearers=bcBearers,
-								       quiet=bcQuiet,
-								       stop=bcStop)
+						barHeight=bcHeight,
+						barwidth=bcWidth,
+						checksum=bcChecksum,
+						ratio=bcRatio,
+						gap=bcGap,
+						bearers=bcBearers,
+						quiet=bcQuiet,
+						stop=bcStop)
 			elif bcFormat == "Code128":
 				bc = code128.Code128(data, 
-								     barHeight=bcHeight,
-								     barwidth=bcWidth,
-								     checksum=bcChecksum,
-								     ratio=bcRatio,
-								     gap=bcGap,
-								     bearers=bcBearers,
-								     quiet=bcQuiet,
-								     stop=bcStop)
+						barHeight=bcHeight,
+						barwidth=bcWidth,
+						checksum=bcChecksum,
+						ratio=bcRatio,
+						gap=bcGap,
+						bearers=bcBearers,
+						quiet=bcQuiet,
+						stop=bcStop)
 
 			# these don't have .drawOn, need to research how they work
 			#elif bcFormat == "Ean8":
@@ -2748,10 +2741,10 @@ class ReportWriter(object):
 				curVal = self._groupValues[group["expr"]]["curVal"]
 
 				if curVal != group.getProp("expr") \
-				or (startNewPage and (group.getProp("StartOnNewPage") \
-				    or group.getProp("ReprintHeaderOnNewPage"))) \
-				or (startNewColumn and (group.getProp("StartOnNewPage") \
-				    or group.getProp("ReprintHeaderOnNewColumn"))):
+						or (startNewPage and (group.getProp("StartOnNewPage") \
+						or group.getProp("ReprintHeaderOnNewPage"))) \
+						or (startNewColumn and (group.getProp("StartOnNewPage") \
+						or group.getProp("ReprintHeaderOnNewColumn"))):
 					# first reset curVal:
 					self._groupValues[group["expr"]]["curVal"] = group.getProp("expr")
 
@@ -3010,7 +3003,7 @@ class ReportWriter(object):
 				"PageForeground": PageForeground, "Rect": Rectangle,
 				"Rectangle": Rectangle,
 				"String": String, "Image": Image, "BarGraph": BarGraph, "Line": Line,
-				                    "Barcode": Barcode,
+				"Barcode": Barcode,
 				"Frameset": Frameset, "Paragraph": Paragraph, "Memo": Memo,
 				"Variables": Variables, "Groups": Groups, "Objects": Objects,
 				"TestCursor": TestCursor, "TestRecord": TestRecord,
