@@ -173,8 +173,6 @@ def DesignerController():
 			if objects:
 				self.SelectedObjects = objects
 
-			#dabo.ui.callAfter(self.ActiveEditor.Form.Raise)
-
 		def getGroupBandByExpr(self, expr):
 			for g in self.ReportForm["Groups"]:
 				if g["expr"] == expr:
@@ -1929,8 +1927,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		else:
 			modstr = ""
 		self.Form.Caption = "%s%s: %s" % (modstr,
-				                          self.Form._captionBase,
-				                          self._fileName)
+				self.Form._captionBase, self._fileName)
 
 	def newFile(self):
 		if self.closeFile():
@@ -2338,15 +2335,15 @@ class ReportDesignerForm(dabo.ui.dDockForm):
 
 		# add the panes
 		ot = self.addPanel(Name="ObjectTreePane",
-				           Floating=False, Caption="Object tree",
-				           ShowCaption=True, ShowPinButton=True,
-				           #ShowCloseButton=False, 2.9.x has a problem with having this on more then one pane
-				           Size=(220, 200))
+				Floating=False, Caption="Object tree",
+				ShowCaption=True, ShowPinButton=True,
+				#ShowCloseButton=False, 2.9.x has a problem with having this on more then one pane
+				Size=(220, 200))
 		ps = self.addPanel(Name="PropertySheet",
-				           Floating=False, Caption="Property editor",
-				           ShowCaption=True, ShowPinButton=True,
-				           #ShowCloseButton=False,
-				           Size=(220, 200))
+				Floating=False, Caption="Property editor",
+				ShowCaption=True, ShowPinButton=True,
+				#ShowCloseButton=False,
+				Size=(220, 200))
 
 		# add ObjectTree
 		objTree = ObjectTreePanel(ot)
@@ -2496,50 +2493,50 @@ class ReportDesignerForm(dabo.ui.dDockForm):
 		fileMenu.prependSeparator()
 
 		fileMenu.prepend(_("Preview Report"), HotKey="Ctrl-P", OnHit=self.onFilePreviewReport,
-				         help=_("Preview the report as a PDF"))
+				help=_("Preview the report as a PDF"))
 
 		fileMenu.prependSeparator()
 
 		fileMenu.prepend(_("Save &As"), OnHit=self.onFileSaveAs, bmp="saveAs",
-				         help=_("save"))
+				help=_("save"))
 
 		fileMenu.prepend(_("&Save"), HotKey="Ctrl+S", OnHit=self.onFileSave, bmp="save",
-				         help=_("Save file"))
+				help=_("Save file"))
 
 		fileMenu.prepend(_("&Close"), HotKey="Ctrl+W", OnHit=self.onFileClose, bmp="close",
-				         help=_("Close file"))
+				help=_("Close file"))
 
 		fileMenu.prepend(_("&Open"), HotKey="Ctrl+O", OnHit=self.onFileOpen, bmp="open",
-				         help=_("Open file"))
+				help=_("Open file"))
 
 		fileMenu.prepend(_("&New"), HotKey="Ctrl+N", OnHit=self.onFileNew, bmp="new",
-				         help=_("New file"))
+				help=_("New file"))
 
 
 		editMenu.appendSeparator()
 
 		editMenu.append(_("Delete"), HotKey="Del", OnHit=self.onEditDelete,
-				        help=_("Delete the selected object(s)."))
+				help=_("Delete the selected object(s)."))
 
 		editMenu.appendSeparator()
 
 		editMenu.append(_("Bring to &Front"), HotKey="Ctrl+H", OnHit=self.onEditBringToFront,
-				        help=_("Bring selected object(s) to the top of the z-order"))
+				help=_("Bring selected object(s) to the top of the z-order"))
 
 		editMenu.append(_("Send to &Back"), HotKey="Ctrl+J", OnHit=self.onEditSendToBack,
-				        help=_("Send selected object(s) to the back of the z-order"))
+				help=_("Send selected object(s) to the back of the z-order"))
 
 
 		viewMenu.appendSeparator()
 
 		viewMenu.append(_("Zoom &In"), HotKey="Ctrl+]", OnHit=self.onViewZoomIn,
-				        bmp="zoomIn", help=_("Zoom In"))
+				bmp="zoomIn", help=_("Zoom In"))
 
 		viewMenu.append(_("&Normal Zoom"), HotKey="Ctrl+\\", OnHit=self.onViewZoomNormal,
-				        bmp="zoomNormal", help=_("Normal Zoom"))
+				bmp="zoomNormal", help=_("Normal Zoom"))
 
 		viewMenu.append(_("Zoom &Out"), HotKey="Ctrl+[", OnHit=self.onViewZoomOut,
-				        bmp="zoomOut", help=_("Zoom Out"))
+				bmp="zoomOut", help=_("Zoom Out"))
 
 
 #  End of ReportDesignerForm Class
