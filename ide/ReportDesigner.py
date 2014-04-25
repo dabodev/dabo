@@ -2312,7 +2312,6 @@ class ReportDesignerForm(dabo.ui.dDockForm):
 	"""Main form, status bar, and menu for the report designer.
 	"""
 	def initProperties(self):
-		#self.SaveRestorePosition = False
 		self.Size = (700, 500)
 		self._captionBase = self.Caption = "Dabo Report Designer"
 		self.Controller = self.Application

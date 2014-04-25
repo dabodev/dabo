@@ -1308,8 +1308,8 @@ def getScrollWinEventClass(evt):
 	evtOffset = evtType - baseEvtNum
 	# Get the corresponding Dabo event class for the wx event.
 	daboEvents = (dEvents.ScrollTop, dEvents.ScrollBottom, dEvents.ScrollLineUp,
-		          dEvents.ScrollLineDown, dEvents.ScrollPageUp, dEvents.ScrollPageDown,
-		          dEvents.ScrollThumbDrag, dEvents.ScrollThumbRelease)
+			dEvents.ScrollLineDown, dEvents.ScrollPageUp, dEvents.ScrollPageDown,
+			dEvents.ScrollThumbDrag, dEvents.ScrollThumbRelease)
 	return daboEvents[evtOffset]
 
 
@@ -1465,7 +1465,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
 		def _onKeyDown(self, evt):
 			ed = evt.EventData
 			key, mod, shift = (ed["keyCode"], ed["hasModifiers"],
-						       ed["shiftDown"] or getattr(self, "_shiftDown", False))
+					ed["shiftDown"] or getattr(self, "_shiftDown", False))
 			ctrl = self._control
 			grid = self._grid
 
