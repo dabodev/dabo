@@ -234,11 +234,11 @@ def DesignerController():
 					objectChoices = dabo.ui.dMenu(Caption="New object")
 					for choice in (Image, Line, Rectangle, String, Memo, Barcode):
 						objectChoices.append(choice.__name__,
-											 OnHit=onNewObject, Tag=choice)
+								OnHit=onNewObject, Tag=choice)
 					objectChoices.appendSeparator()
 					for choice in (SpanningLine, SpanningRectangle):
 						objectChoices.append(choice.__name__,
-											 OnHit=onNewObject, Tag=choice)
+								OnHit=onNewObject, Tag=choice)
 					tc = self.ReportForm.get("TestCursor", [])
 					var = self.ReportForm.get("Variables", [])
 					if tc or var:
@@ -261,7 +261,7 @@ def DesignerController():
 							fields.sort()
 							for field in fields:
 								submenu.append(field, OnHit=onNewObject,
-											   Tag="%s: %s" % (cap, field))
+										Tag="%s: %s" % (cap, field))
 							objectChoices.appendMenu(submenu)
 					menu.appendMenu(objectChoices)
 
@@ -300,7 +300,7 @@ def DesignerController():
 				ot.refreshSelection()
 
 		def showPropSheet(self, refresh=False, prop=None,
-				          enableEditor=False, focusBack=None):
+				enableEditor=False, focusBack=None):
 			ps = self.PropSheet
 
 			if refresh:
@@ -443,7 +443,7 @@ def DesignerController():
 			selBands = []
 			for selObj in self.SelectedObjects:
 				if not isinstance(selObj, Band) and selObj.parent is not None \
-				   and isinstance(selObj.parent.parent, Band):
+					and isinstance(selObj.parent.parent, Band):
 					selObj = selObj.parent.parent
 				if isinstance(selObj, Band):
 					if selObj not in selBands:
@@ -940,10 +940,10 @@ class BandLabel(DesignerPanel):
 					dc.Clear()
 
 					self._dragImage = wx.DragImage(self._captureBitmap,
-										           wx.StockCursor(wx.CURSOR_HAND))
+							wx.StockCursor(wx.CURSOR_HAND))
 
 					self._dragImage.BeginDragBounded((self.Parent.Left, ypos),
-										             self, self.Parent.Parent)
+							self, self.Parent.Parent)
 					self._dragImage.Show()
 
 				self._dragImage.Move((self.Parent.Left,ypos))
@@ -1054,8 +1054,8 @@ class DesignerBand(DesignerPanel):
 
 		self._bandLabelHeight = 18
 		self.addObject(BandLabel, "bandLabel", FontSize=9,
-				       BackColor=(215,215,215), ForeColor=(128,128,128),
-				       Height=self._bandLabelHeight)
+				BackColor=(215,215,215), ForeColor=(128,128,128),
+				Height=self._bandLabelHeight)
 
 		self._anchorThickness = 5
 		self._anchor = None
@@ -1104,7 +1104,7 @@ class DesignerBand(DesignerPanel):
 			pos = evt.EventData["mousePosition"]
 
 			offset = {"x": pos[0] - self._dragStart[0],
-					  "y": -1*(pos[1] - self._dragStart[1])}
+					"y": -1*(pos[1] - self._dragStart[1])}
 
 			if offset["x"] != 0 or offset["y"] !=0:
 				z = self.Parent.ZoomFactor
@@ -1162,7 +1162,7 @@ class DesignerBand(DesignerPanel):
 				position[0] -= .5 * fudge
 				position[1] -= .5 * fudge
 			if mousePos[0] >= position[0] and mousePos[0] <= position[0] + size[0] \
-			   and mousePos[1] >= position[1] and mousePos[1] <= position[1] + size[1]:
+					and mousePos[1] >= position[1] and mousePos[1] <= position[1] + size[1]:
 				mouseObj = obj
 				break
 		return mouseObj
@@ -1244,7 +1244,7 @@ class DesignerBand(DesignerPanel):
 		else:
 			locktext = ""
 		cap = "(%s) height:%s %s" % (self.ReportObject.__class__.__name__,
-				                     self.getProp("Height"), locktext)
+				self.getProp("Height"), locktext)
 		return cap
 
 	def onPaint(self, evt):
@@ -1265,7 +1265,7 @@ class DesignerBand(DesignerPanel):
 		columnCount = rdc.ReportForm.getProp("ColumnCount")
 		columnPadding = self._rw.getPt(rdc.ReportForm.getProp("ColumnPadding"))
 		if isinstance(self.ReportObject, (Detail, GroupHeader, GroupFooter)) \
-		   and columnCount > 1:
+				and columnCount > 1:
 			# Cover up all but the first column:
 			dc.SetBrush(wx.Brush((192,192,192), wx.SOLID))
 			dc.SetPen(wx.Pen((192,192,192), 0, wx.SOLID))
@@ -1295,8 +1295,8 @@ class DesignerBand(DesignerPanel):
 			dc.SetBackgroundMode(wx.TRANSPARENT)
 			expr = rdc.getShortExpr(obj.getProp("expr", evaluate=False))
 			alignments = {"left": wx.ALIGN_LEFT,
-						  "center": wx.ALIGN_CENTER,
-						  "right": wx.ALIGN_RIGHT,}
+					"center": wx.ALIGN_CENTER,
+					"right": wx.ALIGN_RIGHT,}
 
 			if objType == "String":
 				alignment = obj.getProp("align")
@@ -1364,11 +1364,11 @@ class DesignerBand(DesignerPanel):
 				dc.DrawRotatedText(expr, rect[0]+(rect[2]/4), rect[3] - (rect[3]/2), rotation)
 			else:
 				dc.DrawLabel(expr, (rect[0], rect[1], rect[2], rect[3]),
-							 alignments[alignment]|vAlign)
+						alignments[alignment]|vAlign)
 
 				if objType in ("Memo", "Paragraph"):
 					dc.DrawLabel("↴", (rect[0], rect[1], rect[2], rect[3]),
-								 wx.ALIGN_RIGHT|wx.ALIGN_TOP)
+							wx.ALIGN_RIGHT|wx.ALIGN_TOP)
 
 
 		if objType in ("Rectangle", "SpanningRectangle"):
@@ -1397,11 +1397,11 @@ class DesignerBand(DesignerPanel):
 			if objType != "SpanningLine":
 				lineSlant = obj.getProp("lineSlant")
 				anchors = {"left": rect[0],
-						   "center": rect[0] + (rect[2]/2),
-						   "right": rect[0] + rect[2],
-						   "top": rect[1],
-						   "middle": rect[1] + (rect[3]/2),
-						   "bottom": rect[1] + rect[3]}
+						"center": rect[0] + (rect[2]/2),
+						"right": rect[0] + rect[2],
+						"top": rect[1],
+						"middle": rect[1] + (rect[3]/2),
+						"bottom": rect[1] + rect[3]}
 
 				if lineSlant == "-":
 					# draw line from (left,middle) to (right,middle) anchors
@@ -1503,13 +1503,13 @@ class DesignerBand(DesignerPanel):
 				vAnchor = None
 
 			anchors = {"lt": ["left", "top", x-1, y-1],
-					   "lb": ["left", "bottom", x-1, y+height-thickness+1],
-					   "ct": ["center", "top", x+(.5*width)-(.5*thickness), y-1],
-					   "cb": ["center", "bottom", x+(.5*width)-(.5*thickness), y+height-thickness+1],
-					   "rt": ["right", "top", x+width-thickness+1, y-1],
-					   "rb": ["right", "bottom", x+width-thickness+1, y+height-thickness+1],
-					   "lm": ["left", "middle", x-1, y+(.5*height)-(.5*thickness)],
-					   "rm": ["right", "middle", x+width-thickness+1, y+(.5*height)-(.5*thickness)]}
+					"lb": ["left", "bottom", x-1, y+height-thickness+1],
+					"ct": ["center", "top", x+(.5*width)-(.5*thickness), y-1],
+					"cb": ["center", "bottom", x+(.5*width)-(.5*thickness), y+height-thickness+1],
+					"rt": ["right", "top", x+width-thickness+1, y-1],
+					"rb": ["right", "bottom", x+width-thickness+1, y+height-thickness+1],
+					"lm": ["left", "middle", x-1, y+(.5*height)-(.5*thickness)],
+					"rm": ["right", "middle", x+width-thickness+1, y+(.5*height)-(.5*thickness)]}
 
 			obj._anchors = anchors
 
@@ -1657,7 +1657,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 							return obj
 
 				if len(rdc.SelectedObjects) == 1 \
-				   and isinstance(rdc.SelectedObjects[0], Band):
+						and isinstance(rdc.SelectedObjects[0], Band):
 					selObj = [getNextDrawableInBand(rdc.SelectedObjects[0])]
 				if not selObj:
 					selObj = [getNextDrawableInBand(rdc.ReportForm["Detail"])]
@@ -1686,8 +1686,8 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			## I have no idea why, because in dEditor the same setup is working fine.
 			## Anyway, this code makes keyboard zooming work on Windows.
 			accel = {"+": self.Form.onViewZoomIn,
-					 "-": self.Form.onViewZoomOut,
-					 "/": self.Form.onViewZoomNormal}
+					"-": self.Form.onViewZoomOut,
+					"/": self.Form.onViewZoomNormal}
 			func = accel.get(key)
 			if func:
 				evt.stop()
@@ -1798,10 +1798,10 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			else:
 				if isinstance(so, (SpanningLine, SpanningRectangle)):
 					st = "x:%s y:%s  xFooter:%s yFooter:%s" % (so.getProp("x"),
-										                       so.getProp("y"), so.getProp("xFooter"), so.getProp("yFooter"))
+							so.getProp("y"), so.getProp("xFooter"), so.getProp("yFooter"))
 				else:
 					st = "x:%s y:%s  width:%s height:%s" % (so.getProp("x"),
-										                    so.getProp("y"), so.getProp("width"), so.getProp("Height"))
+							so.getProp("y"), so.getProp("width"), so.getProp("Height"))
 		elif len(so) > 1:
 			st = " -multiple objects selected- "
 		else:
@@ -1834,7 +1834,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		result = True
 		if self._rw._isModified():
 			result = dabo.ui.areYouSure("Save changes to file %s?"
-						                % self._fileName)
+					% self._fileName)
 			if result:
 				self.saveFile()
 		return result
@@ -1853,10 +1853,10 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			style = wx.OPEN
 
 		dlg = wx.FileDialog(self,
-				            message = prompt,
-				            defaultDir = dir_,
-				            style = style,
-				            wildcard="Dabo Report Forms (*.rfxml)|*.rfxml|All Files (*)|*")
+				message = prompt,
+				defaultDir = dir_,
+				style = style,
+				wildcard="Dabo Report Forms (*.rfxml)|*.rfxml|All Files (*)|*")
 
 		if dlg.ShowModal() == wx.ID_OK:
 			fname = dlg.GetPath()
@@ -1877,7 +1877,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 				break
 			if os.path.exists(fname):
 				r = dabo.ui.areYouSure("File '%s' already exists. "
-								       "Do you want to overwrite it?" % fname, defaultNo=True)
+						"Do you want to overwrite it?" % fname, defaultNo=True)
 
 				if r is None:
 					# user canceled.
@@ -1951,11 +1951,10 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			else:
 				fs_text = _("%s Frameset/Paragraphs") % frameset_count
 			if frameset_count > 0 and dabo.ui.areYouSure(_("Frameset/Paragraph has been consolidated into a "
-						                                   "new Memo object, which is easier to use and the recommended object for multi-line text. "
-						                                   "You should convert to Memo, and it is easy to do: just click 'yes' below. \n\n"
-						                                   "Would you like to convert the %s"
-						                                   " on this report to the new Memo object?") % fs_text,
-						                                 cancelButton=False):
+					"new Memo object, which is easier to use and the recommended object for multi-line text. "
+					"You should convert to Memo, and it is easy to do: just click 'yes' below. \n\n"
+					"Would you like to convert the %s"
+					" on this report to the new Memo object?") % fs_text, cancelButton=False):
 				rdc.ReportForm.convertParagraphsToMemos()
 		else:
 			raise ValueError("File %s does not exist." % fileSpec)
