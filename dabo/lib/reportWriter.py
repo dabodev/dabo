@@ -598,7 +598,7 @@ class Report(ReportObject):
 				"""Specifies keywords for the report. Appears in PDF properties.""")
 
 		self.AvailableProps["Title"] = toPropDict(str, "",
-		"""Specifies the title of the report. Appears in PDF properties.""")
+				"""Specifies the title of the report. Appears in PDF properties.""")
 
 		self.AvailableProps["ColumnCount"] = toPropDict(int, 1,
 				"""Specifies the number of columns to divide the report into.""")
@@ -979,7 +979,7 @@ class Image(Drawable):
 
 
 class BarGraph(Drawable):
-        """Represents a bar graph"""
+	"""Represents a bar graph"""
 	def initAvailableProps(self):
 		super(BarGraph, self).initAvailableProps()
 
