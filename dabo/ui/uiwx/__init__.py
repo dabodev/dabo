@@ -413,7 +413,7 @@ def continueEvent(evt):
 			pass
 		else:
 			dabo.log.error("Incorrect event class (%s) passed to continueEvent. Error: %s"
-					% (ustr(evt), ustr(e)))
+						   % (ustr(evt), ustr(e)))
 
 
 def discontinueEvent(evt):
@@ -459,9 +459,9 @@ def getEventData(wxEvt):
 					pass
 
 	if isinstance(wxEvt, (wx.SplitterEvent,)):
-		try:
+		if wxEvt.GetEventType() == wx.wxEVT_COMMAND_SPLITTER_DOUBLECLICKED:
 			ed["mousePosition"] = (wxEvt.GetX(), wxEvt.GetY())
-		except wx.PyAssertionError:
+		else:
 			ed["mousePosition"] = wx.GetMousePosition()
 
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent)):
@@ -1863,7 +1863,7 @@ def strToBmp(val, scale=None, width=None, height=None):
 				# Running as a py2app application
 				resPth = "%s%s" % (dpth.split(macAppIndicator)[0], macAppIndicator)
 				macPaths = [os.path.join(resPth, pth, val)
-					for pth in ("icons", "resources")]
+						for pth in ("icons", "resources")]
 				paths += macPaths
 
 			# See if it's a standard icon
@@ -2007,7 +2007,7 @@ def spawnProcess(cmd, wait=False, handler=None):
 			out = ""
 			stream = self.GetInputStream()
 			if stream.CanRead():
-				 out = stream.read()
+				out = stream.read()
 			stream = self.GetErrorStream()
 			err = ""
 			if stream.CanRead():
