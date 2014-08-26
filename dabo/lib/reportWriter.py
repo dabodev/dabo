@@ -3216,7 +3216,7 @@ class ReportWriter(object):
 			else:
 				raise ValueError("Invalid file type.")
 			self._reportFormFile = val
-			self.HomeDirectory = os.path.join(os.path.split(val)[:-1])[0]
+			self.HomeDirectory = os.path.split(val)[0]
 		else:
 			raise ValueError("Specified file does not exist.")
 
