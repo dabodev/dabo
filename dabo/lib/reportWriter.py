@@ -3333,13 +3333,14 @@ if __name__ == "__main__":
 	rw = ReportWriter()
 	rw.ShowBandOutlines = True
 	rw.UseTestCursor = True
+	rw.Application = None
 
 	if len(sys.argv) > 1:
 		for reportForm in sys.argv[1:]:
 			if reportForm == "tempfile":
 				import tempfile
 				print "Creating tempfile.pdf from samplespec.rfxml"
-				rw.ReportFormFile = "samplespec.rfxml"
+				rw.ReportFormFile = r"../../ide/sampleReport.rfxml"
 				rw.OutputFile = tempfile.TemporaryFile()
 				rw.write()
 				f = open("tempfile.pdf", "wb")
