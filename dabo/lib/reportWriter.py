@@ -14,7 +14,7 @@ from dabo.lib.dates import getStringFromDate
 ######################################################
 # Very first thing: check for required libraries:
 _failedLibs = []
-for lib in ("reportlab", "Image"):
+for lib in ("reportlab", "PIL"):
 	try:
 		__import__(lib)
 	except ImportError:
@@ -27,8 +27,11 @@ don't appear to have installed. You still need:
 
 	%s
 
-Image is the Python Imaging Library available from
+PIL is the Python Imaging Library available from
 http://www.pythonware.com/products/pil
+
+or you could use Pillow from
+https://pypi.python.org/pypi/Pillow
 
 reportlab is the ReportLab toolkit available from
 http://www.reportlab.org
@@ -64,7 +67,7 @@ from dabo.lib.utils import ustr, resolvePathAndUpdate
 from reportlab.pdfbase.pdfmetrics import registerFont, getRegisteredFontNames
 from reportlab.pdfbase.ttfonts import TTFont, TTFError
 from reportlab.rl_config import TTFSearchPath
-import Image as PILImage
+from PIL import Image as PILImage
 import reportUtils
 
 # The below block tried to use the experimental para.Paragraph which
