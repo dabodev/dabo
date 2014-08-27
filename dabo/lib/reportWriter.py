@@ -3342,7 +3342,7 @@ if __name__ == "__main__":
 		for reportForm in sys.argv[1:]:
 			if reportForm == "tempfile":
 				import tempfile
-				print "Creating tempfile.pdf from samplespec.rfxml"
+				print "Creating tempfile.pdf from sampleReport.rfxml"
 				rw.ReportFormFile = r"../../ide/sampleReport.rfxml"
 				rw.OutputFile = tempfile.TemporaryFile()
 				rw.write()
