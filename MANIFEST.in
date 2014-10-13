@@ -1,0 +1,3 @@
+recursive-include dabo/locale *.pot
+recursive-include dabo/locale *.po
+recursive-include dabo/locale *.mo

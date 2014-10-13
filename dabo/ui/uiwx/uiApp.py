@@ -212,8 +212,11 @@ class uiApp(dObject, wx.App):
 		updAvail = False
 		checkResult = self.dApp._checkForUpdates(force=force)
 		if isinstance(checkResult, Exception):
-			dabo.ui.stop(_("There was an error encountered when checking Web Update: %s") % checkResult,
+			### 2014-10-04, Koczian, using ustr to avoid crash
+			check_uni = utils.ustr(checkResult)
+			dabo.ui.stop(_("There was an error encountered when checking Web Update: %s") % check_uni,
 					_("Web Update Problem"))
+			### 2014-10-04, Koczian, end of change
 		else:
 			# The response will be a boolean for 'first time', along with the dict of updates.
 			isFirst, updates = checkResult
