@@ -59,6 +59,17 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 		evt.Skip(False)
 
 
+	def SetBitmap(self, bmp):
+		"""
+		Some menu items do not support this call, so ignore any errors.
+		"""
+		try:
+			super(dMenuItem, self).SetBitmap(bmp)
+		except dabo.ui.assertionException:
+			# Not supported
+			pass
+
+
 	def _redefine(self):
 		"""Combine the Caption and HotKey into the format needed by wxPython."""
 		cap = self.Caption

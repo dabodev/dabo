@@ -16,7 +16,7 @@ from version import __version__
 dAppRef = None
 
 def getEncoding():
-	encoding = locale.getlocale()[1] or locale.getdefaultlocale()[1] or defaultEncoding
+	encoding = locale.getdefaultlocale()[1] or locale.getlocale()[1] or defaultEncoding
 
 	def _getEncodingName():
 		if encoding.isdigit():
@@ -90,7 +90,7 @@ else:
 	consoleFormatter.datefmt = mainLogDateFormat
 	consoleLogHandler.setFormatter(consoleFormatter)
 	log = logging.getLogger(mainLogQualName)
-	log.setLevel(logging.DEBUG)
+	log.setLevel(logging.ERROR)
 	log.addHandler(consoleLogHandler)
 	if mainLogFile is not None:
 		fileLogHandler = logging.handlers.RotatingFileHandler(

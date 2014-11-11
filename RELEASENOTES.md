@@ -1,6 +1,17 @@
 Dabo Release Notes
 ==================
 
+v0.9.14 - 2 Dec 2013
+---------------------
+
+ * dAutoComplete:
+  * New UI control (thanks Neil Flowers)
+ * Bug Fixes:
+  * Added needed unicode check when logging SQL parameters.
+  * Fix SimpleCrypt for newer Python Crypto versions (thanks Jacek).
+  * Fix Report Writer bug: some Memos were not being printed.
+
+
 v0.9.13 - 28 Jun 2013
 ---------------------
 

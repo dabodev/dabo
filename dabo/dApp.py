@@ -584,12 +584,18 @@ try again when it is running.
 				resp = urllib2.urlopen(url).read()
 			except urllib2.URLError, e:
 				# Could not connect
-				dabo.log.error(_("Could not connect to the Dabo servers: %s") % e)
+				### 2014-10-04, Koczian, using ustr to avoid crash
+				e_uni = ustr(e)
+				dabo.log.error(_("Could not connect to the Dabo servers: %s") % e_uni)
+				### 2014-10-04, Koczian, end of change
 				return e
 			except ValueError:
 				pass
 			except StandardError, e:
-				dabo.log.error(_("Failed to open URL '%(url)s'. Error: %(e)s") % locals())
+				### 2014-10-04, Koczian, using ustr to avoid crash
+				e_uni = ustr(e)
+				dabo.log.error(_("Failed to open URL '%(url)s'. Error: %(e_uni)s") % locals())
+				### 2014-10-04, Koczian, end of change
 				return e
 			resp = json.loads(resp)
 		prf.setValue("last_check", now)

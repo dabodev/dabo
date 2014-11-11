@@ -2117,8 +2117,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			column = self.Columns[col]
 			fld = column.DataField
 			biz = self.getBizobj()
-			if isinstance(val, float) and column.DataType == "decimal":
-				 val = Decimal(ustr(val))
+			if isinstance(val, float) and (issubclass(column.DataType, Decimal) or column.DataType == "decimal"):
+				val = Decimal(ustr(val))
 			if biz:
 				biz.RowNumber = row
 				biz.setFieldVal(fld, val)
