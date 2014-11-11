@@ -20,6 +20,18 @@ def getIconSubDir(arg, dirname, fnames):
 			iconDirs[subdir] = ["*.png"]
 os.path.walk(iconDir, getIconSubDir, iconDir)
 
+# locale dirs:
+localeDir = os.path.join(setupDir, "dabo", "locale")
+localeDirs = []
+def getLocaleDirs(arg, dirname, fnames):
+	if dirname[-1] != "\\":
+		po_files = tuple(glob.glob(os.path.join(dirname, "*.po")))
+		mo_files = tuple(glob.glob(os.path.join(dirname, "*.mo")))
+		if po_files or mo_files:
+			subdir = os.path.join(localeDir, dirname[len(arg)+1:])
+			localeDirs.append((subdir, po_files + mo_files))
+os.path.walk(localeDir, getLocaleDirs, localeDir)
+
 package_data = {
 		'':['ANNOUNCE', 'AUTHORS', 'ChangeLog', 'INSTALL',
 		'LICENSE.TXT', 'README', 'TODO'],
@@ -34,15 +46,22 @@ package_data = {
 
 package_data.update(iconDirs)
 
+data_files = [
+		(os.path.join('dabo', 'locale'), glob.glob('dabo/locale/*.pot')),
+		]
+data_files.extend(localeDirs)
+
+version = __version__
 setup(
 		name = "Dabo",
-		version = __version__,
+		version = version,
 		url = 'http://dabodev.com/',
-		download_url = 'https://github.com/dabodev/dabo/archive/v%s.zip' % __version__,
+		download_url = 'https://github.com/dabodev/dabo/archive/v%s.zip' % version,
 		author = 'Ed Leafe and Paul McNett',
 		author_email = 'dev@dabodev.com',
 		description = 'Dabo 3-tier Application Framework',
 		license = 'MIT',
 		packages = find_packages(),
 		package_data = package_data,
+		data_files = data_files,
 )
