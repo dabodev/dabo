@@ -5,10 +5,14 @@ from dabo.dLocalize import _
 import dabo.dColors as dColors
 import dabo.dEvents as dEvents
 
-from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
+from dabo.ui import makeDynamicProperty
 import dControlMixin as cm
 import dDataControlMixin as dcm
 
@@ -263,7 +267,10 @@ class dPanel(_PanelMixin, wx.Panel):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPanel
-		preClass = wx.PrePanel
+		if dabo.ui.phoenix:
+			preClass = wx.Panel
+		else:
+			preClass = wx.PrePanel
 		_PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
@@ -282,7 +289,10 @@ class dDataPanel(_DataPanelMixin, wx.Panel):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dDataPanel
-		preClass = wx.PrePanel
+		if dabo.ui.phoenix:
+			preClass = wx.Panel
+		else:
+			preClass = wx.PrePanel
 		_DataPanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
@@ -299,7 +309,10 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._horizontalScroll = self._verticalScroll = True
 		self._baseClass = dScrollPanel
-		preClass = wx.PreScrolledWindow
+		if dabo.ui.phoenix:
+			preClass = wx.ScrolledWindow
+		else:
+			preClass = wx.PreScrolledWindow
 		kwargs["AlwaysResetSizer"] = self._extractKey((properties, kwargs, attProperties), "AlwaysResetSizer", True)
 		_PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
@@ -325,7 +338,7 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 
 
 	def _scroll(self, xOff, yOff):
-		x,y = self.GetViewStart()
+		x, y = self.GetViewStart()
 		self.Scroll(x+xOff, y+yOff)
 		dabo.ui.callAfterInterval(250, self.layout)
 
@@ -338,7 +351,7 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 		"""Scroll horizontally one 'page' width."""
 		sz = self.GetScrollPageSize(wx.HORIZONTAL)
 		if sz:
-			x,y = self.GetViewStart()
+			x, y = self.GetViewStart()
 			self.Scroll(x + (direction * sz), y)
 
 
@@ -350,7 +363,7 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 		"""Scroll vertically one 'page' height."""
 		sz = self.GetScrollPageSize(wx.VERTICAL)
 		if sz:
-			x,y = self.GetViewStart()
+			x, y = self.GetViewStart()
 			self.Scroll(x, y + (direction * sz))
 
 
@@ -420,13 +433,13 @@ class _dPanel_test(dPanel):
 		self.BackColor = self._normBack
 
 	def onMouseLeftDown(self, evt):
-		print "mousedown"
+		print("mousedown")
 
 	def onPaint(self, evt):
-		print "paint"
+		print("paint")
 
 	def onKeyDown(self, evt):
-		print evt.EventData["keyCode"]
+		print(evt.EventData["keyCode"])
 
 
 class _dScrollPanel_test(dScrollPanel):
@@ -436,41 +449,41 @@ class _dScrollPanel_test(dScrollPanel):
 	def afterInit(self):
 		subpan = self.addObject(dPanel, BackColor = "green")
 		subpan.bindEvent(dEvents.KeyDown, self.onKeyDown)
-		self.SetScrollbars(10,10,100,100)
+		self.SetScrollbars(10, 10, 100, 100)
 
 	def onMouseLeftDown(self, evt):
-		print "mousedown"
+		print("mousedown")
 		self.SetFocusIgnoringChildren()
 
 	def onPaint(self, evt):
-		print "paint"
+		print("paint")
 
 	def onKeyDown(self, evt):
-		print evt.EventData["keyCode"]
+		print(evt.EventData["keyCode"])
 
 	def onScrollLineUp(self, evt):
 		if evt.orientation == "Horizontal":
-			print "Scroll Line Left"
+			print("Scroll Line Left")
 		else:
-			print "Scroll Line Up"
+			print("Scroll Line Up")
 
 	def onScrollLineDown(self, evt):
 		if evt.orientation == "Horizontal":
-			print "Scroll Line Right"
+			print("Scroll Line Right")
 		else:
-			print "Scroll Line Down"
+			print("Scroll Line Down")
 
 	def onScrollPageUp(self, evt):
 		if evt.orientation == "Horizontal":
-			print "Scroll Page Left"
+			print("Scroll Page Left")
 		else:
-			print "Scroll Page Up"
+			print("Scroll Page Up")
 
 	def onScrollPageDown(self, evt):
 		if evt.orientation == "Horizontal":
-			print "Scroll Page Right"
+			print("Scroll Page Right")
 		else:
-			print "Scroll Page Down"
+			print("Scroll Page Down")
 
 
 
@@ -501,7 +514,7 @@ if __name__ == "__main__":
 # 	app.start()
 
 
-	import test
+	from . import test
 	test.Test().runTest(_dPanel_test)
 	test.Test().runTest(_dScrollPanel_test)
 

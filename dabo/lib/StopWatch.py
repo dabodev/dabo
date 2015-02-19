@@ -48,24 +48,24 @@ class StopWatch(object):
 
 if __name__ == "__main__":
 	sw = StopWatch()
-	print sw.Running
-	print sw.Value
-	print "-------1---------"
+	print(sw.Running)
+	print(sw.Value)
+	print("-------1---------")
 	sw.start()
 	for i in range(100000):
 		pass
 	sw.stop()
-	print sw.Value, sw.Running
-	print "-------2---------"
+	print(sw.Value, sw.Running)
+	print("-------2---------")
 	sw.start()
 	for i in range(100):
-		print sw.Value, sw.Running
+		print(sw.Value, sw.Running)
 	sw.reset()
-	print sw._running, sw._value, sw._beg
-	print sw.Value, sw.Running
-	print "-------3---------"
+	print(sw._running, sw._value, sw._beg)
+	print(sw.Value, sw.Running)
+	print("-------3---------")
 	sw.start()
 	for i in range(100):
-		print sw.Value, sw.Running
+		print(sw.Value, sw.Running)
 	sw.stop()
-	print sw.Value
+	print(sw.Value)

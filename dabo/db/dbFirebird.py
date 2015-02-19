@@ -2,7 +2,7 @@
 
 import re
 import dabo
-from dBackend import dBackend
+from .dBackend import dBackend
 from dabo.lib.utils import ustr
 
 

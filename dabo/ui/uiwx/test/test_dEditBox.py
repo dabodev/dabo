@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import datetime
 import decimal
 import unittest
@@ -27,10 +28,10 @@ class Test_dEditBox(unittest.TestCase):
 	def testValue(self):
 		edt = self.edt
 		edt.Value = "This is a string"
-		self.assertTrue(isinstance(edt.Value, basestring))
+		self.assertTrue(isinstance(edt.Value, sixBasestring))
 		self.assertEqual(edt.Value, "This is a string")
 		self.mockUserInput("23")
-		self.assertTrue(isinstance(edt.Value, basestring))
+		self.assertTrue(isinstance(edt.Value, sixBasestring))
 		self.assertEqual(edt.Value, "23")
 		edt.Value = None
 		self.assertEqual(edt.Value, None)

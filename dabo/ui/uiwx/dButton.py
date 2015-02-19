@@ -4,7 +4,11 @@ import dabo
 import dabo.ui
 
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
 import dControlMixin as cm
 from dabo.dLocalize import _
@@ -28,7 +32,10 @@ class dButton(cm.dControlMixin, wx.Button):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dButton
-		preClass = wx.PreButton
+		if dabo.ui.phoenix:
+			preClass = wx.Button
+		else:
+			preClass = wx.PreButton
 		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
@@ -140,10 +147,10 @@ class _dButton_test(dButton):
 		self.Width = 223
 
 	def onContextMenu(self, evt):
-		print "context menu"
+		print("context menu")
 
 	def onMouseRightClick(self, evt):
-		print "right click"
+		print("right click")
 
 	def onHit(self, evt):
 		self.ForeColor = "purple"
@@ -153,5 +160,5 @@ class _dButton_test(dButton):
 		self.Width = 333
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dButton_test)

@@ -5,5 +5,5 @@ Serialization machinery.
 Objects
 """
 
-from serialization import *
-from xmlserializer import deserialize
+from .serialization import *
+from .xmlserializer import deserialize

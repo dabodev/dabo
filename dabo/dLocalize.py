@@ -1,8 +1,10 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import six
+from six import string_types as sixBasestring
 import gettext
-import locale
+from . import locale
 import os
 import sys
 import warnings
@@ -25,30 +27,30 @@ _domains = {}
 _currentTrans = None
 
 _languageAliases = {
-		"catalan": "ca", "català":"ca",
+		"catalan": "ca", "català": "ca",
 		"german": "de", "deutsch": "de",
-		"greek": "el", "ελληνικά":"el",
-		"english": "en", "english_united states":"en",
-		"english (uk)": "en_gb", "english_uk":"en_gb", "english_great britain":"en_gb",
-		"finnish": "fi", "suomi":"fi",
+		"greek": "el", "ελληνικά": "el",
+		"english": "en", "english_united states": "en",
+		"english (uk)": "en_gb", "english_uk": "en_gb", "english_great britain": "en_gb",
+		"finnish": "fi", "suomi": "fi",
 		"french": "fr", "francais": "fr", "français": "fr",
 		"hindi": "hi",
-		"hungarian": "hu", "magyar":"hu", "mɒɟɒr": "hu",
-		"indonesian": "id", "bahasa indonesia":"id",
+		"hungarian": "hu", "magyar": "hu", "mɒɟɒr": "hu",
+		"indonesian": "id", "bahasa indonesia": "id",
 		"italian": "it", "italiano": "it",
 		"japanese": "ja", "日本語": "ja", "nihoŋɡo": "ja",
 		"latvian": "lv", "lettish": "lv", "latviešu valoda": "lv",
-		"dutch": "nl", "nederlands":"nl",
-		"occitan": "oc", "provençal":"oc",
-		"polish": "pl", "polszczyzna":"pl", "język polski":"pl",
+		"dutch": "nl", "nederlands": "nl",
+		"occitan": "oc", "provençal": "oc",
+		"polish": "pl", "polszczyzna": "pl", "język polski": "pl",
 		"portuguese": "pt", "portuguêse": "pt",
 		"portuguese (brazilian)": "pt_br", "português brasileiro": "pt_br",
-		"romanian": "ro", "română":"ro",
+		"romanian": "ro", "română": "ro",
 		"russian": "ru", "русский язык": "ru", "russkiy yazyk": "ru",
-		"spanish": "es", "espanol":"es", "español":"es",
-		"swedish": "sv", "svenska":"sv",
-		"thai": "th", "ภาษาไทย":"th", "phasa thai": "th",
-		"chinese (simplified)": "zh_cn", "汉语":"zh_cn", "华语":"zh_cn",
+		"spanish": "es", "espanol": "es", "español": "es",
+		"swedish": "sv", "svenska": "sv",
+		"thai": "th", "ภาษาไทย": "th", "phasa thai": "th",
+		"chinese (simplified)": "zh_cn", "汉语": "zh_cn", "华语": "zh_cn",
 		}
 
 
@@ -94,7 +96,7 @@ def setLanguage(lang=None, charset=None):
 	global _domains, _currentTrans
 	lang = _languageAliases.get(lang.lower(), lang)
 
-	if lang is not None and isinstance(lang, basestring):
+	if lang is not None and isinstance(lang, sixBasestring):
 		lang = [lang]
 
 	daboTranslation = None
@@ -111,9 +113,12 @@ No translation file found for domain 'dabo'.
     Codeset = %s """ % (daboLocaleDir, ustr(lang), charset))
 			# Default to US English
 			daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=["en"], codeset=charset)
-		_currentTrans = daboTranslation.ugettext
+		if six.PY2:
+			_currentTrans = daboTranslation.ugettext
+		else:
+			_currentTrans = daboTranslation.gettext
 
-	for domain, localedir in _domains.items():
+	for domain, localedir in list(_domains.items()):
 		if domain == "dabo":
 			continue  ## already handled separately above
 		try:
@@ -162,22 +167,22 @@ def getDaboLocaleDir():
 
 if __name__ == "__main__":
 	install()
-	print
-	print "sys.getdefaultencoding():", sys.getdefaultencoding()
+	print()
+	print("sys.getdefaultencoding():", sys.getdefaultencoding())
 	if dabo.loadUserLocale:
 		locale.setlocale(locale.LC_ALL, '')
-		print "locale.getlocale():", locale.getlocale()
+		print("locale.getlocale():", locale.getlocale())
 	else:
-		print "locale.getdefaultlocale():", locale.getdefaultlocale()
-	print "_defaultLanguage, _defaultEncoding:", _defaultLanguage, _defaultEncoding
-	print
+		print("locale.getdefaultlocale():", locale.getdefaultlocale())
+	print("_defaultLanguage, _defaultEncoding:", _defaultLanguage, _defaultEncoding)
+	print()
 
 	stringsToTranslate = ("OK", "&File", "&Edit", "&Help", "Application finished.")
 	max_len = {}
 	for s in stringsToTranslate:
 		max_len[s] = len(s)
 	translatedStrings = []
-	for lang in sorted(set(_languageAliases.values()) - set(("en",))):
+	for lang in sorted(set(_languageAliases.values()) - {"en"}):
 		translatedStringsLine = [lang]
 		setLanguage(lang)
 		for s in stringsToTranslate:
@@ -203,11 +208,11 @@ if __name__ == "__main__":
 			add("|")
 		return ''.join(lin)
 
-	print line()
-	print line(("en",) + stringsToTranslate)
-	print line()
+	print(line())
+	print(line(("en",) + stringsToTranslate))
+	print(line())
 	for l in translatedStrings:
 		setLanguage(l[0])
-		print line(l)
-	print line()
+		print(line(l))
+	print(line())
 

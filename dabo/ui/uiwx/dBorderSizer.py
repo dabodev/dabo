@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import wx
 import dabo
 from dabo.dLocalize import _
@@ -21,7 +22,7 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 		self._border = 0
 		self._parent = None
 		# Make sure that they got the params in the right order
-		if isinstance(box, basestring):
+		if isinstance(box, sixBasestring):
 			box, orientation = orientation, box
 		if not isinstance(box, dabo.ui.dBox):
 			prnt = box
@@ -42,14 +43,14 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 		# Get them sanitized into one dict:
 		if properties is not None:
 			# Override the class values
-			for k,v in properties.items():
+			for k, v in list(properties.items()):
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
 		self.setProperties(properties)
 
 		if kwargs:
 			# Some kwargs haven't been handled.
-			bad = ", ".join(kwargs.keys())
+			bad = ", ".join(list(kwargs.keys()))
 			raise TypeError(("Invalid keyword arguments passed to dBorderSizer: %s") % kwargs)
 
 		# Mark the box as part of the sizer

@@ -9,12 +9,12 @@ from dabo.lib import utils
 
 
 def fmtPath(testpath):
-    """Format a file path in os.specific format"""
-    return testpath.replace("/",os.sep)
+	"""Format a file path in os.specific format"""
+	return testpath.replace("/", os.sep)
 
 def createTempFile(filename):
-    f = open(filename,"w")
-    f.close()
+	f = open(filename, "w")
+	f.close()
 
 
 class Test_Utils(unittest.TestCase):
@@ -45,8 +45,8 @@ class Test_Utils(unittest.TestCase):
 
 
 	def test_StringFuncs(self):
-		teststring = "This is a very long string with Unicode chars: éöîØ and 1234567890"
-		revstring = "0987654321 dna Øîöé :srahc edocinU htiw gnirts gnol yrev a si sihT"
+		teststring = "This is a very long string with Unicode chars: ≈Ω≈°‚Äù¬Ø and 1234567890"
+		revstring = "0987654321 dna ¬Ø‚Äù≈°≈Ω :srahc edocinU htiw gnirts gnol yrev a si sihT"
 		self.assertEqual(utils.reverseText(teststring), revstring)
 		cap = "&File"
 		self.assertEqual(utils.cleanMenuCaption(cap), "File")
@@ -54,9 +54,9 @@ class Test_Utils(unittest.TestCase):
 
 
 	def test_DictFuncs(self):
-		testdict = {u"First": 1, u"Second": 2, "Thîrd": 3}
+		testdict = {u"First": 1, u"Second": 2, "Third": 3}
 		ds = utils.dictStringify(testdict)
-		for kk in ds.keys():
+		for kk in list(ds.keys()):
 			self.assertEqual(type(kk), str)
 
 
@@ -68,8 +68,8 @@ class Test_Utils(unittest.TestCase):
 		self.assertEqual(utils.resolvePath(pth2, "a1/b1"), "../../file2")
 		self.assertEqual(utils.relativePath(pth), "a/b/file2")
 		self.assertEqual(utils.relativePath(pth2), "../../file2")
-		self.assertEqual(utils.relativePath(pth,pth2), "../tmp/relpath_tests_dir/a/b/file2")
-		self.assertEqual(utils.relativePathList(pth,pth2), ["..", "tmp", "relpath_tests_dir", "a", "b", "file2"])
+		self.assertEqual(utils.relativePath(pth, pth2), "../tmp/relpath_tests_dir/a/b/file2")
+		self.assertEqual(utils.relativePathList(pth, pth2), ["..", "tmp", "relpath_tests_dir", "a", "b", "file2"])
 		atts = {"Foo": "Bar", "ThePath": "%s../some/file.txt" % prfx}
 		utils.resolveAttributePathing(atts, os.getcwd())
 		self.assertEqual(atts, {"Foo": "Bar", "ThePath": "../some/file.txt"})

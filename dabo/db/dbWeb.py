@@ -3,8 +3,8 @@
 
 import datetime
 from dabo.dLocalize import _
-from dBackend import dBackend
-from dbSQLite import SQLite
+from .dBackend import dBackend
+from .dbSQLite import SQLite
 from dabo.lib.RemoteConnector import RemoteConnector
 
 

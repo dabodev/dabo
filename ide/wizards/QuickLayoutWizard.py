@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+import six
+if six.PY2:
+	sixLong = long
+else:
+	sixLong = int
 import sys
 if __name__ == "__main__":
 	sys.exit("This isn't meant to be run stand-alone. Please run ide/ClassDesigner.py instead.")

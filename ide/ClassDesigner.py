@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import sys
 import os
 import copy
@@ -1057,11 +1058,11 @@ class ClassDesigner(dApp):
 						# Leave it as it is
 						pass
 				else:
-					if not issubclass(typ, basestring):
-						if typ is bool and isinstance(kval, basestring):
+					if not issubclass(typ, sixBasestring):
+						if typ is bool and isinstance(kval, sixBasestring):
 							kval = (kval.lower() in ("true", "t", "yes", "y", "1"))
 						else:
-							if typ in (list, tuple) and isinstance(kval, basestring):
+							if typ in (list, tuple) and isinstance(kval, sixBasestring):
 								kval = eval(kval)
 							else:
 								kval = typ(kval)
@@ -1245,7 +1246,7 @@ class ClassDesigner(dApp):
 				code = dct.get("code", {})
 			rv["code"] = code
 			sizerInfo = rv["sizerInfo"] = self._extractKey(atts, "sizerInfo", "{}")
-			if isinstance(sizerInfo, basestring):
+			if isinstance(sizerInfo, sixBasestring):
 				sizerInfoDict = eval(sizerInfo)
 			else:
 				sizerInfoDict = sizerInfo
@@ -1419,11 +1420,11 @@ class ClassDesigner(dApp):
 				typ = eval("type(obj.%s)" % prop)
 			if typ is bool:
 				val = bool(val)
-			if isinstance(val, basestring):
+			if isinstance(val, sixBasestring):
 				strVal = val
 			else:
 				strVal = ustr(val)
-			if typ in (str, unicode) or ((typ is list) and isinstance(val, basestring)):
+			if typ in (sixBasestring) or ((typ is list) and isinstance(val, sixBasestring)):
 				# Escape any single quotes, and then enclose
 				# the value in single quotes
 				strVal = "u'" + self.escapeQt(strVal) + "'"
@@ -2739,7 +2740,7 @@ class ClassDesigner(dApp):
 
 	def _afterAddNewControlPaged(self, obj, pcount, classFlagProp, pgCls, useSizers):
 		pgCls = obj.PageClass
-		if isinstance(pgCls, basestring):
+		if isinstance(pgCls, sixBasestring):
 			# Saved class; let the control handle it
 			obj.PageCount = pcount
 			# This is the key that marks it as a class, and not a base object.
@@ -2762,7 +2763,7 @@ class ClassDesigner(dApp):
 
 	def _afterAddNewControlSlidePanel(self, obj, classFlagProp, pcount, useSizers):
 		pnlCls = obj.PanelClass
-		if isinstance(pnlCls, basestring):
+		if isinstance(pnlCls, sixBasestring):
 			# Saved class; let the control handle it
 			obj.PanelCount = pcount
 			# This is the key that marks it as a class, and not a base object.
@@ -3304,7 +3305,7 @@ class ClassDesigner(dApp):
 		is passed, or by an MRU selection, in which case a menu event
 		is passed.
 		"""
-		if isinstance(pathOrEvent, basestring):
+		if isinstance(pathOrEvent, sixBasestring):
 			pth = pathOrEvent
 		else:
 			# Picked from an MRU list
@@ -3357,7 +3358,7 @@ class ClassDesigner(dApp):
 		dabo.lib.utils.resolveAttributePathing(atts, pth)
 		code = dct.get("code", {})
 		sizerInfo = self._extractKey(atts, "sizerInfo", "{}")
-		if isinstance(sizerInfo, basestring):
+		if isinstance(sizerInfo, sixBasestring):
 			sizerInfoDict = eval(sizerInfo)
 		else:
 			sizerInfoDict = sizerInfo
@@ -3571,14 +3572,14 @@ class ClassDesigner(dApp):
 		if isSpacer:
 			if spacing is not None:
 				spc = spacing
-				if isinstance(spc, basestring):
+				if isinstance(spc, sixBasestring):
 					spc = eval(spc)
 			else:
 				if isinstance(controllingSizer, LayoutGridSizer):
 					rows, cols = 1, 1
 				spc = dui.getString(message=_("Spacer Dimension?"),
 						caption=_("New Spacer"), defaultValue="10")
-				if isinstance(spc, basestring):
+				if isinstance(spc, sixBasestring):
 					spc = int(spc)
 				else:
 					# They canceled

@@ -20,6 +20,7 @@ class dFont(dObject):
 		self._macNonScaledSize = 0
 
 		super(dFont, self).__init__(properties=properties, *args, **kwargs)
+		#wx.Font.__init__(self, self._nativeFont)
 
 
 	def _propsChanged(self):

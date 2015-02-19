@@ -166,5 +166,12 @@ class _dPage_test(dPage):
 
 
 if __name__ == "__main__":
-	import test
+	# do not move this to the top, otherwise we get import error on icons in __init__
+	if __name__ == "__main__":
+		import dabo.ui
+		dabo.ui.loadUI("wx")
+		if __package__ is None:
+			import dabo.ui.uiwx
+			__package__ = "dabo.ui.uiwx"
+	from . import test
 	test.Test().runTest(_dPage_test)

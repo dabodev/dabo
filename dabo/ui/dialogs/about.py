@@ -67,7 +67,7 @@ class About(dabo.ui.dDialog):
 		hsz.appendSpacer(20)
 		hsz.append(btnClose)
 		sz.append(hsz, halign="right")
-		sz.append((0,20))
+		sz.append((0, 20))
 		self.Layout()
 		pnlBack.Fit()
 

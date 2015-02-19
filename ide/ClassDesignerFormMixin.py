@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six import text_type as sixUnicode
 import os
 import sys
 import time
@@ -1575,11 +1576,11 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
 			return []
 
 	def _getDesProps(self):
-		ret = {"Caption": {"type" : unicode, "readonly" : False},
-				"CxnName": {"type" : unicode, "readonly" : False},
+		ret = {"Caption": {"type" : sixUnicode, "readonly" : False},
+				"CxnName": {"type" : sixUnicode, "readonly" : False},
 				"Height": {"type" : int, "readonly" : False},
 				"Width": {"type" : int, "readonly" : False},
-				"Name" : {"type" : unicode, "readonly" : False},
+				"Name" : {"type" : sixUnicode, "readonly" : False},
 				"Left": {"type" : int, "readonly" : False},
 				"Right": {"type" : int, "readonly" : False},
 				"Top": {"type" : int, "readonly" : False},

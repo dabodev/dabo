@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import dabo
 
-from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
+from dabo.ui import makeDynamicProperty
 from dPage import dPage
 from dPanel import dPanel
 import dabo.dEvents as dEvents
@@ -61,7 +67,7 @@ class dPageFrameNoTabs(dPanel):
 			pg = pgCls
 		else:
 			# See if the 'pgCls' is either some XML or the path of an XML file
-			if isinstance(pgCls, basestring):
+			if isinstance(pgCls, sixBasestring):
 				xml = pgCls
 				from dabo.lib.DesignerClassConverter import DesignerClassConverter
 				conv = DesignerClassConverter()
@@ -194,7 +200,7 @@ class dPageFrameNoTabs(dPanel):
 		return self._pageClass
 
 	def _setPageClass(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, sixBasestring):
 			from dabo.lib.DesignerClassConverter import DesignerClassConverter
 			conv = DesignerClassConverter()
 			self._pageClass = conv.classFromText(val)
@@ -289,7 +295,7 @@ import random
 class TestPage(dPage):
 	def afterInit(self):
 		self.lbl = dabo.ui.dLabel(self, FontSize=36)
-		color = random.choice(dColors.colorDict.keys())
+		color = random.choice(list(dColors.colorDict.keys()))
 		self.BackColor = self.lbl.Caption = color
 		self.Sizer = sz = dabo.ui.dSizer("h")
 		sz.appendSpacer(1, 1)
@@ -327,7 +333,7 @@ class TestForm(dabo.ui.dForm):
 		hsz.append(lbl)
 		dd = dabo.ui.dDropdownList(self, DataSource=pgf,
 				DataField="SelectedPageNumber", ValueMode="Position",
-				Choices=["%s" % ii for ii in xrange(pgf.PageCount)])
+				Choices=["%s" % ii for ii in range(pgf.PageCount)])
 		hsz.append(dd)
 		self.Sizer.append(hsz, halign="center", border=8)
 		self.layout()

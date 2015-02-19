@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
+# TODO: getting a Runtimeerror dMenuItem has been deleted
+from six import string_types as sixBasestring
 import wx
 
-import dabo, dabo.ui
+import dabo
+
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
 import dTextBoxMixin as tbm
 from dabo.dLocalize import _
@@ -17,7 +24,10 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 		self._list = []
 		self._cancelVisible = False
 		self._searchVisible = True
-		preClass = wx.PreSearchCtrl
+		if dabo.ui.phoenix:
+			preClass = wx.SearchCtrl
+		else:
+			preClass = wx.PreSearchCtrl
 		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
@@ -90,7 +100,7 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 	def _setupMenuFromList(self, valueList):
 		menu = dabo.ui.dMenu()
 		for value in valueList:
-			if not type(value) in (str, unicode):
+			if not isinstance(value, sixBasestring):
 				raise ValueError("All elements in the List must be strings")
 			else:
 				menu.append(value)
@@ -165,29 +175,29 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	import datetime
 
 	# This test sets up several textboxes, each editing different data types.
 	class TestBase(dSearchBox):
 		def initProperties(self):
 			super(TestBase, self).initProperties()
-			self.LogEvents = ["ValueChanged","searchButtonClicked","SearchCancelButtonClicked"]
+			self.LogEvents = ["ValueChanged", "searchButtonClicked", "SearchCancelButtonClicked"]
 			self.CancelButtonVisible = True
 			self.SearchButtonVisible = True
 			self.List = ("item 1", "item 2", "item 3")
 
 		def onValueChanged(self, evt):
 			if self.IsSecret:
-				print "%s changed, but the new value is a secret!" % self.Name
+				print("%s changed, but the new value is a secret!" % self.Name)
 			else:
-				print "%s.onValueChanged:" % self.Name, self.Value, type(self.Value)
+				print("%s.onValueChanged:" % self.Name, self.Value, type(self.Value))
 
 		def onSearchButtonClicked(self, evt):
-			print "you pressed the search button"
+			print("you pressed the search button")
 
 		def onSearchCancelButtonClicked(self, evt):
-			print "you pressed the cancel button"
+			print("you pressed the cancel button")
 
 
 	class IntText(TestBase):

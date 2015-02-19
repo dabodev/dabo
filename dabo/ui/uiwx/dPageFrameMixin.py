@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import sys
 import wx
 import dabo
@@ -122,7 +123,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		"""
 		if key is None:
 			key = ustr(img)
-		if isinstance(img, basestring):
+		if isinstance(img, sixBasestring):
 			img = dabo.ui.strToBmp(img)
 		il = self.GetImageList()
 		if not il:
@@ -203,7 +204,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			pg = pgCls
 		else:
 			# See if the 'pgCls' is either some XML or the path of an XML file
-			if isinstance(pgCls, basestring):
+			if isinstance(pgCls, sixBasestring):
 				xml = pgCls
 				from dabo.lib.DesignerClassConverter import DesignerClassConverter
 				conv = DesignerClassConverter()

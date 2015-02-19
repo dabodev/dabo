@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import sys
 import wx
 import dabo
 from dabo.ui import makeDynamicProperty
+import collections
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dPemMixin as pm
@@ -104,7 +106,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			except AttributeError:
 				de = None
 			if de is not None:
-				if callable(de):
+				if isinstance(de, collections.Callable):
 					item.Enabled = de()
 			if isinstance(item, dMenu):
 				item._setDynamicEnabled()
@@ -131,9 +133,14 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		id_ = itm.GetId()
 		if id_ == wx.ID_ABOUT:
 			# Put the about menu in the App Menu on Mac
-			wx.App_SetMacAboutMenuItemId(id_)
-			cap = daboItem.Parent.Caption
-			wx.App_SetMacHelpMenuTitleName(cap)
+			if dabo.ui.phoenix:
+				wx.App.SetMacAboutMenuItemId(id_)
+				cap = daboItem.Parent.Caption
+				wx.App.SetMacHelpMenuTitleName(cap)
+			else:
+				wx.App_SetMacAboutMenuItemId(id_)
+				cap = daboItem.Parent.Caption
+				wx.App_SetMacHelpMenuTitleName(cap)
 
 		# Process any 'special' menus
 		try:
@@ -143,24 +150,36 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		if special == "pref":
 			# Put the prefs item in the App Menu on Mac
 			self.Parent._mac_pref_menu_item_id = id_
-			wx.App_SetMacPreferencesMenuItemId(id_)
+			if dabo.ui.phoenix:
+				wx.App.SetMacPreferencesMenuItemId(id_)
+			else:
+				wx.App_SetMacPreferencesMenuItemId(id_)
 
 
 	def appendItem(self, item):
 		"""Insert a dMenuItem at the bottom of the menu."""
-		wxItem = self._getWxItem(self.AppendItem, item)
+		if dabo.ui.phoenix:
+			wxItem = self._getWxItem(self.Append, item)
+		else:
+			wxItem = self._getWxItem(self.AppendItem, item)
 		return item
 
 
 	def insertItem(self, pos, item):
 		"""Insert a dMenuItem before the specified position in the menu."""
-		wxItem = self._getWxItem(self.InsertItem, item, pos)
+		if dabo.ui.phoenix:
+			wxItem = self._getWxItem(self.Insert, item, pos)
+		else:
+			wxItem = self._getWxItem(self.InsertItem, item, pos)
 		return item
 
 
 	def prependItem(self, item):
 		"""Insert a dMenuItem at the top of the menu."""
-		wxItem = self._getWxItem(self.PrependItem, item)
+		if dabo.ui.phoenix:
+			wxItem = self._getWxItem(self.Prepend, item)
+		else:
+			wxItem = self._getWxItem(self.PrependItem, item)
 		return item
 
 
@@ -292,7 +311,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		Returns the menu item specified by either its index or caption. In the
 		case that an actual menu item is passed, simply returns that item.
 		"""
-		if isinstance(capIdxOrItem, basestring):
+		if isinstance(capIdxOrItem, sixBasestring):
 			ret = self.getItem(capIdxOrItem)
 		elif isinstance(capIdxOrItem, int):
 			ret = self.Children[capIdxOrItem]
@@ -312,19 +331,22 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			# Menu has already been destroyed.
 			return
 		item = self._resolveItem(capIdxOrItem)
+		if not item:
+			# Menuitem has already been destroyed
+			return
 		id_ = item.GetId()
 		try:
 			del self._daboChildren[id_]
 		except KeyError:
 			pass
 
-		if wx.VERSION >= (2,7):
-			# Needed to keep dPemMixin mixed-in in wxPython 2.8
+		# Needed to keep dPemMixin mixed-in in wxPython 2.8
+		if dabo.ui.phoenix:
+			val = wx.Menu.Remove(self, item)
+		else:
 			val = wx.Menu.RemoveItem(self, item)
 			item.this.own(val.this.own())
 			val.this.disown()
-		else:
-			self.RemoveItem(item)
 
 		if release:
 			item.Destroy()
@@ -401,7 +423,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		return itm
 
 
-	def _getItemID(self,typ):
+	def _getItemID(self, typ):
 		typ = ustr(typ).lower()
 		ret = wx.ID_DEFAULT
 		if typ == "exit":
@@ -455,7 +477,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		item itself.
 		"""
 		cap = cleanMenuCaption(cap, "&_")
-		for pos in xrange(self.GetMenuItemCount()):
+		for pos in range(self.GetMenuItemCount()):
 			itm = self.FindItemByPosition(pos)
 			itmCap = cleanMenuCaption(itm.GetLabel(), "&_")
 			if itmCap == cap:
@@ -508,6 +530,11 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		daboChildren = [self._daboChildren.get(c.GetId(), c) for c in children]
 		return daboChildren
 
+	def _preInitUI(self, kwargs):
+		# TODO: waiting to hear from Robin on overload issue
+		style = kwargs.get("style", 0)
+		kwargs['style'] = style
+		return kwargs
 
 	def _getCaption(self):
 		try:

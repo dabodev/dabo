@@ -164,16 +164,16 @@ file_extensions = {
 		"mnxml": "Dabo Menu Designer Files",
 		"pdf": "PDF Files",
 		"js": "Javascript Files",
-		"html" : "HTML Files",
-		"xml" : "XML Files",
-		"jpg" : "JPEG Images",
-		"jpeg" : "JPEG Images",
-		"gif" : "GIF Images",
-		"tif" : "TIFF Images",
-		"tiff" : "TIFF Images",
-		"png" : "PNG Images",
-		"ico" : "Icon Images",
-		"bmp" : "Bitmap Images",
+		"html": "HTML Files",
+		"xml": "XML Files",
+		"jpg": "JPEG Images",
+		"jpeg": "JPEG Images",
+		"gif": "GIF Images",
+		"tif": "TIFF Images",
+		"tiff": "TIFF Images",
+		"png": "PNG Images",
+		"ico": "Icon Images",
+		"bmp": "Bitmap Images",
 		"sh": "Shell Scripts",
 		"zip": "ZIP Files",
 		"tar": "tar Archives",
@@ -257,6 +257,6 @@ sys.path.append(os.getcwd())
 
 # Do not copy/paste anything below this line into settings_override.py.
 try:
-	from settings_override import *
+	from .settings_override import *
 except ImportError:
 	pass

@@ -3,10 +3,15 @@ import sys
 import time
 import wx
 import dabo
-from dabo.ui import makeDynamicProperty
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 
+if __name__ == "__main__":
+	import dabo.ui
+	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
+from dabo.ui import makeDynamicProperty
 import dDataControlMixin as dcm
 import dControlItemMixin as cim
 import dabo.dEvents as dEvents
@@ -20,7 +25,10 @@ class _dRadioButton(dcm.dDataControlMixin, wx.RadioButton):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = _dRadioButton
-		preClass = wx.PreRadioButton
+		if dabo.ui.phoenix:
+			preClass = wx.RadioButton
+		else:
+			preClass = wx.PreRadioButton
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
@@ -138,7 +146,10 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		self._buttonClass = _dRadioButton
 		self._showBox = True
 		self._caption = ""
-		preClass = wx.PrePanel
+		if dabo.ui.phoenix:
+			preClass = wx.Panel
+		else:
+			preClass = wx.PrePanel
 		style = self._extractKey((properties, attProperties, kwargs), "style", 0)
 		style = style | wx.TAB_TRAVERSAL
 		kwargs["style"] = style
@@ -547,7 +558,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 			except IndexError:
 				if val is not None:
 					# No such string.
-					raise ValueError, _("No radio button matching '%s' was found.") % val
+					raise ValueError(_("No radio button matching '%s' was found.") % val)
 		else:
 			self._properties["StringValue"] = val
 
@@ -619,13 +630,13 @@ class _dRadioList_test(dRadioList):
 
 
 	def onHit(self, evt):
-		print "KeyValue: ", self.KeyValue
-		print "PositionValue: ", self.PositionValue
-		print "StringValue: ", self.StringValue
-		print "Value: ", self.Value
+		print("KeyValue: ", self.KeyValue)
+		print("PositionValue: ", self.PositionValue)
+		print("StringValue: ", self.StringValue)
+		print("Value: ", self.Value)
 
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dRadioList_test)

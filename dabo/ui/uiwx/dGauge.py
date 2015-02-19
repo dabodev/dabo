@@ -2,11 +2,15 @@
 import wx
 import dabo
 from dabo.dLocalize import _
-from dabo.ui import makeDynamicProperty
 
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
+from dabo.ui import makeDynamicProperty
 import dControlMixin as cm
 import dabo.dEvents as dEvents
 
@@ -15,7 +19,10 @@ class dGauge(cm.dControlMixin, wx.Gauge):
 	"""Creates a gauge, which can be used as a progress bar."""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dGauge
-		preClass = wx.PreGauge
+		if dabo.ui.phoenix:
+			preClass = wx.Gauge
+		else:
+			preClass = wx.PreGauge
 		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
@@ -116,5 +123,5 @@ class _dGauge_test(dGauge):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dGauge_test)

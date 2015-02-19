@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from six import integer_types as sixInt
+from six import string_types as sixBasestring
 import types
 import re
 import warnings
@@ -176,7 +178,7 @@ class dBizobj(dObject):
 		By default, only unchanged non-current cursors are flushed.
 		"""
 		cursors = {}
-		for key, cursor in self.__cursors.items():
+		for key, cursor in list(self.__cursors.items()):
 			if (not flush_current and cursor is self._CurrentCursor) \
 					or (not flush_changed and cursor.isChanged()):
 				cursors[key] = cursor
@@ -247,7 +249,7 @@ class dBizobj(dObject):
 		executing.
 		"""
 		if self.__cursors:
-			cursorKey = self.__cursors.keys()[0]
+			cursorKey = list(self.__cursors.keys())[0]
 			_dataStructure = getattr(self.__cursors[cursorKey], "_dataStructure", None)
 			self._virtualFields = getattr(self.__cursors[cursorKey], "_virtualFields", {})
 		else:
@@ -295,9 +297,9 @@ class dBizobj(dObject):
 			superCursor = secondary
 			def __init__(self, *args, **kwargs):
 				if hasattr(main, "__init__"):
-					apply(main.__init__, (self,) + args, kwargs)
+					main.__init__(*(self,) + args, **kwargs)
 				if hasattr(secondary, "__init__"):
-					apply(secondary.__init__, (self,) + args, kwargs)
+					secondary.__init__(*(self,) + args, **kwargs)
 		return	cursorMix
 
 
@@ -341,7 +343,7 @@ class dBizobj(dObject):
 		self.afterPrior()
 
 
-	def next(self):
+	def __next__(self):
 		"""
 		Move to the next record of the data set.
 
@@ -354,7 +356,7 @@ class dBizobj(dObject):
 		if errMsg:
 			raise dException.BusinessRuleViolation(errMsg)
 
-		self._CurrentCursor.next()
+		next(self._CurrentCursor)
 		self.requeryAllChildren(_doRequery=self.RequeryChildrenOnNavigate)
 
 		self._afterPointerMove()
@@ -656,7 +658,7 @@ class dBizobj(dObject):
 				self.rollbackTransaction()
 			self._CurrentCursor = cursorKey
 			raise
-		except StandardError:
+		except Exception:
 			if startTransaction:
 				self.rollbackTransaction()
 			self._CurrentCursor = cursorKey
@@ -712,7 +714,7 @@ class dBizobj(dObject):
 			if startTransaction:
 				self.rollbackTransaction()
 			raise
-		except StandardError:
+		except Exception:
 			if startTransaction:
 				self.rollbackTransaction()
 			raise
@@ -740,7 +742,7 @@ class dBizobj(dObject):
 				self.rollbackTransaction()
 			self._CurrentCursor = cursorKey
 			raise
-		except StandardError:
+		except Exception:
 			if startTransaction:
 				self.rollbackTransaction()
 			self._CurrentCursor = cursorKey
@@ -908,7 +910,7 @@ class dBizobj(dObject):
 		rowCount = self.RowCount
 		if not rowCount > 0:
 			return
-		return self.scanRows(func, range(rowCount), *args, **kwargs)
+		return self.scanRows(func, list(range(rowCount)), *args, **kwargs)
 
 
 	def scanRows(self, func, rows, *args, **kwargs):
@@ -933,7 +935,7 @@ class dBizobj(dObject):
 				ret = func(*args, **kwargs)
 				if self.exitScan:
 					break
-		except Exception, e:
+		except Exception as e:
 			if self._logScanException(e):
 				nm = self.Name
 				ue = ustr(e)
@@ -969,7 +971,7 @@ class dBizobj(dObject):
 					ret = func(*args, **kwargs)
 				if self.exitScan:
 					break
-		except Exception, e:
+		except Exception as e:
 			if self._logScanException(e):
 				nm = self.Name
 				ue = ustr(e)
@@ -1019,7 +1021,7 @@ class dBizobj(dObject):
 			for key in cursors:
 				self._CurrentCursor = key
 				ret = self.scan(_callFunc, reverse=reverse, scanRequeryChildren=False)
-		except Exception, e:
+		except Exception as e:
 			if self._logScanException(e):
 				nm = self.Name
 				ue = ustr(e)
@@ -1066,7 +1068,7 @@ class dBizobj(dObject):
 		"""
 		global _scanExceptionId
 		exHash = hash(ex)
-		if _scanExceptionId <> exHash:
+		if _scanExceptionId != exHash:
 			_scanExceptionId = exHash
 			return True
 		else:
@@ -1100,10 +1102,10 @@ class dBizobj(dObject):
 		if rowCnt:
 			if status[1] is not None:
 				self._positionUsingPK(status[1], False)
-			if status[1] is None or status[1] <> self.getPK():
+			if status[1] is None or status[1] != self.getPK():
 				try:
 					self._moveToRowNum(status[2], False)
-				except StandardError, e:
+				except Exception as e:
 					# Perhaps the row was deleted; at any rate, leave the pointer
 					# at the end of the data set
 					row = rowCnt - 1
@@ -1322,7 +1324,7 @@ class dBizobj(dObject):
 					ret = self.getParentPK()
 				else:
 					flds = fld.replace(" ", "").split(",")
-					ret = map(self.Parent.getFieldVal, tuple(flds))
+					ret = list(map(self.Parent.getFieldVal, tuple(flds)))
 					if len(ret) == 1:
 						ret = ret[0]
 					else:
@@ -1445,7 +1447,7 @@ class dBizobj(dObject):
 				self.__filterPKVirtual.append(self.getFieldVal(self.KeyField))
 
 		else:
-			if isinstance(virtValue, basestring) and isinstance(expr, basestring):
+			if isinstance(virtValue, sixBasestring) and isinstance(expr, sixBasestring):
 				virtLower = virtValue.lower()
 				exprLower = expr.lower()
 
@@ -1696,7 +1698,7 @@ class dBizobj(dObject):
 		withNewUnchanged = includeNewUnchanged
 		if withNewUnchanged is None:
 			withNewUnchanged = self.SaveNewUnchanged
-		for cursor in self.__cursors.values():
+		for cursor in list(self.__cursors.values()):
 			if cursor.isChanged(allRows=True, includeNewUnchanged=withNewUnchanged):
 				return True
 		for child in self._children:
@@ -1972,7 +1974,7 @@ class dBizobj(dObject):
 		If recurse is True, the cache in the child bizobjs will be expired, too.
 		"""
 		if _allCursors:
-			cursors = self.__cursors.values()
+			cursors = list(self.__cursors.values())
 		else:
 			cursors = [self._CurrentCursor]
 
@@ -2057,7 +2059,7 @@ class dBizobj(dObject):
 			valDict = kwargs
 		else:
 			valDict.update(kwargs)
-		for fld, val in valDict.items():
+		for fld, val in list(valDict.items()):
 			self.setFieldVal(fld, val, row, pk)
 
 
@@ -2287,7 +2289,7 @@ class dBizobj(dObject):
 
 	def formatForQuery(self, val):
 		"""
-		Wrap up any value(int, long, string, date, date-time, decimal, none)
+		Wrap up any value(sixInt, string, date, date-time, decimal, none)
 		for use to be in a query.
 		"""
 		return self._CurrentCursor.formatForQuery(val)
@@ -2595,7 +2597,7 @@ of the string will be displayed to the user."""
 		def method(self):
 			return ""
 		method.__doc__ = "%s\n\n%s" % (mainDoc, additionalDoc)
-		method.func_name = name
+		method.__name__ = name
 		return method
 
 
@@ -2694,7 +2696,7 @@ afterDelete() which is only called after a delete().""")
 		that provide it with data connectivity. This method ensures that all
 		such cursors are in sync with the bizobj.
 		"""
-		for crs in self.__cursors.values():
+		for crs in list(self.__cursors.values()):
 			self._syncCursorProps(crs)
 
 
@@ -2734,7 +2736,7 @@ afterDelete() which is only called after a delete().""")
 		Handles current cursor key value changes.
 		"""
 		oldKey = self.__currentCursorKey
-		if newKey <> oldKey:
+		if newKey != oldKey:
 			self.__cursors[newKey] = self.__cursors.pop(oldKey)
 			self.__currentCursorKey = newKey
 
@@ -2857,7 +2859,7 @@ afterDelete() which is only called after a delete().""")
 		if not isinstance(val, (types.NoneType, tuple)):
 			raise TypeError(_("Invalid type '%s' for property DataStructure. " \
 					"An tuple value is required.") % type(val))
-		for key, cursor in self.__cursors.items():
+		for key, cursor in list(self.__cursors.items()):
 			cursor.DataStructure = val
 		self._dataStructure = val
 		self._clearCursorRecord()
@@ -3417,7 +3419,7 @@ class _bizIterator(object):
 				self._onStopIteration()
 		else:
 			try:
-				self.obj.next()
+				next(self.obj)
 			except dException.EndOfFileException:
 				self._onStopIteration()
 		if self.returnRecords:
@@ -3431,7 +3433,7 @@ class _bizIterator(object):
 			self.obj.RowNumber = self.__originalRowNum
 		raise StopIteration
 
-	def next(self):
+	def __next__(self):
 		"""Moves the record pointer to the next record."""
 		return self.__nextfunc()
 

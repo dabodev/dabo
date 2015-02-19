@@ -143,7 +143,7 @@ class EasyDialogBuilder(object):
 			else:
 				bs = dabo.ui.dSizer("h")
 				bs.append(controls[0], halign="right")
-				bs.append(controls[1], "expand",1)
+				bs.append(controls[1], "expand", 1)
 
 				if len(controls) > 2:
 					bs.append(controls[2])
@@ -273,7 +273,7 @@ if __name__ == "__main__":
 		def instantiateControls(self):
 			self.Sizer = dabo.ui.dSizer("vertical")
 
-			pageFrame = self.makePageFrame(self,(
+			pageFrame = self.makePageFrame(self, (
 				{"page":controlBoxPage, "caption":"Control Box"},
 				{"page":makeSizerTestPage, "caption":"Refactored Sizer"}))
 

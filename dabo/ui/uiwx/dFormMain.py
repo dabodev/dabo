@@ -2,6 +2,14 @@
 import time
 import wx
 import dabo
+
+if __name__ == "__main__":
+	import dabo.ui
+	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
 import dFormMixin as fm
 
 
@@ -37,12 +45,18 @@ class dFormMain(dFormMainBase, wx.Frame):
 		if dabo.MDI:
 			# Hack this into an MDI Parent:
 			dFormMain.__bases__ = (dFormMainBase, wx.MDIParentFrame)
-			preClass = wx.PreMDIParentFrame
+			if dabo.ui.phoenix:
+				preClass = wx.MDIParentFrame
+			else:
+				preClass = wx.PreMDIParentFrame
 			self._mdi = True
 		else:
 			# This is a normal SDI form:
 			dFormMain.__bases__ = (dFormMainBase, wx.Frame)
-			preClass = wx.PreFrame
+			if dabo.ui.phoenix:
+				preClass = wx.Frame
+			else:
+				preClass = wx.PreFrame
 			self._mdi = False
 		## (Note that it is necessary to run the above block each time, because
 		##  we are modifying the dFormMain class definition globally.)
@@ -52,5 +66,5 @@ class dFormMain(dFormMainBase, wx.Frame):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(dFormMain)

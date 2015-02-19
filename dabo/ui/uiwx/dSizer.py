@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+
+if __name__ == "__main__":
+	import dabo.ui
+	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
 import dPemMixin
 import dSizerMixin
 
@@ -35,14 +43,14 @@ class dSizer(dSizerMixin.dSizerMixin, wx.BoxSizer):
 		# Get them sanitized into one dict:
 		if properties is not None:
 			# Override the class values
-			for k,v in properties.items():
+			for k, v in list(properties.items()):
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
 		self.setProperties(properties)
 
 		if kwargs:
 			# Some kwargs haven't been handled.
-			bad = ", ".join(kwargs.keys())
+			bad = ", ".join(list(kwargs.keys()))
 			raise TypeError("Invalid keyword arguments passed to dSizer: %s" % bad)
 
 		dSizerMixin.dSizerMixin.__init__(self, *args, **kwargs)

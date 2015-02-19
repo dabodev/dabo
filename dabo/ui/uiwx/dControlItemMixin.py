@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import wx
 import dabo
 from dDataControlMixin import dDataControlMixin
@@ -6,6 +7,7 @@ from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.lib.propertyHelperMixin import _DynamicList
 from dabo.ui import makeDynamicProperty
+import collections
 
 
 
@@ -170,7 +172,7 @@ class dControlItemMixin(dDataControlMixin):
 		if isinstance(val, dict):
 			self._keys = val
 			# What about duplicate values?
-			self._invertedKeys = dict((v,k) for k,v in val.iteritems())
+			self._invertedKeys = dict((v, k) for k, v in val.items())
 		elif isinstance(val, (list, tuple)):
 			self._keys = val
 			self._invertedKeys = None
@@ -313,7 +315,7 @@ class dControlItemMixin(dDataControlMixin):
 
 	def _setSortFunction(self, val):
 		if self._constructed():
-			if callable(val):
+			if isinstance(val, collections.Callable):
 				self._sortFunction = val
 				if not isinstance(self, dabo.ui.dListControl):
 					# Force a re-ordering
@@ -366,7 +368,7 @@ class dControlItemMixin(dDataControlMixin):
 			for string in value:
 				if string is None:
 					continue
-				if isinstance(string, basestring):
+				if isinstance(string, sixBasestring):
 					index = self.FindString(string)
 					if index < 0:
 						raise ValueError(_("String must be present in the choices: '%s'") % string)

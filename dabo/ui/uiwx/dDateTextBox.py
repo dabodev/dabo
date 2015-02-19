@@ -5,6 +5,9 @@ import dabo
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -135,7 +138,7 @@ C: Popup Calendar to Select
 		self.showCalendar()
 
 
-	def __onBtnClick(self,evt):
+	def __onBtnClick(self, evt):
 		"""Display a calendar to allow users to select dates."""
 		self.showCalendar()
 
@@ -470,5 +473,5 @@ C: Popup Calendar to Select
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest((dDateTextBox, dDateTextBox))

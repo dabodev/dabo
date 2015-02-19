@@ -32,7 +32,7 @@ class CaselessDict(dict):
 
 	def __str__(self):
 		ret = "{"
-		for v in self._OriginalCase.values():
+		for v in list(self._OriginalCase.values()):
 			if len(ret) > 1:
 				ret += ", "
 			ret += "%s: %s" % (repr(v), repr(self[v]))
@@ -47,11 +47,11 @@ class CaselessDict(dict):
 		self._OriginalCase.clear()
 
 	def keys(self):
-		return self._OriginalCase.values()
+		return list(self._OriginalCase.values())
 
 	def items(self):
 		r = []
-		for v in self._OriginalCase.values():
+		for v in list(self._OriginalCase.values()):
 			r.append((v, self[v]))
 		return r
 
@@ -69,16 +69,16 @@ class CaselessDict(dict):
 		return self.__getitem__(key)
 
 	def update(self, otherDict):
-		for k, v in otherDict.items():
+		for k, v in list(otherDict.items()):
 			self[k] = v
 
 if __name__ == "__main__":
 	d = CaselessDict()
 	d["PaulMcNett"] = 35
 	d["Bananas"] = 42
-	print d.keys()
-	print d.items()
-	print d["PAULMCNETT"]
-	print "pAULmCNETT" in d
-	print "pAULmCNETTy" in d
-	print d
+	print(list(d.keys()))
+	print(list(d.items()))
+	print(d["PAULMCNETT"])
+	print("pAULmCNETT" in d)
+	print("pAULmCNETTy" in d)
+	print(d)

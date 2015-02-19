@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import re
 import os
 import glob
 import wx
 import dabo
-from dabo.ui import makeDynamicProperty
+
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
+from dabo.ui import makeDynamicProperty
 import dControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -83,7 +90,7 @@ class dNode(dObject):
 		return self.tree.GetItemBackgroundColour(self.itemID).Get()
 
 	def _setBackColor(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, sixBasestring):
 			val = dColors.colorTupleFromName(val)
 		self.tree.SetItemBackgroundColour(self.itemID, val)
 
@@ -116,7 +123,7 @@ class dNode(dObject):
 				self.tree.expand(self)
 			else:
 				self.tree.collapse(self)
-		except wx._core.PyAssertionError:
+		except dabo.ui.assertionException:
 			# Happens when expandAll() is called and the root node is hidden
 			# especially from dTreeView.refreshDisplay()
 			pass
@@ -213,7 +220,7 @@ class dNode(dObject):
 		return self.tree.GetItemTextColour(self.itemID).Get()
 
 	def _setForeColor(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, sixBasestring):
 			val = dColors.colorTupleFromName(val)
 		self.tree.SetItemTextColour(self.itemID, val)
 
@@ -417,7 +424,10 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		if val:
 			style = style | wx.TR_LINES_AT_ROOT
 
-		preClass = wx.PreTreeCtrl
+		if dabo.ui.phoenix:
+			preClass = wx.TreeCtrl
+		else:
+			preClass = wx.PreTreeCtrl
 		dcm.dControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, style=style, *args, **kwargs)
 
@@ -590,7 +600,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 				wd, ht = il.GetSize(0)
 		if key is None:
 			key = ustr(img)
-		if isinstance(img, basestring):
+		if isinstance(img, sixBasestring):
 			img = dabo.ui.strToBmp(img, width=wd, height=ht)
 		idx = il.Add(img)
 		self.__imageList[key] = idx
@@ -715,7 +725,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			nodes = self.nodes
 		else:
 			nodes = top.Descendents
-		if isinstance(srch, basestring):
+		if isinstance(srch, sixBasestring):
 			ret = [n for n in nodes
 				if n.Caption == srch ]
 		elif isinstance(srch, wx.TreeItemId):
@@ -737,7 +747,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			nodes = self.nodes
 		else:
 			nodes = top.Descendents
-		if isinstance(srchPat, basestring):
+		if isinstance(srchPat, sixBasestring):
 			ret = [n for n in nodes
 				if re.match(srchPat, n.Caption) ]
 		return ret
@@ -812,7 +822,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		if ret is None:
 			try:
 				ret = self.getParentNode(nd)
-			except wx.PyAssertionError:
+			except dabo.ui.assertionException:
 				pass
 		else:
 			# Find the last child of the last child of the last child...
@@ -975,7 +985,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		addRoot = (topNode is None)
 		if addRoot:
 			self.DeleteAllItems()
-		if isinstance(stru[0], basestring):
+		if isinstance(stru[0], sixBasestring):
 			# We're at the end of the recursion. Just append the node
 			self.appendNode(topNode, stru[0])
 		else:
@@ -1130,11 +1140,13 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 	def _setMultipleSelect(self, val):
 		self._delWindowStyleFlag(wx.TR_MULTIPLE)
-		self._delWindowStyleFlag(wx.TR_EXTENDED)
+		if not dabo.ui.phoenix:
+			self._delWindowStyleFlag(wx.TR_EXTENDED)
 		self._delWindowStyleFlag(wx.TR_SINGLE)
 		if val:
 			self._addWindowStyleFlag(wx.TR_MULTIPLE)
-			self._addWindowStyleFlag(wx.TR_EXTENDED)
+			if not dabo.ui.phoenix:
+				self._addWindowStyleFlag(wx.TR_EXTENDED)
 		else:
 			if self._constructed():
 				self.lockDisplay()
@@ -1343,39 +1355,39 @@ class _dTreeView_test(dTreeView):
 		self.ImageSize = (16, 16)
 
 	def onHit(self, evt):
-		print "Hit!"
+		print("Hit!")
 
 	def onContextMenu(self, evt):
-		print "Context menu on tree"
+		print("Context menu on tree")
 
 	def onMouseRightClick(self, evt):
-		print "Mouse Right Click on tree"
+		print("Mouse Right Click on tree")
 
 	def onTreeSelection(self, evt):
-		print "Selected node caption:", evt.EventData["selectedCaption"]
+		print("Selected node caption:", evt.EventData["selectedCaption"])
 
 	def onTreeItemCollapse(self, evt):
-		print "Collapsed node caption:", evt.EventData["selectedCaption"]
+		print("Collapsed node caption:", evt.EventData["selectedCaption"])
 
 	def onTreeItemExpand(self, evt):
-		print "Expanded node caption:", evt.EventData["selectedCaption"]
+		print("Expanded node caption:", evt.EventData["selectedCaption"])
 
 	def onTreeItemContextMenu(self, evt):
 		itm = evt.itemID
 		node = self.find(itm)[0]
-		print "Context menu on item:", node.Caption
+		print("Context menu on item:", node.Caption)
 
 	def onTreeBeginDrag(self, evt):
-		print "Beginning drag for %s" % evt.selectedCaption
+		print("Beginning drag for %s" % evt.selectedCaption)
 
 	def onTreeEndDrag(self, evt):
-		print "Ending drag for %s" % evt.selectedCaption
+		print("Ending drag for %s" % evt.selectedCaption)
 
 
 
 if __name__ == "__main__":
 	from dabo.dApp import dApp
-	import test
+	from . import test
 
 	class TreeViewTestForm(dabo.ui.dForm):
 		def afterInit(self):

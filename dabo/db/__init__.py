@@ -28,33 +28,42 @@ some rows from a backend database in a script. Here's an example of that::
 
 # TODO: Currently, the logic for building a dictcursor mixin is inside
 #       dabo.biz.dBiz. I think this logic should be here in dabo.db.
+import six
+if six.PY2:
+	sixLong = long
+else:
+	sixLong = int
+from six import text_type as sixUnicode
 import datetime
 from decimal import Decimal
-from dConnection import dConnection
-from dCursorMixin import dCursorMixin
-from dConnectInfo import dConnectInfo
-from dTable import dTable
-from dDataSet import dDataSet
+from .dConnection import dConnection
+from .dCursorMixin import dCursorMixin
+from .dConnectInfo import dConnectInfo
+from .dTable import dTable
+from .dDataSet import dDataSet
 import dabo
 from dabo.dException import FieldNotFoundException
 
 daboTypes = {
-		"C": unicode,             ## text
-		"M": unicode,             ## memo (longtext)
-		"I": int,                 ## integer
-		"G": long,                ## long integer
-		"F": float,               ## float
-		"B": bool,                ## boolean (logical)
-		"D": datetime.date,       ## date
-		"T": datetime.datetime,   ## datetime
-		"N": Decimal,             ## decimal (numeric)
-		"L": buffer,              ## BLOB
+		"C": sixUnicode,             ## text
+		"M": sixUnicode,             ## memo (longtext)
+		"I": int,                    ## integer
+		"G": sixLong,                ## long integer
+		"F": float,                  ## float
+		"B": bool,                   ## boolean (logical)
+		"D": datetime.date,          ## date
+		"T": datetime.datetime,      ## datetime
+		"N": Decimal,                ## decimal (numeric)
+		"L": memoryview,             ## BLOB
 		}
 
-pythonTypes = dict([[v,k] for k,v in daboTypes.iteritems()])
+pythonTypes = dict([[v, k] for k, v in daboTypes.items()])
 pythonTypes[str] = "C"
-pythonTypes[unicode] = "C"
-del k, v, Decimal
+pythonTypes[sixUnicode] = "C"
+if six.PY2:
+	del k, v, Decimal
+else:
+	del Decimal
 
 def getPythonType(daboType):
 	"""Given a char type code like "I" or "C", return the associated Python type."""
@@ -112,7 +121,7 @@ def _getRecord(self_):
 			except FieldNotFoundException:
 				# __getitem__ added for a dict key-like interface, so convert
 				# the FieldNotFoundException to KeyError.
-				raise KeyError, key
+				raise KeyError(key)
 			return val
 
 		def __setitem__(self, key, val):
@@ -120,7 +129,7 @@ def _getRecord(self_):
 				return self.__setattr__(key, val)
 			except FieldNotFoundException:
 				# see comment in __getitem__
-				raise KeyError, key
+				raise KeyError(key)
 
 	## The rest of this block adds a property to the Record object
 	## for each field, the sole purpose being to have the field
@@ -133,7 +142,7 @@ def _getRecord(self_):
 		return property(fget, fset)
 
 	field_aliases = [ds[0] for ds in self_.DataStructure]
-	field_aliases.extend(self_.VirtualFields.keys())
+	field_aliases.extend(list(self_.VirtualFields.keys()))
 	for field_alias in field_aliases:
 		setattr(CursorRecord, field_alias, getFieldProp(field_alias))
 	return CursorRecord(self_)

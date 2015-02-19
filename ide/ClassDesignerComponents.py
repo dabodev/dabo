@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+import six
+if six.PY2:
+	sixLong = long
+else:
+	sixLong = int
+from six import text_type as sixUnicode
+from six import string_types as sixBasestring
 import os
 
 import dabo.ui
@@ -137,7 +144,7 @@ class LayoutSaverMixin(dObject):
 		desProps = self.DesignerProps.keys()
 		if isinstance(self, (dabo.ui.dForm, dabo.ui.dFormMain)) and hasattr(self, "UseSizers"):
 			desProps += ["UseSizers"]
-		elif isinstance(self, self.Controller.pagedControls) and isinstance(self.PageClass, basestring):
+		elif isinstance(self, self.Controller.pagedControls) and isinstance(self.PageClass, sixBasestring):
 			desProps += ["PageClass"]
 		elif isinstance(self, dlgs.Wizard):
 			desProps += ["PageCount"]
@@ -205,7 +212,7 @@ class LayoutSaverMixin(dObject):
 					"FontFace", "HAlign", "Name", "RegID", "SelectionMode",
 					"ToolTipText", "VAlign", "Value") and (not prop.startswith("Border")
 					and not prop.startswith("Header") and not prop.startswith("Sizer_")):
-				if isinstance(val, basestring) and os.path.exists(val):
+				if isinstance(val, sixBasestring) and os.path.exists(val):
 					# It's a path; convert it to a relative path
 					if isinstance(self, (dabo.ui.dForm, dabo.ui.dFormMain, dabo.ui.dDialog)):
 						ref = self._classFile
@@ -226,14 +233,14 @@ class LayoutSaverMixin(dObject):
 					continue
 				if prop not in propsToInclude:
 					dv = defVals[prop]
-					if not isinstance(val, basestring) and isinstance(dv, basestring):
+					if not isinstance(val, sixBasestring) and isinstance(dv, sixBasestring):
 						# Try to convert
 						if isinstance(val, bool):
 							dv = (dv.lower() == "true")
 						elif isinstance(val, int):
 							dv = int(dv)
-						elif isinstance(val, long):
-							dv = long(dv)
+						elif isinstance(val, sixLong):
+							dv = sixLong(dv)
 						elif isinstance(val, float):
 							dv = float(dv)
 						elif dv in dabo.dColors.colors:
@@ -245,10 +252,10 @@ class LayoutSaverMixin(dObject):
 					if dv == val:
 						continue
 
-			if isinstance(val, basestring):
+			if isinstance(val, sixBasestring):
 				strval = val
 			else:
-				strval = unicode(val)
+				strval = sixUnicode(val)
 			ra[prop] = strval
 		# Add the controlling sizer item properties, if applicable
 		try:
@@ -427,7 +434,7 @@ class LayoutSaverMixin(dObject):
 					try:
 						kidDict = [cd for cd in childDict
 								if cd["attributes"]["classID"] == kidID][0]
-					except StandardError, e:
+					except StandardError as e:
 						kidDict = {}
 				except AttributeError:
 					kidDict = {}
@@ -471,7 +478,7 @@ class LayoutSaverMixin(dObject):
 					try:
 						szDict = [cd for cd in childDict
 								if cd["attributes"]["classID"] == szID][0]
-					except StandardError, e:
+					except StandardError as e:
 						szDict = {}
 				except AttributeError:
 					szDict = {}
@@ -607,7 +614,7 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 
 
 	def onSelect(self, evt):
-		print "PANEL ON SELECT"
+		print("PANEL ON SELECT")
 
 
 	def onContextMenu(self, evt):
@@ -789,7 +796,7 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 		cs = self.ControllingSizer
 		try:
 			cs.setItemProp(self, "ColSpan", val)
-		except dabo.ui.GridSizerSpanException, e:
+		except dabo.ui.GridSizerSpanException as e:
 			raise PropertyUpdateException(ustr(e))
 
 
@@ -809,7 +816,7 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 		cs = self.ControllingSizer
 		try:
 			cs.setItemProp(self, "RowSpan", val)
-		except dabo.ui.GridSizerSpanException, e:
+		except dabo.ui.GridSizerSpanException as e:
 			raise PropertyUpdateException(ustr(e))
 
 
@@ -1079,7 +1086,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 						try:
 							winDict = [cd for cd in childDict
 									if cd["attributes"]["classID"] == winID][0]
-						except StandardError, e:
+						except StandardError as e:
 							winDict = {}
 					except AttributeError:
 						winDict = {}
@@ -1094,7 +1101,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 						try:
 							szrDict = [cd for cd in childDict
 									if cd["attributes"]["classID"] == szrID][0]
-						except StandardError, e:
+						except StandardError as e:
 							szrDict = {}
 					except AttributeError:
 						szrDict = {}
@@ -1409,7 +1416,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 			return
 		try:
 			self.ControllingSizer.setItemProp(self, "ColSpan", val)
-		except dabo.ui.GridSizerSpanException, e:
+		except dabo.ui.GridSizerSpanException as e:
 			raise PropertyUpdateException(ustr(e))
 
 
@@ -1428,7 +1435,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 			return
 		try:
 			self.ControllingSizer.setItemProp(self, "RowSpan", val)
-		except dabo.ui.GridSizerSpanException, e:
+		except dabo.ui.GridSizerSpanException as e:
 			raise PropertyUpdateException(ustr(e))
 
 
@@ -1585,7 +1592,7 @@ class LayoutBorderSizer(LayoutSizerMixin, dabo.ui.dBorderSizer):
 
 	def _getDesProps(self):
 		ret = super(LayoutBorderSizer, self)._getDesProps()
-		ret.update({"Caption" : {"type" : unicode, "readonly" : False},
+		ret.update({"Caption" : {"type" : sixUnicode, "readonly" : False},
 				"BackColor" : {"type" : "color", "readonly" : False,
 						"customEditor": "editColor"},
 				"FontBold": {"type" : bool, "readonly" : False},
@@ -1723,7 +1730,7 @@ class LayoutGridSizer(LayoutSizerMixin, dabo.ui.dGridSizer):
 			try:
 				ret = [cd for cd in childDict
 						if cd["attributes"]["classID"] == objID][0]
-			except StandardError, e:
+			except StandardError as e:
 				ret = None
 		except AttributeError:
 			pass
@@ -1920,7 +1927,7 @@ class LayoutGridSizer(LayoutSizerMixin, dabo.ui.dGridSizer):
 			return
 		try:
 			self.ControllingSizer.setItemProp(self, "ColSpan", val)
-		except dabo.ui.GridSizerSpanException, e:
+		except dabo.ui.GridSizerSpanException as e:
 			raise PropertyUpdateException(ustr(e))
 
 
@@ -1939,7 +1946,7 @@ class LayoutGridSizer(LayoutSizerMixin, dabo.ui.dGridSizer):
 			return
 		try:
 			self.ControllingSizer.setItemProp(self, "RowSpan", val)
-		except dabo.ui.GridSizerSpanException, e:
+		except dabo.ui.GridSizerSpanException as e:
 			raise PropertyUpdateException(ustr(e))
 
 

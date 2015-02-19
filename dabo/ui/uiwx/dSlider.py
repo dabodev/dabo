@@ -2,7 +2,11 @@
 import wx, dabo, dabo.ui
 
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
 import dDataControlMixin as dcm
 from dabo.dLocalize import _
@@ -28,7 +32,10 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 		self._tickPosition = None
 		self._reversed = False
 
-		preClass = wx.PreSlider
+		if dabo.ui.phoenix:
+			preClass = wx.Slider
+		else:
+			preClass = wx.PreSlider
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
@@ -200,9 +207,9 @@ class _dSlider_test(dSlider):
 #  		self.TickPosition = "Left"
 
 	def onHit(self, evt):
-		print "Hit! Value =", self.Value
+		print("Hit! Value =", self.Value)
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dSlider_test)

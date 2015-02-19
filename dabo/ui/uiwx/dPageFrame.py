@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import sys
 import wx
 import dabo
 import dabo.ui
 
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -55,7 +61,10 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageFrame
-		preClass = wx.PreNotebook
+		if dabo.ui.phoenix:
+			preClass = wx.Notebook
+		else:
+			preClass = wx.PreNotebook
 
 		dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
@@ -77,7 +86,10 @@ class dPageToolBar(dPageFrameMixin, wx.Toolbook):
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageToolBar
-		preClass = wx.PreToolbook
+		if dabo.ui.phoenix:
+			preClass = wx.Toolbook
+		else:
+			preClass = wx.PreToolbook
 
 		dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
@@ -133,7 +145,10 @@ class dPageList(dPageFrameMixin, wx.Listbook):
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageList
-		preClass = wx.PreListbook
+		if dabo.ui.phoenix:
+			preClass = wx.Listbook
+		else:
+			preClass = wx.PreListbook
 		# Dictionary for tracking images by key value
 		self._imageList = {}
 		dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
@@ -194,7 +209,10 @@ class dPageSelect(dPageFrameMixin, wx.Choicebook):
 
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageSelect
-		preClass = wx.PreChoicebook
+		if dabo.ui.phoenix:
+			preClass = wx.Choicebook
+		else:
+			preClass = wx.PreChoicebook
 		dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 		# Dictionary for tracking images by key value
@@ -267,7 +285,7 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
 			pg = pgCls
 		else:
 			# See if the 'pgCls' is either some XML or the path of an XML file
-			if isinstance(pgCls, basestring):
+			if isinstance(pgCls, sixBasestring):
 				xml = pgCls
 				from dabo.lib.DesignerClassConverter import DesignerClassConverter
 				conv = DesignerClassConverter()
@@ -381,7 +399,7 @@ if _USE_FLAT:
 		def _setActiveTabColor(self, val):
 			if self._constructed():
 				self._activeTabColor = val
-				if isinstance(val, basestring):
+				if isinstance(val, sixBasestring):
 					val = dColors.colorTupleFromName(val)
 				if isinstance(val, tuple):
 					self.SetActiveTabColour(wx.Colour(*val))
@@ -402,7 +420,7 @@ if _USE_FLAT:
 		def _setActiveTabTextColor(self, val):
 			if self._constructed():
 				self._activeTabTextColor = val
-				if isinstance(val, basestring):
+				if isinstance(val, sixBasestring):
 					val = dColors.colorTupleFromName(val)
 				if isinstance(val, tuple):
 					self.SetActiveTabTextColour(wx.Colour(*val))
@@ -423,7 +441,7 @@ if _USE_FLAT:
 		def _setInactiveTabTextColor(self, val):
 			if self._constructed():
 				self._inactiveTabTextColor = val
-				if isinstance(val, basestring):
+				if isinstance(val, sixBasestring):
 					val = dColors.colorTupleFromName(val)
 				if isinstance(val, tuple):
 					self.SetNonActiveTabTextColour(wx.Colour(*val))
@@ -444,7 +462,7 @@ if _USE_FLAT:
 		def _setTabAreaColor(self, val):
 			if self._constructed():
 				self._tabAreaColor = val
-				if isinstance(val, basestring):
+				if isinstance(val, sixBasestring):
 					val = dColors.colorTupleFromName(val)
 				if isinstance(val, tuple):
 					self.SetTabAreaColour(wx.Colour(*val))
@@ -682,7 +700,7 @@ class TestMixin(object):
 		self.Pages[3].BackColor = "yellow"
 
 	def onPageChanged(self, evt):
-		print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
+		print("Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum))
 
 class _dPageToolBar_test(TestMixin, dPageToolBar):
 	def afterInit(self):
@@ -762,12 +780,12 @@ if _USE_FLAT:
 			self.Form.fitToSizer()
 
 	def onPageChanged(self, evt):
-		print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
+		print("Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum))
 
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dPageFrame_test)
 	test.Test().runTest(_dPageToolBar_test)
 	test.Test().runTest(_dPageList_test)

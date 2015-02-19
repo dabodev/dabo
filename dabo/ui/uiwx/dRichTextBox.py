@@ -1,14 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+# TODO: Robin hasn't converted richtext completely, i.e. RichTextXMLHandler
+from six import string_types as sixBasestring
 import os
 import wx
 import wx.richtext
 import dabo
-from dabo.ui import makeDynamicProperty
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 
+if __name__ == "__main__":
+	import dabo.ui
+	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
+from dabo.ui import makeDynamicProperty
 import dDataControlMixin as dcm
 import dabo.dColors as dColors
 from dabo.dLocalize import _
@@ -20,7 +26,10 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dRichTextBox
 		# Used to test if selection has any of the styles applied to any part of it.
-		self._styleObj = wx.richtext.TextAttrEx()
+		if dabo.ui.phoenix:
+			self._styleObj = wx.TextAttr()
+		else:
+			self._styleObj = wx.richtext.TextAttrEx()
 		self._styleObj.SetFlags(wx.TEXT_ATTR_BACKGROUND_COLOUR |
 				wx.TEXT_ATTR_FONT_FACE | wx.TEXT_ATTR_FONT_ITALIC |
 				wx.TEXT_ATTR_FONT_SIZE | wx.TEXT_ATTR_FONT_UNDERLINE |
@@ -29,7 +38,10 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 		self._xmlHandler = wx.richtext.RichTextXMLHandler()
 		self._htmlHandler = wx.richtext.RichTextHTMLHandler()
 		self._handlers = (self._xmlHandler, self._htmlHandler)
-		preClass = wx.richtext.PreRichTextCtrl
+		if dabo.ui.phoenix:
+			preClass = wx.richtext.RichTextCtrl
+		else:
+			preClass = wx.richtext.PreRichTextCtrl
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
@@ -41,7 +53,7 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 		"""
 		if fileOrObj is None:
 			fileOrObj = dabo.ui.getFile("xml", "html")
-		if isinstance(fileOrObj, basestring):
+		if isinstance(fileOrObj, sixBasestring):
 			mthdName = "LoadFile"
 		else:
 			mthdName = "LoadStream"
@@ -51,8 +63,8 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 			try:
 				if mthd(buff, fileOrObj):
 					break
-			except StandardError, e:
-				print e, type(e)
+			except Exception as e:
+				print(e, type(e))
 		dabo.ui.callAfter(self.Form.refresh)
 
 
@@ -492,7 +504,7 @@ class RichTextTestForm(dabo.ui.dForm):
 		tb.appendControl(self.tbFontFace)
 		self.tbFontSize = dabo.ui.dDropdownList(tb, Caption="FontSize",
 				ValueMode="String", OnHit=self.onSetFontSize)
-		self.tbFontSize.Choices = [ustr(i) for i in xrange(6, 129)]
+		self.tbFontSize.Choices = [ustr(i) for i in range(6, 129)]
 
 		# Tried a spinner, but this doesn't work in toolbars.
 # 		self.tbFontSize = dabo.ui.dSpinner(tb,

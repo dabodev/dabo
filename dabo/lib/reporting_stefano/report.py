@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from reportlab.pdfgen import canvas
-from serialization import *
-from util import *
+from .serialization import *
+from .util import *
 
 
 class Report(Serializable):
@@ -116,8 +116,8 @@ class Page(Serializable):
 		drawing a band for each record. For each page also, it draws
 		the background, header, footer and foreground, when present.
 		"""
-		env = {'report':report,
-				'page':self,
+		env = {'report': report,
+				'page': self,
 		}
 		self._placeStaticBands(env)
 

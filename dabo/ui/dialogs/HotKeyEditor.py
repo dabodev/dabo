@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 import dabo.ui
 import dabo.dEvents as dEvents
+
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
 from dabo.ui import dKeys as dKeys
 from dabo.dLocalize import _
 
@@ -60,7 +66,7 @@ class HotKeyEditor(dabo.ui.dOkCancelDialog):
 		elif kcd == dKeys.key_Delete and self._ctrl:
 			# Ctrl-Delete was pressed
 			kcr = None
-		elif kcd in keyStrings.keys():
+		elif kcd in list(keyStrings.keys()):
 			self._keyChar = kcr = keyStrings[kcd]
 		if kcr is not None:
 			ctlTxt = {True: "Ctrl+", False: ""}[self._ctrl]

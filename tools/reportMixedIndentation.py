@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from six.moves import builtins
 import os
 
 culprits = {}
@@ -28,7 +29,7 @@ shouldn't add or remove lines in the files, just fix the problem.
 """ % (len(culprits), culpritLineCount)
 
 print "\nContinue? (y/[N])",
-ret = raw_input()
+ret = builtins.raw_input()
 if ret.lower() == "y":
 	for fileName, lines in culprits.items():
 		for line in lines:

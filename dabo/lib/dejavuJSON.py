@@ -6,6 +6,8 @@ It was published there with the statement that it was being placed in
 the public domain. I have only modified it minimally for its inclusion
 into Dabo.
 """
+from six import text_type as sixUnicode
+from six import with_metaclass
 
 import datetime
 import decimal
@@ -15,28 +17,30 @@ import sys
 try:
 	from simplejson import JSONEncoder, JSONDecoder
 except ImportError:
-	print """
+	print("""
 
 The required 'simplejson' module is not present.
 
 Please install that module before using the web features of Dabo.
 
-"""
+""")
 	sys.exit()
 
 __all__ = ["Encoder", "Decoder", "Converter"]
 
-class Null(object):
-	class meta(type):
-		def __new__(cls, *args, **kwargs):
-			if '_inst' not in vars(cls):
-				cls._inst = type.__new__(cls, *args, **kwargs)
-			return cls._inst
-	__metaclass__ = meta
+# with_metaclass provides Py2/3 compatibility
+
+class meta(type):
+	def __new__(cls, *args, **kwargs):
+		if '_inst' not in vars(cls):
+			cls._inst = type.__new__(cls, *args, **kwargs)
+		return cls._inst
+
+class Null(with_metaclass(meta, object)):	
 	def __init__(self, *args, **kwargs): pass
 	def __call__(self, *args, **kwargs): return self
 	def __repr__(self): return "Null()"
-	def __nonzero__(self): return False
+	def __bool__(self): return False
 	def __getattr__(self, name): return self
 	def __setattr__(self, name, value): return self
 	def __delattr__(self, name): return self
@@ -76,7 +80,7 @@ class Encoder(JSONEncoder):
 			if o is decimal.Decimal:
 				value = None
 			else:
-				value = unicode(o)
+				value = sixUnicode(o)
 			return {'__decimal__': True,
 					'value': value}
 

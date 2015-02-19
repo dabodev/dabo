@@ -3,11 +3,11 @@ import datetime
 import decimal
 import dabo
 from dabo.dLocalize import _
-from dBackend import dBackend
+from .dBackend import dBackend
 import dabo.dException as dException
-from dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
+from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 from dabo.lib.utils import ustr
-from dCursorMixin import dCursorMixin
+from .dCursorMixin import dCursorMixin
 
 class MySQLAutoReconnectCursor(dCursorMixin):
 	def execute(self, sql, params=None, errorClass=None, convertQMarks=False):
@@ -75,7 +75,7 @@ class MySQL(dBackend):
 			self._connection = dbapi.connect(host=connectInfo.Host,
 					user = connectInfo.User, passwd = connectInfo.revealPW(),
 					db=connectInfo.Database, port=port, charset=charset, **kwargs)
-		except Exception, e:
+		except Exception as e:
 			try:
 				errMsg = ustr(e).decode(self.Encoding)
 			except UnicodeError:
@@ -143,7 +143,7 @@ class MySQL(dBackend):
 		rs = cursor.fetchall()
 		tables = []
 		for record in rs:
-			tables.append(record.values()[0])
+			tables.append(list(record.values())[0])
 		return tuple(tables)
 
 
@@ -270,17 +270,17 @@ class MySQL(dBackend):
 						sql = sql + "TINYINT "
 					elif fld.Size == 2:
 						sql = sql + "SMALLINT "
-					elif fld.Size in (3,4):
+					elif fld.Size in (3, 4):
 						sql = sql + "INT "
-					elif fld.Size in (5,6,7,8):
+					elif fld.Size in (5, 6, 7, 8):
 						sql = sql + "BIGINT "
 					else:
 						raise #what should happen?
 
 				elif fld.DataType == "Float":
-					if fld.Size in (0,1,2,3,4):
+					if fld.Size in (0, 1, 2, 3, 4):
 						sql = sql + "FLOAT(" + ustr(fld.TotalDP) + "," + ustr(fld.RightDP) + ") "
-					elif fld.Size in (5,6,7,8):
+					elif fld.Size in (5, 6, 7, 8):
 						sql = sql + "DOUBLE(" + ustr(fld.TotalDP) + "," + ustr(fld.RightDP) + ") "
 					else:
 						raise #what should happen?
@@ -332,7 +332,7 @@ class MySQL(dBackend):
 					sql = sql + ","
 
 				if sql.count("PRIMARY KEY ") > 1:
-					sql = sql.replace("PRIMARY KEY ","") + "PRIMARY KEY(" + ",".join(pks) + "),"
+					sql = sql.replace("PRIMARY KEY ", "") + "PRIMARY KEY(" + ",".join(pks) + "),"
 
 			if sql[-1:] == ",":
 				sql = sql[:-1]

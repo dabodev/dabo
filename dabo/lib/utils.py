@@ -9,7 +9,8 @@
 # Then, in your code, simply call:
 #
 #	utils.foo()
-
+from six import text_type as sixUnicode
+from six import string_types as sixBasestring
 import os
 osp = os.path
 import sys
@@ -182,8 +183,8 @@ def dictStringify(dct):
 	unicode keys changed to strings.
 	"""
 	ret = {}
-	for kk, vv in dct.items():
-		if isinstance(kk, unicode):
+	for kk, vv in list(dct.items()):
+		if isinstance(kk, sixUnicode):
 			try:
 				ret[str(kk)] = vv
 			except UnicodeEncodeError:
@@ -207,14 +208,14 @@ def ustr(value):
 	When converting to a string, do not use the str() function, which
 	can create encoding errors with non-ASCII text.
 	"""
-	if isinstance(value, unicode):
+	if isinstance(value, sixUnicode):
 		# Don't change the encoding of an object that is already unicode.
 		return value
 	if isinstance(value, Exception):
 		return exceptionToUnicode(value)
 	try:
-		## Faster for all-ascii strings and converting from non-basestring types::
-		return unicode(value)
+		## Faster for all-ascii strings and converting from non-sixBasestring types::
+		return sixUnicode(value)
 	except UnicodeDecodeError:
 		# Most likely there were bytes whose integer ordinal were > 127 and so the
 		# default ASCII codec used by unicode() couldn't decode them.
@@ -225,7 +226,7 @@ def ustr(value):
 		pass
 	for ln in getEncodings():
 		try:
-			return unicode(value, ln)
+			return sixUnicode(value, ln)
 		except UnicodeError:
 			pass
 	raise UnicodeError("Unable to convert '%r'." % value)
@@ -318,8 +319,8 @@ def resolveAttributePathing(atts, pth=None, abspath=False):
 	those new values.
 	"""
 	prfx = getPathAttributePrefix()
-	pathsToConvert = ((kk, vv) for kk, vv in atts.items()
-			if isinstance(vv, basestring) and vv.startswith(prfx))
+	pathsToConvert = ((kk, vv) for kk, vv in list(atts.items())
+			if isinstance(vv, sixBasestring) and vv.startswith(prfx))
 	for convKey, convVal in pathsToConvert:
 		# Strip the path designator
 		convVal = convVal.replace(prfx, "")

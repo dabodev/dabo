@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
-import wx, dabo, dabo.ui
+import wx
+import dabo
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 import dControlItemMixin as dcm
 from dabo.dLocalize import _
 
@@ -18,8 +23,10 @@ class dDropdownList(dcm.dControlItemMixin, wx.Choice):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dDropdownList
 		self._choices = []
-
-		preClass = wx.PreChoice
+		if dabo.ui.phoenix:
+			preClass = wx.Choice
+		else:
+			preClass = wx.PreChoice
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
@@ -47,12 +54,12 @@ class _dDropdownList_test(dDropdownList):
 
 
 	def onValueChanged(self, evt):
-		print "KeyValue: ", self.KeyValue
-		print "PositionValue: ", self.PositionValue
-		print "StringValue: ", self.StringValue
-		print "Value: ", self.Value
+		print("KeyValue: ", self.KeyValue)
+		print("PositionValue: ", self.PositionValue)
+		print("StringValue: ", self.StringValue)
+		print("Value: ", self.Value)
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dDropdownList_test)

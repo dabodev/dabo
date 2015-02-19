@@ -5,6 +5,7 @@ xmltodict(): convert xml into tree of Python dicts.
 This was copied and modified from John Bair's recipe at aspn.activestate.com:
 	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/149368
 """
+from six import text_type as sixUnicode
 import os
 import string
 import locale
@@ -95,7 +96,7 @@ class Xml2Obj(object):
 						except KeyError:
 							pass
 					# Unescape any escaped values
-					for kk, vv in attributes.items():
+					for kk, vv in list(attributes.items()):
 						attributes[kk] = unescape(vv)
 					element["attributes"] = attributes
 
@@ -143,7 +144,7 @@ class Xml2Obj(object):
 	def CharacterData(self, data):
 		"""SAX character data event handler"""
 		if self._inCode or data.strip():
-			data = data.replace("&lt;", "<").replace("&gt;",">")
+			data = data.replace("&lt;", "<").replace("&gt;", ">")
 			data = data	#.encode()
 			if self._inCode:
 				if self._mthdCode:
@@ -172,7 +173,7 @@ class Xml2Obj(object):
 
 
 	def ParseFromFile(self, filename):
-		return self.Parse(open(filename,"r").read())
+		return self.Parse(open(filename, "r").read())
 
 
 def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
@@ -187,17 +188,17 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
 	if eol not in xml and isPath:
 		# argument was a file
 		xmlContent = codecs.open(xml, "r", encoding).read()
-		if isinstance(xmlContent, unicode):
+		if isinstance(xmlContent, sixUnicode):
 			xmlContent = xmlContent.encode(encoding)
 		try:
 			ret = parser.Parse(xmlContent)
-		except expat.ExpatError, e:
+		except expat.ExpatError as e:
 			errmsg = _("The XML in '%(xml)s' is not well-formed and cannot be parsed: %(e)s") % locals()
 	else:
 		# argument must have been raw xml:
 		try:
 			ret = parser.Parse(xml)
-		except expat.ExpatError, e:
+		except expat.ExpatError as e:
 			errmsg = _("An invalid XML string was encountered: %s") % e
 	if errmsg:
 		raise dabo.dException.XmlException(errmsg)
@@ -210,8 +211,8 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
 				codeDict = desUtil.parseCodeFile(codeContent)
 				ret["importStatements"] = codeDict.pop("importStatements", "")
 				desUtil.addCodeToClassDict(ret, codeDict)
-			except StandardError, e:
-				print "Failed to parse code file:", e
+			except Exception as e:
+				print("Failed to parse code file:", e)
 	return ret
 
 
@@ -279,7 +280,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 	ret = ""
 
 	if "attributes" in dct:
-		for key, val in dct["attributes"].items():
+		for key, val in list(dct["attributes"].items()):
 			# Some keys are already handled.
 			noEscape = key in ("sizerInfo",)
 			val = escQuote(val, noEscape)
@@ -295,10 +296,10 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 			ret += "%s" % dct["cdata"].replace("<", "&lt;").replace(">", "&gt;")
 
 		if "code" in dct:
-			if len(dct["code"].keys()):
+			if len(list(dct["code"].keys())):
 				ret += "%s%s<code>%s" % (eol, "\t" * (level+1), eol)
 				methodTab = "\t" * (level+2)
-				for mthd, cd in dct["code"].items():
+				for mthd, cd in list(dct["code"].items()):
 					# Convert \n's in the code to eol:
 					cd = eol.join(cd.splitlines())
 					# Make sure that the code ends with a linefeed
@@ -311,12 +312,12 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 				ret += "%s</code>%s"	% ("\t" * (level+1), eol)
 
 		if "properties" in dct:
-			if len(dct["properties"].keys()):
+			if len(list(dct["properties"].keys())):
 				ret += "%s%s<properties>%s" % (eol, "\t" * (level+1), eol)
 				currTab = "\t" * (level+2)
-				for prop, val in dct["properties"].items():
+				for prop, val in list(dct["properties"].items()):
 					ret += "%s<%s>%s" % (currTab, prop, eol)
-					for propItm, itmVal in val.items():
+					for propItm, itmVal in list(val.items()):
 						itmTab = "\t" * (level+3)
 						ret += "%s<%s>%s</%s>%s" % (itmTab, propItm, itmVal,
 								propItm, eol)
@@ -425,9 +426,9 @@ def addInheritedInfo(src, super, updateCode=False):
 if __name__ == "__main__":
 	test_dict = {"name": "test", "attributes":{"path": "c:\\temp\\name",
 			"problemChars": "Welcome to <Jos\xc3\xa9's \ Stuff!>\xc2\xae".decode("latin-1")}}
-	print "test_dict:", test_dict
+	print("test_dict:", test_dict)
 	xml = dicttoxml(test_dict)
-	print "xml:", xml
+	print("xml:", xml)
 	test_dict2 = xmltodict(xml)
-	print "test_dict2:", test_dict2
-	print "same?:", test_dict == test_dict2
+	print("test_dict2:", test_dict2)
+	print("same?:", test_dict == test_dict2)

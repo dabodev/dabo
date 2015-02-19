@@ -27,6 +27,8 @@
 
 __author__ = "Joon-cheol Park <jooncheol@gmail.com>, Andrzej Kukula <akukula@gmail.com>"
 __version__ = '0.8.0'
+from six import integer_types as sixInt
+from six import string_types as sixBasestring
 import _mssql
 import types
 import string
@@ -200,10 +202,10 @@ class pymssqlCursor:
 		pass
 
 def _quote(x):
-	if isinstance(x,basestring):
+	if isinstance(x,sixBasestring):
 		x = "'" + string.replace(str(x), "'", "''") + "'"
 	#elif type(x) in (types.IntType, types.LongType, types.FloatType):
-	elif isinstance(x, (int, long, float)):
+	elif isinstance(x, (sixInt, float)):
 		pass
 	elif x is None:
 		x = 'NULL'

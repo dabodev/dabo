@@ -2,10 +2,13 @@
 from wx import glcanvas
 import wx
 import dabo
-import dabo.ui
 
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
 import dControlMixin as cm
 from dabo.dLocalize import _
@@ -17,7 +20,7 @@ try:
 	openGL = True
 except ImportError:
 	openGL = False
-except StandardError, e:
+except Exception as e:
 	# Report the error, and abandon the import
 	dabo.log.error(_("Error importing OpenGL: %s") % e)
 	openGL = False
@@ -26,7 +29,7 @@ except StandardError, e:
 class dGlWindow(cm.dControlMixin, glcanvas.GLCanvas):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		if not openGL:
-			raise ImportError, "PyOpenGL is not present, so dGlWindow cannot instantiate."
+			raise ImportError("PyOpenGL is not present, so dGlWindow cannot instantiate.")
 
 		self.init = False
 		self._rotate = self._pan = False
@@ -56,16 +59,27 @@ class dGlWindow(cm.dControlMixin, glcanvas.GLCanvas):
 		"""
 		pass
 
+	def afterInit(self):
+		if dabo.ui.phoenix:
+			self._context = glcanvas.GLContext(self)
+			self._context.SetCurrent(self)
+			self.SwapBuffers()
+
 
 	def onResize(self, event):
-		if self.GetContext():
-			self.SetCurrent()
-			glViewport(0, 0, self.Width, self.Height)
+		if not dabo.ui.phoenix:
+			if self.GetContext():
+				self.SetCurrent()
+
+		glViewport(0, 0, self.Width, self.Height)
 
 
 	def onPaint(self, event):
 		dc = wx.PaintDC(self)
-		self.SetCurrent()
+		if dabo.ui.phoenix:
+			self.SetCurrent(self._context)
+		else:
+			self.SetCurrent()
 		if not self.init:
 			self.initGL()
 			self.init = True
@@ -149,38 +163,38 @@ class _dGlWindow_test(dGlWindow):
 		glNormal3f( 0.0, 0.0, 1.0)
 		glVertex3f( 0.5, 0.5, 0.5)
 		glVertex3f(-0.5, 0.5, 0.5)
-		glVertex3f(-0.5,-0.5, 0.5)
-		glVertex3f( 0.5,-0.5, 0.5)
+		glVertex3f(-0.5, -0.5, 0.5)
+		glVertex3f( 0.5, -0.5, 0.5)
 
-		glNormal3f( 0.0, 0.0,-1.0)
-		glVertex3f(-0.5,-0.5,-0.5)
-		glVertex3f(-0.5, 0.5,-0.5)
-		glVertex3f( 0.5, 0.5,-0.5)
-		glVertex3f( 0.5,-0.5,-0.5)
+		glNormal3f( 0.0, 0.0, -1.0)
+		glVertex3f(-0.5, -0.5, -0.5)
+		glVertex3f(-0.5, 0.5, -0.5)
+		glVertex3f( 0.5, 0.5, -0.5)
+		glVertex3f( 0.5, -0.5, -0.5)
 
 		glNormal3f( 0.0, 1.0, 0.0)
 		glVertex3f( 0.5, 0.5, 0.5)
-		glVertex3f( 0.5, 0.5,-0.5)
-		glVertex3f(-0.5, 0.5,-0.5)
+		glVertex3f( 0.5, 0.5, -0.5)
+		glVertex3f(-0.5, 0.5, -0.5)
 		glVertex3f(-0.5, 0.5, 0.5)
 
-		glNormal3f( 0.0,-1.0, 0.0)
-		glVertex3f(-0.5,-0.5,-0.5)
-		glVertex3f( 0.5,-0.5,-0.5)
-		glVertex3f( 0.5,-0.5, 0.5)
-		glVertex3f(-0.5,-0.5, 0.5)
+		glNormal3f( 0.0, -1.0, 0.0)
+		glVertex3f(-0.5, -0.5, -0.5)
+		glVertex3f( 0.5, -0.5, -0.5)
+		glVertex3f( 0.5, -0.5, 0.5)
+		glVertex3f(-0.5, -0.5, 0.5)
 
 		glNormal3f( 1.0, 0.0, 0.0)
 		glVertex3f( 0.5, 0.5, 0.5)
-		glVertex3f( 0.5,-0.5, 0.5)
-		glVertex3f( 0.5,-0.5,-0.5)
-		glVertex3f( 0.5, 0.5,-0.5)
+		glVertex3f( 0.5, -0.5, 0.5)
+		glVertex3f( 0.5, -0.5, -0.5)
+		glVertex3f( 0.5, 0.5, -0.5)
 
 		glNormal3f(-1.0, 0.0, 0.0)
-		glVertex3f(-0.5,-0.5,-0.5)
-		glVertex3f(-0.5,-0.5, 0.5)
+		glVertex3f(-0.5, -0.5, -0.5)
+		glVertex3f(-0.5, -0.5, 0.5)
 		glVertex3f(-0.5, 0.5, 0.5)
-		glVertex3f(-0.5, 0.5,-0.5)
+		glVertex3f(-0.5, 0.5, -0.5)
 		glEnd()
 
 class _dGlWindow_test2(dGlWindow):
@@ -230,6 +244,6 @@ class _dGlWindow_test2(dGlWindow):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dGlWindow_test)
 	test.Test().runTest(_dGlWindow_test2)

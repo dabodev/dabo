@@ -1,15 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import cStringIO
+from six.moves import cStringIO
 import imghdr
 import os
 
 import wx
 import dabo
+
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib import utils
@@ -71,8 +76,15 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		self._pictureIndex = self._extractKey((kwargs, properties, attProperties), "PictureIndex", -1)
 
 		dim.dImageMixin.__init__(self)
-		dcm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
-				bitmap=wx.EmptyBitmap(1, 1), *args, **kwargs)
+		if dabo.ui.phoenix:
+			bmp = wx.Bitmap(1, 1)
+			# bitmap= - > label= as per wxWidgets and Robin
+			dcm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
+			        label=bmp, *args, **kwargs)
+		else:
+			bmp = wx.EmptyBitmap(1, 1)
+			dcm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
+			        bitmap=bmp, *args, **kwargs)
 
 		# Display the picture, if any. This will also initialize the
 		# self._picture attribute
@@ -143,8 +155,8 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 					if hnd.LoadFile(fname):
 						ret = (hnd.GetName(), hnd.GetExtension())
 						break
-				except StandardError, e:
-					print "ERROR", e
+				except Exception as e:
+					print("ERROR", e)
 		return ret
 
 
@@ -163,9 +175,16 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		"""
 		if self._inShowPic:
 			return
-		if not self._Image.Ok():
+		if dabo.ui.phoenix:
+			isOK = self._Image.IsOk()
+			bmp = wx.Bitmap(1, 1)
+		else:
+			isOK = self._Image.Ok()
+			bmp = wx.EmptyBitmap(1, 1)
+
+		if isOK:
 			# No image to display
-			self.Bitmap = wx.EmptyBitmap(1, 1)
+			self.Bitmap = bmp
 			self.Freeze()
 			self.SetBitmap(self.Bitmap)
 			self.Thaw()
@@ -180,7 +199,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		rotCount = (ds - 1) % 4
 		if mirrored:
 			img = img.Mirror()
-		for rot in xrange(rotCount):
+		for rot in range(rotCount):
 			img = img.Rotate90(True)
 
 		w, h = origW, origH = self.Width, self.Height
@@ -231,7 +250,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		self.Freeze()
 		try:
 			self.SetBitmap(self.Bitmap)
-		except TypeError, e: pass
+		except TypeError as e: pass
 		self.Thaw()
 		self.SetSize((origW, origH))
 		self._inShowPic = False
@@ -256,8 +275,13 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			# Empty string passed; clear any current image
 			self._picture = ""
 			self._displayState = 1
-			self._bmp = wx.EmptyBitmap(1, 1, 1)
-			self.__image = wx.EmptyImage(1, 1)		# self._bmp.ConvertToImage()
+			if dabo.ui.phoenix:
+				self._bmp = wx.Bitmap(1, 1, 1)
+				self.__image = wx.Image(1, 1)
+			else:
+				self._bmp = wx.EmptyBitmap(1, 1, 1)
+				self.__image = wx.EmptyImage(1, 1)		# self._bmp.ConvertToImage()
+
 			self._showPic()
 			return
 		elif isinstance(val, wx.Image):
@@ -270,7 +294,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self.__image = val.ConvertToImage()
 			self._picture = "(stream)"
 		elif isinstance(val, buffer):
-			val = cStringIO.StringIO(val)
+			val = cStringIO(val)
 			img = wx.EmptyImage()
 			img.LoadStream(val)
 			self._setPicture(img)
@@ -318,7 +342,11 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				except IOError:
 					# Bad image, or no exif data available
 					pass
-		if self._Image.Ok():
+		if dabo.ui.phoenix:
+			isOK = self._Image.IsOk()
+		else:
+			isOK = self._Image.Ok()
+		if isOK:
 			self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
 		else:
 			self._imgProp = 1.0
@@ -370,7 +398,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				if isFile:
 					try:
 						self._imageData = open(val, "rb").read()
-					except StandardError:
+					except Exception:
 						pass
 				else:
 					# Probably an image stream

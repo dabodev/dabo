@@ -6,9 +6,9 @@ defined in report.py
 """
 
 from reportlab.graphics import shapes
-from util import *
+from .util import *
 
-from serialization import *
+from .serialization import *
 
 
 class GenericObject(Serializable):
@@ -54,7 +54,7 @@ class Rect(GenericObject):
 	" Rectangle "
 	strokeWidth = LengthAttr(1)         # the brush stroke width for shapes
 	fillColor = ColorAttr(None)         # None: transparent or (r,g,b) tuple
-	strokeColor = ColorAttr( (0,0,0) )  # (black)
+	strokeColor = ColorAttr( (0, 0, 0) )  # (black)
 	strokeDashArray = GenericAttr(None) # (use for dashed lines)
 
 	def _draw(self, canvas, x, y):
@@ -62,10 +62,10 @@ class Rect(GenericObject):
 		drawing.rotate(self.rotation)
 
 		rect = shapes.Rect(0, 0, self.width, self.height)
-		rect.setProperties({'strokeWidth':self.strokeWidth,
-				'fillColor':self.fillColor,
-				'strokeColor':self.strokeColor,
-				'strokeDashArray':self.strokeDashArray,
+		rect.setProperties({'strokeWidth': self.strokeWidth,
+				'fillColor': self.fillColor,
+				'strokeColor': self.strokeColor,
+				'strokeDashArray': self.strokeDashArray,
 		})
 		drawing.add(rect)
 		drawing.drawOn(canvas, x, y)
@@ -74,11 +74,11 @@ class Rect(GenericObject):
 class String(GenericObject):
 	" A simple text, with no carriage returns. "
 	borderWidth = LengthAttr(0)                                   # width of border around strings
-	borderColor = ColorAttr( (0,0,0) )                            # color of border around strings
+	borderColor = ColorAttr( (0, 0, 0) )                            # color of border around strings
 	align = StringChoiceAttr(['left', 'center', 'right'], 'left') # string alignment
 	fontName = StringAttr('Helvetica')
 	fontSize = LengthAttr(10)
-	fontColor = ColorAttr( (0,0,0) )
+	fontColor = ColorAttr( (0, 0, 0) )
 	fillColor = ColorAttr(None)  # ???
 	expr = StringAttr('')
 
@@ -115,7 +115,7 @@ class String(GenericObject):
 class Image(GenericObject):
 	" An image "
 	borderWidth = LengthAttr(0)
-	borderColor = ColorAttr( (0,0,0) )
+	borderColor = ColorAttr( (0, 0, 0) )
 	imageMask = StringAttr(None)                        # Transparency mask for images (type?)
 	mode = StringChoiceAttr(['clip', 'scale'], 'scale') # "clip" or "scale" for images.
 	expr = StringAttr('')

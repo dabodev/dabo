@@ -2,9 +2,15 @@
 import random
 import wx
 import dabo
-from dabo.ui import makeDynamicProperty
+
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
+from dabo.ui import makeDynamicProperty
 import dForm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -146,7 +152,10 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 		# Default to not showing the context menus on the panels
 		self._showPanelSplitMenu = False
 
-		preClass = wx.PreSplitterWindow
+		if dabo.ui.phoenix:
+			preClass = wx.SplitterWindow
+		else:
+			preClass = wx.PreSplitterWindow
 		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, style=style, *args, **kwargs)
 
@@ -505,8 +514,8 @@ class _dSplitter_test(dSplitter):
 		self.ShowPanelSplitMenu = True
 
 	def afterInit(self):
-		self.Panel1.BackColor = random.choice(dColors.colorDict.values())
-		self.Panel2.BackColor = random.choice(dColors.colorDict.values())
+		self.Panel1.BackColor = random.choice(list(dColors.colorDict.values()))
+		self.Panel2.BackColor = random.choice(list(dColors.colorDict.values()))
 
 
 	def onSashDoubleClick(self, evt):
@@ -515,5 +524,5 @@ class _dSplitter_test(dSplitter):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dSplitter_test)

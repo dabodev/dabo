@@ -78,9 +78,9 @@ class WorkerThread(Thread):
 		try:
 			response = self._func()
 			# Done, send notify:
-			wx.PostEvent(self._notify_window,ResultEvent(response))
-		except Exception, e:
-			wx.PostEvent(self._notify_window,ExceptionEvent(e))
+			wx.PostEvent(self._notify_window, ResultEvent(response))
+		except Exception as e:
+			wx.PostEvent(self._notify_window, ExceptionEvent(e))
 
 
 # Timer that controls display of the dialog
@@ -104,10 +104,10 @@ class dProgressTimer(wx.Timer):
 # GUI Frame class that spins off the worker thread
 class dProgressDialog(wx.Dialog):
 	def __init__(self, parent, caption="Progress Dialog"):
-		wx.Dialog.__init__(self,parent,-1,caption)
+		wx.Dialog.__init__(self, parent, -1, caption)
 		self.Centre(wx.BOTH)
-		self.SetSize((300,100))
-		self.status = wx.StaticText(self,-1,'Please Wait...',pos=(0,100))
+		self.SetSize((300, 100))
+		self.status = wx.StaticText(self, -1, 'Please Wait...', pos=(0, 100))
 
 
 def displayAfterWait(parentWindow, seconds, func):

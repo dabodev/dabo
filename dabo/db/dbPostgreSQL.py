@@ -4,7 +4,7 @@ import codecs
 import datetime
 import dabo
 from dabo.dLocalize import _
-from dBackend import dBackend
+from .dBackend import dBackend
 from dabo.lib.utils import ustr
 
 
@@ -68,7 +68,7 @@ class Postgres(dBackend):
 	def getConnection(self, connectInfo, **kwargs):
 		import psycopg2 as dbapi
 		self.conn_user = connectInfo.User
-		DSN = "host=%s port=%d dbname=%s user=%s password=%s" % (
+		DSN = u"host=%s port=%d dbname=%s user=%s password=%s" % (
 			connectInfo.Host, connectInfo.Port or 5432, connectInfo.Database,
 				self.conn_user, connectInfo.revealPW())
 		self._connection = dbapi.connect(DSN)

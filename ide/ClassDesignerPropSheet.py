@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from six import text_type as sixUnicode
+from six import string_types as sixBasestring
 import os
 import pydoc
 import dabo.ui
@@ -156,9 +158,10 @@ class PropSheet(dabo.ui.dPanel):
 
 	def dataSetFromPropDict(self, propDict):
 		props = propDict.keys()
-		props.sort()
 		if self.propGrid.sortOrder == "DESC":
-			props.reverse()
+			props = sorted(props, reverse=True)
+		else:
+			props = sorted(props)
 		obj = self._selected
 		mult = len(obj) > 1
 		ds = []
@@ -228,7 +231,7 @@ class PropSheet(dabo.ui.dPanel):
 						if pp not in badProps]
 
 			if len(props) == 0:
-				ds = [{"prop" : "", "val" : "", "type" : unicode, "readonly" : True}]
+				ds = [{"prop" : "", "val" : "", "type" : sixUnicode, "readonly" : True}]
 			else:
 				# Construct the data set from the props
 				ds = []
@@ -318,7 +321,7 @@ class PropSheet(dabo.ui.dPanel):
 			self.Controller.updatePropVal(prop, val, typ)
 			if prop.startswith("Font"):
 				self.updateGridValues()
-		except PropertyUpdateException, e:
+		except PropertyUpdateException as e:
 			dabo.ui.stop(_("Could not set property '%(prop)s' to value '%(val)s'\nReason: '%(e)s'")
 					% locals())
 			self.updateGridValues()
@@ -341,7 +344,7 @@ class PropSheet(dabo.ui.dPanel):
 
 
 	def setCustomEditor(self, ed, propName):
-		if isinstance(ed, basestring):
+		if isinstance(ed, sixBasestring):
 			# it is the name of a method in this class
 			ed = eval("self.%s" % ed)
 		self._custEditor = ed
@@ -404,7 +407,7 @@ class PropSheet(dabo.ui.dPanel):
 		newVal = dabo.ui.getFile("jpg", "png", "gif", "tif", "bmp", "*")
 		if newVal is not None:
 			self.propGrid.CurrentValue = newVal
-			self.updateVal(prop, newVal, unicode)
+			self.updateVal(prop, newVal, sixUnicode)
 			self.propGrid.refresh()
 
 
@@ -496,7 +499,7 @@ class PropSheet(dabo.ui.dPanel):
 			newVal = dlg.getSelectedIcon()
 			if newVal is not None:
 				self.propGrid.CurrentValue = newVal
-				self.updateVal(prop, newVal, unicode)
+				self.updateVal(prop, newVal, sixUnicode)
 				self.propGrid.refresh()
 		else:
 			self.editPicture(objs, prop, val)
@@ -509,7 +512,7 @@ class PropSheet(dabo.ui.dPanel):
 		newVal = dabo.ui.getFile("mnxml", "*")
 		if newVal is not None:
 			self.propGrid.CurrentValue = newVal
-			self.updateVal(prop, newVal, unicode)
+			self.updateVal(prop, newVal, sixUnicode)
 			self.propGrid.refresh()
 
 
@@ -613,7 +616,7 @@ class PropSheet(dabo.ui.dPanel):
 				keyText = ""
 			# Setting the HotKey prop should update the related sub-props.
 			obj.HotKey = keyText
-			self.updateVal(prop, keyText, unicode)
+			self.updateVal(prop, keyText, sixUnicode)
 			self.propGrid.CurrentValue = keyText
 			self.propGrid.refresh()
 		dlg.release()
@@ -709,7 +712,7 @@ class PropertyGrid(dabo.ui.dGrid):
 			return None
 		try:
 			return self.propDict[prop]
-		except KeyError, e:
+		except KeyError as e:
 			return None
 # 			print "PROP DICT ERROR: >%s<, row=%s" % (prop, row)
 
@@ -732,7 +735,7 @@ class PropertyGrid(dabo.ui.dGrid):
 							(self.getValue(row, 0), self.Controller.Selection[0]))
 				continue
 			if not isinstance(pd, dict):
-				print _("BAD PROP DICT:"), pd, type(pd), _("ROW"), row
+				print(_("BAD PROP DICT:"), pd, type(pd), _("ROW"), row)
 				continue
 			typ = pd["type"]
 			rnd = self.stringRendererClass
@@ -767,7 +770,7 @@ class PropertyGrid(dabo.ui.dGrid):
 
 			if not isinstance(pd, dict):
 				if pd is not None:
-					print _("BAD PROP DICT:"), pd, type(pd), _("ROW="), row
+					print(_("BAD PROP DICT:"), pd, type(pd), _("ROW="), row)
 			else:
 				if pd["type"] == "multi":
 					# This is a catch-all setting for props such as 'Value' that
@@ -782,7 +785,7 @@ class PropertyGrid(dabo.ui.dGrid):
 
 	def customCanSetValueAs(self, row, col, typ):
 		if col == 0:
-			return isinstance(typ, basestring)
+			return isinstance(typ, sixBasestring)
 		else:
 			pd = self.getPropDictForRow(row)
 			if pd["type"] == "multi":

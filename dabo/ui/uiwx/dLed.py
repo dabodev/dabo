@@ -19,7 +19,7 @@ class dLed(dabo.ui.dDataPanel):
 
 	def _afterInit(self):
 		self._baseClass = dLed
-		self.led = self.drawCircle(1,1,1)
+		self.led = self.drawCircle(1, 1, 1)
 		self.led.DynamicXpos = lambda: self.Width/2
 		self.led.DynamicYpos = lambda: self.Height/2
 		self.led.DynamicRadius = lambda: min(self.Width, self.Height)/2

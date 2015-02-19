@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from xml.parsers import expat
-from serialization import *
+from .serialization import *
 
 
 def capname(name):
@@ -70,7 +70,7 @@ class DeserializingParser(object):
 		return self.rootObj
 
 	def ParseFromFile(self, filename):
-		return self.Parse(open(filename,'r').read())
+		return self.Parse(open(filename, 'r').read())
 
 
 def deserialize(xml, rootCls):

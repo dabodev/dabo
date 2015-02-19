@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# TODO: closing the floating pane is still causing an except on CloseEvent.GetVeto
 import wx
 try:
 	import wx.lib.agw.aui as aui
@@ -10,6 +11,9 @@ import dabo
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
@@ -199,7 +203,7 @@ class dDockPanel(dabo.ui.dPanel):
 		self._Manager.addPane(self, name=nm,
 				typ=self._paramType, caption=self._propDelayDict.get("Caption", "dDockPanel"))
 		del self._paramType
-		self._PaneInfo.MinSize((50,50))
+		self._PaneInfo.MinSize((50, 50))
 		if self._propDelayDict:
 			self.setProperties(self._propDelayDict)
 		del self._propDelayDict
@@ -867,14 +871,13 @@ class dDockForm(dabo.ui.dForm):
 		self._centerPanel.Sizer = dabo.ui.dSizer("v")
 		self._panels = {}
 		super(dDockForm, self)._afterInit()
-		self.bindEvent(dEvents.Destroy, self.__onDestroy)
+		self.bindEvent(dEvents.Close, self.__onClose)
 
-
-	def __onDestroy(self, evt):
+	def __onClose(self, evt):
+		self._mgr.UnInit()
 		if self._finito:
 			# Need to save this here, since we can't respond to all layout changes.
 			self.saveSizeAndPosition()
-			self._mgr.UnInit()
 
 
 	def getBasePanelClass(cls):
@@ -909,7 +912,7 @@ class dDockForm(dabo.ui.dForm):
 
 	def _refreshState(self, interval=None):
 		if self._finito:
-				return
+			return
 		if interval is None:
 			interval = 100
 		if interval == 0:
@@ -925,7 +928,7 @@ class dDockForm(dabo.ui.dForm):
 			self._inUpdate = True
 			super(dDockForm, self).update(interval=interval)
 			# Update the panels
-			for pnl in self._panels.keys():
+			for pnl in list(self._panels.keys()):
 				pnl.update()
 			dabo.ui.callAfterInterval(500, self._clearInUpdate)
 
@@ -1022,11 +1025,11 @@ class _dDockForm_test(dDockForm):
 		self.fp.DynamicCaption = self.capForOrange
 
 	def capForOrange(self):
-		print "ORNG CAP", self.fp.Docked
+		print("ORNG CAP", self.fp.Docked)
 		state = "Floating"
 		if self.fp.Docked:
 			state = "Docked"
-		print "STATE", state
+		print("STATE", state)
 		return "I'm %s!" % state
 
 	def onTestFP(self, evt):
@@ -1035,38 +1038,38 @@ class _dDockForm_test(dDockForm):
 		self.printTest(self.dp)
 	def printTest(self, obj):
 		nm = {self.fp: "OrangePanel", self.dp: "BluePanel"}[obj]
-		print nm + ".BottomDockable:", obj.BottomDockable
-		print nm + ".Caption:", obj.Caption
-		print nm + ".DestroyOnClose:", obj.DestroyOnClose
-		print nm + ".Dockable:", obj.Dockable
-		print nm + ".Docked:", obj.Docked
-		print nm + ".Floatable:", obj.Floatable
-		print nm + ".Floating:", obj.Floating
-		print nm + ".FloatingBottom:", obj.FloatingBottom
-		print nm + ".FloatingHeight:", obj.FloatingHeight
-		print nm + ".FloatingLeft:", obj.FloatingLeft
-		print nm + ".FloatingPosition:", obj.FloatingPosition
-		print nm + ".FloatingRight:", obj.FloatingRight
-		print nm + ".FloatingSize:", obj.FloatingSize
-		print nm + ".FloatingTop:", obj.FloatingTop
-		print nm + ".FloatingWidth:", obj.FloatingWidth
-		print nm + ".GripperPosition:", obj.GripperPosition
-		print nm + ".LeftDockable:", obj.LeftDockable
-		print nm + ".Movable:", obj.Movable
-		print nm + ".Resizable:", obj.Resizable
-		print nm + ".RightDockable:", obj.RightDockable
-		print nm + ".ShowBorder:", obj.ShowBorder
-		print nm + ".ShowCaption:", obj.ShowCaption
-		print nm + ".ShowCloseButton:", obj.ShowCloseButton
-		print nm + ".ShowGripper:", obj.ShowGripper
-		print nm + ".ShowMaximizeButton:", obj.ShowMaximizeButton
-		print nm + ".ShowMinimizeButton:", obj.ShowMinimizeButton
-		print nm + ".ShowPinButton:", obj.ShowPinButton
-		print nm + ".TopDockable:", obj.TopDockable
-		print nm + ".Visible:", obj.Visible
+		print(nm + ".BottomDockable:", obj.BottomDockable)
+		print(nm + ".Caption:", obj.Caption)
+		print(nm + ".DestroyOnClose:", obj.DestroyOnClose)
+		print(nm + ".Dockable:", obj.Dockable)
+		print(nm + ".Docked:", obj.Docked)
+		print(nm + ".Floatable:", obj.Floatable)
+		print(nm + ".Floating:", obj.Floating)
+		print(nm + ".FloatingBottom:", obj.FloatingBottom)
+		print(nm + ".FloatingHeight:", obj.FloatingHeight)
+		print(nm + ".FloatingLeft:", obj.FloatingLeft)
+		print(nm + ".FloatingPosition:", obj.FloatingPosition)
+		print(nm + ".FloatingRight:", obj.FloatingRight)
+		print(nm + ".FloatingSize:", obj.FloatingSize)
+		print(nm + ".FloatingTop:", obj.FloatingTop)
+		print(nm + ".FloatingWidth:", obj.FloatingWidth)
+		print(nm + ".GripperPosition:", obj.GripperPosition)
+		print(nm + ".LeftDockable:", obj.LeftDockable)
+		print(nm + ".Movable:", obj.Movable)
+		print(nm + ".Resizable:", obj.Resizable)
+		print(nm + ".RightDockable:", obj.RightDockable)
+		print(nm + ".ShowBorder:", obj.ShowBorder)
+		print(nm + ".ShowCaption:", obj.ShowCaption)
+		print(nm + ".ShowCloseButton:", obj.ShowCloseButton)
+		print(nm + ".ShowGripper:", obj.ShowGripper)
+		print(nm + ".ShowMaximizeButton:", obj.ShowMaximizeButton)
+		print(nm + ".ShowMinimizeButton:", obj.ShowMinimizeButton)
+		print(nm + ".ShowPinButton:", obj.ShowPinButton)
+		print(nm + ".TopDockable:", obj.TopDockable)
+		print(nm + ".Visible:", obj.Visible)
 
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dDockForm_test)

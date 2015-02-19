@@ -4,7 +4,7 @@ import Tkinter, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("tk")
 
-import dDataControlMixin as dcm
+from . import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -31,7 +31,7 @@ class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
 
 	def _onKeyDown(self, event):
 		char = event.EventData["keyChar"]
-		if char is not None and ord(char) in (10,13,32):
+		if char is not None and ord(char) in (10, 13, 32):
 			self._onTkHit(event)
 
 	def _getValue(self):
@@ -90,5 +90,5 @@ if __name__ == "__main__":
 			self.Caption = self.Caption + "hit!"
 
 
-	import test
+	from . import test
 	test.Test().runTest(C)
