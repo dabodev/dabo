@@ -9,7 +9,9 @@ from dabo.dApp import dApp
 
 def main():
 	# The splash screen looks great on Mac/Win, and crappy on Linux.
-	useSplash = "linux" not in platform.platform().lower()
+	# Splash screen is buggy on Mac with the wx 3.0 move, removing it for now
+	pltfrm = platform.platform().lower()
+	useSplash = "linux" not in pltfrm and "darwin" not in pltfrm
 	mfc = "DaboDemo.cdxml"
 	if not os.path.exists(os.path.join(os.getcwd(), mfc)):
 		mfc = os.path.join(os.getcwd(), os.path.split(sys.argv[0])[0], mfc)

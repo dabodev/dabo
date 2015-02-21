@@ -182,7 +182,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			isOK = self._Image.Ok()
 			bmp = wx.EmptyBitmap(1, 1)
 
-		if isOK:
+		if not isOK:
 			# No image to display
 			self.Bitmap = bmp
 			self.Freeze()
