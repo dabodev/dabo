@@ -4,7 +4,11 @@ import dabo
 import wx
 import dabo.dEvents as dEvents
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
 import dControlMixin as dcm
 import locale, wx, sys
@@ -322,7 +326,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 						    sys.maxsize, colVal, -1)
 					else:
 						index = self.dropdownlistbox.InsertImageStringItem(
-						    sys.maxsize, colVal, -1)						
+						    sys.maxint, colVal, -1)						
 				if dabo.ui.phoenix:
 					self.dropdownlistbox.SetItem(index, numCol, colVal)
 				else:
@@ -356,7 +360,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 				index = self.dropdownlistbox.InsertItem(sys.maxsize, colVal, -1)
 				self.dropdownlistbox.SetItem(index, 0, colVal)
 			else:
-				index = self.dropdownlistbox.InsertImageStringItem(sys.maxsize, colVal, -1)
+				index = self.dropdownlistbox.InsertImageStringItem(sys.maxint, colVal, -1)
 				self.dropdownlistbox.SetStringItem(index, 0, colVal)
 			self.dropdownlistbox.SetItemData(index, num)
 		self._setListSize()
