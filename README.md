@@ -27,9 +27,11 @@ To run Dabo, and apps based on Dabo, you need:
    * Macintosh OSX 10.5 or higher
    * Linux 2.6 or higher with X11 running and Gtk2
 
-How you get started is pretty much up to you. Run DaboDemo.py which is in demo/DaboDemo. Run AppWizard.py which is in ide/wizards/AppWizard. Run ClassDesigner.py or ReportDesigner.py in the ide directory.
+Your first step is to install Dabo by using the standard ```python setup.py install``` method.
 
-For some quick results for the impatient, once you've installed Dabo using the standard ```python setup.py install``` method, do this from your Python interpreter:
+From there how you get started is pretty much up to you. Run DaboDemo.py which is in demo/DaboDemo. Run AppWizard.py which is in ide/wizards/AppWizard. Run ClassDesigner.py or ReportDesigner.py in the ide directory.
+
+Or, do this from your Python interpreter:
 
 ```python
 from dabo.dApp import dApp
