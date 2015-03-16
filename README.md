@@ -3,7 +3,7 @@ Dabo: A Framework for developing data-driven business applications
 
 Dabo is for developing multi-platform database business applications - you know, applications that need to connect to a database like MySQL, Oracle, MS-SQL, PostgreSQL, or SQLite, get recordsets of data based on criteria set by the user, provide easy ways to edit and commit changes to the data, and to report on the data.
 
-You program in Python, subclassing Dabo's base classes. In addition, there are several graphical tools for laying out your GUI, editing your menus, and creating professional business reports. 
+You program in Python, subclassing Dabo's base classes. In addition, there are several graphical tools for laying out your GUI, editing your menus, and creating professional business reports.
 
 Dabo has three main subpackages, representing the three tiers common in modern database application design:
 ```
@@ -27,7 +27,7 @@ To run Dabo, and apps based on Dabo, you need:
    * Macintosh OSX 10.5 or higher
    * Linux 2.6 or higher with X11 running and Gtk2
 
-How you get started is pretty much up to you. Run DaboDemo.py which is in demo/DaboDemo. Run AppWizard.py which is in ide/wizards. Run ClassDesigner.py or ReportDesigner.py in the ide directory.
+How you get started is pretty much up to you. Run DaboDemo.py which is in demo/DaboDemo. Run AppWizard.py which is in ide/wizards/AppWizard. Run ClassDesigner.py or ReportDesigner.py in the ide directory.
 
 For some quick results for the impatient, once you've installed Dabo using the standard ```python setup.py install``` method, do this from your Python interpreter:
 
