@@ -3,6 +3,7 @@
 from .attributes import *
 from .children import *
 
+from six import with_metaclass
 
 class SerializableMeta(type):
 	def __init__(cls, name, bases, dict):
@@ -22,7 +23,7 @@ class SerializableMeta(type):
 		cls._xmlSerializationAttributes = attributes
 
 
-class Serializable(object, metaclass=SerializableMeta):
+class Serializable(with_metaclass(SerializableMeta, object)):
 	def __init__(self, **args):
 		self.srcValues = {}
 		attributeNames = [attrName for attrName,
