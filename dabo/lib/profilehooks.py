@@ -89,6 +89,8 @@ Released under the MIT licence since December 2006:
 """
 # $Id: profilehooks.py 54 2006-12-05 23:10:37Z mg $
 
+from __future__ import print_function
+
 __author__ = "Marius Gedminas (marius@gedmin.as)"
 __copyright__ = "Copyright 2004-2006, Marius Gedminas"
 __license__ = "MIT"
@@ -119,9 +121,6 @@ import hotshot.log
 
 # For timecall
 import time
-
-# For Python 3 like print
-import six
 
 def profile(fn=None, skip=0, filename=None, immediate=False):
     """
@@ -364,15 +363,15 @@ class HotShotFuncProfile:
         funcname = self.fn.__name__
         filename = self.fn.__code__.co_filename
         lineno = self.fn.__code__.co_firstlineno
-        six.print_()
-        six.print_("*** PROFILER RESULTS ***")
-        six.print_("%s (%s:%s)" % (funcname, filename, lineno))
-        six.print_("function called %d times" % self.ncalls, end=' ')
+        print()
+        print("*** PROFILER RESULTS ***")
+        print("%s (%s:%s)" % (funcname, filename, lineno))
+        print("function called %d times" % self.ncalls, end=' ')
         if self.skipped:
-            six.print_("(%d calls not profiled)" % self.skipped)
+            print("(%d calls not profiled)" % self.skipped)
         else:
-            six.print_()
-        six.print_()
+            print()
+        print()
         stats = hotshot.stats.load(self.logfilename)
         # hotshot.stats.load takes ages, and the .prof file eats megabytes, but
         # a pickled stats object is small and fast
@@ -428,11 +427,11 @@ class HotShotFuncCoverage:
         funcname = self.fn.__name__
         filename = self.fn.__code__.co_filename
         lineno = self.fn.__code__.co_firstlineno
-        six.print_()
-        six.print_("*** COVERAGE RESULTS ***")
-        six.print_("%s (%s:%s)" % (funcname, filename, lineno))
-        six.print_("function called %d times" % self.ncalls)
-        six.print_()
+        print()
+        print("*** COVERAGE RESULTS ***")
+        print("%s (%s:%s)" % (funcname, filename, lineno))
+        print("function called %d times" % self.ncalls)
+        print()
         fs = FuncSource(self.fn)
         reader = hotshot.log.LogReader(self.logfilename)
         for what, (filename, lineno, funcname), tdelta in reader:
@@ -449,7 +448,7 @@ class HotShotFuncCoverage:
                     lineno = fs.firstcodelineno
                 fs.mark(lineno)
         reader.close()
-        six.print_(fs)
+        print(fs)
 
 
 class TraceFuncCoverage:
@@ -505,20 +504,20 @@ class TraceFuncCoverage:
         funcname = self.fn.__name__
         filename = self.fn.__code__.co_filename
         lineno = self.fn.__code__.co_firstlineno
-        six.print_()
-        six.print_("*** COVERAGE RESULTS ***")
-        six.print_("%s (%s:%s)" % (funcname, filename, lineno))
-        six.print_("function called %d times" % self.ncalls)
-        six.print_()
+        print()
+        print("*** COVERAGE RESULTS ***")
+        print("%s (%s:%s)" % (funcname, filename, lineno))
+        print("function called %d times" % self.ncalls)
+        print()
         fs = FuncSource(self.fn)
         for (filename, lineno), count in list(self.tracer.counts.items()):
             if filename != fs.filename:
                 continue
             fs.mark(lineno, count)
-        six.print_(fs)
+        print(fs)
         never_executed = fs.count_never_executed()
         if never_executed:
-            six.print_("%d lines were not executed." % never_executed)
+            print("%d lines were not executed." % never_executed)
 
 
 class FuncSource:
@@ -610,7 +609,7 @@ def timecall(fn):
             funcname = fn.__name__
             filename = fn.__code__.co_filename
             lineno = fn.__code__.co_firstlineno
-            six.print_("\n  %s (%s:%s):\n    %.3f seconds\n" % (
+            print("\n  %s (%s:%s):\n    %.3f seconds\n" % (
                                         funcname, filename, lineno, duration), file=sys.stderr)
     new_fn.__doc__ = fn.__doc__
     return new_fn
