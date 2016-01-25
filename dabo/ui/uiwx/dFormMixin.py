@@ -502,7 +502,7 @@ class dFormMixin(pm.dPemMixin):
 		This function sets up the internal menu, which can optionally be
 		inserted into the mainForm's menu bar during SetFocus.
 		"""
-		menu = menu.dMenu()
+		menu = dMenu.dMenu()
 		return menu
 
 
