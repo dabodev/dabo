@@ -382,7 +382,7 @@ class PgSample(WizardPage):
 			cs = self.controlSizer = LayoutSizer("v")
 		else:
 			style = "left"
-			cs = self.controlSizer = LayoutGridSizer(MaxCols=2,
+			cs = self.controlSizer = LayoutGridSizer(Cols=2,MaxCols=2,
 				HGap=0, VGap=self.BetweenSpacing)
 			cs.setColExpand(True, 1)
 		# Go through the list, and add the items to the sizer in order. Any
