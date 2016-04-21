@@ -1,5 +1,7 @@
 import os
 import glob
+from setuptools import setup
+from setuptools.command.sdist import sdist as _sdist
 import ez_setup # From http://peak.telecommunity.com/DevCenter/setuptools
 ez_setup.use_setuptools()
 

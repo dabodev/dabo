@@ -375,11 +375,12 @@ class PgSample(WizardPage):
 		if layType.lower().find("above") > -1:
 			style = "above"
 			cs = self.controlSizer = LayoutSizer("v")
+			expand_col = False
 		else:
 			style = "left"
 			cs = self.controlSizer = LayoutGridSizer(MaxCols=2,
 				HGap=0, VGap=self.BetweenSpacing)
-			cs.setColExpand(True, 1)
+			expand_col = True
 		# Go through the list, and add the items to the sizer in order. Any
 		# field which was previously created will be restored
 		for fld in flds:
@@ -404,7 +405,7 @@ class PgSample(WizardPage):
 			if (style == "above") and not fld == flds[-1]:
 				# We're not on the last field, so add a spacer
 					cs.appendSpacer(self.BetweenSpacing)
-
+		cs.setColExpand(expand_col, 1)
 		sp.Sizer.append(cs, 0, "x", border=self.OutsideBorder, borderSides="all")
 
 		# Now create the spacer controls
