@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# -*- coding: windows-1250 -*-
+
 import unittest
 import tempfile
 import os
