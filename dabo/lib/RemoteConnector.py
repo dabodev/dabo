@@ -12,14 +12,14 @@ from zipfile import ZipFile
 from io import StringIO
 
 import dabo
-import dabo.dException as dException
+# import dabo.dException as dException
 from dabo.dApp import dApp
 from dabo.dObject import dObject
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.lib.manifest import Manifest
-jsonEncode = dabo.lib.jsonEncode
-jsonDecode = dabo.lib.jsonDecode
+# jsonEncode = dabo.lib.jsonEncode
+# jsonDecode = dabo.lib.jsonDecode
 
 
 

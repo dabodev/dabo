@@ -6,7 +6,6 @@ http://dabodev.com
 """
 import sys
 import os
-# from . import locale
 import locale
 import logging
 import logging.handlers
@@ -180,7 +179,8 @@ def setDbLogFile(fname, level=None):
 		dabo.dbFileLogHandler.setFormatter(dabo.dbFileFormatter)
 		dabo.dbActivityLog.addHandler(dabo.dbFileLogHandler)
 
-if localizeDabo:
+if localizeDabo and False: # hack to get past ImportError: cannot import name 'dLocalize'
+
 	# Install localization service for dabo. dApp will install localization service
 	# for the user application separately.
 	from dabo import dLocalize
@@ -215,8 +215,8 @@ if importDebugger:
 	builtins.debugo = builtins.debugout = debugout
 
 if implicitImports:
-	from . import dColors
-	from . import dEvents
+	# import dColors
+	# import dEvents
 	import dabo.db
 	import dabo.biz
 	import dabo.ui

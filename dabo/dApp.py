@@ -6,7 +6,7 @@ import glob
 import imp
 import inspect
 import json
-from . import locale
+import locale
 import logging
 import os
 import shutil
@@ -18,14 +18,14 @@ from xml.sax._exceptions import SAXParseException
 from zipfile import ZipFile
 
 import dabo
-import dabo.dException as dException
-import dabo.dLocalize as dLocalize
-from dabo.dLocalize import _
+# import dabo.dException as dException
+# import dabo.dLocalize as dLocalize
+# from dabo.dLocalize import _
 from dabo.lib import connParser
 from dabo.lib.SimpleCrypt import SimpleCrypt
 from dabo.dObject import dObject
 from dabo.dPref import dPref
-from dabo import dUserSettingProvider
+# from dabo import dUserSettingProvider
 from .dSecurityManager import dSecurityManager
 from dabo.lib.utils import ustr
 from dabo.lib.utils import cleanMenuCaption
@@ -1713,6 +1713,7 @@ try again when it is running.
 		self._userSettingProviderClass = val
 
 
+	_=str
 	AboutFormClass = property(_getAboutFormClass, _setAboutFormClass, None,
 			_("Specifies the form class to use for the application's About screen."))
 

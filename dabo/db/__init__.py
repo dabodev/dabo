@@ -48,13 +48,13 @@ daboTypes = {
 		"D": datetime.date,       ## date
 		"T": datetime.datetime,   ## datetime
 		"N": Decimal,             ## decimal (numeric)
-		"L": buffer,              ## BLOB
+		"L": bytes,              ## BLOB
 		}
 
 pythonTypes = dict([[v,k] for k,v in daboTypes.items()])
 pythonTypes[str] = "C"
-pythonTypes[str] = "C"
-del k, v, Decimal
+pythonTypes[str] = "C"  # Why twice?
+del Decimal
 
 def getPythonType(daboType):
 	"""Given a char type code like "I" or "C", return the associated Python type."""

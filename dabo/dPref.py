@@ -5,7 +5,7 @@ import datetime
 from decimal import Decimal
 import dabo
 from dabo.dLocalize import _
-import dabo.lib.utils as utils
+# import dabo.lib.utils as utils
 from dabo.lib.utils import ustr
 import dabo.db
 

@@ -4,7 +4,7 @@ import types
 import traceback
 import dabo
 from dabo.dLocalize import _
-import dabo.dEvents as dEvents
+# import dabo.dEvents as dEvents
 
 
 class EventMixin(object):

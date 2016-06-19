@@ -2,7 +2,7 @@
 import datetime
 import dabo
 from dabo.dLocalize import _
-import dabo.dException as dException
+# import dabo.dException as dException
 from dabo.biz.dBizobj import dBizobj
 # Make sure that the user's installation supports Decimal.
 _USE_DECIMAL = True

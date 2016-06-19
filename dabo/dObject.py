@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import string
 import types
-import new
+# import new
 import dabo
 from dabo.lib.propertyHelperMixin import PropertyHelperMixin
 from dabo.lib.eventMixin import EventMixin
