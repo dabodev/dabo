@@ -19,14 +19,17 @@ def getMachineUUID():
 
 
 try:
+        import json
+        jsonEncode = json.dumps
+        jsonDecode = json.loads
 	# cjson is fastest; use that if available.
-	import cjson as json
-	jsonEncode = json.encode
-	jsonDecode = json.decode
+	# import cjson as json
+	# jsonEncode = json.encode
+	# jsonDecode = json.decode
 except ImportError:
 	try:
 		import simplejson as json
-		import dejavuJSON
+		from . import dejavuJSON
 		jsonConverter = dejavuJSON.Converter()
 		def jsonEncode(val):
 			return jsonConverter.dumps(val)

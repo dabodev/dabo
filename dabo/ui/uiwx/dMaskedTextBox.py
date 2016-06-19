@@ -7,7 +7,7 @@ from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
-import dTextBoxMixin as tbm
+from . import dTextBoxMixin as tbm
 
 
 
@@ -91,7 +91,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 
 	def getFormats(cls):
 		"""Return a list of available format codes."""
-		return cls._formatMap.keys()
+		return list(cls._formatMap.keys())
 	getFormats = classmethod(getFormats)
 
 
@@ -100,7 +100,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 		Take a string and return the same string with any duplicate characters removed.
 		The order of the characters is not preserved.
 		"""
-		return "".join(dict.fromkeys(codes).keys())
+		return "".join(list(dict.fromkeys(codes).keys()))
 
 
 	def _onWxHit(self, evt, *args, **kwargs):
@@ -354,7 +354,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 
 	class MaskedForm(dabo.ui.dForm):
 		def afterInit(self):
@@ -510,7 +510,7 @@ versions of wxPython)"""), halign="right")
 			chk = evt.EventObject
 			cap = chk.Caption
 			val = chk.Value
-			print cap, val
+			print(cap, val)
 			txts = (self.charText, self.numText, self.dateText)
 			if cap in "!^":
 				# Char

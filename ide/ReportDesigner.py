@@ -148,7 +148,7 @@ def DesignerController():
 				parents.append(rf["Groups"])
 			else:
 				# Normal report object. Place it in all selected bands.
-				if isinstance(typ, basestring):
+				if isinstance(typ, str):
 					if typ[:7] == "Field: ":
 						# Testcursor field. Create string object with expr of this field.
 						defaultProps["expr"] = "self.%s" % typ[7:].strip()
@@ -258,7 +258,7 @@ def DesignerController():
 							fields = []
 							if typ == tc:
 								if tc:
-									fields = tc[0].keys()
+									fields = list(tc[0].keys())
 							elif typ == var:
 								for v in var:
 									try:
@@ -486,7 +486,7 @@ def DesignerController():
 							parent = rdc.ReportForm[parentInfo[0]]
 					obj = rw._getReportObject(memento["type"], parent)
 					del(memento["type"])
-					for k, v in memento.items():
+					for k, v in list(memento.items()):
 						if isinstance(v, dict):
 							obj[k] = self.getReportObjectFromMemento(v, obj)
 						elif isinstance(v, list):
@@ -815,7 +815,7 @@ class ReportObjectTree(dabo.ui.dTreeView):
 			parentNode = self.setRootNode(frm.__class__.__name__)
 			parentNode.FontSize = fontSize
 			parentNode.Object = frm
-			elements = frm.keys()
+			elements = list(frm.keys())
 			elements.sort(rw._elementSort)
 			for name in elements:
 				self.recurseLayout(frm=frm[name], parentNode=parentNode)
@@ -1210,7 +1210,7 @@ class DesignerBand(DesignerPanel):
 					old = dragObject.getProp(propName)
 
 					unit = "pt"
-					if isinstance(old, basestring) and len(old) > 3:
+					if isinstance(old, str) and len(old) > 3:
 						if old[-4] == "pica":
 							unit = "pica"
 						elif old[-2].isalpha():
@@ -1595,12 +1595,12 @@ class DesignerBand(DesignerPanel):
 
 			try:
 				hAnchor = obj.getProp("hAnchor").lower()
-			except StandardError:
+			except Exception:
 				hAnchor = None
 
 			try:
 				vAnchor = obj.getProp("vAnchor").lower()
-			except StandardError:
+			except Exception:
 				vAnchor = None
 
 			anchors = {"lt": ["left", "top", x-1, y-1],
@@ -1614,7 +1614,7 @@ class DesignerBand(DesignerPanel):
 
 			obj._anchors = anchors
 
-			for k,v in anchors.items():
+			for k,v in list(anchors.items()):
 				dc.SetBrush(wx.Brush((0,0,0), wx.SOLID))
 				dc.SetPen(wx.Pen((0,0,0), 0.25, wx.SOLID))
 				if hAnchor == v[0] and vAnchor == v[1]:
@@ -1656,7 +1656,7 @@ class DesignerBand(DesignerPanel):
 
 	def setProps(self, propvaldict):
 		"""Set the specified object properties to the specified values."""
-		for p,v in propvaldict.items():
+		for p,v in list(propvaldict.items()):
 			self.setProp(p, v, False)
 		self.Parent.propsChanged()
 
@@ -1858,7 +1858,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 					if parentBand not in parentBands:
 						parentBands.append(parentBand)
 
-					if isinstance(val, basestring) and len(val) > 3:
+					if isinstance(val, str) and len(val) > 3:
 						if val[-4] == "pica":
 							unit = "pica"
 						elif val[-2].isalpha():
@@ -1922,7 +1922,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 	def clearReportForm(self):
 		"""Called from afterInit and closeFile to clear the report form."""
-		for o in self._rulers.values():
+		for o in list(self._rulers.values()):
 			o.Destroy()
 		self._rulers = {}
 		for o in self._bands:

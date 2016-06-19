@@ -145,7 +145,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 		self.assertEqual(cur._mementos[cur.Record.pk]["cfield"].rstrip(), "Paul Keith McNett")
 		cur.setFieldVal("ifield", 80)
 		self.assertEqual(cur.Record.ifield, 80)
-		self.assertTrue(isinstance(cur.Record.ifield, (int, long)))
+		self.assertTrue(isinstance(cur.Record.ifield, int))
 		self.assertEqual(cur._mementos[self.cur.Record.pk]["ifield"], 23)
 
 		# Querying or setting a field that doesn't exist should raise
@@ -170,7 +170,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 	def test_RowNumber(self):
 		cur = self.cur
 		self.assertEqual(cur.RowNumber, 0)
-		cur.next()
+		next(cur)
 		self.assertEqual(cur.RowNumber, 1)
 		cur.moveToRowNum(2)
 		self.assertEqual(cur.RowNumber, 2)
@@ -294,7 +294,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 		"""
 		cur = self.cur
 		rec = cur.Record
-		self.assertIsInstance(rec.cfield, basestring)
+		self.assertIsInstance(rec.cfield, str)
 		self.assertIsInstance(rec.ifield, int)
 		self.assertIsInstance(rec.nfield, Decimal)
 		self.assertEqual(dabo.convertFloatToDecimal, True)
@@ -315,10 +315,10 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 #    values ("Carl Karsten", 10223, 23032.76, 11);
 		self.assertEqual(rec.ffield, Decimal("3.14159"))
 		self.assertEqual(str(rec.ffield), "3.14159")
-		cur.next()
+		next(cur)
 		self.assertEqual(rec.ffield, Decimal("0.999999"))
 		self.assertEqual(str(rec.ffield), "0.999999")
-		cur.next()
+		next(cur)
 		self.assertEqual(rec.ffield, Decimal("11"))
 		self.assertEqual(str(rec.ffield), "11.0")
 
@@ -423,7 +423,7 @@ if __name__ == "__main__":
 			"mysql": Test_dCursorMixin_mysql,
 			"firebird": Test_dCursorMixin_firebird,
 			"oracle": Test_dCursorMixin_oracle}
-	for k, v in db_tests.items():
+	for k, v in list(db_tests.items()):
 		if v:
 			testClasses.append(mapping[k])
 	for t in testClasses:

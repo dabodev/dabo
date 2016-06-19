@@ -104,7 +104,7 @@ class ObjectPropertySheet(dui.dPanel):
 		else:
 			obj = self.app._selection[0]
 			pd = self.app._classPropDict.get(obj, {})
-		props = pd.keys()
+		props = list(pd.keys())
 		data = []
 		for prop in props:
 			data.append(pd[prop])

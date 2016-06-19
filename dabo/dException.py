@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-class dException(StandardError):
+class dException(Exception):
 	"""	Base class in the framework for passing exceptions."""
 
 

@@ -5,7 +5,7 @@ import dabo.ui
 from dabo.dApp import dApp
 from dabo.dLocalize import _
 dabo.ui.loadUI("wx")
-import cardlib
+from . import cardlib
 
 
 class MontanaDeck(cardlib.PokerDeck):
@@ -369,7 +369,7 @@ class Board(dabo.ui.dPanel):
 			try:
 				ret = [cd for cd in self.deck
 						if (cd.Rank == rank) and (cd.Suit == suit)][0]
-			except StandardError:
+			except Exception:
 				ret = None
 		return ret
 
@@ -412,7 +412,7 @@ class MontanaForm(dabo.ui.dForm):
 		self.Centered = True
 		self.Caption = "Montana"
 		pfm = self.PreferenceManager
-		if not isinstance(pfm.redeals, (int, long)):
+		if not isinstance(pfm.redeals, int):
 			pfm.redeals = 2
 		if not isinstance(pfm.flashOnlyAces, bool):
 			pfm.flashOnlyAces = False

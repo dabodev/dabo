@@ -284,7 +284,7 @@ def getDefaultSizerProps(cls, szType):
 	typ = szType[0].upper()
 	defaults = _sizerDefaults.get(cls, {})
 	ret = defaults.get(typ, {})
-	if not ret and isinstance(cls, basestring):
+	if not ret and isinstance(cls, str):
 		# Sometimes the Class Designer mangles names so that they are unique
 		# E.g., 'dTextBox' becomes 'dTextBox_323432'
 		splitname = cls.split("_")

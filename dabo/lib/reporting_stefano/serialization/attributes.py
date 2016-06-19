@@ -29,13 +29,13 @@ class StringAttr(SerializableAttribute):
 		if value is None:
 			return self.default
 		value = eval(value, env)
-		assert isinstance(value, basestring)
+		assert isinstance(value, str)
 		return value
 
 
 class UnevalStringAttr(SerializableAttribute):
 	def evaluate(self, value, env):
-		assert isinstance(value, basestring)
+		assert isinstance(value, str)
 		return value
 
 

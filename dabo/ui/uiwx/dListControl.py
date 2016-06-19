@@ -5,7 +5,7 @@ from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import wx.lib.mixins.listctrl	as ListMixin
-import dControlItemMixin as dcm
+from . import dControlItemMixin as dcm
 import dabo.dColors as dColors
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -43,7 +43,7 @@ class _ListColumnAccessor(object):
 
 	def __getslice__(self, start, end):
 		return [self.__dabo_getitem__(col)
-				for col in xrange(start, end)]
+				for col in range(start, end)]
 
 
 
@@ -147,9 +147,9 @@ class dListControl(dcm.dControlItemMixin,
 
 	def _getCurrentData(self):
 		ds = []
-		for row in xrange(self.RowCount):
+		for row in range(self.RowCount):
 			rr = []
-			for col in xrange(self.ColumnCount):
+			for col in range(self.ColumnCount):
 				rr.append(self.GetItem(row, col).GetText())
 			ds.append(rr)
 		return ds
@@ -177,7 +177,7 @@ class dListControl(dcm.dControlItemMixin,
 		"""
 		self.lockDisplay()
 		ds = self._getCurrentData()
-		wds = [self.getColumnWidth(col) for col in xrange(self.ColumnCount)]
+		wds = [self.getColumnWidth(col) for col in range(self.ColumnCount)]
 		expandCol = self.ExpandColumn
 		self.clear()
 		self.DeleteAllColumns()
@@ -191,13 +191,13 @@ class dListControl(dcm.dControlItemMixin,
 
 	def getCaptionForColumn(self, colnum):
 		"""Convenience method for getting the caption for a given column number."""
-		captions = [self.GetColumn(ii).GetText() for ii in xrange(self.ColumnCount)]
+		captions = [self.GetColumn(ii).GetText() for ii in range(self.ColumnCount)]
 		return captions[colnum]
 
 
 	def setCaptionForColumn(self, colnum, val):
 		"""Convenience method for setting the caption for a given column number."""
-		captions = [self.GetColumn(ii).GetText() for ii in xrange(self.ColumnCount)]
+		captions = [self.GetColumn(ii).GetText() for ii in range(self.ColumnCount)]
 		captions[colnum] = val
 		self.setColumns(captions)
 
@@ -237,7 +237,7 @@ class dListControl(dcm.dControlItemMixin,
 		warning if the control is not set to MultipleSelect.
 		"""
 		if self.MultipleSelect:
-			for row in xrange(self.RowCount):
+			for row in range(self.RowCount):
 				self.select(row)
 		else:
 			dabo.log.error("'selectAll()' may only be called on List Controls that designated as MultipleSelect")
@@ -245,7 +245,7 @@ class dListControl(dcm.dControlItemMixin,
 
 	def unselectAll(self):
 		"""De-selects all rows."""
-		for row in xrange(self.RowCount):
+		for row in range(self.RowCount):
 			self.unselect(row)
 	# Override the default selectNone to something appropriate for this control.
 	selectNone = unselectAll
@@ -257,7 +257,7 @@ class dListControl(dcm.dControlItemMixin,
 
 	def setColumnWidth(self, col, wd):
 		"""Sets the width of the specified column."""
-		if isinstance(wd, basestring):
+		if isinstance(wd, str):
 			self.autoSizeColumn(col)
 		else:
 			self.SetColumnWidth(col, wd)
@@ -279,7 +279,7 @@ class dListControl(dcm.dControlItemMixin,
 	def autoSizeColumns(self, colList=None):
 		"""Auto-sizes all the columns."""
 		if colList is None:
-			colList = xrange(self.ColumnCount)
+			colList = range(self.ColumnCount)
 		for col in colList:
 			self.autoSizeColumn(col)
 
@@ -306,8 +306,8 @@ class dListControl(dcm.dControlItemMixin,
 				currCol += 1
 		else:
 			if col < self.ColumnCount:
-				if not isinstance(tx, basestring) and self.AutoConvertToString:
-					tx = u"%s" % tx
+				if not isinstance(tx, str) and self.AutoConvertToString:
+					tx = "%s" % tx
 				if insert:
 					new_item = self.InsertStringItem(row, tx)
 				else:
@@ -417,7 +417,7 @@ class dListControl(dcm.dControlItemMixin,
 		"""
 		if key is None:
 			key = ustr(img)
-		if isinstance(img, basestring):
+		if isinstance(img, str):
 			img = dabo.ui.strToBmp(img)
 		il = self.GetImageList(wx.IMAGE_LIST_NORMAL)
 		if not il:
@@ -455,7 +455,7 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def setItemBackColor(self, itm, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			color = dColors.colorTupleFromName(val)
 		else:
 			color = val
@@ -467,7 +467,7 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def setItemForeColor(self, itm, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			color = dColors.colorTupleFromName(val)
 		else:
 			color = val
@@ -545,7 +545,7 @@ class dListControl(dcm.dControlItemMixin,
 	def _getItemDataDict(self):
 		"""Return a dict with the items as keys, and the ItemData as values."""
 		ret = {}
-		for row in xrange(self.RowCount):
+		for row in range(self.RowCount):
 			ret[row] = self.GetItemData(row)
 		return ret
 
@@ -558,7 +558,7 @@ class dListControl(dcm.dControlItemMixin,
 		data = []
 		# Don't allow the default -1 for sort column.
 		col = max(0, self._sortColumn)
-		for row in xrange(self.RowCount):
+		for row in range(self.RowCount):
 			try:
 				itm = self.GetItem(row, col)
 				data.append((itm.GetText(), row))
@@ -574,7 +574,7 @@ class dListControl(dcm.dControlItemMixin,
 
 	def _restoreItemData(self, dct):
 		"""After a sort, returns the original item data values."""
-		for row, val in dct.items():
+		for row, val in list(dct.items()):
 			self.SetItemData(row, val)
 
 
@@ -582,7 +582,7 @@ class dListControl(dcm.dControlItemMixin,
 		# Called when a column was marked to expand, and then
 		# changed to a normal column.
 		cc = self.ColumnCount
-		if isinstance(col, basestring):
+		if isinstance(col, str):
 			# Last column
 			col = cc - 1
 		if col < cc:
@@ -644,7 +644,7 @@ class dListControl(dcm.dControlItemMixin,
 	def _setExpandColumn(self, val):
 		if self._constructed():
 			columnCount = self.ColumnCount
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = val.upper().strip()
 			else:
 				if val >= columnCount and columnCount > 0:
@@ -656,7 +656,7 @@ class dListControl(dcm.dControlItemMixin,
 					if self._expandColumn:
 						self._resetSize(self._expandColumn)
 					self._expandColumn = val
-					if isinstance(val, (int, long)):
+					if isinstance(val, int):
 						# Need to decrease by one, since the mixin uses a 1-based column numbering
 						self.setResizeColumn(val + 1)
 					else:
@@ -779,7 +779,7 @@ class dListControl(dcm.dControlItemMixin,
 		if self._constructed():
 			if isinstance(val, int):
 				self.Select(val)
-			elif isinstance(val, basestring):
+			elif isinstance(val, str):
 				self.Select(self.FindItem(-1, val))
 		else:
 			self._properties["Value"] = val
@@ -916,19 +916,19 @@ class _dListControl_test(dListControl):
 		#self.HeaderVisible = False
 
 	def onHit(self, evt):
-		print "KeyValue: ", self.KeyValue
-		print "PositionValue: ", self.PositionValue
-		print "StringValue: ", self.StringValue
-		print "Value: ", self.Value
+		print("KeyValue: ", self.KeyValue)
+		print("PositionValue: ", self.PositionValue)
+		print("StringValue: ", self.StringValue)
+		print("Value: ", self.Value)
 
 	def onListSelection(self, evt):
-		print "List Selection!", self.Value, self.LastSelectedIndex, self.SelectedIndices
+		print("List Selection!", self.Value, self.LastSelectedIndex, self.SelectedIndices)
 
 
 	def onListDeselection(self, evt):
-		print "Row deselected:", evt.EventData["index"]
+		print("Row deselected:", evt.EventData["index"])
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dListControl_test)

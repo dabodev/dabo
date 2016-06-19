@@ -43,7 +43,7 @@ sudo apt-get install python-imaging
 del(_failedLibs)
 #######################################################
 
-import cStringIO
+import io
 import reportlab.pdfgen.canvas as canvas
 import reportlab.graphics.shapes as shapes
 import reportlab.lib.pagesizes as pagesizes
@@ -62,7 +62,7 @@ from reportlab.pdfbase.pdfmetrics import registerFont, getRegisteredFontNames
 from reportlab.pdfbase.ttfonts import TTFont, TTFError
 from reportlab.rl_config import TTFSearchPath
 import Image as PILImage
-import reportUtils
+from . import reportUtils
 
 # The below block tried to use the experimental para.Paragraph which
 # handles more html tags, including hyperlinks. However, I couldn't
@@ -72,14 +72,14 @@ if False:
 	try:
 		from reportlab.platypus.para import Paragraph as ParaClass
 	except ImportError:
-		print "No Para class, using Paragraph."
+		print("No Para class, using Paragraph.")
 		ParaClass = platypus.Paragraph
 else:
 	ParaClass = platypus.Paragraph
 
 
 def addReportTTFontFilePath(paths):
-	if isinstance(paths, basestring):
+	if isinstance(paths, str):
 		paths = (paths,)
 	for path in paths:
 		TTFSearchPath.append(path)
@@ -146,7 +146,7 @@ def getFloatLeading(obj):
 	adj_factor = .1  ## (amount to adjust for each "+" or "-")
 
 	def getadj():
-		if not isinstance(leading, basestring):
+		if not isinstance(leading, str):
 			return 0.0
 		adj = leading[6:].strip()
 		adj_float = 0.0
@@ -158,9 +158,9 @@ def getFloatLeading(obj):
 				adj_float -= adj_amt
 		return adj_float
 
-	if leading is None or (isinstance(leading, basestring) and leading[:6].lower() == "single"):
+	if leading is None or (isinstance(leading, str) and leading[:6].lower() == "single"):
 		return size + getadj()
-	elif isinstance(leading, basestring) and leading[:6].lower() == "double":
+	elif isinstance(leading, str) and leading[:6].lower() == "double":
 		return (2 * size) + getadj()
 	try:
 		return float(leading)
@@ -211,7 +211,7 @@ class PageCountCanvas(canvas.Canvas):
 				dabo.log.info(_("Font file can not be found: %s") % psfontfile)
 		try:
 			canvas.Canvas.setFont(self, psfontname, size, leading)
-		except StandardError:
+		except Exception:
 			canvas.Canvas.setFont(self, getSubFont(psfontname), size, leading)
 
 
@@ -283,7 +283,7 @@ class ReportObject(CaselessDict):
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the object."""
 		if self.__class__.__name__ not in CLASSES_TO_SKIP_DEF:
-			for k, v in self.AvailableProps.items():
+			for k, v in list(self.AvailableProps.items()):
 				if k.lower() not in PROPS_TO_SKIP_DEF:
 					defProp = self.AvailableProps["%s_def" % k] = v.copy()
 					defProp["doc"] = "This is the DEFAULT value of the property, for design-time evaluation."
@@ -312,7 +312,7 @@ class ReportObject(CaselessDict):
 			start = self
 		m = {"type": start.__class__.__name__}
 
-		for k, v in start.items():
+		for k, v in list(start.items()):
 			if isinstance(v, dict):
 				m[k] = self.getMemento(v)
 			elif isinstance(v, list):
@@ -339,7 +339,7 @@ class ReportObject(CaselessDict):
 					if evaluate:
 						ret = eval(ret)
 					return ret
-				except StandardError:
+				except Exception:
 					pass
 
 			# If the prop is in <Report><Defaults>:
@@ -350,13 +350,13 @@ class ReportObject(CaselessDict):
 					if evaluate:
 						ret = eval(ret)
 					return ret
-				except StandardError:
+				except Exception:
 					try:
 						ret = self.ReportForm["Defaults"][prop[:-4]]
 						if evaluate:
 							ret = eval(ret)
 						return ret
-					except StandardError:
+					except Exception:
 						pass
 
 			if prop[-4:] == "_def":
@@ -377,7 +377,7 @@ class ReportObject(CaselessDict):
 				return self[prop]
 			try:
 				return eval(self[prop])
-			except Exception, e:
+			except Exception as e:
 				# eval() failed. Return the default or the exception string.
 				if returnException:
 					return e
@@ -1211,14 +1211,14 @@ class Paragraph(Drawable):
 class TestCursor(ReportObjectCollection):
 	def addRecord(self, record):
 		tRecord = TestRecord(self)
-		for k, v in record.items():
+		for k, v in list(record.items()):
 			tRecord[k] = v
 		tRecord.initAvailableProps()
 		self.append(tRecord)
 
 class TestRecord(ReportObject):
 	def initAvailableProps(self):
-		for k, v in self.items():
+		for k, v in list(self.items()):
 			self.AvailableProps[k] = toPropDict(str, "", "")
 
 
@@ -1268,7 +1268,7 @@ class ReportWriter(object):
 
 	def undo(self):
 		if not self.undoLog:
-			print "nothing to undo"
+			print("nothing to undo")
 			return
 		obj, prop, oldval, newval = self.undoLog.pop()
 		obj.setProp(prop, oldval, logUndo=False)
@@ -1279,22 +1279,22 @@ class ReportWriter(object):
 
 	def _onReportCancel(self):
 		if self.PrintStatus:
-			print "Report cancelled."
+			print("Report cancelled.")
 			sys.stdout.flush()
 
 	def _onReportBegin(self):
 		if self.PrintStatus:
-			print "Report Begin."
+			print("Report Begin.")
 			sys.stdout.flush()
 
 	def _onReportIteration(self):
 		if self.PrintStatus:
-			print "Processing row %s of %s..." % (self.RecordNumber + 1, len(self.Cursor))
+			print("Processing row %s of %s..." % (self.RecordNumber + 1, len(self.Cursor)))
 			sys.stdout.flush()
 
 	def _onReportEnd(self):
 		if self.PrintStatus:
-			print "Report End."
+			print("Report End.")
 
 
 	def getFramesetCount(self):
@@ -1331,9 +1331,9 @@ class ReportWriter(object):
 			idx, f, b = idx_f_b
 			m = Memo(b)
 			p = f["Objects"][0]
-			for k, v in p.items():
+			for k, v in list(p.items()):
 				m[k] = v
-			for k, v in f.items():
+			for k, v in list(f.items()):
 				if k.lower() not in ("objects",):
 					m[k] = v
 			f.parent[idx] = m
@@ -1600,7 +1600,7 @@ class ReportWriter(object):
 			c.setFillColor(fontColor)
 			try:
 				c.setFont(fontName, fontSize)
-			except StandardError:
+			except Exception:
 				c.setFont(getSubFont(fontName, "Helvetica"), fontSize)
 
 			if borderWidth > 0:
@@ -1640,19 +1640,19 @@ class ReportWriter(object):
 				s = self.NoneDisplay
 			elif obj.Report.getProp("StringifyDates") and isinstance(s, datetime.date):
 				s = getStringFromDate(s)
-			if isinstance(s, unicode):
+			if isinstance(s, str):
 				pass
 			elif isinstance(s, str):
 				try:
-					s = unicode(s, "utf-8")
+					s = str(s, "utf-8")
 				except UnicodeDecodeError:
 					try:
-						s = unicode(s, self.Encoding)
+						s = str(s, self.Encoding)
 					except UnicodeDecodeError:
 						# s must have already been encoded, and the default encoding is ascii.
 						pass
 			else:
-				s = unicode(s)
+				s = str(s)
 			try:
 				func(posx, 0, s)
 			except UnicodeDecodeError:
@@ -1752,7 +1752,7 @@ class ReportWriter(object):
 
 			if img is None:
 				pass
-			elif isinstance(img, basestring) and "\0" not in img:
+			elif isinstance(img, str) and "\0" not in img:
 				trial_paths = [".", self.HomeDirectory]
 				if self.Application:
 					trial_paths.append(self.Application.HomeDirectory)
@@ -1789,7 +1789,7 @@ class ReportWriter(object):
 			if img:
 				try:
 					c.drawImage(img, 0, 0, width, height, mask, preserveAspectRatio=preserveRatio)
-				except StandardError:
+				except Exception:
 					c.drawCentredString(0, 0, "<< Image expr error >>")
 			else:
 				c.drawCentredString(0, 0, obj["expr"])
@@ -1917,7 +1917,7 @@ class ReportWriter(object):
 			else:
 				expr = fobject.getProp("expr")
 
-			if isinstance(s, basestring):
+			if isinstance(s, str):
 				expr = expr.encode(self.Encoding)
 			else:
 				expr = ustr(expr)
@@ -1933,7 +1933,7 @@ class ReportWriter(object):
 			# the built-in type 1 Helvetica:
 			try:
 				test = ParaClass("", s)
-			except StandardError:
+			except Exception:
 				s.fontName = getSubFont(s.fontName)
 
 			if isinstance(fobject, (Memo, Paragraph)):
@@ -2084,7 +2084,7 @@ class ReportWriter(object):
 		> print self.getPt(1)
 		1
 		"""
-		if isinstance(val, (int, long, float)):
+		if isinstance(val, (int, float)):
 			# return as-is as the pt value.
 			return val
 		else:
@@ -2265,12 +2265,12 @@ class ReportWriter(object):
 				pfHeight = self.getPt(pfHeight)
 
 			if band.lower() in ("pagefooter", "groupfooter") and pf.getProp("Height") is None:
-				raise ValueError, "PageFooter height must be fixed (not None)."
+				raise ValueError("PageFooter height must be fixed (not None).")
 
 			if band.lower() == "groupfooter" and bandDict.getProp("PrintAtBottom"):
 				groupFooterHeight = bandDict.getProp("Height")
 				if groupFooterHeight is None:
-					raise ValueError, "GroupFooter height must be fixed (not None) when PrintAtBottom is True."
+					raise ValueError("GroupFooter height must be fixed (not None) when PrintAtBottom is True.")
 				y = pageFooterOrigin[1] + pfHeight + groupFooterHeight + 1
 
 			if band.lower() == "reportend" and bandDict.getProp("PageBreakBefore"):
@@ -2378,7 +2378,7 @@ class ReportWriter(object):
 						# These still need to be printed, so let it continue
 						pass
 					else:
-						raise ValueError, "Unexpected band value '%s'" % band
+						raise ValueError("Unexpected band value '%s'" % band)
 
 					if not deferred:
 						y -= bandHeight
@@ -2722,7 +2722,7 @@ class ReportWriter(object):
 		page = _form["page"]
 		pageSize = page.getProp("size")
 
-		if isinstance(pageSize, basestring):
+		if isinstance(pageSize, str):
 			# reportlab expects the pageSize to be upper case:
 			pageSize = pageSize.upper()
 			# convert to the reportlab pageSize value (tuple(width,height)):
@@ -2786,14 +2786,14 @@ class ReportWriter(object):
 		if d is None:
 			d = {"name": "Report", "children": []}
 
-		elements = form.keys()
+		elements = list(form.keys())
 		elements.sort(self._elementSort)
 
 		for element in elements:
 			if element == "type":
 				continue
 			child = {"name": element, "children": []}
-			if isinstance(form[element], basestring):
+			if isinstance(form[element], str):
 				child["cdata"] = form[element]
 			elif element.lower() == "testcursor":
 				cursor = []
@@ -2809,7 +2809,7 @@ class ReportWriter(object):
 				for index in range(len(form[element])):
 					formobj = form[element][index]
 					obj = {"name": formobj.__class__.__name__, "children": []}
-					props = formobj.keys()
+					props = list(formobj.keys())
 					props.sort(self._elementSort)
 					if element in formobj:
 						# Recurse
@@ -2939,7 +2939,7 @@ class ReportWriter(object):
 		if xmldict["name"].lower() == "report":
 			form = self._getFormFromXMLDict(xmldict)
 		else:
-			raise ValueError, "This isn't a valid rfxml string."
+			raise ValueError("This isn't a valid rfxml string.")
 
 		return form
 
@@ -2985,7 +2985,7 @@ class ReportWriter(object):
 			liveTest = []
 			for record in v:
 				liveRecord = CaselessDict()
-				for f, v in record.items():
+				for f, v in list(record.items()):
 					liveRecord[f] = eval(v)
 				liveTest.append(liveRecord)
 			v = liveTest
@@ -3055,7 +3055,7 @@ class ReportWriter(object):
 		return v
 
 	def _setOutputFile(self, val):
-		if not isinstance(val, basestring):
+		if not isinstance(val, str):
 			# We assume it is either a file or file-like object
 			self._outputFile = val
 		else:
@@ -3271,7 +3271,7 @@ if __name__ == "__main__":
 		for reportForm in sys.argv[1:]:
 			if reportForm == "tempfile":
 				import tempfile
-				print "Creating tempfile.pdf from samplespec.rfxml"
+				print("Creating tempfile.pdf from samplespec.rfxml")
 				rw.ReportFormFile = "samplespec.rfxml"
 				rw.OutputFile = tempfile.TemporaryFile()
 				rw.write()
@@ -3281,10 +3281,10 @@ if __name__ == "__main__":
 				f.close()
 			else:
 				output = "./%s.pdf" % os.path.splitext(reportForm)[0]
-				print "Creating %s from report form %s..." % (output, reportForm)
+				print("Creating %s from report form %s..." % (output, reportForm))
 				rw.ReportFormFile = reportForm
 				rw.OutputFile = output
 				rw.write()
 	else:
-		print "Usage: reportWriter <specFile> [<specFile>...]"
+		print("Usage: reportWriter <specFile> [<specFile>...]")
 

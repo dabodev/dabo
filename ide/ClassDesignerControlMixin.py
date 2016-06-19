@@ -60,10 +60,10 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 		# Store the defaults for the various props
 		self._propDefaults = {}
-		for prop in self.DesignerProps.keys():
+		for prop in list(self.DesignerProps.keys()):
 			try:
 				self._propDefaults[prop] = getattr(self, prop)
-			except StandardError, e:
+			except Exception as e:
 				nm = self.Name
 				dabo.log.error(_("Could not set default prop value: object: %(nm)s; property: %(prop)s; error: %(e)s")
 						% locals())
@@ -161,7 +161,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			return
 
 		cnt = self.Controller
-		if cnt.openingClassXML or not isinstance(pgCls, basestring):
+		if cnt.openingClassXML or not isinstance(pgCls, str):
 			tmpPgCls = self.Controller.getControlClass(dui.dPage)
 			pg = self.insertPage(pos, tmpPgCls, ignoreOverride=True)
 			pg.Sizer = LayoutSizer("v")
@@ -266,7 +266,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 
 	def onMouseLeftUp(self, evt):
-		if isinstance(self, (dui.dSplitter, )):
+		if isinstance(self, dui.dSplitter):
 			pass
 		else:
 			if not isinstance(self, dui.dTreeView):
@@ -645,7 +645,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			try:
 				ret = self.__class__.superControl._getChildren(self)
 			except:
-				print "NO SUPER CLASS FOUND!!!!!"
+				print("NO SUPER CLASS FOUND!!!!!")
 				ret = []
 		if isinstance(self, dlgs.WizardPage):
 			# Skip the title and separator line.
@@ -674,14 +674,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 	def _getDesProps(self):
 		useSizers = self.Controller.UseSizers
 		ret = {"Enabled": {"type": bool, "readonly": False},
-				"Name": {"type": unicode, "readonly": False},
-				"RegID": {"type": unicode, "readonly": False},
+				"Name": {"type": str, "readonly": False},
+				"RegID": {"type": str, "readonly": False},
 				"TabStop": {"type": bool, "readonly": False},
 				"Tag": {"type": "multi", "readonly": False},
-				"ToolTipText": {"type": unicode, "readonly": False},
+				"ToolTipText": {"type": str, "readonly": False},
 				"Transparency": {"type": int, "readonly": False},
 				"Visible": {"type": bool, "readonly": False}}
-		captionProps = {"Caption": {"type": unicode, "readonly": False}}
+		captionProps = {"Caption": {"type": str, "readonly": False}}
 		choiceProps = {"Choices": {"type": "choice", "readonly": False,
 				"customEditor": "editChoice"},
 				"Keys": {"type": "choice", "readonly": False,
@@ -694,7 +694,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 					"customEditor": "editColor"}}
 		columnProps = {"Order": {"type": int, "readonly": False},
 				 "Width": {"type": int, "readonly": False},
-				"DataField": {"type": unicode, "readonly": False},
+				"DataField": {"type": str, "readonly": False},
 				"HeaderBackColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
 				"HeaderFont": {"type": "font", "readonly": False,
@@ -722,10 +722,10 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"Searchable": {"type": bool, "readonly": False},
 				"Sortable": {"type": bool, "readonly": False}}
 		comboProps = {"AppendOnEnter": {"type": bool, "readonly": False}}
-		dataProps = {"DataSource": {"type": unicode, "readonly": False},
-				"DataField": {"type": unicode, "readonly": False},
+		dataProps = {"DataSource": {"type": str, "readonly": False},
+				"DataField": {"type": str, "readonly": False},
 				"Value": {"type": "multi", "readonly": False}}
-		editorProps = {"CommentString": {"type": unicode, "readonly": False},
+		editorProps = {"CommentString": {"type": str, "readonly": False},
 				"ShowCallTips": {"type": bool, "readonly": False},
 				"ShowCodeFolding": {"type": bool, "readonly": False},
 				"ShowEOL": {"type": bool, "readonly": False},
@@ -746,7 +746,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"AlternateRowColoring": {"type": bool, "readonly": False},
 				"CellHighlightWidth": {"type": int, "readonly": False},
 				"ColumnCount": {"type": int, "readonly": False},
-				"DataSource": {"type": unicode, "readonly": False},
+				"DataSource": {"type": str, "readonly": False},
 				"Editable": {"type": bool, "readonly": False},
 				"HeaderBackColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
@@ -795,13 +795,13 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"VerticalRules": {"type": bool, "readonly": False}}
 		maskedTextBoxProps = {"Format": {"type": list, "readonly": False,
 						"values": [""]+dui.dMaskedTextBox.getFormats()},
-				"InputCodes": {"type": unicode, "readonly": lambda self: bool(self.Format)},
-				"Mask": {"type": unicode, "readonly": lambda self: bool(self.Format)},
+				"InputCodes": {"type": str, "readonly": lambda self: bool(self.Format)},
+				"Mask": {"type": str, "readonly": lambda self: bool(self.Format)},
 				"ValueMode": {"type": list, "readonly": False,
 					"values": ["Masked", "Unmasked"]}}
 		mediaControlProps = {"Loop": {"type": bool, "readonly": False},
 				"ShowControls": {"type": bool, "readonly": False},
-				"Source": {"type": unicode, "readonly": False},
+				"Source": {"type": str, "readonly": False},
 				"TimeInSeconds": {"type": bool, "readonly": False},
 				"Volume": {"type": int, "readonly": False}}
 		multiSelectProps = {"MultipleSelect": {"type": bool, "readonly": False}}
@@ -855,7 +855,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"MinimumPanelSize": {"type": int, "readonly": False},
 				"Orientation": {"type": list, "readonly": False,
 					"values": ["Horizontal", "Vertical"]},
-				"PanelClass": {"type": unicode, "readonly": False},
+				"PanelClass": {"type": str, "readonly": False},
 				"SashPosition": {"type": int, "readonly": False},
 				"ShowPanelSplitMenu": {"type": bool, "readonly": False},
 				"Split": {"type": bool, "readonly": False}}
@@ -869,10 +869,10 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"ForceCase": {"type": list, "readonly": False,
 					"values": ["Upper", "Lower", "Title", "None"]},
 				"ReadOnly": {"type": bool, "readonly": False}}
-		htmlTextProps = {"Page": {"type": unicode, "readonly": False},
+		htmlTextProps = {"Page": {"type": str, "readonly": False},
 				"RespondToLinks": {"type": bool, "readonly": False},
 				"ShowScrollBars": {"type": bool, "readonly": False},
-				"Source": {"type": unicode, "readonly": False}}
+				"Source": {"type": str, "readonly": False}}
 		scrollProps = {"HorizontalScroll": {"type": bool, "readonly": False},
 				"VerticalScroll": {"type": bool, "readonly": False}}
 		treeProps = {"Editable": {"type": bool, "readonly": False},
@@ -1111,7 +1111,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 		# Now see if there are any custom properties defined for this class
 		custProps = self.Controller.getPropDictForObject(self)
 		if custProps:
-			for prop, dct in custProps.items():
+			for prop, dct in list(custProps.items()):
 				val = dct.get("defaultValue", None)
 				if val is None:
 					typ = "varies"
@@ -1127,7 +1127,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 	def _setHiliteBorderColor(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				try:
 					val = dColors.colorTupleFromName(val)
 				except: pass
@@ -1276,7 +1276,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			return
 		try:
 			self.ControllingSizer.setItemProp(self, "ColSpan", val)
-		except dui.GridSizerSpanException, e:
+		except dui.GridSizerSpanException as e:
 			raise PropertyUpdateException(ustr(e))
 
 
@@ -1295,7 +1295,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			return
 		try:
 			self.ControllingSizer.setItemProp(self, "RowSpan", val)
-		except dui.GridSizerSpanException, e:
+		except dui.GridSizerSpanException as e:
 			raise PropertyUpdateException(ustr(e))
 
 

@@ -3,11 +3,11 @@ import datetime
 import decimal
 import dabo
 from dabo.dLocalize import _
-from dBackend import dBackend
+from .dBackend import dBackend
 import dabo.dException as dException
-from dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
+from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 from dabo.lib.utils import ustr
-from dCursorMixin import dCursorMixin
+from .dCursorMixin import dCursorMixin
 
 class MySQLAutoReconnectCursor(dCursorMixin):
 	def execute(self, sql, params=None, errorClass=None, convertQMarks=False):
@@ -75,7 +75,7 @@ class MySQL(dBackend):
 			self._connection = dbapi.connect(host=connectInfo.Host,
 					user = connectInfo.User, passwd = connectInfo.revealPW(),
 					db=connectInfo.Database, port=port, charset=charset, **kwargs)
-		except Exception, e:
+		except Exception as e:
 			try:
 				errMsg = ustr(e).decode(self.Encoding)
 			except UnicodeError:
@@ -143,7 +143,7 @@ class MySQL(dBackend):
 		rs = cursor.fetchall()
 		tables = []
 		for record in rs:
-			tables.append(record.values()[0])
+			tables.append(list(record.values())[0])
 		return tuple(tables)
 
 

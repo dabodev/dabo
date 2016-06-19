@@ -6,11 +6,12 @@ http://dabodev.com
 """
 import sys
 import os
+# from . import locale
 import locale
 import logging
 import logging.handlers
-from settings import *
-from version import __version__
+from .settings import *
+from .version import __version__
 
 # dApp will change the following values upon its __init__:
 dAppRef = None
@@ -28,7 +29,7 @@ def getEncoding():
 			yield prefEncoding
 		if not encoding == defaultEncoding:
 			yield defaultEncoding
-		raise ValueError, "Unknown encoding: %s" % encoding
+		raise ValueError("Unknown encoding: %s" % encoding)
 
 	for encoding in _getEncodingName():
 		try:
@@ -182,7 +183,7 @@ def setDbLogFile(fname, level=None):
 if localizeDabo:
 	# Install localization service for dabo. dApp will install localization service
 	# for the user application separately.
-	import dLocalize
+	from dabo import dLocalize
 	dLocalize.install("dabo")
 
 # On some platforms getfilesystemencoding() and even getdefaultlocale()
@@ -191,7 +192,7 @@ fileSystemEncoding = (sys.getfilesystemencoding()
 		or locale.getdefaultlocale()[1] or defaultEncoding)
 
 if importDebugger:
-	from dBug import logPoint
+	from .dBug import logPoint
 	try:
 		import pudb as pdb
 	except ImportError:
@@ -199,7 +200,7 @@ if importDebugger:
 	trace = pdb.set_trace
 
 	def debugout(*args):
-		from lib.utils import ustr
+		from .lib.utils import ustr
 		txtargs = [ustr(arg) for arg in args]
 		txt = " ".join(txtargs)
 		log = logging.getLogger("Debug")
@@ -210,17 +211,17 @@ if importDebugger:
 	# 		debugout("Another Message", self.Caption)
 	# to their code for debugging.
 	# (I added 'debugo' as an homage to Whil Hentzen!)
-	import __builtin__
-	__builtin__.debugo = __builtin__.debugout = debugout
+	import builtins
+	builtins.debugo = builtins.debugout = debugout
 
 if implicitImports:
-	import dColors
-	import dEvents
+	from . import dColors
+	from . import dEvents
 	import dabo.db
 	import dabo.biz
 	import dabo.ui
-	from dApp import dApp
-	from dPref import dPref
+	from .dApp import dApp
+	from .dPref import dPref
 
 # Store the base path to the framework
 frameworkPath = os.path.dirname(__file__)
@@ -248,7 +249,7 @@ def quickStart(homedir=None):
 	"""
 	currLoc = os.getcwd()
 	if homedir is None:
-		homedir = raw_input("Enter the name for your application: ")
+		homedir = input("Enter the name for your application: ")
 	if not homedir:
 		return
 
@@ -292,7 +293,7 @@ app.start()
 		fname = "%s/__init__.py" % dd
 		txt = template % locals()
 		open(fname, "w").write(txt)
-	os.chmod("main.py", 0744)
+	os.chmod("main.py", 0o744)
 	os.chdir(currLoc)
-	print "Application '%s' has been created for you" % homedir
+	print("Application '%s' has been created for you" % homedir)
 

@@ -249,10 +249,10 @@ class ClassDesigner(dApp):
 			try:
 				frm = self.openClass(clsFile)
 				clsOK = True
-			except dabo.dException.XmlException, e:
+			except dabo.dException.XmlException as e:
 				msg = _("Error: %s\n\nA new file will be created.") % e
 				dui.stop(message=msg, title=_("Invalid XML File"))
-			except IOError, e:
+			except IOError as e:
 				msg = _("'%s' does not exist. Create it?") % clsFile
 				if dui.areYouSure(message=msg, title=_("File Not Found"), cancelButton=False):
 					frm = self.onNewDesign(evt=None, pth=clsFile)
@@ -339,7 +339,7 @@ class ClassDesigner(dApp):
 					return itm.appliesToClass(cls)
 				except (AttributeError, NameError):
 					return False
-			ret = ["on%s" % k for k,v in dEvents.__dict__.items()
+			ret = ["on%s" % k for k,v in list(dEvents.__dict__.items())
 					if safeApplies(v,cls)]
 			ret.sort()
 			return ret
@@ -541,9 +541,9 @@ class ClassDesigner(dApp):
 					pth = os.path.abspath(pth)
 			converter = DesignerClassConverter()
 			dct = converter.dictFromStoredText(pth)
-		except dabo.dException.XmlException, e:
+		except dabo.dException.XmlException as e:
 			raise
-		except StandardError, e:
+		except Exception as e:
 			if pth.strip().startswith("<?xml") or os.path.exists(pth):
 				raise IOError(_("This does not appear to be a valid class file."))
 			else:
@@ -565,7 +565,7 @@ class ClassDesigner(dApp):
 		associated with those IDs, so that we can later compare it to
 		an object's code in order to determine if it has been changed.
 		"""
-		cds = [(kk, vv["code"]) for kk, vv in dct.items()
+		cds = [(kk, vv["code"]) for kk, vv in list(dct.items())
 				if vv["code"]]
 		for cd in cds:
 			self._classCodeDict.update({cd[0]: cd[1]})
@@ -644,7 +644,7 @@ class ClassDesigner(dApp):
 		try:
 			imp, clsname = nm.rsplit(".", 1)
 			imptSt = "from %(imp)s import %(clsname)s" % locals()
-			exec imptSt in locals()
+			exec(imptSt, locals())
 			clsd["fullname"] = nm
 			clsd["name"] = clsname
 		except ValueError:
@@ -736,7 +736,7 @@ class ClassDesigner(dApp):
 			if code:
 				self._codeDict[frm] = {}
 				# Each method will be a separate dict
-				for mthd, cd in code.items():
+				for mthd, cd in list(code.items()):
 					cd = cd.replace("\n]", "]")
 					self._codeDict[frm][mthd] = cd
 			# Do the same for the properties
@@ -859,7 +859,7 @@ class ClassDesigner(dApp):
 		defaults = {True: szItemDefaults[2],
 				False: szItemDefaults[1]}[is2D]
 		defAtts = {}
-		for key, val in defaults.items():
+		for key, val in list(defaults.items()):
 			defAtts["Sizer_%s" % key] = val
 		defAtts.update(dictStringify(atts))
 		atts = defAtts
@@ -904,7 +904,7 @@ class ClassDesigner(dApp):
 		defaults = {True: szItemDefaults[2],
 				False: szItemDefaults[1]}[is2D]
 		defAtts = {}
-		for key, val in defaults.items():
+		for key, val in list(defaults.items()):
 			defAtts["Sizer_%s" % key] = val
 		defAtts.update(dictStringify(atts))
 		atts = defAtts
@@ -967,7 +967,7 @@ class ClassDesigner(dApp):
 		try:
 			imp, clsname = cls.rsplit(".", 1)
 			imptSt = "from %(imp)s import %(clsname)s" % locals()
-			exec imptSt in locals()
+			exec(imptSt, locals())
 			dct["fullname"] = cls
 			dct["name"] = clsname
 			newClass = eval(clsname)
@@ -1009,7 +1009,7 @@ class ClassDesigner(dApp):
 		if classID:
 			obj.classID = classID
 
-		for mthd, cd in code.items():
+		for mthd, cd in list(code.items()):
 			if not self._codeDict.get(obj):
 				self._codeDict[obj] = {}
 			cd = cd.replace("\n]", "]")
@@ -1046,22 +1046,22 @@ class ClassDesigner(dApp):
 		for kid in kids:
 			kidatts = kid["attributes"]
 			col = colClass(obj)
-			for kprop, kval in kidatts.items():
+			for kprop, kval in list(kidatts.items()):
 				if kprop in ("designerClass", "classID"):
 					continue
 				typ = type(getattr(col, kprop))
 				if typ is noneTyp:
 					try:
 						kval = eval(kval)
-					except StandardError, e:
+					except Exception as e:
 						# Leave it as it is
 						pass
 				else:
-					if not issubclass(typ, basestring):
-						if typ is bool and isinstance(kval, basestring):
+					if not issubclass(typ, str):
+						if typ is bool and isinstance(kval, str):
 							kval = (kval.lower() in ("true", "t", "yes", "y", "1"))
 						else:
-							if typ in (list, tuple) and isinstance(kval, basestring):
+							if typ in (list, tuple) and isinstance(kval, str):
 								kval = eval(kval)
 							else:
 								kval = typ(kval)
@@ -1145,11 +1145,11 @@ class ClassDesigner(dApp):
 			# Remove the name and designerClass atts
 			self._extractKey(atts, "name")
 			self._extractKey(atts, "designerClass")
-			for prop, val in atts.items():
+			for prop, val in list(atts.items()):
 				try:
-					exec "nd.%s = %s" % (prop, val) in locals()
+					exec("nd.%s = %s" % (prop, val), locals())
 				except (SyntaxError, NameError):
-					exec "nd.%s = '%s'" % (prop, val) in locals()
+					exec("nd.%s = '%s'" % (prop, val), locals())
 			for kidnode in kidnodes:
 				kidatts = kidnode.get("attributes", {})
 				kidkids = kidnode.get("children", {})
@@ -1245,7 +1245,7 @@ class ClassDesigner(dApp):
 				code = dct.get("code", {})
 			rv["code"] = code
 			sizerInfo = rv["sizerInfo"] = self._extractKey(atts, "sizerInfo", "{}")
-			if isinstance(sizerInfo, basestring):
+			if isinstance(sizerInfo, str):
 				sizerInfoDict = eval(sizerInfo)
 			else:
 				sizerInfoDict = sizerInfo
@@ -1285,7 +1285,7 @@ class ClassDesigner(dApp):
 			try:
 				imp, clsname = nm.rsplit(".", 1)
 				imptSt = "from %(imp)s import %(clsname)s" % locals()
-				exec imptSt in locals()
+				exec(imptSt, locals())
 				pgDct["fullname"] = nm
 				pgDct["name"] = clsname
 				cls = eval(clsname)
@@ -1303,7 +1303,7 @@ class ClassDesigner(dApp):
 			mixClass = self.getControlClass(cls)
 			wizpage = frm.append(mixClass(pp, attProperties=atts))
 # 			wizpage.AlwaysResetSizer = True
-			for mthd, cd in code.items():
+			for mthd, cd in list(code.items()):
 				if not self._codeDict.get(wizpage):
 					self._codeDict[wizpage] = {}
 				cd = cd.replace("\n]", "]")
@@ -1380,7 +1380,7 @@ class ClassDesigner(dApp):
 					compile(txt.strip().replace("\r\n", "\n"), "", "exec")
 					self._classImportDict[frm] = txt
 					showDialog = dlg.Accepted = False
-				except SyntaxError, e:
+				except SyntaxError as e:
 					errMsg = _("Syntax Error: %s") % e
 					dabo.ui.stop(errMsg, _("Error Compiling Import Declarations"))
 		dlg.release()
@@ -1419,17 +1419,17 @@ class ClassDesigner(dApp):
 				typ = eval("type(obj.%s)" % prop)
 			if typ is bool:
 				val = bool(val)
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				strVal = val
 			else:
 				strVal = ustr(val)
-			if typ in (str, unicode) or ((typ is list) and isinstance(val, basestring)):
+			if typ in (str, str) or ((typ is list) and isinstance(val, str)):
 				# Escape any single quotes, and then enclose
 				# the value in single quotes
 				strVal = "u'" + self.escapeQt(strVal) + "'"
 			try:
 				exec("obj.%s = %s" % (prop, strVal) )
-			except StandardError, e:
+			except Exception as e:
 				raise PropertyUpdateException(ustr(e))
 
 
@@ -1525,7 +1525,7 @@ class ClassDesigner(dApp):
 		if hasSizer:
 			if isSlot:
 				prefix = ""
-				szProps = csz.ItemDesignerProps.keys()
+				szProps = list(csz.ItemDesignerProps.keys())
 			else:
 				szProps = [prop for prop in obj.DesignerProps
 						if prop.startswith(prefix)]
@@ -1668,10 +1668,10 @@ class ClassDesigner(dApp):
 			prefix = ""
 			if isSlot:
 				prefix = "Sizer_"
-			for prop, val in propDict.items():
+			for prop, val in list(propDict.items()):
 				propName = prefix + prop
 				obj.__setattr__(propName, val)
-			for prop, val in selfPropDict.items():
+			for prop, val in list(selfPropDict.items()):
 				propName = prefix + prop
 				obj.__setattr__(propName, val)
 			self.CurrentForm.layout()
@@ -1701,7 +1701,7 @@ class ClassDesigner(dApp):
 
 
 	def _setSlotProp(self, val):
-		print "VAL", val, self._sizerObj
+		print("VAL", val, self._sizerObj)
 
 
 	def _getSel(self):
@@ -1763,7 +1763,7 @@ class ClassDesigner(dApp):
 				ret[prop] = getattr(obj, prop)
 			self._classDefaultVals[cls] = ret
 			if cleanup:
-				exec cleanup in locals()
+				exec(cleanup, locals())
 			if not issubclass(cls, (dui.dPage, dui.dSlidePanel)):
 				# Pages will be released by their parent.
 				obj.release()
@@ -1817,7 +1817,7 @@ class ClassDesigner(dApp):
 				try:
 					pnl.onPaste(evt)
 				except:
-					print "Cannot paste in ", pnl
+					print("Cannot paste in ", pnl)
 		else:
 			# Normal cut operation
 			super(ClassDesigner, self).onEditPaste(evt)
@@ -1946,9 +1946,9 @@ class ClassDesigner(dApp):
 		self.updateNamespace(full)
 		try:
 			self.CurrentForm.onRunDesign(evt)
-		except AttributeError, e:
+		except AttributeError as e:
 			dabo.ui.stop(_("Attribute Error: %s") % ustr(e), _("Attribute Error"))
-		except StandardError, e:
+		except Exception as e:
 			msg = ustr(e)
 			if hasattr(e, "text"):
 				txt = e.text.strip()
@@ -2099,10 +2099,10 @@ class ClassDesigner(dApp):
 		try:
 			func(*args, **kwargs)
 			return True
-		except IOError, e:
+		except IOError as e:
 			dabo.ui.stop(_("Save failed; reason: %s") % e)
 			return False
-		except StandardError, e:
+		except Exception as e:
 			dabo.ui.stop(_("Save failed; reason: %s") % e)
 			raise e
 
@@ -2122,7 +2122,7 @@ class ClassDesigner(dApp):
 			codecs.open(out, "w", encoding="utf-8").write(code)
 			dui.info(_("You can run your form by running the file\n%s")
 					% out, title=_("Runnable App Saved"))
-		except IOError, e:
+		except IOError as e:
 			dabo.ui.stop(_("Save failed; reason: %s") % e)
 
 
@@ -2323,7 +2323,7 @@ class ClassDesigner(dApp):
 		# Now delete the property definition
 		try:
 			del self._classPropDict[obj][prop]
-		except StandardError, e:
+		except Exception as e:
 			dabo.log.error(_("Could not delete custom property '%(prop)s': %(e)s")
 					% locals())
 
@@ -2596,8 +2596,8 @@ class ClassDesigner(dApp):
 		self._contextObj = obj
 		try:
 			ret = obj.createContextMenu()
-		except StandardError, e:
-			print "NO ON CONTEXT", e
+		except Exception as e:
+			print("NO ON CONTEXT", e)
 			ret = None
 		return ret
 
@@ -2739,7 +2739,7 @@ class ClassDesigner(dApp):
 
 	def _afterAddNewControlPaged(self, obj, pcount, classFlagProp, pgCls, useSizers):
 		pgCls = obj.PageClass
-		if isinstance(pgCls, basestring):
+		if isinstance(pgCls, str):
 			# Saved class; let the control handle it
 			obj.PageCount = pcount
 			# This is the key that marks it as a class, and not a base object.
@@ -2762,7 +2762,7 @@ class ClassDesigner(dApp):
 
 	def _afterAddNewControlSlidePanel(self, obj, classFlagProp, pcount, useSizers):
 		pnlCls = obj.PanelClass
-		if isinstance(pnlCls, basestring):
+		if isinstance(pnlCls, str):
 			# Saved class; let the control handle it
 			obj.PanelCount = pcount
 			# This is the key that marks it as a class, and not a base object.
@@ -2830,7 +2830,7 @@ class ClassDesigner(dApp):
 			# will override the defaults for the class.
 			itmDefaultProps = pnl._defaultSizerProps
 			changedDefaults = currItemProps.copy()
-			for key, val in itmDefaultProps.items():
+			for key, val in list(itmDefaultProps.items()):
 				if changedDefaults.get(key, None) == val:
 					changedDefaults.pop(key)
 			# Now get the defaults that are used to determine saved values
@@ -3071,7 +3071,7 @@ class ClassDesigner(dApp):
 				superMixin = cmix
 				def __init__(self, *args, **kwargs):
 					if hasattr(base, "__init__"):
-						apply(base.__init__,(self,) + args, kwargs)
+						base.__init__(*(self,) + args, **kwargs)
 					parent = args[0]
 					cmix.__init__(self, parent, **kwargs)
 					self.NameBase = ustr(self._baseClass).split(".")[-1].split("'")[0]
@@ -3304,7 +3304,7 @@ class ClassDesigner(dApp):
 		is passed, or by an MRU selection, in which case a menu event
 		is passed.
 		"""
-		if isinstance(pathOrEvent, basestring):
+		if isinstance(pathOrEvent, str):
 			pth = pathOrEvent
 		else:
 			# Picked from an MRU list
@@ -3357,7 +3357,7 @@ class ClassDesigner(dApp):
 		dabo.lib.utils.resolveAttributePathing(atts, pth)
 		code = dct.get("code", {})
 		sizerInfo = self._extractKey(atts, "sizerInfo", "{}")
-		if isinstance(sizerInfo, basestring):
+		if isinstance(sizerInfo, str):
 			sizerInfoDict = eval(sizerInfo)
 		else:
 			sizerInfoDict = sizerInfo
@@ -3373,19 +3373,19 @@ class ClassDesigner(dApp):
 			cd.update(code)
 			self._codeDict[obj] = cd
 
-		for att, val in atts.items():
+		for att, val in list(atts.items()):
 			if att in ("children", "classID", "code-ID", "designerClass", "SlotCount"):
 				continue
 			elif att == "savedClass":
 				obj.savedClass = True
 			else:
 				try:
-					exec "obj.%s = %s" % (att, val)
+					exec("obj.%s = %s" % (att, val))
 				except:
 					# If this is attribute holds strings, we need to quote the value.
 					escVal = val.replace('"', '\\"').replace("'", "\\'")
 					try:
-						exec "obj.%s = '%s'" % (att, escVal)
+						exec("obj.%s = '%s'" % (att, escVal))
 					except:
 						raise ValueError(_("Could not set attribute '%(att)s' to value: %(val)s") % locals())
 		# If the item has children, set their atts, too.
@@ -3412,7 +3412,7 @@ class ClassDesigner(dApp):
 							kidDct = [cd for cd in childList
 									if cd["attributes"]["classID"] == kidID][0]
 							self.setCustomChanges(kid, kidDct)
-						except StandardError, e:
+						except Exception as e:
 							dabo.log.error(_("Error locating sizer: %s") % e)
 		else:
 			if obj.Sizer:
@@ -3422,7 +3422,7 @@ class ClassDesigner(dApp):
 					szDct = [cd for cd in childList
 							if cd["attributes"]["classID"] == szID][0]
 					self.setCustomChanges(obj.Sizer, szDct)
-				except StandardError, e:
+				except Exception as e:
 					dabo.log.error(_("Error locating sizer: %s") % e)
 			else:
 				if obj.Children:
@@ -3435,7 +3435,7 @@ class ClassDesigner(dApp):
 							kidDct = [cd for cd in childList
 									if cd["attributes"]["classID"] == kidID][0]
 							self.setCustomChanges(kid, kidDct)
-						except StandardError, e:
+						except Exception as e:
 							dabo.log.error(_("Error locating child object: %s") % e)
 
 
@@ -3571,14 +3571,14 @@ class ClassDesigner(dApp):
 		if isSpacer:
 			if spacing is not None:
 				spc = spacing
-				if isinstance(spc, basestring):
+				if isinstance(spc, str):
 					spc = eval(spc)
 			else:
 				if isinstance(controllingSizer, LayoutGridSizer):
 					rows, cols = 1, 1
 				spc = dui.getString(message=_("Spacer Dimension?"),
 						caption=_("New Spacer"), defaultValue="10")
-				if isinstance(spc, basestring):
+				if isinstance(spc, str):
 					spc = int(spc)
 				else:
 					# They canceled
@@ -3610,14 +3610,14 @@ class ClassDesigner(dApp):
 						(useBox and isinstance(controllingSizer, LayoutBorderSizer)) ):
 					useExisting = True
 					esa = controllingSizer.getDesignerDict(allProps=True)["attributes"]
-					for key in self._defBoxSizerAtts.keys():
+					for key in list(self._defBoxSizerAtts.keys()):
 						if not esa[key] == self._defBoxSizerAtts[key]:
 							useExisting = False
 							break
 			elif not isOneDim and isinstance(controllingSizer, LayoutGridSizer):
 				useExisting = True
 				esa = controllingSizer.getDesignerDict(allProps=True)["attributes"]
-				for key in self._defGridSizerAtts.keys():
+				for key in list(self._defGridSizerAtts.keys()):
 					if not esa[key] == self._defGridSizerAtts[key]:
 						useExisting = False
 						break

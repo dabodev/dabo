@@ -18,8 +18,8 @@ if __name__ == "__main__":
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 from dabo.dLocalize import _
-import dDataControlMixin as dcm
-import dTimer
+from . import dDataControlMixin as dcm
+from . import dTimer
 
 LexerDic = {
     "ada": stc.STC_LEX_ADA,
@@ -132,7 +132,7 @@ class StyleTimer(dTimer.dTimer):
 	def onHit(self, evt):
 		#self.Interval = 0
 		self.stop()
-		if self.mode in LexerDic.keys():
+		if self.mode in list(LexerDic.keys()):
 			if self.Parent:
 				self.Parent.SetLexer(LexerDic[self.mode])
 			self.mode = "container"
@@ -413,7 +413,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		"""
 		if line is None:
 			line = self._ZeroBasedLineNumber
-		if nm in self._bookmarks.keys():
+		if nm in list(self._bookmarks.keys()):
 			self.clearBookmark(nm)
 		hnd = self.MarkerAdd(line, self._bmkPos)
 		self._bookmarks[nm] = hnd
@@ -508,7 +508,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		line, or None if the line is not bookmarked.
 		"""
 		ret = None
-		for nm, hnd in self._bookmarks.items():
+		for nm, hnd in list(self._bookmarks.items()):
 			if self.MarkerLineFromHandle(hnd) == line:
 				ret = nm
 				break
@@ -517,7 +517,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 	def getBookmarkList(self):
 		"""Returns a list of all current bookmark names."""
-		return self._bookmarks.keys()
+		return list(self._bookmarks.keys())
 
 
 	def getFunctionList(self):
@@ -878,7 +878,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def changeFontSize(self, fontSize):
 		if not self:
 			return
-		if isinstance(fontSize, basestring):
+		if isinstance(fontSize, str):
 			if fontSize.startswith("+"):
 				newSize = self._fontSize + int(fontSize[1:])
 			elif fontSize.startswith("-"):
@@ -1088,7 +1088,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 	def getAvailableLanguages(cls):
 		"""Returns an alphabetical list of all languages we have lexers for."""
-		ret = LexerDic.keys()
+		ret = list(LexerDic.keys())
 		ret.sort()
 		return ret
 	getAvailableLanguages = classmethod(getAvailableLanguages)
@@ -1098,7 +1098,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		"""Sets the appropriate lexer for syntax coloring."""
 		lex = self.Language.lower()
 		if color and lex:
-			if lex in LexerDic.keys():
+			if lex in list(LexerDic.keys()):
 				self.SetLexer(LexerDic[lex])
 				if lex == "python":
 					if not self._keyWordsLanguage == lex:
@@ -1527,7 +1527,7 @@ Do you want to overwrite it?""")
 			return
 		# Get the current status of bookmarks
 		currBmks = [(nm, self.MarkerLineFromHandle(hnd))
-				    for nm, hnd in self._bookmarks.items()]
+				    for nm, hnd in list(self._bookmarks.items())]
 		if currBmks != self._lastBookmarks:
 			# Save them
 			self._lastBookmarks = currBmks
@@ -1790,7 +1790,7 @@ Do you want to overwrite it?""")
 				flag = 0
 			retAll = ([x for x in re.findall(r"\b" + word + r"\w+\b", self._getTextSource(), flag)
 					   if x.find(',')==-1 and x[0]!= ' '])
-			ret = dict.fromkeys(retAll).keys()
+			ret = list(dict.fromkeys(retAll).keys())
 			return ret
 
 
@@ -1869,7 +1869,7 @@ Do you want to overwrite it?""")
 		if args:
 			classdef = "class self(%s): pass" % args
 			try:
-				exec classdef in self._namespaces
+				exec(classdef, self._namespaces)
 			except NameError:
 				# Class is not in the namespace
 				pass
@@ -1959,7 +1959,7 @@ Do you want to overwrite it?""")
 				while not line.rstrip().endswith(":"):
 					# Continued line
 					try:
-						lineNum += numGen.next()
+						lineNum += next(numGen)
 					except StopIteration:
 						break
 					nextLine = self.GetLine(lineNum).strip()
@@ -1970,8 +1970,8 @@ Do you want to overwrite it?""")
 		if code2exec:
 			cd = "\n".join(code2exec)
 			try:
-				exec cd in self._namespaces
-			except StandardError, e:
+				exec(cd, self._namespaces)
+			except Exception as e:
 				pass
 
 
@@ -2034,7 +2034,7 @@ Do you want to overwrite it?""")
 		return self._bookmarkBackColor
 
 	def _setBookmarkBackColor(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = dColors.colorTupleFromName(val)
 		if isinstance(val, tuple):
 			self._bookmarkBackColor = val
@@ -2047,7 +2047,7 @@ Do you want to overwrite it?""")
 		return self._bookmarkForeColor
 
 	def _setBookmarkForeColor(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = dColors.colorTupleFromName(val)
 		if isinstance(val, tuple):
 			self._bookmarkForeColor = val
@@ -2061,11 +2061,11 @@ Do you want to overwrite it?""")
 		return self._bookmarkIcon
 
 	def _setBookmarkIcon(self, val):
-		if val in bmkIconDic.keys():
+		if val in list(bmkIconDic.keys()):
 			self._bookmarkIcon = val
 			self._setBookmarkMarker()
 		else:
-			raise ValueError("Value of BookmarkIcon must be in %s" % (bmkIconDic.keys(),))
+			raise ValueError("Value of BookmarkIcon must be in %s" % (list(bmkIconDic.keys()),))
 
 
 	def _getBufferedDrawing(self):
@@ -2226,10 +2226,10 @@ Do you want to overwrite it?""")
 	def _setLanguage(self, val):
 		if self._constructed():
 			if val != self._language:
-				if val.lower() in LexerDic.keys():
+				if val.lower() in list(LexerDic.keys()):
 					self._language = val.lower()
 				else:
-					dabo.log.error(_("Currently only %s are supported") % ", ".join(LexerDic.keys()))
+					dabo.log.error(_("Currently only %s are supported") % ", ".join(list(LexerDic.keys())))
 				self.setDefaults()
 				self._defaultsSet = True
 
@@ -2278,7 +2278,7 @@ Do you want to overwrite it?""")
 	def _setSelectionBackColor(self, val):
 		if self._constructed():
 			self._selectionBackColor = val
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			self.SetSelBackground(1, val)
 		else:
@@ -2301,7 +2301,7 @@ Do you want to overwrite it?""")
 	def _setSelectionForeColor(self, val):
 		if self._constructed():
 			self._selectionForeColor = val
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			self.SetSelForeground(1, val)
 		else:
@@ -2507,7 +2507,7 @@ Do you want to overwrite it?""")
 			if self.Text != val:
 				try:
 					self.Text = val
-				except TypeError, e:
+				except TypeError as e:
 					nm = self._name
 					dabo.log.error(_("Could not set value of %(nm)s to %(val)s. Error message: %(e)s")
 								   % locals())
@@ -2731,5 +2731,5 @@ class _dEditor_test(dEditor):
 		self.Language = "Python"
 
 if __name__ == '__main__':
-	import test
+	from . import test
 	test.Test().runTest(_dEditor_test)

@@ -304,8 +304,8 @@ class Test_Many_To_Many(unittest.TestCase):
 		recs = fbiz.mmGetAssociatedValues(pbiz, "first_name")
 		self.assertEqual(len(recs), 2)
 		for rec in recs:
-			self.assertEqual(rec.keys(), ["first_name"])
-			self.assert_(rec["first_name"] in ("Paul", "Ed"))
+			self.assertEqual(list(rec.keys()), ["first_name"])
+			self.assertTrue(rec["first_name"] in ("Paul", "Ed"))
 
 		# Check for no associated records
 		fbiz.seek("Pat Boone", "performer")

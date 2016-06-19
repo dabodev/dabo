@@ -17,20 +17,20 @@ for root, dirs, files in os.walk('.'):
 					culpritLineCount += 1
 					lineNums = culprits.setdefault(fullFile, [])
 					lineNums.append(lineNum)
-			if culprits.has_key(fullFile):
-				print "! => %s (%s)" % (fullFile, len(culprits[fullFile]))
+			if fullFile in culprits:
+				print("! => %s (%s)" % (fullFile, len(culprits[fullFile])))
 
-print """
+print("""
 There are %s file(s) with mixed or space-only indentation, and a total of
 %s line(s). We'll now cycle through the lines in vim, one by one, so that 
 you may edit them as needed. Due to this script being kind of stupid, you
 shouldn't add or remove lines in the files, just fix the problem.
-""" % (len(culprits), culpritLineCount)
+""" % (len(culprits), culpritLineCount))
 
-print "\nContinue? (y/[N])",
-ret = raw_input()
+print("\nContinue? (y/[N])", end=' ')
+ret = input()
 if ret.lower() == "y":
-	for fileName, lines in culprits.items():
+	for fileName, lines in list(culprits.items()):
 		for line in lines:
 			os.system("vi %s +%s" % (fileName, line))
 	#	print "%s: %s" % (k, v)

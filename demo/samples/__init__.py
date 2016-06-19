@@ -1,1 +1,1 @@
-import games
+from . import games

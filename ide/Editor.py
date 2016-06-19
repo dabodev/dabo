@@ -212,7 +212,7 @@ class EditorPageFrame(dabo.ui.dPageFrame):
 				if fileTarget:
 					self.SelectedPage = pg
 					ret = pg
-			except StandardError as e:
+			except Exception as e:
 				dabo.log.error(_("Error opening file '%(pth)s': %(e)s") % locals())
 				dabo.ui.callAfter(self.removePage, pg)
 				ret = None
@@ -541,7 +541,7 @@ class EditorForm(dabo.ui.dForm):
 
 
 	def openRecursively(self, filelist):
-		if isinstance(filelist, basestring):
+		if isinstance(filelist, str):
 			# Individual file passed
 			filelist = [filelist]
 		for ff in filelist:
@@ -809,7 +809,7 @@ class EditorForm(dabo.ui.dForm):
 		"""
 		try:
 			target = self.pgfEditor.editFile(pth, True)
-		except StandardError, e:
+		except Exception as e:
 			if justReportErrors:
 				dabo.log.error(_("Could not open file: %s") % e)
 				target = None

@@ -5,9 +5,9 @@ import re
 import dabo
 from dabo.dLocalize import _
 from dabo.dException import dException, DBFileDoesNotExistException
-from dBackend import dBackend
-from dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
-from dCursorMixin import dCursorMixin
+from .dBackend import dBackend
+from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
+from .dCursorMixin import dCursorMixin
 from dabo.lib.utils import ustr
 
 
@@ -115,10 +115,10 @@ class SQLite(dBackend):
 			cursor.execute("COMMIT", errorClass=opError)
 			dabo.dbActivityLog.info("SQL: commit")
 			return True
-		except opError, e:
+		except opError as e:
 			# There is no transaction active in this case, so ignore the error.
 			pass
-		except Exception, e:
+		except Exception as e:
 			try:
 				errMsg = ustr(e).decode(self.Encoding)
 			except UnicodeError:

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import types
 import wx
-import dPemMixin as pm
-import dIcons
+from . import dPemMixin as pm
+from . import dIcons
 import dabo
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
@@ -139,7 +139,7 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 		if self._constructed():
 			if val in (None, ""):
 				return
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				# Icon name was passed; get the actual bitmap
 				val = dabo.ui.strToBmp(val)
 			self.SetBitmap(val)

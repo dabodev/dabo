@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-import dPemMixin
-import dSizerMixin
+from . import dPemMixin
+from . import dSizerMixin
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
@@ -42,7 +42,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 		if kwargs:
 			# Some kwargs haven't been handled.
-			bad = ", ".join(kwargs.keys())
+			bad = ", ".join(list(kwargs.keys()))
 			raise TypeError(("Invalid keyword arguments passed to dGridSizer: %s") % bad)
 
 		dSizerMixin.dSizerMixin.__init__(self, *args, **kwargs)
@@ -159,14 +159,14 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		"""Sets the 'growable' status of one or more columns."""
 		# If the colNum argument was passed first, switch it with the
 		# expand argument
-		if isinstance(expand, basestring):
+		if isinstance(expand, str):
 			expand, colNum = colNum, expand
 		if isinstance(colNum, (list, tuple)):
 			for col in colNum:
 				self.setColExpand(expand, col, proportion)
-		elif isinstance(colNum, basestring):
+		elif isinstance(colNum, str):
 			if colNum.lower() == "all":
-				for col in xrange(self.HighCol+1):
+				for col in range(self.HighCol+1):
 					self.setColExpand(expand, col, proportion)
 			else:
 				raise ValueError(
@@ -185,14 +185,14 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		"""Sets the 'growable' status of one or more rows."""
 		# If the rowNum argument was passed first, switch it with the
 		# expand argument
-		if isinstance(expand, basestring):
+		if isinstance(expand, str):
 			expand, rowNum = rowNum, expand
 		if isinstance(rowNum, (list, tuple)):
 			for row in rowNum:
 				self.setRowExpand(expand, row, proportion)
-		elif isinstance(rowNum, basestring):
+		elif isinstance(rowNum, str):
 			if rowNum.lower() == "all":
-				for row in xrange(self.HighRow+1):
+				for row in range(self.HighRow+1):
 					self.setRowExpand(expand, row, proportion)
 			else:
 				raise ValueError(
@@ -326,7 +326,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 			szit = obj.ControllingSizerItem
 		try:
 			row, col = szit.GetSpan()
-		except wx.PyAssertionError, e:
+		except wx.PyAssertionError as e:
 			# Window isn't controlled by this sizer
 			row, col = None, None
 		return (row, col)
@@ -499,13 +499,13 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 					ret = ["All"]
 				else:
 					ret = []
-					for side, val in pdBorder.items():
+					for side, val in list(pdBorder.items()):
 						if (flag & val == val):
 							ret.append(side)
 					if not ret:
 						ret = ["None"]
 		if ret is None:
-			print "NO PROP:", prop, itm
+			print("NO PROP:", prop, itm)
 		return ret
 
 
@@ -575,7 +575,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		return self.GetHGap()
 
 	def _setHGap(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = int(val)
 		self.SetHGap(val)
 
@@ -605,7 +605,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		return self._maxRows
 
 	def _setMaxRows(self, rows):
-		if isinstance(rows, basestring):
+		if isinstance(rows, str):
 			rows = int(rows)
 		self._maxRows = rows
 		if rows:
@@ -617,7 +617,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		return self._maxCols
 
 	def _setMaxCols(self, cols):
-		if isinstance(cols, basestring):
+		if isinstance(cols, str):
 			cols = int(cols)
 		self._maxCols = cols
 		if cols:
@@ -636,7 +636,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		return self.GetVGap()
 
 	def _setVGap(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = int(val)
 		self.SetVGap(val)
 

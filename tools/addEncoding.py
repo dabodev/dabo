@@ -29,5 +29,5 @@ for proj in ("dabo-dev", "daborun", "demo-dev", "ide-dev"):
 				# These are external
 				continue
 			reps += insertUtf(fname)
-	print "Project %s: %s files were modified" % (proj, reps)
+	print("Project %s: %s files were modified" % (proj, reps))
 

@@ -239,7 +239,7 @@ class PemForm(dabo.ui.dForm):
 			obEvtCode = self.Controller.getCodeForObject(ob)
 			codeEvents = nonCodeEvents = []
 			if obEvtCode is not None:
-				codeEvents = obEvtCode.keys()
+				codeEvents = list(obEvtCode.keys())
 				codeEvents.sort()
 			nonCodeEvents = [ev for ev in evts
 					if ev not in codeEvents]

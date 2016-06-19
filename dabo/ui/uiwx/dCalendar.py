@@ -6,7 +6,7 @@ import dabo
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-import dControlMixin as dcm
+from . import dControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
@@ -395,17 +395,17 @@ if __name__ == "__main__":
 			self.cal.setHolidays(((None,12,25), (2006, 1, 4)))
 
 		def onCalendarDayHeaderClicked_cal(self, evt):
-			print "Day of week:", evt.weekday
+			print("Day of week:", evt.weekday)
 		def onCalendarDateChanged_cal(self, evt):
-			print "DateChanged!", evt.date
+			print("DateChanged!", evt.date)
 		def onCalendarDayChanged_cal(self, evt):
-			print "DayChanged!", evt.date
+			print("DayChanged!", evt.date)
 		def onCalendarMonthChanged_cal(self, evt):
-			print "MonthChanged!", evt.date
+			print("MonthChanged!", evt.date)
 		def onCalendarYearChanged_cal(self, evt):
-			print "YearChanged!", evt.date
+			print("YearChanged!", evt.date)
 		def onHit_cal(self, evt):
-			print "Hit!", evt.date
+			print("Hit!", evt.date)
 			self.release()
 
 

@@ -11,11 +11,12 @@ import dabo.dConstants as kons
 from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
-from dNoEscQuoteStr import dNoEscQuoteStr
+from .dNoEscQuoteStr import dNoEscQuoteStr
 from dabo.db.dDataSet import dDataSet
 from dabo.lib import dates
 from dabo.lib.utils import noneSortKey, caseInsensitiveSortKey
 from dabo.lib.utils import ustr
+import collections
 
 cursor_flags = (kons.CURSOR_MEMENTO, kons.CURSOR_NEWFLAG,
 		kons.CURSOR_TMPKEY_FIELD, kons.CURSOR_FIELD_TYPES_CORRECTED)
@@ -30,7 +31,7 @@ class dCursorMixin(dObject):
 	def __init__(self, sql="", *args, **kwargs):
 		self._convertStrToUnicode = True
 		self._initProperties()
-		if sql and isinstance(sql, basestring) and len(sql) > 0:
+		if sql and isinstance(sql, str) and len(sql) > 0:
 			self.UserSQL = sql
 		# Attributes used for M-M relationships
 		self._isMM = False
@@ -244,17 +245,17 @@ class dCursorMixin(dObject):
 		def tryToCorrect(func, field_val, field_name):
 			try:
 				return func(field_val)
-			except Exception, e:
+			except Exception as e:
 				tfv = type(field_val)
 				dabo.log.error(_("_correctFieldType() failed for field: "
 						"'%(field_name)s' (%(func)s); value: %(field_val)s (%(tfv)s)") % locals())
 
-		if pythonType in (unicode,):
+		if pythonType in (str,):
 			# Unicode conversion happens below.
 			pass
-		elif pythonType in (datetime.datetime,) and isinstance(field_val, basestring):
+		elif pythonType in (datetime.datetime,) and isinstance(field_val, str):
 			return tryToCorrect(dates.getDateTimeFromString, field_val, field_name)
-		elif pythonType in (datetime.date,) and isinstance(field_val, basestring):
+		elif pythonType in (datetime.date,) and isinstance(field_val, str):
 			return tryToCorrect(dates.getDateFromString, field_val, field_name)
 		elif pythonType in (Decimal,):
 			ds = self.DataStructure
@@ -284,7 +285,7 @@ class dCursorMixin(dObject):
 		if isinstance(field_val, str) and self._convertStrToUnicode:
 			try:
 				return field_val.decode(self.Encoding)
-			except UnicodeDecodeError, e:
+			except UnicodeDecodeError as e:
 				# Try some common encodings:
 				ok = False
 				for enc in ("utf-8", "latin-1", "iso-8859-1"):
@@ -322,16 +323,16 @@ class dCursorMixin(dObject):
 		if sql:
 			try:
 				sql = sql.decode(self.Encoding).replace("\n", " ")
-			except UnicodeDecodeError, e:
+			except UnicodeDecodeError as e:
 				sql = "(couldn't decode sql)"
 		try:
 			params = ", ".join("%s" % p for p in params)
-		except UnicodeDecodeError, e:
+		except UnicodeDecodeError as e:
 			params = "(couldn't decode params)"
 
 		try:
 			log("%s SQL: %s, PARAMS: %s" % (msg, sql, params))
-		except StandardError:
+		except Exception:
 			log("%s (couldn't log SQL or PARAMS)" % msg)
 
 
@@ -341,7 +342,7 @@ class dCursorMixin(dObject):
 		# retrieving the data. However, many cursor classes can only return
 		# row information as a list, not as a dictionary. This method will
 		# detect that, and convert the results to a dictionary.
-		if isinstance(sql, unicode):
+		if isinstance(sql, str):
 			sql = sql.encode(self.Encoding)
 		if convertQMarks:
 			sql = self._qMarkToParamPlaceholder(sql)
@@ -356,7 +357,7 @@ class dCursorMixin(dObject):
 				res = self.superCursor.execute(self, sql)
 				if not self.IsPrefCursor:
 					self._dblogExecute("execute()", sql)
-		except Exception, e:
+		except Exception as e:
 			# There can be cases where errors are expected. In those cases, the
 			# calling routine will pass the class of the expected error, and will
 			# handle it appropriately.
@@ -366,7 +367,7 @@ class dCursorMixin(dObject):
 
 			# Database errors need to be decoded from database encoding.
 			try:
-				errMsg = unicode(str(e), self.Encoding)
+				errMsg = str(str(e), self.Encoding)
 			except UnicodeError:
 				errMsg = ustr(e)
 			# If this is due to a broken connection, let the user know.
@@ -398,7 +399,7 @@ class dCursorMixin(dObject):
 
 		try:
 			_records = self.fetchall()
-		except Exception, e:
+		except Exception as e:
 			_records = dabo.db.dDataSet()
 			# Database errors need to be decoded from database encoding.
 			try:
@@ -643,7 +644,7 @@ class dCursorMixin(dObject):
 		# lists contain the sort value in the zeroth element, and the row as
 		# the first element.
 		# First, see if we are comparing strings
-		compString = isinstance(sortList[0][0], basestring)
+		compString = isinstance(sortList[0][0], str)
 
 		if compString and not caseSensitive:
 			sortKey = caseInsensitiveSortKey
@@ -693,7 +694,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rowXML = ""
 		for rec in self._records:
 			recInfo = [ colTemplate % (k, self.getType(v), self.escape(v))
-					for k, v in rec.items() ]
+					for k, v in list(rec.items()) ]
 			rowXML += rowTemplate % "\n".join(recInfo)
 		return base % (self.Encoding, self.AutoPopulatePK, self.KeyField,
 				self.Table, rowXML)
@@ -708,14 +709,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if row is None:
 			row = self.RowNumber
 		recInfo = [colTemplate % (k, self.getType(v), self.escape(v))
-				for k, v in self._records[row].items()]
+				for k, v in list(self._records[row].items())]
 		return "\n".join(recInfo)
 
 
 	def escape(self, val):
 		"""Provides the proper escaping of values in XML output"""
 		ret = val
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			if ("\n" in val) or ("<" in val) or ("&" in val):
 				ret = "<![CDATA[%s]]>" % val.encode(self.Encoding)
 		return ret
@@ -840,7 +841,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		ret = self.__tmpPK
 		# Decrement the temp PK value
 		self.__tmpPK -= 1
-		if isinstance(pkValue, basestring):
+		if isinstance(pkValue, str):
 			ret = "%s-dabotmp" % ret
 		return ret
 
@@ -890,7 +891,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					_("Row #%(row)s requested, but the data set has only %(cnt)s row(s),") % locals())
 		self._correctFieldTypesIfNeeded(rec)
 		if isinstance(fld, (tuple, list)):
-			return map(functools.partial(self.getFieldVal, row=row), fld)
+			return list(map(functools.partial(self.getFieldVal, row=row), fld))
 		if fld in rec:
 			return rec[fld]
 		elif fld in self.VirtualFields:
@@ -958,7 +959,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		Set the value for multiple fields with one call by passing a dict containing
 		the field names as keys, and the new values as values.
 		"""
-		for fld, val in valDict.items():
+		for fld, val in list(valDict.items()):
 			self.setFieldVal(fld, val, row, pk)
 	setValuesByDict = setFieldVals  ## deprecate setValuesByDict in future
 
@@ -998,22 +999,22 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		nonUpdateFields = self.getNonUpdateFields()
 		if fldType is not None and val is not None:
 			if fldType != type(val):
-				convTypes = (str, unicode, int, float, long, complex)
-				if issubclass(fldType, basestring) and isinstance(val, convTypes):
+				convTypes = (str, str, int, float, int, complex)
+				if issubclass(fldType, str) and isinstance(val, convTypes):
 					val = ustr(val)
 				elif issubclass(fldType, int) and isinstance(val, bool):
 					# convert bool to int (original field val was bool, but UI
 					# changed to int.
 					val = int(val)
-				elif issubclass(fldType, int) and isinstance(val, long):
+				elif issubclass(fldType, int) and isinstance(val, int):
 					# convert long to int (original field val was int, but UI
 					# changed to long.
 					val = int(val)
-				elif issubclass(fldType, long) and isinstance(val, int):
+				elif issubclass(fldType, int) and isinstance(val, int):
 					# convert int to long (original field val was long, but UI
 					# changed to int.
-					val = long(val)
-				elif fldType is buffer and isinstance(val, basestring):
+					val = int(val)
+				elif fldType is buffer and isinstance(val, str):
 					# BLOB backend field wants buffer, but it is in a python string.
 					val = buffer(val)
 
@@ -1024,9 +1025,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# string representation of these classes, as there is no primitive for either
 				# 'DateTime' or 'Date'.
 				dtStrings = ("<type 'DateTime'>", "<type 'Date'>", "<type 'datetime.datetime'>","<type 'datetime.date'>")
-				if ustr(fldType) in dtStrings and isinstance(val, basestring):
+				if ustr(fldType) in dtStrings and isinstance(val, str):
 					ignore = True
-				elif issubclass(fldType, basestring) and isinstance(val, basestring):
+				elif issubclass(fldType, str) and isinstance(val, str):
 					ignore = True
 				elif val is None or fldType is type(None):
 					# Any field type can potentially hold None values (NULL). Ignore these.
@@ -1034,7 +1035,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				elif isinstance(val, dNoEscQuoteStr):
 					# Sometimes you want to set it to a sql function, equation, ect.
 					ignore = True
-				elif issubclass(fldType, basestring) and isinstance(val, buffer):
+				elif issubclass(fldType, str) and isinstance(val, buffer):
 					# Eliminate type error reported for blob fields.
 					ignore = True
 				elif fld in nonUpdateFields:
@@ -1123,11 +1124,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		try:
 			dabo.dbActivityLog.info("lookupPKWithAdd() SQL: %s, PARAMS: %s" % (
 					sql.decode(self.Encoding).replace("\n", " "), "(%s, )" % val))
-		except StandardError:
+		except Exception:
 			# A problem with writing to the log, most likely due to encoding issues
 			try:
 				dabo.dbActivityLog.info("lookupPKWithAdd() SQL (failed to log PARAMS): %r" % sql)
-			except StandardError:
+			except Exception:
 				dabo.dbActivityLog.info("lookupPKWithAdd() (failed to log SQL and PARAMS)")
 		aux.execute(sql, (val,))
 		if aux.RowCount:
@@ -1182,11 +1183,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				dabo.dbActivityLog.info("mmDissociateValues() SQL: %s, PARAMS: %s" % (
 						sql.decode(self.Encoding).replace("\n", " "), str((self._assocTable,
 					self._assocPKColThis, self._assocPKColOther))))
-			except StandardError:
+			except Exception:
 				# A problem with writing to the log, most likely due to encoding issues
 				try:
 					dabo.dbActivityLog.info("mmDissociateValues() SQL (failed to log PARAMS): %r" % sql)
-				except StandardError:
+				except Exception:
 					dabo.dbActivityLog.info("mmDissociateValues() (failed to log SQL and PARAMS)")
 			try:
 				aux.execute(sql, (thisPK, otherPK))
@@ -1205,7 +1206,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		try:
 			dabo.dbActivityLog.info("mmDissociateAll() SQL: %s" % (
 					sql.decode(self.Encoding).replace("\n", " ")))
-		except StandardError:
+		except Exception:
 			dabo.dbActivityLog.info("mmDissociateAll() (failed to log SQL")
 		try:
 			aux.execute(sql, (self.getPK(),))
@@ -1239,11 +1240,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		try:
 			dabo.dbActivityLog.info("mmAddToBoth() SQL: %s, PARAMS: %s" % (
 					sql.decode(self.Encoding).replace("\n", " "), str((thisPK, otherPK))))
-		except StandardError:
+		except Exception:
 			# A problem with writing to the log, most likely due to encoding issues
 			try:
 				dabo.dbActivityLog.info("mmAddToBoth() SQL (failed to log PARAMS): %r" % sql)
-			except StandardError:
+			except Exception:
 				dabo.dbActivityLog.info("mmAddToBoth() (failed to log SQL and PARAMS)")
 		aux.execute(sql, (thisPK, otherPK))
 		if not aux.RowCount:
@@ -1300,7 +1301,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		mem = self._mementos.get(pk, {})
 
-		for k, v in mem.items():
+		for k, v in list(mem.items()):
 			ret[k] = (v, rec[k])
 		return ret
 
@@ -1330,7 +1331,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			rec = self._records[row]
 			pk = self.pkExpression(rec)
 
-		for k, v in rec.items():
+		for k, v in list(rec.items()):
 			if k not in cursor_flags and \
 					self.Table in [f[3] for f in self.DataStructure if f[0]==k]:
 				ret[k] = (None, v)
@@ -1381,7 +1382,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		getFieldVal = self.getFieldVal
 		_records = self._records
-		vFieldKeys = self.VirtualFields.keys()
+		vFieldKeys = list(self.VirtualFields.keys())
 		_correctFieldTypesIfNeeded = self._correctFieldTypesIfNeeded
 
 		if not flds:
@@ -1391,7 +1392,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			vflds = [f for f in flds if f in vFieldKeys]
 			flds = [f for f in flds if f not in vFieldKeys]
 		ds = []
-		for row in xrange(rowStart, rows):
+		for row in range(rowStart, rows):
 			rec = _records[row]
 			_correctFieldTypesIfNeeded(rec)
 			tmprec = dict([(k, rec[k]) for k in flds if k in rec])
@@ -1419,7 +1420,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if updateInternals:
 				self.genTempAutoPK()
 				self.setNewFlag()
-			for col, val in rec.items():
+			for col, val in list(rec.items()):
 				if autoPopulatePK and (col in kf):
 					continue
 				self.setFieldVal(col, val)
@@ -1542,7 +1543,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					_("No records in dataset '%s'.") % self.Table)
 
 
-	def next(self):
+	def __next__(self):
 		"""Move the record pointer forward one position in the recordset."""
 		if self.RowCount > 0:
 			if self.RowNumber < (self.RowCount - 1):
@@ -1575,7 +1576,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		def saverow(row):
 			try:
 				self.__saverow(row)
-			except dException.DBQueryException, e:
+			except dException.DBQueryException as e:
 				# Error was encountered. Raise an exception so that the
 				# calling bizobj can rollback the transaction if necessary
 				try:
@@ -1585,7 +1586,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				dabo.dbActivityLog.info(
 						_("DBQueryException encountered in save(): %s") % errMsg)
 				raise e
-			except StandardError, e:
+			except Exception as e:
 				errMsg = ustr(e)
 				if "connect" in errMsg.lower():
 					dabo.dbActivityLog.info(
@@ -1639,7 +1640,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				flds = ""
 				vals = []
 				kf = self.KeyField
-				for kk, vv in diff.items():
+				for kk, vv in list(diff.items()):
 					if self.AutoPopulatePK:
 						if self._compoundKey:
 							skipIt = (kk in kf)
@@ -1660,7 +1661,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					# add value to expression
 					fieldType = [ds[1] for ds in self.DataStructure if ds[0] == kk][0]
 					val = vv[1]
-					if fieldType == "L" or (isinstance(val, basestring) and "\0" in val):
+					if fieldType == "L" or (isinstance(val, str) and "\0" in val):
 						val = self.formatBLOB(val)
 					#elif fieldType in ("D", "T"):
 					#	val = self.formatDateTime(val)
@@ -1705,7 +1706,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				for kf in keyFields:
 					fld = self.BackendObject.encloseNames(kf, self.AutoQuoteNames)
 					val = self.getFieldVal(kf)
-					if isinstance(val, basestring):
+					if isinstance(val, str):
 						val = "'" + val.encode(self.Encoding) + "' "
 					elif isinstance(val, (datetime.date, datetime.datetime)):
 						val = self.formatDateTime(val)
@@ -1716,7 +1717,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				aux.execute("select * from %s where %s" % (self.Table, where))
 				try:
 					data = aux.getDataSet()[0]
-					for fld, val in data.items():
+					for fld, val in list(data.items()):
 						try:
 							self.setFieldVal(fld, val)
 						except dException.FieldNotFoundException:
@@ -1867,9 +1868,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				if self.RowNumber >= self.RowCount:
 					self.RowNumber = self.RowCount - 1
 
-			for rec_pk, mem in self._mementos.items():
+			for rec_pk, mem in list(self._mementos.items()):
 				row, rec = self._getRecordByPk(rec_pk)
-				for fld, val in mem.items():
+				for fld, val in list(mem.items()):
 					self._records[row][fld] = val
 			self._mementos = {}
 
@@ -1889,7 +1890,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				return
 
 			# Not a new record: need to manually replace the old values:
-			for fld, val in self._mementos.get(recKey, {}).items():
+			for fld, val in list(self._mementos.get(recKey, {}).items()):
 				self._records[row][fld] = val
 			self._clearMemento(row)
 
@@ -1965,9 +1966,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		def setDefault(field, val):
 			if field in rec:
 				# If it is a function, execute it to get the value, else use literal.
-				if callable(val):
+				if isinstance(val, collections.Callable):
 					val = val()
-				elif isinstance(val, tuple) and val and callable(val[0]):
+				elif isinstance(val, tuple) and val and isinstance(val[0], collections.Callable):
 					# This is a tuple consisting of a function and zero to many parameters
 					fnc = val[0]
 					prms = val[1:]
@@ -1989,7 +1990,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				setDefault(keyField, vals[keyField])
 				keyFieldSet = True
 
-			for field, val in vals.items():
+			for field, val in list(vals.items()):
 				if field == keyField and keyFieldSet:
 					continue
 				setDefault(field, val)
@@ -2027,10 +2028,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			else:
 				try:
 					newval = typ()
-				except Exception, e:
+				except Exception as e:
 					dabo.log.error(_("Failed to create newval for field '%s'") % field_alias)
 					dabo.log.error(ustr(e))
-					newval = u""
+					newval = ""
 
 			self._blank[field_alias] = newval
 
@@ -2044,7 +2045,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if includeNewUnchanged:
 			# We need to also count all new records
 			chKeys |= set(self._newRecords)
-		return map(self._getRowByPk, chKeys)
+		return list(map(self._getRowByPk, chKeys))
 
 
 	def _getRecordByPk(self, pk, raiseRowNotFound=True):
@@ -2170,7 +2171,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		# Copy the specified field vals and their row numbers to a list, and
 		# add those lists to the sort list
 		sortList = []
-		for row in xrange(0, self.RowCount):
+		for row in range(0, self.RowCount):
 			if simpleKey:
 				rowval = self.getFieldVal(fld, row=row)
 			else:
@@ -2180,7 +2181,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if simpleKey:
 			# Determine if we are seeking string values
 			field_type = self._types.get(fld, type(sortList[0][0]))
-			compString = issubclass(field_type, basestring)
+			compString = issubclass(field_type, str)
 		else:
 			compString = False
 
@@ -2192,11 +2193,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				except ValueError:
 					val = int(0)
 
-			elif issubclass(field_type, long):
+			elif issubclass(field_type, int):
 				try:
-					val = long(val)
+					val = int(val)
 				except ValueError:
-					val = long(0)
+					val = int(0)
 
 			elif issubclass(field_type, float):
 				try:
@@ -2240,11 +2241,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 					ret = len(sortList) - 1
 					for idx, testVal in enumerate(searchList):
-						if isinstance(testVal, basestring) and isinstance(matchVal, basestring):
+						if isinstance(testVal, str) and isinstance(matchVal, str):
 							if len(testVal) >= len(matchVal) and testVal[:len(matchVal)] == matchVal:
 								ret = sortList[idx][1]
 								break
-						elif not isinstance(matchVal, basestring) and testVal > matchVal:
+						elif not isinstance(matchVal, str) and testVal > matchVal:
 							ret = idx
 							break
 				else:
@@ -2270,7 +2271,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			raise dException.MissingPKException(
 					_("checkPK failed; no primary key specified"))
 
-		if isinstance(kf, basestring):
+		if isinstance(kf, str):
 			kf = [kf]
 		# Make sure that there is a field with that name in the data set
 		try:
@@ -2316,7 +2317,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if ret:
 				ret.append(" AND ")
 			pkVal = getPkVal(fld)
-			if isinstance(pkVal, basestring):
+			if isinstance(pkVal, str):
 				ret.extend([tblPrefix, fldSafe, "='", pkVal.encode(self.Encoding), "' "])
 			elif isinstance(pkVal, (datetime.date, datetime.datetime)):
 				ret.extend([tblPrefix, fldSafe, "=", self.formatDateTime(pkVal), " "])
@@ -2337,14 +2338,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		aq = self.AutoQuoteNames
 		tblPrefix = bo.getUpdateTablePrefix(self.Table, autoQuote=aq)
 		nonup = self.getNonUpdateFields()
-		for fld, val in diff.items():
+		for fld, val in list(diff.items()):
 			old_val, new_val = val
 			# Skip the fields that are not to be updated.
 			if fld in nonup:
 				continue
 			fieldType = [ds[1] for ds in self.DataStructure if ds[0] == fld][0]
 			val = new_val
-			if fieldType == "L" or (isinstance(val, basestring) and "\0" in val):
+			if fieldType == "L" or (isinstance(val, str) and "\0" in val):
 				val = self.formatBLOB(val)
 			# elif fieldType in ("D", "T"):
 			#		val = self.formatDateTime(val)
@@ -2361,7 +2362,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def escQuote(self, val):
 		"""Escape special characters in SQL strings."""
 		ret = val
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			ret = self.BackendObject.escQuote(val)
 		return ret
 

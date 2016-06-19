@@ -2,11 +2,11 @@
 import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-import dControlItemMixin as dcm
+from . import dControlItemMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
-import dKeys
+from . import dKeys
 
 
 class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
@@ -104,7 +104,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		if not self:
 			# The control is being destroyed
 			return
-		if not isinstance(self.GetValue(), basestring):
+		if not isinstance(self.GetValue(), str):
 			#Don't bother if it isn't a string type
 			return
 		length = self.TextLength
@@ -126,7 +126,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		if not self:
 			# The control is being destroyed
 			return
-		if not isinstance(self.GetValue(), basestring):
+		if not isinstance(self.GetValue(), str):
 			# Don't bother if it isn't a string type
 			return
 		case = self.ForceCase
@@ -296,20 +296,20 @@ class _dComboBox_test(dComboBox):
 	def beforeAppendOnEnter(self):
 		txt = self._textToAppend.strip().lower()
 		if txt == "dabo":
-			print _("Attempted to add Dabo to the list!!!")
+			print(_("Attempted to add Dabo to the list!!!"))
 			return False
 		elif txt.find("nixon") > -1:
 			self._textToAppend = "Tricky Dick"
 
 
 	def onHit(self, evt):
-		print "KeyValue: ", self.KeyValue
-		print "PositionValue: ", self.PositionValue
-		print "StringValue: ", self.StringValue
-		print "Value: ", self.Value
-		print "UserValue: ", self.UserValue
+		print("KeyValue: ", self.KeyValue)
+		print("PositionValue: ", self.PositionValue)
+		print("StringValue: ", self.StringValue)
+		print("Value: ", self.Value)
+		print("UserValue: ", self.UserValue)
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dComboBox_test)

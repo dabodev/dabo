@@ -55,9 +55,9 @@ class Test_Utils(unittest.TestCase):
 
 
 	def test_DictFuncs(self):
-		testdict = {u"First": 1, u"Second": 2, "Th”rd": 3}
+		testdict = {"First": 1, "Second": 2, "Th”rd": 3}
 		ds = utils.dictStringify(testdict)
-		for kk in ds.keys():
+		for kk in list(ds.keys()):
 			self.assertEqual(type(kk), str)
 
 

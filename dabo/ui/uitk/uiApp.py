@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys, os
-import Tkinter
+import tkinter
 import dabo
 import dabo.ui as ui
 import dabo.dEvents as dEvents
@@ -26,7 +26,7 @@ class uiApp(dObject):
 
 	def start(self):
 		self.raiseEvent(dEvents.Activate)
-		Tkinter.mainloop()
+		tkinter.mainloop()
 
 	def exit(self):
 		return

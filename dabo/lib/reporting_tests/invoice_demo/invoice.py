@@ -13,7 +13,7 @@ from dabo.lib import reportUtils
 
 outFile = "invoice.pdf"
 
-print "Instantiating the report writer..."
+print("Instantiating the report writer...")
 rw = ReportWriter()
 
 # Set some required properties:
@@ -26,8 +26,8 @@ rw.OutputFile = "%s" % outFile
 rw.UseTestCursor = True
 rw.ShowBandOutlines = True
 
-print "Writing %s..." % outFile
+print("Writing %s..." % outFile)
 rw.write()
 
-print "Trying to preview it..."
+print("Trying to preview it...")
 reportUtils.previewPDF(outFile)

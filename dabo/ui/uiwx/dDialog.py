@@ -8,8 +8,8 @@ if __name__ == "__main__":
 import dabo.dEvents as dEvents
 import dabo.dConstants as kons
 from dabo.dLocalize import _
-import dFormMixin as fm
-import dPemMixin as pm
+from . import dFormMixin as fm
+from . import dPemMixin as pm
 from dabo.ui import makeDynamicProperty
 
 
@@ -469,7 +469,7 @@ class dStandardButtonDialog(dDialog):
 		for prmpt, typ, rid in seq:
 			chc = None
 			gs.append(dabo.ui.dLabel(self, Caption=prmpt), halign="right")
-			if typ in (int, long):
+			if typ in (int, int):
 				cls = dabo.ui.dSpinner
 			elif typ is bool:
 				cls = dabo.ui.dCheckBox
@@ -664,7 +664,7 @@ class _FloatDialog(dDialog):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(dDialog)
 	test.Test().runTest(dStandardButtonDialog)
 	test.Test().runTest(dOkCancelDialog)

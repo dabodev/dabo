@@ -3,8 +3,8 @@ import os
 import sys
 import wx
 import dabo
-import dPemMixin as pm
-import dMenu
+from . import dPemMixin as pm
+from . import dMenu
 import dabo.icons
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -90,7 +90,7 @@ class dFormMixin(pm.dPemMixin):
 		app = self.Application
 		mbc = self.MenuBarClass
 		if app and mbc and self.ShowMenuBar:
-			if isinstance(mbc, basestring):
+			if isinstance(mbc, str):
 				self.MenuBar = dabo.ui.createMenuBar(mbc, self)
 			else:
 				self.MenuBar = mbc()
@@ -365,7 +365,7 @@ class dFormMixin(pm.dPemMixin):
 		pmMenu = pm.menu
 		menuPath = pmMenu.FullPath + "."
 		prefs = pmMenu.getPrefs(returnNested=True)
-		for itmPath, hk in prefs.items():
+		for itmPath, hk in list(prefs.items()):
 			relPath, setting = itmPath.replace(menuPath, "").rsplit(".", 1)
 			menuItem = mb
 			for pth in relPath.split("."):
@@ -772,7 +772,7 @@ class dFormMixin(pm.dPemMixin):
 	def _getFloatingPanel(self):
 		if not self._floatingPanel:
 			# Have to import it here, as it requires that dFormMixin be defined.
-			from dDialog import _FloatDialog
+			from .dDialog import _FloatDialog
 			self._floatingPanel = _FloatDialog(owner=None, parent=self)
 		return self._floatingPanel
 
@@ -801,7 +801,7 @@ class dFormMixin(pm.dPemMixin):
 				ico = val
 			else:
 				setIconFunc = self.SetIcons
-				if isinstance(val, basestring):
+				if isinstance(val, str):
 					icon_strs = (val,)
 				else:
 					icon_strs = val

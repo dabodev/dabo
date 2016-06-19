@@ -610,7 +610,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 ### as these are needed to link the code to the objects.\n\n"""
 		codeHeaderTemplate = desUtil.getCodeObjectSeperator() + "%s"
 		body = []
-		for codeKey, mthds in cd.items():
+		for codeKey, mthds in list(cd.items()):
 			# Add the import statements first, if any
 			try:
 				code = mthds.pop("importStatements").strip()
@@ -622,7 +622,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 				body.insert(0, code)
 				code = ""
 			# Sort the methods alphabetically
-			mthNames = mthds.keys()
+			mthNames = list(mthds.keys())
 			mthNames.sort()
 			for mthd in mthNames:
 				code += mthds[mthd].strip()
@@ -752,7 +752,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		# First, make sure that it's been saved
 		try:
 			fname = self.onSaveDesign(None, useTmp=True)
-		except IOError, e:
+		except IOError as e:
 			dabo.ui.info(_("Cannot write file"), title=_("Write Error"))
 		if not fname or not os.path.isfile(fname):
 			# Nothing was saved
@@ -836,10 +836,10 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		inf = modInfo[self._className]
 		self._classMethods = inf.methods
 		# Adjust the line numbers for the beginning of the module
-		for k,v in self._classMethods.items():
+		for k,v in list(self._classMethods.items()):
 			self._classMethods[k] = v - (inf.lineno-1)
 
-		z = [m.lineno for m in modInfo.values()]
+		z = [m.lineno for m in list(modInfo.values())]
 		z.sort()
 		# Find the index of the first line of this class, and the
 		# index of the next class.
@@ -902,7 +902,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		tblTitle = tblSafe.title()
 		lowbiz = tblSafe[0].lower() + tblSafe[1:] + "Bizobj"
 		pk = info["pk"]
-		flds = info["fldInfo"].keys()
+		flds = list(info["fldInfo"].keys())
 		if pk and pk not in flds:
 			# Make sure that the pk is retrieved!
 			flds.append(pk)
@@ -1067,7 +1067,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 			hnds["BM"].Position =  (left+(wid/2)-handleMid), top+ht-handleMid
 			hnds["BR"].Position = left+wid-handleMid, top+ht-handleMid
 
-			for hnd in hnds.values():
+			for hnd in list(hnds.values()):
 				hnd.bringToFront()
 				hnd.Visible = showEm
 
@@ -1120,7 +1120,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 
 
 	def hideAllHandles(self):
-		ks = self.handles.keys()
+		ks = list(self.handles.keys())
 		for key in ks:
 			self.hideHandles(key)
 
@@ -1132,7 +1132,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 			hnd = self.handles[ctl]
 		except KeyError:
 			return
-		for nm,h in hnd.items():
+		for nm,h in list(hnd.items()):
 			h.Visible = False
 			if release:
 				h.release()
@@ -1575,11 +1575,11 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
 			return []
 
 	def _getDesProps(self):
-		ret = {"Caption": {"type" : unicode, "readonly" : False},
-				"CxnName": {"type" : unicode, "readonly" : False},
+		ret = {"Caption": {"type" : str, "readonly" : False},
+				"CxnName": {"type" : str, "readonly" : False},
 				"Height": {"type" : int, "readonly" : False},
 				"Width": {"type" : int, "readonly" : False},
-				"Name" : {"type" : unicode, "readonly" : False},
+				"Name" : {"type" : str, "readonly" : False},
 				"Left": {"type" : int, "readonly" : False},
 				"Right": {"type" : int, "readonly" : False},
 				"Top": {"type" : int, "readonly" : False},

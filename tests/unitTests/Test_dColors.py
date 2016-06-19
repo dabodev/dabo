@@ -88,7 +88,7 @@ class TestTupleHexConversion(unittest.TestCase):
 	knownValues = (("#000000",(0,0,0)), ("#000001",(0,0,1)), ("#000101",(0,1,1)), ("#010101",(1,1,1)),
 				  ("#898989",(137,137,137)), ("#FFFFFF",(255,255,255)), ("#AAAAAA",(170,170,170)), 
 				  ("#A9A9A9",(169,169,169)), ("#0A0A0A",(10,10,10)), ("#090909",(9,9,9)),
-				  ("#1A2BF3",(26,43,243)), ("#3F029E",(63,02,158)), ("#707070",(112,112,112)),
+				  ("#1A2BF3",(26,43,243)), ("#3F029E",(63,0o2,158)), ("#707070",(112,112,112)),
 				  ("#6F6F6F",(111,111,111)), ("#8A8A8A",(138,138,138)), ("#00FF80",(0,255,128)),
 				  ("#1F575E",(31,87,94)), ("#89092B",(137,9,43)))
 	
@@ -109,7 +109,7 @@ class TestTupleHexConversion(unittest.TestCase):
 		"""tuple = tupleToHex(colorTupleFromHex(tuple)) for range of valid input values"""
 		#All inputs was way too many
 		for run in range(1000):
-			a, b, c = random.choice(range(256)), random.choice(range(256)), random.choice(range(256))
+			a, b, c = random.choice(list(range(256))), random.choice(list(range(256))), random.choice(list(range(256)))
 			self.assertEqual((a,b,c), dColors.colorTupleFromHex(dColors.tupleToHex((a,b,c))))
 	
 	#Test Errors
@@ -170,7 +170,7 @@ class TestColorTupleFromName(unittest.TestCase):
 	#happy path tests
 	def testKnownColorValues(self):
 		"""colorTupleFromName should return a known value for a known color name input"""
-		for name in dColors.colorDict.keys():
+		for name in list(dColors.colorDict.keys()):
 			result = dColors.colorTupleFromName(name)
 			self.assertEqual(result, dColors.colorDict[name])
 	

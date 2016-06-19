@@ -6,10 +6,10 @@ import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dControlMixin as cm
-import dImageMixin as dim
+from . import dControlMixin as cm
+from . import dImageMixin as dim
 from dabo.dLocalize import _
-import dIcons
+from . import dIcons
 from dabo.ui import makeDynamicProperty
 
 
@@ -35,5 +35,5 @@ class _dBitmap_test(dBitmap):
 #		self.Size = (40,30)
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dBitmap_test)
