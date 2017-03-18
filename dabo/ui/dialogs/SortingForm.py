@@ -61,9 +61,9 @@ if __name__ == "__main__":
 					"strawberry", "lime"])
 			dlg.show()
 			if dlg.Accepted:
-				print "Sorted:", dlg.Choices
+				print("Sorted:", dlg.Choices)
 			else:
-				print "Cancel was pressed"
+				print("Cancel was pressed")
 			dlg.release()
 			dabo.ui.callAfter(self.release)
 

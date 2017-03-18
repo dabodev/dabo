@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import string
 import types
-import new
+# import new
 import dabo
 from dabo.lib.propertyHelperMixin import PropertyHelperMixin
 from dabo.lib.eventMixin import EventMixin
@@ -43,14 +43,14 @@ class dObject(PropertyHelperMixin, EventMixin):
 		if properties is None:
 			properties = {}
 		if attProperties:
-			for prop, val in attProperties.items():
+			for prop, val in list(attProperties.items()):
 				if prop in ("designerClass", ):
 					continue
 				if prop in properties:
 					# The properties value has precedence, so ignore.
 					continue
 				typ = type(getattr(self, prop))
-				if not issubclass(typ, basestring):
+				if not issubclass(typ, str):
 					if issubclass(typ, bool):
 						val = (val == "True")
 					elif typ is NONE_TYPE:
@@ -58,9 +58,9 @@ class dObject(PropertyHelperMixin, EventMixin):
 					else:
 						try:
 							val = typ(val)
-						except ValueError, e:
+						except ValueError as e:
 							# Sometimes int values can be stored as floats
-							if typ in (int, long):
+							if typ in (int, int):
 								val = float(val)
 							else:
 								raise e
@@ -72,7 +72,7 @@ class dObject(PropertyHelperMixin, EventMixin):
 		# Get them sanitized into one dict:
 		if properties is not None:
 			# Override the class values
-			for k,v in properties.items():
+			for k,v in list(properties.items()):
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
 		if kwargs:
@@ -251,11 +251,11 @@ class dObject(PropertyHelperMixin, EventMixin):
 		compiled successfully, an error message will be added
 		to the Dabo ErrorLog, and the method will not be added.
 		"""
-		for nm, code in cd.items():
+		for nm, code in list(cd.items()):
 			try:
 				code = code.replace("\n]", "]")
 				compCode = compile(code, "", "exec")
-			except SyntaxError, e:
+			except SyntaxError as e:
 				snm = self.Name
 				dabo.log.error(_("Method '%(nm)s' of object '%(snm)s' has the following error: %(e)s") % locals())
 				continue
@@ -263,9 +263,9 @@ class dObject(PropertyHelperMixin, EventMixin):
 			# NOTE: if the method name and the name in the 'def' statement
 			# are not the same, the results are undefined, and will probably crash.
 			nmSpace = {}
-			exec compCode in nmSpace
+			exec(compCode, nmSpace)
 			mthd = nmSpace[nm]
-			exec "self.%s = %s.__get__(self)" % (nm, nm)
+			exec("self.%s = %s.__get__(self)" % (nm, nm))
 			newMethod = new.instancemethod(mthd, self)
 			setattr(self, nm, newMethod)
 
@@ -297,7 +297,7 @@ class dObject(PropertyHelperMixin, EventMixin):
 		return ret
 
 	def _setBasePrefKey(self, val):
-		if not isinstance(val, types.StringTypes):
+		if not isinstance(val, str):
 			raise TypeError('BasePrefKey must be a string.')
 		self._basePrefKey = val
 		pm = self.PreferenceManager
@@ -343,7 +343,7 @@ class dObject(PropertyHelperMixin, EventMixin):
 			return "?"
 
 	def _setName(self, val):
-		if not isinstance(val, types.StringTypes):
+		if not isinstance(val, str):
 			raise TypeError('Name must be a string.')
 		if not len(val.split()) == 1:
 			raise KeyError('Name must not contain any spaces')
@@ -423,6 +423,6 @@ class dObject(PropertyHelperMixin, EventMixin):
 if __name__ == "__main__":
 	from dabo.dApp import dApp
 	d = dObject()
-	print d.Application
+	print(d.Application)
 	app = dApp()
-	print d.Application
+	print(d.Application)

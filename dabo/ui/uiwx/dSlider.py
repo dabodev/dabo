@@ -4,7 +4,7 @@ import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dDataControlMixin as dcm
+from . import dDataControlMixin as dcm
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
@@ -200,9 +200,9 @@ class _dSlider_test(dSlider):
 #  		self.TickPosition = "Left"
 
 	def onHit(self, evt):
-		print "Hit! Value =", self.Value
+		print("Hit! Value =", self.Value)
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dSlider_test)

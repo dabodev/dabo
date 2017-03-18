@@ -68,7 +68,7 @@ class Test(object):
 
 		if isDialog:
 			ret = frame.ShowModal()
-			print ret
+			print(ret)
 			frame.Destroy()
 		else:
 			frame.Show()
@@ -91,7 +91,7 @@ class Test(object):
 		modules = [modname.split(".")[0] for modname in os.listdir(".") if modname[-3:] == ".py"]
 
 		for modname in sorted(modules):
-			print "==> ", modname
+			print("==> ", modname)
 			# if the module has a test class, instantiate it:
 			if modname == "__init__":
 				# importing __init__ will pollute the dabo.ui namespace and cause
@@ -99,19 +99,19 @@ class Test(object):
 				continue
 			try:
 				mod = __import__(modname)
-			except ImportError, e:
-				print "ImportError:", e
+			except ImportError as e:
+				print("ImportError:", e)
 				continue
 			objname = "_%s_test" % modname
 			if objname in mod.__dict__:
-				print "Trying to instantiate %s..." % objname
+				print("Trying to instantiate %s..." % objname)
 				try:
 					obj = mod.__dict__[objname](panel)
-				except StandardError, e:
-					print "+++++++++++++++++++++++++++++++++++++++"
-					print "+++ Instantiating %s caused:" % objname
-					print traceback.print_exception(*sys.exc_info())
-					print "+++++++++++++++++++++++++++++++++++++++"
+				except Exception as e:
+					print("+++++++++++++++++++++++++++++++++++++++")
+					print("+++ Instantiating %s caused:" % objname)
+					print(traceback.print_exception(*sys.exc_info()))
+					print("+++++++++++++++++++++++++++++++++++++++")
 					continue
 
 				if objname == "_dToolBar_test":

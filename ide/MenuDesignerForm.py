@@ -90,23 +90,23 @@ class MenuDesignerForm(dabo.ui.dForm):
 		if self.DragObject:
 			drobj = self.DragObject
 			cont = drobj.Parent
-			print "ORIG", self._dragOrigPos
-			print "CONT TL:", cont.Position
-			print "CONT BR:", (cont.Right, cont.Bottom)
+			print("ORIG", self._dragOrigPos)
+			print("CONT TL:", cont.Position)
+			print("CONT BR:", (cont.Right, cont.Bottom))
 			mp = dabo.ui.getMousePosition()
-			print "NOW", mp
-			print "NOW FMP", dabo.ui.getFormMousePosition()
-			print "FORM MP", drobj.formCoordinates(mp)
-			print "FORM CONT TL", cont.formCoordinates(cont.Position)
-			print "FORM CONT BR", cont.formCoordinates((cont.Right, cont.Bottom))
+			print("NOW", mp)
+			print("NOW FMP", dabo.ui.getFormMousePosition())
+			print("FORM MP", drobj.formCoordinates(mp))
+			print("FORM CONT TL", cont.formCoordinates(cont.Position))
+			print("FORM CONT BR", cont.formCoordinates((cont.Right, cont.Bottom)))
 
 			objat = dabo.ui.getObjectAtPosition(mp)
-			print "OBJ AT", objat
-			print "VIS", self._dragImage.Visible
-			print "PARENT", objat.Parent is self.DragObject.Parent
-			print "GPAR", objat.Parent.Parent is self.DragObject.Parent
-			try: print objat.Caption
-			except: print "no cap"
+			print("OBJ AT", objat)
+			print("VIS", self._dragImage.Visible)
+			print("PARENT", objat.Parent is self.DragObject.Parent)
+			print("GPAR", objat.Parent.Parent is self.DragObject.Parent)
+			try: print(objat.Caption)
+			except: print("no cap")
 
 			self.DragObject = None
 			if self._dragImage:
@@ -296,7 +296,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"children": [],
 				"name": "MenuItemPanel"}
 		file_menu = {"attributes": {
-				"Caption": u"File",
+				"Caption": "File",
 				"HelpText": "",
 				"MRU": True},
 				"children": [m_new, m_open, m_close, m_save, m_saveas, sep, m_cmd, sep, m_quit],
@@ -375,7 +375,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"children": [],
 				"name": "MenuItemPanel"}
 		edit_menu = {"attributes": {
-				"Caption": u"Edit",
+				"Caption": "Edit",
 				"HelpText": "",
 				"MRU": False},
 				"children": [m_undo, m_redo, sep, m_cut, m_copy, m_paste, sep, m_selectall,
@@ -410,14 +410,14 @@ class MenuDesignerForm(dabo.ui.dForm):
 				"children": [],
 				"name": "MenuItemPanel"}
 		view_menu = {"attributes": {
-				"Caption": u"View",
+				"Caption": "View",
 				"HelpText": "",
 				"MRU": False},
 				"children": [m_zoomin, m_zoomout, m_zoomnormal],
 				"name": "MenuPanel"}
 
 		help_menu = {"attributes": {
-				"Caption": u"Help",
+				"Caption": "Help",
 				"HelpText": "",
 				"MRU": False},
 				"children": [],
@@ -590,7 +590,7 @@ class MenuDesignerForm(dabo.ui.dForm):
 		"""Trap the arrow keys and use them for navigation, if possible."""
 		kc = evt.keyCode
 		dk = dabo.ui.dKeys
-		if ((kc not in dk.allArrowKeys.values()) or
+		if ((kc not in list(dk.allArrowKeys.values())) or
 				any((evt.shiftDown, evt.altDown, evt.controlDown, evt.metaDown))):
 			# Only handle unmodified arrow keys.
 			return	
@@ -638,17 +638,17 @@ class MenuDesignerForm(dabo.ui.dForm):
 			return
 		if typ is bool:
 			val = bool(val)
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			strVal = val
 		else:
-			strVal = unicode(val)
-		if typ in (str, unicode) or ((typ is list) and isinstance(val, basestring)):
+			strVal = str(val)
+		if typ in (str, str) or ((typ is list) and isinstance(val, str)):
 			# Escape any single quotes, and then enclose
 			# the value in single quotes
 			strVal = "u'" + self.escapeQt(strVal) + "'"
 		try:
 			exec("obj.%s = %s" % (prop, strVal) )
-		except StandardError, e:
+		except Exception as e:
 			raise PropertyUpdateException(ustr(e))
 		self.PropForm.updatePropGrid()
 		# This is necessary to force a redraw when some props change.

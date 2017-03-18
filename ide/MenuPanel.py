@@ -200,20 +200,20 @@ class AbstractMenuPanel(MenuSaverMixin, dabo.ui.dPanel):
 
 
 	def _getDesignerProps(self):
-		ret = {"Caption": {"type" : unicode, "readonly" : (self._isSeparator or self._isMenuBarLink)},
-				"HelpText" : {"type" : unicode, "readonly" : self._isSeparator},
-				"ItemID" : {"type" : unicode, "readonly" : False},
+		ret = {"Caption": {"type" : str, "readonly" : (self._isSeparator or self._isMenuBarLink)},
+				"HelpText" : {"type" : str, "readonly" : self._isSeparator},
+				"ItemID" : {"type" : str, "readonly" : False},
 				"MRU": {"type" : bool, "readonly" : False}}
 		if self._isMenuItem:
 			ret.update({
-					"HotKey": {"type" : unicode, "readonly" : False,
+					"HotKey": {"type" : str, "readonly" : False,
 						"customEditor": "editHotKey"},
 					"HotKeyAlt": {"type" : bool, "readonly" : False},
-					"HotKeyChar": {"type" : unicode, "readonly" : False},
+					"HotKeyChar": {"type" : str, "readonly" : False},
 					"HotKeyControl": {"type" : bool, "readonly" : False},
 					"HotKeyShift": {"type" : bool, "readonly" : False},
-					"Action": {"type" : unicode, "readonly" : False},
-					"Icon": {"type" : unicode, "readonly" : False,
+					"Action": {"type" : str, "readonly" : False},
+					"Icon": {"type" : str, "readonly" : False,
 						"customEditor": "editStdPicture"}})
 			del ret["MRU"]
 		return ret
@@ -431,7 +431,7 @@ class MenuBarPanel(AbstractMenuPanel):
 		sz = self.menuContainer.Sizer
 		sz.clear(destroy=True)
 		self.clearMenus()
-		for att, val in  menu_dict.get("attributes", {}).items():
+		for att, val in  list(menu_dict.get("attributes", {}).items()):
 			setattr(self, att, val)
 		for dct in menu_dict.get("children", []):
 			mn = self._createMenuFromDict(dct)

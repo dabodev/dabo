@@ -2,7 +2,7 @@
 import datetime
 import dabo
 from dabo.dLocalize import _
-import dabo.dException as dException
+# import dabo.dException as dException
 from dabo.biz.dBizobj import dBizobj
 # Make sure that the user's installation supports Decimal.
 _USE_DECIMAL = True
@@ -48,7 +48,7 @@ def autoCreateTables(noAccessDialog=None):
 		raise dException.dException(_("No tables have been setup for autocreation."))
 
 	g._toExc = {}
-	for biz in g._AutoTables.values():
+	for biz in list(g._AutoTables.values()):
 		biz.createTable()
 
 	if g._toExc:
@@ -274,14 +274,14 @@ class dAutoBizobj(dBizobj):
 		if to_insert:
 			if to_insert is dict:
 				#in a dict where key is the column and value is a list of data for that column
-				for i in range(0, len(to_insert[to_insert.keys()[0]])):
+				for i in range(0, len(to_insert[list(to_insert.keys())[0]])):
 					self.new()
 					for k in to_insert:
 						self.setFieldVal(k, to_insert[k][i])
 
 					try:
 						self.save()
-					except dException.DBQueryException, e:
+					except dException.DBQueryException as e:
 						if self._conn in g._toExc:
 							g._toExc[self._conn] = g._toExc[self._conn].append(e.sql)
 						else:
@@ -295,8 +295,8 @@ class dAutoBizobj(dBizobj):
 
 					try:
 						self.save()
-					except dException.DBQueryException, e:
-						print 'failed'
+					except dException.DBQueryException as e:
+						print('failed')
 						if self._conn in g._toExc:
 							g._toExc[self._conn] = g._toExc[self._conn].append(e.sql)
 						else:

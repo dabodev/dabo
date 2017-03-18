@@ -14,7 +14,7 @@ class dColorDialog(wx.ColourDialog):
 		dat.SetChooseFull(True)
 
 		if color is not None:
-			if isinstance(color, basestring):
+			if isinstance(color, str):
 				try:
 					color = dColors.colorTupleFromName(color)
 					dat.SetColour(color)
@@ -49,5 +49,5 @@ class dColorDialog(wx.ColourDialog):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(dColorDialog)

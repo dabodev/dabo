@@ -102,8 +102,8 @@ class DemoModules:
 			try:
 				self.modules[modID][0] = {}
 				code = compile(source, description, "exec")
-				exec code in self.modules[modID][0]
-			except StandardError:
+				exec(code, self.modules[modID][0])
+			except Exception:
 				self.modules[modID][4] = DemoError(sys.exc_info())
 				self.modules[modID][0] = None
 			else:
@@ -217,7 +217,7 @@ class DemoError:
 		self.traceback = traceback.extract_tb(exc_info[2])
 
 		# --Based on traceback.py::format_exception_only()--
-		if type(excType) == types.ClassType:
+		if type(excType) == type:
 			self.exception_type = excType.__name__
 		else:
 			self.exception_type = excType
@@ -227,7 +227,7 @@ class DemoError:
 		if excType is SyntaxError:
 			try:
 				msg, (filename, lineno, self.offset, line) = excValue
-			except StandardError:
+			except Exception:
 				pass
 			else:
 				if not filename:
@@ -238,7 +238,7 @@ class DemoError:
 				excValue = msg
 		try:
 			self.exception_details = ustr(excValue)
-		except StandardError:
+		except Exception:
 			self.exception_details = "<unprintable %s object>" & type(excValue).__name__
 
 		del exc_info

@@ -100,7 +100,7 @@ import atexit
 import inspect
 import sys
 import re
-import cPickle as pickle
+import pickle as pickle
 
 # For profiling
 from profile import Profile
@@ -271,17 +271,17 @@ class FuncProfile:
     def print_stats(self):
         """Print profile information to sys.stdout."""
         funcname = self.fn.__name__
-        filename = self.fn.func_code.co_filename
-        lineno = self.fn.func_code.co_firstlineno
-        print
-        print "*** PROFILER RESULTS ***"
-        print "%s (%s:%s)" % (funcname, filename, lineno)
-        print "function called %d times" % self.ncalls,
+        filename = self.fn.__code__.co_filename
+        lineno = self.fn.__code__.co_firstlineno
+        print()
+        print("*** PROFILER RESULTS ***")
+        print("%s (%s:%s)" % (funcname, filename, lineno))
+        print("function called %d times" % self.ncalls, end=' ')
         if self.skipped:
-            print "(%d calls not profiled)" % self.skipped
+            print("(%d calls not profiled)" % self.skipped)
         else:
-            print
-        print
+            print()
+        print()
         stats = self.stats
         if self.filename:
             pickle.dump(stats, file(self.filename, 'w'))
@@ -360,17 +360,17 @@ class HotShotFuncProfile:
         """
         self.profiler.close()
         funcname = self.fn.__name__
-        filename = self.fn.func_code.co_filename
-        lineno = self.fn.func_code.co_firstlineno
-        print
-        print "*** PROFILER RESULTS ***"
-        print "%s (%s:%s)" % (funcname, filename, lineno)
-        print "function called %d times" % self.ncalls,
+        filename = self.fn.__code__.co_filename
+        lineno = self.fn.__code__.co_firstlineno
+        print()
+        print("*** PROFILER RESULTS ***")
+        print("%s (%s:%s)" % (funcname, filename, lineno))
+        print("function called %d times" % self.ncalls, end=' ')
         if self.skipped:
-            print "(%d calls not profiled)" % self.skipped
+            print("(%d calls not profiled)" % self.skipped)
         else:
-            print
-        print
+            print()
+        print()
         stats = hotshot.stats.load(self.logfilename)
         # hotshot.stats.load takes ages, and the .prof file eats megabytes, but
         # a pickled stats object is small and fast
@@ -424,13 +424,13 @@ class HotShotFuncCoverage:
         """
         self.profiler.close()
         funcname = self.fn.__name__
-        filename = self.fn.func_code.co_filename
-        lineno = self.fn.func_code.co_firstlineno
-        print
-        print "*** COVERAGE RESULTS ***"
-        print "%s (%s:%s)" % (funcname, filename, lineno)
-        print "function called %d times" % self.ncalls
-        print
+        filename = self.fn.__code__.co_filename
+        lineno = self.fn.__code__.co_firstlineno
+        print()
+        print("*** COVERAGE RESULTS ***")
+        print("%s (%s:%s)" % (funcname, filename, lineno))
+        print("function called %d times" % self.ncalls)
+        print()
         fs = FuncSource(self.fn)
         reader = hotshot.log.LogReader(self.logfilename)
         for what, (filename, lineno, funcname), tdelta in reader:
@@ -447,7 +447,7 @@ class HotShotFuncCoverage:
                     lineno = fs.firstcodelineno
                 fs.mark(lineno)
         reader.close()
-        print fs
+        print(fs)
 
 
 class TraceFuncCoverage:
@@ -501,22 +501,22 @@ class TraceFuncCoverage:
         This function is registered as an atexit hook.
         """
         funcname = self.fn.__name__
-        filename = self.fn.func_code.co_filename
-        lineno = self.fn.func_code.co_firstlineno
-        print
-        print "*** COVERAGE RESULTS ***"
-        print "%s (%s:%s)" % (funcname, filename, lineno)
-        print "function called %d times" % self.ncalls
-        print
+        filename = self.fn.__code__.co_filename
+        lineno = self.fn.__code__.co_firstlineno
+        print()
+        print("*** COVERAGE RESULTS ***")
+        print("%s (%s:%s)" % (funcname, filename, lineno))
+        print("function called %d times" % self.ncalls)
+        print()
         fs = FuncSource(self.fn)
-        for (filename, lineno), count in self.tracer.counts.items():
+        for (filename, lineno), count in list(self.tracer.counts.items()):
             if filename != fs.filename:
                 continue
             fs.mark(lineno, count)
-        print fs
+        print(fs)
         never_executed = fs.count_never_executed()
         if never_executed:
-            print "%d lines were not executed." % never_executed
+            print("%d lines were not executed." % never_executed)
 
 
 class FuncSource:
@@ -535,12 +535,12 @@ class FuncSource:
     def find_source_lines(self):
         """Mark all executable source lines in fn as executed 0 times."""
         strs = trace.find_strings(self.filename)
-        lines = trace.find_lines_from_code(self.fn.func_code, strs)
-        self.firstcodelineno = sys.maxint
+        lines = trace.find_lines_from_code(self.fn.__code__, strs)
+        self.firstcodelineno = sys.maxsize
         for lineno in lines:
             self.firstcodelineno = min(self.firstcodelineno, lineno)
             self.sourcelines.setdefault(lineno, 0)
-        if self.firstcodelineno == sys.maxint:
+        if self.firstcodelineno == sys.maxsize:
             self.firstcodelineno = self.firstlineno
 
     def mark(self, lineno, count=1):
@@ -606,10 +606,10 @@ def timecall(fn):
         finally:
             duration = time.time() - start
             funcname = fn.__name__
-            filename = fn.func_code.co_filename
-            lineno = fn.func_code.co_firstlineno
-            print >> sys.stderr, "\n  %s (%s:%s):\n    %.3f seconds\n" % (
-                                        funcname, filename, lineno, duration)
+            filename = fn.__code__.co_filename
+            lineno = fn.__code__.co_firstlineno
+            print("\n  %s (%s:%s):\n    %.3f seconds\n" % (
+                                        funcname, filename, lineno, duration), file=sys.stderr)
     new_fn.__doc__ = fn.__doc__
     return new_fn
 

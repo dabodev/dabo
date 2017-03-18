@@ -5,10 +5,10 @@ import time
 
 import dabo
 from dabo.dLocalize import _
-import dabo.dConstants as kons
+# import dabo.dConstants as kons
 from dabo.lib.connParser import importConnections
-import dabo.dException as dException
-from dBizobj import dBizobj
+# import dabo.dException as dException
+from .dBizobj import dBizobj
 
 
 
@@ -64,7 +64,7 @@ class RemoteBizobj(dBizobj):
 			biz.KeyField = kf
 			# This is a dict with cursor keys as the keys, and
 			# values as a (dataset, typedef) tuple.
-			for kk, (ds, typinfo) in crsData.items():
+			for kk, (ds, typinfo) in list(crsData.items()):
 				tmpCursor = biz.createCursor(key=kk)
 				tmpCursor._storeData(ds, typinfo)
 		return biz
@@ -74,7 +74,7 @@ class RemoteBizobj(dBizobj):
 			host=None, user=None, password=None, plainTextPassword=None):
 		if cxnfile:
 			cxDict = importConnections(cxnfile)
-			self.setConnection(cxDict.values()[0])
+			self.setConnection(list(cxDict.values())[0])
 		else:
 			cxnDict = {"DbType": dbType, "Database": database}
 			if host:
@@ -99,7 +99,7 @@ class RemoteBizobj(dBizobj):
 		f = file(pth, "w")
 		pd = {}
 		cursorDict = self._cursorDictReference()
-		for kk, cursor in cursorDict.items():
+		for kk, cursor in list(cursorDict.items()):
 			pd[kk] = (cursor.getDataSet(returnInternals=True), cursor.getDataTypes())
 		dataToStore = (self.KeyField, pd)
 		pickle.dump(dataToStore, f)
@@ -156,7 +156,7 @@ class RemoteBizobj(dBizobj):
 						ds = self.DataSource
 						raise dException.WebServerException(
 								_("PK '%(pk)s' not present in dataset for DataSource '%(ds)s'") % locals())
-				for col, vals in rec.items():
+				for col, vals in list(rec.items()):
 					if col in (kf, kons.CURSOR_TMPKEY_FIELD):
 						continue
 					oldval, newval = vals
@@ -169,7 +169,7 @@ class RemoteBizobj(dBizobj):
 					self.setFieldVal(col, newval)
 
 			if kids:
-				for kidHash, kidInfo in kids.items():
+				for kidHash, kidInfo in list(kids.items()):
 					kidDS, kidKey, kidData, kidKids = kidInfo
 					kidClass = dabo._bizDict.get(kidDS)
 					if not kidClass:
@@ -179,25 +179,25 @@ class RemoteBizobj(dBizobj):
 
 			try:
 				self.saveAll()
-			except dException.ConnectionLostException, e:
+			except dException.ConnectionLostException as e:
 				if primary:
 					self._CurrentCursor.rollbackTransaction()
 					return (500, _("Connection to database was lost."))
 				else:
 					raise
-			except dException.NoRecordsException, e:
+			except dException.NoRecordsException as e:
 				if primary:
 					self._CurrentCursor.rollbackTransaction()
 					return (204, _("No records were saved."))
 				else:
 					raise
-			except dException.BusinessRuleViolation, e:
+			except dException.BusinessRuleViolation as e:
 				if primary:
 					self._CurrentCursor.rollbackTransaction()
 					return (409, _("Business Rule Violation: %s.") % e)
 				else:
 					raise
-			except dException.DBQueryException, e:
+			except dException.DBQueryException as e:
 				if primary:
 					self._CurrentCursor.rollbackTransaction()
 					return (400, _("Database Query Exception: %s.") % e)

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import sys
 import xml.sax
-from StringIO import StringIO
+from io import StringIO
 import os.path
-from xmltodict import escQuote
+from .xmltodict import escQuote
 import dabo
 import dabo.lib.utils as utils
 from dabo.dLocalize import _
@@ -34,7 +34,7 @@ class connHandler(xml.sax.ContentHandler):
 	def startElement(self, name, attrs):
 		self.element = name
 		if name == "connection":
-			for att in attrs.keys():
+			for att in list(attrs.keys()):
 				if att == "dbtype":
 					dbType = attrs.getValue("dbtype").split(":")
 					self.currDict["dbtype"] = dbType[0]
@@ -52,7 +52,7 @@ class connHandler(xml.sax.ContentHandler):
 				# <dialect type="int">1</dialect>
 				# It's an extended connection information, we log it.
 				elem = self.element
-				dabo.log.info(_(u"Extended database connection parameter loaded: "
+				dabo.log.info(_("Extended database connection parameter loaded: "
 						"%(elem)s = %(content)s") % locals())
 				atype = self.attributes.get("type", None)
 				if not atype:
@@ -101,10 +101,10 @@ def importConnections(pth=None, useHomeDir=False):
 	else:
 		basePath = pth
 
-	for cxn, data in ret.items():
+	for cxn, data in list(ret.items()):
 		dbtype = data.get("dbtype", "")
 		if dbtype.lower() in FILE_DATABASES:
-			for key, val in data.items():
+			for key, val in list(data.items()):
 				if key == "database":
 					osp = os.path
 					relpath = utils.resolvePath(val, basePath, abspath=False)
@@ -159,7 +159,7 @@ def fileRef(ref=""):
 	XML to the parser. Returns a file-like object, or None.
 	"""
 	ret = None
-	if isinstance(ref, basestring):
+	if isinstance(ref, str):
 		if os.path.exists(ref):
 			ret = file(ref)
 		else:

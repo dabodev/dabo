@@ -140,7 +140,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(cur._mementos[biz.Record.pk]["cField"], "Paul Keith McNett")
 		biz.setFieldVal("iField", 80)
 		self.assertEqual(biz.Record.iField, 80)
-		self.assertTrue(isinstance(biz.Record.iField, (int, long)))
+		self.assertTrue(isinstance(biz.Record.iField, int))
 		self.assertEqual(cur._mementos[self.biz.Record.pk]["iField"], 23)
 
 	def test_RowCount(self):
@@ -155,7 +155,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 	def test_RowNumber(self):
 		biz = self.biz
 		self.assertEqual(biz.RowNumber, 0)
-		biz.next()
+		next(biz)
 		self.assertEqual(biz.RowNumber, 1)
 		biz.RowNumber = 2
 		self.assertEqual(biz.RowNumber, 2)
@@ -386,7 +386,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(bizMain.isAnyChanged(), False)
 		self.assertEqual(bizChild.isAnyChanged(), False)
 
-		bizMain.next()
+		next(bizMain)
 
 		# At this point bizMain should be at row 1, and bizChild should have
 		# zero records.
@@ -404,7 +404,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertRaises(dabo.dException.NoRecordsException, testGetField)
 		self.assertRaises(dabo.dException.NoRecordsException, testSetField)
 
-		bizMain.next()
+		next(bizMain)
 
 		# At this point bizMain should be at row 2, and bizChild should have
 		# one record, and be on row 0.
@@ -423,7 +423,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(bizMain.isAnyChanged(), False)
 		bizMain.prior()
 		self.assertEqual(bizChild.RowCount, 0)
-		bizMain.next()
+		next(bizMain)
 		self.assertEqual(bizChild.RowCount, 0)
 
 		# Add a new child record:
@@ -443,7 +443,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 
 		bizMain.prior()
 		self.assertEqual(bizChild.IsAdding, False)
-		bizMain.next()
+		next(bizMain)
 		self.assertEqual(bizChild.IsAdding, True)
 
 		self.assertEqual(bizChild.RowCount, 1)
@@ -466,7 +466,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(bizChild.RowCount, 1)
 		self.assertEqual(bizChild.Record.cInvNum, "IN99991")
 		bizMain.prior()
-		bizMain.next()
+		next(bizMain)
 		self.assertEqual(bizChild.RowCount, 1)
 		self.assertEqual(bizChild.Record.cInvNum, "IN99991")
 
@@ -535,7 +535,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		# preliminary sanity checks:
 		self.assertEqual(bizChild.RowCount, 2)
 		bizChild.RowNumber = 1
-		bizMain.next()
+		next(bizMain)
 		self.assertEqual(bizChild.RowCount, 0)
 		bizMain.prior()
 		self.assertEqual(bizChild.RowCount, 2)
@@ -549,14 +549,14 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		# Change a field, and test isChanged() both before and after moving the
 		# parent record pointer:
 		bizChild.Record.cInvNum = "pkm0023"
-		self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': u'IN00024'}})
+		self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': 'IN00024'}})
 		self.assertEqual(bizChild.isChanged(), True)
 		self.assertEqual(bizMain.isChanged(), True)
 
 		# Prove no problem with simple change, and moving parent record pointer:
 		bizMain.RowNumber = 2
 		self.assertEqual(bizChild.Record.cInvNum, "pkm0023")
-		self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': u'IN00024'}})
+		self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': 'IN00024'}})
 		self.assertEqual(bizChild.isChanged(), True)
 		self.assertEqual(bizMain.isChanged(), True)
 
@@ -571,7 +571,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(bizChild.isChanged(), True)
 		bizChild.RowNumber = 0
 		self.assertEqual(bizChild.isChanged(), True)
-		self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': u'IN00024'}, -1: {'cInvNum': u''}})
+		self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': 'IN00024'}, -1: {'cInvNum': ''}})
 
 		# Now, here's the problem. If we add a new record to the child but don't
 		# change any fields in that new record, then move the main record pointer,
@@ -580,7 +580,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		bizChild.new()
 		self.assertEqual(bizChild.RowCount, 3)
 		self.assertEqual(bizChild.isAnyChanged(), True)
-		self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': u'IN00024'}, -1: {'cInvNum': u''}, -1: {'cInvNum': u''}})
+		self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': 'IN00024'}, -1: {'cInvNum': ''}, -1: {'cInvNum': ''}})
 		bizMain.RowNumber = 2
 		# boom! a simple record change in the parent removed the change to the first
 		# record, the new record with a change, as well as the expected last new record

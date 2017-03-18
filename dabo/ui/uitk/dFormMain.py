@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """ dFormMain.py """
-import Tkinter
-import dFormMixin as fm
+import tkinter
+from . import dFormMixin as fm
 
-class dFormMain(Tkinter.Tk, fm.dFormMixin):
+class dFormMain(tkinter.Tk, fm.dFormMixin):
 	""" This is the main top-level form for the application.
 	"""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dFormMain
-		preClass = Tkinter.Tk
+		preClass = tkinter.Tk
 		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 		self.Size = (640,480)
@@ -31,5 +31,5 @@ class dFormMain(Tkinter.Tk, fm.dFormMixin):
 	def setStatusText(self, text): pass
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(dFormMain)

@@ -7,7 +7,7 @@ from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dControlMixin as cm
+from . import dControlMixin as cm
 # import dImageMixin as dim
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -119,22 +119,22 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
 	# does not seem to cause these events to fire.
 	def _onWxLoaded(self, evt):
 		self.scale()
-		print "LOAD"
+		print("LOAD")
 		self.raiseEvent(dEvents.MediaLoaded, evt)
 	def _onWxFinished(self, evt):
-		print "FIN"
+		print("FIN")
 		self.raiseEvent(dEvents.MediaFinished, evt)
 	def _onWxPause(self, evt):
-		print "PAUS"
+		print("PAUS")
 		self.raiseEvent(dEvents.MediaPause, evt)
 	def _onWxPlay(self, evt):
-		print "PLAY"
+		print("PLAY")
 		self.raiseEvent(dEvents.MediaPlay, evt)
 	def _onWxStateChanged(self, evt):
-		print "CHHG"
+		print("CHHG")
 		self.raiseEvent(dEvents.MediaStateChanged, evt)
 	def _onWxStop(self, evt):
-		print "STOP"
+		print("STOP")
 		self.raiseEvent(dEvents.MediaStop, evt)
 	#### End event methods ####
 
@@ -368,7 +368,7 @@ if __name__ == "__main__":
 				self.Sizer.append1x(self.player)
 
 		def onMediaLoaded(self, evt):
-			print "MediaLoaded"
+			print("MediaLoaded")
 
 
 	app = dApp(MainFormClass=MediaForm)

@@ -215,6 +215,6 @@ class dPemMixinBase(dObject):
 
 if __name__ == "__main__":
 	o = dPemMixin()
-	print o.BaseClass
+	print(o.BaseClass)
 	o.BaseClass = "dForm"
-	print o.BaseClass
+	print(o.BaseClass)

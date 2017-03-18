@@ -95,7 +95,7 @@ class EditorControl(dui.dEditor):
 		try:
 			args = "dabo.ui.%s" % ustr(obj.BaseClass).split("'")[1].split(".")[-1]
 			classdef = "import dabo\nclass self(%s): pass" % args
-			exec classdef in self._namespaces
+			exec(classdef, self._namespaces)
 		except:
 			# Couldn't fake the reference
 			pass
@@ -106,12 +106,12 @@ class EditorControl(dui.dEditor):
 		intellisense for those two modules. We also want to add any class-wide
 		import statements into the namespace.
 		"""
-		exec "import dabo\ndui = dabo.ui" in self._namespaces
+		exec("import dabo\ndui = dabo.ui", self._namespaces)
 		imp = self.Controller.getImportDict()
 		if imp:
 			try:
-				exec imp in self._namespaces
-			except SyntaxError, e:
+				exec(imp, self._namespaces)
+			except SyntaxError as e:
 				# Record the error so that the developer knows there is a problem.
 				dabo.log.error(_("Compilation error found in import code: %s") % e)
 			except ImportError:
@@ -330,10 +330,10 @@ class EditorForm(dui.dForm):
 	def getAllText(self):
 		cr = self.CodeRepository
 		# Keys are the objects that containing code
-		codeDict = cr.values()
+		codeDict = list(cr.values())
 		cd = [self.editor.Value]
 		for dct in codeDict:
-			cd += dct.values()
+			cd += list(dct.values())
 		return " ".join(cd)
 
 
@@ -436,7 +436,7 @@ class EditorForm(dui.dForm):
 		try:
 			compile(compText, "", "exec")
 			dabo.ui.exclaim(_("No syntax errors found!"), _("Compilation Succeeded"))
-		except SyntaxError, e:
+		except SyntaxError as e:
 			errMsg = "%s" % e
 			try:
 				msg, num = self._syntaxLinePat.findall(errMsg)[0]
@@ -484,7 +484,7 @@ class EditorForm(dui.dForm):
 		for obj in code_keys:
 			nm = obj.Name.rjust(maxname)
 			itm = pop.append(obj.Name)
-			mthds = cd[obj].keys()
+			mthds = list(cd[obj].keys())
 			mthds.sort()
 			for mthd in mthds:
 				itm = pop.append("   -  %s" % mthd, OnHit=goToCode)
@@ -541,7 +541,7 @@ class EditorForm(dui.dForm):
 		if code is None:
 			codeKeys = []
 		else:
-			codeKeys = code.keys()
+			codeKeys = list(code.keys())
 			codeKeys.sort()
 		# Add an asterisk to indicate that they have code
 		for mthd in codeKeys:
@@ -737,7 +737,7 @@ class EditorForm(dui.dForm):
 		cr = self.CodeRepository
 		currObj = self.ddObject.KeyValue
 		currMthd = self.ddMethod.StringValue.lstrip("*")
-		objs = cr.keys()
+		objs = list(cr.keys())
 		backwards = not downwardSearch
 		adjFindString = findString
 		if backwards:
@@ -761,7 +761,7 @@ class EditorForm(dui.dForm):
 				txt = r"\b%s\b" % txt
 			codeDict = self.CodeRepository[obj]
 			if mthds is None:
-				mthds = codeDict.keys()
+				mthds = list(codeDict.keys())
 				mthds.sort(reverse=backwards)
 				# Skip the current method (already checked) and any earlier ones
 				if obj is currObj:
@@ -846,8 +846,8 @@ class EditorForm(dui.dForm):
 
 
 if __name__ == "__main__":
-	print
-	print "=" * 66
-	print "This is the file that implements the Python editor for the Class Designer." + \
-			"You cannot run it directly. Please run 'ClassDesigner.py' instead."
-	print "=" * 66
+	print()
+	print("=" * 66)
+	print("This is the file that implements the Python editor for the Class Designer." + \
+			"You cannot run it directly. Please run 'ClassDesigner.py' instead.")
+	print("=" * 66)

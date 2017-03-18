@@ -13,7 +13,7 @@ crs = db.cursor(MySQLdb.cursors.DictCursor)
 
 
 def processText(txt, proj, pth, fname, xtraPth):
-	print "** PROCESSING:", fname
+	print("** PROCESSING:", fname)
 	updated = inserted = 0
 	# Each extracted string starts with '#: ', followed by the file and line
 	# number. The first element is the generated header, so discard that.
@@ -112,14 +112,14 @@ def main():
 	projects = {"dabo": "/path/to/dabo/",
 			"ide": "/path/to/ide/",
 			"demo": "/path/to/demo/"}
-	for project, drct in projects.items():
+	for project, drct in list(projects.items()):
 		upd, ins = processLoc(project, drct)
-		print 
-		print """Project %(project)s: 
+		print() 
+		print("""Project %(project)s: 
 	%(ins)s entries added
-	%(upd)s entries updated""" % locals()
-		print
-		print
+	%(upd)s entries updated""" % locals())
+		print()
+		print()
 	
 
 if __name__ == "__main__":

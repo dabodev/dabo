@@ -4,7 +4,7 @@ import dabo
 import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-import dControlItemMixin as dcm
+from . import dControlItemMixin as dcm
 from dabo.dLocalize import _
 
 
@@ -30,7 +30,7 @@ class dCheckList(dcm.dControlItemMixin, wx.CheckListBox):
 		# Need to override the native method, as this reports the
 		# line with focus, not the checked items.
 		ret = []
-		for cnt in xrange(self.Count):
+		for cnt in range(self.Count):
 			if self.IsChecked(cnt):
 				ret.append(cnt)
 		return ret
@@ -38,13 +38,13 @@ class dCheckList(dcm.dControlItemMixin, wx.CheckListBox):
 
 	def selectAll(self):
 		"""Set all items to checked."""
-		for cnt in xrange(self.Count):
+		for cnt in range(self.Count):
 			self.Check(cnt, True)
 
 
 	def clearSelections(self):
 		"""Set all items to unchecked."""
-		for cnt in xrange(self.Count):
+		for cnt in range(self.Count):
 			self.Check(cnt, False)
 	# Just to keep the naming consistent
 	selectNone = clearSelections
@@ -52,7 +52,7 @@ class dCheckList(dcm.dControlItemMixin, wx.CheckListBox):
 
 	def invertSelections(self):
 		"""Switch all the items from False to True, and vice-versa."""
-		for cnt in xrange(self.Count):
+		for cnt in range(self.Count):
 			self.Check(cnt, not self.IsChecked(cnt))
 
 
@@ -95,20 +95,20 @@ class _dCheckList_test(dCheckList):
 		self.Value = 23
 
 	def onHit(self, evt):
-		print "HIT:"
-		print "\tKeyValue: ", self.KeyValue
-		print "\tPositionValue: ", self.PositionValue
-		print "\tStringValue: ", self.StringValue
-		print "\tValue: ", self.Value
-		print "\tCount: ", self.Count
+		print("HIT:")
+		print("\tKeyValue: ", self.KeyValue)
+		print("\tPositionValue: ", self.PositionValue)
+		print("\tStringValue: ", self.StringValue)
+		print("\tValue: ", self.Value)
+		print("\tCount: ", self.Count)
 
 	def onMouseLeftDoubleClick(self, evt):
-		print "double click"
+		print("double click")
 
 	def onMouseLeftDown(self, evt):
-		print "mousedown"
+		print("mousedown")
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dCheckList_test)
 

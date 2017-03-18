@@ -7,8 +7,8 @@ from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dDataControlMixin as dcm
-import dControlItemMixin as cim
+from . import dDataControlMixin as dcm
+from . import dControlItemMixin as cim
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
@@ -547,7 +547,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 			except IndexError:
 				if val is not None:
 					# No such string.
-					raise ValueError, _("No radio button matching '%s' was found.") % val
+					raise ValueError(_("No radio button matching '%s' was found.") % val)
 		else:
 			self._properties["StringValue"] = val
 
@@ -619,13 +619,13 @@ class _dRadioList_test(dRadioList):
 
 
 	def onHit(self, evt):
-		print "KeyValue: ", self.KeyValue
-		print "PositionValue: ", self.PositionValue
-		print "StringValue: ", self.StringValue
-		print "Value: ", self.Value
+		print("KeyValue: ", self.KeyValue)
+		print("PositionValue: ", self.PositionValue)
+		print("StringValue: ", self.StringValue)
+		print("Value: ", self.Value)
 
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dRadioList_test)

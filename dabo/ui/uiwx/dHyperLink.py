@@ -6,10 +6,10 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-import dControlMixin as dcm
+from . import dControlMixin as dcm
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
-from alignmentMixin import AlignmentMixin
+from .alignmentMixin import AlignmentMixin
 
 
 
@@ -46,11 +46,11 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 	def _setColors(self):
 		"""Updated the link with the specified colors."""
 		lc, vc, rc = self.LinkColor, self.VisitedColor, self.HoverColor
-		if isinstance(lc, basestring):
+		if isinstance(lc, str):
 			lc = dColors.colorTupleFromName(lc)
-		if isinstance(vc, basestring):
+		if isinstance(vc, str):
 			vc = dColors.colorTupleFromName(vc)
-		if isinstance(rc, basestring):
+		if isinstance(rc, str):
 			rc = dColors.colorTupleFromName(rc)
 		self.SetColours(lc, vc, rc)
 		self.UpdateLink(True)
@@ -211,7 +211,7 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 
 class _dHyperLink_test(dHyperLink):
 	def _onHit(self, evt):
-		print "hit"
+		print("hit")
 
 
 	def afterInit(self):
@@ -229,5 +229,5 @@ class _dHyperLink_test(dHyperLink):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dHyperLink_test)

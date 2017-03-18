@@ -105,7 +105,7 @@ class PageDatabase(AppWizardPage):
 				"Name" : "SQLite-default" }
 
 		# Save the supported dbTypes into a list
-		self.supportedDbTypes = self.dbDefaults.keys()
+		self.supportedDbTypes = list(self.dbDefaults.keys())
 
 		# List of all fields to create for the user to select
 		self.fieldNames = ("DbType", "Name", "Host", "Database", "User",
@@ -115,7 +115,7 @@ class PageDatabase(AppWizardPage):
 		# user settings file:
 		app = self.Application
 		userProfiles = app.getUserSettingKeys("dbDefaults")
-		dbDefaultKeys = self.dbDefaults.keys()
+		dbDefaultKeys = list(self.dbDefaults.keys())
 		dbDefaultMap = {}
 		for key in dbDefaultKeys:
 			dbDefaultMap[key.lower()] = key
@@ -132,7 +132,7 @@ class PageDatabase(AppWizardPage):
 				if val is None:
 					val = ""
 				userDict[field] = val
-			if profile in dbDefaultMap.keys():
+			if profile in list(dbDefaultMap.keys()):
 				profile = dbDefaultMap[profile]
 			self.dbDefaults[profile] = userDict
 
@@ -142,7 +142,7 @@ class PageDatabase(AppWizardPage):
 		# Set up the dropdown list based on the keys in the dbDefaults dict.
 		self.ddProfile = dabo.ui.dDropdownList(self, Name="ddProfile")
 		self.ddProfile.ValueMode = "string"
-		self.ddProfile.Choices = self.dbDefaults.keys()
+		self.ddProfile.Choices = list(self.dbDefaults.keys())
 		if defaultUserProfileName is not None:
 			self.ddProfile.Value = defaultUserProfileName
 		else:
@@ -237,7 +237,7 @@ class PageDatabase(AppWizardPage):
 					"Password" : "",
 					"Port" : "" }
 			ddProfile = self.ddProfile
-			ddProfile.Choices = self.dbDefaults.keys()
+			ddProfile.Choices = list(self.dbDefaults.keys())
 			ddProfile.Value = name
 			self.ctlDbType.Value = "MySQL"
 			self.ctlPort.Value = "3306"
@@ -258,7 +258,7 @@ class PageDatabase(AppWizardPage):
 				val = dbdefs[fld]
 				try:
 					ctl.Value = val
-				except ValueError, e:
+				except ValueError as e:
 					if "string must be present in the choices" in ustr(e).lower():
 						# Not sure why the saved profile dbType is empty. No time to
 						# find out why now, but at least the AW won't crash anymore.
@@ -312,7 +312,7 @@ class PageDatabase(AppWizardPage):
 				cursor = self.Form.cursor = conn.getDaboCursor(ci.getDictCursorClass())
 				cursor.BackendObject = ci.getBackendObject()
 				tables = cursor.getTables()
-			except Exception, e:
+			except Exception as e:
 				busy = None
 				traceback.print_exc()
 				dabo.ui.stop(_("Could not connect to the database server. " +
@@ -368,7 +368,7 @@ your application.""")
 			self.tableSelections = {}
 			for table in tbls:
 				self.tableSelections[table] = False
-			tblKeys = self.tableSelections.keys()
+			tblKeys = list(self.tableSelections.keys())
 			tblKeys.sort()
 			self.clbTableSelection.Choices = tblKeys
 			self.clbTableSelection.setFocus()
@@ -603,12 +603,12 @@ class AppWizard(Wizard):
 
 
 	def getTables(self):
-		return self.tableDict.keys()
+		return list(self.tableDict.keys())
 
 
 	def getSortedFieldNames( self, fieldDict ):
 		sortedFieldNames = []
-		for fld in fieldDict.keys():
+		for fld in list(fieldDict.keys()):
 			# next line hard to follow....
 			# if we want a UI for PK's gen code for all fields,
 			# if not UI for PK's, gen code for all "not PK fields"
@@ -649,7 +649,7 @@ class AppWizard(Wizard):
 			with file(fname, "w") as f:
 				txt = ustr(self.getMain(ci.Name, selTb[0], appName))
 				f.write(txt)
-			os.chmod(fname, 0744)
+			os.chmod(fname, 0o744)
 
 			## Create a shell script to run the main script:
 			outdir = self.outputDirectory
@@ -1117,7 +1117,7 @@ python %(appName)s.py %(tableName)s
 
 		# find the pk field, if any:
 		pkFields = []
-		for field in tableDict[table]["fields"].keys():
+		for field in list(tableDict[table]["fields"].keys()):
 			if tableDict[table]["fields"][field]["pk"]:
 				pkFields.append(field)
 		dqt = "\""
@@ -1126,7 +1126,7 @@ python %(appName)s.py %(tableName)s
 		flds = tbInfo["fields"]
 
 		sortedFieldNames = []
-		for fld in flds.keys():
+		for fld in list(flds.keys()):
 			order = flds[fld]["order"]
 			sortedFieldNames.append((order, fld))
 		sortedFieldNames.sort()

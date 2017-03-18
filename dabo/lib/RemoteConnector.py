@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import urllib
-import urllib2
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
+import urllib.parse
 import sys
 import os
 import re
 import pickle
 from os.path import join as pathjoin
 from zipfile import ZipFile
-from cStringIO import StringIO
+from io import StringIO
 
 import dabo
-import dabo.dException as dException
+# import dabo.dException as dException
 from dabo.dApp import dApp
 from dabo.dObject import dObject
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.lib.manifest import Manifest
-jsonEncode = dabo.lib.jsonEncode
-jsonDecode = dabo.lib.jsonDecode
+# jsonEncode = dabo.lib.jsonEncode
+# jsonDecode = dabo.lib.jsonDecode
 
 
 
@@ -55,12 +55,12 @@ class RemoteConnector(object):
 
 	def _read(self, url, params=None, reRaise=False):
 		if params:
-			prm = urllib.urlencode(params)
+			prm = urllib.parse.urlencode(params)
 		else:
 			prm = None
 		try:
 			res = self.UrlOpener.open(url, data=prm)
-		except urllib2.HTTPError, e:
+		except urllib.error.HTTPError as e:
 			if reRaise:
 				raise
 			dabo.log.error("HTTPError: %s" % e)
@@ -102,11 +102,11 @@ class RemoteConnector(object):
 		sql = re.sub(r" += +", " = ", sql)
 		sqlparams = ustr(biz.getParams())
 		params = {"SQL": sql, "SQLParams": sqlparams, "KeyField": biz.KeyField, "_method": "GET"}
-		prm = urllib.urlencode(params)
+		prm = urllib.parse.urlencode(params)
 		try:
 			res = self.UrlOpener.open(url, data=prm)
-		except urllib2.HTTPError, e:
-			print "ERR", e
+		except urllib.error.HTTPError as e:
+			print("ERR", e)
 			return
 		encdata = res.read()
 		self._storeEncodedDataSet(encdata)
@@ -117,10 +117,10 @@ class RemoteConnector(object):
 		url = self._getFullUrl("save")
 		chgDict = biz.getDataDiff(allRows=allRows)
 		params = {"DataDiff": jsonEncode(chgDict), "_method": "POST"}
-		prm = urllib.urlencode(params)
+		prm = urllib.parse.urlencode(params)
 		try:
 			res = self.UrlOpener.open(url, data=prm)
-		except urllib2.HTTPError, e:
+		except urllib.error.HTTPError as e:
 			# There was a problem on the server side. Re-raise the appropriate
 			# exception so that the UI can handle it.
 			errcode = e.code
@@ -148,7 +148,7 @@ class RemoteConnector(object):
 		biz = self.obj
 		url = self._getFullUrl("delete")
 		params = {"PK": biz.getPK(), "KeyField": biz.KeyField, "_method": "DELETE"}
-		prm = urllib.urlencode(params)
+		prm = urllib.parse.urlencode(params)
 		res = self.UrlOpener.open(url, data=prm)
 		encdata = res.read()
 		self._storeEncodedDataSet(encdata)
@@ -158,7 +158,7 @@ class RemoteConnector(object):
 		biz = self.obj
 		url = self._getFullUrl("deleteAll")
 		params = {"KeyField": biz.KeyField, "_method": "DELETE"}
-		prm = urllib.urlencode(params)
+		prm = urllib.parse.urlencode(params)
 		res = self.UrlOpener.open(url, data=prm)
 		encdata = res.read()
 		self._storeEncodedDataSet(encdata)
@@ -169,14 +169,14 @@ class RemoteConnector(object):
 		If an app name is passed, run it directly if it exists on the server.
 		"""
 		# Just use the first 3 split parts.
-		scheme, host, path = urlparse.urlsplit(url)[:3]
+		scheme, host, path = urllib.parse.urlsplit(url)[:3]
 		path = path.lstrip("/")
 		self._baseURL = "%s://%s" % (scheme, host)
 		listURL = "%s://%s/manifest" % (scheme, host)
 		res = None
 		try:
 			res = jsonDecode(self._read(listURL, reRaise=True))
-		except urllib2.URLError, e:
+		except urllib.error.URLError as e:
 			try:
 				code, msg = e.reason
 			except AttributeError:
@@ -189,8 +189,8 @@ class RemoteConnector(object):
 			elif code == 404:
 				# Not a Dabo application server
 				return "404 Not Found"
-		except urllib2.HTTPError, e:
-			print dir(e)
+		except urllib.error.HTTPError as e:
+			print(dir(e))
 			errText = e.read()
 			errMsg = "\n".join(errText.splitlines()[4:])
 			dabo.log.error(_("HTTP Error getting app list: %s") % e)
@@ -248,10 +248,10 @@ class RemoteConnector(object):
 		# Get the current manifest
 		currentMf = Manifest.getManifest(homedir)
 		params = {"current": jsonEncode(currentMf)}
-		prm = urllib.urlencode(params)
+		prm = urllib.parse.urlencode(params)
 		try:
 			res = self.UrlOpener.open(url, data=prm)
-		except urllib2.HTTPError, e:
+		except urllib.error.HTTPError as e:
 			errcode = e.code
 			errText = e.read()
 			errMsg = "\n".join(errText.splitlines()[4:])
@@ -261,7 +261,7 @@ class RemoteConnector(object):
 			else:
 				dabo.log.error(_("HTTP Error syncing files: %s") % e)
 				return
-		except urllib2.URLError:
+		except urllib.error.URLError:
 			# Right now re-raise it and let the UI handle it
 			raise
 		nonpickleRet = res.read()
@@ -278,7 +278,7 @@ class RemoteConnector(object):
 		# Save the current server manifest
 		pickle.dump(serverMf, file(".serverManifest", "w"), pickle.HIGHEST_PROTOCOL)
 		# Check the server manifest for deleted files
-		deleted = [pth for (pth, modf) in chgs.items()
+		deleted = [pth for (pth, modf) in list(chgs.items())
 				if not modf]
 		for delpth in deleted:
 			if delpth in baseMf:
@@ -290,7 +290,7 @@ class RemoteConnector(object):
 			url = self._getManifestUrl(appname, "files", ustr(filecode))
 			try:
 				res = self.UrlOpener.open(url)
-			except urllib2.HTTPError, e:
+			except urllib.error.HTTPError as e:
 				dabo.log.error(_("HTTP Error retrieving files: %s") % e)
 			# res holds a zip file
 			f = StringIO(res.read())
@@ -355,7 +355,7 @@ class RemoteConnector(object):
 
 	def _getRemoteHost(self):
 		try:
-			return urlparse.urlparse(self.UrlBase)[1]
+			return urllib.parse.urlparse(self.UrlBase)[1]
 		except IndexError:
 			return ""
 
@@ -380,9 +380,9 @@ class RemoteConnector(object):
 	def _getUrlOpener(self):
 		if self._urlOpener is None:
 			# Create an OpenerDirector with support for HTTP Digest Authentication...
-			auth_handler = urllib2.HTTPDigestAuthHandler()
+			auth_handler = urllib.request.HTTPDigestAuthHandler()
 			auth_handler.add_password(None, self.RemoteHost, self.UserName, self.Password)
-			self._urlOpener = urllib2.build_opener(auth_handler)
+			self._urlOpener = urllib.request.build_opener(auth_handler)
 		return self._urlOpener
 
 

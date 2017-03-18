@@ -70,11 +70,11 @@ class Manifest(object):
 		# These are copies of the original keys in the target. As keys from the source are
 		# processed, they will be popped from this list. Any leftover keys indicate deleted
 		# files.
-		targetKeys = target.keys()
+		targetKeys = list(target.keys())
 		# Iterate through the source. If the key exists in the target, and the source is
 		# newer than the target, add it to the return dict, and then pop the values from both
 		# key lists.
-		for srcKey, srcTimeString in source.items():
+		for srcKey, srcTimeString in list(source.items()):
 # 			srcTime = datetime.datetime.strptime(srcTimeString, cls.dtFormat)
 			srcTime = int(srcTimeString)
 			trgTimeString = target.get(srcKey)

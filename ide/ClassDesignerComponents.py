@@ -134,10 +134,10 @@ class LayoutSaverMixin(dObject):
 		propsToExclude += ("Right", "Bottom", "Font", "HeaderFont")
 		isSplitPanel = (isinstance(self, dabo.ui.dPanel)
 				and isinstance(self.Parent, dabo.ui.dSplitter))
-		desProps = self.DesignerProps.keys()
+		desProps = list(self.DesignerProps.keys())
 		if isinstance(self, (dabo.ui.dForm, dabo.ui.dFormMain)) and hasattr(self, "UseSizers"):
 			desProps += ["UseSizers"]
-		elif isinstance(self, self.Controller.pagedControls) and isinstance(self.PageClass, basestring):
+		elif isinstance(self, self.Controller.pagedControls) and isinstance(self.PageClass, str):
 			desProps += ["PageClass"]
 		elif isinstance(self, dlgs.Wizard):
 			desProps += ["PageCount"]
@@ -205,7 +205,7 @@ class LayoutSaverMixin(dObject):
 					"FontFace", "HAlign", "Name", "RegID", "SelectionMode",
 					"ToolTipText", "VAlign", "Value") and (not prop.startswith("Border")
 					and not prop.startswith("Header") and not prop.startswith("Sizer_")):
-				if isinstance(val, basestring) and os.path.exists(val):
+				if isinstance(val, str) and os.path.exists(val):
 					# It's a path; convert it to a relative path
 					if isinstance(self, (dabo.ui.dForm, dabo.ui.dFormMain, dabo.ui.dDialog)):
 						ref = self._classFile
@@ -226,14 +226,14 @@ class LayoutSaverMixin(dObject):
 					continue
 				if prop not in propsToInclude:
 					dv = defVals[prop]
-					if not isinstance(val, basestring) and isinstance(dv, basestring):
+					if not isinstance(val, str) and isinstance(dv, str):
 						# Try to convert
 						if isinstance(val, bool):
 							dv = (dv.lower() == "true")
 						elif isinstance(val, int):
 							dv = int(dv)
-						elif isinstance(val, long):
-							dv = long(dv)
+						elif isinstance(val, int):
+							dv = int(dv)
 						elif isinstance(val, float):
 							dv = float(dv)
 						elif dv in dabo.dColors.colors:
@@ -245,10 +245,10 @@ class LayoutSaverMixin(dObject):
 					if dv == val:
 						continue
 
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				strval = val
 			else:
-				strval = unicode(val)
+				strval = str(val)
 			ra[prop] = strval
 		# Add the controlling sizer item properties, if applicable
 		try:
@@ -293,7 +293,7 @@ class LayoutSaverMixin(dObject):
 		if isinstance(self, LayoutPanel) and not isinstance(self, LayoutSpacerPanel):
 			defaults["Expand"] = True
 			defaults["Proportion"] = 1
-		for key, val in dct.items():
+		for key, val in list(dct.items()):
 			if val == defaults.get(key, None):
 				dct.pop(key)
 		return dct
@@ -307,14 +307,14 @@ class LayoutSaverMixin(dObject):
 		currCode = self.getCode()
 		if currCode and (currCode != clsCode):
 			# Need to find all changed methods
-			for mthd, cd in currCode.items():
+			for mthd, cd in list(currCode.items()):
 				clscd = clsCode.get(mthd, "")
 				if cd != clscd:
 					ret[mthd] = cd
 			# See if there are any cleared methods
-			if clsCode.keys() != currCode.keys():
-				currK = currCode.keys()
-				for clsK in clsCode.keys():
+			if list(clsCode.keys()) != list(currCode.keys()):
+				currK = list(currCode.keys())
+				for clsK in list(clsCode.keys()):
 					if clsK not in currK:
 						ret[clsK] = ""
 		return ret
@@ -328,7 +328,7 @@ class LayoutSaverMixin(dObject):
 		objCode = self.Controller.getCodeForObject(self)
 		if objCode is not None:
 			# Check for empty methods
-			emptyKeys = [kk for kk,vv in objCode.items()
+			emptyKeys = [kk for kk,vv in list(objCode.items())
 					if not vv]
 			for emp in emptyKeys:
 				del objCode[emp]
@@ -427,7 +427,7 @@ class LayoutSaverMixin(dObject):
 					try:
 						kidDict = [cd for cd in childDict
 								if cd["attributes"]["classID"] == kidID][0]
-					except StandardError, e:
+					except Exception as e:
 						kidDict = {}
 				except AttributeError:
 					kidDict = {}
@@ -471,7 +471,7 @@ class LayoutSaverMixin(dObject):
 					try:
 						szDict = [cd for cd in childDict
 								if cd["attributes"]["classID"] == szID][0]
-					except StandardError, e:
+					except Exception as e:
 						szDict = {}
 				except AttributeError:
 					szDict = {}
@@ -504,7 +504,7 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 		# Store the defaults for the various props
 		self._propDefaults = {}
 		self._defaultSizerProps = {}
-		for prop in self.DesignerProps.keys():
+		for prop in list(self.DesignerProps.keys()):
 			self._propDefaults[prop] = eval("self.%s" % prop)
 
 
@@ -607,7 +607,7 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 
 
 	def onSelect(self, evt):
-		print "PANEL ON SELECT"
+		print("PANEL ON SELECT")
 
 
 	def onContextMenu(self, evt):
@@ -789,7 +789,7 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 		cs = self.ControllingSizer
 		try:
 			cs.setItemProp(self, "ColSpan", val)
-		except dabo.ui.GridSizerSpanException, e:
+		except dabo.ui.GridSizerSpanException as e:
 			raise PropertyUpdateException(ustr(e))
 
 
@@ -809,7 +809,7 @@ class LayoutPanel(dabo.ui.dPanel, LayoutSaverMixin):
 		cs = self.ControllingSizer
 		try:
 			cs.setItemProp(self, "RowSpan", val)
-		except dabo.ui.GridSizerSpanException, e:
+		except dabo.ui.GridSizerSpanException as e:
 			raise PropertyUpdateException(ustr(e))
 
 
@@ -1019,7 +1019,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 		their associated values. Must override in each subclass.
 		"""
 		ret = {}
-		for prop in self.ItemDesignerProps.keys():
+		for prop in list(self.ItemDesignerProps.keys()):
 			ret[prop] = self.getItemProp(itm, prop)
 		ret["Expand"] = self.getItemProp(itm, "Expand")
 		ret["Proportion"] = self.getItemProp(itm, "Proportion")
@@ -1063,7 +1063,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 			isSpacer = False
 			numItems = len(ret)
 			itmDict = {}
-			for prop in self.ItemDesignerProps.keys():
+			for prop in list(self.ItemDesignerProps.keys()):
 				itmDict[prop] = self.getItemProp(kid,  prop)
 			kidItem = self.getItem(kid)
 			try:
@@ -1079,7 +1079,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 						try:
 							winDict = [cd for cd in childDict
 									if cd["attributes"]["classID"] == winID][0]
-						except StandardError, e:
+						except Exception as e:
 							winDict = {}
 					except AttributeError:
 						winDict = {}
@@ -1094,7 +1094,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 						try:
 							szrDict = [cd for cd in childDict
 									if cd["attributes"]["classID"] == szrID][0]
-						except StandardError, e:
+						except Exception as e:
 							szrDict = {}
 					except AttributeError:
 						szrDict = {}
@@ -1409,7 +1409,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 			return
 		try:
 			self.ControllingSizer.setItemProp(self, "ColSpan", val)
-		except dabo.ui.GridSizerSpanException, e:
+		except dabo.ui.GridSizerSpanException as e:
 			raise PropertyUpdateException(ustr(e))
 
 
@@ -1428,7 +1428,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 			return
 		try:
 			self.ControllingSizer.setItemProp(self, "RowSpan", val)
-		except dabo.ui.GridSizerSpanException, e:
+		except dabo.ui.GridSizerSpanException as e:
 			raise PropertyUpdateException(ustr(e))
 
 
@@ -1585,7 +1585,7 @@ class LayoutBorderSizer(LayoutSizerMixin, dabo.ui.dBorderSizer):
 
 	def _getDesProps(self):
 		ret = super(LayoutBorderSizer, self)._getDesProps()
-		ret.update({"Caption" : {"type" : unicode, "readonly" : False},
+		ret.update({"Caption" : {"type" : str, "readonly" : False},
 				"BackColor" : {"type" : "color", "readonly" : False,
 						"customEditor": "editColor"},
 				"FontBold": {"type" : bool, "readonly" : False},
@@ -1617,7 +1617,7 @@ class LayoutGridSizer(LayoutSizerMixin, dabo.ui.dGridSizer):
 		applies them to the specified sizer item.
 		"""
 		# Do the default behavior
-		for prop, val in props.items():
+		for prop, val in list(props.items()):
 			currVal = self.getItemProp(itm, prop)
 			if val != currVal:
 				self.setItemProp(itm, prop, val)
@@ -1628,7 +1628,7 @@ class LayoutGridSizer(LayoutSizerMixin, dabo.ui.dGridSizer):
 		their associated values. Must override in each subclass.
 		"""
 		ret = {}
-		for prop in self.ItemDesignerProps.keys():
+		for prop in list(self.ItemDesignerProps.keys()):
 			ret[prop] = self.getItemProp(itm, prop)
 		return ret
 
@@ -1688,7 +1688,7 @@ class LayoutGridSizer(LayoutSizerMixin, dabo.ui.dGridSizer):
 
 			# Make sure that the clsDict is not None.
 			clsDict = clsDict or {}
-			for prop in self.ItemDesignerProps.keys():
+			for prop in list(self.ItemDesignerProps.keys()):
 				itmDict[prop] = self.getItemProp(kid,  prop)
 			itmDiffDict = self._diffSizerItemProps(itmDict, self)
 			kidItem = self.getItem(kid)
@@ -1723,7 +1723,7 @@ class LayoutGridSizer(LayoutSizerMixin, dabo.ui.dGridSizer):
 			try:
 				ret = [cd for cd in childDict
 						if cd["attributes"]["classID"] == objID][0]
-			except StandardError, e:
+			except Exception as e:
 				ret = None
 		except AttributeError:
 			pass
@@ -1920,7 +1920,7 @@ class LayoutGridSizer(LayoutSizerMixin, dabo.ui.dGridSizer):
 			return
 		try:
 			self.ControllingSizer.setItemProp(self, "ColSpan", val)
-		except dabo.ui.GridSizerSpanException, e:
+		except dabo.ui.GridSizerSpanException as e:
 			raise PropertyUpdateException(ustr(e))
 
 
@@ -1939,7 +1939,7 @@ class LayoutGridSizer(LayoutSizerMixin, dabo.ui.dGridSizer):
 			return
 		try:
 			self.ControllingSizer.setItemProp(self, "RowSpan", val)
-		except dabo.ui.GridSizerSpanException, e:
+		except dabo.ui.GridSizerSpanException as e:
 			raise PropertyUpdateException(ustr(e))
 
 

@@ -7,7 +7,7 @@ from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dControlMixin as cm
+from . import dControlMixin as cm
 from dabo.dLocalize import _
 
 # Need to define this exception class for x-platform
@@ -19,7 +19,7 @@ except:
 try:
 	import wx.lib.pdfwin as pdfwin
 	PDFWindow = pdfwin.PDFWindow
-except StandardError:
+except Exception:
 	## If there's any exception at all in importing pdfwin, use the dummy.
 	class Dummy(object):
 		_dummy = True
@@ -52,6 +52,6 @@ class _dPdfWindow_test(dPdfWindow):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dPdfWindow_test)
 

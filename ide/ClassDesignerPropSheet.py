@@ -2,6 +2,7 @@
 import os
 import pydoc
 import dabo.ui
+import collections
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
@@ -155,7 +156,7 @@ class PropSheet(dabo.ui.dPanel):
 
 
 	def dataSetFromPropDict(self, propDict):
-		props = propDict.keys()
+		props = list(propDict.keys())
 		props.sort()
 		if self.propGrid.sortOrder == "DESC":
 			props.reverse()
@@ -191,10 +192,10 @@ class PropSheet(dabo.ui.dPanel):
 						szItem = indiv.ControllingSizerItem
 						sz = indiv.ControllingSizer
 						indivDict = sz.ItemDesignerProps
-						indivProps = indivDict.keys()
+						indivProps = list(indivDict.keys())
 					else:
 						indivDict = indiv.DesignerProps
-						indivProps = indivDict.keys()
+						indivProps = list(indivDict.keys())
 
 					badProps = []
 					for prop in props:
@@ -228,7 +229,7 @@ class PropSheet(dabo.ui.dPanel):
 						if pp not in badProps]
 
 			if len(props) == 0:
-				ds = [{"prop" : "", "val" : "", "type" : unicode, "readonly" : True}]
+				ds = [{"prop" : "", "val" : "", "type" : str, "readonly" : True}]
 			else:
 				# Construct the data set from the props
 				ds = []
@@ -253,7 +254,7 @@ class PropSheet(dabo.ui.dPanel):
 					rec["val"] = val
 					rec["type"] = propInfo["type"]
 					ro = propInfo["readonly"]
-					if callable(ro):
+					if isinstance(ro, collections.Callable):
 						ro = ro(ob)
 					rec["readonly"] = ro
 
@@ -318,7 +319,7 @@ class PropSheet(dabo.ui.dPanel):
 			self.Controller.updatePropVal(prop, val, typ)
 			if prop.startswith("Font"):
 				self.updateGridValues()
-		except PropertyUpdateException, e:
+		except PropertyUpdateException as e:
 			dabo.ui.stop(_("Could not set property '%(prop)s' to value '%(val)s'\nReason: '%(e)s'")
 					% locals())
 			self.updateGridValues()
@@ -331,7 +332,7 @@ class PropSheet(dabo.ui.dPanel):
 		"""
 		pg = self.propGrid
 		ob = self._selected[0]
-		for row in xrange(pg.RowCount):
+		for row in range(pg.RowCount):
 			prop = pg.getValue(row, 0)
 			if prop == "Font":
 				val = ob.FontDescription
@@ -341,7 +342,7 @@ class PropSheet(dabo.ui.dPanel):
 
 
 	def setCustomEditor(self, ed, propName):
-		if isinstance(ed, basestring):
+		if isinstance(ed, str):
 			# it is the name of a method in this class
 			ed = eval("self.%s" % ed)
 		self._custEditor = ed
@@ -404,7 +405,7 @@ class PropSheet(dabo.ui.dPanel):
 		newVal = dabo.ui.getFile("jpg", "png", "gif", "tif", "bmp", "*")
 		if newVal is not None:
 			self.propGrid.CurrentValue = newVal
-			self.updateVal(prop, newVal, unicode)
+			self.updateVal(prop, newVal, str)
 			self.propGrid.refresh()
 
 
@@ -496,7 +497,7 @@ class PropSheet(dabo.ui.dPanel):
 			newVal = dlg.getSelectedIcon()
 			if newVal is not None:
 				self.propGrid.CurrentValue = newVal
-				self.updateVal(prop, newVal, unicode)
+				self.updateVal(prop, newVal, str)
 				self.propGrid.refresh()
 		else:
 			self.editPicture(objs, prop, val)
@@ -509,7 +510,7 @@ class PropSheet(dabo.ui.dPanel):
 		newVal = dabo.ui.getFile("mnxml", "*")
 		if newVal is not None:
 			self.propGrid.CurrentValue = newVal
-			self.updateVal(prop, newVal, unicode)
+			self.updateVal(prop, newVal, str)
 			self.propGrid.refresh()
 
 
@@ -613,7 +614,7 @@ class PropSheet(dabo.ui.dPanel):
 				keyText = ""
 			# Setting the HotKey prop should update the related sub-props.
 			obj.HotKey = keyText
-			self.updateVal(prop, keyText, unicode)
+			self.updateVal(prop, keyText, str)
 			self.propGrid.CurrentValue = keyText
 			self.propGrid.refresh()
 		dlg.release()
@@ -709,7 +710,7 @@ class PropertyGrid(dabo.ui.dGrid):
 			return None
 		try:
 			return self.propDict[prop]
-		except KeyError, e:
+		except KeyError as e:
 			return None
 # 			print "PROP DICT ERROR: >%s<, row=%s" % (prop, row)
 
@@ -721,7 +722,7 @@ class PropertyGrid(dabo.ui.dGrid):
 		if not self.Controller.Selection:
 			return
 		valColumn = self.Columns[1]
-		for row in xrange(self.RowCount):
+		for row in range(self.RowCount):
 			pd = self.getPropDictForRow(row)
 			if pd is None:
 				if row == 0 and self.getValue(row, 0) == "":
@@ -732,7 +733,7 @@ class PropertyGrid(dabo.ui.dGrid):
 							(self.getValue(row, 0), self.Controller.Selection[0]))
 				continue
 			if not isinstance(pd, dict):
-				print _("BAD PROP DICT:"), pd, type(pd), _("ROW"), row
+				print(_("BAD PROP DICT:"), pd, type(pd), _("ROW"), row)
 				continue
 			typ = pd["type"]
 			rnd = self.stringRendererClass
@@ -767,7 +768,7 @@ class PropertyGrid(dabo.ui.dGrid):
 
 			if not isinstance(pd, dict):
 				if pd is not None:
-					print _("BAD PROP DICT:"), pd, type(pd), _("ROW="), row
+					print(_("BAD PROP DICT:"), pd, type(pd), _("ROW="), row)
 			else:
 				if pd["type"] == "multi":
 					# This is a catch-all setting for props such as 'Value' that
@@ -782,7 +783,7 @@ class PropertyGrid(dabo.ui.dGrid):
 
 	def customCanSetValueAs(self, row, col, typ):
 		if col == 0:
-			return isinstance(typ, basestring)
+			return isinstance(typ, str)
 		else:
 			pd = self.getPropDictForRow(row)
 			if pd["type"] == "multi":
@@ -835,7 +836,7 @@ class PropertyGrid(dabo.ui.dGrid):
 			# Only the second column is directly editable, and only
 			# if the property permits editing.
 			isRO = pd["readonly"]
-			if callable(isRO):
+			if isinstance(isRO, collections.Callable):
 				isRO = isRO(sel[0])
 			self.Editable = not isRO
 		else:

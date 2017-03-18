@@ -3,8 +3,8 @@ import wx
 import dabo.dEvents as dEvents
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-import dControlMixin as dcm
-import locale, wx, sys, cStringIO
+from . import dControlMixin as dcm
+import locale, wx, sys, io
 import wx.lib.mixins.listctrl as listmix
 from wx import ImageFromStream, BitmapFromImage
 
@@ -33,7 +33,7 @@ def getSmallUpArrowBitmap():
 
 
 def getSmallUpArrowImage():
-	stream = cStringIO.StringIO(getSmallUpArrowData())
+	stream = io.StringIO(getSmallUpArrowData())
 	return ImageFromStream(stream)
 
 
@@ -52,7 +52,7 @@ def getSmallDnArrowBitmap():
 
 
 def getSmallDnArrowImage():
-	stream = cStringIO.StringIO(getSmallDnArrowData())
+	stream = io.StringIO(getSmallDnArrowData())
 	return ImageFromStream(stream)
 
 
@@ -98,7 +98,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 		self.itemDataMap = dict()
 		#Load and sort data
 		if not (self._multiChoices or self._choices):
-			raise ValueError, "Pass me at least one of multiChoices OR choices"
+			raise ValueError("Pass me at least one of multiChoices OR choices")
 		#widgets
 		self.dropdown = wx.PopupWindow( self )
 		#Control the style
@@ -185,7 +185,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 			#load the sorted data into the listbox
 			dd = self.dropdownlistbox
 			choices = [dd.GetItem(x, self._colSearch).GetText()
-					for x in xrange(dd.GetItemCount())]
+					for x in range(dd.GetItemCount())]
 		else:
 			choices = self._choices
 		for numCh, choice in enumerate(choices):
@@ -301,7 +301,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 			for numCol, colVal in enumerate(valRow):
 				if numCol == 0:
 					index = self.dropdownlistbox.InsertImageStringItem(
-							sys.maxint, colVal, -1)
+							sys.maxsize, colVal, -1)
 				self.dropdownlistbox.SetStringItem(index, numCol, colVal)
 				self.dropdownlistbox.SetItemData(index, numRow)
 		self._setListSize()
@@ -328,7 +328,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 		self._updateDataList(self._choices)
 		self.dropdownlistbox.InsertColumn(0, "")
 		for num, colVal in enumerate(self._choices):
-			index = self.dropdownlistbox.InsertImageStringItem(sys.maxint, colVal, -1)
+			index = self.dropdownlistbox.InsertImageStringItem(sys.maxsize, colVal, -1)
 			self.dropdownlistbox.SetStringItem(index, 0, colVal)
 			self.dropdownlistbox.SetItemData(index, num)
 		self._setListSize()
@@ -367,7 +367,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 			if self._selectCallback:
 				dd = self.dropdownlistbox
 				values = [dd.GetItem(sel, x).GetText()
-						for x in xrange(dd.GetColumnCount())]
+						for x in range(dd.GetColumnCount())]
 				self._selectCallback( values )
 			self.SetValue (itemtext)
 			self.SetInsertionPointEnd ()
@@ -476,7 +476,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 		ds = self.DataSource
 		if isinstance(ds, dabo.biz.dBizobj):
 			return ds
-		if isinstance(ds, basestring) and self.Form is not None:
+		if isinstance(ds, str) and self.Form is not None:
 			form = self.Form
 			while form is not None:
 				if hasattr(form, "getBizobj"):
@@ -518,7 +518,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 		choices = []
 		colKeys = self.DataFields
 		if not colKeys:
-			colKeys = [key for key in ds[0].keys()]
+			colKeys = [key for key in list(ds[0].keys())]
 
 		if len(colKeys) == 1:
 			#Single column
@@ -535,7 +535,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 			#Find search index
 			try:
 				if self.SearchField is not None:
-					if isinstance(self.SearchField, basestring):
+					if isinstance(self.SearchField, str):
 						colSearch = colKeys.index(self.SearchField)
 					else:
 						colSearch = self.SearchField
@@ -547,7 +547,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 			#Find fetch index
 			try:
 				if self.FetchField is not None:
-					if isinstance(self.FetchField, basestring):
+					if isinstance(self.FetchField, str):
 						colFetch = colKeys.index(self.FetchField)
 					else:
 						colFetch = self.FetchField
@@ -663,7 +663,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 			else:
 				try:
 					ds = eval(biz).getDataSet()
-				except StandardError:
+				except Exception:
 					pass
 				self._dataSet = ds
 		else:
@@ -808,7 +808,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 
 	class TestPanel(dabo.ui.dPanel):
 		def afterInit(self):
