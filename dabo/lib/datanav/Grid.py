@@ -2,7 +2,6 @@
 import dabo
 import dabo.ui
 import dabo.dException as dException
-dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import dKeys

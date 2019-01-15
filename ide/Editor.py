@@ -19,8 +19,6 @@ try:
 except ImportError:
 	_Use_Subprocess = False
 from dabo.lib.reportUtils import getTempFile
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 
 
 class EditPageSplitter(dabo.ui.dSplitter):

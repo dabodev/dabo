@@ -259,7 +259,6 @@ def quickStart(homedir=None):
 	open("main.py", "w").write("""#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import dabo.ui
-dabo.ui.loadUI("wx")
 from dabo.dApp import dApp
 
 app = dApp()

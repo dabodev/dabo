@@ -5,7 +5,6 @@
 This demo is like invoice.py, but shows how to use the progress dialog.
 """
 import dabo.ui
-dabo.ui.loadUI("wx")
 from dabo.dApp import dApp
 from dabo.dReportWriter import dReportWriter
 from dabo.lib import reportUtils

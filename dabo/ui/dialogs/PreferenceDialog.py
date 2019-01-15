@@ -3,8 +3,6 @@ import sys
 import os
 import inspect
 import dabo.ui
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 from dabo.ui.dialogs.HotKeyEditor import HotKeyEditor
 from dabo.lib.utils import cleanMenuCaption

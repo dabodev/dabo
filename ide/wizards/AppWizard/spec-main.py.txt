@@ -10,7 +10,6 @@ import dabo.ui
 
 # The loading of the UI needs to happen before the importing of the
 # db, biz, and ui packages:
-dabo.ui.loadUI("wx")
 if sys.platform[:3] == "win":
 	dabo.MDI = True
 

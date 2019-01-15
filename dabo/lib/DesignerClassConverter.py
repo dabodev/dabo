@@ -12,7 +12,6 @@ import random
 import codecs
 import tempfile
 import dabo
-dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dabo.lib import utils
@@ -869,11 +868,9 @@ class DesignerClassConverter(dObject):
 %(indCode)s
 """
 		self._hdrText = """import dabo
-dabo.ui.loadUI("wx")
 
 """
 		self._clsHdrText = """import dabo
-dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.lib.utils import ustr
 import sys

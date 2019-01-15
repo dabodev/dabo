@@ -1654,38 +1654,6 @@ try again when it is running.
 		self._sourceURL = val
 
 
-	def _getUI(self):
-		try:
-			return dabo.ui.getUIType()
-		except AttributeError:
-			return None
-
-	def _setUI(self, uiType):
-		# Load the appropriate ui module. dabo.ui will now contain
-		# the classes of that library, wx for instance.
-		if self.UI is None:
-			if uiType is None:
-				self._uiAlreadySet = True
-				dabo.log.info(_("User interface set set to None."))
-			elif dabo.ui.loadUI(uiType):
-				self._uiAlreadySet = True
-				dabo.log.info(_("User interface set to '%s' by dApp.") % uiType)
-			else:
-				dabo.log.info(_("Tried to set UI to '%s', but it failed.") % uiType)
-		else:
-			raise RuntimeError(_("The UI cannot be reset once assigned."))
-
-
-	def _getUIAppClass(self):
-		try:
-			return self._uiAppClass
-		except AttributeError:
-			return None
-
-	def _setUIAppClass(self, val):
-		self._uiAppClass = val
-
-
 	def _getUserSettingProvider(self):
 		try:
 			ret = self._userSettingProvider
@@ -1866,21 +1834,6 @@ try again when it is running.
 			_("""If this app's source files are updated dynamically via the web,
 			this is the base URL to which the source file's name will be appended.
 			Default="" (i.e., no source on the internet).  (str)"""))
-
-	UI = property(_getUI, _setUI, None,
-			_("""Specifies the user interface to load, or None. (str)
-
-			This is the user interface library, such as 'wx' or 'tk'. Note that
-			'wx' is the only supported user interface library at this point."""))
-
-	UIAppClass = property(_getUIAppClass, _setUIAppClass, None,
-			_("""The name of the ui-specific app subclass to instantiate.
-
-			This will allow ui toolkit-specific behaviors to be added to a Dabo
-			application. It MUST be either defined in the application subclass, or
-			passed in the call to create the app object, since the UI App cannot
-			be changed once the app is running. Defaults to dabo.ui.uiApp
-			if not specified.  (dabo.ui.uiApp)"""))
 
 	UserSettingProvider = property(_getUserSettingProvider,
 			_setUserSettingProvider, None,

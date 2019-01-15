@@ -13,7 +13,6 @@ from dabo.lib.utils import ustr
 from dabo.lib.connParser import createXML
 from dabo.lib.connParser import importConnections
 import dabo.lib.utils as utils
-dui.loadUI("wx")
 from HomeDirectoryStatusBar import HomeDirectoryStatusBar
 
 

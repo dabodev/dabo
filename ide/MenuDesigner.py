@@ -8,7 +8,6 @@ from dabo.dLocalize import _
 from dabo.dApp import dApp
 import dabo.dEvents as dEvents
 import dabo.lib.xmltodict as xtd
-dabo.ui.loadUI("wx")
 from MenuDesignerForm import MenuDesignerForm
 
 

@@ -18,8 +18,6 @@ except ImportError as e:
 	_has_reporting_libs = False
 from dabo.lib.utils import ustr
 
-dabo.ui.loadUI("wx")
-
 
 class Form(dabo.ui.dForm):
 	"""

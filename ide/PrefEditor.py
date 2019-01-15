@@ -4,7 +4,6 @@ import os
 import inspect
 import dabo
 import dabo.ui
-dabo.ui.loadUI("wx")
 from dabo.dApp import dApp
 
 

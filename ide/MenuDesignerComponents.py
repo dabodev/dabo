@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 import os
 import dabo.ui
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty

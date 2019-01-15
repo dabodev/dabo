@@ -4,7 +4,6 @@ import sys
 import os
 import copy
 import dabo.ui
-dabo.ui.loadUI("wx")
 from dabo.dApp import dApp
 import dabo.dEvents as dEvents
 from dabo.dReportWriter import dReportWriter

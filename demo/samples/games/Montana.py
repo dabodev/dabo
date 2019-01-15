@@ -4,7 +4,6 @@ import random
 import dabo.ui
 from dabo.dApp import dApp
 from dabo.dLocalize import _
-dabo.ui.loadUI("wx")
 from . import cardlib
 
 

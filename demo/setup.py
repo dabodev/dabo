@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import dabo.ui
-dabo.ui.loadUI("wx")
 import dabo.icons
 import glob
 import os

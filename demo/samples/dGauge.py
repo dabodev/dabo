@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import random
 import dabo.ui
-dabo.ui.loadUI("wx")
 from dabo.dApp import dApp
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _

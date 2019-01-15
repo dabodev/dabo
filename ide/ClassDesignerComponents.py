@@ -2,7 +2,6 @@
 import os
 
 import dabo.ui
-dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.dObject import dObject

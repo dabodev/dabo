@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 import dabo
-
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
-
 import dabo.ui
 import dabo.icons
 from dabo.dLocalize import _

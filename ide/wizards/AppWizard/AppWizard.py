@@ -10,7 +10,6 @@ from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
-dabo.ui.loadUI("wx")
 from dabo.ui.dialogs.WizardPage import WizardPage
 from dabo.ui.dialogs.Wizard import Wizard
 from dabo.ui import dLabel

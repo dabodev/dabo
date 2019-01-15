@@ -11,8 +11,6 @@ from dabo.dApp import dApp
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 # This is because I'm a lazy typist
 dui = dabo.ui
 from ClassDesignerFormMixin import ClassDesignerFormMixin

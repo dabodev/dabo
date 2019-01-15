@@ -6,7 +6,6 @@ import os
 import time
 import dabo.ui
 from dabo.dApp import dApp
-dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dabo.dConstants as kons
 from dabo.dLocalize import _

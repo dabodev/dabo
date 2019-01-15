@@ -13,8 +13,6 @@ targeted and Forms, Dialogs, and Panels.
 """
 import types
 import dabo
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 from dabo.dApp import dApp
 import dabo.dEvents as dEvents
 from dabo.lib.utils import ustr

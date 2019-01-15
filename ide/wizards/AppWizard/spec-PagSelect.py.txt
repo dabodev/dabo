@@ -2,8 +2,6 @@
 
 import dabo.ui
 from dabo.dApp import dApp
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _, n_
 from PagSelectBase import PagSelectBase, IGNORE_STRING, SelectTextBox, \

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import dabo.ui
 import dabo.dEvents as dEvents
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 # This is because I'm a lazy typist
 dui = dabo.ui
 from dabo.dLocalize import _

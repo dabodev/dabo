@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
 import dabo.ui
-dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from samples.games import MontanaForm

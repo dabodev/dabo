@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import dabo.ui
-dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr

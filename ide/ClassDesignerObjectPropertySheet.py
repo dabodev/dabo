@@ -2,8 +2,6 @@
 import dabo.ui
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 dui = dabo.ui
 from ClassDesignerComponents import LayoutPanel
 from ClassDesignerComponents import LayoutBasePanel

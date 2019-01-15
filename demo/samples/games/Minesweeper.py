@@ -22,7 +22,6 @@ import dabo.db
 import dabo.biz
 import dabo.ui
 import dabo.lib.StopWatch as StopWatch
-dabo.ui.loadUI("wx")
 from dabo.dApp import dApp
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr

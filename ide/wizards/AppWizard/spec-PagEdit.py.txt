@@ -2,8 +2,6 @@
 
 import dabo.ui
 from dabo.dApp import dApp
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 from PagEditBase import PagEditBase
 
 

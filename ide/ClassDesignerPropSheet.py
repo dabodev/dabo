@@ -2,8 +2,6 @@
 import os
 import pydoc
 import dabo.ui
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 from dabo.ui import dKeys as dKeys
 import dabo.dEvents as dEvents

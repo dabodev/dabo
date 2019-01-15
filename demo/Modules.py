@@ -21,7 +21,6 @@ import sys
 import traceback
 import types
 import dabo.ui
-dabo.ui.loadUI("wx")
 import dabo.lib.utils as utils
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
