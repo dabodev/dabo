@@ -4,11 +4,11 @@ import re
 import warnings
 import time
 import dabo
-import dabo.dConstants as kons
+from dabo import dConstants as kons
 from dabo.db.dCursorMixin import dCursorMixin
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-import dabo.dException as dException
+from dabo import dException as dException
 from dabo.dObject import dObject
 from dabo.lib.RemoteConnector import RemoteConnector
 

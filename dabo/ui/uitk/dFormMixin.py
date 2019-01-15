@@ -3,7 +3,11 @@
 from . import dPemMixin as pm
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
+
+# NOTE: This was simply copied from the uiwx directory, and all lines that
+# reference wxPython have been commented out. If we ever implement Tk, they
+# will have to changed to code appropriate for Tk.
 
 class dFormMixin(pm.dPemMixin):
 	def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):

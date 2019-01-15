@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import pudb
+pudb.set_trace()
 import sys
 import time
 import types
@@ -8,9 +10,9 @@ import dabo
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.ui.dPemMixinBase import dPemMixinBase
-import dabo.dEvents as dEvents
-import dabo.dException as dException
-import dabo.dColors as dColors
+from dabo import dEvents as dEvents
+from dabo import dException as dException
+from dabo import dColors as dColors
 from . import dKeys
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
@@ -558,7 +560,7 @@ class dPemMixin(dPemMixinBase):
 		self._destroyAlreadyFired = True
 		try:
 			self.raiseEvent(dEvents.Destroy, evt)
-		except dabo.ui.deadObjectException:
+		except RuntimeError:
 			pass
 
 	def __onWxIdle(self, evt):

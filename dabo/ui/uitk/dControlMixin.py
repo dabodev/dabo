@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from dabo.ui.dControlMixinBase import dControlMixinBase
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 
 class dControlMixin(dControlMixinBase):
 

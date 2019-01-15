@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import gettext
-from . import locale
+import locale
 import os
 import sys
 import warnings
@@ -111,7 +111,7 @@ No translation file found for domain 'dabo'.
     Codeset = %s """ % (daboLocaleDir, ustr(lang), charset))
 			# Default to US English
 			daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=["en"], codeset=charset)
-		_currentTrans = daboTranslation.ugettext
+		_currentTrans = daboTranslation.gettext
 
 	for domain, localedir in list(_domains.items()):
 		if domain == "dabo":
@@ -127,7 +127,7 @@ No translation file found for domain '%s'.
     Codeset = %s """ % (domain, daboLocaleDir, ustr(lang), charset))
 		if daboTranslation:
 			translation.add_fallback(daboTranslation)
-		_currentTrans = translation.ugettext
+		_currentTrans = translation.gettext
 
 
 def getDaboLocaleDir():

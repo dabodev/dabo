@@ -5,14 +5,14 @@ import time
 import logging
 import wx
 import dabo
-import dabo.ui as ui
-import dabo.dColors as dColors
-import dabo.dEvents as dEvents
-import dabo.lib.utils as utils
+from dabo import ui as ui
+from dabo import dColors as dColors
+from dabo import dEvents as dEvents
+from dabo.lib import utils as utils
 from dabo.dObject import dObject
 from dabo.dLocalize import _, n_
 from dabo.lib.utils import cleanMenuCaption
-import dabo.dConstants as kons
+from dabo import dConstants as kons
 
 
 
@@ -844,7 +844,7 @@ these automatic updates.""").replace("\n", " ")
 					if self.dApp.ReleasePreferenceDialog and dlgPref.Modal:
 						dlgPref.release()
 						del (af._prefDialog)
-				except dabo.ui.deadObjectException:
+				except RuntimeError:
 					pass
 			else:
 				dabo.log.info(_("Stub: dApp.onEditPreferences()"))

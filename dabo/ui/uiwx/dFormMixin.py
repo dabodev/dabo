@@ -619,7 +619,9 @@ class dFormMixin(pm.dPemMixin):
 		if hasattr(obj, "RegID"):
 			id = obj.RegID
 			if id in self._objectRegistry:
-				if not isinstance(self._objectRegistry[id], dabo.ui.deadObject):
+				# In wxPython 4.x, a 'dead object' is now a logical False
+				# if not isinstance(self._objectRegistry[id], dabo.ui.deadObject):
+				if not self._objectRegistry[id]:
 					raise KeyError(_("Duplicate RegID '%s' found") % id)
 				else:
 					del self.__dict__[id]

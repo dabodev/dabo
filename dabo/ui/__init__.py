@@ -19,6 +19,9 @@ import inspect
 import dabo
 from dabo.dLocalize import _
 
+from dabo.ui.uiwx import *
+
+
 lastCallAfterStack = ""  ## see uiwx/__init__.py in callAfter and callAfterInterval
 
 def getUIType():
@@ -38,7 +41,7 @@ def deadCheck(fn, *args, **kwargs):
 	def deadCheckFunc(self, *args, **kwargs):
 		if not self:
 			# For testing, uncomment the print line below:
-# 			print "FOUND DEAD OBJECT"
+# 			print("FOUND DEAD OBJECT")
 			return
 		return fn(self, *args, **kwargs)
 	return deadCheckFunc
@@ -58,7 +61,7 @@ def loadUI(uiType):
 
 	if currType is None:
 		try:
-			exec("from %s import *" % mods[typ], globals())
+#			exec("from %s import *" % mods[typ], globals())
 			retVal = True
 		except Exception as e:
 			retVal = False

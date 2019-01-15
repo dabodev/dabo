@@ -197,7 +197,7 @@ class dSizerMixin(dObject):
 		"""
 		try:
 			itm.Name
-		except dabo.ui.deadObjectException:
+		except RuntimeError:
 			# The use of callAfter can sometimes result in destroyed
 			# objects being removed.
 			return

@@ -1,25 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import pudb
+pudb.set_trace()
+
 import sys
 import os
 import re
 import keyword
 import code
 import inspect
-import compiler
 import wx
 import wx.stc as stc
 import dabo
 if __name__ == "__main__":
-	import dabo.ui
-	dabo.ui.loadUI("wx")
+	from dabo import ui as dui
+	dui.loadUI("wx")
 
-import dabo.dEvents as dEvents
-import dabo.dColors as dColors
+from dabo import dEvents as dEvents
+from dabo import dColors as dColors
 from dabo.dLocalize import _
-from . import dDataControlMixin as dcm
-from . import dTimer
+import dDataControlMixin as dcm
+import dTimer
 
 LexerDic = {
     "ada": stc.STC_LEX_ADA,
@@ -326,8 +328,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if self._fontSize is None:
 			self._fontSize = fontSize
 
-		dabo.ui.callAfter(self.changeFontFace, self._fontFace)
-		dabo.ui.callAfter(self.changeFontSize, self._fontSize)
+		dui.callAfter(self.changeFontFace, self._fontFace)
+		dui.callAfter(self.changeFontSize, self._fontSize)
 
 		self._syntaxColoring = True
 		self._styleTimer = StyleTimer(self)
@@ -359,7 +361,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._registerFunc, self._unRegisterFunc = funcTuple
 
 
-	@dabo.ui.deadCheck
+	@dui.deadCheck
 	def __del__(self):
 		self._unRegisterFunc(self)
 		super(dEditor, self).__del__()
@@ -752,11 +754,11 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self.SetCaretForeground("BLUE")
 
 		# Register some images for use in the AutoComplete box.
-		self.RegisterImage(1, dabo.ui.strToBmp("daboIcon016"))
-		self.RegisterImage(2, dabo.ui.strToBmp("property"))	#, setMask=False))
-		self.RegisterImage(3, dabo.ui.strToBmp("event"))		#, setMask=False))
-		self.RegisterImage(4, dabo.ui.strToBmp("method"))		#, setMask=False))
-		self.RegisterImage(5, dabo.ui.strToBmp("class"))		#, setMask=False))
+		self.RegisterImage(1, dui.strToBmp("daboIcon016"))
+		self.RegisterImage(2, dui.strToBmp("property"))	#, setMask=False))
+		self.RegisterImage(3, dui.strToBmp("event"))		#, setMask=False))
+		self.RegisterImage(4, dui.strToBmp("method"))		#, setMask=False))
+		self.RegisterImage(5, dui.strToBmp("class"))		#, setMask=False))
 
 		self.CallTipSetBackground("yellow")
 		self.SelectionBackColor = "yellow"
@@ -1042,22 +1044,22 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				# so that onListSelection() knows to call
 				# autocomplete on the new item:
 				self._insertChar = "."
-				dabo.ui.callAfter(self._onPeriodActive)
+				dui.callAfter(self._onPeriodActive)
 			else:
 				self._posBeforeCompList = self.GetCurrentPos() + 1
-				dabo.ui.callAfter(self.codeComplete)
+				dui.callAfter(self.codeComplete)
 		elif self.AutoAutoComplete:
 			if self.AutoCompActive():
 				if keyChar in " ()[]{}.-":
 					self.AutoCompCancel()
 					return
 			else:
-				dabo.ui.callAfter(self.autoComplete, minWordLen=self.AutoAutoCompleteMinLen)
+				dui.callAfter(self.autoComplete, minWordLen=self.AutoAutoCompleteMinLen)
 
 
 	def _onPeriodActive(self):
 		self._posBeforeCompList = self.GetCurrentPos()
-		dabo.ui.callAfter(self.codeComplete)
+		dui.callAfter(self.codeComplete)
 
 
 	def onListSelection(self, evt):
@@ -1108,7 +1110,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 					# Until we can get other keyword lists, we need to clear this out
 					self.SetKeyWords(0, "")
 					self._keyWordsLanguage = ""
-				dabo.ui.callAfter(self.Colourise, 0, 1)
+				dui.callAfter(self.Colourise, 0, 1)
 		else:
 			self.ClearDocumentStyle()
 			self.SetLexer(stc.STC_LEX_CONTAINER)
@@ -1411,7 +1413,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			s = "Do you want to save your changes?"
 		else:
 			s = "Do you want to save your changes to file '%s'?" % self._fileName
-		return dabo.ui.areYouSure(s)
+		return dui.areYouSure(s)
 
 
 	def promptForFileName(self, prompt=None, saveAs=False, path=None, **kwargs):
@@ -1430,9 +1432,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			drct = path
 
 		if saveAs:
-			func = dabo.ui.getSaveAs
+			func = dui.getSaveAs
 		else:
-			func = dabo.ui.getFile
+			func = dui.getFile
 		fname = func("py", "txt", "cdxml", "cnxml", "mnxml", "rfxml", "*", message=prompt,
 				     defaultPath=drct, **kwargs)
 		return fname
@@ -1451,7 +1453,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			if fname is None:
 				break
 			if os.path.exists(fname):
-				r = dabo.ui.areYouSure(_("File '%s' already exists. Do you "
+				r = dui.areYouSure(_("File '%s' already exists. Do you "
 								         "want to overwrite it?") % fname, defaultNo=True)
 				if r is None:
 					# user canceled.
@@ -1492,7 +1494,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				if fModTime > self._fileModTime:
 					prompt = _("""The file has been modified on the disk since you opened it.
 Do you want to overwrite it?""")
-					if not dabo.ui.areYouSure(prompt, _("File Conflict"),
+					if not dui.areYouSure(prompt, _("File Conflict"),
 										      defaultNo=True, cancelButton=False):
 						return
 		txt = self.GetText()
@@ -1502,7 +1504,7 @@ Do you want to overwrite it?""")
 		try:
 			open(fname, "wb").write(txt)
 		except OSError:
-			dabo.ui.stop(_("Could not save file '%s'. Please check your write permissions.") % fname)
+			dui.stop(_("Could not save file '%s'. Please check your write permissions.") % fname)
 			return False
 		if not isTmp:
 			# set self._fileName, in case it was changed with a Save As
@@ -1627,9 +1629,9 @@ Do you want to overwrite it?""")
 
 			except IOError:
 				if os.path.exists(fileSpec):
-					dabo.ui.stop(_("Could not open %s.  Please check that you have read permissions.") % fileSpec)
+					dui.stop(_("Could not open %s.  Please check that you have read permissions.") % fileSpec)
 					return False
-				if dabo.ui.areYouSure(_("File '%s' does not exist. Would you like to create it?") % fileSpec):
+				if dui.areYouSure(_("File '%s' does not exist. Would you like to create it?") % fileSpec):
 					text = ""
 					self.saveFile(fileSpec)
 				else:
@@ -1658,11 +1660,11 @@ Do you want to overwrite it?""")
 		self._fontFace = app.getUserSetting("editor.fontface")
 		self._fontSize = app.getUserSetting("editor.fontsize")
 		if self._fontFace:
-			dabo.ui.callAfter(self.changeFontFace, self._fontFace)
+			dui.callAfter(self.changeFontFace, self._fontFace)
 		else:
 			self._fontFace = self.GetFont().GetFaceName()
 		if self._fontSize:
-			dabo.ui.callAfter(self.changeFontSize, self._fontSize)
+			dui.callAfter(self.changeFontSize, self._fontSize)
 		else:
 			self._fontSize = self.GetFont().GetPointSize()
 		return ret

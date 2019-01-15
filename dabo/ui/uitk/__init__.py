@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import dabo
-import dabo.ui
+from dabo import ui
 from .uiApp import uiApp
 
 dabo.log.info("The Tkinter module is experimental only, and doesn't work. You've been warned.")

@@ -14,9 +14,9 @@ If you instead run this test.py as a script, a form will be instantiated with
 all the dControls.
 """
 import dabo
-import dabo.ui as ui
+from dabo import ui as ui
 from dabo.dApp import dApp
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 
 ui.loadUI("tk")
 

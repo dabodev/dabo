@@ -3,8 +3,8 @@
 import sys, types
 import dabo
 from dabo.dLocalize import _
-import dabo.ui.dPemMixinBase
-import dabo.dEvents as dEvents
+from dabo import ui.dPemMixinBase
+from dabo import dEvents as dEvents
 from dabo.lib.utils import ustr
 
 

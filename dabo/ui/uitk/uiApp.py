@@ -2,8 +2,8 @@
 import sys, os
 import tkinter
 import dabo
-import dabo.ui as ui
-import dabo.dEvents as dEvents
+from dabo import ui as ui
+from dabo import dEvents as dEvents
 from dabo.dObject import dObject
 
 

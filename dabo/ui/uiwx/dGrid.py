@@ -839,7 +839,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		## dynamic prop uses cellDynamicRow; reg prop uses self.CurrentRow
 		try:
 			row = getattr(self, "_cellDynamicRow", self.Parent.CurrentRow)
-		except dabo.ui.deadObjectException:
+		except RuntimeError:
 			# @dabo.ui.deadCheck didn't seem to work...
 			return
 		cellAttr = obj = self._gridCellAttrs.get(row, self._gridColAttr.Clone())

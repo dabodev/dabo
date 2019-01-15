@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 """dDataControlMixin.py: Provide behavior common to all	data-aware dControls."""
 import dabo
-import dabo.ui
-import dabo.dEvents as dEvents
-import dabo.dException as dException
+from dabo import ui as dui
+from dabo import dEvents as dEvents
+from dabo import dException as dException
 from dabo.dObject import dObject
 from dabo.dPref import dPref
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
 
-
-class dDataControlMixinBase(dabo.ui.dControlMixin):
+class dDataControlMixinBase(dControlMixin):
 	"""Provide common functionality for the data-aware controls."""
 	def __init__(self, *args, **kwargs):
 		self._deriveTextLengthFromSource = dabo.dTextBox_DeriveTextLengthFromSource
@@ -27,7 +26,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		self._inDataUpdate = False
 		self._from_flushValue = False
 
-		dabo.ui.dControlMixin.__init__(self, *args, **kwargs)
+		dControlMixin.__init__(self, *args, **kwargs)
 
 		self._value = self.Value
 		self._enabled = True
@@ -240,7 +239,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		##- #if oldVal is None and curVal is None:
 		##-	# Could be changed and we just don't know it...
 		##- #	isChanged = True
-		if isinstance(self, dabo.ui.dToggleButton):
+		if isinstance(self, dui.dToggleButton):
 			# These classes change their value before the GotFocus event
 			# can store the oldval, so always flush 'em.
 			oldVal = None
@@ -417,7 +416,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			self._oldVal = None
 			self._dataSource = val
 			self.update()
-		dabo.ui.callAfter(_delayedSetDataSource)
+		dui.callAfter(_delayedSetDataSource)
 
 
 	def _getDataField(self):

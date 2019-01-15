@@ -5,7 +5,7 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("tk")
 
 from . import dDataControlMixin as dcm
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 

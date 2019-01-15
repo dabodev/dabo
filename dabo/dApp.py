@@ -6,7 +6,7 @@ import glob
 import imp
 import inspect
 import json
-from . import locale
+import locale
 import logging
 import os
 import shutil
@@ -18,8 +18,8 @@ from xml.sax._exceptions import SAXParseException
 from zipfile import ZipFile
 
 import dabo
-import dabo.dException as dException
-import dabo.dLocalize as dLocalize
+from dabo import dException as dException
+from dabo import dLocalize as dLocalize
 from dabo.dLocalize import _
 from dabo.lib import connParser
 from dabo.lib.SimpleCrypt import SimpleCrypt

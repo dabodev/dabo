@@ -30,6 +30,7 @@ some rows from a backend database in a script. Here's an example of that::
 #       dabo.biz.dBiz. I think this logic should be here in dabo.db.
 import datetime
 from decimal import Decimal
+
 from .dConnection import dConnection
 from .dCursorMixin import dCursorMixin
 from .dConnectInfo import dConnectInfo
@@ -48,13 +49,13 @@ daboTypes = {
 		"D": datetime.date,       ## date
 		"T": datetime.datetime,   ## datetime
 		"N": Decimal,             ## decimal (numeric)
-		"L": buffer,              ## BLOB
+		"L": memoryview,          ## BLOB
 		}
 
 pythonTypes = dict([[v,k] for k,v in daboTypes.items()])
 pythonTypes[str] = "C"
 pythonTypes[str] = "C"
-del k, v, Decimal
+del Decimal
 
 def getPythonType(daboType):
 	"""Given a char type code like "I" or "C", return the associated Python type."""

@@ -12,8 +12,10 @@ class dFormMainBase(fm.dFormMixin):
 
 
 	def _beforeClose(self, evt=None):
+		# In wxPython 4.x, a 'dead object' is now a logical False.
 		forms2close = [frm for frm in self.Application.uiForms
-				if frm is not self and not isinstance(frm, dabo.ui.deadObject)]
+				if frm and frm is not self]
+				# if frm is not self and not isinstance(frm, dabo.ui.deadObject)]
 		while forms2close:
 			frm = forms2close[0]
 			# This will allow forms to veto closing (i.e., user doesn't

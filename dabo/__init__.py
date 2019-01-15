@@ -6,7 +6,7 @@ http://dabodev.com
 """
 import sys
 import os
-from . import locale
+import locale
 import logging
 import logging.handlers
 from .settings import *

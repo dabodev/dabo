@@ -114,7 +114,7 @@ class BaseForm(fm.dFormMixin):
 		else:
 			try:
 				super(BaseForm, self).update()
-			except TypeError:
+			except (RuntimeError, TypeError):
 				# I think I'm dealing with a deadobject error. Sometimes getting:
 				#   <type 'exceptions.TypeError'>: super(type, obj): obj must be an instance
 				#   or subtype of type

@@ -44,7 +44,7 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 		# WordWrap can introduce additional linefeeds.
 		try:
 			self.Parent.lockDisplay()
-		except dabo.ui.deadObjectException:
+		except RuntimeError:
 			# Form is being destroyed; bail
 			return
 		self.SetLabel(self._caption)
