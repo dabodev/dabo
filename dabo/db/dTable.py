@@ -158,7 +158,7 @@ class dIndex(dObject):
 		return self._fields
 
 	def _setFields(self, fields):
-		if isinstance(fields, basestring):
+		if isinstance(fields, str):
 			flds = fields.split()
 			self._fields = tuple(flds)
 		elif isinstance(fields, list):
@@ -394,7 +394,7 @@ class fType(dObject):
 
 
 if __name__ == "__main__":
-	print "\n\nstarting\n"
+	print("\n\nstarting\n")
 
 	#type = fType(DataType="String", Size=25)
 	#print type.getProperties(("DataType","Size"))
@@ -418,5 +418,5 @@ if __name__ == "__main__":
 	myTable.addIndex(Name="idx_name",
 			Fields=("last_name","first_name"))
 
-	print myTable
+	print(myTable)
 

@@ -24,7 +24,7 @@ def getPt(val):
 	> print self.getPt(1)
 	1
 	"""
-	if isinstance(val, (int, long, float)):
+	if isinstance(val, (int, float)):
 		# return as-is as the pt value.
 		return val
 	else:

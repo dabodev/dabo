@@ -276,7 +276,7 @@ class Board(dabo.ui.dPanel):
 		else:
 			self._resetBoard()
 		sw.stop()
-		print "Board created in %f second(s)." % (sw.Value,)
+		print("Board created in %f second(s)." % (sw.Value,))
 		self._GameInProgress = True
 		self._MinesRemaining = self.MineCount
 
@@ -304,7 +304,7 @@ class Board(dabo.ui.dPanel):
 			self.StopWatch.start()
 		check = True
 		if self.allCleared():
-			for sq in self._boardDict.keys():
+			for sq in list(self._boardDict.keys()):
 				square = self._boardDict[sq]
 				if square["mine"]:
 					if square["obj"].Caption == "@":
@@ -322,7 +322,7 @@ class Board(dabo.ui.dPanel):
 	def allCleared(self):
 		"""Return True if all non-mine squares have been cleared."""
 		bd = self._boardDict
-		for sq in bd.keys():
+		for sq in list(bd.keys()):
 			square = bd[sq]
 			if not square["mine"]:
 				if ((square["adjacent"] == 0 and square["obj"].Visible == False)
@@ -372,7 +372,7 @@ class Board(dabo.ui.dPanel):
 
 	def showAllSquares(self):
 		bd = self._boardDict
-		for sq in bd.keys():
+		for sq in list(bd.keys()):
 			o = bd[sq]["obj"]
 			o.State = "UnMarked"
 			if bd[sq]["mine"]:
@@ -420,7 +420,7 @@ class Board(dabo.ui.dPanel):
 		r = random.Random()
 		r.seed()
 		bc = self.MineCount
-		squares = self._boardDict.keys()
+		squares = list(self._boardDict.keys())
 		if bc > len(squares):
 			bc = self.MineCount = len(squares)
 		mines = random.sample(squares, bc)
@@ -429,7 +429,7 @@ class Board(dabo.ui.dPanel):
 
 
 	def _fillAdjacentCounts(self):
-		for key in self._boardDict.keys():
+		for key in list(self._boardDict.keys()):
 			adj = self.getAdjacentSquares(key)
 			c = 0
 			for s in adj:
@@ -468,7 +468,7 @@ class Board(dabo.ui.dPanel):
 		self.needResize = True
 
 		sw.stop()
-		print "\n\nTime creating squares:", sw.Value
+		print("\n\nTime creating squares:", sw.Value)
 
 
 	def onStateChanged(self, evt):
@@ -585,7 +585,7 @@ class Board(dabo.ui.dPanel):
 		else:
 			self.StopWatch.stop()
 			self.Timer.stop()
-			print "Game time: %f seconds." % self.StopWatch.Value
+			print("Game time: %f seconds." % self.StopWatch.Value)
 		self._gameInProgress = val
 		self.Form.pausebutton.Enabled = val
 
@@ -636,7 +636,7 @@ class MinesweeperForm(dabo.ui.dForm):
 		their default value.
 		"""
 		pfm = self.Application.PreferenceManager
-		if not isinstance(pfm.preset.mines, (int, long)):
+		if not isinstance(pfm.preset.mines, int):
 			# First time through; initialize the default values.
 			pfm.deleteAllPrefs()
 			pfm.preset.mines = 0
@@ -747,13 +747,13 @@ class MinesweeperForm(dabo.ui.dForm):
 			biz.requery()
 			if biz.RowCount > 0:
 				ds = biz.getDataSet()
-				print "\nTop %d Scores for %s:" % (biz.Limit, biz.Record.gamename)
+				print("\nTop %d Scores for %s:" % (biz.Limit, biz.Record.gamename))
 				for idx, r in enumerate(ds):
 					r["row"] = idx+1
-					print "\t%(row)d) %(playername)s: %(timestamp)s: %(time).3f sec." % r
-				print "\n"
+					print("\t%(row)d) %(playername)s: %(timestamp)s: %(time).3f sec." % r)
+				print("\n")
 			else:
-				print "No high scores for this game yet."
+				print("No high scores for this game yet.")
 
 
 	def onRules(self, evt):
@@ -833,7 +833,7 @@ this to work."""
 				vs.append1x(hs)
 
 				playername = self.Application.PreferenceManager.playername
-				if isinstance(playername, basestring):
+				if isinstance(playername, str):
 					self.txtName.Value = playername
 				else:
 					self.txtName.Value = ""
@@ -856,7 +856,7 @@ this to work."""
 						biz.save()
 						self.Application.PreferenceManager.playername = biz.Record.playername
 						break
-					except dabo.dException.BusinessRuleViolation, e:
+					except dabo.dException.BusinessRuleViolation as e:
 						dabo.ui.exclaim(ustr(e))
 					dlg.show()
 					if not dlg.Accepted:

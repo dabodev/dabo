@@ -60,7 +60,7 @@ class HotKeyEditor(dabo.ui.dOkCancelDialog):
 		elif kcd == dKeys.key_Delete and self._ctrl:
 			# Ctrl-Delete was pressed
 			kcr = None
-		elif kcd in keyStrings.keys():
+		elif kcd in list(keyStrings.keys()):
 			self._keyChar = kcr = keyStrings[kcd]
 		if kcr is not None:
 			ctlTxt = {True: "Ctrl+", False: ""}[self._ctrl]

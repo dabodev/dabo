@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from dabo.dLocalize import _
 from dabo.dObject import dObject
-from dConnectInfo import dConnectInfo
-from dCursorMixin import dCursorMixin
+from .dConnectInfo import dConnectInfo
+from .dCursorMixin import dCursorMixin
 
 
 class dConnection(dObject):
@@ -65,7 +65,7 @@ class dConnection(dObject):
 			def __init__(self, *args, **kwargs):
 				for cls in (dCursorMixin, cursorClass):
 					try:
-						apply(cls.__init__, (self, ) + args, kwargs)
+						cls.__init__(*(self, ) + args, **kwargs)
 					except AttributeError:
 						pass
 
@@ -121,7 +121,7 @@ class dConnection(dObject):
 
 
 if __name__ == "__main__":
-	from dConnectInfo import dConnectInfo
+	from .dConnectInfo import dConnectInfo
 	ci = dConnectInfo(DbType="MySQL")
 	ci.Host = "paulmcnett.com"
 	ci.Database = "dabotest"
@@ -130,7 +130,7 @@ if __name__ == "__main__":
 
 	conn = dConnection(ci).getConnection()
 	cursor = conn.cursor()
-	print cursor.execute("select * from recipes order by iid limit 10")
+	print(cursor.execute("select * from recipes order by iid limit 10"))
 	for row in cursor.fetchall():
-		print row[0], row[1]
+		print(row[0], row[1])
 

@@ -3,10 +3,10 @@ import sys
 import os
 import re
 import glob
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import datetime
 import time
-import cStringIO
+import io
 import warnings
 import traceback
 import dabo
@@ -14,7 +14,7 @@ from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.lib import utils
 import dabo.dEvents as dEvents
-import dKeys
+from . import dKeys
 
 # Very VERY first thing: ensure a minimal wx is selected, but only if
 # wx hasn't already been imported, and if we aren't running frozen:
@@ -60,7 +60,7 @@ import wx
 from wx import ImageFromStream, BitmapFromImage
 import dabo.ui
 import dabo.dConstants as kons
-from uiApp import uiApp
+from .uiApp import uiApp
 
 uiType = {"shortName": "wx", "moduleName": "uiwx", "longName": "wxPython"}
 uiType["version"] = wx.VERSION_STRING
@@ -79,137 +79,137 @@ nativeScrollBar = wx.ScrollBar
 # because dControlMixinBase, which is in dabo.ui, descends from dPemMixin, which
 # is in dabo.ui.uiwx. Must also do the same with dControlMixin, as dDataControlMixinBase
 # descends from it.
-from dPemMixin import dPemMixin
+from .dPemMixin import dPemMixin
 dabo.ui.dPemMixin = dPemMixin
-from dControlMixin import dControlMixin
+from .dControlMixin import dControlMixin
 dabo.ui.dControlMixin = dControlMixin
-from dDataControlMixin import dDataControlMixin
+from .dDataControlMixin import dDataControlMixin
 dabo.ui.dDataControlMixin = dDataControlMixin
-from dFormMixin import dFormMixin
+from .dFormMixin import dFormMixin
 dabo.ui.dFormMixin = dFormMixin
-from dSizerMixin import dSizerMixin
+from .dSizerMixin import dSizerMixin
 dabo.ui.dSizerMixin = dSizerMixin
 
 # Import into public namespace:
-from dBox import dBox
-from dBitmap import dBitmap
-from dBitmapButton import dBitmapButton
+from .dBox import dBox
+from .dBitmap import dBitmap
+from .dBitmapButton import dBitmapButton
 if wx.VERSION >= (2, 8, 8):
-	from dBorderlessButton import dBorderlessButton
-from dButton import dButton
-from dCalendar import dCalendar
-from dCalendar import dExtendedCalendar
-from dCheckBox import dCheckBox
-from dCheckList import dCheckList
-from dCollapsiblePanel import dCollapsiblePanel
-from dColorDialog import dColorDialog
-from dComboBox import dComboBox
-from dDatePicker import dDatePicker
-from dDateTextBox import dDateTextBox
-from dDropdownList import dDropdownList
-from dDialog import dDialog
-from dDialog import dStandardButtonDialog
-from dDialog import dOkCancelDialog
-from dDialog import dYesNoDialog
-from dEditableList import dEditableList
-from dEditBox import dEditBox
-from dEditor import dEditor
-from dFileDialog import dFileDialog
-from dFileDialog import dFolderDialog
-from dFileDialog import dSaveDialog
-from dReportProgress import dReportProgress
-from dSlidePanelControl import dSlidePanelControl
-from dSlidePanelControl import dSlidePanel
-from dFont import dFont
-from dFontDialog import dFontDialog
-from dForm import dForm
-from dForm import dToolForm
-from dForm import dBorderlessForm
-from dFormMain import dFormMain
-from dGauge import dGauge
-from dGlWindow import dGlWindow
-from dGrid import dGrid
-from dGrid import dColumn
-from dGridSizer import dGridSizer
-from dHtmlBox import dHtmlBox
-from dHyperLink import dHyperLink
-import dIcons
-from dImage import dImage
-import dKeys
-from dLabel import dLabel
-from dLine import dLine
-from dListBox import dListBox
-from dListControl import dListControl
-from dBaseMenuBar import dBaseMenuBar
-from dMaskedTextBox import dMaskedTextBox
-from dNumericBox import dNumericBox
+	from .dBorderlessButton import dBorderlessButton
+from .dButton import dButton
+from .dCalendar import dCalendar
+from .dCalendar import dExtendedCalendar
+from .dCheckBox import dCheckBox
+from .dCheckList import dCheckList
+from .dCollapsiblePanel import dCollapsiblePanel
+from .dColorDialog import dColorDialog
+from .dComboBox import dComboBox
+from .dDatePicker import dDatePicker
+from .dDateTextBox import dDateTextBox
+from .dDropdownList import dDropdownList
+from .dDialog import dDialog
+from .dDialog import dStandardButtonDialog
+from .dDialog import dOkCancelDialog
+from .dDialog import dYesNoDialog
+from .dEditableList import dEditableList
+from .dEditBox import dEditBox
+from .dEditor import dEditor
+from .dFileDialog import dFileDialog
+from .dFileDialog import dFolderDialog
+from .dFileDialog import dSaveDialog
+from .dReportProgress import dReportProgress
+from .dSlidePanelControl import dSlidePanelControl
+from .dSlidePanelControl import dSlidePanel
+from .dFont import dFont
+from .dFontDialog import dFontDialog
+from .dForm import dForm
+from .dForm import dToolForm
+from .dForm import dBorderlessForm
+from .dFormMain import dFormMain
+from .dGauge import dGauge
+from .dGlWindow import dGlWindow
+from .dGrid import dGrid
+from .dGrid import dColumn
+from .dGridSizer import dGridSizer
+from .dHtmlBox import dHtmlBox
+from .dHyperLink import dHyperLink
+from . import dIcons
+from .dImage import dImage
+from . import dKeys
+from .dLabel import dLabel
+from .dLine import dLine
+from .dListBox import dListBox
+from .dListControl import dListControl
+from .dBaseMenuBar import dBaseMenuBar
+from .dMaskedTextBox import dMaskedTextBox
+from .dNumericBox import dNumericBox
 try:
-	from dMediaControl import dMediaControl
+	from .dMediaControl import dMediaControl
 except ImportError:
 	# Versions of wxPython < 2.8.11 on some platforms
 	# do not have the wx.media.MediaCtrl class
 	pass
-from dMenuBar import dMenuBar
-from dMenu import dMenu
-from dMenuItem import dMenuItem
-from dMenuItem import dCheckMenuItem
-from dMenuItem import dRadioMenuItem
-from dMenuItem import dSeparatorMenuItem
-import dMessageBox
-from dRadioList import dRadioList
-from dPanel import dDataPanel
-from dPanel import dPanel
-from dPanel import dScrollPanel
-from dPageFrame import dPageFrame
-from dPageFrame import dPageToolBar
-from dPageFrame import dPageList
-from dPageFrame import dPageSelect
-from dPageFrame import dDockTabs
-from dPageFrameNoTabs import dPageFrameNoTabs
-from dPage import dPage
-from dPdfWindow import dPdfWindow
-from dSearchBox import dSearchBox
-from dShell import dShell
-from dShell import dShellForm
-from dSizer import dSizer
-from dSizer import dSizerV
-from dSizer import dSizerH
-from dBorderSizer import dBorderSizer
-from dSlider import dSlider
-from dSpinner import dSpinner
-from dSplitForm import dSplitForm
-from dSplitter import dSplitter
-from dStatusBar import dStatusBar
-from dTextBox import dTextBox
-from dTimer import dTimer
-from dToolBar import dToolBar
-from dToolBar import dToolBarItem
-from dToggleButton import dToggleButton
-from dTreeView import dNode
-from dTreeView import dTreeView
-from dLed import dLed
-import dUICursors as dUICursors
-import gridRenderers
-from dPageFrameMixin import dPageFrameMixin
-from dAutoComplete import dAutoComplete
+from .dMenuBar import dMenuBar
+from .dMenu import dMenu
+from .dMenuItem import dMenuItem
+from .dMenuItem import dCheckMenuItem
+from .dMenuItem import dRadioMenuItem
+from .dMenuItem import dSeparatorMenuItem
+from . import dMessageBox
+from .dRadioList import dRadioList
+from .dPanel import dDataPanel
+from .dPanel import dPanel
+from .dPanel import dScrollPanel
+from .dPageFrame import dPageFrame
+from .dPageFrame import dPageToolBar
+from .dPageFrame import dPageList
+from .dPageFrame import dPageSelect
+from .dPageFrame import dDockTabs
+from .dPageFrameNoTabs import dPageFrameNoTabs
+from .dPage import dPage
+from .dPdfWindow import dPdfWindow
+from .dSearchBox import dSearchBox
+from .dShell import dShell
+from .dShell import dShellForm
+from .dSizer import dSizer
+from .dSizer import dSizerV
+from .dSizer import dSizerH
+from .dBorderSizer import dBorderSizer
+from .dSlider import dSlider
+from .dSpinner import dSpinner
+from .dSplitForm import dSplitForm
+from .dSplitter import dSplitter
+from .dStatusBar import dStatusBar
+from .dTextBox import dTextBox
+from .dTimer import dTimer
+from .dToolBar import dToolBar
+from .dToolBar import dToolBarItem
+from .dToggleButton import dToggleButton
+from .dTreeView import dNode
+from .dTreeView import dTreeView
+from .dLed import dLed
+from . import dUICursors as dUICursors
+from . import gridRenderers
+from .dPageFrameMixin import dPageFrameMixin
+from .dAutoComplete import dAutoComplete
 
 
 # Needs importing after at least dPanel:
-from dDockForm import dDockForm
+from .dDockForm import dDockForm
 
 try:
-	from dLinePlot import dLinePlot
+	from .dLinePlot import dLinePlot
 except ImportError:
 	pass
 
 try:
-	from dRichTextBox import dRichTextBox
+	from .dRichTextBox import dRichTextBox
 except ImportError:
 	pass
 
 #The flatnotebook version we need is not avialable with wxPython < 2.8.4
 if wx.VERSION >= (2, 8, 4):
-	from dPageFrame import dPageStyled
+	from .dPageFrame import dPageStyled
 
 # Support the old names, but issue deprecation warnings.
 class dFoldPanelBar(dSlidePanelControl):
@@ -307,8 +307,8 @@ def callAfterInterval(interval, func, *args, **kwargs):
 		# Arguments are in the old order
 		interval, func = func, interval
 	func_ref = func
-	if func.func_closure:
-		func_ref = func.func_code
+	if func.__closure__:
+		func_ref = func.__code__
 	futureCall = _callAfterIntervalReferences.pop((func_ref, args), None)
 	if futureCall:
 		futureCall.Stop()
@@ -332,7 +332,7 @@ def setAfter(obj, prop, val):
 	try:
 		fnc = getattr(obj.__class__, prop).fset
 		wx.CallAfter(fnc, obj, val)
-	except StandardError, e:
+	except Exception as e:
 		dabo.log.error(_("setAfter() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
 				% locals())
 
@@ -345,7 +345,7 @@ def setAfterInterval(interval, obj, prop, val):
 	try:
 		fnc = getattr(obj.__class__, prop).fset
 		callAfterInterval(interval, fnc, obj, val)
-	except StandardError, e:
+	except Exception as e:
 		dabo.log.error(_("setAfterInterval() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
 				% locals())
 
@@ -407,7 +407,7 @@ def busyInfo(msg="Please wait...", *args, **kwargs):
 def continueEvent(evt):
 	try:
 		evt.Skip()
-	except AttributeError, e:
+	except AttributeError as e:
 		# Event could be a Dabo event, not a wx event
 		if isinstance(evt, dEvents.dEvent):
 			pass
@@ -419,7 +419,7 @@ def continueEvent(evt):
 def discontinueEvent(evt):
 	try:
 		evt.Skip(False)
-	except AttributeError, e:
+	except AttributeError as e:
 		# Event could be a Dabo event, not a wx event
 		if isinstance(evt, dEvents.dEvent):
 			pass
@@ -458,7 +458,7 @@ def getEventData(wxEvt):
 				except (AttributeError, TypeError, wx._core.PyAssertionError):
 					pass
 
-	if isinstance(wxEvt, (wx.SplitterEvent,)):
+	if isinstance(wxEvt, wx.SplitterEvent):
 		try:
 			ed["mousePosition"] = (wxEvt.GetX(), wxEvt.GetY())
 		except wx.PyAssertionError:
@@ -1250,7 +1250,7 @@ def sortList(chc, Caption="", ListCaption=""):
 	needConvert = False
 	for itm in chc:
 		key = itm
-		if not isinstance(itm, basestring):
+		if not isinstance(itm, str):
 			needConvert = True
 			key = ustr(itm)
 			strChc.append(key)
@@ -1318,7 +1318,7 @@ def _checkForRawXML(srcFile):
 	if not isRawXML:
 		try:
 			srcFile = utils.resolvePathAndUpdate(srcFile)
-		except IOError, e:
+		except IOError as e:
 			dabo.log.error(_("Class file '%s' not found") % srcFile)
 			raise
 	return srcFile, isRawXML
@@ -1430,7 +1430,7 @@ def createMenuBar(src, form=None, previewFunc=None):
 			# Not JSON
 			try:
 				src = utils.resolvePathAndUpdate(src)
-			except IOError, e:
+			except IOError as e:
 				stop(e, _("File Not Found"))
 				return
 		mnd = dabo.lib.xmltodict.xmltodict(src)
@@ -1818,7 +1818,7 @@ def bitmapFromData(data):
 
 
 def imageFromData(data):
-	stream = cStringIO.StringIO(data)
+	stream = io.StringIO(data)
 	return ImageFromStream(stream)
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1966,7 +1966,7 @@ def getImagePath(nm, url=False):
 
 	if ret and url:
 		if wx.Platform == "__WXMSW__":
-			ret = "file:%s" % urllib.pathname2url(ret).replace("|", ":")
+			ret = "file:%s" % urllib.request.pathname2url(ret).replace("|", ":")
 			ret = re.sub(r"([A-Z])\|/", r"\1/", ret, re.I)
 		else:
 			ret = "file://%s" % ret

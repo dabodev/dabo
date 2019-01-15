@@ -123,7 +123,7 @@ class dReportWriter(dObject, ReportWriter):
 if __name__ == "__main__":
 	## run a test:
 	rw = dReportWriter(Name="dReportWriter1", OutputFile="./dRW-test.pdf")
-	print rw.Name, rw.Application
+	print(rw.Name, rw.Application)
 
 	xml = """
 

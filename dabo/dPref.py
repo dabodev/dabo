@@ -53,7 +53,7 @@ class dPref(object):
 		super(dPref, self).__init__()
 		self._parent = None
 		self._noneType = type(None)
-		self._typeDict = {int: "int", float: "float", long: "long", str: "str", unicode: "unicode",
+		self._typeDict = {int: "int", float: "float", int: "long", str: "str", str: "unicode",
 				bool: "bool", list: "list", tuple: "tuple", datetime.date: "date", dict: "dict",
 				datetime.datetime: "datetime", Decimal: "decimal", self._noneType: "none",
 				dabo.db.dDataSet: "tuple"}
@@ -108,8 +108,8 @@ class dPref(object):
 				try:
 					crs.execute("select ctype, cvalue from daboprefs where ckey = ? ", (param, ))
 					rec = crs.getCurrentRecord()
-				except StandardError, e:
-					print "QUERY ERR", e
+				except Exception as e:
+					print("QUERY ERR", e)
 					rec = {}
 				if rec:
 					ret = self._decodeType(rec)
@@ -187,7 +187,7 @@ class dPref(object):
 		elif typ == "float":
 			ret = float(val)
 		elif typ == "long":
-			ret = long(val)
+			ret = int(val)
 		elif typ == "bool":
 			ret = (val == "True")
 		elif typ in ("list", "tuple", "dict"):
@@ -240,7 +240,7 @@ class dPref(object):
 
 	def persist(self):
 		"""Manually save preferences to the database."""
-		for key, val in self._cache.items():
+		for key, val in list(self._cache.items()):
 			if isinstance(val, dPref):
 				# Child pref; tell it to persist itself
 				val.persist()
@@ -289,7 +289,7 @@ class dPref(object):
 		if self._autoPersist:
 			crs = self._cursor
 			crs.execute("delete from daboprefs where ckey like ? ", (key, ))
-			for key, val in self._cache.items():
+			for key, val in list(self._cache.items()):
 				if isinstance(val, dPref):
 					# In case there are any other references to it hanging around,
 					# clear its cache.
@@ -317,7 +317,7 @@ class dPref(object):
 
 	def flushCache(self):
 		"""Clear the cache, forcing fresh reads from the database."""
-		for key, val in self._cache.items():
+		for key, val in list(self._cache.items()):
 			if isinstance(val, dPref):
 				val.flushCache()
 			else:
@@ -394,7 +394,7 @@ class dPref(object):
 		tmp = {}
 		for itm in retList:
 			tmp[itm] = None
-		return tmp.keys()
+		return list(tmp.keys())
 
 
 	def getValue(self, key):
@@ -435,7 +435,7 @@ class dPref(object):
 			param = "%"
 		crs.execute(sql, (param,))
 		rs = crs.getDataSet()
-		vs = [itm.values()[0] for itm in rs]
+		vs = [list(itm.values())[0] for itm in rs]
 
 		def uniqKeys(dct, val):
 			dct[val] = None
@@ -462,7 +462,7 @@ class dPref(object):
 		return mkTree(vs)
 
 
-	def __nonzero__(self):
+	def __bool__(self):
 		"""Preference instances should always evaluate to a boolean False,
 		as they represent a lack of a value; i.e., a dot-separated path, but
 		not an actual stored value."""
@@ -505,36 +505,36 @@ if __name__ == "__main__":
 	a.b.anotherValue = "Another Second"
 	a.b.c.CrazyMan = "Ed"
 
-	print a.getPrefKeys()
-	print a.b.getPrefKeys()
-	print a.b.c.getPrefKeys()
+	print(a.getPrefKeys())
+	print(a.b.getPrefKeys())
+	print(a.b.c.getPrefKeys())
 
 	a.deletePref("b.c")
-	print a.getPrefs(True)
+	print(a.getPrefs(True))
 	a.deletePref("b.c", True)
-	print a.getPrefs(True)
+	print(a.getPrefs(True))
 
-	print "Just 'a' prefs:"
-	print a.getPrefs()
-	print
-	print "'a' prefs and all sub-prefs:"
-	print a.getPrefs(True)
+	print("Just 'a' prefs:")
+	print(a.getPrefs())
+	print()
+	print("'a' prefs and all sub-prefs:")
+	print(a.getPrefs(True))
 
 	zz=a.getSubPrefKeys()
-	print "SUB PREFS", zz
+	print("SUB PREFS", zz)
 	zz = a.getPrefKeys()
-	print "PREF KEYS", zz
+	print("PREF KEYS", zz)
 
 	a.AutoPersist = False
 	a.b.shouldntStay = "XXXXXXXXXX"
 
-	print "BEFORE FLUSH", a.b.getPrefKeys()
+	print("BEFORE FLUSH", a.b.getPrefKeys())
 	a.flushCache()
-	print "AFTER FLUSH", a.b.getPrefKeys()
+	print("AFTER FLUSH", a.b.getPrefKeys())
 
-	print "DELETE ONE"
+	print("DELETE ONE")
 	a.deletePref("anotherValue")
-	print a.getPrefs(True)
-	print "DELETE ALL"
+	print(a.getPrefs(True))
+	print("DELETE ALL")
 	a.deleteAllPrefs()
-	print a.getPrefs(True)
+	print(a.getPrefs(True))

@@ -15,28 +15,27 @@ import sys
 try:
 	from simplejson import JSONEncoder, JSONDecoder
 except ImportError:
-	print """
+	print("""
 
 The required 'simplejson' module is not present.
 
 Please install that module before using the web features of Dabo.
 
-"""
+""")
 	sys.exit()
 
 __all__ = ["Encoder", "Decoder", "Converter"]
 
-class Null(object):
+class Null(object, metaclass=meta):
 	class meta(type):
 		def __new__(cls, *args, **kwargs):
 			if '_inst' not in vars(cls):
 				cls._inst = type.__new__(cls, *args, **kwargs)
 			return cls._inst
-	__metaclass__ = meta
-	def __init__(self, *args, **kwargs): pass
+		def __init__(self, *args, **kwargs): pass
 	def __call__(self, *args, **kwargs): return self
 	def __repr__(self): return "Null()"
-	def __nonzero__(self): return False
+	def __bool__(self): return False
 	def __getattr__(self, name): return self
 	def __setattr__(self, name, value): return self
 	def __delattr__(self, name): return self
@@ -76,7 +75,7 @@ class Encoder(JSONEncoder):
 			if o is decimal.Decimal:
 				value = None
 			else:
-				value = unicode(o)
+				value = str(o)
 			return {'__decimal__': True,
 					'value': value}
 

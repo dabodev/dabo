@@ -45,8 +45,8 @@ class Test_Utils(unittest.TestCase):
 
 
 	def test_StringFuncs(self):
-		teststring = "This is a very long string with Unicode chars: Žš”¯ and 1234567890"
-		revstring = "0987654321 dna ¯”šŽ :srahc edocinU htiw gnirts gnol yrev a si sihT"
+		teststring = "This is a very long string with Unicode chars: ÂŽÂšÂ”Â¯ and 1234567890"
+		revstring = "0987654321 dna Â¯Â”ÂšÂŽ :srahc edocinU htiw gnirts gnol yrev a si sihT"
 		self.assertEqual(utils.reverseText(teststring), revstring)
 		cap = "&File"
 		self.assertEqual(utils.cleanMenuCaption(cap), "File")
@@ -54,9 +54,9 @@ class Test_Utils(unittest.TestCase):
 
 
 	def test_DictFuncs(self):
-		testdict = {u"First": 1, u"Second": 2, "Th”rd": 3}
+		testdict = {"First": 1, "Second": 2, "ThÂ”rd": 3}
 		ds = utils.dictStringify(testdict)
-		for kk in ds.keys():
+		for kk in list(ds.keys()):
 			self.assertEqual(type(kk), str)
 
 

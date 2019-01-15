@@ -62,7 +62,7 @@ class Test(object):
 		self.app.start()
 
 	def objHit(self, evt):
-		print "hit!", evt
+		print("hit!", evt)
 
 if __name__ == "__main__":
 	t = Test()

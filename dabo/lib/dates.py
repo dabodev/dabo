@@ -294,14 +294,14 @@ def webHeaderFormat(dtm):
 
 
 if __name__ == "__main__":
-	print "testing converting strings to dates:"
+	print("testing converting strings to dates:")
 	formats = ["ISO8601", "YYYYMMDD", "YYMMDD", "MMDD"]
 	tests = ["0503", "20060503", "2006-05-03", "060503"]
 	for test in tests:
 		for format in formats:
-			print "%s (%s) -> %s" % (test, format, repr(getDateFromString(test, [format])))
+			print("%s (%s) -> %s" % (test, format, repr(getDateFromString(test, [format]))))
 
 	dt = datetime.datetime.now()
-	print goDate(dt, -30)
+	print(goDate(dt, -30))
 	d = datetime.date.today()
-	print goDate(d, -30)
+	print(goDate(d, -30))

@@ -14,7 +14,7 @@ from ClassDesignerComponents import LayoutSizer
 from ClassDesignerComponents import LayoutGridSizer
 import dabo.ui.dialogs.Wizard as Wizard
 import dabo.ui.dialogs.WizardPage as WizardPage
-import QLWImageData as ImageData
+from . import QLWImageData as ImageData
 
 class PgConnectionSelect(WizardPage):
 	def createBody(self):
@@ -127,7 +127,7 @@ class PgSelect(WizardPage):
 		sz.appendSpacer(16)
 		lbl = dabo.ui.dLabel(self, Caption=_("Select Table:"))
 		tb = self.tblSelector = dabo.ui.dDropdownList(self)
-		tbls = self.Wizard.DE.keys()
+		tbls = list(self.Wizard.DE.keys())
 		tbls.sort()
 		tb.Choices = tbls
 		tb.PositionValue = 0
@@ -168,7 +168,7 @@ class PgSelect(WizardPage):
 		chc = dd.Choices
 		#jfcs 03/01/07 sort the keys to display tables in an order
 		chc.sort()
-		keys = self.Wizard.DE.keys()
+		keys = list(self.Wizard.DE.keys())
 		#jfcs 03/01/07 sort the keys to display tables in an order
 		keys.sort()
 		if chc != keys:
@@ -188,7 +188,7 @@ class PgSelect(WizardPage):
 		self.lstFields.clear()
 		# Create the items for the list
 		fldDict = self.Wizard.DE[self._currTable]
-		flds = fldDict.keys()
+		flds = list(fldDict.keys())
 		flds.sort()
 		pktext={True:"X", False:""}
 		typeText = {"C": "char", "I": "int", "M": "text", "D": "date", "L": "blob",
@@ -344,8 +344,8 @@ class PgSample(WizardPage):
 
 		# Release all existing controls
 		sc = self.controls
-		for kk in sc.keys():
-			for vv in sc[kk].values():
+		for kk in list(sc.keys()):
+			for vv in list(sc[kk].values()):
 				if isinstance(vv, dabo.ui.dPemMixin):
 					vv.release()
 		del sc
@@ -535,7 +535,7 @@ class PgSample(WizardPage):
 		newobj.unbindEvent(dEvents.MouseRightClick)
 		newobj.bindEvent(dEvents.ContextMenu, self.onCtlRightClick)
 		# Update the wizard's field dict
-		key = [kk for kk in self.controls.keys()
+		key = [kk for kk in list(self.controls.keys())
 				if self.controls[kk]["control"] is obj][0]
 		self.controls[key]["control"] = newobj
 		self.controls[key]["controlClass"] = cls
@@ -822,7 +822,7 @@ class QuickLayoutWizard(Wizard):
 		try:
 			crs = conn.getDaboCursor()
 			self.ConnectionFile = self.Application.dbConnectionNameToFiles[self.ConnectionName]
-		except StandardError, e:
+		except Exception as e:
 			if showAlert:
 				dabo.ui.stop(_("Could not make connection to '%s'") %
 						self.ConnectionName)
@@ -839,7 +839,7 @@ class QuickLayoutWizard(Wizard):
 			ret = {}
 
 			de = self._dataEnv[self.tbl]
-			pkFlds = [fld for fld in de.keys()
+			pkFlds = [fld for fld in list(de.keys())
 					if de[fld]["pk"] ]
 			ret["pk"] = ",".join(pkFlds)
 			ret["layoutType"] = self.layoutType

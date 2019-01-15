@@ -8,8 +8,8 @@ for root, dirs, files in os.walk(dabo_dir):
 		if dirname == "test":
 			for fname in os.listdir(os.path.join(root, dirname)):
 				if fname[-3:] == ".py" and fname[0:5] == "test_":
-					print "\n==========================================="
-					print "Running test: %s" % fname
+					print("\n===========================================")
+					print("Running test: %s" % fname)
 					os.system("python %s" % os.path.join(root, dirname, fname))
 
 

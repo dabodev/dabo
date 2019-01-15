@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-import dPemMixin
+from . import dPemMixin
 from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
@@ -123,7 +123,7 @@ class dSizerMixin(dObject):
 			halign="left", valign="top", border=None, borderSides=None):
 		"""Inserts the passed object into the sizer layout at the specified position."""
 		if obj in self.ChildSizers:
-			raise ValueError, _("Adding the same sizer twice is not allowed.")
+			raise ValueError(_("Adding the same sizer twice is not allowed."))
 		if isinstance(layout, int):
 			# proportion was passed first
 			layout, proportion = proportion, layout
@@ -416,7 +416,7 @@ class dSizerMixin(dObject):
 				if flag & self.borderAllFlag == self.borderAllFlag:
 					return ["All"]
 				ret = []
-				for side, val in pdBorder.items():
+				for side, val in list(pdBorder.items()):
 					if flag & val:
 						ret.append(side)
 				if not ret:
@@ -459,7 +459,7 @@ class dSizerMixin(dObject):
 		elif lowprop == "spacing":
 			if isinstance(val, int):
 				val = (val, val)
-			elif isinstance(val, basestring):
+			elif isinstance(val, str):
 				val = (int(val), int(val))
 			try:
 				ret = itm.SetSpacer(val)
@@ -504,7 +504,7 @@ class dSizerMixin(dObject):
 					return
 				# Clear the 'all' flag
 				flg = flg & ~pdBorder["all"]
-				if isinstance(val, basestring):
+				if isinstance(val, str):
 					val = [val]
 				lowval = [vv.lower() for vv in val]
 				if "all" in lowval:
@@ -533,7 +533,7 @@ class dSizerMixin(dObject):
 		This accepts a dict of properties and values, and
 		applies them to the specified sizer item.
 		"""
-		for prop, val in props.items():
+		for prop, val in list(props.items()):
 			if itm:
 				self.setItemProp(itm, prop, val)
 
@@ -582,7 +582,7 @@ class dSizerMixin(dObject):
 			else:
 				self.outlineColor = wx.RED
 		else:
-			if isinstance(self.outlineColor, basestring):
+			if isinstance(self.outlineColor, str):
 				# translate to a wx.Colour
 				self.outlineColor = wx.NamedColour(self.outlineColor)
 		if self.outlineWidth is None:
@@ -594,7 +594,7 @@ class dSizerMixin(dObject):
 		if self.outlineStyle is None:
 			self.outlineStyle = wx.SHORT_DASH
 		else:
-			if isinstance(self.outlineStyle, basestring):
+			if isinstance(self.outlineStyle, str):
 				sty = self.outlineStyle.lower()
 				if sty == "dot":
 					self.outlineStyle = wx.DOT
@@ -691,7 +691,7 @@ class dSizerMixin(dObject):
 			# the separate halign and valign values.
 			# If alignment is passed as a single string instead of a tuple,
 			# convert it.
-			if isinstance(alignment, basestring):
+			if isinstance(alignment, str):
 				alignFlags = (alignment, )
 			else:
 				alignFlags = alignment
@@ -712,7 +712,7 @@ class dSizerMixin(dObject):
 			elif flag == "middle":
 				_wxFlags = _wxFlags | self.middleFlag
 
-		if isinstance(borderSides, basestring):
+		if isinstance(borderSides, str):
 			borderSides = (borderSides, )
 		if borderSides is None:
 			# Add any default borders. If no defaults set, set it to the default 'all'
@@ -812,7 +812,7 @@ class dSizerMixin(dObject):
 			return ret
 
 	def _setDefaultBorder(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = int(val)
 		self._defaultBorder = val
 
@@ -825,7 +825,7 @@ class dSizerMixin(dObject):
 			return False
 
 	def _setDefaultBorderAll(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = (val.lower()[0] in ("t", "y"))
 		self._defaultBorderBottom = self._defaultBorderTop = \
 				self._defaultBorderLeft = self._defaultBorderRight = val
@@ -839,7 +839,7 @@ class dSizerMixin(dObject):
 			return ret
 
 	def _setDefaultBorderBottom(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = (val.lower()[0] in ("t", "y"))
 		self._defaultBorderBottom = val
 
@@ -852,7 +852,7 @@ class dSizerMixin(dObject):
 			return ret
 
 	def _setDefaultBorderLeft(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = (val.lower()[0] in ("t", "y"))
 		self._defaultBorderLeft = val
 
@@ -865,7 +865,7 @@ class dSizerMixin(dObject):
 			return ret
 
 	def _setDefaultBorderRight(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = (val.lower()[0] in ("t", "y"))
 		self._defaultBorderRight = val
 
@@ -878,7 +878,7 @@ class dSizerMixin(dObject):
 			return ret
 
 	def _setDefaultBorderTop(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = (val.lower()[0] in ("t", "y"))
 		self._defaultBorderTop = val
 
@@ -891,7 +891,7 @@ class dSizerMixin(dObject):
 			return ret
 
 	def _setDefaultSpacing(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = int(val)
 		self._defaultSpacing = val
 
@@ -953,7 +953,7 @@ class dSizerMixin(dObject):
 			return default
 
 	def _setVisible(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = (val.lower()[0] in ("t", "y"))
 		self._visible = val
 		self.ShowItems(val)

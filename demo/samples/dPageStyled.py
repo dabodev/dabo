@@ -15,7 +15,7 @@ class TestPanel(dabo.ui.dPanel):
 			self.pgf = pgf = dabo.ui.dPageStyled(self, ActiveTabColor="powderblue",
 					ActiveTabTextColor="black", InactiveTabTextColor="black",
 					TabAreaColor="thistle", OnPageChanged=self.onPageChanged)
-		except AttributeError, e:
+		except AttributeError as e:
 			bail = True
 		if bail:
 			lbl = dabo.ui.dLabel(self, FontSize=18, ForeColor="darkred",

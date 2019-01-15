@@ -7,8 +7,8 @@ if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
 
-import dDataControlMixin as dcm
-import dImageMixin as dim
+from . import dDataControlMixin as dcm
+from . import dImageMixin as dim
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
@@ -122,5 +122,5 @@ class _dToggleButton_test(dToggleButton):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dToggleButton_test)

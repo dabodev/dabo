@@ -325,20 +325,20 @@ class EventMixin(object):
 if __name__ == "__main__":
 
 	def testFunc(event):
-		print "testFunc", event
+		print("testFunc", event)
 
 	class TestEvent(object):
 		def __init__(self, eventObject):
-			print "evtObject:", eventObject
+			print("evtObject:", eventObject)
 
 	o = EventMixin()
-	print "EventBindings:", o._EventBindings
+	print("EventBindings:", o._EventBindings)
 
 	o.bindEvent(TestEvent, testFunc)
-	print "EventBindings:", o._EventBindings
+	print("EventBindings:", o._EventBindings)
 
 	o.raiseEvent(TestEvent)
 
 	o.unBindEvent(TestEvent)
-	print "EventBindings:", o._EventBindings
+	print("EventBindings:", o._EventBindings)
 

@@ -39,7 +39,7 @@ class ReportingForm(dabo.ui.dForm):
 	def onReportEnd(self, evt):
 		"""Will be called only if the user didn't cancel; you could also bind to
 		ReportCancel to set a flag, but this seemed cleaner."""
-		print "report end"
+		print("report end")
 		reportUtils.previewPDF("invoice.pdf")
 
 

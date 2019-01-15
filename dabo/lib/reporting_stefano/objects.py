@@ -6,9 +6,9 @@ defined in report.py
 """
 
 from reportlab.graphics import shapes
-from util import *
+from .util import *
 
-from serialization import *
+from .serialization import *
 
 
 class GenericObject(Serializable):

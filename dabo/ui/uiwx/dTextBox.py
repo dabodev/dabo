@@ -6,7 +6,7 @@ import dabo
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
-import dTextBoxMixin as tbm
+from . import dTextBoxMixin as tbm
 
 
 
@@ -22,7 +22,7 @@ class dTextBox(tbm.dTextBoxMixin, wx.TextCtrl):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	import datetime
 
 	# This test sets up several textboxes, each editing different data types.
@@ -34,9 +34,9 @@ if __name__ == "__main__":
 
 		def onValueChanged(self, evt):
 			if self.IsSecret:
-				print "%s changed, but the new value is a secret! " % self.Name
+				print("%s changed, but the new value is a secret! " % self.Name)
 			else:
-				print "%s.onValueChanged:" % self.Name, self.Value, type(self.Value)
+				print("%s.onValueChanged:" % self.Name, self.Value, type(self.Value))
 
 	class IntText(TestBase):
 		def afterInit(self):
@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
 	class LongText(TestBase):
 		def afterInit(self):
-			self.Value = long(23)
+			self.Value = int(23)
 
 	class FloatText(TestBase):
 		def afterInit(self):

@@ -11,7 +11,7 @@ from dabo.ui.dPemMixinBase import dPemMixinBase
 import dabo.dEvents as dEvents
 import dabo.dException as dException
 import dabo.dColors as dColors
-import dKeys
+from . import dKeys
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
 from dabo.lib.utils import dictStringify
@@ -99,7 +99,7 @@ class dPemMixin(dPemMixinBase):
 		# Get them sanitized into one dict:
 		if properties is not None:
 			# Override the class values
-			for k,v in properties.items():
+			for k,v in list(properties.items()):
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
 
@@ -109,13 +109,13 @@ class dPemMixin(dPemMixinBase):
 		# Convert these to the properties dict.
 
 		try:
-			builtinNames = __builtins__.keys()
+			builtinNames = list(__builtins__.keys())
 		except AttributeError:
 			# '__builtins__' is a module here
 			builtinNames = dir(__builtins__)
 
 		if attProperties:
-			for prop, val in attProperties.items():
+			for prop, val in list(attProperties.items()):
 				if prop in properties:
 					# attProperties has lower precedence, so skip it
 					continue
@@ -133,9 +133,9 @@ class dPemMixin(dPemMixinBase):
 		properties = dictStringify(properties)
 
 		# Hacks to fix up various things:
-		import dMenuBar, dMenuItem, dMenu, dSlidePanelControl, dToggleButton
+		from . import dMenuBar, dMenuItem, dMenu, dSlidePanelControl, dToggleButton
 		if wx.VERSION >= (2, 8, 8):
-			import dBorderlessButton
+			from . import dBorderlessButton
 		if isinstance(self, (dMenuItem.dMenuItem, dMenuItem.dSeparatorMenuItem)):
 			# Hack: wx.MenuItem doesn't take a style arg,
 			# and the parent arg is parentMenu.
@@ -151,7 +151,7 @@ class dPemMixin(dPemMixinBase):
 			del(self._preInitProperties["style"])
 			del(self._preInitProperties["id"])
 			del(self._preInitProperties["parent"])
-		elif isinstance(self, (wx.Timer, )):
+		elif isinstance(self, wx.Timer):
 			del(self._preInitProperties["style"])
 			del(self._preInitProperties["id"])
 			del(self._preInitProperties["parent"])
@@ -174,7 +174,7 @@ class dPemMixin(dPemMixinBase):
 		# The user's subclass code has had a chance to tweak the init properties.
 		# Insert any of those into the arguments to send to the wx constructor:
 		properties = self._setInitProperties(**properties)
-		for prop in self._preInitProperties.keys():
+		for prop in list(self._preInitProperties.keys()):
 			kwargs[prop] = self._preInitProperties[prop]
 		# Allow the object a chance to add any required parms, such as OptionGroup
 		# which needs a choices parm in order to instantiate.
@@ -264,7 +264,7 @@ class dPemMixin(dPemMixinBase):
 		"""Returns True if the ui object has been fully created yet, False otherwise."""
 		try:
 			return self is self._pemObject
-		except Exception, e:
+		except Exception as e:
 			return False
 
 
@@ -378,7 +378,7 @@ class dPemMixin(dPemMixinBase):
 		# when setProperties() is called after the wx object is instantiated,
 		# the style props won't be set a second time.
 		initProps = self._getInitPropertiesList()
-		for prop in _properties.keys():
+		for prop in list(_properties.keys()):
 			if prop in initProps:
 				self.setProperties({prop:_properties[prop]})
 				del(_properties[prop])
@@ -480,7 +480,7 @@ class dPemMixin(dPemMixinBase):
 				continue
 			try:
 				mthd = eval(mthdString)
-			except (AttributeError, NameError), e:
+			except (AttributeError, NameError) as e:
 				dabo.log.error(_("Could not evaluate method '%(mthdString)s': %(e)s") % locals())
 				continue
 			self.bindEvent(evt, mthd)
@@ -729,7 +729,7 @@ class dPemMixin(dPemMixinBase):
 		if self._finito:
 			return
 		self._needRedraw = bool(self._drawnObjects)
-		if sys.platform.startswith("win") and isinstance(self, (dabo.ui.dFormMixin,)):
+		if sys.platform.startswith("win") and isinstance(self, dabo.ui.dFormMixin):
 			dabo.ui.callAfterInterval(200, self.update)
 		self.raiseEvent(dEvents.Resize, evt)
 
@@ -766,7 +766,7 @@ class dPemMixin(dPemMixinBase):
 		anId = wx.NewId()
 		table = self._acceleratorTable
 		table[keyCombo] = (flags, keyCode, anId)
-		self.SetAcceleratorTable(wx.AcceleratorTable(table.values()))
+		self.SetAcceleratorTable(wx.AcceleratorTable(list(table.values())))
 		# Store the modifier keys that will have been pressed to trigger
 		# this key event. They will be included in the Dabo event that is
 		# passed to the callback function.
@@ -817,7 +817,7 @@ class dPemMixin(dPemMixinBase):
 		try:
 			self.Unbind(wx.EVT_MENU, id=table[keyCombo][2])
 			del table[keyCombo]
-			self.SetAcceleratorTable(wx.AcceleratorTable(table.values()))
+			self.SetAcceleratorTable(wx.AcceleratorTable(list(table.values())))
 		except KeyError:
 			pass
 
@@ -879,7 +879,7 @@ class dPemMixin(dPemMixinBase):
 		as the associated value.
 		"""
 		if self.ControllingSizer:
-			for prop, val in propDict.iteritems():
+			for prop, val in propDict.items():
 				self.ControllingSizer.setItemProp(self, prop, val)
 
 
@@ -986,7 +986,7 @@ class dPemMixin(dPemMixinBase):
 					return
 				try:
 					self._obj.Thaw()
-				except StandardError, e:
+				except Exception as e:
 					# Create an error log message. We can't record the obj reference,
 					# since it is most likely deleted, but the presence of these messages
 					# will ensure that possible problems will not be silenced.
@@ -1053,7 +1053,7 @@ class dPemMixin(dPemMixinBase):
 		object's constructor.
 		"""
 		# See if the 'classRef' is either some XML or the path of an XML file
-		if isinstance(classRef, basestring):
+		if isinstance(classRef, str):
 			xml = classRef
 			from dabo.lib.DesignerClassConverter import DesignerClassConverter
 			conv = DesignerClassConverter()
@@ -1256,10 +1256,10 @@ class dPemMixin(dPemMixinBase):
 			kids = self.Children
 		if not kids:
 			return
-		if isinstance(filt, basestring):
+		if isinstance(filt, str):
 			filt = (filt, )
 
-		if isinstance(instancesOf, basestring):
+		if isinstance(instancesOf, str):
 			instancesOf = (instancesOf,)
 		if instancesOf is None:
 			instancesOf = tuple()
@@ -1402,7 +1402,7 @@ class dPemMixin(dPemMixinBase):
 
 
 	def __updateObjectDynamicProps(self, obj):
-		for prop, func in obj._dynamic.items():
+		for prop, func in list(obj._dynamic.items()):
 			if isinstance(func, tuple):
 				args = func[1:]
 				func = func[0]
@@ -1437,7 +1437,7 @@ class dPemMixin(dPemMixinBase):
 	def _getWxColour(self, val):
 		"""Convert Dabo colors to wx.Colour objects"""
 		ret = None
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = dColors.colorTupleFromName(val)
 		if isinstance(val, tuple):
 			ret = wx.Colour(*val)
@@ -1667,7 +1667,7 @@ class dPemMixin(dPemMixinBase):
 	def drawBitmap(self, bmp, x=0, y=0, mode=None, persist=True,
 			transparent=True, visible=True, dc=None, useDefaults=False):
 		"""Draws a bitmap on the object at the specified position."""
-		if isinstance(bmp, basestring):
+		if isinstance(bmp, str):
 			bmp = dabo.ui.strToBmp(bmp)
 		obj = DrawObject(self, Bitmap=bmp, Shape="bmp",
 				Xpos=x, Ypos=y, Transparent=transparent, DrawMode=mode,
@@ -1954,7 +1954,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setBackColor(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			if val is None:
 				self.SetBackgroundColour(wx.NullColour)
@@ -1971,7 +1971,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setBorderColor(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			self._borderColor = val
 			if self._border:
@@ -2290,7 +2290,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setForeColor(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				val = dColors.colorTupleFromName(val)
 			if val != self.GetForegroundColour().Get():
 				self.SetForegroundColour(val)
@@ -2428,7 +2428,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setMousePointer(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, str):
 				# Name of a cursor. This can be either the full names, such
 				# as 'Cursor_Bullseye', or just 'Bullseye'. It could also be a sizing
 				# direction, such as 'NWSE'.
@@ -2745,7 +2745,7 @@ class dPemMixin(dPemMixinBase):
 				self._transparency = val
 				incr = (val - oldVal) / 10
 				newVal = oldVal
-				for i in xrange(10):
+				for i in range(10):
 					newVal = int(round(newVal + incr, 0))
 					newVal = min(max(newVal, 0), 255)
 					self.SetTransparent(newVal)
@@ -3328,7 +3328,7 @@ class DrawObject(dObject):
 			if self.PenColor is None:
 				pc = dColors.colorTupleFromName("black")
 			else:
-				if isinstance(self.PenColor, basestring):
+				if isinstance(self.PenColor, str):
 					pc = dColors.colorTupleFromName(self.PenColor)
 				else:
 					pc = self.PenColor
@@ -3354,7 +3354,7 @@ class DrawObject(dObject):
 		if fill is None:
 			brush = wx.TRANSPARENT_BRUSH
 		else:
-			if isinstance(fill, basestring):
+			if isinstance(fill, str):
 				fill = dColors.colorTupleFromName(fill)
 			brush = wx.Brush(fill, style=sty)
 		dc.SetBrush(brush)
@@ -3549,7 +3549,7 @@ class DrawObject(dObject):
 		return self._gradientColor1
 
 	def _setGradientColor1(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = dColors.colorTupleFromName(val)
 		if self._gradientColor1 != val:
 			self._gradientColor1 = val
@@ -3560,7 +3560,7 @@ class DrawObject(dObject):
 		return self._gradientColor2
 
 	def _setGradientColor2(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = dColors.colorTupleFromName(val)
 		if self._gradientColor2 != val:
 			self._gradientColor2 = val
@@ -3571,7 +3571,7 @@ class DrawObject(dObject):
 		return self._hatchStyle
 
 	def _setHatchStyle(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = val.lower()
 		if self._hatchStyle != val:
 			self._hatchStyle = val
@@ -3591,7 +3591,7 @@ class DrawObject(dObject):
 		return self._lineStyle
 
 	def _setLineStyle(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, str):
 			val = val.lower()
 		if self._lineStyle != val:
 			self._lineStyle = val
@@ -3962,7 +3962,7 @@ class _DropTarget(wx.DropTarget):
 			if mthd:
 				try:
 					mthd(param, x, y)
-				except TypeError, e:
+				except TypeError as e:
 					# Older implementation that doesn't accept x, y
 					mthd(param)
 		return defResult
@@ -4005,4 +4005,4 @@ if __name__ == "__main__":
 	# print o.BaseClass
 	# o.BaseClass = "dForm"
 	# print o.BaseClass
-	print "OK"
+	print("OK")

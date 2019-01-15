@@ -251,7 +251,7 @@ class TreeSheet(dui.dPanel):
 
 
 	def onTreeItemContextMenu(self, evt):
-		print evt.itemID
+		print(evt.itemID)
 
 
 	def recurseLayout(self, itm, node, noDisplay=False, sz=None):

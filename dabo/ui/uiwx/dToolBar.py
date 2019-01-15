@@ -5,8 +5,8 @@ import dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dControlMixin as cm
-import dMenu
+from . import dControlMixin as cm
+from . import dMenu
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.dObject import dObject
@@ -146,7 +146,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 	def _appendInsertButton(self, pos, caption, pic, toggle, tip, help,
 			*args, **kwargs):
 		"""Common code for the append|insert|prependButton() functions."""
-		if isinstance(pic, basestring):
+		if isinstance(pic, str):
 			# path was passed
 			picBmp = dabo.ui.strToBmp(pic)
 		else:
@@ -261,7 +261,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		the item is deleted as well. If release is False, a reference to the  object
 		will be returned, and the caller is responsible for deleting it.
 		"""
-		if isinstance(idxOrItem, (int, long)):
+		if isinstance(idxOrItem, int):
 			idx = idxOrItem
 			itm = self.Children[idx]
 		else:
@@ -520,7 +520,7 @@ class dToolBarItem(dObject):
 
 
 	def __updateDynamicProps(self):
-		for prop, func in self._dynamic.items():
+		for prop, func in list(self._dynamic.items()):
 			if isinstance(func, tuple):
 				args = func[1:]
 				func = func[0]
@@ -660,5 +660,5 @@ class _dToolBar_test(dToolBar):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dToolBar_test)

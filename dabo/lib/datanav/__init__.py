@@ -26,10 +26,10 @@ QRY_OPERATOR = QryOperatorEnum()
 # To achieve compatibility with existing code.
 IGNORE_STRING = QRY_OPERATOR.IGNORE
 
-from Form import Form
-from Grid import Grid
-from Page import Page, SelectPage, EditPage, BrowsePage, SortLabel
-from Page import SelectionOpDropdown
-from PageFrame import PageFrameMixin, PageFrame
-from Bizobj import Bizobj
+from .Form import Form
+from .Grid import Grid
+from .Page import Page, SelectPage, EditPage, BrowsePage, SortLabel
+from .Page import SelectionOpDropdown
+from .PageFrame import PageFrameMixin, PageFrame
+from .Bizobj import Bizobj
 

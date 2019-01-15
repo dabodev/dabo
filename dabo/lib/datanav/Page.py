@@ -9,7 +9,7 @@ from dabo.dObject import dObject
 from dabo.lib.utils import ustr
 from dabo.ui import dPanel
 from . import QRY_OPERATOR
-import Grid
+from . import Grid
 
 ASC, DESC = (n_("asc"), n_("desc"))
 
@@ -255,9 +255,9 @@ class SelectPage(Page):
 	def _orderByClause(self, infoOnly=False):
 		sf = self.sortFields
 		if infoOnly:
-			parts = lambda (k): (sf[k][2], sf[k][1])
+			parts = lambda k: (sf[k][2], sf[k][1])
 		else:
-			parts = lambda (k): (k, sf[k][1].upper())
+			parts = lambda k: (k, sf[k][1].upper())
 
 		flds = sorted((self.sortFields[k][0], k, " ".join(parts(k)))
 			for k in self.sortFields)

@@ -122,7 +122,7 @@ class EasyDialogBuilder(object):
 		Sizer.DefaultBorderAll = True
 
 		for obj in controlFields:
-			if len(obj)==4 and isinstance(obj[3], types.DictionaryType):
+			if len(obj)==4 and isinstance(obj[3], dict):
 				Properties = obj[3]
 			else:
 				Properties = {}

@@ -28,10 +28,10 @@ class Test_dTextBox(unittest.TestCase):
 	def testStringValue(self):
 		txt = self.txt
 		txt.Value = "This is a string"
-		self.assertTrue(isinstance(txt.Value, basestring))
+		self.assertTrue(isinstance(txt.Value, str))
 		self.assertEqual(txt.Value, "This is a string")
 		self.mockUserInput("23")
-		self.assertTrue(isinstance(txt.Value, basestring))
+		self.assertTrue(isinstance(txt.Value, str))
 		self.assertEqual(txt.Value, "23")
 		txt.Value = None
 		self.assertEqual(txt.Value, None)

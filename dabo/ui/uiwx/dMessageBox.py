@@ -178,9 +178,9 @@ if __name__ == "__main__":
 	app = dApp()
 	app.showMainFormOnStart = False
 	app.setup()
-	print areYouSure("Are you happy?")
-	print areYouSure("Are you sure?", cancelButton=False)
-	print areYouSure("So you aren\'t sad?", defaultNo=True)
+	print(areYouSure("Are you happy?"))
+	print(areYouSure("Are you sure?", cancelButton=False))
+	print(areYouSure("So you aren\'t sad?", defaultNo=True))
 
 	# Test requesting user attention:
 	frm = dabo.ui.dForm()

@@ -28,7 +28,7 @@ def main():
 	projects = {"dabo": "/path/to/dabo/",
 			"ide": "/path/to/ide/",
 			"demo": "/path/to/demo/"}
-	for project, drct in projects.items():
+	for project, drct in list(projects.items()):
 		processLoc(project, drct)
 	
 

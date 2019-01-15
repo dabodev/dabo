@@ -5,8 +5,8 @@ import dabo
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-import dPemMixin as pm
-import dIcons
+from . import dPemMixin as pm
+from . import dIcons
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
@@ -292,7 +292,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		Returns the menu item specified by either its index or caption. In the
 		case that an actual menu item is passed, simply returns that item.
 		"""
-		if isinstance(capIdxOrItem, basestring):
+		if isinstance(capIdxOrItem, str):
 			ret = self.getItem(capIdxOrItem)
 		elif isinstance(capIdxOrItem, int):
 			ret = self.Children[capIdxOrItem]
@@ -455,7 +455,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		item itself.
 		"""
 		cap = cleanMenuCaption(cap, "&_")
-		for pos in xrange(self.GetMenuItemCount()):
+		for pos in range(self.GetMenuItemCount()):
 			itm = self.FindItemByPosition(pos)
 			itmCap = cleanMenuCaption(itm.GetLabel(), "&_")
 			if itmCap == cap:

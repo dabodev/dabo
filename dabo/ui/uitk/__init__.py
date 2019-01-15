@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import dabo
 import dabo.ui
-from uiApp import uiApp
+from .uiApp import uiApp
 
 dabo.log.info("The Tkinter module is experimental only, and doesn't work. You've been warned.")
 uiType = {'shortName': 'tk', 'moduleName': 'uitk', 'longName': 'Tkinter'}
@@ -11,14 +11,14 @@ _uiApp = None
 # Import dPemMixin first, and then manually put into dabo.ui module. This is
 # because dControlMixin, which is in dabo.ui, descends from dPemMixin, which
 # is in dabo.ui.uitk. Must also do this for dControlMixin.
-from dPemMixin import dPemMixin
+from .dPemMixin import dPemMixin
 dabo.ui.dPemMixin = dPemMixin
-from dControlMixin import dControlMixin
+from .dControlMixin import dControlMixin
 dabo.ui.dControlMixin = dControlMixin
 
 # Import into public namespace:
 #from dAbout import dAbout
-from dCheckBox import dCheckBox
+from .dCheckBox import dCheckBox
 #from dComboBox import dComboBox
 #from dCommandButton import dCommandButton
 #from dDateControl import dDateControl
@@ -26,17 +26,17 @@ from dCheckBox import dCheckBox
 #from dEditBox import dEditBox
 #from dForm import dForm
 #from dFormDataNav import dFormDataNav
-from dFormMain import dFormMain
+from .dFormMain import dFormMain
 #from dGauge import dGauge
 #from dGridDataNav import dGridDataNav
-from dLabel import dLabel
+from .dLabel import dLabel
 #from dListbook import dListbook
 #from dLogin import dLogin
 #from dMainMenuBar import dMainMenuBar
 #from dMenuBar import dMenuBar
 #from dMenu import dMenu
 #from dRadioGroup import dRadioGroup
-from dPanel import dPanel
+from .dPanel import dPanel
 #from dPanel import dScrollPanel
 #from dPageFrame import dPageFrame
 #from dPage import dPage

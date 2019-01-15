@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
-import Tkinter, dabo, dabo.ui
+import tkinter, dabo, dabo.ui
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("tk")
 
-import dDataControlMixin as dcm
+from . import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
 
-class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
+class dCheckBox(tkinter.Checkbutton, dcm.dDataControlMixin):
 	""" Allows visual editing of boolean values.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dCheckBox
-		preClass = Tkinter.Checkbutton
+		preClass = tkinter.Checkbutton
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties,
 				*args, **kwargs)
 
@@ -90,5 +90,5 @@ if __name__ == "__main__":
 			self.Caption = self.Caption + "hit!"
 
 
-	import test
+	from . import test
 	test.Test().runTest(C)
