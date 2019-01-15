@@ -11,16 +11,16 @@ Note that creating a settings_override.py isn't the only way to tweak the
 settings - your custom code can also just make the settings in the dabo
 namespace at runtime, eg::
 
-	import dabo
-	dabo.eventLogging = True
-	<do stuff>
-	dabo.eventLogging = False
+    import dabo
+    dabo.eventLogging = True
+    <do stuff>
+    dabo.eventLogging = False
 
 .. note::
 
-	settings_override.py is not the appropriate place to put
-	application-specific settings, although it may seem at first like an easy
-	place to do so.
+    settings_override.py is not the appropriate place to put
+    application-specific settings, although it may seem at first like an easy
+    place to do so.
 
 """
 
@@ -75,9 +75,9 @@ autoBindEvents = True
 # the cost of being a global setting. This must be set before dabo.ui is
 # imported (ie right at the top of your app). Note that you could instead choose
 # to deal with MDI/SDI explicitly in your form subclasses. IOW:
-#		class MyForm(dabo.ui.dFormChildMDI)
-#		class MyForm(dabo.ui.dFormParentMDI)
-#		class MyForm(dabo.ui.dFormSDI)
+#        class MyForm(dabo.ui.dFormChildMDI)
+#        class MyForm(dabo.ui.dFormParentMDI)
+#        class MyForm(dabo.ui.dFormSDI)
 #
 # All the MDI setting does is make dFormMain == (dFormMainSDI or dFormMainParentMDI)
 # and dForm == (dFormSDI or dFormChildMDI)
@@ -153,37 +153,37 @@ loadUserLocale = True
 # in your settings_override file, and those will be added to this list.
 custom_extensions = {}
 file_extensions = {
-		"*": "All Files",
-		"py": "Python Scripts",
-		"txt": "Text Files",
-		"log": "Log Files",
-		"fsxml": "Dabo FieldSpec Files",
-		"cnxml": "Dabo Connection Files",
-		"rfxml": "Dabo Report Format Files",
-		"cdxml": "Dabo Class Designer Files",
-		"mnxml": "Dabo Menu Designer Files",
-		"pdf": "PDF Files",
-		"js": "Javascript Files",
-		"html" : "HTML Files",
-		"xml" : "XML Files",
-		"jpg" : "JPEG Images",
-		"jpeg" : "JPEG Images",
-		"gif" : "GIF Images",
-		"tif" : "TIFF Images",
-		"tiff" : "TIFF Images",
-		"png" : "PNG Images",
-		"ico" : "Icon Images",
-		"bmp" : "Bitmap Images",
-		"sh": "Shell Scripts",
-		"zip": "ZIP Files",
-		"tar": "tar Archives",
-		"gz": "gzipped Files",
-		"tgz": "gzipped tar Archives",
-		"mov": "QuickTime Movies",
-		"wmv": "Windows Media Videos",
-		"mpg": "MPEG Videos",
-		"mpeg": "MPEG Videos",
-		"mp3": "mp3 Audio Files",
+        "*": "All Files",
+        "py": "Python Scripts",
+        "txt": "Text Files",
+        "log": "Log Files",
+        "fsxml": "Dabo FieldSpec Files",
+        "cnxml": "Dabo Connection Files",
+        "rfxml": "Dabo Report Format Files",
+        "cdxml": "Dabo Class Designer Files",
+        "mnxml": "Dabo Menu Designer Files",
+        "pdf": "PDF Files",
+        "js": "Javascript Files",
+        "html" : "HTML Files",
+        "xml" : "XML Files",
+        "jpg" : "JPEG Images",
+        "jpeg" : "JPEG Images",
+        "gif" : "GIF Images",
+        "tif" : "TIFF Images",
+        "tiff" : "TIFF Images",
+        "png" : "PNG Images",
+        "ico" : "Icon Images",
+        "bmp" : "Bitmap Images",
+        "sh": "Shell Scripts",
+        "zip": "ZIP Files",
+        "tar": "tar Archives",
+        "gz": "gzipped Files",
+        "tgz": "gzipped tar Archives",
+        "mov": "QuickTime Movies",
+        "wmv": "Windows Media Videos",
+        "mpg": "MPEG Videos",
+        "mpeg": "MPEG Videos",
+        "mp3": "mp3 Audio Files",
 }
 
 # For file-based data backends such as SQLite, do we allow creating a connection to
@@ -201,7 +201,7 @@ mainLogConsoleLevel = logging.ERROR
 mainLogFileLevel = logging.ERROR
 mainLogDateFormat = "%Y-%m-%d %H:%M:%S"
 consoleFormat = fileFormat = "%(asctime)s - %(levelname)s - %(message)s"
-maxLogFileSize = 5242880		# 5 MB
+maxLogFileSize = 5242880        # 5 MB
 
 dbLogLevel = logging.DEBUG
 dbLogQualName = "dabo.dbActivityLog"
@@ -211,7 +211,7 @@ dbLogConsoleLevel = logging.ERROR
 dbLogFileLevel = logging.DEBUG
 dbLogDateFormat = "%Y-%m-%d %H:%M:%S"
 dbConsoleFormat = dbFileFormat = "%(asctime)s - %(levelname)s - %(message)s"
-dbMaxLogFileSize = 5242880		# 5 MB
+dbMaxLogFileSize = 5242880        # 5 MB
 
 # Report fonts configuration.
 reportTTFontFilePath = None
@@ -257,6 +257,6 @@ sys.path.append(os.getcwd())
 
 # Do not copy/paste anything below this line into settings_override.py.
 try:
-	from settings_override import *
+    from settings_override import *
 except ImportError:
-	pass
+    pass

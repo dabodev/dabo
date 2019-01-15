@@ -4,4 +4,4 @@ import dabo.lib.datanav as datanav
 
 
 class GrdBase(datanav.Grid):
-	pass
+    pass

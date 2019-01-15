@@ -11,7 +11,7 @@ import dabo.ui
 # The loading of the UI needs to happen before the importing of the
 # db, biz, and ui packages:
 if sys.platform[:3] == "win":
-	dabo.MDI = True
+    dabo.MDI = True
 
 import db
 import biz

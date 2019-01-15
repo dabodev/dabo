@@ -5,24 +5,24 @@ from dabo.dApp import dApp
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _, n_
 from PagSelectBase import PagSelectBase, IGNORE_STRING, SelectTextBox, \
-		SelectCheckBox, SelectLabel, SelectDateTextBox, SelectSpinner, \
-		SelectionOpDropdown, SortLabel
+        SelectCheckBox, SelectLabel, SelectDateTextBox, SelectSpinner, \
+        SelectionOpDropdown, SortLabel
 
 
 class PagSelect%(tableName)s(PagSelectBase):
 
-	%(selectOptionsPanel)s
+    %(selectOptionsPanel)s
 
 
 if __name__ == "__main__":
-	from Frm%(tableName)s import Frm%(tableName)s
-	app = dApp(MainFormClass=None)
-	app.setup()
-	class TestForm(Frm%(tableName)s):
-		def afterInit(self): pass
-	frm = TestForm(Caption="Test Of PagSelect%(tableName)s", Testing=True)
-	test = PagSelect%(tableName)s(frm)
-	test.createItems()
-	frm.Sizer.append1x(test)
-	frm.show()
-	app.start()
+    from Frm%(tableName)s import Frm%(tableName)s
+    app = dApp(MainFormClass=None)
+    app.setup()
+    class TestForm(Frm%(tableName)s):
+        def afterInit(self): pass
+    frm = TestForm(Caption="Test Of PagSelect%(tableName)s", Testing=True)
+    test = PagSelect%(tableName)s(frm)
+    test.createItems()
+    frm.Sizer.append1x(test)
+    frm.show()
+    app.start()

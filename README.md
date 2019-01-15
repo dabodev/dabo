@@ -11,7 +11,7 @@ Dabo has three main subpackages, representing the three tiers common in modern d
 	dabo.biz : business objects
 	dabo.ui  : user interface
 ```
-```dabo.db``` and ```dabo.biz``` are completely ui-free, while ```dabo.ui``` (currently) requires wxPython. We have allowed for possible future support for other ui libraries, such as PyQt or PySide, tk, and curses.
+```dabo.db``` and ```dabo.biz``` are completely ui-free, while ```dabo.ui``` requires wxPython.
 
 To distribute your application to end users
 -------------------------------------------

@@ -4,4 +4,4 @@ import dabo.lib.datanav as datanav
 
 
 class PagBase(datanav.Page):
-	pass
+    pass

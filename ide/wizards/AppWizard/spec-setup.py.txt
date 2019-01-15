@@ -5,29 +5,29 @@ import sys
 
 # ModuleFinder can't handle runtime changes to __path__, but win32com uses them
 try:
-	import py2exe.mf as modulefinder
-	import win32com
-	for p in win32com.__path__[1:]:
-		modulefinder.AddPackagePath("win32com", p)
-	for extra in ["win32com.shell"]: #,"win32com.mapi"
-		__import__(extra)
-		m = sys.modules[extra]
-		for p in m.__path__[1:]:
-			modulefinder.AddPackagePath(extra, p)
+    import py2exe.mf as modulefinder
+    import win32com
+    for p in win32com.__path__[1:]:
+        modulefinder.AddPackagePath("win32com", p)
+    for extra in ["win32com.shell"]: #,"win32com.mapi"
+        __import__(extra)
+        m = sys.modules[extra]
+        for p in m.__path__[1:]:
+            modulefinder.AddPackagePath(extra, p)
 except ImportError:
-	# no build path setup, no worries.
-	pass
+    # no build path setup, no worries.
+    pass
 
 import os
 import glob
 if sys.platform.startswith("win"):
-	from distutils.core import setup
-	import py2exe
+    from distutils.core import setup
+    import py2exe
 elif sys.platform.startswith("darwin"):
-	from setuptools import setup
-	import py2app
+    from setuptools import setup
+    import py2app
 elif sys.platform.startswith("linux"):
-	from cx_Freeze import setup, Executable
+    from cx_Freeze import setup, Executable
 import dabo.icons
 from App import App
 
@@ -39,11 +39,11 @@ daboDir = os.path.split(dabo.__file__)[0]
 iconDir = os.path.split(dabo.icons.__file__)[0]
 iconSubDirs = []
 def getIconSubDir(arg, dirname, fnames):
-	if ".svn" not in dirname and dirname[-1] != "\\":
-		icons = glob.glob(os.path.join(dirname, "*.png"))
-		if icons:
-			subdir = (os.path.join("resources", dirname[len(arg)+1:]), icons)
-			iconSubDirs.append(subdir)
+    if ".svn" not in dirname and dirname[-1] != "\\":
+        icons = glob.glob(os.path.join(dirname, "*.png"))
+        if icons:
+            subdir = (os.path.join("resources", dirname[len(arg)+1:]), icons)
+            iconSubDirs.append(subdir)
 os.path.walk(iconDir, getIconSubDir, iconDir)
 
 # locales:
@@ -74,10 +74,10 @@ _authorPhone = app.getAppInfo("authorPhone")
 
 
 _appComments = ("This is custom software by %%s.\r\n"
-		"\r\n"
-		"%%s\r\n"
-		"%%s\r\n"
-		"%%s\r\n") %% (_authorName, _authorEmail, _authorURL, _authorPhone)
+        "\r\n"
+        "%%s\r\n"
+        "%%s\r\n"
+        "%%s\r\n") %% (_authorName, _authorEmail, _authorURL, _authorPhone)
 
 # Set your app icon here:
 _appIcon = None
@@ -87,100 +87,100 @@ _script = "%(appName)s.py"
 manifest = open("%(appName)s.exe.manifest").read()
 
 class Target:
-	def __init__(self, **kw):
-		self.__dict__.update(kw)
-		# for the versioninfo resources
-		self.version = _appVersion
-		self.company_name = _authorName
-		self.copyright = _copyright
-		self.name = _appName
-		self.description = _appDescription
-		self.comments = _appComments
+    def __init__(self, **kw):
+        self.__dict__.update(kw)
+        # for the versioninfo resources
+        self.version = _appVersion
+        self.company_name = _authorName
+        self.copyright = _copyright
+        self.name = _appName
+        self.description = _appDescription
+        self.comments = _appComments
 
-		self.script=_script
-		self.other_resources=[(24, 1, manifest)]
-		if _appIcon is not None:
-			self.icon_resources=[(1, _appIcon)]
+        self.script=_script
+        self.other_resources=[(24, 1, manifest)]
+        if _appIcon is not None:
+            self.icon_resources=[(1, _appIcon)]
 
 
 data_files=[("db", ["db/default.cnxml"]),
-		("resources", glob.glob(os.path.join(iconDir, "*.ico"))),
-		("resources", glob.glob("resources/*")),
-		("reports", glob.glob("reports/*"))]
+        ("resources", glob.glob(os.path.join(iconDir, "*.ico"))),
+        ("resources", glob.glob("resources/*")),
+        ("reports", glob.glob("reports/*"))]
 data_files.extend(iconSubDirs)
 data_files.extend(locales)
 
 if sys.platform.startswith("win"):
-	options = {"py2exe":
-			{"packages": ["encodings", "wx", "ui", "biz", "db"],
-				"optimize": 2, "compressed": 1,
-				"excludes": ["Tkconstants", "Tkinter", "tcl",
-						"_imagingtk", "PIL._imagingtk",
-						"ImageTk", "PIL.ImageTk", "FixTk"],
-				"dll_excludes": ["msvcp90.dll"],
-				"typelibs" : [('{EAB22AC0-30C1-11CF-A7EB-0000C05BAE0B}', 0, 1, 1)]
-			}}
+    options = {"py2exe":
+            {"packages": ["encodings", "wx", "ui", "biz", "db"],
+                "optimize": 2, "compressed": 1,
+                "excludes": ["Tkconstants", "Tkinter", "tcl",
+                        "_imagingtk", "PIL._imagingtk",
+                        "ImageTk", "PIL.ImageTk", "FixTk"],
+                "dll_excludes": ["msvcp90.dll"],
+                "typelibs" : [('{EAB22AC0-30C1-11CF-A7EB-0000C05BAE0B}', 0, 1, 1)]
+            }}
 
-	setup(name=_appName,
-			version=_appVersion,
-			description=_appDescription,
-			author=_authorName,
-			author_email=_authorEmail,
-			url=_authorURL,
-			options=options,
-			zipfile=None,
-			windows=[Target()],
-			data_files=data_files
-	)
+    setup(name=_appName,
+            version=_appVersion,
+            description=_appDescription,
+            author=_authorName,
+            author_email=_authorEmail,
+            url=_authorURL,
+            options=options,
+            zipfile=None,
+            windows=[Target()],
+            data_files=data_files
+    )
 
 elif sys.platform.startswith("darwin"):
-	options = {"py2app":
-			{"includes": ["App", "version", "ui", "biz", "encodings",
-				"wx", "wx.lib.calendar", "wx.gizmos"],
-			"optimize": 2,
-			"excludes": ["matplotlib", "Tkconstants","Tkinter","tcl",
-				"_imagingtk", "PIL._imagingtk",
-				"ImageTk", "PIL.ImageTk", "FixTk", "wxPython",],
-			"argv_emulation": True,
-			"resources": data_files,
-			"plist": dict(CFBundleGetInfoString=_appVersion,
-				CFBundleIdentifier="com.example.%(appName)s",
-				LSPrefersPPC=False,
-				NSHumanReadableCopyright=_copyright),
-			#"iconfile": "resources/logo_green.icns",
-			}}
+    options = {"py2app":
+            {"includes": ["App", "version", "ui", "biz", "encodings",
+                "wx", "wx.lib.calendar", "wx.gizmos"],
+            "optimize": 2,
+            "excludes": ["matplotlib", "Tkconstants","Tkinter","tcl",
+                "_imagingtk", "PIL._imagingtk",
+                "ImageTk", "PIL.ImageTk", "FixTk", "wxPython",],
+            "argv_emulation": True,
+            "resources": data_files,
+            "plist": dict(CFBundleGetInfoString=_appVersion,
+                CFBundleIdentifier="com.example.%(appName)s",
+                LSPrefersPPC=False,
+                NSHumanReadableCopyright=_copyright),
+            #"iconfile": "resources/logo_green.icns",
+            }}
 
-	setup(name=_appName,
-		app=[_script],
-		version=_appVersion,
-		description=_appDescription,
-		author=_authorName,
-		author_email=_authorEmail,
-		url=_authorURL,
-		options=options,
-		#data_files=data_files,
-		setup_requires=["py2app"]
-	)
+    setup(name=_appName,
+        app=[_script],
+        version=_appVersion,
+        description=_appDescription,
+        author=_authorName,
+        author_email=_authorEmail,
+        url=_authorURL,
+        options=options,
+        #data_files=data_files,
+        setup_requires=["py2app"]
+    )
 
 elif sys.platform.startswith("linux"):
-	## cx_Freeze needs the globs unpacked:
-	include_files = [(i[1], i[0]) for i in data_files]
-	unpacked = []
-	for source, destination in include_files:
-		for source_item in source:
-			destination_item = os.path.join(destination, os.path.split(source_item)[-1])
-			unpacked.append((source_item, destination_item))
-	include_files = unpacked
-	options = {"build_exe": {"include_files": include_files,
-	                         "includes": ["wx.gizmos", "wx.lib.calendar",
-	                                      "distutils.unixccompiler"],
-	                         "optimize": 2,
-	                         "create_shared_zip": False
-	}}
-	setup(name=_appName,
-		version=_appVersion,
-		description=_appDescription,
-		executables=[Executable(_script, compress=True,
-				appendScriptToExe=True)],
-		options=options)
+    ## cx_Freeze needs the globs unpacked:
+    include_files = [(i[1], i[0]) for i in data_files]
+    unpacked = []
+    for source, destination in include_files:
+        for source_item in source:
+            destination_item = os.path.join(destination, os.path.split(source_item)[-1])
+            unpacked.append((source_item, destination_item))
+    include_files = unpacked
+    options = {"build_exe": {"include_files": include_files,
+                             "includes": ["wx.gizmos", "wx.lib.calendar",
+                                          "distutils.unixccompiler"],
+                             "optimize": 2,
+                             "create_shared_zip": False
+    }}
+    setup(name=_appName,
+        version=_appVersion,
+        description=_appDescription,
+        executables=[Executable(_script, compress=True,
+                appendScriptToExe=True)],
+        options=options)
 

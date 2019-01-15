@@ -6,59 +6,59 @@ from dabo.lib.utils import ustr
 
 
 class TestPanel(dabo.ui.dPanel):
-	def afterInit(self):
-		self.Sizer = dabo.ui.dSizer("v")
-		sz = dabo.ui.dGridSizer(MaxCols=2, HGap=7, VGap=12)
-		self.Sizer.append(sz, "x", border=30, valign="middle")
+    def afterInit(self):
+        self.Sizer = dabo.ui.dSizer("v")
+        sz = dabo.ui.dGridSizer(MaxCols=2, HGap=7, VGap=12)
+        self.Sizer.append(sz, "x", border=30, valign="middle")
 
-		# Plain textbox
-		lbl = dabo.ui.dLabel(self, Caption=_("Plain TextBox"))
-		txt = dabo.ui.dTextBox(self, Name=_("PlainTextBox"),
-				Value=_("Test it out and see"))
-		txt.SelectionStart = 0
-		sz.append(lbl, halign="right")
-		sz.append(txt, "x")
+        # Plain textbox
+        lbl = dabo.ui.dLabel(self, Caption=_("Plain TextBox"))
+        txt = dabo.ui.dTextBox(self, Name=_("PlainTextBox"),
+                Value=_("Test it out and see"))
+        txt.SelectionStart = 0
+        sz.append(lbl, halign="right")
+        sz.append(txt, "x")
 
-		txt.bindEvent(dEvents.GotFocus, self.onTextGotFocus)
-		txt.bindEvent(dEvents.LostFocus, self.onTextLostFocus)
-		txt.bindEvent(dEvents.Destroy, self.onTextDestroy)
-		txt.bindEvent(dEvents.KeyChar, self.onTextKeyChar)
-		txt.bindEvent(dEvents.Hit, self.onTextHit)
+        txt.bindEvent(dEvents.GotFocus, self.onTextGotFocus)
+        txt.bindEvent(dEvents.LostFocus, self.onTextLostFocus)
+        txt.bindEvent(dEvents.Destroy, self.onTextDestroy)
+        txt.bindEvent(dEvents.KeyChar, self.onTextKeyChar)
+        txt.bindEvent(dEvents.Hit, self.onTextHit)
 
-		# Password textbox
-		lbl = dabo.ui.dLabel(self, Caption=_("Password"))
-		txt = dabo.ui.dTextBox(self, Name=_("Password TextBox"),
-				PasswordEntry=True)
-		sz.append(lbl, halign="right")
-		sz.append(txt, "x")
+        # Password textbox
+        lbl = dabo.ui.dLabel(self, Caption=_("Password"))
+        txt = dabo.ui.dTextBox(self, Name=_("Password TextBox"),
+                PasswordEntry=True)
+        sz.append(lbl, halign="right")
+        sz.append(txt, "x")
 
-		txt.bindEvent(dEvents.GotFocus, self.onTextGotFocus)
-		txt.bindEvent(dEvents.LostFocus, self.onTextLostFocus)
-		txt.bindEvent(dEvents.Destroy, self.onTextDestroy)
-		txt.bindEvent(dEvents.KeyChar, self.onTextKeyChar)
-		txt.bindEvent(dEvents.Hit, self.onTextHit)
+        txt.bindEvent(dEvents.GotFocus, self.onTextGotFocus)
+        txt.bindEvent(dEvents.LostFocus, self.onTextLostFocus)
+        txt.bindEvent(dEvents.Destroy, self.onTextDestroy)
+        txt.bindEvent(dEvents.KeyChar, self.onTextKeyChar)
+        txt.bindEvent(dEvents.Hit, self.onTextHit)
 
-		# Let the textbox column grow
-		sz.setColExpand(True, 1)
-		self.layout()
+        # Let the textbox column grow
+        sz.setColExpand(True, 1)
+        self.layout()
 
 
-	def onTextGotFocus(self, evt):
-		self.Form.logit(_("%s GotFocus") % evt.EventObject.Name)
+    def onTextGotFocus(self, evt):
+        self.Form.logit(_("%s GotFocus") % evt.EventObject.Name)
 
-	def onTextLostFocus(self, evt):
-		self.Form.logit(_("%s LostFocus") % evt.EventObject.Name)
+    def onTextLostFocus(self, evt):
+        self.Form.logit(_("%s LostFocus") % evt.EventObject.Name)
 
-	def onTextDestroy(self, evt):
-		self.Form.logit(_("%s Destroy") % evt.EventObject.Name)
+    def onTextDestroy(self, evt):
+        self.Form.logit(_("%s Destroy") % evt.EventObject.Name)
 
-	def onTextKeyChar(self, evt):
-		cd, ch = evt.keyCode, ustr(evt.keyChar)
-		self.Form.logit(_("KeyChar event; code=%(cd)s, char=%(ch)s") % locals())
+    def onTextKeyChar(self, evt):
+        cd, ch = evt.keyCode, ustr(evt.keyChar)
+        self.Form.logit(_("KeyChar event; code=%(cd)s, char=%(ch)s") % locals())
 
-	def onTextHit(self, evt):
-		self.Form.logit(_("Hit event; new value='%s'") %
-				evt.EventObject.Value)
+    def onTextHit(self, evt):
+        self.Form.logit(_("Hit event; new value='%s'") %
+                evt.EventObject.Value)
 
 
 

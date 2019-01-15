@@ -5,31 +5,31 @@ from dabo.dLocalize import _
 
 
 class TestPanel(dabo.ui.dPanel):
-	def afterInit(self):
-		sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20,
-				DefaultBorderLeft=True)
-		sz.appendSpacer(25)
+    def afterInit(self):
+        sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20,
+                DefaultBorderLeft=True)
+        sz.appendSpacer(25)
 
-		btn = dabo.ui.dButton(self, Caption="Normal")
-		btn.bindEvent(dEvents.Hit, self.onButtonHit)
-		sz.append(btn, halign="center")
-		sz.appendSpacer(10)
+        btn = dabo.ui.dButton(self, Caption="Normal")
+        btn.bindEvent(dEvents.Hit, self.onButtonHit)
+        sz.append(btn, halign="center")
+        sz.appendSpacer(10)
 
-		btn = dabo.ui.dButton(self, Caption="Default", DefaultButton=True)
-		btn.bindEvent(dEvents.Hit, self.onButtonHit)
-		sz.append(btn, halign="center")
-		sz.appendSpacer(10)
+        btn = dabo.ui.dButton(self, Caption="Default", DefaultButton=True)
+        btn.bindEvent(dEvents.Hit, self.onButtonHit)
+        sz.append(btn, halign="center")
+        sz.appendSpacer(10)
 
-		btn = dabo.ui.dButton(self, Caption="Cancel", CancelButton=True)
-		btn.bindEvent(dEvents.Hit, self.onButtonHit)
-		sz.append(btn, halign="center")
-		sz.appendSpacer(10)
+        btn = dabo.ui.dButton(self, Caption="Cancel", CancelButton=True)
+        btn.bindEvent(dEvents.Hit, self.onButtonHit)
+        sz.append(btn, halign="center")
+        sz.appendSpacer(10)
 
 
-	def onButtonHit(self, evt):
-		obj = evt.EventObject
-		cap, dft, cncl = obj.Caption, obj.DefaultButton, obj.CancelButton
-		self.Form.logit(_("Hit: %(cap)s; Default=%(dft)s; Cancel=%(cncl)s") % locals())
+    def onButtonHit(self, evt):
+        obj = evt.EventObject
+        cap, dft, cncl = obj.Caption, obj.DefaultButton, obj.CancelButton
+        self.Form.logit(_("Hit: %(cap)s; Default=%(dft)s; Cancel=%(cncl)s") % locals())
 
 
 category = "Controls.dButton"

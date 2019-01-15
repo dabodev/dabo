@@ -11,28 +11,28 @@ from PagEdit%(tableName)s import PagEdit%(tableName)s
 
 class Frm%(tableName)s(FrmBase):
 
-	def initProperties(self):
-		super(Frm%(tableName)s, self).initProperties()
-		self.NameBase = "frm%(tableName)s"
-		self.Caption = "%(tableName)s"
-		self.SelectPageClass = PagSelect%(tableName)s
-		self.BrowseGridClass = Grd%(tableName)s
-		self.EditPageClass = PagEdit%(tableName)s
+    def initProperties(self):
+        super(Frm%(tableName)s, self).initProperties()
+        self.NameBase = "frm%(tableName)s"
+        self.Caption = "%(tableName)s"
+        self.SelectPageClass = PagSelect%(tableName)s
+        self.BrowseGridClass = Grd%(tableName)s
+        self.EditPageClass = PagEdit%(tableName)s
 
 
-	def afterInit(self):
-		if not self.Testing:
-			# Instantiate the bizobj and register it with dForm, and then let the
-			# superclass take over.
-			app = self.Application
-			biz%(tableName)s = app.biz.%(tableName)s(app.dbConnection)
-			self.addBizobj(biz%(tableName)s)
-		super(Frm%(tableName)s, self).afterInit()
+    def afterInit(self):
+        if not self.Testing:
+            # Instantiate the bizobj and register it with dForm, and then let the
+            # superclass take over.
+            app = self.Application
+            biz%(tableName)s = app.biz.%(tableName)s(app.dbConnection)
+            self.addBizobj(biz%(tableName)s)
+        super(Frm%(tableName)s, self).afterInit()
 
 
 if __name__ == "__main__":
-	app = dApp(MainFormClass=None)
-	app.setup()
-	frm = Frm%(tableName)s(Caption="Test Of Frm%(tableName)s", Testing=True)
-	frm.show()
-	app.start()
+    app = dApp(MainFormClass=None)
+    app.setup()
+    frm = Frm%(tableName)s(Caption="Test Of Frm%(tableName)s", Testing=True)
+    frm.show()
+    app.start()

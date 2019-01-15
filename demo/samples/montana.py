@@ -7,21 +7,21 @@ from samples.games import MontanaForm
 
 
 class TestPanel(dabo.ui.dPanel):
-	def afterInit(self):
-		sz = self.Sizer = dabo.ui.dSizer("v")
-		sz.appendSpacer(40)
+    def afterInit(self):
+        sz = self.Sizer = dabo.ui.dSizer("v")
+        sz.appendSpacer(40)
 
-		lbl = dabo.ui.dLabel(self, Caption="Montana is a solitaire game that is easy to learn,\nbut difficult to master.\n\nFor instructions, please see the Overview tab.")
-		sz.append(lbl, halign="center")
-		sz.appendSpacer(30)
-		btn = dabo.ui.dButton(self, Caption="Play Montana",
-				OnHit=self.runGame)
-		sz.append(btn, halign="center")
+        lbl = dabo.ui.dLabel(self, Caption="Montana is a solitaire game that is easy to learn,\nbut difficult to master.\n\nFor instructions, please see the Overview tab.")
+        sz.append(lbl, halign="center")
+        sz.appendSpacer(30)
+        btn = dabo.ui.dButton(self, Caption="Play Montana",
+                OnHit=self.runGame)
+        sz.append(btn, halign="center")
 
 
-	def runGame(self, evt):
-		frm = MontanaForm(self.Form, Size=(980,514), Centered=True)
-		frm.show()
+    def runGame(self, evt):
+        frm = MontanaForm(self.Form, Size=(980,514), Centered=True)
+        frm.show()
 
 
 

@@ -1,345 +1,345 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <dForm Name="dForm" Caption="Dabo Preference Editor" SaveRestorePosition="False" Height="660" Width="720" designerClass="DesForm">
-	<code>
-		<expandAll><![CDATA[
+    <code>
+        <expandAll><![CDATA[
 def expandAll(self):
-	self.tree.expandAll()
+    self.tree.expandAll()
 ]]>
-		</expandAll>
-		<savePref><![CDATA[
+        </expandAll>
+        <savePref><![CDATA[
 def savePref(self):
-	nd = self.tree.Selection
-	key = self.tree.getKeyPathForNode(nd)
-	val = self.txtPrefValue.Value
-	self.pref.setValue(key, val)
+    nd = self.tree.Selection
+    key = self.tree.getKeyPathForNode(nd)
+    val = self.txtPrefValue.Value
+    self.pref.setValue(key, val)
 ]]>
-		</savePref>
-		<syncTree><![CDATA[
+        </savePref>
+        <syncTree><![CDATA[
 def syncTree(self, key):
-	self.StatusBarText = "sync, key= %s" % key
-	nodes = self.tree.nodes
-	ret = [n for n in nodes 
-			if n.FullCaption.endswith(key) ]
-	if ret:
-		self.tree.Selection = ret[0]
-	self.StatusBarText += " num matched: %s" % len(ret)
+    self.StatusBarText = "sync, key= %s" % key
+    nodes = self.tree.nodes
+    ret = [n for n in nodes 
+            if n.FullCaption.endswith(key) ]
+    if ret:
+        self.tree.Selection = ret[0]
+    self.StatusBarText += " num matched: %s" % len(ret)
 ]]>
-		</syncTree>
-		<deletePref><![CDATA[
+        </syncTree>
+        <deletePref><![CDATA[
 def deletePref(self, key):
-	self.pref.deletePref(key, nested=True)
+    self.pref.deletePref(key, nested=True)
 ]]>
-		</deletePref>
-		<afterInit><![CDATA[
+        </deletePref>
+        <afterInit><![CDATA[
 def afterInit(self):
-	self.pth = ""
-	self.BasePrefKey = "dabo.ide.PrefEditor"
+    self.pth = ""
+    self.BasePrefKey = "dabo.ide.PrefEditor"
 ]]>
-		</afterInit>
-		<afterInitAll><![CDATA[
+        </afterInit>
+        <afterInitAll><![CDATA[
 def afterInitAll(self):
-	import sys
-	db = None
-	if sys.argv[1:]:
-		db = sys.argv[1]
-	if db:
-		con = dabo.db.dConnection(dbType="sqlite", database=db)
-		cur = con.getDaboCursor()
-		self.pref = dPref(crs=cur, cxn=con)
-	else:
-		self.pref = dPref("")
-	self.pref.AutoPersist = False
-	self.pref._persistAll = True
-	stru = self.pref.getPrefTree()
-	root = self.tree.getRootNode()
-	if root:
-		root.Caption = ""
-	self.tree.treeFromStructure(stru, topNode=root)
-	basenode = self.tree.nodes[1]
-	#[sib.expand() for sib in basenode.Siblings]  ## pkm: I got annoyed by this... :)
-	self.tree.ShowRootNode = False
+    import sys
+    db = None
+    if sys.argv[1:]:
+        db = sys.argv[1]
+    if db:
+        con = dabo.db.dConnection(dbType="sqlite", database=db)
+        cur = con.getDaboCursor()
+        self.pref = dPref(crs=cur, cxn=con)
+    else:
+        self.pref = dPref("")
+    self.pref.AutoPersist = False
+    self.pref._persistAll = True
+    stru = self.pref.getPrefTree()
+    root = self.tree.getRootNode()
+    if root:
+        root.Caption = ""
+    self.tree.treeFromStructure(stru, topNode=root)
+    basenode = self.tree.nodes[1]
+    #[sib.expand() for sib in basenode.Siblings]  ## pkm: I got annoyed by this... :)
+    self.tree.ShowRootNode = False
 ]]>
-		</afterInitAll>
-		<addPref><![CDATA[
+        </afterInitAll>
+        <addPref><![CDATA[
 def addPref(self, base, key, typ):
-	if base:
-		newkey = "%s.%s" % (base, key)
-	else:
-		newkey = key
-	if typ == "Node":
-		# Just set the node
-		eval("self.pref.%s" % newkey)
-	else:
-		typDict = {"String": str, "Unicode": unicode, "Integer": int, "Float": float, 
-				"Boolean": bool, "List": list, "Tuple": tuple, "Dict": dict, 
-				"Datetime": datetime.datetime, "Date": datetime.date}
-		self.pref.addKey(newkey, typDict[typ], typDict[typ]())
+    if base:
+        newkey = "%s.%s" % (base, key)
+    else:
+        newkey = key
+    if typ == "Node":
+        # Just set the node
+        eval("self.pref.%s" % newkey)
+    else:
+        typDict = {"String": str, "Unicode": unicode, "Integer": int, "Float": float, 
+                "Boolean": bool, "List": list, "Tuple": tuple, "Dict": dict, 
+                "Datetime": datetime.datetime, "Date": datetime.date}
+        self.pref.addKey(newkey, typDict[typ], typDict[typ]())
 ]]>
-		</addPref>
-		<getNodeValue><![CDATA[
+        </addPref>
+        <getNodeValue><![CDATA[
 def getNodeValue(self, nd):
-	pth = self.tree.getKeyPathForNode(nd)
-	ret = self.pref.getValue(pth)
+    pth = self.tree.getKeyPathForNode(nd)
+    ret = self.pref.getValue(pth)
 ]]>
-		</getNodeValue>
-		<exit><![CDATA[
+        </getNodeValue>
+        <exit><![CDATA[
 def exit(self, saving):
-	if saving:
-		self.pref.persist()
-	self.release()
+    if saving:
+        self.pref.persist()
+    self.release()
 ]]>
-		</exit>
-		<filterPrefs><![CDATA[
+        </exit>
+        <filterPrefs><![CDATA[
 def filterPrefs(self):
-	filt = u"%%" + self.txtFilter.Value.strip()
-	ds = []
-	ds0 = self.pref.getPrefs(returnNested=True, key=filt, asDataSet=True)
-	if ds0:
-		ds = ds0.execute("select *, lower(ckey) as lowkey from dataset order by lowkey")
-	grd = self.grdFilteredPrefs
-	grd.DataSet = ds
-	#grd.autoSizeCol("all")
-	numMatch = len(ds)
-	if numMatch == 1:
-		suffix = ""
-	else:
-		suffix = "es"
-	self.lblResults.Caption = "%(numMatch)s Match%(suffix)s" % locals()
+    filt = u"%%" + self.txtFilter.Value.strip()
+    ds = []
+    ds0 = self.pref.getPrefs(returnNested=True, key=filt, asDataSet=True)
+    if ds0:
+        ds = ds0.execute("select *, lower(ckey) as lowkey from dataset order by lowkey")
+    grd = self.grdFilteredPrefs
+    grd.DataSet = ds
+    #grd.autoSizeCol("all")
+    numMatch = len(ds)
+    if numMatch == 1:
+        suffix = ""
+    else:
+        suffix = "es"
+    self.lblResults.Caption = "%(numMatch)s Match%(suffix)s" % locals()
 ]]>
-		</filterPrefs>
-		<collapseAll><![CDATA[
+        </filterPrefs>
+        <collapseAll><![CDATA[
 def collapseAll(self):
-	self.tree.collapseAll()
+    self.tree.collapseAll()
 ]]>
-		</collapseAll>
-		<updatePref><![CDATA[
+        </collapseAll>
+        <updatePref><![CDATA[
 def updatePref(self):
-	print "UP", self, self.tree
-	if not self or not self.tree:
-		return
-	nd = self.tree.Selection
-	self.pth = self.tree.getKeyPathForNode(nd)
-	print "PTH", self.pth
-	val = self.pref.getValue(self.pth)
-	self.txtPrefName.Value = nd.Caption
-	if val is not None:
-		self.txtPrefValue.Value = val
-	else:
-		self.txtPrefValue.Value = ""
-	self.txtPrefValue.Enabled = (val is not None)
-	self.ddType.Value = type(val)
-	self.update()
+    print "UP", self, self.tree
+    if not self or not self.tree:
+        return
+    nd = self.tree.Selection
+    self.pth = self.tree.getKeyPathForNode(nd)
+    print "PTH", self.pth
+    val = self.pref.getValue(self.pth)
+    self.txtPrefName.Value = nd.Caption
+    if val is not None:
+        self.txtPrefValue.Value = val
+    else:
+        self.txtPrefValue.Value = ""
+    self.txtPrefValue.Enabled = (val is not None)
+    self.ddType.Value = type(val)
+    self.update()
 ]]>
-		</updatePref>
-		<importStatements><![CDATA[
+        </updatePref>
+        <importStatements><![CDATA[
 import datetime
 from dabo.dPref import dPref
 from dabo.dLocalize import _
 ]]>
-		</importStatements>
-	</code>
+        </importStatements>
+    </code>
 
-	<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-		<dPanel sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix">
-			<dSizer SlotCount="3" designerClass="LayoutSizer" Orientation="Vertical">
-				<dTextBox sizerInfo="{}" ReadOnly="True" FontSize="10.5" DataField="pth" designerClass="controlMix" Alignment="Center" DataSource="form" RegID="txtPath"></dTextBox>
-				<dSizer SlotCount="1" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutSizer" Orientation="Horizontal">
-					<dPageFrame RegID="mainPageFrame" sizerInfo="{'HAlign': 'Center'}" designerClass="controlMix" PageCount="2">
-						<dPage Caption="Tree" designerClass="controlMix">
-							<dSizer SlotCount="2" designerClass="LayoutSizer" Orientation="Vertical">
-								<dSplitter sizerInfo="{'VAlign': 'Middle'}" SashPosition="260" Orientation="Vertical" MinimumPanelSize="80" ShowPanelSplitMenu="True" designerClass="controlMix" Split="True">
-									<dPanel Width="258" designerClass="MixedSplitterPanel" Name="dPanel2">
-										<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-											<dTreeView RegID="tree" sizerInfo="{'Proportion': 2, 'VAlign': 'Middle'}" designerClass="controlMix" Name="treePrefs" ShowRootNode="False">
-												<code>
-													<getKeyPathForNode><![CDATA[
+    <dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
+        <dPanel sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix">
+            <dSizer SlotCount="3" designerClass="LayoutSizer" Orientation="Vertical">
+                <dTextBox sizerInfo="{}" ReadOnly="True" FontSize="10.5" DataField="pth" designerClass="controlMix" Alignment="Center" DataSource="form" RegID="txtPath"></dTextBox>
+                <dSizer SlotCount="1" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutSizer" Orientation="Horizontal">
+                    <dPageFrame RegID="mainPageFrame" sizerInfo="{'HAlign': 'Center'}" designerClass="controlMix" PageCount="2">
+                        <dPage Caption="Tree" designerClass="controlMix">
+                            <dSizer SlotCount="2" designerClass="LayoutSizer" Orientation="Vertical">
+                                <dSplitter sizerInfo="{'VAlign': 'Middle'}" SashPosition="260" Orientation="Vertical" MinimumPanelSize="80" ShowPanelSplitMenu="True" designerClass="controlMix" Split="True">
+                                    <dPanel Width="258" designerClass="MixedSplitterPanel" Name="dPanel2">
+                                        <dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
+                                            <dTreeView RegID="tree" sizerInfo="{'Proportion': 2, 'VAlign': 'Middle'}" designerClass="controlMix" Name="treePrefs" ShowRootNode="False">
+                                                <code>
+                                                    <getKeyPathForNode><![CDATA[
 def getKeyPathForNode(self, node):
-	nds = [node.Caption]
-	prnt = node.parent
-	while prnt:
-		if prnt.Caption:
-			nds.insert(0, prnt.Caption)
-		prnt = prnt.parent
-	return ".".join(nds)
+    nds = [node.Caption]
+    prnt = node.parent
+    while prnt:
+        if prnt.Caption:
+            nds.insert(0, prnt.Caption)
+        prnt = prnt.parent
+    return ".".join(nds)
 ]]>
-													</getKeyPathForNode>
-													<onAddChild><![CDATA[
+                                                    </getKeyPathForNode>
+                                                    <onAddChild><![CDATA[
 def onAddChild(self, evt):
-	nd = self.Selection
-	basekey = self.getKeyPathForNode(nd)
-	ctls = ((_("Preference Name?"), unicode, "prefname"), 
-			(_("Type:"), ["String", "Unicode", "Integer", 
-			"Float", "Boolean", "List", "Tuple", "Dict", "Datetime", "Date"], "typ") )
-	dlg = dabo.ui.dOkCancelDialog(self, Caption=_("Add Child Key"))
-	dlg.addControlSequence(ctls)
-	dlg.typ.Value = "Unicode"
-	dlg.show()
-	if dlg.Accepted:
-		prf = dlg.prefname.Value
-		typ = dlg.typ.Value
-		self.Form.addPref(basekey, prf, typ)
-		for kid in prf.split("."):
-			nd = nd.appendChild(kid)
+    nd = self.Selection
+    basekey = self.getKeyPathForNode(nd)
+    ctls = ((_("Preference Name?"), unicode, "prefname"), 
+            (_("Type:"), ["String", "Unicode", "Integer", 
+            "Float", "Boolean", "List", "Tuple", "Dict", "Datetime", "Date"], "typ") )
+    dlg = dabo.ui.dOkCancelDialog(self, Caption=_("Add Child Key"))
+    dlg.addControlSequence(ctls)
+    dlg.typ.Value = "Unicode"
+    dlg.show()
+    if dlg.Accepted:
+        prf = dlg.prefname.Value
+        typ = dlg.typ.Value
+        self.Form.addPref(basekey, prf, typ)
+        for kid in prf.split("."):
+            nd = nd.appendChild(kid)
 ]]>
-													</onAddChild>
-													<onDeleteNode><![CDATA[
+                                                    </onAddChild>
+                                                    <onDeleteNode><![CDATA[
 def onDeleteNode(self, evt):
-	nd = self.Selection
-	key = self.getKeyPathForNode(nd)
-	self.Form.deletePref(key)
-	self.removeNode(nd)
+    nd = self.Selection
+    key = self.getKeyPathForNode(nd)
+    self.Form.deletePref(key)
+    self.removeNode(nd)
 ]]>
-													</onDeleteNode>
-													<onTreeSelection><![CDATA[
+                                                    </onDeleteNode>
+                                                    <onTreeSelection><![CDATA[
 def onTreeSelection(self, evt):
-	dabo.ui.callAfter(self.Form.updatePref)
+    dabo.ui.callAfter(self.Form.updatePref)
 ]]>
-													</onTreeSelection>
-													<onContextMenu><![CDATA[
+                                                    </onTreeSelection>
+                                                    <onContextMenu><![CDATA[
 def onContextMenu(self, evt):
-	node = self.Selection
-	pop = dabo.ui.dMenu()
-	pop.append(_("Delete"), OnHit=self.onDeleteNode)
-	currVal = self.Form.getNodeValue(node)
-	if currVal is None:
-		# This is branch, not a value node
-		pop.append(_("Add Child"), OnHit=self.onAddChild)
-	self.showContextMenu(pop)
+    node = self.Selection
+    pop = dabo.ui.dMenu()
+    pop.append(_("Delete"), OnHit=self.onDeleteNode)
+    currVal = self.Form.getNodeValue(node)
+    if currVal is None:
+        # This is branch, not a value node
+        pop.append(_("Add Child"), OnHit=self.onAddChild)
+    self.showContextMenu(pop)
 ]]>
-													</onContextMenu>
-												</code>
-											</dTreeView>
-										</dSizer>
-									</dPanel>
-									<dPanel Width="432" designerClass="MixedSplitterPanel" Name="dPanel1">
-										<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-											<dGridSizer HGap="3" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 30, 'Expand': True}" Rows="3" designerClass="LayoutGridSizer" VGap="10" Columns="2">
-												<dTextBox RegID="txtPrefName" ReadOnly="True" designerClass="controlMix" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0}" rowColPos="(0, 1)"></dTextBox>
-												<dTextBox RegID="txtPrefValue" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0}" designerClass="controlMix" Name="dTextBox1" rowColPos="(1, 1)">
-													<code>
-														<onKeyUp><![CDATA[
+                                                    </onContextMenu>
+                                                </code>
+                                            </dTreeView>
+                                        </dSizer>
+                                    </dPanel>
+                                    <dPanel Width="432" designerClass="MixedSplitterPanel" Name="dPanel1">
+                                        <dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
+                                            <dGridSizer HGap="3" sizerInfo="{'BorderSides': ['All'], 'Proportion': 1, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 30, 'Expand': True}" Rows="3" designerClass="LayoutGridSizer" VGap="10" Columns="2">
+                                                <dTextBox RegID="txtPrefName" ReadOnly="True" designerClass="controlMix" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0}" rowColPos="(0, 1)"></dTextBox>
+                                                <dTextBox RegID="txtPrefValue" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'Proportion': 0}" designerClass="controlMix" Name="dTextBox1" rowColPos="(1, 1)">
+                                                    <code>
+                                                        <onKeyUp><![CDATA[
 def onKeyUp(self, evt):
-	dabo.ui.callAfterInterval(250, self.Form.savePref)
+    dabo.ui.callAfterInterval(250, self.Form.savePref)
 ]]>
-														</onKeyUp>
-													</code>
-												</dTextBox>
-												<dDropdownList sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Left', 'ColExpand': True}" rowColPos="(2, 1)" Choices="[u&apos;-None-&apos;, u&apos;String&apos;, u&apos;Unicode&apos;, u&apos;Integer&apos;, u&apos;Float&apos;, u&apos;Boolean&apos;, u&apos;List&apos;, u&apos;Tuple&apos;, u&apos;Dict&apos;, u&apos;Datetime&apos;, u&apos;Date&apos;]" Width="105" designerClass="controlMix" RegID="ddType">
-													<code>
-														<afterInit><![CDATA[
+                                                        </onKeyUp>
+                                                    </code>
+                                                </dTextBox>
+                                                <dDropdownList sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Left', 'ColExpand': True}" rowColPos="(2, 1)" Choices="[u&apos;-None-&apos;, u&apos;String&apos;, u&apos;Unicode&apos;, u&apos;Integer&apos;, u&apos;Float&apos;, u&apos;Boolean&apos;, u&apos;List&apos;, u&apos;Tuple&apos;, u&apos;Dict&apos;, u&apos;Datetime&apos;, u&apos;Date&apos;]" Width="105" designerClass="controlMix" RegID="ddType">
+                                                    <code>
+                                                        <afterInit><![CDATA[
 def afterInit(self):
-	self.Keys = [type(None), str, unicode, int, float, bool, list, tuple, dict, datetime.datetime, datetime.date]
-	self.ValueMode = "Key"
+    self.Keys = [type(None), str, unicode, int, float, bool, list, tuple, dict, datetime.datetime, datetime.date]
+    self.ValueMode = "Key"
 ]]>
-														</afterInit>
-													</code>
-												</dDropdownList>
-												<dLabel Caption="Pref Name:" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right'}" designerClass="controlMix" rowColPos="(0, 0)"></dLabel>
-												<dLabel Caption="Value:" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right'}" designerClass="controlMix" Name="dLabel1" rowColPos="(1, 0)"></dLabel>
-												<dLabel Caption="Type:" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right'}" designerClass="controlMix" Name="dLabel2" rowColPos="(2, 0)"></dLabel>
-											</dGridSizer>
-										</dSizer>
-									</dPanel>
-								</dSplitter>
-								<dSizer DefaultBorder="4" SlotCount="2" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Center', 'VAlign': 'Top', 'Border': 0, 'Expand': False}" designerClass="LayoutSizer" Orientation="Horizontal">
-									<dButton Width="92" sizerInfo="{}" designerClass="controlMix" Caption="Expand All">
-										<code>
-											<onHit><![CDATA[
+                                                        </afterInit>
+                                                    </code>
+                                                </dDropdownList>
+                                                <dLabel Caption="Pref Name:" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right'}" designerClass="controlMix" rowColPos="(0, 0)"></dLabel>
+                                                <dLabel Caption="Value:" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right'}" designerClass="controlMix" Name="dLabel1" rowColPos="(1, 0)"></dLabel>
+                                                <dLabel Caption="Type:" sizerInfo="{'RowSpan': 1, 'ColSpan': 1, 'HAlign': 'Right'}" designerClass="controlMix" Name="dLabel2" rowColPos="(2, 0)"></dLabel>
+                                            </dGridSizer>
+                                        </dSizer>
+                                    </dPanel>
+                                </dSplitter>
+                                <dSizer DefaultBorder="4" SlotCount="2" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Center', 'VAlign': 'Top', 'Border': 0, 'Expand': False}" designerClass="LayoutSizer" Orientation="Horizontal">
+                                    <dButton Width="92" sizerInfo="{}" designerClass="controlMix" Caption="Expand All">
+                                        <code>
+                                            <onHit><![CDATA[
 def onHit(self, evt):
-	self.Form.expandAll()
+    self.Form.expandAll()
 ]]>
-											</onHit>
-										</code>
-									</dButton>
-									<dButton Width="99" sizerInfo="{}" designerClass="controlMix" Name="dButton1" Caption="Collapse All">
-										<code>
-											<onHit><![CDATA[
+                                            </onHit>
+                                        </code>
+                                    </dButton>
+                                    <dButton Width="99" sizerInfo="{}" designerClass="controlMix" Name="dButton1" Caption="Collapse All">
+                                        <code>
+                                            <onHit><![CDATA[
 def onHit(self, evt):
-	self.Form.collapseAll()
+    self.Form.collapseAll()
 ]]>
-											</onHit>
-										</code>
-									</dButton>
-								</dSizer>
-							</dSizer>
-						</dPage>
-						<dPage Caption="Filter" designerClass="controlMix" Name="dPage1">
-							<code>
-								<onPageEnter><![CDATA[
+                                            </onHit>
+                                        </code>
+                                    </dButton>
+                                </dSizer>
+                            </dSizer>
+                        </dPage>
+                        <dPage Caption="Filter" designerClass="controlMix" Name="dPage1">
+                            <code>
+                                <onPageEnter><![CDATA[
 def onPageEnter(self, evt):
-	self.txtFilter.SetFocus()
+    self.txtFilter.SetFocus()
 ]]>
-								</onPageEnter>
-							</code>
+                                </onPageEnter>
+                            </code>
 
-							<dSizer SlotCount="4" designerClass="LayoutSizer" Orientation="Vertical">
-								<dBorderSizer SlotCount="1" Caption="Filter Expression" sizerInfo="{'BorderSides': ['Right'], 'Proportion': 0, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 200, 'Expand': True}" designerClass="LayoutBorderSizer" Orientation="Horizontal">
-									<dTextBox RegID="txtFilter" Width="479" sizerInfo="{}" designerClass="controlMix" Name="txtFilter">
-										<code>
-											<onKeyChar><![CDATA[
+                            <dSizer SlotCount="4" designerClass="LayoutSizer" Orientation="Vertical">
+                                <dBorderSizer SlotCount="1" Caption="Filter Expression" sizerInfo="{'BorderSides': ['Right'], 'Proportion': 0, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 200, 'Expand': True}" designerClass="LayoutBorderSizer" Orientation="Horizontal">
+                                    <dTextBox RegID="txtFilter" Width="479" sizerInfo="{}" designerClass="controlMix" Name="txtFilter">
+                                        <code>
+                                            <onKeyChar><![CDATA[
 def onKeyChar(self, evt):
-	dabo.ui.callAfter(self.Form.filterPrefs)
+    dabo.ui.callAfter(self.Form.filterPrefs)
 ]]>
-											</onKeyChar>
-										</code>
-									</dTextBox>
-								</dBorderSizer>
-								<dGrid ColumnCount="2" sizerInfo="{}" Name="grdFilteredPrefs" designerClass="controlMix" RegID="grdFilteredPrefs" SelectionMode="Row">
-									<code>
-										<onGridMouseLeftDoubleClick><![CDATA[
+                                            </onKeyChar>
+                                        </code>
+                                    </dTextBox>
+                                </dBorderSizer>
+                                <dGrid ColumnCount="2" sizerInfo="{}" Name="grdFilteredPrefs" designerClass="controlMix" RegID="grdFilteredPrefs" SelectionMode="Row">
+                                    <code>
+                                        <onGridMouseLeftDoubleClick><![CDATA[
 def onGridMouseLeftDoubleClick(self, evt):
-	self.Form.mainPageFrame.SelectedPageNumber = 0
+    self.Form.mainPageFrame.SelectedPageNumber = 0
 ]]>
-										</onGridMouseLeftDoubleClick>
-										<rowChanged><![CDATA[
+                                        </onGridMouseLeftDoubleClick>
+                                        <rowChanged><![CDATA[
 def rowChanged(self):
-	try:
-		key = self.DataSet[self.CurrentRow]["ckey"]
-		self.Form.syncTree(key)
-	except:
-		# Data set has not yet been set
-		pass
+    try:
+        key = self.DataSet[self.CurrentRow]["ckey"]
+        self.Form.syncTree(key)
+    except:
+        # Data set has not yet been set
+        pass
 ]]>
-										</rowChanged>
-										<onGridCellSelected><![CDATA[
+                                        </rowChanged>
+                                        <onGridCellSelected><![CDATA[
 def onGridCellSelected(self, evt):
-	if evt.row != self.CurrentRow:
-		dabo.ui.callAfter(self.rowChanged)
+    if evt.row != self.CurrentRow:
+        dabo.ui.callAfter(self.rowChanged)
 ]]>
-										</onGridCellSelected>
-									</code>
+                                        </onGridCellSelected>
+                                    </code>
 
-									<dColumn FontSize="9" HeaderFontFace="Arial" Caption="Preference" Width="497" designerClass="controlMix" HorizontalAlignment="Left" FontFace="Arial" HeaderFontSize="9" Order="0" DataField="ckey"></dColumn>
-									<dColumn FontSize="9" HeaderFontFace="Arial" Caption="Value" Width="123" designerClass="controlMix" HorizontalAlignment="Left" FontFace="Arial" HeaderFontSize="9" Order="10" DataField="cvalue"></dColumn>
-								</dGrid>
-								<dLabel RegID="lblResults" Caption="-" sizerInfo="{}" designerClass="controlMix"></dLabel>
-								<dPanel sizerInfo="{'BorderSides': ['All'], 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 10}" designerClass="LayoutPanel"></dPanel>
-							</dSizer>
-						</dPage>
-					</dPageFrame>
-				</dSizer>
-				<dSizer SlotCount="3" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Right', 'VAlign': 'Bottom', 'Border': 20, 'Expand': False}" designerClass="LayoutSizer" Orientation="Horizontal">
-					<dButton Width="104" sizerInfo="{}" designerClass="controlMix" Name="dButton21" Caption="Exit, no save">
-						<code>
-							<onHit><![CDATA[
+                                    <dColumn FontSize="9" HeaderFontFace="Arial" Caption="Preference" Width="497" designerClass="controlMix" HorizontalAlignment="Left" FontFace="Arial" HeaderFontSize="9" Order="0" DataField="ckey"></dColumn>
+                                    <dColumn FontSize="9" HeaderFontFace="Arial" Caption="Value" Width="123" designerClass="controlMix" HorizontalAlignment="Left" FontFace="Arial" HeaderFontSize="9" Order="10" DataField="cvalue"></dColumn>
+                                </dGrid>
+                                <dLabel RegID="lblResults" Caption="-" sizerInfo="{}" designerClass="controlMix"></dLabel>
+                                <dPanel sizerInfo="{'BorderSides': ['All'], 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 10}" designerClass="LayoutPanel"></dPanel>
+                            </dSizer>
+                        </dPage>
+                    </dPageFrame>
+                </dSizer>
+                <dSizer SlotCount="3" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Right', 'VAlign': 'Bottom', 'Border': 20, 'Expand': False}" designerClass="LayoutSizer" Orientation="Horizontal">
+                    <dButton Width="104" sizerInfo="{}" designerClass="controlMix" Name="dButton21" Caption="Exit, no save">
+                        <code>
+                            <onHit><![CDATA[
 def onHit(self, evt):
-	self.Form.exit(False)
+    self.Form.exit(False)
 ]]>
-							</onHit>
-						</code>
-					</dButton>
-					<dPanel Spacing="10" sizerInfo="{'VAlign': 'Top', 'Border': 0}" designerClass="LayoutSpacerPanel"></dPanel>
-					<dButton Width="108" sizerInfo="{}" designerClass="controlMix" Name="dButton11" Caption="Save and Exit">
-						<code>
-							<onHit><![CDATA[
+                            </onHit>
+                        </code>
+                    </dButton>
+                    <dPanel Spacing="10" sizerInfo="{'VAlign': 'Top', 'Border': 0}" designerClass="LayoutSpacerPanel"></dPanel>
+                    <dButton Width="108" sizerInfo="{}" designerClass="controlMix" Name="dButton11" Caption="Save and Exit">
+                        <code>
+                            <onHit><![CDATA[
 def onHit(self, evt):
-	self.Form.exit(True)
+    self.Form.exit(True)
 ]]>
-							</onHit>
-						</code>
-					</dButton>
-				</dSizer>
-			</dSizer>
-		</dPanel>
-	</dSizer>
+                            </onHit>
+                        </code>
+                    </dButton>
+                </dSizer>
+            </dSizer>
+        </dPanel>
+    </dSizer>
 </dForm>

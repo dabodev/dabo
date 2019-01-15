@@ -7,35 +7,35 @@ from version import __version__
 
 
 class App(dApp):
-	def initProperties(self):
-		# Manages how preferences are saved
-		self.BasePrefKey = "%(appKey)s"
+    def initProperties(self):
+        # Manages how preferences are saved
+        self.BasePrefKey = "%(appKey)s"
 
-		## The following information can be used in various places in your app:
-		self.setAppInfo("appShortName", "%(appName)s")
-		self.setAppInfo("appName", "%(appName)s")
-		self.setAppInfo("copyright", "(c) 2008")
-		self.setAppInfo("companyName", "Your company name")
-		self.setAppInfo("companyAddress1", "Your company address")
-		self.setAppInfo("companyAddress2", "Your company CSZ")
-		self.setAppInfo("companyPhone", "Your company phone")
-		self.setAppInfo("companyEmail", "Your company email")
-		self.setAppInfo("companyUrl", "Your company url")
+        ## The following information can be used in various places in your app:
+        self.setAppInfo("appShortName", "%(appName)s")
+        self.setAppInfo("appName", "%(appName)s")
+        self.setAppInfo("copyright", "(c) 2008")
+        self.setAppInfo("companyName", "Your company name")
+        self.setAppInfo("companyAddress1", "Your company address")
+        self.setAppInfo("companyAddress2", "Your company CSZ")
+        self.setAppInfo("companyPhone", "Your company phone")
+        self.setAppInfo("companyEmail", "Your company email")
+        self.setAppInfo("companyUrl", "Your company url")
 
-		self.setAppInfo("appDescription", _("Describe your app."))
+        self.setAppInfo("appDescription", _("Describe your app."))
 
-		## Information about the developer of the software:
-		self.setAppInfo("authorName", "Your name")
-		self.setAppInfo("authorEmail", "Your email")
-		self.setAppInfo("authorURL", "Your URL")
+        ## Information about the developer of the software:
+        self.setAppInfo("authorName", "Your name")
+        self.setAppInfo("authorEmail", "Your email")
+        self.setAppInfo("authorURL", "Your URL")
 
-		## Set app version information:
-		self.setAppInfo("appVersion", __version__)
+        ## Set app version information:
+        self.setAppInfo("appVersion", __version__)
 
-	def setup(self):
-		if dabo.MDI:
-			self.MainFormClass = self.ui.FrmMain
-		else:
-			# no need for main form in SDI mode:
-			self.MainFormClass = None
-		super(App, self).setup()
+    def setup(self):
+        if dabo.MDI:
+            self.MainFormClass = self.ui.FrmMain
+        else:
+            # no need for main form in SDI mode:
+            self.MainFormClass = None
+        super(App, self).setup()

@@ -1,158 +1,158 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <dForm Name="dForm" Caption="Dabo: A Demonstration" SaveRestorePosition="True" designerClass="DesForm">
-	<code>
-		<editorChanged><![CDATA[
+    <code>
+        <editorChanged><![CDATA[
 def editorChanged(self):
-	self.saveModButton.Enabled = self.codeEditor.Modified
+    self.saveModButton.Enabled = self.codeEditor.Modified
 ]]>
-		</editorChanged>
-		<logit><![CDATA[
+        </editorChanged>
+        <logit><![CDATA[
 def logit(self, txt):
-	self.log.Value += "%s\n" % txt
-	self.log.scrollToEnd()
-	self.log.ShowPosition(self.log.GetLastPosition())
+    self.log.Value += "%s\n" % txt
+    self.log.scrollToEnd()
+    self.log.ShowPosition(self.log.GetLastPosition())
 ]]>
-		</logit>
-		<_setActiveCode><![CDATA[
+        </logit>
+        <_setActiveCode><![CDATA[
 def _setActiveCode(self, val):
-	self.demoModules.setActive(val)
-	self.loadDemo()
-	self.loadDemoSource()
-	self.radMod.Value = val
+    self.demoModules.setActive(val)
+    self.loadDemo()
+    self.loadDemoSource()
+    self.radMod.Value = val
 ]]>
-		</_setActiveCode>
-		<_getActiveCode><![CDATA[
+        </_setActiveCode>
+        <_getActiveCode><![CDATA[
 def _getActiveCode(self):
-	try:
-		ret = self.demoModules.getActive()
-	except StandardError, e:
-		ret = 0
-	return ret
+    try:
+        ret = self.demoModules.getActive()
+    except StandardError, e:
+        ret = 0
+    return ret
 ]]>
-		</_getActiveCode>
-		<showCode><![CDATA[
+        </_getActiveCode>
+        <showCode><![CDATA[
 def showCode(self, line=-1):
-	self.codeEditor.showContainingPage()
-	if line is not None:
-		self.codeEditor.LineNumber = line
+    self.codeEditor.showContainingPage()
+    if line is not None:
+        self.codeEditor.LineNumber = line
 ]]>
-		</showCode>
-		<afterInit><![CDATA[
+        </showCode>
+        <afterInit><![CDATA[
 def afterInit(self):
-	self.BasePrefKey = "demo.DaboDemo"
-	self._defaultLeft = 50
-	self._defaultTop = 50
-	w, h = dabo.ui.getDisplaySize()
-	self._defaultWidth = w - 100
-	self._defaultHeight = h - 100
-	self._modules = {}
-	self.setupMenu()
+    self.BasePrefKey = "demo.DaboDemo"
+    self._defaultLeft = 50
+    self._defaultTop = 50
+    w, h = dabo.ui.getDisplaySize()
+    self._defaultWidth = w - 100
+    self._defaultHeight = h - 100
+    self._modules = {}
+    self.setupMenu()
 ]]>
-		</afterInit>
-		<setOverview><![CDATA[
+        </afterInit>
+        <setOverview><![CDATA[
 def setOverview(self):
-	module = self.demoModules.getActive()
-	ov = module.overview
-	self.moduleOverview.Source = ov
+    module = self.demoModules.getActive()
+    ov = module.overview
+    self.moduleOverview.Source = ov
 ]]>
-		</setOverview>
-		<afterInitAll><![CDATA[
+        </setOverview>
+        <afterInitAll><![CDATA[
 def afterInitAll(self):
-	pth = os.path.abspath(os.path.join(self.Application.HomeDirectory, "samples"))
-	if pth not in sys.path:
-		sys.path.insert(0, pth)
-	self.demos = demos = {}
-	exFiles = glob.glob(os.path.join(pth, "*.py"))
-	for f in exFiles:
-		justFname = os.path.splitext(os.path.split(f)[1])[0]
-		if justFname.startswith("_"):
-			continue
-		exec("import %s as exx" % justFname)
-		maincat, subcat = exx.category.split(".")
-		if maincat not in demos:
-			demos[maincat] = {}
-		demos[maincat][subcat] = justFname
-		del locals()["exx"]
-	# Create the tree
-	tree = self.tree
-	tree.clear()
-	root = tree.setRootNode(_("Dabo Overview"))
-	for mc in sorted(demos):
-		nd = tree.appendNode(root, mc)
-		for sc in sorted(demos[mc]):
-			sn = tree.appendNode(nd, sc)
-			sn._obj = demos[mc][sc]
-	tree.expandAll()
-	tree.setFocus()
+    pth = os.path.abspath(os.path.join(self.Application.HomeDirectory, "samples"))
+    if pth not in sys.path:
+        sys.path.insert(0, pth)
+    self.demos = demos = {}
+    exFiles = glob.glob(os.path.join(pth, "*.py"))
+    for f in exFiles:
+        justFname = os.path.splitext(os.path.split(f)[1])[0]
+        if justFname.startswith("_"):
+            continue
+        exec("import %s as exx" % justFname)
+        maincat, subcat = exx.category.split(".")
+        if maincat not in demos:
+            demos[maincat] = {}
+        demos[maincat][subcat] = justFname
+        del locals()["exx"]
+    # Create the tree
+    tree = self.tree
+    tree.clear()
+    root = tree.setRootNode(_("Dabo Overview"))
+    for mc in sorted(demos):
+        nd = tree.appendNode(root, mc)
+        for sc in sorted(demos[mc]):
+            sn = tree.appendNode(nd, sc)
+            sn._obj = demos[mc][sc]
+    tree.expandAll()
+    tree.setFocus()
 ]]>
-		</afterInitAll>
-		<saveModCode><![CDATA[
+        </afterInitAll>
+        <saveModCode><![CDATA[
 def saveModCode(self):
-	self.demoModules.saveMod(self.codeEditor.Value)
-	self.ActiveCode = 1
-	self.demoModules.updateFile()
-	self.radMod.reset(self.codeEditor.Modified)
+    self.demoModules.saveMod(self.codeEditor.Value)
+    self.ActiveCode = 1
+    self.demoModules.updateFile()
+    self.radMod.reset(self.codeEditor.Modified)
 ]]>
-		</saveModCode>
-		<onClearOutput><![CDATA[
+        </saveModCode>
+        <onClearOutput><![CDATA[
 def onClearOutput(self, evt):
-	self.log.Value = ""
+    self.log.Value = ""
 ]]>
-		</onClearOutput>
-		<loadDemo><![CDATA[
+        </onClearOutput>
+        <loadDemo><![CDATA[
 def loadDemo(self):
-	dpnl = self.demoPanel
-	sz = dpnl.Sizer
-	for kid in dpnl.Children:
-		sz.remove(kid, True)
-	try:
-		pnl = self.demoModules.getActive().TestPanel(dpnl)
-	except StandardError, e:
-		pnl = DemoErrorPanel(dpnl)
-		err = DemoError(sys.exc_info())
-		pnl.setErrorInfo(self.codePage, err)
-	sz.append1x(pnl)
-	if self.displayFrame.SelectedPageNumber == 0:
-		# Switch to the demo
-		self.demoPageFrame.showDemoPage()
-	self.demoPanel.layout(resetMin=True)
+    dpnl = self.demoPanel
+    sz = dpnl.Sizer
+    for kid in dpnl.Children:
+        sz.remove(kid, True)
+    try:
+        pnl = self.demoModules.getActive().TestPanel(dpnl)
+    except StandardError, e:
+        pnl = DemoErrorPanel(dpnl)
+        err = DemoError(sys.exc_info())
+        pnl.setErrorInfo(self.codePage, err)
+    sz.append1x(pnl)
+    if self.displayFrame.SelectedPageNumber == 0:
+        # Switch to the demo
+        self.demoPageFrame.showDemoPage()
+    self.demoPanel.layout(resetMin=True)
 ]]>
-		</loadDemo>
-		<treeSelection><![CDATA[
+        </loadDemo>
+        <treeSelection><![CDATA[
 def treeSelection(self):
-	try:
-		sel = self.tree.Selection._obj
-		try:
-			self.demoModules = self._modules[sel]
-		except KeyError:
-			self.demoModules = self._modules[sel] = DemoModules(sel)
-		self.setOverview()
-		self.loadDemoSource()
-		self.loadDemo()
-		self.log.Value = ""
-		ok = True
-	except AttributeError:
-		ok = False
-	self.displayFrame.showContents(ok)
+    try:
+        sel = self.tree.Selection._obj
+        try:
+            self.demoModules = self._modules[sel]
+        except KeyError:
+            self.demoModules = self._modules[sel] = DemoModules(sel)
+        self.setOverview()
+        self.loadDemoSource()
+        self.loadDemo()
+        self.log.Value = ""
+        ok = True
+    except AttributeError:
+        ok = False
+    self.displayFrame.showContents(ok)
 ]]>
-		</treeSelection>
-		<loadDemoSource><![CDATA[
+        </treeSelection>
+        <loadDemoSource><![CDATA[
 def loadDemoSource(self):
-	dm = self.demoModules
-	self.codeEditor.Value = dm.getSource()
-	mod = dm.hasModified()
-	self.radMod.reset(mod)
-	self.saveModButton.Enabled = False
-	self.delModButton.Enabled = mod
+    dm = self.demoModules
+    self.codeEditor.Value = dm.getSource()
+    mod = dm.hasModified()
+    self.radMod.reset(mod)
+    self.saveModButton.Enabled = False
+    self.delModButton.Enabled = mod
 ]]>
-		</loadDemoSource>
-		<deleteModCode><![CDATA[
+        </loadDemoSource>
+        <deleteModCode><![CDATA[
 def deleteModCode(self):
-	self.demoModules.deleteModified()
-	self.ActiveCode = 0
+    self.demoModules.deleteModified()
+    self.ActiveCode = 0
 ]]>
-		</deleteModCode>
-		<importStatements><![CDATA[
+        </deleteModCode>
+        <importStatements><![CDATA[
 import glob
 import os
 import sys
@@ -161,196 +161,196 @@ from Modules import DemoError
 from Modules import DemoErrorPanel
 from dabo.dLocalize import _
 ]]>
-		</importStatements>
-		<setupMenu><![CDATA[
+        </importStatements>
+        <setupMenu><![CDATA[
 def setupMenu(self):
-	mb = self.MenuBar
-	vm = mb.getMenu("base_view")
-	vm.remove("view_showsizerlines")
-	vm.append(_("Clear Ou&tput"), HotKey="Ctrl+Back", ItemID="view_clearoutput", 
-			OnHit=self.onClearOutput, help=_("Clear the output area"))
+    mb = self.MenuBar
+    vm = mb.getMenu("base_view")
+    vm.remove("view_showsizerlines")
+    vm.append(_("Clear Ou&tput"), HotKey="Ctrl+Back", ItemID="view_clearoutput", 
+            OnHit=self.onClearOutput, help=_("Clear the output area"))
 ]]>
-		</setupMenu>
-	</code>
+        </setupMenu>
+    </code>
 
-	<properties>
-		<ActiveCode>
-			<comment>Zero for Original; 1 for modified</comment>
-			<defaultValue>0</defaultValue>
-			<deller>None</deller>
-			<getter>_getActiveCode</getter>
-			<propName>ActiveCode</propName>
-			<defaultType>integer</defaultType>
-			<setter>_setActiveCode</setter>
-		</ActiveCode>
-	</properties>
+    <properties>
+        <ActiveCode>
+            <comment>Zero for Original; 1 for modified</comment>
+            <defaultValue>0</defaultValue>
+            <deller>None</deller>
+            <getter>_getActiveCode</getter>
+            <propName>ActiveCode</propName>
+            <defaultType>integer</defaultType>
+            <setter>_setActiveCode</setter>
+        </ActiveCode>
+    </properties>
 
-	<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-		<dSplitter SashPosition="307" sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix" Split="True" Orientation="Vertical">
-			<dPanel Width="305" AlwaysResetSizer="True" designerClass="MixedSplitterPanel" Name="dPanel2" Height="680">
-				<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-					<dTreeView RegID="tree" sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix">
-						<code>
-							<onTreeSelection><![CDATA[
+    <dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
+        <dSplitter SashPosition="307" sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix" Split="True" Orientation="Vertical">
+            <dPanel Width="305" AlwaysResetSizer="True" designerClass="MixedSplitterPanel" Name="dPanel2" Height="680">
+                <dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
+                    <dTreeView RegID="tree" sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix">
+                        <code>
+                            <onTreeSelection><![CDATA[
 def onTreeSelection(self, evt):
-	self.Form.treeSelection()
+    self.Form.treeSelection()
 ]]>
-							</onTreeSelection>
-						</code>
+                            </onTreeSelection>
+                        </code>
 
-						<dNode Caption="This is the root" designerClass="controlMix">
-							<dNode Caption="First Child" designerClass="controlMix"></dNode>
-							<dNode Caption="Second Child" designerClass="controlMix">
-								<dNode Caption="Grandkid #1" designerClass="controlMix"></dNode>
-								<dNode Caption="Grandkid #2" designerClass="controlMix">
-									<dNode Caption="Great-Grandkid #1" designerClass="controlMix"></dNode>
-								</dNode>
-								<dNode Caption="Grandkid #3" designerClass="controlMix"></dNode>
-							</dNode>
-							<dNode Caption="Third Child" designerClass="controlMix"></dNode>
-						</dNode>
-					</dTreeView>
-				</dSizer>
-			</dPanel>
-			<dPanel Width="725" AlwaysResetSizer="True" designerClass="MixedSplitterPanel" Name="dPanel1" Height="680">
-				<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-					<dPageFrameNoTabs RegID="displayFrame" sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix" PageCount="2">
-						<code>
-							<showContents><![CDATA[
+                        <dNode Caption="This is the root" designerClass="controlMix">
+                            <dNode Caption="First Child" designerClass="controlMix"></dNode>
+                            <dNode Caption="Second Child" designerClass="controlMix">
+                                <dNode Caption="Grandkid #1" designerClass="controlMix"></dNode>
+                                <dNode Caption="Grandkid #2" designerClass="controlMix">
+                                    <dNode Caption="Great-Grandkid #1" designerClass="controlMix"></dNode>
+                                </dNode>
+                                <dNode Caption="Grandkid #3" designerClass="controlMix"></dNode>
+                            </dNode>
+                            <dNode Caption="Third Child" designerClass="controlMix"></dNode>
+                        </dNode>
+                    </dTreeView>
+                </dSizer>
+            </dPanel>
+            <dPanel Width="725" AlwaysResetSizer="True" designerClass="MixedSplitterPanel" Name="dPanel1" Height="680">
+                <dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
+                    <dPageFrameNoTabs RegID="displayFrame" sizerInfo="{'VAlign': 'Middle'}" designerClass="controlMix" PageCount="2">
+                        <code>
+                            <showContents><![CDATA[
 def showContents(self, showCode):
-	self.SelectedPageNumber = {True: 1, False: 0}[showCode]
+    self.SelectedPageNumber = {True: 1, False: 0}[showCode]
 ]]>
-							</showContents>
-						</code>
+                            </showContents>
+                        </code>
 
-						<dPage Caption="" designerClass="controlMix">
-							<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-								<dHtmlBox RegID="mainOverview" sizerInfo="{'HAlign': 'Left'}" designerClass="controlMix">
-									<code>
-										<afterInit><![CDATA[
+                        <dPage Caption="" designerClass="controlMix">
+                            <dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
+                                <dHtmlBox RegID="mainOverview" sizerInfo="{'HAlign': 'Left'}" designerClass="controlMix">
+                                    <code>
+                                        <afterInit><![CDATA[
 def afterInit(self):
-	self.Source = """<div align="center"><img src="dabo_lettering_250x100.png"></div>
-	<h1 align="center">Dabo Demonstration</h1>
-	"""
+    self.Source = """<div align="center"><img src="dabo_lettering_250x100.png"></div>
+    <h1 align="center">Dabo Demonstration</h1>
+    """
 ]]>
-										</afterInit>
-									</code>
-								</dHtmlBox>
-							</dSizer>
-						</dPage>
-						<dPage Caption="" designerClass="controlMix" Name="dPage1">
-							<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-								<dPageFrame RegID="demoPageFrame" sizerInfo="{'HAlign': 'Left', 'VAlign': 'Middle'}" designerClass="controlMix" PageCount="3">
-									<code>
-										<showDemoPage><![CDATA[
+                                        </afterInit>
+                                    </code>
+                                </dHtmlBox>
+                            </dSizer>
+                        </dPage>
+                        <dPage Caption="" designerClass="controlMix" Name="dPage1">
+                            <dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
+                                <dPageFrame RegID="demoPageFrame" sizerInfo="{'HAlign': 'Left', 'VAlign': 'Middle'}" designerClass="controlMix" PageCount="3">
+                                    <code>
+                                        <showDemoPage><![CDATA[
 def showDemoPage(self):
-	self.SelectedPageNumber = 2
+    self.SelectedPageNumber = 2
 ]]>
-										</showDemoPage>
-									</code>
+                                        </showDemoPage>
+                                    </code>
 
-									<dPage Caption="Overview" designerClass="controlMix">
-										<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-											<dHtmlBox RegID="moduleOverview" sizerInfo="{'HAlign': 'Left'}" designerClass="controlMix"></dHtmlBox>
-										</dSizer>
-									</dPage>
-									<dPage RegID="codePage" Caption="Demo Code" designerClass="controlMix" Name="dPage1">
-										<dSizer SlotCount="2" designerClass="LayoutSizer" Orientation="Vertical">
-											<dSizer SlotCount="4" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutSizer" Orientation="Horizontal">
-												<dRadioList sizerInfo="{'Proportion': 1, 'Border': 4, 'Expand': True}" ValueMode="position" Orientation="Horizontal" Value="0" Choices="[u&apos;Original&apos;, u&apos;Modified&apos;]" Caption="Active Version" designerClass="controlMix" DataField="ActiveCode" RegID="radMod" DataSource="form">
-													<code>
-														<reset><![CDATA[
+                                    <dPage Caption="Overview" designerClass="controlMix">
+                                        <dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
+                                            <dHtmlBox RegID="moduleOverview" sizerInfo="{'HAlign': 'Left'}" designerClass="controlMix"></dHtmlBox>
+                                        </dSizer>
+                                    </dPage>
+                                    <dPage RegID="codePage" Caption="Demo Code" designerClass="controlMix" Name="dPage1">
+                                        <dSizer SlotCount="2" designerClass="LayoutSizer" Orientation="Vertical">
+                                            <dSizer SlotCount="4" sizerInfo="{'BorderSides': ['All'], 'Proportion': 0, 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutSizer" Orientation="Horizontal">
+                                                <dRadioList sizerInfo="{'Proportion': 1, 'Border': 4, 'Expand': True}" ValueMode="position" Orientation="Horizontal" Value="0" Choices="[u&apos;Original&apos;, u&apos;Modified&apos;]" Caption="Active Version" designerClass="controlMix" DataField="ActiveCode" RegID="radMod" DataSource="form">
+                                                    <code>
+                                                        <reset><![CDATA[
 def reset(self, hasMod):
-	self.enableString("Modified", hasMod)
+    self.enableString("Modified", hasMod)
 ]]>
-														</reset>
-														<afterInit><![CDATA[
+                                                        </reset>
+                                                        <afterInit><![CDATA[
 def afterInit(self):
-	self.reset(False)
+    self.reset(False)
 ]]>
-														</afterInit>
-													</code>
-												</dRadioList>
-												<dPanel Spacing="12" sizerInfo="{'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutSpacerPanel"></dPanel>
-												<dButton RegID="saveModButton" Width="111" sizerInfo="{'HAlign': 'Center', 'Border': 5}" designerClass="controlMix" Caption="Save Changes">
-													<code>
-														<onHit><![CDATA[
+                                                        </afterInit>
+                                                    </code>
+                                                </dRadioList>
+                                                <dPanel Spacing="12" sizerInfo="{'VAlign': 'Top', 'Border': 0, 'Expand': True}" designerClass="LayoutSpacerPanel"></dPanel>
+                                                <dButton RegID="saveModButton" Width="111" sizerInfo="{'HAlign': 'Center', 'Border': 5}" designerClass="controlMix" Caption="Save Changes">
+                                                    <code>
+                                                        <onHit><![CDATA[
 def onHit(self, evt):
-	# Save modified code
-	self.Form.saveModCode()
+    # Save modified code
+    self.Form.saveModCode()
 ]]>
-														</onHit>
-													</code>
-												</dButton>
-												<dButton sizerInfo="{'HAlign': 'Center', 'Border': 5}" Name="dButton1" Caption="Delete Modified" Width="124" designerClass="controlMix" RegID="delModButton">
-													<code>
-														<onHit><![CDATA[
+                                                        </onHit>
+                                                    </code>
+                                                </dButton>
+                                                <dButton sizerInfo="{'HAlign': 'Center', 'Border': 5}" Name="dButton1" Caption="Delete Modified" Width="124" designerClass="controlMix" RegID="delModButton">
+                                                    <code>
+                                                        <onHit><![CDATA[
 def onHit(self, evt):
-	# Delete modified code
-	self.Form.deleteModCode()
+    # Delete modified code
+    self.Form.deleteModCode()
 ]]>
-														</onHit>
-													</code>
-												</dButton>
-											</dSizer>
-											<dEditor RegID="codeEditor" sizerInfo="{}" designerClass="controlMix">
-												<code>
-													<afterInit><![CDATA[
+                                                        </onHit>
+                                                    </code>
+                                                </dButton>
+                                            </dSizer>
+                                            <dEditor RegID="codeEditor" sizerInfo="{}" designerClass="controlMix">
+                                                <code>
+                                                    <afterInit><![CDATA[
 def afterInit(self):
-	self.Language = "Python"
-	self.bindKey("F5", self.autoComplete)
+    self.Language = "Python"
+    self.bindKey("F5", self.autoComplete)
 ]]>
-													</afterInit>
-													<onContentChanged><![CDATA[
+                                                    </afterInit>
+                                                    <onContentChanged><![CDATA[
 def onContentChanged(self, evt):
-	self.Form.editorChanged()
+    self.Form.editorChanged()
 ]]>
-													</onContentChanged>
-												</code>
-											</dEditor>
-										</dSizer>
-									</dPage>
-									<dPage Caption="Demo" designerClass="controlMix" Name="dPage2">
-										<code>
-											<onPageEnter><![CDATA[
+                                                    </onContentChanged>
+                                                </code>
+                                            </dEditor>
+                                        </dSizer>
+                                    </dPage>
+                                    <dPage Caption="Demo" designerClass="controlMix" Name="dPage2">
+                                        <code>
+                                            <onPageEnter><![CDATA[
 def onPageEnter(self, evt):
-	if hasattr(self, "_shown"):
-		return
-	self._shown = True
-	ht = 1.0 * self.Height
-	pos = self.dSplitter.SashPosition
-	if pos/ht < .75:
-		self.dSplitter.SashPosition = ht * .75
-		self.layout(resetMin=True)
+    if hasattr(self, "_shown"):
+        return
+    self._shown = True
+    ht = 1.0 * self.Height
+    pos = self.dSplitter.SashPosition
+    if pos/ht < .75:
+        self.dSplitter.SashPosition = ht * .75
+        self.layout(resetMin=True)
 ]]>
-											</onPageEnter>
-										</code>
+                                            </onPageEnter>
+                                        </code>
 
-										<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-											<dSplitter SashPosition="536" sizerInfo="{'HAlign': 'Left', 'VAlign': 'Middle'}" designerClass="controlMix" Split="True" Orientation="Horizontal">
-												<dPanel Width="715" AlwaysResetSizer="True" designerClass="MixedSplitterPanel" Name="dPanel2" Height="534">
-													<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-														<dPanel RegID="demoPanel" sizerInfo="{'VAlign': 'Middle'}" AlwaysResetSizer="True" designerClass="controlMix">
-															<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-																<dPanel sizerInfo="{'BorderSides': ['All'], 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0}" designerClass="LayoutPanel"></dPanel>
-															</dSizer>
-														</dPanel>
-													</dSizer>
-												</dPanel>
-												<dPanel Width="715" AlwaysResetSizer="True" designerClass="MixedSplitterPanel" Name="dPanel1" Height="95">
-													<dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
-														<dEditBox RegID="log" ReadOnly="True" designerClass="controlMix" sizerInfo="{}"></dEditBox>
-													</dSizer>
-												</dPanel>
-											</dSplitter>
-										</dSizer>
-									</dPage>
-								</dPageFrame>
-							</dSizer>
-						</dPage>
-					</dPageFrameNoTabs>
-				</dSizer>
-			</dPanel>
-		</dSplitter>
-	</dSizer>
+                                        <dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
+                                            <dSplitter SashPosition="536" sizerInfo="{'HAlign': 'Left', 'VAlign': 'Middle'}" designerClass="controlMix" Split="True" Orientation="Horizontal">
+                                                <dPanel Width="715" AlwaysResetSizer="True" designerClass="MixedSplitterPanel" Name="dPanel2" Height="534">
+                                                    <dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
+                                                        <dPanel RegID="demoPanel" sizerInfo="{'VAlign': 'Middle'}" AlwaysResetSizer="True" designerClass="controlMix">
+                                                            <dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
+                                                                <dPanel sizerInfo="{'BorderSides': ['All'], 'HAlign': 'Left', 'VAlign': 'Top', 'Border': 0}" designerClass="LayoutPanel"></dPanel>
+                                                            </dSizer>
+                                                        </dPanel>
+                                                    </dSizer>
+                                                </dPanel>
+                                                <dPanel Width="715" AlwaysResetSizer="True" designerClass="MixedSplitterPanel" Name="dPanel1" Height="95">
+                                                    <dSizer SlotCount="1" designerClass="LayoutSizer" Orientation="Vertical">
+                                                        <dEditBox RegID="log" ReadOnly="True" designerClass="controlMix" sizerInfo="{}"></dEditBox>
+                                                    </dSizer>
+                                                </dPanel>
+                                            </dSplitter>
+                                        </dSizer>
+                                    </dPage>
+                                </dPageFrame>
+                            </dSizer>
+                        </dPage>
+                    </dPageFrameNoTabs>
+                </dSizer>
+            </dPanel>
+        </dSplitter>
+    </dSizer>
 </dForm>

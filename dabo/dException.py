@@ -1,95 +1,95 @@
 # -*- coding: utf-8 -*-
 class dException(Exception):
-	"""	Base class in the framework for passing exceptions."""
+    """    Base class in the framework for passing exceptions."""
 
 
 class FontException(dException):
-	pass
+    pass
 
 class FontNotFoundException(FontException):
-	pass
+    pass
 
 class BeginningOfFileException(dException):
-	pass
+    pass
 
 
 class EndOfFileException(dException):
-	pass
+    pass
 
 
 class NoRecordsException(dException):
-	pass
+    pass
 
 
 class QueryException(dException):
-	pass
+    pass
 
 
 class BusinessRuleViolation(dException):
-	pass
+    pass
 
 
 class BusinessRulePassed(dException):
-	pass
+    pass
 
 
 class RowNotFoundException(dException):
-	pass
+    pass
 
 
 class DataSourceNotFoundException(dException):
-	pass
+    pass
 
 
 class FeatureNotImplementedException(dException):
-	pass
+    pass
 
 
 class StopIterationException(dException):
-	pass
+    pass
 
 
 class FeatureNotSupportedException(dException):
-	pass
+    pass
 
 
 class MissingPKException(dException):
-	pass
+    pass
 
 class ConnectionLostException(dException):
-	pass
+    pass
 
 class FieldNotFoundException(dException):
-	pass
+    pass
 
 class ConnectionNotFoundException(dException):
-	pass
+    pass
 
 class DatabaseException(dException):
-	pass
+    pass
 
 class DBNoAccessException(DatabaseException):
-	pass
+    pass
 
 class DBNoDBOnHostException(DatabaseException):
-	pass
+    pass
 
 class DBFileDoesNotExistException(DatabaseException):
-	pass
+    pass
 
 class DBQueryException(DatabaseException):
-	def __init__(self, err, sql=None):
-		self.err_desc = err.rstrip()
-		self.sql = sql and sql.strip() or None
+    def __init__(self, err, sql=None):
+        self.err_desc = err.rstrip()
+        self.sql = sql and sql.strip() or None
 
-	def __str__(self):
-		err = self.err_desc
-		if self.sql:
-			err += '\nSQL: ' + self.sql
-		return err
+    def __str__(self):
+        err = self.err_desc
+        if self.sql:
+            err += '\nSQL: ' + self.sql
+        return err
 
 class XmlException(dException):
-	pass
+    pass
 
 class WebServerException(dException):
-	pass
+    pass

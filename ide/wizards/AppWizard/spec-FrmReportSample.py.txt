@@ -14,22 +14,22 @@ from FrmReportBase import FrmReportBase
 
 class FrmReportSample(FrmReportBase):
 
-	def initProperties(self):
-		app = self.Application
-		self.ReportName = _("Sample Report")
-		super(FrmReportSample, self).initProperties()
-		self.ReportForm = os.path.join(app.HomeDirectory, "reports/sampleReport.rfxml")
-		self.DataSetFunction = app.db.getSampleDataSet
+    def initProperties(self):
+        app = self.Application
+        self.ReportName = _("Sample Report")
+        super(FrmReportSample, self).initProperties()
+        self.ReportForm = os.path.join(app.HomeDirectory, "reports/sampleReport.rfxml")
+        self.DataSetFunction = app.db.getSampleDataSet
 
 
-	def addControls(self):
-		"""Add any controls here, such as record selection choices."""
-		super(FrmReportSample, self).addControls()
+    def addControls(self):
+        """Add any controls here, such as record selection choices."""
+        super(FrmReportSample, self).addControls()
 
 
-	def requery(self):
-		"""Called by preview in FrmReportBase, it's time to requery the dataset."""
-		# Send whatever parameters your function requires, perhaps as entered by the
-		# user in the controls you've exposed in this form.
-		self.DataSet = self.DataSetFunction()
+    def requery(self):
+        """Called by preview in FrmReportBase, it's time to requery the dataset."""
+        # Send whatever parameters your function requires, perhaps as entered by the
+        # user in the controls you've exposed in this form.
+        self.DataSet = self.DataSetFunction()
 

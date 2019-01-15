@@ -10,18 +10,19 @@ testCase files for more information.
 
 import unittest
 try:
-	import coverage
+    import coverage
 except ImportError:
-	coverage = None
+    coverage = None
 import sys
 
 if coverage:
-	coverage.erase()
-	coverage.start()
+    coverage.erase()
+    coverage.start()
 
-	coverage.exclude('if __name__ == "__main__":')
+    coverage.exclude('if __name__ == "__main__":')
 
 import dabo.ui
+dabo.ui.loadUI('wx')
 
 import db
 import biz
@@ -41,7 +42,7 @@ allTiersTestSuite = unittest.TestSuite(suiteList)
 unittest.TextTestRunner(verbosity=2).run(allTiersTestSuite)
 
 if coverage:
-	coverage.stop()
-	#You can uncomment this to get test coverage on a particular module, but if you want to
-	#see the entire report for dabo, run "python CoverageReport.py".  I would pipe it to a file though
-	#coverage.report([dabo.dColors, dabo.dObject, dabo])
+    coverage.stop()
+    #You can uncomment this to get test coverage on a particular module, but if you want to
+    #see the entire report for dabo, run "python CoverageReport.py".  I would pipe it to a file though
+    #coverage.report([dabo.dColors, dabo.dObject, dabo])

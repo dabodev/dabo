@@ -7,34 +7,34 @@ from PagEditBase import PagEditBase
 
 class PagEdit%(tableName)s(PagEditBase):
 
-	def createItems(self):
-		"""Called by the datanav framework, when it is time to create the controls."""
+    def createItems(self):
+        """Called by the datanav framework, when it is time to create the controls."""
 
-		biz = self.Form.getBizobj("%(datasource)s")
-		if not biz:
-			# needed for tsting
-			class Biz(object):
-				def getColCaption(self, caption):
-					return caption
-				def getColToolTip(self, tip):
-					return tip
-				def getColHelpText(self, txt):
-					return txt
-			biz = Biz()
+        biz = self.Form.getBizobj("%(datasource)s")
+        if not biz:
+            # needed for tsting
+            class Biz(object):
+                def getColCaption(self, caption):
+                    return caption
+                def getColToolTip(self, tip):
+                    return tip
+                def getColHelpText(self, txt):
+                    return txt
+            biz = Biz()
 
 %(createItems)s
-		super(PagEdit%(tableName)s, self).createItems()
+        super(PagEdit%(tableName)s, self).createItems()
 
 
 if __name__ == "__main__":
-	from Frm%(tableName)s import Frm%(tableName)s
-	app = dApp(MainFormClass=None)
-	app.setup()
-	class TestForm(Frm%(tableName)s):
-		def afterInit(self): pass
-	frm = TestForm(Caption="Test Of PagEdit%(tableName)s", Testing=True)
-	test = PagEdit%(tableName)s(frm)
-	test.createItems()
-	frm.Sizer.append1x(test)
-	frm.show()
-	app.start()
+    from Frm%(tableName)s import Frm%(tableName)s
+    app = dApp(MainFormClass=None)
+    app.setup()
+    class TestForm(Frm%(tableName)s):
+        def afterInit(self): pass
+    frm = TestForm(Caption="Test Of PagEdit%(tableName)s", Testing=True)
+    test = PagEdit%(tableName)s(frm)
+    test.createItems()
+    frm.Sizer.append1x(test)
+    frm.show()
+    app.start()

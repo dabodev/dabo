@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="http://www.dabodev.com"
-	xmlns="http://www.dabodev.com"
-	elementFormDefault="qualified">
+    targetNamespace="http://www.dabodev.com"
+    xmlns="http://www.dabodev.com"
+    elementFormDefault="qualified">
 <xs:element name="connection">
     <xs:complexType>
       <xs:sequence>

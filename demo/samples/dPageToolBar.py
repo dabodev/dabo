@@ -5,63 +5,63 @@ from dabo.dLocalize import _
 
 
 class TestPanel(dabo.ui.dPanel):
-	def afterInit(self):
-		self.currentTabPosition = "Top"
-		sz = self.Sizer = dabo.ui.dSizer("v")
-		pgf = self.createPageToolBar()
-		sz.appendSpacer(10)
-		hsz = dabo.ui.dSizer("h")
-		lbl = dabo.ui.dLabel(self, Caption="Tab Position:")
-		dd = self.ddPos = dabo.ui.dDropdownList(self, Choices=["Top", "Right", "Bottom", "Left"],
-				Value=self.currentTabPosition, OnHit=self.onNewPosition)
-		hsz.append(lbl)
-		hsz.appendSpacer(3)
-		hsz.append(dd)
-		sz.append(hsz, halign="center")
-		sz.appendSpacer(20)
+    def afterInit(self):
+        self.currentTabPosition = "Top"
+        sz = self.Sizer = dabo.ui.dSizer("v")
+        pgf = self.createPageToolBar()
+        sz.appendSpacer(10)
+        hsz = dabo.ui.dSizer("h")
+        lbl = dabo.ui.dLabel(self, Caption="Tab Position:")
+        dd = self.ddPos = dabo.ui.dDropdownList(self, Choices=["Top", "Right", "Bottom", "Left"],
+                Value=self.currentTabPosition, OnHit=self.onNewPosition)
+        hsz.append(lbl)
+        hsz.appendSpacer(3)
+        hsz.append(dd)
+        sz.append(hsz, halign="center")
+        sz.appendSpacer(20)
 
-	def createPageToolBar(self):
-		try:
-			self.pgf.release()
-		except AttributeError:
-			pass
-		self.pgf = dabo.ui.dPageToolBar(self, TabPosition=self.currentTabPosition,
-				OnPageChanged=self.onPageChanged)
-		# Add each image to the control, along with a string to use as a key value.
-		self.pgf.addImage("themes/tango/32x32/actions/go-home.png", "First")
-		self.pgf.addImage("themes/tango/32x32/actions/edit-clear.png", "Second")
-		self.pgf.addImage("themes/tango/32x32/actions/software-update-available.png", "Third")
-		self.pgf.addImage("themes/tango/32x32/actions/dialog-information.png", "Fourth")
-		# Now add the pages, specifying which image key is displayed for each page.
-		self.pgf.appendPage(caption="First", imgKey="First", BackColor="blue")
-		self.pgf.appendPage(caption="Second", imgKey="Second", BackColor="salmon")
-		self.pgf.appendPage(caption="Third", imgKey="Third", BackColor="darkred")
-		self.pgf.appendPage(caption="Fourth", imgKey="Fourth", BackColor="green")
-		self.Sizer.insert(0, self.pgf, "x", 1)
-		self.layout()
-		return self.pgf
+    def createPageToolBar(self):
+        try:
+            self.pgf.release()
+        except AttributeError:
+            pass
+        self.pgf = dabo.ui.dPageToolBar(self, TabPosition=self.currentTabPosition,
+                OnPageChanged=self.onPageChanged)
+        # Add each image to the control, along with a string to use as a key value.
+        self.pgf.addImage("themes/tango/32x32/actions/go-home.png", "First")
+        self.pgf.addImage("themes/tango/32x32/actions/edit-clear.png", "Second")
+        self.pgf.addImage("themes/tango/32x32/actions/software-update-available.png", "Third")
+        self.pgf.addImage("themes/tango/32x32/actions/dialog-information.png", "Fourth")
+        # Now add the pages, specifying which image key is displayed for each page.
+        self.pgf.appendPage(caption="First", imgKey="First", BackColor="blue")
+        self.pgf.appendPage(caption="Second", imgKey="Second", BackColor="salmon")
+        self.pgf.appendPage(caption="Third", imgKey="Third", BackColor="darkred")
+        self.pgf.appendPage(caption="Fourth", imgKey="Fourth", BackColor="green")
+        self.Sizer.insert(0, self.pgf, "x", 1)
+        self.layout()
+        return self.pgf
 
-	def onPageChanged(self, evt):
-		self.Form.logit("Page number changed from %s to %s" %
-				(evt.oldPageNum, evt.newPageNum))
+    def onPageChanged(self, evt):
+        self.Form.logit("Page number changed from %s to %s" %
+                (evt.oldPageNum, evt.newPageNum))
 
-	def onNewPosition(self, evt):
-		newpos = evt.EventObject.StringValue
-		if newpos != self.currentTabPosition:
-			# Notify the user the first time.
-			try:
-				self.Form.seenTabPositionWarning
-			except AttributeError:
-				self.Form.seenTabPositionWarning = True
-				msg = """TabPosition must be defined when the control
+    def onNewPosition(self, evt):
+        newpos = evt.EventObject.StringValue
+        if newpos != self.currentTabPosition:
+            # Notify the user the first time.
+            try:
+                self.Form.seenTabPositionWarning
+            except AttributeError:
+                self.Form.seenTabPositionWarning = True
+                msg = """TabPosition must be defined when the control
 is created, and cannot be changed afterwards.
 
 The current dPageToolBar control will be destroyed,
 and a new control with the position you selected
 will then be created."""
-				dabo.ui.info(msg, "TabPosition Limitation")
-			self.currentTabPosition = newpos
-			self.createPageToolBar()
+                dabo.ui.info(msg, "TabPosition Limitation")
+            self.currentTabPosition = newpos
+            self.createPageToolBar()
 
 
 category = "Controls.dPageToolBar"

@@ -5,44 +5,44 @@ from dabo.dLocalize import _
 
 
 class TestPanel(dabo.ui.dPanel):
-	def afterInit(self):
-		self.currentTabPosition = "Top"
-		sz = self.Sizer = dabo.ui.dSizer("v")
-		pgf = self.createDockTabs()
-		sz.appendSpacer(10)
-		hsz = dabo.ui.dSizer("h")
-		lbl = dabo.ui.dLabel(self, Caption="Tab Position:")
-		dd = self.ddPos = dabo.ui.dDropdownList(self, Choices=["Top", "Bottom"],
-				DataSource=pgf, DataField="TabPosition")
-		hsz.append(lbl)
-		hsz.appendSpacer(3)
-		hsz.append(dd)
-		sz.append(hsz, halign="center")
-		sz.appendSpacer(20)
+    def afterInit(self):
+        self.currentTabPosition = "Top"
+        sz = self.Sizer = dabo.ui.dSizer("v")
+        pgf = self.createDockTabs()
+        sz.appendSpacer(10)
+        hsz = dabo.ui.dSizer("h")
+        lbl = dabo.ui.dLabel(self, Caption="Tab Position:")
+        dd = self.ddPos = dabo.ui.dDropdownList(self, Choices=["Top", "Bottom"],
+                DataSource=pgf, DataField="TabPosition")
+        hsz.append(lbl)
+        hsz.appendSpacer(3)
+        hsz.append(dd)
+        sz.append(hsz, halign="center")
+        sz.appendSpacer(20)
 
-	def createDockTabs(self):
-		try:
-			self.pgf.release()
-		except AttributeError:
-			pass
-		self.pgf = dabo.ui.dDockTabs(self, TabPosition=self.currentTabPosition,
-				OnPageChanged=self.onPageChanged)
-		# Now add the pages, specifying which image key is displayed for each page.
-		pg = self.pgf.appendPage(caption="First")
-		pg.BackColor = "blue"
-		pg = self.pgf.appendPage(caption="Second")
-		pg.BackColor = "salmon"
-		pg = self.pgf.appendPage(caption="Third")
-		pg.BackColor = "darkred"
-		pg = self.pgf.appendPage(caption="Fourth")
-		pg.BackColor = "green"
-		self.Sizer.insert(0, self.pgf, "x", 1)
-		self.layout()
-		return self.pgf
+    def createDockTabs(self):
+        try:
+            self.pgf.release()
+        except AttributeError:
+            pass
+        self.pgf = dabo.ui.dDockTabs(self, TabPosition=self.currentTabPosition,
+                OnPageChanged=self.onPageChanged)
+        # Now add the pages, specifying which image key is displayed for each page.
+        pg = self.pgf.appendPage(caption="First")
+        pg.BackColor = "blue"
+        pg = self.pgf.appendPage(caption="Second")
+        pg.BackColor = "salmon"
+        pg = self.pgf.appendPage(caption="Third")
+        pg.BackColor = "darkred"
+        pg = self.pgf.appendPage(caption="Fourth")
+        pg.BackColor = "green"
+        self.Sizer.insert(0, self.pgf, "x", 1)
+        self.layout()
+        return self.pgf
 
-	def onPageChanged(self, evt):
-		self.Form.logit("Page number changed from %s to %s" %
-				(evt.oldPageNum, evt.newPageNum))
+    def onPageChanged(self, evt):
+        self.Form.logit("Page number changed from %s to %s" %
+                (evt.oldPageNum, evt.newPageNum))
 
 
 

@@ -5,110 +5,110 @@ from dabo.dLocalize import _
 
 
 class TestPanel(dabo.ui.dPanel):
-	def afterInit(self):
-		# Set the idle update flag
-		self.needUpdate = False
+    def afterInit(self):
+        # Set the idle update flag
+        self.needUpdate = False
 
-		# Create a panel with horiz. and vert.  sliders
-		self.imgPanel = dabo.ui.dPanel(self)
-		self.VSlider = dabo.ui.dSlider(self, Orientation="V", Min=1, Max=100,
-				Value=100, Continuous=True, OnHit=self.onSlider)
-		self.HSlider = dabo.ui.dSlider(self, Orientation="H", Min=1, Max=100,
-				Value=100, Continuous=True, OnHit=self.onSlider)
+        # Create a panel with horiz. and vert.  sliders
+        self.imgPanel = dabo.ui.dPanel(self)
+        self.VSlider = dabo.ui.dSlider(self, Orientation="V", Min=1, Max=100,
+                Value=100, Continuous=True, OnHit=self.onSlider)
+        self.HSlider = dabo.ui.dSlider(self, Orientation="H", Min=1, Max=100,
+                Value=100, Continuous=True, OnHit=self.onSlider)
 
-		mainSizer = self.Sizer = dabo.ui.dSizer("V")
-		psz = self.imgPanel.Sizer = dabo.ui.dSizer("V")
-		hsz = dabo.ui.dSizer("H")
-		hsz.append1x(self.imgPanel)
-		hsz.appendSpacer(10)
-		hsz.append(self.VSlider, 0, "x")
-		mainSizer.DefaultBorder = 25
-		mainSizer.DefaultBorderLeft = mainSizer.DefaultBorderRight = True
-		mainSizer.appendSpacer(25)
-		mainSizer.append(hsz, 1, "x")
-		mainSizer.appendSpacer(10)
-		mainSizer.append(self.HSlider, 0, "x")
-		mainSizer.appendSpacer(10)
+        mainSizer = self.Sizer = dabo.ui.dSizer("V")
+        psz = self.imgPanel.Sizer = dabo.ui.dSizer("V")
+        hsz = dabo.ui.dSizer("H")
+        hsz.append1x(self.imgPanel)
+        hsz.appendSpacer(10)
+        hsz.append(self.VSlider, 0, "x")
+        mainSizer.DefaultBorder = 25
+        mainSizer.DefaultBorderLeft = mainSizer.DefaultBorderRight = True
+        mainSizer.appendSpacer(25)
+        mainSizer.append(hsz, 1, "x")
+        mainSizer.appendSpacer(10)
+        mainSizer.append(self.HSlider, 0, "x")
+        mainSizer.appendSpacer(10)
 
-		# Create the image control
-		self.img = dabo.ui.dImage(self.imgPanel, BackColor="yellow",
-			DroppedFileHandler=self)
+        # Create the image control
+        self.img = dabo.ui.dImage(self.imgPanel, BackColor="yellow",
+            DroppedFileHandler=self)
 
-		hsz = dabo.ui.dSizer("H")
-		hsz.DefaultSpacing = 10
-		btn = dabo.ui.dBitmapButton(self, Picture="rotateCW",
-				OnHit=self.onRotateCW, Size=(36, 36))
-		hsz.append(btn)
-		btn = dabo.ui.dBitmapButton(self, Picture="rotateCCW",
-				OnHit=self.onRotateCCW, Size=(36, 36))
-		hsz.append(btn)
-		btn = dabo.ui.dBitmapButton(self, Picture="flip_horiz",
-				OnHit=self.onFlipHoriz, Size=(36, 36))
-		hsz.append(btn)
-		btn = dabo.ui.dBitmapButton(self, Picture="flip_vert",
-				OnHit=self.onFlipVert, Size=(36, 36))
-		hsz.append(btn)
+        hsz = dabo.ui.dSizer("H")
+        hsz.DefaultSpacing = 10
+        btn = dabo.ui.dBitmapButton(self, Picture="rotateCW",
+                OnHit=self.onRotateCW, Size=(36, 36))
+        hsz.append(btn)
+        btn = dabo.ui.dBitmapButton(self, Picture="rotateCCW",
+                OnHit=self.onRotateCCW, Size=(36, 36))
+        hsz.append(btn)
+        btn = dabo.ui.dBitmapButton(self, Picture="flip_horiz",
+                OnHit=self.onFlipHoriz, Size=(36, 36))
+        hsz.append(btn)
+        btn = dabo.ui.dBitmapButton(self, Picture="flip_vert",
+                OnHit=self.onFlipVert, Size=(36, 36))
+        hsz.append(btn)
 
-		self.ddScale = dabo.ui.dDropdownList(self,
-				Choices = ["Proportional", "Stretch", "Clip"],
-				PositionValue = 0,
-				ValueMode = "String")
-		self.ddScale.DataSource = self.img
-		self.ddScale.DataField = "ScaleMode"
+        self.ddScale = dabo.ui.dDropdownList(self,
+                Choices = ["Proportional", "Stretch", "Clip"],
+                PositionValue = 0,
+                ValueMode = "String")
+        self.ddScale.DataSource = self.img
+        self.ddScale.DataField = "ScaleMode"
 
-		btn = dabo.ui.dButton(self, Caption=_("Load Your Own Image"),
-				OnHit=self.onLoadImage)
+        btn = dabo.ui.dButton(self, Caption=_("Load Your Own Image"),
+                OnHit=self.onLoadImage)
 
-		hsz.append(self.ddScale, "x")
-		hsz.append(btn, "x")
-		mainSizer.append(hsz, alignment="right")
-		mainSizer.appendSpacer(25)
+        hsz.append(self.ddScale, "x")
+        hsz.append(btn, "x")
+        mainSizer.append(hsz, alignment="right")
+        mainSizer.appendSpacer(25)
 
-		# Load an image
-		self.img.Picture = "media/homer.jpg"
+        # Load an image
+        self.img.Picture = "media/homer.jpg"
 
 
-	def processDroppedFiles(self, filelist):
-		self.img.Picture = filelist[0]
+    def processDroppedFiles(self, filelist):
+        self.img.Picture = filelist[0]
 
-	def onRotateCW(self, evt):
-		self.img.rotateClockwise()
+    def onRotateCW(self, evt):
+        self.img.rotateClockwise()
 
-	def onRotateCCW(self, evt):
-		self.img.rotateCounterClockwise()
+    def onRotateCCW(self, evt):
+        self.img.rotateCounterClockwise()
 
-	def onFlipHoriz(self, evt):
-		self.img.flipHorizontally()
+    def onFlipHoriz(self, evt):
+        self.img.flipHorizontally()
 
-	def onFlipVert(self, evt):
-		self.img.flipVertically()
+    def onFlipVert(self, evt):
+        self.img.flipVertically()
 
-	def onSlider(self, evt):
-		slider = evt.EventObject
-		val = slider.Value * 0.01
-		ornt = slider.Orientation[0].lower()
-		if ornt == "h":
-			# Change the width of the image
-			self.img.Width = (self.imgPanel.Width * val)
-		else:
-			self.img.Height = (self.imgPanel.Height * val)
+    def onSlider(self, evt):
+        slider = evt.EventObject
+        val = slider.Value * 0.01
+        ornt = slider.Orientation[0].lower()
+        if ornt == "h":
+            # Change the width of the image
+            self.img.Width = (self.imgPanel.Width * val)
+        else:
+            self.img.Height = (self.imgPanel.Height * val)
 
-	# Without Dabo, you need to create this exact string to get the same behavior.
-	#	JPEG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|GIF Files (*.gif)|*.gif|Bitmap Files (*.bmp)|*.bmp|All Files (*)|*
-	def onLoadImage(self, evt):
-		f = dabo.ui.getFile("jpg", "png", "gif", "bmp", "*")
-		if f:
-			self.img.Picture = f
+    # Without Dabo, you need to create this exact string to get the same behavior.
+    #    JPEG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|GIF Files (*.gif)|*.gif|Bitmap Files (*.bmp)|*.bmp|All Files (*)|*
+    def onLoadImage(self, evt):
+        f = dabo.ui.getFile("jpg", "png", "gif", "bmp", "*")
+        if f:
+            self.img.Picture = f
 
-	def onResize(self, evt):
-		self.needUpdate = True
+    def onResize(self, evt):
+        self.needUpdate = True
 
-	def onIdle(self, evt):
-		if self.needUpdate:
-			self.needUpdate = False
-			wd = self.HSlider.Value * 0.01 * self.imgPanel.Width
-			ht = self.VSlider.Value * 0.01 * self.imgPanel.Height
-			self.img.Size = (wd, ht)
+    def onIdle(self, evt):
+        if self.needUpdate:
+            self.needUpdate = False
+            wd = self.HSlider.Value * 0.01 * self.imgPanel.Width
+            ht = self.VSlider.Value * 0.01 * self.imgPanel.Height
+            self.img.Size = (wd, ht)
 
 
 category = "Controls.dImage"
