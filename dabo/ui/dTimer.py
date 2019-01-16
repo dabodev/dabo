@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import dabo
 from dabo.ui import makeDynamicProperty
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from .dPemMixin import dPemMixin as PM
 from . import dPanel

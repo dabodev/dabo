@@ -2,15 +2,15 @@
 import os.path
 import wx
 import dabo, dabo.ui
-from . import dControlMixin as cm
+from . import dControlMixin
 from . import dMenu
 from dabo.dLocalize import _
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
 
 
-class dToolBar(cm.dControlMixin, wx.ToolBar):
+class dToolBar(dControlMixin, wx.ToolBar):
     """
     Creates a toolbar, which is a menu-like collection of icons.
 
@@ -40,7 +40,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
         # Need this to load/convert image files to bitmaps
         self._image = wx.NullImage
 
-        cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+from dabo import ui as dui
 from dabo.ui import makeDynamicProperty
-import wx.lib.mixins.listctrl    as ListMixin
-from . import dControlItemMixin as dcm
-import dabo.dColors as dColors
-import dabo.dEvents as dEvents
+import wx.lib.mixins.listctrl as ListMixin
+from . import dControlItemMixin
+from dabo import dColors as dColors
+from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
@@ -45,7 +46,7 @@ class _ListColumnAccessor(object):
 
 
 
-class dListControl(dcm.dControlItemMixin,
+class dListControl(dControlItemMixin,
         ListMixin.ListCtrlAutoWidthMixin, wx.ListCtrl):
     """
     Creates a list control, which is a flexible, virtual list box.
@@ -77,7 +78,7 @@ class dListControl(dcm.dControlItemMixin,
         except TypeError:
             style = wx.LC_REPORT
         preClass = wx.PreListCtrl
-        dcm.dControlItemMixin.__init__(self, preClass, parent, properties=properties,
+        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, style=style, *args, **kwargs)
         ListMixin.ListCtrlAutoWidthMixin.__init__(self)
         # Dictionary for tracking images by key value
@@ -86,7 +87,7 @@ class dListControl(dcm.dControlItemMixin,
         # a control with items
         self.SortFunction = self._listControlSort
         # Set the default sorting column to 0 after everything is instantiated
-        dabo.ui.setAfter(self, "SortColumn", 0)
+        dui.setAfter(self, "SortColumn", 0)
         self._columnAccessor = _ListColumnAccessor(self)
 
 
@@ -259,7 +260,7 @@ class dListControl(dcm.dControlItemMixin,
             self.autoSizeColumn(col)
         else:
             self.SetColumnWidth(col, wd)
-        dabo.ui.callAfterInterval(100, self._doResize)
+        dui.callAfterInterval(100, self._doResize)
 
 
     def autoSizeColumn(self, col):
@@ -271,7 +272,7 @@ class dListControl(dcm.dControlItemMixin,
         if self.GetColumnWidth(col) < wd:
             self.SetColumnWidth(col, wd)
         self.unlockDisplay()
-        dabo.ui.callAfterInterval(100, self._doResize)
+        dui.callAfterInterval(100, self._doResize)
 
 
     def autoSizeColumns(self, colList=None):
@@ -416,7 +417,7 @@ class dListControl(dcm.dControlItemMixin,
         if key is None:
             key = ustr(img)
         if isinstance(img, str):
-            img = dabo.ui.strToBmp(img)
+            img = dui.strToBmp(img)
         il = self.GetImageList(wx.IMAGE_LIST_NORMAL)
         if not il:
             il = wx.ImageList(16, 16, initialCount=0)
@@ -740,7 +741,7 @@ class dListControl(dcm.dControlItemMixin,
     def _getSortColumn(self):
         return self._sortColumn
 
-    @dabo.ui.deadCheck
+    @dui.deadCheck
     def _setSortColumn(self, val):
         if self._constructed():
             self._sortColumn = val

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import dabo
+from dabo import ui as dui
 from dabo.ui import makeDynamicProperty
 from .dPage import dPage
 from .dPanel import dPanel
-import dabo.dEvents as dEvents
-import dabo.dColors as dColors
+from dabo import dEvents as dEvents
+from dabo import dColors as dColors
 from dabo.dLocalize import _
 
 
@@ -15,7 +16,7 @@ class dPageFrameNoTabs(dPanel):
     """
     def __init__(self, *args, **kwargs):
         self._pageClass = dPage
-        self._pageSizerClass = dabo.ui.dSizer
+        self._pageSizerClass = dui.dSizer
         self._activePage = None
         self._pages = []
         super(dPageFrameNoTabs, self).__init__(*args, **kwargs)
@@ -24,7 +25,7 @@ class dPageFrameNoTabs(dPanel):
 
     def _afterInit(self):
         if self.Sizer is None:
-            self.Sizer = dabo.ui.dSizer()
+            self.Sizer = dui.dSizer()
         super(dPageFrameNoTabs, self)._afterInit()
 
 
@@ -53,7 +54,7 @@ class dPageFrameNoTabs(dPanel):
         if pgCls is None:
             pgCls = self.PageClass
         if self.Sizer is None:
-            self.Sizer = dabo.ui.dSizer()
+            self.Sizer = dui.dSizer()
         if isinstance(pgCls, dPage):
             pg = pgCls
         else:
@@ -115,12 +116,12 @@ class dPageFrameNoTabs(dPanel):
         if pg in self.Pages:
             if newPage:
                 if ap:
-                    dabo.ui.callAfter(ap.raiseEvent, dEvents.PageLeave)
+                    dui.callAfter(ap.raiseEvent, dEvents.PageLeave)
                     apNum = self.getPageNumber(ap)
                 else:
                     apNum = -1
-                dabo.ui.callAfter(pg.raiseEvent, dEvents.PageEnter)
-                dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged,
+                dui.callAfter(pg.raiseEvent, dEvents.PageEnter)
+                dui.callAfter(self.raiseEvent, dEvents.PageChanged,
                         oldPageNum=apNum, newPageNum=self.getPageNumber(pg))
             self._activePage = pg
             for ch in self.Pages:
@@ -285,10 +286,10 @@ class dPageFrameNoTabs(dPanel):
 import random
 class TestPage(dPage):
     def afterInit(self):
-        self.lbl = dabo.ui.dLabel(self, FontSize=36)
+        self.lbl = dui.dLabel(self, FontSize=36)
         color = random.choice(list(dColors.colorDict.keys()))
         self.BackColor = self.lbl.Caption = color
-        self.Sizer = sz = dabo.ui.dSizer("h")
+        self.Sizer = sz = dui.dSizer("h")
         sz.appendSpacer(1, 1)
         sz.append(self.lbl, 1)
         sz.appendSpacer(1, 1)
@@ -298,7 +299,7 @@ class TestPage(dPage):
         self.layout()
 
 
-class TestForm(dabo.ui.dForm):
+class TestForm(dui.dForm):
     def afterInit(self):
         self.Caption = "Tabless Pageframe Example"
         self.pgf = pgf = dPageFrameNoTabs(self)
@@ -311,18 +312,18 @@ class TestForm(dabo.ui.dForm):
         self.Sizer.append1x(pgf)
 
         # Add prev/next buttons
-        bp = dabo.ui.dButton(self, Caption="Prior")
+        bp = dui.dButton(self, Caption="Prior")
         bp.bindEvent(dEvents.Hit, self.onPriorPage)
-        bn = dabo.ui.dButton(self, Caption="Next")
+        bn = dui.dButton(self, Caption="Next")
         bn.bindEvent(dEvents.Hit, self.onNextPage)
-        hsz = dabo.ui.dSizer("h")
+        hsz = dui.dSizer("h")
         hsz.append(bp, 1)
         hsz.appendSpacer(4)
         hsz.append(bn, 1)
         hsz.appendSpacer(24)
-        lbl = dabo.ui.dLabel(self, Caption="Select Page:")
+        lbl = dui.dLabel(self, Caption="Select Page:")
         hsz.append(lbl)
-        dd = dabo.ui.dDropdownList(self, DataSource=pgf,
+        dd = dui.dDropdownList(self, DataSource=pgf,
                 DataField="SelectedPageNumber", ValueMode="Position",
                 Choices=["%s" % ii for ii in range(pgf.PageCount)])
         hsz.append(dd)

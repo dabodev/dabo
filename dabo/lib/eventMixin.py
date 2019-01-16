@@ -4,7 +4,8 @@ import types
 import traceback
 import dabo
 from dabo.dLocalize import _
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
+from dabo import ui as dui
 
 
 class EventMixin(object):
@@ -92,9 +93,9 @@ class EventMixin(object):
         if uiEvent is not None:
             # Let the UI lib know whether to do the default event behavior
             if event.Continue:
-                r = dabo.ui.continueEvent(uiEvent)
+                r = dui.continueEvent(uiEvent)
             else:
-                r = dabo.ui.discontinueEvent(uiEvent)
+                r = dui.discontinueEvent(uiEvent)
         else:
             r = None
 
@@ -148,11 +149,11 @@ class EventMixin(object):
 
         For example::
 
-            class MyButton(dabo.ui.dButton):
+            class MyButton(dui.dButton):
                 def onHit(self, evt):
                     print "Hit!"
 
-            class MyPanel(dabo.ui.dPanel):
+            class MyPanel(dui.dPanel):
                 def afterInit(self):
                     self.addObject(MyButton, RegID="btn1")
 

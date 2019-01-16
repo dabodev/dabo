@@ -3,10 +3,10 @@ import sys
 import os
 import traceback
 import wx
-import dabo.dEvents as dEvents
-import dabo.ui
+from dabo import dEvents as dEvents
+from dabo import ui as dui
 from dabo.dLocalize import _
-import dabo.lib.reportUtils as reportUtils
+from dabo import lib.reportUtils as reportUtils
 from . import PageFrame
 from . import Page
 from . import Grid
@@ -19,7 +19,7 @@ except ImportError as e:
 from dabo.lib.utils import ustr
 
 
-class Form(dabo.ui.dForm):
+class Form(dui.dForm):
     """
     This is a dForm but with the following added controls:
 
@@ -43,7 +43,7 @@ class Form(dabo.ui.dForm):
             # itself when other certain conditions are met.
 
             def _onHide(evt):
-                dabo.ui.callAfter(self.hide)
+                dui.callAfter(self.hide)
             # Pressing Esc hides the form
             self.bindKey("esc", _onHide)
 
@@ -67,26 +67,26 @@ class Form(dabo.ui.dForm):
         ret = super(Form, self).save(dataSource)
         self.update()
         if self.FormType == "Edit" and self.Modal:
-            dabo.ui.callAfter(self.hide)
+            dui.callAfter(self.hide)
         return ret
 
     def cancel(self, dataSource=None):
         ret = super(Form, self).cancel(dataSource)
         self.update()
         if self.FormType == "Edit" and self.Modal:
-            dabo.ui.callAfter(self.hide)
+            dui.callAfter(self.hide)
         return ret
 
     def setupSaveCancelButtons(self):
         vs = self.Sizer
-        hs = dabo.ui.dSizer("h")
-        hs.append(dabo.ui.dButton(self, Caption=_("Save Changes"), DefaultButton=True, OnHit=self.onSave))
+        hs = dui.dSizer("h")
+        hs.append(dui.dButton(self, Caption=_("Save Changes"), DefaultButton=True, OnHit=self.onSave))
         hs.appendSpacer((3,0))
-        hs.append(dabo.ui.dButton(self, Caption=_("Cancel Changes"), CancelButton=True, OnHit=self.onCancel))
+        hs.append(dui.dButton(self, Caption=_("Cancel Changes"), CancelButton=True, OnHit=self.onCancel))
         vs.append(hs, alignment="right")
 
     def setupToolBar(self):
-        tb = self.ToolBar = dabo.ui.dToolBar(self)
+        tb = self.ToolBar = dui.dToolBar(self)
         if tb.Children:
             # It's already been set up
             return
@@ -252,7 +252,7 @@ class Form(dabo.ui.dForm):
             grid = self.PageFrame.Pages[1].BrowseGrid
             ds = grid.DataSet
         except:
-            dabo.ui.info(_("Sorry, there are no records in the grid, please requery first."))
+            dui.info(_("Sorry, there are no records in the grid, please requery first."))
             return
 
         #cols
@@ -261,16 +261,16 @@ class Form(dabo.ui.dForm):
         #keys
         keys = [col.DataField for col in grid.Columns]
 
-        class GridColumnsDialog(dabo.ui.dOkCancelDialog):
+        class GridColumnsDialog(dui.dOkCancelDialog):
 
             def initProperties(self):
                 self.selectedColumns = None
 
             def addControls(self):
-                self.addObject(dabo.ui.dLabel, RegID="label",
+                self.addObject(dui.dLabel, RegID="label",
                         Caption=_("You can customize grid appearence by selecting\nthe columns you wish to see bellow:"), WordWrap=True)
 
-                self.addObject(dabo.ui.dCheckList, RegID="columns",
+                self.addObject(dui.dCheckList, RegID="columns",
                         Height=150, ValueMode="Key",
                         Choices=cols,
                         Keys=keys)
@@ -409,7 +409,7 @@ class Form(dabo.ui.dForm):
             elif sys.platform.startswith("win"):
                 # Windows looks best with no border
                 borderSides = ()
-            hs = dabo.ui.dSizer("h")
+            hs = dui.dSizer("h")
             hs.append1x(self.pageFrame, border=border, borderSides=borderSides)
             self.Sizer.append1x(hs)
             if self.FormType != "Edit":
@@ -452,15 +452,15 @@ class Form(dabo.ui.dForm):
         sql = self.PrimaryBizobj.LastSQL
         if sql is None:
             sql = "-Nothing executed yet-"
-        dlg = dabo.ui.dDialog(self, Caption=_("Last SQL"),
+        dlg = dui.dDialog(self, Caption=_("Last SQL"),
                 SaveRestorePosition=True, BorderResizable=True)
-        eb = dlg.addObject(dabo.ui.dEditBox, ReadOnly=True, Value=sql,
+        eb = dlg.addObject(dui.dEditBox, ReadOnly=True, Value=sql,
                 Size=(400, 400))
         for ff in ["Monospace", "Monaco", "Courier New"]:
             try:
                 eb.FontFace = ff
                 break
-            except dabo.ui.assertionException:
+            except dui.assertionException:
                 continue
         dlg.Sizer.append1x(eb)
         dlg.show()
@@ -470,14 +470,14 @@ class Form(dabo.ui.dForm):
     def onQuickReport(self, evt):
         # May not have records if called via toolbar button
         if not self.enableQuickReport():
-            dabo.ui.exclaim(_("Sorry, there are no records to report on."),
+            dui.exclaim(_("Sorry, there are no records to report on."),
                     title=_("No Records"))
             return
 
         showAdvancedQuickReport = self.ShowAdvancedQuickReport
         showExpandedQuickReport = self.ShowExpandedQuickReport
 
-        class ReportFormatDialog(dabo.ui.dOkCancelDialog):
+        class ReportFormatDialog(dui.dOkCancelDialog):
             def initProperties(self):
                 self.Caption = "Quick Report"
                 self.mode = None
@@ -485,7 +485,7 @@ class Form(dabo.ui.dForm):
                 self.saveNamedReportForm = False
 
             def addControls(self):
-                self.addObject(dabo.ui.dRadioList, RegID="radMode",
+                self.addObject(dui.dRadioList, RegID="radMode",
                         Caption="Mode",
                         Orientation="Row",
                         Choices=["List Format", "Expanded Format"],
@@ -499,7 +499,7 @@ class Form(dabo.ui.dForm):
                     self.radMode.enableKey("expanded", False)
                     self.radMode.Value = "list"  ## in case the setting was saved at 'expanded' previously.
 
-                self.addObject(dabo.ui.dRadioList, RegID="radRecords",
+                self.addObject(dui.dRadioList, RegID="radRecords",
                         Caption="Report On",
                         Orientation="Row",
                         Choices=["All records in dataset",
@@ -511,12 +511,12 @@ class Form(dabo.ui.dForm):
                 self.Sizer.appendSpacer(12)
 
                 if showAdvancedQuickReport:
-                    self.addObject(dabo.ui.dButton, RegID="btnAdvanced", Caption="Advanced")
+                    self.addObject(dui.dButton, RegID="btnAdvanced", Caption="Advanced")
                     self.Sizer.append(self.btnAdvanced, halign="center")
                     self.btnAdvanced.bindEvent(dEvents.Hit, self.onAdvanced)
 
             def onAdvanced(self, evt):
-                if dabo.ui.areYouSure("Would you like to save the report form xml "
+                if dui.areYouSure("Would you like to save the report form xml "
                         "(rfxml) to your application's reports directory? If you say "
                         "'yes', you'll be able to modify the file and it will be used "
                         "as the Quick Report from now on (it will no longer be auto-"
@@ -561,7 +561,7 @@ class Form(dabo.ui.dForm):
             try:
                 import dabo.dReportWriter as drw
             except ImportError:
-                dabo.ui.stop("Error importing dReportWriter. Check your terminal output.")
+                dui.stop("Error importing dReportWriter. Check your terminal output.")
                 return
 
             rw = drw.dReportWriter(OutputFile=outputfile,
@@ -574,7 +574,7 @@ class Form(dabo.ui.dForm):
                 #error_string = traceback.format_exc()
                 error_string = ustr(e)
                 row_number = rw.RecordNumber
-                dabo.ui.stop("There was a problem having to do with the Unicode encoding "
+                dui.stop("There was a problem having to do with the Unicode encoding "
                         "of your table, and ReportLab's inability to deal with any encoding "
                         "other than UTF-8. Sorry, but currently we don't have a resolution to "
                         "the problem, other than to recommend that you convert your data to "
@@ -828,7 +828,7 @@ class Form(dabo.ui.dForm):
             objects = []
 
         for c in container.Children:
-            if isinstance(c, dabo.ui.dPanel):
+            if isinstance(c, dui.dPanel):
                 objects = self._getAllChildObjects(c, objects, c.Top)
                 continue
             try:
@@ -893,7 +893,7 @@ class Form(dabo.ui.dForm):
                     "Left": obj[0][0],
                     "Top": obj[0][1]}
 
-            if isinstance(o, dabo.ui.dLabel):
+            if isinstance(o, dui.dLabel):
                 obDict["Caption"] = o.Caption
                 rfxml += """
             <string>
@@ -908,7 +908,7 @@ class Form(dabo.ui.dForm):
 
             else:
                 obDict["DataField"] = o.DataField
-                if isinstance(o, dabo.ui.dEditBox):
+                if isinstance(o, dui.dEditBox):
                     rfxml += """
             <frameset>
                 <x>%(Left)s + 10</x>

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-from . import dControlItemMixin as dcm
+from . import dControlItemMixin
 from dabo.dLocalize import _
 
 
-class dDropdownList(dcm.dControlItemMixin, wx.Choice):
+class dDropdownList(dControlItemMixin, wx.Choice):
     """
     Creates a dropdown list, which allows the user to select one item.
 
@@ -19,7 +19,7 @@ class dDropdownList(dcm.dControlItemMixin, wx.Choice):
         self._choices = []
 
         preClass = wx.PreChoice
-        dcm.dControlItemMixin.__init__(self, preClass, parent, properties=properties,
+        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

@@ -7,7 +7,7 @@ from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dabo.dPref import dPref
 from dabo.lib.utils import ustr
-from dui import makeDynamicProperty
+from dabo.ui import makeDynamicProperty
 from .dControlMixin import dControlMixin
 
 

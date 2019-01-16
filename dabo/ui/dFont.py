@@ -5,7 +5,7 @@ from dabo import ui as dui
 from dabo.dObject import dObject
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from dui import makeDynamicProperty
+from dabo.ui import makeDynamicProperty
 from dabo import dEvents as dEvents
 
 

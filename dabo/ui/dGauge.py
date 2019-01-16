@@ -3,17 +3,17 @@ import wx
 import dabo
 from dabo import ui as dui
 from dabo.dLocalize import _
-from dui import makeDynamicProperty
-from . import dControlMixin as cm
+from dabo.ui import makeDynamicProperty
+from . import dControlMixin
 from dabo import dEvents as dEvents
 
 
-class dGauge(cm.dControlMixin, wx.Gauge):
+class dGauge(dControlMixin, wx.Gauge):
     """Creates a gauge, which can be used as a progress bar."""
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dGauge
         preClass = wx.PreGauge
-        cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

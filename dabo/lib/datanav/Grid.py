@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import dabo
-import dabo.ui
-import dabo.dException as dException
+from dabo import ui as dui
+from dabo import dException as dException
 from dabo.dLocalize import _
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 from dabo.ui import dKeys
 
 
-class Grid(dabo.ui.dGrid):
+class Grid(dui.dGrid):
     def _beforeInit(self, pre):
         self.customSort = True
         super(Grid, self)._beforeInit(pre)

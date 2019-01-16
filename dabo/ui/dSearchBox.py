@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import dabo, dabo.ui
-from . import dTextBoxMixin as tbm
+import dabo
+from dabo import ui as dui
+from .dTextBoxMixin import dTextBoxMixin
 from dabo.dLocalize import _
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 
-class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
+class dSearchBox(dTextBoxMixin, wx.SearchCtrl):
     """Creates a text box for editing one line of string data."""
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dSearchBox
@@ -15,7 +16,7 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
         self._cancelVisible = False
         self._searchVisible = True
         preClass = wx.PreSearchCtrl
-        tbm.dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
+        dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
     def _initEvents(self):
@@ -85,7 +86,7 @@ class dSearchBox(tbm.dTextBoxMixin, wx.SearchCtrl):
 
     #private methods
     def _setupMenuFromList(self, valueList):
-        menu = dabo.ui.dMenu()
+        menu = dui.dMenu()
         for value in valueList:
             if not type(value) in (str, str):
                 raise ValueError("All elements in the List must be strings")

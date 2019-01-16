@@ -1,32 +1,33 @@
 # -*- coding: utf-8 -*-
-import sys
-import locale
 from decimal import Decimal as decimal
+import locale
 import operator
+import sys
+
 import wx
 import dabo
-
+from dabo import ui as dui
 from dabo.ui import makeDynamicProperty
 from dabo.ui import makeProxyProperty
-from . import dDataControlMixin as dcm
-import dabo.dEvents as dEvents
+from . import dDataControlMixin
+from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
 
-class _dSpinButton(dcm.dDataControlMixin, wx.SpinButton):
+class _dSpinButton(dDataControlMixin, wx.SpinButton):
     """Simple wrapper around the base wx.SpinButton."""
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = _dSpinButton
         preClass = wx.PreSpinButton
         kwargs["style"] = kwargs.get("style", 0) | wx.SP_ARROW_KEYS
-        dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
         if sys.platform.startswith("win"):
             # otherwise, the arrows are way too wide (34)
             self.Width = 17
 
-class dSpinner(dabo.ui.dDataPanel, wx.Control):
+class dSpinner(dui.dDataPanel, wx.Control):
     """
     Control for allowing a user to increment a value by discreet steps across a range
     of valid values.
@@ -45,12 +46,12 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
         self._baseClass = dSpinner
         # Create the child controls
         if TextBoxClass is None:
-            TextBoxClass = dabo.ui.dTextBox
+            TextBoxClass = dui.dTextBox
         self._proxy_textbox = TextBoxClass(self, Value=0, Width=32,
                 StrictNumericEntry=False, _EventTarget=self)
         self._proxy_spinner = _dSpinButton(parent=self, _EventTarget=self)
         self.__constructed = True
-        self.Sizer = dabo.ui.dSizer("h")
+        self.Sizer = dui.dSizer("h")
         self.Sizer.append1x(self._proxy_textbox)
         self.Sizer.append(self._proxy_spinner, "expand")
         self.layout()
@@ -75,7 +76,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
         ps.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
         #self.bindEvent(dEvents.KeyChar, self._onChar)
         self._rerestoreValue()
-        dabo.ui.callAfter(self.layout)
+        dui.callAfter(self.layout)
 
     def __onWxDestroy(self, evt):
         # This doesn't otherwise happen
@@ -228,7 +229,7 @@ class dSpinner(dabo.ui.dDataPanel, wx.Control):
         Handle the case where the user presses the up/down arrows to
         activate the spinner.
         """
-        keys = dabo.ui.dKeys
+        keys = dui.dKeys
         kc = evt.GetKeyCode()
         if kc in (keys.key_Up, keys.key_Numpad_up):
             self._spin("up", spinType="key")
@@ -445,7 +446,7 @@ class _dSpinner_test(dSpinner):
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
-    class Test(dabo.ui.dForm):
+    class Test(dui.dForm):
         def OH(self, evt): print("HIT")
         def afterInitAll(self):
             self.spn = _dSpinner_test(self, Value=3, OnHit=self.OH)

@@ -2,12 +2,12 @@
 import wx
 import dabo
 from dabo.dLocalize import _
-import dabo.dColors as dColors
-import dabo.dEvents as dEvents
+from dabo import dColors as dColors
+from dabo import dEvents as dEvents
 
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin as cm
-from . import dDataControlMixin as dcm
+from . import dControlMixin
+from . import dDataControlMixin
 
 
 class _BasePanelMixin(object):
@@ -236,17 +236,17 @@ class _BasePanelMixin(object):
 
 
 
-class _PanelMixin(cm.dControlMixin, _BasePanelMixin):
+class _PanelMixin(dControlMixin, _BasePanelMixin):
     def __init__(self, preClass, parent, properties=None, attProperties=None,
             *args, **kwargs):
-        _BasePanelMixin.__init__(self, cm.dControlMixin, preClass=preClass, parent=parent,
+        _BasePanelMixin.__init__(self, dControlMixin, preClass=preClass, parent=parent,
                 properties=properties, attProperties=attProperties, *args, **kwargs)
 
 
-class _DataPanelMixin(dcm.dDataControlMixin, _BasePanelMixin):
+class _DataPanelMixin(dDataControlMixin, _BasePanelMixin):
     def __init__(self, preClass, parent, properties=None, attProperties=None,
             *args, **kwargs):
-        _BasePanelMixin.__init__(self, dcm.dDataControlMixin, preClass=preClass, parent=parent,
+        _BasePanelMixin.__init__(self, dDataControlMixin, preClass=preClass, parent=parent,
                 properties=properties, attProperties=attProperties, *args, **kwargs)
 
 

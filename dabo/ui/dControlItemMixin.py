@@ -6,7 +6,7 @@ from .dDataControlMixin import dDataControlMixin
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.lib.propertyHelperMixin import _DynamicList
-from dui import makeDynamicProperty
+from dabo.ui import makeDynamicProperty
 
 
 

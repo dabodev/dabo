@@ -9,7 +9,7 @@ from dabo.dLocalize import _
 from .dTextBox import dTextBox
 from .dPanel import dPanel
 from .dButton import dButton
-from dui import makeDynamicProperty
+from dabo.ui import makeDynamicProperty
 
 
 class CalPanel(dPanel):

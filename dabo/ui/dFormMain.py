@@ -2,13 +2,13 @@
 import time
 import wx
 import dabo
-from . import dFormMixin as fm
+from . import dFormMixin
 
 
-class dFormMainBase(fm.dFormMixin):
+class dFormMainBase(dFormMixin):
     """This is the main top-level form for the application."""
     def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
-        fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+        dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
     def _beforeClose(self, evt=None):

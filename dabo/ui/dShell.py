@@ -6,7 +6,8 @@ import wx.stc as stc
 import wx.py
 from wx.py import pseudo
 import dabo
-import dabo.dEvents as dEvents
+from dabo import ui as dui
+from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from .dSplitForm import dSplitForm
 from dabo.ui import makeDynamicProperty
@@ -14,18 +15,18 @@ from dabo.ui import dKeys
 from .dControlMixin import dControlMixin
 
 
-class _LookupPanel(dabo.ui.dPanel):
+class _LookupPanel(dui.dPanel):
     """Used for the command history search"""
     def afterInit(self):
         self._history = None
         self._displayedHistory = None
         self.currentSearch = ""
         self.needRefilter = False
-        self.lblSearch = dabo.ui.dLabel(self)
-        self.lstMatch = dabo.ui.dListBox(self, ValueMode="string", Choices=[],
+        self.lblSearch = dui.dLabel(self)
+        self.lstMatch = dui.dListBox(self, ValueMode="string", Choices=[],
                 MultipleSelect=True, OnMouseLeftDoubleClick=self.selectCmd,
                 OnKeyChar=self.onListKey)
-        self.Sizer = dabo.ui.dSizer("v", DefaultBorder=4)
+        self.Sizer = dui.dSizer("v", DefaultBorder=4)
         self.Sizer.append(self.lblSearch, halign="center")
         self.Sizer.append(self.lstMatch, "x", 1)
         self.Width = 400
@@ -169,7 +170,7 @@ class dShell(dControlMixin, wx.py.shell.Shell):
                 attProperties=attProperties, *args, **kwargs)
 
 
-    @dabo.ui.deadCheck
+    @dui.deadCheck
     def ScrollToLine(self, lnum):
         """Need to check for the case where the control is released, as the wx-level
         shell makes a CallAfter for ScrollToLine().
@@ -403,9 +404,9 @@ class dShellForm(dSplitForm):
         cp.unbindEvent(dEvents.ContextMenu)
         op.unbindEvent(dEvents.ContextMenu)
 
-        cp.Sizer = dabo.ui.dSizer()
-        op.Sizer = dabo.ui.dSizer()
-        pgf = self.pgfCodeShell = dabo.ui.dPageFrame(cp, PageCount=2)
+        cp.Sizer = dui.dSizer()
+        op.Sizer = dui.dSizer()
+        pgf = self.pgfCodeShell = dui.dPageFrame(cp, PageCount=2)
         self.pgShell = pgf.Pages[0]
         self.pgCode = pgf.Pages[1]
         self.pgShell.Caption = _("Shell")
@@ -425,23 +426,23 @@ class dShellForm(dSplitForm):
         self.shell.Bind(wx.wx.EVT_CONTEXT_MENU, self.onShellContext)
 
         # Create the Code control
-        codeControl = dabo.ui.dEditor(self.pgCode, RegID="edtCode",
+        codeControl = dui.dEditor(self.pgCode, RegID="edtCode",
                 Language="python", OnKeyDown=self.onCodeKeyDown,
                 OnMouseRightDown=self.onCodeRightDown,
                 DroppedTextHandler=self, DroppedFileHandler=self)
         self.pgCode.Sizer.append1x(codeControl, border=4)
         # This adds the interpreter's local namespace to the editor for code completion, etc.
         codeControl.locals = self.shell.interp.locals
-        lbl = dabo.ui.dLabel(self.pgCode, ForeColor="blue", WordWrap=True,
+        lbl = dui.dLabel(self.pgCode, ForeColor="blue", WordWrap=True,
                 Caption=_("""Ctrl-Enter to run the code (or click the button to the right).
 Ctrl-Up/Down to scroll through history."""))
         lbl.FontSize -= 3
-        runButton = dabo.ui.dButton(self.pgCode, Caption=_("Run"),
+        runButton = dui.dButton(self.pgCode, Caption=_("Run"),
                 OnHit=self.onRunCode)
-        hsz = dabo.ui.dSizer("h")
+        hsz = dui.dSizer("h")
         hsz.appendSpacer(20)
         hsz.append(lbl)
-        hsz.append1x(dabo.ui.dPanel(self.pgCode))
+        hsz.append1x(dui.dPanel(self.pgCode))
         hsz.append(runButton, valign="middle")
         hsz.appendSpacer(20)
         self.pgCode.Sizer.append(hsz, "x")
@@ -457,11 +458,11 @@ Ctrl-Up/Down to scroll through history."""))
         self.bindKey("Ctrl+E", self.onToggleCodePane)
         # Force the focus to the editor when the code page is activated.
         def _delayedSetFocus(evt):
-            dabo.ui.callAfter(self.edtCode.setFocus)
+            dui.callAfter(self.edtCode.setFocus)
         self.pgCode.bindEvent(dEvents.PageEnter, _delayedSetFocus)
 
         # create the output control
-        outControl = dabo.ui.dEditBox(op, RegID="edtOut",
+        outControl = dui.dEditBox(op, RegID="edtOut",
                 ReadOnly=True)
         op.Sizer.append1x(outControl)
         outControl.bindEvent(dEvents.MouseRightDown,
@@ -497,8 +498,8 @@ Ctrl-Up/Down to scroll through history."""))
         # Either of these commands should scroll the edit box
         # to the bottom, but neither do (at least on OS X) when
         # called directly or via callAfter().
-        dabo.ui.callAfter(ed.ShowPosition, endpos)
-        dabo.ui.callAfter(ed.SetSelection, endpos, endpos)
+        dui.callAfter(ed.ShowPosition, endpos)
+        dui.callAfter(ed.SetSelection, endpos, endpos)
 
 
     def addToHistory(self, cmd=None):
@@ -539,7 +540,7 @@ Ctrl-Up/Down to scroll through history."""))
         file is dropped, only open the first, and warn the user.
         """
         if len(filelist) > 1:
-            dabo.ui.exclaim(_("Only one file can be dropped at a time"))
+            dui.exclaim(_("Only one file can be dropped at a time"))
         if self.pgfCodeShell.SelectedPage == self.pgShell:
             self.shell.AddText(filelist[0])
         else:
@@ -652,11 +653,11 @@ Ctrl-Up/Down to scroll through history."""))
 
 
     def onCodeRightDown(self, evt):
-        dabo.ui.info("Code!")
+        dui.info("Code!")
 
 
     def onOutputRightDown(self, evt):
-        pop = dabo.ui.dMenu()
+        pop = dui.dMenu()
         pop.append(_("Clear"), OnHit=self.onClearOutput)
         if self.edtOut.SelectionLength:
             pop.append(_("Copy"), OnHit=self.Application.onEditCopy)
@@ -669,7 +670,7 @@ Ctrl-Up/Down to scroll through history."""))
 
 
     def onShellContext(self, evt):
-        pop = dabo.ui.dMenu()
+        pop = dui.dMenu()
         if self.SplitState:
             pmpt = _("Unsplit")
         else:
@@ -680,7 +681,7 @@ Ctrl-Up/Down to scroll through history."""))
 
 
     def onShellRight(self, evt):
-        pop = dabo.ui.dMenu()
+        pop = dui.dMenu()
         if self.SplitState:
             pmpt = _("Unsplit")
         else:

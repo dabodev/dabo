@@ -4,11 +4,10 @@ import wx
 import wx.lib.masked as masked
 import dabo
 from dabo.ui import makeDynamicProperty
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 from . import dTextBoxMixin as dtbm
 from . import dDataControlMixin as ddcm
 from decimal import Decimal
-from types import NoneType
 from dabo.dLocalize import _
 
 
@@ -277,7 +276,7 @@ class dNumericBox(dtbm.dTextBoxMixin, masked.NumCtrl):
         val = ddcm.dDataControlMixin._getValue(self)
         if self._lastDataType is Decimal:
             val = Decimal(str(val))
-        elif self._lastDataType is NoneType:
+        elif self._lastDataType is type(None):
             chkVal = int(val)
             if chkVal != val:
                 val = Decimal(str(val))

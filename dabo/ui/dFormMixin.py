@@ -4,7 +4,7 @@ import sys
 import wx
 import dabo
 from dabo import ui as dui
-from . import dPemMixin as pm
+from . import dPemMixin
 from . import dMenu
 from dabo import icons
 from dabo.dLocalize import _
@@ -13,10 +13,10 @@ from dabo import dEvents as dEvents
 from dabo import dException as dException
 from dabo.lib.xmltodict import xmltodict as XTD
 from dabo.lib.utils import cleanMenuCaption
-from dui import makeDynamicProperty
+from dabo.ui import makeDynamicProperty
 
 
-class dFormMixin(pm.dPemMixin):
+class dFormMixin(dPemMixin):
     def __init__(self, preClass, parent=None, properties=None, attProperties=None,
             src=None, *args, **kwargs):
         self._cxnName = ""

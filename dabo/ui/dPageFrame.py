@@ -2,12 +2,12 @@
 import sys
 import wx
 import dabo
-import dabo.ui
-import dabo.dEvents as dEvents
+from dabo import ui as dui
+from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from .dPageFrameMixin import dPageFrameMixin
-import dabo.dColors as dColors
+from dabo import dColors as dColors
 
 _USE_AGW = True
 try:
@@ -260,7 +260,7 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
             return ret
         if pgCls is None:
             pgCls = self.PageClass
-        if isinstance(pgCls, dabo.ui.dPage):
+        if isinstance(pgCls, dui.dPage):
             pg = pgCls
         else:
             # See if the 'pgCls' is either some XML or the path of an XML file
@@ -316,7 +316,7 @@ if _USE_FLAT:
                     defaultVal=0))
             dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
                     attProperties=attProperties, *args, **kwargs)
-            dabo.ui.setAfter(self, "SelectedPageNumber", selpg)
+            dui.setAfter(self, "SelectedPageNumber", selpg)
 
 
         def _initEvents(self):
@@ -725,33 +725,33 @@ if _USE_FLAT:
             self.Pages[3].BackColor = "yellow"
             # Can't add controls to the Test form now, so use callAfter() to delay
             # the actual control creation.
-            dabo.ui.callAfter(self._addControls)
+            dui.callAfter(self._addControls)
 
         def _addControls(self):
             pnl = self.Form.Children[0]
             szr = pnl.Sizer
             szr.DefaultBorder = 2
-            chk = dabo.ui.dCheckBox(pnl, Caption="Show Page Close Buttons",
+            chk = dui.dCheckBox(pnl, Caption="Show Page Close Buttons",
                     DataSource=self, DataField="ShowPageCloseButtons")
             szr.append(chk, halign="center")
-            chk = dabo.ui.dCheckBox(pnl, Caption="Show Nav Buttons",
+            chk = dui.dCheckBox(pnl, Caption="Show Nav Buttons",
                     DataSource=self, DataField="ShowNavButtons")
             szr.append(chk, halign="center")
-            chk = dabo.ui.dCheckBox(pnl, Caption="Show Menu Close",
+            chk = dui.dCheckBox(pnl, Caption="Show Menu Close",
                     DataSource=self, DataField="ShowMenuClose")
             szr.append(chk, halign="center")
-            lbl = dabo.ui.dLabel(pnl, Caption="Tab Style:")
-            dd = dabo.ui.dDropdownList(pnl,
+            lbl = dui.dLabel(pnl, Caption="Tab Style:")
+            dd = dui.dDropdownList(pnl,
                     Choices=["Default", "VC8", "VC71", "Fancy", "Firefox"],
                     DataSource=self, DataField="TabStyle")
-            hsz = dabo.ui.dSizer("h")
+            hsz = dui.dSizer("h")
             hsz.append(lbl)
             hsz.append(dd)
             szr.append(hsz, halign="center")
-            lbl = dabo.ui.dLabel(pnl, Caption="Tab Position:")
-            dd = dabo.ui.dDropdownList(pnl, Choices=["Top", "Bottom"],
+            lbl = dui.dLabel(pnl, Caption="Tab Position:")
+            dd = dui.dDropdownList(pnl, Choices=["Top", "Bottom"],
                     DataSource=self, DataField="TabPosition")
-            hsz = dabo.ui.dSizer("h")
+            hsz = dui.dSizer("h")
             hsz.append(lbl)
             hsz.append(dd)
             szr.append(hsz, halign="center")

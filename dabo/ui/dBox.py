@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-from . import dControlMixin as cm
+from . import dControlMixin
 
-class dBox(cm.dControlMixin, wx.StaticBox):
+class dBox(dControlMixin, wx.StaticBox):
     """Creates a box for visually grouping objects on your form."""
     ## pkm: I'm not sure of the utility of this class, since you can draw
     ##      borders around panels and direct draw on any object. Opinions?
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dBox
         preClass = wx.PreStaticBox
-        cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

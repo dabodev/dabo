@@ -13,7 +13,7 @@ except Exception as e:
 
 import dabo
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin as cm
+from . import dControlMixin
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
@@ -146,7 +146,7 @@ class PlotMarkers(_TraceMixin, plot.PolyMarker):
 
 
 
-class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
+class dLinePlot(dControlMixin, plot.PlotCanvas):
     """Creates a panel that can load and display a line graph."""
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         if not _Numeric:
@@ -156,7 +156,7 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
         self._baseClass = dLinePlot
         plot.PlotCanvas.__init__(self, parent)
         name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-        cm.dControlMixin.__init__(self, name, properties=properties,
+        dControlMixin.__init__(self, name, properties=properties,
                 attProperties=attProperties, _explicitName=_explicitName, *args, **kwargs)
 
         self.SetPointLabelFunc(self.DrawPointLabel)

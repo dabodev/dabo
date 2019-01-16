@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import dabo.ui
-import dabo.dEvents as dEvents
+from dabo import ui as dui
+from dabo import dEvents as dEvents
 from . import Page as pag
 from dabo.dLocalize import _
 
@@ -68,10 +68,10 @@ class PageFrameMixin(object):
 
 def PageFrame(parent, tabStyle="tabs", *args, **kwargs):
     try:
-        tabStyles = {"Tabs": dabo.ui.dPageFrame,
-                "Frame": dabo.ui.dPageFrame,
-                "List": dabo.ui.dPageList,
-                "Select": dabo.ui.dPageSelect
+        tabStyles = {"Tabs": dui.dPageFrame,
+                "Frame": dui.dPageFrame,
+                "List": dui.dPageList,
+                "Select": dui.dPageSelect
         }
         pageStyleClass = tabStyles[tabStyle.title()]
     except KeyError:

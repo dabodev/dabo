@@ -12,12 +12,13 @@ from zipfile import ZipFile
 from io import StringIO
 
 import dabo
-import dabo.dException as dException
+from dabo import dException as dException
 from dabo.dApp import dApp
 from dabo.dObject import dObject
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.lib.manifest import Manifest
+from dabo import ui as dui
 jsonEncode = dabo.lib.jsonEncode
 jsonDecode = dabo.lib.jsonDecode
 
@@ -201,15 +202,15 @@ class RemoteConnector(object):
         else:
             return res
         # We have a list of available apps. Let the user select one
-        class AppPicker(dabo.ui.dOkCancelDialog):
+        class AppPicker(dui.dOkCancelDialog):
             def addControls(self):
                 self.AutoSize = False
                 self.Width = 400
                 self.Height = 300
                 self.Caption = _("Select Application")
                 sz = self.Sizer
-                lbl = dabo.ui.dLabel(self, Caption=_("The server has the following app(s):"))
-                lst = dabo.ui.dListBox(self, RegID="appList")
+                lbl = dui.dLabel(self, Caption=_("The server has the following app(s):"))
+                lst = dui.dListBox(self, RegID="appList")
                 sz.DefaultBorder = 30
                 sz.DefaultBorderSides = ["left", "right"]
                 sz.DefaultSpacing = 20

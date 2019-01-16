@@ -2,7 +2,7 @@ import dabo
 import wx
 from dabo import dEvents as dEvents
 from dabo import ui as dui
-from . import dControlMixin as dcm
+from . import dControlMixin
 import locale, wx, sys, io
 import wx.lib.mixins.listctrl as listmix
 from wx import ImageFromStream, BitmapFromImage
@@ -438,7 +438,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 
 
 
-class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
+class dAutoComplete(dControlMixin, TextCtrlAutoComplete):
     """
     Creates a text box with a dropdown list that has the ability to filter
     multiple records or choices in the list based on entered text.
@@ -450,7 +450,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
         kwargs["choices"] = [""]
         self._userColNames = False
         self._dynamicChoices = None
-        dcm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+from dabo import ui as dui
 from . import dPemMixin
 from dabo.dLocalize import _
 from dabo.dObject import dObject
@@ -206,7 +207,7 @@ class dSizerMixin(dObject):
             itm._controllingSizerItem = None
             if destroy:
                 try:
-                    if isinstance(itm, dabo.ui.dSizerMixin):
+                    if isinstance(itm, dui.dSizerMixin):
                         itm.release(True)
                     else:
                         itm.release()
@@ -305,8 +306,8 @@ class dSizerMixin(dObject):
                     szr = szItem.GetSizer()
                     self.remove(szr, True)
         # Release this sizer
-        if isinstance(self, dabo.ui.dBorderSizer):
-            dabo.ui.callAfter(self.Box.release)
+        if isinstance(self, dui.dBorderSizer):
+            dui.callAfter(self.Box.release)
         self.Destroy()
 
 
@@ -391,7 +392,7 @@ class dSizerMixin(dObject):
         else:
             # Property is in the flag setting.
             flag = itm.GetFlag()
-            szClass = dabo.ui.dSizer
+            szClass = dui.dSizer
             if lowprop == "expand":
                 return bool(flag & szClass.expandFlag)
             elif lowprop == "halign":
@@ -446,15 +447,15 @@ class dSizerMixin(dObject):
             if itm.GetBorder() != int(val):
                 itm.SetBorder(int(val))
             ret = True
-        elif lowprop == "rowexpand" and isinstance(self, dabo.ui.dGridSizer):
+        elif lowprop == "rowexpand" and isinstance(self, dui.dGridSizer):
             self.setRowExpand(val, row)
             ret = True
-        elif lowprop == "colexpand" and isinstance(self, dabo.ui.dGridSizer):
+        elif lowprop == "colexpand" and isinstance(self, dui.dGridSizer):
             self.setColExpand(val, col)
             ret = True
-        elif lowprop == "rowspan" and isinstance(self, dabo.ui.dGridSizer):
+        elif lowprop == "rowspan" and isinstance(self, dui.dGridSizer):
             ret = self.setRowSpan(itm, val)
-        elif lowprop == "colspan" and isinstance(self, dabo.ui.dGridSizer):
+        elif lowprop == "colspan" and isinstance(self, dui.dGridSizer):
             ret = self.setColSpan(itm, val)
         elif lowprop == "spacing":
             if isinstance(val, int):
@@ -524,7 +525,7 @@ class dSizerMixin(dObject):
             itm = self.Parent
         except AttributeError:
             itm = self
-        dabo.ui.callAfterInterval(50, self._safeLayout, itm)
+        dui.callAfterInterval(50, self._safeLayout, itm)
         return ret
 
 
@@ -563,7 +564,7 @@ class dSizerMixin(dObject):
         return ret
 
 
-    @dabo.ui.deadCheck
+    @dui.deadCheck
     def getContainingWindow(self):
         """
         Return the window that contains this sizer. In the case of nested
@@ -626,7 +627,7 @@ class dSizerMixin(dObject):
             dc.SetBrush(wx.TRANSPARENT_BRUSH)
             dc.SetLogicalFunction(wx.COPY)
             # Draw the outline
-            dabo.ui.callAfter(dc.DrawRectangle, x+off, y+off, w-(2*off), h-(2*off) )
+            dui.callAfter(dc.DrawRectangle, x+off, y+off, w-(2*off), h-(2*off) )
 
         if recurse:
             for ch in self.GetChildren():
@@ -636,7 +637,7 @@ class dSizerMixin(dObject):
                         sz.drawOutline(win, recurse)
                 elif ch.IsWindow():
                     w = ch.GetWindow()
-                    if isinstance(w, dabo.ui.dPageFrame):
+                    if isinstance(w, dui.dPageFrame):
                         w = w.SelectedPage
                     if hasattr(w, "Sizer") and w.Sizer:
                         w.Sizer.drawOutline(w, True)
@@ -898,9 +899,9 @@ class dSizerMixin(dObject):
 
     def _getForm(self):
         parent = self.Parent
-        if isinstance(parent, dabo.ui.dFormMixin):
+        if isinstance(parent, dui.dFormMixin):
             return parent
-        elif isinstance(parent, dabo.ui.dPemMixin):
+        elif isinstance(parent, dui.dPemMixin):
             return parent.Form
         return None
 

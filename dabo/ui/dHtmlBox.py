@@ -9,16 +9,16 @@ import urllib.parse
 import datetime
 import dabo
 from dabo.dLocalize import _
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin as cm
+from . import dControlMixin
 try:
     import webbrowser as wb
 except ImportError:
     wb = None
 
 
-class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
+class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
     """
     Creates a scrolled panel that can load and display html pages. The Html Window
     can load any html text, file, or url that is fed to it.
@@ -32,7 +32,7 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
         self._source = self._page = ""
         self._respondToLinks = True
         self._openLinksInBrowser = False
-        cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
         self.SetScrollRate(10, 10)
         if wx.VERSION >= (2, 7):

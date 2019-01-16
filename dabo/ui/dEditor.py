@@ -12,8 +12,9 @@ import dabo
 from dabo import dEvents as dEvents
 from dabo import dColors as dColors
 from dabo.dLocalize import _
-import dDataControlMixin as dcm
-import dTimer
+from dabo import ui as dui
+from . import dDataControlMixin
+from . import dTimer
 
 LexerDic = {
     "ada": stc.STC_LEX_ADA,
@@ -227,7 +228,7 @@ class STCPrintout(wx.Printout):
         return True
 
 
-class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
+class dEditor(dDataControlMixin, stc.StyledTextCtrl):
     # The Editor is copied from the wxPython demo, StyledTextCtrl_2.py,
     # and modified. Thanks to Robin Dunn and everyone that contributed to
     # that demo to get us going!
@@ -281,7 +282,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
         stc.StyledTextCtrl.__init__(self, parent, -1,
                                     style = wx.NO_BORDER)
-        dcm.dDataControlMixin.__init__(self, name, properties=properties,
+        dDataControlMixin.__init__(self, name, properties=properties,
                                        attProperties=attProperties, _explicitName=_explicitName, *args, **kwargs)
         self._afterInit()
 

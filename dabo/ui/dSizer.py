@@ -4,7 +4,7 @@ import dabo
 from . import dPemMixin
 from . import dSizerMixin
 
-class dSizer(dSizerMixin.dSizerMixin, wx.BoxSizer):
+class dSizer(dSizerMixin, wx.BoxSizer):
     def __init__(self, *args, **kwargs ):
         # Convert Dabo orientation to wx orientation
         self._baseClass = dSizer

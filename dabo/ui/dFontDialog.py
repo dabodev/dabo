@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo.dConstants as k
+from dabo import dConstants as k
 
 
 class dFontDialog(wx.FontDialog):

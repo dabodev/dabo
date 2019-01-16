@@ -2,10 +2,10 @@
 import sys
 import wx
 import dabo
-import dabo.ui
-from . import dControlMixin as cm
+from dabo import ui as dui
+from . import dControlMixin
 from .dPage import dPage
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
@@ -14,7 +14,7 @@ from dabo.ui import makeDynamicProperty
 MSG_SMART_FOCUS_ABUSE = _("The '%s' control must inherit from dPage to use the UseSmartFocus feature.")
 
 
-class dPageFrameMixin(cm.dControlMixin):
+class dPageFrameMixin(dControlMixin):
     """Creates a container for an unlimited number of pages."""
 
     def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
@@ -25,7 +25,7 @@ class dPageFrameMixin(cm.dControlMixin):
 
     def _beforeInit(self, pre):
         self._imageList = {}
-        self._pageSizerClass = dabo.ui.dSizer
+        self._pageSizerClass = dui.dSizer
         super(dPageFrameMixin, self)._beforeInit(pre)
 
 
@@ -68,7 +68,7 @@ class dPageFrameMixin(cm.dControlMixin):
         # Make sure the PageEnter fires for the current page on
         # pageframe instantiation, as this doesn't happen automatically.
         # Putting this code in afterInit() results in a segfault on Linux, btw.
-        dabo.ui.callAfter(self.__pageChanged, 0, None)
+        dui.callAfter(self.__pageChanged, 0, None)
 
 
     def __onPageChanged(self, evt):
@@ -95,15 +95,15 @@ class dPageFrameMixin(cm.dControlMixin):
             if oldPageNum >= 0:
                 try:
                     oldPage = self.Pages[oldPageNum]
-                    dabo.ui.callAfter(oldPage.raiseEvent, dEvents.PageLeave)
+                    dui.callAfter(oldPage.raiseEvent, dEvents.PageLeave)
                 except IndexError:
                     # Page has already been released
                     return
 
         if newPageNum >= 0 and self.PageCount > newPageNum:
             newPage = self.Pages[newPageNum]
-            dabo.ui.callAfter(newPage.raiseEvent, dEvents.PageEnter)
-            dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged,
+            dui.callAfter(newPage.raiseEvent, dEvents.PageEnter)
+            dui.callAfter(self.raiseEvent, dEvents.PageChanged,
                     oldPageNum=oldPageNum, newPageNum=newPageNum)
             if self.UseSmartFocus:
                 try:
@@ -121,7 +121,7 @@ class dPageFrameMixin(cm.dControlMixin):
         if key is None:
             key = ustr(img)
         if isinstance(img, str):
-            img = dabo.ui.strToBmp(img)
+            img = dui.strToBmp(img)
         il = self.GetImageList()
         if not il:
             il = wx.ImageList(img.GetWidth(), img.GetHeight(), initialCount=0)
@@ -376,7 +376,7 @@ class dPageFrameMixin(cm.dControlMixin):
         ## pkm: It is possible for pages to not be instances of dPage
         ##      (such as in the AppWizard), resulting in self.PageCount > len(self.Pages)
         ##      if using the commented code below.
-        #return [pg for pg in self.Children    if isinstance(pg, dabo.ui.dPage) ]
+        #return [pg for pg in self.Children    if isinstance(pg, dui.dPage) ]
         return [self.GetPage(pg) for pg in range(self.PageCount)]
 
 
@@ -401,7 +401,7 @@ class dPageFrameMixin(cm.dControlMixin):
             ret = None
         return ret
 
-    @dabo.ui.deadCheck
+    @dui.deadCheck
     def _setSelectedPage(self, pg):
         if self._constructed():
             idx = self._getPageIndex(pg)
@@ -413,7 +413,7 @@ class dPageFrameMixin(cm.dControlMixin):
     def _getSelectedPageNumber(self):
         return self.GetSelection()
 
-    @dabo.ui.deadCheck
+    @dui.deadCheck
     def _setSelectedPageNumber(self, val):
         if self._constructed():
             self.SetSelection(val)

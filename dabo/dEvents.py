@@ -3,6 +3,8 @@ import logging
 import time
 import dabo
 from dabo.dLocalize import _
+from dabo import ui as dui
+
 
 class dEvent(object):
     """ Base class for Dabo events.
@@ -65,7 +67,7 @@ class dEvent(object):
         # Add native event data:
         if nativeEvent is not None:
             # Each UI lib should implement getEventData()
-            uiEventData = dabo.ui.getEventData(nativeEvent)
+            uiEventData = dui.getEventData(nativeEvent)
 
             for key in uiEventData:
                 eventData[key] = uiEventData[key]
@@ -151,69 +153,69 @@ class DataEvent(dEvent):
 
 class EditorEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dEditor)
+        return issubclass(objectClass, dui.dEditor)
     appliesToClass = classmethod(appliesToClass)
 
 
 class GridEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dGrid)
+        return issubclass(objectClass, dui.dGrid)
     appliesToClass = classmethod(appliesToClass)
 
 
 class KeyEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
         from dabo.dApp import dApp
-        return issubclass(objectClass, (dabo.ui.dPemMixin, dApp))
+        return issubclass(objectClass, (dui.dPemMixin, dApp))
     appliesToClass = classmethod(appliesToClass)
 
 
 class ListControlEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, (dabo.ui.dListControl, ))
+        return issubclass(objectClass, (dui.dListControl, ))
     appliesToClass = classmethod(appliesToClass)
 
 
 class MenuEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, (dabo.ui.dMenu, dabo.ui.dMenuItem,
-                dabo.ui.dMenuBar))
+        return issubclass(objectClass, (dui.dMenu, dui.dMenuItem,
+                dui.dMenuBar))
     appliesToClass = classmethod(appliesToClass)
 
 
 class MouseEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPemMixin)
+        return issubclass(objectClass, dui.dPemMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
 class ControlNavigationEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, (dabo.ui.dPage, dabo.ui.dForm))
+        return issubclass(objectClass, (dui.dPage, dui.dForm))
     appliesToClass = classmethod(appliesToClass)
 
 
 class SashEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dSplitter)
+        return issubclass(objectClass, dui.dSplitter)
     appliesToClass = classmethod(appliesToClass)
 
 
 class CalendarEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dCalendar)
+        return issubclass(objectClass, dui.dCalendar)
     appliesToClass = classmethod(appliesToClass)
 
 
 class TreeEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dTreeView)
+        return issubclass(objectClass, dui.dTreeView)
     appliesToClass = classmethod(appliesToClass)
 
 
 class SpinnerEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dSpinner)
+        return issubclass(objectClass, dui.dSpinner)
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -229,13 +231,13 @@ class ReportEvent(dEvent):
 
 class ScrollEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, (dabo.ui.dScrollPanel, dabo.ui.dGrid))
+        return issubclass(objectClass, (dui.dScrollPanel, dui.dGrid))
     appliesToClass = classmethod(appliesToClass)
 
 
 class MediaEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dMediaControl)
+        return issubclass(objectClass, dui.dMediaControl)
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -243,23 +245,23 @@ class Activate(dEvent):
     """Occurs when the form or application becomes active."""
     def appliesToClass(eventClass, objectClass):
         from dabo.dApp import dApp
-        return issubclass(objectClass, (dApp, dabo.ui.dForm,
-                dabo.ui.dFormMain, dabo.ui.dDialog))
+        return issubclass(objectClass, (dApp, dui.dForm,
+                dui.dFormMain, dui.dDialog))
     appliesToClass = classmethod(appliesToClass)
 
 
 class Close(dEvent):
     """Occurs when the user closes the form."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, (dabo.ui.dForm, dabo.ui.dFormMain,
-                dabo.ui.dDialog))
+        return issubclass(objectClass, (dui.dForm, dui.dFormMain,
+                dui.dDialog))
     appliesToClass = classmethod(appliesToClass)
 
 
 class Create(dEvent):
     """Occurs after the control or form is created."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPemMixin)
+        return issubclass(objectClass, dui.dPemMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -272,9 +274,9 @@ class ChildBorn(dEvent):
             self.Child = None
         super(ChildBorn, self).__init__(*args, **kwargs)
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, (dabo.ui.dForm, dabo.ui.dDialog,
-                dabo.ui.dPanel, dabo.ui.dPage, dabo.ui.dPageFrame, dabo.ui.dPageStyled,
-                dabo.ui.dPageList, dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs))
+        return issubclass(objectClass, (dui.dForm, dui.dDialog,
+                dui.dPanel, dui.dPage, dui.dPageFrame, dui.dPageStyled,
+                dui.dPageList, dui.dPageSelect, dui.dPageFrameNoTabs))
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -289,22 +291,22 @@ class Deactivate(dEvent):
     """Occurs when another form becomes active."""
     def appliesToClass(eventClass, objectClass):
         from dabo.dApp import dApp
-        return issubclass(objectClass, (dApp, dabo.ui.dForm,
-                dabo.ui.dFormMain, dabo.ui.dDialog))
+        return issubclass(objectClass, (dApp, dui.dForm,
+                dui.dFormMain, dui.dDialog))
     appliesToClass = classmethod(appliesToClass)
 
 
 class Destroy(dEvent):
     """Occurs when the control or form is destroyed."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPemMixin)
+        return issubclass(objectClass, dui.dPemMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
 class FontPropertiesChanged(dEvent):
     """Occurs when the properties of a dFont have changed."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPemMixin)
+        return issubclass(objectClass, dui.dPemMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -313,11 +315,11 @@ class Hit(dEvent):
     listbox pick, checkbox, etc.)
     """
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, (dabo.ui.dBitmapButton, dabo.ui.dButton,
-                dabo.ui.dCheckBox, dabo.ui.dComboBox, dabo.ui.dDropdownList,
-                dabo.ui.dEditBox, dabo.ui.dListBox, dabo.ui.dRadioList,
-                dabo.ui.dSlider, dabo.ui.dSpinner, dabo.ui.dTextBox, dabo.ui.dTimer,
-                dabo.ui.dToggleButton, dabo.ui.dMenuItem, dabo.ui.dToolBarItem))
+        return issubclass(objectClass, (dui.dBitmapButton, dui.dButton,
+                dui.dCheckBox, dui.dComboBox, dui.dDropdownList,
+                dui.dEditBox, dui.dListBox, dui.dRadioList,
+                dui.dSlider, dui.dSpinner, dui.dTextBox, dui.dTimer,
+                dui.dToggleButton, dui.dMenuItem, dui.dToolBarItem))
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -329,14 +331,14 @@ class Idle(dEvent):
     important) things.
     """
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPemMixin)
+        return issubclass(objectClass, dui.dPemMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
 class GotFocus(dEvent):
     """Occurs when the control gets the focus."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPemMixin)
+        return issubclass(objectClass, dui.dPemMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -360,7 +362,7 @@ class KeyUp(KeyEvent):
 class LostFocus(dEvent):
     """Occurs when the control loses the focus."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPemMixin)
+        return issubclass(objectClass, dui.dPemMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -372,21 +374,21 @@ class MenuHighlight(MenuEvent):
 class MenuOpen(MenuEvent):
     """Occurs when a menu is about to be opened."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPemMixin)
+        return issubclass(objectClass, dui.dPemMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
 class MenuClose(MenuEvent):
     """Occurs when a menu has just been closed."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPemMixin)
+        return issubclass(objectClass, dui.dPemMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
 class Move(dEvent):
     """Occurs when the control's position changes."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPemMixin)
+        return issubclass(objectClass, dui.dPemMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -481,14 +483,14 @@ class MouseMiddleDoubleClick(MouseEvent):
 class Paint(dEvent):
     """Occurs when it is time to paint the control."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPemMixin)
+        return issubclass(objectClass, dui.dPemMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
 class BackgroundErased(dEvent):
     """Occurs when a window background has been erased and needs repainting."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPemMixin)
+        return issubclass(objectClass, dui.dPemMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -496,11 +498,11 @@ class PageChanged(dEvent):
     """Occurs when a page in a pageframe-like control changes"""
     def appliesToClass(eventClass, objectClass):
         try:
-            return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
-                    dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs, dabo.ui.dPageStyled))
+            return issubclass(objectClass, (dui.dPageFrame, dui.dPageList,
+                    dui.dPageSelect, dui.dPageFrameNoTabs, dui.dPageStyled))
         except AttributeError:
-            return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
-                    dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs))
+            return issubclass(objectClass, (dui.dPageFrame, dui.dPageList,
+                    dui.dPageSelect, dui.dPageFrameNoTabs))
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -508,81 +510,81 @@ class PageChanging(dEvent):
     """Occurs when the current page in a pageframe-like control is about to change"""
     def appliesToClass(eventClass, objectClass):
         try:
-            return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
-                    dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs, dabo.ui.dPageStyled))
+            return issubclass(objectClass, (dui.dPageFrame, dui.dPageList,
+                    dui.dPageSelect, dui.dPageFrameNoTabs, dui.dPageStyled))
         except AttributeError:
-            return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList,
-                    dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs))
+            return issubclass(objectClass, (dui.dPageFrame, dui.dPageList,
+                    dui.dPageSelect, dui.dPageFrameNoTabs))
     appliesToClass = classmethod(appliesToClass)
 
 
 class PageClosed(dEvent):
     """Occurs when a page in a dPageStyled control is closed"""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPageStyled)
+        return issubclass(objectClass, dui.dPageStyled)
     appliesToClass = classmethod(appliesToClass)
 
 
 class PageClosing(dEvent):
     """Occurs when a page in a dPageStyled control is about to close"""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPageStyled)
+        return issubclass(objectClass, dui.dPageStyled)
     appliesToClass = classmethod(appliesToClass)
 
 
 class PageContextMenu(dEvent):
     """Occurs when the user requests a context event for a dPage"""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPage)
+        return issubclass(objectClass, dui.dPage)
     appliesToClass = classmethod(appliesToClass)
 
 
 class PageEnter(dEvent):
     """Occurs when the page becomes the active page."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPage)
+        return issubclass(objectClass, dui.dPage)
     appliesToClass = classmethod(appliesToClass)
 
 
 class PageLeave(dEvent):
     """Occurs when a different page becomes active."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPage)
+        return issubclass(objectClass, dui.dPage)
     appliesToClass = classmethod(appliesToClass)
 
 
 class Resize(dEvent):
     """Occurs when the control or form is resized."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPemMixin)
+        return issubclass(objectClass, dui.dPemMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
 class SearchButtonClicked(dEvent):
     """Occurs when the user clicks the search button in a dSearchBox."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, (dabo.ui.dSearchBox,))
+        return issubclass(objectClass, (dui.dSearchBox,))
     appliesToClass = classmethod(appliesToClass)
 
 
 class SearchCancelButtonClicked(dEvent):
     """Occurs when the user clicks the cancel button in a dSearchBox."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, (dabo.ui.dSearchBox,))
+        return issubclass(objectClass, (dui.dSearchBox,))
     appliesToClass = classmethod(appliesToClass)
 
 
 class SlidePanelChange(dEvent):
     """Occurs when a panel in a dSlidePanelControl control is hidden or shown."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, (dabo.ui.dSlidePanelControl, dabo.ui.dSlidePanel))
+        return issubclass(objectClass, (dui.dSlidePanelControl, dui.dSlidePanel))
     appliesToClass = classmethod(appliesToClass)
 
 
 class SlidePanelCaptionClick(dEvent):
     """Occurs when the caption bar of a dSlidePanel is clicked."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, (dabo.ui.dFoldPanelBar, dabo.ui.dSlidePanel))
+        return issubclass(objectClass, (dui.dFoldPanelBar, dui.dSlidePanel))
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -889,13 +891,13 @@ class ValueChanged(dEvent):
     programmatically or interactively.
     """
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dDataControlMixin)
+        return issubclass(objectClass, dui.dDataControlMixin)
     appliesToClass = classmethod(appliesToClass)
 
 class InteractiveChange(dEvent):
     """Occurs when the user interactively changes the control's value."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dDataControlMixin)
+        return issubclass(objectClass, dui.dDataControlMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -904,14 +906,14 @@ class Update(dEvent):
     their properties.
     """
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dPemMixin)
+        return issubclass(objectClass, dui.dPemMixin)
     appliesToClass = classmethod(appliesToClass)
 
 
 class HtmlLinkClicked(dEvent):
     """Occurs when a link in a dHtmlBox control is clicked."""
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dHtmlBox)
+        return issubclass(objectClass, dui.dHtmlBox)
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -920,7 +922,7 @@ class SpinUp(SpinnerEvent):
     the spinner 'up' button or by using the keyboard up arrow.
     """
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dSpinner)
+        return issubclass(objectClass, dui.dSpinner)
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -929,7 +931,7 @@ class SpinDown(SpinnerEvent):
     the spinner 'down' button or by using the keyboard down arrow.
     """
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dSpinner)
+        return issubclass(objectClass, dui.dSpinner)
     appliesToClass = classmethod(appliesToClass)
 
 
@@ -938,7 +940,7 @@ class Spinner(SpinnerEvent):
     one of the spinner buttons or by using the keyboard arrows.
     """
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dabo.ui.dSpinner)
+        return issubclass(objectClass, dui.dSpinner)
     appliesToClass = classmethod(appliesToClass)
 
 

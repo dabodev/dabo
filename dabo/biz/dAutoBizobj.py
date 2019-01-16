@@ -2,8 +2,9 @@
 import datetime
 import dabo
 from dabo.dLocalize import _
-import dabo.dException as dException
+from dabo import dException as dException
 from dabo.biz.dBizobj import dBizobj
+from dabo import ui as dui
 # Make sure that the user's installation supports Decimal.
 _USE_DECIMAL = True
 try:
@@ -53,7 +54,7 @@ def autoCreateTables(noAccessDialog=None):
 
     if g._toExc:
         if dabo.dAppRef is not None:
-            class DbAdminLogin(dabo.ui.dDialog):
+            class DbAdminLogin(dui.dDialog):
                 def __init__(self, parent, conn):
                     self._conn = conn
                     super(DbAdminLogin, self).__init__(parent)
@@ -62,34 +63,34 @@ def autoCreateTables(noAccessDialog=None):
                     import dabo.dEvents as dEvents
                     self.Caption = self.Application.getAppInfo("appName")
 
-                    self.Sizer = dabo.ui.dSizer("v")
-                    cs = dabo.ui.dGridSizer()
+                    self.Sizer = dui.dSizer("v")
+                    cs = dui.dGridSizer()
 
-                    lblmain = self.addObject(dabo.ui.dLabel, Caption=_("The database could not be setup. Contact your DB administrator."), FontBold=True, FontSize=14)
-                    lblinst = self.addObject(dabo.ui.dLabel, Caption=_("""For the DB Admin:
+                    lblmain = self.addObject(dui.dLabel, Caption=_("The database could not be setup. Contact your DB administrator."), FontBold=True, FontSize=14)
+                    lblinst = self.addObject(dui.dLabel, Caption=_("""For the DB Admin:
  The tables must either created by:
   1. using this program by TEMPORARLY giving this program access to the database to create the needed tables.
   2. or executing all the quries in the 'queries.sql' file."""))
 
                     hst, db = self._conn.ConnectInfo.Host, self._conn.ConnectInfo.Database
-                    lblinst2 = self.addObject(dabo.ui.dLabel, Caption=_("DBA, please enter the username and password that has access to create tables for database on server '%(hst)s' and database '%(db)s'") % locals())
+                    lblinst2 = self.addObject(dui.dLabel, Caption=_("DBA, please enter the username and password that has access to create tables for database on server '%(hst)s' and database '%(db)s'") % locals())
 
-                    o = self.addObject(dabo.ui.dLabel, Caption=_("Username"))
+                    o = self.addObject(dui.dLabel, Caption=_("Username"))
                     cs.append(o, row=0, col=0, border=3)
-                    self.txtUsername = self.addObject(dabo.ui.dTextBox)
+                    self.txtUsername = self.addObject(dui.dTextBox)
                     cs.append(self.txtUsername, row=0, col=1, border=3)
 
-                    o = self.addObject(dabo.ui.dLabel, Caption=_("Password"))
+                    o = self.addObject(dui.dLabel, Caption=_("Password"))
                     cs.append(o, row=1, col=0, border=3)
-                    self.txtPassword = self.addObject(dabo.ui.dTextBox, PasswordEntry=True)
+                    self.txtPassword = self.addObject(dui.dTextBox, PasswordEntry=True)
                     cs.append(self.txtPassword, row=1, col=1, border=3)
 
-                    s = dabo.ui.dSizer()
-                    b = self.addObject(dabo.ui.dButton, DefaultButton=True, Caption=_("OK"))
+                    s = dui.dSizer()
+                    b = self.addObject(dui.dButton, DefaultButton=True, Caption=_("OK"))
                     b.bindEvent(dEvents.Hit, self.onHitOK)
                     s.append(b, border=3)
 
-                    b = self.addObject(dabo.ui.dButton, CancelButton=True, Caption=_("Cancel"))
+                    b = self.addObject(dui.dButton, CancelButton=True, Caption=_("Cancel"))
                     b.bindEvent(dEvents.Hit, self.onHitCancel)
                     s.append(b, border=3)
 
@@ -103,11 +104,11 @@ def autoCreateTables(noAccessDialog=None):
 
                 def onHitOK(self, evt):
                     if not self.txtUsername.Value:
-                        dabo.ui.exclaim(_("You must enter the username first."))
+                        dui.exclaim(_("You must enter the username first."))
                         return
 
                     if not self.txtPassword.Value:
-                        dabo.ui.exclaim(_("You must enter the password first."))
+                        dui.exclaim(_("You must enter the password first."))
                         return
 
                     self._data = (self.txtUsername.Value, self.txtPassword.Value)
@@ -141,7 +142,7 @@ def autoCreateTables(noAccessDialog=None):
                     try:
                         tempConn = dabo.db.dConnection(ci)
                     except dException.DBNoAccessException:
-                        dabo.ui.stop(_("Could not access the database with the given username and password."))
+                        dui.stop(_("Could not access the database with the given username and password."))
                         _writeQueriesToFile(g._toExc)
                         raise dException.DBNoAccessException
                     else:
@@ -152,7 +153,7 @@ def autoCreateTables(noAccessDialog=None):
                             try:
                                 cur.execute(query)
                             except dException.DBNoAccessExeption:
-                                dabo.ui.stop(_("Could not setup the database. Access was denied."))
+                                dui.stop(_("Could not setup the database. Access was denied."))
                                 _writeQueriesToFile(g._toExc)
                                 raise dException.DBNoAccessException
 

@@ -10,7 +10,7 @@ import dabo
 from dabo.dLocalize import _
 from dabo import dEvents as dEvents
 from dabo import ui as dui
-from dui import makeDynamicProperty
+from dabo.ui import makeDynamicProperty
 
 flag_allow_float = aui.AUI_MGR_ALLOW_FLOATING
 flag_show_active = aui.AUI_MGR_ALLOW_ACTIVE_PANE

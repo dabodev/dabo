@@ -4,13 +4,13 @@ import time
 import wx
 import dabo
 from dabo.ui import makeDynamicProperty
-from . import dDataControlMixin as dcm
-from . import dControlItemMixin as cim
-import dabo.dEvents as dEvents
+from . import dDataControlMixin
+from . import dControlItemMixin
+from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 
 
-class _dRadioButton(dcm.dDataControlMixin, wx.RadioButton):
+class _dRadioButton(dDataControlMixin, wx.RadioButton):
     """
     Subclass of wx.RadioButton. Not meant to be used individually, but
     only in the context of a parent dRadioList control.
@@ -18,7 +18,7 @@ class _dRadioButton(dcm.dDataControlMixin, wx.RadioButton):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = _dRadioButton
         preClass = wx.PreRadioButton
-        dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 
@@ -120,7 +120,7 @@ class _dRadioButton(dcm.dDataControlMixin, wx.RadioButton):
             self.Parent.PositionValue = positionValue
 
 
-class dRadioList(cim.dControlItemMixin, wx.Panel):
+class dRadioList(dControlItemMixin, wx.Panel):
     """
     Creates a group of radio buttons, allowing mutually-exclusive choices.
 
@@ -149,7 +149,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
         # 'ButtonSpacing' property.
         self._buttonSpacing = 5
 
-        cim.dControlItemMixin.__init__(self, preClass, parent, properties=properties,
+        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

@@ -2,13 +2,13 @@
 import wx
 import dabo
 from dabo import ui as dui
-from . import dControlMixin as dcm
+from . import dControlMixin
 import wx.lib.agw.pycollapsiblepane as pcp
 from dabo.dLocalize import _
 from .dPanel import dPanel
 
 
-class dCollapsiblePanel(dcm.dControlMixin, pcp.PyCollapsiblePane):
+class dCollapsiblePanel(dControlMixin, pcp.PyCollapsiblePane):
     """
     A collapsible pane is a container with an embedded button-like control which can
     be used by the user to collapse or expand the pane's contents.
@@ -26,7 +26,7 @@ class dCollapsiblePanel(dcm.dControlMixin, pcp.PyCollapsiblePane):
         self.itemsCreated = False
         self._baseClass = dCollapsiblePanel
         preClass = pcp.PyCollapsiblePane
-        dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+        dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
         self._pPane = dPanel(self, Visible=False, BorderStyle="None")
 
     def _initEvents(self):

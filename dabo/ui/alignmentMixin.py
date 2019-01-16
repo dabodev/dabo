@@ -3,7 +3,7 @@ import wx
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo import ui as dui
-from dui import makeDynamicProperty
+from dabo.ui import makeDynamicProperty
 
 class AlignmentMixin(object):
     def _getAlignment(self):

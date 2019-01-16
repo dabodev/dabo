@@ -7,13 +7,12 @@ import os
 
 import wx
 import dabo
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib import utils
 
-#import dControlMixin as dcm
-from .dDataControlMixin import dDataControlMixin as dcm
-from . import dImageMixin as dim
+from .dDataControlMixin import dDataControlMixin
+from .dImageMixin import dImageMixin
 from dabo.ui import makeDynamicProperty
 
 # See if PIL is installed
@@ -39,7 +38,7 @@ def _exifToImg(orientation):
 
 
 
-class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
+class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
     """Create a simple bitmap to display images."""
     def __init__(self, parent, properties=None, attProperties=None,
             *args, **kwargs):
@@ -67,8 +66,8 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
         picName = self._extractKey((kwargs, properties, attProperties), "Picture", "")
         self._pictureIndex = self._extractKey((kwargs, properties, attProperties), "PictureIndex", -1)
 
-        dim.dImageMixin.__init__(self)
-        dcm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
+        dImageMixin.__init__(self)
+        dDataControlMixin.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
                 bitmap=wx.EmptyBitmap(1, 1), *args, **kwargs)
 
         # Display the picture, if any. This will also initialize the

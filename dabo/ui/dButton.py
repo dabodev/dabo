@@ -2,13 +2,13 @@
 import wx
 import dabo
 from dabo import ui as dui
-from . import dControlMixin as cm
+from . import dControlMixin
 from dabo.dLocalize import _
 from dabo import dEvents as dEvents
-from dui import makeDynamicProperty
+from dabo.ui import makeDynamicProperty
 
 
-class dButton(cm.dControlMixin, wx.Button):
+class dButton(dControlMixin, wx.Button):
     """
     Creates a button that can be pressed by the user to trigger an action.
 
@@ -25,7 +25,7 @@ class dButton(cm.dControlMixin, wx.Button):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dButton
         preClass = wx.PreButton
-        cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

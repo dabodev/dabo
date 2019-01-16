@@ -2,12 +2,12 @@
 import wx
 import wx.lib.buttons as wxb
 import dabo
-from . import dDataControlMixin as dcm
-from . import dImageMixin as dim
+from . import dDataControlMixin
+from . import dImageMixin
 from dabo.dLocalize import _
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 
-class dToggleButton(dcm.dDataControlMixin, dim.dImageMixin,
+class dToggleButton(dDataControlMixin, dImageMixin,
         wxb.GenBitmapTextToggleButton):
     """
     Creates a button that toggles on and off, for editing boolean values.
@@ -31,8 +31,8 @@ class dToggleButton(dcm.dDataControlMixin, dim.dImageMixin,
         kwargs["BezelWidth"] = bw
         style = self._extractKey((properties, attProperties, kwargs), "style", 0) | wx.BORDER_NONE
         kwargs["style"] = style
-        dim.dImageMixin.__init__(self)
-        dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+        dImageMixin.__init__(self)
+        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
         self.Bind(wx.EVT_BUTTON, self.__onButton)
 

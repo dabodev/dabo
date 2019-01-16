@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 import wx, dabo, dabo.ui
-from . import dControlItemMixin as dcm
-import dabo.dEvents as dEvents
+from . import dControlItemMixin
+from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dListBox(dcm.dControlItemMixin, wx.ListBox):
+class dListBox(dControlItemMixin, wx.ListBox):
     """Creates a listbox, allowing the user to choose one or more items."""
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dListBox
         self._choices = []
 
         preClass = wx.PreListBox
-        dcm.dControlItemMixin.__init__(self, preClass, parent, properties=properties,
+        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

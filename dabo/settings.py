@@ -47,7 +47,7 @@ allNativeEventInfo = False
 #
 #   dabo.fastNameSet = True
 #   for i in range(200):
-#     self.addObject(dabo.ui.dButton, Name="b_%s" % i)
+#     self.addObject(dui.dButton, Name="b_%s" % i)
 #   dabo.fastNameSet = False
 fastNameSet = False
 
@@ -72,12 +72,12 @@ autoBindEvents = True
 # If you set MDI to True, then dFormMain and dForm will default to being MDI
 # parent and MDI child, respectively. IOW, you don't have to change your dForm
 # and dFormMain subclasses to inherit from dFormChildMDI, etc., but it comes at
-# the cost of being a global setting. This must be set before dabo.ui is
+# the cost of being a global setting. This must be set before dui is
 # imported (ie right at the top of your app). Note that you could instead choose
 # to deal with MDI/SDI explicitly in your form subclasses. IOW:
-#        class MyForm(dabo.ui.dFormChildMDI)
-#        class MyForm(dabo.ui.dFormParentMDI)
-#        class MyForm(dabo.ui.dFormSDI)
+#        class MyForm(dui.dFormChildMDI)
+#        class MyForm(dui.dFormParentMDI)
+#        class MyForm(dui.dFormSDI)
 #
 # All the MDI setting does is make dFormMain == (dFormMainSDI or dFormMainParentMDI)
 # and dForm == (dFormSDI or dFormChildMDI)
@@ -220,7 +220,7 @@ reportTTFontFileMap = {}
 # Determines if we import the debugger into the dabo namespace
 importDebugger = True
 
-# Do we save the current call stack to dabo.ui.lastCallAfterStack in every
+# Do we save the current call stack to dui.lastCallAfterStack in every
 # callAfter() call?
 saveCallAfterStack = False
 

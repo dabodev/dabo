@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-import dabo.dConstants as kons
-import dabo.dColors as dColors
+from dabo import dConstants as kons
+from dabo import dColors as dColors
 
 
 class dColorDialog(wx.ColourDialog):

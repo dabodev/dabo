@@ -2,11 +2,11 @@
 import wx
 import dabo
 from dabo import ui as dui
-from . import dControlItemMixin as dcm
+from . import dControlItemMixin
 from dabo.dLocalize import _
 
 
-class dCheckList(dcm.dControlItemMixin, wx.CheckListBox):
+class dCheckList(dControlItemMixin, wx.CheckListBox):
     """
     Creates a listbox, allowing the user to choose one or more items
     by checking/unchecking each one.
@@ -15,7 +15,7 @@ class dCheckList(dcm.dControlItemMixin, wx.CheckListBox):
         self._baseClass = dCheckList
         self._choices = []
         preClass = wx.PreCheckListBox
-        dcm.dControlItemMixin.__init__(self, preClass, parent, properties=properties,
+        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

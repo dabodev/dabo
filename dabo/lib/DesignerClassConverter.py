@@ -15,9 +15,10 @@ import dabo
 from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dabo.lib import utils
-import dabo.ui.dialogs as dlgs
-import dabo.lib.xmltodict as xtd
-import dabo.lib.DesignerUtils as desUtil
+from dabo import ui as dui
+from dabo.ui import dialogs as dlgs
+from dabo.lib import xmltodict as xtd
+from dabo.lib import DesignerUtils as desUtil
 from dabo.lib.utils import ustr
 # Doesn't matter what platform we're on; Python needs
 # newlines in its compiled code.
@@ -871,7 +872,7 @@ class DesignerClassConverter(dObject):
 
 """
         self._clsHdrText = """import dabo
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 from dabo.lib.utils import ustr
 import sys
 |classImportStatements|

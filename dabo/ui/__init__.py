@@ -16,10 +16,12 @@ import warnings
 
 import dabo
 from . import dKeys
+from dabo.dException import dException
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib import utils
 from dabo.lib.utils import ustr
+from dabo import ui as dui
 
 # Very VERY first thing: ensure a minimal wx is selected, but only if
 # wx hasn't already been imported, and if we aren't running frozen:
@@ -69,7 +71,6 @@ del(_failedLibs)
 #######################################################
 import wx
 from wx import ImageFromStream, BitmapFromImage
-from dabo import ui as dui
 from dabo import dConstants as kons
 from .uiApp import uiApp
 
@@ -83,22 +84,9 @@ if wx.PlatformInfo[0] == "__WXGTK__":
     _platform += " (%s)" % wx.PlatformInfo[3]
 uiType["platform"] = _platform
 
-# Add these to the dui namespace
+# Add these to the dabo.ui namespace
 assertionException = wx.wxAssertionError
 nativeScrollBar = wx.ScrollBar
-
-
-
-
-
-
-
-def getUIType():
-    """Return the identifier of the currently loaded UI, or None."""
-    try:
-        return uiType["shortName"]
-    except (AttributeError, NameError, KeyError):
-        return None
 
 
 def deadCheck(fn, *args, **kwargs):
@@ -114,16 +102,6 @@ def deadCheck(fn, *args, **kwargs):
             return
         return fn(self, *args, **kwargs)
     return deadCheckFunc
-
-
-def getEventData(uiEvent):
-    """
-    Given a UI-specific event object, return a UI-agnostic name/value dictionary.
-
-    This function must be overridden in each ui library's __init__.py to function
-    correctly.
-    """
-    return {}
 
 
 def makeDynamicProperty(prop, additionalDoc=None):
@@ -254,7 +232,6 @@ def makeProxyProperty(dct, nm, proxyAtts):
         except AttributeError:
             pass
 
-
     if not isinstance(proxyAtts, (list, tuple)):
         proxyAtts = (proxyAtts, )
     dct[nm] = proxyAtts
@@ -269,15 +246,14 @@ def makeProxyProperty(dct, nm, proxyAtts):
     return property(fget, fset, None, doc)
 
 
-# Import dPemMixin first, and then manually put into dui module. This is
-# because dControlMixinBase, which is in dui, descends from dPemMixin, which
-# is in dui.uiwx. Must also do the same with dControlMixin, as dDataControlMixinBase
-# descends from it.
+# Import the mixin classes first, as other classes require them.
 from .dPemMixin import dPemMixin
 from .dControlMixin import dControlMixin
+from .dControlItemMixin import dControlItemMixin
 from .dDataControlMixin import dDataControlMixin
 from .dFormMixin import dFormMixin
 from .dSizerMixin import dSizerMixin
+from .dImageMixin import dImageMixin
 
 # Import into public namespace:
 from .dBox import dBox
@@ -439,6 +415,25 @@ artConstants["hd"] = artConstants.get("harddisk")
 artConstants["info"] = artConstants.get("information")
 artConstants["file"] = artConstants.get("normalfile")
 
+
+def getUIType():
+    """Return the identifier of the currently loaded UI, or None."""
+    try:
+        return uiType["shortName"]
+    except (AttributeError, NameError, KeyError):
+        return None
+
+
+def getEventData(uiEvent):
+    """
+    Given a UI-specific event object, return a UI-agnostic name/value dictionary.
+
+    This function must be overridden in each ui library's __init__.py to function
+    correctly.
+    """
+    return {}
+
+
 def getUiApp(app, uiAppClass=None, callback=None, forceNew=False):
     """
     This returns an instance of uiApp. If one is already running, that
@@ -465,11 +460,11 @@ def callAfter(fnc, *args, **kwargs):
     event loop.
     """
     if dabo.saveCallAfterStack:
-        dui.lastCallAfterStack = "".join(traceback.format_stack())
+        lastCallAfterStack = "".join(traceback.format_stack())
     wx.CallAfter(fnc, *args, **kwargs)
 
 
-_callAfterIntervalReferences = dui._callAfterIntervalReferences = {}
+_callAfterIntervalReferences = {}
 def callAfterInterval(interval, func, *args, **kwargs):
     """
     Call the given function after <interval> milliseconds have elapsed.
@@ -480,8 +475,9 @@ def callAfterInterval(interval, func, *args, **kwargs):
     refresh something because you changed it, but the frequency of changes can be
     high.
     """
+    global lastCallAfterStack
     if dabo.saveCallAfterStack:
-        dui.lastCallAfterStack = "".join(traceback.format_stack())
+        lastCallAfterStack = "".join(traceback.format_stack())
     if isinstance(func, int):
         # Arguments are in the old order
         interval, func = func, interval
@@ -567,7 +563,7 @@ def busyInfo(msg="Please wait...", *args, **kwargs):
     Assign the return value to a local object, and the message will stay until the
     object is explicitly unbound. For example::
 
-        bi = dui.busyInfo("Please wait while I count to 10000...")
+        bi = dabo.ui.busyInfo("Please wait while I count to 10000...")
         for i in range(10000):
             pass
         bi = None
@@ -729,7 +725,7 @@ def getEventData(wxEvt):
     if isinstance(wxEvt, wx.CloseEvent):
         ed["force"] = not wxEvt.CanVeto()
 
-    if (isinstance(wxEvt, wx.TreeEvent) or isinstance(obj, dui.dTreeView)) \
+    if (isinstance(wxEvt, wx.TreeEvent) or isinstance(obj, dTreeView)) \
             and not isinstance(wxEvt, wx.WindowDestroyEvent):
         sel = obj.Selection
         ed["selectedNode"] = sel
@@ -883,7 +879,7 @@ def getMouseObject():
 #     win = wx.FindWindowAtPoint(getMousePosition())
     actwin = dabo.dAppRef.ActiveForm
 #     print "ACTWIN", actwin
-    if isinstance(actwin, dui.dShell):
+    if isinstance(actwin, dShell):
         actwin.lockDisplay()
         actwin.sendToBack()
     else:
@@ -892,7 +888,7 @@ def getMouseObject():
     if actwin is not None:
         actwin.bringToFront()
         actwin.unlockDisplay()
-    while not isinstance(win, dui.dPemMixin):
+    while not isinstance(win, dPemMixin):
         try:
             win = win.GetParent()
         except AttributeError:
@@ -909,7 +905,7 @@ def getObjectAtPosition(x, y=None):
     if y is None:
         x, y = x
     win = wx.FindWindowAtPoint((x,y))
-    while not isinstance(win, dui.dPemMixin):
+    while not isinstance(win, dPemMixin):
         try:
             win = win.GetParent()
         except AttributeError:
@@ -1036,17 +1032,17 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
         txt = dui.getString(PasswordEntry=True)
 
     """
-    class StringDialog(dui.dOkCancelDialog):
+    class StringDialog(dOkCancelDialog):
         def addControls(self):
             self.Caption = caption
-            lbl = dui.dLabel(self, Caption=message)
-            self.strVal = dui.dTextBox(self, **kwargs)
-            hs = dui.dSizer("h")
+            lbl = dLabel(self, Caption=message)
+            self.strVal = dTextBox(self, **kwargs)
+            hs = dSizer("h")
             hs.append(lbl, halign="Right")
             hs.appendSpacer(5)
             hs.append(self.strVal, 1)
             self.Sizer.append(hs, "expand")
-            dui.callAfter(self.strVal.setFocus)
+            callAfter(self.strVal.setFocus)
 
     if defaultValue:
         kwargs["Value"] = defaultValue
@@ -1063,17 +1059,17 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
 def getInt(message=_("Enter an integer value:"), caption="Dabo",
         defaultValue=0, **kwargs):
     """Simple dialog for returning an integer value from the user."""
-    class IntDialog(dui.dOkCancelDialog):
+    class IntDialog(dOkCancelDialog):
         def addControls(self):
             self.Caption = caption
-            lbl = dui.dLabel(self, Caption=message)
-            self.spnVal = dui.dSpinner(self, **kwargs)
-            hs = dui.dSizer("h")
+            lbl = dLabel(self, Caption=message)
+            self.spnVal = dSpinner(self, **kwargs)
+            hs = dSizer("h")
             hs.append(lbl, halign="Right")
             hs.appendSpacer(5)
             hs.append(self.spnVal)
             self.Sizer.append(hs)
-            dui.callAfter(self.spnVal.setFocus)
+            callAfter(self.spnVal.setFocus)
 
     if defaultValue:
         kwargs["Value"] = defaultValue
@@ -1114,11 +1110,11 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
         defaultPos = 0
     if mult is None:
         mult = False
-    class ChoiceDialog(dui.dOkCancelDialog):
+    class ChoiceDialog(dOkCancelDialog):
         def addControls(self):
             self.Caption = caption
-            lbl = dui.dLabel(self, Caption=message)
-            self.lst = dui.dListBox(self, Choices=choices,
+            lbl = dLabel(self, Caption=message)
+            self.lst = dListBox(self, Choices=choices,
                     PositionValue=defaultPos, MultipleSelect=mult,
                     OnMouseLeftDoubleClick=self.onMouseLeftDoubleClick)
             sz = self.Sizer
@@ -1127,12 +1123,12 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
             sz.appendSpacer(5)
             sz.append(self.lst, 4, halign="center")
             if mult:
-                hsz = dui.dSizer("h")
-                btnAll = dui.dButton(self, Caption=_("Select All"),
+                hsz = dSizer("h")
+                btnAll = dButton(self, Caption=_("Select All"),
                         OnHit=self.selectAll)
-                btnNone = dui.dButton(self, Caption=_("Unselect All"),
+                btnNone = dButton(self, Caption=_("Unselect All"),
                         OnHit=self.unselectAll)
-                btnInvert = dui.dButton(self, Caption=_("Invert Selection"),
+                btnInvert = dButton(self, Caption=_("Invert Selection"),
                         OnHit=self.invertSelection)
                 hsz.append(btnAll)
                 hsz.appendSpacer(8)
@@ -1142,7 +1138,7 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
                 sz.appendSpacer(16)
                 sz.append(hsz, halign="center", border=20)
                 sz.appendSpacer(8)
-                sz.append(dui.dLine(self), "x", border=44,
+                sz.append(dLine(self), "x", border=44,
                         borderSides=("left", "right"))
             sz.appendSpacer(24)
 
@@ -1401,8 +1397,8 @@ def getSystemInfo(returnType=None):
         appVersion = "?"
         appName = "Dabo"
     ds.append({"name": "Dabo Version:", "value": dabo.__version__})
-    ds.append({"name": "UI Version:", "value": "%s on %s" % (dui.uiType["version"],
-            dui.uiType["platform"])})
+    ds.append({"name": "UI Version:", "value": "%s on %s" % (uiType["version"],
+            uiType["platform"])})
     if rType == "d":
         # Return the dataset
         return ds
@@ -1419,7 +1415,7 @@ def sortList(chc, Caption="", ListCaption=""):
     and returns the sorted list if the user clicks 'OK'. If they cancel
     out, the original list is returned.
     """
-    from dui.dialogs.SortingForm import SortingForm
+    from dialogs.SortingForm import SortingForm
     ret = chc
     # Make sure all items are string types. Convert those that are not,
     # but store their original values in a dict to be used for converting
@@ -1551,10 +1547,10 @@ def createMenuBar(src, form=None, previewFunc=None):
     def addMenu(mb, menuDict, form, previewFunc):
         if form is None:
             form = dabo.dAppRef.ActiveForm
-        if isinstance(mb, dui.dMenuBar):
-            menu = dui.dMenu(mb)
+        if isinstance(mb, dMenuBar):
+            menu = dMenu(mb)
         else:
-            menu = dui.dMenu()
+            menu = dMenu()
         atts = menuDict["attributes"]
         menu.Caption = menu._extractKey(atts, "Caption")
         menu.MRU = menu._extractKey(atts, "MRU")
@@ -1613,7 +1609,7 @@ def createMenuBar(src, form=None, previewFunc=None):
                 stop(e, _("File Not Found"))
                 return
         mnd = dabo.lib.xmltodict.xmltodict(src)
-    mb = dui.dMenuBar()
+    mb = dMenuBar()
     for mn in mnd["children"]:
         addMenu(mb, mn, form, previewFunc)
     return mb
@@ -1809,7 +1805,7 @@ def browse(dataSource, parent=None, keyCaption=None, includeFields=None,
 
     parentPassed = True
     if parent is None:
-        parent = dui.dForm(None, Caption=cap)
+        parent = dForm(None, Caption=cap)
         parentPassed = False
 
     grd = dGrid(parent, AlternateRowColoring=True)
@@ -1866,7 +1862,7 @@ def setPositionInSizer(obj, pos):
 
 
 def fontMetricFromFont(txt, font):
-    if isinstance(font, dui.dFont):
+    if isinstance(font, dFont):
         font = font._nativeFont
     wind = wx.Frame(None)
     dc = wx.ClientDC(wind)
@@ -1920,7 +1916,7 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
     if italic is not None:
         fnt.SetStyle(wx.ITALIC)
 
-    if not isinstance(wind, (dui.dForm, wx.Frame)):
+    if not isinstance(wind, (dForm, wx.Frame)):
         try:
             wind = wind.Form
         except AttributeError:
@@ -2158,11 +2154,12 @@ def setdFormClass(typ):
     form class, depending on the parameter, which can be either 'SDI'
     or 'MDI'.
     """
+    global dForm
     lowtype = typ.lower().strip()
     if lowtype == "mdi":
-        dui.__dict__["dForm"] = dFormChildMDI
+        dForm = dFormChildMDI
     elif lowtype == "sdi":
-        dui.__dict__["dForm"] = dFormSDI
+        dForm = dFormSDI
 
 
 def spawnProcess(cmd, wait=False, handler=None):
@@ -2202,7 +2199,7 @@ def spawnProcess(cmd, wait=False, handler=None):
     return pidOrResult, proc
 
 
-class GridSizerSpanException(dabo.dException.dException):
+class GridSizerSpanException(dException):
     """
     Raised when an attempt is made to set the RowSpan or
     ColSpan of an item to an illegal value.

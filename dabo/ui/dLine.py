@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import wx, dabo, dabo.ui
-from . import dControlMixin as cm
+from . import dControlMixin
 from dabo.ui import makeDynamicProperty
 from dabo.lib.utils import ustr
 
 
 
-class dLine(cm.dControlMixin, wx.StaticLine):
+class dLine(dControlMixin, wx.StaticLine):
     """
     Creates a horizontal or vertical line.
 
@@ -20,7 +20,7 @@ class dLine(cm.dControlMixin, wx.StaticLine):
         self._baseClass = dLine
         preClass = wx.PreStaticLine
 
-        cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

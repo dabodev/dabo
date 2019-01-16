@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-import dabo.dException as dException
+from dabo import dException as dException
 from dabo.dLocalize import _, n_
-from . import dControlMixin as dcm
+from . import dControlMixin
 
 
-class dStatusBar(dcm.dControlMixin, wx.StatusBar):
+class dStatusBar(dControlMixin, wx.StatusBar):
     """
     Creates a status bar, which displays information to the user.
 
@@ -18,7 +18,7 @@ class dStatusBar(dcm.dControlMixin, wx.StatusBar):
         preClass = wx.PreStatusBar
         self._platformIsWindows = (self.Application.Platform == "Win")
         self._fieldCount = 1
-        dcm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

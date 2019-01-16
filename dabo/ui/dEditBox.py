@@ -5,7 +5,7 @@ from dabo import ui as dui
 from . import dTextBoxMixin as tbm
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
-from dui import makeDynamicProperty
+from dabo.ui import makeDynamicProperty
 
 
 # The EditBox is just a TextBox with some additional styles.

@@ -258,7 +258,7 @@ def quickStart(homedir=None):
     makeDaboDirectories()
     open("main.py", "w").write("""#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import dabo.ui
+from dabo import ui as dui
 from dabo.dApp import dApp
 
 app = dApp()
@@ -266,7 +266,7 @@ app = dApp()
 # IMPORTANT! Change app.MainFormClass value to the name
 # of the form class that you want to run when your
 # application starts up.
-app.MainFormClass = dabo.ui.dFormMain
+app.MainFormClass = dui.dFormMain
 
 app.start()
 """)

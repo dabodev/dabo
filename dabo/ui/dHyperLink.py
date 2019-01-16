@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 import wx
-import wx.lib.hyperlink as hyperlink
+import wx.lib.agw.hyperlink as hyperlink
 import dabo
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin as dcm
-import dabo.dEvents as dEvents
-import dabo.dColors as dColors
+from . import dControlMixin
+from dabo import dEvents as dEvents
+from dabo import dColors as dColors
 from .alignmentMixin import AlignmentMixin
 
 
 
-class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
+class dHyperLink(dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
     """
     Creates a hyperlink that, when clicked, launches the specified
     URL in the user's default browser, or raises a Hit event for your
@@ -22,7 +22,7 @@ class dHyperLink(dcm.dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
         self._baseClass = dHyperLink
         preClass = hyperlink.HyperLinkCtrl
 
-        dcm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
         # Make the rollover effect the default, unless it was specified as False.

@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import dabo
+from dabo import ui as dui
 from dabo.ui import makeDynamicProperty
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 
 
-class dPage(dabo.ui.dScrollPanel):
+class dPage(dui.dScrollPanel):
     """Creates a page to appear as a tab in a pageframe."""
     def __init__(self, *args, **kwargs):
         self._caption = ""
@@ -45,7 +46,7 @@ class dPage(dabo.ui.dScrollPanel):
         self.createItems()
         self.itemsCreated = True
         self.layout()
-        dabo.ui.callAfter(self.unlockDisplay)
+        dui.callAfter(self.unlockDisplay)
 
 
     def createItems(self):
@@ -75,7 +76,7 @@ class dPage(dabo.ui.dScrollPanel):
         if not self.itemsCreated:
             self._createItems()
         if self._pendingUpdates:
-            dabo.ui.callAfter(self.update)
+            dui.callAfter(self.update)
 
 
     def __onPageLeave(self, evt):

@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-from . import dPemMixin
 from . import dSizerMixin
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
+class dGridSizer(dSizerMixin, wx.GridBagSizer):
     def __init__(self, *args, **kwargs):
         """
         dGridSizer is a sizer that can lay out items in a virtual grid arrangement.
@@ -45,7 +44,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
             bad = ", ".join(list(kwargs.keys()))
             raise TypeError(("Invalid keyword arguments passed to dGridSizer: %s") % bad)
 
-        dSizerMixin.dSizerMixin.__init__(self, *args, **kwargs)
+        dSizerMixin.__init__(self, *args, **kwargs)
 
 
     def append(self, item, layout="normal", row=-1, col=-1,

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-import dabo.ui
-import dabo.dColors as dColors
+from dabo import ui as dui
+from dabo import dColors as dColors
 from dabo.dLocalize import _
 
 
-class dLed(dabo.ui.dDataPanel):
+class dLed(dui.dDataPanel):
     def __init__(self, *args, **kwargs):
         self._offColor = "darkred"
         self._onColor = "green"
@@ -102,27 +102,27 @@ class dLed(dabo.ui.dDataPanel):
 
 if __name__ == '__main__':
     from dabo.dApp import dApp
-    class TestForm(dabo.ui.dForm):
+    class TestForm(dui.dForm):
         def afterInit(self):
-            mp = dabo.ui.dPanel(self)
+            mp = dui.dPanel(self)
             self.Sizer.append1x(mp)
-            mp.Sizer = dabo.ui.dSizer("h")
+            mp.Sizer = dui.dSizer("h")
             mp.Sizer.append1x(dLed(self, RegID="LED"))
 
-            vs = dabo.ui.dSizer("v", DefaultBorder=20)
+            vs = dui.dSizer("v", DefaultBorder=20)
             vs.appendSpacer(20)
             vs.DefaultBorderLeft = vs.DefaultBorderRight = True
-            btn = dabo.ui.dToggleButton(mp, Caption="Toggle LED",
+            btn = dui.dToggleButton(mp, Caption="Toggle LED",
                     DataSource=self.LED, DataField="On", Value=False)
             vs.append(btn)
             vs.appendSpacer(12)
-            vs.append(dabo.ui.dLabel(mp, Caption="On Color:"))
-            dd = dabo.ui.dDropdownList(mp, Choices=dColors.colors,
+            vs.append(dui.dLabel(mp, Caption="On Color:"))
+            dd = dui.dDropdownList(mp, Choices=dColors.colors,
                     DataSource=self.LED, DataField="OnColor", Value="mediumseagreen")
             vs.append(dd)
             vs.appendSpacer(12)
-            vs.append(dabo.ui.dLabel(mp, Caption="Off Color:"))
-            dd = dabo.ui.dDropdownList(mp, Choices=dColors.colors,
+            vs.append(dui.dLabel(mp, Caption="Off Color:"))
+            dd = dui.dDropdownList(mp, Choices=dColors.colors,
                     DataSource=self.LED, DataField="OffColor", Value="orangered")
             vs.append(dd)
             mp.Sizer.append(vs)

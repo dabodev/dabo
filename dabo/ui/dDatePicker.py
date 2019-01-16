@@ -4,12 +4,13 @@
 """
 import datetime
 import wx
+from wx import adv as wx_adv
 import dabo
 from dabo import ui as dui
-from . import dDataControlMixin as dcm
+from . import dDataControlMixin
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from dui import makeDynamicProperty
+from dabo.ui import makeDynamicProperty
 
 
 def dateTimePy2Wx(date):
@@ -39,7 +40,7 @@ def dateTimeWx2Py(date):
     return retVal
 
 
-class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
+class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
     """
     Creates a DatePicker control.
     Control purpose is to maintain Date field types, but it can
@@ -64,7 +65,7 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
             kwargs["style"] |= wx.DP_ALLOWNONE
         if self._extractKey((properties, attProperties, kwargs), "ForceShowCentury", False):
             kwargs["style"] |= wx.DP_SHOWCENTURY
-        dcm.dDataControlMixin.__init__(self, preClass, parent,
+        dDataControlMixin.__init__(self, preClass, parent,
             properties, attProperties, *args, **kwargs)
         self._bindKeys()
 

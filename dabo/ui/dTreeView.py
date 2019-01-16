@@ -5,11 +5,11 @@ import glob
 import wx
 import dabo
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin as dcm
-import dabo.dEvents as dEvents
+from . import dControlMixin
+from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-import dabo.dColors as dColors
+from dabo import dColors as dColors
 from dabo.dObject import dObject
 
 
@@ -360,7 +360,7 @@ class dNode(dObject):
 
 
 
-class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
+class dTreeView(dControlMixin, wx.TreeCtrl):
     """Creates a treeview, which allows display of hierarchical data."""
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dTreeView
@@ -416,7 +416,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
             style = style | wx.TR_LINES_AT_ROOT
 
         preClass = wx.PreTreeCtrl
-        dcm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, style=style, *args, **kwargs)
 
 

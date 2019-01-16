@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-from . import dPemMixin as pm
+from . import dPemMixin
 from . import dMenu
 from dabo.dLocalize import _
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
 
 
-class dMenuBar(pm.dPemMixin, wx.MenuBar):
+class dMenuBar(dPemMixin, wx.MenuBar):
     """
     Creates a menu bar, which can contain dMenus.
 
@@ -18,7 +18,7 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
     def __init__(self, properties=None, *args, **kwargs):
         self._baseClass = dMenuBar
         preClass = wx.MenuBar
-        pm.dPemMixin.__init__(self, preClass, None, properties, *args, **kwargs)
+        dPemMixin.__init__(self, preClass, None, properties, *args, **kwargs)
 
 
     def _initEvents(self):

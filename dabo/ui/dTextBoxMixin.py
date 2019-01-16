@@ -3,12 +3,6 @@ import re
 import datetime
 import time
 import locale
-import wx
-import wx.lib.masked as masked
-import dabo.lib.dates
-from . import dKeys
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
 import decimal
 numericTypes = (int, int, decimal.Decimal, float)
 valueErrors = (ValueError, decimal.InvalidOperation)
@@ -18,14 +12,20 @@ valueErrors = (ValueError, decimal.InvalidOperation)
 # is set not until dApp is completely setup.
 decimalPoint = None
 
-import dabo.ui
-from . import dDataControlMixin as dcm
+import wx
+import wx.lib.masked as masked
+from dabo.lib import dates
+from . import dKeys
 from dabo.dLocalize import _
-import dabo.dEvents as dEvents
+from dabo.lib.utils import ustr
+from dabo import ui as dui
+from . import dDataControlMixin
+from dabo.dLocalize import _
+from dabo import dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 
 
-class dTextBoxMixinBase(dcm.dDataControlMixin):
+class dTextBoxMixinBase(dDataControlMixin):
     def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
         global decimalPoint
         if decimalPoint is None:
@@ -38,7 +38,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
         self._inTextLength = False
         self._flushOnLostFocus = True  ## see dabo.ui.dDataControlMixinBase::flushValue()
 
-        dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 
@@ -98,8 +98,8 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
             return
         keyCode = evt.keyCode
         if keyCode >= dKeys.key_Space:
-            dabo.ui.callAfter(self._checkForceCase)
-            dabo.ui.callAfter(self._checkTextLength)
+            dui.callAfter(self._checkForceCase)
+            dui.callAfter(self._checkTextLength)
 
 
     def _checkTextLength(self):
@@ -318,7 +318,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
         try:
             return self._SelectOnEntry
         except AttributeError:
-            ret = not isinstance(self, dabo.ui.dEditBox)
+            ret = not isinstance(self, dui.dEditBox)
             self._SelectOnEntry = ret
             return ret
 
@@ -374,7 +374,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
                 setter(val)
                 return
             else:
-                dabo.ui.callAfter(self._checkForceCase)
+                dui.callAfter(self._checkForceCase)
 
             if self._inTextLength:
                 # Value is changing internally. Don't update the oldval
@@ -382,7 +382,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
                 setter(val)
                 return
             else:
-                dabo.ui.callAfter(self._checkTextLength)
+                dui.callAfter(self._checkTextLength)
 
             if val is None:
                 strVal = self.NoneDisplay
@@ -589,9 +589,9 @@ class dTextBoxMixin(dTextBoxMixinBase):
             # keep it unicode instead of converting to str
             strVal = value
         elif isinstance(value, datetime.datetime):
-            strVal = dabo.lib.dates.getStringFromDateTime(value)
+            strVal = dates.getStringFromDateTime(value)
         elif isinstance(value, datetime.date):
-            strVal = dabo.lib.dates.getStringFromDate(value)
+            strVal = dates.getStringFromDate(value)
         elif isinstance(value, datetime.time):
             # Use the ISO 8601 time string format
             strVal = value.isoformat()
@@ -617,7 +617,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
             formats.append("MMDD")
             # (define more formats in dabo.lib.dates._getDateRegex, and enter
             # them above in more explicit -> less explicit order.)
-        return dabo.lib.dates.getDateFromString(strVal, formats)
+        return dates.getDateFromString(strVal, formats)
 
 
     def _getDateTimeFromString(self, strVal):
@@ -634,7 +634,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
             formats.append("YYMMDD")
             # (define more formats in dabo.lib.dates._getDateTimeRegex, and enter
             # them above in more explicit -> less explicit order.)
-        return dabo.lib.dates.getDateTimeFromString(strVal, formats)
+        return dates.getDateTimeFromString(strVal, formats)
 
 
     def _getTimeFromString(self, strVal):
@@ -643,7 +643,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
         datetime.time object.
         """
         formats = ["ISO8601"]
-        return dabo.lib.dates.getTimeFromString(strVal, formats)
+        return dates.getTimeFromString(strVal, formats)
 
 
     def _getNumericBlankToZero(self):
@@ -732,7 +732,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
                     ## and everything seemed to work. Then we added the () in r5431 and
                     ## I started seeing recursion problems. I'm commenting it out but if
                     ## needed, we should experiment with:
-                    #dabo.ui.callAfter(self._updateStringDisplay)
+                    #dui.callAfter(self._updateStringDisplay)
             except ValueError:
                 # It couldn't convert; return the previous value.
                 convertedVal = self._value
@@ -759,7 +759,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
                 setter(val)
                 return
             else:
-                dabo.ui.callAfter(self._checkForceCase)
+                dui.callAfter(self._checkForceCase)
 
             if self._inTextLength:
                 # Value is changing internally. Don't update the oldval
@@ -767,7 +767,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
                 setter(val)
                 return
             else:
-                dabo.ui.callAfter(self._checkTextLength)
+                dui.callAfter(self._checkTextLength)
 
             strVal = self.getStringValue(val)
             _oldVal = self.Value

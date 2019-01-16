@@ -31,7 +31,6 @@ from dabo.lib.utils import ustr
 from dabo.lib.utils import cleanMenuCaption
 
 
-
 class Collection(list):
     """ Collection : Base class for the various collection
     classes used in the app object.
@@ -299,7 +298,7 @@ try again when it is running.
     def setup(self, initUI=True):
         """Set up the application object."""
         if initUI:
-            import dabo.ui
+            from dabo import ui as dui
         # dabo is going to want to import various things from the Home Directory
         if self.HomeDirectory not in sys.path:
             sys.path.append(self.HomeDirectory)
@@ -333,10 +332,10 @@ try again when it is running.
             self._initUI()
             if self.UI is not None:
                 if self.showSplashScreen:
-                    self.uiApp = dabo.ui.getUiApp(self, self.UIAppClass, callback=self.initUIApp, forceNew=True)
+                    self.uiApp = dui.getUiApp(self, self.UIAppClass, callback=self.initUIApp, forceNew=True)
                 else:
-                    #self.uiApp = dabo.ui.uiApp(self, callback=None)
-                    self.uiApp = dabo.ui.getUiApp(self, self.UIAppClass, callback=None, forceNew=True)
+                    #self.uiApp = dui.uiApp(self, callback=None)
+                    self.uiApp = dui.getUiApp(self, self.UIAppClass, callback=None, forceNew=True)
                     self.initUIApp()
         else:
             self.uiApp = None
@@ -390,7 +389,7 @@ try again when it is running.
         self._finished = False
         if (not self.SecurityManager or not self.SecurityManager.RequireAppLogin
                 or getattr(self, "_loggedIn", False) or self.SecurityManager.login()):
-            dabo.ui.callAfterInterval(5000, self._destroySplash)
+            dui.callAfterInterval(5000, self._destroySplash)
             self._retrieveMRUs()
             try:
                 self._loginDialog.Parent = None
@@ -1272,11 +1271,11 @@ try again when it is running.
     def onHelpAbout(self, evt):
         about = self.AboutFormClass
         if about is None:
-            from dabo.ui.dialogs.htmlAbout import HtmlAbout as about
+            from dui.dialogs.htmlAbout import HtmlAbout as about
         frm = self.ActiveForm
         if frm is None:
             frm = self.MainForm
-        if frm.MDI or isinstance(frm, dabo.ui.dDockForm):
+        if frm.MDI or isinstance(frm, dui.dDockForm):
             # Strange big sizing of the about form happens on Windows
             # when the parent form is MDI.
             frm = None
@@ -1398,7 +1397,7 @@ try again when it is running.
         try:
             cls = self._defaultMenuBarClass
         except AttributeError:
-            cls = self._defaultMenuBarClass = dabo.ui.dBaseMenuBar
+            cls = self._defaultMenuBarClass = dui.dBaseMenuBar
         return cls
 
     def _setDefaultMenuBarClass(self, val):
@@ -1511,7 +1510,7 @@ try again when it is running.
 
 
     def _getLoginDialogClass(self):
-        import dabo.ui.dialogs.login as login
+        import dui.dialogs.login as login
         defaultDialogClass = login.Login
         return getattr(self, "_loginDialogClass", defaultDialogClass)
 
@@ -1536,7 +1535,7 @@ try again when it is running.
         try:
             cls = self._mainFormClass
         except AttributeError:
-            cls = dabo.ui.dFormMain
+            cls = dui.dFormMain
             self._mainFormClass = cls
         return cls
 
@@ -1569,7 +1568,7 @@ try again when it is running.
             return self._preferenceDialogClass
         except AttributeError:
             # Use the default if they haven't set it
-            from dabo.ui.dialogs.PreferenceDialog import PreferenceDialog
+            from dui.dialogs.PreferenceDialog import PreferenceDialog
             return PreferenceDialog
 
     def _setPreferenceDialogClass(self, val):

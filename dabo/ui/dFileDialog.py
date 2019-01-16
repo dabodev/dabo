@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-import dabo.dConstants as kons
+from dabo import dConstants as kons
 from dabo.dLocalize import _
 
 
@@ -94,7 +94,7 @@ class dFileDialog(OsDialogMixin, wx.FileDialog):
     _exposeFiles = True
 
     def __init__(self, parent=None, message=_("Choose a file"), defaultPath="",
-            defaultFile="", wildcard="*.*", multiple=False, style=wx.OPEN):
+            defaultFile="", wildcard="*.*", multiple=False, style=wx.FD_OPEN):
         self._baseClass = dFileDialog
         if multiple:
             # wxPython changed the constant after 2.6
@@ -132,7 +132,7 @@ class dFolderDialog(OsDialogMixin, wx.DirDialog):
 class dSaveDialog(dFileDialog):
     """Creates a save dialog, which asks the user to specify a file to save to."""
     def __init__(self, parent=None, message=_("Save to:"), defaultPath="",
-            defaultFile="", wildcard="*.*", style=wx.SAVE):
+            defaultFile="", wildcard="*.*", style=wx.FD_SAVE):
         self._baseClass = dSaveDialog
         if parent is None:
             parent = dabo.dAppRef.ActiveForm

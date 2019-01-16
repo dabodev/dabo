@@ -13,13 +13,14 @@ import wx
 import wx.grid
 from wx._core import PyAssertionError
 import dabo
+from dabo import ui as dui
 from dabo.ui import makeDynamicProperty
 from functools import reduce
 from dabo import dEvents as dEvents
 from dabo import dException as dException
 from dabo.dLocalize import _, n_
 from dabo.lib.utils import ustr
-from . import dControlMixin as cm
+from . import dControlMixin
 from . import dKeys
 from . import dUICursors
 from dabo import biz as dbiz
@@ -370,7 +371,7 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
         dabo.log.info("GridListEditor: Create")
         dabo.log.info(ustr(args))
         dabo.log.info(ustr(kwargs))
-        self.control = dabo.ui.dDropdownList(parent=parent, id=id,
+        self.control = dui.dDropdownList(parent=parent, id=id,
                 ValueMode="String")
         self.SetControl(self.control)
         if evtHandler:
@@ -429,7 +430,7 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
 
 
 
-class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
+class dColumn(dui.dPemMixin):
     """
     These aren't the actual columns that appear in the grid; rather,
     they provide a way to interact with the underlying grid table in a more
@@ -558,7 +559,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
     def _afterInit(self):
         self._isConstructed = True
         super(dColumn, self)._afterInit()
-        dabo.ui.callAfter(self._restoreFontZoom)
+        dui.callAfter(self._restoreFontZoom)
 
 
     def getDataTypeForColumn(self):
@@ -579,7 +580,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
             self._rendererClass = self.defaultRenderers.get(typ, self.stringRendererClass)
 
 
-    @dabo.ui.deadCheck
+    @dui.deadCheck
     def _updateDynamicProps(self):
         for prop, func in list(self._dynamic.items()):
             if prop[:4] != "Cell":
@@ -611,7 +612,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 
     def _getDefaultFont(self):
-        ret = dabo.ui.dFont(Size=10, Bold=False, Italic=False,
+        ret = dui.dFont(Size=10, Bold=False, Italic=False,
                 Underline=False)
         if sys.platform.startswith("win"):
             # The wx default is quite ugly
@@ -653,7 +654,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
             self.HeaderFontSize = headerFontSize
 
         if self.Form is not None:
-            dabo.ui.callAfterInterval(200, self.Form.layout)
+            dui.callAfterInterval(200, self.Form.layout)
 
 
     def _setEditor(self, row):
@@ -838,7 +839,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
         try:
             row = getattr(self, "_cellDynamicRow", self.Parent.CurrentRow)
         except RuntimeError:
-            # @dabo.ui.deadCheck didn't seem to work...
+            # @dui.deadCheck didn't seem to work...
             return
         cellAttr = obj = self._gridCellAttrs.get(row, self._gridColAttr.Clone())
         if "." in wxPropName:
@@ -1056,7 +1057,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
         if self._constructed():
             if self._dataField:
                 # Use a callAfter, since the parent may not be finished instantiating yet.
-                dabo.ui.callAfter(self._setDataTypeFromDataField)
+                dui.callAfter(self._setDataTypeFromDataField)
             self._dataField = val
             if not self.Name or self.Name == "?":
                 self._name = _("col_%s") % val
@@ -1070,11 +1071,11 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
         if hasattr(self, "_font"):
             v = self._font
         else:
-            v = self.Font = dabo.ui.dFont(_nativeFont=self._gridColAttr.GetFont())
+            v = self.Font = dui.dFont(_nativeFont=self._gridColAttr.GetFont())
         return v
 
     def _setFont(self, val):
-        assert isinstance(val, dabo.ui.dFont)
+        assert isinstance(val, dui.dFont)
         if self._constructed():
             self._font = val
             self._gridColAttr.SetFont(val._nativeFont)
@@ -1170,7 +1171,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
         return v
 
     def _setHeaderFont(self, val):
-        assert isinstance(val, dabo.ui.dFont)
+        assert isinstance(val, dui.dFont)
         if self._constructed():
             self._headerFont = val
             val.bindEvent(dEvents.FontPropertiesChanged, self._onHeaderFontPropsChanged)
@@ -1389,7 +1390,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
         if self._constructed():
             self._precision = val
             if self.Parent:
-                dabo.ui.callAfterInterval(50, self.Parent.refresh)
+                dui.callAfterInterval(50, self.Parent.refresh)
         else:
             self._properties["Precision"] = val
 
@@ -1788,7 +1789,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 
 
-class dGrid(cm.dControlMixin, wx.grid.Grid):
+class dGrid(dControlMixin, wx.grid.Grid):
     """
     Creates a grid, with rows and columns to represent records and fields.
 
@@ -1904,7 +1905,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
         self._rowColorEven = "white"
         self._rowColorOdd = (212, 255, 212)        # very light green
 
-        cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
         # Reduces grid flickering on Windows platform.
@@ -1929,7 +1930,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
         self.stringDisplayLen = 64
 
         self.currSearchStr = ""
-        self.incSearchTimer = dabo.ui.dTimer(self)
+        self.incSearchTimer = dui.dTimer(self)
         self.incSearchTimer.bindEvent(dEvents.Hit, self.onIncSearchTimer)
 
         # By default, row labels are not shown. They can be displayed
@@ -1961,10 +1962,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
         # Set the header props/events
         self.initHeader()
         # Make sure that the columns are sized properly
-        dabo.ui.callAfter(self._updateColumnWidths)
+        dui.callAfter(self._updateColumnWidths)
 
 
-    @dabo.ui.deadCheck
+    @dui.deadCheck
     def _afterInitAll(self):
         super(dGrid, self)._afterInitAll()
         for col in self.Columns:
@@ -2223,7 +2224,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
                 tbl = None
             if tbl is None:
                 # Still not fully constructed
-                dabo.ui.callAfter(self.setTableAttributes)
+                dui.callAfter(self.setTableAttributes)
                 return
         tbl.alternateRowColoring = self.AlternateRowColoring
         tbl.rowColorOdd = self._getWxColour(self.RowColorOdd)
@@ -2249,7 +2250,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
         tbl.setColumns(self.Columns)
         self._tableRows = tbl.fillTable(force)
         if not self._sortRestored:
-            dabo.ui.callAfter(self._restoreSort)
+            dui.callAfter(self._restoreSort)
             self._sortRestored = True
 
         # This will make sure that the current selection mode is activated.
@@ -2260,7 +2261,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
         # I've found that both refresh calls are needed sometimes, especially
         # on Linux when manually moving a column header with the mouse.
-        dabo.ui.callAfterInterval(200, self.refresh)
+        dui.callAfterInterval(200, self.refresh)
         self.refresh()
 
 
@@ -2488,7 +2489,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
             updCol = True
         if updCol:
             self._lastSize = evt._uiEvent.Size
-            dabo.ui.callAfter(self._updateColumnWidths)
+            dui.callAfter(self._updateColumnWidths)
 
 
     def _totalContentWidth(self, addScrollBar=False):
@@ -2522,7 +2523,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
         return bool(sr)
 
 
-    @dabo.ui.deadCheck
+    @dui.deadCheck
     def _updateColumnWidths(self):
         """
         See if there are any dynamically-sized columns, and resize them
@@ -2535,7 +2536,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
             pass
         self._inColWidthUpdate = False
         if [col for col in self.Columns if col.Expand]:
-            dabo.ui.callAfterInterval(10, self._delayedUpdateColumnWidths)
+            dui.callAfterInterval(10, self._delayedUpdateColumnWidths)
 
 
     def _delayedUpdateColumnWidths(self, redo=False):
@@ -2561,7 +2562,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
         if redo and not diff:
             diff = -10
         if not diff:
-            dabo.ui.callAfterInterval(5, _clearFlag)
+            dui.callAfterInterval(5, _clearFlag)
             return
         if not redo and (diff == self._scrollBarSize):
             # This can cause infinite loops as we adjust constantly
@@ -2582,7 +2583,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
             _clearFlag()
             self._delayedUpdateColumnWidths(redo=True)
         else:
-            dabo.ui.callAfter(_clearFlag)
+            dui.callAfter(_clearFlag)
 
 
     def autoSizeCol(self, colNum, persist=False):
@@ -2622,7 +2623,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
             autoWidth = self.GetColSize(idx)
 
             # Account for the width of the header caption:
-            cw = dabo.ui.fontMetricFromFont(colObj.Caption,
+            cw = dui.fontMetricFromFont(colObj.Caption,
                     colObj.HeaderFont._nativeFont)[0] + capBuffer
             w = max(autoWidth, cw)
             w = min(w, maxWidth)
@@ -2766,7 +2767,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
             trect[3] = trect[3] - (2 * vertBuffer)
             trect = wx.Rect(*trect)
 
-            twd, tht = dabo.ui.fontMetricFromDC(dc, colObj.Caption)
+            twd, tht = dui.fontMetricFromDC(dc, colObj.Caption)
             if self.VerticalHeaders:
                 # Note that when rotating 90 degrees, the width affect height,
                 # and vice-versa
@@ -2811,7 +2812,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
         diff = (self._headerMaxTextHeight + 20) - self.HeaderHeight
         if diff:
             self.HeaderHeight += diff
-            dabo.ui.callAfter(self.refresh)
+            dui.callAfter(self.refresh)
 
 
     def showColumn(self, col, visible):
@@ -3045,7 +3046,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
                 self._settingDataSetFromSort = False
 
         if biz:
-            dabo.ui.setAfter(self, "CurrentRow", biz.RowNumber)
+            dui.setAfter(self, "CurrentRow", biz.RowNumber)
 
         if self._refreshAfterSort:
             self.refresh()
@@ -3054,7 +3055,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
         self._setUserSetting("sortOrder", sortOrder)
         self.raiseEvent(dEvents.GridAfterSort, eventObject=self,
                 eventData=eventData)
-        dabo.ui.callAfterInterval(200, self.Form.update)  ## rownum in status bar
+        dui.callAfterInterval(200, self.Form.update)  ## rownum in status bar
 
 
     def restoreDataSet(self):
@@ -3179,7 +3180,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
             currAutoUpdate = self.Form.AutoUpdateStatusText
             self.Form.AutoUpdateStatusText = False
             if currAutoUpdate:
-                dabo.ui.setAfterInterval(1000, self.Form, "AutoUpdateStatusText", True)
+                dui.setAfterInterval(1000, self.Form, "AutoUpdateStatusText", True)
             self.Form.setStatusText("Search: '%s'." % origSrchStr)
         self.currSearchStr = ""
 
@@ -3355,7 +3356,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
             col = self.ColumnClass(self, *args, **kwargs)
         else:
             if not isinstance(col, dColumn):
-                if issubclass(col, dabo.ui.dColumn):
+                if issubclass(col, dui.dColumn):
                     col = col(self, *args, **kwargs)
                 else:
                     raise ValueError(_("col must be a dColumn subclass or instance"))
@@ -3699,7 +3700,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
         col._persist("Width")
         self._disableDoubleBuffering()
         self._enableDoubleBuffering()
-        dabo.ui.callAfterInterval(20, self._updateColumnWidths)
+        dui.callAfterInterval(20, self._updateColumnWidths)
 
 
     def _onGridHeaderMouseMove(self, evt):
@@ -3778,13 +3779,13 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
     def _onGridHeaderMouseRightClick(self, evt):
-        dabo.ui.callAfter(self._showHeaderContextMenu)
+        dui.callAfter(self._showHeaderContextMenu)
 
     def _showHeaderContextMenu(self):
         # Make the popup menu appear in the location that was clicked. We init
         # the menu here, then call the user hook method to optionally fill the
         # menu. If we get a menu back from the user hook, we display it.
-        menu = dabo.ui.dMenu()
+        menu = dui.dMenu()
 
         # Fill the default menu item(s):
         def _autosizeColumn(evt):
@@ -3823,7 +3824,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
         ## otherwise the events pile up resulting in poor performance.
         _accumulatedWheelScroll = getattr(self, "_accumulatedWheelScroll", None)
         if _accumulatedWheelScroll is None:
-            dabo.ui.callAfterInterval(50, self._scrollAccumulatedLines)
+            dui.callAfterInterval(50, self._scrollAccumulatedLines)
             _accumulatedWheelScroll = 0
         self._accumulatedWheelScroll = _accumulatedWheelScroll + scrollAmt
         self._wheelScrollLines = linesPerAction
@@ -3873,7 +3874,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
             self.CurrentRow = evt.row
             self.CurrentColumn = evt.col
 
-        menu = dabo.ui.dMenu()
+        menu = dui.dMenu()
         menu = self.fillContextMenu(menu)
 
         if menu is not None and len(menu.Children) > 0:
@@ -3934,7 +3935,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
         # occurring, but <threshold> seconds later, sync up the bizobj and update the selection:
         if getattr(self, "_gridCellSelectedOldRow", None) is None:
             self._gridCellSelectedOldRow = self.CurrentRow
-        dabo.ui.callAfterInterval(threshold*1000, self._updateCellSelection)
+        dui.callAfterInterval(threshold*1000, self._updateCellSelection)
 
 
     def _updateCellSelection(self, newRowCol=None):
@@ -3969,24 +3970,24 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
         if col and (self.Editable and col.Editable and not self._vetoAllEditing
                 and self.ActivateEditorOnSelect):
-            dabo.ui.callAfter(self.EnableCellEditControl)
+            dui.callAfter(self.EnableCellEditControl)
         if oldRow != newRow:
             bizobj = self.getBizobj()
             if bizobj and not self._dataSourceBeingSet:
                 # Don't run any of this code if this is the initial setting of the DataSource
                 if bizobj.RowCount > newRow and bizobj.RowNumber != newRow:
-                    if self._mediateRowNumberThroughForm and isinstance(self.Form, dabo.ui.dForm):
+                    if self._mediateRowNumberThroughForm and isinstance(self.Form, dui.dForm):
                         # run it through the form:
                         if not self.Form.moveToRowNumber(newRow, bizobj):
-                            dabo.ui.callAfter(self.refresh)
+                            dui.callAfter(self.refresh)
                     else:
                         # run it through the bizobj directly:
                         try:
                             bizobj.RowNumber = newRow
                             self.Form.update()
                         except dException.BusinessRuleViolation as e:
-                            dabo.ui.stop(e)
-                            dabo.ui.callAfter(self.refresh)
+                            dui.stop(e)
+                            dui.callAfter(self.refresh)
                 else:
                     # We are probably trying to select row 0 when there are no records
                     # in the bizobj.
@@ -3995,7 +3996,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
                     #self.SetGridCursor(0,0)
                     pass
         self._dataSourceBeingSet = False
-        dabo.ui.callAfterInterval(50, self._updateSelection)
+        dui.callAfterInterval(50, self._updateSelection)
 
 
     def _updateSelection(self):
@@ -4174,7 +4175,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
     def __onWxScrollWin(self, evt):
-        evtClass = dabo.ui.getScrollWinEventClass(evt)
+        evtClass = dui.getScrollWinEventClass(evt)
         self.raiseEvent(evtClass, evt)
         evt.Skip()
 
@@ -4268,7 +4269,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
     def __onGridCellLeftClick_toggleCB(self, evt):
         col = self.Columns[evt.GetCol()]
         if col.RendererClass == col.boolRendererClass:
-            dabo.ui.callAfterInterval(100, self._toggleCheckBox)
+            dui.callAfterInterval(100, self._toggleCheckBox)
         evt.Skip()
 
 
@@ -4366,7 +4367,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
     def __onWxHeaderMouseLeftUp(self, evt):
-        dabo.ui.callAfter(self._enableDoubleBuffering)
+        dui.callAfter(self._enableDoubleBuffering)
         col, row = self._getColRowForPosition(evt.GetPosition())
         self.raiseEvent(dEvents.GridHeaderMouseLeftUp, evt, col=col)
         if self._headerMouseLeftDown:
@@ -4377,7 +4378,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
     def __onWxHeaderMouseMotion(self, evt):
-        if dabo.ui.isMouseLeftDown():
+        if dui.isMouseLeftDown():
             self._disableDoubleBuffering()
         col, row = self._getColRowForPosition(evt.GetPosition())
         self.raiseEvent(dEvents.GridHeaderMouseMove, evt, col=col)
@@ -4430,7 +4431,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
     def __onWxMouseLeftUp(self, evt):
-        dabo.ui.callAfter(self._enableDoubleBuffering)
+        dui.callAfter(self._enableDoubleBuffering)
         col, row = self._getColRowForPosition(evt.GetPosition())
         self.raiseEvent(dEvents.GridMouseLeftUp, evt, col=col, row=row)
         if getattr(self, "_mouseLeftDown", (None, None)) == (col, row):
@@ -4441,7 +4442,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
     def __onWxMouseMotion(self, evt):
-        if dabo.ui.isMouseLeftDown():
+        if dui.isMouseLeftDown():
             self._disableDoubleBuffering()
         col, row = self._getColRowForPosition(evt.GetPosition())
         self.raiseEvent(dEvents.GridMouseMove, evt, col=col, row=row)
@@ -4645,7 +4646,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
             if not self._settingDataSetFromSort:
                 # Force the grid to maintain its current sort order
                 self._restoreSort()
-                dabo.ui.callAfter(self.refresh)
+                dui.callAfter(self.refresh)
         else:
             self._properties["DataSet"] = val
 
@@ -4668,7 +4669,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
             if self.USE_DATASOURCE_BEING_SET_HACK:
                 self._dataSourceBeingSet = True
             if biz:
-                dabo.ui.setAfter(self, "CurrentRow", biz.RowNumber)
+                dui.setAfter(self, "CurrentRow", biz.RowNumber)
         else:
             self._properties["DataSource"] = val
 
@@ -5010,19 +5011,19 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
                     self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
                     self._selectionMode = "Row"
                 except wx.PyAssertionError:
-                    dabo.ui.callAfter(self._setSelectionMode, val)
+                    dui.callAfter(self._setSelectionMode, val)
             elif val2 == "co":
                 try:
                     self.SetSelectionMode(wx.grid.Grid.wxGridSelectColumns)
                     self._selectionMode = "Col"
                 except wx.PyAssertionError:
-                    dabo.ui.callAfter(self._setSelectionMode, val)
+                    dui.callAfter(self._setSelectionMode, val)
             else:
                 try:
                     self.SetSelectionMode(wx.grid.Grid.wxGridSelectCells)
                     self._selectionMode = "Cell"
                 except wx.PyAssertionError:
-                    dabo.ui.callAfter(self._setSelectionMode, val)
+                    dui.callAfter(self._setSelectionMode, val)
             if self._selectionMode != orig:
                 self._checkSelectionType()
         else:
@@ -5136,7 +5137,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
                 self._verticalHeaders = val
                 self.refresh()
                 if self.AutoAdjustHeaderHeight:
-                    dabo.ui.callAfter(self.fitHeaderHeight)
+                    dui.callAfter(self.fitHeaderHeight)
         else:
             self._properties["VerticalHeaders"] = val
 
@@ -5513,7 +5514,7 @@ class _dGrid_test(dGrid):
         col.HeaderHorizontalAlignment = "Left"
 
         # Let's make a custom editor for the name
-        class ColoredText(dabo.ui.dTextBox):
+        class ColoredText(dui.dTextBox):
             def initProperties(self):
                 self.ForeColor = "blue"
                 self.FontItalic = True
@@ -5522,7 +5523,7 @@ class _dGrid_test(dGrid):
                 self.ForeColor = dColors.randomColor()
                 self.FontItalic = not self.FontItalic
         # Since we're using a big font, set a minimum height for the editor
-        col.CustomEditorClass = dabo.ui.makeGridEditor(ColoredText, minHeight=40)
+        col.CustomEditorClass = dui.makeGridEditor(ColoredText, minHeight=40)
 
         self.addColumn(Name="Age", Order=30, DataField="age",
                 DataType="integer", Width=40, Caption="Age",
@@ -5559,44 +5560,44 @@ class _dGrid_test(dGrid):
 
 if __name__ == '__main__':
     from dabo.dApp import dApp
-    class TestForm(dabo.ui.dForm):
+    class TestForm(dui.dForm):
         def afterInit(self):
             self.BackColor = "khaki"
             g = self.grid = _dGrid_test(self, RegID="sampleGrid")
             self.Sizer.append(g, 1, "x", border=0, borderSides="all")
             self.Sizer.appendSpacer(10)
-            gsz = dabo.ui.dGridSizer(HGap=50)
+            gsz = dui.dGridSizer(HGap=50)
 
-            chk = dabo.ui.dCheckBox(self, Caption="Allow Editing?", RegID="gridEdit",
+            chk = dui.dCheckBox(self, Caption="Allow Editing?", RegID="gridEdit",
                     DataSource=self.grid, DataField="Editable")
             chk.update()
             gsz.append(chk, row=0, col=0)
 
-            chk = dabo.ui.dCheckBox(self, Caption="Show Headers",
+            chk = dui.dCheckBox(self, Caption="Show Headers",
                     RegID="showHeaders", DataSource=self.grid,
                     DataField="ShowHeaders")
             gsz.append(chk, row=1, col=0)
             chk.update()
 
-            chk = dabo.ui.dCheckBox(self, Caption="Allow Multiple Selection",
+            chk = dui.dCheckBox(self, Caption="Allow Multiple Selection",
                     RegID="multiSelect", DataSource=self.grid,
                     DataField="MultipleSelection")
             chk.update()
             gsz.append(chk, row=2, col=0)
 
-            chk = dabo.ui.dCheckBox(self, Caption="Vertical Headers",
+            chk = dui.dCheckBox(self, Caption="Vertical Headers",
                     RegID="verticalHeaders", DataSource=self.grid,
                     DataField="VerticalHeaders")
             chk.update()
             gsz.append(chk, row=3, col=0)
 
-            chk = dabo.ui.dCheckBox(self, Caption="Auto-adjust Header Height",
+            chk = dui.dCheckBox(self, Caption="Auto-adjust Header Height",
                     RegID="autoAdjust", DataSource=self.grid,
                     DataField="AutoAdjustHeaderHeight")
             chk.update()
             gsz.append(chk, row=4, col=0)
 
-            radSelect = dabo.ui.dRadioList(self, Choices=["Row", "Col", "Cell"],
+            radSelect = dui.dRadioList(self, Choices=["Row", "Col", "Cell"],
                     ValueMode="string", Caption="Sel Mode", BackColor=self.BackColor,
                     DataSource=self.grid, DataField="SelectionMode", RegID="radSelect")
             radSelect.refresh()
@@ -5610,7 +5611,7 @@ if __name__ == '__main__':
                     but.Caption = "Make Celebrity Invisible"
                 else:
                     but.Caption = "Make Celebrity Visible"
-            butVisible = dabo.ui.dButton(self, Caption="Toggle Celebrity Visibility",
+            butVisible = dui.dButton(self, Caption="Toggle Celebrity Visibility",
                 OnHit=setVisible)
             gsz.append(butVisible, row=5, col=0)
 

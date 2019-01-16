@@ -2,11 +2,12 @@
 import os
 import sys
 import dabo
-import dabo.dException as dException
-import dabo.dEvents as dEvents
+from dabo import dException as dException
+from dabo import dEvents as dEvents
 from dabo.dLocalize import _, n_
 from dabo.dObject import dObject
 from dabo.lib.utils import ustr
+from dabo import ui as dui
 from dabo.ui import dPanel
 from . import QRY_OPERATOR
 from . import Grid
@@ -19,17 +20,17 @@ class SelectControlMixin(dObject):
         super(SelectControlMixin, self).initProperties()
         self.SaveRestoreValue = True
 
-class SelectTextBox(SelectControlMixin, dabo.ui.dTextBox): pass
-class SelectCheckBox(SelectControlMixin, dabo.ui.dCheckBox): pass
-class SelectLabel(SelectControlMixin, dabo.ui.dLabel):
+class SelectTextBox(SelectControlMixin, dui.dTextBox): pass
+class SelectCheckBox(SelectControlMixin, dui.dCheckBox): pass
+class SelectLabel(SelectControlMixin, dui.dLabel):
     def afterInit(self):
         # Basically, we don't want anything to display, but it's
         # easier if every selector has a matching control.
         self.Caption = ""
-class SelectDateTextBox(SelectControlMixin, dabo.ui.dDateTextBox): pass
-class SelectSpinner(SelectControlMixin, dabo.ui.dSpinner): pass
+class SelectDateTextBox(SelectControlMixin, dui.dDateTextBox): pass
+class SelectSpinner(SelectControlMixin, dui.dSpinner): pass
 
-class SelectionOpDropdown(dabo.ui.dDropdownList):
+class SelectionOpDropdown(dui.dDropdownList):
     def initProperties(self):
         super(SelectionOpDropdown, self).initProperties()
         self.SaveRestoreValue = True
@@ -65,7 +66,7 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
     Target = property(_getTarget, _setTarget, None, "Holds a reference to the edit control.")
 
 
-class Page(dabo.ui.dPage):
+class Page(dui.dPage):
     def initEvents(self):
         super(Page, self).initEvents()
         self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
@@ -75,7 +76,7 @@ class Page(dabo.ui.dPage):
     def __onPageEnter(self, evt):
         self._onPageEnter()
         if self.UpdateOnPageEnter:
-            dabo.ui.callAfter(self.update)
+            dui.callAfter(self.update)
 
 
     def _onPageEnter(self):
@@ -135,7 +136,7 @@ class SelectOptionsPanel(dPanel):
         self.Name = "selectOptionsPanel"
 
 
-class SortLabel(dabo.ui.dLabel):
+class SortLabel(dui.dLabel):
     def initEvents(self):
         super(SortLabel, self).initEvents()
         self.bindEvent(dEvents.MouseRightClick, self.Parent.Parent.onSortLabelRClick)
@@ -177,7 +178,7 @@ class SelectPage(Page):
             return
         self.sortDS = sortDS
         self.sortCap = obj.Caption
-        mn = dabo.ui.dMenu()
+        mn = dui.dMenu()
         if self.sortFields:
             mn.append(_("Show sort order"), OnHit=self.handleSortOrder)
         if self.sortDS in self.sortFields:
@@ -209,7 +210,7 @@ class SelectPage(Page):
             dd = [(sf[kk][0], kk, "%s %s" % (sf[kk][2], sf[kk][1]))
                     for kk in sf]
             sortDesc = [itm[2] for itm in sorted(dd)]
-            sortedList = dabo.ui.sortList(sortDesc)
+            sortedList = dui.sortList(sortDesc)
             newPos = 0
             for itm in sortedList:
                 origPos = sortDesc.index(itm)
@@ -229,7 +230,7 @@ class SelectPage(Page):
 
     def createItems(self):
         if not self.Sizer:
-            self.Sizer = dabo.ui.dSizer("v")
+            self.Sizer = dui.dSizer("v")
         self.selectOptionsPanel = self.getSelectOptionsPanel()
         if self.selectOptionsPanel:
             self.Sizer.append(self.selectOptionsPanel, "expand", 1, border=20)
@@ -348,7 +349,7 @@ class SelectPage(Page):
                             matchStr = biz.escQuote("%" + matchVal + "%")
 
                 elif fldType in ("date", "datetime"):
-                    if isinstance(ctrl, dabo.ui.dDateTextBox):
+                    if isinstance(ctrl, dui.dDateTextBox):
                         dtTuple = ctrl.getDateTuple()
                         dt = "%s-%s-%s" % (dtTuple[0], ustr(dtTuple[1]).zfill(2),
                                 ustr(dtTuple[2]).zfill(2))
@@ -503,14 +504,14 @@ class SelectPage(Page):
 
                 sql = bizobj.getSQL()
 
-            dlg = dabo.ui.dDialog(self, Caption=_("Set Custom SQL"),
+            dlg = dui.dDialog(self, Caption=_("Set Custom SQL"),
                     SaveRestorePosition=True, BorderResizable=True)
-            eb = dlg.addObject(dabo.ui.dEditBox, Value=sql, Size=(400, 400))
+            eb = dlg.addObject(dui.dEditBox, Value=sql, Size=(400, 400))
             for ff in ["Monospace", "Monaco", "Courier New"]:
                 try:
                     eb.FontFace = ff
                     break
-                except dabo.ui.assertionException:
+                except dui.assertionException:
                     continue
             dlg.Sizer.append1x(eb)
             dlg.show()

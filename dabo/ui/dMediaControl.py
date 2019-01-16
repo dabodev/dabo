@@ -4,9 +4,8 @@ import wx.media
 import dabo
 
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin as cm
-# import dImageMixin as dim
-import dabo.dEvents as dEvents
+from . import dControlMixin
+from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 
 
@@ -35,7 +34,7 @@ def _timeConvertIn(fn):
 
 
 
-class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
+class dMediaControl(dControlMixin, wx.media.MediaCtrl):
     """Wraps the wx MediaCtrl to display video and audio content."""
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dMediaControl
@@ -49,7 +48,7 @@ class dMediaControl(cm.dControlMixin, wx.media.MediaCtrl):
         dropHandler = self._extractKey((properties, kwargs), "DroppedFileHandler", self)
         kwargs["DroppedFileHandler"] = dropHandler
 
-        cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
         # Create lower-case method names to be consistent with Dabo
 #         self.play = self.Play

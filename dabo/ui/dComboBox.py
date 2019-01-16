@@ -2,14 +2,14 @@
 import wx
 import dabo
 from dabo import ui as dui
-from . import dControlItemMixin as dcm
+from . import dControlItemMixin
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
-from dui import makeDynamicProperty
+from dabo.ui import makeDynamicProperty
 from . import dKeys
 
 
-class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
+class dComboBox(dControlItemMixin, wx.ComboBox):
     """
     Creates a combobox, which combines a dropdown list with a textbox.
 
@@ -29,7 +29,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
         self._textToAppend = ""
 
         preClass = wx.PreComboBox
-        dcm.dControlItemMixin.__init__(self, preClass, parent, properties=properties,
+        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

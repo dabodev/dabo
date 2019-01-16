@@ -3,7 +3,7 @@ import wx
 import dabo
 from dabo.dLocalize import _
 from dabo import ui as dui
-from dui import makeDynamicProperty
+from dabo.ui import makeDynamicProperty
 
 
 class dBorderSizer(dui.dSizerMixin, wx.StaticBoxSizer):

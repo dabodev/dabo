@@ -5,15 +5,16 @@ import os
 import wx
 import wx.richtext
 import dabo
+from dabo import ui as dui
 from dabo.ui import makeDynamicProperty
-from . import dDataControlMixin as dcm
-import dabo.dColors as dColors
+from . import dDataControlMixin
+from dabo import dColors as dColors
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
 
 
-class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
+class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dRichTextBox
         # Used to test if selection has any of the styles applied to any part of it.
@@ -27,7 +28,7 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
         self._htmlHandler = wx.richtext.RichTextHTMLHandler()
         self._handlers = (self._xmlHandler, self._htmlHandler)
         preClass = wx.richtext.PreRichTextCtrl
-        dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 
@@ -37,7 +38,7 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
         into the control.
         """
         if fileOrObj is None:
-            fileOrObj = dabo.ui.getFile("xml", "html")
+            fileOrObj = dui.getFile("xml", "html")
         if isinstance(fileOrObj, str):
             mthdName = "LoadFile"
         else:
@@ -50,12 +51,12 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
                     break
             except Exception as e:
                 print(e, type(e))
-        dabo.ui.callAfter(self.Form.refresh)
+        dui.callAfter(self.Form.refresh)
 
 
     def save(self, filename=None):
         if filename is None:
-            filename = dabo.ui.getSaveAs("xml", "html")
+            filename = dui.getSaveAs("xml", "html")
         if filename:
             # Default to xml if not found
             handler = {".xml": self._xmlHandler,
@@ -457,7 +458,7 @@ class dRichTextBox(dcm.dDataControlMixin, wx.richtext.RichTextCtrl):
 
 
 
-class RichTextTestForm(dabo.ui.dForm):
+class RichTextTestForm(dui.dForm):
     def initProperties(self):
         self.ShowToolBar = True
         self.Caption = "Rich Text Control"
@@ -479,40 +480,40 @@ class RichTextTestForm(dabo.ui.dForm):
                 help="Toggle the Underline style of the selected text", tip="Underline",
                 OnHit=self.toggleStyle)
         tb = self.ToolBar
-        allfonts = dabo.ui.getAvailableFonts()
+        allfonts = dui.getAvailableFonts()
         # This is necessary because wx reports the font in some cases as 'applicationfont'.
         allfonts.append("applicationfont")
         allfonts.sort()
-        self.tbFontFace = dabo.ui.dDropdownList(tb, Caption="FontFace",
+        self.tbFontFace = dui.dDropdownList(tb, Caption="FontFace",
                 ValueMode="String", OnHit=self.onSetFontFace,
                 Choices=allfonts)
         tb.appendControl(self.tbFontFace)
-        self.tbFontSize = dabo.ui.dDropdownList(tb, Caption="FontSize",
+        self.tbFontSize = dui.dDropdownList(tb, Caption="FontSize",
                 ValueMode="String", OnHit=self.onSetFontSize)
         self.tbFontSize.Choices = [ustr(i) for i in range(6, 129)]
 
         # Tried a spinner, but this doesn't work in toolbars.
-#         self.tbFontSize = dabo.ui.dSpinner(tb,
+#         self.tbFontSize = dui.dSpinner(tb,
 #                 Min=7, Max=128, OnHit=self.onSetFontSize)
 
         tb.appendControl(self.tbFontSize)
 
-        self.tbBackColor = dabo.ui.dToggleButton(tb, Caption="BackColor", FontSize=8,
+        self.tbBackColor = dui.dToggleButton(tb, Caption="BackColor", FontSize=8,
                 Size=(54, 32), OnHit=self.onSetBackColor, BezelWidth=0, Value=True)
         tb.appendControl(self.tbBackColor)
-        self.tbForeColor = dabo.ui.dToggleButton(tb, Caption="ForeColor", FontSize=8,
+        self.tbForeColor = dui.dToggleButton(tb, Caption="ForeColor", FontSize=8,
                 Size=(54, 32), OnHit=self.onSetForeColor, BezelWidth=0, Value=True)
         tb.appendControl(self.tbForeColor)
-        self.openButton = dabo.ui.dButton(tb, Caption="Open", OnHit=self.onOpen)
+        self.openButton = dui.dButton(tb, Caption="Open", OnHit=self.onOpen)
         tb.appendControl(self.openButton)
-        self.saveButton = dabo.ui.dButton(tb, Caption="Save", OnHit=self.onSave)
+        self.saveButton = dui.dButton(tb, Caption="Save", OnHit=self.onSave)
         tb.appendControl(self.saveButton)
-        self.styleTimer = dabo.ui.dTimer(self, Interval=500, Enabled=True,
+        self.styleTimer = dui.dTimer(self, Interval=500, Enabled=True,
                 OnHit=self.checkForUpdate)
 
         # For development: uncomment the next line, and add the code you want to
         # run to the onTest() method.
-#         btn = tb.appendControl(dabo.ui.dButton(tb, Caption="TEST", OnHit=self.onTest))
+#         btn = tb.appendControl(dui.dButton(tb, Caption="TEST", OnHit=self.onTest))
 
 
     def onTest(self, evt):
@@ -544,7 +545,7 @@ class RichTextTestForm(dabo.ui.dForm):
         if curr is None:
             # Nothing selected
             return
-        newcolor = dabo.ui.getColor(curr)
+        newcolor = dui.getColor(curr)
         if newcolor:
             self.textControl.SelectionBackColor = newcolor
 
@@ -554,7 +555,7 @@ class RichTextTestForm(dabo.ui.dForm):
         if curr is None:
             # Nothing selected
             return
-        newcolor = dabo.ui.getColor(curr)
+        newcolor = dui.getColor(curr)
         if newcolor:
             self.textControl.SelectionForeColor = newcolor
 

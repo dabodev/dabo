@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+from dabo import ui as dui
 from dabo.ui import makeDynamicProperty
 from .dSplitter import dSplitter
 from dabo import dColors as dColors
@@ -8,7 +9,7 @@ from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 
 
-class dSplitForm(dabo.ui.dForm):
+class dSplitForm(dui.dForm):
     def __init__(self, *args, **kwargs):
         self._splitter = None
         super(dSplitForm, self).__init__(*args, **kwargs)
@@ -78,12 +79,12 @@ class dSplitForm(dabo.ui.dForm):
                     RegID="MainSplitter")
             def addToSizer(frm, itm):
                 if not frm.Sizer:
-                    dabo.ui.callAfter(addToSizer, frm, itm)
+                    dui.callAfter(addToSizer, frm, itm)
                 else:
                     frm.Sizer.append1x(itm)
                     frm.layout()
             win.Visible = True
-            dabo.ui.callAfter(addToSizer, self, win)
+            dui.callAfter(addToSizer, self, win)
         return self._splitter
 
 

@@ -3,15 +3,14 @@ import warnings
 import wx
 import dabo
 from dabo import ui as dui
-from . import dControlMixin as cm
-from . import dPemMixin as pm
+from . import dControlMixin
 from dabo.dLocalize import _
 from .dIcons import getIconBitmap
-from dui import makeDynamicProperty
-from . import dImageMixin as dim
+from dabo.ui import makeDynamicProperty
+from . import dImageMixin
 
 
-class dBitmapButton(cm.dControlMixin, dim.dImageMixin, wx.BitmapButton):
+class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
     """
     Creates a button with a picture.
 
@@ -37,8 +36,8 @@ class dBitmapButton(cm.dControlMixin, dim.dImageMixin, wx.BitmapButton):
         # around the bitmap image in order for it to appear correctly
         self._bmpBorder = 10
 
-        dim.dImageMixin.__init__(self)
-        cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
+        dImageMixin.__init__(self)
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

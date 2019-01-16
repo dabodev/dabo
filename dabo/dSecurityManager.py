@@ -3,6 +3,7 @@ import time
 import dabo
 from dabo.dObject import dObject
 from .dLocalize import _
+from dabo import ui as dui
 
 
 class dSecurityManager(dObject):
@@ -205,6 +206,6 @@ if __name__ == "__main__":
 
     app.SecurityManager = TestSM()
     if app.SecurityManager.login():
-        app.MainForm = dabo.ui.dFormMain()
+        app.MainForm = dui.dFormMain()
         app.start()
 

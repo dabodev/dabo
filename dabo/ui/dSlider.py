@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-import wx, dabo, dabo.ui
-from . import dDataControlMixin as dcm
+import wx
+import dabo
+from dabo import ui as dui
+from . import dDataControlMixin
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dSlider(dcm.dDataControlMixin, wx.Slider):
+class dSlider(dDataControlMixin, wx.Slider):
     """
     Creates a slider control, allowing editing integer values. Unlike dSpinner,
     dSlider does not allow entering a value with the keyboard.
@@ -25,7 +27,7 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
         self._reversed = False
 
         preClass = wx.PreSlider
-        dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 
@@ -49,7 +51,7 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
         newval = self.GetValue()
         changed = (newval != self._lastVal)
         self._lastVal = newval
-        if (changed and self._continuous) or not dabo.ui.isMouseLeftDown():
+        if (changed and self._continuous) or not dui.isMouseLeftDown():
             self.flushValue()
             super(dSlider, self)._onWxHit(evt)
 

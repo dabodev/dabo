@@ -3,7 +3,9 @@ import dabo
 from dabo.dLocalize import _
 from dabo.lib.reportWriter import ReportWriter
 from dabo.dObject import dObject
-import dabo.dEvents as dEvents
+from dabo import dEvents as dEvents
+from dabo import ui as dui
+
 
 # dReportWriter is simply a raw ReportWriter/dObject mixin:
 class dReportWriter(dObject, ReportWriter):
@@ -56,14 +58,14 @@ class dReportWriter(dObject, ReportWriter):
             win = self.ProgressControl
             if win:
                 win.updateProgress(self.RecordNumber, len(self.Cursor))
-                dabo.ui.yieldUI(_safe=True)
+                dui.yieldUI(_safe=True)
 
     def _hideProgress(self):
         win = self.ProgressControl
         if win:
             win.hide()
             win.Form.fitToSizer()
-            dabo.ui.yieldUI(_safe=True)
+            dui.yieldUI(_safe=True)
 
     def _getEncoding(self):
         try:
