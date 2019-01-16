@@ -3,6 +3,7 @@
 import urllib.request, urllib.parse, urllib.error
 import urllib.request, urllib.error, urllib.parse
 import urllib.parse
+import json
 import sys
 import os
 import re
@@ -19,8 +20,6 @@ from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.lib.manifest import Manifest
 from dabo import ui as dui
-jsonEncode = dabo.lib.jsonEncode
-jsonDecode = dabo.lib.jsonDecode
 
 
 
@@ -71,7 +70,7 @@ class RemoteConnector(object):
 
 
     def _storeEncodedDataSet(self, enc):
-        pdata, ptyps, pstru = jsonDecode(enc)
+        pdata, ptyps, pstru = json.loads(enc)
         # The values are pickled, so we need to unpickle them first
         def safeLoad(val):
             try:
@@ -117,7 +116,7 @@ class RemoteConnector(object):
         biz = self.obj
         url = self._getFullUrl("save")
         chgDict = biz.getDataDiff(allRows=allRows)
-        params = {"DataDiff": jsonEncode(chgDict), "_method": "POST"}
+        params = {"DataDiff": json.dumps(chgDict), "_method": "POST"}
         prm = urllib.parse.urlencode(params)
         try:
             res = self.UrlOpener.open(url, data=prm)
@@ -176,7 +175,7 @@ class RemoteConnector(object):
         listURL = "%s://%s/manifest" % (scheme, host)
         res = None
         try:
-            res = jsonDecode(self._read(listURL, reRaise=True))
+            res = json.loads(self._read(listURL, reRaise=True))
         except urllib.error.URLError as e:
             try:
                 code, msg = e.reason
@@ -248,7 +247,7 @@ class RemoteConnector(object):
         url = self._getManifestUrl(appname, "diff")
         # Get the current manifest
         currentMf = Manifest.getManifest(homedir)
-        params = {"current": jsonEncode(currentMf)}
+        params = {"current": json.dumps(currentMf)}
         prm = urllib.parse.urlencode(params)
         try:
             res = self.UrlOpener.open(url, data=prm)
@@ -266,7 +265,7 @@ class RemoteConnector(object):
             # Right now re-raise it and let the UI handle it
             raise
         nonpickleRet = res.read()
-        filecode, chgs, serverMf = jsonDecode(nonpickleRet)
+        filecode, chgs, serverMf = json.loads(nonpickleRet)
         # Everything after this is relative to the app's home directory, so
         # change to it
         currdir = os.getcwd()
@@ -331,14 +330,14 @@ class RemoteConnector(object):
     def getFieldNames(self):
         url = self._getFullUrl("fields")
         enc = self._read(url)
-        flds = jsonDecode(enc)
+        flds = json.loads(enc)
         return flds
 
 
     def getFieldNames(self):
         url = self._getFullUrl("fields")
         enc = self._read(url)
-        flds = jsonDecode(enc)
+        flds = json.loads(enc)
         return flds
 
 

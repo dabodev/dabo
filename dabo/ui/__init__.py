@@ -1600,7 +1600,7 @@ def createMenuBar(src, form=None, previewFunc=None):
     else:
         try:
             # See if the src is a JSON-ified dict
-            src = dabo.lib.jsonDecode(src)
+            src = json.loads(src)
         except ValueError:
             # Not JSON
             try:
