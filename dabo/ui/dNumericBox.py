@@ -5,13 +5,13 @@ import wx.lib.masked as masked
 import dabo
 from dabo.ui import makeDynamicProperty
 from dabo import dEvents as dEvents
-from . import dTextBoxMixin as dtbm
-from . import dDataControlMixin as ddcm
+from dabo.ui.dTextBoxMixin import dTextBoxMixin
+from dabo.ui.dDataControlMixin import dDataControlMixin as ddcm
 from decimal import Decimal
 from dabo.dLocalize import _
 
 
-class dNumericBox(dtbm.dTextBoxMixin, masked.NumCtrl):
+class dNumericBox(dTextBoxMixin, masked.NumCtrl):
     """This is a specialized textbox class that maintains numeric values."""
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
@@ -66,7 +66,7 @@ class dNumericBox(dtbm.dTextBoxMixin, masked.NumCtrl):
             fontFace = "Lucida Grande"
         if fontFace:
              kwargs["FontFace"] = fontFace
-        dtbm.dTextBoxMixin.__init__(self, masked.NumCtrl, parent, properties,
+        dTextBoxMixin.__init__(self, masked.NumCtrl, parent, properties,
                 attProperties, *args, **kwargs)
 
     #--- Public interface.
@@ -381,7 +381,7 @@ class dNumericBox(dtbm.dTextBoxMixin, masked.NumCtrl):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
 
     class _testDecimal2(dNumericBox):
         def initProperties(self):

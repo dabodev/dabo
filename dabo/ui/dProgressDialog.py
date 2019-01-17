@@ -33,9 +33,9 @@ import wx
 import dabo
 from dabo.dLocalize import _
 
-ID_CANCEL = wx.NewId()
-EVT_RESULT_ID = wx.NewId()
-EVT_EXCEPTION_ID = wx.NewId()
+ID_CANCEL = wx.ID_ANY
+EVT_RESULT_ID = wx.ID_ANY 
+EVT_EXCEPTION_ID = wx.ID_ANY
 
 def EVT_RESULT(win, func):
     win.Connect(-1, -1, EVT_RESULT_ID, func)

@@ -4,7 +4,7 @@ import wx.media
 import dabo
 
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 
@@ -344,7 +344,9 @@ class dMediaControl(dControlMixin, wx.media.MediaCtrl):
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
-    class MediaForm(dabo.ui.dForm):
+    from dabo.ui.dForm import dForm
+
+    class MediaForm(dForm):
         def afterInit(self):
             # Here's a sample movie URI; you can change this to something local on
             # your machine, or another URI.

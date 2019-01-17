@@ -1,17 +1,22 @@
 # -*- coding: utf-8 -*-
 import dabo
-import dabo.ui
-import dabo.icons
 from dabo.dLocalize import _
+from dabo.ui.dDialog import dOkCancelDialog
+from dabo.ui.dImage import dImage
+from dabo.ui.dLabel import dLabel
+from dabo.ui.dSizer import dSizer
+from dabo.ui.dTextBox import dTextBox
+import dabo.icons
 
 
-class Lbl(dabo.ui.dLabel):
+class Lbl(dLabel):
     def initProperties(self):
         self.Alignment = "Right"
         self.AutoResize = False
         self.Width = 125
 
-class LblMessage(dabo.ui.dLabel):
+
+class LblMessage(dLabel):
     def initProperties(self):
         self.Alignment = "Center"
         self.AutoResize = False
@@ -22,7 +27,7 @@ class LblMessage(dabo.ui.dLabel):
         self.FontSize = 10
 
 
-class Txt(dabo.ui.dTextBox):
+class Txt(dTextBox):
     def initProperties(self):
         self.Width = 175
 
@@ -32,7 +37,7 @@ class TxtPass(Txt):
         self.PasswordEntry = True
 
 
-class Login(dabo.ui.dOkCancelDialog):
+class Login(dOkCancelDialog):
     def initProperties(self):
         self.AutoSize = True
         self.BorderResizable = True
@@ -61,18 +66,18 @@ class Login(dabo.ui.dOkCancelDialog):
 
         self.user, self.password = None, None
 
-        self.bm = dabo.ui.dImage(self, Picture=self.IconFile)
+        self.bm = dImage(self, Picture=self.IconFile)
 
         mainSizer = self.Sizer
         mainSizer.appendSpacer(15)
 
-        bs1 = dabo.ui.dSizer("h")
+        bs1 = dSizer("h")
         bs1.append(self.bm)
 
         bs1.appendSpacer(23)
 
-        vs = dabo.ui.dSizer("v")
-        bs = dabo.ui.dSizer("h")
+        vs = dSizer("v")
+        bs = dSizer("h")
 
         bs.append(self.lblUserName, alignment="middle")
         bs.appendSpacer(5)
@@ -81,7 +86,7 @@ class Login(dabo.ui.dOkCancelDialog):
 
         vs.appendSpacer(5)
 
-        bs = dabo.ui.dSizer("h")
+        bs = dSizer("h")
         bs.append(self.lblPassword, alignment="middle")
         bs.appendSpacer(5)
         bs.append(self.txtPassword, 1)

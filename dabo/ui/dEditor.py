@@ -13,8 +13,8 @@ from dabo import dEvents as dEvents
 from dabo import dColors as dColors
 from dabo.dLocalize import _
 from dabo import ui as dui
-from . import dDataControlMixin
-from . import dTimer
+from dabo.ui.dDataControlMixin import dDataControlMixin
+from dabo.ui.dTimer import dTimer
 
 LexerDic = {
     "ada": stc.STC_LEX_ADA,
@@ -116,7 +116,7 @@ else:
     fontFace = propFont
 
 
-class StyleTimer(dTimer.dTimer):
+class StyleTimer(dTimer):
     def afterInit(self):
         # Default timer interval
         self.styleTimerInterval = 50
@@ -325,7 +325,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         dui.callAfter(self.changeFontSize, self._fontSize)
 
         self._syntaxColoring = True
-        self._styleTimer = StyleTimer(self)
+        self._styleTimer = StyleTimer(parent=self)
         self._styleTimer.stop()
 
         # Set the marker used for bookmarks
@@ -2726,5 +2726,5 @@ class _dEditor_test(dEditor):
         self.Language = "Python"
 
 if __name__ == '__main__':
-    from . import test
+    import test
     test.Test().runTest(_dEditor_test)

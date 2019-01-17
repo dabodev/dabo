@@ -3,7 +3,7 @@ import wx
 import wx.lib.agw.foldpanelbar as fpb
 import dabo
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 from dabo import dEvents as dEvents
 from dabo import dColors as dColors
 from dabo.dLocalize import _
@@ -804,26 +804,33 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
-    class TestForm(dabo.ui.dForm):
+    from dabo.ui.dButton import dButton
+    from dabo.ui.dCheckBox import dCheckBox
+    from dabo.ui.dForm import dForm
+    from dabo.ui.dGridSizer import dGridSizer
+    from dabo.ui.dLabel import dLabel
+    from dabo.ui.dSizer import dSizer
+
+    class TestForm(dForm):
         def afterInit(self):
             dSlidePanelControl(self, RegID="slideControl", ExpandContent=False,
                     SingleClick=True)
             self.Sizer.append1x(self.slideControl)
-            self.p1 = dabo.ui.dSlidePanel(self.slideControl, Caption="First",
+            self.p1 = dSlidePanel(self.slideControl, Caption="First",
                     BackColor="orange")
-            self.p2 = dabo.ui.dSlidePanel(self.slideControl, Caption="Second",
+            self.p2 = dSlidePanel(self.slideControl, Caption="Second",
                     BarStyle="HorizontalFill", BarColor1="lightgreen", BarColor2="ForestGreen",
                     BackColor="wheat")
-            self.p3 = dabo.ui.dSlidePanel(self.slideControl, Caption="Third",
+            self.p3 = dSlidePanel(self.slideControl, Caption="Third",
                     BarStyle="BorderOnly", BackColor="powderblue", Border=33)
 
-            self.p1.Sizer = dabo.ui.dSizer("v")
-            btn = dabo.ui.dButton(self.p1, Caption="Change Bar 1 Style")
+            self.p1.Sizer = dSizer("v")
+            btn = dButton(self.p1, Caption="Change Bar 1 Style")
             self.p1.Sizer.append(btn, border=25)
             btn.bindEvent(dEvents.Hit, self.onBtn)
 
-            self.p2.Sizer = dabo.ui.dSizer("v")
-            lbl = dabo.ui.dLabel(self.p2, Caption="Tea For Two", FontItalic=True,
+            self.p2.Sizer = dSizer("v")
+            lbl = dLabel(self.p2, Caption="Tea For Two", FontItalic=True,
                     FontSize=24)
             self.p2.Sizer.append(lbl)
             def collapse3(evt):
@@ -832,39 +839,39 @@ if __name__ == "__main__":
                     mc.expand(self.p2)
                 else:
                     mc.collapse(self.p3)
-            self.p3.Sizer = dabo.ui.dGridSizer(HGap=5, VGap=2, MaxCols=2, DefaultBorder=3)
-            lbl = dabo.ui.dLabel(self.p3, Caption="Three Strikes")
-            btn = dabo.ui.dButton(self.p3, Caption="Collapse Me", OnHit=collapse3)
+            self.p3.Sizer = dGridSizer(HGap=5, VGap=2, MaxCols=2, DefaultBorder=3)
+            lbl = dLabel(self.p3, Caption="Three Strikes")
+            btn = dButton(self.p3, Caption="Collapse Me", OnHit=collapse3)
             self.p3.Sizer.appendItems((lbl, btn))
             # Demonstrate the grid
-            self.p3.Sizer.append(dabo.ui.dLabel(self.p3, Caption="Just"))
-            self.p3.Sizer.append(dabo.ui.dLabel(self.p3, Caption="taking"))
-            self.p3.Sizer.append(dabo.ui.dLabel(self.p3, Caption="up"))
-            self.p3.Sizer.append(dabo.ui.dLabel(self.p3, Caption="space"))
-            self.p3.Sizer.append(dabo.ui.dLabel(self.p3, Caption="in"))
-            self.p3.Sizer.append(dabo.ui.dLabel(self.p3, Caption="the"))
-            self.p3.Sizer.append(dabo.ui.dLabel(self.p3, Caption="Grid"))
-            self.p3.Sizer.append(dabo.ui.dLabel(self.p3, Caption="Sizer"))
+            self.p3.Sizer.append(dLabel(self.p3, Caption="Just"))
+            self.p3.Sizer.append(dLabel(self.p3, Caption="taking"))
+            self.p3.Sizer.append(dLabel(self.p3, Caption="up"))
+            self.p3.Sizer.append(dLabel(self.p3, Caption="space"))
+            self.p3.Sizer.append(dLabel(self.p3, Caption="in"))
+            self.p3.Sizer.append(dLabel(self.p3, Caption="the"))
+            self.p3.Sizer.append(dLabel(self.p3, Caption="Grid"))
+            self.p3.Sizer.append(dLabel(self.p3, Caption="Sizer"))
 
-            hsz = dabo.ui.dSizer("h")
-            btnCollapse = dabo.ui.dButton(self, Caption="Collapse All")
+            hsz = dSizer("h")
+            btnCollapse = dButton(self, Caption="Collapse All")
             btnCollapse.bindEvent(dEvents.Hit, self.onCollapseAll)
-            btnExpand = dabo.ui.dButton(self, Caption="Expand All")
+            btnExpand = dButton(self, Caption="Expand All")
             btnExpand.bindEvent(dEvents.Hit, self.onExpandAll)
             hsz.append(btnCollapse)
             hsz.appendSpacer(10)
             hsz.append(btnExpand)
             hsz.appendSpacer(10)
-            chkSingleton = dabo.ui.dCheckBox(self, Caption="Singleton Style",
+            chkSingleton = dCheckBox(self, Caption="Singleton Style",
                     DataSource="self.Form.slideControl", DataField="Singleton")
-            chkSingle = dabo.ui.dCheckBox(self, Caption="Single Click to Toggle",
+            chkSingle = dCheckBox(self, Caption="Single Click to Toggle",
                     DataSource="self.Form.slideControl", DataField="SingleClick")
-            chkBottom = dabo.ui.dCheckBox(self, Caption="Collapsed Panels To Bottom",
+            chkBottom = dCheckBox(self, Caption="Collapsed Panels To Bottom",
                     DataSource="self.Form.slideControl", DataField="CollapseToBottom")
-            chkExpand = dabo.ui.dCheckBox(self, Caption="Expand Content to Full Size",
+            chkExpand = dCheckBox(self, Caption="Expand Content to Full Size",
                     DataSource="self.Form.slideControl", DataField="ExpandContent")
             self.Sizer.appendSpacer(10)
-            vsz = dabo.ui.dSizer("v")
+            vsz = dSizer("v")
             vsz.append(chkSingleton)
             vsz.append(chkSingle)
             vsz.append(chkBottom)
@@ -889,7 +896,7 @@ if __name__ == "__main__":
                 p.Caption = "Style: %s" % style
             else:
                 p.Caption = "Style: %s; Color: %s" % (style, color1)
-#             lbl = dabo.ui.dLabel(p, Caption="Changed to %s" % p.BarStyle,
+#             lbl = dLabel(p, Caption="Changed to %s" % p.BarStyle,
 #                     FontItalic=True, FontSize=12)
 #             p.Sizer.append(lbl)
 #             p.layout()

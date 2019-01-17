@@ -2,7 +2,7 @@
 import wx
 import dabo
 from dabo import ui as dui
-from . import dDataControlMixin
+from dabo.ui.dDataControlMixin import dDataControlMixin
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
@@ -202,5 +202,5 @@ class _dSlider_test(dSlider):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dSlider_test)

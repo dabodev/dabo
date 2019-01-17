@@ -3,7 +3,7 @@ from wx import glcanvas
 import wx
 import dabo
 from dabo import ui as dui
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
@@ -226,6 +226,6 @@ class _dGlWindow_test2(dGlWindow):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dGlWindow_test)
     test.Test().runTest(_dGlWindow_test2)

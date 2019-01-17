@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import types
 import wx
-from . import dPemMixin
-from . import dIcons
 import dabo
-from dabo.dLocalize import _
 from dabo import dEvents as dEvents
-from dabo.ui import makeDynamicProperty
+from dabo.dLocalize import _
 from dabo.lib.utils import ustr
+from dabo.ui import dIcons
+from dabo.ui import makeDynamicProperty
+from dabo.ui.dPemMixin import dPemMixin
 
 
 class dMenuItem(dPemMixin, wx.MenuItem):

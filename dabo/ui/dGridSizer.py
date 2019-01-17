@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-from . import dSizerMixin
+from dabo.ui.dSizerMixin import dSizerMixin
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 

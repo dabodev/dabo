@@ -1,28 +1,39 @@
 # -*- coding: utf-8 -*-
-import copy
-import sys
-import datetime
-import locale
-import time
-import operator
-import re
-import warnings
 from decimal import Decimal
 from decimal import InvalidOperation
+from functools import reduce
+import copy
+import datetime
+import locale
+import operator
+import re
+import sys
+import time
+import warnings
 import wx
 import wx.grid
 from wx._core import PyAssertionError
 import dabo
 from dabo import ui as dui
+from dabo.ui import dKeys
+from dabo.ui import dUICursors
 from dabo.ui import makeDynamicProperty
-from functools import reduce
+from dabo.ui.dButton import dButton
+from dabo.ui.dCheckBox import dCheckBox
+from dabo.ui.dDropdownList import dDropdownList
+from dabo.ui.dFont import dFont
+from dabo.ui.dForm import dForm
+from dabo.ui.dGridSizer import dGridSizer
+from dabo.ui.dMenu import dMenu
+from dabo.ui.dPemMixin import dPemMixin
+from dabo.ui.dRadioList import dRadioList
+from dabo.ui.dTextBox import dTextBox
+from dabo.ui.dTimer import dTimer
 from dabo import dEvents as dEvents
 from dabo import dException as dException
 from dabo.dLocalize import _, n_
 from dabo.lib.utils import ustr
-from . import dControlMixin
-from . import dKeys
-from . import dUICursors
+from dabo.ui.dControlMixin import dControlMixin
 from dabo import biz as dbiz
 from dabo import dColors as dColors
 from dabo.dObject import dObject
@@ -371,7 +382,7 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
         dabo.log.info("GridListEditor: Create")
         dabo.log.info(ustr(args))
         dabo.log.info(ustr(kwargs))
-        self.control = dui.dDropdownList(parent=parent, id=id,
+        self.control = dDropdownList(parent=parent, id=id,
                 ValueMode="String")
         self.SetControl(self.control)
         if evtHandler:
@@ -430,7 +441,7 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
 
 
 
-class dColumn(dui.dPemMixin):
+class dColumn(dPemMixin):
     """
     These aren't the actual columns that appear in the grid; rather,
     they provide a way to interact with the underlying grid table in a more
@@ -580,7 +591,7 @@ class dColumn(dui.dPemMixin):
             self._rendererClass = self.defaultRenderers.get(typ, self.stringRendererClass)
 
 
-    @dui.deadCheck
+    @dabo.ui.deadCheck
     def _updateDynamicProps(self):
         for prop, func in list(self._dynamic.items()):
             if prop[:4] != "Cell":
@@ -612,7 +623,7 @@ class dColumn(dui.dPemMixin):
 
 
     def _getDefaultFont(self):
-        ret = dui.dFont(Size=10, Bold=False, Italic=False,
+        ret = dFont(Size=10, Bold=False, Italic=False,
                 Underline=False)
         if sys.platform.startswith("win"):
             # The wx default is quite ugly
@@ -1071,11 +1082,11 @@ class dColumn(dui.dPemMixin):
         if hasattr(self, "_font"):
             v = self._font
         else:
-            v = self.Font = dui.dFont(_nativeFont=self._gridColAttr.GetFont())
+            v = self.Font = dFont(_nativeFont=self._gridColAttr.GetFont())
         return v
 
     def _setFont(self, val):
-        assert isinstance(val, dui.dFont)
+        assert isinstance(val, dFont)
         if self._constructed():
             self._font = val
             self._gridColAttr.SetFont(val._nativeFont)
@@ -1171,7 +1182,7 @@ class dColumn(dui.dPemMixin):
         return v
 
     def _setHeaderFont(self, val):
-        assert isinstance(val, dui.dFont)
+        assert isinstance(val, dFont)
         if self._constructed():
             self._headerFont = val
             val.bindEvent(dEvents.FontPropertiesChanged, self._onHeaderFontPropsChanged)
@@ -1930,7 +1941,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self.stringDisplayLen = 64
 
         self.currSearchStr = ""
-        self.incSearchTimer = dui.dTimer(self)
+        self.incSearchTimer = dTimer(self)
         self.incSearchTimer.bindEvent(dEvents.Hit, self.onIncSearchTimer)
 
         # By default, row labels are not shown. They can be displayed
@@ -1965,7 +1976,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         dui.callAfter(self._updateColumnWidths)
 
 
-    @dui.deadCheck
+    @dabo.ui.deadCheck
     def _afterInitAll(self):
         super(dGrid, self)._afterInitAll()
         for col in self.Columns:
@@ -2523,7 +2534,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         return bool(sr)
 
 
-    @dui.deadCheck
+    @dabo.ui.deadCheck
     def _updateColumnWidths(self):
         """
         See if there are any dynamically-sized columns, and resize them
@@ -3356,7 +3367,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             col = self.ColumnClass(self, *args, **kwargs)
         else:
             if not isinstance(col, dColumn):
-                if issubclass(col, dui.dColumn):
+                if issubclass(col, dColumn):
                     col = col(self, *args, **kwargs)
                 else:
                     raise ValueError(_("col must be a dColumn subclass or instance"))
@@ -3785,7 +3796,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         # Make the popup menu appear in the location that was clicked. We init
         # the menu here, then call the user hook method to optionally fill the
         # menu. If we get a menu back from the user hook, we display it.
-        menu = dui.dMenu()
+        menu = dMenu()
 
         # Fill the default menu item(s):
         def _autosizeColumn(evt):
@@ -3874,7 +3885,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             self.CurrentRow = evt.row
             self.CurrentColumn = evt.col
 
-        menu = dui.dMenu()
+        menu = dMenu()
         menu = self.fillContextMenu(menu)
 
         if menu is not None and len(menu.Children) > 0:
@@ -3976,7 +3987,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             if bizobj and not self._dataSourceBeingSet:
                 # Don't run any of this code if this is the initial setting of the DataSource
                 if bizobj.RowCount > newRow and bizobj.RowNumber != newRow:
-                    if self._mediateRowNumberThroughForm and isinstance(self.Form, dui.dForm):
+                    if self._mediateRowNumberThroughForm and isinstance(self.Form, dForm):
                         # run it through the form:
                         if not self.Form.moveToRowNumber(newRow, bizobj):
                             dui.callAfter(self.refresh)
@@ -5514,7 +5525,7 @@ class _dGrid_test(dGrid):
         col.HeaderHorizontalAlignment = "Left"
 
         # Let's make a custom editor for the name
-        class ColoredText(dui.dTextBox):
+        class ColoredText(dTextBox):
             def initProperties(self):
                 self.ForeColor = "blue"
                 self.FontItalic = True
@@ -5560,44 +5571,44 @@ class _dGrid_test(dGrid):
 
 if __name__ == '__main__':
     from dabo.dApp import dApp
-    class TestForm(dui.dForm):
+    class TestForm(dForm):
         def afterInit(self):
             self.BackColor = "khaki"
             g = self.grid = _dGrid_test(self, RegID="sampleGrid")
             self.Sizer.append(g, 1, "x", border=0, borderSides="all")
             self.Sizer.appendSpacer(10)
-            gsz = dui.dGridSizer(HGap=50)
+            gsz = dGridSizer(HGap=50)
 
-            chk = dui.dCheckBox(self, Caption="Allow Editing?", RegID="gridEdit",
+            chk = dCheckBox(self, Caption="Allow Editing?", RegID="gridEdit",
                     DataSource=self.grid, DataField="Editable")
             chk.update()
             gsz.append(chk, row=0, col=0)
 
-            chk = dui.dCheckBox(self, Caption="Show Headers",
+            chk = dCheckBox(self, Caption="Show Headers",
                     RegID="showHeaders", DataSource=self.grid,
                     DataField="ShowHeaders")
             gsz.append(chk, row=1, col=0)
             chk.update()
 
-            chk = dui.dCheckBox(self, Caption="Allow Multiple Selection",
+            chk = dCheckBox(self, Caption="Allow Multiple Selection",
                     RegID="multiSelect", DataSource=self.grid,
                     DataField="MultipleSelection")
             chk.update()
             gsz.append(chk, row=2, col=0)
 
-            chk = dui.dCheckBox(self, Caption="Vertical Headers",
+            chk = dCheckBox(self, Caption="Vertical Headers",
                     RegID="verticalHeaders", DataSource=self.grid,
                     DataField="VerticalHeaders")
             chk.update()
             gsz.append(chk, row=3, col=0)
 
-            chk = dui.dCheckBox(self, Caption="Auto-adjust Header Height",
+            chk = dCheckBox(self, Caption="Auto-adjust Header Height",
                     RegID="autoAdjust", DataSource=self.grid,
                     DataField="AutoAdjustHeaderHeight")
             chk.update()
             gsz.append(chk, row=4, col=0)
 
-            radSelect = dui.dRadioList(self, Choices=["Row", "Col", "Cell"],
+            radSelect = dRadioList(self, Choices=["Row", "Col", "Cell"],
                     ValueMode="string", Caption="Sel Mode", BackColor=self.BackColor,
                     DataSource=self.grid, DataField="SelectionMode", RegID="radSelect")
             radSelect.refresh()
@@ -5611,7 +5622,7 @@ if __name__ == '__main__':
                     but.Caption = "Make Celebrity Invisible"
                 else:
                     but.Caption = "Make Celebrity Visible"
-            butVisible = dui.dButton(self, Caption="Toggle Celebrity Visibility",
+            butVisible = dButton(self, Caption="Toggle Celebrity Visibility",
                 OnHit=setVisible)
             gsz.append(butVisible, row=5, col=0)
 

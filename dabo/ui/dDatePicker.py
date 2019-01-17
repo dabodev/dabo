@@ -7,7 +7,7 @@ import wx
 from wx import adv as wx_adv
 import dabo
 from dabo import ui as dui
-from . import dDataControlMixin
+from dabo.ui.dDataControlMixin import dDataControlMixin
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
@@ -368,7 +368,7 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
 
 if __name__ == "__main__":
     import datetime
-    from . import test
+    from dabo.ui import test
 
     class TestBase(dDatePicker):
 

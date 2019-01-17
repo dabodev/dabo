@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-# dabo/db/dCursorMixin
-
-import datetime
-import time
-import re
 from decimal import Decimal
+import datetime
 import functools
+import re
+import six
+import time
+
 import dabo
 import dabo.dConstants as kons
 from dabo.dLocalize import _
@@ -320,10 +320,8 @@ class dCursorMixin(dObject):
         if params is None:
             params = tuple()
         if sql:
-            try:
-                sql = sql.decode(self.Encoding).replace("\n", " ")
-            except UnicodeDecodeError as e:
-                sql = "(couldn't decode sql)"
+            if isinstance(sql, six.binary_type):
+                sql = sql.decode(self.Encoding)
         try:
             params = ", ".join("%s" % p for p in params)
         except UnicodeDecodeError as e:
@@ -341,7 +339,7 @@ class dCursorMixin(dObject):
         # retrieving the data. However, many cursor classes can only return
         # row information as a list, not as a dictionary. This method will
         # detect that, and convert the results to a dictionary.
-        if isinstance(sql, str):
+        if isinstance(sql, six.binary_type):
             sql = sql.encode(self.Encoding)
         if convertQMarks:
             sql = self._qMarkToParamPlaceholder(sql)
@@ -363,12 +361,8 @@ class dCursorMixin(dObject):
             if errorClass is not None and isinstance(e, errorClass):
                 raise e
             self._dblogExecute("execute() FAILED", sql, params)
-
             # Database errors need to be decoded from database encoding.
-            try:
-                errMsg = str(str(e), self.Encoding)
-            except UnicodeError:
-                errMsg = ustr(e)
+            errMsg = six.text_type(e)
             # If this is due to a broken connection, let the user know.
             # Different backends have different messages, but they
             # should all contain the string 'connect' in them.

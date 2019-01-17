@@ -4,7 +4,7 @@ import dabo
 from dabo import ui as dui
 from dabo.ui import makeDynamicProperty
 import wx.lib.mixins.listctrl as ListMixin
-from . import dControlItemMixin
+from dabo.ui.dControlItemMixin import dControlItemMixin
 from dabo import dColors as dColors
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
@@ -929,5 +929,5 @@ class _dListControl_test(dListControl):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dListControl_test)

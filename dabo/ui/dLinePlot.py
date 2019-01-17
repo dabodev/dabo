@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
-import wx.lib.plot as plot
+import dabo
+try:
+    import wx.lib.plot as plot
+except ModuleNotFoundError:
+    dabo.log.error("The numpy module is not installed")
+    plot = None
 
 try:
     import numpy.oldnumeric as _Numeric
@@ -11,9 +16,8 @@ except Exception as e:
     dabo.log.error(_("Error importing numpy.oldnumeric: %s") % e)
     _Numeric = False
 
-import dabo
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
@@ -536,5 +540,5 @@ class _dLinePlot_test(dLinePlot):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dLinePlot_test)

@@ -143,7 +143,7 @@ class dSaveDialog(dFileDialog):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(dFileDialog)
     test.Test().runTest(dFolderDialog)
     test.Test().runTest(dSaveDialog)

@@ -5,20 +5,22 @@ specific, since we only support wxPython, but I suppose that it could be updated
 later on to support other UI toolkits.
 """
 from datetime import datetime
-import time
-import os
-import re
-import random
+from io import IOBase
 import codecs
+import os
+import random
+import re
+import six
 import tempfile
+import time
+
 import dabo
 from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dabo.lib import utils
 from dabo import ui as dui
-from dabo.ui import dialogs as dlgs
+from dabo.ui.dialogs.Wizard import Wizard
 from dabo.lib import xmltodict as xtd
-from dabo.lib import DesignerUtils as desUtil
 from dabo.lib.utils import ustr
 # Doesn't matter what platform we're on; Python needs
 # newlines in its compiled code.
@@ -78,18 +80,18 @@ class DesignerClassConverter(dObject):
             self.addInheritedInfo(dct, super, updateCode=True)
         # Parse the returned dict and create the class definition text
         self.createClassText(dct)
+        if isinstance(self.classText, six.binary_type):
+            self.classText = self.classText.decode(self._encoding)
         # Work-around for bug in which a trailing comment line throws an error
         self.classText += "\n"
-        if isinstance(self.classText, str):
-            self.classText = self.classText.encode(self._encoding)
         open(self._classFileName, "w").write(self.classText)
 
         ## For debugging. This creates a copy of the generated code
         ## so that you can help determine any problems.
         ## egl: removed 2007-02-10. If you want to see the output,
         ##   just uncomment the next 2 lines.
-#         debugName = "CLASSTEXT_%s.py" % time.strftime("%H%M%S", time.localtime())
-#          open(debugName, "w").write(self.classText)
+        #debugName = "CLASSTEXT_%s.py" % time.strftime("%H%M%S", time.localtime())
+        #open(debugName, "w").write(self.classText)
 
         # jfcs added self._codeFileName to below
         # egl - created a tmp file for the main class code that we can use
@@ -116,6 +118,8 @@ class DesignerClassConverter(dObject):
 
 
     def addCodeFile(self, dct, pth=None, encoding=None):
+        from dabo.lib import DesignerUtils as desUtil
+
         if pth is None:
             pth = self._srcFile
         if encoding is None:
@@ -159,7 +163,7 @@ class DesignerClassConverter(dObject):
         a matching code file and, if found, import that code.
         """
         parseCode = True
-        if isinstance(src, file):
+        if isinstance(src, IOBase):
             xml = src.read()
             self._srcFile = src.name
         else:
@@ -292,7 +296,7 @@ class DesignerClassConverter(dObject):
             modpath, shortClsName = nm.rsplit(".", 1)
         except ValueError:
             # Default to the dabo.ui module
-            modpath = "dabo.ui"
+            modpath = "dabo.ui.%s" % nm
             shortClsName = nm
         self.mainClassName = clsName = self.uniqename(shortClsName)
 
@@ -303,7 +307,7 @@ class DesignerClassConverter(dObject):
             exec(stmnt, tmpSpace)
         except (ImportError, ValueError):
             pass
-        isWiz = issubclass(tmpSpace.get(shortClsName), dlgs.Wizard)
+        isWiz = issubclass(tmpSpace.get(shortClsName), Wizard)
 
         # Leave the third %s in place. That will be replaced by any
         # inner class definitions we create
@@ -374,11 +378,11 @@ class DesignerClassConverter(dObject):
         else:
             impt = ""
         ct = self.classText
-        if isinstance(ct, str):
-            self.classText = ct.encode(self._encoding)
-        if isinstance(impt, str):
-            impt = impt.encode(self._encoding)
-        self.classText = self.classText.replace("|classImportStatements|", impt)
+        if isinstance(ct, six.string_types):
+            self.classText = six.b(ct)
+        if isinstance(impt, six.string_types):
+            impt = six.b(impt)
+        self.classText = self.classText.replace(b"|classImportStatements|", impt)
 
         # We're done!
         return
@@ -420,6 +424,8 @@ class DesignerClassConverter(dObject):
         """Takes a list of child object dicts, and adds their code to the
         generated class text.
         """
+        from dabo.lib import DesignerUtils as desUtil
+
         if not isinstance(childList, (list, tuple)):
             childList = [childList]
         if not isinstance(specChildList, (list, tuple)):
@@ -789,7 +795,7 @@ class DesignerClassConverter(dObject):
     def indentCode(cd, level):
         """Takes code and indents it to the desired level"""
         lns = cd.splitlines()
-        indent = "\t" * level
+        indent = " " * 4 * level
         # Compiled code needs newlines, no matter what platform.
         jn = "\n" + indent
         ret = jn.join(lns)
@@ -990,10 +996,11 @@ import sys
             self._extractKey(_nodeAtts, "name")
             self._extractKey(_nodeAtts, "designerClass")
             for _nodeProp, _nodeVal in _nodeAtts.items():
-                try:
-                    exec "_currNode.%s = %s" % (_nodeProp, _nodeVal) in locals()
-                except (SyntaxError, NameError):
-                    exec "_currNode.%s = \'%s\'" % (_nodeProp, _nodeVal) in locals()
+                setattr(_currNode, _nodeProp, _nodeVal)
+                #try:
+                #    exec "_currNode.%s = %s" % (_nodeProp, _nodeVal) in locals()
+                #except (SyntaxError, NameError):
+                #    exec "_currNode.%s = \'%s\'" % (_nodeProp, _nodeVal) in locals()
             for _kidNode in _kidNodes:
                 _kidAtts = _kidNode.get("attributes", {})
                 _kidKids = _kidNode.get("children", {})

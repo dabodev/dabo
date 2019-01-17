@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 import wx
-try:
-    import wx.lib.agw.aui as aui
-except ImportError:
-    # wx versions prior to 2.8.9.2
-    import wx.aui as aui
+import wx.lib.agw.aui as aui
 PaneInfo = aui.AuiPaneInfo
 import dabo
 from dabo.dLocalize import _
 from dabo import dEvents as dEvents
 from dabo import ui as dui
+from dabo.ui.dButton import dButton
+from dabo.ui.dCheckBox import dCheckBox
+from dabo.ui.dForm import dForm
+from dabo.ui.dPanel import dPanel
+from dabo.ui.dShell import dShellForm
+from dabo.ui.dSizer import dSizer
+from dabo.ui.dStatusBar import dStatusBar
 from dabo.ui import makeDynamicProperty
 
 flag_allow_float = aui.AUI_MGR_ALLOW_FLOATING
@@ -69,7 +72,7 @@ class _dDockManager(aui.AuiManager):
 
 
 
-class dDockPanel(dui.dPanel):
+class dDockPanel(dPanel):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         nmU = self._extractKey((properties, kwargs), "Name", "")
         nb = self._extractKey((properties, kwargs), "NameBase", "")
@@ -856,13 +859,13 @@ class dDockPanel(dui.dPanel):
 
 
 
-class dDockForm(dui.dForm):
+class dDockForm(dForm):
     def _afterInit(self):
         self._inUpdate = False
         self._mgr = mgr = _dDockManager(self)
         pc = self.getBasePanelClass()
         self._centerPanel = pc(self, name="CenterPanel", typ="center")
-        self._centerPanel.Sizer = dui.dSizer("v")
+        self._centerPanel.Sizer = dSizer("v")
         self._panels = {}
         super(dDockForm, self)._afterInit()
         self.bindEvent(dEvents.Destroy, self.__onDestroy)
@@ -881,7 +884,7 @@ class dDockForm(dui.dForm):
 
 
     def onChildBorn(self, evt):
-        ok = isinstance(evt.child, (dDockPanel, dui.dStatusBar, dui.dShellForm))
+        ok = isinstance(evt.child, (dDockPanel, dStatusBar, dShellForm))
         if not ok:
             # This should never happen; if so, log the error
             dabo.log.error(_("Unmanaged object added to a Dock Form: %s") %evt.child)
@@ -1010,11 +1013,11 @@ class _dDockForm_test(dDockForm):
         self.dp = self.addPanel(Floating=False, Caption="Initially Docked", BackColor="slateblue",
                 ShowCaption=False, ShowPinButton=True, ShowCloseButton=False,
                 ShowGripper=True, Size=(144, 100))
-        btn = dui.dButton(self.CenterPanel, Caption="Test Orange", OnHit=self.onTestFP)
+        btn = dButton(self.CenterPanel, Caption="Test Orange", OnHit=self.onTestFP)
         self.CenterPanel.Sizer.append(btn)
-        btn = dui.dButton(self.CenterPanel, Caption="Test Blue", OnHit=self.onTestDP)
+        btn = dButton(self.CenterPanel, Caption="Test Blue", OnHit=self.onTestDP)
         self.CenterPanel.Sizer.append(btn)
-        chk = dui.dCheckBox(self.CenterPanel, Caption="Orange Dockable", DataSource=self.fp,
+        chk = dCheckBox(self.CenterPanel, Caption="Orange Dockable", DataSource=self.fp,
                 DataField="Dockable")
         self.CenterPanel.Sizer.append(chk)
         self.fp.DynamicCaption = self.capForOrange
@@ -1066,5 +1069,5 @@ class _dDockForm_test(dDockForm):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dDockForm_test)

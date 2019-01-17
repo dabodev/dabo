@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 
 class dBox(dControlMixin, wx.StaticBox):
     """Creates a box for visually grouping objects on your form."""
@@ -24,5 +24,5 @@ class _dBox_test(dBox):
         self.Height = 20
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dBox_test)

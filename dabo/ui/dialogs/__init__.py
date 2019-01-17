@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .about import About
+from dabo.ui.dialogs.about import About
 from .login import Login
 from .HotKeyEditor import HotKeyEditor
 from .PreferenceDialog import PreferenceDialog

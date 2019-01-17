@@ -30,7 +30,7 @@ def addkids(self, obj, node):
         except AttributeError:
             # Not a dabo obj
             return
-    if isinstance(obj, dabo.ui.dFormMixin):
+    if isinstance(obj, dFormMixin):
         if obj.ToolBar:
             kids.append(obj.ToolBar)
         if obj.StatusBar:
@@ -41,9 +41,9 @@ def addkids(self, obj, node):
         nodeColor = None
         if isinstance(kid, wx._controls.ScrollBar):
             continue
-#         if isinstance(obj, dabo.ui.dSizerMixin):
+#         if isinstance(obj, dSizerMixin):
 #             kid = obj.getItem(kid)
-        if isinstance(kid, dabo.ui.dSizerMixin):
+        if isinstance(kid, dSizerMixin):
             txt = self.sizer_repr(kid)
             nodeColor = "blue"
         else:
@@ -182,7 +182,7 @@ def showPropVals(self, obj):
         elif isinstance(val, dabo.dObject.dObject):
             try:
                 val = "'%s'" % self.formatName(val)
-            except StandardError, e:
+            except StandardError as e:
                 pass
         rows.append({"prop": prop, "val": val})
     ds = dabo.db.dDataSet(rows)
@@ -192,9 +192,9 @@ def showPropVals(self, obj):
         <sizer_repr><![CDATA[
 def sizer_repr(self, sz):
     """Returns an informative representation for a sizer"""
-    if isinstance(sz, dabo.ui.dGridSizer):
+    if isinstance(sz, dGridSizer):
         ret = "dGridSizer (%s x %s)" % (sz.HighRow, sz.HighCol)
-    elif isinstance(sz, dabo.ui.dBorderSizer):
+    elif isinstance(sz, dBorderSizer):
         ret = "dBorderSizer (%s, '%s')" % (sz.Orientation, sz.Caption)
     else:
         ret = "dSizer (%s)" % sz.Orientation
@@ -211,7 +211,7 @@ def _getShowSizers(self):
         </_getShowSizers>
         <exclude><![CDATA[
 def exclude(self, obj):
-    isFloat = (isinstance(obj, dabo.ui.dDialog) and
+    isFloat = (isinstance(obj, dDialog) and
         hasattr(obj, "Above") and hasattr(obj, "Owner"))
     return isFloat or (obj is self)
 ]]>
@@ -232,7 +232,7 @@ def setSelectedObject(self, obj, silent=False):
     try:
         self.objectTree.showObject(obj, displayFail=False)
         self.objectTree.expandCurrentNode()
-    except RuntimeError, e:
+    except RuntimeError as e:
         if not silent:
             dabo.ui.stop(e, "Object Inspector")
 ]]>
@@ -256,14 +256,14 @@ def OnCaptureLost(self, evt):
 def afterInitAll(self):
     objnote = "NOTE: The 'obj' variable refers to the object selected in the tree."
     intro = "%s\\n%s" % (dabo.ui.getSystemInfo(), objnote)
-    self.shell = dabo.ui.dShell(self.shellPanel, showInterpIntro=False,
+    self.shell = dShell(self.shellPanel, showInterpIntro=False,
             introText=intro)
     self.shell.interp.locals['self'] = self
-    sz = self.shellPanel.Sizer = dabo.ui.dBorderSizer(self.shellPanel, Caption="Interactive Interpreter")
+    sz = self.shellPanel.Sizer = dBorderSizer(self.shellPanel, Caption="Interactive Interpreter")
     sz.append1x(self.shell)
     dabo.ui.callEvery(250, self.clearHighlight)
 
-    tb = self.ToolBar = dabo.ui.dToolBar(self, ShowCaptions=True)
+    tb = self.ToolBar = dToolBar(self, ShowCaptions=True)
     self.refreshButton = self.appendToolBarButton(name="Refresh", pic="refresh_tree.png",
             toggle=False, tip=_("Re-create the object tree"),
             OnHit=self.onRefreshTree)
@@ -326,7 +326,7 @@ def onHighlightItem(self, evt):
     entry = self._highlights[expires] = {}
     entry["targetForm"] = frm
 
-    if isinstance(obj, dabo.ui.dSizerMixin):
+    if isinstance(obj, dSizerMixin):
         entry["type"] = "sizer"
         frm.addToOutlinedSizers(obj)
         frm.refresh()
@@ -338,7 +338,7 @@ def onHighlightItem(self, evt):
         obj.outlineWidth = 4
         frm._alwaysDrawSizerOutlines = True
     else:
-        if isinstance(obj, dabo.ui.dFormMixin):
+        if isinstance(obj, dFormMixin):
             # Don't highlight the form; just bring it to the foreground
             del self._highlights[expires]
             obj.bringToFront()

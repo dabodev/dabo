@@ -2,11 +2,17 @@
 import wx
 import dabo
 from dabo.dLocalize import _
-from dabo import ui as dui
+from dabo.ui.dBox import dBox
+from dabo.ui.dButton import dButton
+from dabo.ui.dForm import dForm
+from dabo.ui.dLabel import dLabel
+from dabo.ui.dPanel import dPanel
+from dabo.ui.dSizer import dSizer
+from dabo.ui.dSizerMixin import dSizerMixin
 from dabo.ui import makeDynamicProperty
 
 
-class dBorderSizer(dui.dSizerMixin, wx.StaticBoxSizer):
+class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
     """
     A BorderSizer is a regular box sizer, but with a visible box around
     the perimiter. You must either create the box first and pass it to the
@@ -21,9 +27,9 @@ class dBorderSizer(dui.dSizerMixin, wx.StaticBoxSizer):
         # Make sure that they got the params in the right order
         if isinstance(box, str):
             box, orientation = orientation, box
-        if not isinstance(box, dui.dBox):
+        if not isinstance(box, dBox):
             prnt = box
-            box = dui.dBox(prnt)
+            box = dBox(prnt)
             box.sendToBack()
         # Convert Dabo orientation to wx orientation
         orient = self._extractKey((kwargs, properties), "Orientation", orientation)
@@ -58,7 +64,7 @@ class dBorderSizer(dui.dSizerMixin, wx.StaticBoxSizer):
 
     def getNonBorderedClass(self):
         """Return the class that is the non-border sizer version of this class."""
-        return dui.dSizer
+        return dSizer
 
 
     def _getBackColor(self):
@@ -150,16 +156,16 @@ class dBorderSizer(dui.dSizerMixin, wx.StaticBoxSizer):
 
 
 
-class TestForm(dui.dForm):
+class TestForm(dForm):
     def afterInit(self):
-        self.Sizer = dui.dSizer("v", DefaultBorder=10)
-        lbl = dui.dLabel(self, Caption="Button in BoxSizer Below", FontSize=16)
+        self.Sizer = dSizer("v", DefaultBorder=10)
+        lbl = dLabel(self, Caption="Button in BoxSizer Below", FontSize=16)
         self.Sizer.append(lbl, halign="center")
         sz = dBorderSizer(self, "v")
         self.Sizer.append1x(sz)
-        btn = dui.dButton(self, Caption="Click")
+        btn = dButton(self, Caption="Click")
         sz.append1x(btn)
-        pnl = dui.dPanel(self, BackColor="seagreen")
+        pnl = dPanel(self, BackColor="seagreen")
         self.Sizer.append1x(pnl, border=18)
 
 class _dBorderSizer_test(dBorderSizer):

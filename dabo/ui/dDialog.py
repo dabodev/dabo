@@ -6,7 +6,15 @@ from dabo import ui as dui
 from dabo import dEvents as dEvents
 from dabo import dConstants as kons
 from dabo.dLocalize import _
-from . import dFormMixin
+from dabo.ui.dButton import dButton
+from dabo.ui.dCheckBox import dCheckBox
+from dabo.ui.dDropdownList import dDropdownList
+from dabo.ui.dFormMixin import dFormMixin
+from dabo.ui.dLabel import dLabel
+from dabo.ui.dGridSizer import dGridSizer
+from dabo.ui.dSizer import dSizer
+from dabo.ui.dSpinner import dSpinner
+from dabo.ui.dTextBox import dTextBox
 from dabo.ui import makeDynamicProperty
 
 
@@ -65,7 +73,7 @@ class dDialog(dFormMixin, wx.Dialog):
 
     def _afterInit(self):
         self.MenuBarClass = None
-        self.Sizer = dui.dSizer("V")
+        self.Sizer = dSizer("V")
         super(dDialog, self)._afterInit()
 
 
@@ -300,7 +308,7 @@ class dStandardButtonDialog(dDialog):
         self.btnOK = self.btnCancel = self.btnYes = self.btnNo = self.btnHelp = None
 
         # We need a Dabo sizer to wrap the wx sizer.
-        self.stdButtonSizer = dui.dSizer()
+        self.stdButtonSizer = dSizer()
         sbs = self.CreateButtonSizer(flags)
         self.stdButtonSizer.append1x(sbs)
 
@@ -308,16 +316,16 @@ class dStandardButtonDialog(dDialog):
         for btn in btns:
             id_ = btn.GetId()
             if id_ == wx.ID_YES:
-                self.btnYes = newbtn = dui.dButton(btn.Parent)
+                self.btnYes = newbtn = dButton(btn.Parent)
                 mthd = self._onYes
             elif id_ == wx.ID_NO:
-                self.btnNo = newbtn = dui.dButton(btn.Parent)
+                self.btnNo = newbtn = dButton(btn.Parent)
                 mthd = self._onNo
             elif id_ == wx.ID_OK:
-                self.btnOK = newbtn = dui.dButton(btn.Parent)
+                self.btnOK = newbtn = dButton(btn.Parent)
                 mthd = self._onOK
             elif id_ == wx.ID_CANCEL:
-                self.btnCancel = newbtn = dui.dButton(btn.Parent)
+                self.btnCancel = newbtn = dButton(btn.Parent)
                 mthd = self._onCancel
             elif id_ == wx.ID_HELP:
                 self.btnHelp = btn
@@ -362,7 +370,7 @@ class dStandardButtonDialog(dDialog):
                 spacer = sz.DefaultBorder
             else:
                 spacer = 10
-            bs = dui.dSizer("v")
+            bs = dSizer("v")
             bs.append((0, spacer/2))
             bs.append(self.ButtonSizer, "x")
             bs.append((0, spacer))
@@ -462,19 +470,19 @@ class dStandardButtonDialog(dDialog):
         the list/tuple is the prompt, the second is the data type, and the third
         is the RegID used to retrieve the entered value.
         """
-        gs = dui.dGridSizer(HGap=5, VGap=8, MaxCols=2)
+        gs = dGridSizer(HGap=5, VGap=8, MaxCols=2)
         for prmpt, typ, rid in seq:
             chc = None
-            gs.append(dui.dLabel(self, Caption=prmpt), halign="right")
+            gs.append(dLabel(self, Caption=prmpt), halign="right")
             if typ in (int, int):
-                cls = dui.dSpinner
+                cls = dSpinner
             elif typ is bool:
-                cls = dui.dCheckBox
+                cls = dCheckBox
             elif isinstance(typ, list):
-                cls = dui.dDropdownList
+                cls = dDropdownList
                 chc = typ
             else:
-                cls = dui.dTextBox
+                cls = dTextBox
             ctl = cls(self, RegID=rid)
             gs.append(ctl)
             if chc:
@@ -661,7 +669,7 @@ class _FloatDialog(dDialog):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(dDialog)
     test.Test().runTest(dStandardButtonDialog)
     test.Test().runTest(dOkCancelDialog)

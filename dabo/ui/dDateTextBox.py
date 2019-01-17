@@ -3,12 +3,12 @@ import datetime
 import wx
 import dabo
 from dabo import ui as dui
-from . import dDataControlMixin as dcm
+from dabo.ui.dDataControlMixin import dDataControlMixin as dcm
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
-from .dTextBox import dTextBox
-from .dPanel import dPanel
-from .dButton import dButton
+from dabo.ui.dTextBox import dTextBox
+from dabo.ui.dPanel import dPanel
+from dabo.ui.dButton import dButton
 from dabo.ui import makeDynamicProperty
 
 
@@ -468,5 +468,5 @@ C: Popup Calendar to Select
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest((dDateTextBox, dDateTextBox))

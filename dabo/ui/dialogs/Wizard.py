@@ -4,10 +4,11 @@ from dabo.dApp import dApp
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
+from dabo.ui.dDialog import dDialog
 from .WizardPage import WizardPage
 
 
-class Wizard(dabo.ui.dDialog):
+class Wizard(dDialog):
     """
     This is the main form for creating wizards. To use it, define
     a series of wizard pages, based on WizardPage. Then add these

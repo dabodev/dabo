@@ -28,5 +28,5 @@ class dFontDialog(wx.FontDialog):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(dFontDialog)

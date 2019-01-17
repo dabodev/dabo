@@ -4,9 +4,10 @@ import wx
 from dabo import ui as dui
 from dabo.dLocalize import _
 from dabo import dEvents as dEvents
+from dabo.ui.dPemMixin import dPemMixin
 
 
-class dControlMixin(dui.dPemMixin):
+class dControlMixin(dPemMixin):
     """Provide common functionality for all controls."""
     def __onGotFocus(self, evt):
         if self.Form:

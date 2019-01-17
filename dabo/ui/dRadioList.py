@@ -4,8 +4,8 @@ import time
 import wx
 import dabo
 from dabo.ui import makeDynamicProperty
-from . import dDataControlMixin
-from . import dControlItemMixin
+from dabo.ui.dDataControlMixin import dDataControlMixin
+from dabo.ui.dControlItemMixin import dControlItemMixin
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 
@@ -624,5 +624,5 @@ class _dRadioList_test(dRadioList):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dRadioList_test)

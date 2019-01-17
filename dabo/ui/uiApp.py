@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
-import time
 import logging
+import os
+import sys
+import time
+
 import wx
 import dabo
 from dabo import ui as ui
@@ -13,7 +14,6 @@ from dabo.dObject import dObject
 from dabo.dLocalize import _, n_
 from dabo.lib.utils import cleanMenuCaption
 from dabo import dConstants as kons
-
 
 
 class SplashScreen(wx.Frame):

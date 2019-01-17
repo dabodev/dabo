@@ -2,14 +2,14 @@
 import wx
 import dabo
 from dabo import ui as dui
-from . import dTextBoxMixin as tbm
+from dabo.ui.dTextBoxMixin import dTextBoxMixin
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
 # The EditBox is just a TextBox with some additional styles.
-class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
+class dEditBox(dTextBoxMixin, wx.TextCtrl):
     """
     Creates an editbox, which allows editing of string data of unlimited size.
 
@@ -27,7 +27,7 @@ class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
             kwargs["style"] = kwargs["style"] | wx.TE_BESTWRAP
         else:
             kwargs["style"] = kwargs["style"] | wx.TE_DONTWRAP
-        tbm.dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
+        dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 
@@ -123,6 +123,6 @@ It's the Love Boat
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dEditBox_test, WordWrap=True)
     test.Test().runTest(_dEditBox_test, WordWrap=False)

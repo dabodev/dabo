@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-from . import dControlItemMixin
+from dabo.ui.dControlItemMixin import dControlItemMixin
 from dabo.dLocalize import _
 
 
@@ -53,5 +53,5 @@ class _dDropdownList_test(dDropdownList):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dDropdownList_test)

@@ -11,9 +11,8 @@ menu items that your app needs.
 import os
 import wx
 import dabo
-from .dMenu import dMenu
-from .dMenuBar import dMenuBar
-from . import dIcons
+from dabo.ui.dMenu import dMenu
+from dabo.ui.dMenuBar import dMenuBar
 from dabo.dLocalize import _, n_
 
 iconPath = "themes/tango/16x16"

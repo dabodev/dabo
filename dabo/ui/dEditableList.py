@@ -3,7 +3,7 @@ import wx
 from wx import adv as wx_adv
 import dabo
 from dabo import ui as dui
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
@@ -237,5 +237,5 @@ class _dEditableList_test(dEditableList):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dEditableList_test)

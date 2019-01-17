@@ -2,8 +2,8 @@
 import wx
 import wx.lib.buttons as wxb
 import dabo
-from . import dDataControlMixin
-from . import dImageMixin
+from dabo.ui.dDataControlMixin import dDataControlMixin
+from dabo.ui.dImageMixin import dImageMixin
 from dabo.dLocalize import _
 from dabo import dEvents as dEvents
 
@@ -117,5 +117,5 @@ class _dToggleButton_test(dToggleButton):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dToggleButton_test)

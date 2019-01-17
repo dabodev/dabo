@@ -5,7 +5,7 @@ import datetime
 import dabo
 from dabo import ui as dui
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 
@@ -386,7 +386,9 @@ class dExtendedCalendar(BaseCalendar):
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
-    class TestForm(dui.dForm):
+    from dabo.ui.dForm import dForm
+
+    class TestForm(dForm):
         def afterInit(self):
             dCalendar(self, FirstDayOfWeek="monday",
                     Position=(0,0), RegID="cal")

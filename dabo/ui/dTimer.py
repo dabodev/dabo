@@ -3,13 +3,14 @@ import dabo
 from dabo.ui import makeDynamicProperty
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
-from .dPemMixin import dPemMixin as PM
-from . import dPanel
+from dabo.ui.dPemMixin import dPemMixin as PM
+from dabo.ui.dPanel import dPanel
 
 
 class dTimer(PM):
     """Creates a timer, for causing something to happen at regular intervals."""
     def __init__(self, parent=None, properties=None, *args, **kwargs):
+        print(args, kwargs)
         self._baseClass = dTimer
         super(dTimer, self).__init__(preClass=None, parent=parent, properties=properties, *args, **kwargs)
 
@@ -93,7 +94,7 @@ class dTimer(PM):
     DynamicInterval = makeDynamicProperty(Interval)
 
 
-class _dTimer_test(dPanel.dPanel):
+class _dTimer_test(dPanel):
     def afterInit(self):
         # Only setting this so that the test Caption is correct
         self._baseClass = dTimer
@@ -112,5 +113,5 @@ class _dTimer_test(dPanel.dPanel):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dTimer_test)

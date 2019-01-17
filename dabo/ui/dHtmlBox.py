@@ -11,7 +11,7 @@ import dabo
 from dabo.dLocalize import _
 from dabo import dEvents as dEvents
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 try:
     import webbrowser as wb
 except ImportError:

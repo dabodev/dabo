@@ -7,9 +7,13 @@ import sys
 import wx
 import dabo
 from dabo import ui as dui
+from dabo.ui import dKeys
+from dabo.ui.dPanel import dDataPanel
+from dabo.ui.dSizer import dSizer
+from dabo.ui.dTextBox import dTextBox
 from dabo.ui import makeDynamicProperty
 from dabo.ui import makeProxyProperty
-from . import dDataControlMixin
+from dabo.ui.dDataControlMixin import dDataControlMixin
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -27,7 +31,7 @@ class _dSpinButton(dDataControlMixin, wx.SpinButton):
             # otherwise, the arrows are way too wide (34)
             self.Width = 17
 
-class dSpinner(dui.dDataPanel, wx.Control):
+class dSpinner(dDataPanel, wx.Control):
     """
     Control for allowing a user to increment a value by discreet steps across a range
     of valid values.
@@ -46,12 +50,12 @@ class dSpinner(dui.dDataPanel, wx.Control):
         self._baseClass = dSpinner
         # Create the child controls
         if TextBoxClass is None:
-            TextBoxClass = dui.dTextBox
+            TextBoxClass = dTextBox
         self._proxy_textbox = TextBoxClass(self, Value=0, Width=32,
                 StrictNumericEntry=False, _EventTarget=self)
         self._proxy_spinner = _dSpinButton(parent=self, _EventTarget=self)
         self.__constructed = True
-        self.Sizer = dui.dSizer("h")
+        self.Sizer = dSizer("h")
         self.Sizer.append1x(self._proxy_textbox)
         self.Sizer.append(self._proxy_spinner, "expand")
         self.layout()
@@ -229,11 +233,10 @@ class dSpinner(dui.dDataPanel, wx.Control):
         Handle the case where the user presses the up/down arrows to
         activate the spinner.
         """
-        keys = dui.dKeys
         kc = evt.GetKeyCode()
-        if kc in (keys.key_Up, keys.key_Numpad_up):
+        if kc in (dKeys.key_Up, dKeys.key_Numpad_up):
             self._spin("up", spinType="key")
-        elif kc in (keys.key_Down, keys.key_Numpad_down):
+        elif kc in (dKeys.key_Down, dKeys.key_Numpad_down):
             self._spin("down", spinType="key")
         else:
             evt.Skip()
@@ -446,7 +449,9 @@ class _dSpinner_test(dSpinner):
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
-    class Test(dui.dForm):
+    from dabo.ui.dForm import dForm
+
+    class Test(dForm):
         def OH(self, evt): print("HIT")
         def afterInitAll(self):
             self.spn = _dSpinner_test(self, Value=3, OnHit=self.OH)

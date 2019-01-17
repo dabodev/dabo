@@ -4,7 +4,7 @@ import dabo
 from dabo import ui as dui
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 from dabo import dEvents as dEvents
 
 
@@ -113,5 +113,5 @@ class _dGauge_test(dGauge):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dGauge_test)

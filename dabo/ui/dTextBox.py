@@ -3,23 +3,22 @@ import re
 import datetime
 import wx
 import dabo
-from . import dTextBoxMixin as tbm
+from dabo.ui.dTextBoxMixin import dTextBoxMixin
 
 
-
-class dTextBox(tbm.dTextBoxMixin, wx.TextCtrl):
+class dTextBox(dTextBoxMixin, wx.TextCtrl):
     """Creates a text box for editing one line of string data."""
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dTextBox
         preClass = wx.PreTextCtrl
 
-        tbm.dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
+        dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     import datetime
 
     # This test sets up several textboxes, each editing different data types.

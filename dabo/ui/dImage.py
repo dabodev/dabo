@@ -11,9 +11,10 @@ from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib import utils
 
-from .dDataControlMixin import dDataControlMixin
-from .dImageMixin import dImageMixin
 from dabo.ui import makeDynamicProperty
+from dabo.ui.dDataControlMixin import dDataControlMixin
+from dabo.ui.dForm import dForm
+from dabo.ui.dImageMixin import dImageMixin
 
 # See if PIL is installed
 _USE_PIL = True
@@ -427,7 +428,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
-    class ImgForm(dabo.ui.dForm):
+    class ImgForm(dForm):
         def afterInit(self):
             self.Caption = "dImage Demonstration"
             self.mainPanel = mp = dabo.ui.dPanel(self)

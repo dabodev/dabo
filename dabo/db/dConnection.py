@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from dabo.dLocalize import _
 from dabo.dObject import dObject
-from .dConnectInfo import dConnectInfo
-from .dCursorMixin import dCursorMixin
+from dabo.db.dConnectInfo import dConnectInfo
+from dabo.db.dCursorMixin import dCursorMixin
 
 
 class dConnection(dObject):

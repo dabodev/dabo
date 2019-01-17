@@ -4,10 +4,10 @@ import wx.lib.agw.hyperlink as hyperlink
 import dabo
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 from dabo import dEvents as dEvents
 from dabo import dColors as dColors
-from .alignmentMixin import AlignmentMixin
+from dabo.ui.alignmentMixin import AlignmentMixin
 
 
 
@@ -227,5 +227,5 @@ class _dHyperLink_test(dHyperLink):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dHyperLink_test)

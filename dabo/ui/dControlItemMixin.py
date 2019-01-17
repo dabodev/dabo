@@ -2,7 +2,7 @@
 import wx
 import dabo
 from dabo import ui as dui
-from .dDataControlMixin import dDataControlMixin
+from dabo.ui.dDataControlMixin import dDataControlMixin
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.lib.propertyHelperMixin import _DynamicList

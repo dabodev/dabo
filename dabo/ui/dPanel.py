@@ -6,8 +6,8 @@ from dabo import dColors as dColors
 from dabo import dEvents as dEvents
 
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin
-from . import dDataControlMixin
+from dabo.ui.dControlMixin import dControlMixin
+from dabo.ui.dDataControlMixin import dDataControlMixin
 
 
 class _BasePanelMixin(object):
@@ -472,6 +472,9 @@ class _dScrollPanel_test(dScrollPanel):
 
 
 if __name__ == "__main__":
+    from dabo.ui import test
+    from dabo.ui.dForm import dForm
+
     class SquarePanel(dPanel):
         def afterInit(self):
             self.Square = True
@@ -482,7 +485,7 @@ if __name__ == "__main__":
             self.Square = False
             self.BackColor = "blue"
 
-    class SquareForm(dabo.ui.dForm):
+    class SquareForm(dForm):
         def afterInit(self):
             self.pnl = SquarePanel(self, Width=100)
             sz = self.Sizer
@@ -498,7 +501,6 @@ if __name__ == "__main__":
 #     app.start()
 
 
-    from . import test
     test.Test().runTest(_dPanel_test)
     test.Test().runTest(_dScrollPanel_test)
 

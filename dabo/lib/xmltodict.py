@@ -13,7 +13,6 @@ from xml.parsers import expat
 
 # If we're in Dabo, get the default encoding.
 import dabo
-import dabo.lib.DesignerUtils as desUtil
 from dabo.dLocalize import _
 from dabo.lib.utils import resolvePath
 from dabo.lib.utils import ustr
@@ -177,6 +176,8 @@ class Xml2Obj(object):
 
 def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
     """Given an xml string or file, return a Python dictionary."""
+    import dabo.lib.DesignerUtils as desUtil
+
     parser = Xml2Obj(encoding=encoding)
     parser.attsToSkip = attsToSkip
     if eol in xml and "<?xml" in xml:

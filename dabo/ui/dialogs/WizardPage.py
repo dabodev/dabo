@@ -3,10 +3,10 @@ import dabo.ui
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
+from dabo.ui.dPanel import dScrollPanel
 
 
-
-class WizardPage(dabo.ui.dScrollPanel):
+class WizardPage(dScrollPanel):
     def __init__(self, parent, properties=None, *args, **kwargs):
         self._titleLabel = None
         self._caption = _("Wizard Page")

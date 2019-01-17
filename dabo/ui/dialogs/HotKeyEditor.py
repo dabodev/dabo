@@ -2,10 +2,11 @@
 import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.ui import dKeys as dKeys
+from dabo.ui.dDialog import dOkCancelDialog
 from dabo.dLocalize import _
 
 
-class HotKeyEditor(dabo.ui.dOkCancelDialog):
+class HotKeyEditor(dOkCancelDialog):
     def addControls(self):
         self.Caption = _("HotKey Editor")
         self._alt = False

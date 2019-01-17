@@ -3,7 +3,6 @@ import sys
 import xml.sax
 from io import StringIO
 import os.path
-from .xmltodict import escQuote
 import dabo
 import dabo.lib.utils as utils
 from dabo.dLocalize import _
@@ -134,6 +133,8 @@ def genConnXML(d):
     """ Receive a dict containing connection info, and return
     a 'connection' XML element.
     """
+    from dabo.lib.xmltodict import escQuote
+
     try:
         if "name" not in d:
             if not d["user"]:

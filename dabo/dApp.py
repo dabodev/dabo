@@ -3,7 +3,7 @@ import configparser
 from io import StringIO
 import datetime
 import glob
-import imp
+import importlib
 import inspect
 import json
 import locale
@@ -26,7 +26,7 @@ from dabo.lib.SimpleCrypt import SimpleCrypt
 from dabo.dObject import dObject
 from dabo.dPref import dPref
 from dabo import dUserSettingProvider
-from .dSecurityManager import dSecurityManager
+from dabo.dSecurityManager import dSecurityManager
 from dabo.lib.utils import ustr
 from dabo.lib.utils import cleanMenuCaption
 
@@ -247,12 +247,6 @@ class dApp(dObject):
             self.showMainFormOnStart = False
             self.setup()
 
-        ### egl: 2009.06.28 - commented this out. This was added when the
-        ###    remote proxy code was added, and I'm not sure why. I am removing
-        ###    it for now to satisfy ticket #1241, but I need to do full testing with
-        ###    remote apps to make sure that it is truly not needed.
-        #self._initDB()
-
         # If running as a web app, sync the files
         rp = self._RemoteProxy
         if rp:
@@ -329,14 +323,10 @@ try again when it is running.
         self._initDB()
 
         if initUI:
-            self._initUI()
-            if self.UI is not None:
-                if self.showSplashScreen:
-                    self.uiApp = dui.getUiApp(self, self.UIAppClass, callback=self.initUIApp, forceNew=True)
-                else:
-                    #self.uiApp = dui.uiApp(self, callback=None)
-                    self.uiApp = dui.getUiApp(self, self.UIAppClass, callback=None, forceNew=True)
-                    self.initUIApp()
+            if self.showSplashScreen:
+                self.uiApp = dui.getUiApp(self, uiAppClass=None, callback=self.initUIApp, forceNew=True)
+            else:
+                self.uiApp = dui.uiApp(self, callback=None)
         else:
             self.uiApp = None
         # Flip the flag
@@ -956,7 +946,7 @@ try again when it is running.
             currmod = getattr(self, dd, None)
             if currmod:
                 # Module has already been imported; reload to get current state.
-                imp.reload(currmod)
+                importlib.reload(currmod)
                 continue
             if sys.version.split()[0].split(".") >= ["2", "5"]:
                 try:
@@ -965,8 +955,8 @@ try again when it is running.
                     self.__setattr__(dd, currmod)
             else:
                 try:
-                    (f, p, d) = imp.find_module(dd)
-                    setattr(self, dd, imp.load_module(dd, f, p, d))
+                    (f, p, d) = importlib.util.find_spec(dd)    #imp.find_module(dd)
+                    setattr(self, dd, importlib.import_module(dd, f, p, d))
                 except ImportError as e:
                     self.__setattr__(dd, currmod)
         sys.path = currsyspath
@@ -978,22 +968,6 @@ try again when it is running.
         subdirs = [os.path.join(hd, dd) for dd in dabo._standardDirs]
         subdirs.insert(0, hd)
         return tuple(subdirs)
-
-
-    def _initUI(self):
-        """
-        Set the user-interface library for the application. Ignored
-        if the UI was already explicitly set by user code.
-        """
-        if self.UI is None and not self._uiAlreadySet:
-            # For now, default to wx, but it should be enhanced to read an
-            # application config file. Actually, that may not be necessary, as the
-            # user's main.py can just set the UI directly now: dApp.UI = "qt".
-            self.UI = "wx"
-        else:
-            # Custom app code or the dabo.ui module already set this: don't touch
-            dabo.log.info(_("User interface already set to '%s', so dApp didn't touch it.")
-                    % self.UI)
 
 
     def getConnectionsFromFile(self, filePath):

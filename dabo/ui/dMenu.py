@@ -3,8 +3,7 @@ import sys
 import wx
 import dabo
 from dabo.ui import makeDynamicProperty
-from . import dPemMixin
-from . import dIcons
+from dabo.ui.dPemMixin import dPemMixin
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo import dEvents as dEvents

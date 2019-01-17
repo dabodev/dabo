@@ -4,8 +4,11 @@ import sys
 import wx
 import dabo
 from dabo import ui as dui
-from . import dPemMixin
-from . import dMenu
+from dabo.ui.dDataControlMixin import dDataControlMixin
+from dabo.ui.dMenu import dMenu
+from dabo.ui.dPemMixin import dPemMixin
+from dabo.ui.dStatusBar import dStatusBar
+from dabo.ui.dToolBar import dToolBar
 from dabo import icons
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -27,7 +30,7 @@ class dFormMixin(dPemMixin):
         self._alwaysDrawSizerOutlines = False
         self._idleRefreshInterval = 1000
         self._drawSizerChildren = False
-        self._statusBarClass = dui.dStatusBar
+        self._statusBarClass = dStatusBar
 
         # Extract the menu definition file, if any
         self._menuBarFile = self._extractKey((properties, attProperties, kwargs),
@@ -204,7 +207,7 @@ class dFormMixin(dPemMixin):
     def _createToolBar(self):
         if self.ShowToolBar and self.ToolBar is None:
             try:
-                self.ToolBar = dui.dToolBar(self)
+                self.ToolBar = dToolBar(self)
             except (AttributeError, TypeError):
                 # We are a dialog, an MDI Child, or some other toolbar-unworthy form
                 pass
@@ -288,7 +291,7 @@ class dFormMixin(dPemMixin):
         happen before it would have otherwise occurred.
         """
         ac = self.ActiveControl
-        if ac is not None and isinstance(ac, dui.dDataControlMixinBase.dDataControlMixinBase):
+        if ac is not None and isinstance(ac, dDataControlMixin):
             if not hasattr(ac, "_oldVal") or (not ac._oldVal) or (ac._oldVal != ac.Value):
                 return ac.flushValue()
         return True
@@ -316,7 +319,7 @@ class dFormMixin(dPemMixin):
             dui.callAfterInterval(interval, self.__refresh)
 
 
-    @dui.deadCheck
+    @dabo.ui.deadCheck
     def __refresh(self):
         super(dFormMixin, self).refresh()
 
@@ -499,7 +502,7 @@ class dFormMixin(dPemMixin):
         This function sets up the internal menu, which can optionally be
         inserted into the mainForm's menu bar during SetFocus.
         """
-        menu = dMenu.dMenu()
+        menu = dMenu()
         return menu
 
 
@@ -775,7 +778,7 @@ class dFormMixin(dPemMixin):
     def _getFloatingPanel(self):
         if not self._floatingPanel:
             # Have to import it here, as it requires that dFormMixin be defined.
-            from .dDialog import _FloatDialog
+            from dabo.ui.dDialog import _FloatDialog
             self._floatingPanel = _FloatDialog(owner=None, parent=self)
         return self._floatingPanel
 
@@ -891,7 +894,7 @@ class dFormMixin(dPemMixin):
         try:
             val = self._saveRestorePosition
         except AttributeError:
-            val = self._saveRestorePosition = not isinstance(self, dui.dDialog)
+            val = self._saveRestorePosition = not isinstance(self, dabo.ui.dDialog.dDialog)
         return val
 
     def _setSaveRestorePosition(self, val):
@@ -1042,7 +1045,7 @@ class dFormMixin(dPemMixin):
             ret = sb.GetStatusText()
         return ret
 
-    @dui.deadCheck
+    @dabo.ui.deadCheck
     def _setStatusText(self, val, _callAfter=True):
         """
         Set the text of the status bar. Dabo will decide whether to

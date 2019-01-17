@@ -2,7 +2,7 @@
 import wx
 import dabo
 from dabo import ui as dui
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 from dabo.dLocalize import _
 from dabo import dEvents as dEvents
 from dabo.ui import makeDynamicProperty
@@ -149,5 +149,5 @@ class _dButton_test(dButton):
         self.Width = 333
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dButton_test)

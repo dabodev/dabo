@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-from dabo import ui as dui
-from . import dControlMixin
-from . import dImageMixin
+from dabo.ui.dControlMixin import dControlMixin
+from dabo.ui.dImageMixin import dImageMixin
 from dabo.dLocalize import _
-from . import dIcons
 from dabo.ui import makeDynamicProperty
 
 
@@ -31,5 +29,5 @@ class _dBitmap_test(dBitmap):
 #        self.Size = (40,30)
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dBitmap_test)

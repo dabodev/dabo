@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-import dabo.ui
-import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui.dDialog import dOkCancelDialog
+import dabo.dEvents as dEvents
+import dabo.ui
 
 
-class SortingForm(dabo.ui.dOkCancelDialog):
+class SortingForm(dOkCancelDialog):
     """This class affords a simple way to order a list of items. """
     def __init__(self, parent=None, Choices=[], *args, **kwargs):
         self._itms = list(Choices)

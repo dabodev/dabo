@@ -3,11 +3,11 @@ import random
 import wx
 import dabo
 from dabo.ui import makeDynamicProperty
-from . import dForm
+from dabo.ui.dForm import dForm
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo import dColors as dColors
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 
 
 class SplitterPanelMixin(object):
@@ -513,5 +513,5 @@ class _dSplitter_test(dSplitter):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dSplitter_test)

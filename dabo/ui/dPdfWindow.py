@@ -4,7 +4,7 @@ import wx
 import dabo
 
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 from dabo.dLocalize import _
 
 # Need to define this exception class for x-platform
@@ -49,6 +49,6 @@ class _dPdfWindow_test(dPdfWindow):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dPdfWindow_test)
 

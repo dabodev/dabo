@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-import sys
 import os
 import re
+import six
+import sys
+
 import dabo
 from dabo.dLocalize import _
 from dabo.dException import dException, DBFileDoesNotExistException
@@ -62,9 +64,10 @@ class SQLite(dBackend):
             if not os.path.exists(pth):
                 # Database file does not exist; raise an error
                 raise DBFileDoesNotExistException(_("Database file '%s' does not exist") % pth)
-        if sys.platform not in ("win32",):
-            # On Windows, path is alredy unicode.
-            pth = pth.decode(dabo.fileSystemEncoding).encode("utf-8")
+
+        if isinstance(pth, six.binary_type):
+            #pth = pth.decode(dabo.fileSystemEncoding).encode("utf-8")
+            pth = pth.decode(dabo.fileSystemEncoding)
 
         # Need to specify "isolation_level=None" to have transactions working correctly.
         self._connection = self.dbapi.connect(pth, factory=DictConnection, isolation_level=None)

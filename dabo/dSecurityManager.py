@@ -2,7 +2,7 @@
 import time
 import dabo
 from dabo.dObject import dObject
-from .dLocalize import _
+from dabo.dLocalize import _
 from dabo import ui as dui
 
 

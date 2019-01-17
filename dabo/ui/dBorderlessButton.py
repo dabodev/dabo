@@ -7,7 +7,7 @@ except ImportError:
     raise ImportError("Your version of wxPython is too old for dBorderlessButton")
 import dabo
 from dabo import ui as dui
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 from dabo.dLocalize import _
 from dabo import dColors as dColors
 from dabo.ui import makeDynamicProperty
@@ -186,5 +186,5 @@ class _dBorderlessButton_test(dBorderlessButton):
         self.Form.layout()
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dBorderlessButton_test)

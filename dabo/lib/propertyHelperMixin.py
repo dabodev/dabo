@@ -284,7 +284,7 @@ class PropertyHelperMixin(object):
                 # Don't list properties lower down (e.g., from wxPython):
                 break
             for item in dir(c):
-                if item[0] in string.uppercase:
+                if item[0] in string.ascii_uppercase:
                     if item in c.__dict__:
                         if type(c.__dict__[item]) == property:
                             if propList.count(item) == 0:

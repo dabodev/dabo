@@ -3,13 +3,14 @@ import wx
 import dabo
 from dabo import ui as dui
 from dabo.ui import makeDynamicProperty
-from .dSplitter import dSplitter
+from dabo.ui.dForm import dForm
+from dabo.ui.dSplitter import dSplitter
 from dabo import dColors as dColors
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 
 
-class dSplitForm(dui.dForm):
+class dSplitForm(dForm):
     def __init__(self, *args, **kwargs):
         self._splitter = None
         super(dSplitForm, self).__init__(*args, **kwargs)
@@ -124,5 +125,5 @@ class _dSplitForm_test(dSplitForm):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dSplitForm_test)

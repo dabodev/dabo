@@ -14,11 +14,14 @@ from dabo.lib.dates import getStringFromDate
 ######################################################
 # Very first thing: check for required libraries:
 _failedLibs = []
-for lib in ("reportlab", "Image"):
-    try:
-        __import__(lib)
-    except ImportError:
-        _failedLibs.append(lib)
+try:
+    from PIL import Image as PILImage
+except ImportError:
+    _failedLibs.append("Image")
+try:
+    __import__("reportlab")
+except ImportError:
+    _failedLibs.append("reportlab")
 
 if len(_failedLibs) > 0:
     msg = _("""
@@ -27,16 +30,14 @@ don't appear to have installed. You still need:
 
     %s
 
-Image is the Python Imaging Library available from
-http://www.pythonware.com/products/pil
+Image is provided by the Pillow package:
+https://python-pillow.org/
 
 reportlab is the ReportLab toolkit available from
 http://www.reportlab.org
 
-If you are on a Debian Linux system, just issue:
-sudo apt-get install python-reportlab
-sudo apt-get install python-imaging
-
+The best way to install these is with pip:
+    pip install reportlab Pillow
     """) % "\n\t".join(_failedLibs)
 
     raise ImportError(msg)
@@ -61,7 +62,6 @@ from dabo.lib.utils import ustr, resolvePathAndUpdate
 from reportlab.pdfbase.pdfmetrics import registerFont, getRegisteredFontNames
 from reportlab.pdfbase.ttfonts import TTFont, TTFError
 from reportlab.rl_config import TTFSearchPath
-import Image as PILImage
 from . import reportUtils
 
 # The below block tried to use the experimental para.Paragraph which
@@ -989,7 +989,7 @@ class Image(Drawable):
 
 
 class BarGraph(Drawable):
-        """Represents a bar graph"""
+    """Represents a bar graph"""
     def initAvailableProps(self):
         super(BarGraph, self).initAvailableProps()
 

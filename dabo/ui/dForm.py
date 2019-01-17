@@ -6,11 +6,11 @@ import dabo
 from dabo import ui as dui
 from dabo.ui import makeDynamicProperty
 from dabo import dEvents as dEvents
-from . import dFormMixin
+from dabo.ui.dFormMixin import dFormMixin
 from dabo import dException as dException
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from .dDialog import dDialog
+from dabo.ui.dDialog import dDialog
 
 
 class BaseForm(dFormMixin):
@@ -1159,7 +1159,7 @@ class _dBorderlessForm_test(dBorderlessForm):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dForm_test)
     test.Test().runTest(_dBorderlessForm_test)
 

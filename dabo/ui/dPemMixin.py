@@ -11,8 +11,8 @@ from dabo.lib.utils import ustr
 from dabo import dEvents as dEvents
 from dabo import dException as dException
 from dabo import dColors as dColors
-from . import dKeys
 from dabo.dObject import dObject
+from dabo.ui import dKeys
 from dabo.ui import makeDynamicProperty
 from dabo.lib.utils import dictStringify
 

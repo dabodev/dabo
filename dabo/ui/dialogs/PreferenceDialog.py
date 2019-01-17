@@ -2,16 +2,17 @@
 import sys
 import os
 import inspect
-import dabo.ui
 from dabo.dLocalize import _
-from dabo.ui.dialogs.HotKeyEditor import HotKeyEditor
 from dabo.lib.utils import cleanMenuCaption
+from dabo.ui.dDialog import dOkCancelDialog
+from dabo.ui.dialogs.HotKeyEditor import HotKeyEditor
+import dabo.ui
 
 dayMins= 24*60
 
 
 
-class PreferenceDialog(dabo.ui.dOkCancelDialog):
+class PreferenceDialog(dOkCancelDialog):
     def _afterInit(self):
         self._includeDefaultPages = True
         update = dabo.checkForWebUpdates

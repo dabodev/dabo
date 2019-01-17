@@ -2,7 +2,7 @@
 import dabo
 import wx
 import wx.grid
-from . import dIcons
+from dabo.ui import dIcons
 
 
 

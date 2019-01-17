@@ -2,7 +2,7 @@
 import wx
 import dabo
 from dabo import ui as dui
-from . import dPemMixin
+from dabo.ui.dPemMixin import dPemMixin
 from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty

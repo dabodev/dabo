@@ -2,11 +2,11 @@
 import wx
 import dabo
 from dabo import ui as dui
-from . import dControlItemMixin
+from dabo.ui.dControlItemMixin import dControlItemMixin
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
-from . import dKeys
+from dabo.ui import dKeys
 
 
 class dComboBox(dControlItemMixin, wx.ComboBox):
@@ -60,11 +60,9 @@ class dComboBox(dControlItemMixin, wx.ComboBox):
         navigation issues, so we also need to capture when Tab is pressed,
         and handle the navigation ourselves.
         """
-        # Shorthand for easy reference
-        dk = dui.dKeys
         # Don't call the native Skip() if Tab is pressed; we'll handle it ourselves.
         callSkip = True
-        enter_codes = (dk.key_Return, dk.key_Numpad_enter)
+        enter_codes = (dKeys.key_Return, dKeys.key_Numpad_enter)
         keyCode = evt.GetKeyCode()
         if keyCode in enter_codes:
             self._userVal = True
@@ -77,7 +75,7 @@ class dComboBox(dControlItemMixin, wx.ComboBox):
                             self.appendItem(self._textToAppend, select=True)
                             self.afterAppendOnEnter()
             self.raiseEvent(dEvents.Hit, evt)
-        elif keyCode == dk.key_Tab:
+        elif keyCode == dKeys.key_Tab:
             forward = not evt.ShiftDown()
             self.Navigate(forward)
             callSkip = False
@@ -311,5 +309,5 @@ class _dComboBox_test(dComboBox):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dComboBox_test)

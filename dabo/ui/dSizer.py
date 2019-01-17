@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
-from . import dPemMixin
-from . import dSizerMixin
+from dabo.ui.dPemMixin import dPemMixin
+from dabo.ui.dSizerMixin import dSizerMixin
 
 class dSizer(dSizerMixin, wx.BoxSizer):
     def __init__(self, *args, **kwargs ):
@@ -45,7 +45,7 @@ class dSizer(dSizerMixin, wx.BoxSizer):
             bad = ", ".join(list(kwargs.keys()))
             raise TypeError("Invalid keyword arguments passed to dSizer: %s" % bad)
 
-        dSizerMixin.dSizerMixin.__init__(self, *args, **kwargs)
+        dSizerMixin.__init__(self, *args, **kwargs)
 
 
     def getBorderedClass(self):

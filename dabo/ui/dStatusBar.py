@@ -3,7 +3,7 @@ import wx
 import dabo
 from dabo import dException as dException
 from dabo.dLocalize import _, n_
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 
 
 class dStatusBar(dControlMixin, wx.StatusBar):

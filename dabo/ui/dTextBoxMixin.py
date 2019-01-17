@@ -15,11 +15,11 @@ decimalPoint = None
 import wx
 import wx.lib.masked as masked
 from dabo.lib import dates
-from . import dKeys
+from dabo.ui import dKeys
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo import ui as dui
-from . import dDataControlMixin
+from dabo.ui.dDataControlMixin import dDataControlMixin
 from dabo.dLocalize import _
 from dabo import dEvents as dEvents
 from dabo.ui import makeDynamicProperty
@@ -318,7 +318,7 @@ class dTextBoxMixinBase(dDataControlMixin):
         try:
             return self._SelectOnEntry
         except AttributeError:
-            ret = not isinstance(self, dui.dEditBox)
+            ret = not isinstance(self, dabo.ui.dEditBox.dEditBox)
             self._SelectOnEntry = ret
             return ret
 

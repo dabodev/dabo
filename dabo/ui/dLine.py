@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import wx, dabo, dabo.ui
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 from dabo.ui import makeDynamicProperty
 from dabo.lib.utils import ustr
 
@@ -67,5 +67,5 @@ class _dLine_test(dLine):
         self.Height = 10
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dLine_test)

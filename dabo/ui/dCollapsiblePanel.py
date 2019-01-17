@@ -2,10 +2,10 @@
 import wx
 import dabo
 from dabo import ui as dui
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 import wx.lib.agw.pycollapsiblepane as pcp
 from dabo.dLocalize import _
-from .dPanel import dPanel
+from dabo.ui.dPanel import dPanel
 
 
 class dCollapsiblePanel(dControlMixin, pcp.PyCollapsiblePane):
@@ -127,5 +127,5 @@ class _CollapsiblePanelTest(dCollapsiblePanel):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_CollapsiblePanelTest)

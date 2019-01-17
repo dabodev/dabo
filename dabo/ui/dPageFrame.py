@@ -6,7 +6,7 @@ from dabo import ui as dui
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from .dPageFrameMixin import dPageFrameMixin
+from dabo.ui.dPageFrameMixin import dPageFrameMixin
 from dabo import dColors as dColors
 
 _USE_AGW = True
@@ -764,7 +764,7 @@ if _USE_FLAT:
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dPageFrame_test)
     test.Test().runTest(_dPageToolBar_test)
     test.Test().runTest(_dPageList_test)

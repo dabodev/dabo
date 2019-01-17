@@ -3,8 +3,8 @@ import sys
 import wx
 import dabo
 from dabo import ui as dui
-from . import dControlMixin
-from .dPage import dPage
+from dabo.ui.dControlMixin import dControlMixin
+from dabo.ui.dPage import dPage
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr

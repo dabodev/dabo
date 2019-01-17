@@ -2,7 +2,7 @@ import dabo
 import wx
 from dabo import dEvents as dEvents
 from dabo import ui as dui
-from . import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 import locale, wx, sys, io
 import wx.lib.mixins.listctrl as listmix
 from wx import ImageFromStream, BitmapFromImage
@@ -192,7 +192,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
                 found = True
             elif choice.lower().startswith(text.lower()) :
                 found = True
-            if found:
+            if fggggound:
                 self._showDropDown(True)
                 item = self.dropdownlistbox.GetItem(numCh)
                 toSel = item.GetId()
@@ -807,32 +807,34 @@ class dAutoComplete(dControlMixin, TextCtrlAutoComplete):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
+    from dabo.ui.dPanel import dPanel
+    from dabo.ui.dLabel import dLabel
+    from dabo.ui.dSizer import dSizer
 
-    class TestPanel(dui.dPanel):
+    class TestPanel(dPanel):
         def afterInit(self):
             import datetime
             currentYear = datetime.datetime.now().year
             self.Caption = "dAutoComplete"
-            self.Sizer = vs = dui.dSizer("v")
+            self.Sizer = vs = dSizer("v")
             ds = [{"landmark":"Eiffel Tower", "loc":"Paris, France", "constructed":"1889"},
                     {"landmark":"Statue of Liberty", "loc":"New York, New York", "constructed":"1884"},
                     {"landmark":"Great Sphinx of Giza", "loc":"Giza, Egypt", "constructed":"c. 2558 BC"},
                     {"landmark":"Stonehenge", "loc":"Wiltshire, England", "constructed":"3000 - 2000 BC"}]
 
-            vs.append(dui.dLabel(self, Caption="Press the down arrow key to see the list of choices.",
+            vs.append(dLabel(self, Caption="Press the down arrow key to see the list of choices.",
                     FontBold=True), alignment="center")
             vs.appendSpacer(15)
-            vs.append(dui.dLabel(self, Caption="User defined choices (single-column)"))
+            vs.append(dLabel(self, Caption="User defined choices (single-column)"))
             vs.append(dAutoComplete(self, Choices=["Bob","Joe","Mary","Bill","Marcia","Eric"]), "x")
             vs.appendSpacer(5)
-            vs.append(dui.dLabel(self, Caption="Data set (single-column)"))
+            vs.append(dLabel(self, Caption="Data set (single-column)"))
             vs.append(dAutoComplete(self, DataSet=ds, DataFields=["landmark"]), "x")
             vs.appendSpacer(5)
-            vs.append(dui.dLabel(self, Caption="Data set (multi-column):"))
+            vs.append(dLabel(self, Caption="Data set (multi-column):"))
             vs.append(dAutoComplete(self, DataSet=ds, SearchField="landmark", FetchField="loc",
                     ColNames=["Landmark", "Location", "Year Constructed"]), "x")
-
 
     test.Test().runTest(TestPanel)
 

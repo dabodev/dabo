@@ -5,8 +5,8 @@ from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 
 from dabo.ui import makeDynamicProperty
-from . import dControlMixin
-from .alignmentMixin import AlignmentMixin
+from dabo.ui.dControlMixin import dControlMixin
+from dabo.ui.alignmentMixin import AlignmentMixin
 
 
 class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
@@ -180,7 +180,9 @@ class _dLabel_test(dLabel):
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
-    class LabelTestForm(dabo.ui.uiwx.dForm):
+    from dabo.ui.dForm import dForm
+
+    class LabelTestForm(dForm):
         def afterInit(self):
             self.Caption = "dLabel Test"
             pnl = dabo.ui.dPanel(self)

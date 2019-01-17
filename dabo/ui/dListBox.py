@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import wx, dabo, dabo.ui
-from . import dControlItemMixin
+from dabo.ui.dControlItemMixin import dControlItemMixin
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
@@ -98,6 +98,6 @@ class _dListBox_test(dListBox):
         print("mousedown")
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dListBox_test)
 

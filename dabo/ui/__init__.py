@@ -246,145 +246,6 @@ def makeProxyProperty(dct, nm, proxyAtts):
     return property(fget, fset, None, doc)
 
 
-# Import the mixin classes first, as other classes require them.
-from .dPemMixin import dPemMixin
-from .dControlMixin import dControlMixin
-from .dControlItemMixin import dControlItemMixin
-from .dDataControlMixin import dDataControlMixin
-from .dFormMixin import dFormMixin
-from .dSizerMixin import dSizerMixin
-from .dImageMixin import dImageMixin
-
-# Import into public namespace:
-from .dBox import dBox
-from .dBitmap import dBitmap
-from .dBitmapButton import dBitmapButton
-from .dBorderlessButton import dBorderlessButton
-from .dButton import dButton
-from .dCalendar import dCalendar
-from .dCalendar import dExtendedCalendar
-from .dCheckBox import dCheckBox
-from .dCheckList import dCheckList
-from .dCollapsiblePanel import dCollapsiblePanel
-from .dColorDialog import dColorDialog
-from .dComboBox import dComboBox
-from .dDatePicker import dDatePicker
-from .dDateTextBox import dDateTextBox
-from .dDropdownList import dDropdownList
-from .dDialog import dDialog
-from .dDialog import dStandardButtonDialog
-from .dDialog import dOkCancelDialog
-from .dDialog import dYesNoDialog
-from .dEditableList import dEditableList
-from .dEditBox import dEditBox
-from .dEditor import dEditor
-from .dFileDialog import dFileDialog
-from .dFileDialog import dFolderDialog
-from .dFileDialog import dSaveDialog
-from .dReportProgress import dReportProgress
-from .dSlidePanelControl import dSlidePanelControl
-from .dSlidePanelControl import dSlidePanel
-from .dFont import dFont
-from .dFontDialog import dFontDialog
-from .dForm import dForm
-from .dForm import dToolForm
-from .dForm import dBorderlessForm
-from .dFormMain import dFormMain
-from .dGauge import dGauge
-from .dGlWindow import dGlWindow
-from .dGrid import dGrid
-from .dGrid import dColumn
-from .dGridSizer import dGridSizer
-from .dHtmlBox import dHtmlBox
-from .dHyperLink import dHyperLink
-from . import dIcons
-from .dImage import dImage
-from . import dKeys
-from .dLabel import dLabel
-from .dLine import dLine
-from .dListBox import dListBox
-from .dListControl import dListControl
-from .dBaseMenuBar import dBaseMenuBar
-from .dMaskedTextBox import dMaskedTextBox
-from .dNumericBox import dNumericBox
-from .dMediaControl import dMediaControl
-from .dMenuBar import dMenuBar
-from .dMenu import dMenu
-from .dMenuItem import dMenuItem
-from .dMenuItem import dCheckMenuItem
-from .dMenuItem import dRadioMenuItem
-from .dMenuItem import dSeparatorMenuItem
-from . import dMessageBox
-from .dRadioList import dRadioList
-from .dPanel import dDataPanel
-from .dPanel import dPanel
-from .dPanel import dScrollPanel
-from .dPageFrame import dPageFrame
-from .dPageFrame import dPageToolBar
-from .dPageFrame import dPageList
-from .dPageFrame import dPageSelect
-from .dPageFrame import dDockTabs
-from .dPageFrameNoTabs import dPageFrameNoTabs
-from .dPage import dPage
-from .dPdfWindow import dPdfWindow
-from .dSearchBox import dSearchBox
-from .dShell import dShell
-from .dShell import dShellForm
-from .dSizer import dSizer
-from .dSizer import dSizerV
-from .dSizer import dSizerH
-from .dBorderSizer import dBorderSizer
-from .dSlider import dSlider
-from .dSpinner import dSpinner
-from .dSplitForm import dSplitForm
-from .dSplitter import dSplitter
-from .dStatusBar import dStatusBar
-from .dTextBox import dTextBox
-from .dTimer import dTimer
-from .dToolBar import dToolBar
-from .dToolBar import dToolBarItem
-from .dToggleButton import dToggleButton
-from .dTreeView import dNode
-from .dTreeView import dTreeView
-from .dLed import dLed
-from . import dUICursors as dUICursors
-from . import gridRenderers
-from .dPageFrameMixin import dPageFrameMixin
-from .dAutoComplete import dAutoComplete
-
-# Needs importing after at least dPanel:
-from .dDockForm import dDockForm
-
-try:
-    from .dLinePlot import dLinePlot
-except ImportError:
-    pass
-
-try:
-    from .dRichTextBox import dRichTextBox
-except ImportError:
-    pass
-from .dPageFrame import dPageStyled
-
-# Support the old names, but issue deprecation warnings.
-class dFoldPanelBar(dSlidePanelControl):
-    def __init__(self, *args, **kwargs):
-        """**Deprecated:** use dSlidePanelControl instead"""
-        warnings.warn(_("'dFoldPanelBar' is a deprecated name. Use 'dSlidePanelControl' instead"), DeprecationWarning)
-        super(dFoldPanelBar, self).__init__(*args, **kwargs)
-
-class dFoldPanel(dSlidePanel):
-    def __init__(self, *args, **kwargs):
-        """**Deprecated:** use dSlidePanel instead"""
-        warnings.warn(_("'dFoldPanel' is a deprecated name. Use 'dSlidePanel' instead"), DeprecationWarning)
-        super(dFoldPanel, self).__init__(*args, **kwargs)
-
-class dCheckListBox(dCheckList):
-    def __init__(self, *args, **kwargs):
-        """**Deprecated:** use dCheckList instead"""
-        warnings.warn(_("'dCheckListBox' is a deprecated name. Use 'dCheckList' instead"), DeprecationWarning)
-        super(dCheckListBox, self).__init__(*args, **kwargs)
-
 artConstants = {}
 for item in (it for it in dir(wx) if it.startswith("ART_")):
     daboConstant = item[4:].lower().replace("_", "")
@@ -414,14 +275,6 @@ artConstants["up"] = artConstants.get("goup")
 artConstants["hd"] = artConstants.get("harddisk")
 artConstants["info"] = artConstants.get("information")
 artConstants["file"] = artConstants.get("normalfile")
-
-
-def getUIType():
-    """Return the identifier of the currently loaded UI, or None."""
-    try:
-        return uiType["shortName"]
-    except (AttributeError, NameError, KeyError):
-        return None
 
 
 def getEventData(uiEvent):
@@ -1059,12 +912,12 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
 def getInt(message=_("Enter an integer value:"), caption="Dabo",
         defaultValue=0, **kwargs):
     """Simple dialog for returning an integer value from the user."""
-    class IntDialog(dOkCancelDialog):
+    class IntDialog(dabo.ui.dDialog.dOkCancelDialog):
         def addControls(self):
             self.Caption = caption
-            lbl = dLabel(self, Caption=message)
-            self.spnVal = dSpinner(self, **kwargs)
-            hs = dSizer("h")
+            lbl = dabo.ui.dLabel.dLabel(self, Caption=message)
+            self.spnVal = dabo.ui.dSpinner.dSpinner(self, **kwargs)
+            hs = dabo.ui.dSizer.dSizer("h")
             hs.append(lbl, halign="Right")
             hs.appendSpacer(5)
             hs.append(self.spnVal)
@@ -1110,11 +963,11 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
         defaultPos = 0
     if mult is None:
         mult = False
-    class ChoiceDialog(dOkCancelDialog):
+    class ChoiceDialog(dabo.ui.dDialog.dOkCancelDialog):
         def addControls(self):
             self.Caption = caption
-            lbl = dLabel(self, Caption=message)
-            self.lst = dListBox(self, Choices=choices,
+            lbl = dabo.ui.dLabel.dLabel(self, Caption=message)
+            self.lst = dabo.ui.dListBox.dListBox(self, Choices=choices,
                     PositionValue=defaultPos, MultipleSelect=mult,
                     OnMouseLeftDoubleClick=self.onMouseLeftDoubleClick)
             sz = self.Sizer
@@ -1123,12 +976,12 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
             sz.appendSpacer(5)
             sz.append(self.lst, 4, halign="center")
             if mult:
-                hsz = dSizer("h")
-                btnAll = dButton(self, Caption=_("Select All"),
+                hsz = dabo.ui.dSizer.dSizer("h")
+                btnAll = dabo.ui.dButton.dButton(self, Caption=_("Select All"),
                         OnHit=self.selectAll)
-                btnNone = dButton(self, Caption=_("Unselect All"),
+                btnNone = dabo.ui.dButton.dButton(self, Caption=_("Unselect All"),
                         OnHit=self.unselectAll)
-                btnInvert = dButton(self, Caption=_("Invert Selection"),
+                btnInvert = dabo.ui.dButton.dButton(self, Caption=_("Invert Selection"),
                         OnHit=self.invertSelection)
                 hsz.append(btnAll)
                 hsz.appendSpacer(8)
@@ -1138,7 +991,7 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
                 sz.appendSpacer(16)
                 sz.append(hsz, halign="center", border=20)
                 sz.appendSpacer(8)
-                sz.append(dLine(self), "x", border=44,
+                sz.append(dabo.ui.dLine.dLine(self), "x", border=44,
                         borderSides=("left", "right"))
             sz.appendSpacer(24)
 
@@ -1166,6 +1019,7 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
 
 # For convenience, make it so one can call dui.stop("Can't do that")
 # instead of having to type dui.dMessageBox.stop("Can't do that")
+from dabo.ui import dMessageBox
 areYouSure = dMessageBox.areYouSure
 stop = dMessageBox.stop
 info = dMessageBox.info
@@ -1179,7 +1033,7 @@ def getColor(color=None):
     no selection was made.
     """
     ret = None
-    dlg = dColorDialog(_getActiveForm(), color)
+    dlg = dabo.ui.dColorDialog.dColorDialog(_getActiveForm(), color)
     if dlg.show() == kons.DLG_OK:
         ret = dlg.getColor()
     dlg.release()
@@ -1231,12 +1085,12 @@ def getFont(font=None):
             dabo.log.error("Invalid font class passed to getFont")
             return None
         param = font._nativeFont
-    dlg = dFontDialog(_getActiveForm(), param)
+    dlg = dabo.ui.dFontDialog.dFontDialog(_getActiveForm(), param)
     if dlg.show() == kons.DLG_OK:
         fnt = dlg.getFont()
     dlg.release()
     if fnt is not None:
-        ret = dFont(_nativeFont=fnt)
+        ret = dabo.ui.dFont.dFont(_nativeFont=fnt)
     return ret
 
 
@@ -1244,9 +1098,9 @@ def getAvailableFonts():
     """Returns a list of all fonts available on the current system."""
     fEnum= wx.FontEnumerator()
     fEnum.EnumerateFacenames()
-    list = fEnum.GetFacenames()
-    list.sort()
-    return list
+    font_list = fEnum.GetFacenames()
+    font_list.sort()
+    return font_list
 
 
 def _getPath(cls, wildcard, **kwargs):
@@ -1281,7 +1135,7 @@ def getFile(*args, **kwargs):
 
     """
     wc = _getWild(*args)
-    return _getPath(dFileDialog, wildcard=wc, **kwargs)[0]
+    return _getPath(dabo.ui.dFileDialog.dFileDialog, wildcard=wc, **kwargs)[0]
 
 
 def getFileAndType(*args, **kwargs):
@@ -1291,7 +1145,7 @@ def getFileAndType(*args, **kwargs):
     was made, as well as the wildcard value selected by the user.
     """
     wc = _getWild(*args)
-    pth, idx = _getPath(dFileDialog, wildcard=wc, **kwargs)
+    pth, idx = _getPath(dabo.ui.dFileDialog.dFileDialog, wildcard=wc, **kwargs)
     if idx is None:
         ret = (pth, idx)
     else:
@@ -1340,8 +1194,8 @@ def getFolder(message=_("Choose a folder"), defaultPath="", wildcard="*"):
     Returns the path to the selected folder, or None if no selection
     was made.
     """
-    return _getPath(dFolderDialog, message=message, defaultPath=defaultPath,
-            wildcard=wildcard)[0]
+    return _getPath(dabo.ui.dFolderDialog.dFolderDialog, message=message,
+	    defaultPath=defaultPath, wildcard=wildcard)[0]
 # Create an alias that uses 'directory' instead of 'folder'
 getDirectory = getFolder
 
@@ -1547,10 +1401,10 @@ def createMenuBar(src, form=None, previewFunc=None):
     def addMenu(mb, menuDict, form, previewFunc):
         if form is None:
             form = dabo.dAppRef.ActiveForm
-        if isinstance(mb, dMenuBar):
-            menu = dMenu(mb)
+        if isinstance(mb, dabo.ui.dMenuBar.dMenuBar):
+            menu = dabo.ui.dMenu.dMenu(mb)
         else:
-            menu = dMenu()
+            menu = dabo.ui.dMenu.dMenu()
         atts = menuDict["attributes"]
         menu.Caption = menu._extractKey(atts, "Caption")
         menu.MRU = menu._extractKey(atts, "MRU")
@@ -1609,7 +1463,7 @@ def createMenuBar(src, form=None, previewFunc=None):
                 stop(e, _("File Not Found"))
                 return
         mnd = dabo.lib.xmltodict.xmltodict(src)
-    mb = dMenuBar()
+    mb = dabo.ui.dMenuBar.dMenuBar()
     for mn in mnd["children"]:
         addMenu(mb, mn, form, previewFunc)
     return mb
@@ -1805,10 +1659,10 @@ def browse(dataSource, parent=None, keyCaption=None, includeFields=None,
 
     parentPassed = True
     if parent is None:
-        parent = dForm(None, Caption=cap)
+        parent = dabo.ui.dForm.dForm(None, Caption=cap)
         parentPassed = False
 
-    grd = dGrid(parent, AlternateRowColoring=True)
+    grd = dabo.ui.dGrid.dGrid(parent, AlternateRowColoring=True)
     grd.buildFromDataSet(dataSet, keyCaption=keyCaption,
             includeFields=includeFields, colOrder=colOrder, colWidths=colWidths,
             colTypes=colTypes, autoSizeCols=autoSizeCols)
@@ -1862,7 +1716,7 @@ def setPositionInSizer(obj, pos):
 
 
 def fontMetricFromFont(txt, font):
-    if isinstance(font, dFont):
+    if isinstance(font, dabo.ui.dFont.dFont):
         font = font._nativeFont
     wind = wx.Frame(None)
     dc = wx.ClientDC(wind)
@@ -1916,7 +1770,7 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
     if italic is not None:
         fnt.SetStyle(wx.ITALIC)
 
-    if not isinstance(wind, (dForm, wx.Frame)):
+    if not isinstance(wind, (dabo.ui.dForm.dForm, wx.Frame)):
         try:
             wind = wind.Form
         except AttributeError:
@@ -2043,7 +1897,7 @@ def strToBmp(val, scale=None, width=None, height=None):
 
             # See if it's a standard icon
             for pth in paths:
-                ret = dIcons.getIconBitmap(pth, noEmptyBmp=True)
+                ret = dabo.ui.dIcons.getIconBitmap(pth, noEmptyBmp=True)
                 if ret:
                     break
             if not ret and len(val) > 0:
@@ -2106,7 +1960,7 @@ def getCommonBitmap(name):
 
     .. note::
 
-        This returns a raw bitmap, not a dui.dBitmap object.
+        This returns a raw bitmap, not a dBitmap object.
 
     """
     const = artConstants.get(name.lower(), artConstants.get("missingimage"))
@@ -2148,6 +2002,7 @@ def getImagePath(nm, url=False):
     return ret
 
 
+# NOTE: this needs to be updated, as 'dForm' isn't in this namespace anymore
 def setdFormClass(typ):
     """
     Re-defines 'dForm' as either the SDI form class, or the child MDI

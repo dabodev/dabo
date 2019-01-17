@@ -8,7 +8,7 @@ from dabo.dObject import dObject
 from dabo.dPref import dPref
 from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
-from .dControlMixin import dControlMixin
+from dabo.ui.dControlMixin import dControlMixin
 
 
 class dDataControlMixin(dControlMixin):

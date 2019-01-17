@@ -534,8 +534,11 @@ class dBackend(dObject):
             field_name = ustr(field_info[0])
             field_type = self.getDaboFieldType(field_info[1])
             field_names.append(field_name)
-            field_structure[field_name] = (field_type, False,
-                    max(field_info[2], field_info[3]) or None, field_info[5] or None)
+            if None in (field_info[2], field_info[3]):
+                finfo = field_info[2] or field_info[3]
+            else:
+                finfo = max(field_info[2], field_info[3])
+            field_structure[field_name] = (field_type, False, finfo, field_info[5] or None)
 
         standard_fields = cursor.getFields()
         for field_name, field_type, pk in standard_fields:

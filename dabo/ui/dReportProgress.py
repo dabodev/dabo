@@ -2,15 +2,16 @@
 import wx
 import dabo
 from dabo.dLocalize import _
-from .dPanel import dPanel
-from .dGauge import dGauge
-from .dLabel import dLabel
-from .dButton import dButton
+from dabo.ui.dBorderSizer import dBorderSizer
+from dabo.ui.dButton import dButton
+from dabo.ui.dGauge import dGauge
+from dabo.ui.dLabel import dLabel
+from dabo.ui.dPanel import dPanel
 
 
 class dReportProgress(dPanel):
     def afterInit(self):
-        ms = self.Sizer = dabo.ui.dBorderSizer(self, "v", DefaultBorder=5)
+        ms = self.Sizer = dBorderSizer(self, "v", DefaultBorder=5)
         self.gauge = dGauge(self, Size=(75,12))
         lblTitle = dLabel(self, Name="lblTitle", Caption="", FontBold=True)
         butCancel = dButton(self, Name="butCancelReportProgress", CancelButton=False,

@@ -3,7 +3,7 @@ import wx
 
 import dabo
 from dabo import ui as dui
-from .dTextBoxMixin import dTextBoxMixin
+from dabo.ui.dTextBoxMixin import dTextBoxMixin
 from dabo.dLocalize import _
 from dabo import dEvents as dEvents
 from dabo.ui import makeDynamicProperty
@@ -163,7 +163,7 @@ class dSearchBox(dTextBoxMixin, wx.SearchCtrl):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     import datetime
 
     # This test sets up several textboxes, each editing different data types.

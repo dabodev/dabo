@@ -2,8 +2,8 @@
 import os.path
 import wx
 import dabo, dabo.ui
-from . import dControlMixin
-from . import dMenu
+from dabo.ui.dControlMixin import dControlMixin
+from dabo.ui.dMenu import dMenu
 from dabo.dLocalize import _
 from dabo import dEvents as dEvents
 from dabo.dObject import dObject
@@ -657,5 +657,5 @@ class _dToolBar_test(dToolBar):
 
 
 if __name__ == "__main__":
-    from . import test
+    from dabo.ui import test
     test.Test().runTest(_dToolBar_test)

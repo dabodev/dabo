@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 import sys
-import dabo, dabo.ui
+import dabo
+from dabo import ui
+from dabo.ui.dDialog import dDialog
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-class About(dabo.ui.dDialog):
+
+class About(dDialog):
     def initProperties(self):
         self.AutoSize = True
         self.Centered = True

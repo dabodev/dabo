@@ -2,8 +2,8 @@
 import dabo
 from dabo import ui as dui
 from dabo.ui import makeDynamicProperty
-from .dPage import dPage
-from .dPanel import dPanel
+from dabo.ui.dPage import dPage
+from dabo.ui.dPanel import dPanel
 from dabo import dEvents as dEvents
 from dabo import dColors as dColors
 from dabo.dLocalize import _
@@ -284,6 +284,12 @@ class dPageFrameNoTabs(dPanel):
 
 
 import random
+from dabo.ui.dButton import dButton
+from dabo.ui.dDropdownList import dDropdownList
+from dabo.ui.dForm import dForm
+from dabo.ui.dLabel import dLabel
+from dabo.ui.dSizer import dSizer
+
 class TestPage(dPage):
     def afterInit(self):
         self.lbl = dui.dLabel(self, FontSize=36)
@@ -299,7 +305,7 @@ class TestPage(dPage):
         self.layout()
 
 
-class TestForm(dui.dForm):
+class TestForm(dForm):
     def afterInit(self):
         self.Caption = "Tabless Pageframe Example"
         self.pgf = pgf = dPageFrameNoTabs(self)
@@ -312,18 +318,18 @@ class TestForm(dui.dForm):
         self.Sizer.append1x(pgf)
 
         # Add prev/next buttons
-        bp = dui.dButton(self, Caption="Prior")
+        bp = dButton(self, Caption="Prior")
         bp.bindEvent(dEvents.Hit, self.onPriorPage)
-        bn = dui.dButton(self, Caption="Next")
+        bn = dButton(self, Caption="Next")
         bn.bindEvent(dEvents.Hit, self.onNextPage)
-        hsz = dui.dSizer("h")
+        hsz = dSizer("h")
         hsz.append(bp, 1)
         hsz.appendSpacer(4)
         hsz.append(bn, 1)
         hsz.appendSpacer(24)
-        lbl = dui.dLabel(self, Caption="Select Page:")
+        lbl = dLabel(self, Caption="Select Page:")
         hsz.append(lbl)
-        dd = dui.dDropdownList(self, DataSource=pgf,
+        dd = dDropdownList(self, DataSource=pgf,
                 DataField="SelectedPageNumber", ValueMode="Position",
                 Choices=["%s" % ii for ii in range(pgf.PageCount)])
         hsz.append(dd)

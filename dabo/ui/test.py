@@ -19,7 +19,7 @@ import wx
 from dabo.dApp import dApp
 import dabo
 # Shorthand
-ui = dabo.ui
+dui = dabo.ui
 
 # Log all events except the really frequent ones:
 logEvents = ["All", "Idle", "MouseMove"]
@@ -39,9 +39,9 @@ class Test(object):
             frame = classRefs[0](None, *args, **kwargs)
             isDialog = (issubclass(classRefs[0], wx.Dialog))
         else:
-            frame = ui.dForm(Name="formTest")
-            panel = frame.addObject(ui.dPanel, Name="panelTest")
-            panel.Sizer = ui.dSizer("Vertical")
+            frame = dui.dForm(Name="formTest")
+            panel = frame.addObject(dui.dPanel, Name="panelTest")
+            panel.Sizer = dui.dSizer("Vertical")
             frame.Sizer.append(panel, 1, "expand")
             frame.testObjects = []
             for class_ in classRefs:
@@ -75,14 +75,14 @@ class Test(object):
 
     def testAll(self):
         """Create a dForm and populate it with example dWidgets."""
-        frame = ui.dForm(Name="formTestAll")
+        frame = dui.dForm(Name="formTestAll")
         frame.Caption = "Test of all the dControls"
         frame.LogEvents = logEvents
 
-        panel = frame.addObject(ui.dScrollPanel, "panelTest")
+        panel = frame.addObject(dui.dScrollPanel, "panelTest")
         panel.SetScrollbars(10,10,50,50)
         labelWidth = 150
-        vs = ui.dSizer("vertical")
+        vs = dui.dSizer("vertical")
 
         # Get all the python modules in this directory into a list:
         modules = [modname.split(".")[0] for modname in os.listdir(".") if modname[-3:] == ".py"]
@@ -115,27 +115,27 @@ class Test(object):
                     frame.ToolBar = obj
                     break
 
-                bs = ui.dSizer("horizontal")
-                label = ui.dLabel(panel, Alignment="Right", AutoResize=False, Width=labelWidth)
+                bs = dui.dSizer("horizontal")
+                label = dui.dLabel(panel, Alignment="Right", AutoResize=False, Width=labelWidth)
 
                 label.Caption = "%s:" % modname
                 bs.append(label)
 
-                if isinstance(obj, ui.dEditBox):
+                if isinstance(obj, dui.dEditBox):
                     layout = "expand"
                 else:
                     layout = "normal"
 
                 bs.append(obj, layout)
 
-                if isinstance(obj, ui.dEditBox):
+                if isinstance(obj, dui.dEditBox):
                     vs.append(bs, "expand")
                 else:
                     vs.append(bs, "expand")
 
         panel.Sizer = vs
 
-        fs = frame.Sizer = ui.dSizer("vertical")
+        fs = frame.Sizer = dui.dSizer("vertical")
         fs.append(panel, "expand", 1)
         fs.layout()
         self.app.MainForm = frame

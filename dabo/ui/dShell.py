@@ -6,27 +6,36 @@ import wx.stc as stc
 import wx.py
 from wx.py import pseudo
 import dabo
-from dabo import ui as dui
 from dabo import dEvents as dEvents
+from dabo import ui as dui
 from dabo.dLocalize import _
-from .dSplitForm import dSplitForm
-from dabo.ui import makeDynamicProperty
 from dabo.ui import dKeys
-from .dControlMixin import dControlMixin
+from dabo.ui import makeDynamicProperty
+from dabo.ui.dButton import dButton
+from dabo.ui.dControlMixin import dControlMixin
+from dabo.ui.dEditBox import dEditBox
+from dabo.ui.dEditor import dEditor
+from dabo.ui.dLabel import dLabel
+from dabo.ui.dListBox import dListBox
+from dabo.ui.dMenu import dMenu
+from dabo.ui.dPageFrame import dPageFrame
+from dabo.ui.dPanel import dPanel
+from dabo.ui.dSizer import dSizer
+from dabo.ui.dSplitForm import dSplitForm
 
 
-class _LookupPanel(dui.dPanel):
+class _LookupPanel(dPanel):
     """Used for the command history search"""
     def afterInit(self):
         self._history = None
         self._displayedHistory = None
         self.currentSearch = ""
         self.needRefilter = False
-        self.lblSearch = dui.dLabel(self)
-        self.lstMatch = dui.dListBox(self, ValueMode="string", Choices=[],
+        self.lblSearch = dLabel(self)
+        self.lstMatch = dListBox(self, ValueMode="string", Choices=[],
                 MultipleSelect=True, OnMouseLeftDoubleClick=self.selectCmd,
                 OnKeyChar=self.onListKey)
-        self.Sizer = dui.dSizer("v", DefaultBorder=4)
+        self.Sizer = dSizer("v", DefaultBorder=4)
         self.Sizer.append(self.lblSearch, halign="center")
         self.Sizer.append(self.lstMatch, "x", 1)
         self.Width = 400
@@ -170,7 +179,7 @@ class dShell(dControlMixin, wx.py.shell.Shell):
                 attProperties=attProperties, *args, **kwargs)
 
 
-    @dui.deadCheck
+    @dabo.ui.deadCheck
     def ScrollToLine(self, lnum):
         """Need to check for the case where the control is released, as the wx-level
         shell makes a CallAfter for ScrollToLine().
@@ -404,9 +413,9 @@ class dShellForm(dSplitForm):
         cp.unbindEvent(dEvents.ContextMenu)
         op.unbindEvent(dEvents.ContextMenu)
 
-        cp.Sizer = dui.dSizer()
-        op.Sizer = dui.dSizer()
-        pgf = self.pgfCodeShell = dui.dPageFrame(cp, PageCount=2)
+        cp.Sizer = dSizer()
+        op.Sizer = dSizer()
+        pgf = self.pgfCodeShell = dPageFrame(cp, PageCount=2)
         self.pgShell = pgf.Pages[0]
         self.pgCode = pgf.Pages[1]
         self.pgShell.Caption = _("Shell")
@@ -426,23 +435,23 @@ class dShellForm(dSplitForm):
         self.shell.Bind(wx.wx.EVT_CONTEXT_MENU, self.onShellContext)
 
         # Create the Code control
-        codeControl = dui.dEditor(self.pgCode, RegID="edtCode",
+        codeControl = dEditor(self.pgCode, RegID="edtCode",
                 Language="python", OnKeyDown=self.onCodeKeyDown,
                 OnMouseRightDown=self.onCodeRightDown,
                 DroppedTextHandler=self, DroppedFileHandler=self)
         self.pgCode.Sizer.append1x(codeControl, border=4)
         # This adds the interpreter's local namespace to the editor for code completion, etc.
         codeControl.locals = self.shell.interp.locals
-        lbl = dui.dLabel(self.pgCode, ForeColor="blue", WordWrap=True,
+        lbl = dLabel(self.pgCode, ForeColor="blue", WordWrap=True,
                 Caption=_("""Ctrl-Enter to run the code (or click the button to the right).
 Ctrl-Up/Down to scroll through history."""))
         lbl.FontSize -= 3
-        runButton = dui.dButton(self.pgCode, Caption=_("Run"),
+        runButton = dButton(self.pgCode, Caption=_("Run"),
                 OnHit=self.onRunCode)
-        hsz = dui.dSizer("h")
+        hsz = dSizer("h")
         hsz.appendSpacer(20)
         hsz.append(lbl)
-        hsz.append1x(dui.dPanel(self.pgCode))
+        hsz.append1x(dPanel(self.pgCode))
         hsz.append(runButton, valign="middle")
         hsz.appendSpacer(20)
         self.pgCode.Sizer.append(hsz, "x")
@@ -462,8 +471,7 @@ Ctrl-Up/Down to scroll through history."""))
         self.pgCode.bindEvent(dEvents.PageEnter, _delayedSetFocus)
 
         # create the output control
-        outControl = dui.dEditBox(op, RegID="edtOut",
-                ReadOnly=True)
+        outControl = dEditBox(op, RegID="edtOut", ReadOnly=True)
         op.Sizer.append1x(outControl)
         outControl.bindEvent(dEvents.MouseRightDown,
                 self.onOutputRightDown)
@@ -657,7 +665,7 @@ Ctrl-Up/Down to scroll through history."""))
 
 
     def onOutputRightDown(self, evt):
-        pop = dui.dMenu()
+        pop = dMenu()
         pop.append(_("Clear"), OnHit=self.onClearOutput)
         if self.edtOut.SelectionLength:
             pop.append(_("Copy"), OnHit=self.Application.onEditCopy)
@@ -670,7 +678,7 @@ Ctrl-Up/Down to scroll through history."""))
 
 
     def onShellContext(self, evt):
-        pop = dui.dMenu()
+        pop = dMenu()
         if self.SplitState:
             pmpt = _("Unsplit")
         else:
@@ -681,7 +689,7 @@ Ctrl-Up/Down to scroll through history."""))
 
 
     def onShellRight(self, evt):
-        pop = dui.dMenu()
+        pop = dMenu()
         if self.SplitState:
             pmpt = _("Unsplit")
         else:

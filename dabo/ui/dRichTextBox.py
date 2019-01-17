@@ -5,13 +5,17 @@ import os
 import wx
 import wx.richtext
 import dabo
-from dabo import ui as dui
-from dabo.ui import makeDynamicProperty
-from . import dDataControlMixin
 from dabo import dColors as dColors
+from dabo import ui as dui
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-
+from dabo.ui import makeDynamicProperty
+from dabo.ui.dButton import dButton
+from dabo.ui.dDataControlMixin import dDataControlMixin
+from dabo.ui.dDropdownList import dDropdownList
+from dabo.ui.dForm import dForm
+from dabo.ui.dTimer import dTimer
+from dabo.ui.dToggleButton import dToggleButton
 
 
 class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
@@ -458,7 +462,7 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
 
 
 
-class RichTextTestForm(dui.dForm):
+class RichTextTestForm(dForm):
     def initProperties(self):
         self.ShowToolBar = True
         self.Caption = "Rich Text Control"
@@ -484,36 +488,31 @@ class RichTextTestForm(dui.dForm):
         # This is necessary because wx reports the font in some cases as 'applicationfont'.
         allfonts.append("applicationfont")
         allfonts.sort()
-        self.tbFontFace = dui.dDropdownList(tb, Caption="FontFace",
+        self.tbFontFace = dDropdownList(tb, Caption="FontFace",
                 ValueMode="String", OnHit=self.onSetFontFace,
                 Choices=allfonts)
         tb.appendControl(self.tbFontFace)
-        self.tbFontSize = dui.dDropdownList(tb, Caption="FontSize",
+        self.tbFontSize = dDropdownList(tb, Caption="FontSize",
                 ValueMode="String", OnHit=self.onSetFontSize)
         self.tbFontSize.Choices = [ustr(i) for i in range(6, 129)]
-
-        # Tried a spinner, but this doesn't work in toolbars.
-#         self.tbFontSize = dui.dSpinner(tb,
-#                 Min=7, Max=128, OnHit=self.onSetFontSize)
-
         tb.appendControl(self.tbFontSize)
 
-        self.tbBackColor = dui.dToggleButton(tb, Caption="BackColor", FontSize=8,
+        self.tbBackColor = dToggleButton(tb, Caption="BackColor", FontSize=8,
                 Size=(54, 32), OnHit=self.onSetBackColor, BezelWidth=0, Value=True)
         tb.appendControl(self.tbBackColor)
-        self.tbForeColor = dui.dToggleButton(tb, Caption="ForeColor", FontSize=8,
+        self.tbForeColor = dToggleButton(tb, Caption="ForeColor", FontSize=8,
                 Size=(54, 32), OnHit=self.onSetForeColor, BezelWidth=0, Value=True)
         tb.appendControl(self.tbForeColor)
-        self.openButton = dui.dButton(tb, Caption="Open", OnHit=self.onOpen)
+        self.openButton = dButton(tb, Caption="Open", OnHit=self.onOpen)
         tb.appendControl(self.openButton)
-        self.saveButton = dui.dButton(tb, Caption="Save", OnHit=self.onSave)
+        self.saveButton = dButton(tb, Caption="Save", OnHit=self.onSave)
         tb.appendControl(self.saveButton)
-        self.styleTimer = dui.dTimer(self, Interval=500, Enabled=True,
+        self.styleTimer = dTimer(self, Interval=500, Enabled=True,
                 OnHit=self.checkForUpdate)
 
         # For development: uncomment the next line, and add the code you want to
         # run to the onTest() method.
-#         btn = tb.appendControl(dui.dButton(tb, Caption="TEST", OnHit=self.onTest))
+#         btn = tb.appendControl(dButton(tb, Caption="TEST", OnHit=self.onTest))
 
 
     def onTest(self, evt):
