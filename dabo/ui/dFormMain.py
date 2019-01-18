@@ -7,8 +7,8 @@ from dabo.ui.dFormMixin import dFormMixin
 
 class dFormMainBase(dFormMixin):
     """This is the main top-level form for the application."""
-    def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
-        dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+    def __init__(self, wxClass, parent=None, properties=None, *args, **kwargs):
+        dFormMixin.__init__(self, wxClass, parent, properties, *args, **kwargs)
 
 
     def _beforeClose(self, evt=None):
@@ -36,18 +36,17 @@ class dFormMain(dFormMainBase, wx.Frame):
 
         if dabo.MDI:
             # Hack this into an MDI Parent:
-            dFormMain.__bases__ = (dFormMainBase, wx.MDIParentFrame)
-            preClass = wx.PreMDIParentFrame
+            dFormMain.__bases__ = (wx.MDIParentFrame, dFormMainBase)
             self._mdi = True
         else:
             # This is a normal SDI form:
-            dFormMain.__bases__ = (dFormMainBase, wx.Frame)
-            preClass = wx.PreFrame
+            dFormMain.__bases__ = (wx.Frame, dFormMainBase)
             self._mdi = False
         ## (Note that it is necessary to run the above block each time, because
         ##  we are modifying the dFormMain class definition globally.)
 
-        dFormMainBase.__init__(self, preClass, parent, properties, *args, **kwargs)
+        super(dFormMain, self).__init__(parent, properties, *args, **kwargs)
+#        dFormMainBase.__init__(self, wxClass, parent, properties, *args, **kwargs)
 
 
 if __name__ == "__main__":

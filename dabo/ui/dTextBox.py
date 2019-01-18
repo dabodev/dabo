@@ -10,11 +10,10 @@ class dTextBox(dTextBoxMixin, wx.TextCtrl):
     """Creates a text box for editing one line of string data."""
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dTextBox
-        preClass = wx.PreTextCtrl
+        wxClass = wx.TextCtrl
 
-        dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
+        dTextBoxMixin.__init__(self, wxClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
-
 
 
 if __name__ == "__main__":
@@ -69,14 +68,14 @@ if __name__ == "__main__":
         def afterInit(self):
             self.Value = datetime.datetime.now()
 
-    testParms = [IntText, LongText, FloatText, StrText, PWText, BoolText, DateText, DateTimeText]
+    testParms = [IntText, LongText, FloatText, StrText, PWText, BoolText,
+            DateText, DateTimeText]
 
     try:
         import mx.DateTime
         class MxDateTimeText(TestBase):
             def afterInit(self):
                 self.Value = mx.DateTime.now()
-
         testParms.append(MxDateTimeText)
     except ImportError:
         # skip it: mx may not be available
@@ -86,8 +85,6 @@ if __name__ == "__main__":
     class DecimalText(TestBase):
         def afterInit(self):
             self.Value = decimal.Decimal("23.42")
-
     testParms.append(DecimalText)
-
 
     test.Test().runTest(testParms)

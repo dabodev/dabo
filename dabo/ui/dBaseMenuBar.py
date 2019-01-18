@@ -127,7 +127,6 @@ class ViewMenu(dMenu):
         super(ViewMenu, self)._afterInit()
         app = self.Application
         self.Caption = _("&View")
-
         self.Parent.increaseFontSizeMenuItem = self.append(_("Increase Font Size"),
                 HotKey="Ctrl++",
                 ItemID="view_zoomin", OnHit=app.fontZoomIn,
@@ -185,12 +184,14 @@ class dBaseMenuBar(dMenuBar):
         self.viewMenu = self.appendMenu(ViewMenu(self, MenuID="base_view"))
         self.helpMenu = self.appendMenu(HelpMenu(self, MenuID="base_help"))
         super(dBaseMenuBar, self)._afterInit()
+        print(self.Children)
 
 
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
+    from dabo.ui.dForm import dForm
     app = dApp()
-    app.setup()
-    app.MainForm.MenuBar = dBaseMenuBar()
+    app.DefaultMenuBarClass = dBaseMenuBar
+    app.MainFormClass = dForm
     app.start()

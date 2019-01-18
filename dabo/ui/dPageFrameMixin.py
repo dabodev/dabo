@@ -17,16 +17,17 @@ MSG_SMART_FOCUS_ABUSE = _("The '%s' control must inherit from dPage to use the U
 class dPageFrameMixin(dControlMixin):
     """Creates a container for an unlimited number of pages."""
 
-    def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
+    def __init__(self, wxClass, parent, properties=None, attProperties=None, *args, **kwargs):
         kwargs["style"] = self._extractKey((properties, kwargs), "style", 0) | wx.CLIP_CHILDREN
-        super(dPageFrameMixin, self).__init__(preClass, parent, properties=properties,
+        super(dPageFrameMixin, self).__init__(wxClass, parent, properties=properties,
             attProperties=attProperties, *args, **kwargs)
 
 
-    def _beforeInit(self, pre):
+    def _beforeInit(self):
+        from dabo.ui.dSizer import dSizer
         self._imageList = {}
-        self._pageSizerClass = dui.dSizer
-        super(dPageFrameMixin, self)._beforeInit(pre)
+        self._pageSizerClass = dSizer
+        super(dPageFrameMixin, self)._beforeInit()
 
 
     def _initEvents(self):

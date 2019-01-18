@@ -4,13 +4,15 @@ import time
 import wx
 import dabo
 from dabo import ui as dui
-from dabo.ui import makeDynamicProperty
 from dabo import dEvents as dEvents
-from dabo.ui.dFormMixin import dFormMixin
 from dabo import dException as dException
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
+from dabo.ui import makeDynamicProperty
+from dabo.ui.dButton import dButton
 from dabo.ui.dDialog import dDialog
+from dabo.ui.dFormMixin import dFormMixin
+from dabo.ui.dSizer import dSizer
 
 
 class BaseForm(dFormMixin):
@@ -20,7 +22,8 @@ class BaseForm(dFormMixin):
     dForm knows how to handle one or more dBizobjs, providing proxy methods
     like next(), last(), save(), and requery().
     """
-    def __init__(self, preClass, parent, properties, attProperties, *args, **kwargs):
+    def __init__(self, wxClass, parent, properties, attProperties, *args,
+            **kwargs):
         self.bizobjs = {}
         self._primaryBizobj = None
         self._dataUpdateDelay = 100
@@ -35,7 +38,7 @@ class BaseForm(dFormMixin):
         # or a requery is about to happen.
         self._checkForChanges = True
 
-        dFormMixin.__init__(self, preClass, parent, properties=properties,
+        dFormMixin.__init__(self, wxClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
         # Used to override some cases where the status
@@ -52,7 +55,7 @@ class BaseForm(dFormMixin):
 
 
     def _afterInit(self):
-        self.Sizer = dui.dSizer("vertical")
+        self.Sizer = dSizer("vertical")
         self.Sizer.layout()
         super(BaseForm, self)._afterInit()
         if self.RequeryOnLoad:
@@ -1016,44 +1019,46 @@ Database error message: %s""") %     err
 
 
 class dForm(BaseForm, wx.Frame):
-    def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
+    def __init__(self, parent=None, properties=None, attProperties=None, *args,
+            **kwargs):
         self._baseClass = dForm
         self._mdi = False
-
         if kwargs.pop("Modal", False):
             # Hack this into a wx.Dialog, for true modality
             dForm._hackToDialog()
-            preClass = wx.PreDialog
+            wxClass = wx.Dialog
             self._modal = True
         else:
             # Normal dForm
             if dabo.MDI and isinstance(parent, wx.MDIParentFrame):
                 # Hack this into an MDI Child:
-                preClass = wx.PreMDIChildFrame
                 self._mdi = True
+                wxClass = wx.MDIChildFrame
             else:
                 # This is a normal SDI form:
-                preClass = wx.PreFrame
                 self._mdi = False
+                wxClass = wx.Frame
             dForm._hackToFrame()
 
         ## (Note that it is necessary to run the above blocks each time, because
         ##  we are modifying the dForm class definition globally.)
-        BaseForm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
+        super(dForm, self).__init__(wxClass, parent=parent,
+                properties=properties, attProperties=attProperties,
                 *args, **kwargs)
         dForm._hackToFrame()
 
 
+    @classmethod
     def _hackToDialog(cls):
         dForm.__bases__ = (BaseForm, wx.Dialog)
-    _hackToDialog = classmethod(_hackToDialog)
 
+    @classmethod
     def _hackToFrame(cls):
         if dabo.MDI:
             dForm.__bases__ = (BaseForm, wx.MDIChildFrame)
         else:
             dForm.__bases__ = (BaseForm, wx.Frame)
-    _hackToFrame = classmethod(_hackToFrame)
+
 
     def Show(self, show=True):
         if self.Modal:
@@ -1104,11 +1109,9 @@ class dForm(BaseForm, wx.Frame):
             _("Specifies whether the form is shown or hidden.  (bool)"))
 
 
-
 class dToolForm(BaseForm, wx.MiniFrame):
     def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dToolForm
-        preClass = wx.PreMiniFrame
         self._mdi = False
         style = kwargs.get("style", 0)
         kwargs["style"] = style | wx.RESIZE_BORDER | wx.CAPTION | wx.MINIMIZE_BOX | \
@@ -1116,9 +1119,8 @@ class dToolForm(BaseForm, wx.MiniFrame):
         kwargs["TinyTitleBar"] = True
         kwargs["ShowStatusBar"] = False
         kwargs["ShowToolBar"] = False
-        BaseForm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
+        BaseForm.__init__(self, parent, properties=properties, attProperties=attProperties,
                 *args, **kwargs)
-
 
 
 class dBorderlessForm(BaseForm, wx.Frame):
@@ -1129,10 +1131,8 @@ class dBorderlessForm(BaseForm, wx.Frame):
         kwargs["ShowStatusBar"] = False
         kwargs["ShowSystemMenu"] = False
         kwargs["MenuBarClass"] = None
-        preClass = wx.PreFrame
-        BaseForm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
+        BaseForm.__init__(self, parent, properties=properties, attProperties=attProperties,
                 *args, **kwargs)
-
 
 
 class _dForm_test(dForm):
@@ -1143,19 +1143,20 @@ class _dForm_test(dForm):
     def onDeactivate(self, evt):
         print(_("Deactivate"))
 
+
 class _dBorderlessForm_test(dBorderlessForm):
     def afterInit(self):
-        self.btn = dui.dButton(self, Caption=_("Close Borderless Form"))
+        self.btn = dButton(self, Caption=_("Close Borderless Form"))
         self.Sizer.append(self.btn, halign="Center", valign="middle")
         self.layout()
         self.btn.bindEvent(dEvents.Hit, self.close)
         dui.callAfter(self.setSize)
 
+
     def setSize(self):
         self.Width, self.Height = self.btn.Width + 60, self.btn.Height + 60
         self.layout()
         self.Centered = True
-
 
 
 if __name__ == "__main__":

@@ -20,7 +20,7 @@ from dabo.ui import makeDynamicProperty
 
 
 class dFormMixin(dPemMixin):
-    def __init__(self, preClass, parent=None, properties=None, attProperties=None,
+    def __init__(self, wxClass, parent=None, properties=None, attProperties=None,
             src=None, *args, **kwargs):
         self._cxnName = ""
         self._connection = None
@@ -76,7 +76,7 @@ class dFormMixin(dPemMixin):
         # Flag to prevent infinite loops when doing field-level validation
         self._fieldValidationControl = None
 
-        super(dFormMixin, self).__init__(preClass, parent, properties=properties,
+        super(dFormMixin, self).__init__(wxClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
         dui.callAfter(self._createStatusBar)
@@ -99,7 +99,6 @@ class dFormMixin(dPemMixin):
             else:
                 self.MenuBar = mbc()
             self.afterSetMenuBar()
-
         if not self.Icon:
             if app:
                 self.Icon = app.Icon
@@ -169,7 +168,7 @@ class dFormMixin(dPemMixin):
             if mb:
                 pref_id = getattr(mb, "_mac_pref_menu_item_id", None)
                 if pref_id:
-                    wx.App_SetMacPreferencesMenuItemId(pref_id)
+                    wx.PyApp.SetMacPreferencesMenuItemId(pref_id)
         else:
             self.raiseEvent(dEvents.Deactivate, evt)
         evt.Skip()

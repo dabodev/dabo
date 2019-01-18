@@ -77,8 +77,8 @@ class dListControl(dControlItemMixin,
             style = style | wx.LC_REPORT
         except TypeError:
             style = wx.LC_REPORT
-        preClass = wx.PreListCtrl
-        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
+        wxClass = wx.ListCtrl
+        dControlItemMixin.__init__(self, wxClass, parent, properties=properties,
                 attProperties=attProperties, style=style, *args, **kwargs)
         ListMixin.ListCtrlAutoWidthMixin.__init__(self)
         # Dictionary for tracking images by key value
@@ -298,7 +298,7 @@ class dListControl(dControlItemMixin,
             insert = True
         if isinstance(tx, (list, tuple)):
             if insert:
-                new_item = self.InsertStringItem(row, "")
+                new_item = self.InsertItem(row, "")
             currCol = col
             for itm in tx:
                 new_item = self.append(itm, currCol, row)
@@ -308,9 +308,9 @@ class dListControl(dControlItemMixin,
                 if not isinstance(tx, str) and self.AutoConvertToString:
                     tx = "%s" % tx
                 if insert:
-                    new_item = self.InsertStringItem(row, tx)
+                    new_item = self.InsertItem(row, tx)
                 else:
-                    new_item = self.SetStringItem(row, col, tx)
+                    new_item = self.SetItem(row, col, tx)
             else:
                 # should we raise an error? Add the column automatically?
                 pass
@@ -334,7 +334,7 @@ class dListControl(dControlItemMixin,
         Inserts the item at the specified row, or at the beginning if no
         row is specified. Item is inserted at the specified column, as in self.append()
         """
-        self.InsertStringItem(row, "")
+        self.InsertItem(row, "")
         self.append(tx, col, row)
 
 
@@ -528,7 +528,7 @@ class dListControl(dControlItemMixin,
 
     def _listControlSort(self, x, y):
         # Default to standard Python comparison
-        return cmp(x, y)
+        return (x > y) - (x < y)
 
 
     def sort(self, sortFunction=None):

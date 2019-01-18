@@ -8,6 +8,9 @@ from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo import dColors as dColors
 from dabo.ui.dControlMixin import dControlMixin
+from dabo.ui.dMenu import dMenu
+from dabo.ui.dPanel import dPanel
+from dabo.ui.dSizer import dSizer
 
 
 class SplitterPanelMixin(object):
@@ -20,7 +23,7 @@ class SplitterPanelMixin(object):
         if not self.Parent.ShowPanelSplitMenu:
             return
         evt.stop()
-        sm = dabo.ui.dMenu(self)
+        sm = dMenu(self)
         sm.append("Split this pane", OnHit=self.onSplit)
         if self.Parent.canRemove(self):
             sm.append("Remove this pane", OnHit=self.onRemove)
@@ -58,7 +61,7 @@ class SplitterPanelMixin(object):
         else:
             newDir = "h"
         if self.Sizer is None:
-            self.Sizer = dabo.ui.dSizer(newDir)
+            self.Sizer = dSizer(newDir)
         if dir_ is None:
             dir_ = newDir
         win = dSplitter(self, createPanes=True)
@@ -95,8 +98,6 @@ class SplitterPanelMixin(object):
 
     ShowSplitMenu = property(_getShowSplitMenu, _setShowSplitMenu, None,
             _("Determines if the Split/Unsplit context menu is shown (default=True)  (bool)"))
-
-
 
 
 class dSplitter(dControlMixin, wx.SplitterWindow):
@@ -144,8 +145,8 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         # Default to not showing the context menus on the panels
         self._showPanelSplitMenu = False
 
-        preClass = wx.PreSplitterWindow
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
+        wxClass = wx.SplitterWindow
+        dControlMixin.__init__(self, wxClass, parent, properties=properties,
                 attProperties=attProperties, style=style, *args, **kwargs)
 
 
@@ -192,11 +193,11 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         if p1 and (force or self.Panel1 is None):
             self.Panel1 = spCls(self)
             if self._createSizers:
-                self.Panel1.Sizer = dabo.ui.dSizer()
+                self.Panel1.Sizer = dSizer()
         if p2 and (force or self.Panel2 is None):
             self.Panel2 = spCls(self)
             if self._createSizers:
-                self.Panel2.Sizer = dabo.ui.dSizer()
+                self.Panel2.Sizer = dSizer()
 
 
     def initialize(self, pnl):
@@ -375,7 +376,7 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         try:
             ret = self._panelClass
         except AttributeError:
-            ret = self._panelClass = dabo.ui.dPanel
+            ret = self._panelClass = dPanel
         return ret
 
     def _setPanelClass(self, val):

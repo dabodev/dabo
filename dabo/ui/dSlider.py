@@ -26,8 +26,8 @@ class dSlider(dDataControlMixin, wx.Slider):
         self._tickPosition = None
         self._reversed = False
 
-        preClass = wx.PreSlider
-        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+        wxClass = wx.Slider
+        dDataControlMixin.__init__(self, wxClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

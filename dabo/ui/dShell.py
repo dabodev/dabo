@@ -369,19 +369,18 @@ class dShell(dControlMixin, wx.py.shell.Shell):
             _("Size of the font used in the shell  (int)"))
 
 
-
 class dShellForm(dSplitForm):
     def _onDestroy(self, evt):
         self._clearOldHistory()
-        builtins.raw_input = self._oldRawInput
+        builtins.input = self._oldInput
 
 
-    def _beforeInit(self, pre):
+    def _beforeInit(self):
         # Set the sash
         self._sashPct = 0.6
         # Class to use for creating the interactive shell
         self._shellClass = dShell
-        super(dShellForm, self)._beforeInit(pre)
+        super(dShellForm, self)._beforeInit()
 
 
     def _afterInit(self):
@@ -390,11 +389,11 @@ class dShellForm(dSplitForm):
         self._historyPanel = None
         self._lastCmd = None
 
-        # PyShell sets the raw_input function to a function of PyShell,
+        # PyShell sets the input function to a function of PyShell,
         # but doesn't set it back on destroy, resulting in errors later
-        # on if something other than PyShell asks for raw_input (pdb, for
+        # on if something other than PyShell asks for input (pdb, for
         # example).
-        self._oldRawInput = builtins.raw_input
+        self._oldInput = builtins.input
         self.bindEvent(dEvents.Destroy, self._onDestroy)
 
         splt = self.Splitter
@@ -432,7 +431,7 @@ class dShellForm(dSplitForm):
         # This lets you go all the way back to the '.' without losing the AutoComplete
         self.shell.AutoCompSetCancelAtStart(False)
         self.shell.Bind(wx.EVT_RIGHT_UP, self.onShellRight)
-        self.shell.Bind(wx.wx.EVT_CONTEXT_MENU, self.onShellContext)
+        self.shell.Bind(wx.EVT_CONTEXT_MENU, self.onShellContext)
 
         # Create the Code control
         codeControl = dEditor(self.pgCode, RegID="edtCode",

@@ -2,6 +2,7 @@
 import os
 import re
 import six
+import sqlite3 as dbapi
 import sys
 
 import dabo
@@ -13,44 +14,42 @@ from .dCursorMixin import dCursorMixin
 from dabo.lib.utils import ustr
 
 
+def dict_factory(cursor, row):
+    _types = getattr(cursor, "_types", {})
+    ret = {}
+    fieldNames = (fld[0] for fld in cursor.description)
+    for idx, field_name in enumerate(fieldNames):
+        ret[field_name] = row[idx]
+    return ret
+
+
+class DictCursor(dbapi.Cursor):
+    def __init__(self, *args, **kwargs):
+#                dbapi.Cursor.__init__(self, *args, **kwargs)
+        super(DictCursor, self).__init__(*args, **kwargs)
+        self.row_factory = dict_factory
+
+
+class DictConnection(dbapi.Connection):
+    def __init__(self, *args, **kwargs):
+        super(DictConnection, self).__init__(*args, **kwargs)
+
+    def cursor(self):
+        return DictCursor(self)
+
+
 class SQLite(dBackend):
-    """Class providing SQLite connectivity. Uses sqlite3 or pysqlite2 package."""
+    """Class providing SQLite connectivity. Uses the sqlite3 package."""
     def __init__(self):
-        dBackend.__init__(self)
-        self.dbModuleName = "pysqlite2"
+        super(SQLite, self).__init__()
+        self.dbModuleName = "sqlite3"
         self.paramPlaceholder = "?"
-        try:
-            from pysqlite2 import dbapi2 as dbapi
-        except ImportError:
-            import sqlite3 as dbapi
-        self.dbapi = dbapi
 
 
     def getConnection(self, connectInfo, forceCreate=False, **kwargs):
-        ## Mods to sqlite to return DictCursors by default, so that dCursor doesn't
-        ## need to do the conversion:
-        dbapi = self.dbapi
-
-        def dict_factory(cursor, row):
-            _types = getattr(cursor, "_types", {})
-            ret = {}
-            fieldNames = (fld[0] for fld in cursor.description)
-            for idx, field_name in enumerate(fieldNames):
-                ret[field_name] = row[idx]
-            return ret
-
-        class DictCursor(self.dbapi.Cursor):
-            def __init__(self, *args, **kwargs):
-                dbapi.Cursor.__init__(self, *args, **kwargs)
-                self.row_factory = dict_factory
-
-        class DictConnection(self.dbapi.Connection):
-            def __init__(self, *args, **kwargs):
-                dbapi.Connection.__init__(self, *args, **kwargs)
-
-            def cursor(self):
-                return DictCursor(self)
-
+        """Mods to sqlite to return DictCursors by default, so that dCursor
+        doesn't need to do the conversion.
+        """
         self._dictCursorClass = DictCursor
         pth = os.path.expanduser(connectInfo.Database)
         if not forceCreate and not dabo.createDbFiles and (pth != ":memory:"):
@@ -70,7 +69,7 @@ class SQLite(dBackend):
             pth = pth.decode(dabo.fileSystemEncoding)
 
         # Need to specify "isolation_level=None" to have transactions working correctly.
-        self._connection = self.dbapi.connect(pth, factory=DictConnection, isolation_level=None)
+        self._connection = dbapi.connect(pth, factory=DictConnection, isolation_level=None)
 
         # Non-utf8-encoded bytestrings could be in the database, and Dabo will try various encodings
         # to deal with it. So tell sqlite not to decode with utf-8, but to just return the bytes:
@@ -113,7 +112,7 @@ class SQLite(dBackend):
 
     def commitTransaction(self, cursor):
         """Commit a SQL transaction."""
-        opError = self.dbapi.OperationalError
+        opError = dbapi.OperationalError
         try:
             cursor.execute("COMMIT", errorClass=opError)
             dabo.dbActivityLog.info("SQL: commit")
@@ -143,7 +142,7 @@ class SQLite(dBackend):
 
 
     def formatBLOB(self, val):
-        return self.dbapi.Binary(val)
+        return dbapi.Binary(val)
 
 
     def formatDateTime(self, val):

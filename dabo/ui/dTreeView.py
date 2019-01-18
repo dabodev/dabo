@@ -31,7 +31,8 @@ class dNode(dObject):
         # Add minimal Dabo functionality
         self.afterInit()
 
-    def afterInit(self): pass
+    def afterInit(self):
+        pass
 
 
     def expand(self):
@@ -415,8 +416,8 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         if val:
             style = style | wx.TR_LINES_AT_ROOT
 
-        preClass = wx.PreTreeCtrl
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
+        wxClass = wx.TreeCtrl
+        dControlMixin.__init__(self, wxClass, parent, properties=properties,
                 attProperties=attProperties, style=style, *args, **kwargs)
 
 

@@ -80,12 +80,11 @@ class dObject(PropertyHelperMixin, EventMixin):
             bad = ", ".join(["'%s'" % kk for kk in kwargs])
             raise TypeError("Invalid keyword arguments passed to %s: %s" % (self.__repr__(), bad))
 
+        PropertyHelperMixin.__init__(self)
+        EventMixin.__init__(self)
         if self._call_afterInit:
             self._afterInit()
         self.setProperties(properties)
-
-        PropertyHelperMixin.__init__(self)
-        EventMixin.__init__(self)
 
 
     def __repr__(self):

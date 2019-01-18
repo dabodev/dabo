@@ -14,7 +14,7 @@ class dMenuItem(dPemMixin, wx.MenuItem):
     """Creates a menu item, which is usually represented as a string."""
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         self._baseClass = dMenuItem
-        preClass = wx.MenuItem
+        wxClass = wx.MenuItem
         self.Parent = parent
 
         ## see comments in _setCaption for explanation of below:
@@ -29,7 +29,7 @@ class dMenuItem(dPemMixin, wx.MenuItem):
         # Holds the unique ID, if any
         self._itemID = None
 
-        dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+        dPemMixin.__init__(self, wxClass, parent, properties, *args, **kwargs)
 
 
     def _initEvents(self):
@@ -214,11 +214,11 @@ class dSeparatorMenuItem(dPemMixin, wx.MenuItem):
     """Creates a menu separator."""
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         self._baseClass = dSeparatorMenuItem
-        preClass = wx.MenuItem
+        wxClass = wx.MenuItem
         self.Parent = parent
         # Holds the unique ID, if any
         self._itemID = None
-        dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+        dPemMixin.__init__(self, wxClass, parent, properties, *args, **kwargs)
 
 
     # The following are methods designed to make separators work like other menu items.

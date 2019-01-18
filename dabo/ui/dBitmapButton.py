@@ -24,7 +24,7 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
     """
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dBitmapButton
-        preClass = wx.PreBitmapButton
+        wxClass = wx.BitmapButton
         # Initialize the self._*picture attributes
         self._picture = self._downPicture = self._focusPicture = ""
         # These atts underlie the image sizing properties.
@@ -37,7 +37,7 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         self._bmpBorder = 10
 
         dImageMixin.__init__(self)
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
+        dControlMixin.__init__(self, wxClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

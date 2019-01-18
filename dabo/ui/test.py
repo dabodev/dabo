@@ -12,14 +12,19 @@ test of dTextBox.
 If you instead run this test.py as a script, a form will be instantiated with
 all the dControls.
 """
-import sys
 import os
+import sys
 import traceback
+
 import wx
-from dabo.dApp import dApp
 import dabo
-# Shorthand
-dui = dabo.ui
+from dabo.dApp import dApp
+from dabo.ui.dEditBox import dEditBox
+from dabo.ui.dForm import dForm
+from dabo.ui.dLabel import dLabel
+from dabo.ui.dPanel import dPanel
+from dabo.ui.dPanel import dScrollPanel
+from dabo.ui.dSizer import dSizer
 
 # Log all events except the really frequent ones:
 logEvents = ["All", "Idle", "MouseMove"]
@@ -39,9 +44,9 @@ class Test(object):
             frame = classRefs[0](None, *args, **kwargs)
             isDialog = (issubclass(classRefs[0], wx.Dialog))
         else:
-            frame = dui.dForm(Name="formTest")
-            panel = frame.addObject(dui.dPanel, Name="panelTest")
-            panel.Sizer = dui.dSizer("Vertical")
+            frame = dForm(Name="formTest")
+            panel = frame.addObject(dPanel, Name="panelTest")
+            panel.Sizer = dSizer("Vertical")
             frame.Sizer.append(panel, 1, "expand")
             frame.testObjects = []
             for class_ in classRefs:
@@ -75,14 +80,14 @@ class Test(object):
 
     def testAll(self):
         """Create a dForm and populate it with example dWidgets."""
-        frame = dui.dForm(Name="formTestAll")
+        frame = dForm(Name="formTestAll")
         frame.Caption = "Test of all the dControls"
         frame.LogEvents = logEvents
 
-        panel = frame.addObject(dui.dScrollPanel, "panelTest")
+        panel = frame.addObject(dScrollPanel, "panelTest")
         panel.SetScrollbars(10,10,50,50)
         labelWidth = 150
-        vs = dui.dSizer("vertical")
+        vs = dSizer("vertical")
 
         # Get all the python modules in this directory into a list:
         modules = [modname.split(".")[0] for modname in os.listdir(".") if modname[-3:] == ".py"]
@@ -115,27 +120,27 @@ class Test(object):
                     frame.ToolBar = obj
                     break
 
-                bs = dui.dSizer("horizontal")
-                label = dui.dLabel(panel, Alignment="Right", AutoResize=False, Width=labelWidth)
+                bs = dSizer("horizontal")
+                label = dLabel(panel, Alignment="Right", AutoResize=False, Width=labelWidth)
 
                 label.Caption = "%s:" % modname
                 bs.append(label)
 
-                if isinstance(obj, dui.dEditBox):
+                if isinstance(obj, dEditBox):
                     layout = "expand"
                 else:
                     layout = "normal"
 
                 bs.append(obj, layout)
 
-                if isinstance(obj, dui.dEditBox):
+                if isinstance(obj, dEditBox):
                     vs.append(bs, "expand")
                 else:
                     vs.append(bs, "expand")
 
         panel.Sizer = vs
 
-        fs = frame.Sizer = dui.dSizer("vertical")
+        fs = frame.Sizer = dSizer("vertical")
         fs.append(panel, "expand", 1)
         fs.layout()
         self.app.MainForm = frame
