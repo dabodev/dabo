@@ -350,7 +350,7 @@ def callAfterInterval(interval, func, *args, **kwargs):
             pass
 
     _callAfterIntervalReferences[(func_ref, args)] = wx.CallLater(interval,
-	    ca_func, func_ref, func, *args, **kwargs)
+            ca_func, func_ref, func, *args, **kwargs)
 
 
 def setAfter(obj, prop, val):
@@ -1200,7 +1200,7 @@ def getFolder(message=_("Choose a folder"), defaultPath="", wildcard="*"):
     was made.
     """
     return _getPath(dabo.ui.dFolderDialog.dFolderDialog, message=message,
-	    defaultPath=defaultPath, wildcard=wildcard)[0]
+            defaultPath=defaultPath, wildcard=wildcard)[0]
 # Create an alias that uses 'directory' instead of 'folder'
 getDirectory = getFolder
 
