@@ -1195,7 +1195,7 @@ def getFolder(message=_("Choose a folder"), defaultPath="", wildcard="*"):
     was made.
     """
     return _getPath(dabo.ui.dFolderDialog.dFolderDialog, message=message,
-	    defaultPath=defaultPath, wildcard=wildcard)[0]
+            defaultPath=defaultPath, wildcard=wildcard)[0]
 # Create an alias that uses 'directory' instead of 'folder'
 getDirectory = getFolder
 
