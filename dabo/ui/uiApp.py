@@ -202,7 +202,7 @@ class uiApp(dObject, wx.App):
                 splash.Update()
         if self.callback is not None:
             wx.CallAfter(self.callback)
-        self.callback = None
+        del self.callback
         return True
 
 

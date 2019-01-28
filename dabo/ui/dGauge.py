@@ -12,8 +12,8 @@ class dGauge(dControlMixin, wx.Gauge):
     """Creates a gauge, which can be used as a progress bar."""
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dGauge
-        preClass = wx.Gauge
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
+        wxClass = wx.Gauge
+        dControlMixin.__init__(self, wxClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

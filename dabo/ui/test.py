@@ -30,7 +30,6 @@ from dabo.ui.dSizer import dSizer
 logEvents = ["All", "Idle", "MouseMove"]
 class Test(object):
     def __init__(self):
-        super(Test, self).__init__()
         self.app = dApp()
         self.app.MainFormClass = None
         self.app.setup()
@@ -46,11 +45,6 @@ class Test(object):
             isDialog = (issubclass(classRefs[0], wx.Dialog))
         else:
             frame = dForm(Name="formTest")
-            frame.Show()
-            frame.Layout()
-            self.app.start()
-            return
-            
             panel = frame.addObject(dPanel, Name="panelTest")
             panel.Sizer = dSizer("Vertical")
             frame.Sizer.append(panel, 1, "expand")

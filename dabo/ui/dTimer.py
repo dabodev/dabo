@@ -12,7 +12,7 @@ class dTimer(PM):
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         print(args, kwargs)
         self._baseClass = dTimer
-        super(dTimer, self).__init__(preClass=None, parent=parent,
+        super(dTimer, self).__init__(wxClass=None, parent=parent,
                 properties=properties, *args, **kwargs)
 
 

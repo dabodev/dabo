@@ -28,7 +28,7 @@ class dPemMixin(dObject):
     _call_beforeInit, _call_afterInit, _call_initProperties = False, False, False
     _layout_on_set_caption = False
 
-    def __init__(self, preClass=None, parent=None, properties=None,
+    def __init__(self, wxClass=None, parent=None, properties=None,
             attProperties=None, _explicitName=None, srcCode=None, *args,
             **kwargs):
         # This is the major, common constructor code for all the dabo/ui/uiwx
@@ -47,23 +47,6 @@ class dPemMixin(dObject):
         self._transparencyDelay = 0.25
         # DataControl enabling/disabling helper attribute.
         self._uiDisabled = False
-        # There are a few controls that don't yet support 3-way inits (grid, for
-        # one). These controls will send the wx classref as the preClass argument,
-        # and we'll call __init__ on it when ready. We can tell if we are in a
-        # three-way init situation based on whether or not preClass is a function
-        # type.
-#        threeWayInit = (type(preClass) == types.FunctionType)
-        threeWayInit = bool(preClass)
-
-        # Dictionary to keep track of Dynamic properties
-        self._dynamic = {}
-        from dabo.ui.dMenuBar import dMenuBar
-        if threeWayInit:
-            # Instantiate the wx Pre object
-            print("3WAY", preClass)
-            pre = preClass()
-        else:
-            pre = None
 
         # Dictionary to keep track of Dynamic properties
         self._dynamic = {}
@@ -74,25 +57,20 @@ class dPemMixin(dObject):
         self._beforeInit()
         # If the _EventTarget property is passed, extract it before any of the other
         # property-processing code runs.
-        self._eventTarget = self._extractKey((properties, attProperties,
-                kwargs), "_EventTarget", defaultVal=self)
-
+        self._eventTarget = self._extractKey((properties, attProperties, kwargs), "_EventTarget",
+                defaultVal=self)
+    
         # Some kwargs are not passed as Dabo properties, but wx-specific
         # values. We need to separate these so that the code for processing
         # properties doesn't choke on them.
-
-        # Lots of useful wx props are actually only settable before the
-        # object is fully constructed. The self._preInitProperties dict keeps
-        # track of those during the pre-init phase, to finally send the
-        # contents of it to the wx constructor. Our property setters know
-        # if we are in pre-init or not, and instead of trying to modify
-        # the prop will instead add the appropriate entry to the _preInitProperties
-        # dict. Additionally, there are certain wx properties that are required,
-        # and we include those in the _preInitProperties dict as well so they may
-        # be modified by our pre-init method hooks if needed:
-        self._preInitProperties = {}
+        self._preInitProperties = {"parent": parent}
         for arg, default in (("style", 0), ("id", -1)):
-            self._preInitProperties[arg] = kwargs.pop(arg, default)
+            try:
+                self._preInitProperties[arg] = kwargs[arg]
+                del kwargs[arg]
+            except KeyError:
+                self._preInitProperties[arg] = default
+
         self._initProperties()
 
         # The keyword properties can come from either, both, or none of:
@@ -109,7 +87,13 @@ class dPemMixin(dObject):
         # Objects created from XML files will have their props passed
         # in the 'attProperties' parameter, in which all values are strings.
         # Convert these to the properties dict.
-        builtinNames = dir(__builtins__)
+
+        try:
+            builtinNames = list(__builtins__.keys())
+        except AttributeError:
+            # '__builtins__' is a module here
+            builtinNames = dir(__builtins__)
+
         if attProperties:
             for prop, val in list(attProperties.items()):
                 if prop in properties:
@@ -127,46 +111,6 @@ class dPemMixin(dObject):
                         attVal = val
                 properties[prop] = attVal
         properties = dictStringify(properties)
-        # Allow the object a chance to add any required parms, such as
-        # OptionGroup which needs a choices parm in order to instantiate.
-        kwargs = self._preInitUI(kwargs)
-
-        # Hacks to fix up various things:
-        from dabo.ui.dMenuBar import dMenuBar
-        from dabo.ui.dMenuItem import dMenuItem
-        from dabo.ui.dMenuItem import dSeparatorMenuItem
-        from dabo.ui.dMenu import dMenu
-        from dabo.ui.dSlidePanelControl import dSlidePanel
-        from dabo.ui.dSlidePanelControl import dSlidePanelControl
-        from dabo.ui.dToggleButton import dToggleButton
-        from dabo.ui.dBorderlessButton import dBorderlessButton
-        if isinstance(self, (dMenuItem, dSeparatorMenuItem)):
-            # Hack: wx.MenuItem doesn't take a style arg,
-            # and the parent arg is parentMenu.
-            self._preInitProperties.pop("style", None)
-            self._preInitProperties["parentMenu"] = parent
-            self._preInitProperties.pop("parent", None)
-            if isinstance(self, dSeparatorMenuItem):
-                self._preInitProperties.pop("id", None)
-                for remove in ("HelpText", "Icon", "kind"):
-                    self._extractKey((properties, self._properties, kwargs), remove)
-        elif isinstance(self, (dMenu, dMenuBar)):
-            # Hack: wx.Menu has no style, parent, or id arg.
-            self._preInitProperties.pop("style", None)
-            self._preInitProperties.pop("id", None)
-            self._preInitProperties.pop("parent", None)
-        elif isinstance(self, (wx.Timer, )):
-            self._preInitProperties.pop("style", None)
-            self._preInitProperties.pop("id", None)
-            self._preInitProperties.pop("parent", None)
-        elif isinstance(self, (dSlidePanel, dSlidePanelControl)):
-            # Hack: the Slide Panel classes have no style arg.
-            self._preInitProperties.pop("style", None)
-            # This is needed because these classes require a 'parent' param.
-            kwargs["parent"] = parent
-        elif isinstance(self, (wx.lib.platebtn.PlateButton)):
-            self._preInitProperties["id_"] = self._preInitProperties["id"]
-            self._preInitProperties.pop("id", None)
 
         # This is needed when running from a saved design file
         self._extractKey((properties, self._properties), "designerClass")
@@ -175,42 +119,29 @@ class dPemMixin(dObject):
         # Remove the CxnFile property that is no longer used
         self._extractKey((properties, self._properties), "CxnFile")
 
-        # The user's subclass code has had a chance to tweak the init
-        # properties. Insert any of those into the arguments to send to the wx
-        # constructor:
+        # The user's subclass code has had a chance to tweak the init properties.
+        # Insert any of those into the arguments to send to the wx constructor:
         properties = self._setInitProperties(**properties)
+        # Allow the object a chance to add any required parms, such as OptionGroup
+        # which needs a choices parm in order to instantiate.
+        kwargs = self._preInitUI(kwargs)
+        if wxClass:
+            wxProps, kwargs = self._fixWxProps(properties,
+                    self._preInitProperties, **kwargs)
+            wxClass.__init__(self, **wxProps)
 
-        # Do the init:
-        if threeWayInit:
-            preKwargs = self._preInitProperties
-            print("PRECREATE", args, preKwargs, self)
-            pre.Create(parent, *args, **preKwargs)
-        elif preClass is None:
-            pass
-        else:
-            preClass.__init__(self, *args, **kwargs)
-
-        if threeWayInit:
-            self.PostCreate(pre)
-
-        print("SUPERPEM KWARGS", kwargs, self)
-        super(dPemMixin, self).__init__(parent=parent, *args, **kwargs)
+        super(dPemMixin, self).__init__(*args, **kwargs)
         self._pemObject = self
 
         if self._constructed():
             # (some objects could have overridden _constructed() and don't want
             # us to call _setNameAndProperties() here..)
-            self._setNameAndProperties(properties, **kwargs)
+            all_kwargs = copy.deepcopy(kwargs)
+            all_kwargs["_explicitName"] = _explicitName
+            self._setNameAndProperties(properties, **all_kwargs)
 
         self._initEvents()
         self._afterInit()
-
-#        if self._constructed():
-#            # (some objects could have overridden _constructed() and don't want
-#            # us to call _setNameAndProperties() here..)
-#            all_kwargs = copy.deepcopy(kwargs)
-#            all_kwargs["_explicitName"] = _explicitName
-#            self._setNameAndProperties(properties, **all_kwargs)
 
         if dabo.fastNameSet:
             # Event AutoBinding is set to happen when the Name property changes, but
@@ -227,7 +158,51 @@ class dPemMixin(dObject):
 
         # Finally, at the end of the init cycle, raise the Create event
         self.raiseEvent(dEvents.Create)
-        print("PEMINIT DONE", self)
+
+
+    def _fixWxProps(self, properties, preProps, **kwargs):
+        # Hacks to fix up various things:
+        from dabo.ui.dBorderlessButton import dBorderlessButton
+        from dabo.ui.dMenu import dMenu
+        from dabo.ui.dMenuBar import dMenuBar
+        from dabo.ui.dMenuItem import dMenuItem
+        from dabo.ui.dMenuItem import dSeparatorMenuItem
+        from dabo.ui.dSlidePanelControl import dSlidePanel
+        from dabo.ui.dSlidePanelControl import dSlidePanelControl
+        from dabo.ui.dToggleButton import dToggleButton
+        if isinstance(self, (dMenuItem, dSeparatorMenuItem)):
+            # Hack: wx.MenuItem doesn't take a style arg,
+            # and the parent arg is parentMenu.
+            del preProps["style"]
+            del preProps["parent"]
+            if "kind" in kwargs:
+                preProps["kind"] = kwargs.pop("kind")
+            if "text" in kwargs:
+                preProps["text"] = kwargs.pop("text")
+            if isinstance(self, dSeparatorMenuItem):
+                del(preProps["id"])
+                for remove in ("HelpText", "Icon", "kind"):
+                    self._extractKey((properties, self._properties, kwargs), remove)
+        elif isinstance(self, (dMenu, dMenuBar)):
+            # Hack: wx.Menu has no style, parent, or id arg.
+            del(preProps["style"])
+            del(preProps["id"])
+            del(preProps["parent"])
+        elif isinstance(self, (wx.Timer, )):
+            del(preProps["style"])
+            del(preProps["id"])
+            del(preProps["parent"])
+        elif isinstance(self, (dSlidePanel, dSlidePanelControl)):
+            # Hack: the Slide Panel classes have no style arg.
+            del preProps["style"]
+            # This is needed because these classes require a 'parent' param.
+            kwargs["parent"] = preProps["parent"]
+        elif isinstance(self, (wx.lib.platebtn.PlateButton)):
+            preProps["id_"] = preProps["id"]
+            del preProps["id"]
+        # Add the kwargs to the preProps
+        preProps.update(kwargs)
+        return preProps, kwargs
 
 
     def getPropertyInfo(cls, name):
@@ -241,7 +216,7 @@ class dPemMixin(dObject):
             name = self.Name
         try:
             self._setName(name, _userExplicit=_explicitName)
-        except (AttributeError, RuntimeError):
+        except AttributeError:
             # Some toolkits (Tkinter) don't let objects change their
             # names after instantiation.
             pass
@@ -449,7 +424,6 @@ class dPemMixin(dObject):
 
 
     def _afterInit(self):
-        print("_AFTERINIT", self)
         if not wx.HelpProvider.Get():
             # The app hasn't set a help provider, and one is needed
             # to be able to save/restore help text.
@@ -950,7 +924,7 @@ class dPemMixin(dObject):
         """Override the default behavior to return the wxPython ID."""
         try:
             ret = self.GetId()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             # Object doesn't support GetID(), which includes trying
             # to get the id of a not-yet-fully-instantiated wxPython
             # object.
@@ -2642,7 +2616,7 @@ class dPemMixin(dObject):
     def _getName(self):
         try:
             name = self.GetName()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             # Some objects that inherit from dPemMixin (dMenu*) don't have GetName()
             # or SetName() methods. Or, the wxPython object isn't fully
             # instantiated yet.
@@ -2667,7 +2641,7 @@ class dPemMixin(dObject):
                 self._name = name
                 try:
                     self.SetName(name)
-                except (AttributeError, RuntimeError):
+                except AttributeError:
                     # Some objects that inherit from dPemMixin do not implement SetName().
                     pass
                 try:
@@ -2756,7 +2730,7 @@ class dPemMixin(dObject):
     def _getParent(self):
         try:
             return self.GetParent()
-        except (TypeError, RuntimeError):
+        except TypeError:
             return None
 
     def _setParent(self, val):

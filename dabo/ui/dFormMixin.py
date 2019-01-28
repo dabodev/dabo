@@ -20,9 +20,8 @@ from dabo.ui import makeDynamicProperty
 
 
 class dFormMixin(dPemMixin):
-    def __init__(self, preClass, parent=None, properties=None, attProperties=None,
+    def __init__(self, wxClass, parent=None, properties=None, attProperties=None,
             src=None, *args, **kwargs):
-        print("dFormMixin INIT")
         self._cxnName = ""
         self._connection = None
         self._floatingPanel = None
@@ -77,10 +76,8 @@ class dFormMixin(dPemMixin):
         # Flag to prevent infinite loops when doing field-level validation
         self._fieldValidationControl = None
 
-        super(dFormMixin, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
-        print("dFormMixin SUPER called")
+        super(dFormMixin, self).__init__(wxClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
         dui.callAfter(self._createStatusBar)
         self._createToolBar()
@@ -98,9 +95,9 @@ class dFormMixin(dPemMixin):
         mbc = self.MenuBarClass
         if app and mbc and self.ShowMenuBar:
             if isinstance(mbc, str):
-                self.MenuBar = dui.createMenuBar(mbc, parent=self)
+                self.MenuBar = dui.createMenuBar(mbc, self)
             else:
-                self.MenuBar = mbc(parent=self)
+                self.MenuBar = mbc()
             self.afterSetMenuBar()
         if not self.Icon:
             if app:

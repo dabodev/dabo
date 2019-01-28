@@ -14,8 +14,8 @@ class dCheckList(dControlItemMixin, wx.CheckListBox):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dCheckList
         self._choices = []
-        preClass = wx.CheckListBox
-        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
+        wxClass = wx.CheckListBox
+        dControlItemMixin.__init__(self, wxClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

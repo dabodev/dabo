@@ -22,9 +22,8 @@ class BaseForm(dFormMixin):
     dForm knows how to handle one or more dBizobjs, providing proxy methods
     like next(), last(), save(), and requery().
     """
-    def __init__(self, preClass, parent, properties, attProperties, *args,
+    def __init__(self, wxClass, parent, properties, attProperties, *args,
             **kwargs):
-        print("BaseForm INIT")
         self.bizobjs = {}
         self._primaryBizobj = None
         self._dataUpdateDelay = 100
@@ -39,9 +38,8 @@ class BaseForm(dFormMixin):
         # or a requery is about to happen.
         self._checkForChanges = True
 
-        super(BaseForm, self).__init__(preClass, parent, properties=properties,
+        dFormMixin.__init__(self, wxClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
-        print("BaseForm SUPER called")
 
         # Used to override some cases where the status
         # text should be displayed despite other processes
@@ -1023,32 +1021,30 @@ Database error message: %s""") %     err
 class dForm(BaseForm, wx.Frame):
     def __init__(self, parent=None, properties=None, attProperties=None, *args,
             **kwargs):
-        print("dForm INIT")
         self._baseClass = dForm
         self._mdi = False
         if kwargs.pop("Modal", False):
             # Hack this into a wx.Dialog, for true modality
             dForm._hackToDialog()
-            preClass = wx.Dialog
+            wxClass = wx.Dialog
             self._modal = True
         else:
             # Normal dForm
             if dabo.MDI and isinstance(parent, wx.MDIParentFrame):
                 # Hack this into an MDI Child:
                 self._mdi = True
-                preClass = wx.MDIChildFrame
+                wxClass = wx.MDIChildFrame
             else:
                 # This is a normal SDI form:
                 self._mdi = False
-                preClass = wx.Frame
+                wxClass = wx.Frame
             dForm._hackToFrame()
 
         ## (Note that it is necessary to run the above blocks each time, because
         ##  we are modifying the dForm class definition globally.)
-        super(dForm, self).__init__(preClass, parent=parent,
+        super(dForm, self).__init__(wxClass, parent=parent,
                 properties=properties, attProperties=attProperties,
                 *args, **kwargs)
-        print("dForm SUPER called")
         dForm._hackToFrame()
 
 

@@ -24,8 +24,9 @@ def dict_factory(cursor, row):
 
 
 class DictCursor(dbapi.Cursor):
-    def __init__(self, connection=None, *args, **kwargs):
-        super(DictCursor, self).__init__(connection, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+#                dbapi.Cursor.__init__(self, *args, **kwargs)
+        super(DictCursor, self).__init__(*args, **kwargs)
         self.row_factory = dict_factory
 
 

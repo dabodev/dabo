@@ -145,8 +145,8 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         # Default to not showing the context menus on the panels
         self._showPanelSplitMenu = False
 
-        preClass = wx.SplitterWindow
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
+        wxClass = wx.SplitterWindow
+        dControlMixin.__init__(self, wxClass, parent, properties=properties,
                 attProperties=attProperties, style=style, *args, **kwargs)
 
 

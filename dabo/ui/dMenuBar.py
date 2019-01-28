@@ -15,11 +15,10 @@ class dMenuBar(dPemMixin, wx.MenuBar):
     which will give you a dMenuBar with the standard File, Edit, and Help
     menus already set up for you.
     """
-    def __init__(self, parent=None, properties=None, *args, **kwargs):
+    def __init__(self, properties=None, *args, **kwargs):
         self._baseClass = dMenuBar
-        preClass = None
-        super(dMenuBar, self).__init__(preClass, parent=parent,
-                properties=properties, *args, **kwargs)
+        wxClass = wx.MenuBar
+        dPemMixin.__init__(self, wxClass, None, properties, *args, **kwargs)
 
 
     def _initEvents(self):
