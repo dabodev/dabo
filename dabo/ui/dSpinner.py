@@ -23,9 +23,9 @@ class _dSpinButton(dDataControlMixin, wx.SpinButton):
     """Simple wrapper around the base wx.SpinButton."""
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = _dSpinButton
-        wxClass = wx.SpinButton
+        preClass = wx.SpinButton
         kwargs["style"] = kwargs.get("style", 0) | wx.SP_ARROW_KEYS
-        dDataControlMixin.__init__(self, wxClass, parent, properties=properties,
+        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
         if sys.platform.startswith("win"):
             # otherwise, the arrows are way too wide (34)

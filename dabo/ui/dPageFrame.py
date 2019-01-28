@@ -52,9 +52,9 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dPageFrame
-        wxClass = wx.Notebook
+        preClass = wx.Notebook
 
-        dPageFrameMixin.__init__(self, wxClass, parent, properties=properties,
+        dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
     def _afterInit(self):
@@ -74,9 +74,9 @@ class dPageToolBar(dPageFrameMixin, wx.Toolbook):
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dPageToolBar
-        wxClass = wx.Toolbook
+        preClass = wx.Toolbook
 
-        dPageFrameMixin.__init__(self, wxClass, parent, properties=properties,
+        dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
     def _afterInit(self):
@@ -130,10 +130,10 @@ class dPageList(dPageFrameMixin, wx.Listbook):
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dPageList
-        wxClass = wx.Listbook
+        preClass = wx.Listbook
         # Dictionary for tracking images by key value
         self._imageList = {}
-        dPageFrameMixin.__init__(self, wxClass, parent, properties=properties,
+        dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
         self.Bind(wx.EVT_LIST_ITEM_MIDDLE_CLICK, self.__onWxMiddleClick)
@@ -191,8 +191,8 @@ class dPageSelect(dPageFrameMixin, wx.Choicebook):
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dPageSelect
-        wxClass = wx.Choicebook
-        dPageFrameMixin.__init__(self, wxClass, parent, properties=properties,
+        preClass = wx.Choicebook
+        dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
         # Dictionary for tracking images by key value
         self._imageList = {}
@@ -225,7 +225,7 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dDockTabs
-        wxClass = aui.AuiNotebook
+        preClass = aui.AuiNotebook
 
         newStyle = (aui.AUI_NB_TOP | aui.AUI_NB_SCROLL_BUTTONS)
         self._movableTabs = self._extractKey((properties, attProperties, kwargs), "MovableTabs", True)
@@ -238,7 +238,7 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
             kwargs["agwStyle"] = newStyle
         else:
             kwargs["style"] = newStyle
-        dPageFrameMixin.__init__(self, wxClass, parent, properties=properties,
+        dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 
@@ -308,13 +308,13 @@ if _USE_FLAT:
 
         def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
             self._baseClass = dPageStyled
-            wxClass = fnb.FlatNotebook
+            preClass = fnb.FlatNotebook
             # For some reason this class always opens to the *last* page, unlike all other
             # paged controls. This will make it open to the first page, unless otherwise
             # explicitly set.
             selpg = int(self._extractKey((properties, attProperties, kwargs), "SelectedPageNumber",
                     defaultVal=0))
-            dPageFrameMixin.__init__(self, wxClass, parent, properties=properties,
+            dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
                     attProperties=attProperties, *args, **kwargs)
             dui.setAfter(self, "SelectedPageNumber", selpg)
 

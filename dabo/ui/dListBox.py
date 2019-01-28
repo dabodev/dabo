@@ -12,8 +12,8 @@ class dListBox(dControlItemMixin, wx.ListBox):
         self._baseClass = dListBox
         self._choices = []
 
-        wxClass = wx.ListBox
-        dControlItemMixin.__init__(self, wxClass, parent, properties=properties,
+        preClass = wx.ListBox
+        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

@@ -7,15 +7,17 @@ from dabo.ui.dFormMixin import dFormMixin
 
 class dFormMainBase(dFormMixin):
     """This is the main top-level form for the application."""
-    def __init__(self, wxClass, parent=None, properties=None, *args, **kwargs):
-        dFormMixin.__init__(self, wxClass, parent, properties, *args, **kwargs)
+    def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
+        print("dFormMainBase INIT")
+        super(dFormMainBase, self).__init__(preClass, parent, properties,
+                *args, **kwargs)
+        print("dFormMainBase SUPER called")
 
 
     def _beforeClose(self, evt=None):
         # In wxPython 4.x, a 'dead object' is now a logical False.
         forms2close = [frm for frm in self.Application.uiForms
                 if frm and frm is not self]
-                # if frm is not self and not isinstance(frm, dabo.ui.deadObject)]
         while forms2close:
             frm = forms2close[0]
             # This will allow forms to veto closing (i.e., user doesn't
@@ -32,6 +34,7 @@ class dFormMainBase(dFormMixin):
 
 class dFormMain(dFormMainBase, wx.Frame):
     def __init__(self, parent=None, properties=None, *args, **kwargs):
+        print("dFormMain INIT")
         self._baseClass = dFormMain
 
         if dabo.MDI:
@@ -46,7 +49,7 @@ class dFormMain(dFormMainBase, wx.Frame):
         ##  we are modifying the dFormMain class definition globally.)
 
         super(dFormMain, self).__init__(parent, properties, *args, **kwargs)
-#        dFormMainBase.__init__(self, wxClass, parent, properties, *args, **kwargs)
+        print("dFormMain SUPER called")
 
 
 if __name__ == "__main__":

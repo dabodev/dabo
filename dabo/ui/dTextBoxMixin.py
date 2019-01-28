@@ -27,7 +27,7 @@ from dabo.ui.dDataControlMixin import dDataControlMixin
 
 
 class dTextBoxMixinBase(dDataControlMixin):
-    def __init__(self, wxClass, parent, properties=None, attProperties=None, *args, **kwargs):
+    def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
         global decimalPoint
         if decimalPoint is None:
             decimalPoint = locale.localeconv()["decimal_point"]
@@ -39,7 +39,7 @@ class dTextBoxMixinBase(dDataControlMixin):
         self._inTextLength = False
         self._flushOnLostFocus = True  ## see dabo.ui.dDataControlMixinBase::flushValue()
 
-        super(dTextBoxMixinBase, self).__init__(wxClass, parent,
+        super(dTextBoxMixinBase, self).__init__(preClass, parent,
                 properties=properties, attProperties=attProperties, *args,
                 **kwargs)
 
@@ -472,11 +472,11 @@ class dTextBoxMixinBase(dDataControlMixin):
 
 
 class dTextBoxMixin(dTextBoxMixinBase):
-    def __init__(self, wxClass, parent, properties=None, attProperties=None, *args, **kwargs):
+    def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
         self._dregex = {}
         self._lastDataType = str
 
-        super(dTextBoxMixin, self).__init__(wxClass, parent,
+        super(dTextBoxMixin, self).__init__(preClass, parent,
                 properties=properties, attProperties=attProperties, *args,
                 **kwargs)
 

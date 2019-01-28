@@ -15,8 +15,8 @@ class dSearchBox(dTextBoxMixin, wx.SearchCtrl):
         self._list = []
         self._cancelVisible = False
         self._searchVisible = True
-        wxClass = wx.SearchCtrl
-        dTextBoxMixin.__init__(self, wxClass, parent, properties=properties,
+        preClass = wx.SearchCtrl
+        dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
     def _initEvents(self):

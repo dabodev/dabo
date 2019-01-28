@@ -17,9 +17,9 @@ MSG_SMART_FOCUS_ABUSE = _("The '%s' control must inherit from dPage to use the U
 class dPageFrameMixin(dControlMixin):
     """Creates a container for an unlimited number of pages."""
 
-    def __init__(self, wxClass, parent, properties=None, attProperties=None, *args, **kwargs):
+    def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
         kwargs["style"] = self._extractKey((properties, kwargs), "style", 0) | wx.CLIP_CHILDREN
-        super(dPageFrameMixin, self).__init__(wxClass, parent, properties=properties,
+        super(dPageFrameMixin, self).__init__(preClass, parent, properties=properties,
             attProperties=attProperties, *args, **kwargs)
 
 

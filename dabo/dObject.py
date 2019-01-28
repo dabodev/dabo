@@ -24,7 +24,8 @@ class dObject(PropertyHelperMixin, EventMixin):
     _call_beforeInit, _call_afterInit, _call_initProperties = True, True, True
 
 
-    def __init__(self, properties=None, attProperties=None, *args, **kwargs):
+    def __init__(self, parent=None, properties=None, attProperties=None, *args,
+            **kwargs):
         if not hasattr(self, "_properties"):
             self._properties = {}
         if self._call_beforeInit:
@@ -78,10 +79,14 @@ class dObject(PropertyHelperMixin, EventMixin):
         if kwargs:
             # Some kwargs haven't been handled.
             bad = ", ".join(["'%s'" % kk for kk in kwargs])
-            raise TypeError("Invalid keyword arguments passed to %s: %s" % (self.__repr__(), bad))
+            # When we get the super() calls straightened out, we can change the
+            # back to an exception. For now, though, just print and move on.
+            # raise TypeError("Invalid keyword arguments passed to %s: %s" % (
+            #         self.__repr__(), bad))
+            print("Invalid keyword arguments passed to %s: %s" % (
+                    self.__repr__(), bad))
 
-        PropertyHelperMixin.__init__(self)
-        EventMixin.__init__(self)
+        super(dObject, self).__init__(*args, **kwargs)
         if self._call_afterInit:
             self._afterInit()
         self.setProperties(properties)
@@ -106,7 +111,7 @@ class dObject(PropertyHelperMixin, EventMixin):
 
         try:
             nm = self.Name
-        except AttributeError:
+        except (AttributeError, RuntimeError):
             nm = ""
 
         regid = getattr(self, "RegID", "")

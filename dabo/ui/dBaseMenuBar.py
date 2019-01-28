@@ -34,23 +34,24 @@ class FileMenu(dMenu):
             self.Parent.commandWinMenuItem = self.append(_("Command Win&dow"), HotKey="Ctrl+D",
                     OnHit=app.onCmdWin, bmp="%s/apps/utilities-terminal.png" % iconPath,
                     ItemID="file_commandwin",
-                    help=_("Open up a command window for debugging"))
+                    HelpText=_("Open up a command window for debugging"))
 
-            self.Parent.debugMenuItem = self.append(_("De&bug Output Window"), menutype="check",
-                    bmp="%s/apps/utilities-terminal.png" % iconPath, HotKey="Ctrl+B",
-                    OnHit=app.onDebugWin, ItemID="file_debugwin",
-                    help=_("Open up a debug output window"))
+            self.Parent.debugMenuItem = self.append(_("De&bug Output Window"),
+                    menutype="check", bmp="%s/apps/utilities-terminal.png" %
+                    iconPath, HotKey="Ctrl+B", OnHit=app.onDebugWin,
+                    ItemID="file_debugwin",
+                    HelpText=_("Open up a debug output window"))
             self.Parent.debugMenuItem.Checked = True
 
             self.Parent.inspectorMenuItem = self.append(_("Object &Inspector"), HotKey="Ctrl+Shift+I",
                     OnHit=app.onObjectInspectorWin, bmp="%s/apps/system-search.png" % iconPath,
                     ItemID="file_inspectorwin", menutype="check",
-                    help=_("Open up the object inspector"))
+                    HelpText=_("Open up the object inspector"))
 
         prmpt = _("Close Windo&w")
         self.Parent.closeWindowMenuItem = self.append(prmpt, HotKey="Ctrl+W", OnHit=app.onWinClose,
                 ItemID="file_close",
-                help=_("Close the current window"))
+                HelpText=_("Close the current window"))
 
         self.appendSeparator()
 
@@ -58,7 +59,7 @@ class FileMenu(dMenu):
         self.Parent.quitMenuItem = self.append(prmpt, HotKey="Ctrl+Q", id=wx.ID_EXIT, OnHit=app.onFileExit,
                 bmp="%s/actions/system-log-out.png" % iconPath,
                 ItemID="file_quit",
-                help=_("Exit the application"))
+                HelpText=_("Exit the application"))
 
 
 
@@ -71,34 +72,34 @@ class EditMenu(dMenu):
         self.Parent.undoMenuItem = self.append(_("&Undo"), HotKey="Ctrl+Z", OnHit=app.onEditUndo,
                 bmp="%s/actions/edit-undo.png" % iconPath,
                 ItemID="edit_undo",
-                help=_("Undo last action"))
+                HelpText=_("Undo last action"))
 
         self.Parent.redoMenuItem = self.append(_("&Redo"), HotKey="Ctrl+Shift+Z", OnHit=app.onEditRedo,
                 bmp="%s/actions/edit-redo.png" % iconPath,
                 ItemID="edit_redo",
-                help=_("Undo last undo"))
+                HelpText=_("Undo last undo"))
 
         self.appendSeparator()
 
         self.Parent.cutMenuItem = self.append(_("Cu&t"), HotKey="Ctrl+X", OnHit=app.onEditCut,
                 bmp="%s/actions/edit-cut.png" % iconPath,
                 ItemID="edit_cut",
-                help=_("Cut selected text"))
+                HelpText=_("Cut selected text"))
 
         self.Parent.copyMenuItem = self.append(_("&Copy"), HotKey="Ctrl+C", OnHit=app.onEditCopy,
                 bmp="%s/actions/edit-copy.png" % iconPath,
                 ItemID="edit_copy",
-                help=_("Copy selected text"))
+                HelpText=_("Copy selected text"))
 
         self.Parent.pasteMenuItem = self.append(_("&Paste"), HotKey="Ctrl+V", OnHit=app.onEditPaste,
                 bmp="%s/actions/edit-paste.png" % iconPath,
                 ItemID="edit_paste",
-                help=_("Paste text from clipboard"))
+                HelpText=_("Paste text from clipboard"))
 
         self.Parent.selectAllMenuItem = self.append(_("Select &All"), HotKey="Ctrl+A", OnHit=app.onEditSelectAll,
                 bmp="%s/actions/edit-select-all.png" % iconPath,
                 ItemID="edit_selectall",
-                help=_("Select all text"))
+                HelpText=_("Select all text"))
 
         self.appendSeparator()
 
@@ -107,18 +108,18 @@ class EditMenu(dMenu):
         self.Parent.findReplaceMenuItem = self.append(_("&Find / Replace"), HotKey="Ctrl+F", OnHit=app.onEditFind,
                 bmp="%s/actions/edit-find-replace.png" % iconPath,
                 ItemID="edit_findreplace",
-                help=_("Find or Replace text in the active window"))
+                HelpText=_("Find or Replace text in the active window"))
 
         self.Parent.findAgainMenuItem = self.append(_("Find A&gain"), HotKey="Ctrl+G", OnHit=app.onEditFindAgain, bmp="",
                 ItemID="edit_findagain",
-                help=_("Repeat the last search"))
+                HelpText=_("Repeat the last search"))
 
         self.appendSeparator()
 
         self.Parent.preferencesMenuItem = self.append(_("Pr&eferences"), OnHit=app.onEditPreferences,
                 bmp="%s/categories/preferences-system.png" % iconPath,
                 ItemID="edit_preferences",
-                help=_("Set user preferences"), special="pref" )
+                HelpText=_("Set user preferences"), special="pref" )
 
 
 
@@ -130,22 +131,22 @@ class ViewMenu(dMenu):
         self.Parent.increaseFontSizeMenuItem = self.append(_("Increase Font Size"),
                 HotKey="Ctrl++",
                 ItemID="view_zoomin", OnHit=app.fontZoomIn,
-                help=_("Increase the font size"))
+                HelpText=_("Increase the font size"))
         self.Parent.decreaseFontSizeMenuItem = self.append(_("Decrease Font Size"),
                 HotKey="Ctrl+-",
                 ItemID="view_zoomout", OnHit=app.fontZoomOut,
-                help=_("Decrease the font size"))
+                HelpText=_("Decrease the font size"))
         self.Parent.normalFontSizeMenuItem = self.append(_("Normal Font Size"),
                 HotKey="Ctrl+/",
                 ItemID="view_zoomnormal", OnHit=app.fontZoomNormal,
-                help=_("Set font size to normal"))
+                HelpText=_("Set font size to normal"))
 
         if app.ShowSizerLinesMenu:
             self.appendSeparator()
             self.Parent.sizerLinesMenuItem = self.append(_("Show/Hide Sizer &Lines"), HotKey="Ctrl+L",
                     OnHit=app.onShowSizerLines, menutype="check",
                     ItemID="view_showsizerlines",
-                    help=_("Cool sizer visualizing feature; check it out!"))
+                    HelpText=_("Cool sizer visualizing feature; check it out!"))
 
 
 class HelpMenu(dMenu):
@@ -162,15 +163,15 @@ class HelpMenu(dMenu):
         self.Parent.aboutMenuItem = self.append(caption, id=wx.ID_ABOUT,
                 OnHit=app.onHelpAbout,
                 ItemID="help_about",
-                help=_("About this application"))
+                HelpText=_("About this application"))
 
 
 class dBaseMenuBar(dMenuBar):
     """
-    Creates a basic menu bar with File, Edit, and Help menus.
+    Creates a basic menu bar with File, Edit, and HelpText menus.
 
-    The Edit menu has standard Copy, Cut, and Paste menu items, and the Help menu
-    has an About menu item. On Mac, the About menu item and Help menu are moved
+    The Edit menu has standard Copy, Cut, and Paste menu items, and the HelpText menu
+    has an About menu item. On Mac, the About menu item and HelpText menu are moved
     to the appropriate place in the application menu.
 
     Typical usage would be to instantiate dBaseMenuBar, set it to your form's

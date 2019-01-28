@@ -26,8 +26,8 @@ daboNames = list(dabo_to_wx.items())
 daboNames.sort()
 
 for k,v in dabo_to_wx.items():
-    wxClasses = wx_to_dabo.setdefault(v, [])
-    wxClasses.append(k)
+    preClasses = wx_to_dabo.setdefault(v, [])
+    preClasses.append(k)
 
 #wxNames = dict([[v,k] for k,v in dabo_to_wx.iteritems()]).items()
 wxNames = list(wx_to_dabo.items())

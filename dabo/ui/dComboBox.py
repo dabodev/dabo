@@ -28,8 +28,8 @@ class dComboBox(dControlItemMixin, wx.ComboBox):
         # Holds the text to be appended
         self._textToAppend = ""
 
-        wxClass = wx.ComboBox
-        dControlItemMixin.__init__(self, wxClass, parent, properties=properties,
+        preClass = wx.ComboBox
+        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

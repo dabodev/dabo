@@ -1393,17 +1393,19 @@ def createForm(srcFile, show=False, *args, **kwargs):
     return frm
 
 
-def createMenuBar(src, form=None, previewFunc=None):
+def createMenuBar(src, parent=None, previewFunc=None):
     """
-    Pass in either an .mnxml file path saved from the Menu Designer, or a dict representing
-    the menu, which will be used to instantiate a MenuBar. Returns a reference to the
-    newly-created MenuBar. You can optionally pass in a reference to the form to which this menu
-    is associated, so that you can enter strings that represent form functions in the Designer,
-    such as 'form.close', which will call the associated form's close() method. If 'previewFunc'
-    is passed, the menu command that would have been eval'd and executed on a live menu will
-    instead be passed back as a parameter to that function.
+    Pass in either an .mnxml file path saved from the Menu Designer, or a dict
+    representing the menu, which will be used to instantiate a MenuBar. Returns
+    a reference to the newly-created MenuBar. You can optionally pass in a
+    reference to the form to which this menu is associated, so that you can
+    enter strings that represent form functions in the Designer, such as
+    'form.close', which will call the associated form's close() method. If
+    'previewFunc' is passed, the menu command that would have been eval'd and
+    executed on a live menu will instead be passed back as a parameter to that
+    function.
     """
-    def addMenu(mb, menuDict, form, previewFunc):
+    def addMenu(mb, parent, menuDict, previewFunc):
         if form is None:
             form = dabo.dAppRef.ActiveForm
         if isinstance(mb, dabo.ui.dMenuBar.dMenuBar):
@@ -1427,7 +1429,7 @@ def createMenuBar(src, form=None, previewFunc=None):
             if "Separator" in itm["name"]:
                 menu.appendSeparator()
             elif itm["name"] == "MenuPanel":
-                addMenu(menu, itm, form, previewFunc)
+                addMenu(menu, parent, itm, previewFunc)
             else:
                 itmatts = itm["attributes"]
                 cap = menu._extractKey(itmatts, "Caption")
@@ -1468,9 +1470,9 @@ def createMenuBar(src, form=None, previewFunc=None):
                 stop(e, _("File Not Found"))
                 return
         mnd = dabo.lib.xmltodict.xmltodict(src)
-    mb = dabo.ui.dMenuBar.dMenuBar()
+    mb = dabo.ui.dMenuBar.dMenuBar(parent=parent)
     for mn in mnd["children"]:
-        addMenu(mb, mn, form, previewFunc)
+        addMenu(mb, parent, mn, previewFunc)
     return mb
 
 

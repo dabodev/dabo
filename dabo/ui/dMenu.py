@@ -23,7 +23,7 @@ class dMenu(dPemMixin, wx.Menu):
     """
     def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dMenu
-        preClass = wx.Menu
+        preClass = None
         self.Parent = parent
         self._useMRU = self._extractKey(attProperties, "MRU", None)
         if self._useMRU is not None:
@@ -167,8 +167,7 @@ class dMenu(dPemMixin, wx.Menu):
         dummySpacer = None
         if not self.Children:
             dummySpacer = self.append(" ")
-        wxMenuItem = self.AppendMenu(-1, menu.Caption, menu, help=menu.HelpText)
-#-         wxMenuItem = self.AppendSubMenu(menu, menu.Caption, help=menu.HelpText)
+        wxMenuItem = self.AppendMenu(-1, menu.Caption, menu, helpString=menu.HelpText)
         menu._setId(wxMenuItem.GetId())
         menu.Parent = self
         self._daboChildren[wxMenuItem.GetId()] = menu
@@ -179,7 +178,7 @@ class dMenu(dPemMixin, wx.Menu):
 
     def insertMenu(self, pos, menu):
         """Insert a dMenu before the specified position in the menu."""
-        wxMenuItem = self.InsertMenu(pos, -1, menu.Caption, menu, help=menu.HelpText)
+        wxMenuItem = self.InsertMenu(pos, -1, menu.Caption, menu, helpString=menu.HelpText)
         menu._setId(wxMenuItem.GetId())
         menu.Parent = self
         self._daboChildren[wxMenuItem.GetId()] = menu
@@ -188,7 +187,7 @@ class dMenu(dPemMixin, wx.Menu):
 
     def prependMenu(self, menu):
         """Insert a dMenu at the top of the menu."""
-        wxMenuItem = self.PrependMenu(-1, menu.Caption, menu, help=menu.HelpText)
+        wxMenuItem = self.PrependMenu(-1, menu.Caption, menu, helpString=menu.HelpText)
         menu._setId(wxMenuItem.GetId())
         menu.Parent = self
         self._daboChildren[wxMenuItem.GetId()] = menu
@@ -197,7 +196,7 @@ class dMenu(dPemMixin, wx.Menu):
 
     def appendSeparator(self):
         """Insert a separator at the bottom of the menu."""
-        return self._createMenuItem(None, caption=None, help=None, bmp=None, picture=None,
+        return self._createMenuItem(None, caption=None, HelpText=None, bmp=None, picture=None,
                 menutype="separator")
 
 
@@ -211,13 +210,13 @@ class dMenu(dPemMixin, wx.Menu):
         return self.PrependSeparator()
 
 
-    def _createMenuItem(self, pos, caption, help, bmp, picture, menutype, *args, **kwargs):
+    def _createMenuItem(self, pos, caption, HelpText, bmp, picture, menutype, *args, **kwargs):
         """Handles the menu item creation for append(), insert() and prepend()."""
         if pos is None:
             pos = len(self.Children)
         if picture is None:
             picture = bmp
-        def _actualCreation(caption, help, picture, menutype, *args, **kwargs):
+        def _actualCreation(caption, HelpText, picture, menutype, *args, **kwargs):
             if caption:
                 hk = kwargs.get("HotKey", "")
                 if hk:
@@ -225,7 +224,7 @@ class dMenu(dPemMixin, wx.Menu):
                 else:
                     cap = caption
                 kwargs["text"] = cap
-            _item = self._getItem(help, picture, menutype, *args, **kwargs)
+            _item = self._getItem(HelpText, picture, menutype, *args, **kwargs)
             self.insertItem(pos, _item)
             _item.Caption = caption
             return _item
@@ -233,11 +232,11 @@ class dMenu(dPemMixin, wx.Menu):
         if not self.Children:
             dummySpacer = _actualCreation(" ", "", None, "")
             dabo.ui.callAfter(self.remove, dummySpacer)
-        item = _actualCreation(caption, help, picture, menutype, *args, **kwargs)
+        item = _actualCreation(caption, HelpText, picture, menutype, *args, **kwargs)
         return item
 
 
-    def append(self, caption, help="", bmp=None, picture=None,
+    def append(self, caption, HelpText="", bmp=None, picture=None,
             menutype="", *args, **kwargs):
         """
         Append a dMenuItem with the specified properties.
@@ -249,11 +248,11 @@ class dMenu(dPemMixin, wx.Menu):
         of the dMenuItem: if valid property names/values, the dMenuItem will take
         them on; if not valid, an exception will be raised.
         """
-        return self._createMenuItem(None, caption=caption, help=help, bmp=bmp, picture=picture,
+        return self._createMenuItem(None, caption=caption, HelpText=HelpText, bmp=bmp, picture=picture,
                 menutype=menutype, *args, **kwargs)
 
 
-    def insert(self, pos, caption, help="", bmp=None, picture=None,
+    def insert(self, pos, caption, HelpText="", bmp=None, picture=None,
             menutype="", *args, **kwargs):
         """
         Insert a dMenuItem at the given position with the specified properties.
@@ -265,11 +264,11 @@ class dMenu(dPemMixin, wx.Menu):
         of the dMenuItem: if valid property names/values, the dMenuItem will take
         them on; if not valid, an exception will be raised.
         """
-        return self._createMenuItem(pos, caption, help=help, bmp=bmp, picture=picture,
+        return self._createMenuItem(pos, caption, HelpText=HelpText, bmp=bmp, picture=picture,
                 menutype=menutype, *args, **kwargs)
 
 
-    def prepend(self, caption, help="", bmp=None, picture=None,
+    def prepend(self, caption, HelpText="", bmp=None, picture=None,
             menutype="", *args, **kwargs):
         """
         Prepend a dMenuItem with the specified properties.
@@ -281,7 +280,7 @@ class dMenu(dPemMixin, wx.Menu):
         of the dMenuItem: if valid property names/values, the dMenuItem will take
         them on; if not valid, an exception will be raised.
         """
-        return self._createMenuItem(0, caption, help=help, bmp=bmp, picture=picture,
+        return self._createMenuItem(0, caption, HelpText=HelpText, bmp=bmp, picture=picture,
                 menutype=menutype, *args, **kwargs)
 
 
@@ -377,7 +376,7 @@ class dMenu(dPemMixin, wx.Menu):
         return ret
 
 
-    def _getItem(self, help, icon, menutype, *args, **kwargs):
+    def _getItem(self, HelpText, icon, menutype, *args, **kwargs):
         from dabo.ui.dMenuItem import dMenuItem
         from dabo.ui.dMenuItem import dCheckMenuItem
         from dabo.ui.dMenuItem import dRadioMenuItem
@@ -394,7 +393,8 @@ class dMenu(dPemMixin, wx.Menu):
                 CheckItemType: dCheckMenuItem,
                 RadioItemType: dRadioMenuItem,
                 SeparatorItemType: dSeparatorMenuItem}[itmtyp]
-        itm = cls(self, HelpText=help, Icon=icon, kind=itmtyp, *args, **kwargs)
+        itm = cls(parent=self, HelpText=HelpText, Icon=icon, kind=itmtyp,
+                *args, **kwargs)
         if itmSpecial:
             itm._special = itmSpecial
         return itm
