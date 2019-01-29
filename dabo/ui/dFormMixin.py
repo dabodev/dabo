@@ -22,7 +22,6 @@ from dabo.ui import makeDynamicProperty
 class dFormMixin(dPemMixin):
     def __init__(self, preClass, parent=None, properties=None, attProperties=None,
             src=None, *args, **kwargs):
-        print("dFormMixin INIT")
         self._cxnName = ""
         self._connection = None
         self._floatingPanel = None
@@ -80,9 +79,9 @@ class dFormMixin(dPemMixin):
         super(dFormMixin, self).__init__(preClass, parent=parent,
                 properties=properties, attProperties=attProperties, *args,
                 **kwargs)
-        print("dFormMixin SUPER called")
 
-        dui.callAfter(self._createStatusBar)
+#        dui.callAfter(self._createStatusBar)
+        self._createStatusBar()
         self._createToolBar()
 
 
@@ -216,6 +215,7 @@ class dFormMixin(dPemMixin):
 
 
     def _createStatusBar(self):
+        print("CREATE STATUS BAR CALLED", self)
         modal = getattr(self, "Modal", False)
         if (self and self.ShowStatusBar
                 and self.StatusBar is None
@@ -224,6 +224,7 @@ class dFormMixin(dPemMixin):
                 and (sys.platform.startswith("darwin") or not isinstance(self, wx.MDIChildFrame))):
             SBC = self.StatusBarClass
             self.StatusBar = SBC(self)
+        print("CREATE STATUS BAR DONE", self)
 
 
     def __onDeactivate(self, evt):
@@ -395,8 +396,8 @@ class dFormMixin(dPemMixin):
 
 
     def Show(self, *args, **kwargs):
-        self.restoreSizeAndPositionIfNeeded()
         super(dFormMixin, self).Show(*args, **kwargs)
+        self.restoreSizeAndPositionIfNeeded()
 
 
     def showModal(self):
@@ -573,7 +574,8 @@ class dFormMixin(dPemMixin):
             self.Left = max(0, self.Left)
             self.Top = max(minTop, self.Top)
 
-        self.WindowState = state
+#        self.WindowState = state
+        dabo.ui.setAfter(self, "WindowState", state)
 
 
     def saveSizeAndPosition(self):
@@ -1016,7 +1018,9 @@ class dFormMixin(dPemMixin):
 
     def _setStatusBar(self, val):
         try:
+            print("Before call to SetStatusBar")
             self.SetStatusBar(val)
+            print("After call to SetStatusBar")
         except (TypeError, AttributeError):
             # dialogs don't have status bars
             pass

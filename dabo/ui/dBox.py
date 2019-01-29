@@ -10,7 +10,7 @@ class dBox(dControlMixin, wx.StaticBox):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dBox
         preClass = wx.StaticBox
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
+        super(dBox, self).__init__(preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

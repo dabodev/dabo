@@ -14,7 +14,7 @@ from dabo.lib.utils import ustr
 class Oracle(dBackend):
     def __init__(self):
         import cx_Oracle as dbapi
-        dBackend.__init__(self)
+        super(Oracle, self).__init__()
         self.dbModuleName = "cx_Oracle"
         self.dbapi = dbapi
 

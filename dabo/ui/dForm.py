@@ -24,7 +24,6 @@ class BaseForm(dFormMixin):
     """
     def __init__(self, preClass, parent, properties, attProperties, *args,
             **kwargs):
-        print("BaseForm INIT")
         self.bizobjs = {}
         self._primaryBizobj = None
         self._dataUpdateDelay = 100
@@ -41,7 +40,6 @@ class BaseForm(dFormMixin):
 
         super(BaseForm, self).__init__(preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
-        print("BaseForm SUPER called")
 
         # Used to override some cases where the status
         # text should be displayed despite other processes
@@ -1023,7 +1021,6 @@ Database error message: %s""") %     err
 class dForm(BaseForm, wx.Frame):
     def __init__(self, parent=None, properties=None, attProperties=None, *args,
             **kwargs):
-        print("dForm INIT")
         self._baseClass = dForm
         self._mdi = False
         if kwargs.pop("Modal", False):
@@ -1048,7 +1045,6 @@ class dForm(BaseForm, wx.Frame):
         super(dForm, self).__init__(preClass, parent=parent,
                 properties=properties, attProperties=attProperties,
                 *args, **kwargs)
-        print("dForm SUPER called")
         dForm._hackToFrame()
 
 
@@ -1123,8 +1119,8 @@ class dToolForm(BaseForm, wx.MiniFrame):
         kwargs["TinyTitleBar"] = True
         kwargs["ShowStatusBar"] = False
         kwargs["ShowToolBar"] = False
-        BaseForm.__init__(self, parent, properties=properties, attProperties=attProperties,
-                *args, **kwargs)
+        super(dToolForm, self).__init__(parent=parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
 
 class dBorderlessForm(BaseForm, wx.Frame):
@@ -1135,8 +1131,8 @@ class dBorderlessForm(BaseForm, wx.Frame):
         kwargs["ShowStatusBar"] = False
         kwargs["ShowSystemMenu"] = False
         kwargs["MenuBarClass"] = None
-        BaseForm.__init__(self, parent, properties=properties, attProperties=attProperties,
-                *args, **kwargs)
+        super(dBorderlessForm, self).__init__(parent=parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
 
 class _dForm_test(dForm):

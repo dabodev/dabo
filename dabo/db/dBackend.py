@@ -624,7 +624,7 @@ class dBackend(dObject):
 
         class WorkerThread(threading.Thread):
             def __init__(self, backendObj):
-                threading.Thread.__init__(self)
+                super(WorkerThread, self).__init__(self)
                 self._toStop = False
                 self.backendObj = backendObj
 

@@ -23,8 +23,6 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         """
         self._baseClass = dGridSizer
         self._parent = None
-        wx.GridBagSizer.__init__(self)    ##, vgap=vgap, hgap=hgap)
-
         self._maxRows = 0
         self._maxCols = 0
         self._maxDimension = "c"
@@ -44,7 +42,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
             bad = ", ".join(list(kwargs.keys()))
             raise TypeError(("Invalid keyword arguments passed to dGridSizer: %s") % bad)
 
-        dSizerMixin.__init__(self, *args, **kwargs)
+        super(dGridSizer, self).__init__(*args, **kwargs)
 
 
     def append(self, item, layout="normal", row=-1, col=-1,

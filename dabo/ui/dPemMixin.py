@@ -60,7 +60,6 @@ class dPemMixin(dObject):
         from dabo.ui.dMenuBar import dMenuBar
         if threeWayInit:
             # Instantiate the wx Pre object
-            print("3WAY", preClass)
             pre = preClass()
         else:
             pre = None
@@ -183,7 +182,6 @@ class dPemMixin(dObject):
         # Do the init:
         if threeWayInit:
             preKwargs = self._preInitProperties
-            print("PRECREATE", args, preKwargs, self)
             pre.Create(parent, *args, **preKwargs)
         elif preClass is None:
             pass
@@ -193,7 +191,6 @@ class dPemMixin(dObject):
         if threeWayInit:
             self.PostCreate(pre)
 
-        print("SUPERPEM KWARGS", kwargs, self)
         super(dPemMixin, self).__init__(parent=parent, *args, **kwargs)
         self._pemObject = self
 
@@ -227,7 +224,6 @@ class dPemMixin(dObject):
 
         # Finally, at the end of the init cycle, raise the Create event
         self.raiseEvent(dEvents.Create)
-        print("PEMINIT DONE", self)
 
 
     def getPropertyInfo(cls, name):
@@ -449,7 +445,6 @@ class dPemMixin(dObject):
 
 
     def _afterInit(self):
-        print("_AFTERINIT", self)
         if not wx.HelpProvider.Get():
             # The app hasn't set a help provider, and one is needed
             # to be able to save/restore help text.
@@ -463,8 +458,14 @@ class dPemMixin(dObject):
         """This is the framework-level hook. It calls the developer-specific method."""
         if not self:
             return
+        print("AFTERINITALL CALLED", self)
         self.afterInitAll()
-    def afterInitAll(self): pass
+        print("AFTERINITALL DONE", self)
+
+
+    def afterInitAll(self):
+        #pass
+        print("AFTERINITALL NOOP", self)
 
 
     def _preInitUI(self, kwargs):
@@ -518,7 +519,6 @@ class dPemMixin(dObject):
         self.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
         self.Bind(wx.EVT_IDLE, self.__onWxIdle)
         self.Bind(wx.EVT_MENU_OPEN, targ.__onWxMenuOpen)
-        print("BINDING MENUOPEN TO", targ, "SELF", self)
 
         if isinstance(self, dGrid):
             # Ugly workaround for grids not firing focus events from the
@@ -590,6 +590,7 @@ class dPemMixin(dObject):
 
 
     def _bindDelayed(self):
+        dabo.trace()
         for evt, mthdString in self._delayedEventBindings:
             if not mthdString:
                 # Empty method string; this is a sign of a bug in the UI code.
@@ -690,7 +691,6 @@ class dPemMixin(dObject):
         from dabo.ui.dMenu import dMenu
         menu = evt.GetMenu()
         if menu and isinstance(menu, dMenu):
-            print("RAISING MENUOPEN", menu)
             menu.raiseEvent(dEvents.MenuOpen, evt)
         evt.Skip()
 
@@ -1532,6 +1532,7 @@ class dPemMixin(dObject):
 
     def __updateDynamicProps(self):
         """Updates the object's dynamic properties."""
+        dabo.trace()
         if not self:
             return
         self.__updateObjectDynamicProps(self)
@@ -4142,7 +4143,7 @@ class DrawObject(dObject):
 class _DropTarget(wx.DropTarget):
     """Class that handles drag/drop items of any type."""
     def __init__(self):
-        wx.DropTarget.__init__(self)
+        super(_DropTarget, self).__init__()
 
         self._fileHandle  = self._textHandle = None
         self.compositeDataObject = wx.DataObjectComposite()

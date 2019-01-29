@@ -11,7 +11,7 @@ from dabo.lib.RemoteConnector import RemoteConnector
 
 class Web(SQLite):
     def __init__(self):
-        SQLite.__init__(self)
+        super(Web, self).__init__()
         self.nameEnclosureChar = "~~"
         self._remoteConnector = RemoteConnector(self)
 

@@ -13,7 +13,7 @@ class dListBox(dControlItemMixin, wx.ListBox):
         self._choices = []
 
         preClass = wx.ListBox
-        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
+        super(dListBox, self).__init__(preClass, parent=parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

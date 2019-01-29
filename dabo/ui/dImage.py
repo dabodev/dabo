@@ -67,8 +67,8 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         picName = self._extractKey((kwargs, properties, attProperties), "Picture", "")
         self._pictureIndex = self._extractKey((kwargs, properties, attProperties), "PictureIndex", -1)
 
-        dImageMixin.__init__(self)
-        dDataControlMixin.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
+        super(dImage, self).__init__(preClass, parent=parent,
+                properties=properties, attProperties=attProperties,
                 bitmap=wx.EmptyBitmap(1, 1), *args, **kwargs)
 
         # Display the picture, if any. This will also initialize the

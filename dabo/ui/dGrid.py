@@ -488,7 +488,8 @@ class dColumn(dPemMixin):
 
         self._gridCellAttrs = {}
 
-        super(dColumn, self).__init__(properties=properties, attProperties=attProperties,
+        super(dColumn, self).__init__(preClass=None, parent=parent,
+                properties=properties, attProperties=attProperties,
                 *args, **kwargs)
         self._baseClass = dColumn
         if dataFieldSent and not dataTypeSent:
@@ -1916,7 +1917,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self._rowColorEven = "white"
         self._rowColorOdd = (212, 255, 212)        # very light green
 
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
+        super(dGrid, self).__init__(preClass, parent=parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
         # Reduces grid flickering on Windows platform.

@@ -29,7 +29,7 @@ class _BasePanelMixin(object):
         kwargs["style"] = style
         # For performance, store this at init
         self._platformIsWindows = (self.Application.Platform == "Win")
-        superclass.__init__(self, preClass=preClass, parent=parent,
+        super(_BasePanelMixin, self).__init__(preClass=preClass, parent=parent,
                 properties=properties, attProperties=attProperties, *args, **kwargs)
 
         self._inResizeHandler = False
@@ -235,22 +235,7 @@ class _BasePanelMixin(object):
             Default=False  (bool)"""))
 
 
-
-class _PanelMixin(dControlMixin, _BasePanelMixin):
-    def __init__(self, preClass, parent, properties=None, attProperties=None,
-            *args, **kwargs):
-        _BasePanelMixin.__init__(self, dControlMixin, preClass=preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args, **kwargs)
-
-
-class _DataPanelMixin(dDataControlMixin, _BasePanelMixin):
-    def __init__(self, preClass, parent, properties=None, attProperties=None,
-            *args, **kwargs):
-        _BasePanelMixin.__init__(self, dDataControlMixin, preClass=preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args, **kwargs)
-
-
-class dPanel(_PanelMixin, wx.Panel):
+class dPanel(dControlMixin, _BasePanelMixin, wx.Panel):
     """
     Creates a panel, a basic container for controls.
 
@@ -261,11 +246,12 @@ class dPanel(_PanelMixin, wx.Panel):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dPanel
         preClass = wx.Panel
-        _PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
+        super(dPanel, self).__init__(preClass=preClass, parent=parent,
+                properties=properties, attProperties=attProperties, *args,
+                **kwargs)
 
 
-class dDataPanel(_DataPanelMixin, wx.Panel):
+class dDataPanel(dDataControlMixin, _BasePanelMixin, wx.Panel):
     """
     Creates a panel, a basic container for controls. This panel, unlike the plain
     dPanel class, inherits from the Data Control mixin class, which makes it useful
@@ -280,12 +266,13 @@ class dDataPanel(_DataPanelMixin, wx.Panel):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dDataPanel
         preClass = wx.Panel
-        _DataPanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
+        super(dDataPanel, self).__init__(preClass=preClass, parent=parent,
+                properties=properties, attProperties=attProperties, *args,
+                **kwargs)
 
 
 
-class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
+class dScrollPanel(dControlMixin, _BasePanelMixin, wx.ScrolledWindow):
     """
     This is a basic container for controls that allows scrolling.
 
@@ -300,7 +287,7 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
         preClass = wx.ScrolledWindow
         kwargs["AlwaysResetSizer"] = self._extractKey((properties, kwargs,
                 attProperties), "AlwaysResetSizer", True)
-        _PanelMixin.__init__(self, preClass=preClass, parent=parent,
+        super(dScrollPanel, self).__init__(preClass=preClass, parent=parent,
                 properties=properties, attProperties=attProperties, *args,
                 **kwargs)
         self.SetScrollRate(10, 10)

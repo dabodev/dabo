@@ -33,7 +33,7 @@ from dabo.lib.utils import ustr
 
 class NEWDATABASE(dBackend):
     def __init__(self):
-        dBackend.__init__(self)
+        super(NEWDATABASE, self).__init__()
         #### TODO: Customize with name of dbapi module
         self.dbModuleName = "???"
 

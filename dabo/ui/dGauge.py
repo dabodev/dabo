@@ -13,7 +13,7 @@ class dGauge(dControlMixin, wx.Gauge):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dGauge
         preClass = wx.Gauge
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
+        super(dGauge, self).__init__(preClass, parent=parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

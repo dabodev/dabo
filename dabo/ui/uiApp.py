@@ -35,7 +35,7 @@ class SplashScreen(wx.Frame):
     """
     def __init__(self, bitmap=None, maskColor=None, timeout=0):
         style = wx.FRAME_NO_TASKBAR | wx.FRAME_SHAPED | wx.STAY_ON_TOP
-        wx.Frame.__init__(self, None, -1, style=style)
+        super(SplashScreen, self).__init__(None, -1, style=style)
 
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         if isinstance(bitmap, str):
@@ -112,8 +112,7 @@ class uiApp(dObject, wx.App):
     def __init__(self, app, callback=None, *args):
         self.dApp = app
         self.callback = callback
-        wx.App.__init__(self, 0, *args)
-        dObject.__init__(self)
+        super(uiApp, self).__init__(*args)
 
         self.Name = _("uiApp")
         # wx has properties for appName and vendorName, so Dabo should update
@@ -183,7 +182,6 @@ class uiApp(dObject, wx.App):
         hnd.setFormatter(fmt)
         log.setLevel(logging.DEBUG)
         log.addHandler(hnd)
-        super(uiApp, self).__init__(*args)
 
 
     def OnInit(self):

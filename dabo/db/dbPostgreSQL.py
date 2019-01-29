@@ -60,7 +60,7 @@ class Postgres(dBackend):
 
     def __init__(self):
         """JFCS 08/23/07 Currently supporting only psycopg2"""
-        dBackend.__init__(self)
+        super(Postgres, self).__init__()
         self.dbModuleName = "psycopg"
         self.conn_user = ""
 

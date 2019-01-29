@@ -249,7 +249,7 @@ class fileButton(dui.dButton):
         self.format = format
         self.directory = directory
         self.target = target
-        dui.dButton.__init__(self, parent, properties=Properties)
+        super(fileButton, self).__init__(parent, properties=Properties)
 
     def afterInit(self):
         self.Caption = "Browse..."

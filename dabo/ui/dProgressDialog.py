@@ -47,7 +47,7 @@ class ResultEvent(wx.PyEvent):
     """Simple event to carry arbitrary result data."""
 
     def __init__(self, response):
-        wx.PyEvent.__init__(self)
+        super(ResultEvent, self).__init__()
         self.SetEventType(EVT_RESULT_ID)
         self.response = response
 
@@ -55,14 +55,14 @@ class ExceptionEvent(wx.PyEvent):
     """Simple event to carry arbitrary result data."""
 
     def __init__(self, response):
-        wx.PyEvent.__init__(self)
+        super(ExceptionEvent, self).__init__()
         self.SetEventType(EVT_EXCEPTION_ID)
         self.response = response
 
 # Thread class that executes processing
 class WorkerThread(Thread):
     def __init__(self, notify_window, func):
-        Thread.__init__(self)
+        super(WorkerThread, self).__init__()
         self._notify_window = notify_window
         self._want_abort = 0
         self.setDaemon(1)
@@ -104,7 +104,7 @@ class dProgressTimer(wx.Timer):
 # GUI Frame class that spins off the worker thread
 class dProgressDialog(wx.Dialog):
     def __init__(self, parent, caption="Progress Dialog"):
-        wx.Dialog.__init__(self,parent,-1,caption)
+        super(dProgressDialog, self).__init__(parent, -1, caption)
         self.Centre(wx.BOTH)
         self.SetSize((300,100))
         self.status = wx.StaticText(self,-1,'Please Wait...',pos=(0,100))

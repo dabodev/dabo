@@ -17,7 +17,7 @@ class Firebird(dBackend):
     nameEnclosureChar = ""
 
     def __init__(self):
-        dBackend.__init__(self)
+        super(Firebird, self).__init__()
         self.dbModuleName = "kinterbasdb"
         self.fieldPat = re.compile("([A-Za-z_][A-Za-z0-9-_$]+)\.([A-Za-z_][A-Za-z0-9-_$]+)")
         self.paramPlaceholder = "?"

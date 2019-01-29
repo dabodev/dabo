@@ -158,7 +158,7 @@ class STCPrintout(wx.Printout):
     linesPerPage = 80
 
     def __init__(self, stc, colourMode=0, filename='', doPageNums=1):
-        wx.Printout.__init__(self)
+        super(STCPrintout, self).__init__()
         self.stc = stc
         self.colourMode = colourMode
         self.filename = filename
@@ -279,9 +279,9 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         self._classPat = re.compile(r"^\s*class ([^\(]+)\(([^\)]*?)\)")
         self._defPat = re.compile(r"^\s*def ")
 
-        stc.StyledTextCtrl.__init__(self, parent, -1, style = wx.NO_BORDER)
-        dDataControlMixin.__init__(self, name, properties=properties,
-                attProperties=attProperties, _explicitName=_explicitName,
+        super(dEditor, self).__init__(self, preClass=None, parent=parent,
+                style = wx.NO_BORDER, name=name, properties=properties,
+                attProperties=attProperties, _explicitName=_explicitName, 
                 *args, **kwargs)
         self._afterInit()
 

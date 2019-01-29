@@ -66,8 +66,8 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
             fontFace = "Lucida Grande"
         if fontFace:
              kwargs["FontFace"] = fontFace
-        dTextBoxMixin.__init__(self, masked.NumCtrl, parent, properties,
-                attProperties, *args, **kwargs)
+        super(dNumericBox, self).__init__(masked.NumCtrl, parent=parent,
+                properties, attProperties, *args, **kwargs)
 
     #--- Public interface.
 

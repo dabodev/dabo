@@ -19,8 +19,9 @@ class dDropdownList(dControlItemMixin, wx.Choice):
         self._choices = []
 
         preClass = wx.Choice
-        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
+        super(dDropdownList, self).__init__(preClass, parent=parent,
+                properties=properties, attProperties=attProperties, *args,
+                **kwargs)
 
 
     def _initEvents(self):

@@ -46,8 +46,8 @@ class _ListColumnAccessor(object):
 
 
 
-class dListControl(dControlItemMixin,
-        ListMixin.ListCtrlAutoWidthMixin, wx.ListCtrl):
+class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin,
+        wx.ListCtrl):
     """
     Creates a list control, which is a flexible, virtual list box.
 
@@ -78,9 +78,8 @@ class dListControl(dControlItemMixin,
         except TypeError:
             style = wx.LC_REPORT
         preClass = wx.ListCtrl
-        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
+        super(dListControl, self).__init__(preClass, parent=parent, properties=properties,
                 attProperties=attProperties, style=style, *args, **kwargs)
-        ListMixin.ListCtrlAutoWidthMixin.__init__(self)
         # Dictionary for tracking images by key value
         self.__imageList = {}
         # Need to set this after the superclass call in order to override the default for

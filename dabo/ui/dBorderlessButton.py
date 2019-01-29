@@ -43,8 +43,9 @@ class dBorderlessButton(dControlMixin, platebtn.PlateButton):
         # around the bitmap image in order for it to appear correctly
         self._bmpBorder = 10
 
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
+        super(dBorderlessButton, self).__init__(preClass, parent=parent,
+                properties=properties, attProperties=attProperties, *args,
+                **kwargs)
 
 
     def _initEvents(self):

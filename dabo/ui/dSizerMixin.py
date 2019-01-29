@@ -80,6 +80,7 @@ class dSizerMixin(dObject):
 
 
     def __init__(self, *args, **kwargs):
+        kwargs.pop("orientation", None)
         super(dSizerMixin, self).__init__(*args, **kwargs)
 
 
