@@ -65,8 +65,8 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
             kwargs["style"] |= wx.DP_ALLOWNONE
         if self._extractKey((properties, attProperties, kwargs), "ForceShowCentury", False):
             kwargs["style"] |= wx.DP_SHOWCENTURY
-        super(dDatePicker, self).__init__(preClass, parent=parent, properties,
-                attProperties, *args, **kwargs)
+        dDataControlMixin.__init__(self, preClass, parent,
+            properties, attProperties, *args, **kwargs)
         self._bindKeys()
 
         if self.AllowNullDate:

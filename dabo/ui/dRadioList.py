@@ -18,9 +18,8 @@ class _dRadioButton(dDataControlMixin, wx.RadioButton):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = _dRadioButton
         preClass = wx.RadioButton
-        super(_dRadioButton, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
 
     def _initEvents(self):
@@ -150,7 +149,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
         # 'ButtonSpacing' property.
         self._buttonSpacing = 5
 
-        super(dRadioList, self).__init__(preClass, parent=parent, properties=properties,
+        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

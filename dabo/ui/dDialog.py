@@ -43,8 +43,8 @@ class dDialog(dFormMixin, wx.Dialog):
             kwargs["style"] = defaultStyle
 
         preClass = wx.Dialog
-        super(dDialog, self).__init__(preClass, parent=parent,
-                properties=properties, *args, **kwargs)
+        dFormMixin.__init__(self, preClass, parent, properties=properties,
+                *args, **kwargs)
 
         # Hook method, so that we add the buttons last
         self._addControls()
@@ -265,8 +265,7 @@ class dStandardButtonDialog(dDialog):
         if self._ok and self._yes:
             raise ValueError(_("Dialogs cannot have both 'OK' and 'Yes' buttons."))
         self._cancelOnEscape = True
-        super(dStandardButtonDialog, self).__init__(parent=parent,
-                properties=properties, *args, **kwargs)
+        super(dStandardButtonDialog, self).__init__(parent=parent, properties=properties, *args, **kwargs)
         self._baseClass = dStandardButtonDialog
         self._accepted = False
 

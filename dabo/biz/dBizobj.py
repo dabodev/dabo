@@ -57,8 +57,7 @@ class dBizobj(dObject):
         # We need to make sure the cursor is created *before* the call to
         # initProperties()
         self._initProperties()
-        super(dBizobj, self).__init__(conn=conn, properties=properties, *args,
-                **kwargs)
+        super(dBizobj, self).__init__(properties=properties, *args, **kwargs)
         self._afterInit()
         self.__att_try_setFieldVal = True
 
@@ -295,8 +294,11 @@ class dBizobj(dObject):
             superMixin = main
             superCursor = secondary
             def __init__(self, *args, **kwargs):
-                super(cursorMix, self).__init__(*args, **kwargs)
-        return cursorMix
+                if hasattr(main, "__init__"):
+                    main.__init__(*(self,) + args, **kwargs)
+                if hasattr(secondary, "__init__"):
+                    secondary.__init__(*(self,) + args, **kwargs)
+        return    cursorMix
 
 
     def first(self):

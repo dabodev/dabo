@@ -60,8 +60,8 @@ def getSmallDnArrowImage():
 class myListCtrl(wx.ListCtrl, listmix.ListCtrlAutoWidthMixin):
     def __init__(self, parent, ID=-1, pos=wx.DefaultPosition,
             size=wx.DefaultSize, style=0):
-        super(myListCtrl, self).__init__(parent=parent, ID=ID, pos=pos,
-                size=size, style=style)
+        wx.ListCtrl.__init__(self, parent, ID, pos, size, style)
+        listmix.ListCtrlAutoWidthMixin.__init__(self)
 
 
 
@@ -80,6 +80,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
             therest["style"]=wx.TE_PROCESS_ENTER | therest["style"]
         else:
             therest["style"]=wx.TE_PROCESS_ENTER
+        wx.TextCtrl.__init__(self, parent, **therest )
         #Some variables
         self._dropDownClick = dropDownClick
         self._colNames = colNames
@@ -107,17 +108,13 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
         self.dropdownlistbox = myListCtrl( self.dropdown, style=flags,
                 pos=wx.Point( 0, 0) )
         #initialize the parent
-        if multiChoices:
-            ln = len(multiChoices)
-        else:
-            ln = 1
-        super(TextCtrlAutoComplete, self).__init__(parent, ln, **therest )
+        if multiChoices: ln = len(multiChoices)
+        else: ln = 1
+        #else: ln = len(choices)
+        listmix.ColumnSorterMixin.__init__(self, ln)
         #load the data
-        if multiChoices:
-            self.SetMultipleChoices(multiChoices, colSearch=colSearch,
-                    colFetch=colFetch)
-        else:
-            self.SetChoices(choices)
+        if multiChoices: self.SetMultipleChoices (multiChoices, colSearch=colSearch, colFetch=colFetch)
+        else: self.SetChoices ( choices )
         gp = self
         while gp != None :
             gp.Bind ( wx.EVT_MOVE , self.onControlChanged, gp )
@@ -453,9 +450,8 @@ class dAutoComplete(dControlMixin, TextCtrlAutoComplete):
         kwargs["choices"] = [""]
         self._userColNames = False
         self._dynamicChoices = None
-        super(dAutoComplete, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
 
     def _initEvents(self):

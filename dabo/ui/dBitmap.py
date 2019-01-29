@@ -14,7 +14,8 @@ class dBitmap(dControlMixin, dImageMixin, wx.StaticBitmap):
         preClass = wx.StaticBitmap
         picName = self._extractKey((kwargs, properties, attProperties), "Picture", "")
 
-        super(dBitmap, self).__init__(preClass, parent, properties=properties,
+        dImageMixin.__init__(self)
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
         if picName:

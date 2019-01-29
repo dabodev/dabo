@@ -41,7 +41,7 @@ class FileMenu(dMenu):
                     iconPath, HotKey="Ctrl+B", OnHit=app.onDebugWin,
                     ItemID="file_debugwin",
                     HelpText=_("Open up a debug output window"))
-            dabo.ui.setAfter(self.Parent.debugMenuItem, "Checked", True)
+            self.Parent.debugMenuItem.Checked = True
 
             self.Parent.inspectorMenuItem = self.append(_("Object &Inspector"), HotKey="Ctrl+Shift+I",
                     OnHit=app.onObjectInspectorWin, bmp="%s/apps/system-search.png" % iconPath,
@@ -185,6 +185,8 @@ class dBaseMenuBar(dMenuBar):
         self.viewMenu = self.appendMenu(ViewMenu(self, MenuID="base_view"))
         self.helpMenu = self.appendMenu(HelpMenu(self, MenuID="base_help"))
         super(dBaseMenuBar, self)._afterInit()
+        print(self.Children)
+
 
 
 if __name__ == "__main__":

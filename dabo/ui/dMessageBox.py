@@ -31,7 +31,7 @@ class dMessageBox(wx.MessageDialog):
         # Force the message and title to strings
         message = "%s" % message
         title = "%s" % title
-        super(dMessageBox, self).__init__(parent, message, title, style)
+        wx.MessageDialog.__init__(self, parent, message, title, style)
 
 
 def areYouSure(message="Are you sure?", title=None, defaultNo=False,

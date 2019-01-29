@@ -356,7 +356,7 @@ class dDataSet(tuple):
 
         class DictCursor(sqlite.Cursor):
             def __init__(self, *args, **kwargs):
-                super(DictCursor, self).__init__(*args, **kwargs)
+                sqlite.Cursor.__init__(self, *args, **kwargs)
                 self.row_factory = dict_factory
 
         if self._connection is None:

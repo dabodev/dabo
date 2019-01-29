@@ -312,11 +312,9 @@ def callAfter(fnc, *args, **kwargs):
     Call the passed function with the passed arguments in the next
     event loop.
     """
-    global lastCallAfterStack
     if dabo.saveCallAfterStack:
         lastCallAfterStack = "".join(traceback.format_stack())
     wx.CallAfter(fnc, *args, **kwargs)
-    print("CALL AFTER", fnc)
 
 
 _callAfterIntervalReferences = {}
@@ -331,10 +329,11 @@ def callAfterInterval(interval, func, *args, **kwargs):
     high.
     """
     global lastCallAfterStack
-    global _callAfterIntervalReferences
-
     if dabo.saveCallAfterStack:
         lastCallAfterStack = "".join(traceback.format_stack())
+    if isinstance(func, int):
+        # Arguments are in the old order
+        interval, func = func, interval
     func_ref = func
     if func.__closure__:
         func_ref = func.__code__
@@ -352,7 +351,6 @@ def callAfterInterval(interval, func, *args, **kwargs):
 
     _callAfterIntervalReferences[(func_ref, args)] = wx.CallLater(interval,
             ca_func, func_ref, func, *args, **kwargs)
-    print("CALL AFTER INTERVAL", interval, func)
 
 
 def setAfter(obj, prop, val):
@@ -363,7 +361,6 @@ def setAfter(obj, prop, val):
     try:
         fnc = getattr(obj.__class__, prop).fset
         wx.CallAfter(fnc, obj, val)
-        print("SET AFTER", obj, prop, val)
     except Exception as e:
         dabo.log.error(_("setAfter() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
                 % locals())
@@ -377,7 +374,6 @@ def setAfterInterval(interval, obj, prop, val):
     try:
         fnc = getattr(obj.__class__, prop).fset
         callAfterInterval(interval, fnc, obj, val)
-        print("SET AFTER INTERVAL", interval, obj, prop, val)
     except Exception as e:
         dabo.log.error(_("setAfterInterval() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
                 % locals())

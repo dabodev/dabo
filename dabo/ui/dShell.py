@@ -175,9 +175,8 @@ class dShell(dControlMixin, wx.py.shell.Shell):
             self._fontSize = 10
         self._baseClass = dShell
         preClass = wx.py.shell.Shell
-        super(dShell, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
 
     @dabo.ui.deadCheck

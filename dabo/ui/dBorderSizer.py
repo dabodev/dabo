@@ -37,7 +37,7 @@ class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
             orientation = wx.VERTICAL
         else:
             orientation = wx.HORIZONTAL
-        super(dBorderSizer, self).__init__(box, orientation)
+        wx.StaticBoxSizer.__init__(self, box, orientation)
 
         self._properties = {}
         # The keyword properties can come from either, both, or none of:
@@ -170,8 +170,7 @@ class TestForm(dForm):
 
 class _dBorderSizer_test(dBorderSizer):
     def __init__(self, bx=None, *args, **kwargs):
-        super(_dBorderSizer_test, self).__init__(box=bx, orientation="h",
-                *args, **kwargs)
+        super(_dBorderSizer_test, self).__init__(box=bx, orientation="h", *args, **kwargs)
 
 
 

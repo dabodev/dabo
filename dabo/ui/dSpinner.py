@@ -25,9 +25,8 @@ class _dSpinButton(dDataControlMixin, wx.SpinButton):
         self._baseClass = _dSpinButton
         preClass = wx.SpinButton
         kwargs["style"] = kwargs.get("style", 0) | wx.SP_ARROW_KEYS
-        super(_dSpinButton, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
         if sys.platform.startswith("win"):
             # otherwise, the arrows are way too wide (34)
             self.Width = 17
@@ -46,7 +45,7 @@ class dSpinner(dDataPanel, wx.Control):
         nm = self._extractKey((properties, attProperties, kwargs), "NameBase", "")
         if not nm:
             nm = self._extractKey((properties, attProperties, kwargs), "Name", "dSpinner")
-        super(dSpinner, self).__init__(None, parent=parent, properties=properties,
+        super(dSpinner, self).__init__(parent=parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
         self._baseClass = dSpinner
         # Create the child controls

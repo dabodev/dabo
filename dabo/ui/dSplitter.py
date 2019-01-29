@@ -17,7 +17,6 @@ class SplitterPanelMixin(object):
     def __init__(self, parent, *args, **kwargs):
         if self.ShowSplitMenu:
             self.bindEvent(dEvents.ContextMenu, self._onMixinContextMenu)
-        super(SplitterPanelMixin, self).__init__(parent=parent, *args, **kwargs)
 
 
     def _onMixinContextMenu(self, evt):
@@ -147,9 +146,8 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         self._showPanelSplitMenu = False
 
         preClass = wx.SplitterWindow
-        super(dSplitter, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties,
-                style=style, *args, **kwargs)
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, style=style, *args, **kwargs)
 
 
     def _initEvents(self):
@@ -177,7 +175,8 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         else:
             class MixedSplitterPanel(cls, mixin):
                 def __init__(self, parent, *args, **kwargs):
-                    super(MixedSplitterPanel, self).__init__(parent, *args, **kwargs)
+                    cls.__init__(self, parent, *args, **kwargs)
+                    mixin.__init__(self, parent, *args, **kwargs)
             ret = MixedSplitterPanel
         return ret
 

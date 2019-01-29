@@ -36,7 +36,7 @@ class Collection(list):
     classes used in the app object.
     """
     def __init__(self):
-        super(Collection, self).__init__()
+        list.__init__(self)
 
 
     def add(self, objRef):
@@ -60,7 +60,6 @@ class TempFileHolder(object):
     deleted when the Python session ends.
     """
     def __init__(self):
-        super(TempFileHolder, self).__init__()
         self._tempFiles = []
 
 
