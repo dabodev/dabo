@@ -16,7 +16,6 @@ import wx
 import wx.lib.masked as masked
 from dabo.lib import dates
 from dabo.ui import dKeys
-from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo import ui as dui
 from dabo.ui.dDataControlMixin import dDataControlMixin

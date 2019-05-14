@@ -1155,9 +1155,10 @@ these automatic updates.""").replace("\n", " ")
         Make sure that the MRU items are there and are in the
         correct order.
         """
+        from dabo.ui.dMenuBar import dMenuBar
         cap = menu.Caption
         cleanCap = cleanMenuCaption(cap)
-        topLevel = isinstance(menu.Parent, dabo.ui.dMenuBar)
+        topLevel = isinstance(menu.Parent, dMenuBar)
         mnPrm = self._mruMenuPrompts.get(cleanCap, [])
         if not mnPrm:
             return
