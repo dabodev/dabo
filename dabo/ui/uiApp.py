@@ -460,12 +460,14 @@ these automatic updates.""").replace("\n", " ")
             self.dApp.MainForm.raiseEvent(dEvents.Activate)
         except AttributeError:
             self.raiseEvent(dEvents.Activate)
+
         self.MainLoop()
 
 
     def exit(self):
         """Exit the application event loop."""
-        self.Exit()
+        # TODO: figure out what this was intended to do, wx.App has no Exit method, nor does dObject.
+        #self.Exit()
 
 
     def finish(self):

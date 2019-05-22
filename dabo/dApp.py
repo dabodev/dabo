@@ -379,7 +379,7 @@ try again when it is running.
         self._finished = False
         if (not self.SecurityManager or not self.SecurityManager.RequireAppLogin
                 or getattr(self, "_loggedIn", False) or self.SecurityManager.login()):
-            dui.callAfterInterval(5000, self._destroySplash)
+            dabo.ui.callAfterInterval(5000, self._destroySplash)
             self._retrieveMRUs()
             try:
                 self._loginDialog.Parent = None
@@ -1371,7 +1371,8 @@ try again when it is running.
         try:
             cls = self._defaultMenuBarClass
         except AttributeError:
-            cls = self._defaultMenuBarClass = dui.dBaseMenuBar
+            from dabo.ui.dBaseMenuBar import dBaseMenuBar
+            cls = self._defaultMenuBarClass = dBaseMenuBar
         return cls
 
     def _setDefaultMenuBarClass(self, val):

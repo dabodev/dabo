@@ -460,6 +460,8 @@ def discontinueEvent(evt):
 def getEventData(wxEvt):
     from dabo.ui.dMenu import dMenu
     from dabo.ui.dTreeView import dTreeView
+    import wx.grid
+
     ed = {}
     eventType = wxEvt.GetEventType()
     if isinstance(wxEvt, wx._core.FocusEvent):
