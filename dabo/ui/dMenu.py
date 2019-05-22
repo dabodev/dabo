@@ -57,6 +57,7 @@ class dMenu(dPemMixin, wx.Menu):
         See self._setId(), which is where the binding of wxEvents needs to take
         place.
         """
+
         self.bindEvent(dEvents.MenuOpen, self.__onMenuHighlight)
         self.bindEvent(dEvents.MenuHighlight, self.__onMenuHighlight)
         if self._useMRU:
@@ -501,8 +502,10 @@ class dMenu(dPemMixin, wx.Menu):
         items in this menu, but is using the consistent Children property to
         do it. The Children property will thus return both menu items and separators.
         """
-        children = self.GetMenuItems()
-        daboChildren = [self._daboChildren.get(c.GetId(), c) for c in children]
+        # SIGSEGV occurs on following line during menu hit.
+        #children = self.GetMenuItems()
+        #daboChildren = [self._daboChildren.get(c.GetId(), c) for c in children]
+        daboChildren = [self._daboChildren[x] for x in self._daboChildren if isinstance(self._daboChildren[x], dMenuItem)]
         return daboChildren
 
 
