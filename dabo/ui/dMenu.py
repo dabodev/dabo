@@ -232,10 +232,14 @@ class dMenu(dPemMixin, wx.Menu):
             self.insertItem(pos, _item)
             _item.Caption = caption
             return _item
+
+        """
         dummySpacer = None
         if not self.Children:
             dummySpacer = _actualCreation(" ", "", None, "")
             dabo.ui.callAfter(self.remove, dummySpacer)
+        """
+
         item = _actualCreation(caption, help, picture, menutype, *args, **kwargs)
         return item
 
@@ -323,6 +327,7 @@ class dMenu(dPemMixin, wx.Menu):
         #        val = wx.Menu.RemoveItem(self, item)
         #        item.this.own(val.this.own())
         #        val.this.disown()
+        self.Remove(item)
 
         if release:
             item.Destroy()

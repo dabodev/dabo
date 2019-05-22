@@ -52,7 +52,8 @@ class BaseForm(dFormMixin):
 
 
     def _afterInit(self):
-        self.Sizer = dui.dSizer("vertical")
+        from dabo.ui.dSizer import dSizer
+        self.Sizer = dSizer("vertical")
         self.Sizer.layout()
         super(BaseForm, self)._afterInit()
         if self.RequeryOnLoad:
@@ -80,7 +81,7 @@ class BaseForm(dFormMixin):
         this in your own classes if you prefer a different display.
         """
         if exception and not dabo.eatBizExceptions:
-            raise
+            raise exception
         if severe:
             func = dui.stop
         else:
@@ -1023,17 +1024,17 @@ class dForm(BaseForm, wx.Frame):
         if kwargs.pop("Modal", False):
             # Hack this into a wx.Dialog, for true modality
             dForm._hackToDialog()
-            preClass = wx.PreDialog
+            preClass = wx.Dialog
             self._modal = True
         else:
             # Normal dForm
             if dabo.MDI and isinstance(parent, wx.MDIParentFrame):
                 # Hack this into an MDI Child:
-                preClass = wx.PreMDIChildFrame
+                preClass = wx.MDIChildFrame
                 self._mdi = True
             else:
                 # This is a normal SDI form:
-                preClass = wx.PreFrame
+                preClass = wx.Frame
                 self._mdi = False
             dForm._hackToFrame()
 

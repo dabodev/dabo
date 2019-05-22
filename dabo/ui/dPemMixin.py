@@ -1491,7 +1491,7 @@ class dPemMixin(dObject):
 
     def __onUpdate(self, evt):
         """Update any dynamic properties, and then call the update() hook."""
-        if isinstance(self, dui.deadObject) or not self._constructed():
+        if not (self) or not self._constructed():
             return
         # Check paged controls event propagation to inactive pages.
         try:
