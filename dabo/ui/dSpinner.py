@@ -23,7 +23,7 @@ class _dSpinButton(dDataControlMixin, wx.SpinButton):
     """Simple wrapper around the base wx.SpinButton."""
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = _dSpinButton
-        preClass = wx.PreSpinButton
+        preClass = wx.SpinButton
         kwargs["style"] = kwargs.get("style", 0) | wx.SP_ARROW_KEYS
         dDataControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)

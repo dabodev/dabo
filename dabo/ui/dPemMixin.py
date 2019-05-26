@@ -56,7 +56,7 @@ class dPemMixin(dObject):
         # Dictionary to keep track of Dynamic properties
         self._dynamic = {}
         if threeWayInit:
-            # Instantiate the wx Pre object
+            # Instantiate the wx. object
             pre = preClass()
         else:
             pre = None

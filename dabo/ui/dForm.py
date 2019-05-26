@@ -1109,7 +1109,7 @@ class dForm(BaseForm, wx.Frame):
 class dToolForm(BaseForm, wx.MiniFrame):
     def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dToolForm
-        preClass = wx.PreMiniFrame
+        preClass = wx.MiniFrame
         self._mdi = False
         style = kwargs.get("style", 0)
         kwargs["style"] = style | wx.RESIZE_BORDER | wx.CAPTION | wx.MINIMIZE_BOX | \
@@ -1130,7 +1130,7 @@ class dBorderlessForm(BaseForm, wx.Frame):
         kwargs["ShowStatusBar"] = False
         kwargs["ShowSystemMenu"] = False
         kwargs["MenuBarClass"] = None
-        preClass = wx.PreFrame
+        preClass = wx.Frame
         BaseForm.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
                 *args, **kwargs)
 

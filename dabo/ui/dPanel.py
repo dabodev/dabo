@@ -260,7 +260,7 @@ class dPanel(_PanelMixin, wx.Panel):
     """
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dPanel
-        preClass = wx.PrePanel
+        preClass = wx.Panel
         _PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
@@ -279,7 +279,7 @@ class dDataPanel(_DataPanelMixin, wx.Panel):
     """
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dDataPanel
-        preClass = wx.PrePanel
+        preClass = wx.Panel
         _DataPanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
@@ -296,7 +296,7 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._horizontalScroll = self._verticalScroll = True
         self._baseClass = dScrollPanel
-        preClass = wx.PreScrolledWindow
+        preClass = wx.ScrolledWindow
         kwargs["AlwaysResetSizer"] = self._extractKey((properties, kwargs, attProperties), "AlwaysResetSizer", True)
         _PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)

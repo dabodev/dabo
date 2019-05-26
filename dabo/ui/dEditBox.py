@@ -19,7 +19,7 @@ class dEditBox(dTextBoxMixin, wx.TextCtrl):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dEditBox
 
-        preClass = wx.PreTextCtrl
+        preClass = wx.TextCtrl
         kwargs["style"] = wx.TE_MULTILINE
         self._wordWrap = self._extractKey((properties, attProperties, kwargs),
                 "WordWrap", True)

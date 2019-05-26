@@ -11,7 +11,7 @@ class dCheckBox(dDataControlMixin, wx.CheckBox):
     """Creates a checkbox, allowing editing boolean values."""
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dCheckBox
-        preClass = wx.PreCheckBox
+        preClass = wx.CheckBox
         dDataControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
