@@ -63,8 +63,11 @@ class dConnection(dObject):
             superMixin = dCursorMixin
             superCursor = cursorClass
             def __init__(self, *args, **kwargs):
-                dCursorMixin.__init__(self, sql="", *args, **kwargs)
-                cursorClass.__init__(self, *args, **kwargs)
+                for cls in (dCursorMixin, cursorClass):
+                    try:
+                        cls.__init__(*(self, ) + args, **kwargs)
+                    except AttributeError:
+                        pass
 
         bo = self.getBackendObject()
         crs = bo.getCursor(DaboCursor)

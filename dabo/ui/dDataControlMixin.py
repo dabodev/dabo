@@ -26,7 +26,7 @@ class dDataControlMixin(dControlMixin):
         self._inDataUpdate = False
         self._from_flushValue = False
 
-        super(dDataControlMixin, self).__init__(*args, **kwargs)
+        dControlMixin.__init__(self, *args, **kwargs)
 
         self._value = self.Value
         self._enabled = True
@@ -211,8 +211,7 @@ class dDataControlMixin(dControlMixin):
         ##- #if oldVal is None and curVal is None:
         ##-    # Could be changed and we just don't know it...
         ##- #    isChanged = True
-        from dabo.ui.dToggleButton import dToggleButton
-        if isinstance(self, dToggleButton):
+        if isinstance(self, dui.dToggleButton):
             # These classes change their value before the GotFocus event
             # can store the oldval, so always flush 'em.
             oldVal = None

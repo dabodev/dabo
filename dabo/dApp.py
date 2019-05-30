@@ -291,7 +291,8 @@ try again when it is running.
 
     def setup(self, initUI=True):
         """Set up the application object."""
-        from dabo import ui as dui
+        if initUI:
+            from dabo import ui as dui
         # dabo is going to want to import various things from the Home Directory
         if self.HomeDirectory not in sys.path:
             sys.path.append(self.HomeDirectory)
@@ -326,13 +327,8 @@ try again when it is running.
                 self.uiApp = dui.getUiApp(self, uiAppClass=None, callback=self.initUIApp, forceNew=True)
             else:
                 self.uiApp = dui.uiApp(self, callback=None)
-                self.initUIApp()
         else:
             self.uiApp = None
-
-#        from dabo.ui import controlClassImport
-#        dabo.ui.controls = controlClassImport
-
         # Flip the flag
         self._wasSetup = True
         # Call the afterSetup hook
@@ -375,7 +371,6 @@ try again when it is running.
 
     def start(self):
         """Start the application event loop."""
-        from dabo import ui as dui
         if not self._wasSetup:
             # Convenience; if you don't need to customize setup(), just
             # call start()
@@ -1248,14 +1243,13 @@ try again when it is running.
 
 
     def onHelpAbout(self, evt):
-        from dabo.ui.dDockForm import dDockForm
         about = self.AboutFormClass
         if about is None:
-            from dabo.ui.dialogs.htmlAbout import HtmlAbout as about
+            from dui.dialogs.htmlAbout import HtmlAbout as about
         frm = self.ActiveForm
         if frm is None:
             frm = self.MainForm
-        if frm.MDI or isinstance(frm, dDockForm):
+        if frm.MDI or isinstance(frm, dui.dDockForm):
             # Strange big sizing of the about form happens on Windows
             # when the parent form is MDI.
             frm = None
@@ -1374,11 +1368,10 @@ try again when it is running.
 
 
     def _getDefaultMenuBarClass(self):
-        from dabo.ui.dBaseMenuBar import dBaseMenuBar
         try:
             cls = self._defaultMenuBarClass
         except AttributeError:
-            cls = self._defaultMenuBarClass = dBaseMenuBar
+            cls = self._defaultMenuBarClass = dui.dBaseMenuBar
         return cls
 
     def _setDefaultMenuBarClass(self, val):
@@ -1491,8 +1484,8 @@ try again when it is running.
 
 
     def _getLoginDialogClass(self):
-        from dabo.ui.dialogs.login import Login
-        defaultDialogClass = Login
+        import dui.dialogs.login as login
+        defaultDialogClass = login.Login
         return getattr(self, "_loginDialogClass", defaultDialogClass)
 
     def _setLoginDialogClass(self, val):
@@ -1513,11 +1506,10 @@ try again when it is running.
 
 
     def _getMainFormClass(self):
-        from dabo.ui.dFormMain import dFormMain
         try:
             cls = self._mainFormClass
         except AttributeError:
-            cls = dFormMain
+            cls = dui.dFormMain
             self._mainFormClass = cls
         return cls
 

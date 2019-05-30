@@ -42,8 +42,8 @@ class dDialog(dFormMixin, wx.Dialog):
         except KeyError:
             kwargs["style"] = defaultStyle
 
-        wxClass = wx.Dialog
-        dFormMixin.__init__(self, wxClass, parent, properties=properties,
+        preClass = wx.PreDialog
+        dFormMixin.__init__(self, preClass, parent, properties=properties,
                 *args, **kwargs)
 
         # Hook method, so that we add the buttons last

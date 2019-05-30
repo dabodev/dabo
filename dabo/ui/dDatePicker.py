@@ -54,7 +54,7 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
         self._timePart = [0, 0, 0, 0]
         self._lastWasNone = True
         self._baseClass = dDatePicker
-        wxClass = wx.DatePickerCtrl
+        preClass = wx.PreDatePickerCtrl
         pickerMode = self._extractKey((properties, attProperties, kwargs),
                 "PickerMode", "Dropdown")[:1].lower()
         if pickerMode not in "ds":
@@ -65,7 +65,7 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
             kwargs["style"] |= wx.DP_ALLOWNONE
         if self._extractKey((properties, attProperties, kwargs), "ForceShowCentury", False):
             kwargs["style"] |= wx.DP_SHOWCENTURY
-        dDataControlMixin.__init__(self, wxClass, parent,
+        dDataControlMixin.__init__(self, preClass, parent,
             properties, attProperties, *args, **kwargs)
         self._bindKeys()
 

@@ -423,7 +423,7 @@ these automatic updates.""").replace("\n", " ")
 
 
     def setup(self):
-        wx.SystemOptions.SetOption("mac.textcontrol-use-spell-checker", 1)
+        wx.SystemOptions.SetOptionInt("mac.textcontrol-use-spell-checker", 1)
         frm = self.dApp.MainForm
         if frm is None:
             if self.dApp.MainFormClass is not None:
@@ -465,7 +465,7 @@ these automatic updates.""").replace("\n", " ")
 
     def exit(self):
         """Exit the application event loop."""
-        self.ExitMainLoop()
+        self.Exit()
 
 
     def finish(self):
@@ -530,28 +530,24 @@ these automatic updates.""").replace("\n", " ")
 
     def showCommandWindow(self, context=None):
         """Display a command window for debugging."""
-        from dabo.ui.dShell import dShellForm
         if context is None:
             context = self.ActiveForm
-        dlg = dShellForm(context)
+        dlg = dabo.ui.dShellForm(context)
         dlg.show()
 
 
     def toggleDebugWindow(self, context=None):
         """Display a debug output window."""
-        from dabo.ui.dEditBox import dEditBox
-        from dabo.ui.dForm import dToolForm
-        from dabo.ui.dTimer import dTimer
         if context is None:
             context = self.ActiveForm
-        class DebugWindow(dToolForm):
+        class DebugWindow(dabo.ui.dToolForm):
             def afterInit(self):
                 self.Caption = _("Debug Output")
-                self.out = dEditBox(self, ReadOnly=True)
+                self.out = dabo.ui.dEditBox(self, ReadOnly=True)
                 self.out.bindEvent(dEvents.ContextMenu, self.onContext)
                 self.Sizer.append1x(self.out)
                 self._txtlen = len(self.out.Value)
-                self.tmr = dTimer(self, Interval=500, OnHit=self.onOutValue)
+                self.tmr = dabo.ui.dTimer(self, Interval=500, OnHit=self.onOutValue)
                 self.tmr.start()
             def onContext(self, evt):
                 self.out.Value = ""
@@ -1042,8 +1038,6 @@ these automatic updates.""").replace("\n", " ")
         Run the search on the current control, if it is a text-based control.
         Select the found text in the control.
         """
-        from dabo.ui.dGrid import dGrid
-
         flags = self.findReplaceData.GetFlags()
         findString = self.findReplaceData.GetFindString()
         replaceString = self.findReplaceData.GetReplaceString()
@@ -1086,7 +1080,7 @@ these automatic updates.""").replace("\n", " ")
                     win.SetSelection(pos, pos+len(findString))
                 return ret
 
-            elif isinstance(win, dGrid):
+            elif isinstance(win, dabo.ui.dGrid):
                 return win.findReplace(action, findString, replaceString, downwardSearch,
                         wholeWord, matchCase)
             else:
@@ -1161,10 +1155,9 @@ these automatic updates.""").replace("\n", " ")
         Make sure that the MRU items are there and are in the
         correct order.
         """
-        from dabo.ui.dMenuBar import dMenuBar
         cap = menu.Caption
         cleanCap = cleanMenuCaption(cap)
-        topLevel = isinstance(menu.Parent, dMenuBar)
+        topLevel = isinstance(menu.Parent, dabo.ui.dMenuBar)
         mnPrm = self._mruMenuPrompts.get(cleanCap, [])
         if not mnPrm:
             return

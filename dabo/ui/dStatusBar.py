@@ -15,10 +15,10 @@ class dStatusBar(dControlMixin, wx.StatusBar):
     """
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dStatusBar
-        wxClass = wx.StatusBar
+        preClass = wx.PreStatusBar
         self._platformIsWindows = (self.Application.Platform == "Win")
         self._fieldCount = 1
-        dControlMixin.__init__(self, wxClass, parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

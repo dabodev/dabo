@@ -66,8 +66,7 @@ class dMenu(dPemMixin, wx.Menu):
         the MenuOpen event will not be raised, so trigger on the MenuHighlight
         event instead.
         """
-        from dabo.ui.dMenuBar import dMenuBar
-        if isinstance(self.Parent, dMenuBar):
+        if isinstance(self.Parent, dabo.ui.dMenuBar):
             self.bindEvent(dEvents.MenuOpen, self.__onMenuOpenMRU)
         else:
             self.bindEvent(dEvents.MenuHighlight, self.__onMenuOpenMRU)
@@ -78,8 +77,7 @@ class dMenu(dPemMixin, wx.Menu):
         See the _setMRUBindings method for an explanation. This uses
         the same logic to unbind MRU events.
         """
-        from dabo.ui.dMenuBar import dMenuBar
-        if isinstance(self.Parent, dMenuBar):
+        if isinstance(self.Parent, dabo.ui.dMenuBar):
             self.unbindEvent(dEvents.MenuOpen, self.__onMenuOpenMRU)
         else:
             self.unbindEvent(dEvents.MenuHighlight, self.__onMenuOpenMRU)
@@ -130,9 +128,10 @@ class dMenu(dPemMixin, wx.Menu):
         id_ = itm.GetId()
         if id_ == wx.ID_ABOUT:
             # Put the about menu in the App Menu on Mac
-            wx.PyApp.SetMacPreferencesMenuItemId(id_)
+            wx.App_SetMacAboutMenuItemId(id_)
             cap = daboItem.Parent.Caption
-            wx.PyApp.SetMacHelpMenuTitleName(cap)
+            wx.App_SetMacHelpMenuTitleName(cap)
+
         # Process any 'special' menus
         try:
             special = daboItem._special
@@ -141,24 +140,24 @@ class dMenu(dPemMixin, wx.Menu):
         if special == "pref":
             # Put the prefs item in the App Menu on Mac
             self.Parent._mac_pref_menu_item_id = id_
-            wx.PyApp.SetMacPreferencesMenuItemId(id_)
+            wx.App_SetMacPreferencesMenuItemId(id_)
 
 
     def appendItem(self, item):
         """Insert a dMenuItem at the bottom of the menu."""
-        wxItem = self._getWxItem(self.Append, item)
+        wxItem = self._getWxItem(self.AppendItem, item)
         return item
 
 
     def insertItem(self, pos, item):
         """Insert a dMenuItem before the specified position in the menu."""
-        wxItem = self._getWxItem(self.Insert, item, pos)
+        wxItem = self._getWxItem(self.InsertItem, item, pos)
         return item
 
 
     def prependItem(self, item):
         """Insert a dMenuItem at the top of the menu."""
-        wxItem = self._getWxItem(self.Prepend, item)
+        wxItem = self._getWxItem(self.PrependItem, item)
         return item
 
 
@@ -316,10 +315,13 @@ class dMenu(dPemMixin, wx.Menu):
         except KeyError:
             pass
 
-        # Needed to keep dPemMixin mixed-in in wxPython 2.8
-#        val = wx.Menu.RemoveItem(self, item)
-#        item.this.own(val.this.own())
-#        val.this.disown()
+        if wx.VERSION >= (2,7):
+            # Needed to keep dPemMixin mixed-in in wxPython 2.8
+            val = wx.Menu.RemoveItem(self, item)
+            item.this.own(val.this.own())
+            val.this.disown()
+        else:
+            self.RemoveItem(item)
 
         if release:
             item.Destroy()
@@ -378,10 +380,6 @@ class dMenu(dPemMixin, wx.Menu):
 
 
     def _getItem(self, help, icon, menutype, *args, **kwargs):
-        from dabo.ui.dMenuItem import dMenuItem
-        from dabo.ui.dMenuItem import dCheckMenuItem
-        from dabo.ui.dMenuItem import dRadioMenuItem
-        from dabo.ui.dMenuItem import dSeparatorMenuItem
         itmtyp = self._getItemType(menutype)
         itmid = self._getItemID(menutype)
         if itmid != wx.ID_DEFAULT:
@@ -390,10 +388,10 @@ class dMenu(dPemMixin, wx.Menu):
             itmSpecial = kwargs.pop("special")
         except KeyError:
             itmSpecial = None
-        cls = {NormalItemType: dMenuItem,
-                CheckItemType: dCheckMenuItem,
-                RadioItemType: dRadioMenuItem,
-                SeparatorItemType: dSeparatorMenuItem}[itmtyp]
+        cls = {NormalItemType: dabo.ui.dMenuItem,
+                CheckItemType: dabo.ui.dCheckMenuItem,
+                RadioItemType: dabo.ui.dRadioMenuItem,
+                SeparatorItemType: dabo.ui.dSeparatorMenuItem}[itmtyp]
         itm = cls(self, HelpText=help, Icon=icon, kind=itmtyp, *args, **kwargs)
         if itmSpecial:
             itm._special = itmSpecial

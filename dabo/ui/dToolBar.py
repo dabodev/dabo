@@ -24,7 +24,7 @@ class dToolBar(dControlMixin, wx.ToolBar):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dToolBar
         self._toolbarItemClass = dToolBarItem
-        wxClass = wx.ToolBar
+        preClass = wx.PreToolBar
 
         style = self._extractKey((kwargs, properties, attProperties), "style", 0)
         # Note: need to set the TB_TEXT flag, in order for that to be toggleable
@@ -40,7 +40,7 @@ class dToolBar(dControlMixin, wx.ToolBar):
         # Need this to load/convert image files to bitmaps
         self._image = wx.NullImage
 
-        dControlMixin.__init__(self, wxClass, parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

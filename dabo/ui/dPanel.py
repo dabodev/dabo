@@ -11,7 +11,7 @@ from dabo.ui.dDataControlMixin import dDataControlMixin
 
 
 class _BasePanelMixin(object):
-    def __init__(self, superclass, wxClass, parent, properties=None, attProperties=None,
+    def __init__(self, superclass, preClass, parent, properties=None, attProperties=None,
             *args, **kwargs):
         self._minSizerWidth = 10
         self._minSizerHeight = 10
@@ -29,7 +29,7 @@ class _BasePanelMixin(object):
         kwargs["style"] = style
         # For performance, store this at init
         self._platformIsWindows = (self.Application.Platform == "Win")
-        superclass.__init__(self, wxClass=wxClass, parent=parent,
+        superclass.__init__(self, preClass=preClass, parent=parent,
                 properties=properties, attProperties=attProperties, *args, **kwargs)
 
         self._inResizeHandler = False
@@ -237,16 +237,16 @@ class _BasePanelMixin(object):
 
 
 class _PanelMixin(dControlMixin, _BasePanelMixin):
-    def __init__(self, wxClass, parent, properties=None, attProperties=None,
+    def __init__(self, preClass, parent, properties=None, attProperties=None,
             *args, **kwargs):
-        _BasePanelMixin.__init__(self, dControlMixin, wxClass=wxClass, parent=parent,
+        _BasePanelMixin.__init__(self, dControlMixin, preClass=preClass, parent=parent,
                 properties=properties, attProperties=attProperties, *args, **kwargs)
 
 
 class _DataPanelMixin(dDataControlMixin, _BasePanelMixin):
-    def __init__(self, wxClass, parent, properties=None, attProperties=None,
+    def __init__(self, preClass, parent, properties=None, attProperties=None,
             *args, **kwargs):
-        _BasePanelMixin.__init__(self, dDataControlMixin, wxClass=wxClass, parent=parent,
+        _BasePanelMixin.__init__(self, dDataControlMixin, preClass=preClass, parent=parent,
                 properties=properties, attProperties=attProperties, *args, **kwargs)
 
 
@@ -260,8 +260,8 @@ class dPanel(_PanelMixin, wx.Panel):
     """
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dPanel
-        wxClass = wx.Panel
-        _PanelMixin.__init__(self, wxClass=wxClass, parent=parent, properties=properties,
+        preClass = wx.PrePanel
+        _PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 
@@ -279,8 +279,8 @@ class dDataPanel(_DataPanelMixin, wx.Panel):
     """
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dDataPanel
-        wxClass = wx.Panel
-        _DataPanelMixin.__init__(self, wxClass=wxClass, parent=parent, properties=properties,
+        preClass = wx.PrePanel
+        _DataPanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 
@@ -293,16 +293,13 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
     flexible for many uses. Consider laying out your forms on panels
     instead, and then adding the panel to the form.
     """
-    def __init__(self, parent, properties=None, attProperties=None, *args,
-        **kwargs):
+    def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._horizontalScroll = self._verticalScroll = True
         self._baseClass = dScrollPanel
-        wxClass = wx.ScrolledWindow
-        kwargs["AlwaysResetSizer"] = self._extractKey((properties, kwargs,
-                attProperties), "AlwaysResetSizer", True)
-        _PanelMixin.__init__(self, wxClass=wxClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        preClass = wx.PreScrolledWindow
+        kwargs["AlwaysResetSizer"] = self._extractKey((properties, kwargs, attProperties), "AlwaysResetSizer", True)
+        _PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
         self.SetScrollRate(10, 10)
         self.Bind(wx.EVT_SCROLLWIN, self.__onWxScrollWin)
 
@@ -355,10 +352,9 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 
 
     def _getChildren(self):
-        from dabo.ui.dPemMixin import dPemMixin
         ret = super(dScrollPanel, self)._getChildren()
         return [kid for kid in ret
-                if isinstance(kid, dPemMixin)]
+                if isinstance(kid, dabo.ui.dPemMixinBase.dPemMixinBase)]
 
     def _setChildren(self, val):
         super(dScrollPanel, self)._setChildren(val)
