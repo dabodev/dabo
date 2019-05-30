@@ -188,6 +188,13 @@ class uiApp(dObject, wx.App):
 
     def OnInit(self):
         app = self.dApp
+
+        # Set User locale here using wx, rather than in dApp using locale.
+        if dabo.loadUserLocale:
+            # the wx.Locale object will revert its locale changes when its destroyed
+            # So keep a handle on it for the lifespan of the uiApp.
+            self._locale_handle = wx.Locale(wx.LANGUAGE_DEFAULT)
+
         if not self.checkForUpdates():
             return False
         if app.showSplashScreen:

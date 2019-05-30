@@ -171,8 +171,10 @@ class dApp(dObject):
 
 
     def __init__(self, selfStart=False, ignoreScriptDir=False, properties=None, *args, **kwargs):
-        if dabo.loadUserLocale:
-            locale.setlocale(locale.LC_ALL, '')
+        # Defer setting locale until the wx.App can do so (otherwise you can create a split-state between
+        # the OS and wx, which wx does not like.
+        #  if dabo.loadUserLocale:
+        #   locale.setlocale(locale.LC_ALL, '')
 
         # Some apps, such as the visual tools, are meant to be run from directories
         # other than that where they are located. In those cases, use the current dir.
