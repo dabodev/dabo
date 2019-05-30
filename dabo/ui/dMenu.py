@@ -16,6 +16,9 @@ RadioItemType = wx.ITEM_RADIO
 SeparatorItemType = wx.ITEM_SEPARATOR
 
 
+from dabo.ui.dMenuItem import dMenuItem, dCheckMenuItem, dRadioMenuItem, dSeparatorMenuItem
+
+
 class dMenu(dPemMixin, wx.Menu):
     """
     Creates a menu, which can contain submenus, menu items,
@@ -66,7 +69,7 @@ class dMenu(dPemMixin, wx.Menu):
         the MenuOpen event will not be raised, so trigger on the MenuHighlight
         event instead.
         """
-        if isinstance(self.Parent, dabo.ui.dMenuBar):
+        if isinstance(self.Parent, dabo.ui.dMenuBar.dMenuBar):
             self.bindEvent(dEvents.MenuOpen, self.__onMenuOpenMRU)
         else:
             self.bindEvent(dEvents.MenuHighlight, self.__onMenuOpenMRU)
@@ -128,9 +131,9 @@ class dMenu(dPemMixin, wx.Menu):
         id_ = itm.GetId()
         if id_ == wx.ID_ABOUT:
             # Put the about menu in the App Menu on Mac
-            wx.App_SetMacAboutMenuItemId(id_)
+            wx.PyApp.SetMacAboutMenuItemId(id_)
             cap = daboItem.Parent.Caption
-            wx.App_SetMacHelpMenuTitleName(cap)
+            wx.PyApp.SetMacHelpMenuTitleName(cap)
 
         # Process any 'special' menus
         try:
@@ -140,7 +143,7 @@ class dMenu(dPemMixin, wx.Menu):
         if special == "pref":
             # Put the prefs item in the App Menu on Mac
             self.Parent._mac_pref_menu_item_id = id_
-            wx.App_SetMacPreferencesMenuItemId(id_)
+            wx.PyApp.SetMacPreferencesMenuItemId(id_)
 
 
     def appendItem(self, item):
@@ -228,10 +231,14 @@ class dMenu(dPemMixin, wx.Menu):
             self.insertItem(pos, _item)
             _item.Caption = caption
             return _item
+
+        """
         dummySpacer = None
         if not self.Children:
             dummySpacer = _actualCreation(" ", "", None, "")
             dabo.ui.callAfter(self.remove, dummySpacer)
+        """
+
         item = _actualCreation(caption, help, picture, menutype, *args, **kwargs)
         return item
 
@@ -315,13 +322,11 @@ class dMenu(dPemMixin, wx.Menu):
         except KeyError:
             pass
 
-        if wx.VERSION >= (2,7):
-            # Needed to keep dPemMixin mixed-in in wxPython 2.8
-            val = wx.Menu.RemoveItem(self, item)
-            item.this.own(val.this.own())
-            val.this.disown()
-        else:
-            self.RemoveItem(item)
+        # Needed to keep dPemMixin mixed-in in wxPython 2.8
+        #        val = wx.Menu.RemoveItem(self, item)
+        #        item.this.own(val.this.own())
+        #        val.this.disown()
+        self.Remove(item)
 
         if release:
             item.Destroy()
@@ -388,10 +393,10 @@ class dMenu(dPemMixin, wx.Menu):
             itmSpecial = kwargs.pop("special")
         except KeyError:
             itmSpecial = None
-        cls = {NormalItemType: dabo.ui.dMenuItem,
-                CheckItemType: dabo.ui.dCheckMenuItem,
-                RadioItemType: dabo.ui.dRadioMenuItem,
-                SeparatorItemType: dabo.ui.dSeparatorMenuItem}[itmtyp]
+        cls = {NormalItemType: dMenuItem,
+                CheckItemType: dCheckMenuItem,
+                RadioItemType: dRadioMenuItem,
+                SeparatorItemType: dSeparatorMenuItem}[itmtyp]
         itm = cls(self, HelpText=help, Icon=icon, kind=itmtyp, *args, **kwargs)
         if itmSpecial:
             itm._special = itmSpecial

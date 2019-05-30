@@ -171,8 +171,10 @@ class dApp(dObject):
 
 
     def __init__(self, selfStart=False, ignoreScriptDir=False, properties=None, *args, **kwargs):
-        if dabo.loadUserLocale:
-            locale.setlocale(locale.LC_ALL, '')
+        # Defer setting locale until the wx.App can do so (otherwise you can create a split-state between
+        # the OS and wx, which wx does not like.
+        #  if dabo.loadUserLocale:
+        #   locale.setlocale(locale.LC_ALL, '')
 
         # Some apps, such as the visual tools, are meant to be run from directories
         # other than that where they are located. In those cases, use the current dir.
@@ -379,7 +381,7 @@ try again when it is running.
         self._finished = False
         if (not self.SecurityManager or not self.SecurityManager.RequireAppLogin
                 or getattr(self, "_loggedIn", False) or self.SecurityManager.login()):
-            dui.callAfterInterval(5000, self._destroySplash)
+            dabo.ui.callAfterInterval(5000, self._destroySplash)
             self._retrieveMRUs()
             try:
                 self._loginDialog.Parent = None
@@ -1371,7 +1373,8 @@ try again when it is running.
         try:
             cls = self._defaultMenuBarClass
         except AttributeError:
-            cls = self._defaultMenuBarClass = dui.dBaseMenuBar
+            from dabo.ui.dBaseMenuBar import dBaseMenuBar
+            cls = self._defaultMenuBarClass = dBaseMenuBar
         return cls
 
     def _setDefaultMenuBarClass(self, val):

@@ -54,7 +54,7 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
         self._timePart = [0, 0, 0, 0]
         self._lastWasNone = True
         self._baseClass = dDatePicker
-        preClass = wx.PreDatePickerCtrl
+        preClass = wx.DatePickerCtrl
         pickerMode = self._extractKey((properties, attProperties, kwargs),
                 "PickerMode", "Dropdown")[:1].lower()
         if pickerMode not in "ds":

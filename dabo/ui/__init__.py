@@ -4,6 +4,7 @@ This is Dabo's user interface layer.
 """
 import datetime
 import glob
+import importlib
 import inspect
 import io
 import os
@@ -43,7 +44,7 @@ if "wx" not in sys.modules and not getattr(sys, "frozen", False):
 # Very first thing: check for proper wxPython build:
 _failedLibs = []
 # note: may need wx.animate as well
-for lib in ("wx", "wx.stc", "wx.lib.agw.foldpanelbar", "wx.gizmos",
+for lib in ("wx", "wx.adv", "wx.stc", "wx.lib.agw.foldpanelbar", "wx.gizmos",
         "wx.lib.calendar", "wx.lib.masked", "wx.lib.buttons"):
 
     if getattr(sys, "frozen", False):
@@ -87,7 +88,6 @@ uiType["platform"] = _platform
 # Add these to the dabo.ui namespace
 assertionException = wx.wxAssertionError
 nativeScrollBar = wx.ScrollBar
-
 
 def deadCheck(fn, *args, **kwargs):
     """
@@ -350,7 +350,7 @@ def callAfterInterval(interval, func, *args, **kwargs):
             pass
 
     _callAfterIntervalReferences[(func_ref, args)] = wx.CallLater(interval,
-            ca_func, func_ref, func, *args, **kwargs)
+                                                        ca_func, func_ref, func, *args, **kwargs)
 
 
 def setAfter(obj, prop, val):
@@ -458,6 +458,10 @@ def discontinueEvent(evt):
 
 
 def getEventData(wxEvt):
+    from dabo.ui.dMenu import dMenu
+    from dabo.ui.dTreeView import dTreeView
+    import wx.grid
+
     ed = {}
     eventType = wxEvt.GetEventType()
     if isinstance(wxEvt, wx._core.FocusEvent):
@@ -494,7 +498,7 @@ def getEventData(wxEvt):
             ed["mousePosition"] = wx.GetMousePosition()
 
     if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent)):
-        ed["mousePosition"] = wxEvt.GetPositionTuple()
+        ed["mousePosition"] = wxEvt.GetPosition()
         ed["altDown"] = wxEvt.AltDown()
         ed["commandDown"] = wxEvt.CmdDown()
         ed["controlDown"] = wxEvt.ControlDown()
@@ -509,7 +513,7 @@ def getEventData(wxEvt):
                 pass
 
     if isinstance(wxEvt, wx.ListEvent):
-        pos = wxEvt.GetPosition()
+        pos = wxEvt.GetPoint()
         ht = obj.HitTest(pos)
         try:
             idx, flg = ht
@@ -551,7 +555,7 @@ def getEventData(wxEvt):
         ed["keyCode"] = wxEvt.GetKeyCode()
         ed["rawKeyCode"] = wxEvt.GetRawKeyCode()
         ed["rawKeyFlags"] = wxEvt.GetRawKeyFlags()
-        ed["unicodeChar"] = wxEvt.GetUniChar()
+        ed["unicodeChar"] = wxEvt.GetUnicodeKey()
         ed["unicodeKey"] = wxEvt.GetUnicodeKey()
         ed["hasModifiers"] = wxEvt.HasModifiers()
         try:
@@ -579,8 +583,8 @@ def getEventData(wxEvt):
     if isinstance(wxEvt, wx.CloseEvent):
         ed["force"] = not wxEvt.CanVeto()
 
-    if (isinstance(wxEvt, wx.TreeEvent) or isinstance(obj, dTreeView)) \
-            and not isinstance(wxEvt, wx.WindowDestroyEvent):
+    if (isinstance(wxEvt, (wx.TreeEvent, dTreeView))
+            and not isinstance(wxEvt, wx.WindowDestroyEvent)):
         sel = obj.Selection
         ed["selectedNode"] = sel
         if isinstance(sel, list):
@@ -648,7 +652,7 @@ def getEventData(wxEvt):
         except AttributeError:
             pass
 
-    if isinstance(wxEvt, wx.calendar.CalendarEvent):
+    if isinstance(wxEvt, wx.adv.CalendarEvent):
         ed["date"] = wxEvt.PyGetDate()
         # This will be undefined for all but the
         # EVT_CALENDAR_WEEKDAY_CLICKED event.
@@ -759,7 +763,7 @@ def getObjectAtPosition(x, y=None):
     if y is None:
         x, y = x
     win = wx.FindWindowAtPoint((x,y))
-    while not isinstance(win, dPemMixin):
+    while not isinstance(win, dabo.ui.dPemMixin.dPemMixin):
         try:
             win = win.GetParent()
         except AttributeError:
@@ -2061,5 +2065,4 @@ class GridSizerSpanException(dException):
     ColSpan of an item to an illegal value.
     """
     pass
-
 

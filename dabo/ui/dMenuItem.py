@@ -31,7 +31,6 @@ class dMenuItem(dPemMixin, wx.MenuItem):
 
         dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-
     def _initEvents(self):
         ## wx.MenuItems don't have a Bind() of their own, so this serves to
         ## override the base behavior in dPemMixin._initEvents() which has
@@ -69,7 +68,8 @@ class dMenuItem(dPemMixin, wx.MenuItem):
             cap = "%s\t%s" % (cap, hk)
         curr = self.GetItemLabel()
         ## pkm: On Windows at least, setting the Icon needs to happen before setting the caption.
-        self.SetBitmap(self.Icon)
+        if self.GetKind() == wx.ITEM_NORMAL:
+            self.SetBitmap(self.Icon)
 
         if ustr(cap) != ustr(curr):
             ## Win32 seems to need to clear the caption first, or funkiness
@@ -174,6 +174,9 @@ class dMenuItem(dPemMixin, wx.MenuItem):
 
     def _setParent(self, val):
         self._parent = val
+
+
+
 
 
     Caption = property(_getCaption, _setCaption, None,

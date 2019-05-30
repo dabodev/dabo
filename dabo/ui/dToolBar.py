@@ -24,7 +24,7 @@ class dToolBar(dControlMixin, wx.ToolBar):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dToolBar
         self._toolbarItemClass = dToolBarItem
-        preClass = wx.PreToolBar
+        preClass = wx.ToolBar
 
         style = self._extractKey((kwargs, properties, attProperties), "style", 0)
         # Note: need to set the TB_TEXT flag, in order for that to be toggleable

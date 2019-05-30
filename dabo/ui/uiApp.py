@@ -188,6 +188,13 @@ class uiApp(dObject, wx.App):
 
     def OnInit(self):
         app = self.dApp
+
+        # Set User locale here using wx, rather than in dApp using locale.
+        if dabo.loadUserLocale:
+            # the wx.Locale object will revert its locale changes when its destroyed
+            # So keep a handle on it for the lifespan of the uiApp.
+            self._locale_handle = wx.Locale(wx.LANGUAGE_DEFAULT)
+
         if not self.checkForUpdates():
             return False
         if app.showSplashScreen:
@@ -460,12 +467,14 @@ these automatic updates.""").replace("\n", " ")
             self.dApp.MainForm.raiseEvent(dEvents.Activate)
         except AttributeError:
             self.raiseEvent(dEvents.Activate)
+
         self.MainLoop()
 
 
     def exit(self):
         """Exit the application event loop."""
-        self.Exit()
+        # TODO: figure out what this was intended to do, wx.App has no Exit method, nor does dObject.
+        #self.Exit()
 
 
     def finish(self):
@@ -1155,9 +1164,10 @@ these automatic updates.""").replace("\n", " ")
         Make sure that the MRU items are there and are in the
         correct order.
         """
+        from dabo.ui.dMenuBar import dMenuBar
         cap = menu.Caption
         cleanCap = cleanMenuCaption(cap)
-        topLevel = isinstance(menu.Parent, dabo.ui.dMenuBar)
+        topLevel = isinstance(menu.Parent, dMenuBar)
         mnPrm = self._mruMenuPrompts.get(cleanCap, [])
         if not mnPrm:
             return

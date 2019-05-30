@@ -211,7 +211,8 @@ class dDataControlMixin(dControlMixin):
         ##- #if oldVal is None and curVal is None:
         ##-    # Could be changed and we just don't know it...
         ##- #    isChanged = True
-        if isinstance(self, dui.dToggleButton):
+
+        if isinstance(self, dui.dToggleButton.dToggleButton):
             # These classes change their value before the GotFocus event
             # can store the oldval, so always flush 'em.
             oldVal = None
