@@ -763,7 +763,7 @@ def getObjectAtPosition(x, y=None):
     if y is None:
         x, y = x
     win = wx.FindWindowAtPoint((x,y))
-    while not isinstance(win, dPemMixin):
+    while not isinstance(win, dabo.ui.dPemMixin.dPemMixin):
         try:
             win = win.GetParent()
         except AttributeError:

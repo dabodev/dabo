@@ -872,7 +872,8 @@ class dPemMixin(dObject):
         if self._finito:
             return
         self._needRedraw = bool(self._drawnObjects)
-        if sys.platform.startswith("win") and isinstance(self, dui.dFormMixin):
+        from dabo.ui.dFormMixin import dFormMixin
+        if sys.platform.startswith("win") and isinstance(self, dFormMixin):
             dui.callAfterInterval(200, self.update)
         self.raiseEvent(dEvents.Resize, evt)
 
@@ -1509,7 +1510,7 @@ class dPemMixin(dObject):
             if not updateInactive and not self.Visible:
                 # (some platforms have inactive pages not visible)
                 return
-        if isinstance(self, dui.dFormMixin) and not self.Visible:
+        if isinstance(self, dui.dFormMixin.dFormMixin) and not self.Visible:
             return
         self.update()
 
