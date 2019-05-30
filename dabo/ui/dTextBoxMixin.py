@@ -14,6 +14,7 @@ decimalPoint = None
 
 import wx
 import wx.lib.masked as masked
+import dabo
 from dabo.lib import dates
 from dabo.ui import dKeys
 from dabo.lib.utils import ustr

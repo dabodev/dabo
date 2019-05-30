@@ -39,9 +39,13 @@ class Test(object):
             frame = classRefs[0](None, *args, **kwargs)
             isDialog = (issubclass(classRefs[0], wx.Dialog))
         else:
-            frame = dui.dForm(Name="formTest")
-            panel = frame.addObject(dui.dPanel, Name="panelTest")
-            panel.Sizer = dui.dSizer("Vertical")
+            from dabo.ui.dForm import dForm
+            from dabo.ui.dSizer import dSizer
+            from dabo.ui.dPanel import dPanel
+
+            frame = dForm(Name="formTest")
+            panel = frame.addObject(dPanel, Name="panelTest")
+            panel.Sizer = dSizer("Vertical")
             frame.Sizer.append(panel, 1, "expand")
             frame.testObjects = []
             for class_ in classRefs:

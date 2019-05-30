@@ -723,7 +723,8 @@ class dPemMixin(dObject):
             # 'Form' is None
             pass
         self._pushStatusText()
-        if isinstance(self, dui.dGrid):
+        from dabo.ui.dGrid import dGrid
+        if isinstance(self, dGrid):
             ## Continuation of ugly workaround for grid focus event. Only raise the
             ## Dabo event if we are reasonably sure it isn't a repeat.
             prev = self._lastGridFocusTimestamp
