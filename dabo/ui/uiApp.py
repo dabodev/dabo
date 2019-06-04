@@ -907,7 +907,7 @@ these automatic updates.""").replace("\n", " ")
                     dlg = wx.FindReplaceDialog(win, data, _("Find"))
 
                 # Map enter key to find button:
-                anId = wx.ANY_ID
+                anId = wx.ID_ANY
                 dlg.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_NORMAL, wx.WXK_RETURN, anId),]))
                 dlg.Bind(wx.EVT_MENU, self.onEnterInFindDialog, id=anId)
 

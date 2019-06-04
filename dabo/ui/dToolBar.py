@@ -167,7 +167,7 @@ class dToolBar(dControlMixin, wx.ToolBar):
             kind = wx.ITEM_CHECK
         else:
             kind = wx.ITEM_NORMAL
-        id_ = wx.ANY_ID
+        id_ = wx.ID_ANY
         if pos is None:
             # append
             tool = self.DoAddTool(id_, caption, picBmp, shortHelp=tip, longHelp=help,
@@ -506,7 +506,7 @@ class dToolBarItem(dObject):
         # The only way I can figure out how to do this is to call
         # toolbar.DoAddTool() and save the result. Hence, the throwaway toolbar.
         tb = dToolBar(self.Application.ActiveForm)
-        id_ = wx.ANY_ID
+        id_ = wx.ID_ANY
         wxItem = tb.DoAddTool(id_, "temp", dabo.ui.strToBmp("dCheckBox"))
         tb.RemoveTool(id_)
         tb.release()

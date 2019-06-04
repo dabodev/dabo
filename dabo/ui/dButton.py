@@ -74,7 +74,7 @@ class dButton(dControlMixin, wx.Button):
                 self.SetId(wx.ID_CANCEL)
             else:
                 target.unbindKey("esc")
-                self.SetId(wx.ANY_ID)
+                self.SetId(wx.ID_ANY)
         else:
             # In order to get the stock cancel button behavior from the OS, we need
             # to set the id here. So, getting the stock button behavior must happen

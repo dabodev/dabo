@@ -887,7 +887,7 @@ class dPemMixin(dObject):
         self.unbindKey(keyCombo)
 
         # Now, set up the accelerator table with this new entry:
-        anId = wx.ANY_ID
+        anId = wx.ID_ANY
         table = self._acceleratorTable
         table[keyCombo] = (flags, keyCode, anId)
         self.SetAcceleratorTable(wx.AcceleratorTable(list(table.values())))
@@ -954,7 +954,7 @@ class dPemMixin(dObject):
             # Object doesn't support GetID(), which includes trying
             # to get the id of a not-yet-fully-instantiated wxPython
             # object.
-            ret = wx.ANY_ID
+            ret = wx.ID_ANY
         return ret
 
 
