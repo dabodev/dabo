@@ -74,7 +74,7 @@ class dToolBar(dControlMixin, wx.ToolBar):
 
     def appendItem(self, itm):
         """Insert a dToolBarItem at the end of the toolbar."""
-        self.AddToolItem(itm._wxToolBarItem)
+        self.AddTool(itm._wxToolBarItem)
         self._daboChildren.append(itm)
         itm._parent = self
         self._realize()
@@ -169,20 +169,19 @@ class dToolBar(dControlMixin, wx.ToolBar):
         id_ = wx.ANY_ID
         if pos is None:
             # append
-            tool = self.DoAddTool(id_, caption, picBmp, shortHelp=tip, longHelp=help,
-                    kind=kind)
+            tool = self.AddTool(id_, caption, picBmp, shortHelp=tip, kind=kind)
         else:
             # insert
-            tool = self.InsertTool(pos, id_, caption, picBmp, shortHelpString=tip,
-                    longHelpString=help, isToggle=toggle)
+            tool = self.InsertTool(pos, id_, caption, picBmp, shortHelp=tip,
+                    longHelp=help, isToggle=toggle)
         tbiClass = self.ToolbarItemClass
         butt = tbiClass(tool, *args, **kwargs)
 
         try:
-            self.SetToggle(id_, toggle)
+            self.ToggleTool(id_, toggle)
         except wx._core.PyAssertionError:
             ## The AssertionError: not implemented occurs on wxMac, even though
-            ## SetToggle() obviously is implemented, because it does work.
+            ## ToggleTool() obviously is implemented, because it does work.
             pass
         self._realize()
 
@@ -474,7 +473,7 @@ class dToolBarItem(dObject):
     ## I can't figure out, for the life of me, how to mix-in dObject with
     ## wx.ToolBarToolBase - I always get a RunTimeError that there isn't a
     ## constructor. Therefore, I've made this wrapper class to decorate the
-    ## wx.ToolBarToolBase instance that comes back from the DoAddTool()
+    ## wx.ToolBarToolBase instance that comes back from the AddTool()
     ## function.
     def __init__(self, wxItem=None, OnHit=None, *args, **kwargs):
         if wxItem is None:
@@ -503,10 +502,10 @@ class dToolBarItem(dObject):
     def _getWxToolBarItem(self):
         """Create the underlying wxToolBarToolBase item, and attach it to self."""
         # The only way I can figure out how to do this is to call
-        # toolbar.DoAddTool() and save the result. Hence, the throwaway toolbar.
+        # toolbar.AddTool() and save the result. Hence, the throwaway toolbar.
         tb = dToolBar(self.Application.ActiveForm)
-        id_ = wx.ANY_ID
-        wxItem = tb.DoAddTool(id_, "temp", dabo.ui.strToBmp("dCheckBox"))
+        id_ = wx.ID_ANY
+        wxItem = tb.AddTool(id_, "temp", dabo.ui.strToBmp("dCheckBox"))
         tb.RemoveTool(id_)
         tb.release()
         return wxItem
@@ -544,7 +543,7 @@ class dToolBarItem(dObject):
         return bool(self._wxToolBarItem.CanBeToggled())
 
     def _setCanToggle(self, val):
-        self._wxToolBarItem.SetToggle(bool(val))
+        self._wxToolBarItem.ToggleTool(bool(val))
 
 
     def _getCaption(self):

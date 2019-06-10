@@ -6,7 +6,7 @@ from dabo.ui import dIcons
 
 
 
-class ImageRenderer(wx.grid.PyGridCellRenderer):
+class ImageRenderer(wx.grid.GridCellRenderer):
     """Used to display small images in a column."""
 
     def __init__(self, *args, **kwargs):
@@ -111,7 +111,7 @@ class ImageRenderer(wx.grid.PyGridCellRenderer):
 
 
 
-class BoolRenderer(wx.grid.PyGridCellRenderer):
+class BoolRenderer(wx.grid.GridCellRenderer):
     """The default wx Bool renderer is really ugly, so this is a replacement."""
 
     def __init__(self, *args, **kwargs):
@@ -202,7 +202,7 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 
 
 
-class AbstractTextRenderer(wx.grid.PyGridCellRenderer):
+class AbstractTextRenderer(wx.grid.GridCellRenderer):
     """
     This is a starting point for all renderers that simply involve controlling
     the text displayed in a cell.

@@ -58,7 +58,8 @@ class SplitterPanelMixin(object):
         else:
             newDir = "h"
         if self.Sizer is None:
-            self.Sizer = dabo.ui.dSizer(newDir)
+            from dabo.ui.dSizer import dSizer
+            self.Sizer = dSizer(newDir)
         if dir_ is None:
             dir_ = newDir
         win = dSplitter(self, createPanes=True)
@@ -189,14 +190,15 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         else:
             p1 = (pane == 1)
             p2 = (pane == 2)
+        from dabo.ui.dSizer import dSizer
         if p1 and (force or self.Panel1 is None):
             self.Panel1 = spCls(self)
             if self._createSizers:
-                self.Panel1.Sizer = dabo.ui.dSizer()
+                self.Panel1.Sizer = dSizer()
         if p2 and (force or self.Panel2 is None):
             self.Panel2 = spCls(self)
             if self._createSizers:
-                self.Panel2.Sizer = dabo.ui.dSizer()
+                self.Panel2.Sizer = dSizer()
 
 
     def initialize(self, pnl):
@@ -372,10 +374,11 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
 
 
     def _getPanelClass(self):
+        from dabo.ui.dPanel import dPanel
         try:
             ret = self._panelClass
         except AttributeError:
-            ret = self._panelClass = dabo.ui.dPanel
+            ret = self._panelClass = dPanel
         return ret
 
     def _setPanelClass(self, val):

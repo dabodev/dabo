@@ -29,9 +29,10 @@ class dPemMixin(dObject):
 
     def __init__(self, preClass=None, parent=None, properties=None,
             attProperties=None, srcCode=None, *args, **kwargs):
-        # This is the major, common constructor code for all the dabo/ui/uiwx
-        # classes. The __init__'s of each class are just thin wrappers to this
-        # code.
+        """This is the major, common constructor code for all the dabo/ui
+        classes. The __init__'s of each class are just thin wrappers to this
+        code.
+        """
         # Holds the properties passed in the constructor
         self._properties = {}
         # Holds the keyword event bindings passed in the constructor
@@ -132,9 +133,7 @@ class dPemMixin(dObject):
         properties = dictStringify(properties)
 
         # Hacks to fix up various things:
-        from . import dMenuBar, dMenuItem, dMenu, dSlidePanelControl, dToggleButton
-        if wx.VERSION >= (2, 8, 8):
-            from . import dBorderlessButton
+        from . import dMenuBar, dMenuItem, dMenu, dSlidePanelControl, dToggleButton, dBorderlessButton
         if isinstance(self, (dMenuItem.dMenuItem, dMenuItem.dSeparatorMenuItem)):
             # Hack: wx.MenuItem doesn't take a style arg,
             # and the parent arg is parentMenu.
@@ -164,9 +163,6 @@ class dPemMixin(dObject):
             # This is needed because these classes require a 'parent' param.
             kwargs["parent"] = parent
             """
-        elif wx.VERSION >= (2, 8, 8) and isinstance(self, (wx.lib.platebtn.PlateButton)):
-            self._preInitProperties["id_"] = self._preInitProperties["id"]
-            del self._preInitProperties["id"]
         # This is needed when running from a saved design file
         self._extractKey((properties, self._properties), "designerClass")
         # This attribute is used when saving code with a design file
@@ -344,7 +340,8 @@ class dPemMixin(dObject):
             self.FontSize = fontSize
         dabo.ui.callAfterInterval(200, self.refresh)
 
-        if isinstance(self, dabo.ui.dFormMixin):
+        dFormMixin = dabo.import_ui_name("dFormMixin")
+        if isinstance(self, dFormMixin):
             frm = self
         else:
             frm = self.Form
@@ -356,7 +353,9 @@ class dPemMixin(dObject):
         if not hasattr(self.Form, "_currFontZoom"):
             self.Form._restoreFontZoom()
         zoom = getattr(self.Form, "_currFontZoom", 0)
-        if zoom and not isinstance(self, (dabo.ui.dPanel, dabo.ui.dScrollPanel)):
+        dPanel = dabo.import_ui_name("dPanel")
+        dScrollPanel = dabo.import_ui_name("dScrollPanel")
+        if zoom and not isinstance(self, (dPanel, dScrollPanel)):
             dabo.ui.callAfter(self._setAbsoluteFontZoom, zoom)
 
 
@@ -534,6 +533,9 @@ class dPemMixin(dObject):
         # handler, in most cases. In some cases (panels at least), the self binding fires
         # first. We sort it out in __onWxDestroy, only reacting to the first destroy
         # event.
+        if not hasattr(self, "Bind"):
+            # Not a wx subclass, so skip this
+            return
         parent = self.GetParent()
         if parent:
             parent.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
@@ -541,7 +543,7 @@ class dPemMixin(dObject):
         self.Bind(wx.EVT_IDLE, self.__onWxIdle)
         self.Bind(wx.EVT_MENU_OPEN, targ.__onWxMenuOpen)
 
-        from dabo.ui.dGrid import dGrid
+        dGrid = dabo.import_ui_name("dGrid")
         if isinstance(self, dGrid):
             ## Ugly workaround for grids not firing focus events from the keyboard
             ## correctly.
@@ -710,7 +712,7 @@ class dPemMixin(dObject):
 
     def __onWxMenuOpen(self, evt):
         menu = evt.GetMenu()
-        from dabo.ui.dMenu import dMenu
+        dMenu = dabo.import_ui_name("dMenu")
         if menu and isinstance(menu, dMenu):
             menu.raiseEvent(dEvents.MenuOpen, evt)
         evt.Skip()
@@ -723,7 +725,7 @@ class dPemMixin(dObject):
             # 'Form' is None
             pass
         self._pushStatusText()
-        from dabo.ui.dGrid import dGrid
+        dGrid = dabo.import_ui_name("dGrid")
         if isinstance(self, dGrid):
             ## Continuation of ugly workaround for grid focus event. Only raise the
             ## Dabo event if we are reasonably sure it isn't a repeat.
@@ -735,7 +737,8 @@ class dPemMixin(dObject):
 
 
     def __onWxKeyChar(self, evt):
-        if not (isinstance(self, dui.dComboBox) and evt.KeyCode == 9):
+        dComboBox = dabo.import_ui_name("dComboBox")
+        if not (isinstance(self, dComboBox) and evt.KeyCode == 9):
             self.raiseEvent(dEvents.KeyChar, evt)
 
 
@@ -872,7 +875,7 @@ class dPemMixin(dObject):
         if self._finito:
             return
         self._needRedraw = bool(self._drawnObjects)
-        from dabo.ui.dFormMixin import dFormMixin
+        dFormMixin = dabo.import_ui_name("dFormMixin")
         if sys.platform.startswith("win") and isinstance(self, dFormMixin):
             dui.callAfterInterval(200, self.update)
         self.raiseEvent(dEvents.Resize, evt)
@@ -1154,9 +1157,9 @@ class dPemMixin(dObject):
         If this object is inside of any paged control, it will force all containing
         paged controls to switch to the page that contains this object.
         """
-        import dui.dialogs
+        WizardPage = dabo.import_ui_name("WizardPage")
         cntnr = self.getContainingPage()
-        if isinstance(cntnr, dui.dialogs.WizardPage):
+        if isinstance(cntnr, WizardPage):
             self.Form.CurrentPage = cntnr
         else:
             cntnr.Parent.SelectedPage = cntnr
@@ -1166,15 +1169,18 @@ class dPemMixin(dObject):
         """
         Return the dPage or WizardPage that contains self.
         """
-        import dui.dialogs
+        dForm = dabo.import_ui_name("dForm")
+        dPage = dabo.import_ui_name("dPage")
+        Wizard= dabo.import_ui_name("Wizard")
+        WizardPage = dabo.import_ui_name("WizardPage")
         try:
             frm = self.Form
         except AttributeError:
             frm = None
         cntnr = self
-        iswiz = isinstance(frm, dui.dialogs.Wizard)
-        mtch = {True: dui.dialogs.WizardPage, False: dui.dPage}[iswiz]
-        while cntnr and not isinstance(cntnr, dui.dForm):
+        iswiz = isinstance(frm, Wizard)
+        mtch = {True: WizardPage, False: dPage}[iswiz]
+        while cntnr and not isinstance(cntnr, dForm):
             if isinstance(cntnr, mtch):
                 return cntnr
             cntnr = cntnr.Parent
@@ -1234,7 +1240,8 @@ class dPemMixin(dObject):
         to the containing form. If no position is passed, returns the position
         of this control relative to the form.
         """
-        if isinstance(self, dui.dFormMixin):
+        dFormMixin = dabo.import_ui_name("dFormMixin")
+        if isinstance(self, dFormMixin):
             frm = self.Parent
         else:
             frm = self.Form
@@ -1249,11 +1256,12 @@ class dPemMixin(dObject):
         to the specified container. If no position is passed, returns the position
         of this control relative to the container.
         """
+        dFormMixin = dabo.import_ui_name("dFormMixin")
         selfX, selfY = self.absoluteCoordinates()
-        if self.Application.Platform == "Win" and isinstance(cnt, dui.dFormMixin):
+        if self.Application.Platform == "Win" and isinstance(cnt, dFormMixin):
             # On Windows, absoluteCoordinates() returns the position of the
-            # interior of the form, ignoring the menus, borders, etc. On Mac, it
-            # properly returns position of the entire window frame
+            # interior of the form, ignoring the menus, borders, etc. On Mac,
+            # it properly returns position of the entire window frame
             # NOTE: Need to check this on Gtk
             cntX, cntY = cnt.Position
         else:
@@ -1267,9 +1275,10 @@ class dPemMixin(dObject):
         to this object. If no position is passed, returns the position
         of this control relative to the form.
         """
+        dFormMixin = dabo.import_ui_name("dFormMixin")
         if pos is None:
             pos = self.absoluteCoordinates()
-        if isinstance(self, dui.dFormMixin):
+        if isinstance(self, dFormMixin):
             return pos
         x, y = pos
         formX, formY = self.Form.absoluteCoordinates()
@@ -1278,8 +1287,9 @@ class dPemMixin(dObject):
 
     def absoluteCoordinates(self, pos=None):
         """Translates a position value for a control to absolute screen position."""
+        dFormMixin = dabo.import_ui_name("dFormMixin")
         if pos is None:
-            if isinstance(self, dui.dFormMixin):
+            if isinstance(self, dFormMixin):
                 pos = (0, 0)
             else:
                 pos = self.Position
@@ -1387,14 +1397,18 @@ class dPemMixin(dObject):
         object is prefixed to the expression. For example, if you want to only
         affect objects that are instances of dButton, you'd call::
 
-            form.setAll("FontBold", True, filt="BaseClass == dui.dButton")
+            form.setAll("FontBold", True, filt="BaseClass == dButton")
 
         If the instancesOf sequence is passed, the property will only be set if
         the child object is an instance of one of the passed classes.
         """
-        if isinstance(self, dui.dGrid):
+        dColumn = dabo.import_ui_name("dColumn")
+        dGrid = dabo.import_ui_name("dGrid")
+        dPageFrameMixin = dabo.import_ui_name("dPageFrameMixin")
+        dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
+        if isinstance(self, dGrid):
             kids = self.Columns
-        elif isinstance(self, (dui.dPageFrameMixin, dui.dPageFrameNoTabs)):
+        elif isinstance(self, (dPageFrameMixin, dPageFrameNoTabs)):
             kids = self.Pages
         else:
             kids = self.Children
@@ -1428,7 +1442,7 @@ class dPemMixin(dObject):
                             break
             if ok:
                 setProp(kid, prop, val)
-                if isinstance(kid, dui.dColumn):
+                if isinstance(kid, dColumn):
                     setProp(kid, "Header%s" % prop, val)
             if recurse:
                 if hasattr(kid, "setAll"):
@@ -1461,6 +1475,9 @@ class dPemMixin(dObject):
             return newParent._adopt(self)
         except AttributeError:
             # None parent, perhaps
+            if not hasattr(self, "Reparent"):
+                # Not a wx subclass, so skip this
+                return
             self.Reparent(None)
 
 
@@ -1495,9 +1512,11 @@ class dPemMixin(dObject):
         """Update any dynamic properties, and then call the update() hook."""
         if not (self) or not self._constructed():
             return
+        dFormMixin = dabo.import_ui_name("dFormMixin")
+        dPageFrameMixin = dabo.import_ui_name("dPageFrameMixin")
         # Check paged controls event propagation to inactive pages.
         try:
-            isPage = isinstance(self.Parent, dui.dPageFrameMixin)
+            isPage = isinstance(self.Parent, dPageFrameMixin)
         except AttributeError:
             isPage = False
         if isPage:
@@ -1510,7 +1529,7 @@ class dPemMixin(dObject):
             if not updateInactive and not self.Visible:
                 # (some platforms have inactive pages not visible)
                 return
-        if isinstance(self, dui.dFormMixin.dFormMixin) and not self.Visible:
+        if isinstance(self, dFormMixin) and not self.Visible:
             return
         self.update()
 
@@ -1524,7 +1543,7 @@ class dPemMixin(dObject):
 
     def update(self):
         """Update the properties of this object and all contained objects."""
-        from dabo.ui.dForm import dForm
+        dForm = dabo.import_ui_name("dForm")
         if not self:
             # This can happen if an object is released when there is a
             # pending callAfter() refresh.
@@ -1599,13 +1618,16 @@ class dPemMixin(dObject):
 
     def getCaptureBitmap(self):
         """Return a bitmap snapshot of self as it appears in the UI at this moment."""
+        dDialog = dabo.import_ui_name("dDialog")
+        dForm = dabo.import_ui_name("dForm")
+        dPanel = dabo.import_ui_name("dPanel")
         obj = self.Parent
         if self.Parent is None:
             obj = self
         offset = 0
         htReduction = 0
         cltTop = self.absoluteCoordinates(self.GetClientAreaOrigin())[1]
-        if isinstance(self, (dui.dForm, dui.dDialog, dui.dPanel)):
+        if isinstance(self, (dForm, dDialog, dPanel)):
             dc = wx.WindowDC(self)
             if self.Application.Platform == "Mac":
                 # Need to adjust for the title bar
@@ -2047,13 +2069,15 @@ class dPemMixin(dObject):
         nameError = True
         candidate = name
         while nameError:
+            nameError = False
             if i:
                 candidate = "%s%s" % (name, i)
-            nameError = hasattr(parent, candidate) \
-                    and type(getattr(parent, candidate)) != wx._core._wxPyDeadObject \
-                    and getattr(parent, candidate) != self \
-                    and [win for win in parent.GetChildren()
-                        if win != self and win.GetName() == candidate]
+            if hasattr(parent, candidate):
+                att = getattr(parent, candidate)
+                if att:
+                    nameError = ((att is not self) and
+                            [win for win in parent.GetChildren()
+                            if win != self and win.GetName() == candidate])
             i += 1
         return candidate
 
@@ -2231,8 +2255,8 @@ class dPemMixin(dObject):
             """Windows textboxes change their value when SetLabel() is called; this
             avoids that problem.
             """
-            from dabo.ui.dEditBox import dEditBox
-            from dabo.ui.dTextBox import dTextBox
+            dEditBox = dabo.import_ui_name("dEditBox")
+            dTextBox = dabo.import_ui_name("dTextBox")
             if not isinstance(self, (dTextBox, dEditBox)):
                 self._caption = val
                 uval = ustr(val)
@@ -2300,11 +2324,12 @@ class dPemMixin(dObject):
         return self._droppedFileHandler
 
     def _setDroppedFileHandler(self, val):
+        dGrid = dabo.import_ui_name("dGrid")
         if self._constructed():
             self._droppedFileHandler = val
             if self._dropTarget == None:
                 self._dropTarget = _DropTarget()
-                if isinstance(self, dui.dGrid):
+                if isinstance(self, dGrid):
                     wxObj = self.GetGridWindow()
                 else:
                     wxObj = self
@@ -2318,11 +2343,12 @@ class dPemMixin(dObject):
         return self._droppedTextHandler
 
     def _setDroppedTextHandler(self, val):
+        dGrid = dabo.import_ui_name("dGrid")
         if self._constructed():
             self._droppedTextHandler = val
             if self._dropTarget == None:
                 self._dropTarget = _DropTarget()
-                if isinstance(self, dui.dGrid):
+                if isinstance(self, dGrid):
                     wxObj = self.GetGridWindow()
                 else:
                     wxObj = self
@@ -2363,16 +2389,18 @@ class dPemMixin(dObject):
 
 
     def _getDaboFont(self):
-        if hasattr(self, "_font") and isinstance(self._font, dui.dFont):
+        dFont = dabo.import_ui_name("dFont")
+        if hasattr(self, "_font") and isinstance(self._font, dFont):
             v = self._font
         else:
-            v = self.Font = dui.dFont.dFont(_nativeFont=self.GetFont())
+            v = self.Font = dFont(_nativeFont=self.GetFont())
         return v
 
     def _setDaboFont(self, val):
         #PVG: also accep wxFont parameter
-        if isinstance(val, (wx.Font, wx.Font)):
-            val = dui.dFont(_nativeFont=val)
+        dFont = dabo.import_ui_name("dFont")
+        if isinstance(val, (wx.Font,)):
+            val = dFont(_nativeFont=val)
         if self._constructed():
             self._font = val
             try:
@@ -2463,8 +2491,7 @@ class dPemMixin(dObject):
         try:
             return self._cachedForm
         except AttributeError:
-            import dabo.ui
-            from dabo.ui.dFormMixin import dFormMixin
+            dFormMixin = dabo.import_ui_name("dFormMixin")
             obj, frm = self, None
             while obj:
                 try:
@@ -2492,7 +2519,8 @@ class dPemMixin(dObject):
                 width = -1
             newSize = (width, int(val))
             self._setSize(newSize)
-            if isinstance(self, dui.dFormMixin):
+            dFormMixin = dabo.import_ui_name("dFormMixin")
+            if isinstance(self, dFormMixin):
                 self._defaultHeight = val
         else:
             self._properties["Height"] = val
@@ -2522,7 +2550,7 @@ class dPemMixin(dObject):
         if self._constructed():
             self.SetPosition((int(val), self.Top))
 
-        from dabo.ui.dFormMixin import dFormMixin
+        dFormMixin = dabo.import_ui_name("dFormMixin")
         if isinstance(self, dFormMixin):
             self._defaultLeft = val
         else:
@@ -2680,10 +2708,10 @@ class dPemMixin(dObject):
 
                 # Make sure that the name isn't already used
                 if self.Parent:
-                    if hasattr(self.Parent, name) \
-                            and type(getattr(self.Parent, name)) != wx._core._wxPyDeadObject \
-                            and getattr(self.Parent, name) != self:
-                        raise NameError("Name '%s' is already in use." % name)
+                    if hasattr(self.Parent, name):
+                        att = getattr(self.Parent, name)
+                        if att and att is not self:
+                            raise NameError("Name '%s' is already in use." % name)
                 try:
                     self.Parent.__dict__[name] = self
                 except AttributeError:
@@ -2700,10 +2728,10 @@ class dPemMixin(dObject):
                 else:
                     # the user is explicitly setting the Name. If another object already
                     # has the name, we must raise an exception immediately.
-                    if hasattr(parent, name) \
-                            and type(getattr(parent, name)) != wx._core._wxPyDeadObject \
-                            and getattr(parent, name) != self:
-                        raise NameError("Name '%s' is already in use." % name)
+                    if hasattr(parent, name):
+                        parent_att = getattr(parent, name)
+                        if parent_att and parent_att is not self:
+                            raise NameError("Name '%s' is already in use." % name)
                     else:
                         for window in parent.GetChildren():
                             if window is self:
@@ -2780,7 +2808,7 @@ class dPemMixin(dObject):
         if self._constructed():
             left, top = val
 
-            from dabo.ui.dFormMixin import dFormMixin
+            dFormMixin = dabo.import_ui_name("dFormMixin")
             if isinstance(self, dFormMixin):
                 self._defaultLeft, self._defaultTop = (left, top)
             self.SetPosition((left, top))
@@ -2839,7 +2867,7 @@ class dPemMixin(dObject):
                     # prior to wxPython 2.7.s:
                     self.SetBestFittingSize(val)
 
-            from dabo.ui.dFormMixin import dFormMixin
+            dFormMixin = dabo.import_ui_name("dFormMixin")
             if isinstance(self, dFormMixin):
                 self._defaultWidth, self._defaultHeight = val
         else:
@@ -2921,7 +2949,7 @@ class dPemMixin(dObject):
 
     def _setTop(self, val):
         if self._constructed():
-            from dabo.ui.dFormMixin import dFormMixin
+            dFormMixin = dabo.import_ui_name("dFormMixin")
             if isinstance(self, dFormMixin):
                 self._defaultTop = val
             self.SetPosition((self.Left, int(val)))
@@ -2996,13 +3024,14 @@ class dPemMixin(dObject):
 
     def _setWidth(self, val):
         if self._constructed():
+            dFormMixin = dabo.import_ui_name("dFormMixin")
             if getattr(self, "_heightAlreadySet", False):
                 height = self.Height
             else:
                 height = -1
             newSize = (int(val), height)
             self._setSize(newSize)
-            if isinstance(self, dui.dFormMixin):
+            if isinstance(self, dFormMixin):
                 self._defaultWidth = val
         else:
             self._properties["Width"] = val
@@ -3356,7 +3385,8 @@ class DrawObject(dObject):
         if not self.Visible or self._inInit:
             return
         srcObj = self.Parent
-        if isinstance(srcObj, dui.dFormMixin):
+        dFormMixin = dabo.import_ui_name("dFormMixin")
+        if isinstance(srcObj, dFormMixin):
             frm = srcObj
         else:
             frm = srcObj.Form
@@ -3615,9 +3645,9 @@ class DrawObject(dObject):
             try:
                 fnt.GetFaceName()
             except AttributeError:
-                fnt = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
+                fnt = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
         else:
-            fnt = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
+            fnt = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
         if self._fontFace is not None:
             fnt.SetFaceName(self._fontFace)
         if self._fontSize is not None:

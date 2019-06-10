@@ -46,7 +46,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
         kwargs["foregroundColour"] = self._extractKey((properties, attProperties, kwargs),
                 "ForeColor", "Black")
         kwargs["validBackgroundColour"] = self._extractKey((properties, attProperties, kwargs),
-            "BackColor", wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+            "BackColor", wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
         kwargs["invalidBackgroundColour"] = self._extractKey((properties, attProperties, kwargs),
                 "InvalidBackColor", "Yellow")
         kwargs["signedForegroundColour"] = self._extractKey((properties, attProperties, kwargs),

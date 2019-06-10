@@ -133,7 +133,7 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
                 bmp = val
             else:
                 bmp = dui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
-            self.SetBitmapSelected(bmp)
+            self.SetBitmapPressed(bmp)
         else:
             self._properties["DownPicture"] = val
 
@@ -174,7 +174,7 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
             self.SetBitmapLabel(bmp)
             # If the others haven't been specified, default them to the same
             if not self._downPicture:
-                self.SetBitmapSelected(bmp)
+                self.SetBitmapPressed(bmp)
             if not self._focusPicture:
                 self.SetBitmapFocus(bmp)
             if self._autoSize:

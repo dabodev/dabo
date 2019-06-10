@@ -35,7 +35,7 @@ class dComboBox(dControlItemMixin, wx.ComboBox):
 
     def _preInitUI(self, kwargs):
         style = kwargs.get("style", 0)
-        style |= wx.PROCESS_ENTER
+        style |= wx.TE_PROCESS_ENTER
         kwargs["style"] = style
         return kwargs
 

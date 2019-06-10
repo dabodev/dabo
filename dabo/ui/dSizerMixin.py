@@ -207,7 +207,7 @@ class dSizerMixin(dObject):
             itm._controllingSizerItem = None
             if destroy:
                 try:
-                    if isinstance(itm, dui.dSizerMixin):
+                    if isinstance(itm, dSizerMixin):
                         itm.release(True)
                     else:
                         itm.release()
@@ -236,7 +236,7 @@ class dSizerMixin(dObject):
             itm = self.Add(spacer, proportion=proportion, userData=self)
         else:
             itm = self.Insert(pos, spacer, proportion=proportion, userData=self)
-        itm.setSpacing = itm.SetSpacer
+        itm.setSpacing = itm.Spacer
         return itm
 
 
@@ -306,7 +306,8 @@ class dSizerMixin(dObject):
                     szr = szItem.GetSizer()
                     self.remove(szr, True)
         # Release this sizer
-        if isinstance(self, dui.dBorderSizer):
+        dBorderSizer = dabo.import_ui_name("dBorderSizer")
+        if isinstance(self, dBorderSizer):
             dui.callAfter(self.Box.release)
         self.Destroy()
 
@@ -390,9 +391,10 @@ class dSizerMixin(dObject):
         elif lowprop == "proportion":
             return itm.GetProportion()
         else:
+            dSizer = dabo.import_ui_name("dSizer")
             # Property is in the flag setting.
             flag = itm.GetFlag()
-            szClass = dui.dSizer
+            szClass = dSizer
             if lowprop == "expand":
                 return bool(flag & szClass.expandFlag)
             elif lowprop == "halign":
@@ -430,6 +432,7 @@ class dSizerMixin(dObject):
         Given a sizer item, a property and a value, sets things as you
         would expect.
         """
+        dGridSizer = dabo.import_ui_name("dGridSizer")
         if not itm:
             return
         if not isinstance(itm, (self.SizerItem, self.GridSizerItem)):
@@ -447,15 +450,15 @@ class dSizerMixin(dObject):
             if itm.GetBorder() != int(val):
                 itm.SetBorder(int(val))
             ret = True
-        elif lowprop == "rowexpand" and isinstance(self, dui.dGridSizer):
+        elif lowprop == "rowexpand" and isinstance(self, dGridSizer):
             self.setRowExpand(val, row)
             ret = True
-        elif lowprop == "colexpand" and isinstance(self, dui.dGridSizer):
+        elif lowprop == "colexpand" and isinstance(self, dGridSizer):
             self.setColExpand(val, col)
             ret = True
-        elif lowprop == "rowspan" and isinstance(self, dui.dGridSizer):
+        elif lowprop == "rowspan" and isinstance(self, dGridSizer):
             ret = self.setRowSpan(itm, val)
-        elif lowprop == "colspan" and isinstance(self, dui.dGridSizer):
+        elif lowprop == "colspan" and isinstance(self, dGridSizer):
             ret = self.setColSpan(itm, val)
         elif lowprop == "spacing":
             if isinstance(val, int):
@@ -463,7 +466,7 @@ class dSizerMixin(dObject):
             elif isinstance(val, str):
                 val = (int(val), int(val))
             try:
-                ret = itm.SetSpacer(val)
+                ret = itm.Spacer(val)
                 ret = True
             except AttributeError:
                 pass
@@ -630,6 +633,7 @@ class dSizerMixin(dObject):
             dui.callAfter(dc.DrawRectangle, x+off, y+off, w-(2*off), h-(2*off) )
 
         if recurse:
+            dPageFrame = dabo.import_ui_name("dPageFrame")
             for ch in self.GetChildren():
                 if ch.IsSizer():
                     sz = ch.GetSizer()
@@ -637,7 +641,7 @@ class dSizerMixin(dObject):
                         sz.drawOutline(win, recurse)
                 elif ch.IsWindow():
                     w = ch.GetWindow()
-                    if isinstance(w, dui.dPageFrame):
+                    if isinstance(w, dPageFrame):
                         w = w.SelectedPage
                     if hasattr(w, "Sizer") and w.Sizer:
                         w.Sizer.drawOutline(w, True)
@@ -898,10 +902,12 @@ class dSizerMixin(dObject):
 
 
     def _getForm(self):
+        dFormMixin = dabo.import_ui_name("dFormMixin")
+        dPemMixin = dabo.import_ui_name("dPemMixin")
         parent = self.Parent
-        if isinstance(parent, dui.dFormMixin):
+        if isinstance(parent, dFormMixin):
             return parent
-        elif isinstance(parent, dui.dPemMixin):
+        elif isinstance(parent, dPemMixin):
             return parent.Form
         return None
 

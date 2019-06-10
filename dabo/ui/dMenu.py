@@ -148,19 +148,19 @@ class dMenu(dPemMixin, wx.Menu):
 
     def appendItem(self, item):
         """Insert a dMenuItem at the bottom of the menu."""
-        wxItem = self._getWxItem(self.AppendItem, item)
+        wxItem = self._getWxItem(self.Append, item)
         return item
 
 
     def insertItem(self, pos, item):
         """Insert a dMenuItem before the specified position in the menu."""
-        wxItem = self._getWxItem(self.InsertItem, item, pos)
+        wxItem = self._getWxItem(self.Insert, item, pos)
         return item
 
 
     def prependItem(self, item):
         """Insert a dMenuItem at the top of the menu."""
-        wxItem = self._getWxItem(self.PrependItem, item)
+        wxItem = self._getWxItem(self.Prepend, item)
         return item
 
 

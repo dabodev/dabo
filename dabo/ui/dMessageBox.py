@@ -175,6 +175,10 @@ def getDefaultTitle():
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
+    from dabo.ui.dButton import dButton
+    from dabo.ui.dForm import dForm
+    from dabo.ui.dLabel import dLabel
+    from dabo.ui.dLine import dLine
     app = dApp()
     app.showMainFormOnStart = False
     app.setup()
@@ -183,14 +187,14 @@ if __name__ == "__main__":
     print(areYouSure("So you aren\'t sad?", defaultNo=True))
 
     # Test requesting user attention:
-    frm = dabo.ui.dForm()
+    frm = dForm()
     def onExit(evt):
         app.onFileExit(evt)
     cap = _("After you click okay, switch to another running application\nwithin 5 seconds, to test"
             " the requestUserAttention setting.\n\n\nAfterwards, click the button below to exit.")
-    lbl = dabo.ui.dLabel(frm, Caption=cap)
-    ln = dabo.ui.dLine(frm, Orientation="H", Height=3)
-    btn = dabo.ui.dButton(frm, Caption=_("Exit"), OnHit=onExit)
+    lbl = dLabel(frm, Caption=cap)
+    ln = dLine(frm, Orientation="H", Height=3)
+    btn = dButton(frm, Caption=_("Exit"), OnHit=onExit)
     frm.Sizer.append(lbl, halign="center", border=20)
     frm.Sizer.append(ln, "x", halign="center", border=120, borderSides=["left", "right"])
     frm.Sizer.appendSpacer(80)

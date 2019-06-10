@@ -456,5 +456,6 @@ if __name__ == "__main__":
         def afterInitAll(self):
             self.spn = _dSpinner_test(self, Value=3, OnHit=self.OH)
             self.spn2 = dSpinner(self, Value=3, Max=10, Min=1, Top=75, Width=60)
+
     app = dApp(MainFormClass=Test)
     app.start()

@@ -329,8 +329,10 @@ try again when it is running.
                 self.uiApp = dui.getUiApp(self, uiAppClass=None, callback=self.initUIApp, forceNew=True)
             else:
                 self.uiApp = dui.uiApp(self, callback=None)
+            self.initUIApp()
         else:
             self.uiApp = None
+
         # Flip the flag
         self._wasSetup = True
         # Call the afterSetup hook

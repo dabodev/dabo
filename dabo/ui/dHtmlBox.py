@@ -26,7 +26,7 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._horizontalScroll = self._verticalScroll = True
         self._baseClass = dHtmlBox
-        preClass = wx.html.PreHtmlWindow
+        preClass = wx.html.HtmlWindow
         if "style" not in kwargs:
             kwargs["style"] = wx.TAB_TRAVERSAL
         self._source = self._page = ""
@@ -324,19 +324,25 @@ if __name__ == "__main__":
     from dabo.dApp import dApp
     app = dApp(MainFormClass=None)
     app.setup()
-    frm = dabo.ui.dForm()
-    pnl = dabo.ui.dPanel(frm)
+    dButton = dabo.import_ui_name("dButton")
+    dEditBox = dabo.import_ui_name("dEditBox")
+    dForm = dabo.import_ui_name("dForm")
+    dLabel = dabo.import_ui_name("dLabel")
+    dPanel = dabo.import_ui_name("dPanel")
+    dSizer = dabo.import_ui_name("dSizer")
+    frm = dForm()
+    pnl = dPanel(frm)
     frm.Sizer.append1x(pnl)
-    sz = pnl.Sizer = dabo.ui.dSizer("v")
+    sz = pnl.Sizer = dSizer("v")
     ht = _dHtmlBox_test(pnl, RegID="htmlbox")
     sz.append(ht, 2, "x", border=10)
-    lbl = dabo.ui.dLabel(pnl, Caption="Edit the HTML below, then press 'Tab' to update the rendered HTML")
+    lbl = dLabel(pnl, Caption="Edit the HTML below, then press 'Tab' to update the rendered HTML")
     sz.appendSpacer(5)
     sz.append(lbl, halign="center")
-    edt = dabo.ui.dEditBox(pnl, RegID="editbox", DataSource=ht, DataField="Source")
+    edt = dEditBox(pnl, RegID="editbox", DataSource=ht, DataField="Source")
     edt.bindEvent(dEvents.KeyChar, textChangeHandler)
     sz.append1x(edt, border=10)
-    btn = dabo.ui.dButton(pnl, Caption="Reset", OnHit=resetHTML)
+    btn = dButton(pnl, Caption="Reset", OnHit=resetHTML)
     sz.append(btn, halign="right", border=10, borderSides=["right", "bottom"])
 
     frm.show()

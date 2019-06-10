@@ -728,7 +728,6 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         self.SetViewWhiteSpace(self.ShowWhiteSpace)
         self.SetBufferedDraw(self.BufferedDrawing)
         self.SetViewEOL(self.ShowEOL)
-        self.SetUseAntiAliasing(self.UseAntiAliasing)
 
         ## Seems that eolmode is CRLF on Mac by default... explicitly set it if not set by user!
         if not self.EOLMode:
@@ -1000,7 +999,8 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             if currIndent == 0:
                 indentLevel = 0
             else:
-                indentLevel = self.GetLineIndentation(line) / self.GetIndent()
+                indentLevel = int(self.GetLineIndentation(line) /
+                        self.GetIndent())
 
             # First, indent to the current level of indent:
             if self.UseTabs:
@@ -2438,17 +2438,6 @@ Do you want to overwrite it?""")
         self.SetText(val)
 
 
-    def _getUseAntiAliasing(self):
-        return self._useAntiAliasing
-
-    def _setUseAntiAliasing(self, val):
-        if self._constructed():
-            self._useAntiAliasing = val
-            self.SetUseAntiAliasing(val)
-        else:
-            self._properties["UseAntiAliasing"] = val
-
-
     def _getUseBookmarks(self):
         return self._useBookmarks
 
@@ -2685,9 +2674,6 @@ Do you want to overwrite it?""")
 
     Text = property(_getText, _setText, None,
                     _("Current contents of the editor  (str)"))
-
-    UseAntiAliasing = property(_getUseAntiAliasing, _setUseAntiAliasing, None,
-                               _("Controls whether fonts are anti-aliased (default=True)  (bool)"))
 
     UseBookmarks = property(_getUseBookmarks, _setUseBookmarks, None,
                             _("Are we tracking bookmarks in the editor? Default=False  (bool)"))

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import inspect
 import sys
 import wx
 try:
@@ -6,6 +7,7 @@ try:
 except ImportError:
     raise ImportError("Your version of wxPython is too old for dBorderlessButton")
 import dabo
+from dabo import dEvents
 from dabo import ui as dui
 from dabo.ui.dControlMixin import dControlMixin
 from dabo.dLocalize import _
@@ -124,6 +126,37 @@ class dBorderlessButton(dControlMixin, platebtn.PlateButton):
             self._properties["DefaultButton"] = val
 
 
+    def _getFont(self):
+        from dabo.ui.dFont import dFont
+        if hasattr(self, "_font") and isinstance(self._font, dFont):
+            v = self._font
+        else:
+            v = self.Font = dFont(_nativeFont=self.GetFont())
+        stack = inspect.stack()
+        # We want to see the calling function to tell if it's coming from wx or
+        # from Dabo.
+        caller = stack[1]
+        call_path = caller.filename.split("/")
+        if "wx" in call_path:
+            return v._nativeFont
+        return v
+
+    def _setFont(self, val):
+        #PVG: also accept wxFont parameter
+        dFont = dabo.import_ui_name("dFont")
+        if isinstance(val, (wx.Font,)):
+            val = dFont(_nativeFont=val)
+        if self._constructed():
+            self._font = val
+            try:
+                self.SetFont(val._nativeFont)
+            except AttributeError:
+                dabo.log.error(_("Error setting font for %s") % self.Name)
+            val.bindEvent(dEvents.FontPropertiesChanged, self._onFontPropsChanged)
+        else:
+            self._properties["Font"] = val
+
+
     def _getNormalBitmap(self):
         return self.GetBitmapLabel()
 
@@ -158,6 +191,9 @@ class dBorderlessButton(dControlMixin, platebtn.PlateButton):
         Normal/Rounded    :    button with rounded corners. (default)
         Square            :    button with square corners."""))
 
+    Font = property(_getFont, _setFont, None,
+            _("The font properties of the button. (obj)") )
+
     Picture = property(_getNormalPicture, _setNormalPicture, None,
         _("""Specifies the image normally displayed on the button. (str)"""))
 
@@ -169,7 +205,6 @@ class _dBorderlessButton_test(dBorderlessButton):
         self.FontSize = 8
         self.Width = 223
         self.Picture = "themes/tango/32x32/apps/accessories-text-editor.png"
-
 
     def onContextMenu(self, evt):
         print("context menu")

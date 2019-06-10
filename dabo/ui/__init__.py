@@ -385,6 +385,7 @@ def callEvery(interval, func, *args, **kwargs):
     at the specified interval. Interval is given in milliseconds. It will pass along
     any additional arguments to the function when it is called.
     """
+    dTimer = dabo.import_ui_name("dTimer")
     def _onHit(evt):
         func(*args, **kwargs)
     ret = dTimer(Interval=interval)
@@ -680,7 +681,6 @@ def getEventData(wxEvt):
         # to do anything.
         ed["alt"] = wxEvt.GetAlt()
         ed["control"] = wxEvt.GetControl()
-        ed["dragAllowMove"] = wxEvt.GetDragAllowMove()
         ed["dragResult"] = wxEvt.GetDragResult()
         ed["dragText"] = wxEvt.GetDragText()
         ed["extraLong"] = wxEvt.GetExtraLong()

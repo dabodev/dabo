@@ -24,8 +24,9 @@ class dPageFrameMixin(dControlMixin):
 
 
     def _beforeInit(self, pre):
+        from dabo.ui.dSizer import dSizer
         self._imageList = {}
-        self._pageSizerClass = dui.dSizer
+        self._pageSizerClass = dSizer
         super(dPageFrameMixin, self)._beforeInit(pre)
 
 

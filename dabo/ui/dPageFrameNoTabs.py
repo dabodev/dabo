@@ -15,8 +15,9 @@ class dPageFrameNoTabs(dPanel):
     page. Your code will have to programatically set the page.
     """
     def __init__(self, *args, **kwargs):
+        from dabo.ui.dSizer import dSizer
         self._pageClass = dPage
-        self._pageSizerClass = dui.dSizer
+        self._pageSizerClass = dSizer
         self._activePage = None
         self._pages = []
         super(dPageFrameNoTabs, self).__init__(*args, **kwargs)
@@ -24,8 +25,9 @@ class dPageFrameNoTabs(dPanel):
 
 
     def _afterInit(self):
+        from dabo.ui.dSizer import dSizer
         if self.Sizer is None:
-            self.Sizer = dui.dSizer()
+            self.Sizer = dSizer()
         super(dPageFrameNoTabs, self)._afterInit()
 
 
@@ -292,10 +294,12 @@ from dabo.ui.dSizer import dSizer
 
 class TestPage(dPage):
     def afterInit(self):
-        self.lbl = dui.dLabel(self, FontSize=36)
+        dLabel = dabo.import_ui_name("dLabel")
+        dSizer = dabo.import_ui_name("dSizer")
+        self.lbl = dLabel(self, FontSize=36)
         color = random.choice(list(dColors.colorDict.keys()))
         self.BackColor = self.lbl.Caption = color
-        self.Sizer = sz = dui.dSizer("h")
+        self.Sizer = sz = dSizer("h")
         sz.appendSpacer(1, 1)
         sz.append(self.lbl, 1)
         sz.appendSpacer(1, 1)

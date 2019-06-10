@@ -124,11 +124,13 @@ class dNode(dObject):
         if hasattr(self, "_font"):
             v = self._font
         else:
-            v = self.Font = dabo.ui.dFont(_nativeFont=self.tree.GetItemFont(self.itemID))
+            dFont = dabo.import_ui_name("dFont")
+            v = self.Font = dFont(_nativeFont=self.tree.GetItemFont(self.itemID))
         return v
 
     def _setFont(self, val):
-        assert isinstance(val, dabo.ui.dFont)
+        dFont = dabo.import_ui_name("dFont")
+        assert isinstance(val, dFont)
         self._font = val
         if not self.IsRootNode or self.tree.ShowRootNode:
             # On some platforms exception is raised while operation

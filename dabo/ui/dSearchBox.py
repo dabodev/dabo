@@ -86,7 +86,8 @@ class dSearchBox(dTextBoxMixin, wx.SearchCtrl):
 
     #private methods
     def _setupMenuFromList(self, valueList):
-        menu = dui.dMenu()
+        dMenu = dabo.import_ui_name("dMenu")
+        menu = dMenu()
         for value in valueList:
             if not type(value) in (str, str):
                 raise ValueError("All elements in the List must be strings")
