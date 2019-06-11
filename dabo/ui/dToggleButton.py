@@ -31,9 +31,9 @@ class dToggleButton(dDataControlMixin, dImageMixin,
         kwargs["BezelWidth"] = bw
         style = self._extractKey((properties, attProperties, kwargs), "style", 0) | wx.BORDER_NONE
         kwargs["style"] = style
-        super(dToggleButton, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dImageMixin.__init__(self)
+        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
         self.Bind(wx.EVT_BUTTON, self.__onButton)
 
 

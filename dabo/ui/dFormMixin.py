@@ -76,12 +76,10 @@ class dFormMixin(dPemMixin):
         # Flag to prevent infinite loops when doing field-level validation
         self._fieldValidationControl = None
 
-        super(dFormMixin, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        super(dFormMixin, self).__init__(preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
-#        dui.callAfter(self._createStatusBar)
-        self._createStatusBar()
+        dui.callAfter(self._createStatusBar)
         self._createToolBar()
 
 
@@ -97,10 +95,11 @@ class dFormMixin(dPemMixin):
         mbc = self.MenuBarClass
         if app and mbc and self.ShowMenuBar:
             if isinstance(mbc, str):
-                self.MenuBar = dui.createMenuBar(mbc, parent=self)
+                self.MenuBar = dui.createMenuBar(mbc, self)
             else:
-                self.MenuBar = mbc(parent=self)
+                self.MenuBar = mbc()
             self.afterSetMenuBar()
+
         if not self.Icon:
             if app:
                 self.Icon = app.Icon
@@ -215,7 +214,6 @@ class dFormMixin(dPemMixin):
 
 
     def _createStatusBar(self):
-        print("CREATE STATUS BAR CALLED", self)
         modal = getattr(self, "Modal", False)
         if (self and self.ShowStatusBar
                 and self.StatusBar is None
@@ -224,7 +222,6 @@ class dFormMixin(dPemMixin):
                 and (sys.platform.startswith("darwin") or not isinstance(self, wx.MDIChildFrame))):
             SBC = self.StatusBarClass
             self.StatusBar = SBC(self)
-        print("CREATE STATUS BAR DONE", self)
 
 
     def __onDeactivate(self, evt):
@@ -396,8 +393,8 @@ class dFormMixin(dPemMixin):
 
 
     def Show(self, *args, **kwargs):
-        super(dFormMixin, self).Show(*args, **kwargs)
         self.restoreSizeAndPositionIfNeeded()
+        super(dFormMixin, self).Show(*args, **kwargs)
 
 
     def showModal(self):
@@ -574,8 +571,7 @@ class dFormMixin(dPemMixin):
             self.Left = max(0, self.Left)
             self.Top = max(minTop, self.Top)
 
-#        self.WindowState = state
-        dabo.ui.setAfter(self, "WindowState", state)
+        self.WindowState = state
 
 
     def saveSizeAndPosition(self):
@@ -1018,9 +1014,7 @@ class dFormMixin(dPemMixin):
 
     def _setStatusBar(self, val):
         try:
-            print("Before call to SetStatusBar")
             self.SetStatusBar(val)
-            print("After call to SetStatusBar")
         except (TypeError, AttributeError):
             # dialogs don't have status bars
             pass

@@ -175,9 +175,8 @@ class dShell(dControlMixin, wx.py.shell.Shell):
             self._fontSize = 10
         self._baseClass = dShell
         preClass = wx.py.shell.Shell
-        super(dShell, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
 
     @dabo.ui.deadCheck
@@ -370,18 +369,19 @@ class dShell(dControlMixin, wx.py.shell.Shell):
             _("Size of the font used in the shell  (int)"))
 
 
+
 class dShellForm(dSplitForm):
     def _onDestroy(self, evt):
         self._clearOldHistory()
-        builtins.input = self._oldInput
+        builtins.raw_input = self._oldRawInput
 
 
-    def _beforeInit(self):
+    def _beforeInit(self, pre):
         # Set the sash
         self._sashPct = 0.6
         # Class to use for creating the interactive shell
         self._shellClass = dShell
-        super(dShellForm, self)._beforeInit()
+        super(dShellForm, self)._beforeInit(pre)
 
 
     def _afterInit(self):
@@ -390,11 +390,11 @@ class dShellForm(dSplitForm):
         self._historyPanel = None
         self._lastCmd = None
 
-        # PyShell sets the input function to a function of PyShell,
+        # PyShell sets the raw_input function to a function of PyShell,
         # but doesn't set it back on destroy, resulting in errors later
-        # on if something other than PyShell asks for input (pdb, for
+        # on if something other than PyShell asks for raw_input (pdb, for
         # example).
-        self._oldInput = builtins.input
+        self._oldRawInput = builtins.raw_input
         self.bindEvent(dEvents.Destroy, self._onDestroy)
 
         splt = self.Splitter
@@ -432,7 +432,7 @@ class dShellForm(dSplitForm):
         # This lets you go all the way back to the '.' without losing the AutoComplete
         self.shell.AutoCompSetCancelAtStart(False)
         self.shell.Bind(wx.EVT_RIGHT_UP, self.onShellRight)
-        self.shell.Bind(wx.EVT_CONTEXT_MENU, self.onShellContext)
+        self.shell.Bind(wx.wx.EVT_CONTEXT_MENU, self.onShellContext)
 
         # Create the Code control
         codeControl = dEditor(self.pgCode, RegID="edtCode",

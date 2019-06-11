@@ -23,11 +23,10 @@ class dPageFrameMixin(dControlMixin):
             attProperties=attProperties, *args, **kwargs)
 
 
-    def _beforeInit(self):
-        from dabo.ui.dSizer import dSizer
+    def _beforeInit(self, pre):
         self._imageList = {}
-        self._pageSizerClass = dSizer
-        super(dPageFrameMixin, self)._beforeInit()
+        self._pageSizerClass = dui.dSizer
+        super(dPageFrameMixin, self)._beforeInit(pre)
 
 
     def _initEvents(self):

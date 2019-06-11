@@ -1060,7 +1060,7 @@ def getControlClass(base):
             if hasattr(base, "__init__"):
                 apply(base.__init__,(self,) + args, kwargs)
             parent = self._extractKey(kwargs, "parent")
-            super(controlMix, self).__init__(parent, **kwargs)
+            cmix.__init__(self, parent, **kwargs)
             self.NameBase = ustr(self._baseClass).split(".")[-1].split("'")[0]
             self.BasePrefKey = prefkey
     return controlMix

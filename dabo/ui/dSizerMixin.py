@@ -80,7 +80,6 @@ class dSizerMixin(dObject):
 
 
     def __init__(self, *args, **kwargs):
-        kwargs.pop("orientation", None)
         super(dSizerMixin, self).__init__(*args, **kwargs)
 
 
@@ -237,7 +236,7 @@ class dSizerMixin(dObject):
             itm = self.Add(spacer, proportion=proportion, userData=self)
         else:
             itm = self.Insert(pos, spacer, proportion=proportion, userData=self)
-        itm.setSpacing = itm.AssignSpacer
+        itm.setSpacing = itm.SetSpacer
         return itm
 
 

@@ -4,6 +4,7 @@ This is Dabo's user interface layer.
 """
 import datetime
 import glob
+import importlib
 import inspect
 import io
 import os
@@ -87,7 +88,6 @@ uiType["platform"] = _platform
 # Add these to the dabo.ui namespace
 assertionException = wx.wxAssertionError
 nativeScrollBar = wx.ScrollBar
-
 
 def deadCheck(fn, *args, **kwargs):
     """
@@ -312,11 +312,9 @@ def callAfter(fnc, *args, **kwargs):
     Call the passed function with the passed arguments in the next
     event loop.
     """
-    global lastCallAfterStack
     if dabo.saveCallAfterStack:
         lastCallAfterStack = "".join(traceback.format_stack())
     wx.CallAfter(fnc, *args, **kwargs)
-    print("CALL AFTER", fnc)
 
 
 _callAfterIntervalReferences = {}
@@ -331,10 +329,11 @@ def callAfterInterval(interval, func, *args, **kwargs):
     high.
     """
     global lastCallAfterStack
-    global _callAfterIntervalReferences
-
     if dabo.saveCallAfterStack:
         lastCallAfterStack = "".join(traceback.format_stack())
+    if isinstance(func, int):
+        # Arguments are in the old order
+        interval, func = func, interval
     func_ref = func
     if func.__closure__:
         func_ref = func.__code__
@@ -351,8 +350,7 @@ def callAfterInterval(interval, func, *args, **kwargs):
             pass
 
     _callAfterIntervalReferences[(func_ref, args)] = wx.CallLater(interval,
-            ca_func, func_ref, func, *args, **kwargs)
-    print("CALL AFTER INTERVAL", interval, func)
+                                                        ca_func, func_ref, func, *args, **kwargs)
 
 
 def setAfter(obj, prop, val):
@@ -363,7 +361,6 @@ def setAfter(obj, prop, val):
     try:
         fnc = getattr(obj.__class__, prop).fset
         wx.CallAfter(fnc, obj, val)
-        print("SET AFTER", obj, prop, val)
     except Exception as e:
         dabo.log.error(_("setAfter() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
                 % locals())
@@ -377,7 +374,6 @@ def setAfterInterval(interval, obj, prop, val):
     try:
         fnc = getattr(obj.__class__, prop).fset
         callAfterInterval(interval, fnc, obj, val)
-        print("SET AFTER INTERVAL", interval, obj, prop, val)
     except Exception as e:
         dabo.log.error(_("setAfterInterval() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
                 % locals())
@@ -389,7 +385,6 @@ def callEvery(interval, func, *args, **kwargs):
     at the specified interval. Interval is given in milliseconds. It will pass along
     any additional arguments to the function when it is called.
     """
-    from dabo.ui.dTimer import dTimer
     def _onHit(evt):
         func(*args, **kwargs)
     ret = dTimer(Interval=interval)
@@ -465,6 +460,8 @@ def discontinueEvent(evt):
 def getEventData(wxEvt):
     from dabo.ui.dMenu import dMenu
     from dabo.ui.dTreeView import dTreeView
+    import wx.grid
+
     ed = {}
     eventType = wxEvt.GetEventType()
     if isinstance(wxEvt, wx._core.FocusEvent):
@@ -763,11 +760,10 @@ def getObjectAtPosition(x, y=None):
     position, or None if there is no such object. You can pass separate
     x,y coordinates, or an x,y tuple.
     """
-    from dabo.ui.dPemMixin import dPemMixin
     if y is None:
         x, y = x
     win = wx.FindWindowAtPoint((x,y))
-    while not isinstance(win, dPemMixin):
+    while not isinstance(win, dabo.ui.dPemMixin.dPemMixin):
         try:
             win = win.GetParent()
         except AttributeError:
@@ -1397,19 +1393,17 @@ def createForm(srcFile, show=False, *args, **kwargs):
     return frm
 
 
-def createMenuBar(src, parent=None, previewFunc=None):
+def createMenuBar(src, form=None, previewFunc=None):
     """
-    Pass in either an .mnxml file path saved from the Menu Designer, or a dict
-    representing the menu, which will be used to instantiate a MenuBar. Returns
-    a reference to the newly-created MenuBar. You can optionally pass in a
-    reference to the form to which this menu is associated, so that you can
-    enter strings that represent form functions in the Designer, such as
-    'form.close', which will call the associated form's close() method. If
-    'previewFunc' is passed, the menu command that would have been eval'd and
-    executed on a live menu will instead be passed back as a parameter to that
-    function.
+    Pass in either an .mnxml file path saved from the Menu Designer, or a dict representing
+    the menu, which will be used to instantiate a MenuBar. Returns a reference to the
+    newly-created MenuBar. You can optionally pass in a reference to the form to which this menu
+    is associated, so that you can enter strings that represent form functions in the Designer,
+    such as 'form.close', which will call the associated form's close() method. If 'previewFunc'
+    is passed, the menu command that would have been eval'd and executed on a live menu will
+    instead be passed back as a parameter to that function.
     """
-    def addMenu(mb, parent, menuDict, previewFunc):
+    def addMenu(mb, menuDict, form, previewFunc):
         if form is None:
             form = dabo.dAppRef.ActiveForm
         if isinstance(mb, dabo.ui.dMenuBar.dMenuBar):
@@ -1433,7 +1427,7 @@ def createMenuBar(src, parent=None, previewFunc=None):
             if "Separator" in itm["name"]:
                 menu.appendSeparator()
             elif itm["name"] == "MenuPanel":
-                addMenu(menu, parent, itm, previewFunc)
+                addMenu(menu, itm, form, previewFunc)
             else:
                 itmatts = itm["attributes"]
                 cap = menu._extractKey(itmatts, "Caption")
@@ -1474,9 +1468,9 @@ def createMenuBar(src, parent=None, previewFunc=None):
                 stop(e, _("File Not Found"))
                 return
         mnd = dabo.lib.xmltodict.xmltodict(src)
-    mb = dabo.ui.dMenuBar.dMenuBar(parent=parent)
+    mb = dabo.ui.dMenuBar.dMenuBar()
     for mn in mnd["children"]:
-        addMenu(mb, parent, mn, previewFunc)
+        addMenu(mb, mn, form, previewFunc)
     return mb
 
 
@@ -2071,3 +2065,4 @@ class GridSizerSpanException(dException):
     ColSpan of an item to an illegal value.
     """
     pass
+

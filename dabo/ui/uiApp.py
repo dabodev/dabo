@@ -35,7 +35,7 @@ class SplashScreen(wx.Frame):
     """
     def __init__(self, bitmap=None, maskColor=None, timeout=0):
         style = wx.FRAME_NO_TASKBAR | wx.FRAME_SHAPED | wx.STAY_ON_TOP
-        super(SplashScreen, self).__init__(None, -1, style=style)
+        wx.Frame.__init__(self, None, -1, style=style)
 
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         if isinstance(bitmap, str):
@@ -112,7 +112,8 @@ class uiApp(dObject, wx.App):
     def __init__(self, app, callback=None, *args):
         self.dApp = app
         self.callback = callback
-        super(uiApp, self).__init__(*args)
+        wx.App.__init__(self, 0, *args)
+        dObject.__init__(self)
 
         self.Name = _("uiApp")
         # wx has properties for appName and vendorName, so Dabo should update
@@ -182,10 +183,18 @@ class uiApp(dObject, wx.App):
         hnd.setFormatter(fmt)
         log.setLevel(logging.DEBUG)
         log.addHandler(hnd)
+        super(uiApp, self).__init__(*args)
 
 
     def OnInit(self):
         app = self.dApp
+
+        # Set User locale here using wx, rather than in dApp using locale.
+        if dabo.loadUserLocale:
+            # the wx.Locale object will revert its locale changes when its destroyed
+            # So keep a handle on it for the lifespan of the uiApp.
+            self._locale_handle = wx.Locale(wx.LANGUAGE_DEFAULT)
+
         if not self.checkForUpdates():
             return False
         if app.showSplashScreen:
@@ -200,7 +209,7 @@ class uiApp(dObject, wx.App):
                 splash.Update()
         if self.callback is not None:
             wx.CallAfter(self.callback)
-        self.callback = None
+        del self.callback
         return True
 
 
@@ -421,7 +430,7 @@ these automatic updates.""").replace("\n", " ")
 
 
     def setup(self):
-        wx.SystemOptions.SetOption("mac.textcontrol-use-spell-checker", 1)
+        wx.SystemOptions.SetOptionInt("mac.textcontrol-use-spell-checker", 1)
         frm = self.dApp.MainForm
         if frm is None:
             if self.dApp.MainFormClass is not None:
@@ -458,12 +467,14 @@ these automatic updates.""").replace("\n", " ")
             self.dApp.MainForm.raiseEvent(dEvents.Activate)
         except AttributeError:
             self.raiseEvent(dEvents.Activate)
+
         self.MainLoop()
 
 
     def exit(self):
         """Exit the application event loop."""
-        self.ExitMainLoop()
+        # TODO: figure out what this was intended to do, wx.App has no Exit method, nor does dObject.
+        #self.Exit()
 
 
     def finish(self):
@@ -528,28 +539,24 @@ these automatic updates.""").replace("\n", " ")
 
     def showCommandWindow(self, context=None):
         """Display a command window for debugging."""
-        from dabo.ui.dShell import dShellForm
         if context is None:
             context = self.ActiveForm
-        dlg = dShellForm(context)
+        dlg = dabo.ui.dShellForm(context)
         dlg.show()
 
 
     def toggleDebugWindow(self, context=None):
         """Display a debug output window."""
-        from dabo.ui.dEditBox import dEditBox
-        from dabo.ui.dForm import dToolForm
-        from dabo.ui.dTimer import dTimer
         if context is None:
             context = self.ActiveForm
-        class DebugWindow(dToolForm):
+        class DebugWindow(dabo.ui.dToolForm):
             def afterInit(self):
                 self.Caption = _("Debug Output")
-                self.out = dEditBox(self, ReadOnly=True)
+                self.out = dabo.ui.dEditBox(self, ReadOnly=True)
                 self.out.bindEvent(dEvents.ContextMenu, self.onContext)
                 self.Sizer.append1x(self.out)
                 self._txtlen = len(self.out.Value)
-                self.tmr = dTimer(self, Interval=500, OnHit=self.onOutValue)
+                self.tmr = dabo.ui.dTimer(self, Interval=500, OnHit=self.onOutValue)
                 self.tmr.start()
             def onContext(self, evt):
                 self.out.Value = ""
@@ -1040,8 +1047,6 @@ these automatic updates.""").replace("\n", " ")
         Run the search on the current control, if it is a text-based control.
         Select the found text in the control.
         """
-        from dabo.ui.dGrid import dGrid
-
         flags = self.findReplaceData.GetFlags()
         findString = self.findReplaceData.GetFindString()
         replaceString = self.findReplaceData.GetReplaceString()
@@ -1084,7 +1089,7 @@ these automatic updates.""").replace("\n", " ")
                     win.SetSelection(pos, pos+len(findString))
                 return ret
 
-            elif isinstance(win, dGrid):
+            elif isinstance(win, dabo.ui.dGrid):
                 return win.findReplace(action, findString, replaceString, downwardSearch,
                         wholeWord, matchCase)
             else:

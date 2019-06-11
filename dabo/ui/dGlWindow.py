@@ -34,7 +34,7 @@ class dGlWindow(dControlMixin, glcanvas.GLCanvas):
 
         self._baseClass = dGlWindow
         preClass = glcanvas.GLCanvas
-        super(dGlWindow, self).__init__(preClass, parent=parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
     def initGL(self):

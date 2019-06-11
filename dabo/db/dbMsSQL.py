@@ -9,7 +9,7 @@ from dabo.lib.utils import ustr
 class MSSQL(dBackend):
     """Class providing Microsoft SQL Server connectivity. Uses pymssql."""
     def __init__(self):
-        super(MSSQL, self).__init__()
+        dBackend.__init__(self)
         #- jfcs 11/06/06 first try getting Microsoft SQL 2000 server working
         # MSSQL requires the installation of FreeTDS.  FreeTDS can be downloaded from
         # http://www.freetds.org/

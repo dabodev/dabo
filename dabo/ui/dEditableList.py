@@ -43,9 +43,8 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
         self._upButton = None
         self._panel = None
 
-        super(dEditableList, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
 
     def GetValue(self):

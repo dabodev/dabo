@@ -36,7 +36,8 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         # around the bitmap image in order for it to appear correctly
         self._bmpBorder = 10
 
-        super(dBitmapButton, self).__init__(preClass, parent, properties=properties,
+        dImageMixin.__init__(self)
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

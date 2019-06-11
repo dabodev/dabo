@@ -49,7 +49,7 @@ decimalPoint = None
 
 
 
-class dGridDataTable(wx.grid.GridTableBase):
+class dGridDataTable(wx.grid.PyGridTableBase):
 
     def __init__(self, parent):
         super(dGridDataTable, self).__init__()
@@ -282,28 +282,28 @@ class dGridDataTable(wx.grid.GridTableBase):
 
     # The following methods are required by the grid, to find out certain
     # important details about the underlying table.
-    def GetNumberRows(self):
-        bizobj = self.grid.getBizobj()
-        if bizobj:
-            return bizobj.RowCount
-        try:
-            num = len(self.grid.DataSet)
-        except:
-            num = 0
-        return num
+#    def GetNumberRows(self):
+#        bizobj = self.grid.getBizobj()
+#        if bizobj:
+#            return bizobj.RowCount
+#        try:
+#            num = len(self.grid.DataSet)
+#        except:
+#            num = 0
+#        return num
 
 
-    def GetNumberCols(self, useNative=False):
-        if useNative:
-            return super(dGridDataTable, self).GetNumberCols()
-        else:
-            return self.grid.ColumnCount
+#    def GetNumberCols(self, useNative=False):
+#        if useNative:
+#            return super(dGridDataTable, self).GetNumberCols()
+#        else:
+#            return self.grid.ColumnCount
 
 
-    def IsEmptyCell(self, row, col):
-        if row >= self.grid.RowCount:
-            return True
-        return False
+#    def IsEmptyCell(self, row, col):
+#        if row >= self.grid.RowCount:
+#            return True
+#        return False
 
 
     def GetValue(self, row, col, useCache=True, convertNoneToString=True,
@@ -488,8 +488,7 @@ class dColumn(dPemMixin):
 
         self._gridCellAttrs = {}
 
-        super(dColumn, self).__init__(preClass=None, parent=parent,
-                properties=properties, attProperties=attProperties,
+        super(dColumn, self).__init__(properties=properties, attProperties=attProperties,
                 *args, **kwargs)
         self._baseClass = dColumn
         if dataFieldSent and not dataTypeSent:
@@ -1820,7 +1819,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         if decimalPoint is None:
             decimalPoint = locale.localeconv()["decimal_point"]
         # Get scrollbar size from system metrics.
-        self._scrollBarSize = wx.SystemSettings.GetMetric(wx.SYS_VSCROLL_X)
+        self._scrollBarSize = wx.SystemSettings_GetMetric(wx.SYS_VSCROLL_X)
         self._baseClass = dGrid
         preClass = wx.grid.Grid
 
@@ -1917,7 +1916,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self._rowColorEven = "white"
         self._rowColorOdd = (212, 255, 212)        # very light green
 
-        super(dGrid, self).__init__(preClass, parent=parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
         # Reduces grid flickering on Windows platform.

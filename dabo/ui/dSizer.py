@@ -26,6 +26,7 @@ class dSizer(dSizerMixin, wx.BoxSizer):
             orientation = wx.VERTICAL
         else:
             orientation = wx.HORIZONTAL
+        wx.BoxSizer.__init__(self, orientation)
 
         self._properties = {}
         # The keyword properties can come from either, both, or none of:
@@ -44,7 +45,7 @@ class dSizer(dSizerMixin, wx.BoxSizer):
             bad = ", ".join(list(kwargs.keys()))
             raise TypeError("Invalid keyword arguments passed to dSizer: %s" % bad)
 
-        super(dSizer, self).__init__(orientation=orientation, *args, **kwargs)
+        dSizerMixin.__init__(self, *args, **kwargs)
 
 
     def getBorderedClass(self):

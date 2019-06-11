@@ -73,7 +73,7 @@ class _TraceMixin(object):
 class PlotLine(_TraceMixin, plot.PolyLine):
     def __init__(self, *args, **kwargs):
         self._lineStyle = "solid"
-        super(PlotLine, self).__init__(*args, **kwargs)
+        plot.PolyLine.__init__(self, *args, **kwargs)
 
 
     #Property Getters and Setters
@@ -97,7 +97,7 @@ class PlotLine(_TraceMixin, plot.PolyLine):
 class PlotMarkers(_TraceMixin, plot.PolyMarker):
     def __init__(self, *args, **kwargs):
         self._fillStyle = "solid"
-        super(PlotMarkers, self).__init__(*args, **kwargs)
+        plot.PolyMarker.__init__(self, *args, **kwargs)
 
 
     #Property getters and setters
@@ -158,10 +158,10 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         self._plotManager = plot.PlotGraphics([])
 
         self._baseClass = dLinePlot
+        plot.PlotCanvas.__init__(self, parent)
         name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-        super(dLinePlot, self).__init__(preClass=None, parent=parent, name=name,
-                properties=properties, attProperties=attProperties,
-                _explicitName=_explicitName, *args, **kwargs)
+        dControlMixin.__init__(self, name, properties=properties,
+                attProperties=attProperties, _explicitName=_explicitName, *args, **kwargs)
 
         self.SetPointLabelFunc(self.DrawPointLabel)
         self.setDefaults()

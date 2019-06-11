@@ -313,11 +313,10 @@ class dControlItemMixin(dDataControlMixin):
         return self._sortFunction
 
     def _setSortFunction(self, val):
-        from dabo.ui.dListControl import dListControl
         if self._constructed():
             if callable(val):
                 self._sortFunction = val
-                if not isinstance(self, dListControl):
+                if not isinstance(self, dui.dListControl):
                     # Force a re-ordering
                     self.sort()
             else:

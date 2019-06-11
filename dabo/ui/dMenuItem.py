@@ -14,7 +14,7 @@ class dMenuItem(dPemMixin, wx.MenuItem):
     """Creates a menu item, which is usually represented as a string."""
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         self._baseClass = dMenuItem
-        preClass = None
+        preClass = wx.MenuItem
         self.Parent = parent
 
         ## see comments in _setCaption for explanation of below:
@@ -29,9 +29,7 @@ class dMenuItem(dPemMixin, wx.MenuItem):
         # Holds the unique ID, if any
         self._itemID = None
 
-        super(dMenuItem, self).__init__(preClass, parent, properties, *args,
-                **kwargs)
-
+        dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
     def _initEvents(self):
         ## wx.MenuItems don't have a Bind() of their own, so this serves to
@@ -70,7 +68,8 @@ class dMenuItem(dPemMixin, wx.MenuItem):
             cap = "%s\t%s" % (cap, hk)
         curr = self.GetItemLabel()
         ## pkm: On Windows at least, setting the Icon needs to happen before setting the caption.
-        self.SetBitmap(self.Icon)
+        if self.GetKind() == wx.ITEM_NORMAL:
+            self.SetBitmap(self.Icon)
 
         if ustr(cap) != ustr(curr):
             ## Win32 seems to need to clear the caption first, or funkiness
@@ -177,6 +176,9 @@ class dMenuItem(dPemMixin, wx.MenuItem):
         self._parent = val
 
 
+
+
+
     Caption = property(_getCaption, _setCaption, None,
             _("Specifies the text of the menu item."))
 
@@ -215,14 +217,11 @@ class dSeparatorMenuItem(dPemMixin, wx.MenuItem):
     """Creates a menu separator."""
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         self._baseClass = dSeparatorMenuItem
-        preClass = None
+        preClass = wx.MenuItem
         self.Parent = parent
         # Holds the unique ID, if any
         self._itemID = None
-        # Identify this as a separator
-        kwargs["kind"] = wx.ITEM_SEPARATOR
-        super(dSeparatorMenuItem, self).__init__(preClass, parent=parent,
-                properties=properties, *args, **kwargs)
+        dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
     # The following are methods designed to make separators work like other menu items.
@@ -266,7 +265,7 @@ class dSeparatorMenuItem(dPemMixin, wx.MenuItem):
 
 class _AbstractExtendedMenuItem(dMenuItem):
     """Creates a checkbox-like item in a menu."""
-    def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
+    def __init__(self, parent=None, properties=None, *args, **kwargs):
         # Remove the 'Icon' property, as it interferes with the 'selected' display
         if self.__class__ is _AbstractExtendedMenuItem:
             raise dabo.dException.dException(
@@ -274,7 +273,7 @@ class _AbstractExtendedMenuItem(dMenuItem):
         # Remove the 'Icon' property, as it interferes with the 'selected' display
         self._extractKey((properties, kwargs), "Icon")
         super(_AbstractExtendedMenuItem, self).__init__(parent=parent,
-                properties=properties, *args, **kwargs)
+            properties=properties, *args, **kwargs)
 
 
     def _getChecked(self):
@@ -293,18 +292,10 @@ class _AbstractExtendedMenuItem(dMenuItem):
 
 class dCheckMenuItem(_AbstractExtendedMenuItem):
     """Creates a checkbox-like item in a menu."""
-    def __init__(self, parent=None, properties=None, *args, **kwargs):
-        preClass = None
-        kwargs["kind"] = wx.ITEM_CHECK
-        super(dCheckMenuItem, self).__init__(preClass, parent=parent,
-                properties=properties, *args, **kwargs)
+    pass
 
 
 class dRadioMenuItem(_AbstractExtendedMenuItem):
     """Creates a radiobox-like item in a menu."""
-    def __init__(self, parent=None, properties=None, *args, **kwargs):
-        preClass = None
-        kwargs["kind"] = wx.ITEM_RADIO
-        super(dRadioMenuItem, self).__init__(preClass, parent=parent,
-                properties=properties, *args, **kwargs)
+    pass
 
