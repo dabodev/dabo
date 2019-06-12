@@ -192,7 +192,7 @@ class STCPrintout(wx.Printout):
 
         # render page titles and numbers
         f = dc.GetFont()
-        f.SetFamily(wx.ROMAN)
+        f.SetFamily(wx.FONTFAMILY_ROMAN)
         f.SetFaceName('Times New Roman')
         f.SetPointSize(f.GetPointSize()+3)
         dc.SetFont(f)

@@ -2050,7 +2050,7 @@ class dPemMixin(dObject):
         if self.Application.Platform == "Mac":
             # Mac bug: need to clear the font from the control first
             # (Thanks Peter Damoc):
-            self.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL))
+            self.SetFont(wx.Font(12, wx.FONTFAMILY_SWISS, wx.FONTWEIGHT_NORMAL, wx.FONTWEIGHT_NORMAL))
         self.SetFont(self.Font._nativeFont)
         # Re-raise it so that the object can respond to the event.
         self.raiseEvent(dEvents.FontPropertiesChanged)
@@ -3358,10 +3358,10 @@ class DrawObject(dObject):
         self._orientation = None
         self._transparent = True
         self._drawMode = None
-        self._hatchStyleDict = {"transparent": wx.TRANSPARENT, "solid": wx.SOLID,
-                "cross": wx.CROSS_HATCH, "reversediagonal": wx.BDIAGONAL_HATCH,
-                "crossdiagonal": wx.CROSSDIAG_HATCH, "diagonal": wx.FDIAGONAL_HATCH,
-                "horizontal": wx.HORIZONTAL_HATCH, "vertical": wx.VERTICAL_HATCH}
+        self._hatchStyleDict = {"transparent": wx.PENSTYLE_TRANSPARENT, "solid": wx.PENSTYLE_SOLID,
+                "cross": wx.BRUSHSTYLE_CROSS_HATCH, "reversediagonal": wx.BRUSHSTYLE_BDIAGONAL_HATCH,
+                "crossdiagonal": wx.BRUSHSTYLE_CROSSDIAG_HATCH, "diagonal": wx.BRUSHSTYLE_FDIAGONAL_HATCH,
+                "horizontal": wx.BRUSHSTYLE_HORIZONTAL_HATCH, "vertical": wx.BRUSHSTYLE_VERTICAL_HATCH}
         super(DrawObject, self).__init__(*args, **kwargs)
         self._inInit = False
 
@@ -3511,7 +3511,7 @@ class DrawObject(dObject):
             y1 = ypos
             y2 = y1 + ht
 
-        dc.SetPen(wx.TRANSPARENT_PEN)
+        dc.SetPen(wx.PENSTYLE_TRANSPARENT_PEN)
         r1, g1, b1 = self.GradientColor1
         r2, g2, b2 = self.GradientColor2
 
@@ -3528,7 +3528,7 @@ class DrawObject(dObject):
         if self.Orientation == "h":
             for x in range(x1, x1 + wd):
                 currRow = (r1 + rf, g1 + gf, b1 + bf)
-                dc.SetBrush(wx.Brush(currRow, wx.SOLID))
+                dc.SetBrush(wx.Brush(currRow, wx.PENSTYLE_SOLID))
                 dc.DrawRectangle(x1 + (x - x1), y1, 1, ht)
                 rf = rf + rstep
                 gf = gf + gstep
@@ -3536,7 +3536,7 @@ class DrawObject(dObject):
         else:
             for y in range(y1, y1 + ht):
                 currCol = (r1 + rf, g1 + gf, b1 + bf)
-                dc.SetBrush(wx.Brush(currCol, wx.SOLID))
+                dc.SetBrush(wx.Brush(currCol, wx.PENSTYLE_SOLID))
                 dc.DrawRectangle(x1, y1 + (y - y1), wd, ht)
                 rf = rf + rstep
                 gf = gf + gstep
@@ -3563,7 +3563,7 @@ class DrawObject(dObject):
         pw = self.PenWidth
         if not pw:
             # No pen
-            pen = wx.TRANSPARENT_PEN
+            pen = wx.PENSTYLE_TRANSPARENT_PEN
         else:
             if self.PenColor is None:
                 pc = dColors.colorTupleFromName("black")
@@ -3573,13 +3573,13 @@ class DrawObject(dObject):
                 else:
                     pc = self.PenColor
             sty = self._lineStyle
-            lnStyle = wx.SOLID
+            lnStyle = wx.PENSTYLE_SOLID
             if sty in ("dash", "dashed"):
-                lnStyle = wx.SHORT_DASH
+                lnStyle = wx.PENSTYLE_SHORT_DASH
             elif sty in ("dot", "dotted"):
-                lnStyle = wx.DOT
+                lnStyle = wx.PENSTYLE_DOT
             elif sty in ("dotdash", "dashdot"):
-                lnStyle = wx.DOT_DASH
+                lnStyle = wx.PENSTYLE_DOT_DASH
             pen = wx.Pen(pc, pw, lnStyle)
         dc.SetPen(pen)
 
@@ -3588,11 +3588,11 @@ class DrawObject(dObject):
         fill = self.FillColor
         hatch = self.HatchStyle
         if hatch is None:
-            sty = wx.SOLID
+            sty = wx.PENSTYLE_SOLID
         else:
-            sty = self._hatchStyleDict.get(hatch.lower(), wx.SOLID)
+            sty = self._hatchStyleDict.get(hatch.lower(), wx.PENSTYLE_SOLID)
         if fill is None:
-            brush = wx.TRANSPARENT_BRUSH
+            brush = wx.PENSTYLE_TRANSPARENT_BRUSH
         else:
             if isinstance(fill, str):
                 fill = dColors.colorTupleFromName(fill)
@@ -3654,14 +3654,14 @@ class DrawObject(dObject):
             fnt.SetPointSize(self._fontSize)
         if self._fontBold is not None:
             if self._fontBold:
-                fnt.SetWeight(wx.BOLD)
+                fnt.SetWeight(wx.FONTWEIGHT_BOLD)
             else:
-                fnt.SetWeight(wx.NORMAL)
+                fnt.SetWeight(wx.FONTWEIGHT_NORMAL)
         if self._fontItalic is not None:
             if self._fontItalic:
-                fnt.SetStyle(wx.ITALIC)
+                fnt.SetStyle(wx.FONTSTYLE_ITALIC)
             else:
-                fnt.SetStyle(wx.NORMAL)
+                fnt.SetStyle(wx.FONTWEIGHT_NORMAL)
         if self._fontUnderline is not None:
             fnt.SetUnderlined(self._fontUnderline)
         if self._foreColor is not None:

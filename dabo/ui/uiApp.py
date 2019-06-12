@@ -263,22 +263,27 @@ these automatic updates.""").replace("\n", " ")
                 self.dApp._setWebUpdate(True, 24*60)
 
         if msg:
-            class WebUpdateConfirmDialog(dabo.ui.dYesNoDialog):
+            dYesNoDialog = dabo.import_ui_name("dYesNoDialog")
+            dLabel = dabo.import_ui_name("dLabel")
+            dEditBox = dabo.import_ui_name("dEditBox")
+            dGrid = dabo.import_ui_name("dGrid")
+
+            class WebUpdateConfirmDialog(dYesNoDialog):
                 def initProperties(self):
                     self.Caption = "Updates Available"
                     self.AutoSize = False
                     self.Height = 600
                     self.Width = 500
                 def addControls(self):
-                    headline = dabo.ui.dLabel(self, Caption=msg, FontSize=12,
+                    headline = dLabel(self, Caption=msg, FontSize=12,
                             WordWrap=True, ForeColor="darkblue")
                     self.Sizer.appendSpacer(12)
                     self.Sizer.append(headline, proportion=prop, layout=xpand, halign="center", border=12)
                     self.Sizer.appendSpacer(12)
-                    edtNotes = dabo.ui.dEditBox(self, Value=noteText)
+                    edtNotes = dEditBox(self, Value=noteText)
                     self.Sizer.append(edtNotes, 2, "x")
                     self.Sizer.appendSpacer(12)
-                    grd = dabo.ui.dGrid(self, ColumnCount=3)
+                    grd = dGrid(self, ColumnCount=3)
                     col0, col1, col2 = grd.Columns
                     col0.DataField = "mod"
                     col1.DataField = "project"
@@ -335,19 +340,27 @@ these automatic updates.""").replace("\n", " ")
         if loc_demo and loc_ide:
             return
 
-        class PathDialog(dabo.ui.dOkCancelDialog):
+        dOkCancelDialog = dabo.import_ui_name("dOkCancelDialog")
+        class PathDialog(dOkCancelDialog):
             def initProperties(self):
                 self.Caption = _("Dabo Project Locations")
             def addControls(self):
-                gsz = dabo.ui.dGridSizer(MaxCols=3)
-                lbl = dabo.ui.dLabel(self, Caption=_("IDE Directory:"))
-                txt = dabo.ui.dTextBox(self, Enabled=False, Value=loc_ide, RegID="txtIDE", Width=200)
-                btn = dabo.ui.dButton(self, Caption="...", OnHit=self.onGetIdeDir)
+                dButton = dabo.import_ui_name("dButton")
+                dButton = dabo.import_ui_name("dButton")
+                dGridSizer = dabo.import_ui_name("dGridSizer")
+                dLabel = dabo.import_ui_name("dLabel")
+                dLabel = dabo.import_ui_name("dLabel")
+                dTextBox = dabo.import_ui_name("dTextBox")
+                dTextBox = dabo.import_ui_name("dTextBox")
+                gsz = dGridSizer(MaxCols=3)
+                lbl = dLabel(self, Caption=_("IDE Directory:"))
+                txt = dTextBox(self, Enabled=False, Value=loc_ide, RegID="txtIDE", Width=200)
+                btn = dButton(self, Caption="...", OnHit=self.onGetIdeDir)
                 gsz.appendItems((lbl, txt, btn), border=5)
                 gsz.appendSpacer(10, colSpan=3)
-                lbl = dabo.ui.dLabel(self, Caption=_("Demo Directory:"))
-                txt = dabo.ui.dTextBox(self, Enabled=False, Value=loc_demo, RegID="txtDemo", Width=200)
-                btn = dabo.ui.dButton(self, Caption="...", OnHit=self.onGetDemoDir)
+                lbl = dLabel(self, Caption=_("Demo Directory:"))
+                txt = dTextBox(self, Enabled=False, Value=loc_demo, RegID="txtDemo", Width=200)
+                btn = dButton(self, Caption="...", OnHit=self.onGetDemoDir)
                 gsz.appendItems((lbl, txt, btn), border=5)
                 gsz.setColExpand(True, 1)
                 self.Sizer.append(gsz, halign="center", border=10)
@@ -377,7 +390,7 @@ these automatic updates.""").replace("\n", " ")
 
     def displayInfoMessage(self, msg, defaultShowInFuture=True):
         """Display a dialog to the user that includes an option to not show the message again."""
-        from dabo.ui.dialogs.infoMessage import DlgInfoMessage
+        DlgInfoMessage = dabo.import_ui_name("DlgInfoMessage")
         dlg = DlgInfoMessage(Message=msg, DefaultShowInFuture=defaultShowInFuture)
         dlg.show()
         ret = dlg.chkShowInFuture.Value
@@ -539,24 +552,28 @@ these automatic updates.""").replace("\n", " ")
 
     def showCommandWindow(self, context=None):
         """Display a command window for debugging."""
+        dShellForm = dabo.import_ui_name("dShellForm")
         if context is None:
             context = self.ActiveForm
-        dlg = dabo.ui.dShellForm(context)
+        dlg = dShellForm(context)
         dlg.show()
 
 
     def toggleDebugWindow(self, context=None):
         """Display a debug output window."""
+        dToolForm = dabo.import_ui_name("dToolForm")
+        dEditBox = dabo.import_ui_name("dEditBox")
+        dTimer = dabo.import_ui_name("dTimer")
         if context is None:
             context = self.ActiveForm
-        class DebugWindow(dabo.ui.dToolForm):
+        class DebugWindow(dToolForm):
             def afterInit(self):
                 self.Caption = _("Debug Output")
-                self.out = dabo.ui.dEditBox(self, ReadOnly=True)
+                self.out = dEditBox(self, ReadOnly=True)
                 self.out.bindEvent(dEvents.ContextMenu, self.onContext)
                 self.Sizer.append1x(self.out)
                 self._txtlen = len(self.out.Value)
-                self.tmr = dabo.ui.dTimer(self, Interval=500, OnHit=self.onOutValue)
+                self.tmr = dTimer(self, Interval=500, OnHit=self.onOutValue)
                 self.tmr.start()
             def onContext(self, evt):
                 self.out.Value = ""
@@ -598,10 +615,7 @@ these automatic updates.""").replace("\n", " ")
                 context = self.dApp.MainForm
         activeControl = context.ActiveControl
         if not self.inspectorWindow:
-#            loc = os.path.dirname(dabo.ui.uiwx.__file__)
-#            pth = os.path.join(loc, "inspector.cdxml")
-#            self.inspectorWindow = dabo.ui.createForm(pth, parent=context, show=False)
-            from .object_inspector import InspectorFormClass
+            InspectorFormClass = dabo.import_ui_name("InspectorFormClass")
             self.inspectorWindow = InspectorFormClass(parent=context)
         insp = self.inspectorWindow
         insp.createObjectTree()
@@ -810,7 +824,7 @@ these automatic updates.""").replace("\n", " ")
         If a preference handler is defined for the form, use that. Otherwise,
         use the generic preference dialog.
         """
-        from dabo.ui.dialogs import PreferenceDialog
+        PreferenceDialog = dabo.import_ui_name("PreferenceDialog")
 
         af = self.ActiveForm
         try:
@@ -1047,6 +1061,7 @@ these automatic updates.""").replace("\n", " ")
         Run the search on the current control, if it is a text-based control.
         Select the found text in the control.
         """
+        dGrid = dabo.import_ui_name("dGrid")
         flags = self.findReplaceData.GetFlags()
         findString = self.findReplaceData.GetFindString()
         replaceString = self.findReplaceData.GetReplaceString()
@@ -1089,7 +1104,7 @@ these automatic updates.""").replace("\n", " ")
                     win.SetSelection(pos, pos+len(findString))
                 return ret
 
-            elif isinstance(win, dabo.ui.dGrid):
+            elif isinstance(win, dGrid):
                 return win.findReplace(action, findString, replaceString, downwardSearch,
                         wholeWord, matchCase)
             else:
@@ -1164,7 +1179,7 @@ these automatic updates.""").replace("\n", " ")
         Make sure that the MRU items are there and are in the
         correct order.
         """
-        from dabo.ui.dMenuBar import dMenuBar
+        dMenuBar = dabo.import_ui_name("dMenuBar")
         cap = menu.Caption
         cleanCap = cleanMenuCaption(cap)
         topLevel = isinstance(menu.Parent, dMenuBar)

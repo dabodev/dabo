@@ -1775,9 +1775,9 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
     if size is not None:
         fnt.SetPointSize(size)
     if bold is not None:
-        fnt.SetWeight(wx.BOLD)
+        fnt.SetWeight(wx.FONTWEIGHT_BOLD)
     if italic is not None:
-        fnt.SetStyle(wx.ITALIC)
+        fnt.SetStyle(wx.FONTSTYLE_ITALIC)
 
     if not isinstance(wind, (dabo.ui.dForm.dForm, wx.Frame)):
         try:

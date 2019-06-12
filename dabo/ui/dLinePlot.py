@@ -82,7 +82,7 @@ class PlotLine(_TraceMixin, plot.PolyLine):
 
     def _setLineStyle(self, val):
         if val in ['solid', 'dot', 'dash']:
-            self.attributes['style'] = dict(solid=wx.SOLID, dot=wx.DOT, dash=wx.DOT_DASH)[val]
+            self.attributes['style'] = dict(solid=wx.PENSTYLE_SOLID, dot=wx.PENSTYLE_DOT, dash=wx.PENSTYLE_DOT_DASH)[val]
             self._lineStyle = val
         else:
             raise ValueError("LineStyle must be either 'solid', 'dash', or 'dot'")
@@ -106,7 +106,7 @@ class PlotMarkers(_TraceMixin, plot.PolyMarker):
 
     def _setFillStyle(self, val):
         if val in ['solid', 'empty']:
-            self.attributes['style'] = dict(solid=wx.SOLID, empty=wx.TRANSPARENT)[val]
+            self.attributes['style'] = dict(solid=wx.PENSTYLE_SOLID, empty=wx.PENSTYLE_TRANSPARENT)[val]
             self._fillStyle = val
         else:
             raise ValueError("LineStyle must be either 'solid' or 'empty'")
@@ -234,7 +234,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         """
         # ----------
         dc.SetPen(wx.Pen(wx.BLACK))
-        dc.SetBrush(wx.Brush( wx.BLACK, wx.SOLID ) )
+        dc.SetBrush(wx.Brush( wx.BLACK, wx.PENSTYLE_SOLID ) )
 
         # scaled x,y of closest point
         sx, sy = mDataDict["scaledXY"]
@@ -251,7 +251,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
 
 
     def setDefaults(self):
-        self.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL,wx.NORMAL))
+        self.SetFont(wx.Font(10,wx.FONTFAMILY_SWISS,wx.FONTWEIGHT_NORMAL,wx.FONTWEIGHT_NORMAL))
         self.SetFontSizeAxis(10)
         self.SetFontSizeLegend(7)
         self.setLogScale((False,False))

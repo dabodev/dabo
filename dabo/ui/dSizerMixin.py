@@ -596,16 +596,16 @@ class dSizerMixin(dObject):
             else:
                 self.outlineWidth = 1
         if self.outlineStyle is None:
-            self.outlineStyle = wx.SHORT_DASH
+            self.outlineStyle = wx.PENSTYLE_SHORT_DASH
         else:
             if isinstance(self.outlineStyle, str):
                 sty = self.outlineStyle.lower()
                 if sty == "dot":
-                    self.outlineStyle = wx.DOT
+                    self.outlineStyle = wx.PENSTYLE_DOT
                 elif sty == "dash":
-                    self.outlineStyle = wx.SHORT_DASH
+                    self.outlineStyle = wx.PENSTYLE_SHORT_DASH
                 elif sty == "solid":
-                    self.outlineStyle = wx.SOLID
+                    self.outlineStyle = wx.PENSTYLE_SOLID
 
 
     def drawOutline(self, win, recurse=False, drawChildren=False):

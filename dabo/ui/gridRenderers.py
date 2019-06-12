@@ -70,7 +70,7 @@ class ImageRenderer(wx.grid.GridCellRenderer):
             syscolor = wx.SYS_COLOUR_WINDOW
 
         bkgrd = wx.SystemSettings_GetColour(syscolor)
-        dc.SetBrush(wx.Brush(bkgrd, wx.SOLID))
+        dc.SetBrush(wx.Brush(bkgrd, wx.PENSTYLE_SOLID))
 
         try:
             dc.SetPen(wx.TRANSPARENT_PEN)
@@ -161,7 +161,7 @@ class BoolRenderer(wx.grid.GridCellRenderer):
             syscolor = wx.SYS_COLOUR_WINDOW
 
         bkgrd = wx.SystemSettings_GetColour(syscolor)
-        dc.SetBrush(wx.Brush(bkgrd, wx.SOLID))
+        dc.SetBrush(wx.Brush(bkgrd, wx.PENSTYLE_SOLID))
 
         try:
             dc.SetPen(wx.TRANSPARENT_PEN)

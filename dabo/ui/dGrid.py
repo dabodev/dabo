@@ -924,7 +924,7 @@ class dColumn(wx._core.Object, dPemMixin):
         row = self.Parent.CurrentRow
         cellAttr = self._gridCellAttrs.get(row, False)
         if cellAttr:
-            return cellAttr.GetFont().GetWeight() == wx.BOLD
+            return cellAttr.GetFont().GetWeight() == wx.FONTWEIGHT_BOLD
         return self.FontBold
 
     def _setCellFontBold(self, val):
@@ -2717,7 +2717,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             wxNativeFont = colObj.HeaderFont._nativeFont
             # draw the col. header background:
             if bcolor is not None:
-                dc.SetBrush(wx.Brush(bcolor, wx.SOLID))
+                dc.SetBrush(wx.Brush(bcolor, wx.PENSTYLE_SOLID))
                 dc.SetPen(wx.Pen(fcolor, width=0))
                 dc.DrawRectangle(*headerRect)
 
@@ -2739,7 +2739,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 brushColor = self.SortIndicatorColor
                 if isinstance(brushColor, str):
                     brushColor = dColors.colorTupleFromName(brushColor)
-                dc.SetBrush(wx.Brush(brushColor, wx.SOLID))
+                dc.SetBrush(wx.Brush(brushColor, wx.PENSTYLE_SOLID))
                 if self.sortOrder == "DESC":
                     # Down arrow
                     dc.DrawPolygon([(left, top), (left + sortIconSize, top),
