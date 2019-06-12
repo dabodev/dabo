@@ -9,6 +9,7 @@ import inspect
 import io
 import os
 import re
+import six
 import sys
 import time
 import traceback
@@ -1024,11 +1025,11 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
 
 # For convenience, make it so one can call dui.stop("Can't do that")
 # instead of having to type dui.dMessageBox.stop("Can't do that")
-from dabo.ui import dMessageBox
-areYouSure = dMessageBox.areYouSure
-stop = dMessageBox.stop
-info = dMessageBox.info
-exclaim = dMessageBox.exclaim
+from dabo.ui import dMessageBox as dmb
+areYouSure = dmb.areYouSure
+stop = dmb.stop
+info = dmb.info
+exclaim = dmb.exclaim
 
 
 def getColor(color=None):
@@ -1038,7 +1039,8 @@ def getColor(color=None):
     no selection was made.
     """
     ret = None
-    dlg = dabo.ui.dColorDialog.dColorDialog(_getActiveForm(), color)
+    dColorDialog = dabo.import_ui_name("dColorDialog")
+    dlg = dColorDialog(_getActiveForm(), color)
     if dlg.show() == kons.DLG_OK:
         ret = dlg.getColor()
     dlg.release()
@@ -1111,6 +1113,8 @@ def getAvailableFonts():
 def _getPath(cls, wildcard, **kwargs):
     pth = None
     idx = None
+    if isinstance(cls, six.string_types):
+        cls = dabo.import_ui_name(cls)
     fd = cls(parent=_getActiveForm(), wildcard=wildcard, **kwargs)
     if fd.show() == kons.DLG_OK:
         pth = fd.Path
@@ -1140,7 +1144,7 @@ def getFile(*args, **kwargs):
 
     """
     wc = _getWild(*args)
-    return _getPath(dabo.ui.dFileDialog.dFileDialog, wildcard=wc, **kwargs)[0]
+    return _getPath("dFileDialog", wildcard=wc, **kwargs)[0]
 
 
 def getFileAndType(*args, **kwargs):
@@ -1150,7 +1154,7 @@ def getFileAndType(*args, **kwargs):
     was made, as well as the wildcard value selected by the user.
     """
     wc = _getWild(*args)
-    pth, idx = _getPath(dabo.ui.dFileDialog.dFileDialog, wildcard=wc, **kwargs)
+    pth, idx = _getPath("dFileDialog", wildcard=wc, **kwargs)
     if idx is None:
         ret = (pth, idx)
     else:
@@ -1170,7 +1174,7 @@ def getSaveAs(*args, **kwargs):
     except KeyError:
         pass
     kwargs["wildcard"] = _getWild(*args)
-    return _getPath(dSaveDialog, **kwargs)[0]
+    return _getPath("dSaveDialog", **kwargs)[0]
 
 
 def getSaveAsAndType(*args, **kwargs):
@@ -1185,7 +1189,7 @@ def getSaveAsAndType(*args, **kwargs):
     except KeyError:
         pass
     kwargs["wildcard"] = _getWild(*args)
-    pth, idx = _getPath(dSaveDialog, **kwargs)
+    pth, idx = _getPath("dSaveDialog", **kwargs)
     if idx is None:
         ret = (pth, idx)
     else:
@@ -1199,7 +1203,7 @@ def getFolder(message=_("Choose a folder"), defaultPath="", wildcard="*"):
     Returns the path to the selected folder, or None if no selection
     was made.
     """
-    return _getPath(dabo.ui.dFolderDialog.dFolderDialog, message=message,
+    return _getPath("dFolderDialog", message=message,
             defaultPath=defaultPath, wildcard=wildcard)[0]
 # Create an alias that uses 'directory' instead of 'folder'
 getDirectory = getFolder

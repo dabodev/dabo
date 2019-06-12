@@ -43,6 +43,7 @@ _ui_class_module_map = {
         "dSaveDialog": "dFileDialog",
         "dScrollPanel": "dPanel",
         "dSeparatorMenuItem": "dMenuItem",
+        "dShellForm": "dShell",
         "dSizerH": "dSizer",
         "dSizerV": "dSizer",
         "dSlidePanel": "dSlidePanelControl",
@@ -77,6 +78,7 @@ _ui_class_module_map = {
         "BoolRenderer": "gridRenderers",
         "ImageRenderer": "gridRenderers",
         "YesNoBoolRenderer": "gridRenderers",
+        "InspectorFormClass": "object_inspector",
 }
 
 def getEncoding():

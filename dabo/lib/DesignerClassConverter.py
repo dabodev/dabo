@@ -302,7 +302,7 @@ class DesignerClassConverter(dObject):
 
         # Wizards are constructed differently than other top-level classes.
         tmpSpace = {}
-        stmnt = "from %s import %s" % (modpath, shortClsName)
+        stmnt = 'import dabo; %s = dabo.import_ui_name("%s")' % (shortClsName, shortClsName)
         try:
             exec(stmnt, tmpSpace)
         except (ImportError, ValueError):
@@ -698,6 +698,7 @@ class DesignerClassConverter(dObject):
                                     baseText = self._pgfPageText
                                 elif isSlidePanel:
                                     baseText = self._slidePanelText
+                                dabo.trace()
                                 self.classText += LINESEP + baseText % locals()
 
                                 if subKids:
