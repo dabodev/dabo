@@ -166,7 +166,7 @@ class dToolBar(dControlMixin, wx.ToolBar):
             kind = wx.ITEM_CHECK
         else:
             kind = wx.ITEM_NORMAL
-        id_ = wx.ANY_ID
+        id_ = wx.ID_ANY
         if pos is None:
             # append
             tool = self.AddTool(id_, caption, picBmp, shortHelp=tip, kind=kind)

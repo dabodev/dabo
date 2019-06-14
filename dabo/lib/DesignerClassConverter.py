@@ -90,8 +90,8 @@ class DesignerClassConverter(dObject):
         ## so that you can help determine any problems.
         ## egl: removed 2007-02-10. If you want to see the output,
         ##   just uncomment the next 2 lines.
-        #debugName = "CLASSTEXT_%s.py" % time.strftime("%H%M%S", time.localtime())
-        #open(debugName, "w").write(self.classText)
+        debugName = "CLASSTEXT_%s.py" % time.strftime("%H%M%S", time.localtime())
+        open(debugName, "w").write(self.classText)
 
         # jfcs added self._codeFileName to below
         # egl - created a tmp file for the main class code that we can use
@@ -322,7 +322,7 @@ class DesignerClassConverter(dObject):
         if self.CreateDesignerControls:
             superName = "getControlClass(%s.%s)" % (modpath, shortClsName)
         else:
-            superName = "%s.%s" % (modpath, shortClsName)
+            superName = shortClsName
         prnt = self.currParent
         indCode = self.indentCode(propInit, 2)
 
@@ -530,7 +530,7 @@ class DesignerClassConverter(dObject):
                 if self.CreateDesignerControls:
                     superName = clsname
                 else:
-                    superName = "dabo.ui.%s" % nm
+                    superName = nm
                 self.classText += LINESEP + self._szText % locals()
                 self._sizerTypeStack.append(szType)
 
@@ -552,10 +552,12 @@ class DesignerClassConverter(dObject):
                 szInfo = defSizerInfo
                 if self.CreateDesignerControls:
                     superName = "getControlClass(%s.%s)" % (modpath, "dPanel")
+                    template = self._createCustomControlText
                 else:
-                    superName = "%s.%s" % (modpath, "dPanel")
+                    superName = "dPanel"
+                    template = self._createControlText
                 attPropString = ", attProperties=%s" % cleanAtts
-                self.classText += LINESEP + self._createControlText % locals()
+                self.classText += LINESEP + template % locals()
 
             else:
                 # This isn't a sizer; it's a control
@@ -585,13 +587,16 @@ class DesignerClassConverter(dObject):
                     pnlCnt = self._extractKey(cleanAtts, "PanelCount")
                 if isCustom:
                     superName = "self.getCustControlClass('%s')" % nm
+                    template = self._createCustomControlText
                 else:
                     if self.CreateDesignerControls:
                         superName = "getControlClass(%s.%s)" % (modpath, shortClsName)
+                        template = self._createCustomControlText
                     else:
-                        superName = "%s.%s" % (modpath, shortClsName)
+                        superName = shortClsName
+                        template = self._createControlText
                     attPropString = ", attProperties=%s" % cleanAtts
-                self.classText += LINESEP + self._createControlText % locals()
+                self.classText += LINESEP + template % locals()
 
             # If this item has child objects, push the appropriate objects
             # on their stacks, and add the push statements to the code.
@@ -687,18 +692,18 @@ class DesignerClassConverter(dObject):
                                 subKids = kid.get("children")
                                 attPropString = ""
                                 moduleString = ""
+                                classname = nm
                                 if code:
                                     nm = self.createInnerClass(nm, kidCleanAtts, code, {})
                                     nm = "self.getCustControlClass('%s')" % nm
                                 else:
-                                    moduleString = "dabo.ui."
+                                    moduleString = ""
                                     attPropString = ", attProperties=%s" % kidCleanAtts
                                     kidCleanAtts = {}
                                 if isPageFrame:
                                     baseText = self._pgfPageText
                                 elif isSlidePanel:
                                     baseText = self._slidePanelText
-                                dabo.trace()
                                 self.classText += LINESEP + baseText % locals()
 
                                 if subKids:
@@ -849,7 +854,9 @@ class DesignerClassConverter(dObject):
     ### so as not to clutter the rest of the code visually.  ###
     def _defineTextBlocks(self):
         # Standard class template
-        self.containerClassTemplate = """class %(clsName)s(%(superName)s):
+        self.containerClassTemplate = """%(superName)s = dabo.import_ui_name("%(superName)s")
+
+class %(clsName)s(%(superName)s):
     def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
         super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
         self.Sizer = None
@@ -857,20 +864,25 @@ class DesignerClassConverter(dObject):
 
 """
         # Standard template for wizards
-        self.wizardClassTemplate = """class %(clsName)s(%(superName)s):
+        self.wizardClassTemplate = """%(superName)s = dabo.import_ui_name("%(superName)s")
+
+class %(clsName)s(%(superName)s):
     def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
         super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
 %(indCode)s
 
 """
-        self.classTemplate = """class %(clsName)s(%(modpath)s.%(shortClsName)s):
+        self.classTemplate = """%(shortClsName)s = dabo.import_ui_name("%(shortClsName)s")
+class %(clsName)s(%(shortClsName)s):
     def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
-        %(modpath)s.%(shortClsName)s.__init__(self, parent=parent, attProperties=attProperties, *args, **kwargs)
+        %(shortClsName)s.__init__(self, parent=parent, attProperties=attProperties, *args, **kwargs)
 %(indCode)s
 
 """
         # OK/Cancel dialog class template
-        self.okCancelDialogClassTemplate = """class %(clsName)s(%(superName)s):
+        self.okCancelDialogClassTemplate = """%(superName)s = dabo.import_ui_name("%(superName)s")
+
+class %(clsName)s(%(superName)s):
     def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
         super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
 %(indCode)s
@@ -906,7 +918,8 @@ import sys
 %(indCode)s
         return %(superEval)s"""
 
-        self._szText = """        obj = %(superName)s(%(prnt)s%(propString)s)
+        self._szText = """        %(superName)s = dabo.import_ui_name("%(superName)s")
+        obj = %(superName)s(%(prnt)s%(propString)s)
         if currSizer:
             currSizer.append(obj%(rowColString)s)
             currSizer.setItemProps(obj, %(szInfo)s)
@@ -920,7 +933,13 @@ import sys
         dabo.ui.setAfter(obj, "Split", %(splt)s)
         dabo.ui.setAfter(obj, "SashPosition", %(pos)s)
 """
-        self._createControlText = """        obj = %(superName)s(currParent%(attPropString)s)%(splitterString)s
+        self._createControlText = """        %(superName)s = dabo.import_ui_name("%(superName)s")
+        obj = %(superName)s(currParent%(attPropString)s)%(splitterString)s
+        if currSizer:
+            currSizer.append(obj%(rowColString)s)
+            currSizer.setItemProps(obj, %(szInfo)s)
+"""
+        self._createCustomControlText = """        obj = %(superName)s(currParent%(attPropString)s)%(splitterString)s
         if currSizer:
             currSizer.append(obj%(rowColString)s)
             currSizer.setItemProps(obj, %(szInfo)s)
@@ -962,7 +981,8 @@ import sys
         self._grdColText = """        col = dabo.ui.dColumn(obj, attProperties=%(kidCleanAtts)s)
         obj.addColumn(col)
 """
-        self._pgfPageText = """        pg = %(moduleString)s%(nm)s(%(prntName)s%(attPropString)s)
+        self._pgfPageText = """        %(classname)s = dabo.import_ui_name("%(classname)s")
+        pg = %(moduleString)s%(nm)s(%(prntName)s%(attPropString)s)
         %(prntName)s.appendPage(pg)
         currSizer = pg.Sizer = None
         parentStack.append(currParent)

@@ -1,31 +1,40 @@
 # -*- coding: utf-8 -*-
 import datetime
+
+import dabo
 import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
+dButton = dabo.import_ui_name("dButton")
+dEditBox = dabo.import_ui_name("dEditBox")
+dHtmlBox = dabo.import_ui_name("dHtmlBox")
+dLabel = dabo.import_ui_name("dLabel")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
 
-class TestPanel(dabo.ui.dPanel):
+
+class TestPanel(dPanel):
     def afterInit(self):
-        sz = self.Sizer = dabo.ui.dSizer("v")
+        sz = self.Sizer = dSizer("v")
         sz.appendSpacer(25)
 
-        self.htmlbox = dabo.ui.dHtmlBox(self, Source=self.getPageData())
+        self.htmlbox = dHtmlBox(self, Source=self.getPageData())
         sz.append(self.htmlbox, 2, "x", border=10)
         sz.appendSpacer(10)
 
-        lbl = dabo.ui.dLabel(self, FontBold=True, FontItalic=True, ForeColor="blue", WordWrap=True,
+        lbl = dLabel(self, FontBold=True, FontItalic=True, ForeColor="blue", WordWrap=True,
                 Caption="The HTML text below is the Source for the dHtmlBox.\nEdit it to changed the displayed HTML.",
                 Alignment="Center")
         lbl.FontSize -= 5
         sz.append(lbl, halign="center")
         sz.appendSpacer(2)
 
-        eb = dabo.ui.dEditBox(self, DataSource=self.htmlbox, DataField="Source")
+        eb = dEditBox(self, DataSource=self.htmlbox, DataField="Source")
         eb.bindEvent(dEvents.KeyChar, self.textChangeHandler)
         sz.append1x(eb)
         sz.appendSpacer(2)
-        btn = dabo.ui.dButton(self, Caption="Reset", OnHit=self.resetHTML)
+        btn = dButton(self, Caption="Reset", OnHit=self.resetHTML)
         sz.append(btn, halign="right", border=10, borderSides=["right", "bottom"])
         self.layout()
 
@@ -41,7 +50,7 @@ class TestPanel(dabo.ui.dPanel):
 
     def getPageData(self):
         return """<html>
-        <body bgcolor="#B0C4DE">
+        <body bgcolor="pink">
         <center>
             <table bgcolor="#8470FF" width="100%%" cellspacing="0" cellpadding="0"
                     border="1">

@@ -25,7 +25,7 @@ def _setActiveCode(self, val):
 def _getActiveCode(self):
     try:
         ret = self.demoModules.getActive()
-    except StandardError, e:
+    except Exception as e:
         ret = 0
     return ret
 ]]>
@@ -67,7 +67,7 @@ def afterInitAll(self):
         justFname = os.path.splitext(os.path.split(f)[1])[0]
         if justFname.startswith("_"):
             continue
-        exec("import %s as exx" % justFname)
+        exx = importlib.import_module(justFname)
         maincat, subcat = exx.category.split(".")
         if maincat not in demos:
             demos[maincat] = {}
@@ -107,7 +107,7 @@ def loadDemo(self):
         sz.remove(kid, True)
     try:
         pnl = self.demoModules.getActive().TestPanel(dpnl)
-    except StandardError, e:
+    except Exception as e:
         pnl = DemoErrorPanel(dpnl)
         err = DemoError(sys.exc_info())
         pnl.setErrorInfo(self.codePage, err)
@@ -154,6 +154,7 @@ def deleteModCode(self):
         </deleteModCode>
         <importStatements><![CDATA[
 import glob
+import importlib
 import os
 import sys
 from Modules import DemoModules

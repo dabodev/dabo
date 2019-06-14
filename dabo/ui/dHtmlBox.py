@@ -275,7 +275,7 @@ class _dHtmlBox_test(dHtmlBox):
 
     def getPageData(self):
         return """<html>
-        <body bgcolor="#B0C4DE">
+        <body bgcolor="salmon">
         <center>
             <table bgcolor="#8470FF" width="100%%" cellspacing="0" cellpadding="0"
                     border="1">

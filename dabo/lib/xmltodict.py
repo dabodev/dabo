@@ -5,10 +5,11 @@ xmltodict(): convert xml into tree of Python dicts.
 This was copied and modified from John Bair's recipe at aspn.activestate.com:
     http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/149368
 """
-import os
-import string
-import locale
 import codecs
+import locale
+import os
+import six
+import string
 from xml.parsers import expat
 
 # If we're in Dabo, get the default encoding.
@@ -178,6 +179,7 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
     """Given an xml string or file, return a Python dictionary."""
     import dabo.lib.DesignerUtils as desUtil
 
+    encoding = encoding if encoding else default_encoding
     parser = Xml2Obj(encoding=encoding)
     parser.attsToSkip = attsToSkip
     if eol in xml and "<?xml" in xml:
@@ -188,7 +190,7 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
     if eol not in xml and isPath:
         # argument was a file
         xmlContent = codecs.open(xml, "r", encoding).read()
-        if isinstance(xmlContent, str):
+        if isinstance(xmlContent, six.string_types):
             xmlContent = xmlContent.encode(encoding)
         try:
             ret = parser.Parse(xmlContent)

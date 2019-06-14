@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys
-import os
-import re
-import keyword
 import code
 import inspect
+import keyword
+import os
+import re
+import six
+import sys
 import wx
 import wx.stc as stc
 import dabo
@@ -2486,8 +2487,8 @@ Do you want to overwrite it?""")
 
     def _setValue(self, val):
         if self._constructed():
-            if isinstance(val, str):
-                val = val.decode(self.Encoding)
+            if isinstance(val, six.string_types):
+                val = val.encode(self.Encoding)
             if self.Text != val:
                 try:
                     self.Text = val

@@ -64,7 +64,7 @@ class SplashScreen(wx.Frame):
         w = self._bmp.GetWidth()
         h = self._bmp.GetHeight()
         self.SetSize((w, h))
-        reg = wx.RegionFromBitmap(self._bmp)
+        reg = wx.Region(self._bmp)
         self.SetShape(reg)
         self.CenterOnScreen()
         if evt is not None:
@@ -928,7 +928,7 @@ these automatic updates.""").replace("\n", " ")
                     dlg = wx.FindReplaceDialog(win, data, _("Find"))
 
                 # Map enter key to find button:
-                anId = wx.ANY_ID
+                anId = wx.ID_ANY
                 dlg.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_NORMAL, wx.WXK_RETURN, anId),]))
                 dlg.Bind(wx.EVT_MENU, self.onEnterInFindDialog, id=anId)
 

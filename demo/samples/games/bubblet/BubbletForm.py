@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import time
+
+import dabo
 import dabo.ui
-dui = dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dApp import dApp
 from dabo.dLocalize import _
@@ -10,10 +11,17 @@ from .BubblePanel import BubblePanel
 from .BubbleBizobj import BubbleBizobj
 from .StatsForm import StatsForm
 
+dForm = dabo.import_ui_name("dForm")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dLabel = dabo.import_ui_name("dLabel")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dTimer = dabo.import_ui_name("dTimer")
 
-class BubbletForm(dabo.ui.dForm):
+
+class BubbletForm(dForm):
     def afterInit(self):
-        self.tmr = dabo.ui.dTimer()
+        self.tmr = dTimer()
         self.tmr.bindEvent(dEvents.Hit, self.onTimer)
         self._score = 0
         # Used to control unnecessary screen redraws
@@ -24,8 +32,8 @@ class BubbletForm(dabo.ui.dForm):
         self.columns = 10
         bubbles = [ [] for r in range(self.rows)]
 
-        vsz = dui.dSizer("v")
-        gsz = dui.dGridSizer(MaxCols=self.columns)
+        vsz = dSizer("v")
+        gsz = dGridSizer(MaxCols=self.columns)
 
         for rr in range(self.rows):
             for cc in range(self.columns):
@@ -41,11 +49,11 @@ class BubbletForm(dabo.ui.dForm):
         vsz.append1x(gsz)
 
         # Add the score
-        sp = self.scorePanel = dabo.ui.dPanel(self)
-        sp.Sizer = hsz = dui.dSizer("h")
-        label = dabo.ui.dLabel(sp, Caption=_("Score:"), FontSize=12)
+        sp = self.scorePanel = dPanel(self)
+        sp.Sizer = hsz = dSizer("h")
+        label = dLabel(sp, Caption=_("Score:"), FontSize=12)
         hsz.append1x(label, halign="right")
-        self.scoreLabel = dabo.ui.dLabel(sp, FontSize=14, FontBold=True)
+        self.scoreLabel = dLabel(sp, FontSize=14, FontBold=True)
         hsz.append1x(self.scoreLabel)
         vsz.append(sp, 0, "x")
 

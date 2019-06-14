@@ -2717,12 +2717,12 @@ class dGrid(dControlMixin, wx.grid.Grid):
             wxNativeFont = colObj.HeaderFont._nativeFont
             # draw the col. header background:
             if bcolor is not None:
-                dc.SetBrush(wx.Brush(bcolor, wx.PENSTYLE_SOLID))
+                dc.SetBrush(wx.Brush(bcolor, wx.BRUSHSTYLE_SOLID))
                 dc.SetPen(wx.Pen(fcolor, width=0))
                 dc.DrawRectangle(*headerRect)
 
             # draw the col. border:
-            dc.SetBrush(wx.TRANSPARENT_BRUSH)
+            dc.SetBrush(wx.Brush(bcolor, wx.BRUSHSTYLE_TRANSPARENT))
             dc.SetPen(self.GetDefaultGridLinePen())
             dc.DrawRectangle(*headerRect)
             dc.SetPen(holdPen)
@@ -2739,7 +2739,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 brushColor = self.SortIndicatorColor
                 if isinstance(brushColor, str):
                     brushColor = dColors.colorTupleFromName(brushColor)
-                dc.SetBrush(wx.Brush(brushColor, wx.PENSTYLE_SOLID))
+                dc.SetBrush(wx.Brush(brushColor, wx.BRUSHSTYLE_SOLID))
                 if self.sortOrder == "DESC":
                     # Down arrow
                     dc.DrawPolygon([(left, top), (left + sortIconSize, top),

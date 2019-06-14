@@ -1,25 +1,33 @@
 # -*- coding: utf-8 -*-
-import dabo.ui
+import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
+dButton = dabo.import_ui_name("dButton")
+dCheckBox = dabo.import_ui_name("dCheckBox")
+dLabel = dabo.import_ui_name("dLabel")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dSlidePanel = dabo.import_ui_name("dSlidePanel")
+dSlidePanelControl = dabo.import_ui_name("dSlidePanelControl")
 
-class TestPanel(dabo.ui.dPanel):
+
+class TestPanel(dPanel):
     def afterInit(self):
-        self.Sizer = dabo.ui.dSizer('v')
+        self.Sizer = dSizer('v')
 
-        self.slideControl = dabo.ui.dSlidePanelControl(self, ExpandContent=False, SingleClick=True)
+        self.slideControl = dSlidePanelControl(self, ExpandContent=False, SingleClick=True)
         self.Sizer.append1x(self.slideControl)
 
-        self.slidePanel1 = dabo.ui.dSlidePanel(self.slideControl, Caption="First", BackColor="orange")
-        self.slidePanel2 = dabo.ui.dSlidePanel(self.slideControl, Caption="Second", BarStyle="HorizontalFill", BarColor1="lightgreen", BarColor2="ForestGreen", BackColor="wheat")
-        self.slidePanel3 = dabo.ui.dSlidePanel(self.slideControl, Caption="Third", BarStyle="BorderOnly", BackColor="powderblue")
+        self.slidePanel1 = dSlidePanel(self.slideControl, Caption="First", BackColor="orange")
+        self.slidePanel2 = dSlidePanel(self.slideControl, Caption="Second", BarStyle="HorizontalFill", BarColor1="lightgreen", BarColor2="ForestGreen", BackColor="wheat")
+        self.slidePanel3 = dSlidePanel(self.slideControl, Caption="Third", BarStyle="BorderOnly", BackColor="powderblue")
 
-        self.slidePanel1.Sizer = sz = dabo.ui.dSizer("v")
-        self.slidePanel1.Sizer.append(dabo.ui.dButton(self.slidePanel1, Caption="Change Bar 1 Style", OnHit=self.changeSlidePanel1BarStyle), border=25)
+        self.slidePanel1.Sizer = sz = dSizer("v")
+        self.slidePanel1.Sizer.append(dButton(self.slidePanel1, Caption="Change Bar 1 Style", OnHit=self.changeSlidePanel1BarStyle), border=25)
 
-        self.slidePanel2.Sizer = dabo.ui.dSizer("v")
-        self.slidePanel2.Sizer.append(dabo.ui.dLabel(self.slidePanel2, Caption="Tea For Two", FontItalic=True, FontSize=24))
+        self.slidePanel2.Sizer = dSizer("v")
+        self.slidePanel2.Sizer.append(dLabel(self.slidePanel2, Caption="Tea For Two", FontItalic=True, FontSize=24))
 
         def collapse3(evt):
             mc = self.slideControl
@@ -28,27 +36,27 @@ class TestPanel(dabo.ui.dPanel):
             else:
                 mc.collapse(self.slidePanel3)
 
-        self.slidePanel3.Sizer = dabo.ui.dSizer('v')
+        self.slidePanel3.Sizer = dSizer('v')
         self.slidePanel3.Sizer.appendSpacer(25)
-        hs = dabo.ui.dSizer('h')
+        hs = dSizer('h')
         hs.appendSpacer(25)
-        hs.append(dabo.ui.dLabel(self.slidePanel3, Caption="Three Strikes"), valign="Middle")
+        hs.append(dLabel(self.slidePanel3, Caption="Three Strikes"), valign="Middle")
         hs.appendSpacer(5)
-        hs.append(dabo.ui.dButton(self.slidePanel3, Caption="Collapse Me", OnHit=collapse3))
+        hs.append(dButton(self.slidePanel3, Caption="Collapse Me", OnHit=collapse3))
         self.slidePanel3.Sizer.append(hs)
         self.slidePanel3.Sizer.appendSpacer(25)
 
-        hs = dabo.ui.dSizer("h")
-        hs.append(dabo.ui.dButton(self, Caption="Collapse All", OnHit=self.collapseAllPanels))
+        hs = dSizer("h")
+        hs.append(dButton(self, Caption="Collapse All", OnHit=self.collapseAllPanels))
         hs.appendSpacer(10)
-        hs.append(dabo.ui.dButton(self, Caption="Expand All", OnHit=self.expandAllPanels))
+        hs.append(dButton(self, Caption="Expand All", OnHit=self.expandAllPanels))
         hs.appendSpacer(10)
 
-        vs = dabo.ui.dSizer("v")
-        vs.append(dabo.ui.dCheckBox(self, Caption="Singleton Style", DataSource=self.slideControl, DataField="Singleton"))
-        vs.append(dabo.ui.dCheckBox(self, Caption="Single Click to Toggle", DataSource=self.slideControl, DataField="SingleClick"))
-        vs.append(dabo.ui.dCheckBox(self, Caption="Collapsed Panels To Bottom", DataSource=self.slideControl, DataField="CollapseToBottom"))
-        vs.append(dabo.ui.dCheckBox(self, Caption="Expand Content to Full Size", DataSource=self.slideControl, DataField="ExpandContent"))
+        vs = dSizer("v")
+        vs.append(dCheckBox(self, Caption="Singleton Style", DataSource=self.slideControl, DataField="Singleton"))
+        vs.append(dCheckBox(self, Caption="Single Click to Toggle", DataSource=self.slideControl, DataField="SingleClick"))
+        vs.append(dCheckBox(self, Caption="Collapsed Panels To Bottom", DataSource=self.slideControl, DataField="CollapseToBottom"))
+        vs.append(dCheckBox(self, Caption="Expand Content to Full Size", DataSource=self.slideControl, DataField="ExpandContent"))
         hs.append(vs)
 
         self.Sizer.appendSpacer(10)

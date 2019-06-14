@@ -160,7 +160,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         """
         if self._inShowPic:
             return
-        if not self._Image.Ok():
+        if not self._Image.IsOk():
             # No image to display
             self.Bitmap = wx.EmptyBitmap(1, 1)
             self.Freeze()
@@ -266,7 +266,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
             self._bmp = val
             self.__image = val.ConvertToImage()
             self._picture = "(stream)"
-        elif isinstance(val, buffer):
+        elif isinstance(val, memoryview):
             val = io.StringIO(val)
             img = wx.EmptyImage()
             img.LoadStream(val)
@@ -315,7 +315,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
                 except IOError:
                     # Bad image, or no exif data available
                     pass
-        if self._Image.Ok():
+        if self._Image.IsOk():
             self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
         else:
             self._imgProp = 1.0

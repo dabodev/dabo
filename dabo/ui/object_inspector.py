@@ -182,7 +182,7 @@ def showPropVals(self, obj):
         elif isinstance(val, dabo.dObject.dObject):
             try:
                 val = "'%s'" % self.formatName(val)
-            except StandardError as e:
+            except Exception as e:
                 pass
         rows.append({"prop": prop, "val": val})
     ds = dabo.db.dDataSet(rows)

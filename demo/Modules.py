@@ -26,6 +26,13 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
+# Import these names from dabo.ui
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dLabel = dabo.import_ui_name("dLabel")
+dBorderSizer = dabo.import_ui_name("dBorderSizer")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dListControl = dabo.import_ui_name("dListControl")
 
 
 class ModuleDictWrapper:
@@ -250,28 +257,28 @@ class DemoError:
 
 #---------------------------------------------------------------------------
 
-class DemoErrorPanel(dabo.ui.dPanel):
+class DemoErrorPanel(dPanel):
     """Panel put into the demo tab when the demo fails to run due  to errors"""
 
     def setErrorInfo(self, codePanel, demoError):
         self.codePanel = codePanel
-        sz = self.Sizer = dabo.ui.dSizer("v")
-        lbl = dabo.ui.dLabel(self, Caption=_("An error has occurred while trying to run the demo"),
+        sz = self.Sizer = dSizer("v")
+        lbl = dLabel(self, Caption=_("An error has occurred while trying to run the demo"),
                 ForeColor="red")
         lbl.FontSize += 2
         sz.append(lbl, halign="center", border=10)
 
-        bs = dabo.ui.dBorderSizer(self, "v", Caption=_("Exception Info"))
-        gs = dabo.ui.dGridSizer(MaxCols=2, HGap=5, VGap=2)
-        gs.append(dabo.ui.dLabel(self, Caption=_("Type:"), FontBold=True), halign="right")
-        gs.append(dabo.ui.dLabel(self, Caption=demoError.exception_type), halign="left")
-        gs.append(dabo.ui.dLabel(self, Caption=_("Details:"), FontBold=True), halign="right")
-        gs.append(dabo.ui.dLabel(self, Caption=demoError.exception_details), halign="left")
+        bs = dBorderSizer(self, "v", Caption=_("Exception Info"))
+        gs = dGridSizer(MaxCols=2, HGap=5, VGap=2)
+        gs.append(dLabel(self, Caption=_("Type:"), FontBold=True), halign="right")
+        gs.append(dLabel(self, Caption=demoError.exception_type), halign="left")
+        gs.append(dLabel(self, Caption=_("Details:"), FontBold=True), halign="right")
+        gs.append(dLabel(self, Caption=demoError.exception_details), halign="left")
         bs.append(gs, border=8)
         sz.append(bs, halign="center", border=5)
 
 
-        lst = self.tbList = dabo.ui.dListControl(self, BorderStyle="sunken",
+        lst = self.tbList = dListControl(self, BorderStyle="sunken",
                 MultipleSelect=False)
         lst.bindEvent(dEvents.MouseLeftDoubleClick, self.onListDoubleClick)
         lst.addColumn(_("Filename"))
@@ -282,10 +289,10 @@ class DemoErrorPanel(dabo.ui.dPanel):
         lst.autoSizeColumns((0,1,2))
 
         sz.appendSpacer(10)
-        sz.append(dabo.ui.dLabel(self, Caption=_("Traceback")))
+        sz.append(dLabel(self, Caption=_("Traceback")))
         sz.appendSpacer(5)
         sz.append1x(lst, border=5)
-        lbl = dabo.ui.dLabel(self, Caption=_("""Entries from the demo module are shown in blue.
+        lbl = dLabel(self, Caption=_("""Entries from the demo module are shown in blue.
 Double-click on them to go to the offending line."""))
         sz.append(lbl, halign="center")
         sz.appendSpacer(5)

@@ -1,20 +1,25 @@
 # -*- coding: utf-8 -*-
-import dabo.ui
+import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
+dButton = dabo.import_ui_name("dButton")
+dEditBox = dabo.import_ui_name("dEditBox")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
 
-class TestPanel(dabo.ui.dPanel):
+
+class TestPanel(dPanel):
     def afterInit(self):
-        sz = self.Sizer = dabo.ui.dSizer("v")
+        sz = self.Sizer = dSizer("v")
         sz.appendSpacer(25)
 
-        self.edt = dabo.ui.dEditBox(self, Width=400, Height=200)
+        self.edt = dEditBox(self, Width=400, Height=200)
         self.edt.Value = self.getGetty()
         sz.append(self.edt, halign="center")
         sz.appendSpacer(10)
 
-        btn = dabo.ui.dButton(self, Caption="Selection Info")
+        btn = dButton(self, Caption="Selection Info")
         btn.bindEvent(dEvents.Hit, self.onSelectionInfo)
         sz.append(btn, halign="center")
 

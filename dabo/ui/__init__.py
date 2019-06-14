@@ -1479,7 +1479,7 @@ def createMenuBar(src, form=None, previewFunc=None):
 
 
 def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
-    class _BaseCellEditor(wx.grid.PyGridCellEditor):
+    class _BaseCellEditor(wx.grid.GridCellEditor):
         _controlClass = None
         _minWidth = None
         _minHeight = None

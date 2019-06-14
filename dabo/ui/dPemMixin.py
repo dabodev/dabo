@@ -2050,7 +2050,8 @@ class dPemMixin(dObject):
         if self.Application.Platform == "Mac":
             # Mac bug: need to clear the font from the control first
             # (Thanks Peter Damoc):
-            self.SetFont(wx.Font(12, wx.FONTFAMILY_SWISS, wx.FONTWEIGHT_NORMAL, wx.FONTWEIGHT_NORMAL))
+            self.SetFont(wx.Font(12, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL,
+                    wx.FONTWEIGHT_NORMAL))
         self.SetFont(self.Font._nativeFont)
         # Re-raise it so that the object can respond to the event.
         self.raiseEvent(dEvents.FontPropertiesChanged)
@@ -3511,7 +3512,7 @@ class DrawObject(dObject):
             y1 = ypos
             y2 = y1 + ht
 
-        dc.SetPen(wx.PENSTYLE_TRANSPARENT_PEN)
+        dc.SetPen(wx.PENSTYLE_TRANSPARENT)
         r1, g1, b1 = self.GradientColor1
         r2, g2, b2 = self.GradientColor2
 
@@ -3563,7 +3564,8 @@ class DrawObject(dObject):
         pw = self.PenWidth
         if not pw:
             # No pen
-            pen = wx.PENSTYLE_TRANSPARENT_PEN
+            pen = wx.Pen(dColors.colorTupleFromName("black"), pw,
+                    wx.PENSTYLE_TRANSPARENT)
         else:
             if self.PenColor is None:
                 pc = dColors.colorTupleFromName("black")
@@ -3586,16 +3588,16 @@ class DrawObject(dObject):
 
     def _brushSettings(self, dc):
         fill = self.FillColor
+        if isinstance(fill, str):
+            fill = dColors.colorTupleFromName(fill)
         hatch = self.HatchStyle
         if hatch is None:
-            sty = wx.PENSTYLE_SOLID
+            sty = wx.BRUSHSTYLE_SOLID
         else:
-            sty = self._hatchStyleDict.get(hatch.lower(), wx.PENSTYLE_SOLID)
+            sty = self._hatchStyleDict.get(hatch.lower(), wx.BRUSHSTYLE_SOLID)
         if fill is None:
-            brush = wx.PENSTYLE_TRANSPARENT_BRUSH
+            brush = wx.Brush(fill, wx.BRUSHSTYLE_TRANSPARENT)
         else:
-            if isinstance(fill, str):
-                fill = dColors.colorTupleFromName(fill)
             brush = wx.Brush(fill, style=sty)
         dc.SetBrush(brush)
 

@@ -466,7 +466,7 @@ class dSizerMixin(dObject):
             elif isinstance(val, str):
                 val = (int(val), int(val))
             try:
-                ret = itm.Spacer(val)
+                ret = itm.AssignSpacer(val)
                 ret = True
             except AttributeError:
                 pass

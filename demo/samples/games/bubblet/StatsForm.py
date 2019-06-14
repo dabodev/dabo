@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
-import dabo.ui
+import dabo
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
+dButton = dabo.import_ui_name("dButton")
+dDialog = dabo.import_ui_name("dDialog")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dLabel = dabo.import_ui_name("dLabel")
 
 
-class StatsForm(dabo.ui.dDialog):
+
+class StatsForm(dDialog):
     def beforeInit(self):
         self._games = 0
         self._highGame = 0
@@ -16,33 +21,33 @@ class StatsForm(dabo.ui.dDialog):
         self.Centered = True
         self.Sizer.DefaultBorder = 20
         self.Sizer.DefaultBorderAll = True
-        sz = dabo.ui.dGridSizer(MaxCols=2, VGap=8, HGap=4)
+        sz = dGridSizer(MaxCols=2, VGap=8, HGap=4)
         self.Sizer.append1x(sz)
 
-        lb = dabo.ui.dLabel(self, Caption="Number of Games:",
+        lb = dLabel(self, Caption="Number of Games:",
                 FontSize=16, ForeColor=(0,0,128))
         sz.append(lb, halign="right")
-        lb = dabo.ui.dLabel(self, Caption=ustr(self.Games), FontSize=16)
+        lb = dLabel(self, Caption=ustr(self.Games), FontSize=16)
         sz.append(lb, halign="left")
 
-        lb = dabo.ui.dLabel(self, Caption="Average:",
+        lb = dLabel(self, Caption="Average:",
                 FontSize=16, ForeColor = (0,0,128))
         sz.append(lb, halign="right")
         if self.Games > 0:
             avg = ustr(round((float(self.Points) / self.Games), 4))
         else:
             avg = 0
-        lb = dabo.ui.dLabel(self, Caption=ustr(avg), FontSize=16)
+        lb = dLabel(self, Caption=ustr(avg), FontSize=16)
         sz.append(lb, halign="left")
 
-        lb = dabo.ui.dLabel(self, Caption="High Game:",
+        lb = dLabel(self, Caption="High Game:",
             FontSize=16, ForeColor=(0,0,128))
         sz.append(lb, halign="right")
-        lb = dabo.ui.dLabel(self, Caption=ustr(self.HighGame), FontSize=16)
+        lb = dLabel(self, Caption=ustr(self.HighGame), FontSize=16)
         sz.append(lb, halign="left")
 
         # OK, that does it for the display fields. Now add an OK button
-        btn = dabo.ui.dButton(self, Caption="OK", RegID="btnOK",
+        btn = dButton(self, Caption="OK", RegID="btnOK",
             DefaultButton=True)
         # Add a spacer
         self.Sizer.appendSpacer(10)
