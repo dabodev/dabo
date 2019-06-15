@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys
-import os
-import re
-import keyword
 import code
 import inspect
+import keyword
+import os
+import re
+import six
+import sys
 import wx
 import wx.stc as stc
 import dabo
@@ -158,7 +159,7 @@ class STCPrintout(wx.Printout):
     linesPerPage = 80
 
     def __init__(self, stc, colourMode=0, filename='', doPageNums=1):
-        super(STCPrintout, self).__init__()
+        wx.Printout.__init__(self)
         self.stc = stc
         self.colourMode = colourMode
         self.filename = filename
@@ -192,7 +193,7 @@ class STCPrintout(wx.Printout):
 
         # render page titles and numbers
         f = dc.GetFont()
-        f.SetFamily(wx.ROMAN)
+        f.SetFamily(wx.FONTFAMILY_ROMAN)
         f.SetFaceName('Times New Roman')
         f.SetPointSize(f.GetPointSize()+3)
         dc.SetFont(f)
@@ -238,7 +239,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         self._baseClass = dEditor
         self._fileName = ""
         self._fileModTime = None
-        self._beforeInit()
+        self._beforeInit(None)
         name, _explicitName = self._processName(kwargs, self.__class__.__name__)
         # Declare the attributes that underly properties.
         self._autoCompleteList = False
@@ -254,6 +255,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         self._edgeGuideColumn = 80
         self._encoding = dabo.getEncoding()
         self._eolMode = ""
+        self._useAntiAliasing = True
         self._codeFolding = True
         self._showLineNumbers = True
         self._showEOL = False
@@ -279,10 +281,10 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         self._classPat = re.compile(r"^\s*class ([^\(]+)\(([^\)]*?)\)")
         self._defPat = re.compile(r"^\s*def ")
 
-        super(dEditor, self).__init__(self, preClass=None, parent=parent,
-                style = wx.NO_BORDER, name=name, properties=properties,
-                attProperties=attProperties, _explicitName=_explicitName, 
-                *args, **kwargs)
+        stc.StyledTextCtrl.__init__(self, parent, -1,
+                                    style = wx.NO_BORDER)
+        dDataControlMixin.__init__(self, name, properties=properties,
+                                       attProperties=attProperties, _explicitName=_explicitName, *args, **kwargs)
         self._afterInit()
 
         self._printData = wx.PrintData()
@@ -998,7 +1000,8 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             if currIndent == 0:
                 indentLevel = 0
             else:
-                indentLevel = self.GetLineIndentation(line) / self.GetIndent()
+                indentLevel = int(self.GetLineIndentation(line) /
+                        self.GetIndent())
 
             # First, indent to the current level of indent:
             if self.UseTabs:
@@ -2484,8 +2487,8 @@ Do you want to overwrite it?""")
 
     def _setValue(self, val):
         if self._constructed():
-            if isinstance(val, str):
-                val = val.decode(self.Encoding)
+            if isinstance(val, six.string_types):
+                val = val.encode(self.Encoding)
             if self.Text != val:
                 try:
                     self.Text = val
@@ -2556,22 +2559,24 @@ Do you want to overwrite it?""")
                 - "down arrow"
                 - "arrow"
                 - "arrows"
-                - "rectangle\" """))
+                - "rectangle\""""))
 
     BufferedDrawing = property(_getBufferedDrawing, _setBufferedDrawing, None,
-            _("Setting to True (default) reduces display flicker  (bool)"))
+                               _("Setting to True (default) reduces display flicker  (bool)"))
 
     CodeCompletion = property(_getCodeCompletion, _setCodeCompletion, None,
-            _("Determines if code completion is active (default=True)  (bool)"))
+                              _("Determines if code completion is active (default=True)  (bool)"))
 
     Column = property(_getColumn, _setColumn, None,
-            _("""Returns the current column position of the cursor in the file  (int)"""))
+                      _("""Returns the current column position of the cursor in the
+            file  (int)"""))
 
     CommentString = property(_getCommentString, _setCommentString, None,
                              _("String used to prefix lines that are commented out  (str)"))
 
     EdgeGuideColumn = property(_getEdgeGuideColumn, _setEdgeGuideColumn, None,
-            _("""If self.EdgeGuide is set to True, specifies the column position the guide is in(int)"""))
+                               _("""If self.EdgeGuide is set to True, specifies the column
+            position the guide is in(int)"""))
 
     Encoding = property(_getEncoding, _setEncoding, None,
                         _("Type of encoding to use. Defaults to Dabo's encoding.  (str)"))

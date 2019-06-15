@@ -18,6 +18,8 @@ You win when all squares are either flagged as mines or cleared.
 
 import datetime
 import random
+
+import dabo
 import dabo.db
 import dabo.biz
 import dabo.ui
@@ -28,6 +30,23 @@ from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 # import dabo.lib.datanav as datanav
 from dabo.lib import specParser
+
+dButton = dabo.import_ui_name("dButton")
+dDialog = dabo.import_ui_name("dDialog")
+dForm = dabo.import_ui_name("dForm")
+dGrid = dabo.import_ui_name("dGrid")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dLabel = dabo.import_ui_name("dLabel")
+dOkCancelDialog = dabo.import_ui_name("dOkCancelDialog")
+dPageFrame = dabo.import_ui_name("dPageFrame")
+dPanel = dabo.import_ui_name("dPanel")
+dScrollPanel = dabo.import_ui_name("dScrollPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dSpinner = dabo.import_ui_name("dSpinner")
+dTextBox = dabo.import_ui_name("dTextBox")
+dTimer = dabo.import_ui_name("dTimer")
+dToggleButton = dabo.import_ui_name("dToggleButton")
+dToolBar = dabo.import_ui_name("dToolBar")
 
 # Dabo MineSweeper
 # This is a demo of Dabo's UI - no bizobj or database layer.
@@ -77,7 +96,7 @@ _hintColor = "black"
 class StateChanged(dabo.dEvents.Event): pass
 
 
-class Square(dabo.ui.dPanel):
+class Square(dPanel):
     def initProperties(self):
         self.BackColor = "slategrey"
 
@@ -198,7 +217,7 @@ class Square(dabo.ui.dPanel):
 
 
 
-class Board(dabo.ui.dPanel):
+class Board(dPanel):
     def initProperties(self):
         self.squares = []
         self._resetting = False
@@ -315,7 +334,7 @@ class Board(dabo.ui.dPanel):
                 self._GameInProgress = False
                 self.Form.StatusText = "You win!!! Picture fireworks bursting in air, in your honor!"
                 self.Form.recordScore()
-#                dabo.ui.info("You win!")
+#                 info("You win!")
 
 
     def allCleared(self):
@@ -440,7 +459,7 @@ class Board(dabo.ui.dPanel):
     def _fillBoard(self):
         cols = self.BoardSize[0]
         rows = self.BoardSize[1]
-        sizer = dabo.ui.dGridSizer(HGap=0, VGap=0)
+        sizer = dGridSizer(HGap=0, VGap=0)
 
         sw = StopWatch.StopWatch()
         sw.start()
@@ -601,7 +620,7 @@ class Board(dabo.ui.dPanel):
         try:
             v = self._timer
         except AttributeError:
-            v = self._timer = dabo.ui.dTimer(self)
+            v = self._timer = dTimer(self)
             v.Interval = _timerInterval
             v.bindEvent(dEvents.Hit, self.onTimer)
         return v
@@ -622,7 +641,7 @@ class Board(dabo.ui.dPanel):
     _GameInProgress = property(_getGameInProgress, _setGameInProgress)
 
 
-class MinesweeperForm(dabo.ui.dForm):
+class MinesweeperForm(dForm):
     def afterInit(self):
         self.fillMenu()
         self.preset = {}
@@ -656,7 +675,7 @@ class MinesweeperForm(dabo.ui.dForm):
 
     def initProperties(self):
         self.Caption = "Dabo MineSweeper"
-        self.Sizer = dabo.ui.dSizer("vertical")
+        self.Sizer = dSizer("vertical")
         self._autopause = False
 
 
@@ -756,13 +775,13 @@ class MinesweeperForm(dabo.ui.dForm):
 
 
     def onRules(self, evt):
-        win = dabo.ui.dDialog(self, NameBase="frmRulesDialog",
+        win = dDialog(self, NameBase="frmRulesDialog",
                 Caption="Minesweeper Rules", SaveRestorePosition=True,
                 Centered=True, Modal=False)
-        pnl = dabo.ui.dScrollPanel(win)
+        pnl = dScrollPanel(win)
         win.Sizer.append1x(pnl)
-        txt = dabo.ui.dLabel(pnl, Caption=__doc__)
-        sz = dabo.ui.dSizer("v")
+        txt = dLabel(pnl, Caption=__doc__)
+        sz = dSizer("v")
         sz.append1x(txt, border=10)
         pnl.Sizer = sz
         win.layout()
@@ -800,9 +819,9 @@ class MinesweeperForm(dabo.ui.dForm):
         """
         if self.preset["Id"] is None or self.preset["Id"] < 1:
             return
-        class dlgScore(dabo.ui.dOkCancelDialog):
+        class dlgScore(dOkCancelDialog):
             def addControls(self):
-                class Label(dabo.ui.dLabel):
+                class Label(dLabel):
                     def initProperties(self):
                         self.Alignment = "Right"
                         self.AutoResize = False
@@ -813,20 +832,20 @@ class MinesweeperForm(dabo.ui.dForm):
 you can record your score in the public database. If you'd like to do this, just
 enter your name and optional comment. You'll need an internet connection for
 this to work."""
-                o = self.addObject(dabo.ui.dLabel, Caption=message)
+                o = self.addObject(dLabel, Caption=message)
                 vs.append(o, border=10)
 
                 brdr = 5
-                hs = dabo.ui.dSizer("horizontal")
+                hs = dSizer("horizontal")
                 lbl = Label(self, Name="lblName", Caption="Name:")
-                txt = dabo.ui.dTextBox(self, RegID="txtName")
+                txt = dTextBox(self, RegID="txtName")
                 hs.append(lbl, "fixed", alignment="right", border=brdr)
                 hs.append1x(txt, border=brdr)
                 vs.append1x(hs)
 
-                hs = dabo.ui.dSizer("horizontal")
+                hs = dSizer("horizontal")
                 lbl = Label(self, Name="lblComment", Caption="Comment:")
-                txt = dabo.ui.dTextBox(self, RegID="txtComment")
+                txt = dTextBox(self, RegID="txtComment")
                 hs.append(lbl, "fixed", alignment="right", border=brdr)
                 hs.append1x(txt, border=brdr)
                 vs.append1x(hs)
@@ -882,7 +901,7 @@ this to work."""
         helpMenu.append(_("&How to Play"), HotKey="Ctrl+I", help=_("Rules of the game"),
             OnHit=self.onRules, bmp="%s/apps/help-browser.png" % iconPath)
 
-        tb = self.ToolBar = dabo.ui.dToolBar(self, ShowCaptions=True)  ## Mac has a resize problem otherwise
+        tb = self.ToolBar = dToolBar(self, ShowCaptions=True)  ## Mac has a resize problem otherwise
 
         if self.Application.Platform == "Mac":
             # Toolbar looks better with larger icons on Mac. In fact, I believe HIG
@@ -907,21 +926,21 @@ this to work."""
 
         tb.appendSeparator()
 
-        self.lblGameInfo = tb.appendControl(dabo.ui.dLabel(tb, Width=100, Height=24))
+        self.lblGameInfo = tb.appendControl(dLabel(tb, Width=100, Height=24))
         tb.appendSeparator()
 
-        self.pausebutton = tb.appendControl(dabo.ui.dToggleButton(tb, Caption="Pause",
+        self.pausebutton = tb.appendControl(dToggleButton(tb, Caption="Pause",
                 ToolTipText="Pause/Resume",
                 StatusText="Pause/Resume the game",
                 OnHit=self.onPause))
 
         tb.appendSeparator()
-        self.lblMines = tb.appendControl(dabo.ui.dLabel(tb, Width=50, Height=20,
+        self.lblMines = tb.appendControl(dLabel(tb, Width=50, Height=20,
                 FontSize=9, Caption="Mines:"))
-        self.tbMines = tb.appendControl(dabo.ui.dTextBox(tb, Width=30, ReadOnly=True))
+        self.tbMines = tb.appendControl(dTextBox(tb, Width=30, ReadOnly=True))
 
 
-class PreferenceDialog(dabo.ui.dOkCancelDialog):
+class PreferenceDialog(dOkCancelDialog):
     def initProperties(self):
         self.AutoSize = False
         self.Caption = "Minesweeper Preferences"
@@ -940,9 +959,9 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
     def onPickPreset(self, evt):
         """Called when the user pushes the butPickPreset button on the preset page."""
-        class Browse(dabo.ui.dGrid): pass
+        class Browse(dGrid): pass
 
-        class PickPreset(dabo.ui.dOkCancelDialog):
+        class PickPreset(dOkCancelDialog):
             def initProperties(self):
                 self.AutoSize = False
                 self.Caption = "Pick Game Preset"
@@ -995,11 +1014,11 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
 
     def addControls(self):
-        pgf = self.PageFrame = dabo.ui.dPageFrame(self)
+        pgf = self.PageFrame = dPageFrame(self)
         p1 = pgf.appendPage(caption="Choose From Presets")
         p2 = pgf.appendPage(caption="Set By Hand")
 
-        class lbl(dabo.ui.dLabel):
+        class lbl(dLabel):
             def initProperties(self):
                 self.Alignment = "Right"
                 self.AutoResize = False
@@ -1007,20 +1026,20 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
         # p1:
         b = 5
-        vs = dabo.ui.dSizer("vertical")
+        vs = dSizer("vertical")
 
         app = self.Application
         preset = self.preset = self.Parent.preset
 
         if preset["Id"] is None or preset["Id"] < 1:
             preset["Name"] = "< None >"
-        hs = dabo.ui.dSizer("horizontal")
-        cb = p1.addObject(dabo.ui.dButton, Name="butPickPreset", Caption="Preset:",
+        hs = dSizer("horizontal")
+        cb = p1.addObject(dButton, Name="butPickPreset", Caption="Preset:",
                 ToolTipText="""Press this button to choose a preset from the public game definitions.
 
 Note that this will require an internet connection.
 """)
-        t = p1.addObject(dabo.ui.dTextBox, "oName", Value=preset["Name"], ReadOnly=True)
+        t = p1.addObject(dTextBox, "oName", Value=preset["Name"], ReadOnly=True)
         hs.append(cb, "fixed", alignment="right", border=b)
         hs.append(t, 1, border=b)
         vs.append(hs, "expand")
@@ -1028,9 +1047,9 @@ Note that this will require an internet connection.
         cb.bindEvent(dEvents.Hit, self.onPickPreset)
 
         for name in ("Width", "Height", "Mines"):
-            hs = dabo.ui.dSizer("horizontal")
+            hs = dSizer("horizontal")
             l = p1.addObject(lbl, Name="lbl%s" % name, Caption="%s:" % name)
-            s = p1.addObject(dabo.ui.dSpinner, "o%s" % name, Value=preset[name], Enabled=False,
+            s = p1.addObject(dSpinner, "o%s" % name, Value=preset[name], Enabled=False,
                     Min=4, Max=50)
             hs.append(l, "fixed", alignment="right", border=b)
             hs.append(s, border=b)
@@ -1040,11 +1059,11 @@ Note that this will require an internet connection.
 
         # p2:
         b = 5
-        vs = dabo.ui.dSizer("vertical")
+        vs = dSizer("vertical")
         for name in ("Width", "Height", "Mines"):
-            hs = dabo.ui.dSizer("horizontal")
+            hs = dSizer("horizontal")
             l = p2.addObject(lbl, Name="lbl%s" % name, Caption="%s:" % name)
-            s = p2.addObject(dabo.ui.dSpinner, "o%s" % name, Value=eval("self.board%s" % name),
+            s = p2.addObject(dSpinner, "o%s" % name, Value=eval("self.board%s" % name),
                     Min=4, Max=50)
             hs.append(l, "fixed", alignment="right", border=b)
             hs.append(s, border=b)

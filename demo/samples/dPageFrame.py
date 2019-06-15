@@ -1,18 +1,27 @@
 # -*- coding: utf-8 -*-
+import dabo
 import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
+dBorderSizer = dabo.import_ui_name("dBorderSizer")
+dDropdownList = dabo.import_ui_name("dDropdownList")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dLabel = dabo.import_ui_name("dLabel")
+dPageFrame = dabo.import_ui_name("dPageFrame")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
 
-class TestPanel(dabo.ui.dPanel):
+
+class TestPanel(dPanel):
     def afterInit(self):
         self.currentTabPosition = "Top"
-        sz = self.Sizer = dabo.ui.dSizer("v")
+        sz = self.Sizer = dSizer("v")
         pgf = self.createPageFrame()
         sz.appendSpacer(10)
-        hsz = dabo.ui.dSizer("h")
-        lbl = dabo.ui.dLabel(self, Caption="Tab Position:")
-        dd = self.ddPos = dabo.ui.dDropdownList(self, Choices=["Top", "Right", "Bottom", "Left"],
+        hsz = dSizer("h")
+        lbl = dLabel(self, Caption="Tab Position:")
+        dd = self.ddPos = dDropdownList(self, Choices=["Top", "Right", "Bottom", "Left"],
                 Value=self.currentTabPosition, OnHit=self.onNewPosition)
         hsz.append(lbl)
         hsz.appendSpacer(3)
@@ -25,7 +34,7 @@ class TestPanel(dabo.ui.dPanel):
             self.pgf.release()
         except AttributeError:
             pass
-        self.pgf = dabo.ui.dPageFrame(self, TabPosition=self.currentTabPosition,
+        self.pgf = dPageFrame(self, TabPosition=self.currentTabPosition,
                 OnPageChanged=self.onPageChanged)
         self.pgf.appendPage(caption="First", BackColor="blue")
         self.pgf.appendPage(caption="Second", BackColor="salmon")
@@ -58,16 +67,16 @@ will then be created."""
             self.createPageFrame()
             # Need to update the
 
-#         gsz = dabo.ui.dGridSizer(MaxCols=2)
+#         gsz = dGridSizer(MaxCols=2)
 #         for num, pos in enumerate(("Top", "Right", "Bottom", "Left")):
-#             pgf = dabo.ui.dPageFrame(self, TabPosition=pos,
+#             pgf = dPageFrame(self, TabPosition=pos,
 #                 OnPageChanged=self.onPageChanged)
 #             pgf.appendPage(caption="First", BackColor="blue")
 #             pgf.appendPage(caption="Second", BackColor="salmon")
 #             pgf.appendPage(caption="Third", BackColor="darkred")
 #             pgf.appendPage(caption="Fourth", BackColor="green")
 #             pgf.SelectedPageNumber = num
-#             bsz = dabo.ui.dBorderSizer(self, Caption=pos)
+#             bsz = dBorderSizer(self, Caption=pos)
 #             bsz.append1x(pgf)
 #             gsz.append(bsz, "x", border=10)
 #         gsz.setColExpand(True, "all")

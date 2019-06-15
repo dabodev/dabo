@@ -10,7 +10,7 @@ class dConnection(dObject):
     def __init__(self, connectInfo=None, parent=None, forceCreate=False, **kwargs):
         self._baseClass = dConnection
         self._forceCreate = forceCreate
-        super(dConnection, self).__init__(**kwargs)
+        super(dConnection, self).__init__()
         # Store a reference to the parent object (bizobj maybe; app
         # object connection collection most likely)
         self.Parent = parent
@@ -62,9 +62,12 @@ class dConnection(dObject):
         class DaboCursor(dCursorMixin, cursorClass):
             superMixin = dCursorMixin
             superCursor = cursorClass
-            def __init__(self, connection=None, *args, **kwargs):
-                super(DaboCursor, self).__init__(sql="", connection=connection,
-                        *args, **kwargs)
+            def __init__(self, *args, **kwargs):
+                for cls in (dCursorMixin, cursorClass):
+                    try:
+                        cls.__init__(*(self, ) + args, **kwargs)
+                    except AttributeError:
+                        pass
 
         bo = self.getBackendObject()
         crs = bo.getCursor(DaboCursor)
@@ -72,6 +75,7 @@ class dConnection(dObject):
         # Return the AuxCursor, as it skips some of the unnecessary
         # configuration and housekeeping
         return crs.AuxCursor
+
     cursor = getDaboCursor
 
 

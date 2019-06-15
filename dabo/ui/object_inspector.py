@@ -182,7 +182,7 @@ def showPropVals(self, obj):
         elif isinstance(val, dabo.dObject.dObject):
             try:
                 val = "'%s'" % self.formatName(val)
-            except StandardError as e:
+            except Exception as e:
                 pass
         rows.append({"prop": prop, "val": val})
     ds = dabo.db.dDataSet(rows)
@@ -256,6 +256,7 @@ def OnCaptureLost(self, evt):
 def afterInitAll(self):
     objnote = "NOTE: The 'obj' variable refers to the object selected in the tree."
     intro = "%s\\n%s" % (dabo.ui.getSystemInfo(), objnote)
+    dShell = dabo.import_ui_name("dShell")
     self.shell = dShell(self.shellPanel, showInterpIntro=False,
             introText=intro)
     self.shell.interp.locals['self'] = self

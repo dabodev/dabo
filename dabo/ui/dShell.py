@@ -175,9 +175,8 @@ class dShell(dControlMixin, wx.py.shell.Shell):
             self._fontSize = 10
         self._baseClass = dShell
         preClass = wx.py.shell.Shell
-        super(dShell, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
 
     @dabo.ui.deadCheck
@@ -370,18 +369,19 @@ class dShell(dControlMixin, wx.py.shell.Shell):
             _("Size of the font used in the shell  (int)"))
 
 
+
 class dShellForm(dSplitForm):
     def _onDestroy(self, evt):
         self._clearOldHistory()
         builtins.input = self._oldInput
 
 
-    def _beforeInit(self):
+    def _beforeInit(self, pre):
         # Set the sash
         self._sashPct = 0.6
         # Class to use for creating the interactive shell
         self._shellClass = dShell
-        super(dShellForm, self)._beforeInit()
+        super(dShellForm, self)._beforeInit(pre)
 
 
     def _afterInit(self):

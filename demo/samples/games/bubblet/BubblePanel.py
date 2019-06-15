@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
+import dabo
 import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeProxyProperty
 import random
 
+dPanel = dabo.import_ui_name("dPanel")
 
-class BubblePanel(dabo.ui.dPanel):
+
+class BubblePanel(dPanel):
     def afterInit(self):
         self.Buffered = False
 

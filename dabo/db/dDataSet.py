@@ -305,7 +305,13 @@ class dDataSet(tuple):
             dabo.log.info(_("Cannot populate without data for alias '%s'")
                     % alias)
             return None
-        hs = hashlib.md5(ustr(ds)).hexdigest()
+        uds = ustr(ds)
+        try:
+            uds = uds.encode("utf-8")
+        except AttributeError:
+            # Already encoded
+            pass
+        hs = hashlib.md5(uds).hexdigest()
         if hs == ds._dataHash:
             # Data's already there and hasn't changed; no need to re-load it
             return
@@ -356,7 +362,7 @@ class dDataSet(tuple):
 
         class DictCursor(sqlite.Cursor):
             def __init__(self, *args, **kwargs):
-                super(DictCursor, self).__init__(*args, **kwargs)
+                sqlite.Cursor.__init__(self, *args, **kwargs)
                 self.row_factory = dict_factory
 
         if self._connection is None:

@@ -73,7 +73,7 @@ class _TraceMixin(object):
 class PlotLine(_TraceMixin, plot.PolyLine):
     def __init__(self, *args, **kwargs):
         self._lineStyle = "solid"
-        super(PlotLine, self).__init__(*args, **kwargs)
+        plot.PolyLine.__init__(self, *args, **kwargs)
 
 
     #Property Getters and Setters
@@ -82,7 +82,7 @@ class PlotLine(_TraceMixin, plot.PolyLine):
 
     def _setLineStyle(self, val):
         if val in ['solid', 'dot', 'dash']:
-            self.attributes['style'] = dict(solid=wx.SOLID, dot=wx.DOT, dash=wx.DOT_DASH)[val]
+            self.attributes['style'] = dict(solid=wx.PENSTYLE_SOLID, dot=wx.PENSTYLE_DOT, dash=wx.PENSTYLE_DOT_DASH)[val]
             self._lineStyle = val
         else:
             raise ValueError("LineStyle must be either 'solid', 'dash', or 'dot'")
@@ -97,7 +97,7 @@ class PlotLine(_TraceMixin, plot.PolyLine):
 class PlotMarkers(_TraceMixin, plot.PolyMarker):
     def __init__(self, *args, **kwargs):
         self._fillStyle = "solid"
-        super(PlotMarkers, self).__init__(*args, **kwargs)
+        plot.PolyMarker.__init__(self, *args, **kwargs)
 
 
     #Property getters and setters
@@ -106,7 +106,7 @@ class PlotMarkers(_TraceMixin, plot.PolyMarker):
 
     def _setFillStyle(self, val):
         if val in ['solid', 'empty']:
-            self.attributes['style'] = dict(solid=wx.SOLID, empty=wx.TRANSPARENT)[val]
+            self.attributes['style'] = dict(solid=wx.PENSTYLE_SOLID, empty=wx.PENSTYLE_TRANSPARENT)[val]
             self._fillStyle = val
         else:
             raise ValueError("LineStyle must be either 'solid' or 'empty'")
@@ -158,10 +158,10 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         self._plotManager = plot.PlotGraphics([])
 
         self._baseClass = dLinePlot
+        plot.PlotCanvas.__init__(self, parent)
         name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-        super(dLinePlot, self).__init__(preClass=None, parent=parent, name=name,
-                properties=properties, attProperties=attProperties,
-                _explicitName=_explicitName, *args, **kwargs)
+        dControlMixin.__init__(self, name, properties=properties,
+                attProperties=attProperties, _explicitName=_explicitName, *args, **kwargs)
 
         self.SetPointLabelFunc(self.DrawPointLabel)
         self.setDefaults()
@@ -234,7 +234,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         """
         # ----------
         dc.SetPen(wx.Pen(wx.BLACK))
-        dc.SetBrush(wx.Brush( wx.BLACK, wx.SOLID ) )
+        dc.SetBrush(wx.Brush( wx.BLACK, wx.PENSTYLE_SOLID ) )
 
         # scaled x,y of closest point
         sx, sy = mDataDict["scaledXY"]
@@ -251,7 +251,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
 
 
     def setDefaults(self):
-        self.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL,wx.NORMAL))
+        self.SetFont(wx.Font(10,wx.FONTFAMILY_SWISS,wx.FONTWEIGHT_NORMAL,wx.FONTWEIGHT_NORMAL))
         self.SetFontSizeAxis(10)
         self.SetFontSizeLegend(7)
         self.setLogScale((False,False))

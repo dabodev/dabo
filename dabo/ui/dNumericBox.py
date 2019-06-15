@@ -46,7 +46,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
         kwargs["foregroundColour"] = self._extractKey((properties, attProperties, kwargs),
                 "ForeColor", "Black")
         kwargs["validBackgroundColour"] = self._extractKey((properties, attProperties, kwargs),
-            "BackColor", wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+            "BackColor", wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
         kwargs["invalidBackgroundColour"] = self._extractKey((properties, attProperties, kwargs),
                 "InvalidBackColor", "Yellow")
         kwargs["signedForegroundColour"] = self._extractKey((properties, attProperties, kwargs),
@@ -66,8 +66,8 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
             fontFace = "Lucida Grande"
         if fontFace:
              kwargs["FontFace"] = fontFace
-        super(dNumericBox, self).__init__(masked.NumCtrl, parent=parent,
-                properties, attProperties, *args, **kwargs)
+        dTextBoxMixin.__init__(self, masked.NumCtrl, parent, properties,
+                attProperties, *args, **kwargs)
 
     #--- Public interface.
 

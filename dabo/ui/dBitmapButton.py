@@ -36,7 +36,8 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         # around the bitmap image in order for it to appear correctly
         self._bmpBorder = 10
 
-        super(dBitmapButton, self).__init__(preClass, parent, properties=properties,
+        dImageMixin.__init__(self)
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 
@@ -132,7 +133,7 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
                 bmp = val
             else:
                 bmp = dui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
-            self.SetBitmapSelected(bmp)
+            self.SetBitmapPressed(bmp)
         else:
             self._properties["DownPicture"] = val
 
@@ -173,7 +174,7 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
             self.SetBitmapLabel(bmp)
             # If the others haven't been specified, default them to the same
             if not self._downPicture:
-                self.SetBitmapSelected(bmp)
+                self.SetBitmapPressed(bmp)
             if not self._focusPicture:
                 self.SetBitmapFocus(bmp)
             if self._autoSize:

@@ -1,65 +1,75 @@
 # -*- coding: utf-8 -*-
+import dabo
 import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-class TestPanel(dabo.ui.dPanel):
+dButton = dabo.import_ui_name("dButton")
+dDialog = dabo.import_ui_name("dDialog")
+dLabel = dabo.import_ui_name("dLabel")
+dLine = dabo.import_ui_name("dLine")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dSlider = dabo.import_ui_name("dSlider")
+
+
+class TestPanel(dPanel):
     def afterInit(self):
-        sz = self.Sizer = dabo.ui.dSizer("v")
+        sz = self.Sizer = dSizer("v")
         sz.appendSpacer(20)
 
         # Plain Label
-        lbl = dabo.ui.dLabel(self, Caption=_("This label has the default font."))
+        lbl = dLabel(self, Caption=_("This label has the default font."))
         sz.append(lbl)
 
-        lbl = dabo.ui.dLabel(self, Caption=_("FontSize 5 points bigger"))
+        lbl = dLabel(self, Caption=_("FontSize 5 points bigger"))
         lbl.FontSize += 5
         sz.append(lbl)
 
-        lbl = dabo.ui.dLabel(self, Caption=_("FontSize 10 points bigger"))
+        lbl = dLabel(self, Caption=_("FontSize 10 points bigger"))
         lbl.FontSize += 10
         sz.append(lbl)
 
-        lbl = dabo.ui.dLabel(self, Caption=_("FontSize = 64"))
+        lbl = dLabel(self, Caption=_("FontSize = 64"))
         lbl.FontSize = 64
         sz.append(lbl)
 
-        lbl = dabo.ui.dLabel(self, Caption=_("FontFace = Courier"))
+        lbl = dLabel(self, Caption=_("FontFace = Courier"))
         lbl.FontFace = _("Courier")
         sz.append(lbl)
 
-        lbl = dabo.ui.dLabel(self, Caption=_("FontBold = True"))
+        lbl = dLabel(self, Caption=_("FontBold = True"))
         lbl.FontBold = True
         sz.append(lbl)
 
-        lbl = dabo.ui.dLabel(self, Caption=_("FontItalic = True"))
+        lbl = dLabel(self, Caption=_("FontItalic = True"))
         lbl.FontItalic = True
         sz.append(lbl)
 
-        lbl = dabo.ui.dLabel(self, Caption=_("FontBold and FontItalic = True"))
+        lbl = dLabel(self, Caption=_("FontBold and FontItalic = True"))
         lbl.FontBold = True
         lbl.FontItalic = True
         sz.append(lbl)
 
-        lbl = dabo.ui.dLabel(self, Caption=_("ForeColor = 'red'"))
+        lbl = dLabel(self, Caption=_("ForeColor = 'red'"))
         lbl.ForeColor = "red"
         sz.append(lbl)
 
-        lbl = dabo.ui.dLabel(self, Caption=_("BackColor = 'yellow'"))
+        lbl = dLabel(self, Caption=_("BackColor = 'yellow'"))
         lbl.BackColor = "yellow"
         sz.append(lbl)
 
-        lbl = self.dynamicLabel = dabo.ui.dLabel(self, Caption="")
+        lbl = self.dynamicLabel = dLabel(self, Caption="")
         lbl.DynamicFontSize = lambda: self.Width * .05
         lbl.DynamicCaption = self.getDynamicCaption
         sz.append(lbl)
         dabo.ui.callAfterInterval(200, self.update)
 
         sz.appendSpacer(20)
-        sz.append(dabo.ui.dLine(self, Width=500), halign="Center")
+        sz.append(dLine(self, Width=500), halign="Center")
         sz.appendSpacer(20)
 
-        btn = dabo.ui.dButton(self, Caption=_("Show WordWrap demo"))
+        btn = dButton(self, Caption=_("Show WordWrap demo"))
         btn.bindEvent(dEvents.Hit, self.onShowWWDemo)
         sz.append(btn, halign="center")
 
@@ -67,24 +77,24 @@ class TestPanel(dabo.ui.dPanel):
         return "DynamicFontSize: %s" % int(round(self.dynamicLabel.FontSize, 0))
 
     def onShowWWDemo(self, evt):
-        class WordWrapDialog(dabo.ui.dDialog):
+        class WordWrapDialog(dDialog):
             def addControls(self):
                 sz = self.Sizer
                 sz.appendSpacer(25)
 
-                lbl = dabo.ui.dLabel(self, FontBold=True, ForeColor="darkred", WordWrap=True,
+                lbl = dLabel(self, FontBold=True, ForeColor="darkred", WordWrap=True,
                         Alignment="center", Caption=_("The label below has WordWrap=True. " + \
                         "Use the slider to resize the label to see it in action."))
                 lbl.FontSize += 1
                 sz.append(lbl, "x", border=40, borderSides=("Left", "Right"))
 
-                sld = self.slider = dabo.ui.dSlider(self, Value=100, Continuous=False)
+                sld = self.slider = dSlider(self, Value=100, Continuous=False)
                 sld.bindEvent(dEvents.Hit, self.onSlider)
                 sld.bindEvent(dEvents.Resize, self.onSlider)
                 sz.append(sld, "x", border=10)
 
                 txt = getGettyAddr()
-                lbl = self.gettyLabel = dabo.ui.dLabel(self, Caption=txt, WordWrap=True)
+                lbl = self.gettyLabel = dLabel(self, Caption=txt, WordWrap=True)
                 sz.append(lbl, 1, border=10)
 
                 self.Caption = _("WordWrap Demo")

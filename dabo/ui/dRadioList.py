@@ -18,9 +18,8 @@ class _dRadioButton(dDataControlMixin, wx.RadioButton):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = _dRadioButton
         preClass = wx.RadioButton
-        super(_dRadioButton, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
 
     def _initEvents(self):
@@ -131,8 +130,9 @@ class dRadioList(dControlItemMixin, wx.Panel):
     really only suitable for lists of one to a dozen at most.
     """
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
+        dBorderSizer = dabo.import_ui_name("dBorderSizer")
         self._baseClass = dRadioList
-        self._sizerClass = dabo.ui.dBorderSizer
+        self._sizerClass = dBorderSizer
         self._buttonClass = _dRadioButton
         self._showBox = True
         self._caption = ""
@@ -150,7 +150,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
         # 'ButtonSpacing' property.
         self._buttonSpacing = 5
 
-        super(dRadioList, self).__init__(preClass, parent=parent, properties=properties,
+        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 
@@ -358,8 +358,9 @@ class dRadioList(dControlItemMixin, wx.Panel):
 
 
     def _getCaption(self):
+        dBorderSizer = dabo.import_ui_name("dBorderSizer")
         ret = self._caption
-        if isinstance(self.Sizer, dabo.ui.dBorderSizer):
+        if isinstance(self.Sizer, dBorderSizer):
             ret = self._caption = self.Sizer.Caption
         return ret
 
@@ -463,6 +464,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
 
     def _setShowBox(self, val):
         if self._constructed():
+            dBorderSizer = dabo.import_ui_name("dBorderSizer")
             fromSz = self.Sizer
             if fromSz is None:
                 # Control hasn't been constructed yet
@@ -475,7 +477,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
                 csz = fromSz.ControllingSizer
                 pos = fromSz.getPositionInSizer()
                 szProps = csz.getItemProps(fromSz)
-            isBorderSz = isinstance(fromSz, dabo.ui.dBorderSizer)
+            isBorderSz = isinstance(fromSz, dBorderSizer)
             needChange = (val and not isBorderSz) or (not val and isBorderSz)
             if not needChange:
                 return
@@ -581,7 +583,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
             _("Is the surrounding box visible?  (bool)"))
 
     SizerClass = property(_getSizerClass, _setSizerClass, None,
-            _("Class to use for the border sizer. Default=dabo.ui.dBorderSizer  (dSizer)"))
+            _("Class to use for the border sizer. Default=dBorderSizer  (dSizer)"))
 
     StringValue = property(_getStringValue, _setStringValue, None,
             _("""Specifies the text of the selected button.

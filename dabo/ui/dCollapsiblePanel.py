@@ -26,8 +26,7 @@ class dCollapsiblePanel(dControlMixin, pcp.PyCollapsiblePane):
         self.itemsCreated = False
         self._baseClass = dCollapsiblePanel
         preClass = pcp.PyCollapsiblePane
-        super(dCollapsiblePanel, self).__init__(preClass, parent, properties,
-                attProperties, *args, **kwargs)
+        dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
         self._pPane = dPanel(self, Visible=False, BorderStyle="None")
 
     def _initEvents(self):

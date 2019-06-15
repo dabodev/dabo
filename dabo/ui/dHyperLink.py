@@ -22,9 +22,8 @@ class dHyperLink(dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
         self._baseClass = dHyperLink
         preClass = hyperlink.HyperLinkCtrl
 
-        super(dHyperLink, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
         # Make the rollover effect the default, unless it was specified as False.
         self.ShowHover = self.ShowHover

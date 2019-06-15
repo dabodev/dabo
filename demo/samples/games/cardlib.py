@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+import dabo
 import dabo.ui
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
+dBitmap = dabo.import_ui_name("dBitmap")
 
-class Card(dabo.ui.dBitmap):
+
+class Card(dBitmap):
     """Class representing an individual playing card."""
 
     def updPic(self):

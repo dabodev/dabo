@@ -26,7 +26,7 @@ class MySQL(dBackend):
     nameEnclosureChar = "`"
 
     def __init__(self):
-        super(MySQL, self).__init__()
+        dBackend.__init__(self)
         self.dbModuleName = "MySQLdb"
 
 

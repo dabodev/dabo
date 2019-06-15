@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import datetime
-import decimal
-import locale
 import re
+import datetime
 import time
-
+import locale
+import decimal
 numericTypes = (int, int, decimal.Decimal, float)
 valueErrors = (ValueError, decimal.InvalidOperation)
 
@@ -16,14 +15,14 @@ decimalPoint = None
 import wx
 import wx.lib.masked as masked
 import dabo
-from dabo import dEvents as dEvents
-from dabo import ui as dui
-from dabo.dLocalize import _
 from dabo.lib import dates
-from dabo.lib.utils import ustr
 from dabo.ui import dKeys
-from dabo.ui import makeDynamicProperty
+from dabo.lib.utils import ustr
+from dabo import ui as dui
 from dabo.ui.dDataControlMixin import dDataControlMixin
+from dabo.dLocalize import _
+from dabo import dEvents as dEvents
+from dabo.ui import makeDynamicProperty
 
 
 class dTextBoxMixinBase(dDataControlMixin):
@@ -39,9 +38,8 @@ class dTextBoxMixinBase(dDataControlMixin):
         self._inTextLength = False
         self._flushOnLostFocus = True  ## see dabo.ui.dDataControlMixinBase::flushValue()
 
-        super(dTextBoxMixinBase, self).__init__(preClass, parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
 
     def _initEvents(self):
@@ -476,9 +474,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
         self._dregex = {}
         self._lastDataType = str
 
-        super(dTextBoxMixin, self).__init__(preClass, parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dTextBoxMixinBase.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
         # Keep passwords, etc., from being written to disk
         if self.PasswordEntry:

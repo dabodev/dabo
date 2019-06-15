@@ -174,7 +174,7 @@ class PageCountCanvas(canvas.Canvas):
     Inspired by ActiveState recipe #576832 by Vinay Sajip.
     """
     def __init__(self, rw, *args, **kwargs):
-        super(PageCountCanvas, self).__init__(*args, **kwargs)
+        canvas.Canvas.__init__(self, *args, **kwargs)
         self.__rw = rw
         self.__saved_page_states = []
 

@@ -1,57 +1,64 @@
 # -*- coding: utf-8 -*-
-import dabo.ui
+import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dLabel = dabo.import_ui_name("dLabel")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dSpinner = dabo.import_ui_name("dSpinner")
+dTextBox = dabo.import_ui_name("dTextBox")
 
-class TestPanel(dabo.ui.dPanel):
+
+class TestPanel(dPanel):
     def afterInit(self):
-        sz = self.Sizer = dabo.ui.dSizer("V")
+        sz = self.Sizer = dSizer("V")
         sz.appendSpacer(50)
 
         intro = _("This demo shows the effect of the HGap and VGap properties on a GridSizer. "
                 "The panel containing the grid sizer has a tan background, and the various controls "
                 "in the sizer have a light blue background. These colors help you to visualize the effect "
                 "of changing these properties.")
-        cap = dabo.ui.dLabel(self, Caption=intro, Width=400, WordWrap=True)
+        cap = dLabel(self, Caption=intro, Width=400, WordWrap=True)
         sz.append(cap, halign="center")
         sz.appendSpacer(25)
 
         # Create the grid sizer
-        gridPanel = dabo.ui.dPanel(self, BackColor="moccasin")
-        gs = self.gridSizer = gridPanel.Sizer = dabo.ui.dGridSizer(MaxCols=2, HGap=3, VGap=8)
+        gridPanel = dPanel(self, BackColor="moccasin")
+        gs = self.gridSizer = gridPanel.Sizer = dGridSizer(MaxCols=2, HGap=3, VGap=8)
 
-        lbl = dabo.ui.dLabel(gridPanel, Caption="First", BackColor="powderblue")
-        ctl = dabo.ui.dTextBox(gridPanel, BackColor="powderblue")
+        lbl = dLabel(gridPanel, Caption="First", BackColor="powderblue")
+        ctl = dTextBox(gridPanel, BackColor="powderblue")
         gs.append(lbl, halign="right")
         gs.append(ctl)
-        lbl = dabo.ui.dLabel(gridPanel, Caption="Second", BackColor="powderblue")
-        ctl = dabo.ui.dTextBox(gridPanel, BackColor="powderblue")
+        lbl = dLabel(gridPanel, Caption="Second", BackColor="powderblue")
+        ctl = dTextBox(gridPanel, BackColor="powderblue")
         gs.append(lbl, halign="right")
         gs.append(ctl)
-        lbl = dabo.ui.dLabel(gridPanel, Caption="Third", BackColor="powderblue")
-        ctl = dabo.ui.dTextBox(gridPanel, BackColor="powderblue")
+        lbl = dLabel(gridPanel, Caption="Third", BackColor="powderblue")
+        ctl = dTextBox(gridPanel, BackColor="powderblue")
         gs.append(lbl, halign="right")
         gs.append(ctl)
-        lbl = dabo.ui.dLabel(gridPanel, Caption="Fourth", BackColor="powderblue")
-        ctl = dabo.ui.dTextBox(gridPanel, BackColor="powderblue")
+        lbl = dLabel(gridPanel, Caption="Fourth", BackColor="powderblue")
+        ctl = dTextBox(gridPanel, BackColor="powderblue")
         gs.append(lbl, halign="right")
         gs.append(ctl)
 
-        hs = dabo.ui.dSizer("H")
+        hs = dSizer("H")
         hs.append(gridPanel, valign="middle")
 
-        gs = dabo.ui.dGridSizer(MaxCols=2)
-        lbl = dabo.ui.dLabel(self, Caption=_("HGap:"))
+        gs = dGridSizer(MaxCols=2)
+        lbl = dLabel(self, Caption=_("HGap:"))
         gs.append(lbl, halign="right")
-        spn = dabo.ui.dSpinner(self, DataSource="self.Parent.gridSizer",
+        spn = dSpinner(self, DataSource="self.Parent.gridSizer",
                 DataField="HGap")
         spn.bindEvent(dEvents.Hit, self.onChangeLayout)
         gs.append(spn)
 
-        lbl = dabo.ui.dLabel(self, Caption=_("VGap:"))
+        lbl = dLabel(self, Caption=_("VGap:"))
         gs.append(lbl, halign="right")
-        spn = dabo.ui.dSpinner(self, DataSource="self.Parent.gridSizer",
+        spn = dSpinner(self, DataSource="self.Parent.gridSizer",
                 DataField="VGap")
         spn.bindEvent(dEvents.Hit, self.onChangeLayout)
         gs.append(spn)

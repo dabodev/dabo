@@ -6,7 +6,7 @@ from dabo.ui import dIcons
 
 
 
-class ImageRenderer(wx.grid.PyGridCellRenderer):
+class ImageRenderer(wx.grid.GridCellRenderer):
     """Used to display small images in a column."""
 
     def __init__(self, *args, **kwargs):
@@ -70,7 +70,7 @@ class ImageRenderer(wx.grid.PyGridCellRenderer):
             syscolor = wx.SYS_COLOUR_WINDOW
 
         bkgrd = wx.SystemSettings_GetColour(syscolor)
-        dc.SetBrush(wx.Brush(bkgrd, wx.SOLID))
+        dc.SetBrush(wx.Brush(bkgrd, wx.PENSTYLE_SOLID))
 
         try:
             dc.SetPen(wx.TRANSPARENT_PEN)
@@ -111,7 +111,7 @@ class ImageRenderer(wx.grid.PyGridCellRenderer):
 
 
 
-class BoolRenderer(wx.grid.PyGridCellRenderer):
+class BoolRenderer(wx.grid.GridCellRenderer):
     """The default wx Bool renderer is really ugly, so this is a replacement."""
 
     def __init__(self, *args, **kwargs):
@@ -161,7 +161,7 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
             syscolor = wx.SYS_COLOUR_WINDOW
 
         bkgrd = wx.SystemSettings_GetColour(syscolor)
-        dc.SetBrush(wx.Brush(bkgrd, wx.SOLID))
+        dc.SetBrush(wx.Brush(bkgrd, wx.PENSTYLE_SOLID))
 
         try:
             dc.SetPen(wx.TRANSPARENT_PEN)
@@ -202,7 +202,7 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 
 
 
-class AbstractTextRenderer(wx.grid.PyGridCellRenderer):
+class AbstractTextRenderer(wx.grid.GridCellRenderer):
     """
     This is a starting point for all renderers that simply involve controlling
     the text displayed in a cell.

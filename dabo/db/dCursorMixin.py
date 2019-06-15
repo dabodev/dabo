@@ -27,10 +27,9 @@ class dCursorMixin(dObject):
     # Make these class attributes, so that they are shared among all instances
     _fieldStructure = {}
 
-    def __init__(self, sql=None, *args, **kwargs):
+    def __init__(self, sql="", *args, **kwargs):
         self._convertStrToUnicode = True
         self._initProperties()
-        sql = sql or ""
         if sql and isinstance(sql, str) and len(sql) > 0:
             self.UserSQL = sql
         # Attributes used for M-M relationships
@@ -41,7 +40,11 @@ class dCursorMixin(dObject):
         self._assocPKColThis = None
         self._assocPKColOther = None
 
-        super(dCursorMixin, self).__init__(*args, **kwargs)
+        #super(dCursorMixin, self).__init__()
+        ## pkm: Neither of the above are correct. We need to explicitly
+        ##      call dObject's __init__, otherwise the cursor object with
+        ##      which we are mixed-in will take the __init__.
+        dObject.__init__(self, *args, **kwargs)
 
         # Just in case this is used outside of the context of a bizobj
         if not hasattr(self, "superCursor") or self.superCursor is None:

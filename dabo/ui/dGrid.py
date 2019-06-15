@@ -7,9 +7,11 @@ import datetime
 import locale
 import operator
 import re
+import six
 import sys
 import time
 import warnings
+
 import wx
 import wx.grid
 from wx._core import PyAssertionError
@@ -168,11 +170,11 @@ class dGridDataTable(wx.grid.GridTableBase):
             col = colDefs[num]
             if col.Order < 0:
                 col.Order = num
-        colDefs.sort(self.orderSort)
+        colDefs.sort(key=lambda col: col.Order)
         self.colDefs = copy.copy(colDefs)
 
     def orderSort(self, col1, col2):
-        return cmp(col1.Order, col2.Order)
+        return ((col1 > col2) - (col1 < col2))
 
 
     def convertType(self, typ):
@@ -441,7 +443,7 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
 
 
 
-class dColumn(dPemMixin):
+class dColumn(wx._core.Object, dPemMixin):
     """
     These aren't the actual columns that appear in the grid; rather,
     they provide a way to interact with the underlying grid table in a more
@@ -481,6 +483,7 @@ class dColumn(dPemMixin):
 
         self._beforeInit()
         kwargs["Parent"] = parent
+        self._parent = parent
         # dColumn maintains one attr object that the grid table will use for
         # setting properties such as ForeColor and Font on the entire column.
         att = self._gridColAttr = parent._defaultGridColAttr.Clone()
@@ -488,27 +491,31 @@ class dColumn(dPemMixin):
 
         self._gridCellAttrs = {}
 
-        super(dColumn, self).__init__(preClass=None, parent=parent,
-                properties=properties, attProperties=attProperties,
-                *args, **kwargs)
+        wx._core.Object.__init__(self)
+        dPemMixin.__init__(self, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
         self._baseClass = dColumn
         if dataFieldSent and not dataTypeSent:
             implicitPrecision = not precisionSent
             self._setDataTypeFromDataField(implicitPrecision)
 
 
-    def _beforeInit(self):
+    def _beforeInit(self, pre=None):
         # Define the cell renderer and editor classes
-        from . import gridRenderers
+        AbstractTextRenderer = dabo.import_ui_name("AbstractTextRenderer")
+        BoolRenderer = dabo.import_ui_name("BoolRenderer")
+        ImageRenderer = dabo.import_ui_name("ImageRenderer")
+        YesNoBoolRenderer = dabo.import_ui_name("YesNoBoolRenderer")
+
         self.stringRendererClass = wx.grid.GridCellStringRenderer
         self.wrapStringRendererClass = wx.grid.GridCellAutoWrapStringRenderer
-        self.boolRendererClass = gridRenderers.BoolRenderer
+        self.boolRendererClass = BoolRenderer
         self.intRendererClass = wx.grid.GridCellNumberRenderer
         self.longRendererClass = wx.grid.GridCellNumberRenderer
         self.decimalRendererClass = wx.grid.GridCellFloatRenderer
         self.floatRendererClass = wx.grid.GridCellFloatRenderer
         self.listRendererClass = wx.grid.GridCellStringRenderer
-        self.imageRendererClass = gridRenderers.ImageRenderer
+        self.imageRendererClass = ImageRenderer
         self.stringEditorClass = wx.grid.GridCellTextEditor
         self.wrapStringEditorClass = wx.grid.GridCellAutoWrapStringEditor
         self.boolEditorClass = wx.grid.GridCellBoolEditor
@@ -530,7 +537,6 @@ class dColumn(dPemMixin):
             "decimal" : self.decimalRendererClass,
             "float" : self.floatRendererClass,
             "list" : self.listRendererClass,
-            str : self.stringRendererClass,
             str : self.stringRendererClass,
             datetime.date : self.stringRendererClass,
             datetime.datetime : self.stringRendererClass,
@@ -565,13 +571,18 @@ class dColumn(dPemMixin):
 
         # Default to string renderer
         self._rendererClass = self.stringRendererClass
-        super(dColumn, self)._beforeInit()
+        super(dColumn, self)._beforeInit(None)
 
 
     def _afterInit(self):
         self._isConstructed = True
         super(dColumn, self)._afterInit()
         dui.callAfter(self._restoreFontZoom)
+
+
+    def GetParent(self):
+        # For wx compatibility
+        return self._parent
 
 
     def getDataTypeForColumn(self):
@@ -913,7 +924,7 @@ class dColumn(dPemMixin):
         row = self.Parent.CurrentRow
         cellAttr = self._gridCellAttrs.get(row, False)
         if cellAttr:
-            return cellAttr.GetFont().GetWeight() == wx.BOLD
+            return cellAttr.GetFont().GetWeight() == wx.FONTWEIGHT_BOLD
         return self.FontBold
 
     def _setCellFontBold(self, val):
@@ -1917,7 +1928,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self._rowColorEven = "white"
         self._rowColorOdd = (212, 255, 212)        # very light green
 
-        super(dGrid, self).__init__(preClass, parent=parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
         # Reduces grid flickering on Windows platform.
@@ -1996,7 +2007,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self.Bind(wx.grid.EVT_GRID_EDITOR_CREATED, self.__onWxGridEditorCreated)
         self.Bind(wx.grid.EVT_GRID_EDITOR_SHOWN, self.__onWxGridEditorShown)
         self.Bind(wx.grid.EVT_GRID_EDITOR_HIDDEN, self.__onWxGridEditorHidden)
-        self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxGridCellChange)
+        self.Bind(wx.grid.EVT_GRID_CELL_CHANGED, self.__onWxGridCellChange)
         self.Bind(wx.grid.EVT_GRID_RANGE_SELECT, self.__onWxGridRangeSelect)
         self.Bind(wx.EVT_SCROLLWIN, self.__onWxScrollWin)
 
@@ -2706,12 +2717,12 @@ class dGrid(dControlMixin, wx.grid.Grid):
             wxNativeFont = colObj.HeaderFont._nativeFont
             # draw the col. header background:
             if bcolor is not None:
-                dc.SetBrush(wx.Brush(bcolor, wx.SOLID))
+                dc.SetBrush(wx.Brush(bcolor, wx.BRUSHSTYLE_SOLID))
                 dc.SetPen(wx.Pen(fcolor, width=0))
                 dc.DrawRectangle(*headerRect)
 
             # draw the col. border:
-            dc.SetBrush(wx.TRANSPARENT_BRUSH)
+            dc.SetBrush(wx.Brush(bcolor, wx.BRUSHSTYLE_TRANSPARENT))
             dc.SetPen(self.GetDefaultGridLinePen())
             dc.DrawRectangle(*headerRect)
             dc.SetPen(holdPen)
@@ -2728,7 +2739,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 brushColor = self.SortIndicatorColor
                 if isinstance(brushColor, str):
                     brushColor = dColors.colorTupleFromName(brushColor)
-                dc.SetBrush(wx.Brush(brushColor, wx.SOLID))
+                dc.SetBrush(wx.Brush(brushColor, wx.BRUSHSTYLE_SOLID))
                 if self.sortOrder == "DESC":
                     # Down arrow
                     dc.DrawPolygon([(left, top), (left + sortIconSize, top),
@@ -3033,7 +3044,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                         dataType = None
                     sortingStrings = isinstance(sortList[0][0], str)
                 else:
-                    sortingStrings = dataType in ("unicode", "string")
+                    sortingStrings = dataType in six.string_types
 
                 if sortingStrings and not caseSensitive:
                     sortKey = caseInsensitiveSortKey
@@ -5177,7 +5188,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         if not tbl:
             try:
                 tbl = dGridDataTable(self)
-                self.SetTable(tbl, False)
+                self.SetTable(tbl, True)
             except TypeError:
                 tbl = None
         return tbl
@@ -5492,11 +5503,6 @@ class _dGrid_test(dGrid):
                 {"name" : "Steve Wozniak", "age" : thisYear - 1950, "coder" :  True, "color": "yellow"},
                 {"name" : "LeBron James", "age" : thisYear - 1984, "coder" :  False, "color": "gold"},
                 {"name" : "Madeline Albright", "age" : thisYear - 1937, "coder" :  False, "color": "red"}]
-
-
-        for row in range(len(ds)):
-            for i in range(20):
-                ds[row]["i_%s" % i] = "sss%s" % i
         self.DataSet = ds
 
         self.TabNavigates = False
@@ -5552,10 +5558,6 @@ class _dGrid_test(dGrid):
         col.HeaderVerticalAlignment = "Bottom"
         col.HeaderHorizontalAlignment = "Right"
         col.HeaderForeColor = "brown"
-
-        for i in range(1):
-            # Can't test Expand with so many columns! Just add one.
-            self.addColumn(DataField="i_%s" % i, Caption="i_%s" % i)
 
     def onScrollLineUp(self, evt):
         print("LINE UP orientation =", evt.orientation, " scrollpos =", evt.scrollpos)

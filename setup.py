@@ -17,7 +17,7 @@ def getIconSubDir(arg, dirname, fnames):
             subdir = os.path.join(iconDir, dirname[len(arg)+1:])
             subdir = subdir.replace(os.sep, ".")
             iconDirs[subdir] = ["*.png"]
-os.path.walk(iconDir, getIconSubDir, iconDir)
+os.walk(iconDir, getIconSubDir, iconDir)
 
 # locale dirs:
 localeDir = os.path.join(setupDir, "dabo", "locale")
@@ -32,7 +32,7 @@ def getLocaleDirs(arg, dirname, fnames):
         if mo_files:
             subdir = os.path.join(localeDir, dirname[len(arg)+1:])
             localeDirs.append((subdir, ["*.po"]))
-os.path.walk(localeDir, getLocaleDirs, localeDir)
+os.walk(localeDir, getLocaleDirs, localeDir)
 
 package_data = {
     "":["ANNOUNCE", "AUTHORS", "ChangeLog", "INSTALL",

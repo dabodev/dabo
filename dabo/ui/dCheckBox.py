@@ -12,7 +12,7 @@ class dCheckBox(dDataControlMixin, wx.CheckBox):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dCheckBox
         preClass = wx.CheckBox
-        super(dCheckBox, self).__init__(preClass, parent, properties=properties,
+        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

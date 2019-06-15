@@ -7,7 +7,7 @@ from dabo.dLocalize import _
 
 class PageFrameMixin(object):
     def __init__(self, parent, Name="PageFrame", *args, **kwargs):
-        super(PageFrameMixin, self).__init__(parent, Name=Name, *args, **kwargs)
+        self._pageStyleClass.__init__(self, parent, Name=Name, *args, **kwargs)
         # Add the images for the various pages.
         iconPath = "themes/tango/16x16"
         self.addImage("%s/actions/system-search.png" % iconPath, key="select")
@@ -81,6 +81,6 @@ def PageFrame(parent, tabStyle="tabs", *args, **kwargs):
     class DataNavPageFrame(PageFrameMixin, pageStyleClass):
         _pageStyleClass = property(lambda self: pageStyleClass)
         def __init__(*args, **kwargs):
-            super(DataNavPageFrame, self).__init__(*args, **kwargs)
+            PageFrameMixin.__init__(*args, **kwargs)
 
     return DataNavPageFrame(parent, *args, **kwargs)

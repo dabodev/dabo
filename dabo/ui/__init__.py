@@ -4,10 +4,12 @@ This is Dabo's user interface layer.
 """
 import datetime
 import glob
+import importlib
 import inspect
 import io
 import os
 import re
+import six
 import sys
 import time
 import traceback
@@ -87,7 +89,6 @@ uiType["platform"] = _platform
 # Add these to the dabo.ui namespace
 assertionException = wx.wxAssertionError
 nativeScrollBar = wx.ScrollBar
-
 
 def deadCheck(fn, *args, **kwargs):
     """
@@ -312,11 +313,9 @@ def callAfter(fnc, *args, **kwargs):
     Call the passed function with the passed arguments in the next
     event loop.
     """
-    global lastCallAfterStack
     if dabo.saveCallAfterStack:
         lastCallAfterStack = "".join(traceback.format_stack())
     wx.CallAfter(fnc, *args, **kwargs)
-    print("CALL AFTER", fnc)
 
 
 _callAfterIntervalReferences = {}
@@ -331,10 +330,11 @@ def callAfterInterval(interval, func, *args, **kwargs):
     high.
     """
     global lastCallAfterStack
-    global _callAfterIntervalReferences
-
     if dabo.saveCallAfterStack:
         lastCallAfterStack = "".join(traceback.format_stack())
+    if isinstance(func, int):
+        # Arguments are in the old order
+        interval, func = func, interval
     func_ref = func
     if func.__closure__:
         func_ref = func.__code__
@@ -351,8 +351,7 @@ def callAfterInterval(interval, func, *args, **kwargs):
             pass
 
     _callAfterIntervalReferences[(func_ref, args)] = wx.CallLater(interval,
-            ca_func, func_ref, func, *args, **kwargs)
-    print("CALL AFTER INTERVAL", interval, func)
+                                                        ca_func, func_ref, func, *args, **kwargs)
 
 
 def setAfter(obj, prop, val):
@@ -363,7 +362,6 @@ def setAfter(obj, prop, val):
     try:
         fnc = getattr(obj.__class__, prop).fset
         wx.CallAfter(fnc, obj, val)
-        print("SET AFTER", obj, prop, val)
     except Exception as e:
         dabo.log.error(_("setAfter() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
                 % locals())
@@ -377,7 +375,6 @@ def setAfterInterval(interval, obj, prop, val):
     try:
         fnc = getattr(obj.__class__, prop).fset
         callAfterInterval(interval, fnc, obj, val)
-        print("SET AFTER INTERVAL", interval, obj, prop, val)
     except Exception as e:
         dabo.log.error(_("setAfterInterval() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
                 % locals())
@@ -389,7 +386,7 @@ def callEvery(interval, func, *args, **kwargs):
     at the specified interval. Interval is given in milliseconds. It will pass along
     any additional arguments to the function when it is called.
     """
-    from dabo.ui.dTimer import dTimer
+    dTimer = dabo.import_ui_name("dTimer")
     def _onHit(evt):
         func(*args, **kwargs)
     ret = dTimer(Interval=interval)
@@ -465,6 +462,8 @@ def discontinueEvent(evt):
 def getEventData(wxEvt):
     from dabo.ui.dMenu import dMenu
     from dabo.ui.dTreeView import dTreeView
+    import wx.grid
+
     ed = {}
     eventType = wxEvt.GetEventType()
     if isinstance(wxEvt, wx._core.FocusEvent):
@@ -683,7 +682,6 @@ def getEventData(wxEvt):
         # to do anything.
         ed["alt"] = wxEvt.GetAlt()
         ed["control"] = wxEvt.GetControl()
-        ed["dragAllowMove"] = wxEvt.GetDragAllowMove()
         ed["dragResult"] = wxEvt.GetDragResult()
         ed["dragText"] = wxEvt.GetDragText()
         ed["extraLong"] = wxEvt.GetExtraLong()
@@ -763,11 +761,10 @@ def getObjectAtPosition(x, y=None):
     position, or None if there is no such object. You can pass separate
     x,y coordinates, or an x,y tuple.
     """
-    from dabo.ui.dPemMixin import dPemMixin
     if y is None:
         x, y = x
     win = wx.FindWindowAtPoint((x,y))
-    while not isinstance(win, dPemMixin):
+    while not isinstance(win, dabo.ui.dPemMixin.dPemMixin):
         try:
             win = win.GetParent()
         except AttributeError:
@@ -1028,11 +1025,11 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
 
 # For convenience, make it so one can call dui.stop("Can't do that")
 # instead of having to type dui.dMessageBox.stop("Can't do that")
-from dabo.ui import dMessageBox
-areYouSure = dMessageBox.areYouSure
-stop = dMessageBox.stop
-info = dMessageBox.info
-exclaim = dMessageBox.exclaim
+from dabo.ui import dMessageBox as dmb
+areYouSure = dmb.areYouSure
+stop = dmb.stop
+info = dmb.info
+exclaim = dmb.exclaim
 
 
 def getColor(color=None):
@@ -1042,7 +1039,8 @@ def getColor(color=None):
     no selection was made.
     """
     ret = None
-    dlg = dabo.ui.dColorDialog.dColorDialog(_getActiveForm(), color)
+    dColorDialog = dabo.import_ui_name("dColorDialog")
+    dlg = dColorDialog(_getActiveForm(), color)
     if dlg.show() == kons.DLG_OK:
         ret = dlg.getColor()
     dlg.release()
@@ -1115,6 +1113,8 @@ def getAvailableFonts():
 def _getPath(cls, wildcard, **kwargs):
     pth = None
     idx = None
+    if isinstance(cls, six.string_types):
+        cls = dabo.import_ui_name(cls)
     fd = cls(parent=_getActiveForm(), wildcard=wildcard, **kwargs)
     if fd.show() == kons.DLG_OK:
         pth = fd.Path
@@ -1144,7 +1144,7 @@ def getFile(*args, **kwargs):
 
     """
     wc = _getWild(*args)
-    return _getPath(dabo.ui.dFileDialog.dFileDialog, wildcard=wc, **kwargs)[0]
+    return _getPath("dFileDialog", wildcard=wc, **kwargs)[0]
 
 
 def getFileAndType(*args, **kwargs):
@@ -1154,7 +1154,7 @@ def getFileAndType(*args, **kwargs):
     was made, as well as the wildcard value selected by the user.
     """
     wc = _getWild(*args)
-    pth, idx = _getPath(dabo.ui.dFileDialog.dFileDialog, wildcard=wc, **kwargs)
+    pth, idx = _getPath("dFileDialog", wildcard=wc, **kwargs)
     if idx is None:
         ret = (pth, idx)
     else:
@@ -1174,7 +1174,7 @@ def getSaveAs(*args, **kwargs):
     except KeyError:
         pass
     kwargs["wildcard"] = _getWild(*args)
-    return _getPath(dSaveDialog, **kwargs)[0]
+    return _getPath("dSaveDialog", **kwargs)[0]
 
 
 def getSaveAsAndType(*args, **kwargs):
@@ -1189,7 +1189,7 @@ def getSaveAsAndType(*args, **kwargs):
     except KeyError:
         pass
     kwargs["wildcard"] = _getWild(*args)
-    pth, idx = _getPath(dSaveDialog, **kwargs)
+    pth, idx = _getPath("dSaveDialog", **kwargs)
     if idx is None:
         ret = (pth, idx)
     else:
@@ -1203,7 +1203,7 @@ def getFolder(message=_("Choose a folder"), defaultPath="", wildcard="*"):
     Returns the path to the selected folder, or None if no selection
     was made.
     """
-    return _getPath(dabo.ui.dFolderDialog.dFolderDialog, message=message,
+    return _getPath("dFolderDialog", message=message,
             defaultPath=defaultPath, wildcard=wildcard)[0]
 # Create an alias that uses 'directory' instead of 'folder'
 getDirectory = getFolder
@@ -1397,19 +1397,17 @@ def createForm(srcFile, show=False, *args, **kwargs):
     return frm
 
 
-def createMenuBar(src, parent=None, previewFunc=None):
+def createMenuBar(src, form=None, previewFunc=None):
     """
-    Pass in either an .mnxml file path saved from the Menu Designer, or a dict
-    representing the menu, which will be used to instantiate a MenuBar. Returns
-    a reference to the newly-created MenuBar. You can optionally pass in a
-    reference to the form to which this menu is associated, so that you can
-    enter strings that represent form functions in the Designer, such as
-    'form.close', which will call the associated form's close() method. If
-    'previewFunc' is passed, the menu command that would have been eval'd and
-    executed on a live menu will instead be passed back as a parameter to that
-    function.
+    Pass in either an .mnxml file path saved from the Menu Designer, or a dict representing
+    the menu, which will be used to instantiate a MenuBar. Returns a reference to the
+    newly-created MenuBar. You can optionally pass in a reference to the form to which this menu
+    is associated, so that you can enter strings that represent form functions in the Designer,
+    such as 'form.close', which will call the associated form's close() method. If 'previewFunc'
+    is passed, the menu command that would have been eval'd and executed on a live menu will
+    instead be passed back as a parameter to that function.
     """
-    def addMenu(mb, parent, menuDict, previewFunc):
+    def addMenu(mb, menuDict, form, previewFunc):
         if form is None:
             form = dabo.dAppRef.ActiveForm
         if isinstance(mb, dabo.ui.dMenuBar.dMenuBar):
@@ -1433,7 +1431,7 @@ def createMenuBar(src, parent=None, previewFunc=None):
             if "Separator" in itm["name"]:
                 menu.appendSeparator()
             elif itm["name"] == "MenuPanel":
-                addMenu(menu, parent, itm, previewFunc)
+                addMenu(menu, itm, form, previewFunc)
             else:
                 itmatts = itm["attributes"]
                 cap = menu._extractKey(itmatts, "Caption")
@@ -1474,14 +1472,14 @@ def createMenuBar(src, parent=None, previewFunc=None):
                 stop(e, _("File Not Found"))
                 return
         mnd = dabo.lib.xmltodict.xmltodict(src)
-    mb = dabo.ui.dMenuBar.dMenuBar(parent=parent)
+    mb = dabo.ui.dMenuBar.dMenuBar()
     for mn in mnd["children"]:
-        addMenu(mb, parent, mn, previewFunc)
+        addMenu(mb, mn, form, previewFunc)
     return mb
 
 
 def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
-    class _BaseCellEditor(wx.grid.PyGridCellEditor):
+    class _BaseCellEditor(wx.grid.GridCellEditor):
         _controlClass = None
         _minWidth = None
         _minHeight = None
@@ -1777,9 +1775,9 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
     if size is not None:
         fnt.SetPointSize(size)
     if bold is not None:
-        fnt.SetWeight(wx.BOLD)
+        fnt.SetWeight(wx.FONTWEIGHT_BOLD)
     if italic is not None:
-        fnt.SetStyle(wx.ITALIC)
+        fnt.SetStyle(wx.FONTSTYLE_ITALIC)
 
     if not isinstance(wind, (dabo.ui.dForm.dForm, wx.Frame)):
         try:
@@ -2071,3 +2069,4 @@ class GridSizerSpanException(dException):
     ColSpan of an item to an illegal value.
     """
     pass
+

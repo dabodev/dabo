@@ -46,8 +46,8 @@ class _ListColumnAccessor(object):
 
 
 
-class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin,
-        wx.ListCtrl):
+class dListControl(dControlItemMixin,
+        ListMixin.ListCtrlAutoWidthMixin, wx.ListCtrl):
     """
     Creates a list control, which is a flexible, virtual list box.
 
@@ -78,8 +78,9 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin,
         except TypeError:
             style = wx.LC_REPORT
         preClass = wx.ListCtrl
-        super(dListControl, self).__init__(preClass, parent=parent, properties=properties,
+        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, style=style, *args, **kwargs)
+        ListMixin.ListCtrlAutoWidthMixin.__init__(self)
         # Dictionary for tracking images by key value
         self.__imageList = {}
         # Need to set this after the superclass call in order to override the default for
@@ -527,7 +528,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin,
 
     def _listControlSort(self, x, y):
         # Default to standard Python comparison
-        return (x > y) - (x < y)
+        return ((x > y) - (x < y))
 
 
     def sort(self, sortFunction=None):

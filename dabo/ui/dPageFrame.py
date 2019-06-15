@@ -1,13 +1,26 @@
 # -*- coding: utf-8 -*-
+import random
 import sys
+
 import wx
 import dabo
 from dabo import ui as dui
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from dabo.ui.dPageFrameMixin import dPageFrameMixin
 from dabo import dColors as dColors
+
+dPageFrameMixin = dabo.import_ui_name("dPageFrameMixin")
+dPage = dabo.import_ui_name("dPage")
+dCheckBox = dabo.import_ui_name("dCheckBox")
+dCheckBox = dabo.import_ui_name("dCheckBox")
+dCheckBox = dabo.import_ui_name("dCheckBox")
+dLabel = dabo.import_ui_name("dLabel")
+dDropdownList = dabo.import_ui_name("dDropdownList")
+dSizer = dabo.import_ui_name("dSizer")
+dLabel = dabo.import_ui_name("dLabel")
+dDropdownList = dabo.import_ui_name("dDropdownList")
+dSizer = dabo.import_ui_name("dSizer")
 
 _USE_AGW = True
 try:
@@ -24,10 +37,7 @@ try:
     import wx.tools.Editra.src.extern.flatnotebook as fnb
     _USE_EDITRA = True
 except ImportError:
-    if (wx.VERSION >= (2, 8, 9, 2)):
-        import wx.lib.agw.flatnotebook as fnb
-    else:
-        import wx.lib.flatnotebook as fnb
+    import wx.lib.agw.flatnotebook as fnb
     _USE_EDITRA = False
 
 
@@ -51,9 +61,8 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
         self._baseClass = dPageFrame
         preClass = wx.Notebook
 
-        super(dPageFrame, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
     def _afterInit(self):
         if sys.platform[:3] == "win":
@@ -74,9 +83,8 @@ class dPageToolBar(dPageFrameMixin, wx.Toolbook):
         self._baseClass = dPageToolBar
         preClass = wx.Toolbook
 
-        super(dPageToolBar, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
     def _afterInit(self):
         if sys.platform[:3] == "win":
@@ -132,9 +140,8 @@ class dPageList(dPageFrameMixin, wx.Listbook):
         preClass = wx.Listbook
         # Dictionary for tracking images by key value
         self._imageList = {}
-        super(dPageList, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
         self.Bind(wx.EVT_LIST_ITEM_MIDDLE_CLICK, self.__onWxMiddleClick)
         self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.__onWxRightClick)
@@ -192,9 +199,8 @@ class dPageSelect(dPageFrameMixin, wx.Choicebook):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dPageSelect
         preClass = wx.Choicebook
-        super(dPageSelect, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
         # Dictionary for tracking images by key value
         self._imageList = {}
 
@@ -239,9 +245,8 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
             kwargs["agwStyle"] = newStyle
         else:
             kwargs["style"] = newStyle
-        super(dDockTabs, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
 
     def insertPage(self, pos, pgCls=None, caption="", imgKey=None,
@@ -262,7 +267,7 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
             return ret
         if pgCls is None:
             pgCls = self.PageClass
-        if isinstance(pgCls, dui.dPage):
+        if isinstance(pgCls, dPage):
             pg = pgCls
         else:
             # See if the 'pgCls' is either some XML or the path of an XML file
@@ -315,9 +320,8 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         # explicitly set.
         selpg = int(self._extractKey((properties, attProperties, kwargs), "SelectedPageNumber",
                 defaultVal=0))
-        super(dPageStyled, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dPageFrameMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
         dui.setAfter(self, "SelectedPageNumber", selpg)
 
 
@@ -662,8 +666,6 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
                 """))
 
 
-import random
-
 class TestMixin(object):
     def initProperties(self):
         self.Width = 600
@@ -732,27 +734,27 @@ class _dPageStyled_test(TestMixin, dPageStyled):
         pnl = self.Form.Children[0]
         szr = pnl.Sizer
         szr.DefaultBorder = 2
-        chk = dui.dCheckBox(pnl, Caption="Show Page Close Buttons",
+        chk = dCheckBox(pnl, Caption="Show Page Close Buttons",
                 DataSource=self, DataField="ShowPageCloseButtons")
         szr.append(chk, halign="center")
-        chk = dui.dCheckBox(pnl, Caption="Show Nav Buttons",
+        chk = dCheckBox(pnl, Caption="Show Nav Buttons",
                 DataSource=self, DataField="ShowNavButtons")
         szr.append(chk, halign="center")
-        chk = dui.dCheckBox(pnl, Caption="Show Menu Close",
+        chk = dCheckBox(pnl, Caption="Show Menu Close",
                 DataSource=self, DataField="ShowMenuClose")
         szr.append(chk, halign="center")
-        lbl = dui.dLabel(pnl, Caption="Tab Style:")
-        dd = dui.dDropdownList(pnl,
+        lbl = dLabel(pnl, Caption="Tab Style:")
+        dd = dDropdownList(pnl,
                 Choices=["Default", "VC8", "VC71", "Fancy", "Firefox"],
                 DataSource=self, DataField="TabStyle")
-        hsz = dui.dSizer("h")
+        hsz = dSizer("h")
         hsz.append(lbl)
         hsz.append(dd)
         szr.append(hsz, halign="center")
-        lbl = dui.dLabel(pnl, Caption="Tab Position:")
-        dd = dui.dDropdownList(pnl, Choices=["Top", "Bottom"],
+        lbl = dLabel(pnl, Caption="Tab Position:")
+        dd = dDropdownList(pnl, Choices=["Top", "Bottom"],
                 DataSource=self, DataField="TabPosition")
-        hsz = dui.dSizer("h")
+        hsz = dSizer("h")
         hsz.append(lbl)
         hsz.append(dd)
         szr.append(hsz, halign="center")

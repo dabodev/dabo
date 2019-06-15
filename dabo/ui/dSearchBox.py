@@ -16,9 +16,8 @@ class dSearchBox(dTextBoxMixin, wx.SearchCtrl):
         self._cancelVisible = False
         self._searchVisible = True
         preClass = wx.SearchCtrl
-        super(dSearchBox, self).__init__(preClass, parent=parent,
-                properties=properties, attProperties=attProperties, *args,
-                **kwargs)
+        dTextBoxMixin.__init__(self, preClass, parent, properties=properties,
+                attProperties=attProperties, *args, **kwargs)
 
     def _initEvents(self):
         super(dSearchBox, self)._initEvents()
@@ -87,7 +86,8 @@ class dSearchBox(dTextBoxMixin, wx.SearchCtrl):
 
     #private methods
     def _setupMenuFromList(self, valueList):
-        menu = dui.dMenu()
+        dMenu = dabo.import_ui_name("dMenu")
+        menu = dMenu()
         for value in valueList:
             if not type(value) in (str, str):
                 raise ValueError("All elements in the List must be strings")

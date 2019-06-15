@@ -1,24 +1,33 @@
 # -*- coding: utf-8 -*-
+import dabo
 import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
+dBitmapButton = dabo.import_ui_name("dBitmapButton")
+dButton = dabo.import_ui_name("dButton")
+dDropdownList = dabo.import_ui_name("dDropdownList")
+dImage = dabo.import_ui_name("dImage")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dSlider = dabo.import_ui_name("dSlider")
 
-class TestPanel(dabo.ui.dPanel):
+
+class TestPanel(dPanel):
     def afterInit(self):
         # Set the idle update flag
         self.needUpdate = False
 
         # Create a panel with horiz. and vert.  sliders
-        self.imgPanel = dabo.ui.dPanel(self)
-        self.VSlider = dabo.ui.dSlider(self, Orientation="V", Min=1, Max=100,
+        self.imgPanel = dPanel(self)
+        self.VSlider = dSlider(self, Orientation="V", Min=1, Max=100,
                 Value=100, Continuous=True, OnHit=self.onSlider)
-        self.HSlider = dabo.ui.dSlider(self, Orientation="H", Min=1, Max=100,
+        self.HSlider = dSlider(self, Orientation="H", Min=1, Max=100,
                 Value=100, Continuous=True, OnHit=self.onSlider)
 
-        mainSizer = self.Sizer = dabo.ui.dSizer("V")
-        psz = self.imgPanel.Sizer = dabo.ui.dSizer("V")
-        hsz = dabo.ui.dSizer("H")
+        mainSizer = self.Sizer = dSizer("V")
+        psz = self.imgPanel.Sizer = dSizer("V")
+        hsz = dSizer("H")
         hsz.append1x(self.imgPanel)
         hsz.appendSpacer(10)
         hsz.append(self.VSlider, 0, "x")
@@ -31,32 +40,32 @@ class TestPanel(dabo.ui.dPanel):
         mainSizer.appendSpacer(10)
 
         # Create the image control
-        self.img = dabo.ui.dImage(self.imgPanel, BackColor="yellow",
+        self.img = dImage(self.imgPanel, BackColor="yellow",
             DroppedFileHandler=self)
 
-        hsz = dabo.ui.dSizer("H")
+        hsz = dSizer("H")
         hsz.DefaultSpacing = 10
-        btn = dabo.ui.dBitmapButton(self, Picture="rotateCW",
+        btn = dBitmapButton(self, Picture="rotateCW",
                 OnHit=self.onRotateCW, Size=(36, 36))
         hsz.append(btn)
-        btn = dabo.ui.dBitmapButton(self, Picture="rotateCCW",
+        btn = dBitmapButton(self, Picture="rotateCCW",
                 OnHit=self.onRotateCCW, Size=(36, 36))
         hsz.append(btn)
-        btn = dabo.ui.dBitmapButton(self, Picture="flip_horiz",
+        btn = dBitmapButton(self, Picture="flip_horiz",
                 OnHit=self.onFlipHoriz, Size=(36, 36))
         hsz.append(btn)
-        btn = dabo.ui.dBitmapButton(self, Picture="flip_vert",
+        btn = dBitmapButton(self, Picture="flip_vert",
                 OnHit=self.onFlipVert, Size=(36, 36))
         hsz.append(btn)
 
-        self.ddScale = dabo.ui.dDropdownList(self,
+        self.ddScale = dDropdownList(self,
                 Choices = ["Proportional", "Stretch", "Clip"],
                 PositionValue = 0,
                 ValueMode = "String")
         self.ddScale.DataSource = self.img
         self.ddScale.DataField = "ScaleMode"
 
-        btn = dabo.ui.dButton(self, Caption=_("Load Your Own Image"),
+        btn = dButton(self, Caption=_("Load Your Own Image"),
                 OnHit=self.onLoadImage)
 
         hsz.append(self.ddScale, "x")

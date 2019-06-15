@@ -12,25 +12,21 @@ test of dTextBox.
 If you instead run this test.py as a script, a form will be instantiated with
 all the dControls.
 """
+import importlib
 import os
 import sys
 import traceback
 
 import wx
-import dabo
 from dabo.dApp import dApp
-from dabo.ui.dEditBox import dEditBox
-from dabo.ui.dForm import dForm
-from dabo.ui.dLabel import dLabel
-from dabo.ui.dPanel import dPanel
-from dabo.ui.dPanel import dScrollPanel
-from dabo.ui.dSizer import dSizer
+import dabo
 
 # Log all events except the really frequent ones:
 logEvents = ["All", "Idle", "MouseMove"]
+
+
 class Test(object):
     def __init__(self):
-        super(Test, self).__init__()
         self.app = dApp()
         self.app.MainFormClass = None
         self.app.setup()
@@ -45,12 +41,11 @@ class Test(object):
             frame = classRefs[0](None, *args, **kwargs)
             isDialog = (issubclass(classRefs[0], wx.Dialog))
         else:
+            dForm = dabo.import_ui_name("dForm")
+            dPanel = dabo.import_ui_name("dPanel")
+            dSizer = dabo.import_ui_name("dSizer")
+
             frame = dForm(Name="formTest")
-            frame.Show()
-            frame.Layout()
-            self.app.start()
-            return
-            
             panel = frame.addObject(dPanel, Name="panelTest")
             panel.Sizer = dSizer("Vertical")
             frame.Sizer.append(panel, 1, "expand")
@@ -86,6 +81,11 @@ class Test(object):
 
     def testAll(self):
         """Create a dForm and populate it with example dWidgets."""
+        dEditBox = dabo.import_ui_name("dEditBox")
+        dForm = dabo.import_ui_name("dForm")
+        dLabel = dabo.import_ui_name("dLabel")
+        dScrollPanel = dabo.import_ui_name("dScrollPanel")
+        dSizer = dabo.import_ui_name("dSizer")
         frame = dForm(Name="formTestAll")
         frame.Caption = "Test of all the dControls"
         frame.LogEvents = logEvents
@@ -96,7 +96,10 @@ class Test(object):
         vs = dSizer("vertical")
 
         # Get all the python modules in this directory into a list:
-        modules = [modname.split(".")[0] for modname in os.listdir(".") if modname[-3:] == ".py"]
+        dabo_root = os.path.dirname(dabo.__file__)
+        ui_root = os.path.join(dabo_root, "ui")
+        modules = [modname.split(".")[0] for modname in os.listdir(ui_root)
+                if modname.endswith(".py")]
 
         for modname in sorted(modules):
             print("==> ", modname)
@@ -106,7 +109,7 @@ class Test(object):
                 # isinstance() problems.
                 continue
             try:
-                mod = __import__(modname)
+                mod = importlib.import_module(modname)
             except ImportError as e:
                 print("ImportError:", e)
                 continue

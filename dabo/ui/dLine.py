@@ -20,7 +20,7 @@ class dLine(dControlMixin, wx.StaticLine):
         self._baseClass = dLine
         preClass = wx.StaticLine
 
-        super(dLine, self).__init__(preClass, parent=parent, properties=properties,
+        dControlMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 

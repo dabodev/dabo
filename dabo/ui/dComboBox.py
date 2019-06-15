@@ -29,13 +29,13 @@ class dComboBox(dControlItemMixin, wx.ComboBox):
         self._textToAppend = ""
 
         preClass = wx.ComboBox
-        super(dComboBox, self).__init__(preClass, parent, properties=properties,
+        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 
 
     def _preInitUI(self, kwargs):
         style = kwargs.get("style", 0)
-        style |= wx.PROCESS_ENTER
+        style |= wx.TE_PROCESS_ENTER
         kwargs["style"] = style
         return kwargs
 
