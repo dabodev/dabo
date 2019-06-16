@@ -69,7 +69,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
 
         dImageMixin.__init__(self)
         dDataControlMixin.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
-                bitmap=wx.EmptyBitmap(1, 1), *args, **kwargs)
+                bitmap=wx.Bitmap(1, 1), *args, **kwargs)
 
         # Display the picture, if any. This will also initialize the
         # self._picture attribute
@@ -162,7 +162,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
             return
         if not self._Image.IsOk():
             # No image to display
-            self.Bitmap = wx.EmptyBitmap(1, 1)
+            self.Bitmap = wx.Bitmap(1, 1)
             self.Freeze()
             self.SetBitmap(self.Bitmap)
             self.Thaw()
@@ -253,8 +253,8 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
             # Empty string passed; clear any current image
             self._picture = ""
             self._displayState = 1
-            self._bmp = wx.EmptyBitmap(1, 1, 1)
-            self.__image = wx.EmptyImage(1, 1)        # self._bmp.ConvertToImage()
+            self._bmp = wx.Bitmap(1, 1, 1)
+            self.__image = wx.Image(1, 1)        # self._bmp.ConvertToImage()
             self._showPic()
             return
         elif isinstance(val, wx.Image):
@@ -268,7 +268,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
             self._picture = "(stream)"
         elif isinstance(val, memoryview):
             val = io.StringIO(val)
-            img = wx.EmptyImage()
+            img = wx.Image()
             img.LoadStream(val)
             self._setPicture(img)
             return

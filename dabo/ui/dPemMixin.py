@@ -124,6 +124,10 @@ class dPemMixin(dObject):
                         "DataField", "FontFace", "Icon", "Picture", "RegID", "ToolTipText")):
                     # It's a string that happens to be the same as a built-in name
                     attVal = val
+                elif val == "prop":
+                    # Special case where the eval below will return the value
+                    # of 'prop' in this loop rather than the value itself.
+                    attVal = val
                 else:
                     try:
                         attVal = eval(val)
@@ -133,7 +137,8 @@ class dPemMixin(dObject):
         properties = dictStringify(properties)
 
         # Hacks to fix up various things:
-        from . import dMenuBar, dMenuItem, dMenu, dSlidePanelControl, dToggleButton, dBorderlessButton
+        from . import dMenuBar, dMenuItem, dMenu, dSlidePanelControl
+        from . import dToggleButton, dBorderlessButton, dSlidePanelControl
         if isinstance(self, (dMenuItem.dMenuItem, dMenuItem.dSeparatorMenuItem)):
             # Hack: wx.MenuItem doesn't take a style arg,
             # and the parent arg is parentMenu.
@@ -153,16 +158,12 @@ class dPemMixin(dObject):
             del(self._preInitProperties["style"])
             del(self._preInitProperties["id"])
             del(self._preInitProperties["parent"])
-
-            # TODO: fix thix block
-            """
-        elif isinstance(self, (dui.dSlidePanel, dui.dSlidePanelControl,
-                dSlidePanelControl.dSlidePanel, dSlidePanelControl.dSlidePanelControl)):
+        elif isinstance(self, (dSlidePanelControl.dSlidePanel,
+                dSlidePanelControl.dSlidePanelControl)):
             # Hack: the Slide Panel classes have no style arg.
             del self._preInitProperties["style"]
             # This is needed because these classes require a 'parent' param.
             kwargs["parent"] = parent
-            """
         # This is needed when running from a saved design file
         self._extractKey((properties, self._properties), "designerClass")
         # This attribute is used when saving code with a design file
@@ -2302,7 +2303,7 @@ class dPemMixin(dObject):
         if hasattr(self, "GetChildren"):
             return list(self.GetChildren())
         else:
-            return None
+            return []
 
 
     def _getCntrlSizer(self):

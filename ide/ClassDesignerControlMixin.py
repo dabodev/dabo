@@ -5,18 +5,65 @@ from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
-import dabo.ui.dialogs as dlgs
+from dabo.ui import dialogs as dlgs
 from ClassDesignerComponents import LayoutPanel
 from ClassDesignerComponents import LayoutSizer
 from ClassDesignerComponents import LayoutBorderSizer
 from ClassDesignerComponents import LayoutGridSizer
 from ClassDesignerComponents import LayoutSaverMixin
 from ClassDesignerComponents import classFlagProp
-from dabo.ui.uiwx.dPageFrameMixin import dPageFrameMixin
 from ClassDesignerExceptions import PropertyUpdateException
 from dabo.ui import dKeys
 
 dui = dabo.ui
+
+dBitmap = dabo.import_ui_name("dBitmap")
+dBitmapButton = dabo.import_ui_name("dBitmapButton")
+dButton = dabo.import_ui_name("dButton")
+dCheckBox = dabo.import_ui_name("dCheckBox")
+dCheckList = dabo.import_ui_name("dCheckList")
+dColumn = dabo.import_ui_name("dColumn")
+dComboBox = dabo.import_ui_name("dComboBox")
+dDataControlMixin = dabo.import_ui_name("dDataControlMixin")
+dDialog = dabo.import_ui_name("dDialog")
+dDropdownList = dabo.import_ui_name("dDropdownList")
+dEditBox = dabo.import_ui_name("dEditBox")
+dEditor = dabo.import_ui_name("dEditor")
+dGauge = dabo.import_ui_name("dGauge")
+dGrid = dabo.import_ui_name("dGrid")
+dHtmlBox = dabo.import_ui_name("dHtmlBox")
+dImage = dabo.import_ui_name("dImage")
+dLabel = dabo.import_ui_name("dLabel")
+dLed = dabo.import_ui_name("dLed")
+dLine = dabo.import_ui_name("dLine")
+dListBox = dabo.import_ui_name("dListBox")
+dListControl = dabo.import_ui_name("dListControl")
+dMaskedTextBox = dabo.import_ui_name("dMaskedTextBox")
+dMediaControl = dabo.import_ui_name("dMediaControl")
+dMenu = dabo.import_ui_name("dMenu")
+dMenuBar = dabo.import_ui_name("dMenuBar")
+dMenuItem = dabo.import_ui_name("dMenuItem")
+dPage = dabo.import_ui_name("dPage")
+dPageFrame = dabo.import_ui_name("dPageFrame")
+dPageFrameMixin = dabo.import_ui_name("dPageFrameMixin")
+dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
+dPageList = dabo.import_ui_name("dPageList")
+dPageSelect = dabo.import_ui_name("dPageSelect")
+dPageStyled = dabo.import_ui_name("dPageStyled")
+dPanel = dabo.import_ui_name("dPanel")
+dRadioList = dabo.import_ui_name("dRadioList")
+dScrollPanel = dabo.import_ui_name("dScrollPanel")
+dShell = dabo.import_ui_name("dShell")
+dSlidePanel = dabo.import_ui_name("dSlidePanel")
+dSlidePanelControl = dabo.import_ui_name("dSlidePanelControl")
+dSlider = dabo.import_ui_name("dSlider")
+dSpinner = dabo.import_ui_name("dSpinner")
+dSplitter = dabo.import_ui_name("dSplitter")
+dStatusBar = dabo.import_ui_name("dStatusBar")
+dTextBox = dabo.import_ui_name("dTextBox")
+dTimer = dabo.import_ui_name("dTimer")
+dToggleButton = dabo.import_ui_name("dToggleButton")
+dTreeView = dabo.import_ui_name("dTreeView")
 
 
 class ClassDesignerControlMixin(LayoutSaverMixin):
@@ -66,7 +113,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
                 dabo.log.error(_("Could not set default prop value: object: %(nm)s; property: %(prop)s; error: %(e)s")
                         % locals())
         # Update bindings; do control-specific things.
-        if isinstance(self, dui.dGrid):
+        if isinstance(self, dGrid):
             coolEvents = (dEvents.GridRowSize,
                     dEvents.GridColSize,
                     dEvents.GridHeaderMouseLeftDown,
@@ -87,11 +134,11 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
                     self.Controller.onGridCellSelected)
             self.bindEvent(dEvents.GridHeaderMouseLeftUp,
                     self.Controller.onGridHeaderSelected)
-        elif isinstance(self, dui.dSplitter):
+        elif isinstance(self, dSplitter):
             pass
-        elif isinstance(self, dui.dImage):
+        elif isinstance(self, dImage):
             self.bindEvent(dEvents.Resize, self._onResize)
-        elif isinstance(self, (dui.dSlidePanelControl, dui.dSlidePanel)):
+        elif isinstance(self, (dSlidePanelControl, dSlidePanel)):
             coolEvents = (dEvents.SlidePanelCaptionClick,
                         dEvents.SlidePanelChange)
             badEvents = []
@@ -106,32 +153,32 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         self.noUpdateForm = False
 
         # Set up some defaults
-        if isinstance(self, dui.dButton):
+        if isinstance(self, dButton):
             self.defaultWd = 100
             self.defaultHt = 24
             if not self.Caption:
                 self.Caption = "Button"
-        elif isinstance(self, (dui.dLabel, dui.dTextBox)):
+        elif isinstance(self, (dLabel, dTextBox)):
             self.defaultWd = 100
             self.defaultHt = 24
-            if isinstance(self, dui.dLabel) and not self.Caption:
+            if isinstance(self, dLabel) and not self.Caption:
                 self.Caption = "Label"
-        elif isinstance(self, dui.dTreeView):
+        elif isinstance(self, dTreeView):
             self.defaultWd = 200
             self.defaultHt = 360
             self.setRootNode("Tree")
             # Bind the selected node to the current selection
             self.bindEvent(dEvents.TreeSelection, self.desSelectNode)
-        elif isinstance(self, (dui.dPageFrame, dui.dPageList,
-                dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs)):
+        elif isinstance(self, (dPageFrame, dPageList, dPageSelect, dPageStyled,
+                dPageFrameNoTabs)):
             self.defaultWd = 400
             self.defaultHt = 300
             # Bind the active page to the current selection
             self.bindEvent(dEvents.PageChanged, self.desSelectPage)
-        elif isinstance(self, dui.dSlidePanel):
+        elif isinstance(self, dSlidePanel):
             self.bindEvent(dEvents.SlidePanelChange, self.desSlidePanelChg)
-        elif isinstance(self, (dui.dPanel, dui.dImage, dui.dBitmap,
-                dui.dBitmapButton, dui.dToggleButton)):
+        elif isinstance(self, (dPanel, dImage, dBitmap,
+                dBitmapButton, dToggleButton)):
             self.defaultWd = 60
             self.defaultHt = 60
         else:
@@ -160,7 +207,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
         cnt = self.Controller
         if cnt.openingClassXML or not isinstance(pgCls, str):
-            tmpPgCls = self.Controller.getControlClass(dui.dPage)
+            tmpPgCls = self.Controller.getControlClass(dPage)
             pg = self.insertPage(pos, tmpPgCls, ignoreOverride=True)
             pg.Sizer = LayoutSizer("v")
             LayoutPanel(pg)
@@ -169,7 +216,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             atts = dct["attributes"]
             nm = self._extractKey(atts, "Name")
             atts["NameBase"] = nm
-            tmpPgCls = cnt.getControlClass(dui.dPage)
+            tmpPgCls = cnt.getControlClass(dPage)
             pg = self.insertPage(pos, tmpPgCls, ignoreOverride=True)
             classID = self._extractKey(atts, "classID", "")
             pg.setPropertiesFromAtts(atts)
@@ -227,7 +274,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 
     def onKeyChar(self, evt):
-        if isinstance(self, (dui.dPage, dui.dColumn)):
+        if isinstance(self, (dPage, dColumn)):
             # The key will get processed by the container
             return
         self.Form.onKeyChar(evt)
@@ -254,20 +301,20 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 
     def onMouseLeftDown(self, evt):
-        if isinstance(self, (dPageFrameMixin, dui.dSplitter)):
+        if isinstance(self, (dPageFrameMixin, dSplitter)):
             pass
         else:
-            if not isinstance(self, dui.dTreeView):
+            if not isinstance(self, dTreeView):
                 evt.stop()
             if not self.UsingSizers:
                 self.Form.onControlLeftDown(evt)
 
 
     def onMouseLeftUp(self, evt):
-        if isinstance(self, dui.dSplitter):
+        if isinstance(self, dSplitter):
             pass
         else:
-            if not isinstance(self, dui.dTreeView):
+            if not isinstance(self, dTreeView):
                 evt.stop()
             else:
                 nd = self.getNodeUnderMouse(includeSpace=True, includeButton=False)
@@ -285,7 +332,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 
     def onMouseRightClick(self, evt):
-        if isinstance(self, dui.dTreeView):
+        if isinstance(self, dTreeView):
             evt.stop()
             self.onContextMenu(evt)
 
@@ -294,9 +341,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         # If it is a LayoutPanel or page, return - the event
         # is handled elsewhere
         evt.stop()
-        if self.UsingSizers and isinstance(self, (dui.dPage, LayoutPanel)):
+        if self.UsingSizers and isinstance(self, (dPage, LayoutPanel)):
             return
-        if isinstance(self.Parent, dui.dRadioList):
+        if isinstance(self.Parent, dRadioList):
             self.Parent.onContextMenu(evt)
             return
         pop = self.createContextMenu(evt)
@@ -306,14 +353,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
     def createContextMenu(self, evt=None):
         pop = None
         if self.UsingSizers:
-            if isinstance(self, (dui.dPanel, dui.dScrollPanel, dui.dPage)):
+            if isinstance(self, (dPanel, dScrollPanel, dPage)):
                 pop = self.Controller.getControlMenu(self, True)
         else:
             if self is self.Form.ActiveContainer:
                 # If the control can contain child objects, get that menu.
                 pop = self.Controller.getControlMenu(self, False)
         if pop is None:
-            pop = dui.dMenu()
+            pop = dMenu()
         if len(pop.Children):
             pop.prependSeparator()
         if not self.UsingSizers and self.IsContainer \
@@ -330,14 +377,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             pop.prepend(_("Delete"), OnHit=self.onDelete)
             pop.prepend(_("Copy"), OnHit=self.onCopy)
             pop.prepend(_("Cut"), OnHit=self.onCut)
-        if isinstance(self, dui.dPage):
+        if isinstance(self, dPage):
             # Add option to delete the page or the entire pageframe
             pop.prependSeparator()
             sepAdded =True
             pop.prepend(_("Delete the entire Paged Control"), OnHit=self.Parent.onDelete)
             pop.prepend(_("Delete this Page"), OnHit=self.onDelete)
 
-        if isinstance(self, dui.dTreeView):
+        if isinstance(self, dTreeView):
             self.activeNode = self.Selection
             if isinstance(self.activeNode, (list, tuple)):
                 self.activeNode = self.activeNode[0]
@@ -349,9 +396,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
                         OnHit=self.onChangeCaption)
             if not self.activeNode.IsRootNode:
                 pop.append(_("Delete this node"), OnHit=self.onDelNode)
-        elif isinstance(self, (dui.dLabel, dui.dButton, dui.dCheckBox,
-                dui.dBitmapButton, dui.dToggleButton, dui.dPage,
-                dui.dColumn, dlgs.WizardPage)):
+        elif isinstance(self, (dLabel, dButton, dCheckBox,
+                dBitmapButton, dToggleButton, dPage,
+                dColumn, dlgs.WizardPage)):
             pop.append(_("Change Caption"),
                     OnHit=self.onChangeCaption)
         if self.UsingSizers:
@@ -368,44 +415,44 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         to override that behavior.
         """
         if isinstance(self, dlgs.WizardPage):
-            ret = "dabo.ui.dialogs.WizardPage"
+            ret = "dialogs.WizardPage"
         else:
             ret = super(ClassDesignerControlMixin, self).getClass()
         return ret
 
 
-     def onAddChild(self, evt):
-         nd = self.activeNode
-         self.activeNode = None
-         txt = dui.getString(_("New Node Caption?"), _("Adding Child Node"))
-         if txt is not None:
-             nd.appendChild(txt)
-         self.Controller.updateLayout()
+    def onAddChild(self, evt):
+        nd = self.activeNode
+        self.activeNode = None
+        txt = dui.getString(_("New Node Caption?"), _("Adding Child Node"))
+        if txt is not None:
+            nd.appendChild(txt)
+        self.Controller.updateLayout()
 
 
-     def onAddSibling(self, evt):
-         nd = self.activeNode
-         self.activeNode = None
-         txt = dui.getString(_("New Node Caption?"), _("Adding Sibling Node"))
-         if txt is not None:
-             nd.parent.appendChild(txt)
-         self.Controller.updateLayout()
+    def onAddSibling(self, evt):
+        nd = self.activeNode
+        self.activeNode = None
+        txt = dui.getString(_("New Node Caption?"), _("Adding Sibling Node"))
+        if txt is not None:
+            nd.parent.appendChild(txt)
+        self.Controller.updateLayout()
 
 
-     def onDelNode(self, evt):
-         nd = self.activeNode
-         self.activeNode = None
-         self.removeNode(nd)
-         self.Controller.updateLayout()
+    def onDelNode(self, evt):
+        nd = self.activeNode
+        self.activeNode = None
+        self.removeNode(nd)
+        self.Controller.updateLayout()
 
 
-     def onChangeCaption(self, evt):
-         if isinstance(self, dui.dTreeView):
-            nd = self.activeNode
-            self.activeNode = None
-            target = nd
-            title = _("Changing Node")
-            defVal = nd.Caption
+    def onChangeCaption(self, evt):
+        if isinstance(self, dTreeView):
+           nd = self.activeNode
+           self.activeNode = None
+           target = nd
+           title = _("Changing Node")
+           defVal = nd.Caption
         else:
             target = self
             title = _("Changing Caption")
@@ -414,7 +461,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
                 defaultValue=defVal, Width=500, SelectOnEntry=True)
         if txt is not None:
             target.Caption = txt
-         self.Controller.updateLayout()
+        self.Controller.updateLayout()
 
 
     def onPaste(self, evt):
@@ -449,7 +496,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
     def onDelete(self, evt):
         # When a page in a pageframe gets this event, pass it up
         # to its parent.
-        if isinstance(self, dui.dPage):
+        if isinstance(self, dPage):
             dui.callAfter(self.Parent.removePage, self)
             dui.callAfter(self.Controller.updateLayout)
             return
@@ -792,7 +839,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
                 "ValueColumn": {"type": int, "readonly": False},
                 "VerticalRules": {"type": bool, "readonly": False}}
         maskedTextBoxProps = {"Format": {"type": list, "readonly": False,
-                        "values": [""]+dui.dMaskedTextBox.getFormats()},
+                        "values": [""]+dMaskedTextBox.getFormats()},
                 "InputCodes": {"type": str, "readonly": lambda self: bool(self.Format)},
                 "Mask": {"type": str, "readonly": lambda self: bool(self.Format)},
                 "ValueMode": {"type": list, "readonly": False,
@@ -927,7 +974,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
                 ret.update(sizerProps)
             if isinstance(csz, LayoutGridSizer):
                 ret.update(gridSizerProps)
-        if isinstance(self, dui.dDataControlMixin):
+        if isinstance(self, dDataControlMixin):
             ret.update(dataProps)
 
         # Do we want to show postions?
@@ -937,103 +984,103 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         ret.update(borderProps)
 
         # Add all of the class-specific properties
-        if isinstance(self, dui.dBitmap):
+        if isinstance(self, dBitmap):
             pass
-        elif isinstance(self, dui.dBitmapButton):
+        elif isinstance(self, dBitmapButton):
             ret.update(captionProps)
             ret.update(pictureProps)
             ret.update(colorProps)
-        elif isinstance(self, dui.dButton):
+        elif isinstance(self, dButton):
             ret.update(colorProps)
             ret.update(captionProps)
             ret.update(fontProps)
-        elif isinstance(self, dui.dCheckBox):
+        elif isinstance(self, dCheckBox):
             ret.update(colorProps)
             ret.update(captionProps)
             ret.update(fontProps)
-        elif isinstance(self, dui.dColumn):
+        elif isinstance(self, dColumn):
             # This class is very different than the rest.
             ret = columnProps
             ret.update(captionProps)
             ret.update(fontProps)
             ret["Precision"] = {"type": int, "readonly": False}
             ret["Visible"] = {"type": bool, "readonly": False}
-        elif isinstance(self, dui.dComboBox):
+        elif isinstance(self, dComboBox):
             ret.update(colorProps)
             ret.update(comboProps)
             ret.update(fontProps)
             ret.update(choiceProps)
-        elif isinstance(self, dui.dDropdownList):
+        elif isinstance(self, dDropdownList):
             ret.update(colorProps)
             ret.update(fontProps)
             ret.update(choiceProps)
-        elif isinstance(self, dui.dEditor):
+        elif isinstance(self, dEditor):
             ret.update(fontProps)
             ret.update(editorProps)
-        elif isinstance(self, dui.dGauge):
+        elif isinstance(self, dGauge):
             pass
-        elif isinstance(self, dui.dGrid):
+        elif isinstance(self, dGrid):
             ret.update(fontProps)
             ret.update(gridProps)
-        elif isinstance(self, dui.dColumn):
+        elif isinstance(self, dColumn):
             pass
-        elif isinstance(self, dui.dImage):
+        elif isinstance(self, dImage):
             ret.update(pictureProps)
             ret.update(imageProps)
-        elif isinstance(self, dui.dLabel):
+        elif isinstance(self, dLabel):
             ret.update(labelProps)
             ret.update(colorProps)
             ret.update(captionProps)
             ret.update(fontProps)
             ret.update(borderProps)
-        elif isinstance(self, dui.dLine):
+        elif isinstance(self, dLine):
             pass
-        elif isinstance(self, dui.dListBox):
+        elif isinstance(self, dListBox):
             ret.update(colorProps)
             ret.update(fontProps)
             ret.update(choiceProps)
             ret.update(multiSelectProps)
-        elif isinstance(self, dui.dCheckList):
+        elif isinstance(self, dCheckList):
             ret.update(colorProps)
             ret.update(fontProps)
             ret.update(choiceProps)
-        elif isinstance(self, dui.dListControl):
+        elif isinstance(self, dListControl):
             ret.update(listControlProps)
             ret.update(colorProps)
             ret.update(fontProps)
             ret.update(multiSelectProps)
-        elif isinstance(self, dui.dMenuBar):
+        elif isinstance(self, dMenuBar):
             pass
-        elif isinstance(self, dui.dMenu):
+        elif isinstance(self, dMenu):
             pass
-        elif isinstance(self, dui.dMenuItem):
+        elif isinstance(self, dMenuItem):
             ret.update(captionProps)
-        elif isinstance(self, dui.dTreeView.getBaseNodeClass()):
+        elif isinstance(self, dTreeView.getBaseNodeClass()):
             ret = nodeProps
             ret.update(captionProps)
             ret.update(fontProps)
             ret.update(colorProps)
-        elif isinstance(self, dui.dRadioList):
+        elif isinstance(self, dRadioList):
             ret.update(radioProps)
             ret.update(colorProps)
             ret.update(captionProps)
             ret.update(fontProps)
             ret.update(choiceProps)
-        elif isinstance(self, dui.dPageList):
+        elif isinstance(self, dPageList):
             ret.update(colorProps)
             ret.update(fontProps)
             ret.update(pageFrameProps)
             ret.update(pageListProps)
-        elif isinstance(self, (dui.dPageFrame, dui.dPageList,
-                dui.dPageSelect, dui.dPageStyled, dui.dPageFrameNoTabs)):
+        elif isinstance(self, (dPageFrame, dPageList, dPageSelect, dPageStyled,
+                dPageFrameNoTabs)):
             ret.update(colorProps)
             ret.update(fontProps)
             ret.update(pageFrameProps)
-            if isinstance(self, dui.dPageFrameNoTabs):
+            if isinstance(self, dPageFrameNoTabs):
                 del ret["TabPosition"]
-            if isinstance(self, dui.dPageStyled):
+            if isinstance(self, dPageSelect, dPageStyled):
                 ret.update(pageStyleProps)
-        elif isinstance(self, dui.dPage):
+        elif isinstance(self, dPage):
             ret.update(captionProps)
             ret.update(colorProps)
             ret.update(panelProps)
@@ -1047,60 +1094,60 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             ret.update(colorProps)
             ret.update(pictureProps)
             ret.update(wizardPageProps)
-        elif isinstance(self, dui.dLed):
+        elif isinstance(self, dLed):
             ret.update(ledProps)
-        elif isinstance(self, dui.dScrollPanel):
+        elif isinstance(self, dScrollPanel):
             ret.update(panelProps)
             ret.update(scrollProps)
             ret.update(colorProps)
-        elif isinstance(self, dui.dShell):
+        elif isinstance(self, dShell):
             ret.update({"FontFace": {"type": list, "readonly": False,
                         "values": dui.getAvailableFonts()},
                         "FontSize": {"type": int, "readonly": False}})
-        elif isinstance(self, dui.dPanel):
+        elif isinstance(self, dPanel):
             ret.update(panelProps)
             ret.update(colorProps)
-        elif isinstance(self, dui.dSlidePanelControl):
+        elif isinstance(self, dSlidePanelControl):
             ret.update(slidePanelControlProps)
-        elif isinstance(self, dui.dSlidePanel):
+        elif isinstance(self, dSlidePanel):
             ret.update(slidePanelProps)
             ret.update(captionProps)
-        elif isinstance(self, dui.dSlider):
+        elif isinstance(self, dSlider):
             ret.update(sliderProps)
             ret.update(colorProps)
             ret.update(fontProps)
-        elif isinstance(self, dui.dSpinner):
+        elif isinstance(self, dSpinner):
             ret.update(spinnerProps)
             ret.update(colorProps)
             ret.update(fontProps)
-        elif isinstance(self, dui.dSplitter):
+        elif isinstance(self, dSplitter):
             ret.update(splitterProps)
-        elif isinstance(self, dui.dStatusBar):
+        elif isinstance(self, dStatusBar):
             ret.update(fontProps)
-        elif "dMediaControl" in dir(dui) and isinstance(self, dui.dMediaControl):
+        elif "dMediaControl" in dir(dui) and isinstance(self, dMediaControl):
             ret.update(mediaControlProps)
-        elif isinstance(self, (dui.dEditBox, dui.dTextBox, dui.dMaskedTextBox)):
+        elif isinstance(self, (dEditBox, dTextBox, dMaskedTextBox)):
             ret.update(colorProps)
             ret.update(fontProps)
             ret.update(textProps)
-            if isinstance(self, dui.dTextBox):
+            if isinstance(self, dTextBox):
                 ret.update({"PasswordEntry": {"type": bool, "readonly": False},
                         "TextLength": {"type": int, "readonly": False}})
-            elif isinstance(self, dui.dMaskedTextBox):
+            elif isinstance(self, dMaskedTextBox):
                 ret.update(maskedTextBoxProps)
                 del ret["ForceCase"]
-            elif isinstance(self, dui.dEditBox):
+            elif isinstance(self, dEditBox):
                 ret["WordWrap"] = {"type": bool, "readonly": False}
-        elif isinstance(self, dui.dHtmlBox):
+        elif isinstance(self, dHtmlBox):
             ret.update(htmlTextProps)
             ret.update(scrollProps)
-        elif isinstance(self, dui.dTimer):
+        elif isinstance(self, dTimer):
             pass
-        elif isinstance(self, dui.dToggleButton):
+        elif isinstance(self, dToggleButton):
             ret.update(captionProps)
             ret.update(colorProps)
             ret.update(fontProps)
-        elif isinstance(self, dui.dTreeView):
+        elif isinstance(self, dTreeView):
             ret.update(treeProps)
             ret.update(colorProps)
             ret.update(fontProps)
@@ -1185,8 +1232,8 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 
     def _getContainerState(self):
-        return isinstance(self, (dui.dPanel, dui.dScrollPanel, dui.dPage,
-                dui.dForm, dui.dFormMain, dui.dDialog) )
+        return isinstance(self, (dPanel, dScrollPanel, dPage,
+                dForm, dFormMain, dDialog) )
 
 
     def _getRegID(self):
@@ -1218,7 +1265,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         if not val:
             self.Form.hideHandles(self)
         else:
-            if isinstance(self, dui.dPage):
+            if isinstance(self, dPage):
                 self.Parent.SelectedPage = self
         if hasattr(self, "_redraw"):
             autoclear = self.autoClearDrawings
@@ -1342,7 +1389,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 
     def _getTreeDisp(self):
-        if isinstance(self, dui.dColumn):
+        if isinstance(self, dColumn):
             prfx = "Column"
             if not self.Visible:
                 prfx = "Hidden Column"
@@ -1350,9 +1397,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
                 ret = (prfx, self.DataField)
             else:
                 ret = (prfx, self.Parent.Columns.index(self))
-        elif isinstance(self, dui.dLabel):
+        elif isinstance(self, dLabel):
             ret = ("\"%s\"" % self.Caption, self._baseClass)
-        elif isinstance(self, dui.dTreeView.getBaseNodeClass()):
+        elif isinstance(self, dTreeView.getBaseNodeClass()):
             ret = ("\"%s\"" % self.Caption, self._baseClass)
         elif isinstance(self, dlgs.WizardPage):
             ret = "WizardPage", self.Caption

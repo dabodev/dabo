@@ -112,7 +112,9 @@ class ImageRenderer(wx.grid.GridCellRenderer):
 
 
 class BoolRenderer(wx.grid.GridCellRenderer):
-    """The default wx Bool renderer is really ugly, so this is a replacement."""
+    """I'm not sure we need this anymore. The bool renderer in wxPython 4.x
+    looks fine, IMO.
+    """
 
     def __init__(self, *args, **kwargs):
         super(BoolRenderer, self).__init__(*args, **kwargs)
@@ -122,7 +124,9 @@ class BoolRenderer(wx.grid.GridCellRenderer):
 
 
     def Draw(self, grid, attr, dc, rect, row, col, isSelected):
-        """Customisation Point: Draw the data from grid in the rectangle with attributes using the dc"""
+        """Customisation Point: Draw the data from grid in the rectangle with
+        attributes using the dc
+        """
         self.clip(dc, rect)
 
         # We use our custom attr, not the one wx passes:
@@ -161,10 +165,10 @@ class BoolRenderer(wx.grid.GridCellRenderer):
             syscolor = wx.SYS_COLOUR_WINDOW
 
         bkgrd = wx.SystemSettings_GetColour(syscolor)
-        dc.SetBrush(wx.Brush(bkgrd, wx.PENSTYLE_SOLID))
+        dc.SetBrush(wx.Brush(bkgrd, wx.BRUSHSTYLE_SOLID))
 
         try:
-            dc.SetPen(wx.TRANSPARENT_PEN)
+            dc.SetPen(wx.Pen(wx.PENSTYLE_TRANSPARENT))
             dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
         finally:
             dc.SetPen(wx.NullPen)

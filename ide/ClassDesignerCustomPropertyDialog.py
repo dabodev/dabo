@@ -5,54 +5,62 @@ import dabo.dEvents as dEvents
 dui = dabo.ui
 from dabo.dLocalize import _
 
+dCheckBox = dabo.import_ui_name("dCheckBox")
+dDropdownList = dabo.import_ui_name("dDropdownList")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dLabel = dabo.import_ui_name("dLabel")
+dOkCancelDialog = dabo.import_ui_name("dOkCancelDialog")
+dSizer = dabo.import_ui_name("dSizer")
+dTextBox = dabo.import_ui_name("dTextBox")
 
-class ClassDesignerCustomPropertyDialog(dui.dOkCancelDialog):
+
+class ClassDesignerCustomPropertyDialog(dOkCancelDialog):
     def addControls(self):
-        sz = dui.dGridSizer(MaxCols=2, HGap=8, VGap=12)
-        lbl = dui.dLabel(self, Caption=_("Property Name"))
-        self.txtPropName = dui.dTextBox(self, SelectOnEntry=True)
+        sz = dGridSizer(MaxCols=2, HGap=8, VGap=12)
+        lbl = dLabel(self, Caption=_("Property Name"))
+        self.txtPropName = dTextBox(self, SelectOnEntry=True)
         self.txtPropName.bindEvent(dEvents.KeyChar, self.onKeyPropName)
         sz.append(lbl, halign="right")
         sz.append(self.txtPropName, "x")
 
-        lbl = dui.dLabel(self, Caption=_("Comment"))
-        self.txtComment = dui.dTextBox(self, SelectOnEntry=True)
+        lbl = dLabel(self, Caption=_("Comment"))
+        self.txtComment = dTextBox(self, SelectOnEntry=True)
         sz.append(lbl, halign="right")
         sz.append(self.txtComment, "x")
 
-        lbl = dui.dLabel(self, Caption=_("Default Value"))
-        self.txtDefaultVal = dui.dTextBox(self, SelectOnEntry=True, Value=None,
+        lbl = dLabel(self, Caption=_("Default Value"))
+        self.txtDefaultVal = dTextBox(self, SelectOnEntry=True, Value=None,
                 OnKeyChar=self.updEnabled)
-        self.ddType = dui.dDropdownList(self, Choices=["", "string",
+        self.ddType = dDropdownList(self, Choices=["", "string",
                 "integer", "float", "boolean", "datetime"])
         self.ddType.PositionValue = 0
         sz.append(lbl, halign="right")
-        hsz = dui.dSizer("h")
+        hsz = dSizer("h")
         hsz.append(self.txtDefaultVal, 1)
         hsz.append(self.ddType, halign="right", border=5, borderSides="left")
         sz.append(hsz, "x")
 
-        self.chkGet = chk = dui.dCheckBox(self, Alignment="right",
+        self.chkGet = chk = dCheckBox(self, Alignment="right",
                 Caption=_("Get Method"))
-        self.txtGet = dui.dTextBox(self, SelectOnEntry=True)
+        self.txtGet = dTextBox(self, SelectOnEntry=True)
         sz.append(chk, halign="right")
         sz.append(self.txtGet, "x")
         chk.DataSource = self.txtGet
         chk.DataField = "Enabled"
         chk.Value = True
 
-        self.chkSet = chk = dui.dCheckBox(self, Alignment="right",
+        self.chkSet = chk = dCheckBox(self, Alignment="right",
                 Caption=_("Set Method"))
-        self.txtSet = dui.dTextBox(self, SelectOnEntry=True)
+        self.txtSet = dTextBox(self, SelectOnEntry=True)
         sz.append(chk, halign="right")
         sz.append(self.txtSet, "x")
         chk.DataSource = self.txtSet
         chk.DataField = "Enabled"
         chk.Value = True
 
-        self.chkDel = chk = dui.dCheckBox(self, Alignment="right",
+        self.chkDel = chk = dCheckBox(self, Alignment="right",
                 Caption=_("Del Method"))
-        self.txtDel = dui.dTextBox(self, SelectOnEntry=True)
+        self.txtDel = dTextBox(self, SelectOnEntry=True)
         sz.append(chk, halign="right")
         sz.append(self.txtDel, "x")
         chk.DataSource = self.txtDel
@@ -69,7 +77,7 @@ class ClassDesignerCustomPropertyDialog(dui.dOkCancelDialog):
 
 
     def onKeyPropName(self, evt):
-        dui.callAfter(self.createPropNames)
+        dabo.ui.callAfter(self.createPropNames)
 
 
     def createPropNames(self):
@@ -124,7 +132,7 @@ class ClassDesignerCustomPropertyDialog(dui.dOkCancelDialog):
             self.txtDel.Value = dct["deller"]
             self.chkDel.Value = True
         self.createPropNames()
-        dui.callAfter(self.refresh)
+        dabo.ui.callAfter(self.refresh)
 
 
     def getData(self):

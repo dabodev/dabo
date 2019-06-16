@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import dabo
 import dabo.ui
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -13,8 +14,21 @@ from ClassDesignerComponents import LayoutSizer
 from ClassDesignerComponents import LayoutGridSizer
 import ClassDesignerMenu
 
+dBorderSizer = dabo.import_ui_name("dBorderSizer")
+dColumn = dabo.import_ui_name("dColumn")
+dForm = dabo.import_ui_name("dForm")
+dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dSizerMixin = dabo.import_ui_name("dSizerMixin")
+dSlidePanel = dabo.import_ui_name("dSlidePanel")
+dSlidePanelControl = dabo.import_ui_name("dSlidePanelControl")
+dTextBox = dabo.import_ui_name("dTextBox")
+dToggleButton = dabo.import_ui_name("dToggleButton")
+dTreeView = dabo.import_ui_name("dTreeView")
 
-class PemForm(dabo.ui.dForm):
+
+class PemForm(dForm):
     """This form contains the PropSheet, the MethodSheet, and
     the Object Tree.
     """
@@ -34,14 +48,14 @@ class PemForm(dabo.ui.dForm):
         self._defaultHeight = 580
 
         self.Caption = _("Object Info")
-        pnl = dabo.ui.dPanel(self)
+        pnl = dPanel(self)
         self.Sizer.append1x(pnl)
-        sz = pnl.Sizer = dabo.ui.dSizer("v")
+        sz = pnl.Sizer = dSizer("v")
 
-        txt = dabo.ui.dTextBox(pnl, ReadOnly=True, RegID="txtObj")
-        hsz = dabo.ui.dSizer("h")
+        txt = dTextBox(pnl, ReadOnly=True, RegID="txtObj")
+        hsz = dSizer("h")
         hsz.append1x(txt)
-        self.treeBtn = dabo.ui.dToggleButton(pnl, Height=txt.Height,
+        self.treeBtn = dToggleButton(pnl, Height=txt.Height,
                 Width=txt.Height, Caption="", Picture="downTriangleBlack",
                 DownPicture="upTriangleBlack")
         self.treeBtn.bindEvent(dEvents.Hit, self.onToggleTree)
@@ -54,39 +68,39 @@ class PemForm(dabo.ui.dForm):
         sz.append(hsz, "x")
         sz.appendSpacer(5)
 
-        self.mainPager = mp = dabo.ui.dPageFrameNoTabs(pnl, PageClass=dabo.ui.dPanel)
+        self.mainPager = mp = dPageFrameNoTabs(pnl, PageClass=dPanel)
         mp.PageCount=2
         mp.bindEvent(dEvents.PageChanged, self.onMainPageChanged)
         sz.append1x(mp)
         sz.appendSpacer(brdr)
         self.pemPage = pp = mp.Pages[0]
         self.treePage = tp = mp.Pages[1]
-        psz = pp.Sizer = dabo.ui.dSizer("v")
-        tsz = tp.Sizer = dabo.ui.dSizer("v")
+        psz = pp.Sizer = dSizer("v")
+        tsz = tp.Sizer = dSizer("v")
 
-        dabo.ui.dSlidePanelControl(pp, SingleClick=True, Singleton=True,
+        dSlidePanelControl(pp, SingleClick=True, Singleton=True,
                 CollapseToBottom=True, RegID="mainContainer")
         psz.append1x(self.mainContainer)
         # This helps restore the sash position on the prop grid page
         self._propSashPct = 80
         # Bind to panel changes
         self.mainContainer.bindEvent(dEvents.SlidePanelChange, self.onPanelChange)
-        dabo.ui.dSlidePanel(self.mainContainer, Caption=_("Properties"), RegID="propPage",
+        dSlidePanel(self.mainContainer, Caption=_("Properties"), RegID="propPage",
                 CaptionForeColor="blue")
-        dabo.ui.dSlidePanel(self.mainContainer, Caption=_("Methods"), RegID="methodPage",
+        dSlidePanel(self.mainContainer, Caption=_("Methods"), RegID="methodPage",
                 CaptionForeColor="blue")
-        dabo.ui.dSlidePanel(self.mainContainer, Caption=_("Custom Properties"), RegID="objPropPage",
+        dSlidePanel(self.mainContainer, Caption=_("Custom Properties"), RegID="objPropPage",
                 CaptionForeColor="blue")
 
         # Add the PropSheet
         ps = PropSheet(self.propPage, RegID="_propSheet")
-        self.propPage.Sizer = dabo.ui.dSizer("v")
+        self.propPage.Sizer = dSizer("v")
         self.propPage.Sizer.appendSpacer(self.propPage.CaptionHeight)
         self.propPage.Sizer.append1x(ps)
 
         # Create the MethodSheet
         ms = MethodSheet(self.methodPage, RegID="_methodSheet")
-        self.methodPage.Sizer = dabo.ui.dSizer("v")
+        self.methodPage.Sizer = dSizer("v")
         self.methodPage.Sizer.appendSpacer(self.methodPage.CaptionHeight)
         self.methodPage.Sizer.append1x(ms)
         self._methodList = ms.MethodList
@@ -97,7 +111,7 @@ class PemForm(dabo.ui.dForm):
 
         # Create the Object Properties sheet
         ops = ObjectPropertySheet(self.objPropPage, RegID="_objPropSheet")
-        self.objPropPage.Sizer = dabo.ui.dSizer("v")
+        self.objPropPage.Sizer = dSizer("v")
         self.objPropPage.Sizer.appendSpacer(self.methodPage.CaptionHeight)
         self.objPropPage.Sizer.append1x(ops)
 
@@ -173,9 +187,9 @@ class PemForm(dabo.ui.dForm):
             # since there is no way to determine the sizer given the SizerItem.
             isSpacer = isinstance(ob, LayoutSpacerPanel)
             isSlot = isinstance(ob, LayoutPanel) and not isSpacer
-            isSizer = isinstance(ob, dabo.ui.dSizerMixin)
-            isColumn = isinstance(ob, dabo.ui.dColumn)
-            isNode = isinstance(ob, dabo.ui.dTreeView.getBaseNodeClass())
+            isSizer = isinstance(ob, dSizerMixin)
+            isColumn = isinstance(ob, dColumn)
+            isNode = isinstance(ob, dTreeView.getBaseNodeClass())
             if isSlot or isSpacer:
                 szItem = ob.ControllingSizerItem
                 sz = ob.ControllingSizer
@@ -199,13 +213,13 @@ class PemForm(dabo.ui.dForm):
                         if ornt in ("r", "c"):
                             lbl += ": (%s, %s)" % sz.getGridPos(ob)
                     else:
-                        if isinstance(ob, dabo.ui.dBorderSizer):
+                        if isinstance(ob, dBorderSizer):
                             lbl += _(" BorderSizer")
                         else:
                             lbl += _(" Sizer")
                 elif isSpacer:
                     spc = ob.Spacing
-                    if isinstance(sz, dabo.ui.dSizer):
+                    if isinstance(sz, dSizer):
                         # We want the first position for vertical; second for horiz.
                         isHoriz = sz.Orientation[0].lower() == "h"
                         typ = (_("Vertical"), _("Horizontal"))[isHoriz]

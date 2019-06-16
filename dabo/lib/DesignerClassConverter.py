@@ -90,8 +90,8 @@ class DesignerClassConverter(dObject):
         ## so that you can help determine any problems.
         ## egl: removed 2007-02-10. If you want to see the output,
         ##   just uncomment the next 2 lines.
-        debugName = "CLASSTEXT_%s.py" % time.strftime("%H%M%S", time.localtime())
-        open(debugName, "w").write(self.classText)
+#        debugName = "CLASSTEXT_%s.py" % time.strftime("%H%M%S", time.localtime())
+#        open(debugName, "w").write(self.classText)
 
         # jfcs added self._codeFileName to below
         # egl - created a tmp file for the main class code that we can use
@@ -978,7 +978,8 @@ import sys
         self._complexPrntRef = """        # save a reference to the parent control
         %(prntName)s = obj
 """
-        self._grdColText = """        col = dabo.ui.dColumn(obj, attProperties=%(kidCleanAtts)s)
+        self._grdColText = """        dColumn = dabo.import_ui_name("dColumn")
+        col = dColumn(obj, attProperties=%(kidCleanAtts)s)
         obj.addColumn(col)
 """
         self._pgfPageText = """        %(classname)s = dabo.import_ui_name("%(classname)s")

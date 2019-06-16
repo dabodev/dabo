@@ -72,7 +72,7 @@ the following required libraries have been built:
 del(_failedLibs)
 #######################################################
 import wx
-from wx import ImageFromStream, BitmapFromImage
+from wx import Image, BitmapFromImage
 from dabo import dConstants as kons
 from .uiApp import uiApp
 
@@ -240,8 +240,9 @@ def makeProxyProperty(dct, nm, proxyAtts):
         return _resolveGet(self, nm)
     def fset(self, val):
         return _resolveSet(self, nm, val)
+    dPemMixin = dabo.import_ui_name("dPemMixin")
     try:
-        doc = getattr(dabo.ui.dPemMixin, nm).__doc__
+        doc = getattr(dPemMixin, nm).__doc__
     except AttributeError:
         doc = None
     return property(fget, fset, None, doc)
@@ -738,6 +739,8 @@ def getMouseObject():
 #     win = wx.FindWindowAtPoint(getMousePosition())
     actwin = dabo.dAppRef.ActiveForm
 #     print "ACTWIN", actwin
+    dShell = dabo.import_ui_name("dShell")
+    dPemMixin = dabo.import_ui_name("dPemMixin")
     if isinstance(actwin, dShell):
         actwin.lockDisplay()
         actwin.sendToBack()
@@ -761,10 +764,11 @@ def getObjectAtPosition(x, y=None):
     position, or None if there is no such object. You can pass separate
     x,y coordinates, or an x,y tuple.
     """
+    dPemMixin = dabo.import_ui_name("dPemMixin")
     if y is None:
         x, y = x
     win = wx.FindWindowAtPoint((x,y))
-    while not isinstance(win, dabo.ui.dPemMixin.dPemMixin):
+    while not isinstance(win, dPemMixin):
         try:
             win = win.GetParent()
         except AttributeError:
@@ -1857,7 +1861,7 @@ def bitmapFromData(data):
 
 def imageFromData(data):
     stream = io.StringIO(data)
-    return ImageFromStream(stream)
+    return Image(stream)
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 

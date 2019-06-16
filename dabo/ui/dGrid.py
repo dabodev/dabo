@@ -509,7 +509,7 @@ class dColumn(wx._core.Object, dPemMixin):
 
         self.stringRendererClass = wx.grid.GridCellStringRenderer
         self.wrapStringRendererClass = wx.grid.GridCellAutoWrapStringRenderer
-        self.boolRendererClass = BoolRenderer
+        self.boolRendererClass = wx.grid.GridCellBoolRenderer
         self.intRendererClass = wx.grid.GridCellNumberRenderer
         self.longRendererClass = wx.grid.GridCellNumberRenderer
         self.decimalRendererClass = wx.grid.GridCellFloatRenderer
@@ -2163,7 +2163,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         if col is None:
             col = self.CurrentColumn
         ret = self.GetValue(row, col, dynamicUpdate=False)
-        if isinstance(ret, str):
+        if isinstance(ret, six.binary_type):
             ret = ret.decode(self.Encoding)
         return ret
 
@@ -4081,8 +4081,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
         if keyCode in (dKeys.key_Left, dKeys.key_Right,
                 dKeys.key_Up, dKeys.key_Down, dKeys.key_Pageup, dKeys.key_Pagedown,
-                dKeys.key_Home, dKeys.key_End, dKeys.key_Prior, dKeys.key_Next) \
-                or evt.EventData["hasModifiers"]:
+                dKeys.key_Home, dKeys.key_End) or evt.EventData["hasModifiers"]:
             # Enter, Tab, and Arrow Keys shouldn't be searched on.
             return
 
@@ -4847,16 +4846,22 @@ class dGrid(dControlMixin, wx.grid.Grid):
         return self._rowColorEven
 
     def _setRowColorEven(self, val):
-        self._rowColorEven = val
-        self.setTableAttributes(self._Table)
+        if self._constructed():
+            self._rowColorEven = val
+            self.setTableAttributes(self._Table)
+        else:
+            self._properties["RowColorEven"] = val
 
 
     def _getRowColorOdd(self):
         return self._rowColorOdd
 
     def _setRowColorOdd(self, val):
-        self._rowColorOdd = val
-        self.setTableAttributes(self._Table)
+        if self._constructed():
+            self._rowColorOdd = val
+            self.setTableAttributes(self._Table)
+        else:
+            self._properties["RowColorOdd"] = val
 
 
     def _getRowCount(self):

@@ -3,10 +3,16 @@ import wx
 import wx.lib.agw.foldpanelbar as fpb
 import dabo
 from dabo.ui import makeDynamicProperty
-from dabo.ui.dControlMixin import dControlMixin
 from dabo import dEvents as dEvents
 from dabo import dColors as dColors
 from dabo.dLocalize import _
+
+dCheckBox = dabo.import_ui_name("dCheckBox")
+dControlMixin = dabo.import_ui_name("dControlMixin")
+dForm = dabo.import_ui_name("dForm")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dLabel = dabo.import_ui_name("dLabel")
+dSizer = dabo.import_ui_name("dSizer")
 
 
 class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
@@ -61,7 +67,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         self._captionBar.Bind(wx.EVT_LEFT_UP, self.__onWxCaptionClick)
 #         print "CAP BAR BINDING"
         # Set up the sizer
-        self._baseSizer = sz = dabo.ui.dSizer("v")
+        self._baseSizer = sz = dSizer("v")
         self.SetSizer(sz, True)
         sz.appendSpacer(self.CaptionHeight)
 
@@ -419,10 +425,10 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
             # Make sure that the Caption property has been passed
             if not "Caption" in kwargs:
                 raise ValueError(_("You must specify a Caption when adding a panel"))
-            pnl = dabo.ui.dSlidePanel(self, **kwargs)
+            pnl = dSlidePanel(self, **kwargs)
         elif isinstance(pnl, str):
             # Just the caption; create the panel and use that
-            pnl = dabo.ui.dSlidePanel(self, Caption=pnl, **kwargs)
+            pnl = dSlidePanel(self, Caption=pnl, **kwargs)
         return pnl
 
 
@@ -690,7 +696,7 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
         try:
             return self._panelClass
         except AttributeError:
-            return dabo.ui.dSlidePanel
+            return dSlidePanel
 
     def _setPanelClass(self, val):
         if self._constructed():
@@ -804,12 +810,6 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
-    from dabo.ui.dButton import dButton
-    from dabo.ui.dCheckBox import dCheckBox
-    from dabo.ui.dForm import dForm
-    from dabo.ui.dGridSizer import dGridSizer
-    from dabo.ui.dLabel import dLabel
-    from dabo.ui.dSizer import dSizer
 
     class TestForm(dForm):
         def afterInit(self):

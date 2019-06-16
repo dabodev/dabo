@@ -12,12 +12,29 @@ from ClassDesignerComponents import LayoutBorderSizer
 from ClassDesignerComponents import LayoutGridSizer
 from ClassDesignerExceptions import PropertyUpdateException
 
+dBorderSizer = dabo.import_ui_name("dBorderSizer")
+dButton = dabo.import_ui_name("dButton")
+dCheckList = dabo.import_ui_name("dCheckList")
+dColumn = dabo.import_ui_name("dColumn")
+dDialog = dabo.import_ui_name("dDialog")
+dDropdownList = dabo.import_ui_name("dDropdownList")
+dEditableList = dabo.import_ui_name("dEditableList")
+dEditBox = dabo.import_ui_name("dEditBox")
+dGrid = dabo.import_ui_name("dGrid")
+dImage = dabo.import_ui_name("dImage")
+dLabel = dabo.import_ui_name("dLabel")
+dLine = dabo.import_ui_name("dLine")
+dOkCancelDialog = dabo.import_ui_name("dOkCancelDialog")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dSplitter = dabo.import_ui_name("dSplitter")
+HotKeyEditor = dabo.import_ui_name("HotKeyEditor")
 
 
-class PropSheet(dabo.ui.dPanel):
+class PropSheet(dPanel):
     def afterInit(self):
         self._sashPct = 80
-        self.mainSplit = msp = dabo.ui.dSplitter(self, Orientation="H", createPanes=True,
+        self.mainSplit = msp = dSplitter(self, Orientation="H", createPanes=True,
                 MinimumPanelSize=75, SashPercent=self._sashPct,
                 OnSashDoubleClick=self.onSash2Click)
         self.mainSplit.bindEvent(dEvents.SashPositionChanged, self.onSashPosChanged)
@@ -25,19 +42,19 @@ class PropSheet(dabo.ui.dPanel):
         self.panePropDoc = ppd = msp.Panel2
         self.propGrid = pg = PropertyGrid(ppg)
         pg.Handler = self
-        self.btnEdit = dabo.ui.dButton(ppg, Caption=_("Edit..."), Visible=False)
+        self.btnEdit = dButton(ppg, Caption=_("Edit..."), Visible=False)
         self.btnEdit.bindEvent(dEvents.Hit, self.onBtnEdit)
-        self.edtPropDoc = dabo.ui.dEditBox(ppd, ReadOnly=True,
+        self.edtPropDoc = dEditBox(ppd, ReadOnly=True,
             FontSize=9, Height=49)
-        sz = self.Sizer = dabo.ui.dSizer("v")
+        sz = self.Sizer = dSizer("v")
         sz.appendSpacer(10)
         sz.DefaultBorderLeft = sz.DefaultBorderRight = True
         sz.DefaultBorder = 10
         sz.append1x(msp)
-        sz = ppg.Sizer = dabo.ui.dSizer("v")
+        sz = ppg.Sizer = dSizer("v")
         sz.append1x(pg)
         sz.append(self.btnEdit, halign="center", border=5)
-        sz = ppd.Sizer = dabo.ui.dSizer("v")
+        sz = ppd.Sizer = dSizer("v")
         sz.append1x(self.edtPropDoc)
         self.Sizer.appendSpacer(10)
         # Reference to the currently selected object(s)
@@ -120,7 +137,7 @@ class PropSheet(dabo.ui.dPanel):
             # since there is no way to determine the sizer given the SizerItem.
             isSpacer = isinstance(ob, LayoutSpacerPanel)
             isSlot = isinstance(ob, LayoutPanel) and not isSpacer
-            isSizer = isinstance(ob, dabo.ui.dSizer)
+            isSizer = isinstance(ob, dSizer)
             propDict = None
             if isSlot or isSpacer:
                 szItem = ob.ControllingSizerItem
@@ -167,7 +184,7 @@ class PropSheet(dabo.ui.dPanel):
             # since there is no way to determine the sizer given the SizerItem.
             isSpacer = isinstance(ob, LayoutSpacerPanel)
             isSlot = isinstance(ob, LayoutPanel) and not isSpacer
-            isSizer = isinstance(ob, dabo.ui.dSizer)
+            isSizer = isinstance(ob, dSizer)
             if isSlot or isSpacer:
                 szItem = ob.ControllingSizerItem
                 sz = ob.ControllingSizer
@@ -412,7 +429,7 @@ class PropSheet(dabo.ui.dPanel):
         """
         defIcons = dabo.icons.getAvailableIcons()
 
-        class IconSelectDialog(dabo.ui.dDialog):
+        class IconSelectDialog(dDialog):
             def addControls(self):
                 self.useStandard = True
                 self.Caption = _("Select a Picture")
@@ -421,30 +438,30 @@ class PropSheet(dabo.ui.dPanel):
                 sz.DefaultSpacing = 10
                 sz.DefaultBorder = 20
                 sz.DefaultBorderLeft = sz.DefaultBorderRight = True
-                btn = dabo.ui.dButton(self, Caption=_("Select your own image..."))
+                btn = dButton(self, Caption=_("Select your own image..."))
                 btn.bindEvent(dEvents.Hit, self.onSelectOwn)
                 sz.append(btn, halign="center")
-                sz.append(dabo.ui.dLine(self), border=25, borderSides=("left", "right"))
-                sz.append(dabo.ui.dLabel(self, Caption="- or -"), halign="center")
-                lbl = dabo.ui.dLabel(self, Caption=_("Select a standard image:"))
-                dd = dabo.ui.dDropdownList(self, RegID="ddIcons", Choices=defIcons,
+                sz.append(dLine(self), border=25, borderSides=("left", "right"))
+                sz.append(dLabel(self, Caption="- or -"), halign="center")
+                lbl = dLabel(self, Caption=_("Select a standard image:"))
+                dd = dDropdownList(self, RegID="ddIcons", Choices=defIcons,
                         OnHit=self.updImage)
-                hsz = dabo.ui.dSizer("h")
+                hsz = dSizer("h")
                 hsz.append(lbl)
                 hsz.appendSpacer(5)
                 hsz.append(dd)
                 sz.append(hsz, halign="center", border=16)
-                hsz = dabo.ui.dSizer("h")
-                img = dabo.ui.dImage(self, Picture="", Size=(64, 64), RegID="img")
-                bsz = dabo.ui.dBorderSizer(self)
+                hsz = dSizer("h")
+                img = dImage(self, Picture="", Size=(64, 64), RegID="img")
+                bsz = dBorderSizer(self)
                 bsz.append(img, border=8, halign="center", valign="middle")
                 hsz.append(bsz)
                 hsz.appendSpacer(16)
-                btn = dabo.ui.dButton(self, Caption=_("Select"), OnHit=self.onSelect)
+                btn = dButton(self, Caption=_("Select"), OnHit=self.onSelect)
                 hsz.append(btn, valign="middle")
                 sz.append(hsz, halign="center")
-                sz.append(dabo.ui.dLine(self), border=25, borderSides=("left", "right"))
-                btn = dabo.ui.dButton(self, Caption=_("Cancel"), OnHit=self.onCancel)
+                sz.append(dLine(self), border=25, borderSides=("left", "right"))
+                btn = dButton(self, Caption=_("Cancel"), OnHit=self.onCancel)
                 sz.append(btn, halign="right", border=20, borderSides=("right",))
                 sz.appendSpacer(25)
                 self._selected = False
@@ -514,9 +531,9 @@ class PropSheet(dabo.ui.dPanel):
     def editChoice(self, objs, prop, val=[]):
         # Create a list of choices. 'val' may be a list of existing choices
         obj = objs[0]
-        class ChoiceDialog(dabo.ui.dOkCancelDialog):
+        class ChoiceDialog(dOkCancelDialog):
             def addControls(self):
-                self.editor = dabo.ui.dEditableList(self, Choices=val,
+                self.editor = dEditableList(self, Choices=val,
                         Caption=_("Editing choices for '%s'") % prop)
                 self.Sizer.append1x(self.editor)
 
@@ -533,9 +550,9 @@ class PropSheet(dabo.ui.dPanel):
     def editKeys(self, objs, prop, val=[]):
         # Create a list of keys. 'val' may be a list of existing keys
         obj = objs[0]
-        class KeysDialog(dabo.ui.dOkCancelDialog):
+        class KeysDialog(dOkCancelDialog):
             def addControls(self):
-                self.editor = dabo.ui.dEditableList(self, Choices=val,
+                self.editor = dEditableList(self, Choices=val,
                         Caption=_("Editing keys for '%s'") % prop)
                 self.Sizer.append1x(self.editor)
 
@@ -552,14 +569,14 @@ class PropSheet(dabo.ui.dPanel):
     def editBorderSides(self, objs, prop, val=[]):
         # Select one or more border sides from a list of choices.
         obj = objs[0]
-        class MultiListDialog(dabo.ui.dOkCancelDialog):
+        class MultiListDialog(dOkCancelDialog):
             def addControls(self):
                 self.Caption = _("Border Sides")
-                lbl = dabo.ui.dLabel(self,
+                lbl = dLabel(self,
                         Caption=_("Select the sides to which the border will apply:"))
                 self.Sizer.append(lbl, halign="center")
                 choices = ["All", "Top", "Bottom", "Left", "Right", "None"]
-                self.editor = dabo.ui.dCheckList(self, Choices=choices,
+                self.editor = dCheckList(self, Choices=choices,
                         ValueMode="String", Height=200)
                 self.editor.bindEvent(dEvents.Hit, self.onSidesChanged)
                 self.editor.Value = self._currVal = val
@@ -600,7 +617,6 @@ class PropSheet(dabo.ui.dPanel):
 
     def editHotKey(self, objs, prop, val):
         obj = objs[0]
-        from dabo.ui.dialogs.HotKeyEditor import HotKeyEditor
         dlg = HotKeyEditor(self)
         dlg.setKey(obj.HotKey)
         dlg.Centered = True
@@ -636,7 +652,7 @@ class PropSheet(dabo.ui.dPanel):
 
 
 
-class PropertyGrid(dabo.ui.dGrid):
+class PropertyGrid(dGrid):
     def initProperties(self):
         self.SelectionMode = "Row"
         self.MultipleSelection = False
@@ -655,13 +671,13 @@ class PropertyGrid(dabo.ui.dGrid):
         self.ActivateEditorOnSelect = False
 
         # Create the property name column
-        col = dabo.ui.dColumn(self, Order=10, DataField="prop",
+        col = dColumn(self, Order=10, DataField="prop",
                 DataType="string", Width=100, Caption=_("Property"), Sortable=True,
                 Searchable=True, Editable=False)
         self.addColumn(col, inBatch=True)
 
         # Now create the property Value column
-        col = dabo.ui.dColumn(self, Order=20, DataField="val",
+        col = dColumn(self, Order=20, DataField="val",
                 DataType="string", Width=200, Caption=_("Value"), Sortable=False,
                 Searchable=False, Editable=True)
         self.addColumn(col, inBatch=True)
@@ -671,7 +687,7 @@ class PropertyGrid(dabo.ui.dGrid):
         c0 = self.Columns[0]
         fsize = c0.FontSize
         if self.Application.Platform == "Win":
-            self.setAll("FontSize", fsize-2, filt="BaseClass == dabo.ui.dColumn")
+            self.setAll("FontSize", fsize-2, filt="BaseClass == dColumn")
         # Set the row height to match
         face = c0.FontFace
         size = c0.FontSize
@@ -726,8 +742,12 @@ class PropertyGrid(dabo.ui.dGrid):
                     # skip the below errorLog entry for ReportDesigner
                     pass
                 else:
-                    dabo.log.error(_("Property Grid out of sync for property '%s' of object '%'") %
-                            (self.getValue(row, 0), self.Controller.Selection[0]))
+                    prop_name = self.getValue(row, 0)
+                    selection = self.Controller.Selection[0]
+                    print("PROPNAME", prop_name)
+                    print("SELEC", selection)
+                    dabo.log.error(_("Property Grid out of sync for property "
+                            "'%s' of object '%'") % (prop_name, selection))
                 continue
             if not isinstance(pd, dict):
                 print(_("BAD PROP DICT:"), pd, type(pd), _("ROW"), row)

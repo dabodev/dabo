@@ -12,8 +12,15 @@ from MenuDesignerComponents import MenuSaverMixin
 FONT_SIZE_DIFF = 2
 BASE_BACKCOLOR = "#eeeeee"
 
+dLabel = dabo.import_ui_name("dLabel")
+dLine = dabo.import_ui_name("dLine")
+dMenu = dabo.import_ui_name("dMenu")
+dPanel = dabo.import_ui_name("dPanel")
+dSizerH = dabo.import_ui_name("dSizerH")
+dSizerV = dabo.import_ui_name("dSizerV")
 
-class MenuItemContainer(dabo.ui.dPanel):
+
+class MenuItemContainer(dPanel):
     """
     This is the container used to hold menu items for a given
     menu. It can be shown/hidden as needed to reflect the user's
@@ -22,11 +29,11 @@ class MenuItemContainer(dabo.ui.dPanel):
     def __init__(self, *args, **kwargs):
         kwargs["AlwaysResetSizer"] = True
         super(MenuItemContainer, self).__init__(*args, **kwargs)
-        self.Sizer = dabo.ui.dSizerV(DefaultBorder=8, DefaultBorderLeft=True,
+        self.Sizer = dSizerV(DefaultBorder=8, DefaultBorderLeft=True,
                 DefaultBorderRight=True)
 
 
-class AbstractMenuPanel(MenuSaverMixin, dabo.ui.dPanel):
+class AbstractMenuPanel(MenuSaverMixin, dPanel):
     """
     Handles all the interactions with the user as they create
     and modify menu designs.
@@ -60,7 +67,7 @@ class AbstractMenuPanel(MenuSaverMixin, dabo.ui.dPanel):
         kwargs["BackColor"] = BASE_BACKCOLOR
         super(AbstractMenuPanel, self).__init__(parent, *args, **kwargs)
         self._baseClass = self.__class__
-        self.Sizer = dabo.ui.dSizerV()
+        self.Sizer = dSizerV()
         self.FontSize += FONT_SIZE_DIFF
         self._initCaptions()
         self.layout()
@@ -343,7 +350,7 @@ class AbstractMenuPanel(MenuSaverMixin, dabo.ui.dPanel):
             method using 'app.onSomeMethod'.  (str)"""))
 
     Caption = property(_getCaption, _setCaption, None,
-            _("The caption displayed on the menu panel, minus any hot key.  (str)"))    
+            _("The caption displayed on the menu panel, minus any hot key.  (str)"))
 
     Controller = property(_getController, _setController, None,
             _("Object to which this one reports events  (object (varies))"))
@@ -415,7 +422,7 @@ class MenuBarPanel(AbstractMenuPanel):
 
 
     def onContextMenu(self, evt):
-        pop = dabo.ui.dMenu()
+        pop = dMenu()
         pop.append(_("Create Base Menu"), OnHit=self.onCreateBaseMenu, Help="BASE")
         pop.append(_("Add Menu"), OnHit=self.onAddMenu)
         self.showContextMenu(pop)
@@ -552,7 +559,7 @@ class MenuPanel(AbstractMenuPanel):
 
 
     def _initCaptions(self):
-        self.lblCaption = dabo.ui.dLabel(self, Caption=self.Caption, _EventTarget=self)
+        self.lblCaption = dLabel(self, Caption=self.Caption, _EventTarget=self)
         self.lblCaption.FontSize += FONT_SIZE_DIFF
         self.Sizer.append(self.lblCaption)
 
@@ -584,7 +591,7 @@ class MenuPanel(AbstractMenuPanel):
 
 
     def onContextMenu(self, evt):
-        pop = dabo.ui.dMenu()
+        pop = dMenu()
         pos = self.getPositionInSizer()
         isFirst = (pos == 0)
         isLast = (pos == (len(self.MenuBar.childItems) - 1))
@@ -787,7 +794,7 @@ class MenuPanel(AbstractMenuPanel):
             ret = self._menuitem_container = MenuItemContainer(self.Parent.Parent,
                     BorderWidth=3, BorderColor="darkblue")
         return ret
-        
+
 
 
 class MenuItemPanel(AbstractMenuPanel):
@@ -798,12 +805,12 @@ class MenuItemPanel(AbstractMenuPanel):
 
 
     def _initCaptions(self):
-        self.lblCaption = dabo.ui.dLabel(self, Caption=self.Caption, _EventTarget=self)
-        self.lblHotKey = dabo.ui.dLabel(self, Caption=self.HotKey, _EventTarget=self,
+        self.lblCaption = dLabel(self, Caption=self.Caption, _EventTarget=self)
+        self.lblHotKey = dLabel(self, Caption=self.HotKey, _EventTarget=self,
                 ForeColor="sienna")
         self.lblCaption.FontSize += FONT_SIZE_DIFF
         self.lblHotKey.FontSize += (FONT_SIZE_DIFF - 2)
-        hsz = self.capSizer = dabo.ui.dSizerH()
+        hsz = self.capSizer = dSizerH()
         hsz.append(self.lblCaption, valign="middle")
         spc = self._minCaptionHotKeySpacing
         hsz.appendSpacer((spc, spc), 1)
@@ -817,7 +824,7 @@ class MenuItemPanel(AbstractMenuPanel):
 
 
     def onContextMenu(self, evt):
-        pop = dabo.ui.dMenu()
+        pop = dMenu()
         pos = self.getPositionInSizer()
         isFirst = (pos == 0)
         isLast = (pos == (len(self.Parent.Children) - 1))
@@ -888,7 +895,7 @@ class SeparatorPanel(MenuItemPanel):
 
 
     def _initCaptions(self):
-        self.sepline = dabo.ui.dLine(self, _EventTarget=self)
+        self.sepline = dLine(self, _EventTarget=self)
         self.Sizer.appendSpacer(8)
         self.Sizer.append(self.sepline, "x")
         self.Sizer.appendSpacer(8)

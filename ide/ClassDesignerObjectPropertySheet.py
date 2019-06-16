@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-import dabo.ui
+import dabo
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
-dui = dabo.ui
 from ClassDesignerComponents import LayoutPanel
 from ClassDesignerComponents import LayoutBasePanel
 from ClassDesignerComponents import LayoutSpacerPanel
@@ -10,46 +9,52 @@ from ClassDesignerComponents import LayoutSizer
 from ClassDesignerComponents import LayoutBorderSizer
 from ClassDesignerComponents import LayoutGridSizer
 
+dButton = dabo.import_ui_name("dButton")
+dColumn = dabo.import_ui_name("dColumn")
+dGrid = dabo.import_ui_name("dGrid")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
 
-class ObjectPropertySheet(dui.dPanel):
+
+class ObjectPropertySheet(dPanel):
     def afterInit(self):
         self.app = self.Application
-        self.propGrid = grd = dui.dGrid(self)
+        self.propGrid = grd = dGrid(self)
         self.propGrid.bindEvent(dEvents.MouseLeftDoubleClick, self.onEdit)
-        sz = self.Sizer = dui.dSizer("v")
+        sz = self.Sizer = dSizer("v")
         sz.append1x(self.propGrid)
-        col = dui.dColumn(grd, Caption=_("Property Name"), Order=10,
+        col = dColumn(grd, Caption=_("Property Name"), Order=10,
                 DataField="propName", DataType=str, Name="PropName",
                 Width=100, Sortable=True)
         grd.addColumn(col)
-        col = dui.dColumn(grd, Caption=_("Default Value"), Order=20,
+        col = dColumn(grd, Caption=_("Default Value"), Order=20,
                 DataField="defaultValue",  Name="DefaultValue",
                 Width=80, Sortable=False)
         grd.addColumn(col)
-        col = dui.dColumn(grd, Caption=_("Comment"), Order=30,
+        col = dColumn(grd, Caption=_("Comment"), Order=30,
                 DataField="comment", DataType=str, Name="Comment",
                 Width=200, Sortable=False)
         grd.addColumn(col)
-        col = dui.dColumn(grd, Caption=_("Get"), Order=40,
+        col = dColumn(grd, Caption=_("Get"), Order=40,
                 DataField="getter", DataType=bool, Name="Get", Width=40,
                 Sortable=False)
         grd.addColumn(col)
-        col = dui.dColumn(grd, Caption=_("Set"), Order=50,
+        col = dColumn(grd, Caption=_("Set"), Order=50,
                 DataField="setter", DataType=bool, Name="Set", Width=40,
                 Sortable=False)
         grd.addColumn(col)
-        col = dui.dColumn(grd, Caption=_("Del"), Order=60,
+        col = dColumn(grd, Caption=_("Del"), Order=60,
                 DataField="deller", DataType=bool, Name="Del", Width=40,
                 Sortable=False)
         grd.addColumn(col)
 
-        self.addButton = dui.dButton(self, Caption=_("Add"))
+        self.addButton = dButton(self, Caption=_("Add"))
         self.addButton.bindEvent(dEvents.Hit, self.onAdd)
-        self.editButton = dui.dButton(self, Caption=_("Edit"))
+        self.editButton = dButton(self, Caption=_("Edit"))
         self.editButton.bindEvent(dEvents.Hit, self.onEdit)
-        self.delButton = dui.dButton(self, Caption=_("Delete"))
+        self.delButton = dButton(self, Caption=_("Delete"))
         self.delButton.bindEvent(dEvents.Hit, self.onDelete)
-        hsz = dui.dSizer("H")
+        hsz = dSizer("H")
         hsz.append(self.addButton)
         hsz.appendSpacer(12)
         hsz.append(self.editButton)
@@ -108,5 +113,6 @@ class ObjectPropertySheet(dui.dPanel):
             data.append(pd[prop])
         self.propGrid.DataSet = data
         self.propGrid.fillGrid(True)
-         self.editButton.Enabled = self.delButton.Enabled = (len(props) > 0)
+
+        self.editButton.Enabled = self.delButton.Enabled = (len(props) > 0)
 

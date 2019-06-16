@@ -3,7 +3,6 @@ import os
 import sys
 import time
 import random
-import new
 import codecs
 import dabo.ui
 from dabo.dLocalize import _
@@ -27,9 +26,30 @@ from ClassDesignerComponents import NoSizerBasePanel
 from ClassDesignerComponents import classFlagProp
 import dabo.lib.xmltodict as xtd
 import dabo.lib.DesignerUtils as desUtil
-import dabo.ui.dialogs as dlgs
 from dabo.ui import dKeys
-dui = dabo.ui
+
+dButton = dabo.import_ui_name("dButton")
+dCheckBox = dabo.import_ui_name("dCheckBox")
+dComboBox = dabo.import_ui_name("dComboBox")
+dDialog = dabo.import_ui_name("dDialog")
+dDockForm = dabo.import_ui_name("dDockForm")
+dForm = dabo.import_ui_name("dForm")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dLabel = dabo.import_ui_name("dLabel")
+dListControl = dabo.import_ui_name("dListControl")
+dMenu = dabo.import_ui_name("dMenu")
+dOkCancelDialog = dabo.import_ui_name("dOkCancelDialog")
+dPanel = dabo.import_ui_name("dPanel")
+dRadioList = dabo.import_ui_name("dRadioList")
+dSizer = dabo.import_ui_name("dSizer")
+dSpinner = dabo.import_ui_name("dSpinner")
+dSplitter = dabo.import_ui_name("dSplitter")
+dStandardButtonDialog = dabo.import_ui_name("dStandardButtonDialog")
+dStatusBar = dabo.import_ui_name("dStatusBar")
+dTextBox = dabo.import_ui_name("dTextBox")
+dToolForm = dabo.import_ui_name("dToolForm")
+dTreeView = dabo.import_ui_name("dTreeView")
+Wizard = dabo.import_ui_name("Wizard")
 
 
 class ClassDesignerFormMixin(LayoutSaverMixin):
@@ -187,7 +207,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         if self.mainPanel:
             menu = self.mainPanel.createContextMenu()
         if not menu:
-            menu = dui.dMenu()
+            menu = dMenu()
         if self.ToolBar is None:
             menu.append(_("Add Toolbar"), OnHit=self.onAddToolbar)
         else:
@@ -200,36 +220,36 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 
 
     def onAddToolbarButton(self, evt):
-        class TbButtonDialog(dui.dOkCancelDialog):
+        class TbButtonDialog(dOkCancelDialog):
             def addControls(self):
                 self.Caption = _("ToolBar Buttons")
-                gsz = dui.dGridSizer(MaxCols=2, HGap=3, VGap=10)
-                lbl = dui.dLabel(self, Caption=_("Button Name"))
-                txt = dui.dTextBox(self, RegID="button_name")
+                gsz = dGridSizer(MaxCols=2, HGap=3, VGap=10)
+                lbl = dLabel(self, Caption=_("Button Name"))
+                txt = dTextBox(self, RegID="button_name")
                 gsz.append(lbl)
                 gsz.append(txt)
-                lbl = dui.dLabel(self, Caption=_("Button Picture"))
-                btn = dui.dButton(self, Caption=_("Select..."), OnHit=self.onSelectPic)
-                txt = dui.dTextBox(self, RegID="button_picture", ReadOnly=True)
-                hsz = dui.dSizer("H")
+                lbl = dLabel(self, Caption=_("Button Picture"))
+                btn = dButton(self, Caption=_("Select..."), OnHit=self.onSelectPic)
+                txt = dTextBox(self, RegID="button_picture", ReadOnly=True)
+                hsz = dSizer("H")
                 hsz.append(btn)
                 hsz.append(txt)
                 gsz.append(lbl)
                 gsz.append(hsz)
-                chk = dui.dCheckBox(self, Caption=_("Toggle?"), RegID="toggle")
+                chk = dCheckBox(self, Caption=_("Toggle?"), RegID="toggle")
                 gsz.appendSpacer(10)
                 gsz.append(chk)
-                lbl = dui.dLabel(self, Caption=_("ToolTip Text"))
-                txt = dui.dTextBox(self, RegID="tooltip_text")
+                lbl = dLabel(self, Caption=_("ToolTip Text"))
+                txt = dTextBox(self, RegID="tooltip_text")
                 gsz.append(lbl)
                 gsz.append(txt)
-                lbl = dui.dLabel(self, Caption=_("Help Text"))
-                txt = dui.dTextBox(self, RegID="help_text")
+                lbl = dLabel(self, Caption=_("Help Text"))
+                txt = dTextBox(self, RegID="help_text")
                 gsz.append(lbl)
                 gsz.append(txt)
                 self.Sizer.append1x(gsz)
             def onSelectPic(self, evt):
-                pic = dui.getFile("png", "icn", "bmp", "jpg", "gif")
+                pic = dabo.ui.getFile("png", "icn", "bmp", "jpg", "gif")
                 self.button_picture.Value = pic
         dlg = TbButtonDialog(self)
         dlg.show()
@@ -255,7 +275,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 fname = os.path.split(cf)[1]
             else:
                 fname = _("Untitled")
-            saveIt = dui.areYouSure(_("Do you want to save the changes to '%s'?") % fname, _("Unsaved Changes"))
+            saveIt = dabo.ui.areYouSure(_("Do you want to save the changes to '%s'?") % fname, _("Unsaved Changes"))
             if saveIt is None:
                 # They canceled
                 ret = False
@@ -280,7 +300,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         all the functionality to the DesignerForm.
         """
         pass
-#         from dabo.ui.uiwx.dDockForm import _dDockManager
+#         from dDockForm import _dDockManager
 #         self._mgr = _dDockManager(self)
 #
 #         def addMethod(func, nm):
@@ -298,7 +318,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 #         addMethod(_addDockPanel, "addDockPanel")
 #         addMethod(_refreshState, "_refreshState")
 
-#         pc = dabo.ui.dDockForm.getBasePanelClass()
+#         pc = dDockForm.getBasePanelClass()
 #         self._basePanelClass = self.Controller.getControlClass(pc)
 #         self.CenterPanel = self._basePanelClass(self, name="CenterPanel",
 #                 typ="center")
@@ -458,8 +478,8 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
     def _recurseObjects(self, obj, level):
         ret = [(level, obj)]
         kids = None
-        if isinstance(obj, (dui.dComboBox, dui.dSpinner,
-                dui.dListControl, dui.dRadioList)):
+        if isinstance(obj, (dComboBox, dSpinner,
+                dListControl, dRadioList)):
             # These compound controls don't need their parts listed
             children = None
         else:
@@ -470,8 +490,8 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 kids = None
         if kids is not None:
             for ch in kids:
-                if isinstance(ch, (dui.dForm, dui.dToolForm,
-                        dui.dDialog, dui.dStatusBar, LayoutPanel)):
+                if isinstance(ch, (dForm, dToolForm,
+                        dDialog, dStatusBar, LayoutPanel)):
                     continue
                 elif ustr(ch).startswith("<wx."):
                     # These are low-level items, such as scrollbars, and do not need
@@ -637,15 +657,15 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         """
         # See if they want to save the entire contents of the form, or
         # just the current selection.
-        class ClassScopeDialog(dabo.ui.dOkCancelDialog):
+        class ClassScopeDialog(dOkCancelDialog):
             def addControls(self):
                 self.Caption = _("Save as Class")
                 # This is the attribute used to determine their choice
                 self.saveType = 0
-                lbl = dabo.ui.dLabel(self, Caption=_("Do you want to save"))
+                lbl = dLabel(self, Caption=_("Do you want to save"))
                 self.Sizer.append(lbl, halign="center")
                 chc = [_("The contents of the form"), _("Just the current selection")]
-                rgrp = dabo.ui.dRadioList(self, Choices=chc, DataSource=self,
+                rgrp = dRadioList(self, Choices=chc, DataSource=self,
                         DataField="saveType", ValueMode="Position")
                 self.Sizer.append(rgrp, halign="center")
 
@@ -689,7 +709,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         is to return the BaseClass, but this allows for specific subclasses
         to override that behavior.
         """
-        if isinstance(self, dlgs.Wizard):
+        if isinstance(self, Wizard):
             ret = "dabo.ui.dialogs.Wizard"
         else:
             ret = super(ClassDesignerFormMixin, self).getClass()
@@ -762,9 +782,9 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         if pth not in sys.path:
             sys.path.append(pth)
         if self._formMode:
-            frm = dui.createForm(fname)
+            frm = dabo.ui.createForm(fname)
         else:
-            frm = dui.dForm(None)
+            frm = dForm(None)
             obj = frm.addObject(fname)
             if frm.Sizer:
                 frm.Sizer.append1x(obj)
@@ -772,9 +792,9 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 frm.layout()
         frm.TempForm = True
         frm.Visible = True
-        if isinstance(frm, dlgs.Wizard):
+        if isinstance(frm, Wizard):
             frm.start()
-        if isinstance(frm, dabo.ui.dDialog):
+        if isinstance(frm, dDialog):
             def __dlgRelease(evt):
                 evt.EventObject.release()
             frm.bindEvent(dEvents.Close, __dlgRelease)
@@ -985,7 +1005,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         if isinstance(obj, (list, tuple)):
             obj = obj[-1]
         if not hasattr(obj, "showContainingPage"):
-            if isinstance(obj, dabo.ui.dTreeView.getBaseNodeClass()):
+            if isinstance(obj, dTreeView.getBaseNodeClass()):
                 # Make sure that it is expanded in the tree
                 obj.show()
                 # Now make sure that the tree is visible.
@@ -1040,7 +1060,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 # Nothing to hilite
                 self.hideAllHandles()
                 return
-            elif isinstance(ctl, (dabo.ui.dSizer, LayoutPanel, LayoutBasePanel)):
+            elif isinstance(ctl, (dSizer, LayoutPanel, LayoutBasePanel)):
                 # Not an actual control
                 continue
 
@@ -1245,7 +1265,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
     def onLeftUp(self, evt, obj=None):
         if obj is None:
             obj = evt.EventObject
-            if isinstance(obj.Parent, dabo.ui.dRadioList):
+            if isinstance(obj.Parent, dRadioList):
                 obj = obj.Parent
         drobj = self._draggedObjects
         dabo.ui.callAfter(self._clearDraggedObjects)
@@ -1321,13 +1341,13 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 
     def onMouseDrag(self, evt):
         obj = evt.EventObject
-        if isinstance(obj.Parent, dabo.ui.dRadioList):
+        if isinstance(obj.Parent, dRadioList):
             obj = obj.Parent
         if evt.dragging:
             if self.UseSizers:
                 return
                 if not self.DragObject and not self._selecting:
-                    if not isinstance(obj, dabo.ui.dSplitter):
+                    if not isinstance(obj, dSplitter):
                         self.DragObject = obj
                 if self._dragImage:
                     auto = self.autoClearDrawings
@@ -1396,7 +1416,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 
 
     def processLeftUp(self, obj, evt):
-        if isinstance(obj.Parent, dabo.ui.dRadioList):
+        if isinstance(obj.Parent, dRadioList):
             obj = obj.Parent
         if self.UseSizers:
             self.onLeftUp(evt, obj)
@@ -1427,7 +1447,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 if srcObj is obj:
                     self._redraw()
                     return
-                if isinstance(obj, dabo.ui.dPanel) and not isinstance(obj,
+                if isinstance(obj, dPanel) and not isinstance(obj,
                         (LayoutPanel, LayoutSpacerPanel)):
                     # Make sure that it not just empty border space around
                     # child objects
@@ -1452,7 +1472,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 oSz.remove(obj)
                 pSz.remove(srcObj)
                 # Now add this panel to the object's old Sizer
-                if isinstance(oSz, dabo.ui.dGridSizer):
+                if isinstance(oSz, dGridSizer):
                     oSz.append(srcObj, "x", row=oPos[0], col=oPos[1])
                 else:
                     oSz.insert(oPos, srcObj)
@@ -1460,7 +1480,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 oSz.setItemProps(newSzit, oProps)
 
                 # Now add the object to the old panel Sizer
-                if isinstance(pSz, dabo.ui.dGridSizer):
+                if isinstance(pSz, dGridSizer):
                     pSz.append(obj, "x", row=pPos[0], col=pPos[1])
                 else:
                     pSz.insert(pPos, obj)
@@ -1556,7 +1576,7 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
 
     def _getChildren(self):
         ret = []
-        if isinstance(self, dlgs.Wizard):
+        if isinstance(self, Wizard):
             ret = self._pages
         else:
             try:
@@ -1590,15 +1610,15 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
                 "Tag" : {"type" : "multi", "readonly" : False},
                 "Transparency" : {"type" : int, "readonly" : False},
                 "SaveRestorePosition": {"type" : bool, "readonly" : False}}
-        if isinstance(self, dlgs.Wizard):
+        if isinstance(self, Wizard):
             ret["Picture"] = {"type" : "path", "readonly" : False,
                     "customEditor": "editStdPicture"}
             ret["PictureHeight"] = {"type" : int, "readonly" : False}
             ret["PictureWidth"] = {"type" : int, "readonly" : False}
-        elif isinstance(self, dabo.ui.dDialog):
+        elif isinstance(self, dDialog):
             ret["AutoSize"] = {"type" : bool, "readonly" : False}
             ret["Centered"] = {"type" : bool, "readonly" : False}
-            if isinstance(self, dabo.ui.dStandardButtonDialog):
+            if isinstance(self, dStandardButtonDialog):
                 ret["CancelOnEscape"] = {"type" : bool, "readonly" : False}
         return ret
 

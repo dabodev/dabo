@@ -7,6 +7,9 @@ import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 from dabo.ui import makeProxyProperty
 
+dBitmap = dabo.import_ui_name("dBitmap")
+dForm = dabo.import_ui_name("dForm")
+dPanel = dabo.import_ui_name("dPanel")
 
 
 class MenuSaverMixin(object):
@@ -29,7 +32,7 @@ class MenuSaverMixin(object):
                 continue
             if isinstance(val, str) and os.path.exists(val):
                 # It's a path; convert it to a relative path
-                if isinstance(self, dabo.ui.dForm):
+                if isinstance(self, dForm):
                     ref = self.Form._menuBarFile
                 else:
                     ref = "."
@@ -53,7 +56,7 @@ class MenuSaverMixin(object):
 
 
 
-class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
+class CaptionPanel(MenuSaverMixin, dPanel):
     # Name for the saved mnxml file
     _className = "CaptionPanel"
     # Displayed name
@@ -111,9 +114,9 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
         # We want Hover behavior
         self.Hover = True
         # Smooth the drawing
-         self.Buffered = True
+        self.Buffered = True
 
-         self._kids = [self._background, self._hotKeyText, self._capText]
+        self._kids = [self._background, self._hotKeyText, self._capText]
 
     def getBack(self):
         if self._selected:
@@ -134,7 +137,7 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 #### around to re-arrange them!
 #     def onMouseLeftDown(self, evt):
 #         self._dragging = True
-#         self._dragImg = dabo.ui.dDragImage(self)
+#         self._dragImg = dDragImage(self)
 #
 #     def onMouseMove(self, evt):
 #         if not self._dragging:
@@ -486,8 +489,7 @@ class CaptionBitmapPanel(CaptionPanel):
             self._kids.remove(self._bmp)
             self._bmp = None
         self._bmp = self.drawBitmap(bmp, 5, 5, visible=self.Parent.Visible)
-
-         self._kids.append(self._bmp)
+        self._kids.append(self._bmp)
 
         wd = self._bmp.Width
         # Move the text over to fit
@@ -507,7 +509,7 @@ class CaptionBitmapPanel(CaptionPanel):
 
     def _setPicture(self, val):
         self._picture = val
-        if isinstance(val, dabo.ui.dBitmap):
+        if isinstance(val, dBitmap):
             bmp = val
         else:
             bmp = dabo.ui.strToBmp(val)

@@ -1,14 +1,27 @@
 # -*- coding: utf-8 -*-
 import re
+import six
+
+import dabo
 import dabo.ui
-dui = dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import ClassDesignerMenu
 
+dBitmapButton = dabo.import_ui_name("dBitmapButton")
+dButton = dabo.import_ui_name("dButton")
+dDropdownList = dabo.import_ui_name("dDropdownList")
+dEditor = dabo.import_ui_name("dEditor")
+dForm = dabo.import_ui_name("dForm")
+dLabel = dabo.import_ui_name("dLabel")
+dLine = dabo.import_ui_name("dLine")
+dMenu = dabo.import_ui_name("dMenu")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
 
-class EditorControl(dui.dEditor):
+
+class EditorControl(dEditor):
     """We need to override some behaviors in order to get the editor to work
     in a code snippet environment rather than the usual single script file.
     """
@@ -105,7 +118,7 @@ class EditorControl(dui.dEditor):
         intellisense for those two modules. We also want to add any class-wide
         import statements into the namespace.
         """
-        exec("import dabo\ndui = dabo.ui", self._namespaces)
+        exec("import dabo\ndui= dabo.ui", self._namespaces)
         imp = self.Controller.getImportDict()
         if imp:
             try:
@@ -176,7 +189,7 @@ class EditorControl(dui.dEditor):
 
 
 
-class EditorForm(dui.dForm):
+class EditorForm(dForm):
     def afterInit(self):
         self._defaultLeft = 30
         self._defaultTop = 620
@@ -187,17 +200,17 @@ class EditorForm(dui.dForm):
         self._lastSearch = ""
 
         self._objHierarchy = []
-        pnl = dabo.ui.dPanel(self)
+        pnl = dPanel(self)
         self.Sizer.append1x(pnl)
-        sz = pnl.Sizer = dabo.ui.dSizer("v")
+        sz = pnl.Sizer = dSizer("v")
 
-        dui.dBitmapButton(pnl, Picture="downTriangleBlack", RegID="btnNavigate",
+        dBitmapButton(pnl, Picture="downTriangleBlack", RegID="btnNavigate",
                 OnHit=self.onCodeNavigate, ToolTipText="Jump to Method...")
-        dui.dLabel(pnl, Caption=_("Object:"), RegID="lblObj")
-        dui.dDropdownList(pnl, RegID="ddObject", OnHit=self.onHitDDObject)
-        dui.dLabel(pnl, Caption=_("Method:"), RegID="lblMethod")
-        dui.dDropdownList(pnl, RegID="ddMethod", OnHit=self.onHitDDMethod)
-        hs = dui.dSizer("h", DefaultBorder=8, DefaultBorderTop=True,
+        dLabel(pnl, Caption=_("Object:"), RegID="lblObj")
+        dDropdownList(pnl, RegID="ddObject", OnHit=self.onHitDDObject)
+        dLabel(pnl, Caption=_("Method:"), RegID="lblMethod")
+        dDropdownList(pnl, RegID="ddMethod", OnHit=self.onHitDDMethod)
+        hs = dSizer("h", DefaultBorder=8, DefaultBorderTop=True,
                 DefaultBorderBottom=True)
         hs.appendSpacer(8)
         hs.append(self.btnNavigate, 0, valign="bottom")
@@ -210,11 +223,11 @@ class EditorForm(dui.dForm):
         hs.appendSpacer(2)
         hs.append(self.ddMethod, 0)
         hs.appendSpacer(4)
-        dui.dBitmapButton(pnl, Picture="checkMark", RegID="btnCheckSyntax",
+        dBitmapButton(pnl, Picture="checkMark", RegID="btnCheckSyntax",
                 ToolTipText=_("Check Syntax"), OnHit=self.onCheckSyntax)
-        dui.dButton(pnl, Caption=_("super"), RegID="btnSuperCode", Enabled=False,
+        dButton(pnl, Caption=_("super"), RegID="btnSuperCode", Enabled=False,
                 ToolTipText=_("Show Superclass Code"), OnHit=self.onSuperCode)
-        dui.dButton(pnl, Caption=_("New"), RegID="btnNewMethod",
+        dButton(pnl, Caption=_("New"), RegID="btnNewMethod",
                 ToolTipText=_("Create New Method"), OnHit=self.onNewMethod)
         hs.append(self.btnCheckSyntax, 0, border=3, valign="middle")
         hs.appendSpacer(4)
@@ -222,10 +235,10 @@ class EditorForm(dui.dForm):
         hs.appendSpacer(8)
         hs.append(self.btnNewMethod, 0)
         hs.appendSpacer(8)
-        hs.append(dui.dLine(pnl, Height=self.btnNewMethod.Height, Width=2),
+        hs.append(dLine(pnl, Height=self.btnNewMethod.Height, Width=2),
                 valign="middle")
         hs.appendSpacer(8)
-        dui.dButton(pnl, Caption=_("Manage Imports"), RegID="btnImports",
+        dButton(pnl, Caption=_("Manage Imports"), RegID="btnImports",
                 ToolTipText=_("Manage Class-wide imports"), OnHit=self.onManageImports)
         hs.append(self.btnImports, 0)
 
@@ -251,7 +264,7 @@ class EditorForm(dui.dForm):
         fmn.append(_("Increase Font Size"), HotKey="Ctrl++", OnHit=self.fontIncrease)
         fmn.append(_("Decrease Font Size"), HotKey="Ctrl+-", OnHit=self.fontDecrease)
 
-        emn = dabo.ui.dMenu(Caption="Editor")
+        emn = dMenu(Caption="Editor")
         self.MenuBar.appendMenu(emn)
 
         self._autoAutoItem = emn.append(_("Automa&tic AutoComplete"),
@@ -276,7 +289,7 @@ class EditorForm(dui.dForm):
                 OnHit=self.onUseSpaces, bmp="", help=_("Toggle Using Spaces Or Tabs"),
                 menutype="check")
 
-        self._tabMenu = dabo.ui.dMenu(Caption="Tab Size")
+        self._tabMenu = dMenu(Caption="Tab Size")
         emn.appendMenu(self._tabMenu)
 
         for number in [2,4,6,8,16]:
@@ -380,7 +393,7 @@ class EditorForm(dui.dForm):
             if nonEvent is None:
                 nonEvent = mthd not in self.Controller.getClassEvents(obj._baseClass)
             txt = self._getMethodBase(mthd, not (nonEvent is True))
-        if isinstance(txt, str):
+        if isinstance(txt, six.binary_type):
             txt = txt.decode(ed.Encoding)
         txt = txt.strip()
         if ed.Value != txt:
@@ -391,7 +404,7 @@ class EditorForm(dui.dForm):
         ed.Method = mthd
         if mvPointer:
             ed.moveToEnd()
-        dui.callAfter(self.setEditorCaption)
+        dabo.ui.callAfter(self.setEditorCaption)
         self.ddObject.KeyValue = obj
         self.populateMethodList()
         try:
@@ -459,7 +472,7 @@ class EditorForm(dui.dForm):
 
     def onHitDDMethod(self, evt):
         self.updateText()
-        dui.callAfter(self.setEditorCaption)
+        dabo.ui.callAfter(self.setEditorCaption)
         self.edit(self.ddObject.KeyValue, self.ddMethod.StringValue.replace("*", ""))
 
 
@@ -479,7 +492,7 @@ class EditorForm(dui.dForm):
 
         # Get the longest object name
         maxname = max([len(obj.Name) for obj in code_keys])
-        pop = dui.dMenu(Caption=_("Jump to Method..."))
+        pop = dMenu(Caption=_("Jump to Method..."))
         for obj in code_keys:
             nm = obj.Name.rjust(maxname)
             itm = pop.append(obj.Name)
@@ -522,7 +535,7 @@ class EditorForm(dui.dForm):
 
 
     def refreshStatus(self):
-        dui.callAfter(self.setEditorCaption)
+        dabo.ui.callAfter(self.setEditorCaption)
         self.populateMethodList()
         self.checkObjMethod()
 

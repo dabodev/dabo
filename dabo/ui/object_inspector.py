@@ -39,7 +39,7 @@ def addkids(self, obj, node):
         if self.exclude(kid):
             continue
         nodeColor = None
-        if isinstance(kid, wx._controls.ScrollBar):
+        if isinstance(kid, wx.ScrollBar):
             continue
 #         if isinstance(obj, dSizerMixin):
 #             kid = obj.getItem(kid)
@@ -76,6 +76,7 @@ def clearHighlight(self):
         if toClear["type"] == "drawing":
             try:
                 frm.removeDrawnObject(toClear["drawingToClear"])
+                print("REMOVED", toClear["drawingToClear"])
             except ValueError:
                 pass
 #            frm.forceSizerOutline()
@@ -108,10 +109,14 @@ def _setShowSizers(self, val):
 ]]>
         </_setShowSizers>
         <importStatements><![CDATA[
+import six
 import time
 import wx
 from dabo.dLocalize import _
 from dabo.dPref import dPref
+
+dFormMixin = dabo.import_ui_name("dFormMixin")
+dSizerMixin = dabo.import_ui_name("dSizerMixin")
 ]]>
         </importStatements>
         <formatName><![CDATA[
@@ -177,7 +182,7 @@ def showPropVals(self, obj):
             continue
         if val is None:
             val = self.Application.NoneDisplay
-        elif isinstance(val, basestring):
+        elif isinstance(val, six.string_types):
             val = "'%s'" % val
         elif isinstance(val, dabo.dObject.dObject):
             try:
@@ -192,6 +197,8 @@ def showPropVals(self, obj):
         <sizer_repr><![CDATA[
 def sizer_repr(self, sz):
     """Returns an informative representation for a sizer"""
+    dBorderSizer = dabo.import_ui_name("dBorderSizer")
+    dGridSizer = dabo.import_ui_name("dGridSizer")
     if isinstance(sz, dGridSizer):
         ret = "dGridSizer (%s x %s)" % (sz.HighRow, sz.HighCol)
     elif isinstance(sz, dBorderSizer):
@@ -211,6 +218,7 @@ def _getShowSizers(self):
         </_getShowSizers>
         <exclude><![CDATA[
 def exclude(self, obj):
+    dDialog = dabo.import_ui_name("dDialog")
     isFloat = (isinstance(obj, dDialog) and
         hasattr(obj, "Above") and hasattr(obj, "Owner"))
     return isFloat or (obj is self)
@@ -254,9 +262,11 @@ def OnCaptureLost(self, evt):
         </OnCaptureLost>
         <afterInitAll><![CDATA[
 def afterInitAll(self):
+    dBorderSizer = dabo.import_ui_name("dBorderSizer")
+    dShell = dabo.import_ui_name("dShell")
+    dToolBar = dabo.import_ui_name("dToolBar")
     objnote = "NOTE: The 'obj' variable refers to the object selected in the tree."
     intro = "%s\\n%s" % (dabo.ui.getSystemInfo(), objnote)
-    dShell = dabo.import_ui_name("dShell")
     self.shell = dShell(self.shellPanel, showInterpIntro=False,
             introText=intro)
     self.shell.interp.locals['self'] = self
@@ -307,7 +317,7 @@ def cls_repr(self, cls):
         <OnLeftDown><![CDATA[
 def OnLeftDown(self, evt):
     self.ReleaseMouse()
-    wnd = wx.FindWindowAtPointer()
+    wnd, pos = wx.FindWindowAtPointer()
     if wnd is not None:
         self.objectTree.showObject(wnd)
     else:
@@ -317,6 +327,7 @@ def OnLeftDown(self, evt):
         </OnLeftDown>
         <onHighlightItem><![CDATA[
 def onHighlightItem(self, evt):
+    dFormMixin = dabo.import_ui_name("dFormMixin")
     obj = self.objectTree.Selection.Object
     try:
         frm = obj.Form

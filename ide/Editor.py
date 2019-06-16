@@ -20,8 +20,24 @@ except ImportError:
     _Use_Subprocess = False
 from dabo.lib.reportUtils import getTempFile
 
+dBitmapButton = dabo.import_ui_name("dBitmapButton")
+dDropdownList = dabo.import_ui_name("dDropdownList")
+dEditBox = dabo.import_ui_name("dEditBox")
+dEditor = dabo.import_ui_name("dEditor")
+dForm = dabo.import_ui_name("dForm")
+dImage = dabo.import_ui_name("dImage")
+dLabel = dabo.import_ui_name("dLabel")
+dMenu = dabo.import_ui_name("dMenu")
+dOkCancelDialog = dabo.import_ui_name("dOkCancelDialog")
+dPage = dabo.import_ui_name("dPage")
+dPageFrame = dabo.import_ui_name("dPageFrame")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dSplitter = dabo.import_ui_name("dSplitter")
+dTextBox = dabo.import_ui_name("dTextBox")
 
-class EditPageSplitter(dabo.ui.dSplitter):
+
+class EditPageSplitter(dSplitter):
     def __init__(self, *args, **kwargs):
         kwargs["createPanes"] = True
         super(EditPageSplitter, self).__init__(*args, **kwargs)
@@ -43,7 +59,7 @@ class EditPageSplitter(dabo.ui.dSplitter):
 
 
 
-class EditorEditor(dabo.ui.dEditor):
+class EditorEditor(dEditor):
     def addDroppedText(self, txt):
         curr = self.Value
         ss, se = self.SelectionStart, self.SelectionEnd
@@ -57,7 +73,7 @@ class EditorEditor(dabo.ui.dEditor):
 
 
 
-class EditorPage(dabo.ui.dPage):
+class EditorPage(dPage):
     def initProperties(self):
         self.p = None
         self.outputText = ""
@@ -68,19 +84,19 @@ class EditorPage(dabo.ui.dPage):
         self.splitter = EditPageSplitter(self, Orientation="h")
         self.splitter.SashPosition = self.Height - self._outputSashExtra
 
-        self.splitter.Panel1.Sizer = dabo.ui.dSizer()
-        self.splitter.Panel2.Sizer = dabo.ui.dSizer()
+        self.splitter.Panel1.Sizer = dSizer()
+        self.splitter.Panel2.Sizer = dSizer()
 
         self.editor = EditorEditor(self.splitter.Panel1)
         self.editor.UseBookmarks = True
         self.editor.page = self
-        self.output = dabo.ui.dEditBox(self.splitter.Panel2)
+        self.output = dEditBox(self.splitter.Panel2)
         self.output.ReadOnly = True
 
         self.splitter.Panel1.Sizer.append1x(self.editor)
         self.splitter.Panel2.Sizer.append1x(self.output)
 
-        self.Sizer = dabo.ui.dSizer()
+        self.Sizer = dSizer()
         self.Sizer.append1x(self.splitter)
 
         self.updateTimer = dabo.ui.callEvery(1000, self.outputUpdate)
@@ -157,7 +173,7 @@ class EditorPage(dabo.ui.dPage):
 
 
 
-class EditorPageFrame(dabo.ui.dPageFrame):
+class EditorPageFrame(dPageFrame):
     def beforeInit(self):
         self.PageClass = EditorPage
 
@@ -295,7 +311,7 @@ class EditorPageFrame(dabo.ui.dPageFrame):
 
 
 
-class EditorForm(dabo.ui.dForm):
+class EditorForm(dForm):
     def __init__(self, *args, **kwargs):
         super(EditorForm, self).__init__(*args, **kwargs)
 
@@ -303,35 +319,35 @@ class EditorForm(dabo.ui.dForm):
     def afterInit(self):
         # Set up the file drop target
         self.DroppedFileHandler = self
-        pnl = dabo.ui.dPanel(self)
+        pnl = dPanel(self)
         self.Sizer.append1x(pnl)
-        pnl.Sizer = dabo.ui.dSizer("v")
+        pnl.Sizer = dSizer("v")
         self._lastPath = self.Application.getUserSetting("lastPath", os.getcwd())
         super(EditorForm, self).afterInit()
         self.Caption = _("Dabo Editor")
-        self.funcButton = dabo.ui.dImage(pnl, ScaleMode="Clip", Size=(22,22),
+        self.funcButton = dImage(pnl, ScaleMode="Clip", Size=(22,22),
                 ToolTipText=_("Show list of functions"))
         self.funcButton.Picture = dabo.ui.imageFromData(funcButtonData())
         self.funcButton.bindEvent(dEvents.MouseLeftDown, self.onFuncButton)
-        self.bmkButton = dabo.ui.dImage(pnl, ScaleMode="Clip", Size=(22,22),
+        self.bmkButton = dImage(pnl, ScaleMode="Clip", Size=(22,22),
                 ToolTipText=_("Manage Bookmarks"))
         self.bmkButton.Picture = dabo.ui.imageFromData(bmkButtonData())
         self.bmkButton.bindEvent(dEvents.MouseLeftDown, self.onBmkButton)
 
-        self.prntButton = dabo.ui.dBitmapButton(pnl, Size=(22,22),
+        self.prntButton = dBitmapButton(pnl, Size=(22,22),
                 ToolTipText=_("Print..."))
         self.prntButton.Picture = "print"
         self.prntButton.bindEvent(dEvents.Hit, self.onPrint)
 
-        self.lexSelector = dabo.ui.dDropdownList(pnl, ValueMode="String")
+        self.lexSelector = dDropdownList(pnl, ValueMode="String")
         self.lexSelector.bindEvent(dEvents.Hit, self.onLexSelect)
 
-        btnSizer = dabo.ui.dSizer("H", DefaultSpacing=4)
+        btnSizer = dSizer("H", DefaultSpacing=4)
         btnSizer.append(self.funcButton)
         btnSizer.append(self.bmkButton)
         btnSizer.append(self.prntButton)
         btnSizer.appendSpacer(10, proportion=1)
-        lbl = dabo.ui.dLabel(pnl, Caption=_("Language:"))
+        lbl = dLabel(pnl, Caption=_("Language:"))
         if not self.Application.Platform.lower() == "win":
             lbl.FontSize -= 2
             self.lexSelector.FontSize -= 2
@@ -385,7 +401,7 @@ class EditorForm(dabo.ui.dForm):
     def onFuncButton(self, evt):
         evt.stop()
         flist = self.CurrentEditor.getFunctionList()
-        pop = dabo.ui.dMenu()
+        pop = dMenu()
         if flist:
             for nm, pos, iscls in flist:
                 prompt = nm
@@ -443,7 +459,7 @@ class EditorForm(dabo.ui.dForm):
         evt.stop()
         ed = self.CurrentEditor
         bmkList = ed.getBookmarkList()
-        pop = dabo.ui.dMenu()
+        pop = dMenu()
         currBmk = ed.getCurrentLineBookmark()
         if not currBmk:
             pop.append(_("Set Bookmark..."), OnHit=self.onSetBmk)
@@ -569,9 +585,8 @@ class EditorForm(dabo.ui.dForm):
 
         editMenu = mb.getMenu("base_edit")
         mb.remove(mb.getMenuIndex("base_view"))
-        runMenu = dabo.ui.dMenu(Caption=_("&Run"), MenuID="base_run")
+        runMenu = dMenu(Caption=_("&Run"), MenuID="base_run")
         mb.insertMenu(3, runMenu)
-        dIcons = dabo.ui.dIcons
 
         fileMenu.prependSeparator()
         itm = fileMenu.prepend(_("Reload from Disk"), OnHit=self.onFileReload, ItemID="file_reload",
@@ -588,7 +603,7 @@ class EditorForm(dabo.ui.dForm):
             fileMenu.remove(clsItem)
         fileMenu.prepend(_("&Close Editor"), HotKey="Ctrl+W", OnHit=self.onFileClose, bmp="close",
                 ItemID="file_close_editor", help=_("Close file"))
-        recentMenu = dabo.ui.dMenu(Caption=_("Open Recent"), MenuID="file_open_recent",
+        recentMenu = dMenu(Caption=_("Open Recent"), MenuID="file_open_recent",
                 MRU=True)
         fileMenu.prependMenu(recentMenu)
         fileMenu.prepend(_("&Open"), HotKey="Ctrl+O", OnHit=self.onFileOpen, bmp="open",
@@ -615,7 +630,7 @@ class EditorForm(dabo.ui.dForm):
                 OnHit=self.onAutoAutoComp, bmp="", help=_("Toggle Automatic Autocomplete"),
                 ItemID="edit_autoautocomplete", menutype="check")
         editMenu.appendSeparator()
-        moveMenu = dabo.ui.dMenu(Caption=_("Move..."), MenuID="edit_move")
+        moveMenu = dMenu(Caption=_("Move..."), MenuID="edit_move")
         editMenu.appendMenu(moveMenu)
         moveMenu.append(_("Previous Page"), HotKey="Alt+Left", OnHit=self.onPrevPage,
                 DynamicEnabled=lambda:self.pgfEditor.PageCount>1, bmp="",
@@ -660,7 +675,7 @@ class EditorForm(dabo.ui.dForm):
         runMenu.append(_("Clear Output"), OnHit=self.onClearOutput, bmp="",
                 ItemID="run_clear", help=_("Clear the contents of the Output pane"))
 
-        fontMenu = dabo.ui.dMenu(Caption=_("Fo&nt"), MenuID="base_font")
+        fontMenu = dMenu(Caption=_("Fo&nt"), MenuID="base_font")
         mb.insertMenu(4, fontMenu)
         fontMenu.append(_("Set Font Size"), OnHit=self.onFontSize, ItemID="font_setsize",
                 help=_("Set Default Font Size"))
@@ -786,7 +801,7 @@ class EditorForm(dabo.ui.dForm):
         the call to the first EditorForm instance we can find.
         """
         # The prompt will have a number prepended to the actual path,
-        # separated by a space. 
+        # separated by a space.
         pth = evt.prompt.split(" ", 1)[-1]
         # Find the topmost form that is an EditorForm
         app = dabo.dAppRef
@@ -838,12 +853,12 @@ class EditorForm(dabo.ui.dForm):
 
 
     def onEditJumpToLine(self, evt):
-        class LineNumberDlg(dabo.ui.dOkCancelDialog):
+        class LineNumberDlg(dOkCancelDialog):
             def addControls(self):
                 self.Caption = _("Jump To Line")
-                self.lblLine = dabo.ui.dLabel(self, Caption=_("Line Number:"))
-                self.txtLine = dabo.ui.dTextBox(self, SelectOnEntry=True)
-                hs = dabo.ui.dSizer("h")
+                self.lblLine = dLabel(self, Caption=_("Line Number:"))
+                self.txtLine = dTextBox(self, SelectOnEntry=True)
+                hs = dSizer("h")
                 hs.append(self.lblLine, valign="middle")
                 hs.append(self.txtLine, valign="middle")
                 self.Sizer.append(hs, 1, halign="center")

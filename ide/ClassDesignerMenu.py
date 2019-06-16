@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
-import dabo.ui
+import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import sys
+
+dMenu = dabo.import_ui_name("dMenu")
+
 
 def mkDesignerMenu(parent, target=None):
     """ This creates a common menu for all forms in the ClassDesigner. The two
@@ -113,7 +116,7 @@ def mkDesignerMenu(parent, target=None):
                 OnHit=app.onEditTextFile,
                 ItemID="file_edit_textfile",
                 help=_("Open a text file for editing"))
-        recent = dabo.ui.dMenu(Caption=_("Open Recent"), MenuID="file_open_recent", MRU=True)
+        recent = dMenu(Caption=_("Open Recent"), MenuID="file_open_recent", MRU=True)
         fm.prependMenu(recent)
         fm.prepend(_("&Open"),
                 HotKey="Ctrl+O",
@@ -126,7 +129,7 @@ def mkDesignerMenu(parent, target=None):
                 ItemID="file_new",
                 help=_("Create a new design file"))
 
-        alignMenu = dabo.ui.dMenu(Caption=_("Align"), MenuID="base_align")
+        alignMenu = dMenu(Caption=_("Align"), MenuID="base_align")
         itm = alignMenu.append(_("Align Top Edges"),
                 OnHit=app.onAlignTopEdge,
                 ItemID="align_top",

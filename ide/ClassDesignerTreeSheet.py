@@ -17,21 +17,42 @@ from MenuDesignerComponents import SeparatorPanel
 dui = dabo.ui
 from dabo.ui import makeProxyProperty
 
+dBorderSizer = dabo.import_ui_name("dBorderSizer")
+dBox = dabo.import_ui_name("dBox")
+dColumn = dabo.import_ui_name("dColumn")
+dComboBox = dabo.import_ui_name("dComboBox")
+dDialog = dabo.import_ui_name("dDialog")
+dForm = dabo.import_ui_name("dForm")
+dGrid = dabo.import_ui_name("dGrid")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dListControl = dabo.import_ui_name("dListControl")
+dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
+dPanel = dabo.import_ui_name("dPanel")
+dRadioList = dabo.import_ui_name("dRadioList")
+dSizer = dabo.import_ui_name("dSizer")
+dSpinner = dabo.import_ui_name("dSpinner")
+dStatusBar = dabo.import_ui_name("dStatusBar")
+dTextBox = dabo.import_ui_name("dTextBox")
+dToolForm = dabo.import_ui_name("dToolForm")
+dTreeView = dabo.import_ui_name("dTreeView")
+Wizard = dabo.import_ui_name("Wizard")
+WizardPage = dabo.import_ui_name("WizardPage")
 
-class TreeSheet(dui.dPanel):
+
+class TreeSheet(dPanel):
     def _initProperties(self):
         self.tree = None
         return super(TreeSheet, self)._initProperties()
 
 
     def _constructed(self):
-        return hasattr(self, "tree") and isinstance(self.tree, dui.dTreeView)
+        return hasattr(self, "tree") and isinstance(self.tree, dTreeView)
 
 
     def afterInit(self):
         self._slotCaption = _("Empty Sizer Slot")
         self._spacerCaption = _("Spacer")
-        self.tree = dui.dTreeView(self, ShowButtons=True)
+        self.tree = dTreeView(self, ShowButtons=True)
         plat = self.Application.Platform
         if plat == "Mac":
             self.tree.FontSize -= 3
@@ -48,7 +69,7 @@ class TreeSheet(dui.dPanel):
         self.tree.bindKey("numpad_enter", self.onTreeAction)
 #         self.tree.bindEvent(dEvents.TreeBeginDrag, self.onTreeBeginDrag)
 #         self.tree.bindEvent(dEvents.TreeEndDrag, self.onTreeEndDrag)
-        self.Sizer = dui.dSizer("v")
+        self.Sizer = dSizer("v")
         self.Sizer.append1x(self.tree)
         # Flag for determining if the user or the app is selecting
         self._inAppSelection = False
@@ -188,13 +209,13 @@ class TreeSheet(dui.dPanel):
     def _getDisplayName(self, obj):
         """Create the name displayed on the tree for a given object."""
         ret = ustr(obj)
-        if isinstance(obj, (dui.dSizer, dui.dBorderSizer, dui.dGridSizer)):
+        if isinstance(obj, (dSizer, dBorderSizer, dGridSizer)):
             ornt = obj.Orientation
             if ornt in ("r", "c"):
                 ornt = {"r":"Row", "c":"Column"}[ornt]
                 ret = _("Grid Sizer")
             else:
-                if isinstance(obj, dui.dBorderSizer):
+                if isinstance(obj, dBorderSizer):
                     itmCap = obj.Caption
                     if itmCap:
                         ret = _("BorderSizer ('%(itmCap)s'): %(ornt)s") % locals()
@@ -219,9 +240,9 @@ class TreeSheet(dui.dPanel):
                 dsp = obj.TreeDisplayCaption
                 if isinstance(dsp[1], type):
                     dsp = (dsp[0], self._getClassName(dsp[1]))
-            elif isinstance(obj, dui.dColumn):
+            elif isinstance(obj, dColumn):
                 dsp = "Column", obj.DataField
-            elif isinstance(obj, dui.dialogs.Wizard):
+            elif isinstance(obj, Wizard):
                 dsp = "Wizard", obj.Caption
             elif hasattr(obj, "Name"):
                 dsp = (obj.Name, self._getClassName(obj._baseClass))
@@ -238,7 +259,7 @@ class TreeSheet(dui.dPanel):
 
     def _getClassName(self, cls):
         """Takes a string representation of the form:
-            <class 'dabo.ui.uiwx.dTextBox.dTextBox'>
+            <class 'dabo.ui.dTextBox.dTextBox'>
         and returns just the actual class name (i.e., in this
         case, 'dTextBox').
         """
@@ -258,7 +279,7 @@ class TreeSheet(dui.dPanel):
         if itm is None:
             return
 
-        if isinstance(itm, (dui.dSizer, dui.dBorderSizer, dui.dGridSizer)):
+        if isinstance(itm, (dSizer, dBorderSizer, dGridSizer)):
             if isinstance(itm.Parent, self.Controller.getFormClass()):
                 noDisplay = True
             if noDisplay:
@@ -267,7 +288,7 @@ class TreeSheet(dui.dPanel):
                 cap = self._getDisplayName(itm)
                 childNode = node.appendChild(cap)
                 childNode.Object = itm
-            if isinstance(itm, dui.dGridSizer):
+            if isinstance(itm, dGridSizer):
                 # Grid Sizer children are in the order they are added;
                 # instead, get items into r,c order
                 kids = [itm.getItemByRowCol(rr, cc, False)
@@ -278,8 +299,8 @@ class TreeSheet(dui.dPanel):
             for kid in kids:
                 self.recurseLayout(kid, childNode, noDisplay=noDisplay, sz=itm)
 
-        elif isinstance(itm, (dabo.ui.dSizer.SizerItem,
-                dabo.ui.dSizer.GridSizerItem)):
+        elif isinstance(itm, (dSizer.SizerItem,
+                dSizer.GridSizerItem)):
             if itm.IsWindow():
                 recurse = True
                 noDisplay = False
@@ -323,18 +344,17 @@ class TreeSheet(dui.dPanel):
             # Not a sizer; see if it an empty slot, an actual control,
             # a sub-sizer, the form's Status Bar, or some other child
             # form such as the PropSheet.
-            if isinstance(itm, (dui.dStatusBar, dabo.ui.nativeScrollBar,
+            if isinstance(itm, (dStatusBar, dabo.ui.nativeScrollBar,
                     DragHandle)):
                 # ignore
                 return
-            elif isinstance(itm, (dui.dForm, dui.dToolForm,
-                    dui.dDialog)) and node is not None:
+            elif isinstance(itm, (dForm, dToolForm, dDialog)) and node: # is not None:
                 # This is a child form; ignore it
                 return
             elif itm.__module__.startswith("wx"):
                 # A native wx control; skip it
                 return
-            elif isinstance(itm, LayoutPanel) and not isinstance(itm.Parent, dui.dialogs.WizardPage):
+            elif isinstance(itm, LayoutPanel) and not isinstance(itm.Parent, WizardPage):
                 return
             elif isinstance(itm, NoSizerBasePanel):
                 self._recurseChildren(itm.Children, node, noDisplay=False)
@@ -359,19 +379,19 @@ class TreeSheet(dui.dPanel):
 
             if not isinstance(itm, (SeparatorPanel, MenuPanel)):
                 if hasattr(itm, "Sizer") and itm.Sizer:
-                    if isinstance(itm, dui.dialogs.WizardPage):
+                    if isinstance(itm, WizardPage):
                         self._recurseChildren(itm.Children, childNode, noDisplay)
                         return
-                    if not isinstance(itm, (dui.dPageFrameNoTabs, dui.dRadioList,
-                            dui.dSpinner, dui.dialogs.Wizard, dui.dialogs.WizardPage)):
+                    if not isinstance(itm, (dPageFrameNoTabs, dRadioList,
+                            dSpinner, Wizard, WizardPage)):
                         self.recurseLayout(itm.Sizer, childNode, noDisplay=noDisplay)
-            if isinstance(itm, dui.dGrid):
+            if isinstance(itm, dGrid):
                 children = itm.Columns
-            elif isinstance(itm, dui.dTreeView):
+            elif isinstance(itm, dTreeView):
                 # Can change this to BaseNode property post-0.7
                 children = itm.BaseNodes
-            elif isinstance(itm, (dui.dComboBox, dui.dSpinner,
-                    dui.dListControl, dui.dRadioList)):
+            elif isinstance(itm, (dComboBox, dSpinner,
+                    dListControl, dRadioList)):
                 # These compound controls don't need their parts listed
                 children = None
             elif isinstance(itm, SeparatorPanel):
@@ -392,7 +412,7 @@ class TreeSheet(dui.dPanel):
             # BorderSizers add dBox instances to the parent object. They
             # mark these with a '_belongsToBorderSizer' property. We
             # want to skip them here.
-            if isinstance(chil, dui.dBox):
+            if isinstance(chil, dBox):
                 if hasattr(chil, "_belongsToBorderSizer"):
                     # Skip it
                     continue
