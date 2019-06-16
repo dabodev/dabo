@@ -94,7 +94,7 @@ def fileRef(ref=""):
     if isinstance(ref, str):
         if os.path.exists(ref):
             with open(ref) as ff:
-                return ff:
+                return ff
         else:
             return StringIO(ref)
 
