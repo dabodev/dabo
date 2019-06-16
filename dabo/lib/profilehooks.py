@@ -284,7 +284,8 @@ class FuncProfile:
         print()
         stats = self.stats
         if self.filename:
-            pickle.dump(stats, file(self.filename, 'w'))
+            with open(self.filename, "w") as ff:
+                pickle.dump(stats, ff)
         stats.strip_dirs()
         stats.sort_stats('cumulative', 'time', 'calls')
         stats.print_stats(40)
@@ -375,7 +376,8 @@ class HotShotFuncProfile:
         # hotshot.stats.load takes ages, and the .prof file eats megabytes, but
         # a pickled stats object is small and fast
         if self.filename:
-            pickle.dump(stats, file(self.filename, 'w'))
+            with open(self.filename, "w") as ff:
+                pickle.dump(stats, ff)
         # it is best to pickle before strip_dirs
         stats.strip_dirs()
         stats.sort_stats('cumulative', 'time', 'calls')

@@ -233,7 +233,8 @@ class RemoteConnector(object):
         if isinstance(app, dApp):
             homedir = app.HomeDirectory
             try:
-                appname = file(pathjoin(homedir, ".appname")).read()
+                with open(pathjoin(homedir, ".appname")) as ff:
+                    appname = ff.read()
             except IOError:
                 # Use the HomeDirectory name
                 appname = os.path.split(homedir.rstrip("/"))[1]
@@ -272,11 +273,13 @@ class RemoteConnector(object):
         os.chdir(homedir)
         # Read in the current base manifest
         try:
-            baseMf = pickle.load(file(".serverManifest"))
+            with open(".serverManifest") as ff:
+                baseMf = pickle.load(ff)
         except IOError:
             baseMf = {}
         # Save the current server manifest
-        pickle.dump(serverMf, file(".serverManifest", "w"), pickle.HIGHEST_PROTOCOL)
+        with open(".serverManifest", "w") as ff:
+            pickle.dump(serverMf, ff, pickle.HIGHEST_PROTOCOL)
         # Check the server manifest for deleted files
         deleted = [pth for (pth, modf) in list(chgs.items())
                 if not modf]
@@ -300,9 +303,11 @@ class RemoteConnector(object):
                 dirname = os.path.split(pth)[0]
                 if dirname and not os.path.exists(dirname):
                     os.makedirs(dirname)
-                file(pth, "wb").write(zip.read(pth))
+                with open(pth, "wb") as ff:
+                    ff.write(zip.read(pth))
                 os.utime(pth, (tm, tm))
 # NOT WORKING
+# TODO(edleafe): Try this with importlib
 # Need to find a way to handle re-importing .py files.
 #                 if pth.endswith(".py"):
 #                     # if this is a .py file, we want to try re-importing it

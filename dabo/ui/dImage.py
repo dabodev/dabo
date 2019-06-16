@@ -236,7 +236,8 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
 
     # Property definitions
     def _getFrameCount(self):
-        typ = imghdr.what(file(self.Picture))
+        with open(self.Picture) as ff:
+            typ = imghdr.what(ff)
         if typ in ("gif",):
             anim = wx.animate.Animation(self.Picture)
             cnt = anim.GetFrameCount()

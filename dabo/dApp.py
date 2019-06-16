@@ -657,7 +657,8 @@ try again when it is running.
                 dirname = os.path.split(target)[0]
                 if dirname and not os.path.exists(dirname):
                     os.makedirs(dirname)
-                file(target, "wb").write(zip.read(pth))
+                with open(target, "wb") as ff:
+                    ff.write(zip.read(pth))
             for delfile in delfiles:
                 if delfile.startswith(prefix):
                     target = delfile.replace(prefix, "")
@@ -731,7 +732,8 @@ try again when it is running.
                 return
         newFile = resp.read()
         if newFile:
-            file(pth, "w").write(newFile)
+            with open(pth, "w") as ff:
+                ff.write(newFile)
             dabo.log.info(_("File %s updated") % pth)
 
 

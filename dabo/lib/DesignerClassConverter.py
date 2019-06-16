@@ -149,7 +149,8 @@ class DesignerClassConverter(dObject):
         except AttributeError:
             if os.path.exists(src):
                 self._srcFile = src = utils.resolvePathAndUpdate(src)
-                jsonText = file(src).read()
+                with open(src) as ff:
+                    jsonText = ff.read()
             else:
                 # It must be raw json
                 jsonText = src

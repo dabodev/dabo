@@ -546,7 +546,8 @@ class EditorForm(dui.dForm):
                     pth += self.fileExtension
                 self.connFile = pth
         # Create the file so that the relative pathing works correctly
-        file(self.connFile, "w")
+        with open(self.connFile, "w") as ff:
+            pass
         # Get the values from the connDict, and adjust any pathing
         # to be relative
         vals = self.relPaths(list(self.connDict.values()))
@@ -556,7 +557,8 @@ class EditorForm(dui.dForm):
             # Blank them out, as they are not valid for file-based backends.
             v0["host"] = v0["user"] = v0["password"] = v0["port"] = ""
         xml = createXML(vals, encoding="utf-8")
-        file(self.connFile, "w").write(xml)
+        with open(self.connFile, "w") as ff:
+            ff.write(xml)
         dabo.ui.callAfter(self.bringToFront)
 
 

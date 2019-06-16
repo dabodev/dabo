@@ -58,9 +58,8 @@ class RemoteBizobj(dBizobj):
         cls._createCacheDir(pth)
         pth = os.path.join(cls.cacheDir, hashval)
         if os.path.exists(pth):
-            f = file(pth)
-            kf, crsData = pickle.load(f)
-            f.close()
+            with open(pth) as ff:
+                kf, crsData = pickle.load(ff)
             biz.KeyField = kf
             # This is a dict with cursor keys as the keys, and
             # values as a (dataset, typedef) tuple.
@@ -96,14 +95,13 @@ class RemoteBizobj(dBizobj):
         """
         self._createCacheDir()
         pth = os.path.join(self.cacheDir, hashval)
-        f = file(pth, "w")
         pd = {}
         cursorDict = self._cursorDictReference()
         for kk, cursor in list(cursorDict.items()):
             pd[kk] = (cursor.getDataSet(returnInternals=True), cursor.getDataTypes())
         dataToStore = (self.KeyField, pd)
-        pickle.dump(dataToStore, f)
-        f.close()
+        with open(pth) as ff:
+            pickle.dump(dataToStore, ff)
 
 
     def storeRemoteSQL(self, sql):

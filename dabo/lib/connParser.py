@@ -10,8 +10,6 @@ from dabo.dLocalize import _
 # Tuple containing all file-based database types.
 FILE_DATABASES = ("sqlite",)
 
-
-
 class connHandler(xml.sax.ContentHandler):
     def __init__(self):
         self.connDict = {}
@@ -162,10 +160,10 @@ def fileRef(ref=""):
     ret = None
     if isinstance(ref, str):
         if os.path.exists(ref):
-            ret = open(ref)
+            with open(ref) as ff:
+                return ff
         else:
-            ret = StringIO(ref)
-    return ret
+            return StringIO(ref)
 
 
 def getXMLWrapper(encoding=None):

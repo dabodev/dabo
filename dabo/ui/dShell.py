@@ -552,7 +552,8 @@ Ctrl-Up/Down to scroll through history."""))
         if self.pgfCodeShell.SelectedPage == self.pgShell:
             self.shell.AddText(filelist[0])
         else:
-            self.edtCode.Value = file(filelist[0]).read()
+            with open(filelist[0]) as ff:
+                self.edtCode.Value = ff.read()
 
 
     def processDroppedText(self, txt):
