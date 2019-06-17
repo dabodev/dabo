@@ -3,13 +3,12 @@ containing translation data on dabodev.com.
 """
 import os
 import popen2
-import MySQLdb
+import pymysql
 
 ### NOTE: you must get these values from a Dabo administrator before 
 ###   getting access to the database
-db=MySQLdb.connect(host="XXX", user="XXX", passwd="XXX", 
-        db="XXX")
-crs = db.cursor(MySQLdb.cursors.DictCursor)
+db = pymysql.connect(host="XXX", user="XXX", passwd="XXX", db="XXX")
+crs = db.cursor(pymysql.cursors.DictCursor)
 
 
 def processText(txt, proj, pth, fname, xtraPth):

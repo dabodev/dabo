@@ -165,7 +165,7 @@ class dBackend(dObject):
             # According to PEP-0249, it is common practice for a readonly
             # lastrowid attribute to be added by module authors, which will
             # keep the last-insert id. This is by no means guaranteed, though.
-            # I've confirmed that it does work for MySQLdb.
+            # I've confirmed that it does work for pymysql.
             return cursor.lastrowid
         except AttributeError:
             return None

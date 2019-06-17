@@ -16,7 +16,7 @@ setup(name="DaboDemo",
         options={"py2exe": {"packages": ["wx.gizmos", "wx.lib.masked",
                     "wx.lib.calendar"],
                 "optimize": 2,
-                "excludes": ["kinterbasdb", "MySQLdb", "psycopg"],
+                "excludes": ["kinterbasdb", "pymysql", "psycopg"],
                 "includes": ["Modules"]}
                 },
         console = ["DaboDemo.py"],

@@ -505,7 +505,6 @@ class dTextBoxMixin(dTextBoxMixinBase):
                 raise ValueError(_("String not in ISO 8601 format."))
             return retVal
         elif ustr(dataType) in ("<type 'DateTime'>", "<type 'mx.DateTime.DateTime'>"):
-            # mx DateTime type. MySQLdb will use this if mx is installed.
             try:
                 import mx.DateTime
                 return mx.DateTime.DateTimeFrom(ustr(strVal))
@@ -513,7 +512,6 @@ class dTextBoxMixin(dTextBoxMixinBase):
                 raise ValueError(_("Can't import mx.DateTime"))
         elif ustr(dataType) in ("<type 'datetime.timedelta'>", "<type 'DateTimeDelta'>",
                 "<type 'mx.DateTime.DateTimeDelta'>"):
-            # mx TimeDelta type. MySQLdb will use this for Time columns if mx is installed.
             try:
                 import mx.DateTime
                 return mx.DateTime.TimeFrom(ustr(strVal))
