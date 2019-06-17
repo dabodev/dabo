@@ -88,9 +88,10 @@ def importConnections(pth=None, useHomeDir=False):
     """
     if pth is None:
         return None
-    f = fileRef(pth)
     ch = connHandler()
+    f = fileRef(pth)
     xml.sax.parse(f, ch)
+    f.close()
     ret = ch.getConnectionDict()
     basePath = pth
     if useHomeDir:
@@ -154,14 +155,14 @@ def genConnXML(d):
 
 
 def fileRef(ref=""):
-    """  Handles the passing of file names, file objects, or raw
-    XML to the parser. Returns a file-like object, or None.
+    """  Handles the passing of file names, file objects, or raw XML to the
+    parser. Returns an open file-like object, or None. It is up to the calling
+    program to close the file.
     """
     ret = None
     if isinstance(ref, str):
         if os.path.exists(ref):
-            with open(ref) as ff:
-                return ff
+            return open(ref)
         else:
             return StringIO(ref)
 

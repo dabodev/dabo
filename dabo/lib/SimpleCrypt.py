@@ -74,7 +74,7 @@ class SimpleCrypt(object):
             myRand = random.Random(tmpKey).randrange
             crypted = [chr(ord(elem)^myRand(256)) for elem in aString]
             hex = self.strToHex("".join(crypted))
-            ret = "".join([tmpKey[i/2]  + hex[i:i+2] for i in range(0, len(hex), 2)])
+            ret = "".join([tmpKey[int(i/2)]  + hex[i:i+2] for i in range(0, len(hex), 2)])
             return ret
 
 

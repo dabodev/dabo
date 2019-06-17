@@ -57,7 +57,7 @@ class SplashScreen(wx.Frame):
         self.Bind(wx.EVT_MOUSE_EVENTS, self._onMouseEvents)
         self.Bind(wx.EVT_PAINT, self._onPaint)
         if timeout > 0:
-            self.fc = wx.FutureCall(timeout, self._onTimer)
+            self.fc = wx.CallLater(timeout, self._onTimer)
 
 
     def setSizeAndShape(self, evt=None):

@@ -76,7 +76,6 @@ def clearHighlight(self):
         if toClear["type"] == "drawing":
             try:
                 frm.removeDrawnObject(toClear["drawingToClear"])
-                print("REMOVED", toClear["drawingToClear"])
             except ValueError:
                 pass
 #            frm.forceSizerOutline()

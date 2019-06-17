@@ -169,8 +169,7 @@ class dMenu(dPemMixin, wx.Menu):
         dummySpacer = None
         if not self.Children:
             dummySpacer = self.append(" ")
-        wxMenuItem = self.AppendMenu(-1, menu.Caption, menu, help=menu.HelpText)
-#-         wxMenuItem = self.AppendSubMenu(menu, menu.Caption, help=menu.HelpText)
+        wxMenuItem = self.Append(-1, menu.Caption, menu, help=menu.HelpText)
         menu._setId(wxMenuItem.GetId())
         menu.Parent = self
         self._daboChildren[wxMenuItem.GetId()] = menu
@@ -190,7 +189,7 @@ class dMenu(dPemMixin, wx.Menu):
 
     def prependMenu(self, menu):
         """Insert a dMenu at the top of the menu."""
-        wxMenuItem = self.PrependMenu(-1, menu.Caption, menu, help=menu.HelpText)
+        wxMenuItem = self.Prepend(-1, menu.Caption, menu, help=menu.HelpText)
         menu._setId(wxMenuItem.GetId())
         menu.Parent = self
         self._daboChildren[wxMenuItem.GetId()] = menu

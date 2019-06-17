@@ -1611,15 +1611,12 @@ Do you want to overwrite it?""")
                 if fileSpec is None:
                     return False
             try:
-                f = open(fileSpec, "rb")
-                raw_text = f.read()        #.decode(self.Encoding)
-                f.close()
-                # Check for encoding
-                encoding = self._getEncodingDeclaration(raw_text)
-                if encoding:
+                with open(fileSpec, "rb") as ff:
+                    raw_text = f.read()        #.decode(self.Encoding)
+                if isinstance(raw_text, six.binary_type):
+                    # Check for encoding
+                    encoding = self._getEncodingDeclaration(raw_text) or "utf-8"
                     text = raw_text.decode(encoding)
-                else:
-                    text = raw_text
 
             except IOError:
                 if os.path.exists(fileSpec):

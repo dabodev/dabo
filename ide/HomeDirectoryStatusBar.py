@@ -4,8 +4,14 @@ import dabo.ui
 from dabo.dApp import dApp
 from dabo.dLocalize import _
 
+dForm = dabo.import_ui_name("dForm")
+dHyperLink = dabo.import_ui_name("dHyperLink")
+dSizer = dabo.import_ui_name("dSizer")
+dStatusBar = dabo.import_ui_name("dStatusBar")
+dTextBox = dabo.import_ui_name("dTextBox")
 
-class HomeDirectoryStatusBar(dabo.ui.dStatusBar):
+
+class HomeDirectoryStatusBar(dStatusBar):
     """This class is designed to be used in the visual tools to replace the regular StatusBar
     in the main form. The idea is that when using the tools, it is important to know the
     HomeDirectory that Dabo is using, as pathing is calculated relative to that for all
@@ -20,12 +26,12 @@ class HomeDirectoryStatusBar(dabo.ui.dStatusBar):
             self._target = self.Form.getHomeDirectoryTarget()
         except AttributeError:
             self._target = self.Application
-        link = self.linkChangeHD = dabo.ui.dHyperLink(self, Caption=_("Home Directory: "),
+        link = self.linkChangeHD = dHyperLink(self, Caption=_("Home Directory: "),
                 ShowInBrowser=False, OnHit=self._changeHD)
         link.VisitedColor = link.LinkColor = "blue"
-        txt = self.txtHD = dabo.ui.dTextBox(self, Enabled=False, DataSource=self._target,
+        txt = self.txtHD = dTextBox(self, Enabled=False, DataSource=self._target,
                 DataField="HomeDirectory")
-        sz = self.Sizer = dabo.ui.dSizer("H")
+        sz = self.Sizer = dSizer("H")
         sz.appendSpacer(4)
         sz.append(link)
         sz.append(txt, 1)
@@ -48,7 +54,7 @@ class HomeDirectoryStatusBar(dabo.ui.dStatusBar):
 
 
 if __name__ == "__main__":
-    class HDForm(dabo.ui.dForm):
+    class HDForm(dForm):
         def beforeInit(self):
             self.StatusBarClass = HomeDirectoryStatusBar
 
