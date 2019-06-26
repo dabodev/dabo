@@ -15,6 +15,14 @@ from dabo.lib.connParser import importConnections
 import dabo.lib.utils as utils
 from HomeDirectoryStatusBar import HomeDirectoryStatusBar
 
+dButton = dabo.import_ui_name("dButton")
+dDropdownList = dabo.import_ui_name("dDropdownList")
+dForm = dabo.import_ui_name("dForm")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dLabel = dabo.import_ui_name("dLabel")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dTextBox = dabo.import_ui_name("dTextBox")
 
 
 def flushValues(fnc):
@@ -24,8 +32,7 @@ def flushValues(fnc):
     return _wrapped
 
 
-
-class EditorForm(dui.dForm):
+class EditorForm(dForm):
     def afterSetMenuBar(self):
         self.createMenu()
 
@@ -76,23 +83,23 @@ class EditorForm(dui.dForm):
 
     def createControls(self):
         self.Caption = _("Connection Editor")
-        self.bg = dui.dPanel(self, BackColor="LightSteelBlue")
-        gbsz = dui.dGridSizer(VGap=12, HGap=5, MaxCols=2)
+        self.bg = dPanel(self, BackColor="LightSteelBlue")
+        gbsz = dGridSizer(VGap=12, HGap=5, MaxCols=2)
 
         # Add the fields
         # Connection Dropdown
-        cap = dui.dLabel(self.bg, Caption=_("Connection"))
-        ctl = dui.dDropdownList(self.bg, Choices=list(self.connDict.keys()),
+        cap = dLabel(self.bg, Caption=_("Connection"))
+        ctl = dDropdownList(self.bg, Choices=list(self.connDict.keys()),
                 RegID="connectionSelector",
                 OnHit=self.onConnectionChange)
-        btn = dui.dButton(self.bg, Caption=_("Edit Name"), RegID="cxnEdit",
+        btn = dButton(self.bg, Caption=_("Edit Name"), RegID="cxnEdit",
                 OnHit=self.onCxnEdit)
-        hsz = dui.dSizer("h")
+        hsz = dSizer("h")
         hsz.append(ctl)
         hsz.appendSpacer(10)
         hsz.append(btn)
 
-        btn = dui.dButton(self.bg, Caption=_("Delete This Connection"), RegID="cxnDelete",
+        btn = dButton(self.bg, Caption=_("Delete This Connection"), RegID="cxnDelete",
                 DynamicEnabled=self.hasMultipleConnections,
                 OnHit=self.onCxnDelete)
         hsz.appendSpacer(10)
@@ -102,8 +109,8 @@ class EditorForm(dui.dForm):
         gbsz.append(hsz, valign="middle")
 
         # Backend Type
-        cap = dui.dLabel(self.bg, Caption=_("Database Type"))
-        ctl = dui.dDropdownList(self.bg, RegID="DbType",
+        cap = dLabel(self.bg, Caption=_("Database Type"))
+        ctl = dDropdownList(self.bg, RegID="DbType",
                 Choices=["MySQL", "Firebird", "PostgreSQL", "MsSQL", "SQLite"],
                 DataSource="form", DataField="dbtype",
                 OnHit=self.onDbTypeChanged)
@@ -112,24 +119,24 @@ class EditorForm(dui.dForm):
         self.dbTypeSelector = ctl
 
         # Host
-        cap = dui.dLabel(self.bg, Caption=_("Host"))
-        ctl = dui.dTextBox(self.bg, DataSource="form", DataField="host")
+        cap = dLabel(self.bg, Caption=_("Host"))
+        ctl = dTextBox(self.bg, DataSource="form", DataField="host")
         gbsz.append(cap, halign="right")
         gbsz.append(ctl, "expand")
         self.hostText = ctl
 
         # Port
-        cap = dui.dLabel(self.bg, Caption=_("Port"))
-        ctl = dui.dTextBox(self.bg, DataSource="form", DataField="port")
+        cap = dLabel(self.bg, Caption=_("Port"))
+        ctl = dTextBox(self.bg, DataSource="form", DataField="port")
         gbsz.append(cap, halign="right")
         gbsz.append(ctl, "expand")
         self.portText = ctl
 
         # Database
-        cap = dui.dLabel(self.bg, Caption=_("Database"))
-        ctl = dui.dTextBox(self.bg, DataSource="form", DataField="database")
-        hsz = dui.dSizer("h")
-        self.btnDbSelect = dui.dButton(self.bg, Caption=" ... ", RegID="btnDbSelect",
+        cap = dLabel(self.bg, Caption=_("Database"))
+        ctl = dTextBox(self.bg, DataSource="form", DataField="database")
+        hsz = dSizer("h")
+        self.btnDbSelect = dButton(self.bg, Caption=" ... ", RegID="btnDbSelect",
                 Visible=False, OnHit=self.onDbSelect)
         hsz.append1x(ctl)
         hsz.appendSpacer(2)
@@ -139,34 +146,34 @@ class EditorForm(dui.dForm):
         self.dbText = ctl
 
         # Username
-        cap = dui.dLabel(self.bg, Caption=_("User Name"))
-        ctl = dui.dTextBox(self.bg, DataSource="form", DataField="user")
+        cap = dLabel(self.bg, Caption=_("User Name"))
+        ctl = dTextBox(self.bg, DataSource="form", DataField="user")
         gbsz.append(cap, halign="right")
         gbsz.append(ctl, "expand")
         self.userText = ctl
 
         # Password
-        cap = dui.dLabel(self.bg, Caption=_("Password"))
-        ctl = dui.dTextBox(self.bg, PasswordEntry=True,
+        cap = dLabel(self.bg, Caption=_("Password"))
+        ctl = dTextBox(self.bg, PasswordEntry=True,
                 DataSource="form", DataField="password")
         gbsz.append(cap, halign="right")
         gbsz.append(ctl, "expand")
         self.pwText = ctl
 
         # Open Button
-        btnSizer1 = dui.dSizer("h")
-        btnSizer2 = dui.dSizer("h")
-        btnTest = dui.dButton(self.bg, RegID="btnTest", Caption=_("Test..."),
+        btnSizer1 = dSizer("h")
+        btnSizer2 = dSizer("h")
+        btnTest = dButton(self.bg, RegID="btnTest", Caption=_("Test..."),
                 OnHit=self.onTest)
-        btnSave = dui.dButton(self.bg, RegID="btnSave", Caption=_("Save"),
+        btnSave = dButton(self.bg, RegID="btnSave", Caption=_("Save"),
                 OnHit=self.onSave)
-        btnNewConn = dui.dButton(self.bg, RegID="btnNewConn",
+        btnNewConn = dButton(self.bg, RegID="btnNewConn",
                 Caption=_("New Connection"),
                 OnHit=self.onNewConn)
-        btnNewFile = dui.dButton(self.bg, RegID="btnNewFile",
+        btnNewFile = dButton(self.bg, RegID="btnNewFile",
                 Caption=_("New File"),
                 OnHit=self.onNewFile)
-        btnOpen = dui.dButton(self.bg, RegID="btnOpen",
+        btnOpen = dButton(self.bg, RegID="btnOpen",
                 Caption=_("Open File..."),
                 OnHit=self.onOpen)
         btnSizer1.append(btnTest, 0, border=3)
@@ -177,7 +184,7 @@ class EditorForm(dui.dForm):
         gbsz.setColExpand(True, 1)
         self.gridSizer = gbsz
 
-        sz = self.bg.Sizer = dui.dSizer("v")
+        sz = self.bg.Sizer = dSizer("v")
         sz.append(gbsz, 0, "expand", halign="center", border=20)
         sz.append(btnSizer1, 0, halign="center")
         sz.append(btnSizer2, 0, halign="center")
@@ -189,10 +196,10 @@ class EditorForm(dui.dForm):
         except ImportError:
             self._showKeyButton = False
         if self._showKeyButton:
-            self.cryptoKeyButton = dui.dButton(self.bg, Caption=_("Set Crypto Key"),
+            self.cryptoKeyButton = dButton(self.bg, Caption=_("Set Crypto Key"),
                     OnHit=self.onSetCrypto)
             btnSizer1.append(self.cryptoKeyButton, 0, halign="center", border=3)
-        self.Sizer = dui.dSizer("h")
+        self.Sizer = dSizer("h")
         self.Sizer.append(self.bg, 1, "expand", halign="center")
         self.Layout()
 
@@ -221,7 +228,7 @@ class EditorForm(dui.dForm):
         chc = self.connectionSelector.Choices
         idx = self.connectionSelector.PositionValue
         orig = chc[idx]
-        new = dui.getString(_("Enter the name for the connection"),
+        new = dabo.ui.getString(_("Enter the name for the connection"),
                 caption=_("Connection Name"), defaultValue=orig)
         if new is not None:
             if new != orig:
@@ -306,7 +313,7 @@ class EditorForm(dui.dForm):
 
 
     def onDbSelect(self, evt):
-        dbFile = dui.getFile()
+        dbFile = dabo.ui.getFile()
         if dbFile:
             self.database = dbFile
         self.update()
@@ -316,13 +323,13 @@ class EditorForm(dui.dForm):
     def testConnection(self):
         # Create a connection object.
         ci = dabo.db.dConnectInfo(connInfo=self.connDict[self.currentConn])
-        mb = dui.stop
+        mb = dabo.ui.stop
         mbTitle = _("Connection Test")
         try:
             conn = ci.getConnection()
             conn.close()
             msg = _("The connection was successful!")
-            mb = dui.info
+            mb = dabo.ui.info
         except ImportError as e:
             msg = _("Python Import Error: %s") % e
             mbTitle += _(": FAILED!")
@@ -376,7 +383,7 @@ class EditorForm(dui.dForm):
                             continue
                         else:
                             val = ""
-                 setattr(self, fld, val)
+                setattr(self, fld, val)
 
 
     def _getCryptoKey(self, crypted):
@@ -486,7 +493,7 @@ class EditorForm(dui.dForm):
                 self.connFile = None
 
         if self.connFile is None:
-            f = dui.getFile(self.fileExtension, message=_("Select a file..."),
+            f = dabo.ui.getFile(self.fileExtension, message=_("Select a file..."),
             defaultPath=os.getcwd() )
             if f is not None:
                 self.connFile = f
@@ -521,7 +528,7 @@ class EditorForm(dui.dForm):
             # Could be relative path differences
             self.relPaths(list(self.connDict.values()))
         if self._origConnDict != self.connDict:
-            response = dui.areYouSure(_("Do you wish to save your changes?"),
+            response = dabo.ui.areYouSure(_("Do you wish to save your changes?"),
                     cancelButton=True)
             if response is None:
                 return False
@@ -533,7 +540,7 @@ class EditorForm(dui.dForm):
     def writeChanges(self):
         if self.connFile == self.newFileName:
             # Ask for a file name
-            pth = dui.getSaveAs(message=_("Save File As..."),
+            pth = dabo.ui.getSaveAs(message=_("Save File As..."),
                     wildcard=self.fileExtension)
             if pth is None:
                 return

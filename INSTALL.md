@@ -3,11 +3,12 @@ Dabo Installation Notes
 
 Prerequisites:
 --------------
- * Python (we recommend 2.7.3 (Python3 not supported in wxPython yet)
- * wxPython UNICODE BUILD (we recommend the latest, currently 2.8.12.1)
- * MySQLdb (only to run the demos or for your project)
+ * Python (we recommend 3.6 or later)
+ * wxPython 4.x or later
+ * pymysql (only to run the demos or for your project)
  * reportlab (only to run reports)
  * PIL (only to run reports) (also known as Imaging or the Python Imaging Library)
+   - the 'Pillow' package is a PIL-compatible fork.
 
 Installation:
 -------------
@@ -28,16 +29,16 @@ If you have trouble installing, and for whatever reason the ```setup.py``` doesn
 
 If you are on Linux and got the following error:
 ```
-error: invalid Python installation: unable to open /usr/lib/python2.6/config/Makefile (No such file or directory)
+error: invalid Python installation: unable to open /usr/lib/python3.6/config/Makefile (No such file or directory)
 ```
 
 and you really want to get setup.py to install dabo for you, you need to install the ```python-dev``` package. For instance (on Debian):
 
 ```
-apt-get install python2.6-dev
+apt-get install python3.6-dev
 ```
 
-(assuming you are running python2.6; change the version number as appropriate).
+(assuming you are running python3.6; change the version number as appropriate).
 
 There are some problems with some of the third-party libraries like PIL when running in a mixed 32/64 bit environment, such as Mac OSX. While everything can be made to work running 64-bit versions of everything, if you are havingtrouble it may be worth trying to install 32-bit Python, wxPython, etc. Note: to run python in 32-bit on Mac, use ```python-32``` as the command instead of python.
 

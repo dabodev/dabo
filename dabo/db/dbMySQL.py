@@ -9,38 +9,43 @@ from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 from dabo.lib.utils import ustr
 from .dCursorMixin import dCursorMixin
 
+
 class MySQLAutoReconnectCursor(dCursorMixin):
     def execute(self, sql, params=None, errorClass=None, convertQMarks=False):
-        from MySQLdb import OperationalError
+        from pymysql import OperationalError
         try:
-            return super(MySQLAutoReconnectCursor, self).execute(sql, params=params, errorClass=OperationalError, convertQMarks=convertQMarks)
+            return super(MySQLAutoReconnectCursor, self).execute(sql,
+                    params=params, errorClass=OperationalError,
+                    convertQMarks=convertQMarks)
         except OperationalError:
             self.connection.ping(True)
-            return super(MySQLAutoReconnectCursor, self).execute(sql, params=params, errorClass=None, convertQMarks=convertQMarks)
+            return super(MySQLAutoReconnectCursor, self).execute(sql,
+                    params=params, errorClass=None,
+                    convertQMarks=convertQMarks)
 
 
 class MySQL(dBackend):
-    """Class providing MySQL connectivity. Uses MySQLdb."""
+    """Class providing MySQL connectivity. Uses pymysql."""
 
     # MySQL uses the backtick to enclose names with spaces.
     nameEnclosureChar = "`"
 
     def __init__(self):
         dBackend.__init__(self)
-        self.dbModuleName = "MySQLdb"
+        self.dbModuleName = "pymysql"
 
 
     def getConnection(self, connectInfo, **kwargs):
-        import MySQLdb as dbapi
+        import pymysql as dbapi
 
         port = connectInfo.Port
         if not port:
             port = 3306
 
         kwargs = {}
-        # MySQLdb doesn't provide decimal converter by default, so we do it here
-        from MySQLdb import converters
-        from MySQLdb import constants
+        # pymysql doesn't provide decimal converter by default, so we do it here
+        from pymysql import converters
+        from pymysql import constants
 
         DECIMAL = constants.FIELD_TYPE.DECIMAL
         conversions = converters.conversions.copy()
@@ -88,7 +93,7 @@ class MySQL(dBackend):
 
 
     def getDictCursorClass(self):
-        from MySQLdb.cursors import DictCursor
+        from pymysql.cursors import DictCursor
         return DictCursor
 
     def getMainCursorClass(self):
@@ -198,7 +203,7 @@ class MySQL(dBackend):
 
 
     def getDaboFieldType(self, backendFieldType):
-        import MySQLdb.constants.FIELD_TYPE as ftypes
+        import pymysql.constants.FIELD_TYPE as ftypes
         typeMapping = {}
         for i in dir(ftypes):
             if i[0] != "_":
