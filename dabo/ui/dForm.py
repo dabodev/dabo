@@ -6,11 +6,14 @@ import dabo
 from dabo import ui as dui
 from dabo.ui import makeDynamicProperty
 from dabo import dEvents as dEvents
-from dabo.ui.dFormMixin import dFormMixin
 from dabo import dException as dException
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from dabo.ui.dDialog import dDialog
+
+dButton = dabo.import_ui_name("dButton")
+dDialog = dabo.import_ui_name("dDialog")
+dFormMixin = dabo.import_ui_name("dFormMixin")
+dSizer = dabo.import_ui_name("dSizer")
 
 
 class BaseForm(dFormMixin):
@@ -52,7 +55,6 @@ class BaseForm(dFormMixin):
 
 
     def _afterInit(self):
-        from dabo.ui.dSizer import dSizer
         self.Sizer = dSizer("vertical")
         self.Sizer.layout()
         super(BaseForm, self)._afterInit()
@@ -1090,7 +1092,7 @@ class dForm(BaseForm, wx.Frame):
             may only be sent to the constructor, and once instantiated you may not
             change the modality of a form. For example::
 
-                    frm = dui.dForm(Modal=True)
+                    frm = dForm(Modal=True)
 
             will create a modal form.
 
@@ -1146,7 +1148,7 @@ class _dForm_test(dForm):
 
 class _dBorderlessForm_test(dBorderlessForm):
     def afterInit(self):
-        self.btn = dui.dButton(self, Caption=_("Close Borderless Form"))
+        self.btn = dButton(self, Caption=_("Close Borderless Form"))
         self.Sizer.append(self.btn, halign="Center", valign="middle")
         self.layout()
         self.btn.bindEvent(dEvents.Hit, self.close)

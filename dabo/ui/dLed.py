@@ -115,7 +115,7 @@ if __name__ == '__main__':
             mp = dPanel(self)
             self.Sizer.append1x(mp)
             mp.Sizer = dSizer("h")
-            mp.Sizer.append1x(dLed(self, RegID="LED"))
+            mp.Sizer.append1x(dLed(mp, RegID="LED"))
 
             vs = dSizer("v", DefaultBorder=20)
             vs.appendSpacer(20)

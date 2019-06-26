@@ -4,34 +4,12 @@ import time
 import dabo
 from dabo.dLocalize import _
 
-dButton = dabo.import_ui_name("dButton")
-dCalendar = dabo.import_ui_name("dCalendar")
-dDataControlMixin = dabo.import_ui_name("dDataControlMixin")
-dDialog = dabo.import_ui_name("dDialog")
-dDropdownList = dabo.import_ui_name("dDropdownList")
-dEditor = dabo.import_ui_name("dEditor")
-dForm = dabo.import_ui_name("dForm")
-dFormMain = dabo.import_ui_name("dFormMain")
-dGrid = dabo.import_ui_name("dGrid")
-dHtmlBox = dabo.import_ui_name("dHtmlBox")
-dListControl = dabo.import_ui_name("dListControl")
-dMediaControl = dabo.import_ui_name("dMediaControl")
-dMenuBar = dabo.import_ui_name("dMenuBar")
-dMenuItem = dabo.import_ui_name("dMenuItem")
-dPage = dabo.import_ui_name("dPage")
-dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
-dPageList = dabo.import_ui_name("dPageList")
-dPageStyled = dabo.import_ui_name("dPageStyled")
-dPemMixin = dabo.import_ui_name("dPemMixin")
-dRadioList = dabo.import_ui_name("dRadioList")
-dSearchBox = dabo.import_ui_name("dSearchBox")
-dSlidePanel = dabo.import_ui_name("dSlidePanel")
-dSpinner = dabo.import_ui_name("dSpinner")
-dSplitter = dabo.import_ui_name("dSplitter")
-dTimer = dabo.import_ui_name("dTimer")
-dToolBarItem = dabo.import_ui_name("dToolBarItem")
-dTreeView = dabo.import_ui_name("dTreeView")
-
+UI_CLASS_NAMES = ("dButton", "dCalendar", "dDataControlMixin", "dDialog",
+        "dDropdownList", "dEditor", "dForm", "dFormMain", "dGrid", "dHtmlBox",
+        "dListControl", "dMediaControl", "dMenuBar", "dMenuItem", "dPage",
+        "dPageFrameNoTabs", "dPageList", "dPageStyled", "dPemMixin",
+        "dRadioList", "dSearchBox", "dSlidePanel", "dSpinner", "dSplitter",
+        "dTimer", "dToolBarItem", "dTreeView")
 
 class dEvent(object):
     """ Base class for Dabo events.
@@ -60,6 +38,12 @@ class dEvent(object):
 
         if dabo.eventLogging:
             self._logEvent()
+
+
+    def __getattr__(self, att):
+        if att in UI_CLASS_NAMES:
+            return dabo.import_ui_name(att)
+        raise AttrubuteError("'%s' not found in dEvent" % att)
 
 
     def appliesToClass(eventClass, objectClass):

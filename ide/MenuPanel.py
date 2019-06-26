@@ -493,7 +493,7 @@ class MenuBarPanel(AbstractMenuPanel):
         for mn in self.childItems[::-1]:
             try:
                 mn.release()
-            except dabo.ui.deadObjectException:
+            except Exception:
                 # Already deleted
                 pass
         self.childItems = []

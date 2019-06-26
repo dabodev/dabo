@@ -856,12 +856,11 @@ class dPemMixin(dObject):
     def __onWxPaint(self, evt):
         if self._finito:
             return
-#         def __setNeedRedraw():
-#             try:
-#                 self._needRedraw = bool(self._drawnObjects)
-#             except dui.deadObjectException:
-#                 pass
-#         dui.callAfterInterval(50, __setNeedRedraw)
+
+        def __setNeedRedraw():
+            self._needRedraw = bool(self._drawnObjects)
+
+        dui.callAfterInterval(50, __setNeedRedraw)
         self._needRedraw = (not self._inRedraw) and bool(self._drawnObjects)
         self.raiseEvent(dEvents.Paint, evt)
 

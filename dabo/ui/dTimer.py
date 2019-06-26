@@ -10,9 +10,9 @@ from dabo.ui.dPanel import dPanel
 class dTimer(PM):
     """Creates a timer, for causing something to happen at regular intervals."""
     def __init__(self, parent=None, properties=None, *args, **kwargs):
-        print(args, kwargs)
         self._baseClass = dTimer
-        super(dTimer, self).__init__(preClass=None, parent=parent, properties=properties, *args, **kwargs)
+        super(dTimer, self).__init__(preClass=None, parent=parent,
+                properties=properties, *args, **kwargs)
 
 
     def isRunning(self):

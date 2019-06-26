@@ -18,13 +18,13 @@ import dabo
 from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dabo.lib import utils
-from dabo import ui as dui
-from dabo.ui.dialogs.Wizard import Wizard
 from dabo.lib import xmltodict as xtd
 from dabo.lib.utils import ustr
 # Doesn't matter what platform we're on; Python needs
 # newlines in its compiled code.
 LINESEP = "\n"
+
+Wizard = dabo.import_ui_name("Wizard")
 
 
 class DesignerClassConverter(dObject):

@@ -99,7 +99,7 @@ class PropSheet(dPanel):
     def sizeGrid(self, initial=False):
         try:
             pg = self.propGrid
-        except dabo.ui.deadObjectException:
+        except Exception:
             return
         # Grid has already been resized by the sizer;
         # adjust the columns if needed

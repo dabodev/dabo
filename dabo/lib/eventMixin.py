@@ -5,7 +5,6 @@ import traceback
 import dabo
 from dabo.dLocalize import _
 from dabo import dEvents as dEvents
-from dabo import ui as dui
 
 
 class EventMixin(object):
@@ -92,6 +91,7 @@ class EventMixin(object):
 
         if uiEvent is not None:
             # Let the UI lib know whether to do the default event behavior
+            from dabo import ui as dui
             if event.Continue:
                 r = dui.continueEvent(uiEvent)
             else:

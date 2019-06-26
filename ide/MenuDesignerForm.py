@@ -729,7 +729,7 @@ class MenuDesignerForm(dabo.ui.dForm):
             # Make sure it's still a live object
             try:
                 junk = self._propForm.Visible
-            except dabo.ui.deadObjectException:
+            except Exception:
                 noProp = True
         if noProp:
             pf = self._propForm = MenuPropForm(self, Visible=False,

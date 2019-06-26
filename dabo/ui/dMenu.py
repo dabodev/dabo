@@ -169,8 +169,7 @@ class dMenu(dPemMixin, wx.Menu):
         dummySpacer = None
         if not self.Children:
             dummySpacer = self.append(" ")
-        wxMenuItem = self.AppendMenu(-1, menu.Caption, menu, help=menu.HelpText)
-#-         wxMenuItem = self.AppendSubMenu(menu, menu.Caption, help=menu.HelpText)
+        wxMenuItem = self.Append(-1, menu.Caption, menu, helpString=menu.HelpText)
         menu._setId(wxMenuItem.GetId())
         menu.Parent = self
         self._daboChildren[wxMenuItem.GetId()] = menu
@@ -181,7 +180,7 @@ class dMenu(dPemMixin, wx.Menu):
 
     def insertMenu(self, pos, menu):
         """Insert a dMenu before the specified position in the menu."""
-        wxMenuItem = self.InsertMenu(pos, -1, menu.Caption, menu, help=menu.HelpText)
+        wxMenuItem = self.Insert(pos, -1, menu.Caption, menu, help=menu.HelpText)
         menu._setId(wxMenuItem.GetId())
         menu.Parent = self
         self._daboChildren[wxMenuItem.GetId()] = menu
@@ -190,7 +189,7 @@ class dMenu(dPemMixin, wx.Menu):
 
     def prependMenu(self, menu):
         """Insert a dMenu at the top of the menu."""
-        wxMenuItem = self.PrependMenu(-1, menu.Caption, menu, help=menu.HelpText)
+        wxMenuItem = self.Prepend(-1, menu.Caption, menu, help=menu.HelpText)
         menu._setId(wxMenuItem.GetId())
         menu.Parent = self
         self._daboChildren[wxMenuItem.GetId()] = menu
@@ -506,6 +505,7 @@ class dMenu(dPemMixin, wx.Menu):
         items in this menu, but is using the consistent Children property to
         do it. The Children property will thus return both menu items and separators.
         """
+        return self._daboChildren.values()
         children = self.GetMenuItems()
         daboChildren = [self._daboChildren.get(c.GetId(), c) for c in children]
         return daboChildren

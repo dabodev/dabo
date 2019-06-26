@@ -104,7 +104,11 @@ class TestPanel(dPanel):
 
             def onSlider(self, evt):
                 wd = (self.slider.Value/100.0) * self.slider.Width
-                self.gettyLabel.Width = wd
+                try:
+                    self.gettyLabel.Width = wd
+                except AttributeError:
+                    # Dialog is just starting up
+                    pass
 
         dlg = WordWrapDialog(self, BorderResizable=True, AutoSize=False, Centered=True)
         dlg.show()

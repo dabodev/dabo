@@ -1026,7 +1026,7 @@ class ClassDesigner(dApp):
             newClass = eval(clsname)
         except ValueError:
             dct["fullname"] = cls
-            newClass = dabo.ui.__dict__[cls]
+            newClass = dabo.import_ui_name(cls)
 
         # See if it's a class that requires special handling
         rv["newClass"] = newClass
@@ -1934,7 +1934,7 @@ class ClassDesigner(dApp):
         for ct in self._selection:
             try:
                 junk = ct.Name
-            except dabo.ui.deadObjectException:
+            except Exception:
                 self._selection.remove(ct)
         if self.UseSizers:
             cf = self.CurrentForm
@@ -2350,7 +2350,7 @@ class ClassDesigner(dApp):
     def _menuToggle(self, itm, bar):
         try:
             newVis = not itm.Visible
-        except dabo.ui.deadObjectException:
+        except Exception:
             newVis = True
         itm.Visible = newVis
 
@@ -4388,7 +4388,7 @@ if __name__ == '__main__':
             # Make sure it's still a live object
             try:
                 junk = self._editorForm.Visible
-            except dabo.ui.deadObjectException:
+            except Exception:
                 noEdt = True
         if noEdt:
             self._editorForm = EditorForm(None)
@@ -4402,7 +4402,7 @@ if __name__ == '__main__':
             # Make sure it's still a live object
             try:
                 junk = self._pemForm.Visible
-            except dabo.ui.deadObjectException:
+            except Exception:
                 noPem = True
         if noPem:
             pf = self._pemForm = PemForm(None)
@@ -4451,7 +4451,7 @@ if __name__ == '__main__':
             # Make sure it's still a live object
             try:
                 junk = self._textEditorForm.Visible
-            except dabo.ui.deadObjectException:
+            except Exception:
                 noEdt = True
         if noEdt:
             self._textEditorForm = TextEditorForm(None)

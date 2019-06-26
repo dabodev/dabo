@@ -578,6 +578,15 @@ class EditorForm(dForm):
             self.Caption = _("Dabo Editor: %s") % self.pgfEditor.Title
 
 
+    def _curr_editor_attval(self, att):
+        """Returns the value of the specified attribute for self.CurrentEditor
+        if it is not None. Otherwise, it returns an empty string.
+        """
+        if self.CurrentEditor is None:
+            return ""
+        return getattr(self.CurrentEditor, att)
+
+
     def fillMenu(self):
         app = self.Application
         mb = self.MenuBar
@@ -597,7 +606,7 @@ class EditorForm(dForm):
         fileMenu.prepend(_("Save &As"), HotKey="Ctrl+Shift+S", OnHit=self.onFileSaveAs, bmp="saveAs",
                 ItemID="file_saveas", help=_("Save under a different file name"))
         fileMenu.prepend(_("&Save"), HotKey="Ctrl+S", OnHit=self.onFileSave, ItemID="file_save",
-                DynamicEnabled=lambda:self.CurrentEditor.Modified, bmp="save", help=_("Save file"))
+                DynamicEnabled=lambda:self._curr_editor_attval("Modified"), bmp="save", help=_("Save file"))
         clsItem = fileMenu.getItem("file_close")
         if clsItem is not None:
             fileMenu.remove(clsItem)
@@ -645,10 +654,10 @@ class EditorForm(dForm):
                 DynamicEnabled=lambda:self.pgfEditor.PageCount>1, bmp="",
                 ItemID="move_pageright", help=_("Move this editor tab to the right"))
         moveMenu.append(_("Next Block"), HotKey="Ctrl+Shift+K", OnHit=self.onMoveUpBlock,
-                DynamicEnabled=lambda:self.CurrentEditor.Language=="python", bmp="",
+                DynamicEnabled=lambda:self._curr_editor_attval("Language")=="python", bmp="",
                 ItemID="move_nextblock", help=_("Move to the next 'def' or 'class' statement"))
         moveMenu.append(_("Previous Block"), HotKey="Ctrl+Shift+D", OnHit=self.onMoveDownBlock,
-                DynamicEnabled=lambda:self.CurrentEditor.Language=="python", bmp="",
+                DynamicEnabled=lambda:self._curr_editor_attval("Language")=="python", bmp="",
                 ItemID="move_prevblock", help=_("Move to the previous 'def' or 'class' statement"))
 
         editMenu.appendSeparator()
@@ -708,7 +717,7 @@ class EditorForm(dForm):
     def hasFile(self, evt=None):
         """Dynamic method for the Reload From Disk menu."""
         # If there's a file, enable the menu
-        return self.CurrentEditor._fileName
+        return self._curr_editor_attval("_fileName")
 
 
     def onFileReload(self, evt):
@@ -721,11 +730,14 @@ class EditorForm(dForm):
     def onFontSelection(self, evt):
         """The user selected a font face for the editor."""
         face = evt.EventObject.Caption
-        self.CurrentEditor.changeFontFace(face)
+        if self.CurrentEditor:
+            self.CurrentEditor.changeFontFace(face)
 
 
     def onFontSize(self, evt):
         """Change the default font size for the editor."""
+        if not self.CurrentEditor:
+            return
         val = dabo.ui.getInt(_("Select new font size"), _("Font Size"), self.CurrentEditor._fontSize)
         if val is not None:
             self.CurrentEditor.changeFontSize(val)
@@ -733,8 +745,8 @@ class EditorForm(dForm):
 
     def onMenuOpen(self, evt):
         """Currently this never fires under Windows."""
-        mn = evt.menuObject
-        prm = evt.prompt
+        mn = evt.EventObject
+        prm = mn.Caption
         if prm.replace("&", "") == _("Editors"):
             mn.clear()
             for pg in self.pgfEditor.Pages:

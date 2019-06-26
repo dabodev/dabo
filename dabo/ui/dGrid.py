@@ -3044,7 +3044,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                         dataType = None
                     sortingStrings = isinstance(sortList[0][0], str)
                 else:
-                    sortingStrings = dataType in six.string_types
+                    sortingStrings = isinstance(dataType, str)
 
                 if sortingStrings and not caseSensitive:
                     sortKey = caseInsensitiveSortKey

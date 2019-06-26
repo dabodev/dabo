@@ -686,7 +686,7 @@ class MinesweeperForm(dForm):
                 self._autopause = True
                 self.pausebutton.Value = True
                 self.pausebutton.raiseEvent(dEvents.Hit)
-        except dabo.ui.deadObjectException:
+        except Exception:
             # need to figure out what to do about this. Happens on win32 but
             # not Linux, presumably because the deactivate is received after the
             # form is already gone.
