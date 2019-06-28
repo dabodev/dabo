@@ -3359,10 +3359,13 @@ class DrawObject(dObject):
         self._orientation = None
         self._transparent = True
         self._drawMode = None
-        self._hatchStyleDict = {"transparent": wx.PENSTYLE_TRANSPARENT, "solid": wx.PENSTYLE_SOLID,
-                "cross": wx.BRUSHSTYLE_CROSS_HATCH, "reversediagonal": wx.BRUSHSTYLE_BDIAGONAL_HATCH,
-                "crossdiagonal": wx.BRUSHSTYLE_CROSSDIAG_HATCH, "diagonal": wx.BRUSHSTYLE_FDIAGONAL_HATCH,
-                "horizontal": wx.BRUSHSTYLE_HORIZONTAL_HATCH, "vertical": wx.BRUSHSTYLE_VERTICAL_HATCH}
+        self._hatchStyleDict = {"transparent": wx.BRUSHSTYLE_TRANSPARENT,
+                "solid": wx.PENSTYLE_SOLID, "cross": wx.BRUSHSTYLE_CROSS_HATCH,
+                "reversediagonal": wx.BRUSHSTYLE_BDIAGONAL_HATCH,
+                "crossdiagonal": wx.BRUSHSTYLE_CROSSDIAG_HATCH,
+                "diagonal": wx.BRUSHSTYLE_FDIAGONAL_HATCH,
+                "horizontal": wx.BRUSHSTYLE_HORIZONTAL_HATCH,
+                "vertical": wx.BRUSHSTYLE_VERTICAL_HATCH}
         super(DrawObject, self).__init__(*args, **kwargs)
         self._inInit = False
 
@@ -4080,7 +4083,6 @@ class DrawObject(dObject):
                         Diagonal
                         ReverseDiagonal
                         CrossDiagonal
-
             """))
 
     Height = property(_getHeight, _setHeight, None,

@@ -288,7 +288,7 @@ def relativePathList(toLoc, fromLoc=None):
     # 'lev' now contains the first level where they differ
     fromDiff = fromList[lev:]
     toDiff = toList[lev:]
-    ret = [".."] * len(fromDiff) + toDiff
+    ret = ([".."] * len(fromDiff)) + toDiff
     if toFile:
         ret += [toFile]
     return ret

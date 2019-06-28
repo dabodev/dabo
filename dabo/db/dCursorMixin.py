@@ -1007,9 +1007,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                     # convert int to long (original field val was long, but UI
                     # changed to int.
                     val = int(val)
-                elif fldType is buffer and isinstance(val, str):
-                    # BLOB backend field wants buffer, but it is in a python string.
-                    val = buffer(val)
+                elif fldType is memoryview and isinstance(val, str):
+                    # BLOB backend field wants memoryview, but it is in a python string.
+                    val = memoryview(val)
 
             if fldType != type(val):
                 ignore = False
@@ -1028,7 +1028,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                 elif isinstance(val, dNoEscQuoteStr):
                     # Sometimes you want to set it to a sql function, equation, ect.
                     ignore = True
-                elif issubclass(fldType, str) and isinstance(val, buffer):
+                elif issubclass(fldType, str) and isinstance(val, memoryview):
                     # Eliminate type error reported for blob fields.
                     ignore = True
                 elif fld in nonUpdateFields:
@@ -2016,8 +2016,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                 newval = datetime.date.min
             elif typ is None:
                 newval = None
-            elif typ is buffer:
-                newval = buffer("")
+            elif typ is memoryview:
+                newval = memoryview("")
             else:
                 try:
                     newval = typ()

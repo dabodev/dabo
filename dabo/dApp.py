@@ -1352,7 +1352,8 @@ try again when it is running.
                 pth = pth[:-3]
             pthList = pth.strip(os.sep).split(os.sep)
             ret = ".".join(pthList)
-            ret = ret.decode(dabo.fileSystemEncoding)
+            if isinstance(ret, bytes):
+                ret = ret.decode(dabo.fileSystemEncoding)
         return ret
 
     def _setBasePrefKey(self, val):
