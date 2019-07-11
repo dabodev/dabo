@@ -73,7 +73,7 @@ class ImageRenderer(wx.grid.GridCellRenderer):
         dc.SetBrush(wx.Brush(bkgrd, wx.PENSTYLE_SOLID))
 
         try:
-            dc.SetPen(wx.TRANSPARENT_PEN)
+            dc.SetPen(wx.PENSTYLE_TRANSPARENT)
             dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
         finally:
             dc.SetPen(wx.NullPen)

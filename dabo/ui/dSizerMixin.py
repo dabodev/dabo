@@ -627,7 +627,7 @@ class dSizerMixin(dObject):
             off = (self.outlineWidth / 2)
             dc = wx.ClientDC(win)
             dc.SetPen(wx.Pen(self.outlineColor, self.outlineWidth, self.outlineStyle))
-            dc.SetBrush(wx.TRANSPARENT_BRUSH)
+            dc.SetBrush(wx.BRUSHSTYLE_TRANSPARENT)
             dc.SetLogicalFunction(wx.COPY)
             # Draw the outline
             dui.callAfter(dc.DrawRectangle, x+off, y+off, w-(2*off), h-(2*off) )

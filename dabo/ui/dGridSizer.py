@@ -533,7 +533,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         """
         self._resolveOutlineSettings()
         dc = wx.ClientDC(win)
-        dc.SetBrush(wx.TRANSPARENT_BRUSH)
+        dc.SetBrush(wx.BRUSHSTYLE_TRANSPARENT)
         dc.SetLogicalFunction(wx.COPY)
         x, y = self.GetPosition()
         w, h = self.GetSize()

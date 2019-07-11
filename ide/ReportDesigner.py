@@ -1097,7 +1097,7 @@ class BandLabel(DesignerPanel):
         font = self.Font
 
         dc.SetTextForeground(self.ForeColor)
-        dc.SetBrush(wx.Brush(self.BackColor, wx.SOLID))
+        dc.SetBrush(wx.Brush(self.BackColor, wx.BRUSHSTYLE_SOLID))
         dc.SetFont(font._nativeFont)
         dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
         rect[0] = rect[0]+5
@@ -1370,8 +1370,8 @@ class DesignerBand(DesignerPanel):
         if isinstance(self.ReportObject, (Detail, GroupHeader, GroupFooter)) \
            and columnCount > 1:
             # Cover up all but the first column:
-            dc.SetBrush(wx.Brush((192,192,192), wx.SOLID))
-            dc.SetPen(wx.Pen((192,192,192), 0, wx.SOLID))
+            dc.SetBrush(wx.Brush((192,192,192), wx.BRUSHSTYLE_SOLID))
+            dc.SetPen(wx.Pen((192,192,192), 0, wx.PENSTYLE_SOLID))
             colWidth = self.Width / columnCount
             if columnCount > 1:
                 colWidth -= columnPadding
@@ -1389,8 +1389,8 @@ class DesignerBand(DesignerPanel):
 
         dc.DestroyClippingRegion()
 
-        dc.SetBrush(wx.Brush((0,0,0), wx.TRANSPARENT))
-        dc.SetPen(wx.Pen(selectColor, 0.1, wx.DOT))
+        dc.SetBrush(wx.Brush((0,0,0), wx.BRUSHSTYLE_TRANSPARENT))
+        dc.SetPen(wx.Pen(selectColor, 0.1, wx.PENSTYLE_DOT))
         dc.DrawRectangle(position[0], position[1], size[0], size[1])
 
         obj._anchors = {}
@@ -1484,11 +1484,11 @@ class DesignerBand(DesignerPanel):
             fillColor = obj.getProp("fillColor")
             if fillColor is not None:
                 fillColor = self._rw.getColorTupleFromReportLab(fillColor)
-                fillMode = wx.SOLID
+                fillMode = wx.BRUSHSTYLE_SOLID
             else:
                 fillColor = (255, 255, 255)
-                fillMode = wx.TRANSPARENT
-            dc.SetPen(wx.Pen(strokeColor, strokeWidth, wx.SOLID))
+                fillMode = wx.BRUSHSTYLE_TRANSPARENT
+            dc.SetPen(wx.Pen(strokeColor, strokeWidth, wx.PENSTYLE_SOLID))
             dc.SetBrush(wx.Brush(fillColor, fillMode))
             dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
 
@@ -1496,7 +1496,7 @@ class DesignerBand(DesignerPanel):
         if objType in ("Line", "SpanningLine"):
             strokeWidth = self._rw.getPt(obj.getProp("strokeWidth")) * self.Parent.Zoom
             strokeColor = self._rw.getColorTupleFromReportLab(obj.getProp("strokeColor"))
-            dc.SetPen(wx.Pen(strokeColor, strokeWidth, wx.SOLID))
+            dc.SetPen(wx.Pen(strokeColor, strokeWidth, wx.PENSTYLE_SOLID))
 
             if objType != "SpanningLine":
                 lineSlant = obj.getProp("lineSlant")
@@ -1571,21 +1571,21 @@ class DesignerBand(DesignerPanel):
             else:
                 dc.DrawLabel(expr, (rect[0]+2, rect[1], rect[2]-4, rect[3]), wx.ALIGN_LEFT)
 
-        dc.SetBrush(wx.Brush((0,0,0), wx.TRANSPARENT))
+        dc.SetBrush(wx.Brush((0,0,0), wx.BRUSHSTYLE_TRANSPARENT))
 
         # Draw a border around the object, if appropriate:
         if "BorderWidth" in obj:
             borderWidth = self._rw.getPt(obj.getProp("BorderWidth")) * self.Parent.Zoom
             if borderWidth > 0:
                 borderColor = self._rw.getColorTupleFromReportLab(obj.getProp("BorderColor"))
-                dc.SetPen(wx.Pen(borderColor, borderWidth, wx.SOLID))
+                dc.SetPen(wx.Pen(borderColor, borderWidth, wx.PENSTYLE_SOLID))
                 dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
 
         if rdc.isSelected(obj):
             rect = (position[0], position[1], size[0], size[1])
             # border around selected control with sizer boxes:
-            dc.SetBrush(wx.Brush((0,0,0), wx.TRANSPARENT))
-            dc.SetPen(wx.Pen(selectColor, 0.25, wx.SOLID))
+            dc.SetBrush(wx.Brush((0,0,0), wx.BRUSHSTYLE_TRANSPARENT))
+            dc.SetPen(wx.Pen(selectColor, 0.25, wx.PENSTYLE_SOLID))
             dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
 
             x,y = (rect[0], rect[1])
@@ -1614,11 +1614,11 @@ class DesignerBand(DesignerPanel):
             obj._anchors = anchors
 
             for k,v in list(anchors.items()):
-                dc.SetBrush(wx.Brush((0,0,0), wx.SOLID))
-                dc.SetPen(wx.Pen((0,0,0), 0.25, wx.SOLID))
+                dc.SetBrush(wx.Brush((0,0,0), wx.BRUSHSTYLE_SOLID))
+                dc.SetPen(wx.Pen((0,0,0), 0.25, wx.PENSTYLE_SOLID))
                 if hAnchor == v[0] and vAnchor == v[1]:
-                    dc.SetBrush(wx.Brush(selectColor, wx.SOLID))
-                    dc.SetPen(wx.Pen(selectColor, 1, wx.SOLID))
+                    dc.SetBrush(wx.Brush(selectColor, wx.BRUSHSTYLE_SOLID))
+                    dc.SetPen(wx.Pen(selectColor, 1, wx.PENSTYLE_SOLID))
                 dc.DrawRectangle(v[2], v[3], thickness, thickness)
 
 
@@ -2280,7 +2280,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
                     size["large"] = 100
 
                 dc = wx.PaintDC(self)
-                dc.SetPen(wx.Pen(ruleColor, 0.25, wx.SOLID))
+                dc.SetPen(wx.Pen(ruleColor, 0.25, wx.PENSTYLE_SOLID))
 
                 length = self.Length
                 pointLength = self.pointLength
