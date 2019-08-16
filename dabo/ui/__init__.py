@@ -1504,6 +1504,20 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
             if evtHandler:
                 self._control.PushEventHandler(evtHandler)
 
+        def GetControl(self):
+            """
+            Return the internal instance of the control class.
+
+            *Must Override*
+
+            Because the control instance is never passed down into wxWidgets, it won't know how to pass the control
+            back up, and calls to GetControl will therefore return None.
+
+            :return: the instance of the control class.
+
+            """
+            return self._control
+
         def _onKeyDown(self, evt):
             ed = evt.EventData
             key, mod, shift = (ed["keyCode"], ed["hasModifiers"],
