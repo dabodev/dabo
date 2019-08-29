@@ -1585,6 +1585,12 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
 
         def ApplyEdit(self, row, col, grid):
             """
+            Effectively save the changes in the grid.
+
+            This function should save the value of the control in the grid.
+            It is called only after EndEdit returns a value indicating change..
+
+            *Must Override*
             """
             pass
 
