@@ -1488,6 +1488,11 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
         _minWidth = None
         _minHeight = None
 
+        def __init__(self, *args, **kwargs):
+            """
+            """
+            wx.grid.GridCellEditor.__init__(self, *args, **kwargs)
+
         def Create(self, parent, id, evtHandler):
             """
             Called to create the control, which must derive from wx.Control.
@@ -1539,9 +1544,12 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
             ht = rect.height+2
             if self._minHeight:
                 ht = max(self._minHeight, ht)
-            self._control.SetDimensions(rect.x, rect.y, wd, ht, wx.SIZE_ALLOW_MINUS_ONE)
 
-        def PaintBackground(self, rect, attr):
+            self._control.SetSize(wd, ht)
+            self._control.SetPosition(wx.Point(rect.x, rect.y))
+            #self._control.SetDimensions(rect.x, rect.y, wd, ht, wx.SIZE_ALLOW_MINUS_ONE)
+
+        def PaintBackground(self, dc, rect, attr):
             """
             Draws the part of the cell not occupied by the edit control.  The
             base  class version just fills it with background colour from the
@@ -1562,7 +1570,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
             self._control.Value = self.startValue
             self._control.setFocus()
 
-        def EndEdit(self, row, col, grid):
+        def EndEdit(self, row, col, grid, oldval):
             """
             Complete the editing of the current cell. Returns True if the value
             has changed.  If necessary, the control may be destroyed.
@@ -1576,7 +1584,18 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
                 changed = True
                 grid.GetTable().SetValue(row, col, val, _fromGridEditor=True)
             self.startValue = None
-            return changed
+            return val if changed else None
+
+        def ApplyEdit(self, row, col, grid):
+            """
+            Effectively save the changes in the grid.
+
+            This function should save the value of the control in the grid.
+            It is called only after EndEdit returns a value indicating change..
+
+            *Must Override*
+            """
+            pass
 
         def Reset(self):
             """

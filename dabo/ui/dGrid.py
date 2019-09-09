@@ -85,9 +85,9 @@ class dGridDataTable(wx.grid.GridTableBase):
         dcol._updateCellDynamicProps(row)
 
         if dcol._gridCellAttrs:
-            attr = dcol._gridCellAttrs.get(row, dcol._gridColAttr).Clone()
+            attr = dcol._gridCellAttrs.get(row, dcol._gridColAttr)
         else:
-            attr = dcol._gridColAttr.Clone()
+            attr = dcol._gridColAttr
 
         ## Now, override with a custom renderer for this row/col if applicable.
         ## Note that only the renderer is handled here, as we are segfaulting when
@@ -105,7 +105,8 @@ class dGridDataTable(wx.grid.GridTableBase):
 
         # Prevents overwriting when a long cell has None in the one next to it.
         attr.SetOverflow(False)
-        self.__cachedAttrs[(row, col)] = (attr.Clone(), time.time())
+        self.__cachedAttrs[(row, col)] = (attr, time.time())
+        attr.IncRef()
         return attr
 
 
@@ -439,7 +440,7 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
 
     def IsAcceptedKey(self, key):
         dabo.log.info("GridListEditor: check key: %d" % (key))
-        return true
+        return True
 
 
 
@@ -2503,6 +2504,12 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
     def _onDestroy(self, evt):
         self.saveDataSet()
+
+        for col in self.Columns:
+            if col._gridColAttr is not None:
+                col._gridColAttr.DecRef()
+                col._gridColAttr = None     # that ref is now unsafe to use.
+
 
     def _onGridResize(self, evt):
         # Prevent unnecessary event processing.
