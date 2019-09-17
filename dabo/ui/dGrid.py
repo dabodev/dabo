@@ -4273,6 +4273,14 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
     def __onWxGridEditorShown(self, evt):
         self.raiseEvent(dEvents.GridCellEditBegin, evt)
+
+        # Need to reapply the edit controls dynamic properties. (Be careful to not inflate the editors refcount)
+        editor = self.GetCellEditor(evt.GetRow(), evt.GetCol())
+        ctrl = editor.GetControl()
+        editor.DecRef()
+        if hasattr(ctrl, 'initProperties'): # Don't want to cause an error while operating on a stock editor.
+            ctrl.initProperties()
+
         evt.Skip()
 
 
@@ -4305,6 +4313,9 @@ class dGrid(dControlMixin, wx.grid.Grid):
     def __onWxGridEditorCreated(self, evt):
         """Bind the kill focus event to the newly instantiated cell editor """
         editor = evt.GetControl()
+        if editor is None:
+            return
+
         editor.Bind(wx.EVT_KILL_FOCUS, self.__onWxGridCellEditorKillFocus)
 
         col = self.Columns[evt.GetCol()]
@@ -4346,7 +4357,6 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self.SaveEditControlValue()
         self.HideCellEditControl()
         evt.Skip()
-
 
     def __onWxGridCellChange(self, evt):
         self.raiseEvent(dEvents.GridCellEdited, evt)
