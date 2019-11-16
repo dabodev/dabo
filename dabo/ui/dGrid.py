@@ -98,15 +98,18 @@ class dGridDataTable(wx.grid.GridTableBase):
             attr.SetRenderer(rnd)
             if r in (dcol.floatRendererClass, dcol.decimalRendererClass):
                 rnd.SetPrecision(dcol.Precision)
-
+        do_incref = True
         # Now check for alternate row coloration
         if self.alternateRowColoring:
+            do_incref = False
+            attr = attr.Clone()
             attr.SetBackgroundColour((self.rowColorEven, self.rowColorOdd)[row % 2])
 
         # Prevents overwriting when a long cell has None in the one next to it.
         attr.SetOverflow(False)
-        self.__cachedAttrs[(row, col)] = (attr, time.time())
-        attr.IncRef()
+        #self.__cachedAttrs[(row, col)] = (attr, time.time())
+        if do_incref:
+            attr.IncRef()
         return attr
 
 
@@ -2012,7 +2015,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self.Bind(wx.grid.EVT_GRID_RANGE_SELECT, self.__onWxGridRangeSelect)
         self.Bind(wx.EVT_SCROLLWIN, self.__onWxScrollWin)
 
-        # Testing bool cell renderer/editor single-click-toggle:
+        # Testing bool cell renderer/editor single-click-toggle:`
         self.Bind(wx.grid.EVT_GRID_CELL_LEFT_CLICK, self.__onGridCellLeftClick_toggleCB)
 
         gridWindow = self.GetGridWindow()
@@ -2041,6 +2044,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
         self.bindEvent(dEvents.Create, self._onCreate)
         self.bindEvent(dEvents.Destroy, self._onDestroy)
+
 
         super(dGrid, self)._initEvents()
 
@@ -5531,6 +5535,7 @@ class _dGrid_test(dGrid):
         self.Width = 360
         self.Height = 150
         self.Editable = False
+        #self.AlternateRowColoring = True
         #self.Sortable = False
         #self.Searchable = False
 
