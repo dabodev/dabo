@@ -481,6 +481,8 @@ class dColumn(wx._core.Object, dPemMixin):
         self._headerForeColor = None
         self._headerBackColor = None
 
+        self._sortKey = None
+
         dataFieldSent = "DataField" in kwargs
         dataTypeSent = "DataType" in kwargs
         precisionSent = "Precision" in kwargs
@@ -1568,6 +1570,16 @@ class dColumn(wx._core.Object, dPemMixin):
         else:
             self._properties["WordWrap"] = val
 
+    def _getSortKey(self):
+        return self._sortKey
+
+    def _setSortKey(self, obj):
+        if callable(obj):
+            self._sortKey = obj
+        else:
+            raise ValueError("SortKey must be callable.")
+
+
 
     BackColor = property(_getBackColor, _setBackColor, None,
             _("Color for the background of each cell in the column."))
@@ -1754,6 +1766,10 @@ class dColumn(wx._core.Object, dPemMixin):
     Sortable = property(_getSortable, _setSortable, None,
             _("""Specifies whether this column can be sorted. Default: True. The grid's
             Sortable property will override this setting.  (bool)"""))
+    SortKey = property(_getSortKey, _setSortKey, None,
+            _("""Defines how this column will be sorted should a sort be issued. Must be a callable that
+            complies with the standard pythonic sort key function. See python.org's documentation for list.sort
+            more information. (callable)"""))
 
     Value = property(_getValue, None, None,
             _("""Returns the current value of the column from the underlying dataset or bizobj."""))
@@ -3057,15 +3073,27 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 else:
                     sortingStrings = dataType in six.string_types
 
-                if sortingStrings and not caseSensitive:
+                if colObj.SortKey:
+                    sortKey = colObj.SortKey
+                elif sortingStrings and not caseSensitive: # Begin guessing at sort keys.
                     sortKey = caseInsensitiveSortKey
                 elif dataType in ("date", "datetime"):
                     # can't compare NoneType to these types:
                     sortKey = noneSortKey
                 else:
                     sortKey = None
-                sortList.sort(key=sortKey, reverse=(sortOrder == "DESC"))
 
+                try:
+                    sortList.sort(key=sortKey, reverse=(sortOrder == "DESC"))
+                except TypeError:
+                    s = "Unable to sort this column. Conflicting, or unknown, data types within the column make it impossible to sort implicitly."\
+                        "Please supply a sort key method to the column, via the SortKey property, to delegate sort behavior to."
+                    if colObj.SortKey is not None:
+                        # the preceding exception information will be useful for developers to debug their SortKey method
+                        raise TypeError(s)
+                    else:
+                        # There is no user provided SortKey
+                        raise TypeError(s) from None
                 # Extract the rows into a new list, then set the dataSet to the new list
                 newRows = []
                 newLabels = []
