@@ -107,9 +107,10 @@ class dGridDataTable(wx.grid.GridTableBase):
 
         # Prevents overwriting when a long cell has None in the one next to it.
         attr.SetOverflow(False)
-        #self.__cachedAttrs[(row, col)] = (attr, time.time())
+
         if do_incref:
             attr.IncRef()
+
         return attr
 
 
@@ -1580,7 +1581,6 @@ class dColumn(wx._core.Object, dPemMixin):
             raise ValueError("SortKey must be callable.")
 
 
-
     BackColor = property(_getBackColor, _setBackColor, None,
             _("Color for the background of each cell in the column."))
 
@@ -2031,7 +2031,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self.Bind(wx.grid.EVT_GRID_RANGE_SELECT, self.__onWxGridRangeSelect)
         self.Bind(wx.EVT_SCROLLWIN, self.__onWxScrollWin)
 
-        # Testing bool cell renderer/editor single-click-toggle:`
+        # Testing bool cell renderer/editor single-click-toggle:
         self.Bind(wx.grid.EVT_GRID_CELL_LEFT_CLICK, self.__onGridCellLeftClick_toggleCB)
 
         gridWindow = self.GetGridWindow()
@@ -2060,7 +2060,6 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
         self.bindEvent(dEvents.Create, self._onCreate)
         self.bindEvent(dEvents.Destroy, self._onDestroy)
-
 
         super(dGrid, self)._initEvents()
 
@@ -3086,7 +3085,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 try:
                     sortList.sort(key=sortKey, reverse=(sortOrder == "DESC"))
                 except TypeError:
-                    s = "Unable to sort this column. Conflicting, or unknown, data types within the column make it impossible to sort implicitly."\
+                    s = "Unable to sort this column. Conflicting, or unknown, data types within the column make it impossible to sort implicitly. "\
                         "Please supply a sort key method to the column, via the SortKey property, to delegate sort behavior to."
                     if colObj.SortKey is not None:
                         # the preceding exception information will be useful for developers to debug their SortKey method
@@ -4389,6 +4388,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self.SaveEditControlValue()
         self.HideCellEditControl()
         evt.Skip()
+
 
     def __onWxGridCellChange(self, evt):
         self.raiseEvent(dEvents.GridCellEdited, evt)
