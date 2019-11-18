@@ -98,15 +98,19 @@ class dGridDataTable(wx.grid.GridTableBase):
             attr.SetRenderer(rnd)
             if r in (dcol.floatRendererClass, dcol.decimalRendererClass):
                 rnd.SetPrecision(dcol.Precision)
-
+        do_incref = True
         # Now check for alternate row coloration
         if self.alternateRowColoring:
+            do_incref = False
+            attr = attr.Clone()
             attr.SetBackgroundColour((self.rowColorEven, self.rowColorOdd)[row % 2])
 
         # Prevents overwriting when a long cell has None in the one next to it.
         attr.SetOverflow(False)
-        self.__cachedAttrs[(row, col)] = (attr, time.time())
-        attr.IncRef()
+
+        if do_incref:
+            attr.IncRef()
+
         return attr
 
 
@@ -477,6 +481,8 @@ class dColumn(wx._core.Object, dPemMixin):
         self._headerHorizontalAlignment = "Center"
         self._headerForeColor = None
         self._headerBackColor = None
+
+        self._sortKey = None
 
         dataFieldSent = "DataField" in kwargs
         dataTypeSent = "DataType" in kwargs
@@ -1565,6 +1571,15 @@ class dColumn(wx._core.Object, dPemMixin):
         else:
             self._properties["WordWrap"] = val
 
+    def _getSortKey(self):
+        return self._sortKey
+
+    def _setSortKey(self, obj):
+        if callable(obj):
+            self._sortKey = obj
+        else:
+            raise ValueError("SortKey must be callable.")
+
 
     BackColor = property(_getBackColor, _setBackColor, None,
             _("Color for the background of each cell in the column."))
@@ -1751,6 +1766,10 @@ class dColumn(wx._core.Object, dPemMixin):
     Sortable = property(_getSortable, _setSortable, None,
             _("""Specifies whether this column can be sorted. Default: True. The grid's
             Sortable property will override this setting.  (bool)"""))
+    SortKey = property(_getSortKey, _setSortKey, None,
+            _("""Defines how this column will be sorted should a sort be issued. Must be a callable that
+            complies with the standard pythonic sort key function. See python.org's documentation for list.sort
+            more information. (callable)"""))
 
     Value = property(_getValue, None, None,
             _("""Returns the current value of the column from the underlying dataset or bizobj."""))
@@ -3053,15 +3072,27 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 else:
                     sortingStrings = dataType == "str"
 
-                if sortingStrings and not caseSensitive:
+                if colObj.SortKey:
+                    sortKey = colObj.SortKey
+                elif sortingStrings and not caseSensitive: # Begin guessing at sort keys.
                     sortKey = caseInsensitiveSortKey
                 elif dataType in ("date", "datetime"):
                     # can't compare NoneType to these types:
                     sortKey = noneSortKey
                 else:
                     sortKey = None
-                sortList.sort(key=sortKey, reverse=(sortOrder == "DESC"))
 
+                try:
+                    sortList.sort(key=sortKey, reverse=(sortOrder == "DESC"))
+                except TypeError:
+                    s = "Unable to sort this column. Conflicting, or unknown, data types within the column make it impossible to sort implicitly. "\
+                        "Please supply a sort key method to the column, via the SortKey property, to delegate sort behavior to."
+                    if colObj.SortKey is not None:
+                        # the preceding exception information will be useful for developers to debug their SortKey method
+                        raise TypeError(s)
+                    else:
+                        # There is no user provided SortKey
+                        raise TypeError(s) from None
                 # Extract the rows into a new list, then set the dataSet to the new list
                 newRows = []
                 newLabels = []
@@ -4273,6 +4304,14 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
     def __onWxGridEditorShown(self, evt):
         self.raiseEvent(dEvents.GridCellEditBegin, evt)
+
+        # Need to reapply the edit controls dynamic properties. (Be careful to not inflate the editors refcount)
+        editor = self.GetCellEditor(evt.GetRow(), evt.GetCol())
+        ctrl = editor.GetControl()
+        editor.DecRef()
+        if hasattr(ctrl, 'initProperties'): # Don't want to cause an error while operating on a stock editor.
+            ctrl.initProperties()
+
         evt.Skip()
 
 
@@ -4305,6 +4344,9 @@ class dGrid(dControlMixin, wx.grid.Grid):
     def __onWxGridEditorCreated(self, evt):
         """Bind the kill focus event to the newly instantiated cell editor """
         editor = evt.GetControl()
+        if editor is None:
+            return
+
         editor.Bind(wx.EVT_KILL_FOCUS, self.__onWxGridCellEditorKillFocus)
 
         col = self.Columns[evt.GetCol()]
@@ -5521,6 +5563,7 @@ class _dGrid_test(dGrid):
         self.Width = 360
         self.Height = 150
         self.Editable = False
+        #self.AlternateRowColoring = True
         #self.Sortable = False
         #self.Searchable = False
 
