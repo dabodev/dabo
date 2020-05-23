@@ -2,25 +2,38 @@
 import dabo
 import dabo.ui
 from dabo.dLocalize import _
+dcm = dabo.import_ui_name("dControlItemMixin")
+dMenu = dabo.import_ui_name("dMenu")
+dBitmapButton = dabo.import_ui_name("dBitmapButton")
+dPanel = dabo.import_ui_name("dPanel")
+dDialog = dabo.import_ui_name("dDialog")
+dSizer = dabo.import_ui_name("dSizer")
+dColumn = dabo.import_ui_name("dColumn")
+dGrid = dabo.import_ui_name("dGrid")
+dLabel = dabo.import_ui_name("dLabel")
+dButton = dabo.import_ui_name("dButton")
+dCheckBox = dabo.import_ui_name('dCheckBox')
+from dabo.ui.dDialog import dStandardButtonDialog
 
 
-class LblMessage(dabo.ui.dLabel):
+
+class LblMessage(dLabel):
     def initProperties(self):
         self.WordWrap = True
         self.FontSize = 12
         self.Width = 500
 
 
-class DlgInfoMessage(dabo.ui.dStandardButtonDialog):
+class DlgInfoMessage(dStandardButtonDialog):
     def initProperties(self):
         self.AutoSize = True
         self.ShowCaption = False
         self.ShowCloseButton = False
 
     def addControls(self):
-        vs = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=10)
+        vs = self.Sizer = dSizer("v", DefaultBorder=10)
         vs.append1x(LblMessage(self, RegID="lblMessage", Caption=self.Message))
-        vs.append(dabo.ui.dCheckBox(self, Caption=_("Show this message in the future?"),
+        vs.append(dCheckBox(self, Caption=_("Show this message in the future?"),
                 Value=self.DefaultShowInFuture, RegID="chkShowInFuture",
                 FontSize=9))
 

@@ -3,8 +3,6 @@ import sys
 import dabo
 from dabo import ui
 from dabo.ui import dDialog
-import dabo.dEvents as dEvents
-from dabo.dLocalize import _
 
 
 class About(dDialog):
@@ -26,15 +24,15 @@ class About(dDialog):
             caption = "%s %s" % (app.getAppInfo("appName"),
                     app.getAppInfo("appVersion"))
 
-        pnlBack = dabo.ui.dPanel(self, BackColor="White")
+        pnlBack = dPanel(self, BackColor="White")
         self.Sizer.append(pnlBack, 1, "x")
-        pnlBack.Sizer = sz = dabo.ui.dSizer("v")
+        pnlBack.Sizer = sz = dSizer("v")
 
-        pnlHead = dabo.ui.dPanel(pnlBack, BackColor="White")
-        pnlHead.Sizer = ps = dabo.ui.dSizer("h")
+        pnlHead = dPanel(pnlBack, BackColor="White")
+        pnlHead.Sizer = ps = dSizer("h")
 
         ps.DefaultBorder = 0
-        lblHead = dabo.ui.dLabel(pnlHead, Caption=caption, FontSize=24,
+        lblHead = dLabel(pnlHead, Caption=caption, FontSize=24,
                                 FontBold=True)
 
         ps.append(lblHead, 3, "x", halign="left", valign="middle")
@@ -44,12 +42,12 @@ class About(dDialog):
         sz.DefaultBorderTop = sz.DefaultBorderLeft = sz.DefaultBorderRight = True
         sz.append(pnlHead, 0, "x")
 
-        eg = dabo.ui.dGrid(pnlBack, DataSet=dabo.ui.getSystemInfo("dataset"),
+        eg = dGrid(pnlBack, DataSet=dabo.ui.getSystemInfo("dataset"),
                 ShowHeaders=False, ShowCellBorders=False,
                 CellHighlightWidth=0)
-        eg.addColumn(dabo.ui.dColumn(eg, Name="Name", DataField="name",
+        eg.addColumn(dColumn(eg,  DataField="name",
                 Sortable=False, Searchable=False, HorizontalAlignment="Right"))
-        eg.addColumn(dabo.ui.dColumn(eg, Name="Name", DataField="value",
+        eg.addColumn(dColumn(eg,  DataField="value",
                 Sortable=False, Searchable=False, FontBold=True))
         eg.autoSizeCol("all")
         eg.sizeToColumns()
@@ -59,11 +57,11 @@ class About(dDialog):
         sz.append1x(eg)
 
         # Copy info
-        btnCopy = dabo.ui.dButton(pnlBack, Caption=_("Copy Info"),
+        btnCopy = dButton(pnlBack, Caption=_("Copy Info"),
                 OnHit=self.onCopyInfo)
-        btnClose = dabo.ui.dButton(pnlBack, Caption=_("OK"),
+        btnClose = dButton(pnlBack, Caption=_("OK"),
                 OnHit=self.onClose)
-        hsz = dabo.ui.dSizer("H")
+        hsz = dSizer("H")
         hsz.append(btnCopy)
         hsz.appendSpacer(20)
         hsz.append(btnClose)

@@ -19,13 +19,13 @@ class HotKeyEditor(dOkCancelDialog):
         self._originalKeyString = None
 
         sz = self.Sizer
-        sz.append(dabo.ui.dLabel(self, Caption=_("Press the desired key combination")),
+        sz.append(dLabel(self, Caption=_("Press the desired key combination")),
                 border=10, halign="center")
-        sz.append(dabo.ui.dLabel(self, Caption=_("Press Ctrl-Delete to clear the key")),
+        sz.append(dLabel(self, Caption=_("Press Ctrl-Delete to clear the key")),
                 border=10, halign="center")
         sz.appendSpacer(10)
-        bsz = dabo.ui.dBorderSizer(self, "v")
-        self.hkLabel = dabo.ui.dLabel(self, Caption=" "*80, FontSize=16, FontBold=True)
+        bsz = dBorderSizer(self, "v")
+        self.hkLabel = dLabel(self, Caption=" "*80, FontSize=16, FontBold=True)
         bsz.append1x(self.hkLabel, halign="center", border=10)
         sz.append(bsz, halign="center")
         # Pass key events from the OK/Cancel buttons up to the form

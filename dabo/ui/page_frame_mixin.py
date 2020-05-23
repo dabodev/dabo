@@ -406,7 +406,11 @@ class dPageFrameMixin(dControlMixin):
     def _setSelectedPage(self, pg):
         if self._constructed():
             idx = self._getPageIndex(pg)
-            self.SetSelection(idx)
+            try:
+                self.SetSelection(idx)
+            except:
+                self._properties["SelectedPage"] = pg
+                
         else:
             self._properties["SelectedPage"] = pg
 

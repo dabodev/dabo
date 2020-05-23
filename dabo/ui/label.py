@@ -4,9 +4,12 @@ import dabo
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 
-from dabo.ui import makeDynamicProperty
-from dabo.ui import dControlMixin
 from dabo.ui import AlignmentMixin
+from dabo.ui import dCheckBox
+from dabo.ui import dControlMixin
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import makeDynamicProperty
 
 
 class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
@@ -188,13 +191,13 @@ if __name__ == "__main__":
     class LabelTestForm(dForm):
         def afterInit(self):
             self.Caption = "dLabel Test"
-            pnl = dabo.ui.dPanel(self)
+            pnl = dPanel(self)
             self.Sizer.append1x(pnl)
-            sz = pnl.Sizer = dabo.ui.dSizer("v")
+            sz = pnl.Sizer = dSizer("v")
             sz.appendSpacer(25)
-            self.sampleLabel = dabo.ui.dLabel(pnl, Caption="This label has a very long Caption. " * 20,
+            self.sampleLabel = dLabel(pnl, Caption="This label has a very long Caption. " * 20,
                     WordWrap=False)
-            self.wrapControl = dabo.ui.dCheckBox(pnl, Caption="WordWrap",
+            self.wrapControl = dCheckBox(pnl, Caption="WordWrap",
                     DataSource=self.sampleLabel, DataField="WordWrap")
             sz.append(self.wrapControl, halign="center", border=20)
             sz.append1x(self.sampleLabel, border=10)

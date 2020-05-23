@@ -349,7 +349,7 @@ class dPemMixin(dObject):
         if not hasattr(self.Form, "_currFontZoom"):
             self.Form._restoreFontZoom()
         zoom = getattr(self.Form, "_currFontZoom", 0)
-        if zoom and not isinstance(self, (dabo.ui.dPanel, dabo.ui.dScrollPanel)):
+        if zoom and not isinstance(self, (dabo.ui.dPanel, dabo.ui.dScrollPanel, dMenuItem)):
             dabo.ui.callAfter(self._setAbsoluteFontZoom, zoom)
 
 
@@ -1387,6 +1387,8 @@ class dPemMixin(dObject):
             kids = self.Columns
         elif isinstance(self, (dabo.ui.dPageFrameMixin, dabo.ui.dPageFrameNoTabs)):
             kids = self.Pages
+        #elif isinstance(self, dDropdownList):
+            #kids = 0
         else:
             kids = self.Children
         if not kids:

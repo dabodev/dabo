@@ -143,8 +143,12 @@ class dSizerMixin(dObject):
                 border = self.DefaultBorder
             # If there are objects in this sizer already, add the default spacer
             addSpacer = ( len(self.GetChildren()) > 0)
-            ret = szItem = self.Insert(index, obj, proportion=proportion,
-                    flag=_wxFlags, border=border, userData=self)
+            if _wxFlags in {752}:
+                ret = szItem = self.Insert(index, obj, proportion=proportion,
+                                                   border=border, userData=self)
+            else:
+                ret = szItem = self.Insert(index, obj, proportion=proportion,
+                                                   flag=_wxFlags, border=border, userData=self)            
             if addSpacer:
                 self.addDefaultSpacer(index)
             obj._controllingSizer = self
@@ -625,7 +629,7 @@ class dSizerMixin(dObject):
             off = (self.outlineWidth / 2)
             dc = wx.ClientDC(win)
             dc.SetPen(wx.Pen(self.outlineColor, self.outlineWidth, self.outlineStyle))
-            dc.SetBrush(wx.BRUSHSTYLE_TRANSPARENT)
+            #dc.SetBrush(wx.BRUSHSTYLE_TRANSPARENT)
             dc.SetLogicalFunction(wx.COPY)
             # Draw the outline
             dui.callAfter(dc.DrawRectangle, x+off, y+off, w-(2*off), h-(2*off) )

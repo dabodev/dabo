@@ -2983,7 +2983,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         columnToSort = colObj.DataField
         sortCol = self.Columns.index(colObj)
         dataType = self.Columns[sortCol].DataType
-
+        
         if not canSort:
             # Some columns, especially those with mixed values,
             # should not be sorted.
@@ -3036,42 +3036,23 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 # lists contain the sort value in the zeroth element, and the row as
                 # the first element.
                 # First, see if we are comparing strings
-                if dataType is None:
-                    f = sortList[0][0]
-                    if f is None:
-                        # We are just poking around, trying to glean the datatype, which is prone
-                        # to error. The record we just checked is None, so try the last record and
-                        # then give up.
-                        f = sortList[-1][0]
-                    #pkm: I think grid column DataType properties should store raw python
-                    #      types, not string renditions of them. But for now, convert to
-                    #      string renditions. I also think that this codeblock should be
-                    #      obsolete once all dabo grids use dColumn objects.
-                    if isinstance(f, datetime.date):
-                        dataType = "date"
-                    elif isinstance(f, datetime.datetime):
-                        dataType = "datetime"
-                    elif isinstance(f, str):
-                        dataType = "unicode"
-                    elif isinstance(f, str):
-                        dataType = "string"
-                    elif isinstance(f, int):
-                        dataType = "long"
-                    elif isinstance(f, int):
-                        dataType = "int"
-                    elif isinstance(f, Decimal):
-                        dataType = "decimal"
-                    else:
-                        dataType = None
-                    sortingStrings = isinstance(sortList[0][0], str)
-                else:
-                    sortingStrings = dataType == "str"
+                #if dataType is None:
+                f = sortList[0][0]
+                if f is None:
+                    # We are just poking around, trying to glean the datatype, which is prone
+                    # to error. The record we just checked is None, so try the last record and
+                    # then give up.
+                    f = sortList[-1][0]
+                
+                sortingStrings = isinstance(f, str)
+            
 
                 if colObj.SortKey:
                     sortKey = colObj.SortKey
                 elif sortingStrings and not caseSensitive: # Begin guessing at sort keys.
                     sortKey = caseInsensitiveSortKey
-                elif dataType in ("date", "datetime"):
+                #elif dataType in ("date", "datetime", 'boolean'):
+                elif isinstance(f, datetime.date) or isinstance(f, bool) or isinstance(f,bool):
                     # can't compare NoneType to these types:
                     sortKey = noneSortKey
                 else:
@@ -5548,15 +5529,24 @@ dabo.ui.dGrid = dGrid
 class _dGrid_test(dGrid):
     def initProperties(self):
         thisYear = datetime.datetime.now().year
+        #ds = [
+                #{"name" : "Ed Leafe", "age" : thisYear - 1957, "coder" :  True, "color": "cornsilk"},
+                #{"name" : "Paul McNett", "age" : thisYear - 1969, "coder" :     True, "color": "wheat"},
+                #{"name" : "Ted Roche", "age" : thisYear - 1958, "coder" :  True, "color": "goldenrod"},
+                #{"name" : "Derek Jeter", "age": thisYear - 1974, "coder" :    False, "color": "white"},
+                #{"name" : "Halle Berry", "age" : thisYear - 1966, "coder" :     False, "color": "orange"},
+                #{"name" : "Steve Wozniak", "age" : thisYear - 1950, "coder" :  True, "color": "yellow"},
+                #{"name" : "LeBron James", "age" : thisYear - 1984, "coder" :  False, "color": "gold"},
+                #{"name" : "Madeline Albright", "age" : thisYear - 1937, "coder" :  False, "color": "red"}]
         ds = [
-                {"name" : "Ed Leafe", "age" : thisYear - 1957, "coder" :  True, "color": "cornsilk"},
-                {"name" : "Paul McNett", "age" : thisYear - 1969, "coder" :     True, "color": "wheat"},
-                {"name" : "Ted Roche", "age" : thisYear - 1958, "coder" :  True, "color": "goldenrod"},
-                {"name" : "Derek Jeter", "age": thisYear - 1974, "coder" :    False, "color": "white"},
-                {"name" : "Halle Berry", "age" : thisYear - 1966, "coder" :     False, "color": "orange"},
+                {"name" : "Ed Leafe", "age" : 23.09, "coder" :  True, "color": "cornsilk"},
+                {"name" : "Paul McNett", "age" : 34.07, "coder" :     True, "color": "wheat"},
+                {"name" : "Ted Roche", "age" : 34.06, "coder" :  True, "color": "goldenrod"},
+                {"name" : "Derek Jeter", "age": 50.1, "coder" :    False, "color": "white"},
+                {"name" : "Halle Berry", "age" : 50.2, "coder" :     False, "color": "orange"},
                 {"name" : "Steve Wozniak", "age" : thisYear - 1950, "coder" :  True, "color": "yellow"},
                 {"name" : "LeBron James", "age" : thisYear - 1984, "coder" :  False, "color": "gold"},
-                {"name" : "Madeline Albright", "age" : thisYear - 1937, "coder" :  False, "color": "red"}]
+                {"name" : "Madeline Albright", "age" : thisYear - 1937, "coder" :  False, "color": "red"}]        
         self.DataSet = ds
 
         self.TabNavigates = False
@@ -5571,7 +5561,7 @@ class _dGrid_test(dGrid):
         super(_dGrid_test, self).afterInit()
 
         self.addColumn(Name="Geek", DataField="coder", Caption="Geek?",
-                Order=10, DataType="bool", Width=60, Sortable=False,
+                Order=10, DataType="bool", Width=60, Sortable=True,
                 Searchable=False, Editable=True, HeaderFontBold=False,
                 HorizontalAlignment="Center", VerticalAlignment="Center",
                 Resizable=False)
@@ -5599,7 +5589,7 @@ class _dGrid_test(dGrid):
         col.CustomEditorClass = dui.makeGridEditor(ColoredText, minHeight=40)
 
         self.addColumn(Name="Age", Order=30, DataField="age",
-                DataType="integer", Width=40, Caption="Age",
+                DataType="float", Width=40, Caption="Age",
                 Sortable=True, Searchable=True, Editable=True)
 
         col = dColumn(self, Name="Color", Order=40, DataField="color",

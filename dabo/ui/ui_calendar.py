@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import wx
-from wx.lib.calendar import Calendar as wxcal
+import wx.adv as wxcal
 import datetime
 import dabo
 from dabo import ui as dui
@@ -10,7 +10,7 @@ from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 
 
-class BaseCalendar(dControlMixin, wxcal):
+class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
     """
     This is the base wrapper of the wx calendar control. Do not
     use this directly; instead, use either the 'dCalendar' or the
@@ -18,7 +18,7 @@ class BaseCalendar(dControlMixin, wxcal):
     """
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dCalendar
-        preClass = wxcal.PreCalendarCtrl
+        preClass = wxcal.CalendarCtrl
 
         style = kwargs.get("style", 0)
         dow = self._firstDayOfWeek = self._extractKey((kwargs, properties, attProperties),
@@ -179,13 +179,15 @@ class BaseCalendar(dControlMixin, wxcal):
 
     ### Begin property defs  ###
     def _getDate(self):
-        return self.PyGetDate()
+        #return self.PyGetDate()
+        return self.GetDate()
 
     def _setDate(self, val):
-        curr = self.PyGetDate()
+        #curr = self.PyGetDate()
+        curr = self.GetDate()
         if isinstance(val, tuple):
             val = datetime.date(*val)
-        self.PySetDate(val)
+        self.SetDate(val)
         # Raise the events, since the control doesn't raise native
         # events when changing the date programatically.
         evtClass = wxcal.CalendarEvent

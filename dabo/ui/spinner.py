@@ -427,7 +427,7 @@ class _dSpinner_test(dSpinner):
         self.Increment = 8.75
         self.SpinnerWrap = True
         self.FontSize = 10
-        self.Width = 80
+        self.Width = 180
 
     def onHit(self, evt):
         print("HIT!", self.Value, "Hit Type", evt.hitType)
@@ -455,9 +455,20 @@ if __name__ == "__main__":
 
     class Test(dForm):
         def OH(self, evt): print("HIT")
+
+            
+            
         def afterInitAll(self):
-            self.spn = _dSpinner_test(self, Value=3, OnHit=self.OH)
-            self.spn2 = dSpinner(self, Value=3, Max=10, Min=1, Top=75, Width=60)
+            #self.Sizer = vs = dSizer('v')
+            #hs = dSizer('h')
+            self.spn = _dSpinner_test(self, Value=3, OnHit=self.OH,)
+            #hs.append(self.spn,1)
+            #hs1 = dSizer('h')
+            self.spn2 = dSpinner(self, Value=3, Max=10, Min=1, Top=75, Width=100)
+            #hs1.append(self.spn,1)
+            #vs.append(hs)
+            #vs.appendSpacer(10)
+            #vs.append(hs1)
 
     app = dApp(MainFormClass=Test)
     app.start()

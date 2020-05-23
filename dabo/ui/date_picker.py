@@ -54,17 +54,17 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
         self._timePart = [0, 0, 0, 0]
         self._lastWasNone = True
         self._baseClass = dDatePicker
-        preClass = wx.DatePickerCtrl
+        preClass = wx.adv.DatePickerCtrl
         pickerMode = self._extractKey((properties, attProperties, kwargs),
                 "PickerMode", "Dropdown")[:1].lower()
         if pickerMode not in "ds":
             pickerMode = "d"
         kwargs["style"] = kwargs.get("style", 0) | \
-             {"d": wx.DP_DROPDOWN, "s": wx.DP_SPIN}[pickerMode]
+             {"d": wx.adv.DP_DROPDOWN, "s": wx.adv.DP_SPIN}[pickerMode]
         if self._extractKey((properties, attProperties, kwargs), "AllowNullDate", False):
-            kwargs["style"] |= wx.DP_ALLOWNONE
+            kwargs["style"] |= wx.adv.DP_ALLOWNONE
         if self._extractKey((properties, attProperties, kwargs), "ForceShowCentury", False):
-            kwargs["style"] |= wx.DP_SHOWCENTURY
+            kwargs["style"] |= wx.adv.DP_SHOWCENTURY
         dDataControlMixin.__init__(self, preClass, parent,
             properties, attProperties, *args, **kwargs)
         self._bindKeys()
@@ -74,7 +74,7 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
 
     def _initEvents(self):
         super(dDatePicker, self)._initEvents()
-        self.Bind(wx.EVT_DATE_CHANGED, self._onWxHit)
+        self.Bind(wx.adv.EVT_DATE_CHANGED, self._onWxHit)
 
     def _onWxHit(self, evt):
         self._userChanged = True
@@ -262,22 +262,22 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
                     % locals())
 
     def _getAllowNullDate(self):
-        return self._hasWindowStyleFlag(wx.DP_ALLOWNONE)
+        return self._hasWindowStyleFlag(wx.adv.DP_ALLOWNONE)
 
     def _setAllowNullDate(self, val):
         if val:
-            self._addWindowStyleFlag(wx.DP_ALLOWNONE)
+            self._addWindowStyleFlag(wx.adv.DP_ALLOWNONE)
         else:
-            self._delWindowStyleFlag(wx.DP_ALLOWNONE)
+            self._delWindowStyleFlag(wx.adv.DP_ALLOWNONE)
 
     def _getForceShowCentury(self):
-        return self._hasWindowStyleFlag(wx.DP_SHOWCENTURY)
+        return self._hasWindowStyleFlag(wx.adv.DP_SHOWCENTURY)
 
     def _setForceShowCentury(self):
         if val:
-            self._addWindowStyleFlag(wx.DP_SHOWCENTURY)
+            self._addWindowStyleFlag(wx.adv.DP_SHOWCENTURY)
         else:
-            self._delWindowStyleFlag(wx.DP_SHOWCENTURY)
+            self._delWindowStyleFlag(wx.adv.DP_SHOWCENTURY)
 
     def _getInvalidBackColor(self):
         return self._invalidBackColor

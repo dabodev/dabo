@@ -936,8 +936,11 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
             # single string passed
             ignored = [ignored]
         arg = (wildcard, ignored, showHidden)
-        os.path.walk(dirPath, addNode, arg)
-        os.path.walk(dirPath, sortNode, None)
+        #JFCS os.path no longer has .walk
+        #os.path.walk(dirPath, addNode, arg)
+        #os.path.walk(dirPath, sortNode, None)
+        os.walk(dirPath, addNode, arg)
+        os.walk(dirPath, sortNode, None)        
         if expand:
             self.expandAll()
 
@@ -1127,11 +1130,13 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
 
     def _setMultipleSelect(self, val):
         self._delWindowStyleFlag(wx.TR_MULTIPLE)
-        self._delWindowStyleFlag(wx.TR_EXTENDED)
+        #JFCS 10/17/19 wx.TR_EXTENDED does not exist in wxpython 4
+        #self._delWindowStyleFlag(wx.TR_EXTENDED)
         self._delWindowStyleFlag(wx.TR_SINGLE)
         if val:
             self._addWindowStyleFlag(wx.TR_MULTIPLE)
-            self._addWindowStyleFlag(wx.TR_EXTENDED)
+            #JFCS 10/16/2019 wxPython 4 wx.TR_EXTENDED does not exist
+            #self._addWindowStyleFlag(wx.TR_EXTENDED)
         else:
             if self._constructed():
                 self.lockDisplay()

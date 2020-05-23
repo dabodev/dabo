@@ -300,8 +300,8 @@ class SizerPaletteForm(dToolForm):
         self.contentFrame = scpnl.pgf
         sspnl = SizerSelfPanel(mp)
         self.sizerFrame = sspnl.pgf
-        sz.append(scpnl, halign="center", border=10)
-        sz.append(sspnl, halign="center", border=10)
+        sz.append(scpnl,  border=10)
+        sz.append(sspnl,  border=10)
         self.layout()
 
     def select(self, objs):

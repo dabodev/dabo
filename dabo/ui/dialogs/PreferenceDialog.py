@@ -10,6 +10,18 @@ import dabo.ui
 
 dayMins= 24*60
 
+dForm = dabo.import_ui_name("dForm")
+dLabel = dabo.import_ui_name("dLabel")
+dPageFrame = dabo.import_ui_name('dPageFrame')
+dTreeView = dabo.import_ui_name('dTreeView')
+dTextBox = dabo.import_ui_name("dTextBox")
+dButton = dabo.import_ui_name("dButton")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dSizer = dabo.import_ui_name("dSizer")
+dCheckBox = dabo.import_ui_name("dCheckBox")
+dRadioList = dabo.import_ui_name("dRadioList")
+
+
 
 
 class PreferenceDialog(dOkCancelDialog):
@@ -54,7 +66,7 @@ class PreferenceDialog(dOkCancelDialog):
     def _addPages(self):
 #        self.pgfMain = dabo.ui.dPageList(self, TabPosition="Left",
 #                 ListSpacing=20)
-        self.pgfMain = dabo.ui.dPageFrame(self, TabPosition="Top")
+        self.pgfMain = dPageFrame(self, TabPosition="Top")
         self.addPages()
         incl = (self.pgfMain.PageCount == 0)
         if incl or self.IncludeDefaultPages:
@@ -146,7 +158,7 @@ class PreferenceDialog(dOkCancelDialog):
             self._selectedItem = None
             self._hotKeyMap = {}
             menuPage.Sizer.Orientation = "H"
-            tree = dabo.ui.dTreeView(menuPage, OnTreeSelection=self._onMenuTreeSelection,
+            tree = dTreeView(menuPage, OnTreeSelection=self._onMenuTreeSelection,
                     RegID="menuKeyAssignmentTree")
             root = tree.setRootNode(_("Menu"))
             for mn in mb.Children:
@@ -162,18 +174,18 @@ class PreferenceDialog(dOkCancelDialog):
             root.expand()
             self._originalHotKeyMap = self._hotKeyMap.copy()
 
-            sz = dabo.ui.dGridSizer(MaxCols=2, HGap=5, VGap=10)
-            lbl = dabo.ui.dLabel(menuPage, Caption=_("Current Key:"))
-            txt = dabo.ui.dTextBox(menuPage, ReadOnly=True, Alignment="Center",
+            sz = dGridSizer(MaxCols=2, HGap=5, VGap=10)
+            lbl = dLabel(menuPage, Caption=_("Current Key:"))
+            txt = dTextBox(menuPage, ReadOnly=True, Alignment="Center",
                     RegID="txtMenuCurrentHotKey")
             sz.append(lbl, halign="right")
             sz.append(txt, "x")
             sz.appendSpacer(1)
-            btn = dabo.ui.dButton(menuPage, Caption=_("Set Key..."),
+            btn = dButton(menuPage, Caption=_("Set Key..."),
                     OnHit=self._setHotKey, DynamicEnabled=self._canSetHotKey)
             sz.append(btn, halign="center")
             sz.appendSpacer(1)
-            btn = dabo.ui.dButton(menuPage, Caption=_("Clear Key"),
+            btn = dButton(menuPage, Caption=_("Clear Key"),
                     OnHit=self._clearHotKey, DynamicEnabled=self._canClearHotKey)
             sz.append(btn, halign="center")
             sz.setColExpand(True, 1)
@@ -292,20 +304,20 @@ class PreferenceDialog(dOkCancelDialog):
         if freq not in update_keys:
             fp.update_interval = dayMins
         self.preferenceKeys.append(fp)
-        sz = wuPage.Sizer = dabo.ui.dSizer("v")
-        hsz = dabo.ui.dSizer("h")
-        chkUpdateCheck = dabo.ui.dCheckBox(wuPage, OnHit=self.onChkUpdate,
+        sz = wuPage.Sizer = dSizer("v")
+        hsz = dSizer("h")
+        chkUpdateCheck = dCheckBox(wuPage, OnHit=self.onChkUpdate,
                 Caption=_("Check for framework updates"), RegID="chkForWebUpdates",
                 DataSource=fp, DataField="web_update",
                 ToolTipText="Does the framework check for updates?")
-        btnCheckNow = dabo.ui.dButton(wuPage, Caption=_("Check now..."),
+        btnCheckNow = dButton(wuPage, Caption=_("Check now..."),
                 OnHit=self.onCheckNow, ToolTipText="Check the Dabo server for updates")
         hsz.append(chkUpdateCheck, valign="middle")
         hsz.appendSpacer(8)
         hsz.append(btnCheckNow, valign="middle")
         sz.append(hsz, halign="center", border=20)
 
-        radFrequency = dabo.ui.dRadioList(wuPage, Orientation="Vertical",
+        radFrequency = dRadioList(wuPage, Orientation="Vertical",
                 Caption=_("Check every..."), RegID="radWebUpdateFrequency",
                 Choices=update_choices, Keys=update_keys,
                 ValueMode="Keys", DataSource=fp, DataField="update_interval",
@@ -354,9 +366,9 @@ class PreferenceDialog(dOkCancelDialog):
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
-    class TestForm(dabo.ui.dForm):
+    class TestForm(dForm):
         def afterInit(self):
-            lbl = dabo.ui.dLabel(self, Caption="Preference Manager Demo\n" +
+            lbl = dLabel(self, Caption="Preference Manager Demo\n" +
                 "Select 'Preferences' from the menu.", WordWrap=True)
             self.Sizer.append(lbl, halign="center", border=20)
 
