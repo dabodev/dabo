@@ -29,11 +29,12 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
         self._editable = self._extractKey((kwargs, properties, attProperties), "Editable", True)
         style = self._extractKey((kwargs, properties, attProperties), "style", 0)
         if self._canAdd:
-            style = style  | wx.gizmos.EL_ALLOW_NEW
+            #style = style  | wx.gizmos.EL_ALLOW_NEW
+            style = style  | wx.adv.EL_ALLOW_NEW
         if self._editable:
-            style = style  | wx.gizmos.EL_ALLOW_EDIT
+            style = style  | wx.adv.EL_ALLOW_EDIT
         if self._canDelete:
-            style = style  | wx.gizmos.EL_ALLOW_DELETE
+            style = style  | wx.adv.EL_ALLOW_DELETE
         kwargs["style"] = style
         # References to the components of this control
         self._addButton = None

@@ -49,8 +49,8 @@ class dPageFrameNoTabs(dPanel):
         # enable them to handle page creation in their own way. If overridden,
         # the method will return the new page.
         ret = None
-        if not ignoreOverride:
-            ret = self._insertPageOverride(pos, pgCls, makeActive)
+        #if not ignoreOverride:
+            #ret = self._insertPageOverride(pos, pgCls, makeActive)
         if ret:
             return ret
         if pgCls is None:

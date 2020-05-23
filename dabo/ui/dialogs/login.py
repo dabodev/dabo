@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 import dabo
 from dabo.dLocalize import _
+dSizer = dabo.import_ui_name("dSizer")
+dImage = dabo.import_ui_name("dImage")
+dLabel = dabo.import_ui_name("dLabel")
+dTextBox = dabo.import_ui_name("dTextBox")
 from dabo.ui.dDialog import dOkCancelDialog
-from dabo.ui.dImage import dImage
-from dabo.ui.dLabel import dLabel
-from dabo.ui.dSizer import dSizer
-from dabo.ui.dTextBox import dTextBox
+#from dabo.ui.dImage import dImage
+#from dabo.ui.dLabel import dLabel
+
+#from dabo.ui.dTextBox import dTextBox
 import dabo.icons
 
 

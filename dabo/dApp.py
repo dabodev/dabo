@@ -1550,7 +1550,8 @@ try again when it is running.
             return self._preferenceDialogClass
         except AttributeError:
             # Use the default if they haven't set it
-            from dui.dialogs.PreferenceDialog import PreferenceDialog
+            #from dui.dialogs.PreferenceDialog import PreferenceDialog
+            import dialogs.PreferenceDialog as PreferenceDialog
             return PreferenceDialog
 
     def _setPreferenceDialogClass(self, val):

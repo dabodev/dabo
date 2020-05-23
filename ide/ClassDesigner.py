@@ -2035,7 +2035,9 @@ class ClassDesigner(dApp):
 
                 self.Sizer.append(self.openButton, halign="center")
                 self.Sizer.appendSpacer(20)
-                self.Sizer.append(dLine(self), "x", border=5, halign="center")
+                #jfcs 5/20/20 halign= "center" no longer ignored by 4.1
+                #self.Sizer.append(dLine(self), "x", border=5, halign="center")
+                self.Sizer.append(dLine(self), "x", border=5)
 
                 # Create a dropdown list containing all the choices.
                 # NOTE: This would be an excellent candidate for usage ordering.
@@ -2079,7 +2081,7 @@ class ClassDesigner(dApp):
                 lbl = dLabel(self, Caption=_("Select the class to create:"), FontBold=True)
                 self.Sizer.append(lbl, halign="left")
                 self.Sizer.appendSpacer(3)
-                self.Sizer.append1x(self.dd, halign="Center")
+                self.Sizer.append(self.dd, 1, halign="Center")
                 self.Sizer.appendSpacer(10)
 
                 self.szChk = dCheckBox(self, Value=True, Caption=_("Use Sizers"), OnHit=self.onSzChk)

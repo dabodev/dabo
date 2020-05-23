@@ -2,12 +2,21 @@
 import sys
 import os
 import string
-import dabo, dabo.ui
+import dabo #, dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+dMenu = dabo.import_ui_name("dMenu")
+dBitmapButton = dabo.import_ui_name("dBitmapButton")
+dPanel = dabo.import_ui_name("dPanel")
+dDialog = dabo.import_ui_name("dDialog")
+dSizer = dabo.import_ui_name("dSizer")
+dColumn = dabo.import_ui_name("dColumn")
+dGrid = dabo.import_ui_name("dGrid")
+dLabel = dabo.import_ui_name("dLabel")
+dButton = dabo.import_ui_name("dButton")
 
 
-class HtmlAbout(dabo.ui.dDialog):
+class HtmlAbout(dDialog):
     def initProperties(self):
         self.AutoSize = True
         self.Centered = True
@@ -20,21 +29,21 @@ class HtmlAbout(dabo.ui.dDialog):
 
 
     def addControls(self):
-        pnlBack = dabo.ui.dPanel(self, BackColor="cornflowerblue")
+        pnlBack = dPanel(self, BackColor="cornflowerblue")
         self.Sizer.append1x(pnlBack)
-        pnlBack.Sizer = sz = dabo.ui.dSizer("v")
+        pnlBack.Sizer = sz = dSizer("v")
 
-        self.htmlBox = dabo.ui.dHtmlBox(self)
+        self.htmlBox = dHtmlBox(self)
         self.htmlBox.Size = (400, 300)
         sz.append1x(self.htmlBox, halign="center", valign="center",
                 border=30)
 
         # Copy info
-        btnCopy = dabo.ui.dButton(pnlBack, Caption=_("Copy Info"),
+        btnCopy = dButton(pnlBack, Caption=_("Copy Info"),
                 OnHit=self.onCopyInfo)
-        btnClose = dabo.ui.dButton(pnlBack, Caption=_("OK"),
+        btnClose = dButton(pnlBack, Caption=_("OK"),
                 OnHit=self.onClear)
-        hsz = dabo.ui.dSizer("H")
+        hsz = dSizer("H")
         hsz.append(btnCopy)
         hsz.appendSpacer(20)
         hsz.append(btnClose)

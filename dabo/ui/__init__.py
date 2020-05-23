@@ -337,8 +337,8 @@ def callAfterInterval(interval, func, *args, **kwargs):
         # Arguments are in the old order
         interval, func = func, interval
     func_ref = func
-#    if func.__closure__:
-#        func_ref = func.__code__
+    if func.__closure__:
+        func_ref = func.__code__
     futureCall = _callAfterIntervalReferences.pop((func_ref, args), None)
     if futureCall:
         futureCall.Stop()

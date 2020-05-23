@@ -11,6 +11,7 @@ from dabo.ui import makeDynamicProperty
 from dabo.ui.dControlMixin import dControlMixin
 
 
+
 class dDataControlMixin(dControlMixin):
     def __init__(self, *args, **kwargs):
         self._deriveTextLengthFromSource = dabo.dTextBox_DeriveTextLengthFromSource
@@ -435,6 +436,9 @@ class dDataControlMixin(dControlMixin):
             # convert int to long (original field val was long, but UI
             # changed to int.
             val = int(val)
+            #JFCS 11/14/2019 trying to insure that checkboxes are covered correctly
+        elif isinstance(oldval,bool) and isinstance(val,type(None)):
+            val = oldval
         return val
 
 

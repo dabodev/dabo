@@ -8,13 +8,16 @@ except ModuleNotFoundError:
     plot = None
 
 try:
-    import numpy.oldnumeric as _Numeric
+    #JFCS 11/5/2019 ADDED BELOW
+    import numpy
+    #numpy = numpy.oldnumeric
+    ##import numpy.oldnumeric as numpy
 except ImportError:
-    _Numeric = False
+    numpy = False
 except Exception as e:
     # Report the error, and abandon the import
     dabo.log.error(_("Error importing numpy.oldnumeric: %s") % e)
-    _Numeric = False
+    numpy = False
 
 from dabo.ui import makeDynamicProperty
 from dabo.ui.dControlMixin import dControlMixin
@@ -153,7 +156,7 @@ class PlotMarkers(_TraceMixin, plot.PolyMarker):
 class dLinePlot(dControlMixin, plot.PlotCanvas):
     """Creates a panel that can load and display a line graph."""
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
-        if not _Numeric:
+        if not numpy:
             raise ImportError("numpy.oldnumeric is not present, so dLinePlot cannot instantiate.")
         self._plotManager = plot.PlotGraphics([])
 
@@ -172,12 +175,13 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
     def appendLineFromEquation(self, equation, Start, End, points=1000.0, LineColor='black', LineStyle='solid',
                 LineWidth=1, Caption=""):
         spacing = (float(End) - float(Start))/float(points)
-        pointList = Start + (_Numeric.arange(points) * spacing)
+        pointList = Start + (numpy.arange(points) * spacing)
         coordinates = []
         s = "value = %s" % equation
         for index in range(len(pointList)):
             exec(s % pointList[index])
-            coordinates.append((pointList[index], value))
+            #coordinates.append((pointList[index], value))
+            coordinates.append((pointList[index]))
         self.appendLineFromPoints(coordinates, LineColor, LineStyle, LineWidth, Caption)
 
 
@@ -251,7 +255,9 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
 
 
     def setDefaults(self):
-        self.SetFont(wx.Font(10,wx.FONTFAMILY_SWISS,wx.FONTWEIGHT_NORMAL,wx.FONTWEIGHT_NORMAL))
+        #Font(pointSize, family, style, weight, underline=False, faceName=EmptyString, encoding=FONTENCODING_DEFAULT)
+        #self.SetFont(wx.Font(10,wx.FONTFAMILY_SWISS,wx.NORMAL, wx.FONTWEIGHT_NORMAL,wx.FONTWEIGHT_NORMAL))
+        self.SetFont(wx.Font(10,wx.FONTFAMILY_SWISS,wx.NORMAL, wx.FONTWEIGHT_NORMAL))
         self.SetFontSizeAxis(10)
         self.SetFontSizeLegend(7)
         self.setLogScale((False,False))
@@ -521,20 +527,20 @@ class _dLinePlot_test(dLinePlot):
 
     def afterInit(self):
         # 1000 points cos function, plotted as blue line
-        self.appendLineFromEquation("2*_Numeric.cos(%s)", 5, 10, Caption="Blue Line", LineWidth=2, LineColor="blue")
+        self.appendLineFromEquation("2* numpy.cos(%s)", 5, 10, Caption="Blue Line", LineWidth=2, LineColor="blue")
 
         line = []
         for i in range(10):
             line.append((i, float(i)/2))
         self.appendLineFromPoints(line)
 
-        data1 = 2.*_Numeric.pi*_Numeric.arange(200)/200.
+        data1 = 2.*numpy.pi* numpy.arange(200)/200.
         data1.shape = (100, 2)
-        data1[:,1] = _Numeric.sin(data1[:,0])
+        data1[:,1] = numpy.sin(data1[:,0])
         self.appendMarkerFromPoints(data1, Caption='Green Markers', Color='green', MarkerShape='circle', MarkerSize=1)
 
         # A few more points...
-        points = [(0., 0.), (_Numeric.pi/4., 1.), (_Numeric.pi/2, 0.), (3.*_Numeric.pi/4., -1)]
+        points = [(0., 0.), (numpy.pi/4., 1.), (numpy.pi/2, 0.), (3.*numpy.pi/4., -1)]
         self.appendMarkerFromPoints(points, Caption='Cross Legend', Color='blue', MarkerShape='cross')
 
 

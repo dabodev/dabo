@@ -356,7 +356,9 @@ class dPemMixin(dObject):
         zoom = getattr(self.Form, "_currFontZoom", 0)
         dPanel = dabo.import_ui_name("dPanel")
         dScrollPanel = dabo.import_ui_name("dScrollPanel")
-        if zoom and not isinstance(self, (dPanel, dScrollPanel)):
+        #jfcs 10/16/2019 added below dMenuItem because it was causing dabo to crash
+        dMenuItem = dabo.import_ui_name('dMenuItem')
+        if zoom and not isinstance(self, (dPanel, dScrollPanel, dMenuItem)):
             dabo.ui.callAfter(self._setAbsoluteFontZoom, zoom)
 
 
@@ -1406,10 +1408,14 @@ class dPemMixin(dObject):
         dGrid = dabo.import_ui_name("dGrid")
         dPageFrameMixin = dabo.import_ui_name("dPageFrameMixin")
         dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
+        #jfcs 1/7/2020 added the dDropdownList
+        dDropdownList = dabo.import_ui_name("dDropdownList")
         if isinstance(self, dGrid):
             kids = self.Columns
         elif isinstance(self, (dPageFrameMixin, dPageFrameNoTabs)):
             kids = self.Pages
+        #elif isinstance(self, dDropdownList):
+            #kids = 0
         else:
             kids = self.Children
         if not kids:

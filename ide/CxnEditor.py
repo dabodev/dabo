@@ -185,7 +185,12 @@ class EditorForm(dForm):
         self.gridSizer = gbsz
 
         sz = self.bg.Sizer = dSizer("v")
-        sz.append(gbsz, 0, "expand", halign="center", border=20)
+        #jfcs 5/20/20 below has "halign="center"" and that is nolonger ignored in 4.1
+        '''wx._core.wxAssertionError: C++ assertion "!(flags & (wxALIGN_RIGHT | wxALIGN_CENTRE_HORIZONTAL))" 
+        failed at /home/wxpy/wxPython-4.1.0/ext/wxWidgets/src/common/sizer.cpp(2085) in DoInsert(): 
+        Horizontal alignment flags are ignored with wxEXPAND'''
+        #sz.append(gbsz, 0, "expand", halign="center", border=20)
+        sz.append(gbsz, 0, "expand",  border=20)
         sz.append(btnSizer1, 0, halign="center")
         sz.append(btnSizer2, 0, halign="center")
         # Only create the 'Set Crypto Key' button if PyCrypto is installed
@@ -198,9 +203,11 @@ class EditorForm(dForm):
         if self._showKeyButton:
             self.cryptoKeyButton = dButton(self.bg, Caption=_("Set Crypto Key"),
                     OnHit=self.onSetCrypto)
-            btnSizer1.append(self.cryptoKeyButton, 0, halign="center", border=3)
+            #btnSizer1.append(self.cryptoKeyButton, 0, halign="center", border=3)
+            btnSizer1.append(self.cryptoKeyButton, 0, border=3)
         self.Sizer = dSizer("h")
-        self.Sizer.append(self.bg, 1, "expand", halign="center")
+        #self.Sizer.append(self.bg, 1, "expand", halign="center")
+        self.Sizer.append(self.bg, 1, "expand")
         self.Layout()
 
 

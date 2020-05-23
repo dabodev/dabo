@@ -24,7 +24,8 @@ class dListBox(dControlItemMixin, wx.ListBox):
 
     def clearSelections(self):
         for elem in self.GetSelections():
-            self.SetSelection(elem, False)
+            #self.SetSelection(elem, False)
+            self.SetSelection(elem)
 
 
     def selectAll(self):

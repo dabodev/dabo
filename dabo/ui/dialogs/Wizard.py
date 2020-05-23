@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import dabo
 import dabo.ui
 from dabo.dApp import dApp
 from dabo.dLocalize import _
@@ -6,7 +7,39 @@ import dabo.dEvents as dEvents
 import dabo.dConstants as k
 from dabo.ui.dDialog import dDialog
 from .WizardPage import WizardPage
-
+dListControl = dabo.import_ui_name('dListControl')
+dForm = dabo.import_ui_name("dForm")
+dPanel = dabo.import_ui_name("dPanel")
+dTextBox = dabo.import_ui_name("dTextBox")
+dLabel = dabo.import_ui_name("dLabel")
+dGrid = dabo.import_ui_name("dGrid")
+dButton = dabo.import_ui_name("dButton")
+dLine = dabo.import_ui_name("dLine")
+dDialog = dabo.import_ui_name("dDialog")
+dSizer = dabo.import_ui_name("dSizer")
+dColumn = dabo.import_ui_name("dColumn")
+dBorderSizer = dabo.import_ui_name("dBorderSizer")
+dOkCancelDialog = dabo.import_ui_name("dOkCancelDialog")
+dEditBox = dabo.import_ui_name("dEditBox")
+dDropdownList = dabo.import_ui_name("dDropdownList")
+dTextBox = dabo.import_ui_name("dTextBox")
+dSpinner = dabo.import_ui_name("dSpinner")
+dMaskedTextBox = dabo.import_ui_name("dMaskedTextBox")
+dPageFrame = dabo.import_ui_name('dPageFrame')
+dScrollPanel = dabo.import_ui_name("dScrollPanel")
+dMessageBox = dabo.import_ui_name("dMessageBox")
+dBitmapButton = dabo.import_ui_name("dBitmapButton")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dCheckBox = dabo.import_ui_name("dCheckBox")
+dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
+dDateTextBox = dabo.import_ui_name("dDateTextBox")
+dcm = dabo.import_ui_name("dDataControlMixin")
+#makeDynamicProperty = dabo.import_ui_name("makeDynamicProperty")
+dExtendedCalendar = dabo.import_ui_name("dExtendedCalendar")
+dCalendar = dabo.import_ui_name('dCalendar')
+dRadioList = dabo.import_ui_name("dRadioList")
+dCheckList = dabo.import_ui_name("dCheckList")
+dImage = dabo.import_ui_name('dImage')
 
 class Wizard(dDialog):
     """
@@ -31,9 +64,9 @@ class Wizard(dDialog):
                 properties=properties, *args, **kwargs)
 
         # Add the main panel
-        mp = self.mainPanel = dabo.ui.dPanel(self)
+        mp = self.mainPanel = dPanel(self)
         self.Sizer.append(mp, 1, "x")
-        mp.Sizer = dabo.ui.dSizer(self.Sizer.Orientation)
+        mp.Sizer = dSizer(self.Sizer.Orientation)
 
         # Experimental!
         # Automatically sets the page to match the form's BackColor. Set
@@ -68,33 +101,33 @@ class Wizard(dDialog):
         # Add a top border
         mpsz.appendSpacer(mpsz.DefaultBorder)
 
-        self.wizardIcon = dabo.ui.dImage(mp, ScaleMode="Proportional")
+        self.wizardIcon = dImage(mp, ScaleMode="Proportional")
         if not self.Picture:
             self.PictureHeight = self.PictureWidth = 96
             self.Picture = "daboIcon096"
-        hsz = dabo.ui.dSizer("h")
+        hsz = dSizer("h")
         hsz.DefaultSpacing = 20
         hsz.append(self.wizardIcon, 0)
 
         # This is the panel that will contain the various pages
-        pp = self.pagePanel = dabo.ui.dPanel(mp)
+        pp = self.pagePanel = dPanel(mp)
         if self.setPageColor:
             pp.BackColor = pp.Parent.BackColor
-        ppsz = pp.Sizer = dabo.ui.dSizer("v")
+        ppsz = pp.Sizer = dSizer("v")
 
         hsz.append(pp, 1, "x")
         mpsz.append(hsz, 1, "x")
 
         # Separator line
-        ln = dabo.ui.dLine(mp)
+        ln = dLine(mp)
         mpsz.append(ln, "x")
 
         # Buttons
-        hsz = dabo.ui.dSizer("h")
+        hsz = dSizer("h")
         hsz.DefaultSpacing = 5
-        self.btnBack = dabo.ui.dButton(mp, Caption=_("< Back"))
-        self.btnNext = dabo.ui.dButton(mp, Caption=_("Next >"))
-        self.btnCancel = dabo.ui.dButton(mp, Caption=_("Cancel"))
+        self.btnBack = dButton(mp, Caption=_("< Back"))
+        self.btnNext = dButton(mp, Caption=_("Next >"))
+        self.btnCancel = dButton(mp, Caption=_("Cancel"))
         hsz.append(self.btnBack)
         hsz.append(self.btnNext)
         hsz.append(self.btnCancel)
@@ -393,7 +426,7 @@ if __name__ == "__main__":
     class WizPageOne(WizardPage):
         def createBody(self):
             self.Caption = _("This is the first page")
-            lbl = dabo.ui.dLabel(self, Caption=_(
+            lbl = dLabel(self, Caption=_(
 """Are you getting excited yet???
 
 I know that I am!!"""))
@@ -403,11 +436,11 @@ I know that I am!!"""))
     class WizPageTwo(WizardPage):
         def createBody(self):
             self.Caption = _("This is the second page")
-            lbl = dabo.ui.dLabel(self, Caption=_(
+            lbl = dLabel(self, Caption=_(
 """This will demonstrate condtional skipping of
 pages. If the checkbox below is checked, clicking
 'Next' will move to Page 4 instead of Page 3."""))
-            self.chk = dabo.ui.dCheckBox(self, Caption="Skip?")
+            self.chk = dCheckBox(self, Caption="Skip?")
             self.Sizer.append(lbl, alignment="center")
             self.Sizer.appendSpacer(10)
             self.Sizer.append(self.chk, alignment="center")
@@ -426,7 +459,7 @@ pages. If the checkbox below is checked, clicking
     class WizPageThree(WizardPage):
         def createBody(self):
             self.Caption = _("This is the third page")
-            lbl = dabo.ui.dLabel(self, Caption=_(
+            lbl = dLabel(self, Caption=_(
 """You should only see this if you did not check
 the box on Page Two.
 """))
@@ -436,17 +469,17 @@ the box on Page Two.
         def createBody(self):
             self.Caption = _("This is the fourth page")
             self.Picture = "cards/small/s1.png"
-            lbl = dabo.ui.dLabel(self, Caption=_(
+            lbl = dLabel(self, Caption=_(
 """Did the skipping work OK?
 """))
             self.Sizer.append(lbl, alignment="center")
-            self.txt = dabo.ui.dTextBox(self)
-            lbl = dabo.ui.dLabel(self, Caption=_(
+            self.txt = dTextBox(self)
+            lbl = dLabel(self, Caption=_(
                     "You cannot move forward if this textbox is empty"))
             self.Sizer.appendSpacer(16)
             self.Sizer.append(self.txt, alignment="center")
             self.Sizer.append(lbl, alignment="center")
-            lbl = dabo.ui.dLabel(self, Caption=_(
+            lbl = dLabel(self, Caption=_(
                     "Also note that this page has a different icon!"))
             self.Sizer.appendSpacer(5)
             self.Sizer.append(lbl, alignment="center")
@@ -477,7 +510,7 @@ the box on Page Two.
     class WizPageFive(WizardPage):
         def createBody(self):
             self.Caption = _("This is the fifth (and last) page")
-            lbl = dabo.ui.dLabel(self, Caption=_(
+            lbl = dLabel(self, Caption=_(
 """This is the last page. Note that the 'Next' button
 now reads 'Finish'. Click that to exit, or click 'Back'
 to play some more.
