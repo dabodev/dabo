@@ -104,6 +104,7 @@ class dSizerMixin(dObject):
     def append(self, obj, layout="normal", proportion=0, alignment=None,
             halign="left", valign="top", border=None, borderSides=None):
         """Adds the passed object to the end of the sizer layout."""
+
         return self.insert(len(self.Children), obj, layout=layout, proportion=proportion,
                 alignment=alignment, halign=halign, valign=valign, border=border,
                 borderSides=borderSides)
@@ -140,13 +141,10 @@ class dSizerMixin(dObject):
             _wxFlags = self._getWxFlags(alignment, halign, valign, borderSides, layout)
             if border is None:
                 border = self.DefaultBorder
-            # If there are objects in this sizer already, add the default spacer
+            ## If there are objects in this sizer already, add the default spacer
             addSpacer = ( len(self.GetChildren()) > 0)
-            if _wxFlags in {752}:
-                ret = szItem = self.Insert(index, obj, proportion=proportion,
-                                                   border=border, userData=self)
-            else:
-                ret = szItem = self.Insert(index, obj, proportion=proportion,
+
+            ret = szItem = self.Insert(index, obj, proportion=proportion,
                                                    flag=_wxFlags, border=border, userData=self)            
             if addSpacer:
                 self.addDefaultSpacer(index)

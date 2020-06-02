@@ -31,6 +31,7 @@ from dabo.lib.utils import ustr
 from dabo.lib.utils import cleanMenuCaption
 
 
+
 class Collection(list):
     """ Collection : Base class for the various collection
     classes used in the app object.
@@ -1249,13 +1250,16 @@ try again when it is running.
 
 
     def onHelpAbout(self, evt):
+        from .ui.dDockForm import dDockForm
         about = self.AboutFormClass
         if about is None:
-            from dui.dialogs.htmlAbout import HtmlAbout as about
+            #from dui.dialogs.htmlAbout import HtmlAbout as about
+            from .ui.dialogs import htmlAbout as h
+            about = h.HtmlAbout
         frm = self.ActiveForm
         if frm is None:
             frm = self.MainForm
-        if frm.MDI or isinstance(frm, dui.dDockForm):
+        if frm.MDI or isinstance(frm, dDockForm):
             # Strange big sizing of the about form happens on Windows
             # when the parent form is MDI.
             frm = None
