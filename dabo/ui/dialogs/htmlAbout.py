@@ -14,6 +14,7 @@ dColumn = dabo.import_ui_name("dColumn")
 dGrid = dabo.import_ui_name("dGrid")
 dLabel = dabo.import_ui_name("dLabel")
 dButton = dabo.import_ui_name("dButton")
+dHtmlBox = dabo.import_ui_name("dHtmlBox")
 
 
 class HtmlAbout(dDialog):
@@ -35,7 +36,7 @@ class HtmlAbout(dDialog):
 
         self.htmlBox = dHtmlBox(self)
         self.htmlBox.Size = (400, 300)
-        sz.append1x(self.htmlBox, halign="center", valign="center",
+        sz.append(self.htmlBox, 1, halign="center", valign="center",
                 border=30)
 
         # Copy info

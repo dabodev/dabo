@@ -31,6 +31,7 @@ from dabo.lib.utils import ustr
 from dabo.lib.utils import cleanMenuCaption
 
 
+
 class Collection(list):
     """ Collection : Base class for the various collection
     classes used in the app object.
@@ -1247,6 +1248,7 @@ try again when it is running.
 
 
     def onHelpAbout(self, evt):
+        from dabo.ui import dDockForm
         about = self.AboutFormClass
         if about is None:
             from dabo.ui.dialogs.htmlAbout import HtmlAbout as about
