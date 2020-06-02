@@ -3571,6 +3571,9 @@ class DrawObject(dObject):
 
     def _penSettings(self, dc):
         pw = self.PenWidth
+        #force a width
+        if pw == None:
+            pw = 0
         if not pw:
             # No pen
             pen = wx.Pen(dColors.colorTupleFromName("black"), pw,

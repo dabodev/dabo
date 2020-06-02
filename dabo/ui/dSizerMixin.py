@@ -104,10 +104,26 @@ class dSizerMixin(dObject):
     def append(self, obj, layout="normal", proportion=0, alignment=None,
             halign="left", valign="top", border=None, borderSides=None):
         """Adds the passed object to the end of the sizer layout."""
-
-        return self.insert(len(self.Children), obj, layout=layout, proportion=proportion,
-                alignment=alignment, halign=halign, valign=valign, border=border,
+        
+        #if layout == 'x':
+            #return self.insert(len(self.Children), obj, layout=layout, proportion=proportion,
+                     #border=border, borderSides=borderSides)
+        #else:
+            
+            #return self.insert(len(self.Children), obj, layout=layout, proportion=proportion,
+                #alignment=alignment, halign=halign, valign=valign, border=border,
+                #borderSides=borderSides)
+                
+        if self.GetOrientation() == wx.VERTICAL and layout != 'x':
+            return self.insert(len(self.Children), obj, layout=layout, proportion=proportion,
+                     alignment=alignment, halign=halign,border=border, borderSides=borderSides)
+        elif self.GetOrientation() == wx.HORIZONTAL and layout != 'x':
+            return self.insert(len(self.Children), obj, layout=layout, proportion=proportion,
+                alignment=alignment, valign=valign, border=border,
                 borderSides=borderSides)
+        else:
+            return self.insert(len(self.Children), obj, layout=layout, proportion=proportion, border=border, borderSides=borderSides)        
+        
     try:
         append.__doc__ += _doc_additions
     except TypeError:

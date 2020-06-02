@@ -199,7 +199,8 @@ class dToolBar(dControlMixin, wx.ToolBar):
     def appendControl(self, control):
         """Adds any Dabo Control to the toolbar."""
         butt = self.AddControl(control)
-        butt.SetLabel(control.Caption)
+        butt.Control.SetLabel(control.Caption)
+        #butt.SetLabel(control.Caption)
         self._realize()
 
         # Store the control reference:

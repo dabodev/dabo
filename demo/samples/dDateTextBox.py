@@ -25,6 +25,7 @@ class TestPanel(dPanel):
                 "to display the ToolTip."
         lbl = dLabel(self, Caption=intro, ForeColor="darkblue", FontBold=True,
                 WordWrap=True, Alignment="center")
+               
         sz.append(lbl, "x", halign="center")
         sz.appendSpacer(10)
         txt = dDateTextBox(self, Value=datetime.date.today(), FontSize=18,
