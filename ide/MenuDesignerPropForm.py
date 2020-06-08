@@ -4,9 +4,14 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from ClassDesignerPropSheet import PropSheet
 from ClassDesignerTreeSheet import TreeSheet
+dForm = dabo.import_ui_name("dForm")
+dTextBox = dabo.import_ui_name("dTextBox")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dToggleButton = dabo.import_ui_name("dToggleButton")
+dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
 
-
-class MenuPropForm(dabo.ui.dForm):
+class MenuPropForm(dForm):
     """This form contains the PropSheet for the Menu Designer."""
     def afterSetMenuBar(self):
         self.ShowStatusBar = False
@@ -23,14 +28,14 @@ class MenuPropForm(dabo.ui.dForm):
 
     def afterInit(self):
         self.Caption = _("Properties")
-        pnl = dabo.ui.dPanel(self)
+        pnl = dPanel(self)
         self.Sizer.append1x(pnl)
-        sz = pnl.Sizer = dabo.ui.dSizer("v")
+        sz = pnl.Sizer = dSizer("v")
 
-        txt = dabo.ui.dTextBox(pnl, ReadOnly=True, RegID="txtObj")
-        hsz = dabo.ui.dSizer("h")
+        txt = dTextBox(pnl, ReadOnly=True, RegID="txtObj")
+        hsz = dSizer("h")
         hsz.append1x(txt)
-        self.treeBtn = dabo.ui.dToggleButton(pnl, Height=txt.Height,
+        self.treeBtn = dToggleButton(pnl, Height=txt.Height,
                 Width=txt.Height, Caption="", Picture="downTriangleBlack",
                 DownPicture="upTriangleBlack")
         self.treeBtn.bindEvent(dEvents.Hit, self.onToggleTree)
@@ -43,20 +48,20 @@ class MenuPropForm(dabo.ui.dForm):
         sz.append(hsz, "x")
         sz.appendSpacer(5)
 
-        self.mainPager = mp = dabo.ui.dPageFrameNoTabs(pnl, PageClass=dabo.ui.dPanel)
+        self.mainPager = mp = dPageFrameNoTabs(pnl, PageClass=dPanel)
         mp.PageCount=2
         mp.bindEvent(dEvents.PageChanged, self.onMainPageChanged)
         sz.append1x(mp)
         sz.appendSpacer(brdr)
         self.propPage = pp = mp.Pages[0]
         self.treePage = tp = mp.Pages[1]
-        psz = pp.Sizer = dabo.ui.dSizer("v")
-        tsz = tp.Sizer = dabo.ui.dSizer("v")
+        psz = pp.Sizer = dSizer("v")
+        tsz = tp.Sizer = dSizer("v")
 
         # Add the PropSheet
         ps = PropSheet(self.propPage, RegID="_propSheet",
                 Controller=self.Controller)
-        self.propPage.Sizer = dabo.ui.dSizer("v")
+        self.propPage.Sizer = dSizer("v")
         self.propPage.Sizer.append1x(ps)
 
         # Create the tree
