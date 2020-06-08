@@ -9,13 +9,17 @@ append() methods of the menubar and menus to add the specific
 menu items that your app needs.
 """
 import os
+
+import os
 import wx
 import dabo
+from dabo import icons
+from dabo.dLocalize import _, n_
 from dabo.ui import dMenu
 from dabo.ui import dMenuBar
-from dabo.dLocalize import _, n_
 
-iconPath = "themes/tango/16x16"
+
+iconPath = os.path.dirname(icons.__file__) + r'/themes/tango/16x16' #home/johnf/dabo3/dabo/icons/themes/tango/16x16"
 
 class FileMenu(dMenu):
 
@@ -43,7 +47,7 @@ class FileMenu(dMenu):
             self.Parent.debugMenuItem.Checked = True
 
             self.Parent.inspectorMenuItem = self.append(_("Object &Inspector"), HotKey="Ctrl+Shift+I",
-                    OnHit=app.onObjectInspectorWin, bmp="%s/apps/system-search.png" % iconPath,
+                    OnHit=app.onObjectInspectorWin, bmp="%s/apps/actions/system-search.png" % iconPath,
                     ItemID="file_inspectorwin", menutype="check",
                     help=_("Open up the object inspector"))
 
