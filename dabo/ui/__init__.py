@@ -1466,6 +1466,7 @@ def createMenuBar(src, form=None, previewFunc=None):
         mnd = src
     else:
         try:
+            import json
             # See if the src is a JSON-ified dict
             src = json.loads(src)
         except ValueError:
@@ -1881,6 +1882,7 @@ def bitmapFromData(data):
 def imageFromData(data):
     stream = io.StringIO(data)
     return Image(stream)
+    
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
