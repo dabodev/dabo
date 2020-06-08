@@ -13,9 +13,12 @@ import dabo.lib.xmltodict as xtd
 from ClassDesignerExceptions import PropertyUpdateException
 import MenuPanel
 from MenuDesignerPropForm import MenuPropForm
+dForm = dabo.import_ui_name("dForm")
+dButton = dabo.import_ui_name("dButton")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
 
-
-class MenuDesignerForm(dabo.ui.dForm):
+class MenuDesignerForm(dForm):
     def __init__(self, *args, **kwargs):
         self._selection = None
         self._savedState = {}
@@ -28,10 +31,10 @@ class MenuDesignerForm(dabo.ui.dForm):
         self.Controller = self
         super(MenuDesignerForm, self).__init__(*args, **kwargs)
         self.Caption = "Dabo Menu Designer"
-        self.mainPanel = dabo.ui.dPanel(self)
+        self.mainPanel = dPanel(self)
         self.Sizer.append1x(self.mainPanel)
         self.topLevelMenuBar = None
-        sz = self.mainPanel.Sizer = dabo.ui.dSizerV()
+        sz = self.mainPanel.Sizer = dSizer('v')
         self.initMenuBar()
         self._dragObject = None
         self._dragImage = None
@@ -39,7 +42,7 @@ class MenuDesignerForm(dabo.ui.dForm):
         self._dragObjOffset = (0, 0)
         self._dragDrawPos = (0, 0)
         self.bindEvent(dEvents.MouseMove, self.handleMouseMove)
-        self.previewButton = btn = dabo.ui.dButton(self.mainPanel,
+        self.previewButton = btn = dButton(self.mainPanel,
                 Caption="Preview", OnHit=self.onPreview)
         sz.append(btn, border=10, halign="center")
         dabo.ui.callAfter(self.layout)
@@ -226,7 +229,9 @@ class MenuDesignerForm(dabo.ui.dForm):
 
     def _createBaseMenuDict(self):
         """This creates the dict that represents a base menu."""
-        iconPath = "themes/tango/16x16"
+        from dabo import icons
+        iconPath = os.path.dirname(icons.__file__) + r'/themes/tango/16x16'
+        #iconPath = "themes/tango/16x16"
         sep = {"attributes": {},
                 "children": [],
                 "name": "SeparatorPanel"}
