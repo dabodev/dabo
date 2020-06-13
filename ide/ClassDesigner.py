@@ -322,25 +322,25 @@ class ClassDesigner(dApp):
         pf.Controller = self
         pf.Visible = True
 
-        # Create the control palette
+        ## Create the control palette
         palette = self.ControlPalette
         palette.Controller = self
-        palette.Visible = False
+        palette.Visible = True #False
 
         # Create the sizer palette, but make it hidden to start
         palette = self.SizerPalette
         palette.Controller = self
-        palette.Visible = False
+        palette.Visible = True #False
 
         # Create the Code Editor
         ed = self.EditorForm
         ed.Controller = self
         ed.Visible = True
 
-        # Create the Text File Editor
+        ## Create the Text File Editor
         txed = self.TextEditorForm
         txed.Controller = self
-        txed.Visible = False
+        txed.Visible = True #False
 
         # Set the initial selection to the form
         self.select(self.CurrentForm)
@@ -4206,6 +4206,7 @@ if __name__ == '__main__':
             class PaletteForm(dToolForm):
                 def afterSetMenuBar(self):
                     ClassDesignerMenu.mkDesignerMenu(self)
+                    
 
                 def onMenuOpen(self, evt):
                     self.Controller.menuUpdate(evt, self.MenuBar)

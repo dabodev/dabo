@@ -2763,7 +2763,7 @@ class ReportWriter(object):
                 or self.ReportForm.getMemento() == self._reportFormMemento)
 
 
-    def _elementSort(self, x, y):
+    def _elementSort(self, x=None, y=None):
         positions = CaselessDict({"author": 0, "title": 2,
                 "subject": 3, "keywords": 4, "defaults": 6,
                 "columnCount": 5, "page": 10,
@@ -2787,7 +2787,9 @@ class ReportWriter(object):
             d = {"name": "Report", "children": []}
 
         elements = list(form.keys())
-        elements.sort(self._elementSort)
+        #elements.sort(key=self._elementSort)
+        #jfcs self._elementSort not needed the sort just works
+        elements.sort()
 
         for element in elements:
             if element == "type":
@@ -2810,7 +2812,8 @@ class ReportWriter(object):
                     formobj = form[element][index]
                     obj = {"name": formobj.__class__.__name__, "children": []}
                     props = list(formobj.keys())
-                    props.sort(self._elementSort)
+                    #props.sort(self._elementSort)
+                    props.sort()
                     if element in formobj:
                         # Recurse
                         self._getXMLDictFromForm(formobj, obj)
@@ -3146,7 +3149,7 @@ class ReportWriter(object):
             else:
                 raise ValueError("Invalid file type.")
             self._reportFormFile = val
-            self.HomeDirectory = os.path.join(os.path.split(val)[:-1])[0]
+            self.HomeDirectory = os.path.join(os.path.split(val)[:-1][0])
         else:
             raise ValueError("Specified file does not exist.")
 

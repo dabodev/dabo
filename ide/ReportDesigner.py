@@ -13,11 +13,24 @@ from dabo.lib.utils import ustr
 from dabo.ui import dKeys
 import ClassDesignerPropSheet
 
+dForm = dabo.import_ui_name("dForm")
+dTreeView = dabo.import_ui_name('dTreeView')
+dPanel = dabo.import_ui_name("dPanel")
+dScrollPanel = dabo.import_ui_name('dScrollPanel')
+dPageFrame = dabo.import_ui_name('dPageFrame')
+dMenu = dabo.import_ui_name('dMenu')
+dLabel = dabo.import_ui_name("dLabel")
+dFont = dabo.import_ui_name('dFont')
+dPageFrame = dabo.import_ui_name('dPageFrame')
+dEditor = dabo.import_ui_name('dEditor')
+dImage = dabo.import_ui_name('dImage')
 
 NEW_FILE_CAPTION = "< New >"
 SHORTEN_EXPRESSIONS_FOR_DISPLAY = False
 
 rdc = None
+from dabo import icons
+iconPath = os.path.dirname(icons.__file__) #+ r'/themes/tango/16x16'
 
 
 def DesignerController():
@@ -219,7 +232,7 @@ def DesignerController():
             def onMoveToBottom(evt):
                 self.ActiveEditor.bringToFront()
 
-            menu = dabo.ui.dMenu()
+            menu = dMenu()
             newObjectMenuCreated = False
             newVariableMenuCreated = False
             newGroupMenuCreated = False
@@ -238,7 +251,7 @@ def DesignerController():
                     newGroupMenuCreated = True
                 if not newObjectMenuCreated and isinstance(robj, Band):
                     newObjectMenuCreated = True
-                    objectChoices = dabo.ui.dMenu(Caption="New object")
+                    objectChoices = dMenu(Caption="New object")
                     for choice in (Image, Line, Rectangle, String, Memo):
                         objectChoices.append(choice.__name__,
                                              OnHit=onNewObject, Tag=choice)
@@ -253,7 +266,7 @@ def DesignerController():
 
                     for typ, cap in ((tc, "Field"), (var, "Variable")):
                         if typ:
-                            submenu = dabo.ui.dMenu(Caption=cap)
+                            submenu = dMenu(Caption=cap)
                             fields = []
                             if typ == tc:
                                 if tc:
@@ -706,7 +719,7 @@ def DesignerController():
 rdc = DesignerController()
 
 
-class DesignerControllerForm(dabo.ui.dForm):
+class DesignerControllerForm(dForm):
     def initProperties(self):
         self.Caption = "DesignerController Form"
         self.TinyTitleBar = True
@@ -752,7 +765,7 @@ class DesignerControllerForm(dabo.ui.dForm):
     EditorClass = property(_getEditorClass, _setEditorClass)
 
 
-class ReportObjectTree(dabo.ui.dTreeView):
+class ReportObjectTree(dTreeView):
     def initProperties(self):
         self.MultipleSelect = True
         self.ShowButtons = True
@@ -815,7 +828,8 @@ class ReportObjectTree(dabo.ui.dTreeView):
             parentNode.FontSize = fontSize
             parentNode.Object = frm
             elements = list(frm.keys())
-            elements.sort(rw._elementSort)
+            #elements.sort(rw._elementSort)
+            elements.sort()
             for name in elements:
                 self.recurseLayout(frm=frm[name], parentNode=parentNode)
             return
@@ -900,7 +914,7 @@ class ReportPropSheet(ClassDesignerPropSheet.PropSheet):
 
     def afterInit(self):
         super(ReportPropSheet, self).afterInit()
-        self.addObject(dabo.ui.dLabel, Name="lblType", FontBold=True)
+        self.addObject(dLabel, Name="lblType", FontBold=True)
         self.Sizer.insert(0, self.lblType, "expand", halign="left", border=10)
         self.Sizer.insertSpacer(0, 10)
 
@@ -968,7 +982,7 @@ class PropSheetForm(DesignerControllerForm):
 
 
 
-class DesignerPanel(dabo.ui.dPanel):
+class DesignerPanel(dPanel):
     def onGotFocus(self, evt):
         # Microsoft Windows gives the keyboard focus to sub-panels, which
         # really sucks. This takes care of it.
@@ -1004,7 +1018,7 @@ class BandLabel(DesignerPanel):
     def onMouseMove(self, evt):
         import wx  ## need to abstract DC and mouse cursors!!
         if self._dragging:
-            self.SetCursor(wx.StockCursor(wx.CURSOR_CROSS))
+            self.SetCursor(wx.Cursor(wx.CURSOR_CROSS))
             pos = evt.EventData["mousePosition"]
 
             if pos[1] != self._dragStart[1]:
@@ -1023,10 +1037,12 @@ class BandLabel(DesignerPanel):
                     dc.Clear()
 
                     self._dragImage = wx.DragImage(self._captureBitmap,
-                                                   wx.StockCursor(wx.CURSOR_HAND))
+                                                   wx.Cursor(wx.CURSOR_HAND))
 
-                    self._dragImage.BeginDragBounded((self.Parent.Left, ypos),
-                                                     self, self.Parent.Parent)
+                    #self._dragImage.BeginDragBounded((self.Parent.Left, ypos),
+                                                     #self, self.Parent.Parent)
+                    self._dragImage.BeginDrag((self.Parent.Left, ypos),
+                                                     self, self.Parent.Parent)                    
                     self._dragImage.Show()
 
                 self._dragImage.Move((self.Parent.Left,ypos))
@@ -1083,7 +1099,7 @@ class BandLabel(DesignerPanel):
         if self.Parent.getProp("designerLock"):
             self.SetCursor(wx.NullCursor)
         else:
-            self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENS))
+            self.SetCursor(wx.Cursor(wx.CURSOR_SIZENS))
 
 
     def onMouseLeftDoubleClick(self, evt):
@@ -1440,7 +1456,7 @@ class DesignerBand(DesignerPanel):
                 fontFamily = wx.MODERN
 
             # Can't seem to get different faces represented
-            font = dabo.ui.dFont()
+            font = dFont()
             font._nativeFont.SetFamily(fontFamily)
             font.Bold = fontBold
             font.Italic = fontItalic
@@ -1460,7 +1476,8 @@ class DesignerBand(DesignerPanel):
             rect[2] += left_fudge
             rect[1] += top_fudge
             rect[3] += top_fudge + descent
-            dc.SetClippingRect(rect)
+            #dc.SetClippingRect(rect)
+            dc.SetClippingRegion(rect)
 
             if False and rotation != 0:
                 # We lose the ability to have the alignment and exact rect positioning.
@@ -1682,7 +1699,7 @@ class DesignerBand(DesignerPanel):
 #
 #  ReportDesigner Class
 #
-class ReportDesigner(dabo.ui.dScrollPanel):
+class ReportDesigner(dScrollPanel):
     """Main report designer panel.
 
     This is the main report designer panel that contains the bands and
@@ -1960,9 +1977,9 @@ class ReportDesigner(dabo.ui.dScrollPanel):
             dir_ = ""
 
         if saveDialog:
-            style = wx.SAVE
+            style = wx.FD_SAVE
         else:
-            style = wx.OPEN
+            style = wx.FD_OPEN
 
         dlg = wx.FileDialog(self,
                             message = prompt,
@@ -2216,8 +2233,8 @@ class ReportDesigner(dabo.ui.dScrollPanel):
         br.Position = (lr.Width, totPageHeight)
         totPageHeight += br.Height
 
-        _scrollWidth = (pageWidth + lr.Width + rr.Width) / u
-        _scrollHeight = totPageHeight / u
+        _scrollWidth = int((pageWidth + lr.Width + rr.Width) / u)
+        _scrollHeight = int(totPageHeight / u)
 
         ## pkm: Originally, I used just a SetScrollbars() call
         ##      along with the arguments for scroll position.
@@ -2280,7 +2297,8 @@ class ReportDesigner(dabo.ui.dScrollPanel):
                     size["large"] = 100
 
                 dc = wx.PaintDC(self)
-                dc.SetPen(wx.Pen(ruleColor, 0.25, wx.PENSTYLE_SOLID))
+                #jfcs changed the pen width from 0.25 to 1 because must int now
+                dc.SetPen(wx.Pen(ruleColor, 1, wx.PENSTYLE_SOLID))
 
                 length = self.Length
                 pointLength = self.pointLength
@@ -2291,7 +2309,8 @@ class ReportDesigner(dabo.ui.dScrollPanel):
                             ruleSize = ruleSizes[test]
                             break
                     if ruleSize:
-                        rescaledPos = (pos*z)
+                        #jfcs DC now requires a int
+                        rescaledPos = int(pos*z)
                         if rulerPos == "r":
                             dc.DrawLine(0, rescaledPos, ruleSize, rescaledPos)
                         if rulerPos == "l":
@@ -2435,7 +2454,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 #
 #  ReportDesignerForm Class
 #
-class ReportDesignerForm(dabo.ui.dForm):
+class ReportDesignerForm(dForm):
     """Main form, status bar, and menu for the report designer.
     """
     def initProperties(self):
@@ -2443,7 +2462,7 @@ class ReportDesignerForm(dabo.ui.dForm):
 
     def afterInit(self):
         self.Sizer = None
-        pgf = self.addObject(dabo.ui.dPageFrame, Name="pgf")
+        pgf = self.addObject(dPageFrame, Name="pgf")
         self.pgf.appendPage(ReportDesigner, caption="Visual Editor")
         self.pgf.appendPage(XmlEditor, caption="XML Editor")
         self.pgf.appendPage(PreviewWindow, caption="Preview")
@@ -2648,61 +2667,64 @@ class ReportDesignerForm(dabo.ui.dForm):
 
         fileMenu.prependSeparator()
 
-        fileMenu.prepend(_("Preview Report"), HotKey="Ctrl-P", OnHit=self.onFilePreviewReport,
-                         help=_("Preview the report as a PDF"))
+        fileMenu.prepend(("Preview Report"), HotKey="Ctrl-P", OnHit=self.onFilePreviewReport,
+                         help=("Preview the report as a PDF"))
 
         fileMenu.prependSeparator()
+        
+        
+        fileMenu.prepend(("Save &As"), OnHit=self.onFileSaveAs, bmp="%s/saveAs.png" % iconPath,
+                         help=("save"))
+        #saveasitem = wx.MenuItem()                 
+        #fileMenu.prepend()        
 
-        fileMenu.prepend(_("Save &As"), OnHit=self.onFileSaveAs, bmp="saveAs",
-                         help=_("save"))
+        fileMenu.prepend(("&Save"), HotKey="Ctrl+S", OnHit=self.onFileSave, bmp="%s/save.png" % iconPath,
+                         help=("Save file"))
 
-        fileMenu.prepend(_("&Save"), HotKey="Ctrl+S", OnHit=self.onFileSave, bmp="save",
-                         help=_("Save file"))
+        fileMenu.prepend(_("&Close"), HotKey="Ctrl+W", OnHit=self.onFileClose, bmp="%s/close.png" % iconPath,
+                         help=("Close file"))
 
-        fileMenu.prepend(_("&Close"), HotKey="Ctrl+W", OnHit=self.onFileClose, bmp="close",
-                         help=_("Close file"))
+        fileMenu.prepend(_("&Open"), HotKey="Ctrl+O", OnHit=self.onFileOpen, bmp="%s/open.png" % iconPath,
+                         help=("Open file"))
 
-        fileMenu.prepend(_("&Open"), HotKey="Ctrl+O", OnHit=self.onFileOpen, bmp="open",
-                         help=_("Open file"))
-
-        fileMenu.prepend(_("&New"), HotKey="Ctrl+N", OnHit=self.onFileNew, bmp="new",
-                         help=_("New file"))
+        fileMenu.prepend(_("&New"), HotKey="Ctrl+N", OnHit=self.onFileNew, bmp="%s/new.png" % iconPath,
+                         help=("New file"))
 
 
         editMenu.appendSeparator()
 
         editMenu.append(_("Delete"), HotKey="Del", OnHit=self.onEditDelete,
-                        help=_("Delete the selected object(s)."))
+                        help=("Delete the selected object(s)."))
 
         editMenu.appendSeparator()
 
         editMenu.append(_("Bring to &Front"), HotKey="Ctrl+H", OnHit=self.onEditBringToFront,
-                        help=_("Bring selected object(s) to the top of the z-order"))
+                        help=("Bring selected object(s) to the top of the z-order"))
 
         editMenu.append(_("Send to &Back"), HotKey="Ctrl+J", OnHit=self.onEditSendToBack,
-                        help=_("Send selected object(s) to the back of the z-order"))
+                        help=("Send selected object(s) to the back of the z-order"))
 
 
         viewMenu.appendSeparator()
 
         viewMenu.append(_("Zoom &In"), HotKey="Ctrl+]", OnHit=self.onViewZoomIn,
-                        bmp="zoomIn", help=_("Zoom In"))
+                        bmp="%s/zoomin.png" % iconPath, help=("Zoom In"))
 
         viewMenu.append(_("&Normal Zoom"), HotKey="Ctrl+\\", OnHit=self.onViewZoomNormal,
-                        bmp="zoomNormal", help=_("Normal Zoom"))
+                        bmp="%s/zoomNormal.png" % iconPath, help=("Normal Zoom"))
 
         viewMenu.append(_("Zoom &Out"), HotKey="Ctrl+[", OnHit=self.onViewZoomOut,
-                        bmp="zoomOut", help=_("Zoom Out"))
+                        bmp="%s/zoomOut.png" % iconPath, help=("Zoom Out"))
 
         viewMenu.appendSeparator()
 
         viewMenu.append(_("Show/Hide Object Tree"), HotKey="Shift+Ctrl+O",
                         OnHit=self.onViewShowObjectTree,
-                        help=_("Show the object hierarchy."))
+                        help=("Show the object hierarchy."))
 
         viewMenu.append(_("Show/Hide Property Sheet"), HotKey="Shift+Ctrl+P",
                         OnHit=self.onViewShowPropertySheet,
-                        help=_("Show the properties for the selected report objects."))
+                        help=("Show the properties for the selected report objects."))
 
 
 
@@ -2714,11 +2736,11 @@ class ReportDesignerForm(dabo.ui.dForm):
 EditorForm = ReportDesignerForm
 
 
-class XmlEditor(dabo.ui.dEditor):
+class XmlEditor(dEditor):
     def initProperties(self):
         self.Language = "xml"
 
-class PreviewWindow(dabo.ui.dImage):
+class PreviewWindow(dImage):
     def onPageEnter(self, evt):
         self.render()
 

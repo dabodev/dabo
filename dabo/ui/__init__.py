@@ -184,8 +184,9 @@ def deadCheck(fn, *args, **kwargs):
     """
     def deadCheckFunc(self, *args, **kwargs):
         if not self:
+            
             # For testing, uncomment the print line below:
-#             print("FOUND DEAD OBJECT")
+            print("FOUND DEAD OBJECT")
             return
         return fn(self, *args, **kwargs)
     return deadCheckFunc
@@ -966,12 +967,12 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
         txt = dabo.ui.getString(PasswordEntry=True)
 
     """
-    class StringDialog(dOkCancelDialog):
+    class StringDialog(dabo.ui.dDialog.dOkCancelDialog):
         def addControls(self):
             self.Caption = caption
-            lbl = dLabel(self, Caption=message)
-            self.strVal = dTextBox(self, **kwargs)
-            hs = dSizer("h")
+            lbl = dLabel.dLabel(self, Caption=message)
+            self.strVal = dTextBox.dTextBox(self, **kwargs)
+            hs = dSizer.dSizer("h")
             hs.append(lbl, halign="Right")
             hs.appendSpacer(5)
             hs.append(self.strVal, 1)

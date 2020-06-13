@@ -405,6 +405,7 @@ class dPageFrameMixin(dControlMixin):
     @dui.deadCheck
     def _setSelectedPage(self, pg):
         if self._constructed():
+            print(self)
             idx = self._getPageIndex(pg)
             try:
                 self.SetSelection(idx)
