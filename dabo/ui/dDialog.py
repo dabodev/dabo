@@ -62,13 +62,21 @@ class dDialog(dFormMixin, wx.Dialog):
 
     def EndModal(self, *args, **kwargs):
         self.saveSizeAndPosition()
-        self.hide()
-        if self.Modal:
+        # JFCS 6/11/20 self.hide() causes the self.IsModal() == False which is wrong.
+        #isItModal = self.IsModal()
+        #self.Hide()
+        #if self.Modal:  #this uses the property of the Dabo dialog 
+        #if self.IsModal:  #this uses the wx.IsModal that checks the dialog.
+        # I believe either is required because the call is to end a modal dialog 
+        # if it fails no harm.
+        if self.IsModal():
             try:
+                #self.Destroy()
                 super(dDialog, self).EndModal(*args, **kwargs)
             except wx._core.PyAssertionError:
                 # The modal hack is causing problems in some edge cases.
-                pass
+                super(dDialog,self).release()
+                
 
 
     def _afterInit(self):
@@ -412,7 +420,10 @@ class dStandardButtonDialog(dDialog):
             # New code should not have onOK
             pass
         if self.runOK() is not False:
-            self.EndModal(kons.DLG_OK)
+            if self.IsModal():
+                self.EndModal(kons.DLG_OK)
+            else:
+                self.release()
 
     def _onCancel(self, evt):
         self.Accepted = False

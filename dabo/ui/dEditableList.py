@@ -227,7 +227,7 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
 class _dEditableList_test(dEditableList):
     def afterInit(self):
         self.Choices = ["Johnny", "Joey", "DeeDee"]
-        self.Caption = "Gabba Gabba Hey"
+        self.Caption = "Editable table List"
 
     def onDestroy(self, evt):
         # Need to check this, because apparently under the hood

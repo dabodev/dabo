@@ -26,8 +26,10 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
                 "Alignment", "Right")
         kwargs["selectOnEntry"] = self._extractKey((properties, attProperties, kwargs),
                 "SelectOnEntry", self.SelectOnEntry)
+        #groupChar = self._extractKey((properties, attProperties, kwargs),
+                #"GroupChar", localeData["thousands_sep"].decode(enc))
         groupChar = self._extractKey((properties, attProperties, kwargs),
-                "GroupChar", localeData["thousands_sep"].decode(enc))
+                "GroupChar", localeData["thousands_sep"])        
         # Group char can't be empty string.
         if groupChar or groupChar >= " ":
             kwargs["groupChar"] = groupChar
@@ -41,8 +43,11 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
                 "AllowNegative", True)
         kwargs["useParensForNegatives"] = self._extractKey((properties, attProperties, kwargs),
                 "ParensForNegatives", False)
+        #kwargs["decimalChar"] = self._extractKey((properties, attProperties, kwargs),
+                #"DecimalChar", localeData["decimal_point"].decode(enc))
+                
         kwargs["decimalChar"] = self._extractKey((properties, attProperties, kwargs),
-                "DecimalChar", localeData["decimal_point"].decode(enc))
+                "DecimalChar", localeData["decimal_point"])        
         kwargs["foregroundColour"] = self._extractKey((properties, attProperties, kwargs),
                 "ForeColor", "Black")
         kwargs["validBackgroundColour"] = self._extractKey((properties, attProperties, kwargs),
@@ -74,7 +79,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
     def flushValue(self):
         # Because dTextBoxMixin method is improper here,
         # we use superclass method instead.
-        return ddcm.dDataControlMixin.flushValue(self)
+        return ddcm.flushValue(self)
 
     def getBlankValue(self):
         dec = self.DecimalWidth
@@ -273,7 +278,8 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
             self._properties["SignedForeColor"] = val
 
     def _getValue(self):
-        val = ddcm.dDataControlMixin._getValue(self)
+        #val = ddcm.dDataControlMixin._getValue(self)
+        val = ddcm.Value
         if self._lastDataType is Decimal:
             val = Decimal(str(val))
         elif self._lastDataType is type(None):
@@ -292,7 +298,8 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
             val = float(val)
         elif val is None:
             val = float(0)
-        ddcm.dDataControlMixin._setValue(self, val)
+        #ddcm.dDataControlMixin._setValue(self, val)
+        ddcm.Value = val
         dabo.ui.callAfter(self._fixInsertionPoint)
 
     def _getSelectOnEntry(self):

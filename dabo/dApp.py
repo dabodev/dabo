@@ -1521,7 +1521,9 @@ try again when it is running.
         try:
             cls = self._mainFormClass
         except AttributeError:
-            cls = dui.dFormMain
+            #cls = dui.dFormMain
+            dFormMain = dabo.import_ui_name("dFormMain")
+            cls = dFormMain
             self._mainFormClass = cls
         return cls
 

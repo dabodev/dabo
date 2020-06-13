@@ -350,8 +350,8 @@ if __name__ == "__main__":
         def afterInit(self):
             # Here's a sample movie URI; you can change this to something local on
             # your machine, or another URI.
-            #uri = "/Users/ed/Downloads/roc.mov"
-            uri = "http://c0097282.cdn.cloudfiles.rackspacecloud.com/how_to_fold_a_shirt.mpg"
+            uri = "/home/johnf/Downloads/gettysburg10.wav"
+            #uri = "http://c0097282.cdn.cloudfiles.rackspacecloud.com/how_to_fold_a_shirt.mpg"
             if self.Application.Platform == "Win":
                 backend = wx.media.MEDIABACKEND_WMP10
             else:

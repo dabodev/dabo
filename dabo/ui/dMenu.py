@@ -80,7 +80,7 @@ class dMenu(dPemMixin, wx.Menu):
         See the _setMRUBindings method for an explanation. This uses
         the same logic to unbind MRU events.
         """
-        if isinstance(self.Parent, dabo.ui.dMenuBar):
+        if isinstance(self.Parent, dabo.ui.dMenuBar.dMenuBar):
             self.unbindEvent(dEvents.MenuOpen, self.__onMenuOpenMRU)
         else:
             self.unbindEvent(dEvents.MenuHighlight, self.__onMenuOpenMRU)

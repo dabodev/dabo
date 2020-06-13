@@ -1648,7 +1648,8 @@ class dPemMixin(dObject):
             return dc.GetAsBitmap()
 
         rect = self.GetRect()
-        bmp = wx.EmptyBitmap(rect.width, rect.height, -1)  ## -1: use same color depth
+        #bmp = wx.EmptyBitmap(rect.width, rect.height, -1)  ## -1: use same color depth
+        bmp = wx.Bitmap(rect.width, rect.height, -1)  ## -1: use same color depth
         memdc = wx.MemoryDC()
         memdc.SelectObject(bmp)
 

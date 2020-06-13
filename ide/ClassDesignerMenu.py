@@ -26,44 +26,44 @@ def mkDesignerMenu(parent, target=None):
         em = mb.editMenu
         vm = mb.viewMenu
 
-        app.barShowPropSheet = vm.append(_("Hide Object Info Form"),
+        app.barShowPropSheet = vm.append(("Hide Object Info Form"),
                 OnHit=app.onTogglePropSheet,
                 ItemID="view_objinfo",
                 help=_("Show/hide the Object Info form"))
-        app.barShowEditor = vm.append(_("Hide Code Editor"),
+        app.barShowEditor = vm.append(("Hide Code Editor"),
                 OnHit=app.onToggleEditor,
                 ItemID="view_codeeditor",
                 help=_("Show/hide the Code Editor"))
-        app.barShowPalette = vm.append(_("Show Tool Palette"),
+        app.barShowPalette = vm.append(("Show Tool Palette"),
                 OnHit=app.onTogglePalette,
                 ItemID="view_toolpalette",
                 help=_("Show/hide the Tool Palette"))
-        app.barShowSizerPalette = vm.append(_("Show Sizer Palette"),
+        app.barShowSizerPalette = vm.append(("Show Sizer Palette"),
                 OnHit=app.onToggleSizerPalette,
                 ItemID="view_sizerpalette",
-                help=_("Show/hide the Sizer Palette"))
+                help=("Show/hide the Sizer Palette"))
         # Add some hotkeys for displaying the various PemObject panels
         vm.appendSeparator()
-        vm.append(_("Display Properties"), HotKey="Ctrl+Shift+P",
+        vm.append(("Display Properties"), HotKey="Ctrl+Shift+P",
                 OnHit=app.onShowProp,
                 ItemID="view_properties",
-                help=_("Display the property editing page"))
-        vm.append(_("Display Object Tree"), HotKey="Ctrl+Shift+O",
+                help=("Display the property editing page"))
+        vm.append(("Display Object Tree"), HotKey="Ctrl+Shift+O",
                 OnHit=app.onShowObjTree,
                 ItemID="view_objecttree",
-                help=_("Display the object tree page"))
+                help=("Display the object tree page"))
         vm.append(_("Display Methods"), HotKey="Ctrl+Shift+M",
                 OnHit=app.onShowMethods,
                 ItemID="view_methods",
-                help=_("Display the method selection page"))
+                help=("Display the method selection page"))
         vm.append(_("Select Prior Object"), HotKey="Ctrl+PgUp",
                 OnHit=app.onPriorObj,
                 ItemID="view_priorobj",
-                help=_("Select the object on the previous node of the object tree"))
-        vm.append(_("Select Next Object"), HotKey="Ctrl+PgDn",
+                help=("Select the object on the previous node of the object tree"))
+        vm.append(("Select Next Object"), HotKey="Ctrl+PgDn",
                 OnHit=app.onNextObj,
                 ItemID="view_nextobj",
-                help=_("Select the object on the next node of the object tree"))
+                help=("Select the object on the next node of the object tree"))
 
 
         # Add a separator and the 'Run...' item after the
