@@ -17,6 +17,7 @@ dForm = dabo.import_ui_name("dForm")
 dButton = dabo.import_ui_name("dButton")
 dPanel = dabo.import_ui_name("dPanel")
 dSizer = dabo.import_ui_name("dSizer")
+dLabel = dabo.import_ui_name("dLabel")
 
 class MenuDesignerForm(dForm):
     def __init__(self, *args, **kwargs):
@@ -186,20 +187,20 @@ class MenuDesignerForm(dForm):
 
 
     def onPreview(self, evt):
-        class PreviewWindow(dabo.ui.dForm):
+        class PreviewWindow(dForm):
             def initProperties(self):
                 self.Caption = "Menu Preview"
                 self.ShowMenuBar = False
             def afterInit(self):
-                mp = dabo.ui.dPanel(self)
+                mp = dPanel(self)
                 self.Sizer.append1x(mp)
-                sz = mp.Sizer = dabo.ui.dSizer("v")
+                sz = mp.Sizer = dSizer("v")
                 sz.appendSpacer(30)
-                self.lblResult = dabo.ui.dLabel(mp, Caption="Menu Selection: \n\n ", FontBold=True,
+                self.lblResult = dLabel(mp, Caption="Menu Selection: \n\n ", FontBold=True,
                         ForeColor="darkred", AutoResize=True, Alignment="Center")
                 self.lblResult.FontSize += 2
                 sz.append(self.lblResult, "x", halign="center", border=10)
-                btn = dabo.ui.dButton(mp, Caption="Close Menu Preview",
+                btn = dButton(mp, Caption="Close Menu Preview",
                         OnHit=self.onClose)
                 sz.append(btn, halign="center", border=30)
                 mp.fitToSizer()
@@ -210,7 +211,7 @@ class MenuDesignerForm(dForm):
                 itm = evt.EventObject
                 pth = [itm.Caption]
                 mp = itm.Parent
-                while mp and not isinstance(mp, dabo.ui.dMenuBar):
+                while mp and not isinstance(mp, dabo.ui.dMenuBar.dMenuBar):
                     pth.append(mp.Caption)
                     mp = mp.Parent
                 pth.reverse()
