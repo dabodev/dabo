@@ -1,0 +1,10 @@
+ipython
+mock
+numpy
+pexpect
+Pillow
+pluggy
+pudb
+PyMySQL
+six
+wxPython

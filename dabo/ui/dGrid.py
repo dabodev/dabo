@@ -2374,7 +2374,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         for col in self.Columns:
             val = " " * 10
             dt = col.DataType
-            if dt is "bool":
+            if dt == "bool":
                 val = False
             elif dt in ("int", "long"):
                 val = 0
@@ -2673,7 +2673,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
             # Account for the width of the header caption:
             cw = dui.fontMetricFromFont(colObj.Caption,
-                    colObj.HeaderFont._nativeFont)[0] + capBuffer
+                    colObj.HeaderFont._nativeFont)[0] + int(capBuffer)
             w = max(autoWidth, cw)
             w = min(w, maxWidth)
             colObj.Width = w
@@ -2757,7 +2757,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             if colObj.DataField == self.sortedColumn:
                 sortIndicator = True
                 sortIconSize = self.SortIndicatorSize
-                sortIconBuffer = sortIconSize / 2
+                sortIconBuffer = int(sortIconSize / 2)
                 # draw a triangle, pointed up or down, at the top left
                 # of the column. TODO: Perhaps replace with prettier icons
                 left = headerRect[0] + sortIconBuffer
@@ -3084,7 +3084,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
                 try:
                     sortList.sort(key=sortKey, reverse=(sortOrder == "DESC"))
-                except TypeError:
+                except TypeError as exc:
                     s = "Unable to sort this column. Conflicting, or unknown, data types within the column make it impossible to sort implicitly. "\
                         "Please supply a sort key method to the column, via the SortKey property, to delegate sort behavior to."
                     if colObj.SortKey is not None:
@@ -3092,7 +3092,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                         raise TypeError(s)
                     else:
                         # There is no user provided SortKey
-                        raise TypeError(s) from None
+                        raise TypeError(s) from exc
                 # Extract the rows into a new list, then set the dataSet to the new list
                 newRows = []
                 newLabels = []
@@ -4254,7 +4254,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             left, right = evt.GetLeftCol(), evt.GetRightCol()
         except AttributeError:
             left = right = evt.GetCol()
-        if mode == wx.grid.Grid.wxGridSelectRows:
+        if mode == wx.grid.Grid.GridSelectRows:
             if (top != bott) or (top != origCol):
                 # Attempting to select a range
                 if top == origRow:
@@ -4264,7 +4264,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 if self._lastCol is not None:
                     self.SetGridCursor(row, self._lastCol)
                     self.SelectRow(row)
-        elif mode == wx.grid.Grid.wxGridSelectColumns:
+        elif mode == wx.grid.Grid.GridSelectColumns:
             if (left != right) or (left != origCol):
                 # Attempting to select a range
                 if left == origCol:
@@ -5085,19 +5085,19 @@ class dGrid(dControlMixin, wx.grid.Grid):
             val2 = val.lower().strip()[:2]
             if val2 == "ro":
                 try:
-                    self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
+                    self.SetSelectionMode(wx.grid.Grid.GridSelectRows)
                     self._selectionMode = "Row"
                 except wx.PyAssertionError:
                     dui.callAfter(self._setSelectionMode, val)
             elif val2 == "co":
                 try:
-                    self.SetSelectionMode(wx.grid.Grid.wxGridSelectColumns)
+                    self.SetSelectionMode(wx.grid.Grid.GridSelectColumns)
                     self._selectionMode = "Col"
                 except wx.PyAssertionError:
                     dui.callAfter(self._setSelectionMode, val)
             else:
                 try:
-                    self.SetSelectionMode(wx.grid.Grid.wxGridSelectCells)
+                    self.SetSelectionMode(wx.grid.Grid.GridSelectCells)
                     self._selectionMode = "Cell"
                 except wx.PyAssertionError:
                     dui.callAfter(self._setSelectionMode, val)

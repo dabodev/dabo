@@ -1403,7 +1403,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             fname = self._fileName
         except AttributeError:
             fname = None
-        if fname is None or fname is "":
+        if fname is None or fname == "":
             s = "Do you want to save your changes?"
         else:
             s = "Do you want to save your changes to file '%s'?" % self._fileName
@@ -2556,152 +2556,144 @@ Do you want to overwrite it?""")
                 - "down arrow"
                 - "arrow"
                 - "arrows"
-                - "rectangle\""""))
+                - "rectangle\"
+            """))
 
     BufferedDrawing = property(_getBufferedDrawing, _setBufferedDrawing, None,
-                               _("Setting to True (default) reduces display flicker  (bool)"))
+            _("Setting to True (default) reduces display flicker  (bool)"))
 
     CodeCompletion = property(_getCodeCompletion, _setCodeCompletion, None,
-                              _("Determines if code completion is active (default=True)  (bool)"))
+            _("Determines if code completion is active (default=True)  (bool)"))
 
-    Column = property(_getColumn, _setColumn, None,
-                      _("""Returns the current column position of the cursor in the
-            file  (int)"""))
+    Column = property(_getColumn, _setColumn, None, _(
+            "Returns the current column position of the cursor in the file  (int)"))
 
     CommentString = property(_getCommentString, _setCommentString, None,
-                             _("String used to prefix lines that are commented out  (str)"))
+            _("String used to prefix lines that are commented out  (str)"))
 
-    EdgeGuideColumn = property(_getEdgeGuideColumn, _setEdgeGuideColumn, None,
-                               _("""If self.EdgeGuide is set to True, specifies the column
-            position the guide is in(int)"""))
+    EdgeGuideColumn = property(_getEdgeGuideColumn, _setEdgeGuideColumn, None, _(
+            "If self.EdgeGuide is set to True, specifies the column position the guide is in(int)"))
 
     Encoding = property(_getEncoding, _setEncoding, None,
-                        _("Type of encoding to use. Defaults to Dabo's encoding.  (str)"))
+            _("Type of encoding to use. Defaults to Dabo's encoding.  (str)"))
 
     EOLMode = property(_getEOLMode, _setEOLMode, None,
-                       _("End of line characters. Allowed values are 'CRLF', 'LF' and 'CR'. (default=os dependent) (str)"))
+            _("End of line characters. Allowed values are 'CRLF', 'LF' and 'CR'. "
+            "(default=os dependent) (str)"))
 
     FileName = property(_getFileName, None, None,
-                        _("Name of the file being edited (without path info)  (str)"))
+            _("Name of the file being edited (without path info)  (str)"))
 
     FilePath = property(_getFilePath, None, None,
-                        _("Full path of the file being edited  (str)"))
+            _("Full path of the file being edited  (str)"))
 
     FontFace = property(_getFontFace, _setFontFace, None,
-                        _("Name of the font face used in the editor  (str)"))
+            _("Name of the font face used in the editor  (str)"))
 
     FontSize = property(_getFontSize, _setFontSize, None,
-                        _("Size of the font used in the editor  (int)"))
+            _("Size of the font used in the editor  (int)"))
 
     HiliteCharsBeyondLimit = property(_getHiliteCharsBeyondLimit, _setHiliteCharsBeyondLimit, None,
-                                      _("""When True, characters beyond the column set it
-            self.HiliteLimitColumn are visibly hilited  Note: When set to True,
-            self.ShowEdgeGuide will be set to False. (bool)"""))
+            _("When True, characters beyond the column set it self.HiliteLimitColumn are visibly "
+              "hilited Note: When set to True, self.ShowEdgeGuide will be set to False. (bool)"))
 
-    HiliteLimitColumn = property(_getHiliteLimitColumn, _setHiliteLimitColumn, None,
-                                 _("""If self.HiliteCharsBeyondLimit is True, specifies
-            the limiting column  (int)"""))
+    HiliteLimitColumn = property(_getHiliteLimitColumn, _setHiliteLimitColumn, None, _(
+            "If self.HiliteCharsBeyondLimit is True, specifies the limiting column (int)"))
 
     Language = property(_getLanguage, _setLanguage, None,
-                        _("Determines which language is used for the syntax coloring  (str)"))
+            _("Determines which language is used for the syntax coloring  (str)"))
 
     LineNumber = property(_getLineNumber, _setLineNumber, None,
-                          _("Returns the current line number being edited  (int)"))
+            _("Returns the current line number being edited  (int)"))
 
     LineCount = property(_getLineCount, None, None,
-                         _("Total number of lines in the document  (int)"))
+            _("Total number of lines in the document  (int)"))
 
     Modified = property(_getModified, _setModified, None,
-                        _("Has the content of this editor been modified?  (bool)"))
+            _("Has the content of this editor been modified?  (bool)"))
 
     ReadOnly = property(_getReadOnly, _setReadOnly, None,
-                        _("Specifies whether or not the text can be edited. (bool)"))
+            _("Specifies whether or not the text can be edited. (bool)"))
 
     SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
-                                  _("Background color of selected text. Default=yellow  (str or tuple)"))
+            _("Background color of selected text. Default=yellow  (str or tuple)"))
 
     SelectionEnd = property(_getSelectionEnd, _setSelectionEnd, None,
-                            _("Position of the end of the selected text  (int)"))
+            _("Position of the end of the selected text  (int)"))
 
     SelectionForeColor = property(_getSelectionForeColor, _setSelectionForeColor, None,
-                                  _("Forecolor of the selected text. Default=black  (str or tuple)"))
+            _("Forecolor of the selected text. Default=black  (str or tuple)"))
 
     Selection = property(_getSelection, None, None,
-                         _("Selected text. (read-only) (str)"))
+            _("Selected text. (read-only) (str)"))
 
     SelectionPosition = property(_getSelectionPosition, _setSelectionPosition, None,
-                                 _("Tuple containing the start/end positions of the selected text.  (2-tuple of int)"))
+            _("Tuple containing the start/end positions of the selected text.  (2-tuple of int)"))
 
     SelectionStart = property(_getSelectionStart, _setSelectionStart, None,
-                              _("Position of the start of the selected text  (int)"))
+            _("Position of the start of the selected text  (int)"))
 
     ShowCallTips = property(_getShowCallTips, _setShowCallTips, None,
-                            _("Determines if call tips are shown (default=True)  (bool)"))
+            _("Determines if call tips are shown (default=True)  (bool)"))
 
     ShowCodeFolding = property(_getShowCodeFolding, _setShowCodeFolding, None,
-                               _("""Determines if the code folding symbols are displayed
-            in the left margin (default=True)  (bool)"""))
+            _("Determines if the co-de folding symbols are displayed in the left margin "
+            "(default=True)  (bool)"))
 
     ShowEdgeGuide = property(_getShowEdgeGuide, _setShowEdgeGuide, None,
-                             _("""When True, will display a line at the column set by
-            self.EdgeGuideColumn.  Note: When set to True,
-            self.HiliteCharsBeyondLimit will be set to False. (bool)"""))
+            _("When True, will display a line at the column set by self.EdgeGuideColumn.  Note: "
+            "When set to True, self.HiliteCharsBeyondLimit will be set to False. (bool)"))
 
     ShowEOL = property(_getShowEOL, _setShowEOL, None,
-                       _("""Determines if end-of-line markers are visible
-            (default=False)  (bool)"""))
+            _("Determines if end-of-line markers are visible (default=False)  (bool)"))
 
     ShowIndentationGuides = property(_getShowIndentationGuides, _setShowIndentationGuides, None,
-                                     _("""Deterimnes if indentation guides are displayed
-            (default=False)  (bool)"""))
+            _("Deterimnes if indentation guides are displayed (default=False)  (bool)"))
 
     ShowLineNumbers = property(_getShowLineNumbers, _setShowLineNumbers, None,
-                               _("""Determines if line numbers are shown in the left
-            margin (default=True)  (bool)"""))
+            _("Determines if line numbers are shown in the left margin (default=True)  (bool)"))
 
     ShowWhiteSpace = property(_getShowWhiteSpace, _setShowWhiteSpace, None,
-                              _("""Determines if white space characters are displayed
-            (default=True)  (bool)"""))
+            _("Determines if white space characters are displayed (default=True)  (bool)"))
 
     SyntaxColoring = property(_getSyntaxColoring, _setSyntaxColoring, None,
-                              _("Determines if syntax coloring is used (default=True)  (bool)"))
+            _("Determines if syntax coloring is used (default=True)  (bool)"))
 
     TabWidth = property(_getTabWidth, _setTabWidth, None,
-                        _("""Approximate number of spaces taken by each tab character
-            (default=4)  (int)"""))
+            _("Approximate number of spaces taken by each tab character (default=4)  (int)"))
 
     Text = property(_getText, _setText, None,
-                    _("Current contents of the editor  (str)"))
+            _("Current contents of the editor  (str)"))
 
     UseBookmarks = property(_getUseBookmarks, _setUseBookmarks, None,
-                            _("Are we tracking bookmarks in the editor? Default=False  (bool)"))
+            _("Are we tracking bookmarks in the editor? Default=False  (bool)"))
 
     UseStyleTimer = property(_getUseStyleTimer, _setUseStyleTimer, None,
-                             _("""Syntax coloring can slow down sometimes. Set this to
-            True to improve performance.  (bool)"""))
+            _("Syntax coloring can slow down sometimes. Set this to True to improve performance. "
+            " (bool)"""))
 
     UseTabs = property(_getUseTabs, _setUseTabs, None,
-                       _("""Indentation will only use space characters if useTabs
-            is False; if True, it will use a combination of tabs and
-            spaces (default=True)  (bool)"""))
+            _("Indentation will only use space characters if useTabs is False; if True, it will "
+            "use a combination of tabs and spaces (default=True)  (bool)"))
 
     BackSpaceUnindents = property(_getBackSpaceUnindents, _setBackSpaceUnindents, None,
-                                  _("""If set True then backspace, when in indentation, will go back
-            TabWidth positions; if set False then backspace will go back only one
-            position. If UseTabs is True this should be set to False. (default=False)  (bool)"""))
+            _("If set True then backspace, when in indentation, will go back TabWidth positions; "
+            "if set False then backspace will go back only one position. If UseTabs is True this "
+            "should be set to False. (default=False)  (bool)"))
 
     Value = property(_getValue, _setValue, None,
-                     _("""Specifies the current contents of the editor.  (basestring)"""))
+            _("""Specifies the current contents of the editor.  (basestring)"""))
 
     WordWrap = property(_getWordWrap, _setWordWrap, None,
-                        _("""Controls whether text lines that are wider than the window
-            are soft-wrapped or clipped. (bool)"""))
+            _("Controls whether text lines that are wider than the window are soft-wrapped or "
+            "clipped. (bool)"))
 
     _ZeroBasedLineNumber = property(_getZeroBasedLineNumber, _setZeroBasedLineNumber, None,
-                                    _("This is the underlying property that handles the wxPython zero-based line numbering. It's equal to LineNumber-1  (int)"))
+            _("This is the underlying property that handles the wxPython zero-based line "
+            "numbering. It's equal to LineNumber-1  (int)"))
 
     ZoomLevel = property(_getZoomLevel, _setZoomLevel, None,
-                         _("Point increase/decrease from normal viewing size  (int)"))
+            _("Point increase/decrease from normal viewing size  (int)"))
 
 
 

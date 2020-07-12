@@ -691,6 +691,21 @@ class dSizerMixin(dObject):
         """This converts Dabo values for sizer control into wx-specific constants."""
         # Begin with the constant for no flag values.
         _wxFlags = 0
+        # We need to control which flags are used based on the setting for 'expand'. Without this,
+        # we can get errors like:
+        #  wx._core.wxAssertionError: C++ assertion "!(flags & (wxALIGN_RIGHT |
+        #  wxALIGN_CENTRE_HORIZONTAL))" failed at
+        #  /Users/robind/projects/bb2/dist-osx-py38/build/ext/wxWidgets/src/common/sizer.cpp(2089)
+        #  in DoInsert(): Horizontal alignment flags are ignored with wxEXPAND
+        #
+        # The same is true for horizontal alignment in horizontal sizers.
+        #    wx._core.wxAssertionError: C++ assertion "!(flags & wxALIGN_CENTRE_HORIZONTAL)" failed
+        #    at
+        #    /Users/robind/projects/bb2/dist-osx-py38/build/ext/wxWidgets/src/common/sizer.cpp(2106)
+        #    in DoInsert(): Horizontal alignment flags are ignored in horizontal sizers
+
+        expand = layout.lower() in ("expand", "ex", "exp", "x", "grow")
+        orientation = self.Orientation
         if alignment is not None:
             # User passed an individual alignment tuple. Use that instead of
             # the separate halign and valign values.
@@ -705,16 +720,19 @@ class dSizerMixin(dObject):
             alignFlags = (halign, valign)
         for flag in [flag.lower() for flag in alignFlags]:
             if flag == "left":
-                _wxFlags = _wxFlags | self.leftFlag
+                if not expand and orientation == "Vertical":
+                    _wxFlags = _wxFlags | self.leftFlag
             elif flag == "right":
-                _wxFlags = _wxFlags | self.rightFlag
+                if not expand and orientation == "Vertical":
+                    _wxFlags = _wxFlags | self.rightFlag
             elif flag in ("center", "centre"):
-                _wxFlags = _wxFlags | self.centerFlag
-            elif flag == "top":
+                if not expand and orientation == "Vertical":
+                    _wxFlags = _wxFlags | self.centerFlag
+            elif flag == "top" and orientation == "Horizontal":
                 _wxFlags = _wxFlags | self.topFlag
-            elif flag == "bottom":
+            elif flag == "bottom" and orientation == "Horizontal":
                 _wxFlags = _wxFlags | self.bottomFlag
-            elif flag == "middle":
+            elif flag == "middle" and orientation == "Horizontal":
                 _wxFlags = _wxFlags | self.middleFlag
 
         if isinstance(borderSides, str):
@@ -746,7 +764,7 @@ class dSizerMixin(dObject):
                 elif flag == "all":
                     _wxFlags = _wxFlags | self.borderAllFlag
 
-        if layout.lower() in ("expand", "ex", "exp", "x", "grow"):
+        if expand:
             _wxFlags = _wxFlags | self.expandFlag
         elif layout.lower() == "shaped":
             _wxFlags = _wxFlags | self.shapedFlag
