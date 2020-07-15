@@ -6,21 +6,16 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from samples.games.bubblet.BubbletForm import BubbletForm
 
-dButton = dabo.import_ui_name("dButton")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
 
-
-class TestPanel(dPanel):
+class TestPanel(dabo.ui.dPanel):
     def afterInit(self):
-        sz = self.Sizer = dSizer("v")
+        sz = self.Sizer = dabo.ui.dSizer("v")
         sz.appendSpacer(40)
 
-        lbl = dLabel(self, Caption="Bubblet is a fun and somewhat addictive game.\n\nFor instructions, please see the Overview tab.")
+        lbl = dabo.ui.dLabel(self, Caption="Bubblet is a fun and somewhat addictive game.\n\nFor instructions, please see the Overview tab.")
         sz.append(lbl, halign="center")
         sz.appendSpacer(30)
-        btn = dButton(self, Caption="Run the Bubblet Game",
+        btn = dabo.ui.dButton(self, Caption="Run the Bubblet Game",
                 OnHit=self.runGame)
         sz.append(btn, halign="center")
 
@@ -28,7 +23,6 @@ class TestPanel(dPanel):
     def runGame(self, evt):
         frm = BubbletForm(self.Form, Size=(400,300), Centered=True)
         frm.show()
-
 
 
 category = "Games.Bubblet"

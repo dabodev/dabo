@@ -4,20 +4,13 @@ import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dButton = dabo.import_ui_name("dButton")
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dMenu = dabo.import_ui_name("dMenu")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dTreeView = dabo.import_ui_name("dTreeView")
 
-
-class TreeViewSample(dTreeView):
+class TreeViewSample(dabo.ui.dTreeView):
     def onTreeItemContextMenu(self, evt):
         self.activeNode = evt.itemNode
         self.Form.logit(_("Context menu on node %s") % self.activeNode.Caption)
 
-        pop = dMenu()
+        pop = dabo.ui.dMenu()
         pop.append(_("Add Child"), OnHit=self.onAddChild)
         pop.append(_("Add Sibling"), OnHit=self.onAddSibling)
         if not self.Editable:
@@ -71,9 +64,9 @@ class TreeViewSample(dTreeView):
         self.Form.logit(_("Ending drag for %s") % evt.selectedCaption)
 
 
-class TestPanel(dPanel):
+class TestPanel(dabo.ui.dPanel):
     def afterInit(self):
-        sz = self.Sizer = dSizer("h", DefaultBorder=20,
+        sz = self.Sizer = dabo.ui.dSizer("h", DefaultBorder=20,
                 DefaultBorderLeft=True)
         sz.appendSpacer(25)
 
@@ -83,37 +76,37 @@ class TestPanel(dPanel):
         sz.append1x(self.tree)
 
         # Create some controls to alter the tree's properties
-        vsz = dSizer("v", DefaultSpacing=10)
+        vsz = dabo.ui.dSizer("v", DefaultSpacing=10)
 
-        btn = dButton(self, Caption=_("Expand All"))
+        btn = dabo.ui.dButton(self, Caption=_("Expand All"))
         btn.bindEvent(dEvents.Hit, self.onExpandAll)
         vsz.append(btn)
 
-        btn = dButton(self, Caption=_("Collapse All"))
+        btn = dabo.ui.dButton(self, Caption=_("Collapse All"))
         btn.bindEvent(dEvents.Hit, self.onCollapseAll)
         vsz.append(btn)
 
-        chk = dCheckBox(self, Caption=_("Show Lines"),
+        chk = dabo.ui.dCheckBox(self, Caption=_("Show Lines"),
                 DataSource="self.Parent.tree", DataField="ShowLines")
         vsz.append(chk)
 
-        chk = dCheckBox(self, Caption=_("Show Root Node"),
+        chk = dabo.ui.dCheckBox(self, Caption=_("Show Root Node"),
                 DataSource="self.Parent.tree", DataField="ShowRootNode")
         vsz.append(chk)
 
-        chk = dCheckBox(self, Caption=_("Show Root Node Lines"),
+        chk = dabo.ui.dCheckBox(self, Caption=_("Show Root Node Lines"),
                 DataSource="self.Parent.tree", DataField="ShowRootNodeLines")
         vsz.append(chk)
 
-        chk = dCheckBox(self, Caption=_("Tree is Editable"),
+        chk = dabo.ui.dCheckBox(self, Caption=_("Tree is Editable"),
                 DataSource="self.Parent.tree", DataField="Editable")
         vsz.append(chk)
 
-        chk = dCheckBox(self, Caption=_("Mutliple Node Selection"),
+        chk = dabo.ui.dCheckBox(self, Caption=_("Mutliple Node Selection"),
                 DataSource="self.Parent.tree", DataField="MultipleSelect")
         vsz.append(chk)
 
-        chk = dCheckBox(self, Caption=_("Show Buttons"),
+        chk = dabo.ui.dCheckBox(self, Caption=_("Show Buttons"),
                 DataSource="self.Parent.tree", DataField="ShowButtons")
         vsz.append(chk)
 

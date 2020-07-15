@@ -12,23 +12,23 @@ from ClassDesignerComponents import LayoutBorderSizer
 from ClassDesignerComponents import LayoutGridSizer
 from ClassDesignerExceptions import PropertyUpdateException
 
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dButton = dabo.import_ui_name("dButton")
-dCheckList = dabo.import_ui_name("dCheckList")
-dColumn = dabo.import_ui_name("dColumn")
-dDialog = dabo.import_ui_name("dDialog")
-dDropdownList = dabo.import_ui_name("dDropdownList")
-dEditableList = dabo.import_ui_name("dEditableList")
-dEditBox = dabo.import_ui_name("dEditBox")
-dGrid = dabo.import_ui_name("dGrid")
-dImage = dabo.import_ui_name("dImage")
-dLabel = dabo.import_ui_name("dLabel")
-dLine = dabo.import_ui_name("dLine")
-dOkCancelDialog = dabo.import_ui_name("dOkCancelDialog")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dSplitter = dabo.import_ui_name("dSplitter")
-HotKeyEditor = dabo.import_ui_name("HotKeyEditor")
+from dabo.ui import dBorderSizer
+from dabo.ui import dButton
+from dabo.ui import dCheckList
+from dabo.ui import dColumn
+from dabo.ui import dDialog
+from dabo.ui import dDropdownList
+from dabo.ui import dEditableList
+from dabo.ui import dEditBox
+from dabo.ui import dGrid
+from dabo.ui import dImage
+from dabo.ui import dLabel
+from dabo.ui import dLine
+from dabo.ui import dOkCancelDialog
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dSplitter
+from dabo.ui import HotKeyEditor
 
 
 class PropSheet(dPanel):

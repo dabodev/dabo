@@ -6,21 +6,16 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from samples.games import MontanaForm
 
-dButton = dabo.import_ui_name("dButton")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
 
-
-class TestPanel(dPanel):
+class TestPanel(dabo.ui.dPanel):
     def afterInit(self):
-        sz = self.Sizer = dSizer("v")
+        sz = self.Sizer = dabo.ui.dSizer("v")
         sz.appendSpacer(40)
 
-        lbl = dLabel(self, Caption="Montana is a solitaire game that is easy to learn,\nbut difficult to master.\n\nFor instructions, please see the Overview tab.")
+        lbl = dabo.ui.dLabel(self, Caption="Montana is a solitaire game that is easy to learn,\nbut difficult to master.\n\nFor instructions, please see the Overview tab.")
         sz.append(lbl, halign="center")
         sz.appendSpacer(30)
-        btn = dButton(self, Caption="Play Montana",
+        btn = dabo.ui.dButton(self, Caption="Play Montana",
                 OnHit=self.runGame)
         sz.append(btn, halign="center")
 

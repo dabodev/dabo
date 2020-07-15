@@ -17,26 +17,26 @@ from MenuDesignerComponents import SeparatorPanel
 dui = dabo.ui
 from dabo.ui import makeProxyProperty
 
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dBox = dabo.import_ui_name("dBox")
-dColumn = dabo.import_ui_name("dColumn")
-dComboBox = dabo.import_ui_name("dComboBox")
-dDialog = dabo.import_ui_name("dDialog")
-dForm = dabo.import_ui_name("dForm")
-dGrid = dabo.import_ui_name("dGrid")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dListControl = dabo.import_ui_name("dListControl")
-dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
-dPanel = dabo.import_ui_name("dPanel")
-dRadioList = dabo.import_ui_name("dRadioList")
-dSizer = dabo.import_ui_name("dSizer")
-dSpinner = dabo.import_ui_name("dSpinner")
-dStatusBar = dabo.import_ui_name("dStatusBar")
-dTextBox = dabo.import_ui_name("dTextBox")
-dToolForm = dabo.import_ui_name("dToolForm")
-dTreeView = dabo.import_ui_name("dTreeView")
-Wizard = dabo.import_ui_name("Wizard")
-WizardPage = dabo.import_ui_name("WizardPage")
+from dabo.ui import dBorderSizer
+from dabo.ui import dBox
+from dabo.ui import dColumn
+from dabo.ui import dComboBox
+from dabo.ui import dDialog
+from dabo.ui import dForm
+from dabo.ui import dGrid
+from dabo.ui import dGridSizer
+from dabo.ui import dListControl
+from dabo.ui import dPageFrameNoTabs
+from dabo.ui import dPanel
+from dabo.ui import dRadioList
+from dabo.ui import dSizer
+from dabo.ui import dSpinner
+from dabo.ui import dStatusBar
+from dabo.ui import dTextBox
+from dabo.ui import dToolForm
+from dabo.ui import dTreeView
+from dabo.ui import Wizard
+from dabo.ui import WizardPage
 
 
 class TreeSheet(dPanel):

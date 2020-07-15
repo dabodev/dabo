@@ -3,28 +3,24 @@ import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dButton = dabo.import_ui_name("dButton")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
 
-
-class TestPanel(dPanel):
+class TestPanel(dabo.ui.dPanel):
     def afterInit(self):
-        sz = self.Sizer = dSizer("v", DefaultBorder=20,
+        sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20,
                 DefaultBorderLeft=True)
         sz.appendSpacer(25)
 
-        btn = dButton(self, Caption="Normal")
+        btn = dabo.ui.dButton(self, Caption="Normal")
         btn.bindEvent(dEvents.Hit, self.onButtonHit)
         sz.append(btn, halign="center")
         sz.appendSpacer(10)
 
-        btn = dButton(self, Caption="Default", DefaultButton=True)
+        btn = dabo.ui.dButton(self, Caption="Default", DefaultButton=True)
         btn.bindEvent(dEvents.Hit, self.onButtonHit)
         sz.append(btn, halign="center")
         sz.appendSpacer(10)
 
-        btn = dButton(self, Caption="Cancel", CancelButton=True)
+        btn = dabo.ui.dButton(self, Caption="Cancel", CancelButton=True)
         btn.bindEvent(dEvents.Hit, self.onButtonHit)
         sz.append(btn, halign="center")
         sz.appendSpacer(10)

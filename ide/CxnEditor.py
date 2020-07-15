@@ -15,14 +15,14 @@ from dabo.lib.connParser import importConnections
 import dabo.lib.utils as utils
 from HomeDirectoryStatusBar import HomeDirectoryStatusBar
 
-dButton = dabo.import_ui_name("dButton")
-dDropdownList = dabo.import_ui_name("dDropdownList")
-dForm = dabo.import_ui_name("dForm")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dTextBox = dabo.import_ui_name("dTextBox")
+from dabo.ui import dButton
+from dabo.ui import dDropdownList
+from dabo.ui import dForm
+from dabo.ui import dGridSizer
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dTextBox
 
 
 def flushValues(fnc):

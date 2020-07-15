@@ -11,8 +11,6 @@ from dabo.dApp import dApp
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
-# This is because I'm a lazy typist
-dui = dabo.ui
 from ClassDesignerFormMixin import ClassDesignerFormMixin
 from ClassDesignerPemForm import PemForm
 from ClassDesignerEditor import EditorForm
@@ -36,68 +34,61 @@ import dabo.ui.dialogs as dlgs
 from dabo.lib.utils import dictStringify
 from ClassDesignerExceptions import PropertyUpdateException
 from Editor import EditorForm as TextEditorForm
-# Temporary fix for wxPython 2.6 users
-try:
-    dabo.ui.dDockForm
-    _USE_DOCKFORM = True
-except:
-    dabo.ui.dDockForm = None
-    _USE_DOCKFORM = False
 
-dBitmap = dabo.import_ui_name("dBitmap")
-dBitmapButton = dabo.import_ui_name("dBitmapButton")
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dBox = dabo.import_ui_name("dBox")
-dButton = dabo.import_ui_name("dButton")
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dCheckList = dabo.import_ui_name("dCheckList")
-dColumn = dabo.import_ui_name("dColumn")
-dComboBox = dabo.import_ui_name("dComboBox")
-dDateTextBox = dabo.import_ui_name("dDateTextBox")
-dDialog = dabo.import_ui_name("dDialog")
-dDockForm = dabo.import_ui_name("dDockForm")
-dDropdownList = dabo.import_ui_name("dDropdownList")
-dEditBox = dabo.import_ui_name("dEditBox")
-dEditor = dabo.import_ui_name("dEditor")
-dForm = dabo.import_ui_name("dForm")
-dFormMain = dabo.import_ui_name("dFormMain")
-dGauge = dabo.import_ui_name("dGauge")
-dGrid = dabo.import_ui_name("dGrid")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dHtmlBox = dabo.import_ui_name("dHtmlBox")
-dImage = dabo.import_ui_name("dImage")
-dLabel = dabo.import_ui_name("dLabel")
-dLed = dabo.import_ui_name("dLed")
-dLine = dabo.import_ui_name("dLine")
-dListBox = dabo.import_ui_name("dListBox")
-dListControl = dabo.import_ui_name("dListControl")
-dMaskedTextBox = dabo.import_ui_name("dMaskedTextBox")
-dMediaControl = dabo.import_ui_name("dMediaControl")
-dMenu = dabo.import_ui_name("dMenu")
-dOkCancelDialog = dabo.import_ui_name("dOkCancelDialog")
-dPage = dabo.import_ui_name("dPage")
-dPageFrame = dabo.import_ui_name("dPageFrame")
-dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
-dPageList = dabo.import_ui_name("dPageList")
-dPageSelect = dabo.import_ui_name("dPageSelect")
-dPageStyled = dabo.import_ui_name("dPageStyled")
-dPanel = dabo.import_ui_name("dPanel")
-dRadioList = dabo.import_ui_name("dRadioList")
-dScrollPanel = dabo.import_ui_name("dScrollPanel")
-dShell = dabo.import_ui_name("dShell")
-dSizer = dabo.import_ui_name("dSizer")
-dSizerMixin = dabo.import_ui_name("dSizerMixin")
-dSlidePanel = dabo.import_ui_name("dSlidePanel")
-dSlidePanelControl = dabo.import_ui_name("dSlidePanelControl")
-dSlider = dabo.import_ui_name("dSlider")
-dSpinner = dabo.import_ui_name("dSpinner")
-dSplitter = dabo.import_ui_name("dSplitter")
-dTextBox = dabo.import_ui_name("dTextBox")
-dToggleButton = dabo.import_ui_name("dToggleButton")
-dToolForm = dabo.import_ui_name("dToolForm")
-dTreeView = dabo.import_ui_name("dTreeView")
-Wizard = dabo.import_ui_name("Wizard")
-WizardPage = dabo.import_ui_name("WizardPage")
+from dabo.ui import dBitmap
+from dabo.ui import dBitmapButton
+from dabo.ui import dBorderSizer
+from dabo.ui import dBox
+from dabo.ui import dButton
+from dabo.ui import dCheckBox
+from dabo.ui import dCheckList
+from dabo.ui import dColumn
+from dabo.ui import dComboBox
+from dabo.ui import dDateTextBox
+from dabo.ui import dDialog
+from dabo.ui import dDockForm
+from dabo.ui import dDropdownList
+from dabo.ui import dEditBox
+from dabo.ui import dEditor
+from dabo.ui import dForm
+from dabo.ui import dFormMain
+from dabo.ui import dGauge
+from dabo.ui import dGrid
+from dabo.ui import dGridSizer
+from dabo.ui import dHtmlBox
+from dabo.ui import dImage
+from dabo.ui import dLabel
+from dabo.ui import dLed
+from dabo.ui import dLine
+from dabo.ui import dListBox
+from dabo.ui import dListControl
+from dabo.ui import dMaskedTextBox
+from dabo.ui import dMediaControl
+from dabo.ui import dMenu
+from dabo.ui import dOkCancelDialog
+from dabo.ui import dPage
+from dabo.ui import dPageFrame
+from dabo.ui import dPageFrameNoTabs
+from dabo.ui import dPageList
+from dabo.ui import dPageSelect
+from dabo.ui import dPageStyled
+from dabo.ui import dPanel
+from dabo.ui import dRadioList
+from dabo.ui import dScrollPanel
+from dabo.ui import dShell
+from dabo.ui import dSizer
+from dabo.ui import dSizerMixin
+from dabo.ui import dSlidePanel
+from dabo.ui import dSlidePanelControl
+from dabo.ui import dSlider
+from dabo.ui import dSpinner
+from dabo.ui import dSplitter
+from dabo.ui import dTextBox
+from dabo.ui import dToggleButton
+from dabo.ui import dToolForm
+from dabo.ui import dTreeView
+from dabo.ui import Wizard
+from dabo.ui import WizardPage
 
 
 class PageInfoDialog(dOkCancelDialog):
@@ -149,8 +140,6 @@ class PageInfoDialog(dOkCancelDialog):
         if f:
             self.pageClass = dabo.lib.utils.relativePath(f)
             self.update()
-
-
 
 
 class ClassDesigner(dApp):
@@ -416,7 +405,7 @@ class ClassDesigner(dApp):
         """
         isDialog = issubclass(self._selectedClass, (dDialog, ))
         isWizard = issubclass(self._selectedClass, (Wizard, ))
-        isDockForm = _USE_DOCKFORM and issubclass(self._selectedClass, (dDockForm, ))
+        isDockForm = issubclass(self._selectedClass, (dDockForm, ))
         formIsMain = issubclass(self._selectedClass, (dForm, dFormMain, dDialog))
         if formIsMain:
             if isDockForm:
@@ -506,7 +495,7 @@ class ClassDesigner(dApp):
                     if isinstance(self, dOkCancelDialog):
                         # already done
                         return
-                    if _USE_DOCKFORM and isinstance(self, dDockForm):
+                    if isinstance(self, dDockForm):
                         self.mainPanel = self.CenterPanel
                     else:
                         self.Sizer = dSizer("v")
@@ -1026,7 +1015,7 @@ class ClassDesigner(dApp):
             newClass = eval(clsname)
         except ValueError:
             dct["fullname"] = cls
-            newClass = dabo.import_ui_name(cls)
+            newClass = getattr(dabo.ui, cls)
 
         # See if it's a class that requires special handling
         rv["newClass"] = newClass
@@ -2066,11 +2055,6 @@ class ClassDesigner(dApp):
                 except AttributeError:
                     # dMediaControl was not imported; some earlier wx versions don't include this
                     pass
-                if not _USE_DOCKFORM:
-                    # Remove that choice
-                    pos = names.index("DockForm")
-                    names.pop(pos)
-                    classes.pop(pos)
                 self.dd = dDropdownList(self, Choices=names, Keys=classes,
                         ValueMode="key")
                 self.dd.StringValue="Form"

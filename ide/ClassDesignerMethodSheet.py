@@ -3,9 +3,9 @@ import dabo.ui
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
-dListControl = dabo.import_ui_name("dListControl")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
+from dabo.ui import dListControl
+from dabo.ui import dPanel
+from dabo.ui import dSizer
 
 
 class MethodSheet(dPanel):

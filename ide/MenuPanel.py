@@ -12,12 +12,12 @@ from MenuDesignerComponents import MenuSaverMixin
 FONT_SIZE_DIFF = 2
 BASE_BACKCOLOR = "#eeeeee"
 
-dLabel = dabo.import_ui_name("dLabel")
-dLine = dabo.import_ui_name("dLine")
-dMenu = dabo.import_ui_name("dMenu")
-dPanel = dabo.import_ui_name("dPanel")
-dSizerH = dabo.import_ui_name("dSizerH")
-dSizerV = dabo.import_ui_name("dSizerV")
+from dabo.ui import dLabel
+from dabo.ui import dLine
+from dabo.ui import dMenu
+from dabo.ui import dPanel
+from dabo.ui import dSizerH
+from dabo.ui import dSizerV
 
 
 class MenuItemContainer(dPanel):

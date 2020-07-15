@@ -4,12 +4,6 @@ import time
 import dabo
 from dabo.dLocalize import _
 
-UI_CLASS_NAMES = ("dButton", "dCalendar", "dDataControlMixin", "dDialog",
-        "dDropdownList", "dEditor", "dForm", "dFormMain", "dGrid", "dHtmlBox",
-        "dListControl", "dMediaControl", "dMenuBar", "dMenuItem", "dPage",
-        "dPageFrameNoTabs", "dPageList", "dPageStyled", "dPemMixin",
-        "dRadioList", "dSearchBox", "dSlidePanel", "dSpinner", "dSplitter",
-        "dTimer", "dToolBarItem", "dTreeView")
 
 class dEvent(object):
     """ Base class for Dabo events.
@@ -38,12 +32,6 @@ class dEvent(object):
 
         if dabo.eventLogging:
             self._logEvent()
-
-
-    def __getattr__(self, att):
-        if att in UI_CLASS_NAMES:
-            return dabo.import_ui_name(att)
-        raise AttrubuteError("'%s' not found in dEvent" % att)
 
 
     def appliesToClass(eventClass, objectClass):

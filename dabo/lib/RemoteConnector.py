@@ -19,7 +19,6 @@ from dabo.dObject import dObject
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.lib.manifest import Manifest
-from dabo import ui as dui
 
 
 
@@ -168,6 +167,7 @@ class RemoteConnector(object):
         """Check with the server for available apps if no app name is passed.
         If an app name is passed, run it directly if it exists on the server.
         """
+        from dabo import ui as dui
         # Just use the first 3 split parts.
         scheme, host, path = urllib.parse.urlsplit(url)[:3]
         path = path.lstrip("/")

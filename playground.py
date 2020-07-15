@@ -4,9 +4,9 @@ Intent: Have a playground with accessible wx.lib.inspection.InspectionTool for
         triaging issues in dabo.
 """
 import wx
-from dabo.ui.dMenu import dMenu
-from dabo.ui.dMenuBar import dMenuBar
-from dabo.ui.dMenuItem import dMenuItem
+from dabo.ui import dMenu
+from dabo.ui import dMenuBar
+from dabo.ui import dMenuItem
 from dabo.dLocalize import _
 
 class MenuBar(dMenuBar):
@@ -148,7 +148,7 @@ class MyDaboMenu(dMenu):
 
 def main():
     import dabo
-    from dabo.ui.dForm import dForm
+    from dabo.ui import dForm
     from wx.lib.inspection import InspectionTool
 
     app = dabo.dApp()
@@ -168,12 +168,13 @@ def main():
     app.start()
 
 def setupTestMenuBar(frame):
-    from dabo.ui.dMenu import dMenu
-    from dabo.ui.dMenuItem import dMenuItem
+    from dabo.ui import dMenu
+    from dabo.ui import dMenuItem
 
     mb = MenuBar()
 
     frame.SetMenuBar(mb)
+
 
 if __name__ == "__main__":
     main()

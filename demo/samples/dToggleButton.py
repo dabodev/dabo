@@ -3,37 +3,29 @@ import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dSpinner = dabo.import_ui_name("dSpinner")
-dTextBox = dabo.import_ui_name("dTextBox")
-dToggleButton = dabo.import_ui_name("dToggleButton")
 
-
-class TestPanel(dPanel):
+class TestPanel(dabo.ui.dPanel):
     def afterInit(self):
-        sz = self.Sizer = dSizer("v", DefaultBorder=20,
+        sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20,
                 DefaultBorderLeft=True)
         sz.appendSpacer(25)
 
-        btn = dToggleButton(self, Caption="Toggle Me", Name="togg",
+        btn = dabo.ui.dToggleButton(self, Caption="Toggle Me", Name="togg",
                 Picture="boolRendererUnchecked", DownPicture="boolRendererChecked",
                 Width=100, Height=100)
         btn.bindEvent(dEvents.Hit, self.onButtonHit)
         sz.append(btn, halign="center")
         sz.appendSpacer(40)
 
-        gs = dGridSizer(MaxCols=2)
-        lbl = dLabel(self, Caption="BezelWidth")
-        spn = dSpinner(self, Min=0, Max=25, DataSource="self.Parent.togg",
+        gs = dabo.ui.dGridSizer(MaxCols=2)
+        lbl = dabo.ui.dLabel(self, Caption="BezelWidth")
+        spn = dabo.ui.dSpinner(self, Min=0, Max=25, DataSource="self.Parent.togg",
                 DataField="BezelWidth")
         gs.append(lbl, halign="right")
         gs.append(spn)
 
-        lbl = dLabel(self, Caption="Caption")
-        txt = dTextBox(self, DataSource="self.Parent.togg",
+        lbl = dabo.ui.dLabel(self, Caption="Caption")
+        txt = dabo.ui.dTextBox(self, DataSource="self.Parent.togg",
                 DataField="Caption")
         gs.append(lbl, halign="right")
         gs.append(txt)

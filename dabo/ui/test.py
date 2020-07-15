@@ -41,9 +41,9 @@ class Test(object):
             frame = classRefs[0](None, *args, **kwargs)
             isDialog = (issubclass(classRefs[0], wx.Dialog))
         else:
-            dForm = dabo.import_ui_name("dForm")
-            dPanel = dabo.import_ui_name("dPanel")
-            dSizer = dabo.import_ui_name("dSizer")
+            from dabo.ui import dForm
+            from dabo.ui import dPanel
+            from dabo.ui import dSizer
 
             frame = dForm(Name="formTest")
             panel = frame.addObject(dPanel, Name="panelTest")
@@ -81,11 +81,11 @@ class Test(object):
 
     def testAll(self):
         """Create a dForm and populate it with example dWidgets."""
-        dEditBox = dabo.import_ui_name("dEditBox")
-        dForm = dabo.import_ui_name("dForm")
-        dLabel = dabo.import_ui_name("dLabel")
-        dScrollPanel = dabo.import_ui_name("dScrollPanel")
-        dSizer = dabo.import_ui_name("dSizer")
+        from dabo.ui import dEditBox
+        from dabo.ui import dForm
+        from dabo.ui import dLabel
+        from dabo.ui import dScrollPanel
+        from dabo.ui import dSizer
         frame = dForm(Name="formTestAll")
         frame.Caption = "Test of all the dControls"
         frame.LogEvents = logEvents

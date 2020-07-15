@@ -2,7 +2,7 @@
 import sys
 import dabo
 from dabo import ui
-from dabo.ui.dDialog import dDialog
+from dabo.ui import dDialog
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 

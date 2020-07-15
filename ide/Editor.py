@@ -20,21 +20,21 @@ except ImportError:
     _Use_Subprocess = False
 from dabo.lib.reportUtils import getTempFile
 
-dBitmapButton = dabo.import_ui_name("dBitmapButton")
-dDropdownList = dabo.import_ui_name("dDropdownList")
-dEditBox = dabo.import_ui_name("dEditBox")
-dEditor = dabo.import_ui_name("dEditor")
-dForm = dabo.import_ui_name("dForm")
-dImage = dabo.import_ui_name("dImage")
-dLabel = dabo.import_ui_name("dLabel")
-dMenu = dabo.import_ui_name("dMenu")
-dOkCancelDialog = dabo.import_ui_name("dOkCancelDialog")
-dPage = dabo.import_ui_name("dPage")
-dPageFrame = dabo.import_ui_name("dPageFrame")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dSplitter = dabo.import_ui_name("dSplitter")
-dTextBox = dabo.import_ui_name("dTextBox")
+from dabo.ui import dBitmapButton
+from dabo.ui import dDropdownList
+from dabo.ui import dEditBox
+from dabo.ui import dEditor
+from dabo.ui import dForm
+from dabo.ui import dImage
+from dabo.ui import dLabel
+from dabo.ui import dMenu
+from dabo.ui import dOkCancelDialog
+from dabo.ui import dPage
+from dabo.ui import dPageFrame
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dSplitter
+from dabo.ui import dTextBox
 
 
 class EditPageSplitter(dSplitter):

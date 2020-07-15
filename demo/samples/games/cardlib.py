@@ -3,8 +3,7 @@ import dabo
 import dabo.ui
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-
-dBitmap = dabo.import_ui_name("dBitmap")
+from dabo.ui import dBitmap
 
 
 class Card(dBitmap):

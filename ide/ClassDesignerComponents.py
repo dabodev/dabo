@@ -11,31 +11,31 @@ from dabo.lib.xmltodict import xmltodict
 from dabo.lib.DesignerUtils import addSizerDefaults
 from DragHandle import DragHandle
 
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dBox = dabo.import_ui_name("dBox")
-dColumn = dabo.import_ui_name("dColumn")
-dDialog = dabo.import_ui_name("dDialog")
-dForm = dabo.import_ui_name("dForm")
-dFormMain = dabo.import_ui_name("dFormMain")
-dGrid = dabo.import_ui_name("dGrid")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dImage = dabo.import_ui_name("dImage")
-dLabel = dabo.import_ui_name("dLabel")
-dMenu = dabo.import_ui_name("dMenu")
-dPage = dabo.import_ui_name("dPage")
-dPageFrame= dabo.import_ui_name("dPageFrame")
-dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
-dPageList = dabo.import_ui_name("dPageList")
-dPageSelect = dabo.import_ui_name("dPageSelect")
-dPageStyled = dabo.import_ui_name("dPageStyled")
-dPanel = dabo.import_ui_name("dPanel")
-dRadioList = dabo.import_ui_name("dRadioList")
-dSizer = dabo.import_ui_name("dSizer")
-dSpinner = dabo.import_ui_name("dSpinner")
-dSplitter = dabo.import_ui_name("dSplitter")
-dTreeView = dabo.import_ui_name("dTreeView")
-Wizard = dabo.import_ui_name("Wizard")
-WizardPage = dabo.import_ui_name("WizardPage")
+from dabo.ui import dBorderSizer
+from dabo.ui import dBox
+from dabo.ui import dColumn
+from dabo.ui import dDialog
+from dabo.ui import dForm
+from dabo.ui import dFormMain
+from dabo.ui import dGrid
+from dabo.ui import dGridSizer
+from dabo.ui import dImage
+from dabo.ui import dLabel
+from dabo.ui import dMenu
+from dabo.ui import dPage
+from dabo.ui import dPageFrame
+from dabo.ui import dPageFrameNoTabs
+from dabo.ui import dPageList
+from dabo.ui import dPageSelect
+from dabo.ui import dPageStyled
+from dabo.ui import dPanel
+from dabo.ui import dRadioList
+from dabo.ui import dSizer
+from dabo.ui import dSpinner
+from dabo.ui import dSplitter
+from dabo.ui import dTreeView
+from dabo.ui import Wizard
+from dabo.ui import WizardPage
 
 
 # Defaults for sizer items

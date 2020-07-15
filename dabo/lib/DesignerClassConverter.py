@@ -20,11 +20,10 @@ from dabo.dObject import dObject
 from dabo.lib import utils
 from dabo.lib import xmltodict as xtd
 from dabo.lib.utils import ustr
+from dabo.ui.dialogs import Wizard
 # Doesn't matter what platform we're on; Python needs
 # newlines in its compiled code.
 LINESEP = "\n"
-
-Wizard = dabo.import_ui_name("Wizard")
 
 
 class DesignerClassConverter(dObject):
@@ -297,13 +296,13 @@ class DesignerClassConverter(dObject):
             modpath, shortClsName = nm.rsplit(".", 1)
         except ValueError:
             # Default to the dabo.ui module
-            modpath = "dabo.ui.%s" % nm
+            modpath = "dabo.ui"
             shortClsName = nm
         self.mainClassName = clsName = self.uniqename(shortClsName)
 
         # Wizards are constructed differently than other top-level classes.
         tmpSpace = {}
-        stmnt = 'import dabo; %s = dabo.import_ui_name("%s")' % (shortClsName, shortClsName)
+        stmnt = "from %s import %s" % (modpath, shortClsName)
         try:
             exec(stmnt, tmpSpace)
         except (ImportError, ValueError):
@@ -323,7 +322,7 @@ class DesignerClassConverter(dObject):
         if self.CreateDesignerControls:
             superName = "getControlClass(%s.%s)" % (modpath, shortClsName)
         else:
-            superName = shortClsName
+            superName = ".".join((modpath, shortClsName))
         prnt = self.currParent
         indCode = self.indentCode(propInit, 2)
 
@@ -531,7 +530,7 @@ class DesignerClassConverter(dObject):
                 if self.CreateDesignerControls:
                     superName = clsname
                 else:
-                    superName = nm
+                    superName = ".".join((modpath, shortClsName))
                 self.classText += LINESEP + self._szText % locals()
                 self._sizerTypeStack.append(szType)
 
@@ -555,7 +554,7 @@ class DesignerClassConverter(dObject):
                     superName = "getControlClass(%s.%s)" % (modpath, "dPanel")
                     template = self._createCustomControlText
                 else:
-                    superName = "dPanel"
+                    superName = "dabo.ui.dPanel"
                     template = self._createControlText
                 attPropString = ", attProperties=%s" % cleanAtts
                 self.classText += LINESEP + template % locals()
@@ -563,7 +562,6 @@ class DesignerClassConverter(dObject):
             else:
                 # This isn't a sizer; it's a control
                 attPropString = ""
-                moduleString = ""
                 try:
                     typ = self._sizerTypeStack[-1]
                 except IndexError:
@@ -594,7 +592,7 @@ class DesignerClassConverter(dObject):
                         superName = "getControlClass(%s.%s)" % (modpath, shortClsName)
                         template = self._createCustomControlText
                     else:
-                        superName = shortClsName
+                        superName = ".".join((modpath, shortClsName))
                         template = self._createControlText
                     attPropString = ", attProperties=%s" % cleanAtts
                 self.classText += LINESEP + template % locals()
@@ -692,13 +690,13 @@ class DesignerClassConverter(dObject):
                                 code = kid.get("code", {})
                                 subKids = kid.get("children")
                                 attPropString = ""
-                                moduleString = ""
+                                moduleString = "dabo.ui."
                                 classname = nm
                                 if code:
                                     nm = self.createInnerClass(nm, kidCleanAtts, code, {})
                                     nm = "self.getCustControlClass('%s')" % nm
-                                else:
                                     moduleString = ""
+                                else:
                                     attPropString = ", attProperties=%s" % kidCleanAtts
                                     kidCleanAtts = {}
                                 if isPageFrame:
@@ -855,9 +853,7 @@ class DesignerClassConverter(dObject):
     ### so as not to clutter the rest of the code visually.  ###
     def _defineTextBlocks(self):
         # Standard class template
-        self.containerClassTemplate = """%(superName)s = dabo.import_ui_name("%(superName)s")
-
-class %(clsName)s(%(superName)s):
+        self.containerClassTemplate = """class %(clsName)s(%(superName)s):
     def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
         super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
         self.Sizer = None
@@ -865,25 +861,20 @@ class %(clsName)s(%(superName)s):
 
 """
         # Standard template for wizards
-        self.wizardClassTemplate = """%(superName)s = dabo.import_ui_name("%(superName)s")
-
-class %(clsName)s(%(superName)s):
+        self.wizardClassTemplate = """class %(clsName)s(%(superName)s):
     def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
         super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
 %(indCode)s
 
 """
-        self.classTemplate = """%(shortClsName)s = dabo.import_ui_name("%(shortClsName)s")
-class %(clsName)s(%(shortClsName)s):
+        self.classTemplate = """class %(clsName)s(%(modpath)s.%(shortClsName)s):
     def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
-        %(shortClsName)s.__init__(self, parent=parent, attProperties=attProperties, *args, **kwargs)
+        %(modpath)s.%(shortClsName)s.__init__(self, parent=parent, attProperties=attProperties, *args, **kwargs)
 %(indCode)s
 
 """
         # OK/Cancel dialog class template
-        self.okCancelDialogClassTemplate = """%(superName)s = dabo.import_ui_name("%(superName)s")
-
-class %(clsName)s(%(superName)s):
+        self.okCancelDialogClassTemplate = """class %(clsName)s(%(superName)s):
     def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
         super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
 %(indCode)s
@@ -919,8 +910,7 @@ import sys
 %(indCode)s
         return %(superEval)s"""
 
-        self._szText = """        %(superName)s = dabo.import_ui_name("%(superName)s")
-        obj = %(superName)s(%(prnt)s%(propString)s)
+        self._szText = """        obj = %(superName)s(%(prnt)s%(propString)s)
         if currSizer:
             currSizer.append(obj%(rowColString)s)
             currSizer.setItemProps(obj, %(szInfo)s)
@@ -934,8 +924,7 @@ import sys
         dabo.ui.setAfter(obj, "Split", %(splt)s)
         dabo.ui.setAfter(obj, "SashPosition", %(pos)s)
 """
-        self._createControlText = """        %(superName)s = dabo.import_ui_name("%(superName)s")
-        obj = %(superName)s(currParent%(attPropString)s)%(splitterString)s
+        self._createControlText = """        obj = %(superName)s(currParent%(attPropString)s)%(splitterString)s
         if currSizer:
             currSizer.append(obj%(rowColString)s)
             currSizer.setItemProps(obj, %(szInfo)s)
@@ -979,12 +968,10 @@ import sys
         self._complexPrntRef = """        # save a reference to the parent control
         %(prntName)s = obj
 """
-        self._grdColText = """        dColumn = dabo.import_ui_name("dColumn")
-        col = dColumn(obj, attProperties=%(kidCleanAtts)s)
+        self._grdColText = """        col = dabo.ui.dColumn(obj, attProperties=%(kidCleanAtts)s)
         obj.addColumn(col)
 """
-        self._pgfPageText = """        %(classname)s = dabo.import_ui_name("%(classname)s")
-        pg = %(moduleString)s%(nm)s(%(prntName)s%(attPropString)s)
+        self._pgfPageText = """        pg = %(moduleString)s%(nm)s(%(prntName)s%(attPropString)s)
         %(prntName)s.appendPage(pg)
         currSizer = pg.Sizer = None
         parentStack.append(currParent)

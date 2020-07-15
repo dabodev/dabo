@@ -8,18 +8,6 @@ from dabo.dApp import dApp
 from dabo.dLocalize import _
 from . import cardlib
 
-dButton = dabo.import_ui_name("dButton")
-dForm = dabo.import_ui_name("dForm")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dOkCancelDialog = dabo.import_ui_name("dOkCancelDialog")
-dPanel = dabo.import_ui_name("dPanel")
-dScrollPanel = dabo.import_ui_name("dScrollPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dTextBox = dabo.import_ui_name("dTextBox")
-dTimer = dabo.import_ui_name("dTimer")
-dToolBar = dabo.import_ui_name("dToolBar")
-
 
 class MontanaDeck(cardlib.PokerDeck):
 #     def passHoverEvent(self, evt):
@@ -46,7 +34,7 @@ class MontanaDeck(cardlib.PokerDeck):
                 self.aces.append(card)
 
 
-class CardTimer(dTimer):
+class CardTimer(dabo.ui.dTimer):
     def start(self, *args, **kwargs):
         self.target._cardTimerFirstHit = False
         super(CardTimer, self).start(*args, **kwargs)
@@ -63,7 +51,7 @@ class CardTimer(dTimer):
         self.target._cardTimerFirstHit = True
 
 
-class Board(dPanel):
+class Board(dabo.ui.dPanel):
     def afterInit(self):
         self.DeckDirectory = self.Form.getDeckDir()
         self.BackColor = "olivedrab"
@@ -87,7 +75,7 @@ class Board(dPanel):
 
     def createSizer(self):
         if not self.Sizer:
-            self.Sizer = dSizer("v")
+            self.Sizer = dabo.ui.dSizer("v")
             self.Sizer.DefaultBorder = self._border
             self.Sizer.DefaultBorderAll = True
         if self.gridSizer:
@@ -95,7 +83,7 @@ class Board(dPanel):
             for card in self.deck:
                 self.gridSizer.remove(card)
             self.gridSizer.release()
-        self.gridSizer = dGridSizer(MaxCols=13, HGap=2, VGap=2)
+        self.gridSizer = dabo.ui.dGridSizer(MaxCols=13, HGap=2, VGap=2)
         self.Sizer.append1x(self.gridSizer)
 
 
@@ -420,7 +408,7 @@ class Board(dPanel):
 
 
 
-class MontanaForm(dForm):
+class MontanaForm(dabo.ui.dForm):
     def afterInit(self):
         self.Centered = True
         self.Caption = "Montana"
@@ -453,7 +441,7 @@ class MontanaForm(dForm):
         helpMenu.append(_("&How to Play"), HotKey="Ctrl+I", help=_("Rules of the game"),
             OnHit=self.onRules, bmp="%s/apps/help-browser.png" % iconPath)
 
-        tb = self.ToolBar = dToolBar(self, ShowCaptions=True)  ## Mac has a resize problem otherwise.
+        tb = self.ToolBar = dabo.ui.dToolBar(self, ShowCaptions=True)  ## Mac has a resize problem otherwise.
 
         if self.Application.Platform == "Mac":
             # Toolbar looks better with larger icons on Mac. In fact, I believe HIG
@@ -472,18 +460,18 @@ class MontanaForm(dForm):
                 tip="Preferences", help="Edit preferences")
         tb.appendSeparator()
 
-        btn = self.btnRedeal = tb.appendControl(dButton(tb, Enabled=False))
+        btn = self.btnRedeal = tb.appendControl(dabo.ui.dButton(tb, Enabled=False))
         btn.Height += 6
         self.updateRedealCaption()
         self.btnRedeal.bindEvent(dabo.dEvents.Hit, self.onRedeal)
         tb.appendSeparator()
 
-        tb.appendControl(dLabel(tb, Caption="Hand Score:", Width=50, Height=20))
-        self.txtHandScore = tb.appendControl(dTextBox(tb, Value=0,
+        tb.appendControl(dabo.ui.dLabel(tb, Caption="Hand Score:", Width=50, Height=20))
+        self.txtHandScore = tb.appendControl(dabo.ui.dTextBox(tb, Value=0,
                 FontBold=True, Width=40, ReadOnly=True, Alignment="Right"))
         tb.appendSeparator()
-        tb.appendControl(dLabel(tb, Caption="Game Score:", Width=50, Height=20))
-        self.txtGameScore = tb.appendControl(dTextBox(tb, Value=0,
+        tb.appendControl(dabo.ui.dLabel(tb, Caption="Game Score:", Width=50, Height=20))
+        self.txtGameScore = tb.appendControl(dabo.ui.dTextBox(tb, Value=0,
                 FontBold=True, Width=40, ReadOnly=True, Alignment="Right"))
 
 
@@ -516,7 +504,7 @@ class MontanaForm(dForm):
     def onEditPreferences(self, evt):
         """Create a dialog to edit preferences."""
         xml = self.getPrefControlXML()
-        class MontanaPrefDialog(dOkCancelDialog):
+        class MontanaPrefDialog(dabo.ui.dOkCancelDialog):
             def addControls(self):
                 self.prf = self.Parent.PreferenceManager
                 ctls = self.addObject(xml)
@@ -542,14 +530,14 @@ class MontanaForm(dForm):
 
 
     def onRules(self, evt):
-        win = dForm(self, Caption="Montana Rules", Centered=True)
-        pnl = dScrollPanel(win)
+        win = dabo.ui.dForm(self, Caption="Montana Rules", Centered=True)
+        pnl = dabo.ui.dScrollPanel(win)
         win.Sizer.append1x(pnl)
-        txt = dLabel(pnl, Caption=helpText)
-        sz = dSizer("v")
+        txt = dabo.ui.dLabel(pnl, Caption=helpText)
+        sz = dabo.ui.dSizer("v")
         sz.append1x(txt, border=10)
         pnl.Sizer = sz
-        btn = dButton(win, Caption="OK")
+        btn = dabo.ui.dButton(win, Caption="OK")
         btn.bindEvent(dabo.dEvents.Hit, win.close)
         win.Sizer.append(btn, border=10, halign="right")
         win.layout()

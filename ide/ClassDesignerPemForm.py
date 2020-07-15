@@ -14,18 +14,18 @@ from ClassDesignerComponents import LayoutSizer
 from ClassDesignerComponents import LayoutGridSizer
 import ClassDesignerMenu
 
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dColumn = dabo.import_ui_name("dColumn")
-dForm = dabo.import_ui_name("dForm")
-dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dSizerMixin = dabo.import_ui_name("dSizerMixin")
-dSlidePanel = dabo.import_ui_name("dSlidePanel")
-dSlidePanelControl = dabo.import_ui_name("dSlidePanelControl")
-dTextBox = dabo.import_ui_name("dTextBox")
-dToggleButton = dabo.import_ui_name("dToggleButton")
-dTreeView = dabo.import_ui_name("dTreeView")
+from dabo.ui import dBorderSizer
+from dabo.ui import dColumn
+from dabo.ui import dForm
+from dabo.ui import dPageFrameNoTabs
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dSizerMixin
+from dabo.ui import dSlidePanel
+from dabo.ui import dSlidePanelControl
+from dabo.ui import dTextBox
+from dabo.ui import dToggleButton
+from dabo.ui import dTreeView
 
 
 class PemForm(dForm):

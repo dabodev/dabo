@@ -4,7 +4,7 @@ from dabo.dApp import dApp
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
-from dabo.ui.dDialog import dDialog
+from dabo.ui import dDialog
 from .WizardPage import WizardPage
 
 

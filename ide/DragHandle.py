@@ -3,7 +3,7 @@ HANDLE_SIZE = 8
 import dabo.ui
 import dabo.dEvents as dEvents
 
-dPanel = dabo.import_ui_name("dPanel")
+from dabo.ui import dPanel
 
 
 class DragHandle(dPanel):

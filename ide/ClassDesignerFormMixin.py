@@ -28,28 +28,28 @@ import dabo.lib.xmltodict as xtd
 import dabo.lib.DesignerUtils as desUtil
 from dabo.ui import dKeys
 
-dButton = dabo.import_ui_name("dButton")
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dComboBox = dabo.import_ui_name("dComboBox")
-dDialog = dabo.import_ui_name("dDialog")
-dDockForm = dabo.import_ui_name("dDockForm")
-dForm = dabo.import_ui_name("dForm")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dListControl = dabo.import_ui_name("dListControl")
-dMenu = dabo.import_ui_name("dMenu")
-dOkCancelDialog = dabo.import_ui_name("dOkCancelDialog")
-dPanel = dabo.import_ui_name("dPanel")
-dRadioList = dabo.import_ui_name("dRadioList")
-dSizer = dabo.import_ui_name("dSizer")
-dSpinner = dabo.import_ui_name("dSpinner")
-dSplitter = dabo.import_ui_name("dSplitter")
-dStandardButtonDialog = dabo.import_ui_name("dStandardButtonDialog")
-dStatusBar = dabo.import_ui_name("dStatusBar")
-dTextBox = dabo.import_ui_name("dTextBox")
-dToolForm = dabo.import_ui_name("dToolForm")
-dTreeView = dabo.import_ui_name("dTreeView")
-Wizard = dabo.import_ui_name("Wizard")
+from dabo.ui import dButton
+from dabo.ui import dCheckBox
+from dabo.ui import dComboBox
+from dabo.ui import dDialog
+from dabo.ui import dDockForm
+from dabo.ui import dForm
+from dabo.ui import dGridSizer
+from dabo.ui import dLabel
+from dabo.ui import dListControl
+from dabo.ui import dMenu
+from dabo.ui import dOkCancelDialog
+from dabo.ui import dPanel
+from dabo.ui import dRadioList
+from dabo.ui import dSizer
+from dabo.ui import dSpinner
+from dabo.ui import dSplitter
+from dabo.ui import dStandardButtonDialog
+from dabo.ui import dStatusBar
+from dabo.ui import dTextBox
+from dabo.ui import dToolForm
+from dabo.ui import dTreeView
+from dabo.ui import Wizard
 
 
 class ClassDesignerFormMixin(LayoutSaverMixin):

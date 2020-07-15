@@ -9,16 +9,16 @@ from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import ClassDesignerMenu
 
-dBitmapButton = dabo.import_ui_name("dBitmapButton")
-dButton = dabo.import_ui_name("dButton")
-dDropdownList = dabo.import_ui_name("dDropdownList")
-dEditor = dabo.import_ui_name("dEditor")
-dForm = dabo.import_ui_name("dForm")
-dLabel = dabo.import_ui_name("dLabel")
-dLine = dabo.import_ui_name("dLine")
-dMenu = dabo.import_ui_name("dMenu")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
+from dabo.ui import dBitmapButton
+from dabo.ui import dButton
+from dabo.ui import dDropdownList
+from dabo.ui import dEditor
+from dabo.ui import dForm
+from dabo.ui import dLabel
+from dabo.ui import dLine
+from dabo.ui import dMenu
+from dabo.ui import dPanel
+from dabo.ui import dSizer
 
 
 class EditorControl(dEditor):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from dabo.dLocalize import _
-from dabo.ui.dDialog import dOkCancelDialog
+from dabo.ui import dOkCancelDialog
 import dabo.dEvents as dEvents
 import dabo.ui
 

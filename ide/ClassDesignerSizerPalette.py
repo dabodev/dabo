@@ -4,17 +4,17 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from ClassDesignerComponents import LayoutSpacerPanel
 
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dDropdownList = dabo.import_ui_name("dDropdownList")
-dForm = dabo.import_ui_name("dForm")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dSpinner = dabo.import_ui_name("dSpinner")
-dToolForm = dabo.import_ui_name("dToolForm")
+from dabo.ui import dBorderSizer
+from dabo.ui import dCheckBox
+from dabo.ui import dDropdownList
+from dabo.ui import dForm
+from dabo.ui import dGridSizer
+from dabo.ui import dLabel
+from dabo.ui import dPageFrameNoTabs
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dSpinner
+from dabo.ui import dToolForm
 
 
 class ContentBoxSizerPanel(dPanel):

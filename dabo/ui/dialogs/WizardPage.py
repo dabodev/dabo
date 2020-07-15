@@ -3,7 +3,7 @@ import dabo.ui
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
-from dabo.ui.dPanel import dScrollPanel
+from dabo.ui import dScrollPanel
 
 
 class WizardPage(dScrollPanel):

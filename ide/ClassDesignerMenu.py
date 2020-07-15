@@ -4,7 +4,7 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import sys
 
-dMenu = dabo.import_ui_name("dMenu")
+from dabo.ui import dMenu
 
 
 def mkDesignerMenu(parent, target=None):

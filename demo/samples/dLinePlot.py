@@ -7,44 +7,36 @@ try:
 except ImportError:
     _Numeric = None
 
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dLinePlot = dabo.import_ui_name("dLinePlot")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dTextBox = dabo.import_ui_name("dTextBox")
 
-
-class TestPanel(dPanel):
+class TestPanel(dabo.ui.dPanel):
     def afterInit(self):
         if not _Numeric:
             txt = _("The numpy oldnumeric module is not installed")
-            dLabel(self, Caption=txt, FontSize=12, ForeColor="red")
+            dabo.ui.dLabel(self, Caption=txt, FontSize=12, ForeColor="red")
             return
         self.linePlot = self.createLinePlot()
-        sz = self.Sizer = dSizer("h")
+        sz = self.Sizer = dabo.ui.dSizer("h")
         sz.append(self.createControlPanel(self.linePlot), "expand")
         sz.appendSpacer(10)
         sz.append1x(self.linePlot)
 
 
     def createControlPanel(self, linePlot):
-        bs = dBorderSizer(self, Caption="Control Panel", orientation="v")
-        gs = dGridSizer(MaxCols=2, HGap=5, VGap=5)
+        bs = dabo.ui.dBorderSizer(self, Caption="Control Panel", orientation="v")
+        gs = dabo.ui.dGridSizer(MaxCols=2, HGap=5, VGap=5)
         gs.setColExpand(True, 1)
 
-        txtTitle = dTextBox(self, DataSource=linePlot, DataField="Caption", Width=200)
-        txtXAxisLabel = dTextBox(self, DataSource=linePlot, DataField="XAxisLabel")
-        txtYAxisLabel = dTextBox(self, DataSource=linePlot, DataField="YAxisLabel")
+        txtTitle = dabo.ui.dTextBox(self, DataSource=linePlot, DataField="Caption", Width=200)
+        txtXAxisLabel = dabo.ui.dTextBox(self, DataSource=linePlot, DataField="XAxisLabel")
+        txtYAxisLabel = dabo.ui.dTextBox(self, DataSource=linePlot, DataField="YAxisLabel")
 
-        gs.append(dLabel(self, Caption="Title"), halign="right")
+        gs.append(dabo.ui.dLabel(self, Caption="Title"), halign="right")
         gs.append(txtTitle, "expand")
 
-        gs.append(dLabel(self, Caption="X Axis Label"), halign="right")
+        gs.append(dabo.ui.dLabel(self, Caption="X Axis Label"), halign="right")
         gs.append(txtXAxisLabel, "expand")
 
-        gs.append(dLabel(self, Caption="Y Axis Label"), halign="right")
+        gs.append(dabo.ui.dLabel(self, Caption="Y Axis Label"), halign="right")
         gs.append(txtYAxisLabel, "expand")
 
         bs.append(gs, 'x')
@@ -52,7 +44,7 @@ class TestPanel(dPanel):
 
 
     def createLinePlot(self):
-        linePlot = dLinePlot(self)
+        linePlot = dabo.ui.dLinePlot(self)
         linePlot.XAxisLabel = "X Axis"
         linePlot.YAxisLabel = "Y Axis"
         linePlot.Caption = "Title of Graph"

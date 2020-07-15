@@ -17,53 +17,53 @@ from dabo.ui import dKeys
 
 dui = dabo.ui
 
-dBitmap = dabo.import_ui_name("dBitmap")
-dBitmapButton = dabo.import_ui_name("dBitmapButton")
-dButton = dabo.import_ui_name("dButton")
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dCheckList = dabo.import_ui_name("dCheckList")
-dColumn = dabo.import_ui_name("dColumn")
-dComboBox = dabo.import_ui_name("dComboBox")
-dDataControlMixin = dabo.import_ui_name("dDataControlMixin")
-dDialog = dabo.import_ui_name("dDialog")
-dDropdownList = dabo.import_ui_name("dDropdownList")
-dEditBox = dabo.import_ui_name("dEditBox")
-dEditor = dabo.import_ui_name("dEditor")
-dGauge = dabo.import_ui_name("dGauge")
-dGrid = dabo.import_ui_name("dGrid")
-dHtmlBox = dabo.import_ui_name("dHtmlBox")
-dImage = dabo.import_ui_name("dImage")
-dLabel = dabo.import_ui_name("dLabel")
-dLed = dabo.import_ui_name("dLed")
-dLine = dabo.import_ui_name("dLine")
-dListBox = dabo.import_ui_name("dListBox")
-dListControl = dabo.import_ui_name("dListControl")
-dMaskedTextBox = dabo.import_ui_name("dMaskedTextBox")
-dMediaControl = dabo.import_ui_name("dMediaControl")
-dMenu = dabo.import_ui_name("dMenu")
-dMenuBar = dabo.import_ui_name("dMenuBar")
-dMenuItem = dabo.import_ui_name("dMenuItem")
-dPage = dabo.import_ui_name("dPage")
-dPageFrame = dabo.import_ui_name("dPageFrame")
-dPageFrameMixin = dabo.import_ui_name("dPageFrameMixin")
-dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
-dPageList = dabo.import_ui_name("dPageList")
-dPageSelect = dabo.import_ui_name("dPageSelect")
-dPageStyled = dabo.import_ui_name("dPageStyled")
-dPanel = dabo.import_ui_name("dPanel")
-dRadioList = dabo.import_ui_name("dRadioList")
-dScrollPanel = dabo.import_ui_name("dScrollPanel")
-dShell = dabo.import_ui_name("dShell")
-dSlidePanel = dabo.import_ui_name("dSlidePanel")
-dSlidePanelControl = dabo.import_ui_name("dSlidePanelControl")
-dSlider = dabo.import_ui_name("dSlider")
-dSpinner = dabo.import_ui_name("dSpinner")
-dSplitter = dabo.import_ui_name("dSplitter")
-dStatusBar = dabo.import_ui_name("dStatusBar")
-dTextBox = dabo.import_ui_name("dTextBox")
-dTimer = dabo.import_ui_name("dTimer")
-dToggleButton = dabo.import_ui_name("dToggleButton")
-dTreeView = dabo.import_ui_name("dTreeView")
+from dabo.ui import dBitmap
+from dabo.ui import dBitmapButton
+from dabo.ui import dButton
+from dabo.ui import dCheckBox
+from dabo.ui import dCheckList
+from dabo.ui import dColumn
+from dabo.ui import dComboBox
+from dabo.ui import dDataControlMixin
+from dabo.ui import dDialog
+from dabo.ui import dDropdownList
+from dabo.ui import dEditBox
+from dabo.ui import dEditor
+from dabo.ui import dGauge
+from dabo.ui import dGrid
+from dabo.ui import dHtmlBox
+from dabo.ui import dImage
+from dabo.ui import dLabel
+from dabo.ui import dLed
+from dabo.ui import dLine
+from dabo.ui import dListBox
+from dabo.ui import dListControl
+from dabo.ui import dMaskedTextBox
+from dabo.ui import dMediaControl
+from dabo.ui import dMenu
+from dabo.ui import dMenuBar
+from dabo.ui import dMenuItem
+from dabo.ui import dPage
+from dabo.ui import dPageFrame
+from dabo.ui import dPageFrameMixin
+from dabo.ui import dPageFrameNoTabs
+from dabo.ui import dPageList
+from dabo.ui import dPageSelect
+from dabo.ui import dPageStyled
+from dabo.ui import dPanel
+from dabo.ui import dRadioList
+from dabo.ui import dScrollPanel
+from dabo.ui import dShell
+from dabo.ui import dSlidePanel
+from dabo.ui import dSlidePanelControl
+from dabo.ui import dSlider
+from dabo.ui import dSpinner
+from dabo.ui import dSplitter
+from dabo.ui import dStatusBar
+from dabo.ui import dTextBox
+from dabo.ui import dTimer
+from dabo.ui import dToggleButton
+from dabo.ui import dTreeView
 
 
 class ClassDesignerControlMixin(LayoutSaverMixin):

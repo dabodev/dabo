@@ -7,34 +7,28 @@ from dabo.dApp import dApp
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dGauge = dabo.import_ui_name("dGauge")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
 
-
-class TestPanel(dPanel):
+class TestPanel(dabo.ui.dPanel):
     def afterInit(self):
-        sz = self.Sizer = dSizer("v")
+        sz = self.Sizer = dabo.ui.dSizer("v")
         sz.appendSpacer(25)
 
-        bsz = dBorderSizer(self, "v", Caption="Horizontal Gauge")
-        self.gaugeH = dGauge(self)
+        bsz = dabo.ui.dBorderSizer(self, "v", Caption="Horizontal Gauge")
+        self.gaugeH = dabo.ui.dGauge(self)
         bsz.append(self.gaugeH, "x", border=30,
                 borderSides=("Left", "Right"))
 
-        self.lblH = dLabel(self)
+        self.lblH = dabo.ui.dLabel(self)
         bsz.append(self.lblH, halign="center")
         sz.append(bsz, "x", halign="center", border=20, borderSides=("Left", "Right"))
         sz.appendSpacer(50)
 
-        hsz = dBorderSizer(self, "h", Caption="Vertical Gauge")
-        self.gaugeV = dGauge(self, Orientation="v")
+        hsz = dabo.ui.dBorderSizer(self, "h", Caption="Vertical Gauge")
+        self.gaugeV = dabo.ui.dGauge(self, Orientation="v")
         hsz.append(self.gaugeV, "x", border=30, borderSides=("Left", "Right"), halign="center")
         hsz.appendSpacer(10)
 
-        self.lblV = dLabel(self)
+        self.lblV = dabo.ui.dLabel(self)
         hsz.append(self.lblV, valign="middle")
         sz.append(hsz, 1, halign="center")
 

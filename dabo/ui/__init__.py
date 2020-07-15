@@ -17,13 +17,12 @@ import urllib.request, urllib.parse, urllib.error
 import warnings
 
 import dabo
-from . import dKeys
 from dabo.dException import dException
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib import utils
 from dabo.lib.utils import ustr
-from dabo import ui as dui
+
 
 # Very VERY first thing: ensure a minimal wx is selected, but only if
 # wx hasn't already been imported, and if we aren't running frozen:
@@ -89,6 +88,93 @@ uiType["platform"] = _platform
 # Add these to the dabo.ui namespace
 assertionException = wx.wxAssertionError
 nativeScrollBar = wx.ScrollBar
+
+
+namespace_loaded = False
+
+def load_namespace():
+    """Add all the UI classes to the dabo.ui namespace.
+
+    This must be called before any UI work can be done. This is done automatically when `import
+    dabo` is called, so you should never have to call it manually.
+
+    IMPORTANT: the order of these imports should not be changed without extensive testing, as some
+    classes inherit from or otherwise reference other classes, so those referenced classes need to
+    be added to the namespace first.
+    """
+    global namespace_loaded
+    if namespace_loaded:
+        return
+    namespace_loaded = True
+    from . import keys
+    dabo.ui.dKeys = keys
+    from . import icons
+    dabo.ui.dIcons = icons
+    from . import ui_cursors
+    dabo.ui.dUICursors = ui_cursors
+
+    from . import pem_mixin
+    from . import control_mixin
+    from . import data_control_mixin
+    from . import control_item_mixin
+    from . import status_bar
+    from . import icons
+    from . import menu_item
+    from . import menu
+    from . import menu_bar
+    from . import base_menu_bar
+    from . import tool_bar
+    from . import form_mixin
+    from . import button
+    from . import box
+    from . import check_box
+    from . import combo_box
+    from . import html_box
+    from . import line
+    from . import list_box
+    from . import list_control
+    from . import dropdown_list
+    from . import alignment_mixin
+    from . import font
+    from . import gauge
+    from . import label
+    from . import radio_list
+    from . import sizer_mixin
+    from . import grid_sizer
+    from . import sizer
+    from . import panel
+    from . import led
+    from . import slider
+    from . import timer
+    from . import text_box_mixin
+    from . import text_box
+    from . import tree_view
+    from . import date_text_box
+    from . import edit_box
+    from . import editor
+    from . import spinner
+    from . import form
+    from . import form_main
+    from . import message_box
+    from . import grid
+    from . import slide_panel_control
+    from . import border_sizer
+    from . import splitter
+    from . import split_form
+    from . import image_mixin
+    from . import image
+    from . import toggle_button
+    from . import bitmap
+    from . import bitmap_button
+    from . import dialog
+    from . import color_dialog
+    from . import file_dialog
+    from . import font_dialog
+    from . import page
+    from . import page_frame_mixin
+    from . import page_frame
+    from . import page_frame_no_tabs
+
 
 def deadCheck(fn, *args, **kwargs):
     """
@@ -240,9 +326,8 @@ def makeProxyProperty(dct, nm, proxyAtts):
         return _resolveGet(self, nm)
     def fset(self, val):
         return _resolveSet(self, nm, val)
-    dPemMixin = dabo.import_ui_name("dPemMixin")
     try:
-        doc = getattr(dPemMixin, nm).__doc__
+        doc = getattr(dabo.ui.dPemMixin, nm).__doc__
     except AttributeError:
         doc = None
     return property(fget, fset, None, doc)
@@ -277,16 +362,6 @@ artConstants["up"] = artConstants.get("goup")
 artConstants["hd"] = artConstants.get("harddisk")
 artConstants["info"] = artConstants.get("information")
 artConstants["file"] = artConstants.get("normalfile")
-
-
-def getEventData(uiEvent):
-    """
-    Given a UI-specific event object, return a UI-agnostic name/value dictionary.
-
-    This function must be overridden in each ui library's __init__.py to function
-    correctly.
-    """
-    return {}
 
 
 def getUiApp(app, uiAppClass=None, callback=None, forceNew=False):
@@ -387,10 +462,9 @@ def callEvery(interval, func, *args, **kwargs):
     at the specified interval. Interval is given in milliseconds. It will pass along
     any additional arguments to the function when it is called.
     """
-    dTimer = dabo.import_ui_name("dTimer")
     def _onHit(evt):
         func(*args, **kwargs)
-    ret = dTimer(Interval=interval)
+    ret = dabo.ui.dTimer(Interval=interval)
     ret.bindEvent(dEvents.Hit, _onHit)
     ret.start()
     return ret
@@ -461,8 +535,8 @@ def discontinueEvent(evt):
 
 
 def getEventData(wxEvt):
-    from dabo.ui.dMenu import dMenu
-    from dabo.ui.dTreeView import dTreeView
+    from dabo.ui import dMenu
+    from dabo.ui import dTreeView
     import wx.grid
 
     ed = {}
@@ -739,9 +813,7 @@ def getMouseObject():
 #     win = wx.FindWindowAtPoint(getMousePosition())
     actwin = dabo.dAppRef.ActiveForm
 #     print "ACTWIN", actwin
-    dShell = dabo.import_ui_name("dShell")
-    dPemMixin = dabo.import_ui_name("dPemMixin")
-    if isinstance(actwin, dShell):
+    if isinstance(actwin, dabo.ui.dShell):
         actwin.lockDisplay()
         actwin.sendToBack()
     else:
@@ -750,7 +822,7 @@ def getMouseObject():
     if actwin is not None:
         actwin.bringToFront()
         actwin.unlockDisplay()
-    while not isinstance(win, dPemMixin):
+    while not isinstance(win, dabo.ui.dPemMixin):
         try:
             win = win.GetParent()
         except AttributeError:
@@ -764,11 +836,10 @@ def getObjectAtPosition(x, y=None):
     position, or None if there is no such object. You can pass separate
     x,y coordinates, or an x,y tuple.
     """
-    dPemMixin = dabo.import_ui_name("dPemMixin")
     if y is None:
         x, y = x
     win = wx.FindWindowAtPoint((x,y))
-    while not isinstance(win, dPemMixin):
+    while not isinstance(win, dabo.ui.dPemMixin):
         try:
             win = win.GetParent()
         except AttributeError:
@@ -889,10 +960,10 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
     is instantiated. Some useful examples::
 
         # Give the textbox a default value:
-        txt = dui.getString(defaultValue="initial string value")
+        txt = dabo.ui.getString(defaultValue="initial string value")
 
         # Password Entry (\*'s instead of the actual text)
-        txt = dui.getString(PasswordEntry=True)
+        txt = dabo.ui.getString(PasswordEntry=True)
 
     """
     class StringDialog(dOkCancelDialog):
@@ -922,12 +993,12 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
 def getInt(message=_("Enter an integer value:"), caption="Dabo",
         defaultValue=0, **kwargs):
     """Simple dialog for returning an integer value from the user."""
-    class IntDialog(dabo.ui.dDialog.dOkCancelDialog):
+    class IntDialog(dabo.ui.dOkCancelDialog):
         def addControls(self):
             self.Caption = caption
-            lbl = dabo.ui.dLabel.dLabel(self, Caption=message)
-            self.spnVal = dabo.ui.dSpinner.dSpinner(self, **kwargs)
-            hs = dabo.ui.dSizer.dSizer("h")
+            lbl = dabo.ui.dLabel(self, Caption=message)
+            self.spnVal = dabo.ui.dSpinner(self, **kwargs)
+            hs = dabo.ui.dSizer("h")
             hs.append(lbl, halign="Right")
             hs.appendSpacer(5)
             hs.append(self.spnVal)
@@ -973,11 +1044,11 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
         defaultPos = 0
     if mult is None:
         mult = False
-    class ChoiceDialog(dabo.ui.dDialog.dOkCancelDialog):
+    class ChoiceDialog(dabo.ui.dOkCancelDialog):
         def addControls(self):
             self.Caption = caption
-            lbl = dabo.ui.dLabel.dLabel(self, Caption=message)
-            self.lst = dabo.ui.dListBox.dListBox(self, Choices=choices,
+            lbl = dabo.ui.dLabel(self, Caption=message)
+            self.lst = dabo.ui.dListBox(self, Choices=choices,
                     PositionValue=defaultPos, MultipleSelect=mult,
                     OnMouseLeftDoubleClick=self.onMouseLeftDoubleClick)
             sz = self.Sizer
@@ -986,12 +1057,12 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
             sz.appendSpacer(5)
             sz.append(self.lst, 4, halign="center")
             if mult:
-                hsz = dabo.ui.dSizer.dSizer("h")
-                btnAll = dabo.ui.dButton.dButton(self, Caption=_("Select All"),
+                hsz = dabo.ui.dSizer("h")
+                btnAll = dabo.ui.dButton(self, Caption=_("Select All"),
                         OnHit=self.selectAll)
-                btnNone = dabo.ui.dButton.dButton(self, Caption=_("Unselect All"),
+                btnNone = dabo.ui.dButton(self, Caption=_("Unselect All"),
                         OnHit=self.unselectAll)
-                btnInvert = dabo.ui.dButton.dButton(self, Caption=_("Invert Selection"),
+                btnInvert = dabo.ui.dButton(self, Caption=_("Invert Selection"),
                         OnHit=self.invertSelection)
                 hsz.append(btnAll)
                 hsz.appendSpacer(8)
@@ -1001,7 +1072,7 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
                 sz.appendSpacer(16)
                 sz.append(hsz, halign="center", border=20)
                 sz.appendSpacer(8)
-                sz.append(dabo.ui.dLine.dLine(self), "x", border=44,
+                sz.append(dabo.ui.dLine(self), "x", border=44,
                         borderSides=("left", "right"))
             sz.appendSpacer(24)
 
@@ -1027,15 +1098,6 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
     return val
 
 
-# For convenience, make it so one can call dui.stop("Can't do that")
-# instead of having to type dui.dMessageBox.stop("Can't do that")
-from dabo.ui import dMessageBox as dmb
-areYouSure = dmb.areYouSure
-stop = dmb.stop
-info = dmb.info
-exclaim = dmb.exclaim
-
-
 def getColor(color=None):
     """
     Displays the color selection dialog for the platform.
@@ -1043,8 +1105,7 @@ def getColor(color=None):
     no selection was made.
     """
     ret = None
-    dColorDialog = dabo.import_ui_name("dColorDialog")
-    dlg = dColorDialog(_getActiveForm(), color)
+    dlg = dabo.ui.dColorDialog(_getActiveForm(), color)
     if dlg.show() == kons.DLG_OK:
         ret = dlg.getColor()
     dlg.release()
@@ -1096,12 +1157,12 @@ def getFont(font=None):
             dabo.log.error("Invalid font class passed to getFont")
             return None
         param = font._nativeFont
-    dlg = dabo.ui.dFontDialog.dFontDialog(_getActiveForm(), param)
+    dlg = dabo.ui.dFontDialog(_getActiveForm(), param)
     if dlg.show() == kons.DLG_OK:
         fnt = dlg.getFont()
     dlg.release()
     if fnt is not None:
-        ret = dabo.ui.dFont.dFont(_nativeFont=fnt)
+        ret = dabo.ui.dFont(_nativeFont=fnt)
     return ret
 
 
@@ -1118,7 +1179,7 @@ def _getPath(cls, wildcard, **kwargs):
     pth = None
     idx = None
     if isinstance(cls, six.string_types):
-        cls = dabo.import_ui_name(cls)
+        cls = getattr(dabo.ui, cls)
     fd = cls(parent=_getActiveForm(), wildcard=wildcard, **kwargs)
     if fd.show() == kons.DLG_OK:
         pth = fd.Path
@@ -1391,7 +1452,7 @@ def createForm(srcFile, show=False, *args, **kwargs):
     A common question on the dabo-users mailing list is how to
     instantiate a cdxml form as a child of another form. Easy! ::
 
-        frm = dui.createForm("my.cdxml", parent=self)
+        frm = dabo.ui.createForm("my.cdxml", parent=self)
 
     """
     cls = createClass(srcFile)
@@ -1414,10 +1475,10 @@ def createMenuBar(src, form=None, previewFunc=None):
     def addMenu(mb, menuDict, form, previewFunc):
         if form is None:
             form = dabo.dAppRef.ActiveForm
-        if isinstance(mb, dabo.ui.dMenuBar.dMenuBar):
-            menu = dabo.ui.dMenu.dMenu(mb)
+        if isinstance(mb, dabo.ui.dMenuBar):
+            menu = dabo.ui.dMenu(mb)
         else:
-            menu = dabo.ui.dMenu.dMenu()
+            menu = dabo.ui.dMenu()
         atts = menuDict["attributes"]
         menu.Caption = menu._extractKey(atts, "Caption")
         menu.MRU = menu._extractKey(atts, "MRU")
@@ -1476,7 +1537,7 @@ def createMenuBar(src, form=None, previewFunc=None):
                 stop(e, _("File Not Found"))
                 return
         mnd = dabo.lib.xmltodict.xmltodict(src)
-    mb = dabo.ui.dMenuBar.dMenuBar()
+    mb = dabo.ui.dMenuBar()
     for mn in mnd["children"]:
         addMenu(mb, mn, form, previewFunc)
     return mb
@@ -1516,7 +1577,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
             ctrl = self._control
             grid = self._grid
 
-            if key == dKeys.key_Up and not mod and not shift:
+            if key == ui_keys.key_Up and not mod and not shift:
                 grid.HideCellEditControl()
                 row = grid.CurrentRow - 1
                 if row < 0:
@@ -1524,7 +1585,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
                 grid.CurrentRow = row
                 evt.stop()
 
-            elif key == dKeys.key_Down and not mod and not shift:
+            elif key == ui_keys.key_Down and not mod and not shift:
                 grid.HideCellEditControl()
                 row = grid.CurrentRow + 1
                 if row > grid.RowCount - 1:
@@ -1691,10 +1752,10 @@ def browse(dataSource, parent=None, keyCaption=None, includeFields=None,
 
     parentPassed = True
     if parent is None:
-        parent = dabo.ui.dForm.dForm(None, Caption=cap)
+        parent = dabo.ui.dForm(None, Caption=cap)
         parentPassed = False
 
-    grd = dabo.ui.dGrid.dGrid(parent, AlternateRowColoring=True)
+    grd = dabo.ui.dGrid(parent, AlternateRowColoring=True)
     grd.buildFromDataSet(dataSet, keyCaption=keyCaption,
             includeFields=includeFields, colOrder=colOrder, colWidths=colWidths,
             colTypes=colTypes, autoSizeCols=autoSizeCols)
@@ -1748,7 +1809,7 @@ def setPositionInSizer(obj, pos):
 
 
 def fontMetricFromFont(txt, font):
-    if isinstance(font, dabo.ui.dFont.dFont):
+    if isinstance(font, dabo.ui.dFont):
         font = font._nativeFont
     wind = wx.Frame(None)
     dc = wx.ClientDC(wind)
@@ -1802,7 +1863,7 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
     if italic is not None:
         fnt.SetStyle(wx.FONTSTYLE_ITALIC)
 
-    if not isinstance(wind, (dabo.ui.dForm.dForm, wx.Frame)):
+    if not isinstance(wind, (dabo.ui.dForm, wx.Frame)):
         try:
             wind = wind.Form
         except AttributeError:
@@ -2092,4 +2153,3 @@ class GridSizerSpanException(dException):
     ColSpan of an item to an illegal value.
     """
     pass
-

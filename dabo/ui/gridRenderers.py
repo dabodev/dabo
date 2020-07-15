@@ -5,7 +5,6 @@ import wx.grid
 from dabo.ui import dIcons
 
 
-
 class ImageRenderer(wx.grid.GridCellRenderer):
     """Used to display small images in a column."""
 
@@ -264,3 +263,9 @@ class YesNoBoolRenderer(AbstractTextRenderer):
         else:
             dc.SetTextForeground((0, 128, 0))
         dc.DrawText(txt, rect.x, rect.y)
+
+
+dabo.ui.ImageRenderer = ImageRenderer
+dabo.ui.BoolRenderer = BoolRenderer
+dabo.ui.AbstractTextRenderer = AbstractTextRenderer
+dabo.ui.YesNoBoolRenderer = YesNoBoolRenderer

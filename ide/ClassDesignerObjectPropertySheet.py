@@ -9,11 +9,11 @@ from ClassDesignerComponents import LayoutSizer
 from ClassDesignerComponents import LayoutBorderSizer
 from ClassDesignerComponents import LayoutGridSizer
 
-dButton = dabo.import_ui_name("dButton")
-dColumn = dabo.import_ui_name("dColumn")
-dGrid = dabo.import_ui_name("dGrid")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
+from dabo.ui import dButton
+from dabo.ui import dColumn
+from dabo.ui import dGrid
+from dabo.ui import dPanel
+from dabo.ui import dSizer
 
 
 class ObjectPropertySheet(dPanel):

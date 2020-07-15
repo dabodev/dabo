@@ -4,7 +4,6 @@ import dabo
 from dabo.dLocalize import _
 from dabo import dException as dException
 from dabo.biz.dBizobj import dBizobj
-from dabo import ui as dui
 # Make sure that the user's installation supports Decimal.
 _USE_DECIMAL = True
 try:
@@ -45,6 +44,7 @@ def autoCreateTables(noAccessDialog=None):
     Tables are added to the list of tables for auto creation when the Table
     property is set for a dAutoBizobj.
     """
+    from dabo import ui as dui
     if len(g._AutoTables) == 0:
         raise dException.dException(_("No tables have been setup for autocreation."))
 

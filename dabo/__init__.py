@@ -17,68 +17,6 @@ from .version import __version__
 # dApp will change the following values upon its __init__:
 dAppRef = None
 
-# This is a dict that maps the name of the class to the class definition
-_ui_classes = {}
-# Most classes are in a module of the same name. This maps those that don't
-# follow that rule to their module.
-_ui_class_module_map = {
-        "dBorderlessForm": "dForm",
-        "dCheckMenuItem": "dMenuItem",
-        "dColumn": "dGrid",
-        "dDataPanel": "dPanel",
-        "dDockPanel": "dDockForm",
-        "dDockTabs": "dPageFrame",
-        "dExtendedCalendar": "dCalendar",
-        "dFolderDialog": "dFileDialog",
-        "dFormMainBase": "dFormMain",
-        "dGridDataTable": "dGrid",
-        "dNode": "dTreeView",
-        "dOkCancelDialog": "dDialog",
-        "dPageList": "dPageFrame",
-        "dPageSelect": "dPageFrame",
-        "dPageStyled": "dPageFrame",
-        "dPageToolBar": "dPageFrame",
-        "dProgressTimer": "dProgressDialog",
-        "dRadioMenuItem": "dMenuItem",
-        "dSaveDialog": "dFileDialog",
-        "dScrollPanel": "dPanel",
-        "dSeparatorMenuItem": "dMenuItem",
-        "dShellForm": "dShell",
-        "dSizerH": "dSizer",
-        "dSizerV": "dSizer",
-        "dSlidePanel": "dSlidePanelControl",
-        "dStandardButtonDialog": "dDialog",
-        "dTextBoxMixinBase": "dTextBoxMixin",
-        "dToolBarItem": "dToolBar",
-        "dToolForm": "dForm",
-        "dYesNoDialog": "dDialog",
-        "About": "dialogs.about",
-        "DlgInfoMessage": "dialogs.infoMessage",
-        "DummyForm": "dialogs.SortingForm",
-        "HotKeyEditor": "dialogs.HotKeyEditor",
-        "HtmlAbout": "dialogs.htmlAbout",
-        "Lbl": "dialogs.login",
-        "LblMessage": "dialogs.infoMessage",
-        "LblMessage": "dialogs.login",
-        "Login": "dialogs.login",
-        "PreferenceDialog": "dialogs.PreferenceDialog",
-        "SortingForm": "dialogs.SortingForm",
-        "TestForm": "dialogs.PreferenceDialog",
-        "Txt": "dialogs.login",
-        "TxtPass": "dialogs.login",
-        "WizPageFive": "dialogs.Wizard",
-        "WizPageFour": "dialogs.Wizard",
-        "WizPageOne": "dialogs.Wizard",
-        "WizPageThree": "dialogs.Wizard",
-        "WizPageTwo": "dialogs.Wizard",
-        "Wizard": "dialogs.Wizard",
-        "WizardPage": "dialogs.WizardPage",
-        "AbstractTextRenderer": "gridRenderers",
-        "BoolRenderer": "gridRenderers",
-        "ImageRenderer": "gridRenderers",
-        "YesNoBoolRenderer": "gridRenderers",
-        "InspectorFormClass": "object_inspector",
-}
 
 def getEncoding():
     encoding = locale.getdefaultlocale()[1] or locale.getlocale()[1] or defaultEncoding
@@ -246,27 +184,6 @@ def setDbLogFile(fname, level=None):
         dabo.dbActivityLog.addHandler(dabo.dbFileLogHandler)
 
 
-def import_ui_name(name, module=None):
-    """Provides a simple way to import dabo.ui classes."""
-    global _ui_classes
-    cls = _ui_classes.get("name")
-    if cls:
-        # Already imported
-        return cls
-    # Most classes are in a module of the same name; this gets the ones that
-    # aren't
-    module = _ui_class_module_map.get(name, name)
-    dmod = importlib.import_module("dabo.ui.%s" % module)
-    if not dmod:
-        raise ValueError("The module '%s' doesn't exist in dabo.ui" % module)
-    dcls = getattr(dmod, name, None)
-    if not dcls:
-        raise ValueError("The class '%s' cannot be found in dabo.ui.%s" %
-                (name, module))
-    _ui_classes[name] = dcls
-    return dcls
-
-
 if localizeDabo:
     # Install localization service for dabo. dApp will install localization service
     # for the user application separately.
@@ -307,6 +224,7 @@ if implicitImports:
     import dabo.db
     import dabo.biz
     import dabo.ui
+    dabo.ui.load_namespace()
     from .dApp import dApp
     from .dPref import dPref
 

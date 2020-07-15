@@ -3,34 +3,29 @@ import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
 
-
-class TestPanel(dPanel):
+class TestPanel(dabo.ui.dPanel):
     def afterInit(self):
-        sz = self.Sizer = dSizer("v", DefaultBorder=20,
+        sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20,
                 DefaultBorderLeft=True)
         sz.appendSpacer(25)
 
-        chk = dCheckBox(self, Caption="Left-Aligned Check Box",
+        chk = dabo.ui.dCheckBox(self, Caption="Left-Aligned Check Box",
                 Alignment="Left", Name="LeftCheck")
         chk.bindEvent(dEvents.Hit, self.onCheckHit)
         sz.append(chk, halign="center")
         sz.appendSpacer(10)
 
-        chk = dCheckBox(self, Caption="Right-Aligned Check Box",
+        chk = dabo.ui.dCheckBox(self, Caption="Right-Aligned Check Box",
                 Alignment="Right", Name="RightCheck")
         chk.bindEvent(dEvents.Hit, self.onCheckHit)
         sz.append(chk, halign="center")
         if self.Application.Platform == "Mac":
-            sz.append(dLabel(self, FontSize=8, FontItalic=True,
+            sz.append(dabo.ui.dLabel(self, FontSize=8, FontItalic=True,
                     Caption="(currently not supported on the Mac)"), halign="center")
         sz.appendSpacer(10)
 
-        chk = dCheckBox(self, Caption="Three State Check Box",
+        chk = dabo.ui.dCheckBox(self, Caption="Three State Check Box",
                 Alignment="Left", ThreeState=True, UserThreeState=True,
                 Name="3Check")
         chk.bindEvent(dEvents.Hit, self.onCheckHit)

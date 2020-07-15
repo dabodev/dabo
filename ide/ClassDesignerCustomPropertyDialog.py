@@ -5,13 +5,13 @@ import dabo.dEvents as dEvents
 dui = dabo.ui
 from dabo.dLocalize import _
 
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dDropdownList = dabo.import_ui_name("dDropdownList")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dOkCancelDialog = dabo.import_ui_name("dOkCancelDialog")
-dSizer = dabo.import_ui_name("dSizer")
-dTextBox = dabo.import_ui_name("dTextBox")
+from dabo.ui import dCheckBox
+from dabo.ui import dDropdownList
+from dabo.ui import dGridSizer
+from dabo.ui import dLabel
+from dabo.ui import dOkCancelDialog
+from dabo.ui import dSizer
+from dabo.ui import dTextBox
 
 
 class ClassDesignerCustomPropertyDialog(dOkCancelDialog):

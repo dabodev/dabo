@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import dabo
 from dabo.dLocalize import _
-from dabo.ui.dDialog import dOkCancelDialog
-from dabo.ui.dImage import dImage
-from dabo.ui.dLabel import dLabel
-from dabo.ui.dSizer import dSizer
-from dabo.ui.dTextBox import dTextBox
+from dabo.ui import dOkCancelDialog
+from dabo.ui import dImage
+from dabo.ui import dLabel
+from dabo.ui import dSizer
+from dabo.ui import dTextBox
 import dabo.icons
 
 

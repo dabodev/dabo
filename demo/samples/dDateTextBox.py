@@ -6,15 +6,10 @@ import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dDateTextBox = dabo.import_ui_name("dDateTextBox")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
 
-
-class TestPanel(dPanel):
+class TestPanel(dabo.ui.dPanel):
     def afterInit(self):
-        sz = self.Sizer = dSizer("v", DefaultBorder=20,
+        sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20,
                 DefaultBorderLeft=True)
         sz.appendSpacer(25)
 
@@ -23,11 +18,11 @@ class TestPanel(dPanel):
                 "that enable you to quickly navigate to the desired date value.\n\nYou can see " + \
                 "the available keystrokes by hovering the mouse cursor over the control " + \
                 "to display the ToolTip."
-        lbl = dLabel(self, Caption=intro, ForeColor="darkblue", FontBold=True,
+        lbl = dabo.ui.dLabel(self, Caption=intro, ForeColor="darkblue", FontBold=True,
                 WordWrap=True, Alignment="center")
         sz.append(lbl, "x", halign="center")
         sz.appendSpacer(10)
-        txt = dDateTextBox(self, Value=datetime.date.today(), FontSize=18,
+        txt = dabo.ui.dDateTextBox(self, Value=datetime.date.today(), FontSize=18,
             Height=36, Width=180)
         sz.append(txt, halign="center")
         dabo.ui.callAfter(self.layout)

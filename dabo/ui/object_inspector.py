@@ -113,9 +113,8 @@ import time
 import wx
 from dabo.dLocalize import _
 from dabo.dPref import dPref
-
-dFormMixin = dabo.import_ui_name("dFormMixin")
-dSizerMixin = dabo.import_ui_name("dSizerMixin")
+from dabo.ui import dFormMixin
+from dabo.ui import dSizerMixin
 ]]>
         </importStatements>
         <formatName><![CDATA[
@@ -196,11 +195,9 @@ def showPropVals(self, obj):
         <sizer_repr><![CDATA[
 def sizer_repr(self, sz):
     """Returns an informative representation for a sizer"""
-    dBorderSizer = dabo.import_ui_name("dBorderSizer")
-    dGridSizer = dabo.import_ui_name("dGridSizer")
-    if isinstance(sz, dGridSizer):
+    if isinstance(sz, dabo.ui.dGridSizer):
         ret = "dGridSizer (%s x %s)" % (sz.HighRow, sz.HighCol)
-    elif isinstance(sz, dBorderSizer):
+    elif isinstance(sz, dabo.ui.dBorderSizer):
         ret = "dBorderSizer (%s, '%s')" % (sz.Orientation, sz.Caption)
     else:
         ret = "dSizer (%s)" % sz.Orientation
@@ -217,8 +214,7 @@ def _getShowSizers(self):
         </_getShowSizers>
         <exclude><![CDATA[
 def exclude(self, obj):
-    dDialog = dabo.import_ui_name("dDialog")
-    isFloat = (isinstance(obj, dDialog) and
+    isFloat = (isinstance(obj, dabo.ui.dDialog) and
         hasattr(obj, "Above") and hasattr(obj, "Owner"))
     return isFloat or (obj is self)
 ]]>
@@ -261,19 +257,16 @@ def OnCaptureLost(self, evt):
         </OnCaptureLost>
         <afterInitAll><![CDATA[
 def afterInitAll(self):
-    dBorderSizer = dabo.import_ui_name("dBorderSizer")
-    dShell = dabo.import_ui_name("dShell")
-    dToolBar = dabo.import_ui_name("dToolBar")
     objnote = "NOTE: The 'obj' variable refers to the object selected in the tree."
     intro = "%s\\n%s" % (dabo.ui.getSystemInfo(), objnote)
-    self.shell = dShell(self.shellPanel, showInterpIntro=False,
+    self.shell = dabo.ui.dShell(self.shellPanel, showInterpIntro=False,
             introText=intro)
     self.shell.interp.locals['self'] = self
-    sz = self.shellPanel.Sizer = dBorderSizer(self.shellPanel, Caption="Interactive Interpreter")
+    sz = self.shellPanel.Sizer = dabo.ui.dBorderSizer(self.shellPanel, Caption="Interactive Interpreter")
     sz.append1x(self.shell)
     dabo.ui.callEvery(250, self.clearHighlight)
 
-    tb = self.ToolBar = dToolBar(self, ShowCaptions=True)
+    tb = self.ToolBar = dabo.ui.dToolBar(self, ShowCaptions=True)
     self.refreshButton = self.appendToolBarButton(name="Refresh", pic="refresh_tree.png",
             toggle=False, tip=_("Re-create the object tree"),
             OnHit=self.onRefreshTree)
@@ -326,7 +319,6 @@ def OnLeftDown(self, evt):
         </OnLeftDown>
         <onHighlightItem><![CDATA[
 def onHighlightItem(self, evt):
-    dFormMixin = dabo.import_ui_name("dFormMixin")
     obj = self.objectTree.Selection.Object
     try:
         frm = obj.Form
@@ -337,7 +329,7 @@ def onHighlightItem(self, evt):
     entry = self._highlights[expires] = {}
     entry["targetForm"] = frm
 
-    if isinstance(obj, dSizerMixin):
+    if isinstance(obj, dabo.ui.dSizerMixin):
         entry["type"] = "sizer"
         frm.addToOutlinedSizers(obj)
         frm.refresh()
@@ -349,7 +341,7 @@ def onHighlightItem(self, evt):
         obj.outlineWidth = 4
         frm._alwaysDrawSizerOutlines = True
     else:
-        if isinstance(obj, dFormMixin):
+        if isinstance(obj, dabo.ui.dFormMixin):
             # Don't highlight the form; just bring it to the foreground
             del self._highlights[expires]
             obj.bringToFront()

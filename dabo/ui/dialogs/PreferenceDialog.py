@@ -4,8 +4,8 @@ import os
 import inspect
 from dabo.dLocalize import _
 from dabo.lib.utils import cleanMenuCaption
-from dabo.ui.dDialog import dOkCancelDialog
-from dabo.ui.dialogs.HotKeyEditor import HotKeyEditor
+from dabo.ui import dOkCancelDialog
+from dabo.ui.dialogs import HotKeyEditor
 import dabo.ui
 
 dayMins= 24*60

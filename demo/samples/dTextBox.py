@@ -4,22 +4,16 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dTextBox = dabo.import_ui_name("dTextBox")
 
-
-class TestPanel(dPanel):
+class TestPanel(dabo.ui.dPanel):
     def afterInit(self):
-        self.Sizer = dSizer("v")
-        sz = dGridSizer(MaxCols=2, HGap=7, VGap=12)
+        self.Sizer = dabo.ui.dSizer("v")
+        sz = dabo.ui.dGridSizer(MaxCols=2, HGap=7, VGap=12)
         self.Sizer.append(sz, "x", border=30, valign="middle")
 
         # Plain textbox
-        lbl = dLabel(self, Caption=_("Plain TextBox"))
-        txt = dTextBox(self, Name=_("PlainTextBox"),
+        lbl = dabo.ui.dLabel(self, Caption=_("Plain TextBox"))
+        txt = dabo.ui.dTextBox(self, Name=_("PlainTextBox"),
                 Value=_("Test it out and see"))
         txt.SelectionStart = 0
         sz.append(lbl, halign="right")
@@ -32,8 +26,8 @@ class TestPanel(dPanel):
         txt.bindEvent(dEvents.Hit, self.onTextHit)
 
         # Password textbox
-        lbl = dLabel(self, Caption=_("Password"))
-        txt = dTextBox(self, Name=_("Password TextBox"),
+        lbl = dabo.ui.dLabel(self, Caption=_("Password"))
+        txt = dabo.ui.dTextBox(self, Name=_("Password TextBox"),
                 PasswordEntry=True)
         sz.append(lbl, halign="right")
         sz.append(txt, "x")

@@ -7,9 +7,9 @@ import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 from dabo.ui import makeProxyProperty
 
-dBitmap = dabo.import_ui_name("dBitmap")
-dForm = dabo.import_ui_name("dForm")
-dPanel = dabo.import_ui_name("dPanel")
+from dabo.ui import dBitmap
+from dabo.ui import dForm
+from dabo.ui import dPanel
 
 
 class MenuSaverMixin(object):

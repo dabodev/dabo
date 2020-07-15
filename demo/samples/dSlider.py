@@ -4,45 +4,38 @@ import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dSlider = dabo.import_ui_name("dSlider")
-dSpinner = dabo.import_ui_name("dSpinner")
 
-
-class TestPanel(dPanel):
+class TestPanel(dabo.ui.dPanel):
     def afterInit(self):
-        sz = self.Sizer = dSizer("v")
+        sz = self.Sizer = dabo.ui.dSizer("v")
         sz.appendSpacer(25)
-        self.demoBox = dPanel(self, Height=50, BackColor="orange")
+        self.demoBox = dabo.ui.dPanel(self, Height=50, BackColor="orange")
         sz.append(self.demoBox, border=30, borderSides=("Left", "Right"))
         sz.appendSpacer(10)
 
-        self.slider = dSlider(self, Min=0, Max=88, Value=42,
+        self.slider = dabo.ui.dSlider(self, Min=0, Max=88, Value=42,
                 ShowLabels=True)
         self.slider.bindEvent(dEvents.Hit, self.onSliderHit)
         sz.append(self.slider, "x", border=30, borderSides=("Left", "Right"))
         sz.appendSpacer(25)
 
-        lbl = dLabel(self, Caption="Min:")
-        spn = dSpinner(self, Max=1000000, DataSource=self.slider,
+        lbl = dabo.ui.dLabel(self, Caption="Min:")
+        spn = dabo.ui.dSpinner(self, Max=1000000, DataSource=self.slider,
                 DataField="Min", OnValueChanged=self.updtBox)
-        hsz = dSizer("h")
+        hsz = dabo.ui.dSizer("h")
         hsz.append(lbl, valign="middle")
         hsz.append(spn, valign="middle")
         hsz.appendSpacer(40)
 
-        lbl = dLabel(self, Caption="Max:")
-        spn = dSpinner(self, Max=1000000, DataSource=self.slider,
+        lbl = dabo.ui.dLabel(self, Caption="Max:")
+        spn = dabo.ui.dSpinner(self, Max=1000000, DataSource=self.slider,
                 DataField="Max", OnValueChanged=self.updtBox)
         hsz.append(lbl, valign="middle")
         hsz.append(spn, valign="middle")
         sz.append(hsz, halign="center")
 
         sz.appendSpacer(25)
-        chk = dCheckBox(self, Caption="Continuous Update",
+        chk = dabo.ui.dCheckBox(self, Caption="Continuous Update",
                 DataSource=self.slider, DataField="Continuous")
         sz.append(chk, halign="center")
 

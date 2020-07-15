@@ -2,7 +2,7 @@
 import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.ui import dKeys as dKeys
-from dabo.ui.dDialog import dOkCancelDialog
+from dabo.ui import dOkCancelDialog
 from dabo.dLocalize import _
 
 
