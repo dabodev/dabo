@@ -5,16 +5,16 @@ import string
 import dabo #, dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-dMenu = dabo.import_ui_name("dMenu")
-dBitmapButton = dabo.import_ui_name("dBitmapButton")
-dPanel = dabo.import_ui_name("dPanel")
-dDialog = dabo.import_ui_name("dDialog")
-dSizer = dabo.import_ui_name("dSizer")
-dColumn = dabo.import_ui_name("dColumn")
-dGrid = dabo.import_ui_name("dGrid")
-dLabel = dabo.import_ui_name("dLabel")
-dButton = dabo.import_ui_name("dButton")
-dHtmlBox = dabo.import_ui_name("dHtmlBox")
+from dabo.ui import dBitmapButton
+from dabo.ui import dButton
+from dabo.ui import dColumn
+from dabo.ui import dDialog
+from dabo.ui import dGrid
+from dabo.ui import dHtmlBox
+from dabo.ui import dLabel
+from dabo.ui import dMenu
+from dabo.ui import dPanel
+from dabo.ui import dSizer
 
 
 class HtmlAbout(dDialog):

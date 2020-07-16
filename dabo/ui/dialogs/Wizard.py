@@ -5,41 +5,41 @@ from dabo.dApp import dApp
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
+
+from dabo.ui import dBitmapButton
+from dabo.ui import dBorderSizer
+from dabo.ui import dButton
+from dabo.ui import dCalendar
+from dabo.ui import dCheckBox
+from dabo.ui import dCheckList
+from dabo.ui import dColumn
+from dabo.ui import dDateTextBox
 from dabo.ui import dDialog
-from .WizardPage import WizardPage
-dListControl = dabo.import_ui_name('dListControl')
-dForm = dabo.import_ui_name("dForm")
-dPanel = dabo.import_ui_name("dPanel")
-dTextBox = dabo.import_ui_name("dTextBox")
-dLabel = dabo.import_ui_name("dLabel")
-dGrid = dabo.import_ui_name("dGrid")
-dButton = dabo.import_ui_name("dButton")
-dLine = dabo.import_ui_name("dLine")
-dDialog = dabo.import_ui_name("dDialog")
-dSizer = dabo.import_ui_name("dSizer")
-dColumn = dabo.import_ui_name("dColumn")
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dOkCancelDialog = dabo.import_ui_name("dOkCancelDialog")
-dEditBox = dabo.import_ui_name("dEditBox")
-dDropdownList = dabo.import_ui_name("dDropdownList")
-dTextBox = dabo.import_ui_name("dTextBox")
-dSpinner = dabo.import_ui_name("dSpinner")
-dMaskedTextBox = dabo.import_ui_name("dMaskedTextBox")
-dPageFrame = dabo.import_ui_name('dPageFrame')
-dScrollPanel = dabo.import_ui_name("dScrollPanel")
-dMessageBox = dabo.import_ui_name("dMessageBox")
-dBitmapButton = dabo.import_ui_name("dBitmapButton")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
-dDateTextBox = dabo.import_ui_name("dDateTextBox")
-dcm = dabo.import_ui_name("dDataControlMixin")
-#makeDynamicProperty = dabo.import_ui_name("makeDynamicProperty")
-dExtendedCalendar = dabo.import_ui_name("dExtendedCalendar")
-dCalendar = dabo.import_ui_name('dCalendar')
-dRadioList = dabo.import_ui_name("dRadioList")
-dCheckList = dabo.import_ui_name("dCheckList")
-dImage = dabo.import_ui_name('dImage')
+from dabo.ui import dDialog
+from dabo.ui import dDropdownList
+from dabo.ui import dEditBox
+from dabo.ui import dExtendedCalendar
+from dabo.ui import dForm
+from dabo.ui import dGrid
+from dabo.ui import dGridSizer
+from dabo.ui import dImage
+from dabo.ui import dLabel
+from dabo.ui import dLine
+from dabo.ui import dListControl
+from dabo.ui import dMaskedTextBox
+from dabo.ui import dMessageBox
+from dabo.ui import dOkCancelDialog
+from dabo.ui import dPageFrame
+from dabo.ui import dPageFrameNoTabs
+from dabo.ui import dPanel
+from dabo.ui import dRadioList
+from dabo.ui import dScrollPanel
+from dabo.ui import dSizer
+from dabo.ui import dSpinner
+from dabo.ui import dTextBox
+from dabo.ui import dTextBox
+from . import WizardPage
+
 
 class Wizard(dDialog):
     """

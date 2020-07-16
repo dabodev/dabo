@@ -13,11 +13,12 @@ import dabo.lib.xmltodict as xtd
 from ClassDesignerExceptions import PropertyUpdateException
 import MenuPanel
 from MenuDesignerPropForm import MenuPropForm
-dForm = dabo.import_ui_name("dForm")
-dButton = dabo.import_ui_name("dButton")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dLabel = dabo.import_ui_name("dLabel")
+from dabo.ui import dButton
+from dabo.ui import dForm
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+
 
 class MenuDesignerForm(dForm):
     def __init__(self, *args, **kwargs):

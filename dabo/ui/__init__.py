@@ -127,6 +127,7 @@ def load_namespace():
     from . import form_mixin
     from . import button
     from . import box
+    from . import check_list
     from . import check_box
     from . import combo_box
     from . import html_box
@@ -137,12 +138,12 @@ def load_namespace():
     from . import alignment_mixin
     from . import font
     from . import gauge
-    from . import label
     from . import radio_list
     from . import sizer_mixin
     from . import grid_sizer
     from . import sizer
     from . import panel
+    from . import label
     from . import led
     from . import slider
     from . import timer
@@ -150,6 +151,7 @@ def load_namespace():
     from . import text_box
     from . import tree_view
     from . import date_text_box
+    from . import masked_text_box
     from . import edit_box
     from . import editor
     from . import spinner
@@ -174,6 +176,17 @@ def load_namespace():
     from . import page_frame_mixin
     from . import page_frame
     from . import page_frame_no_tabs
+    from . import ui_calendar
+    from . import dialogs
+    from .dialogs import WizardPage
+    from .dialogs import Wizard
+    from .dialogs import About
+    from .dialogs import DlgInfoMessage
+    from .dialogs import HotKeyEditor
+    from .dialogs import HtmlAbout
+    from .dialogs import Login
+    from .dialogs import PreferenceDialog
+    from .dialogs import SortingForm
 
 
 def deadCheck(fn, *args, **kwargs):

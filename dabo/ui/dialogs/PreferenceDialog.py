@@ -4,24 +4,21 @@ import os
 import inspect
 from dabo.dLocalize import _
 from dabo.lib.utils import cleanMenuCaption
-from dabo.ui import dOkCancelDialog
-from dabo.ui.dialogs import HotKeyEditor
 import dabo.ui
+from dabo.ui import dButton
+from dabo.ui import dCheckBox
+from dabo.ui import dForm
+from dabo.ui import dGridSizer
+from dabo.ui import dLabel
+from dabo.ui import dOkCancelDialog
+from dabo.ui import dPageFrame
+from dabo.ui import dRadioList
+from dabo.ui import dSizer
+from dabo.ui import dTextBox
+from dabo.ui import dTreeView
+from . import HotKeyEditor
 
 dayMins= 24*60
-
-dForm = dabo.import_ui_name("dForm")
-dLabel = dabo.import_ui_name("dLabel")
-dPageFrame = dabo.import_ui_name('dPageFrame')
-dTreeView = dabo.import_ui_name('dTreeView')
-dTextBox = dabo.import_ui_name("dTextBox")
-dButton = dabo.import_ui_name("dButton")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dSizer = dabo.import_ui_name("dSizer")
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dRadioList = dabo.import_ui_name("dRadioList")
-
-
 
 
 class PreferenceDialog(dOkCancelDialog):

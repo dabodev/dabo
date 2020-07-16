@@ -2,19 +2,17 @@
 import dabo
 import dabo.ui
 from dabo.dLocalize import _
-dcm = dabo.import_ui_name("dControlItemMixin")
-dMenu = dabo.import_ui_name("dMenu")
-dBitmapButton = dabo.import_ui_name("dBitmapButton")
-dPanel = dabo.import_ui_name("dPanel")
-dDialog = dabo.import_ui_name("dDialog")
-dSizer = dabo.import_ui_name("dSizer")
-dColumn = dabo.import_ui_name("dColumn")
-dGrid = dabo.import_ui_name("dGrid")
-dLabel = dabo.import_ui_name("dLabel")
-dButton = dabo.import_ui_name("dButton")
-dCheckBox = dabo.import_ui_name('dCheckBox')
-from dabo.ui.dDialog import dStandardButtonDialog
-
+from dabo.ui import dBitmapButton
+from dabo.ui import dButton
+from dabo.ui import dCheckBox
+from dabo.ui import dColumn
+from dabo.ui import dDialog
+from dabo.ui import dGrid
+from dabo.ui import dLabel
+from dabo.ui import dMenu
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dStandardButtonDialog
 
 
 class LblMessage(dLabel):

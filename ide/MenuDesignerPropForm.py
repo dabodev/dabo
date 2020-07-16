@@ -4,12 +4,13 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from ClassDesignerPropSheet import PropSheet
 from ClassDesignerTreeSheet import TreeSheet
-dForm = dabo.import_ui_name("dForm")
-dTextBox = dabo.import_ui_name("dTextBox")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dToggleButton = dabo.import_ui_name("dToggleButton")
-dPageFrameNoTabs = dabo.import_ui_name("dPageFrameNoTabs")
+from dabo.ui import dForm
+from dabo.ui import dPageFrameNoTabs
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dTextBox
+from dabo.ui import dToggleButton
+
 
 class MenuPropForm(dForm):
     """This form contains the PropSheet for the Menu Designer."""

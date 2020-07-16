@@ -10,20 +10,20 @@ from dabo.dReportWriter import dReportWriter
 from dabo.lib.reportWriter import *
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-from dabo.ui import dKeys
 import ClassDesignerPropSheet
 
-dForm = dabo.import_ui_name("dForm")
-dTreeView = dabo.import_ui_name('dTreeView')
-dPanel = dabo.import_ui_name("dPanel")
-dScrollPanel = dabo.import_ui_name('dScrollPanel')
-dPageFrame = dabo.import_ui_name('dPageFrame')
-dMenu = dabo.import_ui_name('dMenu')
-dLabel = dabo.import_ui_name("dLabel")
-dFont = dabo.import_ui_name('dFont')
-dPageFrame = dabo.import_ui_name('dPageFrame')
-dEditor = dabo.import_ui_name('dEditor')
-dImage = dabo.import_ui_name('dImage')
+from dabo.ui import dEditor
+from dabo.ui import dFont
+from dabo.ui import dForm
+from dabo.ui import dImage
+from dabo.ui import dKeys
+from dabo.ui import dLabel
+from dabo.ui import dMenu
+from dabo.ui import dPageFrame
+from dabo.ui import dPageFrame
+from dabo.ui import dPanel
+from dabo.ui import dScrollPanel
+from dabo.ui import dTreeView
 
 NEW_FILE_CAPTION = "< New >"
 SHORTEN_EXPRESSIONS_FOR_DISPLAY = False

@@ -3,7 +3,6 @@ import datetime
 import wx
 import dabo
 from dabo import ui as dui
-from dabo.ui import dDataControlMixin as dcm
 from dabo import dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import dTextBox

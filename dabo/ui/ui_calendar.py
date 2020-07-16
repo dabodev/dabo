@@ -419,6 +419,3 @@ if __name__ == "__main__":
     app = dApp()
     app.MainFormClass = TestForm
     app.start()
-
-
-
