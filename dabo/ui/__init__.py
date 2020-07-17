@@ -144,6 +144,7 @@ def load_namespace():
     from . import sizer
     from . import panel
     from . import label
+    from . import hyper_link
     from . import led
     from . import slider
     from . import timer
@@ -176,8 +177,11 @@ def load_namespace():
     from . import page_frame_mixin
     from . import page_frame
     from . import page_frame_no_tabs
+    from . import shell
     from . import ui_calendar
     from . import dialogs
+    from . import grid_renderers
+    from . import object_inspector
     from .dialogs import WizardPage
     from .dialogs import Wizard
     from .dialogs import About
@@ -980,12 +984,12 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
         txt = dabo.ui.getString(PasswordEntry=True)
 
     """
-    class StringDialog(dabo.ui.dDialog.dOkCancelDialog):
+    class StringDialog(dabo.ui.dOkCancelDialog):
         def addControls(self):
             self.Caption = caption
-            lbl = dLabel.dLabel(self, Caption=message)
-            self.strVal = dTextBox.dTextBox(self, **kwargs)
-            hs = dSizer.dSizer("h")
+            lbl = dabo.ui.dLabel(self, Caption=message)
+            self.strVal = dabo.ui.dTextBox(self, **kwargs)
+            hs = dabo.ui.dSizer("h")
             hs.append(lbl, halign="Right")
             hs.appendSpacer(5)
             hs.append(self.strVal, 1)

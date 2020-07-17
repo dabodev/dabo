@@ -235,6 +235,8 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
 
     # Property definitions
     def _getFrameCount(self):
+        if not self.Picture:
+            return 0
         with open(self.Picture) as ff:
             typ = imghdr.what(ff)
         if typ in ("gif",):

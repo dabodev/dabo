@@ -495,3 +495,4 @@ def onGridMouseLeftClick(self, evt):
 '''
 
 InspectorFormClass = dabo.ui.createClass(inspector_source)
+dabo.ui.InspectorFormClass = InspectorFormClass
