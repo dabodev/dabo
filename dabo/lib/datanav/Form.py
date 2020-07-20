@@ -6,7 +6,7 @@ import wx
 from dabo import dEvents as dEvents
 from dabo import ui as dui
 from dabo.dLocalize import _
-from dabo import lib.reportUtils as reportUtils
+from dabo.lib import reportUtils
 from . import PageFrame
 from . import Page
 from . import Grid

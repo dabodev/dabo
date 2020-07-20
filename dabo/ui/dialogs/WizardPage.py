@@ -27,9 +27,9 @@ class WizardPage(dScrollPanel):
 
     def setup(self):
         self.makeSizer()
-        self._titleLabel = dLabel(self, Caption=self.Caption, FontSize=self.TitleSize,
+        self._titleLabel = dabo.ui.dLabel(self, Caption=self.Caption, FontSize=self.TitleSize,
                 FontFace=self.TitleFace)
-        ln = dLine(self)
+        ln = dabo.ui.dLine(self)
         sz = self.Sizer
         sz.prepend(ln, "x")
         sz.prependSpacer(16)
@@ -58,7 +58,7 @@ class WizardPage(dScrollPanel):
         Create a simple sizer. This can be overridden in subclasses
         if specific sizer configurations are needed.
         """
-        sz = self.Sizer = dSizer("v")
+        sz = self.Sizer = dabo.ui.dSizer("v")
         sz.DefaultSpacing = 5
         sz.DefaultBorder = 12
         sz.DefaultBorderLeft = sz.DefaultBorderRight = True

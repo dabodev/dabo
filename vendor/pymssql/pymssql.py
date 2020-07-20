@@ -228,7 +228,7 @@ def _quote(x):
     return x
 
 def _quoteparams(s, params):
-    if hasattr(params, 'has_key'):
+    if isinstance(params, dict):
         x = {}
         for k, v in list(params.items()):
             x[k] = _quote(v)

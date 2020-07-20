@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os
+import dabo
 import dabo.ui
 from dabo.dApp import dApp
-from FrmBase import FrmBase
-from Grd%(tableName)s import Grd%(tableName)s
-from PagSelect%(tableName)s import PagSelect%(tableName)s
-from PagEdit%(tableName)s import PagEdit%(tableName)s
+from .FrmBase import FrmBase
+from .Grd%(tableName)s import Grd%(tableName)s
+from .PagSelect%(tableName)s import PagSelect%(tableName)s
+from .PagEdit%(tableName)s import PagEdit%(tableName)s
 
 
 class Frm%(tableName)s(FrmBase):

@@ -420,7 +420,7 @@ class dDataSet(tuple):
 #                 rec = {}
 #                 for pos, val in enumerate(tmprec):
 #                     fld = dscrp[pos]
-#                     if self.fieldAliases.has_key(fld):
+#                     if fld in self.fieldAliases:
 #                         fld = self.fieldAliases[fld]
 #                     rec[fld] = val
 #                 res.append(rec)

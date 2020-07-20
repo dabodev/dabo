@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import dabo
 import dabo.ui
 import dabo.lib.datanav as datanav
-from MenFileOpen import MenFileOpen
-from MenReports import MenReports
+from .MenFileOpen import MenFileOpen
+from .MenReports import MenReports
 
 
 class FrmBase(datanav.Form):

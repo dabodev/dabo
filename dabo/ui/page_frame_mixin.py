@@ -335,7 +335,7 @@ class dPageFrameMixin(dControlMixin):
                 self.SelectedPage = page
                 page.setFocus()
                 return
-        # raise ValueError, "Caption for hotkey not found."  ## unsure if wise
+        # raise ValueError("Caption for hotkey not found.") ## unsure if wise
 
 
 

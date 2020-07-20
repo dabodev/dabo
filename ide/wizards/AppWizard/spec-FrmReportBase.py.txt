@@ -2,6 +2,7 @@
 
 from dabo.dLocalize import _
 
+import dabo
 import dabo.ui
 import dabo.lib.reportUtils as reportUtils
 
@@ -56,7 +57,7 @@ class FrmReportBase(dabo.ui.dDialog):
         elif mode == "print":
             reportUtils.printPDF(f)
         else:
-            raise ValueError, "Mode needs to be 'preview' or 'print'."
+            raise ValueError("Mode needs to be 'preview' or 'print'.")
 
 
     def write(self):

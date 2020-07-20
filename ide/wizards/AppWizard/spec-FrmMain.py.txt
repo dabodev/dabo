@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import dabo.ui
-from MenFileOpen import MenFileOpen
+from .MenFileOpen import MenFileOpen
 
 
 class FrmMain(dabo.ui.dFormMain):

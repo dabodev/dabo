@@ -19,6 +19,8 @@ class dControlItemMixin(dDataControlMixin):
         self._valueMode = "s"
         self._sorted = False
         self._sortFunction = None
+        if not kwargs.get("PositionValue"):
+            kwargs["PositionValue"] = 0
         super(dControlItemMixin, self).__init__(*args, **kwargs)
 
 

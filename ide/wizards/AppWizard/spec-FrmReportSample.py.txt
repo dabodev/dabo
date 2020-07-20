@@ -7,9 +7,10 @@
 
 import datetime
 import os
+import dabo
 from dabo.dLocalize import _
 import dabo.ui
-from FrmReportBase import FrmReportBase
+from .FrmReportBase import FrmReportBase
 
 
 class FrmReportSample(FrmReportBase):

@@ -4,17 +4,19 @@ import sys
 import os
 import time
 import traceback
+import dabo
 import dabo.ui
 from dabo.dApp import dApp
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
-from dabo.ui.dialogs.WizardPage import WizardPage
-from dabo.ui.dialogs.Wizard import Wizard
-from dabo.ui import dLabel
 from dabo.lib.connParser import createXML
 from dabo.lib.untabify import process as untabify
+from dabo.ui.dialogs import WizardPage
+from dabo.ui.dialogs import Wizard
+from dabo.ui import dLabel
+from dabo.ui import dSizer
 
 
 def getSafeTableName(tableName):
@@ -474,20 +476,6 @@ You can always move the directory later."""
         self.chkSortFieldsAlpha = dabo.ui.dCheckBox(self, Caption=_("Sort Fields Alphabetically"))
         self.Sizer.append(self.chkSortFieldsAlpha)
 
-        self.Sizer.appendSpacer(2)
-        ln = dabo.ui.dLine(self, Width=200)
-        self.Sizer.append(ln, halign="left")
-        lbl = dabo.ui.dLabel(self, Caption=_("Tabs are the default for indentation."))
-        lbl.FontSize -= 1
-        self.Sizer.append(lbl)
-        chkConvertTabs = dabo.ui.dCheckBox(self, RegID="chkConvertTabs",
-                Caption=_("Check this if you insist on using spaces."),
-                DataSource=self.Form, DataField="ConvertTabs",
-                SaveRestoreValue=True)
-        chkConvertTabs.FontSize -= 1
-        self.Sizer.append(chkConvertTabs, valign="bottom")
-
-
 
     def onPick(self, evt):
         pth = dabo.ui.getFolder(defaultPath=self.txtDir.Value)
@@ -803,16 +791,16 @@ python %(appName)s.py %(tableName)s
             for fname in fnames:
                 if fname[-3:] == ".py":
                     untabify(os.path.join(dirname, fname), self.SpacesPerTab, saveBackup=False)
-        os.path.walk(".", func, None)
+        os.walk(".", func, None)
 
 
     def getFileOpenMenu(self, tables):
         tables.sort()
         forms = ""
         for table in tables:
-            forms = "".join((forms, """("%s", app.ui.Frm%s),\n\t\t\t\t""" %
+            forms = "".join((forms, """("%s", app.ui.Frm%s),\n                """ %
                 (table.title(), getSafeTableName(table))))
-        forms = "".join((forms, """("-", None),\n\t\t\t\t"""))
+        forms = "".join((forms, """("-", None),\n                """))
         with open(os.path.join(self.wizDir, "spec-MenFileOpen.py.txt")) as ff:
             return ff.read() % locals()
 
@@ -947,7 +935,7 @@ python %(appName)s.py %(tableName)s
                 def getColHelpText(self, txt):
                     return txt
             biz = Biz()
-        
+
         panel = dabo.ui.dPanel(self)
         gsz = dabo.ui.dGridSizer(VGap=5, HGap=10)
         gsz.MaxCols = 3
@@ -1062,7 +1050,7 @@ python %(appName)s.py %(tableName)s
 
 
     def getBuildwin(self, appName):
-        with open(os.path.join(self.wizDir, "spec-buildlin.bat")) as ff:
+        with open(os.path.join(self.wizDir, "spec-buildwin.bat")) as ff:
             return ff.read() % locals()
 
     def getBuildMac(self, appName):
@@ -1079,14 +1067,14 @@ python %(appName)s.py %(tableName)s
 
 
     def getModuleInit_biz(self, bizImports):
-        lines = ["from %s import %s" % (class_, class_) for class_ in bizImports]
+        lines = ["from .%s import %s" % (class_, class_) for class_ in bizImports]
         bizInit = os.linesep.join(lines)
         with open(os.path.join(self.wizDir, "spec-biz__init__.py.txt")) as ff:
             return ff.read() % locals()
 
 
     def getModuleInit_ui(self, uiImports):
-        lines = ["from %s import %s" % (class_, class_) for class_ in uiImports]
+        lines = ["from .%s import %s" % (class_, class_) for class_ in uiImports]
         uiInit = os.linesep.join(lines)
         with open(os.path.join(self.wizDir, "spec-ui__init__.py.txt")) as ff:
             return ff.read() % locals()
@@ -1133,15 +1121,16 @@ python %(appName)s.py %(tableName)s
         sortedFieldNames.sort()
 
         tableNameQt = table
-        dataStructure = "\t\tself.DataStructure = ("
+        dataStructure = "        self.DataStructure = ("
 
         for field in sortedFieldNames:
             field_name = field[1]
             field_type = flds[field_name]["type"]
             field_pk = flds[field_name]["pk"]
-            dataStructure += """\n\t\t\t\t("%s", "%s", %s, "%s", "%s"),""" % (
+            dataStructure += """
+                ("%s", "%s", %s, "%s", "%s"),""" % (
                     field_name, field_type, field_pk, tableNameQt, field_name)
-        dataStructure += "\n\t\t)"
+        dataStructure += "\n        )"
 
         with open(os.path.join(self.wizDir, "spec-Biz.py.txt")) as ff:
             return ff.read() % locals()
@@ -1173,7 +1162,7 @@ python %(appName)s.py %(tableName)s
 
 
     def getPagBase(self, pageName):
-        with open(os.path.join(self.wizDir, "spec-%s.py.txt")) as ff:
+        with open(os.path.join(self.wizDir, "spec-%s.py.txt" % pageName)) as ff:
             return ff.read() % locals()
 
 

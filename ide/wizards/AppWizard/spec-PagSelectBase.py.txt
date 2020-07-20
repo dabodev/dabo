@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import dabo
 import dabo.ui
 from dabo.dObject import dObject
 import dabo.dEvents as dEvents

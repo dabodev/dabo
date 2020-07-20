@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from dabo.dLocalize import _
-from Base import Base
+from .Base import Base
 
 
 class %(tableName)s(Base):
@@ -55,7 +55,7 @@ class %(tableName)s(Base):
     def getColCaption(self, column):
         # if self.ColTextsDict is defined get the text from there, otherwise
         # just return the column name
-        if self.ColTextsDict.has_key(column):
+        if column in self.ColTextsDict:
             return self.ColTextsDict[column][0]
         else:
             return column
@@ -63,7 +63,7 @@ class %(tableName)s(Base):
     def getColToolTip(self, column):
         # if self.ColTextsDict is defined get the text from there, otherwise
         # just return the column name
-        if self.ColTextsDict.has_key(column):
+        if column in self.ColTextsDict:
             return self.ColTextsDict[column][1]
         else:
             return column
@@ -71,7 +71,7 @@ class %(tableName)s(Base):
     def getColHelpText(self, column):
         # if self.ColTextsDict is defined get the text from there, otherwise
         # just return the column name
-        if self.ColTextsDict.has_key(column):
+        if column in self.ColTextsDict:
             return self.ColTextsDict[column][2]
         else:
             return column

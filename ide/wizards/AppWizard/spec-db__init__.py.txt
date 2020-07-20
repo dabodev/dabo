@@ -4,6 +4,6 @@
 ## Application.db namespace, you need to explicitly import them by name here.
 
 # example:
-# from getInvoicesDataSet import getInvoicesDataSet
+# from .getInvoicesDataSet import getInvoicesDataSet
 
-from getSampleDataSet import getSampleDataSet
+from .getSampleDataSet import getSampleDataSet

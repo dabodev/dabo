@@ -208,25 +208,25 @@ class Image(GenericObject):
 #            e = eval(object["expr"])
 #            s = copy.deepcopy(s)
 #
-#            if object.has_key("fontSize"):
+#            if "fontSize" in object:
 #                s.fontSize = eval(object["fontSize"])
 #
-#            if object.has_key("fontName"):
+#            if "fontName" in object:
 #                s.fontName = eval(object["fontName"])
 #
-#            if object.has_key("leading"):
+#            if "leading" in object:
 #                s.leading = eval(object["leading"])
 #
-#            if object.has_key("spaceAfter"):
+#            if "spaceAfter" in object:
 #                s.spaceAfter = eval(object["spaceAfter"])
 #
-#            if object.has_key("spaceBefore"):
+#            if "spaceBefore" in object:
 #                s.spaceBefore = eval(object["spaceBefore"])
 #
-#            if object.has_key("leftIndent"):
+#            if "leftIndent" in object:
 #                s.leftIndent = eval(object["leftIndent"])
 #
-#            if object.has_key("firstLineIndent"):
+#            if "firstLineIndent" in object:
 #                s.firstLineIndent = eval(object["firstLineIndent"])
 #
 #            if t == "paragraph":

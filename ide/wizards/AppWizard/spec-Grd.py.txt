@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import dabo
 import dabo.ui
 from dabo.dApp import dApp
-from GrdBase import GrdBase
+from .GrdBase import GrdBase
 
 
 class Grd%(tableName)s(GrdBase):
