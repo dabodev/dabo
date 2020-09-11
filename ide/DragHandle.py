@@ -6,7 +6,7 @@ import dabo.dEvents as dEvents
 from dabo.ui import dPanel
 
 
-class DragHandle(dPanel):
+class DragHandle(dPanel.dPanel):
     """ The class for all the handles used to indicate the selected control
     that are dragged to resize the control. It has properties indicating
     whether it controls resizing the control in the up, right, down or left
