@@ -14,7 +14,6 @@ from dabo.lib.connParser import createXML
 from dabo.lib.connParser import importConnections
 import dabo.lib.utils as utils
 from HomeDirectoryStatusBar import HomeDirectoryStatusBar
-
 from dabo.ui import dButton
 from dabo.ui import dDropdownList
 from dabo.ui import dForm
@@ -25,6 +24,7 @@ from dabo.ui import dSizer
 from dabo.ui import dTextBox
 
 
+
 def flushValues(fnc):
     def _wrapped(self, *args, **kwargs):
         self.updtFromForm()
@@ -32,7 +32,7 @@ def flushValues(fnc):
     return _wrapped
 
 
-class EditorForm(dForm):
+class EditorForm(dForm.dForm):
     def afterSetMenuBar(self):
         self.createMenu()
 
@@ -83,23 +83,23 @@ class EditorForm(dForm):
 
     def createControls(self):
         self.Caption = _("Connection Editor")
-        self.bg = dPanel(self, BackColor="LightSteelBlue")
-        gbsz = dGridSizer(VGap=12, HGap=5, MaxCols=2)
+        self.bg = dPanel.dPanel(self, BackColor="LightSteelBlue")
+        gbsz = dGridSizer.dGridSizer(VGap=12, HGap=5, MaxCols=2)
 
         # Add the fields
         # Connection Dropdown
-        cap = dLabel(self.bg, Caption=_("Connection"))
-        ctl = dDropdownList(self.bg, Choices=list(self.connDict.keys()),
+        cap = dLabel.dLabel(self.bg, Caption=_("Connection"))
+        ctl = dDropdownList.dDropdownList(self.bg, Choices=list(self.connDict.keys()),
                 RegID="connectionSelector",
                 OnHit=self.onConnectionChange)
-        btn = dButton(self.bg, Caption=_("Edit Name"), RegID="cxnEdit",
+        btn = dButton.dButton(self.bg, Caption=_("Edit Name"), RegID="cxnEdit",
                 OnHit=self.onCxnEdit)
-        hsz = dSizer("h")
+        hsz = dSizer.dSizer("h")
         hsz.append(ctl)
         hsz.appendSpacer(10)
         hsz.append(btn)
 
-        btn = dButton(self.bg, Caption=_("Delete This Connection"), RegID="cxnDelete",
+        btn = dButton.dButton(self.bg, Caption=_("Delete This Connection"), RegID="cxnDelete",
                 DynamicEnabled=self.hasMultipleConnections,
                 OnHit=self.onCxnDelete)
         hsz.appendSpacer(10)
@@ -109,8 +109,8 @@ class EditorForm(dForm):
         gbsz.append(hsz, valign="middle")
 
         # Backend Type
-        cap = dLabel(self.bg, Caption=_("Database Type"))
-        ctl = dDropdownList(self.bg, RegID="DbType",
+        cap = dLabel.dLabel(self.bg, Caption=_("Database Type"))
+        ctl = dDropdownList.dDropdownList(self.bg, RegID="DbType",
                 Choices=["MySQL", "Firebird", "PostgreSQL", "MsSQL", "SQLite"],
                 DataSource="form", DataField="dbtype",
                 OnHit=self.onDbTypeChanged)
@@ -119,24 +119,24 @@ class EditorForm(dForm):
         self.dbTypeSelector = ctl
 
         # Host
-        cap = dLabel(self.bg, Caption=_("Host"))
-        ctl = dTextBox(self.bg, DataSource="form", DataField="host")
+        cap = dLabel.dLabel(self.bg, Caption=_("Host"))
+        ctl = dTextBox.dTextBox(self.bg, DataSource="form", DataField="host")
         gbsz.append(cap, halign="right")
         gbsz.append(ctl, "expand")
         self.hostText = ctl
 
         # Port
-        cap = dLabel(self.bg, Caption=_("Port"))
-        ctl = dTextBox(self.bg, DataSource="form", DataField="port")
+        cap = dLabel.dLabel(self.bg, Caption=_("Port"))
+        ctl = dTextBox.dTextBox(self.bg, DataSource="form", DataField="port")
         gbsz.append(cap, halign="right")
         gbsz.append(ctl, "expand")
         self.portText = ctl
 
         # Database
-        cap = dLabel(self.bg, Caption=_("Database"))
-        ctl = dTextBox(self.bg, DataSource="form", DataField="database")
-        hsz = dSizer("h")
-        self.btnDbSelect = dButton(self.bg, Caption=" ... ", RegID="btnDbSelect",
+        cap = dLabel.dLabel(self.bg, Caption=_("Database"))
+        ctl = dTextBox.dTextBox(self.bg, DataSource="form", DataField="database")
+        hsz = dSizer.dSizer("h")
+        self.btnDbSelect = dButton.dButton(self.bg, Caption=" ... ", RegID="btnDbSelect",
                 Visible=False, OnHit=self.onDbSelect)
         hsz.append1x(ctl)
         hsz.appendSpacer(2)
@@ -146,34 +146,34 @@ class EditorForm(dForm):
         self.dbText = ctl
 
         # Username
-        cap = dLabel(self.bg, Caption=_("User Name"))
-        ctl = dTextBox(self.bg, DataSource="form", DataField="user")
+        cap = dLabel.dLabel(self.bg, Caption=_("User Name"))
+        ctl = dTextBox.dTextBox(self.bg, DataSource="form", DataField="user")
         gbsz.append(cap, halign="right")
         gbsz.append(ctl, "expand")
         self.userText = ctl
 
         # Password
-        cap = dLabel(self.bg, Caption=_("Password"))
-        ctl = dTextBox(self.bg, PasswordEntry=True,
+        cap = dLabel.dLabel(self.bg, Caption=_("Password"))
+        ctl = dTextBox.dTextBox(self.bg, PasswordEntry=True,
                 DataSource="form", DataField="password")
         gbsz.append(cap, halign="right")
         gbsz.append(ctl, "expand")
         self.pwText = ctl
 
         # Open Button
-        btnSizer1 = dSizer("h")
-        btnSizer2 = dSizer("h")
-        btnTest = dButton(self.bg, RegID="btnTest", Caption=_("Test..."),
+        btnSizer1 = dSizer.dSizer("h")
+        btnSizer2 = dSizer.dSizer("h")
+        btnTest = dButton.dButton(self.bg, RegID="btnTest", Caption=_("Test..."),
                 OnHit=self.onTest)
-        btnSave = dButton(self.bg, RegID="btnSave", Caption=_("Save"),
+        btnSave = dButton.dButton(self.bg, RegID="btnSave", Caption=_("Save"),
                 OnHit=self.onSave)
-        btnNewConn = dButton(self.bg, RegID="btnNewConn",
+        btnNewConn = dButton.dButton(self.bg, RegID="btnNewConn",
                 Caption=_("New Connection"),
                 OnHit=self.onNewConn)
-        btnNewFile = dButton(self.bg, RegID="btnNewFile",
+        btnNewFile = dButton.dButton(self.bg, RegID="btnNewFile",
                 Caption=_("New File"),
                 OnHit=self.onNewFile)
-        btnOpen = dButton(self.bg, RegID="btnOpen",
+        btnOpen = dButton.dButton(self.bg, RegID="btnOpen",
                 Caption=_("Open File..."),
                 OnHit=self.onOpen)
         btnSizer1.append(btnTest, 0, border=3)
@@ -184,13 +184,8 @@ class EditorForm(dForm):
         gbsz.setColExpand(True, 1)
         self.gridSizer = gbsz
 
-        sz = self.bg.Sizer = dSizer("v")
-        #jfcs 5/20/20 below has "halign="center"" and that is nolonger ignored in 4.1
-        '''wx._core.wxAssertionError: C++ assertion "!(flags & (wxALIGN_RIGHT | wxALIGN_CENTRE_HORIZONTAL))" 
-        failed at /home/wxpy/wxPython-4.1.0/ext/wxWidgets/src/common/sizer.cpp(2085) in DoInsert(): 
-        Horizontal alignment flags are ignored with wxEXPAND'''
-        #sz.append(gbsz, 0, "expand", halign="center", border=20)
-        sz.append(gbsz, 0, "expand",  border=20)
+        sz = self.bg.Sizer = dSizer.dSizer("v")
+        sz.append(gbsz, 0, "expand", border=20)
         sz.append(btnSizer1, 0, halign="center")
         sz.append(btnSizer2, 0, halign="center")
         # Only create the 'Set Crypto Key' button if PyCrypto is installed
@@ -201,13 +196,11 @@ class EditorForm(dForm):
         except ImportError:
             self._showKeyButton = False
         if self._showKeyButton:
-            self.cryptoKeyButton = dButton(self.bg, Caption=_("Set Crypto Key"),
+            self.cryptoKeyButton = dButton.dButton(self.bg, Caption=_("Set Crypto Key"),
                     OnHit=self.onSetCrypto)
-            #btnSizer1.append(self.cryptoKeyButton, 0, halign="center", border=3)
             btnSizer1.append(self.cryptoKeyButton, 0, border=3)
-        self.Sizer = dSizer("h")
-        #self.Sizer.append(self.bg, 1, "expand", halign="center")
-        self.Sizer.append(self.bg, 1, "expand")
+        self.Sizer = dSizer.dSizer("h")
+        self.Sizer.append(self.bg, 1, "expand", halign="center")
         self.Layout()
 
 
