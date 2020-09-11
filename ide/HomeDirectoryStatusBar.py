@@ -11,7 +11,7 @@ from dabo.ui import dStatusBar
 from dabo.ui import dTextBox
 
 
-class HomeDirectoryStatusBar(dStatusBar):
+class HomeDirectoryStatusBar(dStatusBar.dStatusBar):
     """This class is designed to be used in the visual tools to replace the regular StatusBar
     in the main form. The idea is that when using the tools, it is important to know the
     HomeDirectory that Dabo is using, as pathing is calculated relative to that for all
