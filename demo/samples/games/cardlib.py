@@ -6,7 +6,7 @@ from dabo.lib.utils import ustr
 from dabo.ui import dBitmap
 
 
-class Card(dBitmap):
+class Card(dBitmap.dBitmap):
     """Class representing an individual playing card."""
 
     def updPic(self):

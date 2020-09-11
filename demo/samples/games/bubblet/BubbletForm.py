@@ -7,6 +7,7 @@ import dabo.dEvents as dEvents
 from dabo.dApp import dApp
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
+from dabo.ui import dForm
 
 if __name__ == "__main__":
     from BubblePanel import BubblePanel
@@ -19,7 +20,7 @@ else:
 
 
 
-class BubbletForm(dabo.ui.dForm):
+class BubbletForm(dForm.dForm):
     def afterInit(self):
         self.tmr = dabo.ui.dTimer()
         self.tmr.bindEvent(dEvents.Hit, self.onTimer)

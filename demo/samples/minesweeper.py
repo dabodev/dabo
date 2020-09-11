@@ -6,16 +6,21 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from samples.games import MinesweeperForm
 
+dButton = dabo.import_ui_name("dButton")
+dLabel = dabo.import_ui_name("dLabel")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
 
-class TestPanel(dabo.ui.dPanel):
+
+class TestPanel(dPanel):
     def afterInit(self):
-        sz = self.Sizer = dabo.ui.dSizer("v")
+        sz = self.Sizer = dSizer("v")
         sz.appendSpacer(40)
 
-        lbl = dabo.ui.dLabel(self, Caption="The classic game of Minesweeper, implemented in the Dabo UI.\n\nFor instructions, please see the Overview tab.")
+        lbl = dLabel(self, Caption="The classic game of Minesweeper, implemented in the Dabo UI.\n\nFor instructions, please see the Overview tab.")
         sz.append(lbl, halign="center")
         sz.appendSpacer(30)
-        btn = dabo.ui.dButton(self, Caption="Play Minesweeper",
+        btn = dButton(self, Caption="Play Minesweeper",
                 OnHit=self.runGame)
         sz.append(btn, halign="center")
 

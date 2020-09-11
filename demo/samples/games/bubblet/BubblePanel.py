@@ -5,9 +5,10 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeProxyProperty
 import random
+from dabo.ui import dPanel
 
 
-class BubblePanel(dabo.ui.dPanel):
+class BubblePanel(dPanel.dPanel):
     def afterInit(self):
         self.Buffered = False
 

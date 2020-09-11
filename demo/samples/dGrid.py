@@ -5,8 +5,20 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import datetime
 
+dGrid = dabo.import_ui_name("dGrid")
+dColumn = dabo.import_ui_name("dColumn")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dCheckBox = dabo.import_ui_name("dCheckBox")
+dLabel = dabo.import_ui_name("dLabel")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dRadioList = dabo.import_ui_name("dRadioList")
+dButton = dabo.import_ui_name("dButton")
+dSpinner = dabo.import_ui_name("dSpinner")
+dLine = dabo.import_ui_name("dLine")
 
-class DemoGrid(dabo.ui.dGrid):
+
+class DemoGrid(dGrid):
     def initProperties(self):
         thisYear = datetime.datetime.now().year
         self.DataSet = [
@@ -21,7 +33,7 @@ class DemoGrid(dabo.ui.dGrid):
         self.Editable = False
 
     def afterInit(self):
-        col = dabo.ui.dColumn(self, Name="Geek", Order=10, DataField="coder",
+        col = dColumn(self, Name="Geek", Order=10, DataField="coder",
                 DataType="bool", Width=60, Caption="Geek?", Sortable=False,
                 Searchable=False, Editable=True)
         self.addColumn(col)
@@ -30,7 +42,7 @@ class DemoGrid(dabo.ui.dGrid):
 #         col.CustomEditors[1] = col.stringEditorClass
         col.HeaderFontBold = False
 
-        col = dabo.ui.dColumn(self, Name="Person", Order=20, DataField="name",
+        col = dColumn(self, Name="Person", Order=20, DataField="name",
                 DataType="string", Width=200, Caption="Celebrity Name",
                 Sortable=True, Searchable=True, Editable=True, Expand=False)
         self.addColumn(col)
@@ -44,7 +56,7 @@ class DemoGrid(dabo.ui.dGrid):
                 DataType="integer", Width=40, Caption="Age",
                 Sortable=True, Searchable=True, Editable=True)
 
-        col = dabo.ui.dColumn(self, Name="Color", Order=40, DataField="color",
+        col = dColumn(self, Name="Color", Order=40, DataField="color",
                 DataType="string", Width=40, Caption="Favorite Color",
                 Sortable=True, Searchable=True, Editable=True, Expand=False)
         self.addColumn(col)
@@ -60,15 +72,15 @@ class DemoGrid(dabo.ui.dGrid):
 
 
 
-class TestPanel(dabo.ui.dPanel):
+class TestPanel(dPanel):
     def afterInit(self):
-        sz = self.Sizer = dabo.ui.dSizer("v")
+        sz = self.Sizer = dSizer("v")
         sz.appendSpacer(20)
 
         txt = _("Click on a column's header to sort on that column. The leftmost column is set to not be sortable, though. " +
                 "You can also drag the columns to re-arrange their order. Right-clicking on a column header gives you auto-size " +
                 "choices. You can also drag the lines between columns or rows to manually change their size.")
-        lbl = self.gridCaption = dabo.ui.dLabel(self, Alignment="center", Caption=txt, WordWrap=True)
+        lbl = self.gridCaption = dLabel(self, Alignment="center", Caption=txt, WordWrap=True)
         # Keep the label 80% of the panel
         lbl.DynamicWidth = lambda: self.Width * 0.8
         lbl.FontSize -= 1
@@ -79,104 +91,104 @@ class TestPanel(dabo.ui.dPanel):
         self.grid = DemoGrid(self)
         sz.append(self.grid, 2, "x", border=40, borderSides=("left", "right"))
         sz.appendSpacer(20)
-        gsz = dabo.ui.dGridSizer(HGap=15)
+        gsz = dGridSizer(HGap=15)
 
-        chk = dabo.ui.dCheckBox(self, Caption="Allow Editing?",
+        chk = dCheckBox(self, Caption="Allow Editing?",
                 DataSource=self.grid, DataField="Editable")
         chk.refresh()
         gsz.append(chk, row=0, col=0)
 
-        chk = dabo.ui.dCheckBox(self, Caption="Show Row Labels",
+        chk = dCheckBox(self, Caption="Show Row Labels",
                 DataSource=self.grid, DataField="ShowRowLabels")
         gsz.append(chk, row=1, col=0)
         chk.refresh()
 
-        chk = dabo.ui.dCheckBox(self, Caption="Size All Rows Together?",
+        chk = dCheckBox(self, Caption="Size All Rows Together?",
                 DataSource=self.grid, DataField="SameSizeRows")
         gsz.append(chk, row=2, col=0)
         chk.refresh()
 
-        chk = dabo.ui.dCheckBox(self, Caption="Alternate Row Coloring?",
+        chk = dCheckBox(self, Caption="Alternate Row Coloring?",
                 DataSource=self.grid, DataField="AlternateRowColoring")
         gsz.append(chk, row=3, col=0)
         chk.refresh()
 
-        chk = dabo.ui.dCheckBox(self, Caption="Show Cell Borders?",
+        chk = dCheckBox(self, Caption="Show Cell Borders?",
                 DataSource=self.grid, DataField="ShowCellBorders")
         gsz.append(chk, row=4, col=0)
         chk.refresh()
 
-        chk = dabo.ui.dCheckBox(self, Caption="Allow Multiple Selection?",
+        chk = dCheckBox(self, Caption="Allow Multiple Selection?",
                 DataSource=self.grid, DataField="MultipleSelection")
         chk.refresh()
         gsz.append(chk, row=0, col=1)
 
-        chk = dabo.ui.dCheckBox(self, Caption="Allow Row Resizing?",
+        chk = dCheckBox(self, Caption="Allow Row Resizing?",
                 DataSource=self.grid, DataField="ResizableRows")
         chk.refresh()
         gsz.append(chk, row=1, col=1)
 
-        chk = dabo.ui.dCheckBox(self, Caption="Allow Column Resizing?",
+        chk = dCheckBox(self, Caption="Allow Column Resizing?",
                 DataSource=self.grid, DataField="ResizableColumns")
         chk.refresh()
         gsz.append(chk, row=2, col=1)
 
-        chk = dabo.ui.dCheckBox(self, Caption="Vertical Headers?",
+        chk = dCheckBox(self, Caption="Vertical Headers?",
                 DataSource=self.grid, DataField="VerticalHeaders")
         chk.refresh()
         gsz.append(chk, row=3, col=1)
 
-        chk = dabo.ui.dCheckBox(self, Caption="Auto-adjust Header Height?",
+        chk = dCheckBox(self, Caption="Auto-adjust Header Height?",
                 DataSource=self.grid, DataField="AutoAdjustHeaderHeight")
         chk.refresh()
         gsz.append(chk, row=4, col=1)
 
-        radSelect = dabo.ui.dRadioList(self, Choices=["Row", "Col", "Cell"],
+        radSelect = dRadioList(self, Choices=["Row", "Col", "Cell"],
                 ValueMode="string", Caption="Sel Mode",
                 DataSource=self.grid, DataField="SelectionMode")
         radSelect.refresh()
         gsz.append(radSelect, row=0, col=2, rowSpan=5)
 
-        lbl = dabo.ui.dLabel(self, Caption="Sort Indicator Size")
-        spnSort = dabo.ui.dSpinner(self, Min=2, Max=20, DataSource=self.grid,
+        lbl = dLabel(self, Caption="Sort Indicator Size")
+        spnSort = dSpinner(self, Min=2, Max=20, DataSource=self.grid,
                 DataField="SortIndicatorSize", OnHit=self.onSortSizeChange)
         gsz.append(lbl, row=0, col=3)
         gsz.append(spnSort, row=1, col=3, halign="center")
 
-        btn = dabo.ui.dButton(self, Caption="Sort Indicator Color")
+        btn = dButton(self, Caption="Sort Indicator Color")
         btn.bindEvent(dEvents.Hit, self.onSetSortIndicatorColor)
         gsz.append(btn, row=3, col=3, halign="center")
 
         sz.append(gsz, halign="Center", border=10)
         gsz.setColExpand(True, 2)
 
-        hsz = dabo.ui.dSizer("h")
-        lbl = dabo.ui.dLabel(self, Caption="Col. 1 Header:")
+        hsz = dSizer("h")
+        lbl = dLabel(self, Caption="Col. 1 Header:")
         hsz.append(lbl)
         hsz.appendSpacer(4)
-        btn = dabo.ui.dButton(self, Caption="Text")
+        btn = dButton(self, Caption="Text")
         btn.bindEvent(dEvents.Hit, self.onSetHeadColor)
         hsz.append(btn)
         hsz.appendSpacer(4)
-        btn = dabo.ui.dButton(self, Caption="Background")
+        btn = dButton(self, Caption="Background")
         btn.bindEvent(dEvents.Hit, self.onSetHeadColor)
         hsz.append(btn)
         hsz.appendSpacer(40)
 
-        lbl = dabo.ui.dLabel(self, Caption="Selected Cells:")
+        lbl = dLabel(self, Caption="Selected Cells:")
         hsz.append(lbl)
         hsz.appendSpacer(4)
-        btn = dabo.ui.dButton(self, Caption="Text")
+        btn = dButton(self, Caption="Text")
         btn.bindEvent(dEvents.Hit, self.onSetSelColor)
         hsz.append(btn)
         hsz.appendSpacer(4)
-        btn = dabo.ui.dButton(self, Caption="Background")
+        btn = dButton(self, Caption="Background")
         btn.bindEvent(dEvents.Hit, self.onSetSelColor)
         hsz.append(btn)
 
 
         sz.appendSpacer(4)
-        sz.append(dabo.ui.dLine(self), "x", border=50, borderSides=("left","right"))
+        sz.append(dLine(self), "x", border=50, borderSides=("left","right"))
         sz.appendSpacer(8)
         sz.append(hsz, halign="center")
         sz.appendSpacer(4)

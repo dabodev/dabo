@@ -8,6 +8,10 @@ from dabo.dApp import dApp
 from dabo.dLocalize import _
 from . import cardlib
 
+from dabo.ui import dTimer
+from dabo.ui import dPanel
+from dabo.ui import dForm
+
 
 class MontanaDeck(cardlib.PokerDeck):
 #     def passHoverEvent(self, evt):
@@ -34,7 +38,7 @@ class MontanaDeck(cardlib.PokerDeck):
                 self.aces.append(card)
 
 
-class CardTimer(dabo.ui.dTimer):
+class CardTimer(dTimer.dTimer):
     def start(self, *args, **kwargs):
         self.target._cardTimerFirstHit = False
         super(CardTimer, self).start(*args, **kwargs)
@@ -51,7 +55,7 @@ class CardTimer(dabo.ui.dTimer):
         self.target._cardTimerFirstHit = True
 
 
-class Board(dabo.ui.dPanel):
+class Board(dPanel.dPanel):
     def afterInit(self):
         self.DeckDirectory = self.Form.getDeckDir()
         self.BackColor = "olivedrab"
@@ -408,7 +412,7 @@ class Board(dabo.ui.dPanel):
 
 
 
-class MontanaForm(dabo.ui.dForm):
+class MontanaForm(dForm.dForm):
     def afterInit(self):
         self.Centered = True
         self.Caption = "Montana"

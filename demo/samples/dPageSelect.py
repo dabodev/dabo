@@ -4,16 +4,22 @@ import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
+dDropdownList = dabo.import_ui_name("dDropdownList")
+dLabel = dabo.import_ui_name("dLabel")
+dPageSelect = dabo.import_ui_name("dPageSelect")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
 
-class TestPanel(dabo.ui.dPanel):
+
+class TestPanel(dPanel):
     def afterInit(self):
         self.currentTabPosition = "Top"
-        sz = self.Sizer = dabo.ui.dSizer("v")
+        sz = self.Sizer = dSizer("v")
         pgf = self.createPageSelect()
         sz.appendSpacer(10)
-        hsz = dabo.ui.dSizer("h")
-        lbl = dabo.ui.dLabel(self, Caption="Tab Position:")
-        dd = self.ddPos = dabo.ui.dDropdownList(self, Choices=["Top", "Right", "Bottom", "Left"],
+        hsz = dSizer("h")
+        lbl = dLabel(self, Caption="Tab Position:")
+        dd = self.ddPos = dDropdownList(self, Choices=["Top", "Right", "Bottom", "Left"],
                 Value=self.currentTabPosition, OnHit=self.onNewPosition)
         hsz.append(lbl)
         hsz.appendSpacer(3)
@@ -26,7 +32,7 @@ class TestPanel(dabo.ui.dPanel):
             self.pgf.release()
         except AttributeError:
             pass
-        self.pgf = dabo.ui.dPageSelect(self, TabPosition=self.currentTabPosition,
+        self.pgf = dPageSelect(self, TabPosition=self.currentTabPosition,
                 OnPageChanged=self.onPageChanged)
         # Now add the pages, specifying which image key is displayed for each page.
         self.pgf.appendPage(caption="First", BackColor="blue")

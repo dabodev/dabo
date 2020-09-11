@@ -25,6 +25,7 @@ import dabo.lib.utils as utils
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
+from dabo.ui import dPanel
 
 
 class ModuleDictWrapper:
@@ -248,7 +249,7 @@ class DemoError:
 
 #---------------------------------------------------------------------------
 
-class DemoErrorPanel(dabo.ui.dPanel):
+class DemoErrorPanel(dPanel.dPanel):
     """Panel put into the demo tab when the demo fails to run due  to errors"""
 
     def setErrorInfo(self, codePanel, demoError):

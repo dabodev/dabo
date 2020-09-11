@@ -3,29 +3,37 @@ import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
+dCheckBox = dabo.import_ui_name("dCheckBox")
+dDropdownList = dabo.import_ui_name("dDropdownList")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dLabel = dabo.import_ui_name("dLabel")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dSpinner = dabo.import_ui_name("dSpinner")
 
-class TestPanel(dabo.ui.dPanel):
+
+class TestPanel(dPanel):
     def afterInit(self):
         # First, divide the form into 4 vertical sections:
         # Top: visual display
         # Middle 1: Individual sizer controls
         # Middle 2: Overall sizer controls
         # Bottom: Close button
-        self.Sizer = sz = dabo.ui.dSizer("v", DefaultBorder=5, DefaultBorderAll=True)
-        dispPanel = dabo.ui.dPanel(self, BackColor="wheat")
+        self.Sizer = sz = dSizer("v", DefaultBorder=5, DefaultBorderAll=True)
+        dispPanel = dPanel(self, BackColor="wheat")
         sz.append(dispPanel, 2, "x")
-        self.displaySizer = ds = dabo.ui.dSizer("h")
+        self.displaySizer = ds = dSizer("h")
         dispPanel.Sizer = ds
         # Append the displaySizer  to the main sizer, giving
         # it a weight of 2, and have it expand to fill the horizontal space.
 
         # Create 3 panels. Give each a default height/weight of 10 so that
         # they are still visible when 'expand' is set to 0 or weight is 0.
-        self.leftPanel = lp = dabo.ui.dPanel(dispPanel, BackColor="red",
+        self.leftPanel = lp = dPanel(dispPanel, BackColor="red",
                 Name="RedPanel", BorderWidth=1, Height=10, Width=10)
-        self.middlePanel = mp = dabo.ui.dPanel(dispPanel, BackColor="green",
+        self.middlePanel = mp = dPanel(dispPanel, BackColor="green",
                 Name="GreenPanel", BorderWidth=1, Height=10, Width=10)
-        self.rightPanel = rp = dabo.ui.dPanel(dispPanel, BackColor="blue",
+        self.rightPanel = rp = dPanel(dispPanel, BackColor="blue",
                 Name="BluePanel", BorderWidth=1, Height=10, Width=10)
         # Add them to the display sizer, giving each equal weight, and
         # having each expand to fill the opposite direction. Normally, you
@@ -37,7 +45,7 @@ class TestPanel(dabo.ui.dPanel):
         ds.append1x(rp)
 
         # OK, now we need to add the controls
-        self.controlSizer = cs = dabo.ui.dSizer("h")
+        self.controlSizer = cs = dSizer("h")
         self.leftControls = lc = SizerController(self)
         self.middleControls = mc = SizerController(self)
         self.rightControls = rc = SizerController(self)
@@ -54,11 +62,11 @@ class TestPanel(dabo.ui.dPanel):
         sz.append(cs, 0, "x")
 
         # Add the Orientation selector
-        self.ddOrientation = dabo.ui.dDropdownList(self, Choices=["Vertical", "Horizontal"])
+        self.ddOrientation = dDropdownList(self, Choices=["Vertical", "Horizontal"])
         self.ddOrientation.StringValue = self.displaySizer.Orientation
         self.ddOrientation.bindEvent(dEvents.Hit, self.onOrientationChange)
-        hsz = dabo.ui.dSizer("h")
-        hsz.append(dabo.ui.dLabel(self, Caption=_("Orientation:")), valign="Middle")
+        hsz = dSizer("h")
+        hsz.append(dLabel(self, Caption=_("Orientation:")), valign="Middle")
         hsz.appendSpacer(4)
         hsz.append(self.ddOrientation)
         sz.appendSpacer(10)
@@ -75,7 +83,7 @@ class TestPanel(dabo.ui.dPanel):
 
 
 
-class SizerController(dabo.ui.dPanel):
+class SizerController(dPanel):
     """ This class will contain several controls designed to be
     manipulated by the user in order to visually change the
     behavior of a specified sizer.
@@ -85,39 +93,39 @@ class SizerController(dabo.ui.dPanel):
         # This will be set at runtime.
         self._target = None
         # Create a grid sizer with 2 columns
-        self.Sizer = sz = dabo.ui.dGridSizer(MaxCols=2)
+        self.Sizer = sz = dGridSizer(MaxCols=2)
 
         # Add a heading
-        self.lblHeading = dabo.ui.dLabel(self, FontBold=True)
+        self.lblHeading = dLabel(self, FontBold=True)
         sz.append(self.lblHeading, colSpan=2, halign="center")
 
         # Add a labeled spinner to affect proportion
-        sz.append(dabo.ui.dLabel(self, Caption=_("Proportion:")), halign="right")
-        self.proportionSpinner = dabo.ui.dSpinner(self, Min=0, Max=10)
+        sz.append(dLabel(self, Caption=_("Proportion:")), halign="right")
+        self.proportionSpinner = dSpinner(self, Min=0, Max=10)
         self.proportionSpinner.bindEvent(dEvents.Hit, self.onProportionChange)
         sz.append(self.proportionSpinner)
 
         # Add a checkbox to affect the Expand setting
-        sz.append(dabo.ui.dLabel(self, Caption=_("Expand?")), halign="right")
-        self.expandChk = dabo.ui.dCheckBox(self, Caption="")
+        sz.append(dLabel(self, Caption=_("Expand?")), halign="right")
+        self.expandChk = dCheckBox(self, Caption="")
         self.expandChk.bindEvent(dEvents.Hit, self.onExpandChange)
         sz.append(self.expandChk)
 
         # Add a spinner to set the Border
-        sz.append(dabo.ui.dLabel(self, Caption=_("Border:")), halign="right")
-        self.borderSpinner = dabo.ui.dSpinner(self, Min=0, Max=100, Value=1)
+        sz.append(dLabel(self, Caption=_("Border:")), halign="right")
+        self.borderSpinner = dSpinner(self, Min=0, Max=100, Value=1)
         self.borderSpinner.bindEvent(dEvents.Hit, self.onBorderChange)
         sz.append(self.borderSpinner)
 
         # Add a dropdown to select Horiz. and Vert. alignment
-        sz.append(dabo.ui.dLabel(self, Caption=_("Horiz. Align:")), halign="right")
-        self.ddHAlign = dabo.ui.dDropdownList(self, ValueMode="String",
+        sz.append(dLabel(self, Caption=_("Horiz. Align:")), halign="right")
+        self.ddHAlign = dDropdownList(self, ValueMode="String",
                 Choices=["Left", "Center", "Right"])
         self.ddHAlign.bindEvent(dEvents.Hit, self.onAlignChange)
         self.ddHAlign.sizerProp = "HAlign"
         sz.append(self.ddHAlign)
-        sz.append(dabo.ui.dLabel(self, Caption=_("Vert. Align:")), halign="right")
-        self.ddVAlign = dabo.ui.dDropdownList(self, ValueMode="String",
+        sz.append(dLabel(self, Caption=_("Vert. Align:")), halign="right")
+        self.ddVAlign = dDropdownList(self, ValueMode="String",
                 Choices=["Top", "Middle", "Bottom"])
         self.ddVAlign.bindEvent(dEvents.Hit, self.onAlignChange)
         self.ddVAlign.sizerProp = "VAlign"

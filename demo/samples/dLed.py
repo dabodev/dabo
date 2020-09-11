@@ -3,28 +3,37 @@ import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
+dBorderSizer = dabo.import_ui_name("dBorderSizer")
+dDropdownList = dabo.import_ui_name("dDropdownList")
+dGridSizer = dabo.import_ui_name("dGridSizer")
+dLabel = dabo.import_ui_name("dLabel")
+dLed = dabo.import_ui_name("dLed")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
+dToggleButton = dabo.import_ui_name("dToggleButton")
 
-class TestPanel(dabo.ui.dPanel):
+
+class TestPanel(dPanel):
     def afterInit(self):
-        self.Sizer = dabo.ui.dSizer('v')
+        self.Sizer = dSizer('v')
         self.Sizer.appendSpacer(50)
-        hs = dabo.ui.dSizer('h')
+        hs = dSizer('h')
         self.Sizer.append(hs)
 
-        self.LED = dabo.ui.dLed(self, Height=100, Width=100)
+        self.LED = dLed(self, Height=100, Width=100)
         hs.appendSpacer(50)
         hs.append(self.LED)
         hs.appendSpacer(25)
 
-        bs = dabo.ui.dBorderSizer(self, Caption="LED Options", DefaultBorder=5)
-        gs = dabo.ui.dGridSizer(MaxCols=2, VGap=5, HGap=5)
+        bs = dBorderSizer(self, Caption="LED Options", DefaultBorder=5)
+        gs = dGridSizer(MaxCols=2, VGap=5, HGap=5)
         gs.setColExpand(1, 0)
         bs.append1x(gs)
-        gs.append(dabo.ui.dToggleButton(self, Caption="Toggle LED", DataSource=self.LED, DataField="On", Value=True, OnHit=self.toggleLED), "expand", colSpan=2)
-        gs.append(dabo.ui.dLabel(self, Caption="On Color:"))
-        gs.append(dabo.ui.dDropdownList(self, Choices=dabo.dColors.colors, DataSource=self.LED, DataField="OnColor", Value="green", OnHit=self.changeOnColor))
-        gs.append(dabo.ui.dLabel(self, Caption="Off Color:"))
-        gs.append(dabo.ui.dDropdownList(self, Choices=dabo.dColors.colors, DataSource=self.LED, DataField="OffColor", Value="darkred", OnHit=self.changeOffColor))
+        gs.append(dToggleButton(self, Caption="Toggle LED", DataSource=self.LED, DataField="On", Value=True, OnHit=self.toggleLED), "expand", colSpan=2)
+        gs.append(dLabel(self, Caption="On Color:"))
+        gs.append(dDropdownList(self, Choices=dabo.dColors.colors, DataSource=self.LED, DataField="OnColor", Value="green", OnHit=self.changeOnColor))
+        gs.append(dLabel(self, Caption="Off Color:"))
+        gs.append(dDropdownList(self, Choices=dabo.dColors.colors, DataSource=self.LED, DataField="OffColor", Value="darkred", OnHit=self.changeOffColor))
         hs.append(bs)
 
         self.LED.On = True

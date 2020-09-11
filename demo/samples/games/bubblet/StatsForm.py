@@ -2,9 +2,10 @@
 import dabo
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
+from dabo.ui import dDialog
 
 
-class StatsForm(dabo.ui.dDialog):
+class StatsForm(dDialog.dDialog):
     def beforeInit(self):
         self._games = 0
         self._highGame = 0

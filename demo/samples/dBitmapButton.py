@@ -3,21 +3,27 @@ import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
+dBitmapButton = dabo.import_ui_name("dBitmapButton")
+dBorderSizer = dabo.import_ui_name("dBorderSizer")
+dLabel = dabo.import_ui_name("dLabel")
+dPanel = dabo.import_ui_name("dPanel")
+dSizer = dabo.import_ui_name("dSizer")
 
-class TestPanel(dabo.ui.dPanel):
+
+class TestPanel(dPanel):
     def afterInit(self):
-        sz = self.Sizer = dabo.ui.dSizer("v", DefaultBorder=20,
+        sz = self.Sizer = dSizer("v", DefaultBorder=20,
                 DefaultBorderLeft=True)
         sz.appendSpacer(25)
 
-        lbl = dabo.ui.dLabel(self, Alignment="Center", ForeColor="darkblue",
+        lbl = dLabel(self, Alignment="Center", ForeColor="darkblue",
                 Width=500, WordWrap=True)
         lbl.FontSize -= 3
         lbl.Caption = "Below are three dBitmapButtons. They will normally " + \
                 "display the Ace of Spades, but when the mouse hovers over them, their " + \
                 "normal image will be the Ace of Hearts. If you click on them, the image " + \
                 "will change to the King of Spades for as long as you hold the mouse down."
-        bsz = dabo.ui.dBorderSizer(self, "v")
+        bsz = dBorderSizer(self, "v")
         bsz.append(lbl, halign="center")
         plat = self.Application.Platform
         if plat == "Mac":
@@ -27,28 +33,28 @@ class TestPanel(dabo.ui.dPanel):
         else:
             cap = ""
         if cap:
-            lbl = dabo.ui.dLabel(self, FontItalic=True, Caption=cap)
+            lbl = dLabel(self, FontItalic=True, Caption=cap)
             lbl.FontSize -= 4
             bsz.appendSpacer(5)
             bsz.append(lbl, halign="center")
         sz.append(bsz, halign="center")
         sz.appendSpacer(20)
 
-        hsz = dabo.ui.dSizer("h")
-        btn = dabo.ui.dBitmapButton(self, Picture="media/cards/small/s1.png",
+        hsz = dSizer("h")
+        btn = dBitmapButton(self, Picture="media/cards/small/s1.png",
                 FocusPicture="media/cards/small/h1.png", DownPicture="media/cards/small/s13.png",
                 Height=80, Width=80)
         btn.bindEvent(dEvents.Hit, self.onButtonHit)
         hsz.append(btn)
         sz.appendSpacer(10)
 
-        btn = dabo.ui.dBitmapButton(self, Picture="media/cards/small/s1.png",
+        btn = dBitmapButton(self, Picture="media/cards/small/s1.png",
                 FocusPicture="media/cards/small/h1.png", DownPicture="media/cards/small/s13.png",
                 Height=80, Width=80)
         btn.bindEvent(dEvents.Hit, self.onButtonHit)
         hsz.append(btn)
 
-        btn = dabo.ui.dBitmapButton(self, Picture="media/cards/small/s1.png",
+        btn = dBitmapButton(self, Picture="media/cards/small/s1.png",
                 FocusPicture="media/cards/small/h1.png", DownPicture="media/cards/small/s13.png",
                 Height=80, Width=80)
         btn.bindEvent(dEvents.Hit, self.onButtonHit)
