@@ -6,12 +6,13 @@ import dabo.ui
 from dabo.dApp import dApp
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dBorderSizer
+dGauge = dabo.ui.dGauge
 
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dGauge = dabo.import_ui_name("dGauge")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
+
 
 
 class TestPanel(dPanel):

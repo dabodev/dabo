@@ -4,11 +4,14 @@ import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dDropdownList = dabo.import_ui_name("dDropdownList")
-dLabel = dabo.import_ui_name("dLabel")
-dPageList = dabo.import_ui_name("dPageList")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
+
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+
+from dabo.ui import dDropdownList
+dPageList = dabo.ui.dPageList
+
 
 
 class TestPanel(dPanel):

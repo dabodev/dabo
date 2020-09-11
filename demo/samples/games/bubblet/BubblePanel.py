@@ -8,7 +8,7 @@ import random
 from dabo.ui import dPanel
 
 
-class BubblePanel(dPanel.dPanel):
+class BubblePanel(dPanel):
     def afterInit(self):
         self.Buffered = False
 

@@ -249,7 +249,7 @@ class DemoError:
 
 #---------------------------------------------------------------------------
 
-class DemoErrorPanel(dPanel.dPanel):
+class DemoErrorPanel(dPanel):
     """Panel put into the demo tab when the demo fails to run due  to errors"""
 
     def setErrorInfo(self, codePanel, demoError):

@@ -5,15 +5,17 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dDropdownList = dabo.import_ui_name("dDropdownList")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dPageStyled = dabo.import_ui_name("dPageStyled")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dSpinner = dabo.import_ui_name("dSpinner")
+
+
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dCheckBox
+from dabo.ui import dDropdownList
+from dabo.ui import dGridSizer
+from dabo.ui import dBorderSizer
+from dabo.ui import dSpinner
+dPageStyled = dabo.ui.dPageStyled
 
 
 class TestPanel(dPanel):

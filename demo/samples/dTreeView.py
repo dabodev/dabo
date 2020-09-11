@@ -4,12 +4,16 @@ import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dButton = dabo.import_ui_name("dButton")
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dMenu = dabo.import_ui_name("dMenu")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dTreeView = dabo.import_ui_name("dTreeView")
+
+
+from dabo.ui import dMenu
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dCheckBox
+from dabo.ui import dTreeView
+from dabo.ui import dButton
+dTreeView = dabo.ui.dTreeView
+
 
 
 class TreeViewSample(dTreeView):

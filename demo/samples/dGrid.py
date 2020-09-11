@@ -5,17 +5,19 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import datetime
 
-dGrid = dabo.import_ui_name("dGrid")
-dColumn = dabo.import_ui_name("dColumn")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dRadioList = dabo.import_ui_name("dRadioList")
-dButton = dabo.import_ui_name("dButton")
-dSpinner = dabo.import_ui_name("dSpinner")
-dLine = dabo.import_ui_name("dLine")
+
+
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dColumn
+from dabo.ui import dGridSizer
+from dabo.ui import dRadioList
+from dabo.ui import dButton
+from dabo.ui import dSpinner
+from dabo.ui import dLine
+from dabo.ui import dCheckBox
+dGrid = dabo.ui.dGrid
 
 
 class DemoGrid(dGrid):

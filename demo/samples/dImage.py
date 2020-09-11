@@ -4,13 +4,17 @@ import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dBitmapButton = dabo.import_ui_name("dBitmapButton")
-dButton = dabo.import_ui_name("dButton")
-dDropdownList = dabo.import_ui_name("dDropdownList")
-dImage = dabo.import_ui_name("dImage")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dSlider = dabo.import_ui_name("dSlider")
+
+
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dTextBox
+from dabo.ui import dButton
+from dabo.ui import dDropdownList
+from dabo.ui import dSlider
+from dabo.ui import dBitmapButton
+dImage = dabo.ui.dImage
 
 
 class TestPanel(dPanel):

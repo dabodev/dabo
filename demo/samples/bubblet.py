@@ -6,10 +6,11 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from samples.games.bubblet.BubbletForm import BubbletForm
 
-dButton = dabo.import_ui_name("dButton")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
+from dabo.ui import dButton
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+
 
 
 class TestPanel(dPanel):

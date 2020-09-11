@@ -83,7 +83,7 @@ _hintColor = "black"
 class StateChanged(dabo.dEvents.Event): pass
 
 
-class Square(dPanel.dPanel):
+class Square(dPanel):
     def initProperties(self):
         self.BackColor = "slategrey"
 
@@ -204,7 +204,7 @@ class Square(dPanel.dPanel):
 
 
 
-class Board(dPanel.dPanel):
+class Board(dPanel):
     def initProperties(self):
         self.squares = []
         self._resetting = False
@@ -628,7 +628,7 @@ class Board(dPanel.dPanel):
     _GameInProgress = property(_getGameInProgress, _setGameInProgress)
 
 
-class MinesweeperForm(dForm.dForm):
+class MinesweeperForm(dForm):
     def afterInit(self):
         self.fillMenu()
         self.preset = {}
@@ -927,7 +927,7 @@ this to work."""
         self.tbMines = tb.appendControl(dabo.ui.dTextBox(tb, Width=30, ReadOnly=True))
 
 
-class PreferenceDialog(dabo.ui.dDialog.dOkCancelDialog):
+class PreferenceDialog(dabo.ui.dOkCancelDialog):
     def initProperties(self):
         self.AutoSize = False
         self.Caption = "Minesweeper Preferences"

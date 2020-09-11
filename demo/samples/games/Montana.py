@@ -1,12 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import random
+import os
 
 import dabo
 import dabo.ui
 from dabo.dApp import dApp
 from dabo.dLocalize import _
-from . import cardlib
+if __name__ == "__main__":
+    import demo
+    import cardlib
+else:
+    from . import cardlib
+
 
 from dabo.ui import dTimer
 from dabo.ui import dPanel
@@ -38,7 +44,7 @@ class MontanaDeck(cardlib.PokerDeck):
                 self.aces.append(card)
 
 
-class CardTimer(dTimer.dTimer):
+class CardTimer(dTimer):
     def start(self, *args, **kwargs):
         self.target._cardTimerFirstHit = False
         super(CardTimer, self).start(*args, **kwargs)
@@ -55,7 +61,7 @@ class CardTimer(dTimer.dTimer):
         self.target._cardTimerFirstHit = True
 
 
-class Board(dPanel.dPanel):
+class Board(dPanel):
     def afterInit(self):
         self.DeckDirectory = self.Form.getDeckDir()
         self.BackColor = "olivedrab"
@@ -412,7 +418,7 @@ class Board(dPanel.dPanel):
 
 
 
-class MontanaForm(dForm.dForm):
+class MontanaForm(dForm):
     def afterInit(self):
         self.Centered = True
         self.Caption = "Montana"

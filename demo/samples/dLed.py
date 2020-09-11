@@ -3,14 +3,16 @@ import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dDropdownList = dabo.import_ui_name("dDropdownList")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dLed = dabo.import_ui_name("dLed")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dToggleButton = dabo.import_ui_name("dToggleButton")
+
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dLed
+from dabo.ui import dDropdownList
+from dabo.ui import dGridSizer
+from dabo.ui import dBorderSizer
+from dabo.ui import dToggleButton
+dLed = dabo.ui.dLed
 
 
 class TestPanel(dPanel):

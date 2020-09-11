@@ -3,13 +3,18 @@ import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dSpinner = dabo.import_ui_name("dSpinner")
-dTextBox = dabo.import_ui_name("dTextBox")
-dToggleButton = dabo.import_ui_name("dToggleButton")
+
+
+
+
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dLed
+from dabo.ui import dGridSizer
+from dabo.ui import dSpinner
+from dabo.ui import dTextBox
+dToggleButton = dabo.ui.dToggleButton
 
 
 class TestPanel(dPanel):

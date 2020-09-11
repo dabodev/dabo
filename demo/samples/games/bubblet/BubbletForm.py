@@ -20,7 +20,7 @@ else:
 
 
 
-class BubbletForm(dForm.dForm):
+class BubbletForm(dForm):
     def afterInit(self):
         self.tmr = dabo.ui.dTimer()
         self.tmr.bindEvent(dEvents.Hit, self.onTimer)

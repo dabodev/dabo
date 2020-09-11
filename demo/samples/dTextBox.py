@@ -4,11 +4,15 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dTextBox = dabo.import_ui_name("dTextBox")
+
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dLed
+
+from dabo.ui import dGridSizer
+dTextBox = dabo.ui.dTextBox
+
 
 
 class TestPanel(dPanel):

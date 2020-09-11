@@ -2,11 +2,12 @@
 import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from  dabo.ui import dButton
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
 
-dButton = dabo.import_ui_name("dButton")
-dEditBox = dabo.import_ui_name("dEditBox")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
+dEditBox = dabo.ui.dEditBox
 
 
 class TestPanel(dPanel):

@@ -4,12 +4,14 @@ import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dSlider = dabo.import_ui_name("dSlider")
-dSpinner = dabo.import_ui_name("dSpinner")
+
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dCheckBox
+from dabo.ui import dSpinner
+dSlider = dabo.ui.dSlider
+
 
 
 class TestPanel(dPanel):

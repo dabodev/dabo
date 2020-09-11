@@ -5,7 +5,7 @@ from dabo.lib.utils import ustr
 from dabo.ui import dDialog
 
 
-class StatsForm(dDialog.dDialog):
+class StatsForm(dDialog):
     def beforeInit(self):
         self._games = 0
         self._highGame = 0

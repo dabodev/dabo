@@ -7,13 +7,16 @@ try:
 except ImportError:
     _Numeric = None
 
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dLinePlot = dabo.import_ui_name("dLinePlot")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dTextBox = dabo.import_ui_name("dTextBox")
+
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dTextBox
+from dabo.ui import dGridSizer
+from dabo.ui import dBorderSizer
+
+
+
 
 
 class TestPanel(dPanel):

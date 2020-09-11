@@ -2,12 +2,14 @@
 import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui import dBitmapButton
 
-dBitmapButton = dabo.import_ui_name("dBitmapButton")
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dBorderSizer
+dBitmapButton = dabo.ui.dBitmapButton
+
 
 
 class TestPanel(dPanel):

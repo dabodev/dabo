@@ -6,10 +6,12 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from samples.games import MontanaForm
 
-dButton = dabo.import_ui_name("dButton")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
+
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dButton
+
 
 
 class TestPanel(dPanel):

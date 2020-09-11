@@ -3,13 +3,13 @@ import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dGridSizer = dabo.import_ui_name("dGridSizer")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dSpinner = dabo.import_ui_name("dSpinner")
-dTextBox = dabo.import_ui_name("dTextBox")
 
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dSpinner
+from dabo.ui import dTextBox
+dGridSizer = dabo.ui.dGridSizer
 
 class TestPanel(dPanel):
     def afterInit(self):

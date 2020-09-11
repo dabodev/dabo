@@ -6,14 +6,15 @@ import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-dBorderSizer = dabo.import_ui_name("dBorderSizer")
-dButton = dabo.import_ui_name("dButton")
-dCheckBox = dabo.import_ui_name("dCheckBox")
-dHyperLink = dabo.import_ui_name("dHyperLink")
-dLabel = dabo.import_ui_name("dLabel")
-dPanel = dabo.import_ui_name("dPanel")
-dSizer = dabo.import_ui_name("dSizer")
-dTextBox = dabo.import_ui_name("dTextBox")
+
+from dabo.ui import dLabel
+from dabo.ui import dPanel
+from dabo.ui import dSizer
+from dabo.ui import dTextBox
+from dabo.ui import dButton
+from dabo.ui import dCheckBox
+from dabo.ui import dBorderSizer
+dHyperLink = dabo.ui.dHyperLink
 
 class TestPanel(dPanel):
     def afterInit(self):
