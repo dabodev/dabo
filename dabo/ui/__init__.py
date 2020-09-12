@@ -154,6 +154,7 @@ def load_namespace():
     from . import date_text_box
     from . import masked_text_box
     from . import edit_box
+    from . import editable_list
     from . import editor
     from . import spinner
     from . import form
