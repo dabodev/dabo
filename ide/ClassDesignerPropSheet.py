@@ -815,7 +815,8 @@ class PropertyGrid(dGrid):
 
     def selectPropColumn(self):
         """Move the selected cell to the prop column."""
-        if self.CurrentColumn is 1:
+        #if self.CurrentColumn is 1:
+        if self.CurrentColumn == 1:
             self.CurrentColumn = 0
 
 
