@@ -448,7 +448,9 @@ def DesignerController():
 
             class ReportObjectSelection(wx.CustomDataObject):
                 def __init__(self):
-                    wx.CustomDataObject.__init__(self, wx.CustomDataFormat("ReportObjectSelection"))
+                    #wx.CustomDataObject.__init__(self, wx.CustomDataFormat("ReportObjectSelection"))
+                    #self.SetFormat(wx.DataFormat("my data format"))
+                    wx.CustomDataObject.__init__(self, wx.DataFormat("ReportObjectSelection"))
                     self.setObject([])
 
                 def setObject(self, objs):
@@ -1401,13 +1403,14 @@ class DesignerBand(DesignerPanel):
         selectColor = (128,192,0)
 
         size, position = self.getObjSizeAndPosition(obj)
-        rect = [position[0], position[1], size[0], size[1]]
+        rect = [int(position[0]), int(position[1]), int(size[0]), int(size[1])]
 
         dc.DestroyClippingRegion()
 
         dc.SetBrush(wx.Brush((0,0,0), wx.BRUSHSTYLE_TRANSPARENT))
-        dc.SetPen(wx.Pen(selectColor, 0.1, wx.PENSTYLE_DOT))
-        dc.DrawRectangle(position[0], position[1], size[0], size[1])
+        #dc.SetPen(wx.Pen(selectColor, 0.1, wx.PENSTYLE_DOT))
+        dc.SetPen(wx.Pen(selectColor, 1, wx.PENSTYLE_DOT))
+        dc.DrawRectangle(int(position[0]), int(position[1]), int(size[0]), int(size[1]))
 
         obj._anchors = {}
 
@@ -1472,10 +1475,11 @@ class DesignerBand(DesignerPanel):
             # We need the y value to match up with the font at the baseline, but to clip
             # the entire region, including descent.
             descent = dc.GetFullTextExtent(expr)[2]
-            rect[0] += left_fudge
-            rect[2] += left_fudge
-            rect[1] += top_fudge
-            rect[3] += top_fudge + descent
+            #rect[0] += left_fudge
+            #rect[2] += left_fudge
+            #rect[1] += top_fudge
+            #rect[3] += top_fudge + descent
+            rect[3] += descent
             #dc.SetClippingRect(rect)
             dc.SetClippingRegion(rect)
 
@@ -1505,7 +1509,7 @@ class DesignerBand(DesignerPanel):
             else:
                 fillColor = (255, 255, 255)
                 fillMode = wx.BRUSHSTYLE_TRANSPARENT
-            dc.SetPen(wx.Pen(strokeColor, strokeWidth, wx.PENSTYLE_SOLID))
+            dc.SetPen(wx.Pen(strokeColor, int(strokeWidth), wx.PENSTYLE_SOLID))
             dc.SetBrush(wx.Brush(fillColor, fillMode))
             dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
 
@@ -1513,7 +1517,7 @@ class DesignerBand(DesignerPanel):
         if objType in ("Line", "SpanningLine"):
             strokeWidth = self._rw.getPt(obj.getProp("strokeWidth")) * self.Parent.Zoom
             strokeColor = self._rw.getColorTupleFromReportLab(obj.getProp("strokeColor"))
-            dc.SetPen(wx.Pen(strokeColor, strokeWidth, wx.PENSTYLE_SOLID))
+            dc.SetPen(wx.Pen(strokeColor, int(strokeWidth), wx.PENSTYLE_SOLID))
 
             if objType != "SpanningLine":
                 lineSlant = obj.getProp("lineSlant")
@@ -1548,8 +1552,7 @@ class DesignerBand(DesignerPanel):
                 rect = [rect[0], rect[1], rect[0] + rect[2], rect[1] + rect[3]]
                 dc.DrawLine(*rect)
             elif lineSlant:
-                dc.DrawLine(beg[0], beg[1], end[0], end[1])
-
+                dc.DrawLine(int(beg[0]), int(beg[1]), int(end[0]), int(end[1]))
 
         if objType == "Image":
             bmp = None
@@ -1602,8 +1605,9 @@ class DesignerBand(DesignerPanel):
             rect = (position[0], position[1], size[0], size[1])
             # border around selected control with sizer boxes:
             dc.SetBrush(wx.Brush((0,0,0), wx.BRUSHSTYLE_TRANSPARENT))
-            dc.SetPen(wx.Pen(selectColor, 0.25, wx.PENSTYLE_SOLID))
-            dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
+            #dc.SetPen(wx.Pen(selectColor, 0.25, wx.PENSTYLE_SOLID))
+            dc.SetPen(wx.Pen(selectColor, 1, wx.PENSTYLE_SOLID))
+            dc.DrawRectangle(int(rect[0]), int(rect[1]), int(rect[2]), int(rect[3]))
 
             x,y = (rect[0], rect[1])
             width, height = (rect[2], rect[3])
@@ -1632,11 +1636,12 @@ class DesignerBand(DesignerPanel):
 
             for k,v in list(anchors.items()):
                 dc.SetBrush(wx.Brush((0,0,0), wx.BRUSHSTYLE_SOLID))
-                dc.SetPen(wx.Pen((0,0,0), 0.25, wx.PENSTYLE_SOLID))
+                #dc.SetPen(wx.Pen((0,0,0), 0.25, wx.PENSTYLE_SOLID))
+                dc.SetPen(wx.Pen((0,0,0), 1, wx.PENSTYLE_SOLID))
                 if hAnchor == v[0] and vAnchor == v[1]:
                     dc.SetBrush(wx.Brush(selectColor, wx.BRUSHSTYLE_SOLID))
                     dc.SetPen(wx.Pen(selectColor, 1, wx.PENSTYLE_SOLID))
-                dc.DrawRectangle(v[2], v[3], thickness, thickness)
+                dc.DrawRectangle(int(v[2]), int(v[3]), int(thickness), int(thickness))
 
 
     def getProp(self, prop, evaluate=True, fillDefault=True):
