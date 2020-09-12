@@ -4,11 +4,11 @@ import dabo.ui
 from dabo.dApp import dApp
 from dabo.dLocalize import _
 
-dForm = dabo.import_ui_name("dForm")
-dHyperLink = dabo.import_ui_name("dHyperLink")
-dSizer = dabo.import_ui_name("dSizer")
-dStatusBar = dabo.import_ui_name("dStatusBar")
-dTextBox = dabo.import_ui_name("dTextBox")
+from dabo.ui import dForm
+from dabo.ui import dHyperLink
+from dabo.ui import dSizer
+from dabo.ui import dStatusBar
+from dabo.ui import dTextBox
 
 
 class HomeDirectoryStatusBar(dStatusBar):
