@@ -687,7 +687,7 @@ class PropertyGrid(dGrid):
         c0 = self.Columns[0]
         fsize = c0.FontSize
         if self.Application.Platform == "Win":
-            self.setAll("FontSize", fsize-2, filt="BaseClass == dColumn")
+            self.setAll("FontSize", fsize-2, filt="BaseClass == dabo.ui.dColumn")
         # Set the row height to match
         face = c0.FontFace
         size = c0.FontSize
