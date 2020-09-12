@@ -220,8 +220,9 @@ class dFormMixin(dPemMixin):
                 and not isinstance (self, wx.Dialog)
                 and not modal
                 and (sys.platform.startswith("darwin") or not isinstance(self, wx.MDIChildFrame))):
-            SBC = self.StatusBarClass
-            self.StatusBar = SBC(self)
+            #SBC = self.StatusBarClass
+            #self.StatusBar = SBC(self)
+            self.StatusBar = self.StatusBarClass
 
 
     def __onDeactivate(self, evt):
