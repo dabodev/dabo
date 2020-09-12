@@ -28,7 +28,7 @@ from dabo.ui import dOkCancelDialog
 from dabo.ui import dPanel
 from dabo.ui import dSizer
 from dabo.ui import dSplitter
-from dabo.ui import HotKeyEditor
+from dabo.ui.dialogs import HotKeyEditor
 
 
 class PropSheet(dPanel):

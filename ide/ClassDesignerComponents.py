@@ -34,8 +34,8 @@ from dabo.ui import dSizer
 from dabo.ui import dSpinner
 from dabo.ui import dSplitter
 from dabo.ui import dTreeView
-from dabo.ui import Wizard
-from dabo.ui import WizardPage
+from dabo.ui.dialogs import Wizard
+from dabo.ui.dialogs import WizardPage
 
 
 # Defaults for sizer items
