@@ -167,6 +167,7 @@ def load_namespace():
     from . import split_form
     from . import image_mixin
     from . import image
+    from . import media_control
     from . import toggle_button
     from . import bitmap
     from . import bitmap_button
@@ -183,6 +184,7 @@ def load_namespace():
     from . import dialogs
     from . import grid_renderers
     from . import object_inspector
+    from . import dock_form
     from .dialogs import WizardPage
     from .dialogs import Wizard
     from .dialogs import About

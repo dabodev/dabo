@@ -48,11 +48,13 @@ class TestPanel(dPanel):
         gsz.append(lbl, row=0, col=0, halign="right")
         gsz.append(ddStyle, row=0, col=1)
 
-        lbl = dLabel(self, Caption="Tab Position:")
-        ddPos = dDropdownList(self, Choices=["Top", "Bottom"],
-                DataSource=pgf, DataField="TabPosition")
-        gsz.append(lbl, row=1, col=0, halign="right")
-        gsz.append(ddPos, row=1, col=1)
+        #lbl = dLabel(self, Caption="Tab Position:")
+        #ddPos = dDropdownList(self, Choices=["Top", "Bottom"],
+                #DataSource=pgf, DataField="TabPosition")
+        #gsz.append(lbl, row=1, col=0, halign="right")
+        #gsz.append(ddPos, row=1, col=1)
+        gsz.appendSpacer(1)
+        gsz.appendSpacer(1)
 
         lbl = dLabel(self, Caption="Tab Side Incline:",
                 DynamicVisible=lambda:pgf.TabStyle=="Default")

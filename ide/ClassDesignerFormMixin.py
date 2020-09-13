@@ -49,7 +49,7 @@ from dabo.ui import dStatusBar
 from dabo.ui import dTextBox
 from dabo.ui import dToolForm
 from dabo.ui import dTreeView
-from dabo.ui import Wizard
+from dabo.ui.dialogs import Wizard
 
 
 class ClassDesignerFormMixin(LayoutSaverMixin):

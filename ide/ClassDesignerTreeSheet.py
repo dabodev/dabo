@@ -35,8 +35,8 @@ from dabo.ui import dStatusBar
 from dabo.ui import dTextBox
 from dabo.ui import dToolForm
 from dabo.ui import dTreeView
-from dabo.ui import Wizard
-from dabo.ui import WizardPage
+from dabo.ui.dialogs import Wizard
+from dabo.ui.dialogs import WizardPage
 
 
 class TreeSheet(dPanel):
