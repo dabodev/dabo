@@ -1598,7 +1598,7 @@ class DesignerBand(DesignerPanel):
             borderWidth = self._rw.getPt(obj.getProp("BorderWidth")) * self.Parent.Zoom
             if borderWidth > 0:
                 borderColor = self._rw.getColorTupleFromReportLab(obj.getProp("BorderColor"))
-                dc.SetPen(wx.Pen(borderColor, borderWidth, wx.PENSTYLE_SOLID))
+                dc.SetPen(wx.Pen(borderColor, int(borderWidth), wx.PENSTYLE_SOLID))
                 dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
 
         if rdc.isSelected(obj):
