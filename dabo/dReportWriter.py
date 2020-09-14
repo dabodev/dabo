@@ -4,8 +4,10 @@ from dabo.dLocalize import _
 from dabo.lib.reportWriter import ReportWriter
 from dabo.dObject import dObject
 from dabo import dEvents as dEvents
-from dabo import ui as dui
 
+from .settings import *
+if implicitImports:
+    from dabo import ui as dui
 
 # dReportWriter is simply a raw ReportWriter/dObject mixin:
 class dReportWriter(dObject, ReportWriter):
