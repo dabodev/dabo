@@ -5,8 +5,7 @@ from dabo.lib.reportWriter import ReportWriter
 from dabo.dObject import dObject
 from dabo import dEvents as dEvents
 
-from .settings import *
-if implicitImports:
+if dabo.implicitImports:
     from dabo import ui as dui
 
 # dReportWriter is simply a raw ReportWriter/dObject mixin:
