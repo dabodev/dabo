@@ -10,9 +10,13 @@ from dabo.ui import dPanel
 from dabo.ui import dButton
 from dabo.ui import makeDynamicProperty
 
+#import locale
+#lc = locale.getlocale()
+#locale.setlocale(locale.LC_CTYPE , 'UTF8')
+
 
 class CalPanel(dPanel):
-    def __init__(self, parent, pos=None, dt=None, ctrl=None,
+    def __init__(self, parent, pos=(0,0), dt=None, ctrl=None,
             extended=False):
         if isinstance(dt, (datetime.datetime, datetime.date)):
             self.date = dt
@@ -141,11 +145,34 @@ C: Popup Calendar to Select
         if self.ReadOnly:
             # ignore
             return
-        cp = self._CalendarPanel
-        cp.cal.Date = self.Value
-        fp = self.Form.FloatingPanel
-        fp.Owner = self
-        fp.show()
+        #cp = self._CalendarPanel
+        #cp.cal.Date = self.Value
+        #fp = self.Form.FloatingPanel
+        #fp.Owner = self
+        #fp.show()
+        self.dateCalDlg()
+        
+    def dateCalDlg(self, event=None):       # test the date dialog
+        dlg = wx.lib.calendar.CalenDlg(self)
+        dlg.Centre()
+
+        if dlg.ShowModal() == wx.ID_OK:
+            result = dlg.result
+            day = result[1]
+            month = result[2]
+            month_name = month
+            monthNames = {"January" : 1, "February" : 2, "March" : 3, "April" : 4, "May" : 5, "June":6,
+                    "July":7, "August":8, "September" : 9, "October" : 10, "November" : 11, "December" : 12}
+            
+           
+            month_number = monthNames[month_name]              
+            year = result[3]
+            new_date = str( month_number) + '/'+ str(day) + '/'+ str(year)
+            #self.log.WriteText('Date Selected: %s\n' % new_date)
+            self.Value = new_date
+        else:
+            #self.log.WriteText('No Date Selected')
+            return
 
 
     def __onChar(self, evt):

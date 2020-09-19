@@ -193,20 +193,24 @@ class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
         evtClass = wxcal.CalendarEvent
         chg = False
         if curr.year != val.year:
-            evt = evtClass(self, self._evtCalYearType)
-            self.raiseEvent(dEvents.CalendarYearChanged, evt)
+            #evt = evtClass(self, self._evtCalYearType)
+            #self.raiseEvent(dEvents.CalendarYearChanged, evt)
+            self.raiseEvent(dEvents.CalendarYearChanged)
             chg = True
         if curr.month != val.month:
-            evt = evtClass(self, self._evtCalMonthType)
-            self.raiseEvent(dEvents.CalendarMonthChanged, evt)
+            #evt = evtClass(self, self._evtCalMonthType)
+            #self.raiseEvent(dEvents.CalendarMonthChanged, evt)
+            self.raiseEvent(dEvents.CalendarMonthChanged)
             chg = True
         if curr.day != val.day:
-            evt = evtClass(self, self._evtCalDayType)
-            self.raiseEvent(dEvents.CalendarDayChanged, evt)
+            #evt = evtClass(self, self._evtCalDayType)
+            #self.raiseEvent(dEvents.CalendarDayChanged, evt)
+            self.raiseEvent(dEvents.CalendarDayChanged)
             chg = True
         if chg:
-            evt = evtClass(self, self._evtCalSelType)
-            self.raiseEvent(dEvents.CalendarDateChanged, evt)
+            #evt = evtClass(self, self._evtCalSelType)
+            #self.raiseEvent(dEvents.CalendarDateChanged, evt)
+             self.raiseEvent(dEvents.CalendarDateChanged)
         self.Refresh()
 
 

@@ -779,7 +779,7 @@ class dFormMixin(dPemMixin):
     def _getFloatingPanel(self):
         if not self._floatingPanel:
             # Have to import it here, as it requires that dFormMixin be defined.
-            from dabo.ui import _FloatDialog
+            from dabo.ui.dialog import _FloatDialog
             self._floatingPanel = _FloatDialog(owner=None, parent=self)
         return self._floatingPanel
 

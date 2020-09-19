@@ -612,6 +612,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
             formats.append("YYYYMMDD")
             formats.append("YYMMDD")
             formats.append("MMDD")
+            formats.append("MMDDYYYY")
+            formats.append("M/DD/YYYY")
             # (define more formats in dabo.lib.dates._getDateRegex, and enter
             # them above in more explicit -> less explicit order.)
         return dates.getDateFromString(strVal, formats)
