@@ -254,7 +254,7 @@ C: Popup Calendar to Select
         except AttributeError:
             # Value isn't a date for some reason
             val = self.Value
-            if val is None:
+            if val is None or val == '':
                 # Probably just a null value
                 orig = None
             else:
