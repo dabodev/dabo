@@ -94,6 +94,8 @@ class dDataSet(tuple):
         """This is a converter routine. Takes the string representation of a
         Decimal value and return an actual decimal.
         """
+        if isinstance(strVal, bytes):
+            strVal = strVal.decode('utf-8')
         return Decimal(strVal)
 
 
