@@ -5063,19 +5063,19 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 try:
                     self.SetSelectionMode(wx.grid.Grid.GridSelectRows)
                     self._selectionMode = "Row"
-                except wx.PyAssertionError:
+                except (AttributeError,wx.PyAssertionError):
                     dui.callAfter(self._setSelectionMode, val)
             elif val2 == "co":
                 try:
                     self.SetSelectionMode(wx.grid.Grid.GridSelectColumns)
                     self._selectionMode = "Col"
-                except wx.PyAssertionError:
+                except (AttributeError,wx.PyAssertionError):
                     dui.callAfter(self._setSelectionMode, val)
             else:
                 try:
                     self.SetSelectionMode(wx.grid.Grid.GridSelectCells)
                     self._selectionMode = "Cell"
-                except wx.PyAssertionError:
+                except (AttributeError,wx.PyAssertionError):
                     dui.callAfter(self._setSelectionMode, val)
             if self._selectionMode != orig:
                 self._checkSelectionType()
