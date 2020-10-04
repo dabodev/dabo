@@ -694,8 +694,12 @@ Database error message: %s""") %     err
         if not parentBizobj and not dataSource:
             return self.PrimaryBizobj
 
-        if not parentBizobj and dataSource in self.bizobjs:
-            return self.bizobjs[dataSource]
+        try:
+            if not parentBizobj and dataSource in self.bizobjs:
+                return self.bizobjs[dataSource]
+        except TypeError:
+            # dataSource is not hashable
+            pass
 
         if isinstance(dataSource, dabo.biz.dBizobj):
             return dataSource
@@ -707,7 +711,11 @@ Database error message: %s""") %     err
             return self
 
         # See if it is the RegID of a registered control
-        reg = self.getObjectByRegID(dataSource)
+        try:
+            reg = self.getObjectByRegID(dataSource)
+        except TypeError:
+            # dataSource is not hashable
+            reg = None
         if reg:
             return reg
 

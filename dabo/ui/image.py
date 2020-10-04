@@ -214,10 +214,10 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
                 # Use the height as the limiting size
                 imgH = h
                 imgW = h * imgProp
-            img = img.Scale(imgW, imgH)
+            img = img.Scale(int(imgW), int(imgH))
         else:
             # Stretch; just use the control size
-            img = img.Scale(w, h)
+            img = img.Scale(int(w), int(h))
 
         # We have the adjusted image; now generate the bitmap
         self.Bitmap = img.ConvertToBitmap()
@@ -227,7 +227,8 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         self.Freeze()
         try:
             self.SetBitmap(self.Bitmap)
-        except TypeError as e: pass
+        except TypeError as e:
+            pass
         self.Thaw()
         self.SetSize((origW, origH))
         self._inShowPic = False

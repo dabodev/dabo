@@ -381,6 +381,7 @@ class dShellForm(dSplitForm):
     def _beforeInit(self, pre):
         # Class to use for creating the interactive shell
         self._shellClass = dShell
+        self._sashPct = 80
         super(dShellForm, self)._beforeInit(pre)
 
 

@@ -369,19 +369,6 @@ class dDataControlMixin(dControlMixin):
             self.flushValue()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     def _onWxHit(self, evt, *args, **kwargs):
         self._userChanged = True  ## set the dirty flag so that InteractiveChange can be raised.
         super(dDataControlMixin, self)._onWxHit(evt, *args, **kwargs)

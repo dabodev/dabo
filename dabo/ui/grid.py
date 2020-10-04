@@ -4458,7 +4458,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         """Used in the mouse event handlers to stuff the col, row into EventData."""
         col = self.getColNumByX(pos[0])
         row = self.getRowNumByY(pos[1])
-        if col < 0 or row < 0:
+        if (col and row) and (col < 0 or row < 0):
             # click was outside grid cell area
             col, row = None, None
         return col, row

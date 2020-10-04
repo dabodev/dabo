@@ -733,21 +733,24 @@ class dSizerMixin(dObject):
         else:
             # Use the halign and valign values
             alignFlags = (halign, valign)
+
+        isVertSizer = isinstance(self, dabo.ui.dSizer) and self.Orientation == "Vertical"
+        isHorizSizer = isinstance(self, dabo.ui.dSizer) and self.Orientation == "Horizontal"
         for flag in [flag.lower() for flag in alignFlags]:
             if flag == "left":
-                if not expand and orientation == "Vertical":
+                if not expand and not isHorizSizer:
                     _wxFlags = _wxFlags | self.leftFlag
             elif flag == "right":
-                if not expand and orientation == "Vertical":
+                if not expand and not isHorizSizer:
                     _wxFlags = _wxFlags | self.rightFlag
             elif flag in ("center", "centre"):
-                if not expand and orientation == "Vertical":
+                if not expand and not isHorizSizer:
                     _wxFlags = _wxFlags | self.centerFlag
-            elif flag == "top" and orientation == "Horizontal":
+            elif flag == "top" and not isVertSizer:
                 _wxFlags = _wxFlags | self.topFlag
-            elif flag == "bottom" and orientation == "Horizontal":
+            elif flag == "bottom" and not isVertSizer:
                 _wxFlags = _wxFlags | self.bottomFlag
-            elif flag == "middle" and orientation == "Horizontal":
+            elif flag == "middle" and not isVertSizer:
                 _wxFlags = _wxFlags | self.middleFlag
 
         if isinstance(borderSides, str):
