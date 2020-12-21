@@ -695,9 +695,16 @@ class EditorForm(dForm):
                 bmp="zoomNormal", ItemID="font_zoomnormal", help=_("Normal Zoom"))
         fontMenu.append(_("Zoom &Out"), HotKey="Ctrl+-", OnHit=self.onViewZoomOut,
                 bmp="zoomOut", ItemID="font_zoomout", help=_("Zoom Out"))
-        fonts = dabo.ui.getAvailableFonts()
+        fixed_width_fonts = dabo.ui.getAvailableFonts(fixed_width_only=True)
+        all_fonts = dabo.ui.getAvailableFonts(fixed_width_only=False)
         fontMenu.appendSeparator()
-        for font in fonts:
+        fontMenu.append(_("Fixed Width Fonts"), Enabled=False)
+        for font in fixed_width_fonts:
+            fontMenu.append(font, OnHit=self.onFontSelection,
+                    ItemID="font_%s" % font.replace(" ", "_"), menutype="Radio")
+        fontMenu.appendSeparator()
+        fontMenu.append(_("All Fonts"), Enabled=False)
+        for font in all_fonts:
             fontMenu.append(font, OnHit=self.onFontSelection,
                     ItemID="font_%s" % font.replace(" ", "_"), menutype="Radio")
 

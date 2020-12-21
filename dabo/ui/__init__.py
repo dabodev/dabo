@@ -9,7 +9,6 @@ import inspect
 import io
 import os
 import re
-import six
 import sys
 import time
 import traceback
@@ -1188,11 +1187,10 @@ def getFont(font=None):
     return ret
 
 
-def getAvailableFonts():
+def getAvailableFonts(fixed_width_only=False):
     """Returns a list of all fonts available on the current system."""
     fEnum= wx.FontEnumerator()
-    fEnum.EnumerateFacenames()
-    font_list = fEnum.GetFacenames()
+    font_list = fEnum.GetFacenames(fixedWidthOnly=fixed_width_only)
     font_list.sort()
     return font_list
 
@@ -1200,7 +1198,7 @@ def getAvailableFonts():
 def _getPath(cls, wildcard, **kwargs):
     pth = None
     idx = None
-    if isinstance(cls, six.string_types):
+    if isinstance(cls, str):
         cls = getattr(dabo.ui, cls)
     fd = cls(parent=_getActiveForm(), wildcard=wildcard, **kwargs)
     if fd.show() == kons.DLG_OK:

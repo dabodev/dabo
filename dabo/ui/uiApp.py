@@ -1084,9 +1084,12 @@ these automatic updates.""").replace("\n", " ")
                         pos = len(txt) - posRev - len(fsRev)
                     else:
                         pos = -1
-                if pos > -1:
+                # wxPython will return -1 if not found, and a tuple representing the span if found
+                found = isinstance(pos, tuple)
+                if found:
                     ret = True
-                    win.SetSelection(pos, pos+len(findString))
+                    win.SetSelection(*pos)
+                    win.showCurrentLine()
                 return ret
 
             elif isinstance(win, dabo.ui.dGrid):

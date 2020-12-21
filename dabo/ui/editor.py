@@ -5,7 +5,6 @@ import inspect
 import keyword
 import os
 import re
-import six
 import sys
 import wx
 import wx.stc as stc
@@ -888,7 +887,8 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
                     return
         else:
             newSize = fontSize
-        self.FontSize = newSize
+        if newSize != self._fontSize:
+            self.FontSize = newSize
 
 
     def setDefaultFont(self, fontFace, fontSize):
@@ -1595,10 +1595,12 @@ Do you want to overwrite it?""")
 
     def _getEncodingDeclaration(self, txt):
         """Extract the encoding declaration, if any, and return it, or return None."""
+        txt = txt.encode() if isinstance(txt, str) else txt
         try:
-            return encoding_pat.search(txt).groups()[0]
+            encoding = encoding_pat.search(txt).groups()[0]
         except (AttributeError, IndexError) as e:
             return None
+        return encoding if isinstance(encoding, str) else encoding.decode()
 
 
     def openFile(self, fileSpec=None, checkChanges=True):
@@ -1614,7 +1616,7 @@ Do you want to overwrite it?""")
             try:
                 with open(fileSpec, "rb") as ff:
                     raw_text = ff.read()        #.decode(self.Encoding)
-                if isinstance(raw_text, six.binary_type):
+                if isinstance(raw_text, bytes):
                     # Check for encoding
                     encoding = self._getEncodingDeclaration(raw_text) or "utf-8"
                     text = raw_text.decode(encoding)
@@ -2485,7 +2487,7 @@ Do you want to overwrite it?""")
 
     def _setValue(self, val):
         if self._constructed():
-            if isinstance(val, six.string_types):
+            if isinstance(val, str):
                 val = val.encode(self.Encoding)
             if self.Text != val:
                 try:

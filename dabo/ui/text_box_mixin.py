@@ -706,7 +706,11 @@ class dTextBoxMixin(dTextBoxMixinBase):
             else:
                 strVal = self.GetValue()
         else:
-            strVal = self.GetValue()
+            try:
+                strVal = self.GetValue()
+            except RuntimeError:
+                # The underlying wx object has been destroyed
+                strVal = self._value
 
         # Convert the current string value of the control, as entered by the
         # user, into the proper data type.

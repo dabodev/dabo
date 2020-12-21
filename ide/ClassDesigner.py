@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys
-import os
-import copy
 import codecs
+import copy
 import inspect
+import os
+import sys
+
 import dabo
 import dabo.ui
 from dabo.dApp import dApp

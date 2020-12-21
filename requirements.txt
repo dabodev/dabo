@@ -1,3 +1,4 @@
+black
 ipython
 mock
 numpy
