@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import gettext
@@ -101,7 +101,7 @@ def setLanguage(lang=None, charset=None):
     daboLocaleDir = _domains.get("dabo", None)
     if daboLocaleDir:
         try:
-            daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=lang, codeset=charset)
+            daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=lang)
         except IOError:
             # No translation file found
             dabo.log.error("""
@@ -110,14 +110,23 @@ No translation file found for domain 'dabo'.
     Languages = %s
     Codeset = %s """ % (daboLocaleDir, ustr(lang), charset))
             # Default to US English
-            daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=["en"], codeset=charset)
+            daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=["en"])
+        except ValueError:
+            # Bad translation file
+            dabo.log.error("""
+Bad translation file found for domain 'dabo'.
+    Locale dir = %s
+    Languages = %s
+    Codeset = %s """ % (daboLocaleDir, ustr(lang), charset))
+            # Default to US English
+            daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=["en"])
         _currentTrans = daboTranslation.gettext
 
     for domain, localedir in list(_domains.items()):
         if domain == "dabo":
             continue  ## already handled separately above
         try:
-            translation = gettext.translation(domain, localedir, languages=lang, codeset=charset)
+            translation = gettext.translation(domain, localedir, languages=lang)
         except IOError:
             dabo.log.error("No translation found for domain '%s' and language %s." % (domain, lang))
             dabo.log.error("""
@@ -160,7 +169,7 @@ def getDaboLocaleDir():
     return localeDir
 
 
-if __name__ == "__main__":
+def main():
     install()
     print()
     print("sys.getdefaultencoding():", sys.getdefaultencoding())
@@ -210,4 +219,8 @@ if __name__ == "__main__":
         setLanguage(l[0])
         print(line(l))
     print(line())
+
+
+if __name__ == "__main__":
+    main()
 

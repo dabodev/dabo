@@ -28,6 +28,7 @@ class dMenuItem(dPemMixin, wx.MenuItem):
         # Holds the unique ID, if any
         self._itemID = None
 
+        wx.MenuItem.__init__(self)
         dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
     def _initEvents(self):

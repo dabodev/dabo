@@ -326,12 +326,12 @@ class ClassDesigner(dApp):
         ## Create the control palette
         palette = self.ControlPalette
         palette.Controller = self
-        palette.Visible = True #False
+        palette.Visible = False
 
         # Create the sizer palette, but make it hidden to start
         palette = self.SizerPalette
         palette.Controller = self
-        palette.Visible = True #False
+        palette.Visible = False
 
         # Create the Code Editor
         ed = self.EditorForm
@@ -341,7 +341,7 @@ class ClassDesigner(dApp):
         ## Create the Text File Editor
         txed = self.TextEditorForm
         txed.Controller = self
-        txed.Visible = True #False
+        txed.Visible = False
 
         # Set the initial selection to the form
         self.select(self.CurrentForm)

@@ -41,6 +41,7 @@ class dMenu(dPemMixin, wx.Menu):
         ##      To work around this, we maintain an internal dictionary that
         ##      maps the id of the wxMenuItem to the dMenuItem object.
         self._daboChildren = {}
+        wx.Menu.__init__(self)
         dPemMixin.__init__(self, preClass, parent, properties=properties,
                 attProperties=attProperties, *args, **kwargs)
 

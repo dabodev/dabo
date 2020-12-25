@@ -29,6 +29,8 @@ from dabo.ui import dDialog
 from dabo.ui import dDropdownList
 from dabo.ui import dEditBox
 from dabo.ui import dEditor
+from dabo.ui import dForm
+from dabo.ui import dFormMain
 from dabo.ui import dGauge
 from dabo.ui import dGrid
 from dabo.ui import dHtmlBox
@@ -1078,7 +1080,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             ret.update(pageFrameProps)
             if isinstance(self, dPageFrameNoTabs):
                 del ret["TabPosition"]
-            if isinstance(self, dPageSelect, dPageStyled):
+            if isinstance(self, (dPageSelect, dPageStyled)):
                 ret.update(pageStyleProps)
         elif isinstance(self, dPage):
             ret.update(captionProps)
@@ -1232,8 +1234,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 
     def _getContainerState(self):
-        return isinstance(self, (dPanel, dScrollPanel, dPage,
-                dForm, dFormMain, dDialog) )
+        return isinstance(self, (dPanel, dScrollPanel, dPage, dForm, dFormMain, dDialog))
 
 
     def _getRegID(self):

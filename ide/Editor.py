@@ -13,6 +13,7 @@ import dabo.ui
 from dabo.dApp import dApp
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+
 _Use_Subprocess = True
 try:
     import subprocess
@@ -58,7 +59,6 @@ class EditPageSplitter(dSplitter):
         self.Parent.updateSashPos()
 
 
-
 class EditorEditor(dEditor):
     def addDroppedText(self, txt):
         curr = self.Value
@@ -67,10 +67,8 @@ class EditorEditor(dEditor):
         self.SelectionStart = ss
         self.SelectionEnd = ss + len(txt)
 
-
     def _getTextSource(self):
         return self.Form.getTextSource()
-
 
 
 class EditorPage(dPage):
@@ -78,7 +76,6 @@ class EditorPage(dPage):
         self.p = None
         self.outputText = ""
         self._outputSashExtra = self.Application.getUserSetting("editorform.outputSashExtra", 100)
-
 
     def afterInit(self):
         self.splitter = EditPageSplitter(self, Orientation="h")
@@ -110,55 +107,47 @@ class EditorPage(dPage):
         self.editor.DroppedFileHandler = self.Form
         # Set up the text drop target
         ### NOTE: currently we can only have text or file drops, not both
-        #self.editor.DroppedTextHandler = self.Form
+        self.editor.DroppedTextHandler = self.Form
         # Update Hide/Show of output. Default to hidden
         self.showOutput(self.Application.getUserSetting("visibleOutput", False))
         # Set the initial title
         dabo.ui.callAfter(self.onTitleChanged, None)
-        dabo.ui.callAfter(self.splitter._setOrientation, "h") #Its weird without this, self.splitter._constructed is not true
+        # It's weird without this, self.splitter._constructed is not true
+        dabo.ui.callAfter(self.splitter._setOrientation, "h")
         dabo.ui.callAfter(self.updateSashPos)
-
 
     def onResize(self, evt):
         self.splitter.SashPosition = self.Height - self._outputSashExtra
-
 
     def updateSashPos(self):
         if self.splitter.SashPosition > 0:
             self._outputSashExtra = self.Height - self.splitter.SashPosition
         self.Application.setUserSetting("editorform.outputSashExtra", self._outputSashExtra)
 
-
     def outputUpdate(self):
         if self and self.p:
-            #need a nonblocking way of getting stdout and stderr
+            # need a nonblocking way of getting stdout and stderr
             self.outputText = self.outputText + self.p.stdout.read() + self.p.stderr.read()
             if not self.p.poll() is None:
                 self.p = None
             self.output.Value = self.outputText
 
-
     def showOutput(self, show):
         self.splitter.Split = show
-
 
     def onTitleChanged(self, evt):
         title = self.editor._title
         self.Caption = title
         self.Form.onTitleChanged(evt)
 
-
     def onPageEnter(self, evt):
         self.editor.setFocus()
-
 
     def onPageLeave(self, evt):
         self.editor.setInactive()
 
-
     def onDestroy(self, evt):
         dabo.ui.callAfter(self.Form.onTitleChanged, evt)
-
 
     def _getPathInfo(self):
         try:
@@ -167,23 +156,18 @@ class EditorPage(dPage):
             ret = ""
         return ret
 
-
-    PathInfo = property(_getPathInfo, None, None,
-            _("Path to the file being edited  (str)") )
-
+    PathInfo = property(_getPathInfo, None, None, _("Path to the file being edited  (str)"))
 
 
 class EditorPageFrame(dPageFrame):
     def beforeInit(self):
         self.PageClass = EditorPage
 
-
     def getTextSource(self):
         txt = []
         for pg in self.Pages:
             txt.append(pg.editor.Value)
         return " ".join(txt)
-
 
     def checkChanges(self, closing=False):
         """Cycle through the pages, and if any contain unsaved changes,
@@ -201,7 +185,6 @@ class EditorPageFrame(dPageFrame):
                 self.PageCount -= 1
         return ret
 
-
     def findEditor(self, pth, selectIt=False):
         """Returns the editor that is editing the specified file. If there
         is no matching editor, returns None. If selectIt is True, makes that
@@ -214,7 +197,6 @@ class EditorPageFrame(dPageFrame):
                 if selectIt:
                     self.SelectedPage = pg
         return ret
-
 
     def editFile(self, pth, selectIt=False):
         ret = self.findEditor(pth, selectIt)
@@ -231,7 +213,6 @@ class EditorPageFrame(dPageFrame):
                 dabo.ui.callAfter(self.removePage, pg)
                 ret = None
         return ret
-
 
     def getBlankPage(self, create=False):
         """Returns the first page that is not associated with a file,
@@ -250,7 +231,6 @@ class EditorPageFrame(dPageFrame):
             ret = self.Pages[-1]
         return ret
 
-
     def closeEditor(self, ed=None, checkChanges=True):
         if ed is None:
             ed = self.SelectedPage.editor
@@ -262,16 +242,13 @@ class EditorPageFrame(dPageFrame):
             self.removePage(ed.page)
         return ret
 
-
     def newEditor(self):
         ret = self.getBlankPage(True)
         self.SelectedPage = ret
         return ret
 
-
     def selectByCaption(self, cap):
-        pgs = [pg for pg in self.Pages
-                if pg.Caption == cap]
+        pgs = [pg for pg in self.Pages if pg.Caption == cap]
         if pgs:
             pg = pgs[0]
         else:
@@ -280,17 +257,14 @@ class EditorPageFrame(dPageFrame):
         self.SelectedPage = pg
         pg.editor.setFocus()
 
-
     def edFocus(self):
         self.SelectedPage.editor.setFocus()
-
 
     def _getCurrentEditor(self):
         try:
             return self.SelectedPage.editor
         except:
             return None
-
 
     def _getTitle(self):
         sp = self.SelectedPage
@@ -302,19 +276,16 @@ class EditorPageFrame(dPageFrame):
             ret = ""
         return ret
 
+    CurrentEditor = property(
+        _getCurrentEditor, None, None, _("References the currently active editor  (dEditor)")
+    )
 
-    CurrentEditor = property(_getCurrentEditor, None, None,
-            _("References the currently active editor  (dEditor)"))
-
-    Title = property(_getTitle, None, None,
-            _("Title of the active page  (str)") )
-
+    Title = property(_getTitle, None, None, _("Title of the active page  (str)"))
 
 
 class EditorForm(dForm):
     def __init__(self, *args, **kwargs):
         super(EditorForm, self).__init__(*args, **kwargs)
-
 
     def afterInit(self):
         # Set up the file drop target
@@ -325,17 +296,18 @@ class EditorForm(dForm):
         self._lastPath = self.Application.getUserSetting("lastPath", os.getcwd())
         super(EditorForm, self).afterInit()
         self.Caption = _("Dabo Editor")
-        self.funcButton = dImage(pnl, ScaleMode="Clip", Size=(22,22),
-                ToolTipText=_("Show list of functions"))
-        #self.funcButton.Picture = dabo.ui.imageFromData(funcButtonData())
+        self.funcButton = dImage(
+            pnl, ScaleMode="Clip", Size=(22, 22), ToolTipText=_("Show list of functions")
+        )
+        # self.funcButton.Picture = dabo.ui.imageFromData(funcButtonData())
         self.funcButton.bindEvent(dEvents.MouseLeftDown, self.onFuncButton)
-        self.bmkButton = dImage(pnl, ScaleMode="Clip", Size=(22,22),
-                ToolTipText=_("Manage Bookmarks"))
-        #self.bmkButton.Picture = dabo.ui.imageFromData(bmkButtonData())
+        self.bmkButton = dImage(
+            pnl, ScaleMode="Clip", Size=(22, 22), ToolTipText=_("Manage Bookmarks")
+        )
+        # self.bmkButton.Picture = dabo.ui.imageFromData(bmkButtonData())
         self.bmkButton.bindEvent(dEvents.MouseLeftDown, self.onBmkButton)
 
-        self.prntButton = dBitmapButton(pnl, Size=(22,22),
-                ToolTipText=_("Print..."))
+        self.prntButton = dBitmapButton(pnl, Size=(22, 22), ToolTipText=_("Print..."))
         self.prntButton.Picture = "print"
         self.prntButton.bindEvent(dEvents.Hit, self.onPrint)
 
@@ -363,7 +335,6 @@ class EditorForm(dForm):
         self.fillMenu()
         dabo.ui.callAfter(self.showPage, 0)
 
-
     def showPage(self, pg):
         """Shows the specified page, if it exists."""
         try:
@@ -372,15 +343,12 @@ class EditorForm(dForm):
         except:
             pass
 
-
     def onPrint(self, evt):
         self.CurrentEditor.onPrint()
-
 
     def onActivate(self, evt):
         """Check the files to see if any have been updated on disk."""
         self.checkForUpdatedFiles()
-
 
     def checkForUpdatedFiles(self):
         """If any file being edited has not been modified, and there is a more recent version
@@ -393,10 +361,8 @@ class EditorForm(dForm):
                 ed.openFile(ed._fileName)
                 ed.SelectionPosition = selpos
 
-
     def onLexSelect(self, evt):
         self.CurrentEditor.Language = self.lexSelector.Value
-
 
     def onFuncButton(self, evt):
         evt.stop()
@@ -414,7 +380,6 @@ class EditorForm(dForm):
         self.showContextMenu(pop)
         del pop
 
-
     def onFunctionPop(self, evt):
         ed = self.CurrentEditor
         pos = evt.menuItem.textPosition
@@ -424,19 +389,16 @@ class EditorForm(dForm):
             ed.moveToEnd()
         ed.ensureLineVisible(newLine)
         ed.LineNumber = newLine
-        nextLinePos = ed.getPositionFromLine(newLine+1)
-        ed.SelectionPosition = (pos, nextLinePos-1)
-
+        nextLinePos = ed.getPositionFromLine(newLine + 1)
+        ed.SelectionPosition = (pos, nextLinePos - 1)
 
     def onIdle(self, evt):
         ed = self.CurrentEditor
         if ed:
             self.StatusText = "Line: %s, Col: %s" % (ed.LineNumber, ed.Column)
 
-
     def getTextSource(self):
         return self.pgfEditor.getTextSource()
-
 
     def onEditorRightClick(self, evt):
         ed = self.CurrentEditor
@@ -453,7 +415,6 @@ class EditorForm(dForm):
         ln = ed.getLineFromPosition(pp)
         ed.LineNumber = ln
         self.onBmkButton(evt)
-
 
     def onBmkButton(self, evt):
         evt.stop()
@@ -473,29 +434,30 @@ class EditorForm(dForm):
         self.showContextMenu(pop)
         del pop
 
-
     def onBookmarkPop(self, evt):
         """Navigate to the chosen bookmark."""
         self.CurrentEditor.findBookmark(evt.prompt)
 
-
     def onSetBmk(self, evt):
         """Need to ask the user for a name for this bookmark."""
-        nm = dabo.ui.getString(message=_("Name for this bookmark:"),
-                caption=_("New Bookmark"))
+        nm = dabo.ui.getString(message=_("Name for this bookmark:"), caption=_("New Bookmark"))
         if not nm:
             # User canceled
             return
         ed = self.CurrentEditor
         if nm in ed.getBookmarkList():
-            msg = _("There is already a bookmark named '%s'. Creating a new bookmark "
-                    "with the same name will delete the old one. Are you sure you want "
-                    "to do this?") % nm
-            if not dabo.ui.areYouSure(message=msg, title=_("Duplicate Name"),
-                    defaultNo=True, cancelButton=False):
+            msg = (
+                _(
+                    "There is already a bookmark named '%s'. Creating a new bookmark with the same "
+                    "name will delete the old one. Are you sure you want to do this?"
+                )
+                % nm
+            )
+            if not dabo.ui.areYouSure(
+                message=msg, title=_("Duplicate Name"), defaultNo=True, cancelButton=False
+            ):
                 return
         self.CurrentEditor.setBookmark(nm)
-
 
     def onClearBmk(self, evt):
         """Clear the current bookmark."""
@@ -504,11 +466,9 @@ class EditorForm(dForm):
         if bmk:
             ed.clearBookmark(bmk)
 
-
     def onClearAllBmk(self, evt):
         """Remove all the bookmarks."""
         self.CurrentEditor.clearAllBookmarks()
-
 
     def onEditorPageChanged(self, evt):
         self.checkForUpdatedFiles()
@@ -516,13 +476,11 @@ class EditorForm(dForm):
         self.setCheckedMenus()
         self.updateLex()
 
-
     def updateLex(self):
         if self.CurrentEditor:
             if not self.lexSelector.Choices:
                 self.lexSelector.Choices = self.CurrentEditor.getAvailableLanguages()
             self.lexSelector.Value = self.CurrentEditor.Language
-
 
     def setCheckedMenus(self):
         ed = self.CurrentEditor
@@ -538,21 +496,17 @@ class EditorForm(dForm):
             self._whiteSpaceItem.Checked = ed.ShowWhiteSpace
         self._showOutItem.Checked = self.Application.getUserSetting("visibleOutput", False)
 
-
     def beforeClose(self, evt):
-        ret= self.pgfEditor.checkChanges(closing=True)
+        ret = self.pgfEditor.checkChanges(closing=True)
         return ret
-
 
     def processDroppedFiles(self, filelist):
         """Try to open each file up in an editor tab."""
         self.openRecursively(filelist)
 
-
     def processDroppedText(self, txt):
         """Add the text to the current editor."""
         self.CurrentEditor.addDroppedText(txt)
-
 
     def openRecursively(self, filelist):
         if isinstance(filelist, str):
@@ -566,17 +520,14 @@ class EditorForm(dForm):
                 if os.path.isfile(ff):
                     self.openFile(ff, justReportErrors=True)
 
-
     def onDocumentationHint(self, evt):
         # Eventually, a separate IDE window can optionally display help contents
         # for the object. For now, just print the longdoc to the infolog.
         dabo.log.info(_("Documentation Hint received:\n\n%s") % evt.EventData["longDoc"])
 
-
     def onTitleChanged(self, evt):
         if self and self.pgfEditor:
             self.Caption = _("Dabo Editor: %s") % self.pgfEditor.Title
-
 
     def _curr_editor_attval(self, att):
         """Returns the value of the specified attribute for self.CurrentEditor
@@ -585,7 +536,6 @@ class EditorForm(dForm):
         if self.CurrentEditor is None:
             return ""
         return getattr(self.CurrentEditor, att)
-
 
     def fillMenu(self):
         app = self.Application
@@ -598,118 +548,297 @@ class EditorForm(dForm):
         mb.insertMenu(3, runMenu)
 
         fileMenu.prependSeparator()
-        itm = fileMenu.prepend(_("Reload from Disk"), OnHit=self.onFileReload, ItemID="file_reload",
-                help=_("Refresh the editor with the current version of the file on disk"))
+        itm = fileMenu.prepend(
+            _("Reload from Disk"),
+            OnHit=self.onFileReload,
+            ItemID="file_reload",
+            help=_("Refresh the editor with the current version of the file on disk"),
+        )
         itm.DynamicEnabled = self.hasFile
 
         fileMenu.prependSeparator()
-        fileMenu.prepend(_("Save &As"), HotKey="Ctrl+Shift+S", OnHit=self.onFileSaveAs, bmp="saveAs",
-                ItemID="file_saveas", help=_("Save under a different file name"))
-        fileMenu.prepend(_("&Save"), HotKey="Ctrl+S", OnHit=self.onFileSave, ItemID="file_save",
-                DynamicEnabled=lambda:self._curr_editor_attval("Modified"), bmp="save", help=_("Save file"))
+        fileMenu.prepend(
+            _("Save &As"),
+            HotKey="Ctrl+Shift+S",
+            OnHit=self.onFileSaveAs,
+            bmp="saveAs",
+            ItemID="file_saveas",
+            help=_("Save under a different file name"),
+        )
+        fileMenu.prepend(
+            _("&Save"),
+            HotKey="Ctrl+S",
+            OnHit=self.onFileSave,
+            ItemID="file_save",
+            DynamicEnabled=lambda: self._curr_editor_attval("Modified"),
+            bmp="save",
+            help=_("Save file"),
+        )
         clsItem = fileMenu.getItem("file_close")
         if clsItem is not None:
             fileMenu.remove(clsItem)
-        fileMenu.prepend(_("&Close Editor"), HotKey="Ctrl+W", OnHit=self.onFileClose, bmp="close",
-                ItemID="file_close_editor", help=_("Close file"))
-        recentMenu = dMenu(Caption=_("Open Recent"), MenuID="file_open_recent",
-                MRU=True)
+        fileMenu.prepend(
+            _("&Close Editor"),
+            HotKey="Ctrl+W",
+            OnHit=self.onFileClose,
+            bmp="close",
+            ItemID="file_close_editor",
+            help=_("Close file"),
+        )
+        recentMenu = dMenu(Caption=_("Open Recent"), MenuID="file_open_recent", MRU=True)
         fileMenu.prependMenu(recentMenu)
-        fileMenu.prepend(_("&Open"), HotKey="Ctrl+O", OnHit=self.onFileOpen, bmp="open",
-                ItemID="file_open", help=_("Open file"))
-        fileMenu.prepend(_("&New"), HotKey="Ctrl+N", OnHit=self.onFileNew, bmp="new",
-                ItemID="file_new", help=_("New file"))
+        fileMenu.prepend(
+            _("&Open"),
+            HotKey="Ctrl+O",
+            OnHit=self.onFileOpen,
+            bmp="open",
+            ItemID="file_open",
+            help=_("Open file"),
+        )
+        fileMenu.prepend(
+            _("&New"),
+            HotKey="Ctrl+N",
+            OnHit=self.onFileNew,
+            bmp="new",
+            ItemID="file_new",
+            help=_("New file"),
+        )
 
         editMenu.appendSeparator()
-        editMenu.append(_("&Jump to line..."), HotKey="Ctrl+J", OnHit=self.onEditJumpToLine,
-                bmp="", ItemID="edit_jump", help=_("Jump to line"))
+        editMenu.append(
+            _("&Jump to line..."),
+            HotKey="Ctrl+J",
+            OnHit=self.onEditJumpToLine,
+            bmp="",
+            ItemID="edit_jump",
+            help=_("Jump to line"),
+        )
         editMenu.appendSeparator()
-        editMenu.append(_("Co&mment Line"), HotKey="Ctrl+M", OnHit=self.onCommentLine,
-                bmp="", ItemID="edit_comment", help=_("Comment out selection"))
-        editMenu.append(_("&Uncomment Line"), HotKey="Ctrl+Shift+M",
-                OnHit=self.onUncommentLine, bmp="", ItemID="edit_uncomment",
-                help=_("Uncomme&nt selection"))
-        editMenu.append(_("&AutoComplete"), HotKey="F5",
-                OnHit=self.onAutoComplete, bmp="", ItemID="edit_autocomplete",
-                help=_("Auto-complete the current text"))
-        editMenu.append(_("AutoComplete Length"), OnHit=self.onSetAutoCompleteLength,
-                bmp="", ItemID="edit_autocompletelength",
-                help=_("Set the length to trigger the AutoCompletion popup"))
-        self._autoAutoItem = editMenu.append(_("Automa&tic AutoComplete"),
-                OnHit=self.onAutoAutoComp, bmp="", help=_("Toggle Automatic Autocomplete"),
-                ItemID="edit_autoautocomplete", menutype="check")
+        editMenu.append(
+            _("Co&mment Line"),
+            HotKey="Ctrl+M",
+            OnHit=self.onCommentLine,
+            bmp="",
+            ItemID="edit_comment",
+            help=_("Comment out selection"),
+        )
+        editMenu.append(
+            _("&Uncomment Line"),
+            HotKey="Ctrl+Shift+M",
+            OnHit=self.onUncommentLine,
+            bmp="",
+            ItemID="edit_uncomment",
+            help=_("Uncomme&nt selection"),
+        )
+        editMenu.append(
+            _("&AutoComplete"),
+            HotKey="F5",
+            OnHit=self.onAutoComplete,
+            bmp="",
+            ItemID="edit_autocomplete",
+            help=_("Auto-complete the current text"),
+        )
+        editMenu.append(
+            _("AutoComplete Length"),
+            OnHit=self.onSetAutoCompleteLength,
+            bmp="",
+            ItemID="edit_autocompletelength",
+            help=_("Set the length to trigger the AutoCompletion popup"),
+        )
+        self._autoAutoItem = editMenu.append(
+            _("Automa&tic AutoComplete"),
+            OnHit=self.onAutoAutoComp,
+            bmp="",
+            help=_("Toggle Automatic Autocomplete"),
+            ItemID="edit_autoautocomplete",
+            menutype="check",
+        )
         editMenu.appendSeparator()
         moveMenu = dMenu(Caption=_("Move..."), MenuID="edit_move")
         editMenu.appendMenu(moveMenu)
-        moveMenu.append(_("Previous Page"), HotKey="Alt+Left", OnHit=self.onPrevPage,
-                DynamicEnabled=lambda:self.pgfEditor.PageCount>1, bmp="",
-                ItemID="move_prev", help=_("Switch to the tab to the left"))
-        moveMenu.append(_("Next Page"), HotKey="Alt+Right", OnHit=self.onNextPage,
-                DynamicEnabled=lambda:self.pgfEditor.PageCount>1, bmp="",
-                ItemID="move_next", help=_("Switch to the tab to the right"))
-        moveMenu.append(_("Move Page Left"), HotKey="Alt+Shift+Left", OnHit=self.onMovePageLeft,
-                DynamicEnabled=lambda:self.pgfEditor.PageCount>1, bmp="",
-                ItemID="move_pageleft", help=_("Move this editor tab to the left"))
-        moveMenu.append(_("Move Page Right"), HotKey="Alt+Shift+Right", OnHit=self.onMovePageRight,
-                DynamicEnabled=lambda:self.pgfEditor.PageCount>1, bmp="",
-                ItemID="move_pageright", help=_("Move this editor tab to the right"))
-        moveMenu.append(_("Next Block"), HotKey="Ctrl+Shift+K", OnHit=self.onMoveUpBlock,
-                DynamicEnabled=lambda:self._curr_editor_attval("Language")=="python", bmp="",
-                ItemID="move_nextblock", help=_("Move to the next 'def' or 'class' statement"))
-        moveMenu.append(_("Previous Block"), HotKey="Ctrl+Shift+D", OnHit=self.onMoveDownBlock,
-                DynamicEnabled=lambda:self._curr_editor_attval("Language")=="python", bmp="",
-                ItemID="move_prevblock", help=_("Move to the previous 'def' or 'class' statement"))
+        moveMenu.append(
+            _("Previous Page"),
+            HotKey="Alt+Left",
+            OnHit=self.onPrevPage,
+            DynamicEnabled=lambda: self.pgfEditor.PageCount > 1,
+            bmp="",
+            ItemID="move_prev",
+            help=_("Switch to the tab to the left"),
+        )
+        moveMenu.append(
+            _("Next Page"),
+            HotKey="Alt+Right",
+            OnHit=self.onNextPage,
+            DynamicEnabled=lambda: self.pgfEditor.PageCount > 1,
+            bmp="",
+            ItemID="move_next",
+            help=_("Switch to the tab to the right"),
+        )
+        moveMenu.append(
+            _("Move Page Left"),
+            HotKey="Alt+Shift+Left",
+            OnHit=self.onMovePageLeft,
+            DynamicEnabled=lambda: self.pgfEditor.PageCount > 1,
+            bmp="",
+            ItemID="move_pageleft",
+            help=_("Move this editor tab to the left"),
+        )
+        moveMenu.append(
+            _("Move Page Right"),
+            HotKey="Alt+Shift+Right",
+            OnHit=self.onMovePageRight,
+            DynamicEnabled=lambda: self.pgfEditor.PageCount > 1,
+            bmp="",
+            ItemID="move_pageright",
+            help=_("Move this editor tab to the right"),
+        )
+        moveMenu.append(
+            _("Next Block"),
+            HotKey="Ctrl+Shift+K",
+            OnHit=self.onMoveUpBlock,
+            DynamicEnabled=lambda: self._curr_editor_attval("Language") == "python",
+            bmp="",
+            ItemID="move_nextblock",
+            help=_("Move to the next 'def' or 'class' statement"),
+        )
+        moveMenu.append(
+            _("Previous Block"),
+            HotKey="Ctrl+Shift+D",
+            OnHit=self.onMoveDownBlock,
+            DynamicEnabled=lambda: self._curr_editor_attval("Language") == "python",
+            bmp="",
+            ItemID="move_prevblock",
+            help=_("Move to the previous 'def' or 'class' statement"),
+        )
 
         editMenu.appendSeparator()
-        self._wrapItem = editMenu.append(_("&Word Wrap"), HotKey="Ctrl+Shift+W", OnHit=self.onWordWrap,
-                bmp="", ItemID="edit_wordwrap", help=_("Toggle WordWrap"), menutype="check")
-        self._synColorItem = editMenu.append(_("S&yntax Coloring"), HotKey="Ctrl+Shift+Y",
-                OnHit=self.onSyntaxColoring, bmp="", ItemID="edit_syntaxcolor",
-                help=_("Toggle Syntax Coloring"), menutype="check")
-        self._useTabsItem = editMenu.append(_("&Tabs"), HotKey="Ctrl+Shift+T",
-                OnHit=self.onUseTabs, bmp="", ItemID="edit_usetabs",
-                help=_("Toggle Tabs"), menutype="check")
-        self._lineNumItem = editMenu.append(_("Show &Line Numbers"), HotKey="Ctrl+Shift+L",
-                OnHit=self.onLineNumber, bmp="", ItemID="edit_linenum", help=_("Toggle Line Numbers"),
-                menutype="check")
-        self._whiteSpaceItem = editMenu.append(_("Show WhiteSpace"), HotKey="Ctrl+Shift+E",
-                OnHit=self.onWhiteSpace, bmp="", ItemID="edit_whiteSpace", help=_("Toggle WhiteSpace Visibility"),
-                menutype="check")
+        self._wrapItem = editMenu.append(
+            _("&Word Wrap"),
+            HotKey="Ctrl+Shift+W",
+            OnHit=self.onWordWrap,
+            bmp="",
+            ItemID="edit_wordwrap",
+            help=_("Toggle WordWrap"),
+            menutype="check",
+        )
+        self._synColorItem = editMenu.append(
+            _("S&yntax Coloring"),
+            HotKey="Ctrl+Shift+Y",
+            OnHit=self.onSyntaxColoring,
+            bmp="",
+            ItemID="edit_syntaxcolor",
+            help=_("Toggle Syntax Coloring"),
+            menutype="check",
+        )
+        self._useTabsItem = editMenu.append(
+            _("&Tabs"),
+            HotKey="Ctrl+Shift+T",
+            OnHit=self.onUseTabs,
+            bmp="",
+            ItemID="edit_usetabs",
+            help=_("Toggle Tabs"),
+            menutype="check",
+        )
+        self._lineNumItem = editMenu.append(
+            _("Show &Line Numbers"),
+            HotKey="Ctrl+Shift+L",
+            OnHit=self.onLineNumber,
+            bmp="",
+            ItemID="edit_linenum",
+            help=_("Toggle Line Numbers"),
+            menutype="check",
+        )
+        self._whiteSpaceItem = editMenu.append(
+            _("Show WhiteSpace"),
+            HotKey="Ctrl+Shift+E",
+            OnHit=self.onWhiteSpace,
+            bmp="",
+            ItemID="edit_whiteSpace",
+            help=_("Toggle WhiteSpace Visibility"),
+            menutype="check",
+        )
 
-        runMenu.append(_("&Run Script"), HotKey="Ctrl+Shift+R", OnHit=self.onRunScript,
-                bmp="", ItemID="run_script", help=_("Run Script"))
-        self._showOutItem = runMenu.append(_("Hide/Show Output"), HotKey="Ctrl+Shift+O",
-                OnHit=self.onOutput, bmp="", ItemID="run_output",
-                help=_("Toggle the visibility of the Output pane"), menutype="check")
-        runMenu.append(_("Clear Output"), OnHit=self.onClearOutput, bmp="",
-                ItemID="run_clear", help=_("Clear the contents of the Output pane"))
+        runMenu.append(
+            _("&Run Script"),
+            HotKey="Ctrl+Shift+R",
+            OnHit=self.onRunScript,
+            bmp="",
+            ItemID="run_script",
+            help=_("Run Script"),
+        )
+        self._showOutItem = runMenu.append(
+            _("Hide/Show Output"),
+            HotKey="Ctrl+Shift+O",
+            OnHit=self.onOutput,
+            bmp="",
+            ItemID="run_output",
+            help=_("Toggle the visibility of the Output pane"),
+            menutype="check",
+        )
+        runMenu.append(
+            _("Clear Output"),
+            OnHit=self.onClearOutput,
+            bmp="",
+            ItemID="run_clear",
+            help=_("Clear the contents of the Output pane"),
+        )
 
         fontMenu = dMenu(Caption=_("Fo&nt"), MenuID="base_font")
         mb.insertMenu(4, fontMenu)
-        fontMenu.append(_("Set Font Size"), OnHit=self.onFontSize, ItemID="font_setsize",
-                help=_("Set Default Font Size"))
+        fontMenu.append(
+            _("Set Font Size"),
+            OnHit=self.onFontSize,
+            ItemID="font_setsize",
+            help=_("Set Default Font Size"),
+        )
         fontMenu.appendSeparator()
-        fontMenu.append(_("Zoom &In"), HotKey="Ctrl++", OnHit=self.onViewZoomIn,
-                bmp="zoomIn", ItemID="font_zoomin", help=_("Zoom In"))
-        fontMenu.append(_("&Normal Zoom"), HotKey="Ctrl+/", OnHit=self.onViewZoomNormal,
-                bmp="zoomNormal", ItemID="font_zoomnormal", help=_("Normal Zoom"))
-        fontMenu.append(_("Zoom &Out"), HotKey="Ctrl+-", OnHit=self.onViewZoomOut,
-                bmp="zoomOut", ItemID="font_zoomout", help=_("Zoom Out"))
+        fontMenu.append(
+            _("Zoom &In"),
+            HotKey="Ctrl++",
+            OnHit=self.onViewZoomIn,
+            bmp="zoomIn",
+            ItemID="font_zoomin",
+            help=_("Zoom In"),
+        )
+        fontMenu.append(
+            _("&Normal Zoom"),
+            HotKey="Ctrl+/",
+            OnHit=self.onViewZoomNormal,
+            bmp="zoomNormal",
+            ItemID="font_zoomnormal",
+            help=_("Normal Zoom"),
+        )
+        fontMenu.append(
+            _("Zoom &Out"),
+            HotKey="Ctrl+-",
+            OnHit=self.onViewZoomOut,
+            bmp="zoomOut",
+            ItemID="font_zoomout",
+            help=_("Zoom Out"),
+        )
         fixed_width_fonts = dabo.ui.getAvailableFonts(fixed_width_only=True)
         all_fonts = dabo.ui.getAvailableFonts(fixed_width_only=False)
         fontMenu.appendSeparator()
         fontMenu.append(_("Fixed Width Fonts"), Enabled=False)
         for font in fixed_width_fonts:
-            fontMenu.append(font, OnHit=self.onFontSelection,
-                    ItemID="font_%s" % font.replace(" ", "_"), menutype="Radio")
+            fontMenu.append(
+                font,
+                OnHit=self.onFontSelection,
+                ItemID="font_%s" % font.replace(" ", "_"),
+                menutype="Radio",
+            )
         fontMenu.appendSeparator()
         fontMenu.append(_("All Fonts"), Enabled=False)
         for font in all_fonts:
-            fontMenu.append(font, OnHit=self.onFontSelection,
-                    ItemID="font_%s" % font.replace(" ", "_"), menutype="Radio")
+            fontMenu.append(
+                font,
+                OnHit=self.onFontSelection,
+                ItemID="font_%s" % font.replace(" ", "_"),
+                menutype="Radio",
+            )
 
         vp = mb.getMenuIndex("base_font")
-        editorMenu = mb.insert(vp+1, _("E&ditors"), MenuID="base_editors")
+        editorMenu = mb.insert(vp + 1, _("E&ditors"), MenuID="base_editors")
         editorMenu.bindEvent(dEvents.MenuHighlight, self.onMenuOpen)
 
         # On non-Mac platforms, we may need to move the Help Menu
@@ -720,12 +849,10 @@ class EditorForm(dForm):
                 mb.remove(hlp, False)
                 mb.appendMenu(hlp)
 
-
     def hasFile(self, evt=None):
         """Dynamic method for the Reload From Disk menu."""
         # If there's a file, enable the menu
         return self._curr_editor_attval("_fileName")
-
 
     def onFileReload(self, evt):
         """Reload the file from disk."""
@@ -733,22 +860,21 @@ class EditorForm(dForm):
         fname = ed._fileName
         ed.openFile(fname)
 
-
     def onFontSelection(self, evt):
         """The user selected a font face for the editor."""
         face = evt.EventObject.Caption
         if self.CurrentEditor:
             self.CurrentEditor.changeFontFace(face)
 
-
     def onFontSize(self, evt):
         """Change the default font size for the editor."""
         if not self.CurrentEditor:
             return
-        val = dabo.ui.getInt(_("Select new font size"), _("Font Size"), self.CurrentEditor._fontSize)
+        val = dabo.ui.getInt(
+            _("Select new font size"), _("Font Size"), self.CurrentEditor._fontSize
+        )
         if val is not None:
             self.CurrentEditor.changeFontSize(val)
-
 
     def onMenuOpen(self, evt):
         """Currently this never fires under Windows."""
@@ -758,16 +884,16 @@ class EditorForm(dForm):
             mn.clear()
             for pg in self.pgfEditor.Pages:
                 prmpt = pg.editor._title
-                mn.append(prmpt, OnHit=self.onEditorSelected,
-                        help=_("Select %s") % prmpt)
+                mn.append(prmpt, OnHit=self.onEditorSelected, help=_("Select %s") % prmpt)
             if len(self.pgfEditor.Pages) > 1:
                 mn.appendSeparator()
-                mn.append(_("Open in New Window"),
-                        OnHit=self.onOpenInNew,
-                        help=_("Open this document in a new window"))
+                mn.append(
+                    _("Open in New Window"),
+                    OnHit=self.onOpenInNew,
+                    help=_("Open this document in a new window"),
+                )
         elif prm == _("Font"):
             mn.setCheck(self.CurrentEditor._fontFace)
-
 
     def onOpenInNew(self, evt):
         """Open the current doc in a separate Editor window."""
@@ -785,23 +911,21 @@ class EditorForm(dForm):
         if newEd.Text != txt:
             newEd.Text = txt
         frm.show()
-        frm.Position = self.Left+20, self.Top+20
-
+        frm.Position = self.Left + 20, self.Top + 20
 
     def onEditorSelected(self, evt):
         """Called when a menuitem in the Editors menu is chosen."""
         cap = evt.EventObject.Caption
         self.pgfEditor.selectByCaption(cap)
 
-
     def onFileNew(self, evt):
         target = self.pgfEditor.newEditor()
         target.setFocus()
 
-
     def onFileOpen(self, evt):
-        fileNames = self.CurrentEditor.promptForFileName(prompt=_("Open"),
-                path=self._lastPath, multiple=True)
+        fileNames = self.CurrentEditor.promptForFileName(
+            prompt=_("Open"), path=self._lastPath, multiple=True
+        )
         if fileNames is None:
             # They bailed
             return
@@ -809,7 +933,6 @@ class EditorForm(dForm):
             self._lastPath = os.path.split(fileName)[0]
             self.Application.setUserSetting("lastPath", self._lastPath)
             self.openFile(fileName)
-
 
     @classmethod
     def onMRUSelection(cls, evt):
@@ -828,10 +951,8 @@ class EditorForm(dForm):
             app.ActiveForm.openFile(pth)
         except:
             # Call the first available EditorForm
-            edf = [frm for frm in app.uiForms
-                    if isinstance(frm, EditorForm)][0]
+            edf = [frm for frm in app.uiForms if isinstance(frm, EditorForm)][0]
             edf.openFile(pth)
-
 
     def openFile(self, pth, justReportErrors=False):
         """Open the selected file, if it isn't already open. If it is,
@@ -853,10 +974,8 @@ class EditorForm(dForm):
         self.updateLex()
         return target
 
-
     def onFileSave(self, evt):
         self.CurrentEditor.saveFile()
-
 
     def onFileClose(self, evt):
         self.pgfEditor.closeEditor()
@@ -864,12 +983,10 @@ class EditorForm(dForm):
             self.release()
         evt.stop()
 
-
     def onFileSaveAs(self, evt):
         fname = self.CurrentEditor.promptForSaveAs()
         if fname:
             self.CurrentEditor.saveFile(fname, force=True)
-
 
     def onEditJumpToLine(self, evt):
         class LineNumberDlg(dOkCancelDialog):
@@ -897,34 +1014,28 @@ class EditorForm(dForm):
             currEditor.LineNumber = dlg.txtLine.Value
         dlg.release()
 
-
     def onCommentLine(self, evt):
         if self.CurrentEditor:
             self.CurrentEditor.onCommentLine(evt)
-
 
     def onUncommentLine(self, evt):
         if self.CurrentEditor:
             self.CurrentEditor.onUncommentLine(evt)
 
-
     def onAutoComplete(self, evt):
         self.CurrentEditor.autoComplete()
-
 
     def onSetAutoCompleteLength(self, evt):
         ed = self.CurrentEditor
         curr = ed.AutoAutoCompleteMinLen
-        import dabo
+
         newlen = dabo.ui.getInt(_("Number of characters?"), _("Set AutoComplete Trigger"), curr)
         if newlen:
             ed.AutoAutoCompleteMinLen = newlen
 
-
     def onAutoAutoComp(self, evt):
         ed = self.CurrentEditor
         ed.AutoAutoComplete = not ed.AutoAutoComplete
-
 
     def onRunScript(self, evt):
         """ Save the script to temp dir, and run it."""
@@ -942,59 +1053,50 @@ class EditorForm(dForm):
         else:
             cmd = "pythonw"
         if _Use_Subprocess:
-            #The Echo hack:
+            # The Echo hack:
             self.pgfEditor.SelectedPage.outputText = ""
-            self.pgfEditor.SelectedPage.p = subprocess.Popen((cmd, fname),
-                    stdin=subprocess.PIPE,    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
+            self.pgfEditor.SelectedPage.p = subprocess.Popen(
+                (cmd, fname), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
         else:
             # Use the old way
             os.system("%s %s" % (cmd, fname))
-
 
     def onViewZoomIn(self, evt):
         ed = self.CurrentEditor
         ed.increaseTextSize()
         self.Application.setUserSetting("editor.zoom", ed.ZoomLevel)
 
-
     def onViewZoomNormal(self, evt):
         ed = self.CurrentEditor
         ed.restoreTextSize()
         self.Application.setUserSetting("editor.zoom", ed.ZoomLevel)
-
 
     def onViewZoomOut(self, evt):
         ed = self.CurrentEditor
         ed.decreaseTextSize()
         self.Application.setUserSetting("editor.zoom", ed.ZoomLevel)
 
-
     def onWordWrap(self, evt):
         ed = self.CurrentEditor
         ed.WordWrap = not ed.WordWrap
 
-
     def onSyntaxColoring(self, evt):
         ed = self.CurrentEditor
         ed.SyntaxColoring = not ed.SyntaxColoring
-
 
     def onUseTabs(self, evt):
         ed = self.CurrentEditor
         ed.UseTabs = not ed.UseTabs
         ed.BackSpaceUnindents = not ed.UseTabs
 
-
     def onLineNumber(self, evt):
         ed = self.CurrentEditor
         ed.ShowLineNumbers = not ed.ShowLineNumbers
 
-
     def onWhiteSpace(self, evt):
         ed = self.CurrentEditor
         ed.ShowWhiteSpace = not ed.ShowWhiteSpace
-
 
     def onOutput(self, evt):
         show = self.MenuBar.getMenu(_("Run")).isItemChecked(_("Hide/Show Output"))
@@ -1002,20 +1104,16 @@ class EditorForm(dForm):
         for pg in self.pgfEditor.Pages:
             pg.showOutput(show)
 
-
     def onClearOutput(self, evt):
         self.pgfEditor.SelectedPage.outputText = ""
-
 
     def onPrevPage(self, evt):
         self.pgfEditor.cyclePages(-1)
         self.pgfEditor.edFocus()
 
-
     def onNextPage(self, evt):
         self.pgfEditor.cyclePages(1)
         self.pgfEditor.edFocus()
-
 
     def onMovePageLeft(self, evt):
         """Move the selected page over one to the left in the
@@ -1032,11 +1130,9 @@ class EditorForm(dForm):
             newPos = pos - 1
         pgf.movePage(pos, newPos)
 
-
     def onMovePageRight(self, evt):
-        """Move the selected page over one to the right in the
-        pageframe. If it is already the rightmost, move it to the
-        first position on the left.
+        """Move the selected page over one to the right in the pageframe. If it is already the 
+        rightmost, move it to the first position on the left.
         """
         pgf = self.pgfEditor
         pg = pgf.SelectedPage
@@ -1048,21 +1144,17 @@ class EditorForm(dForm):
             newPos = pos + 1
         pgf.movePage(pos, newPos)
 
-
     def onMoveDownBlock(self, evt):
         """Move to the next class or method definition."""
         self._moveToBlock("down")
-
 
     def onMoveUpBlock(self, evt):
         """Move to the previous class or method definition."""
         self._moveToBlock("up")
 
-
     def _moveToBlock(self, direction):
         ed = self.CurrentEditor
-        funcs = {"u": (min, operator.gt, 1),
-                "d": (max, operator.lt, 0)}[direction.lower()[0]]
+        funcs = {"u": (min, operator.gt, 1), "d": (max, operator.lt, 0)}[direction.lower()[0]]
         pos = ed.SelectionPosition[funcs[2]]
         flist = ed.getFunctionList()
         fpos = [f[1] for f in flist if funcs[1](f[1], pos)]
@@ -1070,22 +1162,21 @@ class EditorForm(dForm):
             newPos = funcs[0](fpos)
             ed.moveToEnd()
             newLine = ed.getLineFromPosition(newPos)
-            ed.LineNumber = max(0, newLine-5)
-            nextLinePos = ed.getPositionFromLine(newLine+1)
+            ed.LineNumber = max(0, newLine - 5)
+            nextLinePos = ed.getPositionFromLine(newLine + 1)
             ed.LineNumber = newLine
-            ed.SelectionPosition = (newPos, nextLinePos-1)
-
+            ed.SelectionPosition = (newPos, nextLinePos - 1)
 
     def _getCurrentEditor(self):
         return self.pgfEditor.CurrentEditor
 
-
-    CurrentEditor = property(_getCurrentEditor, None, None,
-            _("References the currently active editor  (dEditor)"))
+    CurrentEditor = property(
+        _getCurrentEditor, None, None, _("References the currently active editor  (dEditor)")
+    )
 
 
 def funcButtonData():
-    #return \
+    # return \
     x = '\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x16\x00\x00\x00\x16\x08\x02\
 \x00\x00\x00K\xd6\xfbl\x00\x00\x00\x03sBIT\x08\x08\x08\xdb\xe1O\xe0\x00\x00\
 \x02\'IDAT8\x8duS1\xae\xea@\x0c\xf4z\x1d\x8at\xd0 $J\xf4Z*()\xa8h\x80\x8e\
@@ -1115,8 +1206,8 @@ M\xd3\x12"\x8a"\x11\xa9T*\xd6Z\xe7\x9c\xb5\xd6{_\x14\x053\x03\x05p\xc6\x18d\
 
 
 def bmkButtonData():
-    #return \
-    y='\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x16\x00\x00\x00\x16\x08\x02\
+    # return \
+    y = '\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x16\x00\x00\x00\x16\x08\x02\
 \x00\x00\x00K\xd6\xfbl\x00\x00\x00\x03sBIT\x08\x08\x08\xdb\xe1O\xe0\x00\x00\
 \x02\x7fIDAT8\x8duT\xbbJ,A\x10\xad\xee\xae\xdeUaDA\x84\xc5H\x19\xfc\x00A\xff\
 BL\x0c\x16\x0c\x84\xf5\x01F\x1bh*\x88\x9f`.F~\x83b&\x08\xfe\x82\x82\xf1dF\
@@ -1147,7 +1238,6 @@ BL\x0c\x16\x0c\x84\xf5\x01F\x1bh*\x88\x9f`.F~\x83b&\x08\xfe\x82\x82\xf1dF\
     return y
 
 
-
 def main():
     files = sys.argv[1:]
     app = dApp(MainFormClass=EditorForm, BasePrefKey="ide.Editor")
@@ -1156,14 +1246,17 @@ def main():
     app.setup()
 
     frm = app.MainForm
-    app._persistentMRUs = {_("Open Recent") : frm.onMRUSelection}
+    app._persistentMRUs = {_("Open Recent"): frm.onMRUSelection}
+
     def _openForms():
         frm.onFileNew(None)
         for file in files:
             frm.openFile(os.path.realpath(file))
         frm.show()
+
     dabo.ui.callAfter(_openForms)
     app.start()
+
 
 if __name__ == "__main__":
     main()

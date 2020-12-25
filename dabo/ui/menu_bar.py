@@ -18,6 +18,7 @@ class dMenuBar(dPemMixin, wx.MenuBar):
     def __init__(self, properties=None, *args, **kwargs):
         self._baseClass = dMenuBar
         preClass = wx.MenuBar
+        wx.MenuBar.__init__(self)
         dPemMixin.__init__(self, preClass, None, properties, *args, **kwargs)
 
 
