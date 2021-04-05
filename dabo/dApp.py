@@ -1452,10 +1452,13 @@ try again when it is running.
                         # Give up... just assume the current directory.
                         hd = os.getcwd()
                     if calledScript:
-                        calledScript = os.path.realpath(calledScript)
-                        if calledScript.startswith("./"):
-                            calledScript = calledScript.lstrip("./")
-                        scriptDir = os.path.realpath(os.path.split(os.path.join(os.getcwd(), calledScript))[0])
+                        # JFCS 4/5/21 replaced old script to use pathlib because windows 20H sys.path reports the wrong path
+                        import pathlib
+                        scriptDir = str(pathlib.Path(calledScript).parent.absolute()) 
+                        #calledScript = os.path.realpath(calledScript)
+                        #if calledScript.startswith("./"):
+                            #calledScript = calledScript.lstrip("./")
+                        #scriptDir = os.path.realpath(os.path.split(os.path.join(os.getcwd(), calledScript))[0])
                         if issubdir(scriptDir, appDir):
                             # The directory where the main script is executing is a subdirectory of the
                             # location of the application object in use. So we can safely make the app
