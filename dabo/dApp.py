@@ -16,6 +16,7 @@ import urllib.request, urllib.error, urllib.parse
 import warnings
 from xml.sax._exceptions import SAXParseException
 from zipfile import ZipFile
+import pathlib
 
 import dabo
 from dabo import dException as dException
@@ -1453,7 +1454,7 @@ try again when it is running.
                         hd = os.getcwd()
                     if calledScript:
                         # JFCS 4/5/21 replaced old script to use pathlib because windows 20H sys.path reports the wrong path
-                        import pathlib
+                        
                         scriptDir = str(pathlib.Path(calledScript).parent.absolute()) 
                         #calledScript = os.path.realpath(calledScript)
                         #if calledScript.startswith("./"):
