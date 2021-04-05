@@ -15,6 +15,7 @@ import time
 import traceback
 import urllib.request, urllib.parse, urllib.error
 import warnings
+from packaging import version
 
 import dabo
 from dabo.dException import dException
@@ -34,10 +35,7 @@ if "wx" not in sys.modules and not getattr(sys, "frozen", False):
         sys.exit("You need to install wxPython; minimum version = %s." % minWx)
     installed_version = wx.__version__
     
-    def version_to_int(s):
-        return [int(p) for p in s.split(".")]
-    
-    if version_to_int(installed_version) < version_to_int(minWx):
+    if version.parse(installed_version) < version.parse(minWx):
         sys.exit("wxPython needs to be at least version %s." % minWx)
 
 ######################################################
