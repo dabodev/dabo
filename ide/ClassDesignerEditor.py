@@ -258,7 +258,7 @@ class EditorForm(dForm):
 
 
     def afterSetMenuBar(self):
-#        ClassDesignerMenu.mkDesignerMenu(self)
+        ClassDesignerMenu.mkDesignerMenu(self)
 
         fmn = self.MenuBar.append(_("Font"))
         fmn.append(_("Increase Font Size"), HotKey="Ctrl++", OnHit=self.fontIncrease)

@@ -2040,19 +2040,20 @@ class dPemMixin(dObject):
         """
         if parent is None:
             parent = self.Parent
-        i = 0
-        nameError = True
+        children = parent.GetChildren()
+        kid_name_mapping = {kid: kid.GetName() for kid in children}
+        nameError = name in kid_name_mapping.values()
         candidate = name
+        i = 0
         while nameError:
             nameError = False
             if i:
                 candidate = "%s%s" % (name, i)
             if hasattr(parent, candidate):
                 att = getattr(parent, candidate)
-                if att:
-                    nameError = ((att is not self) and
-                            [win for win in parent.GetChildren()
-                            if win != self and win.GetName() == candidate])
+                if att and att is not self:
+                    nameError = ( [win for win in children
+                            if win != self and kid_name_mapping.get(win, win.GetName()) == candidate])
             i += 1
         return candidate
 
@@ -2636,6 +2637,8 @@ class dPemMixin(dObject):
 
 
     def _getName(self):
+        if self._name:
+            return self._name
         try:
             name = self.GetName()
         except (TypeError, AttributeError):

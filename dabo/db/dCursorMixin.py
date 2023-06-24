@@ -3,7 +3,6 @@ from decimal import Decimal
 import datetime
 import functools
 import re
-import six
 import time
 
 import dabo
@@ -320,7 +319,7 @@ class dCursorMixin(dObject):
         if params is None:
             params = tuple()
         if sql:
-            if isinstance(sql, six.binary_type):
+            if isinstance(sql, bytes):
                 sql = sql.decode(self.Encoding)
         try:
             params = ", ".join("%s" % p for p in params)
@@ -339,7 +338,7 @@ class dCursorMixin(dObject):
         # retrieving the data. However, many cursor classes can only return
         # row information as a list, not as a dictionary. This method will
         # detect that, and convert the results to a dictionary.
-        if isinstance(sql, six.binary_type):
+        if isinstance(sql, bytes):
             sql = sql.encode(self.Encoding)
         if convertQMarks:
             sql = self._qMarkToParamPlaceholder(sql)
@@ -362,7 +361,7 @@ class dCursorMixin(dObject):
                 raise e
             self._dblogExecute("execute() FAILED", sql, params)
             # Database errors need to be decoded from database encoding.
-            errMsg = six.text_type(e)
+            errMsg = str(e)
             # If this is due to a broken connection, let the user know.
             # Different backends have different messages, but they
             # should all contain the string 'connect' in them.
