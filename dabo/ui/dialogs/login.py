@@ -44,14 +44,13 @@ class Login(dOkCancelDialog):
         if self.Application:
             appName = self.Application.getAppInfo("appName")
         else:
-            appName = ''
+            appName = ""
         if len(appName) > 0:
             self.Caption = _("Login to %s") % appName
         else:
             self.Caption = _("Please Login")
         self.ShowCaption = False
         self.ShowCloseButton = True
-
 
     def addControls(self):
         super(Login, self).addControls()
@@ -103,7 +102,6 @@ class Login(dOkCancelDialog):
 
         self.txtUserName.setFocus()
 
-
     def setMessage(self, message):
         self.lblMessage.Caption = message
         self.Sizer.layout()
@@ -119,7 +117,6 @@ class Login(dOkCancelDialog):
         self.user, self.password = self.txtUserName.Value, self.txtPassword.Value
         super(Login, self).runOK()
 
-
     def _getIconFile(self):
         ret = getattr(self, "_iconFile", None)
         if not ret:
@@ -130,11 +127,14 @@ class Login(dOkCancelDialog):
         self._iconFile = val
         self.bm.Picture = val
 
-    IconFile = property(_getIconFile, _setIconFile, None, _("Specifies the icon to use."))
+    IconFile = property(
+        _getIconFile, _setIconFile, None, _("Specifies the icon to use.")
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from dabo.dApp import dApp
+
     app = dApp(MainFormClass=None)
     app.setup()
     form = Login(None)

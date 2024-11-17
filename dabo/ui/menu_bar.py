@@ -15,17 +15,15 @@ class dMenuBar(dPemMixin, wx.MenuBar):
     which will give you a dMenuBar with the standard File, Edit, and Help
     menus already set up for you.
     """
+
     def __init__(self, properties=None, *args, **kwargs):
         self._baseClass = dMenuBar
         preClass = wx.MenuBar
         wx.MenuBar.__init__(self)
         dPemMixin.__init__(self, preClass, None, properties, *args, **kwargs)
 
-
     def _initEvents(self):
-        self.Application.uiApp.Bind(wx.EVT_MENU_OPEN,
-                self.__onWxMenuOpen, self.Form)
-
+        self.Application.uiApp.Bind(wx.EVT_MENU_OPEN, self.__onWxMenuOpen, self.Form)
 
     def __onWxMenuOpen(self, evt):
         ## pkm: EVT_OPEN only applies to the top-level menus: those in the menubar.
@@ -41,12 +39,10 @@ class dMenuBar(dPemMixin, wx.MenuBar):
             menu.raiseEvent(dEvents.MenuHighlight, evt)
         evt.Skip()
 
-
     def update(self):
         for menu in self.Children:
             menu._setDynamicEnabled()
         super(dMenuBar, self).update()
-
 
     def appendMenu(self, menu):
         """
@@ -58,7 +54,6 @@ class dMenuBar(dPemMixin, wx.MenuBar):
             menu.Parent = self
             menu._setId(menu._getID())
         return menu
-
 
     def insertMenu(self, pos, menu):
         """
@@ -72,7 +67,6 @@ class dMenuBar(dPemMixin, wx.MenuBar):
             menu._setId(menu._getID())
         return menu
 
-
     def prependMenu(self, menu):
         """
         Inserts a dMenu at the beginning of the dMenuBar, and returns
@@ -83,7 +77,6 @@ class dMenuBar(dPemMixin, wx.MenuBar):
             menu.Parent = self
             menu._setId(menu._getID())
         return menu
-
 
     def append(self, caption, MenuID=None):
         """
@@ -97,7 +90,6 @@ class dMenuBar(dPemMixin, wx.MenuBar):
         self.appendMenu(menu)
         return menu
 
-
     def insert(self, pos, caption, MenuID=None):
         """
         Inserts a dMenu at the specified position in the dMenuBar, and returns
@@ -109,7 +101,6 @@ class dMenuBar(dPemMixin, wx.MenuBar):
         menu = self._getGenericMenu(caption, MenuID)
         self.insertMenu(pos, menu)
         return menu
-
 
     def prepend(self, caption, MenuID=None):
         """
@@ -123,7 +114,6 @@ class dMenuBar(dPemMixin, wx.MenuBar):
         self.prependMenu(menu)
         return menu
 
-
     def _getGenericMenu(self, caption, MenuID=None):
         """
         Returns a dMenu instance with the passed caption.
@@ -131,7 +121,6 @@ class dMenuBar(dPemMixin, wx.MenuBar):
         This is used by the append(), insert(), and prepend() functions.
         """
         return dMenu(self, Caption=caption, MenuID=MenuID)
-
 
     def remove(self, indexOrMenu, release=True):
         """
@@ -155,7 +144,6 @@ class dMenuBar(dPemMixin, wx.MenuBar):
         if release:
             menu.release()
         return menu
-
 
     def getMenu(self, idOrCaption):
         """
@@ -181,7 +169,6 @@ class dMenuBar(dPemMixin, wx.MenuBar):
         except (dabo.ui.assertionException, ValueError):
             return None
 
-
     def getMenuIndex(self, idOrCaption):
         """
         Returns the index of the menu with the specified ID or caption.
@@ -194,7 +181,6 @@ class dMenuBar(dPemMixin, wx.MenuBar):
             ret = None
         return ret
 
-
     def GetChildren(self):
         # wx doesn't provide GetChildren() for menubars or menus, but dPemMixin
         # calls it in _getChildren(). The Dabo developer wants the submenus of
@@ -202,11 +188,9 @@ class dMenuBar(dPemMixin, wx.MenuBar):
         children = [self.GetMenu(index) for index in range(self.GetMenuCount())]
         return children
 
-
     ## property definitions begin here.
     def _getCount(self):
         return self.GetMenuCount()
-
 
     def _getForm(self):
         return self.GetFrame()
@@ -219,12 +203,16 @@ class dMenuBar(dPemMixin, wx.MenuBar):
         else:
             self._properties["Form"] = val
 
+    Count = property(
+        _getCount, None, None, _("Returns the number of child menus. Read-only.  (int)")
+    )
 
-    Count = property(_getCount, None, None,
-            _("Returns the number of child menus. Read-only.  (int)"))
-
-    Form = property(_getForm, _setForm, None,
-            _("Specifies the form that we are a member of.  (dabo.ui.dForm)"))
+    Form = property(
+        _getForm,
+        _setForm,
+        None,
+        _("Specifies the form that we are a member of.  (dabo.ui.dForm)"),
+    )
 
 
 dabo.ui.dMenuBar = dMenuBar

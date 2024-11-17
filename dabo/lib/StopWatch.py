@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 
+
 class StopWatch(object):
     """This is a lightweight stopwatch for timing things."""
 
@@ -24,7 +25,7 @@ class StopWatch(object):
         if self.Running:
             self._running = False
             end = time.time()
-            self._value += (end - self._beg)
+            self._value += end - self._beg
             self._beg = 0.00
 
     def _getRunning(self):
@@ -40,11 +41,12 @@ class StopWatch(object):
         if self.Running:
             # need to add on the accumulated time.
             end = time.time()
-            v += (end - self._beg)
+            v += end - self._beg
         return v
 
     Running = property(_getRunning)
     Value = property(_getValue)
+
 
 if __name__ == "__main__":
     sw = StopWatch()

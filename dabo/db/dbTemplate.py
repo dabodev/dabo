@@ -24,11 +24,11 @@ customizing these methods, report it to the dabo-dev list; it may require
 some refactoring of the code to handle a situation that is unique to this
 particular database.
 """
+
 import datetime
 from dabo.dLocalize import _
 from .dBackend import dBackend
 from dabo.lib.utils import ustr
-
 
 
 class NEWDATABASE(dBackend):
@@ -36,7 +36,6 @@ class NEWDATABASE(dBackend):
         dBackend.__init__(self)
         #### TODO: Customize with name of dbapi module
         self.dbModuleName = "???"
-
 
     def getConnection(self, connectInfo, **kwargs):
         #### TODO: replace 'ZZZ' with dbapi module name
@@ -48,36 +47,37 @@ class NEWDATABASE(dBackend):
             port = -1
 
         #### TODO: Customize to make correct connect string
-        self._connection = dbapi.connect(host=connectInfo.Host,
-                user=connectInfo.User, passwd=connectInfo.revealPW(),
-                db=connectInfo.Database, port=port, **kwargs)
+        self._connection = dbapi.connect(
+            host=connectInfo.Host,
+            user=connectInfo.User,
+            passwd=connectInfo.revealPW(),
+            db=connectInfo.Database,
+            port=port,
+            **kwargs,
+        )
 
         return self._connection
-
 
     def getDictCursorClass(self):
         #### TODO: Replace 'ZZZ' with appropriate NEWDATABASE dbapi
         ####  module class or just a standard cursor, if it doesn't offer Dict cursors.
         return ZZZ.DictCursor
 
-
     def escQuote(self, val):
         #### TODO: Verify that NEWDATABASE uses this method for escaping quotes
         # escape backslashes and single quotes, and
         # wrap the result in single quotes
         sl = "\\"
-        qt = "\'"
-        return qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
-
+        qt = "'"
+        return qt + val.replace(sl, sl + sl).replace(qt, sl + qt) + qt
 
     def formatDateTime(self, val):
         """We need to wrap the value in quotes."""
         #### TODO: Make sure that the format for DateTime
         ####    values is returned correctly
-        sqt = "'"        # single quote
+        sqt = "'"  # single quote
         val = ustr(val)
         return "%s%s%s" % (sqt, val, sqt)
-
 
     def getTables(self, cursor, includeSystemTables=False):
         #### TODO: Verify that this works with NEWDATABASE, including
@@ -89,13 +89,11 @@ class NEWDATABASE(dBackend):
             tables.append(record[0])
         return tuple(tables)
 
-
     def getTableRecordCount(self, tableName):
         #### TODO: Verify that this is the correct syntax for NEWDATABASE
         tempCursor = self._connection.cursor()
         tempCursor.execute("select count(*) as ncount from %s" % tableName)
         return tempCursor.fetchall()[0][0]
-
 
     def getFields(self, tableName):
         tempCursor = self._connection.cursor()
@@ -107,7 +105,7 @@ class NEWDATABASE(dBackend):
         # first entry with the field name 'Key'; that will be the
         # position for the PK flag
         for i in range(len(fldDesc)):
-            if fldDesc[i][0] == 'Key':
+            if fldDesc[i][0] == "Key":
                 pkPos = i
                 break
 
@@ -128,7 +126,7 @@ class NEWDATABASE(dBackend):
                     ft = "M"
                 else:
                     ft = "C"
-            elif "char" in ft :
+            elif "char" in ft:
                 ft = "C"
             elif "text" in ft:
                 ft = "M"
@@ -142,11 +140,10 @@ class NEWDATABASE(dBackend):
                 ft = "C"
             else:
                 ft = "?"
-            pk = (r[pkPos] == "PRI")
+            pk = r[pkPos] == "PRI"
 
             fields.append((name.strip(), ft, pk))
         return tuple(fields)
-
 
     def getWordMatchFormat(self):
         #### TODO: If NEWDATABASE supports fulltext searches with matching by

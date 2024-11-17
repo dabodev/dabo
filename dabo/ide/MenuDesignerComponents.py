@@ -16,12 +16,12 @@ class MenuSaverMixin(object):
     """Contains the basic code for generating the dict required
     to save the MenuDesigner's contents.
     """
+
     def getDesignerDict(self):
         ret = {}
         ret["name"] = self.__class__.__name__
         ret["attributes"] = ra = {}
-        propsToExclude = ("HotKeyChar", "HotKeyControl",
-                "HotKeyAlt", "HotKeyShift")
+        propsToExclude = ("HotKeyChar", "HotKeyControl", "HotKeyAlt", "HotKeyShift")
         for prop in self.DesignerProps:
             if prop in propsToExclude:
                 continue
@@ -37,8 +37,10 @@ class MenuSaverMixin(object):
                 else:
                     ref = "."
                 ref = os.path.abspath(ref)
-                val = dabo.lib.utils.getPathAttributePrefix() + \
-                        dabo.lib.utils.relativePath(val, ref)
+                val = (
+                    dabo.lib.utils.getPathAttributePrefix()
+                    + dabo.lib.utils.relativePath(val, ref)
+                )
             if isinstance(val, str):
                 strval = val
             else:
@@ -49,11 +51,12 @@ class MenuSaverMixin(object):
             except:
                 evalStrVal = None
             ra[prop] = val
-        ret["children"] = [kid.getDesignerDict()
-                for kid in self.Children
-                if hasattr(kid, "getDesignerDict")]
+        ret["children"] = [
+            kid.getDesignerDict()
+            for kid in self.Children
+            if hasattr(kid, "getDesignerDict")
+        ]
         return ret
-
 
 
 class CaptionPanel(MenuSaverMixin, dPanel):
@@ -94,14 +97,19 @@ class CaptionPanel(MenuSaverMixin, dPanel):
         self._unselectedForeColor = "black"
         self._selectedForeColor = "blue"
         # This is the background draw object
-        self._background = self.drawRectangle(0, 0, -1, -1,
-                penWidth=0, fillColor=self._unselectedBackColor, visible=False)
+        self._background = self.drawRectangle(
+            0, 0, -1, -1, penWidth=0, fillColor=self._unselectedBackColor, visible=False
+        )
         self._capText = self.drawText(self.Caption, 5, 5, visible=False)
         self._hotKeyText = self.drawText(self.AbbreviatedHotKey, 5, 5, visible=False)
-        self.DynamicBackColor = self.getBack        #lambda: {True: self._selectedBackColor, False: self._unselectedBackColor}[self._selected]
-        self._background.DynamicFillColor = self._capText.DynamicFillColor = \
-                self._hotKeyText.DynamicFillColor = self.getBack        #lambda: {True: self._selectedBackColor, False: self._unselectedBackColor}[self._selected]
-        self._capText.DynamicForeColor = lambda: {True: self._selectedForeColor, False: self._unselectedForeColor}[self._selected]
+        self.DynamicBackColor = self.getBack  # lambda: {True: self._selectedBackColor, False: self._unselectedBackColor}[self._selected]
+        self._background.DynamicFillColor = self._capText.DynamicFillColor = (
+            self._hotKeyText.DynamicFillColor
+        ) = self.getBack  # lambda: {True: self._selectedBackColor, False: self._unselectedBackColor}[self._selected]
+        self._capText.DynamicForeColor = lambda: {
+            True: self._selectedForeColor,
+            False: self._unselectedForeColor,
+        }[self._selected]
         # This will allow the hot key text position to stay right-aligned.
         self._hotKeyText.DynamicXpos = self.positionHotKeyText
         self.refresh()
@@ -125,39 +133,38 @@ class CaptionPanel(MenuSaverMixin, dPanel):
             ret = self._unselectedBackColor
         return ret
 
-
     # These two methods will display the item's HelpText
     # in the form's Status Bar when the mouse is over them.
     def onHover(self, evt):
         self.Form.StatusText = self.HelpText
+
     def endHover(self, evt):
         self.Form.StatusText = ""
 
-#### Someday I hope to have the time to enable dragging menus
-#### around to re-arrange them!
-#     def onMouseLeftDown(self, evt):
-#         self._dragging = True
-#         self._dragImg = dDragImage(self)
-#
-#     def onMouseMove(self, evt):
-#         if not self._dragging:
-#             return
-#         if evt.mouseDown:
-#             self._dragImg.updatePosition()
-#         else:
-#             self._dragImg.clear()
-#             self._dragImg = None
-#             self._dragging = False
-#
-#     def onMouseLeftUp(self, evt):
-#         print "LEFT UP", self._caption,  self._dragging,
-#         self._dragging = False
-#         x, y = evt.mousePosition
-#         print x, y, self.posIsWithin(x, y)
-#         if self._dragImg:
-#             self._dragImg.clear()
-#         self._dragImg = None
-
+    #### Someday I hope to have the time to enable dragging menus
+    #### around to re-arrange them!
+    #     def onMouseLeftDown(self, evt):
+    #         self._dragging = True
+    #         self._dragImg = dDragImage(self)
+    #
+    #     def onMouseMove(self, evt):
+    #         if not self._dragging:
+    #             return
+    #         if evt.mouseDown:
+    #             self._dragImg.updatePosition()
+    #         else:
+    #             self._dragImg.clear()
+    #             self._dragImg = None
+    #             self._dragging = False
+    #
+    #     def onMouseLeftUp(self, evt):
+    #         print "LEFT UP", self._caption,  self._dragging,
+    #         self._dragging = False
+    #         x, y = evt.mousePosition
+    #         print x, y, self.posIsWithin(x, y)
+    #         if self._dragImg:
+    #             self._dragImg.clear()
+    #         self._dragImg = None
 
     def setWidth(self):
         """Set the width to the width of the text, plus 5 pixels on each side."""
@@ -171,14 +178,12 @@ class CaptionPanel(MenuSaverMixin, dPanel):
         if curr < calc:
             self.Width = calc
 
-
     def positionHotKeyText(self):
-        "This is the function for the DynamicXPos property of the HotKey."""
+        "This is the function for the DynamicXPos property of the HotKey." ""
         hkt = self._hotKeyText
         wd = dabo.ui.fontMetricFromDrawObject(hkt)[0]
         margin = 10
         return (self.Width - wd) - margin
-
 
     def getAdditionalWidth(self):
         """Provide for a little 'breathing room' on the panel. Subclasses
@@ -186,10 +191,10 @@ class CaptionPanel(MenuSaverMixin, dPanel):
         """
         return 10
 
-
     def refresh(self):
         if self._capText is not None:
             dabo.ui.callAfterInterval(60, self._refresh)
+
     def _refresh(self):
         """By linking this to a 'callAfterInterval', when several events
         that require a refresh occur quickly, the 'slow stuff' only gets
@@ -200,14 +205,11 @@ class CaptionPanel(MenuSaverMixin, dPanel):
         self.Parent.update()
         self.Parent.layout()
 
-
     def onContextMenu(self, evt):
         self.Parent.processContextMenu(self, evt)
 
-
     def onMouseLeftClick(self, evt):
         self.Form.select(self)
-
 
     def _updateHotKey(self):
         """Called when the user changes any component of the hotkey combo."""
@@ -223,19 +225,17 @@ class CaptionPanel(MenuSaverMixin, dPanel):
                 self.refresh()
             self._inUpdate = False
 
-
     def _updateHotKeyProps(self, val=None):
         """Called when the user changes the hotkey combo to reset the components."""
         if not self._inUpdate:
             self._inUpdate = True
             if val is None:
                 val = self.HotKey
-            self.HotKeyControl = ("Ctrl+" in val)
-            self.HotKeyShift = ("Shift+" in val)
-            self.HotKeyAlt = ("Alt+" in val)
+            self.HotKeyControl = "Ctrl+" in val
+            self.HotKeyShift = "Shift+" in val
+            self.HotKeyAlt = "Alt+" in val
             self.HotKeyChar = val.split("+")[-1]
             self._inUpdate = False
-
 
     def _getAbbreviatedHotKey(self):
         ctlTxt = {True: "c", False: ""}[self.HotKeyControl]
@@ -246,7 +246,6 @@ class CaptionPanel(MenuSaverMixin, dPanel):
             prefix += "+"
         return prefix + self.HotKeyChar
 
-
     def _getAction(self):
         return self._action
 
@@ -256,7 +255,6 @@ class CaptionPanel(MenuSaverMixin, dPanel):
         else:
             self._properties["Action"] = val
 
-
     def _getCaption(self):
         return self._caption
 
@@ -265,7 +263,6 @@ class CaptionPanel(MenuSaverMixin, dPanel):
         if self._capText is not None:
             self._capText.Text = val
             self.refresh()
-
 
     def _getController(self):
         try:
@@ -280,26 +277,32 @@ class CaptionPanel(MenuSaverMixin, dPanel):
         else:
             self._properties["Controller"] = val
 
-
     def _getDesignerProps(self):
-        ret = {"Caption": {"type" : str, "readonly" : False},
-                "HelpText" : {"type" : str, "readonly" : False},
-                "MRU": {"type" : bool, "readonly" : False}}
+        ret = {
+            "Caption": {"type": str, "readonly": False},
+            "HelpText": {"type": str, "readonly": False},
+            "MRU": {"type": bool, "readonly": False},
+        }
         if self.isMenuItem:
-            ret.update({"HotKey": {"type" : str, "readonly" : False,
-                    "customEditor": "editHotKey"},
-                    "HotKeyAlt": {"type" : bool, "readonly" : False},
-                    "HotKeyChar": {"type" : str, "readonly" : False},
-                    "HotKeyControl": {"type" : bool, "readonly" : False},
-                    "HotKeyShift": {"type" : bool, "readonly" : False},
-                    "Action": {"type" : str, "readonly" : False}})
+            ret.update(
+                {
+                    "HotKey": {
+                        "type": str,
+                        "readonly": False,
+                        "customEditor": "editHotKey",
+                    },
+                    "HotKeyAlt": {"type": bool, "readonly": False},
+                    "HotKeyChar": {"type": str, "readonly": False},
+                    "HotKeyControl": {"type": bool, "readonly": False},
+                    "HotKeyShift": {"type": bool, "readonly": False},
+                    "Action": {"type": str, "readonly": False},
+                }
+            )
             del ret["MRU"]
         return ret
 
-
     def _getDisplayText(self):
         return "%s: '%s'" % (self._commonName, self.Caption)
-
 
     def _getHelpText(self):
         return self._helpText
@@ -309,7 +312,6 @@ class CaptionPanel(MenuSaverMixin, dPanel):
             self._helpText = val
         else:
             self._properties["HelpText"] = val
-
 
     def _getHotKey(self):
         return self._hotKey
@@ -323,7 +325,6 @@ class CaptionPanel(MenuSaverMixin, dPanel):
         else:
             self._properties["HotKey"] = val
 
-
     def _getHotKeyAlt(self):
         return self._hotKeyAlt
 
@@ -333,7 +334,6 @@ class CaptionPanel(MenuSaverMixin, dPanel):
             self._updateHotKey()
         else:
             self._properties["HotKeyAlt"] = val
-
 
     def _getHotKeyChar(self):
         return self._hotKeyChar
@@ -345,7 +345,6 @@ class CaptionPanel(MenuSaverMixin, dPanel):
         else:
             self._properties["HotKeyChar"] = val
 
-
     def _getHotKeyControl(self):
         return self._hotKeyControl
 
@@ -355,7 +354,6 @@ class CaptionPanel(MenuSaverMixin, dPanel):
             self._updateHotKey()
         else:
             self._properties["HotKeyControl"] = val
-
 
     def _getHotKeyShift(self):
         return self._hotKeyShift
@@ -367,13 +365,11 @@ class CaptionPanel(MenuSaverMixin, dPanel):
         else:
             self._properties["HotKeyShift"] = val
 
-
     def _getMRU(self):
         return self._MRU
 
     def _setMRU(self, val):
         self._MRU = val
-
 
     def _getSelected(self):
         return self._selected
@@ -381,71 +377,122 @@ class CaptionPanel(MenuSaverMixin, dPanel):
     def _setSelected(self, val):
         if self._constructed():
             self._selected = val
-#             self.clear()
-#             self.lockDisplay()
-#             backcolor = {True: self._selectedBackColor,
-#                     False: self._unselectedBackColor}[val]
-#             forecolor = {True: self._selectedForeColor,
-#                     False: self._unselectedForeColor}[val]
-#             self._capText.ForeColor = self._capText.PenColor = forecolor
-#             self._capText.FontBold = val
-#             self.BackColor = self._background.FillColor = backcolor
+            #             self.clear()
+            #             self.lockDisplay()
+            #             backcolor = {True: self._selectedBackColor,
+            #                     False: self._unselectedBackColor}[val]
+            #             forecolor = {True: self._selectedForeColor,
+            #                     False: self._unselectedForeColor}[val]
+            #             self._capText.ForeColor = self._capText.PenColor = forecolor
+            #             self._capText.FontBold = val
+            #             self.BackColor = self._background.FillColor = backcolor
             self.Parent.refresh()
-#             self.unlockDisplay()
+        #             self.unlockDisplay()
         else:
             self._properties["Selected"] = val
-
 
     # Tree display is the same as the displayed text
     def _getTreeDisplayCaption(self):
         return ("'%s'" % self.Caption, self._commonName)
 
+    AbbreviatedHotKey = property(
+        _getAbbreviatedHotKey,
+        None,
+        None,
+        _("Short version of the HotKey string (read-only) (str)"),
+    )
 
-    AbbreviatedHotKey = property(_getAbbreviatedHotKey, None, None,
-            _("Short version of the HotKey string (read-only) (str)"))
+    Action = property(
+        _getAction,
+        _setAction,
+        None,
+        _("Action to be called when a menu item is selected.  (str)"),
+    )
 
-    Action = property(_getAction, _setAction, None,
-            _("Action to be called when a menu item is selected.  (str)"))
+    Caption = property(
+        _getCaption, _setCaption, None, _("Caption displayed on this panel  (str)")
+    )
 
-    Caption = property(_getCaption, _setCaption, None,
-            _("Caption displayed on this panel  (str)"))
+    Controller = property(
+        _getController,
+        _setController,
+        None,
+        _("Object to which this one reports events  (object (varies))"),
+    )
 
-    Controller = property(_getController, _setController, None,
-            _("Object to which this one reports events  (object (varies))"))
+    DesignerProps = property(
+        _getDesignerProps,
+        None,
+        None,
+        _("Properties exposed in the Menu Designer (read-only) (dict)"),
+    )
 
-    DesignerProps = property(_getDesignerProps, None, None,
-            _("Properties exposed in the Menu Designer (read-only) (dict)"))
+    DisplayText = property(
+        _getDisplayText,
+        None,
+        None,
+        _("Text used in the prop sheet to identify this object (read-only) (str)"),
+    )
 
-    DisplayText = property(_getDisplayText, None, None,
-            _("Text used in the prop sheet to identify this object (read-only) (str)"))
+    HelpText = property(
+        _getHelpText,
+        _setHelpText,
+        None,
+        _("Help string displayed when the menu item is selected.  (str)"),
+    )
 
-    HelpText = property(_getHelpText, _setHelpText, None,
-            _("Help string displayed when the menu item is selected.  (str)"))
+    HotKey = property(
+        _getHotKey,
+        _setHotKey,
+        None,
+        _("Displayed version of the hotkey combination  (str)"),
+    )
 
-    HotKey = property(_getHotKey, _setHotKey, None,
-            _("Displayed version of the hotkey combination  (str)"))
+    HotKeyAlt = property(
+        _getHotKeyAlt,
+        _setHotKeyAlt,
+        None,
+        _("Is the Alt key part of the hotkey combo?  (bool)"),
+    )
 
-    HotKeyAlt = property(_getHotKeyAlt, _setHotKeyAlt, None,
-            _("Is the Alt key part of the hotkey combo?  (bool)"))
+    HotKeyChar = property(
+        _getHotKeyChar,
+        _setHotKeyChar,
+        None,
+        _("Character part of the hot key for this menu  (str)"),
+    )
 
-    HotKeyChar = property(_getHotKeyChar, _setHotKeyChar, None,
-            _("Character part of the hot key for this menu  (str)"))
+    HotKeyControl = property(
+        _getHotKeyControl,
+        _setHotKeyControl,
+        None,
+        _("Is the Control key part of the hotkey combo?  (bool)"),
+    )
 
-    HotKeyControl = property(_getHotKeyControl, _setHotKeyControl, None,
-            _("Is the Control key part of the hotkey combo?  (bool)"))
+    HotKeyShift = property(
+        _getHotKeyShift,
+        _setHotKeyShift,
+        None,
+        _("Is the Shift key part of the hotkey combo?  (bool)"),
+    )
 
-    HotKeyShift = property(_getHotKeyShift, _setHotKeyShift, None,
-            _("Is the Shift key part of the hotkey combo?  (bool)"))
+    MRU = property(
+        _getMRU, _setMRU, None, _("Should this menu be tracked for MRU lists  (bool)")
+    )
 
-    MRU = property(_getMRU, _setMRU, None,
-            _("Should this menu be tracked for MRU lists  (bool)"))
+    Selected = property(
+        _getSelected,
+        _setSelected,
+        None,
+        _("Is this the currently selected item?  (bool)"),
+    )
 
-    Selected = property(_getSelected, _setSelected, None,
-            _("Is this the currently selected item?  (bool)"))
-
-    TreeDisplayCaption = property(_getTreeDisplayCaption, None, None,
-            _("Identifying label displayed in the prop sheet tree (read-only) (str)"))
-
+    TreeDisplayCaption = property(
+        _getTreeDisplayCaption,
+        None,
+        None,
+        _("Identifying label displayed in the prop sheet tree (read-only) (str)"),
+    )
 
     _proxyDict = {}
     Visible = makeProxyProperty(_proxyDict, "Visible", ("self", "_kids"))
@@ -455,6 +502,7 @@ class CaptionBitmapPanel(CaptionPanel):
     """Like the CaptionPanel, but can also display a bitmap image
     to the left of the caption.
     """
+
     # Name for the saved mnxml file
     _className = "CaptionBitmapPanel"
 
@@ -464,14 +512,12 @@ class CaptionBitmapPanel(CaptionPanel):
         self._picture = None
         super(CaptionBitmapPanel, self).__init__(parent, *args, **kwargs)
 
-
     def getAdditionalWidth(self):
         """Add in the width of the bitmap."""
         ret = super(CaptionBitmapPanel, self).getAdditionalWidth()
         if self._bmp is not None:
             ret += self._bmp.Width + 5
         return ret
-
 
     def _getBitmap(self):
         return self._bitmap
@@ -496,13 +542,18 @@ class CaptionBitmapPanel(CaptionPanel):
         self._capText.Xpos = wd + 10
         self.refresh()
 
-
     def _getDesignerProps(self):
         ret = super(CaptionBitmapPanel, self)._getDesignerProps()
-        ret.update({"Picture": {"type" : "path", "readonly" : False,
-                "customEditor": "editStdPicture"}})
+        ret.update(
+            {
+                "Picture": {
+                    "type": "path",
+                    "readonly": False,
+                    "customEditor": "editStdPicture",
+                }
+            }
+        )
         return ret
-
 
     def _getPicture(self):
         return self._picture
@@ -515,20 +566,28 @@ class CaptionBitmapPanel(CaptionPanel):
             bmp = dabo.ui.strToBmp(val)
         self._setBitmap(bmp)
 
+    Bitmap = property(
+        _getBitmap, _setBitmap, None, _("Bitmap to display on the panel  (bitmap)")
+    )
 
-    Bitmap = property(_getBitmap, _setBitmap, None,
-            _("Bitmap to display on the panel  (bitmap)"))
+    DesignerProps = property(
+        _getDesignerProps,
+        None,
+        None,
+        _("Properties exposed in the Menu Designer (read-only) (dict)"),
+    )
 
-    DesignerProps = property(_getDesignerProps, None, None,
-            _("Properties exposed in the Menu Designer (read-only) (dict)"))
-
-    Picture = property(_getPicture, _setPicture, None,
-            _("The file used as the source for the displayed image.  (str)") )
-
+    Picture = property(
+        _getPicture,
+        _setPicture,
+        None,
+        _("The file used as the source for the displayed image.  (str)"),
+    )
 
 
 class SeparatorPanel(CaptionBitmapPanel):
     """Represents a menu separator item."""
+
     # Name for the saved mnxml file
     _className = "SeparatorPanel"
     # Displayed name
@@ -539,17 +598,16 @@ class SeparatorPanel(CaptionBitmapPanel):
     def afterInitAll(self):
         self.Height = 16
         midHt = self.Height / 2.0
-        self._line = self.drawLine(4, midHt, self.Width-4, midHt,
-                penColor="gray", penWidth=1)
+        self._line = self.drawLine(
+            4, midHt, self.Width - 4, midHt, penColor="gray", penWidth=1
+        )
         self._line.DynamicPoints = self.setLineWidth
         self._line.DynamicPenWidth = self.setLineThick
         self._kids.append(self._line)
 
-
     def onResize(self, evt):
         if self._line:
             self.update()
-
 
     def setLineWidth(self):
         """We want the line to be the full width of the panel,
@@ -561,23 +619,26 @@ class SeparatorPanel(CaptionBitmapPanel):
         y1 = y2 = midHt
         return ((x1, y1), (x2, y2))
 
-
     def setLineThick(self):
         """Make it look thicker when selected."""
         return {True: 2, False: 1}[self.Selected]
 
-
     def _getDesignerProps(self):
         return {}
-
 
     def _getDisplayText(self):
         return "Separator"
 
+    DesignerProps = property(
+        _getDesignerProps,
+        None,
+        None,
+        _("Properties exposed in the Menu Designer (read-only) (dict)"),
+    )
 
-    DesignerProps = property(_getDesignerProps, None, None,
-            _("Properties exposed in the Menu Designer (read-only) (dict)"))
-
-    DisplayText = property(_getDisplayText, None, None,
-            _("Text used in the prop sheet to identify this object (read-only) (str)"))
-
+    DisplayText = property(
+        _getDisplayText,
+        None,
+        None,
+        _("Text used in the prop sheet to identify this object (read-only) (str)"),
+    )

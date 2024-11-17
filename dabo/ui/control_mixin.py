@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 import time
+
 import wx
-import dabo
-from dabo import ui as dui
-from dabo.dLocalize import _
-from dabo import dEvents as dEvents
-from dabo.ui import dPemMixin
+
+import ui as dui
+from dLocalize import _
+import dEvents
+from ui import dPemMixin
 
 
 class dControlMixin(dPemMixin):
     """Provide common functionality for all controls."""
+
     def __onGotFocus(self, evt):
         if self.Form:
             # Grab reference to current ActiveControl
@@ -36,11 +38,11 @@ class dControlMixin(dPemMixin):
 
         # Hide a problem on Windows toolbars where a single command event will
         # be raised up to three separate times.
-#         print "CONTROL WXHIT", self, evt
+        #         print "CONTROL WXHIT", self, evt
         now = time.time()
-        if not hasattr(self, "_lastHitTime") or (now - self._lastHitTime) > .001:
+        if not hasattr(self, "_lastHitTime") or (now - self._lastHitTime) > 0.001:
             self.raiseEvent(dEvents.Hit, evt, *args, **kwargs)
-#            print "CONTROL RAISING HIT"
+            #            print "CONTROL RAISING HIT"
             self._lastHitTime = time.time()
 
     def __onWxNavKey(self, evt):
@@ -50,7 +52,6 @@ class dControlMixin(dPemMixin):
         if not self.TabStop:
             dui.callAfter(self.Navigate, evt.GetDirection())
 
-
     def _getTabStop(self):
         return getattr(self, "_tabStop", True)
 
@@ -58,9 +59,12 @@ class dControlMixin(dPemMixin):
         assert isinstance(val, bool)
         self._tabStop = val
 
+    TabStop = property(
+        _getTabStop,
+        _setTabStop,
+        None,
+        _("Specifies whether this control can receive focus from keyboard navigation."),
+    )
 
-    TabStop = property(_getTabStop, _setTabStop, None,
-            _("Specifies whether this control can receive focus from keyboard navigation."))
 
-
-dabo.ui.dControlMixin = dControlMixin
+ui.dControlMixin = dControlMixin

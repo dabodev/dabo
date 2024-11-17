@@ -27,6 +27,7 @@ eliminate problems caused by runaway queries, but will at
 least allow the UI to remain responsive, reducing the chance
 that the user will three-finger it.
 """
+
 import time
 from threading import *
 import wx
@@ -34,14 +35,17 @@ import dabo
 from dabo.dLocalize import _
 
 ID_CANCEL = wx.ID_ANY
-EVT_RESULT_ID = wx.ID_ANY 
+EVT_RESULT_ID = wx.ID_ANY
 EVT_EXCEPTION_ID = wx.ID_ANY
+
 
 def EVT_RESULT(win, func):
     win.Connect(-1, -1, EVT_RESULT_ID, func)
 
+
 def EVT_EXCEPTION(win, func):
     win.Connect(-1, -1, EVT_EXCEPTION_ID, func)
+
 
 class ResultEvent(wx.PyEvent):
     """Simple event to carry arbitrary result data."""
@@ -51,6 +55,7 @@ class ResultEvent(wx.PyEvent):
         self.SetEventType(EVT_RESULT_ID)
         self.response = response
 
+
 class ExceptionEvent(wx.PyEvent):
     """Simple event to carry arbitrary result data."""
 
@@ -58,6 +63,7 @@ class ExceptionEvent(wx.PyEvent):
         wx.PyEvent.__init__(self)
         self.SetEventType(EVT_EXCEPTION_ID)
         self.response = response
+
 
 # Thread class that executes processing
 class WorkerThread(Thread):
@@ -78,9 +84,9 @@ class WorkerThread(Thread):
         try:
             response = self._func()
             # Done, send notify:
-            wx.PostEvent(self._notify_window,ResultEvent(response))
+            wx.PostEvent(self._notify_window, ResultEvent(response))
         except Exception as e:
-            wx.PostEvent(self._notify_window,ExceptionEvent(e))
+            wx.PostEvent(self._notify_window, ExceptionEvent(e))
 
 
 # Timer that controls display of the dialog
@@ -89,12 +95,11 @@ class dProgressTimer(wx.Timer):
         self.parent = parent
         self.dlg = None
         wx.Timer.__init__(self)
-#        self.Start(1000 * wait, True)
+        #        self.Start(1000 * wait, True)
         func()
         self.Stop()
         if self.dlg is not None:
             self.dlg.Destroy()
-
 
     def Notify(self):
         self.dlg = dProgressDialog(self.parent, caption="Running...")
@@ -104,10 +109,10 @@ class dProgressTimer(wx.Timer):
 # GUI Frame class that spins off the worker thread
 class dProgressDialog(wx.Dialog):
     def __init__(self, parent, caption="Progress Dialog"):
-        wx.Dialog.__init__(self,parent,-1,caption)
+        wx.Dialog.__init__(self, parent, -1, caption)
         self.Centre(wx.BOTH)
-        self.SetSize((300,100))
-        self.status = wx.StaticText(self,-1,'Please Wait...',pos=(0,100))
+        self.SetSize((300, 100))
+        self.status = wx.StaticText(self, -1, "Please Wait...", pos=(0, 100))
 
 
 def displayAfterWait(parentWindow, seconds, func):
@@ -115,6 +120,8 @@ def displayAfterWait(parentWindow, seconds, func):
     # 'please wait' dialog box.
 
     tm = dProgressTimer(parentWindow, func, seconds)
+
+
 #     window = dProgressDialog(parentWindow, "Please Wait...", func, seconds)
 #     window.ShowModal()
 #     response = window.response

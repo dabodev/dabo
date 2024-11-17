@@ -25,31 +25,64 @@ _domains = {}
 _currentTrans = None
 
 _languageAliases = {
-        "catalan": "ca", "català":"ca",
-        "german": "de", "deutsch": "de",
-        "greek": "el", "ελληνικά":"el",
-        "english": "en", "english_united states":"en",
-        "english (uk)": "en_gb", "english_uk":"en_gb", "english_great britain":"en_gb",
-        "finnish": "fi", "suomi":"fi",
-        "french": "fr", "francais": "fr", "français": "fr",
-        "hindi": "hi",
-        "hungarian": "hu", "magyar":"hu", "mɒɟɒr": "hu",
-        "indonesian": "id", "bahasa indonesia":"id",
-        "italian": "it", "italiano": "it",
-        "japanese": "ja", "日本語": "ja", "nihoŋɡo": "ja",
-        "latvian": "lv", "lettish": "lv", "latviešu valoda": "lv",
-        "dutch": "nl", "nederlands":"nl",
-        "occitan": "oc", "provençal":"oc",
-        "polish": "pl", "polszczyzna":"pl", "język polski":"pl",
-        "portuguese": "pt", "portuguêse": "pt",
-        "portuguese (brazilian)": "pt_br", "português brasileiro": "pt_br",
-        "romanian": "ro", "română":"ro",
-        "russian": "ru", "русский язык": "ru", "russkiy yazyk": "ru",
-        "spanish": "es", "espanol":"es", "español":"es",
-        "swedish": "sv", "svenska":"sv",
-        "thai": "th", "ภาษาไทย":"th", "phasa thai": "th",
-        "chinese (simplified)": "zh_cn", "汉语":"zh_cn", "华语":"zh_cn",
-        }
+    "catalan": "ca",
+    "català": "ca",
+    "german": "de",
+    "deutsch": "de",
+    "greek": "el",
+    "ελληνικά": "el",
+    "english": "en",
+    "english_united states": "en",
+    "english (uk)": "en_gb",
+    "english_uk": "en_gb",
+    "english_great britain": "en_gb",
+    "finnish": "fi",
+    "suomi": "fi",
+    "french": "fr",
+    "francais": "fr",
+    "français": "fr",
+    "hindi": "hi",
+    "hungarian": "hu",
+    "magyar": "hu",
+    "mɒɟɒr": "hu",
+    "indonesian": "id",
+    "bahasa indonesia": "id",
+    "italian": "it",
+    "italiano": "it",
+    "japanese": "ja",
+    "日本語": "ja",
+    "nihoŋɡo": "ja",
+    "latvian": "lv",
+    "lettish": "lv",
+    "latviešu valoda": "lv",
+    "dutch": "nl",
+    "nederlands": "nl",
+    "occitan": "oc",
+    "provençal": "oc",
+    "polish": "pl",
+    "polszczyzna": "pl",
+    "język polski": "pl",
+    "portuguese": "pt",
+    "portuguêse": "pt",
+    "portuguese (brazilian)": "pt_br",
+    "português brasileiro": "pt_br",
+    "romanian": "ro",
+    "română": "ro",
+    "russian": "ru",
+    "русский язык": "ru",
+    "russkiy yazyk": "ru",
+    "spanish": "es",
+    "espanol": "es",
+    "español": "es",
+    "swedish": "sv",
+    "svenska": "sv",
+    "thai": "th",
+    "ภาษาไทย": "th",
+    "phasa thai": "th",
+    "chinese (simplified)": "zh_cn",
+    "汉语": "zh_cn",
+    "华语": "zh_cn",
+}
 
 
 def _(s):
@@ -91,6 +124,7 @@ def setLanguage(lang=None, charset=None):
     name to the translation object.
     """
     from dabo.lib.utils import ustr
+
     global _domains, _currentTrans
     lang = _languageAliases.get(lang.lower(), lang)
 
@@ -104,22 +138,32 @@ def setLanguage(lang=None, charset=None):
             daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=lang)
         except IOError:
             # No translation file found
-            dabo.log.error("""
+            dabo.log.error(
+                """
 No translation file found for domain 'dabo'.
     Locale dir = %s
     Languages = %s
-    Codeset = %s """ % (daboLocaleDir, ustr(lang), charset))
+    Codeset = %s """
+                % (daboLocaleDir, ustr(lang), charset)
+            )
             # Default to US English
-            daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=["en"])
+            daboTranslation = gettext.translation(
+                "dabo", daboLocaleDir, languages=["en"]
+            )
         except ValueError:
             # Bad translation file
-            dabo.log.error("""
+            dabo.log.error(
+                """
 Bad translation file found for domain 'dabo'.
     Locale dir = %s
     Languages = %s
-    Codeset = %s """ % (daboLocaleDir, ustr(lang), charset))
+    Codeset = %s """
+                % (daboLocaleDir, ustr(lang), charset)
+            )
             # Default to US English
-            daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=["en"])
+            daboTranslation = gettext.translation(
+                "dabo", daboLocaleDir, languages=["en"]
+            )
         _currentTrans = daboTranslation.gettext
 
     for domain, localedir in list(_domains.items()):
@@ -128,12 +172,17 @@ Bad translation file found for domain 'dabo'.
         try:
             translation = gettext.translation(domain, localedir, languages=lang)
         except IOError:
-            dabo.log.error("No translation found for domain '%s' and language %s." % (domain, lang))
-            dabo.log.error("""
+            dabo.log.error(
+                "No translation found for domain '%s' and language %s." % (domain, lang)
+            )
+            dabo.log.error(
+                """
 No translation file found for domain '%s'.
     Locale dir = %s
     Languages = %s
-    Codeset = %s """ % (domain, daboLocaleDir, ustr(lang), charset))
+    Codeset = %s """
+                % (domain, daboLocaleDir, ustr(lang), charset)
+            )
         if daboTranslation:
             translation.add_fallback(daboTranslation)
         _currentTrans = translation.gettext
@@ -174,7 +223,7 @@ def main():
     print()
     print("sys.getdefaultencoding():", sys.getdefaultencoding())
     if dabo.loadUserLocale:
-        locale.setlocale(locale.LC_ALL, '')
+        locale.setlocale(locale.LC_ALL, "")
         print("locale.getlocale():", locale.getlocale())
     else:
         print("locale.getdefaultlocale():", locale.getdefaultlocale())
@@ -207,10 +256,10 @@ def main():
         else:
             # print the text
             for i, s in enumerate(strings):
-                len_s = max_len.get(i and stringsToTranslate[i-1], len(s))
+                len_s = max_len.get(i and stringsToTranslate[i - 1], len(s))
                 add("| %s " % s.ljust(len_s))
             add("|")
-        return ''.join(lin)
+        return "".join(lin)
 
     print(line())
     print(line(("en",) + stringsToTranslate))
@@ -223,4 +272,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

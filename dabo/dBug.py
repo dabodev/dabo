@@ -20,7 +20,7 @@ def logPoint(msg="", levels=None):
     if msg:
         output.write(ustr(msg) + "\n")
 
-    stackSection = stack[-1*levels:]
+    stackSection = stack[-1 * levels :]
     for stackLine in stackSection:
         frame, filename, line, funcname, lines, unknown = stackLine
         if filename.endswith("/unittest.py"):
@@ -66,6 +66,7 @@ def loggit(fnc):
         # ... open it
         fname = dabo.loggitFile
         loggit.fhwr = open(fname, "a")
+
     def wrapped(*args, **kwargs):
         loggit.fhwr.write("\n%s\n" % time.strftime("%Y-%m-%d %H:%M:%S"))
         loggit.fhwr.write("%s\n" % fnc)
@@ -80,9 +81,12 @@ def loggit(fnc):
         if kwargs:
             loggit.fhwr.write("\tKWARGS:%s\n" % kwargs)
         for stk in inspect.stack()[1:-7]:
-            loggit.fhwr.write("\t%s, %s, line %s\n" % (os.path.split(stk[1])[1], stk[3], stk[2]))
+            loggit.fhwr.write(
+                "\t%s, %s, line %s\n" % (os.path.split(stk[1])[1], stk[3], stk[2])
+            )
         result = fnc(*args, **kwargs)
         loggit.fhwr.flush()
         return result
+
     wrapped.__doc__ = fnc.__doc__
     return wrapped

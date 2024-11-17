@@ -1,47 +1,52 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import ui as dui
-from dabo.ui import dDataControlMixin
-from dabo.ui import makeDynamicProperty
-from dabo.dLocalize import _
+import ui as dui
+from ui import dDataControlMixin
+from ui import makeDynamicProperty
+from dLocalize import _
 
 
 class dCheckBox(dDataControlMixin, wx.CheckBox):
     """Creates a checkbox, allowing editing boolean values."""
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dCheckBox
         preClass = wx.CheckBox
-        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
-
+        dDataControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
 
     def _initEvents(self):
         super(dCheckBox, self)._initEvents()
         self.Bind(wx.EVT_CHECKBOX, self._onWxHit)
 
-
     def _initProperties(self):
-        self._3StateToValue = { wx.CHK_UNCHECKED : False, wx.CHK_CHECKED : True, wx.CHK_UNDETERMINED : None}
-        self._ValueTo3State = dict([[v,k] for k,v in self._3StateToValue.items()])
+        self._3StateToValue = {
+            wx.CHK_UNCHECKED: False,
+            wx.CHK_CHECKED: True,
+            wx.CHK_UNDETERMINED: None,
+        }
+        self._ValueTo3State = dict([[v, k] for k, v in self._3StateToValue.items()])
         super(dCheckBox, self)._initProperties()
-
 
     def _getInitPropertiesList(self):
         additional = ["ThreeState", "Alignment"]
         original = list(super(dCheckBox, self)._getInitPropertiesList())
         return tuple(original + additional)
 
-
     def _onWxHit(self, evt):
         self._userChanged = True
         self.flushValue()
         super(dCheckBox, self)._onWxHit(evt)
 
-
     def getBlankValue(self):
         return False
-
 
     # property get/set functions
     def _getAlignment(self):
@@ -59,7 +64,6 @@ class dCheckBox(dDataControlMixin, wx.CheckBox):
         else:
             raise ValueError(_("The only possible values are 'Left' and 'Right'."))
 
-
     def _getThreeState(self):
         return self._hasWindowStyleFlag(wx.CHK_3STATE)
 
@@ -68,7 +72,6 @@ class dCheckBox(dDataControlMixin, wx.CheckBox):
         if val == True:
             self._addWindowStyleFlag(wx.CHK_3STATE)
 
-
     def _getUserThreeState(self):
         return self._hasWindowStyleFlag(wx.CHK_ALLOW_3RD_STATE_FOR_USER)
 
@@ -76,7 +79,6 @@ class dCheckBox(dDataControlMixin, wx.CheckBox):
         self._delWindowStyleFlag(wx.CHK_ALLOW_3RD_STATE_FOR_USER)
         if val == True:
             self._addWindowStyleFlag(wx.CHK_ALLOW_3RD_STATE_FOR_USER)
-
 
     def _getValue(self):
         if not self._hasWindowStyleFlag(wx.CHK_3STATE):
@@ -97,29 +99,51 @@ class dCheckBox(dDataControlMixin, wx.CheckBox):
         else:
             self._properties["Value"] = val
 
-
     # property definitions follow:
-    Alignment = property(_getAlignment, _setAlignment, None,
-            _("""Specifies the alignment of the text.
+    Alignment = property(
+        _getAlignment,
+        _setAlignment,
+        None,
+        _(
+            """Specifies the alignment of the text.
 
                 Left  : Checkbox to left of text (default)
-                Right : Checkbox to right of text"""))
+                Right : Checkbox to right of text"""
+        ),
+    )
 
-    ThreeState = property(_getThreeState, _setThreeState, None,
-            _("""Specifies wether the checkbox support 3 states.
+    ThreeState = property(
+        _getThreeState,
+        _setThreeState,
+        None,
+        _(
+            """Specifies wether the checkbox support 3 states.
 
                 True  : Checkbox supports 3 states
-                False : Checkbox supports 2 states (default)"""))
+                False : Checkbox supports 2 states (default)"""
+        ),
+    )
 
-    UserThreeState = property(_getUserThreeState, _setUserThreeState, None,
-            _("""Specifies whether the user is allowed to set the third state.
+    UserThreeState = property(
+        _getUserThreeState,
+        _setUserThreeState,
+        None,
+        _(
+            """Specifies whether the user is allowed to set the third state.
 
                 True  : User is allowed to set the third state.
-                False : User isn't allowed to set the third state.(default)"""))
+                False : User isn't allowed to set the third state.(default)"""
+        ),
+    )
 
-    Value = property(_getValue, _setValue, None,
-            _("Specifies the current state of the control (the value of the field). (varies)"))
-
+    Value = property(
+        _getValue,
+        _setValue,
+        None,
+        _(
+            "Specifies the current state of the control (the value of the field). (varies)"
+        ),
+    )
 
     DynamicAlignment = makeDynamicProperty(Alignment)
     DynamicThreeState = makeDynamicProperty(ThreeState)
@@ -127,18 +151,20 @@ class dCheckBox(dDataControlMixin, wx.CheckBox):
     DynamicValue = makeDynamicProperty(Value)
 
 
-dabo.ui.dCheckBox = dCheckBox
+ui.dCheckBox = dCheckBox
 
 
 class _dCheckBox_test(dCheckBox):
     def initProperties(self):
         self.Caption = _("Do you wish to pass?")
 
+
 class _dCheckBox_test3_a(dCheckBox):
     def initProperties(self):
         self.Caption = _("3-state / None; user 3-state:False")
         self.ThreeState = True
         self.Value = None
+
 
 class _dCheckBox_test3_b(dCheckBox):
     def initProperties(self):
@@ -149,6 +175,6 @@ class _dCheckBox_test3_b(dCheckBox):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
-    test.Test().runTest(
-        (_dCheckBox_test, _dCheckBox_test3_a, _dCheckBox_test3_b))
+    from ui import test
+
+    test.Test().runTest((_dCheckBox_test, _dCheckBox_test3_a, _dCheckBox_test3_b))

@@ -34,9 +34,14 @@ from dabo.ui.dialogs import HotKeyEditor
 class PropSheet(dPanel):
     def afterInit(self):
         self._sashPct = 80
-        self.mainSplit = msp = dSplitter(self, Orientation="H", createPanes=True,
-                MinimumPanelSize=75, SashPercent=self._sashPct,
-                OnSashDoubleClick=self.onSash2Click)
+        self.mainSplit = msp = dSplitter(
+            self,
+            Orientation="H",
+            createPanes=True,
+            MinimumPanelSize=75,
+            SashPercent=self._sashPct,
+            OnSashDoubleClick=self.onSash2Click,
+        )
         self.mainSplit.bindEvent(dEvents.SashPositionChanged, self.onSashPosChanged)
         self.panePropGrid = ppg = msp.Panel1
         self.panePropDoc = ppd = msp.Panel2
@@ -44,8 +49,7 @@ class PropSheet(dPanel):
         pg.Handler = self
         self.btnEdit = dButton(ppg, Caption=_("Edit..."), Visible=False)
         self.btnEdit.bindEvent(dEvents.Hit, self.onBtnEdit)
-        self.edtPropDoc = dEditBox(ppd, ReadOnly=True,
-            FontSize=9, Height=49)
+        self.edtPropDoc = dEditBox(ppd, ReadOnly=True, FontSize=9, Height=49)
         sz = self.Sizer = dSizer("v")
         sz.appendSpacer(10)
         sz.DefaultBorderLeft = sz.DefaultBorderRight = True
@@ -64,23 +68,22 @@ class PropSheet(dPanel):
         dabo.ui.callAfter(self.setInitialSizing)
         dabo.ui.callAfter(self.layout)
 
-
     def setPanels(self):
         # On some platforms (Gtk especially), the final size is not
         # set, even with callAfter(). But with two levels of callAfter()
         # it seems to work properly
         dabo.ui.callAfter(self._setPanels1)
+
     def _setPanels1(self):
         dabo.ui.callAfter(self._setPanels2)
+
     def _setPanels2(self):
         self._sashPct = self.mainSplit.SashPercent = 80
         self.layout()
 
-
     def onSashPosChanged(self, evt):
         if self.mainSplit.SashPercent:
             self._sashPct = self.mainSplit.SashPercent
-
 
     def setInitialSizing(self):
         """Called to fit the prop sheet to the form"""
@@ -90,11 +93,9 @@ class PropSheet(dPanel):
         self.sizeGrid(True)
         dabo.ui.callAfter(self.setPanels)
 
-
     def onResize(self, evt):
         """Size the value column to fit the panel"""
         dabo.ui.callAfter(self.sizeGrid)
-
 
     def sizeGrid(self, initial=False):
         try:
@@ -108,11 +109,9 @@ class PropSheet(dPanel):
         if initial or (col1.Width > col1Allot):
             col1.Width = col1Allot
 
-
     def onSash2Click(self, evt):
         """Prevent the splitter from closing."""
         evt.stop()
-
 
     def select(self, obj):
         """Called when the selected object changes. 'obj' will
@@ -154,7 +153,6 @@ class PropSheet(dPanel):
         # Copy it to the grid
         self.updatePropGrid(propDict)
 
-
     def updatePropGrid(self, propDict=None):
         if propDict is None:
             obj = self._selected[0]
@@ -167,7 +165,6 @@ class PropSheet(dPanel):
         if ds != pg.DataSet:
             # The dataset has changed, so update the grid:
             pg.DataSet = ds
-
 
     def dataSetFromPropDict(self, propDict):
         props = list(propDict.keys())
@@ -219,12 +216,16 @@ class PropSheet(dPanel):
                         if prop in restProps:
                             # already added; make sure the values are in sync
                             rp = restProps[prop]
-                            rp["readonly"] = rp["readonly"] and indivDict[prop]["readonly"]
+                            rp["readonly"] = (
+                                rp["readonly"] and indivDict[prop]["readonly"]
+                            )
                             # If the value is already None, no need to test
                             if rp["val"] is None:
                                 continue
                             if isinstance(indiv, LayoutPanel):
-                                nextVal = indiv.ControllingSizer.getItemProp(indiv.ControllingSizerItem, prop)
+                                nextVal = indiv.ControllingSizer.getItemProp(
+                                    indiv.ControllingSizerItem, prop
+                                )
                             else:
                                 nextVal = self.getObjPropVal(indiv, prop)
                             if not rp["val"] == nextVal:
@@ -234,16 +235,17 @@ class PropSheet(dPanel):
                             rp = restDict[prop]
                             rp["readonly"] = indivDict[prop]["readonly"]
                             if isinstance(indiv, LayoutPanel):
-                                rp["val"] = indiv.ControllingSizer.getItemProp(indiv.ControllingSizerItem, prop)
+                                rp["val"] = indiv.ControllingSizer.getItemProp(
+                                    indiv.ControllingSizerItem, prop
+                                )
                             else:
                                 rp["val"] = self.getObjPropVal(indiv, prop)
 
                     # Remove all non-common props
-                    props = [pp for pp in props
-                        if pp not in badProps]
+                    props = [pp for pp in props if pp not in badProps]
 
             if len(props) == 0:
-                ds = [{"prop" : "", "val" : "", "type" : str, "readonly" : True}]
+                ds = [{"prop": "", "val": "", "type": str, "readonly": True}]
             else:
                 # Construct the data set from the props
                 ds = []
@@ -281,7 +283,6 @@ class PropSheet(dPanel):
                     ds.append(rec)
         return ds
 
-
     def getObjPropDoc(self, obj, prop):
         """Return the docstring for the passed property."""
         if isinstance(obj, (LayoutSpacerPanel, LayoutPanel)):
@@ -298,7 +299,6 @@ class PropSheet(dPanel):
             doc = ""
         return self.formatDocString(doc)
 
-
     def formatDocString(self, doc):
         doc = pydoc.splitdoc(doc)
         bodylines = doc[1].splitlines()
@@ -309,7 +309,6 @@ class PropSheet(dPanel):
             body += line.strip() + " "
         ret = "%s\n\n%s" % (doc[0], body)
         return ret.strip()
-
 
     def getObjPropVal(self, obj, prop):
         """Subclasses (ie the report designer) can override."""
@@ -323,7 +322,6 @@ class PropSheet(dPanel):
                 ret = propDict[prop]["defaultValue"]
         return ret
 
-
     def updateVal(self, prop, val, typ):
         """Called from the grid to notify that the current cell's
         value has been changed. Update the corresponding
@@ -334,10 +332,13 @@ class PropSheet(dPanel):
             if prop.startswith("Font"):
                 self.updateGridValues()
         except PropertyUpdateException as e:
-            dabo.ui.stop(_("Could not set property '%(prop)s' to value '%(val)s'\nReason: '%(e)s'")
-                    % locals())
+            dabo.ui.stop(
+                _(
+                    "Could not set property '%(prop)s' to value '%(val)s'\nReason: '%(e)s'"
+                )
+                % locals()
+            )
             self.updateGridValues()
-
 
     def updateGridValues(self):
         """Updates all the cells in the Value column.
@@ -354,16 +355,14 @@ class PropSheet(dPanel):
                 val = eval("ob.%s" % prop)
             pg.setValue(row, 1, val)
 
-
     def setCustomEditor(self, ed, propName):
         if isinstance(ed, str):
             # it is the name of a method in this class
             ed = eval("self.%s" % ed)
         self._custEditor = ed
         self.btnEdit.Caption = _("Edit %s") % propName
-        self.btnEdit.Visible = (ed is not None)
+        self.btnEdit.Visible = ed is not None
         self.layout()
-
 
     def onBtnEdit(self, evt):
         ed = self._custEditor
@@ -372,7 +371,6 @@ class PropSheet(dPanel):
             pg = self.propGrid
             ed(self._selected, pg.CurrentProperty, pg.CurrentValue)
 
-
     def gridCellChanged(self):
         pg = self.propGrid
         obj = self._selected
@@ -380,7 +378,6 @@ class PropSheet(dPanel):
             obj = self._selected[0]
             prop = pg.CurrentProperty
             self.edtPropDoc.Value = self.getObjPropDoc(obj, prop)
-
 
     ##############################
     #  Custom property editor methods
@@ -394,7 +391,6 @@ class PropSheet(dPanel):
             self.updateVal(prop, newVal, "color")
             self.propGrid.refresh()
 
-
     def editFont(self, objs, prop, val):
         # Call the Font selection dialog
         obj = objs[0]
@@ -402,7 +398,6 @@ class PropSheet(dPanel):
         if newVal is not None:
             self.updateVal(prop, newVal, "font")
             self.select(self._selected)
-
 
     def editHeaderFont(self, objs, prop, val):
         # Call the Font selection dialog
@@ -412,7 +407,6 @@ class PropSheet(dPanel):
             self.updateVal(prop, newVal, "font")
             self.select(self._selected)
 
-
     def editPicture(self, objs, prop, val):
         # Select an image file to display
         obj = objs[0]
@@ -421,7 +415,6 @@ class PropSheet(dPanel):
             self.propGrid.CurrentValue = newVal
             self.updateVal(prop, newVal, str)
             self.propGrid.refresh()
-
 
     def editStdPicture(self, objs, prop, val):
         """Give the option of selecting a standard image, or picking
@@ -444,8 +437,9 @@ class PropSheet(dPanel):
                 sz.append(dLine(self), border=25, borderSides=("left", "right"))
                 sz.append(dLabel(self, Caption="- or -"), halign="center")
                 lbl = dLabel(self, Caption=_("Select a standard image:"))
-                dd = dDropdownList(self, RegID="ddIcons", Choices=defIcons,
-                        OnHit=self.updImage)
+                dd = dDropdownList(
+                    self, RegID="ddIcons", Choices=defIcons, OnHit=self.updImage
+                )
                 hsz = dSizer("h")
                 hsz.append(lbl)
                 hsz.appendSpacer(5)
@@ -517,7 +511,6 @@ class PropSheet(dPanel):
             self.editPicture(objs, prop, val)
         dlg.release()
 
-
     def editMenuBarFile(self, objs, prop, val):
         # Select a connection file
         obj = objs[0]
@@ -527,14 +520,15 @@ class PropSheet(dPanel):
             self.updateVal(prop, newVal, str)
             self.propGrid.refresh()
 
-
     def editChoice(self, objs, prop, val=[]):
         # Create a list of choices. 'val' may be a list of existing choices
         obj = objs[0]
+
         class ChoiceDialog(dOkCancelDialog):
             def addControls(self):
-                self.editor = dEditableList(self, Choices=val,
-                        Caption=_("Editing choices for '%s'") % prop)
+                self.editor = dEditableList(
+                    self, Choices=val, Caption=_("Editing choices for '%s'") % prop
+                )
                 self.Sizer.append1x(self.editor)
 
         dlg = ChoiceDialog(self, Modal=True)
@@ -546,14 +540,15 @@ class PropSheet(dPanel):
             self.propGrid.refresh()
         dlg.release()
 
-
     def editKeys(self, objs, prop, val=[]):
         # Create a list of keys. 'val' may be a list of existing keys
         obj = objs[0]
+
         class KeysDialog(dOkCancelDialog):
             def addControls(self):
-                self.editor = dEditableList(self, Choices=val,
-                        Caption=_("Editing keys for '%s'") % prop)
+                self.editor = dEditableList(
+                    self, Choices=val, Caption=_("Editing keys for '%s'") % prop
+                )
                 self.Sizer.append1x(self.editor)
 
         dlg = KeysDialog(self, Modal=True)
@@ -565,19 +560,21 @@ class PropSheet(dPanel):
             self.propGrid.refresh()
         dlg.release()
 
-
     def editBorderSides(self, objs, prop, val=[]):
         # Select one or more border sides from a list of choices.
         obj = objs[0]
+
         class MultiListDialog(dOkCancelDialog):
             def addControls(self):
                 self.Caption = _("Border Sides")
-                lbl = dLabel(self,
-                        Caption=_("Select the sides to which the border will apply:"))
+                lbl = dLabel(
+                    self, Caption=_("Select the sides to which the border will apply:")
+                )
                 self.Sizer.append(lbl, halign="center")
                 choices = ["All", "Top", "Bottom", "Left", "Right", "None"]
-                self.editor = dCheckList(self, Choices=choices,
-                        ValueMode="String", Height=200)
+                self.editor = dCheckList(
+                    self, Choices=choices, ValueMode="String", Height=200
+                )
                 self.editor.bindEvent(dEvents.Hit, self.onSidesChanged)
                 self.editor.Value = self._currVal = val
                 self.Sizer.append1x(self.editor)
@@ -614,7 +611,6 @@ class PropSheet(dPanel):
             self.propGrid.refresh()
         dlg.release()
 
-
     def editHotKey(self, objs, prop, val):
         obj = objs[0]
         dlg = HotKeyEditor(self)
@@ -632,7 +628,6 @@ class PropSheet(dPanel):
             self.propGrid.refresh()
         dlg.release()
 
-
     def _getController(self):
         try:
             return self._controller
@@ -646,10 +641,12 @@ class PropSheet(dPanel):
         else:
             self._properties["Controller"] = val
 
-
-    Controller = property(_getController, _setController, None,
-            _("Object to which this one reports events  (object (varies))"))
-
+    Controller = property(
+        _getController,
+        _setController,
+        None,
+        _("Object to which this one reports events  (object (varies))"),
+    )
 
 
 class PropertyGrid(dGrid):
@@ -659,7 +656,6 @@ class PropertyGrid(dGrid):
         self.RowColorEven = "papayawhip"
         self.RowColorOdd = "white"
         self.AlternateRowColoring = True
-
 
     def afterInit(self):
         self._handler = None
@@ -671,15 +667,31 @@ class PropertyGrid(dGrid):
         self.ActivateEditorOnSelect = False
 
         # Create the property name column
-        col = dColumn(self, Order=10, DataField="prop",
-                DataType="string", Width=100, Caption=_("Property"), Sortable=True,
-                Searchable=True, Editable=False)
+        col = dColumn(
+            self,
+            Order=10,
+            DataField="prop",
+            DataType="string",
+            Width=100,
+            Caption=_("Property"),
+            Sortable=True,
+            Searchable=True,
+            Editable=False,
+        )
         self.addColumn(col, inBatch=True)
 
         # Now create the property Value column
-        col = dColumn(self, Order=20, DataField="val",
-                DataType="string", Width=200, Caption=_("Value"), Sortable=False,
-                Searchable=False, Editable=True)
+        col = dColumn(
+            self,
+            Order=20,
+            DataField="val",
+            DataType="string",
+            Width=200,
+            Caption=_("Value"),
+            Sortable=False,
+            Searchable=False,
+            Editable=True,
+        )
         self.addColumn(col, inBatch=True)
         self.autoBindEvents()
 
@@ -687,14 +699,18 @@ class PropertyGrid(dGrid):
         c0 = self.Columns[0]
         fsize = c0.FontSize
         if self.Application.Platform == "Win":
-            self.setAll("FontSize", fsize-2, filt="BaseClass == dabo.ui.dColumn")
+            self.setAll("FontSize", fsize - 2, filt="BaseClass == dabo.ui.dColumn")
         # Set the row height to match
         face = c0.FontFace
         size = c0.FontSize
         bold = c0.FontBold
         italic = c0.FontItalic
-        rh  = dabo.ui.fontMetric("M", wind=self.Form, face=face, size=size,
-                bold=bold, italic=italic)[1] + 7
+        rh = (
+            dabo.ui.fontMetric(
+                "M", wind=self.Form, face=face, size=size, bold=bold, italic=italic
+            )[1]
+            + 7
+        )
         if 0 < rh < 999:
             # Make sure that these are sane values
             self.RowHeight = rh
@@ -714,7 +730,6 @@ class PropertyGrid(dGrid):
         self.floatEditorClass = col.floatEditorClass
         self.listEditorClass = col.listEditorClass
 
-
     def getPropDictForRow(self, row):
         if not self.RowCount:
             return None
@@ -725,8 +740,8 @@ class PropertyGrid(dGrid):
             return self.propDict[prop]
         except KeyError as e:
             return None
-#             print "PROP DICT ERROR: >%s<, row=%s" % (prop, row)
 
+    #             print "PROP DICT ERROR: >%s<, row=%s" % (prop, row)
 
     def fillGrid(self, force=False):
         super(PropertyGrid, self).fillGrid(force)
@@ -746,8 +761,13 @@ class PropertyGrid(dGrid):
                     selection = self.Controller.Selection[0]
                     print("PROPNAME", prop_name)
                     print("SELEC", selection)
-                    dabo.log.error(_("Property Grid out of sync for property "
-                            "'%s' of object '%'") % (prop_name, selection))
+                    dabo.log.error(
+                        _(
+                            "Property Grid out of sync for property "
+                            "'%s' of object '%'"
+                        )
+                        % (prop_name, selection)
+                    )
                 continue
             if not isinstance(pd, dict):
                 print(_("BAD PROP DICT:"), pd, type(pd), _("ROW"), row)
@@ -757,7 +777,7 @@ class PropertyGrid(dGrid):
             if typ is list:
                 ed = self.listEditorClass
                 # Need to set the particular choices for this row
-                valColumn.CustomListEditorChoices[row] =  pd["values"]
+                valColumn.CustomListEditorChoices[row] = pd["values"]
             elif typ is int:
                 ed = self.intEditorClass
                 rnd = self.intRendererClass
@@ -772,7 +792,6 @@ class PropertyGrid(dGrid):
             valColumn.CustomEditors[row] = ed
             valColumn.CustomRenderers[row] = rnd
         self.updateGridDisplay()
-
 
     def customCanGetValueAs(self, row, col, typ):
         ret = True
@@ -792,11 +811,17 @@ class PropertyGrid(dGrid):
                     # can have any number of types.
                     ret = True
                 else:
-                    typtyp = {"str" : str, "unicode" : str, "bool" : bool, "int" : int, "long" : int,
-                            "szinfo" : str, "double" : float}[typ]
+                    typtyp = {
+                        "str": str,
+                        "unicode": str,
+                        "bool": bool,
+                        "int": int,
+                        "long": int,
+                        "szinfo": str,
+                        "double": float,
+                    }[typ]
                     ret = pd["type"] == typtyp
         return ret
-
 
     def customCanSetValueAs(self, row, col, typ):
         if col == 0:
@@ -808,17 +833,21 @@ class PropertyGrid(dGrid):
                 # can have any number of types.
                 return True
             else:
-                typtyp = {"str" : str, "unicode" : str, "bool" : bool, "int" : int, "long" : int,
-                        "double" : float}[typ]
+                typtyp = {
+                    "str": str,
+                    "unicode": str,
+                    "bool": bool,
+                    "int": int,
+                    "long": int,
+                    "double": float,
+                }[typ]
                 return pd["type"] == typtyp
-
 
     def selectPropColumn(self):
         """Move the selected cell to the prop column."""
-        #if self.CurrentColumn is 1:
+        # if self.CurrentColumn is 1:
         if self.CurrentColumn == 1:
             self.CurrentColumn = 0
-
 
     def onGridCellEditBegin(self, evt):
         # Save the pre-editing value so we only update
@@ -826,13 +855,11 @@ class PropertyGrid(dGrid):
         self.Controller.startPropEdit()
         self._origVal = self.getValue(evt.row, evt.col)
 
-
     def onGridCellSelected(self, evt):
         row, col = evt.EventData["row"], evt.EventData["col"]
         self.updateGridDisplay(row, col)
         if self.Handler:
             dabo.ui.callAfter(self.Handler.gridCellChanged)
-
 
     def updateGridDisplay(self, row=None, col=None):
         if row is None:
@@ -874,7 +901,6 @@ class PropertyGrid(dGrid):
             else:
                 dabo.ui.callAfter(self.DisableCellEditControl)
 
-
     def onGridCellEdited(self, evt):
         row, col = evt.EventData["row"], evt.EventData["col"]
         newVal = self.getValue(row, col)
@@ -884,10 +910,8 @@ class PropertyGrid(dGrid):
             typ = pd["type"]
             self.Handler.updateVal(prop, newVal, typ)
 
-
     def onGridCellEditEnd(self, evt):
         self.Controller.endPropEdit()
-
 
     def _getController(self):
         try:
@@ -902,10 +926,8 @@ class PropertyGrid(dGrid):
         else:
             self._properties["Controller"] = val
 
-
     def _getCurrProp(self):
         return self.getValue(self.CurrentRow, 0)
-
 
     def _getCurrVal(self):
         return self.getValue(self.CurrentRow, 1)
@@ -913,26 +935,36 @@ class PropertyGrid(dGrid):
     def _setCurrVal(self, val):
         self.setValue(self.CurrentRow, 1, val)
 
-
     def _getHandler(self):
         return self._handler
 
     def _setHandler(self, val):
         self._handler = val
 
+    Controller = property(
+        _getController,
+        _setController,
+        None,
+        _("Object to which this one reports events  (object (varies))"),
+    )
 
-    Controller = property(_getController, _setController, None,
-            _("Object to which this one reports events  (object (varies))"))
+    CurrentProperty = property(
+        _getCurrProp, None, None, _("Name of currently selected property  (string)")
+    )
 
-    CurrentProperty = property(_getCurrProp, None, None,
-            _("Name of currently selected property  (string)") )
+    CurrentValue = property(
+        _getCurrVal,
+        _setCurrVal,
+        None,
+        _("Value of currently selected property  (varies)"),
+    )
 
-    CurrentValue = property(_getCurrVal, _setCurrVal, None,
-            _("Value of currently selected property  (varies)") )
-
-    Handler = property(_getHandler, _setHandler, None,
-            _("Target object to handle events for this grid  (PropSheet)"))
-
+    Handler = property(
+        _getHandler,
+        _setHandler,
+        None,
+        _("Target object to handle events for this grid  (PropSheet)"),
+    )
 
 
 if __name__ == "__main__":

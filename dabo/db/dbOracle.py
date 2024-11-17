@@ -14,10 +14,10 @@ from dabo.lib.utils import ustr
 class Oracle(dBackend):
     def __init__(self):
         import cx_Oracle as dbapi
+
         dBackend.__init__(self)
         self.dbModuleName = "cx_Oracle"
         self.dbapi = dbapi
-
 
     def getConnection(self, connectInfo, **kwargs):
         import cx_Oracle as dbapi
@@ -28,24 +28,21 @@ class Oracle(dBackend):
             port = 1521
 
         dsn = dbapi.makedsn(connectInfo.Host, port, connectInfo.Database)
-        self._connection = dbapi.connect(user = connectInfo.User,
-                password = connectInfo.revealPW(),
-                dsn = dsn)
+        self._connection = dbapi.connect(
+            user=connectInfo.User, password=connectInfo.revealPW(), dsn=dsn
+        )
         return self._connection
-
 
     def getDictCursorClass(self):
         return self.dbapi.Cursor
-
 
     def escQuote(self, val):
         # escape backslashes and single quotes, and
         # wrap the result in single quotes
         sl = "\\"
-        qt = "\'"
-        val = val.replace(sl, sl+sl).replace(qt, sl+qt)
+        qt = "'"
+        val = val.replace(sl, sl + sl).replace(qt, sl + qt)
         return "%s%s%s" % (qt, val, qt)
-
 
     def processFields(self, txt):
         # this was used for testing only
@@ -53,16 +50,14 @@ class Oracle(dBackend):
             txt = ustr(txt)
         return txt
 
-
     def formatDateTime(self, val):
-        """ We need to wrap the value in quotes. """
-        sqt = "'"        # single quote
+        """We need to wrap the value in quotes."""
+        sqt = "'"  # single quote
         val = ustr(val)
         return "%s%s%s" % (sqt, val, sqt)
 
-
     def getTables(self, cursor, includeSystemTables=False):
-        #sqlstr = "select table_name from all_tables where tablespace_name NOT IN ('SYSTEM', 'SYSAUX')"
+        # sqlstr = "select table_name from all_tables where tablespace_name NOT IN ('SYSTEM', 'SYSAUX')"
         sqlstr = "select table_name from user_tables"
         cursor.execute(sqlstr)
         rs = cursor.getDataSet()
@@ -71,11 +66,9 @@ class Oracle(dBackend):
             tables.append(record[0])
         return tuple(tables)
 
-
     def getTableRecordCount(self, tableName, cursor):
         cursor.execute("select count(*) as ncount from %s" % tableName)
         return cursor.getDataSet()[0][0]
-
 
     def getFields(self, tableName, cursor):
         # get PK
@@ -88,7 +81,7 @@ class Oracle(dBackend):
         sqlstr = sqlstr % tableName
         cursor.execute(sqlstr)
         rs = cursor.getDataSet(rows=1)
-        #print "rs = cursor.getDataSet(): ", rs
+        # print "rs = cursor.getDataSet(): ", rs
         try:
             pkField = rs[0]["COLUMN_NAME"].strip()
         except KeyError:
@@ -121,34 +114,45 @@ class Oracle(dBackend):
                 # No pk defined for the table
                 pk = False
             else:
-                pk = ( r["COLUMN_NAME"].lower() == pkField.lower() )
+                pk = r["COLUMN_NAME"].lower() == pkField.lower()
 
             fields.append((fname.lower(), ft, pk))
         return tuple(fields)
 
-
     def getLimitWord(self):
-        """ Oracle uses something like "where rownum <= num". """
+        """Oracle uses something like "where rownum <= num"."""
         return "rownum <="
 
-
-    def formSQL(self, fieldClause, fromClause, joinClause,
-                whereClause, groupByClause, orderByClause, limitClause):
-        """ Oracle wants the limit clause as where clause. """
+    def formSQL(
+        self,
+        fieldClause,
+        fromClause,
+        joinClause,
+        whereClause,
+        groupByClause,
+        orderByClause,
+        limitClause,
+    ):
+        """Oracle wants the limit clause as where clause."""
         if whereClause:
             if limitClause:
                 whereClause = whereClause + " and %s" % limitClause
         elif limitClause:
             whereClause = "where %s" % limitClause
-        clauses =  (fieldClause, fromClause, joinClause,
-                whereClause, groupByClause, orderByClause)
+        clauses = (
+            fieldClause,
+            fromClause,
+            joinClause,
+            whereClause,
+            groupByClause,
+            orderByClause,
+        )
         # clause.upper() was used for testing only
-        sql = "SELECT " + "\n".join( [clause.upper() for clause in clauses if clause] )
+        sql = "SELECT " + "\n".join([clause.upper() for clause in clauses if clause])
         return sql
 
-
     def beginTransaction(self, cursor):
-        """ Begin a SQL transaction."""
+        """Begin a SQL transaction."""
         ret = False
         # used for testing
         if not self._connection._has_transaction():
@@ -157,10 +161,8 @@ class Oracle(dBackend):
             ret = True
         return ret
 
-
     def getWordMatchFormat(self):
         return """ match (%(table)s.%(field)s) against ("%(value)s") """
-
 
 
 #
@@ -170,10 +172,16 @@ def main():
     from dabo.db.dConnectInfo import dConnectInfo
 
     ora = Oracle()
-    connInfo = dConnectInfo(Name="myconn", DbType="Oracle", Port=1521,
-            User="fwadm", Password="V7EE74E49H6BV27TA0J65G2AS21", Database="XE")
+    connInfo = dConnectInfo(
+        Name="myconn",
+        DbType="Oracle",
+        Port=1521,
+        User="fwadm",
+        Password="V7EE74E49H6BV27TA0J65G2AS21",
+        Database="XE",
+    )
     conn = ora.getConnection(connInfo)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

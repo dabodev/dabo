@@ -23,10 +23,11 @@ try:
 except ImportError:
     _USE_PIL = False
 ## The tag number is a constant, so no need to calculate it each time.
-#from PIL.ExifTags import TAGS
-#_ORIENTATION_TAG = [tagnum for tagnum, tagname in TAGS.items()
+# from PIL.ExifTags import TAGS
+# _ORIENTATION_TAG = [tagnum for tagnum, tagname in TAGS.items()
 #        if tagname == "Orientation"][0]
 _ORIENTATION_TAG = 274
+
 
 # The EXIF rotation values do not lend themselves easily to rotation
 # calculation, so I've defined my own for this class. These next two
@@ -34,14 +35,15 @@ _ORIENTATION_TAG = 274
 def _imgToExif(imgState):
     return {1: 1, 2: 6, 3: 3, 4: 8, 5: 2, 6: 5, 7: 4, 8: 7}[imgState]
 
+
 def _exifToImg(orientation):
     return {1: 1, 6: 2, 3: 3, 8: 4, 2: 5, 5: 6, 4: 7, 7: 8}[orientation]
 
 
 class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
     """Create a simple bitmap to display images."""
-    def __init__(self, parent, properties=None, attProperties=None,
-            *args, **kwargs):
+
+    def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dImage
         preClass = wx.StaticBitmap
 
@@ -64,30 +66,36 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         self._imageData = self.__image = None
         self._inReload = self._inShowPic = False
         picName = self._extractKey((kwargs, properties, attProperties), "Picture", "")
-        self._pictureIndex = self._extractKey((kwargs, properties, attProperties), "PictureIndex", -1)
+        self._pictureIndex = self._extractKey(
+            (kwargs, properties, attProperties), "PictureIndex", -1
+        )
 
         dImageMixin.__init__(self)
-        dDataControlMixin.__init__(self, preClass, parent, properties=properties, attProperties=attProperties,
-                bitmap=wx.Bitmap(1, 1), *args, **kwargs)
+        dDataControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            bitmap=wx.Bitmap(1, 1),
+            *args,
+            **kwargs,
+        )
 
         # Display the picture, if any. This will also initialize the
         # self._picture attribute
         self.Picture = picName
 
-
     def _initEvents(self):
         super(dImage, self)._initEvents()
         self.bindEvent(dEvents.Resize, self._onResize)
-
 
     def _onResize(self, evt):
         if not self._inShowPic:
             self._showPic()
 
-
     def update(self):
         dabo.ui.callAfterInterval(100, super(dImage, self).update)
-
 
     def _calcNewRotation(self, amt):
         ds = self._displayState
@@ -104,24 +112,19 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         self._displayState = rot
         self._showPic()
 
-
     def rotateCounterClockwise(self):
         self._calcNewRotation(-1)
 
-
     def rotateClockwise(self):
         self._calcNewRotation(+1)
-
 
     def flipVertically(self):
         self._displayState = self._vFlipTrans[self._displayState]
         self._showPic()
 
-
     def flipHorizontally(self):
         self._displayState = self._hFlipTrans[self._displayState]
         self._showPic()
-
 
     def getImgType(self):
         data = self._imageData
@@ -143,7 +146,6 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
                     print("ERROR", e)
         return ret
 
-
     def getOriginalImgSize(self):
         """
         Since the image can be scaled, this returns the size of
@@ -151,7 +153,6 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         """
         img = self._Image
         return (img.GetWidth(), img.GetHeight())
-
 
     def _showPic(self):
         """Displays the picture according to the ScaleMode and image size, as
@@ -171,7 +172,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         img = self._Image.Copy()
 
         ds = self._displayState
-        switchProportions = ((ds % 2) == 0)
+        switchProportions = (ds % 2) == 0
         mirrored = ds > 4
         rotCount = (ds - 1) % 4
         if mirrored:
@@ -233,7 +234,6 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         self.SetSize((origW, origH))
         self._inShowPic = False
 
-
     # Property definitions
     def _getFrameCount(self):
         if not self.Picture:
@@ -247,7 +247,6 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
             cnt = self.__image.GetImageCount(self.Picture)
         return cnt
 
-
     def _getPicture(self):
         return self._picture
 
@@ -257,7 +256,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
             self._picture = ""
             self._displayState = 1
             self._bmp = wx.Bitmap(1, 1, 1)
-            self.__image = wx.Image(1, 1)        # self._bmp.ConvertToImage()
+            self.__image = wx.Image(1, 1)  # self._bmp.ConvertToImage()
             self._showPic()
             return
         elif isinstance(val, wx.Image):
@@ -296,15 +295,20 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
                 # The image count is 1-based.
                 maxIdx = self.FrameCount - 1
                 if idx > maxIdx:
-                    dabo.log.error(_("Attempt to set PictureIndex (%(idx)s)to a value "
-                            "greater than the maximum index available (%(maxIdx)s).") % locals())
+                    dabo.log.error(
+                        _(
+                            "Attempt to set PictureIndex (%(idx)s)to a value "
+                            "greater than the maximum index available (%(maxIdx)s)."
+                        )
+                        % locals()
+                    )
                     idx = self.PictureIndex = maxIdx
             try:
                 self._Image.LoadFile(val, index=idx)
             except IndexError:
                 # Note: when I try to load an invalid index, I get a segfault, so I don't know
                 # how useful this is.
-                self._Image.LoadFile(val, index= -1)
+                self._Image.LoadFile(val, index=-1)
             if _USE_PIL:
                 try:
                     pil_img = Image.open(val)
@@ -319,11 +323,12 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
                     # Bad image, or no exif data available
                     pass
         if self._Image.IsOk():
-            self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
+            self._imgProp = float(self._Image.GetWidth()) / float(
+                self._Image.GetHeight()
+            )
         else:
             self._imgProp = 1.0
         self._showPic()
-
 
     def _getPictureIndex(self):
         return self._pictureIndex
@@ -339,20 +344,20 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         else:
             self._properties["PictureIndex"] = val
 
-
     def _getScaleMode(self):
         return self._scaleMode
 
     def _setScaleMode(self, val):
         """Only the first letter is significant."""
         initial = val[0].lower()
-        modes = {"c" : "Clip", "p" : "Proportional", "s" : "Stretch"}
+        modes = {"c": "Clip", "p": "Proportional", "s": "Stretch"}
         try:
             self._scaleMode = modes[initial]
             self._showPic()
         except KeyError:
-            dabo.log.error(_("ScaleMode must be either 'Clip', 'Proportional' or 'Stretch'."))
-
+            dabo.log.error(
+                _("ScaleMode must be either 'Clip', 'Proportional' or 'Stretch'.")
+            )
 
     def _getValue(self):
         return self._imageData
@@ -384,7 +389,6 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         else:
             self._properties["Value"] = val
 
-
     def _getImg(self):
         if self.__image is None:
             try:
@@ -393,21 +397,40 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
                 self.__image = wx.NullImage
         return self.__image
 
+    FrameCount = property(
+        _getFrameCount,
+        None,
+        None,
+        _(
+            "Number of frames in the current image. Will be 1 for most images, but can be greater for animated GIFs, ICOs and some TIFF files. (read-only) (int)"
+        ),
+    )
 
-    FrameCount = property(_getFrameCount, None, None,
-            _("Number of frames in the current image. Will be 1 for most images, but can be greater for animated GIFs, ICOs and some TIFF files. (read-only) (int)"))
+    Picture = property(
+        _getPicture,
+        _setPicture,
+        None,
+        _("The file used as the source for the displayed image.  (str)"),
+    )
 
-    Picture = property(_getPicture, _setPicture, None,
-            _("The file used as the source for the displayed image.  (str)"))
-
-    PictureIndex = property(_getPictureIndex, _setPictureIndex, None,
-            _("""When displaying images from files that can contain multiple
+    PictureIndex = property(
+        _getPictureIndex,
+        _setPictureIndex,
+        None,
+        _(
+            """When displaying images from files that can contain multiple
             images, such as GIF, TIFF and ICO, this determines which image
             is used. Default=-1, which displays the first image for GIF and TIFF,
-            and the main image for ICO.  (int)"""))
+            and the main image for ICO.  (int)"""
+        ),
+    )
 
-    ScaleMode = property(_getScaleMode, _setScaleMode, None,
-            _("""Determines how the image responds to sizing. Can be one
+    ScaleMode = property(
+        _getScaleMode,
+        _setScaleMode,
+        None,
+        _(
+            """Determines how the image responds to sizing. Can be one
             of the following:
 
                 =============== ===================
@@ -416,14 +439,20 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
                 Stretch         The image resizes to the Height/Width of the control.
                 =============== ===================
 
-            """))
+            """
+        ),
+    )
 
-    Value = property(_getValue, _setValue, None,
-            _("Image content for this control  (binary img data)"))
+    Value = property(
+        _getValue,
+        _setValue,
+        None,
+        _("Image content for this control  (binary img data)"),
+    )
 
-    _Image = property(_getImg, None, None,
-            _("Underlying image handler object  (wx.Image)"))
-
+    _Image = property(
+        _getImg, None, None, _("Underlying image handler object  (wx.Image)")
+    )
 
     DynamicPicture = makeDynamicProperty(Picture)
     DynamicScaleMode = makeDynamicProperty(ScaleMode)
@@ -434,6 +463,7 @@ dabo.ui.dImage = dImage
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
+
     class ImgForm(dForm):
         def afterInit(self):
             self.Caption = "dImage Demonstration"
@@ -443,10 +473,12 @@ if __name__ == "__main__":
             mp.Sizer = sz
             # Create a panel with horiz. and vert.  sliders
             self.imgPanel = dabo.ui.dPanel(mp)
-            self.VSlider = dabo.ui.dSlider(mp, Orientation="V", Min=1, Max=100,
-                Value=100, OnHit=self.onSlider)
-            self.HSlider = dabo.ui.dSlider(mp, Orientation="H", Min=1, Max=100,
-                Value=100, OnHit=self.onSlider)
+            self.VSlider = dabo.ui.dSlider(
+                mp, Orientation="V", Min=1, Max=100, Value=100, OnHit=self.onSlider
+            )
+            self.HSlider = dabo.ui.dSlider(
+                mp, Orientation="H", Min=1, Max=100, Value=100, OnHit=self.onSlider
+            )
 
             psz = self.imgPanel.Sizer = dabo.ui.dSizer("V")
             hsz = dabo.ui.dSizer("H")
@@ -466,26 +498,47 @@ if __name__ == "__main__":
 
             hsz = dabo.ui.dSizer("H")
             hsz.DefaultSpacing = 10
-            dabo.ui.dBitmapButton(mp, RegID="btnRotateCW", Picture="rotateCW",
-                    OnHit=self.onRotateCW, Size=(36, 36))
-            dabo.ui.dBitmapButton(mp, RegID="btnRotateCCW", Picture="rotateCCW",
-                    OnHit=self.onRotateCCW, Size=(36, 36))
-            dabo.ui.dBitmapButton(mp, RegID="btnFlipHorizontal", Picture="flip_horiz",
-                    OnHit=self.onFlipHoriz, Size=(36, 36))
-            dabo.ui.dBitmapButton(mp, RegID="btnFlipVertical", Picture="flip_vert",
-                    OnHit=self.onFlipVert, Size=(36, 36))
+            dabo.ui.dBitmapButton(
+                mp,
+                RegID="btnRotateCW",
+                Picture="rotateCW",
+                OnHit=self.onRotateCW,
+                Size=(36, 36),
+            )
+            dabo.ui.dBitmapButton(
+                mp,
+                RegID="btnRotateCCW",
+                Picture="rotateCCW",
+                OnHit=self.onRotateCCW,
+                Size=(36, 36),
+            )
+            dabo.ui.dBitmapButton(
+                mp,
+                RegID="btnFlipHorizontal",
+                Picture="flip_horiz",
+                OnHit=self.onFlipHoriz,
+                Size=(36, 36),
+            )
+            dabo.ui.dBitmapButton(
+                mp,
+                RegID="btnFlipVertical",
+                Picture="flip_vert",
+                OnHit=self.onFlipVert,
+                Size=(36, 36),
+            )
             hsz.append(self.btnRotateCW)
             hsz.append(self.btnRotateCCW)
             hsz.append(self.btnFlipHorizontal)
             hsz.append(self.btnFlipVertical)
 
-            self.ddScale = dabo.ui.dDropdownList(mp,
-                    Choices=["Proportional", "Stretch", "Clip"],
-                    DataSource="self.Form.img",
-                    DataField="ScaleMode")
+            self.ddScale = dabo.ui.dDropdownList(
+                mp,
+                Choices=["Proportional", "Stretch", "Clip"],
+                DataSource="self.Form.img",
+                DataField="ScaleMode",
+            )
             self.ddScale.PositionValue = 0
-            btn = dabo.ui.dButton(mp, Caption="Load Image",
-                    OnHit=self.onLoadImage)
+            btn = dabo.ui.dButton(mp, Caption="Load Image", OnHit=self.onLoadImage)
             btnOK = dabo.ui.dButton(mp, Caption="Done", OnHit=self.close)
             hsz.append(self.ddScale, 0, "x")
             hsz.append(btn, 0, "x")
@@ -496,21 +549,17 @@ if __name__ == "__main__":
             # Set the idle update flage
             self.needUpdate = False
 
-
         def onRotateCW(self, evt):
             self.img.rotateClockwise()
 
-
         def onRotateCCW(self, evt):
             self.img.rotateCounterClockwise()
-
 
         def onFlipVert(self, evt):
             self.img.flipVertically()
 
         def onFlipHoriz(self, evt):
             self.img.flipHorizontally()
-
 
         def onSlider(self, evt):
             # Vertical sliders have their low value on the bottom on OSX;
@@ -519,20 +568,17 @@ if __name__ == "__main__":
             dir = evt.EventObject.Orientation[0].lower()
             if dir == "h":
                 # Change the width of the image
-                self.img.Width = (self.imgPanel.Width * val)
+                self.img.Width = self.imgPanel.Width * val
             else:
-                self.img.Height = (self.imgPanel.Height * val)
-
+                self.img.Height = self.imgPanel.Height * val
 
         def onLoadImage(self, evt):
             f = dabo.ui.getFile("jpg", "png", "gif", "bmp", "tif", "ico", "*")
             if f:
                 self.img.Picture = f
 
-
         def onResize(self, evt):
             self.needUpdate = True
-
 
         def onIdle(self, evt):
             if self.needUpdate:
@@ -541,8 +587,6 @@ if __name__ == "__main__":
                 ht = self.VSlider.Value * 0.01 * self.imgPanel.Height
                 self.img.Size = (wd, ht)
 
-
     app = dApp()
     app.MainFormClass = ImgForm
     app.start()
-

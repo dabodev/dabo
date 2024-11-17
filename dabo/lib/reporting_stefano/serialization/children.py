@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
+
 def importClass(clsName):
-    components = clsName.split('.')
+    components = clsName.split(".")
     modComponents = []
     for comp in components:
         if comp[0].isupper():
             break
         modComponents.append(comp)
-    mod = __import__('.'.join(modComponents))
+    mod = __import__(".".join(modComponents))
     for comp in components[1:]:
         mod = getattr(mod, comp)
     return mod
@@ -51,4 +52,3 @@ class ObjectListChild(SerializableObjectChild):
 
     def getExpectedNames(self, attrName):
         return [loname(cls.__name__) for cls in self.getExpectedClasses()]
-

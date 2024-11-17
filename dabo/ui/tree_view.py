@@ -15,6 +15,7 @@ from dabo.ui import makeDynamicProperty
 
 class dNode(dObject):
     """Wrapper class for the tree nodes."""
+
     def __init__(self, tree, itemID, parent):
         self._baseClass = dNode
         self.tree = tree
@@ -31,28 +32,23 @@ class dNode(dObject):
         # Add minimal Dabo functionality
         self.afterInit()
 
-    def afterInit(self): pass
-
+    def afterInit(self):
+        pass
 
     def expand(self):
         self.tree.expand(self)
 
-
     def collapse(self):
         self.tree.collapse(self)
-
 
     def show(self):
         self.tree.showNode(self)
 
-
     def release(self):
         self.tree.removeNode(self)
 
-
     def appendChild(self, txt):
         return self.tree.appendNode(self, txt)
-
 
     def removeChild(self, txt):
         """Removes the child node whose text matches the passed value"""
@@ -65,16 +61,13 @@ class dNode(dObject):
                 break
         return
 
-
     def _onFontPropsChanged(self, evt):
         # Sent by the dFont object when any props changed. Wx needs to be notified:
         self.tree.SetItemFont(self.itemID, self.Font._nativeFont)
 
-
     def _constructed(self):
         # For compatibility with mixin props.
         return True
-
 
     # Property definition code begins here
     def _getBackColor(self):
@@ -84,7 +77,6 @@ class dNode(dObject):
         if isinstance(val, str):
             val = dColors.colorTupleFromName(val)
         self.tree.SetItemBackgroundColour(self.itemID, val)
-
 
     def _getCap(self):
         try:
@@ -96,14 +88,11 @@ class dNode(dObject):
     def _setCap(self, val):
         self.tree.SetItemText(self.itemID, val)
 
-
     def _getChildren(self):
         return self.tree.getChildren(self)
 
-
     def _getDescendents(self):
         return self.tree.getDescendents(self)
-
 
     def _getExpanded(self):
         return self.tree.IsExpanded(self.itemID)
@@ -119,12 +108,13 @@ class dNode(dObject):
             # especially from dTreeView.refreshDisplay()
             pass
 
-
     def _getFont(self):
         if hasattr(self, "_font"):
             v = self._font
         else:
-            v = self.Font = dabo.ui.dFont(_nativeFont=self.tree.GetItemFont(self.itemID))
+            v = self.Font = dabo.ui.dFont(
+                _nativeFont=self.tree.GetItemFont(self.itemID)
+            )
         return v
 
     def _setFont(self, val):
@@ -137,7 +127,6 @@ class dNode(dObject):
             val.bindEvent(dEvents.FontPropertiesChanged, self._onFontPropsChanged)
             dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
-
     def _getFontBold(self):
         try:
             return self.Font.Bold
@@ -148,20 +137,17 @@ class dNode(dObject):
         self.Font.Bold = val
         dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
-
     def _getFontDescription(self):
         try:
             return self.Font.Description
         except AttributeError:
             return ""
 
-
     def _getFontInfo(self):
         try:
             return self.Font._nativeFont.GetNativeFontInfoDesc()
         except AttributeError:
             return ""
-
 
     def _getFontItalic(self):
         try:
@@ -173,7 +159,6 @@ class dNode(dObject):
         self.Font.Italic = val
         dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
-
     def _getFontFace(self):
         try:
             return self.Font.Face
@@ -183,7 +168,6 @@ class dNode(dObject):
     def _setFontFace(self, val):
         self.Font.Face = val
         dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
-
 
     def _getFontSize(self):
         try:
@@ -195,7 +179,6 @@ class dNode(dObject):
         self.Font.Size = val
         dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
-
     def _getFontUnderline(self):
         try:
             return self.Font.Underline
@@ -206,7 +189,6 @@ class dNode(dObject):
         self.Font.Underline = val
         dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
-
     def _getForeColor(self):
         return self.tree.GetItemTextColour(self.itemID).Get()
 
@@ -215,13 +197,11 @@ class dNode(dObject):
             val = dColors.colorTupleFromName(val)
         self.tree.SetItemTextColour(self.itemID, val)
 
-
     def _getFullCaption(self):
         ret = self.Caption
         if self.parent:
             ret = "%s.%s" % (self.parent._getFullCaption(), ret)
         return ret
-
 
     def _getImg(self):
         return self.tree.getNodeImg(self)
@@ -230,14 +210,12 @@ class dNode(dObject):
         return self.tree.setNodeImg(self, key)
         dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
-
     def _getIsRootNode(self):
         try:
             ret = self._isRootNode
         except AttributeError:
-            ret = self._isRootNode = (self.tree.GetRootItem() == self.itemID)
+            ret = self._isRootNode = self.tree.GetRootItem() == self.itemID
         return ret
-
 
     def _getObject(self):
         return self._object
@@ -248,22 +226,19 @@ class dNode(dObject):
         else:
             self._properties["Object"] = val
 
-
     def _getSel(self):
         sel = self.tree.Selection
         if isinstance(sel, list):
             ret = self in sel
         else:
-            ret = (self == sel)
+            ret = self == sel
         return ret
 
     def _setSel(self, val):
         self.tree.SelectItem(self.itemID, val)
 
-
     def _getSiblings(self):
         return self.tree.getSiblings(self)
-
 
     def _getToolTipText(self):
         return self._toolTipText
@@ -274,76 +249,156 @@ class dNode(dObject):
         else:
             self._properties["ToolTipText"] = val
 
+    BackColor = property(
+        _getBackColor,
+        _setBackColor,
+        None,
+        _("Background color of this node  (str, 3-tuple, or wx.Colour)"),
+    )
 
-    BackColor = property(_getBackColor, _setBackColor, None,
-            _("Background color of this node  (str, 3-tuple, or wx.Colour)") )
+    Caption = property(
+        _getCap, _setCap, None, _("Returns/sets the text of this node.  (str)")
+    )
 
-    Caption = property(_getCap, _setCap, None,
-            _("Returns/sets the text of this node.  (str)") )
+    Children = property(
+        _getChildren,
+        None,
+        None,
+        _("List of all nodes for which this is their parent node.  (list of dNodes)"),
+    )
 
-    Children = property(_getChildren, None, None,
-            _("List of all nodes for which this is their parent node.  (list of dNodes)") )
+    Descendents = property(
+        _getDescendents,
+        None,
+        None,
+        _(
+            "List of all nodes for which this node is a direct ancestor.  (list of dNodes)"
+        ),
+    )
 
-    Descendents = property(_getDescendents, None, None,
-            _("List of all nodes for which this node is a direct ancestor.  (list of dNodes)") )
+    Expanded = property(
+        _getExpanded,
+        _setExpanded,
+        None,
+        _("Represents whether the node is Expanded (True) or collapsed.  (bool)"),
+    )
 
-    Expanded = property(_getExpanded, _setExpanded, None,
-            _("Represents whether the node is Expanded (True) or collapsed.  (bool)"))
+    Font = property(
+        _getFont, _setFont, None, _("The font properties of the node. (obj)")
+    )
 
-    Font = property(_getFont, _setFont, None,
-            _("The font properties of the node. (obj)") )
+    FontBold = property(
+        _getFontBold,
+        _setFontBold,
+        None,
+        _("Specifies if the node font is bold-faced. (bool)"),
+    )
 
-    FontBold = property(_getFontBold, _setFontBold, None,
-            _("Specifies if the node font is bold-faced. (bool)") )
+    FontDescription = property(
+        _getFontDescription,
+        None,
+        None,
+        _("Human-readable description of the node's font settings. (str)"),
+    )
 
-    FontDescription = property(_getFontDescription, None, None,
-            _("Human-readable description of the node's font settings. (str)") )
+    FontFace = property(
+        _getFontFace,
+        _setFontFace,
+        None,
+        _("Specifies the font face for the node. (str)"),
+    )
 
-    FontFace = property(_getFontFace, _setFontFace, None,
-            _("Specifies the font face for the node. (str)") )
+    FontInfo = property(
+        _getFontInfo,
+        None,
+        None,
+        _(
+            "Specifies the platform-native font info string for the node. Read-only. (str)"
+        ),
+    )
 
-    FontInfo = property(_getFontInfo, None, None,
-            _("Specifies the platform-native font info string for the node. Read-only. (str)") )
+    FontItalic = property(
+        _getFontItalic,
+        _setFontItalic,
+        None,
+        _("Specifies whether the node's font is italicized. (bool)"),
+    )
 
-    FontItalic = property(_getFontItalic, _setFontItalic, None,
-            _("Specifies whether the node's font is italicized. (bool)") )
+    FontSize = property(
+        _getFontSize,
+        _setFontSize,
+        None,
+        _("Specifies the point size of the node's font. (int)"),
+    )
 
-    FontSize = property(_getFontSize, _setFontSize, None,
-            _("Specifies the point size of the node's font. (int)") )
+    FontUnderline = property(
+        _getFontUnderline,
+        _setFontUnderline,
+        None,
+        _("Specifies whether node text is underlined. (bool)"),
+    )
 
-    FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
-            _("Specifies whether node text is underlined. (bool)") )
+    ForeColor = property(
+        _getForeColor,
+        _setForeColor,
+        None,
+        _("Foreground (text) color of this node  (str, 3-tuple, or wx.Colour)"),
+    )
 
-    ForeColor = property(_getForeColor, _setForeColor, None,
-            _("Foreground (text) color of this node  (str, 3-tuple, or wx.Colour)") )
+    FullCaption = property(
+        _getFullCaption,
+        None,
+        None,
+        _(
+            "Full dot-separated string of the captions of this node and its ancestors (read-only) (str)"
+        ),
+    )
 
-    FullCaption = property(_getFullCaption, None, None,
-            _("Full dot-separated string of the captions of this node and its ancestors (read-only) (str)"))
-
-    Image = property(_getImg, _setImg, None,
-            _("""Sets the image that is displayed on the node. This is
+    Image = property(
+        _getImg,
+        _setImg,
+        None,
+        _(
+            """Sets the image that is displayed on the node. This is
             determined by the key value passed, which must refer to an
             image already added to the parent tree.     When used to retrieve
             an image, it returns the index of the node's image in the parent
-            tree's image list.   (int)""") )
+            tree's image list.   (int)"""
+        ),
+    )
 
-    IsRootNode = property(_getIsRootNode, None, None,
-            _("Returns True if this is the root node (read-only) (bool)"))
+    IsRootNode = property(
+        _getIsRootNode,
+        None,
+        None,
+        _("Returns True if this is the root node (read-only) (bool)"),
+    )
 
-    Object = property(_getObject, _setObject, None,
-            _("Optional object associated with this node. Default=None  (object)"))
+    Object = property(
+        _getObject,
+        _setObject,
+        None,
+        _("Optional object associated with this node. Default=None  (object)"),
+    )
 
-    Selected = property(_getSel, _setSel, None,
-            _("Is this node selected?.  (bool)") )
+    Selected = property(_getSel, _setSel, None, _("Is this node selected?.  (bool)"))
 
-    Siblings = property(_getSiblings, None, None,
-            _("List of all nodes with the same parent node.  (list of dNodes)") )
+    Siblings = property(
+        _getSiblings,
+        None,
+        None,
+        _("List of all nodes with the same parent node.  (list of dNodes)"),
+    )
 
-    ToolTipText = property(_getToolTipText, _setToolTipText, None,
-            _("""Text to display when the mouse hovers over this node. The tree's
-            UseNodeToolTips property must be True for this to have any effect.  (str)"""))
-
-
+    ToolTipText = property(
+        _getToolTipText,
+        _setToolTipText,
+        None,
+        _(
+            """Text to display when the mouse hovers over this node. The tree's
+            UseNodeToolTips property must be True for this to have any effect.  (str)"""
+        ),
+    )
 
     DynamicBackColor = makeDynamicProperty(BackColor)
     DynamicCaption = makeDynamicProperty(Caption)
@@ -361,6 +416,7 @@ class dNode(dObject):
 
 class dTreeView(dControlMixin, wx.TreeCtrl):
     """Creates a treeview, which allows display of hierarchical data."""
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dTreeView
 
@@ -377,11 +433,14 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         # Store the default ToolTipText while UseNodeToolTips is True
         self._storedToolTipText = None
 
-        style = self._extractKey((properties, attProperties, kwargs), "style", 0) | wx.TR_HAS_VARIABLE_ROW_HEIGHT
+        style = (
+            self._extractKey((properties, attProperties, kwargs), "style", 0)
+            | wx.TR_HAS_VARIABLE_ROW_HEIGHT
+        )
         # Default to showing buttons
         val = self._extractKey(attProperties, "ShowButtons", None)
         if val is not None:
-            val = (val == "True")
+            val = val == "True"
         else:
             val = self._extractKey((properties, kwargs), "ShowButtons", True)
         if val:
@@ -390,7 +449,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         # Default to showing lines
         val = self._extractKey(attProperties, "ShowLines", None)
         if val is not None:
-            val = (val == "True")
+            val = val == "True"
         else:
             val = self._extractKey((properties, kwargs), "ShowLines", True)
         if not val:
@@ -399,7 +458,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         # Default to showing root node
         val = self._extractKey(attProperties, "ShowRootNode", None)
         if val is not None:
-            val = (val == "True")
+            val = val == "True"
         else:
             val = self._extractKey((properties, kwargs), "ShowRootNode", True)
         if not val:
@@ -408,16 +467,23 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         # Default to showing root node lines
         val = self._extractKey(attProperties, "ShowRootNodeLines", None)
         if val is not None:
-            val = (val == "True")
+            val = val == "True"
         else:
             val = self._extractKey((properties, kwargs), "ShowRootNodeLines", True)
         if val:
             style = style | wx.TR_LINES_AT_ROOT
 
         preClass = wx.TreeCtrl
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, style=style, *args, **kwargs)
-
+        dControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            style=style,
+            *args,
+            **kwargs,
+        )
 
     def _initEvents(self):
         super(dTreeView, self)._initEvents()
@@ -431,10 +497,8 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         self.Bind(wx.EVT_TREE_END_DRAG, self.__onTreeEndDrag)
         self.Bind(wx.EVT_MOTION, self.__onTreeMouseMove)
 
-
     def __onTreeItemContextMenu(self, evt):
         self.raiseEvent(dEvents.TreeItemContextMenu, evt)
-
 
     def __onTreeBeginDrag(self, evt):
         if self._allowDrag(evt):
@@ -445,7 +509,6 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         evt.Skip()
         self.raiseEvent(dEvents.TreeBeginDrag, evt)
 
-
     def __onTreeEndDrag(self, evt):
         evt.Skip()
         # We need to select only our destination node
@@ -454,22 +517,18 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         self.SelectItem(evt.GetItem())
         self.raiseEvent(dEvents.TreeEndDrag, evt)
 
-
     def _allowDrag(self, evt):
         nd = self.find(evt.GetItem())
         return self.allowDrag(nd)
-
 
     def allowDrag(self, node):
         # Override in subclasses in needed.
         return True
 
-
     def _getInitPropertiesList(self):
         original = list(super(dTreeView, self)._getInitPropertiesList())
         original.remove("MultipleSelect")
         return tuple(original)
-
 
     def clear(self, clearImageList=False):
         self.DeleteAllItems()
@@ -480,7 +539,6 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
                 il.RemoveAll()
             self.__imageList = {}
 
-
     def refreshDisplay(self):
         """
         Changing some node appearance properties requires that the tree be
@@ -488,18 +546,19 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         """
         self.lockDisplay()
         sel = self.Selection
-        ndExp = ((nd, nd.Expanded) for nd in self.nodes
-                if ((not nd.IsRootNode) or self.ShowRootNode))
+        ndExp = (
+            (nd, nd.Expanded)
+            for nd in self.nodes
+            if ((not nd.IsRootNode) or self.ShowRootNode)
+        )
         self.collapseAll()
         for nd, exp in ndExp:
             nd.Expanded = exp
         self.Selection = sel
         self.unlockDisplay()
 
-
     def getRootNode(self):
         return self._rootNode
-
 
     def setRootNode(self, txt):
         itemID = self.AddRoot(txt)
@@ -508,7 +567,6 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
             self.SetItemFont(ret.itemID, self.GetFont())
         self.nodes.append(ret)
         return ret
-
 
     def appendNode(self, node, txt):
         if node is None:
@@ -522,53 +580,42 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         self.nodes.append(ret)
         return ret
 
-
     def removeNode(self, node):
         self.Delete(node.itemID)
         for n in node.Descendents:
             self.nodes.remove(n)
         self.nodes.remove(node)
 
-
     def expand(self, node):
         self.Expand(node.itemID)
-
 
     def collapse(self, node):
         self.Collapse(node.itemID)
 
-
     def expandAll(self):
         nds = self.nodes
         if not self.ShowRootNode:
-            nds = [nd for nd in self.nodes
-                    if not nd.IsRootNode]
+            nds = [nd for nd in self.nodes if not nd.IsRootNode]
         for n in nds:
             self.expand(n)
-
 
     def collapseAll(self):
         nds = self.nodes
         if not self.ShowRootNode:
-            nds = [nd for nd in self.nodes
-                    if not nd.IsRootNode]
+            nds = [nd for nd in self.nodes if not nd.IsRootNode]
         for n in nds:
             self.collapse(n)
-
 
     def expandBranch(self, nd):
         """Expands the specified node, as well as any of its child nodes."""
         self.ExpandAllChildren(nd.itemID)
 
-
     def collapseBranch(self, nd):
         """Collapses the specified node, as well as any of its child nodes."""
         self.CollapseAllChildren(nd.itemID)
 
-
     def showNode(self, node):
         self.EnsureVisible(node.itemID)
-
 
     # Image-handling function
     def addImage(self, img, key=None):
@@ -592,7 +639,6 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         idx = il.Add(img)
         self.__imageList[key] = idx
 
-
     def setNodeImg(self, node, imgKey, which="normal"):
         """
         Sets the specified node's image to the image corresponding to the
@@ -607,10 +653,12 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
             'selectedexpanded'
 
         """
-        whichdict = {"normal": wx.TreeItemIcon_Normal,
+        whichdict = {
+            "normal": wx.TreeItemIcon_Normal,
             "expanded": wx.TreeItemIcon_Expanded,
             "selected": wx.TreeItemIcon_Selected,
-            "selectedexpanded": wx.TreeItemIcon_SelectedExpanded}
+            "selectedexpanded": wx.TreeItemIcon_SelectedExpanded,
+        }
         if which.lower() not in whichdict:
             raise ValueError(_("Invalid Node State: %s") % which)
         if isinstance(imgKey, int):
@@ -618,7 +666,6 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         else:
             imgIdx = self.__imageList[imgKey]
         self.SetItemImage(node.itemID, imgIdx, whichdict[which.lower()])
-
 
     def getNodeImg(self, node, which="normal"):
         """
@@ -634,22 +681,22 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
             'selectedexpanded'
 
         """
-        whichdict = {"normal": wx.TreeItemIcon_Normal,
+        whichdict = {
+            "normal": wx.TreeItemIcon_Normal,
             "expanded": wx.TreeItemIcon_Expanded,
             "selected": wx.TreeItemIcon_Selected,
-            "selectedexpanded": wx.TreeItemIcon_SelectedExpanded}
+            "selectedexpanded": wx.TreeItemIcon_SelectedExpanded,
+        }
         if which.lower() not in whichdict:
             raise ValueError(_("Invalid Node State: %s") % which)
         return self.GetItemImage(node.itemID, whichdict[which.lower()])
 
-
     def nodeForObject(self, obj):
         """Given an object, returns the corresponding node."""
         try:
-            return [nd for nd in self.nodes    if nd._object is obj][0]
+            return [nd for nd in self.nodes if nd._object is obj][0]
         except IndexError:
             return None
-
 
     def getParentNode(self, node):
         """
@@ -665,13 +712,10 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
             ret = None
         return ret
 
-
     def getChildren(self, node):
         """Returns a list of all nodes that are child nodes of this node."""
-        ret = [n for n in self.nodes
-                if n.parent == node]
+        ret = [n for n in self.nodes if n.parent == node]
         return ret
-
 
     def getDescendents(self, node):
         """Returns a list of all nodes that are direct descendents of this node."""
@@ -686,16 +730,13 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
                     par = par.parent
         return ret
 
-
     def getSiblings(self, node):
         """
         Returns a list of all nodes at the same level as the specified
         node. The specified node is included in the list.
         """
-        ret = [n for n in self.nodes
-                if n.parent == node.parent]
+        ret = [n for n in self.nodes if n.parent == node.parent]
         return ret
-
 
     def find(self, srch, top=None):
         """
@@ -713,13 +754,10 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         else:
             nodes = top.Descendents
         if isinstance(srch, str):
-            ret = [n for n in nodes
-                if n.Caption == srch ]
+            ret = [n for n in nodes if n.Caption == srch]
         elif isinstance(srch, wx.TreeItemId):
-            ret = [n for n in nodes
-                if n.itemID == srch ]
+            ret = [n for n in nodes if n.itemID == srch]
         return ret
-
 
     def findPattern(self, srchPat, top=None):
         """
@@ -735,10 +773,8 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         else:
             nodes = top.Descendents
         if isinstance(srchPat, str):
-            ret = [n for n in nodes
-                if re.match(srchPat, n.Caption) ]
+            ret = [n for n in nodes if re.match(srchPat, n.Caption)]
         return ret
-
 
     # These related functions all use self._getRelative().
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -746,11 +782,9 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         """Returns the next sibling node, or None if there are no more"""
         return self._getRelative(nd, self.GetNextSibling)
 
-
     def priorSibling(self, nd=None):
         """Returns the prior sibling node, or None if there are no more"""
         return self._getRelative(nd, self.GetPrevSibling)
-
 
     def nextNode(self, nd=None):
         """
@@ -788,7 +822,6 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
                 ret = self._getRelative(nd, self.GetNextSibling)
         return ret
 
-
     def priorNode(self, nd=None):
         """
         Returns last child of the prior sibling node. If there
@@ -821,7 +854,6 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
             ret = nd
         return ret
 
-
     def _getRelative(self, nd, func):
         """
         Used by nextNode(), nextSibling(), priorNode() and
@@ -837,16 +869,16 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
                 return None
         try:
             itemID = func(nd.itemID)
-            ret = [nod for nod in self.nodes
-                    if nod.itemID == itemID][0]
+            ret = [nod for nod in self.nodes if nod.itemID == itemID][0]
         except IndexError:
             ret = None
         return ret
+
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-
-    def makeDirTree(self, dirPath, wildcard=None, ignored=None,
-            showHidden=False, expand=False):
+    def makeDirTree(
+        self, dirPath, wildcard=None, ignored=None, showHidden=False, expand=False
+    ):
         """
         Make this dTreeView show a filesystem directory hierarchy. You
         can specify a wildcard pattern: e.g., "\*py" will only include files
@@ -878,6 +910,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
 
         # Add any trailing slash character
         self._pathNode = {}
+
         # Define the function to be passed to os.path.walk
         def addNode(arg, currDir, fNames):
             wildcards, ignored, showHid = arg
@@ -936,26 +969,26 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
             # single string passed
             ignored = [ignored]
         arg = (wildcard, ignored, showHidden)
-        #JFCS os.path no longer has .walk
-        #os.path.walk(dirPath, addNode, arg)
-        #os.path.walk(dirPath, sortNode, None)
+        # JFCS os.path no longer has .walk
+        # os.path.walk(dirPath, addNode, arg)
+        # os.path.walk(dirPath, sortNode, None)
         os.walk(dirPath, addNode, arg)
-        os.walk(dirPath, sortNode, None)        
+        os.walk(dirPath, sortNode, None)
         if expand:
             self.expandAll()
-
 
     def _setAbsoluteFontZoom(self, newZoom):
         self._currFontZoom = newZoom
         for node in self.nodes:
-            origFontSize = node._origFontSize = getattr(node, "_origFontSize", node.FontSize)
+            origFontSize = node._origFontSize = getattr(
+                node, "_origFontSize", node.FontSize
+            )
             fontSize = origFontSize + newZoom
             if fontSize > 1:
                 node.FontSize = fontSize
 
         if self.Form is not None:
             dabo.ui.callAfterInterval(200, self.Form.layout)
-
 
     def treeFromStructure(self, stru, topNode=None):
         """
@@ -972,7 +1005,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         If there are child nodes, the child information will be
         recursively parsed.
         """
-        addRoot = (topNode is None)
+        addRoot = topNode is None
         if addRoot:
             self.DeleteAllItems()
         if isinstance(stru[0], str):
@@ -992,7 +1025,6 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
                     kids = None
                 if kids:
                     self.treeFromStructure(kids, nd)
-
 
     def addDummyData(self):
         """For testing purposes!"""
@@ -1019,16 +1051,13 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         #         c23 = c2.appendChild("Grandkid #3")
         #         c221 = c22.appendChild("Great-Grandkid #1")
 
-
     def getNodeForID(self, idval):
         """Given a wx item ID, returns the corresponding node, or None."""
         try:
-            ret = [nd for nd in self.nodes
-                    if nd.itemID == idval][0]
+            ret = [nd for nd in self.nodes if nd.itemID == idval][0]
         except IndexError:
             ret = None
         return ret
-
 
     def getNodeUnderMouse(self, includeSpace=False, includeButton=True):
         """
@@ -1053,8 +1082,11 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         ret = None
         mp = self.getMousePosition()
         idval, flag = self.HitTest(mp)
-        overFlags = (wx.TREE_HITTEST_ONITEMICON |
-                wx.TREE_HITTEST_ONITEMINDENT | wx.TREE_HITTEST_ONITEMLABEL)
+        overFlags = (
+            wx.TREE_HITTEST_ONITEMICON
+            | wx.TREE_HITTEST_ONITEMINDENT
+            | wx.TREE_HITTEST_ONITEMLABEL
+        )
         if includeSpace:
             overFlags = overFlags | wx.TREE_HITTEST_ONITEMRIGHT
         if includeButton:
@@ -1063,24 +1095,25 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
             ret = self.getNodeForID(idval)
         return ret
 
-
     def getBaseNodeClass(cls):
         return dNode
-    getBaseNodeClass = classmethod(getBaseNodeClass)
 
+    getBaseNodeClass = classmethod(getBaseNodeClass)
 
     # Event-handling code
     def __onTreeSel(self, evt):
         self.raiseEvent(dEvents.TreeSelection, evt)
+
     def __onKeyUp(self, evt):
         evt.Skip()
         if evt.GetKeyCode() in (316, 317, 318, 319):
             self._onWxHit(evt)
+
     def __onTreeItemCollapse(self, evt):
         self.raiseEvent(dEvents.TreeItemCollapse, evt)
+
     def __onTreeItemExpand(self, evt):
         self.raiseEvent(dEvents.TreeItemExpand, evt)
-
 
     def __onTreeMouseMove(self, evt):
         if self._useNodeToolTips:
@@ -1096,15 +1129,15 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
                 else:
                     self.ToolTipText = ""
 
-
     def _getBaseNodes(self):
         if self.ShowRootNode:
             return [self._rootNode]
         else:
-            return [nd for nd in self.nodes
-                    if nd.parent is not None
-                    and nd.parent.IsRootNode]
-
+            return [
+                nd
+                for nd in self.nodes
+                if nd.parent is not None and nd.parent.IsRootNode
+            ]
 
     def _getEditable(self):
         return self._hasWindowStyleFlag(wx.TR_EDIT_LABELS)
@@ -1113,7 +1146,6 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         self._delWindowStyleFlag(wx.TR_EDIT_LABELS)
         if val:
             self._addWindowStyleFlag(wx.TR_EDIT_LABELS)
-
 
     def _getImageSize(self):
         return self._imageSize
@@ -1124,19 +1156,18 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         else:
             self._properties["ImageSize"] = val
 
-
     def _getMultipleSelect(self):
         return self._hasWindowStyleFlag(wx.TR_MULTIPLE)
 
     def _setMultipleSelect(self, val):
         self._delWindowStyleFlag(wx.TR_MULTIPLE)
-        #JFCS 10/17/19 wx.TR_EXTENDED does not exist in wxpython 4
-        #self._delWindowStyleFlag(wx.TR_EXTENDED)
+        # JFCS 10/17/19 wx.TR_EXTENDED does not exist in wxpython 4
+        # self._delWindowStyleFlag(wx.TR_EXTENDED)
         self._delWindowStyleFlag(wx.TR_SINGLE)
         if val:
             self._addWindowStyleFlag(wx.TR_MULTIPLE)
-            #JFCS 10/16/2019 wxPython 4 wx.TR_EXTENDED does not exist
-            #self._addWindowStyleFlag(wx.TR_EXTENDED)
+            # JFCS 10/16/2019 wxPython 4 wx.TR_EXTENDED does not exist
+            # self._addWindowStyleFlag(wx.TR_EXTENDED)
         else:
             if self._constructed():
                 self.lockDisplay()
@@ -1148,7 +1179,6 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
             else:
                 self._addWindowStyleFlag(wx.TR_SINGLE)
 
-
     def _getNodeClass(self):
         return self._nodeClass
 
@@ -1158,18 +1188,15 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         else:
             self._properties["NodeClass"] = val
 
-
     def _getSelection(self):
         if self.MultipleSelect:
             ids = self.GetSelections()
-            ret = [node for node in self.nodes
-                    if node.itemID in ids]
+            ret = [node for node in self.nodes if node.itemID in ids]
         else:
             itemID = self.GetSelection()
             if itemID:
                 try:
-                    ret = [n for n in self.nodes
-                            if n.itemID == itemID][0]
+                    ret = [n for n in self.nodes if n.itemID == itemID][0]
                 except IndexError:
                     ret = None
             else:
@@ -1187,13 +1214,16 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
                         self.SelectItem(itm.itemID, True)
                 else:
                     if len(node) > 1:
-                        dabo.log.error(_("Attempting to select multiple nodes when MultipleSelect is False"))
+                        dabo.log.error(
+                            _(
+                                "Attempting to select multiple nodes when MultipleSelect is False"
+                            )
+                        )
                     self.SelectItem(node[0].itemID)
             else:
                 self.SelectItem(node.itemID)
         else:
             self._properties["Selection"] = node
-
 
     def _getShowButtons(self):
         return self._hasWindowStyleFlag(wx.TR_HAS_BUTTONS)
@@ -1212,7 +1242,6 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
                 # Control may not be constructed yet
                 pass
 
-
     def _getShowLines(self):
         return not self._hasWindowStyleFlag(wx.TR_NO_LINES)
 
@@ -1226,7 +1255,6 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
             except AttributeError:
                 # Control may not be constructed yet
                 pass
-
 
     def _getShowRootNode(self):
         return not self._hasWindowStyleFlag(wx.TR_HIDE_ROOT)
@@ -1242,7 +1270,6 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
                 # Control may not be constructed yet
                 pass
 
-
     def _getShowRootNodeLines(self):
         return self._hasWindowStyleFlag(wx.TR_LINES_AT_ROOT)
 
@@ -1256,7 +1283,6 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
             except AttributeError:
                 # Control may not be constructed yet
                 pass
-
 
     def _getUseNodeToolTips(self):
         return self._useNodeToolTips
@@ -1272,51 +1298,100 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         else:
             self._properties["UseNodeToolTips"] = val
 
-
-    BaseNodes = property(_getBaseNodes, None, None,
-            _("""Returns the root node if ShowRootNode is True; otherwise,
+    BaseNodes = property(
+        _getBaseNodes,
+        None,
+        None,
+        _(
+            """Returns the root node if ShowRootNode is True; otherwise,
             returns all the nodes who are not children of other nodes
-            (read-only) (list of nodes)"""))
+            (read-only) (list of nodes)"""
+        ),
+    )
 
-    Editable = property(_getEditable, _setEditable, None,
-        _("""Specifies whether the tree labels can be edited by the user."""))
+    Editable = property(
+        _getEditable,
+        _setEditable,
+        None,
+        _("""Specifies whether the tree labels can be edited by the user."""),
+    )
 
-    ImageSize = property(_getImageSize, _setImageSize, None,
-            _("Size of images added to the tree. Default=(15, 15)  (2-tuple of int)"))
+    ImageSize = property(
+        _getImageSize,
+        _setImageSize,
+        None,
+        _("Size of images added to the tree. Default=(15, 15)  (2-tuple of int)"),
+    )
 
-    MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
-        _("""Specifies whether more than one node may be selected at once."""))
+    MultipleSelect = property(
+        _getMultipleSelect,
+        _setMultipleSelect,
+        None,
+        _("""Specifies whether more than one node may be selected at once."""),
+    )
 
-    NodeClass = property(_getNodeClass, _setNodeClass, None,
-            _("Class to use when creating nodes  (dNode)"))
+    NodeClass = property(
+        _getNodeClass,
+        _setNodeClass,
+        None,
+        _("Class to use when creating nodes  (dNode)"),
+    )
 
-    Selection = property(_getSelection, _setSelection, None,
-        _("""Specifies which node or nodes are selected.
+    Selection = property(
+        _getSelection,
+        _setSelection,
+        None,
+        _(
+            """Specifies which node or nodes are selected.
 
         If MultipleSelect is False, the currently selected node is specified. If MultipleSelect
-        is True, a list of selected nodes is specified."""))
+        is True, a list of selected nodes is specified."""
+        ),
+    )
 
-    ShowButtons = property(_getShowButtons, _setShowButtons, None,
-        _("""Specifies whether +/- indicators are show at the left of parent nodes."""))
+    ShowButtons = property(
+        _getShowButtons,
+        _setShowButtons,
+        None,
+        _("""Specifies whether +/- indicators are show at the left of parent nodes."""),
+    )
 
-    ShowLines = property(_getShowLines, _setShowLines, None,
-            _("Specifies whether lines are drawn between nodes.  (bool)"))
+    ShowLines = property(
+        _getShowLines,
+        _setShowLines,
+        None,
+        _("Specifies whether lines are drawn between nodes.  (bool)"),
+    )
 
-    ShowRootNode = property(_getShowRootNode, _setShowRootNode, None,
-        _("""Specifies whether the root node is included in the treeview.
+    ShowRootNode = property(
+        _getShowRootNode,
+        _setShowRootNode,
+        None,
+        _(
+            """Specifies whether the root node is included in the treeview.
 
         There can be only one root node, so if you want several root nodes you can
         fake it by setting ShowRootNode to False. Now, your top child nodes have
-        the visual indication of being sibling root nodes."""))
+        the visual indication of being sibling root nodes."""
+        ),
+    )
 
-    ShowRootNodeLines = property(_getShowRootNodeLines, _setShowRootNodeLines, None,
-        _("""Specifies whether vertical lines are shown between root siblings."""))
+    ShowRootNodeLines = property(
+        _getShowRootNodeLines,
+        _setShowRootNodeLines,
+        None,
+        _("""Specifies whether vertical lines are shown between root siblings."""),
+    )
 
-    UseNodeToolTips = property(_getUseNodeToolTips, _setUseNodeToolTips, None,
-            _("""When True, the ToolTipText displayed is taken from the node.
-            Default=False  (bool)"""))
-
-
+    UseNodeToolTips = property(
+        _getUseNodeToolTips,
+        _setUseNodeToolTips,
+        None,
+        _(
+            """When True, the ToolTipText displayed is taken from the node.
+            Default=False  (bool)"""
+        ),
+    )
 
     DynamicEditable = makeDynamicProperty(Editable)
     DynamicMultipleSelect = makeDynamicProperty(MultipleSelect)
@@ -1377,7 +1452,6 @@ class _dTreeView_test(dTreeView):
         print("Ending drag for %s" % evt.selectedCaption)
 
 
-
 if __name__ == "__main__":
     from dabo.dApp import dApp
     from dabo.ui import test
@@ -1397,32 +1471,48 @@ if __name__ == "__main__":
             sz.DefaultBorder = 7
             sz.DefaultBorderLeft = sz.DefaultBorderTop = True
 
-            chk = dCheckBox(mp, Caption="Editable",
-                    DataSource=tree, DataField="Editable")
+            chk = dCheckBox(
+                mp, Caption="Editable", DataSource=tree, DataField="Editable"
+            )
             sz.append(chk, halign="Left")
 
-            chk = dCheckBox(mp, Caption="MultipleSelect",
-                    DataSource=tree, DataField="MultipleSelect")
+            chk = dCheckBox(
+                mp,
+                Caption="MultipleSelect",
+                DataSource=tree,
+                DataField="MultipleSelect",
+            )
             sz.append(chk, halign="Left")
 
-            chk = dCheckBox(mp, Caption="ShowButtons",
-                    DataSource=tree, DataField="ShowButtons")
+            chk = dCheckBox(
+                mp, Caption="ShowButtons", DataSource=tree, DataField="ShowButtons"
+            )
             sz.append(chk, halign="Left")
 
-            chk = dCheckBox(mp, Caption="ShowLines",
-                    DataSource=tree, DataField="ShowLines")
+            chk = dCheckBox(
+                mp, Caption="ShowLines", DataSource=tree, DataField="ShowLines"
+            )
             sz.append(chk, halign="Left")
 
-            chk = dCheckBox(mp, Caption="ShowRootNode",
-                    DataSource=tree, DataField="ShowRootNode")
+            chk = dCheckBox(
+                mp, Caption="ShowRootNode", DataSource=tree, DataField="ShowRootNode"
+            )
             sz.append(chk, halign="Left")
 
-            chk = dCheckBox(mp, Caption="ShowRootNodeLines",
-                    DataSource=tree, DataField="ShowRootNodeLines")
+            chk = dCheckBox(
+                mp,
+                Caption="ShowRootNodeLines",
+                DataSource=tree,
+                DataField="ShowRootNodeLines",
+            )
             sz.append(chk, halign="Left")
 
-            chk = dCheckBox(mp, Caption="UseNodeToolTips",
-                    DataSource=tree, DataField="UseNodeToolTips")
+            chk = dCheckBox(
+                mp,
+                Caption="UseNodeToolTips",
+                DataSource=tree,
+                DataField="UseNodeToolTips",
+            )
             sz.append(chk, halign="Left")
 
             self.update()
@@ -1443,7 +1533,6 @@ if __name__ == "__main__":
 
         def onCollapseAll(self, evt):
             self.tree.collapseAll()
-
 
     app = dApp()
     app.MainFormClass = TreeViewTestForm

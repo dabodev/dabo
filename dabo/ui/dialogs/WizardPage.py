@@ -15,8 +15,9 @@ class WizardPage(dScrollPanel):
         self._titleFontSize = 18
         self._picture = None
 
-        super(WizardPage, self).__init__(parent=parent,
-                properties=properties, *args, **kwargs)
+        super(WizardPage, self).__init__(
+            parent=parent, properties=properties, *args, **kwargs
+        )
 
         self._baseClass = WizardPage
         self._wizard = None
@@ -24,11 +25,11 @@ class WizardPage(dScrollPanel):
         self.setup()
         self.layout()
 
-
     def setup(self):
         self.makeSizer()
-        self._titleLabel = dabo.ui.dLabel(self, Caption=self.Caption, FontSize=self.TitleSize,
-                FontFace=self.TitleFace)
+        self._titleLabel = dabo.ui.dLabel(
+            self, Caption=self.Caption, FontSize=self.TitleSize, FontFace=self.TitleFace
+        )
         ln = dabo.ui.dLine(self)
         sz = self.Sizer
         sz.prepend(ln, "x")
@@ -37,13 +38,11 @@ class WizardPage(dScrollPanel):
         sz.DefaultSpacing = 0
         self._createBody()
 
-
     def _createBody(self):
         # Call the user-customizable code first
         self.createBody()
         # Now make it look nice
         self.layout()
-
 
     def createBody(self):
         """
@@ -51,7 +50,6 @@ class WizardPage(dScrollPanel):
         or other controls for this page.
         """
         pass
-
 
     def makeSizer(self):
         """
@@ -62,7 +60,6 @@ class WizardPage(dScrollPanel):
         sz.DefaultSpacing = 5
         sz.DefaultBorder = 12
         sz.DefaultBorderLeft = sz.DefaultBorderRight = True
-
 
     def onLeavePage(self, direction):
         """
@@ -75,7 +72,6 @@ class WizardPage(dScrollPanel):
         """
         return True
 
-
     def onEnterPage(self, direction):
         """
         This method will be called just as the page is about to
@@ -86,7 +82,6 @@ class WizardPage(dScrollPanel):
         onLeavePage().
         """
         pass
-
 
     def nextPage(self):
         """
@@ -99,14 +94,12 @@ class WizardPage(dScrollPanel):
         """
         return 1
 
-
     def prevPage(self):
         """
         Like nextPage, you can override this method to conditionally
         navigate through the wizard pages. Default = -1
         """
         return -1
-
 
     # Property definitions.
     def _getCaption(self):
@@ -121,7 +114,6 @@ class WizardPage(dScrollPanel):
         else:
             self._properties["Caption"] = val
 
-
     def _getPicture(self):
         return self._picture
 
@@ -130,7 +122,6 @@ class WizardPage(dScrollPanel):
             self._picture = val
         else:
             self._properties["Picture"] = val
-
 
     def _getTitleBold(self):
         try:
@@ -145,7 +136,6 @@ class WizardPage(dScrollPanel):
             self._titleLabel.FontBold = val
             self.layout()
 
-
     def _getTitleFace(self):
         try:
             return self._titleFontFace
@@ -158,7 +148,6 @@ class WizardPage(dScrollPanel):
         if self._titleLabel:
             self._titleLabel.FontFace = val
             self.layout()
-
 
     def _getTitleItalic(self):
         try:
@@ -173,7 +162,6 @@ class WizardPage(dScrollPanel):
             self._titleLabel.FontItalic = val
             self.layout()
 
-
     def _getTitleSize(self):
         return self._titleFontSize
 
@@ -182,7 +170,6 @@ class WizardPage(dScrollPanel):
         if self._titleLabel:
             self._titleLabel.FontSize = val
             self.layout()
-
 
     def _getWizard(self):
         ret = self._wizard
@@ -193,26 +180,54 @@ class WizardPage(dScrollPanel):
     def _setWizard(self, val):
         self._wizard = val
 
+    Caption = property(
+        _getCaption,
+        _setCaption,
+        None,
+        _("The text that appears as the title of the page  (str)"),
+    )
 
+    Picture = property(
+        _getPicture,
+        _setPicture,
+        None,
+        _(
+            """Normally None, but you can set it to some other image to have the wizard display
+            a different picture for this page  (None or image path)"""
+        ),
+    )
 
-    Caption = property(_getCaption, _setCaption, None,
-            _("The text that appears as the title of the page  (str)"))
+    TitleBold = property(
+        _getTitleBold,
+        _setTitleBold,
+        None,
+        _("Controls whether the title text is bold.  (bool)"),
+    )
 
-    Picture = property(_getPicture, _setPicture, None,
-            _("""Normally None, but you can set it to some other image to have the wizard display
-            a different picture for this page  (None or image path)"""))
+    TitleFace = property(
+        _getTitleFace,
+        _setTitleFace,
+        None,
+        _("Name of the font face used for the Title.  (string)"),
+    )
 
-    TitleBold = property(_getTitleBold, _setTitleBold, None,
-            _("Controls whether the title text is bold.  (bool)") )
+    TitleItalic = property(
+        _getTitleItalic,
+        _setTitleItalic,
+        None,
+        _("Controls whether the title text is italic.  (bool)"),
+    )
 
-    TitleFace = property(_getTitleFace, _setTitleFace, None,
-            _("Name of the font face used for the Title.  (string)") )
+    TitleSize = property(
+        _getTitleSize,
+        _setTitleSize,
+        None,
+        _("Size in points for the Title (default=18).  (int)"),
+    )
 
-    TitleItalic = property(_getTitleItalic, _setTitleItalic, None,
-            _("Controls whether the title text is italic.  (bool)") )
-
-    TitleSize = property(_getTitleSize, _setTitleSize, None,
-            _("Size in points for the Title (default=18).  (int)") )
-
-    Wizard = property(_getWizard, _setWizard, None,
-            _("Reference to the wizard form this page is in  (Wizard object)"))
+    Wizard = property(
+        _getWizard,
+        _setWizard,
+        None,
+        _("Reference to the wizard form this page is in  (Wizard object)"),
+    )

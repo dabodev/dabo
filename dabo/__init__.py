@@ -4,6 +4,7 @@
 
 http://dabodev.com
 """
+
 import importlib
 import locale
 import logging
@@ -25,7 +26,7 @@ def getEncoding():
     def _getEncodingName():
         if encoding.isdigit():
             # Fix for missing encoding aliases e.g. '874'.
-            yield  "cp%s" % encoding
+            yield "cp%s" % encoding
         yield encoding
         prefEncoding = locale.getpreferredencoding()
         if not encoding == prefEncoding:
@@ -42,6 +43,7 @@ def getEncoding():
         else:
             break
     return encoding
+
 
 def getXMLEncoding():
     ret = getEncoding()
@@ -68,6 +70,7 @@ if not os.path.exists(_logConfFile):
 if os.path.exists(_logConfFile):
     # If a 'logging.conf' file exists, use it instead of dabo.settings.
     import logging.config
+
     logging.config.fileConfig(_logConfFile)
     # Populate the module namespace with the appropriate loggers
     log = logging.getLogger(mainLogQualName)
@@ -98,8 +101,8 @@ else:
     log.addHandler(consoleLogHandler)
     if mainLogFile is not None:
         fileLogHandler = logging.handlers.RotatingFileHandler(
-                filename=mainLogFile,
-                maxBytes=maxLogFileSize, encoding=enc)
+            filename=mainLogFile, maxBytes=maxLogFileSize, encoding=enc
+        )
         fileLogHandler.setLevel(mainLogFileLevel)
         fileFormatter = logging.Formatter(fileFormat)
         fileFormatter.datefmt = mainLogDateFormat
@@ -116,8 +119,8 @@ else:
     dbActivityLog.addHandler(dbConsoleLogHandler)
     if dbLogFile is not None:
         dbFileLogHandler = logging.handlers.RotatingFileHandler(
-                filename=dbLogFile,
-                maxBytes=maxLogFileSize, encoding=enc)
+            filename=dbLogFile, maxBytes=maxLogFileSize, encoding=enc
+        )
         dbFileLogHandler.setLevel(dbLogFileLevel)
         dbFileFormatter = logging.Formatter(dbFileFormat)
         dbFileFormatter.datefmt = dbLogDateFormat
@@ -131,6 +134,7 @@ def setMainLogFile(fname, level=None):
     logger will be closed.
     """
     import dabo
+
     if fname is None:
         if dabo.fileLogHandler:
             # Remove the existing handler
@@ -143,8 +147,9 @@ def setMainLogFile(fname, level=None):
             dabo.log.removeHandler(dabo.fileLogHandler)
             dabo.fileLogHandler.close()
             dabo.fileLogHandler = None
-        dabo.fileLogHandler = logging.handlers.RotatingFileHandler(filename=fname,
-                maxBytes=maxLogFileSize, encoding=getEncoding())
+        dabo.fileLogHandler = logging.handlers.RotatingFileHandler(
+            filename=fname, maxBytes=maxLogFileSize, encoding=getEncoding()
+        )
         if level:
             dabo.fileLogHandler.setLevel(level)
         else:
@@ -173,8 +178,8 @@ def setDbLogFile(fname, level=None):
             dabo.dbFileLogHandler.close()
             dabo.dbFileLogHandler = None
         dabo.dbFileLogHandler = logging.handlers.RotatingFileHandler(
-                filename=fname, maxBytes=maxLogFileSize,
-                encoding=getEncoding())
+            filename=fname, maxBytes=maxLogFileSize, encoding=getEncoding()
+        )
         if level:
             dabo.dbFileLogHandler.setLevel(level)
         else:
@@ -189,15 +194,18 @@ if localizeDabo:
     # Install localization service for dabo. dApp will install localization service
     # for the user application separately.
     from . import dLocalize
+
     dLocalize.install("dabo")
 
 # On some platforms getfilesystemencoding() and even getdefaultlocale()
 # can return None, so we make sure we always set a reasonable encoding:
-fileSystemEncoding = (sys.getfilesystemencoding()
-        or locale.getdefaultlocale()[1] or defaultEncoding)
+fileSystemEncoding = (
+    sys.getfilesystemencoding() or locale.getdefaultlocale()[1] or defaultEncoding
+)
 
 if importDebugger:
     from .dBug import logPoint
+
     try:
         import pudb as pdb
     except ImportError:
@@ -206,10 +214,12 @@ if importDebugger:
 
     def debugout(*args):
         from .lib.utils import ustr
+
         txtargs = [ustr(arg) for arg in args]
         txt = " ".join(txtargs)
         log = logging.getLogger("Debug")
         log.debug(txt)
+
     # Mangle the namespace so that developers can add lines like:
     #         debugo("Some Message")
     # or
@@ -217,6 +227,7 @@ if importDebugger:
     # to their code for debugging.
     # (I added 'debugo' as an homage to Whil Hentzen!)
     import builtins
+
     builtins.debugo = builtins.debugout = debugout
 
 if implicitImports:
@@ -225,6 +236,7 @@ if implicitImports:
     import dabo.db
     import dabo.biz
     import dabo.ui
+
     dabo.ui.load_namespace()
     from .dApp import dApp
     from .dPref import dPref
@@ -234,6 +246,7 @@ frameworkPath = os.path.dirname(__file__)
 
 # Subdirectories that make up a standard Dabo app
 _standardDirs = ("biz", "cache", "db", "lib", "reports", "resources", "test", "ui")
+
 
 # Method to create a standard Dabo directory structure layout
 def makeDaboDirectories(homedir=None):
@@ -249,6 +262,7 @@ def makeDaboDirectories(homedir=None):
             os.mkdir(d)
     os.chdir(currLoc)
 
+
 def quickStart(homedir=None):
     """This creates a bare-bones application in either the specified
     directory, or the current one if none is specified.
@@ -263,7 +277,8 @@ def quickStart(homedir=None):
         os.makedirs(homedir)
     os.chdir(homedir)
     makeDaboDirectories()
-    open("main.py", "w").write("""#!/usr/bin/env python
+    open("main.py", "w").write(
+        """#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from dabo import ui as dui
 from dabo.dApp import dApp
@@ -276,7 +291,8 @@ app = dApp()
 app.MainFormClass = dui.dFormMain
 
 app.start()
-""")
+"""
+    )
 
     template = """#!/usr/bin/env python
 # -*- coding: utf-8 -*-
@@ -301,4 +317,3 @@ app.start()
     os.chmod("main.py", 744)
     os.chdir(currLoc)
     print("Application '%s' has been created for you" % homedir)
-

@@ -6,7 +6,7 @@ from dabo.ui import dSizerMixin
 
 
 class dSizer(dSizerMixin, wx.BoxSizer):
-    def __init__(self, *args, **kwargs ):
+    def __init__(self, *args, **kwargs):
         # Convert Dabo orientation to wx orientation
         self._baseClass = dSizer
         self._border = 0
@@ -36,7 +36,7 @@ class dSizer(dSizerMixin, wx.BoxSizer):
         # Get them sanitized into one dict:
         if properties is not None:
             # Override the class values
-            for k,v in list(properties.items()):
+            for k, v in list(properties.items()):
                 self._properties[k] = v
         properties = self._extractKeywordProperties(kwargs, self._properties)
         self.setProperties(properties)
@@ -48,22 +48,19 @@ class dSizer(dSizerMixin, wx.BoxSizer):
 
         dSizerMixin.__init__(self, *args, **kwargs)
 
-
     def getBorderedClass(self):
         """Return the class that is the border sizer version of this class."""
         return dabo.ui.dBorderSizer
 
 
-
 class dSizerV(dSizer):
-    def __init__(self, *args, **kwargs ):
+    def __init__(self, *args, **kwargs):
         kwargs["FixedOrientation"] = "V"
         super(dSizerV, self).__init__(*args, **kwargs)
 
 
-
 class dSizerH(dSizer):
-    def __init__(self, *args, **kwargs ):
+    def __init__(self, *args, **kwargs):
         kwargs["FixedOrientation"] = "H"
         super(dSizerH, self).__init__(*args, **kwargs)
 

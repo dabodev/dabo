@@ -25,24 +25,23 @@ class EditorControl(dEditor):
     """We need to override some behaviors in order to get the editor to work
     in a code snippet environment rather than the usual single script file.
     """
+
     def initProperties(self):
         self._object = None
         self._originalText = ""
         self._method = ""
-
 
     def afterInit(self):
         self.Language = "Python"
         key = self.Application.getUserSetting("autoCompleteKey", "F5")
         self.bindKey(key, self.autoComplete)
 
-
     def _getTextSource(self):
         return self.Form.getAllText()
 
-
-    def onFindOverride(self, action, findString, replaceString, downwardSearch,
-            wholeWord, matchCase):
+    def onFindOverride(
+        self, action, findString, replaceString, downwardSearch, wholeWord, matchCase
+    ):
         # First, check the current code.
         # Only consider code past the current selection position
         # (or before, if searching upwards).
@@ -82,10 +81,14 @@ class EditorControl(dEditor):
             return True
         # No matches in the current code. Pass this up to the form to check other
         # methods for the string.
-        return self.Form.extendedEditorSearch(action=action, findString=findString,
-                replaceString=replaceString, downwardSearch=downwardSearch,
-                wholeWord=wholeWord, matchCase=matchCase)
-
+        return self.Form.extendedEditorSearch(
+            action=action,
+            findString=findString,
+            replaceString=replaceString,
+            downwardSearch=downwardSearch,
+            wholeWord=wholeWord,
+            matchCase=matchCase,
+        )
 
     def _getRuntimeObject(self, runtimeObjectName):
         obj = self.Form.getEditedObject()
@@ -96,13 +99,14 @@ class EditorControl(dEditor):
         else:
             return super(EditorControl, self)._getRuntimeObject(runtimeObjectName)
 
-
     def _makeContainingClassIntoSelf(self):
         """Override the default behavior. Get the 'self' class from the form."""
         obj = self.Form.getEditedObject()
         if not obj:
             # Should never happen!
-            dabo.log.error(_("Bad object ref returned to _makeContainingClassIntoSelf()"))
+            dabo.log.error(
+                _("Bad object ref returned to _makeContainingClassIntoSelf()")
+            )
             return None
         try:
             args = "dabo.ui.%s" % ustr(obj.BaseClass).split("'")[1].split(".")[-1]
@@ -111,7 +115,6 @@ class EditorControl(dEditor):
         except:
             # Couldn't fake the reference
             pass
-
 
     def _namespaceHacks(self):
         """We'll want to be able to use 'dabo.' and 'dui.' to bring up
@@ -130,7 +133,6 @@ class EditorControl(dEditor):
                 # Ignore because it is not a code problem and will show up on runtime.
                 pass
 
-
     def _getController(self):
         try:
             return self._controller
@@ -144,7 +146,6 @@ class EditorControl(dEditor):
         else:
             self._properties["Controller"] = val
 
-
     def _getObject(self):
         return self._object
 
@@ -153,7 +154,6 @@ class EditorControl(dEditor):
             self._object = val
         else:
             self._properties["Object"] = val
-
 
     def _getOriginalText(self):
         return self._originalText
@@ -164,7 +164,6 @@ class EditorControl(dEditor):
         else:
             self._properties["OriginalText"] = val
 
-
     def _getMethod(self):
         return self._method
 
@@ -174,19 +173,33 @@ class EditorControl(dEditor):
         else:
             self._properties["Method"] = val
 
+    Controller = property(
+        _getController,
+        _setController,
+        None,
+        _("Object to which this one reports events  (object (varies))"),
+    )
 
-    Controller = property(_getController, _setController, None,
-            _("Object to which this one reports events  (object (varies))"))
+    Object = property(
+        _getObject,
+        _setObject,
+        None,
+        _("Reference to the object whose code is being edited  (obj)"),
+    )
 
-    Object = property(_getObject, _setObject, None,
-            _("Reference to the object whose code is being edited  (obj)"))
+    OriginalText = property(
+        _getOriginalText,
+        _setOriginalText,
+        None,
+        _("Stores a copy of the contents of the editor when first invoked  (str)"),
+    )
 
-    OriginalText = property(_getOriginalText, _setOriginalText, None,
-            _("Stores a copy of the contents of the editor when first invoked  (str)"))
-
-    Method = property(_getMethod, _setMethod, None,
-            _("Name of the method of the object being edited  (str)"))
-
+    Method = property(
+        _getMethod,
+        _setMethod,
+        None,
+        _("Name of the method of the object being edited  (str)"),
+    )
 
 
 class EditorForm(dForm):
@@ -204,14 +217,20 @@ class EditorForm(dForm):
         self.Sizer.append1x(pnl)
         sz = pnl.Sizer = dSizer("v")
 
-        dBitmapButton(pnl, Picture="downTriangleBlack", RegID="btnNavigate",
-                OnHit=self.onCodeNavigate, ToolTipText="Jump to Method...")
+        dBitmapButton(
+            pnl,
+            Picture="downTriangleBlack",
+            RegID="btnNavigate",
+            OnHit=self.onCodeNavigate,
+            ToolTipText="Jump to Method...",
+        )
         dLabel(pnl, Caption=_("Object:"), RegID="lblObj")
         dDropdownList(pnl, RegID="ddObject", OnHit=self.onHitDDObject)
         dLabel(pnl, Caption=_("Method:"), RegID="lblMethod")
         dDropdownList(pnl, RegID="ddMethod", OnHit=self.onHitDDMethod)
-        hs = dSizer("h", DefaultBorder=8, DefaultBorderTop=True,
-                DefaultBorderBottom=True)
+        hs = dSizer(
+            "h", DefaultBorder=8, DefaultBorderTop=True, DefaultBorderBottom=True
+        )
         hs.appendSpacer(8)
         hs.append(self.btnNavigate, 0, valign="bottom")
         hs.appendSpacer(6)
@@ -223,30 +242,49 @@ class EditorForm(dForm):
         hs.appendSpacer(2)
         hs.append(self.ddMethod, 0)
         hs.appendSpacer(4)
-        dBitmapButton(pnl, Picture="checkMark", RegID="btnCheckSyntax",
-                ToolTipText=_("Check Syntax"), OnHit=self.onCheckSyntax)
-        dButton(pnl, Caption=_("super"), RegID="btnSuperCode", Enabled=False,
-                ToolTipText=_("Show Superclass Code"), OnHit=self.onSuperCode)
-        dButton(pnl, Caption=_("New"), RegID="btnNewMethod",
-                ToolTipText=_("Create New Method"), OnHit=self.onNewMethod)
+        dBitmapButton(
+            pnl,
+            Picture="checkMark",
+            RegID="btnCheckSyntax",
+            ToolTipText=_("Check Syntax"),
+            OnHit=self.onCheckSyntax,
+        )
+        dButton(
+            pnl,
+            Caption=_("super"),
+            RegID="btnSuperCode",
+            Enabled=False,
+            ToolTipText=_("Show Superclass Code"),
+            OnHit=self.onSuperCode,
+        )
+        dButton(
+            pnl,
+            Caption=_("New"),
+            RegID="btnNewMethod",
+            ToolTipText=_("Create New Method"),
+            OnHit=self.onNewMethod,
+        )
         hs.append(self.btnCheckSyntax, 0, border=3, valign="middle")
         hs.appendSpacer(4)
         hs.append(self.btnSuperCode, 0)
         hs.appendSpacer(8)
         hs.append(self.btnNewMethod, 0)
         hs.appendSpacer(8)
-        hs.append(dLine(pnl, Height=self.btnNewMethod.Height, Width=2),
-                valign="middle")
+        hs.append(dLine(pnl, Height=self.btnNewMethod.Height, Width=2), valign="middle")
         hs.appendSpacer(8)
-        dButton(pnl, Caption=_("Manage Imports"), RegID="btnImports",
-                ToolTipText=_("Manage Class-wide imports"), OnHit=self.onManageImports)
+        dButton(
+            pnl,
+            Caption=_("Manage Imports"),
+            RegID="btnImports",
+            ToolTipText=_("Manage Class-wide imports"),
+            OnHit=self.onManageImports,
+        )
         hs.append(self.btnImports, 0)
 
         sz.append(hs, 0, "x")
         EditorControl(pnl, RegID="editor")
         sz.append1x(self.editor)
         dabo.ui.callAfter(self.refreshStatus)
-
 
     def afterInitAll(self):
         """Set the checked status of the various menu items."""
@@ -255,7 +293,6 @@ class EditorForm(dForm):
         self._codeFoldingItem.Checked = ed.ShowCodeFolding
         self._lineNumbersItem.Checked = ed.ShowLineNumbers
         self._whiteSpaceItem.Checked = ed.ShowWhiteSpace
-
 
     def afterSetMenuBar(self):
         ClassDesignerMenu.mkDesignerMenu(self)
@@ -267,77 +304,96 @@ class EditorForm(dForm):
         emn = dMenu(Caption="Editor")
         self.MenuBar.appendMenu(emn)
 
-        self._autoAutoItem = emn.append(_("Automa&tic AutoComplete"),
-                OnHit=self.onAutoAutoComp, bmp="", help=_("Toggle Automatic Autocomplete"),
-                menutype="check")
-        self._codeFoldingItem = emn.append(_("Code Folding"),
-                OnHit=self.onCodeFolding, bmp="", help=_("Toggle Code Folding"),
-                menutype="check")
-        self._lineNumbersItem = emn.append(_("Line Numbers"),
-                OnHit=self.onLineNumbers, bmp="", help=_("Toggle Line Numbers"),
-                menutype="check")
-        self._whiteSpaceItem = emn.append(_("White Space Characters"),
-                OnHit=self.onWhiteSpace, bmp="", help=_("Toggle White Space Characters"),
-                menutype="check")
-        self._showMethodsItem = emn.append(_("Jump To Method..."),
-                OnHit=self.onCodeNavigate, bmp="", help=_("Show the method navigation menu"),
-                HotKey="Ctrl+J")
+        self._autoAutoItem = emn.append(
+            _("Automa&tic AutoComplete"),
+            OnHit=self.onAutoAutoComp,
+            bmp="",
+            help=_("Toggle Automatic Autocomplete"),
+            menutype="check",
+        )
+        self._codeFoldingItem = emn.append(
+            _("Code Folding"),
+            OnHit=self.onCodeFolding,
+            bmp="",
+            help=_("Toggle Code Folding"),
+            menutype="check",
+        )
+        self._lineNumbersItem = emn.append(
+            _("Line Numbers"),
+            OnHit=self.onLineNumbers,
+            bmp="",
+            help=_("Toggle Line Numbers"),
+            menutype="check",
+        )
+        self._whiteSpaceItem = emn.append(
+            _("White Space Characters"),
+            OnHit=self.onWhiteSpace,
+            bmp="",
+            help=_("Toggle White Space Characters"),
+            menutype="check",
+        )
+        self._showMethodsItem = emn.append(
+            _("Jump To Method..."),
+            OnHit=self.onCodeNavigate,
+            bmp="",
+            help=_("Show the method navigation menu"),
+            HotKey="Ctrl+J",
+        )
 
         emn.appendSeparator()
 
-        self._useSpacesItem = emn.append(_("Use Spaces Instead Of Tabs"),
-                OnHit=self.onUseSpaces, bmp="", help=_("Toggle Using Spaces Or Tabs"),
-                menutype="check")
+        self._useSpacesItem = emn.append(
+            _("Use Spaces Instead Of Tabs"),
+            OnHit=self.onUseSpaces,
+            bmp="",
+            help=_("Toggle Using Spaces Or Tabs"),
+            menutype="check",
+        )
 
         self._tabMenu = dMenu(Caption="Tab Size")
         emn.appendMenu(self._tabMenu)
 
-        for number in [2,4,6,8,16]:
-            self._tabMenu.append(_("Tab Size %s" % number), OnHit=self.onTabSize, bmp="",
-                    help=_("Set Tab Size To %s" % number), menutype="radio")
+        for number in [2, 4, 6, 8, 16]:
+            self._tabMenu.append(
+                _("Tab Size %s" % number),
+                OnHit=self.onTabSize,
+                bmp="",
+                help=_("Set Tab Size To %s" % number),
+                menutype="radio",
+            )
         self._tabMenu.Children[1].Checked = True
-
 
     def fontIncrease(self, evt):
         self.editor.changeFontSize("+1")
 
-
     def fontDecrease(self, evt):
         self.editor.changeFontSize("-1")
 
-
     def onMenuOpen(self, evt):
         self.Controller.menuUpdate(evt, self.MenuBar)
-
 
     def onAutoAutoComp(self, evt):
         ed = self.editor
         ed.AutoAutoComplete = not ed.AutoAutoComplete
 
-
     def onCodeFolding(self, evt):
         ed = self.editor
         ed.ShowCodeFolding = not ed.ShowCodeFolding
-
 
     def onLineNumbers(self, evt):
         ed = self.editor
         ed.ShowLineNumbers = not ed.ShowLineNumbers
 
-
     def onTabSize(self, evt):
-        #Captions are "Tab Size #" so doing a caption.split[-1] will get the width
+        # Captions are "Tab Size #" so doing a caption.split[-1] will get the width
         self.editor.TabWidth = int(evt.EventObject.Caption.split()[-1])
-
 
     def onUseSpaces(self, evt):
         self._tabMenu.Enabled = self.editor.UseTabs = not evt.EventObject.Checked
 
-
     def onWhiteSpace(self, evt):
         ed = self.editor
         ed.ShowWhiteSpace = not ed.ShowWhiteSpace
-
 
     def getAllText(self):
         cr = self.CodeRepository
@@ -348,7 +404,6 @@ class EditorForm(dForm):
             cd += list(dct.values())
         return " ".join(cd)
 
-
     def _getMethodBase(self, mthd, isEvt):
         cd = ("def %s(self):" % mthd, "def %s(self, evt):" % mthd)
         if isEvt is None:
@@ -356,13 +411,11 @@ class EditorForm(dForm):
         else:
             return cd[isEvt]
 
-
     def refreshCode(self):
         """When an external event modified an object's code, this will update the
         code displayed in the editor.
         """
         self.edit(self.ddObject.KeyValue, discardChanges=True)
-
 
     def edit(self, obj, mthd=None, nonEvent=None, discardChanges=False):
         """Opens an editor for the specified object and method."""
@@ -370,10 +423,10 @@ class EditorForm(dForm):
             # On the correct object; use the current method
             mthd = self.ddMethod.StringValue
         if mthd is None:
-                self.ddObject.KeyValue = obj
-                self.populateMethodList()
-                self.ddMethod.PositionValue = 0
-                mthd = self.ddMethod.StringValue
+            self.ddObject.KeyValue = obj
+            self.populateMethodList()
+            self.ddMethod.PositionValue = 0
+            mthd = self.ddMethod.StringValue
         mthd = mthd.replace("*", "")
         rep = self.CodeRepository
         ed = self.editor
@@ -420,7 +473,6 @@ class EditorForm(dForm):
                 self.ddMethod.Choices = chc
                 self.ddMethod.StringValue = mthd
 
-
     def setEditorCaption(self):
         obj = self.ddObject.KeyValue
         if not obj:
@@ -432,11 +484,9 @@ class EditorForm(dForm):
             mthd = _("no method")
         self.Caption = _("Editing: %(nm)s, %(mthd)s") % locals()
 
-
     def onDeactivate(self, evt):
         """Make sure that any changes are saved."""
         self.updateText()
-
 
     def onCheckSyntax(self, evt):
         ed = self.editor
@@ -458,23 +508,20 @@ class EditorForm(dForm):
             if num is not None:
                 num = int(num)
                 disp = _("Error: %(msg)s\nLine: %(num)s") % locals()
-                ed.LineNumber = num-3
+                ed.LineNumber = num - 3
                 ed.showCurrentLine()
-                ed.hiliteLine(num-1)
+                ed.hiliteLine(num - 1)
             else:
                 disp = msg
             dabo.ui.stop(disp, _("Compilation Failed"))
 
-
     def onHitDDObject(self, evt):
         self.refreshStatus()
-
 
     def onHitDDMethod(self, evt):
         self.updateText()
         dabo.ui.callAfter(self.setEditorCaption)
         self.edit(self.ddObject.KeyValue, self.ddMethod.StringValue.replace("*", ""))
-
 
     def onCodeNavigate(self, evt):
         """Show all available objects and methods in order to quickly jump to
@@ -507,11 +554,10 @@ class EditorForm(dForm):
         pos = (xpos, ypos + self.btnNavigate.Height)
         self.showContextMenu(pop, pos=pos)
 
-
     def onSuperCode(self, evt):
-        self.Controller.onShowSuper(self.ddObject.KeyValue.classID,
-                self.ddMethod.StringValue)
-
+        self.Controller.onShowSuper(
+            self.ddObject.KeyValue.classID, self.ddMethod.StringValue
+        )
 
     def onNewMethod(self, evt):
         nm = dabo.ui.getString(_("Name of method?"))
@@ -529,16 +575,13 @@ class EditorForm(dForm):
                 obj = self.Controller._selection[0]
             self.edit(obj, nm, True)
 
-
     def onManageImports(self, evt):
         self.Controller.onDeclareImports(evt)
-
 
     def refreshStatus(self):
         dabo.ui.callAfter(self.setEditorCaption)
         self.populateMethodList()
         self.checkObjMethod()
-
 
     def populateMethodList(self):
         # Refresh the method list
@@ -562,21 +605,31 @@ class EditorForm(dForm):
                 chc.append("*%s" % mthd)
                 try:
                     mthds.remove(mthd)
-                except: pass
+                except:
+                    pass
 
         # This may eventually be replaced by code that records your choices
         # and moves the most commonly selected methods to the top
-        topMethods = ["onHit", "onContextMenu", "onKeyChar", "onMouseLeftClick",
-                "onMouseRightClick", "afterInit", "afterInitAll", "initProperties", "initEvents",
-                "validateRecord", "validateField"]
+        topMethods = [
+            "onHit",
+            "onContextMenu",
+            "onKeyChar",
+            "onMouseLeftClick",
+            "onMouseRightClick",
+            "afterInit",
+            "afterInitAll",
+            "initProperties",
+            "initEvents",
+            "validateRecord",
+            "validateField",
+        ]
         for mthd in topMethods:
             if mthd in mthds:
                 chc.append(mthd)
                 mthds.remove(mthd)
 
         # Now add all the event methods
-        evtMethods = [mthd for mthd in mthds
-                if mthd.startswith("on")]
+        evtMethods = [mthd for mthd in mthds if mthd.startswith("on")]
         for mthd in evtMethods:
             chc.append(mthd)
             mthds.remove(mthd)
@@ -590,7 +643,6 @@ class EditorForm(dForm):
         self.ddMethod.Choices = chc
         self.layout()
 
-
     def checkObjMethod(self):
         # Make sure that the current combination of the dropdowns
         # reflects the actual code being edited.
@@ -601,11 +653,9 @@ class EditorForm(dForm):
             return
         self.edit(obj, mthd)
 
-
     def getEditedObject(self):
         """Returns the object currently selected in the editor."""
         return self.ddObject.KeyValue
-
 
     def select(self, obj=None):
         """Called when the selected object changes. 'obj' will
@@ -633,7 +683,6 @@ class EditorForm(dForm):
         if currObj is not None:
             self.edit(currObj)
 
-
     def refreshObjectList(self, force=False):
         """Update the object dropdown."""
         currObjs = self.Controller.getObjectHierarchy()
@@ -644,7 +693,7 @@ class EditorForm(dForm):
             keylist = []
             for lev, obj in self._objHierarchy:
                 try:
-                    chc.append("%s %s" % ("-"*lev, obj.Name))
+                    chc.append("%s %s" % ("-" * lev, obj.Name))
                     keylist.append(obj)
                 except:
                     dabo.log.error(_("Could not add to hierarchy: %s") % obj)
@@ -655,7 +704,6 @@ class EditorForm(dForm):
             except:
                 pass
             self.checkObjMethod()
-
 
     def updateText(self):
         """Called when an edited method is 'left'. Update the Controller info."""
@@ -699,9 +747,9 @@ class EditorForm(dForm):
                 cb = self._getClassMethod(cid, mthd)
                 # This is dangerous! It is meant for when editing subclasses,
                 # but was stripping code out of the base classes!!
-#                 if txt.rstrip() == cb.rstrip():
-#                     # Identical; store nothing
-#                     txt = ""
+            #                 if txt.rstrip() == cb.rstrip():
+            #                     # Identical; store nothing
+            #                     txt = ""
             if objCode:
                 txt = self._extractImports(txt)
                 # Make sure the text ends in a newline
@@ -718,10 +766,8 @@ class EditorForm(dForm):
             self.StatusText = _("Code Updated")
             dabo.ui.setAfterInterval(4000, self, "StatusText", curr)
 
-
     def _getClassMethod(self, clsID, mthd):
         return self.Controller._getClassMethod(clsID, mthd)
-
 
     def _extractImports(self, cd):
         if not cd:
@@ -737,9 +783,9 @@ class EditorForm(dForm):
             ret = "\n".join(codeLines)
         return ret
 
-
-    def extendedEditorSearch(self, action, findString, replaceString, downwardSearch,
-            wholeWord, matchCase):
+    def extendedEditorSearch(
+        self, action, findString, replaceString, downwardSearch, wholeWord, matchCase
+    ):
         """A find/replace request was made, but the current editor did not locate
         the desired text. Search the rest of the code for this design.
         """
@@ -755,7 +801,7 @@ class EditorForm(dForm):
         if backwards:
             adjFindString = findString[::-1]
 
-        objs.sort(lambda x,y: cmp(hash(x), hash(y)), reverse=backwards)
+        objs.sort(lambda x, y: cmp(hash(x), hash(y)), reverse=backwards)
         # Make the current object the first member of the list
         try:
             pos = objs.index(currObj)
@@ -781,7 +827,7 @@ class EditorForm(dForm):
                         # Only use remaining methods of the object
                         try:
                             pos = mthds.index(currMthd)
-                            self._extraMethods, mthds = mthds[:pos], mthds[pos+1:]
+                            self._extraMethods, mthds = mthds[:pos], mthds[pos + 1 :]
                         except ValueError:
                             pass
                     else:
@@ -808,7 +854,11 @@ class EditorForm(dForm):
                     self.checkObjMethod()
                     if action == "Replace":
                         txt = self.editor.Value
-                        self.editor.Value = "%s%s%s" % (txt[:start], replaceString, txt[end:])
+                        self.editor.Value = "%s%s%s" % (
+                            txt[:start],
+                            replaceString,
+                            txt[end:],
+                        )
                         end = start + len(replaceString)
                     self.editor.SelectionPosition = (start, end)
                     return True
@@ -829,10 +879,8 @@ class EditorForm(dForm):
         else:
             self.StatusText = _("String '%s' not found") % findString
 
-
     def _getCodeRepository(self):
         return self.Controller.getCodeDict()
-
 
     def _getController(self):
         try:
@@ -847,19 +895,29 @@ class EditorForm(dForm):
         else:
             self._properties["Controller"] = val
 
+    CodeRepository = property(
+        _getCodeRepository,
+        None,
+        None,
+        _(
+            """Reference to the Controller dictionary of all objects and their
+            method code  (dict)"""
+        ),
+    )
 
-    CodeRepository = property(_getCodeRepository, None, None,
-            _("""Reference to the Controller dictionary of all objects and their
-            method code  (dict)""") )
-
-    Controller = property(_getController, _setController, None,
-            _("Object to which this one reports events  (object (varies))"))
-
+    Controller = property(
+        _getController,
+        _setController,
+        None,
+        _("Object to which this one reports events  (object (varies))"),
+    )
 
 
 if __name__ == "__main__":
     print()
     print("=" * 66)
-    print("This is the file that implements the Python editor for the Class Designer." + \
-            "You cannot run it directly. Please run 'ClassDesigner.py' instead.")
+    print(
+        "This is the file that implements the Python editor for the Class Designer."
+        + "You cannot run it directly. Please run 'ClassDesigner.py' instead."
+    )
     print("=" * 66)

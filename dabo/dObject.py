@@ -12,6 +12,7 @@ NONE_TYPE = type(None)
 
 class dObject(PropertyHelperMixin, EventMixin):
     """The basic ancestor of all Dabo objects."""
+
     # Subclasses can set these to False, in which case they are responsible
     # for maintaining the following call order:
     #   self._beforeInit()
@@ -22,7 +23,6 @@ class dObject(PropertyHelperMixin, EventMixin):
     # or, not calling super() at all, but remember to call _initProperties() and
     # the call to setProperties() at the end!
     _call_beforeInit, _call_afterInit, _call_initProperties = True, True, True
-
 
     def __init__(self, properties=None, attProperties=None, *args, **kwargs):
         if not hasattr(self, "_properties"):
@@ -44,7 +44,7 @@ class dObject(PropertyHelperMixin, EventMixin):
             properties = {}
         if attProperties:
             for prop, val in list(attProperties.items()):
-                if prop in ("designerClass", ):
+                if prop in ("designerClass",):
                     continue
                 if prop in properties:
                     # The properties value has precedence, so ignore.
@@ -52,7 +52,7 @@ class dObject(PropertyHelperMixin, EventMixin):
                 typ = type(getattr(self, prop))
                 if not issubclass(typ, str):
                     if issubclass(typ, bool):
-                        val = (val == "True")
+                        val = val == "True"
                     elif typ is NONE_TYPE:
                         val = None
                     else:
@@ -72,13 +72,15 @@ class dObject(PropertyHelperMixin, EventMixin):
         # Get them sanitized into one dict:
         if properties is not None:
             # Override the class values
-            for k,v in list(properties.items()):
+            for k, v in list(properties.items()):
                 self._properties[k] = v
         properties = self._extractKeywordProperties(kwargs, self._properties)
         if kwargs:
             # Some kwargs haven't been handled.
             bad = ", ".join(["'%s'" % kk for kk in kwargs])
-            raise TypeError("Invalid keyword arguments passed to %s: %s" % (self.__repr__(), bad))
+            raise TypeError(
+                "Invalid keyword arguments passed to %s: %s" % (self.__repr__(), bad)
+            )
 
         if self._call_afterInit:
             self._afterInit()
@@ -86,7 +88,6 @@ class dObject(PropertyHelperMixin, EventMixin):
 
         PropertyHelperMixin.__init__(self)
         EventMixin.__init__(self)
-
 
     def __repr__(self):
         bc = self.BaseClass
@@ -98,7 +99,7 @@ class dObject(PropertyHelperMixin, EventMixin):
         if ".ui.ui" in classname:
             # Simplify the different UI toolkits
             pos = classparts.index("ui")
-            classparts.pop(pos+1)
+            classparts.pop(pos + 1)
         # Remove the duplicate class name that happens
         # when the class name is the same as the file.
         while (len(classparts) > 1) and (classparts[-1] == classparts[-2]):
@@ -120,14 +121,12 @@ class dObject(PropertyHelperMixin, EventMixin):
         _id = self._getID()
         return "<%(nm)s (baseclass %(classname)s, id:%(_id)s)>" % locals()
 
-
     def _getID(self):
         """
         Defaults to the Python id() function. Objects in sub-modules, such as the various
         UI toolkits, can override to substitute something more relevant to them.
         """
         return id(self)
-
 
     def beforeInit(self, *args, **kwargs):
         """
@@ -138,7 +137,6 @@ class dObject(PropertyHelperMixin, EventMixin):
         """
         pass
 
-
     def afterInit(self):
         """
         Subclass hook. Called after the object's __init__ has run fully.
@@ -146,7 +144,6 @@ class dObject(PropertyHelperMixin, EventMixin):
         overriding __init__ directly, to avoid conflicting with base Dabo behavior.
         """
         pass
-
 
     def initProperties(self):
         """
@@ -159,7 +156,6 @@ class dObject(PropertyHelperMixin, EventMixin):
         """
         pass
 
-
     def initEvents(self):
         """
         Hook for subclasses. User code should do custom event binding
@@ -170,25 +166,23 @@ class dObject(PropertyHelperMixin, EventMixin):
         """
         pass
 
-
     def _beforeInit(self):
         """Framework subclass hook."""
         self.beforeInit()
-
 
     def _initProperties(self):
         """Framework subclass hook."""
         self.initProperties()
 
-
     def _afterInit(self):
         """Framework subclass hook."""
         self.afterInit()
 
-
     def getAbsoluteName(self):
         """Return the fully qualified name of the object."""
-        names = [self.Name, ]
+        names = [
+            self.Name,
+        ]
         obj = self
         while True:
             try:
@@ -207,7 +201,6 @@ class dObject(PropertyHelperMixin, EventMixin):
                 break
         names.reverse()
         return ".".join(names)
-
 
     def getMethodList(cls, refresh=False):
         """Return the list of (Dabo) methods for this class or instance."""
@@ -228,18 +221,23 @@ class dObject(PropertyHelperMixin, EventMixin):
             for item in dir(c):
                 if item[0] in string.lowercase:
                     if item in c.__dict__:
-                        if type(c.__dict__[item]) in (types.MethodType, types.FunctionType):
+                        if type(c.__dict__[item]) in (
+                            types.MethodType,
+                            types.FunctionType,
+                        ):
                             if methodList.count(item) == 0:
                                 methodList.append(item)
         methodList.sort()
         cls.__methodList = methodList
         return methodList
+
     getMethodList = classmethod(getMethodList)
 
     def super(self, *args, **kwargs):
         """This method used to call superclass code, but it's been removed."""
-        raise NotImplementedError(_(
-                "Please change your self.super() call to super(cls, self)."))
+        raise NotImplementedError(
+            _("Please change your self.super() call to super(cls, self).")
+        )
 
     def _addCodeAsMethod(self, cd):
         """
@@ -257,7 +255,12 @@ class dObject(PropertyHelperMixin, EventMixin):
                 compCode = compile(code, "", "exec")
             except SyntaxError as e:
                 snm = self.Name
-                dabo.log.error(_("Method '%(nm)s' of object '%(snm)s' has the following error: %(e)s") % locals())
+                dabo.log.error(
+                    _(
+                        "Method '%(nm)s' of object '%(snm)s' has the following error: %(e)s"
+                    )
+                    % locals()
+                )
                 continue
             # OK, we have the compiled code. Add it to the class definition.
             # NOTE: if the method name and the name in the 'def' statement
@@ -269,12 +272,10 @@ class dObject(PropertyHelperMixin, EventMixin):
             newMethod = types.MethodType(mthd, self)
             setattr(self, nm, newMethod)
 
-
     # Property definitions begin here
     def _getApplication(self):
         # dApp saves a ref to itself inside the dabo module object.
         return dabo.dAppRef
-
 
     def _getBaseClass(self):
         # Every Dabo baseclass must set self._baseClass explicitly, to itself. For instance:
@@ -288,7 +289,6 @@ class dObject(PropertyHelperMixin, EventMixin):
         except AttributeError:
             return None
 
-
     def _getBasePrefKey(self):
         try:
             ret = self._basePrefKey
@@ -298,17 +298,15 @@ class dObject(PropertyHelperMixin, EventMixin):
 
     def _setBasePrefKey(self, val):
         if not isinstance(val, (str,)):
-            raise TypeError('BasePrefKey must be a string.')
+            raise TypeError("BasePrefKey must be a string.")
         self._basePrefKey = val
         pm = self.PreferenceManager
         if pm is not None:
             if not pm._key:
                 pm._key = val
 
-
     def _getClass(self):
         return self.__class__
-
 
     def _getLogEvents(self):
         # This is expensive, as it is semi-recursive upwards in the containership
@@ -335,7 +333,6 @@ class dObject(PropertyHelperMixin, EventMixin):
     def _setLogEvents(self, val):
         self._logEvents = list(val)
 
-
     def _getName(self):
         try:
             return self._name
@@ -344,11 +341,10 @@ class dObject(PropertyHelperMixin, EventMixin):
 
     def _setName(self, val):
         if not isinstance(val, (str,)):
-            raise TypeError('Name must be a string.')
+            raise TypeError("Name must be a string.")
         if not len(val.split()) == 1:
-            raise KeyError('Name must not contain any spaces')
+            raise KeyError("Name must not contain any spaces")
         self._name = val
-
 
     def _getParent(self):
         # Subclasses must override as necessary. Parent/child relationships
@@ -363,7 +359,6 @@ class dObject(PropertyHelperMixin, EventMixin):
         # Subclasses must override as necessary.
         self._parent = obj
 
-
     def _getPreferenceManager(self):
         try:
             ret = self._preferenceManager
@@ -372,33 +367,55 @@ class dObject(PropertyHelperMixin, EventMixin):
             if self.Application is not self:
                 try:
                     ret = self._preferenceManager = self.Application.PreferenceManager
-                except AttributeError: pass
+                except AttributeError:
+                    pass
             if ret is None:
                 from dabo.dPref import dPref  ## here to avoid circular import
+
                 ret = self._preferenceManager = dPref(key=self.BasePrefKey)
         return ret
 
     def _setPreferenceManager(self, val):
         from dabo.dPref import dPref  ## here to avoid circular import
+
         if not isinstance(val, dPref):
-            raise TypeError('PreferenceManager must be a dPref object')
+            raise TypeError("PreferenceManager must be a dPref object")
         self._preferenceManager = val
 
+    Application = property(
+        _getApplication,
+        None,
+        None,
+        _("Read-only object reference to the Dabo Application object.  (dApp)."),
+    )
 
-    Application = property(_getApplication, None, None,
-            _("Read-only object reference to the Dabo Application object.  (dApp)."))
+    BaseClass = property(
+        _getBaseClass,
+        None,
+        None,
+        _("The base Dabo class of the object. Read-only.  (class)"),
+    )
 
-    BaseClass = property(_getBaseClass, None, None,
-            _("The base Dabo class of the object. Read-only.  (class)"))
+    BasePrefKey = property(
+        _getBasePrefKey,
+        _setBasePrefKey,
+        None,
+        _("Base key used when saving/restoring preferences  (str)"),
+    )
 
-    BasePrefKey = property(_getBasePrefKey, _setBasePrefKey, None,
-            _("Base key used when saving/restoring preferences  (str)"))
+    Class = property(
+        _getClass,
+        None,
+        None,
+        _("The class the object is based on. Read-only.  (class)"),
+    )
 
-    Class = property(_getClass, None, None,
-            _("The class the object is based on. Read-only.  (class)"))
-
-    LogEvents = property(_getLogEvents, _setLogEvents, None,
-            _("""
+    LogEvents = property(
+        _getLogEvents,
+        _setLogEvents,
+        None,
+        _(
+            """
             Specifies which events to log.  (list of strings)
 
             If the first element is 'All', all events except the following listed events
@@ -408,20 +425,25 @@ class dObject(PropertyHelperMixin, EventMixin):
 
                 >>> dabo.eventLogging = True
 
-            """))
+            """
+        ),
+    )
 
-    Name = property(_getName, _setName, None,
-            _("The name of the object.  (str)"))
+    Name = property(_getName, _setName, None, _("The name of the object.  (str)"))
 
-    Parent = property(_getParent, _setParent, None,
-            _("The containing object.  (obj)"))
+    Parent = property(_getParent, _setParent, None, _("The containing object.  (obj)"))
 
-    PreferenceManager = property(_getPreferenceManager, _setPreferenceManager, None,
-            _("Reference to the Preference Management object  (dPref)"))
+    PreferenceManager = property(
+        _getPreferenceManager,
+        _setPreferenceManager,
+        None,
+        _("Reference to the Preference Management object  (dPref)"),
+    )
 
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
+
     d = dObject()
     print(d.Application)
     app = dApp()

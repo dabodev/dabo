@@ -14,8 +14,10 @@ class dPageFrameNoTabs(dPanel):
     Creates a pageframe with no tabs or other way for the user to select a
     page. Your code will have to programatically set the page.
     """
+
     def __init__(self, *args, **kwargs):
         from dabo.ui import dSizer
+
         self._pageClass = dPage
         self._pageSizerClass = dSizer
         self._activePage = None
@@ -23,13 +25,12 @@ class dPageFrameNoTabs(dPanel):
         super(dPageFrameNoTabs, self).__init__(*args, **kwargs)
         self._baseClass = dPageFrameNoTabs
 
-
     def _afterInit(self):
         from dabo.ui import dSizer
+
         if self.Sizer is None:
             self.Sizer = dSizer()
         super(dPageFrameNoTabs, self)._afterInit()
-
 
     def appendPage(self, pgCls=None, makeActive=False):
         """
@@ -38,7 +39,6 @@ class dPageFrameNoTabs(dPanel):
         the SelectedPage.
         """
         return self.insertPage(self.PageCount, pgCls=pgCls, makeActive=makeActive)
-
 
     def insertPage(self, pos, pgCls=None, makeActive=False, ignoreOverride=False):
         """
@@ -49,8 +49,8 @@ class dPageFrameNoTabs(dPanel):
         # enable them to handle page creation in their own way. If overridden,
         # the method will return the new page.
         ret = None
-        #if not ignoreOverride:
-            #ret = self._insertPageOverride(pos, pgCls, makeActive)
+        # if not ignoreOverride:
+        # ret = self._insertPageOverride(pos, pgCls, makeActive)
         if ret:
             return ret
         if pgCls is None:
@@ -64,6 +64,7 @@ class dPageFrameNoTabs(dPanel):
             if isinstance(pgCls, str):
                 xml = pgCls
                 from dabo.lib.DesignerClassConverter import DesignerClassConverter
+
                 conv = DesignerClassConverter()
                 pgCls = conv.classFromText(xml)
             pg = pgCls(self)
@@ -75,8 +76,9 @@ class dPageFrameNoTabs(dPanel):
         else:
             self.showPage(self.SelectedPage)
         return self.Pages[pos]
-    def _insertPageOverride(self, pos, pgCls, makeActive): pass
 
+    def _insertPageOverride(self, pos, pgCls, makeActive):
+        pass
 
     def removePage(self, pgOrPos, delPage=True):
         """
@@ -98,7 +100,6 @@ class dPageFrameNoTabs(dPanel):
             ret = pg
         return ret
 
-
     def layout(self):
         """Wrap the wx version of the call, if possible."""
         for pg in self.Pages:
@@ -109,12 +110,11 @@ class dPageFrameNoTabs(dPanel):
                 pass
         super(dPageFrameNoTabs, self).layout()
 
-
     def showPage(self, pg):
         ap = self._activePage
         if isinstance(pg, int):
             pg = self.Pages[pg]
-        newPage = (pg is not ap)
+        newPage = pg is not ap
         if pg in self.Pages:
             if newPage:
                 if ap:
@@ -123,8 +123,12 @@ class dPageFrameNoTabs(dPanel):
                 else:
                     apNum = -1
                 dui.callAfter(pg.raiseEvent, dEvents.PageEnter)
-                dui.callAfter(self.raiseEvent, dEvents.PageChanged,
-                        oldPageNum=apNum, newPageNum=self.getPageNumber(pg))
+                dui.callAfter(
+                    self.raiseEvent,
+                    dEvents.PageChanged,
+                    oldPageNum=apNum,
+                    newPageNum=self.getPageNumber(pg),
+                )
             self._activePage = pg
             for ch in self.Pages:
                 self.Sizer.Show(ch, (ch is pg))
@@ -133,7 +137,6 @@ class dPageFrameNoTabs(dPanel):
         else:
             raise AttributeError(_("Attempt to show non-member page"))
 
-
     def nextPage(self):
         """
         Selects the next page. If the last page is selected,
@@ -141,14 +144,12 @@ class dPageFrameNoTabs(dPanel):
         """
         self.cyclePages(1)
 
-
     def priorPage(self):
         """
         Selects the previous page. If the first page is selected,
         it will select the last page.
         """
         self.cyclePages(-1)
-
 
     def cyclePages(self, num):
         """
@@ -158,7 +159,6 @@ class dPageFrameNoTabs(dPanel):
         """
         self.SelectedPageNumber = (self.SelectedPageNumber + num) % self.PageCount
 
-
     def getPageNumber(self, pg):
         """Given a page, returns its position."""
         try:
@@ -167,46 +167,41 @@ class dPageFrameNoTabs(dPanel):
             ret = None
         return ret
 
-
-    #------------------------------------
+    # ------------------------------------
     # The following methods don't do anything except
     # make this class compatible with dPage classes, which
     # expect their parent to have these methods.
-    #------------------------------------
+    # ------------------------------------
     def getPageImage(self, pg):
         return None
-
 
     def setPageImage(self, pg, img):
         pass
 
-
     def GetPageText(self, pg):
         return ""
-
 
     def SetPageText(self, pg, txt):
         pass
 
-
-    #------------------------------------
+    # ------------------------------------
     def _getPageClass(self):
         return self._pageClass
 
     def _setPageClass(self, val):
         if isinstance(val, str):
             from dabo.lib.DesignerClassConverter import DesignerClassConverter
+
             conv = DesignerClassConverter()
             self._pageClass = conv.classFromText(val)
         elif issubclass(val, (dPage, dPanel)):
             self._pageClass = val
 
-
     def _getPageCount(self):
         return len(self._pages)
 
     def _setPageCount(self, val):
-        diff = (val - len(self._pages))
+        diff = val - len(self._pages)
         if diff > 0:
             # Need to add pages
             while diff:
@@ -221,13 +216,11 @@ class dPageFrameNoTabs(dPanel):
             [pg.release() for pg in pagesToKill if pg]
             # Make sure the page we were on isn't one of the deleted pages.
             # If so, switch to the last page.
-            newPg = min(currPg, val-1)
+            newPg = min(currPg, val - 1)
             self.SelectedPage = newPg
-
 
     def _getPages(self):
         return self._pages
-
 
     def _getPageSizerClass(self):
         return self._pageSizerClass
@@ -238,7 +231,6 @@ class dPageFrameNoTabs(dPanel):
         else:
             self._properties["PageSizerClass"] = val
 
-
     def _getSelectedPage(self):
         try:
             return self._activePage
@@ -248,7 +240,6 @@ class dPageFrameNoTabs(dPanel):
     def _setSelectedPage(self, pg):
         self.showPage(pg)
 
-
     def _getSelectedPageNumber(self):
         return self.getPageNumber(self._activePage)
 
@@ -256,27 +247,46 @@ class dPageFrameNoTabs(dPanel):
         pg = self.Pages[val]
         self.showPage(pg)
 
+    PageClass = property(
+        _getPageClass,
+        _setPageClass,
+        None,
+        _("The default class used when adding new pages.  (dPage)"),
+    )
 
-    PageClass = property(_getPageClass, _setPageClass, None,
-            _("The default class used when adding new pages.  (dPage)") )
+    PageCount = property(
+        _getPageCount,
+        _setPageCount,
+        None,
+        _("Returns the number of pages in this pageframe  (int)"),
+    )
 
-    PageCount = property(_getPageCount, _setPageCount, None,
-            _("Returns the number of pages in this pageframe  (int)") )
+    Pages = property(_getPages, None, None, _("List of all the pages.   (list)"))
 
-    Pages = property(_getPages, None, None,
-            _("List of all the pages.   (list)") )
-
-    PageSizerClass = property(_getPageSizerClass, _setPageSizerClass, None,
-            _("""Default sizer class for pages added automatically to this control. Set
+    PageSizerClass = property(
+        _getPageSizerClass,
+        _setPageSizerClass,
+        None,
+        _(
+            """Default sizer class for pages added automatically to this control. Set
             this to None to prevent sizers from being automatically added to child
-            pages. (dSizer or None)"""))
+            pages. (dSizer or None)"""
+        ),
+    )
 
-    SelectedPage = property(_getSelectedPage, _setSelectedPage, None,
-            _("Returns a reference to the currently displayed page  (dPage | dPanel)") )
+    SelectedPage = property(
+        _getSelectedPage,
+        _setSelectedPage,
+        None,
+        _("Returns a reference to the currently displayed page  (dPage | dPanel)"),
+    )
 
-    SelectedPageNumber = property(_getSelectedPageNumber, _setSelectedPageNumber, None,
-            _("Returns a reference to the index of the currently displayed page  (int)") )
-
+    SelectedPageNumber = property(
+        _getSelectedPageNumber,
+        _setSelectedPageNumber,
+        None,
+        _("Returns a reference to the index of the currently displayed page  (int)"),
+    )
 
     DynamicPageClass = makeDynamicProperty(PageClass)
     DynamicPageCount = makeDynamicProperty(PageCount)
@@ -293,6 +303,7 @@ from dabo.ui import dDropdownList
 from dabo.ui import dForm
 from dabo.ui import dLabel
 from dabo.ui import dSizer
+
 
 class TestPage(dPage):
     def afterInit(self):
@@ -333,13 +344,16 @@ class TestForm(dForm):
         hsz.appendSpacer(24)
         lbl = dLabel(self, Caption="Select Page:")
         hsz.append(lbl)
-        dd = dDropdownList(self, DataSource=pgf,
-                DataField="SelectedPageNumber", ValueMode="Position",
-                Choices=["%s" % ii for ii in range(pgf.PageCount)])
+        dd = dDropdownList(
+            self,
+            DataSource=pgf,
+            DataField="SelectedPageNumber",
+            ValueMode="Position",
+            Choices=["%s" % ii for ii in range(pgf.PageCount)],
+        )
         hsz.append(dd)
         self.Sizer.append(hsz, halign="center", border=8)
         self.layout()
-
 
     def onPriorPage(self, evt):
         self.pgf.priorPage()
@@ -352,11 +366,12 @@ class TestForm(dForm):
 
 def main():
     from dabo.dApp import dApp
+
     app = dApp()
     app.MainFormClass = TestForm
     app.setup()
     app.start()
 
-if __name__ == '__main__':
-    main()
 
+if __name__ == "__main__":
+    main()

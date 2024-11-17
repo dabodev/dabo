@@ -6,7 +6,8 @@ import dabo.ui
 
 
 class SortingForm(dOkCancelDialog):
-    """This class affords a simple way to order a list of items. """
+    """This class affords a simple way to order a list of items."""
+
     def __init__(self, parent=None, Choices=[], *args, **kwargs):
         self._itms = list(Choices)
         super(SortingForm, self).__init__(parent=parent, *args, **kwargs)
@@ -14,14 +15,17 @@ class SortingForm(dOkCancelDialog):
         self.Size = (330, 300)
         self._listCaption = ""
 
-
     def addControls(self):
-        self.listBox = dabo.ui.dEditableList(self, Caption=self._listCaption,
-                Choices=self._itms, Editable=False, CanDelete=False,
-                CanAdd=False)
+        self.listBox = dabo.ui.dEditableList(
+            self,
+            Caption=self._listCaption,
+            Choices=self._itms,
+            Editable=False,
+            CanDelete=False,
+            CanAdd=False,
+        )
         self.Sizer.append(self.listBox, 1, "expand", border=30, borderSides="all")
         self.layout()
-
 
     def _getChoices(self):
         try:
@@ -32,7 +36,6 @@ class SortingForm(dOkCancelDialog):
     def _setChoices(self, chc):
         self._itms = self.listBox.Choices = list(chc)
 
-
     def _getListCaption(self):
         return self.listBox.Caption
 
@@ -42,23 +45,27 @@ class SortingForm(dOkCancelDialog):
         except AttributeError:
             self._listCaption = val
 
+    ListCaption = property(
+        _getListCaption, _setListCaption, None, _("Caption for the sorting list  (str)")
+    )
 
-    ListCaption = property(_getListCaption, _setListCaption, None,
-            _("Caption for the sorting list  (str)"))
-
-    Choices = property(_getChoices, _setChoices, None,
-            _("Items in the list to sort.   (list)") )
+    Choices = property(
+        _getChoices, _setChoices, None, _("Items in the list to sort.   (list)")
+    )
 
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
+
     class DummyForm(dabo.ui.dForm):
         def onActivate(self, evt):
             self.Visible = False
-            dlg = SortingForm(self, Caption="Fruit Sort",
-                    ListCaption="Which do you like best?",
-                    Choices = ["apple", "pear", "banana", "peach",
-                    "strawberry", "lime"])
+            dlg = SortingForm(
+                self,
+                Caption="Fruit Sort",
+                ListCaption="Which do you like best?",
+                Choices=["apple", "pear", "banana", "peach", "strawberry", "lime"],
+            )
             dlg.show()
             if dlg.Accepted:
                 print("Sorted:", dlg.Choices)
@@ -70,4 +77,3 @@ if __name__ == "__main__":
     app = dApp()
     app.MainFormClass = DummyForm
     app.start()
-

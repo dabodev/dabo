@@ -7,6 +7,7 @@ from dabo.db.dCursorMixin import dCursorMixin
 
 class dConnection(dObject):
     """Hold a connection to a backend database."""
+
     def __init__(self, connectInfo=None, parent=None, forceCreate=False, **kwargs):
         self._baseClass = dConnection
         self._forceCreate = forceCreate
@@ -31,26 +32,20 @@ class dConnection(dObject):
             raise TypeError("dConnectInfo instance or kwargs not sent.")
         self._connection = self._openConnection(**kwargs)
 
-
     def getConnection(self):
         return self._connection
-
 
     def close(self):
         self._connection.close()
 
-
     def getDictCursorClass(self):
         return self._connectInfo.getDictCursorClass()
-
 
     def getMainCursorClass(self):
         return self._connectInfo.getMainCursorClass()
 
-
     def getCursor(self, cursorClass):
         return self.getBackendObject().getCursor(cursorClass)
-
 
     def getDaboCursor(self, cursorClass=None):
         """
@@ -59,13 +54,15 @@ class dConnection(dObject):
         """
         if cursorClass is None:
             cursorClass = self.getDictCursorClass()
+
         class DaboCursor(dCursorMixin, cursorClass):
             superMixin = dCursorMixin
             superCursor = cursorClass
+
             def __init__(self, *args, **kwargs):
                 for cls in (dCursorMixin, cursorClass):
                     try:
-                        cls.__init__(*(self, ) + args, **kwargs)
+                        cls.__init__(*(self,) + args, **kwargs)
                     except AttributeError:
                         pass
 
@@ -78,12 +75,10 @@ class dConnection(dObject):
 
     cursor = getDaboCursor
 
-
     def _openConnection(self, **kwargs):
         """Open a connection to the database and store it for future use."""
         self.getBackendObject().KeepAliveInterval = self._connectInfo.KeepAliveInterval
         return self._connectInfo.getConnection(forceCreate=self._forceCreate, **kwargs)
-
 
     def getBackendObject(self):
         """
@@ -92,7 +87,6 @@ class dConnection(dObject):
         """
         return self._connectInfo.getBackendObject()
 
-
     def isRemote(self):
         """
         Returns True or False, depending on whether a RemoteHost is
@@ -100,10 +94,8 @@ class dConnection(dObject):
         """
         return bool(self._connectInfo.RemoteHost)
 
-
     def _getConnInfo(self):
         return self._connectInfo
-
 
     def _getName(self):
         try:
@@ -111,17 +103,19 @@ class dConnection(dObject):
         except AttributeError:
             return "?"
 
+    ConnectInfo = property(
+        _getConnInfo,
+        None,
+        None,
+        _("The connectInfo for the connection.  (dConnectInfo)"),
+    )
 
-    ConnectInfo = property(_getConnInfo, None, None,
-            _("The connectInfo for the connection.  (dConnectInfo)"))
-
-    Name = property(_getName, None, None,
-            _("The name of the connection.  (str)"))
-
+    Name = property(_getName, None, None, _("The name of the connection.  (str)"))
 
 
 if __name__ == "__main__":
     from .dConnectInfo import dConnectInfo
+
     ci = dConnectInfo(DbType="MySQL")
     ci.Host = "paulmcnett.com"
     ci.Database = "dabotest"
@@ -133,4 +127,3 @@ if __name__ == "__main__":
     print(cursor.execute("select * from recipes order by iid limit 10"))
     for row in cursor.fetchall():
         print(row[0], row[1])
-

@@ -33,6 +33,7 @@ class SplashScreen(wx.Frame):
     huge inspiration (and source of code!) for this Dabo class. I also borrowed
     some ideas/code from the wxPython demo by Robin Dunn.
     """
+
     def __init__(self, bitmap=None, maskColor=None, timeout=0):
         style = wx.FRAME_NO_TASKBAR | wx.FRAME_SHAPED | wx.STAY_ON_TOP
         wx.Frame.__init__(self, None, -1, style=style)
@@ -59,7 +60,6 @@ class SplashScreen(wx.Frame):
         if timeout > 0:
             self.fc = wx.CallLater(timeout, self._onTimer)
 
-
     def setSizeAndShape(self, evt=None):
         w = self._bmp.GetWidth()
         h = self._bmp.GetHeight()
@@ -70,15 +70,12 @@ class SplashScreen(wx.Frame):
         if evt is not None:
             evt.Skip()
 
-
     def _onMouseEvents(self, evt):
         if evt.LeftDown() or evt.RightDown():
             self._disappear()
 
-
     def _onTimer(self):
         self._disappear()
-
 
     def _disappear(self):
         self.Show(False)
@@ -88,24 +85,22 @@ class SplashScreen(wx.Frame):
         except AttributeError:
             pass
 
-
     def _onPaint(self, evt):
         dc = wx.BufferedPaintDC(self, self._bmp)
         # I plan on adding support for a text string to be
         # displayed. This is Andrea's code, which I may use as
         # the basis for this.
-#         textcolour = self.GetTextColour()
-#         textfont = self.GetTextFont()
-#         textpos = self.GetTextPosition()
-#         text = self.GetText()
-#         dc.SetFont(textfont[0])
-#         dc.SetTextForeground(textcolour)
-#         dc.DrawText(text, textpos[0], textpos[1])
+        #         textcolour = self.GetTextColour()
+        #         textfont = self.GetTextFont()
+        #         textpos = self.GetTextPosition()
+        #         text = self.GetText()
+        #         dc.SetFont(textfont[0])
+        #         dc.SetTextForeground(textcolour)
+        #         dc.DrawText(text, textpos[0], textpos[1])
         # Seems like this only helps on OS X.
         if wx.Platform == "__WXMAC__":
             wx.SafeYield(self, True)
         evt.Skip()
-
 
 
 class uiApp(dObject, wx.App):
@@ -127,8 +122,11 @@ class uiApp(dObject, wx.App):
         self.charset = "unicode"
         if not self.charset in wx.PlatformInfo:
             self.charset = "ascii"
-        txt = "wxPython Version: %s %s (%s)" % (wx.VERSION_STRING,
-                wx.PlatformInfo[1], self.charset)
+        txt = "wxPython Version: %s %s (%s)" % (
+            wx.VERSION_STRING,
+            wx.PlatformInfo[1],
+            self.charset,
+        )
         if wx.PlatformInfo[0] == "__WXGTK__":
             self._platform = _("GTK")
             txt += " (%s)" % wx.PlatformInfo[3]
@@ -162,6 +160,7 @@ class uiApp(dObject, wx.App):
         # Set up the object inspector
         self.inspectorWindow = None
         log = logging.getLogger("Debug")
+
         class DebugLogHandler(logging.Handler):
             def emit(self, record):
                 msg = record.getMessage()
@@ -170,6 +169,7 @@ class uiApp(dObject, wx.App):
                 except AttributeError:
                     self.messages = [msg]
                 self.updateTarget()
+
             def updateTarget(self):
                 try:
                     self.target
@@ -178,13 +178,13 @@ class uiApp(dObject, wx.App):
                     return
                 if self.target:
                     self.target.Value = "\n".join(self.messages)
+
         hnd = self._debugHandler = DebugLogHandler()
         fmt = logging.Formatter("%(message)s")
         hnd.setFormatter(fmt)
         log.setLevel(logging.DEBUG)
         log.addHandler(hnd)
         super(uiApp, self).__init__(*args)
-
 
     def OnInit(self):
         app = self.dApp
@@ -198,8 +198,9 @@ class uiApp(dObject, wx.App):
         if not self.checkForUpdates():
             return False
         if app.showSplashScreen:
-            splash = app._splashScreen = SplashScreen(app.splashImage, app.splashMaskColor,
-                    app.splashTimeout)
+            splash = app._splashScreen = SplashScreen(
+                app.splashImage, app.splashMaskColor, app.splashTimeout
+            )
             splash.CenterOnScreen()
             splash.Show()
             splash.Refresh()
@@ -212,7 +213,6 @@ class uiApp(dObject, wx.App):
         del self.callback
         return True
 
-
     def checkForUpdates(self, force=False):
         answer = False
         msg = ""
@@ -221,8 +221,11 @@ class uiApp(dObject, wx.App):
         if isinstance(checkResult, Exception):
             ### 2014-10-04, Koczian, using ustr to avoid crash
             check_uni = utils.ustr(checkResult)
-            dabo.ui.stop(_("There was an error encountered when checking Web Update: %s") % check_uni,
-                    _("Web Update Problem"))
+            dabo.ui.stop(
+                _("There was an error encountered when checking Web Update: %s")
+                % check_uni,
+                _("Web Update Problem"),
+            )
             ### 2014-10-04, Koczian, end of change
         else:
             # The response will be a boolean for 'first time', along with the dict of updates.
@@ -239,11 +242,21 @@ class uiApp(dObject, wx.App):
                 # This is now in the format of [['M', 'dabo/ui/uiwx/dFormMixin.py'], ...]
                 # Filter out non-standard projects. Do this first, since some base trunk
                 # files can be in the list, and will throw an IndexError.
-                step2 = [(ch[0], ch[1]) for ch in step1
-                        if ch[1].split("/", 1)[0] in ("dabo", "demo", "ide")]
-                step2.sort(lambda x,y: cmp(x[1], y[1]))
+                step2 = [
+                    (ch[0], ch[1])
+                    for ch in step1
+                    if ch[1].split("/", 1)[0] in ("dabo", "demo", "ide")
+                ]
+                step2.sort(lambda x, y: cmp(x[1], y[1]))
                 # Now split off the project
-                step3 = [{"mod":ch[0], "project":ch[1].split("/", 1)[0], "file":ch[1].split("/", 1)[1]} for ch in step2]
+                step3 = [
+                    {
+                        "mod": ch[0],
+                        "project": ch[1].split("/", 1)[0],
+                        "file": ch[1].split("/", 1)[1],
+                    }
+                    for ch in step2
+                ]
                 changedFiles = step3
                 updAvail = bool(changedFiles)
 
@@ -253,27 +266,41 @@ class uiApp(dObject, wx.App):
             msg = _("Updates are available. Do you want to install them now?")
             if isFirst:
                 msg = _(
-"""This appears to be the first time you are running Dabo. When starting
+                    """This appears to be the first time you are running Dabo. When starting
 up, Dabo will check for updates and install them if you wish. Click 'Yes'
 to get the latest version of Dabo now, or 'No' if you do not wish to run
-these automatic updates.""").replace("\n", " ")
+these automatic updates."""
+                ).replace("\n", " ")
                 prop = 2
                 xpand = "x"
                 # Default to checking once a day.
-                self.dApp._setWebUpdate(True, 24*60)
+                self.dApp._setWebUpdate(True, 24 * 60)
 
         if msg:
+
             class WebUpdateConfirmDialog(dabo.ui.dYesNoDialog):
                 def initProperties(self):
                     self.Caption = "Updates Available"
                     self.AutoSize = False
                     self.Height = 600
                     self.Width = 500
+
                 def addControls(self):
-                    headline = dabo.ui.dLabel(self, Caption=msg, FontSize=12,
-                            WordWrap=True, ForeColor="darkblue")
+                    headline = dabo.ui.dLabel(
+                        self,
+                        Caption=msg,
+                        FontSize=12,
+                        WordWrap=True,
+                        ForeColor="darkblue",
+                    )
                     self.Sizer.appendSpacer(12)
-                    self.Sizer.append(headline, proportion=prop, layout=xpand, halign="center", border=12)
+                    self.Sizer.append(
+                        headline,
+                        proportion=prop,
+                        layout=xpand,
+                        halign="center",
+                        border=12,
+                    )
                     self.Sizer.appendSpacer(12)
                     edtNotes = dabo.ui.dEditBox(self, Value=noteText)
                     self.Sizer.append(edtNotes, 2, "x")
@@ -303,15 +330,25 @@ these automatic updates.""").replace("\n", " ")
                     success = self.dApp._updateFramework()
                 except IOError as e:
                     dabo.log.error(_("Cannot update files; Error: %s") % e)
-                    dabo.ui.info(_("You do not have permission to update the necessary files. "
-                            "Please re-run the app with administrator privileges."), title=_("Permission Denied"))
+                    dabo.ui.info(
+                        _(
+                            "You do not have permission to update the necessary files. "
+                            "Please re-run the app with administrator privileges."
+                        ),
+                        title=_("Permission Denied"),
+                    )
                     self.dApp._resetWebUpdateCheck()
                     answer = False
 
                 if success is None:
                     # Update was not successful
-                    dabo.ui.info(_("There was a problem getting a response from the Dabo site. "
-                            "Please check your internet connection and try again later."), title=_("Update Failed"))
+                    dabo.ui.info(
+                        _(
+                            "There was a problem getting a response from the Dabo site. "
+                            "Please check your internet connection and try again later."
+                        ),
+                        title=_("Update Failed"),
+                    )
                     answer = False
                     self.dApp._resetWebUpdateCheck()
                 elif isinstance(success, str):
@@ -319,14 +356,22 @@ these automatic updates.""").replace("\n", " ")
                     dabo.ui.stop(success, title=_("Update Failure"))
                 elif success is False:
                     # There were no changed files available.
-                    dabo.ui.info(_("There were no changed files available - your system is up-to-date!"),
-                            title=_("No Update Needed"))
+                    dabo.ui.info(
+                        _(
+                            "There were no changed files available - your system is up-to-date!"
+                        ),
+                        title=_("No Update Needed"),
+                    )
                     answer = False
                 else:
-                    dabo.ui.info(_("Dabo has been updated to the current master version. The app "
-                            "will now exit. Please re-run the application."), title=_("Success!"))
+                    dabo.ui.info(
+                        _(
+                            "Dabo has been updated to the current master version. The app "
+                            "will now exit. Please re-run the application."
+                        ),
+                        title=_("Success!"),
+                    )
         return not answer
-
 
     def _setUpdatePathLocations(self):
         prf = self.dApp._frameworkPrefs
@@ -342,12 +387,16 @@ these automatic updates.""").replace("\n", " ")
             def addControls(self):
                 gsz = dabo.ui.dGridSizer(MaxCols=3)
                 lbl = dabo.ui.dLabel(self, Caption=_("IDE Directory:"))
-                txt = dabo.ui.dTextBox(self, Enabled=False, Value=loc_ide, RegID="txtIDE", Width=200)
+                txt = dabo.ui.dTextBox(
+                    self, Enabled=False, Value=loc_ide, RegID="txtIDE", Width=200
+                )
                 btn = dabo.ui.dButton(self, Caption="...", OnHit=self.onGetIdeDir)
                 gsz.appendItems((lbl, txt, btn), border=5)
                 gsz.appendSpacer(10, colSpan=3)
                 lbl = dabo.ui.dLabel(self, Caption=_("Demo Directory:"))
-                txt = dabo.ui.dTextBox(self, Enabled=False, Value=loc_demo, RegID="txtDemo", Width=200)
+                txt = dabo.ui.dTextBox(
+                    self, Enabled=False, Value=loc_demo, RegID="txtDemo", Width=200
+                )
                 btn = dabo.ui.dButton(self, Caption="...", OnHit=self.onGetDemoDir)
                 gsz.appendItems((lbl, txt, btn), border=5)
                 gsz.setColExpand(True, 1)
@@ -358,7 +407,9 @@ these automatic updates.""").replace("\n", " ")
                 default = loc_ide
                 if default is None:
                     default = dabo.frameworkPath
-                f = dabo.ui.getDirectory(_("Select the location of the IDE folder"), defaultPath=default)
+                f = dabo.ui.getDirectory(
+                    _("Select the location of the IDE folder"), defaultPath=default
+                )
                 if f:
                     self.txtIDE.Value = f
 
@@ -366,7 +417,9 @@ these automatic updates.""").replace("\n", " ")
                 default = loc_demo
                 if default is None:
                     default = dabo.frameworkPath
-                f = dabo.ui.getDirectory(_("Select the location of the Demo folder"), defaultPath=default)
+                f = dabo.ui.getDirectory(
+                    _("Select the location of the Demo folder"), defaultPath=default
+                )
                 if f:
                     self.txtDemo.Value = f
 
@@ -377,15 +430,15 @@ these automatic updates.""").replace("\n", " ")
             prf.demo_directory = dlg.txtDemo.Value
         dlg.release()
 
-
     def displayInfoMessage(self, msg, defaultShowInFuture=True):
         """Display a dialog to the user that includes an option to not show the message again."""
-        dlg = dabo.ui.DlgInfoMessage(Message=msg, DefaultShowInFuture=defaultShowInFuture)
+        dlg = dabo.ui.DlgInfoMessage(
+            Message=msg, DefaultShowInFuture=defaultShowInFuture
+        )
         dlg.show()
         ret = dlg.chkShowInFuture.Value
         dlg.release()
         return ret
-
 
     def _handleZoomKeyPress(self, evt):
         ## Zoom In / Out / Normal:
@@ -415,21 +468,21 @@ these automatic updates.""").replace("\n", " ")
             return False
         return True
 
-
     # The following three functions handle font zooming
     def fontZoomIn(self):
         af = self.ActiveForm
         if af:
             af.iterateCall("fontZoomIn")
+
     def fontZoomOut(self):
         af = self.ActiveForm
         if af:
             af.iterateCall("fontZoomOut")
+
     def fontZoomNormal(self):
         af = self.ActiveForm
         if af:
             af.iterateCall("fontZoomNormal")
-
 
     def setup(self):
         wx.SystemOptions.SetOption("mac.textcontrol-use-spell-checker", 1)
@@ -442,7 +495,6 @@ these automatic updates.""").replace("\n", " ")
                     frm = self.dApp.MainForm = dabo.ui.createForm(mfc)
                 else:
                     frm = self.dApp.MainForm = mfc()
-
 
     def setMainForm(self, frm):
         """Hook called when dApp.MainForm is set."""
@@ -462,7 +514,6 @@ these automatic updates.""").replace("\n", " ")
         frm.Show(self.dApp.showMainFormOnStart)
         frm._EventBindings = eb
 
-
     def start(self):
         # Manually raise Activate, as wx doesn't do that automatically
         try:
@@ -472,37 +523,29 @@ these automatic updates.""").replace("\n", " ")
 
         self.MainLoop()
 
-
     def exit(self):
         """Exit the application event loop."""
         # TODO: figure out what this was intended to do, wx.App has no Exit method, nor does dObject.
-        #self.Exit()
-
+        # self.Exit()
 
     def finish(self):
         # Manually raise Deactivate, as wx doesn't do that automatically
         self.raiseEvent(dEvents.Deactivate)
 
-
     def _getPlatform(self):
         return self._platform
-
 
     def MacOpenFile(self, filename=None, *args, **kwargs):
         self.dApp.onUiOpenFile(filename, *args, **kwargs)
 
-
     def MacPrintFile(self, filename=None, *args, **kwargs):
         self.dApp.onUiPrintFile(filename, *args, **kwargs)
-
 
     def MacNewFile(self, filename=None, *args, **kwargs):
         self.dApp.onUiNewFile(filename, *args, **kwargs)
 
-
     def MacReopenApp(self, filename=None, *args, **kwargs):
         self.dApp.onUiReopenApp(filename, *args, **kwargs)
-
 
     def _onWxActivate(self, evt):
         """Raise the Dabo Activate or Deactivate appropriately."""
@@ -512,32 +555,25 @@ these automatic updates.""").replace("\n", " ")
             self.dApp.raiseEvent(dEvents.Deactivate, evt)
         evt.Skip()
 
-
     def _onWxKeyChar(self, evt):
         self.dApp.raiseEvent(dEvents.KeyChar, evt)
-
 
     def _onWxKeyDown(self, evt):
         if self._handleZoomKeyPress(evt):
             return
         self.dApp.raiseEvent(dEvents.KeyDown, evt)
 
-
     def _onWxKeyUp(self, evt):
         self.dApp.raiseEvent(dEvents.KeyUp, evt)
-
 
     def onCmdWin(self, evt):
         self.showCommandWindow(self.ActiveForm)
 
-
     def onDebugWin(self, evt):
         self.toggleDebugWindow(self.ActiveForm)
 
-
     def onObjectInspectorWin(self, evt):
         self.toggleInspectorWindow(self.ActiveForm)
-
 
     def showCommandWindow(self, context=None):
         """Display a command window for debugging."""
@@ -545,7 +581,6 @@ these automatic updates.""").replace("\n", " ")
             context = self.ActiveForm
         dlg = dabo.ui.dShellForm(context)
         dlg.show()
-
 
     def toggleDebugWindow(self, context=None):
         """Display a debug output window."""
@@ -592,9 +627,8 @@ these automatic updates.""").replace("\n", " ")
             mb.debugMenuItem.Checked = checked
             mb.Refresh()
         except AttributeError:
-            #Either no such item, or not a valid reference
+            # Either no such item, or not a valid reference
             pass
-
 
     def toggleInspectorWindow(self, context=None):
         """Display the object inspector window."""
@@ -618,12 +652,10 @@ these automatic updates.""").replace("\n", " ")
             # Either no such item, or not a valid reference
             pass
 
-
     def onWinClose(self, evt):
         """Close the topmost window, if any."""
         if self.ActiveForm:
             self.ActiveForm.close()
-
 
     def onFileExit(self, evt):
         """
@@ -640,10 +672,13 @@ these automatic updates.""").replace("\n", " ")
                 if not frm:
                     frms.remove(frm)
             # Now we can work with the rest
-            orphans = [frm for frm in frms
-                    if frm
-                    and (frm.Parent is not app.MainForm)
-                    and (frm is not app.MainForm)]
+            orphans = [
+                frm
+                for frm in frms
+                if frm
+                and (frm.Parent is not app.MainForm)
+                and (frm is not app.MainForm)
+            ]
             for orphan in orphans:
                 if orphan:
                     orphan.close(force=True)
@@ -665,10 +700,8 @@ these automatic updates.""").replace("\n", " ")
                         return False
                 frms.remove(frm)
 
-
     def onEditCut(self, evt):
         self.onEditCopy(evt, cut=True)
-
 
     def onEditCopy(self, evt, cut=False):
         # If Dabo subclasses define copy() or cut(), it will handle. Otherwise,
@@ -679,24 +712,24 @@ these automatic updates.""").replace("\n", " ")
             handled = False
             if cut:
                 if hasattr(win, "cut"):
-                    handled = (win.cut() is not None)
+                    handled = win.cut() is not None
                 if not handled:
                     # See if the control is inside a grid
                     grd = self._getContainingGrid(win)
                     if grd and hasattr(grd, "cut"):
-                        handled = (grd.cut() is not None)
+                        handled = grd.cut() is not None
                 if not handled:
                     if hasattr(win, "Cut"):
                         win.Cut()
                         handled = True
             else:
                 if hasattr(win, "copy"):
-                    handled = (win.copy() is not None)
+                    handled = win.copy() is not None
                 if not handled:
                     # See if the control is inside a grid
                     grd = self._getContainingGrid(win)
                     if grd and hasattr(grd, "copy"):
-                        handled = (grd.copy() is not None)
+                        handled = grd.copy() is not None
                 if not handled:
                     if hasattr(win, "Copy"):
                         win.Copy()
@@ -714,13 +747,15 @@ these automatic updates.""").replace("\n", " ")
                     if cut:
                         win.Remove(win.GetSelection()[0], win.GetSelection()[1])
 
-
     @classmethod
     def copyToClipboard(cls, val):
         txtData = wx.TextDataObject()
         bmpData = wx.BitmapDataObject()
         ok = False
-        for (data, setMethod) in ((txtData, txtData.SetText), (bmpData, bmpData.SetBitmap)):
+        for data, setMethod in (
+            (txtData, txtData.SetText),
+            (bmpData, bmpData.SetBitmap),
+        ):
             try:
                 setMethod(val)
                 ok = True
@@ -735,18 +770,17 @@ these automatic updates.""").replace("\n", " ")
         else:
             raise TypeError(_("Only text and bitmaps are supported."))
 
-
     def onEditPaste(self, evt):
         if self.ActiveForm:
             win = self.ActiveForm.FindFocus()
             handled = False
             if hasattr(win, "paste"):
-                handled = (win.paste() is not None)
+                handled = win.paste() is not None
             if not handled:
                 # See if the control is inside a grid
                 grd = self._getContainingGrid(win)
                 if grd and hasattr(grd, "paste"):
-                    handled = (grd.paste() is not None)
+                    handled = grd.paste() is not None
             if not handled:
                 # See if it has a wx-level Paste() method
                 if hasattr(win, "Paste"):
@@ -772,7 +806,6 @@ these automatic updates.""").replace("\n", " ")
                             # as a dPageFrame, and the selection doesn't refer to selected text.
                             pass
 
-
     def onEditSelectAll(self, evt):
         af = self.ActiveForm
         if af:
@@ -789,7 +822,6 @@ these automatic updates.""").replace("\n", " ")
                         except AttributeError:
                             pass
 
-
     def _getContainingGrid(self, win):
         """
         Returns the grid that contains the specified window, or None
@@ -805,7 +837,6 @@ these automatic updates.""").replace("\n", " ")
             except AttributeError:
                 win = None
         return ret
-
 
     def onEditPreferences(self, evt):
         """
@@ -827,8 +858,9 @@ these automatic updates.""").replace("\n", " ")
                         af.fillPreferenceDialog(dlgPref)
                     # Turn off AutoPersist for any of the dialog's preferenceKeys. Track those that
                     # previously had it on, so we know which ones to revert afterwards.
-                    keysToRevert = [pk for pk in dlgPref.preferenceKeys
-                            if pk.AutoPersist]
+                    keysToRevert = [
+                        pk for pk in dlgPref.preferenceKeys if pk.AutoPersist
+                    ]
                     for k in keysToRevert:
                         k.AutoPersist = False
 
@@ -852,12 +884,11 @@ these automatic updates.""").replace("\n", " ")
                 try:
                     if self.dApp.ReleasePreferenceDialog and dlgPref.Modal:
                         dlgPref.release()
-                        del (af._prefDialog)
+                        del af._prefDialog
                 except RuntimeError:
                     pass
             else:
                 dabo.log.info(_("Stub: dApp.onEditPreferences()"))
-
 
     def onEditUndo(self, evt):
         if self.ActiveForm:
@@ -869,7 +900,6 @@ these automatic updates.""").replace("\n", " ")
                 except AttributeError:
                     dabo.log.error(_("No apparent way to undo."))
 
-
     def onEditRedo(self, evt):
         if self.ActiveForm:
             hasCode = self.ActiveForm.onEditRedo(evt)
@@ -880,10 +910,8 @@ these automatic updates.""").replace("\n", " ")
                 except AttributeError:
                     dabo.log.error(_("No apparent way to redo."))
 
-
     def onEditFindAlone(self, evt):
         self.onEditFind(evt, False)
-
 
     def onEditFind(self, evt, replace=True):
         """
@@ -897,7 +925,7 @@ these automatic updates.""").replace("\n", " ")
         if self.ActiveForm:
             win = self.ActiveForm.ActiveControl
             if win:
-                self.findWindow = win            # Save reference for use by self.OnFind()
+                self.findWindow = win  # Save reference for use by self.OnFind()
                 try:
                     data = self.findReplaceData
                 except AttributeError:
@@ -908,14 +936,21 @@ these automatic updates.""").replace("\n", " ")
                     data.SetReplaceString(self._replaceString)
                     self.findReplaceData = data
                 if replace:
-                    dlg = wx.FindReplaceDialog(win, data, _("Find/Replace"),
-                            wx.FR_REPLACEDIALOG)
+                    dlg = wx.FindReplaceDialog(
+                        win, data, _("Find/Replace"), wx.FR_REPLACEDIALOG
+                    )
                 else:
                     dlg = wx.FindReplaceDialog(win, data, _("Find"))
 
                 # Map enter key to find button:
                 anId = wx.ID_ANY
-                dlg.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_NORMAL, wx.WXK_RETURN, anId),]))
+                dlg.SetAcceleratorTable(
+                    wx.AcceleratorTable(
+                        [
+                            (wx.ACCEL_NORMAL, wx.WXK_RETURN, anId),
+                        ]
+                    )
+                )
                 dlg.Bind(wx.EVT_MENU, self.onEnterInFindDialog, id=anId)
 
                 dlg.Bind(wx.EVT_FIND, self.OnFind)
@@ -927,7 +962,6 @@ these automatic updates.""").replace("\n", " ")
                 dlg.Show()
                 self.findDialog = dlg
 
-
     def setFindDialogIDs(self):
         """
         Since the Find dialog is a wxPython control, we can't determine
@@ -936,9 +970,11 @@ these automatic updates.""").replace("\n", " ")
         Find textbox is physically above the Replace textbox, so we can use
         its position to determine its function.
         """
-        tbs = [{ctl.GetPosition()[1] : ctl.GetId()}
-                for ctl in self.findDialog.GetChildren()
-                if isinstance(ctl, wx.TextCtrl)]
+        tbs = [
+            {ctl.GetPosition()[1]: ctl.GetId()}
+            for ctl in self.findDialog.GetChildren()
+            if isinstance(ctl, wx.TextCtrl)
+        ]
 
         tbs.sort()
         self._findDlgID = list(tbs[0].values())[0]
@@ -947,7 +983,6 @@ these automatic updates.""").replace("\n", " ")
         except IndexError:
             # Not a Replace dialog
             self._replaceDlgID = None
-
 
     def onEnterInFindDialog(self, evt):
         """
@@ -983,7 +1018,6 @@ these automatic updates.""").replace("\n", " ")
         # We've set all the values; now do the Find.
         self.OnFind(evt)
 
-
     def onEditFindAgain(self, evt):
         """Repeat the last search."""
         if self.findReplaceData is None:
@@ -999,7 +1033,6 @@ these automatic updates.""").replace("\n", " ")
             self.onEditFind(None)
             return
 
-
     def OnFindClose(self, evt):
         """User clicked the close button, so hide the dialog."""
         frd = self.findReplaceData
@@ -1011,10 +1044,8 @@ these automatic updates.""").replace("\n", " ")
         self.findDialog = None
         evt.Skip()
 
-
     def OnFindReplace(self, evt):
         self.OnFind(evt, action="Replace")
-
 
     def OnFindReplaceAll(self, evt):
         total = 0
@@ -1039,7 +1070,6 @@ these automatic updates.""").replace("\n", " ")
         else:
             msg = _("%s replacements were made") % total
         dabo.ui.info(msg, title=_("Replacement Complete"))
-
 
     def OnFind(self, evt, action="Find"):
         """
@@ -1093,8 +1123,14 @@ these automatic updates.""").replace("\n", " ")
                 return ret
 
             elif isinstance(win, dabo.ui.dGrid):
-                return win.findReplace(action, findString, replaceString, downwardSearch,
-                        wholeWord, matchCase)
+                return win.findReplace(
+                    action,
+                    findString,
+                    replaceString,
+                    downwardSearch,
+                    wholeWord,
+                    matchCase,
+                )
             else:
                 # Regular text control
                 try:
@@ -1140,7 +1176,6 @@ these automatic updates.""").replace("\n", " ")
                     dabo.log.info(_("Not found"))
                 return ret
 
-
     def addToMRU(self, menuOrCaption, prompt, bindfunc=None):
         """
         Adds the specified menu to the top of the list of
@@ -1156,11 +1191,10 @@ these automatic updates.""").replace("\n", " ")
         if prompt in mn:
             mn.remove(prompt)
         mn.insert(0, prompt)
-        self._mruMenuPrompts[cleanCap] = mn[:self._mruMaxItems]
+        self._mruMenuPrompts[cleanCap] = mn[: self._mruMaxItems]
         mf = self._mruMenuFuncs.get(cleanCap, {})
         mf[prompt] = bindfunc
         self._mruMenuFuncs[cleanCap] = mf
-
 
     def onMenuOpenMRU(self, menu):
         """
@@ -1176,8 +1210,7 @@ these automatic updates.""").replace("\n", " ")
         if topLevel and (menu._mruSeparator is None):
             menu._mruSeparator = menu.appendSeparator()
         tmplt = "&%s %s"
-        promptList = [tmplt % (pos+1, txt)
-                for pos, txt in enumerate(mnPrm)]
+        promptList = [tmplt % (pos + 1, txt) for pos, txt in enumerate(mnPrm)]
         idx = -1
         ok = True
         for prm in promptList:
@@ -1207,10 +1240,9 @@ these automatic updates.""").replace("\n", " ")
             lnks = {}
             fncs = self._mruMenuFuncs.get(cleanCap, {})
             for pos, txt in enumerate(mnPrm):
-                itm = menu.append(tmplt % (pos+1, txt), OnHit=fncs.get(txt, None))
+                itm = menu.append(tmplt % (pos + 1, txt), OnHit=fncs.get(txt, None))
                 lnks[itm.GetId()] = itm
             self._mruMenuLinks[menu] = lnks
-
 
     def getMRUListForMenu(self, menu):
         """Gets the current list of MRU entries for the given menu."""
@@ -1221,7 +1253,6 @@ these automatic updates.""").replace("\n", " ")
             cap = menu.Caption
         return self._mruMenuPrompts.get(cap, [])
 
-
     def onShowSizerLines(self, evt):
         """
         Toggles whether sizer lines are drawn. This is simply a tool
@@ -1230,7 +1261,6 @@ these automatic updates.""").replace("\n", " ")
         self._drawSizerOutlines = not self._drawSizerOutlines
         if self.ActiveForm:
             self.ActiveForm.refresh()
-
 
     def onReloadForm(self, evt):
         """Re-creates the active form with a newer class definition."""
@@ -1256,7 +1286,6 @@ these automatic updates.""").replace("\n", " ")
         newForm.update()
         newForm.show()
 
-
     def _getActiveForm(self):
         af = getattr(self, "_activeForm", None)
         if af is None:
@@ -1270,13 +1299,11 @@ these automatic updates.""").replace("\n", " ")
     def _setActiveForm(self, frm):
         self._activeForm = frm
 
-
     def _getDrawSizerOutlines(self):
         return self._drawSizerOutlines
 
     def _setDrawSizerOutlines(self, val):
         self._drawSizerOutlines = val
-
 
     def _getPreferenceDialogClass(self):
         return self.dApp.PreferenceDialogClass
@@ -1284,13 +1311,25 @@ these automatic updates.""").replace("\n", " ")
     def _setPreferenceDialogClass(self, val):
         self.dApp.PreferenceDialogClass = val
 
+    ActiveForm = property(
+        _getActiveForm,
+        _setActiveForm,
+        None,
+        _("Returns the form that currently has focus, or None.    (dForm)"),
+    )
 
-    ActiveForm = property(_getActiveForm, _setActiveForm, None,
-            _("Returns the form that currently has focus, or None.    (dForm)" ) )
+    DrawSizerOutlines = property(
+        _getDrawSizerOutlines,
+        _setDrawSizerOutlines,
+        None,
+        _("Determines if sizer outlines are drawn on the ActiveForm.  (bool)"),
+    )
 
-    DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
-            _("Determines if sizer outlines are drawn on the ActiveForm.  (bool)") )
-
-    PreferenceDialogClass = property(_getPreferenceDialogClass, _setPreferenceDialogClass, None,
-            _("Class to instantiate for the application's preference editing  (dForm/dDialog)"))
-
+    PreferenceDialogClass = property(
+        _getPreferenceDialogClass,
+        _setPreferenceDialogClass,
+        None,
+        _(
+            "Class to instantiate for the application's preference editing  (dForm/dDialog)"
+        ),
+    )

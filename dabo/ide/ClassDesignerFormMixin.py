@@ -90,7 +90,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         # this method here.
         self.onActivate(None)
 
-
     def _beforeInit(self, pre):
         """Need to set this early in the process"""
         # Convenient flag for controls determining if
@@ -98,7 +97,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         # or run interactively.
         self.isDesignerForm = True
         return super(ClassDesignerFormMixin, self)._beforeInit(pre)
-
 
     def afterInit(self):
         self._defaultLeft = 30
@@ -110,23 +108,18 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         self._recurseOutlinedSizers = False
         self._sizersToOutline = []
 
-
     def afterInitAll(self):
         self.refresh()
-
 
     def bringToFront(self):
         super(ClassDesignerFormMixin, self).bringToFront()
 
-
     def saveState(self):
         self._savedState = self._getSavedState()
-
 
     def restoreSizeAndPosition(self):
         super(ClassDesignerFormMixin, self).restoreSizeAndPosition()
         self.saveState()
-
 
     def _getSavedState(self):
         if self._formMode:
@@ -144,11 +137,16 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             contr.saveAllProps = saveall
             return ret
 
-
     def onKeyChar(self, evt):
         code = evt.keyCode
-        if code not in (dKeys.key_Left, dKeys.key_Right, dKeys.key_Up,
-                dKeys.key_Down, dKeys.key_Back, dKeys.key_Delete):
+        if code not in (
+            dKeys.key_Left,
+            dKeys.key_Right,
+            dKeys.key_Up,
+            dKeys.key_Down,
+            dKeys.key_Back,
+            dKeys.key_Delete,
+        ):
             # We don't need to do anything
             return
         if self.UseSizers:
@@ -179,7 +177,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             else:
                 obj.nudgeControl(h, v)
 
-
     def onActivate(self, evt):
         cntrl = self.Controller
         if cntrl is not None:
@@ -194,11 +191,9 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 # no current form at the moment
                 pass
 
-
     def onDeactivate(self, evt):
         if self.Controller is not None:
             self._selection = self.Controller.Selection
-
 
     def createContextMenu(self):
         """The form doesn't allow direct access in design mode. Instead, call the
@@ -214,10 +209,8 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             menu.append(_("Add Toolbar Button"), OnHit=self.onAddToolbarButton)
         return menu
 
-
     def onAddToolbar(self, evt):
         self.Controller.addNewToolbar(self)
-
 
     def onAddToolbarButton(self, evt):
         class TbButtonDialog(dOkCancelDialog):
@@ -248,9 +241,11 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 gsz.append(lbl)
                 gsz.append(txt)
                 self.Sizer.append1x(gsz)
+
             def onSelectPic(self, evt):
                 pic = dabo.ui.getFile("png", "icn", "bmp", "jpg", "gif")
                 self.button_picture.Value = pic
+
         dlg = TbButtonDialog(self)
         dlg.show()
         if not dlg.Accepted:
@@ -261,9 +256,9 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         ttt = dlg.tooltip_text.Value
         hlp = dlg.help_text.Value
         dlg.release()
-        self.Controller.addNewToolbarButton(self, name=nm, pic=pic, toggle=tog,
-                tip=ttt, help=hlp)
-
+        self.Controller.addNewToolbarButton(
+            self, name=nm, pic=pic, toggle=tog, tip=ttt, help=hlp
+        )
 
     def beforeClose(self, evt):
         ret = True
@@ -275,7 +270,10 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 fname = os.path.split(cf)[1]
             else:
                 fname = _("Untitled")
-            saveIt = dabo.ui.areYouSure(_("Do you want to save the changes to '%s'?") % fname, _("Unsaved Changes"))
+            saveIt = dabo.ui.areYouSure(
+                _("Do you want to save the changes to '%s'?") % fname,
+                _("Unsaved Changes"),
+            )
             if saveIt is None:
                 # They canceled
                 ret = False
@@ -285,7 +283,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             # Otherwise, they said 'No'
         return ret
 
-
     def closing(self, evt=None):
         if self.Controller is not None:
             if not self._appNotifiedClose:
@@ -294,38 +291,37 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 self.Controller.designerFormClosing(self)
         return True
 
-
     def _configureForDockForm(self):
         """If the form being edited is a dDockForm, we need to fake it by adding
         all the functionality to the DesignerForm.
         """
         pass
-#         from dDockForm import _dDockManager
-#         self._mgr = _dDockManager(self)
-#
-#         def addMethod(func, nm):
-#             method = new.instancemethod(func, self)
-#             setattr(self, nm, method)
-#         def _addDockPanel(self, *args, **kwargs):
-#             pnl = self._basePanelClass(self, *args, **kwargs)
-#         def _refreshState(self, interval=None):
-#             if interval is None:
-#                 interval = 100
-#             if interval == 0:
-#                 self._mgr.Update()
-#             else:
-#                 dabo.ui.callAfterInterval(interval, self._mgr.Update)
-#         addMethod(_addDockPanel, "addDockPanel")
-#         addMethod(_refreshState, "_refreshState")
 
-#         pc = dDockForm.getBasePanelClass()
-#         self._basePanelClass = self.Controller.getControlClass(pc)
-#         self.CenterPanel = self._basePanelClass(self, name="CenterPanel",
-#                 typ="center")
-#        self.CenterPanel = LayoutBasePanel(self)
+    #         from dDockForm import _dDockManager
+    #         self._mgr = _dDockManager(self)
+    #
+    #         def addMethod(func, nm):
+    #             method = new.instancemethod(func, self)
+    #             setattr(self, nm, method)
+    #         def _addDockPanel(self, *args, **kwargs):
+    #             pnl = self._basePanelClass(self, *args, **kwargs)
+    #         def _refreshState(self, interval=None):
+    #             if interval is None:
+    #                 interval = 100
+    #             if interval == 0:
+    #                 self._mgr.Update()
+    #             else:
+    #                 dabo.ui.callAfterInterval(interval, self._mgr.Update)
+    #         addMethod(_addDockPanel, "addDockPanel")
+    #         addMethod(_refreshState, "_refreshState")
 
-#         self.CenterPanel = pc(self)
+    #         pc = dDockForm.getBasePanelClass()
+    #         self._basePanelClass = self.Controller.getControlClass(pc)
+    #         self.CenterPanel = self._basePanelClass(self, name="CenterPanel",
+    #                 typ="center")
+    #        self.CenterPanel = LayoutBasePanel(self)
 
+    #         self.CenterPanel = pc(self)
 
     def onPageChanged(self, evt):
         """Called when a wizard page is selected"""
@@ -335,10 +331,10 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             if obj.isContainedBy(pg):
                 # No need to do anything
                 return
-        except: pass
+        except:
+            pass
         self.selectControl(pg, False)
         dabo.ui.callAfter(self._refreshPage, pg)
-
 
     def _refreshPage(self, pg):
         acd = pg.autoClearDrawings
@@ -346,27 +342,21 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         self.refresh()
         pg.autoClearDrawings = acd
 
-
     def refresh(self, interval=None):
         self.clear()
         super(ClassDesignerFormMixin, self).refresh(interval=interval)
 
-
     def onResize(self, evt):
         dabo.ui.callAfterInterval(100, self.refresh)
-
 
     def onMenuOpen(self, evt):
         self.Controller.menuUpdate(evt, self.MenuBar)
 
-
     def afterSetMenuBar(self):
         ClassDesignerMenu.mkDesignerMenu(self)
 
-
     def onPanelCreate(self):
         self.Controller.updateLayout()
-
 
     def objectClick(self, obj, shift=False):
         """Called when the user selects an object."""
@@ -406,11 +396,9 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         if newSel is origSel:
             self.redrawHandles(newSel)
 
-
     def objectIsContainedBy(self, obj, cntr):
         """Returns True if the object is contained at some level by cntr."""
         return obj.isContainedBy(cntr)
-
 
     def findActiveContainerChild(self, obj):
         """Returns the object that is a child of the ActiveContainer that
@@ -422,7 +410,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 break
             ret = ret.Parent
         return ret
-
 
     def firstCommonContainer(self, o1, o2):
         """Returns the first container that contains both o1 and o2."""
@@ -448,11 +435,9 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 break
         return ret
 
-
     def selectControl(self, obj, shift=False):
         """Pass-through method when an object needs to be selected"""
         self.Controller.select(obj, shift)
-
 
     def updateApp(self):
         """Called by contained objects when their state changes
@@ -460,7 +445,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         """
         self.Controller.updateLayout()
         self.layout()
-
 
     def getObjectHierarchy(self):
         """Returns a list of 2-tuples representing the structure of
@@ -474,12 +458,10 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             obj = self.Children[0]
         return self._recurseObjects(obj, 0)
 
-
     def _recurseObjects(self, obj, level):
         ret = [(level, obj)]
         kids = None
-        if isinstance(obj, (dComboBox, dSpinner,
-                dListControl, dRadioList)):
+        if isinstance(obj, (dComboBox, dSpinner, dListControl, dRadioList)):
             # These compound controls don't need their parts listed
             children = None
         else:
@@ -490,21 +472,18 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 kids = None
         if kids is not None:
             for ch in kids:
-                if isinstance(ch, (dForm, dToolForm,
-                        dDialog, dStatusBar, LayoutPanel)):
+                if isinstance(ch, (dForm, dToolForm, dDialog, dStatusBar, LayoutPanel)):
                     continue
                 elif ustr(ch).startswith("<wx."):
                     # These are low-level items, such as scrollbars, and do not need
                     # to be included.
                     continue
-                ret += self._recurseObjects(ch, level+1)
+                ret += self._recurseObjects(ch, level + 1)
         return ret
-
 
     def editCode(self, obj):
         """Called when a object's code is to be edited."""
         self.Controller.editCode(obj=obj)
-
 
     def panelClick(self, panel, shift):
         """Called when a layout panel (for an empty sizer slot) is
@@ -512,8 +491,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         """
         sz = panel.ControllingSizer
         obj = panel.ControllingSizerItem
-        self.Controller.select((obj, sz) , shift)
-
+        self.Controller.select((obj, sz), shift)
 
     def setClassInfo(self, classRef=None, className=None, classFile=None):
         self._className = className
@@ -523,10 +501,8 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         self._classOrigCode = ""
         self._classMethods = {}
 
-
     def getClassFile(self):
         return self._classFile
-
 
     def onSaveAsDesign(self, evt):
         self._classFile = dabo.ui.getSaveAs(wildcard="cdxml")
@@ -538,7 +514,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             self._classFile += ".cdxml"
         self._savedState = {}
         self.onSaveDesign(evt)
-
 
     def onSaveDesign(self, evt, useTmp=False):
         currForm = self.Controller.CurrentForm
@@ -618,7 +593,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         self.saveState()
         return fname
 
-
     def _createDesignerCode(self, cd):
         """Given a dict of code, create the Python script containing that code."""
         ret = """# -*- coding: utf-8 -*-
@@ -650,11 +624,11 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             body.append("%s\n%s" % (hdr, code))
         return ret + "\n".join(body)
 
-
     def onSaveClassDesign(self, evt):
         """Save the contents of the designer, excluding the outer form,
         as a separate class that can be used in other designs.
         """
+
         # See if they want to save the entire contents of the form, or
         # just the current selection.
         class ClassScopeDialog(dOkCancelDialog):
@@ -665,8 +639,13 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 lbl = dLabel(self, Caption=_("Do you want to save"))
                 self.Sizer.append(lbl, halign="center")
                 chc = [_("The contents of the form"), _("Just the current selection")]
-                rgrp = dRadioList(self, Choices=chc, DataSource=self,
-                        DataField="saveType", ValueMode="Position")
+                rgrp = dRadioList(
+                    self,
+                    Choices=chc,
+                    DataSource=self,
+                    DataField="saveType",
+                    ValueMode="Position",
+                )
                 self.Sizer.append(rgrp, halign="center")
 
         savType = None
@@ -676,7 +655,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         dlg.show()
         if dlg.Accepted:
             savType = dlg.saveType
-        #dlg.release()
+        # dlg.release()
         if savType is None:
             return
         if savType == 0:
@@ -703,7 +682,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         # IOError that the calling method can catch.
         codecs.open(clsFile, "wb", encoding="utf-8").write(xml)
 
-
     def getClass(self):
         """Returns a string representing the class's name. Default behavior
         is to return the BaseClass, but this allows for specific subclasses
@@ -714,7 +692,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         else:
             ret = super(ClassDesignerFormMixin, self).getClass()
         return ret
-
 
     def _extractCodeFromPropDict(self, pd, cd=None, prntName=None):
         """Extract all 'code' keys into a separate dict. Remove them from the
@@ -739,8 +716,11 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             pd["attributes"].update({"code-ID": codeID})
             cd[codeID] = code
         pd["children"] = []
-        isSizer = (atts["designerClass"] in ("LayoutGridSizer",
-                "LayoutSizer", "LayoutBorderSizer"))
+        isSizer = atts["designerClass"] in (
+            "LayoutGridSizer",
+            "LayoutSizer",
+            "LayoutBorderSizer",
+        )
         if isSizer:
             # Pass the parent name instead of the sizer name
             nm = prntName
@@ -748,7 +728,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             kd, cd = self._extractCodeFromPropDict(kid, cd, nm)
             pd["children"].append(kd)
         return (pd, cd)
-
 
     def getClassDesignerDict(self, obj, propsToExclude=None):
         """We need to generate classIDs for later management of
@@ -764,7 +743,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         # We don't want to save the controlling sizer's info
         ret["attributes"]["sizerInfo"] = {}
         return ret
-
 
     def onRunDesign(self, evt):
         # First, make sure that it's been saved
@@ -795,17 +773,17 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         if isinstance(frm, Wizard):
             frm.start()
         if isinstance(frm, dDialog):
+
             def __dlgRelease(evt):
                 evt.EventObject.release()
-            frm.bindEvent(dEvents.Close, __dlgRelease)
 
+            frm.bindEvent(dEvents.Close, __dlgRelease)
 
     def layout(self):
         super(ClassDesignerFormMixin, self).layout()
         # This seems to clear up some ghost pixels that get left behind
         # in the top left corner of the form.
         self.ClearBackground()
-
 
     def genPropDict(self, ctl):
         ret = {}
@@ -817,7 +795,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             if prop in ("Font", "Right", "Bottom"):
                 # These are either derived or set by other props
                 continue
-            if prop in ("IconBundle", ):
+            if prop in ("IconBundle",):
                 # Cannot save this as text
                 continue
 
@@ -825,15 +803,15 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             ret[prop] = val
         return ret
 
-
     def openClass(self):
         """Allows the user to select a particular class from the
         module of their choice. Stores the class name, the path to the
         module, the original code of the class, and the methods
         of that class to internal attributes.
         """
-        dlg = ocd.OpenClassDialog(self, className=self._className,
-                classFile = self._classFile)
+        dlg = ocd.OpenClassDialog(
+            self, className=self._className, classFile=self._classFile
+        )
         if not dlg.ClassName:
             # User bailed
             return
@@ -842,20 +820,18 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         self._classFile = dlg.ClassFile
         self.parseInfo(dlg.ClassInfo)
 
-
     def parseClass(self):
         dir, fname = os.path.split(self._classFile)
         fbase = os.path.splitext(fname)[0]
         clsInfo = pyclbr(fbase, list(dir))
         self.parseInfo(clsInfo)
 
-
     def parseInfo(self, modInfo):
         inf = modInfo[self._className]
         self._classMethods = inf.methods
         # Adjust the line numbers for the beginning of the module
-        for k,v in list(self._classMethods.items()):
-            self._classMethods[k] = v - (inf.lineno-1)
+        for k, v in list(self._classMethods.items()):
+            self._classMethods[k] = v - (inf.lineno - 1)
 
         z = [m.lineno for m in list(modInfo.values())]
         z.sort()
@@ -864,24 +840,23 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         thisClsLn = inf.lineno
         indx = z.index(thisClsLn)
         try:
-            nxtClsLn = z[indx+1]
+            nxtClsLn = z[indx + 1]
         except IndexError:
             nxtClsLn = -1
         # Read in the file, and extract this class's code.
         f = codecs.open(inf.file, "r", encoding="utf-8")
         txt = []
-        for i in range(thisClsLn-1):
+        for i in range(thisClsLn - 1):
             f.readline()
         # Now read the lines up to the next class (if any)
         if nxtClsLn == -1:
             self._classOrigCode = f.read()
         else:
-            numLines = (nxtClsLn - thisClsLn)
+            numLines = nxtClsLn - thisClsLn
             for i in range(numLines):
                 txt.append(f.readline())
             self._classOrigCode = "".join(txt)
         f.close()
-
 
     def onRunLayoutWiz(self, evt):
         """Run the QuickLayoutWizard, using the form's named
@@ -890,12 +865,13 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         if self.UseSizers:
             pnl = self.Controller.getActivePanel()
             if pnl is None:
-                dabo.ui.stop(_("Please right-click on the target slot"),
-                        _("No target"))
+                dabo.ui.stop(_("Please right-click on the target slot"), _("No target"))
                 return
             elif not isinstance(pnl, LayoutPanel):
-                dabo.ui.stop(_("Please select a target slot before running the wizard"),
-                        _("No Slot Selected"))
+                dabo.ui.stop(
+                    _("Please select a target slot before running the wizard"),
+                    _("No Slot Selected"),
+                )
                 return
         wiz = QuickLayoutWizard(self)
         wiz.ConnectionName = self.CxnName
@@ -904,18 +880,16 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         if wiz:
             wiz.hide()
 
-
     def addQuickLayout(self, layoutInfo):
         self.CxnName = layoutInfo["connectionName"]
         if layoutInfo["createBizobj"]:
             self.addBizobjCode(layoutInfo)
         self.Controller.addQuickLayout(layoutInfo)
 
-
     def addBizobjCode(self, info):
         tbl = info["table"]
         tblSafe = tbl.replace(" ", "_")
-        #JFCS 01/22/07 added below to support schema.tableName by removing dot
+        # JFCS 01/22/07 added below to support schema.tableName by removing dot
         tblSafe = tblSafe.replace(".", "")
         tblTitle = tblSafe.title()
         lowbiz = tblSafe[0].lower() + tblSafe[1:] + "Bizobj"
@@ -934,23 +908,36 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         loadCodeTemplate = self.getBizobjLoadTemplate()
         addFlds = []
         for fld in flds:
-            addFlds.append("\t\tself.addField(\"%s\")" % fld)
+            addFlds.append('\t\tself.addField("%s")' % fld)
         fldDefs = "\n".join(addFlds)
-        tq = "\"" * 3
+        tq = '"' * 3
         bizcode = bizCodeTemplate % locals()
         # Get the biz directory
-        bizdir = self.Application.getStandardAppDirectory("biz", os.path.abspath(self._classFile))
+        bizdir = self.Application.getStandardAppDirectory(
+            "biz", os.path.abspath(self._classFile)
+        )
         if not bizdir:
-            bizdir = dabo.ui.getDirectory(message=_("Please select your bizobj directory"))
+            bizdir = dabo.ui.getDirectory(
+                message=_("Please select your bizobj directory")
+            )
         if not bizdir:
-            if dabo.ui.areYouSure(message=_("Cannot create bizobj class without a directory. Do you want to copy the code to the clipboard?"),
-                    title=_("Copy Bizobj Code"), cancelButton=False):
+            if dabo.ui.areYouSure(
+                message=_(
+                    "Cannot create bizobj class without a directory. Do you want to copy the code to the clipboard?"
+                ),
+                title=_("Copy Bizobj Code"),
+                cancelButton=False,
+            ):
                 self.Application.copyToClipboard(bizcode)
         else:
             fname = "%(tblTitle)sBizobj.py" % locals()
-            codecs.open(os.path.join(bizdir, fname), "w", encoding="utf-8").write(bizcode)
+            codecs.open(os.path.join(bizdir, fname), "w", encoding="utf-8").write(
+                bizcode
+            )
             clsname = fname.strip(".py")
-            codecs.open(os.path.join(bizdir, "__init__.py"), "a", encoding="utf-8").write("\nfrom %(clsname)s import %(clsname)s\n" % locals())
+            codecs.open(
+                os.path.join(bizdir, "__init__.py"), "a", encoding="utf-8"
+            ).write("\nfrom %(clsname)s import %(clsname)s\n" % locals())
 
         # Now create the import code for the form.
         loadcode = loadCodeTemplate % locals()
@@ -967,15 +954,12 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         # Add the classes to the app's namespace
         self.Controller.updateNamespace(os.path.abspath(self._classFile))
 
-
     def onAddControl(self, evt):
         self.Controller.onAddControl(evt)
 
-
     def select(self, ctls):
         if ctls == self._selection:
-            if not [ct for ct in ctls
-                    if hasattr(ct, "Selected") and not ct.Selected]:
+            if not [ct for ct in ctls if hasattr(ct, "Selected") and not ct.Selected]:
                 # Nothing changed; we're switching active forms
                 return
         self.lockDisplay()
@@ -997,7 +981,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 self.StatusText = ""
         self.unlockDisplay()
 
-
     def ensureVisible(self, obj):
         """When selecting an object on a page, make sure that
         that page is selected.
@@ -1017,37 +1000,32 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                         break
         obj.showContainingPage()
 
+    #     def getControlClass(self, base):
+    #         class controlMix(dcm, base):
+    #             _superBase = base
+    #             _superMixin = dcm
+    #             def __init__(self, *args, **kwargs):
+    #                 if hasattr(base, "__init__"):
+    #                     apply(base.__init__,(self,) + args, kwargs)
+    #                 parent = args[0]
+    #                 dcm.__init__(self, parent, **kwargs)
+    #         return controlMix
 
-#     def getControlClass(self, base):
-#         class controlMix(dcm, base):
-#             _superBase = base
-#             _superMixin = dcm
-#             def __init__(self, *args, **kwargs):
-#                 if hasattr(base, "__init__"):
-#                     apply(base.__init__,(self,) + args, kwargs)
-#                 parent = args[0]
-#                 dcm.__init__(self, parent, **kwargs)
-#         return controlMix
+    #    def close(self):
+    #         # Needed to avoid resizing errors when quitting
+    #         self.Controller.isClosing = True
+    #         super(ClassDesignerFormMixin, self).close()
 
+    #    def onSizePosChg(self, evt):
+    #         if self.controlPanel and self.mainControl:
+    #             self.controlPanel.Size = self.mainControl.Size
+    #             self.Layout()
+    #         self.Controller.PropSheet.updatePropVal( ("Left", "Right", "Top", "Bottom",
+    #                 "Size", "Height", "Width", "Position") )
 
-#    def close(self):
-#         # Needed to avoid resizing errors when quitting
-#         self.Controller.isClosing = True
-#         super(ClassDesignerFormMixin, self).close()
-
-
-#    def onSizePosChg(self, evt):
-#         if self.controlPanel and self.mainControl:
-#             self.controlPanel.Size = self.mainControl.Size
-#             self.Layout()
-#         self.Controller.PropSheet.updatePropVal( ("Left", "Right", "Top", "Bottom",
-#                 "Size", "Height", "Width", "Position") )
-
-
-#    def updatePropVal(self, valNames):
-#         """Pass-through method"""
-#         self.Controller.PropSheet.updatePropVal(valNames)
-
+    #    def updatePropVal(self, valNames):
+    #         """Pass-through method"""
+    #         self.Controller.PropSheet.updatePropVal(valNames)
 
     def redrawHandles(self, ctls, showEm=True):
         if self.UseSizers:
@@ -1056,7 +1034,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         if not isinstance(ctls, (list, tuple)):
             ctls = [ctls]
         for ctl in ctls:
-            if (ctl is self):
+            if ctl is self:
                 # Nothing to hilite
                 self.hideAllHandles()
                 return
@@ -1073,22 +1051,24 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 return
             wid, ht = ctl.Size
             handleW, handleH = hnds["TL"].Size
-            handleMid = int(handleH /2)
-            hnds["TL"].Position = left-handleW+handleMid, top-handleH+handleMid
-            hnds["TM"].Position =  (left+(wid/2)-handleMid), top-handleH+handleMid
-            hnds["TR"].Position = left+wid-handleMid, top-handleH+handleMid
+            handleMid = int(handleH / 2)
+            hnds["TL"].Position = left - handleW + handleMid, top - handleH + handleMid
+            hnds["TM"].Position = (
+                (left + (wid / 2) - handleMid),
+                top - handleH + handleMid,
+            )
+            hnds["TR"].Position = left + wid - handleMid, top - handleH + handleMid
 
-            hnds["ML"].Position = left-handleW+handleMid, top+(ht/2)-handleMid
-            hnds["MR"].Position = left+wid-handleMid, top+(ht/2)-handleMid
+            hnds["ML"].Position = left - handleW + handleMid, top + (ht / 2) - handleMid
+            hnds["MR"].Position = left + wid - handleMid, top + (ht / 2) - handleMid
 
-            hnds["BL"].Position = left-handleW+handleMid, top+ht-handleMid
-            hnds["BM"].Position =  (left+(wid/2)-handleMid), top+ht-handleMid
-            hnds["BR"].Position = left+wid-handleMid, top+ht-handleMid
+            hnds["BL"].Position = left - handleW + handleMid, top + ht - handleMid
+            hnds["BM"].Position = (left + (wid / 2) - handleMid), top + ht - handleMid
+            hnds["BR"].Position = left + wid - handleMid, top + ht - handleMid
 
             for hnd in list(hnds.values()):
                 hnd.bringToFront()
                 hnd.Visible = showEm
-
 
     def createControlHandles(self, ctl):
         try:
@@ -1102,7 +1082,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             self.handles[ctl] = handleSet
         return handleSet
 
-
     def startResize(self, handle, evt):
         if not handle:
             return
@@ -1114,7 +1093,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         self.dragging = True
         self.hideHandles(ctl)
         self.iterateCall("setMouseHandling", True)
-
 
     def stopResize(self, handle, evt):
         if not handle:
@@ -1128,7 +1106,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         self.dragging = False
         self.iterateCall("setMouseHandling", False)
 
-
     def resizeCtrl(self, handle, evt):
         if not handle or not handle.ownerCtl:
             return
@@ -1136,12 +1113,10 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         up, right, down, left = handle.up, handle.right, handle.down, handle.left
         ctl.resize(evt, up, right, down, left)
 
-
     def hideAllHandles(self):
         ks = list(self.handles.keys())
         for key in ks:
             self.hideHandles(key)
-
 
     def hideHandles(self, ctl=None, release=False):
         if ctl is None:
@@ -1150,13 +1125,12 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             hnd = self.handles[ctl]
         except KeyError:
             return
-        for nm,h in list(hnd.items()):
+        for nm, h in list(hnd.items()):
             h.Visible = False
             if release:
                 h.release()
         if release:
             del self.handles[ctl]
-
 
     def alignControls(self, evt, edge):
         """Aligns the currently selected controls along the specified
@@ -1178,7 +1152,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             dabo.ui.setAfter(ctl, edge, newval)
         dabo.ui.callAfter(self.redrawHandles, slc)
 
-
     def iterateCall(self, funcName, *args, **kwargs):
         """We need to override this because of a hack that was done
         to remap the Children property, which iterateCall() relies upon,
@@ -1190,7 +1163,6 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             self.mainPanel.iterateCall(funcName, *args, **kwargs)
         else:
             super(ClassDesignerFormMixin, self).iterateCall(funcName, *args, **kwargs)
-
 
     def onControlLeftDown(self, evt):
         obj = evt.EventObject
@@ -1234,33 +1206,31 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         self._dragOrigPos = obj.absoluteCoordinates(evt.mousePosition)
         self._dragObjOffset = evt.mousePosition
 
-
     def processLeftDoubleClick(self, evt):
         """Called from an object when it is double-clicked."""
         obj = evt.EventObject
         if obj.IsContainer:
             self.ActiveContainer = obj
 
-
     def processLeftDown(self, obj, evt):
         if isinstance(obj, NoSizerBasePanel):
             self.onLeftDown(evt)
 
-
     def onLeftDown(self, evt):
         if True:
             self._selecting = True
-            self._dragDrawPos = self._dragOrigPos = \
-                    evt.EventObject.absoluteCoordinates(evt.mousePosition)
+            self._dragDrawPos = self._dragOrigPos = evt.EventObject.absoluteCoordinates(
+                evt.mousePosition
+            )
             if self._drawSurface is None:
                 self._drawSurface = self.ActiveContainer
             self.iterateCall("setMouseHandling", True)
-##            else:
-##                self._drawSurface = self
-#         else:
-#             self.drawing = True
-#             self.drawX, self.drawY = self.ScreenToClient( wx.GetMousePosition() )    #(evt.m_x, evt.m_y)
 
+    ##            else:
+    ##                self._drawSurface = self
+    #         else:
+    #             self.drawing = True
+    #             self.drawX, self.drawY = self.ScreenToClient( wx.GetMousePosition() )    #(evt.m_x, evt.m_y)
 
     def onLeftUp(self, evt, obj=None):
         if obj is None:
@@ -1286,19 +1256,20 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             # Was there a selected class?
             cls = self.Controller.SelectedClass
             if cls is not None:
-                self.Controller.addDrawnClass(cls, ac,
-                        relOrigPos, relEndPos)
+                self.Controller.addDrawnClass(cls, ac, relOrigPos, relEndPos)
             else:
-                #self._drawSurface = None
+                # self._drawSurface = None
                 # Any selected?
-                sel = [ctl for ctl in ac.Children
-                        if self.intesects(ctl, relOrigPos, relEndPos)
-                        and not isinstance(ctl, DragHandle)]
+                sel = [
+                    ctl
+                    for ctl in ac.Children
+                    if self.intesects(ctl, relOrigPos, relEndPos)
+                    and not isinstance(ctl, DragHandle)
+                ]
                 self.selectControl(sel, evt.shiftDown)
             self._dragOrigPos = self._dragDrawPos = (0, 0)
         else:
             self.objectClick(obj, evt.shiftDown)
-
 
     def intesects(self, ctl, p1, p2):
         """Returns True if any part of ctl is within the rectangle defined by p1, p2."""
@@ -1313,10 +1284,10 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         if (cLeft > pRight) or (cRight < pLeft) or (cTop > pBottom) or (cBottom < pTop):
             return False
         else:
-            ret = ( ((cLeft <= pRight) or (cRight >= pLeft)) and
-                    ((cTop <= pBottom) or (cBottom >= pTop)) )
+            ret = ((cLeft <= pRight) or (cRight >= pLeft)) and (
+                (cTop <= pBottom) or (cBottom >= pTop)
+            )
             return ret
-
 
     def setMouseHandling(self, turnOn):
         """When turnOn is True, sets all the mouse event bindings. When
@@ -1331,13 +1302,11 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         # calls.
         raise dException.StopIterationException
 
-
     def handleMouseMove(self, evt):
         if evt.dragging:
             self.onMouseDrag(evt)
         else:
             self.DragObject = None
-
 
     def onMouseDrag(self, evt):
         obj = evt.EventObject
@@ -1373,10 +1342,9 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         else:
             self.DragObject = None
 
-
     def moveDraggedObjects(self, evt):
-#         newX, newY = evt.EventObject.containerCoordinates(self.ActiveContainer,
-#                 evt.mousePosition)
+        #         newX, newY = evt.EventObject.containerCoordinates(self.ActiveContainer,
+        #                 evt.mousePosition)
         newX, newY = evt.EventObject.absoluteCoordinates(evt.mousePosition)
         oldX, oldY = self._dragOrigPos
         diffX = newX - oldX
@@ -1385,10 +1353,9 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             ctlX, ctlY = ctl._startDragPos
             ctl.Position = (ctlX + diffX, ctlY + diffY)
 
-
     def drawMarquee(self, pos):
         # Adjust the pos for the container
-        offX, offY = 0,0        #self.ActiveContainer.formCoordinates()
+        offX, offY = 0, 0  # self.ActiveContainer.formCoordinates()
         x1, y1 = self._dragOrigPos
         x2, y2 = pos
         x2 -= offX
@@ -1398,7 +1365,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         wd = abs(x1 - x2)
         ypos = min(y1, y2)
         ht = abs(y1 - y2)
-        #self._drawSurface.Visible = True
+        # self._drawSurface.Visible = True
         if self.Controller.SelectedClass:
             penColor = "gold"
             penWidth = 2
@@ -1409,11 +1376,18 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             lineStyle = "dot"
 
         xpos, ypos = self.ActiveContainer.relativeCoordinates((xpos, ypos))
-        self.ActiveContainer.drawRectangle(xpos, ypos, wd, ht, lineStyle=lineStyle,
-                penColor=penColor, penWidth=penWidth, mode="invert",
-                persist=False)
+        self.ActiveContainer.drawRectangle(
+            xpos,
+            ypos,
+            wd,
+            ht,
+            lineStyle=lineStyle,
+            penColor=penColor,
+            penWidth=penWidth,
+            mode="invert",
+            persist=False,
+        )
         self._dragDrawPos = pos
-
 
     def processLeftUp(self, obj, evt):
         if isinstance(obj.Parent, dRadioList):
@@ -1425,7 +1399,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         dabo.ui.callAfter(self._clearDraggedObjects)
         ox, oy = self._dragOrigPos
         nx, ny = obj.absoluteCoordinates(evt.mousePosition)
-        dist = abs(nx-ox) + abs(ny-oy)
+        dist = abs(nx - ox) + abs(ny - oy)
         wasSelecting = self._selecting
         if wasSelecting and (dist > 2):
             self.onLeftUp(evt, obj)
@@ -1447,12 +1421,16 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 if srcObj is obj:
                     self._redraw()
                     return
-                if isinstance(obj, dPanel) and not isinstance(obj,
-                        (LayoutPanel, LayoutSpacerPanel)):
+                if isinstance(obj, dPanel) and not isinstance(
+                    obj, (LayoutPanel, LayoutSpacerPanel)
+                ):
                     # Make sure that it not just empty border space around
                     # child objects
-                    nonLPkids = [kid for kid in obj.Children
-                            if not isinstance(kid, (LayoutPanel, LayoutSpacerPanel))]
+                    nonLPkids = [
+                        kid
+                        for kid in obj.Children
+                        if not isinstance(kid, (LayoutPanel, LayoutSpacerPanel))
+                    ]
                     if nonLPkids:
                         # Don't allow the drop
                         self._redraw()
@@ -1492,10 +1470,8 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 # Not using sizers
                 self.stopResize(self._handleDragged, evt)
 
-
     def _clearDraggedObjects(self):
         self._draggedObjects = None
-
 
     def getBizobjTemplate(self):
         return """#!/usr/bin/env python
@@ -1526,12 +1502,10 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
     self.addBizobj(%(lowbiz)s)
 """
 
-
     def escapeQt(self, s):
         sl = "\\"
-        qt = "\'"
-        return s.replace(sl, sl+sl).replace(qt, sl+qt)
-
+        qt = "'"
+        return s.replace(sl, sl + sl).replace(qt, sl + qt)
 
     ### Begin Property Definitions  ###
     def _getActiveContainer(self):
@@ -1552,7 +1526,6 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
         else:
             self._properties["ActiveContainer"] = val
 
-
     def _getController(self):
         try:
             return self._controller
@@ -1566,13 +1539,11 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
         else:
             self._properties["Controller"] = val
 
-
     def _getControls(self):
         return self._controls
 
     def _setControls(self, ctls):
         self._controls = ctls
-
 
     def _getChildren(self):
         ret = []
@@ -1582,9 +1553,9 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
             try:
                 if self.mainPanel:
                     ret = self.mainPanel.Children
-            except: pass
+            except:
+                pass
         return ret
-
 
     def _getDesEvents(self):
         if self.Controller:
@@ -1593,35 +1564,42 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
             return []
 
     def _getDesProps(self):
-        ret = {"Caption": {"type" : str, "readonly" : False},
-                "CxnName": {"type" : str, "readonly" : False},
-                "Height": {"type" : int, "readonly" : False},
-                "Width": {"type" : int, "readonly" : False},
-                "Name" : {"type" : str, "readonly" : False},
-                "Left": {"type" : int, "readonly" : False},
-                "Right": {"type" : int, "readonly" : False},
-                "Top": {"type" : int, "readonly" : False},
-                "Bottom": {"type" : int, "readonly" : False},
-                "ShowCaption": {"type" : bool, "readonly" : False},
-                "ShowMenuBar": {"type" : bool, "readonly" : False},
-                "ShowToolBar": {"type" : bool, "readonly" : False},
-                "MenuBarFile": {"type" : "path", "readonly" : False,
-                    "customEditor": "editMenuBarFile"},
-                "Tag" : {"type" : "multi", "readonly" : False},
-                "Transparency" : {"type" : int, "readonly" : False},
-                "SaveRestorePosition": {"type" : bool, "readonly" : False}}
+        ret = {
+            "Caption": {"type": str, "readonly": False},
+            "CxnName": {"type": str, "readonly": False},
+            "Height": {"type": int, "readonly": False},
+            "Width": {"type": int, "readonly": False},
+            "Name": {"type": str, "readonly": False},
+            "Left": {"type": int, "readonly": False},
+            "Right": {"type": int, "readonly": False},
+            "Top": {"type": int, "readonly": False},
+            "Bottom": {"type": int, "readonly": False},
+            "ShowCaption": {"type": bool, "readonly": False},
+            "ShowMenuBar": {"type": bool, "readonly": False},
+            "ShowToolBar": {"type": bool, "readonly": False},
+            "MenuBarFile": {
+                "type": "path",
+                "readonly": False,
+                "customEditor": "editMenuBarFile",
+            },
+            "Tag": {"type": "multi", "readonly": False},
+            "Transparency": {"type": int, "readonly": False},
+            "SaveRestorePosition": {"type": bool, "readonly": False},
+        }
         if isinstance(self, Wizard):
-            ret["Picture"] = {"type" : "path", "readonly" : False,
-                    "customEditor": "editStdPicture"}
-            ret["PictureHeight"] = {"type" : int, "readonly" : False}
-            ret["PictureWidth"] = {"type" : int, "readonly" : False}
+            ret["Picture"] = {
+                "type": "path",
+                "readonly": False,
+                "customEditor": "editStdPicture",
+            }
+            ret["PictureHeight"] = {"type": int, "readonly": False}
+            ret["PictureWidth"] = {"type": int, "readonly": False}
         elif isinstance(self, dDialog):
-            ret["AutoSize"] = {"type" : bool, "readonly" : False}
-            ret["Centered"] = {"type" : bool, "readonly" : False}
+            ret["AutoSize"] = {"type": bool, "readonly": False}
+            ret["Centered"] = {"type": bool, "readonly": False}
             if isinstance(self, dStandardButtonDialog):
-                ret["CancelOnEscape"] = {"type" : bool, "readonly" : False}
+                ret["CancelOnEscape"] = {"type": bool, "readonly": False}
         return ret
-
 
     def _getDragObject(self):
         return self._dragObject
@@ -1643,14 +1621,13 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
                 (formX, formY) = self._dragOrigPos = self.getMousePosition()
                 (objX, objY) = self._dragObjOffset = val.getMousePosition()
                 # Create an image of the control
-                self._dragImage = self.drawBitmap(val.getCaptureBitmap(),
-                        x=formX-objX, y=formY-objY)
+                self._dragImage = self.drawBitmap(
+                    val.getCaptureBitmap(), x=formX - objX, y=formY - objY
+                )
         self._dragObject = val
-
 
     def _getIsContainer(self):
         return self._canContain
-
 
     def _getMenuBarFile(self):
         return self._menuBarFile
@@ -1658,13 +1635,11 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
     def _setMenuBarFile(self, val):
         self._menuBarFile = val
 
-
     def _getSelection(self):
         return self.selectedControls
 
     def _setSelection(self, ctls):
         self.selectedControls = ctls
-
 
     def _getUseSizers(self):
         try:
@@ -1679,43 +1654,85 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
         else:
             self._properties["UseSizers"] = val
 
+    ActiveContainer = property(
+        _getActiveContainer,
+        _setActiveContainer,
+        None,
+        _("Container currently active for creating controls  (dPanel (usually))"),
+    )
 
-    ActiveContainer = property(_getActiveContainer, _setActiveContainer, None,
-            _("Container currently active for creating controls  (dPanel (usually))"))
+    Controller = property(
+        _getController,
+        _setController,
+        None,
+        _("Object to which this one reports events  (object (varies))"),
+    )
 
-    Controller = property(_getController, _setController, None,
-            _("Object to which this one reports events  (object (varies))"))
+    Controls = property(
+        _getControls,
+        _setControls,
+        None,
+        _("List of all control(s) in the designer.   (list)"),
+    )
 
-    Controls = property(_getControls, _setControls, None,
-            _("List of all control(s) in the designer.   (list)") )
+    Children = property(
+        _getChildren, None, None, _("""Children of the main panel of this form.""")
+    )
 
-    Children = property(_getChildren, None, None,
-            _("""Children of the main panel of this form."""))
-
-    DesignerEvents = property(_getDesEvents, None, None,
-            _("""Returns a list of the most common events for the control.
+    DesignerEvents = property(
+        _getDesEvents,
+        None,
+        None,
+        _(
+            """Returns a list of the most common events for the control.
             This will determine which events are displayed in the PropSheet
-            for the developer to attach code to.  (list)""") )
+            for the developer to attach code to.  (list)"""
+        ),
+    )
 
-    DesignerProps = property(_getDesProps, None, None,
-            _("""Returns a dict of editable properties for the form, with the
+    DesignerProps = property(
+        _getDesProps,
+        None,
+        None,
+        _(
+            """Returns a dict of editable properties for the form, with the
             prop names as the keys, and the value for each another dict,
             containing the following keys: 'type', which controls how to display
             and edit the property, and 'readonly', which will prevent editing
-            when True. (dict)""") )
+            when True. (dict)"""
+        ),
+    )
 
-    DragObject = property(_getDragObject, _setDragObject, None,
-            _("Reference to the object being dragged on the form  (ClassDesignerControlMixin)"))
+    DragObject = property(
+        _getDragObject,
+        _setDragObject,
+        None,
+        _(
+            "Reference to the object being dragged on the form  (ClassDesignerControlMixin)"
+        ),
+    )
 
-    IsContainer = property(_getIsContainer, None, None,
-            _("Can we add controls to this form?  (bool)") )
+    IsContainer = property(
+        _getIsContainer, None, None, _("Can we add controls to this form?  (bool)")
+    )
 
-    MenuBarFile = property(_getMenuBarFile, _setMenuBarFile, None,
-            _("Path to the menu designer file used for this form's MenuBarClass  (str)"))
+    MenuBarFile = property(
+        _getMenuBarFile,
+        _setMenuBarFile,
+        None,
+        _("Path to the menu designer file used for this form's MenuBarClass  (str)"),
+    )
 
-    Selection = property(_getSelection, _setSelection, None,
-            _("List of control(s) currently selected for editing.   (list)") )
+    Selection = property(
+        _getSelection,
+        _setSelection,
+        None,
+        _("List of control(s) currently selected for editing.   (list)"),
+    )
 
-    UseSizers = property(_getUseSizers, _setUseSizers, None,
-            _("Does the this form use sizers for its layout?  (bool)"))
-
+    UseSizers = property(
+        _getUseSizers,
+        _setUseSizers,
+        None,
+        _("Does the this form use sizers for its layout?  (bool)"),
+    )

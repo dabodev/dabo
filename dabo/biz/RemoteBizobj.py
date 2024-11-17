@@ -11,20 +11,17 @@ import dabo.dException as dException
 from .dBizobj import dBizobj
 
 
-
 class RemoteBizobj(dBizobj):
     cacheDir = None
 
     def _beforeInit(self):
         return super(RemoteBizobj, self)._beforeInit()
 
-
     def _afterInit(self):
         # This is used as the identifier that connects to the client bizobj
         self.hashval = None
         self.defineConnection()
         super(RemoteBizobj, self)._afterInit()
-
 
     @classmethod
     def _createCacheDir(cls, pth=None):
@@ -36,7 +33,6 @@ class RemoteBizobj(dBizobj):
         if not os.path.exists(cls.cacheDir):
             os.makedirs(cls.cacheDir)
 
-
     def defineConnection(self):
         """You must define and create the connection in this method. Otherwise
         an error will be raised. Pass the connection information to setConnectionParams();
@@ -47,7 +43,6 @@ class RemoteBizobj(dBizobj):
         """
         # Force an override in child bizobjs
         raise NotImplementedError
-
 
     @classmethod
     def load(cls, hashval, ds, pth):
@@ -68,16 +63,23 @@ class RemoteBizobj(dBizobj):
                 tmpCursor._storeData(ds, typinfo)
         return biz
 
-
-    def setConnectionParams(self, cxnfile=None, dbType=None, database=None,
-            host=None, user=None, password=None, plainTextPassword=None):
+    def setConnectionParams(
+        self,
+        cxnfile=None,
+        dbType=None,
+        database=None,
+        host=None,
+        user=None,
+        password=None,
+        plainTextPassword=None,
+    ):
         if cxnfile:
             cxDict = importConnections(cxnfile)
             self.setConnection(list(cxDict.values())[0])
         else:
             cxnDict = {"DbType": dbType, "Database": database}
             if host:
-                cxnDict["Host"]  = host
+                cxnDict["Host"] = host
             if user:
                 cxnDict["User"] = user
             if plainTextPassword:
@@ -87,7 +89,6 @@ class RemoteBizobj(dBizobj):
             ci = dabo.db.dConnectInfo(cxnDict)
             cn = dabo.db.dConnection(ci)
             self.setConnection(cn)
-
 
     def storeToCache(self, hashval):
         """Store data info to the cache for the next time the same bizobj
@@ -103,7 +104,6 @@ class RemoteBizobj(dBizobj):
         with open(pth) as ff:
             pickle.dump(dataToStore, ff)
 
-
     def storeRemoteSQL(self, sql):
         """The web backend uses '~~' as the name enclosure character. Convert that
         to the correct character for the actual backend.
@@ -111,7 +111,6 @@ class RemoteBizobj(dBizobj):
         remoteChar = "~~"
         localChar = self._CurrentCursor.BackendObject.nameEnclosureChar
         self.UserSQL = sql.replace(remoteChar, localChar)
-
 
     def applyDiffAndSave(self, diff, primary=False):
         """Diffs are dicts in the format:
@@ -153,7 +152,11 @@ class RemoteBizobj(dBizobj):
                     except dException.RowNotFoundException:
                         ds = self.DataSource
                         raise dException.WebServerException(
-                                _("PK '%(pk)s' not present in dataset for DataSource '%(ds)s'") % locals())
+                            _(
+                                "PK '%(pk)s' not present in dataset for DataSource '%(ds)s'"
+                            )
+                            % locals()
+                        )
                 for col, vals in list(rec.items()):
                     if col in (kf, kons.CURSOR_TMPKEY_FIELD):
                         continue
@@ -163,7 +166,11 @@ class RemoteBizobj(dBizobj):
                         currval = self.getFieldVal(col)
                         if currval != oldval:
                             raise dException.WebServerException(
-                                    _("Update Conflict: the value in column '%s' has been changed by someone else.") % col)
+                                _(
+                                    "Update Conflict: the value in column '%s' has been changed by someone else."
+                                )
+                                % col
+                            )
                     self.setFieldVal(col, newval)
 
             if kids:
@@ -203,7 +210,6 @@ class RemoteBizobj(dBizobj):
                     raise
         if primary:
             self._CurrentCursor.commitTransaction()
-
 
     def beforeDelete(self):
         # As this is on the server side, we don't wan't to ask 'Are you sure?'

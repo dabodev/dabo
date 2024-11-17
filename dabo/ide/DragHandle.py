@@ -7,7 +7,7 @@ from dabo.ui import dPanel
 
 
 class DragHandle(dPanel):
-    """ The class for all the handles used to indicate the selected control
+    """The class for all the handles used to indicate the selected control
     that are dragged to resize the control. It has properties indicating
     whether it controls resizing the control in the up, right, down or left
     directions. These values are determined from the name of the handle,
@@ -18,10 +18,12 @@ class DragHandle(dPanel):
     parent object then determines the affected control, and passes the
     event on to that control.
     """
+
     def __init__(self, parent, handleName):
         sz = (HANDLE_SIZE, HANDLE_SIZE)
-        super(DragHandle, self).__init__(parent, Size=sz, Visible=False,
-                BackColor="blue")
+        super(DragHandle, self).__init__(
+            parent, Size=sz, Visible=False, BackColor="blue"
+        )
         self.handleName = handleName
 
         if self.handleName in ("TL", "BR"):
@@ -38,27 +40,24 @@ class DragHandle(dPanel):
 
         ud = handleName[0]
         lr = handleName[1]
-        self.up = (ud == "T")
-        self.down = (ud == "B")
-        self.left = (lr == "L")
-        self.right = (lr == "R")
+        self.up = ud == "T"
+        self.down = ud == "B"
+        self.left = lr == "L"
+        self.right = lr == "R"
 
         self.bindEvent(dEvents.MouseLeftDown, self.onLeftDown)
         self.bindEvent(dEvents.MouseLeftUp, self.onLeftUp)
         self.bindEvent(dEvents.MouseMove, self.onMouseDrag)
         self.dragging = False
 
-
     def onLeftDown(self, evt):
         self.dragging = True
         self.Form.startResize(self, evt)
-
 
     def onLeftUp(self, evt):
         self.dragging = False
         self.Form.processLeftUp(self, evt)
         evt.stop()
-
 
     def onMouseDrag(self, evt, shft=None):
         if shft is None:
@@ -68,5 +67,3 @@ class DragHandle(dPanel):
                 shft = False
         if self.dragging:
             self.Form.resizeCtrl(self, evt)
-
-

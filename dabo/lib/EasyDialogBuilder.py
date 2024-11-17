@@ -11,6 +11,7 @@ refactored code is also far easier to maintain and comprehend.  This mixin is ma
 targeted and Forms, Dialogs, and Panels.
 
 """
+
 import types
 import dabo
 from dabo.dApp import dApp
@@ -44,11 +45,25 @@ class EasyDialogBuilder(object):
             elif not page.get("caption"):
                 caption = "Page%i" % (pageFrame.PageCount,)
 
-            pageFrame.appendPage(pgCls=page.get("page"), caption=page.get("caption"), imgKey=page.get("imgKey"))
+            pageFrame.appendPage(
+                pgCls=page.get("page"),
+                caption=page.get("caption"),
+                imgKey=page.get("imgKey"),
+            )
 
         return pageFrame
 
-    def makeControlBox(self, parent, caption, controlFields, border=5, spacing=5, grid=True, hasRegIDs=True, bindHitEvents=False):
+    def makeControlBox(
+        self,
+        parent,
+        caption,
+        controlFields,
+        border=5,
+        spacing=5,
+        grid=True,
+        hasRegIDs=True,
+        bindHitEvents=False,
+    ):
         """
         :param parent: Dabo object that is the parent of the controls, normally a panel or a form
         :param str caption: The caption for the control box
@@ -80,11 +95,24 @@ class EasyDialogBuilder(object):
         box.DefaultBorder = border
         box.DefaultBorderAll = True
 
-        box.append1x(self.makeControlSizer(parent, controlFields, 5, 5, grid, hasRegIDs, bindHitEvents))
+        box.append1x(
+            self.makeControlSizer(
+                parent, controlFields, 5, 5, grid, hasRegIDs, bindHitEvents
+            )
+        )
 
         return box
 
-    def makeControlSizer(self, parent, controlFields, border=5, spacing=5, grid=True, hasRegIDs=True, bindHitEvents=False):
+    def makeControlSizer(
+        self,
+        parent,
+        controlFields,
+        border=5,
+        spacing=5,
+        grid=True,
+        hasRegIDs=True,
+        bindHitEvents=False,
+    ):
         """
         :param parent: Dabo object that is the parent of the controls, normally a panel or a form
         :param caption: The caption for the control box
@@ -120,12 +148,14 @@ class EasyDialogBuilder(object):
         Sizer.DefaultBorderAll = True
 
         for obj in controlFields:
-            if len(obj)==4 and isinstance(obj[3], dict):
+            if len(obj) == 4 and isinstance(obj[3], dict):
                 Properties = obj[3]
             else:
                 Properties = {}
 
-            controls = self.makeControlField(parent, obj[0], obj[1], obj[2], Properties, hasRegIDs, bindHitEvents)
+            controls = self.makeControlField(
+                parent, obj[0], obj[1], obj[2], Properties, hasRegIDs, bindHitEvents
+            )
 
             if grid:
                 lbl = Sizer.append(controls[0], halign="right")
@@ -141,7 +171,7 @@ class EasyDialogBuilder(object):
             else:
                 bs = dui.dSizer("h")
                 bs.append(controls[0], halign="right")
-                bs.append(controls[1], "expand",1)
+                bs.append(controls[1], "expand", 1)
 
                 if len(controls) > 2:
                     bs.append(controls[2])
@@ -153,7 +183,16 @@ class EasyDialogBuilder(object):
 
         return Sizer
 
-    def makeControlField(self, parent, control, name, labelTitle, Properties, hasRegIDs=True, bindHitEvents=False):
+    def makeControlField(
+        self,
+        parent,
+        control,
+        name,
+        labelTitle,
+        Properties,
+        hasRegIDs=True,
+        bindHitEvents=False,
+    ):
         """
         :param parent: Dabo object that is the parent of the controls, normally a panel or a form
         :param control: Dabo class (not an instantiated object) of the control that you want in the form.
@@ -183,13 +222,19 @@ class EasyDialogBuilder(object):
             labelTitle += ":"
 
             if hasRegIDs:
-                buttonProperties = {"RegID":"%s_button"%(name,)}
+                buttonProperties = {"RegID": "%s_button" % (name,)}
             else:
                 buttonProperties = {}
 
-            exec("self.%s = dui.dTextBox(parent, ReadOnly=True, properties=Properties)" % (name,))
+            exec(
+                "self.%s = dui.dTextBox(parent, ReadOnly=True, properties=Properties)"
+                % (name,)
+            )
             exec("controlList.append(self.%s)" % (name,))
-            exec("self.%s_button = fileButton(parent, format, directory, self.%s, buttonProperties)" % (name, name))
+            exec(
+                "self.%s_button = fileButton(parent, format, directory, self.%s, buttonProperties)"
+                % (name, name)
+            )
             exec("controlList.append(self.%s_button)" % (name,))
         else:
             if issubclass(control, (dui.dCheckBox, dui.dButton)):
@@ -199,7 +244,10 @@ class EasyDialogBuilder(object):
                 controlCaption = ""
                 labelTitle += ":"
 
-            exec("self.%s = control(parent, Caption=controlCaption, properties=Properties)" % (name,))
+            exec(
+                "self.%s = control(parent, Caption=controlCaption, properties=Properties)"
+                % (name,)
+            )
             exec("controlList.append(self.%s)" % (name,))
 
         if bindHitEvents:
@@ -238,7 +286,7 @@ class EasyDialogBuilder(object):
         """
         sizer = dui.dSizer(orientation)
         sizer.DefaultSpacing = 5
-        sizer.DefaultBorder= 10
+        sizer.DefaultBorder = 10
         sizer.DefaultBorderAll = True
 
         return sizer
@@ -262,6 +310,7 @@ class fileButton(dui.dButton):
 
 
 if __name__ == "__main__":
+
     class TestForm(dui.dForm, EasyDialogBuilder):
         def afterInit(self):
             self.Caption = "Simple Form with Controls"
@@ -271,9 +320,13 @@ if __name__ == "__main__":
         def instantiateControls(self):
             self.Sizer = dui.dSizer("vertical")
 
-            pageFrame = self.makePageFrame(self,(
-                {"page":controlBoxPage, "caption":"Control Box"},
-                {"page":makeSizerTestPage, "caption":"Refactored Sizer"}))
+            pageFrame = self.makePageFrame(
+                self,
+                (
+                    {"page": controlBoxPage, "caption": "Control Box"},
+                    {"page": makeSizerTestPage, "caption": "Refactored Sizer"},
+                ),
+            )
 
             self.Sizer.append1x(pageFrame)
             self.Sizer.layout()
@@ -283,18 +336,30 @@ if __name__ == "__main__":
         def afterInit(self):
             self.Sizer = self.setupStandardSizer()
 
-            self.Sizer.append(dui.dLabel(self, Caption="Example using the function makeControlBox", RegID="makeControlBox_Label"), "normal")
+            self.Sizer.append(
+                dui.dLabel(
+                    self,
+                    Caption="Example using the function makeControlBox",
+                    RegID="makeControlBox_Label",
+                ),
+                "normal",
+            )
             self.Sizer.appendSpacer(10)
 
-            box = self.makeControlBox(self, "Sample Control Box",
-                        ((dui.dTextBox, "txtCounty", "County"),
-                        (dui.dTextBox, "txtCity", "City"),
-                        (dui.dTextBox, "txtZipcode", "Zip"),
-                        (dui.dSpinner, "spnPopulation", "Population"),
-                        (dui.dCheckBox, "chkReviewed", "Reviewed"),
-                        (dui.dEditBox, "edtComments", "Comments"),
-                        (dui.dSlider, "sldFactor", "Factor"),
-                        (dui.dButton, "cmdOk", "Ok")))
+            box = self.makeControlBox(
+                self,
+                "Sample Control Box",
+                (
+                    (dui.dTextBox, "txtCounty", "County"),
+                    (dui.dTextBox, "txtCity", "City"),
+                    (dui.dTextBox, "txtZipcode", "Zip"),
+                    (dui.dSpinner, "spnPopulation", "Population"),
+                    (dui.dCheckBox, "chkReviewed", "Reviewed"),
+                    (dui.dEditBox, "edtComments", "Comments"),
+                    (dui.dSlider, "sldFactor", "Factor"),
+                    (dui.dButton, "cmdOk", "Ok"),
+                ),
+            )
 
             self.Sizer.append1x(box)
 
@@ -302,19 +367,30 @@ if __name__ == "__main__":
         def afterInit(self):
             self.Sizer = self.setupStandardSizer()
 
-            self.Sizer.append(dui.dLabel(self, Caption="Example using the function makeControlSizer", RegID="makeControlSizer_Label"), "normal")
+            self.Sizer.append(
+                dui.dLabel(
+                    self,
+                    Caption="Example using the function makeControlSizer",
+                    RegID="makeControlSizer_Label",
+                ),
+                "normal",
+            )
             self.Sizer.appendSpacer(10)
 
-            vs = self.makeControlSizer(self,
-                        ((dui.dTextBox, "txtCounty2", "County"),
-                        (dui.dTextBox, "txtCity2", "City"),
-                        (dui.dTextBox, "txtZipcode2", "Zip"),
-                        (dui.dSpinner, "spnPopulation2", "Population"),
-                        (dui.dCheckBox, "chkReviewed2", "Reviewed"),
-                        (dui.dEditBox, "edtComments2", "Comments"),
-                        (dui.dSlider, "sldFactor2", "Factor"),
-                        ("File", "txtFile", "Important File"),
-                        (dui.dButton, "cmdOk2", "Ok")))
+            vs = self.makeControlSizer(
+                self,
+                (
+                    (dui.dTextBox, "txtCounty2", "County"),
+                    (dui.dTextBox, "txtCity2", "City"),
+                    (dui.dTextBox, "txtZipcode2", "Zip"),
+                    (dui.dSpinner, "spnPopulation2", "Population"),
+                    (dui.dCheckBox, "chkReviewed2", "Reviewed"),
+                    (dui.dEditBox, "edtComments2", "Comments"),
+                    (dui.dSlider, "sldFactor2", "Factor"),
+                    ("File", "txtFile", "Important File"),
+                    (dui.dButton, "cmdOk2", "Ok"),
+                ),
+            )
 
             self.Sizer.append1x(vs)
 

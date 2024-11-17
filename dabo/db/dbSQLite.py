@@ -15,6 +15,7 @@ from dabo.lib.utils import ustr
 
 class SQLite(dBackend):
     """Class providing SQLite connectivity. Uses sqlite3 or pysqlite2 package."""
+
     def __init__(self):
         dBackend.__init__(self)
         self.dbModuleName = "pysqlite2"
@@ -24,7 +25,6 @@ class SQLite(dBackend):
         except ImportError:
             import sqlite3 as dbapi
         self.dbapi = dbapi
-
 
     def getConnection(self, connectInfo, forceCreate=False, **kwargs):
         ## Mods to sqlite to return DictCursors by default, so that dCursor doesn't
@@ -63,14 +63,18 @@ class SQLite(dBackend):
                         break
             if not os.path.exists(pth):
                 # Database file does not exist; raise an error
-                raise DBFileDoesNotExistException(_("Database file '%s' does not exist") % pth)
+                raise DBFileDoesNotExistException(
+                    _("Database file '%s' does not exist") % pth
+                )
 
         if isinstance(pth, six.binary_type):
-            #pth = pth.decode(dabo.fileSystemEncoding).encode("utf-8")
+            # pth = pth.decode(dabo.fileSystemEncoding).encode("utf-8")
             pth = pth.decode(dabo.fileSystemEncoding)
 
         # Need to specify "isolation_level=None" to have transactions working correctly.
-        self._connection = self.dbapi.connect(pth, factory=DictConnection, isolation_level=None)
+        self._connection = self.dbapi.connect(
+            pth, factory=DictConnection, isolation_level=None
+        )
 
         # Non-utf8-encoded bytestrings could be in the database, and Dabo will try various encodings
         # to deal with it. So tell sqlite not to decode with utf-8, but to just return the bytes:
@@ -78,14 +82,15 @@ class SQLite(dBackend):
 
         self._connection.connectInfo = connectInfo
         if not hasattr(self, "_encoding"):
-            self._encoding = self._connection.execute("PRAGMA encoding"). \
-                    fetchone()["encoding"].lower()
+            self._encoding = (
+                self._connection.execute("PRAGMA encoding")
+                .fetchone()["encoding"]
+                .lower()
+            )
         return self._connection
-
 
     def getDictCursorClass(self):
         return self._dictCursorClass
-
 
     def formatForQuery(self, val, fieldType=None):
         if isinstance(val, bool):
@@ -93,13 +98,11 @@ class SQLite(dBackend):
         else:
             return super(SQLite, self).formatForQuery(val, fieldType)
 
-
     def escQuote(self, val):
         sl = "\\"
-        qt = "\'"
+        qt = "'"
         val = ustr(val)
         return qt + val.replace(sl, sl + sl).replace(qt, qt + qt) + qt
-
 
     def beginTransaction(self, cursor):
         """
@@ -109,7 +112,6 @@ class SQLite(dBackend):
         cursor.execute("BEGIN")
         dabo.dbActivityLog.info("SQL: begin")
         return True
-
 
     def commitTransaction(self, cursor):
         """Commit a SQL transaction."""
@@ -129,53 +131,50 @@ class SQLite(dBackend):
             dabo.dbActivityLog.info("SQL: commit failed: %s" % errMsg)
             raise dException.DBQueryException(errMsg)
 
-
     def rollbackTransaction(self, cursor):
         """Rollback a SQL transaction."""
         cursor.execute("ROLLBACK")
         dabo.dbActivityLog.info("SQL: rollback")
         return True
 
-
     def flush(self, crs):
         dabo.dbActivityLog.info("SQL: flush")
         self._connection.commit()
 
-
     def formatBLOB(self, val):
         return self.dbapi.Binary(val)
 
-
     def formatDateTime(self, val):
         """We need to wrap the value in quotes."""
-        sqt = "'"        # single quote
+        sqt = "'"  # single quote
         val = ustr(val)
         return "%s%s%s" % (sqt, val, sqt)
 
-
     def _isExistingTable(self, tablename, cursor):
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=%s" % self.escQuote(tablename))
+        cursor.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name=%s"
+            % self.escQuote(tablename)
+        )
         rs = cursor.getDataSet()
         return len(rs) > 0
-
 
     def getTables(self, cursor, includeSystemTables=False):
         cursor.execute("select * from sqlite_master")
         rs = cursor.getDataSet()
         if includeSystemTables:
-            tables = [rec["name"] for rec in rs
-                    if rec["type"] == "table"]
+            tables = [rec["name"] for rec in rs if rec["type"] == "table"]
         else:
-            tables = [rec["name"] for rec in rs
-                    if rec["type"] in ("table", "view")
-                    and not rec["name"].startswith("sqlite_")]
+            tables = [
+                rec["name"]
+                for rec in rs
+                if rec["type"] in ("table", "view")
+                and not rec["name"].startswith("sqlite_")
+            ]
         return tuple(tables)
-
 
     def getTableRecordCount(self, tableName, cursor):
         cursor.execute("select count(*) as ncount from %s" % tableName)
         return cursor.getDataSet(rows=1)["ncount"]
-
 
     def getFields(self, tableName, cursor):
         cursor.execute("pragma table_info('%s')" % tableName)
@@ -201,9 +200,14 @@ class SQLite(dBackend):
             # Adi J. Sieker pointed out that the 'pk' column of the pragma command
             # returns a value indicating whether the field is the PK or not. This simplifies
             # the routine over having to parse the CREATE TABLE code.
-            fields.append((getFieldVal("name", rec_idx), fldType, bool(getFieldVal('pk', rec_idx))))
+            fields.append(
+                (
+                    getFieldVal("name", rec_idx),
+                    fldType,
+                    bool(getFieldVal("pk", rec_idx)),
+                )
+            )
         return tuple(fields)
-
 
     def setNonUpdateFields(self, cursor):
         # Use an alternative, since grabbing an empty cursor, as is done in the
@@ -221,31 +225,27 @@ class SQLite(dBackend):
 
         stdFlds = [ff["name"] for ff in rs]
         # Get all the fields that are not in the table.
-        return [d[0] for d in descFlds
-                if d[0] not in stdFlds ]
-
+        return [d[0] for d in descFlds if d[0] not in stdFlds]
 
     def getUpdateTablePrefix(self, table, autoQuote=True):
         """Table name prefixes are not allowed."""
         return ""
 
-
     def getWhereTablePrefix(self, table, autoQuote=True):
         """Table name prefixes are not allowed."""
         return ""
-
 
     def noResultsOnSave(self):
         """SQLite does not return anything on a successful update"""
         pass
 
-
-    def createTableAndIndexes(self, tabledef, cursor, createTable=True,
-            createIndexes=True):
+    def createTableAndIndexes(
+        self, tabledef, cursor, createTable=True, createIndexes=True
+    ):
         if not tabledef.Name:
             raise
 
-        #Create the table
+        # Create the table
         if createTable:
             if not tabledef.IsTemp:
                 sql = "CREATE TABLE "
@@ -291,9 +291,8 @@ class SQLite(dBackend):
 
             cursor.execute(sql)
 
-
         if createIndexes:
-            #Create the indexes
+            # Create the indexes
             for idx in tabledef.Indexes:
                 if idx.Name.lower() != "primary":
                     sql = "CREATE INDEX " + idx.Name + " ON " + tabledef.Name + "("

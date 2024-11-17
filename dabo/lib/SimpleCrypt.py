@@ -7,7 +7,7 @@ import dabo
 
 
 class SimpleCrypt(object):
-    """ Provides basic encryption for Dabo. Perhaps a better term would
+    """Provides basic encryption for Dabo. Perhaps a better term would
     be 'obscure' rather than 'encrypt', since the latter implies strong
     security. Since this class is provided to all Dabo users, anyone with
     a copy of Dabo can decrypt your encrypted values.
@@ -27,6 +27,7 @@ class SimpleCrypt(object):
     Thanks to Raymond Hettinger for the default (non-DES) code, originally found on
     http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/266586
     """
+
     def __init__(self, key=None):
         super(SimpleCrypt, self).__init__()
         if callable(key):
@@ -37,7 +38,7 @@ class SimpleCrypt(object):
             self.__key = key
         self._cryptoProvider = None
         # If the Crypto package is available, use it.
-        self._useDES3 = (self.__key is not None)
+        self._useDES3 = self.__key is not None
         if self._useDES3:
             try:
                 from Crypto.Cipher import DES3
@@ -47,12 +48,13 @@ class SimpleCrypt(object):
         if self._useDES3:
             self.__key = self.__key[:16].rjust(16, "@")
             self._cryptoProvider = DES3.new(
-                    self.__key, DES3.MODE_CBC, Random.new().read(DES3.block_size))
-
+                self.__key, DES3.MODE_CBC, Random.new().read(DES3.block_size)
+            )
 
     def showWarning(self):
-        warnings.warn("WARNING: SimpleCrypt is not secure. Please see http://wiki.dabodev.com/SimpleCrypt for more information")
-
+        warnings.warn(
+            "WARNING: SimpleCrypt is not secure. Please see http://wiki.dabodev.com/SimpleCrypt for more information"
+        )
 
     def encrypt(self, aString):
         if not aString:
@@ -72,11 +74,12 @@ class SimpleCrypt(object):
             self.showWarning()
             tmpKey = self.generateKey(aString)
             myRand = random.Random(tmpKey).randrange
-            crypted = [chr(ord(elem)^myRand(256)) for elem in aString]
+            crypted = [chr(ord(elem) ^ myRand(256)) for elem in aString]
             hex = self.strToHex("".join(crypted))
-            ret = "".join([tmpKey[int(i/2)]  + hex[i:i+2] for i in range(0, len(hex), 2)])
+            ret = "".join(
+                [tmpKey[int(i / 2)] + hex[i : i + 2] for i in range(0, len(hex), 2)]
+            )
             return ret
-
 
     def decrypt(self, aString):
         if not aString:
@@ -94,12 +97,11 @@ class SimpleCrypt(object):
         else:
             self.showWarning()
             tmpKey = "".join([aString[i] for i in range(0, len(aString), 3)])
-            val = "".join([aString[i+1:i+3] for i in range(0, len(aString), 3)])
+            val = "".join([aString[i + 1 : i + 3] for i in range(0, len(aString), 3)])
             myRand = random.Random(tmpKey).randrange
             out = self.hexToStr(val)
-            decrypted = [chr(ord(elem)^myRand(256)) for elem in out]
+            decrypted = [chr(ord(elem) ^ myRand(256)) for elem in out]
             return "".join(decrypted)
-
 
     def generateKey(self, s):
         chars = []
@@ -107,18 +109,17 @@ class SimpleCrypt(object):
             chars.append(chr(65 + random.randrange(26)))
         return "".join(chars)
 
-
     def strToHex(self, aString):
         hexlist = ["%02X" % ord(x) for x in aString]
-        return ''.join(hexlist)
-
+        return "".join(hexlist)
 
     def hexToStr(self, aString):
         # Break the string into 2-character chunks
         try:
-            chunks = [chr(int(aString[i] + aString[i+1], 16))
-                    for i in range(0, len(aString), 2)]
+            chunks = [
+                chr(int(aString[i] + aString[i + 1], 16))
+                for i in range(0, len(aString), 2)
+            ]
         except IndexError:
             raise ValueError(_("Incorrectly-encrypted password"))
         return "".join(chunks)
-

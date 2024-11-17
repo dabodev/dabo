@@ -32,14 +32,13 @@ class PemForm(dForm):
     """This form contains the PropSheet, the MethodSheet, and
     the Object Tree.
     """
+
     def afterSetMenuBar(self):
         self.ShowStatusBar = False
         ClassDesignerMenu.mkDesignerMenu(self)
 
-
     def onMenuOpen(self, evt):
         self.Controller.menuUpdate(evt, self.MenuBar)
-
 
     def afterInit(self):
         self._defaultLeft = 610
@@ -55,9 +54,14 @@ class PemForm(dForm):
         txt = dTextBox(pnl, ReadOnly=True, RegID="txtObj")
         hsz = dSizer("h")
         hsz.append1x(txt)
-        self.treeBtn = dToggleButton(pnl, Height=txt.Height,
-                Width=txt.Height, Caption="", Picture="downTriangleBlack",
-                DownPicture="upTriangleBlack")
+        self.treeBtn = dToggleButton(
+            pnl,
+            Height=txt.Height,
+            Width=txt.Height,
+            Caption="",
+            Picture="downTriangleBlack",
+            DownPicture="upTriangleBlack",
+        )
         self.treeBtn.bindEvent(dEvents.Hit, self.onToggleTree)
         hsz.append(self.treeBtn)
 
@@ -69,7 +73,7 @@ class PemForm(dForm):
         sz.appendSpacer(5)
 
         self.mainPager = mp = dPageFrameNoTabs(pnl, PageClass=dPanel)
-        mp.PageCount=2
+        mp.PageCount = 2
         mp.bindEvent(dEvents.PageChanged, self.onMainPageChanged)
         sz.append1x(mp)
         sz.appendSpacer(brdr)
@@ -78,19 +82,36 @@ class PemForm(dForm):
         psz = pp.Sizer = dSizer("v")
         tsz = tp.Sizer = dSizer("v")
 
-        dSlidePanelControl(pp, SingleClick=True, Singleton=True,
-                CollapseToBottom=True, RegID="mainContainer")
+        dSlidePanelControl(
+            pp,
+            SingleClick=True,
+            Singleton=True,
+            CollapseToBottom=True,
+            RegID="mainContainer",
+        )
         psz.append1x(self.mainContainer)
         # This helps restore the sash position on the prop grid page
         self._propSashPct = 80
         # Bind to panel changes
         self.mainContainer.bindEvent(dEvents.SlidePanelChange, self.onPanelChange)
-        dSlidePanel(self.mainContainer, Caption=_("Properties"), RegID="propPage",
-                CaptionForeColor="blue")
-        dSlidePanel(self.mainContainer, Caption=_("Methods"), RegID="methodPage",
-                CaptionForeColor="blue")
-        dSlidePanel(self.mainContainer, Caption=_("Custom Properties"), RegID="objPropPage",
-                CaptionForeColor="blue")
+        dSlidePanel(
+            self.mainContainer,
+            Caption=_("Properties"),
+            RegID="propPage",
+            CaptionForeColor="blue",
+        )
+        dSlidePanel(
+            self.mainContainer,
+            Caption=_("Methods"),
+            RegID="methodPage",
+            CaptionForeColor="blue",
+        )
+        dSlidePanel(
+            self.mainContainer,
+            Caption=_("Custom Properties"),
+            RegID="objPropPage",
+            CaptionForeColor="blue",
+        )
 
         # Add the PropSheet
         ps = PropSheet(self.propPage, RegID="_propSheet")
@@ -117,32 +138,33 @@ class PemForm(dForm):
 
         mp.SelectedPage = pp
 
-        ps.Controller = ms.Controller = self._tree.Controller = ops.Controller = self.Controller
+        ps.Controller = ms.Controller = self._tree.Controller = ops.Controller = (
+            self.Controller
+        )
         self.layout()
         dabo.ui.callAfter(self.mainContainer.expand, self.propPage)
-
 
     def onToggleTree(self, evt):
         self.mainPager.nextPage()
 
-
     def onMainPageChanged(self, evt):
         self.treeBtn.Value = self.mainPager.SelectedPage is self.treePage
 
-
     def hideTree(self):
         self.mainPager.SelectedPage = self.pemPage
-
 
     def onPanelChange(self, evt):
         if evt.panel is self.propPage:
             try:
                 if evt.expanded:
-                    dabo.ui.setAfter(self._propSheet.mainSplit, "SashPercent", self._propSheet._sashPct)
+                    dabo.ui.setAfter(
+                        self._propSheet.mainSplit,
+                        "SashPercent",
+                        self._propSheet._sashPct,
+                    )
             except:
                 # Probably isn't constructed yet
                 pass
-
 
     def onResize(self, evt):
         try:
@@ -151,24 +173,20 @@ class PemForm(dForm):
             # 'mainContainer' might not be defined yet, so ignore
             pass
 
-
     def showPropPage(self):
         self.mainPager.SelectedPage = self.pemPage
         self.refresh()
         self.propPage.Expanded = True
         self.bringToFront()
 
-
     def showTreePage(self):
         self.mainPager.SelectedPage = self.treePage
         self.bringToFront()
-
 
     def showMethodsPage(self):
         self.mainPager.SelectedPage = self.pemPage
         self.methodPage.Expanded = True
         self.bringToFront()
-
 
     def select(self, obj):
         """Called when the selected object changes. 'obj' will
@@ -229,7 +247,10 @@ class PemForm(dForm):
                     lbl = "%s Spacer - (%s)" % (typ, spc)
                 elif isColumn:
                     if ob.Visible:
-                        lbl = "Column %s ('%s')" % (ob.Parent.Columns.index(ob)+1, ob.Caption)
+                        lbl = "Column %s ('%s')" % (
+                            ob.Parent.Columns.index(ob) + 1,
+                            ob.Caption,
+                        )
                     else:
                         lbl = "Hidden Column ('%s')" % ob.Caption
                 elif isNode:
@@ -253,8 +274,7 @@ class PemForm(dForm):
             if obEvtCode is not None:
                 codeEvents = list(obEvtCode.keys())
                 codeEvents.sort()
-            nonCodeEvents = [ev for ev in evts
-                    if ev not in codeEvents]
+            nonCodeEvents = [ev for ev in evts if ev not in codeEvents]
             nonCodeEvents.sort()
             # Add the events with code first
             for evt in codeEvents:
@@ -266,7 +286,6 @@ class PemForm(dForm):
                 self.MethodList.setItemBackColor(newItem, "lightgrey")
         self.refresh()
         self.layout()
-
 
     def _getController(self):
         try:
@@ -281,13 +300,11 @@ class PemForm(dForm):
         else:
             self._properties["Controller"] = val
 
-
     def _getMethodList(self):
         return self._methodList
 
     def _setMethodList(self, val):
         self._methodList = val
-
 
     def _getMethodSheet(self):
         return self._methodSheet
@@ -295,13 +312,11 @@ class PemForm(dForm):
     def _setMethodSheet(self, val):
         self._methodSheet = val
 
-
     def _getObjectPropertySheet(self):
         return self._objPropSheet
 
     def _setObjectPropertySheet(self, val):
         self._objPropSheet = val
-
 
     def _getPropSheet(self):
         return self._propSheet
@@ -309,32 +324,56 @@ class PemForm(dForm):
     def _setPropSheet(self, val):
         self._propSheet = val
 
-
     def _getTree(self):
         return self._tree
 
     def _setTree(self, val):
         self._tree = val
 
+    Controller = property(
+        _getController,
+        _setController,
+        None,
+        _("Object to which this one reports events  (object (varies))"),
+    )
 
-    Controller = property(_getController, _setController, None,
-            _("Object to which this one reports events  (object (varies))"))
+    MethodList = property(
+        _getMethodList,
+        _setMethodList,
+        None,
+        _(
+            """List control containing all available methods for the
+            selected object  (dListControl)"""
+        ),
+    )
 
-    MethodList = property(_getMethodList, _setMethodList, None,
-            _("""List control containing all available methods for the
-            selected object  (dListControl)"""))
+    MethodSheet = property(
+        _getMethodSheet,
+        _setMethodSheet,
+        None,
+        _("Reference to the panel containing the MethodList  (MethodSheet)"),
+    )
 
-    MethodSheet = property(_getMethodSheet, _setMethodSheet, None,
-            _("Reference to the panel containing the MethodList  (MethodSheet)"))
+    ObjectPropertySheet = property(
+        _getObjectPropertySheet,
+        _setObjectPropertySheet,
+        None,
+        _(
+            """Reference to the panel
+            containing the ObjectPropertySheet  (ObjectPropertySheet)"""
+        ),
+    )
 
-    ObjectPropertySheet = property(_getObjectPropertySheet,
-            _setObjectPropertySheet, None, _("""Reference to the panel
-            containing the ObjectPropertySheet  (ObjectPropertySheet)"""))
+    Tree = property(
+        _getTree,
+        _setTree,
+        None,
+        _("Reference to the contained object tree  (TreeSheet)"),
+    )
 
-    Tree = property(_getTree, _setTree, None,
-            _("Reference to the contained object tree  (TreeSheet)"))
-
-    PropSheet = property(_getPropSheet, _setPropSheet, None,
-            _("Reference to the contained prop sheet  (PropSheet)"))
-
-
+    PropSheet = property(
+        _getPropSheet,
+        _setPropSheet,
+        None,
+        _("Reference to the contained prop sheet  (PropSheet)"),
+    )

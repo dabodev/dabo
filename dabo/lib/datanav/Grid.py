@@ -12,12 +12,10 @@ class Grid(dui.dGrid):
         self.customSort = True
         super(Grid, self)._beforeInit(pre)
 
-
     def _initEvents(self):
         super(Grid, self)._initEvents()
         self.bindEvent(dEvents.GridMouseLeftDoubleClick, self.onGridLeftDClick)
         self.bindEvent(dEvents.KeyDown, self._onGridKeyDown)
-
 
     def _initProperties(self):
         # Highlight the selected row for the grid
@@ -29,7 +27,6 @@ class Grid(dui.dGrid):
 
         super(Grid, self)._initProperties()
 
-
     def _afterInit(self):
         super(Grid, self)._afterInit()
 
@@ -38,7 +35,6 @@ class Grid(dui.dGrid):
 
         if hasattr(self.Form, "preview") and self.Form.preview:
             self.DataSource = self.Form.previewDataSource
-
 
     def populate(self):
         ds = self.DataSource
@@ -49,13 +45,11 @@ class Grid(dui.dGrid):
             ds = self.DataSet
         self.refresh()
 
-
     def sort(self):
         # The superclass will have already set the sort properties.
         # We want to send those to the bizobj for sorting.
         bizobj = self.Form.getBizobj(self.DataSource)
         bizobj.sort(self.sortedColumn, self.sortOrder, self.caseSensitiveSorting)
-
 
     def onGridLeftDClick(self, evt):
         """
@@ -75,7 +69,6 @@ class Grid(dui.dGrid):
         else:
             self.editRecord()
 
-
     def _onGridKeyDown(self, evt):
         keyCode = evt.EventData["keyCode"]
         hasModifiers = evt.EventData["hasModifiers"]
@@ -85,21 +78,17 @@ class Grid(dui.dGrid):
         elif keyCode == dKeys.key_Escape and not hasModifiers:
             self.processEsc()
 
-
     def processEsc(self):
         if getattr(self.Form, "FormType", None) in ("PickList", "Edit"):
             self.Form.hide()
-
 
     def _onDeleteKey(self, evt):
         ft = getattr(self.Form, "FormType", None)
         if ft != "PickList":
             self.deleteRecord()
 
-
     def _onSortKey(self, evt):
         self.processSort()
-
 
     def _onNewRecord(self, evt=None):
         self.newRecord()
@@ -108,14 +97,12 @@ class Grid(dui.dGrid):
         """Request that a new row be added."""
         self.Parent.newRecord(self.DataSource)
 
-
     def _onEditRecord(self, evt=None):
         self.editRecord()
 
     def editRecord(self):
         """Request that the current row be edited."""
         self.Parent.editRecord(self.DataSource)
-
 
     def _onDeleteRecord(self, evt=None):
         self.deleteRecord()
@@ -125,14 +112,12 @@ class Grid(dui.dGrid):
         self.Parent.deleteRecord(self.DataSource)
         self.refresh()
 
-
     def _onPickRecord(self, evt=None):
         self.pickRecord()
 
     def pickRecord(self):
         """The form is a picklist, and the user picked a record."""
         self.Form.pickRecord()
-
 
     def fillContextMenu(self, menu):
         """
@@ -141,19 +126,33 @@ class Grid(dui.dGrid):
         By default, the choices are 'New', 'Edit', and 'Delete'.
         """
         try:
-            if self.Form.FormType == 'PickList':
-                menu.append(_("&Pick"), OnHit=self._onPickRecord, bmp="edit",
-                        help=_("Pick this record"))
+            if self.Form.FormType == "PickList":
+                menu.append(
+                    _("&Pick"),
+                    OnHit=self._onPickRecord,
+                    bmp="edit",
+                    help=_("Pick this record"),
+                )
             else:
-                menu.append(_("&New"), OnHit=self._onNewRecord, bmp="blank",
-                        help=_("Add a new record"))
-                menu.append(_("&Edit"), OnHit=self._onEditRecord, bmp="edit",
-                        help=_("Edit this record"))
-                menu.append(_("&Delete"), OnHit=self._onDeleteRecord, bmp="delete",
-                        help=_("Delete this record"))
+                menu.append(
+                    _("&New"),
+                    OnHit=self._onNewRecord,
+                    bmp="blank",
+                    help=_("Add a new record"),
+                )
+                menu.append(
+                    _("&Edit"),
+                    OnHit=self._onEditRecord,
+                    bmp="edit",
+                    help=_("Edit this record"),
+                )
+                menu.append(
+                    _("&Delete"),
+                    OnHit=self._onDeleteRecord,
+                    bmp="delete",
+                    help=_("Delete this record"),
+                )
             return menu
         except AttributeError:
             # may not be a datanav form
             pass
-
-

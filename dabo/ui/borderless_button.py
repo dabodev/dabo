@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 import inspect
 import sys
+
 import wx
+
 try:
     import wx.lib.platebtn as platebtn
 except ImportError:
     raise ImportError("Your version of wxPython is too old for dBorderlessButton")
-import dabo
-from dabo import dEvents
-from dabo import ui as dui
-from dabo.ui import dControlMixin
-from dabo.dLocalize import _
-from dabo import dColors as dColors
-from dabo.ui import makeDynamicProperty
+
+import dColors
+import dEvents
+
+# TODO: import log
+import ui as dui
+from ui import dControlMixin
+from dLocalize import _
+from ui import makeDynamicProperty
 
 
 class dBorderlessButton(dControlMixin, platebtn.PlateButton):
@@ -29,6 +33,7 @@ class dBorderlessButton(dControlMixin, platebtn.PlateButton):
                 self.Caption = "Press Me one more time"
 
     """
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dBorderlessButton
         preClass = platebtn.PlateButton
@@ -45,22 +50,27 @@ class dBorderlessButton(dControlMixin, platebtn.PlateButton):
         # around the bitmap image in order for it to appear correctly
         self._bmpBorder = 10
 
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
-
+        dControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
 
     def _initEvents(self):
         super(dBorderlessButton, self)._initEvents()
-        #The EVT_BUTTON event for this control is fired
-        #to the parent of the control rather than the control.
-        #Binding to EVT_LEFT_UP fixes the problem. -nwl
+        # The EVT_BUTTON event for this control is fired
+        # to the parent of the control rather than the control.
+        # Binding to EVT_LEFT_UP fixes the problem. -nwl
         self.Bind(wx.EVT_LEFT_UP, self._onWxHit)
 
-
     def _getInitPropertiesList(self):
-        return super(dBorderlessButton, self)._getInitPropertiesList() + \
-            ("ButtonShape",)
-
+        return super(dBorderlessButton, self)._getInitPropertiesList() + (
+            "ButtonShape",
+        )
 
     # Property getters and setters
     def _getBackColorHover(self):
@@ -78,7 +88,6 @@ class dBorderlessButton(dControlMixin, platebtn.PlateButton):
         else:
             self._properties["BackColorHover"] = val
 
-
     def _getButtonShape(self):
         if self._hasWindowStyleFlag(platebtn.PB_STYLE_SQUARE):
             return "Square"
@@ -93,9 +102,9 @@ class dBorderlessButton(dControlMixin, platebtn.PlateButton):
             self._delWindowStyleFlag(platebtn.PB_STYLE_SQUARE)
         else:
             nm = self.Name
-            raise ValueError(_("Invalid value of %(nm)s.ButtonShape "
-                    "property: %(val)s") % locals())
-
+            raise ValueError(
+                _("Invalid value of %(nm)s.ButtonShape " "property: %(val)s") % locals()
+            )
 
     def _getCancelButton(self):
         # need to implement
@@ -103,7 +112,6 @@ class dBorderlessButton(dControlMixin, platebtn.PlateButton):
 
     def _setCancelButton(self, val):
         warnings.warn(_("CancelButton isn't implemented yet."), Warning)
-
 
     def _getDefaultButton(self):
         if self.Parent is not None:
@@ -125,9 +133,9 @@ class dBorderlessButton(dControlMixin, platebtn.PlateButton):
         else:
             self._properties["DefaultButton"] = val
 
-
     def _getFont(self):
-        from dabo.ui import dFont
+        from ui import dFont
+
         if hasattr(self, "_font") and isinstance(self._font, dFont):
             v = self._font
         else:
@@ -142,23 +150,21 @@ class dBorderlessButton(dControlMixin, platebtn.PlateButton):
         return v
 
     def _setFont(self, val):
-        #PVG: also accept wxFont parameter
+        # PVG: also accept wxFont parameter
         if isinstance(val, (wx.Font,)):
-            val = dabo.ui.dFont(_nativeFont=val)
+            val = ui.dFont(_nativeFont=val)
         if self._constructed():
             self._font = val
             try:
                 self.SetFont(val._nativeFont)
             except AttributeError:
-                dabo.log.error(_("Error setting font for %s") % self.Name)
+                log.error(_("Error setting font for %s") % self.Name)
             val.bindEvent(dEvents.FontPropertiesChanged, self._onFontPropsChanged)
         else:
             self._properties["Font"] = val
 
-
     def _getNormalBitmap(self):
         return self.GetBitmapLabel()
-
 
     def _getNormalPicture(self):
         return self._picture
@@ -174,27 +180,46 @@ class dBorderlessButton(dControlMixin, platebtn.PlateButton):
         else:
             self._properties["Picture"] = val
 
-
     # Property definitions:
-    BackColorHover = property(_getBackColorHover, _setBackColorHover, None,
-        _("""Color of the button background when mouse is hovered over control (str or tuple)
+    BackColorHover = property(
+        _getBackColorHover,
+        _setBackColorHover,
+        None,
+        _(
+            """Color of the button background when mouse is hovered over control (str or tuple)
         Default=(128, 128, 128)
-        Changing this color with change the color of the control when pressed as well."""))
+        Changing this color with change the color of the control when pressed as well."""
+        ),
+    )
 
-    Bitmap = property(_getNormalBitmap, None, None,
-        _("""The bitmap normally displayed on the button.  (wx.Bitmap)"""))
+    Bitmap = property(
+        _getNormalBitmap,
+        None,
+        None,
+        _("""The bitmap normally displayed on the button.  (wx.Bitmap)"""),
+    )
 
-    ButtonShape = property(_getButtonShape, _setButtonShape,
-        _("""Shape of the button. (str)
+    ButtonShape = property(
+        _getButtonShape,
+        _setButtonShape,
+        _(
+            """Shape of the button. (str)
 
         Normal/Rounded    :    button with rounded corners. (default)
-        Square            :    button with square corners."""))
+        Square            :    button with square corners."""
+        ),
+    )
 
-    Font = property(_getFont, _setFont, None,
-            _("The font properties of the button. (obj)") )
+    Font = property(
+        _getFont, _setFont, None, _("The font properties of the button. (obj)")
+    )
 
-    Picture = property(_getNormalPicture, _setNormalPicture, None,
-        _("""Specifies the image normally displayed on the button. (str)"""))
+    Picture = property(
+        _getNormalPicture,
+        _setNormalPicture,
+        None,
+        _("""Specifies the image normally displayed on the button. (str)"""),
+    )
 
 
 dabo.ui.dBorderlessButton = dBorderlessButton
@@ -221,6 +246,8 @@ class _dBorderlessButton_test(dBorderlessButton):
         self.Width = 333
         self.Form.layout()
 
+
 if __name__ == "__main__":
     from dabo.ui import test
+
     test.Test().runTest(_dBorderlessButton_test)

@@ -15,17 +15,23 @@ class dLine(dControlMixin, wx.StaticLine):
     buffer space will enclose the line, which will appear in the center of
     this space.
     """
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dLine
         preClass = wx.StaticLine
 
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
-
+        dControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
 
     def _initEvents(self):
         super(dLine, self)._initEvents()
-
 
     # property get/set functions
     def _getOrientation(self):
@@ -45,17 +51,22 @@ class dLine(dControlMixin, wx.StaticLine):
         elif value == "h":
             self._addWindowStyleFlag(wx.LI_HORIZONTAL)
         else:
-            raise ValueError("The only possible values are "
-                    "'Horizontal' and 'Vertical'.")
+            raise ValueError(
+                "The only possible values are " "'Horizontal' and 'Vertical'."
+            )
 
     # property definitions follow:
-    Orientation = property(_getOrientation, _setOrientation, None,
-                        "Specifies the Orientation of the line. (str) \n"
-                        "   Horizontal (default) \n"
-                        "   Vertical"
-                        "This is determined by the Width and Height properties. "
-                        "If the Width is greater than the Height, it will be Horizontal. "
-                        "Otherwise, it will be Vertical.")
+    Orientation = property(
+        _getOrientation,
+        _setOrientation,
+        None,
+        "Specifies the Orientation of the line. (str) \n"
+        "   Horizontal (default) \n"
+        "   Vertical"
+        "This is determined by the Width and Height properties. "
+        "If the Width is greater than the Height, it will be Horizontal. "
+        "Otherwise, it will be Vertical.",
+    )
     DynamicOrientation = makeDynamicProperty(Orientation)
 
 
@@ -68,6 +79,8 @@ class _dLine_test(dLine):
         self.Width = 200
         self.Height = 10
 
+
 if __name__ == "__main__":
     from dabo.ui import test
+
     test.Test().runTest(_dLine_test)

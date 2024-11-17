@@ -13,12 +13,12 @@ class EventMixin(object):
 
     All Dabo objects inherit this functionality.
     """
+
     def bindEvent(self, eventClass, function, _auto=False):
         """Bind a dEvent to a callback function."""
         eb = self._EventBindings
         if (eventClass, function) not in [(b[0], b[1]) for b in eb]:
             eb.append((eventClass, function, _auto))
-
 
     def bindEvents(self, bindings):
         """Bind a sequence of [dEvent, callback] lists."""
@@ -27,7 +27,6 @@ class EventMixin(object):
                 self.bindEvent(binding[0], binding[1])
         else:
             raise TypeError("Sequence expected.")
-
 
     def raiseEvent(self, eventClass, uiEvent=None, *args, **kwargs):
         """
@@ -67,8 +66,9 @@ class EventMixin(object):
         eventData = kwargs.pop("eventData", None)
         evtObject = kwargs.pop("eventObject", self)
 
-        event = eventClass(evtObject, uiEvent=uiEvent,
-                eventData=eventData, *args, **kwargs)
+        event = eventClass(
+            evtObject, uiEvent=uiEvent, eventData=eventData, *args, **kwargs
+        )
 
         # Now iterate the bindings, and execute the callbacks:
         if dabo.reverseEventsOrder:
@@ -92,6 +92,7 @@ class EventMixin(object):
         if uiEvent is not None:
             # Let the UI lib know whether to do the default event behavior
             from dabo import ui as dui
+
             if event.Continue:
                 r = dui.continueEvent(uiEvent)
             else:
@@ -100,7 +101,6 @@ class EventMixin(object):
             r = None
 
         return r
-
 
     def unbindEvent(self, eventClass=None, function=None):
         """
@@ -126,14 +126,14 @@ class EventMixin(object):
                 bindingClass, bindingFunction = binding[0], binding[1]
 
                 if (eventClass is None or bindingClass == eventClass) and (
-                    function is None or bindingFunction == function):
-                        # Matched: already popped off, do nothing
-                        pass
+                    function is None or bindingFunction == function
+                ):
+                    # Matched: already popped off, do nothing
+                    pass
                 else:
                     # Not matched: put it back
                     newBindings.append(binding)
             self._EventBindings = newBindings
-
 
     def autoBindEvents(self, force=True):
         """
@@ -189,7 +189,6 @@ class EventMixin(object):
             self._autoBindEvents(context=prnt, force=force)
         if frm:
             self._autoBindEvents(context=frm, force=force)
-
 
     def _autoBindEvents(self, context, force=False):
         """
@@ -258,10 +257,11 @@ class EventMixin(object):
                         pass
 
             if type(funcObj) in (types.FunctionType, types.MethodType):
-                    evtObj = dEvents.__dict__[parsedEvtName]
-                    funcObj = eval("context.%s" % funcName)  ## (can't use __class__.dict...)
-                    self.bindEvent(evtObj, funcObj, _auto=True)
-
+                evtObj = dEvents.__dict__[parsedEvtName]
+                funcObj = eval(
+                    "context.%s" % funcName
+                )  ## (can't use __class__.dict...)
+                self.bindEvent(evtObj, funcObj, _auto=True)
 
     def getEventList(cls):
         """Return a list of valid Dabo event names for this object."""
@@ -269,8 +269,8 @@ class EventMixin(object):
         el = [e.__name__ for e in el if e.__name__[0] in string.uppercase]
         el.sort()
         return el
-    getEventList = classmethod(getEventList)
 
+    getEventList = classmethod(getEventList)
 
     def getValidEvents(cls):
         """
@@ -292,8 +292,8 @@ class EventMixin(object):
                 if evt.appliesToClass(classRef):
                     validEvents.append(evt)
         return validEvents
-    getValidEvents = classmethod(getValidEvents)
 
+    getValidEvents = classmethod(getValidEvents)
 
     def _removeAutoBindings(self):
         """Remove all event bindings originally set by autoBindEvents()."""
@@ -303,8 +303,7 @@ class EventMixin(object):
                 toRemove.append(idx)
         toRemove.reverse()
         for idx in toRemove:
-            del(self._EventBindings[idx])
-
+            del self._EventBindings[idx]
 
     def _getEventBindings(self):
         try:
@@ -319,8 +318,12 @@ class EventMixin(object):
         else:
             raise ValueError("EventBindings must be a list.")
 
-    _EventBindings = property(_getEventBindings, _setEventBindings, None,
-        _("The list of event bindings ([Event, callback]) for this object."))
+    _EventBindings = property(
+        _getEventBindings,
+        _setEventBindings,
+        None,
+        _("The list of event bindings ([Event, callback]) for this object."),
+    )
 
 
 if __name__ == "__main__":
@@ -342,4 +345,3 @@ if __name__ == "__main__":
 
     o.unBindEvent(TestEvent)
     print("EventBindings:", o._EventBindings)
-

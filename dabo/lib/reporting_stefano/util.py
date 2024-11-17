@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import reportlab.lib.units as units
 
+
 def dictunion(lhs, rhs):
-    """ Dictionary union
+    """Dictionary union
 
     >>> util.dictunion({1:'a'}, {2:'b'})
     {1: 'a', 2: 'b'}

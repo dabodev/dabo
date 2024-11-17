@@ -16,7 +16,6 @@ class PageFrameMixin(object):
 
         self.dsEditPages = {}
 
-
     def beforePageChange(self, fromPage, toPage):
         """If there are no records, don't let them go to Pages 1 or 2."""
         if fromPage == 0:
@@ -26,14 +25,12 @@ class PageFrameMixin(object):
                 self.Form.StatusText = _("No records available")
                 return False
 
-
     def addPage(self, pageClass, caption="", imgKey=None):
         page = self.appendPage(pageClass, imgKey=imgKey)
         if not page.Caption and caption:
             # Only set the caption to the default if the page class didn't define it.
             page.Caption = caption
         return page
-
 
     def addSelectPage(self, caption=_("Select")):
         self.addPage(self.Form.SelectPageClass, caption, "select")
@@ -46,19 +43,16 @@ class PageFrameMixin(object):
         page.DataSource = ds
         self.dsEditPages[ds] = self.PageCount - 1
 
-
     def editByDataSource(self, ds):
         if isinstance(ds, dabo.biz.dBizobj):
             ds = ds.DataSource
         self.SelectedPage = self.dsEditPages[ds]
-
 
     def newByDataSource(self, ds):
         if isinstance(ds, dabo.biz.dBizobj):
             ds = ds.DataSource
         self.Form.new(ds)
         self.SelectedPage = self.dsEditPages[ds]
-
 
     def deleteByDataSource(self, ds):
         if isinstance(ds, dabo.biz.dBizobj):
@@ -68,18 +62,19 @@ class PageFrameMixin(object):
 
 def PageFrame(parent, tabStyle="tabs", *args, **kwargs):
     try:
-        tabStyles = {"Tabs": dui.dPageFrame,
-                "Frame": dui.dPageFrame,
-                "List": dui.dPageList,
-                "Select": dui.dPageSelect
+        tabStyles = {
+            "Tabs": dui.dPageFrame,
+            "Frame": dui.dPageFrame,
+            "List": dui.dPageList,
+            "Select": dui.dPageSelect,
         }
         pageStyleClass = tabStyles[tabStyle.title()]
     except KeyError:
-        raise KeyError(
-                "tabStyle must be one of %s" % list(tabStyles.keys()))
+        raise KeyError("tabStyle must be one of %s" % list(tabStyles.keys()))
 
     class DataNavPageFrame(PageFrameMixin, pageStyleClass):
         _pageStyleClass = property(lambda self: pageStyleClass)
+
         def __init__(*args, **kwargs):
             PageFrameMixin.__init__(*args, **kwargs)
 

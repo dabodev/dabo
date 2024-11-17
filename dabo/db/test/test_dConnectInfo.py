@@ -13,16 +13,19 @@ class Test_dConnectInfo(unittest.TestCase):
     def test_init_noParms(self):
         def noParms():
             ci = dabo.db.dConnection()
+
         self.assertRaises(TypeError, noParms)
 
     def test_init_bogusParm(self):
         def bogusParm():
             ci = dabo.db.dConnection(bogus=1)
+
         self.assertRaises(bogusParm)
 
     def test_init_oneBogusParm(self):
         def anotherBogusParm():
             ci = dabo.db.dConnection(DbType="SQLite", Db=":memory:")
+
         self.assertRaises(anotherBogusParm)
 
 

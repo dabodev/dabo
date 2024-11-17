@@ -7,6 +7,7 @@ import os
 import sys
 import getopt
 
+
 def main():
     tabsize = 8
     try:
@@ -18,11 +19,12 @@ def main():
         print("usage:", sys.argv[0], "[-t tabwidth] file ...")
         return
     for optname, optvalue in opts:
-        if optname == '-t':
+        if optname == "-t":
             tabsize = int(optvalue)
 
     for filename in args:
         process(filename, tabsize)
+
 
 def process(filename, tabsize, saveBackup=True):
     try:
@@ -48,7 +50,9 @@ def process(filename, tabsize, saveBackup=True):
     f = open(filename, "w")
     f.write(newtext)
     f.close()
+
+
 #     print filename
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo.dLocalize import _
-from dabo.ui import dBox
-from dabo.ui import dButton
-from dabo.ui import dForm
-from dabo.ui import dLabel
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dSizerMixin
-from dabo.ui import makeDynamicProperty
+
+from dLocalize import _
+from ui import dBox
+from ui import dButton
+from ui import dForm
+from ui import dLabel
+from ui import dPanel
+from ui import dSizer
+from ui import dSizerMixin
+from ui import makeDynamicProperty
 
 
 class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
@@ -20,6 +20,7 @@ class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
     will be created for you in the constructor as a child object of the parent
     you passed.
     """
+
     def __init__(self, box, orientation="h", properties=None, **kwargs):
         self._baseClass = dBorderSizer
         self._border = 0
@@ -46,7 +47,7 @@ class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
         # Get them sanitized into one dict:
         if properties is not None:
             # Override the class values
-            for k,v in list(properties.items()):
+            for k, v in list(properties.items()):
                 self._properties[k] = v
         properties = self._extractKeywordProperties(kwargs, self._properties)
         self.setProperties(properties)
@@ -54,18 +55,18 @@ class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
         if kwargs:
             # Some kwargs haven't been handled.
             bad = ", ".join(list(kwargs.keys()))
-            raise TypeError(("Invalid keyword arguments passed to dBorderSizer: %s") % kwargs)
+            raise TypeError(
+                ("Invalid keyword arguments passed to dBorderSizer: %s") % kwargs
+            )
 
         # Mark the box as part of the sizer
         self.Box._belongsToBorderSizer = True
 
         self._afterInit()
 
-
     def getNonBorderedClass(self):
         """Return the class that is the non-border sizer version of this class."""
         return dSizer
-
 
     def _getBackColor(self):
         return self.Box.BackColor
@@ -73,10 +74,8 @@ class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
     def _setBackColor(self, val):
         self.Box.BackColor = val
 
-
     def _getBox(self):
         return self.GetStaticBox()
-
 
     def _getCaption(self):
         return self.Box.Caption
@@ -84,13 +83,11 @@ class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
     def _setCaption(self, val):
         self.Box.Caption = val
 
-
     def _getFontBold(self):
         return self.Box.FontBold
 
     def _setFontBold(self, val):
         self.Box.FontBold = val
-
 
     def _getFontFace(self):
         return self.Box.FontFace
@@ -98,13 +95,11 @@ class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
     def _setFontFace(self, val):
         self.Box.FontFace = val
 
-
     def _getFontItalic(self):
         return self.Box.FontItalic
 
     def _setFontItalic(self, val):
         self.Box.FontItalic = val
-
 
     def _getFontSize(self):
         return self.Box.FontSize
@@ -112,38 +107,56 @@ class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
     def _setFontSize(self, val):
         self.Box.FontSize = val
 
-
     def _getFontUnderline(self):
         return self.Box.FontUnderline
 
     def _setFontUnderline(self, val):
         self.Box.FontUnderline = val
 
+    BackColor = property(
+        _getBackColor,
+        _setBackColor,
+        None,
+        _("Color of the box background  (str or tuple)"),
+    )
 
-    BackColor = property(_getBackColor, _setBackColor, None,
-            _("Color of the box background  (str or tuple)"))
+    Box = property(
+        _getBox, None, None, _("Reference to the box used in the sizer  (dBox)")
+    )
 
-    Box = property(_getBox, None, None,
-            _("Reference to the box used in the sizer  (dBox)"))
+    Caption = property(_getCaption, _setCaption, None, _("Caption for the box  (str)"))
 
-    Caption = property(_getCaption, _setCaption, None,
-            _("Caption for the box  (str)"))
+    FontBold = property(
+        _getFontBold,
+        _setFontBold,
+        None,
+        _("Controls the bold setting of the box caption  (bool)"),
+    )
 
-    FontBold = property(_getFontBold, _setFontBold, None,
-            _("Controls the bold setting of the box caption  (bool)"))
+    FontFace = property(
+        _getFontFace,
+        _setFontFace,
+        None,
+        _("Controls the type face of the box caption  (str)"),
+    )
 
-    FontFace = property(_getFontFace, _setFontFace, None,
-            _("Controls the type face of the box caption  (str)"))
+    FontItalic = property(
+        _getFontItalic,
+        _setFontItalic,
+        None,
+        _("Controls the italic setting of the box caption  (bool)"),
+    )
 
-    FontItalic = property(_getFontItalic, _setFontItalic, None,
-            _("Controls the italic setting of the box caption  (bool)"))
+    FontSize = property(
+        _getFontSize, _setFontSize, None, _("Size of the box caption font  (int)")
+    )
 
-    FontSize = property(_getFontSize, _setFontSize, None,
-            _("Size of the box caption font  (int)"))
-
-    FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
-            _("Controls the underline setting of the box caption  (bool)"))
-
+    FontUnderline = property(
+        _getFontUnderline,
+        _setFontUnderline,
+        None,
+        _("Controls the underline setting of the box caption  (bool)"),
+    )
 
     # Dynamic property declarations
     DynamicBackColor = makeDynamicProperty(BackColor)
@@ -155,7 +168,7 @@ class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
     DynamicFontUnderline = makeDynamicProperty(FontUnderline)
 
 
-dabo.ui.dBorderSizer = dBorderSizer
+ui.dBorderSizer = dBorderSizer
 
 
 class TestForm(dForm):
@@ -170,15 +183,17 @@ class TestForm(dForm):
         pnl = dPanel(self, BackColor="seagreen")
         self.Sizer.append1x(pnl, border=18)
 
+
 class _dBorderSizer_test(dBorderSizer):
     def __init__(self, bx=None, *args, **kwargs):
-        super(_dBorderSizer_test, self).__init__(box=bx, orientation="h", *args, **kwargs)
-
-
+        super(_dBorderSizer_test, self).__init__(
+            box=bx, orientation="h", *args, **kwargs
+        )
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
+    from dApp import dApp
+
     app = dApp()
     app.MainFormClass = TestForm
     app.start()

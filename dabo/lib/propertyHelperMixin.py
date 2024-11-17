@@ -47,7 +47,6 @@ class PropertyHelperMixin(object):
                 raise ValueError(s)
         return value
 
-
     def _extractKeywordProperties(self, kwdict, propdict):
         """
         Called from __init__: puts any property keyword arguments into
@@ -63,7 +62,6 @@ class PropertyHelperMixin(object):
                 propdict[arg] = kwdict.pop(arg)
         return propdict
 
-
     @staticmethod
     def _extractKeyWordEventBindings(kwdict, evtdict):
         """
@@ -75,7 +73,6 @@ class PropertyHelperMixin(object):
         onKWs = [(kw, kw[2:]) for kw in kwdict if kw.startswith("On")]
         for kw, evtName in onKWs:
             evtdict[evtName] = kwdict.pop(kw)
-
 
     @staticmethod
     def _extractKey(kwdict, key, defaultVal=None):
@@ -102,9 +99,13 @@ class PropertyHelperMixin(object):
                 pass
         return ret
 
-
-    def getProperties(self, propertySequence=(), propsToSkip=(),
-            ignoreErrors=False, *propertyArguments):
+    def getProperties(
+        self,
+        propertySequence=(),
+        propsToSkip=(),
+        ignoreErrors=False,
+        *propertyArguments,
+    ):
         """
         Returns a dictionary of property name/value pairs.
 
@@ -168,7 +169,6 @@ class PropertyHelperMixin(object):
 
         return propDict
 
-
     def setProperties(self, propDict={}, ignoreErrors=False, **propKw):
         """
         Sets a group of properties on the object all at once.
@@ -186,6 +186,7 @@ class PropertyHelperMixin(object):
             self.setProperties({"FontBold": True}, ForeColor="Red")
 
         """
+
         def _setProps(_propDict):
             delayedSettings = {}
             for prop in _propDict:
@@ -219,7 +220,6 @@ class PropertyHelperMixin(object):
         # Set the props specified in the keyword arguments:
         _setProps(propKw)
 
-
     def setPropertiesFromAtts(self, propDict={}, ignoreExtra=True, context=None):
         """
         Sets a group of properties on the object all at once. This
@@ -244,7 +244,6 @@ class PropertyHelperMixin(object):
                 valToSet = val
             setattr(self, prop, valToSet)
 
-
     def _setKwEventBindings(self, kwEvtDict):
         """
         This method takes a dict of event names and method to which they are
@@ -252,13 +251,13 @@ class PropertyHelperMixin(object):
         """
         for evtName, mthd in list(kwEvtDict.items()):
             from dabo import dEvents
+
             evt = dEvents.__dict__[evtName]
             if callable(mthd):
                 self.bindEvent(evt, mthd)
             else:
                 # A string that needs to be eval'd after construction was passed.
                 self._delayedEventBindings.append((evt, mthd))
-
 
     def getPropertyList(cls, refresh=False, onlyDabo=False):
         """
@@ -294,8 +293,8 @@ class PropertyHelperMixin(object):
             cls._propLists = {}
         cls._propLists[(cls, onlyDabo)] = propList
         return propList
-    getPropertyList = classmethod(getPropertyList)
 
+    getPropertyList = classmethod(getPropertyList)
 
     def getPropertyInfo(cls, name):
         """Returns a dictionary of information about the passed property name."""
@@ -343,8 +342,8 @@ class PropertyHelperMixin(object):
             return d
         else:
             raise AttributeError("%s is not a property." % name)
-    getPropertyInfo = classmethod(getPropertyInfo)
 
+    getPropertyInfo = classmethod(getPropertyInfo)
 
 
 class _DynamicList(list):
@@ -359,6 +358,7 @@ class _DynamicList(list):
 
     will modify the choices in the control, as most users would expect.
     """
+
     def __init__(self, seq, obj, propname=None):
         self._object = obj
         if propname is None:
@@ -366,70 +366,58 @@ class _DynamicList(list):
         self._setter = getattr(obj.__class__, propname).fset
         super(_DynamicList, self).__init__(seq)
 
-
     def _updateControl(self):
         self._setter(self._object, self)
-
 
     def __add__(self, val):
         ret = super(_DynamicList, self).__add__(val)
         self._updateControl()
         return ret
 
-
     def __delitem__(self, val):
         ret = super(_DynamicList, self).__delitem__(val)
         self._updateControl()
         return ret
-
 
     def __delslice__(self, i, j):
         ret = super(_DynamicList, self).__delslice__(i, j)
         self._updateControl()
         return ret
 
-
     def __iadd__(self, val):
         ret = super(_DynamicList, self).__iadd__(val)
         self._updateControl()
         return ret
-
 
     def __imul__(self, val):
         ret = super(_DynamicList, self).__imul__(val)
         self._updateControl()
         return ret
 
-
     def __setitem__(self, i, val):
         ret = super(_DynamicList, self).__setitem__(i, val)
         self._updateControl()
         return ret
-
 
     def __setslice__(self, i, j, val):
         ret = super(_DynamicList, self).__setslice__(i, j, val)
         self._updateControl()
         return ret
 
-
     def append(self, val):
         ret = super(_DynamicList, self).append(val)
         self._updateControl()
         return ret
-
 
     def extend(self, iterable):
         ret = super(_DynamicList, self).extend(iterable)
         self._updateControl()
         return ret
 
-
     def insert(self, i, val):
         ret = super(_DynamicList, self).insert(i, val)
         self._updateControl()
         return ret
-
 
     def pop(self, i=None):
         if i is None:
@@ -438,18 +426,15 @@ class _DynamicList(list):
         self._updateControl()
         return ret
 
-
     def remove(self, val):
         ret = super(_DynamicList, self).remove(val)
         self._updateControl()
         return ret
 
-
     def reverse(self):
         ret = super(_DynamicList, self).reverse()
         self._updateControl()
         return ret
-
 
     def sort(self, cmp=None, key=None, reverse=False):
         ret = super(_DynamicList, self).sort(cmp, key, reverse)

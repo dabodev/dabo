@@ -6,6 +6,7 @@ from dabo import dConstants as k
 
 class dFontDialog(wx.FontDialog):
     """Creates a font dialog, which asks the user to choose a font."""
+
     def __init__(self, parent=None, fontData=None):
         self._baseClass = dabo.ui.dFontDialog
 
@@ -17,7 +18,7 @@ class dFontDialog(wx.FontDialog):
     def show(self):
         ret = k.DLG_CANCEL
         res = self.ShowModal()
-        if res ==  wx.ID_OK:
+        if res == wx.ID_OK:
             ret = k.DLG_OK
         return ret
 
@@ -33,4 +34,5 @@ dabo.ui.dFontDialog = dFontDialog
 
 if __name__ == "__main__":
     from dabo.ui import test
+
     test.Test().runTest(dFontDialog)

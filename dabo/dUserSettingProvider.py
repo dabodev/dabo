@@ -9,6 +9,7 @@ class dUserSettingProvider(dObject):
     Class that manages saving and restoring user settings, such as form
     size and position.
     """
+
     def getUserSettingKeys(self, spec):
         """
         Return a list of all keys underneath <spec>.
@@ -23,7 +24,6 @@ class dUserSettingProvider(dObject):
         The return value would be ["pkm", "egl"]
         """
         return self.PreferenceManager.getPrefKeys(spec.lower())
-
 
     def getUserSetting(self, item, default=None):
         """
@@ -41,7 +41,6 @@ class dUserSettingProvider(dObject):
             ret = default
         return ret
 
-
     def setUserSetting(self, item, val):
         """Persist a value to the user settings file."""
         prf = self.PreferenceManager
@@ -51,17 +50,14 @@ class dUserSettingProvider(dObject):
         key = parsedItem[0]
         prf.setValue(key, val)
 
-
     def setUserSettings(self, dct):
         """Persist a set of setting name: value pairs."""
         for nm, val in list(dct.items()):
             self.setUserSetting(nm, val)
 
-
     def deleteUserSetting(self, item):
         """Removes the specified item from the settings file."""
         self.PreferenceManager.deletePref(item.lower(), False)
-
 
     def deleteAllUserSettings(self, spec):
         """
@@ -70,4 +66,3 @@ class dUserSettingProvider(dObject):
         on key matching.
         """
         self.PreferenceManager.deletePref(spec.lower(), True)
-

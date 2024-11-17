@@ -5,6 +5,7 @@ xmltodict(): convert xml into tree of Python dicts.
 This was copied and modified from John Bair's recipe at aspn.activestate.com:
     http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/149368
 """
+
 import codecs
 import locale
 import os
@@ -32,9 +33,9 @@ code_linesep = "\n"
 eol = os.linesep
 
 
-
 class Xml2Obj(object):
     """XML to Object"""
+
     def __init__(self, encoding=None):
         self.root = None
         self.nodeStack = []
@@ -53,7 +54,6 @@ class Xml2Obj(object):
             self._encoding = dabo.getEncoding()
         else:
             self._encoding = encoding
-
 
     def StartElement(self, name, attributes):
         """SAX start element even handler"""
@@ -77,17 +77,17 @@ class Xml2Obj(object):
 
         else:
             if self._inCode:
-                self._mthdName = name    #.encode()
+                self._mthdName = name  # .encode()
             elif self._inProp:
                 if self._propName:
                     # In the middle of a prop definition
-                    self._currPropAtt = name    #.encode()
+                    self._currPropAtt = name  # .encode()
                 else:
-                    self._propName = name    #.encode()
+                    self._propName = name  # .encode()
                     self._currPropDict = {}
                     self._currPropAtt = ""
             else:
-                element = {"name": name}    #.encode()}
+                element = {"name": name}  # .encode()}
                 if attributes:
                     for att in self.attsToSkip:
                         try:
@@ -108,7 +108,6 @@ class Xml2Obj(object):
                 else:
                     self.root = element
                 self.nodeStack.append(element)
-
 
     def EndElement(self, name):
         """SAX end element event handler"""
@@ -139,12 +138,11 @@ class Xml2Obj(object):
         else:
             self.nodeStack = self.nodeStack[:-1]
 
-
     def CharacterData(self, data):
         """SAX character data event handler"""
         if self._inCode or data.strip():
-            data = data.replace("&lt;", "<").replace("&gt;",">")
-            data = data    #.encode()
+            data = data.replace("&lt;", "<").replace("&gt;", ">")
+            data = data  # .encode()
             if self._inCode:
                 if self._mthdCode:
                     self._mthdCode += data
@@ -158,7 +156,6 @@ class Xml2Obj(object):
                     element["cdata"] = ""
                 element["cdata"] += data
 
-
     def Parse(self, xml):
         # Create a SAX parser
         Parser = expat.ParserCreate()
@@ -170,9 +167,8 @@ class Xml2Obj(object):
         ParserStatus = Parser.Parse(xml, 1)
         return self.root
 
-
     def ParseFromFile(self, filename):
-        return self.Parse(open(filename,"r").read())
+        return self.Parse(open(filename, "r").read())
 
 
 def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
@@ -195,7 +191,10 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
         try:
             ret = parser.Parse(xmlContent)
         except expat.ExpatError as e:
-            errmsg = _("The XML in '%(xml)s' is not well-formed and cannot be parsed: %(e)s") % locals()
+            errmsg = (
+                _("The XML in '%(xml)s' is not well-formed and cannot be parsed: %(e)s")
+                % locals()
+            )
     else:
         # argument must have been raw xml:
         try:
@@ -225,11 +224,11 @@ def escQuote(val, noEscape=False, noQuote=False):
     """
     val = ustr(val)
     if noQuote:
-        qt = ''
+        qt = ""
     else:
         qt = '"'
     slsh = "\\"
-#     val = val.replace(slsh, slsh+slsh)
+    #     val = val.replace(slsh, slsh+slsh)
     if not noEscape:
         val = escape(val)
     return "%s%s%s" % (qt, val, qt)
@@ -244,14 +243,14 @@ def escape(val, escapeAmp=True):
     else:
         val = val.replace("&", "&amp;")
     # Escape any internal quotes
-    val = val.replace('"', '&quot;').replace("'", "&apos;")
+    val = val.replace('"', "&quot;").replace("'", "&apos;")
     # Escape any high-order characters
     chars = []
     for pos, char in enumerate(list(val)):
         if ord(char) > 127:
             chars.append("&#%s;" % ord(char))
         else:
-                chars.append(char)
+            chars.append(char)
     val = "".join(chars)
     val = val.replace("<", "&#060;").replace(">", "&#062;")
     return val
@@ -289,8 +288,12 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
             att += " %s=%s" % (key, val)
     ret += "%s<%s%s" % ("\t" * level, dct["name"], att)
 
-    if (("cdata" not in dct) and ("children" not in dct) and ("code" not in dct)
-            and ("properties" not in dct)):
+    if (
+        ("cdata" not in dct)
+        and ("children" not in dct)
+        and ("code" not in dct)
+        and ("properties" not in dct)
+    ):
         ret += " />%s" % eol
     else:
         ret += ">"
@@ -299,8 +302,8 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 
         if "code" in dct:
             if len(list(dct["code"].keys())):
-                ret += "%s%s<code>%s" % (eol, "\t" * (level+1), eol)
-                methodTab = "\t" * (level+2)
+                ret += "%s%s<code>%s" % (eol, "\t" * (level + 1), eol)
+                methodTab = "\t" * (level + 2)
                 for mthd, cd in list(dct["code"].items()):
                     # Convert \n's in the code to eol:
                     cd = eol.join(cd.splitlines())
@@ -308,32 +311,44 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
                     if not cd.endswith(eol):
                         cd += eol
 
-                    ret += "%s<%s><![CDATA[%s%s]]>%s%s</%s>%s" % (methodTab,
-                            mthd, eol, cd, eol,
-                            methodTab, mthd, eol)
-                ret += "%s</code>%s"    % ("\t" * (level+1), eol)
+                    ret += "%s<%s><![CDATA[%s%s]]>%s%s</%s>%s" % (
+                        methodTab,
+                        mthd,
+                        eol,
+                        cd,
+                        eol,
+                        methodTab,
+                        mthd,
+                        eol,
+                    )
+                ret += "%s</code>%s" % ("\t" * (level + 1), eol)
 
         if "properties" in dct:
             if len(list(dct["properties"].keys())):
-                ret += "%s%s<properties>%s" % (eol, "\t" * (level+1), eol)
-                currTab = "\t" * (level+2)
+                ret += "%s%s<properties>%s" % (eol, "\t" * (level + 1), eol)
+                currTab = "\t" * (level + 2)
                 for prop, val in list(dct["properties"].items()):
                     ret += "%s<%s>%s" % (currTab, prop, eol)
                     for propItm, itmVal in list(val.items()):
-                        itmTab = "\t" * (level+3)
-                        ret += "%s<%s>%s</%s>%s" % (itmTab, propItm, itmVal,
-                                propItm, eol)
+                        itmTab = "\t" * (level + 3)
+                        ret += "%s<%s>%s</%s>%s" % (
+                            itmTab,
+                            propItm,
+                            itmVal,
+                            propItm,
+                            eol,
+                        )
                     ret += "%s</%s>%s" % (currTab, prop, eol)
-                ret += "%s</properties>%s"    % ("\t" * (level+1), eol)
+                ret += "%s</properties>%s" % ("\t" * (level + 1), eol)
 
         if ("children" in dct) and dct["children"]:
             ret += eol
             for child in dct["children"]:
-                ret += dicttoxml(child, level+1, linesep=linesep)
+                ret += dicttoxml(child, level + 1, linesep=linesep)
         indnt = ""
         if ret.endswith(eol):
             # Indent the closing tag
-            indnt = ("\t" * level)
+            indnt = "\t" * level
         ret += "%s</%s>%s" % (indnt, dct["name"], eol)
 
         if linesep:
@@ -341,8 +356,10 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 
     if level == 0:
         if header is None:
-            header = '<?xml version="1.0" encoding="%s" standalone="no"?>%s' \
-                    % (default_encoding, eol)
+            header = '<?xml version="1.0" encoding="%s" standalone="no"?>%s' % (
+                default_encoding,
+                eol,
+            )
         ret = header + ret
 
     return ret
@@ -380,8 +397,11 @@ def flattenClassDict(cd, retDict=None):
             classCode = classCD.get("code", {})
             classKids = classCD.get("children", [])
             currDict = retDict.get(classID, {})
-            retDict[classID] = {"attributes": classAtts, "code": classCode,
-                    "properties": classProps}
+            retDict[classID] = {
+                "attributes": classAtts,
+                "code": classCode,
+                "properties": classProps,
+            }
             retDict[classID].update(currDict)
             # Now update the child objects in the dict
             for kid in classKids:
@@ -389,8 +409,7 @@ def flattenClassDict(cd, retDict=None):
         else:
             # Not a file; most likely just a component in another class
             currDict = retDict.get(classID, {})
-            retDict[classID] = {"attributes": atts, "code": code,
-                    "properties": props}
+            retDict[classID] = {"attributes": atts, "code": code, "properties": props}
             retDict[classID].update(currDict)
     if kids:
         for kid in kids:
@@ -424,10 +443,16 @@ def addInheritedInfo(src, super, updateCode=False):
             addInheritedInfo(kid, super, updateCode)
 
 
-
 if __name__ == "__main__":
-    test_dict = {"name": "test", "attributes":{"path": "c:\\temp\\name",
-            "problemChars": "Welcome to <Jos\xc3\xa9's \ Stuff!>\xc2\xae".decode("latin-1")}}
+    test_dict = {
+        "name": "test",
+        "attributes": {
+            "path": "c:\\temp\\name",
+            "problemChars": "Welcome to <Jos\xc3\xa9's \ Stuff!>\xc2\xae".decode(
+                "latin-1"
+            ),
+        },
+    }
     print("test_dict:", test_dict)
     xml = dicttoxml(test_dict)
     print("xml:", xml)

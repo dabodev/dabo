@@ -25,7 +25,7 @@ class CaselessDict(dict):
 
     def __delitem__(self, key):
         dict.__delitem__(self, key.lower())
-        del(self._OriginalCase[key.lower()])
+        del self._OriginalCase[key.lower()]
 
     def __contains__(self, key):
         return dict.__contains__(self, key.lower())
@@ -71,6 +71,7 @@ class CaselessDict(dict):
     def update(self, otherDict):
         for k, v in list(otherDict.items()):
             self[k] = v
+
 
 if __name__ == "__main__":
     d = CaselessDict()

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo import ui as dui
-from dabo.ui import makeDynamicProperty
+import ui
+from dLocalize import _
+from lib.utils import ustr
+from ui import makeDynamicProperty
 
 
 class AlignmentMixin(object):
@@ -30,16 +29,23 @@ class AlignmentMixin(object):
         elif value == "right":
             self._addWindowStyleFlag(wx.ALIGN_RIGHT)
         else:
-            raise ValueError("The only possible values are "
-                            "'Left', 'Center', and 'Right'.")
+            raise ValueError(
+                "The only possible values are " "'Left', 'Center', and 'Right'."
+            )
 
-    Alignment = property(_getAlignment, _setAlignment, None,
-            _("""Specifies the alignment of the text. (str)
+    Alignment = property(
+        _getAlignment,
+        _setAlignment,
+        None,
+        _(
+            """Specifies the alignment of the text. (str)
             Left (default)
             Center
-            Right""") )
+            Right"""
+        ),
+    )
 
     DynamicAlignment = makeDynamicProperty(Alignment)
 
 
-dabo.ui.AlignmentMixin = AlignmentMixin
+ui.AlignmentMixin = AlignmentMixin

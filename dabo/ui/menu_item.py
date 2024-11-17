@@ -11,6 +11,7 @@ from dabo.ui import makeDynamicProperty
 
 class dMenuItem(dPemMixin, wx.MenuItem):
     """Creates a menu item, which is usually represented as a string."""
+
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         self._baseClass = dMenuItem
         preClass = wx.MenuItem
@@ -42,12 +43,12 @@ class dMenuItem(dPemMixin, wx.MenuItem):
             # and re-raise Dabo dEvents.Hit events. If Application
             # is None, however, this won't work because of wx limitations.
             self.Application.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, self)
-            self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT,
-                    self.__onWxMenuHighlight, self)
+            self.Application.uiApp.Bind(
+                wx.EVT_MENU_HIGHLIGHT, self.__onWxMenuHighlight, self
+            )
         # Handle delayed event bindings
         if self._delayedEventBindings:
             dabo.ui.callAfter(self._bindDelayed)
-
 
     def __onWxMenuHighlight(self, evt):
         self.raiseEvent(dEvents.MenuHighlight)
@@ -56,7 +57,6 @@ class dMenuItem(dPemMixin, wx.MenuItem):
     def __onWxHit(self, evt):
         self.raiseEvent(dEvents.Hit, evt)
         evt.Skip(False)
-
 
     def _redefine(self):
         """Combine the Caption and HotKey into the format needed by wxPython."""
@@ -80,7 +80,6 @@ class dMenuItem(dPemMixin, wx.MenuItem):
                 cap = " "
             self.SetItemLabel(cap)
 
-
     def _getCaption(self):
         return self._caption
 
@@ -96,7 +95,6 @@ class dMenuItem(dPemMixin, wx.MenuItem):
         else:
             self._properties["Caption"] = val
 
-
     def _getEnabled(self):
         return self.IsEnabled()
 
@@ -106,10 +104,8 @@ class dMenuItem(dPemMixin, wx.MenuItem):
         else:
             self._properties["Enabled"] = val
 
-
     def _getForm(self):
         return self.Parent.Form
-
 
     def _getHelpText(self):
         return self.GetHelp()
@@ -120,7 +116,6 @@ class dMenuItem(dPemMixin, wx.MenuItem):
         else:
             self._properties["HelpText"] = val
 
-
     def _getHotKey(self):
         return self._hotKey
 
@@ -130,7 +125,6 @@ class dMenuItem(dPemMixin, wx.MenuItem):
             self._redefine()
         else:
             self._properties["HotKey"] = val
-
 
     def _getIcon(self):
         return self.GetBitmap()
@@ -149,11 +143,10 @@ class dMenuItem(dPemMixin, wx.MenuItem):
             # the underlined hotkeys will get messed up. I don't know about
             # Mac so I'll leave that alone for now:
             if wx.PlatformInfo[0] == "__WXMSW__":
-#            if self.Application.Platform in ("Win",):
+                #            if self.Application.Platform in ("Win",):
                 self.Caption = self.Caption
         else:
             self._properties["Icon"] = val
-
 
     def _getItemID(self):
         return self._itemID
@@ -163,7 +156,6 @@ class dMenuItem(dPemMixin, wx.MenuItem):
             self._itemID = val
         else:
             self._properties["ItemID"] = val
-
 
     def _getParent(self):
         try:
@@ -175,36 +167,49 @@ class dMenuItem(dPemMixin, wx.MenuItem):
     def _setParent(self, val):
         self._parent = val
 
+    Caption = property(
+        _getCaption, _setCaption, None, _("Specifies the text of the menu item.")
+    )
 
+    Enabled = property(
+        _getEnabled,
+        _setEnabled,
+        None,
+        _("Specifies whether the menu item can be interacted with."),
+    )
 
+    Form = property(_getForm, None, None, _("Specifies the containing form."))
 
+    HelpText = property(
+        _getHelpText,
+        _setHelpText,
+        None,
+        _("Specifies the help text associated with this menu. (str)"),
+    )
 
-    Caption = property(_getCaption, _setCaption, None,
-            _("Specifies the text of the menu item."))
+    HotKey = property(
+        _getHotKey,
+        _setHotKey,
+        None,
+        _("Key combination that will trigger the menu  (str)"),
+    )
 
-    Enabled = property(_getEnabled, _setEnabled, None,
-            _("Specifies whether the menu item can be interacted with."))
+    Icon = property(
+        _getIcon, _setIcon, None, _("Specifies the icon for the menu item.")
+    )
 
-    Form = property(_getForm, None, None,
-            _("Specifies the containing form."))
-
-    HelpText = property(_getHelpText, _setHelpText, None,
-            _("Specifies the help text associated with this menu. (str)"))
-
-    HotKey = property(_getHotKey, _setHotKey, None,
-            _("Key combination that will trigger the menu  (str)"))
-
-    Icon = property(_getIcon, _setIcon, None,
-            _("Specifies the icon for the menu item."))
-
-    ItemID = property(_getItemID, _setItemID, None,
-            _("""Identifying value for this menuitem. NOTE: there is no checking for
+    ItemID = property(
+        _getItemID,
+        _setItemID,
+        None,
+        _(
+            """Identifying value for this menuitem. NOTE: there is no checking for
             duplicate values; it is the responsibility to ensure that ItemID values
-            are unique within a menu.  (varies)"""))
+            are unique within a menu.  (varies)"""
+        ),
+    )
 
-    Parent = property(_getParent, _setParent, None,
-            _("Specifies the parent menu."))
-
+    Parent = property(_getParent, _setParent, None, _("Specifies the parent menu."))
 
     DynamicCaption = makeDynamicProperty(Caption)
     DynamicEnabled = makeDynamicProperty(Enabled)
@@ -212,9 +217,9 @@ class dMenuItem(dPemMixin, wx.MenuItem):
     DynamicHelpText = makeDynamicProperty(HelpText)
 
 
-
 class dSeparatorMenuItem(dPemMixin, wx.MenuItem):
     """Creates a menu separator."""
+
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         self._baseClass = dSeparatorMenuItem
         preClass = wx.MenuItem
@@ -223,14 +228,14 @@ class dSeparatorMenuItem(dPemMixin, wx.MenuItem):
         self._itemID = None
         dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-
     # The following are methods designed to make separators work like other menu items.
     def GetParent(self):
         return self.Parent
+
     def _dummy(self, *args, **kwargs):
         pass
-    Bind = SetLabel = _dummy
 
+    Bind = SetLabel = _dummy
 
     def _getItemID(self):
         return self._itemID
@@ -240,7 +245,6 @@ class dSeparatorMenuItem(dPemMixin, wx.MenuItem):
             self._itemID = val
         else:
             self._properties["ItemID"] = val
-
 
     def _getParent(self):
         try:
@@ -252,29 +256,34 @@ class dSeparatorMenuItem(dPemMixin, wx.MenuItem):
     def _setParent(self, val):
         self._parent = val
 
-
-    ItemID = property(_getItemID, _setItemID, None,
-            _("""Identifying value for this menuitem. NOTE: there is no checking for
+    ItemID = property(
+        _getItemID,
+        _setItemID,
+        None,
+        _(
+            """Identifying value for this menuitem. NOTE: there is no checking for
             duplicate values; it is the responsibility to ensure that ItemID values
-            are unique within a menu.  (varies)"""))
+            are unique within a menu.  (varies)"""
+        ),
+    )
 
-    Parent = property(_getParent, _setParent, None,
-            _("Specifies the parent menu."))
-
+    Parent = property(_getParent, _setParent, None, _("Specifies the parent menu."))
 
 
 class _AbstractExtendedMenuItem(dMenuItem):
     """Creates a checkbox-like item in a menu."""
+
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         # Remove the 'Icon' property, as it interferes with the 'selected' display
         if self.__class__ is _AbstractExtendedMenuItem:
             raise dabo.dException.dException(
-                "dAbstractExtendedMenuItem class should not be instantiated directly.")
+                "dAbstractExtendedMenuItem class should not be instantiated directly."
+            )
         # Remove the 'Icon' property, as it interferes with the 'selected' display
         self._extractKey((properties, kwargs), "Icon")
-        super(_AbstractExtendedMenuItem, self).__init__(parent=parent,
-            properties=properties, *args, **kwargs)
-
+        super(_AbstractExtendedMenuItem, self).__init__(
+            parent=parent, properties=properties, *args, **kwargs
+        )
 
     def _getChecked(self):
         return self.IsChecked()
@@ -285,18 +294,20 @@ class _AbstractExtendedMenuItem(dMenuItem):
         else:
             self._properties["Checked"] = val
 
-
-    Checked = property(_getChecked, _setChecked, None,
-            _("Is this menu item checked?  (bool)"))
+    Checked = property(
+        _getChecked, _setChecked, None, _("Is this menu item checked?  (bool)")
+    )
 
 
 class dCheckMenuItem(_AbstractExtendedMenuItem):
     """Creates a checkbox-like item in a menu."""
+
     pass
 
 
 class dRadioMenuItem(_AbstractExtendedMenuItem):
     """Creates a radiobox-like item in a menu."""
+
     pass
 
 

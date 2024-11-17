@@ -5,6 +5,7 @@ import glob
 
 defaultExtension = "png"
 
+
 def addExtension(iconName):
     """If there isn't an extension, add the default extension."""
     splitext = os.path.splitext(iconName)
@@ -15,7 +16,7 @@ def addExtension(iconName):
 
 def getIcon(iconName):
     iconName = addExtension(iconName)
-    return open("%s/%s" % (__path__[-1:][0], iconName), 'rb').read()
+    return open("%s/%s" % (__path__[-1:][0], iconName), "rb").read()
 
 
 def getIconFileName(iconName):

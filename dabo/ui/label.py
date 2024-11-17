@@ -14,6 +14,7 @@ from dabo.ui import makeDynamicProperty
 
 class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
     """Creates a static label, to make a caption for another control, for example."""
+
     _layout_on_set_caption = True
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
@@ -22,10 +23,16 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
         self._inResizeEvent = False
         self._resetAutoResize = True
         preClass = wx.StaticText
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
+        dControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
         self.bindEvent(dEvents.Resize, self.__onResize)
-
 
     def __onResize(self, evt):
         """
@@ -37,7 +44,6 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
                 return
             self._inResizeEvent = True
             dabo.ui.callAfterInterval(101, self.__resizeExecute)
-
 
     def __resizeExecute(self):
         # We need to set the caption to the internally-saved caption, since
@@ -52,7 +58,6 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
         self.Wrap(wd)
         dabo.ui.callAfterInterval(50, self.__endResize)
 
-
     def __endResize(self):
         """
         To prevent infinite loops while resizing, the _inResizeEvent
@@ -60,7 +65,6 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
         """
         self.Parent.unlockDisplayAll()
         self._inResizeEvent = False
-
 
     # property get/set functions
     def _getAutoResize(self):
@@ -71,7 +75,6 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
         if not val:
             self._addWindowStyleFlag(wx.ST_NO_AUTORESIZE)
 
-
     def _getFontBold(self):
         return super(dLabel, self)._getFontBold()
 
@@ -80,7 +83,6 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
         if self._constructed():
             # This will force an auto-resize
             self.SetLabel(self.GetLabel())
-
 
     def _getFontFace(self):
         return super(dLabel, self)._getFontFace()
@@ -91,7 +93,6 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
             # This will force an auto-resize
             self.SetLabel(self.GetLabel())
 
-
     def _getFontItalic(self):
         return super(dLabel, self)._getFontItalic()
 
@@ -100,7 +101,6 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
         if self._constructed():
             # This will force an auto-resize
             self.SetLabel(self.GetLabel())
-
 
     def _getFontSize(self):
         return super(dLabel, self)._getFontSize()
@@ -111,13 +111,12 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
             # This will force an auto-resize
             self.SetLabel(self.GetLabel())
 
-
     def _getWordWrap(self):
         return self._wordWrap
 
     def _setWordWrap(self, val):
         if self._constructed():
-            changed = (self._wordWrap != val)
+            changed = self._wordWrap != val
             if not changed:
                 return
             self._wordWrap = val
@@ -138,31 +137,45 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
         else:
             self._properties["WordWrap"] = val
 
-
     # property definitions follow:
-    AutoResize = property(_getAutoResize, _setAutoResize, None,
-            _("""Specifies whether the length of the caption determines
+    AutoResize = property(
+        _getAutoResize,
+        _setAutoResize,
+        None,
+        _(
+            """Specifies whether the length of the caption determines
             the size of the label. This cannot be True if WordWrap is
-            also set to True. Default=True.  (bool)""") )
+            also set to True. Default=True.  (bool)"""
+        ),
+    )
 
-    FontBold = property(_getFontBold, _setFontBold, None,
-            _("Sets the Bold of the Font (int)") )
+    FontBold = property(
+        _getFontBold, _setFontBold, None, _("Sets the Bold of the Font (int)")
+    )
 
-    FontFace = property(_getFontFace, _setFontFace, None,
-            _("Sets the face of the Font (int)") )
+    FontFace = property(
+        _getFontFace, _setFontFace, None, _("Sets the face of the Font (int)")
+    )
 
-    FontItalic = property(_getFontItalic, _setFontItalic, None,
-            _("Sets the Italic of the Font (int)") )
+    FontItalic = property(
+        _getFontItalic, _setFontItalic, None, _("Sets the Italic of the Font (int)")
+    )
 
-    FontSize = property(_getFontSize, _setFontSize, None,
-            _("Sets the size of the Font (int)") )
+    FontSize = property(
+        _getFontSize, _setFontSize, None, _("Sets the size of the Font (int)")
+    )
 
-    WordWrap = property(_getWordWrap, _setWordWrap, None,
-            _("""When True, the Caption is wrapped to the Width. Note
+    WordWrap = property(
+        _getWordWrap,
+        _setWordWrap,
+        None,
+        _(
+            """When True, the Caption is wrapped to the Width. Note
             that the control must have sufficient Height to display any
             wrapped text.
-            Default=False  (bool)"""))
-
+            Default=False  (bool)"""
+        ),
+    )
 
     DynamicFontBold = makeDynamicProperty(FontBold)
     DynamicFontFace = makeDynamicProperty(FontFace)
@@ -195,10 +208,15 @@ if __name__ == "__main__":
             self.Sizer.append1x(pnl)
             sz = pnl.Sizer = dSizer("v")
             sz.appendSpacer(25)
-            self.sampleLabel = dLabel(pnl, Caption="This label has a very long Caption. " * 20,
-                    WordWrap=False)
-            self.wrapControl = dCheckBox(pnl, Caption="WordWrap",
-                    DataSource=self.sampleLabel, DataField="WordWrap")
+            self.sampleLabel = dLabel(
+                pnl, Caption="This label has a very long Caption. " * 20, WordWrap=False
+            )
+            self.wrapControl = dCheckBox(
+                pnl,
+                Caption="WordWrap",
+                DataSource=self.sampleLabel,
+                DataField="WordWrap",
+            )
             sz.append(self.wrapControl, halign="center", border=20)
             sz.append1x(self.sampleLabel, border=10)
             self.update()

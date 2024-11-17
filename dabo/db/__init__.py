@@ -40,30 +40,33 @@ import dabo
 from dabo.dException import FieldNotFoundException
 
 daboTypes = {
-        "C": str,             ## text
-        "M": str,             ## memo (longtext)
-        "I": int,                 ## integer
-        "G": int,                ## long integer
-        "F": float,               ## float
-        "B": bool,                ## boolean (logical)
-        "D": datetime.date,       ## date
-        "T": datetime.datetime,   ## datetime
-        "N": Decimal,             ## decimal (numeric)
-        "L": memoryview,          ## BLOB
-        }
+    "C": str,  ## text
+    "M": str,  ## memo (longtext)
+    "I": int,  ## integer
+    "G": int,  ## long integer
+    "F": float,  ## float
+    "B": bool,  ## boolean (logical)
+    "D": datetime.date,  ## date
+    "T": datetime.datetime,  ## datetime
+    "N": Decimal,  ## decimal (numeric)
+    "L": memoryview,  ## BLOB
+}
 
-pythonTypes = dict([[v,k] for k,v in daboTypes.items()])
+pythonTypes = dict([[v, k] for k, v in daboTypes.items()])
 pythonTypes[str] = "C"
 pythonTypes[str] = "C"
 del Decimal
+
 
 def getPythonType(daboType):
     """Given a char type code like "I" or "C", return the associated Python type."""
     return daboTypes.get(daboType, None)
 
+
 def getDaboType(pythonType):
     """Given a python data type, return the associated Dabo type code."""
     return pythonTypes.get(pythonType, "?")
+
 
 def getDataType(pythonType):
     """
@@ -75,6 +78,7 @@ def getDataType(pythonType):
     if pythonType is float and dabo.convertFloatToDecimal:
         ret = daboTypes["N"]
     return ret
+
 
 def connect(*args, **kwargs):
     """
@@ -129,8 +133,10 @@ def _getRecord(self_):
     def getFieldProp(field_name):
         def fget(self_):
             return self_._cursor.getFieldVal(field_name)
+
         def fset(self_, val):
             self_._cursor.setFieldVal(field_name, val)
+
         return property(fget, fset)
 
     field_aliases = [ds[0] for ds in self_.DataStructure]
@@ -138,5 +144,3 @@ def _getRecord(self_):
     for field_alias in field_aliases:
         setattr(CursorRecord, field_alias, getFieldProp(field_alias))
     return CursorRecord(self_)
-
-

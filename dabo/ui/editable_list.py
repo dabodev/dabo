@@ -14,27 +14,36 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
     Creates an editable list box, complete with buttons to control
     editing, adding/deleting items, and re-ordering them.
     """
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dEditableList
         preClass = wx_adv.EditableListBox
-        self._canAdd = self._extractKey((kwargs, properties, attProperties), "CanAdd", True)
+        self._canAdd = self._extractKey(
+            (kwargs, properties, attProperties), "CanAdd", True
+        )
         if isinstance(self._canAdd, str):
-            self._canAdd = (self._canAdd == "True")
-        self._canDelete = self._extractKey((kwargs, properties, attProperties), "CanDelete", True)
+            self._canAdd = self._canAdd == "True"
+        self._canDelete = self._extractKey(
+            (kwargs, properties, attProperties), "CanDelete", True
+        )
         if isinstance(self._canDelete, str):
-            self._canDelete = (self._canDelete == "True")
-        self._canOrder = self._extractKey((kwargs, properties, attProperties), "CanOrder", True)
+            self._canDelete = self._canDelete == "True"
+        self._canOrder = self._extractKey(
+            (kwargs, properties, attProperties), "CanOrder", True
+        )
         if isinstance(self._canOrder, str):
-            self._canOrder = (self._canOrder == "True")
-        self._editable = self._extractKey((kwargs, properties, attProperties), "Editable", True)
+            self._canOrder = self._canOrder == "True"
+        self._editable = self._extractKey(
+            (kwargs, properties, attProperties), "Editable", True
+        )
         style = self._extractKey((kwargs, properties, attProperties), "style", 0)
         if self._canAdd:
-            #style = style  | wx.gizmos.EL_ALLOW_NEW
-            style = style  | wx.adv.EL_ALLOW_NEW
+            # style = style  | wx.gizmos.EL_ALLOW_NEW
+            style = style | wx.adv.EL_ALLOW_NEW
         if self._editable:
-            style = style  | wx.adv.EL_ALLOW_EDIT
+            style = style | wx.adv.EL_ALLOW_EDIT
         if self._canDelete:
-            style = style  | wx.adv.EL_ALLOW_DELETE
+            style = style | wx.adv.EL_ALLOW_DELETE
         kwargs["style"] = style
         # References to the components of this control
         self._addButton = None
@@ -44,9 +53,15 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
         self._upButton = None
         self._panel = None
 
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
-
+        dControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
 
     def GetValue(self):
         """
@@ -55,7 +70,6 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
         the dControlMixin code which calls GetValue() doesn't barf.
         """
         return None
-
 
     def layout(self):
         """
@@ -67,13 +81,11 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
         if self.Application.Platform == "Win":
             self.refresh()
 
-
     ## property get/set methods follow ##
     def _getAddButton(self):
         if self._addButton is None:
             self._addButton = self.GetNewButton()
         return self._addButton
-
 
     def _getCanAdd(self):
         return self._canAdd
@@ -86,7 +98,6 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
         else:
             self._properties["CanAdd"] = val
 
-
     def _getCanDelete(self):
         return self._canDelete
 
@@ -97,7 +108,6 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
             self.layout()
         else:
             self._properties["CanDelete"] = val
-
 
     def _getCanOrder(self):
         return self._canOrder
@@ -111,7 +121,6 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
             self._properties["CanOrder"] = val
         self.layout()
 
-
     def _getCaption(self):
         return self._Panel.GetChildren()[0].GetLabel()
 
@@ -120,7 +129,6 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
             self._Panel.GetChildren()[0].SetLabel(val)
         else:
             self._properties["Caption"] = val
-
 
     def _getChoices(self):
         return self.GetStrings()
@@ -131,20 +139,15 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
         else:
             self._properties["Choices"] = val
 
-
     def _getDeleteButton(self):
         if self._deleteButton is None:
             self._deleteButton = self.GetDelButton()
         return self._deleteButton
 
-
-
     def _getDownButton(self):
         if self._downButton is None:
             self._downButton = self.GetDownButton()
         return self._downButton
-
-
 
     def _getEditable(self):
         return self._editable
@@ -157,70 +160,103 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
         else:
             self._properties["Editable"] = val
 
-
     def _getEditButton(self):
         if self._editButton is None:
             self._editButton = self.GetEditButton()
         return self._editButton
 
-
-
     def _getPanel(self):
         if self._panel is None:
-            self._panel = [pp for pp in self.Children
-                    if isinstance(pp, wx.Panel)][0]
+            self._panel = [pp for pp in self.Children if isinstance(pp, wx.Panel)][0]
         return self._panel
-
-
 
     def _getUpButton(self):
         if self._upButton is None:
             self._upButton = self.GetUpButton()
         return self._upButton
 
+    _AddButton = property(
+        _getAddButton, None, None, _("Reference to the new item button  (wx.Button)")
+    )
 
-
-    _AddButton = property(_getAddButton, None, None,
-            _("Reference to the new item button  (wx.Button)"))
-
-    CanAdd = property(_getCanAdd, _setCanAdd, None,
-            _("Determines if the user can add new entries to the list  (bool)"))
+    CanAdd = property(
+        _getCanAdd,
+        _setCanAdd,
+        None,
+        _("Determines if the user can add new entries to the list  (bool)"),
+    )
     DynamicCanAdd = makeDynamicProperty(CanAdd)
 
-    CanDelete = property(_getCanDelete, _setCanDelete, None,
-            _("Determines if the user can delete entries from the list  (bool)"))
+    CanDelete = property(
+        _getCanDelete,
+        _setCanDelete,
+        None,
+        _("Determines if the user can delete entries from the list  (bool)"),
+    )
     DynamicCanDelete = makeDynamicProperty(CanDelete)
 
-    CanOrder = property(_getCanOrder, _setCanOrder, None,
-            _("Determines if the user can re-order items  (bool)"))
+    CanOrder = property(
+        _getCanOrder,
+        _setCanOrder,
+        None,
+        _("Determines if the user can re-order items  (bool)"),
+    )
     DynamicCanOrder = makeDynamicProperty(CanOrder)
 
-    Caption = property(_getCaption, _setCaption, None,
-            _("Text that appears in the top panel of the control  (str)"))
+    Caption = property(
+        _getCaption,
+        _setCaption,
+        None,
+        _("Text that appears in the top panel of the control  (str)"),
+    )
     DynamicCaption = makeDynamicProperty(Caption)
 
-    Choices = property(_getChoices, _setChoices, None,
-            _("List that contains the entries in the control  (list)"))
+    Choices = property(
+        _getChoices,
+        _setChoices,
+        None,
+        _("List that contains the entries in the control  (list)"),
+    )
 
-    _DeleteButton = property(_getDeleteButton, None, None,
-            _("Reference to the delete item button  (wx.Button)"))
+    _DeleteButton = property(
+        _getDeleteButton,
+        None,
+        None,
+        _("Reference to the delete item button  (wx.Button)"),
+    )
 
-    _DownButton = property(_getDownButton, None, None,
-            _("Reference to the move item down button  (wx.Button)"))
+    _DownButton = property(
+        _getDownButton,
+        None,
+        None,
+        _("Reference to the move item down button  (wx.Button)"),
+    )
 
-    Editable = property(_getEditable, _setEditable, None,
-            _("Determines if the user can change existing entries  (bool)"))
+    Editable = property(
+        _getEditable,
+        _setEditable,
+        None,
+        _("Determines if the user can change existing entries  (bool)"),
+    )
     DynamicEditable = makeDynamicProperty(Editable)
 
-    _EditButton = property(_getEditButton, None, None,
-            _("Reference to the edit item button  (wx.Button)"))
+    _EditButton = property(
+        _getEditButton, None, None, _("Reference to the edit item button  (wx.Button)")
+    )
 
-    _Panel = property(_getPanel, None, None,
-            _("""Reference to the panel that contains the caption
-            and buttons  (wx.Panel)"""))
+    _Panel = property(
+        _getPanel,
+        None,
+        None,
+        _(
+            """Reference to the panel that contains the caption
+            and buttons  (wx.Panel)"""
+        ),
+    )
 
-    _UpButton = property(_getUpButton, None, None,
-            _("Reference to the move item up button  (wx.Button)"))
+    _UpButton = property(
+        _getUpButton, None, None, _("Reference to the move item up button  (wx.Button)")
+    )
 
 
 dabo.ui.dEditableList = dEditableList
@@ -241,4 +277,5 @@ class _dEditableList_test(dEditableList):
 
 if __name__ == "__main__":
     from dabo.ui import test
+
     test.Test().runTest(_dEditableList_test)

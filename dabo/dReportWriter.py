@@ -8,6 +8,7 @@ from dabo import dEvents as dEvents
 if dabo.implicitImports:
     from dabo import ui as dui
 
+
 # dReportWriter is simply a raw ReportWriter/dObject mixin:
 class dReportWriter(dObject, ReportWriter):
     """The Dabo Report Writer Engine, which mixes a data cursor and a report
@@ -39,7 +40,7 @@ class dReportWriter(dObject, ReportWriter):
         super(dReportWriter, self)._onReportEnd()
         self.raiseEvent(dEvents.ReportEnd)
         self._updateProgress(force=True)
-        #self._hideProgress()  ## Let the form controlling the progress gauge do this (less blinky)
+        # self._hideProgress()  ## Let the form controlling the progress gauge do this (less blinky)
 
     def _onReportIteration(self):
         super(dReportWriter, self)._onReportIteration()
@@ -79,7 +80,6 @@ class dReportWriter(dObject, ReportWriter):
     def _setEncoding(self, val):
         self._encoding = val
 
-
     def _getHomeDirectory(self):
         try:
             v = self._homeDirectory
@@ -89,7 +89,6 @@ class dReportWriter(dObject, ReportWriter):
 
     def _setHomeDirectory(self, val):
         self._homeDirectory = val
-
 
     def _getProgressControl(self):
         try:
@@ -101,27 +100,43 @@ class dReportWriter(dObject, ReportWriter):
     def _setProgressControl(self, val):
         self._progressControl = val
 
+    Encoding = property(
+        _getEncoding,
+        _setEncoding,
+        None,
+        _("Specifies the encoding for unicode strings.  (str)"),
+    )
 
-    Encoding = property(_getEncoding, _setEncoding, None,
-        _("Specifies the encoding for unicode strings.  (str)"))
-
-    HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
-        _("""Specifies the home directory for the report.
+    HomeDirectory = property(
+        _getHomeDirectory,
+        _setHomeDirectory,
+        None,
+        _(
+            """Specifies the home directory for the report.
 
         Resources on disk (image files, etc.) will be looked for relative to the
         HomeDirectory if specified with relative pathing. The HomeDirectory should
         be the directory that contains the report form file. If you set
         self.ReportFormFile, HomeDirectory will be set for you automatically.
-        Otherwise, it will get set to self.Application.HomeDirectory."""))
+        Otherwise, it will get set to self.Application.HomeDirectory."""
+        ),
+    )
 
-    ProgressControl = property(_getProgressControl, _setProgressControl, None,
-        _("""Specifies the control to receive progress updates.
+    ProgressControl = property(
+        _getProgressControl,
+        _setProgressControl,
+        None,
+        _(
+            """Specifies the control to receive progress updates.
 
         The specified control will be updated with every record processed. It must have
         a updateProgress(current_row, num_rows) method.
 
         For the default control, use dabo.ui.dReportProgress.
-        """))
+        """
+        ),
+    )
+
 
 if __name__ == "__main__":
     ## run a test:

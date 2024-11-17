@@ -9,15 +9,15 @@ from dabo.ui import dPanel
 
 class dTimer(PM):
     """Creates a timer, for causing something to happen at regular intervals."""
+
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         self._baseClass = dTimer
-        super(dTimer, self).__init__(preClass=None, parent=parent,
-                properties=properties, *args, **kwargs)
-
+        super(dTimer, self).__init__(
+            preClass=None, parent=parent, properties=properties, *args, **kwargs
+        )
 
     def isRunning(self):
         return self.Enabled
-
 
     def start(self, interval=-1):
         if interval >= 0:
@@ -25,38 +25,38 @@ class dTimer(PM):
         self.Enabled = self.Interval > 0
         return self.Enabled
 
-
     def stop(self):
         self.Enabled = False
-
 
     def release(self):
         """Make sure that the timer is stopped first"""
         self.stop()
         super(dTimer, self).release()
 
-
     # The following methods are not needed except for
     # compatibility with the various properties.
     def Show(self, val):
         pass
+
     def GetSize(self):
         return (-1, -1)
+
     def SetBestFittingSize(self, val):
         pass
+
     def GetParent(self):
         return None
+
     def Bind(self, *args, **kwargs):
         pass
+
     def Destroy(self):
         pass
-
 
     def _onTimerHit(self):
         if self.Enabled and self.Interval > 0:
             self.raiseEvent(dEvents.Hit)
             dabo.ui.callAfterInterval(self.Interval, self._onTimerHit)
-
 
     # property get/set functions
     def _getEnabled(self):
@@ -69,7 +69,6 @@ class dTimer(PM):
         else:
             self._properties["Enabled"] = val
 
-
     def _getInterval(self):
         try:
             v = self._interval
@@ -80,15 +79,23 @@ class dTimer(PM):
     def _setInterval(self, val):
         self._interval = val
 
-
-    Enabled = property(_getEnabled, _setEnabled, None,
-            _("""Alternative means of starting/stopping the timer, or determining
+    Enabled = property(
+        _getEnabled,
+        _setEnabled,
+        None,
+        _(
+            """Alternative means of starting/stopping the timer, or determining
             its status. If Enabled is set to True and the timer has a positive value
-            for its Interval, the timer will be started.  (bool)"""))
+            for its Interval, the timer will be started.  (bool)"""
+        ),
+    )
 
-    Interval = property(_getInterval, _setInterval, None,
-            _("Specifies the timer interval (milliseconds)."))
-
+    Interval = property(
+        _getInterval,
+        _setInterval,
+        None,
+        _("Specifies the timer interval (milliseconds)."),
+    )
 
     DynamicEnabled = makeDynamicProperty(Enabled)
     DynamicInterval = makeDynamicProperty(Interval)
@@ -117,4 +124,5 @@ class _dTimer_test(dPanel):
 
 if __name__ == "__main__":
     from dabo.ui import test
+
     test.Test().runTest(_dTimer_test)

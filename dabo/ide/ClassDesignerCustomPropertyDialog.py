@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import dabo.ui
 import dabo.dEvents as dEvents
+
 # This is because I'm a lazy typist
 dui = dabo.ui
 from dabo.dLocalize import _
@@ -29,10 +30,12 @@ class ClassDesignerCustomPropertyDialog(dOkCancelDialog):
         sz.append(self.txtComment, "x")
 
         lbl = dLabel(self, Caption=_("Default Value"))
-        self.txtDefaultVal = dTextBox(self, SelectOnEntry=True, Value=None,
-                OnKeyChar=self.updEnabled)
-        self.ddType = dDropdownList(self, Choices=["", "string",
-                "integer", "float", "boolean", "datetime"])
+        self.txtDefaultVal = dTextBox(
+            self, SelectOnEntry=True, Value=None, OnKeyChar=self.updEnabled
+        )
+        self.ddType = dDropdownList(
+            self, Choices=["", "string", "integer", "float", "boolean", "datetime"]
+        )
         self.ddType.PositionValue = 0
         sz.append(lbl, halign="right")
         hsz = dSizer("h")
@@ -40,8 +43,7 @@ class ClassDesignerCustomPropertyDialog(dOkCancelDialog):
         hsz.append(self.ddType, halign="right", border=5, borderSides="left")
         sz.append(hsz, "x")
 
-        self.chkGet = chk = dCheckBox(self, Alignment="right",
-                Caption=_("Get Method"))
+        self.chkGet = chk = dCheckBox(self, Alignment="right", Caption=_("Get Method"))
         self.txtGet = dTextBox(self, SelectOnEntry=True)
         sz.append(chk, halign="right")
         sz.append(self.txtGet, "x")
@@ -49,8 +51,7 @@ class ClassDesignerCustomPropertyDialog(dOkCancelDialog):
         chk.DataField = "Enabled"
         chk.Value = True
 
-        self.chkSet = chk = dCheckBox(self, Alignment="right",
-                Caption=_("Set Method"))
+        self.chkSet = chk = dCheckBox(self, Alignment="right", Caption=_("Set Method"))
         self.txtSet = dTextBox(self, SelectOnEntry=True)
         sz.append(chk, halign="right")
         sz.append(self.txtSet, "x")
@@ -58,8 +59,7 @@ class ClassDesignerCustomPropertyDialog(dOkCancelDialog):
         chk.DataField = "Enabled"
         chk.Value = True
 
-        self.chkDel = chk = dCheckBox(self, Alignment="right",
-                Caption=_("Del Method"))
+        self.chkDel = chk = dCheckBox(self, Alignment="right", Caption=_("Del Method"))
         self.txtDel = dTextBox(self, SelectOnEntry=True)
         sz.append(chk, halign="right")
         sz.append(self.txtDel, "x")
@@ -75,10 +75,8 @@ class ClassDesignerCustomPropertyDialog(dOkCancelDialog):
         self.Caption = _("Custom Property Definition")
         self.update()
 
-
     def onKeyPropName(self, evt):
         dabo.ui.callAfter(self.createPropNames)
-
 
     def createPropNames(self):
         """Occurs when the user types anything in the Prop Name textbox."""
@@ -103,7 +101,6 @@ class ClassDesignerCustomPropertyDialog(dOkCancelDialog):
             self.txtDel.Value = delName
         self.txtPropName.InsertionPosition = pos
         self.refresh()
-
 
     def setData(self, dct):
         """This method receives a dict containing the various
@@ -134,7 +131,6 @@ class ClassDesignerCustomPropertyDialog(dOkCancelDialog):
         self.createPropNames()
         dabo.ui.callAfter(self.refresh)
 
-
     def getData(self):
         """This method returns a dict containing the various
         property values as the keys.
@@ -158,15 +154,12 @@ class ClassDesignerCustomPropertyDialog(dOkCancelDialog):
             ret["deller"] = None
         return ret
 
-
     def needDefType(self):
         ret = bool(self.txtDefaultVal.Value)
         return ret
 
-
     def updEnabled(self, evt):
         dabo.ui.callAfterInterval(500, self.setEnabled)
-
 
     def setEnabled(self):
         hasDefault = bool(self.txtDefaultVal.Value)

@@ -21,22 +21,40 @@ from dabo.ui import makeProxyProperty
 
 class _dSpinButton(dDataControlMixin, wx.SpinButton):
     """Simple wrapper around the base wx.SpinButton."""
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = _dSpinButton
         preClass = wx.SpinButton
         kwargs["style"] = kwargs.get("style", 0) | wx.SP_ARROW_KEYS
-        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
+        dDataControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
         if sys.platform.startswith("win"):
             # otherwise, the arrows are way too wide (34)
             self.Width = 17
+
 
 class dSpinner(dDataPanel, wx.Control):
     """
     Control for allowing a user to increment a value by discreet steps across a range
     of valid values.
     """
-    def __init__(self, parent, properties=None, attProperties=None, TextBoxClass=None, *args, **kwargs):
+
+    def __init__(
+        self,
+        parent,
+        properties=None,
+        attProperties=None,
+        TextBoxClass=None,
+        *args,
+        **kwargs,
+    ):
         self.__constructed = False
         self._spinWrap = False
         self._min = 0
@@ -44,15 +62,23 @@ class dSpinner(dDataPanel, wx.Control):
         self._increment = 1
         nm = self._extractKey((properties, attProperties, kwargs), "NameBase", "")
         if not nm:
-            nm = self._extractKey((properties, attProperties, kwargs), "Name", "dSpinner")
-        super(dSpinner, self).__init__(parent=parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
+            nm = self._extractKey(
+                (properties, attProperties, kwargs), "Name", "dSpinner"
+            )
+        super(dSpinner, self).__init__(
+            parent=parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
         self._baseClass = dSpinner
         # Create the child controls
         if TextBoxClass is None:
             TextBoxClass = dTextBox
-        self._proxy_textbox = TextBoxClass(self, Value=0, Width=32,
-                StrictNumericEntry=False, _EventTarget=self)
+        self._proxy_textbox = TextBoxClass(
+            self, Value=0, Width=32, StrictNumericEntry=False, _EventTarget=self
+        )
         self._proxy_spinner = _dSpinButton(parent=self, _EventTarget=self)
         self.__constructed = True
         self.Sizer = dSizer("h")
@@ -69,16 +95,16 @@ class dSpinner(dDataPanel, wx.Control):
         ps = self._proxy_spinner
         pt = self._proxy_textbox
         # Set an essentially infinite range. We'll handle the range ourselves.
-        ps.SetRange(-2 ** 30, 2 ** 30)
+        ps.SetRange(-(2**30), 2**30)
         # We'll also control wrapping ourselves
         self._proxy_spinner._addWindowStyleFlag(wx.SP_WRAP)
         ps.Bind(wx.EVT_SPIN_UP, self.__onWxSpinUp)
         ps.Bind(wx.EVT_SPIN_DOWN, self.__onWxSpinDown)
-        #ps.Bind(wx.EVT_SPIN, self._onWxHit)
+        # ps.Bind(wx.EVT_SPIN, self._onWxHit)
         pt.Bind(wx.EVT_TEXT, self._onWxHit)
         pt.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
         ps.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
-        #self.bindEvent(dEvents.KeyChar, self._onChar)
+        # self.bindEvent(dEvents.KeyChar, self._onChar)
         self._rerestoreValue()
         dui.callAfter(self.layout)
 
@@ -98,16 +124,13 @@ class dSpinner(dDataPanel, wx.Control):
         """Returns True if the ui object has been fully created yet, False otherwise."""
         return self.__constructed
 
-
     def _toDec(self, val):
         """Convenience method for converting various types to decimal."""
         return decimal(ustr(val))
 
-
     def _toFloat(self, val):
         """Convenience method for converting various types to float."""
         return float(ustr(val))
-
 
     def _coerceTypes(self, newVal, minn, maxx, margin):
         """
@@ -129,7 +152,6 @@ class dSpinner(dDataPanel, wx.Control):
                 minn = float(minn)
         return minn, maxx, margin
 
-
     def _applyIncrement(self, op):
         """
         Returns the value obtained by modifying the current value by the increment
@@ -148,7 +170,6 @@ class dSpinner(dDataPanel, wx.Control):
             elif tCurr == float:
                 ret = op(curr, self._toFloat(inc))
         return ret
-
 
     def _spin(self, direction, spinType=None):
         assert direction in ("up", "down")
@@ -199,7 +220,6 @@ class dSpinner(dDataPanel, wx.Control):
         self.raiseEvent(dEvents.Hit, hitType=spinType)
         return ret
 
-
     def __onWxSpinUp(self, evt):
         """Respond to the wx event by raising the Dabo event."""
         self._spin("up", spinType="button")
@@ -208,14 +228,12 @@ class dSpinner(dDataPanel, wx.Control):
         """Respond to the wx event by raising the Dabo event."""
         self._spin("down", spinType="button")
 
-
     def _checkBounds(self):
         """Make sure that the value is within the current Min/Max"""
         if self._proxy_textbox.Value < self.Min:
             self._proxy_textbox.Value = self._proxy_spinner.Value = self.Min
         elif self._proxy_textbox.Value > self.Max:
             self._proxy_textbox.Value = self._proxy_spinner.Value = self.Max
-
 
     def _onWxHit(self, evt):
         # Determine what type of event caused Hit to be raised.
@@ -226,7 +244,6 @@ class dSpinner(dDataPanel, wx.Control):
         else:
             typ = "spin"
         super(dSpinner, self)._onWxHit(evt, hitType=typ)
-
 
     def _onWxKeyDown(self, evt):
         """
@@ -241,11 +258,9 @@ class dSpinner(dDataPanel, wx.Control):
         else:
             evt.Skip()
 
-
     def flushValue(self):
         self._checkBounds()
         super(dSpinner, self).flushValue()
-
 
     def _numericStringVal(self, val):
         """
@@ -264,25 +279,20 @@ class dSpinner(dDataPanel, wx.Control):
                 ret = None
         return ret
 
-
     def fontZoomIn(self, amt=1):
         """Zoom in on the font, by setting a higher point size."""
         self._proxy_textbox._setRelativeFontZoom(amt)
-
 
     def fontZoomOut(self, amt=1):
         """Zoom out on the font, by setting a lower point size."""
         self._proxy_textbox._setRelativeFontZoom(-amt)
 
-
     def fontZoomNormal(self):
         """Reset the font zoom back to zero."""
         self._proxy_textbox._setAbsoluteFontZoom(0)
 
-
     def getBlankValue(self):
         return 0
-
 
     # Property get/set definitions begin here
     def _getButtonWidth(self):
@@ -299,7 +309,6 @@ class dSpinner(dDataPanel, wx.Control):
         # control, which our user doesn't want.
         return []
 
-
     def _getIncrement(self):
         return self._increment
 
@@ -308,7 +317,6 @@ class dSpinner(dDataPanel, wx.Control):
             self._increment = val
         else:
             self._properties["Increment"] = val
-
 
     def _getMax(self):
         return self._max
@@ -320,7 +328,6 @@ class dSpinner(dDataPanel, wx.Control):
         else:
             self._properties["Max"] = val
 
-
     def _getMin(self):
         return self._min
 
@@ -331,7 +338,6 @@ class dSpinner(dDataPanel, wx.Control):
         else:
             self._properties["Min"] = val
 
-
     def _getSpinnerWrap(self):
         return self._spinWrap
 
@@ -340,7 +346,6 @@ class dSpinner(dDataPanel, wx.Control):
             self._spinWrap = val
         else:
             self._properties["SpinnerWrap"] = val
-
 
     def _getValue(self):
         try:
@@ -356,51 +361,78 @@ class dSpinner(dDataPanel, wx.Control):
             else:
                 numVal = self._numericStringVal(val)
                 if numVal is None:
-                    dabo.log.error(_("Spinner values must be numeric. Invalid:'%s'") % val)
+                    dabo.log.error(
+                        _("Spinner values must be numeric. Invalid:'%s'") % val
+                    )
                 else:
                     self._proxy_textbox.Value = val
             self._proxy_textbox._inDataUpdate = False
         else:
             self._properties["Value"] = val
 
+    ButtonWidth = property(
+        _getButtonWidth,
+        _setButtonWidth,
+        None,
+        _(
+            """Allows the developer to explicitly specify the width of the up/down buttons."""
+        ),
+    )
 
-
-    ButtonWidth = property(_getButtonWidth, _setButtonWidth, None,
-            _("""Allows the developer to explicitly specify the width of the up/down buttons."""))
-
-    Children = property(_getChildren, None, None,
-            _("""Returns a list of object references to the children of
+    Children = property(
+        _getChildren,
+        None,
+        None,
+        _(
+            """Returns a list of object references to the children of
             this object. Only applies to containers. Children will be None for
-            non-containers.  (list or None)"""))
+            non-containers.  (list or None)"""
+        ),
+    )
 
-    Increment = property(_getIncrement, _setIncrement, None,
-            _("Amount the control's value changes when the spinner buttons are clicked  (int/float)"))
+    Increment = property(
+        _getIncrement,
+        _setIncrement,
+        None,
+        _(
+            "Amount the control's value changes when the spinner buttons are clicked  (int/float)"
+        ),
+    )
 
-    Max = property(_getMax, _setMax, None,
-            _("Maximum value for the control  (int/float)"))
+    Max = property(
+        _getMax, _setMax, None, _("Maximum value for the control  (int/float)")
+    )
 
-    Min = property(_getMin, _setMin, None,
-            _("Minimum value for the control  (int/float)"))
+    Min = property(
+        _getMin, _setMin, None, _("Minimum value for the control  (int/float)")
+    )
 
-    SpinnerWrap = property(_getSpinnerWrap, _setSpinnerWrap, None,
-            _("Specifies whether the spinner value wraps at the high/low value. (bool)"))
+    SpinnerWrap = property(
+        _getSpinnerWrap,
+        _setSpinnerWrap,
+        None,
+        _("Specifies whether the spinner value wraps at the high/low value. (bool)"),
+    )
 
-    Value = property(_getValue, _setValue, None,
-            _("Value of the control  (int/float)"))
-
+    Value = property(_getValue, _setValue, None, _("Value of the control  (int/float)"))
 
     DynamicIncrement = makeDynamicProperty(Increment)
     DynamicMax = makeDynamicProperty(Max)
     DynamicMin = makeDynamicProperty(Min)
     DynamicSpinnerWrap = makeDynamicProperty(SpinnerWrap)
 
-
     # Pass-through props. These are simply ways of exposing the text control's props
     # through this control
     _proxyDict = {}
-    Alignment = makeProxyProperty(_proxyDict, "Alignment", "_proxy_textbox",)
+    Alignment = makeProxyProperty(
+        _proxyDict,
+        "Alignment",
+        "_proxy_textbox",
+    )
     BackColor = makeProxyProperty(_proxyDict, "BackColor", ("_proxy_textbox", "self"))
-    Enabled = makeProxyProperty(_proxyDict, "Enabled", ("self", "_proxy_spinner", "_proxy_textbox"))
+    Enabled = makeProxyProperty(
+        _proxyDict, "Enabled", ("self", "_proxy_spinner", "_proxy_textbox")
+    )
     Font = makeProxyProperty(_proxyDict, "Font", "_proxy_textbox")
     FontInfo = makeProxyProperty(_proxyDict, "FontInfo", "_proxy_textbox")
     FontSize = makeProxyProperty(_proxyDict, "FontSize", "_proxy_textbox")
@@ -409,11 +441,17 @@ class dSpinner(dDataPanel, wx.Control):
     FontItalic = makeProxyProperty(_proxyDict, "FontItalic", "_proxy_textbox")
     FontUnderline = makeProxyProperty(_proxyDict, "FontUnderline", "_proxy_textbox")
     ForeColor = makeProxyProperty(_proxyDict, "ForeColor", "_proxy_textbox")
-    Height = makeProxyProperty(_proxyDict, "Height", ("self", "_proxy_spinner", "_proxy_textbox"))
+    Height = makeProxyProperty(
+        _proxyDict, "Height", ("self", "_proxy_spinner", "_proxy_textbox")
+    )
     ReadOnly = makeProxyProperty(_proxyDict, "ReadOnly", "_proxy_textbox")
     SelectOnEntry = makeProxyProperty(_proxyDict, "SelectOnEntry", "_proxy_textbox")
-    ToolTipText = makeProxyProperty(_proxyDict, "ToolTipText", ("self", "_proxy_spinner", "_proxy_textbox"))
-    Visible = makeProxyProperty(_proxyDict, "Visible", ("self", "_proxy_spinner", "_proxy_textbox"))
+    ToolTipText = makeProxyProperty(
+        _proxyDict, "ToolTipText", ("self", "_proxy_spinner", "_proxy_textbox")
+    )
+    Visible = makeProxyProperty(
+        _proxyDict, "Visible", ("self", "_proxy_spinner", "_proxy_textbox")
+    )
 
 
 dabo.ui.dSpinner = dSpinner
@@ -454,21 +492,24 @@ if __name__ == "__main__":
     from dabo.ui import dForm
 
     class Test(dForm):
-        def OH(self, evt): print("HIT")
+        def OH(self, evt):
+            print("HIT")
 
-            
-            
         def afterInitAll(self):
-            #self.Sizer = vs = dSizer('v')
-            #hs = dSizer('h')
-            self.spn = _dSpinner_test(self, Value=3, OnHit=self.OH,)
-            #hs.append(self.spn,1)
-            #hs1 = dSizer('h')
+            # self.Sizer = vs = dSizer('v')
+            # hs = dSizer('h')
+            self.spn = _dSpinner_test(
+                self,
+                Value=3,
+                OnHit=self.OH,
+            )
+            # hs.append(self.spn,1)
+            # hs1 = dSizer('h')
             self.spn2 = dSpinner(self, Value=3, Max=10, Min=1, Top=75, Width=100)
-            #hs1.append(self.spn,1)
-            #vs.append(hs)
-            #vs.appendSpacer(10)
-            #vs.append(hs1)
+            # hs1.append(self.spn,1)
+            # vs.append(hs)
+            # vs.appendSpacer(10)
+            # vs.append(hs1)
 
     app = dApp(MainFormClass=Test)
     app.start()

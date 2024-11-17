@@ -4,6 +4,7 @@ import dabo
 import dabo.dException as dException
 from dabo.lib import getRandomUUID
 
+
 class Test_Many_To_Many(unittest.TestCase):
     def setUp(self):
         self.conn = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
@@ -29,31 +30,48 @@ class Test_Many_To_Many(unittest.TestCase):
         pbiz.addMMBizobj(self.company_biz, "employees", "person_id", "company_id")
         pbiz.addMMBizobj(self.fan_club_biz, "membership", "person_id", "fan_club_id")
 
-
     def tearDown(self):
         self.person_biz = self.company_biz = None
 
-
     def createSchema(self):
-        self.crs.execute("create table person (pkid INTEGER PRIMARY KEY AUTOINCREMENT, first_name TEXT, last_name TEXT);")
-        self.crs.execute("create table company (pkid INTEGER PRIMARY KEY AUTOINCREMENT, company TEXT);")
-        self.crs.execute("create table employees (pkid INTEGER PRIMARY KEY AUTOINCREMENT, person_id INT, company_id INT);")
-        self.crs.execute("insert into person (first_name, last_name) values ('Ed', 'Leafe')")
-        self.crs.execute("insert into person (first_name, last_name) values ('Paul', 'McNett')")
+        self.crs.execute(
+            "create table person (pkid INTEGER PRIMARY KEY AUTOINCREMENT, first_name TEXT, last_name TEXT);"
+        )
+        self.crs.execute(
+            "create table company (pkid INTEGER PRIMARY KEY AUTOINCREMENT, company TEXT);"
+        )
+        self.crs.execute(
+            "create table employees (pkid INTEGER PRIMARY KEY AUTOINCREMENT, person_id INT, company_id INT);"
+        )
+        self.crs.execute(
+            "insert into person (first_name, last_name) values ('Ed', 'Leafe')"
+        )
+        self.crs.execute(
+            "insert into person (first_name, last_name) values ('Paul', 'McNett')"
+        )
         self.crs.execute("insert into company (company) values ('Acme Manufacturing')")
 
-        self.crs.execute("create table fan_club (pkid INTEGER PRIMARY KEY AUTOINCREMENT, performer TEXT);")
-        self.crs.execute("create table membership (pkid INTEGER PRIMARY KEY AUTOINCREMENT, person_id INT, fan_club_id INT);")
+        self.crs.execute(
+            "create table fan_club (pkid INTEGER PRIMARY KEY AUTOINCREMENT, performer TEXT);"
+        )
+        self.crs.execute(
+            "create table membership (pkid INTEGER PRIMARY KEY AUTOINCREMENT, person_id INT, fan_club_id INT);"
+        )
         self.crs.execute("insert into fan_club (performer) values ('Green Day')")
         self.crs.execute("insert into fan_club (performer) values ('The Clash')")
         self.crs.execute("insert into fan_club (performer) values ('Ramones')")
         self.crs.execute("insert into fan_club (performer) values ('Pat Boone')")
 
         # Table with NOT NULL restriction.
-        self.crs.execute("create table restricted (pkid INTEGER PRIMARY KEY AUTOINCREMENT, regular TEXT, nonull TEXT NOT NULL);")
-        self.crs.execute("create table rest_alloc (pkid INTEGER PRIMARY KEY AUTOINCREMENT, person_id INT, restricted_id INT);")
-        self.crs.execute("insert into restricted (regular, nonull) values ('some_value', 'another_value')")
-
+        self.crs.execute(
+            "create table restricted (pkid INTEGER PRIMARY KEY AUTOINCREMENT, regular TEXT, nonull TEXT NOT NULL);"
+        )
+        self.crs.execute(
+            "create table rest_alloc (pkid INTEGER PRIMARY KEY AUTOINCREMENT, person_id INT, restricted_id INT);"
+        )
+        self.crs.execute(
+            "insert into restricted (regular, nonull) values ('some_value', 'another_value')"
+        )
 
     def reccount(self, tbl, filt=None):
         """Please note that SQL injection is consciously ignored here. These
@@ -65,7 +83,6 @@ class Test_Many_To_Many(unittest.TestCase):
             self.crs.execute("select count(*) as cnt from %s" % tbl)
         return self.crs.Record.cnt
 
-
     def test_bad_datasource(self):
         """Ensure that the proper exception is raised when a DataSource is passed
         that does not correspond to an existing relation.
@@ -73,9 +90,13 @@ class Test_Many_To_Many(unittest.TestCase):
         pbiz = self.person_biz
         cbiz = self.company_biz
         pbiz.seek("Leafe", "last_name")
-        self.assertRaises(dException.DataSourceNotFoundException,
-                pbiz.mmAssociateValue, "dummy", "company", "Acme Manufacturing")
-
+        self.assertRaises(
+            dException.DataSourceNotFoundException,
+            pbiz.mmAssociateValue,
+            "dummy",
+            "company",
+            "Acme Manufacturing",
+        )
 
     def test_associate(self):
         """Verify that bizobj.mmAssociateValue() works correctly."""
@@ -90,7 +111,6 @@ class Test_Many_To_Many(unittest.TestCase):
         pbiz.mmAssociateValue(cbiz, "company", "Amalgamated Industries")
         # Company count should have increased
         self.assertEqual(self.reccount("company"), 2)
-
 
     def test_associate_list(self):
         """Verify that bizobj.mmAssociateValues() works correctly."""
@@ -114,7 +134,6 @@ class Test_Many_To_Many(unittest.TestCase):
         # Membership count should have increased by 1
         self.assertEqual(self.reccount("membership"), orig_fan_count + 3)
 
-
     def test_dissociate(self):
         """Verify that bizobj.mmDisssociateValue() works correctly."""
         pbiz = self.person_biz
@@ -131,21 +150,24 @@ class Test_Many_To_Many(unittest.TestCase):
         emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
         self.assertEqual(emp_count, 1)
 
-
     def test_dissociate_list(self):
         """Verify that bizobj.mmDisssociateValues() works correctly."""
         pbiz = self.person_biz
         cbiz = self.company_biz
         pbiz.seek("Leafe", "last_name")
         leafe_pk = pbiz.getPK()
-        pbiz.mmAssociateValues(cbiz, "company", ["Acme Manufacturing", "Amalgamated Industries",
-                "Dabo Incorporated"])
+        pbiz.mmAssociateValues(
+            cbiz,
+            "company",
+            ["Acme Manufacturing", "Amalgamated Industries", "Dabo Incorporated"],
+        )
         emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
         self.assertEqual(emp_count, 3)
-        pbiz.mmDisssociateValues(cbiz, "company", ["Acme Manufacturing", "Amalgamated Industries"])
+        pbiz.mmDisssociateValues(
+            cbiz, "company", ["Acme Manufacturing", "Amalgamated Industries"]
+        )
         emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
         self.assertEqual(emp_count, 1)
-
 
     def test_dissociateAll(self):
         """Verify that bizobj.mmDisssociateAll() works correctly."""
@@ -166,7 +188,6 @@ class Test_Many_To_Many(unittest.TestCase):
         emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
         self.assertEqual(emp_count, 0)
 
-
     def test_full_associate(self):
         """Verify that bizobj.mmSetFullAssociation() works correctly."""
         pbiz = self.person_biz
@@ -183,7 +204,6 @@ class Test_Many_To_Many(unittest.TestCase):
         pbiz.mmSetFullAssociation(cbiz, "company", ["yy", "zz"])
         emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
         self.assertEqual(emp_count, 2)
-
 
     def test_add_to_both(self):
         """Verify that bizobj.mmAddToBoth() works correctly."""
@@ -243,7 +263,6 @@ class Test_Many_To_Many(unittest.TestCase):
         emp_count = self.reccount("employees")
         self.assertEqual(emp_count, 4)
 
-
     def test_reverse_mm_relationship(self):
         """Add the person bizobj to the company bizobj as a MM target."""
         pbiz = self.person_biz
@@ -260,7 +279,6 @@ class Test_Many_To_Many(unittest.TestCase):
         pbiz.mmAssociateValue(cbiz, "company", "Amalgamated Industries")
         # Company count should have increased
         self.assertEqual(self.reccount("company"), 2)
-
 
     def test_multiple_mm_relationships(self):
         """Make sure that more than one MM relationship works as expected."""
@@ -293,7 +311,6 @@ class Test_Many_To_Many(unittest.TestCase):
         # Employee count should not have changed
         self.assertEqual(self.reccount("employees"), 1)
 
-
     def test_get_associated_values(self):
         """Ensure that the mmGetAssociatedValues() method works correctly."""
         pbiz = self.person_biz
@@ -312,7 +329,6 @@ class Test_Many_To_Many(unittest.TestCase):
         recs = fbiz.mmGetAssociatedValues(pbiz, "first_name")
         self.assertEqual(len(recs), 0)
 
-
     def test_add_remove_mm_relationship(self):
         """Ensures that addMMBizobj() and removeMMBizobj() work correctly."""
         pbiz = self.person_biz
@@ -323,16 +339,15 @@ class Test_Many_To_Many(unittest.TestCase):
         pbiz.removeMMBizobj(rbiz)
         self.assertEqual(len(pbiz._associations), num_orig_assoc)
 
-
     def test_db_insert_fails(self):
         """If adding a value is not successful, ensure that the proper error is raised."""
         pbiz = self.person_biz
         rbiz = self.restricted_biz
         pbiz.addMMBizobj(rbiz, "rest_alloc", "person_id", "restricted_id")
-        self.assertRaises(dException.DBQueryException, pbiz.mmAssociateValue,
-                rbiz, "regular", "test")
+        self.assertRaises(
+            dException.DBQueryException, pbiz.mmAssociateValue, rbiz, "regular", "test"
+        )
         pbiz.removeMMBizobj(rbiz)
-
 
 
 if __name__ == "__main__":

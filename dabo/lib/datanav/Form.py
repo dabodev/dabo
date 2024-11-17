@@ -10,6 +10,7 @@ from dabo.lib import reportUtils
 from . import PageFrame
 from . import Page
 from . import Grid
+
 # See if the reporting libraries are present
 _has_reporting_libs = True
 try:
@@ -31,19 +32,21 @@ class Form(dui.dForm):
             + Edit     : Edit the current record in the result set.
 
     """
+
     def initProperties(self):
         self.AutoUpdateStatusText = True
         self.ShowToolBar = True
         self.Size = (640, 480)
 
     def afterInit(self):
-        if self.FormType == 'PickList':
+        if self.FormType == "PickList":
             # The form is a picklist, which pops up so the user can choose a record,
             # and then hides itself afterwards. In addition, the picklist should hide
             # itself when other certain conditions are met.
 
             def _onHide(evt):
                 dui.callAfter(self.hide)
+
             # Pressing Esc hides the form
             self.bindKey("esc", _onHide)
 
@@ -59,7 +62,6 @@ class Form(dui.dForm):
         if not self.Testing and not self.Modal:
             self.setupToolBar()
             self.setupMenu()
-
 
     def save(self, dataSource=None):
         ## The bizobj may have made some changes to the data during the save, so
@@ -80,9 +82,20 @@ class Form(dui.dForm):
     def setupSaveCancelButtons(self):
         vs = self.Sizer
         hs = dui.dSizer("h")
-        hs.append(dui.dButton(self, Caption=_("Save Changes"), DefaultButton=True, OnHit=self.onSave))
-        hs.appendSpacer((3,0))
-        hs.append(dui.dButton(self, Caption=_("Cancel Changes"), CancelButton=True, OnHit=self.onCancel))
+        hs.append(
+            dui.dButton(
+                self, Caption=_("Save Changes"), DefaultButton=True, OnHit=self.onSave
+            )
+        )
+        hs.appendSpacer((3, 0))
+        hs.append(
+            dui.dButton(
+                self,
+                Caption=_("Cancel Changes"),
+                CancelButton=True,
+                OnHit=self.onCancel,
+            )
+        )
         vs.append(hs, alignment="right")
 
     def setupToolBar(self):
@@ -104,47 +117,104 @@ class Form(dui.dForm):
         tb.SetToolBitmapSize(iconSize)  ## need to abstract in dToolBar!
         iconPath = "themes/tango/%sx%s" % iconSize
 
-        if self.FormType != 'Edit':
-            self.appendToolBarButton("First", "%s/actions/go-first.png" % iconPath,
-                    OnHit=self.onFirst,    tip=_("First"), help=_("Go to the first record"))
-            self.appendToolBarButton("Prior", "%s/actions/go-previous.png" % iconPath,
-                    OnHit=self.onPrior,    tip=_("Prior"), help=_("Go to the prior record"))
-            self.appendToolBarButton("Requery", "%s/actions/view-refresh.png" % iconPath,
-                    OnHit=self.onRequery,    tip=_("Requery"), help=_("Requery dataset"))
-            self.appendToolBarButton("Next", "%s/actions/go-next.png" % iconPath,
-                    OnHit=self.onNext, tip=_("Next"), help=_("Go to the next record"))
-            self.appendToolBarButton("Last", "%s/actions/go-last.png" % iconPath,
-                    OnHit=self.onLast, tip=_("Last"), help=_("Go to the last record"))
-            tb.appendSeparator()
-
-        if self.FormType == 'Normal':
-            self.appendToolBarButton("New", "%s/actions/document-new.png" % iconPath,
-                    OnHit=self.onNew,    tip=_("New"), help=_("Add a new record"))
-            self.appendToolBarButton("Delete", "%s/actions/edit-delete.png" % iconPath,
-                    OnHit=self.onDelete, tip=_("Delete"), help=_("Delete this record"))
-            tb.appendSeparator()
-
-        if self.FormType != 'PickList':
-            self.appendToolBarButton("Save", "%s/actions/document-save.png" % iconPath,
-                    OnHit=self.onSave, tip=_("Save"), help=_("Save changes"))
-            self.appendToolBarButton("Cancel", "%s/actions/edit-undo.png" % iconPath,
-                    OnHit=self.onCancel, tip=_("Cancel"), help=_("Cancel changes"))
+        if self.FormType != "Edit":
+            self.appendToolBarButton(
+                "First",
+                "%s/actions/go-first.png" % iconPath,
+                OnHit=self.onFirst,
+                tip=_("First"),
+                help=_("Go to the first record"),
+            )
+            self.appendToolBarButton(
+                "Prior",
+                "%s/actions/go-previous.png" % iconPath,
+                OnHit=self.onPrior,
+                tip=_("Prior"),
+                help=_("Go to the prior record"),
+            )
+            self.appendToolBarButton(
+                "Requery",
+                "%s/actions/view-refresh.png" % iconPath,
+                OnHit=self.onRequery,
+                tip=_("Requery"),
+                help=_("Requery dataset"),
+            )
+            self.appendToolBarButton(
+                "Next",
+                "%s/actions/go-next.png" % iconPath,
+                OnHit=self.onNext,
+                tip=_("Next"),
+                help=_("Go to the next record"),
+            )
+            self.appendToolBarButton(
+                "Last",
+                "%s/actions/go-last.png" % iconPath,
+                OnHit=self.onLast,
+                tip=_("Last"),
+                help=_("Go to the last record"),
+            )
             tb.appendSeparator()
 
         if self.FormType == "Normal":
-            self.appendToolBarButton(_("Configure Grid"), "%s/categories/preferences-system.png" % iconPath,
-                    OnHit=self.onConfigGrid, tip=_("Configure Grid"),
-                    help=_("Configure grid columns"))
+            self.appendToolBarButton(
+                "New",
+                "%s/actions/document-new.png" % iconPath,
+                OnHit=self.onNew,
+                tip=_("New"),
+                help=_("Add a new record"),
+            )
+            self.appendToolBarButton(
+                "Delete",
+                "%s/actions/edit-delete.png" % iconPath,
+                OnHit=self.onDelete,
+                tip=_("Delete"),
+                help=_("Delete this record"),
+            )
+            tb.appendSeparator()
 
-            self.appendToolBarButton(_("Quick Report"), "%s/actions/document-print-preview.png" % iconPath,
-                    OnHit=self.onQuickReport, tip=_("Quick Report"), Enabled=_has_reporting_libs,
-                    help=_("Run a Quick Report on the current dataset"))
+        if self.FormType != "PickList":
+            self.appendToolBarButton(
+                "Save",
+                "%s/actions/document-save.png" % iconPath,
+                OnHit=self.onSave,
+                tip=_("Save"),
+                help=_("Save changes"),
+            )
+            self.appendToolBarButton(
+                "Cancel",
+                "%s/actions/edit-undo.png" % iconPath,
+                OnHit=self.onCancel,
+                tip=_("Cancel"),
+                help=_("Cancel changes"),
+            )
+            tb.appendSeparator()
+
+        if self.FormType == "Normal":
+            self.appendToolBarButton(
+                _("Configure Grid"),
+                "%s/categories/preferences-system.png" % iconPath,
+                OnHit=self.onConfigGrid,
+                tip=_("Configure Grid"),
+                help=_("Configure grid columns"),
+            )
+
+            self.appendToolBarButton(
+                _("Quick Report"),
+                "%s/actions/document-print-preview.png" % iconPath,
+                OnHit=self.onQuickReport,
+                tip=_("Quick Report"),
+                Enabled=_has_reporting_libs,
+                help=_("Run a Quick Report on the current dataset"),
+            )
 
             tb.appendSeparator()
-            self.appendToolBarButton(_("Close"), "%s/actions/system-log-out.png" % iconPath,
-                        OnHit=self.Application.onWinClose, tip=_("Close"),
-                        help=_("Close Form"))
-
+            self.appendToolBarButton(
+                _("Close"),
+                "%s/actions/system-log-out.png" % iconPath,
+                OnHit=self.Application.onWinClose,
+                tip=_("Close"),
+                help=_("Close Form"),
+            )
 
     def getMenu(self):
         iconPath = "themes/tango/16x16"
@@ -152,15 +222,21 @@ class Form(dui.dForm):
         menu.Caption = _("&Actions")
         menu.MenuID = "actions"
 
-        menu.append(_("Set Selection &Criteria")+"\tAlt+1",
-                OnHit=self.onSetSelectionCriteria, bmp="%s/actions/system-search.png" % iconPath,
-                ItemID="actions_select",
-                help=_("Set the selection criteria for the recordset."))
+        menu.append(
+            _("Set Selection &Criteria") + "\tAlt+1",
+            OnHit=self.onSetSelectionCriteria,
+            bmp="%s/actions/system-search.png" % iconPath,
+            ItemID="actions_select",
+            help=_("Set the selection criteria for the recordset."),
+        )
 
-        menu.append(_("&Browse Records")+"\tAlt+2",
-                OnHit=self.onBrowseRecords, bmp="%s/actions/format-justify-fill.png" % iconPath,
-                ItemID="actions_browse",
-                help=_("Browse the records in the current recordset."))
+        menu.append(
+            _("&Browse Records") + "\tAlt+2",
+            OnHit=self.onBrowseRecords,
+            bmp="%s/actions/format-justify-fill.png" % iconPath,
+            ItemID="actions_browse",
+            help=_("Browse the records in the current recordset."),
+        )
 
         def onActivatePage(evt):
             self.pageFrame.SelectedPage = evt.EventObject.Tag
@@ -174,30 +250,49 @@ class Form(dui.dForm):
                     tag = self.pageFrame.Pages[index].DataSource
                     help = _("Edit the fields of the currently selected record.")
                 else:
-                    title = "%s\tAlt+%d" % (self.pageFrame.Pages[index].Caption, index + 1)
+                    title = "%s\tAlt+%d" % (
+                        self.pageFrame.Pages[index].Caption,
+                        index + 1,
+                    )
                     onHit = onActivatePage
                     tag = self.pageFrame.Pages[index]
                     help = ""
 
-                menu.append(title, OnHit=onHit, bmp="%s/apps/accessories-text-editor.png" % iconPath,
-                        help=help, Tag=tag, ItemID="actions_edit")
+                menu.append(
+                    title,
+                    OnHit=onHit,
+                    bmp="%s/apps/accessories-text-editor.png" % iconPath,
+                    help=help,
+                    Tag=tag,
+                    ItemID="actions_edit",
+                )
             menu.appendSeparator()
 
         if self.FormType != "Edit":
-            menu.append(_("&Requery")+"\tCtrl+R", OnHit=self.onRequery,
-                    bmp="%s/actions/view-refresh.png" % iconPath,
-                    ItemID="actions_requery",
-                    help=_("Get a new recordset from the backend."), menutype="check")
+            menu.append(
+                _("&Requery") + "\tCtrl+R",
+                OnHit=self.onRequery,
+                bmp="%s/actions/view-refresh.png" % iconPath,
+                ItemID="actions_requery",
+                help=_("Get a new recordset from the backend."),
+                menutype="check",
+            )
 
         if self.FormType != "PickList":
-            menu.append(_("&Save Changes")+"\tCtrl+S", OnHit=self.onSave,
-                    bmp="%s/actions/document-save.png" % iconPath,
-                    ItemID="actions_save",
-                    help=_("Save any changes made to the records."))
-            menu.append(_("&Cancel Changes"), OnHit=self.onCancel,
-                    bmp="%s/actions/edit-undo.png" % iconPath,
-                    ItemID="actions_cancel",
-                    help=_("Cancel any changes made to the records."))
+            menu.append(
+                _("&Save Changes") + "\tCtrl+S",
+                OnHit=self.onSave,
+                bmp="%s/actions/document-save.png" % iconPath,
+                ItemID="actions_save",
+                help=_("Save any changes made to the records."),
+            )
+            menu.append(
+                _("&Cancel Changes"),
+                OnHit=self.onCancel,
+                bmp="%s/actions/edit-undo.png" % iconPath,
+                ItemID="actions_cancel",
+                help=_("Cancel any changes made to the records."),
+            )
             menu.appendSeparator()
 
             # On Mac, altKey is "Ctrl", which translates to "Command". On other
@@ -207,43 +302,64 @@ class Form(dui.dForm):
             if self.Application.Platform.lower() == "mac":
                 altKey = "Ctrl"
 
-            menu.append(_("Select &First Record")+"\t%s+UP" % altKey,
-                    OnHit=self.onFirst, bmp="%s/actions/go-first.png" % iconPath,
-                    ItemID="actions_first",
-                    help=_("Go to the first record in the set."))
-            menu.append(_("Select &Prior Record")+"\t%s+LEFT" % altKey,
-                    OnHit=self.onPrior, bmp="%s/actions/go-previous.png" % iconPath,
-                    ItemID="actions_prior",
-                    help=_("Go to the prior record in the set."))
-            menu.append(_("Select Ne&xt Record")+"\t%s+RIGHT" % altKey,
-                    OnHit=self.onNext, bmp="%s/actions/go-next.png" % iconPath,
-                    ItemID="actions_next",
-                    help=_("Go to the next record in the set."))
-            menu.append(_("Select &Last Record")+"\t%s+DOWN" % altKey,
-                    OnHit=self.onLast, bmp="%s/actions/go-last.png" % iconPath,
-                    ItemID="actions_last",
-                    help=_("Go to the last record in the set."))
+            menu.append(
+                _("Select &First Record") + "\t%s+UP" % altKey,
+                OnHit=self.onFirst,
+                bmp="%s/actions/go-first.png" % iconPath,
+                ItemID="actions_first",
+                help=_("Go to the first record in the set."),
+            )
+            menu.append(
+                _("Select &Prior Record") + "\t%s+LEFT" % altKey,
+                OnHit=self.onPrior,
+                bmp="%s/actions/go-previous.png" % iconPath,
+                ItemID="actions_prior",
+                help=_("Go to the prior record in the set."),
+            )
+            menu.append(
+                _("Select Ne&xt Record") + "\t%s+RIGHT" % altKey,
+                OnHit=self.onNext,
+                bmp="%s/actions/go-next.png" % iconPath,
+                ItemID="actions_next",
+                help=_("Go to the next record in the set."),
+            )
+            menu.append(
+                _("Select &Last Record") + "\t%s+DOWN" % altKey,
+                OnHit=self.onLast,
+                bmp="%s/actions/go-last.png" % iconPath,
+                ItemID="actions_last",
+                help=_("Go to the last record in the set."),
+            )
             menu.appendSeparator()
 
         if self.FormType == "Normal":
-            menu.append(_("&New Record")+"\tCtrl+N", OnHit=self.onNew,
-                    bmp="%s/actions/document-new.png" % iconPath,
-                    ItemID="actions_new",
-                    help=_("Add a new record to the dataset."))
-            menu.append(_("&Delete Current Record"), OnHit=self.onDelete,
-                    bmp="%s/actions/edit-delete" % iconPath,
-                    ItemID="actions_delete",
-                    help=_("Delete the current record from the dataset."))
+            menu.append(
+                _("&New Record") + "\tCtrl+N",
+                OnHit=self.onNew,
+                bmp="%s/actions/document-new.png" % iconPath,
+                ItemID="actions_new",
+                help=_("Add a new record to the dataset."),
+            )
+            menu.append(
+                _("&Delete Current Record"),
+                OnHit=self.onDelete,
+                bmp="%s/actions/edit-delete" % iconPath,
+                ItemID="actions_delete",
+                help=_("Delete the current record from the dataset."),
+            )
             menu.appendSeparator()
 
         if self.FormType != "Edit":
             menu.append(_("Show S&QL"), OnHit=self.onShowSQL)
 
         if self.FormType == "Normal":
-            menu.append(_("Quick &Report"), OnHit=self.onQuickReport,
-                    bmp="%s/actions/document-print-preview.png" % iconPath,
-                    ItemID="actions_quickreport",
-                    DynamicEnabled=self.enableQuickReport)
+            menu.append(
+                _("Quick &Report"),
+                OnHit=self.onQuickReport,
+                bmp="%s/actions/document-print-preview.png" % iconPath,
+                ItemID="actions_quickreport",
+                DynamicEnabled=self.enableQuickReport,
+            )
 
         return menu
 
@@ -252,28 +368,39 @@ class Form(dui.dForm):
             grid = self.PageFrame.Pages[1].BrowseGrid
             ds = grid.DataSet
         except:
-            dui.info(_("Sorry, there are no records in the grid, please requery first."))
+            dui.info(
+                _("Sorry, there are no records in the grid, please requery first.")
+            )
             return
 
-        #cols
+        # cols
         cols = [col.Caption for col in grid.Columns]
 
-        #keys
+        # keys
         keys = [col.DataField for col in grid.Columns]
 
         class GridColumnsDialog(dui.dOkCancelDialog):
-
             def initProperties(self):
                 self.selectedColumns = None
 
             def addControls(self):
-                self.addObject(dui.dLabel, RegID="label",
-                        Caption=_("You can customize grid appearence by selecting\nthe columns you wish to see bellow:"), WordWrap=True)
+                self.addObject(
+                    dui.dLabel,
+                    RegID="label",
+                    Caption=_(
+                        "You can customize grid appearence by selecting\nthe columns you wish to see bellow:"
+                    ),
+                    WordWrap=True,
+                )
 
-                self.addObject(dui.dCheckList, RegID="columns",
-                        Height=150, ValueMode="Key",
-                        Choices=cols,
-                        Keys=keys)
+                self.addObject(
+                    dui.dCheckList,
+                    RegID="columns",
+                    Height=150,
+                    ValueMode="Key",
+                    Choices=cols,
+                    Keys=keys,
+                )
 
                 for col in grid.Columns:
                     if col.Visible:
@@ -294,7 +421,7 @@ class Form(dui.dForm):
         d = GridColumnsDialog(self, Caption=_("Select Columns"))
         d.show()
 
-        #the user has canceled, just return
+        # the user has canceled, just return
         if d.selectedColumns == None:
             return
 
@@ -304,19 +431,16 @@ class Form(dui.dForm):
             else:
                 col.Visible = False
 
-        #release the window
+        # release the window
         d.release()
-
 
     def onDelete(self, evt):
         super(Form, self).onDelete(evt)
         self._afterDeleteOrCancel()
 
-
     def onCancel(self, evt):
         super(Form, self).onCancel(evt)
         self._afterDeleteOrCancel()
-
 
     def _afterDeleteOrCancel(self):
         # If the delete or cancel resulted in 0 records, activate the Select page
@@ -337,7 +461,6 @@ class Form(dui.dForm):
             else:
                 raise
 
-
     def enableQuickReport(self):
         ## Can't enable quick report unless the dataset has been requeried once and
         ## the browse grid exists (because it gets the layout from the browse grid).
@@ -347,7 +470,6 @@ class Form(dui.dForm):
         except AttributeError:
             ret = False
         return ret
-
 
     def setupMenu(self):
         """
@@ -369,7 +491,6 @@ class Form(dui.dForm):
         menuIndex += 1
 
         mb.insertMenu(menuIndex, self.getMenu())
-
 
     def setupPageFrame(self):
         """
@@ -398,8 +519,9 @@ class Form(dui.dForm):
             pass
 
         if self.beforeSetupPageFrame():
-            self.pageFrame = PageFrame.PageFrame(self, tabStyle=self.PageFrameStyle,
-                    TabPosition=self.PageTabPosition)
+            self.pageFrame = PageFrame.PageFrame(
+                self, tabStyle=self.PageFrameStyle, TabPosition=self.PageTabPosition
+            )
             border = 3
             borderSides = ("top", "left", "right")
             if sys.platform.startswith("darwin"):
@@ -422,8 +544,11 @@ class Form(dui.dForm):
             self.Sizer.layout()
             self.refresh()
 
-    def beforeSetupPageFrame(self): return True
-    def afterSetupPageFrame(self): pass
+    def beforeSetupPageFrame(self):
+        return True
+
+    def afterSetupPageFrame(self):
+        pass
 
     def addEditPages(self, ds):
         """Called when it is time to add the edit page(s)."""
@@ -447,15 +572,14 @@ class Form(dui.dForm):
         # the menu was created.
         self.pageFrame.editByDataSource(evt.EventObject.Tag)
 
-
     def onShowSQL(self, evt):
         sql = self.PrimaryBizobj.LastSQL
         if sql is None:
             sql = "-Nothing executed yet-"
-        dlg = dui.dDialog(self, Caption=_("Last SQL"),
-                SaveRestorePosition=True, BorderResizable=True)
-        eb = dlg.addObject(dui.dEditBox, ReadOnly=True, Value=sql,
-                Size=(400, 400))
+        dlg = dui.dDialog(
+            self, Caption=_("Last SQL"), SaveRestorePosition=True, BorderResizable=True
+        )
+        eb = dlg.addObject(dui.dEditBox, ReadOnly=True, Value=sql, Size=(400, 400))
         for ff in ["Monospace", "Monaco", "Courier New"]:
             try:
                 eb.FontFace = ff
@@ -466,12 +590,12 @@ class Form(dui.dForm):
         dlg.show()
         dlg.release()
 
-
     def onQuickReport(self, evt):
         # May not have records if called via toolbar button
         if not self.enableQuickReport():
-            dui.exclaim(_("Sorry, there are no records to report on."),
-                    title=_("No Records"))
+            dui.exclaim(
+                _("Sorry, there are no records to report on."), title=_("No Records")
+            )
             return
 
         showAdvancedQuickReport = self.ShowAdvancedQuickReport
@@ -485,13 +609,16 @@ class Form(dui.dForm):
                 self.saveNamedReportForm = False
 
             def addControls(self):
-                self.addObject(dui.dRadioList, RegID="radMode",
-                        Caption="Mode",
-                        Orientation="Row",
-                        Choices=["List Format", "Expanded Format"],
-                        ValueMode="Key",
-                        Keys={"list":0, "expanded":1},
-                        SaveRestoreValue=True)
+                self.addObject(
+                    dui.dRadioList,
+                    RegID="radMode",
+                    Caption="Mode",
+                    Orientation="Row",
+                    Choices=["List Format", "Expanded Format"],
+                    ValueMode="Key",
+                    Keys={"list": 0, "expanded": 1},
+                    SaveRestoreValue=True,
+                )
                 self.Sizer.append1x(self.radMode)
                 self.Sizer.appendSpacer(12)
 
@@ -499,14 +626,16 @@ class Form(dui.dForm):
                     self.radMode.enableKey("expanded", False)
                     self.radMode.Value = "list"  ## in case the setting was saved at 'expanded' previously.
 
-                self.addObject(dui.dRadioList, RegID="radRecords",
-                        Caption="Report On",
-                        Orientation="Row",
-                        Choices=["All records in dataset",
-                                "Just current record"],
-                        ValueMode="Key",
-                        Keys={"all":0, "one":1},
-                        SaveRestoreValue=True)
+                self.addObject(
+                    dui.dRadioList,
+                    RegID="radRecords",
+                    Caption="Report On",
+                    Orientation="Row",
+                    Choices=["All records in dataset", "Just current record"],
+                    ValueMode="Key",
+                    Keys={"all": 0, "one": 1},
+                    SaveRestoreValue=True,
+                )
                 self.Sizer.append1x(self.radRecords)
                 self.Sizer.appendSpacer(12)
 
@@ -516,12 +645,15 @@ class Form(dui.dForm):
                     self.btnAdvanced.bindEvent(dEvents.Hit, self.onAdvanced)
 
             def onAdvanced(self, evt):
-                if dui.areYouSure("Would you like to save the report form xml "
-                        "(rfxml) to your application's reports directory? If you say "
-                        "'yes', you'll be able to modify the file and it will be used "
-                        "as the Quick Report from now on (it will no longer be auto-"
-                        "generated). The file will be generated when you click 'Yes'."
-                        "\n\nGenerate the report form file?", cancelButton=False):
+                if dui.areYouSure(
+                    "Would you like to save the report form xml "
+                    "(rfxml) to your application's reports directory? If you say "
+                    "'yes', you'll be able to modify the file and it will be used "
+                    "as the Quick Report from now on (it will no longer be auto-"
+                    "generated). The file will be generated when you click 'Yes'."
+                    "\n\nGenerate the report form file?",
+                    cancelButton=False,
+                ):
                     self.saveNamedReportForm = True
 
             def runOK(self):
@@ -546,9 +678,14 @@ class Form(dui.dForm):
             rfxml = self.getReportForm(mode)
 
             if saveNamedReportForm:
-                filename = os.path.join(self.Application.HomeDirectory, "reports",
-                        "datanav-%s-%s.rfxml" % (biz.DataSource, mode))
-                if not os.path.exists(os.path.join(self.Application.HomeDirectory, "reports")):
+                filename = os.path.join(
+                    self.Application.HomeDirectory,
+                    "reports",
+                    "datanav-%s-%s.rfxml" % (biz.DataSource, mode),
+                )
+                if not os.path.exists(
+                    os.path.join(self.Application.HomeDirectory, "reports")
+                ):
                     os.mkdir(os.path.join(self.Application.HomeDirectory, "reports"))
                 open(filename, "w").write(rfxml)
 
@@ -564,27 +701,31 @@ class Form(dui.dForm):
                 dui.stop("Error importing dReportWriter. Check your terminal output.")
                 return
 
-            rw = drw.dReportWriter(OutputFile=outputfile,
-                    ReportFormXML=rfxml,
-                    Cursor=cursor,
-                    Encoding=biz.Encoding)
+            rw = drw.dReportWriter(
+                OutputFile=outputfile,
+                ReportFormXML=rfxml,
+                Cursor=cursor,
+                Encoding=biz.Encoding,
+            )
             try:
                 rw.write()
             except (UnicodeDecodeError,) as e:
-                #error_string = traceback.format_exc()
+                # error_string = traceback.format_exc()
                 error_string = ustr(e)
                 row_number = rw.RecordNumber
-                dui.stop("There was a problem having to do with the Unicode encoding "
-                        "of your table, and ReportLab's inability to deal with any encoding "
-                        "other than UTF-8. Sorry, but currently we don't have a resolution to "
-                        "the problem, other than to recommend that you convert your data to "
-                        "UTF-8 encoding. Here's the exact error message received:\n\n%s"
-                        "\n\nThis occurred in Record %s of your cursor." % (ustr(e), row_number))
+                dui.stop(
+                    "There was a problem having to do with the Unicode encoding "
+                    "of your table, and ReportLab's inability to deal with any encoding "
+                    "other than UTF-8. Sorry, but currently we don't have a resolution to "
+                    "the problem, other than to recommend that you convert your data to "
+                    "UTF-8 encoding. Here's the exact error message received:\n\n%s"
+                    "\n\nThis occurred in Record %s of your cursor."
+                    % (ustr(e), row_number)
+                )
                 return
 
             # Now, preview using the platform's default pdf viewer:
             reportUtils.previewPDF(outputfile)
-
 
     def setPrimaryBizobjToDefault(self, ds):
         """
@@ -612,7 +753,6 @@ class Form(dui.dForm):
                 # correctly set the matching bizobj.
                 self.PrimaryBizobj = mainTable
 
-
     def getBizobjsToCheck(self):
         """
         The primary bizobj may be for one of the child pages.
@@ -623,13 +763,11 @@ class Form(dui.dForm):
         except AttributeError:
             return [self.PrimaryBizobj]
 
-
     def onRequery(self, evt):
         """
         Override the dForm behavior by running the requery through the select page.
         """
         self.requery()
-
 
     def requery(self, dataSource=None, _fromSelectPage=False):
         if not _fromSelectPage and self.FormType != "Edit":
@@ -639,16 +777,13 @@ class Form(dui.dForm):
             # After the select page does its thing, it calls frm.requery():
             return super(Form, self).requery(dataSource)
 
-
     def onNew(self, evt):
         self.pageFrame.newByDataSource(self.getBizobj().DataSource)
-
 
     def pickRecord(self):
         """This form is a picklist, and the user chose a record in the grid."""
         # Raise Hit event so the originating form can act
         self.raiseEvent(dEvents.Hit)
-
 
     def getReportForm(self, mode):
         """
@@ -674,9 +809,13 @@ class Form(dui.dForm):
                will be as defined in the edit page.
 
         """
+
         def getNamedReportForm(mode):
-            fileName = os.path.join(self.Application.HomeDirectory, "reports",
-                    "datanav-%s-%s.rfxml" % (self.getBizobj().DataSource, mode))
+            fileName = os.path.join(
+                self.Application.HomeDirectory,
+                "reports",
+                "datanav-%s-%s.rfxml" % (self.getBizobj().DataSource, mode),
+            )
             if os.path.exists(fileName):
                 return open(fileName).read()
             return None
@@ -691,7 +830,6 @@ class Form(dui.dForm):
             return self.getAutoReportForm_expanded()
         else:
             raise ValueError("'list' or 'expanded' are the only choices.")
-
 
     def getAutoReportForm_list(self):
         grid = self.PageFrame.Pages[1].BrowseGrid
@@ -741,7 +879,7 @@ class Form(dui.dForm):
             string["FontSize"] = repr(col.HeaderFontSize)
             string["expr"] = repr(col.Caption)
             string["align"] = "'%s'" % hAlign.lower().split(" ")[0]
-            string["x"] = repr(x+horBuffer)
+            string["x"] = repr(x + horBuffer)
             string["y"] = repr(textY)
 
             x += rectWidth
@@ -751,13 +889,13 @@ class Form(dui.dForm):
         # Page Header Title:
         string = rf["PageHeader"].addObject(lrw.String)
         string["Width"] = repr(reportWidth)
-        string["Height"] = '''15.96'''
-        string["FontSize"] = '''14'''
+        string["Height"] = """15.96"""
+        string["FontSize"] = """14"""
         string["expr"] = "self.ReportForm['title']"
         string["align"] = '''"center"'''
         string["hAnchor"] = '''"center"'''
         string["BorderWidth"] = '''"0 pt"'''
-        string["x"] = repr(reportWidth/2)
+        string["x"] = repr(reportWidth / 2)
         string["y"] = '''"0.6 in"'''
 
         # Detail Band:
@@ -795,7 +933,7 @@ class Form(dui.dForm):
             string["Align"] = textHorAlignment
             string["FontSize"] = repr(col.FontSize)
             string["Width"] = repr(col.Width)
-            string["x"] = repr(x+horBuffer)
+            string["x"] = repr(x + horBuffer)
             string["y"] = repr(textY)
 
             x += rectWidth
@@ -821,7 +959,6 @@ class Form(dui.dForm):
             testCursor.addRecord(tRec)
         return rw._getXMLFromForm(rf)
 
-
     def _getAllChildObjects(self, container, objects=None, currentY=0):
         """Get all child objects recursively."""
         if objects is None:
@@ -837,7 +974,6 @@ class Form(dui.dForm):
                 continue
             objects.append(((c.Left, c.Top + currentY), c))
         return objects
-
 
     def getAutoReportForm_expanded(self):
         ep = self.PageFrame.Pages[2]
@@ -885,17 +1021,20 @@ class Form(dui.dForm):
         for obj in objects:
             o = obj[1]
             alignment = o.Alignment
-            maxX = max(maxX, (obj[0][0]+o.Width))
-            obDict = {"Height": o.Height,
-                    "Alignment": o.Alignment.lower(),
-                    "FontSize": o.FontSize,
-                    "Width": o.Width,
-                    "Left": obj[0][0],
-                    "Top": obj[0][1]}
+            maxX = max(maxX, (obj[0][0] + o.Width))
+            obDict = {
+                "Height": o.Height,
+                "Alignment": o.Alignment.lower(),
+                "FontSize": o.FontSize,
+                "Width": o.Width,
+                "Left": obj[0][0],
+                "Top": obj[0][1],
+            }
 
             if isinstance(o, dui.dLabel):
                 obDict["Caption"] = o.Caption
-                rfxml += """
+                rfxml += (
+                    """
             <string>
                 <expr>"%(Caption)s"</expr>
                 <height>%(Height)s</height>
@@ -904,12 +1043,15 @@ class Form(dui.dForm):
                 <width>%(Width)s</width>
                 <x>%(Left)s</x>
                 <y>self.Bands["detail"]["height"] - %(Top)s</y>
-            </string>""" % obDict
+            </string>"""
+                    % obDict
+                )
 
             else:
                 obDict["DataField"] = o.DataField
                 if isinstance(o, dui.dEditBox):
-                    rfxml += """
+                    rfxml += (
+                        """
             <frameset>
                 <x>%(Left)s + 10</x>
                 <y>self.Bands["detail"]["height"] - %(Top)s + 8 </y>
@@ -925,9 +1067,12 @@ class Form(dui.dForm):
                         <align>"%(Alignment)s"</align>
                     </paragraph>
                 </objects>
-            </frameset>""" % obDict
+            </frameset>"""
+                        % obDict
+                    )
                 else:
-                    rfxml += """
+                    rfxml += (
+                        """
             <string>
                 <expr>self.Record["%(DataField)s"]</expr>
                 <height>%(FontSize)s</height>
@@ -937,14 +1082,17 @@ class Form(dui.dForm):
                 <width>%(Width)s</width>
                 <x>%(Left)s + 10</x>
                 <y>self.Bands["detail"]["height"] - %(Top)s</y>
-            </string>""" % obDict
+            </string>"""
+                        % obDict
+                    )
 
         orientation = "portrait"
         if maxX > 504:
             # switch to landscape
             orientation = "landscape"
 
-        rfxml += """
+        rfxml += (
+            """
         </objects>
     </detail>
 
@@ -958,9 +1106,10 @@ class Form(dui.dForm):
     </page>
 
 </report>
-""" % orientation
+"""
+            % orientation
+        )
         return rfxml
-
 
     ## Property get/set code below
     def _getAddChildEditPages(self):
@@ -975,7 +1124,6 @@ class Form(dui.dForm):
         else:
             self._properties["AddChildEditPages"] = val
 
-
     def _getBrowseGridClass(self):
         try:
             val = self._browseGridClass
@@ -987,14 +1135,12 @@ class Form(dui.dForm):
         assert issubclass(val, Grid.Grid)
         self._browseGridClass = val
 
-
     def _getCustomSQL(self):
         return getattr(self, "_customSQL", None)
 
     def _setCustomSQL(self, val):
         assert val is None or isinstance(val, str)
         self._customSQL = val
-
 
     def _getSelectPageClass(self):
         try:
@@ -1006,7 +1152,6 @@ class Form(dui.dForm):
     def _setSelectPageClass(self, val):
         self._selectPageClass = val
 
-
     def _getBrowsePageClass(self):
         try:
             val = self._browsePageClass
@@ -1016,7 +1161,6 @@ class Form(dui.dForm):
 
     def _setBrowsePageClass(self, val):
         self._browsePageClass = val
-
 
     def _getEditPageClass(self):
         try:
@@ -1028,7 +1172,6 @@ class Form(dui.dForm):
     def _setEditPageClass(self, val):
         self._editPageClass = val
 
-
     def _getEnableChildRequeriesWhenBrowsing(self):
         try:
             val = self._enableChildRequeriesWhenBrowsing
@@ -1039,7 +1182,6 @@ class Form(dui.dForm):
     def _setEnableChildRequeriesWhenBrowsing(self, val):
         self._enableChildRequeriesWhenBrowsing = bool(val)
 
-
     def _getEnableChildRequeriesWhenEditing(self):
         try:
             val = self._enableChildRequeriesWhenEditing
@@ -1049,7 +1191,6 @@ class Form(dui.dForm):
 
     def _setEnableChildRequeriesWhenEditing(self, val):
         self._enableChildRequeriesWhenEditing = bool(val)
-
 
     def _getFormType(self):
         try:
@@ -1068,7 +1209,6 @@ class Form(dui.dForm):
         else:
             raise ValueError("Form type must be 'Normal', 'PickList', or 'Edit'.")
 
-
     def _getPageFrameStyle(self):
         if hasattr(self, "_pageFrameStyle"):
             v = self._pageFrameStyle
@@ -1079,7 +1219,6 @@ class Form(dui.dForm):
     def _setPageFrameStyle(self, val):
         assert val.lower() in ("tabs", "list", "select")
         self._pageFrameStyle = val
-
 
     def _getPageTabPosition(self):
         if hasattr(self, "_pageTabPosition"):
@@ -1092,7 +1231,6 @@ class Form(dui.dForm):
         assert val.lower() in ("top", "left", "right", "bottom")
         self._pageTabPosition = val
 
-
     def _getSetFocusToBrowseGrid(self):
         if hasattr(self, "_setFocusToBrowseGrid"):
             v = self._setFocusToBrowseGrid
@@ -1103,13 +1241,11 @@ class Form(dui.dForm):
     def _setSetFocusToBrowseGrid(self, val):
         self._setFocusToBrowseGrid = bool(val)
 
-
     def _getShowAdvancedQuickReport(self):
         return getattr(self, "_showAdvancedQuickReport", True)
 
     def _setShowAdvancedQuickReport(self, val):
         self._showAdvancedQuickReport = bool(val)
-
 
     def _getShowExpandedQuickReport(self):
         return getattr(self, "_showExpandedQuickReport", True)
@@ -1117,13 +1253,11 @@ class Form(dui.dForm):
     def _setShowExpandedQuickReport(self, val):
         self._showExpandedQuickReport = bool(val)
 
-
     def _getShowSortFields(self):
         return getattr(self, "_showSortFields", True)
 
     def _setShowSortFields(self, val):
         self._showSortFields = bool(val)
-
 
     def _getTesting(self):
         return getattr(self, "_testing", False)
@@ -1131,42 +1265,76 @@ class Form(dui.dForm):
     def _setTesting(self, val):
         self._testing = bool(val)
 
-
-
     # Property definitions:
-    AddChildEditPages = property(_getAddChildEditPages, _setAddChildEditPages, None,
-            _("""Should the form automatically add edit pages for child bizobjs?
+    AddChildEditPages = property(
+        _getAddChildEditPages,
+        _setAddChildEditPages,
+        None,
+        _(
+            """Should the form automatically add edit pages for child bizobjs?
 
-            The default is False, and this property may be removed soon."""))
+            The default is False, and this property may be removed soon."""
+        ),
+    )
 
-    BrowseGridClass = property(_getBrowseGridClass, _setBrowseGridClass, None,
-            _("""Specifies the class to use for the browse grid."""))
+    BrowseGridClass = property(
+        _getBrowseGridClass,
+        _setBrowseGridClass,
+        None,
+        _("""Specifies the class to use for the browse grid."""),
+    )
 
-    BrowsePageClass = property(_getBrowsePageClass, _setBrowsePageClass, None,
-            _("""Specifies the class to use for the browse page."""))
+    BrowsePageClass = property(
+        _getBrowsePageClass,
+        _setBrowsePageClass,
+        None,
+        _("""Specifies the class to use for the browse page."""),
+    )
 
-    CustomSQL = property(_getCustomSQL, _setCustomSQL, None,
-            _("""Specifies custom (overridden) SQL to use."""))
+    CustomSQL = property(
+        _getCustomSQL,
+        _setCustomSQL,
+        None,
+        _("""Specifies custom (overridden) SQL to use."""),
+    )
 
-    EditPageClass = property(_getEditPageClass, _setEditPageClass, None,
-            _("""Specifies the class to use for the edit page."""))
+    EditPageClass = property(
+        _getEditPageClass,
+        _setEditPageClass,
+        None,
+        _("""Specifies the class to use for the edit page."""),
+    )
 
-    EnableChildRequeriesWhenBrowsing = property(_getEnableChildRequeriesWhenBrowsing,
-            _setEnableChildRequeriesWhenBrowsing, None,
-            _("""Specifies whether child bizobjs are requeried automatically when the parent
+    EnableChildRequeriesWhenBrowsing = property(
+        _getEnableChildRequeriesWhenBrowsing,
+        _setEnableChildRequeriesWhenBrowsing,
+        None,
+        _(
+            """Specifies whether child bizobjs are requeried automatically when the parent
             RowNumber changes, while in the browse page. Default: True
 
             Turning this to False will result in better performance of the browse grid when
             there are lots of child bizobjs, but it may result in unintended consequences
-            which is why it is True by default."""))
+            which is why it is True by default."""
+        ),
+    )
 
-    EnableChildRequeriesWhenEditing = property(_getEnableChildRequeriesWhenEditing,
-            _setEnableChildRequeriesWhenEditing, None,
-            _("""Specifies whether child bizobjs are requeried automatically when the parent
-            RowNumber changes, while not in the browse page. Default: True"""))
+    EnableChildRequeriesWhenEditing = property(
+        _getEnableChildRequeriesWhenEditing,
+        _setEnableChildRequeriesWhenEditing,
+        None,
+        _(
+            """Specifies whether child bizobjs are requeried automatically when the parent
+            RowNumber changes, while not in the browse page. Default: True"""
+        ),
+    )
 
-    FormType = property(_getFormType, _setFormType, None,
-            _("""Specifies the type of form this is.
+    FormType = property(
+        _getFormType,
+        _setFormType,
+        None,
+        _(
+            """Specifies the type of form this is.
 
             The type of form determines the runtime behavior. FormType can be one of:
                 Normal:
@@ -1179,18 +1347,30 @@ class Form(dui.dForm):
                 Edit:
                     Modal version of normal, with no Select/Browse pages. User code sends
                     the Primary Key of the record to edit.
-            """))
+            """
+        ),
+    )
 
-    PageFrameStyle = property(_getPageFrameStyle, _setPageFrameStyle, None,
-            _("""Specifies the style of pageframe to set up. Valid values are:
+    PageFrameStyle = property(
+        _getPageFrameStyle,
+        _setPageFrameStyle,
+        None,
+        _(
+            """Specifies the style of pageframe to set up. Valid values are:
 
                 Tabs (default)
                 List (down the side)
                 Select
-            """))
+            """
+        ),
+    )
 
-    PageTabPosition = property(_getPageTabPosition, _setPageTabPosition, None,
-            _("""Specifies the location of the pageframe tabs. Valid values are:
+    PageTabPosition = property(
+        _getPageTabPosition,
+        _setPageTabPosition,
+        None,
+        _(
+            """Specifies the location of the pageframe tabs. Valid values are:
 
                 Top (default)
                 Left
@@ -1198,26 +1378,48 @@ class Form(dui.dForm):
                 Bottom
 
                 This only applies when PageFrameStyle is set to "Tabs".
-            """))
+            """
+        ),
+    )
 
-    SelectPageClass = property(_getSelectPageClass, _setSelectPageClass, None,
-            _("""Specifies the class to use for the select page."""))
+    SelectPageClass = property(
+        _getSelectPageClass,
+        _setSelectPageClass,
+        None,
+        _("""Specifies the class to use for the select page."""),
+    )
 
-    SetFocusToBrowseGrid = property(_getSetFocusToBrowseGrid,
-            _setSetFocusToBrowseGrid, None,
-            _("""Does the focus go to the browse grid when the browse page is entered?"""))
+    SetFocusToBrowseGrid = property(
+        _getSetFocusToBrowseGrid,
+        _setSetFocusToBrowseGrid,
+        None,
+        _("""Does the focus go to the browse grid when the browse page is entered?"""),
+    )
 
-    ShowAdvancedQuickReport = property(_getShowAdvancedQuickReport,
-            _setShowAdvancedQuickReport, None,
-            _("""Does the 'Advanced' button appear in the Quick Report dialog?"""))
+    ShowAdvancedQuickReport = property(
+        _getShowAdvancedQuickReport,
+        _setShowAdvancedQuickReport,
+        None,
+        _("""Does the 'Advanced' button appear in the Quick Report dialog?"""),
+    )
 
-    ShowExpandedQuickReport = property(_getShowExpandedQuickReport,
-            _setShowExpandedQuickReport, None,
-            _("""Can the user choose the 'expanded' quick report?"""))
+    ShowExpandedQuickReport = property(
+        _getShowExpandedQuickReport,
+        _setShowExpandedQuickReport,
+        None,
+        _("""Can the user choose the 'expanded' quick report?"""),
+    )
 
-    ShowSortFields = property(_getShowSortFields, _setShowSortFields, None,
-            _("""Can the user sort fields in the select page?"""))
+    ShowSortFields = property(
+        _getShowSortFields,
+        _setShowSortFields,
+        None,
+        _("""Can the user sort fields in the select page?"""),
+    )
 
-    Testing = property(_getTesting, _setTesting, None,
-            "Flag for use when testing elements of the form.")
-
+    Testing = property(
+        _getTesting,
+        _setTesting,
+        None,
+        "Flag for use when testing elements of the form.",
+    )

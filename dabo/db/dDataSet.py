@@ -6,6 +6,7 @@ import datetime
 import hashlib
 
 from decimal import Decimal
+
 try:
     from pysqlite2 import dbapi2 as sqlite
 except ImportError:
@@ -28,9 +29,8 @@ from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
 
-
 class dDataSet(tuple):
-    """ This class assumes that its contents are not ordinary tuples, but
+    """This class assumes that its contents are not ordinary tuples, but
     rather tuples consisting of dicts, where the dict keys are field names.
     This is the data structure returned by the dCursorMixin class.
 
@@ -40,6 +40,7 @@ class dDataSet(tuple):
     warning message will be printed out and the SQL functions will return
     None. The data will still be usable, though.
     """
+
     def __init__(self, sequence=None):
         # Note that as immutable objects, tuples are created with __new__,
         # so we must not pass the argument to the __init__ method of tuple.
@@ -62,11 +63,16 @@ class dDataSet(tuple):
         # Register the converters
         sqlite.register_converter("decimal", self._convert_decimal)
 
-        self._typeDict = {int: "integer", int: "integer", str: "text",
-                str: "text", float: "real", datetime.date: "date",
-                datetime.datetime: "timestamp", Decimal: "decimal"}
-
-
+        self._typeDict = {
+            int: "integer",
+            int: "integer",
+            str: "text",
+            str: "text",
+            float: "real",
+            datetime.date: "date",
+            datetime.datetime: "timestamp",
+            Decimal: "decimal",
+        }
 
     def __del__(self):
         if self._cursor is not None:
@@ -74,20 +80,16 @@ class dDataSet(tuple):
         if self._connection is not None:
             self._connection.close()
 
-
     def __add__(self, *args, **kwargs):
         return dDataSet(super(dDataSet, self).__add__(*args, **kwargs))
 
-
     def __mul__(self, *args, **kwargs):
         return dDataSet(super(dDataSet, self).__mul__(*args, **kwargs))
-
 
     @staticmethod
     def _adapt_decimal(decVal):
         """Converts the decimal value to a string for storage"""
         return ustr(decVal)
-
 
     @staticmethod
     def _convert_decimal(strVal):
@@ -95,9 +97,8 @@ class dDataSet(tuple):
         Decimal value and return an actual decimal.
         """
         if isinstance(strVal, bytes):
-            strVal = strVal.decode('utf-8')
+            strVal = strVal.decode("utf-8")
         return Decimal(strVal)
-
 
     def _index(self, rec):
         """Returns the index of the record object, or None."""
@@ -105,7 +106,6 @@ class dDataSet(tuple):
             if item == rec:
                 return idx
         return None
-
 
     def replace(self, field, valOrExpr, scope=None):
         """Replaces the value of the specified field with the given expression.
@@ -129,14 +129,12 @@ class dDataSet(tuple):
             if scope is None:
                 [rec.update(upDict) for rec in self]
             else:
-                [rec.update(upDict) for rec in self
-                        if eval(scope)]
+                [rec.update(upDict) for rec in self if eval(scope)]
         else:
             # Need to go record-by-record so that the expression evaluates correctly
             for rec in self:
                 if eval(scope):
                     rec[field] = eval(valOrExpr)
-
 
     def sort(self, col, ascdesc=None, caseSensitive=None):
         if ascdesc is None:
@@ -151,7 +149,6 @@ class dDataSet(tuple):
         # Sorting doesn't change the data, so preserve any source dataset.
         ret._sourceDataSet = self._sourceDataSet
         return ret
-
 
     def filter(self, fld, expr, op="="):
         """This takes a field name, an expression, and an optional operator,
@@ -173,20 +170,22 @@ class dDataSet(tuple):
             # No rows, so nothing to filter
             return self
         op = op.strip().lower()
-        opDict = {"eq": operator.eq,
-                "=": operator.eq,
-                "equals": operator.eq,
-                "ne": operator.ne,
-                "!=": operator.ne,
-                "nequals": operator.ne,
-                "gt": operator.gt,
-                ">": operator.gt,
-                "gte": operator.ge,
-                ">=": operator.ge,
-                "lt": operator.lt,
-                "<": operator.lt,
-                "lte": operator.le,
-                "<=": operator.le}
+        opDict = {
+            "eq": operator.eq,
+            "=": operator.eq,
+            "equals": operator.eq,
+            "ne": operator.ne,
+            "!=": operator.ne,
+            "nequals": operator.ne,
+            "gt": operator.gt,
+            ">": operator.gt,
+            "gte": operator.ge,
+            ">=": operator.ge,
+            "lt": operator.lt,
+            "<": operator.lt,
+            "lte": operator.le,
+            "<=": operator.le,
+        }
         try:
             fnc = opDict[op]
         except KeyError:
@@ -206,7 +205,6 @@ class dDataSet(tuple):
         ret._filtered_op = op
         return ret
 
-
     def filterByExpression(self, expr):
         """Allows you to filter by any valid Python expression."""
         if not self:
@@ -218,7 +216,6 @@ class dDataSet(tuple):
         ret._sourceDataSet = self
         return ret
 
-
     def removeFilter(self):
         """Remove the most recently applied filter."""
         ret = self
@@ -226,14 +223,12 @@ class dDataSet(tuple):
             ret = ret._sourceDataSet
         return ret
 
-
     def removeFilters(self):
         """Remove all applied filters, going back to the original data set."""
         ret = self
         while ret._sourceDataSet:
             ret = ret._sourceDataSet
         return ret
-
 
     def _fldReplace(self, expr, dictName=None):
         """The list comprehensions require the field names be the keys
@@ -258,7 +253,6 @@ class dDataSet(tuple):
             replacement = "%s['%s']" % (dictName, kk)
             ret = re.sub(pat, replacement, ret)
         return ret
-
 
     def _makeCreateTable(self, ds, alias=None):
         """Makes the CREATE TABLE string needed to represent
@@ -294,7 +288,6 @@ class dDataSet(tuple):
                 retList.append(safekey)
         return "create table %s (%s)" % (alias, ", ".join(retList))
 
-
     def _populate(self, ds, alias=None):
         """This is the method that converts a Python dataset
         into a SQLite table with the name specified by 'alias'.
@@ -304,8 +297,7 @@ class dDataSet(tuple):
             alias = "dataset"
         if len(ds) == 0:
             # Can't create and populate a table without a structure
-            dabo.log.info(_("Cannot populate without data for alias '%s'")
-                    % alias)
+            dabo.log.info(_("Cannot populate without data for alias '%s'") % alias)
             return None
         uds = ustr(ds)
         try:
@@ -328,8 +320,11 @@ class dDataSet(tuple):
         # Fields may contain illegal names. This will correct them
         flds = [fld.replace("dabo-", "dabo_") for fld in ds[0]]
         fldParams = [":%s" % fld for fld in flds]
-        insStmnt = "insert into %s (%s) values (%s)" % (alias,
-                ", ".join(flds), ", ".join(fldParams))
+        insStmnt = "insert into %s (%s) values (%s)" % (
+            alias,
+            ", ".join(flds),
+            ", ".join(fldParams),
+        )
 
         def recGenerator(ds):
             for rec in ds:
@@ -338,7 +333,6 @@ class dDataSet(tuple):
         self._cursor.executemany(insStmnt, recGenerator(ds))
         if ds is self:
             self._populated = True
-
 
     def execute(self, sqlExpr, params=(), cursorDict=None):
         """This method allows you to work with a Python data set
@@ -356,6 +350,7 @@ class dDataSet(tuple):
         DataSet, and the key is the alias used to reference that DataSet
         in your join statement.
         """
+
         def dict_factory(cursor, row):
             dd = {}
             for idx, col in enumerate(cursor.description):
@@ -368,19 +363,22 @@ class dDataSet(tuple):
                 self.row_factory = dict_factory
 
         if self._connection is None:
-            self._connection = sqlite.connect(":memory:",
-                    detect_types=(sqlite.PARSE_DECLTYPES | sqlite.PARSE_COLNAMES),
-                    isolation_level="EXCLUSIVE")
+            self._connection = sqlite.connect(
+                ":memory:",
+                detect_types=(sqlite.PARSE_DECLTYPES | sqlite.PARSE_COLNAMES),
+                isolation_level="EXCLUSIVE",
+            )
             if not hasattr(self, "_encoding"):
-                self._encoding = self._connection.execute("PRAGMA encoding"). \
-                        fetchone()[0].lower()
+                self._encoding = (
+                    self._connection.execute("PRAGMA encoding").fetchone()[0].lower()
+                )
             self._connection.text_factory = str
         if self._cursor is None:
             self._cursor = self._connection.cursor(factory=DictCursor)
 
-#         import time
-#         st = time.clock()
-#         print "starting"
+        #         import time
+        #         st = time.clock()
+        #         print "starting"
 
         # Create the table for this dDataSet
         self._populate(self, "dataset")
@@ -388,8 +386,8 @@ class dDataSet(tuple):
             # No data in the dataset
             return None
 
-#         pt = time.clock()
-#         print "POPULATED", pt-st
+        #         pt = time.clock()
+        #         print "POPULATED", pt-st
         # Now create any of the tables for the join dDataSets
         if cursorDict is not None:
             for alias, ds in list(cursorDict.items()):
@@ -400,8 +398,8 @@ class dDataSet(tuple):
             params = (params,)
         self._cursor.execute(sqlExpr, params)
 
-#         et = time.clock()
-#         print "EXECUTED", et - pt
+        #         et = time.clock()
+        #         print "EXECUTED", et - pt
         # We need to know what sort of statement was run. Only a 'select'
         # will return results. The rest ('update', 'delete', 'insert') return
         # nothing. In those cases, we need to run a 'select *' to get the
@@ -410,26 +408,25 @@ class dDataSet(tuple):
             self._cursor.execute("select * from dataset")
         tmpres = self._cursor.fetchall()
 
-#         ft = time.clock()
-#         print "FETCH", ft-et
+        #         ft = time.clock()
+        #         print "FETCH", ft-et
         return dDataSet(tmpres)
 
-#         res = []
-#         if tmpres:
-#             # There will be no description if there are no records.
-#             dscrp = [fld[0] for fld in self._cursor.description]
-#             for tmprec in tmpres:
-#                 rec = {}
-#                 for pos, val in enumerate(tmprec):
-#                     fld = dscrp[pos]
-#                     if fld in self.fieldAliases:
-#                         fld = self.fieldAliases[fld]
-#                     rec[fld] = val
-#                 res.append(rec)
-#
-#         dt = time.clock()
-#         print "CONVERTED", dt-ft
-
+    #         res = []
+    #         if tmpres:
+    #             # There will be no description if there are no records.
+    #             dscrp = [fld[0] for fld in self._cursor.description]
+    #             for tmprec in tmpres:
+    #                 rec = {}
+    #                 for pos, val in enumerate(tmprec):
+    #                     fld = dscrp[pos]
+    #                     if fld in self.fieldAliases:
+    #                         fld = self.fieldAliases[fld]
+    #                     rec[fld] = val
+    #                 res.append(rec)
+    #
+    #         dt = time.clock()
+    #         print "CONVERTED", dt-ft
 
     def _getBizobj(self):
         return self._bizobj
@@ -437,13 +434,11 @@ class dDataSet(tuple):
     def _setBizobj(self, val):
         self._bizobj = val
 
-
     def _getCursor(self):
         return self._cursor
 
     def _setCursor(self, val):
         self._cursor = val
-
 
     def _getEncoding(self):
         try:
@@ -454,7 +449,6 @@ class dDataSet(tuple):
 
     def _setEncoding(self, encoding):
         self._encoding = encoding
-
 
     def _getUnfilteredDataSet(self):
         ret = self
@@ -468,22 +462,44 @@ class dDataSet(tuple):
     def _setTypeStructure(self, val):
         self._typeStructure = val
 
+    Bizobj = property(
+        _getBizobj,
+        _setBizobj,
+        None,
+        _("Reference to the bizobj that 'owns' this data set. Default=None  (bizobj)"),
+    )
 
-    Bizobj = property(_getBizobj, _setBizobj, None,
-            _("Reference to the bizobj that 'owns' this data set. Default=None  (bizobj)"))
+    Cursor = property(
+        _getCursor,
+        _setCursor,
+        None,
+        _(
+            "Reference to the bizobj that 'owns' this data set. Default=None  (dCursorMixin)"
+        ),
+    )
 
-    Cursor = property(_getCursor, _setCursor, None,
-            _("Reference to the bizobj that 'owns' this data set. Default=None  (dCursorMixin)"))
+    Encoding = property(
+        _getEncoding,
+        _setEncoding,
+        None,
+        _("The encoding used for data in the dataset.  (str)"),
+    )
 
-    Encoding = property(_getEncoding, _setEncoding, None,
-            _("The encoding used for data in the dataset.  (str)"))
+    UnfilteredDataSet = property(
+        _getUnfilteredDataSet,
+        None,
+        None,
+        _(
+            """If filters have been applied, returns the unfiltered dataset that would be returned if removeFilters() had been called. If no filters have been applied, returns self  (dDataSet)"""
+        ),
+    )
 
-    UnfilteredDataSet = property(_getUnfilteredDataSet, None, None,
-            _("""If filters have been applied, returns the unfiltered dataset that would be returned if removeFilters() had been called. If no filters have been applied, returns self  (dDataSet)"""))
-
-    TypeStructure = property(_getTypeStructure, _setTypeStructure, None,
-            _("""An optional helper dictionary matching field names to dabo data types."""))
-
+    TypeStructure = property(
+        _getTypeStructure,
+        _setTypeStructure,
+        None,
+        _("""An optional helper dictionary matching field names to dabo data types."""),
+    )
 
 
 # class DataSetOld(tuple):
@@ -737,10 +753,12 @@ class dDataSet(tuple):
 
 
 if __name__ == "__main__":
-    data = [{"name" : "Ed Leafe", "age" : 51, "coder" :  True, "color": "brown"},
-                {"name" : "Mike Leafe", "age" : 21, "coder" :  False, "color": "purple"},
-                {"name" : "Dan Leafe", "age" : 17, "coder" :  False, "color": "green"},
-                {"name" : "Paul McNett", "age" : 39, "coder" :  True, "color": "red"}]
+    data = [
+        {"name": "Ed Leafe", "age": 51, "coder": True, "color": "brown"},
+        {"name": "Mike Leafe", "age": 21, "coder": False, "color": "purple"},
+        {"name": "Dan Leafe", "age": 17, "coder": False, "color": "green"},
+        {"name": "Paul McNett", "age": 39, "coder": True, "color": "red"},
+    ]
     ds = dDataSet(data)
 
     newDS = ds.execute("select name, age from dataset where age > 30")
@@ -762,4 +780,3 @@ if __name__ == "__main__":
         print("There are %s people named 'Leafe'" % len(leafeDS))
     orig = leafeDS.removeFilters()
     print("The original dataset has %s records." % len(orig))
-

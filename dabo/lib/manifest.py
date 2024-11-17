@@ -14,12 +14,30 @@ class Manifest(object):
     values being a timestamp. Two manifests, referred to as 'source' and 'target',
     can be compared to find the changes required to make 'target' match 'source'.
     """
+
     # These are the file types that are included by default.
-    includedTypes = ["py", "txt", "cnxml", "rfxml", "cdxml", "mnxml", "xml",
-            "jpg" , "jpeg" , "gif" , "tif" , "tiff" , "png" , "ico" , "bmp" , "sh", "mo", "po"]
+    includedTypes = [
+        "py",
+        "txt",
+        "cnxml",
+        "rfxml",
+        "cdxml",
+        "mnxml",
+        "xml",
+        "jpg",
+        "jpeg",
+        "gif",
+        "tif",
+        "tiff",
+        "png",
+        "ico",
+        "bmp",
+        "sh",
+        "mo",
+        "po",
+    ]
     # Format for stroring time values
     dtFormat = "%Y-%m-%d %H:%M:%S"
-
 
     @classmethod
     def getManifest(cls, pth, extraTypes=None, restrictTypes=None):
@@ -53,11 +71,10 @@ class Manifest(object):
                 if ext in okTypes:
                     fullPath = os.path.join(dirname, fn)
                     relativePath = os.path.join(reldir, fn)
-#                     modtm = datetime.datetime.fromtimestamp(os.stat(fullPath)[8])
-#                     ret[relativePath] = modtm.strftime(cls.dtFormat)
+                    #                     modtm = datetime.datetime.fromtimestamp(os.stat(fullPath)[8])
+                    #                     ret[relativePath] = modtm.strftime(cls.dtFormat)
                     ret[relativePath] = os.stat(fullPath)[8]
         return ret
-
 
     @classmethod
     def diff(cls, source, target):
@@ -75,18 +92,18 @@ class Manifest(object):
         # newer than the target, add it to the return dict, and then pop the values from both
         # key lists.
         for srcKey, srcTimeString in list(source.items()):
-#             srcTime = datetime.datetime.strptime(srcTimeString, cls.dtFormat)
+            #             srcTime = datetime.datetime.strptime(srcTimeString, cls.dtFormat)
             srcTime = int(srcTimeString)
             trgTimeString = target.get(srcKey)
             if trgTimeString is None:
                 # New on the server
-                ret[srcKey] =srcTimeString
+                ret[srcKey] = srcTimeString
             else:
-#                 trgTime = datetime.datetime.strptime(trgTimeString, cls.dtFormat)
+                #                 trgTime = datetime.datetime.strptime(trgTimeString, cls.dtFormat)
                 trgTime = int(trgTimeString)
                 if (srcTime - trgTime) > 0.5:
                     # It's newer; include it
-                    ret[srcKey] =srcTimeString
+                    ret[srcKey] = srcTimeString
                 # Pop it from the target keys
                 targetKeys.remove(srcKey)
         # Ok, we've processed all the source files. Are there any target files remaining?
@@ -95,4 +112,3 @@ class Manifest(object):
         for tk in targetKeys:
             ret[tk] = ""
         return ret
-

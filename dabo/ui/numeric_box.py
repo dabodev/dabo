@@ -18,18 +18,25 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
         localeData = locale.localeconv()
         enc = locale.getdefaultlocale()[1]
         self._baseClass = dNumericBox
-        kwargs["integerWidth"] = self._extractKey((properties, attProperties, kwargs),
-                "IntegerWidth", 10)
-        kwargs["fractionWidth"] = self._extractKey((properties, attProperties, kwargs),
-                "DecimalWidth", 2)
-        kwargs["Alignment"] = self._extractKey((properties, attProperties, kwargs),
-                "Alignment", "Right")
-        kwargs["selectOnEntry"] = self._extractKey((properties, attProperties, kwargs),
-                "SelectOnEntry", self.SelectOnEntry)
-        #groupChar = self._extractKey((properties, attProperties, kwargs),
-                #"GroupChar", localeData["thousands_sep"].decode(enc))
-        groupChar = self._extractKey((properties, attProperties, kwargs),
-                "GroupChar", localeData["thousands_sep"])        
+        kwargs["integerWidth"] = self._extractKey(
+            (properties, attProperties, kwargs), "IntegerWidth", 10
+        )
+        kwargs["fractionWidth"] = self._extractKey(
+            (properties, attProperties, kwargs), "DecimalWidth", 2
+        )
+        kwargs["Alignment"] = self._extractKey(
+            (properties, attProperties, kwargs), "Alignment", "Right"
+        )
+        kwargs["selectOnEntry"] = self._extractKey(
+            (properties, attProperties, kwargs), "SelectOnEntry", self.SelectOnEntry
+        )
+        # groupChar = self._extractKey((properties, attProperties, kwargs),
+        # "GroupChar", localeData["thousands_sep"].decode(enc))
+        groupChar = self._extractKey(
+            (properties, attProperties, kwargs),
+            "GroupChar",
+            localeData["thousands_sep"],
+        )
         # Group char can't be empty string.
         if groupChar or groupChar >= " ":
             kwargs["groupChar"] = groupChar
@@ -37,31 +44,46 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
         else:
             kwargs["groupChar"] = " "
             kwargs["groupDigits"] = False
-        kwargs["autoSize"] = self._extractKey((properties, attProperties, kwargs),
-                "AutoWidth", True)
-        kwargs["allowNegative"] = self._extractKey((properties, attProperties, kwargs),
-                "AllowNegative", True)
-        kwargs["useParensForNegatives"] = self._extractKey((properties, attProperties, kwargs),
-                "ParensForNegatives", False)
-        #kwargs["decimalChar"] = self._extractKey((properties, attProperties, kwargs),
-                #"DecimalChar", localeData["decimal_point"].decode(enc))
-                
-        kwargs["decimalChar"] = self._extractKey((properties, attProperties, kwargs),
-                "DecimalChar", localeData["decimal_point"])        
-        kwargs["foregroundColour"] = self._extractKey((properties, attProperties, kwargs),
-                "ForeColor", "Black")
-        kwargs["validBackgroundColour"] = self._extractKey((properties, attProperties, kwargs),
-            "BackColor", wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
-        kwargs["invalidBackgroundColour"] = self._extractKey((properties, attProperties, kwargs),
-                "InvalidBackColor", "Yellow")
-        kwargs["signedForegroundColour"] = self._extractKey((properties, attProperties, kwargs),
-                "SignedForeColor", "Red")
-        kwargs["allowNone"] = self._extractKey((properties, attProperties, kwargs),
-                "AllowNoneValue", False)
-        kwargs["max"] = self._extractKey((properties, attProperties, kwargs),
-                "MaxValue", None)
-        kwargs["min"] = self._extractKey((properties, attProperties, kwargs),
-                "MinValue", None)
+        kwargs["autoSize"] = self._extractKey(
+            (properties, attProperties, kwargs), "AutoWidth", True
+        )
+        kwargs["allowNegative"] = self._extractKey(
+            (properties, attProperties, kwargs), "AllowNegative", True
+        )
+        kwargs["useParensForNegatives"] = self._extractKey(
+            (properties, attProperties, kwargs), "ParensForNegatives", False
+        )
+        # kwargs["decimalChar"] = self._extractKey((properties, attProperties, kwargs),
+        # "DecimalChar", localeData["decimal_point"].decode(enc))
+
+        kwargs["decimalChar"] = self._extractKey(
+            (properties, attProperties, kwargs),
+            "DecimalChar",
+            localeData["decimal_point"],
+        )
+        kwargs["foregroundColour"] = self._extractKey(
+            (properties, attProperties, kwargs), "ForeColor", "Black"
+        )
+        kwargs["validBackgroundColour"] = self._extractKey(
+            (properties, attProperties, kwargs),
+            "BackColor",
+            wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW),
+        )
+        kwargs["invalidBackgroundColour"] = self._extractKey(
+            (properties, attProperties, kwargs), "InvalidBackColor", "Yellow"
+        )
+        kwargs["signedForegroundColour"] = self._extractKey(
+            (properties, attProperties, kwargs), "SignedForeColor", "Red"
+        )
+        kwargs["allowNone"] = self._extractKey(
+            (properties, attProperties, kwargs), "AllowNoneValue", False
+        )
+        kwargs["max"] = self._extractKey(
+            (properties, attProperties, kwargs), "MaxValue", None
+        )
+        kwargs["min"] = self._extractKey(
+            (properties, attProperties, kwargs), "MinValue", None
+        )
         # Base class 'limited' property is inconvenient.
         kwargs["limited"] = False
         fontFace = self._extractKey((properties, attProperties, kwargs), "FontFace", "")
@@ -70,11 +92,12 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
         elif not fontFace and self.Application.Platform in ("Mac",):
             fontFace = "Lucida Grande"
         if fontFace:
-             kwargs["FontFace"] = fontFace
-        dTextBoxMixin.__init__(self, masked.NumCtrl, parent, properties,
-                attProperties, *args, **kwargs)
+            kwargs["FontFace"] = fontFace
+        dTextBoxMixin.__init__(
+            self, masked.NumCtrl, parent, properties, attProperties, *args, **kwargs
+        )
 
-    #--- Public interface.
+    # --- Public interface.
 
     def flushValue(self):
         # Because dTextBoxMixin method is improper here,
@@ -104,7 +127,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
         if not "MinValue" in self._dynamic:
             self.MinValue = minVal
 
-    #--- Internal class interface.
+    # --- Internal class interface.
 
     def _initEvents(self):
         super(dNumericBox, self)._initEvents()
@@ -114,12 +137,11 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
     def _onGotFocusFix(self, evt):
         dabo.ui.callAfter(self._fixInsertionPoint)
 
-
     def _onLostFocusFix(self, evt):
         if self.LimitValue:
             max = self.MaxValue
             min = self.MinValue
-            #if (max is not None and not (max >= self._value)) or \
+            # if (max is not None and not (max >= self._value)) or \
             #        (min is not None and not (self._value >= min)):
             #    evt.stop()
             #    self.setFocus()
@@ -141,7 +163,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
             if self.SelectOnEntry:
                 dabo.ui.callAfter(self.select, 0, self.InsertionPoint)
 
-    #--- Properties methods.
+    # --- Properties methods.
 
     def _getGroupChar(self):
         if self.GetGroupDigits():
@@ -190,7 +212,6 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
 
     def _getLimitValue(self):
         return getattr(self, "_limitValue", False)
-
 
     def _setLimitValue(self, val):
         self._limitValue = bool(val)
@@ -278,7 +299,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
             self._properties["SignedForeColor"] = val
 
     def _getValue(self):
-        #val = ddcm.dDataControlMixin._getValue(self)
+        # val = ddcm.dDataControlMixin._getValue(self)
         val = ddcm.Value
         if self._lastDataType is Decimal:
             val = Decimal(str(val))
@@ -298,7 +319,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
             val = float(val)
         elif val is None:
             val = float(0)
-        #ddcm.dDataControlMixin._setValue(self, val)
+        # ddcm.dDataControlMixin._setValue(self, val)
         ddcm.Value = val
         dabo.ui.callAfter(self._fixInsertionPoint)
 
@@ -311,77 +332,167 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
     def _setSelectOnEntry(self, val):
         self.SetSelectOnEntry(bool(val))
 
-    #--- Properties definitions.
+    # --- Properties definitions.
 
-    AllowNegative = property(_getAllowNegative, _setAllowNegative, None,
-            _("""Enables/disables negative numbers. (bool)
-            Default=True"""))
+    AllowNegative = property(
+        _getAllowNegative,
+        _setAllowNegative,
+        None,
+        _(
+            """Enables/disables negative numbers. (bool)
+            Default=True"""
+        ),
+    )
 
-    AllowNoneValue = property(_getAllowNoneValue, _setAllowNoneValue, None,
-            _("""Enables/disables undefined value - None. (bool)
-            Default=False"""))
+    AllowNoneValue = property(
+        _getAllowNoneValue,
+        _setAllowNoneValue,
+        None,
+        _(
+            """Enables/disables undefined value - None. (bool)
+            Default=False"""
+        ),
+    )
 
-    AutoWidth = property(_getAutoWidth, _setAutoWidth, None,
-            _("""Indicates whether or not the control should set its own
+    AutoWidth = property(
+        _getAutoWidth,
+        _setAutoWidth,
+        None,
+        _(
+            """Indicates whether or not the control should set its own
             width based on the integer and fraction widths. (bool)
-            Default=True"""))
+            Default=True"""
+        ),
+    )
 
-    DecimalChar = property(_getDecimalChar, _setDecimalChar, None,
-            _("""Defines character that will be used to represent
+    DecimalChar = property(
+        _getDecimalChar,
+        _setDecimalChar,
+        None,
+        _(
+            """Defines character that will be used to represent
             the decimal point. (str)
-            Default value comes from locale setting."""))
+            Default value comes from locale setting."""
+        ),
+    )
 
-    DecimalWidth = property(_getDecimalWidth, _setDecimalWidth, None,
-            _("""Tells how many decimal places to show for numeric value. (int)
-            Default=2"""))
+    DecimalWidth = property(
+        _getDecimalWidth,
+        _setDecimalWidth,
+        None,
+        _(
+            """Tells how many decimal places to show for numeric value. (int)
+            Default=2"""
+        ),
+    )
 
-    GroupChar = property(_getGroupChar, _setGroupChar, None,
-            _("""What grouping character will be used if allowed.
+    GroupChar = property(
+        _getGroupChar,
+        _setGroupChar,
+        None,
+        _(
+            """What grouping character will be used if allowed.
             If set to None, no grouping is allowed. (str)
-            Default value comes from locale setting."""))
+            Default value comes from locale setting."""
+        ),
+    )
 
-    IntegerWidth = property(_getIntegerWidth, _setIntegerWidth, None,
-            _("""Indicates how many places to the right of any decimal point
+    IntegerWidth = property(
+        _getIntegerWidth,
+        _setIntegerWidth,
+        None,
+        _(
+            """Indicates how many places to the right of any decimal point
             should be allowed in the control. (int)
-            Default=10"""))
+            Default=10"""
+        ),
+    )
 
-    InvalidBackColor = property(_getInvalidBackColor, _setInvalidBackColor, None,
-            _("""Color value used for illegal values or values
+    InvalidBackColor = property(
+        _getInvalidBackColor,
+        _setInvalidBackColor,
+        None,
+        _(
+            """Color value used for illegal values or values
             out-of-bounds. (str)
-            Default='Yellow'"""))
+            Default='Yellow'"""
+        ),
+    )
 
-    LimitValue = property(_getLimitValue, _setLimitValue, None,
-            _("""Limit control value to Min and Max bounds. When set to True,
+    LimitValue = property(
+        _getLimitValue,
+        _setLimitValue,
+        None,
+        _(
+            """Limit control value to Min and Max bounds. When set to True,
             if invalid, will be automatically reseted to default.
             When False, only background color will change. (bool)
-            Default=False"""))
+            Default=False"""
+        ),
+    )
 
-    MaxValue = property(_getMaxValue, _setMaxValue, None,
-            _("""The maximum value that the control should allow.
+    MaxValue = property(
+        _getMaxValue,
+        _setMaxValue,
+        None,
+        _(
+            """The maximum value that the control should allow.
             Set to None if limit is disabled. (int, decimal)
-            Default=None"""))
+            Default=None"""
+        ),
+    )
 
-    MinValue = property(_getMinValue, _setMinValue, None,
-             _("""The minimum value that the control should allow.
+    MinValue = property(
+        _getMinValue,
+        _setMinValue,
+        None,
+        _(
+            """The minimum value that the control should allow.
             Set to None if limit is disabled. (int, decimal)
-            Default=None"""))
+            Default=None"""
+        ),
+    )
 
-    ParensForNegatives = property(_getParensForNegatives, _setParensForNegatives, None,
-            _("""If true, this will cause negative numbers to be displayed with parens
+    ParensForNegatives = property(
+        _getParensForNegatives,
+        _setParensForNegatives,
+        None,
+        _(
+            """If true, this will cause negative numbers to be displayed with parens
             rather than with sign mark. (bool)
-            Default=False"""))
+            Default=False"""
+        ),
+    )
 
-    SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None,
-            _("""Specifies whether all text gets selected upon receiving focus. (bool)
-            Default=False"""))
+    SelectOnEntry = property(
+        _getSelectOnEntry,
+        _setSelectOnEntry,
+        None,
+        _(
+            """Specifies whether all text gets selected upon receiving focus. (bool)
+            Default=False"""
+        ),
+    )
 
-    SignedForeColor = property(_getSignedForeColor, _setSignedForeColor, None,
-            _("""Color value used for negative values of the control. (str)
-            Default='Red'"""))
+    SignedForeColor = property(
+        _getSignedForeColor,
+        _setSignedForeColor,
+        None,
+        _(
+            """Color value used for negative values of the control. (str)
+            Default='Red'"""
+        ),
+    )
 
-    Value = property(_getValue, _setValue, None,
-            _("""Specifies the current state of the control (the value of the field).
-            (int, Decimal)"""))
+    Value = property(
+        _getValue,
+        _setValue,
+        None,
+        _(
+            """Specifies the current state of the control (the value of the field).
+            (int, Decimal)"""
+        ),
+    )
 
     DynamicMaxValue = makeDynamicProperty(MaxValue)
     DynamicMinValue = makeDynamicProperty(MinValue)
@@ -402,4 +513,5 @@ if __name__ == "__main__":
         def initProperties(self):
             self.Value = Decimal("23")
             self.DecimalWidth = 0
+
     test.Test().runTest((_testDecimal2, _testDecimal0))

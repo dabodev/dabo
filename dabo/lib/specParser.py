@@ -3,6 +3,7 @@ import xml.sax
 from io import StringIO
 import os.path
 
+
 class specHandler(xml.sax.ContentHandler):
     _IsContainer = False
 
@@ -11,14 +12,15 @@ class specHandler(xml.sax.ContentHandler):
         self.relaDict = {}
         self.currTableDict = {}
         self.currTable = ""
-#        self.currFieldDict = {}
+
+    #        self.currFieldDict = {}
 
     def startElement(self, name, attrs):
         if name == "table":
             # New table starting
             self.currTable = attrs.getValue("name")
             self.currTableDict = {}
-            #self.currFieldDict = {}
+            # self.currFieldDict = {}
             self.currRelaDict = {}
 
         elif name == "field":
@@ -48,7 +50,6 @@ class specHandler(xml.sax.ContentHandler):
                 self.relaDict[nm]["target"] = attrs.getValue("target")
                 self.relaDict[nm]["sourceField"] = attrs.getValue("sourceField")
                 self.relaDict[nm]["targetField"] = attrs.getValue("targetField")
-
 
     def endElement(self, name):
         if name == "table":
@@ -87,7 +88,7 @@ def importRelationSpecs(file=None):
 
 
 def fileRef(ref=""):
-    """  Handles the passing of file names, file objects, or raw
+    """Handles the passing of file names, file objects, or raw
     XML to the parser. Returns a file-like object, or None.
     """
     ret = None
@@ -97,4 +98,3 @@ def fileRef(ref=""):
                 return ff
         else:
             return StringIO(ref)
-

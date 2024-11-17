@@ -26,28 +26,32 @@ from dabo.ui import dSplitForm
 
 class _LookupPanel(dPanel):
     """Used for the command history search"""
+
     def afterInit(self):
         self._history = None
         self._displayedHistory = None
         self.currentSearch = ""
         self.needRefilter = False
         self.lblSearch = dLabel(self)
-        self.lstMatch = dListBox(self, ValueMode="string", Choices=[],
-                MultipleSelect=True, OnMouseLeftDoubleClick=self.selectCmd,
-                OnKeyChar=self.onListKey)
+        self.lstMatch = dListBox(
+            self,
+            ValueMode="string",
+            Choices=[],
+            MultipleSelect=True,
+            OnMouseLeftDoubleClick=self.selectCmd,
+            OnKeyChar=self.onListKey,
+        )
         self.Sizer = dSizer("v", DefaultBorder=4)
         self.Sizer.append(self.lblSearch, halign="center")
         self.Sizer.append(self.lstMatch, "x", 1)
         self.Width = 400
         self.layout()
 
-
     def clear(self):
         """Reset to original state."""
         self.ok = False
         self.currentSearch = self.lblSearch.Caption = ""
         self.refilter()
-
 
     def onListKey(self, evt):
         """Process keypresses in the command list control"""
@@ -59,7 +63,7 @@ class _LookupPanel(dPanel):
         elif kc == dKeys.key_Escape:
             self.closeDialog(False)
         if kc in list(dKeys.arrowKeys.values()) or char is None:
-            #ignore
+            # ignore
             return
         if kc == dKeys.key_Back:
             self.currentSearch = self.currentSearch[:-1]
@@ -70,20 +74,16 @@ class _LookupPanel(dPanel):
         self.needRefilter = True
         evt.stop()
 
-
     def closeDialog(self, ok):
         """Hide the dialog, and set the ok/cancel flag"""
         self.ok = ok
         self.Form.hide()
 
-
     def getCmd(self):
         return self.lstMatch.Value
 
-
     def selectCmd(self, evt):
         self.closeDialog(True)
-
 
     def onIdle(self, evt):
         """For performance, don't filter on every keypress. Wait until idle."""
@@ -91,10 +91,11 @@ class _LookupPanel(dPanel):
             self.needRefilter = False
             self.refilter()
 
-
     def refilter(self):
         """Display only those commands that contain the search string"""
-        self.DisplayedHistory = self.History.filterByExpression(" '%s' in cmd.lower() " % self.currentSearch.lower())
+        self.DisplayedHistory = self.History.filterByExpression(
+            " '%s' in cmd.lower() " % self.currentSearch.lower()
+        )
         lst = self.lstMatch
         sel = lst.Value
         lst.Choices = [rec["cmd"] for rec in self.DisplayedHistory]
@@ -107,19 +108,16 @@ class _LookupPanel(dPanel):
             self._selectLast()
         self._selectLast()
 
-
     def _selectFirst(self):
         """Select the first item in the list, if available."""
         if len(self.lstMatch.Choices):
             self.lstMatch.PositionValue = 0
-
 
     def _selectLast(self):
         """Select the first item in the list, if available."""
         num = len(self.lstMatch.Choices)
         if num:
             self.lstMatch.PositionValue = num - 1
-
 
     def _getHistory(self):
         if self._history is None:
@@ -137,7 +135,6 @@ class _LookupPanel(dPanel):
         else:
             self._properties["History"] = val
 
-
     def _getDisplayedHistory(self):
         if self._displayedHistory is None:
             self._displayedHistory = self.History
@@ -149,18 +146,23 @@ class _LookupPanel(dPanel):
         else:
             self._properties["DisplayedHistory"] = val
 
+    DisplayedHistory = property(
+        _getDisplayedHistory,
+        _setDisplayedHistory,
+        None,
+        _("Filtered copy of the History  (dDataSet)"),
+    )
 
-    DisplayedHistory = property(_getDisplayedHistory, _setDisplayedHistory, None,
-            _("Filtered copy of the History  (dDataSet)"))
-
-    History = property(_getHistory, _setHistory, None,
-            _("Dataset containing the command history  (dDataSet)"))
-
+    History = property(
+        _getHistory,
+        _setHistory,
+        None,
+        _("Dataset containing the command history  (dDataSet)"),
+    )
 
 
 class dShell(dControlMixin, wx.py.shell.Shell):
-    def __init__(self, parent, properties=None, attProperties=None,
-                *args, **kwargs):
+    def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._isConstructed = False
         # Set some reasonable font defaults.
         self.plat = self.Application.Platform
@@ -175,9 +177,15 @@ class dShell(dControlMixin, wx.py.shell.Shell):
             self._fontSize = 10
         self._baseClass = dShell
         preClass = wx.py.shell.Shell
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
-
+        dControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
 
     @dabo.ui.deadCheck
     def ScrollToLine(self, lnum):
@@ -185,7 +193,6 @@ class dShell(dControlMixin, wx.py.shell.Shell):
         shell makes a CallAfter for ScrollToLine().
         """
         super(dShell, self).ScrollToLine(lnum)
-
 
     def processLine(self):
         """
@@ -202,83 +209,88 @@ class dShell(dControlMixin, wx.py.shell.Shell):
                 # Not running in dShellForm
                 pass
 
-
     def push(self, command, silent=False):
         """Need to raise an event when the interpreter executes a command."""
         super(dShell, self).push(command, silent=silent)
         if not self.more:
             self.raiseEvent(dEvents.ShellCommandRun)
 
-
     def getAutoCompleteList(self, cmd):
-        return self.interp.getAutoCompleteList(cmd,
-                includeMagic=self.autoCompleteIncludeMagic,
-                includeSingle=self.autoCompleteIncludeSingle,
-                includeDouble=self.autoCompleteIncludeDouble)
-
+        return self.interp.getAutoCompleteList(
+            cmd,
+            includeMagic=self.autoCompleteIncludeMagic,
+            includeSingle=self.autoCompleteIncludeSingle,
+            includeDouble=self.autoCompleteIncludeDouble,
+        )
 
     def setDefaultFont(self, fontFace, fontSize):
         # Global default styles for all languages
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (fontFace, fontSize))
+        self.StyleSetSpec(
+            stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (fontFace, fontSize)
+        )
         self.StyleClearAll()  # Reset all to be like the default
 
         # Global default styles for all languages
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT,
-                "face:%s,size:%d" % (self._fontFace, fontSize))
-        self.StyleSetSpec(stc.STC_STYLE_LINENUMBER,
-                "back:#C0C0C0,face:%s,size:%d" % (self._fontFace, 8))
-        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR,
-                "face:%s" % fontFace)
-        self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT,
-                "fore:#000000,back:#00FF00,bold")
-        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD,
-                "fore:#000000,back:#FF0000,bold")
-
+        self.StyleSetSpec(
+            stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (self._fontFace, fontSize)
+        )
+        self.StyleSetSpec(
+            stc.STC_STYLE_LINENUMBER,
+            "back:#C0C0C0,face:%s,size:%d" % (self._fontFace, 8),
+        )
+        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "face:%s" % fontFace)
+        self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, "fore:#000000,back:#00FF00,bold")
+        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#FF0000,bold")
 
     def setPyFont(self, fontFace, fontSize):
         # Python-specific styles
-        self.StyleSetSpec(stc.STC_P_DEFAULT,
-                "fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
+        self.StyleSetSpec(
+            stc.STC_P_DEFAULT, "fore:#000000,face:%s,size:%d" % (fontFace, fontSize)
+        )
         # Comments
-        self.StyleSetSpec(stc.STC_P_COMMENTLINE,
-                "fore:#007F00,face:%s,size:%d,italic" % (fontFace, fontSize))
+        self.StyleSetSpec(
+            stc.STC_P_COMMENTLINE,
+            "fore:#007F00,face:%s,size:%d,italic" % (fontFace, fontSize),
+        )
         # Number
-        self.StyleSetSpec(stc.STC_P_NUMBER,
-                "fore:#007F7F,size:%d" % fontSize)
+        self.StyleSetSpec(stc.STC_P_NUMBER, "fore:#007F7F,size:%d" % fontSize)
         # String
-        self.StyleSetSpec(stc.STC_P_STRING,
-                "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
+        self.StyleSetSpec(
+            stc.STC_P_STRING, "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize)
+        )
         # Single quoted string
-        self.StyleSetSpec(stc.STC_P_CHARACTER,
-                "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
+        self.StyleSetSpec(
+            stc.STC_P_CHARACTER, "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize)
+        )
         # Keyword
-        self.StyleSetSpec(stc.STC_P_WORD,
-                "fore:#00007F,bold,size:%d" % fontSize)
+        self.StyleSetSpec(stc.STC_P_WORD, "fore:#00007F,bold,size:%d" % fontSize)
         # Triple quotes
-        self.StyleSetSpec(stc.STC_P_TRIPLE,
-                "fore:#7F0000,size:%d,italic" % fontSize)
+        self.StyleSetSpec(stc.STC_P_TRIPLE, "fore:#7F0000,size:%d,italic" % fontSize)
         # Triple double quotes
-        self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE,
-                "fore:#7F0000,size:%d,italic" % fontSize)
+        self.StyleSetSpec(
+            stc.STC_P_TRIPLEDOUBLE, "fore:#7F0000,size:%d,italic" % fontSize
+        )
         # Class name definition
-        self.StyleSetSpec(stc.STC_P_CLASSNAME,
-                "fore:#0000FF,bold,underline,size:%d" % fontSize)
+        self.StyleSetSpec(
+            stc.STC_P_CLASSNAME, "fore:#0000FF,bold,underline,size:%d" % fontSize
+        )
         # Function or method name definition
-        self.StyleSetSpec(stc.STC_P_DEFNAME,
-                "fore:#007F7F,bold,size:%d" % fontSize)
+        self.StyleSetSpec(stc.STC_P_DEFNAME, "fore:#007F7F,bold,size:%d" % fontSize)
         # Operators
-        self.StyleSetSpec(stc.STC_P_OPERATOR,
-                "bold,size:%d" % fontSize)
+        self.StyleSetSpec(stc.STC_P_OPERATOR, "bold,size:%d" % fontSize)
         # Identifiers
-        self.StyleSetSpec(stc.STC_P_IDENTIFIER,
-                "fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
+        self.StyleSetSpec(
+            stc.STC_P_IDENTIFIER, "fore:#000000,face:%s,size:%d" % (fontFace, fontSize)
+        )
         # Comment-blocks
-        self.StyleSetSpec(stc.STC_P_COMMENTBLOCK,
-                "fore:#7F7F7F,size:%d,italic" % fontSize)
+        self.StyleSetSpec(
+            stc.STC_P_COMMENTBLOCK, "fore:#7F7F7F,size:%d,italic" % fontSize
+        )
         # End of line where string is not closed
-        self.StyleSetSpec(stc.STC_P_STRINGEOL,
-                "fore:#000000,face:%s,back:#E0C0E0,eol,size:%d" % (fontFace, fontSize))
-
+        self.StyleSetSpec(
+            stc.STC_P_STRINGEOL,
+            "fore:#000000,face:%s,back:#E0C0E0,eol,size:%d" % (fontFace, fontSize),
+        )
 
     def OnKeyDown(self, evt):
         """Override on the Mac, as the navigation defaults are different than on Win/Lin"""
@@ -335,7 +347,6 @@ class dShell(dControlMixin, wx.py.shell.Shell):
             return
         return super(dShell, self).OnKeyDown(evt)
 
-
     def _getFontSize(self):
         return self._fontSize
 
@@ -347,7 +358,6 @@ class dShell(dControlMixin, wx.py.shell.Shell):
             self.Application.setUserSetting("shell.fontsize", self._fontSize)
         else:
             self._properties["FontSize"] = val
-
 
     def _getFontFace(self):
         return self._fontFace
@@ -361,12 +371,16 @@ class dShell(dControlMixin, wx.py.shell.Shell):
         else:
             self._properties["FontFace"] = val
 
+    FontFace = property(
+        _getFontFace,
+        _setFontFace,
+        None,
+        _("Name of the font face used in the shell  (str)"),
+    )
 
-    FontFace = property(_getFontFace, _setFontFace, None,
-            _("Name of the font face used in the shell  (str)"))
-
-    FontSize = property(_getFontSize, _setFontSize, None,
-            _("Size of the font used in the shell  (int)"))
+    FontSize = property(
+        _getFontSize, _setFontSize, None, _("Size of the font used in the shell  (int)")
+    )
 
 
 dabo.ui.dShell = dShell
@@ -377,13 +391,11 @@ class dShellForm(dSplitForm):
         self._clearOldHistory()
         builtins.input = self._oldInput
 
-
     def _beforeInit(self, pre):
         # Class to use for creating the interactive shell
         self._shellClass = dShell
         self._sashPct = 80
         super(dShellForm, self)._beforeInit(pre)
-
 
     def _afterInit(self):
         super(dShellForm, self)._afterInit()
@@ -404,10 +416,8 @@ class dShellForm(dSplitForm):
         self.Orientation = "H"
         self.unsplit()
         self._splitState = False
-        self.MainSplitter.bindEvent(dEvents.SashDoubleClick,
-                self.sashDoubleClick)
-        self.MainSplitter.bindEvent(dEvents.SashPositionChanged,
-                self.sashPosChanged)
+        self.MainSplitter.bindEvent(dEvents.SashDoubleClick, self.sashDoubleClick)
+        self.MainSplitter.bindEvent(dEvents.SashPositionChanged, self.sashPosChanged)
 
         cp = self.CmdPanel = self.Panel1
         op = self.OutPanel = self.Panel2
@@ -423,11 +433,15 @@ class dShellForm(dSplitForm):
         self.pgCode.Caption = _("Code")
         cp.Sizer.append1x(pgf)
 
-        self.shell = self.ShellClass(self.pgShell, DroppedTextHandler=self, DroppedFileHandler=self)
+        self.shell = self.ShellClass(
+            self.pgShell, DroppedTextHandler=self, DroppedFileHandler=self
+        )
         self.pgShell.Sizer.append1x(self.shell, border=4)
         # Configure the shell's behavior
         self.shell.AutoCompSetIgnoreCase(True)
-        self.shell.AutoCompSetAutoHide(False)     ## don't hide when the typed string no longer matches
+        self.shell.AutoCompSetAutoHide(
+            False
+        )  ## don't hide when the typed string no longer matches
         self.shell.AutoCompStops(" ")  ## characters that will stop the autocomplete
         self.shell.AutoCompSetFillUps(".(")
         # This lets you go all the way back to the '.' without losing the AutoComplete
@@ -436,19 +450,29 @@ class dShellForm(dSplitForm):
         self.shell.Bind(wx.EVT_CONTEXT_MENU, self.onShellContext)
 
         # Create the Code control
-        codeControl = dEditor(self.pgCode, RegID="edtCode",
-                Language="python", OnKeyDown=self.onCodeKeyDown,
-                OnMouseRightDown=self.onCodeRightDown,
-                DroppedTextHandler=self, DroppedFileHandler=self)
+        codeControl = dEditor(
+            self.pgCode,
+            RegID="edtCode",
+            Language="python",
+            OnKeyDown=self.onCodeKeyDown,
+            OnMouseRightDown=self.onCodeRightDown,
+            DroppedTextHandler=self,
+            DroppedFileHandler=self,
+        )
         self.pgCode.Sizer.append1x(codeControl, border=4)
         # This adds the interpreter's local namespace to the editor for code completion, etc.
         codeControl.locals = self.shell.interp.locals
-        lbl = dLabel(self.pgCode, ForeColor="blue", WordWrap=True,
-                Caption=_("""Ctrl-Enter to run the code (or click the button to the right).
-Ctrl-Up/Down to scroll through history."""))
+        lbl = dLabel(
+            self.pgCode,
+            ForeColor="blue",
+            WordWrap=True,
+            Caption=_(
+                """Ctrl-Enter to run the code (or click the button to the right).
+Ctrl-Up/Down to scroll through history."""
+            ),
+        )
         lbl.FontSize -= 3
-        runButton = dButton(self.pgCode, Caption=_("Run"),
-                OnHit=self.onRunCode)
+        runButton = dButton(self.pgCode, Caption=_("Run"), OnHit=self.onRunCode)
         hsz = dSizer("h")
         hsz.appendSpacer(20)
         hsz.append(lbl)
@@ -466,16 +490,17 @@ Ctrl-Up/Down to scroll through history."""))
         self.bindKey("Ctrl+R", self.onHistoryPop)
         # Show/hide the code editing pane
         self.bindKey("Ctrl+E", self.onToggleCodePane)
+
         # Force the focus to the editor when the code page is activated.
         def _delayedSetFocus(evt):
             dui.callAfter(self.edtCode.setFocus)
+
         self.pgCode.bindEvent(dEvents.PageEnter, _delayedSetFocus)
 
         # create the output control
         outControl = dEditBox(op, RegID="edtOut", ReadOnly=True)
         op.Sizer.append1x(outControl)
-        outControl.bindEvent(dEvents.MouseRightDown,
-                self.onOutputRightDown)
+        outControl.bindEvent(dEvents.MouseRightDown, self.onOutputRightDown)
 
         self._stdOut = self.shell.interp.stdout
         self._stdErr = self.shell.interp.stderr
@@ -491,14 +516,13 @@ Ctrl-Up/Down to scroll through history."""))
             ns = self.Parent
             bo = getattr(ns, "PrimaryBizobj", None)
             if bo:
-                self.shell.interp.locals['bo'] = bo
-        self.shell.interp.locals['self'] = ns
+                self.shell.interp.locals["bo"] = bo
+        self.shell.interp.locals["self"] = ns
 
         self.Caption = _("dShellForm: self is %s") % ns.Name
         self.setStatusText(_("Use this shell to interact with the runtime environment"))
         self.fillMenu()
         self.shell.SetFocus()
-
 
     def appendOut(self, tx):
         ed = self.edtOut
@@ -509,7 +533,6 @@ Ctrl-Up/Down to scroll through history."""))
         # called directly or via callAfter().
         dui.callAfter(ed.ShowPosition, endpos)
         dui.callAfter(ed.SetSelection, endpos, endpos)
-
 
     def addToHistory(self, cmd=None):
         if cmd is None:
@@ -524,7 +547,6 @@ Ctrl-Up/Down to scroll through history."""))
         stamp = "%s" % int(round(time.time() * 100, 0))
         self.cmdHistKey.setValue(stamp, cmd)
 
-
     def _loadHistory(self):
         ck = self.cmdHistKey
         cmds = []
@@ -537,11 +559,9 @@ Ctrl-Up/Down to scroll through history."""))
         else:
             return dsu
 
-
     def onToggleCodePane(self, evt):
         """Toggle between the Code Pane and the Output Pane"""
         self.pgfCodeShell.cyclePages(1)
-
 
     def processDroppedFiles(self, filelist):
         """
@@ -556,14 +576,12 @@ Ctrl-Up/Down to scroll through history."""))
             with open(filelist[0]) as ff:
                 self.edtCode.Value = ff.read()
 
-
     def processDroppedText(self, txt):
         """Add the text to the code editor."""
         cc = self.edtCode
         currText = cc.Value
         selStart, selEnd = cc.SelectionPosition
         cc.Value = "%s%s%s" % (currText[:selStart], txt, currText[selEnd:])
-
 
     def onHistoryPop(self, evt):
         """
@@ -591,7 +609,6 @@ Ctrl-Up/Down to scroll through history."""))
                     return
                 self.shell.replaceFromHistory(pos - self.shell.historyIndex)
 
-
     def restoreHistory(self):
         """
         Get the stored history from previous sessions, and set the shell's
@@ -599,7 +616,6 @@ Ctrl-Up/Down to scroll through history."""))
         """
         ds = self._loadHistory()
         self.shell.history = [rec["cmd"] for rec in ds]
-
 
     def _clearOldHistory(self):
         """For performance reasons, only save up to 500 commands."""
@@ -615,7 +631,6 @@ Ctrl-Up/Down to scroll through history."""))
                 bad.append(rec["stamp"])
         for bs in bad:
             ck.deletePref(bs)
-
 
     def onRunCode(self, evt, addReturn=True):
         code = self.edtCode.Value.rstrip()
@@ -635,18 +650,16 @@ Ctrl-Up/Down to scroll through history."""))
         self.addToHistory()
         self.pgfCodeShell.SelectedPage = self.pgShell
 
-
     def onCodeKeyDown(self, evt):
         if not evt.controlDown:
             return
         keyCode = evt.keyCode
-        if (keyCode == 13):
+        if keyCode == 13:
             evt.stop()
             self.onRunCode(None, addReturn=True)
         elif keyCode in (dKeys.key_Up, dKeys.key_Down):
             direction = {dKeys.key_Up: -1, dKeys.key_Down: 1}[keyCode]
             self.moveCodeStack(direction)
-
 
     def moveCodeStack(self, direction):
         size = len(self._codeStack)
@@ -661,10 +674,8 @@ Ctrl-Up/Down to scroll through history."""))
             self._codeStackPos = newpos
             self.edtCode.Value = code
 
-
     def onCodeRightDown(self, evt):
         dui.info("Code!")
-
 
     def onOutputRightDown(self, evt):
         pop = dMenu()
@@ -674,10 +685,8 @@ Ctrl-Up/Down to scroll through history."""))
         self.showContextMenu(pop)
         evt.stop()
 
-
     def onClearOutput(self, evt):
         self.edtOut.Value = ""
-
 
     def onShellContext(self, evt):
         pop = dMenu()
@@ -689,7 +698,6 @@ Ctrl-Up/Down to scroll through history."""))
         self.showContextMenu(pop)
         evt.StopPropagation()
 
-
     def onShellRight(self, evt):
         pop = dMenu()
         if self.SplitState:
@@ -700,65 +708,79 @@ Ctrl-Up/Down to scroll through history."""))
         self.showContextMenu(pop)
         evt.StopPropagation()
 
-
     def onSplitContext(self, evt):
         self.SplitState = not self.SplitState
         evt.stop()
 
-
     def onResize(self, evt):
         self.SashPosition = self._sashPct * self.Height
-
 
     def sashDoubleClick(self, evt):
         # We don't want the window to unsplit
         evt.stop()
 
-
     def sashPosChanged(self, evt):
         self._sashPct = float(self.SashPosition) / self.Height
-
 
     def fillMenu(self):
         viewMenu = self.MenuBar.getMenu("base_view")
         if viewMenu.Children:
             viewMenu.appendSeparator()
-        viewMenu.append(_("Zoom &In"), HotKey="Ctrl+=", OnHit=self.onViewZoomIn,
-                ItemID="view_zoomin",
-                bmp="zoomIn", help=_("Zoom In"))
-        viewMenu.append(_("&Normal Zoom"), HotKey="Ctrl+/", OnHit=self.onViewZoomNormal,
-                ItemID="view_zoomnormal",
-                bmp="zoomNormal", help=_("Normal Zoom"))
-        viewMenu.append(_("Zoom &Out"), HotKey="Ctrl+-", OnHit=self.onViewZoomOut,
-                ItemID="view_zoomout",
-                bmp="zoomOut", help=_("Zoom Out"))
-        viewMenu.append(_("&Toggle Code Pane"), HotKey="Ctrl+E", OnHit=self.onToggleCodePane,
-                ItemID="view_togglecode",
-                bmp="", help=_("Show/hide Code Pane"))
+        viewMenu.append(
+            _("Zoom &In"),
+            HotKey="Ctrl+=",
+            OnHit=self.onViewZoomIn,
+            ItemID="view_zoomin",
+            bmp="zoomIn",
+            help=_("Zoom In"),
+        )
+        viewMenu.append(
+            _("&Normal Zoom"),
+            HotKey="Ctrl+/",
+            OnHit=self.onViewZoomNormal,
+            ItemID="view_zoomnormal",
+            bmp="zoomNormal",
+            help=_("Normal Zoom"),
+        )
+        viewMenu.append(
+            _("Zoom &Out"),
+            HotKey="Ctrl+-",
+            OnHit=self.onViewZoomOut,
+            ItemID="view_zoomout",
+            bmp="zoomOut",
+            help=_("Zoom Out"),
+        )
+        viewMenu.append(
+            _("&Toggle Code Pane"),
+            HotKey="Ctrl+E",
+            OnHit=self.onToggleCodePane,
+            ItemID="view_togglecode",
+            bmp="",
+            help=_("Show/hide Code Pane"),
+        )
         editMenu = self.MenuBar.getMenu("base_edit")
         if editMenu.Children:
             editMenu.appendSeparator()
-        editMenu.append(_("nClear O&utput"), HotKey="Ctrl+Back",
-                ItemID="edit_clearoutput",
-                OnHit=self.onClearOutput, help=_("Clear Output Window"))
-
+        editMenu.append(
+            _("nClear O&utput"),
+            HotKey="Ctrl+Back",
+            ItemID="edit_clearoutput",
+            OnHit=self.onClearOutput,
+            help=_("Clear Output Window"),
+        )
 
     def onViewZoomIn(self, evt):
-        self.shell.SetZoom(self.shell.GetZoom()+1)
-
+        self.shell.SetZoom(self.shell.GetZoom() + 1)
 
     def onViewZoomNormal(self, evt):
         self.shell.SetZoom(0)
 
-
     def onViewZoomOut(self, evt):
-        self.shell.SetZoom(self.shell.GetZoom()-1)
-
+        self.shell.SetZoom(self.shell.GetZoom() - 1)
 
     @classmethod
     def getBaseShellClass(cls):
         return dShell
-
 
     def _getFontSize(self):
         return self.shell.FontSize
@@ -769,7 +791,6 @@ Ctrl-Up/Down to scroll through history."""))
         else:
             self._properties["FontSize"] = val
 
-
     def _getFontFace(self):
         return self.shell.FontFace
 
@@ -778,7 +799,6 @@ Ctrl-Up/Down to scroll through history."""))
             self.shell.FontFace = val
         else:
             self._properties["FontFace"] = val
-
 
     def _getHistoryPanel(self):
         fp = self.FloatingPanel
@@ -789,11 +809,10 @@ Ctrl-Up/Down to scroll through history."""))
         if create:
             fp.clear()
             pnl = self._historyPanel = _LookupPanel(fp)
-            pnl.Height = max(200, self.Height-100)
+            pnl.Height = max(200, self.Height - 100)
             fp.Sizer.append(pnl)
             fp.fitToSizer()
         return self._historyPanel
-
 
     def _getShellClass(self):
         return self._shellClass
@@ -803,7 +822,6 @@ Ctrl-Up/Down to scroll through history."""))
             self._shellClass = val
         else:
             self._properties["ShellClass"] = val
-
 
     def _getSplitState(self):
         return self._splitState
@@ -820,23 +838,40 @@ Ctrl-Up/Down to scroll through history."""))
                 self.shell.interp.stdout = self._stdOut
                 self.shell.interp.stderr = self._stdErr
 
+    FontFace = property(
+        _getFontFace,
+        _setFontFace,
+        None,
+        _("Name of the font face used in the shell  (str)"),
+    )
 
-    FontFace = property(_getFontFace, _setFontFace, None,
-            _("Name of the font face used in the shell  (str)"))
+    FontSize = property(
+        _getFontSize, _setFontSize, None, _("Size of the font used in the shell  (int)")
+    )
 
-    FontSize = property(_getFontSize, _setFontSize, None,
-            _("Size of the font used in the shell  (int)"))
+    _HistoryPanel = property(
+        _getHistoryPanel,
+        None,
+        None,
+        _("Popup to display the command history  (read-only) (dDialog)"),
+    )
 
-    _HistoryPanel = property(_getHistoryPanel, None, None,
-            _("Popup to display the command history  (read-only) (dDialog)"))
+    ShellClass = property(
+        _getShellClass,
+        _setShellClass,
+        None,
+        _("Class to use for the interactive shell  (dShell)"),
+    )
 
-    ShellClass = property(_getShellClass, _setShellClass, None,
-            _("Class to use for the interactive shell  (dShell)"))
-
-    SplitState = property(_getSplitState, _setSplitState, None,
-            _("""Controls whether the output is in a separate pane (default)
-            or intermixed with the commands.  (bool)"""))
-
+    SplitState = property(
+        _getSplitState,
+        _setSplitState,
+        None,
+        _(
+            """Controls whether the output is in a separate pane (default)
+            or intermixed with the commands.  (bool)"""
+        ),
+    )
 
     DynamicSplitState = makeDynamicProperty(SplitState)
 
@@ -846,10 +881,12 @@ dabo.ui.dShellForm = dShellForm
 
 def main():
     from dabo.dApp import dApp
+
     app = dApp(BasePrefKey="dabo.ui.dShellForm")
     app.MainFormClass = dShellForm
     app.setup()
     app.start()
+
 
 if __name__ == "__main__":
     main()

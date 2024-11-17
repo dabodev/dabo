@@ -9,8 +9,9 @@ from decimal import Decimal
 # If gsprint is available, use it for printing:
 gsprint = True
 try:
-    p = subprocess.Popen(("gsprint",), shell=True, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+    p = subprocess.Popen(
+        ("gsprint",), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     stdout, stderr = p.communicate()
     if stderr.strip():
         gsprint = False
@@ -22,6 +23,7 @@ class TempFileHolder(object):
     """Utility class to get temporary file names and to make sure they are
     deleted when the Python session ends.
     """
+
     def __init__(self):
         self._tempFiles = []
 
@@ -44,6 +46,7 @@ class TempFileHolder(object):
         self.append(fname)
         return fname
 
+
 tempFileHolder = TempFileHolder()
 getTempFile = tempFileHolder.getTempFile
 
@@ -65,8 +68,16 @@ def previewReport(path, modal=False):
             if reportType == "txt":
                 viewers = ("gedit", "kate", "firefox", "mozilla-firefox", "chromium")
             elif reportType == "pdf":
-                viewers = ("gpdf", "kpdf", "okular", "evince", "acroread", "xpdf", "firefox",
-                    "mozilla-firefox")
+                viewers = (
+                    "gpdf",
+                    "kpdf",
+                    "okular",
+                    "evince",
+                    "acroread",
+                    "xpdf",
+                    "firefox",
+                    "mozilla-firefox",
+                )
             else:
                 raise ValueError("Unknown report type '%s'." % reportType)
 
@@ -104,13 +115,14 @@ def printReport(path, printerName=None, printerPort=None, copies=1):
     if gsprint:
         args = ["gsprint", path]
         if printerName:
-            args.insert(-1, '-printer')
+            args.insert(-1, "-printer")
             args.insert(-1, "%s" % printerName)
         if copies > 1:
-            args.insert(-1, '-copies')
+            args.insert(-1, "-copies")
             args.insert(-1, str(copies))
-        p = subprocess.Popen(args, shell=True, stderr=subprocess.PIPE,
-                stdout=subprocess.PIPE)
+        p = subprocess.Popen(
+            args, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE
+        )
         p.communicate()
     else:
         for i in range(copies):
@@ -149,8 +161,10 @@ def getTestCursorXmlFromDataSet(dataset):
 
 
 if __name__ == "__main__":
-    ds = [{"name": "Paul McNett"},
-          {"name": "A & B Motors"},
-          {"name": '9" Nails'},
-          {"name": "<None>"}]
+    ds = [
+        {"name": "Paul McNett"},
+        {"name": "A & B Motors"},
+        {"name": '9" Nails'},
+        {"name": "<None>"},
+    ]
     print(getTestCursorXmlFromDataSet(ds))

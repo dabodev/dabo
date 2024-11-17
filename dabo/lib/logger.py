@@ -5,9 +5,8 @@ from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
 
-
 class Log(dObject):
-    """ Generic logger object for Dabo.
+    """Generic logger object for Dabo.
 
     The main dabo module will instantiate singleton instances of this, which
     custom code can override to redirect the writing of informational and error
@@ -43,22 +42,21 @@ class Log(dObject):
             msg.append("%s: " % time.asctime())
         msg.append(message)
         msg.append(os.linesep)
-        msg = ''.join(msg)
+        msg = "".join(msg)
         try:
             self.LogObject.write(msg)
         except UnicodeEncodeError:
-            self.LogObject.write(msg.encode('utf-8'))
+            self.LogObject.write(msg.encode("utf-8"))
         except UnicodeDecodeError:
             try:
-                self.LogObject.write(msg.decode('utf-8'))
+                self.LogObject.write(msg.decode("utf-8"))
             except UnicodeDecodeError:
-                self.LogObject.write(msg.decode('latin-1'))
+                self.LogObject.write(msg.decode("latin-1"))
         # Flush the log entry to the file
         try:
             self.LogObject.flush()
         except (AttributeError, IOError):
             pass
-
 
     def _getCaption(self):
         try:
@@ -68,7 +66,6 @@ class Log(dObject):
 
     def _setCaption(self, val):
         self._caption = ustr(val)
-
 
     def _getLogObject(self):
         try:
@@ -80,7 +77,6 @@ class Log(dObject):
         # assume that logObject is an object with a write() method...
         self._logObject = logObject
 
-
     def _getLogTimeStamp(self):
         try:
             return self._logTimeStamp
@@ -90,12 +86,23 @@ class Log(dObject):
     def _setLogTimeStamp(self, val):
         self._logTimeStamp = bool(val)
 
+    Caption = property(
+        _getCaption,
+        _setCaption,
+        None,
+        _("The log's label: will get prepended to the log entry"),
+    )
 
-    Caption = property(_getCaption, _setCaption, None,
-        _("The log's label: will get prepended to the log entry"))
+    LogObject = property(
+        _getLogObject,
+        _setLogObject,
+        None,
+        _("The object that is to receive the log messages."),
+    )
 
-    LogObject = property(_getLogObject, _setLogObject, None,
-        _("The object that is to receive the log messages."))
-
-    LogTimeStamp = property(_getLogTimeStamp, _setLogTimeStamp, None,
-        _("Specifies whether a timestamp is logged with the message. Default: True"))
+    LogTimeStamp = property(
+        _getLogTimeStamp,
+        _setLogTimeStamp,
+        None,
+        _("Specifies whether a timestamp is logged with the message. Default: True"),
+    )

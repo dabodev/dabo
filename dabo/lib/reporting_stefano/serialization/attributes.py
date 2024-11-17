@@ -13,7 +13,7 @@ class SerializableAttribute(object):
         super(SerializableAttribute, self).__init__()
 
     def evaluate(self, value, env):
-        """ Abstract method, must be overridden in subclasses. """
+        """Abstract method, must be overridden in subclasses."""
         return "--SerializableAttribute not overridden--"
 
 
@@ -44,6 +44,7 @@ class LengthAttr(SerializableAttribute):
         if value is None:
             return self.default
         from dabo.lib.reporting import util
+
         return util.getPt(eval(value, env))
 
 
@@ -56,7 +57,10 @@ class StringChoiceAttr(SerializableAttribute):
         if value is None:
             return self.default
         v = eval(value, env)
-        assert v in self.choices, "Invalid value %r for %s" % (v, self.__class__.__name__)
+        assert v in self.choices, "Invalid value %r for %s" % (
+            v,
+            self.__class__.__name__,
+        )
         return v
 
 
@@ -75,4 +79,3 @@ class PagesizesAttr(SerializableAttribute):
         if pageSize is None:
             pageSize = getattr(pagesizes, ustr(self.default).upper(), None)
         return pageSize
-

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from dabo.dLocalize import _
 
+
 class QryOperatorEnum:
     __slots__ = ()
     AFTER = _("After")
@@ -21,6 +22,7 @@ class QryOperatorEnum:
     ONAFTER = _("On or After")
     TRUE = _("Is True")
 
+
 QRY_OPERATOR = QryOperatorEnum()
 
 # To achieve compatibility with existing code.
@@ -32,4 +34,3 @@ from .Page import Page, SelectPage, EditPage, BrowsePage, SortLabel
 from .Page import SelectionOpDropdown
 from .PageFrame import PageFrameMixin, PageFrame
 from .Bizobj import Bizobj
-

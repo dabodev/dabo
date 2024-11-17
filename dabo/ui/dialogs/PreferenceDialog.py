@@ -18,7 +18,7 @@ from dabo.ui import dTextBox
 from dabo.ui import dTreeView
 from . import HotKeyEditor
 
-dayMins= 24*60
+dayMins = 24 * 60
 
 
 class PreferenceDialog(dOkCancelDialog):
@@ -46,7 +46,6 @@ class PreferenceDialog(dOkCancelDialog):
         self.preferenceKeys = []
         super(PreferenceDialog, self)._afterInit()
 
-
     def addControls(self):
         """
         Add the base PageList, and then delete this method from the
@@ -59,35 +58,31 @@ class PreferenceDialog(dOkCancelDialog):
         # Use this to 'delete' addControls() so that users don't try to use this method.
         self.addControls = None
 
-
     def _addPages(self):
-#        self.pgfMain = dabo.ui.dPageList(self, TabPosition="Left",
-#                 ListSpacing=20)
+        #        self.pgfMain = dabo.ui.dPageList(self, TabPosition="Left",
+        #                 ListSpacing=20)
         self.pgfMain = dPageFrame(self, TabPosition="Top")
         self.addPages()
-        incl = (self.pgfMain.PageCount == 0)
+        incl = self.pgfMain.PageCount == 0
         if incl or self.IncludeDefaultPages:
             self._addDefaultPages()
-        incl = (self.pgfMain.PageCount == 0)
+        incl = self.pgfMain.PageCount == 0
         if incl or self.IncludeFrameworkPages:
             self._addFrameworkPages()
         self.Sizer.append1x(self.pgfMain)
         self.update()
         self.layout()
 
-
-    def addPages(self): pass
-
+    def addPages(self):
+        pass
 
     def appendPage(self, pgCls=None, *args, **kwargs):
         """Pass-through method to the internal paged control"""
         return self.pgfMain.appendPage(pgCls, *args, **kwargs)
 
-
     def insertPage(self, pos, pgCls=None, *args, **kwargs):
         """Pass-through method to the internal paged control"""
         return self.pgfMain.insertPage(pos, pgCls, *args, **kwargs)
-
 
     def _onAcceptPref(self):
         """
@@ -101,11 +96,9 @@ class PreferenceDialog(dOkCancelDialog):
         # Call the user-configurable method
         self.onAcceptPref()
 
-
     def onAcceptPref(self):
         """Override this for subclasses where you need separate OK processing."""
         pass
-
 
     def _onCancelPref(self):
         """
@@ -118,11 +111,9 @@ class PreferenceDialog(dOkCancelDialog):
         # Call the user-configurable method
         self.onCancelPref()
 
-
     def onCancelPref(self):
         """Override this for subclasses where you need separate Cancel processing."""
         pass
-
 
     def addCategory(self, category, pos=None):
         """
@@ -134,7 +125,6 @@ class PreferenceDialog(dOkCancelDialog):
         if pos is None:
             pos = self.pgfMain.PageCount
         return self.pgfMain.insertPage(pos, caption=category)
-
 
     def _addDefaultPages(self):
         """
@@ -155,8 +145,11 @@ class PreferenceDialog(dOkCancelDialog):
             self._selectedItem = None
             self._hotKeyMap = {}
             menuPage.Sizer.Orientation = "H"
-            tree = dTreeView(menuPage, OnTreeSelection=self._onMenuTreeSelection,
-                    RegID="menuKeyAssignmentTree")
+            tree = dTreeView(
+                menuPage,
+                OnTreeSelection=self._onMenuTreeSelection,
+                RegID="menuKeyAssignmentTree",
+            )
             root = tree.setRootNode(_("Menu"))
             for mn in mb.Children:
                 cap = cleanMenuCaption(mn.Caption, "&")
@@ -173,21 +166,32 @@ class PreferenceDialog(dOkCancelDialog):
 
             sz = dGridSizer(MaxCols=2, HGap=5, VGap=10)
             lbl = dLabel(menuPage, Caption=_("Current Key:"))
-            txt = dTextBox(menuPage, ReadOnly=True, Alignment="Center",
-                    RegID="txtMenuCurrentHotKey")
+            txt = dTextBox(
+                menuPage,
+                ReadOnly=True,
+                Alignment="Center",
+                RegID="txtMenuCurrentHotKey",
+            )
             sz.append(lbl, halign="right")
             sz.append(txt, "x")
             sz.appendSpacer(1)
-            btn = dButton(menuPage, Caption=_("Set Key..."),
-                    OnHit=self._setHotKey, DynamicEnabled=self._canSetHotKey)
+            btn = dButton(
+                menuPage,
+                Caption=_("Set Key..."),
+                OnHit=self._setHotKey,
+                DynamicEnabled=self._canSetHotKey,
+            )
             sz.append(btn, halign="center")
             sz.appendSpacer(1)
-            btn = dButton(menuPage, Caption=_("Clear Key"),
-                    OnHit=self._clearHotKey, DynamicEnabled=self._canClearHotKey)
+            btn = dButton(
+                menuPage,
+                Caption=_("Clear Key"),
+                OnHit=self._clearHotKey,
+                DynamicEnabled=self._canClearHotKey,
+            )
             sz.append(btn, halign="center")
             sz.setColExpand(True, 1)
             menuPage.Sizer.append1x(sz, border=10)
-
 
     def _recurseMenu(self, mn, nd, pref):
         """mn is the menu; nd is the tree node for that menu; pref is the pref key for the menu."""
@@ -213,7 +217,6 @@ class PreferenceDialog(dOkCancelDialog):
                     pass
                 kidnode.Object = itm
 
-
     def _onMenuTreeSelection(self, evt):
         self._selectedItem = nd = evt.selectedNode
         if nd:
@@ -225,7 +228,6 @@ class PreferenceDialog(dOkCancelDialog):
                 self.txtMenuCurrentHotKey.Value = nd.hotkey
         self.update()
 
-
     def _setHotKey(self, evt):
         dlg = HotKeyEditor(self)
         itm = self._selectedItem
@@ -234,16 +236,24 @@ class PreferenceDialog(dOkCancelDialog):
         dlg.show()
         if dlg.Accepted:
             hk = dlg.KeyText
-            change = (hk != origKey)
+            change = hk != origKey
             dupeItem = None
             if change:
                 dupeItem = self._hotKeyMap.get(hk)
                 if dupeItem and (dupeItem is not itm):
-                    msg = _("This key combination is assigned to the menu command '%s'. " +
-                            "Do you wish to re-assign it to the command '%s'?") % (cleanMenuCaption(dupeItem.Caption, "&_"),
-                            cleanMenuCaption(itm.Caption, "&_"))
-                    change = dabo.ui.areYouSure(msg, title=_("Duplicate Keystroke"), defaultNo=True,
-                            cancelButton=False)
+                    msg = _(
+                        "This key combination is assigned to the menu command '%s'. "
+                        + "Do you wish to re-assign it to the command '%s'?"
+                    ) % (
+                        cleanMenuCaption(dupeItem.Caption, "&_"),
+                        cleanMenuCaption(itm.Caption, "&_"),
+                    )
+                    change = dabo.ui.areYouSure(
+                        msg,
+                        title=_("Duplicate Keystroke"),
+                        defaultNo=True,
+                        cancelButton=False,
+                    )
             if change:
                 if dupeItem:
                     # Un-assign that hotkey
@@ -262,11 +272,9 @@ class PreferenceDialog(dOkCancelDialog):
         dlg.release()
         self.pgMenuKeys.update()
 
-
     def _canSetHotKey(self):
         itm = self._selectedItem
         return (itm is not None) and (itm.hotkey != "n/a")
-
 
     def _clearHotKey(self, evt):
         itm = self._selectedItem
@@ -279,12 +287,10 @@ class PreferenceDialog(dOkCancelDialog):
         itm = self._selectedItem
         return (itm is not None) and (itm.hotkey not in ("n/a", None))
 
-
     def onRollbackMenuChanges(self):
         km = self._originalHotKeyMap
         for key in list(km.keys()):
             km[key].HotKey = key
-
 
     def _addFrameworkPages(self):
         """
@@ -295,37 +301,56 @@ class PreferenceDialog(dOkCancelDialog):
         # Set the framework-level pref manager
         fp = self.Application._frameworkPrefs
         # Make sure that there is an update frequency pref
-        update_choices = [_("Every time an app is run"), _("Once a day"), _("Once a week"), _("Once a month")]
-        update_keys = [0, dayMins, dayMins*7, dayMins*30]
+        update_choices = [
+            _("Every time an app is run"),
+            _("Once a day"),
+            _("Once a week"),
+            _("Once a month"),
+        ]
+        update_keys = [0, dayMins, dayMins * 7, dayMins * 30]
         freq = fp.update_interval
         if freq not in update_keys:
             fp.update_interval = dayMins
         self.preferenceKeys.append(fp)
         sz = wuPage.Sizer = dSizer("v")
         hsz = dSizer("h")
-        chkUpdateCheck = dCheckBox(wuPage, OnHit=self.onChkUpdate,
-                Caption=_("Check for framework updates"), RegID="chkForWebUpdates",
-                DataSource=fp, DataField="web_update",
-                ToolTipText="Does the framework check for updates?")
-        btnCheckNow = dButton(wuPage, Caption=_("Check now..."),
-                OnHit=self.onCheckNow, ToolTipText="Check the Dabo server for updates")
+        chkUpdateCheck = dCheckBox(
+            wuPage,
+            OnHit=self.onChkUpdate,
+            Caption=_("Check for framework updates"),
+            RegID="chkForWebUpdates",
+            DataSource=fp,
+            DataField="web_update",
+            ToolTipText="Does the framework check for updates?",
+        )
+        btnCheckNow = dButton(
+            wuPage,
+            Caption=_("Check now..."),
+            OnHit=self.onCheckNow,
+            ToolTipText="Check the Dabo server for updates",
+        )
         hsz.append(chkUpdateCheck, valign="middle")
         hsz.appendSpacer(8)
         hsz.append(btnCheckNow, valign="middle")
         sz.append(hsz, halign="center", border=20)
 
-        radFrequency = dRadioList(wuPage, Orientation="Vertical",
-                Caption=_("Check every..."), RegID="radWebUpdateFrequency",
-                Choices=update_choices, Keys=update_keys,
-                ValueMode="Keys", DataSource=fp, DataField="update_interval",
-                ToolTipText=_("How often does the framework check for updates?"),
-                DynamicEnabled = lambda: self.chkForWebUpdates.Value)
+        radFrequency = dRadioList(
+            wuPage,
+            Orientation="Vertical",
+            Caption=_("Check every..."),
+            RegID="radWebUpdateFrequency",
+            Choices=update_choices,
+            Keys=update_keys,
+            ValueMode="Keys",
+            DataSource=fp,
+            DataField="update_interval",
+            ToolTipText=_("How often does the framework check for updates?"),
+            DynamicEnabled=lambda: self.chkForWebUpdates.Value,
+        )
         sz.append(radFrequency, halign="center")
-
 
     def onChkUpdate(self, evt):
         self.update()
-
 
     def onCheckNow(self, evt):
         ret = self.Application.checkForUpdates()
@@ -341,7 +366,6 @@ class PreferenceDialog(dOkCancelDialog):
         else:
             self._properties["IncludeDefaultPages"] = val
 
-
     def _getIncludeFrameworkPages(self):
         return self._includeFrameworkPages
 
@@ -351,24 +375,39 @@ class PreferenceDialog(dOkCancelDialog):
         else:
             self._properties["IncludeFrameworkPages"] = val
 
+    IncludeDefaultPages = property(
+        _getIncludeDefaultPages,
+        _setIncludeDefaultPages,
+        None,
+        _(
+            """When True, the _addDefaultPages() method is called to add the common
+            Dabo settings. Default=True  (bool)"""
+        ),
+    )
 
-    IncludeDefaultPages = property(_getIncludeDefaultPages, _setIncludeDefaultPages, None,
-            _("""When True, the _addDefaultPages() method is called to add the common
-            Dabo settings. Default=True  (bool)"""))
-
-    IncludeFrameworkPages = property(_getIncludeFrameworkPages, _setIncludeFrameworkPages, None,
-            _("""When True, the _addFrameworkPages() method is called to add the common
-            Dabo settings. Default=False  (bool)"""))
+    IncludeFrameworkPages = property(
+        _getIncludeFrameworkPages,
+        _setIncludeFrameworkPages,
+        None,
+        _(
+            """When True, the _addFrameworkPages() method is called to add the common
+            Dabo settings. Default=False  (bool)"""
+        ),
+    )
 
 
 if __name__ == "__main__":
     from dabo.dApp import dApp
+
     class TestForm(dForm):
         def afterInit(self):
-            lbl = dLabel(self, Caption="Preference Manager Demo\n" +
-                "Select 'Preferences' from the menu.", WordWrap=True)
+            lbl = dLabel(
+                self,
+                Caption="Preference Manager Demo\n"
+                + "Select 'Preferences' from the menu.",
+                WordWrap=True,
+            )
             self.Sizer.append(lbl, halign="center", border=20)
 
     app = dApp(MainFormClass=TestForm)
     app.start()
-

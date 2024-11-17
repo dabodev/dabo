@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import ui as dui
-from dabo.dLocalize import _
-from dabo import dEvents as dEvents
-from dabo.ui import dControlMixin
-from dabo.ui import makeDynamicProperty
+import ui as dui
+from dLocalize import _
+import dEvents
+import dControlMixin
+from ui import makeDynamicProperty
 
 
 class dButton(dControlMixin, wx.Button):
@@ -22,17 +21,23 @@ class dButton(dControlMixin, wx.Button):
                 self.Caption = "Press Me one more time"
 
     """
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dButton
         preClass = wx.Button
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
-
+        dControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
 
     def _initEvents(self):
         super(dButton, self)._initEvents()
         self.Bind(wx.EVT_BUTTON, self._onWxHit)
-
 
     def _onCancelButton(self, evt, recurse=True):
         # This callback exists for when the user presses ESC and this button
@@ -46,12 +51,10 @@ class dButton(dControlMixin, wx.Button):
                 if otherCancelButton:
                     otherCancelButton._onCancelButton(evt, recurse=False)
 
-
     # Property get/set/del methods follow. Scroll to bottom to see the property
     # definitions themselves.
     def _getCancelButton(self):
         return self.GetId() == wx.ID_CANCEL
-
 
     def _setCancelButton(self, val):
         if self._constructed():
@@ -82,7 +85,6 @@ class dButton(dControlMixin, wx.Button):
             if val:
                 self._preInitProperties["id"] = wx.ID_CANCEL
             self._properties["CancelButton"] = val
-
 
     def _getDefaultButton(self):
         try:
@@ -115,20 +117,26 @@ class dButton(dControlMixin, wx.Button):
         else:
             self._properties["DefaultButton"] = value
 
-
     # Property definitions:
-    CancelButton = property(_getCancelButton, _setCancelButton, None,
-            _("Specifies whether this command button gets clicked on -Escape-."))
+    CancelButton = property(
+        _getCancelButton,
+        _setCancelButton,
+        None,
+        _("Specifies whether this command button gets clicked on -Escape-."),
+    )
 
-    DefaultButton = property(_getDefaultButton, _setDefaultButton, None,
-            _("Specifies whether this command button gets clicked on -Enter-."))
-
+    DefaultButton = property(
+        _getDefaultButton,
+        _setDefaultButton,
+        None,
+        _("Specifies whether this command button gets clicked on -Enter-."),
+    )
 
     DynamicCancelButton = makeDynamicProperty(CancelButton)
     DynamicDefaultButton = makeDynamicProperty(DefaultButton)
 
 
-dabo.ui.dButton = dButton
+ui.dButton = dButton
 
 
 class _dButton_test(dButton):
@@ -150,6 +158,8 @@ class _dButton_test(dButton):
         self.Caption = "Ok, you cross this line, and you die."
         self.Width = 333
 
+
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
+
     test.Test().runTest(_dButton_test)

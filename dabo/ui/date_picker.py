@@ -2,6 +2,7 @@
 """
 @note: Color setting doesn't work for this control. It's a wx issue.
 """
+
 import datetime
 import wx
 from wx import adv as wx_adv
@@ -17,8 +18,15 @@ def dateTimePy2Wx(date):
     if isinstance(date, datetime.date):
         retVal = wx.DateTime.FromDMY(date.day, date.month - 1, date.year)
     elif isinstance(date, datetime.datetime):
-        retVal = wx.DateTime.FromDMY(date.day, date.month - 1, date.year, date.hour,
-            date.minute, date.second, date.microsecond)
+        retVal = wx.DateTime.FromDMY(
+            date.day,
+            date.month - 1,
+            date.year,
+            date.hour,
+            date.minute,
+            date.second,
+            date.microsecond,
+        )
     else:
         retVal = date
     return retVal
@@ -33,7 +41,7 @@ def dateTimeWx2Py(date):
             date.GetHour(),
             date.GetMinute(),
             date.GetSecond(),
-            date.GetMillisecond()
+            date.GetMillisecond(),
         )
     else:
         retVal = None
@@ -55,22 +63,32 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
         self._lastWasNone = True
         self._baseClass = dDatePicker
         preClass = wx.adv.DatePickerCtrl
-        pickerMode = self._extractKey((properties, attProperties, kwargs),
-                "PickerMode", "Dropdown")[:1].lower()
+        pickerMode = self._extractKey(
+            (properties, attProperties, kwargs), "PickerMode", "Dropdown"
+        )[:1].lower()
         if pickerMode not in "ds":
             pickerMode = "d"
-        kwargs["style"] = kwargs.get("style", 0) | \
-             {"d": wx.adv.DP_DROPDOWN, "s": wx.adv.DP_SPIN}[pickerMode]
-        if self._extractKey((properties, attProperties, kwargs), "AllowNullDate", False):
+        kwargs["style"] = (
+            kwargs.get("style", 0)
+            | {"d": wx.adv.DP_DROPDOWN, "s": wx.adv.DP_SPIN}[pickerMode]
+        )
+        if self._extractKey(
+            (properties, attProperties, kwargs), "AllowNullDate", False
+        ):
             kwargs["style"] |= wx.adv.DP_ALLOWNONE
-        if self._extractKey((properties, attProperties, kwargs), "ForceShowCentury", False):
+        if self._extractKey(
+            (properties, attProperties, kwargs), "ForceShowCentury", False
+        ):
             kwargs["style"] |= wx.adv.DP_SHOWCENTURY
-        dDataControlMixin.__init__(self, preClass, parent,
-            properties, attProperties, *args, **kwargs)
+        dDataControlMixin.__init__(
+            self, preClass, parent, properties, attProperties, *args, **kwargs
+        )
         self._bindKeys()
 
         if self.AllowNullDate:
-            self.SetValue(None) # Need this for the datetime not to display the current date when Null.
+            self.SetValue(
+                None
+            )  # Need this for the datetime not to display the current date when Null.
 
     def _initEvents(self):
         super(dDatePicker, self)._initEvents()
@@ -146,25 +164,25 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
 
     def _processKey(self, evt):
         key = evt.EventData["keyCode"]
-        if key == 43:        # +
+        if key == 43:  # +
             self.dayInterval(1)
-        elif key == 45:        # -
+        elif key == 45:  # -
             self.dayInterval(-1)
-        elif key == 116:    # T
+        elif key == 116:  # T
             self.setCurrentDate()
-        elif key == 91:        # [
+        elif key == 91:  # [
             self.monthInterval(-1)
-        elif key == 93:        # ]
+        elif key == 93:  # ]
             self.monthInterval(1)
-        elif key == 109:    # m
+        elif key == 109:  # m
             self.setToMonthDay("First")
-        elif key == 104:    # h
+        elif key == 104:  # h
             self.setToMonthDay("Last")
-        elif key == 121:    # y
+        elif key == 121:  # y
             self.setToYearDay("First")
-        elif key == 114:    # r
+        elif key == 114:  # r
             self.setToYearDay("Last")
-        elif key == 100:    # d
+        elif key == 100:  # d
             self._setCustomDate()
         elif key in (dui.dKeys.key_Delete, dui.dKeys.key_Back):
             self.Value = None
@@ -173,7 +191,8 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
 
     def _setCustomDate(self):
         days = dui.getInt(
-            message=_("Day shift:"), caption=_("Reschedule day"), Min= -365, Max=365)
+            message=_("Day shift:"), caption=_("Reschedule day"), Min=-365, Max=365
+        )
         if days:
             self.dayInterval(days)
 
@@ -203,12 +222,14 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
             if self._valueMode == "d":
                 val = datetime.date(val.year, val.month, val.day)
             else:
-                val = val.combine(val, datetime.time(
+                val = val.combine(
+                    val,
+                    datetime.time(
                         self._timePart[0],
                         self._timePart[1],
                         self._timePart[2],
-                        self._timePart[3]
-                    )
+                        self._timePart[3],
+                    ),
                 )
 
         return val
@@ -258,8 +279,9 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
         except ValueError as e:
             nm = self.Name
             ue = ustr(e)
-            dabo.log.error(_("Object '%(nm)s' has the following error: %(ue)s")
-                    % locals())
+            dabo.log.error(
+                _("Object '%(nm)s' has the following error: %(ue)s") % locals()
+            )
 
     def _getAllowNullDate(self):
         return self._hasWindowStyleFlag(wx.adv.DP_ALLOWNONE)
@@ -333,34 +355,72 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
             raise ValueError(_("The only allowed values are: 'Date', 'Timestamp'."))
 
     # Property definitions:
-    AllowNullDate = property(_getAllowNullDate, _setAllowNullDate, None,
-        _("""If True enable Null vale in date. (bool)(Default=False)"""))
+    AllowNullDate = property(
+        _getAllowNullDate,
+        _setAllowNullDate,
+        None,
+        _("""If True enable Null vale in date. (bool)(Default=False)"""),
+    )
 
-    ForceShowCentury = property(_getForceShowCentury, _setForceShowCentury, None,
-        _("""Regardless of locale setting, century is shown if True. (bool)
-        (Default=False)"""))
+    ForceShowCentury = property(
+        _getForceShowCentury,
+        _setForceShowCentury,
+        None,
+        _(
+            """Regardless of locale setting, century is shown if True. (bool)
+        (Default=False)"""
+        ),
+    )
 
-    IsDateValid = property(_getIsDateValid, None, None,
-        _("""Read-only property tells if Value holds valid date type value."""))
+    IsDateValid = property(
+        _getIsDateValid,
+        None,
+        None,
+        _("""Read-only property tells if Value holds valid date type value."""),
+    )
 
-    InvalidBackColor = property(_getInvalidBackColor, _setInvalidBackColor, None,
-        _("""Color value used for illegal values or values out-of-teh bounds. (str)
-        (Default="Yellow")"""))
+    InvalidBackColor = property(
+        _getInvalidBackColor,
+        _setInvalidBackColor,
+        None,
+        _(
+            """Color value used for illegal values or values out-of-teh bounds. (str)
+        (Default="Yellow")"""
+        ),
+    )
 
-    MaxValue = property(_getMaxValue, _setMaxValue, None,
-        _("""Holds upper value limit. (date, tuple, str)(Default=None)"""))
+    MaxValue = property(
+        _getMaxValue,
+        _setMaxValue,
+        None,
+        _("""Holds upper value limit. (date, tuple, str)(Default=None)"""),
+    )
 
-    MinValue = property(_getMinValue, _setMinValue, None,
-        _("""Holds lower value limit. (date, tuple, str)(Default=None)"""))
+    MinValue = property(
+        _getMinValue,
+        _setMinValue,
+        None,
+        _("""Holds lower value limit. (date, tuple, str)(Default=None)"""),
+    )
 
-    PickerMode = property(_getPickerMode, _setPickerMode, None,
-        _("""Creates control with spin or dropdown calendar. (str)
+    PickerMode = property(
+        _getPickerMode,
+        _setPickerMode,
+        None,
+        _(
+            """Creates control with spin or dropdown calendar. (str)
         Available values are:
             - Spin
-            - Dropdown (default)"""))
+            - Dropdown (default)"""
+        ),
+    )
 
-    ValueMode = property(_getValueMode, _setValueMode, None,
-        _("""Enables handling Timestamp type. (str)(Default="Date")"""))
+    ValueMode = property(
+        _getValueMode,
+        _setValueMode,
+        None,
+        _("""Enables handling Timestamp type. (str)(Default="Date")"""),
+    )
 
     DynamicMaxValue = makeDynamicProperty(MaxValue)
     DynamicMinValue = makeDynamicProperty(MinValue)
@@ -374,9 +434,12 @@ if __name__ == "__main__":
     from dabo.ui import test
 
     class TestBase(dDatePicker):
-
         def onValueChanged(self, evt):
             print("onValueChanged")
 
-    test.Test().runTest(TestBase, AllowNullDate=True, Value=datetime.date(1970,12,0o3))
-    test.Test().runTest(TestBase, BackColor="orange", PickerMode="Spin", AllowNullDate=True)
+    test.Test().runTest(
+        TestBase, AllowNullDate=True, Value=datetime.date(1970, 12, 0o3)
+    )
+    test.Test().runTest(
+        TestBase, BackColor="orange", PickerMode="Spin", AllowNullDate=True
+    )

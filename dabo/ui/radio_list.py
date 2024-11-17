@@ -15,12 +15,19 @@ class _dRadioButton(dDataControlMixin, wx.RadioButton):
     Subclass of wx.RadioButton. Not meant to be used individually, but
     only in the context of a parent dRadioList control.
     """
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = _dRadioButton
         preClass = wx.RadioButton
-        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
-
+        dDataControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
 
     def _initEvents(self):
         if isinstance(self.Parent, dRadioList):
@@ -53,38 +60,50 @@ class _dRadioButton(dDataControlMixin, wx.RadioButton):
             self.bindKey("left", self._onArrow, arrowKey="left")
             self.bindKey("right", self._onArrow, arrowKey="right")
 
-
     def __onWxMouseLeftDown(self, evt):
         self.raiseEvent(dEvents.MouseLeftDown, evt)
+
     def __onWxMouseLeftUp(self, evt):
         self.raiseEvent(dEvents.MouseLeftUp, evt)
+
     def __onWxMouseLeftDoubleClick(self, evt):
         self.raiseEvent(dEvents.MouseLeftDoubleClick, evt)
+
     def __onWxMouseRightDown(self, evt):
         self.raiseEvent(dEvents.MouseRightDown, evt)
+
     def __onWxMouseRightUp(self, evt):
         self.raiseEvent(dEvents.MouseRightUp, evt)
+
     def __onWxMouseRightDoubleClick(self, evt):
         self.raiseEvent(dEvents.MouseRightDoubleClick, evt)
+
     def __onWxMouseMiddleDown(self, evt):
         self.raiseEvent(dEvents.MouseMiddleDown, evt)
+
     def __onWxMouseMiddleUp(self, evt):
         self.raiseEvent(dEvents.MouseMiddleUp, evt)
+
     def __onWxMouseMiddleDoubleClick(self, evt):
         self.raiseEvent(dEvents.MouseMiddleDoubleClick, evt)
+
     def __onWxMouseEnter(self, evt):
         self.raiseEvent(dEvents.MouseEnter, evt)
+
     def __onWxMouseLeave(self, evt):
         self.raiseEvent(dEvents.MouseLeave, evt)
-    def __onWxMouseMove(self, evt):
-        self.raiseEvent(dEvents.MouseMove, evt)
-    def __onWxMouseWheel(self, evt):
-        self.raiseEvent(dEvents.MouseWheel, evt)
-    def __onWxContextMenu(self, evt):
-        self.raiseEvent(dEvents.ContextMenu, evt)
+
     def __onWxMouseMove(self, evt):
         self.raiseEvent(dEvents.MouseMove, evt)
 
+    def __onWxMouseWheel(self, evt):
+        self.raiseEvent(dEvents.MouseWheel, evt)
+
+    def __onWxContextMenu(self, evt):
+        self.raiseEvent(dEvents.ContextMenu, evt)
+
+    def __onWxMouseMove(self, evt):
+        self.raiseEvent(dEvents.MouseMove, evt)
 
     def _onArrow(self, evt):
         ## Failed attempt to get arrow-key navigation of the buttons working on Gtk.
@@ -129,6 +148,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
     suitable for lists of one to a couple hundred choices, a dRadioList is
     really only suitable for lists of one to a dozen at most.
     """
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dRadioList
         self._sizerClass = dabo.ui.dBorderSizer
@@ -149,24 +169,31 @@ class dRadioList(dControlItemMixin, wx.Panel):
         # 'ButtonSpacing' property.
         self._buttonSpacing = 5
 
-        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
-
+        dControlItemMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
 
     def _resetChoices(self):
         # Need to override as the base behavior calls undefined Clear() and AppendItems()
         pass
 
-
     def getBaseButtonClass(cls):
         return _dRadioButton
-    getBaseButtonClass = classmethod(getBaseButtonClass)
 
+    getBaseButtonClass = classmethod(getBaseButtonClass)
 
     def _checkSizer(self):
         """Makes sure the sizer is created before setting props that need it."""
         if self.Sizer is None:
-            self.Sizer = self.SizerClass(self, orientation=self.Orientation, Caption=self.Caption)
+            self.Sizer = self.SizerClass(
+                self, orientation=self.Orientation, Caption=self.Caption
+            )
 
     def _onWxHit(self, evt):
         pos = self._items.index(evt.GetEventObject())
@@ -177,16 +204,14 @@ class dRadioList(dControlItemMixin, wx.Panel):
         self._userChanged = True
         super(dRadioList, self)._onWxHit(evt)
 
-
     def _onButtonGotFocus(self, wxEvt):
         # Received from individual buttons
         now = time.time()
-        if now - self._lastLostFocusEvent > .01:
+        if now - self._lastLostFocusEvent > 0.01:
             # Newly focused; raise the event.
             # Missing uiEvent parameter in call? See note below.
             self.raiseEvent(dEvents.GotFocus)
         self._lastGotFocusEvent = now
-
 
     def _onButtonLostFocus(self, wxEvt):
         # Received from individual buttons
@@ -195,7 +220,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
 
         @dabo.ui.deadCheck
         def checkForFocus(timeCalled):
-            if timeCalled - self._lastGotFocusEvent > .01:
+            if timeCalled - self._lastGotFocusEvent > 0.01:
                 # No other button has gotten focus in the intervening time
                 # Don't raise event if parent form loses focus!
                 # Doing it on Windows platform raises global Python exception.
@@ -211,7 +236,6 @@ class dRadioList(dControlItemMixin, wx.Panel):
         # we need to see if this control has truly lost focus.
         dabo.ui.callAfter(checkForFocus, now)
 
-
     def layout(self):
         """Wrap the wx version of the call, if possible."""
         self.Layout()
@@ -223,7 +247,6 @@ class dRadioList(dControlItemMixin, wx.Panel):
         if self.Application.Platform == "Win":
             self.refresh()
 
-
     def _setSelection(self, val):
         """
         Set the selected state of the buttons to match this
@@ -232,30 +255,28 @@ class dRadioList(dControlItemMixin, wx.Panel):
         for pos, itm in enumerate(self._items):
             itm.SetValue(pos == val)
 
-
     def enableKey(self, itm, val=True):
         """Enables or disables an individual button, referenced by key value."""
         index = self.Keys[itm]
         self._items[index].Enabled = val
 
-
     def enablePosition(self, itm, val=True):
         """Enables or disables an individual button, referenced by position (index)."""
         self._items[itm].Enabled = val
 
-
     def enableString(self, itm, val=True):
         """Enables or disables an individual button, referenced by string display value."""
-        mtch = [btn for btn in self.Children
-                if isinstance(btn, _dRadioButton)
-                and btn.Caption == itm]
+        mtch = [
+            btn
+            for btn in self.Children
+            if isinstance(btn, _dRadioButton) and btn.Caption == itm
+        ]
         try:
             itm = mtch[0]
             idx = self._items.index(itm)
             self._items[idx].Enabled = val
         except IndexError:
             dabo.log.error(_("Could not find a button with Caption of '%s'") % itm)
-
 
     def enable(self, itm, val=True):
         """
@@ -278,19 +299,16 @@ class dRadioList(dControlItemMixin, wx.Panel):
         elif self.ValueMode == "key":
             self.enableKey(itm, val)
 
-
     def showKey(self, itm, val=True):
         """Shows or hides an individual button, referenced by key value."""
         index = self.Keys[itm]
         self._items[index].Visible = val
         self.layout()
 
-
     def showPosition(self, itm, val=True):
         """Shows or hides an individual button, referenced by position (index)."""
         self._items[itm].Visible = val
         self.layout()
-
 
     def showString(self, itm, val=True):
         """Shows or hides an individual button, referenced by string display value."""
@@ -298,7 +316,6 @@ class dRadioList(dControlItemMixin, wx.Panel):
         if mtch:
             mtch[0].Visible = val
         self.layout()
-
 
     def show(self, itm, val=True):
         """
@@ -321,7 +338,6 @@ class dRadioList(dControlItemMixin, wx.Panel):
         elif self.ValueMode == "key":
             self.showKey(itm, val)
 
-
     def _getFudgedButtonSpacing(self):
         val = self._buttonSpacing
         if "linux" in sys.platform:
@@ -330,7 +346,6 @@ class dRadioList(dControlItemMixin, wx.Panel):
         val = (val, 0) if self.Orientation[:1].lower() == "h" else (0, val)
         return val
 
-
     # Property get/set/del methods follow. Scroll to bottom to see the property
     # definitions themselves.
     def _getButtonClass(self):
@@ -338,7 +353,6 @@ class dRadioList(dControlItemMixin, wx.Panel):
 
     def _setButtonClass(self, val):
         self._buttonClass = val
-
 
     def _getButtonSpacing(self):
         return self._buttonSpacing
@@ -354,7 +368,6 @@ class dRadioList(dControlItemMixin, wx.Panel):
             self.layout()
         else:
             self._properties["ButtonSpacing"] = val
-
 
     def _getCaption(self):
         ret = self._caption
@@ -376,7 +389,6 @@ class dRadioList(dControlItemMixin, wx.Panel):
                 self.layout()
         else:
             self._properties["Caption"] = val
-
 
     def _getChoices(self):
         try:
@@ -429,7 +441,6 @@ class dRadioList(dControlItemMixin, wx.Panel):
         else:
             self._properties["Choices"] = choices
 
-
     def _getOrientation(self):
         return getattr(self, "_orientation", "Vertical")
 
@@ -444,8 +455,6 @@ class dRadioList(dControlItemMixin, wx.Panel):
         else:
             self._properties["Orientation"] = val
 
-
-
     def _getPositionValue(self):
         return self._selpos
 
@@ -455,7 +464,6 @@ class dRadioList(dControlItemMixin, wx.Panel):
             self._setSelection(val)
         else:
             self._properties["PositionValue"] = val
-
 
     def _getShowBox(self):
         return self._showBox
@@ -489,7 +497,14 @@ class dRadioList(dControlItemMixin, wx.Panel):
             memberItems = fromSz.Children
             members = [fromSz.getItem(mem) for mem in memberItems]
             memberProps = dict.fromkeys(members)
-            szProps = ("Border", "Proportion", "Expand", "HAlign", "VAlign", "BorderSides")
+            szProps = (
+                "Border",
+                "Proportion",
+                "Expand",
+                "HAlign",
+                "VAlign",
+                "BorderSides",
+            )
             for pos, member in enumerate(members):
                 pd = {}
                 for sp in szProps:
@@ -521,13 +536,11 @@ class dRadioList(dControlItemMixin, wx.Panel):
         else:
             self._properties["ShowBox"] = val
 
-
     def _getSizerClass(self):
         return self._sizerClass
 
     def _setSizerClass(self, val):
         self._sizerClass = val
-
 
     def _getStringValue(self):
         try:
@@ -544,71 +557,113 @@ class dRadioList(dControlItemMixin, wx.Panel):
             except IndexError:
                 if val is not None:
                     # No such string.
-                    raise ValueError(_("No radio button matching '%s' was found.") % val)
+                    raise ValueError(
+                        _("No radio button matching '%s' was found.") % val
+                    )
         else:
             self._properties["StringValue"] = val
 
-
     # Property definitions:
-    ButtonClass = property(_getButtonClass, _setButtonClass, None,
-            _("Class to use for the radio buttons. Default=_dRadioButton  (_dRadioButton)"))
+    ButtonClass = property(
+        _getButtonClass,
+        _setButtonClass,
+        None,
+        _("Class to use for the radio buttons. Default=_dRadioButton  (_dRadioButton)"),
+    )
 
-    ButtonSpacing = property(_getButtonSpacing, _setButtonSpacing, None,
-            _("Spacing in pixels between buttons in the control  (int)"))
+    ButtonSpacing = property(
+        _getButtonSpacing,
+        _setButtonSpacing,
+        None,
+        _("Spacing in pixels between buttons in the control  (int)"),
+    )
 
-    Caption = property(_getCaption, _setCaption, None,
-            _("String to display on the box surrounding the control  (str)"))
+    Caption = property(
+        _getCaption,
+        _setCaption,
+        None,
+        _("String to display on the box surrounding the control  (str)"),
+    )
 
-    Choices = property(_getChoices, _setChoices, None,
-            _("""Specifies the string choices to display in the list.
+    Choices = property(
+        _getChoices,
+        _setChoices,
+        None,
+        _(
+            """Specifies the string choices to display in the list.
             -> List of strings. Read-write at runtime.
             The list index becomes the PositionValue, and the string
-            becomes the StringValue."""))
+            becomes the StringValue."""
+        ),
+    )
 
-    Orientation = property(_getOrientation, _setOrientation, None,
-            _("""Specifies whether this is a vertical or horizontal RadioList.
+    Orientation = property(
+        _getOrientation,
+        _setOrientation,
+        None,
+        _(
+            """Specifies whether this is a vertical or horizontal RadioList.
             String. Possible values:
                 'Vertical' (the default)
-                'Horizontal'"""))
+                'Horizontal'"""
+        ),
+    )
 
-    PositionValue = property(_getPositionValue, _setPositionValue, None,
-            _("""Specifies the position (index) of the selected button.
+    PositionValue = property(
+        _getPositionValue,
+        _setPositionValue,
+        None,
+        _(
+            """Specifies the position (index) of the selected button.
             Integer. Read-write at runtime.
-            Returns the current position, or sets the current position."""))
+            Returns the current position, or sets the current position."""
+        ),
+    )
 
-    ShowBox = property(_getShowBox, _setShowBox, None,
-            _("Is the surrounding box visible?  (bool)"))
+    ShowBox = property(
+        _getShowBox, _setShowBox, None, _("Is the surrounding box visible?  (bool)")
+    )
 
-    SizerClass = property(_getSizerClass, _setSizerClass, None,
-            _("Class to use for the border sizer. Default=dBorderSizer  (dSizer)"))
+    SizerClass = property(
+        _getSizerClass,
+        _setSizerClass,
+        None,
+        _("Class to use for the border sizer. Default=dBorderSizer  (dSizer)"),
+    )
 
-    StringValue = property(_getStringValue, _setStringValue, None,
-            _("""Specifies the text of the selected button.
+    StringValue = property(
+        _getStringValue,
+        _setStringValue,
+        None,
+        _(
+            """Specifies the text of the selected button.
             String. Read-write at runtime.
             Returns the text of the current item, or changes the current position
             to the position with the specified text. An exception is raised if there
-            is no position with matching text."""))
-
+            is no position with matching text."""
+        ),
+    )
 
     DynamicOrientation = makeDynamicProperty(Orientation)
     DynamicPositionValue = makeDynamicProperty(PositionValue)
     DynamicStringValue = makeDynamicProperty(StringValue)
 
 
-
 dabo.ui.dRadioList = dRadioList
 
 
 class _dRadioList_test(dRadioList):
-#     def initProperties(self):
-#         self.ShowBox = False
+    #     def initProperties(self):
+    #         self.ShowBox = False
 
     def afterInit(self):
         self.Caption = "Developers"
         self.BackColor = "lightyellow"
-        developers = [{"lname": "McNett", "fname": "Paul", "iid": 42},
-                {"lname": "Leafe", "fname": "Ed", "iid": 23},
-                {"lname": "Roche", "fname": "Ted", "iid": 11}]
+        developers = [
+            {"lname": "McNett", "fname": "Paul", "iid": 42},
+            {"lname": "Leafe", "fname": "Ed", "iid": 23},
+            {"lname": "Roche", "fname": "Ted", "iid": 11},
+        ]
 
         self.Choices = ["%s %s" % (dev["fname"], dev["lname"]) for dev in developers]
         developers.append({"lname": "Hentzen", "fname": "Whil", "iid": 93})
@@ -617,7 +672,6 @@ class _dRadioList_test(dRadioList):
         self.Keys = keys
         self.ValueMode = "key"
 
-
     def onHit(self, evt):
         print("KeyValue: ", self.KeyValue)
         print("PositionValue: ", self.PositionValue)
@@ -625,7 +679,7 @@ class _dRadioList_test(dRadioList):
         print("Value: ", self.Value)
 
 
-
 if __name__ == "__main__":
     from dabo.ui import test
+
     test.Test().runTest(_dRadioList_test)

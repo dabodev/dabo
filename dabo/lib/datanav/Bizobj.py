@@ -15,15 +15,15 @@ class Bizobj(dabo.biz.dBizobj):
         """
         return getattr(self, "_baseWhereClause", "")
 
-
     def _setBaseWhereClause(self, val):
         self._baseWhereClause = val
-
 
     def addField(self, fld):
         try:
             cursorInfo, alias = fld.split(" as ")
-            table, field = cursorInfo.rsplit(".", 1)  ## rsplit to account for schema.table.field setups
+            table, field = cursorInfo.rsplit(
+                ".", 1
+            )  ## rsplit to account for schema.table.field setups
         except ValueError:
             # if fld wasn't sent as the conventional "table.field as alias",
             # then there's nothing to automatically do.
@@ -32,7 +32,6 @@ class Bizobj(dabo.biz.dBizobj):
             self.BackendTableFields[alias] = (table, field)
 
         super(Bizobj, self).addField(fld)
-
 
     def _getBackendTableFields(self):
         try:
@@ -45,9 +44,12 @@ class Bizobj(dabo.biz.dBizobj):
         assert isinstance(val, dict)
         self._backendTableFields = val
 
-    BackendTableFields = property(_getBackendTableFields,
-            _setBackendTableFields, None,
-            _("""Contains information for properly filling out the where clause.
+    BackendTableFields = property(
+        _getBackendTableFields,
+        _setBackendTableFields,
+        None,
+        _(
+            """Contains information for properly filling out the where clause.
 
             If you have the following base sql:
 
@@ -76,8 +78,15 @@ class Bizobj(dabo.biz.dBizobj):
                 self.addField("invoice.number as invoicenumber")
                 self.addField("customer.name as name")
 
-            """))
+            """
+        ),
+    )
 
-    BaseWhereClause = property(getBaseWhereClause, _setBaseWhereClause, None,
-            _("""A where-clause stub that will get prepended to whatever the user chooses."""))
-
+    BaseWhereClause = property(
+        getBaseWhereClause,
+        _setBaseWhereClause,
+        None,
+        _(
+            """A where-clause stub that will get prepended to whatever the user chooses."""
+        ),
+    )

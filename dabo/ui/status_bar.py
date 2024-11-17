@@ -13,14 +13,21 @@ class dStatusBar(dControlMixin, wx.StatusBar):
     The status bar is displayed at the bottom of the form. Add the status bar
     to your form using form.StatusBar=dStatusBar().
     """
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dStatusBar
         preClass = wx.StatusBar
-        self._platformIsWindows = (self.Application.Platform == "Win")
+        self._platformIsWindows = self.Application.Platform == "Win"
         self._fieldCount = 1
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
-
+        dControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
 
     def layout(self):
         """Wrap the wx version of the call, if possible."""
@@ -38,7 +45,6 @@ class dStatusBar(dControlMixin, wx.StatusBar):
         if self._platformIsWindows:
             self.refresh()
 
-
     def _getFieldCount(self):
         return self._fieldCount
 
@@ -49,9 +55,12 @@ class dStatusBar(dControlMixin, wx.StatusBar):
         else:
             self._properties["FieldCount"] = val
 
-
-    FieldCount = property(_getFieldCount, _setFieldCount, None,
-            _("Number of areas, or 'fields', in the status bar. Default=1  (int)"))
+    FieldCount = property(
+        _getFieldCount,
+        _setFieldCount,
+        None,
+        _("Number of areas, or 'fields', in the status bar. Default=1  (int)"),
+    )
 
 
 dabo.ui.dStatusBar = dStatusBar

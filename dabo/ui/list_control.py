@@ -17,37 +17,36 @@ class _ListColumnAccessor(object):
     they provide a way to interact with the underlying list items in a more
     straightforward manner.
     """
+
     def __init__(self, listcontrol, *args, **kwargs):
         self.listcontrol = listcontrol
         super(_ListColumnAccessor, self).__init__(*args, **kwargs)
-
 
     def __dabo_getitem__(self, val):
         ret = self.listcontrol.GetColumn(val)
         ret._dabo_listcontrol = self.listcontrol
         ret._dabo_column_number = val
+
         def _getCaption(self):
             return self._dabo_listcontrol.getCaptionForColumn(self._dabo_column_number)
+
         def _setCaption(self, val):
             self._dabo_listcontrol.setCaptionForColumn(self._dabo_column_number, val)
-        Caption = property(_getCaption, _setCaption, None,
-                _("Caption for the column.  (str)"))
+
+        Caption = property(
+            _getCaption, _setCaption, None, _("Caption for the column.  (str)")
+        )
         setattr(ret.__class__, "Caption", Caption)
         return ret
-
 
     def __getitem__(self, val):
         return self.__dabo_getitem__(val)
 
-
     def __getslice__(self, start, end):
-        return [self.__dabo_getitem__(col)
-                for col in range(start, end)]
+        return [self.__dabo_getitem__(col) for col in range(start, end)]
 
 
-
-class dListControl(dControlItemMixin,
-        ListMixin.ListCtrlAutoWidthMixin, wx.ListCtrl):
+class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListCtrl):
     """
     Creates a list control, which is a flexible, virtual list box.
 
@@ -56,8 +55,10 @@ class dListControl(dControlItemMixin,
     elements inside of the row. If you need to be able to work with individual
     elements, you should use a dGrid.
     """
-    def __init__(self, parent, properties=None, attProperties=None,
-            style=None, *args, **kwargs):
+
+    def __init__(
+        self, parent, properties=None, attProperties=None, style=None, *args, **kwargs
+    ):
         self._baseClass = dListControl
 
         self._lastSelectedIndex = None
@@ -78,8 +79,16 @@ class dListControl(dControlItemMixin,
         except TypeError:
             style = wx.LC_REPORT
         preClass = wx.ListCtrl
-        dControlItemMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, style=style, *args, **kwargs)
+        dControlItemMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            style=style,
+            *args,
+            **kwargs,
+        )
         ListMixin.ListCtrlAutoWidthMixin.__init__(self)
         # Dictionary for tracking images by key value
         self.__imageList = {}
@@ -89,7 +98,6 @@ class dListControl(dControlItemMixin,
         # Set the default sorting column to 0 after everything is instantiated
         dui.setAfter(self, "SortColumn", 0)
         self._columnAccessor = _ListColumnAccessor(self)
-
 
     def _initEvents(self):
         super(dListControl, self)._initEvents()
@@ -103,24 +111,23 @@ class dListControl(dControlItemMixin,
         self.Bind(wx.EVT_LIST_COL_END_DRAG, self.__onWxColumnResize)
 
         self.bindEvent(dEvents.ListHeaderMouseLeftClick, self.__onHeaderMouseLeftClick)
-        self.bindEvent(dEvents.ListHeaderMouseRightClick, self.__onHeaderMouseRightClick)
+        self.bindEvent(
+            dEvents.ListHeaderMouseRightClick, self.__onHeaderMouseRightClick
+        )
         self.bindEvent(dEvents.ListColumnResize, self.__onColumnResize)
 
-
     def _getInitPropertiesList(self):
-        return super(dListControl, self)._getInitPropertiesList() + \
-            ("ColumnsAlignment",)
-
+        return super(dListControl, self)._getInitPropertiesList() + (
+            "ColumnsAlignment",
+        )
 
     def _doResize(self):
         if self and self.ExpandToFit:
             ListMixin.ListCtrlAutoWidthMixin._doResize(self)
 
-
     def addColumn(self, caption, align="Left", width=-1):
         """Add a column with the selected caption."""
         self.insertColumn(self.GetColumnCount(), caption, align, width)
-
 
     def insertColumn(self, pos, caption, align="Left", width=-1):
         """
@@ -133,7 +140,6 @@ class dListControl(dControlItemMixin,
             pass
         self.InsertColumn(pos, caption, self._getWxAlign(align), width)
 
-
     def removeColumn(self, pos=None):
         """
         Removes the specified column, or the last column if
@@ -142,7 +148,6 @@ class dListControl(dControlItemMixin,
         if pos is None:
             pos = self.GetColumnCount() - 1
         self.DeleteColumn(pos)
-
 
     def _getCurrentData(self):
         ds = []
@@ -153,18 +158,16 @@ class dListControl(dControlItemMixin,
             ds.append(rr)
         return ds
 
-
     def _getWxAlign(self, align):
         try:
             wxAlign = {
                 "l": wx.LIST_FORMAT_LEFT,
                 "c": wx.LIST_FORMAT_CENTRE,
-                "r": wx.LIST_FORMAT_RIGHT
+                "r": wx.LIST_FORMAT_RIGHT,
             }[align[:1].lower()]
         except:
             wxAlign = wx.LIST_FORMAT_LEFT
         return wxAlign
-
 
     def setColumns(self, colList):
         """
@@ -187,19 +190,16 @@ class dListControl(dControlItemMixin,
         self.ExpandColumn = expandCol
         self.unlockDisplay()
 
-
     def getCaptionForColumn(self, colnum):
         """Convenience method for getting the caption for a given column number."""
         captions = [self.GetColumn(ii).GetText() for ii in range(self.ColumnCount)]
         return captions[colnum]
-
 
     def setCaptionForColumn(self, colnum, val):
         """Convenience method for setting the caption for a given column number."""
         captions = [self.GetColumn(ii).GetText() for ii in range(self.ColumnCount)]
         captions[colnum] = val
         self.setColumns(captions)
-
 
     def select(self, row):
         """
@@ -211,7 +211,6 @@ class dListControl(dControlItemMixin,
         else:
             dabo.log.error("An attempt was made to select a non-existent row")
 
-
     def selectOnly(self, row):
         """
         Selects the specified row. In a MultipleSelect control, any
@@ -221,14 +220,12 @@ class dListControl(dControlItemMixin,
             self.unselectAll()
         self.SetItemState(row, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
 
-
     def unselect(self, row):
         """
         De-selects the specified row. In a MultipleSelect control, any
         other selected rows remain selected.
         """
         self.SetItemState(row, 0, wx.LIST_STATE_SELECTED)
-
 
     def selectAll(self):
         """
@@ -239,20 +236,20 @@ class dListControl(dControlItemMixin,
             for row in range(self.RowCount):
                 self.select(row)
         else:
-            dabo.log.error("'selectAll()' may only be called on List Controls that designated as MultipleSelect")
-
+            dabo.log.error(
+                "'selectAll()' may only be called on List Controls that designated as MultipleSelect"
+            )
 
     def unselectAll(self):
         """De-selects all rows."""
         for row in range(self.RowCount):
             self.unselect(row)
+
     # Override the default selectNone to something appropriate for this control.
     selectNone = unselectAll
 
-
     def getColumnWidth(self, col):
         return self.GetColumnWidth(col)
-
 
     def setColumnWidth(self, col, wd):
         """Sets the width of the specified column."""
@@ -261,7 +258,6 @@ class dListControl(dControlItemMixin,
         else:
             self.SetColumnWidth(col, wd)
         dui.callAfterInterval(100, self._doResize)
-
 
     def autoSizeColumn(self, col):
         """Auto-sizes the specified column."""
@@ -274,14 +270,12 @@ class dListControl(dControlItemMixin,
         self.unlockDisplay()
         dui.callAfterInterval(100, self._doResize)
 
-
     def autoSizeColumns(self, colList=None):
         """Auto-sizes all the columns."""
         if colList is None:
             colList = range(self.ColumnCount)
         for col in colList:
             self.autoSizeColumn(col)
-
 
     def append(self, tx, col=0, row=None):
         """
@@ -316,7 +310,6 @@ class dListControl(dControlItemMixin,
                 pass
         return new_item
 
-
     def appendRows(self, seq, col=0):
         """
         Accepts a list/tuple of data. Each element in the sequence
@@ -328,7 +321,6 @@ class dListControl(dControlItemMixin,
         for itm in seq:
             self.append(itm, col=col)
 
-
     def insert(self, tx, row=0, col=0):
         """
         Inserts the item at the specified row, or at the beginning if no
@@ -336,7 +328,6 @@ class dListControl(dControlItemMixin,
         """
         self.InsertItem(row, "")
         self.append(tx, col, row)
-
 
     def insertRows(self, seq, row=0, col=0):
         """
@@ -349,7 +340,6 @@ class dListControl(dControlItemMixin,
         for itm in seq:
             self.insert(itm, row=row, col=col)
 
-
     def removeRow(self, row):
         """
         Deletes the specified row if it exists, or generates a warning
@@ -360,7 +350,6 @@ class dListControl(dControlItemMixin,
             self._restoreRowSelection(row)
         else:
             dabo.log.error("An attempt was made to remove a non-existent row")
-
 
     def _restoreRowSelection(self, row):
         """
@@ -377,14 +366,13 @@ class dListControl(dControlItemMixin,
                 else:
                     self.select(rowcnt - 1)
 
-
     def clear(self):
         """Remove all the rows in the control."""
         self.DeleteAllItems()
         self._lastSelectedIndex = None
+
     # Need to alias this to work like other list controls.
     removeAll = clear
-
 
     def _GetString(self, idx=None, col=None):
         """
@@ -397,16 +385,13 @@ class dListControl(dControlItemMixin,
             col = self.ValueColumn
         return self.GetItem(idx, col).GetText()
 
-
     def setItemData(self, item, data):
         """Associate some data with the item."""
         return self.SetItemData(item, data)
 
-
     def getItemData(self, item):
         """Retrieve the data associated with the item."""
         return self.GetItemData(item)
-
 
     # Image-handling function
     def addImage(self, img, key=None):
@@ -425,7 +410,6 @@ class dListControl(dControlItemMixin,
         idx = il.Add(img)
         self.__imageList[key] = idx
 
-
     def setItemImg(self, itm, imgKey):
         """
         Sets the specified item's image to the image corresponding
@@ -439,7 +423,6 @@ class dListControl(dControlItemMixin,
         self.SetItemImage(itm, imgIdx, imgIdx)
         self.GetItem(itm).SetImage(imgIdx)
 
-
     def getItemImg(self, itm):
         """
         Returns the index of the specified item's image in the
@@ -448,10 +431,8 @@ class dListControl(dControlItemMixin,
         ret = self.GetItem(itm).GetImage()
         return ret
 
-
     def getItemBackColor(self, itm):
         return self.GetItemBackgroundColour(itm)
-
 
     def setItemBackColor(self, itm, val):
         if isinstance(val, str):
@@ -460,10 +441,8 @@ class dListControl(dControlItemMixin,
             color = val
         self.SetItemBackgroundColour(itm, color)
 
-
     def getItemForeColor(self, itm):
         return self.GetItemTextColour(itm)
-
 
     def setItemForeColor(self, itm, val):
         if isinstance(val, str):
@@ -472,41 +451,32 @@ class dListControl(dControlItemMixin,
             color = val
         self.SetItemTextColour(itm, color)
 
-
     def __onActivation(self, evt):
         self._hitIndex = evt.GetIndex()
         # Call the default Hit code
         self._onWxHit(evt)
 
-
     def __onFocus(self, evt):
         self.raiseEvent(dEvents.GotFocus, evt)
-
 
     def __onSelection(self, evt):
         self._lastSelectedIndex = evt.GetIndex()
         self.raiseEvent(dEvents.ListSelection, evt)
 
-
     def __onDeselection(self, evt):
         self.raiseEvent(dEvents.ListDeselection, evt)
-
 
     def __onWxKeyDown(self, evt):
         self.raiseEvent(dEvents.KeyDown, evt)
 
-
     def __onWxHeaderClick(self, evt):
         self.raiseEvent(dEvents.ListHeaderMouseLeftClick, evt)
-
 
     def __onWxHeaderRightClick(self, evt):
         self.raiseEvent(dEvents.ListHeaderMouseRightClick, evt)
 
-
     def __onWxColumnResize(self, evt):
         self.raiseEvent(dEvents.ListColumnResize, evt)
-
 
     def __onHeaderMouseLeftClick(self, evt):
         if self.SortOnHeaderClick:
@@ -517,19 +487,15 @@ class dListControl(dControlItemMixin,
                 self._sortOrder += 1
             self.sort()
 
-
     def __onHeaderMouseRightClick(self, evt):
         pass
-
 
     def __onColumnResize(self, evt):
         pass
 
-
     def _listControlSort(self, x, y):
         # Default to standard Python comparison
-        return ((x > y) - (x < y))
-
+        return (x > y) - (x < y)
 
     def sort(self, sortFunction=None):
         # Sorts the control based on the current sort column.
@@ -540,14 +506,12 @@ class dListControl(dControlItemMixin,
         self.SortItems(sortFunction)
         self._restoreItemData(itemData)
 
-
     def _getItemDataDict(self):
         """Return a dict with the items as keys, and the ItemData as values."""
         ret = {}
         for row in range(self.RowCount):
             ret[row] = self.GetItemData(row)
         return ret
-
 
     def _fillItemData(self, col):
         """
@@ -564,18 +528,16 @@ class dListControl(dControlItemMixin,
             except AttributeError:
                 pass
         data.sort()
-        if (self._sortOrder % 2):
+        if self._sortOrder % 2:
             # Odd number of sorts
             data.reverse()
         for pos, elem in enumerate(data):
             self.SetItemData(elem[1], pos)
 
-
     def _restoreItemData(self, dct):
         """After a sort, returns the original item data values."""
         for row, val in list(dct.items()):
             self.SetItemData(row, val)
-
 
     def _resetSize(self, col):
         # Called when a column was marked to expand, and then
@@ -603,11 +565,9 @@ class dListControl(dControlItemMixin,
         else:
             self._properties["AutoConvertToString"] = val
 
-
     def _getChoices(self):
         dabo.log.warn(_("'Choices' is not a valid property for a dListControl."))
         return []
-
 
     def _getColumnCount(self):
         return self.GetColumnCount()
@@ -625,17 +585,14 @@ class dListControl(dControlItemMixin,
         else:
             self._properties["ColumnCount"] = val
 
-
     def _getColumns(self):
         return self._columnAccessor
-
 
     def _getColumnsAlignment(self):
         return getattr(self, "_columnsAlignment", ())
 
     def _setColumnsAlignment(self, align):
         self._columnsAlignment = align
-
 
     def _getExpandColumn(self):
         return self._expandColumn
@@ -647,7 +604,10 @@ class dListControl(dControlItemMixin,
                 val = val.upper().strip()
             else:
                 if val >= columnCount and columnCount > 0:
-                    raise IndexError(_("Invalid column %s specified for dListControl.ExpandColumn") % val)
+                    raise IndexError(
+                        _("Invalid column %s specified for dListControl.ExpandColumn")
+                        % val
+                    )
             if self._expandColumn != val:
                 if columnCount == 0:
                     self._expandColumn = val
@@ -663,7 +623,6 @@ class dListControl(dControlItemMixin,
         else:
             self._properties["ExpandColumn"] = val
 
-
     def _getExpandToFit(self):
         return self._expandToFit
 
@@ -672,7 +631,6 @@ class dListControl(dControlItemMixin,
             self._expandToFit = val
         else:
             self._properties["ExpandToFit"] = val
-
 
     def _getHeaderVisible(self):
         return not self._hasWindowStyleFlag(wx.LC_NO_HEADER)
@@ -683,14 +641,11 @@ class dListControl(dControlItemMixin,
         else:
             self._addWindowStyleFlag(wx.LC_NO_HEADER)
 
-
     def _getHitIndex(self):
         return self._hitIndex
 
-
     def _getHorizontalRules(self):
         return self._hasWindowStyleFlag(wx.LC_HRULES)
-
 
     def _setHorizontalRules(self, val):
         if bool(val):
@@ -698,10 +653,8 @@ class dListControl(dControlItemMixin,
         else:
             self._delWindowStyleFlag(wx.LC_HRULES)
 
-
     def _getLastSelectedIndex(self):
         return self._lastSelectedIndex
-
 
     def _getMultipleSelect(self):
         return not self._hasWindowStyleFlag(wx.LC_SINGLE_SEL)
@@ -712,10 +665,8 @@ class dListControl(dControlItemMixin,
         else:
             self._addWindowStyleFlag(wx.LC_SINGLE_SEL)
 
-
     def _getRowCount(self):
         return self.GetItemCount()
-
 
     def _getSelectedIndices(self):
         ret = []
@@ -732,11 +683,9 @@ class dListControl(dControlItemMixin,
         if self._constructed():
             self.unselectAll()
             for id in selList:
-                self.SetItemState(id, wx.LIST_STATE_SELECTED,
-                        wx.LIST_STATE_SELECTED)
+                self.SetItemState(id, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
         else:
             self._properties["SelectedIndices"] = selList
-
 
     def _getSortColumn(self):
         return self._sortColumn
@@ -748,7 +697,6 @@ class dListControl(dControlItemMixin,
         else:
             self._properties["SortColumn"] = val
 
-
     def _getSortOnHeaderClick(self):
         return self._sortOnHeaderClick
 
@@ -757,7 +705,6 @@ class dListControl(dControlItemMixin,
             self._sortOnHeaderClick = val
         else:
             self._properties["SortOnHeaderClick"] = val
-
 
     def _getValue(self):
         if self.GetItemCount() == 0:
@@ -783,7 +730,6 @@ class dListControl(dControlItemMixin,
         else:
             self._properties["Value"] = val
 
-
     def _getValues(self):
         ret = []
         indxs = self.SelectedIndices
@@ -796,13 +742,11 @@ class dListControl(dControlItemMixin,
                 ret.append(item.GetText())
         return ret
 
-
     def _getValCol(self):
         return self._valCol
 
     def _setValCol(self, val):
         self._valCol = val
-
 
     def _getVerticalRules(self):
         return self._hasWindowStyleFlag(wx.LC_VRULES)
@@ -813,76 +757,159 @@ class dListControl(dControlItemMixin,
         else:
             self._delWindowStyleFlag(wx.LC_VRULES)
 
+    AutoConvertToString = property(
+        _getAutoConvertToString,
+        _setAutoConvertToString,
+        None,
+        _(
+            """When True (default), all non-string values are forced to strings. When False,
+            attempting to use a non-string value will throw an error.  (bool)"""
+        ),
+    )
 
-    AutoConvertToString = property(_getAutoConvertToString, _setAutoConvertToString, None,
-            _("""When True (default), all non-string values are forced to strings. When False,
-            attempting to use a non-string value will throw an error.  (bool)"""))
-
-    Choices = property(_getChoices, None, None,
-            _("""Since dListControl doesn't have the equivalent to 'Choices' as the
+    Choices = property(
+        _getChoices,
+        None,
+        None,
+        _(
+            """Since dListControl doesn't have the equivalent to 'Choices' as the
             other item controls do, this will return an empty list and print a warning
-            message. (read-only) (list)"""))
+            message. (read-only) (list)"""
+        ),
+    )
 
-    ColumnCount = property(_getColumnCount, _setColumnCount, None,
-            _("Number of columns in the control  (int)"))
+    ColumnCount = property(
+        _getColumnCount,
+        _setColumnCount,
+        None,
+        _("Number of columns in the control  (int)"),
+    )
 
-    Columns = property(_getColumns, None, None,
-            _("""Reference to the columns in the control. (read-only) (list)"""))
+    Columns = property(
+        _getColumns,
+        None,
+        None,
+        _("""Reference to the columns in the control. (read-only) (list)"""),
+    )
 
-    ColumnsAlignment = property(_getColumnsAlignment, _setColumnsAlignment, None,
-            _("""Columns data alignment, the 'Left', 'Center' or 'Right' literals can be used
-            or their abbreviations, e.g. ('c', 'l', 'r').  (tuple of str)"""))
+    ColumnsAlignment = property(
+        _getColumnsAlignment,
+        _setColumnsAlignment,
+        None,
+        _(
+            """Columns data alignment, the 'Left', 'Center' or 'Right' literals can be used
+            or their abbreviations, e.g. ('c', 'l', 'r').  (tuple of str)"""
+        ),
+    )
 
-    Count = property(_getRowCount, None, None,
-            _("Number of rows in the control (read-only). Alias for RowCount  (int)"))
+    Count = property(
+        _getRowCount,
+        None,
+        None,
+        _("Number of rows in the control (read-only). Alias for RowCount  (int)"),
+    )
 
-    ExpandColumn = property(_getExpandColumn, _setExpandColumn, None,
-            _("""Designates the column to expand to fill the control when ExpandToFit is True.
+    ExpandColumn = property(
+        _getExpandColumn,
+        _setExpandColumn,
+        None,
+        _(
+            """Designates the column to expand to fill the control when ExpandToFit is True.
             Can either be an integer specifying the column number, or the string 'LAST' (default),
-            which will expand the rightmost column.  (int or str)"""))
+            which will expand the rightmost column.  (int or str)"""
+        ),
+    )
 
-    ExpandToFit = property(_getExpandToFit, _setExpandToFit, None,
-            _("When True (default), the column designated by ExpandColumn expands to fill the width of the control.  (bool)"))
+    ExpandToFit = property(
+        _getExpandToFit,
+        _setExpandToFit,
+        None,
+        _(
+            "When True (default), the column designated by ExpandColumn expands to fill the width of the control.  (bool)"
+        ),
+    )
 
-    HeaderVisible = property(_getHeaderVisible, _setHeaderVisible, None,
-            _("Specifies whether the header is shown or not."))
+    HeaderVisible = property(
+        _getHeaderVisible,
+        _setHeaderVisible,
+        None,
+        _("Specifies whether the header is shown or not."),
+    )
 
-    HitIndex = property(_getHitIndex, None, None,
-            _("Returns the index of the last hit item."))
+    HitIndex = property(
+        _getHitIndex, None, None, _("Returns the index of the last hit item.")
+    )
 
-    HorizontalRules = property(_getHorizontalRules, _setHorizontalRules, None,
-            _("Specifies whether light rules are drawn between rows."))
+    HorizontalRules = property(
+        _getHorizontalRules,
+        _setHorizontalRules,
+        None,
+        _("Specifies whether light rules are drawn between rows."),
+    )
 
-    LastSelectedIndex = property(_getLastSelectedIndex, None, None,
-            _("Returns the index of the last selected item."))
+    LastSelectedIndex = property(
+        _getLastSelectedIndex,
+        None,
+        None,
+        _("Returns the index of the last selected item."),
+    )
 
-    MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
-            _("Specifies whether multiple rows can be selected in the list."))
+    MultipleSelect = property(
+        _getMultipleSelect,
+        _setMultipleSelect,
+        None,
+        _("Specifies whether multiple rows can be selected in the list."),
+    )
 
-    RowCount = property(_getRowCount, None, None,
-            _("Number of rows in the control (read-only).  (int)"))
+    RowCount = property(
+        _getRowCount, None, None, _("Number of rows in the control (read-only).  (int)")
+    )
 
-    SelectedIndices = property(_getSelectedIndices, _setSelectedIndices, None,
-            _("Returns a list of selected row indices.  (list of int)"))
+    SelectedIndices = property(
+        _getSelectedIndices,
+        _setSelectedIndices,
+        None,
+        _("Returns a list of selected row indices.  (list of int)"),
+    )
 
-    SortColumn = property(_getSortColumn, _setSortColumn, None,
-            _("Column to be sorted when sort() is called. Default=0  (int)"))
+    SortColumn = property(
+        _getSortColumn,
+        _setSortColumn,
+        None,
+        _("Column to be sorted when sort() is called. Default=0  (int)"),
+    )
 
-    SortOnHeaderClick = property(_getSortOnHeaderClick, _setSortOnHeaderClick, None,
-            _("When True (default), clicking a column header cycles the sorting on that column.  (bool)"))
+    SortOnHeaderClick = property(
+        _getSortOnHeaderClick,
+        _setSortOnHeaderClick,
+        None,
+        _(
+            "When True (default), clicking a column header cycles the sorting on that column.  (bool)"
+        ),
+    )
 
-    Value = property(_getValue, _setValue, None,
-            _("Returns current value (str)"))
+    Value = property(_getValue, _setValue, None, _("Returns current value (str)"))
 
-    Values = property(_getValues, None, None,
-            _("Returns a list containing the Value of all selected rows  (list of str)"))
+    Values = property(
+        _getValues,
+        None,
+        None,
+        _("Returns a list containing the Value of all selected rows  (list of str)"),
+    )
 
-    ValueColumn = property(_getValCol, _setValCol, None,
-            _("The column whose text is reflected in Value (default=0).  (int)"))
+    ValueColumn = property(
+        _getValCol,
+        _setValCol,
+        None,
+        _("The column whose text is reflected in Value (default=0).  (int)"),
+    )
 
-    VerticalRules = property(_getVerticalRules, _setVerticalRules, None,
-            _("Specifies whether light rules are drawn between rows."))
-
+    VerticalRules = property(
+        _getVerticalRules,
+        _setVerticalRules,
+        None,
+        _("Specifies whether light rules are drawn between rows."),
+    )
 
     DynamicHeaderVisible = makeDynamicProperty(HeaderVisible)
     DynamicHorizontalRules = makeDynamicProperty(HorizontalRules)
@@ -914,7 +941,7 @@ class _dListControl_test(dListControl):
         self.MultipleSelect = True
         self.HorizontalRules = True
         self.VerticalRules = True
-        #self.HeaderVisible = False
+        # self.HeaderVisible = False
 
     def onHit(self, evt):
         print("KeyValue: ", self.KeyValue)
@@ -923,8 +950,9 @@ class _dListControl_test(dListControl):
         print("Value: ", self.Value)
 
     def onListSelection(self, evt):
-        print("List Selection!", self.Value, self.LastSelectedIndex, self.SelectedIndices)
-
+        print(
+            "List Selection!", self.Value, self.LastSelectedIndex, self.SelectedIndices
+        )
 
     def onListDeselection(self, evt):
         print("Row deselected:", evt.EventData["index"])
@@ -932,4 +960,5 @@ class _dListControl_test(dListControl):
 
 if __name__ == "__main__":
     from dabo.ui import test
+
     test.Test().runTest(_dListControl_test)

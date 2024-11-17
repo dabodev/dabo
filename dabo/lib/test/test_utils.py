@@ -10,10 +10,11 @@ from dabo.lib import utils
 
 def fmtPath(testpath):
     """Format a file path in os.specific format"""
-    return testpath.replace("/",os.sep)
+    return testpath.replace("/", os.sep)
+
 
 def createTempFile(filename):
-    f = open(filename,"w")
+    f = open(filename, "w")
     f.close()
 
 
@@ -36,13 +37,11 @@ class Test_Utils(unittest.TestCase):
         createTempFile("a/b/file2")
         createTempFile("a1/b1/c1/d1/file3")
 
-
     def tearDown(self):
         """Bin the temp test dir and everything in it"""
         os.chdir(self.tempTestDir)
         os.chdir(os.pardir)
         shutil.rmtree("relpath_tests_dir")
-
 
     def test_StringFuncs(self):
         teststring = "This is a very long string with Unicode chars: ¯ and 1234567890"
@@ -52,13 +51,11 @@ class Test_Utils(unittest.TestCase):
         self.assertEqual(utils.cleanMenuCaption(cap), "File")
         self.assertEqual(utils.cleanMenuCaption(cap, "e"), "&Fil")
 
-
     def test_DictFuncs(self):
         testdict = {"First": 1, "Second": 2, "Thrd": 3}
         ds = utils.dictStringify(testdict)
         for kk in list(ds.keys()):
             self.assertEqual(type(kk), str)
-
 
     def test_Pathing(self):
         prfx = utils.getPathAttributePrefix()
@@ -68,8 +65,13 @@ class Test_Utils(unittest.TestCase):
         self.assertEqual(utils.resolvePath(pth2, "a1/b1"), "../../file2")
         self.assertEqual(utils.relativePath(pth), "a/b/file2")
         self.assertEqual(utils.relativePath(pth2), "../../file2")
-        self.assertEqual(utils.relativePath(pth,pth2), "../tmp/relpath_tests_dir/a/b/file2")
-        self.assertEqual(utils.relativePathList(pth,pth2), ["..", "tmp", "relpath_tests_dir", "a", "b", "file2"])
+        self.assertEqual(
+            utils.relativePath(pth, pth2), "../tmp/relpath_tests_dir/a/b/file2"
+        )
+        self.assertEqual(
+            utils.relativePathList(pth, pth2),
+            ["..", "tmp", "relpath_tests_dir", "a", "b", "file2"],
+        )
         atts = {"Foo": "Bar", "ThePath": "%s../some/file.txt" % prfx}
         utils.resolveAttributePathing(atts, os.getcwd())
         self.assertEqual(atts, {"Foo": "Bar", "ThePath": "../some/file.txt"})
@@ -79,6 +81,7 @@ class Test_Utils(unittest.TestCase):
         atts = {"Foo": "Bar", "ThePath": "%s../a/b/file2" % prfx}
         utils.resolveAttributePathing(atts, "a1/")
         self.assertEqual(atts, {"Foo": "Bar", "ThePath": "../a/b/file2"})
+
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(Test_Utils)

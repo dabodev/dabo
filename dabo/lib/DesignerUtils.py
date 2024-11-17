@@ -2,6 +2,7 @@
 """These are routines that are used to work with Class Designer code that has
 been separated from the design.
 """
+
 import re
 import copy
 
@@ -26,9 +27,11 @@ def parseCodeFile(txt):
     imptPart = codeParts[0]
     codeObjs = codeParts[1:]
     # See if there are import statements
-    imptLines = [ln for ln in imptPart.splitlines()
-            if ln.strip()
-            and not ln.strip().startswith("#")]
+    imptLines = [
+        ln
+        for ln in imptPart.splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    ]
     ret["importStatements"] = "\n".join(imptLines)
 
     for codeObj in codeObjs:
@@ -108,60 +111,90 @@ def getSizerDefaults():
     from dabo.ui import dTextBox
     from dabo.ui import dToggleButton
     from dabo.ui import dTreeView
-    
+
     szDefaults = {}
     defVals = {
-            "G": {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Center", "VAlign": "Middle", "Border": 0, "Expand": True, "RowExpand": False, "ColExpand": True},
-            "H": {"BorderSides": ["All"], "Proportion": 1, "HAlign": "Left", "VAlign": "Middle", "Border": 0, "Expand": True},
-            "V": {"BorderSides": ["All"], "Proportion": 1, "HAlign": "Center", "VAlign": "Top", "Border": 0, "Expand": True}
-            }
+        "G": {
+            "BorderSides": ["All"],
+            "Proportion": 0,
+            "HAlign": "Center",
+            "VAlign": "Middle",
+            "Border": 0,
+            "Expand": True,
+            "RowExpand": False,
+            "ColExpand": True,
+        },
+        "H": {
+            "BorderSides": ["All"],
+            "Proportion": 1,
+            "HAlign": "Left",
+            "VAlign": "Middle",
+            "Border": 0,
+            "Expand": True,
+        },
+        "V": {
+            "BorderSides": ["All"],
+            "Proportion": 1,
+            "HAlign": "Center",
+            "VAlign": "Top",
+            "Border": 0,
+            "Expand": True,
+        },
+    }
     # Use the defaults for each class, except where specified
     dct = copy.deepcopy(defVals)
     szDefaults[dBox] = dct
     szDefaults["dBox"] = dct
     dct = copy.deepcopy(defVals)
-    dct["H"].update({"HAlign" : "center"})
-    dct["V"].update({"VAlign" : "middle"})
+    dct["H"].update({"HAlign": "center"})
+    dct["V"].update({"VAlign": "middle"})
     szDefaults[dBitmap] = dct
     szDefaults["dBitmap"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 0, "Expand" : False, "HAlign" : "center", "VAlign" : "middle",
-            "ColExpand": False})
-    dct["H"].update({"Proportion" : 0, "Expand" : False, "HAlign": "center"})
-    dct["V"].update({"Proportion" : 0, "Expand" : False, "VAlign": "middle"})
+    dct["G"].update(
+        {
+            "Proportion": 0,
+            "Expand": False,
+            "HAlign": "center",
+            "VAlign": "middle",
+            "ColExpand": False,
+        }
+    )
+    dct["H"].update({"Proportion": 0, "Expand": False, "HAlign": "center"})
+    dct["V"].update({"Proportion": 0, "Expand": False, "VAlign": "middle"})
     szDefaults[dBitmapButton] = dct
     szDefaults["dBitmapButton"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": False})
-    dct["H"].update({"Proportion" : 0, "Expand" : False})
-    dct["V"].update({"Proportion" : 0, "Expand" : False})
+    dct["G"].update({"Proportion": 0, "Expand": False, "ColExpand": False})
+    dct["H"].update({"Proportion": 0, "Expand": False})
+    dct["V"].update({"Proportion": 0, "Expand": False})
     szDefaults[dButton] = dct
     szDefaults["dButton"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": False})
-    dct["H"].update({"Proportion" : 0, "Expand" : False})
-    dct["V"].update({"Proportion" : 0, "Expand" : False})
+    dct["G"].update({"Proportion": 0, "Expand": False, "ColExpand": False})
+    dct["H"].update({"Proportion": 0, "Expand": False})
+    dct["V"].update({"Proportion": 0, "Expand": False})
     szDefaults[dCheckBox] = dct
     szDefaults["dCheckBox"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": False})
-    dct["H"].update({"Proportion" : 1, "Expand" : False})
-    dct["V"].update({"Proportion" : 0, "Expand" : True})
+    dct["G"].update({"Proportion": 0, "Expand": False, "ColExpand": False})
+    dct["H"].update({"Proportion": 1, "Expand": False})
+    dct["V"].update({"Proportion": 0, "Expand": True})
     szDefaults[dComboBox] = dct
     szDefaults["dComboBox"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": False})
-    dct["H"].update({"Proportion" : 1, "Expand" : False})
-    dct["V"].update({"Proportion" : 0, "Expand" : True})
+    dct["G"].update({"Proportion": 0, "Expand": False, "ColExpand": False})
+    dct["H"].update({"Proportion": 1, "Expand": False})
+    dct["V"].update({"Proportion": 0, "Expand": True})
     szDefaults[dDateTextBox] = dct
     szDefaults["dDateTextBox"] = dct
     dct = copy.deepcopy(defVals)
     szDefaults[dDialog] = dct
     szDefaults["dDialog"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": False})
-    dct["H"].update({"Proportion" : 1, "Expand" : False})
-    dct["V"].update({"Proportion" : 0, "Expand" : True})
+    dct["G"].update({"Proportion": 0, "Expand": False, "ColExpand": False})
+    dct["H"].update({"Proportion": 1, "Expand": False})
+    dct["V"].update({"Proportion": 0, "Expand": True})
     szDefaults[dDropdownList] = dct
     szDefaults["dDropdownList"] = dct
     dct = copy.deepcopy(defVals)
@@ -174,9 +207,9 @@ def getSizerDefaults():
     szDefaults[dSlidePanelControl] = dct
     szDefaults["dSlidePanelControl"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": False})
-    dct["H"].update({"Proportion" : 1, "Expand" : False})
-    dct["V"].update({"Proportion" : 0, "Expand" : True})
+    dct["G"].update({"Proportion": 0, "Expand": False, "ColExpand": False})
+    dct["H"].update({"Proportion": 1, "Expand": False})
+    dct["V"].update({"Proportion": 0, "Expand": True})
     szDefaults[dGauge] = dct
     szDefaults["dGauge"] = dct
     dct = copy.deepcopy(defVals)
@@ -189,24 +222,28 @@ def getSizerDefaults():
     szDefaults[dHtmlBox] = dct
     szDefaults["dHtmlBox"] = dct
     dct = copy.deepcopy(defVals)
-    dct["H"].update({"HAlign" : "center"})
-    dct["V"].update({"VAlign" : "middle"})
+    dct["H"].update({"HAlign": "center"})
+    dct["V"].update({"VAlign": "middle"})
     szDefaults[dImage] = dct
     szDefaults["dImage"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": False})
-    dct["H"].update({"Proportion" : 0, "Expand" : False})
-    dct["V"].update({"Proportion" : 0, "Expand" : False})
+    dct["G"].update({"Proportion": 0, "Expand": False, "ColExpand": False})
+    dct["H"].update({"Proportion": 0, "Expand": False})
+    dct["V"].update({"Proportion": 0, "Expand": False})
     szDefaults[dLabel] = dct
     szDefaults["dLabel"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 0, "Expand" : False, "HAlign" : "center", "VAlign" : "middle"})
-    dct["H"].update({"Proportion" : 1, "Expand" : False, "HAlign": "center"})
-    dct["V"].update({"Proportion" : 0, "Expand" : True, "VAlign": "middle"})
+    dct["G"].update(
+        {"Proportion": 0, "Expand": False, "HAlign": "center", "VAlign": "middle"}
+    )
+    dct["H"].update({"Proportion": 1, "Expand": False, "HAlign": "center"})
+    dct["V"].update({"Proportion": 0, "Expand": True, "VAlign": "middle"})
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 1, "Expand" : True, "HAlign" : "center", "VAlign" : "middle"})
-    dct["H"].update({"Proportion" : 1, "Expand" : True, "HAlign": "center"})
-    dct["V"].update({"Proportion" : 1, "Expand" : True, "VAlign": "middle"})
+    dct["G"].update(
+        {"Proportion": 1, "Expand": True, "HAlign": "center", "VAlign": "middle"}
+    )
+    dct["H"].update({"Proportion": 1, "Expand": True, "HAlign": "center"})
+    dct["V"].update({"Proportion": 1, "Expand": True, "VAlign": "middle"})
     szDefaults[dLed] = dct
     szDefaults["dLed"] = dct
     szDefaults[dLine] = dct
@@ -221,81 +258,104 @@ def getSizerDefaults():
     szDefaults[dOkCancelDialog] = dct
     szDefaults["dOkCancelDialog"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 0, "Expand" : False, "ColExpand": True, "RowExpand": False})
-    dct["H"].update({"Proportion" : 0, "Expand" : False})
-    dct["V"].update({"Proportion" : 0, "Expand" : False})
+    dct["G"].update(
+        {"Proportion": 0, "Expand": False, "ColExpand": True, "RowExpand": False}
+    )
+    dct["H"].update({"Proportion": 0, "Expand": False})
+    dct["V"].update({"Proportion": 0, "Expand": False})
     szDefaults[dRadioList] = dct
     szDefaults["dRadioList"] = dct
     dct = copy.deepcopy(defVals)
     szDefaults[dPage] = dct
     szDefaults["dPage"] = dct
-    dct["H"].update({"HAlign" : "center"})
-    dct["V"].update({"VAlign" : "middle"})
+    dct["H"].update({"HAlign": "center"})
+    dct["V"].update({"VAlign": "middle"})
     szDefaults[dPanel] = dct
     szDefaults["dPanel"] = dct
     dct = copy.deepcopy(defVals)
-    dct["H"].update({"HAlign" : "center"})
-    dct["V"].update({"VAlign" : "middle"})
+    dct["H"].update({"HAlign": "center"})
+    dct["V"].update({"VAlign": "middle"})
     szDefaults[dScrollPanel] = dct
     szDefaults["dScrollPanel"] = dct
     dct = copy.deepcopy(defVals)
-    dct["H"].update({"HAlign" : "center"})
-    dct["V"].update({"VAlign" : "middle"})
+    dct["H"].update({"HAlign": "center"})
+    dct["V"].update({"VAlign": "middle"})
     szDefaults[dPageFrame] = dct
     szDefaults["dPageFrame"] = dct
     dct = copy.deepcopy(defVals)
-    dct["H"].update({"HAlign" : "center"})
-    dct["V"].update({"VAlign" : "middle"})
+    dct["H"].update({"HAlign": "center"})
+    dct["V"].update({"VAlign": "middle"})
     szDefaults[dPageList] = dct
     szDefaults["dPageList"] = dct
     dct = copy.deepcopy(defVals)
-    dct["H"].update({"HAlign" : "center"})
-    dct["V"].update({"VAlign" : "middle"})
+    dct["H"].update({"HAlign": "center"})
+    dct["V"].update({"VAlign": "middle"})
     szDefaults[dPageSelect] = dct
     szDefaults["dPageSelect"] = dct
     dct = copy.deepcopy(defVals)
-    dct["H"].update({"HAlign" : "center"})
-    dct["V"].update({"VAlign" : "middle"})
+    dct["H"].update({"HAlign": "center"})
+    dct["V"].update({"VAlign": "middle"})
     szDefaults[dPageFrameNoTabs] = dct
     szDefaults["dPageFrameNoTabs"] = dct
     dct = copy.deepcopy(defVals)
     szDefaults[dSizer] = dct
     szDefaults["dSizer"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 0, "Expand" : False, "HAlign" : "center", "VAlign" : "middle", "ColExpand": True, "RowExpand": False})
-    dct["H"].update({"Proportion" : 1, "Expand" : False, "HAlign": "center"})
-    dct["V"].update({"Proportion" : 0, "Expand" : True, "VAlign": "middle"})
+    dct["G"].update(
+        {
+            "Proportion": 0,
+            "Expand": False,
+            "HAlign": "center",
+            "VAlign": "middle",
+            "ColExpand": True,
+            "RowExpand": False,
+        }
+    )
+    dct["H"].update({"Proportion": 1, "Expand": False, "HAlign": "center"})
+    dct["V"].update({"Proportion": 0, "Expand": True, "VAlign": "middle"})
     szDefaults[dSlider] = dct
     szDefaults["dSlider"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 0, "Expand" : False, "RowExpand": False})
-    dct["H"].update({"Proportion" : 1, "Expand" : False})
-    dct["V"].update({"Proportion" : 0, "Expand" : True})
+    dct["G"].update({"Proportion": 0, "Expand": False, "RowExpand": False})
+    dct["H"].update({"Proportion": 1, "Expand": False})
+    dct["V"].update({"Proportion": 0, "Expand": True})
     szDefaults[dSpinner] = dct
     szDefaults["dSpinner"] = dct
     dct = copy.deepcopy(defVals)
-    dct["H"].update({"HAlign" : "center"})
-    dct["V"].update({"VAlign" : "middle"})
+    dct["H"].update({"HAlign": "center"})
+    dct["V"].update({"VAlign": "middle"})
     szDefaults[dSplitter] = dct
     szDefaults["dSplitter"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 1, "Expand" : True, "ColExpand": True, "RowExpand": False})
-    dct["H"].update({"Proportion" : 1, "Expand" : False})
-    dct["V"].update({"Proportion" : 0, "Expand" : True})
+    dct["G"].update(
+        {"Proportion": 1, "Expand": True, "ColExpand": True, "RowExpand": False}
+    )
+    dct["H"].update({"Proportion": 1, "Expand": False})
+    dct["V"].update({"Proportion": 0, "Expand": True})
     szDefaults[dTextBox] = dct
     szDefaults["dTextBox"] = dct
     dct = copy.deepcopy(defVals)
-    dct["H"].update({"HAlign" : "center", "Proportion": 0, "Expand": False})
-    dct["V"].update({"VAlign" : "middle", "Proportion": 0, "Expand": False})
+    dct["H"].update({"HAlign": "center", "Proportion": 0, "Expand": False})
+    dct["V"].update({"VAlign": "middle", "Proportion": 0, "Expand": False})
     szDefaults[dToggleButton] = dct
     szDefaults["dToggleButton"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update({"Proportion" : 0, "Expand" : True, "HAlign" : "center", "VAlign" : "middle", "ColExpand": True, "RowExpand": True})
-    dct["H"].update({"Proportion" : 1, "Expand" : True, "HAlign": "center"})
-    dct["V"].update({"Proportion" : 1, "Expand" : True, "VAlign": "middle"})
+    dct["G"].update(
+        {
+            "Proportion": 0,
+            "Expand": True,
+            "HAlign": "center",
+            "VAlign": "middle",
+            "ColExpand": True,
+            "RowExpand": True,
+        }
+    )
+    dct["H"].update({"Proportion": 1, "Expand": True, "HAlign": "center"})
+    dct["V"].update({"Proportion": 1, "Expand": True, "VAlign": "middle"})
     szDefaults[dTreeView] = dct
     szDefaults["dTreeView"] = dct
     return szDefaults
+
 
 _sizerDefaults = {}
 _extraSizerDefaults = {}

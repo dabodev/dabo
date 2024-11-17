@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import warnings
 import wx
-import dabo
-from dabo import ui as dui
-from dabo.ui import dControlMixin
-from dabo.dLocalize import _
-from dabo.ui import makeDynamicProperty
-from dabo.ui import dImageMixin
-from dabo.ui.icons import getIconBitmap
+
+import ui as dui
+from dLocalize import _
+from ui import dControlMixin
+from ui import dImageMixin
+from ui import makeDynamicProperty
+from ui.icons import getIconBitmap
 
 
 class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
@@ -22,6 +22,7 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
 
     Otherwise, dBitmapButton behaves the same as a normal dButton.
     """
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dBitmapButton
         preClass = wx.BitmapButton
@@ -37,21 +38,27 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         self._bmpBorder = 10
 
         dImageMixin.__init__(self)
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
-
+        dControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
 
     def _initEvents(self):
         super(dBitmapButton, self)._initEvents()
         self.Bind(wx.EVT_BUTTON, self._onWxHit)
 
-
     def _sizeToBitmap(self):
         if self.Picture:
             bmp = self.Bitmap
-            self.Size = (bmp.GetWidth() + self._bmpBorder,
-                    bmp.GetHeight() + self._bmpBorder)
-
+            self.Size = (
+                bmp.GetWidth() + self._bmpBorder,
+                bmp.GetHeight() + self._bmpBorder,
+            )
 
     # Property get/set/del methods follow. Scroll to bottom to see the property
     # definitions themselves.
@@ -62,7 +69,6 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
     def _setAutoSize(self, val):
         self._autoSize = val
 
-
     def _getBmpBorder(self):
         return self._bmpBorder
 
@@ -70,7 +76,6 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         self._bmpBorder = val
         if self._autoSize:
             self._sizeToBitmap()
-
 
     def _getBorderStyle(self):
         if self._hasWindowStyleFlag(wx.BU_AUTODRAW):
@@ -89,14 +94,12 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         elif val == "Simple":
             self._addWindowStyleFlag(wx.BU_AUTODRAW)
 
-
     def _getCancelButton(self):
         # need to implement
         return False
 
     def _setCancelButton(self, val):
         warnings.warn(_("CancelButton isn't implemented yet."), Warning)
-
 
     def _getDefaultButton(self):
         if self.Parent is not None:
@@ -118,10 +121,8 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         else:
             self._properties["DefaultButton"] = val
 
-
     def _getDownBitmap(self):
         return self.GetBitmapSelected()
-
 
     def _getDownPicture(self):
         return self._downPicture
@@ -137,10 +138,8 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         else:
             self._properties["DownPicture"] = val
 
-
     def _getFocusBitmap(self):
         return self.GetBitmapFocus()
-
 
     def _getFocusPicture(self):
         return self._focusPicture
@@ -156,10 +155,8 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         else:
             self._properties["FocusPicture"] = val
 
-
     def _getNormalBitmap(self):
         return self.GetBitmapLabel()
-
 
     def _getNormalPicture(self):
         return self._picture
@@ -182,48 +179,94 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         else:
             self._properties["Picture"] = val
 
-
     # Property definitions:
-    AutoSize = property(_getAutoSize, _setAutoSize, None,
-        _("Controls whether the button resizes when the Picture changes. (bool)") )
+    AutoSize = property(
+        _getAutoSize,
+        _setAutoSize,
+        None,
+        _("Controls whether the button resizes when the Picture changes. (bool)"),
+    )
 
-    Bitmap = property(_getNormalBitmap, None, None,
-        _("""The bitmap normally displayed on the button.  (wx.Bitmap)"""))
+    Bitmap = property(
+        _getNormalBitmap,
+        None,
+        None,
+        _("""The bitmap normally displayed on the button.  (wx.Bitmap)"""),
+    )
 
-    BitmapBorder = property(_getBmpBorder, _setBmpBorder, None,
-        _("""Extra space around the bitmap, used when auto-sizing.  (int)"""))
+    BitmapBorder = property(
+        _getBmpBorder,
+        _setBmpBorder,
+        None,
+        _("""Extra space around the bitmap, used when auto-sizing.  (int)"""),
+    )
 
-    BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
-        _("""Specifies the type of border for this window. (String).
+    BorderStyle = property(
+        _getBorderStyle,
+        _setBorderStyle,
+        None,
+        _(
+            """Specifies the type of border for this window. (String).
 
                 Possible choices are:
                     "None" - No border
                     "Simple" - Border like a regular button
-            """))
+            """
+        ),
+    )
 
-    CancelButton = property(_getCancelButton, _setCancelButton, None,
-        _("Specifies whether this Bitmap button gets clicked on -Escape-."))
+    CancelButton = property(
+        _getCancelButton,
+        _setCancelButton,
+        None,
+        _("Specifies whether this Bitmap button gets clicked on -Escape-."),
+    )
 
-    DefaultButton = property(_getDefaultButton, _setDefaultButton, None,
-        _("Specifies whether this Bitmap button gets clicked on -Enter-."))
+    DefaultButton = property(
+        _getDefaultButton,
+        _setDefaultButton,
+        None,
+        _("Specifies whether this Bitmap button gets clicked on -Enter-."),
+    )
 
-    DownBitmap = property(_getDownBitmap, None, None,
-        _("The bitmap displayed on the button when it is depressed.  (wx.Bitmap)"))
+    DownBitmap = property(
+        _getDownBitmap,
+        None,
+        None,
+        _("The bitmap displayed on the button when it is depressed.  (wx.Bitmap)"),
+    )
 
-    DownPicture = property(_getDownPicture, _setDownPicture, None,
-        _("Specifies the image displayed on the button when it is depressed.  (str)"))
+    DownPicture = property(
+        _getDownPicture,
+        _setDownPicture,
+        None,
+        _("Specifies the image displayed on the button when it is depressed.  (str)"),
+    )
 
-    FocusBitmap = property(_getFocusBitmap, None, None,
-        _("The bitmap displayed on the button when it receives focus.  (wx.Bitmap)"))
+    FocusBitmap = property(
+        _getFocusBitmap,
+        None,
+        None,
+        _("The bitmap displayed on the button when it receives focus.  (wx.Bitmap)"),
+    )
 
-    FocusPicture = property(_getFocusPicture, _setFocusPicture, None,
-        _("Specifies the image displayed on the button when it receives focus.  (str)"))
+    FocusPicture = property(
+        _getFocusPicture,
+        _setFocusPicture,
+        None,
+        _("Specifies the image displayed on the button when it receives focus.  (str)"),
+    )
 
-    Picture = property(_getNormalPicture, _setNormalPicture, None,
-        _("""Specifies the image normally displayed on the button.  This is the
+    Picture = property(
+        _getNormalPicture,
+        _setNormalPicture,
+        None,
+        _(
+            """Specifies the image normally displayed on the button.  This is the
         default if none of the other Picture properties are
-        specified.  (str)"""))
-
+        specified.  (str)"""
+        ),
+    )
 
     DynamicAutoSize = makeDynamicProperty(AutoSize)
     DynamicBitmap = makeDynamicProperty(Bitmap)
@@ -237,7 +280,7 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
     DynamicPicture = makeDynamicProperty(Picture)
 
 
-dabo.ui.dBitmapButton = dBitmapButton
+ui.dBitmapButton = dBitmapButton
 
 
 class _dBitmapButton_test(dBitmapButton):
@@ -249,6 +292,8 @@ class _dBitmapButton_test(dBitmapButton):
         self.Width = 100
         self.Height = 25
 
+
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
+
     test.Test().runTest(_dBitmapButton_test)

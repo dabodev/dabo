@@ -4,6 +4,7 @@ import dabo
 from dabo.dLocalize import _
 from dabo import dException as dException
 from dabo.biz.dBizobj import dBizobj
+
 # Make sure that the user's installation supports Decimal.
 _USE_DECIMAL = True
 try:
@@ -15,6 +16,8 @@ except ImportError:
 class modglob:
     _AutoTables = {}
     _toExc = {}
+
+
 g = modglob()
 bizs = g._AutoTables
 
@@ -45,6 +48,7 @@ def autoCreateTables(noAccessDialog=None):
     property is set for a dAutoBizobj.
     """
     from dabo import ui as dui
+
     if len(g._AutoTables) == 0:
         raise dException.dException(_("No tables have been setup for autocreation."))
 
@@ -54,6 +58,7 @@ def autoCreateTables(noAccessDialog=None):
 
     if g._toExc:
         if dabo.dAppRef is not None:
+
             class DbAdminLogin(dui.dDialog):
                 def __init__(self, parent, conn):
                     self._conn = conn
@@ -61,19 +66,41 @@ def autoCreateTables(noAccessDialog=None):
 
                 def addControls(self):
                     import dabo.dEvents as dEvents
+
                     self.Caption = self.Application.getAppInfo("appName")
 
                     self.Sizer = dui.dSizer("v")
                     cs = dui.dGridSizer()
 
-                    lblmain = self.addObject(dui.dLabel, Caption=_("The database could not be setup. Contact your DB administrator."), FontBold=True, FontSize=14)
-                    lblinst = self.addObject(dui.dLabel, Caption=_("""For the DB Admin:
+                    lblmain = self.addObject(
+                        dui.dLabel,
+                        Caption=_(
+                            "The database could not be setup. Contact your DB administrator."
+                        ),
+                        FontBold=True,
+                        FontSize=14,
+                    )
+                    lblinst = self.addObject(
+                        dui.dLabel,
+                        Caption=_(
+                            """For the DB Admin:
  The tables must either created by:
   1. using this program by TEMPORARLY giving this program access to the database to create the needed tables.
-  2. or executing all the quries in the 'queries.sql' file."""))
+  2. or executing all the quries in the 'queries.sql' file."""
+                        ),
+                    )
 
-                    hst, db = self._conn.ConnectInfo.Host, self._conn.ConnectInfo.Database
-                    lblinst2 = self.addObject(dui.dLabel, Caption=_("DBA, please enter the username and password that has access to create tables for database on server '%(hst)s' and database '%(db)s'") % locals())
+                    hst, db = (
+                        self._conn.ConnectInfo.Host,
+                        self._conn.ConnectInfo.Database,
+                    )
+                    lblinst2 = self.addObject(
+                        dui.dLabel,
+                        Caption=_(
+                            "DBA, please enter the username and password that has access to create tables for database on server '%(hst)s' and database '%(db)s'"
+                        )
+                        % locals(),
+                    )
 
                     o = self.addObject(dui.dLabel, Caption=_("Username"))
                     cs.append(o, row=0, col=0, border=3)
@@ -90,7 +117,9 @@ def autoCreateTables(noAccessDialog=None):
                     b.bindEvent(dEvents.Hit, self.onHitOK)
                     s.append(b, border=3)
 
-                    b = self.addObject(dui.dButton, CancelButton=True, Caption=_("Cancel"))
+                    b = self.addObject(
+                        dui.dButton, CancelButton=True, Caption=_("Cancel")
+                    )
                     b.bindEvent(dEvents.Hit, self.onHitCancel)
                     s.append(b, border=3)
 
@@ -100,7 +129,7 @@ def autoCreateTables(noAccessDialog=None):
                     self.Sizer.appendSpacer(7, 7)
                     self.Sizer.append(cs, halign="center")
                     self.Sizer.appendSpacer(10, 10)
-                    self.Sizer.append(s, halign='center')
+                    self.Sizer.append(s, halign="center")
 
                 def onHitOK(self, evt):
                     if not self.txtUsername.Value:
@@ -137,23 +166,37 @@ def autoCreateTables(noAccessDialog=None):
                     password = login.Answer[1]
                     login.release()
 
-                    #Temporarly connect to the database using the new user and pass
-                    ci = dabo.db.dConnectInfo(DbType=k.ConnectInfo.DbType, Database=k.ConnectInfo.Database, Host=k.ConnectInfo.Host, User=user, PlainTextPassword=password)
+                    # Temporarly connect to the database using the new user and pass
+                    ci = dabo.db.dConnectInfo(
+                        DbType=k.ConnectInfo.DbType,
+                        Database=k.ConnectInfo.Database,
+                        Host=k.ConnectInfo.Host,
+                        User=user,
+                        PlainTextPassword=password,
+                    )
                     try:
                         tempConn = dabo.db.dConnection(ci)
                     except dException.DBNoAccessException:
-                        dui.stop(_("Could not access the database with the given username and password."))
+                        dui.stop(
+                            _(
+                                "Could not access the database with the given username and password."
+                            )
+                        )
                         _writeQueriesToFile(g._toExc)
                         raise dException.DBNoAccessException
                     else:
                         cur = tempConn.getDaboCursor()
 
-                        #Execute the needed queries
+                        # Execute the needed queries
                         for query in g._toExc[k]:
                             try:
                                 cur.execute(query)
                             except dException.DBNoAccessExeption:
-                                dui.stop(_("Could not setup the database. Access was denied."))
+                                dui.stop(
+                                    _(
+                                        "Could not setup the database. Access was denied."
+                                    )
+                                )
                                 _writeQueriesToFile(g._toExc)
                                 raise dException.DBNoAccessException
 
@@ -177,7 +220,6 @@ def _writeQueriesToFile(queries):
     f.close()
 
 
-
 class dAutoBizobj(dBizobj):
     """This class is just like bBizobj but is supports the auto creation of
     the table by setting the table property.
@@ -185,11 +227,11 @@ class dAutoBizobj(dBizobj):
     If there is a field that is set to AutoIncrement, self.AutoPopulatePK
     is set to true.
     If there is a field that is a stamp field, it is set to not update that field."""
+
     def _beforeInit(self):
         super(dAutoBizobj, self)._beforeInit()
         self._table = None
         self._table_checked = False
-
 
     def _afterInit(self):
         table = self.getTable()
@@ -236,10 +278,8 @@ class dAutoBizobj(dBizobj):
         self.afterInit()
 
     def getTable(self):
-        """Return the dTable definition for the table.
-        """
-        #Override in subclass
-
+        """Return the dTable definition for the table."""
+        # Override in subclass
 
     def initTable(self):
         """Return the data to be inserted into the table after it has been created.
@@ -250,8 +290,7 @@ class dAutoBizobj(dBizobj):
                 return     (("firstname","lastname"), (("bob","smith"),("granny","smith"))
 
         """
-        #Override in subclass
-
+        # Override in subclass
 
     def createTable(self):
         """Create the tables that has been asigned to this bizobj."""
@@ -262,19 +301,21 @@ class dAutoBizobj(dBizobj):
             self._table_checked = True
             return
 
-        #Create table
-        toExc = self._CurrentCursor.BackendObject.createTableAndIndexes(self._table, self._CurrentCursor)
+        # Create table
+        toExc = self._CurrentCursor.BackendObject.createTableAndIndexes(
+            self._table, self._CurrentCursor
+        )
         if toExc:
             if self._conn in g._toExc:
                 g._toExc[self._conn] = g._toExc[self._conn] + toExc
             else:
                 g._toExc[self._conn] = toExc
 
-        #Insert data
+        # Insert data
         to_insert = self.initTable()
         if to_insert:
             if to_insert is dict:
-                #in a dict where key is the column and value is a list of data for that column
+                # in a dict where key is the column and value is a list of data for that column
                 for i in range(0, len(to_insert[list(to_insert.keys())[0]])):
                     self.new()
                     for k in to_insert:
@@ -288,7 +329,7 @@ class dAutoBizobj(dBizobj):
                         else:
                             g._toExc[self._conn] = [e.sql]
             else:
-                #tuple in the format of ((column list), (lists to insert))
+                # tuple in the format of ((column list), (lists to insert))
                 for row in to_insert[1]:
                     self.new()
                     for col, val in zip(to_insert[0], row):
@@ -297,16 +338,15 @@ class dAutoBizobj(dBizobj):
                     try:
                         self.save()
                     except dException.DBQueryException as e:
-                        print('failed')
+                        print("failed")
                         if self._conn in g._toExc:
                             g._toExc[self._conn] = g._toExc[self._conn].append(e.sql)
                         else:
                             g._toExc[self._conn] = [e.sql]
 
-
     def _getTable(self):
         return self._table
 
-
-    Table = property(_getTable, None, None,
-            _("The table definition for this bizobj.  (object)"))
+    Table = property(
+        _getTable, None, None, _("The table definition for this bizobj.  (object)")
+    )

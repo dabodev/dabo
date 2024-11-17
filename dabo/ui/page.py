@@ -10,6 +10,7 @@ from dabo.dLocalize import _
 
 class dPage(dScrollPanel):
     """Creates a page to appear as a tab in a pageframe."""
+
     def __init__(self, *args, **kwargs):
         self._caption = ""
         self._pendingUpdates = False
@@ -18,18 +19,15 @@ class dPage(dScrollPanel):
         super(dPage, self).__init__(*args, **kwargs)
         self._baseClass = dPage
 
-
     def _afterInit(self):
         self.initSizer()
         self.itemsCreated = False
         super(dPage, self)._afterInit()
 
-
     def _initEvents(self):
         super(dPage, self)._initEvents()
         self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
         self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
-
 
     def initSizer(self):
         """Set up the default vertical box sizer for the page."""
@@ -41,14 +39,12 @@ class dPage(dScrollPanel):
         if szCls is not None:
             self.Sizer = szCls("vertical")
 
-
     def _createItems(self):
         self.lockDisplay()
         self.createItems()
         self.itemsCreated = True
         self.layout()
         dui.callAfter(self.unlockDisplay)
-
 
     def createItems(self):
         """
@@ -58,7 +54,6 @@ class dPage(dScrollPanel):
         to delay-populate the page.
         """
         pass
-
 
     def update(self):
         if self.DeferredUpdates:
@@ -72,13 +67,11 @@ class dPage(dScrollPanel):
                 pass
         super(dPage, self).update()
 
-
     def __onPageEnter(self, evt):
         if not self.itemsCreated:
             self._createItems()
         if self._pendingUpdates:
             dui.callAfter(self.update)
-
 
     def __onPageLeave(self, evt):
         if hasattr(self, "Form"):
@@ -86,15 +79,12 @@ class dPage(dScrollPanel):
             if hasattr(form, "activeControlValid"):
                 form.activeControlValid()
 
-
     def _saveLastActiveControl(self):
         self._lastFocusedControl = self.Form.ActiveControl
-
 
     def _restoreLastActiveControl(self):
         if getattr(self, "_lastFocusedControl", None):
             self.Form.ActiveControl = self._lastFocusedControl
-
 
     def _getPagePosition(self):
         """Returns the position of this page within its parent."""
@@ -103,8 +93,6 @@ class dPage(dScrollPanel):
         except (ValueError, AttributeError):
             ret = -1
         return ret
-
-
 
     def _getCaption(self):
         # Need to determine which page we are
@@ -125,13 +113,11 @@ class dPage(dScrollPanel):
         else:
             self._properties["Caption"] = val
 
-
     def _getDeferredUpdates(self):
         return self._deferredUpdates
 
     def _setDeferredUpdates(self, val):
         self._deferredUpdates = val
-
 
     def _getImage(self):
         return self.Parent.getPageImage(self)
@@ -142,20 +128,32 @@ class dPage(dScrollPanel):
         else:
             self._properties["Image"] = imgKey
 
+    Caption = property(
+        _getCaption,
+        _setCaption,
+        None,
+        _("The text identifying this particular page.  (str)"),
+    )
 
-    Caption = property(_getCaption, _setCaption, None,
-            _("The text identifying this particular page.  (str)"))
+    DeferredUpdates = property(
+        _getDeferredUpdates,
+        _setDeferredUpdates,
+        None,
+        _("Allow to defer controls updates until page become active.  (bool)"),
+    )
 
-    DeferredUpdates = property(_getDeferredUpdates, _setDeferredUpdates, None,
-            _("Allow to defer controls updates until page become active.  (bool)"))
-
-    Image = property(_getImage, _setImage, None,
-            _("""Sets the image that is displayed on the page tab. This is
+    Image = property(
+        _getImage,
+        _setImage,
+        None,
+        _(
+            """Sets the image that is displayed on the page tab. This is
             determined by the key value passed, which must refer to an
             image already added to the parent pageframe.
             When used to retrieve an image, it returns the index of the
-            page's image in the parent pageframe's image list.   (int)"""))
-
+            page's image in the parent pageframe's image list.   (int)"""
+        ),
+    )
 
     DynamicCaption = makeDynamicProperty(Caption)
     DynamicImage = makeDynamicProperty(Image)
@@ -171,4 +169,5 @@ class _dPage_test(dPage):
 
 if __name__ == "__main__":
     from dabo.ui import test
+
     test.Test().runTest(_dPage_test)

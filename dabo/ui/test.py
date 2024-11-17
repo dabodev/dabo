@@ -12,6 +12,7 @@ test of dTextBox.
 If you instead run this test.py as a script, a form will be instantiated with
 all the dControls.
 """
+
 import importlib
 import os
 import sys
@@ -39,7 +40,7 @@ class Test(object):
             # Can't display a frame within another frame, so create this
             # class as the main frame
             frame = classRefs[0](None, *args, **kwargs)
-            isDialog = (issubclass(classRefs[0], wx.Dialog))
+            isDialog = issubclass(classRefs[0], wx.Dialog)
         else:
             from dabo.ui import dForm
             from dabo.ui import dPanel
@@ -56,12 +57,12 @@ class Test(object):
                 frame.testObjects.append(obj)
 
             # This will get a good approximation of the required size
-            w,h = panel.Sizer.GetMinSize()
+            w, h = panel.Sizer.GetMinSize()
             # Some controls don't report sizing correctly, so set a minimum
             w = max(w, 400)
             h = max(h, 300)
 
-            frame.Size = ( (w+10, h+30) )
+            frame.Size = (w + 10, h + 30)
             if len(classRefs) > 1:
                 frame.Caption = "Test of multiple objects"
             else:
@@ -78,7 +79,6 @@ class Test(object):
             frame.Layout()
             self.app.start()
 
-
     def testAll(self):
         """Create a dForm and populate it with example dWidgets."""
         from dabo.ui import dEditBox
@@ -86,20 +86,24 @@ class Test(object):
         from dabo.ui import dLabel
         from dabo.ui import dScrollPanel
         from dabo.ui import dSizer
+
         frame = dForm(Name="formTestAll")
         frame.Caption = "Test of all the dControls"
         frame.LogEvents = logEvents
 
         panel = frame.addObject(dScrollPanel, "panelTest")
-        panel.SetScrollbars(10,10,50,50)
+        panel.SetScrollbars(10, 10, 50, 50)
         labelWidth = 150
         vs = dSizer("vertical")
 
         # Get all the python modules in this directory into a list:
         dabo_root = os.path.dirname(dabo.__file__)
         ui_root = os.path.join(dabo_root, "ui")
-        modules = [modname.split(".")[0] for modname in os.listdir(ui_root)
-                if modname.endswith(".py")]
+        modules = [
+            modname.split(".")[0]
+            for modname in os.listdir(ui_root)
+            if modname.endswith(".py")
+        ]
 
         for modname in sorted(modules):
             print("==> ", modname)
@@ -130,7 +134,9 @@ class Test(object):
                     break
 
                 bs = dSizer("horizontal")
-                label = dLabel(panel, Alignment="Right", AutoResize=False, Width=labelWidth)
+                label = dLabel(
+                    panel, Alignment="Right", AutoResize=False, Width=labelWidth
+                )
 
                 label.Caption = "%s:" % modname
                 bs.append(label)
@@ -159,4 +165,3 @@ class Test(object):
 if __name__ == "__main__":
     t = Test()
     t.testAll()
-

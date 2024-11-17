@@ -17,6 +17,7 @@ from .dCursorMixin import dCursorMixin
 
 class dBackend(dObject):
     """Abstract class inherited by the specific Dabo database connectors."""
+
     # Pattern for determining if a function is present in a string
     functionPat = re.compile(r".*\([^\)]+\)")
     # When enclosing table or field names that contain spaces, what
@@ -32,8 +33,7 @@ class dBackend(dObject):
         self._connection = None
         # Reference to the cursor that is using this object
         self._cursor = None
-        self.lastExecuteTime = time.time() # For keep alive interval
-
+        self.lastExecuteTime = time.time()  # For keep alive interval
 
     def isValidModule(self):
         """Test the dbapi to see if it is supported on this computer."""
@@ -43,11 +43,9 @@ class dBackend(dObject):
         except ImportError:
             return False
 
-
     def getConnection(self, connectInfo, **kwargs):
         """override in subclasses"""
         return None
-
 
     def getDictCursorClass(self):
         """override in subclasses"""
@@ -57,11 +55,9 @@ class dBackend(dObject):
         """override in subclasses if they need something other than dCursorMixin"""
         return dCursorMixin
 
-
     def getCursor(self, cursorClass):
         """override in subclasses if necessary"""
         return cursorClass(self._connection)
-
 
     def formatForQuery(self, val, fieldType=None):
         if isinstance(val, (datetime.date, datetime.datetime)):
@@ -80,14 +76,12 @@ class dBackend(dObject):
         else:
             return self.escQuote(val)
 
-
     def formatBLOB(self, val):
         """
         Properly format a BLOB value to be included in an UPDATE
         or INSERT statement for a specific backend.
         """
         return val
-
 
     def formatDateTime(self, val):
         """
@@ -99,7 +93,6 @@ class dBackend(dObject):
         """
         return val
 
-
     def formatNone(self):
         """
         Properly format a None value to be included in an update statement.
@@ -108,14 +101,12 @@ class dBackend(dObject):
         """
         return "NULL"
 
-
     def noResultsOnSave(self):
         """
         Most backends will return a non-zero number if there are updates.
         Some do not, so this will have to be customized in those cases.
         """
         raise dException.dException(_("No records updated"))
-
 
     def noResultsOnDelete(self):
         """
@@ -124,11 +115,9 @@ class dBackend(dObject):
         """
         raise dException.dException(_("No records deleted"))
 
-
     def flush(self, cursor):
         """Only used in some backends"""
         return
-
 
     def processFields(self, txt):
         """
@@ -136,7 +125,6 @@ class dBackend(dObject):
         in cases where the str needs processing.
         """
         return txt
-
 
     def escQuote(self, val):
         """
@@ -148,7 +136,6 @@ class dBackend(dObject):
         """
         # OVERRIDE IN SUBCLASSES!
         return val
-
 
     def getLastInsertID(self, cursor):
         """
@@ -170,7 +157,6 @@ class dBackend(dObject):
         except AttributeError:
             return None
 
-
     def getTables(self, cursor, includeSystemTables=False):
         """
         Return a tuple of the tables in the current database.
@@ -179,11 +165,9 @@ class dBackend(dObject):
         """
         return tuple()
 
-
     def getTableRecordCount(self, tableName, cursor):
         """Return the number of records in the backend table."""
         return -1
-
 
     def getFields(self, tableName, cursor):
         """
@@ -196,7 +180,6 @@ class dBackend(dObject):
         # adequate generically yet.
         return ()
 
-
     def getDaboFieldType(self, backendFieldType):
         """
         Return the Dabo code (I, T, D, ...) for the passed backend Field Type.
@@ -205,12 +188,12 @@ class dBackend(dObject):
         """
         return {int: "I", str: "C", float: "F"}.get(backendFieldType, "?")
 
-
     def getFieldInfoFromDescription(self, cursorDescription):
         """Return field information from the cursor description."""
         # Default: return all the field names and "?", None for type and pkid.
-        return tuple([(d[0], self.getDaboFieldType(d[1]), None) for d in cursorDescription])
-
+        return tuple(
+            [(d[0], self.getDaboFieldType(d[1]), None) for d in cursorDescription]
+        )
 
     def beginTransaction(self, cursor):
         """Begin a SQL transaction. Override in subclasses if needed."""
@@ -218,20 +201,17 @@ class dBackend(dObject):
         dabo.dbActivityLog.info("SQL: begin")
         return True
 
-
     def commitTransaction(self, cursor):
         """Commit a SQL transaction."""
         self._connection.commit()
         dabo.dbActivityLog.info("SQL: commit")
         return True
 
-
     def rollbackTransaction(self, cursor):
         """Roll back (revert) a SQL transaction."""
         self._connection.rollback()
         dabo.dbActivityLog.info("SQL: rollback")
         return True
-
 
     @staticmethod
     def addWithSep(base, new, sep=",\n\t"):
@@ -258,7 +238,7 @@ class dBackend(dObject):
             idx = splitbase.index(remove)
         except ValueError:
             return base
-        del(splitbase[idx])
+        del splitbase[idx]
         return sep.join(splitbase)
 
     def encloseNames(self, exp, autoQuote=True, keywords=None):
@@ -280,14 +260,16 @@ class dBackend(dObject):
                 subs = tuple(pat.findall(exp))
                 lowkeys = [k.lower() for k in keywords]
             delim = self.nameEnclosureChar
+
             def encPart(part):
                 qtd = [delim + pt.strip() + delim for pt in part.split(".") if pt]
                 return ".".join(qtd)
-            exp = " %s ".join([encPart(pt) for pt in parts
-                    if pt.lower() not in lowkeys])
+
+            exp = " %s ".join(
+                [encPart(pt) for pt in parts if pt.lower() not in lowkeys]
+            )
             return exp % subs
         return exp
-
 
     def addField(self, clause, exp, alias=None, autoQuote=True):
         """Add a field to the field clause."""
@@ -319,7 +301,6 @@ class dBackend(dObject):
         indent = len("select ") * " "
         return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
-
     def addJoin(self, tbl, joinCondition, exp, joinType=None, autoQuote=True):
         """Add a joined table to the sql statement."""
         tbl = self.encloseNames(tbl, autoQuote=autoQuote, keywords=("as",))
@@ -328,13 +309,11 @@ class dBackend(dObject):
         clause = "%(joinType)s join %(tbl)s on %(joinCondition)s" % locals()
         return self.addWithSep(exp, clause, sep="\n%s" % indent)
 
-
     def addWhere(self, clause, exp, comp="and", autoQuote=True):
         """Add an expression to the where clause."""
         indent = (len("select ") - len(comp)) * " "
         exp = self.processFields(exp)
         return self.addWithSep(clause, exp, sep="\n%s%s " % (indent, comp))
-
 
     def removeWhere(self, clause, exp, comp="and", autoQuote=True):
         """Remove a previously-added expression from the where clause."""
@@ -342,20 +321,17 @@ class dBackend(dObject):
         exp = self.processFields(exp)
         return self.removeWithSep(clause, exp, sep="\n%s%s " % (indent, comp))
 
-
     def addGroupBy(self, clause, exp, autoQuote=True):
         """Add an expression to the group-by clause."""
         exp = self.encloseNames(exp, autoQuote=autoQuote)
         indent = len("select ") * " "
         return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
-
     def addOrderBy(self, clause, exp, autoQuote=True):
         """Add an expression to the order-by clause."""
         exp = self.encloseNames(exp, autoQuote=autoQuote, keywords=("asc", "desc"))
         indent = len("select ") * " "
         return self.addWithSep(clause, exp, sep=",\n%s" % indent)
-
 
     def getLimitWord(self):
         """
@@ -364,19 +340,32 @@ class dBackend(dObject):
         """
         return "limit"
 
-
-    def formSQL(self, fieldClause, fromClause, joinClause,
-                whereClause, groupByClause, orderByClause, limitClause):
+    def formSQL(
+        self,
+        fieldClause,
+        fromClause,
+        joinClause,
+        whereClause,
+        groupByClause,
+        orderByClause,
+        limitClause,
+    ):
         """
         Creates the appropriate SQL for the backend, given all
         the required clauses. Some backends order these differently, so
         they should override this method with their own ordering.
         """
-        clauses =  (fieldClause, fromClause, joinClause, whereClause, groupByClause,
-                orderByClause, limitClause)
+        clauses = (
+            fieldClause,
+            fromClause,
+            joinClause,
+            whereClause,
+            groupByClause,
+            orderByClause,
+            limitClause,
+        )
         sql = "select " + "\n".join([clause for clause in clauses if clause])
         return sql
-
 
     def prepareWhere(self, clause, autoQuote=True):
         """
@@ -384,7 +373,6 @@ class dBackend(dObject):
         for specific backends.
         """
         return clause
-
 
     def formatJoinType(self, jt):
         """Default formatting for jointype keywords. Override in subclasses if needed."""
@@ -394,7 +382,6 @@ class dBackend(dObject):
             # Default to trimmed lower-case
             jt = jt.lower().strip()
         return jt
-
 
     def getWordMatchFormat(self):
         """
@@ -408,7 +395,6 @@ class dBackend(dObject):
         """
         return " %(table)s.%(field)s = %(value)s "
 
-
     def getUpdateTablePrefix(self, tbl, autoQuote=True):
         """
         By default, the update SQL statement will be in the form of
@@ -421,7 +407,6 @@ class dBackend(dObject):
         """
         tbl = self.encloseNames(tbl, autoQuote=autoQuote)
         return tbl + "."
-
 
     def getWhereTablePrefix(self, tbl, autoQuote=True):
         """
@@ -438,7 +423,6 @@ class dBackend(dObject):
         tbl = self.encloseNames(tbl, autoQuote=autoQuote)
         return tbl + "."
 
-
     def massageDescription(self, cursor):
         """
         Some dbapi programs do strange things to the description.
@@ -451,7 +435,6 @@ class dBackend(dObject):
         copy it to the 'descriptionClean' attribute.
         """
         cursor.descriptionClean = cursor.description
-
 
     def getDescription(self, cursor):
         """
@@ -467,7 +450,6 @@ class dBackend(dObject):
         else:
             return cursor.descriptionClean
 
-
     def pregenPK(self, cursor):
         """
         In the case where the database requires that PKs be generated
@@ -475,7 +457,6 @@ class dBackend(dObject):
         means of accomplishing this. By default, we return None.
         """
         return None
-
 
     def setNonUpdateFields(self, cursor, autoQuote=True):
         """
@@ -497,26 +478,31 @@ class dBackend(dObject):
             auxCrs._whereClause = holdWhere
         descFlds = auxCrs.FieldDescription
         # Get the raw version of the table
-        sql = "select * from %s where 1=0 " % self.encloseNames(cursor.Table,
-                autoQuote=autoQuote)
+        sql = "select * from %s where 1=0 " % self.encloseNames(
+            cursor.Table, autoQuote=autoQuote
+        )
         auxCrs.execute(sql)
         # This is the clean version of the table.
         stdFlds = auxCrs.FieldDescription
 
         # Get all the fields that are not in the table.
-        ret0 = [d[0] for d in descFlds
-                if d[0] not in [s[0] for s in stdFlds] ]
+        ret0 = [d[0] for d in descFlds if d[0] not in [s[0] for s in stdFlds]]
         # Extract the remaining fields (no need to test any already excluded
-        remFlds = [ d for d in descFlds if d[0] not in ret0]
+        remFlds = [d for d in descFlds if d[0] not in ret0]
 
         # Now add any for which the members (except the display value,
         # which is in position 2) do not match
-        ret0 += [ b[0] for b in remFlds
-                for s in [z for z in stdFlds if z[0] == b[0] ]
-                if (b[1] != s[1]) or (b[3] != s[3]) or (b[4] != s[4])
-                or (b[5] != s[5]) or (b[6] != s[6]) ]
+        ret0 += [
+            b[0]
+            for b in remFlds
+            for s in [z for z in stdFlds if z[0] == b[0]]
+            if (b[1] != s[1])
+            or (b[3] != s[3])
+            or (b[4] != s[4])
+            or (b[5] != s[5])
+            or (b[6] != s[6])
+        ]
         return ret0
-
 
     def getStructureDescription(self, cursor):
         """Return the basic field structure."""
@@ -538,7 +524,12 @@ class dBackend(dObject):
                 finfo = field_info[2] or field_info[3]
             else:
                 finfo = max(field_info[2], field_info[3])
-            field_structure[field_name] = (field_type, False, finfo, field_info[5] or None)
+            field_structure[field_name] = (
+                field_type,
+                False,
+                finfo,
+                field_info[5] or None,
+            )
 
         standard_fields = cursor.getFields()
         for field_name, field_type, pk in standard_fields:
@@ -550,20 +541,37 @@ class dBackend(dObject):
                 #      didn't provide good type information.
                 if field_structure[field_name][0] != field_type:
                     # Only override what was in FieldStructure if getFields() gave better info.
-                    field_structure[field_name] = (field_type, pk,
-                            field_structure[field_name][2], field_structure[field_name][3])
+                    field_structure[field_name] = (
+                        field_type,
+                        pk,
+                        field_structure[field_name][2],
+                        field_structure[field_name][3],
+                    )
                 elif pk:
                     # FieldStructure doesn't provide pk information:
-                    field_structure[field_name] = (field_structure[field_name][0], pk,
-                            field_structure[field_name][2], field_structure[field_name][3])
+                    field_structure[field_name] = (
+                        field_structure[field_name][0],
+                        pk,
+                        field_structure[field_name][2],
+                        field_structure[field_name][3],
+                    )
 
-        ret = [(field, field_structure[field][0], field_structure[field][1],
-                None, None,
-                field_structure[field][2] if field_structure[field][0] == "C"
-                    else field_structure[field][3])
-                for field in field_names]
+        ret = [
+            (
+                field,
+                field_structure[field][0],
+                field_structure[field][1],
+                None,
+                None,
+                (
+                    field_structure[field][2]
+                    if field_structure[field][0] == "C"
+                    else field_structure[field][3]
+                ),
+            )
+            for field in field_names
+        ]
         return tuple(ret)
-
 
     ##########        Created by Echo     ##############
     def isExistingTable(self, table):
@@ -574,27 +582,24 @@ class dBackend(dObject):
         else:
             return self._isExistingTable(table, crs)
 
-
     def _isExistingTable(self, tablename, cursor):
         # OVERRIDE IN SUBCLASSES!
         return False
 
-
     def createJustTable(self, tabledef, cursor):
         self.createTableAndIndex(tabledef, cursor, createIndexes=False)
-
 
     def createJustIndexes(self, tabledef, cursor):
         self.createTableAndIndexes(tabledef, cursor, createTable=False)
 
-
-    def createTableAndIndexes(self, tabledef, cursor, createTable=True,
-            createIndex=True):
+    def createTableAndIndexes(
+        self, tabledef, cursor, createTable=True, createIndex=True
+    ):
         """Creates a table and/or indexes based on the dTable passed to it."""
         # OVERRIDE IN SUBCLASSES!
         pass
-    ##########        END  - Created by Echo     ##############
 
+    ##########        END  - Created by Echo     ##############
 
     ###########################################
     # The following methods by default simply return the text
@@ -603,20 +608,28 @@ class dBackend(dObject):
     # that subclass should override these.
     def setSQL(self, sql):
         return sql
+
     def setFieldClause(self, clause, autoQuote=True):
         return clause
+
     def setFromClause(self, clause, autoQuote=True):
         return clause
+
     def setJoinClause(self, clause, autoQuote=True):
         return clause
+
     def setWhereClause(self, clause, autoQuote=True):
         return clause
+
     def setChildFilterClause(self, clause, autoQuote=True):
         return clause
+
     def setGroupByClause(self, clause, autoQuote=True):
         return clause
+
     def setOrderByClause(self, clause, autoQuote=True):
         return clause
+
     ###########################################
 
     def _applyKeepAlive(self):
@@ -672,7 +685,6 @@ class dBackend(dObject):
         """
         self._encoding = enc
 
-
     def _getKeepAliveInterval(self):
         try:
             ret = self._keepAliveInterval
@@ -684,13 +696,17 @@ class dBackend(dObject):
         self._keepAliveInterval = val
         self._applyKeepAlive()
 
+    Encoding = property(_getEncoding, _setEncoding, None, _("Backend encoding  (str)"))
 
-    Encoding = property(_getEncoding, _setEncoding, None,
-            _("Backend encoding  (str)"))
-
-    KeepAliveInterval = property(_getKeepAliveInterval, _setKeepAliveInterval, None,
-            _("""Specifies how often a KeepAlive query should be sent to the server.
+    KeepAliveInterval = property(
+        _getKeepAliveInterval,
+        _setKeepAliveInterval,
+        None,
+        _(
+            """Specifies how often a KeepAlive query should be sent to the server.
 
             Defaults to None, meaning we never send a KeepAlive query. The interval
             is expressed in seconds.
-            """))
+            """
+        ),
+    )

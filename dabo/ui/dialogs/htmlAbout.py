@@ -2,7 +2,7 @@
 import sys
 import os
 import string
-import dabo #, dabo.ui
+import dabo  # , dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import dBitmapButton
@@ -23,11 +23,9 @@ class HtmlAbout(dDialog):
         self.Centered = True
         self.Caption = _("About")
 
-
     def initEvents(self):
         self.bindKey("space", self.onClear)
         self.bindKey("enter", self.onClear)
-
 
     def addControls(self):
         pnlBack = dPanel(self, BackColor="cornflowerblue")
@@ -36,14 +34,11 @@ class HtmlAbout(dDialog):
 
         self.htmlBox = dHtmlBox(self)
         self.htmlBox.Size = (400, 300)
-        sz.append(self.htmlBox, 1, halign="center", valign="center",
-                border=30)
+        sz.append(self.htmlBox, 1, halign="center", valign="center", border=30)
 
         # Copy info
-        btnCopy = dButton(pnlBack, Caption=_("Copy Info"),
-                OnHit=self.onCopyInfo)
-        btnClose = dButton(pnlBack, Caption=_("OK"),
-                OnHit=self.onClear)
+        btnCopy = dButton(pnlBack, Caption=_("Copy Info"), OnHit=self.onCopyInfo)
+        btnClose = dButton(pnlBack, Caption=_("OK"), OnHit=self.onClear)
         hsz = dSizer("H")
         hsz.append(btnCopy)
         hsz.appendSpacer(20)
@@ -53,17 +48,17 @@ class HtmlAbout(dDialog):
         self.Layout()
         self.htmlBox.Source = self.writeHtmlPage()
 
-
     def writeHtmlPage(self):
         app = self.Application
         caption = "Dabo"
         if app:
-            caption = "%s %s" % (app.getAppInfo("appName"),
-                    app.getAppInfo("appVersion"))
+            caption = "%s %s" % (
+                app.getAppInfo("appName"),
+                app.getAppInfo("appVersion"),
+            )
         appinfo = dabo.ui.getSystemInfo("html")
         docstring = self.getAppSpecificString()
         return self.getPageData() % locals()
-
 
     def getAppSpecificString(self):
         app = self.Application
@@ -73,17 +68,14 @@ class HtmlAbout(dDialog):
                 return text
         return ""
 
-
     def onCopyInfo(self, evt):
         """Copy the system information to the Clipboard"""
         info = dabo.ui.getSystemInfo("string")
         appdoc = self.getAppSpecificString()
         self.Application.copyToClipboard("\n\n".join((info, appdoc)))
 
-
     def onClear(self, evt):
         self.release()
-
 
     def getPageData(self):
         """Basic Template structure of the About box."""
@@ -101,6 +93,7 @@ class HtmlAbout(dDialog):
 
 def main():
     from dabo.dApp import dApp
+
     app = dApp()
     app.MainFormClass = None
     app.setup()
@@ -108,7 +101,6 @@ def main():
     app.MainForm.show()
     app.start()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
-
-

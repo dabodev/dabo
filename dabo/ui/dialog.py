@@ -26,6 +26,7 @@ class dDialog(dFormMixin, wx.Dialog):
     specific piece of information from the user, and/or offering specific
     information to the user.
     """
+
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         self._baseClass = dDialog
         self._modal = True
@@ -43,8 +44,9 @@ class dDialog(dFormMixin, wx.Dialog):
             kwargs["style"] = defaultStyle
 
         preClass = wx.Dialog
-        dFormMixin.__init__(self, preClass, parent, properties=properties,
-                *args, **kwargs)
+        dFormMixin.__init__(
+            self, preClass, parent, properties=properties, *args, **kwargs
+        )
 
         # Hook method, so that we add the buttons last
         self._addControls()
@@ -52,38 +54,33 @@ class dDialog(dFormMixin, wx.Dialog):
         # Needed starting with wx 2.7, for the first control to have the focus:
         self.setFocus()
 
-
     def getBizobj(self, *args, **kwargs):
         ## self.Form resolves to the containing dialog, making calls to 'self.Form.getBizobj()'
         ## fail since the dialog knows nothing about bizobjs. Let's be helpful and pass the
         ## request up to the form:
         return self.Form.getBizobj(*args, **kwargs)
 
-
     def EndModal(self, *args, **kwargs):
         self.saveSizeAndPosition()
         # JFCS 6/11/20 self.hide() causes the self.IsModal() == False which is wrong.
-        #isItModal = self.IsModal()
-        #self.Hide()
-        #if self.Modal:  #this uses the property of the Dabo dialog 
-        #if self.IsModal:  #this uses the wx.IsModal that checks the dialog.
-        # I believe either is required because the call is to end a modal dialog 
+        # isItModal = self.IsModal()
+        # self.Hide()
+        # if self.Modal:  #this uses the property of the Dabo dialog
+        # if self.IsModal:  #this uses the wx.IsModal that checks the dialog.
+        # I believe either is required because the call is to end a modal dialog
         # if it fails no harm.
         if self.IsModal():
             try:
-                #self.Destroy()
+                # self.Destroy()
                 super(dDialog, self).EndModal(*args, **kwargs)
             except wx._core.PyAssertionError:
                 # The modal hack is causing problems in some edge cases.
-                super(dDialog,self).release()
-                
-
+                super(dDialog, self).release()
 
     def _afterInit(self):
         self.MenuBarClass = None
         self.Sizer = dSizer("V")
         super(dDialog, self)._afterInit()
-
 
     def ShowModal(self):
         self.restoreSizeAndPositionIfNeeded()
@@ -92,7 +89,6 @@ class dDialog(dFormMixin, wx.Dialog):
         self.update()
         return super(dDialog, self).ShowModal()
 
-
     def showModal(self):
         """Show the dialog modally."""
         ## pkm: We had to override this, because the default in dPemMixin doesn't
@@ -100,19 +96,16 @@ class dDialog(dFormMixin, wx.Dialog):
         self.Modal = True
         self.show()
 
-
     def showModeless(self):
         """Show the dialog non-modally."""
         self.Modal = False
         self.show()
-
 
     def _afterShow(self):
         if self.AutoSize:
             self.Fit()
         if self.Centered:
             self.Centre()
-
 
     def show(self):
         # Call _afterShow() once immediately, and then once after the dialog is visible, which
@@ -126,8 +119,6 @@ class dDialog(dFormMixin, wx.Dialog):
             return {wx.ID_OK: kons.DLG_OK, wx.ID_CANCEL: kons.DLG_CANCEL}.get(ret, ret)
         return self.Show(True)
 
-
-
     def _addControls(self):
         """
         Any controls that need to be added to the dialog
@@ -138,16 +129,13 @@ class dDialog(dFormMixin, wx.Dialog):
         self.addControls()
         self.afterAddControls()
 
-
     def beforeAddControls(self):
         """This is a hook, called at the appropriate time by the framework."""
         pass
 
-
     def afterAddControls(self):
         """This is a hook, called at the appropriate time by the framework."""
         pass
-
 
     def addControls(self):
         """
@@ -156,7 +144,6 @@ class dDialog(dFormMixin, wx.Dialog):
         This is a hook, called at the appropriate time by the framework.
         """
         pass
-
 
     def release(self):
         """
@@ -167,11 +154,9 @@ class dDialog(dFormMixin, wx.Dialog):
             self.Application.uiForms.remove(self)
         super(dDialog, self).release()
 
-
     def _controlGotFocus(self, ctrl):
         # Placeholder until we unify dForm and dDialog
         pass
-
 
     def _getAutoSize(self):
         return self._fit
@@ -179,16 +164,16 @@ class dDialog(dFormMixin, wx.Dialog):
     def _setAutoSize(self, val):
         self._fit = val
 
-
     def _getBorderless(self):
         return self._borderless
 
     def _setBorderless(self, val):
         if self._constructed():
-            raise ValueError(_("Cannot set the Borderless property once the dialog is created."))
+            raise ValueError(
+                _("Cannot set the Borderless property once the dialog is created.")
+            )
         else:
             self._properties["Borderless"] = val
-
 
     def _getCaption(self):
         return self.GetTitle()
@@ -199,13 +184,11 @@ class dDialog(dFormMixin, wx.Dialog):
         else:
             self._properties["Caption"] = val
 
-
     def _getCentered(self):
         return self._centered
 
     def _setCentered(self, val):
         self._centered = val
-
 
     def _getModal(self):
         return self._modal
@@ -213,34 +196,53 @@ class dDialog(dFormMixin, wx.Dialog):
     def _setModal(self, val):
         self._modal = val
 
-
     def _getShowStat(self):
         # Dialogs cannot have status bars.
         return False
-    _showStatusBar    = property(_getShowStat)
 
+    _showStatusBar = property(_getShowStat)
 
-    AutoSize = property(_getAutoSize, _setAutoSize, None,
-            _("When True, the dialog resizes to fit the added controls.  (bool)"))
+    AutoSize = property(
+        _getAutoSize,
+        _setAutoSize,
+        None,
+        _("When True, the dialog resizes to fit the added controls.  (bool)"),
+    )
 
-    Borderless = property(_getBorderless, _setBorderless, None,
-            _("""Must be passed at construction time. When set to True, the dialog displays
-            without a title bar or borders  (bool)"""))
+    Borderless = property(
+        _getBorderless,
+        _setBorderless,
+        None,
+        _(
+            """Must be passed at construction time. When set to True, the dialog displays
+            without a title bar or borders  (bool)"""
+        ),
+    )
 
-    Caption = property(_getCaption, _setCaption, None,
-            _("The text that appears in the dialog's title bar  (str)") )
+    Caption = property(
+        _getCaption,
+        _setCaption,
+        None,
+        _("The text that appears in the dialog's title bar  (str)"),
+    )
 
-    Centered = property(_getCentered, _setCentered, None,
-            _("Determines if the dialog is displayed centered on the screen.  (bool)"))
+    Centered = property(
+        _getCentered,
+        _setCentered,
+        None,
+        _("Determines if the dialog is displayed centered on the screen.  (bool)"),
+    )
 
-    Modal = property(_getModal, _setModal, None,
-            _("Determines if the dialog is shown modal (default) or modeless.  (bool)"))
-
+    Modal = property(
+        _getModal,
+        _setModal,
+        None,
+        _("Determines if the dialog is shown modal (default) or modeless.  (bool)"),
+    )
 
     DynamicAutoSize = makeDynamicProperty(AutoSize)
     DynamicCaption = makeDynamicProperty(Caption)
     DynamicCentered = makeDynamicProperty(Centered)
-
 
 
 class dStandardButtonDialog(dDialog):
@@ -263,6 +265,7 @@ class dStandardButtonDialog(dDialog):
     to find out if the user pressed "OK" or "Yes"; if neither of these was pressed,
     Accepted will be False.
     """
+
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         self._ok = self._extractKey((properties, kwargs), "OK")
         self._cancel = self._extractKey((properties, kwargs), "Cancel")
@@ -273,10 +276,11 @@ class dStandardButtonDialog(dDialog):
         if self._ok and self._yes:
             raise ValueError(_("Dialogs cannot have both 'OK' and 'Yes' buttons."))
         self._cancelOnEscape = True
-        super(dStandardButtonDialog, self).__init__(parent=parent, properties=properties, *args, **kwargs)
+        super(dStandardButtonDialog, self).__init__(
+            parent=parent, properties=properties, *args, **kwargs
+        )
         self._baseClass = dStandardButtonDialog
         self._accepted = False
-
 
     def _addControls(self):
         # By default, don't intercept the esc key.
@@ -294,8 +298,13 @@ class dStandardButtonDialog(dDialog):
         yes = self._yes
         no = self._no
         help = self._help
-        if (ok is None and cancel is None and yes is None and
-                no is None and help is None):
+        if (
+            ok is None
+            and cancel is None
+            and yes is None
+            and no is None
+            and help is None
+        ):
             ok = True
 
         flags = 0
@@ -365,7 +374,7 @@ class dStandardButtonDialog(dDialog):
             if win is not None:
                 buttons.append(win)
         for pos, btn in enumerate(buttons[1:]):
-            btn.MoveAfterInTabOrder(buttons[pos-1])
+            btn.MoveAfterInTabOrder(buttons[pos - 1])
 
         # Let the user add their controls
         super(dStandardButtonDialog, self)._addControls()
@@ -379,12 +388,11 @@ class dStandardButtonDialog(dDialog):
             else:
                 spacer = 10
             bs = dSizer("v")
-            bs.append((0, spacer/2))
+            bs.append((0, spacer / 2))
             bs.append(self.ButtonSizer, "x")
             bs.append((0, spacer))
             sz.append(bs, "x")
         self.layout()
-
 
     def setEscapeButton(self, btn=None):
         """
@@ -396,8 +404,6 @@ class dStandardButtonDialog(dDialog):
             self.SetEscapeId(wx.ID_NONE)
         else:
             self.SetEscapeId(btn.GetId())
-
-
 
     ################################################
     #    Handlers for the standard buttons.
@@ -413,8 +419,10 @@ class dStandardButtonDialog(dDialog):
         try:
             self.onOK()
         except TypeError:
-            warnings.warn(_("The onOK() handler is deprecated. Use the runOK() method instead"),
-                Warning)
+            warnings.warn(
+                _("The onOK() handler is deprecated. Use the runOK() method instead"),
+                Warning,
+            )
             self.onOK(None)
         except AttributeError:
             # New code should not have onOK
@@ -431,8 +439,12 @@ class dStandardButtonDialog(dDialog):
         try:
             self.onCancel()
         except TypeError:
-            warnings.warn(_("The onCancel() handler is deprecated. Use the runCancel() method instead"),
-                Warning)
+            warnings.warn(
+                _(
+                    "The onCancel() handler is deprecated. Use the runCancel() method instead"
+                ),
+                Warning,
+            )
             self.onCancel(None)
         except AttributeError:
             # New code should not have onCancel
@@ -442,6 +454,7 @@ class dStandardButtonDialog(dDialog):
             self.EndModal(kons.DLG_CANCEL)
         else:
             evt.stop()
+
     def _onYes(self, evt):
         self.Accepted = True
         if self.runYes() is not False:
@@ -458,13 +471,22 @@ class dStandardButtonDialog(dDialog):
         self.runHelp()
 
     # The following are stub methods that can be overridden when needed.
-    def runOK(self): pass
-    def runCancel(self): pass
-    def runYes(self): pass
-    def runNo(self): pass
-    def runHelp(self): pass
-    ################################################
+    def runOK(self):
+        pass
 
+    def runCancel(self):
+        pass
+
+    def runYes(self):
+        pass
+
+    def runNo(self):
+        pass
+
+    def runHelp(self):
+        pass
+
+    ################################################
 
     def addControls(self):
         """
@@ -472,7 +494,6 @@ class dStandardButtonDialog(dDialog):
         after this method runs, so that they appear at the bottom of the dialog.
         """
         pass
-
 
     def addControlSequence(self, seq):
         """
@@ -502,25 +523,20 @@ class dStandardButtonDialog(dDialog):
         self.Sizer.insert(self.LastPositionInSizer, gs, "x")
         self.layout()
 
-
     def _getAccepted(self):
         return self._accepted
 
     def _setAccepted(self, val):
         self._accepted = val
 
-
     def _getButtonSizer(self):
         return getattr(self, "stdButtonSizer", None)
-
 
     def _getButtonSizerPosition(self):
         return self.ButtonSizer.getPositionInSizer()
 
-
     def _getCancelButton(self):
         return self.btnCancel
-
 
     def _getCancelOnEscape(self):
         return self._cancelOnEscape
@@ -537,53 +553,87 @@ class dStandardButtonDialog(dDialog):
         else:
             self._properties["CancelOnEscape"] = val
 
-
     def _getHelpButton(self):
         return self.btnHelp
-
 
     def _getOKButton(self):
         return self.btnOK
 
-
     def _getNoButton(self):
         return self.btnNo
-
 
     def _getYesButton(self):
         return self.btnYes
 
+    Accepted = property(
+        _getAccepted,
+        _setAccepted,
+        None,
+        _("Specifies whether the user accepted the dialog, or canceled.  (bool)"),
+    )
 
-    Accepted = property(_getAccepted, _setAccepted, None,
-            _("Specifies whether the user accepted the dialog, or canceled.  (bool)"))
+    ButtonSizer = property(
+        _getButtonSizer,
+        None,
+        None,
+        _(
+            "Returns a reference to the sizer controlling the Ok/Cancel buttons.  (dSizer)"
+        ),
+    )
 
-    ButtonSizer = property(_getButtonSizer, None, None,
-            _("Returns a reference to the sizer controlling the Ok/Cancel buttons.  (dSizer)"))
+    ButtonSizerPosition = property(
+        _getButtonSizerPosition,
+        None,
+        None,
+        _("""Returns the position of the Ok/Cancel buttons in the sizer.  (int)"""),
+    )
 
-    ButtonSizerPosition = property(_getButtonSizerPosition, None, None,
-            _("""Returns the position of the Ok/Cancel buttons in the sizer.  (int)"""))
+    CancelButton = property(
+        _getCancelButton,
+        None,
+        None,
+        _("Reference to the Cancel button on the form, if present  (dButton or None)."),
+    )
 
-    CancelButton = property(_getCancelButton, None, None,
-            _("Reference to the Cancel button on the form, if present  (dButton or None)."))
-
-    CancelOnEscape = property(_getCancelOnEscape, _setCancelOnEscape, None,
-            _("""When True (default), pressing the Escape key will perform the same action
+    CancelOnEscape = property(
+        _getCancelOnEscape,
+        _setCancelOnEscape,
+        None,
+        _(
+            """When True (default), pressing the Escape key will perform the same action
             as clicking the Cancel button. If no Cancel button is present but there is a No button,
             the No behavior will be executed. If neither button is present, the default button's
-            action will be executed  (bool)"""))
+            action will be executed  (bool)"""
+        ),
+    )
 
-    HelpButton = property(_getHelpButton, None, None,
-            _("Reference to the Help button on the form, if present  (dButton or None)."))
+    HelpButton = property(
+        _getHelpButton,
+        None,
+        None,
+        _("Reference to the Help button on the form, if present  (dButton or None)."),
+    )
 
-    NoButton = property(_getNoButton, None, None,
-            _("Reference to the No button on the form, if present  (dButton or None)."))
+    NoButton = property(
+        _getNoButton,
+        None,
+        None,
+        _("Reference to the No button on the form, if present  (dButton or None)."),
+    )
 
-    OKButton = property(_getOKButton, None, None,
-            _("Reference to the OK button on the form, if present  (dButton or None)."))
+    OKButton = property(
+        _getOKButton,
+        None,
+        None,
+        _("Reference to the OK button on the form, if present  (dButton or None)."),
+    )
 
-    YesButton = property(_getYesButton, None, None,
-            _("Reference to the Yes button on the form, if present  (dButton or None)."))
-
+    YesButton = property(
+        _getYesButton,
+        None,
+        None,
+        _("Reference to the Yes button on the form, if present  (dButton or None)."),
+    )
 
 
 class dOkCancelDialog(dStandardButtonDialog):
@@ -594,14 +644,12 @@ class dOkCancelDialog(dStandardButtonDialog):
         self._baseClass = dOkCancelDialog
 
 
-
 class dYesNoDialog(dStandardButtonDialog):
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         kwargs["Yes"] = kwargs["No"] = True
         kwargs["OK"] = kwargs["Cancel"] = False
         super(dYesNoDialog, self).__init__(parent, properties, *args, **kwargs)
         self._baseClass = dYesNoDialog
-
 
 
 class _FloatDialog(dDialog):
@@ -612,11 +660,9 @@ class _FloatDialog(dDialog):
         kwargs["FloatOnParent"] = True
         super(_FloatDialog, self).__init__(*args, **kwargs)
 
-
     def clear(self):
         """Releases any controls remaining from a previous usage."""
         self.Sizer.clear(True)
-
 
     def show(self):
         # position by owner
@@ -634,8 +680,8 @@ class _FloatDialog(dDialog):
         maxW, maxH = dui.getDisplaySize()
         self.Left = max(5, self.Left)
         self.Top = max(5, self.Top)
-        self.Right = min(self.Right, maxW-5)
-        self.Bottom = min(self.Bottom, maxH-5)
+        self.Right = min(self.Right, maxW - 5)
+        self.Bottom = min(self.Bottom, maxH - 5)
         dui.callAfterInterval(10, self._resetPosition, self.Position)
         super(_FloatDialog, self).show()
 
@@ -645,7 +691,7 @@ class _FloatDialog(dDialog):
         otherwise.
         """
         self.Position = pos
-        
+
     def _getAbove(self):
         return self._above
 
@@ -654,7 +700,6 @@ class _FloatDialog(dDialog):
             self._above = val
         else:
             self._properties["Above"] = val
-
 
     def _getOwner(self):
         return self._owner
@@ -665,12 +710,19 @@ class _FloatDialog(dDialog):
         else:
             self._properties["Owner"] = val
 
+    Above = property(
+        _getAbove,
+        _setAbove,
+        None,
+        _("Is this dialog positioned above its owner? Default=False  (bool)"),
+    )
 
-    Above = property(_getAbove, _setAbove, None,
-            _("Is this dialog positioned above its owner? Default=False  (bool)"))
-
-    Owner = property(_getOwner, _setOwner, None,
-            _("Control which is currently managing this window.  (varies)"))
+    Owner = property(
+        _getOwner,
+        _setOwner,
+        None,
+        _("Control which is currently managing this window.  (varies)"),
+    )
 
 
 dabo.ui.dDialog = dDialog
@@ -681,6 +733,7 @@ dabo.ui.dYesNoDialog = dYesNoDialog
 
 if __name__ == "__main__":
     from dabo.ui import test
+
     test.Test().runTest(dDialog)
     test.Test().runTest(dStandardButtonDialog)
     test.Test().runTest(dOkCancelDialog)

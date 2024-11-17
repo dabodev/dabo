@@ -12,15 +12,20 @@ from dabo.ui import dPanel
 class dReportProgress(dPanel):
     def afterInit(self):
         ms = self.Sizer = dBorderSizer(self, "v", DefaultBorder=5)
-        self.gauge = dGauge(self, Size=(75,12))
+        self.gauge = dGauge(self, Size=(75, 12))
         lblTitle = dLabel(self, Name="lblTitle", Caption="", FontBold=True)
-        butCancel = dButton(self, Name="butCancelReportProgress", CancelButton=False,
-                Caption="Cancel", Enabled=False, OnHit=self.onCancel)
+        butCancel = dButton(
+            self,
+            Name="butCancelReportProgress",
+            CancelButton=False,
+            Caption="Cancel",
+            Enabled=False,
+            OnHit=self.onCancel,
+        )
         ms.append(lblTitle)
         ms.append(self.gauge, "expand")
         ms.append(butCancel, alignment="right")
         self.Visible = False
-
 
     def show(self):
         self.oldCancel = self.Form.FindWindowById(wx.ID_CANCEL)
@@ -35,7 +40,6 @@ class dReportProgress(dPanel):
         self.setFocus()  ## Ensures a pressed 'esc' will register on our cancel button
         self.Visible = True
 
-
     def hide(self):
         butCancel = self.butCancelReportProgress
         self.Visible = False
@@ -48,12 +52,10 @@ class dReportProgress(dPanel):
                 self.oldCancel.Enabled = True
             self.oldCancel.CancelButton = True
 
-
     def updateProgress(self, val, range_):
         self.gauge.Range = range_
         self.gauge.Value = val
         self.gauge.refresh()
-
 
     def onCancel(self, evt):
         evt.stop()  ## keep dialogs from automatically being closed.
@@ -61,10 +63,8 @@ class dReportProgress(dPanel):
             return
         self.cancel()
 
-
     def cancel(self):
         self.ProcessObject.cancel()
-
 
     def _getCaption(self):
         return self.lblTitle.Caption
@@ -73,7 +73,6 @@ class dReportProgress(dPanel):
         self.lblTitle.Caption = val
         self.fitToSizer()
 
-
     def _getProcessObject(self):
         self._processObject = getattr(self, "_processObject", None)
         return self._processObject
@@ -81,13 +80,21 @@ class dReportProgress(dPanel):
     def _setProcessObject(self, val):
         self._processObject = val
 
+    Caption = property(
+        _getCaption,
+        _setCaption,
+        None,
+        _("""Specifies the caption of the progress bar."""),
+    )
 
-
-    Caption = property(_getCaption, _setCaption, None,
-            _("""Specifies the caption of the progress bar."""))
-
-    ProcessObject = property(_getProcessObject, _setProcessObject, None,
-            _("""Specifies the object that is processing (a dReportWriter instance, for example)."""))
+    ProcessObject = property(
+        _getProcessObject,
+        _setProcessObject,
+        None,
+        _(
+            """Specifies the object that is processing (a dReportWriter instance, for example)."""
+        ),
+    )
 
 
 dabo.ui.dReportProgress = dReportProgress

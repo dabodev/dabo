@@ -8,21 +8,22 @@ from dabo.lib import getRandomUUID
 
 # Testing anything other than sqlite requires network access. So set these
 # flags so that only the db's you want to test against are True.
-db_tests = {"sqlite": True,
-        "mysql": False,
-        "firebird": False,
-        "postgresql": False,
-        "mssql": False,
-        "oracle": False}
+db_tests = {
+    "sqlite": True,
+    "mysql": False,
+    "firebird": False,
+    "postgresql": False,
+    "mssql": False,
+    "oracle": False,
+}
 
 # Convert the flags into class references. Setting to object will keep the tests
 # for that backend from running.
-#for k, v in db_tests.iteritems():
+# for k, v in db_tests.iteritems():
 #    if v:
 #        db_tests[k] = unittest.TestCase
 #    else:
 #        db_tests[k] = object
-
 
 
 class Test_dCursorMixin(object):
@@ -41,7 +42,8 @@ class Test_dCursorMixin(object):
     def createSchema(self):
         cur = self.cur
         tableName = self.temp_table_name
-        cur.executescript("""
+        cur.executescript(
+            """
 create table %s (
     pk INTEGER PRIMARY KEY AUTOINCREMENT,
     cfield CHAR,
@@ -55,12 +57,22 @@ insert into %s (cfield, ifield, nfield, ffield)
     values ("Edward Leafe", 42, 42.42, 0.999999);
 insert into %s (cfield, ifield, nfield, ffield)
     values ("Carl Karsten", 10223, 23032.76, 11);
-""" % (tableName, tableName, tableName, tableName, ))
+"""
+            % (
+                tableName,
+                tableName,
+                tableName,
+                tableName,
+            )
+        )
 
     def createNullRecord(self):
-        self.cur.AuxCursor.execute("""
+        self.cur.AuxCursor.execute(
+            """
 insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
-""" % self.temp_table_name)
+"""
+            % self.temp_table_name
+        )
 
     def getAdditionalWhere(self):
         return ""
@@ -68,7 +80,9 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
     ## - Begin property unit tests -
     def test_AutoSQL(self):
         cur = self.cur
-        self.assertEqual(cur.AutoSQL, "select *\n  from %s\n limit 1000" % self.temp_table_name)
+        self.assertEqual(
+            cur.AutoSQL, "select *\n  from %s\n limit 1000" % self.temp_table_name
+        )
 
     def test_AutoPopulatePK(self):
         cur = self.cur
@@ -90,12 +104,20 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 
     def test_DataStructure(self):
         ds = self.cur.DataStructure
-        self.assertTrue(ds[0] == ("pk", "I", True, self.temp_table_name, "pk", None)
-                or ds[0] == ("pk", "G", True, self.temp_table_name, "pk", None))
-        self.assertEqual(ds[1], ("cfield", "C", False, self.temp_table_name, "cfield", None))
-        self.assertTrue(ds[2] == ("ifield", "I", False, self.temp_table_name, "ifield", None)
-                or ds[2] == ("ifield", "G", False, self.temp_table_name, "ifield", None))
-        self.assertEqual(ds[3], ("nfield", "N", False, self.temp_table_name, "nfield", None))
+        self.assertTrue(
+            ds[0] == ("pk", "I", True, self.temp_table_name, "pk", None)
+            or ds[0] == ("pk", "G", True, self.temp_table_name, "pk", None)
+        )
+        self.assertEqual(
+            ds[1], ("cfield", "C", False, self.temp_table_name, "cfield", None)
+        )
+        self.assertTrue(
+            ds[2] == ("ifield", "I", False, self.temp_table_name, "ifield", None)
+            or ds[2] == ("ifield", "G", False, self.temp_table_name, "ifield", None)
+        )
+        self.assertEqual(
+            ds[3], ("nfield", "N", False, self.temp_table_name, "nfield", None)
+        )
 
     def test_Encoding(self):
         cur = self.cur
@@ -139,10 +161,14 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         self.assertEqual(cur.Record.cfield.rstrip(), "Paul Keith McNett")
         cur.Record.cfield = "Denise McNett"
         self.assertEqual(cur.Record.cfield, "Denise McNett")
-        self.assertEqual(cur._mementos[cur.Record.pk]["cfield"].rstrip(), "Paul Keith McNett")
+        self.assertEqual(
+            cur._mementos[cur.Record.pk]["cfield"].rstrip(), "Paul Keith McNett"
+        )
         cur.Record.cfield = "Alison Anton"
         self.assertEqual(cur.Record.cfield, "Alison Anton")
-        self.assertEqual(cur._mementos[cur.Record.pk]["cfield"].rstrip(), "Paul Keith McNett")
+        self.assertEqual(
+            cur._mementos[cur.Record.pk]["cfield"].rstrip(), "Paul Keith McNett"
+        )
         cur.setFieldVal("ifield", 80)
         self.assertEqual(cur.Record.ifield, 80)
         self.assertTrue(isinstance(cur.Record.ifield, int))
@@ -152,11 +178,12 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         # dException.FieldNotFoundException:
         def testGetRecord():
             return cur.Record.nonExistingFieldName
+
         def testSetRecord():
             cur.Record.nonExistingFieldName = "ppp"
+
         self.assertRaises(dabo.dException.FieldNotFoundException, testGetRecord)
         self.assertRaises(dabo.dException.FieldNotFoundException, testSetRecord)
-
 
     def test_RowCount(self):
         cur = self.cur
@@ -165,7 +192,6 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         self.assertEqual(cur.RowCount, 2)
         cur.new()
         self.assertEqual(cur.RowCount, 3)
-
 
     def test_RowNumber(self):
         cur = self.cur
@@ -208,7 +234,9 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         cur.Record.cfield = newVal
         self.assertEqual(cur.oldVal("cfield"), oldVal)
         self.assertEqual(cur.Record.cfield, newVal)
-        self.assertRaises(dabo.dException.FieldNotFoundException, cur.oldVal, "bogusField")
+        self.assertRaises(
+            dabo.dException.FieldNotFoundException, cur.oldVal, "bogusField"
+        )
 
     ## - End method unit tests -
 
@@ -254,7 +282,9 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         self.assertEqual(cur.RowCount, 4)
         self.assertEqual(cur.RowNumber, 3)
         self.assertEqual(cur._newRecords, {-1: None})
-        self.assertEqual(cur.isChanged(), False)  ## (because no field changed in new record)
+        self.assertEqual(
+            cur.isChanged(), False
+        )  ## (because no field changed in new record)
         self.assertEqual(cur.isChanged(allRows=False), False)
         self.assertEqual(cur.Record.pk, -1)
         self.assertEqual(cur.Record.cfield, "")
@@ -268,7 +298,6 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         self.assertEqual(cur._newRecords, {})
         self.assertEqual(cur.isChanged(), False)
         self.assertEqual(cur.isChanged(allRows=False), False)
-
 
     def testNullRecord(self):
         cur = self.cur
@@ -310,9 +339,9 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         """
         cur = self.cur
         rec = cur.Record
-#    values ("Paul Keith McNett", 23, 23.23, 3.14159);
-#    values ("Edward Leafe", 42, 42.42, 0.999999);
-#    values ("Carl Karsten", 10223, 23032.76, 11);
+        #    values ("Paul Keith McNett", 23, 23.23, 3.14159);
+        #    values ("Edward Leafe", 42, 42.42, 0.999999);
+        #    values ("Carl Karsten", 10223, 23032.76, 11);
         self.assertEqual(rec.ffield, Decimal("3.14159"))
         self.assertEqual(str(rec.ffield), "3.14159")
         next(cur)
@@ -333,9 +362,13 @@ class Test_dCursorMixin_sqlite(Test_dCursorMixin, unittest.TestCase):
 
 class Test_dCursorMixin_mysql(Test_dCursorMixin, unittest.TestCase):
     def setUp(self):
-        con = dabo.db.dConnection(DbType="MySQL", User="dabo_unittest",
-                password="T30T35DB4K30Z45I67N60", Database="dabo_unittest",
-                Host="paulmcnett.com")
+        con = dabo.db.dConnection(
+            DbType="MySQL",
+            User="dabo_unittest",
+            password="T30T35DB4K30Z45I67N60",
+            Database="dabo_unittest",
+            Host="paulmcnett.com",
+        )
         self.cur = con.getDaboCursor()
         self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
         super(Test_dCursorMixin_mysql, self).setUp()
@@ -347,9 +380,13 @@ class Test_dCursorMixin_mysql(Test_dCursorMixin, unittest.TestCase):
 
 class Test_dCursorMixin_oracle(Test_dCursorMixin, unittest.TestCase):
     def setUp(self):
-        con = dabo.db.dConnection(DbType="Oracle", User="fwadm",
-                password="V7EE74E49H6BV27TA0J65G2AS21", Database="XE",
-                Host="athlon28")
+        con = dabo.db.dConnection(
+            DbType="Oracle",
+            User="fwadm",
+            password="V7EE74E49H6BV27TA0J65G2AS21",
+            Database="XE",
+            Host="athlon28",
+        )
         self.cur = con.getDaboCursor()
         self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
         super(Test_dCursorMixin_oracle, self).setUp()
@@ -365,14 +402,21 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
     ##         I intend to set up a test server, but don't know when it will
     ##         actually occur.
     def setUp(self):
-        con = dabo.db.dConnection(DbType="Firebird", User="dabotester",
-                password="Y57W8EN6CB06KBCCDCX01D6B", Database="dabo_unittest",
-                Host="dabodev.com")
+        con = dabo.db.dConnection(
+            DbType="Firebird",
+            User="dabotester",
+            password="Y57W8EN6CB06KBCCDCX01D6B",
+            Database="dabo_unittest",
+            Host="dabodev.com",
+        )
         cur = self.cur = con.getDaboCursor()
         self.temp_table_name = "dabo_unittest_tbl"
         self.jobid = self.get_jobid()
         super(Test_dCursorMixin_firebird, self).setUp(_doRequery=False)
-        cur.UserSQL = "select * from %s where jobid = %s" % (self.temp_table_name, self.jobid)
+        cur.UserSQL = "select * from %s where jobid = %s" % (
+            self.temp_table_name,
+            self.jobid,
+        )
         cur.requery()
 
     def get_jobid(self):
@@ -383,7 +427,9 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
 
     def tearDown(self):
         self.cur.execute("commit")
-        self.cur.execute("delete from %s where jobid = %f" % (self.temp_table_name, self.jobid))
+        self.cur.execute(
+            "delete from %s where jobid = %f" % (self.temp_table_name, self.jobid)
+        )
         self.cur.execute("commit")
         super(Test_dCursorMixin_firebird, self).tearDown()
 
@@ -395,34 +441,50 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
         tableName = self.temp_table_name
 
         cur.execute("commit")
-        cur.execute("""
+        cur.execute(
+            """
 insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Paul Keith McNett', 23, 23.23)
-""" % (tableName, self.jobid))
-        cur.execute("""
+"""
+            % (tableName, self.jobid)
+        )
+        cur.execute(
+            """
 insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Edward Leafe', 42, 42.42)
-""" % (tableName, self.jobid))
-        cur.execute("""
+"""
+            % (tableName, self.jobid)
+        )
+        cur.execute(
+            """
 insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Carl Karsten', 10223, 23032.76)
-""" % (tableName, self.jobid))
+"""
+            % (tableName, self.jobid)
+        )
         cur.execute("commit")
 
     def createNullRecord(self):
-        self.cur.AuxCursor.execute("""
+        self.cur.AuxCursor.execute(
+            """
 insert into %s (jobid, cfield, ifield, nfield) values (%f, NULL, NULL, NULL)
-""" % (self.temp_table_name, self.jobid))
+"""
+            % (self.temp_table_name, self.jobid)
+        )
 
     def test_AutoSQL(self):
         cur = self.cur
-        self.assertEqual(cur.AutoSQL, "SELECT \n first 1000\n*\n  from %s\n\n\n"
-                % self.temp_table_name)
+        self.assertEqual(
+            cur.AutoSQL,
+            "SELECT \n first 1000\n*\n  from %s\n\n\n" % self.temp_table_name,
+        )
 
 
 if __name__ == "__main__":
     testClasses = []
-    mapping = {"sqlite": Test_dCursorMixin_sqlite,
-            "mysql": Test_dCursorMixin_mysql,
-            "firebird": Test_dCursorMixin_firebird,
-            "oracle": Test_dCursorMixin_oracle}
+    mapping = {
+        "sqlite": Test_dCursorMixin_sqlite,
+        "mysql": Test_dCursorMixin_mysql,
+        "firebird": Test_dCursorMixin_firebird,
+        "oracle": Test_dCursorMixin_oracle,
+    }
     for k, v in list(db_tests.items()):
         if v:
             testClasses.append(mapping[k])

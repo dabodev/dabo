@@ -60,8 +60,9 @@ class Wizard(dDialog):
         self._blankPage = None
         self._defaultPicture = ""
         self.wizardIcon = None
-        super(Wizard, self).__init__(parent=parent,
-                properties=properties, *args, **kwargs)
+        super(Wizard, self).__init__(
+            parent=parent, properties=properties, *args, **kwargs
+        )
 
         # Add the main panel
         mp = self.mainPanel = dPanel(self)
@@ -87,7 +88,6 @@ class Wizard(dDialog):
         self.setup()
         if pgs:
             self.append(pgs)
-
 
     def setup(self):
         """This creates the controls used by the wizard."""
@@ -141,11 +141,9 @@ class Wizard(dDialog):
         mpsz.prependSpacer(mpsz.DefaultBorder)
         mpsz.appendSpacer(mpsz.DefaultBorder)
 
-
     def onBack(self, evt):
         pg = self._pages[self.CurrentPage]
         self.CurrentPage += pg.prevPage()
-
 
     def onNext(self, evt):
         pg = self._pages[self.CurrentPage]
@@ -158,15 +156,14 @@ class Wizard(dDialog):
         else:
             self.CurrentPage += pg.nextPage()
 
-
     def onCancel(self, evt):
         # User clicked the Cancel button
         if self.verifyCancel:
-            if not dabo.ui.areYouSure(self.confirmCancelMsg,
-                    _("Cancel Received"), cancelButton=False):
+            if not dabo.ui.areYouSure(
+                self.confirmCancelMsg, _("Cancel Received"), cancelButton=False
+            ):
                 return
         dabo.ui.callAfter(self.closeWizard, k.DLG_CANCEL)
-
 
     def _finish(self):
         pg = self._pages[self.CurrentPage]
@@ -176,7 +173,6 @@ class Wizard(dDialog):
             if finOK is not False:
                 dabo.ui.callAfter(self.closeWizard, k.DLG_OK)
 
-
     def finish(self):
         """
         This is the place to do any of your cleanup actions. You
@@ -184,11 +180,9 @@ class Wizard(dDialog):
         """
         return True
 
-
     def start(self):
         self.CurrentPage = 0
         self.show()
-
 
     def closeWizard(self, action=None):
         # Warning! The close method shouldn't be called before EndModal
@@ -200,7 +194,6 @@ class Wizard(dDialog):
             # it or the app will hang.
             self.close(True)
 
-
     def append(self, pg):
         if isinstance(pg, (list, tuple)):
             ret = []
@@ -209,7 +202,6 @@ class Wizard(dDialog):
         else:
             ret = self.insert(len(self._pages), pg)
         return ret
-
 
     def insert(self, pos, pg):
         if isinstance(pg, (list, tuple)):
@@ -230,7 +222,10 @@ class Wizard(dDialog):
                 else:
                     if isinstance(pg, str):
                         xml = pg
-                        from dabo.lib.DesignerClassConverter import DesignerClassConverter
+                        from dabo.lib.DesignerClassConverter import (
+                            DesignerClassConverter,
+                        )
+
                         conv = DesignerClassConverter()
                         pg = conv.classFromText(xml)
                     page = pg(self.pagePanel)
@@ -239,8 +234,9 @@ class Wizard(dDialog):
                 page.Visible = False
             ret = page
         return ret
-    def _insertWizardPageOverride(self, pos, pg): pass
 
+    def _insertWizardPageOverride(self, pos, pg):
+        pass
 
     def getPageByClass(self, pgClass):
         """Returns the first page that is an instance of the passed class"""
@@ -249,7 +245,6 @@ class Wizard(dDialog):
         except IndexError:
             ret = None
         return ret
-
 
     def showPage(self):
         if self.PageCount == 0:
@@ -268,7 +263,7 @@ class Wizard(dDialog):
                 if self.setPageColor:
                     page.BackColor = self.BackColor
                 self.pagePanel.Sizer.append(page, 1, "x")
-                self.btnBack.Enabled = (idx > 0)
+                self.btnBack.Enabled = idx > 0
                 cap = _("Next >")
                 if idx == (self.PageCount - 1):
                     cap = _("Finish")
@@ -281,7 +276,6 @@ class Wizard(dDialog):
                 page.Visible = False
         self.layout()
 
-
     def showBlankPage(self):
         if self._blankPage is None:
             self._blankPage = WizardPage(self.pagePanel)
@@ -290,7 +284,6 @@ class Wizard(dDialog):
         self.pagePanel.Sizer.append(self._blankPage, 1, "x")
         self.btnBack.Enabled = self.btnNext.Enabled = False
         self.layout()
-
 
     def getRelativePage(self, orig, incr):
         """
@@ -306,7 +299,6 @@ class Wizard(dDialog):
             ret = None
         return ret
 
-
     # Property methods
     def _getCurrPage(self):
         return self._currentPage
@@ -321,8 +313,9 @@ class Wizard(dDialog):
         if val == self._currentPage:
             # No change
             return
-        self.raiseEvent(dEvents.PageChanging, oldPageNum=self._currentPage,
-                newPageNum=val)
+        self.raiseEvent(
+            dEvents.PageChanging, oldPageNum=self._currentPage, newPageNum=val
+        )
         if self._currentPage < 0:
             direction = "forward"
         else:
@@ -343,13 +336,12 @@ class Wizard(dDialog):
         self._currentPage = val
         self._pages[self._currentPage].onEnterPage(direction)
         self.showPage()
-        dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged,
-                oldPageNum=oldPg, newPageNum=newPg)
-
+        dabo.ui.callAfter(
+            self.raiseEvent, dEvents.PageChanged, oldPageNum=oldPg, newPageNum=newPg
+        )
 
     def _getPageCount(self):
         return len(self._pages)
-
 
     def _getPicture(self):
         try:
@@ -371,7 +363,6 @@ class Wizard(dDialog):
         else:
             self._properties["Picture"] = val
 
-
     def _getPictureHeight(self):
         return self.wizardIcon.Height
 
@@ -385,7 +376,6 @@ class Wizard(dDialog):
             self.layout()
         else:
             self._properties["PictureHeight"] = val
-
 
     def _getPictureWidth(self):
         return self.wizardIcon.Width
@@ -401,24 +391,37 @@ class Wizard(dDialog):
         else:
             self._properties["PictureWidth"] = val
 
+    CurrentPage = property(
+        _getCurrPage,
+        _setCurrPage,
+        None,
+        _("Index of the current page in the wizard  (WizardPage)"),
+    )
 
-    CurrentPage = property(_getCurrPage, _setCurrPage, None,
-            _("Index of the current page in the wizard  (WizardPage)"))
+    PageCount = property(
+        _getPageCount, None, None, _("Number of pages in this wizard  (int)")
+    )
 
-    PageCount = property(_getPageCount, None, None,
-            _("Number of pages in this wizard  (int)"))
+    Picture = property(
+        _getPicture,
+        _setPicture,
+        None,
+        _("Sets the visible icon for the wizard.  (str/path)"),
+    )
 
-    Picture = property(_getPicture, _setPicture, None,
-            _("Sets the visible icon for the wizard.  (str/path)"))
+    PictureHeight = property(
+        _getPictureHeight,
+        _setPictureHeight,
+        None,
+        _("Height of the wizard icon in pixels  (int)"),
+    )
 
-    PictureHeight = property(_getPictureHeight, _setPictureHeight, None,
-            _("Height of the wizard icon in pixels  (int)"))
-
-    PictureWidth = property(_getPictureWidth, _setPictureWidth, None,
-            _("Width of the wizard icon in pixels  (int)"))
-
-
-
+    PictureWidth = property(
+        _getPictureWidth,
+        _setPictureWidth,
+        None,
+        _("Width of the wizard icon in pixels  (int)"),
+    )
 
 
 if __name__ == "__main__":
@@ -426,20 +429,27 @@ if __name__ == "__main__":
     class WizPageOne(WizardPage):
         def createBody(self):
             self.Caption = _("This is the first page")
-            lbl = dLabel(self, Caption=_(
-"""Are you getting excited yet???
+            lbl = dLabel(
+                self,
+                Caption=_(
+                    """Are you getting excited yet???
 
-I know that I am!!"""))
+I know that I am!!"""
+                ),
+            )
             self.Sizer.append(lbl, alignment="center")
-
 
     class WizPageTwo(WizardPage):
         def createBody(self):
             self.Caption = _("This is the second page")
-            lbl = dLabel(self, Caption=_(
-"""This will demonstrate condtional skipping of
+            lbl = dLabel(
+                self,
+                Caption=_(
+                    """This will demonstrate condtional skipping of
 pages. If the checkbox below is checked, clicking
-'Next' will move to Page 4 instead of Page 3."""))
+'Next' will move to Page 4 instead of Page 3."""
+                ),
+            )
             self.chk = dCheckBox(self, Caption="Skip?")
             self.Sizer.append(lbl, alignment="center")
             self.Sizer.appendSpacer(10)
@@ -455,35 +465,43 @@ pages. If the checkbox below is checked, clicking
                 ret = 2
             return ret
 
-
     class WizPageThree(WizardPage):
         def createBody(self):
             self.Caption = _("This is the third page")
-            lbl = dLabel(self, Caption=_(
-"""You should only see this if you did not check
+            lbl = dLabel(
+                self,
+                Caption=_(
+                    """You should only see this if you did not check
 the box on Page Two.
-"""))
+"""
+                ),
+            )
             self.Sizer.append(lbl, alignment="center")
 
     class WizPageFour(WizardPage):
         def createBody(self):
             self.Caption = _("This is the fourth page")
             self.Picture = "cards/small/s1.png"
-            lbl = dLabel(self, Caption=_(
-"""Did the skipping work OK?
-"""))
+            lbl = dLabel(
+                self,
+                Caption=_(
+                    """Did the skipping work OK?
+"""
+                ),
+            )
             self.Sizer.append(lbl, alignment="center")
             self.txt = dTextBox(self)
-            lbl = dLabel(self, Caption=_(
-                    "You cannot move forward if this textbox is empty"))
+            lbl = dLabel(
+                self, Caption=_("You cannot move forward if this textbox is empty")
+            )
             self.Sizer.appendSpacer(16)
             self.Sizer.append(self.txt, alignment="center")
             self.Sizer.append(lbl, alignment="center")
-            lbl = dLabel(self, Caption=_(
-                    "Also note that this page has a different icon!"))
+            lbl = dLabel(
+                self, Caption=_("Also note that this page has a different icon!")
+            )
             self.Sizer.appendSpacer(5)
             self.Sizer.append(lbl, alignment="center")
-
 
         def prevPage(self):
             """
@@ -506,26 +524,31 @@ the box on Page Two.
                     ret = False
             return ret
 
-
     class WizPageFive(WizardPage):
         def createBody(self):
             self.Caption = _("This is the fifth (and last) page")
-            lbl = dLabel(self, Caption=_(
-"""This is the last page. Note that the 'Next' button
+            lbl = dLabel(
+                self,
+                Caption=_(
+                    """This is the last page. Note that the 'Next' button
 now reads 'Finish'. Click that to exit, or click 'Back'
 to play some more.
-"""))
+"""
+                ),
+            )
             self.Sizer.append(lbl, alignment="center")
-
 
     app = dApp()
     app.MainFormClass = None
     app.setup()
     # OK, we've defined all of our pages. Now let's define
     # the wizard itself.
-    wiz = Wizard(Picture="daboIcon096", Height=450, Width=530,
-            Pages=(WizPageOne, WizPageTwo, WizPageThree, WizPageFour,
-            WizPageFive))
+    wiz = Wizard(
+        Picture="daboIcon096",
+        Height=450,
+        Width=530,
+        Pages=(WizPageOne, WizPageTwo, WizPageThree, WizPageFour, WizPageFive),
+    )
 
     wiz.start()
     app.start()

@@ -6,7 +6,6 @@ from .dBackend import dBackend
 from dabo.lib.utils import ustr
 
 
-
 class Firebird(dBackend):
     """Class providing Firebird connectivity. Uses kinterbasdb."""
 
@@ -19,9 +18,12 @@ class Firebird(dBackend):
     def __init__(self):
         dBackend.__init__(self)
         self.dbModuleName = "kinterbasdb"
-        self.fieldPat = re.compile("([A-Za-z_][A-Za-z0-9-_$]+)\.([A-Za-z_][A-Za-z0-9-_$]+)")
+        self.fieldPat = re.compile(
+            "([A-Za-z_][A-Za-z0-9-_$]+)\.([A-Za-z_][A-Za-z0-9-_$]+)"
+        )
         self.paramPlaceholder = "?"
         import kinterbasdb
+
         initialized = getattr(kinterbasdb, "initialized", None)
         if not initialized:
             if initialized is None:
@@ -44,7 +46,6 @@ class Firebird(dBackend):
 
         self.dbapi = kinterbasdb
 
-
     def getConnection(self, connectInfo, **kwargs):
         # kinterbasdb will barf with unicode strings for user nad password:
         host = ustr(connectInfo.Host)
@@ -55,14 +56,13 @@ class Firebird(dBackend):
         password = str(connectInfo.revealPW())
         database = ustr(connectInfo.Database)
 
-        self._connection = self.dbapi.connect(host=host, user=user,
-                password=password, database=database, **kwargs)
+        self._connection = self.dbapi.connect(
+            host=host, user=user, password=password, database=database, **kwargs
+        )
         return self._connection
-
 
     def getDictCursorClass(self):
         return self.dbapi.Cursor
-
 
     def noResultsOnSave(self):
         """
@@ -72,7 +72,6 @@ class Firebird(dBackend):
         """
         return
 
-
     def noResultsOnDelete(self):
         """
         Firebird does not return the number of records deleted, so
@@ -81,7 +80,6 @@ class Firebird(dBackend):
         """
         return
 
-
     def processFields(self, txt):
         """
         Firebird requires that all field names be surrounded
@@ -89,50 +87,47 @@ class Firebird(dBackend):
         """
         return self.dblQuoteField(txt)
 
-
     def escQuote(self, val):
         # escape backslashes and single quotes, and
         # wrap the result in single quotes
         sl = "\\"
-        qt = "\'"
-        return qt + val.replace(sl, sl+sl).replace(qt, qt+qt) + qt
-
+        qt = "'"
+        return qt + val.replace(sl, sl + sl).replace(qt, qt + qt) + qt
 
     def formatDateTime(self, val):
         """We need to wrap the value in quotes."""
-        sqt = "'"        # single quote
+        sqt = "'"  # single quote
         val = ustr(val)
         return "%s%s%s" % (sqt, val, sqt)
 
-
     def getTables(self, cursor, includeSystemTables=False):
         if includeSystemTables:
-            whereClause = ''
+            whereClause = ""
         else:
             whereClause = "where rdb$relation_name not starting with 'RDB$' "
 
-        cursor.execute("select rdb$relation_name from rdb$relations "
-            "%s order by rdb$relation_name" % whereClause)
+        cursor.execute(
+            "select rdb$relation_name from rdb$relations "
+            "%s order by rdb$relation_name" % whereClause
+        )
         rs = cursor.getDataSet()
         tables = []
         for record in rs:
             tables.append(record["rdb$relation_name"].strip())
         return tuple(tables)
 
-
     def getTableRecordCount(self, tableName, cursor):
         cursor.execute("select count(*) as ncount from %s where 1=1" % tableName)
         return cursor.getDataSet()[0][0]
 
-
     def getFields(self, tableName, cursor):
         # Get the PK
-### The SQL for the PK changed by Uwe Grauer 2007.08.23
-#         sql = """ select inseg.rdb$field_name
-#         from rdb$indices idxs join rdb$index_segments inseg
-#             on idxs.rdb$index_name = inseg.rdb$index_name
-#             where idxs.rdb$relation_name = '%s'
-#     and idxs.rdb$unique_flag = 1 """ % tableName.upper()
+        ### The SQL for the PK changed by Uwe Grauer 2007.08.23
+        #         sql = """ select inseg.rdb$field_name
+        #         from rdb$indices idxs join rdb$index_segments inseg
+        #             on idxs.rdb$index_name = inseg.rdb$index_name
+        #             where idxs.rdb$relation_name = '%s'
+        #     and idxs.rdb$unique_flag = 1 """ % tableName.upper()
         sql = """ SELECT S.RDB$FIELD_NAME AS COLUMN_NAME
         FROM RDB$RELATION_CONSTRAINTS RC
             LEFT JOIN RDB$INDICES I ON (I.RDB$INDEX_NAME = RC.RDB$INDEX_NAME)
@@ -207,11 +202,10 @@ class Firebird(dBackend):
                 # No pk defined for the table
                 pk = False
             else:
-                pk = (name.lower() == pkField.lower() )
+                pk = name.lower() == pkField.lower()
 
             fields.append((name.strip().lower(), ft, pk))
         return tuple(fields)
-
 
     def beginTransaction(self, cursor):
         """Begin a SQL transaction."""
@@ -222,7 +216,6 @@ class Firebird(dBackend):
             ret = True
         return ret
 
-
     def flush(self, cursor):
         """
         Firebird requires an explicit commit in order to have changes
@@ -231,29 +224,51 @@ class Firebird(dBackend):
         self._connection.commit()
         dabo.dbActivityLog.info("SQL: commit")
 
-
     def getLimitWord(self):
         """Override the default 'limit', since Firebird doesn't use that."""
         return "first"
 
-
-    def formSQL(self, fieldClause, fromClause, joinClause,
-                whereClause, groupByClause, orderByClause, limitClause):
+    def formSQL(
+        self,
+        fieldClause,
+        fromClause,
+        joinClause,
+        whereClause,
+        groupByClause,
+        orderByClause,
+        limitClause,
+    ):
         """Firebird wants the limit clause before the field clause."""
-        clauses =  (limitClause, fieldClause, fromClause, joinClause,
-                whereClause, groupByClause, orderByClause)
-        sql = "SELECT " + "\n".join( [clause for clause in clauses if clause] )
+        clauses = (
+            limitClause,
+            fieldClause,
+            fromClause,
+            joinClause,
+            whereClause,
+            groupByClause,
+            orderByClause,
+        )
+        sql = "SELECT " + "\n".join([clause for clause in clauses if clause])
         return sql
-
 
     def massageDescription(self, cursor):
         """Force all the field names to lower case."""
         dd = cursor.descriptionClean = cursor.description
         if dd:
-            cursor.descriptionClean = tuple([(elem[0].lower(), elem[1], elem[2],
-                    elem[3], elem[4], elem[5], elem[6])
-                    for elem in dd])
-
+            cursor.descriptionClean = tuple(
+                [
+                    (
+                        elem[0].lower(),
+                        elem[1],
+                        elem[2],
+                        elem[3],
+                        elem[4],
+                        elem[5],
+                        elem[6],
+                    )
+                    for elem in dd
+                ]
+            )
 
     def pregenPK(self, cursor):
         """
@@ -273,41 +288,48 @@ class Firebird(dBackend):
         cursor.execute(sql)
         if cursor.RowCount:
             gen = cursor.getFieldVal("genname").strip()
-            sql = """select GEN_ID(%s, 1) as nextval
-                    from rdb$database""" % gen
+            sql = (
+                """select GEN_ID(%s, 1) as nextval
+                    from rdb$database"""
+                % gen
+            )
             cursor.execute(sql)
             ret = cursor.getFieldVal("nextval")
         dabo.dbActivityLog.info("SQL: result of pregenPK: %d" % ret)
         return ret
 
-
     def setSQL(self, sql):
         return self.dblQuoteField(sql)
+
     def setFieldClause(self, clause, autoQuote=True):
         if autoQuote:
             clause = self.dblQuoteField(clause)
         return clause
+
     def setFromClause(self, clause, autoQuote=True):
         if autoQuote:
             clause = self.dblQuoteField(clause)
         return clause
+
     def setWhereClause(self, clause, autoQuote=True):
         if autoQuote:
             clause = self.dblQuoteField(clause)
         return clause
+
     def setChildFilterClause(self, clause, autoQuote=True):
         if autoQuote:
             clause = self.dblQuoteField(clause)
         return clause
+
     def setGroupByClause(self, clause, autoQuote=True):
         if autoQuote:
             clause = self.dblQuoteField(clause)
         return clause
+
     def setOrderByClause(self, clause, autoQuote=True):
         if autoQuote:
             clause = self.dblQuoteField(clause)
         return clause
-
 
     def dblQuoteField(self, txt):
         """
@@ -316,10 +338,12 @@ class Firebird(dBackend):
         In other words, wrap the field name in double-quotes,
         and change it to upper case.
         """
+
         def qtField(mtch):
             tbl = mtch.groups()[0]
             fld = mtch.groups()[1].upper()
-            return "%s.\"%s\"" % (tbl, fld)
+            return '%s."%s"' % (tbl, fld)
+
         return self.fieldPat.sub(qtField, txt)
 
 

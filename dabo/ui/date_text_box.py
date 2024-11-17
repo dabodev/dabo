@@ -10,14 +10,13 @@ from dabo.ui import dPanel
 from dabo.ui import dButton
 from dabo.ui import makeDynamicProperty
 
-#import locale
-#lc = locale.getlocale()
-#locale.setlocale(locale.LC_CTYPE , 'UTF8')
+# import locale
+# lc = locale.getlocale()
+# locale.setlocale(locale.LC_CTYPE , 'UTF8')
 
 
 class CalPanel(dPanel):
-    def __init__(self, parent, pos=(0,0), dt=None, ctrl=None,
-            extended=False):
+    def __init__(self, parent, pos=(0, 0), dt=None, ctrl=None, extended=False):
         if isinstance(dt, (datetime.datetime, datetime.date)):
             self.date = dt
         else:
@@ -25,7 +24,6 @@ class CalPanel(dPanel):
         self.ctrl = ctrl
         self.extended = extended
         super(CalPanel, self).__init__(parent, pos=pos)
-
 
     def afterInit(self):
         """
@@ -38,18 +36,16 @@ class CalPanel(dPanel):
         self.cal.bindEvent(dEvents.Hit, self.onCalSelection)
         self.cal.bindEvent(dEvents.KeyChar, self.onCalKey)
         wd, ht = self.cal.Size
-        self.Size = (wd+10, ht+10)
+        self.Size = (wd + 10, ht + 10)
         self.BackColor = (192, 192, 0)
         self.cal.Visible = True
         self.cal.setFocus()
-
 
     def onCalSelection(self, evt):
         if self.ctrl is not None:
             self.ctrl.setDate(self.cal.Date)
             self.ctrl.setFocus()
         self.Form.hide()
-
 
     def onCalKey(self, evt):
         if evt.keyCode == wx.WXK_ESCAPE:
@@ -59,7 +55,6 @@ class CalPanel(dPanel):
             self.Form.hide()
 
 
-
 class dDateTextBox(dTextBox):
     """
     This is a specialized textbox class designed to work with date values.
@@ -67,6 +62,7 @@ class dDateTextBox(dTextBox):
     to the date value they need. The keystrokes are the same as those used
     by Quicken, the popular personal finance program.
     """
+
     def _beforeInit(self, *args, **kwargs):
         self._baseClass = dDateTextBox
         self._calendarPanel = None
@@ -89,22 +85,26 @@ class dDateTextBox(dTextBox):
         self._extendedCalendar = False
         return super(dDateTextBox, self)._beforeInit(*args, **kwargs)
 
-
     def _afterInit(self):
-        #self.Value = datetime.date.today()  ## no, don't set default, it could override val. in db.
+        # self.Value = datetime.date.today()  ## no, don't set default, it could override val. in db.
         if not self.Value:
             self.update()  ## First try to get it from the db
         if not self.Value and self.Value is not None:
             self.Value = None  ## If it is still blank, default to None so the control works correctly
         if self.showCalButton:
             # Create a button that will display the calendar
-            self.calButton = dButton(self.Parent, Size=(self.Height, self.Height),
-                    Right=self.Right, Caption="V")
+            self.calButton = dButton(
+                self.Parent,
+                Size=(self.Height, self.Height),
+                Right=self.Right,
+                Caption="V",
+            )
             self.calButton.Visible = True
             self.calButton.bindEvent(dEvents.Hit, __onBtnClick)
 
         # Tooltip help
-        self._defaultToolTipText = _("""Available Keys:
+        self._defaultToolTipText = _(
+            """Available Keys:
 =============
 T : Today
 + : Up One Day
@@ -117,12 +117,13 @@ H : Last Day of montH
 Y : First Day of Year
 R : Last Day of yeaR
 C: Popup Calendar to Select
-""")
-        self.DynamicToolTipText = lambda: {True: self._defaultToolTipText,
-                False: None}[self.Enabled and not self.ReadOnly]
+"""
+        )
+        self.DynamicToolTipText = lambda: {True: self._defaultToolTipText, False: None}[
+            self.Enabled and not self.ReadOnly
+        ]
 
         super(dDateTextBox, self)._afterInit()
-
 
     def _initEvents(self):
         super(dDateTextBox, self)._initEvents()
@@ -130,29 +131,26 @@ C: Popup Calendar to Select
         self.bindEvent(dEvents.LostFocus, self.__onLostFocus)
         self.bindEvent(dEvents.MouseLeftDoubleClick, self.__onDblClick)
 
-
     def __onDblClick(self, evt):
         """Display a calendar to allow users to select dates."""
         self.showCalendar()
 
-
-    def __onBtnClick(self,evt):
+    def __onBtnClick(self, evt):
         """Display a calendar to allow users to select dates."""
         self.showCalendar()
-
 
     def showCalendar(self):
         if self.ReadOnly:
             # ignore
             return
-        #cp = self._CalendarPanel
-        #cp.cal.Date = self.Value
-        #fp = self.Form.FloatingPanel
-        #fp.Owner = self
-        #fp.show()
+        # cp = self._CalendarPanel
+        # cp.cal.Date = self.Value
+        # fp = self.Form.FloatingPanel
+        # fp.Owner = self
+        # fp.show()
         self.dateCalDlg()
-        
-    def dateCalDlg(self, event=None):       # test the date dialog
+
+    def dateCalDlg(self, event=None):  # test the date dialog
         dlg = wx.lib.calendar.CalenDlg(self)
         dlg.Centre()
 
@@ -161,19 +159,29 @@ C: Popup Calendar to Select
             day = result[1]
             month = result[2]
             month_name = month
-            monthNames = {"January" : 1, "February" : 2, "March" : 3, "April" : 4, "May" : 5, "June":6,
-                    "July":7, "August":8, "September" : 9, "October" : 10, "November" : 11, "December" : 12}
-            
-           
-            month_number = monthNames[month_name]              
+            monthNames = {
+                "January": 1,
+                "February": 2,
+                "March": 3,
+                "April": 4,
+                "May": 5,
+                "June": 6,
+                "July": 7,
+                "August": 8,
+                "September": 9,
+                "October": 10,
+                "November": 11,
+                "December": 12,
+            }
+
+            month_number = monthNames[month_name]
             year = result[3]
-            new_date = str( month_number) + '/'+ str(day) + '/'+ str(year)
-            #self.log.WriteText('Date Selected: %s\n' % new_date)
+            new_date = str(month_number) + "/" + str(day) + "/" + str(year)
+            # self.log.WriteText('Date Selected: %s\n' % new_date)
             self.Value = new_date
         else:
-            #self.log.WriteText('No Date Selected')
+            # self.log.WriteText('No Date Selected')
             return
-
 
     def __onChar(self, evt):
         """
@@ -210,7 +218,7 @@ C: Popup Calendar to Select
             valDt = self.Value
 
             if valDt is None:
-                adjust = (val == self.NoneDisplay)
+                adjust = val == self.NoneDisplay
                 evt.Continue = not adjust
             else:
                 # They've just finished typing a new date, or are just
@@ -232,7 +240,6 @@ C: Popup Calendar to Select
             # Pass the key up the chain to process - perhaps a Tab, Enter, or Backspace...
             pass
 
-
     def __onLostFocus(self, evt):
         val = self.Value
         try:
@@ -241,7 +248,6 @@ C: Popup Calendar to Select
                 self.Value = newVal
         except ValueError:
             pass
-
 
     def adjustDate(self, key, ctrl=False, shift=False):
         """
@@ -254,12 +260,14 @@ C: Popup Calendar to Select
         except AttributeError:
             # Value isn't a date for some reason
             val = self.Value
-            if val is None or val == '':
+            if val is None or val == "":
                 # Probably just a null value
                 orig = None
             else:
                 nm, tv = self.Name, type(val)
-                dabo.log.error(_("Non-date value in %(nm)s: '%(val)s' is type '%(tv)s'") % locals())
+                dabo.log.error(
+                    _("Non-date value in %(nm)s: '%(val)s' is type '%(tv)s'") % locals()
+                )
                 return
         # Default direction
         forward = True
@@ -358,7 +366,7 @@ C: Popup Calendar to Select
             # Null the value
             self.Value = None
 
-            #checkBoundary = False
+            # checkBoundary = False
         else:
             # This shouldn't happen, because onChar would have filtered it out.
             dabo.log.info("Warning in dDateTextBox.adjustDate: %s key sent." % key)
@@ -378,14 +386,12 @@ C: Popup Calendar to Select
                 self.adjustDate(key)
         self.flushValue()
 
-
     def hourInterval(self, hours):
         """
         Adjusts the date by the given number of hours; negative
         values move backwards.
         """
         self.Value += datetime.timedelta(hours=hours)
-
 
     def minuteInterval(self, minutes):
         """
@@ -394,7 +400,6 @@ C: Popup Calendar to Select
         """
         self.Value += datetime.timedelta(minutes=minutes)
 
-
     def secondInterval(self, seconds):
         """
         Adjusts the date by the given number of seconds; negative
@@ -402,14 +407,12 @@ C: Popup Calendar to Select
         """
         self.Value += datetime.timedelta(seconds=seconds)
 
-
     def dayInterval(self, days):
         """
         Adjusts the date by the given number of days; negative
         values move backwards.
         """
         self.Value += datetime.timedelta(days)
-
 
     def monthInterval(self, months):
         """
@@ -434,7 +437,6 @@ C: Popup Calendar to Select
             except ValueError:
                 dy -= 1
 
-
     def setToLastMonthDay(self):
         mn = self.Value.month
         td = datetime.timedelta(1)
@@ -443,11 +445,9 @@ C: Popup Calendar to Select
         # We're now at the first of the next month. Go back one.
         self.Value -= td
 
-
     def getDateTuple(self):
         dt = self.Value
-        return (dt.year, dt.month, dt.day )
-
+        return (dt.year, dt.month, dt.day)
 
     def setDate(self, dt):
         """
@@ -461,21 +461,21 @@ C: Popup Calendar to Select
             self.Value = dt
         self.flushValue()
 
-
     def _getCalendarPanel(self):
         fp = self.Form.FloatingPanel
-        if not isinstance(self._calendarPanel, CalPanel) or not (self._calendarPanel.Parent is fp):
+        if not isinstance(self._calendarPanel, CalPanel) or not (
+            self._calendarPanel.Parent is fp
+        ):
             fp.clear()
-            self._calendarPanel = CalPanel(fp, dt=self.Value, ctrl=self,
-                    extended=self.ExtendedCalendar)
+            self._calendarPanel = CalPanel(
+                fp, dt=self.Value, ctrl=self, extended=self.ExtendedCalendar
+            )
             fp.Sizer.append(self._calendarPanel)
             fp.fitToSizer()
         return self._calendarPanel
 
-
     def _getExtendedCalendar(self):
         return self._extendedCalendar
-
 
     def _setExtendedCalendar(self, val):
         if self._constructed():
@@ -483,13 +483,22 @@ C: Popup Calendar to Select
         else:
             self._properties["ExtendedCalendar"] = val
 
+    _CalendarPanel = property(
+        _getCalendarPanel,
+        None,
+        None,
+        _("Reference to the displayed calendar  (read-only) (CalPanel)"),
+    )
 
-    _CalendarPanel = property(_getCalendarPanel, None, None,
-            _("Reference to the displayed calendar  (read-only) (CalPanel)"))
-
-    ExtendedCalendar = property(_getExtendedCalendar, _setExtendedCalendar, None,
-            _("""When True, the calendar is displayed in a larger format with more controls
-            for quickly moving to any date. Default=False  (bool)"""))
+    ExtendedCalendar = property(
+        _getExtendedCalendar,
+        _setExtendedCalendar,
+        None,
+        _(
+            """When True, the calendar is displayed in a larger format with more controls
+            for quickly moving to any date. Default=False  (bool)"""
+        ),
+    )
 
 
 dabo.ui.dDateTextBox = dDateTextBox
@@ -497,4 +506,5 @@ dabo.ui.dDateTextBox = dDateTextBox
 
 if __name__ == "__main__":
     from dabo.ui import test
+
     test.Test().runTest((dDateTextBox, dDateTextBox))

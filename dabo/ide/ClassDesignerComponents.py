@@ -39,27 +39,47 @@ from dabo.ui.dialogs import WizardPage
 
 
 # Defaults for sizer items
-szItemDefaults = {1: {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Left", "VAlign": "Top",
-        "Border": 0, "Expand": False},
-        2: {"RowSpan": 1, "BorderSides": ["All"], "ColSpan": 1, "Proportion": 1,
-        "HAlign": "Left", "VAlign": "Top", "Border": 0}}
+szItemDefaults = {
+    1: {
+        "BorderSides": ["All"],
+        "Proportion": 0,
+        "HAlign": "Left",
+        "VAlign": "Top",
+        "Border": 0,
+        "Expand": False,
+    },
+    2: {
+        "RowSpan": 1,
+        "BorderSides": ["All"],
+        "ColSpan": 1,
+        "Proportion": 1,
+        "HAlign": "Left",
+        "VAlign": "Top",
+        "Border": 0,
+    },
+}
 # This odd attribute name is given to any object that is added
 # to a design as a class. We handle them differently; only the
 # changes are saved in the design they are added to.
 classFlagProp = "_CLASS_PATH_"
 
 
-
 class LayoutSaverMixin(dObject):
     """Contains the basic code for generating the dict required
     to save the ClassDesigner item's contents.
     """
+
     def __init__(self, *args, **kwargs):
         super(LayoutSaverMixin, self).__init__(*args, **kwargs)
 
-
-    def getDesignerDict(self, itemNum=0, allProps=False,
-            classID=None, classDict=None, propsToExclude=None):
+    def getDesignerDict(
+        self,
+        itemNum=0,
+        allProps=False,
+        classID=None,
+        classDict=None,
+        propsToExclude=None,
+    ):
         app = self.Controller
         ret = {}
         if not app:
@@ -67,9 +87,9 @@ class LayoutSaverMixin(dObject):
         if not allProps:
             # Can be set globally by the save routine
             allProps = app.saveAllProps
-#             if isinstance(self, dColumn):
-#                 # We need all props for this class.
-#                 allProps = True
+        #             if isinstance(self, dColumn):
+        #                 # We need all props for this class.
+        #                 allProps = True
         ret["attributes"] = ra = {}
         isClass = hasattr(self, classFlagProp)
 
@@ -101,10 +121,10 @@ class LayoutSaverMixin(dObject):
                         classID = self.Parent.classID.split("-")[0]
                     except (IndexError, AttributeError):
                         # Try the sizer
-                            try:
-                                classID = self.ControllingSizer.classID.split("-")[0]
-                            except (IndexError, AttributeError):
-                                classID = "?????"
+                        try:
+                            classID = self.ControllingSizer.classID.split("-")[0]
+                        except (IndexError, AttributeError):
+                            classID = "?????"
                 ra["classID"] = "%s-%s" % (classID, myID)
                 self.classID = ra["classID"]
             else:
@@ -141,15 +161,25 @@ class LayoutSaverMixin(dObject):
         else:
             ra["designerClass"] = self.getClassName()
 
-        hasSizer = bool(hasattr(self, "ControllingSizerItem") and self.ControllingSizerItem)
+        hasSizer = bool(
+            hasattr(self, "ControllingSizerItem") and self.ControllingSizerItem
+        )
         # We want to include some props whether they are the
         # default or not.
         if insideClass:
             propsToInclude = ("classID", "SlotCount")
         else:
-            propsToInclude = ("Caption", "Choices", "ColumnCount",
-                    "Orientation", "PageCount", "SashPosition", "ScaleMode",
-                    "SlotCount", "Split")
+            propsToInclude = (
+                "Caption",
+                "Choices",
+                "ColumnCount",
+                "Orientation",
+                "PageCount",
+                "SashPosition",
+                "ScaleMode",
+                "SlotCount",
+                "Split",
+            )
         # We want to exclude some props, since they are derived from
         # other props or are settable via other props (fonts).
         if propsToExclude is None:
@@ -157,12 +187,13 @@ class LayoutSaverMixin(dObject):
         elif isinstance(propsToExclude, list):
             propsToExclude = tuple(propsToExclude)
         propsToExclude += ("Right", "Bottom", "Font", "HeaderFont")
-        isSplitPanel = (isinstance(self, dPanel)
-                and isinstance(self.Parent, dSplitter))
+        isSplitPanel = isinstance(self, dPanel) and isinstance(self.Parent, dSplitter)
         desProps = list(self.DesignerProps.keys())
         if isinstance(self, (dForm, dFormMain)) and hasattr(self, "UseSizers"):
             desProps += ["UseSizers"]
-        elif isinstance(self, self.Controller.pagedControls) and isinstance(self.PageClass, str):
+        elif isinstance(self, self.Controller.pagedControls) and isinstance(
+            self.PageClass, str
+        ):
             desProps += ["PageClass"]
         elif isinstance(self, Wizard):
             desProps += ["PageCount"]
@@ -171,20 +202,31 @@ class LayoutSaverMixin(dObject):
                 continue
             if prop in propsToExclude:
                 continue
-            if (hasSizer or isinstance(self, dPage) or isSplitPanel) and prop in ("Left",
-                    "Right", "Top", "Bottom"):        #, "Width", "Height"
-                    ##"Right", "Top", "Bottom", "Width", "Height"):
-                    ## Note: there may be additional cases where we might have to fine-tune
-                    ## which if these parameters are skipped/included.
+            if (hasSizer or isinstance(self, dPage) or isSplitPanel) and prop in (
+                "Left",
+                "Right",
+                "Top",
+                "Bottom",
+            ):  # , "Width", "Height"
+                ##"Right", "Top", "Bottom", "Width", "Height"):
+                ## Note: there may be additional cases where we might have to fine-tune
+                ## which if these parameters are skipped/included.
                 continue
             try:
                 csz = self.ControllingSizer
             except AttributeError:
                 csz = None
-            if (hasSizer or isinstance(self, dPage) or isSplitPanel) and prop in ("Width",
-                    "Height") and ((csz is not None) and csz.getItemProp(self, "Expand")):
+            if (
+                (hasSizer or isinstance(self, dPage) or isSplitPanel)
+                and prop in ("Width", "Height")
+                and ((csz is not None) and csz.getItemProp(self, "Expand"))
+            ):
                 continue
-            if isinstance(self, dLabel) and prop in ("Width", "Height") and csz is not None:
+            if (
+                isinstance(self, dLabel)
+                and prop in ("Width", "Height")
+                and csz is not None
+            ):
                 # If the width/height is controlled by the sizer, don't save it.
                 szornt = csz.Orientation
                 exp = csz.getItemProp(self, "Expand")
@@ -204,13 +246,15 @@ class LayoutSaverMixin(dObject):
                     defWd, defHt = dabo.ui.fontMetric(wind=self)
                     isDefaultSize = False
                     if prop == "Width":
-                        isDefaultSize = (abs(self.Width - defWd) <= 1)
+                        isDefaultSize = abs(self.Width - defWd) <= 1
                     elif prop == "Height":
-                        isDefaultSize = (abs(self.Height - defHt) <= 1)
+                        isDefaultSize = abs(self.Height - defHt) <= 1
                     if isDefaultSize:
                         # ignore it
                         continue
-            if prop == "BackColor" and isinstance(self, (LayoutPanel, LayoutSpacerPanel)):
+            if prop == "BackColor" and isinstance(
+                self, (LayoutPanel, LayoutSpacerPanel)
+            ):
                 continue
             if isinstance(self, dImage) and (prop == "Value") and self.Picture:
                 # Don't save the byte stream if there is an image path
@@ -226,10 +270,25 @@ class LayoutSaverMixin(dObject):
 
             # Convert any paths, but ignore the string properties that may
             # accidentally contain a legal path but which do not represent paths.
-            if not prop in ("Alignment", "Caption", "CxnName", "DataField", "DataSource",
-                    "FontFace", "HAlign", "Name", "RegID", "SelectionMode",
-                    "ToolTipText", "VAlign", "Value") and (not prop.startswith("Border")
-                    and not prop.startswith("Header") and not prop.startswith("Sizer_")):
+            if not prop in (
+                "Alignment",
+                "Caption",
+                "CxnName",
+                "DataField",
+                "DataSource",
+                "FontFace",
+                "HAlign",
+                "Name",
+                "RegID",
+                "SelectionMode",
+                "ToolTipText",
+                "VAlign",
+                "Value",
+            ) and (
+                not prop.startswith("Border")
+                and not prop.startswith("Header")
+                and not prop.startswith("Sizer_")
+            ):
                 if isinstance(val, str) and os.path.exists(val):
                     # It's a path; convert it to a relative path
                     if isinstance(self, (dForm, dFormMain, dDialog)):
@@ -240,8 +299,10 @@ class LayoutSaverMixin(dObject):
                     if not os.path.isdir(ref):
                         # Can't test for 'isfile' since the file may not have been saved yet.
                         ref = os.path.split(ref)[0]
-                    val = os.path.join(dabo.lib.utils.getPathAttributePrefix(),
-                            dabo.lib.utils.relativePath(val, ref))
+                    val = os.path.join(
+                        dabo.lib.utils.getPathAttributePrefix(),
+                        dabo.lib.utils.relativePath(val, ref),
+                    )
 
             # If it hasn't changed from the default, skip it
             if not allProps:
@@ -254,7 +315,7 @@ class LayoutSaverMixin(dObject):
                     if not isinstance(val, str) and isinstance(dv, str):
                         # Try to convert
                         if isinstance(val, bool):
-                            dv = (dv.lower() == "true")
+                            dv = dv.lower() == "true"
                         elif isinstance(val, int):
                             dv = int(dv)
                         elif isinstance(val, int):
@@ -279,7 +340,9 @@ class LayoutSaverMixin(dObject):
         try:
             itmProps = self.ControllingSizer.getItemProps(self.ControllingSizerItem)
             if insideClass:
-                itmDiffProps = self._diffSizerItemProps(itmProps, classDict, direct=True)
+                itmDiffProps = self._diffSizerItemProps(
+                    itmProps, classDict, direct=True
+                )
             else:
                 itmDiffProps = self._diffSizerItemProps(itmProps, self.ControllingSizer)
             ret["attributes"]["sizerInfo"] = itmDiffProps
@@ -298,7 +361,6 @@ class LayoutSaverMixin(dObject):
             # Remove this class from the processing stack
             app._classStack.pop()
         return ret
-
 
     def _diffSizerItemProps(self, dct, szOrDict, direct=False):
         """Remove all of the default values from the sizer item props."""
@@ -323,7 +385,6 @@ class LayoutSaverMixin(dObject):
                 dct.pop(key)
         return dct
 
-
     def diffClassCode(self, clsCode):
         """See what code, if any, has been changed between the code
         in the defined class and the current object.
@@ -344,7 +405,6 @@ class LayoutSaverMixin(dObject):
                         ret[clsK] = ""
         return ret
 
-
     def getCode(self):
         """Return the code for the object in a method:code
         dictionary.
@@ -353,26 +413,23 @@ class LayoutSaverMixin(dObject):
         objCode = self.Controller.getCodeForObject(self)
         if objCode is not None:
             # Check for empty methods
-            emptyKeys = [kk for kk,vv in list(objCode.items())
-                    if not vv]
+            emptyKeys = [kk for kk, vv in list(objCode.items()) if not vv]
             for emp in emptyKeys:
                 del objCode[emp]
             ret.update(objCode)
         return ret
 
-
     def getPropDefs(self):
         """Get a dict containing any defined properties for this object."""
         ret = self.Controller.getPropDictForObject(self)
-#         if ret:
-#             # Need to escape any single quotes in the comments
-#             sqt = "'"
-#             sqtReplacement = r"\&apos;"
-#             for prop, settings in ret.items():
-#                 if sqt in settings["comment"]:
-#                     settings["comment"] = settings["comment"].replace(sqt, sqtReplacement)
+        #         if ret:
+        #             # Need to escape any single quotes in the comments
+        #             sqt = "'"
+        #             sqtReplacement = r"\&apos;"
+        #             for prop, settings in ret.items():
+        #                 if sqt in settings["comment"]:
+        #                     settings["comment"] = settings["comment"].replace(sqt, sqtReplacement)
         return ret
-
 
     def serialName(self, nm, numItems=0):
         """Prepends a three-digit string to the beginning
@@ -382,7 +439,6 @@ class LayoutSaverMixin(dObject):
         a dictionary, which is otherwise unordered.
         """
         return "d%s%s" % (strl(numItems).zfill(3), nm)
-
 
     def getChildrenPropDict(self, clsChildren=None):
         """Iterate through the children. For controls, this will
@@ -409,8 +465,9 @@ class LayoutSaverMixin(dObject):
         insideClass = clsChildren is not None
         if insideClass:
             childDict = clsChildren.get("children", [])
-        if isinstance(self, (dPageFrame, dPageList,
-                dPageSelect, dPageStyled, dPageFrameNoTabs)):
+        if isinstance(
+            self, (dPageFrame, dPageList, dPageSelect, dPageStyled, dPageFrameNoTabs)
+        ):
             nonSizerKids = kids
         elif isinstance(self, dGrid):
             # Grid children are Columns
@@ -424,9 +481,12 @@ class LayoutSaverMixin(dObject):
         elif isinstance(self, (dRadioList, dSpinner)):
             nonSizerKids = []
         else:
-            nonSizerKids = [kk for kk in kids
-                    if not hasattr(kk, "ControllingSizerItem")
-                    or kk.ControllingSizerItem is None]
+            nonSizerKids = [
+                kk
+                for kk in kids
+                if not hasattr(kk, "ControllingSizerItem")
+                or kk.ControllingSizerItem is None
+            ]
 
         for kid in nonSizerKids:
             numItems = len(ret)
@@ -450,15 +510,17 @@ class LayoutSaverMixin(dObject):
                 try:
                     kidID = kid.classID
                     try:
-                        kidDict = [cd for cd in childDict
-                                if cd["attributes"]["classID"] == kidID][0]
+                        kidDict = [
+                            cd
+                            for cd in childDict
+                            if cd["attributes"]["classID"] == kidID
+                        ][0]
                     except Exception as e:
                         kidDict = {}
                 except AttributeError:
                     kidDict = {}
 
-            ret.append(kid.getDesignerDict(itemNum=numItems,
-                    classDict=kidDict))
+            ret.append(kid.getDesignerDict(itemNum=numItems, classDict=kidDict))
 
         if isinstance(self, Wizard):
             # All the children have been processed
@@ -475,18 +537,25 @@ class LayoutSaverMixin(dObject):
             if isinstance(self, dPageFrameNoTabs):
                 sz = None
             else:
-                if isinstance(self, (dRadioList,
+                if isinstance(
+                    self,
+                    (
+                        dRadioList,
                         dSpinner,
                         dPageSelect,
                         dPageStyled,
                         dColumn,
-                        dTreeView.getBaseNodeClass())):
+                        dTreeView.getBaseNodeClass(),
+                    ),
+                ):
                     sz = None
                 else:
                     try:
                         sz = self.Sizer
                     except AttributeError:
-                        dabo.log.error(_("No sizer information available for %s") % self)
+                        dabo.log.error(
+                            _("No sizer information available for %s") % self
+                        )
                         sz = None
         if sz:
             szDict = None
@@ -494,8 +563,11 @@ class LayoutSaverMixin(dObject):
                 try:
                     szID = sz.classID
                     try:
-                        szDict = [cd for cd in childDict
-                                if cd["attributes"]["classID"] == szID][0]
+                        szDict = [
+                            cd
+                            for cd in childDict
+                            if cd["attributes"]["classID"] == szID
+                        ][0]
                     except Exception as e:
                         szDict = {}
                 except AttributeError:
@@ -503,13 +575,11 @@ class LayoutSaverMixin(dObject):
             ret.append(sz.getDesignerDict(itemNum=len(ret), classDict=szDict))
         return ret
 
-
     def getClass(self):
         """Return a string representing the item's class. Can
         be overridden by subclasses.
         """
         return ustr(self.BaseClass).split("'")[1].split(".")[-1]
-
 
     def getClassName(self):
         """Return a string representing the item's class name. Can
@@ -520,9 +590,10 @@ class LayoutSaverMixin(dObject):
 
 class LayoutPanel(dPanel, LayoutSaverMixin):
     """Panel used to display empty sizer slots."""
+
     def __init__(self, parent, properties=None, *args, **kwargs):
         self._autoSizer = self._extractKey(kwargs, "AutoSizer", True)
-        kwargs["Size"] = (20,20)
+        kwargs["Size"] = (20, 20)
         super(LayoutPanel, self).__init__(parent, properties, *args, **kwargs)
         # Let the framework know that this is just a placeholder object
         self._placeholder = True
@@ -531,7 +602,6 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         self._defaultSizerProps = {}
         for prop in list(self.DesignerProps.keys()):
             self._propDefaults[prop] = eval("self.%s" % prop)
-
 
     def afterInit(self):
         self.depth = self.crawlUp(self)
@@ -546,15 +616,14 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         self.BackColor = self.normalBorder
         self._selected = False
         self.Selected = False
-        self._innerPanel = dPanel(self, BackColor=self.normalColor,
-                _EventTarget=self)
+        self._innerPanel = dPanel(self, BackColor=self.normalColor, _EventTarget=self)
         self.Sizer = dSizer("v")
         self.Sizer.append1x(self._innerPanel, border=1)
         # Make sure the panel allows full resizing
         self.AlwaysResetSizer = True
         # Windows has a problem with auto-clearing
         ### NOTE: seems to not flicker as much with this commented out (at least on Mac).
-        #self.autoClearDrawings = (plat != "Win")
+        # self.autoClearDrawings = (plat != "Win")
         if self._autoSizer:
             if isinstance(self.Parent.Sizer, dSizer):
                 self.Parent.Sizer.append1x(self)
@@ -569,11 +638,9 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         # Store the initial defaults
         dabo.ui.callAfter(self._setDefaultSizerProps)
 
-
     def getChildrenPropDict(self, clsChildren=None):
         """LayoutPanels cannot have children."""
         return []
-
 
     def _setDefaultSizerProps(self):
         if not self:
@@ -583,12 +650,18 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         except AttributeError:
             self._defaultSizerProps = {}
 
-
-    def getDesignerDict(self, itemNum=0, allProps=False,
-            classID=None, classDict=None, propsToExclude=None):
+    def getDesignerDict(
+        self,
+        itemNum=0,
+        allProps=False,
+        classID=None,
+        classDict=None,
+        propsToExclude=None,
+    ):
         # Augment the default to add non-Property values
-        ret = super(LayoutPanel, self).getDesignerDict(itemNum, allProps=allProps,
-                classID=classID, classDict=classDict)
+        ret = super(LayoutPanel, self).getDesignerDict(
+            itemNum, allProps=allProps, classID=classID, classDict=classDict
+        )
         if self.ControllingSizer:
             itmProps = self.ControllingSizer.getItemProps(self.ControllingSizerItem)
             itmDiffProps = self._diffSizerItemProps(itmProps, self.ControllingSizer)
@@ -596,7 +669,6 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
             itmDiffProps = {}
         ret["attributes"]["sizerInfo"] = itmDiffProps
         return ret
-
 
     def setMouseHandling(self, turnOn):
         """When turnOn is True, sets all the mouse event bindings. When
@@ -607,7 +679,6 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         else:
             self.unbindEvent(dEvents.MouseMove)
 
-
     def handleMouseMove(self, evt):
         if evt.dragging:
             # Need to change the cursor
@@ -616,24 +687,19 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         else:
             self.Form.DragObject = None
 
-
     def onMouseLeftUp(self, evt):
         self.Form.processLeftUp(self, evt)
         evt.stop()
 
-
     def onMouseLeftDown(self, evt):
         evt.stop()
 
-
-#     def onMouseLeftClick(self, evt):
-#         shift = evt.EventData["shiftDown"]
-#         self.Form.objectClick(self, shift)
-
+    #     def onMouseLeftClick(self, evt):
+    #         shift = evt.EventData["shiftDown"]
+    #         self.Form.objectClick(self, shift)
 
     def onSelect(self, evt):
         print("PANEL ON SELECT")
-
 
     def onContextMenu(self, evt):
         if isinstance(self.Parent, dPage):
@@ -641,7 +707,6 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         pop = self.createContextMenu()
         dabo.ui.callAfter(self.showContextMenu, pop)
         evt.stop()
-
 
     def createContextMenu(self):
         pop = self.Controller.getControlMenu(self)
@@ -652,8 +717,11 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
                     if isinstance(self.Parent, dPage):
                         # Add option to delete the entire pageframe
                         pop.prependSeparator()
-                        sepAdded =True
-                        pop.prepend(_("Delete the entire Paged Control"), OnHit=self.onDeleteGrandParent)
+                        sepAdded = True
+                        pop.prepend(
+                            _("Delete the entire Paged Control"),
+                            OnHit=self.onDeleteGrandParent,
+                        )
                         prmpt = _("Delete this Page")
                     elif isinstance(self.Parent, dPanel):
                         prmpt = _("Delete this Panel")
@@ -672,17 +740,16 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         pop.appendSeparator()
         pop.append(_("Edit Sizer Settings"), OnHit=self.onEditSizer)
         pop.appendSeparator()
-        pop.append(_("Add Controls from Data Environment"),
-                OnHit=self.Form.onRunLayoutWiz)
+        pop.append(
+            _("Add Controls from Data Environment"), OnHit=self.Form.onRunLayoutWiz
+        )
         return pop
-
 
     def onEditSizer(self, evt):
         """Called when the user selects the context menu option
         to edit this slot's sizer information.
         """
         self.Controller.editSizerSettings(self)
-
 
     def onCut(self, evt):
         """Place a copy of this control on the Controller clipboard,
@@ -691,27 +758,22 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         self.Controller.copyObject(self)
         self.onDelete(evt)
 
-
     def onCopy(self, evt):
         """Place a copy of this control on the Controller clipboard"""
         self.Controller.copyObject(self)
 
-
     def onPaste(self, evt):
         self.Controller.pasteObject(self)
-
 
     def onDeleteParent(self, evt):
         """Called when this panel is the only object on its parent."""
         self.Parent.onDelete(evt)
-
 
     def onDeleteGrandParent(self, evt):
         """Called when the user wants to delete the control that contains
         the page that this panel is on.
         """
         self.Parent.Parent.onDelete(evt)
-
 
     def onDelete(self, evt):
         """This is called when the user wants to remove the slot
@@ -722,7 +784,6 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         if csz and isinstance(csz, LayoutSizerMixin):
             csz.delete(self, refill=False)
 
-
     def crawlUp(self, obj, lev=0):
         pp = obj.Parent
         if pp is None or (pp is self.Form):
@@ -732,7 +793,6 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
                 lev += 1
             ret = self.crawlUp(pp, lev)
             return ret
-
 
     def _getController(self):
         try:
@@ -747,15 +807,14 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         else:
             self._properties["Controller"] = val
 
-
     def _getDesEvents(self):
         return []
 
-
     def _getDesProps(self):
-        return {"BackColor": {"type" : "color", "readonly" : False},
-                "Visible": {"type" : bool, "readonly" : False}}
-
+        return {
+            "BackColor": {"type": "color", "readonly": False},
+            "Visible": {"type": bool, "readonly": False},
+        }
 
     def _getSel(self):
         return self._selected
@@ -770,40 +829,31 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
                 self.BackColor = self.normalBorder
         self._selected = val
 
-
     def _getSzBorder(self):
-        return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
-                "Border")
+        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Border")
 
     def _setSzBorder(self, val):
-        self.ControllingSizer.setItemProp(self.ControllingSizerItem,
-                "Border", val)
-
+        self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Border", val)
 
     def _getSzBorderSides(self):
-        return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
-                "BorderSides")
+        return self.ControllingSizer.getItemProp(
+            self.ControllingSizerItem, "BorderSides"
+        )
 
     def _setSzBorderSides(self, val):
-        self.ControllingSizer.setItemProp(self.ControllingSizerItem,
-                "BorderSides", val)
-
+        self.ControllingSizer.setItemProp(self.ControllingSizerItem, "BorderSides", val)
 
     def _getSzExpand(self):
-        return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
-                "Expand")
+        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Expand")
 
     def _setSzExpand(self, val):
-        self.ControllingSizer.setItemProp(self.ControllingSizerItem,
-                "Expand", val)
-
+        self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Expand", val)
 
     def _getSzColExpand(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "ColExpand")
 
     def _setSzColExpand(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "ColExpand", val)
-
 
     def _getSzColSpan(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "ColSpan")
@@ -817,13 +867,11 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         except dabo.ui.GridSizerSpanException as e:
             raise PropertyUpdateException(ustr(e))
 
-
     def _getSzRowExpand(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "RowExpand")
 
     def _setSzRowExpand(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "RowExpand", val)
-
 
     def _getSzRowSpan(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "RowSpan")
@@ -837,94 +885,146 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         except dabo.ui.GridSizerSpanException as e:
             raise PropertyUpdateException(ustr(e))
 
-
     def _getSzProp(self):
-        return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
-                "Proportion")
+        return self.ControllingSizer.getItemProp(
+            self.ControllingSizerItem, "Proportion"
+        )
 
     def _setSzProp(self, val):
-        self.ControllingSizer.setItemProp(self.ControllingSizerItem,
-                "Proportion", val)
-
+        self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Proportion", val)
 
     def _getSzHalign(self):
-        return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
-                "Halign")
+        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Halign")
 
     def _setSzHalign(self, val):
-        self.ControllingSizer.setItemProp(self.ControllingSizerItem,
-                "Halign", val)
-
+        self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Halign", val)
 
     def _getSzValign(self):
-        return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
-                "Valign")
+        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Valign")
 
     def _setSzValign(self, val):
-        self.ControllingSizer.setItemProp(self.ControllingSizerItem,
-                "Valign", val)
+        self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Valign", val)
 
+    Controller = property(
+        _getController,
+        _setController,
+        None,
+        _("Object to which this one reports events  (object (varies))"),
+    )
 
-    Controller = property(_getController, _setController, None,
-            _("Object to which this one reports events  (object (varies))"))
-
-    DesignerEvents = property(_getDesEvents, None, None,
-            _("""Returns a list of the most common events for the control.
+    DesignerEvents = property(
+        _getDesEvents,
+        None,
+        None,
+        _(
+            """Returns a list of the most common events for the control.
             This will determine which events are displayed in the PropSheet
-            for the developer to attach code to.  (list)""") )
+            for the developer to attach code to.  (list)"""
+        ),
+    )
 
-    DesignerProps = property(_getDesProps, None, None,
-            _("""Returns a dict of editable properties for the sizer, with the
+    DesignerProps = property(
+        _getDesProps,
+        None,
+        None,
+        _(
+            """Returns a dict of editable properties for the sizer, with the
             prop names as the keys, and the value for each another dict,
             containing the following keys: 'type', which controls how to display
             and edit the property, and 'readonly', which will prevent editing
-            when True. (dict)""") )
+            when True. (dict)"""
+        ),
+    )
 
-    Selected = property(_getSel, _setSel, None,
-            _("Denotes if this panel is selected for user interaction.  (bool)") )
+    Selected = property(
+        _getSel,
+        _setSel,
+        None,
+        _("Denotes if this panel is selected for user interaction.  (bool)"),
+    )
 
-    Sizer_Border = property(_getSzBorder, _setSzBorder, None,
-            _("Border setting of controlling sizer item  (int)"))
+    Sizer_Border = property(
+        _getSzBorder,
+        _setSzBorder,
+        None,
+        _("Border setting of controlling sizer item  (int)"),
+    )
 
-    Sizer_BorderSides = property(_getSzBorderSides, _setSzBorderSides, None,
-            _("To which sides is the border applied? (default=All  (str)"))
+    Sizer_BorderSides = property(
+        _getSzBorderSides,
+        _setSzBorderSides,
+        None,
+        _("To which sides is the border applied? (default=All  (str)"),
+    )
 
-    Sizer_Expand = property(_getSzExpand, _setSzExpand, None,
-            _("Expand setting of controlling sizer item  (bool)"))
+    Sizer_Expand = property(
+        _getSzExpand,
+        _setSzExpand,
+        None,
+        _("Expand setting of controlling sizer item  (bool)"),
+    )
 
-    Sizer_ColExpand = property(_getSzColExpand, _setSzColExpand, None,
-            _("Column Expand setting of controlling grid sizer item  (bool)"))
+    Sizer_ColExpand = property(
+        _getSzColExpand,
+        _setSzColExpand,
+        None,
+        _("Column Expand setting of controlling grid sizer item  (bool)"),
+    )
 
-    Sizer_ColSpan = property(_getSzColSpan, _setSzColSpan, None,
-            _("Column Span setting of controlling grid sizer item  (int)"))
+    Sizer_ColSpan = property(
+        _getSzColSpan,
+        _setSzColSpan,
+        None,
+        _("Column Span setting of controlling grid sizer item  (int)"),
+    )
 
-    Sizer_RowExpand = property(_getSzRowExpand, _setSzRowExpand, None,
-            _("Row Expand setting of controlling grid sizer item  (bool)"))
+    Sizer_RowExpand = property(
+        _getSzRowExpand,
+        _setSzRowExpand,
+        None,
+        _("Row Expand setting of controlling grid sizer item  (bool)"),
+    )
 
-    Sizer_RowSpan = property(_getSzRowSpan, _setSzRowSpan, None,
-            _("Row Span setting of controlling grid sizer item  (int)"))
+    Sizer_RowSpan = property(
+        _getSzRowSpan,
+        _setSzRowSpan,
+        None,
+        _("Row Span setting of controlling grid sizer item  (int)"),
+    )
 
-    Sizer_Proportion = property(_getSzProp, _setSzProp, None,
-            _("Proportion setting of controlling sizer item  (int)"))
+    Sizer_Proportion = property(
+        _getSzProp,
+        _setSzProp,
+        None,
+        _("Proportion setting of controlling sizer item  (int)"),
+    )
 
-    Sizer_HAlign = property(_getSzHalign, _setSzHalign, None,
-            _("Horiz. Alignment setting of controlling sizer item  (choice)"))
+    Sizer_HAlign = property(
+        _getSzHalign,
+        _setSzHalign,
+        None,
+        _("Horiz. Alignment setting of controlling sizer item  (choice)"),
+    )
 
-    Sizer_VAlign = property(_getSzValign, _setSzValign, None,
-            _("Vert. Alignment setting of controlling sizer item  (choice)"))
-
+    Sizer_VAlign = property(
+        _getSzValign,
+        _setSzValign,
+        None,
+        _("Vert. Alignment setting of controlling sizer item  (choice)"),
+    )
 
 
 class LayoutSpacerPanel(LayoutPanel):
-    def __init__(self, parent, properties=None, orient=None, inGrid=False,
-            *args, **kwargs):
+    def __init__(
+        self, parent, properties=None, orient=None, inGrid=False, *args, **kwargs
+    ):
         kwargs["AutoSizer"] = False
         self._spacing = 10
         self._orient = orient
         self._inGrid = inGrid
-        super(LayoutSpacerPanel, self).__init__(parent,
-                properties=properties, *args, **kwargs)
-
+        super(LayoutSpacerPanel, self).__init__(
+            parent, properties=properties, *args, **kwargs
+        )
 
     def afterInit(self):
         super(LayoutSpacerPanel, self).afterInit()
@@ -937,13 +1037,38 @@ class LayoutSpacerPanel(LayoutPanel):
         self.hiliteColor = "white"
         self.BackColor = self.normalBorder
         # Set up sizer defaults
-        addSizerDefaults({self.__class__: {
-                "G": {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Center", "VAlign": "Middle", "Border": 70,
-                    "Expand": False, "RowExpand": False, "ColExpand": False},
-                "H": {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Left", "VAlign": "Middle", "Border": 80, "Expand": False},
-                "V": {"BorderSides": ["All"], "Proportion": 0, "HAlign": "Center", "VAlign": "Top", "Border": 90, "Expand": False}
-                }})
-
+        addSizerDefaults(
+            {
+                self.__class__: {
+                    "G": {
+                        "BorderSides": ["All"],
+                        "Proportion": 0,
+                        "HAlign": "Center",
+                        "VAlign": "Middle",
+                        "Border": 70,
+                        "Expand": False,
+                        "RowExpand": False,
+                        "ColExpand": False,
+                    },
+                    "H": {
+                        "BorderSides": ["All"],
+                        "Proportion": 0,
+                        "HAlign": "Left",
+                        "VAlign": "Middle",
+                        "Border": 80,
+                        "Expand": False,
+                    },
+                    "V": {
+                        "BorderSides": ["All"],
+                        "Proportion": 0,
+                        "HAlign": "Center",
+                        "VAlign": "Top",
+                        "Border": 90,
+                        "Expand": False,
+                    },
+                }
+            }
+        )
 
     def onContextMenu(self, evt):
         if isinstance(self.Parent, dPage):
@@ -958,7 +1083,6 @@ class LayoutSpacerPanel(LayoutPanel):
         pop.append(_("Edit Sizer Settings"), OnHit=self.onEditSizer)
         dabo.ui.callAfter(self.showContextMenu, pop)
         evt.stop()
-
 
     def onDelete(self, evt):
         # The user wants to remove the spacer.
@@ -982,10 +1106,8 @@ class LayoutSpacerPanel(LayoutPanel):
         self.Controller.select(lp)
         dabo.ui.callAfter(self.Form.updateApp)
 
-
     def _getDesProps(self):
-        return {"Spacing": {"type" : int, "readonly" : False}}
-
+        return {"Spacing": {"type": int, "readonly": False}}
 
     def _getSpacing(self):
         return self._spacing
@@ -993,7 +1115,6 @@ class LayoutSpacerPanel(LayoutPanel):
     def _setSpacing(self, val):
         self._spacing = val
         self.Size = self.SpacingSize
-
 
     def _getSpacingSize(self):
         spc = self._spacing
@@ -1007,20 +1128,32 @@ class LayoutSpacerPanel(LayoutPanel):
                 ret = (spc, fillerDim)
         return ret
 
-
-    DesignerProps = property(_getDesProps, None, None,
-            _("""Returns a dict of editable properties for the sizer, with the
+    DesignerProps = property(
+        _getDesProps,
+        None,
+        None,
+        _(
+            """Returns a dict of editable properties for the sizer, with the
             prop names as the keys, and the value for each another dict,
             containing the following keys: 'type', which controls how to display
             and edit the property, and 'readonly', which will prevent editing
-            when True. (dict)""") )
+            when True. (dict)"""
+        ),
+    )
 
-    Spacing = property(_getSpacing, _setSpacing, None,
-            _("Allocated space for the spacer this represents  (tuple of int)"))
+    Spacing = property(
+        _getSpacing,
+        _setSpacing,
+        None,
+        _("Allocated space for the spacer this represents  (tuple of int)"),
+    )
 
-    SpacingSize = property(_getSpacingSize, None, None,
-            _("Size of this spacer panel, based on the spacing  (tuple)"))
-
+    SpacingSize = property(
+        _getSpacingSize,
+        None,
+        None,
+        _("Size of this spacer panel, based on the spacing  (tuple)"),
+    )
 
 
 class LayoutSizerMixin(LayoutSaverMixin):
@@ -1029,7 +1162,6 @@ class LayoutSizerMixin(LayoutSaverMixin):
         self._selected = False
         super(LayoutSizerMixin, self).__init__(*args, **kwargs)
 
-
     def _afterInit(self):
         super(LayoutSizerMixin, self)._afterInit()
         # No special reason for these choices, except that they make the
@@ -1037,7 +1169,6 @@ class LayoutSizerMixin(LayoutSaverMixin):
         self.outlineColor = "ORCHID"
         self.outlineStyle = "solid"
         self.outlineWidth = 2
-
 
     def getItemProps(self, itm):
         """Return a dict containing the sizer item properties as keys, with
@@ -1049,7 +1180,6 @@ class LayoutSizerMixin(LayoutSaverMixin):
         ret["Expand"] = self.getItemProp(itm, "Expand")
         ret["Proportion"] = self.getItemProp(itm, "Proportion")
         return ret
-
 
     def getChildrenPropDict(self, clsChildren=None):
         ret = []
@@ -1067,7 +1197,9 @@ class LayoutSizerMixin(LayoutSaverMixin):
                 found = False
                 for pos, szitm in enumerate(kids):
                     itm = self.getItem(szitm)
-                    if (itm in actualKids) or isinstance(itm, (LayoutGridSizer, LayoutSizer)):
+                    if (itm in actualKids) or isinstance(
+                        itm, (LayoutGridSizer, LayoutSizer)
+                    ):
                         found = True
                         kids = kids[pos:]
                         break
@@ -1089,10 +1221,12 @@ class LayoutSizerMixin(LayoutSaverMixin):
             numItems = len(ret)
             itmDict = {}
             for prop in list(self.ItemDesignerProps.keys()):
-                itmDict[prop] = self.getItemProp(kid,  prop)
+                itmDict[prop] = self.getItemProp(kid, prop)
             kidItem = self.getItem(kid)
             try:
-                defProps = self.Controller.getDefaultSizerProps(kidItem.superControl, szType)
+                defProps = self.Controller.getDefaultSizerProps(
+                    kidItem.superControl, szType
+                )
                 itmDiffDict = self._diffSizerItemProps(itmDict, defProps, direct=True)
             except AttributeError:
                 itmDiffDict = self._diffSizerItemProps(itmDict, self)
@@ -1102,14 +1236,16 @@ class LayoutSizerMixin(LayoutSaverMixin):
                     try:
                         winID = kidItem.classID
                         try:
-                            winDict = [cd for cd in childDict
-                                    if cd["attributes"]["classID"] == winID][0]
+                            winDict = [
+                                cd
+                                for cd in childDict
+                                if cd["attributes"]["classID"] == winID
+                            ][0]
                         except Exception as e:
                             winDict = {}
                     except AttributeError:
                         winDict = {}
-                kidDict = kidItem.getDesignerDict(itemNum=numItems,
-                        classDict=winDict)
+                kidDict = kidItem.getDesignerDict(itemNum=numItems, classDict=winDict)
 
             elif kidItem in self.ChildSizers:
                 szrDict = None
@@ -1117,15 +1253,17 @@ class LayoutSizerMixin(LayoutSaverMixin):
                     try:
                         szrID = kidItem.classID
                         try:
-                            szrDict = [cd for cd in childDict
-                                    if cd["attributes"]["classID"] == szrID][0]
+                            szrDict = [
+                                cd
+                                for cd in childDict
+                                if cd["attributes"]["classID"] == szrID
+                            ][0]
                         except Exception as e:
                             szrDict = {}
                     except AttributeError:
                         szrDict = {}
 
-                kidDict = kidItem.getDesignerDict(itemNum=numItems,
-                        classDict=szrDict)
+                kidDict = kidItem.getDesignerDict(itemNum=numItems, classDict=szrDict)
             else:
                 # Spacer
                 isSpacer = True
@@ -1137,10 +1275,12 @@ class LayoutSizerMixin(LayoutSaverMixin):
                     spc = kidItem.Spacing
                 except AttributeError:
                     spc = 0
-                kidDict = {"name" : "Spacer",
-                    "attributes" : {"size" : spc, "Name" : "spacer"},
-                    "cdata" : "",
-                    "children" : [] }
+                kidDict = {
+                    "name": "Spacer",
+                    "attributes": {"size": spc, "Name": "spacer"},
+                    "cdata": "",
+                    "children": [],
+                }
             # Add the sizer item info to the item contents
             if not isSpacer and not ("sizerInfo" in kidDict["attributes"]):
                 kidDict["attributes"]["sizerInfo"] = itmDiffDict
@@ -1148,11 +1288,11 @@ class LayoutSizerMixin(LayoutSaverMixin):
             ret.append(kidDict)
         return ret
 
-
     def createContextMenu(self):
         pop = dMenu()
-        isMain = (self.ControllingSizer is None
-                and isinstance(self.Parent, (dForm, dFormMain)))
+        isMain = self.ControllingSizer is None and isinstance(
+            self.Parent, (dForm, dFormMain)
+        )
         if not isMain:
             pop.append(_("Cut"), OnHit=self.Controller.onTreeCut)
         pop.append(_("Copy"), OnHit=self.Controller.onTreeCopy)
@@ -1174,13 +1314,11 @@ class LayoutSizerMixin(LayoutSaverMixin):
         self.Controller.addSlotOptions(self, pop, sepBefore=True)
         return pop
 
-
     def onEditSizer(self, evt):
         """Called when the user selects the context menu option
         to edit this slot's sizer information.
         """
         self.Controller.editSizerSettings(self)
-
 
     def onCut(self, evt):
         """Place a copy of this sizer on the Controller clipboard,
@@ -1193,15 +1331,12 @@ class LayoutSizerMixin(LayoutSaverMixin):
             self.release(True)
         dabo.ui.callAfter(self.Controller.updateLayout)
 
-
     def onCopy(self, evt):
         """Place a copy of this control on the Controller clipboard"""
         self.Controller.copyObject(self)
 
-
     def onPaste(self, evt):
         self.Controller.pasteObject(self)
-
 
     def delete(self, obj, refill=True):
         """Delete the specified object. Add a replacement layout
@@ -1222,7 +1357,6 @@ class LayoutSizerMixin(LayoutSaverMixin):
             dabo.ui.callAfter(obj.release)
         dabo.ui.callAfter(self.Controller.updateLayout)
 
-
     def _updateChildBorderSides(self):
         """Set the BorderSides property for each child to match the default setting."""
         val = []
@@ -1239,7 +1373,6 @@ class LayoutSizerMixin(LayoutSaverMixin):
         for itm in self.Children:
             self.setItemProp(itm, "BorderSides", val)
 
-
     def _getDefaultBorder(self):
         return super(LayoutSizerMixin, self)._getDefaultBorder()
 
@@ -1252,7 +1385,6 @@ class LayoutSizerMixin(LayoutSaverMixin):
             for itm in self.Children:
                 self.setItemProp(itm, "Border", val)
 
-
     def _getDefaultBorderAll(self):
         return super(LayoutSizerMixin, self)._getDefaultBorderAll()
 
@@ -1263,7 +1395,6 @@ class LayoutSizerMixin(LayoutSaverMixin):
         super(LayoutSizerMixin, self)._setDefaultBorderAll(val)
         if self.Controller._propagateDefaultBorder:
             self._updateChildBorderSides()
-
 
     def _getDefaultBorderBottom(self):
         return super(LayoutSizerMixin, self)._getDefaultBorderBottom()
@@ -1276,7 +1407,6 @@ class LayoutSizerMixin(LayoutSaverMixin):
         if self.Controller._propagateDefaultBorder:
             self._updateChildBorderSides()
 
-
     def _getDefaultBorderLeft(self):
         return super(LayoutSizerMixin, self)._getDefaultBorderLeft()
 
@@ -1287,7 +1417,6 @@ class LayoutSizerMixin(LayoutSaverMixin):
         super(LayoutSizerMixin, self)._setDefaultBorderLeft(val)
         if self.Controller._propagateDefaultBorder:
             self._updateChildBorderSides()
-
 
     def _getDefaultBorderRight(self):
         return super(LayoutSizerMixin, self)._getDefaultBorderRight()
@@ -1300,7 +1429,6 @@ class LayoutSizerMixin(LayoutSaverMixin):
         if self.Controller._propagateDefaultBorder:
             self._updateChildBorderSides()
 
-
     def _getDefaultBorderTop(self):
         return super(LayoutSizerMixin, self)._getDefaultBorderTop()
 
@@ -1311,7 +1439,6 @@ class LayoutSizerMixin(LayoutSaverMixin):
         super(LayoutSizerMixin, self)._setDefaultBorderTop(val)
         if self.Controller._propagateDefaultBorder:
             self._updateChildBorderSides()
-
 
     def _getController(self):
         try:
@@ -1326,40 +1453,59 @@ class LayoutSizerMixin(LayoutSaverMixin):
         else:
             self._properties["Controller"] = val
 
-
     def _getDesEvents(self):
         return []
 
-
     def _getDesProps(self):
-        ret = {"Orientation": {"type" : list, "readonly" : False,
-                "values" : ["Horizontal", "Vertical"]},
-                "DefaultBorder": {"type" : int, "readonly" : False},
-                "DefaultBorderLeft": {"type" : bool, "readonly" : False},
-                "DefaultBorderRight": {"type" : bool, "readonly" : False},
-                "DefaultBorderTop": {"type" : bool, "readonly" : False},
-                "DefaultBorderBottom": {"type" : bool, "readonly" : False},
-                "DefaultSpacing": {"type" : int, "readonly" : False},
-                "SlotCount" : {"type": int, "readonly" : False}}
+        ret = {
+            "Orientation": {
+                "type": list,
+                "readonly": False,
+                "values": ["Horizontal", "Vertical"],
+            },
+            "DefaultBorder": {"type": int, "readonly": False},
+            "DefaultBorderLeft": {"type": bool, "readonly": False},
+            "DefaultBorderRight": {"type": bool, "readonly": False},
+            "DefaultBorderTop": {"type": bool, "readonly": False},
+            "DefaultBorderBottom": {"type": bool, "readonly": False},
+            "DefaultSpacing": {"type": int, "readonly": False},
+            "SlotCount": {"type": int, "readonly": False},
+        }
         # Add the controlling sizer props, if applicable
         if self.ControllingSizer:
-            ret.update({"Sizer_Border": {"type" : int, "readonly" : False},
-                    "Sizer_BorderSides": {"type" : list, "readonly" : False,
-                        "values" : ["All", "Top", "Bottom", "Left", "Right", "None"],
-                        "customEditor": "editBorderSides"},
-                    "Sizer_Expand" : {"type" : bool, "readonly" : False},
-                    "Sizer_Proportion": {"type" : int, "readonly" : False},
-                    "Sizer_HAlign": {"type" : list, "readonly" : False,
-                        "values" : ["Left", "Right", "Center"]},
-                    "Sizer_VAlign": {"type" : list, "readonly" : False,
-                        "values" : ["Top", "Bottom", "Middle"]}})
+            ret.update(
+                {
+                    "Sizer_Border": {"type": int, "readonly": False},
+                    "Sizer_BorderSides": {
+                        "type": list,
+                        "readonly": False,
+                        "values": ["All", "Top", "Bottom", "Left", "Right", "None"],
+                        "customEditor": "editBorderSides",
+                    },
+                    "Sizer_Expand": {"type": bool, "readonly": False},
+                    "Sizer_Proportion": {"type": int, "readonly": False},
+                    "Sizer_HAlign": {
+                        "type": list,
+                        "readonly": False,
+                        "values": ["Left", "Right", "Center"],
+                    },
+                    "Sizer_VAlign": {
+                        "type": list,
+                        "readonly": False,
+                        "values": ["Top", "Bottom", "Middle"],
+                    },
+                }
+            )
             if isinstance(self.ControllingSizer, dGridSizer):
-                ret.update({"Sizer_RowExpand" : {"type" : bool, "readonly" : False},
-                "Sizer_ColExpand" : {"type" : bool, "readonly" : False},
-                "Sizer_RowSpan" : {"type" : int, "readonly" : False},
-                "Sizer_ColSpan" : {"type" : int, "readonly" : False}})
+                ret.update(
+                    {
+                        "Sizer_RowExpand": {"type": bool, "readonly": False},
+                        "Sizer_ColExpand": {"type": bool, "readonly": False},
+                        "Sizer_RowSpan": {"type": int, "readonly": False},
+                        "Sizer_ColSpan": {"type": int, "readonly": False},
+                    }
+                )
         return ret
-
 
     def _getSel(self):
         return self._selected
@@ -1382,19 +1528,28 @@ class LayoutSizerMixin(LayoutSaverMixin):
                     frm.removeFromOutlinedSizers(self)
         self._selected = val
 
-
     def _getSzItmProps(self):
-        return {"Border": {"type" : int, "readonly" : False},
-                "BorderSides": {"type" : list, "readonly" : False,
-                    "values" : ["All", "Top", "Bottom", "Left", "Right", "None"],
-                    "customEditor": "editBorderSides"},
-                "Proportion": {"type" : int, "readonly" : False},
-                "HAlign": {"type" : list, "readonly" : False,
-                    "values" : ["Left", "Right", "Center"]},
-                "VAlign": {"type" : list, "readonly" : False,
-                    "values" : ["Top", "Bottom", "Middle"]},
-                "Expand": {"type" : bool, "readonly" : False}}
-
+        return {
+            "Border": {"type": int, "readonly": False},
+            "BorderSides": {
+                "type": list,
+                "readonly": False,
+                "values": ["All", "Top", "Bottom", "Left", "Right", "None"],
+                "customEditor": "editBorderSides",
+            },
+            "Proportion": {"type": int, "readonly": False},
+            "HAlign": {
+                "type": list,
+                "readonly": False,
+                "values": ["Left", "Right", "Center"],
+            },
+            "VAlign": {
+                "type": list,
+                "readonly": False,
+                "values": ["Top", "Bottom", "Middle"],
+            },
+            "Expand": {"type": bool, "readonly": False},
+        }
 
     def _getSzBorder(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Border")
@@ -1402,15 +1557,13 @@ class LayoutSizerMixin(LayoutSaverMixin):
     def _setSzBorder(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Border", val)
 
-
     def _getSzBorderSides(self):
-        return self.ControllingSizer.getItemProp(self.ControllingSizerItem,
-                "BorderSides")
+        return self.ControllingSizer.getItemProp(
+            self.ControllingSizerItem, "BorderSides"
+        )
 
     def _setSzBorderSides(self, val):
-        self.ControllingSizer.setItemProp(self.ControllingSizerItem,
-                "BorderSides", val)
-
+        self.ControllingSizer.setItemProp(self.ControllingSizerItem, "BorderSides", val)
 
     def _getSzExpand(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Expand")
@@ -1418,13 +1571,11 @@ class LayoutSizerMixin(LayoutSaverMixin):
     def _setSzExpand(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Expand", val)
 
-
     def _getSzColExpand(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "ColExpand")
 
     def _setSzColExpand(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "ColExpand", val)
-
 
     def _getSzColSpan(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "ColSpan")
@@ -1437,13 +1588,11 @@ class LayoutSizerMixin(LayoutSaverMixin):
         except dabo.ui.GridSizerSpanException as e:
             raise PropertyUpdateException(ustr(e))
 
-
     def _getSzRowExpand(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "RowExpand")
 
     def _setSzRowExpand(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "RowExpand", val)
-
 
     def _getSzRowSpan(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "RowSpan")
@@ -1456,13 +1605,13 @@ class LayoutSizerMixin(LayoutSaverMixin):
         except dabo.ui.GridSizerSpanException as e:
             raise PropertyUpdateException(ustr(e))
 
-
     def _getSzProp(self):
-        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Proportion")
+        return self.ControllingSizer.getItemProp(
+            self.ControllingSizerItem, "Proportion"
+        )
 
     def _setSzProp(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Proportion", val)
-
 
     def _getSzHalign(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Halign")
@@ -1470,13 +1619,11 @@ class LayoutSizerMixin(LayoutSaverMixin):
     def _setSzHalign(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Halign", val)
 
-
     def _getSzValign(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Valign")
 
     def _setSzValign(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Valign", val)
-
 
     def _getSlotCount(self):
         return len(self.Children)
@@ -1485,13 +1632,13 @@ class LayoutSizerMixin(LayoutSaverMixin):
         cnt = len(self.Children)
         if val > cnt:
             # Need to add enough LayoutPanels to make up the difference
-            for ii in range(val-cnt):
+            for ii in range(val - cnt):
                 lp = LayoutPanel(self.Parent, AutoSizer=False)
                 self.append1x(lp)
             self.layout()
         elif cnt > val:
             # Remove items from the 'end' to bring the count down.
-            for ii in range(cnt-val):
+            for ii in range(cnt - val):
                 obj = self.getItem(self.Children[-1])
                 if obj in self.ChildWindows:
                     self.remove(obj, True)
@@ -1499,93 +1646,197 @@ class LayoutSizerMixin(LayoutSaverMixin):
                     self.remove(obj)
                     obj.release(True)
 
+    Controller = property(
+        _getController,
+        _setController,
+        None,
+        _("Object to which this one reports events  (object (varies))"),
+    )
 
-    Controller = property(_getController, _setController, None,
-            _("Object to which this one reports events  (object (varies))"))
+    DefaultBorder = property(
+        _getDefaultBorder,
+        _setDefaultBorder,
+        None,
+        _(
+            """Not only changes the current setting, but goes back and applies
+            it to all existing children  (int)"""
+        ),
+    )
 
-    DefaultBorder = property(_getDefaultBorder, _setDefaultBorder, None,
-            _("""Not only changes the current setting, but goes back and applies
-            it to all existing children  (int)"""))
+    DefaultBorderAll = property(
+        _getDefaultBorderAll,
+        _setDefaultBorderAll,
+        None,
+        _(
+            """Not only changes the current setting, but goes back and applies
+            it to all existing children  (bool)"""
+        ),
+    )
 
-    DefaultBorderAll = property(_getDefaultBorderAll, _setDefaultBorderAll, None,
-            _("""Not only changes the current setting, but goes back and applies
-            it to all existing children  (bool)"""))
+    DefaultBorderBottom = property(
+        _getDefaultBorderBottom,
+        _setDefaultBorderBottom,
+        None,
+        _(
+            """Not only changes the current setting, but goes back and applies
+            it to all existing children  (bool)"""
+        ),
+    )
 
-    DefaultBorderBottom = property(_getDefaultBorderBottom, _setDefaultBorderBottom, None,
-            _("""Not only changes the current setting, but goes back and applies
-            it to all existing children  (bool)"""))
+    DefaultBorderLeft = property(
+        _getDefaultBorderLeft,
+        _setDefaultBorderLeft,
+        None,
+        _(
+            """Not only changes the current setting, but goes back and applies
+            it to all existing children  (bool)"""
+        ),
+    )
 
-    DefaultBorderLeft = property(_getDefaultBorderLeft, _setDefaultBorderLeft, None,
-            _("""Not only changes the current setting, but goes back and applies
-            it to all existing children  (bool)"""))
+    DefaultBorderRight = property(
+        _getDefaultBorderRight,
+        _setDefaultBorderRight,
+        None,
+        _(
+            """Not only changes the current setting, but goes back and applies
+            it to all existing children  (bool)"""
+        ),
+    )
 
-    DefaultBorderRight = property(_getDefaultBorderRight, _setDefaultBorderRight, None,
-            _("""Not only changes the current setting, but goes back and applies
-            it to all existing children  (bool)"""))
+    DefaultBorderTop = property(
+        _getDefaultBorderTop,
+        _setDefaultBorderTop,
+        None,
+        _(
+            """Not only changes the current setting, but goes back and applies
+            it to all existing children  (bool)"""
+        ),
+    )
 
-    DefaultBorderTop = property(_getDefaultBorderTop, _setDefaultBorderTop, None,
-            _("""Not only changes the current setting, but goes back and applies
-            it to all existing children  (bool)"""))
-
-    DesignerEvents = property(_getDesEvents, None, None,
-            _("""Returns a list of the most common events for the control.
+    DesignerEvents = property(
+        _getDesEvents,
+        None,
+        None,
+        _(
+            """Returns a list of the most common events for the control.
             This will determine which events are displayed in the PropSheet
-            for the developer to attach code to.  (list)""") )
+            for the developer to attach code to.  (list)"""
+        ),
+    )
 
-    DesignerProps = property(_getDesProps, None, None,
-            _("""Returns a dict of editable properties for the sizer, with the
+    DesignerProps = property(
+        _getDesProps,
+        None,
+        None,
+        _(
+            """Returns a dict of editable properties for the sizer, with the
             prop names as the keys, and the value for each another dict,
             containing the following keys: 'type', which controls how to display
             and edit the property, and 'readonly', which will prevent editing
-            when True. (dict)""") )
+            when True. (dict)"""
+        ),
+    )
 
-    ItemDesignerProps = property(_getSzItmProps, None, None,
-            _("""When the selected object in the ClassDesigner is a sizer item, we
+    ItemDesignerProps = property(
+        _getSzItmProps,
+        None,
+        None,
+        _(
+            """When the selected object in the ClassDesigner is a sizer item, we
             need to be able to get the items properties. Since we can't
             subclass the sizer item, custom stuff like this will always have to
-            be done through the sizer class.  (dict)""") )
+            be done through the sizer class.  (dict)"""
+        ),
+    )
 
-    Selected = property(_getSel, _setSel, None,
-            _("Denotes if this sizer is selected for user interaction.  (bool)") )
+    Selected = property(
+        _getSel,
+        _setSel,
+        None,
+        _("Denotes if this sizer is selected for user interaction.  (bool)"),
+    )
 
-    Sizer_Border = property(_getSzBorder, _setSzBorder, None,
-            _("Border setting of controlling sizer item  (int)"))
+    Sizer_Border = property(
+        _getSzBorder,
+        _setSzBorder,
+        None,
+        _("Border setting of controlling sizer item  (int)"),
+    )
 
-    Sizer_BorderSides = property(_getSzBorderSides, _setSzBorderSides, None,
-            _("To which sides is the border applied? (default=All  (str)"))
+    Sizer_BorderSides = property(
+        _getSzBorderSides,
+        _setSzBorderSides,
+        None,
+        _("To which sides is the border applied? (default=All  (str)"),
+    )
 
-    Sizer_Expand = property(_getSzExpand, _setSzExpand, None,
-            _("Expand setting of controlling sizer item  (bool)"))
+    Sizer_Expand = property(
+        _getSzExpand,
+        _setSzExpand,
+        None,
+        _("Expand setting of controlling sizer item  (bool)"),
+    )
 
-    Sizer_ColExpand = property(_getSzColExpand, _setSzColExpand, None,
-            _("Column Expand setting of controlling grid sizer item  (bool)"))
+    Sizer_ColExpand = property(
+        _getSzColExpand,
+        _setSzColExpand,
+        None,
+        _("Column Expand setting of controlling grid sizer item  (bool)"),
+    )
 
-    Sizer_ColSpan = property(_getSzColSpan, _setSzColSpan, None,
-            _("Column Span setting of controlling grid sizer item  (int)"))
+    Sizer_ColSpan = property(
+        _getSzColSpan,
+        _setSzColSpan,
+        None,
+        _("Column Span setting of controlling grid sizer item  (int)"),
+    )
 
-    Sizer_RowExpand = property(_getSzRowExpand, _setSzRowExpand, None,
-            _("Row Expand setting of controlling grid sizer item  (bool)"))
+    Sizer_RowExpand = property(
+        _getSzRowExpand,
+        _setSzRowExpand,
+        None,
+        _("Row Expand setting of controlling grid sizer item  (bool)"),
+    )
 
-    Sizer_RowSpan = property(_getSzRowSpan, _setSzRowSpan, None,
-            _("Row Span setting of controlling grid sizer item  (int)"))
+    Sizer_RowSpan = property(
+        _getSzRowSpan,
+        _setSzRowSpan,
+        None,
+        _("Row Span setting of controlling grid sizer item  (int)"),
+    )
 
-    Sizer_Proportion = property(_getSzProp, _setSzProp, None,
-            _("Proportion setting of controlling sizer item  (int)"))
+    Sizer_Proportion = property(
+        _getSzProp,
+        _setSzProp,
+        None,
+        _("Proportion setting of controlling sizer item  (int)"),
+    )
 
-    Sizer_HAlign = property(_getSzHalign, _setSzHalign, None,
-            _("Horiz. Alignment setting of controlling sizer item  (choice)"))
+    Sizer_HAlign = property(
+        _getSzHalign,
+        _setSzHalign,
+        None,
+        _("Horiz. Alignment setting of controlling sizer item  (choice)"),
+    )
 
-    Sizer_VAlign = property(_getSzValign, _setSzValign, None,
-            _("Vert. Alignment setting of controlling sizer item  (choice)"))
+    Sizer_VAlign = property(
+        _getSzValign,
+        _setSzValign,
+        None,
+        _("Vert. Alignment setting of controlling sizer item  (choice)"),
+    )
 
-    SlotCount = property(_getSlotCount, _setSlotCount, None,
-            _("Number of slots available in this sizer.  (int)") )
+    SlotCount = property(
+        _getSlotCount,
+        _setSlotCount,
+        None,
+        _("Number of slots available in this sizer.  (int)"),
+    )
 
 
 class LayoutSizer(LayoutSizerMixin, dSizer):
     def __init__(self, *args, **kwargs):
         super(LayoutSizer, self).__init__(*args, **kwargs)
-
 
     def getBorderedClass(self):
         """Return the class that is the border sizer version of this class."""
@@ -1602,40 +1853,51 @@ class LayoutBorderSizer(LayoutSizerMixin, dBorderSizer):
             box.Caption = caption
         super(LayoutBorderSizer, self).__init__(box, *args, **kwargs)
 
-
     def getNonBorderedClass(self):
         """Return the class that is the non-border sizer version of this class."""
         return LayoutSizer
 
-
     def _getDesProps(self):
         ret = super(LayoutBorderSizer, self)._getDesProps()
-        ret.update({"Caption" : {"type" : str, "readonly" : False},
-                "BackColor" : {"type" : "color", "readonly" : False,
-                        "customEditor": "editColor"},
-                "FontBold": {"type" : bool, "readonly" : False},
-                "FontFace": {"type" : list, "readonly" : False,
-                        "values" : dabo.ui.getAvailableFonts()},
-                "FontItalic": {"type" : bool, "readonly" : False},
-                "FontSize": {"type" : int, "readonly" : False},
-                "FontUnderline": {"type" : bool, "readonly" : False}})
+        ret.update(
+            {
+                "Caption": {"type": str, "readonly": False},
+                "BackColor": {
+                    "type": "color",
+                    "readonly": False,
+                    "customEditor": "editColor",
+                },
+                "FontBold": {"type": bool, "readonly": False},
+                "FontFace": {
+                    "type": list,
+                    "readonly": False,
+                    "values": dabo.ui.getAvailableFonts(),
+                },
+                "FontItalic": {"type": bool, "readonly": False},
+                "FontSize": {"type": int, "readonly": False},
+                "FontUnderline": {"type": bool, "readonly": False},
+            }
+        )
         return ret
 
-
-    DesignerProps = property(_getDesProps, None, None,
-            _("""Returns a dict of editable properties for the sizer, with the
+    DesignerProps = property(
+        _getDesProps,
+        None,
+        None,
+        _(
+            """Returns a dict of editable properties for the sizer, with the
             prop names as the keys, and the value for each another dict,
             containing the following keys: 'type', which controls how to display
             and edit the property, and 'readonly', which will prevent editing
-            when True. (dict)""") )
-
+            when True. (dict)"""
+        ),
+    )
 
 
 class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
     def __init__(self, *args, **kwargs):
         super(LayoutGridSizer, self).__init__(*args, **kwargs)
         self._rows = self._cols = 0
-
 
     def setItemProps(self, itm, props):
         """This accepts a dict of properties and values, and
@@ -1647,7 +1909,6 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
             if val != currVal:
                 self.setItemProp(itm, prop, val)
 
-
     def getItemProps(self, itm):
         """Return a dict containing the sizer item properties as keys, with
         their associated values. Must override in each subclass.
@@ -1656,7 +1917,6 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
         for prop in list(self.ItemDesignerProps.keys()):
             ret[prop] = self.getItemProp(itm, prop)
         return ret
-
 
     def switchObjects(self, obj1, obj2):
         """Swaps the location of the two objects."""
@@ -1672,11 +1932,11 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
         self.setItemProps(obj1, props)
         self.layout()
 
-
     def createContextMenu(self):
         pop = dMenu()
-        isMain = (self.ControllingSizer is None
-                and isinstance(self.Parent, (dForm, dFormMain)))
+        isMain = self.ControllingSizer is None and isinstance(
+            self.Parent, (dForm, dFormMain)
+        )
         if not isMain:
             pop.append(_("Cut"), OnHit=self.Controller.onTreeCut)
         pop.append(_("Copy"), OnHit=self.Controller.onTreeCopy)
@@ -1689,13 +1949,11 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
             self.Controller.addSlotOptions(self, pop, sepBefore=True)
         return pop
 
-
     def onEditSizer(self, evt):
         """Called when the user selects the context menu option
         to edit this slot's sizer information.
         """
         self.Controller.editSizerSettings(self)
-
 
     def getChildrenPropDict(self, clsChildren=None):
         ret = []
@@ -1714,19 +1972,20 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
             # Make sure that the clsDict is not None.
             clsDict = clsDict or {}
             for prop in list(self.ItemDesignerProps.keys()):
-                itmDict[prop] = self.getItemProp(kid,  prop)
+                itmDict[prop] = self.getItemProp(kid, prop)
             itmDiffDict = self._diffSizerItemProps(itmDict, self)
             kidItem = self.getItem(kid)
             if not kidItem in self.ChildSpacers:
-                kidDict = kidItem.getDesignerDict(itemNum=numItems,
-                        classDict=clsDict)
+                kidDict = kidItem.getDesignerDict(itemNum=numItems, classDict=clsDict)
             else:
                 # Spacer
                 spc = kid.GetSpacer()
-                kidDict = {"name" : self.serialName("Spacer", numItems),
-                    "attributes" : {},
-                    "cdata" : kidItem.Spacing,
-                    "children" : [] }
+                kidDict = {
+                    "name": self.serialName("Spacer", numItems),
+                    "attributes": {},
+                    "cdata": kidItem.Spacing,
+                    "children": [],
+                }
             # Save the position
             kidDict["attributes"]["rowColPos"] = self.getGridPos(kid)
             # Add the sizer item info to the item contents
@@ -1735,7 +1994,6 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
             # Add to the result
             ret.append(kidDict)
         return ret
-
 
     def getChildClassDict(self, clsChildren, itm):
         ret = None
@@ -1746,15 +2004,16 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
         try:
             objID = obj.classID
             try:
-                ret = [cd for cd in childDict
-                        if cd["attributes"]["classID"] == objID][0]
+                ret = [cd for cd in childDict if cd["attributes"]["classID"] == objID][
+                    0
+                ]
             except Exception as e:
                 ret = None
         except AttributeError:
             pass
         return ret
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def onCut(self, evt):
         """Place a copy of this sizer on the Controller clipboard,
         and then delete the sizer
@@ -1766,15 +2025,12 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
             self.release(True)
         dabo.ui.callAfter(self.Controller.updateLayout)
 
-
     def onCopy(self, evt):
         """Place a copy of this control on the Controller clipboard"""
         self.Controller.copyObject(self)
 
-
     def onPaste(self, evt):
         self.Controller.pasteObject(self)
-
 
     def delete(self, obj, refill=True):
         """Delete the specified object. Add a replacement layout
@@ -1794,7 +2050,8 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
         else:
             dabo.ui.callAfter(obj.release)
         dabo.ui.callAfter(self.Controller.updateLayout)
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     def _getColCount(self):
         return self._cols
@@ -1816,10 +2073,9 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
                     if setExpand:
                         self.setColExpand(True, cc)
             else:
-                for cc in range(curr-1, val-1, -1):
+                for cc in range(curr - 1, val - 1, -1):
                     self.removeCol(cc)
             self.layout()
-
 
     def _getController(self):
         try:
@@ -1834,55 +2090,83 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
         else:
             self._properties["Controller"] = val
 
-
     def _getDesEvents(self):
         return []
 
-
     def _getDesProps(self):
-        ret = {"MaxDimension": {"type" : list, "readonly" : False,
-                    "values" : ["Rows", "Columns"]},
-                "Rows" : {"type" : int, "readonly" : False},
-                "Columns" : {"type" : int, "readonly" : False},
-                "HGap" : {"type" : int, "readonly" : False},
-                "VGap" : {"type" : int, "readonly" : False}}
+        ret = {
+            "MaxDimension": {
+                "type": list,
+                "readonly": False,
+                "values": ["Rows", "Columns"],
+            },
+            "Rows": {"type": int, "readonly": False},
+            "Columns": {"type": int, "readonly": False},
+            "HGap": {"type": int, "readonly": False},
+            "VGap": {"type": int, "readonly": False},
+        }
         # Add the controlling sizer props, if applicable
         if self.ControllingSizer:
-            ret.update({"Sizer_Border": {"type" : int, "readonly" : False},
-                    "Sizer_BorderSides": {"type" : list, "readonly" : False,
-                        "values" : ["All", "Top", "Bottom", "Left", "Right", "None"],
-                        "customEditor": "editBorderSides"},
-                    "Sizer_Expand" : {"type" : bool, "readonly" : False},
-                    "Sizer_Proportion": {"type" : int, "readonly" : False},
-                    "Sizer_HAlign": {"type" : list, "readonly" : False,
-                        "values" : ["Left", "Right", "Center"]},
-                    "Sizer_VAlign": {"type" : list, "readonly" : False,
-                        "values" : ["Top", "Bottom", "Middle"]}})
+            ret.update(
+                {
+                    "Sizer_Border": {"type": int, "readonly": False},
+                    "Sizer_BorderSides": {
+                        "type": list,
+                        "readonly": False,
+                        "values": ["All", "Top", "Bottom", "Left", "Right", "None"],
+                        "customEditor": "editBorderSides",
+                    },
+                    "Sizer_Expand": {"type": bool, "readonly": False},
+                    "Sizer_Proportion": {"type": int, "readonly": False},
+                    "Sizer_HAlign": {
+                        "type": list,
+                        "readonly": False,
+                        "values": ["Left", "Right", "Center"],
+                    },
+                    "Sizer_VAlign": {
+                        "type": list,
+                        "readonly": False,
+                        "values": ["Top", "Bottom", "Middle"],
+                    },
+                }
+            )
             if isinstance(self.ControllingSizer, dGridSizer):
-                ret.update({"Sizer_RowExpand" : {"type" : bool, "readonly" : False},
-                "Sizer_ColExpand" : {"type" : bool, "readonly" : False},
-                "Sizer_RowSpan" : {"type" : int, "readonly" : False},
-                "Sizer_ColSpan" : {"type" : int, "readonly" : False}})
+                ret.update(
+                    {
+                        "Sizer_RowExpand": {"type": bool, "readonly": False},
+                        "Sizer_ColExpand": {"type": bool, "readonly": False},
+                        "Sizer_RowSpan": {"type": int, "readonly": False},
+                        "Sizer_ColSpan": {"type": int, "readonly": False},
+                    }
+                )
         return ret
-
 
     def _getSzItmProps(self):
         return {
-                "Border": {"type" : int, "readonly" : False},
-                "BorderSides": {"type" : list, "readonly" : False,
-                    "values" : ["All", "Top", "Bottom", "Left", "Right", "None"],
-                    "customEditor": "editBorderSides"},
-                "Expand": {"type" : bool, "readonly" : False},
-                "RowExpand": {"type" : bool, "readonly" : False},
-                "ColExpand": {"type" : bool, "readonly" : False},
-                "RowSpan": {"type" : int, "readonly" : False},
-                "ColSpan": {"type" : int, "readonly" : False},
-                "Proportion": {"type" : int, "readonly" : False},
-                "HAlign": {"type" : list, "readonly" : False,
-                    "values" : ["Left", "Right", "Center"]},
-                "VAlign": {"type" : list, "readonly" : False,
-                    "values" : ["Top", "Bottom", "Middle"]}}
-
+            "Border": {"type": int, "readonly": False},
+            "BorderSides": {
+                "type": list,
+                "readonly": False,
+                "values": ["All", "Top", "Bottom", "Left", "Right", "None"],
+                "customEditor": "editBorderSides",
+            },
+            "Expand": {"type": bool, "readonly": False},
+            "RowExpand": {"type": bool, "readonly": False},
+            "ColExpand": {"type": bool, "readonly": False},
+            "RowSpan": {"type": int, "readonly": False},
+            "ColSpan": {"type": int, "readonly": False},
+            "Proportion": {"type": int, "readonly": False},
+            "HAlign": {
+                "type": list,
+                "readonly": False,
+                "values": ["Left", "Right", "Center"],
+            },
+            "VAlign": {
+                "type": list,
+                "readonly": False,
+                "values": ["Top", "Bottom", "Middle"],
+            },
+        }
 
     def _getRowCount(self):
         return self._rows
@@ -1904,10 +2188,9 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
                     if setExpand:
                         self.setRowExpand(True, rr)
             else:
-                for rr in range(curr-1, val-1, -1):
+                for rr in range(curr - 1, val - 1, -1):
                     self.removeRow(rr)
             self.layout()
-
 
     def _getSzBorder(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Border")
@@ -1915,13 +2198,13 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
     def _setSzBorder(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Border", val)
 
-
     def _getSzBorderSides(self):
-        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "BorderSides")
+        return self.ControllingSizer.getItemProp(
+            self.ControllingSizerItem, "BorderSides"
+        )
 
     def _setSzBorderSides(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "BorderSides", val)
-
 
     def _getSzExpand(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Expand")
@@ -1929,13 +2212,11 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
     def _setSzExpand(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Expand", val)
 
-
     def _getSzColExpand(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "ColExpand")
 
     def _setSzColExpand(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "ColExpand", val)
-
 
     def _getSzColSpan(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "ColSpan")
@@ -1948,13 +2229,11 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
         except dabo.ui.GridSizerSpanException as e:
             raise PropertyUpdateException(ustr(e))
 
-
     def _getSzRowExpand(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "RowExpand")
 
     def _setSzRowExpand(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "RowExpand", val)
-
 
     def _getSzRowSpan(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "RowSpan")
@@ -1967,13 +2246,13 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
         except dabo.ui.GridSizerSpanException as e:
             raise PropertyUpdateException(ustr(e))
 
-
     def _getSzProp(self):
-        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Proportion")
+        return self.ControllingSizer.getItemProp(
+            self.ControllingSizerItem, "Proportion"
+        )
 
     def _setSzProp(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Proportion", val)
-
 
     def _getSzHalign(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Halign")
@@ -1981,71 +2260,132 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
     def _setSzHalign(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Halign", val)
 
-
     def _getSzValign(self):
         return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Valign")
 
     def _setSzValign(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Valign", val)
 
+    Columns = property(
+        _getColCount, _setColCount, None, _("Number of columns in this sizer.  (int)")
+    )
 
-    Columns = property(_getColCount, _setColCount, None,
-            _("Number of columns in this sizer.  (int)") )
+    Controller = property(
+        _getController,
+        _setController,
+        None,
+        _("Object to which this one reports events  (object (varies))"),
+    )
 
-    Controller = property(_getController, _setController, None,
-            _("Object to which this one reports events  (object (varies))"))
-
-    DesignerEvents = property(_getDesEvents, None, None,
-            _("""Returns a list of the most common events for the control.
+    DesignerEvents = property(
+        _getDesEvents,
+        None,
+        None,
+        _(
+            """Returns a list of the most common events for the control.
             This will determine which events are displayed in the PropSheet
-            for the developer to attach code to.  (list)""") )
+            for the developer to attach code to.  (list)"""
+        ),
+    )
 
-    DesignerProps = property(_getDesProps, None, None,
-            _("""Returns a dict of editable properties for the sizer, with the
+    DesignerProps = property(
+        _getDesProps,
+        None,
+        None,
+        _(
+            """Returns a dict of editable properties for the sizer, with the
             prop names as the keys, and the value for each another dict,
             containing the following keys: 'type', which controls how to display
             and edit the property, and 'readonly', which will prevent editing
-            when True. (dict)""") )
+            when True. (dict)"""
+        ),
+    )
 
-    ItemDesignerProps = property(_getSzItmProps, None, None,
-            _("""When the selected object in the ClassDesigner is a sizer item, we
+    ItemDesignerProps = property(
+        _getSzItmProps,
+        None,
+        None,
+        _(
+            """When the selected object in the ClassDesigner is a sizer item, we
             need to be able to get the items properties. Since we can't
             subclass the sizer item, custom stuff like this will always have to
-            be done through the sizer class.  (dict)""") )
+            be done through the sizer class.  (dict)"""
+        ),
+    )
 
-    Rows = property(_getRowCount, _setRowCount, None,
-            _("Number of rows in this sizer.  (int)") )
+    Rows = property(
+        _getRowCount, _setRowCount, None, _("Number of rows in this sizer.  (int)")
+    )
 
-    Sizer_Border = property(_getSzBorder, _setSzBorder, None,
-            _("Border setting of controlling sizer item  (int)"))
+    Sizer_Border = property(
+        _getSzBorder,
+        _setSzBorder,
+        None,
+        _("Border setting of controlling sizer item  (int)"),
+    )
 
-    Sizer_BorderSides = property(_getSzBorderSides, _setSzBorderSides, None,
-            _("To which sides is the border applied? (default=All  (str)"))
+    Sizer_BorderSides = property(
+        _getSzBorderSides,
+        _setSzBorderSides,
+        None,
+        _("To which sides is the border applied? (default=All  (str)"),
+    )
 
-    Sizer_Expand = property(_getSzExpand, _setSzExpand, None,
-            _("Expand setting of controlling sizer item  (bool)"))
+    Sizer_Expand = property(
+        _getSzExpand,
+        _setSzExpand,
+        None,
+        _("Expand setting of controlling sizer item  (bool)"),
+    )
 
-    Sizer_ColExpand = property(_getSzColExpand, _setSzColExpand, None,
-            _("Column Expand setting of controlling grid sizer item  (bool)"))
+    Sizer_ColExpand = property(
+        _getSzColExpand,
+        _setSzColExpand,
+        None,
+        _("Column Expand setting of controlling grid sizer item  (bool)"),
+    )
 
-    Sizer_ColSpan = property(_getSzColSpan, _setSzColSpan, None,
-            _("Column Span setting of controlling grid sizer item  (int)"))
+    Sizer_ColSpan = property(
+        _getSzColSpan,
+        _setSzColSpan,
+        None,
+        _("Column Span setting of controlling grid sizer item  (int)"),
+    )
 
-    Sizer_RowExpand = property(_getSzRowExpand, _setSzRowExpand, None,
-            _("Row Expand setting of controlling grid sizer item  (bool)"))
+    Sizer_RowExpand = property(
+        _getSzRowExpand,
+        _setSzRowExpand,
+        None,
+        _("Row Expand setting of controlling grid sizer item  (bool)"),
+    )
 
-    Sizer_RowSpan = property(_getSzRowSpan, _setSzRowSpan, None,
-            _("Row Span setting of controlling grid sizer item  (int)"))
+    Sizer_RowSpan = property(
+        _getSzRowSpan,
+        _setSzRowSpan,
+        None,
+        _("Row Span setting of controlling grid sizer item  (int)"),
+    )
 
-    Sizer_Proportion = property(_getSzProp, _setSzProp, None,
-            _("Proportion setting of controlling sizer item  (int)"))
+    Sizer_Proportion = property(
+        _getSzProp,
+        _setSzProp,
+        None,
+        _("Proportion setting of controlling sizer item  (int)"),
+    )
 
-    Sizer_HAlign = property(_getSzHalign, _setSzHalign, None,
-            _("Horiz. Alignment setting of controlling sizer item  (choice)"))
+    Sizer_HAlign = property(
+        _getSzHalign,
+        _setSzHalign,
+        None,
+        _("Horiz. Alignment setting of controlling sizer item  (choice)"),
+    )
 
-    Sizer_VAlign = property(_getSzValign, _setSzValign, None,
-            _("Vert. Alignment setting of controlling sizer item  (choice)"))
-
+    Sizer_VAlign = property(
+        _getSzValign,
+        _setSzValign,
+        None,
+        _("Vert. Alignment setting of controlling sizer item  (choice)"),
+    )
 
 
 class LayoutBasePanel(dPanel, LayoutSaverMixin):
@@ -2066,25 +2406,28 @@ class LayoutBasePanel(dPanel, LayoutSaverMixin):
         else:
             self._properties["Controller"] = val
 
-
     def _getDesProps(self):
-        return {"BackColor": {"type" : "color", "readonly" : False}}
+        return {"BackColor": {"type": "color", "readonly": False}}
 
-    Controller = property(_getController, _setController, None,
-            _("Object to which this one reports events  (object (varies))"))
+    Controller = property(
+        _getController,
+        _setController,
+        None,
+        _("Object to which this one reports events  (object (varies))"),
+    )
 
     DesignerProps = property(_getDesProps, None, None)
-
 
 
 class NoSizerBasePanel(LayoutBasePanel):
     """Used in non-sizer based designs as the 'background' panel
     in which all controls are created.
     """
+
     def afterInit(self):
         self.IsContainer = True
-#         self.bindEvent(dEvents.KeyChar, self.Form.onKeyChar)
 
+    #         self.bindEvent(dEvents.KeyChar, self.Form.onKeyChar)
 
     def setMouseHandling(self, turnOn):
         """When turnOn is True, sets all the mouse event bindings. When
@@ -2095,7 +2438,6 @@ class NoSizerBasePanel(LayoutBasePanel):
         else:
             self.unbindEvent(dEvents.MouseMove)
 
-
     def handleMouseMove(self, evt):
         if evt.dragging:
             # Need to change the cursor
@@ -2104,26 +2446,21 @@ class NoSizerBasePanel(LayoutBasePanel):
         else:
             self.Form.DragObject = None
 
-
     def onMouseLeftUp(self, evt):
         self.Form.processLeftUp(self, evt)
         evt.stop()
-
 
     def onMouseLeftDown(self, evt):
         self.Form.processLeftDown(self, evt)
         evt.stop()
 
-
     def onMouseLeftDoubleClick(self, evt):
         self.Form.processLeftDoubleClick(evt)
-
 
     def onContextMenu(self, evt):
         pop = self.createContextMenu()
         dabo.ui.callAfter(self.showContextMenu, pop)
         evt.stop()
-
 
     def createContextMenu(self):
         pop = self.Controller.getControlMenu(self)
@@ -2131,30 +2468,32 @@ class NoSizerBasePanel(LayoutBasePanel):
             pop.prependSeparator()
             pop.prepend(_("Paste"), OnHit=self.onPaste)
         pop.appendSeparator()
-        pop.append(_("Add Controls from Data Environment"),
-                OnHit=self.Form.onRunLayoutWiz)
+        pop.append(
+            _("Add Controls from Data Environment"), OnHit=self.Form.onRunLayoutWiz
+        )
         return pop
-
 
     def onPaste(self, evt):
         self.Controller.pasteObject(self)
 
-
     def _getDesEvents(self):
         return []
 
-
     def _getChildren(self):
-        ret = [ch for ch in self.GetChildren()
-                if not isinstance(ch, DragHandle)]
+        ret = [ch for ch in self.GetChildren() if not isinstance(ch, DragHandle)]
         return ret
 
+    Children = property(
+        _getChildren, None, None, _("Includes all relevant child objects  (list)")
+    )
 
-    Children = property(_getChildren, None, None,
-            _("Includes all relevant child objects  (list)"))
-
-    DesignerEvents = property(_getDesEvents, None, None,
-            _("""Returns a list of the most common events for the control.
+    DesignerEvents = property(
+        _getDesEvents,
+        None,
+        None,
+        _(
+            """Returns a list of the most common events for the control.
             This will determine which events are displayed in the PropSheet
-            for the developer to attach code to.  (list)""") )
-
+            for the developer to attach code to.  (list)"""
+        ),
+    )

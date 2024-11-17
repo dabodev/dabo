@@ -5,19 +5,19 @@ from .dBackend import dBackend
 from dabo.lib.utils import ustr
 
 
-
 class MSSQL(dBackend):
     """Class providing Microsoft SQL Server connectivity. Uses pymssql."""
+
     def __init__(self):
         dBackend.__init__(self)
-        #- jfcs 11/06/06 first try getting Microsoft SQL 2000 server working
+        # - jfcs 11/06/06 first try getting Microsoft SQL 2000 server working
         # MSSQL requires the installation of FreeTDS.  FreeTDS can be downloaded from
         # http://www.freetds.org/
         self.dbModuleName = "pymssql"
         self.useTransactions = True  # this does not appear to be required
         import pymssql
-        self.dbapi = pymssql
 
+        self.dbapi = pymssql
 
     def getConnection(self, connectInfo, forceCreate=False, **kwargs):
         """
@@ -39,22 +39,24 @@ class MSSQL(dBackend):
         if "charset" not in kwargs and self.dbapi.__version__ >= "2.0.0":
             kwargs["charset"] = self.Encoding
 
-        self._connection = self.dbapi.connect(host=host, user=user, password=password,
-                database=database, **kwargs)
+        self._connection = self.dbapi.connect(
+            host=host, user=user, password=password, database=database, **kwargs
+        )
         return self._connection
-
 
     def getDictCursorClass(self):
         """Since there are two versions of driver package we support both,
         deprecated and new one.
         """
         if self.dbapi.__version__ >= "2.0.0":
+
             class ConCursor(self.dbapi.Cursor):
                 def __init__(self, *args, **kwargs):
                     # pymssql requires an additional param to be passed
                     # to its __init__() method
                     kwargs["as_dict"] = True
                     super(ConCursor, self).__init__(*args, **kwargs)
+
                 def fetchall(self):
                     # In dictionary mode both column numbers and names are used
                     # as keys. We need to filter them and leave name based keys only.
@@ -63,36 +65,38 @@ class MSSQL(dBackend):
                         for key in range(len(row) / 2):
                             row.pop(key, None)
                     return rows
+
         else:
+
             class ConCursor(self.dbapi.pymssqlCursor):
                 def __init__(self, *args, **kwargs):
                     # pymssql requires an additional param to be passed
                     # to its __init__() method
                     kwargs["as_dict"] = True
                     super(ConCursor, self).__init__(*args, **kwargs)
+
                 if not hasattr(self.dbapi.pymssqlCursor, "connection"):
+
                     def _getconn(self):
                         return self._source
+
                     # pymssql doesn't supply this optional dbapi attribute, so create it here.
                     connection = property(_getconn, None, None)
 
         return ConCursor
 
-
     def escQuote(self, val):
         # escape backslashes and single quotes, and
         # wrap the result in single quotes
         sl = "\\"
-        qt = "\'"
+        qt = "'"
         return qt + val.replace(sl, sl + sl).replace(qt, sl + qt) + qt
-
 
     def formatDateTime(self, val):
         """We need to wrap the value in quotes."""
-        sqt = "'"        # single quote
+        sqt = "'"  # single quote
         val = ustr(val)
         return "%s%s%s" % (sqt, val, sqt)
-
 
     def getTables(self, cursor, includeSystemTables=False):
         # jfcs 11/01/06 assumed public schema
@@ -108,7 +112,7 @@ select table_schema + '.' + table_name AS table_name
    and table_type IN ('BASE TABLE', 'VIEW')
  order by 1 """
 
-        cursor.execute(sql % {'db':dbName})
+        cursor.execute(sql % {"db": dbName})
 
         rs = cursor.getDataSet()
         tables = [x["table_name"] for x in rs]
@@ -116,11 +120,9 @@ select table_schema + '.' + table_name AS table_name
 
         return tables
 
-
     def getTableRecordCount(self, tableName, cursor):
         cursor.execute("select count(*) as ncount from '%(tablename)'" % tableName)
         return cursor.getDataSet()[0]["ncount"]
-
 
     def _fieldTypeNativeToDabo(self, nativeType):
         """
@@ -135,56 +137,56 @@ select table_schema + '.' + table_name AS table_name
 
         try:
             ret = {
-            "BINARY": "I",
-            "BIT": "I",
-            "BIGINT": "G",
-            "BLOB": "M",
-            "CHAR": "C",
-            "DATE": "D",
-            "DATETIME": "T",
-            "DATETIME2": "T",
-            "DECIMAL": "N",
-            "DOUBLE": "G", ## G maps to Long (INT), but this could be wrong if it is supposed to be a double float.
-            "ENUM": "C",
-            "FLOAT": "F",
-            "GEOMETRY": "?",
-            "INT": "I",
-            "IMAGE": "?",
-            "INTERVAL": "?",
-            "LONG": "G",
-            "LONGBLOB": "M",
-            "LONGTEXT": "M",
-            "MEDIUMBLOB": "M",
-            "MEDIUMINT": "I",
-            "MEDIUMTEXT": "M",
-            "MONEY": "F",
-            "NEWDATE": "?",
-            "NCHAR": "C",
-            "NTEXT": "M",
-            "NUMERIC": "N",
-            "NVARCHAR": "C",
-            "NULL": "?",
-            "SET": "?",
-            "SHORT": "I",
-            "SMALLINT": "I",
-            "STRING": "C",
-            "TEXT": "M",
-            "TIME": "?",
-            "TIMESTAMP": "T",
-            "TINY": "I",
-            "TINYINT": "I",
-            "TINYBLOB": "M",
-            "TINYTEXT": "M",
-            "UNIQUEIDENTIFIER": "?",
-            "VARBINARY": "I",
-            "VARCHAR": "C",
-            "VAR_STRING": "C",
-            "YEAR": "?"}[nativeType.upper()]
+                "BINARY": "I",
+                "BIT": "I",
+                "BIGINT": "G",
+                "BLOB": "M",
+                "CHAR": "C",
+                "DATE": "D",
+                "DATETIME": "T",
+                "DATETIME2": "T",
+                "DECIMAL": "N",
+                "DOUBLE": "G",  ## G maps to Long (INT), but this could be wrong if it is supposed to be a double float.
+                "ENUM": "C",
+                "FLOAT": "F",
+                "GEOMETRY": "?",
+                "INT": "I",
+                "IMAGE": "?",
+                "INTERVAL": "?",
+                "LONG": "G",
+                "LONGBLOB": "M",
+                "LONGTEXT": "M",
+                "MEDIUMBLOB": "M",
+                "MEDIUMINT": "I",
+                "MEDIUMTEXT": "M",
+                "MONEY": "F",
+                "NEWDATE": "?",
+                "NCHAR": "C",
+                "NTEXT": "M",
+                "NUMERIC": "N",
+                "NVARCHAR": "C",
+                "NULL": "?",
+                "SET": "?",
+                "SHORT": "I",
+                "SMALLINT": "I",
+                "STRING": "C",
+                "TEXT": "M",
+                "TIME": "?",
+                "TIMESTAMP": "T",
+                "TINY": "I",
+                "TINYINT": "I",
+                "TINYBLOB": "M",
+                "TINYTEXT": "M",
+                "UNIQUEIDENTIFIER": "?",
+                "VARBINARY": "I",
+                "VARCHAR": "C",
+                "VAR_STRING": "C",
+                "YEAR": "?",
+            }[nativeType.upper()]
         except KeyError:
-            print('KeyError:', nativeType)
-            ret = '?'
+            print("KeyError:", nativeType)
+            ret = "?"
         return ret
-
 
     def getFields(self, tableName, cursor):
         """
@@ -235,7 +237,6 @@ select kc.COLUMN_NAME from INFORMATION_SCHEMA.KEY_COLUMN_USAGE as kc
 
         return tuple(fields)
 
-
     def noResultsOnSave(self):
         """
         Most backends will return a non-zero number if there are updates.
@@ -243,32 +244,42 @@ select kc.COLUMN_NAME from INFORMATION_SCHEMA.KEY_COLUMN_USAGE as kc
         """
         return
 
-
     def noResultsOnDelete(self):
         """
         Most backends will return a non-zero number if there are deletions.
         Some do not, so this will have to be customized in those cases.
         """
-        #raise dException.dException(_("No records deleted"))
+        # raise dException.dException(_("No records deleted"))
         return
-
 
     def flush(self, cursor):
         self.commitTransaction(cursor)
 
-
     def getLimitWord(self):
         return "TOP"
 
-
-    def formSQL(self, fieldClause, fromClause, joinClause,
-                whereClause, groupByClause, orderByClause, limitClause):
+    def formSQL(
+        self,
+        fieldClause,
+        fromClause,
+        joinClause,
+        whereClause,
+        groupByClause,
+        orderByClause,
+        limitClause,
+    ):
         """MS SQL wants the limit clause before the field clause."""
-        clauses = (limitClause, fieldClause, fromClause, joinClause,
-                whereClause, groupByClause, orderByClause)
+        clauses = (
+            limitClause,
+            fieldClause,
+            fromClause,
+            joinClause,
+            whereClause,
+            groupByClause,
+            orderByClause,
+        )
         sql = "SELECT " + "\n".join([clause for clause in clauses if clause])
         return sql
-
 
     def getLastInsertID(self, cursor):
         """
@@ -287,7 +298,6 @@ select kc.COLUMN_NAME from INFORMATION_SCHEMA.KEY_COLUMN_USAGE as kc
         if "Decimal" in str(type(idVal)):
             idVal = int(idVal)
         return idVal
-
 
     def beginTransaction(self, cursor):
         pass

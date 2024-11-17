@@ -33,13 +33,15 @@ class ContentBoxSizerPanel(dPanel):
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("HAlign"))
-        ctl = dDropdownList(self, DataField="Sizer_HAlign",
-                Choices=["Left", "Right", "Center"])
+        ctl = dDropdownList(
+            self, DataField="Sizer_HAlign", Choices=["Left", "Right", "Center"]
+        )
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("VAlign"))
-        ctl = dDropdownList(self, DataField="Sizer_VAlign",
-                Choices=["Top", "Bottom", "Middle"])
+        ctl = dDropdownList(
+            self, DataField="Sizer_VAlign", Choices=["Top", "Bottom", "Middle"]
+        )
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("Spacing"))
@@ -49,8 +51,7 @@ class ContentBoxSizerPanel(dPanel):
         sz.append(ctl)
 
         self.Sizer = dSizer("v")
-        self.Sizer.append1x(sz, border=20,
-                borderSides=("left", "right", "bottom"))
+        self.Sizer.append1x(sz, border=20, borderSides=("left", "right", "bottom"))
         self.Sizer.appendSpacer(20)
 
     def checkIfSpacer(self):
@@ -89,13 +90,15 @@ class ContentGridSizerPanel(dPanel):
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("HAlign"))
-        ctl = dDropdownList(self, DataField="Sizer_HAlign",
-                Choices=["Left", "Right", "Center"])
+        ctl = dDropdownList(
+            self, DataField="Sizer_HAlign", Choices=["Left", "Right", "Center"]
+        )
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("VAlign"))
-        ctl = dDropdownList(self, DataField="Sizer_VAlign",
-                Choices=["Top", "Bottom", "Middle"])
+        ctl = dDropdownList(
+            self, DataField="Sizer_VAlign", Choices=["Top", "Bottom", "Middle"]
+        )
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("Spacing"))
@@ -105,8 +108,7 @@ class ContentGridSizerPanel(dPanel):
         sz.append(ctl)
 
         self.Sizer = dSizer("v")
-        self.Sizer.append1x(sz, border=20,
-                borderSides=("left", "right", "bottom"))
+        self.Sizer.append1x(sz, border=20, borderSides=("left", "right", "bottom"))
         self.Sizer.appendSpacer(20)
 
     def checkIfSpacer(self):
@@ -117,8 +119,9 @@ class BoxSizerSelfPanel(dPanel):
     def afterInit(self):
         sz = dGridSizer(VGap=5, HGap=8, MaxCols=2)
         lbl = dLabel(self, Caption=_("Orientation"))
-        ctl = dDropdownList(self, DataField="Orientation",
-                Choices=["Horizontal", "Vertical"])
+        ctl = dDropdownList(
+            self, DataField="Orientation", Choices=["Horizontal", "Vertical"]
+        )
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("SlotCount"))
@@ -147,8 +150,7 @@ class BoxSizerSelfPanel(dPanel):
         sz.append(ctl)
 
         self.Sizer = dSizer("v")
-        self.Sizer.append1x(sz, border=20,
-                borderSides=("left", "right", "bottom"))
+        self.Sizer.append1x(sz, border=20, borderSides=("left", "right", "bottom"))
         self.Sizer.appendSpacer(20)
 
 
@@ -172,20 +174,21 @@ class GridSizerSelfPanel(dPanel):
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("MaxDimension"))
-        ctl = dDropdownList(self, DataField="MaxDimension",
-                Choices=["C", "R"], Value="C")
+        ctl = dDropdownList(
+            self, DataField="MaxDimension", Choices=["C", "R"], Value="C"
+        )
         sz.append(lbl, halign="right")
         sz.append(ctl)
 
         self.Sizer = dSizer("v")
-        self.Sizer.append1x(sz, border=20,
-                borderSides=("left", "right", "bottom"))
+        self.Sizer.append1x(sz, border=20, borderSides=("left", "right", "bottom"))
         self.Sizer.appendSpacer(20)
 
 
 class SizerInfoFrame(dPageFrameNoTabs):
     boxClass = dPanel
     gridClass = dPanel
+
     def afterInit(self):
         self.blankPage = self.appendPage(dPanel)
         self.blankPage.Sizer = dSizer("v")
@@ -198,8 +201,8 @@ class SizerInfoFrame(dPageFrameNoTabs):
         try:
             if pg is not self.blankPage:
                 dabo.ui.callAfter(pg.fitToSizer)
-#                 w, h = pg.Size
-#                 self.Size = (w+40, h+40)
+        #                 w, h = pg.Size
+        #                 self.Size = (w+40, h+40)
         except AttributeError:
             # blankPage hasn't been created yet
             pass
@@ -221,10 +224,10 @@ class SizerContentFrame(SizerInfoFrame):
         else:
             self.SelectedPage = self.boxPage
 
-        self.Visible = (obj is not None)
+        self.Visible = obj is not None
         self.update()
         self.SelectedPage.setAll("DataSource", obj, filt="Enabled is True")
-        #dabo.ui.callAfterInterval(100, self.layout)
+        # dabo.ui.callAfterInterval(100, self.layout)
         self.layout()
 
 
@@ -239,8 +242,7 @@ class SizerSelfFrame(SizerInfoFrame):
             self.SelectedPage = self.boxPage
         else:
             self.SelectedPage = self.blankPage
-        self.Visible = isinstance(obj, (dGridSizer, dSizer,
-                dBorderSizer))
+        self.Visible = isinstance(obj, (dGridSizer, dSizer, dBorderSizer))
         self.SelectedPage.setAll("DataSource", obj, filt="Enabled is True")
         self.update()
         self.layout()
@@ -300,8 +302,8 @@ class SizerPaletteForm(dToolForm):
         self.contentFrame = scpnl.pgf
         sspnl = SizerSelfPanel(mp)
         self.sizerFrame = sspnl.pgf
-        sz.append(scpnl,  border=10)
-        sz.append(sspnl,  border=10)
+        sz.append(scpnl, border=10)
+        sz.append(sspnl, border=10)
         self.layout()
 
     def select(self, objs):
@@ -324,6 +326,7 @@ class SizerPaletteForm(dToolForm):
         if self.inFitToSizer:
             return
         dabo.ui.callAfterInterval(100, self._delayedLayout)
+
     def _delayedLayout(self):
         self.lockDisplay()
         super(SizerPaletteForm, self).layout()
@@ -346,6 +349,9 @@ class SizerPaletteForm(dToolForm):
         else:
             self._properties["Controller"] = val
 
-    Controller = property(_getController, _setController, None,
-            _("Object to which this one reports events  (object (varies))"))
-
+    Controller = property(
+        _getController,
+        _setController,
+        None,
+        _("Object to which this one reports events  (object (varies))"),
+    )

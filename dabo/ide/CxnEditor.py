@@ -4,8 +4,9 @@ import sys
 import os
 import copy
 import dabo
-#import dabo.ui as dui
-#import dabo.dEvents as dEvents
+
+# import dabo.ui as dui
+# import dabo.dEvents as dEvents
 import dabo.dConstants as k
 from dabo.dApp import dApp
 from dabo.dLocalize import _
@@ -24,11 +25,11 @@ from dabo.ui import dTextBox
 from . import HomeDirectoryStatusBar
 
 
-
 def flushValues(fnc):
     def _wrapped(self, *args, **kwargs):
         self.updtFromForm()
         return fnc(self, *args, **kwargs)
+
     return _wrapped
 
 
@@ -36,23 +37,31 @@ class EditorForm(dForm):
     def afterSetMenuBar(self):
         self.createMenu()
 
-
     def beforeInit(self):
         self.StatusBarClass = HomeDirectoryStatusBar
-
 
     def afterInit(self):
         self.Size = (600, 400)
         self.newFileName = "Untitled"
         self.fileExtension = "cnxml"
-        self.defDbPorts = {"MySQL" : 3306,
-                "Firebird" : 3050,
-                "PostgreSQL" : 5432,
-                "MsSQL" : 1433,
-                "SQLite" : None }
+        self.defDbPorts = {
+            "MySQL": 3306,
+            "Firebird": 3050,
+            "PostgreSQL": 5432,
+            "MsSQL": 1433,
+            "SQLite": None,
+        }
         self.connDict = {}
         self._origConnDict = {}
-        self.connKeys = ["name", "host", "dbtype", "port", "database", "user", "password"]
+        self.connKeys = [
+            "name",
+            "host",
+            "dbtype",
+            "port",
+            "database",
+            "user",
+            "password",
+        ]
         self.currentConn = self._defaultConnName()
         # Make sure that they are defined as form attributes
         for ck in self.connKeys:
@@ -66,20 +75,19 @@ class EditorForm(dForm):
         # temp hack to be polymorphic with dEditor (dIDE):
         self.editor = self
 
-
     def createMenu(self):
         mb = self.MenuBar
         fm = mb.getMenu("base_file")
-        fm.prepend(_("Open Connection File..."),
-                HotKey="Ctrl+O",
-                OnHit=self.onOpenFile,
-                ItemID="file_open",
-                help=_("Open an existing connection file"))
-
+        fm.prepend(
+            _("Open Connection File..."),
+            HotKey="Ctrl+O",
+            OnHit=self.onOpenFile,
+            ItemID="file_open",
+            help=_("Open an existing connection file"),
+        )
 
     def onOpenFile(self, evt):
         self.openFile()
-
 
     def createControls(self):
         self.Caption = _("Connection Editor")
@@ -89,19 +97,27 @@ class EditorForm(dForm):
         # Add the fields
         # Connection Dropdown
         cap = dLabel(self.bg, Caption=_("Connection"))
-        ctl = dDropdownList(self.bg, Choices=list(self.connDict.keys()),
-                RegID="connectionSelector",
-                OnHit=self.onConnectionChange)
-        btn = dButton(self.bg, Caption=_("Edit Name"), RegID="cxnEdit",
-                OnHit=self.onCxnEdit)
+        ctl = dDropdownList(
+            self.bg,
+            Choices=list(self.connDict.keys()),
+            RegID="connectionSelector",
+            OnHit=self.onConnectionChange,
+        )
+        btn = dButton(
+            self.bg, Caption=_("Edit Name"), RegID="cxnEdit", OnHit=self.onCxnEdit
+        )
         hsz = dSizer("h")
         hsz.append(ctl)
         hsz.appendSpacer(10)
         hsz.append(btn)
 
-        btn = dButton(self.bg, Caption=_("Delete This Connection"), RegID="cxnDelete",
-                DynamicEnabled=self.hasMultipleConnections,
-                OnHit=self.onCxnDelete)
+        btn = dButton(
+            self.bg,
+            Caption=_("Delete This Connection"),
+            RegID="cxnDelete",
+            DynamicEnabled=self.hasMultipleConnections,
+            OnHit=self.onCxnDelete,
+        )
         hsz.appendSpacer(10)
         hsz.append(btn)
 
@@ -110,10 +126,14 @@ class EditorForm(dForm):
 
         # Backend Type
         cap = dLabel(self.bg, Caption=_("Database Type"))
-        ctl = dDropdownList(self.bg, RegID="DbType",
-                Choices=["MySQL", "Firebird", "PostgreSQL", "MsSQL", "SQLite"],
-                DataSource="form", DataField="dbtype",
-                OnHit=self.onDbTypeChanged)
+        ctl = dDropdownList(
+            self.bg,
+            RegID="DbType",
+            Choices=["MySQL", "Firebird", "PostgreSQL", "MsSQL", "SQLite"],
+            DataSource="form",
+            DataField="dbtype",
+            OnHit=self.onDbTypeChanged,
+        )
         gbsz.append(cap, halign="right")
         gbsz.append(ctl)
         self.dbTypeSelector = ctl
@@ -136,8 +156,13 @@ class EditorForm(dForm):
         cap = dLabel(self.bg, Caption=_("Database"))
         ctl = dTextBox(self.bg, DataSource="form", DataField="database")
         hsz = dSizer("h")
-        self.btnDbSelect = dButton(self.bg, Caption=" ... ", RegID="btnDbSelect",
-                Visible=False, OnHit=self.onDbSelect)
+        self.btnDbSelect = dButton(
+            self.bg,
+            Caption=" ... ",
+            RegID="btnDbSelect",
+            Visible=False,
+            OnHit=self.onDbSelect,
+        )
         hsz.append1x(ctl)
         hsz.appendSpacer(2)
         hsz.append(self.btnDbSelect, 0, "x")
@@ -154,8 +179,9 @@ class EditorForm(dForm):
 
         # Password
         cap = dLabel(self.bg, Caption=_("Password"))
-        ctl = dTextBox(self.bg, PasswordEntry=True,
-                DataSource="form", DataField="password")
+        ctl = dTextBox(
+            self.bg, PasswordEntry=True, DataSource="form", DataField="password"
+        )
         gbsz.append(cap, halign="right")
         gbsz.append(ctl, "expand")
         self.pwText = ctl
@@ -163,19 +189,24 @@ class EditorForm(dForm):
         # Open Button
         btnSizer1 = dSizer("h")
         btnSizer2 = dSizer("h")
-        btnTest = dButton(self.bg, RegID="btnTest", Caption=_("Test..."),
-                OnHit=self.onTest)
-        btnSave = dButton(self.bg, RegID="btnSave", Caption=_("Save"),
-                OnHit=self.onSave)
-        btnNewConn = dButton(self.bg, RegID="btnNewConn",
-                Caption=_("New Connection"),
-                OnHit=self.onNewConn)
-        btnNewFile = dButton(self.bg, RegID="btnNewFile",
-                Caption=_("New File"),
-                OnHit=self.onNewFile)
-        btnOpen = dButton(self.bg, RegID="btnOpen",
-                Caption=_("Open File..."),
-                OnHit=self.onOpen)
+        btnTest = dButton(
+            self.bg, RegID="btnTest", Caption=_("Test..."), OnHit=self.onTest
+        )
+        btnSave = dButton(
+            self.bg, RegID="btnSave", Caption=_("Save"), OnHit=self.onSave
+        )
+        btnNewConn = dButton(
+            self.bg,
+            RegID="btnNewConn",
+            Caption=_("New Connection"),
+            OnHit=self.onNewConn,
+        )
+        btnNewFile = dButton(
+            self.bg, RegID="btnNewFile", Caption=_("New File"), OnHit=self.onNewFile
+        )
+        btnOpen = dButton(
+            self.bg, RegID="btnOpen", Caption=_("Open File..."), OnHit=self.onOpen
+        )
         btnSizer1.append(btnTest, 0, border=3)
         btnSizer1.append(btnSave, 0, border=3)
         btnSizer2.append(btnNewConn, 0, border=3)
@@ -191,26 +222,29 @@ class EditorForm(dForm):
         # Only create the 'Set Crypto Key' button if PyCrypto is installed
         try:
             from Crypto.Cipher import DES3 as _TEST_DES3
+
             self._showKeyButton = True
             del _TEST_DES3
         except ImportError:
             self._showKeyButton = False
         if self._showKeyButton:
-            self.cryptoKeyButton = dButton(self.bg, Caption=_("Set Crypto Key"),
-                    OnHit=self.onSetCrypto)
+            self.cryptoKeyButton = dButton(
+                self.bg, Caption=_("Set Crypto Key"), OnHit=self.onSetCrypto
+            )
             btnSizer1.append(self.cryptoKeyButton, 0, border=3)
         self.Sizer = dSizer("h")
         self.Sizer.append(self.bg, 1, "expand", halign="center")
         self.Layout()
 
-
     def hasMultipleConnections(self):
         return len(self.connDict) > 1
 
-
     def onCxnDelete(self, evt):
-        if not dabo.ui.areYouSure(_("Delete this connection?"),
-                title=_("Confirm Deletion"), cancelButton=False):
+        if not dabo.ui.areYouSure(
+            _("Delete this connection?"),
+            title=_("Confirm Deletion"),
+            cancelButton=False,
+        ):
             return
         cs = self.connectionSelector
         delkey = cs.StringValue
@@ -223,13 +257,15 @@ class EditorForm(dForm):
         self.updtToForm()
         self.update()
 
-
     def onCxnEdit(self, evt):
         chc = self.connectionSelector.Choices
         idx = self.connectionSelector.PositionValue
         orig = chc[idx]
-        new = dabo.ui.getString(_("Enter the name for the connection"),
-                caption=_("Connection Name"), defaultValue=orig)
+        new = dabo.ui.getString(
+            _("Enter the name for the connection"),
+            caption=_("Connection Name"),
+            defaultValue=orig,
+        )
         if new is not None:
             if new != orig:
                 chc[idx] = new
@@ -243,29 +279,27 @@ class EditorForm(dForm):
                 self.name = new
             self.connectionSelector.PositionValue = idx
 
-
     def onSetCrypto(self, evt):
         key = self._askForKey()
         if key:
             self.Application.CryptoKey = key
             self.updtFromForm()
 
-
     def _askForKey(self):
-        ret = dabo.ui.getString(_("Enter the cryptographic key for your application"),
-                caption=_("Crypto Key"), Width=240)
+        ret = dabo.ui.getString(
+            _("Enter the cryptographic key for your application"),
+            caption=_("Crypto Key"),
+            Width=240,
+        )
         return ret
-
 
     def onTest(self, evt):
         self.testConnection()
-
 
     @flushValues
     def onOpen(self, evt):
         # Now open the file
         self.openFile()
-
 
     @flushValues
     def onNewFile(self, evt):
@@ -274,16 +308,13 @@ class EditorForm(dForm):
             return
         self.newFile()
 
-
     @flushValues
     def onNewConn(self, evt):
         # Create the new connection
         self.newConnection()
 
-
     def onSave(self, evt):
         self.saveFile()
-
 
     @flushValues
     def onDbTypeChanged(self, evt):
@@ -294,10 +325,8 @@ class EditorForm(dForm):
             self.port = self.defDbPorts[self.dbtype]
         self.update()
 
-
     def isFileBasedBackend(self, dbtype):
-        return dbtype in ("SQLite", )
-
+        return dbtype in ("SQLite",)
 
     def enableControls(self):
         dbt = self.dbtype
@@ -311,13 +340,11 @@ class EditorForm(dForm):
             self.dbText.setFocus()
         self.layout()
 
-
     def onDbSelect(self, evt):
         dbFile = dabo.ui.getFile()
         if dbFile:
             self.database = dbFile
         self.update()
-
 
     @flushValues
     def testConnection(self):
@@ -338,9 +365,8 @@ class EditorForm(dForm):
             mbTitle += _(": FAILED!")
         mb(message=msg, title=mbTitle)
 
-
     def updtFromForm(self):
-        """ Grab the current values from the form, and update
+        """Grab the current values from the form, and update
         the connection dictionary with them.
         """
         # Make sure that changes to the current control are used.
@@ -364,9 +390,8 @@ class EditorForm(dForm):
                 else:
                     dd[fld] = val
 
-
     def updtToForm(self):
-        """ Populate the current values from the connection
+        """Populate the current values from the connection
         dictionary.
         """
         if self.currentConn is not None:
@@ -385,7 +410,6 @@ class EditorForm(dForm):
                             val = ""
                 setattr(self, fld, val)
 
-
     def _getCryptoKey(self, crypted):
         # Give them a chance to set the CryptoKey
         val = ""
@@ -395,14 +419,11 @@ class EditorForm(dForm):
             val = self.Crypto.decrypt(crypted)
         setattr(self, "password", val)
 
-
     def _blankConnection(self):
         return dict.fromkeys(self.connKeys)
 
-
     def _defaultConnName(self):
         return "Connection_" + ustr(len(list(self.connDict.keys())) + 1)
-
 
     def newFile(self):
         self.connFile = self.newFileName
@@ -414,7 +435,6 @@ class EditorForm(dForm):
         # Fill the controls
         self.populate()
 
-
     @flushValues
     def newConnection(self):
         # Get the current dbtype
@@ -425,25 +445,23 @@ class EditorForm(dForm):
             currDbType = "MySQL"
         newName = self._defaultConnName()
         self.connDict[newName] = {
-                "dbtype" : currDbType,
-                "name" : newName,
-                "host" : "",
-                "database" : "",
-                "user" : "",
-                "password" : "",
-                "port" : self.defDbPorts[currDbType]
-                }
+            "dbtype": currDbType,
+            "name": newName,
+            "host": "",
+            "database": "",
+            "user": "",
+            "password": "",
+            "port": self.defDbPorts[currDbType],
+        }
         self.currentConn = newName
         self.connectionSelector.Choices = list(self.connDict.keys())
         self.populate()
-
 
     @flushValues
     def saveFile(self):
         if self._origConnDict != self.connDict:
             self.writeChanges()
             self._origConnDict = copy.deepcopy(self.connDict)
-
 
     def onConnectionChange(self, evt):
         newConn = self.connectionSelector.StringValue
@@ -453,9 +471,8 @@ class EditorForm(dForm):
             self.currentConn = newConn
             self.populate()
 
-
     def setFieldVal(self, fld, val):
-        """ This will get called when the control detects a changed value. We
+        """This will get called when the control detects a changed value. We
         need to update the current dict with the new value.
         """
         try:
@@ -468,7 +485,6 @@ class EditorForm(dForm):
         except Exception as e:
             print(_("Can't update:"), e)
 
-
     def populate(self):
         self.updtToForm()
         self.update()
@@ -477,7 +493,6 @@ class EditorForm(dForm):
         if conn not in cs.Choices:
             cs.Choices.append(conn)
         self.connectionSelector.Value = conn
-
 
     @flushValues
     def openFile(self, connFile=None):
@@ -489,12 +504,17 @@ class EditorForm(dForm):
         if self.connFile:
             # Make sure that the passed file exists!
             if not os.path.exists(self.connFile):
-                dabo.log.error(_("The connection file '%s' does not exist.") % self.connFile)
+                dabo.log.error(
+                    _("The connection file '%s' does not exist.") % self.connFile
+                )
                 self.connFile = None
 
         if self.connFile is None:
-            f = dabo.ui.getFile(self.fileExtension, message=_("Select a file..."),
-            defaultPath=os.getcwd() )
+            f = dabo.ui.getFile(
+                self.fileExtension,
+                message=_("Select a file..."),
+                defaultPath=os.getcwd(),
+            )
             if f is not None:
                 self.connFile = f
 
@@ -509,7 +529,9 @@ class EditorForm(dForm):
             # Set the current connection
             self.currentConn = list(self.connDict.keys())[0]
             # Set the form caption
-            self.Caption = _("Dabo Connection Editor: %s") % os.path.basename(self.connFile)
+            self.Caption = _("Dabo Connection Editor: %s") % os.path.basename(
+                self.connFile
+            )
             # Fill the controls
             self._opening = True
             self.populate()
@@ -521,27 +543,27 @@ class EditorForm(dForm):
         else:
             return False
 
-
     @flushValues
     def confirmChanges(self):
         if self._origConnDict != self.connDict:
             # Could be relative path differences
             self.relPaths(list(self.connDict.values()))
         if self._origConnDict != self.connDict:
-            response = dabo.ui.areYouSure(_("Do you wish to save your changes?"),
-                    cancelButton=True)
+            response = dabo.ui.areYouSure(
+                _("Do you wish to save your changes?"), cancelButton=True
+            )
             if response is None:
                 return False
             elif response:
                 self.writeChanges()
         return True
 
-
     def writeChanges(self):
         if self.connFile == self.newFileName:
             # Ask for a file name
-            pth = dabo.ui.getSaveAs(message=_("Save File As..."),
-                    wildcard=self.fileExtension)
+            pth = dabo.ui.getSaveAs(
+                message=_("Save File As..."), wildcard=self.fileExtension
+            )
             if pth is None:
                 return
             else:
@@ -568,15 +590,15 @@ class EditorForm(dForm):
             ff.write(xml)
         dabo.ui.callAfter(self.bringToFront)
 
-
     def relPaths(self, vals):
         for val in vals:
             if self.isFileBasedBackend(val["dbtype"]):
                 db = val["database"]
                 if os.path.exists(db):
-                    val["database"] = utils.relativePath(db, self.Application.HomeDirectory)
+                    val["database"] = utils.relativePath(
+                        db, self.Application.HomeDirectory
+                    )
         return vals
-
 
     def _getCrypto(self):
         try:
@@ -584,9 +606,14 @@ class EditorForm(dForm):
         except:
             pass
 
-
-    Crypto = property(_getCrypto, None, None,
-            _("A reference to the application-supplied encryption object (dabo.lib.SimpleCrypt)"))
+    Crypto = property(
+        _getCrypto,
+        None,
+        None,
+        _(
+            "A reference to the application-supplied encryption object (dabo.lib.SimpleCrypt)"
+        ),
+    )
 
 
 def run_editor(filepaths=None):

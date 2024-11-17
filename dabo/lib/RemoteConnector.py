@@ -21,11 +21,11 @@ from dabo.lib.utils import ustr
 from dabo.lib.manifest import Manifest
 
 
-
 class RemoteConnector(object):
     """This class handles all of the methods that will need to be carried out on
     the server instead of locally.
     """
+
     def __init__(self, obj):
         self.obj = obj
         self._baseURL = None
@@ -34,23 +34,21 @@ class RemoteConnector(object):
         appDir = dabo.lib.utils.getUserAppDataDirectory()
         self._dataDir = pathjoin(appDir, "webapps")
 
-
     def _join(self, pth):
         """Joins the path to the class's UrlBase to create a new URL."""
         return pathjoin(self.UrlBase, pth).replace(os.sep, "/")
 
-
     def _getFullUrl(self, mthd, *args):
         hashstr = "%s" % hash(self.obj)
-        ret = pathjoin(self.UrlBase, "bizservers", "biz", hashstr, self.obj.DataSource, mthd, *args)
+        ret = pathjoin(
+            self.UrlBase, "bizservers", "biz", hashstr, self.obj.DataSource, mthd, *args
+        )
         ret = ret.replace(os.sep, "/")
         return ret
-
 
     def _getManifestUrl(self, *args):
         ret = pathjoin(self.UrlBase, "manifest", *args).replace(os.sep, "/")
         return ret
-
 
     def _read(self, url, params=None, reRaise=False):
         if params:
@@ -67,9 +65,9 @@ class RemoteConnector(object):
         ret = res.read()
         return ret
 
-
     def _storeEncodedDataSet(self, enc):
         pdata, ptyps, pstru = json.loads(enc)
+
         # The values are pickled, so we need to unpickle them first
         def safeLoad(val):
             try:
@@ -84,11 +82,11 @@ class RemoteConnector(object):
                 else:
                     raise
             return ret
+
         typs = safeLoad(ptyps)
         data = safeLoad(pdata)
         stru = safeLoad(pstru)
         self.obj._storeData(data, typs, stru)
-
 
     def requery(self):
         biz = self.obj
@@ -100,7 +98,12 @@ class RemoteConnector(object):
         sql = re.sub(r"\n *", " ", sql)
         sql = re.sub(r" += +", " = ", sql)
         sqlparams = ustr(biz.getParams())
-        params = {"SQL": sql, "SQLParams": sqlparams, "KeyField": biz.KeyField, "_method": "GET"}
+        params = {
+            "SQL": sql,
+            "SQLParams": sqlparams,
+            "KeyField": biz.KeyField,
+            "_method": "GET",
+        }
         prm = urllib.parse.urlencode(params)
         try:
             res = self.UrlOpener.open(url, data=prm)
@@ -109,7 +112,6 @@ class RemoteConnector(object):
             return
         encdata = res.read()
         self._storeEncodedDataSet(encdata)
-
 
     def save(self, startTransaction=False, allRows=False):
         biz = self.obj
@@ -138,10 +140,8 @@ class RemoteConnector(object):
             # store anything; passing None will just  clear the mementos.
             self.obj._storeData(None, None, None)
 
-
     def saveAll(self, startTransaction=True):
         self.save(startTransaction=startTransaction, allRows=True)
-
 
     def delete(self):
         biz = self.obj
@@ -152,7 +152,6 @@ class RemoteConnector(object):
         encdata = res.read()
         self._storeEncodedDataSet(encdata)
 
-
     def deleteAll(self):
         biz = self.obj
         url = self._getFullUrl("deleteAll")
@@ -162,12 +161,12 @@ class RemoteConnector(object):
         encdata = res.read()
         self._storeEncodedDataSet(encdata)
 
-
     def launch(self, url):
         """Check with the server for available apps if no app name is passed.
         If an app name is passed, run it directly if it exists on the server.
         """
         from dabo import ui as dui
+
         # Just use the first 3 split parts.
         scheme, host, path = urllib.parse.urlsplit(url)[:3]
         path = path.lstrip("/")
@@ -200,6 +199,7 @@ class RemoteConnector(object):
             return path
         else:
             return res
+
         # We have a list of available apps. Let the user select one
         class AppPicker(dui.dOkCancelDialog):
             def addControls(self):
@@ -208,7 +208,9 @@ class RemoteConnector(object):
                 self.Height = 300
                 self.Caption = _("Select Application")
                 sz = self.Sizer
-                lbl = dui.dLabel(self, Caption=_("The server has the following app(s):"))
+                lbl = dui.dLabel(
+                    self, Caption=_("The server has the following app(s):")
+                )
                 lst = dui.dListBox(self, RegID="appList")
                 sz.DefaultBorder = 30
                 sz.DefaultBorderSides = ["left", "right"]
@@ -226,7 +228,6 @@ class RemoteConnector(object):
             path = dlg.appList.StringValue
         dlg.release()
         return path
-
 
     def syncFiles(self, path=None):
         app = self.obj
@@ -281,8 +282,7 @@ class RemoteConnector(object):
         with open(".serverManifest", "w") as ff:
             pickle.dump(serverMf, ff, pickle.HIGHEST_PROTOCOL)
         # Check the server manifest for deleted files
-        deleted = [pth for (pth, modf) in list(chgs.items())
-                if not modf]
+        deleted = [pth for (pth, modf) in list(chgs.items()) if not modf]
         for delpth in deleted:
             if delpth in baseMf:
                 # Only delete files if they originally came from the server
@@ -306,38 +306,34 @@ class RemoteConnector(object):
                 with open(pth, "wb") as ff:
                     ff.write(zip.read(pth))
                 os.utime(pth, (tm, tm))
-# NOT WORKING
-# TODO(edleafe): Try this with importlib
-# Need to find a way to handle re-importing .py files.
-#                 if pth.endswith(".py"):
-#                     # if this is a .py file, we want to try re-importing it
-#                     modulePath = os.path.split(pth)[0].replace(os.sep, ".")
-#                     thismod = os.path.splitext(pth)[0].replace(os.sep, ".")
-#                     if thismod:
-#                         print "THISMOD", thismod
-#                         sys.modules.pop(thismod, None)
-#                         __import__(thismod)
-#                     if modulePath:
-#                         modl = sys.modules.get(modulePath)
-#                         print "pth", modulePath, type(modulePath), "MOD", modl
-#                         if modl:
-#                             reload(modl)
+        # NOT WORKING
+        # TODO(edleafe): Try this with importlib
+        # Need to find a way to handle re-importing .py files.
+        #                 if pth.endswith(".py"):
+        #                     # if this is a .py file, we want to try re-importing it
+        #                     modulePath = os.path.split(pth)[0].replace(os.sep, ".")
+        #                     thismod = os.path.splitext(pth)[0].replace(os.sep, ".")
+        #                     if thismod:
+        #                         print "THISMOD", thismod
+        #                         sys.modules.pop(thismod, None)
+        #                         __import__(thismod)
+        #                     if modulePath:
+        #                         modl = sys.modules.get(modulePath)
+        #                         print "pth", modulePath, type(modulePath), "MOD", modl
+        #                         if modl:
+        #                             reload(modl)
         os.chdir(currdir)
         return homedir
 
-
     # These are not handled by the local bizobjs, so just return False
-    def beginTransaction(self): return False
-    def commitTransaction(self): return False
-    def rollbackTransaction(self): return False
+    def beginTransaction(self):
+        return False
 
+    def commitTransaction(self):
+        return False
 
-    def getFieldNames(self):
-        url = self._getFullUrl("fields")
-        enc = self._read(url)
-        flds = json.loads(enc)
-        return flds
-
+    def rollbackTransaction(self):
+        return False
 
     def getFieldNames(self):
         url = self._getFullUrl("fields")
@@ -345,10 +341,14 @@ class RemoteConnector(object):
         flds = json.loads(enc)
         return flds
 
+    def getFieldNames(self):
+        url = self._getFullUrl("fields")
+        enc = self._read(url)
+        flds = json.loads(enc)
+        return flds
 
     def _getConnection(self):
         return self.obj._getConnection()
-
 
     def _getPassword(self):
         try:
@@ -357,13 +357,11 @@ class RemoteConnector(object):
         except AttributeError:
             return ""
 
-
     def _getRemoteHost(self):
         try:
             return urllib.parse.urlparse(self.UrlBase)[1]
         except IndexError:
             return ""
-
 
     def _getUrlBase(self):
         if self._baseURL:
@@ -381,15 +379,15 @@ class RemoteConnector(object):
                 app.SourceURL = ret
         return ret
 
-
     def _getUrlOpener(self):
         if self._urlOpener is None:
             # Create an OpenerDirector with support for HTTP Digest Authentication...
             auth_handler = urllib.request.HTTPDigestAuthHandler()
-            auth_handler.add_password(None, self.RemoteHost, self.UserName, self.Password)
+            auth_handler.add_password(
+                None, self.RemoteHost, self.UserName, self.Password
+            )
             self._urlOpener = urllib.request.build_opener(auth_handler)
         return self._urlOpener
-
 
     def _getUserName(self):
         try:
@@ -397,21 +395,45 @@ class RemoteConnector(object):
         except AttributeError:
             return ""
 
+    Connection = property(
+        _getConnection,
+        None,
+        None,
+        _(
+            "Reference to the connection object for the bizobj being decorated  (dabo.db.dConnection)"
+        ),
+    )
 
-    Connection = property(_getConnection, None, None,
-            _("Reference to the connection object for the bizobj being decorated  (dabo.db.dConnection)"))
+    Password = property(
+        _getPassword,
+        None,
+        None,
+        _("Plain-text password for authentication on the remote server. (str)"),
+    )
 
-    Password = property(_getPassword, None, None,
-            _("Plain-text password for authentication on the remote server. (str)"))
+    RemoteHost = property(
+        _getRemoteHost,
+        None,
+        None,
+        _("Host to use as the remote server  (read-only) (str)"),
+    )
 
-    RemoteHost = property(_getRemoteHost, None, None,
-            _("Host to use as the remote server  (read-only) (str)"))
+    UrlBase = property(
+        _getUrlBase, None, None, _("URL for the remote server  (read-only) (str)")
+    )
 
-    UrlBase = property(_getUrlBase, None, None,
-            _("URL for the remote server  (read-only) (str)"))
+    UrlOpener = property(
+        _getUrlOpener,
+        None,
+        None,
+        _(
+            "Reference to the object that opens URLs and optionally authenticates.  (read-only) (urllib2.urlopener)"
+        ),
+    )
 
-    UrlOpener = property(_getUrlOpener, None, None,
-            _("Reference to the object that opens URLs and optionally authenticates.  (read-only) (urllib2.urlopener)"))
-
-    UserName = property(_getUserName, None, None,
-            _("Username for authentication on the remote server  (str)"))
+    UserName = property(
+        _getUserName,
+        None,
+        None,
+        _("Username for authentication on the remote server  (str)"),
+    )

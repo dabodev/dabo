@@ -15,7 +15,6 @@ class SplitterPanelMixin(object):
         if self.ShowSplitMenu:
             self.bindEvent(dEvents.ContextMenu, self._onMixinContextMenu)
 
-
     def _onMixinContextMenu(self, evt):
         if not self.Parent.ShowPanelSplitMenu:
             return
@@ -28,23 +27,18 @@ class SplitterPanelMixin(object):
             sm.append("Switch Orientation", OnHit=self.onFlipParent)
         self.showContextMenu(sm)
 
-
     def onSplit(self, evt):
         self.split()
 
-
     def onRemove(self, evt):
         self.remove()
-
 
     def onFlipParent(self, evt):
         ornt = self.Parent.Orientation
         self.Parent.Orientation = ("H", "V")[ornt.startswith("H")]
 
-
     def remove(self):
         self.Parent.remove(self)
-
 
     def split(self, dir_=None):
         if not self.Parent.IsSplit():
@@ -59,6 +53,7 @@ class SplitterPanelMixin(object):
             newDir = "h"
         if self.Sizer is None:
             from dabo.ui import dSizer
+
             self.Sizer = dSizer(newDir)
         if dir_ is None:
             dir_ = newDir
@@ -70,10 +65,8 @@ class SplitterPanelMixin(object):
         self.splitter = win
         self.layout()
 
-
     def unsplit(self, win=None):
         self.splitter.unsplit(win)
-
 
     # Property definitions start here
     def _getShowSplitMenu(self):
@@ -93,9 +86,14 @@ class SplitterPanelMixin(object):
         else:
             self._properties["ShowSplitMenu"] = val
 
-
-    ShowSplitMenu = property(_getShowSplitMenu, _setShowSplitMenu, None,
-            _("Determines if the Split/Unsplit context menu is shown (default=True)  (bool)"))
+    ShowSplitMenu = property(
+        _getShowSplitMenu,
+        _setShowSplitMenu,
+        None,
+        _(
+            "Determines if the Split/Unsplit context menu is shown (default=True)  (bool)"
+        ),
+    )
 
 
 class dSplitter(dControlMixin, wx.SplitterWindow):
@@ -104,39 +102,54 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
     panels (subclass of SplitterPanelMixin), each of which can further
     split itself in two.
     """
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dSplitter
-        unsplitAtt = self._extractKey((kwargs, properties, attProperties), "CanUnsplit", "True")
+        unsplitAtt = self._extractKey(
+            (kwargs, properties, attProperties), "CanUnsplit", "True"
+        )
         self._canUnsplit = unsplitAtt.upper()[0] == "T"
         baseStyle = wx.SP_3D | wx.SP_LIVE_UPDATE
         if self._canUnsplit:
             baseStyle = baseStyle | wx.SP_PERMIT_UNSPLIT
-        style = self._extractKey((kwargs, properties, attProperties), "style", baseStyle)
+        style = self._extractKey(
+            (kwargs, properties, attProperties), "style", baseStyle
+        )
         self._createPanes = self._extractKey(attProperties, "createPanes", None)
         if self._createPanes is not None:
-            self._createPanes = (self._createPanes == "True")
+            self._createPanes = self._createPanes == "True"
         else:
-            self._createPanes = self._extractKey((kwargs, properties), "createPanes", False)
+            self._createPanes = self._extractKey(
+                (kwargs, properties), "createPanes", False
+            )
         self._createSizers = self._extractKey(attProperties, "createSizers", None)
         if self._createSizers is not None:
-            self._createSizers = (self._createSizers == "True")
+            self._createSizers = self._createSizers == "True"
         else:
-            self._createSizers = self._extractKey((kwargs, properties), "createSizers", False)
+            self._createSizers = self._extractKey(
+                (kwargs, properties), "createSizers", False
+            )
         self._splitOnInit = self._extractKey(attProperties, "splitOnInit", None)
         if self._splitOnInit is not None:
-            self._splitOnInit = (self._splitOnInit == "True")
+            self._splitOnInit = self._splitOnInit == "True"
         else:
-            self._splitOnInit = self._extractKey((kwargs, properties), "splitOnInit", self._createPanes)
+            self._splitOnInit = self._extractKey(
+                (kwargs, properties), "splitOnInit", self._createPanes
+            )
         # Default to a decent minimum panel size if none is specified
         mp = self._extractKey(attProperties, "MinimumPanelSize", None)
         if mp is not None:
             mp = int(mp)
         else:
-            mp = self._extractKey((kwargs, properties, attProperties), "MinimumPanelSize", 200)
+            mp = self._extractKey(
+                (kwargs, properties, attProperties), "MinimumPanelSize", 200
+            )
         kwargs["MinimumPanelSize"] = mp
 
         # Default to vertical split
-        self._orientation = self._extractKey((kwargs, properties, attProperties), "Orientation", "v")
+        self._orientation = self._extractKey(
+            (kwargs, properties, attProperties), "Orientation", "v"
+        )
         self._sashPercent = 0.75
         self._sashPos = 500
         self._p1 = self._p2 = None
@@ -144,15 +157,21 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         self._showPanelSplitMenu = False
 
         preClass = wx.SplitterWindow
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, style=style, *args, **kwargs)
-
+        dControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            style=style,
+            *args,
+            **kwargs,
+        )
 
     def _initEvents(self):
         super(dSplitter, self)._initEvents()
         self.Bind(wx.EVT_SPLITTER_DCLICK, self._onSashDClick)
         self.Bind(wx.EVT_SPLITTER_SASH_POS_CHANGED, self._onSashPos)
-
 
     def _afterInit(self):
         # Create the panes
@@ -162,7 +181,6 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
             self.split()
         super(dSplitter, self)._afterInit()
 
-
     def _makeSplitterPanelClass(self, cls):
         mixin = SplitterPanelMixin
         if hasattr(self.Form, "isDesignerForm"):
@@ -171,13 +189,14 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         if isinstance(cls, mixin):
             ret = cls
         else:
+
             class MixedSplitterPanel(cls, mixin):
                 def __init__(self, parent, *args, **kwargs):
                     cls.__init__(self, parent, *args, **kwargs)
                     mixin.__init__(self, parent, *args, **kwargs)
+
             ret = MixedSplitterPanel
         return ret
-
 
     def createPanes(self, cls=None, pane=None, force=False):
         if cls is None:
@@ -186,9 +205,10 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         if pane is None:
             p1 = p2 = True
         else:
-            p1 = (pane == 1)
-            p2 = (pane == 2)
+            p1 = pane == 1
+            p2 = pane == 2
         from dabo.ui import dSizer
+
         if p1 and (force or self.Panel1 is None):
             self.Panel1 = spCls(self)
             if self._createSizers:
@@ -198,17 +218,14 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
             if self._createSizers:
                 self.Panel2.Sizer = dSizer()
 
-
     def initialize(self, pnl):
         self.Initialize(pnl)
-
 
     def layout(self):
         if not self:
             return
         self.Panel1.layout()
         self.Panel2.layout()
-
 
     def _onSashDClick(self, evt):
         """
@@ -223,7 +240,6 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         # Raise a dEvent for other code to bind to,
         self.raiseEvent(dEvents.SashDoubleClick, evt)
 
-
     def _onSashPos(self, evt):
         """Fires when the sash position is changed."""
         localcp_evt = evt
@@ -237,7 +253,6 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
             self.SetSashGravity(self._sashPercent)
         # Raise a dEvent for other code to bind to,
         self.raiseEvent(dEvents.SashPositionChanged, localcp_evt)
-
 
     def split(self, dir_=None):
         if self.IsSplit():
@@ -256,14 +271,12 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
             self.SplitVertically(self.Panel1, self.Panel2, pos)
         self.layout()
 
-
     def unsplit(self, win=None):
         if self.IsSplit():
             # Save the sash position
             self._getSashPosition()
             self.Unsplit(win)
             self.layout()
-
 
     def canRemove(self, pnl):
         ret = self.IsSplit()
@@ -276,7 +289,6 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
                     ret = self.IsSplit()
         return ret
 
-
     def remove(self, pnl):
         if self.IsSplit():
             self.unsplit(pnl)
@@ -288,7 +300,6 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
             else:
                 self.Destroy()
 
-
     def toggleSplit(self):
         """Flips the split status of the control."""
         if self.IsSplit():
@@ -296,10 +307,8 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         else:
             self.split()
 
-
     def _getCanUnsplit(self):
         return self._canUnsplit
-
 
     def _getMinPanelSize(self):
         return self.GetMinimumPaneSize()
@@ -309,7 +318,6 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
             self.SetMinimumPaneSize(val)
         else:
             self._properties["MinimumPanelSize"] = val
-
 
     def _getOrientation(self):
         if self._orientation[0].lower() == "v":
@@ -332,7 +340,6 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         else:
             self._properties["Orientation"] = val
 
-
     def _getPanel1(self):
         return self._p1
 
@@ -354,7 +361,6 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         else:
             self._properties["Panel1"] = pnl
 
-
     def _getPanel2(self):
         return self._p2
 
@@ -371,9 +377,9 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         else:
             self._properties["Panel2"] = pnl
 
-
     def _getPanelClass(self):
         from dabo.ui import dPanel
+
         try:
             ret = self._panelClass
         except AttributeError:
@@ -382,7 +388,6 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
 
     def _setPanelClass(self, val):
         self._panelClass = val
-
 
     def _getSashPercent(self):
         pos = self._getSashPosition()
@@ -403,7 +408,6 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         else:
             self._properties["SashPercent"] = val
 
-
     def _getSashPosition(self):
         if self.IsSplit():
             self._sashPos = self.GetSashPosition()
@@ -416,7 +420,6 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
             self._sashPos = self.GetSashPosition()
         else:
             self._properties["SashPosition"] = val
-
 
     def _getShowPanelSplitMenu(self):
         return self._showPanelSplitMenu
@@ -435,7 +438,6 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         else:
             self._properties["ShowPanelSplitMenu"] = val
 
-
     def _getSplit(self):
         return self.IsSplit()
 
@@ -445,44 +447,79 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         else:
             self.unsplit()
 
-
-    CanUnsplit = property(_getCanUnsplit, None, None,
-            _("""Can the control be unsplit (i.e., only the first pane visible),
+    CanUnsplit = property(
+        _getCanUnsplit,
+        None,
+        None,
+        _(
+            """Can the control be unsplit (i.e., only the first pane visible),
             even with a non-zero MinimumPanelSize? Can only be set when the control
-            is created; read-only afterwards. Default=True  (bool)"""))
+            is created; read-only afterwards. Default=True  (bool)"""
+        ),
+    )
 
-    MinimumPanelSize = property(_getMinPanelSize, _setMinPanelSize, None,
-            _("Controls the minimum width/height of the panels.  (int)"))
+    MinimumPanelSize = property(
+        _getMinPanelSize,
+        _setMinPanelSize,
+        None,
+        _("Controls the minimum width/height of the panels.  (int)"),
+    )
 
-    Orientation = property(_getOrientation, _setOrientation, None,
-            _("Determines if the window splits Horizontally or Vertically.  (string)"))
+    Orientation = property(
+        _getOrientation,
+        _setOrientation,
+        None,
+        _("Determines if the window splits Horizontally or Vertically.  (string)"),
+    )
 
-    Panel1 = property(_getPanel1, _setPanel1, None,
-            _("Returns the Top/Left panel.  (dPanel)"))
+    Panel1 = property(
+        _getPanel1, _setPanel1, None, _("Returns the Top/Left panel.  (dPanel)")
+    )
 
-    Panel2 = property(_getPanel2, _setPanel2, None,
-            _("Returns the Bottom/Right panel.  (dPanel)"))
+    Panel2 = property(
+        _getPanel2, _setPanel2, None, _("Returns the Bottom/Right panel.  (dPanel)")
+    )
 
-    PanelClass = property(_getPanelClass, _setPanelClass, None,
-            _("""Class used for creating panels. If the class does not descend from
+    PanelClass = property(
+        _getPanelClass,
+        _setPanelClass,
+        None,
+        _(
+            """Class used for creating panels. If the class does not descend from
             SplitterPanelMixin, that class will be mixed-into the class specified here.
             This must be set before the panels are created; setting it afterward has
             no effect unless you destroy the panels and re-create them.
-            Default=dPanel  (dPanel)"""))
+            Default=dPanel  (dPanel)"""
+        ),
+    )
 
-    SashPercent = property(_getSashPercent, _setSashPercent, None,
-            _("Percentage of the split window given to Panel1. Range=0-100  (float)"))
+    SashPercent = property(
+        _getSashPercent,
+        _setSashPercent,
+        None,
+        _("Percentage of the split window given to Panel1. Range=0-100  (float)"),
+    )
 
-    SashPosition = property(_getSashPosition, _setSashPosition, None,
-            _("Position of the sash when the window is split.  (int)"))
+    SashPosition = property(
+        _getSashPosition,
+        _setSashPosition,
+        None,
+        _("Position of the sash when the window is split.  (int)"),
+    )
 
-    ShowPanelSplitMenu = property(_getShowPanelSplitMenu, _setShowPanelSplitMenu, None,
-            _("""Determines if the default context menu for split/unsplit is enabled
-            for the panels (default=False)  (bool)"""))
+    ShowPanelSplitMenu = property(
+        _getShowPanelSplitMenu,
+        _setShowPanelSplitMenu,
+        None,
+        _(
+            """Determines if the default context menu for split/unsplit is enabled
+            for the panels (default=False)  (bool)"""
+        ),
+    )
 
-    Split = property(_getSplit, _setSplit, None,
-            _("Returns the split status of the control  (bool)"))
-
+    Split = property(
+        _getSplit, _setSplit, None, _("Returns the split status of the control  (bool)")
+    )
 
     DynamicMinimumPanelSize = makeDynamicProperty(MinimumPanelSize)
     DynamicOrientation = makeDynamicProperty(Orientation)
@@ -510,7 +547,6 @@ class _dSplitter_test(dSplitter):
         self.Panel1.BackColor = random.choice(list(dColors.colorDict.values()))
         self.Panel2.BackColor = random.choice(list(dColors.colorDict.values()))
 
-
     def onSashDoubleClick(self, evt):
         if not dabo.ui.areYouSure("Remove the sash?", cancelButton=False):
             evt.stop()
@@ -518,4 +554,5 @@ class _dSplitter_test(dSplitter):
 
 if __name__ == "__main__":
     from dabo.ui import test
+
     test.Test().runTest(_dSplitter_test)

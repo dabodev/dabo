@@ -8,6 +8,7 @@ from dabo.lib import getRandomUUID
 ## Only tests against sqlite, as we already test dCursorMixin against the
 ## various backends.
 
+
 class Test_dBizobj(unittest.TestCase):
     def setUp(self):
         self.con = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
@@ -28,7 +29,8 @@ class Test_dBizobj(unittest.TestCase):
         tableName = self.temp_table_name
         childTableName = self.temp_child_table_name
         child2TableName = self.temp_child2_table_name
-        biz._CurrentCursor.executescript("""
+        biz._CurrentCursor.executescript(
+            """
 create table %(tableName)s (pk INTEGER PRIMARY KEY AUTOINCREMENT, cField CHAR, iField INT, nField DECIMAL (8,2));
 insert into %(tableName)s (cField, iField, nField) values ("Paul Keith McNett", 23, 23.23);
 insert into %(tableName)s (cField, iField, nField) values ("Edward Leafe", 42, 42.42);
@@ -44,17 +46,24 @@ insert into %(child2TableName)s (parent_fk, cPart) values (1, "fldk-333");
 insert into %(child2TableName)s (parent_fk, cPart) values (1, "9930");
 insert into %(child2TableName)s (parent_fk, cPart) values (2, "hhfg-234");
 insert into %(child2TableName)s (parent_fk, cPart) values (2, "pkd-8878");
-""" % locals())
+"""
+            % locals()
+        )
 
     def createNullRecord(self):
-        self.biz._CurrentCursor.AuxCursor.execute("""
+        self.biz._CurrentCursor.AuxCursor.execute(
+            """
 insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
-""" % self.temp_table_name)
+"""
+            % self.temp_table_name
+        )
 
     ## - Begin property unit tests -
     def test_AutoSQL(self):
         biz = self.biz
-        self.assertEqual(biz.AutoSQL, "select *\n  from %s\n limit 1000" % self.temp_table_name)
+        self.assertEqual(
+            biz.AutoSQL, "select *\n  from %s\n limit 1000" % self.temp_table_name
+        )
 
     def test_AutoPopulatePK(self):
         biz = self.biz
@@ -74,13 +83,20 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 
     def test_DataStructure(self):
         ds = self.biz.DataStructure
-        self.assertTrue(ds[0] == ("pk", "I", True, self.temp_table_name, "pk", None)
-                or ds[0] == ("pk", "G", True, self.temp_table_name, "pk", None))
-        self.assertEqual(ds[1], ("cField", "C", False, self.temp_table_name, "cField", None))
-        self.assertTrue(ds[2] == ("iField", "I", False, self.temp_table_name, "iField", None)
-                or ds[2] == ("iField", "G", False, self.temp_table_name, "iField", None))
-        self.assertEqual(ds[3], ("nField", "N", False, self.temp_table_name, "nField", None))
-
+        self.assertTrue(
+            ds[0] == ("pk", "I", True, self.temp_table_name, "pk", None)
+            or ds[0] == ("pk", "G", True, self.temp_table_name, "pk", None)
+        )
+        self.assertEqual(
+            ds[1], ("cField", "C", False, self.temp_table_name, "cField", None)
+        )
+        self.assertTrue(
+            ds[2] == ("iField", "I", False, self.temp_table_name, "iField", None)
+            or ds[2] == ("iField", "G", False, self.temp_table_name, "iField", None)
+        )
+        self.assertEqual(
+            ds[3], ("nField", "N", False, self.temp_table_name, "nField", None)
+        )
 
     def test_DefaultValues(self):
         biz = self.biz
@@ -91,8 +107,10 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 
     def testVirtualFields(self):
         biz = self.biz
+
         def getCombinedName():
             return "%s:%s" % (biz.Record.cField.replace(" ", ""), biz.Record.iField)
+
         biz.VirtualFields["combined_name"] = getCombinedName
 
         def testBogus():
@@ -151,7 +169,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         biz.new()
         self.assertEqual(biz.RowCount, 3)
 
-
     def test_RowNumber(self):
         biz = self.biz
         self.assertEqual(biz.RowNumber, 0)
@@ -163,7 +180,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         self.assertEqual(biz.RowNumber, 0)
         biz.deleteAll()
         self.assertEqual(biz.RowNumber, -1)
-
 
     def test_UserSQL(self):
         biz = self.biz
@@ -192,7 +208,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         self.assertEqual(biz.RowCount, 3)
         self.assertEqual(biz.RowNumber, 2)
 
-
     def test_isChanged(self):
         biz = self.biz
         self.assertEqual(biz.isChanged(), False)
@@ -208,7 +223,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         biz.Record.cField = "Hitsville U.K."
         self.assertEqual(biz.isChanged(), True)
 
-
     def test_oldVal(self):
         biz = self.biz
         self.assertEqual(biz.oldVal("cField"), biz.Record.cField)
@@ -218,7 +232,9 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         biz.Record.cField = newVal
         self.assertEqual(biz.oldVal("cField"), oldVal)
         self.assertEqual(biz.Record.cField, newVal)
-        self.assertRaises(dabo.dException.FieldNotFoundException, biz.oldVal, "bogusField")
+        self.assertRaises(
+            dabo.dException.FieldNotFoundException, biz.oldVal, "bogusField"
+        )
 
     ## - End method unit tests -
 
@@ -245,7 +261,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         self.assertEqual(biz.RowCount, 1)
         self.assertEqual(biz.RowNumber, 0)
 
-
     def testDeleteChildThenDeleteParent(self):
         """See ticket #1312"""
         bizMain = self.biz
@@ -268,7 +283,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         self.assertEqual(bizChild.RowCount, 0)
         self.assertEqual(bizMain.RowCount, 2)
 
-
     def testSaveNewUnchanged(self):
         """See ticket #1101"""
         bizMain = self.biz
@@ -290,7 +304,10 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         bizMain.save()
         self.assertEqual(bizMain.isAnyChanged(), False)
         self.assertEqual(bizChild.RowCount, 3)
-        test_sql = "select count(*) as count from %s where parent_fk = ?" % self.temp_child_table_name
+        test_sql = (
+            "select count(*) as count from %s where parent_fk = ?"
+            % self.temp_child_table_name
+        )
         temp = bizMain.getTempCursor(test_sql, (bizMain.Record.pk,))
         self.assertEqual(bizChild.RowCount, temp.Record.count)
 
@@ -300,17 +317,21 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         self.assertEqual(bizChild.RowCount, 4)
         self.assertEqual(bizMain.SaveNewUnchanged, False)
         self.assertEqual(bizChild.SaveNewUnchanged, True)
-        self.assertEqual(bizMain.isAnyChanged(), True)  ## the new child record isn't changed
+        self.assertEqual(
+            bizMain.isAnyChanged(), True
+        )  ## the new child record isn't changed
         self.assertEqual(bizMain.getChangedRows(), [])
-        self.assertEqual(bizChild.isAnyChanged(), True)  ## bizChild.SaveNewUnchanged == True
+        self.assertEqual(
+            bizChild.isAnyChanged(), True
+        )  ## bizChild.SaveNewUnchanged == True
         self.assertEqual(bizChild.isAnyChanged(includeNewUnchanged=False), False)
         bizMain.save()
         self.assertEqual(bizChild.RowCount, 4)
         temp = bizMain.getTempCursor(test_sql, (bizMain.Record.pk,))
-        self.assertEqual(temp.Record.count, 4)  ## bizChild.SaveNewUnchanged == True so should be saved.
+        self.assertEqual(
+            temp.Record.count, 4
+        )  ## bizChild.SaveNewUnchanged == True so should be saved.
         self.assertEqual(bizMain.getChangedRows(), [])
-
-
 
     def testMementos(self):
         biz = self.biz
@@ -344,13 +365,17 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         self.assertEqual(biz.RowCount, 4)
         self.assertEqual(biz.RowNumber, 3)
         self.assertEqual(cur._newRecords, {-1: None})
-        self.assertEqual(biz.isChanged(), False)  ## (because no field changed in new record)
+        self.assertEqual(
+            biz.isChanged(), False
+        )  ## (because no field changed in new record)
         self.assertEqual(cur.Record.pk, -1)
         self.assertEqual(biz.Record.cField, "")
         self.assertEqual(biz.Record.iField, 0)
         self.assertEqual(biz.Record.nField, 0)
         biz.save()
-        self.assertEqual(biz.RowCount, 4)  ## still have 4 rows, even though the last one wasn't saved
+        self.assertEqual(
+            biz.RowCount, 4
+        )  ## still have 4 rows, even though the last one wasn't saved
         biz.requery()
         # We only have 3 rows, because one of the prior 4 rows was new with no changed fields:
         self.assertEqual(biz.RowCount, 3)
@@ -359,7 +384,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         self.assertEqual(cur._newRecords, {})
         self.assertEqual(biz.isChanged(), False)
         self.assertEqual(biz.Record.pk, 1)
-
 
     def testChildren(self):
         bizMain = self.biz
@@ -399,8 +423,10 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         # dException.NoRecordsException:
         def testGetField():
             return bizChild.Record.pk
+
         def testSetField():
             bizChild.Record.pk = 23
+
         self.assertRaises(dabo.dException.NoRecordsException, testGetField)
         self.assertRaises(dabo.dException.NoRecordsException, testSetField)
 
@@ -482,7 +508,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         self.assertEqual(bizMain.RowCount, 4)
         self.assertEqual(bizMain.RowNumber, 3)
 
-
     def testChildren_cancel(self):
         bizMain = self.biz
         bizChild = dabo.biz.dBizobj(self.con)
@@ -501,7 +526,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         bizMain.cancel()
         self.assertEqual(bizChild.RowCount, 2)
 
-
     def testChildren_clearParent(self):
         """Requerying bizMain to 0 records should remove bizChild's records, too."""
         bizMain = self.biz
@@ -518,7 +542,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         bizMain.requery()
         self.assertEqual(bizMain.RowCount, 0)
         self.assertEqual(bizChild.RowCount, 0)
-
 
     def testChildren_moveParentRecordPointer(self):
         """Moving the parent record pointer shouldn't erase child changes."""
@@ -549,14 +572,14 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         # Change a field, and test isChanged() both before and after moving the
         # parent record pointer:
         bizChild.Record.cInvNum = "pkm0023"
-        self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': 'IN00024'}})
+        self.assertEqual(bizChild._CurrentCursor._mementos, {3: {"cInvNum": "IN00024"}})
         self.assertEqual(bizChild.isChanged(), True)
         self.assertEqual(bizMain.isChanged(), True)
 
         # Prove no problem with simple change, and moving parent record pointer:
         bizMain.RowNumber = 2
         self.assertEqual(bizChild.Record.cInvNum, "pkm0023")
-        self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': 'IN00024'}})
+        self.assertEqual(bizChild._CurrentCursor._mementos, {3: {"cInvNum": "IN00024"}})
         self.assertEqual(bizChild.isChanged(), True)
         self.assertEqual(bizMain.isChanged(), True)
 
@@ -571,7 +594,10 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         self.assertEqual(bizChild.isChanged(), True)
         bizChild.RowNumber = 0
         self.assertEqual(bizChild.isChanged(), True)
-        self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': 'IN00024'}, -1: {'cInvNum': ''}})
+        self.assertEqual(
+            bizChild._CurrentCursor._mementos,
+            {3: {"cInvNum": "IN00024"}, -1: {"cInvNum": ""}},
+        )
 
         # Now, here's the problem. If we add a new record to the child but don't
         # change any fields in that new record, then move the main record pointer,
@@ -580,13 +606,15 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         bizChild.new()
         self.assertEqual(bizChild.RowCount, 3)
         self.assertEqual(bizChild.isAnyChanged(), True)
-        self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': 'IN00024'}, -1: {'cInvNum': ''}, -1: {'cInvNum': ''}})
+        self.assertEqual(
+            bizChild._CurrentCursor._mementos,
+            {3: {"cInvNum": "IN00024"}, -1: {"cInvNum": ""}, -1: {"cInvNum": ""}},
+        )
         bizMain.RowNumber = 2
         # boom! a simple record change in the parent removed the change to the first
         # record, the new record with a change, as well as the expected last new record
         # that had no changes:
         self.assertEqual(bizChild.isAnyChanged(), True)
-
 
     def testNullRecord(self):
         biz = self.biz
@@ -599,7 +627,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         self.assertEqual(biz.Record.iField, None)
         self.assertEqual(biz.Record.nField, None)
 
-
     def testMementoSaveNewPotentialProblem(self):
         """This attempts to reproduce problems being reported on
         dabo-users (see thread http://leafe.com/archives/showFullThd/374683)
@@ -610,13 +637,12 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         biz.new()
         self.assertEqual(biz.isChanged(), False)
         self.assertEqual(biz.isAnyChanged(), False)
-        biz.Record.cField = 'ppp'
+        biz.Record.cField = "ppp"
         self.assertEqual(biz.isChanged(), True)
         self.assertEqual(biz.isAnyChanged(), True)
         biz.save()
         self.assertEqual(biz.isChanged(), False)
         self.assertEqual(biz.isAnyChanged(), False)
-
 
     def testChildRowNumberResetAfterGetChangedRows(self):
         """My app is showing the child bo going from RowNumber 0 to
@@ -676,7 +702,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 
         self.assertEqual(bizMain.isAnyChanged(), True)
         self.assertEqual(bizMain.getChangedRows(), [0])
-        self.assertEqual(bizChild.getChangedRows(), [0,1])
+        self.assertEqual(bizChild.getChangedRows(), [0, 1])
         if mode == "save":
             bizMain.save()
         elif mode == "cancel":
@@ -689,6 +715,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
     def testChangesToTwoChildRecords_cancel(self):
         """Do the same test as for save, but with cancelAll()."""
         self.testChangesToTwoChildRecords("cancel")
+
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(Test_dBizobj)

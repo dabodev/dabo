@@ -11,11 +11,13 @@
 #    utils.foo()
 
 import os
+
 osp = os.path
 import sys
 import dabo
 from dabo.dLocalize import _
 from locale import getpreferredencoding
+
 try:
     from win32com.shell import shell, shellcon
 except ImportError:
@@ -120,7 +122,9 @@ def getUserAppDataDirectory(appName="Dabo"):
             try:
                 os.makedirs(dd)
             except OSError:
-                sys.stderr.write("Couldn't create the user setting directory (%s)." % dd)
+                sys.stderr.write(
+                    "Couldn't create the user setting directory (%s)." % dd
+                )
                 dd = None
     return dd
 
@@ -168,7 +172,9 @@ def getSharedAppDataDirectory(appName="Dabo"):
             try:
                 os.makedirs(dd)
             except OSError:
-                sys.stderr.write("Couldn't create the user setting directory (%s)." % dd)
+                sys.stderr.write(
+                    "Couldn't create the user setting directory (%s)." % dd
+                )
                 dd = None
     return dd
 
@@ -195,7 +201,14 @@ def dictStringify(dct):
 
 
 def getEncodings():
-    encodings = (dabo.getEncoding(), getpreferredencoding(), "iso8859-1", "iso8859-15", "cp1252", "utf-8")
+    encodings = (
+        dabo.getEncoding(),
+        getpreferredencoding(),
+        "iso8859-1",
+        "iso8859-15",
+        "cp1252",
+        "utf-8",
+    )
     for enc in encodings:
         yield enc
 
@@ -281,8 +294,9 @@ def relativePathList(toLoc, fromLoc=None):
     while len(toList) > 0 and not toList[0]:
         toList.pop(0)
     lev = 0
-    while (len(fromList) > lev) and (len(toList) > lev) and \
-            (fromList[lev] == toList[lev]):
+    while (
+        (len(fromList) > lev) and (len(toList) > lev) and (fromList[lev] == toList[lev])
+    ):
         lev += 1
 
     # 'lev' now contains the first level where they differ
@@ -318,8 +332,11 @@ def resolveAttributePathing(atts, pth=None, abspath=False):
     those new values.
     """
     prfx = getPathAttributePrefix()
-    pathsToConvert = ((kk, vv) for kk, vv in list(atts.items())
-            if isinstance(vv, str) and vv.startswith(prfx))
+    pathsToConvert = (
+        (kk, vv)
+        for kk, vv in list(atts.items())
+        if isinstance(vv, str) and vv.startswith(prfx)
+    )
     for convKey, convVal in pathsToConvert:
         # Strip the path designator
         convVal = convVal.replace(prfx, "")

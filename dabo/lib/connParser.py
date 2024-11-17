@@ -10,23 +10,23 @@ from dabo.dLocalize import _
 # Tuple containing all file-based database types.
 FILE_DATABASES = ("sqlite",)
 
+
 class connHandler(xml.sax.ContentHandler):
     def __init__(self):
         self.connDict = {}
         self.blankConn = {
-                "name": "",
-                "dbtype" : "",
-                "host" : "",
-                "remotehost" : "",
-                "database" : "",
-                "user" : "",
-                "password" : "",
-                "port" : "",
-                "KeepAliveInterval": "",
-                }
+            "name": "",
+            "dbtype": "",
+            "host": "",
+            "remotehost": "",
+            "database": "",
+            "user": "",
+            "password": "",
+            "port": "",
+            "KeepAliveInterval": "",
+        }
         self.currDict = self.blankConn.copy()
         self.element = None
-
 
     def startElement(self, name, attrs):
         self.element = name
@@ -39,7 +39,6 @@ class connHandler(xml.sax.ContentHandler):
                         self.currDict["driver"] = dbType[1]
         self.attributes = attrs
 
-
     def characters(self, content):
         if self.element and self.element not in ("connectiondefs", "connection"):
             if self.element in self.currDict:
@@ -49,8 +48,13 @@ class connHandler(xml.sax.ContentHandler):
                 # <dialect type="int">1</dialect>
                 # It's an extended connection information, we log it.
                 elem = self.element
-                dabo.log.info(_("Extended database connection parameter loaded: "
-                        "%(elem)s = %(content)s") % locals())
+                dabo.log.info(
+                    _(
+                        "Extended database connection parameter loaded: "
+                        "%(elem)s = %(content)s"
+                    )
+                    % locals()
+                )
                 atype = self.attributes.get("type", None)
                 if not atype:
                     # Set default type to 'str'.
@@ -64,13 +68,14 @@ class connHandler(xml.sax.ContentHandler):
                 nm = self.currDict["name"]
                 if not nm:
                     # name not defined: follow the old convention of user@host
-                    nm = self.currDict["name"] = ("%s@%s"
-                        % (self.currDict["user"], self.currDict["host"]))
+                    nm = self.currDict["name"] = "%s@%s" % (
+                        self.currDict["user"],
+                        self.currDict["host"],
+                    )
                 self.connDict[nm] = self.currDict.copy()
                 self.currDict = self.blankConn.copy()
         self.element = None
         self.attributes = None
-
 
     def getConnectionDict(self):
         return self.connDict
@@ -114,7 +119,7 @@ def importConnections(pth=None, useHomeDir=False):
 
 
 def createXML(cxns, encoding=None):
-    """ Returns the XML for the passed connection info. The info
+    """Returns the XML for the passed connection info. The info
     can either be a single dict of connection info, or a list/tuple of
     such dicts.
     """
@@ -129,7 +134,7 @@ def createXML(cxns, encoding=None):
 
 
 def genConnXML(d):
-    """ Receive a dict containing connection info, and return
+    """Receive a dict containing connection info, and return
     a 'connection' XML element.
     """
     from dabo.lib.xmltodict import escQuote
@@ -141,10 +146,15 @@ def genConnXML(d):
             if not d["host"]:
                 d["host"] = "local"
             d["name"] = "%s@%s" % (d["user"], d["host"])
-        ret = getConnTemplate() % (escQuote(d["dbtype"], noQuote=True),
-                escQuote(d["name"], noQuote=True), escQuote(d["host"], noQuote=True),
-                escQuote(d["database"], noQuote=True), escQuote(d["user"], noQuote=True),
-                escQuote(d["password"], noQuote=True), d["port"])
+        ret = getConnTemplate() % (
+            escQuote(d["dbtype"], noQuote=True),
+            escQuote(d["name"], noQuote=True),
+            escQuote(d["host"], noQuote=True),
+            escQuote(d["database"], noQuote=True),
+            escQuote(d["user"], noQuote=True),
+            escQuote(d["password"], noQuote=True),
+            d["port"],
+        )
     except KeyError:
         # Not a valid conn info dict
         ret = ""
@@ -155,7 +165,7 @@ def genConnXML(d):
 
 
 def fileRef(ref=""):
-    """  Handles the passing of file names, file objects, or raw XML to the
+    """Handles the passing of file names, file objects, or raw XML to the
     parser. Returns an open file-like object, or None. It is up to the calling
     program to close the file.
     """
@@ -179,7 +189,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/conn.xsd">
 %s
 
 </connectiondefs>
-""" % (encoding, "%s")
+""" % (
+        encoding,
+        "%s",
+    )
 
 
 def getConnTemplate():
@@ -192,4 +205,3 @@ def getConnTemplate():
         <port>%s</port>
     </connection>
 """
-

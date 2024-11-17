@@ -16,14 +16,15 @@ class MethodSheet(dPanel):
         sz.append1x(self._methodList)
         self._methodList.addColumn(_("Event/Method"))
 
-
     def onList(self, evt):
         self.Application.editCode(self._methodList.StringValue)
-
 
     def _getMethodList(self):
         return self._methodList
 
-
-    MethodList = property(_getMethodList, None, None,
-            _("Reference to the method list control  (dListControl)"))
+    MethodList = property(
+        _getMethodList,
+        None,
+        None,
+        _("Reference to the method list control  (dListControl)"),
+    )

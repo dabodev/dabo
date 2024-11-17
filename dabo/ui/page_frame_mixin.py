@@ -11,31 +11,41 @@ from dabo.lib.utils import ustr
 from dabo.ui import makeDynamicProperty
 
 
-MSG_SMART_FOCUS_ABUSE = _("The '%s' control must inherit from dPage to use the UseSmartFocus feature.")
+MSG_SMART_FOCUS_ABUSE = _(
+    "The '%s' control must inherit from dPage to use the UseSmartFocus feature."
+)
 
 
 class dPageFrameMixin(dControlMixin):
     """Creates a container for an unlimited number of pages."""
 
-    def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
-        kwargs["style"] = self._extractKey((properties, kwargs), "style", 0) | wx.CLIP_CHILDREN
-        super(dPageFrameMixin, self).__init__(preClass, parent, properties=properties,
-            attProperties=attProperties, *args, **kwargs)
-
+    def __init__(
+        self, preClass, parent, properties=None, attProperties=None, *args, **kwargs
+    ):
+        kwargs["style"] = (
+            self._extractKey((properties, kwargs), "style", 0) | wx.CLIP_CHILDREN
+        )
+        super(dPageFrameMixin, self).__init__(
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
 
     def _beforeInit(self, pre):
         from dabo.ui import dSizer
+
         self._imageList = {}
         self._pageSizerClass = dSizer
         super(dPageFrameMixin, self)._beforeInit(pre)
-
 
     def _initEvents(self):
         super(dPageFrameMixin, self)._initEvents()
         self.Bind(self._evtPageChanged, self.__onPageChanged)
         self.Bind(self._evtPageChanging, self.__onPageChanging)
         self.bindEvent(dEvents.Create, self.__onCreate)
-
 
     def __onPageChanging(self, evt):
         """The page has not yet been changed, so we can veto it if conditions call for it."""
@@ -52,25 +62,22 @@ class dPageFrameMixin(dControlMixin):
                 self.Pages[oldPageNum]._saveLastActiveControl()
             except AttributeError:
                 dabo.log.error(MSG_SMART_FOCUS_ABUSE % self.Name)
-        self.raiseEvent(dEvents.PageChanging, oldPageNum=oldPageNum,
-                newPageNum=newPageNum)
-
+        self.raiseEvent(
+            dEvents.PageChanging, oldPageNum=oldPageNum, newPageNum=newPageNum
+        )
 
     def _beforePageChange(self, old, new):
         return self.beforePageChange(old, new)
 
-
     def beforePageChange(self, fromPage, toPage):
         """Return False from this method to prevent the page from changing."""
         pass
-
 
     def __onCreate(self, evt):
         # Make sure the PageEnter fires for the current page on
         # pageframe instantiation, as this doesn't happen automatically.
         # Putting this code in afterInit() results in a segfault on Linux, btw.
         dui.callAfter(self.__pageChanged, 0, None)
-
 
     def __onPageChanged(self, evt):
         evt.Skip()
@@ -83,7 +90,6 @@ class dPageFrameMixin(dControlMixin):
             # _lastPage hasn't been defined yet.
             oldPageNum = None
         self.__pageChanged(newPageNum, oldPageNum)
-
 
     def __pageChanged(self, newPageNum, oldPageNum):
         ## Because of platform inconsistencies, it is safer to raise the dabo
@@ -104,14 +110,17 @@ class dPageFrameMixin(dControlMixin):
         if newPageNum >= 0 and self.PageCount > newPageNum:
             newPage = self.Pages[newPageNum]
             dui.callAfter(newPage.raiseEvent, dEvents.PageEnter)
-            dui.callAfter(self.raiseEvent, dEvents.PageChanged,
-                    oldPageNum=oldPageNum, newPageNum=newPageNum)
+            dui.callAfter(
+                self.raiseEvent,
+                dEvents.PageChanged,
+                oldPageNum=oldPageNum,
+                newPageNum=newPageNum,
+            )
             if self.UseSmartFocus:
                 try:
                     newPage._restoreLastActiveControl()
                 except AttributeError:
                     dabo.log.warn(MSG_SMART_FOCUS_ABUSE % self.Name)
-
 
     # Image-handling function
     def addImage(self, img, key=None):
@@ -129,7 +138,6 @@ class dPageFrameMixin(dControlMixin):
             self.AssignImageList(il)
         idx = il.Add(img)
         self._imageList[key] = idx
-
 
     def setPageImage(self, pg, imgKey):
         """
@@ -152,7 +160,6 @@ class dPageFrameMixin(dControlMixin):
             self.SetPageImage(pgIdx, imgIdx)
             self.Pages[pgIdx].imgKey = imgKey
 
-
     def getPageImage(self, pg):
         """
         Returns the index of the specified page's image in the
@@ -163,7 +170,6 @@ class dPageFrameMixin(dControlMixin):
         if pgIdx is not None:
             ret = self.GetPageImage(pgIdx)
         return ret
-
 
     def appendPage(self, pgCls=None, caption="", imgKey=None, **kwargs):
         """
@@ -176,9 +182,9 @@ class dPageFrameMixin(dControlMixin):
         """
         return self.insertPage(self.GetPageCount(), pgCls, caption, imgKey, **kwargs)
 
-
-    def insertPage(self, pos, pgCls=None, caption="", imgKey=None,
-            ignoreOverride=False, **kwargs):
+    def insertPage(
+        self, pos, pgCls=None, caption="", imgKey=None, ignoreOverride=False, **kwargs
+    ):
         """
         Insert the page into the pageframe at the specified position,
         and optionally sets the page caption and image. The image
@@ -205,6 +211,7 @@ class dPageFrameMixin(dControlMixin):
             if isinstance(pgCls, str):
                 xml = pgCls
                 from dabo.lib.DesignerClassConverter import DesignerClassConverter
+
                 conv = DesignerClassConverter()
                 pgCls = conv.classFromText(xml)
             pg = pgCls(self, **kwargs)
@@ -212,7 +219,7 @@ class dPageFrameMixin(dControlMixin):
             # Page could have its own default caption
             caption = pg._caption
         if caption.count("&") == 1 and caption[-1] != "&":
-            hotkey = "alt+%s" % (caption[caption.index("&")+1],)
+            hotkey = "alt+%s" % (caption[caption.index("&") + 1],)
             self.Form.bindKey(hotkey, self._onHK)
             pg._rawCaption = caption
             if sys.platform.startswith("darwin"):
@@ -229,8 +236,9 @@ class dPageFrameMixin(dControlMixin):
         insertedPage = self.Pages[pos]
         insertedPage.Caption = caption
         return insertedPage
-    def _insertPageOverride(self, pos, pgCls, caption, imgKey): pass
 
+    def _insertPageOverride(self, pos, pgCls, caption, imgKey):
+        pass
 
     def removePage(self, pgOrPos, delPage=True):
         """
@@ -252,7 +260,6 @@ class dPageFrameMixin(dControlMixin):
             self.RemovePage(pos)
             ret = pg
         return ret
-
 
     def movePage(self, oldPgOrPos, newPos, selecting=True):
         """
@@ -283,7 +290,6 @@ class dPageFrameMixin(dControlMixin):
         self.Parent.unlockDisplay()
         return True
 
-
     def cyclePages(self, num):
         """
         Moves through the pages by the specified amount, wrapping
@@ -291,7 +297,6 @@ class dPageFrameMixin(dControlMixin):
         move through the next pages.
         """
         self.SelectedPageNumber = (self.SelectedPageNumber + num) % self.PageCount
-
 
     def layout(self):
         """Wrap the wx version of the call, if possible."""
@@ -310,7 +315,6 @@ class dPageFrameMixin(dControlMixin):
         if self.Application.Platform == "Win":
             self.refresh()
 
-
     def _getPageIndex(self, pg):
         """
         Resolves page references to the page index, which is what
@@ -327,7 +331,6 @@ class dPageFrameMixin(dControlMixin):
                     break
         return ret
 
-
     def _onHK(self, evt):
         char = chr(evt.EventData["keyCode"]).lower()
         for page in self.Pages:
@@ -336,8 +339,6 @@ class dPageFrameMixin(dControlMixin):
                 page.setFocus()
                 return
         # raise ValueError("Caption for hotkey not found.") ## unsure if wise
-
-
 
     # property get/set functions:
     def _getPageClass(self):
@@ -348,7 +349,6 @@ class dPageFrameMixin(dControlMixin):
 
     def _setPageClass(self, val):
         self._pageClass = val
-
 
     def _getPageCount(self):
         return int(self.GetPageCount())
@@ -372,14 +372,12 @@ class dPageFrameMixin(dControlMixin):
         else:
             self._properties["PageCount"] = val
 
-
     def _getPages(self):
         ## pkm: It is possible for pages to not be instances of dPage
         ##      (such as in the AppWizard), resulting in self.PageCount > len(self.Pages)
         ##      if using the commented code below.
-        #return [pg for pg in self.Children    if isinstance(pg, dui.dPage) ]
+        # return [pg for pg in self.Children    if isinstance(pg, dui.dPage) ]
         return [self.GetPage(pg) for pg in range(self.PageCount)]
-
 
     def _getPageSizerClass(self):
         return self._pageSizerClass
@@ -389,7 +387,6 @@ class dPageFrameMixin(dControlMixin):
             self._pageSizerClass = val
         else:
             self._properties["PageSizerClass"] = val
-
 
     def _getSelectedPage(self):
         try:
@@ -410,10 +407,9 @@ class dPageFrameMixin(dControlMixin):
                 self.SetSelection(idx)
             except:
                 self._properties["SelectedPage"] = pg
-                
+
         else:
             self._properties["SelectedPage"] = pg
-
 
     def _getSelectedPageNumber(self):
         return self.GetSelection()
@@ -424,7 +420,6 @@ class dPageFrameMixin(dControlMixin):
             self.SetSelection(val)
         else:
             self._properties["SelectedPageNumber"] = val
-
 
     def _getTabPosition(self):
         if self._hasWindowStyleFlag(self._tabposBottom):
@@ -453,8 +448,9 @@ class dPageFrameMixin(dControlMixin):
         elif val == "Bottom":
             self._addWindowStyleFlag(self._tabposBottom)
         else:
-            raise ValueError(_("The only possible values are 'Top', 'Left', 'Right', and 'Bottom'"))
-
+            raise ValueError(
+                _("The only possible values are 'Top', 'Left', 'Right', and 'Bottom'")
+            )
 
     def _getUpdateInactivePages(self):
         return getattr(self, "_updateInactivePages", True)
@@ -462,58 +458,99 @@ class dPageFrameMixin(dControlMixin):
     def _setUpdateInactivePages(self, val):
         self._updateInactivePages = val
 
-
     def _getUseSmartFocus(self):
         return getattr(self, "_useSmartFocus", False)
 
     def _setUseSmartFocus(self, val):
         self._useSmartFocus = val
 
-
     # Property definitions:
-    PageClass = property(_getPageClass, _setPageClass, None,
-            _("""Specifies the class of control to use for pages by default. (classRef)
+    PageClass = property(
+        _getPageClass,
+        _setPageClass,
+        None,
+        _(
+            """Specifies the class of control to use for pages by default. (classRef)
             This really only applies when using the PageCount property to set the
             number of pages. If you instead use AddPage() you still need to send
-            an instance as usual. Class must descend from a dabo base class."""))
+            an instance as usual. Class must descend from a dabo base class."""
+        ),
+    )
 
-    PageCount = property(_getPageCount, _setPageCount, None,
-            _("""Specifies the number of pages in the pageframe. (int)
+    PageCount = property(
+        _getPageCount,
+        _setPageCount,
+        None,
+        _(
+            """Specifies the number of pages in the pageframe. (int)
             When using this to increase the number of pages, PageClass
-            will be queried as the object to use as the page object."""))
+            will be queried as the object to use as the page object."""
+        ),
+    )
 
-    Pages = property(_getPages, None, None,
-            _("Returns a list of the contained pages.  (list)"))
+    Pages = property(
+        _getPages, None, None, _("Returns a list of the contained pages.  (list)")
+    )
 
-    PageSizerClass = property(_getPageSizerClass, _setPageSizerClass, None,
-            _("""Default sizer class for pages added automatically to this control. Set
+    PageSizerClass = property(
+        _getPageSizerClass,
+        _setPageSizerClass,
+        None,
+        _(
+            """Default sizer class for pages added automatically to this control. Set
             this to None to prevent sizers from being automatically added to child
-            pages. (dSizer or None)"""))
+            pages. (dSizer or None)"""
+        ),
+    )
 
-    SelectedPage = property(_getSelectedPage, _setSelectedPage, None,
-            _("References the current frontmost page.  (dPage)"))
+    SelectedPage = property(
+        _getSelectedPage,
+        _setSelectedPage,
+        None,
+        _("References the current frontmost page.  (dPage)"),
+    )
 
-    SelectedPageNumber = property(_getSelectedPageNumber, _setSelectedPageNumber,
-            None,
-            _("Returns the index of the current frontmost page.  (int)"))
+    SelectedPageNumber = property(
+        _getSelectedPageNumber,
+        _setSelectedPageNumber,
+        None,
+        _("Returns the index of the current frontmost page.  (int)"),
+    )
 
-    TabPosition = property(_getTabPosition, _setTabPosition, None,
-            _("""Specifies where the page tabs are located. (int)
+    TabPosition = property(
+        _getTabPosition,
+        _setTabPosition,
+        None,
+        _(
+            """Specifies where the page tabs are located. (int)
                 Top (default)
                 Left
                 Right
-                Bottom"""))
+                Bottom"""
+        ),
+    )
 
-    UpdateInactivePages = property(_getUpdateInactivePages, _setUpdateInactivePages, None,
-            _("""Determines if the inactive pages are updated too. (bool)
+    UpdateInactivePages = property(
+        _getUpdateInactivePages,
+        _setUpdateInactivePages,
+        None,
+        _(
+            """Determines if the inactive pages are updated too. (bool)
             Setting it to False can significantly improve update performance
-            of multipage forms. Default=True."""))
+            of multipage forms. Default=True."""
+        ),
+    )
 
-    UseSmartFocus = property(_getUseSmartFocus, _setUseSmartFocus, None,
-            _("""Determines if focus has to be restored to the last active
+    UseSmartFocus = property(
+        _getUseSmartFocus,
+        _setUseSmartFocus,
+        None,
+        _(
+            """Determines if focus has to be restored to the last active
             control on page when it become selected. (bool) Default=False.
-            """))
-
+            """
+        ),
+    )
 
     DynamicPageClass = makeDynamicProperty(PageClass)
     DynamicPageCount = makeDynamicProperty(PageCount)

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import dConstants as kons
-from dabo import dColors as dColors
+
+import dConstants as kons
+import dColors as dColors
 
 
 class dColorDialog(wx.ColourDialog):
     """Creates a dialog that allows the user to pick a color."""
+
     def __init__(self, parent=None, color=None):
         self._baseClass = dColorDialog
         dat = wx.ColourData()
@@ -24,33 +25,31 @@ class dColorDialog(wx.ColourDialog):
                 dat.SetColour(color)
 
         if parent is None:
-            parent = dabo.dAppRef.ActiveForm
+            parent = dAppRef.ActiveForm
         super(dColorDialog, self).__init__(parent, data=dat)
         self._selColor = None
-
 
     def show(self):
         self._selColor = None
         ret = kons.DLG_CANCEL
         res = self.ShowModal()
-        if res ==  wx.ID_OK:
+        if res == wx.ID_OK:
             ret = kons.DLG_OK
             col = self.GetColourData().GetColour()
             self._selColor = col.Red(), col.Green(), col.Blue()
         return ret
 
-
     def release(self):
         self.Destroy()
-
 
     def getColor(self):
         return self._selColor
 
 
-dabo.ui.dColorDialog = dColorDialog
+ui.dColorDialog = dColorDialog
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
+
     test.Test().runTest(dColorDialog)

@@ -7,8 +7,8 @@ from dabo.ui import dImageMixin
 from dabo.dLocalize import _
 from dabo import dEvents as dEvents
 
-class dToggleButton(dDataControlMixin, dImageMixin,
-        wxb.GenBitmapTextToggleButton):
+
+class dToggleButton(dDataControlMixin, dImageMixin, wxb.GenBitmapTextToggleButton):
     """
     Creates a button that toggles on and off, for editing boolean values.
 
@@ -16,6 +16,7 @@ class dToggleButton(dDataControlMixin, dImageMixin,
     Also, it implies that pushing it will cause some sort of immediate action to
     take place, like you get with a normal button.
     """
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dabo.ui.dToggleButton
         preClass = wxb.GenBitmapTextToggleButton
@@ -29,22 +30,29 @@ class dToggleButton(dDataControlMixin, dImageMixin,
         else:
             bw = self._extractKey((properties, kwargs), "BezelWidth", 5)
         kwargs["BezelWidth"] = bw
-        style = self._extractKey((properties, attProperties, kwargs), "style", 0) | wx.BORDER_NONE
+        style = (
+            self._extractKey((properties, attProperties, kwargs), "style", 0)
+            | wx.BORDER_NONE
+        )
         kwargs["style"] = style
         dImageMixin.__init__(self)
-        dDataControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
+        dDataControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
         self.Bind(wx.EVT_BUTTON, self.__onButton)
-
 
     def __onButton(self, evt):
         self.flushValue()
         self.raiseEvent(dEvents.Hit, evt)
 
-
     def getBlankValue(self):
         return False
-
 
     def _getBezelWidth(self):
         return self.GetBezelWidth()
@@ -55,7 +63,6 @@ class dToggleButton(dDataControlMixin, dImageMixin,
             self.Refresh()
         else:
             self._properties["BezelWidth"] = val
-
 
     def _getDownPicture(self):
         return self._downPicture
@@ -71,7 +78,6 @@ class dToggleButton(dDataControlMixin, dImageMixin,
             self.refresh()
         else:
             self._properties["DownPicture"] = val
-
 
     def _getPicture(self):
         return self._picture
@@ -89,15 +95,26 @@ class dToggleButton(dDataControlMixin, dImageMixin,
         else:
             self._properties["Picture"] = val
 
+    BezelWidth = property(
+        _getBezelWidth,
+        _setBezelWidth,
+        None,
+        _("Width of the bezel on the sides of the button. Default=5  (int)"),
+    )
 
-    BezelWidth = property(_getBezelWidth, _setBezelWidth, None,
-            _("Width of the bezel on the sides of the button. Default=5  (int)"))
+    DownPicture = property(
+        _getDownPicture,
+        _setDownPicture,
+        None,
+        _("Picture displayed when the button is pressed  (str)"),
+    )
 
-    DownPicture = property(_getDownPicture, _setDownPicture, None,
-            _("Picture displayed when the button is pressed  (str)"))
-
-    Picture = property(_getPicture, _setPicture, None,
-            _("Picture used for the normal (unselected) state  (str)"))
+    Picture = property(
+        _getPicture,
+        _setPicture,
+        None,
+        _("Picture used for the normal (unselected) state  (str)"),
+    )
 
 
 dabo.ui.dToggleButton = dToggleButton
@@ -121,4 +138,5 @@ class _dToggleButton_test(dToggleButton):
 
 if __name__ == "__main__":
     from dabo.ui import test
+
     test.Test().runTest(_dToggleButton_test)

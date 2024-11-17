@@ -11,7 +11,6 @@ import dabo.lib.xmltodict as xtd
 from MenuDesignerForm import MenuDesignerForm
 
 
-
 class MenuDesigner(dApp):
     # Behaviors which are normal in the framework may need to
     # be modified when run as the ClassDesigner. This flag will
@@ -19,8 +18,9 @@ class MenuDesigner(dApp):
     isDesigner = True
 
     def __init__(self, clsFile=""):
-        super(MenuDesigner, self).__init__(showSplashScreen=False,
-                splashTimeout=10, ignoreScriptDir=True)
+        super(MenuDesigner, self).__init__(
+            showSplashScreen=False, splashTimeout=10, ignoreScriptDir=True
+        )
 
 
 def main():
@@ -29,7 +29,7 @@ def main():
     app.BasePrefKey = "ide.MenuDesigner"
     app.setAppInfo("appName", _("Dabo Menu Designer"))
     app.setAppInfo("appShortName", _("MenuDesigner"))
-#     app._persistentMRUs = {_("File") : onFileMRU}
+    #     app._persistentMRUs = {_("File") : onFileMRU}
     app.MainFormClass = None
     app.setup()
 
@@ -41,7 +41,5 @@ def main():
     app.start()
 
 
-
 if __name__ == "__main__":
     main()
-

@@ -12,7 +12,6 @@ class ImageRenderer(wx.grid.GridCellRenderer):
         self._lastBitmap = None
         super(ImageRenderer, self).__init__(*args, **kwargs)
 
-
     def Draw(self, grid, attr, dc, rect, row, col, isSelected):
         """Customisation Point: Draw the data from grid in the rectangle with attributes using the dc"""
         self.clip(dc, rect)
@@ -24,7 +23,6 @@ class ImageRenderer(wx.grid.GridCellRenderer):
             return self.drawBitmap(bitmap, attr, dc, rect, isSelected)
         finally:
             self.unclip(dc)
-
 
     def GetBestSize(self, grid, attr, dc, row, col):
         """
@@ -41,7 +39,6 @@ class ImageRenderer(wx.grid.GridCellRenderer):
             # Guess
             return wx.Size(16, 16)
 
-
     def getValueBitmap(self, grid, row, col):
         """
         Take the local _imageDict and update it with the grid's dict, if any. Use
@@ -57,7 +54,6 @@ class ImageRenderer(wx.grid.GridCellRenderer):
             # att and the key is not found. Try standard images.
             ret = dabo.ui.strToBmp(val)
         return ret
-
 
     def drawBitmap(self, bitmap, attr, dc, rect, isSelected):
         if not bitmap:
@@ -85,29 +81,26 @@ class ImageRenderer(wx.grid.GridCellRenderer):
         if (a[0] & wx.ALIGN_RIGHT) == wx.ALIGN_RIGHT:
             l = rect.width - bitmap.GetWidth() - wbuffer
         elif (a[0] & wx.ALIGN_CENTER_HORIZONTAL) == wx.ALIGN_CENTER_HORIZONTAL:
-            l = (rect.width/2) - (bitmap.GetWidth()/2)
+            l = (rect.width / 2) - (bitmap.GetWidth() / 2)
         else:
             l = wbuffer
 
         if (a[1] & wx.ALIGN_BOTTOM) == wx.ALIGN_BOTTOM:
             t = rect.height - bitmap.GetHeight() - hbuffer
         elif (a[1] & wx.ALIGN_CENTER_VERTICAL) == wx.ALIGN_CENTER_VERTICAL:
-            t = (rect.height/2) - (bitmap.GetHeight()/2)
+            t = (rect.height / 2) - (bitmap.GetHeight() / 2)
         else:
             t = hbuffer
 
-        dc.DrawBitmap(bitmap, rect.x+l, rect.y+t)
-
+        dc.DrawBitmap(bitmap, rect.x + l, rect.y + t)
 
     def clip(self, dc, rect):
         """Setup the clipping rectangle"""
         dc.SetClippingRegion(rect.x, rect.y, rect.width, rect.height)
 
-
     def unclip(self, dc):
         """Destroy the clipping rectangle"""
         dc.DestroyClippingRegion()
-
 
 
 class BoolRenderer(wx.grid.GridCellRenderer):
@@ -119,8 +112,6 @@ class BoolRenderer(wx.grid.GridCellRenderer):
         super(BoolRenderer, self).__init__(*args, **kwargs)
         self.checkedBitmap = dIcons.getIconBitmap("boolRendererChecked")
         self.uncheckedBitmap = dIcons.getIconBitmap("boolRendererUnchecked")
-
-
 
     def Draw(self, grid, attr, dc, rect, row, col, isSelected):
         """Customisation Point: Draw the data from grid in the rectangle with
@@ -136,7 +127,6 @@ class BoolRenderer(wx.grid.GridCellRenderer):
         finally:
             self.unclip(dc)
 
-
     def GetBestSize(self, grid, attr, dc, row, col):
         """
         Customisation Point: Determine the appropriate (best) size for the control, return as wxSize
@@ -148,13 +138,11 @@ class BoolRenderer(wx.grid.GridCellRenderer):
         """
         return wx.Size(self.checkedBitmap.GetWidth(), self.checkedBitmap.GetHeight())
 
-
     def getValueBitmap(self, grid, row, col):
         value = grid._Table.GetValue(row, col, convertNoneToString=False)
         if value:
             return self.checkedBitmap
         return self.uncheckedBitmap
-
 
     def drawBitmap(self, bitmap, attr, dc, rect, isSelected):
         # draw background:
@@ -180,29 +168,26 @@ class BoolRenderer(wx.grid.GridCellRenderer):
         if (a[0] & wx.ALIGN_RIGHT) == wx.ALIGN_RIGHT:
             l = rect.width - bitmap.GetWidth() - wbuffer
         elif (a[0] & wx.ALIGN_CENTER_HORIZONTAL) == wx.ALIGN_CENTER_HORIZONTAL:
-            l = (rect.width/2) - (bitmap.GetWidth()/2)
+            l = (rect.width / 2) - (bitmap.GetWidth() / 2)
         else:
             l = wbuffer
 
         if (a[1] & wx.ALIGN_BOTTOM) == wx.ALIGN_BOTTOM:
             t = rect.height - bitmap.GetHeight() - hbuffer
         elif (a[1] & wx.ALIGN_CENTER_VERTICAL) == wx.ALIGN_CENTER_VERTICAL:
-            t = (rect.height/2) - (bitmap.GetHeight()/2)
+            t = (rect.height / 2) - (bitmap.GetHeight() / 2)
         else:
             t = hbuffer
 
-        dc.DrawBitmap(bitmap, rect.x+l, rect.y+t)
-
+        dc.DrawBitmap(bitmap, rect.x + l, rect.y + t)
 
     def clip(self, dc, rect):
         """Setup the clipping rectangle"""
         dc.SetClippingRegion(rect.x, rect.y, rect.width, rect.height)
 
-
     def unclip(self, dc):
         """Destroy the clipping rectangle"""
         dc.DestroyClippingRegion()
-
 
 
 class AbstractTextRenderer(wx.grid.GridCellRenderer):
@@ -210,6 +195,7 @@ class AbstractTextRenderer(wx.grid.GridCellRenderer):
     This is a starting point for all renderers that simply involve controlling
     the text displayed in a cell.
     """
+
     def Draw(self, grid, attr, dc, rect, row, col, isSelected):
         """Customisation Point: Draw the data from grid in the rectangle with attributes using the dc"""
         self.clip(dc, rect)
@@ -222,7 +208,6 @@ class AbstractTextRenderer(wx.grid.GridCellRenderer):
         finally:
             self.unclip(dc)
 
-
     def getValueText(self, grid, row, col):
         """
         Return the text you want displayed in the cell. By default
@@ -232,21 +217,17 @@ class AbstractTextRenderer(wx.grid.GridCellRenderer):
         value = grid.getValue(row, col)
         return value
 
-
     def drawText(self, txt, attr, dc, rect):
         """Customize this method to set different background colors, etc."""
         dc.DrawText(txt, rect.x, rect.y)
-
 
     def clip(self, dc, rect):
         """Setup the clipping rectangle"""
         dc.SetClippingRegion(rect.x, rect.y, rect.width, rect.height)
 
-
     def unclip(self, dc):
         """Destroy the clipping rectangle"""
         dc.DestroyClippingRegion()
-
 
 
 class YesNoBoolRenderer(AbstractTextRenderer):
@@ -255,7 +236,6 @@ class YesNoBoolRenderer(AbstractTextRenderer):
         if value:
             return "YES"
         return "NO"
-
 
     def drawText(self, txt, attr, dc, rect):
         if txt == "NO":

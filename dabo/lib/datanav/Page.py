@@ -14,21 +14,36 @@ from . import Grid
 
 ASC, DESC = (n_("asc"), n_("desc"))
 
+
 # Controls for the select page:
 class SelectControlMixin(dObject):
     def initProperties(self):
         super(SelectControlMixin, self).initProperties()
         self.SaveRestoreValue = True
 
-class SelectTextBox(SelectControlMixin, dui.dTextBox): pass
-class SelectCheckBox(SelectControlMixin, dui.dCheckBox): pass
+
+class SelectTextBox(SelectControlMixin, dui.dTextBox):
+    pass
+
+
+class SelectCheckBox(SelectControlMixin, dui.dCheckBox):
+    pass
+
+
 class SelectLabel(SelectControlMixin, dui.dLabel):
     def afterInit(self):
         # Basically, we don't want anything to display, but it's
         # easier if every selector has a matching control.
         self.Caption = ""
-class SelectDateTextBox(SelectControlMixin, dui.dDateTextBox): pass
-class SelectSpinner(SelectControlMixin, dui.dSpinner): pass
+
+
+class SelectDateTextBox(SelectControlMixin, dui.dDateTextBox):
+    pass
+
+
+class SelectSpinner(SelectControlMixin, dui.dSpinner):
+    pass
+
 
 class SelectionOpDropdown(dui.dDropdownList):
     def initProperties(self):
@@ -42,7 +57,7 @@ class SelectionOpDropdown(dui.dDropdownList):
 
     def onValueChanged(self, evt):
         # italicize if we are ignoring the field:
-        self.FontItalic = (QRY_OPERATOR.IGNORE in self.Value)
+        self.FontItalic = QRY_OPERATOR.IGNORE in self.Value
         if self.Target:
             self.Target.FontItalic = self.FontItalic
 
@@ -63,7 +78,9 @@ class SelectionOpDropdown(dui.dDropdownList):
         if self.Target:
             self.Target.FontItalic = self.FontItalic
 
-    Target = property(_getTarget, _setTarget, None, "Holds a reference to the edit control.")
+    Target = property(
+        _getTarget, _setTarget, None, "Holds a reference to the edit control."
+    )
 
 
 class Page(dui.dPage):
@@ -72,27 +89,21 @@ class Page(dui.dPage):
         self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
         self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
 
-
     def __onPageEnter(self, evt):
         self._onPageEnter()
         if self.UpdateOnPageEnter:
             dui.callAfter(self.update)
 
-
     def _onPageEnter(self):
         """Subclass hook."""
         pass
 
-
     def __onPageLeave(self, evt):
         self._onPageLeave()
-
 
     def _onPageLeave(self):
         """Subclass hook."""
         pass
-
-
 
     def newRecord(self, ds=None):
         """Called by a browse grid when the user wants to add a new row."""
@@ -102,14 +113,12 @@ class Page(dui.dPage):
         else:
             self.Parent.newByDataSource(ds)
 
-
     def deleteRecord(self, ds=None):
         """Called by a browse grid when the user wants to delete the current row."""
         if ds is None:
             self.Form.delete()
         else:
             self.Parent.deleteByDataSource(ds)
-
 
     def editRecord(self, ds=None):
         """Called by a browse grid when the user wants to edit the current row."""
@@ -118,20 +127,23 @@ class Page(dui.dPage):
         else:
             self.Parent.editByDataSource(ds)
 
-
     def _getUpdateOnPageEnter(self):
         return getattr(self, "_updateOnPageEnter", True)
 
     def _setUpdateOnPageEnter(self, val):
         self._updateOnPageEnter = bool(val)
 
-    UpdateOnPageEnter = property(_getUpdateOnPageEnter, _setUpdateOnPageEnter, None,
-            _("""Specifies whether an implicit self.update() happens upon page entry."""))
-
+    UpdateOnPageEnter = property(
+        _getUpdateOnPageEnter,
+        _setUpdateOnPageEnter,
+        None,
+        _("""Specifies whether an implicit self.update() happens upon page entry."""),
+    )
 
 
 class SelectOptionsPanel(dPanel):
     """Base class for the select options panel."""
+
     def initProperties(self):
         self.Name = "selectOptionsPanel"
 
@@ -155,7 +167,6 @@ class SelectPage(Page):
         ## way to get the scrollbars.
         self.Sizer.FitInside(self)
 
-
     def afterInit(self):
         super(SelectPage, self).afterInit()
         # Holds info which will be used to create the dynamic
@@ -165,11 +176,9 @@ class SelectPage(Page):
         self.__virtualFilters = []
         self.sortIndex = 0
 
-
     def _initProperties(self):
         self.UpdateOnPageEnter = False
         super(SelectPage, self)._initProperties()
-
 
     def onSortLabelRClick(self, evt):
         obj = self.sortObj = evt.EventObject
@@ -182,8 +191,7 @@ class SelectPage(Page):
         if self.sortFields:
             mn.append(_("Show sort order"), OnHit=self.handleSortOrder)
         if self.sortDS in self.sortFields:
-            mn.append(_("Remove sort on ") + self.sortCap,
-                    OnHit=self.handleSortRemove)
+            mn.append(_("Remove sort on ") + self.sortCap, OnHit=self.handleSortRemove)
 
         mn.append(_("Sort Ascending"), OnHit=self.handleSortAsc)
         mn.append(_("Sort Descending"), OnHit=self.handleSortDesc)
@@ -192,12 +200,16 @@ class SelectPage(Page):
 
     def handleSortOrder(self, evt):
         self.handleSort(evt, "show")
+
     def handleSortRemove(self, evt):
         self.handleSort(evt, "remove")
+
     def handleSortAsc(self, evt):
         self.handleSort(evt, ASC)
+
     def handleSortDesc(self, evt):
         self.handleSort(evt, DESC)
+
     def handleSort(self, evt, action):
         if action == "remove":
             try:
@@ -207,26 +219,30 @@ class SelectPage(Page):
         elif action == "show":
             # Get the descrips and order
             sf = self.sortFields
-            dd = [(sf[kk][0], kk, "%s %s" % (sf[kk][2], sf[kk][1]))
-                    for kk in sf]
+            dd = [(sf[kk][0], kk, "%s %s" % (sf[kk][2], sf[kk][1])) for kk in sf]
             sortDesc = [itm[2] for itm in sorted(dd)]
             sortedList = dui.sortList(sortDesc)
             newPos = 0
             for itm in sortedList:
                 origPos = sortDesc.index(itm)
                 key = dd[origPos][1]
-                self.sortFields[key] = (newPos, self.sortFields[key][1], self.sortFields[key][2])
+                self.sortFields[key] = (
+                    newPos,
+                    self.sortFields[key][1],
+                    self.sortFields[key][2],
+                )
                 newPos += 1
         elif action != "show":
             if self.sortDS in self.sortFields:
-                self.sortFields[self.sortDS] = (self.sortFields[self.sortDS][0],
-                        action, self.sortCap)
+                self.sortFields[self.sortDS] = (
+                    self.sortFields[self.sortDS][0],
+                    action,
+                    self.sortCap,
+                )
             else:
                 self.sortFields[self.sortDS] = (self.sortIndex, action, self.sortCap)
                 self.sortIndex += 1
         self.sortCap = self.sortDS = ""
-
-
 
     def createItems(self):
         if not self.Sizer:
@@ -237,7 +253,6 @@ class SelectPage(Page):
             self.selectOptionsPanel.setFocus()
         super(SelectPage, self).createItems()
 
-
     def setFrom(self, biz):
         """Subclass hook."""
         pass
@@ -245,7 +260,6 @@ class SelectPage(Page):
     def setGroupBy(self, biz):
         """Subclass hook."""
         pass
-
 
     def setOrderBy(self, biz):
         orderBy = self._orderByClause()
@@ -260,13 +274,13 @@ class SelectPage(Page):
         else:
             parts = lambda k: (k, sf[k][1].upper())
 
-        flds = sorted((self.sortFields[k][0], k, " ".join(parts(k)))
-            for k in self.sortFields)
+        flds = sorted(
+            (self.sortFields[k][0], k, " ".join(parts(k))) for k in self.sortFields
+        )
         if infoOnly:
             return [e[1:] for e in flds]
         else:
-            return ",".join([ k[2] for k in flds])
-
+            return ",".join([k[2] for k in flds])
 
     def setWhere(self, biz):
         if not self.itemsCreated:
@@ -282,7 +296,7 @@ class SelectPage(Page):
         whr = ""
         for fld in self.selectFields:
             if fld in biz.VirtualFields:
-                #virtual field, save for later use and ignore
+                # virtual field, save for later use and ignore
                 self.__virtualFilters.append(fld)
                 continue
             if fld == "limit":
@@ -311,7 +325,7 @@ class SelectPage(Page):
                 if fldType == "bool":
                     # boolean fields won't have a control; opVal will
                     # be either 'Is True' or 'Is False'
-                    matchVal = (opVal == QRY_OPERATOR.TRUE)
+                    matchVal = opVal == QRY_OPERATOR.TRUE
                 elif callable(ctrl):
                     try:
                         matchVal = ctrl()
@@ -323,7 +337,7 @@ class SelectPage(Page):
                     matchStr = "%s" % matchVal
                 except TypeError:
                     matchStr = ""
-                #matchStr = "%s" % matchVal
+                # matchStr = "%s" % matchVal
                 useStdFormat = True
 
                 if fldType in ("char", "memo"):
@@ -334,7 +348,11 @@ class SelectPage(Page):
                         useStdFormat = False
                         whrMatches = []
                         for word in matchVal.split():
-                            mtch = {"table": table.strip(), "field": field.strip(), "value": word.strip()}
+                            mtch = {
+                                "table": table.strip(),
+                                "field": field.strip(),
+                                "value": word.strip(),
+                            }
                             whrMatches.append(biz.getWordMatchFormat() % mtch)
                         if len(whrMatches) > 0:
                             whr = " and ".join(whrMatches)
@@ -351,8 +369,11 @@ class SelectPage(Page):
                 elif fldType in ("date", "datetime"):
                     if isinstance(ctrl, dui.dDateTextBox):
                         dtTuple = ctrl.getDateTuple()
-                        dt = "%s-%s-%s" % (dtTuple[0], ustr(dtTuple[1]).zfill(2),
-                                ustr(dtTuple[2]).zfill(2))
+                        dt = "%s-%s-%s" % (
+                            dtTuple[0],
+                            ustr(dtTuple[1]).zfill(2),
+                            ustr(dtTuple[2]).zfill(2),
+                        )
                     else:
                         dt = matchVal
                     matchStr = biz.formatDateTime(dt)
@@ -368,7 +389,7 @@ class SelectPage(Page):
                         opStr = ">"
 
                 elif fldType in ("int", "float"):
-                    #PVG: if we have a int tuple, use all values
+                    # PVG: if we have a int tuple, use all values
                     if isinstance(matchVal, tuple):
                         useStdFormat = False
                         whrMatches = []
@@ -402,15 +423,12 @@ class SelectPage(Page):
                     biz.addWhere(whr, expJoint)
         return
 
-
     def onRequery(self, evt):
         self.requery()
-
 
     def setLimit(self, biz):
         if "limit" in self.selectFields:
             biz.setLimitClause(self.selectFields["limit"]["ctrl"].Value)
-
 
     def requery(self):
         frm = self.Form
@@ -434,7 +452,9 @@ class SelectPage(Page):
 
             ret = frm.requery(_fromSelectPage=True)
 
-            if bizobj.RowCount > 0:  # don't bother applying this if there are no records to work on
+            if (
+                bizobj.RowCount > 0
+            ):  # don't bother applying this if there are no records to work on
                 # filter virtual fields
                 for vField in self.__virtualFilters:
                     opVal = self.selectFields[vField]["op"].Value
@@ -448,34 +468,38 @@ class SelectPage(Page):
                 # If the select page is active, now make the browse page active
                 self.Parent.SelectedPageNumber = 1
 
-
     def getSelectorOptions(self, typ, wordSearch=False):
         # The fieldspecs version sends the wordSearch parameter as a "1" or "0"
         # string. The following conversion should work no matter what:
         wordSearch = bool(int(wordSearch))
         if typ in ("char", "memo"):
             if typ == "char":
-                chcList = (QRY_OPERATOR.EQUAL,
-                        QRY_OPERATOR.BEGINS,
-                        QRY_OPERATOR.CONTAINS)
+                chcList = (
+                    QRY_OPERATOR.EQUAL,
+                    QRY_OPERATOR.BEGINS,
+                    QRY_OPERATOR.CONTAINS,
+                )
             elif typ == "memo":
-                chcList = (QRY_OPERATOR.BEGINS,
-                        QRY_OPERATOR.CONTAINS)
+                chcList = (QRY_OPERATOR.BEGINS, QRY_OPERATOR.CONTAINS)
             if wordSearch:
                 chcList += (QRY_OPERATOR.MATCH,)
             chc = tuple(chcList)
         elif typ in ("date", "datetime"):
-            chc = (QRY_OPERATOR.EQUAL,
-                    QRY_OPERATOR.ONBEFORE,
-                    QRY_OPERATOR.ONAFTER,
-                    QRY_OPERATOR.BEFORE,
-                    QRY_OPERATOR.AFTER)
+            chc = (
+                QRY_OPERATOR.EQUAL,
+                QRY_OPERATOR.ONBEFORE,
+                QRY_OPERATOR.ONAFTER,
+                QRY_OPERATOR.BEFORE,
+                QRY_OPERATOR.AFTER,
+            )
         elif typ in ("int", "float", "decimal"):
-            chc = (QRY_OPERATOR.EQUAL,
-                    QRY_OPERATOR.GREATER,
-                    QRY_OPERATOR.GREATEREQUAL,
-                    QRY_OPERATOR.LESS,
-                    QRY_OPERATOR.LESSEQUAL)
+            chc = (
+                QRY_OPERATOR.EQUAL,
+                QRY_OPERATOR.GREATER,
+                QRY_OPERATOR.GREATEREQUAL,
+                QRY_OPERATOR.LESS,
+                QRY_OPERATOR.LESSEQUAL,
+            )
         elif typ == "bool":
             chc = (QRY_OPERATOR.TRUE, QRY_OPERATOR.FALSE)
         else:
@@ -483,11 +507,9 @@ class SelectPage(Page):
             chc = ()
         return chc
 
-
     def getSelectOptionsPanel(self):
         """Subclass hook. Return the panel instance to display on the select page."""
         pass
-
 
     def onCustomSQL(self, evt):
         cb = evt.EventObject
@@ -504,8 +526,12 @@ class SelectPage(Page):
 
                 sql = bizobj.getSQL()
 
-            dlg = dui.dDialog(self, Caption=_("Set Custom SQL"),
-                    SaveRestorePosition=True, BorderResizable=True)
+            dlg = dui.dDialog(
+                self,
+                Caption=_("Set Custom SQL"),
+                SaveRestorePosition=True,
+                BorderResizable=True,
+            )
             eb = dlg.addObject(dui.dEditBox, Value=sql, Size=(400, 400))
             for ff in ["Monospace", "Monaco", "Courier New"]:
                 try:
@@ -521,7 +547,6 @@ class SelectPage(Page):
         else:
             # Clear the custom SQL
             self.Form.CustomSQL = None
-
 
     def getSearchCtrlClass(self, typ):
         """Returns the appropriate editing control class for the given data type."""
@@ -540,7 +565,6 @@ class BrowsePage(Page):
             Name = "pageBrowse"
         super(BrowsePage, self).__init__(parent, Name=Name, *args, **kwargs)
 
-
     def _onPageEnter(self):
         if not self.itemsCreated:
             self.createItems()
@@ -556,7 +580,6 @@ class BrowsePage(Page):
             biz.RequeryChildrenOnNavigate = True
             biz.requeryAllChildren()
 
-
     def createItems(self):
         biz = self.Form.getBizobj()
         grid = self.Form.BrowseGridClass(self, NameBase="BrowseGrid", Size=(10, 10))
@@ -565,7 +588,6 @@ class BrowsePage(Page):
         self.Sizer.append(grid, 2, "expand")
         self.layout()
         self.itemsCreated = True
-
 
 
 class EditPage(Page):
@@ -579,26 +601,21 @@ class EditPage(Page):
         if self.DataSource:
             self.buildPage()
 
-
     def initEvents(self):
         super(EditPage, self).initEvents()
         self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
-
 
     def buildPage(self):
         if not self.DataSource:
             return
         self.createItems()
 
-
     def __onRowNumChanged(self, evt):
         for cg in self.childGrids:
             cg.populate()
 
-
     def _onPageLeave(self):
         self.Form.setPrimaryBizobjToDefault(self.DataSource)
-
 
     def _onPageEnter(self):
         self.Form.PrimaryBizobj = self.DataSource
@@ -609,7 +626,6 @@ class EditPage(Page):
         # The current row may have changed. Make sure that the
         # values are current
         self.__onRowNumChanged(None)
-
 
     def createItems(self):
         """Subclass hook. Create your items and then call super()"""
@@ -624,6 +640,11 @@ class EditPage(Page):
         if not self.itemsCreated:
             self.buildPage()
 
-    DataSource = property(_getDS, _setDS, None,
-            _("Table that is the primary source for the fields displayed on the page  (str)"))
-
+    DataSource = property(
+        _getDS,
+        _setDS,
+        None,
+        _(
+            "Table that is the primary source for the fields displayed on the page  (str)"
+        ),
+    )

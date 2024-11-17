@@ -6,6 +6,7 @@ along with convenience functions to allow calling like::
     if dAreYouSure("Delete this record"):
 
 """
+
 import wx
 import dabo
 from dabo.dLocalize import _
@@ -20,11 +21,22 @@ def getForm():
 
 
 class dMessageBox(wx.MessageDialog):
-    def __init__(self, message, title, style, parent=None, requestUserAttention=True,
-                userAttentionMode=wx.USER_ATTENTION_INFO):
+    def __init__(
+        self,
+        message,
+        title,
+        style,
+        parent=None,
+        requestUserAttention=True,
+        userAttentionMode=wx.USER_ATTENTION_INFO,
+    ):
         if not parent:
             parent = getForm()
-        if not wx.GetApp().IsActive() and isinstance(parent, (wx.Frame, wx.MDIParentFrame)) and requestUserAttention:
+        if (
+            not wx.GetApp().IsActive()
+            and isinstance(parent, (wx.Frame, wx.MDIParentFrame))
+            and requestUserAttention
+        ):
             # We only want to send the requestUserAttention to the OS if our application
             # isn't currently the active application. Otherwise it abuses the intent...
             parent.RequestUserAttention(userAttentionMode)
@@ -34,8 +46,14 @@ class dMessageBox(wx.MessageDialog):
         wx.MessageDialog.__init__(self, parent, message, title, style)
 
 
-def areYouSure(message="Are you sure?", title=None, defaultNo=False,
-        cancelButton=True, parent=None, requestUserAttention=True):
+def areYouSure(
+    message="Are you sure?",
+    title=None,
+    defaultNo=False,
+    cancelButton=True,
+    parent=None,
+    requestUserAttention=True,
+):
     """
     Display a dMessageBox asking the user to answer yes or no to a question.
 
@@ -57,13 +75,13 @@ def areYouSure(message="Are you sure?", title=None, defaultNo=False,
     """
     if title is None:
         title = getDefaultTitle()
-    style = wx.YES_NO|wx.ICON_QUESTION
+    style = wx.YES_NO | wx.ICON_QUESTION
     if cancelButton:
-        style = style|wx.CANCEL
+        style = style | wx.CANCEL
     else:
         style = style & ~wx.CANCEL
     if defaultNo:
-        style = style|wx.NO_DEFAULT
+        style = style | wx.NO_DEFAULT
 
     dlg = dMessageBox(message, title, style, parent=parent)
     retval = dlg.ShowModal()
@@ -96,8 +114,14 @@ def stop(message="Stop", title=None, parent=None, requestUserAttention=True):
     if title is None:
         title = getDefaultTitle()
     icon = wx.ICON_HAND
-    showMessageBox(message=message, title=title, icon=icon, parent=parent,
-            requestUserAttention=requestUserAttention)
+    showMessageBox(
+        message=message,
+        title=title,
+        icon=icon,
+        parent=parent,
+        requestUserAttention=requestUserAttention,
+    )
+
 
 def info(message="Information", title=None, parent=None, requestUserAttention=True):
     """
@@ -118,11 +142,16 @@ def info(message="Information", title=None, parent=None, requestUserAttention=Tr
     if title is None:
         title = getDefaultTitle()
     icon = wx.ICON_INFORMATION
-    showMessageBox(message=message, title=title, icon=icon, parent=parent,
-            requestUserAttention=requestUserAttention)
+    showMessageBox(
+        message=message,
+        title=title,
+        icon=icon,
+        parent=parent,
+        requestUserAttention=requestUserAttention,
+    )
 
-def exclaim(message="Important!", title=None, parent=None,
-            requestUserAttention=True):
+
+def exclaim(message="Important!", title=None, parent=None, requestUserAttention=True):
     """
     Display a dMessageBox urgently informing the user that we cannot proceed.
 
@@ -141,17 +170,33 @@ def exclaim(message="Important!", title=None, parent=None,
     if title is None:
         title = getDefaultTitle()
     icon = wx.ICON_EXCLAMATION
-    showMessageBox(message=message, title=title, icon=icon, parent=parent,
-            requestUserAttention=requestUserAttention,
-            userAttentionMode=wx.USER_ATTENTION_ERROR)
+    showMessageBox(
+        message=message,
+        title=title,
+        icon=icon,
+        parent=parent,
+        requestUserAttention=requestUserAttention,
+        userAttentionMode=wx.USER_ATTENTION_ERROR,
+    )
 
 
-def showMessageBox(message, title, icon, parent=None,
-            requestUserAttention=True, userAttentionMode=wx.USER_ATTENTION_INFO):
+def showMessageBox(
+    message,
+    title,
+    icon,
+    parent=None,
+    requestUserAttention=True,
+    userAttentionMode=wx.USER_ATTENTION_INFO,
+):
     style = wx.OK | icon
-    dlg = dMessageBox(message, title, style, parent=parent,
-            requestUserAttention=requestUserAttention,
-            userAttentionMode=userAttentionMode)
+    dlg = dMessageBox(
+        message,
+        title,
+        style,
+        parent=parent,
+        requestUserAttention=requestUserAttention,
+        userAttentionMode=userAttentionMode,
+    )
     dlg.CenterOnParent()
     retval = dlg.ShowModal()
     dlg.Destroy()
@@ -187,24 +232,31 @@ if __name__ == "__main__":
     from dabo.ui import dForm
     from dabo.ui import dLabel
     from dabo.ui import dLine
+
     app = dApp()
     app.showMainFormOnStart = False
     app.setup()
     print(areYouSure("Are you happy?"))
     print(areYouSure("Are you sure?", cancelButton=False))
-    print(areYouSure("So you aren\'t sad?", defaultNo=True))
+    print(areYouSure("So you aren't sad?", defaultNo=True))
 
     # Test requesting user attention:
     frm = dForm()
+
     def onExit(evt):
         app.onFileExit(evt)
-    cap = _("After you click okay, switch to another running application\nwithin 5 seconds, to test"
-            " the requestUserAttention setting.\n\n\nAfterwards, click the button below to exit.")
+
+    cap = _(
+        "After you click okay, switch to another running application\nwithin 5 seconds, to test"
+        " the requestUserAttention setting.\n\n\nAfterwards, click the button below to exit."
+    )
     lbl = dLabel(frm, Caption=cap)
     ln = dLine(frm, Orientation="H", Height=3)
     btn = dButton(frm, Caption=_("Exit"), OnHit=onExit)
     frm.Sizer.append(lbl, halign="center", border=20)
-    frm.Sizer.append(ln, "x", halign="center", border=120, borderSides=["left", "right"])
+    frm.Sizer.append(
+        ln, "x", halign="center", border=120, borderSides=["left", "right"]
+    )
     frm.Sizer.appendSpacer(80)
     frm.Sizer.append(btn, halign="center")
     frm.layout()

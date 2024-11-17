@@ -12,6 +12,7 @@ from dabo.dLocalize import _
 from dabo import dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 from dabo.ui import dControlMixin
+
 try:
     import webbrowser as wb
 except ImportError:
@@ -23,6 +24,7 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
     Creates a scrolled panel that can load and display html pages. The Html Window
     can load any html text, file, or url that is fed to it.
     """
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._horizontalScroll = self._verticalScroll = True
         self._baseClass = dHtmlBox
@@ -32,8 +34,15 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
         self._source = self._page = ""
         self._respondToLinks = True
         self._openLinksInBrowser = False
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
+        dControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
         self.SetScrollRate(10, 10)
         if wx.VERSION >= (2, 7):
             self.Bind(wx.html.EVT_HTML_LINK_CLICKED, self.__onWxLinkClicked)
@@ -41,19 +50,15 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
             # no such event, so we need to override the OnCellClicked event
             self.OnCellClicked = self.__OnCellClicked
 
-
     def _initEvents(self):
         super(dHtmlBox, self)._initEvents()
         self.bindEvent(dEvents.HtmlLinkClicked, self.__onLinkClicked)
 
-
     def __OnCellClicked(self, cell, x, y, evt):
         self.raiseEvent(dEvents.HtmlLinkClicked, href=cell.GetLink().GetHref())
 
-
     def __onWxLinkClicked(self, evt):
         self.raiseEvent(dEvents.HtmlLinkClicked, href=evt.GetLinkInfo().GetHref())
-
 
     def __onLinkClicked(self, evt):
         if self.RespondToLinks:
@@ -67,7 +72,6 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
                 # Open in the control itself
                 self.Page = evt.href
 
-
     def _processInternalLink(self, queryString):
         # Note that all arguments are string
         if queryString.startswith("app://"):
@@ -76,7 +80,7 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
             obj = self.Form
         else:
             raise ValueError(_("Internal link must resolve to Form or Application."))
-        queryString = queryString[queryString.index("//") + 2:]
+        queryString = queryString[queryString.index("//") + 2 :]
         try:
             meth, args = queryString.split("?")
             qsargs = args.split("&")
@@ -93,15 +97,14 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
                 args.append(qsarg)
         getattr(obj, meth)(*args, **kwargs)
 
-
     def copy(self):
         """Implement the plain text version of copying"""
         return self.SelectionToText()
 
-
     def setImageURLs(self, val):
         """Replace standard image file names with 'file:///img.pth' references"""
         pat = re.compile(r"""<img (.*)\bsrc=(['"]?)([^'">]+)(['"]?)([^>]*)>""")
+
         def repl(match):
             beg, end = match.span()
             befSrc, qt1, src, qt2, aftSrc = match.groups()
@@ -117,12 +120,12 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
                 # broken image links if the path contains the drive letter
                 pos = url.find(":/", len("file:///"), len(url))
                 if pos:
-                    drive_letter = url[pos-1]
+                    drive_letter = url[pos - 1]
                     if drive_letter in string.ascii_letters:
                         url = url.replace("%s:/" % drive_letter, "")
             return "<img %(befSrc)ssrc=%(qt1)s%(url)s%(qt2)s%(aftSrc)s>" % locals()
-        return pat.sub(repl, val)
 
+        return pat.sub(repl, val)
 
     def _getHorizontalScroll(self):
         return self._horizontalScroll
@@ -131,8 +134,7 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
         self._horizontalScroll = val
         self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
         rt = self.GetScrollPixelsPerUnit()
-        self.SetScrollRate({True:rt[0], False:0}[val], rt[1])
-
+        self.SetScrollRate({True: rt[0], False: 0}[val], rt[1])
 
     def _getOpenLinksInBrowser(self):
         return self._openLinksInBrowser
@@ -142,7 +144,6 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
             self._openLinksInBrowser = val
         else:
             self._properties["OpenLinksInBrowser"] = val
-
 
     def _getPage(self):
         return self._page
@@ -176,17 +177,14 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
                 self._page = ""
                 self.SetPage(self._source)
 
-
     def _getRespondToLinks(self):
         return self._respondToLinks
 
     def _setRespondToLinks(self, val):
         self._respondToLinks = val
 
-
     def _getSelectedText(self):
         return self.SelectionToText()
-
 
     def _getSource(self):
         return self._source
@@ -201,7 +199,6 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
             val = self.setImageURLs(val)
             self.SetPage(val)
 
-
     def _getShowScrollBars(self):
         return not self._hasWindowStyleFlag(wx.html.HW_SCROLLBAR_NEVER)
 
@@ -213,10 +210,8 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
             self._delWindowStyleFlag(wx.html.HW_SCROLLBAR_AUTO)
             self._addWindowStyleFlag(wx.html.HW_SCROLLBAR_NEVER)
 
-
     def _getText(self):
         return self.ToText()
-
 
     def _getVerticalScroll(self):
         return self._verticalScroll
@@ -225,40 +220,87 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
         self._verticalScroll = val
         self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
         rt = self.GetScrollPixelsPerUnit()
-        self.SetScrollRate(rt[0], {True:rt[1], False:0}[val])
+        self.SetScrollRate(rt[0], {True: rt[1], False: 0}[val])
 
-    HorizontalScroll = property(_getHorizontalScroll, _setHorizontalScroll, None,
-            _("Controls whether this object will scroll horizontally (default=True)  (bool)"))
+    HorizontalScroll = property(
+        _getHorizontalScroll,
+        _setHorizontalScroll,
+        None,
+        _(
+            "Controls whether this object will scroll horizontally (default=True)  (bool)"
+        ),
+    )
 
-    OpenLinksInBrowser = property(_getOpenLinksInBrowser, _setOpenLinksInBrowser, None,
-            _("""When True, clicking on an HREF link will open the URL in the default web browser
-            instead of in the control itself. Default=False.  (bool)"""))
+    OpenLinksInBrowser = property(
+        _getOpenLinksInBrowser,
+        _setOpenLinksInBrowser,
+        None,
+        _(
+            """When True, clicking on an HREF link will open the URL in the default web browser
+            instead of in the control itself. Default=False.  (bool)"""
+        ),
+    )
 
-    Page = property(_getPage, _setPage, None,
-            _("URL or file path of the current page being displayed. (default='')  (string)"))
+    Page = property(
+        _getPage,
+        _setPage,
+        None,
+        _(
+            "URL or file path of the current page being displayed. (default='')  (string)"
+        ),
+    )
 
-    RespondToLinks = property(_getRespondToLinks, _setRespondToLinks, None,
-            _("When True (default), clicking a link will attempt to load that linked page.  (bool)"))
+    RespondToLinks = property(
+        _getRespondToLinks,
+        _setRespondToLinks,
+        None,
+        _(
+            "When True (default), clicking a link will attempt to load that linked page.  (bool)"
+        ),
+    )
 
-    SelectedText = property(_getSelectedText, None, None,
-            _("Currently selected text. Returns the empty string if nothing is selected. Read-only  (str)"))
+    SelectedText = property(
+        _getSelectedText,
+        None,
+        None,
+        _(
+            "Currently selected text. Returns the empty string if nothing is selected. Read-only  (str)"
+        ),
+    )
 
-    ShowScrollBars = property(_getShowScrollBars, _setShowScrollBars, None,
-            _("When Tru (default), scrollbars will be shown as needed.  (bool)"))
+    ShowScrollBars = property(
+        _getShowScrollBars,
+        _setShowScrollBars,
+        None,
+        _("When Tru (default), scrollbars will be shown as needed.  (bool)"),
+    )
 
-    Source = property(_getSource, _setSource, None,
-            _("Html source of the current page being display. (default='')  (string)"))
+    Source = property(
+        _getSource,
+        _setSource,
+        None,
+        _("Html source of the current page being display. (default='')  (string)"),
+    )
 
-    Text = property(_getText, None, None,
-            _("""Returns the displayed plain text content of the control, free of any
-            HTML markup. Read-only  (str)"""))
+    Text = property(
+        _getText,
+        None,
+        None,
+        _(
+            """Returns the displayed plain text content of the control, free of any
+            HTML markup. Read-only  (str)"""
+        ),
+    )
 
     # alias to fall in line with the rest of Dabo.
     Value = Source
 
-    VerticalScroll = property(_getVerticalScroll, _setVerticalScroll, None,
-            _("Controls whether this object will scroll vertically (default=True)  (bool)"))
-
+    VerticalScroll = property(
+        _getVerticalScroll,
+        _setVerticalScroll,
+        None,
+        _("Controls whether this object will scroll vertically (default=True)  (bool)"),
+    )
 
     DynamicHorizontalScroll = makeDynamicProperty(HorizontalScroll)
     DynamicVerticalScroll = makeDynamicProperty(VerticalScroll)
@@ -276,7 +318,8 @@ class _dHtmlBox_test(dHtmlBox):
         self.Source = self.getPageData()
 
     def getPageData(self):
-        return """<html>
+        return (
+            """<html>
         <body bgcolor="salmon">
         <center>
             <table bgcolor="#8470FF" width="100%%" cellspacing="0" cellpadding="0"
@@ -302,7 +345,9 @@ class _dHtmlBox_test(dHtmlBox):
         </p>
         </body>
         </html>
-        """ % datetime.date.today().year
+        """
+            % datetime.date.today().year
+        )
 
     def onMouseLeftDown(self, evt):
         print("mousedown")
@@ -315,15 +360,16 @@ class _dHtmlBox_test(dHtmlBox):
 def textChangeHandler(evt):
     dabo.ui.callAfter(evt.EventObject.flushValue)
 
+
 def resetHTML(evt):
     frm = evt.EventObject.Form
     frm.htmlbox.Source = frm.htmlbox.getPageData()
     frm.update()
 
 
-
 if __name__ == "__main__":
     from dabo.dApp import dApp
+
     app = dApp(MainFormClass=None)
     app.setup()
     frm = dabo.ui.dForm()
@@ -332,7 +378,9 @@ if __name__ == "__main__":
     sz = pnl.Sizer = dabo.ui.dSizer("v")
     ht = _dHtmlBox_test(pnl, RegID="htmlbox")
     sz.append(ht, 2, "x", border=10)
-    lbl = dabo.ui.dLabel(pnl, Caption="Edit the HTML below, then press 'Tab' to update the rendered HTML")
+    lbl = dabo.ui.dLabel(
+        pnl, Caption="Edit the HTML below, then press 'Tab' to update the rendered HTML"
+    )
     sz.appendSpacer(5)
     sz.append(lbl, halign="center")
     edt = dabo.ui.dEditBox(pnl, RegID="editbox", DataSource=ht, DataField="Source")

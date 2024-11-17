@@ -153,18 +153,21 @@ def profile(fn=None, skip=0, filename=None, immediate=False):
             ...
 
     """
-    if fn is None: # @profile() syntax -- we are a decorator maker
+    if fn is None:  # @profile() syntax -- we are a decorator maker
+
         def decorator(fn):
-            return profile(fn, skip=skip, filename=filename,
-                           immediate=immediate)
+            return profile(fn, skip=skip, filename=filename, immediate=immediate)
+
         return decorator
     # @profile syntax -- we are a decorator.
     fp = FuncProfile(fn, skip=skip, filename=filename, immediate=immediate)
-         # or HotShotFuncProfile
+
+    # or HotShotFuncProfile
     # We cannot return fp or fp.__call__ directly as that would break method
     # definitions, instead we need to return a plain function.
     def new_fn(*args, **kw):
         return fp(*args, **kw)
+
     new_fn.__doc__ = fn.__doc__
     return new_fn
 
@@ -189,11 +192,13 @@ def coverage(fn):
             ...
 
     """
-    fp = TraceFuncCoverage(fn) # or HotShotFuncCoverage
+    fp = TraceFuncCoverage(fn)  # or HotShotFuncCoverage
+
     # We cannot return fp or fp.__call__ directly as that would break method
     # definitions, instead we need to return a plain function.
     def new_fn(*args, **kw):
         return fp(*args, **kw)
+
     new_fn.__doc__ = fn.__doc__
     return new_fn
 
@@ -209,10 +214,12 @@ def coverage_with_hotshot(fn):
     See the docstring of `coverage` for usage examples.
     """
     fp = HotShotFuncCoverage(fn)
+
     # We cannot return fp or fp.__call__ directly as that would break method
     # definitions, instead we need to return a plain function.
     def new_fn(*args, **kw):
         return fp(*args, **kw)
+
     new_fn.__doc__ = fn.__doc__
     return new_fn
 
@@ -276,7 +283,7 @@ class FuncProfile:
         print()
         print("*** PROFILER RESULTS ***")
         print("%s (%s:%s)" % (funcname, filename, lineno))
-        print("function called %d times" % self.ncalls, end=' ')
+        print("function called %d times" % self.ncalls, end=" ")
         if self.skipped:
             print("(%d calls not profiled)" % self.skipped)
         else:
@@ -287,7 +294,7 @@ class FuncProfile:
             with open(self.filename, "w") as ff:
                 pickle.dump(stats, ff)
         stats.strip_dirs()
-        stats.sort_stats('cumulative', 'time', 'calls')
+        stats.sort_stats("cumulative", "time", "calls")
         stats.print_stats(40)
 
     def reset_stats(self):
@@ -366,7 +373,7 @@ class HotShotFuncProfile:
         print()
         print("*** PROFILER RESULTS ***")
         print("%s (%s:%s)" % (funcname, filename, lineno))
-        print("function called %d times" % self.ncalls, end=' ')
+        print("function called %d times" % self.ncalls, end=" ")
         if self.skipped:
             print("(%d calls not profiled)" % self.skipped)
         else:
@@ -380,7 +387,7 @@ class HotShotFuncProfile:
                 pickle.dump(stats, ff)
         # it is best to pickle before strip_dirs
         stats.strip_dirs()
-        stats.sort_stats('cumulative', 'time', 'calls')
+        stats.sort_stats("cumulative", "time", "calls")
         stats.print_stats(40)
 
 
@@ -461,8 +468,9 @@ class TraceFuncCoverage:
     """
 
     # Shared between all instances so that nested calls work
-    tracer = trace.Trace(count=True, trace=False,
-                         ignoredirs=[sys.prefix, sys.exec_prefix])
+    tracer = trace.Trace(
+        count=True, trace=False, ignoredirs=[sys.prefix, sys.exec_prefix]
+    )
 
     # This flag is also shared between all instances
     tracing = False
@@ -571,17 +579,17 @@ class FuncSource:
         for line in self.source:
             counter = self.sourcelines.get(lineno)
             if counter is None:
-                prefix = ' ' * 7
+                prefix = " " * 7
             elif counter == 0:
                 if self.blank_rx.match(line):
-                    prefix = ' ' * 7
+                    prefix = " " * 7
                 else:
-                    prefix = '>' * 6 + ' '
+                    prefix = ">" * 6 + " "
             else:
-                prefix = '%5d: ' % counter
+                prefix = "%5d: " % counter
             lines.append(prefix + line)
             lineno += 1
-        return ''.join(lines)
+        return "".join(lines)
 
 
 def timecall(fn):
@@ -601,6 +609,7 @@ def timecall(fn):
         somefunc: 6.0 seconds
 
     """
+
     def new_fn(*args, **kw):
         try:
             start = time.time()
@@ -610,8 +619,11 @@ def timecall(fn):
             funcname = fn.__name__
             filename = fn.__code__.co_filename
             lineno = fn.__code__.co_firstlineno
-            print("\n  %s (%s:%s):\n    %.3f seconds\n" % (
-                                        funcname, filename, lineno, duration), file=sys.stderr)
+            print(
+                "\n  %s (%s:%s):\n    %.3f seconds\n"
+                % (funcname, filename, lineno, duration),
+                file=sys.stderr,
+            )
+
     new_fn.__doc__ = fn.__doc__
     return new_fn
-

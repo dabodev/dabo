@@ -10,7 +10,6 @@ from dabo.ui import makeDynamicProperty
 from dabo.ui import dControlMixin
 
 
-
 class dDataControlMixin(dControlMixin):
     def __init__(self, *args, **kwargs):
         self._deriveTextLengthFromSource = dabo.dTextBox_DeriveTextLengthFromSource
@@ -31,7 +30,6 @@ class dDataControlMixin(dControlMixin):
         self._value = self.Value
         self._enabled = True
 
-
     def _initEvents(self):
         super(dDataControlMixin, self)._initEvents()
 
@@ -40,11 +38,9 @@ class dDataControlMixin(dControlMixin):
         self.bindEvent(dEvents.GotFocus, self.__onGotFocus)
         self.bindEvent(dEvents.LostFocus, self.__onLostFocus)
 
-
     def __onCreate(self, evt):
         if self.SaveRestoreValue:
             self.restoreValue()
-
 
     def __onDestroy(self, evt):
         if not self:
@@ -52,17 +48,14 @@ class dDataControlMixin(dControlMixin):
         if self.SaveRestoreValue:
             self.saveValue()
 
-
     def __onGotFocus(self, evt):
         self._gotFocus()
-
 
     def __onLostFocus(self, evt):
         if not self:
             return
         if self._lostFocus() is False:
             evt.stop()
-
 
     def _gotFocus(self):
         # self._oldVal will be compared to self.Value in flushValue()
@@ -79,7 +72,6 @@ class dDataControlMixin(dControlMixin):
             # only text controls have SelectOnEntry
             pass
 
-
     def _lostFocus(self):
         if not self:
             return
@@ -94,11 +86,9 @@ class dDataControlMixin(dControlMixin):
             # only text controls have SelectOnEntry
             pass
 
-
     def getBlankValue(self):
         """Return the empty value of the control."""
         return None
-
 
     def _verifyEnabledStatus(self, enable):
         if self.DisableOnEmptyDataSource:
@@ -111,7 +101,6 @@ class dDataControlMixin(dControlMixin):
                     self._dsDisabled = True
                     self.Enabled = False
 
-
     def update(self):
         """Update control's value to match the current value from the source."""
         # We need to do the data handling stuff before calling super()
@@ -121,10 +110,11 @@ class dDataControlMixin(dControlMixin):
             self.selectAll()
         super(dDataControlMixin, self).update()
 
-
     def __dataUpdate(self):
         """This handles all the value updating from the data source."""
-        if not self.DataField or not (self.DataSource or isinstance(self.DataSource, dPref)):
+        if not self.DataField or not (
+            self.DataSource or isinstance(self.DataSource, dPref)
+        ):
             return
         if self._DesignerMode:
             return
@@ -138,7 +128,7 @@ class dDataControlMixin(dControlMixin):
             except dException.NoRecordsException:
                 self.Value = self.getBlankValue()
                 self._verifyEnabledStatus(False)
-            except (TypeError):
+            except TypeError:
                 self.Value = self.getBlankValue()
                 self._verifyEnabledStatus(True)
             except dException.FieldNotFoundException:
@@ -181,7 +171,6 @@ class dDataControlMixin(dControlMixin):
             self._inDataUpdate = False
         self._oldVal = self.Value
 
-
     def flushValue(self):
         """
         Save any changes to the underlying source field. First check to make sure
@@ -220,16 +209,18 @@ class dDataControlMixin(dControlMixin):
             if isinstance(curVal, float) and isinstance(oldVal, float):
                 # If it is a float, make sure that it has changed by more than the
                 # rounding error.
-                isChanged = (abs(curVal - oldVal) > 0.0000001)
+                isChanged = abs(curVal - oldVal) > 0.0000001
             else:
-                isChanged = (curVal != oldVal)
+                isChanged = curVal != oldVal
         if isChanged:
             # In some situations, e.g. if control is bound to widget property, changes of property
             # value can cause recursive call to the flushValue() method.
             # To prevent such situation we have to check the _from_flushValue attribute at the beginning.
             self._from_flushValue = True
             if not self._DesignerMode:
-                if (self.DataSource or isinstance(self.DataSource, dPref)) and self.DataField:
+                if (
+                    self.DataSource or isinstance(self.DataSource, dPref)
+                ) and self.DataField:
                     src = self.Source
                     if self._srcIsBizobj:
                         try:
@@ -244,7 +235,10 @@ class dDataControlMixin(dControlMixin):
                             if callable(att):
                                 return
                             setattr(self.Source, self.DataField, curVal)
-                        except (dException.NoRecordsException, dException.RowNotFoundException):
+                        except (
+                            dException.NoRecordsException,
+                            dException.RowNotFoundException,
+                        ):
                             # UI called flushValue() when there wasn't a valid record active.
                             # Treat as spurious and ignore.
                             pass
@@ -254,14 +248,19 @@ class dDataControlMixin(dControlMixin):
                             if isinstance(self.DataSource, str):
                                 self._srcIsInstanceMethod = False
                             else:
-                                self._srcIsInstanceMethod = callable(getattr(src, self.DataField))
+                                self._srcIsInstanceMethod = callable(
+                                    getattr(src, self.DataField)
+                                )
                         if self._srcIsInstanceMethod:
                             return
                         if isinstance(src, str):
                             try:
-                                exec ("src.%s = curVal" % self.DataField)
+                                exec("src.%s = curVal" % self.DataField)
                             except Exception as e:
-                                dabo.log.error("Could not bind to '%s.%s'\nReason: %s" % (self.DataSource, self.DataField, e))
+                                dabo.log.error(
+                                    "Could not bind to '%s.%s'\nReason: %s"
+                                    % (self.DataSource, self.DataField, e)
+                                )
                         else:
                             # The source is a direct object reference
                             try:
@@ -271,7 +270,10 @@ class dDataControlMixin(dControlMixin):
                                     nm = self.DataSource._name
                                 else:
                                     nm = ustr(self.DataSource)
-                                dabo.log.error("Could not bind to '%s.%s'\nReason: %s" % (nm, self.DataField, e))
+                                dabo.log.error(
+                                    "Could not bind to '%s.%s'\nReason: %s"
+                                    % (nm, self.DataField, e)
+                                )
             self._oldVal = curVal
             self._afterValueChanged()
             self._from_flushValue = False
@@ -281,7 +283,6 @@ class dDataControlMixin(dControlMixin):
                 self.raiseEvent(dEvents.InteractiveChange, oldVal=oldVal)
             self.raiseEvent(dEvents.ValueChanged)
         return ret
-
 
     def saveValue(self):
         """Save control's value to dApp's user settings table."""
@@ -304,7 +305,6 @@ class dDataControlMixin(dControlMixin):
                 name = self.getAbsoluteName()
             app.setUserSetting("%s.Value" % name, value)
 
-
     def restoreValue(self):
         """Set the control's value to the value in dApp's user settings table."""
         app = self.Application
@@ -323,7 +323,6 @@ class dDataControlMixin(dControlMixin):
                 except (ValueError, TypeError) as e:
                     dabo.log.error(e)
 
-
     def getShortDataType(self, value):
         if isinstance(value, int):
             return "I"
@@ -336,7 +335,6 @@ class dDataControlMixin(dControlMixin):
         else:
             dabo.log.info(_("getShortDataType - unknown type: %s") % (value,))
             return "?"
-
 
     def _afterValueChanged(self):
         """
@@ -360,19 +358,20 @@ class dDataControlMixin(dControlMixin):
         if self._inDataUpdate or self._from_flushValue:
             return
 
-        if (self.Form.ActiveControl != self
-                or not getattr(self, "_flushOnLostFocus", False)):
+        if self.Form.ActiveControl != self or not getattr(
+            self, "_flushOnLostFocus", False
+        ):
             # Value was changed programatically, and flushValue won't ever be
             # called automatically (either the control won't flush itself upon
             # LostFocus, or the control isn't the active control so the GotFocus/
             # LostFocus mechanism won't recognize the change), so do it now.
             self.flushValue()
 
-
     def _onWxHit(self, evt, *args, **kwargs):
-        self._userChanged = True  ## set the dirty flag so that InteractiveChange can be raised.
+        self._userChanged = (
+            True  ## set the dirty flag so that InteractiveChange can be raised.
+        )
         super(dDataControlMixin, self)._onWxHit(evt, *args, **kwargs)
-
 
     def select(self, position, length):
         """Select all text from <position> for <length> or end of string."""
@@ -383,25 +382,22 @@ class dDataControlMixin(dControlMixin):
             # Only works for text controls
             pass
 
-
     def selectAll(self):
         """Select all text in the control."""
         try:
-            self.SetInsertionPoint(1)   # Best of all worlds (really)
-            self.SetSelection(-1,-1)    # select all text
+            self.SetInsertionPoint(1)  # Best of all worlds (really)
+            self.SetSelection(-1, -1)  # select all text
         except AttributeError:
             # Only works for text controls
             pass
-
 
     def selectNone(self):
         """Select no text in the control."""
         try:
-            self.SetSelection(0,0)
+            self.SetSelection(0, 0)
         except AttributeError:
             # Only works for text controls
             pass
-
 
     def _coerceValue(self, val, oldval):
         convTypes = (str, str, int, float, int, complex)
@@ -422,11 +418,10 @@ class dDataControlMixin(dControlMixin):
             # convert int to long (original field val was long, but UI
             # changed to int.
             val = int(val)
-            #JFCS 11/14/2019 trying to insure that checkboxes are covered correctly
-        elif isinstance(oldval,bool) and isinstance(val,type(None)):
+            # JFCS 11/14/2019 trying to insure that checkboxes are covered correctly
+        elif isinstance(oldval, bool) and isinstance(val, type(None)):
             val = oldval
         return val
-
 
     # Property get/set/del methods follow. Scroll to bottom to see the property
     # definitions themselves.
@@ -439,7 +434,6 @@ class dDataControlMixin(dControlMixin):
     def _setDataField(self, value):
         self._oldVal = None
         self._DataField = ustr(value)
-
 
     def _getDataSource(self):
         try:
@@ -460,8 +454,8 @@ class dDataControlMixin(dControlMixin):
             self._oldVal = None
             self._dataSource = val
             self.update()
-        dabo.ui.callAfter(_delayedSetDataSource)
 
+        dabo.ui.callAfter(_delayedSetDataSource)
 
     def _getDesignerMode(self):
         if self._designerMode is None:
@@ -471,20 +465,17 @@ class dDataControlMixin(dControlMixin):
                 self._designerMode = False
         return self._designerMode
 
-
     def _getDisableOnEmptyDataSource(self):
         return getattr(self, "_disableOnEmptyDataSource", False)
 
     def _setDisableOnEmptyDataSource(self, val):
         self._disableOnEmptyDataSource = val
 
-
     def _getPersistSecretData(self):
         return getattr(self, "_persistSecretData", False)
 
     def _setPersistSecretData(self, val):
         self._persistSecretData = bool(val)
-
 
     def _getSaveRestoreValue(self):
         try:
@@ -494,7 +485,6 @@ class dDataControlMixin(dControlMixin):
 
     def _setSaveRestoreValue(self, value):
         self._SaveRestoreValue = bool(value)
-
 
     def _getSecret(self):
         try:
@@ -506,12 +496,11 @@ class dDataControlMixin(dControlMixin):
     def _setSecret(self, val):
         self._isSecret = val
 
-
     def _getSource(self):
         if self.__src is None:
             ds = self.DataSource
             self._srcIsBizobj = False
-            if (ds or isinstance(ds, dPref)):
+            if ds or isinstance(ds, dPref):
                 # First, see if it's a string
                 if isinstance(ds, str):
                     # Source can be a bizobj, which we get from the form, or
@@ -535,6 +524,7 @@ class dDataControlMixin(dControlMixin):
                                     return resolveObjRef(sp[1], ref)
                                 else:
                                     return ref
+
                         nonself = ds.split(".", 1)[1]
                         self.__src = resolveObjRef(nonself, self)
                         self._srcIsBizobj = isinstance(self.__src, dabo.biz.dBizobj)
@@ -562,7 +552,12 @@ class dDataControlMixin(dControlMixin):
                     self.__src = ds
                     if not isinstance(ds, (dObject, dPref)):
                         # Warn about possible unsupported behavior.
-                        dabo.log.info(_("DataSource '%s' does not inherit from a proper Dabo class. This may result in unsupported problems.") % ds.__repr__())
+                        dabo.log.info(
+                            _(
+                                "DataSource '%s' does not inherit from a proper Dabo class. This may result in unsupported problems."
+                            )
+                            % ds.__repr__()
+                        )
                     else:
                         self._srcIsBizobj = isinstance(ds, dabo.biz.dBizobj)
                 # This allow to use bizobj attribute as data field, instead of table field.
@@ -570,8 +565,11 @@ class dDataControlMixin(dControlMixin):
                 # It's tricky, because object attribute/property takes precedence before data field of the same name.
                 if self._srcIsBizobj:
                     self._srcIsBizobj = not hasattr(self.__src, self.DataField)
-            if self._srcIsBizobj and self._deriveTextLengthFromSource and \
-                    hasattr(self, "TextLength"):
+            if (
+                self._srcIsBizobj
+                and self._deriveTextLengthFromSource
+                and hasattr(self, "TextLength")
+            ):
                 field = self.DataField
                 for descr in self.__src.DataStructure:
                     if descr[0] == field:
@@ -579,7 +577,6 @@ class dDataControlMixin(dControlMixin):
                             self.TextLength = descr[5]
                         break
         return self.__src
-
 
     def _getValue(self):
         return self.GetValue()
@@ -589,7 +586,7 @@ class dDataControlMixin(dControlMixin):
             currVal = self.Value
             if type(currVal) != type(val):
                 val = self._coerceValue(val, currVal)
-            if (type(currVal) != type(val) or currVal != val):
+            if type(currVal) != type(val) or currVal != val:
                 setter = self.SetValue
                 if hasattr(self, "ChangeValue"):
                     setter = self.ChangeValue
@@ -597,49 +594,102 @@ class dDataControlMixin(dControlMixin):
                     setter(val)
                 except (TypeError, ValueError) as e:
                     nm = self._name
-                    dabo.log.error(_("Could not set value of %(nm)s to %(val)s. Error message: %(e)s")
-                            % locals())
+                    dabo.log.error(
+                        _(
+                            "Could not set value of %(nm)s to %(val)s. Error message: %(e)s"
+                        )
+                        % locals()
+                    )
             self._afterValueChanged()
         else:
             self._properties["Value"] = val
 
-
     # Property definitions:
-    DataField = property(_getDataField, _setDataField, None,
-            _("""Specifies the data field of the dataset to use as the source
-            of data. (str)"""))
+    DataField = property(
+        _getDataField,
+        _setDataField,
+        None,
+        _(
+            """Specifies the data field of the dataset to use as the source
+            of data. (str)"""
+        ),
+    )
 
-    DataSource = property(_getDataSource, _setDataSource, None,
-            _("Specifies the dataset to use as the source of data.  (str)"))
+    DataSource = property(
+        _getDataSource,
+        _setDataSource,
+        None,
+        _("Specifies the dataset to use as the source of data.  (str)"),
+    )
 
-    _DesignerMode = property(_getDesignerMode, None, None,
-            _("""When True, the control is not running live, but being used
-            in design mode. Default=False.  (bool)"""))
+    _DesignerMode = property(
+        _getDesignerMode,
+        None,
+        None,
+        _(
+            """When True, the control is not running live, but being used
+            in design mode. Default=False.  (bool)"""
+        ),
+    )
 
-    DisableOnEmptyDataSource = property(_getDisableOnEmptyDataSource, _setDisableOnEmptyDataSource, None,
-            _("""When True and the DataSource is an empty dataset (it must be a dBizobj instance),
-            control is disabled for interactive editing. Default=False.  (bool)"""))
+    DisableOnEmptyDataSource = property(
+        _getDisableOnEmptyDataSource,
+        _setDisableOnEmptyDataSource,
+        None,
+        _(
+            """When True and the DataSource is an empty dataset (it must be a dBizobj instance),
+            control is disabled for interactive editing. Default=False.  (bool)"""
+        ),
+    )
 
-    IsSecret = property(_getSecret, _setSecret, None,
-            _("""Flag for indicating sensitive data, such as Password field, that is not
-            to be persisted. Default=False.  (bool)"""))
+    IsSecret = property(
+        _getSecret,
+        _setSecret,
+        None,
+        _(
+            """Flag for indicating sensitive data, such as Password field, that is not
+            to be persisted. Default=False.  (bool)"""
+        ),
+    )
 
-    PersistSecretData = property(_getPersistSecretData, _setPersistSecretData, None,
-            _("""If True, allow persisting the secret data in encrypted form.
+    PersistSecretData = property(
+        _getPersistSecretData,
+        _setPersistSecretData,
+        None,
+        _(
+            """If True, allow persisting the secret data in encrypted form.
             Warning! Security of your data strongly depends on used encryption algorithms!
-            Default=False.  (bool)"""))
+            Default=False.  (bool)"""
+        ),
+    )
 
-    SaveRestoreValue = property(_getSaveRestoreValue, _setSaveRestoreValue, None,
-            _("""Specifies whether the Value of the control gets saved when
+    SaveRestoreValue = property(
+        _getSaveRestoreValue,
+        _setSaveRestoreValue,
+        None,
+        _(
+            """Specifies whether the Value of the control gets saved when
             destroyed and restored when created. Use when the control isn't
             bound to a dataSource and you want to persist the value, as in
-            an options dialog. Default=False.  (bool)"""))
+            an options dialog. Default=False.  (bool)"""
+        ),
+    )
 
-    Source = property(_getSource, None, None,
-            _("Reference to the object to which this control's Value is bound  (object)"))
+    Source = property(
+        _getSource,
+        None,
+        None,
+        _("Reference to the object to which this control's Value is bound  (object)"),
+    )
 
-    Value = property(_getValue, _setValue, None,
-            _("""Specifies the current state of the control (the value of the field).  (varies)"""))
+    Value = property(
+        _getValue,
+        _setValue,
+        None,
+        _(
+            """Specifies the current state of the control (the value of the field).  (varies)"""
+        ),
+    )
 
     DynamicValue = makeDynamicProperty(Value)
 

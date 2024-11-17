@@ -13,15 +13,19 @@ from .dCursorMixin import dCursorMixin
 class MySQLAutoReconnectCursor(dCursorMixin):
     def execute(self, sql, params=None, errorClass=None, convertQMarks=False):
         from pymysql import OperationalError
+
         try:
-            return super(MySQLAutoReconnectCursor, self).execute(sql,
-                    params=params, errorClass=OperationalError,
-                    convertQMarks=convertQMarks)
+            return super(MySQLAutoReconnectCursor, self).execute(
+                sql,
+                params=params,
+                errorClass=OperationalError,
+                convertQMarks=convertQMarks,
+            )
         except OperationalError:
             self.connection.ping(True)
-            return super(MySQLAutoReconnectCursor, self).execute(sql,
-                    params=params, errorClass=None,
-                    convertQMarks=convertQMarks)
+            return super(MySQLAutoReconnectCursor, self).execute(
+                sql, params=params, errorClass=None, convertQMarks=convertQMarks
+            )
 
 
 class MySQL(dBackend):
@@ -33,7 +37,6 @@ class MySQL(dBackend):
     def __init__(self):
         dBackend.__init__(self)
         self.dbModuleName = "pymysql"
-
 
     def getConnection(self, connectInfo, **kwargs):
         import pymysql as dbapi
@@ -62,11 +65,15 @@ class MySQL(dBackend):
         db = connectInfo.Database
         if db:
             try:
-                cn = dbapi.connect(host=connectInfo.Host, user=connectInfo.User,
-                        passwd=connectInfo.revealPW(), port=port)
-                crs =  cn.cursor()
+                cn = dbapi.connect(
+                    host=connectInfo.Host,
+                    user=connectInfo.User,
+                    passwd=connectInfo.revealPW(),
+                    port=port,
+                )
+                crs = cn.cursor()
                 # Params don't work here; need direct string to execute
-                crs.execute("show create database %s" % (db, ))
+                crs.execute("show create database %s" % (db,))
                 charset = crs.fetchone()[1].split("DEFAULT CHARACTER SET")[1].split()[0]
                 self.Encoding = charset
             except IndexError:
@@ -77,9 +84,15 @@ class MySQL(dBackend):
             charset = charset.lower().replace("-", "")
 
         try:
-            self._connection = dbapi.connect(host=connectInfo.Host,
-                    user = connectInfo.User, passwd = connectInfo.revealPW(),
-                    db=connectInfo.Database, port=port, charset=charset, **kwargs)
+            self._connection = dbapi.connect(
+                host=connectInfo.Host,
+                user=connectInfo.User,
+                passwd=connectInfo.revealPW(),
+                db=connectInfo.Database,
+                port=port,
+                charset=charset,
+                **kwargs,
+            )
         except Exception as e:
             try:
                 errMsg = ustr(e).decode(self.Encoding)
@@ -91,54 +104,48 @@ class MySQL(dBackend):
                 raise dException.DatabaseException(errMsg)
         return self._connection
 
-
     def getDictCursorClass(self):
         from pymysql.cursors import DictCursor
+
         return DictCursor
 
     def getMainCursorClass(self):
         return MySQLAutoReconnectCursor
 
     def beginTransaction(self, cursor):
-        """ Begin a SQL transaction."""
+        """Begin a SQL transaction."""
         cursor.execute("START TRANSACTION")
         return True
 
-
     def commitTransaction(self, cursor):
-        """ Commit a SQL transaction."""
+        """Commit a SQL transaction."""
         cursor.execute("COMMIT")
         return True
 
-
     def rollbackTransaction(self, cursor):
-        """ Rollback a SQL transaction."""
+        """Rollback a SQL transaction."""
         cursor.execute("ROLLBACK")
         return True
-
 
     def escQuote(self, val):
         # escape backslashes and single quotes, and
         # wrap the result in single quotes
 
         sl = "\\"
-        qt = "\'"
-        return qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
-
+        qt = "'"
+        return qt + val.replace(sl, sl + sl).replace(qt, sl + qt) + qt
 
     def formatDateTime(self, val):
-        """ We need to wrap the value in quotes. """
-        sqt = "'"        # single quote
+        """We need to wrap the value in quotes."""
+        sqt = "'"  # single quote
         val = ustr(val)
         return "%s%s%s" % (sqt, val, sqt)
-
 
     def _isExistingTable(self, tablename, cursor):
         tbl = self.encloseNames(self.escQuote(tablename))
         cursor.execute("SHOW TABLES LIKE %s" % tbl)
         rs = cursor.getDataSet()
         return bool(rs)
-
 
     def getTables(self, cursor, includeSystemTables=False):
         # MySQL doesn't have system tables, in the traditional sense, as
@@ -151,11 +158,11 @@ class MySQL(dBackend):
             tables.append(list(record.values())[0])
         return tuple(tables)
 
-
     def getTableRecordCount(self, tableName, cursor):
-        cursor.execute("select count(*) as ncount from %s" % self.encloseNames(tableName))
+        cursor.execute(
+            "select count(*) as ncount from %s" % self.encloseNames(tableName)
+        )
         return cursor.getDataSet()[0]["ncount"]
-
 
     def getFields(self, tableName, cursor):
         if not tableName:
@@ -179,7 +186,7 @@ class MySQL(dBackend):
                     ft = "M"
                 else:
                     ft = "C"
-            elif "char" in ft :
+            elif "char" in ft:
                 ft = "C"
             elif "text" in ft:
                 ft = "M"
@@ -197,13 +204,13 @@ class MySQL(dBackend):
                 ft = "C"
             else:
                 ft = "?"
-            pk = (r["Key"] == "PRI")
+            pk = r["Key"] == "PRI"
             fields.append((name.strip(), ft, pk))
         return tuple(fields)
 
-
     def getDaboFieldType(self, backendFieldType):
         import pymysql.constants.FIELD_TYPE as ftypes
+
         typeMapping = {}
         for i in dir(ftypes):
             if i[0] != "_":
@@ -211,52 +218,52 @@ class MySQL(dBackend):
                 typeMapping[v] = i
         # typeMapping[16]='BIT'
 
-        daboMapping = {"BIT": "I",
-                "BLOB": "M",
-                "CHAR": "C",
-                "DATE": "D",
-                "DATETIME": "T",
-                "DECIMAL": "N",
-                "DOUBLE": "G",
-                "ENUM": "C",
-                "FLOAT": "F",
-                "GEOMETRY": "?",
-                "INT24": "I",
-                "INTERVAL": "?",
-                "LONG": "G",
-                "LONGLONG": "G",
-                "LONG_BLOB": "M",
-                "MEDIUM_BLOB": "M",
-                "NEWDATE": "?",
-                "NEWDECIMAL": "N",
-                "NULL": "?",
-                "SET": "?",
-                "SHORT": "I",
-                "STRING": "C",
-                "TIME": "?",
-                "TIMESTAMP": "T",
-                "TINY": "I",
-                "TINY_BLOB": "M",
-                "VAR_STRING": "C",
-                "YEAR": "?"}
+        daboMapping = {
+            "BIT": "I",
+            "BLOB": "M",
+            "CHAR": "C",
+            "DATE": "D",
+            "DATETIME": "T",
+            "DECIMAL": "N",
+            "DOUBLE": "G",
+            "ENUM": "C",
+            "FLOAT": "F",
+            "GEOMETRY": "?",
+            "INT24": "I",
+            "INTERVAL": "?",
+            "LONG": "G",
+            "LONGLONG": "G",
+            "LONG_BLOB": "M",
+            "MEDIUM_BLOB": "M",
+            "NEWDATE": "?",
+            "NEWDECIMAL": "N",
+            "NULL": "?",
+            "SET": "?",
+            "SHORT": "I",
+            "STRING": "C",
+            "TIME": "?",
+            "TIMESTAMP": "T",
+            "TINY": "I",
+            "TINY_BLOB": "M",
+            "VAR_STRING": "C",
+            "YEAR": "?",
+        }
         return daboMapping[typeMapping[backendFieldType]]
 
-
     def getWordMatchFormat(self):
-        """ MySQL's fulltext search expression"""
+        """MySQL's fulltext search expression"""
         return """ match (`%(table)s`.`%(field)s`) against ("%(value)s") """
 
-
-    def createTableAndIndexes(self, tabledef, cursor, createTable=True,
-            createIndexes=True):
+    def createTableAndIndexes(
+        self, tabledef, cursor, createTable=True, createIndexes=True
+    ):
         if not tabledef.Name:
             raise
 
         toExc = []
 
-        #Create the table
+        # Create the table
         if createTable:
-
             if not tabledef.IsTemp:
                 sql = "CREATE TABLE "
             else:
@@ -275,22 +282,43 @@ class MySQL(dBackend):
                         sql = sql + "TINYINT "
                     elif fld.Size == 2:
                         sql = sql + "SMALLINT "
-                    elif fld.Size in (3,4):
+                    elif fld.Size in (3, 4):
                         sql = sql + "INT "
-                    elif fld.Size in (5,6,7,8):
+                    elif fld.Size in (5, 6, 7, 8):
                         sql = sql + "BIGINT "
                     else:
-                        raise #what should happen?
+                        raise  # what should happen?
 
                 elif fld.DataType == "Float":
-                    if fld.Size in (0,1,2,3,4):
-                        sql = sql + "FLOAT(" + ustr(fld.TotalDP) + "," + ustr(fld.RightDP) + ") "
-                    elif fld.Size in (5,6,7,8):
-                        sql = sql + "DOUBLE(" + ustr(fld.TotalDP) + "," + ustr(fld.RightDP) + ") "
+                    if fld.Size in (0, 1, 2, 3, 4):
+                        sql = (
+                            sql
+                            + "FLOAT("
+                            + ustr(fld.TotalDP)
+                            + ","
+                            + ustr(fld.RightDP)
+                            + ") "
+                        )
+                    elif fld.Size in (5, 6, 7, 8):
+                        sql = (
+                            sql
+                            + "DOUBLE("
+                            + ustr(fld.TotalDP)
+                            + ","
+                            + ustr(fld.RightDP)
+                            + ") "
+                        )
                     else:
-                        raise #what should happen?
+                        raise  # what should happen?
                 elif fld.DataType == "Decimal":
-                    sql = sql + "DECIMAL(" + ustr(fld.TotalDP) + "," + ustr(fld.RightDP) + ") "
+                    sql = (
+                        sql
+                        + "DECIMAL("
+                        + ustr(fld.TotalDP)
+                        + ","
+                        + ustr(fld.RightDP)
+                        + ") "
+                    )
                 elif fld.DataType == "String":
                     if fld.Size <= 255:
                         sql = sql + "VARCHAR(" + ustr(fld.Size) + ") "
@@ -301,7 +329,7 @@ class MySQL(dBackend):
                     elif fld.Size <= 4294967295:
                         sql = sql + "LONGTEXT "
                     else:
-                        raise #what should happen?
+                        raise  # what should happen?
                 elif fld.DataType == "Date":
                     sql = sql + "DATE "
                 elif fld.DataType == "Time":
@@ -321,7 +349,7 @@ class MySQL(dBackend):
                     elif fld.Size <= 4294967295:
                         sql = sql + "LONGBLOB "
                     else:
-                        raise #what should happen?
+                        raise  # what should happen?
 
                 if fld.IsPK:
                     sql = sql + "PRIMARY KEY "
@@ -337,7 +365,12 @@ class MySQL(dBackend):
                     sql = sql + ","
 
                 if sql.count("PRIMARY KEY ") > 1:
-                    sql = sql.replace("PRIMARY KEY ","") + "PRIMARY KEY(" + ",".join(pks) + "),"
+                    sql = (
+                        sql.replace("PRIMARY KEY ", "")
+                        + "PRIMARY KEY("
+                        + ",".join(pks)
+                        + "),"
+                    )
 
             if sql[-1:] == ",":
                 sql = sql[:-1]
@@ -349,7 +382,7 @@ class MySQL(dBackend):
                 toExc.append(sql)
 
         if createIndexes:
-            #Create the indexes
+            # Create the indexes
             for idx in tabledef.Indexes:
                 if idx.Name.lower() != "primary":
                     sql = "CREATE INDEX " + idx.Name + " ON " + tabledef.Name + "("

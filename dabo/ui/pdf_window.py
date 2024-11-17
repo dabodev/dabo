@@ -11,15 +11,20 @@ from dabo.dLocalize import _
 try:
     WindowsError
 except:
-    class WindowsError: pass
+
+    class WindowsError:
+        pass
+
 
 try:
     import wx.lib.pdfwin as pdfwin
+
     PDFWindow = pdfwin.PDFWindow
 except Exception:
     ## If there's any exception at all in importing pdfwin, use the dummy.
     class Dummy(object):
         _dummy = True
+
     PDFWindow = Dummy
 
 
@@ -29,14 +34,24 @@ class dPdfWindow(dControlMixin, PDFWindow):
 
     See wx.lib.pdfwin.PDFWindow for the API.
     """
+
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         if hasattr(PDFWindow, "_dummy"):
-            raise ImportError("wx.lib.pdfwin couldn't be imported, so dPdfWindow cannot instantiate.")
+            raise ImportError(
+                "wx.lib.pdfwin couldn't be imported, so dPdfWindow cannot instantiate."
+            )
 
         self._baseClass = dPdfWindow
         preClass = pdfwin.PDFWindow
-        dControlMixin.__init__(self, preClass, parent, properties=properties,
-                attProperties=attProperties, *args, **kwargs)
+        dControlMixin.__init__(
+            self,
+            preClass,
+            parent,
+            properties=properties,
+            attProperties=attProperties,
+            *args,
+            **kwargs,
+        )
 
 
 dabo.ui.dPdfWindow = dPdfWindow
@@ -52,5 +67,5 @@ class _dPdfWindow_test(dPdfWindow):
 
 if __name__ == "__main__":
     from dabo.ui import test
-    test.Test().runTest(_dPdfWindow_test)
 
+    test.Test().runTest(_dPdfWindow_test)

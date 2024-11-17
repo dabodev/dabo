@@ -6,22 +6,25 @@ from .serialization import *
 def capname(name):
     return name[0].upper() + name[1:]
 
+
 def loname(name):
     return name[0].lower() + name[1:]
 
 
 class DeserializingParser(object):
     def __init__(self, rootCls):
-        self.expectedNamesStack = [ (loname(rootCls.__name__),) ]
+        self.expectedNamesStack = [(loname(rootCls.__name__),)]
         self.rootCls = rootCls
         self.objStack = []
         self.currentAttrName = None
-        self.cdata = ''
+        self.cdata = ""
 
     def StartElement(self, name, attributes):
         expectedNames = self.expectedNamesStack[-1]
-        assert name in expectedNames, 'Unexpected tag %r (expecting: %s)' \
-                % (name, ', '.join(expectedNames))
+        assert name in expectedNames, "Unexpected tag %r (expecting: %s)" % (
+            name,
+            ", ".join(expectedNames),
+        )
         if len(self.objStack) == 0:
             # root element
             self.rootObj = self.rootCls()
@@ -33,7 +36,7 @@ class DeserializingParser(object):
             if isinstance(attrType, SerializableAttribute):
                 # tag represents an attribute of the object currently on top of the stack
                 self.currentAttrName = attrName
-                self.cdata = ''
+                self.cdata = ""
             else:
                 # tag represents a new child that should be pushed on the stack
                 newObj = attrType.attach(parentObj, name, attrName)
@@ -70,11 +73,12 @@ class DeserializingParser(object):
         return self.rootObj
 
     def ParseFromFile(self, filename):
-        return self.Parse(open(filename,'r').read())
+        return self.Parse(open(filename, "r").read())
 
 
 def deserialize(xml, rootCls):
     import os
+
     parser = DeserializingParser(rootCls)
     if "\n" not in xml and os.path.exists(xml):
         # argument was a file

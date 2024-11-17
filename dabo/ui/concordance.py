@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo.lib.utils import ustr
-from dabo import ui as dui
+
+from lib.utils import ustr
+import ui as dui
 
 daboNames = dir(dui)
 
@@ -25,11 +25,11 @@ for daboName in daboNames:
 daboNames = list(dabo_to_wx.items())
 daboNames.sort()
 
-for k,v in dabo_to_wx.items():
+for k, v in dabo_to_wx.items():
     wxClasses = wx_to_dabo.setdefault(v, [])
     wxClasses.append(k)
 
-#wxNames = dict([[v,k] for k,v in dabo_to_wx.iteritems()]).items()
+# wxNames = dict([[v,k] for k,v in dabo_to_wx.iteritems()]).items()
 wxNames = list(wx_to_dabo.items())
 wxNames.sort()
 
