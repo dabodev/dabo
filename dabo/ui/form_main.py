@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 import time
+
 import wx
-import dabo
-from dabo.ui import dFormMixin
+
+from ui import dFormMixin
+
+# import MDI
+
 
 
 class dFormMainBase(dFormMixin):
@@ -16,7 +20,7 @@ class dFormMainBase(dFormMixin):
         forms2close = [
             frm for frm in self.Application.uiForms if frm and frm is not self
         ]
-        # if frm is not self and not isinstance(frm, dabo.ui.deadObject)]
+        # if frm is not self and not isinstance(frm, ui.deadObject)]
         while forms2close:
             frm = forms2close[0]
             # This will allow forms to veto closing (i.e., user doesn't
@@ -35,7 +39,7 @@ class dFormMain(dFormMainBase, wx.Frame):
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         self._baseClass = dFormMain
 
-        if dabo.MDI:
+        if MDI:
             # Hack this into an MDI Parent:
             dFormMain.__bases__ = (dFormMainBase, wx.MDIParentFrame)
             preClass = wx.MDIParentFrame
@@ -51,11 +55,11 @@ class dFormMain(dFormMainBase, wx.Frame):
         dFormMainBase.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
-dabo.ui.dFormMainBase = dFormMainBase
-dabo.ui.dFormMain = dFormMain
+ui.dFormMainBase = dFormMainBase
+ui.dFormMain = dFormMain
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(dFormMain)

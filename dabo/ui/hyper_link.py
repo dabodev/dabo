@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
 import wx.lib.agw.hyperlink as hyperlink
-import dabo
-from dabo.dLocalize import _
-from dabo import dEvents as dEvents
-from dabo import dColors as dColors
-from dabo.ui import AlignmentMixin
-from dabo.ui import dControlMixin
-from dabo.ui import makeDynamicProperty
+
+from dLocalize import _
+import dEvents
+import dColors
+from ui import AlignmentMixin
+from ui import dControlMixin
+from ui import makeDynamicProperty
 
 
 class dHyperLink(dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
@@ -237,7 +237,7 @@ class dHyperLink(dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
     ForeColor = LinkColor
 
 
-dabo.ui.dHyperLink = dHyperLink
+ui.dHyperLink = dHyperLink
 
 
 class _dHyperLink_test(dHyperLink):
@@ -254,11 +254,11 @@ class _dHyperLink_test(dHyperLink):
         self.LinkUnderline = True
         self.HoverUnderline = False
         self.VisitedUnderline = True
-        self.bindEvent(dabo.dEvents.Hit, self._onHit)
+        self.bindEvent(dEvents.Hit, self._onHit)
         # self.ShowInBrowser = False
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dHyperLink_test)

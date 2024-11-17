@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import ui as dui
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.ui import dTextBoxMixin
-from dabo.ui import makeDynamicProperty
+
+import ui as dui
+import dEvents
+from dLocalize import _
+from ui import dTextBoxMixin
+from ui import makeDynamicProperty
 
 
 # The EditBox is just a TextBox with some additional styles.
@@ -98,7 +98,7 @@ class dEditBox(dTextBoxMixin, wx.TextCtrl):
     )
 
 
-dabo.ui.dEditBox = dEditBox
+ui.dEditBox = dEditBox
 
 
 class _dEditBox_test(dEditBox):
@@ -142,7 +142,7 @@ It's the Love Boat
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dEditBox_test, WordWrap=True)
     test.Test().runTest(_dEditBox_test, WordWrap=False)

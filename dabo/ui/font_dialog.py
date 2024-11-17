@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import dConstants as k
+
+import dConstants as k
 
 
 class dFontDialog(wx.FontDialog):
     """Creates a font dialog, which asks the user to choose a font."""
 
     def __init__(self, parent=None, fontData=None):
-        self._baseClass = dabo.ui.dFontDialog
+        self._baseClass = ui.dFontDialog
 
         dat = wx.FontData()
         if fontData is not None:
@@ -29,10 +29,10 @@ class dFontDialog(wx.FontDialog):
         self.Destroy()
 
 
-dabo.ui.dFontDialog = dFontDialog
+ui.dFontDialog = dFontDialog
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(dFontDialog)

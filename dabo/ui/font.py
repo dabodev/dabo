@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import ui as dui
-from dabo.dObject import dObject
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo.ui import makeDynamicProperty
-from dabo import dEvents as dEvents
+
+import ui as dui
+from dObject import dObject
+from dLocalize import _
+from lib.utils import ustr
+from ui import makeDynamicProperty
+import dEvents
+
+# import log
+# import defaultFontSize
+# import macFontScaling
 
 
 class dFont(dObject):
@@ -17,7 +21,7 @@ class dFont(dObject):
             self._nativeFont = _nativeFont
         else:
             self._nativeFont = wx.Font(
-                dabo.defaultFontSize,
+                defaultFontSize,
                 wx.FONTFAMILY_DEFAULT,
                 wx.FONTSTYLE_NORMAL,
                 wx.FONTWEIGHT_NORMAL,
@@ -91,7 +95,7 @@ class dFont(dObject):
             if not automatic_face:
                 if not lowVal.startswith("ms shell dlg"):
                     # Ignore the non-existent MS Shell Dlg font names; they are Windows aliases
-                    dabo.log.error(
+                    log.error(
                         _("The font '%s' doesn't exist on this system.") % val
                     )
 
@@ -132,11 +136,11 @@ class dFont(dObject):
         try:
             self._nativeFont.SetPointSize(val)
         except ValueError:
-            dabo.log.error(_("Setting FontSize to %s failed") % val)
+            log.error(_("Setting FontSize to %s failed") % val)
         self._propsChanged()
 
     def _useMacFontScaling(self):
-        return wx.Platform == "__WXMAC__" and dabo.macFontScaling
+        return wx.Platform == "__WXMAC__" and macFontScaling
 
     def _getUnderline(self):
         if self._nativeFont:
@@ -174,4 +178,4 @@ class dFont(dObject):
     FontUnderline = Underline
 
 
-dabo.ui.dFont = dFont
+ui.dFont = dFont

@@ -1,22 +1,24 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+
 import wx
-import dabo
-from dabo import ui as dui
-from dabo.ui import dDataControlMixin
-from dabo.ui import dMenu
-from dabo.ui import dPemMixin
-from dabo.ui import dStatusBar
-from dabo.ui import dToolBar
-from dabo import icons
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo import dEvents as dEvents
-from dabo import dException as dException
-from dabo.lib.xmltodict import xmltodict as XTD
-from dabo.lib.utils import cleanMenuCaption
-from dabo.ui import makeDynamicProperty
+
+import ui as dui
+from ui import dDataControlMixin
+from ui import dMenu
+from ui import dPemMixin
+from ui import dStatusBar
+from ui import dToolBar
+import icons
+from dLocalize import _
+from lib.utils import ustr
+import dEvents
+import dException
+from lib.xmltodict import xmltodict as XTD
+from lib.utils import cleanMenuCaption
+from ui import makeDynamicProperty
+# import log
 
 
 class dFormMixin(dPemMixin):
@@ -144,7 +146,7 @@ class dFormMixin(dPemMixin):
             except dException.ConnectionNotFoundException:
                 self.Connection = None
             if self.Connection is None:
-                dabo.log.info(_("Could not establish connection '%s'") % self._cxnName)
+                log.info(_("Could not establish connection '%s'") % self._cxnName)
         # If code to create bizobjs is present, run it.
         self.createBizobjs()
         # If there are custom menu hotkey bindings, re-set them
@@ -341,7 +343,7 @@ class dFormMixin(dPemMixin):
         else:
             dui.callAfterInterval(interval, self.__refresh)
 
-    @dabo.ui.deadCheck
+    @ui.deadCheck
     def __refresh(self):
         super(dFormMixin, self).refresh()
 
@@ -647,7 +649,7 @@ class dFormMixin(dPemMixin):
                     del self.__dict__[id]
             self._objectRegistry[id] = obj
             if hasattr(self, id) or id in self.__dict__:
-                dabo.log.error(_("RegID '%s' conflicts with existing name") % id)
+                log.error(_("RegID '%s' conflicts with existing name") % id)
             else:
                 self.__dict__[id] = obj
 
@@ -784,7 +786,7 @@ class dFormMixin(dPemMixin):
     def _getFloatingPanel(self):
         if not self._floatingPanel:
             # Have to import it here, as it requires that dFormMixin be defined.
-            from dabo.ui.dialog import _FloatDialog
+            from ui.dialog import _FloatDialog
 
             self._floatingPanel = _FloatDialog(owner=None, parent=self)
         return self._floatingPanel
@@ -893,7 +895,7 @@ class dFormMixin(dPemMixin):
         try:
             val = self._saveRestorePosition
         except AttributeError:
-            val = self._saveRestorePosition = not isinstance(self, dabo.ui.dDialog)
+            val = self._saveRestorePosition = not isinstance(self, ui.dDialog)
         return val
 
     def _setSaveRestorePosition(self, val):
@@ -1031,7 +1033,7 @@ class dFormMixin(dPemMixin):
             ret = sb.GetStatusText()
         return ret
 
-    @dabo.ui.deadCheck
+    @ui.deadCheck
     def _setStatusText(self, val, _callAfter=True):
         """
         Set the text of the status bar. Dabo will decide whether to
@@ -1241,7 +1243,7 @@ class dFormMixin(dPemMixin):
             Users on Microsoft Windows seem to expect MDI, while on other platforms SDI is
             preferred.
 
-            See also: the dabo.MDI global setting.  (bool)"""
+            See also: the global MDI global setting.  (bool)"""
         ),
     )
 
@@ -1427,4 +1429,4 @@ class dFormMixin(dPemMixin):
     DynamicWindowState = makeDynamicProperty(WindowState)
 
 
-dabo.ui.dFormMixin = dFormMixin
+ui.dFormMixin = dFormMixin

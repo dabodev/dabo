@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 import wx
 import wx.lib.agw.aui as aui
-
 PaneInfo = aui.AuiPaneInfo
-import dabo
-from dabo.dLocalize import _
-from dabo import dEvents as dEvents
-from dabo import ui as dui
-from dabo.ui import dButton
-from dabo.ui import dCheckBox
-from dabo.ui import dForm
-from dabo.ui import dPanel
-from dabo.ui import dShellForm
-from dabo.ui import dSizer
-from dabo.ui import dStatusBar
-from dabo.ui import makeDynamicProperty
+
+from dLocalize import _
+import dEvents
+import ui as dui
+from ui import dButton
+from ui import dCheckBox
+from ui import dForm
+from ui import dPanel
+from ui import dShellForm
+from ui import dSizer
+from ui import dStatusBar
+from ui import makeDynamicProperty
+# import log
 
 flag_allow_float = aui.AUI_MGR_ALLOW_FLOATING
 flag_show_active = aui.AUI_MGR_ALLOW_ACTIVE_PANE
@@ -169,7 +169,7 @@ class dDockPanel(dPanel):
             if func:
                 func()
             else:
-                dabo.log.error(_("Invalid dock position: '%s'.") % side)
+                log.error(_("Invalid dock position: '%s'.") % side)
         inf.Dock()
         self._updateAUI()
 
@@ -285,7 +285,7 @@ class dDockPanel(dPanel):
             if self.Floating:
                 self.FloatingBottom = val
             else:
-                dabo.log.error(_("Cannot set the position of a docked panel"))
+                log.error(_("Cannot set the position of a docked panel"))
         else:
             self._properties["Bottom"] = val
 
@@ -523,7 +523,7 @@ class dDockPanel(dPanel):
             if self.Floating:
                 self.FloatingHeight = val
             else:
-                dabo.log.error(_("Cannot set the Size of a docked panel"))
+                log.error(_("Cannot set the Size of a docked panel"))
         else:
             self._properties["Height"] = val
 
@@ -535,7 +535,7 @@ class dDockPanel(dPanel):
             if self.Floating:
                 self.FloatingLeft = val
             else:
-                dabo.log.error(_("Cannot set the position of a docked panel"))
+                log.error(_("Cannot set the position of a docked panel"))
         else:
             self._properties["Left"] = val
 
@@ -593,7 +593,7 @@ class dDockPanel(dPanel):
             if self.Floating:
                 self.FloatingRight = val
             else:
-                dabo.log.error(_("Cannot set the position of a docked panel"))
+                log.error(_("Cannot set the position of a docked panel"))
         else:
             self._properties["Right"] = val
 
@@ -701,7 +701,7 @@ class dDockPanel(dPanel):
             if self.Floating:
                 self.FloatingTop = val
             else:
-                dabo.log.error(_("Cannot set the position of a docked panel"))
+                log.error(_("Cannot set the position of a docked panel"))
         else:
             self._properties["Top"] = val
 
@@ -733,7 +733,7 @@ class dDockPanel(dPanel):
             if self.Floating:
                 self.FloatingWidth = val
             else:
-                dabo.log.error(_("Cannot set the Size of a docked panel"))
+                log.error(_("Cannot set the Size of a docked panel"))
         else:
             self._properties["Width"] = val
 
@@ -1067,7 +1067,7 @@ class dDockForm(dForm):
         ok = isinstance(evt.child, (dDockPanel, dStatusBar, dShellForm))
         if not ok:
             # This should never happen; if so, log the error
-            dabo.log.error(_("Unmanaged object added to a Dock Form: %s") % evt.child)
+            log.error(_("Unmanaged object added to a Dock Form: %s") % evt.child)
 
     def addObject(self, classRef, Name=None, *args, **kwargs):
         """
@@ -1270,11 +1270,11 @@ class _dDockForm_test(dDockForm):
         print(nm + ".Visible:", obj.Visible)
 
 
-dabo.ui.dDockPanel = dDockPanel
-dabo.ui.dDockForm = dDockForm
+ui.dDockPanel = dDockPanel
+ui.dDockForm = dDockForm
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dDockForm_test)

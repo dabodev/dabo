@@ -4,14 +4,16 @@
 """
 
 import datetime
+
 import wx
 from wx import adv as wx_adv
-import dabo
-from dabo import ui as dui
-from dabo.ui import dDataControlMixin
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo.ui import makeDynamicProperty
+
+import ui as dui
+from ui import dDataControlMixin
+from dLocalize import _
+from lib.utils import ustr
+from ui import makeDynamicProperty
+# import log
 
 
 def dateTimePy2Wx(date):
@@ -279,7 +281,7 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
         except ValueError as e:
             nm = self.Name
             ue = ustr(e)
-            dabo.log.error(
+            log.error(
                 _("Object '%(nm)s' has the following error: %(ue)s") % locals()
             )
 
@@ -426,12 +428,12 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
     DynamicMinValue = makeDynamicProperty(MinValue)
 
 
-dabo.ui.dDatePicker = dDatePicker
+ui.dDatePicker = dDatePicker
 
 
 if __name__ == "__main__":
     import datetime
-    from dabo.ui import test
+    from ui import test
 
     class TestBase(dDatePicker):
         def onValueChanged(self, evt):

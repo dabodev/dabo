@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import dabo
 import wx
 import wx.grid
-from dabo.ui import dIcons
+
+from ui import dIcons
 
 
 class ImageRenderer(wx.grid.GridCellRenderer):
@@ -52,7 +52,7 @@ class ImageRenderer(wx.grid.GridCellRenderer):
         except (AttributeError, KeyError):
             # Either no 'imageDict' attribute for the grid, or there is such an
             # att and the key is not found. Try standard images.
-            ret = dabo.ui.strToBmp(val)
+            ret = ui.strToBmp(val)
         return ret
 
     def drawBitmap(self, bitmap, attr, dc, rect, isSelected):
@@ -245,7 +245,7 @@ class YesNoBoolRenderer(AbstractTextRenderer):
         dc.DrawText(txt, rect.x, rect.y)
 
 
-dabo.ui.ImageRenderer = ImageRenderer
-dabo.ui.BoolRenderer = BoolRenderer
-dabo.ui.AbstractTextRenderer = AbstractTextRenderer
-dabo.ui.YesNoBoolRenderer = YesNoBoolRenderer
+ui.ImageRenderer = ImageRenderer
+ui.BoolRenderer = BoolRenderer
+ui.AbstractTextRenderer = AbstractTextRenderer
+ui.YesNoBoolRenderer = YesNoBoolRenderer

@@ -15,34 +15,40 @@ import warnings
 import wx
 import wx.grid
 from wx._core import PyAssertionError
-import dabo
-from dabo import ui as dui
-from dabo import dEvents as dEvents
-from dabo import dException as dException
-from dabo.dLocalize import _, n_
-from dabo.lib.utils import ustr
-from dabo import biz as dbiz
-from dabo import dColors as dColors
-from dabo.dObject import dObject
-from dabo.lib import dates
-from dabo.lib.utils import noneSortKey, caseInsensitiveSortKey
-from dabo.dBug import loggit
-from dabo.ui import dButton
-from dabo.ui import dCheckBox
-from dabo.ui import dControlMixin
-from dabo.ui import dDropdownList
-from dabo.ui import dFont
-from dabo.ui import dForm
-from dabo.ui import dGridSizer
-from dabo.ui import dKeys
-from dabo.ui import dMenu
-from dabo.ui import dPemMixin
-from dabo.ui import dRadioList
-from dabo.ui import dTextBox
-from dabo.ui import dTimer
-from dabo.ui import dUICursors
-from dabo.ui import makeDynamicProperty
 
+import ui as dui
+import dEvents
+import dException
+import biz as dbiz
+import dColors
+import db
+from dLocalize import _, n_
+from lib.utils import ustr
+from dObject import dObject
+from lib import dates
+from lib.utils import noneSortKey, caseInsensitiveSortKey
+from dBug import loggit
+from ui import dButton
+from ui import dCheckBox
+from ui import dControlMixin
+from ui import dDropdownList
+from ui import dFont
+from ui import dForm
+from ui import dGridSizer
+from ui import dKeys
+from ui import dMenu
+from ui import dPemMixin
+from ui import dRadioList
+from ui import dTextBox
+from ui import dTimer
+from ui import dUICursors
+from ui import makeDynamicProperty
+
+# import log
+# import copyValueSeparator
+# import copyStringSeparator
+# import copyLineSeparator
+# import getEncoding
 
 # Make this locale-independent
 # JK: We can't set this up on module load because locale
@@ -161,7 +167,7 @@ class dGridDataTable(wx.grid.GridTableBase):
                         col.DataType = ustr(col.DataType).split("'")[1].lower()
                     except IndexError:
                         # Something's odd. Print an error message and move on.
-                        dabo.log.error(
+                        log.error(
                             "Unknown data type found in setColumns(): %s" % col.DataType
                         )
                         col.DataType = ustr(col.DataType)
@@ -378,15 +384,15 @@ class dGridDataTable(wx.grid.GridTableBase):
 
 class GridListEditor(wx.grid.GridCellChoiceEditor):
     def __init__(self, *args, **kwargs):
-        dabo.log.info("GridListEditor: Init ")
-        dabo.log.info(ustr(args))
-        dabo.log.info(ustr(kwargs))
+        log.info("GridListEditor: Init ")
+        log.info(ustr(args))
+        log.info(ustr(kwargs))
         super(GridListEditor, self).__init__(*args, **kwargs)
 
     def Create(self, parent, id, evtHandler, *args, **kwargs):
-        dabo.log.info("GridListEditor: Create")
-        dabo.log.info(ustr(args))
-        dabo.log.info(ustr(kwargs))
+        log.info("GridListEditor: Create")
+        log.info(ustr(args))
+        log.info(ustr(kwargs))
         self.control = dDropdownList(parent=parent, id=id, ValueMode="String")
         self.SetControl(self.control)
         if evtHandler:
@@ -398,22 +404,22 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
         return self.__class__()
 
     def SetParameters(self, paramStr):
-        dabo.log.info("GridListEditor: SetParameters: %s" % paramStr)
+        log.info("GridListEditor: SetParameters: %s" % paramStr)
         self.control.Choices = eval(paramStr)
 
     def BeginEdit(self, row, col, grid):
-        dabo.log.info("GridListEditor: BeginEdit (%d,%d)" % (row, col))
+        log.info("GridListEditor: BeginEdit (%d,%d)" % (row, col))
         self.value = grid.GetTable().GetValue(row, col)
-        dabo.log.info("GridListEditor: Value=%s" % self.value)
-        dabo.log.info("GridListEditor: Choices=%s" % self.control.Choices)
+        log.info("GridListEditor: Value=%s" % self.value)
+        log.info("GridListEditor: Choices=%s" % self.control.Choices)
         try:
             self.control.Value = self.value
         except ValueError:
-            dabo.log.info("GridListEditor: Value not in Choices")
+            log.info("GridListEditor: Value not in Choices")
         self.control.SetFocus()
 
     def EndEdit(self, row, col, grid):
-        dabo.log.info("GridListEditor: EndEdit (%d,%d)" % (row, col))
+        log.info("GridListEditor: EndEdit (%d,%d)" % (row, col))
         changed = False
         v = self.control.Value
         if v != self.value:
@@ -425,18 +431,18 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
         return changed
 
     def Reset(self):
-        dabo.log.info("GridListEditor: Reset")
+        log.info("GridListEditor: Reset")
         self.control.Value = self.value
 
     #    def SetSize(self, rectorig):
-    #        dabo.log.info("GridListEditor: SetSize: %s" % rectorig)
-    #        dabo.log.info("GridListEditor: type of rectorig: %s" % type(rectorig))
+    #        log.info("GridListEditor: SetSize: %s" % rectorig)
+    #        log.info("GridListEditor: type of rectorig: %s" % type(rectorig))
     # #            rect = wx.Rect(rectorig)
-    # #            dabo.log.info("GridListEditor RECT: %s" % rect)
+    # #            log.info("GridListEditor RECT: %s" % rect)
     #        super(GridListEditor, self).SetSize(rectorig)
 
     def IsAcceptedKey(self, key):
-        dabo.log.info("GridListEditor: check key: %d" % (key))
+        log.info("GridListEditor: check key: %d" % (key))
         return True
 
 
@@ -509,7 +515,7 @@ class dColumn(wx._core.Object, dPemMixin):
         self.decimalRendererClass = wx.grid.GridCellFloatRenderer
         self.floatRendererClass = wx.grid.GridCellFloatRenderer
         self.listRendererClass = wx.grid.GridCellStringRenderer
-        self.imageRendererClass = dabo.ui.ImageRenderer
+        self.imageRendererClass = ui.ImageRenderer
         self.stringEditorClass = wx.grid.GridCellTextEditor
         self.wrapStringEditorClass = wx.grid.GridCellAutoWrapStringEditor
         self.boolEditorClass = wx.grid.GridCellBoolEditor
@@ -596,7 +602,7 @@ class dColumn(wx._core.Object, dPemMixin):
                 typ, self.stringRendererClass
             )
 
-    @dabo.ui.deadCheck
+    @ui.deadCheck
     def _updateDynamicProps(self):
         for prop, func in list(self._dynamic.items()):
             if prop[:4] != "Cell":
@@ -2191,7 +2197,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         # Make sure that the columns are sized properly
         dui.callAfter(self._updateColumnWidths)
 
-    @dabo.ui.deadCheck
+    @ui.deadCheck
     def _afterInitAll(self):
         super(dGrid, self)._afterInitAll()
         for col in self.Columns:
@@ -2347,7 +2353,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             else:
                 self.DataSet[row][fld] = val
         except Exception as e:
-            dabo.log.error("Cannot update data set: %s" % e)
+            log.error("Cannot update data set: %s" % e)
 
     # Wrapper methods to Dabo-ize these calls.
     def getValue(self, row=None, col=None):
@@ -2406,7 +2412,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         try:
             pyType = biz.getDataTypeForField(df)
         except ValueError as e:
-            dabo.log.error(e)
+            log.error(e)
             return None
         return pyType
 
@@ -2747,7 +2753,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             return sr not in (1, 101)
         return bool(sr)
 
-    @dabo.ui.deadCheck
+    @ui.deadCheck
     def _updateColumnWidths(self):
         """
         See if there are any dynamically-sized columns, and resize them
@@ -3524,7 +3530,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                     self.SetValue(currRow, currCol, newval)
                     ret = True
                 else:
-                    dabo.log.error(
+                    log.error(
                         _("Invalid boolean replacement value: %s") % replaceString
                     )
                     ret = False
@@ -3539,7 +3545,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                         self.SetValue(currRow, currCol, newval)
                         ret = True
                     except errors:
-                        dabo.log.error(
+                        log.error(
                             _("Invalid replacement value: %s") % replaceString
                         )
                         ret = False
@@ -3650,7 +3656,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             # as when adding columns with inBatch=True, this can throw an error
             if not inBatch:
                 # For now, just log it
-                dabo.log.info(_("Cannot set width of column %s") % col.Order)
+                log.info(_("Cannot set width of column %s") % col.Order)
         return col
 
     def _resolveColumns(self, columns):
@@ -3685,7 +3691,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 % locals()
             )
             if logOnly:
-                dabo.log.error(msg)
+                log.error(msg)
                 return None
             else:
                 raise ValueError(msg)
@@ -3736,9 +3742,9 @@ class dGrid(dControlMixin, wx.grid.Grid):
         return GridCell(self, row, col)
 
     def copy(self):
-        valSep = dabo.copyValueSeparator
-        strSep = dabo.copyStringSeparator
-        lnSep = dabo.copyLineSeparator
+        valSep = copyValueSeparator
+        strSep = copyStringSeparator
+        lnSep = copyLineSeparator
 
         def valEscape(val):
             if isinstance(val, str):
@@ -3822,7 +3828,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         else:
             if row >= self.RowCount:
                 rcm = self.RowCount - 1
-                dabo.log.error(
+                log.error(
                     _(
                         "Specified row is out of range for setRowHeight(). "
                         "Attempted: %(row)s; max row: %(rcm)s"
@@ -4886,8 +4892,8 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 raise ValueError("Cannot set DataSet: DataSource defined.")
             # We must make sure the grid's table is initialized first:
             self._Table
-            if not isinstance(val, dabo.db.dDataSet):
-                val = dabo.db.dDataSet(val)
+            if not isinstance(val, db.dDataSet):
+                val = db.dDataSet(val)
             self._dataSet = val
             self.fillGrid()
             self._syncAll()
@@ -4933,7 +4939,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         try:
             ret = self.getBizobj().Encoding
         except AttributeError:
-            ret = dabo.getEncoding()
+            ret = getEncoding()
         return ret
 
     def _getHeaderBackColor(self):
@@ -5928,10 +5934,10 @@ class dGrid(dControlMixin, wx.grid.Grid):
     ##----------------------------------------------------------##
 
 
-dabo.ui.dGridDataTable = dGridDataTable
-dabo.ui.GridListEditor = GridListEditor
-dabo.ui.dColumn = dColumn
-dabo.ui.dGrid = dGrid
+ui.dGridDataTable = dGridDataTable
+ui.GridListEditor = GridListEditor
+ui.dColumn = dColumn
+ui.dGrid = dGrid
 
 
 class _dGrid_test(dGrid):
@@ -6093,7 +6099,7 @@ class _dGrid_test(dGrid):
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
+    from dApp import dApp
 
     class TestForm(dForm):
         def afterInit(self):

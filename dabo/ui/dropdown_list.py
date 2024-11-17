@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo.ui import dControlItemMixin
-from dabo.dLocalize import _
+
+from ui import dControlItemMixin
+from dLocalize import _
 
 
 class dDropdownList(dControlItemMixin, wx.Choice):
@@ -35,7 +35,7 @@ class dDropdownList(dControlItemMixin, wx.Choice):
         self.Bind(wx.EVT_CHOICE, self._onWxHit)
 
 
-dabo.ui.dDropdownList = dDropdownList
+ui.dDropdownList = dDropdownList
 
 
 class _dDropdownList_test(dDropdownList):
@@ -64,6 +64,6 @@ class _dDropdownList_test(dDropdownList):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dDropdownList_test)

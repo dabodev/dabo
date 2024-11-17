@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
 import warnings
+
 import wx
-import dabo
-from dabo import ui as dui
-from dabo import dEvents as dEvents
-from dabo import dConstants as kons
+
+import ui as dui
+import dEvents
+import dConstants as kons
 from dabo.dLocalize import _
-from dabo.ui import dButton
-from dabo.ui import dCheckBox
-from dabo.ui import dDropdownList
-from dabo.ui import dFormMixin
-from dabo.ui import dLabel
-from dabo.ui import dGridSizer
-from dabo.ui import dSizer
-from dabo.ui import dSpinner
-from dabo.ui import dTextBox
-from dabo.ui import makeDynamicProperty
+from ui import dButton
+from ui import dCheckBox
+from ui import dDropdownList
+from ui import dFormMixin
+from ui import dGridSizer
+from ui import dLabel
+from ui import dSizer
+from ui import dSpinner
+from ui import dTextBox
+from ui import makeDynamicProperty
 
 
 class dDialog(dFormMixin, wx.Dialog):
@@ -725,14 +726,14 @@ class _FloatDialog(dDialog):
     )
 
 
-dabo.ui.dDialog = dDialog
-dabo.ui.dStandardButtonDialog = dStandardButtonDialog
-dabo.ui.dOkCancelDialog = dOkCancelDialog
-dabo.ui.dYesNoDialog = dYesNoDialog
+ui.dDialog = dDialog
+ui.dStandardButtonDialog = dStandardButtonDialog
+ui.dOkCancelDialog = dOkCancelDialog
+ui.dYesNoDialog = dYesNoDialog
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(dDialog)
     test.Test().runTest(dStandardButtonDialog)

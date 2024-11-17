@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import ui as dui
-from dabo.dLocalize import _
-from dabo.ui import makeDynamicProperty
-from dabo.ui import dControlMixin
-from dabo import dEvents as dEvents
+
+import ui as dui
+from dLocalize import _
+from ui import makeDynamicProperty
+from ui import dControlMixin
+import dEvents
 
 
 class dGauge(dControlMixin, wx.Gauge):
@@ -107,7 +107,7 @@ class dGauge(dControlMixin, wx.Gauge):
     DynamicValue = makeDynamicProperty(Value)
 
 
-dabo.ui.dGauge = dGauge
+ui.dGauge = dGauge
 
 
 class _dGauge_test(dGauge):
@@ -134,6 +134,6 @@ class _dGauge_test(dGauge):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dGauge_test)

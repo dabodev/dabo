@@ -1,17 +1,22 @@
 # -*- coding: utf-8 -*-
 import sys
 import time
+
 import wx
-import dabo
-from dabo import ui as dui
-from dabo import dEvents as dEvents
-from dabo import dException as dException
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo.ui import dButton
-from dabo.ui import dFormMixin
-from dabo.ui import dSizer
-from dabo.ui import makeDynamicProperty
+
+import ui as dui
+import dEvents
+import dException
+from dLocalize import _
+from lib.utils import ustr
+from ui import dButton
+from ui import dFormMixin
+from ui import dSizer
+from ui import makeDynamicProperty
+# import biz
+# import eatBizExceptions
+# import log
+# import MDI
 
 
 class BaseForm(dFormMixin):
@@ -84,7 +89,7 @@ class BaseForm(dFormMixin):
         Displays an alert messagebox for the user. You can customize
         this in your own classes if you prefer a different display.
         """
-        if exception and not dabo.eatBizExceptions:
+        if exception and not eatBizExceptions:
             raise exception
         if severe:
             func = dui.stop
@@ -214,7 +219,7 @@ class BaseForm(dFormMixin):
     def moveToRowNumber(self, rowNumber, dataSource=None):
         """Move the record pointer to the specified row."""
         self.dataSourceParameter = dataSource
-        if isinstance(dataSource, dabo.biz.dBizobj):
+        if isinstance(dataSource, biz.dBizobj):
             bizobj = dataSource
         else:
             bizobj = self.getBizobj(dataSource)
@@ -240,7 +245,7 @@ class BaseForm(dFormMixin):
     def _moveRecordPointer(self, func, dataSource=None, *args, **kwargs):
         """Move the record pointer using the specified function."""
         self.dataSourceParameter = dataSource
-        if isinstance(dataSource, dabo.biz.dBizobj):
+        if isinstance(dataSource, biz.dBizobj):
             biz = dataSource
         else:
             biz = self.getBizobj(dataSource)
@@ -472,9 +477,9 @@ class BaseForm(dFormMixin):
                 % (self.SaveAllRows and "all records" or "current record",)
             )
         except dException.NoRecordsException as e:
-            dabo.log.error(_("Cancel failed; no records to cancel."))
+            log.error(_("Cancel failed; no records to cancel."))
         except dException.dException as e:
-            dabo.log.error(_("Cancel failed with response: %s") % e)
+            log.error(_("Cancel failed with response: %s") % e)
             self.notifyUser(ustr(e), title=_("Cancel Not Allowed"), exception=e)
         self.afterCancel()
         self.refresh()
@@ -553,14 +558,14 @@ class BaseForm(dFormMixin):
             sys.exit()
 
         except dException.DBQueryException as e:
-            dabo.log.error(_("Database Execution failed with response: %s") % e)
+            log.error(_("Database Execution failed with response: %s") % e)
             self.notifyUser(
                 ustr(e), title=_("Database Action Failed"), severe=True, exception=e
             )
             self.StatusText = ""
 
         except dException.dException as e:
-            dabo.log.error(_("Requery failed with response: %s") % e)
+            log.error(_("Requery failed with response: %s") % e)
             self.notifyUser(
                 ustr(e), title=_("Requery Not Allowed"), severe=True, exception=e
             )
@@ -616,7 +621,7 @@ class BaseForm(dFormMixin):
                 sys.exit()
             except dException.dException as e:
                 msg = ustr(e)
-                dabo.log.error(_("Delete failed with response: %s") % msg)
+                log.error(_("Delete failed with response: %s") % msg)
                 self.notifyUser(
                     msg, title=_("Deletion Not Allowed"), severe=True, exception=e
                 )
@@ -655,7 +660,7 @@ class BaseForm(dFormMixin):
                 )
                 sys.exit()
             except dException.dException as e:
-                dabo.log.error(_("Delete All failed with response: %s") % e)
+                log.error(_("Delete All failed with response: %s") % e)
                 self.notifyUser(
                     ustr(e), title=_("Deletion Not Allowed"), severe=True, exception=e
                 )
@@ -729,7 +734,7 @@ Database error message: %s"""
             # dataSource is not hashable
             pass
 
-        if isinstance(dataSource, dabo.biz.dBizobj):
+        if isinstance(dataSource, biz.dBizobj):
             return dataSource
 
         if isinstance(dataSource, str) and dataSource.lower() == "form":
@@ -923,10 +928,10 @@ Database error message: %s"""
         if not biz:
             # Now that DataSources are not always bizobjs, just return
             ## No bizobj for that DataSource; record the error
-            # dabo.log.error("No business object found for DataSource: '%s', DataField: '%s' "
+            # log.error("No business object found for DataSource: '%s', DataField: '%s' "
             #        % (ds, df))
             return True
-        if not isinstance(biz, dabo.biz.dBizobj):
+        if not isinstance(biz, biz.dBizobj):
             # DataSource isn't a bizobj, so no need to validate
             return True
         ret = False
@@ -988,7 +993,7 @@ Database error message: %s"""
         new style.
         """
         bo = None
-        if isinstance(self._primaryBizobj, dabo.biz.dBizobj):
+        if isinstance(self._primaryBizobj, biz.dBizobj):
             bo = self._primaryBizobj
         else:
             if self._primaryBizobj in self.bizobjs:
@@ -998,7 +1003,7 @@ Database error message: %s"""
         return bo
 
     def _setPrimaryBizobj(self, bizOrDataSource):
-        if isinstance(bizOrDataSource, dabo.biz.dBizobj):
+        if isinstance(bizOrDataSource, biz.dBizobj):
             self._primaryBizobj = bizOrDataSource
         else:
             try:
@@ -1009,7 +1014,7 @@ Database error message: %s"""
                 self._primaryBizobj = bo
                 self.afterSetPrimaryBizobj()
             else:
-                dabo.log.info(
+                log.info(
                     _("bizobj for data source %s does not exist.") % bizOrDataSource
                 )
 
@@ -1158,7 +1163,7 @@ class dForm(BaseForm, wx.Frame):
             self._modal = True
         else:
             # Normal dForm
-            if dabo.MDI and isinstance(parent, wx.MDIParentFrame):
+            if MDI and isinstance(parent, wx.MDIParentFrame):
                 # Hack this into an MDI Child:
                 preClass = wx.MDIChildFrame
                 self._mdi = True
@@ -1187,7 +1192,7 @@ class dForm(BaseForm, wx.Frame):
     _hackToDialog = classmethod(_hackToDialog)
 
     def _hackToFrame(cls):
-        if dabo.MDI:
+        if MDI:
             dForm.__bases__ = (BaseForm, wx.MDIChildFrame)
         else:
             dForm.__bases__ = (BaseForm, wx.Frame)
@@ -1305,10 +1310,10 @@ class dBorderlessForm(BaseForm, wx.Frame):
         )
 
 
-dabo.ui.BaseForm = BaseForm
-dabo.ui.dForm = dForm
-dabo.ui.dToolForm = dToolForm
-dabo.ui.dBorderlessForm = dBorderlessForm
+ui.BaseForm = BaseForm
+ui.dForm = dForm
+ui.dToolForm = dToolForm
+ui.dBorderlessForm = dBorderlessForm
 
 
 class _dForm_test(dForm):
@@ -1337,7 +1342,7 @@ class _dBorderlessForm_test(dBorderlessForm):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dForm_test)
     test.Test().runTest(_dBorderlessForm_test)

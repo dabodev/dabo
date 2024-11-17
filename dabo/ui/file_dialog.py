@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import dConstants as kons
-from dabo.dLocalize import _
+
+import dConstants as kons
+from dLocalize import _
+# import dAppRef
 
 
 class OsDialogMixin(object):
@@ -122,7 +123,7 @@ class dFileDialog(OsDialogMixin, wx.FileDialog):
         else:
             self._multiple = False
         if parent is None:
-            parent = dabo.dAppRef.ActiveForm
+            parent = dAppRef.ActiveForm
         super(dFileDialog, self).__init__(
             parent=parent,
             message=message,
@@ -144,7 +145,7 @@ class dFolderDialog(OsDialogMixin, wx.DirDialog):
         self._multiple = False
         self._baseClass = dFolderDialog
         if parent is None:
-            parent = dabo.dAppRef.ActiveForm
+            parent = dAppRef.ActiveForm
         super(dFolderDialog, self).__init__(
             parent=parent,
             message=message,
@@ -167,7 +168,7 @@ class dSaveDialog(dFileDialog):
     ):
         self._baseClass = dSaveDialog
         if parent is None:
-            parent = dabo.dAppRef.ActiveForm
+            parent = dAppRef.ActiveForm
         super(dSaveDialog, self).__init__(
             parent=parent,
             message=message,
@@ -178,13 +179,13 @@ class dSaveDialog(dFileDialog):
         )
 
 
-dabo.ui.dFileDialog = dFileDialog
-dabo.ui.dFolderDialog = dFolderDialog
-dabo.ui.dSaveDialog = dSaveDialog
+ui.dFileDialog = dFileDialog
+ui.dFolderDialog = dFolderDialog
+ui.dSaveDialog = dSaveDialog
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(dFileDialog)
     test.Test().runTest(dFolderDialog)

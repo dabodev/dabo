@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo.dLocalize import _
-from dabo.ui import dSizerMixin
-from dabo.ui import makeDynamicProperty
 
+from dLocalize import _
+from ui import dSizerMixin
+from ui import makeDynamicProperty
+
+# import log
 
 class dGridSizer(dSizerMixin, wx.GridBagSizer):
     def __init__(self, *args, **kwargs):
@@ -365,7 +366,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
             try:
                 itm.SetSpan(spn)
             except wx.PyAssertionError:
-                raise dabo.ui.GridSizerSpanException(
+                raise ui.GridSizerSpanException(
                     _("An item already exists in that location")
                 )
 
@@ -398,7 +399,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         """Sets the row span, keeping the col span the same."""
         if rowspan > 1:
             if not self._clearCells(obj, rowspan, "row"):
-                dabo.log.error(
+                log.error(
                     "Cannot set RowSpan for %s; remove objects in the way first."
                     % itm.Name
                 )
@@ -409,7 +410,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         """Sets the col span, keeping the row span the same."""
         if colspan > 1:
             if not self._clearCells(obj, colspan, "col"):
-                dabo.log.error(
+                log.error(
                     "Cannot set ColSpan for %s; remove objects in the way first."
                     % itm.Name
                 )
@@ -481,7 +482,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         else:
             # Property is in the flag setting.
             flag = itm.GetFlag()
-            szClass = dabo.ui.dSizer
+            szClass = ui.dSizer
             if lowprop == "halign":
                 if flag & szClass.rightFlag:
                     ret = "Right"
@@ -573,7 +574,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
                     sz.drawOutline(win, recurse)
             elif ch.IsWindow():
                 w = ch.GetWindow()
-                if isinstance(w, dabo.ui.dPageFrame):
+                if isinstance(w, ui.dPageFrame):
                     w = w.SelectedPage
                 if hasattr(w, "Sizer") and w.Sizer:
                     w.Sizer.drawOutline(w, True)
@@ -713,7 +714,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
     DynamicVGap = makeDynamicProperty(VGap)
 
 
-dabo.ui.dGridSizer = dGridSizer
+ui.dGridSizer = dGridSizer
 
 
 if __name__ == "__main__":

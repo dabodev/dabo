@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import wx
 from wx import adv as wx_adv
-import dabo
-from dabo import ui as dui
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.ui import dControlMixin
-from dabo.ui import makeDynamicProperty
+
+import ui as dui
+import dEvents
+from dLocalize import _
+from ui import dControlMixin
+from ui import makeDynamicProperty
 
 
 class dEditableList(dControlMixin, wx_adv.EditableListBox):
@@ -259,7 +259,7 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
     )
 
 
-dabo.ui.dEditableList = dEditableList
+ui.dEditableList = dEditableList
 
 
 class _dEditableList_test(dEditableList):
@@ -276,6 +276,6 @@ class _dEditableList_test(dEditableList):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dEditableList_test)

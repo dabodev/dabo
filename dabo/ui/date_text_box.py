@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 import datetime
+
 import wx
-import dabo
-from dabo import ui as dui
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.ui import dTextBox
-from dabo.ui import dPanel
-from dabo.ui import dButton
-from dabo.ui import makeDynamicProperty
+
+import ui as dui
+import dEvents
+from dLocalize import _
+from ui import dTextBox
+from ui import dPanel
+from ui import dButton
+from ui import makeDynamicProperty
+# import firstDayOfWeek
+# import log
 
 # import locale
 # lc = locale.getlocale()
@@ -31,7 +34,7 @@ class CalPanel(dPanel):
         to the calendar's size.
         """
         calClass = {True: dui.dExtendedCalendar, False: dui.dCalendar}[self.extended]
-        self.cal = calClass(self, Position=(6, 5), FirstDayOfWeek=dabo.firstDayOfWeek)
+        self.cal = calClass(self, Position=(6, 5), FirstDayOfWeek=firstDayOfWeek)
         self.cal.Date = self.date
         self.cal.bindEvent(dEvents.Hit, self.onCalSelection)
         self.cal.bindEvent(dEvents.KeyChar, self.onCalKey)
@@ -265,7 +268,7 @@ C: Popup Calendar to Select
                 orig = None
             else:
                 nm, tv = self.Name, type(val)
-                dabo.log.error(
+                log.error(
                     _("Non-date value in %(nm)s: '%(val)s' is type '%(tv)s'") % locals()
                 )
                 return
@@ -369,7 +372,7 @@ C: Popup Calendar to Select
             # checkBoundary = False
         else:
             # This shouldn't happen, because onChar would have filtered it out.
-            dabo.log.info("Warning in dDateTextBox.adjustDate: %s key sent." % key)
+            log.info("Warning in dDateTextBox.adjustDate: %s key sent." % key)
             return
 
         if not self.dateOK:
@@ -501,10 +504,10 @@ C: Popup Calendar to Select
     )
 
 
-dabo.ui.dDateTextBox = dDateTextBox
+ui.dDateTextBox = dDateTextBox
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest((dDateTextBox, dDateTextBox))

@@ -1,19 +1,24 @@
 # -*- coding: utf-8 -*-
-import dabo
-from dabo import dEvents as dEvents
-from dabo import dException as dException
-from dabo.dLocalize import _
-from dabo.dObject import dObject
-from dabo.dPref import dPref
-from dabo.lib.utils import ustr
-from dabo.ui import makeDynamicProperty
-from dabo.ui import dControlMixin
+import biz
+import dEvents
+import dException
+from dLocalize import _
+from dObject import dObject
+from dPref import dPref
+from lib.utils import ustr
+from ui import makeDynamicProperty
+from ui import dControlMixin
+# import dTextBox_DeriveTextLengthFromSource
+# import autoDisableDataControls
+# import log
 
 
 class dDataControlMixin(dControlMixin):
     def __init__(self, *args, **kwargs):
-        self._deriveTextLengthFromSource = dabo.dTextBox_DeriveTextLengthFromSource
-        self._disableOnEmptyDataSource = dabo.autoDisableDataControls
+        # TODO: Refactor these references
+        self._deriveTextLengthFromSource = dTextBox_DeriveTextLengthFromSource
+        self._disableOnEmptyDataSource = autoDisableDataControls
+        ####
         self._fldValidFailed = False
         # Control enabling/disabling on empty data source helper attribute.
         self._dsDisabled = False
@@ -201,7 +206,7 @@ class dDataControlMixin(dControlMixin):
         ##-    # Could be changed and we just don't know it...
         ##- #    isChanged = True
 
-        if isinstance(self, dabo.ui.dToggleButton):
+        if isinstance(self, ui.dToggleButton):
             # These classes change their value before the GotFocus event
             # can store the oldval, so always flush 'em.
             oldVal = None
@@ -257,7 +262,7 @@ class dDataControlMixin(dControlMixin):
                             try:
                                 exec("src.%s = curVal" % self.DataField)
                             except Exception as e:
-                                dabo.log.error(
+                                log.error(
                                     "Could not bind to '%s.%s'\nReason: %s"
                                     % (self.DataSource, self.DataField, e)
                                 )
@@ -270,7 +275,7 @@ class dDataControlMixin(dControlMixin):
                                     nm = self.DataSource._name
                                 else:
                                     nm = ustr(self.DataSource)
-                                dabo.log.error(
+                                log.error(
                                     "Could not bind to '%s.%s'\nReason: %s"
                                     % (nm, self.DataField, e)
                                 )
@@ -321,7 +326,7 @@ class dDataControlMixin(dControlMixin):
                 try:
                     self.Value = value
                 except (ValueError, TypeError) as e:
-                    dabo.log.error(e)
+                    log.error(e)
 
     def getShortDataType(self, value):
         if isinstance(value, int):
@@ -333,7 +338,7 @@ class dDataControlMixin(dControlMixin):
         elif isinstance(value, bool):
             return "L"
         else:
-            dabo.log.info(_("getShortDataType - unknown type: %s") % (value,))
+            log.info(_("getShortDataType - unknown type: %s") % (value,))
             return "?"
 
     def _afterValueChanged(self):
@@ -455,7 +460,7 @@ class dDataControlMixin(dControlMixin):
             self._dataSource = val
             self.update()
 
-        dabo.ui.callAfter(_delayedSetDataSource)
+        ui.callAfter(_delayedSetDataSource)
 
     def _getDesignerMode(self):
         if self._designerMode is None:
@@ -527,7 +532,7 @@ class dDataControlMixin(dControlMixin):
 
                         nonself = ds.split(".", 1)[1]
                         self.__src = resolveObjRef(nonself, self)
-                        self._srcIsBizobj = isinstance(self.__src, dabo.biz.dBizobj)
+                        self._srcIsBizobj = isinstance(self.__src, biz.dBizobj)
                     else:
                         # See if it's a RegID reference to another object
                         self.__src = self.Form.getObjectByRegID(ds)
@@ -552,14 +557,14 @@ class dDataControlMixin(dControlMixin):
                     self.__src = ds
                     if not isinstance(ds, (dObject, dPref)):
                         # Warn about possible unsupported behavior.
-                        dabo.log.info(
+                        log.info(
                             _(
                                 "DataSource '%s' does not inherit from a proper Dabo class. This may result in unsupported problems."
                             )
                             % ds.__repr__()
                         )
                     else:
-                        self._srcIsBizobj = isinstance(ds, dabo.biz.dBizobj)
+                        self._srcIsBizobj = isinstance(ds, biz.dBizobj)
                 # This allow to use bizobj attribute as data field, instead of table field.
                 # Also fix r6665 issue when NoRecordsException is raised before FieldNotFoundException exception.
                 # It's tricky, because object attribute/property takes precedence before data field of the same name.
@@ -594,7 +599,7 @@ class dDataControlMixin(dControlMixin):
                     setter(val)
                 except (TypeError, ValueError) as e:
                     nm = self._name
-                    dabo.log.error(
+                    log.error(
                         _(
                             "Could not set value of %(nm)s to %(val)s. Error message: %(e)s"
                         )
@@ -694,4 +699,4 @@ class dDataControlMixin(dControlMixin):
     DynamicValue = makeDynamicProperty(Value)
 
 
-dabo.ui.dDataControlMixin = dDataControlMixin
+ui.dDataControlMixin = dDataControlMixin

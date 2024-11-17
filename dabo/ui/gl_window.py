@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-from wx import glcanvas
 import wx
-import dabo
-from dabo import ui as dui
-from dabo.dLocalize import _
-from dabo.ui import dControlMixin
-from dabo.ui import makeDynamicProperty
+from wx import glcanvas
 
+import ui as dui
+from dLocalize import _
+from ui import dControlMixin
+from ui import makeDynamicProperty
+
+# import log
 
 try:
     from OpenGL.GL import *
@@ -17,7 +18,7 @@ except ImportError:
     openGL = False
 except Exception as e:
     # Report the error, and abandon the import
-    dabo.log.error(_("Error importing OpenGL: %s") % e)
+    log.error(_("Error importing OpenGL: %s") % e)
     openGL = False
 
 
@@ -122,7 +123,7 @@ class dGlWindow(dControlMixin, glcanvas.GLCanvas):
     )
 
 
-dabo.ui.dGlWindow = dGlWindow
+ui.dGlWindow = dGlWindow
 
 
 class _dGlWindow_test(dGlWindow):
@@ -236,7 +237,7 @@ class _dGlWindow_test2(dGlWindow):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dGlWindow_test)
     test.Test().runTest(_dGlWindow_test2)

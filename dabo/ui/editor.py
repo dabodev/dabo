@@ -6,15 +6,18 @@ import keyword
 import os
 import re
 import sys
+
 import wx
 import wx.stc as stc
-import dabo
-from dabo import dEvents as dEvents
-from dabo import dColors as dColors
-from dabo.dLocalize import _
-from dabo import ui as dui
-from dabo.ui import dDataControlMixin
-from dabo.ui import dTimer
+
+import dEvents
+import dColors
+import ui as dui
+from dLocalize import _
+from ui import dDataControlMixin
+from ui import dTimer
+# import log
+# import getEncoding
 
 
 LexerDic = {
@@ -242,7 +245,7 @@ class STCPrintout(wx.Printout):
         if not self.IsPreview():
             if ep < stcEndPos:
                 posdiff = stcEndPos - ep
-                dabo.log.error(
+                log.error(
                     _(
                         "warning: on page %(page)s: not enough chars rendered, diff: %(posdiff)s"
                     )
@@ -275,7 +278,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         self._hiliteLimitColumn = 79
         self._showEdgeGuide = False
         self._edgeGuideColumn = 80
-        self._encoding = dabo.getEncoding()
+        self._encoding = getEncoding()
         self._eolMode = ""
         self._useAntiAliasing = True
         self._codeFolding = True
@@ -407,7 +410,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         )
         self._printPreview = wx.PrintPreview(po1, po2, self._printData)
         if not self._printPreview.Ok():
-            dabo.log.error(_("An error occured while preparing preview."))
+            log.error(_("An error occured while preparing preview."))
             return
         frame = wx.PreviewFrame(self._printPreview, self.Form, _("Print Preview"))
         frame.Initialize()
@@ -424,7 +427,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         )
 
         if not printer.Print(self.Form, printout):
-            dabo.log.error(_("An error occured while printing."))
+            log.error(_("An error occured while printing."))
         else:
             self.printData = wx.PrintData(printer.GetPrintDialogData().GetPrintData())
         printout.Destroy()
@@ -946,7 +949,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
                 try:
                     newSize = int(fontSize)
                 except ValueError:
-                    dabo.log.error(
+                    log.error(
                         _("Invalid value passed to changeFontSize: %s") % fontSize
                     )
                     return
@@ -2285,7 +2288,7 @@ Do you want to overwrite it?"""
                 if val.lower() in list(LexerDic.keys()):
                     self._language = val.lower()
                 else:
-                    dabo.log.error(
+                    log.error(
                         _("Currently only %s are supported")
                         % ", ".join(list(LexerDic.keys()))
                     )
@@ -2532,7 +2535,7 @@ Do you want to overwrite it?"""
                     self.Text = val
                 except TypeError as e:
                     nm = self._name
-                    dabo.log.error(
+                    log.error(
                         _(
                             "Could not set value of %(nm)s to %(val)s. Error message: %(e)s"
                         )
@@ -2958,7 +2961,7 @@ Do you want to overwrite it?"""
     )
 
 
-dabo.ui.dEditor = dEditor
+ui.dEditor = dEditor
 
 
 class _dEditor_test(dEditor):
@@ -2967,6 +2970,6 @@ class _dEditor_test(dEditor):
 
 
 if __name__ == "__main__":
-    import test
+    from ui import test
 
     test.Test().runTest(_dEditor_test)

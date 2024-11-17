@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import wx.html
 import os
 import re
 import string
@@ -7,11 +6,13 @@ import types
 import urllib.request, urllib.error, urllib.parse
 import urllib.parse
 import datetime
-import dabo
-from dabo.dLocalize import _
-from dabo import dEvents as dEvents
-from dabo.ui import makeDynamicProperty
-from dabo.ui import dControlMixin
+
+import wx.html
+
+from dLocalize import _
+import dEvents
+from ui import makeDynamicProperty
+from ui import dControlMixin
 
 try:
     import webbrowser as wb
@@ -111,7 +112,7 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
             if "file://" in src:
                 url = src
             else:
-                url = dabo.ui.getImagePath(src, True)
+                url = ui.getImagePath(src, True)
                 if url is None:
                     # Use the original
                     url = src
@@ -307,7 +308,7 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
     DynamicSource = makeDynamicProperty(Source)
 
 
-dabo.ui.dHtmlBox = dHtmlBox
+ui.dHtmlBox = dHtmlBox
 
 
 class _dHtmlBox_test(dHtmlBox):
@@ -358,7 +359,7 @@ class _dHtmlBox_test(dHtmlBox):
 
 
 def textChangeHandler(evt):
-    dabo.ui.callAfter(evt.EventObject.flushValue)
+    ui.callAfter(evt.EventObject.flushValue)
 
 
 def resetHTML(evt):
@@ -368,25 +369,25 @@ def resetHTML(evt):
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
+    from dApp import dApp
 
     app = dApp(MainFormClass=None)
     app.setup()
-    frm = dabo.ui.dForm()
-    pnl = dabo.ui.dPanel(frm)
+    frm = ui.dForm()
+    pnl = ui.dPanel(frm)
     frm.Sizer.append1x(pnl)
-    sz = pnl.Sizer = dabo.ui.dSizer("v")
+    sz = pnl.Sizer = ui.dSizer("v")
     ht = _dHtmlBox_test(pnl, RegID="htmlbox")
     sz.append(ht, 2, "x", border=10)
-    lbl = dabo.ui.dLabel(
+    lbl = ui.dLabel(
         pnl, Caption="Edit the HTML below, then press 'Tab' to update the rendered HTML"
     )
     sz.appendSpacer(5)
     sz.append(lbl, halign="center")
-    edt = dabo.ui.dEditBox(pnl, RegID="editbox", DataSource=ht, DataField="Source")
+    edt = ui.dEditBox(pnl, RegID="editbox", DataSource=ht, DataField="Source")
     edt.bindEvent(dEvents.KeyChar, textChangeHandler)
     sz.append1x(edt, border=10)
-    btn = dabo.ui.dButton(pnl, Caption="Reset", OnHit=resetHTML)
+    btn = ui.dButton(pnl, Caption="Reset", OnHit=resetHTML)
     sz.append(btn, halign="right", border=10, borderSides=["right", "bottom"])
 
     frm.show()
