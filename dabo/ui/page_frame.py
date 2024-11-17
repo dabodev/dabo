@@ -3,22 +3,24 @@ import random
 import sys
 
 import wx
-import dabo
-from dabo import ui as dui
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo import dColors as dColors
 
-from dabo.ui import dPageFrameMixin
-from dabo.ui import dPage
-from dabo.ui import dCheckBox
-from dabo.ui import dCheckBox
-from dabo.ui import dCheckBox
-from dabo.ui import dLabel
-from dabo.ui import dDropdownList
-from dabo.ui import dSizer
+import ui as dui
+import dEvents
+from dLocalize import _
+from lib.utils import ustr
+import dColors
+import lib
 
+from ui import dPageFrameMixin
+from ui import dPage
+from ui import dCheckBox
+from ui import dCheckBox
+from ui import dCheckBox
+from ui import dLabel
+from ui import dDropdownList
+from ui import dSizer
+
+# import log
 
 _USE_AGW = True
 try:
@@ -196,7 +198,7 @@ class dPageList(dPageFrameMixin, wx.Listbook):
             except AttributeError:
                 # Changed this to write to the info log to avoid error messages that
                 #  unnecessarily exaggerate the problem.
-                dabo.log.info(
+                log.info(
                     _("ListSpacing is not supported in wxPython %s") % wx.__version__
                 )
         else:
@@ -310,7 +312,7 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
             # See if the 'pgCls' is either some XML or the path of an XML file
             if isinstance(pgCls, str):
                 xml = pgCls
-                from dabo.lib.DesignerClassConverter import DesignerClassConverter
+                from lib.DesignerClassConverter import DesignerClassConverter
 
                 conv = DesignerClassConverter()
                 pgCls = conv.classFromText(xml)
@@ -791,12 +793,12 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
     )
 
 
-dabo.ui.dPageFrame = dPageFrame
-dabo.ui.dPageToolBar = dPageToolBar
-dabo.ui.dPageList = dPageList
-dabo.ui.dPageSelect = dPageSelect
-dabo.ui.dDockTabs = dDockTabs
-dabo.ui.dPageStyled = dPageStyled
+ui.dPageFrame = dPageFrame
+ui.dPageToolBar = dPageToolBar
+ui.dPageList = dPageList
+ui.dPageSelect = dPageSelect
+ui.dDockTabs = dDockTabs
+ui.dPageStyled = dPageStyled
 
 
 class TestMixin(object):
@@ -923,7 +925,7 @@ class _dPageStyled_test(TestMixin, dPageStyled):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dPageFrame_test)
     test.Test().runTest(_dPageToolBar_test)

@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
 
-from dabo.ui import AlignmentMixin
-from dabo.ui import dCheckBox
-from dabo.ui import dControlMixin
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import makeDynamicProperty
+import dEvents
+from dLocalize import _
+from ui import AlignmentMixin
+from ui import dCheckBox
+from ui import dControlMixin
+from ui import dPanel
+from ui import dSizer
+from ui import makeDynamicProperty
 
 
 class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
@@ -43,7 +42,7 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
             if self._inResizeEvent:
                 return
             self._inResizeEvent = True
-            dabo.ui.callAfterInterval(101, self.__resizeExecute)
+            ui.callAfterInterval(101, self.__resizeExecute)
 
     def __resizeExecute(self):
         # We need to set the caption to the internally-saved caption, since
@@ -56,7 +55,7 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
         self.SetLabel(self._caption)
         wd = {True: self.Width, False: -1}[self.WordWrap]
         self.Wrap(wd)
-        dabo.ui.callAfterInterval(50, self.__endResize)
+        ui.callAfterInterval(50, self.__endResize)
 
     def __endResize(self):
         """
@@ -126,7 +125,7 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
                     self._resetAutoResize = True
                     self.AutoResize = False
                 try:
-                    dabo.ui.callAfter(self.Parent.layout)
+                    ui.callAfter(self.Parent.layout)
                 except AttributeError:
                     # Parent has no layout() method.
                     pass
@@ -184,7 +183,7 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
     DynamicWordWrap = makeDynamicProperty(WordWrap)
 
 
-dabo.ui.dLabel = dLabel
+ui.dLabel = dLabel
 
 
 class _dLabel_test(dLabel):
@@ -198,8 +197,8 @@ class _dLabel_test(dLabel):
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
-    from dabo.ui.dForm import dForm
+    from dApp import dApp
+    from ui.dForm import dForm
 
     class LabelTestForm(dForm):
         def afterInit(self):
@@ -220,7 +219,7 @@ if __name__ == "__main__":
             sz.append(self.wrapControl, halign="center", border=20)
             sz.append1x(self.sampleLabel, border=10)
             self.update()
-            dabo.ui.callAfterInterval(200, self.layout)
+            ui.callAfterInterval(200, self.layout)
 
     app = dApp(MainFormClass=LabelTestForm)
     app.start()

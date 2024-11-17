@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 import sys
+
 import wx
-import dabo
-from dabo import ui as dui
-from dabo.ui import dControlMixin
-from dabo.ui import dPage
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo.ui import makeDynamicProperty
+
+import ui as dui
+from ui import dControlMixin
+from ui import dPage
+import dEvents
+import lib
+from dLocalize import _
+from lib.utils import ustr
+from ui import makeDynamicProperty
+# import log
 
 
 MSG_SMART_FOCUS_ABUSE = _(
@@ -35,7 +38,7 @@ class dPageFrameMixin(dControlMixin):
         )
 
     def _beforeInit(self, pre):
-        from dabo.ui import dSizer
+        from ui import dSizer
 
         self._imageList = {}
         self._pageSizerClass = dSizer
@@ -61,7 +64,7 @@ class dPageFrameMixin(dControlMixin):
             try:
                 self.Pages[oldPageNum]._saveLastActiveControl()
             except AttributeError:
-                dabo.log.error(MSG_SMART_FOCUS_ABUSE % self.Name)
+                log.error(MSG_SMART_FOCUS_ABUSE % self.Name)
         self.raiseEvent(
             dEvents.PageChanging, oldPageNum=oldPageNum, newPageNum=newPageNum
         )
@@ -120,7 +123,7 @@ class dPageFrameMixin(dControlMixin):
                 try:
                     newPage._restoreLastActiveControl()
                 except AttributeError:
-                    dabo.log.warn(MSG_SMART_FOCUS_ABUSE % self.Name)
+                    log.warn(MSG_SMART_FOCUS_ABUSE % self.Name)
 
     # Image-handling function
     def addImage(self, img, key=None):
@@ -210,7 +213,7 @@ class dPageFrameMixin(dControlMixin):
             # See if the 'pgCls' is either some XML or the path of an XML file
             if isinstance(pgCls, str):
                 xml = pgCls
-                from dabo.lib.DesignerClassConverter import DesignerClassConverter
+                from lib.DesignerClassConverter import DesignerClassConverter
 
                 conv = DesignerClassConverter()
                 pgCls = conv.classFromText(xml)
@@ -560,4 +563,4 @@ class dPageFrameMixin(dControlMixin):
     DynamicUpdateInactivePages = makeDynamicProperty(UpdateInactivePages)
 
 
-dabo.ui.dPageFrameMixin = dPageFrameMixin
+ui.dPageFrameMixin = dPageFrameMixin

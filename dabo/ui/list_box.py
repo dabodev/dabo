@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-import wx, dabo, dabo.ui
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.ui import dControlItemMixin
-from dabo.ui import makeDynamicProperty
+import wx
+
+import ui
+import dEvents
+from dLocalize import _
+from ui import dControlItemMixin
+from ui import makeDynamicProperty
 
 
 class dListBox(dControlItemMixin, wx.ListBox):
@@ -70,7 +72,7 @@ class dListBox(dControlItemMixin, wx.ListBox):
     DynamicMultipleSelect = makeDynamicProperty(MultipleSelect)
 
 
-dabo.ui.dListBox = dListBox
+ui.dListBox = dListBox
 
 
 class _dListBox_test(dListBox):
@@ -111,6 +113,6 @@ class _dListBox_test(dListBox):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dListBox_test)

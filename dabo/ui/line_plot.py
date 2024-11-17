@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
+
+# import log
 
 try:
     import wx.lib.plot as plot
 except ModuleNotFoundError:
-    dabo.log.error("The numpy module is not installed")
     plot = None
 
 try:
@@ -18,13 +18,13 @@ except ImportError:
     numpy = False
 except Exception as e:
     # Report the error, and abandon the import
-    dabo.log.error(_("Error importing numpy.oldnumeric: %s") % e)
+    log.error(_("Error importing numpy.oldnumeric: %s") % e)
     numpy = False
 
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo.ui import dControlMixin
-from dabo.ui import makeDynamicProperty
+from dLocalize import _
+from lib.utils import ustr
+from ui import dControlMixin
+from ui import makeDynamicProperty
 
 
 class _TraceMixin(object):
@@ -629,7 +629,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
     )
 
 
-dabo.ui.dLinePlot = dLinePlot
+ui.dLinePlot = dLinePlot
 
 
 class _dLinePlot_test(dLinePlot):
@@ -678,6 +678,6 @@ class _dLinePlot_test(dLinePlot):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dLinePlot_test)

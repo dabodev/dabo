@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo.dLocalize import _
-from dabo import dColors as dColors
-from dabo import dEvents as dEvents
 
-from dabo.ui import makeDynamicProperty
-from dabo.ui import dControlMixin
-from dabo.ui import dDataControlMixin
+from dLocalize import _
+import dColors
+import dEvents
+import ui
+from ui import makeDynamicProperty
+from ui import dControlMixin
+from ui import dDataControlMixin
 
 
 class _BasePanelMixin(object):
@@ -375,7 +375,7 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
         self.Bind(wx.EVT_SCROLLWIN, self.__onWxScrollWin)
 
     def __onWxScrollWin(self, evt):
-        evtClass = dabo.ui.getScrollWinEventClass(evt)
+        evtClass = ui.getScrollWinEventClass(evt)
         self.raiseEvent(evtClass, evt)
         evt.Skip()
 
@@ -391,7 +391,7 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
     def _scroll(self, xOff, yOff):
         x, y = self.GetViewStart()
         self.Scroll(x + xOff, y + yOff)
-        dabo.ui.callAfterInterval(250, self.layout)
+        ui.callAfterInterval(250, self.layout)
 
     def pageLeft(self):
         self.pageHorizontally(-1)
@@ -420,8 +420,8 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
             self.Scroll(x, y + (direction * sz))
 
     def _getChildren(self):
-        ret = super(dabo.ui.dScrollPanel, self)._getChildren()
-        return [kid for kid in ret if isinstance(kid, dabo.ui.dPemMixin)]
+        ret = super(ui.dScrollPanel, self)._getChildren()
+        return [kid for kid in ret if isinstance(kid, ui.dPemMixin)]
 
     def _setChildren(self, val):
         super(dScrollPanel, self)._setChildren(val)
@@ -437,7 +437,7 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
             self.SetScrollRate({True: rt[0], False: 0}[val], rt[1])
         else:
             # on Mac at least, this is needed when setting from the constructor.
-            dabo.ui.callAfter(self._setHorizontalScroll, val, do=True)
+            ui.callAfter(self._setHorizontalScroll, val, do=True)
 
     def _getVerticalScroll(self):
         return self._verticalScroll
@@ -449,7 +449,7 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
             rt = self.GetScrollPixelsPerUnit()
             self.SetScrollRate(rt[0], {True: rt[1], False: 0}[val])
         else:
-            dabo.ui.callAfter(self._setVerticalScroll, val, do=True)
+            ui.callAfter(self._setVerticalScroll, val, do=True)
 
     Children = property(
         _getChildren,
@@ -481,9 +481,9 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
     DynamicVerticalScroll = makeDynamicProperty(VerticalScroll)
 
 
-dabo.ui.dPanel = dPanel
-dabo.ui.dDataPanel = dDataPanel
-dabo.ui.dScrollPanel = dScrollPanel
+ui.dPanel = dPanel
+ui.dDataPanel = dDataPanel
+ui.dScrollPanel = dScrollPanel
 
 
 class _dPanel_test(dPanel):
@@ -556,8 +556,8 @@ class _dScrollPanel_test(dScrollPanel):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
-    from dabo.ui import dForm
+    from ui import test
+    from ui import dForm
 
     class SquarePanel(dPanel):
         def afterInit(self):

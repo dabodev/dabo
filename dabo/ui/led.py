@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import ui as dui
-from dabo.ui import dDataPanel
-from dabo import dColors as dColors
-from dabo.dLocalize import _
+
+import dColors
+import ui as dui
+from dLocalize import _
+from ui import dDataPanel
 
 
 class dLed(dDataPanel):
@@ -99,17 +99,12 @@ class dLed(dDataPanel):
     Value = On
 
 
-dabo.ui.dLed = dLed
+ui.dLed = dLed
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
-    from dabo.ui import dDropdownList
-    from dabo.ui import dForm
-    from dabo.ui import dLabel
-    from dabo.ui import dPanel
-    from dabo.ui import dSizer
-    from dabo.ui import dToggleButton
+    from dApp import dApp
+    from ui import dDropdownList, dForm, dLabel, dPanel, dSizer, dToggleButton
 
     class TestForm(dForm):
         def afterInit(self):

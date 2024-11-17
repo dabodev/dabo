@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-import wx, dabo, dabo.ui
-from dabo.lib.utils import ustr
-from dabo.ui import dControlMixin
-from dabo.ui import makeDynamicProperty
+import wx
+
+import ui
+from lib.utils import ustr
+from ui import dControlMixin
+from ui import makeDynamicProperty
 
 
 class dLine(dControlMixin, wx.StaticLine):
@@ -70,7 +72,7 @@ class dLine(dControlMixin, wx.StaticLine):
     DynamicOrientation = makeDynamicProperty(Orientation)
 
 
-dabo.ui.dLine = dLine
+ui.dLine = dLine
 
 
 class _dLine_test(dLine):
@@ -81,6 +83,6 @@ class _dLine_test(dLine):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dLine_test)

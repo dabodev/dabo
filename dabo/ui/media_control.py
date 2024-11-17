@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
 import wx.media
-import dabo
 
-from dabo.ui import makeDynamicProperty
-from dabo.ui import dControlMixin
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
+from ui import makeDynamicProperty
+from ui import dControlMixin
+import dEvents
+from dLocalize import _
 
 
 def _timeConvertOut(fn):
@@ -179,13 +178,13 @@ class dMediaControl(dControlMixin, wx.media.MediaCtrl):
         content into the control by setting the Source property fails. If you want
         your app to handle things differently, override this method.
         """
-        if dabo.ui.areYouSure(
+        if ui.areYouSure(
             _("Could not load '%s'. Try again?") % val,
             title=_("Media Load Fail"),
             defaultNo=True,
             cancelButton=False,
         ):
-            dabo.ui.setAfterInterval(500, self, "Source", val)
+            ui.setAfterInterval(500, self, "Source", val)
             return
         self._source = None
         self.clear()
@@ -409,12 +408,12 @@ class dMediaControl(dControlMixin, wx.media.MediaCtrl):
     )
 
 
-dabo.ui.dMediaControl = dMediaControl
+ui.dMediaControl = dMediaControl
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
-    from dabo.ui import dForm
+    from dApp import dApp
+    from ui import dForm
 
     class MediaForm(dForm):
         def afterInit(self):

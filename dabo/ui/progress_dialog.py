@@ -30,9 +30,10 @@ that the user will three-finger it.
 
 import time
 from threading import *
+
 import wx
-import dabo
-from dabo.dLocalize import _
+
+from dLocalize import _
 
 ID_CANCEL = wx.ID_ANY
 EVT_RESULT_ID = wx.ID_ANY

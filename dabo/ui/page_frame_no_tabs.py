@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import dabo
-from dabo import ui as dui
-from dabo.ui import makeDynamicProperty
-from dabo.ui import dPage
-from dabo.ui import dPanel
-from dabo import dEvents as dEvents
-from dabo import dColors as dColors
-from dabo.dLocalize import _
+import ui as dui
+from ui import makeDynamicProperty
+from ui import dPage
+from ui import dPanel
+import dEvents
+import dColors
+from dLocalize import _
+import lib
 
 
 class dPageFrameNoTabs(dPanel):
@@ -16,7 +16,7 @@ class dPageFrameNoTabs(dPanel):
     """
 
     def __init__(self, *args, **kwargs):
-        from dabo.ui import dSizer
+        from ui import dSizer
 
         self._pageClass = dPage
         self._pageSizerClass = dSizer
@@ -26,7 +26,7 @@ class dPageFrameNoTabs(dPanel):
         self._baseClass = dPageFrameNoTabs
 
     def _afterInit(self):
-        from dabo.ui import dSizer
+        from ui import dSizer
 
         if self.Sizer is None:
             self.Sizer = dSizer()
@@ -63,7 +63,7 @@ class dPageFrameNoTabs(dPanel):
             # See if the 'pgCls' is either some XML or the path of an XML file
             if isinstance(pgCls, str):
                 xml = pgCls
-                from dabo.lib.DesignerClassConverter import DesignerClassConverter
+                from lib.DesignerClassConverter import DesignerClassConverter
 
                 conv = DesignerClassConverter()
                 pgCls = conv.classFromText(xml)
@@ -190,7 +190,7 @@ class dPageFrameNoTabs(dPanel):
 
     def _setPageClass(self, val):
         if isinstance(val, str):
-            from dabo.lib.DesignerClassConverter import DesignerClassConverter
+            from lib.DesignerClassConverter import DesignerClassConverter
 
             conv = DesignerClassConverter()
             self._pageClass = conv.classFromText(val)
@@ -294,23 +294,23 @@ class dPageFrameNoTabs(dPanel):
     DynamicSelectedPageNumber = makeDynamicProperty(SelectedPageNumber)
 
 
-dabo.ui.dPageFrameNoTabs = dPageFrameNoTabs
+ui.dPageFrameNoTabs = dPageFrameNoTabs
 
 
 import random
-from dabo.ui import dButton
-from dabo.ui import dDropdownList
-from dabo.ui import dForm
-from dabo.ui import dLabel
-from dabo.ui import dSizer
+from ui import dButton
+from ui import dDropdownList
+from ui import dForm
+from ui import dLabel
+from ui import dSizer
 
 
 class TestPage(dPage):
     def afterInit(self):
-        self.lbl = dabo.ui.dLabel(self, FontSize=36)
+        self.lbl = ui.dLabel(self, FontSize=36)
         color = random.choice(list(dColors.colorDict.keys()))
         self.BackColor = self.lbl.Caption = color
-        self.Sizer = sz = dabo.ui.dSizer("h")
+        self.Sizer = sz = ui.dSizer("h")
         sz.appendSpacer(1, 1)
         sz.append(self.lbl, 1)
         sz.appendSpacer(1, 1)
@@ -365,7 +365,7 @@ class TestForm(dForm):
 
 
 def main():
-    from dabo.dApp import dApp
+    from dApp import dApp
 
     app = dApp()
     app.MainFormClass = TestForm

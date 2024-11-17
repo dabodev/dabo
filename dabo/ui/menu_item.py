@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import types
+
 import wx
-import dabo
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo.ui import dPemMixin
-from dabo.ui import makeDynamicProperty
+
+import dEvents
+import dException
+from dLocalize import _
+from lib.utils import ustr
+from ui import dPemMixin
+from ui import makeDynamicProperty
 
 
 class dMenuItem(dPemMixin, wx.MenuItem):
@@ -48,7 +50,7 @@ class dMenuItem(dPemMixin, wx.MenuItem):
             )
         # Handle delayed event bindings
         if self._delayedEventBindings:
-            dabo.ui.callAfter(self._bindDelayed)
+            ui.callAfter(self._bindDelayed)
 
     def __onWxMenuHighlight(self, evt):
         self.raiseEvent(dEvents.MenuHighlight)
@@ -135,7 +137,7 @@ class dMenuItem(dPemMixin, wx.MenuItem):
                 return
             if isinstance(val, str):
                 # Icon name was passed; get the actual bitmap
-                val = dabo.ui.strToBmp(val)
+                val = ui.strToBmp(val)
             self.SetBitmap(val)
 
             # Win32 at least needs the following line, or the caption
@@ -276,7 +278,7 @@ class _AbstractExtendedMenuItem(dMenuItem):
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         # Remove the 'Icon' property, as it interferes with the 'selected' display
         if self.__class__ is _AbstractExtendedMenuItem:
-            raise dabo.dException.dException(
+            raise dException.dException(
                 "dAbstractExtendedMenuItem class should not be instantiated directly."
             )
         # Remove the 'Icon' property, as it interferes with the 'selected' display
@@ -311,7 +313,7 @@ class dRadioMenuItem(_AbstractExtendedMenuItem):
     pass
 
 
-dabo.ui.dMenuItem = dMenuItem
-dabo.ui.dSeparatorMenuItem = dSeparatorMenuItem
-dabo.ui.dCheckMenuItem = dCheckMenuItem
-dabo.ui.dRadioMenuItem = dRadioMenuItem
+ui.dMenuItem = dMenuItem
+ui.dSeparatorMenuItem = dSeparatorMenuItem
+ui.dCheckMenuItem = dCheckMenuItem
+ui.dRadioMenuItem = dRadioMenuItem

@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 import sys
+
 import wx
-import dabo
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo import dEvents as dEvents
-from dabo.lib.utils import cleanMenuCaption
-from dabo.ui import dMenuItem, dCheckMenuItem, dRadioMenuItem, dSeparatorMenuItem
-from dabo.ui import dPemMixin
-from dabo.ui import makeDynamicProperty
+
+from dLocalize import _
+from lib.utils import ustr
+import dEvents
+from lib.utils import cleanMenuCaption
+from ui import dMenuItem, dCheckMenuItem, dRadioMenuItem, dSeparatorMenuItem
+from ui import dPemMixin
+from ui import makeDynamicProperty
 
 # wx constants for styles
 NormalItemType = wx.ITEM_NORMAL
@@ -75,7 +76,7 @@ class dMenu(dPemMixin, wx.Menu):
         the MenuOpen event will not be raised, so trigger on the MenuHighlight
         event instead.
         """
-        if isinstance(self.Parent, dabo.ui.dMenuBar):
+        if isinstance(self.Parent, ui.dMenuBar):
             self.bindEvent(dEvents.MenuOpen, self.__onMenuOpenMRU)
         else:
             self.bindEvent(dEvents.MenuHighlight, self.__onMenuOpenMRU)
@@ -85,7 +86,7 @@ class dMenu(dPemMixin, wx.Menu):
         See the _setMRUBindings method for an explanation. This uses
         the same logic to unbind MRU events.
         """
-        if isinstance(self.Parent, dabo.ui.dMenuBar.dMenuBar):
+        if isinstance(self.Parent, ui.dMenuBar.dMenuBar):
             self.unbindEvent(dEvents.MenuOpen, self.__onMenuOpenMRU)
         else:
             self.unbindEvent(dEvents.MenuHighlight, self.__onMenuOpenMRU)
@@ -229,7 +230,7 @@ class dMenu(dPemMixin, wx.Menu):
         dummySpacer = None
         if not self.Children:
             dummySpacer = _actualCreation(" ", "", None, "")
-            dabo.ui.callAfter(self.remove, dummySpacer)
+            ui.callAfter(self.remove, dummySpacer)
         """
 
         item = _actualCreation(caption, help, picture, menutype, *args, **kwargs)
@@ -660,4 +661,4 @@ class dMenu(dPemMixin, wx.Menu):
     DynamicHelpText = makeDynamicProperty(HelpText)
 
 
-dabo.ui.dMenu = dMenu
+ui.dMenu = dMenu

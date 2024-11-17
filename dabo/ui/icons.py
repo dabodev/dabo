@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-import wx
 import os.path
-import dabo.icons
+
+import wx
+import icons
 
 _bmpCache = {}
 
@@ -16,9 +17,9 @@ def getIconBitmap(iconName, setMask=True, noEmptyBmp=False):
     """
     if iconName in _bmpCache:
         return _bmpCache[iconName]
-    fileName = dabo.icons.getIconFileName(iconName)
+    fileName = icons.getIconFileName(iconName)
     if fileName and os.path.exists(fileName):
-        ret = dabo.ui.pathToBmp(fileName)
+        ret = ui.pathToBmp(fileName)
     else:
         if noEmptyBmp:
             ret = None

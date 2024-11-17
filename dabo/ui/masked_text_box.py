@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import datetime
+
 import wx
 import wx.lib.masked as masked
-import dabo
-from dabo.dLocalize import _
-from dabo.ui import dTextBoxMixin
-from dabo.ui import makeDynamicProperty
+
+from dLocalize import _
+from ui import dTextBoxMixin
+from ui import makeDynamicProperty
+# import log
 
 
 class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):
@@ -142,7 +144,7 @@ class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):
             try:
                 self.SetAutoformat(self._formatMap.get(val))
             except AttributeError:
-                dabo.log.error(_("Invalid Format value: %s") % val)
+                log.error(_("Invalid Format value: %s") % val)
                 return
             self._format = val
             if not val:
@@ -158,11 +160,11 @@ class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):
         if self._constructed():
             if self.GetAutoformat() and val:
                 # Cannot have both a mask and a format
-                dabo.log.error(_("Cannot set InputCodes when a Format has been set"))
+                log.error(_("Cannot set InputCodes when a Format has been set"))
             elif [cd for cd in val if cd not in self._allowedInputCodes]:
                 # Illegal codes
                 bad = "".join([cd for cd in val if cd not in self._allowedInputCodes])
-                dabo.log.error(_("Invalid InputCodes: %s") % bad)
+                log.error(_("Invalid InputCodes: %s") % bad)
             else:
                 val = self._uniqueCodes(val)
                 self._inputCodes = val
@@ -405,17 +407,17 @@ class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):
     )
 
 
-dabo.ui.dMaskedTextBox = dMaskedTextBox
+ui.dMaskedTextBox = dMaskedTextBox
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
-    from dabo.ui import dCheckBox
-    from dabo.ui import dForm
-    from dabo.ui import dGridSizer
-    from dabo.ui import dLabel
-    from dabo.ui import dPageFrame
-    from dabo.ui import dSizer
+    from ui import test
+    from ui import dCheckBox
+    from ui import dForm
+    from ui import dGridSizer
+    from ui import dLabel
+    from ui import dPageFrame
+    from ui import dSizer
 
     class MaskedForm(dForm):
         def afterInit(self):

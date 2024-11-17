@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
+
 import wx
-import dabo
-from dabo.dLocalize import _
-from dabo.ui import makeDynamicProperty
+
+from dLocalize import _
+from ui import makeDynamicProperty
 
 
 class dImageMixin(object):
@@ -81,7 +82,7 @@ class dImageMixin(object):
             if isinstance(val, wx.Bitmap):
                 bmp = val
             else:
-                bmp = dabo.ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
+                bmp = ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
             self.Freeze()
             self.SetBitmap(bmp)
             self.Thaw()
@@ -148,4 +149,4 @@ class dImageMixin(object):
     DynamicPicture = makeDynamicProperty(Picture)
 
 
-dabo.ui.dImageMixin = dImageMixin
+ui.dImageMixin = dImageMixin

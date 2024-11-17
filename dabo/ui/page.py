@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import dabo
-from dabo import ui as dui
-from dabo.ui import makeDynamicProperty
-from dabo.ui import dScrollPanel
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
+import ui as dui
+from ui import makeDynamicProperty
+from ui import dScrollPanel
+import dEvents
+from dLocalize import _
 
 
 class dPage(dScrollPanel):
@@ -159,7 +158,7 @@ class dPage(dScrollPanel):
     DynamicImage = makeDynamicProperty(Image)
 
 
-dabo.ui.dPage = dPage
+ui.dPage = dPage
 
 
 class _dPage_test(dPage):
@@ -168,6 +167,6 @@ class _dPage_test(dPage):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dPage_test)

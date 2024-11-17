@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import ui as dui
 import wx.lib.mixins.listctrl as ListMixin
-from dabo import dColors as dColors
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo.ui import dControlItemMixin
-from dabo.ui import makeDynamicProperty
+
+import ui as dui
+import dColors
+import dEvents
+from dLocalize import _
+from lib.utils import ustr
+from ui import dControlItemMixin
+from ui import makeDynamicProperty
+
+# import log
 
 
 class _ListColumnAccessor(object):
@@ -209,7 +211,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         if row < self.RowCount:
             self.SetItemState(row, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
         else:
-            dabo.log.error("An attempt was made to select a non-existent row")
+            log.error("An attempt was made to select a non-existent row")
 
     def selectOnly(self, row):
         """
@@ -236,7 +238,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
             for row in range(self.RowCount):
                 self.select(row)
         else:
-            dabo.log.error(
+            log.error(
                 "'selectAll()' may only be called on List Controls that designated as MultipleSelect"
             )
 
@@ -349,7 +351,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
             self.DeleteItem(row)
             self._restoreRowSelection(row)
         else:
-            dabo.log.error("An attempt was made to remove a non-existent row")
+            log.error("An attempt was made to remove a non-existent row")
 
     def _restoreRowSelection(self, row):
         """
@@ -566,7 +568,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
             self._properties["AutoConvertToString"] = val
 
     def _getChoices(self):
-        dabo.log.warn(_("'Choices' is not a valid property for a dListControl."))
+        log.warn(_("'Choices' is not a valid property for a dListControl."))
         return []
 
     def _getColumnCount(self):
@@ -919,7 +921,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
     DynamicVerticalRules = makeDynamicProperty(VerticalRules)
 
 
-dabo.ui.dListControl = dListControl
+ui.dListControl = dListControl
 
 
 class _dListControl_test(dListControl):
@@ -959,6 +961,6 @@ class _dListControl_test(dListControl):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dListControl_test)

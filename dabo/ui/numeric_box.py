@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 import locale
+from decimal import Decimal
+
 import wx
 import wx.lib.masked as masked
-import dabo
-from dabo.ui import makeDynamicProperty
-from dabo import dEvents as dEvents
-from dabo.ui import dTextBoxMixin
-from dabo.ui import dDataControlMixin as ddcm
-from decimal import Decimal
-from dabo.dLocalize import _
+
+from ui import makeDynamicProperty
+import dEvents
+from ui import dTextBoxMixin
+from ui import dDataControlMixin as ddcm
+from dLocalize import _
 
 
 class dNumericBox(dTextBoxMixin, masked.NumCtrl):
@@ -135,7 +136,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
         self.bindEvent(dEvents.LostFocus, self._onLostFocusFix)
 
     def _onGotFocusFix(self, evt):
-        dabo.ui.callAfter(self._fixInsertionPoint)
+        ui.callAfter(self._fixInsertionPoint)
 
     def _onLostFocusFix(self, evt):
         if self.LimitValue:
@@ -161,7 +162,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
             else:
                 self.InsertionPoint = self._masklength
             if self.SelectOnEntry:
-                dabo.ui.callAfter(self.select, 0, self.InsertionPoint)
+                ui.callAfter(self.select, 0, self.InsertionPoint)
 
     # --- Properties methods.
 
@@ -321,7 +322,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
             val = float(0)
         # ddcm.dDataControlMixin._setValue(self, val)
         ddcm.Value = val
-        dabo.ui.callAfter(self._fixInsertionPoint)
+        ui.callAfter(self._fixInsertionPoint)
 
     def _getSelectOnEntry(self):
         try:
@@ -498,11 +499,11 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
     DynamicMinValue = makeDynamicProperty(MinValue)
 
 
-dabo.ui.dNumericBox = dNumericBox
+ui.dNumericBox = dNumericBox
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     class _testDecimal2(dNumericBox):
         def initProperties(self):

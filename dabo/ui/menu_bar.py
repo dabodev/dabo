@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo.ui import dPemMixin
-from dabo.ui import dMenu
-from dabo.dLocalize import _
-from dabo import dEvents as dEvents
+
+from ui import dPemMixin
+from ui import dMenu
+from dLocalize import _
+import dEvents
 
 
 class dMenuBar(dPemMixin, wx.MenuBar):
@@ -166,7 +166,7 @@ class dMenuBar(dPemMixin, wx.MenuBar):
         # The menu index was found by caption: return the menu:
         try:
             return self.GetMenu(idx)
-        except (dabo.ui.assertionException, ValueError):
+        except (ui.assertionException, ValueError):
             return None
 
     def getMenuIndex(self, idOrCaption):
@@ -211,8 +211,8 @@ class dMenuBar(dPemMixin, wx.MenuBar):
         _getForm,
         _setForm,
         None,
-        _("Specifies the form that we are a member of.  (dabo.ui.dForm)"),
+        _("Specifies the form that we are a member of.  (ui.dForm)"),
     )
 
 
-dabo.ui.dMenuBar = dMenuBar
+ui.dMenuBar = dMenuBar

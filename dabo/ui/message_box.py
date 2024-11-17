@@ -6,14 +6,14 @@ along with convenience functions to allow calling like::
     if dAreYouSure("Delete this record"):
 
 """
-
 import wx
-import dabo
-from dabo.dLocalize import _
+
+from dLocalize import _
+# import dAppRef
 
 
 def getForm():
-    ret = dabo.dAppRef.ActiveForm
+    ret = dAppRef.ActiveForm
     if not ret:
         # Could be a dead object
         ret = None
@@ -211,27 +211,27 @@ def getDefaultTitle():
     object isn't available the title will be "Dabo Application".
     """
     ret = None
-    if dabo.dAppRef:
-        ret = dabo.dAppRef.getAppInfo("appName")
+    if dAppRef:
+        ret = dAppRef.getAppInfo("appName")
     if ret is None:
         ret = "Dabo Application"
     return ret
 
 
-dabo.ui.dMessageBox = dMessageBox
-dabo.ui.areYouSure = areYouSure
-dabo.ui.stop = stop
-dabo.ui.info = info
-dabo.ui.exclaim = exclaim
-dabo.ui.showMessageBox = showMessageBox
+ui.dMessageBox = dMessageBox
+ui.areYouSure = areYouSure
+ui.stop = stop
+ui.info = info
+ui.exclaim = exclaim
+ui.showMessageBox = showMessageBox
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
-    from dabo.ui import dButton
-    from dabo.ui import dForm
-    from dabo.ui import dLabel
-    from dabo.ui import dLine
+    from dApp import dApp
+    from ui import dButton
+    from ui import dForm
+    from ui import dLabel
+    from ui import dLine
 
     app = dApp()
     app.showMainFormOnStart = False
@@ -260,6 +260,6 @@ if __name__ == "__main__":
     frm.Sizer.appendSpacer(80)
     frm.Sizer.append(btn, halign="center")
     frm.layout()
-    dabo.ui.callAfterInterval(5000, exclaim, "Abort! Abort!", parent=frm)
+    ui.callAfterInterval(5000, exclaim, "Abort! Abort!", parent=frm)
     frm.show()
     app.start()

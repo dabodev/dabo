@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo.dLocalize import _
+
+from dLocalize import _
 
 key_Alt = wx.WXK_ALT
 try:
