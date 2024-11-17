@@ -12,29 +12,29 @@ from dabo.dApp import dApp
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
-from ClassDesignerFormMixin import ClassDesignerFormMixin
-from ClassDesignerPemForm import PemForm
-from ClassDesignerEditor import EditorForm
-from ClassDesignerComponents import LayoutPanel
-from ClassDesignerComponents import LayoutBasePanel
-from ClassDesignerComponents import LayoutSpacerPanel
-from ClassDesignerComponents import LayoutSizer
-from ClassDesignerComponents import LayoutBorderSizer
-from ClassDesignerComponents import LayoutGridSizer
-from ClassDesignerComponents import LayoutSaverMixin
-from ClassDesignerComponents import NoSizerBasePanel
-from ClassDesignerComponents import szItemDefaults
-from ClassDesignerComponents import classFlagProp
-from ClassDesignerControlMixin import ClassDesignerControlMixin as cmix
-from ClassDesignerCustomPropertyDialog import ClassDesignerCustomPropertyDialog
-from ClassDesignerSizerPalette import SizerPaletteForm
+from .ClassDesignerFormMixin import ClassDesignerFormMixin
+from .ClassDesignerPemForm import PemForm
+from .ClassDesignerEditor import EditorForm
+from .ClassDesignerComponents import LayoutPanel
+from .ClassDesignerComponents import LayoutBasePanel
+from .ClassDesignerComponents import LayoutSpacerPanel
+from .ClassDesignerComponents import LayoutSizer
+from .ClassDesignerComponents import LayoutBorderSizer
+from .ClassDesignerComponents import LayoutGridSizer
+from .ClassDesignerComponents import LayoutSaverMixin
+from .ClassDesignerComponents import NoSizerBasePanel
+from .ClassDesignerComponents import szItemDefaults
+from .ClassDesignerComponents import classFlagProp
+from .ClassDesignerControlMixin import ClassDesignerControlMixin as cmix
+from .ClassDesignerCustomPropertyDialog import ClassDesignerCustomPropertyDialog
+from .ClassDesignerSizerPalette import SizerPaletteForm
 from dabo.lib.DesignerClassConverter import DesignerClassConverter
 from dabo.lib import DesignerUtils
-import ClassDesignerMenu
+from . import ClassDesignerMenu
 import dabo.ui.dialogs as dlgs
 from dabo.lib.utils import dictStringify
-from ClassDesignerExceptions import PropertyUpdateException
-from Editor import EditorForm as TextEditorForm
+from .ClassDesignerExceptions import PropertyUpdateException
+from .Editor import EditorForm as TextEditorForm
 
 from dabo.ui import dBitmap
 from dabo.ui import dBitmapButton
@@ -4497,20 +4497,6 @@ if __name__ == '__main__':
 
 
 
-
-# if __name__ == "__main__":
-#     fname = None
-#     if len(sys.argv) > 1:
-#         f = sys.argv[1]
-#         pth, fname = os.path.split(f)
-#         if pth:
-#             os.chdir(pth)
-#
-#     clsDes = ClassDesigner(fname)
-
 if __name__ == "__main__":
-    f = None
-    if len(sys.argv) > 1:
-        f = sys.argv[1]
-    clsDes = ClassDesigner(f)
+    clsDes = ClassDesigner(sys.argv[1:])
 

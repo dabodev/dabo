@@ -2,12 +2,12 @@
 import dabo
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
-from ClassDesignerComponents import LayoutPanel
-from ClassDesignerComponents import LayoutBasePanel
-from ClassDesignerComponents import LayoutSpacerPanel
-from ClassDesignerComponents import LayoutSizer
-from ClassDesignerComponents import LayoutBorderSizer
-from ClassDesignerComponents import LayoutGridSizer
+from .ClassDesignerComponents import LayoutPanel
+from .ClassDesignerComponents import LayoutBasePanel
+from .ClassDesignerComponents import LayoutSpacerPanel
+from .ClassDesignerComponents import LayoutSizer
+from .ClassDesignerComponents import LayoutBorderSizer
+from .ClassDesignerComponents import LayoutGridSizer
 
 from dabo.ui import dButton
 from dabo.ui import dColumn

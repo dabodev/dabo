@@ -2,7 +2,7 @@
 import dabo
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
-from ClassDesignerComponents import LayoutSpacerPanel
+from .ClassDesignerComponents import LayoutSpacerPanel
 
 from dabo.ui import dBorderSizer
 from dabo.ui import dCheckBox

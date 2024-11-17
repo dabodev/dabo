@@ -14,6 +14,7 @@ import sys
 from .settings import *
 from .version import __version__
 
+
 # dApp will change the following values upon its __init__:
 dAppRef = None
 

@@ -6,10 +6,10 @@ from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.dObject import dObject
 import dabo.dEvents as dEvents
-from ClassDesignerExceptions import PropertyUpdateException
+from .ClassDesignerExceptions import PropertyUpdateException
 from dabo.lib.xmltodict import xmltodict
 from dabo.lib.DesignerUtils import addSizerDefaults
-from DragHandle import DragHandle
+from .DragHandle import DragHandle
 
 from dabo.ui import dBorderSizer
 from dabo.ui import dBox

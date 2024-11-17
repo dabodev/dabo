@@ -9,8 +9,8 @@ from dabo.dApp import dApp
 import dabo.dEvents as dEvents
 import dabo.dConstants as kons
 from dabo.dLocalize import _
-from ClassDesignerComponents import LayoutSizer
-from ClassDesignerComponents import LayoutGridSizer
+from ..ClassDesignerComponents import LayoutSizer
+from ..ClassDesignerComponents import LayoutGridSizer
 import dabo.ui.dialogs.Wizard as Wizard
 import dabo.ui.dialogs.WizardPage as WizardPage
 from . import QLWImageData as ImageData

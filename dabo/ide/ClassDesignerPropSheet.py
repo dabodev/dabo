@@ -5,12 +5,12 @@ import dabo.ui
 from dabo.dLocalize import _
 from dabo.ui import dKeys as dKeys
 import dabo.dEvents as dEvents
-from ClassDesignerComponents import LayoutPanel
-from ClassDesignerComponents import LayoutSpacerPanel
-from ClassDesignerComponents import LayoutSizer
-from ClassDesignerComponents import LayoutBorderSizer
-from ClassDesignerComponents import LayoutGridSizer
-from ClassDesignerExceptions import PropertyUpdateException
+from .ClassDesignerComponents import LayoutPanel
+from .ClassDesignerComponents import LayoutSpacerPanel
+from .ClassDesignerComponents import LayoutSizer
+from .ClassDesignerComponents import LayoutBorderSizer
+from .ClassDesignerComponents import LayoutGridSizer
+from .ClassDesignerExceptions import PropertyUpdateException
 
 from dabo.ui import dBorderSizer
 from dabo.ui import dButton

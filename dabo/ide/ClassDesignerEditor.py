@@ -7,7 +7,7 @@ import dabo.ui
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-import ClassDesignerMenu
+from . import ClassDesignerMenu
 
 from dabo.ui import dBitmapButton
 from dabo.ui import dButton

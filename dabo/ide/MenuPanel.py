@@ -7,7 +7,7 @@ from dabo.dLocalize import _
 from dabo.lib.propertyHelperMixin import _DynamicList
 from dabo.lib.utils import ustr
 import dabo.lib.xmltodict as xtd
-from MenuDesignerComponents import MenuSaverMixin
+from .MenuDesignerComponents import MenuSaverMixin
 
 FONT_SIZE_DIFF = 2
 BASE_BACKCOLOR = "#eeeeee"

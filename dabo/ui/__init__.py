@@ -81,7 +81,7 @@ uiType = {"shortName": "wx", "moduleName": "uiwx", "longName": "wxPython"}
 uiType["version"] = wx.VERSION_STRING
 _platform = wx.PlatformInfo[1]
 if wx.PlatformInfo[0] == "__WXGTK__":
-    _platform += " (%s)" % wx.PlatformInfo[3]
+    _platform += " (%s)" % wx.PlatformInfo[5]
 uiType["platform"] = _platform
 
 # Add these to the dabo.ui namespace

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from pathlib import Path
 import random
 import os
 
@@ -7,6 +8,7 @@ import dabo
 import dabo.ui
 from dabo.dApp import dApp
 from dabo.dLocalize import _
+
 if __name__ == "__main__":
     import demo
     import cardlib
@@ -20,20 +22,21 @@ from dabo.ui import dForm
 
 
 class MontanaDeck(cardlib.PokerDeck):
-#     def passHoverEvent(self, evt):
-#         self.board.onHover(evt)
-#
-#     def passEndHoverEvent(self, evt):
-#         self.board.endHover(evt)
-
+    #     def passHoverEvent(self, evt):
+    #         self.board.onHover(evt)
+    #
+    #     def passEndHoverEvent(self, evt):
+    #         self.board.endHover(evt)
 
     def appendCard(self, suit, rank):
         newCard = super(MontanaDeck, self).appendCard(suit, rank)
-#         newCard._hover = True
-#         newCard.onHover = self.passHoverEvent
-#         newCard.endHover = self.passEndHoverEvent
+        #         newCard._hover = True
+        #         newCard.onHover = self.passHoverEvent
+        #         newCard.endHover = self.passEndHoverEvent
         newCard.bindEvent(dabo.dEvents.MouseLeftDown, self.board.onCardMDown)
         newCard.bindEvent(dabo.dEvents.MouseLeftUp, self.board.onCardMUp)
+        newCard.bindEvent(dabo.dEvents.MouseLeftDoubleClick, self.board.onCardMDClick)
+        newCard.bindEvent(dabo.dEvents.MouseRightClick, self.board.onCardMDClick)
 
     def createDeck(self):
         super(MontanaDeck, self).createDeck()
@@ -82,7 +85,6 @@ class Board(dPanel):
         self.deck = MontanaDeck(self)
         self.createSizer()
 
-
     def createSizer(self):
         if not self.Sizer:
             self.Sizer = dabo.ui.dSizer("v")
@@ -95,7 +97,6 @@ class Board(dPanel):
             self.gridSizer.release()
         self.gridSizer = dabo.ui.dGridSizer(MaxCols=13, HGap=2, VGap=2)
         self.Sizer.append1x(self.gridSizer)
-
 
     def newGame(self):
         self.Redeals = self.Form.PreferenceManager.redeals
@@ -118,9 +119,8 @@ class Board(dPanel):
         self.updateCardLayout()
         self.updateStatus()
 
-
     def redeal(self):
-        """ Gather all the non-scored cards, shuffle 'em,
+        """Gather all the non-scored cards, shuffle 'em,
         and place them back into the layout.
         """
         sz = self.gridSizer
@@ -134,15 +134,15 @@ class Board(dPanel):
         self.Redeals -= 1
         self.historyStack = []
         self.redoStack = []
-#        self.cardLayout = ()
+        #        self.cardLayout = ()
         self.updateCardLayout(False)
         self.updateStatus()
 
-
     def cardClick(self, card):
         """Called from a card when it is clicked."""
+        if card is None:
+            return
         rank, suit = card.Rank, card.Suit
-
         if rank == 1:
             # Ace; nothing to do
             return
@@ -157,7 +157,7 @@ class Board(dPanel):
                         break
         else:
             # See if the card below it in sequence has an ace to its right
-            prevCard = self.getCard(rank-1, suit)
+            prevCard = self.getCard(rank - 1, suit)
             rCard = self.gridSizer.getNeighbor(prevCard, "right")
             if rCard is not None:
                 if rCard.Rank == 1:
@@ -165,20 +165,19 @@ class Board(dPanel):
                     self.switchCards(card, rCard)
                     self.updateStatus()
 
-
-#     def onHover(self, evt):
-#         if evt is None:
-#             return
-#         self.onCardMDown(evt)
-#     def endHover(self, evt):
-#         if evt is None:
-#             return
-#         self.onCardMUp(evt)
+    #     def onHover(self, evt):
+    #         if evt is None:
+    #             return
+    #         self.onCardMDown(evt)
+    #     def endHover(self, evt):
+    #         if evt is None:
+    #             return
+    #         self.onCardMUp(evt)
 
     def onCardMDown(self, evt):
         card = evt.EventObject
         rank, suit = card.Rank, card.Suit
-        aceClicked = (rank == 1)
+        aceClicked = rank == 1
         if aceClicked:
             # Ace; flash the card that goes in this slot
             leftCard = self.gridSizer.getNeighbor(card, "left")
@@ -196,24 +195,24 @@ class Board(dPanel):
                     # Another ace; do nothing
                     return
 
-
         if rank and suit:
             flashAll = aceClicked or not self.Form.getOnlyFlashAces()
             # Flash the card next in sequence
-            target = self.getCard(rank+1, suit)
+            target = self.getCard(rank + 1, suit)
             if target and flashAll:
-                self.flashCards = [target,]
+                self.flashCards = [
+                    target,
+                ]
             if aceClicked:
                 self.cardTimer.start(1)
             else:
                 # Add the card before in sequence also
-                target = self.getCard(rank-1, suit)
+                target = self.getCard(rank - 1, suit)
                 if (target.Rank > 1) and flashAll:
                     self.flashCards.append(target)
                 # Need to delay the start of the blinking, so that the user has enough
                 # time to finish the click to move the card
                 self.cardTimer.start(500)
-
 
     def onCardMUp(self, evt):
         card = evt.EventObject
@@ -229,6 +228,16 @@ class Board(dPanel):
             # user wasn't holding down the mouse button, so process the click
             self.cardClick(card)
 
+    def onCardMDClick(self, evt):
+        card = evt.EventObject
+        if not card.Rank == 1:
+            return
+        left_card = self.gridSizer.getNeighbor(card, "left")
+        if not left_card:
+            return
+        left_rank, left_suit = left_card.Rank, left_card.Suit
+        target = self.getCard(left_rank + 1, left_suit)
+        self.cardClick(target)
 
     def updateStatus(self):
         """Several things need to be determined:
@@ -239,15 +248,15 @@ class Board(dPanel):
         # Calculate the score
         self._score = 0
         for row in range(4):
-            start = row*13
-            cards = self.cardLayout[start:start+12]
+            start = row * 13
+            cards = self.cardLayout[start : start + 12]
             if cards[0].Rank == 2:
                 # There is scoring in this row
                 suit = cards[0].Suit
                 seq = 1
                 for card in cards:
                     if card.Suit == suit:
-                        if card.Rank == seq+1:
+                        if card.Rank == seq + 1:
                             card.scored = True
                             self._score += 1
                             seq += 1
@@ -285,7 +294,6 @@ class Board(dPanel):
             # Mac or Linux because it isn't necessary and it adds a noticeable lag.
             self.refresh()
 
-
     def stuck(self, _forceWin=False, _forceLose=False):
         """Called when no more moves are possible. If there
         are re-deals left, enable the re-deal button. Otherwise,
@@ -293,12 +301,13 @@ class Board(dPanel):
         """
         self.isStuck = True
         # see if we've completed the deck
-        outOfPlace = [cd for cd in self.deck
-                if cd.Rank != 1 and not cd.scored]
+        outOfPlace = [cd for cd in self.deck if cd.Rank != 1 and not cd.scored]
         if not outOfPlace or _forceWin:
             self._priorHandScore += self._score
-            msg = "Congratulations! You completed the board!\n\n" + \
-                    "You have earned an extra re-deal, and the game continues!"
+            msg = (
+                "Congratulations! You completed the board!\n\n"
+                + "You have earned an extra re-deal, and the game continues!"
+            )
             dabo.ui.exclaim(msg)
             # We have to add 2 here, since the redeal count will be decreased
             # by one when we call redeal().
@@ -312,7 +321,6 @@ class Board(dPanel):
             dabo.ui.callAfter(dabo.ui.info, msg)
         else:
             self.Form.showRedeal()
-
 
     def switchCards(self, c1, c2):
         """Change the position of the two cards."""
@@ -335,7 +343,6 @@ class Board(dPanel):
         dabo.ui.callAfter(c1.unlockDisplay)
         dabo.ui.callAfter(c2.unlockDisplay)
 
-
     def updateCardLayout(self, addToHistory=True):
         if addToHistory:
             if self.cardLayout:
@@ -349,14 +356,11 @@ class Board(dPanel):
                 layout.append(sz.getItemByRowCol(row, col))
         self.cardLayout = tuple(layout)
 
-
     def undo(self):
         self.undoRedo(self.historyStack, self.redoStack)
 
-
     def redo(self):
         self.undoRedo(self.redoStack, self.historyStack)
-
 
     def undoRedo(self, fromStack, toStack):
         if fromStack:
@@ -368,7 +372,6 @@ class Board(dPanel):
             self.updateCardLayout(False)
             self.updateStatus()
 
-
     def getCard(self, rank, suit):
         """Returns a reference to the card that has the specified
         rank and suit.
@@ -378,12 +381,12 @@ class Board(dPanel):
         ret = self.Form.getObjectByRegID(id)
         if ret is None:
             try:
-                ret = [cd for cd in self.deck
-                        if (cd.Rank == rank) and (cd.Suit == suit)][0]
+                ret = [
+                    cd for cd in self.deck if (cd.Rank == rank) and (cd.Suit == suit)
+                ][0]
             except Exception:
                 ret = None
         return ret
-
 
     def _getRedeals(self):
         if hasattr(self, "_redeals"):
@@ -395,27 +398,29 @@ class Board(dPanel):
     def _setRedeals(self, val):
         self._redeals = val
 
-
     def _getScore(self):
         return self._score
 
     def _setScore(self, val):
         self._score = val
 
-
     def _getTotScore(self):
         return self._priorHandScore + self._score
 
+    Redeals = property(
+        _getRedeals, _setRedeals, None, _("Number of remaining redeals  (int)")
+    )
 
-    Redeals = property(_getRedeals, _setRedeals, None,
-            _("Number of remaining redeals  (int)") )
+    Score = property(
+        _getScore, _setScore, None, _("Score of the game for the current hand  (int)")
+    )
 
-    Score = property(_getScore, _setScore, None,
-            _("Score of the game for the current hand  (int)") )
-
-    TotalScore = property(_getTotScore, None, None,
-            _("Total score of the game, including prior hands  (int)") )
-
+    TotalScore = property(
+        _getTotScore,
+        None,
+        None,
+        _("Total score of the game, including prior hands  (int)"),
+    )
 
 
 class MontanaForm(dForm):
@@ -438,20 +443,31 @@ class MontanaForm(dForm):
         self.fillMenu()
         dabo.ui.callAfter(self.startGame)
 
-
     def fillMenu(self):
         iconPath = "themes/tango/16x16"
 
         mb = self.MenuBar
         fileMenu = mb.getMenu("base_file")
         fileMenu.prependSeparator()
-        fileMenu.prepend(_("&New Game"), HotKey="Ctrl+N", help=_("Start a new game"),
-                OnHit=self.onNewGame, bmp="%s/actions/document-new.png" % iconPath)
+        fileMenu.prepend(
+            _("&New Game"),
+            HotKey="Ctrl+N",
+            help=_("Start a new game"),
+            OnHit=self.onNewGame,
+            bmp="%s/actions/document-new.png" % iconPath,
+        )
         helpMenu = mb.getMenu("base_help")
-        helpMenu.append(_("&How to Play"), HotKey="Ctrl+I", help=_("Rules of the game"),
-            OnHit=self.onRules, bmp="%s/apps/help-browser.png" % iconPath)
+        helpMenu.append(
+            _("&How to Play"),
+            HotKey="Ctrl+I",
+            help=_("Rules of the game"),
+            OnHit=self.onRules,
+            bmp="%s/apps/help-browser.png" % iconPath,
+        )
 
-        tb = self.ToolBar = dabo.ui.dToolBar(self, ShowCaptions=True)  ## Mac has a resize problem otherwise.
+        tb = self.ToolBar = dabo.ui.dToolBar(
+            self, ShowCaptions=True
+        )  ## Mac has a resize problem otherwise.
 
         if self.Application.Platform == "Mac":
             # Toolbar looks better with larger icons on Mac. In fact, I believe HIG
@@ -462,12 +478,22 @@ class MontanaForm(dForm):
         tb.SetToolBitmapSize(iconSize)  ## need to abstract in dToolBar!
         iconPath = "themes/tango/%sx%s" % iconSize
 
-        tb.appendButton("New", pic="%s/actions/document-new.png" % iconPath,
-                toggle=False, OnHit=self.onNewGame, tip="New Game",
-                help="Start a new game")
-        tb.appendButton("Preferences", pic="%s/categories/preferences-system.png" % iconPath,
-                toggle=False,    OnHit=self.onEditPreferences,
-                tip="Preferences", help="Edit preferences")
+        tb.appendButton(
+            "New",
+            pic="%s/actions/document-new.png" % iconPath,
+            toggle=False,
+            OnHit=self.onNewGame,
+            tip="New Game",
+            help="Start a new game",
+        )
+        tb.appendButton(
+            "Preferences",
+            pic="%s/categories/preferences-system.png" % iconPath,
+            toggle=False,
+            OnHit=self.onEditPreferences,
+            tip="Preferences",
+            help="Edit preferences",
+        )
         tb.appendSeparator()
 
         btn = self.btnRedeal = tb.appendControl(dabo.ui.dButton(tb, Enabled=False))
@@ -477,43 +503,47 @@ class MontanaForm(dForm):
         tb.appendSeparator()
 
         tb.appendControl(dabo.ui.dLabel(tb, Caption="Hand Score:", Width=50, Height=20))
-        self.txtHandScore = tb.appendControl(dabo.ui.dTextBox(tb, Value=0,
-                FontBold=True, Width=40, ReadOnly=True, Alignment="Right"))
+        self.txtHandScore = tb.appendControl(
+            dabo.ui.dTextBox(
+                tb, Value=0, FontBold=True, Width=40, ReadOnly=True, Alignment="Right"
+            )
+        )
         tb.appendSeparator()
         tb.appendControl(dabo.ui.dLabel(tb, Caption="Game Score:", Width=50, Height=20))
-        self.txtGameScore = tb.appendControl(dabo.ui.dTextBox(tb, Value=0,
-                FontBold=True, Width=40, ReadOnly=True, Alignment="Right"))
-
+        self.txtGameScore = tb.appendControl(
+            dabo.ui.dTextBox(
+                tb, Value=0, FontBold=True, Width=40, ReadOnly=True, Alignment="Right"
+            )
+        )
 
     def updateRedealCaption(self):
         btn = self.btnRedeal
         btn.Caption = "Redeals left: %s" % self.gameBoard.Redeals
         btn.Width = dabo.ui.fontMetric(btn.Caption, wind=btn)[0] + 24
-        btn.Enabled = (self.gameBoard.isStuck and self.gameBoard.Redeals > 0)
-
+        btn.Enabled = self.gameBoard.isStuck and self.gameBoard.Redeals > 0
 
     def getOnlyFlashAces(self):
         return self.PreferenceManager.flashOnlyAces
 
-
     def getDeckDir(self):
-        ret = "media/cards/large"
-        if self.PreferenceManager.smallDeck:
-            ret = "media/cards/small"
-        return ret
-
+        pth = Path(__file__)
+        # Looking for the 'demo' directory
+        while pth.as_posix() and pth.name != "demo":
+            pth = pth.parent
+        card_type= "small" if self.PreferenceManager.smallDeck else "large"
+        loc = pth / "media" / "cards" / card_type
+        return loc.as_posix()
 
     def onEditUndo(self, evt):
         self.gameBoard.undo()
 
-
     def onEditRedo(self, evt):
         self.gameBoard.redo()
-
 
     def onEditPreferences(self, evt):
         """Create a dialog to edit preferences."""
         xml = self.getPrefControlXML()
+
         class MontanaPrefDialog(dabo.ui.dOkCancelDialog):
             def addControls(self):
                 self.prf = self.Parent.PreferenceManager
@@ -532,12 +562,13 @@ class MontanaForm(dForm):
             prf.persist()
             if prf.smallDeck != small:
                 msg = """You must quit and restart the game for the
-                        card size changes to take effect""".replace("\t", "")
+                        card size changes to take effect""".replace(
+                    "\t", ""
+                )
                 dabo.ui.info(msg, title="Card Size Changed")
         else:
             prf.flushCache()
         prf.AutoPersist = True
-
 
     def onRules(self, evt):
         win = dabo.ui.dForm(self, Caption="Montana Rules", Centered=True)
@@ -554,36 +585,34 @@ class MontanaForm(dForm):
         pnl.fitToSizer()
         win.Visible = True
 
-
     def onNewGame(self, evt):
         # Check for a game in progress.
-        if self.gameBoard.historyStack and (not self.gameBoard.isStuck or self.gameBoard.Redeals):
-            if not dabo.ui.areYouSure(message="Your game is not over. Are " +
-                    "you sure you want to end it and start a new game?"):
+        if self.gameBoard.historyStack and (
+            not self.gameBoard.isStuck or self.gameBoard.Redeals
+        ):
+            if not dabo.ui.areYouSure(
+                message="Your game is not over. Are "
+                + "you sure you want to end it and start a new game?"
+            ):
                 return
         self.startGame()
-
 
     def startGame(self):
         self.gameBoard.newGame()
         self.updateRedealCaption()
 
-
     def showRedeal(self):
         self.btnRedeal.Enabled = True
-
 
     def onRedeal(self, evt):
         self.gameBoard.redeal()
         self.btnRedeal.Enabled = False
         self.updateRedealCaption()
 
-
     def updateScore(self):
         self.txtHandScore.Value = self.gameBoard.Score
         self.txtGameScore.Value = self.gameBoard.TotalScore
         self.layout()
-
 
     def getPrefControlXML(self):
         return """<?xml version="1.0" encoding="utf-8" standalone="no"?>
@@ -604,4 +633,3 @@ if __name__ == "__main__":
     app.BasePrefKey = "demo.games.montana"
     app.setAppInfo("appName", "Montana")
     app.start()
-

@@ -6,13 +6,13 @@ from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 from dabo.ui import dialogs as dlgs
-from ClassDesignerComponents import LayoutPanel
-from ClassDesignerComponents import LayoutSizer
-from ClassDesignerComponents import LayoutBorderSizer
-from ClassDesignerComponents import LayoutGridSizer
-from ClassDesignerComponents import LayoutSaverMixin
-from ClassDesignerComponents import classFlagProp
-from ClassDesignerExceptions import PropertyUpdateException
+from .ClassDesignerComponents import LayoutPanel
+from .ClassDesignerComponents import LayoutSizer
+from .ClassDesignerComponents import LayoutBorderSizer
+from .ClassDesignerComponents import LayoutGridSizer
+from .ClassDesignerComponents import LayoutSaverMixin
+from .ClassDesignerComponents import classFlagProp
+from .ClassDesignerExceptions import PropertyUpdateException
 from dabo.ui import dKeys
 
 dui = dabo.ui

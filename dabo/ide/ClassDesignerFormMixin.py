@@ -8,22 +8,22 @@ import dabo.ui
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
-import ClassDesignerPropSheet
+from . import ClassDesignerPropSheet
 import dabo.dConstants as kons
 import dabo.lib.utils as utils
-from ClassDesignerControlMixin import ClassDesignerControlMixin as dcm
-import ClassDesignerMenu
-from DragHandle import DragHandle
-from wizards.QuickLayoutWizard import QuickLayoutWizard
-from ClassDesignerComponents import LayoutPanel
-from ClassDesignerComponents import LayoutBasePanel
-from ClassDesignerComponents import LayoutSpacerPanel
-from ClassDesignerComponents import LayoutSizer
-from ClassDesignerComponents import LayoutBorderSizer
-from ClassDesignerComponents import LayoutGridSizer
-from ClassDesignerComponents import LayoutSaverMixin
-from ClassDesignerComponents import NoSizerBasePanel
-from ClassDesignerComponents import classFlagProp
+from .ClassDesignerControlMixin import ClassDesignerControlMixin as dcm
+from . import ClassDesignerMenu
+from .DragHandle import DragHandle
+from .wizards.QuickLayoutWizard import QuickLayoutWizard
+from .ClassDesignerComponents import LayoutPanel
+from .ClassDesignerComponents import LayoutBasePanel
+from .ClassDesignerComponents import LayoutSpacerPanel
+from .ClassDesignerComponents import LayoutSizer
+from .ClassDesignerComponents import LayoutBorderSizer
+from .ClassDesignerComponents import LayoutGridSizer
+from .ClassDesignerComponents import LayoutSaverMixin
+from .ClassDesignerComponents import NoSizerBasePanel
+from .ClassDesignerComponents import classFlagProp
 import dabo.lib.xmltodict as xtd
 import dabo.lib.DesignerUtils as desUtil
 from dabo.ui import dKeys

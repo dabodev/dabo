@@ -4,16 +4,16 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.ui import dKeys
-from ClassDesignerComponents import LayoutPanel
-from ClassDesignerComponents import LayoutBasePanel
-from ClassDesignerComponents import LayoutSpacerPanel
-from ClassDesignerComponents import LayoutSizer
-from ClassDesignerComponents import LayoutGridSizer
-from ClassDesignerComponents import NoSizerBasePanel
-from DragHandle import DragHandle
-import ClassDesignerMenu
-from MenuPanel import MenuPanel
-from MenuDesignerComponents import SeparatorPanel
+from .ClassDesignerComponents import LayoutPanel
+from .ClassDesignerComponents import LayoutBasePanel
+from .ClassDesignerComponents import LayoutSpacerPanel
+from .ClassDesignerComponents import LayoutSizer
+from .ClassDesignerComponents import LayoutGridSizer
+from .ClassDesignerComponents import NoSizerBasePanel
+from .DragHandle import DragHandle
+from . import ClassDesignerMenu
+from .MenuPanel import MenuPanel
+from .MenuDesignerComponents import SeparatorPanel
 dui = dabo.ui
 from dabo.ui import makeProxyProperty
 

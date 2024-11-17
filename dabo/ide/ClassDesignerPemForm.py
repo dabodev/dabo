@@ -4,15 +4,15 @@ import dabo.ui
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import dabo.dEvents as dEvents
-from ClassDesignerPropSheet import PropSheet
-from ClassDesignerTreeSheet import TreeSheet
-from ClassDesignerMethodSheet import MethodSheet
-from ClassDesignerObjectPropertySheet import ObjectPropertySheet
-from ClassDesignerComponents import LayoutPanel
-from ClassDesignerComponents import LayoutSpacerPanel
-from ClassDesignerComponents import LayoutSizer
-from ClassDesignerComponents import LayoutGridSizer
-import ClassDesignerMenu
+from .ClassDesignerPropSheet import PropSheet
+from .ClassDesignerTreeSheet import TreeSheet
+from .ClassDesignerMethodSheet import MethodSheet
+from .ClassDesignerObjectPropertySheet import ObjectPropertySheet
+from .ClassDesignerComponents import LayoutPanel
+from .ClassDesignerComponents import LayoutSpacerPanel
+from .ClassDesignerComponents import LayoutSizer
+from .ClassDesignerComponents import LayoutGridSizer
+from . import ClassDesignerMenu
 
 from dabo.ui import dBorderSizer
 from dabo.ui import dColumn

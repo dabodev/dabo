@@ -13,7 +13,6 @@ from dabo.lib.utils import ustr
 from dabo.lib.connParser import createXML
 from dabo.lib.connParser import importConnections
 import dabo.lib.utils as utils
-#from HomeDirectoryStatusBar import HomeDirectoryStatusBar
 from dabo.ui import dButton
 from dabo.ui import dDropdownList
 from dabo.ui import dForm
@@ -22,7 +21,7 @@ from dabo.ui import dLabel
 from dabo.ui import dPanel
 from dabo.ui import dSizer
 from dabo.ui import dTextBox
-import HomeDirectoryStatusBar
+from . import HomeDirectoryStatusBar
 
 
 
@@ -590,21 +589,20 @@ class EditorForm(dForm):
             _("A reference to the application-supplied encryption object (dabo.lib.SimpleCrypt)"))
 
 
-def main():
-    files = sys.argv[1:]
+def run_editor(filepaths=None):
     app = dApp(ignoreScriptDir=True)
     app.BasePrefKey = "CxnEditor"
     app.MainFormClass = None
     app.setup()
 
-    if not files:
+    if not filepaths:
         # The form can either edit a new file, or the user can open the file
         # from the form
         o = EditorForm()
         o.newFile()
         o.show()
     else:
-        for file in files:
+        for pth in filepaths:
             o = EditorForm()
             o.openFile(file)
             if o.connFile:
@@ -616,4 +614,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run_editor(filepaths=sys.argv[1:])
