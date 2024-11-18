@@ -3,7 +3,7 @@ Dabo Installation Notes
 
 Prerequisites:
 --------------
- * Python (we recommend 3.6 or later)
+ * Python (we recommend 3.10 or later)
  * wxPython 4.x or later
  * pymysql (only to run the demos or for your project)
  * reportlab (only to run reports)

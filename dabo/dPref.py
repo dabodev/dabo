@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
+from decimal import Decimal
+import datetime
 import os
 import warnings
-import datetime
-from decimal import Decimal
-import dabo
-from dabo.dLocalize import _
-import dabo.lib.utils as utils
-from dabo.lib.utils import ustr
-import dabo.db
+
+from dLocalize import _
+import lib.utils as utils
+from lib.utils import ustr
+import db
+# import log
 
 
 # We don't want to deal with these as preferences.
@@ -93,7 +94,7 @@ class dPref(object):
             datetime.datetime: "datetime",
             Decimal: "decimal",
             self._noneType: "none",
-            dabo.db.dDataSet: "tuple",
+            db.dDataSet: "tuple",
         }
         if crs is None:
             if prefDb:
@@ -111,7 +112,7 @@ class dPref(object):
             if cxn:
                 self._cxn = cxn
             else:
-                self._cxn = dabo.db.dConnection(
+                self._cxn = db.dConnection(
                     connectInfo={"DbType": "SQLite", "Database": db}, forceCreate=True
                 )
             self._cursor = self._cxn.getDaboCursor()
@@ -257,7 +258,7 @@ class dPref(object):
         baseKey = self._getKey()
         if not baseKey:
             if not self._persistAll:
-                dabo.log.error(_("No base key set; preference will not be persisted."))
+                log.error(_("No base key set; preference will not be persisted."))
                 return
             else:
                 key = att
@@ -267,7 +268,7 @@ class dPref(object):
         try:
             typ = self._typeDict[type(val)]
         except KeyError:
-            dabo.log.error(_("BAD TYPE: %s") % type(val))
+            log.error(_("BAD TYPE: %s") % type(val))
             typ = "?"
         # Convert it to a string that can be properly converted back
         val = self._encodeType(val, typ)

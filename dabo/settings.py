@@ -29,6 +29,8 @@ import sys
 import logging
 from pathlib import Path
 
+from .version import __version__
+
 ### Settings - begin
 
 # Event logging is turned off globally by default for performance reasons.
@@ -264,3 +266,54 @@ try:
     from settings_override import *
 except ImportError:
     pass
+
+# Encoding to be used throughout the app
+_encoding = None
+
+
+def getEncoding():
+    global _encoding
+    if _encoding:
+        return _encoding
+    encoding = locale.getdefaultlocale()[1] or locale.getlocale()[1] or defaultEncoding
+
+    def _getEncodingName():
+        if encoding.isdigit():
+            # Fix for missing encoding aliases e.g. '874'.
+            yield "cp%s" % encoding
+        yield encoding
+        prefEncoding = locale.getpreferredencoding()
+        if not encoding == prefEncoding:
+            yield prefEncoding
+        if not encoding == defaultEncoding:
+            yield defaultEncoding
+        raise ValueError("Unknown encoding: %s" % encoding)
+
+    for encoding in _getEncodingName():
+        try:
+            "".encode(encoding)
+        except LookupError:
+            pass
+        else:
+            break
+    _encoding = encoding
+    return encoding
+
+
+# Encoding to use with XML
+_xml_encoding = None
+
+
+def getXMLEncoding():
+    global _xml_encoding
+    if _xml_encoding:
+        return _xml_encoding
+    encoding = getEncoding()
+    if encoding.lower().strip().replace("-", "") == "utf8":
+        return "utf-8"
+    if "1252" in encoding:
+        return "windows-1252"
+    _xml_encoding = encoding
+    return encoding
+
+

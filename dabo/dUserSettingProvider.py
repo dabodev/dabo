@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-import dabo
-from dabo.dObject import dObject
-from dabo.dLocalize import _
+from dObject import dObject
+from dLocalize import _
 
 
 class dUserSettingProvider(dObject):

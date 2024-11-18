@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import dabo
-from dabo.dLocalize import _
-from dabo.lib.reportWriter import ReportWriter
-from dabo.dObject import dObject
-from dabo import dEvents as dEvents
+import settings
+from dLocalize import _
+from lib.reportWriter import ReportWriter
+from dObject import dObject
+import dEvents
 
-if dabo.implicitImports:
-    from dabo import ui as dui
+if settings.implicitImports:
+    import ui
 
 
 # dReportWriter is simply a raw ReportWriter/dObject mixin:
@@ -60,20 +60,20 @@ class dReportWriter(dObject, ReportWriter):
             win = self.ProgressControl
             if win:
                 win.updateProgress(self.RecordNumber, len(self.Cursor))
-                dui.yieldUI(_safe=True)
+                ui.yieldUI(_safe=True)
 
     def _hideProgress(self):
         win = self.ProgressControl
         if win:
             win.hide()
             win.Form.fitToSizer()
-            dui.yieldUI(_safe=True)
+            ui.yieldUI(_safe=True)
 
     def _getEncoding(self):
         try:
             v = self._encoding
         except AttributeError:
-            v = dabo.getEncoding()
+            v = settings.getEncoding()
             self._encoding = v
         return v
 
@@ -132,7 +132,7 @@ class dReportWriter(dObject, ReportWriter):
         The specified control will be updated with every record processed. It must have
         a updateProgress(current_row, num_rows) method.
 
-        For the default control, use dabo.ui.dReportProgress.
+        For the default control, use ui.dReportProgress.
         """
         ),
     )

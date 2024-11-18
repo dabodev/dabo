@@ -2,10 +2,10 @@
 import string
 import types
 
-import dabo
-from dabo.lib.propertyHelperMixin import PropertyHelperMixin
-from dabo.lib.eventMixin import EventMixin
-from dabo.dLocalize import _
+import settings
+from lib.propertyHelperMixin import PropertyHelperMixin
+from lib.eventMixin import EventMixin
+from dLocalize import _
 
 NONE_TYPE = type(None)
 
@@ -244,7 +244,7 @@ class dObject(PropertyHelperMixin, EventMixin):
         This method takes a dictionary containing method names as
         keys, and the method code as the corresponding values, compiles
         it, and adds the methods to this object. If the method name begins
-        with 'on', and dabo.autoBindEvents is True, an event binding will be
+        with 'on', and autoBindEvents is True, an event binding will be
         made just as with normal auto-binding. If the code cannot be
         compiled successfully, an error message will be added
         to the Dabo ErrorLog, and the method will not be added.
@@ -255,7 +255,7 @@ class dObject(PropertyHelperMixin, EventMixin):
                 compCode = compile(code, "", "exec")
             except SyntaxError as e:
                 snm = self.Name
-                dabo.log.error(
+                log.error(
                     _(
                         "Method '%(nm)s' of object '%(snm)s' has the following error: %(e)s"
                     )
@@ -275,7 +275,7 @@ class dObject(PropertyHelperMixin, EventMixin):
     # Property definitions begin here
     def _getApplication(self):
         # dApp saves a ref to itself inside the dabo module object.
-        return dabo.dAppRef
+        return settings.dAppRef
 
     def _getBaseClass(self):
         # Every Dabo baseclass must set self._baseClass explicitly, to itself. For instance:
@@ -370,13 +370,13 @@ class dObject(PropertyHelperMixin, EventMixin):
                 except AttributeError:
                     pass
             if ret is None:
-                from dabo.dPref import dPref  ## here to avoid circular import
+                from dPref import dPref  ## here to avoid circular import
 
                 ret = self._preferenceManager = dPref(key=self.BasePrefKey)
         return ret
 
     def _setPreferenceManager(self, val):
-        from dabo.dPref import dPref  ## here to avoid circular import
+        from dPref import dPref  ## here to avoid circular import
 
         if not isinstance(val, dPref):
             raise TypeError("PreferenceManager must be a dPref object")
@@ -423,7 +423,7 @@ class dObject(PropertyHelperMixin, EventMixin):
             Event logging is resource-intensive, so in addition to setting this LogEvents
             property, you also need to make the following call:
 
-                >>> dabo.eventLogging = True
+                >>> settings.eventLogging = True
 
             """
         ),
@@ -442,7 +442,7 @@ class dObject(PropertyHelperMixin, EventMixin):
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
+    from dApp import dApp
 
     d = dObject()
     print(d.Application)

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import time
-import dabo
-from dabo.dObject import dObject
-from dabo.dLocalize import _
+
+from dObject import dObject
+from dLocalize import _
 
 
 class dSecurityManager(dObject):
@@ -211,8 +211,8 @@ class dSecurityManager(dObject):
 
 
 if __name__ == "__main__":
-    from dabo import ui as dui
-    from dabo.dApp import dApp
+    import ui
+    from dApp import dApp
 
     app = dApp(MainFormClass=None)
     app.setup()
@@ -226,5 +226,5 @@ if __name__ == "__main__":
 
     app.SecurityManager = TestSM()
     if app.SecurityManager.login():
-        app.MainForm = dui.dFormMain()
+        app.MainForm = ui.dFormMain()
         app.start()
