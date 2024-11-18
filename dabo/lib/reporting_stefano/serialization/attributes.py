@@ -2,6 +2,7 @@
 # pkm TODO: serialization lib shouldn't have to rely on reporting lib's, or,
 #           if serialization lib is specific to reporting, it should be moved
 #           to dabo.lib.reporting.serialization. Stefano, thoughts?
+from six import string_types as sixBasestring
 from reportlab.lib import pagesizes
 import dabo
 from dabo.lib.utils import ustr
@@ -29,13 +30,13 @@ class StringAttr(SerializableAttribute):
 		if value is None:
 			return self.default
 		value = eval(value, env)
-		assert isinstance(value, basestring)
+		assert isinstance(value, sixBasestring)
 		return value
 
 
 class UnevalStringAttr(SerializableAttribute):
 	def evaluate(self, value, env):
-		assert isinstance(value, basestring)
+		assert isinstance(value, sixBasestring)
 		return value
 
 

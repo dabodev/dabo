@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
+# TODO: wait for Robin's feed back
 import os
 import wx
 import dabo
 
-from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
+from dabo.ui import makeDynamicProperty
 import dControlMixin as cm
 from dabo.dLocalize import _
 
@@ -19,7 +24,7 @@ except:
 try:
 	import wx.lib.pdfwin as pdfwin
 	PDFWindow = pdfwin.PDFWindow
-except StandardError:
+except Exception:
 	## If there's any exception at all in importing pdfwin, use the dummy.
 	class Dummy(object):
 		_dummy = True
@@ -52,6 +57,6 @@ class _dPdfWindow_test(dPdfWindow):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dPdfWindow_test)
 

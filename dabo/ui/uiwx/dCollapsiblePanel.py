@@ -2,6 +2,9 @@
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
 import wx
 import dabo
@@ -130,5 +133,5 @@ class _CollapsiblePanelTest(dCollapsiblePanel):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_CollapsiblePanelTest)

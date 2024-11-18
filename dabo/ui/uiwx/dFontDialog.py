@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
+
+if __name__ == "__main__":
+	import dabo.ui
+	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
 import dabo.dConstants as k
 
 
@@ -28,5 +36,5 @@ class dFontDialog(wx.FontDialog):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(dFontDialog)

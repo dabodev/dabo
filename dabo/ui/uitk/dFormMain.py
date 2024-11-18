@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """ dFormMain.py """
 import Tkinter
-import dFormMixin as fm
+from . import dFormMixin as fm
 
 class dFormMain(Tkinter.Tk, fm.dFormMixin):
 	""" This is the main top-level form for the application.
@@ -11,8 +11,8 @@ class dFormMain(Tkinter.Tk, fm.dFormMixin):
 		preClass = Tkinter.Tk
 		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-		self.Size = (640,480)
-		self.Position = (0,0)
+		self.Size = (640, 480)
+		self.Position = (0, 0)
 
 #		if wx.Platform != '__WXMAC__':
 #			self.CreateStatusBar()
@@ -31,5 +31,5 @@ class dFormMain(Tkinter.Tk, fm.dFormMixin):
 	def setStatusText(self, text): pass
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(dFormMain)

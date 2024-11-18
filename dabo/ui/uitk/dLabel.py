@@ -5,7 +5,7 @@ from dabo.lib.utils import ustr
 if __name__ == "__main__":
 	dabo.ui.loadUI("tk")
 
-import dControlMixin as cm
+from . import dControlMixin as cm
 
 class dLabel(Tkinter.Label, cm.dControlMixin):
 	""" Create a static (not data-aware) label.
@@ -75,5 +75,5 @@ class dLabel(Tkinter.Label, cm.dControlMixin):
 # 						'   Right')
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(dLabel)

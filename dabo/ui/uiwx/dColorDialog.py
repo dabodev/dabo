@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import wx
+if __name__ == "__main__":
+	import dabo.ui
+	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
 import dabo
 import dabo.dConstants as kons
 import dabo.dColors as dColors
@@ -14,7 +22,7 @@ class dColorDialog(wx.ColourDialog):
 		dat.SetChooseFull(True)
 
 		if color is not None:
-			if isinstance(color, basestring):
+			if isinstance(color, sixBasestring):
 				try:
 					color = dColors.colorTupleFromName(color)
 					dat.SetColour(color)
@@ -49,5 +57,5 @@ class dColorDialog(wx.ColourDialog):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(dColorDialog)

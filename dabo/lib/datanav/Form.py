@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import sys
 import os
 import traceback
@@ -14,7 +15,7 @@ import Grid
 _has_reporting_libs = True
 try:
 	import dabo.lib.reportWriter as lrw
-except ImportError, e:
+except ImportError as e:
 	_has_reporting_libs = False
 from dabo.lib.utils import ustr
 
@@ -83,7 +84,7 @@ class Form(dabo.ui.dForm):
 		vs = self.Sizer
 		hs = dabo.ui.dSizer("h")
 		hs.append(dabo.ui.dButton(self, Caption=_("Save Changes"), DefaultButton=True, OnHit=self.onSave))
-		hs.appendSpacer((3,0))
+		hs.appendSpacer((3, 0))
 		hs.append(dabo.ui.dButton(self, Caption=_("Cancel Changes"), CancelButton=True, OnHit=self.onCancel))
 		vs.append(hs, alignment="right")
 
@@ -332,7 +333,7 @@ class Form(dabo.ui.dForm):
 		# Make sure that the grid is properly updated.
 		try:
 			self.PageFrame.Pages[1].BrowseGrid.refresh()
-		except AttributeError, e:
+		except AttributeError as e:
 			# Grid may not even exist yet.
 			if "BrowseGrid" in ustr(e):
 				pass
@@ -572,7 +573,7 @@ class Form(dabo.ui.dForm):
 					Encoding=biz.Encoding)
 			try:
 				rw.write()
-			except (UnicodeDecodeError,), e:
+			except (UnicodeDecodeError,) as e:
 				#error_string = traceback.format_exc()
 				error_string = ustr(e)
 				row_number = rw.RecordNumber
@@ -818,7 +819,7 @@ class Form(dabo.ui.dForm):
 		testCursor = rf.addElement(lrw.TestCursor)
 		for rec in self.getBizobj().getDataSet(rows=10):
 			tRec = {}
-			for fld, val in rec.items():
+			for fld, val in list(rec.items()):
 				tRec[fld] = repr(val)
 			testCursor.addRecord(tRec)
 		return rw._getXMLFromForm(rf)
@@ -994,7 +995,7 @@ class Form(dabo.ui.dForm):
 		return getattr(self, "_customSQL", None)
 
 	def _setCustomSQL(self, val):
-		assert val is None or isinstance(val, basestring)
+		assert val is None or isinstance(val, sixBasestring)
 		self._customSQL = val
 
 

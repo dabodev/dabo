@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six import text_type as sixUnicode
 import sys, os
 import Tkinter
 import dabo
@@ -136,7 +137,7 @@ class uiApp(dObject):
 # 				value = win.GetValue()
 # 			except AttributeError:
 # 				value = None
-# 			if type(value) not in (type(str()), type(unicode())):
+# 			if type(value) not in (type(str()), type(sixUnicode())):
 # 				dabo.log.error("Active control isn't text-based.")
 # 				return
 #

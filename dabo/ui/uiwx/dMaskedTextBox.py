@@ -3,9 +3,15 @@ import datetime
 import wx
 import wx.lib.masked as masked
 import dabo
-from dabo.ui import makeDynamicProperty
+
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
+from dabo.ui import makeDynamicProperty
 from dabo.dLocalize import _
 import dTextBoxMixin as tbm
 
@@ -91,7 +97,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 
 	def getFormats(cls):
 		"""Return a list of available format codes."""
-		return cls._formatMap.keys()
+		return list(cls._formatMap.keys())
 	getFormats = classmethod(getFormats)
 
 
@@ -100,7 +106,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 		Take a string and return the same string with any duplicate characters removed.
 		The order of the characters is not preserved.
 		"""
-		return "".join(dict.fromkeys(codes).keys())
+		return "".join(list(dict.fromkeys(codes).keys()))
 
 
 	def _onWxHit(self, evt, *args, **kwargs):
@@ -354,7 +360,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 
 	class MaskedForm(dabo.ui.dForm):
 		def afterInit(self):
@@ -381,13 +387,13 @@ if __name__ == "__main__":
 			sz.append(dabo.ui.dLabel(pg1, Caption="""Forced Lowercase Letters Only:
 (May not work in older
 versions of wxPython)"""), halign="right")
-			sz.append(dMaskedTextBox(pg1, Width=240, InputCodes='^',Mask="C{20}"), valign="Top")
+			sz.append(dMaskedTextBox(pg1, Width=240, InputCodes='^', Mask="C{20}"), valign="Top")
 
 			sz.append(dabo.ui.dLabel(pg1, Caption="Accepts Uppercase Letters Only:"), halign="right")
 			sz.append(dMaskedTextBox(pg1, Width=240, Mask="A{20}"))
 
 			sz.append(dabo.ui.dLabel(pg1, Caption="Forced Uppercase Letters Only:"), halign="right")
-			sz.append(dMaskedTextBox(pg1, Width=240,InputCodes='!>',Mask="C{20}"))
+			sz.append(dMaskedTextBox(pg1, Width=240, InputCodes='!>', Mask="C{20}"))
 
 			sz.append(dabo.ui.dLabel(pg1, Caption="Lowercase Letters Only:"), halign="right")
 			sz.append(dMaskedTextBox(pg1, Width=240, Mask="a{20}"))
@@ -504,13 +510,13 @@ versions of wxPython)"""), halign="right")
 			gsz.append(txt, "x", colSpan=2)
 			sz.append(gsz, 1, halign="center")
 
-		def _lookup(self,evt):
+		def _lookup(self, evt):
 			pass
 		def onCheckHit(self, evt):
 			chk = evt.EventObject
 			cap = chk.Caption
 			val = chk.Value
-			print cap, val
+			print(cap, val)
 			txts = (self.charText, self.numText, self.dateText)
 			if cap in "!^":
 				# Char

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from attributes import *
-from children import *
+from .attributes import *
+from .children import *
 
 
 class SerializableMeta(type):
@@ -11,7 +11,7 @@ class SerializableMeta(type):
 		for base in bases:
 			if hasattr(base, '_xmlSerializationAttributes'):
 				attributes.extend(base._xmlSerializationAttributes)
-		for name, obj in dict.items():
+		for name, obj in list(dict.items()):
 			if (isinstance(obj, SerializableAttribute)
 					or isinstance(obj, SerializableObjectChild)):
 				attributes.append( (name, obj) )
@@ -22,14 +22,12 @@ class SerializableMeta(type):
 		cls._xmlSerializationAttributes = attributes
 
 
-class Serializable(object):
-	__metaclass__ = SerializableMeta
-
+class Serializable(object, metaclass=SerializableMeta):
 	def __init__(self, **args):
 		self.srcValues = {}
 		attributeNames = [attrName for attrName,
 				attrType in self._xmlSerializationAttributes]
-		for key, value in args.iteritems():
+		for key, value in args.items():
 			assert key in attributeNames, "Unknown attribute name %r for object %s" \
 					% (key, self.__class__.__name__)
 			self.srcValues[key] = value
@@ -67,7 +65,7 @@ class Serializable(object):
 			value = self.srcValues.get(attrName, None)
 			try:
 				value = attrType.evaluate(value, env)
-			except Exception, e:
+			except Exception as e:
 				import traceback
 				traceback.print_exc()
 				raise Exception("Error validating value %r for attribute %r (type %r) "

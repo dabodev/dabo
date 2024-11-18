@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+import six
+if six.PY2:
+	sixLong = long
+else:
+	sixLong = int
+from six import string_types as sixBasestring
 import dabo
 from dabo.ui.dDataControlMixinBase import dDataControlMixinBase
 from dabo.dLocalize import _
@@ -27,7 +33,7 @@ class dDataControlMixin(dDataControlMixinBase):
 		"""Select all text in the control."""
 		try:
 			self.SetInsertionPoint(1)   # Best of all worlds (really)
-			self.SetSelection(-1,-1)    # select all text
+			self.SetSelection(-1, -1)    # select all text
 		except AttributeError:
 			# Only works for text controls
 			pass
@@ -36,31 +42,31 @@ class dDataControlMixin(dDataControlMixinBase):
 	def selectNone(self):
 		"""Select no text in the control."""
 		try:
-			self.SetSelection(0,0)
+			self.SetSelection(0, 0)
 		except AttributeError:
 			# Only works for text controls
 			pass
 
 
 	def _coerceValue(self, val, oldval):
-		convTypes = (str, unicode, int, float, long, complex)
+		convTypes = (sixBasestring, int, float, sixLong, complex)
 		oldType = type(oldval)
-		if isinstance(val, convTypes) and isinstance(oldval, basestring):
+		if isinstance(val, convTypes) and isinstance(oldval, sixBasestring):
 			val = ustr(val)
-		elif isinstance(oldval, int) and isinstance(val, basestring):
+		elif isinstance(oldval, int) and isinstance(val, sixBasestring):
 			val = int(val if val else "0")
 		elif isinstance(oldval, int) and isinstance(val, bool):
 			# convert bool to int (original field val was bool, but UI
 			# changed to int.
 			val = int(val)
-		elif isinstance(oldval, int) and isinstance(val, long):
+		elif isinstance(oldval, int) and isinstance(val, sixLong):
 			# convert long to int (original field val was int, but UI
 			# changed to long.
 			val = int(val)
-		elif isinstance(oldval, long) and isinstance(val, int):
+		elif isinstance(oldval, sixLong) and isinstance(val, int):
 			# convert int to long (original field val was long, but UI
 			# changed to int.
-			val = long(val)
+			val = sixLong(val)
 		return val
 
 
@@ -78,7 +84,7 @@ class dDataControlMixin(dDataControlMixinBase):
 					setter = self.ChangeValue
 				try:
 					setter(val)
-				except (TypeError, ValueError), e:
+				except (TypeError, ValueError) as e:
 					nm = self._name
 					dabo.log.error(_("Could not set value of %(nm)s to %(val)s. Error message: %(e)s")
 							% locals())

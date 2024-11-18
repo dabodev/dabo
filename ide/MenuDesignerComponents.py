@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from six import text_type as sixUnicode
+from six import string_types as sixBasestring
 import os
 import dabo.ui
 if __name__ == "__main__":
@@ -29,7 +31,7 @@ class MenuSaverMixin(object):
 			else:
 				# Custom-defined property; that's saved elsewhere
 				continue
-			if isinstance(val, basestring) and os.path.exists(val):
+			if isinstance(val, sixBasestring) and os.path.exists(val):
 				# It's a path; convert it to a relative path
 				if isinstance(self, dabo.ui.dForm):
 					ref = self.Form._menuBarFile
@@ -38,10 +40,10 @@ class MenuSaverMixin(object):
 				ref = os.path.abspath(ref)
 				val = dabo.lib.utils.getPathAttributePrefix() + \
 						dabo.lib.utils.relativePath(val, ref)
-			if isinstance(val, basestring):
+			if isinstance(val, sixBasestring):
 				strval = val
 			else:
-				strval = unicode(val)
+				strval = sixUnicode(val)
 			# Special cases
 			try:
 				evalStrVal = eval(strval)
@@ -281,17 +283,17 @@ class CaptionPanel(MenuSaverMixin, dabo.ui.dPanel):
 
 
 	def _getDesignerProps(self):
-		ret = {"Caption": {"type" : unicode, "readonly" : False},
-				"HelpText" : {"type" : unicode, "readonly" : False},
+		ret = {"Caption": {"type" : sixUnicode, "readonly" : False},
+				"HelpText" : {"type" : sixUnicode, "readonly" : False},
 				"MRU": {"type" : bool, "readonly" : False}}
 		if self.isMenuItem:
-			ret.update({"HotKey": {"type" : unicode, "readonly" : False,
+			ret.update({"HotKey": {"type" : sixUnicode, "readonly" : False,
 					"customEditor": "editHotKey"},
 					"HotKeyAlt": {"type" : bool, "readonly" : False},
-					"HotKeyChar": {"type" : unicode, "readonly" : False},
+					"HotKeyChar": {"type" : sixUnicode, "readonly" : False},
 					"HotKeyControl": {"type" : bool, "readonly" : False},
 					"HotKeyShift": {"type" : bool, "readonly" : False},
-					"Action": {"type" : unicode, "readonly" : False}})
+					"Action": {"type" : sixUnicode, "readonly" : False}})
 			del ret["MRU"]
 		return ret
 
@@ -477,7 +479,7 @@ class CaptionBitmapPanel(CaptionPanel):
 
 	def _setBitmap(self, val):
 		self._bitmap = val
-		if isinstance(val, basestring):
+		if isinstance(val, sixBasestring):
 			bmp = dabo.ui.strToBmp(val)
 		else:
 			bmp = val

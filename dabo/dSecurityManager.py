@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import time
 import dabo
 from dabo.dObject import dObject
-from dLocalize import _
+from .dLocalize import _
 
 
 class dSecurityManager(dObject):
@@ -154,7 +155,7 @@ class dSecurityManager(dObject):
 			return ''
 
 	def _setUserCaption(self, value):
-		if isinstance(value, basestring):
+		if isinstance(value, sixBasestring):
 			self._userCaption = value
 		else:
 			raise TypeError('User caption must be string or unicode.')
@@ -198,7 +199,7 @@ if __name__ == "__main__":
 
 	class TestSM(dSecurityManager):
 		def validateLogin(self, user, passwd):
-			print user, passwd
+			print(user, passwd)
 			if user == "paul" and passwd == "23":
 				return True
 			return False

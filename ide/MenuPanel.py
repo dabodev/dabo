@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from six import text_type as sixUnicode
 
 import dabo.ui
 dabo.ui.loadUI("wx")
@@ -200,20 +201,20 @@ class AbstractMenuPanel(MenuSaverMixin, dabo.ui.dPanel):
 
 
 	def _getDesignerProps(self):
-		ret = {"Caption": {"type" : unicode, "readonly" : (self._isSeparator or self._isMenuBarLink)},
-				"HelpText" : {"type" : unicode, "readonly" : self._isSeparator},
-				"ItemID" : {"type" : unicode, "readonly" : False},
+		ret = {"Caption": {"type" : sixUnicode, "readonly" : (self._isSeparator or self._isMenuBarLink)},
+				"HelpText" : {"type" : sixUnicode, "readonly" : self._isSeparator},
+				"ItemID" : {"type" : sixUnicode, "readonly" : False},
 				"MRU": {"type" : bool, "readonly" : False}}
 		if self._isMenuItem:
 			ret.update({
-					"HotKey": {"type" : unicode, "readonly" : False,
+					"HotKey": {"type" : sixUnicode, "readonly" : False,
 						"customEditor": "editHotKey"},
 					"HotKeyAlt": {"type" : bool, "readonly" : False},
-					"HotKeyChar": {"type" : unicode, "readonly" : False},
+					"HotKeyChar": {"type" : sixUnicode, "readonly" : False},
 					"HotKeyControl": {"type" : bool, "readonly" : False},
 					"HotKeyShift": {"type" : bool, "readonly" : False},
-					"Action": {"type" : unicode, "readonly" : False},
-					"Icon": {"type" : unicode, "readonly" : False,
+					"Action": {"type" : sixUnicode, "readonly" : False},
+					"Icon": {"type" : sixUnicode, "readonly" : False,
 						"customEditor": "editStdPicture"}})
 			del ret["MRU"]
 		return ret

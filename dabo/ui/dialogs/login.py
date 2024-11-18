@@ -138,4 +138,4 @@ if __name__ == '__main__':
 	app.setup()
 	form = Login(None)
 	form.show()
-	print form.user, form.password
+	print(form.user, form.password)

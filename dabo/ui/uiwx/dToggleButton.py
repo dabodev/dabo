@@ -6,6 +6,9 @@ import dabo
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
 import dDataControlMixin as dcm
 import dImageMixin as dim
@@ -122,5 +125,5 @@ class _dToggleButton_test(dToggleButton):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dToggleButton_test)

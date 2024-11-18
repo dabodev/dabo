@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+from six import integer_types as sixInt
 import warnings
 import wx
 import dabo
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 import dabo.dEvents as dEvents
 import dabo.dConstants as kons
 from dabo.dLocalize import _
@@ -37,7 +41,10 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		except KeyError:
 			kwargs["style"] = defaultStyle
 
-		preClass = wx.PreDialog
+		if dabo.ui.phoenix:
+			preClass = wx.Dialog
+		else:
+			preClass = wx.PreDialog
 		fm.dFormMixin.__init__(self, preClass, parent, properties=properties,
 				*args, **kwargs)
 
@@ -61,7 +68,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		if self.Modal:
 			try:
 				super(dDialog, self).EndModal(*args, **kwargs)
-			except wx._core.PyAssertionError:
+			except dabo.ui.assertionException:
 				# The modal hack is causing problems in some edge cases.
 				pass
 
@@ -114,6 +121,11 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		return self.Show(True)
 
 
+	def onClose(self, ev):
+		# EndModal seems to be required after wxPython 3 to get out of a screen freeze 
+		# (don't worry about checking self.Modal here, will be done in EndModal())
+		if self.IsModal():
+			self.EndModal(0)
 
 	def _addControls(self):
 		"""
@@ -134,7 +146,6 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 	def afterAddControls(self):
 		"""This is a hook, called at the appropriate time by the framework."""
 		pass
-
 
 	def addControls(self):
 		"""
@@ -406,7 +417,7 @@ class dStandardButtonDialog(dDialog):
 		except AttributeError:
 			# New code should not have onOK
 			pass
-		if self.runOK() is not False:
+		if self.runOK() is not False and self.IsModal():
 			self.EndModal(kons.DLG_OK)
 
 	def _onCancel(self, evt):
@@ -422,18 +433,18 @@ class dStandardButtonDialog(dDialog):
 			# New code should not have onCancel
 			pass
 
-		if self.runCancel() is not False:
+		if self.runCancel() is not False and self.IsModal():
 			self.EndModal(kons.DLG_CANCEL)
 		else:
 			evt.stop()
 	def _onYes(self, evt):
 		self.Accepted = True
-		if self.runYes() is not False:
+		if self.runYes() is not False and self.IsModal():
 			self.EndModal(kons.DLG_YES)
 
 	def _onNo(self, evt):
 		self.Accepted = False
-		if self.runNo() is not False:
+		if self.runNo() is not False and self.IsModal():
 			self.EndModal(kons.DLG_NO)
 		else:
 			evt.stop()
@@ -469,7 +480,7 @@ class dStandardButtonDialog(dDialog):
 		for prmpt, typ, rid in seq:
 			chc = None
 			gs.append(dabo.ui.dLabel(self, Caption=prmpt), halign="right")
-			if typ in (int, long):
+			if typ in (sixInt):
 				cls = dabo.ui.dSpinner
 			elif typ is bool:
 				cls = dabo.ui.dCheckBox

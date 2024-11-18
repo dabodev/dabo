@@ -4,7 +4,7 @@ import Tkinter, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("tk")
 
-import dControlMixin as dControlMixin
+from . import dControlMixin as dControlMixin
 
 class dPanel(Tkinter.Frame, dControlMixin.dControlMixin):
 	""" This is a basic container for controls.

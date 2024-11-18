@@ -4,10 +4,14 @@ import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
+from dabo.ui import makeDynamicProperty
 import dControlMixin as cm
 from alignmentMixin import AlignmentMixin
 
@@ -21,7 +25,11 @@ class dLabel(cm.dControlMixin, AlignmentMixin, wx.StaticText):
 		self._wordWrap = False
 		self._inResizeEvent = False
 		self._resetAutoResize = True
-		preClass = wx.PreStaticText
+		if dabo.ui.phoenix:
+			preClass = wx.StaticText
+		else:
+			preClass = wx.PreStaticText
+
 		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 		self.bindEvent(dEvents.Resize, self.__onResize)

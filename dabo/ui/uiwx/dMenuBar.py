@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import wx
 import dabo
 import dPemMixin as pm
@@ -35,9 +36,9 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		##      a EVT_MENU_CLOSE being called, and EVT_MENU_HIGHLIGHT_ALL appears
 		##      to be identical to EVT_MENU_HIGHLIGHT. Therefore, as of this writing
 		##      we are exposing two menu events: dEvents.Hit and dEvents.Highlight.
-		menu = evt.GetMenu()
-		if menu and isinstance(menu, dMenu.dMenu):
-			menu.raiseEvent(dEvents.MenuHighlight, evt)
+		wxmenu = evt.GetMenu()
+		if wxmenu and isinstance(wxmenu, dMenu.dMenu):
+			wxmenu.raiseEvent(dEvents.MenuHighlight, evt)
 		evt.Skip()
 
 
@@ -144,7 +145,7 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		"""
 		if isinstance(indexOrMenu, dabo.ui.dMenu):
 			index = self.getMenuIndex(indexOrMenu.Caption)
-		elif isinstance(indexOrMenu, basestring):
+		elif isinstance(indexOrMenu, sixBasestring):
 			# They passed a caption
 			index = self.getMenuIndex(indexOrMenu)
 		else:

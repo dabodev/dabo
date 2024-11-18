@@ -38,7 +38,7 @@ def deadCheck(fn, *args, **kwargs):
 	def deadCheckFunc(self, *args, **kwargs):
 		if not self:
 			# For testing, uncomment the print line below:
-# 			print "FOUND DEAD OBJECT"
+			#print "FOUND DEAD OBJECT"
 			return
 		return fn(self, *args, **kwargs)
 	return deadCheckFunc
@@ -60,10 +60,10 @@ def loadUI(uiType):
 		try:
 			exec("from %s import *" % mods[typ], globals())
 			retVal = True
-		except Exception, e:
+		except Exception as e:
 			retVal = False
 			# Record the actual problem
-			print _("ui.loadUI failed: %s") % e
+			print(_("ui.loadUI failed: %s") % e)
 			traceback.print_exc()
 	else:
 		if currType == typ:
@@ -71,7 +71,7 @@ def loadUI(uiType):
 			pass
 		else:
 			dabo.log.info(_("Cannot change the uiType to '%(typ)s', because UI '%(currType)s' is already loaded.")
-					% locals())
+						  % locals())
 	return retVal
 
 
@@ -97,8 +97,8 @@ def makeDynamicProperty(prop, additionalDoc=None):
 
 	"""
 	propName = None
-	frame = inspect.currentframe(1)
-	for k, v in frame.f_locals.items():
+	frame = inspect.getouterframes(inspect.currentframe())[1][0]
+	for k, v in list(frame.f_locals.items()):
 		if v is prop:
 			propName = k
 			break
@@ -231,4 +231,4 @@ def makeProxyProperty(dct, nm, proxyAtts):
 # Because some of IDEs uses lexical analysis (Wing) instead of the dynamic
 # analysis (PyDev), the following code should make them happy.
 if False:
-	from uiwx import *
+	from .uiwx import *

@@ -1,10 +1,19 @@
+# -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import dabo
 import wx
 import dabo.dEvents as dEvents
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
 import dControlMixin as dcm
-import locale, wx, sys, cStringIO
+import locale, wx, sys
+from six.moves import cStringIO
+
 import wx.lib.mixins.listctrl as listmix
 from wx import ImageFromStream, BitmapFromImage
 
@@ -29,12 +38,18 @@ def getSmallUpArrowData():
 
 
 def getSmallUpArrowBitmap():
-	return BitmapFromImage(getSmallUpArrowImage())
+	if dabo.ui.phoenix:
+		return wx.Bitmap(getSmallUpArrowImage())
+	else:
+		return BitmapFromImage(getSmallUpArrowImage())
 
 
 def getSmallUpArrowImage():
-	stream = cStringIO.StringIO(getSmallUpArrowData())
-	return ImageFromStream(stream)
+	stream = cStringIO(getSmallUpArrowData())
+	if dabo.ui.phoenix:
+		return wx.Image(stream)
+	else:
+		return ImageFromStream(stream)
 
 
 def getSmallDnArrowData():
@@ -48,12 +63,18 @@ def getSmallDnArrowData():
 
 
 def getSmallDnArrowBitmap():
-	return BitmapFromImage(getSmallDnArrowImage())
+	if dabo.ui.phoenix:
+		return wx.Bitmap(getSmallDnArrowImage())
+	else:
+		return BitmapFromImage(getSmallDnArrowImage())
 
 
 def getSmallDnArrowImage():
-	stream = cStringIO.StringIO(getSmallDnArrowData())
-	return ImageFromStream(stream)
+	stream = cStringIO(getSmallDnArrowData())
+	if dabo.ui.phoenix:
+		return wx.Image(stream)
+	else:
+		return ImageFromStream(stream)
 
 
 
@@ -98,7 +119,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 		self.itemDataMap = dict()
 		#Load and sort data
 		if not (self._multiChoices or self._choices):
-			raise ValueError, "Pass me at least one of multiChoices OR choices"
+			raise ValueError("Pass me at least one of multiChoices OR choices")
 		#widgets
 		self.dropdown = wx.PopupWindow( self )
 		#Control the style
@@ -118,17 +139,17 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 		else: self.SetChoices ( choices )
 		gp = self
 		while gp != None :
-			gp.Bind ( wx.EVT_MOVE , self.onControlChanged, gp )
-			gp.Bind ( wx.EVT_SIZE , self.onControlChanged, gp )
+			gp.Bind ( wx.EVT_MOVE, self.onControlChanged, gp )
+			gp.Bind ( wx.EVT_SIZE, self.onControlChanged, gp )
 			gp = gp.GetParent()
 		self.Bind( wx.EVT_KILL_FOCUS, self.onControlChanged, self )
-		self.Bind( wx.EVT_TEXT , self.onEnteredText, self )
-		self.Bind( wx.EVT_KEY_DOWN , self.onKeyDown, self )
+		self.Bind( wx.EVT_TEXT, self.onEnteredText, self )
+		self.Bind( wx.EVT_KEY_DOWN, self.onKeyDown, self )
 		#If need drop down on left click
 		if dropDownClick:
-			self.Bind ( wx.EVT_LEFT_DOWN , self.onClickToggleDown, self )
-			self.Bind ( wx.EVT_LEFT_UP , self.onClickToggleUp, self )
-		self.dropdown.Bind( wx.EVT_LISTBOX , self.onListItemSelected, self.dropdownlistbox )
+			self.Bind ( wx.EVT_LEFT_DOWN, self.onClickToggleDown, self )
+			self.Bind ( wx.EVT_LEFT_UP, self.onClickToggleUp, self )
+		self.dropdown.Bind( wx.EVT_LISTBOX, self.onListItemSelected, self.dropdownlistbox )
 		self.dropdownlistbox.Bind(wx.EVT_LEFT_DOWN, self.onListClick)
 		self.dropdownlistbox.Bind(wx.EVT_LEFT_DCLICK, self.onListDClick)
 		self.dropdownlistbox.Bind(wx.EVT_LIST_COL_CLICK, self.onListColClick)
@@ -185,7 +206,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 			#load the sorted data into the listbox
 			dd = self.dropdownlistbox
 			choices = [dd.GetItem(x, self._colSearch).GetText()
-					for x in xrange(dd.GetItemCount())]
+					for x in range(dd.GetItemCount())]
 		else:
 			choices = self._choices
 		for numCh, choice in enumerate(choices):
@@ -300,9 +321,16 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 		for numRow, valRow in enumerate(choices):
 			for numCol, colVal in enumerate(valRow):
 				if numCol == 0:
-					index = self.dropdownlistbox.InsertImageStringItem(
-							sys.maxint, colVal, -1)
-				self.dropdownlistbox.SetStringItem(index, numCol, colVal)
+					if dabo.ui.phoenix:
+						index = self.dropdownlistbox.InsertItem(
+						    sys.maxsize, colVal, -1)
+					else:
+						index = self.dropdownlistbox.InsertImageStringItem(
+						    sys.maxint, colVal, -1)						
+				if dabo.ui.phoenix:
+					self.dropdownlistbox.SetItem(index, numCol, colVal)
+				else:
+					self.dropdownlistbox.SetStringItem(index, numCol, colVal)
 				self.dropdownlistbox.SetItemData(index, numRow)
 		self._setListSize()
 		self._colSearch = colSearch
@@ -328,8 +356,12 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 		self._updateDataList(self._choices)
 		self.dropdownlistbox.InsertColumn(0, "")
 		for num, colVal in enumerate(self._choices):
-			index = self.dropdownlistbox.InsertImageStringItem(sys.maxint, colVal, -1)
-			self.dropdownlistbox.SetStringItem(index, 0, colVal)
+			if dabo.ui.phoenix:
+				index = self.dropdownlistbox.InsertItem(sys.maxsize, colVal, -1)
+				self.dropdownlistbox.SetItem(index, 0, colVal)
+			else:
+				index = self.dropdownlistbox.InsertImageStringItem(sys.maxint, colVal, -1)
+				self.dropdownlistbox.SetStringItem(index, 0, colVal)
 			self.dropdownlistbox.SetItemData(index, num)
 		self._setListSize()
 		# there is only one choice for both search and fetch if setting a single column:
@@ -367,7 +399,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 			if self._selectCallback:
 				dd = self.dropdownlistbox
 				values = [dd.GetItem(sel, x).GetText()
-						for x in xrange(dd.GetColumnCount())]
+						for x in range(dd.GetColumnCount())]
 				self._selectCallback( values )
 			self.SetValue (itemtext)
 			self.SetInsertionPointEnd ()
@@ -381,15 +413,21 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 		"""
 		if show :
 			size = self.dropdown.GetSize()
-			width, height = self . GetSizeTuple()
-			x, y = self . ClientToScreenXY ( 0, height )
+			if dabo.ui.phoenix:
+				width, height = self . GetSize()
+			else:
+				width, height = self . GetSizeTuple()
+			if dabo.ui.phoenix:
+				x, y = self . ClientToScreen(wx.Point(0, height))
+			else:
+				x, y = self . ClientToScreenXY(0, height)
 			#if size.GetHeight() < 100:
 				#size.SetHeight(100)
 			if size.GetWidth() != width :
 				size.SetWidth(width)
 
 			self.dropdown.SetSize(size)
-			self.dropdownlistbox.SetSize(self.dropdown.GetClientSize())
+			self.dropdownlistbox.SetSize(self.dropdown.GetClientSize())	
 
 			if y + size.GetHeight() < self._screenheight :
 				self.dropdown . SetPosition ( wx.Point(x, y) )
@@ -410,8 +448,11 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 	def _updateDataList(self, choices):
 		#delete, if need, all the previous data
 		if self.dropdownlistbox.GetColumnCount() != 0:
-			self.dropdownlistbox.DeleteAllColumns()
-			self.dropdownlistbox.DeleteAllItems()
+			if dabo.ui.phoenix:
+				self.dropdownlistbox.ClearAll()
+			else:
+				self.dropdownlistbox.DeleteAllColumns()
+				self.dropdownlistbox.DeleteAllItems()
 		#and update the dict
 		if choices:
 			for numVal, data in enumerate(choices):
@@ -430,7 +471,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
 		for choice in choices :
 			longest = max(len(choice), longest)
 		longest += 3
-		itemcount = min( len( choices ) , 7 ) + 2
+		itemcount = min( len( choices ), 7 ) + 2
 		charheight = self.dropdownlistbox.GetCharHeight()
 		charwidth = self.dropdownlistbox.GetCharWidth()
 		self.popupsize = wx.Size( charwidth*longest, charheight*(itemcount+1) )
@@ -459,24 +500,24 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 		super(dAutoComplete, self)._initEvents()
 
 
-	def onKeyDown(self,evt):
+	def onKeyDown(self, evt):
 		"""This prevents dEvents from being passed to autocomplete's onKeyDown"""
 		if isinstance(evt, wx.KeyEvent):
 			super(dAutoComplete, self).onKeyDown(evt)
 
 
-	def onKeyUp(self,evt):
+	def onKeyUp(self, evt):
 		if isinstance(evt, wx.KeyEvent):
 			if evt.GetKeyCode() == wx.WXK_BACK:
 				#Make sure fillDynamicChoices() gets called on backspace as well
-				self.fillDynamicChoices()
+				self.fillDynamicChoices()	   	
 
 
 	def getBizobj(self):
 		ds = self.DataSource
 		if isinstance(ds, dabo.biz.dBizobj):
 			return ds
-		if isinstance(ds, basestring) and self.Form is not None:
+		if isinstance(ds, sixBasestring) and self.Form is not None:
 			form = self.Form
 			while form is not None:
 				if hasattr(form, "getBizobj"):
@@ -485,7 +526,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 						if not biz.isRemote():
 							self._dataSource = biz
 					return biz
-				form = form.Form
+				form = form.Form	
 		return None
 
 
@@ -518,7 +559,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 		choices = []
 		colKeys = self.DataFields
 		if not colKeys:
-			colKeys = [key for key in ds[0].keys()]
+			colKeys = [key for key in list(ds[0].keys())]	
 
 		if len(colKeys) == 1:
 			#Single column
@@ -530,12 +571,12 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 				for rec in ds:
 					choices.append([str(rec[key]) for key in colKeys])
 			except KeyError:
-				raise ValueError("DataField '%s' is not a valid column name" % key)
+				raise ValueError("DataField '%s' is not a valid column name" % key)	
 
 			#Find search index
 			try:
 				if self.SearchField is not None:
-					if isinstance(self.SearchField, basestring):
+					if isinstance(self.SearchField, sixBasestring):
 						colSearch = colKeys.index(self.SearchField)
 					else:
 						colSearch = self.SearchField
@@ -547,10 +588,10 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 			#Find fetch index
 			try:
 				if self.FetchField is not None:
-					if isinstance(self.FetchField, basestring):
+					if isinstance(self.FetchField, sixBasestring):
 						colFetch = colKeys.index(self.FetchField)
 					else:
-						colFetch = self.FetchField
+						colFetch = self.FetchField		
 				else: colFetch = -1
 			except ValueError:
 				raise ValueError("FetchField '%s' is not a valid column name"
@@ -576,7 +617,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 			choices = [choice for choice in self._dynamicChoices
 					if choice[self._colSearch].lower().startswith(text)]
 			while len(choices) < 2:
-				choices.append(["" for col in self._dynamicChoices[0]])
+				choices.append(["" for col in self._dynamicChoices[0]])	
 		else:
 			choices = [choice for choice in self._dynamicChoices
 					if choice.lower().startswith(text)]
@@ -613,8 +654,8 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 			if not colFetch:
 				colFetch = self._colFetch
 			while len(choices) < 2:
-				choices.append(["" for col in choices[0]])
-			if self._colNames:
+				choices.append(["" for col in choices[0]])		
+			if self._colNames:		
 				while len(self._colNames) < len(choices[0]):
 					self._colNames.append("")
 			self.SetMultipleChoices(choices, colSearch=colSearch, colFetch=colFetch)
@@ -632,7 +673,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 			src = self._dataSource = None
 		return src
 
-	def _setDataSource(self,src):
+	def _setDataSource(self, src):
 		if self._constructed():
 			self._dataSource = src
 			dabo.ui.callAfter(self.listFromDS)
@@ -663,7 +704,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 			else:
 				try:
 					ds = eval(biz).getDataSet()
-				except StandardError:
+				except Exception:
 					pass
 				self._dataSet = ds
 		else:
@@ -694,7 +735,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 		if self._constructed():
 			self._searchField = fld
 			if isinstance(fld, int):
-				self._colSearch = fld
+				self._colSearch = fld	
 		else:
 			self._properties["SearchField"] = fld
 
@@ -808,7 +849,7 @@ class dAutoComplete(dcm.dControlMixin, TextCtrlAutoComplete):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 
 	class TestPanel(dabo.ui.dPanel):
 		def afterInit(self):
@@ -825,7 +866,7 @@ if __name__ == "__main__":
 					FontBold=True), alignment="center")
 			vs.appendSpacer(15)
 			vs.append(dabo.ui.dLabel(self, Caption="User defined choices (single-column)"))
-			vs.append(dAutoComplete(self, Choices=["Bob","Joe","Mary","Bill","Marcia","Eric"]), "x")
+			vs.append(dAutoComplete(self, Choices=["Bob", "Joe", "Mary", "Bill", "Marcia", "Eric"]), "x")
 			vs.appendSpacer(5)
 			vs.append(dabo.ui.dLabel(self, Caption="Data set (single-column)"))
 			vs.append(dAutoComplete(self, DataSet=ds, DataFields=["landmark"]), "x")
@@ -836,4 +877,3 @@ if __name__ == "__main__":
 
 
 	test.Test().runTest(TestPanel)
-

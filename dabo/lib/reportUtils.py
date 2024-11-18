@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import os
 import sys
 import subprocess
@@ -136,7 +137,7 @@ def getTestCursorXmlFromDataSet(dataset):
 	for r in dataset:
 		xml += """\t\t<Record\n"""
 		for k, v in sorted(r.items()):
-			if isinstance(v, basestring):
+			if isinstance(v, sixBasestring):
 				v = v.replace("'", "")
 			v = repr(v)
 			v = escape(v, escapeAmp=False)
@@ -153,4 +154,4 @@ if __name__ == "__main__":
 	      {"name": "A & B Motors"},
 	      {"name": '9" Nails'},
 	      {"name": "<None>"}]
-	print getTestCursorXmlFromDataSet(ds)
+	print(getTestCursorXmlFromDataSet(ds))

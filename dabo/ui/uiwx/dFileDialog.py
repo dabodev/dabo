@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+
+if __name__ == "__main__":
+	import dabo.ui
+	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
 import dabo.dConstants as kons
 from dabo.dLocalize import _
 
@@ -94,14 +102,10 @@ class dFileDialog(OsDialogMixin, wx.FileDialog):
 	_exposeFiles = True
 
 	def __init__(self, parent=None, message=_("Choose a file"), defaultPath="",
-			defaultFile="", wildcard="*.*", multiple=False, style=wx.OPEN):
+			defaultFile="", wildcard="*.*", multiple=False, style=wx.FD_OPEN):
 		self._baseClass = dFileDialog
 		if multiple:
-			# wxPython changed the constant after 2.6
-			try:
-				multStyle = wx.FD_MULTIPLE
-			except AttributeError:
-				multStyle = wx.MULTIPLE
+			multStyle = wx.FD_MULTIPLE
 			style = style | multStyle
 
 			self._multiple = True
@@ -126,13 +130,15 @@ class dFolderDialog(OsDialogMixin, wx.DirDialog):
 		if parent is None:
 			parent = dabo.dAppRef.ActiveForm
 		super(dFolderDialog, self).__init__(parent=parent, message=message,
-				defaultPath=defaultPath, style=wx.DD_NEW_DIR_BUTTON)
+				defaultPath=defaultPath,
+		        # see http://trac.wxwidgets.org/changeset/72815
+		        style=wx.DD_DEFAULT_STYLE)
 
 
 class dSaveDialog(dFileDialog):
 	"""Creates a save dialog, which asks the user to specify a file to save to."""
 	def __init__(self, parent=None, message=_("Save to:"), defaultPath="",
-			defaultFile="", wildcard="*.*", style=wx.SAVE):
+			defaultFile="", wildcard="*.*", style=wx.FD_SAVE):
 		self._baseClass = dSaveDialog
 		if parent is None:
 			parent = dabo.dAppRef.ActiveForm
@@ -143,7 +149,7 @@ class dSaveDialog(dFileDialog):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(dFileDialog)
 	test.Test().runTest(dFolderDialog)
 	test.Test().runTest(dSaveDialog)

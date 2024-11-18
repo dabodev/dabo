@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import string
 from dabo.dLocalize import _
+import collections
 
 
 class PropertyHelperMixin(object):
@@ -58,7 +60,7 @@ class PropertyHelperMixin(object):
 		if propdict is None:
 			propdict = {}
 		props = self.getPropertyList()
-		for arg in kwdict.keys():
+		for arg in list(kwdict.keys()):
 			if arg in props:
 				propdict[arg] = kwdict.pop(arg)
 		return propdict
@@ -142,7 +144,7 @@ class PropertyHelperMixin(object):
 					if getter is not None:
 						try:
 							propDict[prop] = getter(self)
-						except Exception, e:
+						except Exception as e:
 							propDict[prop] = e
 					else:
 						if not ignoreErrors:
@@ -154,7 +156,7 @@ class PropertyHelperMixin(object):
 		if isinstance(propertySequence, (list, tuple)):
 			_fillPropDict(propertySequence)
 		else:
-			if isinstance(propertySequence, basestring):
+			if isinstance(propertySequence, sixBasestring):
 				# propertySequence is actually a string property name:
 				# append to the propertyArguments tuple.
 				propertyArguments = list(propertyArguments)
@@ -210,7 +212,7 @@ class PropertyHelperMixin(object):
 				else:
 					raise AttributeError("'%s' is not a property." % prop)
 			if delayedSettings is not None:
-				for setter, val in delayedSettings.items():
+				for setter, val in list(delayedSettings.items()):
 					setter(self, val)
 
 		# Set the props specified in the passed propDict dictionary:
@@ -230,7 +232,7 @@ class PropertyHelperMixin(object):
 		the property to that converted value. If the value needs to be evaluated
 		in a specific namespace, pass that as the 'context' parameter.
 		"""
-		for prop, val in propDict.items():
+		for prop, val in list(propDict.items()):
 			if not hasattr(self, prop):
 				# Not a valid property
 				if ignoreExtra:
@@ -250,10 +252,10 @@ class PropertyHelperMixin(object):
 		This method takes a dict of event names and method to which they are
 		to be bound, and binds the corresponding event to that method.
 		"""
-		for evtName, mthd in kwEvtDict.items():
+		for evtName, mthd in list(kwEvtDict.items()):
 			from dabo import dEvents
 			evt = dEvents.__dict__[evtName]
-			if callable(mthd):
+			if isinstance(mthd, collections.Callable):
 				self.bindEvent(evt, mthd)
 			else:
 				# A string that needs to be eval'd after construction was passed.
@@ -284,7 +286,7 @@ class PropertyHelperMixin(object):
 				# Don't list properties lower down (e.g., from wxPython):
 				break
 			for item in dir(c):
-				if item[0] in string.uppercase:
+				if item[0] in string.ascii_uppercase:
 					if item in c.__dict__:
 						if type(c.__dict__[item]) == property:
 							if propList.count(item) == 0:
@@ -315,7 +317,7 @@ class PropertyHelperMixin(object):
 			else:
 				try:
 					propVal = propRef.fget(cls)
-				except StandardError:
+				except Exception:
 					# There are many reasons the propval may not be determined for now,
 					# such as not being a live instance.
 					propVal = None

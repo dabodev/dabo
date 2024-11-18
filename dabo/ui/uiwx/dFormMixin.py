@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import os
 import sys
 import wx
@@ -90,7 +91,7 @@ class dFormMixin(pm.dPemMixin):
 		app = self.Application
 		mbc = self.MenuBarClass
 		if app and mbc and self.ShowMenuBar:
-			if isinstance(mbc, basestring):
+			if isinstance(mbc, sixBasestring):
 				self.MenuBar = dabo.ui.createMenuBar(mbc, self)
 			else:
 				self.MenuBar = mbc()
@@ -165,7 +166,10 @@ class dFormMixin(pm.dPemMixin):
 			if mb:
 				pref_id = getattr(mb, "_mac_pref_menu_item_id", None)
 				if pref_id:
-					wx.App_SetMacPreferencesMenuItemId(pref_id)
+					if dabo.ui.phoenix:
+						wx.App.SetMacPreferencesMenuItemId(pref_id)
+					else:
+						wx.App_SetMacPreferencesMenuItemId(pref_id)
 		else:
 			self.raiseEvent(dEvents.Deactivate, evt)
 		evt.Skip()
@@ -365,7 +369,7 @@ class dFormMixin(pm.dPemMixin):
 		pmMenu = pm.menu
 		menuPath = pmMenu.FullPath + "."
 		prefs = pmMenu.getPrefs(returnNested=True)
-		for itmPath, hk in prefs.items():
+		for itmPath, hk in list(prefs.items()):
 			relPath, setting = itmPath.replace(menuPath, "").rsplit(".", 1)
 			menuItem = mb
 			for pth in relPath.split("."):
@@ -498,7 +502,7 @@ class dFormMixin(pm.dPemMixin):
 		This function sets up the internal menu, which can optionally be
 		inserted into the mainForm's menu bar during SetFocus.
 		"""
-		menu = dMenu.dMenu()
+		menu = menu.dMenu()
 		return menu
 
 
@@ -772,7 +776,7 @@ class dFormMixin(pm.dPemMixin):
 	def _getFloatingPanel(self):
 		if not self._floatingPanel:
 			# Have to import it here, as it requires that dFormMixin be defined.
-			from dDialog import _FloatDialog
+			from .dDialog import _FloatDialog
 			self._floatingPanel = _FloatDialog(owner=None, parent=self)
 		return self._floatingPanel
 
@@ -801,7 +805,7 @@ class dFormMixin(pm.dPemMixin):
 				ico = val
 			else:
 				setIconFunc = self.SetIcons
-				if isinstance(val, basestring):
+				if isinstance(val, sixBasestring):
 					icon_strs = (val,)
 				else:
 					icon_strs = val
@@ -844,7 +848,7 @@ class dFormMixin(pm.dPemMixin):
 			# dDialog, for instance
 			return False
 
-
+	@dabo.ui.deadCheck
 	def _getMenuBar(self):
 		try:
 			return self.GetMenuBar()

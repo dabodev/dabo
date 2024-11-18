@@ -274,7 +274,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
 	def onRollbackMenuChanges(self):
 		km = self._originalHotKeyMap
-		for key in km.keys():
+		for key in list(km.keys()):
 			km[key].HotKey = key
 
 

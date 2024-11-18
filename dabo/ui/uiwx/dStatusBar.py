@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
 import dabo.dException as dException
 from dabo.dLocalize import _, n_
 import dControlMixin as dcm
@@ -18,7 +23,10 @@ class dStatusBar(dcm.dControlMixin, wx.StatusBar):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dStatusBar
-		preClass = wx.PreStatusBar
+		if dabo.ui.phoenix:
+			preClass = wx.StatusBar
+		else:
+			preClass = wx.PreStatusBar
 		self._platformIsWindows = (self.Application.Platform == "Win")
 		self._fieldCount = 1
 		dcm.dControlMixin.__init__(self, preClass, parent, properties=properties,

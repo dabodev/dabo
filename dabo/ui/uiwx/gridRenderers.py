@@ -4,14 +4,20 @@ import wx
 import wx.grid
 import dIcons
 
+if dabo.ui.phoenix:
+	gRend = wx.grid.GridCellRenderer
+else:
+	gRend = wx.grid.PyGridCellRenderer
 
-
-class ImageRenderer(wx.grid.PyGridCellRenderer):
+class ImageRenderer(gRend):
 	"""Used to display small images in a column."""
 
 	def __init__(self, *args, **kwargs):
 		self._lastBitmap = None
-		super(ImageRenderer, self).__init__(*args, **kwargs)
+		if dabo.ui.phoenix:
+			super(ImageRenderer, self).__init__()
+		else:
+			super(ImageRenderer, self).__init__(*args, **kwargs)
 
 
 	def Draw(self, grid, attr, dc, rect, row, col, isSelected):
@@ -110,12 +116,14 @@ class ImageRenderer(wx.grid.PyGridCellRenderer):
 		dc.DestroyClippingRegion()
 
 
-
-class BoolRenderer(wx.grid.PyGridCellRenderer):
+class BoolRenderer(gRend):
 	"""The default wx Bool renderer is really ugly, so this is a replacement."""
 
 	def __init__(self, *args, **kwargs):
-		super(BoolRenderer, self).__init__(*args, **kwargs)
+		if dabo.ui.phoenix:
+			super(BoolRenderer, self).__init__()
+		else:
+			super(BoolRenderer, self).__init__(*args, **kwargs)
 		self.checkedBitmap = dIcons.getIconBitmap("boolRendererChecked")
 		self.uncheckedBitmap = dIcons.getIconBitmap("boolRendererUnchecked")
 
@@ -201,8 +209,11 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 		dc.DestroyClippingRegion()
 
 
+	def Clone(self):
+		return BoolRenderer()
 
-class AbstractTextRenderer(wx.grid.PyGridCellRenderer):
+
+class AbstractTextRenderer(gRend):
 	"""
 	This is a starting point for all renderers that simply involve controlling
 	the text displayed in a cell.
@@ -260,3 +271,6 @@ class YesNoBoolRenderer(AbstractTextRenderer):
 		else:
 			dc.SetTextForeground((0, 128, 0))
 		dc.DrawText(txt, rect.x, rect.y)
+
+	def Clone(self):
+		return YesNoBoolRenderer()

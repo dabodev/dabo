@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+import six
+if six.PY2:
+	sixLong = long
+else:
+	sixLong = int
+from six import integer_types as sixInt
+from six import text_type as sixUnicode
+from six import string_types as sixBasestring
 import re
 import datetime
 import time
@@ -10,7 +18,7 @@ import dKeys
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 import decimal
-numericTypes = (int, long, decimal.Decimal, float)
+numericTypes = (sixInt, decimal.Decimal, float)
 valueErrors = (ValueError, decimal.InvalidOperation)
 
 # Make this locale-independent
@@ -113,7 +121,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		if not self:
 			# The control is being destroyed
 			return
-		if not isinstance(self.Value, basestring):
+		if not isinstance(self.Value, sixBasestring):
 			#Don't bother if it isn't a string type
 			return
 		length = self.TextLength
@@ -140,7 +148,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			# The control is being destroyed
 			return
 		currVal = self.Value
-		if not isinstance(currVal, basestring):
+		if not isinstance(currVal, sixBasestring):
 			# Don't bother if it isn't a string type
 			return
 		case = self.ForceCase
@@ -157,7 +165,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			newValue = currVal.title()
 		else:
 			newValue = currVal
-		if currVal <> newValue:
+		if currVal != newValue:
 			self.Value = newValue
 			self.InsertionPosition = insPos
 			self.SelectionLength = selLen
@@ -475,7 +483,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 class dTextBoxMixin(dTextBoxMixinBase):
 	def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._dregex = {}
-		self._lastDataType = unicode
+		self._lastDataType = sixUnicode
 
 		dTextBoxMixinBase.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
@@ -550,7 +558,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			try:
 				if isint:
 					if strVal.endswith("L"):
-						return long(strVal)
+						return sixLong(strVal)
 					return int(strVal)
 				else:
 					try:
@@ -570,7 +578,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 		else:
 			# Other types can convert directly.
 			if dataType == str:
-				dataType = unicode
+				dataType = sixUnicode
 			try:
 				return dataType(strVal)
 			except ValueError:
@@ -588,7 +596,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 		in case they need specialized behavior. The value returned from this
 		function will be what is displayed in the UI textbox.
 		"""
-		if isinstance(value, basestring):
+		if isinstance(value, sixBasestring):
 			# keep it unicode instead of converting to str
 			strVal = value
 		elif isinstance(value, datetime.datetime):

@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+import six
+from six import string_types as sixBasestring
 import sys
 import xml.sax
-from StringIO import StringIO
+from six import StringIO
 import os.path
-from xmltodict import escQuote
+from .xmltodict import escQuote
 import dabo
 import dabo.lib.utils as utils
 from dabo.dLocalize import _
@@ -18,13 +20,13 @@ class connHandler(xml.sax.ContentHandler):
 		self.connDict = {}
 		self.blankConn = {
 				"name": "",
-				"dbtype" : "",
-				"host" : "",
-				"remotehost" : "",
-				"database" : "",
-				"user" : "",
-				"password" : "",
-				"port" : "",
+				"dbtype": "",
+				"host": "",
+				"remotehost": "",
+				"database": "",
+				"user": "",
+				"password": "",
+				"port": "",
 				"KeepAliveInterval": "",
 				}
 		self.currDict = self.blankConn.copy()
@@ -34,7 +36,7 @@ class connHandler(xml.sax.ContentHandler):
 	def startElement(self, name, attrs):
 		self.element = name
 		if name == "connection":
-			for att in attrs.keys():
+			for att in list(attrs.keys()):
 				if att == "dbtype":
 					dbType = attrs.getValue("dbtype").split(":")
 					self.currDict["dbtype"] = dbType[0]
@@ -101,10 +103,10 @@ def importConnections(pth=None, useHomeDir=False):
 	else:
 		basePath = pth
 
-	for cxn, data in ret.items():
+	for cxn, data in list(ret.items()):
 		dbtype = data.get("dbtype", "")
 		if dbtype.lower() in FILE_DATABASES:
-			for key, val in data.items():
+			for key, val in list(data.items()):
 				if key == "database":
 					osp = os.path
 					relpath = utils.resolvePath(val, basePath, abspath=False)
@@ -159,9 +161,9 @@ def fileRef(ref=""):
 	XML to the parser. Returns a file-like object, or None.
 	"""
 	ret = None
-	if isinstance(ref, basestring):
+	if isinstance(ref, sixBasestring):
 		if os.path.exists(ref):
-			ret = file(ref)
+			ret = open(ref)
 		else:
 			ret = StringIO(ref)
 	return ret

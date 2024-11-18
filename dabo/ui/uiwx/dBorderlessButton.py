@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import sys
 import wx
 try:
@@ -9,7 +10,11 @@ import dabo
 import dabo.ui
 
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
 import dControlMixin as cm
 from dabo.dLocalize import _
@@ -70,7 +75,7 @@ class dBorderlessButton(cm.dControlMixin, platebtn.PlateButton):
 
 	def _setBackColorHover(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, sixBasestring):
 				val = dColors.colorTupleFromName(val)
 			if isinstance(val, tuple):
 				self._backColoHover = val
@@ -176,10 +181,10 @@ class _dBorderlessButton_test(dBorderlessButton):
 
 
 	def onContextMenu(self, evt):
-		print "context menu"
+		print("context menu")
 
 	def onMouseRightClick(self, evt):
-		print "right click"
+		print("right click")
 
 	def onHit(self, evt):
 		self.ForeColor = "purple"
@@ -190,5 +195,5 @@ class _dBorderlessButton_test(dBorderlessButton):
 		self.Form.layout()
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dBorderlessButton_test)

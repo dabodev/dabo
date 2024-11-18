@@ -1,10 +1,20 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import wx
-import wx.lib.foldpanelbar as fpb
 import dabo
-from dabo.ui import makeDynamicProperty
+
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
+from dabo.ui import makeDynamicProperty
+if dabo.ui.phoenix:
+	import wx.lib.agw.foldpanelbar as fpb
+else:
+	import wx.lib.foldpanelbar as fpb
 import dControlMixin as dcm
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
@@ -188,7 +198,7 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 	def _getBarStyle(self):
 		wxbs = self._captionBar.GetCaptionStyle()._captionStyle
-		lowerStyle = [k for k,v in self._barStyleConstants.items()
+		lowerStyle = [k for k, v in list(self._barStyleConstants.items())
 				if v == wxbs][0]
 		return self._barStyles[list(self._barStylesLow).index(lowerStyle)]
 
@@ -385,7 +395,7 @@ class dSlidePanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 
 
-class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
+class dSlidePanelControl(dcm.dControlMixin, fpb.FoldPanelBar):
 	"""
 	Creates a control consisting of several panels that can be
 	hidden or revealed by clicking on their 'caption bar'.
@@ -422,7 +432,7 @@ class dSlidePanelControl(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			if not "Caption" in kwargs:
 				raise ValueError(_("You must specify a Caption when adding a panel"))
 			pnl = dabo.ui.dSlidePanel(self, **kwargs)
-		elif isinstance(pnl, basestring):
+		elif isinstance(pnl, sixBasestring):
 			# Just the caption; create the panel and use that
 			pnl = dabo.ui.dSlidePanel(self, Caption=pnl, **kwargs)
 		return pnl

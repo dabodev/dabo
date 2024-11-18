@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
-import wx, dabo, dabo.ui
+import wx
+import dabo
 
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
 import dTextBoxMixin as tbm
 import dabo.dEvents as dEvents
@@ -21,7 +26,10 @@ class dEditBox(tbm.dTextBoxMixin, wx.TextCtrl):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dEditBox
 
-		preClass = wx.PreTextCtrl
+		if dabo.ui.phoenix:
+			preClass = wx.TextCtrl
+		else:
+			preClass = wx.PreTextCtrl
 		kwargs["style"] = wx.TE_MULTILINE
 		self._wordWrap = self._extractKey((properties, attProperties, kwargs),
 				"WordWrap", True)
@@ -125,6 +133,6 @@ It's the Love Boat
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dEditBox_test, WordWrap=True)
 	test.Test().runTest(_dEditBox_test, WordWrap=False)

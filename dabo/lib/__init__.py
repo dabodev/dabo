@@ -26,7 +26,7 @@ try:
 except ImportError:
 	try:
 		import simplejson as json
-		import dejavuJSON
+		from . import dejavuJSON
 		jsonConverter = dejavuJSON.Converter()
 		def jsonEncode(val):
 			return jsonConverter.dumps(val)

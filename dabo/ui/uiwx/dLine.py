@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
-import wx, dabo, dabo.ui
+import wx
+import dabo
 
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
 import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
@@ -22,7 +27,10 @@ class dLine(cm.dControlMixin, wx.StaticLine):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dLine
-		preClass = wx.PreStaticLine
+		if dabo.ui.phoenix:
+			preClass = wx.StaticLine
+		else:
+			preClass = wx.PreStaticLine
 
 		cm.dControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
@@ -71,5 +79,5 @@ class _dLine_test(dLine):
 		self.Height = 10
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dLine_test)

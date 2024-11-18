@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# TODO: runs but plot is too small, nearly not showing
 import wx
 import wx.lib.plot as plot
 
@@ -6,15 +7,20 @@ try:
 	import numpy.oldnumeric as _Numeric
 except ImportError:
 	_Numeric = False
-except StandardError, e:
+except Exception as e:
 	# Report the error, and abandon the import
 	dabo.log.error(_("Error importing numpy.oldnumeric: %s") % e)
 	_Numeric = False
 
 import dabo
-from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
+from dabo.ui import makeDynamicProperty
 import dControlMixin as cm
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -198,7 +204,7 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 		self.Redraw()
 
 
-	def OnSize(self,event):
+	def OnSize(self, event):
 		# The Buffer init is done here, to make sure the buffer is always
 		# the same size as the Window
 		Size  = self.canvas.GetClientSize()
@@ -208,7 +214,10 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 		# Make new offscreen bitmap: this bitmap will always have the
 		# current drawing in it, so it can be used to save the image to
 		# a file, or whatever.
-		self._Buffer = wx.EmptyBitmap(Size.width, Size.height)
+		if dabo.ui.phoenix:
+			self._Buffer = wx.Bitmap(Size.width, Size.height)
+		else:
+			self._Buffer = wx.EmptyBitmap(Size.width, Size.height)
 		plot.PlotCanvas._setSize(self)
 		# Reset PointLable
 		self.last_PointLabel = None
@@ -238,21 +247,21 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 		sx, sy = mDataDict["scaledXY"]
 		# 10by10 square centered on point
 		dc.DrawRectangle(sx-5, sy-5, 10, 10)
-		px,py = mDataDict["pointXY"]
+		px, py = mDataDict["pointXY"]
 		cNum = mDataDict["curveNum"]
 		pntIn = mDataDict["pIndex"]
 		legend = mDataDict["legend"]
 		# make a string to display
 		s = "Crv# %i, '%s', Pt. (%.2f,%.2f), PtInd %i" %(cNum, legend, px, py, pntIn)
-		dc.DrawText(s, sx , sy+1)
+		dc.DrawText(s, sx, sy+1)
 		# -----------
 
 
 	def setDefaults(self):
-		self.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL,wx.NORMAL))
+		self.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		self.SetFontSizeAxis(10)
 		self.SetFontSizeLegend(7)
-		self.setLogScale((False,False))
+		self.setLogScale((False, False))
 		self.SetXSpec('auto')
 		self.SetYSpec('auto')
 
@@ -528,7 +537,7 @@ class _dLinePlot_test(dLinePlot):
 
 		data1 = 2.*_Numeric.pi*_Numeric.arange(200)/200.
 		data1.shape = (100, 2)
-		data1[:,1] = _Numeric.sin(data1[:,0])
+		data1[:, 1] = _Numeric.sin(data1[:, 0])
 		self.appendMarkerFromPoints(data1, Caption='Green Markers', Color='green', MarkerShape='circle', MarkerSize=1)
 
 		# A few more points...
@@ -538,5 +547,5 @@ class _dLinePlot_test(dLinePlot):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dLinePlot_test)

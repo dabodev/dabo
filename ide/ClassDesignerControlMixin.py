@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from six import text_type as sixUnicode
+from six import string_types as sixBasestring
 import os
 import dabo.ui
 if __name__ == "__main__":
@@ -161,7 +163,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			return
 
 		cnt = self.Controller
-		if cnt.openingClassXML or not isinstance(pgCls, basestring):
+		if cnt.openingClassXML or not isinstance(pgCls, sixBasestring):
 			tmpPgCls = self.Controller.getControlClass(dui.dPage)
 			pg = self.insertPage(pos, tmpPgCls, ignoreOverride=True)
 			pg.Sizer = LayoutSizer("v")
@@ -674,14 +676,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 	def _getDesProps(self):
 		useSizers = self.Controller.UseSizers
 		ret = {"Enabled": {"type": bool, "readonly": False},
-				"Name": {"type": unicode, "readonly": False},
-				"RegID": {"type": unicode, "readonly": False},
+				"Name": {"type": sixUnicode, "readonly": False},
+				"RegID": {"type": sixUnicode, "readonly": False},
 				"TabStop": {"type": bool, "readonly": False},
 				"Tag": {"type": "multi", "readonly": False},
-				"ToolTipText": {"type": unicode, "readonly": False},
+				"ToolTipText": {"type": sixUnicode, "readonly": False},
 				"Transparency": {"type": int, "readonly": False},
 				"Visible": {"type": bool, "readonly": False}}
-		captionProps = {"Caption": {"type": unicode, "readonly": False}}
+		captionProps = {"Caption": {"type": sixUnicode, "readonly": False}}
 		choiceProps = {"Choices": {"type": "choice", "readonly": False,
 				"customEditor": "editChoice"},
 				"Keys": {"type": "choice", "readonly": False,
@@ -694,7 +696,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 					"customEditor": "editColor"}}
 		columnProps = {"Order": {"type": int, "readonly": False},
 				 "Width": {"type": int, "readonly": False},
-				"DataField": {"type": unicode, "readonly": False},
+				"DataField": {"type": sixUnicode, "readonly": False},
 				"HeaderBackColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
 				"HeaderFont": {"type": "font", "readonly": False,
@@ -722,10 +724,10 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"Searchable": {"type": bool, "readonly": False},
 				"Sortable": {"type": bool, "readonly": False}}
 		comboProps = {"AppendOnEnter": {"type": bool, "readonly": False}}
-		dataProps = {"DataSource": {"type": unicode, "readonly": False},
-				"DataField": {"type": unicode, "readonly": False},
+		dataProps = {"DataSource": {"type": sixUnicode, "readonly": False},
+				"DataField": {"type": sixUnicode, "readonly": False},
 				"Value": {"type": "multi", "readonly": False}}
-		editorProps = {"CommentString": {"type": unicode, "readonly": False},
+		editorProps = {"CommentString": {"type": sixUnicode, "readonly": False},
 				"ShowCallTips": {"type": bool, "readonly": False},
 				"ShowCodeFolding": {"type": bool, "readonly": False},
 				"ShowEOL": {"type": bool, "readonly": False},
@@ -746,7 +748,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"AlternateRowColoring": {"type": bool, "readonly": False},
 				"CellHighlightWidth": {"type": int, "readonly": False},
 				"ColumnCount": {"type": int, "readonly": False},
-				"DataSource": {"type": unicode, "readonly": False},
+				"DataSource": {"type": sixUnicode, "readonly": False},
 				"Editable": {"type": bool, "readonly": False},
 				"HeaderBackColor": {"type": "color", "readonly": False,
 					"customEditor": "editColor"},
@@ -795,13 +797,13 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"VerticalRules": {"type": bool, "readonly": False}}
 		maskedTextBoxProps = {"Format": {"type": list, "readonly": False,
 						"values": [""]+dui.dMaskedTextBox.getFormats()},
-				"InputCodes": {"type": unicode, "readonly": lambda self: bool(self.Format)},
-				"Mask": {"type": unicode, "readonly": lambda self: bool(self.Format)},
+				"InputCodes": {"type": sixUnicode, "readonly": lambda self: bool(self.Format)},
+				"Mask": {"type": sixUnicode, "readonly": lambda self: bool(self.Format)},
 				"ValueMode": {"type": list, "readonly": False,
 					"values": ["Masked", "Unmasked"]}}
 		mediaControlProps = {"Loop": {"type": bool, "readonly": False},
 				"ShowControls": {"type": bool, "readonly": False},
-				"Source": {"type": unicode, "readonly": False},
+				"Source": {"type": sixUnicode, "readonly": False},
 				"TimeInSeconds": {"type": bool, "readonly": False},
 				"Volume": {"type": int, "readonly": False}}
 		multiSelectProps = {"MultipleSelect": {"type": bool, "readonly": False}}
@@ -855,7 +857,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"MinimumPanelSize": {"type": int, "readonly": False},
 				"Orientation": {"type": list, "readonly": False,
 					"values": ["Horizontal", "Vertical"]},
-				"PanelClass": {"type": unicode, "readonly": False},
+				"PanelClass": {"type": sixUnicode, "readonly": False},
 				"SashPosition": {"type": int, "readonly": False},
 				"ShowPanelSplitMenu": {"type": bool, "readonly": False},
 				"Split": {"type": bool, "readonly": False}}
@@ -869,10 +871,10 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"ForceCase": {"type": list, "readonly": False,
 					"values": ["Upper", "Lower", "Title", "None"]},
 				"ReadOnly": {"type": bool, "readonly": False}}
-		htmlTextProps = {"Page": {"type": unicode, "readonly": False},
+		htmlTextProps = {"Page": {"type": sixUnicode, "readonly": False},
 				"RespondToLinks": {"type": bool, "readonly": False},
 				"ShowScrollBars": {"type": bool, "readonly": False},
-				"Source": {"type": unicode, "readonly": False}}
+				"Source": {"type": sixUnicode, "readonly": False}}
 		scrollProps = {"HorizontalScroll": {"type": bool, "readonly": False},
 				"VerticalScroll": {"type": bool, "readonly": False}}
 		treeProps = {"Editable": {"type": bool, "readonly": False},
@@ -1127,7 +1129,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
 	def _setHiliteBorderColor(self, val):
 		if self._constructed():
-			if isinstance(val, basestring):
+			if isinstance(val, sixBasestring):
 				try:
 					val = dColors.colorTupleFromName(val)
 				except: pass

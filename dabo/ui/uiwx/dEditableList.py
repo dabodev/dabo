@@ -1,40 +1,49 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import wx
 import dabo
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+if dabo.ui.phoenix:
+	import wx.adv
+	giz = wx.adv
+else:
+	giz = wx.gizmos
 import dControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
+class dEditableList(dcm.dControlMixin, giz.EditableListBox):
 	"""
 	Creates an editable list box, complete with buttons to control
 	editing, adding/deleting items, and re-ordering them.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dEditableList
-		preClass = wx.gizmos.EditableListBox
+		preClass = giz.EditableListBox
 		self._canAdd = self._extractKey((kwargs, properties, attProperties), "CanAdd", True)
-		if isinstance(self._canAdd, basestring):
+		if isinstance(self._canAdd, sixBasestring):
 			self._canAdd = (self._canAdd == "True")
 		self._canDelete = self._extractKey((kwargs, properties, attProperties), "CanDelete", True)
-		if isinstance(self._canDelete, basestring):
+		if isinstance(self._canDelete, sixBasestring):
 			self._canDelete = (self._canDelete == "True")
 		self._canOrder = self._extractKey((kwargs, properties, attProperties), "CanOrder", True)
-		if isinstance(self._canOrder, basestring):
+		if isinstance(self._canOrder, sixBasestring):
 			self._canOrder = (self._canOrder == "True")
 		self._editable = self._extractKey((kwargs, properties, attProperties), "Editable", True)
 		style = self._extractKey((kwargs, properties, attProperties), "style", 0)
 		if self._canAdd:
-			style = style  | wx.gizmos.EL_ALLOW_NEW
+			style = style  | giz.EL_ALLOW_NEW
 		if self._editable:
-			style = style  | wx.gizmos.EL_ALLOW_EDIT
+			style = style  | giz.EL_ALLOW_EDIT
 		if self._canDelete:
-			style = style  | wx.gizmos.EL_ALLOW_DELETE
+			style = style  | giz.EL_ALLOW_DELETE
 		kwargs["style"] = style
 		# References to the components of this control
 		self._addButton = None
@@ -234,9 +243,9 @@ class _dEditableList_test(dEditableList):
 		# wxPython destroys and re-creates the control when you
 		# edit, add or delete an entry.
 		if self._finito:
-			print "Result:", self.Choices
+			print("Result:", self.Choices)
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dEditableList_test)

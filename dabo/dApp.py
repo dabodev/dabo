@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
-import ConfigParser
-from cStringIO import StringIO
+from six import string_types as sixBasestring
+from six.moves import configparser
+from six.moves import cStringIO
 import datetime
 import glob
 import imp
 import inspect
 import json
-import locale
+from . import locale
 import logging
 import os
 import shutil
 import sys
 import tempfile
-import urllib2
+from six.moves import urllib
 import warnings
 from xml.sax._exceptions import SAXParseException
 from zipfile import ZipFile
@@ -26,7 +27,7 @@ from dabo.lib.SimpleCrypt import SimpleCrypt
 from dabo.dObject import dObject
 from dabo.dPref import dPref
 from dabo import dUserSettingProvider
-from dSecurityManager import dSecurityManager
+from .dSecurityManager import dSecurityManager
 from dabo.lib.utils import ustr
 from dabo.lib.utils import cleanMenuCaption
 
@@ -78,11 +79,11 @@ class TempFileHolder(object):
 					continue
 				try:
 					os.remove(f)
-				except OSError, e:
+				except OSError as e:
 					if not f.endswith(".pyc"):
 						# Don't worry about the .pyc files, since they may not be there
-						print "Could not delete %s: %s" % (f, e)
-		except StandardError, e:
+						print("Could not delete %s: %s" % (f, e))
+		except Exception as e:
 			# In these rare cases, Python has already 'gone away', so just bail
 			pass
 
@@ -172,9 +173,6 @@ class dApp(dObject):
 
 
 	def __init__(self, selfStart=False, ignoreScriptDir=False, properties=None, *args, **kwargs):
-		if dabo.loadUserLocale:
-			locale.setlocale(locale.LC_ALL, '')
-
 		# Some apps, such as the visual tools, are meant to be run from directories
 		# other than that where they are located. In those cases, use the current dir.
 		self._ignoreScriptDir = ignoreScriptDir
@@ -259,18 +257,18 @@ class dApp(dObject):
 		if rp:
 			try:
 				rp.syncFiles()
-			except urllib2.URLError, e:
+			except urllib.error.URLError as e:
 				code, msg = e.reason
 				if code == 61:
 					# Connection refused; server's down
-					print _("""
+					print(_("""
 
 
 The connection was refused by the server. Most likely this means that
 the server is not running. Please have that problem corrected, and
 try again when it is running.
 
-""")
+"""))
 					sys.exit(61)
 
 		self._afterInit()
@@ -286,7 +284,7 @@ try again when it is running.
 		if rp:
 			try:
 				rp.syncFiles()
-			except urllib2.URLError, e:
+			except urllib.error.URLError as e:
 				# Cannot sync; record the error and move on
 				dabo.log.error(_("File re-sync failed. Reason: %s") % e)
 
@@ -498,7 +496,7 @@ try again when it is running.
 	def _retrieveMRUs(self):
 		"""Retrieve any saved MRU lists."""
 		base = "MRU.%s" % self.getAppInfo("appName")
-		for cap, fcn in self._persistentMRUs.items():
+		for cap, fcn in list(self._persistentMRUs.items()):
 			cleanCap = cleanMenuCaption(cap)
 			itms = self.getUserSetting(".".join((base, cleanCap)))
 			if itms:
@@ -581,21 +579,15 @@ try again when it is running.
 			# See if there is a later version
 			url = "%s/check/%s" % (dabo.webupdate_urlbase, dabo.__version__)
 			try:
-				resp = urllib2.urlopen(url).read()
-			except urllib2.URLError, e:
+				resp = urllib.urlopen(url).read()
+			except urllib.error.URLError as e:
 				# Could not connect
-				### 2014-10-04, Koczian, using ustr to avoid crash
-				e_uni = ustr(e)
-				dabo.log.error(_("Could not connect to the Dabo servers: %s") % e_uni)
-				### 2014-10-04, Koczian, end of change
+				dabo.log.error(_("Could not connect to the Dabo servers: %s") % e)
 				return e
 			except ValueError:
 				pass
-			except StandardError, e:
-				### 2014-10-04, Koczian, using ustr to avoid crash
-				e_uni = ustr(e)
-				dabo.log.error(_("Failed to open URL '%(url)s'. Error: %(e_uni)s") % locals())
-				### 2014-10-04, Koczian, end of change
+			except Exception as e:
+				dabo.log.error(_("Failed to open URL '%(url)s'. Error: %(e)s") % locals())
 				return e
 			resp = json.loads(resp)
 		prf.setValue("last_check", now)
@@ -609,8 +601,8 @@ try again when it is running.
 		"""
 		fileurl = "%s/files/%s" % (dabo.webupdate_urlbase, dabo.__version__)
 		try:
-			resp = urllib2.urlopen(fileurl)
-		except StandardError, e:
+			resp = urllib.urlopen(fileurl)
+		except Exception as e:
 			# No internet access, or Dabo site is down.
 			dabo.log.error(_("Cannot access the Dabo site. Error: %s") % e)
 			self._resetWebUpdateCheck()
@@ -620,7 +612,7 @@ try again when it is running.
 		if not respContent:
 			# No update
 			return False
-		f = StringIO(respContent)
+		f = cStringIO(respContent)
 		zip = ZipFile(f)
 		zipfiles = zip.namelist()
 		if "DELETEDFILES" in zipfiles:
@@ -728,7 +720,7 @@ try again when it is running.
 			lm = resp.headers.get("Last-Modified")
 			if lm:
 				self._sourceLastModified[url] = lm
-		except u2.HTTPError, e:
+		except u2.HTTPError as e:
 			code = e.code
 			if code in (304, 404):
 				# Not changed or not found; nothing to do
@@ -906,8 +898,8 @@ try again when it is running.
 		#		pth/db
 		#		pth/data
 
-		dbDirs = set((hd, os.path.join(hd, "db"), os.path.join(hd, "data"),
-				pth, os.path.join(pth, "db"), os.path.join(pth, "data")))
+		dbDirs = {hd, os.path.join(hd, "db"), os.path.join(hd, "data"),
+				pth, os.path.join(pth, "db"), os.path.join(pth, "data")}
 		for dbDir in dbDirs:
 			if os.path.exists(dbDir) and os.path.isdir(dbDir):
 				files = glob.glob(os.path.join(dbDir, "*.cnxml"))
@@ -935,7 +927,7 @@ try again when it is running.
 		# For each connection definition, add an entry to
 		# self.dbConnectionDefs that contains a key on the
 		# name, and a value of a dConnectInfo object.
-		for k,v in connDefs.items():
+		for k, v in list(connDefs.items()):
 			self.dbConnectionDefs[k] = v
 
 		dabo.log.info(_("%s database connection definition(s) loaded.")
@@ -968,7 +960,7 @@ try again when it is running.
 				try:
 					(f, p, d) = imp.find_module(dd)
 					setattr(self, dd, imp.load_module(dd, f, p, d))
-				except ImportError, e:
+				except ImportError as e:
 					self.__setattr__(dd, currmod)
 		sys.path = currsyspath
 
@@ -1001,11 +993,11 @@ try again when it is running.
 		"""Given an absolute path to a .cnxml file, return the connection defs."""
 		try:
 			connDefs = connParser.importConnections(filePath, useHomeDir=True)
-		except SAXParseException, e:
+		except SAXParseException as e:
 			dabo.log.error(_("Error parsing '%(filePath)s': %(e)s") % locals())
 			return {}
 		# Convert the connect info dicts to dConnectInfo instances:
-		for k,v in connDefs.items():
+		for k, v in list(connDefs.items()):
 			ci = dabo.db.dConnectInfo()
 			ci.setConnInfo(v)
 			connDefs[k] = ci
@@ -1034,12 +1026,12 @@ try again when it is running.
 
 	def getConnectionNames(self):
 		"""Returns a list of all defined connection names"""
-		return self.dbConnectionDefs.keys()
+		return list(self.dbConnectionDefs.keys())
 
 
 	def closeConnections(self):
 		"""Cleanup as the app is exiting."""
-		for key, conn in self.dbConnections.items():
+		for key, conn in list(self.dbConnections.items()):
 			conn.close()
 			del self.dbConnections[key]
 
@@ -1078,7 +1070,7 @@ try again when it is running.
 			# For each connection definition, add an entry to
 			# self.dbConnectionDefs that contains a key on the
 			# name, and a value of a dConnectInfo object.
-			for k,v in connDefs.items():
+			for k, v in list(connDefs.items()):
 				self.dbConnectionDefs[k] = v
 				self.dbConnectionNameToFiles[k] = connFile
 		else:
@@ -1549,7 +1541,7 @@ try again when it is running.
 		return v
 
 	def _setNoneDisp(self, val):
-		assert isinstance(val, basestring)
+		assert isinstance(val, sixBasestring)
 		self._noneDisplay = val
 
 

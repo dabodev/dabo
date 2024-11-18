@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from six import string_types as sixBasestring
 import sys
 import os
 import os.path
@@ -541,7 +541,7 @@ class EditorForm(dabo.ui.dForm):
 
 
 	def openRecursively(self, filelist):
-		if isinstance(filelist, basestring):
+		if isinstance(filelist, sixBasestring):
 			# Individual file passed
 			filelist = [filelist]
 		for ff in filelist:

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import xml.sax
 from StringIO import StringIO
 import os.path
@@ -23,7 +24,7 @@ class specHandler(xml.sax.ContentHandler):
 
 		elif name == "field":
 			fieldDict = {}
-			for att in attrs.keys():
+			for att in list(attrs.keys()):
 				if att == "name":
 					fldName = attrs.getValue("name")
 				else:
@@ -32,7 +33,7 @@ class specHandler(xml.sax.ContentHandler):
 
 		elif name == "join":
 			joinDict = {}
-			for att in attrs.keys():
+			for att in list(attrs.keys()):
 				if att == "order":
 					name = "_join%s" % attrs["order"]
 				joinDict[att] = attrs[att]
@@ -91,7 +92,7 @@ def fileRef(ref=""):
 	XML to the parser. Returns a file-like object, or None.
 	"""
 	ret = None
-	if isinstance(ref, basestring):
+	if isinstance(ref, sixBasestring):
 		if os.path.exists(ref):
 			ret = file(ref)
 		else:

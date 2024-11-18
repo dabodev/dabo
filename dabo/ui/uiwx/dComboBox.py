@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
-import wx, dabo, dabo.ui
+from six import string_types as sixBasestring
+import wx
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+import dabo
+
 import dControlItemMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -28,14 +35,20 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		# Holds the text to be appended
 		self._textToAppend = ""
 
-		preClass = wx.PreComboBox
+		if dabo.ui.phoenix:
+			preClass = wx.ComboBox
+		else:
+			preClass = wx.PreComboBox
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
 
 	def _preInitUI(self, kwargs):
 		style = kwargs.get("style", 0)
-		style |= wx.PROCESS_ENTER
+		if dabo.ui.phoenix:
+			style |= wx.TE_PROCESS_ENTER
+		else:
+			style |= wx.PROCESS_ENTER
 		kwargs["style"] = style
 		return kwargs
 
@@ -104,7 +117,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		if not self:
 			# The control is being destroyed
 			return
-		if not isinstance(self.GetValue(), basestring):
+		if not isinstance(self.GetValue(), sixBasestring):
 			#Don't bother if it isn't a string type
 			return
 		length = self.TextLength
@@ -126,7 +139,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		if not self:
 			# The control is being destroyed
 			return
-		if not isinstance(self.GetValue(), basestring):
+		if not isinstance(self.GetValue(), sixBasestring):
 			# Don't bother if it isn't a string type
 			return
 		case = self.ForceCase
@@ -296,20 +309,20 @@ class _dComboBox_test(dComboBox):
 	def beforeAppendOnEnter(self):
 		txt = self._textToAppend.strip().lower()
 		if txt == "dabo":
-			print _("Attempted to add Dabo to the list!!!")
+			print(_("Attempted to add Dabo to the list!!!"))
 			return False
 		elif txt.find("nixon") > -1:
 			self._textToAppend = "Tricky Dick"
 
 
 	def onHit(self, evt):
-		print "KeyValue: ", self.KeyValue
-		print "PositionValue: ", self.PositionValue
-		print "StringValue: ", self.StringValue
-		print "Value: ", self.Value
-		print "UserValue: ", self.UserValue
+		print("KeyValue: ", self.KeyValue)
+		print("PositionValue: ", self.PositionValue)
+		print("StringValue: ", self.StringValue)
+		print("Value: ", self.Value)
+		print("UserValue: ", self.UserValue)
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dComboBox_test)

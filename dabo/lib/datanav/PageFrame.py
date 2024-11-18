@@ -76,7 +76,7 @@ def PageFrame(parent, tabStyle="tabs", *args, **kwargs):
 		pageStyleClass = tabStyles[tabStyle.title()]
 	except KeyError:
 		raise KeyError(
-				"tabStyle must be one of %s" % tabStyles.keys())
+				"tabStyle must be one of %s" % list(tabStyles.keys()))
 
 	class DataNavPageFrame(PageFrameMixin, pageStyleClass):
 		_pageStyleClass = property(lambda self: pageStyleClass)

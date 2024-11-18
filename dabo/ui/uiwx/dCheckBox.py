@@ -3,7 +3,11 @@ import wx
 import dabo
 from dabo.ui import makeDynamicProperty
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
 import dDataControlMixin as dcm
 from dabo.dLocalize import _
@@ -13,7 +17,10 @@ class dCheckBox(dcm.dDataControlMixin, wx.CheckBox):
 	"""Creates a checkbox, allowing editing boolean values."""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dCheckBox
-		preClass = wx.PreCheckBox
+		if dabo.ui.phoenix:
+			preClass = wx.CheckBox
+		else:
+			preClass = wx.PreCheckBox
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties=properties,
 				attProperties=attProperties, *args, **kwargs)
 
@@ -25,7 +32,7 @@ class dCheckBox(dcm.dDataControlMixin, wx.CheckBox):
 
 	def _initProperties(self):
 		self._3StateToValue = { wx.CHK_UNCHECKED : False, wx.CHK_CHECKED : True, wx.CHK_UNDETERMINED : None}
-		self._ValueTo3State = dict([[v,k] for k,v in self._3StateToValue.iteritems()])
+		self._ValueTo3State = dict([[v, k] for k, v in self._3StateToValue.items()])
 		super(dCheckBox, self)._initProperties()
 
 
@@ -149,6 +156,6 @@ class _dCheckBox_test3_b(dCheckBox):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(
 		(_dCheckBox_test, _dCheckBox_test3_a, _dCheckBox_test3_b))

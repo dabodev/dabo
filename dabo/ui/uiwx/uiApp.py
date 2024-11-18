@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import sys
 import os
 import time
@@ -38,14 +39,14 @@ class SplashScreen(wx.Frame):
 		wx.Frame.__init__(self, None, -1, style=style)
 
 		self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
-		if isinstance(bitmap, basestring):
+		if isinstance(bitmap, sixBasestring):
 			# Convert it
 			self._bmp = dabo.ui.pathToBmp(bitmap)
 		else:
 			self._bmp = bitmap
 
 		if maskColor is not None:
-			if isinstance(maskColor, basestring):
+			if isinstance(maskColor, sixBasestring):
 				maskColor = dColors.colorTupleFromName(maskColor)
 			self._bmp.SetMask(wx.Mask(self._bmp, maskColor))
 
@@ -188,6 +189,10 @@ class uiApp(dObject, wx.App):
 
 	def OnInit(self):
 		app = self.dApp
+		# As of wx3, locale must be set using wx.Locale; this can only be created after the wx.App's initialization, so locale
+		# is moved here (also note setting locale is no longer toolkit-agnostic, so other toolkit bindings would need to handle it internally)
+		if dabo.loadUserLocale:
+			self.locale = wx.Locale(wx.LANGUAGE_DEFAULT)		
 		if not self.checkForUpdates():
 			return False
 		if app.showSplashScreen:
@@ -212,11 +217,8 @@ class uiApp(dObject, wx.App):
 		updAvail = False
 		checkResult = self.dApp._checkForUpdates(force=force)
 		if isinstance(checkResult, Exception):
-			### 2014-10-04, Koczian, using ustr to avoid crash
-			check_uni = utils.ustr(checkResult)
-			dabo.ui.stop(_("There was an error encountered when checking Web Update: %s") % check_uni,
+			dabo.ui.stop(_("There was an error encountered when checking Web Update: %s") % checkResult,
 					_("Web Update Problem"))
-			### 2014-10-04, Koczian, end of change
 		else:
 			# The response will be a boolean for 'first time', along with the dict of updates.
 			isFirst, updates = checkResult
@@ -234,7 +236,7 @@ class uiApp(dObject, wx.App):
 				# files can be in the list, and will throw an IndexError.
 				step2 = [(ch[0], ch[1]) for ch in step1
 						if ch[1].split("/", 1)[0] in ("dabo", "demo", "ide")]
-				step2.sort(lambda x,y: cmp(x[1], y[1]))
+				step2.sort(lambda x, y: cmp(x[1], y[1]))
 				# Now split off the project
 				step3 = [{"mod":ch[0], "project":ch[1].split("/", 1)[0], "file":ch[1].split("/", 1)[1]} for ch in step2]
 				changedFiles = step3
@@ -294,7 +296,7 @@ these automatic updates.""").replace("\n", " ")
 				self._setUpdatePathLocations()
 				try:
 					success = self.dApp._updateFramework()
-				except IOError, e:
+				except IOError as e:
 					dabo.log.error(_("Cannot update files; Error: %s") % e)
 					dabo.ui.info(_("You do not have permission to update the necessary files. "
 							"Please re-run the app with administrator privileges."), title=_("Permission Denied"))
@@ -307,7 +309,7 @@ these automatic updates.""").replace("\n", " ")
 							"Please check your internet connection and try again later."), title=_("Update Failed"))
 					answer = False
 					self.dApp._resetWebUpdateCheck()
-				elif isinstance(success, basestring):
+				elif isinstance(success, sixBasestring):
 					# Error message was returned
 					dabo.ui.stop(success, title=_("Update Failure"))
 				elif success is False:
@@ -423,12 +425,15 @@ these automatic updates.""").replace("\n", " ")
 
 
 	def setup(self):
-		wx.SystemOptions.SetOptionInt("mac.textcontrol-use-spell-checker", 1)
+		if dabo.ui.phoenix:
+			wx.SystemOptions.SetOption("mac.textcontrol-use-spell-checker", 1)
+		else:
+			wx.SystemOptions.SetOptionInt("mac.textcontrol-use-spell-checker", 1)
 		frm = self.dApp.MainForm
 		if frm is None:
 			if self.dApp.MainFormClass is not None:
 				mfc = self.dApp.MainFormClass
-				if isinstance(mfc, basestring):
+				if isinstance(mfc, sixBasestring):
 					# It is a path to .cdxml file
 					frm = self.dApp.MainForm = dabo.ui.createForm(mfc)
 				else:
@@ -465,7 +470,10 @@ these automatic updates.""").replace("\n", " ")
 
 	def exit(self):
 		"""Exit the application event loop."""
-		self.Exit()
+		if dabo.ui.phoenix:
+			self.ExitMainLoop()
+		else:
+			self.Exit()
 
 
 	def finish(self):
@@ -592,7 +600,7 @@ these automatic updates.""").replace("\n", " ")
 #			loc = os.path.dirname(dabo.ui.uiwx.__file__)
 #			pth = os.path.join(loc, "inspector.cdxml")
 #			self.inspectorWindow = dabo.ui.createForm(pth, parent=context, show=False)
-			from object_inspector import InspectorFormClass
+			from .object_inspector import InspectorFormClass
 			self.inspectorWindow = InspectorFormClass(parent=context)
 		insp = self.inspectorWindow
 		insp.createObjectTree()
@@ -706,6 +714,8 @@ these automatic updates.""").replace("\n", " ")
 
 	@classmethod
 	def copyToClipboard(cls, val):
+		#if not wx.TheClipboard.IsOpened():
+			#wx.TheClipboard.Open()
 		txtData = wx.TextDataObject()
 		bmpData = wx.BitmapDataObject()
 		ok = False
@@ -720,9 +730,11 @@ these automatic updates.""").replace("\n", " ")
 			cb = wx.TheClipboard
 			cb.Open()
 			cb.SetData(data)
+			cb.Flush()
 			cb.Close()
 		else:
 			raise TypeError(_("Only text and bitmaps are supported."))
+		wx.TheClipboard.Close()
 
 
 	def onEditPaste(self, evt):
@@ -932,9 +944,9 @@ these automatic updates.""").replace("\n", " ")
 				if isinstance(ctl, wx.TextCtrl)]
 
 		tbs.sort()
-		self._findDlgID = tbs[0].values()[0]
+		self._findDlgID = list(tbs[0].values())[0]
 		try:
-			self._replaceDlgID = tbs[1].values()[0]
+			self._replaceDlgID = list(tbs[1].values())[0]
 		except IndexError:
 			# Not a Replace dialog
 			self._replaceDlgID = None
@@ -1089,7 +1101,7 @@ these automatic updates.""").replace("\n", " ")
 					value = win.GetValue()
 				except AttributeError:
 					value = None
-				if not isinstance(value, basestring):
+				if not isinstance(value, sixBasestring):
 					dabo.log.error(_("Active control isn't text-based."))
 					return
 
@@ -1134,7 +1146,7 @@ these automatic updates.""").replace("\n", " ")
 		Adds the specified menu to the top of the list of
 		MRU prompts for that menu.
 		"""
-		if isinstance(menuOrCaption, basestring):
+		if isinstance(menuOrCaption, sixBasestring):
 			# They passed the menu caption directly
 			cap = menuOrCaption
 		else:
@@ -1184,12 +1196,12 @@ these automatic updates.""").replace("\n", " ")
 			# Remove all the items
 			lnks = self._mruMenuLinks.get(menu, {})
 			kids = menu.Children
-			for itm in lnks.values()[::-1]:
+			for itm in list(lnks.values())[::-1]:
 				if itm not in kids:
 					continue
 				try:
 					menu.remove(itm)
-				except (IndexError, ValueError), e:
+				except (IndexError, ValueError) as e:
 					pass
 			# Add them all back
 			lnks = {}
@@ -1202,7 +1214,7 @@ these automatic updates.""").replace("\n", " ")
 
 	def getMRUListForMenu(self, menu):
 		"""Gets the current list of MRU entries for the given menu."""
-		if isinstance(menu, basestring):
+		if isinstance(menu, sixBasestring):
 			# They passed the menu caption directly
 			cap = menu
 		else:

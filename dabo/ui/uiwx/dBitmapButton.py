@@ -2,7 +2,11 @@
 import warnings
 import wx, dabo, dabo.ui
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
 import dControlMixin as cm
 import dPemMixin as pm
@@ -26,7 +30,10 @@ class dBitmapButton(cm.dControlMixin, dim.dImageMixin, wx.BitmapButton):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dBitmapButton
-		preClass = wx.PreBitmapButton
+		if dabo.ui.phoenix:
+			preClass = wx.BitmapButton
+		else:
+			preClass = wx.PreBitmapButton
 		# Initialize the self._*picture attributes
 		self._picture = self._downPicture = self._focusPicture = ""
 		# These atts underlie the image sizing properties.
@@ -135,7 +142,10 @@ class dBitmapButton(cm.dControlMixin, dim.dImageMixin, wx.BitmapButton):
 				bmp = val
 			else:
 				bmp = dabo.ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
-			self.SetBitmapSelected(bmp)
+			if dabo.ui.phoenix:
+				self.SetBitmapPressed(bmp)
+			else:
+				self.SetBitmapSelected(bmp)
 		else:
 			self._properties["DownPicture"] = val
 
@@ -176,7 +186,10 @@ class dBitmapButton(cm.dControlMixin, dim.dImageMixin, wx.BitmapButton):
 			self.SetBitmapLabel(bmp)
 			# If the others haven't been specified, default them to the same
 			if not self._downPicture:
-				self.SetBitmapSelected(bmp)
+				if dabo.ui.phoenix:
+					self.SetBitmapPressed(bmp)
+				else:
+					self.SetBitmapSelected(bmp)
 			if not self._focusPicture:
 				self.SetBitmapFocus(bmp)
 			if self._autoSize:
@@ -251,5 +264,5 @@ class _dBitmapButton_test(dBitmapButton):
 		self.Height = 25
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dBitmapButton_test)

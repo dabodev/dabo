@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import dabo
 from dabo.dPref import dPref
 if __name__ == "__main__":
@@ -181,7 +182,7 @@ def showPropVals(self, obj):
 			continue
 		if val is None:
 			val = self.Application.NoneDisplay
-		elif isinstance(val, basestring):
+		elif isinstance(val, sixBasestring):
 			val = "'%s'" % val
 		elif isinstance(val, dabo.dObject.dObject):
 			try:

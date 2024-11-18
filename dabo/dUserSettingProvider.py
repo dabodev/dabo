@@ -54,7 +54,7 @@ class dUserSettingProvider(dObject):
 
 	def setUserSettings(self, dct):
 		"""Persist a set of setting name: value pairs."""
-		for nm, val in dct.items():
+		for nm, val in list(dct.items()):
 			self.setUserSetting(nm, val)
 
 

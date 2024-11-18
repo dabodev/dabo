@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
 from dabo.dLocalize import _
 from dPanel import dPanel
 from dGauge import dGauge
@@ -14,7 +19,7 @@ from dButton import dButton
 class dReportProgress(dPanel):
 	def afterInit(self):
 		ms = self.Sizer = dabo.ui.dBorderSizer(self, "v", DefaultBorder=5)
-		self.gauge = dGauge(self, Size=(75,12))
+		self.gauge = dGauge(self, Size=(75, 12))
 		lblTitle = dLabel(self, Name="lblTitle", Caption="", FontBold=True)
 		butCancel = dButton(self, Name="butCancelReportProgress", CancelButton=False,
 				Caption="Cancel", Enabled=False, OnHit=self.onCancel)

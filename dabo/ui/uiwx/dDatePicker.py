@@ -2,12 +2,26 @@
 """
 @note: Color setting doesn't work for this control. It's a wx issue.
 """
+# TODO: get "SystemError: NULL result without error in PyObject_Call"  on this one wait for Robin
+from six import string_types as sixBasestring
 import datetime
 import wx
+
 import dabo
+
 if __name__ == "__main__":
 	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
+if dabo.ui.phoenix:
+	import wx.adv
+	dpc = wx.adv
+else:
+	dpc = wx
+
 import dDataControlMixin as dcm
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
@@ -41,7 +55,7 @@ def dateTimeWx2Py(date):
 	return retVal
 
 
-class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
+class dDatePicker(dcm.dDataControlMixin, dpc.DatePickerCtrl):
 	"""
 	Creates a DatePicker control.
 	Control purpose is to maintain Date field types, but it can
@@ -55,17 +69,20 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 		self._timePart = [0, 0, 0, 0]
 		self._lastWasNone = True
 		self._baseClass = dDatePicker
-		preClass = wx.PreDatePickerCtrl
+		if dabo.ui.phoenix:
+			preClass = wx.adv.DatePickerCtrl
+		else:
+			preClass = wx.PreDatePickerCtrl
 		pickerMode = self._extractKey((properties, attProperties, kwargs),
 				"PickerMode", "Dropdown")[:1].lower()
 		if pickerMode not in "ds":
 			pickerMode = "d"
 		kwargs["style"] = kwargs.get("style", 0) | \
-			 {"d": wx.DP_DROPDOWN, "s": wx.DP_SPIN}[pickerMode]
+			 {"d": dpc.DP_DROPDOWN, "s": dpc.DP_SPIN}[pickerMode]
 		if self._extractKey((properties, attProperties, kwargs), "AllowNullDate", False):
-			kwargs["style"] |= wx.DP_ALLOWNONE
+			kwargs["style"] |= dpc.DP_ALLOWNONE
 		if self._extractKey((properties, attProperties, kwargs), "ForceShowCentury", False):
-			kwargs["style"] |= wx.DP_SHOWCENTURY
+			kwargs["style"] |= dpc.DP_SHOWCENTURY
 		dcm.dDataControlMixin.__init__(self, preClass, parent,
 			properties, attProperties, *args, **kwargs)
 		self._bindKeys()
@@ -122,7 +139,7 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 
 	def setToMonthDay(self, day):
 		val = self.Value
-		if isinstance(day, basestring):
+		if isinstance(day, sixBasestring):
 			if day[:1].lower() == "f":
 				val = val.replace(day=1)
 			elif day[:1].lower() == "l":
@@ -138,7 +155,7 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 
 	def setToYearDay(self, day):
 		val = self.Value
-		if isinstance(day, basestring):
+		if isinstance(day, sixBasestring):
 			if day[:1].lower() == "f":
 				val = val.replace(month=1, day=1)
 			elif day[:1].lower() == "l":
@@ -170,7 +187,7 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 		elif key in (dabo.ui.dKeys.key_Delete, dabo.ui.dKeys.key_Back):
 			self.Value = None
 		else:
-			print key
+			print(key)
 
 	def _setCustomDate(self):
 		days = dabo.ui.getInt(
@@ -215,7 +232,7 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 		return val
 
 	def _getWxValue(self, val):
-		if isinstance(val, basestring):
+		if isinstance(val, sixBasestring):
 			val = datetime.datetime.strptime(val, "%Y-%m-%d")
 		elif isinstance(val, tuple):
 			val = datetime.datetime(*val)
@@ -248,7 +265,7 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 	def GetValue(self):
 		try:
 			val = dateTimeWx2Py(super(dDatePicker, self).GetValue())
-		except wx.PyAssertionError:
+		except dabo.ui.assertionException:
 			val = None
 		return self._getPyValue(val)
 
@@ -369,12 +386,12 @@ class dDatePicker(dcm.dDataControlMixin, wx.DatePickerCtrl):
 
 if __name__ == "__main__":
 	import datetime
-	import test
+	from . import test
 
 	class TestBase(dDatePicker):
 
 		def onValueChanged(self, evt):
-			print "onValueChanged"
+			print("onValueChanged")
 
-	test.Test().runTest(TestBase, AllowNullDate=True, Value=datetime.date(1970,12,03))
+	test.Test().runTest(TestBase, AllowNullDate=True, Value=datetime.date(1970, 12, 3))
 	test.Test().runTest(TestBase, BackColor="orange", PickerMode="Spin", AllowNullDate=True)

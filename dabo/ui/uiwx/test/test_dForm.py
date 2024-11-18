@@ -69,7 +69,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		frm = self.frm
 		biz = frm.getBizobj()
 		self.assertEqual(frm.cField.Value, "Paul Keith McNett")
-		frm.next()
+		next(frm)
 		frm.update(interval=0)  ## Need to force the update here which would otherwise happen 100 ms in the future.
 		self.assertEqual(biz.RowNumber, 1)
 		self.assertEqual(frm.cField.Value, "Edward Leafe")

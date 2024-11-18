@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 import dabo
-from dabo.ui import makeDynamicProperty
-if __name__ == "__main__":
-	dabo.ui.loadUI("wx")
 
+if __name__ == "__main__":
+	import dabo.ui
+	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
+
+from dabo.ui import makeDynamicProperty
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dPemMixin import dPemMixin as PM
@@ -108,12 +113,12 @@ class _dTimer_test(dPanel.dPanel):
 		self.slowTimer.start()
 
 	def onFastTimerHit(self, evt):
-		print "fast timer fired!"
+		print("fast timer fired!")
 
 	def onSlowTimerHit(self, evt):
-		print "slow timer fired!"
+		print("slow timer fired!")
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dTimer_test)

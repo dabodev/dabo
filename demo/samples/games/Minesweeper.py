@@ -15,7 +15,8 @@ back to a blank square (ready to clear).
 
 You win when all squares are either flagged as mines or cleared.
 """
-
+from six import integer_types as sixInt
+from six import string_types as sixBasestring
 import datetime
 import random
 import dabo.db
@@ -636,7 +637,7 @@ class MinesweeperForm(dabo.ui.dForm):
 		their default value.
 		"""
 		pfm = self.Application.PreferenceManager
-		if not isinstance(pfm.preset.mines, (int, long)):
+		if not isinstance(pfm.preset.mines, (sixInt)):
 			# First time through; initialize the default values.
 			pfm.deleteAllPrefs()
 			pfm.preset.mines = 0
@@ -833,7 +834,7 @@ this to work."""
 				vs.append1x(hs)
 
 				playername = self.Application.PreferenceManager.playername
-				if isinstance(playername, basestring):
+				if isinstance(playername, sixBasestring):
 					self.txtName.Value = playername
 				else:
 					self.txtName.Value = ""

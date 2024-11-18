@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
+# TODO: dToolbarItem doesn't find/have 'bindEvent'
+from six import integer_types as sixInt
+from six import string_types as sixBasestring
 import os.path
 import wx
-import dabo, dabo.ui
+import dabo
+
 if __name__ == "__main__":
+	import dabo.ui
 	dabo.ui.loadUI("wx")
+	if __package__ is None:
+		import dabo.ui.uiwx
+		__package__ = "dabo.ui.uiwx"
 
 import dControlMixin as cm
 import dMenu
@@ -13,7 +21,7 @@ from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
 
 
-class dToolBar(cm.dControlMixin, wx.ToolBar):
+class dToolBar(wx.ToolBar, cm.dControlMixin):
 	"""
 	Creates a toolbar, which is a menu-like collection of icons.
 
@@ -27,7 +35,10 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dToolBar
 		self._toolbarItemClass = dToolBarItem
-		preClass = wx.PreToolBar
+		if dabo.ui.phoenix:
+			preClass = wx.ToolBar
+		else:
+			preClass = wx.PreToolBar
 
 		style = self._extractKey((kwargs, properties, attProperties), "style", 0)
 		# Note: need to set the TB_TEXT flag, in order for that to be toggleable
@@ -70,7 +81,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		"""
 		try:
 			self.Realize()
-		except wx._core.PyAssertionError:
+		except dabo.ui.assertionException:
 			# Only happens on the Mac
 			pass
 
@@ -146,7 +157,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 	def _appendInsertButton(self, pos, caption, pic, toggle, tip, help,
 			*args, **kwargs):
 		"""Common code for the append|insert|prependButton() functions."""
-		if isinstance(pic, basestring):
+		if isinstance(pic, sixBasestring):
 			# path was passed
 			picBmp = dabo.ui.strToBmp(pic)
 		else:
@@ -172,8 +183,13 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		id_ = wx.NewId()
 		if pos is None:
 			# append
-			tool = self.DoAddTool(id_, caption, picBmp, shortHelp=tip, longHelp=help,
-					kind=kind)
+			if dabo.ui.phoenix:
+				tool = self.AddTool(id_, caption, picBmp, bmpDisabled=wx.NullBitmap,
+				                    kind=kind,
+				                    shortHelpString=tip, longHelpString=help)
+			else:
+				tool = self.DoAddTool(id_, caption, picBmp, shortHelp=tip, longHelp=help,
+				        kind=kind)
 		else:
 			# insert
 			tool = self.InsertTool(pos, id_, caption, picBmp, shortHelpString=tip,
@@ -181,12 +197,12 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		tbiClass = self.ToolbarItemClass
 		butt = tbiClass(tool, *args, **kwargs)
 
-		try:
-			self.SetToggle(id_, toggle)
-		except wx._core.PyAssertionError:
-			## The AssertionError: not implemented occurs on wxMac, even though
-			## SetToggle() obviously is implemented, because it does work.
-			pass
+		#try:
+			#self.SetToggle(id_, toggle)
+		#except dabo.ui.assertionException:
+			### The AssertionError: not implemented occurs on wxMac, even though
+			### SetToggle() obviously is implemented, because it does work.
+			#pass
 		self._realize()
 
 		# Store the button reference
@@ -261,7 +277,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		the item is deleted as well. If release is False, a reference to the  object
 		will be returned, and the caller is responsible for deleting it.
 		"""
-		if isinstance(idxOrItem, (int, long)):
+		if isinstance(idxOrItem, (sixInt)):
 			idx = idxOrItem
 			itm = self.Children[idx]
 		else:
@@ -520,7 +536,7 @@ class dToolBarItem(dObject):
 
 
 	def __updateDynamicProps(self):
-		for prop, func in self._dynamic.items():
+		for prop, func in list(self._dynamic.items()):
 			if isinstance(func, tuple):
 				args = func[1:]
 				func = func[0]
@@ -660,5 +676,5 @@ class _dToolBar_test(dToolBar):
 
 
 if __name__ == "__main__":
-	import test
+	from . import test
 	test.Test().runTest(_dToolBar_test)

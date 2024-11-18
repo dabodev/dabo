@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from six import string_types as sixBasestring
 import re
 import random
 
@@ -163,12 +164,12 @@ colorDict = {"aliceblue" : (240, 248, 255),
 		"yellowgreen" : (154, 205, 50)
 		}
 
-colors = colorDict.keys()
+colors = list(colorDict.keys())
 colors.sort()
 
 
 def hexToDec(hx):
-	if not isinstance(hx, basestring):
+	if not isinstance(hx, sixBasestring):
 		raise TypeError("Input must be a string")
 	# Define a dict of char-value pairs
 	hex = {"0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8,
@@ -255,12 +256,12 @@ def colorTupleFromString(color):
 
 def randomColor():
 	"""Returns a random color tuple"""
-	return colorDict[random.choice(colorDict.keys())]
+	return colorDict[random.choice(list(colorDict.keys()))]
 
 
 def randomColorName():
 	"""Returns a random color name"""
-	return random.choice(colorDict.keys())
+	return random.choice(list(colorDict.keys()))
 
 
 def colorNameFromTuple(colorTuple, firstOnly=False):
@@ -269,7 +270,7 @@ def colorNameFromTuple(colorTuple, firstOnly=False):
 	will be returned as a string, not a list; the string will be empty
 	if there is no match.
 	"""
-	ret = [nm for nm, tup in colorDict.items()
+	ret = [nm for nm, tup in list(colorDict.items())
 			if tup == colorTuple]
 	if firstOnly:
 		try:

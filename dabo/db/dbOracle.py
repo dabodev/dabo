@@ -4,10 +4,11 @@
 # The used python database module for Oracle (cx_oracle) currently doesn't support unicode.
 # So we keep this as a reference for further development only
 #
+from six import text_type as sixUnicode
 
 import datetime
 from dabo.dLocalize import _
-from dBackend import dBackend
+from .dBackend import dBackend
 from dabo.lib.utils import ustr
 
 
@@ -49,7 +50,7 @@ class Oracle(dBackend):
 
 	def processFields(self, txt):
 		# this was used for testing only
-		if isinstance(txt, unicode):
+		if isinstance(txt, sixUnicode):
 			txt = ustr(txt)
 		return txt
 
@@ -79,7 +80,7 @@ class Oracle(dBackend):
 
 	def getFields(self, tableName, cursor):
 		# get PK
-		print "dbOracle.getFields(): ", tableName
+		print("dbOracle.getFields(): ", tableName)
 		sqlstr = """SELECT cols.column_name FROM all_constraints cons, all_cons_columns cols
 				WHERE cols.table_name = '%s' AND cons.constraint_type = 'P'
 				AND cons.constraint_name = cols.constraint_name AND cons.owner = cols.owner
@@ -114,8 +115,8 @@ class Oracle(dBackend):
 			elif ftype == "TIMESTAMP(6)":
 				ft = "T"
 			else:
-				print r
-				print "unknown ftype: ", ftype
+				print(r)
+				print("unknown ftype: ", ftype)
 				ft = "?"
 			if pkField is None:
 				# No pk defined for the table

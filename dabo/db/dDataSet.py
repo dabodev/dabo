@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+import six
+if six.PY2:
+	sixLong = long
+else:
+	sixLong = int
+from six import text_type as sixUnicode
+from six import string_types as sixBasestring
 import sys
 import re
 import operator
@@ -62,8 +69,8 @@ class dDataSet(tuple):
 		# Register the converters
 		sqlite.register_converter("decimal", self._convert_decimal)
 
-		self._typeDict = {int: "integer", long: "integer", str: "text",
-				unicode: "text", float: "real", datetime.date: "date",
+		self._typeDict = {int: "integer", sixLong: "integer", str: "text",
+				sixUnicode: "text", float: "real", datetime.date: "date",
 				datetime.datetime: "timestamp", Decimal: "decimal"}
 
 
@@ -117,7 +124,7 @@ class dDataSet(tuple):
 			scope = self._fldReplace(scope, "rec")
 
 		literal = True
-		if isinstance(valOrExpr, basestring):
+		if isinstance(valOrExpr, sixBasestring):
 			if valOrExpr.strip()[0] == "=":
 				literal = False
 				valOrExpr = valOrExpr.replace("=", "", 1)
@@ -384,7 +391,7 @@ class dDataSet(tuple):
 # 		print "POPULATED", pt-st
 		# Now create any of the tables for the join dDataSets
 		if cursorDict is not None:
-			for alias, ds in cursorDict.items():
+			for alias, ds in list(cursorDict.items()):
 				self._populate(ds, alias)
 
 		# We have a table now with the necessary data. Run the query!
@@ -509,7 +516,7 @@ class dDataSet(tuple):
 #
 #
 # 	def processFields(self, fields, aliasDict):
-# 		if isinstance(fields, basestring):
+# 		if isinstance(fields, sixBasestring):
 # 			fields = fields.split(",")
 # 		for num, fld in enumerate(fields):
 # 			fld = fld.replace(" AS ", " as ").replace(" As ", " as ").strip()
@@ -541,7 +548,7 @@ class dDataSet(tuple):
 # 		if where is None:
 # 			whereClause = ""
 # 		else:
-# 			if isinstance(where, basestring):
+# 			if isinstance(where, sixBasestring):
 # 				where = [where]
 # 			for wh in where:
 # 				whereList.append(self._fldReplace(wh))
@@ -707,7 +714,7 @@ class dDataSet(tuple):
 # 			tmpLeftCond = "%s['%s']" % tuple(tmpLeftCond.split("."))
 # 			leftVal = eval(tmpLeftCond)
 #
-# 			if isinstance(leftVal, basestring):
+# 			if isinstance(leftVal, sixBasestring):
 # 				leftVal = "'%s'" % leftVal
 # 			rightWhere = rightCond.replace(rightAlias + ".", "") + "== %s" % leftVal
 # 			rightRecs = rightDS.select(fields=rightFields, where=rightWhere)
@@ -736,22 +743,22 @@ if __name__ == "__main__":
 	ds = dDataSet(data)
 
 	newDS = ds.execute("select name, age from dataset where age > 30")
-	print "Over 30:"
+	print("Over 30:")
 	for rec in newDS:
-		print "\tName: %(name)s, Age: %(age)s" % rec
+		print("\tName: %(name)s, Age: %(age)s" % rec)
 
 	emptyDS = ds.filter("age", 99, "gt")
 	if not emptyDS:
-		print "No one is over 99 years old"
+		print("No one is over 99 years old")
 	else:
-		print "There are %s people over 99 years old" % len(emptyDS)
+		print("There are %s people over 99 years old" % len(emptyDS))
 	filt = emptyDS.filter("foo", "bar")
 
 	leafeDS = ds.filter("name", "Leafe", "endswith")
 	if not leafeDS:
-		print "No one is is named 'Leafe'"
+		print("No one is is named 'Leafe'")
 	else:
-		print "There are %s people named 'Leafe'" % len(leafeDS)
+		print("There are %s people named 'Leafe'" % len(leafeDS))
 	orig = leafeDS.removeFilters()
-	print "The original dataset has %s records." % len(orig)
+	print("The original dataset has %s records." % len(orig))
 

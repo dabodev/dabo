@@ -2,6 +2,7 @@
 """These are routines that are used to work with Class Designer code that has
 been separated from the design.
 """
+from six import string_types as sixBasestring
 import re
 import copy
 
@@ -284,7 +285,7 @@ def getDefaultSizerProps(cls, szType):
 	typ = szType[0].upper()
 	defaults = _sizerDefaults.get(cls, {})
 	ret = defaults.get(typ, {})
-	if not ret and isinstance(cls, basestring):
+	if not ret and isinstance(cls, sixBasestring):
 		# Sometimes the Class Designer mangles names so that they are unique
 		# E.g., 'dTextBox' becomes 'dTextBox_323432'
 		splitname = cls.split("_")
