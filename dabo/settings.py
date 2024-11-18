@@ -253,7 +253,7 @@ localizeDabo = True
 convertFloatToDecimal = True
 
 # Root path of the dabo module
-root_path = Path(self.__file__).parent
+root_path = Path(__file__).parent
 
 ### Settings - end
 

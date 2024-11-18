@@ -7,7 +7,7 @@ import os
 import sys
 import warnings
 
-import settings
+from . import settings
 
 
 _defaultLanguage, _defaultEncoding = locale.getdefaultlocale()
