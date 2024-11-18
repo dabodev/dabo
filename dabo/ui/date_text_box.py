@@ -3,13 +3,9 @@ import datetime
 
 import wx
 
-import ui as dui
-import dEvents
-from dLocalize import _
-from ui import dTextBox
-from ui import dPanel
-from ui import dButton
-from ui import makeDynamicProperty
+from . import ui
+from .ui import events
+from .dLocalize import _
 # import firstDayOfWeek
 # import log
 
@@ -18,7 +14,7 @@ from ui import makeDynamicProperty
 # locale.setlocale(locale.LC_CTYPE , 'UTF8')
 
 
-class CalPanel(dPanel):
+class CalPanel(ui.dPanel):
     def __init__(self, parent, pos=(0, 0), dt=None, ctrl=None, extended=False):
         if isinstance(dt, (datetime.datetime, datetime.date)):
             self.date = dt
@@ -33,11 +29,11 @@ class CalPanel(dPanel):
         Create the calendar control, and resize this panel
         to the calendar's size.
         """
-        calClass = {True: dui.dExtendedCalendar, False: dui.dCalendar}[self.extended]
+        calClass = {True: ui.dExtendedCalendar, False: ui.dCalendar}[self.extended]
         self.cal = calClass(self, Position=(6, 5), FirstDayOfWeek=firstDayOfWeek)
         self.cal.Date = self.date
-        self.cal.bindEvent(dEvents.Hit, self.onCalSelection)
-        self.cal.bindEvent(dEvents.KeyChar, self.onCalKey)
+        self.cal.bindEvent(events.Hit, self.onCalSelection)
+        self.cal.bindEvent(events.KeyChar, self.onCalKey)
         wd, ht = self.cal.Size
         self.Size = (wd + 10, ht + 10)
         self.BackColor = (192, 192, 0)
@@ -58,7 +54,7 @@ class CalPanel(dPanel):
             self.Form.hide()
 
 
-class dDateTextBox(dTextBox):
+class dDateTextBox(ui.dTextBox):
     """
     This is a specialized textbox class designed to work with date values.
     It provides handy shortcut keystrokes so that users can quickly navigate
@@ -96,14 +92,14 @@ class dDateTextBox(dTextBox):
             self.Value = None  ## If it is still blank, default to None so the control works correctly
         if self.showCalButton:
             # Create a button that will display the calendar
-            self.calButton = dButton(
+            self.calButton = ui.dButton(
                 self.Parent,
                 Size=(self.Height, self.Height),
                 Right=self.Right,
                 Caption="V",
             )
             self.calButton.Visible = True
-            self.calButton.bindEvent(dEvents.Hit, __onBtnClick)
+            self.calButton.bindEvent(events.Hit, __onBtnClick)
 
         # Tooltip help
         self._defaultToolTipText = _(
@@ -130,9 +126,9 @@ C: Popup Calendar to Select
 
     def _initEvents(self):
         super(dDateTextBox, self)._initEvents()
-        self.bindEvent(dEvents.KeyChar, self.__onChar)
-        self.bindEvent(dEvents.LostFocus, self.__onLostFocus)
-        self.bindEvent(dEvents.MouseLeftDoubleClick, self.__onDblClick)
+        self.bindEvent(events.KeyChar, self.__onChar)
+        self.bindEvent(events.LostFocus, self.__onLostFocus)
+        self.bindEvent(events.MouseLeftDoubleClick, self.__onDblClick)
 
     def __onDblClick(self, evt):
         """Display a calendar to allow users to select dates."""

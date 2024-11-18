@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import ui as dui
-from dObject import dObject
-from dLocalize import _
-from lib.utils import ustr
-from ui import makeDynamicProperty
-import dEvents
+from .dObject import dObject
+from .dLocalize import _
+from .lib.utils import ustr
+from .ui import makeDynamicProperty
+from .ui import events
 
 # import log
 # import defaultFontSize
@@ -31,7 +30,7 @@ class dFont(dObject):
         super(dFont, self).__init__(properties=properties, *args, **kwargs)
 
     def _propsChanged(self):
-        self.raiseEvent(dEvents.FontPropertiesChanged)
+        self.raiseEvent(events.FontPropertiesChanged)
 
     def _getBold(self):
         if self._nativeFont:
@@ -61,7 +60,7 @@ class dFont(dObject):
     def _setFace(self, val):
         if not val:
             return
-        availableFonts = dui.getAvailableFonts()
+        availableFonts = ui.getAvailableFonts()
 
         def trySetFont(val):
             if val in availableFonts:
@@ -95,9 +94,7 @@ class dFont(dObject):
             if not automatic_face:
                 if not lowVal.startswith("ms shell dlg"):
                     # Ignore the non-existent MS Shell Dlg font names; they are Windows aliases
-                    log.error(
-                        _("The font '%s' doesn't exist on this system.") % val
-                    )
+                    log.error(_("The font '%s' doesn't exist on this system.") % val)
 
         self._propsChanged()
 

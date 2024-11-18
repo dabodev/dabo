@@ -2,9 +2,9 @@
 import string
 import types
 import traceback
-import dabo
-from dabo.dLocalize import _
-from dabo import dEvents as dEvents
+
+from .dLocalize import _
+from .ui import events
 
 
 class EventMixin(object):
@@ -32,7 +32,7 @@ class EventMixin(object):
         """
         Send the event to all registered listeners.
 
-        If uiEvent is sent, dEvents.Event will be able to parse it for useful
+        If uiEvent is sent, events.Event will be able to parse it for useful
         information to send along to the callback.
 
         Additional arguments, if any, are sent along to the constructor    of the
@@ -42,7 +42,7 @@ class EventMixin(object):
         event.EventData dictionary property.
 
         In most cases, user code should call raiseEvent() with
-        the event class (dEvents.Hit, for example) as the only parameter.
+        the event class (events.Hit, for example) as the only parameter.
         """
 
         # Instantiate the event, no matter if there aren't any bindings: the event
@@ -234,7 +234,7 @@ class EventMixin(object):
                 if len(parsedRegID) > 0:
                     # This function name has a RegID attached, but self doesn't
                     continue
-            if parsedEvtName not in dir(dEvents):
+            if parsedEvtName not in dir(events):
                 # The function's event name isn't recognized
                 continue
 
@@ -257,7 +257,7 @@ class EventMixin(object):
                         pass
 
             if type(funcObj) in (types.FunctionType, types.MethodType):
-                evtObj = dEvents.__dict__[parsedEvtName]
+                evtObj = events.__dict__[parsedEvtName]
                 funcObj = eval(
                     "context.%s" % funcName
                 )  ## (can't use __class__.dict...)
@@ -286,9 +286,9 @@ class EventMixin(object):
             classRef = cls.__class__
 
         validEvents = []
-        events = [dEvents.__dict__[evt] for evt in dir(dEvents)]
+        events = [events.__dict__[evt] for evt in dir(events)]
         for evt in events:
-            if type(evt) == type and issubclass(evt, dEvents.dEvent):
+            if type(evt) == type and issubclass(evt, events.dEvent):
                 if evt.appliesToClass(classRef):
                     validEvents.append(evt)
         return validEvents

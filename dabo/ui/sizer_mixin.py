@@ -803,12 +803,8 @@ class dSizerMixin(dObject):
             # Use the halign and valign values
             alignFlags = (halign, valign)
 
-        isVertSizer = (
-            isinstance(self, ui.dSizer) and self.Orientation == "Vertical"
-        )
-        isHorizSizer = (
-            isinstance(self, ui.dSizer) and self.Orientation == "Horizontal"
-        )
+        isVertSizer = isinstance(self, ui.dSizer) and self.Orientation == "Vertical"
+        isHorizSizer = isinstance(self, ui.dSizer) and self.Orientation == "Horizontal"
         for flag in [flag.lower() for flag in alignFlags]:
             if flag == "left":
                 if not expand and not isHorizSizer:

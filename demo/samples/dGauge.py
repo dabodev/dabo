@@ -10,9 +10,8 @@ from dabo.ui import dLabel
 from dabo.ui import dPanel
 from dabo.ui import dSizer
 from dabo.ui import dBorderSizer
+
 dGauge = dabo.ui.dGauge
-
-
 
 
 class TestPanel(dPanel):
@@ -22,8 +21,7 @@ class TestPanel(dPanel):
 
         bsz = dBorderSizer(self, "v", Caption="Horizontal Gauge")
         self.gaugeH = dGauge(self)
-        bsz.append(self.gaugeH, "x", border=30,
-                borderSides=("Left", "Right"))
+        bsz.append(self.gaugeH, "x", border=30, borderSides=("Left", "Right"))
 
         self.lblH = dLabel(self)
         bsz.append(self.lblH, halign="center")
@@ -32,7 +30,9 @@ class TestPanel(dPanel):
 
         hsz = dBorderSizer(self, "h", Caption="Vertical Gauge")
         self.gaugeV = dGauge(self, Orientation="v")
-        hsz.append(self.gaugeV, "x", border=30, borderSides=("Left", "Right"), halign="center")
+        hsz.append(
+            self.gaugeV, "x", border=30, borderSides=("Left", "Right"), halign="center"
+        )
         hsz.appendSpacer(10)
 
         self.lblV = dLabel(self)
@@ -43,10 +43,9 @@ class TestPanel(dPanel):
         self.update()
         self.layout()
 
-
     @dabo.ui.deadCheck
     def updateGauges(self):
-        increase = random.randrange(3,10)
+        increase = random.randrange(3, 10)
         gh = self.gaugeH
         val = gh.Value + increase
         if val > gh.Range:
@@ -54,7 +53,7 @@ class TestPanel(dPanel):
         gh.Value = val
         self.lblH.Caption = "%s%% complete" % int(gh.Percentage)
 
-        increase = random.randrange(3,10)
+        increase = random.randrange(3, 10)
         gv = self.gaugeV
         val = gv.Value + increase
         if val > gv.Range:
@@ -62,7 +61,6 @@ class TestPanel(dPanel):
         gv.Value = val
         self.lblV.Caption = "%s%% complete" % int(gv.Percentage)
         self.layout()
-
 
     def onDestroy(self, evt):
         self.tmr.stop()
@@ -91,4 +89,3 @@ if __name__ == "__main__":
     frm.Sizer.append1x(pan)
     frm.show()
     app.start()
-

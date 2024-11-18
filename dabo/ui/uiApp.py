@@ -5,33 +5,32 @@ import sys
 import time
 
 import wx
-import dabo
-from dabo import ui as ui
-from dabo import dColors as dColors
-from dabo import dEvents as dEvents
-from dabo.lib import utils as utils
-from dabo.dObject import dObject
-from dabo.dLocalize import _, n_
-from dabo.lib.utils import cleanMenuCaption
-from dabo import dConstants as kons
+
+from . import dConstants as kons
+from . import dColors
+from . import ui
+from .ui import events
+from .lib import utils
+from .dObject import dObject
+from .dLocalize import _, n_
+from .lib.utils import cleanMenuCaption
+# import frameworkPath
+# import loadUserLocale
+# import log
 
 
 class SplashScreen(wx.Frame):
     """
-    This is a specialized form that is meant to be used as a startup
-    splash screen. It takes an image file, bitmap, icon, etc., which is used
-    to size and shape the form. If you specify a mask color, that color
-    will be masked in the bitmap to appear transparent, and will affect the
-    shape of the form.
+    This is a specialized form that is meant to be used as a startup splash screen. It takes an image file, bitmap,
+    icon, etc., which is used to size and shape the form. If you specify a mask color, that color will be masked in the
+    bitmap to appear transparent, and will affect the shape of the form.
 
-    You may also pass a 'timeout' value; this is in milliseconds, and determines
-    how long until the splash screen automatically closes. If you pass zero
-    (or don't pass anything), the screen will remain visible until the user
+    You may also pass a 'timeout' value; this is in milliseconds, and determines how long until the splash screen
+    automatically closes. If you pass zero (or don't pass anything), the screen will remain visible until the user
     clicks on it.
 
-    Many thanks to Andrea Gavana, whose 'AdvancedSplash' class was a
-    huge inspiration (and source of code!) for this Dabo class. I also borrowed
-    some ideas/code from the wxPython demo by Robin Dunn.
+    Many thanks to Andrea Gavana, whose 'AdvancedSplash' class was a huge inspiration (and source of code!) for this
+    Dabo class. I also borrowed some ideas/code from the wxPython demo by Robin Dunn.
     """
 
     def __init__(self, bitmap=None, maskColor=None, timeout=0):
@@ -41,7 +40,7 @@ class SplashScreen(wx.Frame):
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         if isinstance(bitmap, str):
             # Convert it
-            self._bmp = dabo.ui.pathToBmp(bitmap)
+            self._bmp = ui.pathToBmp(bitmap)
         else:
             self._bmp = bitmap
 
@@ -134,7 +133,7 @@ class uiApp(dObject, wx.App):
             self._platform = _("Mac")
         elif wx.PlatformInfo[0] == "__WXMSW__":
             self._platform = _("Win")
-        dabo.log.info(txt)
+        log.info(txt)
         self.Bind(wx.EVT_ACTIVATE_APP, self._onWxActivate)
         self.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
         self.Bind(wx.EVT_KEY_UP, self._onWxKeyUp)
@@ -190,7 +189,7 @@ class uiApp(dObject, wx.App):
         app = self.dApp
 
         # Set User locale here using wx, rather than in dApp using locale.
-        if dabo.loadUserLocale:
+        if loadUserLocale:
             # the wx.Locale object will revert its locale changes when its destroyed
             # So keep a handle on it for the lifespan of the uiApp.
             self._locale_handle = wx.Locale(wx.LANGUAGE_DEFAULT)
@@ -221,7 +220,7 @@ class uiApp(dObject, wx.App):
         if isinstance(checkResult, Exception):
             ### 2014-10-04, Koczian, using ustr to avoid crash
             check_uni = utils.ustr(checkResult)
-            dabo.ui.stop(
+            ui.stop(
                 _("There was an error encountered when checking Web Update: %s")
                 % check_uni,
                 _("Web Update Problem"),
@@ -278,7 +277,7 @@ these automatic updates."""
 
         if msg:
 
-            class WebUpdateConfirmDialog(dabo.ui.dYesNoDialog):
+            class WebUpdateConfirmDialog(ui.dYesNoDialog):
                 def initProperties(self):
                     self.Caption = "Updates Available"
                     self.AutoSize = False
@@ -286,7 +285,7 @@ these automatic updates."""
                     self.Width = 500
 
                 def addControls(self):
-                    headline = dabo.ui.dLabel(
+                    headline = ui.dLabel(
                         self,
                         Caption=msg,
                         FontSize=12,
@@ -302,10 +301,10 @@ these automatic updates."""
                         border=12,
                     )
                     self.Sizer.appendSpacer(12)
-                    edtNotes = dabo.ui.dEditBox(self, Value=noteText)
+                    edtNotes = ui.dEditBox(self, Value=noteText)
                     self.Sizer.append(edtNotes, 2, "x")
                     self.Sizer.appendSpacer(12)
-                    grd = dabo.ui.dGrid(self, ColumnCount=3)
+                    grd = ui.dGrid(self, ColumnCount=3)
                     col0, col1, col2 = grd.Columns
                     col0.DataField = "mod"
                     col1.DataField = "project"
@@ -329,8 +328,8 @@ these automatic updates."""
                 try:
                     success = self.dApp._updateFramework()
                 except IOError as e:
-                    dabo.log.error(_("Cannot update files; Error: %s") % e)
-                    dabo.ui.info(
+                    log.error(_("Cannot update files; Error: %s") % e)
+                    ui.info(
                         _(
                             "You do not have permission to update the necessary files. "
                             "Please re-run the app with administrator privileges."
@@ -342,7 +341,7 @@ these automatic updates."""
 
                 if success is None:
                     # Update was not successful
-                    dabo.ui.info(
+                    ui.info(
                         _(
                             "There was a problem getting a response from the Dabo site. "
                             "Please check your internet connection and try again later."
@@ -353,10 +352,10 @@ these automatic updates."""
                     self.dApp._resetWebUpdateCheck()
                 elif isinstance(success, str):
                     # Error message was returned
-                    dabo.ui.stop(success, title=_("Update Failure"))
+                    ui.stop(success, title=_("Update Failure"))
                 elif success is False:
                     # There were no changed files available.
-                    dabo.ui.info(
+                    ui.info(
                         _(
                             "There were no changed files available - your system is up-to-date!"
                         ),
@@ -364,7 +363,7 @@ these automatic updates."""
                     )
                     answer = False
                 else:
-                    dabo.ui.info(
+                    ui.info(
                         _(
                             "Dabo has been updated to the current master version. The app "
                             "will now exit. Please re-run the application."
@@ -380,24 +379,24 @@ these automatic updates."""
         if loc_demo and loc_ide:
             return
 
-        class PathDialog(dabo.ui.dOkCancelDialog):
+        class PathDialog(ui.dOkCancelDialog):
             def initProperties(self):
                 self.Caption = _("Dabo Project Locations")
 
             def addControls(self):
-                gsz = dabo.ui.dGridSizer(MaxCols=3)
-                lbl = dabo.ui.dLabel(self, Caption=_("IDE Directory:"))
-                txt = dabo.ui.dTextBox(
+                gsz = ui.dGridSizer(MaxCols=3)
+                lbl = ui.dLabel(self, Caption=_("IDE Directory:"))
+                txt = ui.dTextBox(
                     self, Enabled=False, Value=loc_ide, RegID="txtIDE", Width=200
                 )
-                btn = dabo.ui.dButton(self, Caption="...", OnHit=self.onGetIdeDir)
+                btn = ui.dButton(self, Caption="...", OnHit=self.onGetIdeDir)
                 gsz.appendItems((lbl, txt, btn), border=5)
                 gsz.appendSpacer(10, colSpan=3)
-                lbl = dabo.ui.dLabel(self, Caption=_("Demo Directory:"))
-                txt = dabo.ui.dTextBox(
+                lbl = ui.dLabel(self, Caption=_("Demo Directory:"))
+                txt = ui.dTextBox(
                     self, Enabled=False, Value=loc_demo, RegID="txtDemo", Width=200
                 )
-                btn = dabo.ui.dButton(self, Caption="...", OnHit=self.onGetDemoDir)
+                btn = ui.dButton(self, Caption="...", OnHit=self.onGetDemoDir)
                 gsz.appendItems((lbl, txt, btn), border=5)
                 gsz.setColExpand(True, 1)
                 self.Sizer.append(gsz, halign="center", border=10)
@@ -406,8 +405,8 @@ these automatic updates."""
             def onGetIdeDir(self, evt):
                 default = loc_ide
                 if default is None:
-                    default = dabo.frameworkPath
-                f = dabo.ui.getDirectory(
+                    default = frameworkPath
+                f = ui.getDirectory(
                     _("Select the location of the IDE folder"), defaultPath=default
                 )
                 if f:
@@ -416,8 +415,8 @@ these automatic updates."""
             def onGetDemoDir(self, evt):
                 default = loc_demo
                 if default is None:
-                    default = dabo.frameworkPath
-                f = dabo.ui.getDirectory(
+                    default = frameworkPath
+                f = ui.getDirectory(
                     _("Select the location of the Demo folder"), defaultPath=default
                 )
                 if f:
@@ -432,9 +431,7 @@ these automatic updates."""
 
     def displayInfoMessage(self, msg, defaultShowInFuture=True):
         """Display a dialog to the user that includes an option to not show the message again."""
-        dlg = dabo.ui.DlgInfoMessage(
-            Message=msg, DefaultShowInFuture=defaultShowInFuture
-        )
+        dlg = ui.DlgInfoMessage(Message=msg, DefaultShowInFuture=defaultShowInFuture)
         dlg.show()
         ret = dlg.chkShowInFuture.Value
         dlg.release()
@@ -492,7 +489,7 @@ these automatic updates."""
                 mfc = self.dApp.MainFormClass
                 if isinstance(mfc, str):
                     # It is a path to .cdxml file
-                    frm = self.dApp.MainForm = dabo.ui.createForm(mfc)
+                    frm = self.dApp.MainForm = ui.createForm(mfc)
                 else:
                     frm = self.dApp.MainForm = mfc()
 
@@ -517,9 +514,9 @@ these automatic updates."""
     def start(self):
         # Manually raise Activate, as wx doesn't do that automatically
         try:
-            self.dApp.MainForm.raiseEvent(dEvents.Activate)
+            self.dApp.MainForm.raiseEvent(events.Activate)
         except AttributeError:
-            self.raiseEvent(dEvents.Activate)
+            self.raiseEvent(events.Activate)
 
         self.MainLoop()
 
@@ -530,7 +527,7 @@ these automatic updates."""
 
     def finish(self):
         # Manually raise Deactivate, as wx doesn't do that automatically
-        self.raiseEvent(dEvents.Deactivate)
+        self.raiseEvent(events.Deactivate)
 
     def _getPlatform(self):
         return self._platform
@@ -550,21 +547,21 @@ these automatic updates."""
     def _onWxActivate(self, evt):
         """Raise the Dabo Activate or Deactivate appropriately."""
         if bool(evt.GetActive()):
-            self.dApp.raiseEvent(dEvents.Activate, evt)
+            self.dApp.raiseEvent(events.Activate, evt)
         else:
-            self.dApp.raiseEvent(dEvents.Deactivate, evt)
+            self.dApp.raiseEvent(events.Deactivate, evt)
         evt.Skip()
 
     def _onWxKeyChar(self, evt):
-        self.dApp.raiseEvent(dEvents.KeyChar, evt)
+        self.dApp.raiseEvent(events.KeyChar, evt)
 
     def _onWxKeyDown(self, evt):
         if self._handleZoomKeyPress(evt):
             return
-        self.dApp.raiseEvent(dEvents.KeyDown, evt)
+        self.dApp.raiseEvent(events.KeyDown, evt)
 
     def _onWxKeyUp(self, evt):
-        self.dApp.raiseEvent(dEvents.KeyUp, evt)
+        self.dApp.raiseEvent(events.KeyUp, evt)
 
     def onCmdWin(self, evt):
         self.showCommandWindow(self.ActiveForm)
@@ -579,7 +576,7 @@ these automatic updates."""
         """Display a command window for debugging."""
         if context is None:
             context = self.ActiveForm
-        dlg = dabo.ui.dShellForm(context)
+        dlg = ui.dShellForm(context)
         dlg.show()
 
     def toggleDebugWindow(self, context=None):
@@ -587,11 +584,11 @@ these automatic updates."""
         if context is None:
             context = self.ActiveForm
 
-        class DebugWindow(dabo.ui.dToolForm):
+        class DebugWindow(ui.dToolForm):
             def afterInit(self):
                 self.Caption = _("Debug Output")
-                self.out = dabo.ui.dEditBox(self, ReadOnly=True)
-                self.out.bindEvent(dEvents.ContextMenu, self.onContext)
+                self.out = ui.dEditBox(self, ReadOnly=True)
+                self.out.bindEvent(events.ContextMenu, self.onContext)
                 self.Sizer.append1x(self.out)
                 self._txtlen = len(self.out.Value)
                 self.tmr = dTimer(self, Interval=500, OnHit=self.onOutValue)
@@ -638,10 +635,10 @@ these automatic updates."""
                 context = self.dApp.MainForm
         activeControl = context.ActiveControl
         if not self.inspectorWindow:
-            self.inspectorWindow = dabo.ui.InspectorFormClass(parent=context)
+            self.inspectorWindow = ui.InspectorFormClass(parent=context)
         insp = self.inspectorWindow
         insp.createObjectTree()
-        dabo.ui.callAfter(insp.setSelectedObject, activeControl, silent=True)
+        ui.callAfter(insp.setSelectedObject, activeControl, silent=True)
         insp.Visible = True
         insp.bringToFront()
         try:
@@ -853,7 +850,7 @@ these automatic updates."""
                     dlgPref = self.PreferenceDialogClass(af)
                     if af:
                         af._prefDialog = dlgPref
-                if isinstance(dlgPref, dabo.ui.PreferenceDialog):
+                if isinstance(dlgPref, ui.PreferenceDialog):
                     if af:
                         af.fillPreferenceDialog(dlgPref)
                     # Turn off AutoPersist for any of the dialog's preferenceKeys. Track those that
@@ -866,7 +863,7 @@ these automatic updates."""
 
                 dlgPref.show()
 
-                if isinstance(dlgPref, dabo.ui.PreferenceDialog):
+                if isinstance(dlgPref, ui.PreferenceDialog):
                     if dlgPref.Accepted:
                         if hasattr(dlgPref, "_onAcceptPref"):
                             dlgPref._onAcceptPref()
@@ -888,7 +885,7 @@ these automatic updates."""
                 except RuntimeError:
                     pass
             else:
-                dabo.log.info(_("Stub: dApp.onEditPreferences()"))
+                log.info(_("Stub: dApp.onEditPreferences()"))
 
     def onEditUndo(self, evt):
         if self.ActiveForm:
@@ -898,7 +895,7 @@ these automatic updates."""
                 try:
                     win.Undo()
                 except AttributeError:
-                    dabo.log.error(_("No apparent way to undo."))
+                    log.error(_("No apparent way to undo."))
 
     def onEditRedo(self, evt):
         if self.ActiveForm:
@@ -908,7 +905,7 @@ these automatic updates."""
                 try:
                     win.Redo()
                 except AttributeError:
-                    dabo.log.error(_("No apparent way to redo."))
+                    log.error(_("No apparent way to redo."))
 
     def onEditFindAlone(self, evt):
         self.onEditFind(evt, False)
@@ -1069,7 +1066,7 @@ these automatic updates."""
             msg = _("1 replacement was made")
         else:
             msg = _("%s replacements were made") % total
-        dabo.ui.info(msg, title=_("Replacement Complete"))
+        ui.info(msg, title=_("Replacement Complete"))
 
     def OnFind(self, evt, action="Find"):
         """
@@ -1122,7 +1119,7 @@ these automatic updates."""
                     win.showCurrentLine()
                 return ret
 
-            elif isinstance(win, dabo.ui.dGrid):
+            elif isinstance(win, ui.dGrid):
                 return win.findReplace(
                     action,
                     findString,
@@ -1138,7 +1135,7 @@ these automatic updates."""
                 except AttributeError:
                     value = None
                 if not isinstance(value, str):
-                    dabo.log.error(_("Active control isn't text-based."))
+                    log.error(_("Active control isn't text-based."))
                     return
 
                 if action == "Replace":
@@ -1173,7 +1170,7 @@ these automatic updates."""
                     win.SetSelection(selStart, selEnd)
                     win.ShowPosition(win.GetSelection()[1])
                 else:
-                    dabo.log.info(_("Not found"))
+                    log.info(_("Not found"))
                 return ret
 
     def addToMRU(self, menuOrCaption, prompt, bindfunc=None):
@@ -1203,7 +1200,7 @@ these automatic updates."""
         """
         cap = menu.Caption
         cleanCap = cleanMenuCaption(cap)
-        topLevel = isinstance(menu.Parent, dabo.ui.dMenuBar)
+        topLevel = isinstance(menu.Parent, ui.dMenuBar)
         mnPrm = self._mruMenuPrompts.get(cleanCap, [])
         if not mnPrm:
             return
@@ -1270,19 +1267,19 @@ these automatic updates."""
         try:
             pth = frm._sourceFilePath
         except AttributeError:
-            dabo.log.error(_("Only .cdxml forms can be re-loaded"))
+            log.error(_("Only .cdxml forms can be re-loaded"))
             return
         self.dApp.resyncFiles()
         frm.lockDisplay()
         # Store the old form's bizobj dict
         bizDict = frm.bizobjs
         bizPrimary = frm.PrimaryBizobj
-        newForm = dabo.ui.createForm(pth)
+        newForm = ui.createForm(pth)
         newForm.Position = frm.Position
         newForm.Size = frm.Size
         newForm.bizobjs = bizDict
         newForm.PrimaryBizobj = bizPrimary
-        dabo.ui.callAfter(frm.release)
+        ui.callAfter(frm.release)
         newForm.update()
         newForm.show()
 

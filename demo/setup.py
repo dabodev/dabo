@@ -10,21 +10,26 @@ import py2exe
 # Find the location of the dabo icons:
 iconDir = os.path.split(dabo.icons.__file__)[0]
 
-setup(name="DaboDemo",
-        description="Dabo UI demo program",
-        author="Ed Leafe",
-        options={"py2exe": {"packages": ["wx.gizmos", "wx.lib.masked",
-                    "wx.lib.calendar"],
-                "optimize": 2,
-                "excludes": ["kinterbasdb", "pymysql", "psycopg"],
-                "includes": ["Modules"]}
-                },
-        console = ["DaboDemo.py"],
-        data_files=[("media", glob.glob("media/*")),
-                ("icons", glob.glob(os.path.join(iconDir, "*.png"))),
-                ("icons", glob.glob(os.path.join(iconDir, "*.ico"))),
-                (".", ["DaboDemo.cdxml", "DaboDemo-code.py"]),
-                ("samples", glob.glob("samples/*py"))]
+setup(
+    name="DaboDemo",
+    description="Dabo UI demo program",
+    author="Ed Leafe",
+    options={
+        "py2exe": {
+            "packages": ["wx.gizmos", "wx.lib.masked", "wx.lib.calendar"],
+            "optimize": 2,
+            "excludes": ["kinterbasdb", "pymysql", "psycopg"],
+            "includes": ["Modules"],
+        }
+    },
+    console=["DaboDemo.py"],
+    data_files=[
+        ("media", glob.glob("media/*")),
+        ("icons", glob.glob(os.path.join(iconDir, "*.png"))),
+        ("icons", glob.glob(os.path.join(iconDir, "*.ico"))),
+        (".", ["DaboDemo.cdxml", "DaboDemo-code.py"]),
+        ("samples", glob.glob("samples/*py")),
+    ],
 )
 
 # To build, run:

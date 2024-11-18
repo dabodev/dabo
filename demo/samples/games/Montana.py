@@ -530,7 +530,7 @@ class MontanaForm(dForm):
         # Looking for the 'demo' directory
         while pth.as_posix() and pth.name != "demo":
             pth = pth.parent
-        card_type= "small" if self.PreferenceManager.smallDeck else "large"
+        card_type = "small" if self.PreferenceManager.smallDeck else "large"
         loc = pth / "media" / "cards" / card_type
         return loc.as_posix()
 
@@ -562,9 +562,7 @@ class MontanaForm(dForm):
             prf.persist()
             if prf.smallDeck != small:
                 msg = """You must quit and restart the game for the
-                        card size changes to take effect""".replace(
-                    "\t", ""
-                )
+                        card size changes to take effect""".replace("\t", "")
                 dabo.ui.info(msg, title="Card Size Changed")
         else:
             prf.flushCache()

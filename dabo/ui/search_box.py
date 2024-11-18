@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import ui
-from dLocalize import _
-import dEvents
-from ui import dTextBoxMixin
-from ui import makeDynamicProperty
+from . import ui
+from .ui import events
+from .dLocalize import _
+from .ui import dTextBoxMixin
+from .ui import makeDynamicProperty
 
 
 class dSearchBox(dTextBoxMixin, wx.SearchCtrl):
@@ -51,7 +51,7 @@ class dSearchBox(dTextBoxMixin, wx.SearchCtrl):
 
     # handle events
     def __onWxKeyChar(self, evt):
-        self.raiseEvent(dEvents.KeyChar, evt)
+        self.raiseEvent(events.KeyChar, evt)
 
     def __onWxKeyUp(self, evt):
         if self.Application.Platform == "Win":
@@ -64,26 +64,26 @@ class dSearchBox(dTextBoxMixin, wx.SearchCtrl):
                 char = None
             if ctrl and char == "a":
                 self.selectAll()
-        self.raiseEvent(dEvents.KeyUp, evt)
+        self.raiseEvent(events.KeyUp, evt)
 
     def __onWxKeyDown(self, evt):
-        self.raiseEvent(dEvents.KeyDown, evt)
+        self.raiseEvent(events.KeyDown, evt)
 
     def __onWxGotFocus(self, evt):
         self._pushStatusText()
-        self.raiseEvent(dEvents.GotFocus, evt)
+        self.raiseEvent(events.GotFocus, evt)
 
     def __onWxLostFocus(self, evt):
         if self._finito:
             return
         self._popStatusText()
-        self.raiseEvent(dEvents.LostFocus, evt)
+        self.raiseEvent(events.LostFocus, evt)
 
     def __onWxSearchBtnPressed(self, evt):
-        self.raiseEvent(dEvents.SearchButtonClicked, evt)
+        self.raiseEvent(events.SearchButtonClicked, evt)
 
     def __onWxCancelBtnPressed(self, evt):
-        self.raiseEvent(dEvents.SearchCancelButtonClicked, evt)
+        self.raiseEvent(events.SearchCancelButtonClicked, evt)
 
     # private methods
     def _setupMenuFromList(self, valueList):

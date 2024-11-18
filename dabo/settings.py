@@ -38,7 +38,7 @@ from .version import __version__
 eventLogging = False
 
 # Set the following to True to get all the data in the UI event put into
-# the dEvent EventData dictionary. Only do that for testing, though,
+# the event EventData dictionary. Only do that for testing, though,
 # because it is very expensive from a performance standpoint.
 allNativeEventInfo = False
 
@@ -59,7 +59,7 @@ fastNameSet = False
 # where you used to have to have code like:
 #
 #   def initEvents(self):
-#       self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
+#       self.bindEvent(events.MouseEnter, self.onMouseEnter)
 #
 # with autoBindEvents, all you need to do is define the onMouseEnter function,
 # and Dabo will understand that that function should be called upon the
@@ -315,5 +315,3 @@ def getXMLEncoding():
         return "windows-1252"
     _xml_encoding = encoding
     return encoding
-
-

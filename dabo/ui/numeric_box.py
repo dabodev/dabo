@@ -5,11 +5,12 @@ from decimal import Decimal
 import wx
 import wx.lib.masked as masked
 
-from ui import makeDynamicProperty
-import dEvents
-from ui import dTextBoxMixin
-from ui import dDataControlMixin as ddcm
-from dLocalize import _
+from . import ui
+from .ui import events
+from .ui import makeDynamicProperty
+from .ui import dTextBoxMixin
+from .ui import dDataControlMixin as ddcm
+from .dLocalize import _
 
 
 class dNumericBox(dTextBoxMixin, masked.NumCtrl):
@@ -132,8 +133,8 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
 
     def _initEvents(self):
         super(dNumericBox, self)._initEvents()
-        self.bindEvent(dEvents.GotFocus, self._onGotFocusFix)
-        self.bindEvent(dEvents.LostFocus, self._onLostFocusFix)
+        self.bindEvent(events.GotFocus, self._onGotFocusFix)
+        self.bindEvent(events.LostFocus, self._onLostFocusFix)
 
     def _onGotFocusFix(self, evt):
         ui.callAfter(self._fixInsertionPoint)

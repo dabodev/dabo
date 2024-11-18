@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import ui as dui
-from ui import makeDynamicProperty
-from ui import dScrollPanel
-import dEvents
-from dLocalize import _
+from . import ui
+from .ui import events
+from .ui import makeDynamicProperty
+from .ui import dScrollPanel
+from .dLocalize import _
 
 
 class dPage(dScrollPanel):
@@ -25,8 +25,8 @@ class dPage(dScrollPanel):
 
     def _initEvents(self):
         super(dPage, self)._initEvents()
-        self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
-        self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
+        self.bindEvent(events.PageEnter, self.__onPageEnter)
+        self.bindEvent(events.PageLeave, self.__onPageLeave)
 
     def initSizer(self):
         """Set up the default vertical box sizer for the page."""
@@ -43,7 +43,7 @@ class dPage(dScrollPanel):
         self.createItems()
         self.itemsCreated = True
         self.layout()
-        dui.callAfter(self.unlockDisplay)
+        ui.callAfter(self.unlockDisplay)
 
     def createItems(self):
         """
@@ -70,7 +70,7 @@ class dPage(dScrollPanel):
         if not self.itemsCreated:
             self._createItems()
         if self._pendingUpdates:
-            dui.callAfter(self.update)
+            ui.callAfter(self.update)
 
     def __onPageLeave(self, evt):
         if hasattr(self, "Form"):

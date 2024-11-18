@@ -2,10 +2,11 @@
 import wx
 import wx.media
 
-from ui import makeDynamicProperty
-from ui import dControlMixin
-import dEvents
-from dLocalize import _
+from . import ui
+from .ui import events
+from .ui import makeDynamicProperty
+from .ui import dControlMixin
+from .dLocalize import _
 
 
 def _timeConvertOut(fn):
@@ -124,27 +125,27 @@ class dMediaControl(dControlMixin, wx.media.MediaCtrl):
     def _onWxLoaded(self, evt):
         self.scale()
         print("LOAD")
-        self.raiseEvent(dEvents.MediaLoaded, evt)
+        self.raiseEvent(events.MediaLoaded, evt)
 
     def _onWxFinished(self, evt):
         print("FIN")
-        self.raiseEvent(dEvents.MediaFinished, evt)
+        self.raiseEvent(events.MediaFinished, evt)
 
     def _onWxPause(self, evt):
         print("PAUS")
-        self.raiseEvent(dEvents.MediaPause, evt)
+        self.raiseEvent(events.MediaPause, evt)
 
     def _onWxPlay(self, evt):
         print("PLAY")
-        self.raiseEvent(dEvents.MediaPlay, evt)
+        self.raiseEvent(events.MediaPlay, evt)
 
     def _onWxStateChanged(self, evt):
         print("CHHG")
-        self.raiseEvent(dEvents.MediaStateChanged, evt)
+        self.raiseEvent(events.MediaStateChanged, evt)
 
     def _onWxStop(self, evt):
         print("STOP")
-        self.raiseEvent(dEvents.MediaStop, evt)
+        self.raiseEvent(events.MediaStop, evt)
 
     #### End event methods ####
 
@@ -220,9 +221,9 @@ class dMediaControl(dControlMixin, wx.media.MediaCtrl):
     def _setLoop(self, val):
         if self._constructed():
             self._loop = val
-            self.unbindEvent(dEvents.MediaFinished)
+            self.unbindEvent(events.MediaFinished)
             if val:
-                self.bindEvent(dEvents.MediaFinished, self.__onLoop)
+                self.bindEvent(events.MediaFinished, self.__onLoop)
         else:
             self._properties["Loop"] = val
 

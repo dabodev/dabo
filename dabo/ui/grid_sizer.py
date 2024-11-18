@@ -7,6 +7,7 @@ from ui import makeDynamicProperty
 
 # import log
 
+
 class dGridSizer(dSizerMixin, wx.GridBagSizer):
     def __init__(self, *args, **kwargs):
         """

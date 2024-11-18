@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
+import datetime
+
 import wx
 import wx.adv as wxcal
-import datetime
-import dabo
-from dabo import ui as dui
-from dabo.ui import makeDynamicProperty
-from dabo.ui import dControlMixin
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
+
+from . import ui
+from .ui import events
+from .ui import makeDynamicProperty
+from .ui import dControlMixin
+from .dLocalize import _
+
+# settings: firstDayOfWeek
 
 
 class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
@@ -59,7 +62,7 @@ class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
         self.Bind(wxcal.EVT_CALENDAR_MONTH, self.__onWxMonthChanged)
         self.Bind(wxcal.EVT_CALENDAR_YEAR, self.__onWxYearChanged)
         self.Bind(wxcal.EVT_CALENDAR_WEEKDAY_CLICKED, self.__onWxDayHeaderClicked)
-        self.bindEvent(dEvents.CalendarDateChanged, self.__onDateChanged)
+        self.bindEvent(events.CalendarDateChanged, self.__onDateChanged)
         # Get the events flowing!
         self.Date = self.Date
 
@@ -136,27 +139,27 @@ class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
 
     def __onWxCalendar(self, evt):
         evt.Skip()
-        self.raiseEvent(dEvents.Hit, evt)
+        self.raiseEvent(events.Hit, evt)
 
     def __onWxDateChanged(self, evt):
         evt.Skip()
-        self.raiseEvent(dEvents.CalendarDateChanged, evt)
+        self.raiseEvent(events.CalendarDateChanged, evt)
 
     def __onWxDayChanged(self, evt):
         evt.Skip()
-        self.raiseEvent(dEvents.CalendarDayChanged, evt)
+        self.raiseEvent(events.CalendarDayChanged, evt)
 
     def __onWxMonthChanged(self, evt):
         evt.Skip()
-        self.raiseEvent(dEvents.CalendarMonthChanged, evt)
+        self.raiseEvent(events.CalendarMonthChanged, evt)
 
     def __onWxYearChanged(self, evt):
         evt.Skip()
-        self.raiseEvent(dEvents.CalendarYearChanged, evt)
+        self.raiseEvent(events.CalendarYearChanged, evt)
 
     def __onWxDayHeaderClicked(self, evt):
         evt.Skip()
-        self.raiseEvent(dEvents.CalendarDayHeaderClicked, evt)
+        self.raiseEvent(events.CalendarDayHeaderClicked, evt)
 
     def _setCalEventTypes(self):
         """
@@ -187,23 +190,23 @@ class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
         chg = False
         if curr.year != val.year:
             # evt = evtClass(self, self._evtCalYearType)
-            # self.raiseEvent(dEvents.CalendarYearChanged, evt)
-            self.raiseEvent(dEvents.CalendarYearChanged)
+            # self.raiseEvent(events.CalendarYearChanged, evt)
+            self.raiseEvent(events.CalendarYearChanged)
             chg = True
         if curr.month != val.month:
             # evt = evtClass(self, self._evtCalMonthType)
-            # self.raiseEvent(dEvents.CalendarMonthChanged, evt)
-            self.raiseEvent(dEvents.CalendarMonthChanged)
+            # self.raiseEvent(events.CalendarMonthChanged, evt)
+            self.raiseEvent(events.CalendarMonthChanged)
             chg = True
         if curr.day != val.day:
             # evt = evtClass(self, self._evtCalDayType)
-            # self.raiseEvent(dEvents.CalendarDayChanged, evt)
-            self.raiseEvent(dEvents.CalendarDayChanged)
+            # self.raiseEvent(events.CalendarDayChanged, evt)
+            self.raiseEvent(events.CalendarDayChanged)
             chg = True
         if chg:
             # evt = evtClass(self, self._evtCalSelType)
-            # self.raiseEvent(dEvents.CalendarDateChanged, evt)
-            self.raiseEvent(dEvents.CalendarDateChanged)
+            # self.raiseEvent(events.CalendarDateChanged, evt)
+            self.raiseEvent(events.CalendarDateChanged)
         self.Refresh()
 
     def _getFirstDayOfWeek(self):
@@ -301,7 +304,7 @@ class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
         _(
             """Can be one of either 'Sunday' or 'Monday'. Determines which day
             of the week appears in the first column. Defaults to the value set
-            in dabo.firstDayOfWeek. Read-only at runtime.  (str)"""
+            in settings.firstDayOfWeek. Read-only at runtime.  (str)"""
         ),
     )
 
@@ -419,14 +422,14 @@ class dExtendedCalendar(BaseCalendar):
         super(dExtendedCalendar, self).__init__(*args, **kwargs)
 
 
-dabo.ui.BaseCalendar = BaseCalendar
-dabo.ui.dCalendar = dCalendar
-dabo.ui.dExtendedCalendar = dExtendedCalendar
+ui.BaseCalendar = BaseCalendar
+ui.dCalendar = dCalendar
+ui.dExtendedCalendar = dExtendedCalendar
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
-    from dabo.ui import dForm
+    from .dApp import dApp
+    from .ui import dForm
 
     class TestForm(dForm):
         def afterInit(self):

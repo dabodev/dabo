@@ -10,7 +10,7 @@ import os
 
 class BubbleBizobj(biz.dBizobj):
     def beforeInit(self):
-        #self.DataSource = "Bubble"
+        # self.DataSource = "Bubble"
         self.bubbles = []
         self.selCount = 0
         self.__score = 0
@@ -19,10 +19,8 @@ class BubbleBizobj(biz.dBizobj):
         self.__gameOver = False
         self.__isNewHighGame = False
 
-
     def initProperties(self):
         self.BasePrefKey = dabo.dAppRef.BasePrefKey
-
 
     def newGame(self):
         for rr in self.bubbles:
@@ -36,7 +34,6 @@ class BubbleBizobj(biz.dBizobj):
         for bubrow in self.bubbles:
             self._allBubbles.extend(bubrow)
 
-
     def bubbleClick(self, bubble):
         ret = 0
         if bubble.Selected:
@@ -48,7 +45,6 @@ class BubbleBizobj(biz.dBizobj):
             self.selectBubbles(bubble)
             self.Message = _("Bubble Points: ") + ustr(self.BubbleScore)
         return ret
-
 
     def popBubbles(self):
         ret = self.BubbleScore
@@ -63,7 +59,6 @@ class BubbleBizobj(biz.dBizobj):
         self.fillEmptyCols()
         return ret
 
-
     def fillEmptyCols(self):
         isEmpty = True
         rows = len(self.bubbles)
@@ -72,7 +67,7 @@ class BubbleBizobj(biz.dBizobj):
         # Check if the lowest bubble is empty.
         toFill = 0
         for cc in range(cols):
-            if self.bubbles[rows-1][cc].Popped:
+            if self.bubbles[rows - 1][cc].Popped:
                 toFill += 1
 
         if toFill:
@@ -83,8 +78,8 @@ class BubbleBizobj(biz.dBizobj):
 
             # Fill the columns
             for cc in range(toFill):
-                num = random.randrange(rows-1) + 2
-                for ii in range(rows-num, rows):
+                num = random.randrange(rows - 1) + 2
+                for ii in range(rows - num, rows):
                     bub = self.bubbles[ii][cc]
                     bub.Selected = False
                     bub.setRandomColor(True)
@@ -92,9 +87,8 @@ class BubbleBizobj(biz.dBizobj):
             # See if there are any moves remaining.
             self.checkGameOver()
 
-
     def shiftBubbles(self):
-        """ This can vary, depending on the type of Bubblet game. For now,
+        """This can vary, depending on the type of Bubblet game. For now,
         stick with the standard "megashift", where both rows and columns
         are collapsed.
         """
@@ -107,12 +101,16 @@ class BubbleBizobj(biz.dBizobj):
             for rr in range(1, rows):
                 if self.bubbles[rr][cc].Popped:
                     for rAbove in range(rr, 0, -1):
-                        self.bubbles[rAbove][cc].Color = self.bubbles[rAbove-1][cc].Color
-                        self.bubbles[rAbove][cc].Popped = self.bubbles[rAbove-1][cc].Popped
+                        self.bubbles[rAbove][cc].Color = self.bubbles[rAbove - 1][
+                            cc
+                        ].Color
+                        self.bubbles[rAbove][cc].Popped = self.bubbles[rAbove - 1][
+                            cc
+                        ].Popped
                     self.bubbles[0][cc].Popped = True
         # Now shift columns to the right
         for rr in range(rows):
-            for cc in range(cols-1, 0, -1):
+            for cc in range(cols - 1, 0, -1):
                 currBub = self.bubbles[rr][cc]
                 if currBub.Popped:
                     # See if there are any bubbles to the left that are not empty
@@ -124,16 +122,14 @@ class BubbleBizobj(biz.dBizobj):
                             leftBub.Popped = True
                             break
 
-
     def callbackShift(self, recallFunc=None):
         self.shiftBubbles()
         self.checkGameOver()
         if recallFunc:
             recallFunc()
 
-
     def checkGameOver(self):
-        """ Determine if there are any more moves possible. IOW, find at least
+        """Determine if there are any more moves possible. IOW, find at least
         one bubble with a matching neighbor.
         """
         self.GameOver = True
@@ -152,23 +148,25 @@ class BubbleBizobj(biz.dBizobj):
             self.Message = _("Game Over!")
         return self.GameOver
 
-
     def hasMatchingNeighbor(self, bubble):
-        """ Need to try for matches above, below, left and right. """
+        """Need to try for matches above, below, left and right."""
         if bubble.Popped:
             return False
         return bool(self.getMatchingNeighbors(bubble))
 
-
     def getMatchingNeighbors(self, bubble):
         color = bubble.Color
         rr, cc = bubble.row, bubble.col
-        return [neighbor for neighbor in self._allBubbles
-                if neighbor.Color == color and
-                neighbor.Popped is False and (
-                ((abs(neighbor.row - rr) == 1) and (neighbor.col == cc)) or
-                ((abs(neighbor.col - cc) == 1) and (neighbor.row == rr)))]
-
+        return [
+            neighbor
+            for neighbor in self._allBubbles
+            if neighbor.Color == color
+            and neighbor.Popped is False
+            and (
+                ((abs(neighbor.row - rr) == 1) and (neighbor.col == cc))
+                or ((abs(neighbor.col - cc) == 1) and (neighbor.row == rr))
+            )
+        ]
 
     def selectBubbles(self, bubble):
         if bubble.Selected:
@@ -183,36 +181,30 @@ class BubbleBizobj(biz.dBizobj):
             if not match.Selected:
                 self.selectBubbles(match)
 
-
     def unselectBubbles(self):
-        selBubs = (bub for bub in self._allBubbles
-                if bub.Selected)
+        selBubs = (bub for bub in self._allBubbles if bub.Selected)
         for sel in selBubs:
             sel.Selected = False
         self.selCount = 0
         self.Message = _("Bubble Points: 0")
-
 
     def resetStats(self):
         self.NumberOfGames = 0
         self.TotalPoints = 0
         self.HighGame = 0
 
-
     def getCallback(self):
         return self.__callbackFunc
 
     # Begin property definitions
     def _getBubbleScore(self):
-        return (self.selCount * (self.selCount-1))
-
+        return self.selCount * (self.selCount - 1)
 
     def _getGameOver(self):
         return self.__gameOver
 
     def _setGameOver(self, val):
         self.__gameOver = val
-
 
     def _getHighGame(self):
         ret = self.PreferenceManager.highgame
@@ -223,20 +215,17 @@ class BubbleBizobj(biz.dBizobj):
     def _setHighGame(self, val):
         self.PreferenceManager.highgame = val
 
-
     def _getIsNewHighGame(self):
         return self.__isNewHighGame
 
     def _setIsNewHighGame(self, val):
         self.__isNewHighGame = val
 
-
     def _getMessage(self):
         return self.__message
 
     def _setMessage(self, msg):
         self.__message = msg
-
 
     def _getGames(self):
         ret = self.PreferenceManager.numbergames
@@ -247,13 +236,11 @@ class BubbleBizobj(biz.dBizobj):
     def _setGames(self, val):
         self.PreferenceManager.numbergames = val
 
-
     def _getScore(self):
         return self.__score
 
     def _setScore(self, val):
         self.__score = val
-
 
     def _getTotalPoints(self):
         ret = self.PreferenceManager.totalpoints
@@ -264,29 +251,25 @@ class BubbleBizobj(biz.dBizobj):
     def _setTotalPoints(self, val):
         self.PreferenceManager.totalpoints = val
 
+    BubbleScore = property(_getBubbleScore, None, None, _("Current score of bubbles"))
 
-    BubbleScore = property(_getBubbleScore, None, None,
-            _("Current score of bubbles"))
+    GameOver = property(_getGameOver, _setGameOver, None, _("Status of the game"))
 
-    GameOver = property(_getGameOver, _setGameOver, None,
-            _("Status of the game"))
+    HighGame = property(_getHighGame, _setHighGame, None, _("High score"))
 
-    HighGame = property(_getHighGame, _setHighGame, None,
-        _("High score"))
+    IsNewHighGame = property(
+        _getIsNewHighGame,
+        _setIsNewHighGame,
+        None,
+        _("Is the current game the new high game?"),
+    )
 
-    IsNewHighGame = property(_getIsNewHighGame, _setIsNewHighGame, None,
-        _("Is the current game the new high game?"))
+    Message = property(_getMessage, _setMessage, None, _("Status Message"))
 
-    Message = property(_getMessage, _setMessage, None,
-            _("Status Message"))
+    NumberOfGames = property(_getGames, _setGames, None, _("Number of games played"))
 
-    NumberOfGames = property(_getGames, _setGames, None,
-        _("Number of games played"))
+    Score = property(_getScore, _setScore, None, _("Current score of the game"))
 
-    Score = property(_getScore, _setScore, None,
-        _("Current score of the game"))
-
-    TotalPoints = property(_getTotalPoints, _setTotalPoints, None,
-        _("Total number of points recorded"))
-
-
+    TotalPoints = property(
+        _getTotalPoints, _setTotalPoints, None, _("Total number of points recorded")
+    )

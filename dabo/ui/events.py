@@ -2,10 +2,10 @@
 import logging
 import time
 
-import biz
-import ui
-from dLocalize import _
-from dReportWriter import dReportWriter
+from . import biz
+from . import ui
+from .dLocalize import _
+from .dReportWriter import dReportWriter
 # import eventLogging
 # import log
 
@@ -616,11 +616,18 @@ class PageChanged(dEvent):
         try:
             return issubclass(
                 objectClass,
-                (ui.dPageFrame, ui.dPageList, ui.dPageSelect, ui.dPageFrameNoTabs, ui.dPageStyled),
+                (
+                    ui.dPageFrame,
+                    ui.dPageList,
+                    ui.dPageSelect,
+                    ui.dPageFrameNoTabs,
+                    ui.dPageStyled,
+                ),
             )
         except AttributeError:
             return issubclass(
-                objectClass, (ui.dPageFrame, ui.dPageList, ui.dPageSelect, ui.dPageFrameNoTabs)
+                objectClass,
+                (ui.dPageFrame, ui.dPageList, ui.dPageSelect, ui.dPageFrameNoTabs),
             )
 
     appliesToClass = classmethod(appliesToClass)
@@ -633,11 +640,18 @@ class PageChanging(dEvent):
         try:
             return issubclass(
                 objectClass,
-                (ui.dPageFrame, ui.dPageList, ui.dPageSelect, ui.dPageFrameNoTabs, ui.dPageStyled),
+                (
+                    ui.dPageFrame,
+                    ui.dPageList,
+                    ui.dPageSelect,
+                    ui.dPageFrameNoTabs,
+                    ui.dPageStyled,
+                ),
             )
         except AttributeError:
             return issubclass(
-                objectClass, (ui.dPageFrame, ui.dPageList, ui.dPageSelect, ui.dPageFrameNoTabs)
+                objectClass,
+                (ui.dPageFrame, ui.dPageList, ui.dPageSelect, ui.dPageFrameNoTabs),
             )
 
     appliesToClass = classmethod(appliesToClass)

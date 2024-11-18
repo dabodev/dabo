@@ -8,7 +8,6 @@ from ui import dFormMixin
 # import MDI
 
 
-
 class dFormMainBase(dFormMixin):
     """This is the main top-level form for the application."""
 

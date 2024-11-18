@@ -6,17 +6,17 @@ import sys
 
 import wx
 
-import ui
-import dEvents
-from dLocalize import _
-from lib.utils import ustr
-from ui import dDataControlMixin
-from ui import dDataPanel
-from ui import dKeys
-from ui import dSizer
-from ui import dTextBox
-from ui import makeDynamicProperty
-from ui import makeProxyProperty
+from . import ui
+from .ui import events
+from .dLocalize import _
+from .lib.utils import ustr
+from .ui import dDataControlMixin
+from .ui import dDataPanel
+from .ui import dKeys
+from .ui import dSizer
+from .ui import dTextBox
+from .ui import makeDynamicProperty
+from .ui import makeProxyProperty
 # import log
 
 
@@ -105,13 +105,13 @@ class dSpinner(dDataPanel, wx.Control):
         pt.Bind(wx.EVT_TEXT, self._onWxHit)
         pt.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
         ps.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
-        # self.bindEvent(dEvents.KeyChar, self._onChar)
+        # self.bindEvent(events.KeyChar, self._onChar)
         self._rerestoreValue()
         ui.callAfter(self.layout)
 
     def __onWxDestroy(self, evt):
         # This doesn't otherwise happen
-        self.raiseEvent(dEvents.Destroy)
+        self.raiseEvent(events.Destroy)
 
     def _rerestoreValue(self):
         # Hack because when restoreValue() was originally called in onCreate,
@@ -196,8 +196,8 @@ class dSpinner(dDataPanel, wx.Control):
             else:
                 ret = False
             if ret:
-                self.raiseEvent(dEvents.SpinUp, spinType=spinType)
-                self.raiseEvent(dEvents.Spinner, spinType=spinType)
+                self.raiseEvent(events.SpinUp, spinType=spinType)
+                self.raiseEvent(events.Spinner, spinType=spinType)
 
         else:
             diff = newVal - minn
@@ -208,8 +208,8 @@ class dSpinner(dDataPanel, wx.Control):
             else:
                 ret = False
             if ret:
-                self.raiseEvent(dEvents.SpinDown, spinType=spinType)
-                self.raiseEvent(dEvents.Spinner, spinType=spinType)
+                self.raiseEvent(events.SpinDown, spinType=spinType)
+                self.raiseEvent(events.Spinner, spinType=spinType)
 
         self._checkBounds()
 
@@ -218,7 +218,7 @@ class dSpinner(dDataPanel, wx.Control):
             self.Value = valueToSet
             self._userChanged = True
             self.flushValue()
-        self.raiseEvent(dEvents.Hit, hitType=spinType)
+        self.raiseEvent(events.Hit, hitType=spinType)
         return ret
 
     def __onWxSpinUp(self, evt):
@@ -362,9 +362,7 @@ class dSpinner(dDataPanel, wx.Control):
             else:
                 numVal = self._numericStringVal(val)
                 if numVal is None:
-                    log.error(
-                        _("Spinner values must be numeric. Invalid:'%s'") % val
-                    )
+                    log.error(_("Spinner values must be numeric. Invalid:'%s'") % val)
                 else:
                     self._proxy_textbox.Value = val
             self._proxy_textbox._inDataUpdate = False

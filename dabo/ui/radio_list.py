@@ -2,12 +2,15 @@
 import sys
 import time
 import wx
-import dabo
-from dabo.ui import makeDynamicProperty
-from dabo.ui import dDataControlMixin
-from dabo.ui import dControlItemMixin
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
+
+from . import ui
+from .ui import events
+from .ui import makeDynamicProperty
+from .ui import dDataControlMixin
+from .ui import dControlItemMixin
+from .dLocalize import _
+
+# import log
 
 
 class _dRadioButton(dDataControlMixin, wx.RadioButton):
@@ -61,49 +64,49 @@ class _dRadioButton(dDataControlMixin, wx.RadioButton):
             self.bindKey("right", self._onArrow, arrowKey="right")
 
     def __onWxMouseLeftDown(self, evt):
-        self.raiseEvent(dEvents.MouseLeftDown, evt)
+        self.raiseEvent(events.MouseLeftDown, evt)
 
     def __onWxMouseLeftUp(self, evt):
-        self.raiseEvent(dEvents.MouseLeftUp, evt)
+        self.raiseEvent(events.MouseLeftUp, evt)
 
     def __onWxMouseLeftDoubleClick(self, evt):
-        self.raiseEvent(dEvents.MouseLeftDoubleClick, evt)
+        self.raiseEvent(events.MouseLeftDoubleClick, evt)
 
     def __onWxMouseRightDown(self, evt):
-        self.raiseEvent(dEvents.MouseRightDown, evt)
+        self.raiseEvent(events.MouseRightDown, evt)
 
     def __onWxMouseRightUp(self, evt):
-        self.raiseEvent(dEvents.MouseRightUp, evt)
+        self.raiseEvent(events.MouseRightUp, evt)
 
     def __onWxMouseRightDoubleClick(self, evt):
-        self.raiseEvent(dEvents.MouseRightDoubleClick, evt)
+        self.raiseEvent(events.MouseRightDoubleClick, evt)
 
     def __onWxMouseMiddleDown(self, evt):
-        self.raiseEvent(dEvents.MouseMiddleDown, evt)
+        self.raiseEvent(events.MouseMiddleDown, evt)
 
     def __onWxMouseMiddleUp(self, evt):
-        self.raiseEvent(dEvents.MouseMiddleUp, evt)
+        self.raiseEvent(events.MouseMiddleUp, evt)
 
     def __onWxMouseMiddleDoubleClick(self, evt):
-        self.raiseEvent(dEvents.MouseMiddleDoubleClick, evt)
+        self.raiseEvent(events.MouseMiddleDoubleClick, evt)
 
     def __onWxMouseEnter(self, evt):
-        self.raiseEvent(dEvents.MouseEnter, evt)
+        self.raiseEvent(events.MouseEnter, evt)
 
     def __onWxMouseLeave(self, evt):
-        self.raiseEvent(dEvents.MouseLeave, evt)
+        self.raiseEvent(events.MouseLeave, evt)
 
     def __onWxMouseMove(self, evt):
-        self.raiseEvent(dEvents.MouseMove, evt)
+        self.raiseEvent(events.MouseMove, evt)
 
     def __onWxMouseWheel(self, evt):
-        self.raiseEvent(dEvents.MouseWheel, evt)
+        self.raiseEvent(events.MouseWheel, evt)
 
     def __onWxContextMenu(self, evt):
-        self.raiseEvent(dEvents.ContextMenu, evt)
+        self.raiseEvent(events.ContextMenu, evt)
 
     def __onWxMouseMove(self, evt):
-        self.raiseEvent(dEvents.MouseMove, evt)
+        self.raiseEvent(events.MouseMove, evt)
 
     def _onArrow(self, evt):
         ## Failed attempt to get arrow-key navigation of the buttons working on Gtk.
@@ -151,7 +154,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dRadioList
-        self._sizerClass = dabo.ui.dBorderSizer
+        self._sizerClass = ui.dBorderSizer
         self._buttonClass = _dRadioButton
         self._showBox = True
         self._caption = ""
@@ -210,7 +213,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
         if now - self._lastLostFocusEvent > 0.01:
             # Newly focused; raise the event.
             # Missing uiEvent parameter in call? See note below.
-            self.raiseEvent(dEvents.GotFocus)
+            self.raiseEvent(events.GotFocus)
         self._lastGotFocusEvent = now
 
     def _onButtonLostFocus(self, wxEvt):
@@ -218,7 +221,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
         now = time.time()
         self._lastLostFocusEvent = now
 
-        @dabo.ui.deadCheck
+        @ui.deadCheck
         def checkForFocus(timeCalled):
             if timeCalled - self._lastGotFocusEvent > 0.01:
                 # No other button has gotten focus in the intervening time
@@ -230,11 +233,11 @@ class dRadioList(dControlItemMixin, wx.Panel):
                     # causes Python interpreter crash or unspecified problems
                     # with GC. I decided to remove this reference for both,
                     # GotFocus and LostFocus event of control to retain symmetry.
-                    self.raiseEvent(dEvents.LostFocus)
+                    self.raiseEvent(events.LostFocus)
 
         # Normal changing selection of buttons will cause buttons to lose focus;
         # we need to see if this control has truly lost focus.
-        dabo.ui.callAfter(checkForFocus, now)
+        ui.callAfter(checkForFocus, now)
 
     def layout(self):
         """Wrap the wx version of the call, if possible."""
@@ -276,7 +279,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
             idx = self._items.index(itm)
             self._items[idx].Enabled = val
         except IndexError:
-            dabo.log.error(_("Could not find a button with Caption of '%s'") % itm)
+            log.error(_("Could not find a button with Caption of '%s'") % itm)
 
     def enable(self, itm, val=True):
         """
@@ -371,7 +374,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
 
     def _getCaption(self):
         ret = self._caption
-        if isinstance(self.Sizer, dabo.ui.dBorderSizer):
+        if isinstance(self.Sizer, ui.dBorderSizer):
             ret = self._caption = self.Sizer.Caption
         return ret
 
@@ -473,7 +476,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
             fromSz = self.Sizer
             if fromSz is None:
                 # Control hasn't been constructed yet
-                dabo.ui.setAfter(self, "ShowBox", val)
+                ui.setAfter(self, "ShowBox", val)
                 return
             self._showBox = val
             parent = fromSz.Parent
@@ -482,7 +485,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
                 csz = fromSz.ControllingSizer
                 pos = fromSz.getPositionInSizer()
                 szProps = csz.getItemProps(fromSz)
-            isBorderSz = isinstance(fromSz, dabo.ui.dBorderSizer)
+            isBorderSz = isinstance(fromSz, ui.dBorderSizer)
             needChange = (val and not isBorderSz) or (not val and isBorderSz)
             if not needChange:
                 return
@@ -649,7 +652,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
     DynamicStringValue = makeDynamicProperty(StringValue)
 
 
-dabo.ui.dRadioList = dRadioList
+ui.dRadioList = dRadioList
 
 
 class _dRadioList_test(dRadioList):
@@ -680,6 +683,6 @@ class _dRadioList_test(dRadioList):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dRadioList_test)

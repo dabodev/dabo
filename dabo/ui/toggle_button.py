@@ -2,11 +2,11 @@
 import wx
 import wx.lib.buttons as wxb
 
-import ui
-from ui import dDataControlMixin
-from ui import dImageMixin
-from dLocalize import _
-import dEvents
+from . import ui
+from .ui import events
+from .ui import dDataControlMixin
+from .ui import dImageMixin
+from .dLocalize import _
 
 
 class dToggleButton(dDataControlMixin, dImageMixin, wxb.GenBitmapTextToggleButton):
@@ -50,7 +50,7 @@ class dToggleButton(dDataControlMixin, dImageMixin, wxb.GenBitmapTextToggleButto
 
     def __onButton(self, evt):
         self.flushValue()
-        self.raiseEvent(dEvents.Hit, evt)
+        self.raiseEvent(events.Hit, evt)
 
     def getBlankValue(self):
         return False

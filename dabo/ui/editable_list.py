@@ -2,11 +2,10 @@
 import wx
 from wx import adv as wx_adv
 
-import ui as dui
-import dEvents
-from dLocalize import _
-from ui import dControlMixin
-from ui import makeDynamicProperty
+from . import ui
+from .dLocalize import _
+from .ui import dControlMixin
+from .ui import makeDynamicProperty
 
 
 class dEditableList(dControlMixin, wx_adv.EditableListBox):

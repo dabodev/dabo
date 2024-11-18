@@ -17,20 +17,20 @@ import warnings
 from xml.sax._exceptions import SAXParseException
 from zipfile import ZipFile
 
-import dException
-import dLocalize
-import dUserSettingProvider
-from dLocalize import _
-from lib import connParser
-from lib.SimpleCrypt import SimpleCrypt
-from dObject import dObject
-from dPref import dPref
-from dSecurityManager import dSecurityManager
-import db
-import lib
-import ui
-from lib.utils import ustr
-from lib.utils import cleanMenuCaption
+from . import db
+from . import lib
+from . import ui
+from . import dException
+from . import dLocalize
+from . import dUserSettingProvider
+from .dLocalize import _
+from .lib import connParser
+from .lib.SimpleCrypt import SimpleCrypt
+from .dObject import dObject
+from .dPref import dPref
+from .dSecurityManager import dSecurityManager
+from .lib.utils import ustr
+from .lib.utils import cleanMenuCaption
 # import dAppRef
 # import frameworkPath
 # import checkForWebUpdates
@@ -1355,9 +1355,7 @@ try again when it is running.
             except AttributeError:
                 pass
         if not ret:
-            log.info(
-                _("WARNING: No BasePrefKey has been set for this application.")
-            )
+            log.info(_("WARNING: No BasePrefKey has been set for this application."))
             try:
                 f = inspect.stack()[-1][1]
                 pth = os.path.abspath(f)
@@ -1497,9 +1495,7 @@ try again when it is running.
         if os.path.exists(val):
             self._homeDirectory = os.path.abspath(val)
         else:
-            log.error(
-                _("Setting App HomeDirectory: Path does not exist. '%s'") % val
-            )
+            log.error(_("Setting App HomeDirectory: Path does not exist. '%s'") % val)
 
     def _getIcon(self):
         return getattr(self, "_icon", "daboIcon.ico")

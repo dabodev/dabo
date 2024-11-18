@@ -1,4 +1,3 @@
-
 import os
 import os.path as path
 import dabo
@@ -12,14 +11,14 @@ for dir, subdirs, files in os.walk(daboPath):
     for file in files:
         if file[-3:] == ".py":
             filepath = path.join(dir, file)
-            #cmdTemp += " %s" % (filepath,)
+            # cmdTemp += " %s" % (filepath,)
             fileList.append(filepath)
 
 
 cmdTemp = cmd
 for x in range(len(fileList)):
     cmdTemp += " %s" % (fileList[x],)
-    if (x+1)%100 == 0:
+    if (x + 1) % 100 == 0:
         os.system(cmdTemp)
         cmdTemp = cmd
 

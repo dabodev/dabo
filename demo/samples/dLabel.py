@@ -5,7 +5,6 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 
-
 from dabo.ui import dPanel
 from dabo.ui import dSizer
 from dabo.ui import dTextBox
@@ -14,6 +13,7 @@ from dabo.ui import dCheckBox
 from dabo.ui import dDialog
 from dabo.ui import dLine
 from dabo.ui import dSlider
+
 dLabel = dabo.ui.dLabel
 
 
@@ -64,7 +64,7 @@ class TestPanel(dPanel):
         sz.append(lbl)
 
         lbl = self.dynamicLabel = dLabel(self, Caption="")
-        lbl.DynamicFontSize = lambda: self.Width * .05
+        lbl.DynamicFontSize = lambda: self.Width * 0.05
         lbl.DynamicCaption = self.getDynamicCaption
         sz.append(lbl)
         dabo.ui.callAfterInterval(200, self.update)
@@ -86,9 +86,17 @@ class TestPanel(dPanel):
                 sz = self.Sizer
                 sz.appendSpacer(25)
 
-                lbl = dLabel(self, FontBold=True, ForeColor="darkred", WordWrap=True,
-                        Alignment="center", Caption=_("The label below has WordWrap=True. " + \
-                        "Use the slider to resize the label to see it in action."))
+                lbl = dLabel(
+                    self,
+                    FontBold=True,
+                    ForeColor="darkred",
+                    WordWrap=True,
+                    Alignment="center",
+                    Caption=_(
+                        "The label below has WordWrap=True. "
+                        + "Use the slider to resize the label to see it in action."
+                    ),
+                )
                 lbl.FontSize += 1
                 sz.append(lbl, "x", border=40, borderSides=("Left", "Right"))
 
@@ -107,7 +115,7 @@ class TestPanel(dPanel):
                 self.layout()
 
             def onSlider(self, evt):
-                wd = (self.slider.Value/100.0) * self.slider.Width
+                wd = (self.slider.Value / 100.0) * self.slider.Width
                 try:
                     self.gettyLabel.Width = wd
                 except AttributeError:
@@ -120,7 +128,9 @@ class TestPanel(dPanel):
 
 def getGettyAddr():
     """Return Lincoln's Gettysburg Address."""
-    return " ".join(["Four score and seven years ago our fathers brought",
+    return " ".join(
+        [
+            "Four score and seven years ago our fathers brought",
             "forth on this continent a new nation, conceived in liberty and",
             "dedicated to the proposition that all men are created equal.",
             "Now we are engaged in a great civil war, testing whether that",
@@ -143,8 +153,9 @@ def getGettyAddr():
             "resolve that these dead shall not have died in vain, that this",
             "nation under God shall have a new birth of freedom, and that",
             "government of the people, by the people, for the people shall",
-            "not perish from the earth."])
-
+            "not perish from the earth.",
+        ]
+    )
 
 
 category = "Controls.dLabel"

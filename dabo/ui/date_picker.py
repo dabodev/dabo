@@ -281,9 +281,7 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
         except ValueError as e:
             nm = self.Name
             ue = ustr(e)
-            log.error(
-                _("Object '%(nm)s' has the following error: %(ue)s") % locals()
-            )
+            log.error(_("Object '%(nm)s' has the following error: %(ue)s") % locals())
 
     def _getAllowNullDate(self):
         return self._hasWindowStyleFlag(wx.adv.DP_ALLOWNONE)

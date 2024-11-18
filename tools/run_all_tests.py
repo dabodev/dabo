@@ -11,5 +11,3 @@ for root, dirs, files in os.walk(dabo_dir):
                     print("\n===========================================")
                     print("Running test: %s" % fname)
                     os.system("python %s" % os.path.join(root, dirname, fname))
-
-

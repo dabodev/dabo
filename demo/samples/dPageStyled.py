@@ -6,7 +6,6 @@ from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 
 
-
 from dabo.ui import dLabel
 from dabo.ui import dPanel
 from dabo.ui import dSizer
@@ -15,6 +14,7 @@ from dabo.ui import dDropdownList
 from dabo.ui import dGridSizer
 from dabo.ui import dBorderSizer
 from dabo.ui import dSpinner
+
 dPageStyled = dabo.ui.dPageStyled
 
 
@@ -24,14 +24,23 @@ class TestPanel(dPanel):
         sz.appendSpacer(25)
         bail = False
         try:
-            self.pgf = pgf = dPageStyled(self, ActiveTabColor="powderblue",
-                    ActiveTabTextColor="black", InactiveTabTextColor="black",
-                    TabAreaColor="thistle", OnPageChanged=self.onPageChanged)
+            self.pgf = pgf = dPageStyled(
+                self,
+                ActiveTabColor="powderblue",
+                ActiveTabTextColor="black",
+                InactiveTabTextColor="black",
+                TabAreaColor="thistle",
+                OnPageChanged=self.onPageChanged,
+            )
         except AttributeError as e:
             bail = True
         if bail:
-            lbl = dLabel(self, FontSize=18, ForeColor="darkred",
-                    Caption=_("dPageStyled is not supported in your version of wxPython"))
+            lbl = dLabel(
+                self,
+                FontSize=18,
+                ForeColor="darkred",
+                Caption=_("dPageStyled is not supported in your version of wxPython"),
+            )
             sz.append(lbl)
             return
         page0 = pgf.appendPage(caption="First", BackColor="gray")
@@ -43,24 +52,37 @@ class TestPanel(dPanel):
         hsz = dSizer("h")
         gsz = dGridSizer(HGap=3, VGap=8)
         lbl = dLabel(self, Caption="Tab Style:")
-        ddStyle = dDropdownList(self, Choices=["Default", "VC8", "VC71", "Fancy", "Firefox"],
-                DataSource=pgf, DataField="TabStyle", OnHit=self.onStyle)
+        ddStyle = dDropdownList(
+            self,
+            Choices=["Default", "VC8", "VC71", "Fancy", "Firefox"],
+            DataSource=pgf,
+            DataField="TabStyle",
+            OnHit=self.onStyle,
+        )
         gsz.append(lbl, row=0, col=0, halign="right")
         gsz.append(ddStyle, row=0, col=1)
 
-        #lbl = dLabel(self, Caption="Tab Position:")
-        #ddPos = dDropdownList(self, Choices=["Top", "Bottom"],
-                #DataSource=pgf, DataField="TabPosition")
-        #gsz.append(lbl, row=1, col=0, halign="right")
-        #gsz.append(ddPos, row=1, col=1)
+        # lbl = dLabel(self, Caption="Tab Position:")
+        # ddPos = dDropdownList(self, Choices=["Top", "Bottom"],
+        # DataSource=pgf, DataField="TabPosition")
+        # gsz.append(lbl, row=1, col=0, halign="right")
+        # gsz.append(ddPos, row=1, col=1)
         gsz.appendSpacer(1)
         gsz.appendSpacer(1)
 
-        lbl = dLabel(self, Caption="Tab Side Incline:",
-                DynamicVisible=lambda:pgf.TabStyle=="Default")
-        ddPos = dSpinner(self, Min=0, Max=15,
-                DynamicVisible=lambda:pgf.TabStyle=="Default",
-                DataSource=pgf, DataField="TabSideIncline")
+        lbl = dLabel(
+            self,
+            Caption="Tab Side Incline:",
+            DynamicVisible=lambda: pgf.TabStyle == "Default",
+        )
+        ddPos = dSpinner(
+            self,
+            Min=0,
+            Max=15,
+            DynamicVisible=lambda: pgf.TabStyle == "Default",
+            DataSource=pgf,
+            DataField="TabSideIncline",
+        )
         gsz.append(lbl, row=2, col=0, halign="right")
         gsz.append(ddPos, row=2, col=1)
 
@@ -68,14 +90,27 @@ class TestPanel(dPanel):
         hsz.appendSpacer(30)
 
         vsz = dBorderSizer(self, "v", Caption="Options")
-        chkDD = dCheckBox(self, Caption="ShowDropdownTabList",
-                DataSource=pgf, DataField="ShowDropdownTabList")
-        chkMC = dCheckBox(self, Caption="ShowMenuCloseButton",
-                DataSource=pgf, DataField="ShowMenuCloseButton")
-        chkNB = dCheckBox(self, Caption="ShowNavButtons",
-                DataSource=pgf, DataField="ShowNavButtons")
-        chkPC = dCheckBox(self, Caption="ShowPageCloseButtons",
-                DataSource=pgf, DataField="ShowPageCloseButtons")
+        chkDD = dCheckBox(
+            self,
+            Caption="ShowDropdownTabList",
+            DataSource=pgf,
+            DataField="ShowDropdownTabList",
+        )
+        chkMC = dCheckBox(
+            self,
+            Caption="ShowMenuCloseButton",
+            DataSource=pgf,
+            DataField="ShowMenuCloseButton",
+        )
+        chkNB = dCheckBox(
+            self, Caption="ShowNavButtons", DataSource=pgf, DataField="ShowNavButtons"
+        )
+        chkPC = dCheckBox(
+            self,
+            Caption="ShowPageCloseButtons",
+            DataSource=pgf,
+            DataField="ShowPageCloseButtons",
+        )
         vsz.append(chkDD)
         vsz.append(chkMC)
         vsz.append(chkNB)
@@ -84,30 +119,51 @@ class TestPanel(dPanel):
         sz.append(hsz, halign="center")
         sz.appendSpacer(8)
 
-        bsz = dBorderSizer(self, "h", Caption="Color Settings (click a box to set the color)")
+        bsz = dBorderSizer(
+            self, "h", Caption="Color Settings (click a box to set the color)"
+        )
         hsz = dSizer("h")
         lblATC = dLabel(self, Caption="ActiveTabColor:")
-        pnlATC = dPanel(self, BorderWidth=2, BorderColor="black", BorderStyle="Simple",
-                Size=(20, 20), DynamicBackColor=lambda:self.pgf.ActiveTabColor, Name="foo",
-                OnMouseLeftClick=self.onSetActiveTabColor)
+        pnlATC = dPanel(
+            self,
+            BorderWidth=2,
+            BorderColor="black",
+            BorderStyle="Simple",
+            Size=(20, 20),
+            DynamicBackColor=lambda: self.pgf.ActiveTabColor,
+            Name="foo",
+            OnMouseLeftClick=self.onSetActiveTabColor,
+        )
         hsz.append(lblATC)
         hsz.appendSpacer(2)
         hsz.append(pnlATC)
         hsz.appendSpacer(20)
 
         lblTAC = dLabel(self, Caption="TabAreaColor:")
-        pnlTAC = dPanel(self, BorderWidth=2, BorderColor="black", BorderStyle="Simple",
-                Size=(20, 20), DynamicBackColor=lambda:self.pgf.TabAreaColor,
-                OnMouseLeftClick=self.onSetTabAreaColor)
+        pnlTAC = dPanel(
+            self,
+            BorderWidth=2,
+            BorderColor="black",
+            BorderStyle="Simple",
+            Size=(20, 20),
+            DynamicBackColor=lambda: self.pgf.TabAreaColor,
+            OnMouseLeftClick=self.onSetTabAreaColor,
+        )
         hsz.append(lblTAC)
         hsz.appendSpacer(2)
         hsz.append(pnlTAC)
         hsz.appendSpacer(20)
 
         lblATTC = dLabel(self, Caption="ActiveTabTextColor:")
-        pnlITC = dPanel(self, BorderWidth=2, BorderColor="black", BorderStyle="Simple",
-                Size=(20, 20), DynamicBackColor=lambda:self.pgf.ActiveTabTextColor,
-                OnMouseLeftClick=self.onSetActiveTabTextColor)
+        pnlITC = dPanel(
+            self,
+            BorderWidth=2,
+            BorderColor="black",
+            BorderStyle="Simple",
+            Size=(20, 20),
+            DynamicBackColor=lambda: self.pgf.ActiveTabTextColor,
+            OnMouseLeftClick=self.onSetActiveTabTextColor,
+        )
         sz.appendSpacer(8)
         hsz.append(lblATTC)
         hsz.appendSpacer(4)
@@ -115,9 +171,15 @@ class TestPanel(dPanel):
         hsz.appendSpacer(20)
 
         lblITC = dLabel(self, Caption="InactiveTabTextColor:")
-        pnlITC = dPanel(self, BorderWidth=2, BorderColor="black", BorderStyle="Simple",
-                Size=(20, 20), DynamicBackColor=lambda:self.pgf.InactiveTabTextColor,
-                OnMouseLeftClick=self.onSetInactiveTabTextColor)
+        pnlITC = dPanel(
+            self,
+            BorderWidth=2,
+            BorderColor="black",
+            BorderStyle="Simple",
+            Size=(20, 20),
+            DynamicBackColor=lambda: self.pgf.InactiveTabTextColor,
+            OnMouseLeftClick=self.onSetInactiveTabTextColor,
+        )
         hsz.append(lblITC)
         hsz.appendSpacer(4)
         hsz.append(pnlITC)
@@ -126,9 +188,10 @@ class TestPanel(dPanel):
         sz.append(bsz, halign="center")
         sz.appendSpacer(12)
 
-
     def onPageChanged(self, evt):
-        self.Form.logit("Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum))
+        self.Form.logit(
+            "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
+        )
 
     def onStyle(self, evt):
         self.update()
@@ -176,7 +239,6 @@ class TestPanel(dPanel):
             self.pgf.InactiveTabTextColor = newcolor
             self.update()
             self.Form.logit("InactiveTabTextColor changed to '%s'" % ustr(newcolor))
-
 
 
 category = "Controls.dPageStyled"

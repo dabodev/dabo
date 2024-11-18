@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
 import wx
-import ui as dui
-from dLocalize import _
-import dEvents
-import dControlMixin
-from ui import makeDynamicProperty
+
+from . import ui
+from .dLocalize import _
+from .ui import events
 
 
-class dButton(dControlMixin, wx.Button):
+class dButton(ui.dControlMixin, wx.Button):
     """
     Creates a button that can be pressed by the user to trigger an action.
 
     Example::
 
-        class MyButton(dui.dButton):
+        class MyButton(ui.dButton):
             def initProperties(self):
                 self.Caption = "Press Me"
 
@@ -25,7 +24,7 @@ class dButton(dControlMixin, wx.Button):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dButton
         preClass = wx.Button
-        dControlMixin.__init__(
+        ui.dControlMixin.__init__(
             self,
             preClass,
             parent,
@@ -41,9 +40,9 @@ class dButton(dControlMixin, wx.Button):
 
     def _onCancelButton(self, evt, recurse=True):
         # This callback exists for when the user presses ESC and this button
-        # is the cancel button. Raise dEvents.Hit.
+        # is the cancel button. Raise events.Hit.
         if self.VisibleOnScreen:
-            self.raiseEvent(dEvents.Hit)
+            self.raiseEvent(events.Hit)
         else:
             # There may be another cancel button: give it a chance, too:
             if recurse:
@@ -132,8 +131,8 @@ class dButton(dControlMixin, wx.Button):
         _("Specifies whether this command button gets clicked on -Enter-."),
     )
 
-    DynamicCancelButton = makeDynamicProperty(CancelButton)
-    DynamicDefaultButton = makeDynamicProperty(DefaultButton)
+    DynamicCancelButton = ui.makeDynamicProperty(CancelButton)
+    DynamicDefaultButton = ui.makeDynamicProperty(DefaultButton)
 
 
 ui.dButton = dButton

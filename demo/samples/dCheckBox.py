@@ -3,42 +3,58 @@ import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-#dCheckBox = dabo.import_ui_name("dCheckBox")
+# dCheckBox = dabo.import_ui_name("dCheckBox")
 
 from dabo.ui import dLabel
 from dabo.ui import dPanel
 from dabo.ui import dSizer
+
 dCheckBox = dabo.ui.dCheckBox
 
 
 class TestPanel(dPanel):
     def afterInit(self):
-        sz = self.Sizer = dSizer("v", DefaultBorder=20,
-                DefaultBorderLeft=True)
+        sz = self.Sizer = dSizer("v", DefaultBorder=20, DefaultBorderLeft=True)
         sz.appendSpacer(25)
 
-        chk = dCheckBox(self, Caption="Left-Aligned Check Box",
-                Alignment="Left", Name="LeftCheck")
+        chk = dCheckBox(
+            self, Caption="Left-Aligned Check Box", Alignment="Left", Name="LeftCheck"
+        )
         chk.bindEvent(dEvents.Hit, self.onCheckHit)
         sz.append(chk, halign="center")
         sz.appendSpacer(10)
 
-        chk = dCheckBox(self, Caption="Right-Aligned Check Box",
-                Alignment="Right", Name="RightCheck")
+        chk = dCheckBox(
+            self,
+            Caption="Right-Aligned Check Box",
+            Alignment="Right",
+            Name="RightCheck",
+        )
         chk.bindEvent(dEvents.Hit, self.onCheckHit)
         sz.append(chk, halign="center")
         if self.Application.Platform == "Mac":
-            sz.append(dLabel(self, FontSize=8, FontItalic=True,
-                    Caption="(currently not supported on the Mac)"), halign="center")
+            sz.append(
+                dLabel(
+                    self,
+                    FontSize=8,
+                    FontItalic=True,
+                    Caption="(currently not supported on the Mac)",
+                ),
+                halign="center",
+            )
         sz.appendSpacer(10)
 
-        chk = dCheckBox(self, Caption="Three State Check Box",
-                Alignment="Left", ThreeState=True, UserThreeState=True,
-                Name="3Check")
+        chk = dCheckBox(
+            self,
+            Caption="Three State Check Box",
+            Alignment="Left",
+            ThreeState=True,
+            UserThreeState=True,
+            Name="3Check",
+        )
         chk.bindEvent(dEvents.Hit, self.onCheckHit)
         sz.append(chk, halign="center")
         sz.appendSpacer(10)
-
 
     def onCheckHit(self, evt):
         obj = evt.EventObject

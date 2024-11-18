@@ -5,7 +5,6 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 
-
 from dabo.ui import dLabel
 from dabo.ui import dPanel
 from dabo.ui import dSizer
@@ -14,6 +13,7 @@ from dabo.ui import dButton
 from dabo.ui import dDropdownList
 from dabo.ui import dSlider
 from dabo.ui import dBitmapButton
+
 dImage = dabo.ui.dImage
 
 
@@ -24,10 +24,24 @@ class TestPanel(dPanel):
 
         # Create a panel with horiz. and vert.  sliders
         self.imgPanel = dPanel(self)
-        self.VSlider = dSlider(self, Orientation="V", Min=1, Max=100,
-                Value=100, Continuous=True, OnHit=self.onSlider)
-        self.HSlider = dSlider(self, Orientation="H", Min=1, Max=100,
-                Value=100, Continuous=True, OnHit=self.onSlider)
+        self.VSlider = dSlider(
+            self,
+            Orientation="V",
+            Min=1,
+            Max=100,
+            Value=100,
+            Continuous=True,
+            OnHit=self.onSlider,
+        )
+        self.HSlider = dSlider(
+            self,
+            Orientation="H",
+            Min=1,
+            Max=100,
+            Value=100,
+            Continuous=True,
+            OnHit=self.onSlider,
+        )
 
         mainSizer = self.Sizer = dSizer("V")
         psz = self.imgPanel.Sizer = dSizer("V")
@@ -44,33 +58,37 @@ class TestPanel(dPanel):
         mainSizer.appendSpacer(10)
 
         # Create the image control
-        self.img = dImage(self.imgPanel, BackColor="yellow",
-            DroppedFileHandler=self)
+        self.img = dImage(self.imgPanel, BackColor="yellow", DroppedFileHandler=self)
 
         hsz = dSizer("H")
         hsz.DefaultSpacing = 10
-        btn = dBitmapButton(self, Picture="rotateCW",
-                OnHit=self.onRotateCW, Size=(36, 36))
+        btn = dBitmapButton(
+            self, Picture="rotateCW", OnHit=self.onRotateCW, Size=(36, 36)
+        )
         hsz.append(btn)
-        btn = dBitmapButton(self, Picture="rotateCCW",
-                OnHit=self.onRotateCCW, Size=(36, 36))
+        btn = dBitmapButton(
+            self, Picture="rotateCCW", OnHit=self.onRotateCCW, Size=(36, 36)
+        )
         hsz.append(btn)
-        btn = dBitmapButton(self, Picture="flip_horiz",
-                OnHit=self.onFlipHoriz, Size=(36, 36))
+        btn = dBitmapButton(
+            self, Picture="flip_horiz", OnHit=self.onFlipHoriz, Size=(36, 36)
+        )
         hsz.append(btn)
-        btn = dBitmapButton(self, Picture="flip_vert",
-                OnHit=self.onFlipVert, Size=(36, 36))
+        btn = dBitmapButton(
+            self, Picture="flip_vert", OnHit=self.onFlipVert, Size=(36, 36)
+        )
         hsz.append(btn)
 
-        self.ddScale = dDropdownList(self,
-                Choices = ["Proportional", "Stretch", "Clip"],
-                PositionValue = 0,
-                ValueMode = "String")
+        self.ddScale = dDropdownList(
+            self,
+            Choices=["Proportional", "Stretch", "Clip"],
+            PositionValue=0,
+            ValueMode="String",
+        )
         self.ddScale.DataSource = self.img
         self.ddScale.DataField = "ScaleMode"
 
-        btn = dButton(self, Caption=_("Load Your Own Image"),
-                OnHit=self.onLoadImage)
+        btn = dButton(self, Caption=_("Load Your Own Image"), OnHit=self.onLoadImage)
 
         hsz.append(self.ddScale, "x")
         hsz.append(btn, "x")
@@ -79,7 +97,6 @@ class TestPanel(dPanel):
 
         # Load an image
         self.img.Picture = "media/homer.jpg"
-
 
     def processDroppedFiles(self, filelist):
         self.img.Picture = filelist[0]
@@ -102,9 +119,9 @@ class TestPanel(dPanel):
         ornt = slider.Orientation[0].lower()
         if ornt == "h":
             # Change the width of the image
-            self.img.Width = (self.imgPanel.Width * val)
+            self.img.Width = self.imgPanel.Width * val
         else:
-            self.img.Height = (self.imgPanel.Height * val)
+            self.img.Height = self.imgPanel.Height * val
 
     # Without Dabo, you need to create this exact string to get the same behavior.
     #    JPEG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|GIF Files (*.gif)|*.gif|Bitmap Files (*.bmp)|*.bmp|All Files (*)|*

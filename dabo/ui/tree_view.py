@@ -3,14 +3,16 @@ import re
 import os
 import glob
 import wx
-import dabo
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo import dColors as dColors
-from dabo.dObject import dObject
-from dabo.ui import dControlMixin
-from dabo.ui import makeDynamicProperty
+
+from . import dColors
+from . import ui
+from .ui import events
+from .dObject import dObject
+from .dLocalize import _
+from .lib.utils import ustr
+from .ui import dControlMixin
+from .ui import makeDynamicProperty
+# import log
 
 
 class dNode(dObject):
@@ -81,7 +83,7 @@ class dNode(dObject):
     def _getCap(self):
         try:
             ret = self.tree.GetItemText(self.itemID)
-        except dabo.ui.assertionException:
+        except ui.assertionException:
             ret = ""
         return ret
 
@@ -112,20 +114,18 @@ class dNode(dObject):
         if hasattr(self, "_font"):
             v = self._font
         else:
-            v = self.Font = dabo.ui.dFont(
-                _nativeFont=self.tree.GetItemFont(self.itemID)
-            )
+            v = self.Font = ui.dFont(_nativeFont=self.tree.GetItemFont(self.itemID))
         return v
 
     def _setFont(self, val):
-        assert isinstance(val, dabo.ui.dFont)
+        assert isinstance(val, ui.dFont)
         self._font = val
         if not self.IsRootNode or self.tree.ShowRootNode:
             # On some platforms exception is raised while operation
             # on hidden root node.
             self.tree.SetItemFont(self.itemID, val._nativeFont)
-            val.bindEvent(dEvents.FontPropertiesChanged, self._onFontPropsChanged)
-            dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
+            val.bindEvent(events.FontPropertiesChanged, self._onFontPropsChanged)
+            ui.callAfterInterval(100, self.tree.refreshDisplay)
 
     def _getFontBold(self):
         try:
@@ -135,7 +135,7 @@ class dNode(dObject):
 
     def _setFontBold(self, val):
         self.Font.Bold = val
-        dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
+        ui.callAfterInterval(100, self.tree.refreshDisplay)
 
     def _getFontDescription(self):
         try:
@@ -157,7 +157,7 @@ class dNode(dObject):
 
     def _setFontItalic(self, val):
         self.Font.Italic = val
-        dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
+        ui.callAfterInterval(100, self.tree.refreshDisplay)
 
     def _getFontFace(self):
         try:
@@ -167,7 +167,7 @@ class dNode(dObject):
 
     def _setFontFace(self, val):
         self.Font.Face = val
-        dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
+        ui.callAfterInterval(100, self.tree.refreshDisplay)
 
     def _getFontSize(self):
         try:
@@ -177,7 +177,7 @@ class dNode(dObject):
 
     def _setFontSize(self, val):
         self.Font.Size = val
-        dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
+        ui.callAfterInterval(100, self.tree.refreshDisplay)
 
     def _getFontUnderline(self):
         try:
@@ -187,7 +187,7 @@ class dNode(dObject):
 
     def _setFontUnderline(self, val):
         self.Font.Underline = val
-        dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
+        ui.callAfterInterval(100, self.tree.refreshDisplay)
 
     def _getForeColor(self):
         return self.tree.GetItemTextColour(self.itemID).Get()
@@ -208,7 +208,7 @@ class dNode(dObject):
 
     def _setImg(self, key):
         return self.tree.setNodeImg(self, key)
-        dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
+        ui.callAfterInterval(100, self.tree.refreshDisplay)
 
     def _getIsRootNode(self):
         try:
@@ -498,7 +498,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         self.Bind(wx.EVT_MOTION, self.__onTreeMouseMove)
 
     def __onTreeItemContextMenu(self, evt):
-        self.raiseEvent(dEvents.TreeItemContextMenu, evt)
+        self.raiseEvent(events.TreeItemContextMenu, evt)
 
     def __onTreeBeginDrag(self, evt):
         if self._allowDrag(evt):
@@ -507,7 +507,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         # so we don't try to drag an old selected item
         self.SelectItem(evt.GetItem())
         evt.Skip()
-        self.raiseEvent(dEvents.TreeBeginDrag, evt)
+        self.raiseEvent(events.TreeBeginDrag, evt)
 
     def __onTreeEndDrag(self, evt):
         evt.Skip()
@@ -515,7 +515,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         if self.MultipleSelect:
             self.UnselectAll()
         self.SelectItem(evt.GetItem())
-        self.raiseEvent(dEvents.TreeEndDrag, evt)
+        self.raiseEvent(events.TreeEndDrag, evt)
 
     def _allowDrag(self, evt):
         nd = self.find(evt.GetItem())
@@ -635,7 +635,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         if key is None:
             key = ustr(img)
         if isinstance(img, str):
-            img = dabo.ui.strToBmp(img, width=wd, height=ht)
+            img = ui.strToBmp(img, width=wd, height=ht)
         idx = il.Add(img)
         self.__imageList[key] = idx
 
@@ -988,7 +988,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
                 node.FontSize = fontSize
 
         if self.Form is not None:
-            dabo.ui.callAfterInterval(200, self.Form.layout)
+            ui.callAfterInterval(200, self.Form.layout)
 
     def treeFromStructure(self, stru, topNode=None):
         """
@@ -1102,7 +1102,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
 
     # Event-handling code
     def __onTreeSel(self, evt):
-        self.raiseEvent(dEvents.TreeSelection, evt)
+        self.raiseEvent(events.TreeSelection, evt)
 
     def __onKeyUp(self, evt):
         evt.Skip()
@@ -1110,10 +1110,10 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
             self._onWxHit(evt)
 
     def __onTreeItemCollapse(self, evt):
-        self.raiseEvent(dEvents.TreeItemCollapse, evt)
+        self.raiseEvent(events.TreeItemCollapse, evt)
 
     def __onTreeItemExpand(self, evt):
-        self.raiseEvent(dEvents.TreeItemExpand, evt)
+        self.raiseEvent(events.TreeItemExpand, evt)
 
     def __onTreeMouseMove(self, evt):
         if self._useNodeToolTips:
@@ -1214,7 +1214,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
                         self.SelectItem(itm.itemID, True)
                 else:
                     if len(node) > 1:
-                        dabo.log.error(
+                        log.error(
                             _(
                                 "Attempting to select multiple nodes when MultipleSelect is False"
                             )
@@ -1402,8 +1402,8 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
     DynamicShowRootNodeLines = makeDynamicProperty(ShowRootNodeLines)
 
 
-dabo.ui.dNode = dNode
-dabo.ui.dTreeView = dTreeView
+ui.dNode = dNode
+ui.dTreeView = dTreeView
 
 
 class TestNode(dNode):
@@ -1453,13 +1453,13 @@ class _dTreeView_test(dTreeView):
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
-    from dabo.ui import test
-    from dabo.ui import dButton
-    from dabo.ui import dCheckBox
-    from dabo.ui import dForm
-    from dabo.ui import dPanel
-    from dabo.ui import dSizer
+    from .dApp import dApp
+    from .ui import test
+    from .ui import dButton
+    from .ui import dCheckBox
+    from .ui import dForm
+    from .ui import dPanel
+    from .ui import dSizer
 
     class TreeViewTestForm(dForm):
         def afterInit(self):
@@ -1518,9 +1518,9 @@ if __name__ == "__main__":
             self.update()
 
             btnEx = dButton(mp, Caption="Expand All")
-            btnEx.bindEvent(dEvents.Hit, self.onExpandAll)
+            btnEx.bindEvent(events.Hit, self.onExpandAll)
             btnCl = dButton(mp, Caption="Collapse All")
-            btnCl.bindEvent(dEvents.Hit, self.onCollapseAll)
+            btnCl.bindEvent(events.Hit, self.onCollapseAll)
             hsz = dSizer("H")
             hsz.append(btnEx)
             hsz.appendSpacer(5)

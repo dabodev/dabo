@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from dLocalize import _
-import dColors
-import dEvents
-import ui
-from ui import makeDynamicProperty
-from ui import dControlMixin
-from ui import dDataControlMixin
+from . import dColors
+from . import ui
+from .ui import events
+from .dLocalize import _
+from .ui import makeDynamicProperty
+from .ui import dControlMixin
+from .ui import dDataControlMixin
 
 
 class _BasePanelMixin(object):
@@ -209,9 +209,9 @@ class _BasePanelMixin(object):
         if self._constructed():
             self._square = val
             if val:
-                self.bindEvent(dEvents.Resize, self._onResizeSquare)
+                self.bindEvent(events.Resize, self._onResizeSquare)
             else:
-                self.unbindEvent(dEvents.Resize, self._onResizeSquare)
+                self.unbindEvent(events.Resize, self._onResizeSquare)
         else:
             self._properties["Square"] = val
 
@@ -517,7 +517,7 @@ class _dScrollPanel_test(dScrollPanel):
 
     def afterInit(self):
         subpan = self.addObject(dPanel, BackColor="green")
-        subpan.bindEvent(dEvents.KeyDown, self.onKeyDown)
+        subpan.bindEvent(events.KeyDown, self.onKeyDown)
         self.SetScrollbars(10, 10, 100, 100)
 
     def onMouseLeftDown(self, evt):

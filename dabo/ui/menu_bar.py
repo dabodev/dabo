@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from ui import dPemMixin
-from ui import dMenu
-from dLocalize import _
-import dEvents
+from . import ui
+from .ui import events
+from .ui import dPemMixin
+from .ui import dMenu
+from .dLocalize import _
 
 
 class dMenuBar(dPemMixin, wx.MenuBar):
@@ -27,16 +28,16 @@ class dMenuBar(dPemMixin, wx.MenuBar):
 
     def __onWxMenuOpen(self, evt):
         ## pkm: EVT_OPEN only applies to the top-level menus: those in the menubar.
-        ##      It seemed to me best to eliminate dEvents.MenuOpen and just call
-        ##      dEvents.MenuHighlight instead. EVT_MENU_HIGHLIGHT never gets called
+        ##      It seemed to me best to eliminate events.MenuOpen and just call
+        ##      events.MenuHighlight instead. EVT_MENU_HIGHLIGHT never gets called
         ##      on top-level menus, so the two are mutually exclusive and kind of
         ##      mean the same thing. Let's keep it simple. BTW, I've never seen
         ##      a EVT_MENU_CLOSE being called, and EVT_MENU_HIGHLIGHT_ALL appears
         ##      to be identical to EVT_MENU_HIGHLIGHT. Therefore, as of this writing
-        ##      we are exposing two menu events: dEvents.Hit and dEvents.Highlight.
+        ##      we are exposing two menu events: events.Hit and events.Highlight.
         menu = evt.GetMenu()
         if menu and isinstance(menu, dMenu):
-            menu.raiseEvent(dEvents.MenuHighlight, evt)
+            menu.raiseEvent(events.MenuHighlight, evt)
         evt.Skip()
 
     def update(self):

@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import dEvents
-from dLocalize import _
-from ui import AlignmentMixin
-from ui import dCheckBox
-from ui import dControlMixin
-from ui import dPanel
-from ui import dSizer
-from ui import makeDynamicProperty
+from . import ui
+from .ui import events
+from .dLocalize import _
+from .ui import AlignmentMixin
+from .ui import dCheckBox
+from .ui import dControlMixin
+from .ui import dPanel
+from .ui import dSizer
+from .ui import makeDynamicProperty
 
 
 class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
@@ -31,7 +32,7 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
             *args,
             **kwargs,
         )
-        self.bindEvent(dEvents.Resize, self.__onResize)
+        self.bindEvent(events.Resize, self.__onResize)
 
     def __onResize(self, evt):
         """

@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-import biz
-import dEvents
-import dException
-from dLocalize import _
-from dObject import dObject
-from dPref import dPref
-from lib.utils import ustr
-from ui import makeDynamicProperty
-from ui import dControlMixin
+from . import biz
+from .ui import events
+from . import dException
+from .dLocalize import _
+from .dObject import dObject
+from .dPref import dPref
+from .lib.utils import ustr
 # import dTextBox_DeriveTextLengthFromSource
 # import autoDisableDataControls
 # import log
 
 
-class dDataControlMixin(dControlMixin):
+class dDataControlMixin(ui.dControlMixin):
     def __init__(self, *args, **kwargs):
         # TODO: Refactor these references
         self._deriveTextLengthFromSource = dTextBox_DeriveTextLengthFromSource
@@ -30,7 +28,7 @@ class dDataControlMixin(dControlMixin):
         self._inDataUpdate = False
         self._from_flushValue = False
 
-        dControlMixin.__init__(self, *args, **kwargs)
+        ui.dControlMixin.__init__(self, *args, **kwargs)
 
         self._value = self.Value
         self._enabled = True
@@ -38,10 +36,10 @@ class dDataControlMixin(dControlMixin):
     def _initEvents(self):
         super(dDataControlMixin, self)._initEvents()
 
-        self.bindEvent(dEvents.Create, self.__onCreate)
-        self.bindEvent(dEvents.Destroy, self.__onDestroy)
-        self.bindEvent(dEvents.GotFocus, self.__onGotFocus)
-        self.bindEvent(dEvents.LostFocus, self.__onLostFocus)
+        self.bindEvent(events.Create, self.__onCreate)
+        self.bindEvent(events.Destroy, self.__onDestroy)
+        self.bindEvent(events.GotFocus, self.__onGotFocus)
+        self.bindEvent(events.LostFocus, self.__onLostFocus)
 
     def __onCreate(self, evt):
         if self.SaveRestoreValue:
@@ -285,8 +283,8 @@ class dDataControlMixin(dControlMixin):
             # Raise an event so that user code can react if needed:
             if self._userChanged:
                 self._userChanged = False
-                self.raiseEvent(dEvents.InteractiveChange, oldVal=oldVal)
-            self.raiseEvent(dEvents.ValueChanged)
+                self.raiseEvent(events.InteractiveChange, oldVal=oldVal)
+            self.raiseEvent(events.ValueChanged)
         return ret
 
     def saveValue(self):
@@ -696,7 +694,7 @@ class dDataControlMixin(dControlMixin):
         ),
     )
 
-    DynamicValue = makeDynamicProperty(Value)
+    DynamicValue = ui.makeDynamicProperty(Value)
 
 
 ui.dDataControlMixin = dDataControlMixin

@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import ui
-import dEvents
-from dLocalize import _
-from ui import dControlItemMixin
-from ui import makeDynamicProperty
+from . import ui
+from .dLocalize import _
+from .ui import dControlItemMixin
+from .ui import makeDynamicProperty
 
 
 class dListBox(dControlItemMixin, wx.ListBox):

@@ -4,20 +4,20 @@ import sys
 
 import wx
 
-import ui as dui
-from ui import dDataControlMixin
-from ui import dMenu
-from ui import dPemMixin
-from ui import dStatusBar
-from ui import dToolBar
-import icons
-from dLocalize import _
-from lib.utils import ustr
-import dEvents
-import dException
-from lib.xmltodict import xmltodict as XTD
-from lib.utils import cleanMenuCaption
-from ui import makeDynamicProperty
+from . import icons
+from .ui import events
+from . import dException
+from . import ui
+from .ui import dDataControlMixin
+from .ui import dMenu
+from .ui import dPemMixin
+from .ui import dStatusBar
+from .ui import dToolBar
+from .dLocalize import _
+from .lib.utils import ustr
+from .lib.xmltodict import xmltodict as XTD
+from .lib.utils import cleanMenuCaption
+from .ui import makeDynamicProperty
 # import log
 
 
@@ -96,7 +96,7 @@ class dFormMixin(dPemMixin):
             **kwargs,
         )
 
-        dui.callAfter(self._createStatusBar)
+        ui.callAfter(self._createStatusBar)
         self._createToolBar()
 
     def _getInitPropertiesList(self):
@@ -119,7 +119,7 @@ class dFormMixin(dPemMixin):
         mbc = self.MenuBarClass
         if app and mbc and self.ShowMenuBar:
             if isinstance(mbc, str):
-                self.MenuBar = dui.createMenuBar(mbc, self)
+                self.MenuBar = ui.createMenuBar(mbc, self)
             else:
                 self.MenuBar = mbc()
             self.afterSetMenuBar()
@@ -167,20 +167,20 @@ class dFormMixin(dPemMixin):
         super(dFormMixin, self)._initEvents()
         self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)
         self.Bind(wx.EVT_CLOSE, self.__onWxClose)
-        self.bindEvent(dEvents.Deactivate, self.__onDeactivate)
-        self.bindEvent(dEvents.Close, self.__onClose)
-        self.bindEvent(dEvents.Paint, self.__onPaint)
-        self.bindEvent(dEvents.Idle, self.__onIdle)
+        self.bindEvent(events.Deactivate, self.__onDeactivate)
+        self.bindEvent(events.Close, self.__onClose)
+        self.bindEvent(events.Paint, self.__onPaint)
+        self.bindEvent(events.Idle, self.__onIdle)
 
     def __onWxClose(self, evt):
-        self.raiseEvent(dEvents.Close, evt)
+        self.raiseEvent(events.Close, evt)
         if evt.CanVeto():
             evt.Veto()
 
     def __onWxActivate(self, evt):
         """Raise the Dabo Activate or Deactivate appropriately."""
         if bool(evt.GetActive()):
-            self.raiseEvent(dEvents.Activate, evt)
+            self.raiseEvent(events.Activate, evt)
             app = self.Application
             if app is not None:
                 if app.Platform != "Win":
@@ -191,7 +191,7 @@ class dFormMixin(dPemMixin):
                 if pref_id:
                     wx.PyApp.SetMacPreferencesMenuItemId(pref_id)
         else:
-            self.raiseEvent(dEvents.Deactivate, evt)
+            self.raiseEvent(events.Deactivate, evt)
         evt.Skip()
 
     def _controlGotFocus(self, ctrl):
@@ -261,7 +261,7 @@ class dFormMixin(dPemMixin):
 
     def __onIdle(self, evt):
         if self.__needOutlineRedraw or self._alwaysDrawSizerOutlines:
-            dui.callAfterInterval(self.IdleRefreshInterval, self._idleRedraw)
+            ui.callAfterInterval(self.IdleRefreshInterval, self._idleRedraw)
 
     def _idleRedraw(self):
         self.refresh()
@@ -341,7 +341,7 @@ class dFormMixin(dPemMixin):
         if interval == 0:
             self.__refresh()
         else:
-            dui.callAfterInterval(interval, self.__refresh)
+            ui.callAfterInterval(interval, self.__refresh)
 
     @ui.deadCheck
     def __refresh(self):
@@ -359,7 +359,7 @@ class dFormMixin(dPemMixin):
 
         evt = DummyEvent()
         evt.EventObject = self
-        dui.callAfter(self.Application.onReloadForm, evt)
+        ui.callAfter(self.Application.onReloadForm, evt)
 
     def createBizobjs(self):
         """
@@ -460,7 +460,7 @@ class dFormMixin(dPemMixin):
         # Kill the form
         self.Close(force=True)
         # pkm: I've found that modal dialogs need Destroy():
-        dui.callAfter(self.safeDestroy)
+        ui.callAfter(self.safeDestroy)
 
     def safeDestroy(self):
         """
@@ -587,7 +587,7 @@ class dFormMixin(dPemMixin):
                 minTop = 23
             else:
                 minTop = 0
-            dispWd, dispHt = dui.getDisplaySize()
+            dispWd, dispHt = ui.getDisplaySize()
             self.Right = min(dispWd, self.Right)
             self.Bottom = min(dispHt, self.Bottom)
             self.Left = max(0, self.Left)
@@ -642,7 +642,7 @@ class dFormMixin(dPemMixin):
             id = obj.RegID
             if id in self._objectRegistry:
                 # In wxPython 4.x, a 'dead object' is now a logical False
-                # if not isinstance(self._objectRegistry[id], dui.deadObject):
+                # if not isinstance(self._objectRegistry[id], ui.deadObject):
                 if not self._objectRegistry[id]:
                     raise KeyError(_("Duplicate RegID '%s' found") % id)
                 else:
@@ -709,7 +709,7 @@ class dFormMixin(dPemMixin):
         self.StatusText = txt
         if duration is not None:
             # Pop it after 'duration' seconds
-            dui.callAfterInterval(1000 * duration, self.popStatusText)
+            ui.callAfterInterval(1000 * duration, self.popStatusText)
 
     def popStatusText(self):
         """
@@ -1041,7 +1041,7 @@ class dFormMixin(dPemMixin):
         versus non-MDI forms.
         """
         if _callAfter:
-            dui.callAfterInterval(250, self._setStatusText, val, _callAfter=False)
+            ui.callAfterInterval(250, self._setStatusText, val, _callAfter=False)
             return
         if sys.platform.startswith("win") and isinstance(self, wx.MDIChildFrame):
             controllingFrame = self.Application.MainForm

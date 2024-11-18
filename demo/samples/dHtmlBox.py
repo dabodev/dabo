@@ -12,6 +12,7 @@ from dabo.ui import dPanel
 from dabo.ui import dSizer
 from dabo.ui import dButton
 from dabo.ui import dEditBox
+
 dHtmlBox = dabo.ui.dHtmlBox
 
 
@@ -24,9 +25,15 @@ class TestPanel(dPanel):
         sz.append(self.htmlbox, 2, "x", border=10)
         sz.appendSpacer(10)
 
-        lbl = dLabel(self, FontBold=True, FontItalic=True, ForeColor="blue", WordWrap=True,
-                Caption="The HTML text below is the Source for the dHtmlBox.\nEdit it to changed the displayed HTML.",
-                Alignment="Center")
+        lbl = dLabel(
+            self,
+            FontBold=True,
+            FontItalic=True,
+            ForeColor="blue",
+            WordWrap=True,
+            Caption="The HTML text below is the Source for the dHtmlBox.\nEdit it to changed the displayed HTML.",
+            Alignment="Center",
+        )
         lbl.FontSize -= 5
         sz.append(lbl, halign="center")
         sz.appendSpacer(2)
@@ -39,18 +46,16 @@ class TestPanel(dPanel):
         sz.append(btn, halign="right", border=10, borderSides=["right", "bottom"])
         self.layout()
 
-
     def textChangeHandler(self, evt):
         dabo.ui.callAfter(evt.EventObject.flushValue)
-
 
     def resetHTML(self, evt):
         self.htmlbox.Source = self.getPageData()
         self.update()
 
-
     def getPageData(self):
-        return """<html>
+        return (
+            """<html>
         <body bgcolor="pink">
         <center>
             <table bgcolor="#8470FF" width="100%%" cellspacing="0" cellpadding="0"
@@ -76,7 +81,9 @@ class TestPanel(dPanel):
         </p>
         </body>
         </html>
-        """ % datetime.date.today().year
+        """
+            % datetime.date.today().year
+        )
 
 
 category = "Controls.dHtmlBox"

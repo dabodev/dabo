@@ -19,8 +19,9 @@ class TestPanel(dPanel):
         sz.appendSpacer(10)
         hsz = dSizer("h")
         lbl = dLabel(self, Caption="Tab Position:")
-        dd = self.ddPos = dDropdownList(self, Choices=["Top", "Bottom"],
-                DataSource=pgf, DataField="TabPosition")
+        dd = self.ddPos = dDropdownList(
+            self, Choices=["Top", "Bottom"], DataSource=pgf, DataField="TabPosition"
+        )
         hsz.append(lbl)
         hsz.appendSpacer(3)
         hsz.append(dd)
@@ -32,8 +33,9 @@ class TestPanel(dPanel):
             self.pgf.release()
         except AttributeError:
             pass
-        self.pgf = dDockTabs(self, TabPosition=self.currentTabPosition,
-                OnPageChanged=self.onPageChanged)
+        self.pgf = dDockTabs(
+            self, TabPosition=self.currentTabPosition, OnPageChanged=self.onPageChanged
+        )
         # Now add the pages, specifying which image key is displayed for each page.
         pg = self.pgf.appendPage(caption="First")
         pg.BackColor = "blue"
@@ -48,9 +50,9 @@ class TestPanel(dPanel):
         return self.pgf
 
     def onPageChanged(self, evt):
-        self.Form.logit("Page number changed from %s to %s" %
-                (evt.oldPageNum, evt.newPageNum))
-
+        self.Form.logit(
+            "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
+        )
 
 
 category = "Controls.dDockTabs"

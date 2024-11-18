@@ -16,33 +16,33 @@ import wx
 import wx.grid
 from wx._core import PyAssertionError
 
-import ui as dui
-import dEvents
-import dException
-import biz as dbiz
-import dColors
-import db
-from dLocalize import _, n_
-from lib.utils import ustr
-from dObject import dObject
-from lib import dates
-from lib.utils import noneSortKey, caseInsensitiveSortKey
-from dBug import loggit
-from ui import dButton
-from ui import dCheckBox
-from ui import dControlMixin
-from ui import dDropdownList
-from ui import dFont
-from ui import dForm
-from ui import dGridSizer
-from ui import dKeys
-from ui import dMenu
-from ui import dPemMixin
-from ui import dRadioList
-from ui import dTextBox
-from ui import dTimer
-from ui import dUICursors
-from ui import makeDynamicProperty
+from . import ui
+from .ui import events
+from . import dException
+from . import biz as dbiz
+from . import dColors
+from . import db
+from .dLocalize import _, n_
+from .lib.utils import ustr
+from .dObject import dObject
+from .lib import dates
+from .lib.utils import noneSortKey, caseInsensitiveSortKey
+from .dBug import loggit
+from .ui import dButton
+from .ui import dCheckBox
+from .ui import dControlMixin
+from .ui import dDropdownList
+from .ui import dFont
+from .ui import dForm
+from .ui import dGridSizer
+from .ui import dKeys
+from .ui import dMenu
+from .ui import dPemMixin
+from .ui import dRadioList
+from .ui import dTextBox
+from .ui import dTimer
+from .ui import dUICursors
+from .ui import makeDynamicProperty
 
 # import log
 # import copyValueSeparator
@@ -578,7 +578,7 @@ class dColumn(wx._core.Object, dPemMixin):
     def _afterInit(self):
         self._isConstructed = True
         super(dColumn, self)._afterInit()
-        dui.callAfter(self._restoreFontZoom)
+        ui.callAfter(self._restoreFontZoom)
 
     def GetParent(self):
         # For wx compatibility
@@ -673,7 +673,7 @@ class dColumn(wx._core.Object, dPemMixin):
             self.HeaderFontSize = headerFontSize
 
         if self.Form is not None:
-            dui.callAfterInterval(200, self.Form.layout)
+            ui.callAfterInterval(200, self.Form.layout)
 
     def _setEditor(self, row):
         """
@@ -847,7 +847,7 @@ class dColumn(wx._core.Object, dPemMixin):
         try:
             row = getattr(self, "_cellDynamicRow", self.Parent.CurrentRow)
         except RuntimeError:
-            # @dui.deadCheck didn't seem to work...
+            # @ui.deadCheck didn't seem to work...
             return
         cellAttr = obj = self._gridCellAttrs.get(row, self._gridColAttr.Clone())
         if "." in wxPropName:
@@ -1050,7 +1050,7 @@ class dColumn(wx._core.Object, dPemMixin):
         if self._constructed():
             if self._dataField:
                 # Use a callAfter, since the parent may not be finished instantiating yet.
-                dui.callAfter(self._setDataTypeFromDataField)
+                ui.callAfter(self._setDataTypeFromDataField)
             self._dataField = val
             if not self.Name or self.Name == "?":
                 self._name = _("col_%s") % val
@@ -1071,7 +1071,7 @@ class dColumn(wx._core.Object, dPemMixin):
         if self._constructed():
             self._font = val
             self._gridColAttr.SetFont(val._nativeFont)
-            val.bindEvent(dEvents.FontPropertiesChanged, self._onFontPropsChanged)
+            val.bindEvent(events.FontPropertiesChanged, self._onFontPropsChanged)
             self._refreshGrid()
         else:
             self._properties["Font"] = val
@@ -1157,7 +1157,7 @@ class dColumn(wx._core.Object, dPemMixin):
         assert isinstance(val, dFont)
         if self._constructed():
             self._headerFont = val
-            val.bindEvent(dEvents.FontPropertiesChanged, self._onHeaderFontPropsChanged)
+            val.bindEvent(events.FontPropertiesChanged, self._onHeaderFontPropsChanged)
         else:
             self._properties["HeaderFont"] = val
 
@@ -1365,7 +1365,7 @@ class dColumn(wx._core.Object, dPemMixin):
         if self._constructed():
             self._precision = val
             if self.Parent:
-                dui.callAfterInterval(50, self.Parent.refresh)
+                ui.callAfterInterval(50, self.Parent.refresh)
         else:
             self._properties["Precision"] = val
 
@@ -2164,7 +2164,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
         self.currSearchStr = ""
         self.incSearchTimer = dTimer(self)
-        self.incSearchTimer.bindEvent(dEvents.Hit, self.onIncSearchTimer)
+        self.incSearchTimer.bindEvent(events.Hit, self.onIncSearchTimer)
 
         # By default, row labels are not shown. They can be displayed
         # if desired by setting ShowRowLabels = True, and their size
@@ -2195,7 +2195,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         # Set the header props/events
         self.initHeader()
         # Make sure that the columns are sized properly
-        dui.callAfter(self._updateColumnWidths)
+        ui.callAfter(self._updateColumnWidths)
 
     @ui.deadCheck
     def _afterInitAll(self):
@@ -2232,22 +2232,22 @@ class dGrid(dControlMixin, wx.grid.Grid):
         gridWindow.Bind(wx.EVT_RIGHT_UP, self.__onWxMouseRightUp)
         gridWindow.Bind(wx.EVT_CONTEXT_MENU, self.__onWxContextMenu)
 
-        self.bindEvent(dEvents.KeyDown, self._onKeyDown)
-        self.bindEvent(dEvents.KeyChar, self._onKeyChar)
-        self.bindEvent(dEvents.GridRowSize, self._onGridRowSize)
-        self.bindEvent(dEvents.GridCellSelected, self._onGridCellSelected)
-        self.bindEvent(dEvents.GridColSize, self._onGridColSize)
-        self.bindEvent(dEvents.GridCellEdited, self._onGridCellEdited)
-        self.bindEvent(dEvents.GridMouseLeftClick, self._onGridMouseLeftClick)
-        self.bindEvent(dEvents.MouseWheel, self._onGridMouseWheel)
+        self.bindEvent(events.KeyDown, self._onKeyDown)
+        self.bindEvent(events.KeyChar, self._onKeyChar)
+        self.bindEvent(events.GridRowSize, self._onGridRowSize)
+        self.bindEvent(events.GridCellSelected, self._onGridCellSelected)
+        self.bindEvent(events.GridColSize, self._onGridColSize)
+        self.bindEvent(events.GridCellEdited, self._onGridCellEdited)
+        self.bindEvent(events.GridMouseLeftClick, self._onGridMouseLeftClick)
+        self.bindEvent(events.MouseWheel, self._onGridMouseWheel)
 
         ## wx.EVT_CONTEXT_MENU doesn't appear to be working for dGrid yet:
-        #        self.bindEvent(dEvents.GridContextMenu, self._onContextMenu)
-        self.bindEvent(dEvents.GridMouseRightClick, self._onGridMouseRightClick)
-        self.bindEvent(dEvents.Resize, self._onGridResize)
+        #        self.bindEvent(events.GridContextMenu, self._onContextMenu)
+        self.bindEvent(events.GridMouseRightClick, self._onGridMouseRightClick)
+        self.bindEvent(events.Resize, self._onGridResize)
 
-        self.bindEvent(dEvents.Create, self._onCreate)
-        self.bindEvent(dEvents.Destroy, self._onDestroy)
+        self.bindEvent(events.Create, self._onCreate)
+        self.bindEvent(events.Destroy, self._onDestroy)
 
         super(dGrid, self)._initEvents()
 
@@ -2271,12 +2271,12 @@ class dGrid(dControlMixin, wx.grid.Grid):
         header.Bind(wx.EVT_LEAVE_WINDOW, self.__onWxHeaderMouseLeave)
         header.Bind(wx.EVT_IDLE, self.__onWxHeaderIdle)
 
-        self.bindEvent(dEvents.GridHeaderMouseLeftDown, self._onGridHeaderMouseLeftDown)
-        self.bindEvent(dEvents.GridHeaderMouseMove, self._onGridHeaderMouseMove)
-        self.bindEvent(dEvents.GridHeaderMouseLeftUp, self._onGridHeaderMouseLeftUp)
-        self.bindEvent(dEvents.GridHeaderMouseRightUp, self._onGridHeaderMouseRightUp)
+        self.bindEvent(events.GridHeaderMouseLeftDown, self._onGridHeaderMouseLeftDown)
+        self.bindEvent(events.GridHeaderMouseMove, self._onGridHeaderMouseMove)
+        self.bindEvent(events.GridHeaderMouseLeftUp, self._onGridHeaderMouseLeftUp)
+        self.bindEvent(events.GridHeaderMouseRightUp, self._onGridHeaderMouseRightUp)
         self.bindEvent(
-            dEvents.GridHeaderMouseRightClick, self._onGridHeaderMouseRightClick
+            events.GridHeaderMouseRightClick, self._onGridHeaderMouseRightClick
         )
 
     def update(self):
@@ -2449,7 +2449,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 tbl = None
             if tbl is None:
                 # Still not fully constructed
-                dui.callAfter(self.setTableAttributes)
+                ui.callAfter(self.setTableAttributes)
                 return
         tbl.alternateRowColoring = self.AlternateRowColoring
         tbl.rowColorOdd = self._getWxColour(self.RowColorOdd)
@@ -2473,7 +2473,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         tbl.setColumns(self.Columns)
         self._tableRows = tbl.fillTable(force)
         if not self._sortRestored:
-            dui.callAfter(self._restoreSort)
+            ui.callAfter(self._restoreSort)
             self._sortRestored = True
 
         # This will make sure that the current selection mode is activated.
@@ -2484,7 +2484,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
         # I've found that both refresh calls are needed sometimes, especially
         # on Linux when manually moving a column header with the mouse.
-        dui.callAfterInterval(200, self.refresh)
+        ui.callAfterInterval(200, self.refresh)
         self.refresh()
 
     def _updateDaboVisibleColumns(self):
@@ -2723,7 +2723,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             updCol = True
         if updCol:
             self._lastSize = evt._uiEvent.Size
-            dui.callAfter(self._updateColumnWidths)
+            ui.callAfter(self._updateColumnWidths)
 
     def _totalContentWidth(self, addScrollBar=False):
         ret = sum([col.Width for col in self.Columns])
@@ -2766,7 +2766,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             pass
         self._inColWidthUpdate = False
         if [col for col in self.Columns if col.Expand]:
-            dui.callAfterInterval(10, self._delayedUpdateColumnWidths)
+            ui.callAfterInterval(10, self._delayedUpdateColumnWidths)
 
     def _delayedUpdateColumnWidths(self, redo=False):
         def _setFlag():
@@ -2791,7 +2791,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         if redo and not diff:
             diff = -10
         if not diff:
-            dui.callAfterInterval(5, _clearFlag)
+            ui.callAfterInterval(5, _clearFlag)
             return
         if not redo and (diff == self._scrollBarSize):
             # This can cause infinite loops as we adjust constantly
@@ -2812,7 +2812,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             _clearFlag()
             self._delayedUpdateColumnWidths(redo=True)
         else:
-            dui.callAfter(_clearFlag)
+            ui.callAfter(_clearFlag)
 
     def autoSizeCol(self, colNum, persist=False):
         """
@@ -2851,7 +2851,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             autoWidth = self.GetColSize(idx)
 
             # Account for the width of the header caption:
-            cw = dui.fontMetricFromFont(colObj.Caption, colObj.HeaderFont._nativeFont)[
+            cw = ui.fontMetricFromFont(colObj.Caption, colObj.HeaderFont._nativeFont)[
                 0
             ] + int(capBuffer)
             w = max(autoWidth, cw)
@@ -3010,7 +3010,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             trect[3] = trect[3] - (2 * vertBuffer)
             trect = wx.Rect(*trect)
 
-            twd, tht = dui.fontMetricFromDC(dc, colObj.Caption)
+            twd, tht = ui.fontMetricFromDC(dc, colObj.Caption)
             if self.VerticalHeaders:
                 # Note that when rotating 90 degrees, the width affect height,
                 # and vice-versa
@@ -3061,7 +3061,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         diff = (self._headerMaxTextHeight + 20) - self.HeaderHeight
         if diff:
             self.HeaderHeight += diff
-            dui.callAfter(self.refresh)
+            ui.callAfter(self.refresh)
 
     def showColumn(self, col, visible):
         """
@@ -3199,7 +3199,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self.sortedColumn = columnToSort
 
         eventData = {"column": colObj, "sortOrder": sortOrder}
-        self.raiseEvent(dEvents.GridBeforeSort, eventObject=self, eventData=eventData)
+        self.raiseEvent(events.GridBeforeSort, eventObject=self, eventData=eventData)
 
         biz = self.getBizobj()
         if columnToSort is not None:
@@ -3284,15 +3284,15 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 self._settingDataSetFromSort = False
 
         if biz:
-            dui.setAfter(self, "CurrentRow", biz.RowNumber)
+            ui.setAfter(self, "CurrentRow", biz.RowNumber)
 
         if self._refreshAfterSort:
             self.refresh()
 
         self._setUserSetting("sortedColumn", columnToSort)
         self._setUserSetting("sortOrder", sortOrder)
-        self.raiseEvent(dEvents.GridAfterSort, eventObject=self, eventData=eventData)
-        dui.callAfterInterval(200, self.Form.update)  ## rownum in status bar
+        self.raiseEvent(events.GridAfterSort, eventObject=self, eventData=eventData)
+        ui.callAfterInterval(200, self.Form.update)  ## rownum in status bar
 
     def restoreDataSet(self):
         if self.SaveRestoreDataSet:
@@ -3419,7 +3419,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             currAutoUpdate = self.Form.AutoUpdateStatusText
             self.Form.AutoUpdateStatusText = False
             if currAutoUpdate:
-                dui.setAfterInterval(1000, self.Form, "AutoUpdateStatusText", True)
+                ui.setAfterInterval(1000, self.Form, "AutoUpdateStatusText", True)
             self.Form.setStatusText("Search: '%s'." % origSrchStr)
         self.currSearchStr = ""
 
@@ -3545,9 +3545,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                         self.SetValue(currRow, currCol, newval)
                         ret = True
                     except errors:
-                        log.error(
-                            _("Invalid replacement value: %s") % replaceString
-                        )
+                        log.error(_("Invalid replacement value: %s") % replaceString)
                         ret = False
             if ret:
                 self.ForceRefresh()
@@ -3949,7 +3947,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 win.SetDoubleBuffered(False)
 
     ##----------------------------------------------------------##
-    ##          begin: dEvent callbacks for internal use            ##
+    ##          begin: event callbacks for internal use            ##
     ##----------------------------------------------------------##
     def _onGridCellEdited(self, evt):
         ## force cache to update after an edit:
@@ -3967,7 +3965,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         col._persist("Width")
         self._disableDoubleBuffering()
         self._enableDoubleBuffering()
-        dui.callAfterInterval(20, self._updateColumnWidths)
+        ui.callAfterInterval(20, self._updateColumnWidths)
 
     def _onGridHeaderMouseMove(self, evt):
         curMousePosition = evt.EventData["mousePosition"]
@@ -4049,7 +4047,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         # evt.Continue = False
 
     def _onGridHeaderMouseRightClick(self, evt):
-        dui.callAfter(self._showHeaderContextMenu)
+        ui.callAfter(self._showHeaderContextMenu)
 
     def _showHeaderContextMenu(self):
         # Make the popup menu appear in the location that was clicked. We init
@@ -4102,7 +4100,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         ## otherwise the events pile up resulting in poor performance.
         _accumulatedWheelScroll = getattr(self, "_accumulatedWheelScroll", None)
         if _accumulatedWheelScroll is None:
-            dui.callAfterInterval(50, self._scrollAccumulatedLines)
+            ui.callAfterInterval(50, self._scrollAccumulatedLines)
             _accumulatedWheelScroll = 0
         self._accumulatedWheelScroll = _accumulatedWheelScroll + scrollAmt
         self._wheelScrollLines = linesPerAction
@@ -4207,7 +4205,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         # occurring, but <threshold> seconds later, sync up the bizobj and update the selection:
         if getattr(self, "_gridCellSelectedOldRow", None) is None:
             self._gridCellSelectedOldRow = self.CurrentRow
-        dui.callAfterInterval(threshold * 1000, self._updateCellSelection)
+        ui.callAfterInterval(threshold * 1000, self._updateCellSelection)
 
     def _updateCellSelection(self, newRowCol=None):
         if self._inUpdateSelection:
@@ -4245,7 +4243,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             and not self._vetoAllEditing
             and self.ActivateEditorOnSelect
         ):
-            dui.callAfter(self.EnableCellEditControl)
+            ui.callAfter(self.EnableCellEditControl)
         if oldRow != newRow:
             bizobj = self.getBizobj()
             if bizobj and not self._dataSourceBeingSet:
@@ -4256,15 +4254,15 @@ class dGrid(dControlMixin, wx.grid.Grid):
                     ):
                         # run it through the form:
                         if not self.Form.moveToRowNumber(newRow, bizobj):
-                            dui.callAfter(self.refresh)
+                            ui.callAfter(self.refresh)
                     else:
                         # run it through the bizobj directly:
                         try:
                             bizobj.RowNumber = newRow
                             self.Form.update()
                         except dException.BusinessRuleViolation as e:
-                            dui.stop(e)
-                            dui.callAfter(self.refresh)
+                            ui.stop(e)
+                            ui.callAfter(self.refresh)
                 else:
                     # We are probably trying to select row 0 when there are no records
                     # in the bizobj.
@@ -4273,7 +4271,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                     # self.SetGridCursor(0,0)
                     pass
         self._dataSourceBeingSet = False
-        dui.callAfterInterval(50, self._updateSelection)
+        ui.callAfterInterval(50, self._updateSelection)
 
     def _updateSelection(self):
         if self._inUpdateSelection or self.SelectionMode == "Cell":
@@ -4355,7 +4353,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             evt.stop()
 
     ##----------------------------------------------------------##
-    ##          end: dEvent callbacks for internal use            ##
+    ##          end: event callbacks for internal use            ##
     ##----------------------------------------------------------##
 
     def _calcRanges(self, seq, rowOrCol):
@@ -4403,20 +4401,20 @@ class dGrid(dControlMixin, wx.grid.Grid):
         return list(zip(rangeStart, rangeEnd))
 
     ##----------------------------------------------------------##
-    ##        begin: wx callbacks to re-route to dEvents            ##
+    ##        begin: wx callbacks to re-route to events            ##
     ##----------------------------------------------------------##
 
     ## dGrid has to reimplement all of this to augment what dPemMixin does,
     ## to offer separate events in the grid versus the header region.
     def __onWxContextMenu(self, evt):
-        self.raiseEvent(dEvents.GridContextMenu, evt)
+        self.raiseEvent(events.GridContextMenu, evt)
         evt.Skip()
 
     def __onWxGridColSize(self, evt):
         daboCol = self._convertWxColNumToDaboColNum(evt.GetRowOrCol())
         colObj = self.Columns[daboCol]
         if self.ResizableColumns and colObj.Resizable:
-            self.raiseEvent(dEvents.GridColSize, col=daboCol)
+            self.raiseEvent(events.GridColSize, col=daboCol)
         else:
             # need to reference the Width property for some reason:
             colObj.Width
@@ -4439,7 +4437,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self._inSelect = True
         if evt.Selecting():
             self._updateWxSelection(evt)
-        self.raiseEvent(dEvents.GridCellSelected, evt)
+        self.raiseEvent(events.GridCellSelected, evt)
         self._lastRow, self._lastCol = evt.GetRow(), evt.GetCol()
         if not sys.platform.startswith("win"):
             evt.Skip()
@@ -4452,12 +4450,12 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self._inRangeSelect = True
         if evt.Selecting():
             self._updateWxSelection(evt)
-        self.raiseEvent(dEvents.GridRangeSelected, evt)
+        self.raiseEvent(events.GridRangeSelected, evt)
         evt.Skip()
         self._inRangeSelect = False
 
     def __onWxScrollWin(self, evt):
-        evtClass = dui.getScrollWinEventClass(evt)
+        evtClass = ui.getScrollWinEventClass(evt)
         self.raiseEvent(evtClass, evt)
         evt.Skip()
 
@@ -4523,7 +4521,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 self.SelectBlock(row, col, row, col)
 
     def __onWxGridEditorShown(self, evt):
-        self.raiseEvent(dEvents.GridCellEditBegin, evt)
+        self.raiseEvent(events.GridCellEditBegin, evt)
 
         # Need to reapply the edit controls dynamic properties. (Be careful to not inflate the editors refcount)
         editor = self.GetCellEditor(evt.GetRow(), evt.GetCol())
@@ -4537,7 +4535,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         evt.Skip()
 
     def __onWxGridEditorHidden(self, evt):
-        self.raiseEvent(dEvents.GridCellEditEnd, evt)
+        self.raiseEvent(events.GridCellEditEnd, evt)
         evt.Skip()
 
     def _toggleCheckBox(self):
@@ -4550,12 +4548,12 @@ class dGrid(dControlMixin, wx.grid.Grid):
         # Force the flushing of the value immediately, instead of waiting for the
         # editor to lose focus (where the flush will happen a second time).
         self._Table.SetValue(self.CurrentRow, self.CurrentColumn, obj.GetValue())
-        self.raiseEvent(dEvents.GridCellEditorHit)
+        self.raiseEvent(events.GridCellEditorHit)
 
     def __onGridCellLeftClick_toggleCB(self, evt):
         col = self.Columns[evt.GetCol()]
         if col.RendererClass == col.boolRendererClass:
-            dui.callAfterInterval(100, self._toggleCheckBox)
+            ui.callAfterInterval(100, self._toggleCheckBox)
         evt.Skip()
 
     def __onWxGridEditorCreated(self, evt):
@@ -4607,73 +4605,73 @@ class dGrid(dControlMixin, wx.grid.Grid):
         evt.Skip()
 
     def __onWxGridCellChange(self, evt):
-        self.raiseEvent(dEvents.GridCellEdited, evt)
+        self.raiseEvent(events.GridCellEdited, evt)
         evt.Skip()
 
     def __onWxGridRowSize(self, evt):
-        self.raiseEvent(dEvents.GridRowSize, evt)
+        self.raiseEvent(events.GridRowSize, evt)
         evt.Skip()
 
     def __onWxHeaderContextMenu(self, evt):
         col, row = self._getColRowForPosition(evt.GetPosition())
-        self.raiseEvent(dEvents.GridHeaderContextMenu, evt, col=col)
+        self.raiseEvent(events.GridHeaderContextMenu, evt, col=col)
         evt.Skip()
 
     def __onWxHeaderIdle(self, evt):
-        self.raiseEvent(dEvents.GridHeaderIdle, evt)
+        self.raiseEvent(events.GridHeaderIdle, evt)
         evt.Skip()
 
     def __onWxHeaderMouseEnter(self, evt):
         col, row = self._getColRowForPosition(evt.GetPosition())
-        self.raiseEvent(dEvents.GridHeaderMouseEnter, evt, col=col)
+        self.raiseEvent(events.GridHeaderMouseEnter, evt, col=col)
         evt.Skip()
 
     def __onWxHeaderMouseLeave(self, evt):
         col, row = self._getColRowForPosition(evt.GetPosition())
         self._headerMouseLeftDown, self._headerMouseRightDown = False, False
-        self.raiseEvent(dEvents.GridHeaderMouseLeave, evt, col=col)
+        self.raiseEvent(events.GridHeaderMouseLeave, evt, col=col)
         evt.Skip()
 
     def __onWxHeaderMouseLeftDoubleClick(self, evt):
         col, row = self._getColRowForPosition(evt.GetPosition())
-        self.raiseEvent(dEvents.GridHeaderMouseLeftDoubleClick, evt, col=col)
+        self.raiseEvent(events.GridHeaderMouseLeftDoubleClick, evt, col=col)
         evt.Skip()
 
     def __onWxHeaderMouseLeftDown(self, evt):
         col, row = self._getColRowForPosition(evt.GetPosition())
-        self.raiseEvent(dEvents.GridHeaderMouseLeftDown, evt, col=col)
+        self.raiseEvent(events.GridHeaderMouseLeftDown, evt, col=col)
         self._headerMouseLeftDown = True
         # evt.Skip() #- don't skip or all the rows will be selected.
 
     def __onWxHeaderMouseLeftUp(self, evt):
-        dui.callAfter(self._enableDoubleBuffering)
+        ui.callAfter(self._enableDoubleBuffering)
         col, row = self._getColRowForPosition(evt.GetPosition())
-        self.raiseEvent(dEvents.GridHeaderMouseLeftUp, evt, col=col)
+        self.raiseEvent(events.GridHeaderMouseLeftUp, evt, col=col)
         if self._headerMouseLeftDown:
             # mouse went down and up in the header: send a click:
-            self.raiseEvent(dEvents.GridHeaderMouseLeftClick, evt, col=col)
+            self.raiseEvent(events.GridHeaderMouseLeftClick, evt, col=col)
             self._headerMouseLeftDown = False
         evt.Skip()
 
     def __onWxHeaderMouseMotion(self, evt):
-        if dui.isMouseLeftDown():
+        if ui.isMouseLeftDown():
             self._disableDoubleBuffering()
         col, row = self._getColRowForPosition(evt.GetPosition())
-        self.raiseEvent(dEvents.GridHeaderMouseMove, evt, col=col)
+        self.raiseEvent(events.GridHeaderMouseMove, evt, col=col)
         evt.Skip()
 
     def __onWxHeaderMouseRightDown(self, evt):
         col, row = self._getColRowForPosition(evt.GetPosition())
-        self.raiseEvent(dEvents.GridHeaderMouseRightDown, evt, col=col)
+        self.raiseEvent(events.GridHeaderMouseRightDown, evt, col=col)
         self._headerMouseRightDown = True
         evt.Skip()
 
     def __onWxHeaderMouseRightUp(self, evt):
         col, row = self._getColRowForPosition(evt.GetPosition())
-        self.raiseEvent(dEvents.GridHeaderMouseRightUp, evt, col=col)
+        self.raiseEvent(events.GridHeaderMouseRightUp, evt, col=col)
         if self._headerMouseRightDown:
             # mouse went down and up in the header: send a click:
-            self.raiseEvent(dEvents.GridHeaderMouseRightClick, evt)
+            self.raiseEvent(events.GridHeaderMouseRightClick, evt)
             self._headerMouseRightDown = False
         evt.Skip()
 
@@ -4692,49 +4690,49 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
     def __onWxMouseLeftDoubleClick(self, evt):
         col, row = self._getColRowForPosition(evt.GetPosition())
-        self.raiseEvent(dEvents.GridMouseLeftDoubleClick, evt, col=col, row=row)
+        self.raiseEvent(events.GridMouseLeftDoubleClick, evt, col=col, row=row)
         evt.Skip()
 
     def __onWxMouseLeftDown(self, evt):
         col, row = self._getColRowForPosition(evt.GetPosition())
-        self.raiseEvent(dEvents.GridMouseLeftDown, evt, col=col, row=row)
+        self.raiseEvent(events.GridMouseLeftDown, evt, col=col, row=row)
         self._mouseLeftDown = (col, row)
         evt.Skip()
 
     def __onWxMouseLeftUp(self, evt):
-        dui.callAfter(self._enableDoubleBuffering)
+        ui.callAfter(self._enableDoubleBuffering)
         col, row = self._getColRowForPosition(evt.GetPosition())
-        self.raiseEvent(dEvents.GridMouseLeftUp, evt, col=col, row=row)
+        self.raiseEvent(events.GridMouseLeftUp, evt, col=col, row=row)
         if getattr(self, "_mouseLeftDown", (None, None)) == (col, row):
             # mouse went down and up in this cell: send a click:
-            self.raiseEvent(dEvents.GridMouseLeftClick, evt, col=col, row=row)
+            self.raiseEvent(events.GridMouseLeftClick, evt, col=col, row=row)
             self._mouseLeftDown = (None, None)
         evt.Skip()
 
     def __onWxMouseMotion(self, evt):
-        if dui.isMouseLeftDown():
+        if ui.isMouseLeftDown():
             self._disableDoubleBuffering()
         col, row = self._getColRowForPosition(evt.GetPosition())
-        self.raiseEvent(dEvents.GridMouseMove, evt, col=col, row=row)
+        self.raiseEvent(events.GridMouseMove, evt, col=col, row=row)
         evt.Skip()
 
     def __onWxMouseRightDown(self, evt):
         col, row = self._getColRowForPosition(evt.GetPosition())
-        self.raiseEvent(dEvents.GridMouseRightDown, evt, col=col, row=row)
+        self.raiseEvent(events.GridMouseRightDown, evt, col=col, row=row)
         self._mouseRightDown = (col, row)
         evt.Skip()
 
     def __onWxMouseRightUp(self, evt):
         col, row = self._getColRowForPosition(evt.GetPosition())
-        self.raiseEvent(dEvents.GridMouseRightUp, evt, col=col, row=row)
+        self.raiseEvent(events.GridMouseRightUp, evt, col=col, row=row)
         if getattr(self, "_mouseRightDown", (None, None)) == (col, row):
             # mouse went down and up in this cell: send a click:
-            self.raiseEvent(dEvents.GridMouseRightClick, evt, col=col, row=row)
+            self.raiseEvent(events.GridMouseRightClick, evt, col=col, row=row)
             self._mouseRightDown = (None, None)
         evt.Skip()
 
     ##----------------------------------------------------------##
-    ##         end: wx callbacks to re-route to dEvents            ##
+    ##         end: wx callbacks to re-route to events            ##
     ##----------------------------------------------------------##
 
     ##----------------------------------------------------------##
@@ -4900,7 +4898,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             if not self._settingDataSetFromSort:
                 # Force the grid to maintain its current sort order
                 self._restoreSort()
-                dui.callAfter(self.refresh)
+                ui.callAfter(self.refresh)
         else:
             self._properties["DataSet"] = val
 
@@ -4922,7 +4920,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             if self.USE_DATASOURCE_BEING_SET_HACK:
                 self._dataSourceBeingSet = True
             if biz:
-                dui.setAfter(self, "CurrentRow", biz.RowNumber)
+                ui.setAfter(self, "CurrentRow", biz.RowNumber)
         else:
             self._properties["DataSource"] = val
 
@@ -5242,19 +5240,19 @@ class dGrid(dControlMixin, wx.grid.Grid):
                     self.SetSelectionMode(wx.grid.Grid.GridSelectRows)
                     self._selectionMode = "Row"
                 except (AttributeError, wx.PyAssertionError):
-                    dui.callAfter(self._setSelectionMode, val)
+                    ui.callAfter(self._setSelectionMode, val)
             elif val2 == "co":
                 try:
                     self.SetSelectionMode(wx.grid.Grid.GridSelectColumns)
                     self._selectionMode = "Col"
                 except (AttributeError, wx.PyAssertionError):
-                    dui.callAfter(self._setSelectionMode, val)
+                    ui.callAfter(self._setSelectionMode, val)
             else:
                 try:
                     self.SetSelectionMode(wx.grid.Grid.GridSelectCells)
                     self._selectionMode = "Cell"
                 except (AttributeError, wx.PyAssertionError):
-                    dui.callAfter(self._setSelectionMode, val)
+                    ui.callAfter(self._setSelectionMode, val)
             if self._selectionMode != orig:
                 self._checkSelectionType()
         else:
@@ -5365,7 +5363,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 self._verticalHeaders = val
                 self.refresh()
                 if self.AutoAdjustHeaderHeight:
-                    dui.callAfter(self.fitHeaderHeight)
+                    ui.callAfter(self.fitHeaderHeight)
         else:
             self._properties["VerticalHeaders"] = val
 
@@ -6038,7 +6036,7 @@ class _dGrid_test(dGrid):
                 self.FontItalic = not self.FontItalic
 
         # Since we're using a big font, set a minimum height for the editor
-        col.CustomEditorClass = dui.makeGridEditor(ColoredText, minHeight=40)
+        col.CustomEditorClass = ui.makeGridEditor(ColoredText, minHeight=40)
 
         self.addColumn(
             Name="Age",

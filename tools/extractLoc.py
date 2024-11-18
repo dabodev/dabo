@@ -1,11 +1,12 @@
-""" This script is designed to scan source directories and update the MySQL database
+"""This script is designed to scan source directories and update the MySQL database
 containing translation data on dabodev.com.
 """
+
 import os
 import popen2
 import pymysql
 
-### NOTE: you must get these values from a Dabo administrator before 
+### NOTE: you must get these values from a Dabo administrator before
 ###   getting access to the database
 db = pymysql.connect(host="XXX", user="XXX", passwd="XXX", db="XXX")
 crs = db.cursor(pymysql.cursors.DictCursor)
@@ -19,24 +20,24 @@ def processText(txt, proj, pth, fname, xtraPth):
     sections = txt.split("#: ")[1:]
     for section in sections:
         # Each section looks like this:
-        #--------------------------
+        # --------------------------
         # dTextBox.py:442
         # msgid ""
         # "Position of the beginning of the selected text. If no text is\n"
         # "\t\t\tselected, returns the Position of the insertion cursor.  (int)"
         # msgstr ""
-        #--------------------------
-        
+        # --------------------------
+
         # First, split off the 'msgstr' line
-        sect = section.split("msgstr \"\"")[0]
-        
+        sect = section.split('msgstr ""')[0]
+
         try:
             info, locString = sect.split("\nmsgid ")
             junk, linenum = info.split(":")
         except ValueError:
             # This can happen when a string appears multiple times in a file
             continue
-        
+
         cleanLocString = cleanup(locString)
         xtraSplit = os.path.split(xtraPth)[0]
         # See if that string already exists
@@ -51,8 +52,11 @@ def processText(txt, proj, pth, fname, xtraPth):
             # (there should only be one, anyway!
             recs = crs.fetchall()
             for rec in recs:
-                crs.execute("""update originalstrings set ldeleted=0
-                        where pkid = %s""", rec["pkid"])
+                crs.execute(
+                    """update originalstrings set ldeleted=0
+                        where pkid = %s""",
+                    rec["pkid"],
+                )
                 updated += 1
                 break
         else:
@@ -68,7 +72,7 @@ def cleanup(val):
     lns = val.splitlines()
     newlns = []
     for ln in lns:
-        if ln.startswith("\"") and ln.endswith("\""):
+        if ln.startswith('"') and ln.endswith('"'):
             ln = ln[1:-1]
         if ln.endswith("\\n"):
             ln = ln[:-2]
@@ -106,20 +110,25 @@ def processLoc(proj, drct, xtra=None):
 def main():
     # Mark the strings as deleted, in case they no longer exist
     crs.execute("update originalstrings set ldeleted = 1")
-    
+
     ### NOTE: This must be configured with your local paths
-    projects = {"dabo": "/path/to/dabo/",
-            "ide": "/path/to/ide/",
-            "demo": "/path/to/demo/"}
+    projects = {
+        "dabo": "/path/to/dabo/",
+        "ide": "/path/to/ide/",
+        "demo": "/path/to/demo/",
+    }
     for project, drct in list(projects.items()):
         upd, ins = processLoc(project, drct)
-        print() 
-        print("""Project %(project)s: 
+        print()
+        print(
+            """Project %(project)s: 
     %(ins)s entries added
-    %(upd)s entries updated""" % locals())
+    %(upd)s entries updated"""
+            % locals()
+        )
         print()
         print()
-    
+
 
 if __name__ == "__main__":
     main()

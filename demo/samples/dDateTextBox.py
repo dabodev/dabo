@@ -10,26 +10,35 @@ from dabo.dLocalize import _
 from dabo.ui import dLabel
 from dabo.ui import dPanel
 from dabo.ui import dSizer
+
 dDateTextBox = dabo.ui.dDateTextBox
 
 
 class TestPanel(dPanel):
     def afterInit(self):
-        sz = self.Sizer = dSizer("v", DefaultBorder=20,
-                DefaultBorderLeft=True)
+        sz = self.Sizer = dSizer("v", DefaultBorder=20, DefaultBorderLeft=True)
         sz.appendSpacer(25)
 
-        intro = "dDateTextBox is a specialized text control designed to make it easy to " + \
-                "display and maniputate date values. It features several shortcut keystrokes " + \
-                "that enable you to quickly navigate to the desired date value.\n\nYou can see " + \
-                "the available keystrokes by hovering the mouse cursor over the control " + \
-                "to display the ToolTip."
-        lbl = dLabel(self, Caption=intro, ForeColor="darkblue", FontBold=True,
-                WordWrap=True, Alignment="center")
+        intro = (
+            "dDateTextBox is a specialized text control designed to make it easy to "
+            + "display and maniputate date values. It features several shortcut keystrokes "
+            + "that enable you to quickly navigate to the desired date value.\n\nYou can see "
+            + "the available keystrokes by hovering the mouse cursor over the control "
+            + "to display the ToolTip."
+        )
+        lbl = dLabel(
+            self,
+            Caption=intro,
+            ForeColor="darkblue",
+            FontBold=True,
+            WordWrap=True,
+            Alignment="center",
+        )
         sz.append(lbl, "x", halign="center")
         sz.appendSpacer(10)
-        txt = dDateTextBox(self, Value=datetime.date.today(), FontSize=18,
-            Height=36, Width=180)
+        txt = dDateTextBox(
+            self, Value=datetime.date.today(), FontSize=18, Height=36, Width=180
+        )
         sz.append(txt, halign="center")
         dabo.ui.callAfter(self.layout)
 

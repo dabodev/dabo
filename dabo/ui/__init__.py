@@ -16,11 +16,11 @@ import traceback
 import urllib.request, urllib.parse, urllib.error
 import warnings
 
-from dException import dException
-import dEvents
-from dLocalize import _
-from lib import utils
-from lib.utils import ustr
+from . import events
+from .dException import dException
+from .dLocalize import _
+from .lib import utils
+from .lib.utils import ustr
 
 
 # Very VERY first thing: ensure a minimal wx is selected, but only if
@@ -517,7 +517,7 @@ def callEvery(interval, func, *args, **kwargs):
         func(*args, **kwargs)
 
     ret = dabo.ui.dTimer(Interval=interval)
-    ret.bindEvent(dEvents.Hit, _onHit)
+    ret.bindEvent(events.Hit, _onHit)
     ret.start()
     return ret
 
@@ -567,7 +567,7 @@ def continueEvent(evt):
         evt.Skip()
     except AttributeError as e:
         # Event could be a Dabo event, not a wx event
-        if isinstance(evt, dEvents.dEvent):
+        if isinstance(evt, events.dEvent):
             pass
         else:
             dabo.log.error(
@@ -581,7 +581,7 @@ def discontinueEvent(evt):
         evt.Skip(False)
     except AttributeError as e:
         # Event could be a Dabo event, not a wx event
-        if isinstance(evt, dEvents.dEvent):
+        if isinstance(evt, events.dEvent):
             pass
         else:
             dabo.log.error(
@@ -1054,7 +1054,7 @@ def getString(
         # Give the textbox a default value:
         txt = dabo.ui.getString(defaultValue="initial string value")
 
-        # Password Entry (\*'s instead of the actual text)
+        # Password Entry (asterisks instead of the actual text)
         txt = dabo.ui.getString(PasswordEntry=True)
 
     """
@@ -1537,14 +1537,14 @@ def getScrollWinEventClass(evt):
     evtOffset = evtType - baseEvtNum
     # Get the corresponding Dabo event class for the wx event.
     daboEvents = (
-        dEvents.ScrollTop,
-        dEvents.ScrollBottom,
-        dEvents.ScrollLineUp,
-        dEvents.ScrollLineDown,
-        dEvents.ScrollPageUp,
-        dEvents.ScrollPageDown,
-        dEvents.ScrollThumbDrag,
-        dEvents.ScrollThumbRelease,
+        events.ScrollTop,
+        events.ScrollBottom,
+        events.ScrollLineUp,
+        events.ScrollLineDown,
+        events.ScrollPageUp,
+        events.ScrollPageDown,
+        events.ScrollThumbDrag,
+        events.ScrollThumbRelease,
     )
     return daboEvents[evtOffset]
 
@@ -1665,7 +1665,7 @@ def createMenuBar(src, form=None, previewFunc=None):
                     menuItem.setPropertiesFromAtts(
                         itmatts, context={"form": form, "app": dabo.dAppRef}
                     )
-                menuItem.bindEvent(dEvents.Hit, binding)
+                menuItem.bindEvent(events.Hit, binding)
 
     if isinstance(src, dict):
         mnd = src
@@ -1712,7 +1712,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
                 )
             self._control = self._controlClass(parent, **controlProps)
             self._grid = parent.GetParent()
-            self._control.bindEvent(dEvents.KeyDown, self._onKeyDown)
+            self._control.bindEvent(events.KeyDown, self._onKeyDown)
             self.SetControl(self._control)
             if evtHandler:
                 self._control.PushEventHandler(evtHandler)

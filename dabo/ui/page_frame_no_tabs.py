@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import ui as dui
-from ui import makeDynamicProperty
-from ui import dPage
-from ui import dPanel
-import dEvents
-import dColors
-from dLocalize import _
-import lib
+from . import dColors
+from . import lib
+from . import ui
+from .ui import events
+from .dLocalize import _
+from .ui import makeDynamicProperty
+from .ui import dPage
+from .ui import dPanel
 
 
 class dPageFrameNoTabs(dPanel):
@@ -56,7 +56,7 @@ class dPageFrameNoTabs(dPanel):
         if pgCls is None:
             pgCls = self.PageClass
         if self.Sizer is None:
-            self.Sizer = dui.dSizer()
+            self.Sizer = ui.dSizer()
         if isinstance(pgCls, dPage):
             pg = pgCls
         else:
@@ -118,14 +118,14 @@ class dPageFrameNoTabs(dPanel):
         if pg in self.Pages:
             if newPage:
                 if ap:
-                    dui.callAfter(ap.raiseEvent, dEvents.PageLeave)
+                    ui.callAfter(ap.raiseEvent, events.PageLeave)
                     apNum = self.getPageNumber(ap)
                 else:
                     apNum = -1
-                dui.callAfter(pg.raiseEvent, dEvents.PageEnter)
-                dui.callAfter(
+                ui.callAfter(pg.raiseEvent, events.PageEnter)
+                ui.callAfter(
                     self.raiseEvent,
-                    dEvents.PageChanged,
+                    events.PageChanged,
                     oldPageNum=apNum,
                     newPageNum=self.getPageNumber(pg),
                 )
@@ -334,9 +334,9 @@ class TestForm(dForm):
 
         # Add prev/next buttons
         bp = dButton(self, Caption="Prior")
-        bp.bindEvent(dEvents.Hit, self.onPriorPage)
+        bp.bindEvent(events.Hit, self.onPriorPage)
         bn = dButton(self, Caption="Next")
-        bn.bindEvent(dEvents.Hit, self.onNextPage)
+        bn.bindEvent(events.Hit, self.onNextPage)
         hsz = dSizer("h")
         hsz.append(bp, 1)
         hsz.appendSpacer(4)

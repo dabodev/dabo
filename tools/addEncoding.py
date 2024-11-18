@@ -6,6 +6,7 @@ shebangEnv = "#!/usr/bin/env python"
 shebangReplace = """#!/usr/bin/env python
 # -*- coding: utf-8 -*-"""
 
+
 def insertUtf(fname):
     orig = open(fname).read()
     if not utf in orig:
@@ -16,6 +17,7 @@ def insertUtf(fname):
         return 1
     else:
         return 0
+
 
 ### NOTE:
 ### This must be customized for your directory structure before running!
@@ -30,4 +32,3 @@ for proj in ("dabo-dev", "daborun", "demo-dev", "ide-dev"):
                 continue
             reps += insertUtf(fname)
     print("Project %s: %s files were modified" % (proj, reps))
-

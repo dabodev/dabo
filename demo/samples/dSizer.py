@@ -4,8 +4,6 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 
-
-
 from dabo.ui import dLabel
 from dabo.ui import dPanel
 
@@ -13,8 +11,8 @@ from dabo.ui import dSpinner
 from dabo.ui import dDropdownList
 from dabo.ui import dGridSizer
 from dabo.ui import dCheckBox
-dSizer = dabo.ui.dSizer
 
+dSizer = dabo.ui.dSizer
 
 
 class TestPanel(dPanel):
@@ -34,12 +32,30 @@ class TestPanel(dPanel):
 
         # Create 3 panels. Give each a default height/weight of 10 so that
         # they are still visible when 'expand' is set to 0 or weight is 0.
-        self.leftPanel = lp = dPanel(dispPanel, BackColor="red",
-                Name="RedPanel", BorderWidth=1, Height=10, Width=10)
-        self.middlePanel = mp = dPanel(dispPanel, BackColor="green",
-                Name="GreenPanel", BorderWidth=1, Height=10, Width=10)
-        self.rightPanel = rp = dPanel(dispPanel, BackColor="blue",
-                Name="BluePanel", BorderWidth=1, Height=10, Width=10)
+        self.leftPanel = lp = dPanel(
+            dispPanel,
+            BackColor="red",
+            Name="RedPanel",
+            BorderWidth=1,
+            Height=10,
+            Width=10,
+        )
+        self.middlePanel = mp = dPanel(
+            dispPanel,
+            BackColor="green",
+            Name="GreenPanel",
+            BorderWidth=1,
+            Height=10,
+            Width=10,
+        )
+        self.rightPanel = rp = dPanel(
+            dispPanel,
+            BackColor="blue",
+            Name="BluePanel",
+            BorderWidth=1,
+            Height=10,
+            Width=10,
+        )
         # Add them to the display sizer, giving each equal weight, and
         # having each expand to fill the opposite direction. Normally, you
         # would write sz.append(obj, 1, "expand") for each, but there is a
@@ -80,19 +96,20 @@ class TestPanel(dPanel):
         # OK, everything is added, so let's lay 'em out!
         self.layout()
 
-
     def onOrientationChange(self, evt):
         self.displaySizer.Orientation = self.ddOrientation.StringValue
-        self.Form.logit(_("Overall Orientation changed to %s") % self.displaySizer.Orientation)
+        self.Form.logit(
+            _("Overall Orientation changed to %s") % self.displaySizer.Orientation
+        )
         self.layout()
 
 
-
 class SizerController(dPanel):
-    """ This class will contain several controls designed to be
+    """This class will contain several controls designed to be
     manipulated by the user in order to visually change the
     behavior of a specified sizer.
     """
+
     def afterInit(self):
         # Holds a reference to the target this set of controls will affect.
         # This will be set at runtime.
@@ -124,18 +141,19 @@ class SizerController(dPanel):
 
         # Add a dropdown to select Horiz. and Vert. alignment
         sz.append(dLabel(self, Caption=_("Horiz. Align:")), halign="right")
-        self.ddHAlign = dDropdownList(self, ValueMode="String",
-                Choices=["Left", "Center", "Right"])
+        self.ddHAlign = dDropdownList(
+            self, ValueMode="String", Choices=["Left", "Center", "Right"]
+        )
         self.ddHAlign.bindEvent(dEvents.Hit, self.onAlignChange)
         self.ddHAlign.sizerProp = "HAlign"
         sz.append(self.ddHAlign)
         sz.append(dLabel(self, Caption=_("Vert. Align:")), halign="right")
-        self.ddVAlign = dDropdownList(self, ValueMode="String",
-                Choices=["Top", "Middle", "Bottom"])
+        self.ddVAlign = dDropdownList(
+            self, ValueMode="String", Choices=["Top", "Middle", "Bottom"]
+        )
         self.ddVAlign.bindEvent(dEvents.Hit, self.onAlignChange)
         self.ddVAlign.sizerProp = "VAlign"
         sz.append(self.ddVAlign)
-
 
     def onAlignChange(self, evt):
         tsi = self.Target.ControllingSizerItem
@@ -150,7 +168,6 @@ class SizerController(dPanel):
         nm = self.Target.Name
         self.Form.logit(_("%(nm)s.%(prop)s changed to '%(val)s'") % locals())
 
-
     def onProportionChange(self, evt):
         tsi = self.Target.ControllingSizerItem
         ts = self.Target.ControllingSizer
@@ -161,7 +178,6 @@ class SizerController(dPanel):
         self.Form.layout()
         nm = self.Target.Name
         self.Form.logit(_("%(nm)s.Proportion changed to '%(val)s'") % locals())
-
 
     def onBorderChange(self, evt):
         tsi = self.Target.ControllingSizerItem
@@ -174,7 +190,6 @@ class SizerController(dPanel):
         nm = self.Target.Name
         self.Form.logit(_("%(nm)s.Border changed to '%(val)s'") % locals())
 
-
     def onExpandChange(self, evt):
         tsi = self.Target.ControllingSizerItem
         ts = self.Target.ControllingSizer
@@ -185,7 +200,6 @@ class SizerController(dPanel):
         self.Form.layout()
         nm = self.Target.Name
         self.Form.logit(_("%(nm)s.Expand changed to '%(val)s'") % locals())
-
 
     def _setCaption(self, val):
         self.lblHeading.Caption = val
@@ -205,9 +219,6 @@ class SizerController(dPanel):
 
     Caption = property(None, _setCaption)
     Target = property(_getTarget, _setTarget)
-
-
-
 
 
 category = "Layout.dSizer"

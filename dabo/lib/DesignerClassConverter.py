@@ -11,17 +11,15 @@ import codecs
 import os
 import random
 import re
-import six
 import tempfile
 import time
 
-import dabo
-from dabo.dLocalize import _
-from dabo.dObject import dObject
-from dabo.lib import utils
-from dabo.lib import xmltodict as xtd
-from dabo.lib.utils import ustr
-from dabo.ui.dialogs import Wizard
+from .dLocalize import _
+from .dObject import dObject
+from .lib import utils
+from .lib import xmltodict as xtd
+from .lib.utils import ustr
+from .ui.dialogs import Wizard
 
 # Doesn't matter what platform we're on; Python needs
 # newlines in its compiled code.
@@ -79,7 +77,7 @@ class DesignerClassConverter(dObject):
             self.addInheritedInfo(dct, super, updateCode=True)
         # Parse the returned dict and create the class definition text
         self.createClassText(dct)
-        if isinstance(self.classText, six.binary_type):
+        if isinstance(self.classText, bytes):
             self.classText = self.classText.decode(self._encoding)
         # Work-around for bug in which a trailing comment line throws an error
         self.classText += "\n"
@@ -386,10 +384,10 @@ class DesignerClassConverter(dObject):
         else:
             impt = ""
         ct = self.classText
-        if isinstance(ct, six.string_types):
-            self.classText = six.b(ct)
-        if isinstance(impt, six.string_types):
-            impt = six.b(impt)
+        if isinstance(ct, str):
+            self.classText = bytes(ct)
+        if isinstance(impt, str):
+            impt = bytes(impt)
         self.classText = self.classText.replace(b"|classImportStatements|", impt)
 
         # We're done!
@@ -913,8 +911,8 @@ class DesignerClassConverter(dObject):
 
 """
         self._clsHdrText = """import dabo
-from dabo import dEvents as dEvents
-from dabo.lib.utils import ustr
+from .ui import events
+from .lib.utils import ustr
 import sys
 |classImportStatements|
 

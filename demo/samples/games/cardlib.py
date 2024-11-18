@@ -26,7 +26,6 @@ class Card(dBitmap):
                 pic = "%s/%s%s" % (self.Parent.DeckDirectory, suit, ustr(rank))
         self.Picture = pic
 
-
     def _getDesc(self):
         rank = self.Rank
         suit = self.Suit
@@ -43,10 +42,9 @@ class Card(dBitmap):
                 ret = "King"
             else:
                 ret = ustr(rank)
-            suitNames = {"S" : "Spades", "D" : "Diamonds", "H" : "Hearts", "C" : "Clubs"}
+            suitNames = {"S": "Spades", "D": "Diamonds", "H": "Hearts", "C": "Clubs"}
             ret += " of %s" % suitNames[suit]
         return ret
-
 
     def _getAlternatePicture(self):
         if hasattr(self, "_alternatePicture"):
@@ -58,7 +56,6 @@ class Card(dBitmap):
     def _setAlternatePicture(self, val):
         self._alternatePicture = val
         self.updPic()
-
 
     def _getFaceUp(self):
         if hasattr(self, "_faceUp"):
@@ -72,7 +69,6 @@ class Card(dBitmap):
             self._faceUp = bool(val)
             self.updPic()
 
-
     def _getRank(self):
         if hasattr(self, "_rank"):
             v = self._rank
@@ -84,7 +80,6 @@ class Card(dBitmap):
         if self.Rank != val:
             self._rank = val
             self.updPic()
-
 
     def _getSuit(self):
         if hasattr(self, "_suit"):
@@ -100,21 +95,35 @@ class Card(dBitmap):
                 self._suit = suit
                 self.updPic()
 
+    AlternatePicture = property(
+        _getAlternatePicture,
+        _setAlternatePicture,
+        None,
+        _("Alternate picture to show on face of card, overriding default behavior."),
+    )
 
-    AlternatePicture = property(_getAlternatePicture, _setAlternatePicture, None,
-            _("Alternate picture to show on face of card, overriding default behavior."))
+    Description = property(
+        _getDesc,
+        None,
+        None,
+        _("Descriptive name for this card, such as 'King of Clubs'  (str)"),
+    )
 
-    Description = property(_getDesc, None, None,
-            _("Descriptive name for this card, such as 'King of Clubs'  (str)") )
+    FaceUp = property(
+        _getFaceUp,
+        _setFaceUp,
+        None,
+        _("Specifies whether the card value is revealed.  (bool)"),
+    )
 
-    FaceUp = property(_getFaceUp, _setFaceUp, None,
-            _("Specifies whether the card value is revealed.  (bool)"))
+    Rank = property(_getRank, _setRank, None, _("Rank for this card (int)"))
 
-    Rank = property(_getRank, _setRank, None,
-            _("Rank for this card (int)") )
-
-    Suit = property(_getSuit, _setSuit, None,
-            _("Suit for this card (Spades, Hearts, Diamonds, Clubs)") )
+    Suit = property(
+        _getSuit,
+        _setSuit,
+        None,
+        _("Suit for this card (Spades, Hearts, Diamonds, Clubs)"),
+    )
 
 
 class Deck(list):
@@ -123,6 +132,7 @@ class Deck(list):
     This is an abstract class, and should be overridden to define a particular
     playing card deck.
     """
+
     def __init__(self, board):
         self.board = board
         self.createDeck()
@@ -157,5 +167,3 @@ class PokerDeck(Deck):
         for suit in "SHDC":
             for rank in range(1, 14):
                 self.appendCard(suit, rank)
-
-

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import dEvents
-import ui
-from dLocalize import _
-from ui import makeDynamicProperty
-from ui import dPemMixin as PM
-from ui import dPanel
+from . import ui
+from .ui import events
+from .dLocalize import _
+from .ui import makeDynamicProperty
+from .ui import dPemMixin as PM
+from .ui import dPanel
 
 
 class dTimer(PM):
@@ -55,7 +55,7 @@ class dTimer(PM):
 
     def _onTimerHit(self):
         if self.Enabled and self.Interval > 0:
-            self.raiseEvent(dEvents.Hit)
+            self.raiseEvent(events.Hit)
             ui.callAfterInterval(self.Interval, self._onTimerHit)
 
     # property get/set functions
@@ -109,9 +109,9 @@ class _dTimer_test(dPanel):
         # Only setting this so that the test Caption is correct
         self._baseClass = dTimer
         self.fastTimer = dTimer(self, Interval=500)
-        self.fastTimer.bindEvent(dEvents.Hit, self.onFastTimerHit)
+        self.fastTimer.bindEvent(events.Hit, self.onFastTimerHit)
         self.slowTimer = dTimer(Interval=2000)
-        self.slowTimer.bindEvent(dEvents.Hit, self.onSlowTimerHit)
+        self.slowTimer.bindEvent(events.Hit, self.onSlowTimerHit)
         self.fastTimer.start()
         self.slowTimer.start()
 

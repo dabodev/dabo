@@ -3,13 +3,13 @@ import os.path
 
 import wx
 
-import ui
-import dEvents
-from dObject import dObject
-from dLocalize import _
-from ui import dControlMixin
-from ui import dMenu
-from ui import makeDynamicProperty
+from . import ui
+from .ui import events
+from .dObject import dObject
+from .dLocalize import _
+from .ui import dControlMixin
+from .ui import dMenu
+from .ui import makeDynamicProperty
 
 
 class dToolBar(dControlMixin, wx.ToolBar):
@@ -510,9 +510,9 @@ class dToolBarItem(dObject):
             app.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, wxItem)
         super(dToolBarItem, self).__init__(*args, **kwargs)
         if OnHit is not None:
-            self.bindEvent(dEvents.Hit, OnHit)
+            self.bindEvent(events.Hit, OnHit)
         if wxItem.ToolBar:
-            wxItem.ToolBar.bindEvent(dEvents.Update, self.__onUpdate)
+            wxItem.ToolBar.bindEvent(events.Update, self.__onUpdate)
 
     def __getattr__(self, attr):
         """Exposes the underlying wx functions and attributes."""
@@ -544,7 +544,7 @@ class dToolBarItem(dObject):
             setattr(self, prop, func(*args))
 
     def __onWxHit(self, evt):
-        self.raiseEvent(dEvents.Hit)
+        self.raiseEvent(events.Hit)
 
     def GetChildren(self):
         # Placeholder to satisfy some wx layer code.

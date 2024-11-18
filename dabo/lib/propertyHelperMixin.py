@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import string
-from dabo.dLocalize import _
+
+from .dLocalize import _
 
 
 class PropertyHelperMixin(object):
@@ -250,9 +251,9 @@ class PropertyHelperMixin(object):
         to be bound, and binds the corresponding event to that method.
         """
         for evtName, mthd in list(kwEvtDict.items()):
-            from dabo import dEvents
+            from .ui import events
 
-            evt = dEvents.__dict__[evtName]
+            evt = events.__dict__[evtName]
             if callable(mthd):
                 self.bindEvent(evt, mthd)
             else:

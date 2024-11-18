@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 import wx
 import wx.lib.agw.aui as aui
+
 PaneInfo = aui.AuiPaneInfo
 
-from dLocalize import _
-import dEvents
-import ui as dui
-from ui import dButton
-from ui import dCheckBox
-from ui import dForm
-from ui import dPanel
-from ui import dShellForm
-from ui import dSizer
-from ui import dStatusBar
-from ui import makeDynamicProperty
+from .dLocalize import _
+from .ui import events
+from . import ui
+from .ui import dButton
+from .ui import dCheckBox
+from .ui import dForm
+from .ui import dPanel
+from .ui import dShellForm
+from .ui import dSizer
+from .ui import dStatusBar
+from .ui import makeDynamicProperty
 # import log
 
 flag_allow_float = aui.AUI_MGR_ALLOW_FLOATING
@@ -44,7 +45,7 @@ class _dDockManager(aui.AuiManager):
 
     def aui_render(self, evt):
         evt.Skip()
-        dui.callAfterInterval(100, self._managedWindow.update)
+        ui.callAfterInterval(100, self._managedWindow.update)
 
     def addPane(self, win, name=None, typ=None, caption=None, toolbar=None):
         pi = PaneInfo()
@@ -64,7 +65,7 @@ class _dDockManager(aui.AuiManager):
                 pi = pi.ToolbarPane()
         self.AddPane(win, pi)
         ret = self.GetAllPanes()[-1]
-        dui.callAfterInterval(100, self.Update)
+        ui.callAfterInterval(100, self.Update)
         return ret
 
     def runUpdate(self):
@@ -639,8 +640,8 @@ class dDockPanel(dPanel):
             self.Form._refreshState(0)
             self.Form.lockDisplay()
             self.Docked = not self.Docked
-            dui.setAfterInterval(100, self, "Docked", not self.Docked)
-            dui.callAfterInterval(150, self.Form.unlockDisplay)
+            ui.setAfterInterval(100, self, "Docked", not self.Docked)
+            ui.callAfterInterval(150, self.Form.unlockDisplay)
         else:
             self._properties["ShowCloseButton"] = val
 
@@ -1050,7 +1051,7 @@ class dDockForm(dForm):
         self._centerPanel.Sizer = dSizer("v")
         self._panels = {}
         super(dDockForm, self)._afterInit()
-        self.bindEvent(dEvents.Destroy, self.__onDestroy)
+        self.bindEvent(events.Destroy, self.__onDestroy)
 
     def __onDestroy(self, evt):
         if self._finito:
@@ -1093,9 +1094,9 @@ class dDockForm(dForm):
         if interval == 0:
             self._mgr.Update()
         else:
-            dui.callAfterInterval(interval, self._mgr.runUpdate)
+            ui.callAfterInterval(interval, self._mgr.runUpdate)
         if not self._inUpdate:
-            dui.callAfter(self.update)
+            ui.callAfter(self.update)
 
     def update(self, interval=None):
         if not self._inUpdate:
@@ -1104,7 +1105,7 @@ class dDockForm(dForm):
             # Update the panels
             for pnl in list(self._panels.keys()):
                 pnl.update()
-            dui.callAfterInterval(500, self._clearInUpdate)
+            ui.callAfterInterval(500, self._clearInUpdate)
 
     def _clearInUpdate(self):
         self._inUpdate = False

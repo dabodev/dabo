@@ -102,7 +102,9 @@ class Test(object):
         # Get all the python modules in this directory into a list:
         dabo_root = settings.root_path
         ui_root = dabo_root / "ui"
-        modules = [ modname.stem for modname in ui_root.iterdir() if modname.suffix == ".py" ]
+        modules = [
+            modname.stem for modname in ui_root.iterdir() if modname.suffix == ".py"
+        ]
 
         for modname in sorted(modules):
             print("==> ", modname)

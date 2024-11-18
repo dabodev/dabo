@@ -4,15 +4,15 @@ import time
 
 import wx
 
-import ui as dui
-import dEvents
-import dException
-from dLocalize import _
-from lib.utils import ustr
-from ui import dButton
-from ui import dFormMixin
-from ui import dSizer
-from ui import makeDynamicProperty
+from .ui import events
+from . import ui
+from . import dException
+from .dLocalize import _
+from .lib.utils import ustr
+from .ui import dButton
+from .ui import dFormMixin
+from .ui import dSizer
+from .ui import makeDynamicProperty
 # import biz
 # import eatBizExceptions
 # import log
@@ -68,7 +68,7 @@ class BaseForm(dFormMixin):
         self.Sizer.layout()
         super(BaseForm, self)._afterInit()
         if self.RequeryOnLoad:
-            dui.callAfter(self.requery)
+            ui.callAfter(self.requery)
 
     def _beforeClose(self, evt=None):
         """
@@ -92,9 +92,9 @@ class BaseForm(dFormMixin):
         if exception and not eatBizExceptions:
             raise exception
         if severe:
-            func = dui.stop
+            func = ui.stop
         else:
-            func = dui.info
+            func = ui.info
         if title is None:
             title = _("Notice")
         func(message=msg, title=title)
@@ -118,7 +118,7 @@ class BaseForm(dFormMixin):
             interval = self.DataUpdateDelay or 0
         if interval:
             ## Call update() after interval; send 0 to tell update to do it immediately.
-            dui.callAfterInterval(interval, self.update, 0)
+            ui.callAfterInterval(interval, self.update, 0)
         else:
             try:
                 super(BaseForm, self).update()
@@ -162,7 +162,7 @@ class BaseForm(dFormMixin):
 
         if changedBizList:
             queryMessage = self.getConfirmChangesQueryMessage(changedBizList)
-            response = dui.areYouSure(queryMessage, parent=self)
+            response = ui.areYouSure(queryMessage, parent=self)
             if response == None:  ## cancel
                 # Don't let the form close, or requery happen
                 return False
@@ -235,7 +235,7 @@ class BaseForm(dFormMixin):
         self.refresh()
         # Notify listeners that the row number changed:
         self.raiseEvent(
-            dEvents.RowNumChanged,
+            events.RowNumChanged,
             newRowNumber=biz.RowNumber,
             oldRowNumber=self.__oldRowNum,
             bizobj=biz,
@@ -288,9 +288,9 @@ class BaseForm(dFormMixin):
                     delay = self.RowNavigationDelay
                 self._lastNavigationTime = curTime
                 self._afterRowNavigation()
-                self.raiseEvent(dEvents.RowNavigation, biz=biz)
+                self.raiseEvent(events.RowNavigation, biz=biz)
                 if delay:
-                    dui.callAfterInterval(delay, self._afterPointerMoveUpdate, biz)
+                    ui.callAfterInterval(delay, self._afterPointerMoveUpdate, biz)
                 else:
                     self._afterPointerMoveUpdate(biz)
         return True
@@ -514,7 +514,7 @@ class BaseForm(dFormMixin):
 
         try:
             self.StatusText = _("Please wait... requerying dataset...")
-            #            busy = dui.busyInfo(_("Please wait... requerying dataset..."))
+            #            busy = ui.busyInfo(_("Please wait... requerying dataset..."))
             self.stopWatch.Start()
             #            response = dProgressDialog.displayAfterWait(self, 2, bizobj.requery)
             response = bizobj.requery()
@@ -527,7 +527,7 @@ class BaseForm(dFormMixin):
             if newRowNumber != oldRowNumber:
                 # Notify listeners that the row number changed:
                 self.raiseEvent(
-                    dEvents.RowNumChanged,
+                    events.RowNumChanged,
                     newRowNumber=newRowNumber,
                     oldRowNumber=oldRowNumber,
                     bizobj=bizobj,
@@ -607,12 +607,12 @@ class BaseForm(dFormMixin):
                 )
                 % biz_caption
             )
-        if not prompt or dui.areYouSure(message, defaultNo=True, cancelButton=False):
+        if not prompt or ui.areYouSure(message, defaultNo=True, cancelButton=False):
             try:
                 bizobj.delete()
                 self.setStatusText(_("Record Deleted."))
                 # Notify listeners that the row number changed:
-                self.raiseEvent(dEvents.RowNumChanged)
+                self.raiseEvent(events.RowNumChanged)
             except dException.ConnectionLostException as e:
                 msg = self._connectionLostMsg(ustr(e))
                 self.notifyUser(
@@ -648,11 +648,11 @@ class BaseForm(dFormMixin):
                 "be canceled.\n\n Are you sure you want to do this?"
             )
 
-        if dui.areYouSure(message, defaultNo=True):
+        if ui.areYouSure(message, defaultNo=True):
             try:
                 bizobj.deleteAll()
                 # Notify listeners that the row number changed:
-                self.raiseEvent(dEvents.RowNumChanged)
+                self.raiseEvent(events.RowNumChanged)
             except dException.ConnectionLostException as e:
                 msg = self._connectionLostMsg(ustr(e))
                 self.notifyUser(
@@ -696,7 +696,7 @@ class BaseForm(dFormMixin):
 
         # Notify listeners that the row number changed:
         self.update()
-        self.raiseEvent(dEvents.RowNumChanged)
+        self.raiseEvent(events.RowNumChanged)
         self.afterNew()
         self.refresh()
 
@@ -952,7 +952,7 @@ Database error message: %s"""
         appropriately for your application.
         """
         self.StatusText = _("Validation failed for %(df)s: %(err)s") % locals()
-        dui.callAfter(ctrl.setFocus)
+        ui.callAfter(ctrl.setFocus)
         self._fieldValidationControl = ctrl
 
     def onFieldValidationPassed(self, ctrl, ds, df, val):
@@ -1115,14 +1115,14 @@ Database error message: %s"""
             Set to 0 or None to ensure that all controls reflect immediately to the data changes.
             Setting to a positive non-zero value will result in the following behavior:
 
-            As the row number changes, dEvents.RowNavigation events will fire and the
+            As the row number changes, events.RowNavigation events will fire and the
             afterRowNavigation() hook method will be called, allowing your form code to update a
             specific set of controls so the user knows the records are being navigated. The
             default behavior will reflect the current row number in the form's status bar as
             row navigation is occurring.
 
             After a navigation and the RowNavigationDelay has passed, the form will be
-            completely updated and refreshed. dEvents.RowNumChanged will be fired, and the
+            completely updated and refreshed. events.RowNumChanged will be fired, and the
             hook afterPointerMove() will be called.
 
             Recommended setting if non-zero: 250 [ms]. Values under that result in the timer
@@ -1332,8 +1332,8 @@ class _dBorderlessForm_test(dBorderlessForm):
         self.btn = dButton(self, Caption=_("Close Borderless Form"))
         self.Sizer.append(self.btn, halign="Center", valign="middle")
         self.layout()
-        self.btn.bindEvent(dEvents.Hit, self.close)
-        dui.callAfter(self.setSize)
+        self.btn.bindEvent(events.Hit, self.close)
+        ui.callAfter(self.setSize)
 
     def setSize(self):
         self.Width, self.Height = self.btn.Width + 60, self.btn.Height + 60

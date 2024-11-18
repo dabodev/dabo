@@ -230,13 +230,13 @@ if importDebugger:
     builtins.debugo = builtins.debugout = debugout
 
 if implicitImports:
+    from . import biz
     from . import dColors
-    from . import dEvents
-    import dabo.db
-    import dabo.biz
-    import dabo.ui
+    from . import db
+    from . import ui
+    from .ui import events
 
-    dabo.ui.load_namespace()
+    ui.load_namespace()
     from .dApp import dApp
     from .dPref import dPref
 

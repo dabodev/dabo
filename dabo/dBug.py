@@ -5,8 +5,8 @@ import time
 import inspect
 from io import StringIO
 
-import settings
-from lib.utils import ustr
+from . import settings
+from .lib.utils import ustr
 
 
 def logPoint(msg="", levels=None):

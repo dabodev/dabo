@@ -9,17 +9,21 @@ from dabo.ui import dPanel
 from dabo.ui import dSizer
 from dabo.ui import dSpinner
 from dabo.ui import dTextBox
+
 dGridSizer = dabo.ui.dGridSizer
+
 
 class TestPanel(dPanel):
     def afterInit(self):
         sz = self.Sizer = dSizer("V")
         sz.appendSpacer(50)
 
-        intro = _("This demo shows the effect of the HGap and VGap properties on a GridSizer. "
-                "The panel containing the grid sizer has a tan background, and the various controls "
-                "in the sizer have a light blue background. These colors help you to visualize the effect "
-                "of changing these properties.")
+        intro = _(
+            "This demo shows the effect of the HGap and VGap properties on a GridSizer. "
+            "The panel containing the grid sizer has a tan background, and the various controls "
+            "in the sizer have a light blue background. These colors help you to visualize the effect "
+            "of changing these properties."
+        )
         cap = dLabel(self, Caption=intro, Width=400, WordWrap=True)
         sz.append(cap, halign="center")
         sz.appendSpacer(25)
@@ -51,15 +55,13 @@ class TestPanel(dPanel):
         gs = dGridSizer(MaxCols=2)
         lbl = dLabel(self, Caption=_("HGap:"))
         gs.append(lbl, halign="right")
-        spn = dSpinner(self, DataSource="self.Parent.gridSizer",
-                DataField="HGap")
+        spn = dSpinner(self, DataSource="self.Parent.gridSizer", DataField="HGap")
         spn.bindEvent(dEvents.Hit, self.onChangeLayout)
         gs.append(spn)
 
         lbl = dLabel(self, Caption=_("VGap:"))
         gs.append(lbl, halign="right")
-        spn = dSpinner(self, DataSource="self.Parent.gridSizer",
-                DataField="VGap")
+        spn = dSpinner(self, DataSource="self.Parent.gridSizer", DataField="VGap")
         spn.bindEvent(dEvents.Hit, self.onChangeLayout)
         gs.append(spn)
 
@@ -70,7 +72,6 @@ class TestPanel(dPanel):
         sz.append(hs, halign="center")
         # Call update() to set the controls' Value.
         self.update()
-
 
     def onChangeLayout(self, evt):
         self.layout()

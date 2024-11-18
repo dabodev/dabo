@@ -1,4 +1,5 @@
 """This script scans project directories and generates the .pot files needed for localization."""
+
 import os
 import popen2
 
@@ -25,12 +26,14 @@ def processLoc(proj, drct, xtra=None):
 
 def main():
     ### NOTE: This must be configured with your local paths
-    projects = {"dabo": "/path/to/dabo/",
-            "ide": "/path/to/ide/",
-            "demo": "/path/to/demo/"}
+    projects = {
+        "dabo": "/path/to/dabo/",
+        "ide": "/path/to/ide/",
+        "demo": "/path/to/demo/",
+    }
     for project, drct in list(projects.items()):
         processLoc(project, drct)
-    
+
 
 if __name__ == "__main__":
     main()

@@ -11,8 +11,8 @@ from dabo.ui import dSizer
 from dabo.ui import dLed
 
 from dabo.ui import dGridSizer
-dTextBox = dabo.ui.dTextBox
 
+dTextBox = dabo.ui.dTextBox
 
 
 class TestPanel(dPanel):
@@ -23,8 +23,7 @@ class TestPanel(dPanel):
 
         # Plain textbox
         lbl = dLabel(self, Caption=_("Plain TextBox"))
-        txt = dTextBox(self, Name=_("PlainTextBox"),
-                Value=_("Test it out and see"))
+        txt = dTextBox(self, Name=_("PlainTextBox"), Value=_("Test it out and see"))
         txt.SelectionStart = 0
         sz.append(lbl, halign="right")
         sz.append(txt, "x")
@@ -37,8 +36,7 @@ class TestPanel(dPanel):
 
         # Password textbox
         lbl = dLabel(self, Caption=_("Password"))
-        txt = dTextBox(self, Name=_("Password TextBox"),
-                PasswordEntry=True)
+        txt = dTextBox(self, Name=_("Password TextBox"), PasswordEntry=True)
         sz.append(lbl, halign="right")
         sz.append(txt, "x")
 
@@ -51,7 +49,6 @@ class TestPanel(dPanel):
         # Let the textbox column grow
         sz.setColExpand(True, 1)
         self.layout()
-
 
     def onTextGotFocus(self, evt):
         self.Form.logit(_("%s GotFocus") % evt.EventObject.Name)
@@ -67,11 +64,7 @@ class TestPanel(dPanel):
         self.Form.logit(_("KeyChar event; code=%(cd)s, char=%(ch)s") % locals())
 
     def onTextHit(self, evt):
-        self.Form.logit(_("Hit event; new value='%s'") %
-                evt.EventObject.Value)
-
-
-
+        self.Form.logit(_("Hit event; new value='%s'") % evt.EventObject.Value)
 
 
 category = "Controls.dTextBox"

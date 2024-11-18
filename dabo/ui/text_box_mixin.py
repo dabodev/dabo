@@ -7,14 +7,15 @@ import time
 
 import wx
 import wx.lib.masked as masked
-from lib import dates
-from lib.utils import ustr
-from keys import dKeys
-import ui
-from dLocalize import _
-import dEvents
-from ui import dDataControlMixin
-from ui import makeDynamicProperty
+
+from . import ui
+from .ui import events
+from .lib import dates
+from .lib.utils import ustr
+from .keys import dKeys
+from .dLocalize import _
+from .ui import dDataControlMixin
+from .ui import makeDynamicProperty
 # import log
 
 
@@ -25,6 +26,7 @@ valueErrors = (ValueError, decimal.InvalidOperation)
 # JK: We can't set this up on module load because locale
 # is set not until dApp is completely setup.
 decimalPoint = None
+
 
 class dTextBoxMixinBase(dDataControlMixin):
     def __init__(
@@ -39,9 +41,7 @@ class dTextBoxMixinBase(dDataControlMixin):
         self._inFlush = False
         self._textLength = None
         self._inTextLength = False
-        self._flushOnLostFocus = (
-            True  ## see ui.dDataControlMixinBase::flushValue()
-        )
+        self._flushOnLostFocus = True  ## see ui.dDataControlMixinBase::flushValue()
 
         dDataControlMixin.__init__(
             self,
@@ -261,9 +261,9 @@ class dTextBoxMixinBase(dDataControlMixin):
                 "None": None,
             }.get(valKey)
             self._checkForceCase()
-            self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
+            self.unbindEvent(events.KeyChar, self.__onKeyChar)
             if self._forceCase or self._textLength:
-                self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
+                self.bindEvent(events.KeyChar, self.__onKeyChar)
         else:
             self._properties["ForceCase"] = val
 
@@ -341,9 +341,9 @@ class dTextBoxMixinBase(dDataControlMixin):
                 self._textLength = val
             self._checkTextLength()
 
-            self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
+            self.unbindEvent(events.KeyChar, self.__onKeyChar)
             if self._forceCase or self._textLength:
-                self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
+                self.bindEvent(events.KeyChar, self.__onKeyChar)
         else:
             self._properties["TextLength"] = val
 

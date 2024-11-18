@@ -2,6 +2,7 @@
 import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+
 try:
     import numpy.oldnumeric as _Numeric
 except ImportError:
@@ -16,9 +17,6 @@ from dabo.ui import dGridSizer
 from dabo.ui import dBorderSizer
 
 
-
-
-
 class TestPanel(dPanel):
     def afterInit(self):
         if not _Numeric:
@@ -30,7 +28,6 @@ class TestPanel(dPanel):
         sz.append(self.createControlPanel(self.linePlot), "expand")
         sz.appendSpacer(10)
         sz.append1x(self.linePlot)
-
 
     def createControlPanel(self, linePlot):
         bs = dBorderSizer(self, Caption="Control Panel", orientation="v")
@@ -50,9 +47,8 @@ class TestPanel(dPanel):
         gs.append(dLabel(self, Caption="Y Axis Label"), halign="right")
         gs.append(txtYAxisLabel, "expand")
 
-        bs.append(gs, 'x')
+        bs.append(gs, "x")
         return bs
-
 
     def createLinePlot(self):
         linePlot = dLinePlot(self)
@@ -61,21 +57,41 @@ class TestPanel(dPanel):
         linePlot.Caption = "Title of Graph"
 
         # 1000 points cos function, plotted as blue line
-        linePlot.appendLineFromEquation("2*_Numeric.cos(%s)", 5, 10, Caption="Blue Line", LineWidth=2, LineColor='blue')
+        linePlot.appendLineFromEquation(
+            "2*_Numeric.cos(%s)",
+            5,
+            10,
+            Caption="Blue Line",
+            LineWidth=2,
+            LineColor="blue",
+        )
 
         line = []
         for i in range(10):
-            line.append((i, float(i)/2))
+            line.append((i, float(i) / 2))
         linePlot.appendLineFromPoints(line)
 
-        data1 = 2.*_Numeric.pi*_Numeric.arange(200)/200.
+        data1 = 2.0 * _Numeric.pi * _Numeric.arange(200) / 200.0
         data1.shape = (100, 2)
-        data1[:,1] = _Numeric.sin(data1[:,0])
-        linePlot.appendMarkerFromPoints(data1, Caption='Green Markers', Color='green', MarkerShape='circle', MarkerSize=1)
+        data1[:, 1] = _Numeric.sin(data1[:, 0])
+        linePlot.appendMarkerFromPoints(
+            data1,
+            Caption="Green Markers",
+            Color="green",
+            MarkerShape="circle",
+            MarkerSize=1,
+        )
 
         # A few more points...
-        points = [(0., 0.), (_Numeric.pi/4., 1.), (_Numeric.pi/2, 0.), (3.*_Numeric.pi/4., -1)]
-        linePlot.appendMarkerFromPoints(points, Caption='Cross Legend', Color='blue', MarkerShape='cross')
+        points = [
+            (0.0, 0.0),
+            (_Numeric.pi / 4.0, 1.0),
+            (_Numeric.pi / 2, 0.0),
+            (3.0 * _Numeric.pi / 4.0, -1),
+        ]
+        linePlot.appendMarkerFromPoints(
+            points, Caption="Cross Legend", Color="blue", MarkerShape="cross"
+        )
 
         linePlot.Draw(linePlot._plotManager)
 

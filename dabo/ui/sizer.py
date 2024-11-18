@@ -50,7 +50,7 @@ class dSizer(dSizerMixin, wx.BoxSizer):
 
     def getBorderedClass(self):
         """Return the class that is the border sizer version of this class."""
-        return .ui.dBorderSizer
+        return ui.dBorderSizer
 
 
 class dSizerV(dSizer):
@@ -65,9 +65,9 @@ class dSizerH(dSizer):
         super(dSizerH, self).__init__(*args, **kwargs)
 
 
-.ui.dSizer = dSizer
-.ui.dSizerV = dSizerV
-.ui.dSizerH = dSizerH
+ui.dSizer = dSizer
+ui.dSizerV = dSizerV
+ui.dSizerH = dSizerH
 
 
 if __name__ == "__main__":
