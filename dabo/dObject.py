@@ -2,10 +2,10 @@
 import string
 import types
 
-import settings
-from lib.propertyHelperMixin import PropertyHelperMixin
-from lib.eventMixin import EventMixin
-from dLocalize import _
+from . import settings
+from .lib.propertyHelperMixin import PropertyHelperMixin
+from .event_mixin import EventMixin
+from .dLocalize import _
 
 NONE_TYPE = type(None)
 

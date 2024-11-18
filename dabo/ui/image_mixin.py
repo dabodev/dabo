@@ -3,8 +3,9 @@ import os
 
 import wx
 
-from dLocalize import _
-from ui import makeDynamicProperty
+from .. import ui
+from ..dLocalize import _
+from . import makeDynamicProperty
 
 
 class dImageMixin(object):

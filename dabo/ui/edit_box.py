@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import ui as dui
-import dEvents
-from dLocalize import _
-from ui import dTextBoxMixin
-from ui import makeDynamicProperty
+from .. import ui
+from ..dLocalize import _
+from . import dTextBoxMixin
+from . import makeDynamicProperty
 
 
 # The EditBox is just a TextBox with some additional styles.
@@ -134,7 +133,7 @@ It's the Love Boat
 
     def afterInit(self):
         self.Form.Size = (444, 244)
-        dui.callAfter(self.adjustFormCaption)
+        ui.callAfter(self.adjustFormCaption)
 
     def adjustFormCaption(self):
         newcap = "%s - WordWrap: %s" % (self.Form.Caption, self.WordWrap)

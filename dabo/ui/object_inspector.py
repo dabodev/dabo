@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from dPref import dPref
+
+from .. import ui
+from ..dPref import dPref
 
 # 'InspectorFormClass' is defined at the bottom
 
@@ -110,10 +112,10 @@ def _setShowSizers(self, val):
 import six
 import time
 import wx
-from dLocalize import _
-from dPref import dPref
-from ui import dFormMixin
-from ui import dSizerMixin
+from ..dLocalize import _
+from ..dPref import dPref
+from . import dFormMixin
+from . import dSizerMixin
 ]]>
         </importStatements>
         <formatName><![CDATA[

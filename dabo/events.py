@@ -2,10 +2,8 @@
 import logging
 import time
 
-import biz
-import ui
-from dLocalize import _
-from dReportWriter import dReportWriter
+from . import biz
+from .dLocalize import _
 # import eventLogging
 # import log
 
@@ -57,6 +55,8 @@ class dEvent(object):
 
     def _insertEventData(self):
         """Place ui-specific stuff into the ui-agnostic EventData dictionary."""
+        # Need to do this here to avoid circular import
+        from . import ui
         eventData = {}
         nativeEvent = self._uiEvent
         kwargs = self._kwargs
@@ -254,6 +254,7 @@ class SpinnerEvent(dEvent):
 
 class ReportEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from ..dReportWriter import dReportWriter
         try:
             return issubclass(objectClass, dReportWriter)
         except AttributeError:
@@ -616,11 +617,18 @@ class PageChanged(dEvent):
         try:
             return issubclass(
                 objectClass,
-                (ui.dPageFrame, ui.dPageList, ui.dPageSelect, ui.dPageFrameNoTabs, ui.dPageStyled),
+                (
+                    ui.dPageFrame,
+                    ui.dPageList,
+                    ui.dPageSelect,
+                    ui.dPageFrameNoTabs,
+                    ui.dPageStyled,
+                ),
             )
         except AttributeError:
             return issubclass(
-                objectClass, (ui.dPageFrame, ui.dPageList, ui.dPageSelect, ui.dPageFrameNoTabs)
+                objectClass,
+                (ui.dPageFrame, ui.dPageList, ui.dPageSelect, ui.dPageFrameNoTabs),
             )
 
     appliesToClass = classmethod(appliesToClass)
@@ -633,11 +641,18 @@ class PageChanging(dEvent):
         try:
             return issubclass(
                 objectClass,
-                (ui.dPageFrame, ui.dPageList, ui.dPageSelect, ui.dPageFrameNoTabs, ui.dPageStyled),
+                (
+                    ui.dPageFrame,
+                    ui.dPageList,
+                    ui.dPageSelect,
+                    ui.dPageFrameNoTabs,
+                    ui.dPageStyled,
+                ),
             )
         except AttributeError:
             return issubclass(
-                objectClass, (ui.dPageFrame, ui.dPageList, ui.dPageSelect, ui.dPageFrameNoTabs)
+                objectClass,
+                (ui.dPageFrame, ui.dPageList, ui.dPageSelect, ui.dPageFrameNoTabs),
             )
 
     appliesToClass = classmethod(appliesToClass)
@@ -1108,7 +1123,7 @@ class InteractiveChange(dEvent):
     appliesToClass = classmethod(appliesToClass)
 
 
-class Update(ui.dEvent):
+class Update(dEvent):
     """Occurs when a container wants its controls to update
     their properties.
     """

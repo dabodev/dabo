@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import ui
-from lib.utils import ustr
-from ui import dControlMixin
-from ui import makeDynamicProperty
+from .. import ui
+from ..lib.utils import ustr
+from . import dControlMixin
+from . import makeDynamicProperty
 
 
 class dLine(dControlMixin, wx.StaticLine):

@@ -2,7 +2,8 @@
 import wx
 import wx.grid
 
-from ui import dIcons
+from .. import ui
+from . import dIcons
 
 
 class ImageRenderer(wx.grid.GridCellRenderer):

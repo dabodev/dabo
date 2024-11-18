@@ -2,13 +2,13 @@
 import wx
 import wx.lib.mixins.listctrl as ListMixin
 
-import ui as dui
-import dColors
-import dEvents
-from dLocalize import _
-from lib.utils import ustr
-from ui import dControlItemMixin
-from ui import makeDynamicProperty
+from .. import ui
+from .. import dColors
+from .. import events
+from ..dLocalize import _
+from ..lib.utils import ustr
+from . import dControlItemMixin
+from . import makeDynamicProperty
 
 # import log
 
@@ -98,7 +98,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         # a control with items
         self.SortFunction = self._listControlSort
         # Set the default sorting column to 0 after everything is instantiated
-        dui.setAfter(self, "SortColumn", 0)
+        ui.setAfter(self, "SortColumn", 0)
         self._columnAccessor = _ListColumnAccessor(self)
 
     def _initEvents(self):
@@ -112,11 +112,9 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         self.Bind(wx.EVT_LIST_COL_RIGHT_CLICK, self.__onWxHeaderRightClick)
         self.Bind(wx.EVT_LIST_COL_END_DRAG, self.__onWxColumnResize)
 
-        self.bindEvent(dEvents.ListHeaderMouseLeftClick, self.__onHeaderMouseLeftClick)
-        self.bindEvent(
-            dEvents.ListHeaderMouseRightClick, self.__onHeaderMouseRightClick
-        )
-        self.bindEvent(dEvents.ListColumnResize, self.__onColumnResize)
+        self.bindEvent(events.ListHeaderMouseLeftClick, self.__onHeaderMouseLeftClick)
+        self.bindEvent(events.ListHeaderMouseRightClick, self.__onHeaderMouseRightClick)
+        self.bindEvent(events.ListColumnResize, self.__onColumnResize)
 
     def _getInitPropertiesList(self):
         return super(dListControl, self)._getInitPropertiesList() + (
@@ -259,7 +257,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
             self.autoSizeColumn(col)
         else:
             self.SetColumnWidth(col, wd)
-        dui.callAfterInterval(100, self._doResize)
+        ui.callAfterInterval(100, self._doResize)
 
     def autoSizeColumn(self, col):
         """Auto-sizes the specified column."""
@@ -270,7 +268,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         if self.GetColumnWidth(col) < wd:
             self.SetColumnWidth(col, wd)
         self.unlockDisplay()
-        dui.callAfterInterval(100, self._doResize)
+        ui.callAfterInterval(100, self._doResize)
 
     def autoSizeColumns(self, colList=None):
         """Auto-sizes all the columns."""
@@ -404,7 +402,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         if key is None:
             key = ustr(img)
         if isinstance(img, str):
-            img = dui.strToBmp(img)
+            img = ui.strToBmp(img)
         il = self.GetImageList(wx.IMAGE_LIST_NORMAL)
         if not il:
             il = wx.ImageList(16, 16, initialCount=0)
@@ -459,26 +457,26 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         self._onWxHit(evt)
 
     def __onFocus(self, evt):
-        self.raiseEvent(dEvents.GotFocus, evt)
+        self.raiseEvent(events.GotFocus, evt)
 
     def __onSelection(self, evt):
         self._lastSelectedIndex = evt.GetIndex()
-        self.raiseEvent(dEvents.ListSelection, evt)
+        self.raiseEvent(events.ListSelection, evt)
 
     def __onDeselection(self, evt):
-        self.raiseEvent(dEvents.ListDeselection, evt)
+        self.raiseEvent(events.ListDeselection, evt)
 
     def __onWxKeyDown(self, evt):
-        self.raiseEvent(dEvents.KeyDown, evt)
+        self.raiseEvent(events.KeyDown, evt)
 
     def __onWxHeaderClick(self, evt):
-        self.raiseEvent(dEvents.ListHeaderMouseLeftClick, evt)
+        self.raiseEvent(events.ListHeaderMouseLeftClick, evt)
 
     def __onWxHeaderRightClick(self, evt):
-        self.raiseEvent(dEvents.ListHeaderMouseRightClick, evt)
+        self.raiseEvent(events.ListHeaderMouseRightClick, evt)
 
     def __onWxColumnResize(self, evt):
-        self.raiseEvent(dEvents.ListColumnResize, evt)
+        self.raiseEvent(events.ListColumnResize, evt)
 
     def __onHeaderMouseLeftClick(self, evt):
         if self.SortOnHeaderClick:
@@ -692,7 +690,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
     def _getSortColumn(self):
         return self._sortColumn
 
-    @dui.deadCheck
+    @ui.deadCheck
     def _setSortColumn(self, val):
         if self._constructed():
             self._sortColumn = val

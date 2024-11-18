@@ -7,22 +7,22 @@ import wx.stc as stc
 import wx.py
 from wx.py import pseudo
 
-import dEvents
-import ui
-from dLocalize import _
-from ui import dKeys
-from ui import makeDynamicProperty
-from ui import dButton
-from ui import dControlMixin
-from ui import dEditBox
-from ui import dEditor
-from ui import dLabel
-from ui import dListBox
-from ui import dMenu
-from ui import dPageFrame
-from ui import dPanel
-from ui import dSizer
-from ui import dSplitForm
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from . import dKeys
+from . import makeDynamicProperty
+from . import dButton
+from . import dControlMixin
+from . import dEditBox
+from . import dEditor
+from . import dLabel
+from . import dListBox
+from . import dMenu
+from . import dPageFrame
+from . import dPanel
+from . import dSizer
+from . import dSplitForm
 
 
 class _LookupPanel(dPanel):
@@ -214,7 +214,7 @@ class dShell(dControlMixin, wx.py.shell.Shell):
         """Need to raise an event when the interpreter executes a command."""
         super(dShell, self).push(command, silent=silent)
         if not self.more:
-            self.raiseEvent(dEvents.ShellCommandRun)
+            self.raiseEvent(events.ShellCommandRun)
 
     def getAutoCompleteList(self, cmd):
         return self.interp.getAutoCompleteList(
@@ -409,7 +409,7 @@ class dShellForm(dSplitForm):
         # on if something other than PyShell asks for input (pdb, for
         # example).
         self._oldInput = builtins.input
-        self.bindEvent(dEvents.Destroy, self._onDestroy)
+        self.bindEvent(events.Destroy, self._onDestroy)
 
         splt = self.Splitter
         splt.MinimumPanelSize = 80
@@ -417,13 +417,13 @@ class dShellForm(dSplitForm):
         self.Orientation = "H"
         self.unsplit()
         self._splitState = False
-        self.MainSplitter.bindEvent(dEvents.SashDoubleClick, self.sashDoubleClick)
-        self.MainSplitter.bindEvent(dEvents.SashPositionChanged, self.sashPosChanged)
+        self.MainSplitter.bindEvent(events.SashDoubleClick, self.sashDoubleClick)
+        self.MainSplitter.bindEvent(events.SashPositionChanged, self.sashPosChanged)
 
         cp = self.CmdPanel = self.Panel1
         op = self.OutPanel = self.Panel2
-        cp.unbindEvent(dEvents.ContextMenu)
-        op.unbindEvent(dEvents.ContextMenu)
+        cp.unbindEvent(events.ContextMenu)
+        op.unbindEvent(events.ContextMenu)
 
         cp.Sizer = dSizer()
         op.Sizer = dSizer()
@@ -496,12 +496,12 @@ Ctrl-Up/Down to scroll through history."""
         def _delayedSetFocus(evt):
             ui.callAfter(self.edtCode.setFocus)
 
-        self.pgCode.bindEvent(dEvents.PageEnter, _delayedSetFocus)
+        self.pgCode.bindEvent(events.PageEnter, _delayedSetFocus)
 
         # create the output control
         outControl = dEditBox(op, RegID="edtOut", ReadOnly=True)
         op.Sizer.append1x(outControl)
-        outControl.bindEvent(dEvents.MouseRightDown, self.onOutputRightDown)
+        outControl.bindEvent(events.MouseRightDown, self.onOutputRightDown)
 
         self._stdOut = self.shell.interp.stdout
         self._stdErr = self.shell.interp.stderr

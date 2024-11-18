@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import ui as dui
-from dLocalize import _
-from ui import makeDynamicProperty
-from ui import dControlMixin
-import dEvents
+from .. import ui
+from ..dLocalize import _
+from . import makeDynamicProperty
+from . import dControlMixin
+from .. import events
 
 
 class dGauge(dControlMixin, wx.Gauge):
@@ -112,8 +112,8 @@ ui.dGauge = dGauge
 
 class _dGauge_test(dGauge):
     def afterInit(self):
-        self._timer = dui.dTimer()
-        self._timer.bindEvent(dEvents.Hit, self.onTimer)
+        self._timer = ui.dTimer()
+        self._timer.bindEvent(events.Hit, self.onTimer)
         self._timer.Interval = 23
         self._timer.start()
 

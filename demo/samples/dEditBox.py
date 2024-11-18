@@ -2,7 +2,7 @@
 import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-from  dabo.ui import dButton
+from dabo.ui import dButton
 from dabo.ui import dLabel
 from dabo.ui import dPanel
 from dabo.ui import dSizer
@@ -24,19 +24,22 @@ class TestPanel(dPanel):
         btn.bindEvent(dEvents.Hit, self.onSelectionInfo)
         sz.append(btn, halign="center")
 
-
     def onSelectionInfo(self, evt):
         self.Form.logit(_("Selected Text: %s") % self.edt.SelectedText)
         self.Form.logit(_("Selection Start position: %s") % self.edt.SelectionStart)
         self.Form.logit(_("Selection End position: %s") % self.edt.SelectionEnd)
-        self.Form.logit(_("Character before InsertionPoint: %s") % self.edt.charsBeforeCursor())
-        self.Form.logit(_("Character after InsertionPoint: %s") % self.edt.charsAfterCursor())
-
-
+        self.Form.logit(
+            _("Character before InsertionPoint: %s") % self.edt.charsBeforeCursor()
+        )
+        self.Form.logit(
+            _("Character after InsertionPoint: %s") % self.edt.charsAfterCursor()
+        )
 
     def getGetty(self):
         """Return Lincoln's Gettysburg Address."""
-        return " ".join(["Four score and seven years ago our fathers brought",
+        return " ".join(
+            [
+                "Four score and seven years ago our fathers brought",
                 "forth on this continent a new nation, conceived in liberty and",
                 "dedicated to the proposition that all men are created equal.",
                 "Now we are engaged in a great civil war, testing whether that",
@@ -59,9 +62,9 @@ class TestPanel(dPanel):
                 "resolve that these dead shall not have died in vain, that this",
                 "nation under God shall have a new birth of freedom, and that",
                 "government of the people, by the people, for the people shall",
-                "not perish from the earth."])
-
-
+                "not perish from the earth.",
+            ]
+        )
 
 
 category = "Controls.dEditBox"

@@ -1,43 +1,39 @@
 # -*- coding: utf-8 -*-
-import dabo
-import dabo.ui
-from dabo.dApp import dApp
-from dabo.dLocalize import _
-import dabo.dEvents as dEvents
-import dabo.dConstants as k
-
-from dabo.ui import dBitmapButton
-from dabo.ui import dBorderSizer
-from dabo.ui import dButton
-from dabo.ui import dCalendar
-from dabo.ui import dCheckBox
-from dabo.ui import dCheckList
-from dabo.ui import dColumn
-from dabo.ui import dDateTextBox
-from dabo.ui import dDialog
-from dabo.ui import dDialog
-from dabo.ui import dDropdownList
-from dabo.ui import dEditBox
-from dabo.ui import dExtendedCalendar
-from dabo.ui import dForm
-from dabo.ui import dGrid
-from dabo.ui import dGridSizer
-from dabo.ui import dImage
-from dabo.ui import dLabel
-from dabo.ui import dLine
-from dabo.ui import dListControl
-from dabo.ui import dMaskedTextBox
-from dabo.ui import dMessageBox
-from dabo.ui import dOkCancelDialog
-from dabo.ui import dPageFrame
-from dabo.ui import dPageFrameNoTabs
-from dabo.ui import dPanel
-from dabo.ui import dRadioList
-from dabo.ui import dScrollPanel
-from dabo.ui import dSizer
-from dabo.ui import dSpinner
-from dabo.ui import dTextBox
-from dabo.ui import dTextBox
+from ... import ui
+from ...dApp import dApp
+from ...dLocalize import _
+from ... import dConstants as k
+from ... import events
+from .. import dBitmapButton
+from .. import dBorderSizer
+from .. import dButton
+from .. import dCalendar
+from .. import dCheckBox
+from .. import dCheckList
+from .. import dColumn
+from .. import dDateTextBox
+from .. import dDialog
+from .. import dDropdownList
+from .. import dEditBox
+from .. import dExtendedCalendar
+from .. import dForm
+from .. import dGrid
+from .. import dGridSizer
+from .. import dImage
+from .. import dLabel
+from .. import dLine
+from .. import dListControl
+from .. import dMaskedTextBox
+from .. import dMessageBox
+from .. import dOkCancelDialog
+from .. import dPageFrame
+from .. import dPageFrameNoTabs
+from .. import dPanel
+from .. import dRadioList
+from .. import dScrollPanel
+from .. import dSizer
+from .. import dSpinner
+from .. import dTextBox
 from . import WizardPage
 
 
@@ -131,9 +127,9 @@ class Wizard(dDialog):
         hsz.append(self.btnBack)
         hsz.append(self.btnNext)
         hsz.append(self.btnCancel)
-        self.btnBack.bindEvent(dEvents.Hit, self.onBack)
-        self.btnNext.bindEvent(dEvents.Hit, self.onNext)
-        self.btnCancel.bindEvent(dEvents.Hit, self.onCancel)
+        self.btnBack.bindEvent(events.Hit, self.onBack)
+        self.btnNext.bindEvent(events.Hit, self.onNext)
+        self.btnCancel.bindEvent(events.Hit, self.onCancel)
 
         mpsz.append(hsz, 0, alignment=("right", "bottom"))
 
@@ -159,11 +155,11 @@ class Wizard(dDialog):
     def onCancel(self, evt):
         # User clicked the Cancel button
         if self.verifyCancel:
-            if not dabo.ui.areYouSure(
+            if not ui.areYouSure(
                 self.confirmCancelMsg, _("Cancel Received"), cancelButton=False
             ):
                 return
-        dabo.ui.callAfter(self.closeWizard, k.DLG_CANCEL)
+        ui.callAfter(self.closeWizard, k.DLG_CANCEL)
 
     def _finish(self):
         pg = self._pages[self.CurrentPage]
@@ -171,7 +167,7 @@ class Wizard(dDialog):
         if ok is not False:
             finOK = self.finish()
             if finOK is not False:
-                dabo.ui.callAfter(self.closeWizard, k.DLG_OK)
+                ui.callAfter(self.closeWizard, k.DLG_OK)
 
     def finish(self):
         """
@@ -222,7 +218,7 @@ class Wizard(dDialog):
                 else:
                     if isinstance(pg, str):
                         xml = pg
-                        from dabo.lib.DesignerClassConverter import (
+                        from .lib.DesignerClassConverter import (
                             DesignerClassConverter,
                         )
 
@@ -314,7 +310,7 @@ class Wizard(dDialog):
             # No change
             return
         self.raiseEvent(
-            dEvents.PageChanging, oldPageNum=self._currentPage, newPageNum=val
+            events.PageChanging, oldPageNum=self._currentPage, newPageNum=val
         )
         if self._currentPage < 0:
             direction = "forward"
@@ -336,8 +332,8 @@ class Wizard(dDialog):
         self._currentPage = val
         self._pages[self._currentPage].onEnterPage(direction)
         self.showPage()
-        dabo.ui.callAfter(
-            self.raiseEvent, dEvents.PageChanged, oldPageNum=oldPg, newPageNum=newPg
+        ui.callAfter(
+            self.raiseEvent, events.PageChanged, oldPageNum=oldPg, newPageNum=newPg
         )
 
     def _getPageCount(self):
@@ -358,7 +354,7 @@ class Wizard(dDialog):
                 self._defaultPicture = val
             except AttributeError:
                 # wizard icon hasn't been constructed yet.
-                dabo.ui.setAfter(self, "Picture", val)
+                ui.setAfter(self, "Picture", val)
             self.layout()
         else:
             self._properties["Picture"] = val
@@ -372,7 +368,7 @@ class Wizard(dDialog):
                 self.wizardIcon.Height = val
             except AttributeError:
                 # wizard icon hasn't been constructed yet.
-                dabo.ui.setAfter(self, "PictureHeight", val)
+                ui.setAfter(self, "PictureHeight", val)
             self.layout()
         else:
             self._properties["PictureHeight"] = val
@@ -386,7 +382,7 @@ class Wizard(dDialog):
                 self.wizardIcon.Width = val
             except AttributeError:
                 # wizard icon hasn't been constructed yet.
-                dabo.ui.setAfter(self, "PictureWidth", val)
+                ui.setAfter(self, "PictureWidth", val)
             self.layout()
         else:
             self._properties["PictureWidth"] = val
@@ -520,7 +516,7 @@ the box on Page Two.
             ret = True
             if dir == "forward":
                 if not self.txt.Value:
-                    dabo.ui.stop(_("Fill in the text box!!"))
+                    ui.stop(_("Fill in the text box!!"))
                     ret = False
             return ret
 

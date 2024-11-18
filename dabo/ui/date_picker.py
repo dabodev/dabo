@@ -8,11 +8,11 @@ import datetime
 import wx
 from wx import adv as wx_adv
 
-import ui as dui
-from ui import dDataControlMixin
-from dLocalize import _
-from lib.utils import ustr
-from ui import makeDynamicProperty
+from .. import ui
+from ..dLocalize import _
+from ..lib.utils import ustr
+from . import dDataControlMixin
+from . import makeDynamicProperty
 # import log
 
 
@@ -186,13 +186,13 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
             self.setToYearDay("Last")
         elif key == 100:  # d
             self._setCustomDate()
-        elif key in (dui.dKeys.key_Delete, dui.dKeys.key_Back):
+        elif key in (ui.dKeys.key_Delete, ui.dKeys.key_Back):
             self.Value = None
         else:
             print(key)
 
     def _setCustomDate(self):
-        days = dui.getInt(
+        days = ui.getInt(
             message=_("Day shift:"), caption=_("Reschedule day"), Min=-365, Max=365
         )
         if days:
@@ -281,9 +281,7 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
         except ValueError as e:
             nm = self.Name
             ue = ustr(e)
-            log.error(
-                _("Object '%(nm)s' has the following error: %(ue)s") % locals()
-            )
+            log.error(_("Object '%(nm)s' has the following error: %(ue)s") % locals())
 
     def _getAllowNullDate(self):
         return self._hasWindowStyleFlag(wx.adv.DP_ALLOWNONE)

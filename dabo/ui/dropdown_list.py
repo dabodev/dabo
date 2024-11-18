@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from ui import dControlItemMixin
-from dLocalize import _
+from .. import ui
+from . import dControlItemMixin
+from ..dLocalize import _
 
 
 class dDropdownList(dControlItemMixin, wx.Choice):

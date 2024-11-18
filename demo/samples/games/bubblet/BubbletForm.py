@@ -12,12 +12,11 @@ from dabo.ui import dForm
 if __name__ == "__main__":
     from BubblePanel import BubblePanel
     from BubbleBizobj import BubbleBizobj
-    from StatsForm import StatsForm 
+    from StatsForm import StatsForm
 else:
     from .BubblePanel import BubblePanel
     from .BubbleBizobj import BubbleBizobj
     from .StatsForm import StatsForm
-
 
 
 class BubbletForm(dForm):
@@ -31,7 +30,7 @@ class BubbletForm(dForm):
         # Rows and columns
         self.rows = 7
         self.columns = 10
-        bubbles = [ [] for r in range(self.rows)]
+        bubbles = [[] for r in range(self.rows)]
 
         vsz = dabo.ui.dSizer("v")
         gsz = dabo.ui.dGridSizer(MaxCols=self.columns)
@@ -41,7 +40,7 @@ class BubbletForm(dForm):
                 pn = BubblePanel(self)
                 pn.row = rr
                 pn.col = cc
-                #pn.ToolTipText = "Row %s, Col %s" % (rr,cc)
+                # pn.ToolTipText = "Row %s, Col %s" % (rr,cc)
                 bubbles[rr].append(pn)
                 gsz.append(pn, "x")
         # Set the grid sizer to grow
@@ -79,7 +78,9 @@ class BubbletForm(dForm):
         if quitPos is None:
             quitPos = len(fm.Children)
         fm.insert(quitPos, _("&ScreenShot"), HotKey="Ctrl+S", OnHit=self.saveScreenShot)
-        fm.insert(quitPos, _("&Reset Statistics"), HotKey="Ctrl+R", OnHit=self.onResetStats)
+        fm.insert(
+            quitPos, _("&Reset Statistics"), HotKey="Ctrl+R", OnHit=self.onResetStats
+        )
         fm.insert(quitPos, _("&Statistics"), HotKey="Ctrl+T", OnHit=self.onStats)
         fm.insertSeparator(0)
         fm.insert(0, _("&New Game"), HotKey="Ctrl+N", OnHit=self.onNewGame)
@@ -88,17 +89,15 @@ class BubbletForm(dForm):
         biz.newGame()
         dabo.ui.callAfter(self.update)
 
-
     def saveScreenShot(self, evt):
         """Saves a screenshot of the current board."""
         dabo.ui.saveScreenShot(self)
 
-
     def refresh(self):
         dabo.ui.callAfterInterval(100, self._refresh)
+
     def _refresh(self):
         super(BubbletForm, self).refresh()
-
 
     def bubbleClick(self, bubble):
         biz = self.Bizobj
@@ -119,10 +118,8 @@ class BubbletForm(dForm):
         if biz.GameOver:
             dabo.ui.callAfterInterval(500, self.gameOverMsg)
 
-
     def updateBoard(self):
         self.tmr.start(100)
-
 
     def onTimer(self, evt):
         self.tmr.stop()
@@ -130,27 +127,26 @@ class BubbletForm(dForm):
         if self.Bizobj.GameOver:
             dabo.ui.callAfterInterval(500, self.gameOverMsg)
 
-
     def gameOverMsg(self):
         msg = _("Game Over!")
         if self.Bizobj.IsNewHighGame:
             msg = _("New High Game!!")
         msg += _("\n\nYour score was %s") % self.Score
-        dabo.ui.info( msg, _("Game Over") )
-
+        dabo.ui.info(msg, _("Game Over"))
 
     def onNewGame(self, evt):
         biz = self.Bizobj
         if not biz.GameOver:
             if not dabo.ui.areYouSure(
-                    message = _("Are you sure you want to end this game?"),
-                    title = _("Game Not Over"),
-                    defaultNo = True, cancelButton = False):
+                message=_("Are you sure you want to end this game?"),
+                title=_("Game Not Over"),
+                defaultNo=True,
+                cancelButton=False,
+            ):
                 return
         biz.newGame()
         self.Score = 0
         self.update()
-
 
     def onStats(self, evt):
         biz = self.Bizobj
@@ -160,18 +156,18 @@ class BubbletForm(dForm):
         statsForm = StatsForm(self, Games=num, Points=pts, HighGame=high)
         statsForm.show()
 
-
     def onResetStats(self, evt):
         biz = self.Bizobj
         if biz.NumberOfGames > 0:
             if not dabo.ui.areYouSure(
-                    message = _("Are you sure you want to reset your statistics?"),
-                    title = _("Reset Statistics"),
-                    defaultNo = False, cancelButton = False):
+                message=_("Are you sure you want to reset your statistics?"),
+                title=_("Reset Statistics"),
+                defaultNo=False,
+                cancelButton=False,
+            ):
                 return
             else:
                 biz.resetStats()
-
 
     def _getBizobj(self):
         return self.PrimaryBizobj
@@ -184,11 +180,10 @@ class BubbletForm(dForm):
             self._score = score
             self.scoreLabel.Caption = ustr(score)
 
-    Bizobj = property(_getBizobj, None, None,
-            _("Reference to the form's bizobj"))
+    Bizobj = property(_getBizobj, None, None, _("Reference to the form's bizobj"))
 
-    Score = property(_getScore, _setScore, None,
-            _("Current score of the game.  (int)"))
+    Score = property(_getScore, _setScore, None, _("Current score of the game.  (int)"))
+
 
 if __name__ == "__main__":
     dApp(MainFormClass=BubbletForm).start()

@@ -5,6 +5,7 @@ don't specify a directory, the current directory will be used.
 
 import os
 
+
 def clear_localize_walk(arg, dirname, fnames):
     print("Processing directory %s..." % dirname)
     for fname in fnames:
@@ -19,7 +20,8 @@ def clear_localize_walk(arg, dirname, fnames):
                     print("--> Removing line %s, '%s'" % (lineno, line))
                     continue
                 wlines.append(line)
-            open(full_fname, "wb").write(''.join(wlines))
+            open(full_fname, "wb").write("".join(wlines))
+
 
 def clear_localize(dirname):
     os.path.walk(dirname, clear_localize_walk, None)
@@ -33,4 +35,3 @@ if __name__ == "__main__":
         dirs = ["."]
     for dir in dirs:
         clear_localize(dir)
-

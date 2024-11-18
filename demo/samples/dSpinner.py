@@ -13,6 +13,7 @@ from dabo.ui import dCheckBox
 from dabo.ui import dSpinner
 from dabo.ui import dGridSizer
 from dabo.ui import dTextBox
+
 dSpinner = dabo.ui.dSpinner
 
 
@@ -20,16 +21,23 @@ class TestPanel(dPanel):
     def afterInit(self):
         sz = self.Sizer = dSizer("v")
         sz.appendSpacer(50)
-        spn = self.spinner = dSpinner(self, Max=25, Min=0, Value=4.75,
-                Increment=1.25, SpinnerWrap=False, FontSize=12, Width=100)
+        spn = self.spinner = dSpinner(
+            self,
+            Max=25,
+            Min=0,
+            Value=4.75,
+            Increment=1.25,
+            SpinnerWrap=False,
+            FontSize=12,
+            Width=100,
+        )
         spn.bindEvent(dEvents.Hit, self.onSpinnerHit)
         spn.bindEvent(dEvents.SpinUp, self.onSpinUp)
         spn.bindEvent(dEvents.SpinDown, self.onSpinDown)
         spn.bindEvent(dEvents.Spinner, self.onSpinner)
         sz.append(spn, halign="center")
 
-        lbl = dLabel(self, Caption=_("Spinner Properties"), FontSize=18,
-                FontBold=True)
+        lbl = dLabel(self, Caption=_("Spinner Properties"), FontSize=18, FontBold=True)
         sz.appendSpacer(10)
         sz.append(lbl, halign="center")
         sz.appendSpacer(4)
@@ -44,7 +52,9 @@ class TestPanel(dPanel):
         gsz.append(lbl, halign="right")
         gsz.append(txt)
         lbl = dLabel(self, Caption="Increment")
-        txt = dTextBox(self, DataSource=spn, DataField="Increment", StrictNumericEntry=False)
+        txt = dTextBox(
+            self, DataSource=spn, DataField="Increment", StrictNumericEntry=False
+        )
         gsz.append(lbl, halign="right")
         gsz.append(txt)
         lbl = dLabel(self, Caption="SpinnerWrap")
@@ -83,7 +93,6 @@ class TestPanel(dPanel):
         self.update()
         self.layout()
 
-
     def onBackColor(self, evt):
         color = dabo.ui.getColor(self.spinner.BackColor)
         if color is not None:
@@ -109,7 +118,6 @@ class TestPanel(dPanel):
 
     def onSpinner(self, evt):
         self.Form.logit("Spinner event.")
-
 
 
 category = "Controls.dSpinner"

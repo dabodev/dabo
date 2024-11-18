@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import dException
-import ui
-from dLocalize import _, n_
-from ui import dControlMixin
+from .. import dException
+from .. import ui
+from ..dLocalize import _, n_
+from . import dControlMixin
 
 
 class dStatusBar(dControlMixin, wx.StatusBar):

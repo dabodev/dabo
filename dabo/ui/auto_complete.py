@@ -1,12 +1,14 @@
+import io
+import sys
+
 import wx
 import wx.lib.mixins.listctrl as listmix
 from wx import ImageFromStream, BitmapFromImage
 
-import biz
-import dEvents
-import ui as dui
-from ui import dControlMixin
-import locale, wx, sys, io
+from .. import biz
+from .. import locale
+from .. import dEvents
+from .. import ui
 
 """
 wxPython Custom Widget Collection 20060207
@@ -445,7 +447,7 @@ class TextCtrlAutoComplete(wx.TextCtrl, listmix.ColumnSorterMixin):
         self.dropdown.SetClientSize(self.popupsize)
 
 
-class dAutoComplete(dControlMixin, TextCtrlAutoComplete):
+class dAutoComplete(ui.dControlMixin, TextCtrlAutoComplete):
     """
     Creates a text box with a dropdown list that has the ability to filter
     multiple records or choices in the list based on entered text.
@@ -458,7 +460,7 @@ class dAutoComplete(dControlMixin, TextCtrlAutoComplete):
         kwargs["choices"] = [""]
         self._userColNames = False
         self._dynamicChoices = None
-        dControlMixin.__init__(
+        ui.dControlMixin.__init__(
             self,
             preClass,
             parent,
@@ -649,7 +651,7 @@ class dAutoComplete(dControlMixin, TextCtrlAutoComplete):
     def _setDataSource(self, src):
         if self._constructed():
             self._dataSource = src
-            dui.callAfter(self.listFromDS)
+            ui.callAfter(self.listFromDS)
         else:
             self._properties["DataSource"] = src
 
@@ -690,7 +692,7 @@ class dAutoComplete(dControlMixin, TextCtrlAutoComplete):
             if self.DataSource:
                 raise ValueError("Cannot set DataSet: DataSource defined.")
             self._dataSet = ds
-            dui.callAfter(self.listFromDS)
+            ui.callAfter(self.listFromDS)
         else:
             self._properties["DataSet"] = ds
 
@@ -740,7 +742,7 @@ class dAutoComplete(dControlMixin, TextCtrlAutoComplete):
                     "Cannot set Choices: A single or multi-columna"
                     "list with at least one element must be provided."
                 )
-            dui.callAfter(self._setDynamicChoices, choices)
+            ui.callAfter(self._setDynamicChoices, choices)
         else:
             self._properties["Choices"] = choices
 

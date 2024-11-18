@@ -3,13 +3,12 @@ import time
 
 import wx
 
-import ui as dui
-from dLocalize import _
-import dEvents
-from ui import dPemMixin
+from .. import ui
+from ..dLocalize import _
+from .. import events
 
 
-class dControlMixin(dPemMixin):
+class dControlMixin(ui.dPemMixin):
     """Provide common functionality for all controls."""
 
     def __onGotFocus(self, evt):
@@ -27,7 +26,7 @@ class dControlMixin(dPemMixin):
     def _initEvents(self):
         super(dControlMixin, self)._initEvents()
         self.Bind(wx.EVT_NAVIGATION_KEY, self.__onWxNavKey)
-        self.bindEvent(dEvents.GotFocus, self.__onGotFocus)
+        self.bindEvent(events.GotFocus, self.__onGotFocus)
 
     def _onWxHit(self, evt, *args, **kwargs):
         # This is called by a good number of the controls, when the default
@@ -41,7 +40,7 @@ class dControlMixin(dPemMixin):
         #         print "CONTROL WXHIT", self, evt
         now = time.time()
         if not hasattr(self, "_lastHitTime") or (now - self._lastHitTime) > 0.001:
-            self.raiseEvent(dEvents.Hit, evt, *args, **kwargs)
+            self.raiseEvent(events.Hit, evt, *args, **kwargs)
             #            print "CONTROL RAISING HIT"
             self._lastHitTime = time.time()
 
@@ -50,7 +49,7 @@ class dControlMixin(dPemMixin):
         # get the focus. Only allow it if self.TabStop is True.
         evt.Skip()
         if not self.TabStop:
-            dui.callAfter(self.Navigate, evt.GetDirection())
+            ui.callAfter(self.Navigate, evt.GetDirection())
 
     def _getTabStop(self):
         return getattr(self, "_tabStop", True)

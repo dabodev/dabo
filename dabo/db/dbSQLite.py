@@ -4,13 +4,13 @@ import re
 import six
 import sys
 
-import dabo
-from dabo.dLocalize import _
-from dabo.dException import dException, DBFileDoesNotExistException
+from .. import settings
+from ..dLocalize import _
+from ..dException import dException, DBFileDoesNotExistException
 from .dBackend import dBackend
 from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 from .dCursorMixin import dCursorMixin
-from dabo.lib.utils import ustr
+from ..lib.utils import ustr
 
 
 class SQLite(dBackend):
@@ -63,18 +63,13 @@ class SQLite(dBackend):
                         break
             if not os.path.exists(pth):
                 # Database file does not exist; raise an error
-                raise DBFileDoesNotExistException(
-                    _("Database file '%s' does not exist") % pth
-                )
+                raise DBFileDoesNotExistException(_("Database file '%s' does not exist") % pth)
 
         if isinstance(pth, six.binary_type):
-            # pth = pth.decode(dabo.fileSystemEncoding).encode("utf-8")
-            pth = pth.decode(dabo.fileSystemEncoding)
+            pth = pth.decode(settings.fileSystemEncoding)
 
         # Need to specify "isolation_level=None" to have transactions working correctly.
-        self._connection = self.dbapi.connect(
-            pth, factory=DictConnection, isolation_level=None
-        )
+        self._connection = self.dbapi.connect(pth, factory=DictConnection, isolation_level=None)
 
         # Non-utf8-encoded bytestrings could be in the database, and Dabo will try various encodings
         # to deal with it. So tell sqlite not to decode with utf-8, but to just return the bytes:
@@ -82,11 +77,11 @@ class SQLite(dBackend):
 
         self._connection.connectInfo = connectInfo
         if not hasattr(self, "_encoding"):
-            self._encoding = (
-                self._connection.execute("PRAGMA encoding")
-                .fetchone()["encoding"]
-                .lower()
-            )
+            enc_resp = self._connection.execute("PRAGMA encoding").fetchone()
+            if isinstance(enc_resp, tuple):
+                self._encoding = enc_resp[0]
+            else:
+                self._encoding = enc_resp.get("encoding", settings.getEncoding())
         return self._connection
 
     def getDictCursorClass(self):
@@ -167,8 +162,7 @@ class SQLite(dBackend):
             tables = [
                 rec["name"]
                 for rec in rs
-                if rec["type"] in ("table", "view")
-                and not rec["name"].startswith("sqlite_")
+                if rec["type"] in ("table", "view") and not rec["name"].startswith("sqlite_")
             ]
         return tuple(tables)
 
@@ -239,9 +233,7 @@ class SQLite(dBackend):
         """SQLite does not return anything on a successful update"""
         pass
 
-    def createTableAndIndexes(
-        self, tabledef, cursor, createTable=True, createIndexes=True
-    ):
+    def createTableAndIndexes(self, tabledef, cursor, createTable=True, createIndexes=True):
         if not tabledef.Name:
             raise
 

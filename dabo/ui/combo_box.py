@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
-import ui as dui
-from ui import dControlItemMixin
-import dEvents
-from dLocalize import _
-from ui import makeDynamicProperty
-from ui import dKeys
+
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from . import dKeys
 
 
-class dComboBox(dControlItemMixin, wx.ComboBox):
+class dComboBox(ui.dControlItemMixin, wx.ComboBox):
     """
     Creates a combobox, which combines a dropdown list with a textbox.
 
@@ -29,7 +28,7 @@ class dComboBox(dControlItemMixin, wx.ComboBox):
         self._textToAppend = ""
 
         preClass = wx.ComboBox
-        dControlItemMixin.__init__(
+        ui.dControlItemMixin.__init__(
             self,
             preClass,
             parent,
@@ -77,7 +76,7 @@ class dComboBox(dControlItemMixin, wx.ComboBox):
                         if self._textToAppend:
                             self.appendItem(self._textToAppend, select=True)
                             self.afterAppendOnEnter()
-            self.raiseEvent(dEvents.Hit, evt)
+            self.raiseEvent(events.Hit, evt)
         elif keyCode == dKeys.key_Tab:
             forward = not evt.ShiftDown()
             self.Navigate(forward)
@@ -92,8 +91,8 @@ class dComboBox(dControlItemMixin, wx.ComboBox):
             return
         keyCode = evt.keyCode
         if keyCode >= dKeys.key_Space:
-            dui.callAfter(self._checkForceCase)
-            dui.callAfter(self._checkTextLength)
+            ui.callAfter(self._checkForceCase)
+            ui.callAfter(self._checkTextLength)
 
     def _checkTextLength(self):
         """
@@ -111,7 +110,7 @@ class dComboBox(dControlItemMixin, wx.ComboBox):
             return
         val = self.GetValue()
         if len(val) > length:
-            dui.beep()
+            ui.beep()
             ip = self.GetInsertionPoint()
             self.SetValue(val[:length])
             self.SetInsertionPoint(ip)
@@ -192,9 +191,9 @@ class dComboBox(dControlItemMixin, wx.ComboBox):
                 "None": None,
             }.get(valKey)
             self._checkForceCase()
-            self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
+            self.unbindEvent(events.KeyChar, self.__onKeyChar)
             if self._forceCase or self._textLength:
-                self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
+                self.bindEvent(events.KeyChar, self.__onKeyChar)
         else:
             self._properties["ForceCase"] = val
 
@@ -212,9 +211,9 @@ class dComboBox(dControlItemMixin, wx.ComboBox):
                 self._textLength = val
             self._checkTextLength()
 
-            self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
+            self.unbindEvent(events.KeyChar, self.__onKeyChar)
             if self._forceCase or self._textLength:
-                self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
+                self.bindEvent(events.KeyChar, self.__onKeyChar)
         else:
             self._properties["TextLength"] = val
 
@@ -284,7 +283,7 @@ class dComboBox(dControlItemMixin, wx.ComboBox):
         ),
     )
 
-    DynamicUserValue = makeDynamicProperty(UserValue)
+    DynamicUserValue = ui.makeDynamicProperty(UserValue)
 
 
 ui.dComboBox = dComboBox

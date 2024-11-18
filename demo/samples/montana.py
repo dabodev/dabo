@@ -13,24 +13,23 @@ from dabo.ui import dSizer
 from dabo.ui import dButton
 
 
-
 class TestPanel(dPanel):
     def afterInit(self):
         sz = self.Sizer = dSizer("v")
         sz.appendSpacer(40)
 
-        lbl = dLabel(self, Caption="Montana is a solitaire game that is easy to learn,\nbut difficult to master.\n\nFor instructions, please see the Overview tab.")
+        lbl = dLabel(
+            self,
+            Caption="Montana is a solitaire game that is easy to learn,\nbut difficult to master.\n\nFor instructions, please see the Overview tab.",
+        )
         sz.append(lbl, halign="center")
         sz.appendSpacer(30)
-        btn = dButton(self, Caption="Play Montana",
-                OnHit=self.runGame)
+        btn = dButton(self, Caption="Play Montana", OnHit=self.runGame)
         sz.append(btn, halign="center")
 
-
     def runGame(self, evt):
-        frm = MontanaForm(self.Form, Size=(980,514), Centered=True)
+        frm = MontanaForm(self.Form, Size=(980, 514), Centered=True)
         frm.show()
-
 
 
 category = "Games.Montana"

@@ -2,19 +2,18 @@
 import sys
 import os
 import string
-import dabo  # , dabo.ui
-import dabo.dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.ui import dBitmapButton
-from dabo.ui import dButton
-from dabo.ui import dColumn
-from dabo.ui import dDialog
-from dabo.ui import dGrid
-from dabo.ui import dHtmlBox
-from dabo.ui import dLabel
-from dabo.ui import dMenu
-from dabo.ui import dPanel
-from dabo.ui import dSizer
+
+from ...dLocalize import _
+from .. import dBitmapButton
+from .. import dButton
+from .. import dColumn
+from .. import dDialog
+from .. import dGrid
+from .. import dHtmlBox
+from .. import dLabel
+from .. import dMenu
+from .. import dPanel
+from .. import dSizer
 
 
 class HtmlAbout(dDialog):
@@ -56,7 +55,7 @@ class HtmlAbout(dDialog):
                 app.getAppInfo("appName"),
                 app.getAppInfo("appVersion"),
             )
-        appinfo = dabo.ui.getSystemInfo("html")
+        appinfo = ui.getSystemInfo("html")
         docstring = self.getAppSpecificString()
         return self.getPageData() % locals()
 
@@ -70,7 +69,7 @@ class HtmlAbout(dDialog):
 
     def onCopyInfo(self, evt):
         """Copy the system information to the Clipboard"""
-        info = dabo.ui.getSystemInfo("string")
+        info = ui.getSystemInfo("string")
         appdoc = self.getAppSpecificString()
         self.Application.copyToClipboard("\n\n".join((info, appdoc)))
 
@@ -92,7 +91,7 @@ class HtmlAbout(dDialog):
 
 
 def main():
-    from dabo.dApp import dApp
+    from .dApp import dApp
 
     app = dApp()
     app.MainFormClass = None

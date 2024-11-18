@@ -3,12 +3,13 @@ import types
 
 import wx
 
-import dEvents
-import dException
-from dLocalize import _
-from lib.utils import ustr
-from ui import dPemMixin
-from ui import makeDynamicProperty
+from .. import ui
+from .. import events
+from .. import dException
+from ..dLocalize import _
+from ..lib.utils import ustr
+from . import dPemMixin
+from . import makeDynamicProperty
 
 
 class dMenuItem(dPemMixin, wx.MenuItem):
@@ -42,7 +43,7 @@ class dMenuItem(dPemMixin, wx.MenuItem):
 
         if self.Application is not None:
             # Set up a mechanism to catch menu selected events
-            # and re-raise Dabo dEvents.Hit events. If Application
+            # and re-raise Dabo events.Hit events. If Application
             # is None, however, this won't work because of wx limitations.
             self.Application.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, self)
             self.Application.uiApp.Bind(
@@ -53,11 +54,11 @@ class dMenuItem(dPemMixin, wx.MenuItem):
             ui.callAfter(self._bindDelayed)
 
     def __onWxMenuHighlight(self, evt):
-        self.raiseEvent(dEvents.MenuHighlight)
+        self.raiseEvent(events.MenuHighlight)
         evt.Skip()
 
     def __onWxHit(self, evt):
-        self.raiseEvent(dEvents.Hit, evt)
+        self.raiseEvent(events.Hit, evt)
         evt.Skip(False)
 
     def _redefine(self):

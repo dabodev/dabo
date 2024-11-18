@@ -4,21 +4,20 @@ import sys
 
 import wx
 
-import ui as dui
-import dEvents
-from dLocalize import _
-from lib.utils import ustr
-import dColors
-import lib
-
-from ui import dPageFrameMixin
-from ui import dPage
-from ui import dCheckBox
-from ui import dCheckBox
-from ui import dCheckBox
-from ui import dLabel
-from ui import dDropdownList
-from ui import dSizer
+from .. import dColors
+from .. import lib
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from ..lib.utils import ustr
+from . import dPageFrameMixin
+from . import dPage
+from . import dCheckBox
+from . import dCheckBox
+from . import dCheckBox
+from . import dLabel
+from . import dDropdownList
+from . import dSizer
 
 # import log
 
@@ -173,10 +172,10 @@ class dPageList(dPageFrameMixin, wx.Listbook):
         self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.__onWxRightClick)
 
     def __onWxMiddleClick(self, evt):
-        self.raiseEvent(dEvents.MouseMiddleClick, evt)
+        self.raiseEvent(events.MouseMiddleClick, evt)
 
     def __onWxRightClick(self, evt):
-        self.raiseEvent(dEvents.MouseRightClick, evt)
+        self.raiseEvent(events.MouseRightClick, evt)
 
     def layout(self):
         """We need to force the control to adjust the list size."""
@@ -378,7 +377,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
             *args,
             **kwargs,
         )
-        dui.setAfter(self, "SelectedPageNumber", selpg)
+        ui.setAfter(self, "SelectedPageNumber", selpg)
 
     def _initEvents(self):
         super(dPageStyled, self)._initEvents()
@@ -399,7 +398,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
             evt.Veto()
         else:
             evt.Skip()
-        self.raiseEvent(dEvents.PageClosing, pageNum=pageNum)
+        self.raiseEvent(events.PageClosing, pageNum=pageNum)
 
     def _beforePageClose(self, page):
         return self.beforePageClose(page)
@@ -415,10 +414,10 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         pass
 
     def __onPageClosed(self, evt):
-        self.raiseEvent(dEvents.PageClosed)
+        self.raiseEvent(events.PageClosed)
 
     def __onPageContextMenu(self, evt):
-        self.GetPage(self.GetSelection()).raiseEvent(dEvents.PageContextMenu)
+        self.GetPage(self.GetSelection()).raiseEvent(events.PageContextMenu)
 
     # Property getters and setters
     def _getActiveTabColor(self):
@@ -877,7 +876,7 @@ class _dPageStyled_test(TestMixin, dPageStyled):
         self.Pages[3].BackColor = "yellow"
         # Can't add controls to the Test form now, so use callAfter() to delay
         # the actual control creation.
-        dui.callAfter(self._addControls)
+        ui.callAfter(self._addControls)
 
     def _addControls(self):
         pnl = self.Form.Children[0]

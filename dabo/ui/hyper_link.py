@@ -2,12 +2,13 @@
 import wx
 import wx.lib.agw.hyperlink as hyperlink
 
-from dLocalize import _
-import dEvents
-import dColors
-from ui import AlignmentMixin
-from ui import dControlMixin
-from ui import makeDynamicProperty
+from .. import dColors
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from . import AlignmentMixin
+from . import dControlMixin
+from . import makeDynamicProperty
 
 
 class dHyperLink(dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
@@ -254,7 +255,7 @@ class _dHyperLink_test(dHyperLink):
         self.LinkUnderline = True
         self.HoverUnderline = False
         self.VisitedUnderline = True
-        self.bindEvent(dEvents.Hit, self._onHit)
+        self.bindEvent(events.Hit, self._onHit)
         # self.ShowInBrowser = False
 
 

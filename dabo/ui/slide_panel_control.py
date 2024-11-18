@@ -2,17 +2,17 @@
 import wx
 import wx.lib.agw.foldpanelbar as fpb
 
-from ui import makeDynamicProperty
-import dEvents
-import dColors
-from dLocalize import _
-
-from ui import dCheckBox
-from ui import dControlMixin
-from ui import dForm
-from ui import dGridSizer
-from ui import dLabel
-from ui import dSizer
+from .. import dColors
+from .. import ui
+from .. import events
+from . import makeDynamicProperty
+from ..dLocalize import _
+from . import dCheckBox
+from . import dControlMixin
+from . import dForm
+from . import dGridSizer
+from . import dLabel
+from . import dSizer
 # import log
 
 
@@ -123,7 +123,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
 
     def Destroy(self):
         self.Parent._panels.remove(self)
-        self.Parent.raiseEvent(dEvents.SlidePanelChange)
+        self.Parent.raiseEvent(events.SlidePanelChange)
         super(dSlidePanel, self).Destroy()
 
     def onChildBorn(self, evt):
@@ -170,7 +170,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         if self._clickedOnIcon(evt):
             # Already handled
             return
-        self.raiseEvent(dEvents.SlidePanelCaptionClick, evt)
+        self.raiseEvent(events.SlidePanelCaptionClick, evt)
 
     def _getBarColor1(self):
         try:
@@ -311,7 +311,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
                 return
             cnt._panels.remove(self)
             cnt._panels.insert(val, self)
-            cnt.raiseEvent(dEvents.SlidePanelChange)
+            cnt.raiseEvent(events.SlidePanelChange)
         else:
             self._properties["PanelPosition"] = val
 
@@ -461,7 +461,7 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
         )
 
         self._setInitialOpenPanel()
-        self.bindEvent(dEvents.SlidePanelChange, self.__onSlidePanelChange)
+        self.bindEvent(events.SlidePanelChange, self.__onSlidePanelChange)
 
     def append(self, pnl=None, **kwargs):
         if pnl is None:
@@ -481,9 +481,9 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
             pos = self._panels[-1].GetItemPos() + self._panels[-1].GetPanelLength()
         pnl.Reposition(pos)
         self._panels.append(pnl)
-        self.raiseEvent(dEvents.SlidePanelChange, self._createCapBarEvt(pnl))
+        self.raiseEvent(events.SlidePanelChange, self._createCapBarEvt(pnl))
         pnl.bindEvent(
-            dEvents.SlidePanelCaptionClick, self.__onSlidePanelCaptionClick, pnl
+            events.SlidePanelCaptionClick, self.__onSlidePanelCaptionClick, pnl
         )
         #         print "PANEL CAP CLICK BOUND"
         return pnl
@@ -507,14 +507,14 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
             # nothing to do here
             return
         super(dSlidePanelControl, self).Collapse(pnl)
-        self.raiseEvent(dEvents.SlidePanelChange, self._createCapBarEvt(pnl))
+        self.raiseEvent(events.SlidePanelChange, self._createCapBarEvt(pnl))
 
     def Expand(self, pnl):
         if pnl.Expanded:
             # nothing to do here
             return
         super(dSlidePanelControl, self).Expand(pnl)
-        self.raiseEvent(dEvents.SlidePanelChange, self._createCapBarEvt(pnl))
+        self.raiseEvent(events.SlidePanelChange, self._createCapBarEvt(pnl))
 
     # Throw in Dabo-style wrapper names
     expand = Expand
@@ -911,7 +911,7 @@ if __name__ == "__main__":
             self.p1.Sizer = dSizer("v")
             btn = dButton(self.p1, Caption="Change Bar 1 Style")
             self.p1.Sizer.append(btn, border=25)
-            btn.bindEvent(dEvents.Hit, self.onBtn)
+            btn.bindEvent(events.Hit, self.onBtn)
 
             self.p2.Sizer = dSizer("v")
             lbl = dLabel(self.p2, Caption="Tea For Two", FontItalic=True, FontSize=24)
@@ -940,9 +940,9 @@ if __name__ == "__main__":
 
             hsz = dSizer("h")
             btnCollapse = dButton(self, Caption="Collapse All")
-            btnCollapse.bindEvent(dEvents.Hit, self.onCollapseAll)
+            btnCollapse.bindEvent(events.Hit, self.onCollapseAll)
             btnExpand = dButton(self, Caption="Expand All")
-            btnExpand.bindEvent(dEvents.Hit, self.onExpandAll)
+            btnExpand.bindEvent(events.Hit, self.onExpandAll)
             hsz.append(btnCollapse)
             hsz.appendSpacer(10)
             hsz.append(btnExpand)

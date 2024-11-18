@@ -10,12 +10,12 @@ import sys
 import wx
 import wx.stc as stc
 
-import dEvents
-import dColors
-import ui as dui
-from dLocalize import _
-from ui import dDataControlMixin
-from ui import dTimer
+from .. import ui
+from ..dLocalize import _
+from .. import events
+from .. import dColors
+from . import dDataControlMixin
+from . import dTimer
 # import log
 # import getEncoding
 
@@ -128,7 +128,7 @@ class StyleTimer(dTimer):
         # Default timer interval
         self.styleTimerInterval = 50
         super(StyleTimer, self).afterInit()
-        self.bindEvent(dEvents.Hit, self.onHit)
+        self.bindEvent(events.Hit, self.onHit)
         self.mode = "container"
 
     def onHit(self, evt):
@@ -340,11 +340,11 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         self.Bind(stc.EVT_STC_MODIFIED, self.OnModified)
         self.Bind(stc.EVT_STC_STYLENEEDED, self.OnStyleNeeded)
         self.Bind(stc.EVT_STC_NEEDSHOWN, self.OnNeedShown)
-        self.bindEvent(dEvents.KeyDown, self.__onKeyDown)
-        self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
+        self.bindEvent(events.KeyDown, self.__onKeyDown)
+        self.bindEvent(events.KeyChar, self.__onKeyChar)
 
         if delay:
-            self.bindEvent(dEvents.Idle, self.onIdle)
+            self.bindEvent(events.Idle, self.onIdle)
         else:
             pass
         #             self.setDefaults()
@@ -358,8 +358,8 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         if self._fontSize is None:
             self._fontSize = fontSize
 
-        dui.callAfter(self.changeFontFace, self._fontFace)
-        dui.callAfter(self.changeFontSize, self._fontSize)
+        ui.callAfter(self.changeFontFace, self._fontFace)
+        ui.callAfter(self.changeFontSize, self._fontSize)
 
         self._syntaxColoring = True
         self._styleTimer = StyleTimer(parent=self)
@@ -389,7 +389,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
     def setFormCallbacks(self, funcTuple):
         self._registerFunc, self._unRegisterFunc = funcTuple
 
-    @dui.deadCheck
+    @ui.deadCheck
     def __del__(self):
         self._unRegisterFunc(self)
         super(dEditor, self).__del__()
@@ -702,7 +702,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             return
         self._styleTimer.mode = self.Language.lower()
         self._styleTimer.start()
-        self.raiseEvent(dEvents.EditorStyleNeeded, evt)
+        self.raiseEvent(events.EditorStyleNeeded, evt)
 
     def onIdle(self, evt):
         if not self._defaultsSet and self.Language:
@@ -762,11 +762,11 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         self.SetCaretForeground("BLUE")
 
         # Register some images for use in the AutoComplete box.
-        self.RegisterImage(1, dui.strToBmp("daboIcon016"))
-        self.RegisterImage(2, dui.strToBmp("property"))  # , setMask=False))
-        self.RegisterImage(3, dui.strToBmp("event"))  # , setMask=False))
-        self.RegisterImage(4, dui.strToBmp("method"))  # , setMask=False))
-        self.RegisterImage(5, dui.strToBmp("class"))  # , setMask=False))
+        self.RegisterImage(1, ui.strToBmp("daboIcon016"))
+        self.RegisterImage(2, ui.strToBmp("property"))  # , setMask=False))
+        self.RegisterImage(3, ui.strToBmp("event"))  # , setMask=False))
+        self.RegisterImage(4, ui.strToBmp("method"))  # , setMask=False))
+        self.RegisterImage(5, ui.strToBmp("class"))  # , setMask=False))
 
         self.CallTipSetBackground("yellow")
         self.SelectionBackColor = "yellow"
@@ -1109,21 +1109,21 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
                 # so that onListSelection() knows to call
                 # autocomplete on the new item:
                 self._insertChar = "."
-                dui.callAfter(self._onPeriodActive)
+                ui.callAfter(self._onPeriodActive)
             else:
                 self._posBeforeCompList = self.GetCurrentPos() + 1
-                dui.callAfter(self.codeComplete)
+                ui.callAfter(self.codeComplete)
         elif self.AutoAutoComplete:
             if self.AutoCompActive():
                 if keyChar in " ()[]{}.-":
                     self.AutoCompCancel()
                     return
             else:
-                dui.callAfter(self.autoComplete, minWordLen=self.AutoAutoCompleteMinLen)
+                ui.callAfter(self.autoComplete, minWordLen=self.AutoAutoCompleteMinLen)
 
     def _onPeriodActive(self):
         self._posBeforeCompList = self.GetCurrentPos()
-        dui.callAfter(self.codeComplete)
+        ui.callAfter(self.codeComplete)
 
     def onListSelection(self, evt):
         txt = evt.GetText()
@@ -1171,7 +1171,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
                     # Until we can get other keyword lists, we need to clear this out
                     self.SetKeyWords(0, "")
                     self._keyWordsLanguage = ""
-                dui.callAfter(self.Colourise, 0, 1)
+                ui.callAfter(self.Colourise, 0, 1)
         else:
             self.ClearDocumentStyle()
             self.SetLexer(stc.STC_LEX_CONTAINER)
@@ -1186,7 +1186,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             return
         evt.Skip()
         self.setTitle()
-        self.raiseEvent(dEvents.ContentChanged, evt)
+        self.raiseEvent(events.ContentChanged, evt)
 
     def OnUpdateUI(self, evt):
         if not self._syntaxColoring:
@@ -1338,7 +1338,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
 
             # Let someone else display the complete documentation:
             self.raiseEvent(
-                dEvents.DocumentationHint,
+                events.DocumentationHint,
                 shortDoc=shortDoc,
                 longDoc=longDoc,
                 object=obj,
@@ -1369,7 +1369,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
                 isEvent = False
                 if inspect.isclass(obj_):
                     try:
-                        isEvent = issubclass(obj_, dEvents.Event)
+                        isEvent = issubclass(obj_, events.Event)
                     except TypeError:
                         pass
                 if type(obj_) == type(property()):
@@ -1478,7 +1478,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             s = "Do you want to save your changes?"
         else:
             s = "Do you want to save your changes to file '%s'?" % self._fileName
-        return dui.areYouSure(s)
+        return ui.areYouSure(s)
 
     def promptForFileName(self, prompt=None, saveAs=False, path=None, **kwargs):
         """Prompt the user for a file name."""
@@ -1496,9 +1496,9 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             drct = path
 
         if saveAs:
-            func = dui.getSaveAs
+            func = ui.getSaveAs
         else:
-            func = dui.getFile
+            func = ui.getFile
         fname = func(
             "py",
             "txt",
@@ -1526,7 +1526,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             if fname is None:
                 break
             if os.path.exists(fname):
-                r = dui.areYouSure(
+                r = ui.areYouSure(
                     _("File '%s' already exists. Do you " "want to overwrite it?")
                     % fname,
                     defaultNo=True,
@@ -1571,7 +1571,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
                         """The file has been modified on the disk since you opened it.
 Do you want to overwrite it?"""
                     )
-                    if not dui.areYouSure(
+                    if not ui.areYouSure(
                         prompt, _("File Conflict"), defaultNo=True, cancelButton=False
                     ):
                         return
@@ -1582,7 +1582,7 @@ Do you want to overwrite it?"""
         try:
             open(fname, "wb").write(txt)
         except OSError:
-            dui.stop(
+            ui.stop(
                 _("Could not save file '%s'. Please check your write permissions.")
                 % fname
             )
@@ -1703,14 +1703,14 @@ Do you want to overwrite it?"""
 
             except IOError:
                 if os.path.exists(fileSpec):
-                    dui.stop(
+                    ui.stop(
                         _(
                             "Could not open %s.  Please check that you have read permissions."
                         )
                         % fileSpec
                     )
                     return False
-                if dui.areYouSure(
+                if ui.areYouSure(
                     _("File '%s' does not exist. Would you like to create it?")
                     % fileSpec
                 ):
@@ -1742,11 +1742,11 @@ Do you want to overwrite it?"""
         self._fontFace = app.getUserSetting("editor.fontface")
         self._fontSize = app.getUserSetting("editor.fontsize")
         if self._fontFace:
-            dui.callAfter(self.changeFontFace, self._fontFace)
+            ui.callAfter(self.changeFontFace, self._fontFace)
         else:
             self._fontFace = self.GetFont().GetFaceName()
         if self._fontSize:
-            dui.callAfter(self.changeFontSize, self._fontSize)
+            ui.callAfter(self.changeFontSize, self._fontSize)
         else:
             self._fontSize = self.GetFont().GetPointSize()
         return ret
@@ -1771,7 +1771,7 @@ Do you want to overwrite it?"""
         self._title = "%s %s" % (fileName, modChar)
 
         if self._title != _oldTitle:
-            self.raiseEvent(dEvents.TitleChanged)
+            self.raiseEvent(events.TitleChanged)
 
     def increaseTextSize(self, pts=1):
         self.ZoomLevel += pts
@@ -1800,7 +1800,7 @@ Do you want to overwrite it?"""
     # Copyright www.stani.be
     def autoComplete(self, obj=0, minWordLen=0):
         word = self.getWord()
-        if isinstance(obj, dEvents.KeyEvent):
+        if isinstance(obj, events.KeyEvent):
             obj = 0
         if not word:
             if obj:

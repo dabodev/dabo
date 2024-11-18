@@ -3,9 +3,10 @@ import sys
 import xml.sax
 from io import StringIO
 import os.path
-import dabo
-import dabo.lib.utils as utils
-from dabo.dLocalize import _
+
+from .. import settings
+from . import utils
+from ..dLocalize import _
 
 # Tuple containing all file-based database types.
 FILE_DATABASES = ("sqlite",)
@@ -111,7 +112,7 @@ def importConnections(pth=None, useHomeDir=False):
                 if key == "database":
                     osp = os.path
                     relpath = utils.resolvePath(val, basePath, abspath=False)
-                    pth = pth.decode(dabo.fileSystemEncoding)
+                    pth = pth.decode(settings.fileSystemEncoding)
                     abspath = osp.abspath(osp.join(osp.split(basePath)[0], relpath))
                     if osp.exists(abspath):
                         ret[cxn][key] = abspath

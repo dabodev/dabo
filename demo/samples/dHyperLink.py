@@ -14,30 +14,43 @@ from dabo.ui import dTextBox
 from dabo.ui import dButton
 from dabo.ui import dCheckBox
 from dabo.ui import dBorderSizer
+
 dHyperLink = dabo.ui.dHyperLink
+
 
 class TestPanel(dPanel):
     def afterInit(self):
         sz = self.Sizer = dSizer("v")
         sz.appendSpacer(20)
 
-        lbl = dLabel(self, FontItalic=True,
-                WordWrap=True, Caption="Click on the link below to launch the URL in your default browser.")
+        lbl = dLabel(
+            self,
+            FontItalic=True,
+            WordWrap=True,
+            Caption="Click on the link below to launch the URL in your default browser.",
+        )
         lbl.FontSize += 2
         sz.append(lbl, halign="center")
         sz.appendSpacer(5)
 
         bs = dBorderSizer(self)
-        lnk = self.link = dHyperLink(self, Caption="The Dabo Wiki", FontSize=24,
-                URL="http://wiki.dabodev.com/", LinkColor="olive",
-                VisitedColor="maroon", HoverColor="crimson", LinkUnderline=True,
-                HoverUnderline=False, VisitedUnderline=True)
+        lnk = self.link = dHyperLink(
+            self,
+            Caption="The Dabo Wiki",
+            FontSize=24,
+            URL="http://wiki.dabodev.com/",
+            LinkColor="olive",
+            VisitedColor="maroon",
+            HoverColor="crimson",
+            LinkUnderline=True,
+            HoverUnderline=False,
+            VisitedUnderline=True,
+        )
         bs.append(lnk, border=20)
         sz.append(bs, halign="center")
         sz.appendSpacer(20)
 
-        bs = dBorderSizer(self, "v", Caption="Hyperlink Properties",
-                DefaultSpacing=8)
+        bs = dBorderSizer(self, "v", Caption="Hyperlink Properties", DefaultSpacing=8)
 
         class ColorPropPanel(dPanel):
             def beforeInit(self):
@@ -45,10 +58,16 @@ class TestPanel(dPanel):
 
             def afterInit(self):
                 hs = self.Sizer = dSizer("h", DefaultSpacing=4)
-                pnl = dPanel(self, Size=(25,15), BorderWidth=1, BorderColor="black",
-                        DynamicBackColor=self.getColor)
-                lbl = self.lbl = dLabel(self, Width=100,
-                        DynamicCaption=lambda:self._colorProp)
+                pnl = dPanel(
+                    self,
+                    Size=(25, 15),
+                    BorderWidth=1,
+                    BorderColor="black",
+                    DynamicBackColor=self.getColor,
+                )
+                lbl = self.lbl = dLabel(
+                    self, Width=100, DynamicCaption=lambda: self._colorProp
+                )
                 txt = dTextBox(self, DynamicValue=self.getColor)
                 btn = dButton(self, Width=30, Caption="...", OnHit=self.changeColor)
                 hs.append(lbl, valign="middle")
@@ -73,15 +92,23 @@ class TestPanel(dPanel):
                 else:
                     self._properties["ColorProp"] = val
 
-            ColorProp = property(_getColorProp, _setColorProp, None,
-                    _("Name of property managed by this panel  (str)"))
-        #--------- end of ColorPropPanel class definition --------------
+            ColorProp = property(
+                _getColorProp,
+                _setColorProp,
+                None,
+                _("Name of property managed by this panel  (str)"),
+            )
 
+        # --------- end of ColorPropPanel class definition --------------
 
         lbl = dLabel(self, Caption="Caption:")
-        txt = dTextBox(self, DataSource=self.link, DataField="Caption",
-                ToolTipText="The text that appears in the hyperlink",
-                OnValueChanged=self.Parent.layout)
+        txt = dTextBox(
+            self,
+            DataSource=self.link,
+            DataField="Caption",
+            ToolTipText="The text that appears in the hyperlink",
+            OnValueChanged=self.Parent.layout,
+        )
         hs = dSizer("h")
         hs.append(lbl)
         hs.appendSpacer(3)
@@ -89,8 +116,12 @@ class TestPanel(dPanel):
         bs.append(hs, "x")
 
         lbl = dLabel(self, Caption="URL:")
-        txt = dTextBox(self, DataSource=self.link, DataField="URL",
-                ToolTipText="The address that your browser will open when the link is clicked")
+        txt = dTextBox(
+            self,
+            DataSource=self.link,
+            DataField="URL",
+            ToolTipText="The address that your browser will open when the link is clicked",
+        )
         hs = dSizer("h")
         hs.append(lbl)
         hs.appendSpacer(3)
@@ -99,18 +130,30 @@ class TestPanel(dPanel):
 
         pnl = ColorPropPanel(self, ColorProp="LinkColor")
         bs.append(pnl)
-        chk = dCheckBox(self, Caption="LinkUnderline", DataSource=self.link,
-                DataField="LinkUnderline")
+        chk = dCheckBox(
+            self,
+            Caption="LinkUnderline",
+            DataSource=self.link,
+            DataField="LinkUnderline",
+        )
         bs.append(chk)
         pnl = ColorPropPanel(self, ColorProp="VisitedColor")
         bs.append(pnl)
-        chk = dCheckBox(self, Caption="VisitedUnderline", DataSource=self.link,
-                DataField="VisitedUnderline")
+        chk = dCheckBox(
+            self,
+            Caption="VisitedUnderline",
+            DataSource=self.link,
+            DataField="VisitedUnderline",
+        )
         bs.append(chk)
         pnl = ColorPropPanel(self, ColorProp="HoverColor")
         bs.append(pnl)
-        chk = dCheckBox(self, Caption="HoverUnderline", DataSource=self.link,
-                DataField="HoverUnderline")
+        chk = dCheckBox(
+            self,
+            Caption="HoverUnderline",
+            DataSource=self.link,
+            DataField="HoverUnderline",
+        )
         bs.append(chk)
         sz.append(bs, halign="center")
         sz.appendSpacer(5)

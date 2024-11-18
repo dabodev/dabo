@@ -3,20 +3,20 @@ import warnings
 
 import wx
 
-import ui as dui
-import dEvents
-import dConstants as kons
-from dabo.dLocalize import _
-from ui import dButton
-from ui import dCheckBox
-from ui import dDropdownList
-from ui import dFormMixin
-from ui import dGridSizer
-from ui import dLabel
-from ui import dSizer
-from ui import dSpinner
-from ui import dTextBox
-from ui import makeDynamicProperty
+from .. import ui
+from .. import events
+from .. import dConstants as kons
+from ..dLocalize import _
+from . import dButton
+from . import dCheckBox
+from . import dDropdownList
+from . import dFormMixin
+from . import dGridSizer
+from . import dLabel
+from . import dSizer
+from . import dSpinner
+from . import dTextBox
+from . import makeDynamicProperty
 
 
 class dDialog(dFormMixin, wx.Dialog):
@@ -114,7 +114,7 @@ class dDialog(dFormMixin, wx.Dialog):
         # accounted for. If we only called it after the dialog was already shown, then we
         # risk the dialog being too jumpy.
         self._afterShow()
-        dui.callAfter(self._afterShow)
+        ui.callAfter(self._afterShow)
         if self.Modal:
             ret = self.ShowModal()
             return {wx.ID_OK: kons.DLG_OK, wx.ID_CANCEL: kons.DLG_CANCEL}.get(ret, ret)
@@ -354,11 +354,11 @@ class dStandardButtonDialog(dDialog):
                 btn.Bind(wx.EVT_BUTTON, mthd)
             else:
                 newbtn.Caption = btn.GetLabel()
-                pos = dui.getPositionInSizer(btn)
+                pos = ui.getPositionInSizer(btn)
                 sz = btn.GetContainingSizer()
                 sz.Replace(btn, newbtn)
                 btn.Destroy()
-                newbtn.bindEvent(dEvents.Hit, mthd)
+                newbtn.bindEvent(events.Hit, mthd)
         if ok:
             self.OKButton.DefaultButton = True
         elif yes:
@@ -678,12 +678,12 @@ class _FloatDialog(dDialog):
             else:
                 self.Top = top + self.Owner.Height
         # Make sure that we're within the display limits
-        maxW, maxH = dui.getDisplaySize()
+        maxW, maxH = ui.getDisplaySize()
         self.Left = max(5, self.Left)
         self.Top = max(5, self.Top)
         self.Right = min(self.Right, maxW - 5)
         self.Bottom = min(self.Bottom, maxH - 5)
-        dui.callAfterInterval(10, self._resetPosition, self.Position)
+        ui.callAfterInterval(10, self._resetPosition, self.Position)
         super(_FloatDialog, self).show()
 
     def _resetPosition(self, pos):

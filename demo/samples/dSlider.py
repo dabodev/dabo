@@ -10,8 +10,8 @@ from dabo.ui import dPanel
 from dabo.ui import dSizer
 from dabo.ui import dCheckBox
 from dabo.ui import dSpinner
-dSlider = dabo.ui.dSlider
 
+dSlider = dabo.ui.dSlider
 
 
 class TestPanel(dPanel):
@@ -22,36 +22,48 @@ class TestPanel(dPanel):
         sz.append(self.demoBox, border=30, borderSides=("Left", "Right"))
         sz.appendSpacer(10)
 
-        self.slider = dSlider(self, Min=0, Max=88, Value=42,
-                ShowLabels=True)
+        self.slider = dSlider(self, Min=0, Max=88, Value=42, ShowLabels=True)
         self.slider.bindEvent(dEvents.Hit, self.onSliderHit)
         sz.append(self.slider, "x", border=30, borderSides=("Left", "Right"))
         sz.appendSpacer(25)
 
         lbl = dLabel(self, Caption="Min:")
-        spn = dSpinner(self, Max=1000000, DataSource=self.slider,
-                DataField="Min", OnValueChanged=self.updtBox)
+        spn = dSpinner(
+            self,
+            Max=1000000,
+            DataSource=self.slider,
+            DataField="Min",
+            OnValueChanged=self.updtBox,
+        )
         hsz = dSizer("h")
         hsz.append(lbl, valign="middle")
         hsz.append(spn, valign="middle")
         hsz.appendSpacer(40)
 
         lbl = dLabel(self, Caption="Max:")
-        spn = dSpinner(self, Max=1000000, DataSource=self.slider,
-                DataField="Max", OnValueChanged=self.updtBox)
+        spn = dSpinner(
+            self,
+            Max=1000000,
+            DataSource=self.slider,
+            DataField="Max",
+            OnValueChanged=self.updtBox,
+        )
         hsz.append(lbl, valign="middle")
         hsz.append(spn, valign="middle")
         sz.append(hsz, halign="center")
 
         sz.appendSpacer(25)
-        chk = dCheckBox(self, Caption="Continuous Update",
-                DataSource=self.slider, DataField="Continuous")
+        chk = dCheckBox(
+            self,
+            Caption="Continuous Update",
+            DataSource=self.slider,
+            DataField="Continuous",
+        )
         sz.append(chk, halign="center")
 
         self.update()
         dabo.ui.callAfter(self.updtBox)
         self.layout()
-
 
     def onSliderHit(self, evt):
         self.Form.logit(_("Hit: Value=%s") % self.slider.Value)
@@ -67,7 +79,6 @@ class TestPanel(dPanel):
         val, smin, smax = sld.Value, float(sld.Min), float(sld.Max)
         pct = (val - smin) / (smax - smin)
         self.demoBox.Width = sld.Width * pct
-
 
 
 category = "Controls.dSlider"

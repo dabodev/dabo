@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-import dabo
-from dabo.dLocalize import _
-from dabo.ui import dOkCancelDialog
-from dabo.ui import dImage
-from dabo.ui import dLabel
-from dabo.ui import dSizer
-from dabo.ui import dTextBox
-import dabo.icons
+from ...dLocalize import _
+from .. import dOkCancelDialog
+from .. import dImage
+from .. import dLabel
+from .. import dSizer
+from .. import dTextBox
+from ... import icons
 
 
 class Lbl(dLabel):

@@ -3,14 +3,14 @@ import sys
 
 import wx
 
-import ui as dui
-from ui import dControlMixin
-from ui import dPage
-import dEvents
-import lib
-from dLocalize import _
-from lib.utils import ustr
-from ui import makeDynamicProperty
+from ..dLocalize import _
+from ..lib.utils import ustr
+from .. import lib
+from .. import ui
+from .. import events
+from . import dControlMixin
+from . import dPage
+from . import makeDynamicProperty
 # import log
 
 
@@ -48,7 +48,7 @@ class dPageFrameMixin(dControlMixin):
         super(dPageFrameMixin, self)._initEvents()
         self.Bind(self._evtPageChanged, self.__onPageChanged)
         self.Bind(self._evtPageChanging, self.__onPageChanging)
-        self.bindEvent(dEvents.Create, self.__onCreate)
+        self.bindEvent(events.Create, self.__onCreate)
 
     def __onPageChanging(self, evt):
         """The page has not yet been changed, so we can veto it if conditions call for it."""
@@ -66,7 +66,7 @@ class dPageFrameMixin(dControlMixin):
             except AttributeError:
                 log.error(MSG_SMART_FOCUS_ABUSE % self.Name)
         self.raiseEvent(
-            dEvents.PageChanging, oldPageNum=oldPageNum, newPageNum=newPageNum
+            events.PageChanging, oldPageNum=oldPageNum, newPageNum=newPageNum
         )
 
     def _beforePageChange(self, old, new):
@@ -80,7 +80,7 @@ class dPageFrameMixin(dControlMixin):
         # Make sure the PageEnter fires for the current page on
         # pageframe instantiation, as this doesn't happen automatically.
         # Putting this code in afterInit() results in a segfault on Linux, btw.
-        dui.callAfter(self.__pageChanged, 0, None)
+        ui.callAfter(self.__pageChanged, 0, None)
 
     def __onPageChanged(self, evt):
         evt.Skip()
@@ -105,17 +105,17 @@ class dPageFrameMixin(dControlMixin):
             if oldPageNum >= 0:
                 try:
                     oldPage = self.Pages[oldPageNum]
-                    dui.callAfter(oldPage.raiseEvent, dEvents.PageLeave)
+                    ui.callAfter(oldPage.raiseEvent, events.PageLeave)
                 except IndexError:
                     # Page has already been released
                     return
 
         if newPageNum >= 0 and self.PageCount > newPageNum:
             newPage = self.Pages[newPageNum]
-            dui.callAfter(newPage.raiseEvent, dEvents.PageEnter)
-            dui.callAfter(
+            ui.callAfter(newPage.raiseEvent, events.PageEnter)
+            ui.callAfter(
                 self.raiseEvent,
-                dEvents.PageChanged,
+                events.PageChanged,
                 oldPageNum=oldPageNum,
                 newPageNum=newPageNum,
             )
@@ -134,7 +134,7 @@ class dPageFrameMixin(dControlMixin):
         if key is None:
             key = ustr(img)
         if isinstance(img, str):
-            img = dui.strToBmp(img)
+            img = ui.strToBmp(img)
         il = self.GetImageList()
         if not il:
             il = wx.ImageList(img.GetWidth(), img.GetHeight(), initialCount=0)
@@ -379,7 +379,7 @@ class dPageFrameMixin(dControlMixin):
         ## pkm: It is possible for pages to not be instances of dPage
         ##      (such as in the AppWizard), resulting in self.PageCount > len(self.Pages)
         ##      if using the commented code below.
-        # return [pg for pg in self.Children    if isinstance(pg, dui.dPage) ]
+        # return [pg for pg in self.Children    if isinstance(pg, ui.dPage) ]
         return [self.GetPage(pg) for pg in range(self.PageCount)]
 
     def _getPageSizerClass(self):
@@ -402,7 +402,7 @@ class dPageFrameMixin(dControlMixin):
             ret = None
         return ret
 
-    @dui.deadCheck
+    @ui.deadCheck
     def _setSelectedPage(self, pg):
         if self._constructed():
             idx = self._getPageIndex(pg)
@@ -417,7 +417,7 @@ class dPageFrameMixin(dControlMixin):
     def _getSelectedPageNumber(self):
         return self.GetSelection()
 
-    @dui.deadCheck
+    @ui.deadCheck
     def _setSelectedPageNumber(self, val):
         if self._constructed():
             self.SetSelection(val)

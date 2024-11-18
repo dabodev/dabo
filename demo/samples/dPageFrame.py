@@ -12,8 +12,8 @@ from dabo.ui import dSizer
 from dabo.ui import dDropdownList
 from dabo.ui import dGridSizer
 from dabo.ui import dBorderSizer
-dPageFrame = dabo.ui.dPageFrame
 
+dPageFrame = dabo.ui.dPageFrame
 
 
 class TestPanel(dPanel):
@@ -24,8 +24,12 @@ class TestPanel(dPanel):
         sz.appendSpacer(10)
         hsz = dSizer("h")
         lbl = dLabel(self, Caption="Tab Position:")
-        dd = self.ddPos = dDropdownList(self, Choices=["Top", "Right", "Bottom", "Left"],
-                Value=self.currentTabPosition, OnHit=self.onNewPosition)
+        dd = self.ddPos = dDropdownList(
+            self,
+            Choices=["Top", "Right", "Bottom", "Left"],
+            Value=self.currentTabPosition,
+            OnHit=self.onNewPosition,
+        )
         hsz.append(lbl)
         hsz.appendSpacer(3)
         hsz.append(dd)
@@ -37,8 +41,9 @@ class TestPanel(dPanel):
             self.pgf.release()
         except AttributeError:
             pass
-        self.pgf = dPageFrame(self, TabPosition=self.currentTabPosition,
-                OnPageChanged=self.onPageChanged)
+        self.pgf = dPageFrame(
+            self, TabPosition=self.currentTabPosition, OnPageChanged=self.onPageChanged
+        )
         self.pgf.appendPage(caption="First", BackColor="blue")
         self.pgf.appendPage(caption="Second", BackColor="salmon")
         self.pgf.appendPage(caption="Third", BackColor="darkred")
@@ -48,8 +53,9 @@ class TestPanel(dPanel):
         return self.pgf
 
     def onPageChanged(self, evt):
-        self.Form.logit("Page number changed from %s to %s" %
-                (evt.oldPageNum, evt.newPageNum))
+        self.Form.logit(
+            "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
+        )
 
     def onNewPosition(self, evt):
         newpos = evt.EventObject.StringValue
@@ -69,6 +75,7 @@ will then be created."""
             self.currentTabPosition = newpos
             self.createPageFrame()
             # Need to update the
+
 
 #         gsz = dGridSizer(MaxCols=2)
 #         for num, pos in enumerate(("Top", "Right", "Bottom", "Left")):

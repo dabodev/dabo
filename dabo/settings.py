@@ -24,6 +24,7 @@ namespace at runtime, eg::
 
 """
 
+import locale
 import os
 import sys
 import logging
@@ -38,7 +39,7 @@ from .version import __version__
 eventLogging = False
 
 # Set the following to True to get all the data in the UI event put into
-# the dEvent EventData dictionary. Only do that for testing, though,
+# the event EventData dictionary. Only do that for testing, though,
 # because it is very expensive from a performance standpoint.
 allNativeEventInfo = False
 
@@ -59,7 +60,7 @@ fastNameSet = False
 # where you used to have to have code like:
 #
 #   def initEvents(self):
-#       self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
+#       self.bindEvent(events.MouseEnter, self.onMouseEnter)
 #
 # with autoBindEvents, all you need to do is define the onMouseEnter function,
 # and Dabo will understand that that function should be called upon the
@@ -255,6 +256,9 @@ convertFloatToDecimal = True
 # Root path of the dabo module
 root_path = Path(__file__).parent
 
+# Subdirectories that make up a standard Dabo app
+standardDirs = ("biz", "cache", "db", "lib", "reports", "resources", "test", "ui")
+
 ### Settings - end
 
 
@@ -317,3 +321,6 @@ def getXMLEncoding():
     return encoding
 
 
+# On some platforms getfilesystemencoding() and even getdefaultlocale()
+# can return None, so we make sure we always set a reasonable encoding:
+fileSystemEncoding = sys.getfilesystemencoding() or locale.getdefaultlocale()[1] or defaultEncoding

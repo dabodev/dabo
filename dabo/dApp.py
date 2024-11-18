@@ -17,29 +17,26 @@ import warnings
 from xml.sax._exceptions import SAXParseException
 from zipfile import ZipFile
 
-import dException
-import dLocalize
-import dUserSettingProvider
-from dLocalize import _
-from lib import connParser
-from lib.SimpleCrypt import SimpleCrypt
-from dObject import dObject
-from dPref import dPref
-from dSecurityManager import dSecurityManager
-import db
-import lib
-import ui
-from lib.utils import ustr
-from lib.utils import cleanMenuCaption
+from . import db
+from . import lib
+from . import ui
+from . import settings
+from . import dException
+from . import dLocalize
+from . import dUserSettingProvider
+from .dLocalize import _
+from .lib import connParser
+from .lib.SimpleCrypt import SimpleCrypt
+from .dObject import dObject
+from .dPref import dPref
+from .dSecurityManager import dSecurityManager
+from .lib.utils import ustr
+from .lib.utils import cleanMenuCaption
 # import dAppRef
-# import frameworkPath
 # import checkForWebUpdates
 # import webupdate_urlbase
 # import __version__
 # import log
-# import _standardDirs
-# import getEncoding
-# import fileSystemEncoding
 
 
 class Collection(list):
@@ -194,7 +191,7 @@ class dApp(dObject):
         # If we are displaying a splash screen, these attributes control
         # its appearance. Extract them before the super call.
         self.showSplashScreen = self._extractKey(kwargs, "showSplashScreen", False)
-        basepath = frameworkPath
+        basepath = settings.root_path
         img = os.path.join(basepath, "icons", "daboSplashName.png")
         self.splashImage = self._extractKey(kwargs, "splashImage", img)
         self.splashMaskColor = self._extractKey(kwargs, "splashMaskColor", None)
@@ -649,7 +646,7 @@ try again when it is running.
             if missing:
                 return "\n".join(missing)
 
-        locations = {"dabo": frameworkPath, "demo": loc_demo, "ide": loc_ide}
+        locations = {"dabo": settings.root_path, "demo": loc_demo, "ide": loc_ide}
         for project in projects:
             chgs = updates[project]
             if not chgs:
@@ -952,7 +949,7 @@ try again when it is running.
         currsyspath = sys.path
         if not currdir in sys.path:
             sys.path.insert(0, currdir)
-        for dd in _standardDirs:
+        for dd in settings.standardDirs:
             currmod = getattr(self, dd, None)
             if currmod:
                 # Module has already been imported; reload to get current state.
@@ -974,7 +971,7 @@ try again when it is running.
     def getStandardDirectories(self):
         """Return a tuple of the fullpath to each standard directory"""
         hd = self.HomeDirectory
-        subdirs = [os.path.join(hd, dd) for dd in _standardDirs]
+        subdirs = [os.path.join(hd, dd) for dd in settings.standardDirs]
         subdirs.insert(0, hd)
         return tuple(subdirs)
 
@@ -1070,7 +1067,7 @@ try again when it is running.
         If a starting file path is provided, use that first. If not, use the
         HomeDirectory as the starting point.
         """
-        stdDirs = _standardDirs + ("main.py",)
+        stdDirs = settings.standardDirs + ("main.py",)
         if dirname not in stdDirs:
             log.error(_("Non-standard directory '%s' requested") % dirname)
             return None
@@ -1180,7 +1177,9 @@ try again when it is running.
         self.uiApp.onDebugWin(evt)
 
     def onObjectInspectorWin(self, evt):
-        self.uiApp.onObjectInspectorWin(evt)
+        # TODO: fix object inspector code
+        pass
+        # self.uiApp.onObjectInspectorWin(evt)
 
     def onWinClose(self, evt):
         self.uiApp.onWinClose(evt)
@@ -1355,9 +1354,7 @@ try again when it is running.
             except AttributeError:
                 pass
         if not ret:
-            log.info(
-                _("WARNING: No BasePrefKey has been set for this application.")
-            )
+            log.info(_("WARNING: No BasePrefKey has been set for this application."))
             try:
                 f = inspect.stack()[-1][1]
                 pth = os.path.abspath(f)
@@ -1369,7 +1366,7 @@ try again when it is running.
             pthList = pth.strip(os.sep).split(os.sep)
             ret = ".".join(pthList)
             if isinstance(ret, bytes):
-                ret = ret.decode(fileSystemEncoding)
+                ret = ret.decode(settings.fileSystemEncoding)
         return ret
 
     def _setBasePrefKey(self, val):
@@ -1416,7 +1413,7 @@ try again when it is running.
         self._defaultForm = val
 
     def _getEncoding(self):
-        return getEncoding()
+        return settings.getEncoding()
 
     def _getFormsToOpen(self):
         return getattr(self, "_formsToOpen", [])
@@ -1453,7 +1450,7 @@ try again when it is running.
                     else:
                         # See if it's a child directory of a standard Dabo app structure
                         dname = os.path.basename(hd)
-                        if dname in _standardDirs:
+                        if dname in settings.standardDirs:
                             hd = os.path.dirname(hd)
                 else:
                     try:
@@ -1497,9 +1494,7 @@ try again when it is running.
         if os.path.exists(val):
             self._homeDirectory = os.path.abspath(val)
         else:
-            log.error(
-                _("Setting App HomeDirectory: Path does not exist. '%s'") % val
-            )
+            log.error(_("Setting App HomeDirectory: Path does not exist. '%s'") % val)
 
     def _getIcon(self):
         return getattr(self, "_icon", "daboIcon.ico")
@@ -1577,13 +1572,11 @@ try again when it is running.
         self._releasePreferenceDialog = bool(val)
 
     def _getRemoteProxy(self):
-        from lib.RemoteConnector import RemoteConnector
-
         if self.SourceURL:
             try:
                 return self._remoteProxy
             except AttributeError:
-                self._remoteProxy = RemoteConnector(self)
+                self._remoteProxy = lib.RemoteConnector.RemoteConnector(self)
                 return self._remoteProxy
         else:
             return None

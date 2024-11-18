@@ -5,15 +5,14 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 
-
 from dabo.ui import dMenu
 from dabo.ui import dPanel
 from dabo.ui import dSizer
 from dabo.ui import dCheckBox
 from dabo.ui import dTreeView
 from dabo.ui import dButton
-dTreeView = dabo.ui.dTreeView
 
+dTreeView = dabo.ui.dTreeView
 
 
 class TreeViewSample(dTreeView):
@@ -51,8 +50,9 @@ class TreeViewSample(dTreeView):
     def onChangeCaption(self, evt):
         nd = self.activeNode
         self.activeNode = None
-        txt = dabo.ui.getString(_("New Caption"), _("Adding Child Node"),
-                defaultValue=nd.Caption)
+        txt = dabo.ui.getString(
+            _("New Caption"), _("Adding Child Node"), defaultValue=nd.Caption
+        )
         if txt is not None:
             nd.Caption = txt
 
@@ -60,13 +60,19 @@ class TreeViewSample(dTreeView):
         self.Form.logit(_("Mouse Right Click on tree"))
 
     def onTreeSelection(self, evt):
-        self.Form.logit(_("Selected node caption: %s") % evt.EventData["selectedCaption"])
+        self.Form.logit(
+            _("Selected node caption: %s") % evt.EventData["selectedCaption"]
+        )
 
     def onTreeItemCollapse(self, evt):
-        self.Form.logit(_("Collapsed node caption: %s") % evt.EventData["selectedCaption"])
+        self.Form.logit(
+            _("Collapsed node caption: %s") % evt.EventData["selectedCaption"]
+        )
 
     def onTreeItemExpand(self, evt):
-        self.Form.logit(_("Expanded node caption: %s") % evt.EventData["selectedCaption"])
+        self.Form.logit(
+            _("Expanded node caption: %s") % evt.EventData["selectedCaption"]
+        )
 
     def onTreeBeginDrag(self, evt):
         self.Form.logit(_("Beginning drag for %s") % evt.selectedCaption)
@@ -77,8 +83,7 @@ class TreeViewSample(dTreeView):
 
 class TestPanel(dPanel):
     def afterInit(self):
-        sz = self.Sizer = dSizer("h", DefaultBorder=20,
-                DefaultBorderLeft=True)
+        sz = self.Sizer = dSizer("h", DefaultBorder=20, DefaultBorderLeft=True)
         sz.appendSpacer(25)
 
         self.tree = TreeViewSample(self)
@@ -97,44 +102,63 @@ class TestPanel(dPanel):
         btn.bindEvent(dEvents.Hit, self.onCollapseAll)
         vsz.append(btn)
 
-        chk = dCheckBox(self, Caption=_("Show Lines"),
-                DataSource="self.Parent.tree", DataField="ShowLines")
+        chk = dCheckBox(
+            self,
+            Caption=_("Show Lines"),
+            DataSource="self.Parent.tree",
+            DataField="ShowLines",
+        )
         vsz.append(chk)
 
-        chk = dCheckBox(self, Caption=_("Show Root Node"),
-                DataSource="self.Parent.tree", DataField="ShowRootNode")
+        chk = dCheckBox(
+            self,
+            Caption=_("Show Root Node"),
+            DataSource="self.Parent.tree",
+            DataField="ShowRootNode",
+        )
         vsz.append(chk)
 
-        chk = dCheckBox(self, Caption=_("Show Root Node Lines"),
-                DataSource="self.Parent.tree", DataField="ShowRootNodeLines")
+        chk = dCheckBox(
+            self,
+            Caption=_("Show Root Node Lines"),
+            DataSource="self.Parent.tree",
+            DataField="ShowRootNodeLines",
+        )
         vsz.append(chk)
 
-        chk = dCheckBox(self, Caption=_("Tree is Editable"),
-                DataSource="self.Parent.tree", DataField="Editable")
+        chk = dCheckBox(
+            self,
+            Caption=_("Tree is Editable"),
+            DataSource="self.Parent.tree",
+            DataField="Editable",
+        )
         vsz.append(chk)
 
-        chk = dCheckBox(self, Caption=_("Mutliple Node Selection"),
-                DataSource="self.Parent.tree", DataField="MultipleSelect")
+        chk = dCheckBox(
+            self,
+            Caption=_("Mutliple Node Selection"),
+            DataSource="self.Parent.tree",
+            DataField="MultipleSelect",
+        )
         vsz.append(chk)
 
-        chk = dCheckBox(self, Caption=_("Show Buttons"),
-                DataSource="self.Parent.tree", DataField="ShowButtons")
+        chk = dCheckBox(
+            self,
+            Caption=_("Show Buttons"),
+            DataSource="self.Parent.tree",
+            DataField="ShowButtons",
+        )
         vsz.append(chk)
 
         sz.append1x(vsz)
         self.update()
         self.layout()
 
-
     def onExpandAll(self, evt):
         self.tree.expandAll()
 
-
     def onCollapseAll(self, evt):
         self.tree.collapseAll()
-
-
-
 
 
 category = "Controls.dTreeView"

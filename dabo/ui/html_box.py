@@ -9,10 +9,11 @@ import datetime
 
 import wx.html
 
-from dLocalize import _
-import dEvents
-from ui import makeDynamicProperty
-from ui import dControlMixin
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from . import makeDynamicProperty
+from . import dControlMixin
 
 try:
     import webbrowser as wb
@@ -53,13 +54,13 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
 
     def _initEvents(self):
         super(dHtmlBox, self)._initEvents()
-        self.bindEvent(dEvents.HtmlLinkClicked, self.__onLinkClicked)
+        self.bindEvent(events.HtmlLinkClicked, self.__onLinkClicked)
 
     def __OnCellClicked(self, cell, x, y, evt):
-        self.raiseEvent(dEvents.HtmlLinkClicked, href=cell.GetLink().GetHref())
+        self.raiseEvent(events.HtmlLinkClicked, href=cell.GetLink().GetHref())
 
     def __onWxLinkClicked(self, evt):
-        self.raiseEvent(dEvents.HtmlLinkClicked, href=evt.GetLinkInfo().GetHref())
+        self.raiseEvent(events.HtmlLinkClicked, href=evt.GetLinkInfo().GetHref())
 
     def __onLinkClicked(self, evt):
         if self.RespondToLinks:
@@ -385,7 +386,7 @@ if __name__ == "__main__":
     sz.appendSpacer(5)
     sz.append(lbl, halign="center")
     edt = ui.dEditBox(pnl, RegID="editbox", DataSource=ht, DataField="Source")
-    edt.bindEvent(dEvents.KeyChar, textChangeHandler)
+    edt.bindEvent(events.KeyChar, textChangeHandler)
     sz.append1x(edt, border=10)
     btn = ui.dButton(pnl, Caption="Reset", OnHit=resetHTML)
     sz.append(btn, halign="right", border=10, borderSides=["right", "bottom"])

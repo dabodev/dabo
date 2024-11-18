@@ -12,24 +12,23 @@ from dabo.ui import dPanel
 from dabo.ui import dSizer
 
 
-
 class TestPanel(dPanel):
     def afterInit(self):
         sz = self.Sizer = dSizer("v")
         sz.appendSpacer(40)
 
-        lbl = dLabel(self, Caption="Bubblet is a fun and somewhat addictive game.\n\nFor instructions, please see the Overview tab.")
+        lbl = dLabel(
+            self,
+            Caption="Bubblet is a fun and somewhat addictive game.\n\nFor instructions, please see the Overview tab.",
+        )
         sz.append(lbl, halign="center")
         sz.appendSpacer(30)
-        btn = dButton(self, Caption="Run the Bubblet Game",
-                OnHit=self.runGame)
+        btn = dButton(self, Caption="Run the Bubblet Game", OnHit=self.runGame)
         sz.append(btn, halign="center")
 
-
     def runGame(self, evt):
-        frm = BubbletForm(self.Form, Size=(400,300), Centered=True)
+        frm = BubbletForm(self.Form, Size=(400, 300), Centered=True)
         frm.show()
-
 
 
 category = "Games.Bubblet"

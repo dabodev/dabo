@@ -21,9 +21,9 @@ from pathlib import Path
 
 import wx
 
-import settings
-import ui
-from dApp import dApp
+from .. import settings
+from .. import ui
+from ..dApp import dApp
 
 # Log all events except the really frequent ones:
 logEvents = ["All", "Idle", "MouseMove"]
@@ -102,7 +102,9 @@ class Test(object):
         # Get all the python modules in this directory into a list:
         dabo_root = settings.root_path
         ui_root = dabo_root / "ui"
-        modules = [ modname.stem for modname in ui_root.iterdir() if modname.suffix == ".py" ]
+        modules = [
+            modname.stem for modname in ui_root.iterdir() if modname.suffix == ".py"
+        ]
 
         for modname in sorted(modules):
             print("==> ", modname)

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import dabo.ui
-import dabo.dEvents as dEvents
-from dabo.ui import dKeys as dKeys
-from dabo.ui import dOkCancelDialog
-from dabo.dLocalize import _
+from ... import ui
+from ... import events
+from .. import dKeys
+from .. import dOkCancelDialog
+from ...dLocalize import _
 
 
 class HotKeyEditor(dOkCancelDialog):
@@ -35,8 +35,8 @@ class HotKeyEditor(dOkCancelDialog):
         bsz.append1x(self.hkLabel, halign="center", border=10)
         sz.append(bsz, halign="center")
         # Pass key events from the OK/Cancel buttons up to the form
-        self.CancelButton.bindEvent(dEvents.KeyUp, self.onKeyUp)
-        self.OKButton.bindEvent(dEvents.KeyUp, self.onKeyUp)
+        self.CancelButton.bindEvent(events.KeyUp, self.onKeyUp)
+        self.OKButton.bindEvent(events.KeyUp, self.onKeyUp)
 
     def setKey(self, key):
         self._originalKeyString = self._keyText = self.hkLabel.Caption = key
@@ -50,9 +50,9 @@ class HotKeyEditor(dOkCancelDialog):
             # Navigation keys; ignore
             return
         self._keyChar = kcr = evt.keyChar
-        self._ctrl = dabo.ui.isControlDown() or dabo.ui.isCommandDown()
-        self._shift = dabo.ui.isShiftDown()
-        self._alt = dabo.ui.isAltDown()
+        self._ctrl = ui.isControlDown() or ui.isCommandDown()
+        self._shift = ui.isShiftDown()
+        self._alt = ui.isAltDown()
         keyStrings = {
             dKeys.key_Back: "Back",
             dKeys.key_Delete: "Del",

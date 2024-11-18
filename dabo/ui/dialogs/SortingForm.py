@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from dabo.dLocalize import _
-from dabo.ui import dOkCancelDialog
-import dabo.dEvents as dEvents
-import dabo.ui
+from ...dLocalize import _
+from .. import dOkCancelDialog
+from ... import events
+from ... import ui
 
 
 class SortingForm(dOkCancelDialog):
@@ -16,7 +16,7 @@ class SortingForm(dOkCancelDialog):
         self._listCaption = ""
 
     def addControls(self):
-        self.listBox = dabo.ui.dEditableList(
+        self.listBox = ui.dEditableList(
             self,
             Caption=self._listCaption,
             Choices=self._itms,
@@ -55,9 +55,9 @@ class SortingForm(dOkCancelDialog):
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
+    from .dApp import dApp
 
-    class DummyForm(dabo.ui.dForm):
+    class DummyForm(ui.dForm):
         def onActivate(self, evt):
             self.Visible = False
             dlg = SortingForm(
@@ -72,7 +72,7 @@ if __name__ == "__main__":
             else:
                 print("Cancel was pressed")
             dlg.release()
-            dabo.ui.callAfter(self.release)
+            ui.callAfter(self.release)
 
     app = dApp()
     app.MainFormClass = DummyForm

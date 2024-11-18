@@ -3,18 +3,19 @@ import random
 
 import wx
 
-import dEvents
-import dColors
-from dLocalize import _
-from ui import dControlMixin
-from ui import dForm
-from ui import makeDynamicProperty
+from .. import dColors
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from . import dControlMixin
+from . import dForm
+from . import makeDynamicProperty
 
 
 class SplitterPanelMixin(object):
     def __init__(self, parent, *args, **kwargs):
         if self.ShowSplitMenu:
-            self.bindEvent(dEvents.ContextMenu, self._onMixinContextMenu)
+            self.bindEvent(events.ContextMenu, self._onMixinContextMenu)
 
     def _onMixinContextMenu(self, evt):
         if not self.Parent.ShowPanelSplitMenu:
@@ -81,9 +82,9 @@ class SplitterPanelMixin(object):
         if self._constructed():
             self._showSplitMenu = val
             if val:
-                self.bindEvent(dEvents.ContextMenu, self._onContextMenu)
+                self.bindEvent(events.ContextMenu, self._onContextMenu)
             else:
-                self.unbindEvent(dEvents.ContextMenu)
+                self.unbindEvent(events.ContextMenu)
         else:
             self._properties["ShowSplitMenu"] = val
 
@@ -238,8 +239,8 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         evt.Veto()
         # Update the internal sash position attribute.
         self._getSashPosition()
-        # Raise a dEvent for other code to bind to,
-        self.raiseEvent(dEvents.SashDoubleClick, evt)
+        # Raise a event for other code to bind to,
+        self.raiseEvent(events.SashDoubleClick, evt)
 
     def _onSashPos(self, evt):
         """Fires when the sash position is changed."""
@@ -252,8 +253,8 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
             pct = float(self.SashPosition) / sz
             self._sashPercent = max(0, min(1, pct))
             self.SetSashGravity(self._sashPercent)
-        # Raise a dEvent for other code to bind to,
-        self.raiseEvent(dEvents.SashPositionChanged, localcp_evt)
+        # Raise a event for other code to bind to,
+        self.raiseEvent(events.SashPositionChanged, localcp_evt)
 
     def split(self, dir_=None):
         if self.IsSplit():

@@ -5,17 +5,17 @@ import os
 import wx
 import wx.richtext
 
-import dColors
-import ui
-from dLocalize import _
-from lib.utils import ustr
-from ui import makeDynamicProperty
-from ui import dButton
-from ui import dDataControlMixin
-from ui import dDropdownList
-from ui import dForm
-from ui import dTimer
-from ui import dToggleButton
+from .. import dColors
+from .. import ui
+from ..dLocalize import _
+from ..lib.utils import ustr
+from . import makeDynamicProperty
+from . import dButton
+from . import dDataControlMixin
+from . import dDropdownList
+from . import dForm
+from . import dTimer
+from . import dToggleButton
 # import log
 
 

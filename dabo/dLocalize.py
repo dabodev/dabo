@@ -105,7 +105,7 @@ def install(domain="settings", localedir=None, unicode_mo=True):
     """
     global _domains, _defaultLanguage, _defaultEncoding
     if localedir is None:
-        if domain != "settings":
+        if domain != "dabo":
             raise ValueError("Must send your application's localedir explicitly.")
         localedir = getDaboLocaleDir()
     _domains[domain] = localedir
@@ -123,7 +123,7 @@ def setLanguage(lang=None, charset=None):
     which would globally bind the '_' name, we'll just set the '_currentTrans'
     name to the translation object.
     """
-    from lib.utils import ustr
+    from .lib.utils import ustr
 
     global _domains, _currentTrans
     lang = _languageAliases.get(lang.lower(), lang)
@@ -135,7 +135,9 @@ def setLanguage(lang=None, charset=None):
     daboLocaleDir = _domains.get("settings", None)
     if daboLocaleDir:
         try:
-            daboTranslation = gettext.translation("settings", daboLocaleDir, languages=lang)
+            daboTranslation = gettext.translation(
+                "settings", daboLocaleDir, languages=lang
+            )
         except IOError:
             # No translation file found
             log.error(
@@ -189,7 +191,7 @@ No translation file found for domain '%s'.
 
 
 def getDaboLocaleDir():
-    localeDirNames = ("locale", )
+    localeDirNames = ("locale",)
     localeDirRoots = [os.path.split(settings.__file__)[0]] + sys.path
     for localeDirRoot in localeDirRoots:
         for localeDirName in localeDirNames:

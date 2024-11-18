@@ -3,13 +3,14 @@ import sys
 
 import wx
 
-from dLocalize import _
-from lib.utils import ustr
-import dEvents
-from lib.utils import cleanMenuCaption
-from ui import dMenuItem, dCheckMenuItem, dRadioMenuItem, dSeparatorMenuItem
-from ui import dPemMixin
-from ui import makeDynamicProperty
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from ..lib.utils import ustr
+from ..lib.utils import cleanMenuCaption
+from . import dMenuItem, dCheckMenuItem, dRadioMenuItem, dSeparatorMenuItem
+from . import dPemMixin
+from . import makeDynamicProperty
 
 # wx constants for styles
 NormalItemType = wx.ITEM_NORMAL
@@ -65,8 +66,8 @@ class dMenu(dPemMixin, wx.Menu):
         See self._setId(), which is where the binding of wxEvents needs to take
         place.
         """
-        self.bindEvent(dEvents.MenuOpen, self.__onMenuHighlight)
-        self.bindEvent(dEvents.MenuHighlight, self.__onMenuHighlight)
+        self.bindEvent(events.MenuOpen, self.__onMenuHighlight)
+        self.bindEvent(events.MenuHighlight, self.__onMenuHighlight)
         if self._useMRU:
             self._setMRUBindings()
 
@@ -77,9 +78,9 @@ class dMenu(dPemMixin, wx.Menu):
         event instead.
         """
         if isinstance(self.Parent, ui.dMenuBar):
-            self.bindEvent(dEvents.MenuOpen, self.__onMenuOpenMRU)
+            self.bindEvent(events.MenuOpen, self.__onMenuOpenMRU)
         else:
-            self.bindEvent(dEvents.MenuHighlight, self.__onMenuOpenMRU)
+            self.bindEvent(events.MenuHighlight, self.__onMenuOpenMRU)
 
     def _clearMRUBindings(self):
         """
@@ -87,9 +88,9 @@ class dMenu(dPemMixin, wx.Menu):
         the same logic to unbind MRU events.
         """
         if isinstance(self.Parent, ui.dMenuBar.dMenuBar):
-            self.unbindEvent(dEvents.MenuOpen, self.__onMenuOpenMRU)
+            self.unbindEvent(events.MenuOpen, self.__onMenuOpenMRU)
         else:
-            self.unbindEvent(dEvents.MenuHighlight, self.__onMenuOpenMRU)
+            self.unbindEvent(events.MenuHighlight, self.__onMenuOpenMRU)
 
     def __onMenuHighlight(self, evt):
         """
@@ -114,7 +115,7 @@ class dMenu(dPemMixin, wx.Menu):
                 item._setDynamicEnabled()
 
     def __onWxMenuHighlight(self, evt):
-        self.raiseEvent(dEvents.MenuHighlight)
+        self.raiseEvent(events.MenuHighlight)
         evt.Skip()
 
     def _getWxItem(self, wxFunc, dMenuItemInstance, pos=None):

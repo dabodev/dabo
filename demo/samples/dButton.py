@@ -2,17 +2,18 @@
 import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-#from dabo.ui import dButtton
+
+# from dabo.ui import dButtton
 from dabo.ui import dLabel
 from dabo.ui import dPanel
 from dabo.ui import dSizer
+
 dButton = dabo.ui.dButton
 
 
 class TestPanel(dPanel):
     def afterInit(self):
-        sz = self.Sizer = dSizer("v", DefaultBorder=20,
-                DefaultBorderLeft=True)
+        sz = self.Sizer = dSizer("v", DefaultBorder=20, DefaultBorderLeft=True)
         sz.appendSpacer(25)
 
         btn = dButton(self, Caption="Normal")
@@ -29,7 +30,6 @@ class TestPanel(dPanel):
         btn.bindEvent(dEvents.Hit, self.onButtonHit)
         sz.append(btn, halign="center")
         sz.appendSpacer(10)
-
 
     def onButtonHit(self, evt):
         obj = evt.EventObject

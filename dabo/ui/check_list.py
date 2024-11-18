@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
-import ui as dui
-from ui import dControlItemMixin
-from dLocalize import _
+
+from ..dLocalize import _
+from .. import ui
+from . import dControlItemMixin
 
 
 class dCheckList(dControlItemMixin, wx.CheckListBox):
@@ -63,7 +64,7 @@ class dCheckList(dControlItemMixin, wx.CheckListBox):
             ## pkm: The user probably set the Value property from inside initProperties(),
             ##      and it is getting set before the Choice property has been applied.
             ##      If this is the case, callAfter is the ticket.
-            dui.callAfter(self.Check, index, True)
+            ui.callAfter(self.Check, index, True)
 
     def _getMultipleSelect(self):
         return True

@@ -6,9 +6,11 @@ along with convenience functions to allow calling like::
     if dAreYouSure("Delete this record"):
 
 """
+
 import wx
 
-from dLocalize import _
+from .. import ui
+from ..dLocalize import _
 # import dAppRef
 
 

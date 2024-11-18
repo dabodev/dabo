@@ -14,12 +14,15 @@ def main():
     if not os.path.exists(os.path.join(os.getcwd(), mfc)):
         mfc = os.path.join(os.getcwd(), os.path.split(sys.argv[0])[0], mfc)
 
-    app = dApp(showSplashScreen=useSplash, splashTimeout=3000,
-            MainFormClass=mfc, BasePrefKey="demo.DaboDemo")
+    app = dApp(
+        showSplashScreen=useSplash,
+        splashTimeout=3000,
+        MainFormClass=mfc,
+        BasePrefKey="demo.DaboDemo",
+    )
     app.setAppInfo("appName", "DaboDemo")
     app.start()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-

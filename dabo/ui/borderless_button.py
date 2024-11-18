@@ -9,23 +9,20 @@ try:
 except ImportError:
     raise ImportError("Your version of wxPython is too old for dBorderlessButton")
 
-import dColors
-import dEvents
-
-# TODO: import log
-import ui as dui
-from ui import dControlMixin
-from dLocalize import _
-from ui import makeDynamicProperty
+from .. import dColors
+from .. import dEvents
+from .. import ui
+from ..dLocalize import _
+# import log
 
 
-class dBorderlessButton(dControlMixin, platebtn.PlateButton):
+class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
     """
     Creates a button that can be pressed by the user to trigger an action.
 
     Example::
 
-        class MyButton(dui.dBorderlessButton):
+        class MyButton(ui.dBorderlessButton):
             def initProperties(self):
                 self.Caption = "Press Me"
 
@@ -50,7 +47,7 @@ class dBorderlessButton(dControlMixin, platebtn.PlateButton):
         # around the bitmap image in order for it to appear correctly
         self._bmpBorder = 10
 
-        dControlMixin.__init__(
+        ui.dControlMixin.__init__(
             self,
             preClass,
             parent,
@@ -175,7 +172,7 @@ class dBorderlessButton(dControlMixin, platebtn.PlateButton):
             if isinstance(val, wx.Bitmap):
                 bmp = val
             else:
-                bmp = dui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
+                bmp = ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
             self.SetBitmapLabel(bmp)
         else:
             self._properties["Picture"] = val

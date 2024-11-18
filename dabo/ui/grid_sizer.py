@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from dLocalize import _
-from ui import dSizerMixin
-from ui import makeDynamicProperty
+from .. import ui
+from ..dLocalize import _
+from . import dSizerMixin
+from . import makeDynamicProperty
 
 # import log
+
 
 class dGridSizer(dSizerMixin, wx.GridBagSizer):
     def __init__(self, *args, **kwargs):

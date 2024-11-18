@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from dLocalize import _
-from ui import dBorderSizer
-from ui import dButton
-from ui import dGauge
-from ui import dLabel
-from ui import dPanel
+from ..dLocalize import _
+from . import dBorderSizer
+from . import dButton
+from . import dGauge
+from . import dLabel
+from . import dPanel
 
 
 class dReportProgress(dPanel):

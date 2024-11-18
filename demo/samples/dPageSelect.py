@@ -5,14 +5,13 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 
-
 from dabo.ui import dLabel
 from dabo.ui import dPanel
 from dabo.ui import dSizer
 
 from dabo.ui import dDropdownList
-dPageSelect = dabo.ui.dPageSelect
 
+dPageSelect = dabo.ui.dPageSelect
 
 
 class TestPanel(dPanel):
@@ -23,8 +22,12 @@ class TestPanel(dPanel):
         sz.appendSpacer(10)
         hsz = dSizer("h")
         lbl = dLabel(self, Caption="Tab Position:")
-        dd = self.ddPos = dDropdownList(self, Choices=["Top", "Right", "Bottom", "Left"],
-                Value=self.currentTabPosition, OnHit=self.onNewPosition)
+        dd = self.ddPos = dDropdownList(
+            self,
+            Choices=["Top", "Right", "Bottom", "Left"],
+            Value=self.currentTabPosition,
+            OnHit=self.onNewPosition,
+        )
         hsz.append(lbl)
         hsz.appendSpacer(3)
         hsz.append(dd)
@@ -36,8 +39,9 @@ class TestPanel(dPanel):
             self.pgf.release()
         except AttributeError:
             pass
-        self.pgf = dPageSelect(self, TabPosition=self.currentTabPosition,
-                OnPageChanged=self.onPageChanged)
+        self.pgf = dPageSelect(
+            self, TabPosition=self.currentTabPosition, OnPageChanged=self.onPageChanged
+        )
         # Now add the pages, specifying which image key is displayed for each page.
         self.pgf.appendPage(caption="First", BackColor="blue")
         self.pgf.appendPage(caption="Second", BackColor="salmon")
@@ -48,8 +52,9 @@ class TestPanel(dPanel):
         return self.pgf
 
     def onPageChanged(self, evt):
-        self.Form.logit("Page number changed from %s to %s" %
-                (evt.oldPageNum, evt.newPageNum))
+        self.Form.logit(
+            "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
+        )
 
     def onNewPosition(self, evt):
         newpos = evt.EventObject.StringValue

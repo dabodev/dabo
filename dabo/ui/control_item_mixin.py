@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from dLocalize import _
-from lib.utils import ustr
-from lib.propertyHelperMixin import _DynamicList
-from ui import dDataControlMixin
-from ui import makeDynamicProperty
+from .. import ui
+from ..dLocalize import _
+from ..lib.utils import ustr
+from ..lib.propertyHelperMixin import _DynamicList
+from . import dDataControlMixin
+from . import makeDynamicProperty
 
 
 class dControlItemMixin(dDataControlMixin):

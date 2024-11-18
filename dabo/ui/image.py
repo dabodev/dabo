@@ -7,14 +7,14 @@ import os
 
 import wx
 
-import dEvents
-from dLocalize import _
-from lib import utils
-
-from ui import makeDynamicProperty
-from ui import dDataControlMixin
-from ui import dForm
-from ui import dImageMixin
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from ..lib import utils
+from . import makeDynamicProperty
+from . import dDataControlMixin
+from . import dForm
+from . import dImageMixin
 
 # See if PIL is installed
 _USE_PIL = True
@@ -91,7 +91,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
 
     def _initEvents(self):
         super(dImage, self)._initEvents()
-        self.bindEvent(dEvents.Resize, self._onResize)
+        self.bindEvent(events.Resize, self._onResize)
 
     def _onResize(self, evt):
         if not self._inShowPic:

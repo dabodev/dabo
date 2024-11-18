@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+# TODO: decide to either update or remove this code
+
 """
 EasyDialogBuilder.py
 

@@ -8,23 +8,25 @@ from dabo.ui import dLabel
 from dabo.ui import dPanel
 from dabo.ui import dSizer
 from dabo.ui import dBorderSizer
-dBitmapButton = dabo.ui.dBitmapButton
 
+dBitmapButton = dabo.ui.dBitmapButton
 
 
 class TestPanel(dPanel):
     def afterInit(self):
-        sz = self.Sizer = dSizer("v", DefaultBorder=20,
-                DefaultBorderLeft=True)
+        sz = self.Sizer = dSizer("v", DefaultBorder=20, DefaultBorderLeft=True)
         sz.appendSpacer(25)
 
-        lbl = dLabel(self, Alignment="Center", ForeColor="darkblue",
-                Width=500, WordWrap=True)
+        lbl = dLabel(
+            self, Alignment="Center", ForeColor="darkblue", Width=500, WordWrap=True
+        )
         lbl.FontSize -= 3
-        lbl.Caption = "Below are three dBitmapButtons. They will normally " + \
-                "display the Ace of Spades, but when the mouse hovers over them, their " + \
-                "normal image will be the Ace of Hearts. If you click on them, the image " + \
-                "will change to the King of Spades for as long as you hold the mouse down."
+        lbl.Caption = (
+            "Below are three dBitmapButtons. They will normally "
+            + "display the Ace of Spades, but when the mouse hovers over them, their "
+            + "normal image will be the Ace of Hearts. If you click on them, the image "
+            + "will change to the King of Spades for as long as you hold the mouse down."
+        )
         bsz = dBorderSizer(self, "v")
         bsz.append(lbl, halign="center")
         plat = self.Application.Platform
@@ -43,28 +45,42 @@ class TestPanel(dPanel):
         sz.appendSpacer(20)
 
         hsz = dSizer("h")
-        btn = dBitmapButton(self, Picture="media/cards/small/s1.png",
-                FocusPicture="media/cards/small/h1.png", DownPicture="media/cards/small/s13.png",
-                Height=80, Width=80)
+        btn = dBitmapButton(
+            self,
+            Picture="media/cards/small/s1.png",
+            FocusPicture="media/cards/small/h1.png",
+            DownPicture="media/cards/small/s13.png",
+            Height=80,
+            Width=80,
+        )
         btn.bindEvent(dEvents.Hit, self.onButtonHit)
         hsz.append(btn)
         sz.appendSpacer(10)
 
-        btn = dBitmapButton(self, Picture="media/cards/small/s1.png",
-                FocusPicture="media/cards/small/h1.png", DownPicture="media/cards/small/s13.png",
-                Height=80, Width=80)
+        btn = dBitmapButton(
+            self,
+            Picture="media/cards/small/s1.png",
+            FocusPicture="media/cards/small/h1.png",
+            DownPicture="media/cards/small/s13.png",
+            Height=80,
+            Width=80,
+        )
         btn.bindEvent(dEvents.Hit, self.onButtonHit)
         hsz.append(btn)
 
-        btn = dBitmapButton(self, Picture="media/cards/small/s1.png",
-                FocusPicture="media/cards/small/h1.png", DownPicture="media/cards/small/s13.png",
-                Height=80, Width=80)
+        btn = dBitmapButton(
+            self,
+            Picture="media/cards/small/s1.png",
+            FocusPicture="media/cards/small/h1.png",
+            DownPicture="media/cards/small/s13.png",
+            Height=80,
+            Width=80,
+        )
         btn.bindEvent(dEvents.Hit, self.onButtonHit)
         hsz.append(btn)
 
         sz.append(hsz, halign="center")
         sz.layout()
-
 
     def onButtonHit(self, evt):
         obj = evt.EventObject

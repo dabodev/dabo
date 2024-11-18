@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import settings
-from dLocalize import _
-from lib.reportWriter import ReportWriter
-from dObject import dObject
-import dEvents
+from . import settings
+from .dLocalize import _
+from .lib.reportWriter import ReportWriter
+from .dObject import dObject
+from . import events
 
 if settings.implicitImports:
-    import ui
+    from . import ui
 
 
 # dReportWriter is simply a raw ReportWriter/dObject mixin:
@@ -28,23 +28,23 @@ class dReportWriter(dObject, ReportWriter):
 
     def _onReportCancel(self):
         super(dReportWriter, self)._onReportCancel()
-        self.raiseEvent(dEvents.ReportCancel)
+        self.raiseEvent(events.ReportCancel)
         self._hideProgress()
 
     def _onReportBegin(self):
         super(dReportWriter, self)._onReportBegin()
-        self.raiseEvent(dEvents.ReportBegin)
+        self.raiseEvent(events.ReportBegin)
         self._showProgress()
 
     def _onReportEnd(self):
         super(dReportWriter, self)._onReportEnd()
-        self.raiseEvent(dEvents.ReportEnd)
+        self.raiseEvent(events.ReportEnd)
         self._updateProgress(force=True)
         # self._hideProgress()  ## Let the form controlling the progress gauge do this (less blinky)
 
     def _onReportIteration(self):
         super(dReportWriter, self)._onReportIteration()
-        self.raiseEvent(dEvents.ReportIteration)
+        self.raiseEvent(events.ReportIteration)
         self._updateProgress()
 
     def _showProgress(self):

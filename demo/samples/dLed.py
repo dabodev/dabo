@@ -12,14 +12,15 @@ from dabo.ui import dDropdownList
 from dabo.ui import dGridSizer
 from dabo.ui import dBorderSizer
 from dabo.ui import dToggleButton
+
 dLed = dabo.ui.dLed
 
 
 class TestPanel(dPanel):
     def afterInit(self):
-        self.Sizer = dSizer('v')
+        self.Sizer = dSizer("v")
         self.Sizer.appendSpacer(50)
-        hs = dSizer('h')
+        hs = dSizer("h")
         self.Sizer.append(hs)
 
         self.LED = dLed(self, Height=100, Width=100)
@@ -31,11 +32,40 @@ class TestPanel(dPanel):
         gs = dGridSizer(MaxCols=2, VGap=5, HGap=5)
         gs.setColExpand(1, 0)
         bs.append1x(gs)
-        gs.append(dToggleButton(self, Caption="Toggle LED", DataSource=self.LED, DataField="On", Value=True, OnHit=self.toggleLED), "expand", colSpan=2)
+        gs.append(
+            dToggleButton(
+                self,
+                Caption="Toggle LED",
+                DataSource=self.LED,
+                DataField="On",
+                Value=True,
+                OnHit=self.toggleLED,
+            ),
+            "expand",
+            colSpan=2,
+        )
         gs.append(dLabel(self, Caption="On Color:"))
-        gs.append(dDropdownList(self, Choices=dabo.dColors.colors, DataSource=self.LED, DataField="OnColor", Value="green", OnHit=self.changeOnColor))
+        gs.append(
+            dDropdownList(
+                self,
+                Choices=dabo.dColors.colors,
+                DataSource=self.LED,
+                DataField="OnColor",
+                Value="green",
+                OnHit=self.changeOnColor,
+            )
+        )
         gs.append(dLabel(self, Caption="Off Color:"))
-        gs.append(dDropdownList(self, Choices=dabo.dColors.colors, DataSource=self.LED, DataField="OffColor", Value="darkred", OnHit=self.changeOffColor))
+        gs.append(
+            dDropdownList(
+                self,
+                Choices=dabo.dColors.colors,
+                DataSource=self.LED,
+                DataField="OffColor",
+                Value="darkred",
+                OnHit=self.changeOffColor,
+            )
+        )
         hs.append(bs)
 
         self.LED.On = True
@@ -43,13 +73,14 @@ class TestPanel(dPanel):
         self.layout()
 
     def toggleLED(self, evt):
-        self.Form.logit("LED Toggled to %s" % {True:"On", False:"Off"}[self.LED.On])
+        self.Form.logit("LED Toggled to %s" % {True: "On", False: "Off"}[self.LED.On])
 
     def changeOnColor(self, evt):
         self.Form.logit("LED Color when on was changed to %s" % self.LED.OnColor)
 
     def changeOffColor(self, evt):
         self.Form.logit("LED Color whenn off was changed to %s" % self.LED.OffColor)
+
 
 category = "Controls.dLed"
 

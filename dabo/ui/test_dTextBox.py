@@ -3,9 +3,9 @@ import datetime
 import decimal
 import unittest
 
-import ui
-from dApp import dApp
-from lib import getRandomUUID
+from .. import ui
+from ..dApp import dApp
+from ..lib import getRandomUUID
 
 
 class Test_dTextBox(unittest.TestCase):

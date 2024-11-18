@@ -6,19 +6,20 @@ import math
 
 import wx
 
-from dabo import ui as dui
-from dLocalize import _
-from lib.utils import ustr
-import dEvents
-import dException
-import dColors
-import dObject
-import lib
-from lib.utils import dictStringify
-from ui import makeDynamicProperty
+from .. import dException
+from .. import dColors
+from ..dObject import dObject
+from .. import lib
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from ..lib.utils import ustr
+from ..lib.utils import dictStringify
+from ..ui import makeDynamicProperty
 
 # import fastNameSet
 # import log
+
 
 class dPemMixin(dObject):
     """
@@ -161,17 +162,17 @@ class dPemMixin(dObject):
         properties = dictStringify(properties)
 
         # Hacks to fix up various things:
-        if isinstance(self, (dui.dMenuItem, dui.dSeparatorMenuItem)):
+        if isinstance(self, (ui.dMenuItem, ui.dSeparatorMenuItem)):
             # Hack: wx.MenuItem doesn't take a style arg,
             # and the parent arg is parentMenu.
             del self._preInitProperties["style"]
             self._preInitProperties["parentMenu"] = parent
             del self._preInitProperties["parent"]
-            if isinstance(self, dui.dSeparatorMenuItem):
+            if isinstance(self, ui.dSeparatorMenuItem):
                 del self._preInitProperties["id"]
                 for remove in ("HelpText", "Icon", "kind"):
                     self._extractKey((properties, self._properties, kwargs), remove)
-        elif isinstance(self, (dui.dMenu, dui.dMenuBar)):
+        elif isinstance(self, (ui.dMenu, ui.dMenuBar)):
             # Hack: wx.Menu has no style, parent, or id arg.
             del self._preInitProperties["style"]
             del self._preInitProperties["id"]
@@ -180,7 +181,7 @@ class dPemMixin(dObject):
             del self._preInitProperties["style"]
             del self._preInitProperties["id"]
             del self._preInitProperties["parent"]
-        elif isinstance(self, (dui.dSlidePanel, dui.dSlidePanelControl)):
+        elif isinstance(self, (ui.dSlidePanel, ui.dSlidePanelControl)):
             # Hack: the Slide Panel classes have no style arg.
             del self._preInitProperties["style"]
             # This is needed because these classes require a 'parent' param.
@@ -235,10 +236,10 @@ class dPemMixin(dObject):
         # created. This method will be called after all the form objects have finished
         # instantiating. The framework-level _afterInitAll() will call the user-customizable
         # hook method afterInitAll().
-        dui.callAfter(self._afterInitAll)
+        ui.callAfter(self._afterInitAll)
 
         # Finally, at the end of the init cycle, raise the Create event
-        self.raiseEvent(dEvents.Create)
+        self.raiseEvent(events.Create)
 
     def _initEvents(self):
         super(dPemMixin, self)._initEvents()
@@ -352,24 +353,22 @@ class dPemMixin(dObject):
         self._currFontZoom = newZoom
         if fontSize > 1:
             self.FontSize = fontSize
-        dui.callAfterInterval(200, self.refresh)
+        ui.callAfterInterval(200, self.refresh)
 
-        if isinstance(self, dui.dFormMixin):
+        if isinstance(self, ui.dFormMixin):
             frm = self
         else:
             frm = self.Form
         if frm is not None:
-            dui.callAfterInterval(200, frm.layout)
+            ui.callAfterInterval(200, frm.layout)
 
     def _restoreFontZoom(self):
         """Called when object is instantiated: restore the zoom based on the form."""
         if not hasattr(self.Form, "_currFontZoom"):
             self.Form._restoreFontZoom()
         zoom = getattr(self.Form, "_currFontZoom", 0)
-        if zoom and not isinstance(
-            self, (dui.dPanel, dui.dScrollPanel, dui.dMenuItem)
-        ):
-            dui.callAfter(self._setAbsoluteFontZoom, zoom)
+        if zoom and not isinstance(self, (ui.dPanel, ui.dScrollPanel, ui.dMenuItem)):
+            ui.callAfter(self._setAbsoluteFontZoom, zoom)
 
     def _setNameAndProperties(self, properties, **kwargs):
         """
@@ -548,7 +547,7 @@ class dPemMixin(dObject):
         targ = self._EventTarget
 
         # Bind EVT_WINDOW_DESTROY twice: once to parent, and once to self. Binding
-        # to the parent allows for attribute access of the child in the dEvents.Destroy
+        # to the parent allows for attribute access of the child in the events.Destroy
         # handler, in most cases. In some cases (panels at least), the self binding fires
         # first. We sort it out in __onWxDestroy, only reacting to the first destroy
         # event.
@@ -562,7 +561,7 @@ class dPemMixin(dObject):
         self.Bind(wx.EVT_IDLE, self.__onWxIdle)
         self.Bind(wx.EVT_MENU_OPEN, targ.__onWxMenuOpen)
 
-        if isinstance(self, dui.dGrid):
+        if isinstance(self, ui.dGrid):
             ## Ugly workaround for grids not firing focus events from the keyboard
             ## correctly.
             self._lastGridFocusTimestamp = 0.0
@@ -608,27 +607,27 @@ class dPemMixin(dObject):
         self.Bind(wx.EVT_ERASE_BACKGROUND, self.__onWxEraseBackground)
         self.Bind(wx.EVT_SIZE, self.__onWxResize)
 
-        self.bindEvent(dEvents.Create, self.__onCreate)
-        self.bindEvent(dEvents.ChildBorn, self.__onChildBorn)
+        self.bindEvent(events.Create, self.__onCreate)
+        self.bindEvent(events.ChildBorn, self.__onChildBorn)
 
-        self.bindEvent(dEvents.MouseEnter, targ.__onMouseEnter)
-        self.bindEvent(dEvents.MouseLeave, targ.__onMouseLeave)
+        self.bindEvent(events.MouseEnter, targ.__onMouseEnter)
+        self.bindEvent(events.MouseLeave, targ.__onMouseLeave)
 
         try:
-            self.Parent.bindEvent(dEvents.Update, self.__onUpdate)
-            self.Parent.bindEvent(dEvents.Resize, self.__onResize)
+            self.Parent.bindEvent(events.Update, self.__onUpdate)
+            self.Parent.bindEvent(events.Resize, self.__onResize)
         except AttributeError:
             ## pkm: I don't think we want to bind this to self, because then you
             ##      will have recursion in the event handling. We are either a form
             ##      or somehow our Parent isn't a Dabo object. Just do nothing...
-            # self.bindEvent(dEvents.Update, self.__onUpdate)
+            # self.bindEvent(events.Update, self.__onUpdate)
             pass
 
         self.initEvents()
 
         # Handle delayed event bindings
         if self._delayedEventBindings:
-            dui.callAfter(self._bindDelayed)
+            ui.callAfter(self._bindDelayed)
 
     def _bindDelayed(self):
         for evt, mthdString in self._delayedEventBindings:
@@ -661,7 +660,7 @@ class dPemMixin(dObject):
     def __onMouseEnter(self, evt):
         if self._hover:
             if self._hoverTimer is None:
-                self._hoverTimer = dui.callEvery(100, self._checkMouseOver)
+                self._hoverTimer = ui.callEvery(100, self._checkMouseOver)
             self._hoverTimer.start()
             self.onHover(evt)
 
@@ -702,7 +701,7 @@ class dPemMixin(dObject):
 
     def __onCreate(self, evt):
         if self.Parent and hasattr(self.Parent, "raiseEvent"):
-            self.Parent.raiseEvent(dEvents.ChildBorn, None, child=self)
+            self.Parent.raiseEvent(events.ChildBorn, None, child=self)
 
     def __onChildBorn(self, evt):
         """evt.Child will contain the reference to the new child."""
@@ -716,19 +715,19 @@ class dPemMixin(dObject):
         self._finito = self is evt.GetEventObject()
         self._destroyAlreadyFired = True
         try:
-            self.raiseEvent(dEvents.Destroy, evt)
+            self.raiseEvent(events.Destroy, evt)
         except RuntimeError:
             pass
 
     def __onWxIdle(self, evt):
         if self._needRedraw:
             self._redraw()
-        self.raiseEvent(dEvents.Idle, evt)
+        self.raiseEvent(events.Idle, evt)
 
     def __onWxMenuOpen(self, evt):
         menu = evt.GetMenu()
-        if menu and isinstance(menu, dui.dMenu):
-            menu.raiseEvent(dEvents.MenuOpen, evt)
+        if menu and isinstance(menu, ui.dMenu):
+            menu.raiseEvent(events.MenuOpen, evt)
         evt.Skip()
 
     def __onWxGotFocus(self, evt):
@@ -738,47 +737,47 @@ class dPemMixin(dObject):
             # 'Form' is None
             pass
         self._pushStatusText()
-        if isinstance(self, dui.dGrid):
+        if isinstance(self, ui.dGrid):
             ## Continuation of ugly workaround for grid focus event. Only raise the
             ## Dabo event if we are reasonably sure it isn't a repeat.
             prev = self._lastGridFocusTimestamp
             now = self._lastGridFocusTimestamp = time.time()
             if now - prev < 0.05:
                 return
-        self.raiseEvent(dEvents.GotFocus, evt)
+        self.raiseEvent(events.GotFocus, evt)
 
     def __onWxKeyChar(self, evt):
-        if not (isinstance(self, dui.dComboBox) and evt.KeyCode == 9):
-            self.raiseEvent(dEvents.KeyChar, evt)
+        if not (isinstance(self, ui.dComboBox) and evt.KeyCode == 9):
+            self.raiseEvent(events.KeyChar, evt)
 
     def __onWxKeyUp(self, evt):
-        self.raiseEvent(dEvents.KeyUp, evt)
+        self.raiseEvent(events.KeyUp, evt)
 
     def __onWxKeyDown(self, evt):
-        self.raiseEvent(dEvents.KeyDown, evt)
+        self.raiseEvent(events.KeyDown, evt)
 
     def __onWxLostFocus(self, evt):
         if self._finito:
             return
         self._popStatusText()
-        self.raiseEvent(dEvents.LostFocus, evt)
+        self.raiseEvent(events.LostFocus, evt)
 
     def __onWxMove(self, evt):
         if self._finito:
             return
-        self.raiseEvent(dEvents.Move, evt)
+        self.raiseEvent(events.Move, evt)
 
     def __onWxMouseEnter(self, evt):
         self._pushStatusText()
-        self.raiseEvent(dEvents.MouseEnter, evt)
+        self.raiseEvent(events.MouseEnter, evt)
 
     def __onWxMouseLeave(self, evt):
         self._popStatusText()
         self._mouseLeftDown, self._mouseRightDown = False, False
-        self.raiseEvent(dEvents.MouseLeave, evt)
+        self.raiseEvent(events.MouseLeave, evt)
 
     def __onWxMouseMove(self, evt):
-        self.raiseEvent(dEvents.MouseMove, evt)
+        self.raiseEvent(events.MouseMove, evt)
 
     def __onWxMouseWheel(self, evt):
         """
@@ -788,52 +787,52 @@ class dPemMixin(dObject):
         ensures that the object below the mouse receives the event.
         """
         pos = evt.GetPosition()
-        obj = dui.getObjectAtPosition(self.absoluteCoordinates(pos))
+        obj = ui.getObjectAtPosition(self.absoluteCoordinates(pos))
         evt.SetEventObject(obj)
         if obj is not None:
-            obj.raiseEvent(dEvents.MouseWheel, evt)
+            obj.raiseEvent(events.MouseWheel, evt)
 
     def __onWxMouseLeftDown(self, evt):
-        self.raiseEvent(dEvents.MouseLeftDown, evt)
+        self.raiseEvent(events.MouseLeftDown, evt)
         self._mouseLeftDown = True
 
     def __onWxMouseLeftUp(self, evt):
-        self.raiseEvent(dEvents.MouseLeftUp, evt)
+        self.raiseEvent(events.MouseLeftUp, evt)
         if self._mouseLeftDown:
             # mouse went down and up in this control: send a click:
-            self.raiseEvent(dEvents.MouseLeftClick, evt)
+            self.raiseEvent(events.MouseLeftClick, evt)
             self._mouseLeftDown = False
 
     def __onWxMouseLeftDoubleClick(self, evt):
-        self.raiseEvent(dEvents.MouseLeftDoubleClick, evt)
+        self.raiseEvent(events.MouseLeftDoubleClick, evt)
 
     def __onWxMouseRightDown(self, evt):
         self._mouseRightDown = True
-        self.raiseEvent(dEvents.MouseRightDown, evt)
+        self.raiseEvent(events.MouseRightDown, evt)
 
     def __onWxMouseRightUp(self, evt):
-        self.raiseEvent(dEvents.MouseRightUp, evt)
+        self.raiseEvent(events.MouseRightUp, evt)
         if self._mouseRightDown:
             # mouse went down and up in this control: send a click:
-            self.raiseEvent(dEvents.MouseRightClick, evt)
+            self.raiseEvent(events.MouseRightClick, evt)
             self._mouseRightDown = False
 
     def __onWxMouseRightDoubleClick(self, evt):
-        self.raiseEvent(dEvents.MouseRightDoubleClick, evt)
+        self.raiseEvent(events.MouseRightDoubleClick, evt)
 
     def __onWxMouseMiddleDown(self, evt):
         self._mouseMiddleDown = True
-        self.raiseEvent(dEvents.MouseMiddleDown, evt)
+        self.raiseEvent(events.MouseMiddleDown, evt)
 
     def __onWxMouseMiddleUp(self, evt):
-        self.raiseEvent(dEvents.MouseMiddleUp, evt)
+        self.raiseEvent(events.MouseMiddleUp, evt)
         if self._mouseMiddleDown:
             # mouse went down and up in this control: send a click:
-            self.raiseEvent(dEvents.MouseMiddleClick, evt)
+            self.raiseEvent(events.MouseMiddleClick, evt)
             self._mouseMiddleDown = False
 
     def __onWxMouseMiddleDoubleClick(self, evt):
-        self.raiseEvent(dEvents.MouseMiddleDoubleClick, evt)
+        self.raiseEvent(events.MouseMiddleDoubleClick, evt)
 
     def __onWxContextMenu(self, evt):
         # Hide a problem on Windows where a single context event will
@@ -844,7 +843,7 @@ class dPemMixin(dObject):
             or (now - self._lastContextMenuTime) > 0.001
         ):
             self._lastContextMenuTime = time.time()
-            self.raiseEvent(dEvents.ContextMenu, evt)
+            self.raiseEvent(events.ContextMenu, evt)
 
     def __onWxPaint(self, evt):
         if self._finito:
@@ -853,22 +852,22 @@ class dPemMixin(dObject):
         def __setNeedRedraw():
             self._needRedraw = bool(self._drawnObjects)
 
-        dui.callAfterInterval(50, __setNeedRedraw)
+        ui.callAfterInterval(50, __setNeedRedraw)
         self._needRedraw = (not self._inRedraw) and bool(self._drawnObjects)
-        self.raiseEvent(dEvents.Paint, evt)
+        self.raiseEvent(events.Paint, evt)
 
     def __onWxEraseBackground(self, evt):
         if self._finito:
             return
-        self.raiseEvent(dEvents.BackgroundErased, evt)
+        self.raiseEvent(events.BackgroundErased, evt)
 
     def __onWxResize(self, evt):
         if self._finito:
             return
         self._needRedraw = bool(self._drawnObjects)
-        if sys.platform.startswith("win") and isinstance(self, dui.dFormMixin):
-            dui.callAfterInterval(200, self.update)
-        self.raiseEvent(dEvents.Resize, evt)
+        if sys.platform.startswith("win") and isinstance(self, ui.dFormMixin):
+            ui.callAfterInterval(200, self.update)
+        self.raiseEvent(events.Resize, evt)
 
     def bindKey(self, keyCombo, callback, **kwargs):
         """
@@ -886,10 +885,10 @@ class dPemMixin(dObject):
             form.bindKey("ctrl+alt+w", form.Close)
 
         """
-        mods, key, flags = dui.dKeys.resolveKeyCombo(keyCombo, True)
+        mods, key, flags = ui.dKeys.resolveKeyCombo(keyCombo, True)
         upMods = [mm.upper() for mm in mods]
         try:
-            keyCode = dui.dKeys.keyStrings[key.lower()]
+            keyCode = ui.dKeys.keyStrings[key.lower()]
         except KeyError:
             # It isn't a special key. Get the code from the ascii table:
             keyCode = ord(key)
@@ -925,7 +924,7 @@ class dPemMixin(dObject):
         bnd = self._keyBindings.get(evt.GetId())
         if not bnd:
             return
-        keyEvent = dEvents.KeyEvent(None)
+        keyEvent = events.KeyEvent(None)
         keyEvent.EventData = bnd["eventData"]
         try:
             callback = bnd["callback"]
@@ -1074,7 +1073,7 @@ class dPemMixin(dObject):
         if not self._displayLockCount:
             try:
                 self.Thaw()
-            except dui.assertionException:
+            except ui.assertionException:
                 # Too many 'unlockDisplay' calls to the same object were made. Log
                 # the mistake, but don't throw a Python error.
                 log.error(_("Extra call to unlockDisplay() for object %s") % self)
@@ -1132,7 +1131,7 @@ class dPemMixin(dObject):
         paged controls to switch to the page that contains this object.
         """
         cntnr = self.getContainingPage()
-        if isinstance(cntnr, dui.WizardPage):
+        if isinstance(cntnr, ui.WizardPage):
             self.Form.CurrentPage = cntnr
         else:
             cntnr.Parent.SelectedPage = cntnr
@@ -1146,9 +1145,9 @@ class dPemMixin(dObject):
         except AttributeError:
             frm = None
         cntnr = self
-        iswiz = isinstance(frm, dui.Wizard)
-        mtch = {True: dui.WizardPage, False: dui.dPage}[iswiz]
-        while cntnr and not isinstance(cntnr, dui.dForm):
+        iswiz = isinstance(frm, ui.Wizard)
+        mtch = {True: ui.WizardPage, False: ui.dPage}[iswiz]
+        while cntnr and not isinstance(cntnr, ui.dForm):
             if isinstance(cntnr, mtch):
                 return cntnr
             cntnr = cntnr.Parent
@@ -1157,7 +1156,7 @@ class dPemMixin(dObject):
         """
         Instantiate object as a child of self.
 
-        The classRef argument must be a dui class definition. (it must inherit
+        The classRef argument must be a ui class definition. (it must inherit
         dPemMixin). Alternatively, it can be a saved class definition in XML format,
         as created by the Class Designer.
 
@@ -1206,7 +1205,7 @@ class dPemMixin(dObject):
         to the containing form. If no position is passed, returns the position
         of this control relative to the form.
         """
-        if isinstance(self, dui.dFormMixin):
+        if isinstance(self, ui.dFormMixin):
             frm = self.Parent
         else:
             frm = self.Form
@@ -1221,7 +1220,7 @@ class dPemMixin(dObject):
         of this control relative to the container.
         """
         selfX, selfY = self.absoluteCoordinates()
-        if self.Application.Platform == "Win" and isinstance(cnt, dui.dFormMixin):
+        if self.Application.Platform == "Win" and isinstance(cnt, ui.dFormMixin):
             # On Windows, absoluteCoordinates() returns the position of the
             # interior of the form, ignoring the menus, borders, etc. On Mac,
             # it properly returns position of the entire window frame
@@ -1239,7 +1238,7 @@ class dPemMixin(dObject):
         """
         if pos is None:
             pos = self.absoluteCoordinates()
-        if isinstance(self, dui.dFormMixin):
+        if isinstance(self, ui.dFormMixin):
             return pos
         x, y = pos
         formX, formY = self.Form.absoluteCoordinates()
@@ -1248,7 +1247,7 @@ class dPemMixin(dObject):
     def absoluteCoordinates(self, pos=None):
         """Translates a position value for a control to absolute screen position."""
         if pos is None:
-            if isinstance(self, dui.dFormMixin):
+            if isinstance(self, ui.dFormMixin):
                 pos = (0, 0)
             else:
                 pos = self.Position
@@ -1331,11 +1330,11 @@ class dPemMixin(dObject):
 
     def getPositionInSizer(self):
         """Convenience method to let you call this directly on the object."""
-        return dui.getPositionInSizer(self)
+        return ui.getPositionInSizer(self)
 
     def setPositionInSizer(self, pos):
         """Convenience method to let you call this directly on the object."""
-        return dui.setPositionInSizer(self, pos)
+        return ui.setPositionInSizer(self, pos)
 
     def setAll(self, prop, val, recurse=True, filt=None, instancesOf=None):
         """
@@ -1356,9 +1355,9 @@ class dPemMixin(dObject):
         If the instancesOf sequence is passed, the property will only be set if
         the child object is an instance of one of the passed classes.
         """
-        if isinstance(self, dui.dGrid):
+        if isinstance(self, ui.dGrid):
             kids = self.Columns
-        elif isinstance(self, (dui.dPageFrameMixin, dui.dPageFrameNoTabs)):
+        elif isinstance(self, (ui.dPageFrameMixin, ui.dPageFrameNoTabs)):
             kids = self.Pages
         # elif isinstance(self, dDropdownList):
         # kids = 0
@@ -1396,7 +1395,7 @@ class dPemMixin(dObject):
                             break
             if ok:
                 setProp(kid, prop, val)
-                if isinstance(kid, dui.dColumn):
+                if isinstance(kid, ui.dColumn):
                     setProp(kid, "Header%s" % prop, val)
             if recurse:
                 if hasattr(kid, "setAll"):
@@ -1465,7 +1464,7 @@ class dPemMixin(dObject):
             return
         # Check paged controls event propagation to inactive pages.
         try:
-            isPage = isinstance(self.Parent, dui.dPageFrameMixin)
+            isPage = isinstance(self.Parent, ui.dPageFrameMixin)
         except AttributeError:
             isPage = False
         if isPage:
@@ -1478,7 +1477,7 @@ class dPemMixin(dObject):
             if not updateInactive and not self.Visible:
                 # (some platforms have inactive pages not visible)
                 return
-        if isinstance(self, dui.dFormMixin) and not self.Visible:
+        if isinstance(self, ui.dFormMixin) and not self.Visible:
             return
         self.update()
 
@@ -1494,15 +1493,11 @@ class dPemMixin(dObject):
             # This can happen if an object is released when there is a
             # pending callAfter() refresh.
             return
-        if (
-            isinstance(self, dui.dForm)
-            and self.AutoUpdateStatusText
-            and self.Visible
-        ):
+        if isinstance(self, ui.dForm) and self.AutoUpdateStatusText and self.Visible:
             self.setStatusText(self.getCurrentRecordText(), immediate=True)
         if self.Children:
-            self.raiseEvent(dEvents.Update)
-        dui.callAfter(self.__updateDynamicProps)
+            self.raiseEvent(events.Update)
+        ui.callAfter(self.__updateDynamicProps)
 
     def __updateDynamicProps(self):
         """Updates the object's dynamic properties."""
@@ -1565,7 +1560,7 @@ class dPemMixin(dObject):
         offset = 0
         htReduction = 0
         cltTop = self.absoluteCoordinates(self.GetClientAreaOrigin())[1]
-        if isinstance(self, (dui.dForm, dui.dDialog, dui.dPanel)):
+        if isinstance(self, (ui.dForm, ui.dDialog, ui.dPanel)):
             dc = wx.WindowDC(self)
             if self.Application.Platform == "Mac":
                 # Need to adjust for the title bar
@@ -1999,7 +1994,7 @@ class dPemMixin(dObject):
     ):
         """Draws a bitmap on the object at the specified position."""
         if isinstance(bmp, str):
-            bmp = dui.strToBmp(bmp)
+            bmp = ui.strToBmp(bmp)
         obj = DrawObject(
             self,
             Bitmap=bmp,
@@ -2262,7 +2257,7 @@ class dPemMixin(dObject):
             )
         self.SetFont(self.Font._nativeFont)
         # Re-raise it so that the object can respond to the event.
-        self.raiseEvent(dEvents.FontPropertiesChanged)
+        self.raiseEvent(events.FontPropertiesChanged)
 
     def _uniqueNameForParent(self, name, parent=None):
         """
@@ -2399,9 +2394,9 @@ class dPemMixin(dObject):
                     )
             if self._border:
                 # Tie it to resizing
-                self.bindEvent(dEvents.Resize, self._onResizeBorder)
+                self.bindEvent(events.Resize, self._onResizeBorder)
             else:
-                self.unbindEvent(dEvents.Resize, self._onResizeBorder)
+                self.unbindEvent(events.Resize, self._onResizeBorder)
         else:
             self._properties["BorderWidth"] = val
 
@@ -2470,7 +2465,7 @@ class dPemMixin(dObject):
             """Windows textboxes change their value when SetLabel() is called; this
             avoids that problem.
             """
-            if not isinstance(self, (dui.dTextBox, dui.dEditBox)):
+            if not isinstance(self, (ui.dTextBox, ui.dEditBox)):
                 self._caption = val
                 uval = ustr(val)
                 ## 2/23/2005: there is a bug in wxGTK that resets the font when the
@@ -2501,7 +2496,7 @@ class dPemMixin(dObject):
                 if self.WordWrap or self._properties["WordWrap"]:
                     # Word wrapping doesn't always work correctly when
                     # the Caption is set initially, so set it afterwards as well.
-                    dui.callAfter(__captionSet, val)
+                    ui.callAfter(__captionSet, val)
                     return
             except (AttributeError, KeyError):
                 pass
@@ -2537,7 +2532,7 @@ class dPemMixin(dObject):
             self._droppedFileHandler = val
             if self._dropTarget == None:
                 self._dropTarget = _DropTarget()
-                if isinstance(self, dui.dGrid):
+                if isinstance(self, ui.dGrid):
                     wxObj = self.GetGridWindow()
                 else:
                     wxObj = self
@@ -2554,7 +2549,7 @@ class dPemMixin(dObject):
             self._droppedTextHandler = val
             if self._dropTarget == None:
                 self._dropTarget = _DropTarget()
-                if isinstance(self, dui.dGrid):
+                if isinstance(self, ui.dGrid):
                     wxObj = self.GetGridWindow()
                 else:
                     wxObj = self
@@ -2592,23 +2587,23 @@ class dPemMixin(dObject):
         return self._eventTarget
 
     def _getDaboFont(self):
-        if hasattr(self, "_font") and isinstance(self._font, dui.dFont):
+        if hasattr(self, "_font") and isinstance(self._font, ui.dFont):
             v = self._font
         else:
-            v = self.Font = dui.dFont(_nativeFont=self.GetFont())
+            v = self.Font = ui.dFont(_nativeFont=self.GetFont())
         return v
 
     def _setDaboFont(self, val):
         # PVG: also accept wxFont parameter
         if isinstance(val, (wx.Font,)):
-            val = dui.dFont(_nativeFont=val)
+            val = ui.dFont(_nativeFont=val)
         if self._constructed():
             self._font = val
             try:
                 self.SetFont(val._nativeFont)
             except AttributeError:
                 log.error(_("Error setting font for %s") % self.Name)
-            val.bindEvent(dEvents.FontPropertiesChanged, self._onFontPropsChanged)
+            val.bindEvent(events.FontPropertiesChanged, self._onFontPropsChanged)
         else:
             self._properties["Font"] = val
 
@@ -2675,7 +2670,7 @@ class dPemMixin(dObject):
                 self.SetForegroundColour(val)
                 # Need to jiggle the font size to force the color change to take
                 # effect, at least for dEditBox on Gtk.
-                dui.callAfterInterval(100, self._jiggleFontSize)
+                ui.callAfterInterval(100, self._jiggleFontSize)
         else:
             self._properties["ForeColor"] = val
 
@@ -2689,7 +2684,7 @@ class dPemMixin(dObject):
                     parent = obj.Parent
                 except AttributeError:
                     break
-                if isinstance(parent, dui.dFormMixin):
+                if isinstance(parent, ui.dFormMixin):
                     frm = parent
                     break
                 else:
@@ -2709,7 +2704,7 @@ class dPemMixin(dObject):
                 width = -1
             newSize = (width, int(val))
             self._setSize(newSize)
-            if isinstance(self, dui.dFormMixin):
+            if isinstance(self, ui.dFormMixin):
                 self._defaultHeight = val
         else:
             self._properties["Height"] = val
@@ -2736,7 +2731,7 @@ class dPemMixin(dObject):
         if self._constructed():
             self.SetPosition((int(val), self.Top))
 
-        if isinstance(self, dui.dFormMixin):
+        if isinstance(self, ui.dFormMixin):
             self._defaultLeft = val
         else:
             self._properties["Left"] = val
@@ -2820,7 +2815,7 @@ class dPemMixin(dObject):
                 # Name of a cursor. This can be either the full names, such
                 # as 'Cursor_Bullseye', or just 'Bullseye'. It could also be a sizing
                 # direction, such as 'NWSE'.
-                uic = dui.dUICursors
+                uic = ui.dUICursors
                 try:
                     crsName = eval("uic.%s" % val)
                 except AttributeError:
@@ -2982,7 +2977,7 @@ class dPemMixin(dObject):
         if self._constructed():
             left, top = val
 
-            if isinstance(self, dui.dFormMixin):
+            if isinstance(self, ui.dFormMixin):
                 self._defaultLeft, self._defaultTop = (left, top)
             self.SetPosition((left, top))
         else:
@@ -3040,7 +3035,7 @@ class dPemMixin(dObject):
                     # prior to wxPython 2.7.s:
                     self.SetBestFittingSize(val)
 
-            if isinstance(self, dui.dFormMixin):
+            if isinstance(self, ui.dFormMixin):
                 self._defaultWidth, self._defaultHeight = val
         else:
             self._properties["Size"] = val
@@ -3116,7 +3111,7 @@ class dPemMixin(dObject):
 
     def _setTop(self, val):
         if self._constructed():
-            if isinstance(self, dui.dFormMixin):
+            if isinstance(self, ui.dFormMixin):
                 self._defaultTop = val
             self.SetPosition((self.Left, int(val)))
         else:
@@ -3161,9 +3156,7 @@ class dPemMixin(dObject):
         try:
             return self.IsShown()
         except AttributeError:
-            log.error(
-                _("The object %s does not support the Visible property.") % self
-            )
+            log.error(_("The object %s does not support the Visible property.") % self)
             return None
 
     def _setVisible(self, val):
@@ -3175,7 +3168,7 @@ class dPemMixin(dObject):
                     _("The object %s does not support the Visible property.") % self
                 )
             try:
-                dui.callAfterInterval(100, self.Parent.layout)
+                ui.callAfterInterval(100, self.Parent.layout)
             except AttributeError:
                 pass
         else:
@@ -3195,7 +3188,7 @@ class dPemMixin(dObject):
                 height = -1
             newSize = (int(val), height)
             self._setSize(newSize)
-            if isinstance(self, dui.dFormMixin):
+            if isinstance(self, ui.dFormMixin):
                 self._defaultWidth = val
         else:
             self._properties["Width"] = val
@@ -3684,7 +3677,7 @@ class dPemMixin(dObject):
     DynamicWidth = makeDynamicProperty(Width)
 
 
-dui.dPemMixin = dPemMixin
+ui.dPemMixin = dPemMixin
 
 
 class DrawObject(dObject):
@@ -3762,7 +3755,7 @@ class DrawObject(dObject):
         if not self.Visible or self._inInit:
             return
         srcObj = self.Parent
-        if isinstance(srcObj, dui.dFormMixin):
+        if isinstance(srcObj, ui.dFormMixin):
             frm = srcObj
         else:
             frm = srcObj.Form
@@ -3782,8 +3775,8 @@ class DrawObject(dObject):
             self._modeSettings(dc)
 
         #         if self.Application.Platform == "GTK" and \
-        #                 not (isinstance(srcObj, (dui.dPanel, dui.dPage, dui.dGrid))):
-        #             if isinstance(srcObj, dui.dForm):
+        #                 not (isinstance(srcObj, (ui.dPanel, ui.dPage, ui.dGrid))):
+        #             if isinstance(srcObj, ui.dForm):
         #                 x, y = srcObj.containerCoordinates(srcObj, (self.Xpos, self.Ypos))
         #             else:
         #                 x, y = self.Parent.containerCoordinates(srcObj.Parent, (self.Xpos, self.Ypos))
@@ -3854,7 +3847,7 @@ class DrawObject(dObject):
                 dc.DrawText(txt, x, y)
             else:
                 dc.DrawRotatedText(txt, x, y, self._angle)
-            w, h = dui.fontMetricFromDC(dc, txt)
+            w, h = ui.fontMetricFromDC(dc, txt)
             angle = self._angle % 360
             if angle % 90 == 0:
                 if angle % 180 == 0:
@@ -4261,7 +4254,7 @@ class DrawObject(dObject):
             x = x - self._radius
             y = y - self._radius
         elif (self._shape == "text") and (self._angle % 360 != 0):
-            tw, th = dui.fontMetricFromDrawObject(self)
+            tw, th = ui.fontMetricFromDrawObject(self)
             angle = self._angle % 360
             if 0 < angle <= 90:
                 rad = math.radians(angle)
@@ -4628,7 +4621,7 @@ class DrawObject(dObject):
     DynamicYpos = makeDynamicProperty(Ypos)
 
 
-dui.DrawObject = DrawObject
+ui.DrawObject = DrawObject
 
 
 class _DropTarget(wx.DropTarget):

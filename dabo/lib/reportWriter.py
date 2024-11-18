@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 import copy
 import datetime
+import locale
+import sys
+import os
 
 import decimal
 
 Decimal = decimal.Decimal
 
-import locale
-import sys
-import os
-from dabo.dLocalize import _
-from dabo.lib.dates import getStringFromDate
+from ..dLocalize import _
+from ..lib.dates import getStringFromDate
+from .. import settings
 
 ######################################################
 # Very first thing: check for required libraries:
@@ -56,13 +57,12 @@ import reportlab.lib.styles as styles
 import reportlab.platypus as platypus
 
 # import reportlab.lib.colors as colors
-import dabo
-from dabo import getEncoding
-from dabo.lib.xmltodict import xmltodict
-from dabo.lib.xmltodict import dicttoxml
-from dabo.lib.caselessDict import CaselessDict
+from ..settings import getEncoding
+from .xmltodict import xmltodict
+from .xmltodict import dicttoxml
+from .caselessDict import CaselessDict
 from reportlab.lib.utils import ImageReader
-from dabo.lib.utils import ustr, resolvePathAndUpdate
+from .utils import ustr, resolvePathAndUpdate
 from reportlab.pdfbase.pdfmetrics import registerFont, getRegisteredFontNames
 from reportlab.pdfbase.ttfonts import TTFont, TTFError
 from reportlab.rl_config import TTFSearchPath
@@ -110,9 +110,9 @@ for fontPath in fontPaths:
     if os.path.exists(fontPath) and os.path.isdir(fontPath):
         addReportTTFontFilePath(fontPath)
 
-# Add the truetype font path in dabo.settings:
-if dabo.reportTTFontFilePath:
-    addReportTTFontFilePath(dabo.reportTTFontFilePath)
+# Add the truetype font path in settings:
+if settings.reportTTFontFilePath:
+    addReportTTFontFilePath(settings.reportTTFontFilePath)
 
 
 ## Can't use None for uninitialized group values, because None
@@ -142,7 +142,7 @@ def getSubFont(fontName, subFontName="Helvetica"):
     if oblique:
         subFontName += "Oblique"
     if subFontName not in substitutedFontNames:
-        dabo.log.error(
+        log.error(
             _("Font '%(fontName)s' not found. Substituting " "'%(subFontName)s'")
             % locals()
         )
@@ -210,14 +210,14 @@ class PageCountCanvas(canvas.Canvas):
         if leading is None:
             leading = size
         if psfontname not in getRegisteredFontNames():
-            if psfontname in dabo.reportTTFontFileMap:
-                psfontfile = dabo.reportTTFontFileMap[psfontname]
+            if psfontname in settings.reportTTFontFileMap:
+                psfontfile = settings.reportTTFontFileMap[psfontname]
             else:
                 psfontfile = "%s.ttf" % psfontname
             try:
                 registerFont(TTFont(psfontname, psfontfile))
             except TTFError:
-                dabo.log.info(_("Font file can not be found: %s") % psfontfile)
+                log.info(_("Font file can not be found: %s") % psfontfile)
         try:
             canvas.Canvas.setFont(self, psfontname, size, leading)
         except Exception:
@@ -688,7 +688,7 @@ class Report(ReportObject):
             True,
             """If True, expressions in String objects that evaluate to a datetime.date will get displayed
                 in the report as a string as returned by dabo.lib.getStringFromDate(), which will
-                result in the date getting displayed as set by dabo.dateFormat or the user's locale.""",
+                result in the date getting displayed as set by settings.dateFormat or the user's locale.""",
         )
 
         self.MajorProperty = "Title"
@@ -3427,7 +3427,7 @@ class ReportWriter(object):
         try:
             v = self._encoding
         except AttributeError:
-            v = self._encoding = dabo.getEncoding()
+            v = self._encoding = settings.getEncoding()
         return v
 
     def _setEncoding(self, val):
@@ -3447,7 +3447,7 @@ class ReportWriter(object):
         ret = getattr(self, "_noneDisplay", None)
         if ret is None:
             try:
-                ret = dabo.dAppRef.NoneDisplay
+                ret = settings.dAppRef.NoneDisplay
             except AttributeError:
                 ret = _("< None >")
         return ret

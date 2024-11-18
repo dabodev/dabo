@@ -16,11 +16,13 @@ import traceback
 import urllib.request, urllib.parse, urllib.error
 import warnings
 
-from dException import dException
-import dEvents
-from dLocalize import _
-from lib import utils
-from lib.utils import ustr
+from .. import events
+from ..dException import dException
+from ..dLocalize import _
+from ..lib import utils
+from ..lib.utils import ustr
+from .. import dConstants
+from .uiApp import uiApp
 
 
 # Very VERY first thing: ensure a minimal wx is selected, but only if
@@ -78,8 +80,6 @@ del _failedLibs
 #######################################################
 import wx
 from wx import Image, BitmapFromImage
-import dConstants as kons
-from uiApp import uiApp
 
 # Used by the callAfter* functions
 lastCallAfterStack = ""
@@ -98,6 +98,10 @@ nativeScrollBar = wx.ScrollBar
 
 namespace_loaded = False
 
+# Put these in module namespace
+dKeys = None
+dIcons = None
+dUICursors = None
 
 def load_namespace():
     """Add all the UI classes to the dabo.ui namespace.
@@ -109,19 +113,18 @@ def load_namespace():
     classes inherit from or otherwise reference other classes, so those referenced classes need to
     be added to the namespace first.
     """
-    global namespace_loaded
+    global namespace_loaded, dKeys, dIcons, dUICursors
     if namespace_loaded:
         return
     namespace_loaded = True
     from . import keys
-
-    dabo.ui.dKeys = keys
+    dKeys = keys
     from . import icons
 
-    dabo.ui.dIcons = icons
+    dIcons = icons
     from . import ui_cursors
 
-    dabo.ui.dUICursors = ui_cursors
+    dUICursors = ui_cursors
 
     from . import pem_mixin
     from . import control_mixin
@@ -193,7 +196,7 @@ def load_namespace():
     from . import ui_calendar
     from . import dialogs
     from . import grid_renderers
-    from . import object_inspector
+#     from . import object_inspector
     from . import dock_form
     from .dialogs import WizardPage
     from .dialogs import Wizard
@@ -368,7 +371,7 @@ def makeProxyProperty(dct, nm, proxyAtts):
         return _resolveSet(self, nm, val)
 
     try:
-        doc = getattr(dabo.ui.dPemMixin, nm).__doc__
+        doc = getattr(dPemMixin, nm).__doc__
     except AttributeError:
         doc = None
     return property(fget, fset, None, doc)
@@ -517,7 +520,7 @@ def callEvery(interval, func, *args, **kwargs):
         func(*args, **kwargs)
 
     ret = dabo.ui.dTimer(Interval=interval)
-    ret.bindEvent(dEvents.Hit, _onHit)
+    ret.bindEvent(events.Hit, _onHit)
     ret.start()
     return ret
 
@@ -567,7 +570,7 @@ def continueEvent(evt):
         evt.Skip()
     except AttributeError as e:
         # Event could be a Dabo event, not a wx event
-        if isinstance(evt, dEvents.dEvent):
+        if isinstance(evt, events.dEvent):
             pass
         else:
             dabo.log.error(
@@ -581,7 +584,7 @@ def discontinueEvent(evt):
         evt.Skip(False)
     except AttributeError as e:
         # Event could be a Dabo event, not a wx event
-        if isinstance(evt, dEvents.dEvent):
+        if isinstance(evt, events.dEvent):
             pass
         else:
             dabo.log.error(
@@ -1054,7 +1057,7 @@ def getString(
         # Give the textbox a default value:
         txt = dabo.ui.getString(defaultValue="initial string value")
 
-        # Password Entry (\*'s instead of the actual text)
+        # Password Entry (asterisks instead of the actual text)
         txt = dabo.ui.getString(PasswordEntry=True)
 
     """
@@ -1210,7 +1213,7 @@ def getColor(color=None):
     """
     ret = None
     dlg = dabo.ui.dColorDialog(_getActiveForm(), color)
-    if dlg.show() == kons.DLG_OK:
+    if dlg.show() == dConstants.DLG_OK:
         ret = dlg.getColor()
     dlg.release()
     return ret
@@ -1274,7 +1277,7 @@ def getFont(font=None):
             return None
         param = font._nativeFont
     dlg = dabo.ui.dFontDialog(_getActiveForm(), param)
-    if dlg.show() == kons.DLG_OK:
+    if dlg.show() == dConstants.DLG_OK:
         fnt = dlg.getFont()
     dlg.release()
     if fnt is not None:
@@ -1296,7 +1299,7 @@ def _getPath(cls, wildcard, **kwargs):
     if isinstance(cls, str):
         cls = getattr(dabo.ui, cls)
     fd = cls(parent=_getActiveForm(), wildcard=wildcard, **kwargs)
-    if fd.show() == kons.DLG_OK:
+    if fd.show() == dConstants.DLG_OK:
         pth = fd.Path
         try:
             idx = fd.GetFilterIndex()
@@ -1537,14 +1540,14 @@ def getScrollWinEventClass(evt):
     evtOffset = evtType - baseEvtNum
     # Get the corresponding Dabo event class for the wx event.
     daboEvents = (
-        dEvents.ScrollTop,
-        dEvents.ScrollBottom,
-        dEvents.ScrollLineUp,
-        dEvents.ScrollLineDown,
-        dEvents.ScrollPageUp,
-        dEvents.ScrollPageDown,
-        dEvents.ScrollThumbDrag,
-        dEvents.ScrollThumbRelease,
+        events.ScrollTop,
+        events.ScrollBottom,
+        events.ScrollLineUp,
+        events.ScrollLineDown,
+        events.ScrollPageUp,
+        events.ScrollPageDown,
+        events.ScrollThumbDrag,
+        events.ScrollThumbRelease,
     )
     return daboEvents[evtOffset]
 
@@ -1665,7 +1668,7 @@ def createMenuBar(src, form=None, previewFunc=None):
                     menuItem.setPropertiesFromAtts(
                         itmatts, context={"form": form, "app": dabo.dAppRef}
                     )
-                menuItem.bindEvent(dEvents.Hit, binding)
+                menuItem.bindEvent(events.Hit, binding)
 
     if isinstance(src, dict):
         mnd = src
@@ -1712,7 +1715,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
                 )
             self._control = self._controlClass(parent, **controlProps)
             self._grid = parent.GetParent()
-            self._control.bindEvent(dEvents.KeyDown, self._onKeyDown)
+            self._control.bindEvent(events.KeyDown, self._onKeyDown)
             self.SetControl(self._control)
             if evtHandler:
                 self._control.PushEventHandler(evtHandler)

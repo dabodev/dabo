@@ -4,10 +4,10 @@ import datetime
 import os
 import warnings
 
-from dLocalize import _
-import lib.utils as utils
-from lib.utils import ustr
-import db
+from .dLocalize import _
+from .lib import utils
+from .lib.utils import ustr
+from . import db
 # import log
 
 
@@ -65,7 +65,7 @@ class dPref(object):
     child objects to the database.
     """
 
-    def __init__(self, key=None, crs=None, cxn=None, appName="Dabo", prefDb=None):
+    def __init__(self, key=None, crs=None, cxn=None, appName="Dabo", pref_db=None):
         if key is None:
             self._key = ""
         else:
@@ -97,9 +97,7 @@ class dPref(object):
             db.dDataSet: "tuple",
         }
         if crs is None:
-            if prefDb:
-                db = prefDb
-            else:
+            if not pref_db:
                 prefdir = utils.getUserAppDataDirectory(appName)
                 if prefdir is None:
                     # pkm: This happened to me on a webserver where the user is www-data who doesn't have
@@ -108,12 +106,12 @@ class dPref(object):
                     #      punt and put the preference db in the working directory (up to your webapp to
                     #      chdir() accordingly)..
                     prefdir = os.getcwd()
-                db = os.path.join(prefdir, "DaboPreferences.db")
+                pref_db = os.path.join(prefdir, "DaboPreferences.db")
             if cxn:
                 self._cxn = cxn
             else:
                 self._cxn = db.dConnection(
-                    connectInfo={"DbType": "SQLite", "Database": db}, forceCreate=True
+                    connectInfo={"DbType": "SQLite", "Database": pref_db}, forceCreate=True
                 )
             self._cursor = self._cxn.getDaboCursor()
             self._cursor.IsPrefCursor = True

@@ -42,3 +42,33 @@ nosetests.xml
 
 # Venv
 vdabo/*
+
+.python-version
+
+colorgrid.html
+
+colors.html
+
+create_colorgrid.py
+
+dabo/hexdLocalize.py
+
+dabo/icons/function.png
+
+dabo/ui/convert.py
+
+dec2hex.py
+
+DEVENTS
+
+dui
+
+hello.py
+
+hexcolorgrid.html
+
+junk.py
+
+photo.cnxml
+
+webtest.cnxml
