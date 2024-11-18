@@ -5,18 +5,19 @@ import operator
 import sys
 
 import wx
-import dabo
-from dabo import ui as dui
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo.ui import dDataControlMixin
-from dabo.ui import dDataPanel
-from dabo.ui import dKeys
-from dabo.ui import dSizer
-from dabo.ui import dTextBox
-from dabo.ui import makeDynamicProperty
-from dabo.ui import makeProxyProperty
+
+import ui
+import dEvents
+from dLocalize import _
+from lib.utils import ustr
+from ui import dDataControlMixin
+from ui import dDataPanel
+from ui import dKeys
+from ui import dSizer
+from ui import dTextBox
+from ui import makeDynamicProperty
+from ui import makeProxyProperty
+# import log
 
 
 class _dSpinButton(dDataControlMixin, wx.SpinButton):
@@ -106,7 +107,7 @@ class dSpinner(dDataPanel, wx.Control):
         ps.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
         # self.bindEvent(dEvents.KeyChar, self._onChar)
         self._rerestoreValue()
-        dui.callAfter(self.layout)
+        ui.callAfter(self.layout)
 
     def __onWxDestroy(self, evt):
         # This doesn't otherwise happen
@@ -361,7 +362,7 @@ class dSpinner(dDataPanel, wx.Control):
             else:
                 numVal = self._numericStringVal(val)
                 if numVal is None:
-                    dabo.log.error(
+                    log.error(
                         _("Spinner values must be numeric. Invalid:'%s'") % val
                     )
                 else:
@@ -454,7 +455,7 @@ class dSpinner(dDataPanel, wx.Control):
     )
 
 
-dabo.ui.dSpinner = dSpinner
+ui.dSpinner = dSpinner
 
 
 class _dSpinner_test(dSpinner):
@@ -488,8 +489,8 @@ class _dSpinner_test(dSpinner):
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
-    from dabo.ui import dForm
+    from dApp import dApp
+    from ui import dForm
 
     class Test(dForm):
         def OH(self, evt):

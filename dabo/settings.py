@@ -27,6 +27,7 @@ namespace at runtime, eg::
 import os
 import sys
 import logging
+from pathlib import Path
 
 ### Settings - begin
 
@@ -248,6 +249,9 @@ localizeDabo = True
 # When field values are float, and DataStructure isn't explicit, do we convert float
 # values to Decimal automatically?
 convertFloatToDecimal = True
+
+# Root path of the dabo module
+root_path = Path(self.__file__).parent
 
 ### Settings - end
 

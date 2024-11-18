@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 import os.path
+
 import wx
-import dabo, dabo.ui
-from dabo import dEvents as dEvents
-from dabo.dObject import dObject
-from dabo.dLocalize import _
-from dabo.ui import dControlMixin
-from dabo.ui import dMenu
-from dabo.ui import makeDynamicProperty
+
+import ui
+import dEvents
+from dObject import dObject
+from dLocalize import _
+from ui import dControlMixin
+from ui import dMenu
+from ui import makeDynamicProperty
 
 
 class dToolBar(dControlMixin, wx.ToolBar):
@@ -151,7 +153,7 @@ class dToolBar(dControlMixin, wx.ToolBar):
         """Common code for the append|insert|prependButton() functions."""
         if isinstance(pic, str):
             # path was passed
-            picBmp = dabo.ui.strToBmp(pic)
+            picBmp = ui.strToBmp(pic)
         else:
             picBmp = pic
         enabled = self._extractKey(kwargs, "Enabled", True)
@@ -524,13 +526,13 @@ class dToolBarItem(dObject):
         # toolbar.AddTool() and save the result. Hence, the throwaway toolbar.
         tb = dToolBar(self.Application.ActiveForm)
         id_ = wx.ID_ANY
-        wxItem = tb.AddTool(id_, "temp", dabo.ui.strToBmp("dCheckBox"))
+        wxItem = tb.AddTool(id_, "temp", ui.strToBmp("dCheckBox"))
         tb.RemoveTool(id_)
         tb.release()
         return wxItem
 
     def __onUpdate(self, evt):
-        dabo.ui.callAfter(self.__updateDynamicProps)
+        ui.callAfter(self.__updateDynamicProps)
 
     def __updateDynamicProps(self):
         for prop, func in list(self._dynamic.items()):
@@ -564,7 +566,7 @@ class dToolBarItem(dObject):
     def _setCaption(self, val):
         self._wxToolBarItem.SetLabel(val)
         if self.Parent:
-            dabo.ui.callAfter(self.Parent._recreateItem, self)
+            ui.callAfter(self.Parent._recreateItem, self)
 
     def _getEnabled(self):
         return self.Parent.GetToolEnabled(self._id)
@@ -649,8 +651,8 @@ class dToolBarItem(dObject):
     DynamicEnabled = makeDynamicProperty(Enabled)
 
 
-dabo.ui.dToolBar = dToolBar
-dabo.ui.dToolBarItem = dToolBarItem
+ui.dToolBar = dToolBar
+ui.dToolBarItem = dToolBarItem
 
 
 class _dToolBar_test(dToolBar):
@@ -698,21 +700,21 @@ class _dToolBar_test(dToolBar):
         )
 
     def onCopy(self, evt):
-        dabo.ui.info("Copy Clicked!")
+        ui.info("Copy Clicked!")
 
     def onToggle(self, evt):
         item = evt.EventObject
-        dabo.ui.info("CHECKED: %s, ID: %s" % (item.Value, item.GetId()))
+        ui.info("CHECKED: %s, ID: %s" % (item.Value, item.GetId()))
 
     def onExit(self, evt):
         app = self.Application
         if app:
             app.onFileExit(None)
         else:
-            dabo.ui.stop("Sorry, there isn't an app object - can't exit.")
+            ui.stop("Sorry, there isn't an app object - can't exit.")
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dToolBar_test)

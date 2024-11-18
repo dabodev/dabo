@@ -4,8 +4,9 @@ import sys
 import time
 import inspect
 from io import StringIO
-import dabo
-from dabo.lib.utils import ustr
+
+import settings
+from lib.utils import ustr
 
 
 def logPoint(msg="", levels=None):
@@ -54,17 +55,17 @@ def loggit(fnc):
 
     Be sure to add:
 
-    from dabo.dBug import loggit
+    from dBug import loggit
 
     to the import statements for every file that uses loggit. You can set the name and
-    location of the log file by overriding the setting for dabo.loggitFile. By default, this
+    location of the log file by overriding the setting for settings.loggitFile. By default, this
     value will be 'functionCall.log'.
     """
     try:
         loggit.fhwr
     except AttributeError:
         # ... open it
-        fname = dabo.loggitFile
+        fname = settings.loggitFile
         loggit.fhwr = open(fname, "a")
 
     def wrapped(*args, **kwargs):

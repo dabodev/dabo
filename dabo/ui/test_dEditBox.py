@@ -2,17 +2,18 @@
 import datetime
 import decimal
 import unittest
-import dabo
-from dabo.dApp import dApp
-from dabo.lib import getRandomUUID
+
+import ui
+from dApp import dApp
+from lib import getRandomUUID
 
 
 class Test_dEditBox(unittest.TestCase):
     def setUp(self):
         app = self.app = dApp(MainFormClass=None)
         app.setup()
-        frm = dabo.ui.dForm(Caption="test_dEditBox")
-        self.edt = frm.addObject(dabo.ui.dEditBox)
+        frm = ui.dForm(Caption="test_dEditBox")
+        self.edt = frm.addObject(ui.dEditBox)
 
     def tearDown(self):
         self.edt = None

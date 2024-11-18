@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import unittest
-import dabo
-import dabo.db
-import dabo.biz
-import dabo.ui
-from dabo.lib import getRandomUUID
-from dabo.dApp import dApp
+
+import db
+import biz
+import ui
+from lib import getRandomUUID
+from dApp import dApp
 
 
 class Test_dForm(unittest.TestCase):
@@ -13,8 +13,8 @@ class Test_dForm(unittest.TestCase):
         # We set up a test connection to an in-memory sqlite database, and then we
         # make a dBizobj against the test table, and then we create a dForm with some
         # dTextBox's to test the interaction.
-        self.con = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
-        biz = self.biz = dabo.biz.dBizobj(self.con)
+        self.con = db.dConnection(DbType="SQLite", Database=":memory:")
+        biz = self.biz = biz.dBizobj(self.con)
         uniqueName = getRandomUUID().replace("-", "")[-20:]
         self.temp_table_name = "unittest%s" % uniqueName
         self.temp_child_table_name = "ut_child%s" % uniqueName
@@ -27,21 +27,21 @@ class Test_dForm(unittest.TestCase):
         ## set up the ui elements:
         app = self.app = dApp(MainFormClass=None)
         app.setup()
-        frm = self.frm = dabo.ui.dForm(Caption="test_dForm")
+        frm = self.frm = ui.dForm(Caption="test_dForm")
         frm.addObject(
-            dabo.ui.dTextBox,
+            ui.dTextBox,
             DataSource=biz.DataSource,
             DataField="cField",
             RegID="cField",
         )
         frm.addObject(
-            dabo.ui.dTextBox,
+            ui.dTextBox,
             DataSource=biz.DataSource,
             DataField="nField",
             RegID="nField",
         )
         frm.addObject(
-            dabo.ui.dTextBox,
+            ui.dTextBox,
             DataSource=biz.DataSource,
             DataField="iField",
             RegID="iField",

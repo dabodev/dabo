@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 import wx
 import wx.lib.agw.foldpanelbar as fpb
-import dabo
-from dabo.ui import makeDynamicProperty
-from dabo import dEvents as dEvents
-from dabo import dColors as dColors
-from dabo.dLocalize import _
 
-from dabo.ui import dCheckBox
-from dabo.ui import dControlMixin
-from dabo.ui import dForm
-from dabo.ui import dGridSizer
-from dabo.ui import dLabel
-from dabo.ui import dSizer
+from ui import makeDynamicProperty
+import dEvents
+import dColors
+from dLocalize import _
+
+from ui import dCheckBox
+from ui import dControlMixin
+from ui import dForm
+from ui import dGridSizer
+from ui import dLabel
+from ui import dSizer
+# import log
 
 
 class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
@@ -131,7 +132,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         self._cont.AddFoldPanelWindow(self, ch)
         self._cont.RefreshPanelsFrom(self)
         self._cont.unlockDisplay()
-        dabo.ui.callAfterInterval(50, self._cont.sizePanelHeights)
+        ui.callAfterInterval(50, self._cont.sizePanelHeights)
 
     def appendSeparator(self, color=None):
         """This draws a separator line on the panel"""
@@ -214,7 +215,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         if self._constructed():
             if val.lower().strip() not in self._barStylesLow:
                 bs = ", ".join(self._barStyles)
-                dabo.log.error(
+                log.error(
                     _(
                         "Unknown BarStyle passed: %(val)s. BarStyle must be one of: %(bs)s"
                     )
@@ -240,7 +241,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
                 bs = self._baseSizer
             except AttributeError:
                 # Passed in params; base sizer isn't yet present
-                dabo.ui.callAfter(self._setBorder, val)
+                ui.callAfter(self._setBorder, val)
                 return
             sz = self.Sizer
             self._border = val
@@ -610,7 +611,7 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
             if curr is not None:
                 if curr is not evtPanel:
                     # Close the current one
-                    dabo.ui.callAfter(self.collapse, curr)
+                    ui.callAfter(self.collapse, curr)
             self.__openPanel = evtPanel
         else:
             # The panel is closing. If it was the current panel,
@@ -623,7 +624,7 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
                 self.expand(curr)
         if changing:
             self.layout()
-            dabo.ui.callAfter(self.sizePanelHeights)
+            ui.callAfter(self.sizePanelHeights)
             self.refresh()
         self.__inSingletonProcess = False
 
@@ -657,7 +658,7 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
             pnl.Top = top
             pnl.layout()
             top += pnl.Height
-        dabo.ui.callAfter(self.layout)
+        ui.callAfter(self.layout)
 
     def _setUnderlyingStyleAtt(self):
         try:
@@ -875,12 +876,12 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
     DynamicSingleton = makeDynamicProperty(Singleton)
 
 
-dabo.ui.dSlidePanel = dSlidePanel
-dabo.ui.dSlidePanelControl = dSlidePanelControl
+ui.dSlidePanel = dSlidePanel
+ui.dSlidePanelControl = dSlidePanelControl
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
+    from dApp import dApp
 
     class TestForm(dForm):
         def afterInit(self):

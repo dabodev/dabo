@@ -17,18 +17,29 @@ import warnings
 from xml.sax._exceptions import SAXParseException
 from zipfile import ZipFile
 
-import dabo
-from dabo import dException as dException
-from dabo import dLocalize as dLocalize
-from dabo.dLocalize import _
-from dabo.lib import connParser
-from dabo.lib.SimpleCrypt import SimpleCrypt
-from dabo.dObject import dObject
-from dabo.dPref import dPref
-from dabo import dUserSettingProvider
-from dabo.dSecurityManager import dSecurityManager
-from dabo.lib.utils import ustr
-from dabo.lib.utils import cleanMenuCaption
+import dException
+import dLocalize
+import dUserSettingProvider
+from dLocalize import _
+from lib import connParser
+from lib.SimpleCrypt import SimpleCrypt
+from dObject import dObject
+from dPref import dPref
+from dSecurityManager import dSecurityManager
+import db
+import lib
+import ui
+from lib.utils import ustr
+from lib.utils import cleanMenuCaption
+# import dAppRef
+# import frameworkPath
+# import checkForWebUpdates
+# import webupdate_urlbase
+# import __version__
+# import log
+# import _standardDirs
+# import getEncoding
+# import fileSystemEncoding
 
 
 class Collection(list):
@@ -119,7 +130,7 @@ class dApp(dObject):
     All Dabo objects have an Application property which refers to the dApp
     instance. Instantiate your dApp object from your main script, like so::
 
-    >>> from dabo.dApp import dApp
+    >>> from dApp import dApp
     >>> app = dApp()
     >>> app.start()
 
@@ -169,7 +180,7 @@ class dApp(dObject):
     ):
         # Defer setting locale until the wx.App can do so (otherwise you can create a split-state between
         # the OS and wx, which wx does not like.
-        #  if dabo.loadUserLocale:
+        #  if loadUserLocale:
         #   locale.setlocale(locale.LC_ALL, '')
 
         # Some apps, such as the visual tools, are meant to be run from directories
@@ -177,13 +188,13 @@ class dApp(dObject):
         self._ignoreScriptDir = ignoreScriptDir
 
         self._uiAlreadySet = False
-        dabo.dAppRef = self
+        dAppRef = self
         self._beforeInit()
 
         # If we are displaying a splash screen, these attributes control
         # its appearance. Extract them before the super call.
         self.showSplashScreen = self._extractKey(kwargs, "showSplashScreen", False)
-        basepath = dabo.frameworkPath
+        basepath = frameworkPath
         img = os.path.join(basepath, "icons", "daboSplashName.png")
         self.splashImage = self._extractKey(kwargs, "splashImage", img)
         self.splashMaskColor = self._extractKey(kwargs, "splashMaskColor", None)
@@ -286,7 +297,7 @@ try again when it is running.
                 rp.syncFiles()
             except urllib.error.URLError as e:
                 # Cannot sync; record the error and move on
-                dabo.log.error(_("File re-sync failed. Reason: %s") % e)
+                log.error(_("File re-sync failed. Reason: %s") % e)
 
     def __del__(self):
         """Make sure that temp files are removed"""
@@ -327,11 +338,11 @@ try again when it is running.
 
         if initUI:
             if self.showSplashScreen:
-                self.uiApp = dabo.ui.getUiApp(
+                self.uiApp = ui.getUiApp(
                     self, uiAppClass=None, callback=self.initUIApp, forceNew=True
                 )
             else:
-                self.uiApp = dabo.ui.uiApp(self, callback=None)
+                self.uiApp = ui.uiApp(self, callback=None)
             self.initUIApp()
         else:
             self.uiApp = None
@@ -388,7 +399,7 @@ try again when it is running.
             or getattr(self, "_loggedIn", False)
             or self.SecurityManager.login()
         ):
-            dabo.ui.callAfterInterval(5000, self._destroySplash)
+            ui.callAfterInterval(5000, self._destroySplash)
             self._retrieveMRUs()
             try:
                 self._loginDialog.Parent = None
@@ -410,7 +421,7 @@ try again when it is running.
         self.uiApp.finish()
         self.closeConnections()
         self._tempFileHolder.release()
-        dabo.log.info(_("Application finished."))
+        log.info(_("Application finished."))
         self._finished = True
         self.afterFinish()
 
@@ -531,7 +542,7 @@ try again when it is running.
         """
         if not force:
             # Check for cases where we absolutely will not Web Update.
-            update = dabo.checkForWebUpdates
+            update = checkForWebUpdates
             if update:
                 # Frozen App:
                 if hasattr(sys, "frozen") and inspect.stack()[-1][1] != "daborun.py":
@@ -567,14 +578,14 @@ try again when it is running.
 
         if runCheck:
             # See if there is a later version
-            url = "%s/check/%s" % (dabo.webupdate_urlbase, dabo.__version__)
+            url = "%s/check/%s" % (webupdate_urlbase, __version__)
             try:
                 resp = urllib.request.urlopen(url).read()
             except urllib.error.URLError as e:
                 # Could not connect
                 ### 2014-10-04, Koczian, using ustr to avoid crash
                 e_uni = ustr(e)
-                dabo.log.error(_("Could not connect to the Dabo servers: %s") % e_uni)
+                log.error(_("Could not connect to the Dabo servers: %s") % e_uni)
                 ### 2014-10-04, Koczian, end of change
                 return e
             except ValueError:
@@ -582,7 +593,7 @@ try again when it is running.
             except Exception as e:
                 ### 2014-10-04, Koczian, using ustr to avoid crash
                 e_uni = ustr(e)
-                dabo.log.error(
+                log.error(
                     _("Failed to open URL '%(url)s'. Error: %(e_uni)s") % locals()
                 )
                 ### 2014-10-04, Koczian, end of change
@@ -596,12 +607,12 @@ try again when it is running.
         Get any changed files from the dabodev.com server, and replace
         the local copies with them.
         """
-        fileurl = "%s/files/%s" % (dabo.webupdate_urlbase, dabo.__version__)
+        fileurl = "%s/files/%s" % (webupdate_urlbase, __version__)
         try:
             resp = urllib.request.urlopen(fileurl)
         except Exception as e:
             # No internet access, or Dabo site is down.
-            dabo.log.error(_("Cannot access the Dabo site. Error: %s") % e)
+            log.error(_("Cannot access the Dabo site. Error: %s") % e)
             self._resetWebUpdateCheck()
             return None
 
@@ -618,7 +629,7 @@ try again when it is running.
             delfiles = []
         if not zipfiles:
             # No updates available
-            dabo.log.info(_("No changed files available."))
+            log.info(_("No changed files available."))
             return
         projects = ("dabo", "demo", "ide")
         prf = self._frameworkPrefs
@@ -638,7 +649,7 @@ try again when it is running.
             if missing:
                 return "\n".join(missing)
 
-        locations = {"dabo": dabo.frameworkPath, "demo": loc_demo, "ide": loc_ide}
+        locations = {"dabo": frameworkPath, "demo": loc_demo, "ide": loc_ide}
         for project in projects:
             chgs = updates[project]
             if not chgs:
@@ -705,7 +716,7 @@ try again when it is running.
             req.add_header("If-Modified-Since", lastmod)
         elif os.path.exists(pth):
             modTime = datetime.datetime.fromtimestamp(os.stat(pth)[8])
-            req.add_header("If-Modified-Since", dabo.lib.dates.webHeaderFormat(modTime))
+            req.add_header("If-Modified-Since", lib.dates.webHeaderFormat(modTime))
         try:
             resp = u2.urlopen(req)
             lm = resp.headers.get("Last-Modified")
@@ -723,7 +734,7 @@ try again when it is running.
         if newFile:
             with open(pth, "w") as ff:
                 ff.write(newFile)
-            dabo.log.info(_("File %s updated") % pth)
+            log.info(_("File %s updated") % pth)
 
     def updateFromSource(self, fileOrFiles):
         """
@@ -895,7 +906,7 @@ try again when it is running.
                         cn = self.getConnectionsFromFile(f)
                     except Exception as ex:
                         uex = ustr(ex)
-                        dabo.log.error(
+                        log.error(
                             _(
                                 "Error loading database connection "
                                 "info from file %(f)s:\n%(uex)s"
@@ -925,7 +936,7 @@ try again when it is running.
         for k, v in list(connDefs.items()):
             self.dbConnectionDefs[k] = v
 
-        dabo.log.info(
+        log.info(
             _("%s database connection definition(s) loaded.")
             % (len(self.dbConnectionDefs))
         )
@@ -941,7 +952,7 @@ try again when it is running.
         currsyspath = sys.path
         if not currdir in sys.path:
             sys.path.insert(0, currdir)
-        for dd in dabo._standardDirs:
+        for dd in _standardDirs:
             currmod = getattr(self, dd, None)
             if currmod:
                 # Module has already been imported; reload to get current state.
@@ -963,7 +974,7 @@ try again when it is running.
     def getStandardDirectories(self):
         """Return a tuple of the fullpath to each standard directory"""
         hd = self.HomeDirectory
-        subdirs = [os.path.join(hd, dd) for dd in dabo._standardDirs]
+        subdirs = [os.path.join(hd, dd) for dd in _standardDirs]
         subdirs.insert(0, hd)
         return tuple(subdirs)
 
@@ -972,11 +983,11 @@ try again when it is running.
         try:
             connDefs = connParser.importConnections(filePath, useHomeDir=True)
         except SAXParseException as e:
-            dabo.log.error(_("Error parsing '%(filePath)s': %(e)s") % locals())
+            log.error(_("Error parsing '%(filePath)s': %(e)s") % locals())
             return {}
         # Convert the connect info dicts to dConnectInfo instances:
         for k, v in list(connDefs.items()):
-            ci = dabo.db.dConnectInfo()
+            ci = db.dConnectInfo()
             ci.setConnInfo(v)
             connDefs[k] = ci
         return connDefs
@@ -992,7 +1003,7 @@ try again when it is running.
         if not connName in self.dbConnections:
             if connName in self.dbConnectionDefs:
                 ci = self.dbConnectionDefs[connName]
-                self.dbConnections[connName] = dabo.db.dConnection(ci)
+                self.dbConnections[connName] = db.dConnection(ci)
         try:
             ret = self.dbConnections[connName]
         except KeyError:
@@ -1059,9 +1070,9 @@ try again when it is running.
         If a starting file path is provided, use that first. If not, use the
         HomeDirectory as the starting point.
         """
-        stdDirs = dabo._standardDirs + ("main.py",)
+        stdDirs = _standardDirs + ("main.py",)
         if dirname not in stdDirs:
-            dabo.log.error(_("Non-standard directory '%s' requested") % dirname)
+            log.error(_("Non-standard directory '%s' requested") % dirname)
             return None
         osp = os.path
         if start is not None:
@@ -1255,15 +1266,15 @@ try again when it is running.
         self.uiApp.copyToClipboard(txt)
 
     def onHelpAbout(self, evt):
-        from dabo.ui import dDockForm
+        from ui import dDockForm
 
         about = self.AboutFormClass
         if about is None:
-            from dabo.ui.dialogs.htmlAbout import HtmlAbout as about
+            from ui.dialogs.htmlAbout import HtmlAbout as about
         frm = self.ActiveForm
         if frm is None:
             frm = self.MainForm
-        if frm.MDI or isinstance(frm, dabo.ui.dDockForm):
+        if frm.MDI or isinstance(frm, ui.dDockForm):
             # Strange big sizing of the about form happens on Windows
             # when the parent form is MDI.
             frm = None
@@ -1344,7 +1355,7 @@ try again when it is running.
             except AttributeError:
                 pass
         if not ret:
-            dabo.log.info(
+            log.info(
                 _("WARNING: No BasePrefKey has been set for this application.")
             )
             try:
@@ -1358,7 +1369,7 @@ try again when it is running.
             pthList = pth.strip(os.sep).split(os.sep)
             ret = ".".join(pthList)
             if isinstance(ret, bytes):
-                ret = ret.decode(dabo.fileSystemEncoding)
+                ret = ret.decode(fileSystemEncoding)
         return ret
 
     def _setBasePrefKey(self, val):
@@ -1380,7 +1391,7 @@ try again when it is running.
         try:
             cls = self._defaultMenuBarClass
         except AttributeError:
-            from dabo.ui import dBaseMenuBar
+            from ui import dBaseMenuBar
 
             cls = self._defaultMenuBarClass = dBaseMenuBar
         return cls
@@ -1405,7 +1416,7 @@ try again when it is running.
         self._defaultForm = val
 
     def _getEncoding(self):
-        return dabo.getEncoding()
+        return getEncoding()
 
     def _getFormsToOpen(self):
         return getattr(self, "_formsToOpen", [])
@@ -1442,7 +1453,7 @@ try again when it is running.
                     else:
                         # See if it's a child directory of a standard Dabo app structure
                         dname = os.path.basename(hd)
-                        if dname in dabo._standardDirs:
+                        if dname in _standardDirs:
                             hd = os.path.dirname(hd)
                 else:
                     try:
@@ -1470,7 +1481,7 @@ try again when it is running.
                             # instance of a raw dApp. So the only thing we can really do is make the
                             # HomeDirectory the location of the main script, since we can't guess at
                             # the application's directory structure.
-                            dabo.log.info(
+                            log.info(
                                 "Can't deduce HomeDirectory:setting to the script directory."
                             )
                             hd = scriptDir
@@ -1486,7 +1497,7 @@ try again when it is running.
         if os.path.exists(val):
             self._homeDirectory = os.path.abspath(val)
         else:
-            dabo.log.error(
+            log.error(
                 _("Setting App HomeDirectory: Path does not exist. '%s'") % val
             )
 
@@ -1497,7 +1508,7 @@ try again when it is running.
         self._icon = val
 
     def _getLoginDialogClass(self):
-        defaultDialogClass = dabo.ui.dialogs.login.Login
+        defaultDialogClass = ui.dialogs.login.Login
         return getattr(self, "_loginDialogClass", defaultDialogClass)
 
     def _setLoginDialogClass(self, val):
@@ -1519,7 +1530,7 @@ try again when it is running.
         try:
             cls = self._mainFormClass
         except AttributeError:
-            cls = dabo.ui.dFormMain
+            cls = ui.dFormMain
             self._mainFormClass = cls
         return cls
 
@@ -1549,7 +1560,7 @@ try again when it is running.
             return self._preferenceDialogClass
         except AttributeError:
             # Use the default if they haven't set it
-            from dabo.ui.dialogs.PreferenceDialog import PreferenceDialog
+            from ui.dialogs.PreferenceDialog import PreferenceDialog
 
             return PreferenceDialog
 
@@ -1566,7 +1577,7 @@ try again when it is running.
         self._releasePreferenceDialog = bool(val)
 
     def _getRemoteProxy(self):
-        from dabo.lib.RemoteConnector import RemoteConnector
+        from lib.RemoteConnector import RemoteConnector
 
         if self.SourceURL:
             try:
@@ -1724,7 +1735,7 @@ try again when it is running.
         None,
         _(
             """The class used by all forms in the application when no specific MenuBarClass
-            is specified  (dabo.ui.dMenuBar)"""
+            is specified  (ui.dMenuBar)"""
         ),
     )
 
@@ -1796,7 +1807,7 @@ try again when it is running.
             based on the value of MainFormClass. If you want to swap in your own
             MainForm instance, do it after setup() but before start(), as in::
 
-            >>> from dabo.dApp import dApp
+            >>> from dApp import dApp
             >>> app = dApp()
             >>> app.setup()
             >>> app.MainForm = myMainFormInstance
@@ -1818,7 +1829,7 @@ try again when it is running.
             main form, or set to your own main form class. Do this before calling
             dApp.start(), as in::
 
-            >>> from dabo.dApp import dApp
+            >>> from dApp import dApp
             >>> app = dApp()
             >>> app.MainFormClass = MyMainFormClass
             >>> app.start()

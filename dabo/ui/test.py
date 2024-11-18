@@ -17,10 +17,13 @@ import importlib
 import os
 import sys
 import traceback
+from pathlib import Path
 
 import wx
-from dabo.dApp import dApp
-import dabo
+
+import settings
+import ui
+from dApp import dApp
 
 # Log all events except the really frequent ones:
 logEvents = ["All", "Idle", "MouseMove"]
@@ -42,9 +45,9 @@ class Test(object):
             frame = classRefs[0](None, *args, **kwargs)
             isDialog = issubclass(classRefs[0], wx.Dialog)
         else:
-            from dabo.ui import dForm
-            from dabo.ui import dPanel
-            from dabo.ui import dSizer
+            from ui import dForm
+            from ui import dPanel
+            from ui import dSizer
 
             frame = dForm(Name="formTest")
             panel = frame.addObject(dPanel, Name="panelTest")
@@ -81,11 +84,11 @@ class Test(object):
 
     def testAll(self):
         """Create a dForm and populate it with example dWidgets."""
-        from dabo.ui import dEditBox
-        from dabo.ui import dForm
-        from dabo.ui import dLabel
-        from dabo.ui import dScrollPanel
-        from dabo.ui import dSizer
+        from ui import dEditBox
+        from ui import dForm
+        from ui import dLabel
+        from ui import dScrollPanel
+        from ui import dSizer
 
         frame = dForm(Name="formTestAll")
         frame.Caption = "Test of all the dControls"
@@ -97,19 +100,15 @@ class Test(object):
         vs = dSizer("vertical")
 
         # Get all the python modules in this directory into a list:
-        dabo_root = os.path.dirname(dabo.__file__)
-        ui_root = os.path.join(dabo_root, "ui")
-        modules = [
-            modname.split(".")[0]
-            for modname in os.listdir(ui_root)
-            if modname.endswith(".py")
-        ]
+        dabo_root = settings.root_path
+        ui_root = dabo_root / "ui"
+        modules = [ modname.stem for modname in ui_root.iterdir() if modname.suffix == ".py" ]
 
         for modname in sorted(modules):
             print("==> ", modname)
             # if the module has a test class, instantiate it:
             if modname == "__init__":
-                # importing __init__ will pollute the dabo.ui namespace and cause
+                # importing __init__ will pollute the ui namespace and cause
                 # isinstance() problems.
                 continue
             try:

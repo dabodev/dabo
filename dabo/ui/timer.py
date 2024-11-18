@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import dabo
-from dabo.ui import makeDynamicProperty
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.ui import dPemMixin as PM
-from dabo.ui import dPanel
+import dEvents
+import ui
+from dLocalize import _
+from ui import makeDynamicProperty
+from ui import dPemMixin as PM
+from ui import dPanel
 
 
 class dTimer(PM):
@@ -56,7 +56,7 @@ class dTimer(PM):
     def _onTimerHit(self):
         if self.Enabled and self.Interval > 0:
             self.raiseEvent(dEvents.Hit)
-            dabo.ui.callAfterInterval(self.Interval, self._onTimerHit)
+            ui.callAfterInterval(self.Interval, self._onTimerHit)
 
     # property get/set functions
     def _getEnabled(self):
@@ -65,7 +65,7 @@ class dTimer(PM):
     def _setEnabled(self, val):
         self._enabled = val
         if val:
-            dabo.ui.callAfterInterval(self.Interval, self._onTimerHit)
+            ui.callAfterInterval(self.Interval, self._onTimerHit)
         else:
             self._properties["Enabled"] = val
 
@@ -101,7 +101,7 @@ class dTimer(PM):
     DynamicInterval = makeDynamicProperty(Interval)
 
 
-dabo.ui.dTimer = dTimer
+ui.dTimer = dTimer
 
 
 class _dTimer_test(dPanel):
@@ -123,6 +123,6 @@ class _dTimer_test(dPanel):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dTimer_test)

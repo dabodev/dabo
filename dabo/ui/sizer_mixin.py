@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import ui as dui
-from dabo.dLocalize import _
-from dabo.dObject import dObject
-from dabo.ui import dPemMixin
-from dabo.ui import makeDynamicProperty
+
+import ui
+from dLocalize import _
+from dObject import dObject
+from ui import dPemMixin
+from ui import makeDynamicProperty
+# import log
 
 
 class dSizerMixin(dObject):
@@ -377,7 +378,7 @@ class dSizerMixin(dObject):
                     szr = szItem.GetSizer()
                     self.remove(szr, True)
         # Release this sizer
-        if isinstance(self, dabo.ui.dBorderSizer):
+        if isinstance(self, ui.dBorderSizer):
             dui.callAfter(self.Box.release)
         self.Destroy()
 
@@ -396,7 +397,7 @@ class dSizerMixin(dObject):
                     if szitem.GetSizer() == self:
                         return pos
             # If we reached here, something's wrong!
-            dabo.log.error(_("Containing sizer did not match item %s") % self.Name)
+            log.error(_("Containing sizer did not match item %s") % self.Name)
             return None
         elif isinstance(sz, wx.GridBagSizer):
             # Return a row,col tuple
@@ -466,7 +467,7 @@ class dSizerMixin(dObject):
         else:
             # Property is in the flag setting.
             flag = itm.GetFlag()
-            szClass = dabo.ui.dSizer
+            szClass = ui.dSizer
             if lowprop == "expand":
                 return bool(flag & szClass.expandFlag)
             elif lowprop == "halign":
@@ -522,15 +523,15 @@ class dSizerMixin(dObject):
             if itm.GetBorder() != int(val):
                 itm.SetBorder(int(val))
             ret = True
-        elif lowprop == "rowexpand" and isinstance(self, dabo.ui.dGridSizer):
+        elif lowprop == "rowexpand" and isinstance(self, ui.dGridSizer):
             self.setRowExpand(val, row)
             ret = True
-        elif lowprop == "colexpand" and isinstance(self, dabo.ui.dGridSizer):
+        elif lowprop == "colexpand" and isinstance(self, ui.dGridSizer):
             self.setColExpand(val, col)
             ret = True
-        elif lowprop == "rowspan" and isinstance(self, dabo.ui.dGridSizer):
+        elif lowprop == "rowspan" and isinstance(self, ui.dGridSizer):
             ret = self.setRowSpan(itm, val)
-        elif lowprop == "colspan" and isinstance(self, dabo.ui.dGridSizer):
+        elif lowprop == "colspan" and isinstance(self, ui.dGridSizer):
             ret = self.setColSpan(itm, val)
         elif lowprop == "spacing":
             if isinstance(val, int):
@@ -714,7 +715,7 @@ class dSizerMixin(dObject):
                         sz.drawOutline(win, recurse)
                 elif ch.IsWindow():
                     w = ch.GetWindow()
-                    if isinstance(w, dabo.ui.dPageFrame):
+                    if isinstance(w, ui.dPageFrame):
                         w = w.SelectedPage
                     if hasattr(w, "Sizer") and w.Sizer:
                         w.Sizer.drawOutline(w, True)
@@ -803,10 +804,10 @@ class dSizerMixin(dObject):
             alignFlags = (halign, valign)
 
         isVertSizer = (
-            isinstance(self, dabo.ui.dSizer) and self.Orientation == "Vertical"
+            isinstance(self, ui.dSizer) and self.Orientation == "Vertical"
         )
         isHorizSizer = (
-            isinstance(self, dabo.ui.dSizer) and self.Orientation == "Horizontal"
+            isinstance(self, ui.dSizer) and self.Orientation == "Horizontal"
         )
         for flag in [flag.lower() for flag in alignFlags]:
             if flag == "left":
@@ -999,9 +1000,9 @@ class dSizerMixin(dObject):
 
     def _getForm(self):
         parent = self.Parent
-        if isinstance(parent, dabo.ui.dFormMixin):
+        if isinstance(parent, ui.dFormMixin):
             return parent
-        elif isinstance(parent, dabo.ui.dPemMixin):
+        elif isinstance(parent, ui.dPemMixin):
             return parent.Form
         return None
 
@@ -1233,4 +1234,4 @@ class dSizerMixin(dObject):
     DynamicVisible = makeDynamicProperty(Visible)
 
 
-dabo.ui.dSizerMixin = dSizerMixin
+ui.dSizerMixin = dSizerMixin

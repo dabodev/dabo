@@ -1,27 +1,28 @@
 # -*- coding: utf-8 -*-
 import builtins
 import time
+
 import wx
 import wx.stc as stc
 import wx.py
 from wx.py import pseudo
-import dabo
-from dabo import dEvents as dEvents
-from dabo import ui as dui
-from dabo.dLocalize import _
-from dabo.ui import dKeys
-from dabo.ui import makeDynamicProperty
-from dabo.ui import dButton
-from dabo.ui import dControlMixin
-from dabo.ui import dEditBox
-from dabo.ui import dEditor
-from dabo.ui import dLabel
-from dabo.ui import dListBox
-from dabo.ui import dMenu
-from dabo.ui import dPageFrame
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dSplitForm
+
+import dEvents
+import ui
+from dLocalize import _
+from ui import dKeys
+from ui import makeDynamicProperty
+from ui import dButton
+from ui import dControlMixin
+from ui import dEditBox
+from ui import dEditor
+from ui import dLabel
+from ui import dListBox
+from ui import dMenu
+from ui import dPageFrame
+from ui import dPanel
+from ui import dSizer
+from ui import dSplitForm
 
 
 class _LookupPanel(dPanel):
@@ -121,7 +122,7 @@ class _LookupPanel(dPanel):
 
     def _getHistory(self):
         if self._history is None:
-            self._history = dabo.db.dDataSet()
+            self._history = db.dDataSet()
         return self._history
 
     def _setHistory(self, val):
@@ -187,7 +188,7 @@ class dShell(dControlMixin, wx.py.shell.Shell):
             **kwargs,
         )
 
-    @dabo.ui.deadCheck
+    @ui.deadCheck
     def ScrollToLine(self, lnum):
         """Need to check for the case where the control is released, as the wx-level
         shell makes a CallAfter for ScrollToLine().
@@ -383,7 +384,7 @@ class dShell(dControlMixin, wx.py.shell.Shell):
     )
 
 
-dabo.ui.dShell = dShell
+ui.dShell = dShell
 
 
 class dShellForm(dSplitForm):
@@ -493,7 +494,7 @@ Ctrl-Up/Down to scroll through history."""
 
         # Force the focus to the editor when the code page is activated.
         def _delayedSetFocus(evt):
-            dui.callAfter(self.edtCode.setFocus)
+            ui.callAfter(self.edtCode.setFocus)
 
         self.pgCode.bindEvent(dEvents.PageEnter, _delayedSetFocus)
 
@@ -531,8 +532,8 @@ Ctrl-Up/Down to scroll through history."""
         # Either of these commands should scroll the edit box
         # to the bottom, but neither do (at least on OS X) when
         # called directly or via callAfter().
-        dui.callAfter(ed.ShowPosition, endpos)
-        dui.callAfter(ed.SetSelection, endpos, endpos)
+        ui.callAfter(ed.ShowPosition, endpos)
+        ui.callAfter(ed.SetSelection, endpos, endpos)
 
     def addToHistory(self, cmd=None):
         if cmd is None:
@@ -552,7 +553,7 @@ Ctrl-Up/Down to scroll through history."""
         cmds = []
         for k in ck.getPrefKeys():
             cmds.append({"stamp": k, "cmd": ck.get(k)})
-        dsu = dabo.db.dDataSet(cmds)
+        dsu = db.dDataSet(cmds)
         if dsu:
             ds = dsu.sort("stamp", "asc")
             return ds
@@ -569,7 +570,7 @@ Ctrl-Up/Down to scroll through history."""
         file is dropped, only open the first, and warn the user.
         """
         if len(filelist) > 1:
-            dui.exclaim(_("Only one file can be dropped at a time"))
+            ui.exclaim(_("Only one file can be dropped at a time"))
         if self.pgfCodeShell.SelectedPage == self.pgShell:
             self.shell.AddText(filelist[0])
         else:
@@ -675,7 +676,7 @@ Ctrl-Up/Down to scroll through history."""
             self.edtCode.Value = code
 
     def onCodeRightDown(self, evt):
-        dui.info("Code!")
+        ui.info("Code!")
 
     def onOutputRightDown(self, evt):
         pop = dMenu()
@@ -876,13 +877,13 @@ Ctrl-Up/Down to scroll through history."""
     DynamicSplitState = makeDynamicProperty(SplitState)
 
 
-dabo.ui.dShellForm = dShellForm
+ui.dShellForm = dShellForm
 
 
 def main():
-    from dabo.dApp import dApp
+    from dApp import dApp
 
-    app = dApp(BasePrefKey="dabo.ui.dShellForm")
+    app = dApp(BasePrefKey="ui.dShellForm")
     app.MainFormClass = dShellForm
     app.setup()
     app.start()

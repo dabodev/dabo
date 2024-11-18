@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 import random
+
 import wx
-import dabo
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
-from dabo import dColors as dColors
-from dabo.ui import dControlMixin
-from dabo.ui import dForm
-from dabo.ui import makeDynamicProperty
+
+import dEvents
+import dColors
+from dLocalize import _
+from ui import dControlMixin
+from ui import dForm
+from ui import makeDynamicProperty
 
 
 class SplitterPanelMixin(object):
@@ -19,7 +20,7 @@ class SplitterPanelMixin(object):
         if not self.Parent.ShowPanelSplitMenu:
             return
         evt.stop()
-        sm = dabo.ui.dMenu(self)
+        sm = ui.dMenu(self)
         sm.append("Split this pane", OnHit=self.onSplit)
         if self.Parent.canRemove(self):
             sm.append("Remove this pane", OnHit=self.onRemove)
@@ -52,7 +53,7 @@ class SplitterPanelMixin(object):
         else:
             newDir = "h"
         if self.Sizer is None:
-            from dabo.ui import dSizer
+            from ui import dSizer
 
             self.Sizer = dSizer(newDir)
         if dir_ is None:
@@ -207,7 +208,7 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         else:
             p1 = pane == 1
             p2 = pane == 2
-        from dabo.ui import dSizer
+        from ui import dSizer
 
         if p1 and (force or self.Panel1 is None):
             self.Panel1 = spCls(self)
@@ -378,7 +379,7 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
             self._properties["Panel2"] = pnl
 
     def _getPanelClass(self):
-        from dabo.ui import dPanel
+        from ui import dPanel
 
         try:
             ret = self._panelClass
@@ -529,7 +530,7 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
     DynamicSplit = makeDynamicProperty(Split)
 
 
-dabo.ui.dSplitter = dSplitter
+ui.dSplitter = dSplitter
 
 
 class _dSplitter_test(dSplitter):
@@ -548,11 +549,11 @@ class _dSplitter_test(dSplitter):
         self.Panel2.BackColor = random.choice(list(dColors.colorDict.values()))
 
     def onSashDoubleClick(self, evt):
-        if not dabo.ui.areYouSure("Remove the sash?", cancelButton=False):
+        if not ui.areYouSure("Remove the sash?", cancelButton=False):
             evt.stop()
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dSplitter_test)

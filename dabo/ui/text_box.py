@@ -4,7 +4,8 @@ import datetime
 
 import wx
 
-from text_box_mixin import dTextBoxMixin
+import ui
+from ui.text_box_mixin import dTextBoxMixin
 
 
 class dTextBox(dTextBoxMixin, wx.TextCtrl):
@@ -29,7 +30,7 @@ import pudb
 
 pudb.set_trace()
 print("s")
-dabo.ui.dTextBox = dTextBox
+ui.dTextBox = dTextBox
 
 
 if __name__ == "__main__":

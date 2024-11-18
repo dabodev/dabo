@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo.dLocalize import _
-from dabo.ui import dBorderSizer
-from dabo.ui import dButton
-from dabo.ui import dGauge
-from dabo.ui import dLabel
-from dabo.ui import dPanel
+
+from dLocalize import _
+from ui import dBorderSizer
+from ui import dButton
+from ui import dGauge
+from ui import dLabel
+from ui import dPanel
 
 
 class dReportProgress(dPanel):
@@ -97,4 +97,4 @@ class dReportProgress(dPanel):
     )
 
 
-dabo.ui.dReportProgress = dReportProgress
+ui.dReportProgress = dReportProgress

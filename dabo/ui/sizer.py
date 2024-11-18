@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo.ui import dPemMixin
-from dabo.ui import dSizerMixin
+
+from .ui import dPemMixin
+from .ui import dSizerMixin
 
 
 class dSizer(dSizerMixin, wx.BoxSizer):
@@ -50,7 +50,7 @@ class dSizer(dSizerMixin, wx.BoxSizer):
 
     def getBorderedClass(self):
         """Return the class that is the border sizer version of this class."""
-        return dabo.ui.dBorderSizer
+        return .ui.dBorderSizer
 
 
 class dSizerV(dSizer):
@@ -65,9 +65,9 @@ class dSizerH(dSizer):
         super(dSizerH, self).__init__(*args, **kwargs)
 
 
-dabo.ui.dSizer = dSizer
-dabo.ui.dSizerV = dSizerV
-dabo.ui.dSizerH = dSizerH
+.ui.dSizer = dSizer
+.ui.dSizerV = dSizerV
+.ui.dSizerH = dSizerH
 
 
 if __name__ == "__main__":

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import wx
 import wx.lib.buttons as wxb
-import dabo
-from dabo.ui import dDataControlMixin
-from dabo.ui import dImageMixin
-from dabo.dLocalize import _
-from dabo import dEvents as dEvents
+
+import ui
+from ui import dDataControlMixin
+from ui import dImageMixin
+from dLocalize import _
+import dEvents
 
 
 class dToggleButton(dDataControlMixin, dImageMixin, wxb.GenBitmapTextToggleButton):
@@ -18,7 +19,7 @@ class dToggleButton(dDataControlMixin, dImageMixin, wxb.GenBitmapTextToggleButto
     """
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
-        self._baseClass = dabo.ui.dToggleButton
+        self._baseClass = ui.dToggleButton
         preClass = wxb.GenBitmapTextToggleButton
         # These are required arguments
         kwargs["bitmap"] = None
@@ -73,7 +74,7 @@ class dToggleButton(dDataControlMixin, dImageMixin, wxb.GenBitmapTextToggleButto
             if isinstance(val, wx.Bitmap):
                 bmp = val
             else:
-                bmp = dabo.ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
+                bmp = ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
             self.SetBitmapSelected(bmp)
             self.refresh()
         else:
@@ -88,7 +89,7 @@ class dToggleButton(dDataControlMixin, dImageMixin, wxb.GenBitmapTextToggleButto
             if isinstance(val, wx.Bitmap):
                 bmp = val
             else:
-                bmp = dabo.ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
+                bmp = ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
             notdown = not self._downPicture
             self.SetBitmapLabel(bmp, notdown)
             self.refresh()
@@ -117,7 +118,7 @@ class dToggleButton(dDataControlMixin, dImageMixin, wxb.GenBitmapTextToggleButto
     )
 
 
-dabo.ui.dToggleButton = dToggleButton
+ui.dToggleButton = dToggleButton
 
 
 class _dToggleButton_test(dToggleButton):
@@ -137,6 +138,6 @@ class _dToggleButton_test(dToggleButton):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dToggleButton_test)

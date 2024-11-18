@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import dabo
-from dabo import ui as dui
-from dabo.dLocalize import _
-from dabo import dEvents as dEvents
-from dabo.ui import dTextBoxMixin
-from dabo.ui import makeDynamicProperty
+import ui
+from dLocalize import _
+import dEvents
+from ui import dTextBoxMixin
+from ui import makeDynamicProperty
 
 
 class dSearchBox(dTextBoxMixin, wx.SearchCtrl):
@@ -88,7 +87,7 @@ class dSearchBox(dTextBoxMixin, wx.SearchCtrl):
 
     # private methods
     def _setupMenuFromList(self, valueList):
-        menu = dabo.ui.dMenu()
+        menu = ui.dMenu()
         for value in valueList:
             if not type(value) in (str, str):
                 raise ValueError("All elements in the List must be strings")
@@ -175,11 +174,11 @@ class dSearchBox(dTextBoxMixin, wx.SearchCtrl):
     )
 
 
-dabo.ui.dSearchBox = dSearchBox
+ui.dSearchBox = dSearchBox
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
     import datetime
 
     # This test sets up several textboxes, each editing different data types.

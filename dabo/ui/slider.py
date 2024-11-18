@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import ui as dui
-from dabo.dLocalize import _
-from dabo.ui import dDataControlMixin
-from dabo.ui import makeDynamicProperty
+
+import ui
+from dLocalize import _
+from ui import dDataControlMixin
+from ui import makeDynamicProperty
+# import log
 
 
 class dSlider(dDataControlMixin, wx.Slider):
@@ -64,7 +65,7 @@ class dSlider(dDataControlMixin, wx.Slider):
         newval = self.GetValue()
         changed = newval != self._lastVal
         self._lastVal = newval
-        if (changed and self._continuous) or not dui.isMouseLeftDown():
+        if (changed and self._continuous) or not ui.isMouseLeftDown():
             self.flushValue()
             super(dSlider, self)._onWxHit(evt)
 
@@ -117,12 +118,12 @@ class dSlider(dDataControlMixin, wx.Slider):
         tickpos = self._tickPosition
         isHoriz = val.lower()[:1] == "h"
         if isHoriz and tickpos in ("Left", "Right"):
-            dabo.log.error(
+            log.error(
                 _("Cannot set the slider to Horizontal when TickPosition is %s.")
                 % tickpos
             )
         elif not isHoriz and tickpos in ("Top", "Bottom"):
-            dabo.log.error(
+            log.error(
                 _("Cannot set the slider to Vertical when TickPosition is %s.")
                 % tickpos
             )
@@ -234,7 +235,7 @@ class dSlider(dDataControlMixin, wx.Slider):
     DynamicShowLabels = makeDynamicProperty(ShowLabels)
 
 
-dabo.ui.dSlider = dSlider
+ui.dSlider = dSlider
 
 
 class _dSlider_test(dSlider):
@@ -254,6 +255,6 @@ class _dSlider_test(dSlider):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dSlider_test)

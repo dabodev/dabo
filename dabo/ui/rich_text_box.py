@@ -1,21 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import os
+
 import wx
 import wx.richtext
-import dabo
-from dabo import dColors as dColors
-from dabo import ui as dui
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo.ui import makeDynamicProperty
-from dabo.ui import dButton
-from dabo.ui import dDataControlMixin
-from dabo.ui import dDropdownList
-from dabo.ui import dForm
-from dabo.ui import dTimer
-from dabo.ui import dToggleButton
+
+import dColors
+import ui
+from dLocalize import _
+from lib.utils import ustr
+from ui import makeDynamicProperty
+from ui import dButton
+from ui import dDataControlMixin
+from ui import dDropdownList
+from ui import dForm
+from ui import dTimer
+from ui import dToggleButton
+# import log
 
 
 class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
@@ -53,7 +54,7 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
         into the control.
         """
         if fileOrObj is None:
-            fileOrObj = dui.getFile("xml", "html")
+            fileOrObj = ui.getFile("xml", "html")
         if isinstance(fileOrObj, str):
             mthdName = "LoadFile"
         else:
@@ -66,11 +67,11 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
                     break
             except Exception as e:
                 print(e, type(e))
-        dui.callAfter(self.Form.refresh)
+        ui.callAfter(self.Form.refresh)
 
     def save(self, filename=None):
         if filename is None:
-            filename = dui.getSaveAs("xml", "html")
+            filename = ui.getSaveAs("xml", "html")
         if filename:
             # Default to xml if not found
             handler = {".xml": self._xmlHandler, ".html": self._htmlHandler}.get(
@@ -79,7 +80,7 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
             if handler is None:
                 handler = self._xmlHandler
                 filename = "%s.xml" % filename
-                dabo.log.info(_("Forcing to RichText XML format"))
+                log.info(_("Forcing to RichText XML format"))
             handler.SaveFile(self.GetBuffer(), filename)
 
     def setPlain(self):
@@ -555,7 +556,7 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
     )
 
 
-dabo.ui.dRichTextBox = dRichTextBox
+ui.dRichTextBox = dRichTextBox
 
 
 class RichTextTestForm(dForm):
@@ -594,7 +595,7 @@ class RichTextTestForm(dForm):
             OnHit=self.toggleStyle,
         )
         tb = self.ToolBar
-        allfonts = dui.getAvailableFonts()
+        allfonts = ui.getAvailableFonts()
         # This is necessary because wx reports the font in some cases as 'applicationfont'.
         allfonts.append("applicationfont")
         allfonts.sort()
@@ -674,7 +675,7 @@ class RichTextTestForm(dForm):
         if curr is None:
             # Nothing selected
             return
-        newcolor = dui.getColor(curr)
+        newcolor = ui.getColor(curr)
         if newcolor:
             self.textControl.SelectionBackColor = newcolor
 
@@ -684,7 +685,7 @@ class RichTextTestForm(dForm):
         if curr is None:
             # Nothing selected
             return
-        newcolor = dui.getColor(curr)
+        newcolor = ui.getColor(curr)
         if newcolor:
             self.textControl.SelectionForeColor = newcolor
 
@@ -731,14 +732,14 @@ class RichTextTestForm(dForm):
     def getDummyText(self):
         return """Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi.
 
-Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus.
+Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget ui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus.
 
 Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc.
 """
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
+    from dApp import dApp
 
     app = dApp(MainFormClass=RichTextTestForm)
     app.start()

@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import ui as dui
-from dabo.ui import makeDynamicProperty
-from dabo.ui import dForm
-from dabo.ui import dSplitter
-from dabo import dColors as dColors
-from dabo import dEvents as dEvents
-from dabo.dLocalize import _
+
+import ui
+import dColors
+import dEvents
+from ui import makeDynamicProperty
+from ui import dForm
+from ui import dSplitter
+from dLocalize import _
 
 
 class dSplitForm(dForm):
@@ -74,7 +74,7 @@ class dSplitForm(dForm):
 
             def addToSizer(frm, itm):
                 if not frm.Sizer:
-                    dui.callAfter(addToSizer, frm, itm)
+                    ui.callAfter(addToSizer, frm, itm)
                 else:
                     frm.Sizer.append1x(itm)
                     frm.layout()
@@ -82,7 +82,7 @@ class dSplitForm(dForm):
                 itm.toggleSplit()
 
             win.Visible = True
-            dui.callAfter(addToSizer, self, win)
+            ui.callAfter(addToSizer, self, win)
         return self._splitter
 
     MinPanelSize = property(
@@ -129,7 +129,7 @@ class dSplitForm(dForm):
     DynamicSashPosition = makeDynamicProperty(SashPosition)
 
 
-dabo.ui.dSplitForm = dSplitForm
+ui.dSplitForm = dSplitForm
 
 
 class _dSplitForm_test(dSplitForm):
@@ -142,6 +142,6 @@ class _dSplitForm_test(dSplitForm):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dSplitForm_test)

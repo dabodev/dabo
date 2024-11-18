@@ -1,9 +1,22 @@
 # -*- coding: utf-8 -*-
-import re
 import datetime
-import time
-import locale
 import decimal
+import locale
+import re
+import time
+
+import wx
+import wx.lib.masked as masked
+from lib import dates
+from lib.utils import ustr
+from keys import dKeys
+import ui
+from dLocalize import _
+import dEvents
+from ui import dDataControlMixin
+from ui import makeDynamicProperty
+# import log
+
 
 numericTypes = (int, int, decimal.Decimal, float)
 valueErrors = (ValueError, decimal.InvalidOperation)
@@ -12,18 +25,6 @@ valueErrors = (ValueError, decimal.InvalidOperation)
 # JK: We can't set this up on module load because locale
 # is set not until dApp is completely setup.
 decimalPoint = None
-
-import wx
-import wx.lib.masked as masked
-from .lib import dates
-from lib.utils import ustr
-from keys import dKeys
-import ui as dui
-from dLocalize import _
-import dEvents
-import dDataControlMixin
-import makeDynamicProperty
-
 
 class dTextBoxMixinBase(dDataControlMixin):
     def __init__(
@@ -39,7 +40,7 @@ class dTextBoxMixinBase(dDataControlMixin):
         self._textLength = None
         self._inTextLength = False
         self._flushOnLostFocus = (
-            True  ## see dabo.ui.dDataControlMixinBase::flushValue()
+            True  ## see ui.dDataControlMixinBase::flushValue()
         )
 
         dDataControlMixin.__init__(
@@ -102,8 +103,8 @@ class dTextBoxMixinBase(dDataControlMixin):
             return
         keyCode = evt.keyCode
         if keyCode >= dKeys.key_Space:
-            dui.callAfter(self._checkForceCase)
-            dui.callAfter(self._checkTextLength)
+            ui.callAfter(self._checkForceCase)
+            ui.callAfter(self._checkTextLength)
 
     def _checkTextLength(self):
         """
@@ -319,7 +320,7 @@ class dTextBoxMixinBase(dDataControlMixin):
         try:
             return self._SelectOnEntry
         except AttributeError:
-            ret = not isinstance(self, dabo.ui.dEditBox)
+            ret = not isinstance(self, ui.dEditBox)
             self._SelectOnEntry = ret
             return ret
 
@@ -373,7 +374,7 @@ class dTextBoxMixinBase(dDataControlMixin):
                 setter(val)
                 return
             else:
-                dui.callAfter(self._checkForceCase)
+                ui.callAfter(self._checkForceCase)
 
             if self._inTextLength:
                 # Value is changing internally. Don't update the oldval
@@ -381,7 +382,7 @@ class dTextBoxMixinBase(dDataControlMixin):
                 setter(val)
                 return
             else:
-                dui.callAfter(self._checkTextLength)
+                ui.callAfter(self._checkTextLength)
 
             if val is None:
                 strVal = self.NoneDisplay
@@ -691,7 +692,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
             formats.append("MMDD")
             formats.append("MMDDYYYY")
             formats.append("M/DD/YYYY")
-            # (define more formats in dabo.lib.dates._getDateRegex, and enter
+            # (define more formats in lib.dates._getDateRegex, and enter
             # them above in more explicit -> less explicit order.)
         return dates.getDateFromString(strVal, formats)
 
@@ -707,7 +708,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
             formats.append("YYMMDDHHMMSS")
             formats.append("YYYYMMDD")
             formats.append("YYMMDD")
-            # (define more formats in dabo.lib.dates._getDateTimeRegex, and enter
+            # (define more formats in lib.dates._getDateTimeRegex, and enter
             # them above in more explicit -> less explicit order.)
         return dates.getDateTimeFromString(strVal, formats)
 
@@ -720,7 +721,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
         return dates.getTimeFromString(strVal, formats)
 
     def _getNumericBlankToZero(self):
-        return getattr(self, "_numericBlankToZero", dabo.dTextBox_NumericBlankToZero)
+        return getattr(self, "_numericBlankToZero", dTextBox_NumericBlankToZero)
 
     def _setNumericBlankToZero(self, val):
         self._numericBlankToZero = bool(val)
@@ -805,7 +806,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
                     ## and everything seemed to work. Then we added the () in r5431 and
                     ## I started seeing recursion problems. I'm commenting it out but if
                     ## needed, we should experiment with:
-                    # dui.callAfter(self._updateStringDisplay)
+                    # ui.callAfter(self._updateStringDisplay)
             except ValueError:
                 # It couldn't convert; return the previous value.
                 convertedVal = self._value
@@ -832,7 +833,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
                 setter(val)
                 return
             else:
-                dui.callAfter(self._checkForceCase)
+                ui.callAfter(self._checkForceCase)
 
             if self._inTextLength:
                 # Value is changing internally. Don't update the oldval
@@ -840,7 +841,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
                 setter(val)
                 return
             else:
-                dui.callAfter(self._checkTextLength)
+                ui.callAfter(self._checkTextLength)
 
             strVal = self.getStringValue(val)
             _oldVal = self.Value
@@ -863,7 +864,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
                     # PVG: maskedtextedit sometimes fails, on value error..allow the code to continue
                     uv = ustr(strVal)
                     ue = ustr(e)
-                    dabo.log.error(
+                    log.error(
                         _("Error setting value to '%(uv)s': " "%(ue)s") % locals()
                     )
 
@@ -887,7 +888,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
             When False, the value will revert back to the last numeric value when the
             control loses focus.
 
-            The default comes from dabo.dTextBox_NumericBlankToZero, which defaults to
+            The default comes from dTextBox_NumericBlankToZero, which defaults to
             False."""
         ),
     )
@@ -937,5 +938,5 @@ class dTextBoxMixin(dTextBoxMixinBase):
     DynamicValue = makeDynamicProperty(Value)
 
 
-dabo.ui.dTextBoxMixinBase = dTextBoxMixinBase
-dabo.ui.dTextBoxMixin = dTextBoxMixin
+ui.dTextBoxMixinBase = dTextBoxMixinBase
+ui.dTextBoxMixin = dTextBoxMixin

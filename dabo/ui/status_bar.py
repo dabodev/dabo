@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
-import dabo
-from dabo import dException as dException
-from dabo.dLocalize import _, n_
-from dabo.ui import dControlMixin
+
+import dException
+import ui
+from dLocalize import _, n_
+from ui import dControlMixin
 
 
 class dStatusBar(dControlMixin, wx.StatusBar):
@@ -63,4 +64,4 @@ class dStatusBar(dControlMixin, wx.StatusBar):
     )
 
 
-dabo.ui.dStatusBar = dStatusBar
+ui.dStatusBar = dStatusBar
