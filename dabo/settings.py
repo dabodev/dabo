@@ -256,6 +256,9 @@ convertFloatToDecimal = True
 # Root path of the dabo module
 root_path = Path(__file__).parent
 
+# Subdirectories that make up a standard Dabo app
+standardDirs = ("biz", "cache", "db", "lib", "reports", "resources", "test", "ui")
+
 ### Settings - end
 
 

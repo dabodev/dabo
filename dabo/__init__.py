@@ -240,12 +240,6 @@ if implicitImports:
     from .dApp import dApp
     from .dPref import dPref
 
-# Store the base path to the framework
-frameworkPath = os.path.dirname(__file__)
-
-# Subdirectories that make up a standard Dabo app
-_standardDirs = ("biz", "cache", "db", "lib", "reports", "resources", "test", "ui")
-
 
 # Method to create a standard Dabo directory structure layout
 def makeDaboDirectories(homedir=None):
@@ -256,7 +250,8 @@ def makeDaboDirectories(homedir=None):
     currLoc = os.getcwd()
     if homedir is not None:
         os.chdir(homedir)
-    for d in _standardDirs:
+    # 'standardDirs' is defined in settings.py
+    for d in standardDirs:
         if not os.path.exists(d):
             os.mkdir(d)
     os.chdir(currLoc)

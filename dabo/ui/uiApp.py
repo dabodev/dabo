@@ -9,11 +9,11 @@ import wx
 from .. import dColors
 from .. import ui
 from .. import events
+from .. import settings
 from ..lib import utils
 from ..dObject import dObject
 from ..dLocalize import _, n_
 from ..lib.utils import cleanMenuCaption
-# import frameworkPath
 # import loadUserLocale
 # import log
 
@@ -404,7 +404,7 @@ these automatic updates."""
             def onGetIdeDir(self, evt):
                 default = loc_ide
                 if default is None:
-                    default = frameworkPath
+                    default = settings.root_path
                 f = ui.getDirectory(
                     _("Select the location of the IDE folder"), defaultPath=default
                 )
@@ -414,7 +414,7 @@ these automatic updates."""
             def onGetDemoDir(self, evt):
                 default = loc_demo
                 if default is None:
-                    default = frameworkPath
+                    default = settings.root_path
                 f = ui.getDirectory(
                     _("Select the location of the Demo folder"), defaultPath=default
                 )
