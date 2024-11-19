@@ -319,3 +319,8 @@ def getXMLEncoding():
         return "windows-1252"
     _xml_encoding = encoding
     return encoding
+
+
+# On some platforms getfilesystemencoding() and even getdefaultlocale()
+# can return None, so we make sure we always set a reasonable encoding:
+fileSystemEncoding = sys.getfilesystemencoding() or locale.getdefaultlocale()[1] or defaultEncoding

@@ -37,8 +37,6 @@ from .lib.utils import cleanMenuCaption
 # import webupdate_urlbase
 # import __version__
 # import log
-# import getEncoding
-# import fileSystemEncoding
 
 
 class Collection(list):
@@ -1368,7 +1366,7 @@ try again when it is running.
             pthList = pth.strip(os.sep).split(os.sep)
             ret = ".".join(pthList)
             if isinstance(ret, bytes):
-                ret = ret.decode(fileSystemEncoding)
+                ret = ret.decode(settings.fileSystemEncoding)
         return ret
 
     def _setBasePrefKey(self, val):
@@ -1415,7 +1413,7 @@ try again when it is running.
         self._defaultForm = val
 
     def _getEncoding(self):
-        return getEncoding()
+        return settings.getEncoding()
 
     def _getFormsToOpen(self):
         return getattr(self, "_formsToOpen", [])

@@ -66,8 +66,7 @@ class SQLite(dBackend):
                 raise DBFileDoesNotExistException(_("Database file '%s' does not exist") % pth)
 
         if isinstance(pth, six.binary_type):
-            # pth = pth.decode(dabo.fileSystemEncoding).encode("utf-8")
-            pth = pth.decode(dabo.fileSystemEncoding)
+            pth = pth.decode(settings.fileSystemEncoding)
 
         # Need to specify "isolation_level=None" to have transactions working correctly.
         self._connection = self.dbapi.connect(pth, factory=DictConnection, isolation_level=None)
